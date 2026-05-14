@@ -1,0 +1,16 @@
+{
+  "id": "agent-orchestrator",
+  "name": "Agent Orchestrator",
+  "native": true,
+  "description": "Choose, combine, and sequence Zavorth skills or future subagents without inventing ungoverned workers.",
+  "category": "orchestration",
+  "permissionProfileId": "local-readonly",
+  "riskLevel": "low",
+  "capabilityTags": ["workflow", "automation"],
+  "presets": ["basic", "developer", "security", "research", "ops", "power-user"],
+  "inputContract": ["goal", "available skills", "policy constraints"],
+  "outputContract": ["selected skills", "execution order", "verification"],
+  "noExecutionByDefault": true,
+  "requiresPolicyBroker": true,
+  "receiptsRequired": true
+}

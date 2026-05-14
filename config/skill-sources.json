@@ -1,0 +1,73 @@
+{
+  "version": 1,
+  "updatedAt": "2026-04-07T00:00:00.000Z",
+  "sources": [
+    {
+      "id": "zavorth-native",
+      "label": "Zavorth native intelligence pack",
+      "kind": "workspace",
+      "trust": "trusted",
+      "enabled": true,
+      "ingestionMode": "local-scan",
+      "path": "skill-library/native",
+      "createIfMissing": true,
+      "ownership": "zavorth-native",
+      "registrySource": "zavorth:native-intelligence-pack",
+      "license": "Zavorth-Internal",
+      "notes": [
+        "Official Zavorth-owned native intelligence skills shipped with the product.",
+        "Native skills are static product assets and do not execute tools by default."
+      ]
+    },
+    {
+      "id": "workspace-agents",
+      "label": "Workspace .agents skills",
+      "kind": "workspace",
+      "trust": "trusted",
+      "enabled": true,
+      "ingestionMode": "local-scan",
+      "path": ".agents/skills",
+      "createIfMissing": true,
+      "ownership": "workspace",
+      "registrySource": "zavorth:local-workspace",
+      "allowedExternalSupportPaths": [
+        "../SUPER AGENTE UNIVERSITARIO"
+      ],
+      "notes": [
+        "Fonte principal de skills autoradas dentro do workspace do Zavorth.",
+        "Pode referenciar material auxiliar externo apenas por roots explicitamente declaradas."
+      ]
+    },
+    {
+      "id": "workspace-library",
+      "label": "Workspace skill library",
+      "kind": "workspace",
+      "trust": "trusted",
+      "enabled": true,
+      "ingestionMode": "local-scan",
+      "path": "skill-library",
+      "createIfMissing": true,
+      "ownership": "workspace",
+      "registrySource": "zavorth:local-workspace",
+      "notes": [
+        "Biblioteca local curada pelo Zavorth para skills prontas para uso."
+      ]
+    },
+    {
+      "id": "workspace-imported-library",
+      "label": "Workspace imported skill library",
+      "kind": "workspace",
+      "trust": "review",
+      "enabled": true,
+      "ingestionMode": "local-scan",
+      "path": "skill-library/imported",
+      "createIfMissing": true,
+      "ownership": "curated-import",
+      "registrySource": "zavorth:curated-import",
+      "notes": [
+        "Destino oficial dos imports seletivos vindos de fontes externas revisadas.",
+        "So deve receber skills materializadas pelo pipeline de import do Zavorth."
+      ]
+    }
+  ]
+}

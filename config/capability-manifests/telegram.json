@@ -1,0 +1,17 @@
+{
+  "id": "telegram",
+  "label": "Telegram Channel",
+  "kind": "channel",
+  "version": "0.1.0",
+  "boot": "on-demand",
+  "entry": "./dist/capabilities/telegram/index.js",
+  "description": "Telegram gateway capability; loaded only by profiles that need live chat.",
+  "requires": ["network", "telegram-token"],
+  "provides": ["chat-ingress", "chat-egress"],
+  "tags": ["channel"],
+  "budget": {
+    "rssMb": 80,
+    "heapUsedMb": 40,
+    "activeHandles": 8
+  }
+}

@@ -1,0 +1,165 @@
+import { spawnSync } from 'child_process';
+
+const args = process.argv.slice(2);
+const skipBuild = args.includes('--skip-build');
+const json = args.includes('--json');
+const npmCommand = process.platform === 'win32' ? 'npm.cmd' : 'npm';
+const nodeCommand = process.execPath;
+
+const readinessChecks = [
+  {
+    id: 'product-modes',
+    label: 'modos de produto',
+    suite: 'product-modes',
+    covers: [
+      'ZavorthProductMode chat|assistant|builder|operator',
+      'runtime.mode.get/set por HTTP e WS',
+      'payload canonico com productMode',
+    ],
+  },
+  {
+    id: 'mode-escalation',
+    label: 'escalonamento por necessidade',
+    suite: 'mode-escalation',
+    covers: [
+      'ModeEscalationRequest',
+      'escopos once|session|host',
+      'preflight com fallback e resourceImpact',
+    ],
+  },
+  {
+    id: 'control-ui',
+    label: 'Control UI principal',
+    suite: 'control-ui',
+    covers: [
+      '/control como entrada principal',
+      'sessao via gateway WS/API',
+      'mode, memory, approvals, tool cards e legacy banners',
+    ],
+  },
+  {
+    id: 'telegram-web-parity',
+    label: 'paridade Telegram/web',
+    suite: 'telegram-web-parity',
+    covers: [
+      'continuidade de transcript',
+      'approval/session state compartilhado',
+      'surface parity para web e Telegram',
+    ],
+  },
+  {
+    id: 'memory-hybrid',
+    label: 'memoria hibrida',
+    suite: 'memory-hybrid',
+    covers: [
+      'ledger autoritativo',
+      'MemoryVectorStore como recall de apoio',
+      'fallback ledger-only sem embeddings',
+    ],
+  },
+];
+
+const startedAt = new Date();
+const results = [];
+
+if (!skipBuild) {
+  const build = run('build', npmCommand, ['run', 'build', '--silent']);
+  results.push({
+    id: 'build',
+    label: 'build TypeScript + surface syntax',
+    status: build.status === 0 ? 'passed' : 'failed',
+    exitCode: build.status,
+    covers: ['tsc', 'check-surface-syntax'],
+  });
+  if (build.status !== 0) {
+    finish(results, startedAt);
+  }
+}
+
+for (const check of readinessChecks) {
+  const result = run(
+    check.id,
+    nodeCommand,
+    ['scripts/product-next-check.mjs', `--suite=${check.suite}`, '--skip-build'],
+  );
+  results.push({
+    id: check.id,
+    label: check.label,
+    status: result.status === 0 ? 'passed' : 'failed',
+    exitCode: result.status,
+    suite: check.suite,
+    covers: check.covers,
+  });
+  if (result.status !== 0) {
+    finish(results, startedAt);
+  }
+}
+
+const legacy = run('legacy-compat', nodeCommand, ['scripts/legacy-containment-check.mjs']);
+results.push({
+  id: 'legacy-compat',
+  label: 'compatibilidade legada',
+  status: legacy.status === 0 ? 'passed' : 'failed',
+  exitCode: legacy.status,
+  suite: 'legacy-compat',
+  covers: [
+    '/app e /classic preservados como legado',
+    'links principais apontando para /control',
+    'docs e launchers alinhados',
+  ],
+});
+
+finish(results, startedAt);
+
+function run(id, command, commandArgs) {
+  if (!json) {
+    console.log(`\n[product-experience] ${id}`);
+  }
+  const result = spawnSync(command, commandArgs, {
+    cwd: process.cwd(),
+    env: process.env,
+    encoding: 'utf8',
+    stdio: json ? 'pipe' : 'inherit',
+  });
+  if (result.error) {
+    if (!json) {
+      console.error(`[product-experience] falha ao executar ${id}: ${result.error.message}`);
+    }
+    return { status: 1 };
+  }
+  return { status: typeof result.status === 'number' ? result.status : 1 };
+}
+
+function finish(results, startedAt) {
+  const failed = results.filter((entry) => entry.status !== 'passed');
+  const payload = {
+    ok: failed.length === 0,
+    generatedAt: new Date().toISOString(),
+    durationMs: Date.now() - startedAt.getTime(),
+    summary: {
+      status: failed.length === 0 ? 'ready' : 'blocked',
+      passed: results.length - failed.length,
+      failed: failed.length,
+      total: results.length,
+    },
+    checks: results,
+    commands: {
+      modes: 'npm run qa:product:modes',
+      escalation: 'npm run qa:mode-escalation',
+      controlUi: 'npm run qa:control-ui',
+      telegramWebParity: 'npm run qa:telegram-web-parity',
+      memoryHybrid: 'npm run qa:memory-hybrid',
+      legacy: 'npm run qa:legacy-compat',
+      all: 'npm run qa:product-experience',
+    },
+  };
+
+  if (json) {
+    process.stdout.write(`${JSON.stringify(payload, null, 2)}\n`);
+  } else if (payload.ok) {
+    console.log('\n[product-experience] pronto: modos, escalation, Control UI, Telegram/web, memoria hibrida e legado passaram.');
+  } else {
+    console.error('\n[product-experience] bloqueado: algum gate da fase 7 falhou.');
+  }
+  process.exit(payload.ok ? 0 : 1);
+}

@@ -1,0 +1,38 @@
+{
+  "version": 1,
+  "updatedAt": "2026-04-08T19:23:54.620Z",
+  "policies": {
+    "discord": {
+      "channelId": "discord",
+      "isOpenAccess": true,
+      "allowedList": [],
+      "blockedList": [],
+      "updatedAt": "2026-04-08T19:23:54.620Z"
+    },
+    "slack": {
+      "channelId": "slack",
+      "isOpenAccess": true,
+      "allowedList": [],
+      "blockedList": [
+        "spammer@corp.com"
+      ],
+      "updatedAt": "2026-04-08T19:23:54.620Z"
+    },
+    "telegram": {
+      "channelId": "telegram",
+      "isOpenAccess": true,
+      "allowedList": [],
+      "blockedList": [],
+      "updatedAt": "2026-04-08T19:23:54.620Z"
+    },
+    "whatsapp": {
+      "channelId": "whatsapp",
+      "isOpenAccess": false,
+      "allowedList": [
+        "+5511999999999"
+      ],
+      "blockedList": [],
+      "updatedAt": "2026-04-08T19:23:54.620Z"
+    }
+  }
+}

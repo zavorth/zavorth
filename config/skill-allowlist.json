@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "updatedAt": "2026-05-13T06:33:19.684Z",
+  "defaultPolicy": "deny",
+  "allowedSourceIds": [
+    "workspace-agents",
+    "workspace-library",
+    "workspace-imported-library"
+  ],
+  "rules": [
+    {
+      "sourceId": "workspace-agents",
+      "mode": "all",
+      "reason": "Fonte principal de autoria local."
+    },
+    {
+      "sourceId": "workspace-library",
+      "mode": "all",
+      "reason": "Biblioteca local curada e mantida no proprio workspace."
+    },
+    {
+      "sourceId": "workspace-imported-library",
+      "mode": "all",
+      "reason": "Imports curados entram somente depois de revisao local e permanecem auditaveis."
+    }
+  ]
+}

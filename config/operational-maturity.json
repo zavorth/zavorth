@@ -1,0 +1,170 @@
+{
+  "schemaVersion": "operational-maturity.v1",
+  "statuses": [
+    "stable",
+    "official-but-provisioned",
+    "experimental",
+    "draft",
+    "deprecated"
+  ],
+  "capabilities": [
+    {
+      "id": "echo-edge-layer",
+      "label": "Echo Edge Layer",
+      "status": "stable",
+      "role": "Edge layer de interacao rapida, voz, IoT, approvals e fallback controlado.",
+      "runtimeTruth": "Echo e operacional, mas nao e o cerebro principal do Zavorth.",
+      "publicStatus": "pronto",
+      "ownerLayer": "edge-interaction",
+      "isPrimaryBrain": false,
+      "isParallelRuntime": false,
+      "evidence": [
+        "src/services/ZavorthEchoService.ts",
+        "src/services/DashboardEchoRouteService.ts",
+        "tests/echo/ZavorthEchoService.test.ts"
+      ],
+      "commands": [
+        { "kind": "cli", "value": "zavorth echo" },
+        { "kind": "cli", "value": "zavorth voice" }
+      ],
+      "limitations": [
+        "Alguns adapters fisicos dependem de ambiente local e credenciais do usuario."
+      ],
+      "nextStep": "Manter Echo como edge/fallback e impedir que vire runtime cognitivo paralelo."
+    },
+    {
+      "id": "nexus-surface",
+      "label": "Nexus Surface",
+      "status": "stable",
+      "role": "Surface/API moderna convergida para AgentGateway, Fabric e fallback Echo.",
+      "runtimeTruth": "Nexus nao tem pilha HTTP ou cerebro separado; /api/v2/nexus/* e alias convergido.",
+      "publicStatus": "pronto como surface convergida",
+      "ownerLayer": "surface-api",
+      "isPrimaryBrain": false,
+      "isParallelRuntime": false,
+      "evidence": [
+        "src/services/DashboardEchoRouteService.ts",
+        "tests/services/DashboardNexusAgentGatewayRoute.test.ts",
+        "docs/03-architecture.md"
+      ],
+      "commands": [
+        { "kind": "cli", "value": "zavorth serve" },
+        { "kind": "cli", "value": "zavorth ui" }
+      ],
+      "limitations": [
+        "Nexus deve ser apresentado como surface moderna, nao como runtime separado."
+      ],
+      "nextStep": "Usar Nexus como porta oficial para o runtime central quando a UX pedir uma API moderna."
+    },
+    {
+      "id": "browser-mcp",
+      "label": "Browser MCP",
+      "status": "official-but-provisioned",
+      "role": "Automacao de browser via MCP com doctor e isolamento para scripts arbitrarios.",
+      "runtimeTruth": "AutomaticBrowserTool e real; JS arbitrario no browser local continua bloqueado sem sidecar isolado.",
+      "publicStatus": "precisa configurar quando a stack de browser nao estiver pronta",
+      "ownerLayer": "tooling",
+      "isPrimaryBrain": false,
+      "isParallelRuntime": false,
+      "evidence": [
+        "src/mcp/tools/AutomaticBrowserTool.ts",
+        "scripts/mcp-browser-doctor.ts",
+        "tests/mcp/AutomaticBrowserTool.test.ts"
+      ],
+      "commands": [
+        { "kind": "npm-script", "value": "mcp:browser:doctor" }
+      ],
+      "limitations": [
+        "Hosts sem Playwright/Chromium provisionado precisam rodar o doctor e provisionar a stack.",
+        "Scripts JS arbitrarios exigem sidecar isolado."
+      ],
+      "nextStep": "Manter doctor e sidecar como condicao para uso avancado."
+    },
+    {
+      "id": "local-voice-dictation",
+      "label": "Local Voice Dictation",
+      "status": "official-but-provisioned",
+      "role": "Transcricao local por whisper.cpp quando binario e modelo forem provisionados.",
+      "runtimeTruth": "Nao retorna transcricao fake; falha com erro rastreavel quando o ambiente nao esta pronto.",
+      "publicStatus": "precisa configurar microfone, binario e modelo",
+      "ownerLayer": "voice",
+      "isPrimaryBrain": false,
+      "isParallelRuntime": false,
+      "evidence": [
+        "src/voice/LocalVoiceDictation.ts",
+        "tests/voice/LocalVoiceDictation.test.ts",
+        "src/services/VoiceSessionService.ts"
+      ],
+      "commands": [
+        { "kind": "cli", "value": "zavorth voice" }
+      ],
+      "limitations": [
+        "Captura continua depende de worker externo via ZAVORTH_VOICE_MIC_COMMAND.",
+        "Whisper local depende de binario e modelo configurados pelo usuario."
+      ],
+      "nextStep": "Criar provisioning guiado para worker de microfone e modelo local."
+    },
+    {
+      "id": "swarm-executor",
+      "label": "Swarm Executor",
+      "status": "stable",
+      "role": "Executor multi-role acoplado ao ExecutionGateway e usado por rotas oficiais.",
+      "runtimeTruth": "SwarmExecutor e estavel; as rotas web swarm-v2 continuam experimentais.",
+      "publicStatus": "pronto no executor; experimental na UI v2",
+      "ownerLayer": "execution",
+      "isPrimaryBrain": false,
+      "isParallelRuntime": false,
+      "evidence": [
+        "src/execution/SwarmExecutor.ts",
+        "src/runtime/sessions/v2/SwarmOrchestrator.ts",
+        "tests/runtime/sessions/v2/SwarmOrchestrator.test.ts"
+      ],
+      "commands": [],
+      "limitations": [
+        "A surface web swarm-v2 ainda e experimental e nao deve ser vendida como UI principal."
+      ],
+      "nextStep": "Manter executor estavel e promover a UI v2 somente quando replay/observabilidade final fecharem."
+    },
+    {
+      "id": "session-v2-pty",
+      "label": "Session V2 PTY",
+      "status": "experimental",
+      "role": "Sessao PTY/WebSocket v2 para terminal interativo e observabilidade avancada.",
+      "runtimeTruth": "Existe em rotas experimentais e nao substitui a sessao canonica.",
+      "publicStatus": "experimental",
+      "ownerLayer": "session-runtime",
+      "isPrimaryBrain": false,
+      "isParallelRuntime": false,
+      "evidence": [
+        "src/runtime/sessions/v2/SessionManager.ts",
+        "src/runtime/sessions/v2/PtyWebSocketServer.ts",
+        "tests/runtime/sessions/v2/PtyWebSocketServer.test.ts"
+      ],
+      "commands": [],
+      "limitations": [
+        "UI oficial e ownership completo ainda nao estao promovidos como fluxo principal."
+      ],
+      "nextStep": "Promover apenas depois de UX, cleanup, timeout e replay oficial."
+    },
+    {
+      "id": "session-recorder-dvr",
+      "label": "Session Recorder DVR",
+      "status": "experimental",
+      "role": "Gravacao/replay de sessoes PTY em trilha v2.",
+      "runtimeTruth": "Recorder captura fluxo v2, mas replay oficial ainda nao e surface principal.",
+      "publicStatus": "experimental",
+      "ownerLayer": "session-runtime",
+      "isPrimaryBrain": false,
+      "isParallelRuntime": false,
+      "evidence": [
+        "src/runtime/sessions/v2/SessionRecorder.ts",
+        "tests/runtime/sessions/v2/SessionRecorder.test.ts"
+      ],
+      "commands": [],
+      "limitations": [
+        "Replay dedicado no dashboard ainda precisa promocao formal."
+      ],
+      "nextStep": "Fechar player/replay oficial antes de vender como DVR de producao."
+    }
+  ]
+}

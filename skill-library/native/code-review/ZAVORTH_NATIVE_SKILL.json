@@ -1,0 +1,16 @@
+{
+  "id": "code-review",
+  "name": "Code Review",
+  "native": true,
+  "description": "Review implementation changes for correctness, maintainability, regressions, and missing tests.",
+  "category": "engineering",
+  "permissionProfileId": "workspace-read",
+  "riskLevel": "medium",
+  "capabilityTags": ["code"],
+  "presets": ["developer", "security", "power-user"],
+  "inputContract": ["diff", "affected files", "test evidence"],
+  "outputContract": ["findings", "risk", "verification gaps"],
+  "noExecutionByDefault": true,
+  "requiresPolicyBroker": true,
+  "receiptsRequired": true
+}

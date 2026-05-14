@@ -1,0 +1,69 @@
+{
+  "profile": "beta",
+  "benchmarks": {
+    "benchmark-boot.json": {
+      "label": "Boot benchmark",
+      "required": true,
+      "maxAgeHours": 72,
+      "operations": {
+        "Gateway host boot": { "maxDurationMs": 250, "maxMemoryDeltaBytes": 3145728 },
+        "CLI status fast": { "maxDurationMs": 5000, "maxMemoryDeltaBytes": 18874368 },
+        "CLI doctor fast": { "maxDurationMs": 10000, "maxMemoryDeltaBytes": 23068672 },
+        "CLI ops access fast": { "maxDurationMs": 1000, "maxMemoryDeltaBytes": 6291456 }
+      }
+    },
+    "benchmark-runtime-flow.json": {
+      "label": "Runtime flow benchmark",
+      "required": true,
+      "maxAgeHours": 72,
+      "operations": {
+        "Gateway session spawn": { "maxDurationMs": 1000, "maxMemoryDeltaBytes": 3145728 },
+        "Gateway session send": { "maxDurationMs": 1000, "maxMemoryDeltaBytes": 12582912 },
+        "CLI domain snapshot live": { "maxDurationMs": 25000, "maxMemoryDeltaBytes": 29360128 },
+        "Node Mesh invoke device.info": { "maxDurationMs": 1000, "maxMemoryDeltaBytes": 3145728 },
+        "Web shell /app latency": { "maxDurationMs": 800, "maxMemoryDeltaBytes": 6291456 }
+      }
+    },
+    "benchmark-sidecars.json": {
+      "label": "Transport and sidecar benchmark",
+      "required": true,
+      "maxAgeHours": 72,
+      "operations": {
+        "Remote transport doctor": { "maxDurationMs": 2500, "maxMemoryDeltaBytes": 6291456 },
+        "Channel provider doctor": { "maxDurationMs": 2500, "maxMemoryDeltaBytes": 6291456 }
+      }
+    }
+  },
+  "regression": {
+    "critical-regression.json": {
+      "label": "Critical regression suite",
+      "required": true,
+      "maxAgeHours": 72,
+      "maxFailures": 0,
+      "requiredTests": [
+        "gateway-public-api",
+        "quality-metrics-api",
+        "cli-status-json",
+        "cli-ops-quality-json",
+        "node-mesh-doctor",
+        "remote-transport-doctor",
+        "web-app-shell"
+      ]
+    }
+  },
+  "smokes": {
+    "smoke-suite.json": {
+      "label": "Smoke suite",
+      "required": true,
+      "maxAgeHours": 72,
+      "maxFailures": 0,
+      "requiredSteps": [
+        "build",
+        "web-smoke",
+        "channels-doctor",
+        "node-mesh-smoke",
+        "remote-transports-doctor"
+      ]
+    }
+  }
+}

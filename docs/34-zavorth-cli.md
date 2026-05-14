@@ -1,0 +1,183 @@
+# Zavorth CLI
+
+The Zavorth CLI is the official terminal entry point for onboarding, local
+operation, diagnostics, guided missions, receipts and automation-friendly
+output.
+
+## Install
+
+```bash
+npm install -g zavorth@latest
+```
+
+For a cloned repository:
+
+```bash
+npm install
+npm run setup
+```
+
+## Happy Path
+
+Installed CLI:
+
+```bash
+zavorth onboard
+zavorth onboard doctor
+zavorth go
+zavorth status
+zavorth doctor --simple
+zavorth templates
+zavorth providers
+```
+
+Local repo:
+
+```bash
+npm run setup
+npm run go
+npm run status
+npm run doctor
+```
+
+`go` opens or prints the Dashboard URL at `/dashboard`.
+
+## Common Commands
+
+```bash
+zavorth onboard
+zavorth onboard doctor
+zavorth onboard templates
+zavorth onboard first-mission
+zavorth setup
+zavorth go
+zavorth status
+zavorth doctor
+zavorth templates
+zavorth missions
+zavorth receipts
+zavorth providers
+zavorth providers test openai
+zavorth run "review this repo"
+```
+
+If a command is not available in the installed package yet, use the local
+script shown by `package.json` or run the equivalent package script from the
+repository.
+
+`zavorth onboard` is the unified, read-only first-run journey. It brings
+setup, go, doctor, templates, sandbox readiness, provider readiness and the
+first safe mission into one view. Use `zavorth onboard apply` or
+`zavorth setup` when you deliberately want the setup flow.
+
+## JSON Output
+
+Use JSON for automation:
+
+```bash
+zavorth status --json
+zavorth onboard --json
+zavorth onboard doctor --json
+zavorth doctor --json
+zavorth templates --json
+zavorth missions --json
+zavorth receipts --json
+zavorth providers --json
+```
+
+## Daily Product Commands
+
+```bash
+zavorth templates
+zavorth missions --template=dev-repo-review
+zavorth receipts --advanced
+zavorth doctor --simple
+zavorth doctor --advanced
+```
+
+These commands expose the same protected runtime projection that the Dashboard
+can consume: product mode, first-run journey, mission status, sandbox fallback,
+approval posture and visual receipts. They do not execute Dashboard actions
+by themselves.
+
+## Provider Readiness
+
+```bash
+zavorth providers
+zavorth providers test openai
+zavorth providers test openai --live
+zavorth providers live --provider openai
+zavorth providers cockpit --provider openai
+zavorth providers visual-approval --provider openai
+```
+
+`providers` shows whether each model route is ready, missing credentials,
+missing a base URL, waiting for an explicit probe, degraded, unsupported or
+blocked. Test commands produce an explicit probe packet; they do not make hidden
+network calls or print raw secrets unless the operator explicitly passes
+`--live`.
+
+`--live` runs a real provider probe using a safe models/readiness endpoint and
+returns only sanitized evidence: target without query strings, HTTP status,
+duration, model count and evidence hash. It must never print the API key or
+provider token.
+
+`providers cockpit` projects the same provider data for the Dashboard. It
+creates provider cards/actions/receipts as JSON or text, but it does not mutate
+the dashboard and it cannot execute provider calls from the web surface.
+
+`providers visual-approval` creates the owner-review package for future
+Dashboard UI work. It lists proposed blocks, placements, data bindings,
+acceptance criteria and rollback plan while keeping the actual dashboard
+unchanged.
+
+For local repo checks:
+
+```bash
+npm run runtime:check
+npm run security:secrets
+npm run workspace:check
+```
+
+## Capability Checks
+
+```bash
+npm run zavorth:subagents:check
+npm run zavorth:universal-skill-intake:check
+npm run zavorth:provider-live-canary:check
+node scripts/zavorth-channel-capability-awareness-check.mjs
+node scripts/zavorth-perception-certification-check.mjs
+```
+
+These checks are intentionally explicit: they make it clear whether a feature is
+live on this host, dry-run only, blocked by policy, or waiting for credentials.
+
+## Dashboard
+
+The CLI should guide users to `/dashboard` instead of asking them to find tokens or
+runtime files manually. When access fails, start with:
+
+```bash
+zavorth doctor
+```
+
+or, in the repo:
+
+```bash
+npm run doctor
+```
+
+## Security Posture
+
+- Raw secrets should not be pasted into prompts.
+- Credential state should be represented as `SecretRef` metadata.
+- Sensitive writes, commands, network calls and live channel sends require
+  policy and approval.
+- CLI output should stay short for humans and stable under `--json`.
+
+## Related Docs
+
+- [Quickstart](/docs/02-quickstart.md)
+- [Operations](/docs/09-operations.md)
+- [Web Dashboard](/docs/07-web.md)
+- [Roadmap](/docs/11-roadmap.md)

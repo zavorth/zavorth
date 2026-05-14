@@ -1,0 +1,377 @@
+import { ZavorthAgentGateway } from '../../../src/runtime/agent';
+import { processTextMessage } from '../../../src/telegram/bot-gateway/support/BotGatewayMessageProcessing';
+import { CommandParser } from '../../../src/telegram/CommandParser';
+
+function createTelegramContext(text = 'compare o que mudou nesta pasta') {
+  return {
+    chat: { id: 4242, type: 'private' },
+    from: { id: 42 },
+    msg: { message_id: 7, text },
+    reply: jest.fn().mockResolvedValue(undefined),
+    api: {
+      sendChatAction: jest.fn().mockResolvedValue(undefined),
+      editMessageText: jest.fn().mockResolvedValue(undefined),
+      getChatMember: jest.fn().mockResolvedValue({ status: 'administrator' }),
+    },
+    replyWithVoice: jest.fn().mockResolvedValue(undefined),
+  } as any;
+}
+
+function createRuntime(options: {
+  sharedSurfaceCommandService?: any;
+} = {}) {
+  const agentGateway = new ZavorthAgentGateway({
+    now: () => new Date('2026-04-26T11:00:00.000Z'),
+    idFactory: (prefix) => `${prefix}-telegram-universal`,
+  });
+  const legacyUnifiedGateway = {
+    handleEvent: jest.fn(async (input: any) => {
+      await input.reply('Resposta via runtime universal do Telegram.');
+      return {
+        responseText: 'Resposta via runtime universal do Telegram.',
+        surface: input.surface,
+        intentCategory: 'analysis',
+      };
+    }),
+  };
+  const surfaceTaskDispatcher = {
+    dispatchTaskMessage: jest.fn().mockResolvedValue(undefined),
+  };
+  const commandRoutingService = {
+    dispatchPrivateCommand: jest.fn().mockResolvedValue(false),
+    dispatchGroupCommand: jest.fn().mockResolvedValue(false),
+  };
+
+  return {
+    runtime: {
+      logRepo: { log: jest.fn() },
+      parser: new CommandParser(),
+      priorityCommandService: { handle: jest.fn().mockResolvedValue(false) },
+      securityLock: {
+        isLocked: jest.fn().mockReturnValue(false),
+        isCommandAllowedWhenLocked: jest.fn().mockReturnValue(true),
+      },
+      chainController: { handleCommandChain: jest.fn().mockResolvedValue(undefined) },
+      hubController: { handleStartCommand: jest.fn().mockResolvedValue(undefined) },
+      opsController: { handleStatus: jest.fn().mockResolvedValue(undefined) },
+      capabilityController: { handleCommand: jest.fn().mockResolvedValue(false) },
+      commandRoutingService,
+      surfaceTaskDispatcher,
+      legacyUnifiedGateway,
+      agentGateway,
+      surfaceIdentityService: { linkIdentity: jest.fn() },
+      workspaceProfileService: { getProfile: jest.fn().mockResolvedValue(null) },
+      workspaceCommandService: { resolveInvocation: jest.fn().mockReturnValue(null) },
+      telemetryRuntime: { record: jest.fn().mockResolvedValue(undefined) },
+      telegramChannelContractService: {
+        buildContract: jest.fn(() => ({
+          chatId: '4242',
+          chatHint: 'telegram:4242',
+          threadId: 'telegram:4242',
+          transport: 'text',
+          isGroup: false,
+        })),
+      },
+      getSharedSurfaceCommandService: jest.fn().mockReturnValue(
+        options.sharedSurfaceCommandService ?? null,
+      ),
+    } as any,
+    agentGateway,
+    legacyUnifiedGateway,
+    surfaceTaskDispatcher,
+    commandRoutingService,
+  };
+}
+
+describe('BotGatewayMessageProcessing universal agent routing', () => {
+  it('routes natural Telegram messages through ZavorthAgentGateway before legacy fallback', async () => {
+    const ctx = createTelegramContext();
+    const { runtime, agentGateway, legacyUnifiedGateway, surfaceTaskDispatcher } = createRuntime();
+
+    await processTextMessage(runtime, ctx, 'compare o que mudou nesta pasta');
+
+    expect(legacyUnifiedGateway.handleEvent).not.toHaveBeenCalled();
+    expect(surfaceTaskDispatcher.dispatchTaskMessage).not.toHaveBeenCalled();
+    expect(ctx.reply.mock.calls.some((call: any[]) => String(call[0]).includes('Recebi: "compare o que mudou nesta pasta"'))).toBe(true);
+    expect(agentGateway.buildSnapshot({ activeSessionId: 'telegram:4242' }).activeRun).toEqual(
+      expect.objectContaining({
+        channel: 'telegram',
+        status: 'completed',
+        input: 'compare o que mudou nesta pasta',
+        metadata: expect.objectContaining({
+          responseDecision: expect.objectContaining({
+            responsePath: 'local-inspector',
+          }),
+          legacyUnifiedGatewayAvailable: true,
+          legacyUnifiedGatewayBypassed: true,
+          telegramThinAdapterPolicy: expect.objectContaining({
+            phase: 'P3-001',
+            telegramRole: 'thin-adapter',
+            canonicalEntrypoint: 'ZavorthAgentGateway.handle',
+            retiredProductPaths: expect.arrayContaining(['menus', 'hubs', 'chat-cleanup']),
+          }),
+        }),
+      }),
+    );
+  });
+
+  it('routes natural equivalents of operator capability commands through the agent loop', async () => {
+    const cases = [
+      {
+        text: 'proponha uma auto melhoria segura para o Zavorth',
+        tool: 'selfmod.preview',
+      },
+    ];
+
+    for (const entry of cases) {
+      const ctx = createTelegramContext(entry.text);
+      const { runtime, agentGateway, legacyUnifiedGateway, surfaceTaskDispatcher, commandRoutingService } = createRuntime();
+
+      await processTextMessage(runtime, ctx, entry.text);
+
+      expect(commandRoutingService.dispatchPrivateCommand).toHaveBeenCalledWith(
+        expect.anything(),
+        expect.objectContaining({ command_type: '/task' }),
+        entry.text,
+        '42',
+      );
+      expect(legacyUnifiedGateway.handleEvent).not.toHaveBeenCalled();
+      expect(surfaceTaskDispatcher.dispatchTaskMessage).not.toHaveBeenCalled();
+      expect(agentGateway.buildSnapshot({ activeSessionId: 'telegram:4242' }).activeRun).toEqual(
+        expect.objectContaining({
+          channel: 'telegram',
+          input: entry.text,
+          metadata: expect.objectContaining({
+            responseDecision: expect.objectContaining({
+              responsePath: 'agent-runtime',
+              requestedTools: expect.arrayContaining([entry.tool]),
+            }),
+          }),
+          toolExposure: expect.objectContaining({
+            tools: expect.arrayContaining([
+              expect.objectContaining({ id: entry.tool }),
+            ]),
+          }),
+        }),
+      );
+    }
+  });
+
+  it('keeps natural Watch Mode requests blocked by policy before legacy fallback', async () => {
+    const text = 'ative o Watch Mode para observar a tela';
+    const ctx = createTelegramContext(text);
+    const { runtime, agentGateway, legacyUnifiedGateway, surfaceTaskDispatcher } = createRuntime();
+
+    await processTextMessage(runtime, ctx, text);
+
+    expect(legacyUnifiedGateway.handleEvent).not.toHaveBeenCalled();
+    expect(surfaceTaskDispatcher.dispatchTaskMessage).not.toHaveBeenCalled();
+    expect(ctx.reply).toHaveBeenCalledWith(expect.stringContaining('Watch Mode visual bloqueado'));
+    const activeRun = agentGateway.buildSnapshot({ activeSessionId: 'telegram:4242' }).activeRun;
+    expect(activeRun).toEqual(expect.objectContaining({
+      channel: 'telegram',
+      status: 'failed',
+      input: text,
+      toolExposure: expect.objectContaining({
+        tools: expect.arrayContaining([
+          expect.objectContaining({
+            id: 'watchmode.control',
+            risk: 'danger',
+            requiresApproval: true,
+          }),
+        ]),
+      }),
+      metadata: expect.objectContaining({
+        watchModeVisualProposal: expect.objectContaining({
+          blocked: true,
+          blockedReason: 'policy-allowlist-required',
+          startRunCalled: false,
+          computerUseAgentCalled: false,
+        }),
+      }),
+    }));
+  });
+
+  it('keeps natural Echo requests behind the existing approval gate', async () => {
+    const text = 'use resposta por voz com Echo nesta conversa';
+    const ctx = createTelegramContext(text);
+    const { runtime, agentGateway, legacyUnifiedGateway, surfaceTaskDispatcher } = createRuntime();
+
+    await processTextMessage(runtime, ctx, text);
+
+    expect(legacyUnifiedGateway.handleEvent).not.toHaveBeenCalled();
+    expect(surfaceTaskDispatcher.dispatchTaskMessage).not.toHaveBeenCalled();
+    expect(ctx.reply).toHaveBeenCalledWith(expect.stringContaining('Approval'));
+    const activeRun = agentGateway.buildSnapshot({ activeSessionId: 'telegram:4242' }).activeRun;
+    expect(activeRun).toEqual(expect.objectContaining({
+      channel: 'telegram',
+      status: 'waiting_approval',
+      input: text,
+      toolExposure: expect.objectContaining({
+        tools: expect.arrayContaining([
+          expect.objectContaining({
+            id: 'echo_hands',
+            requiresApproval: true,
+            risk: 'danger',
+          }),
+        ]),
+      }),
+    }));
+  });
+
+  it('routes natural swarm requests into a structured approval proposal without calling the legacy shortcut', async () => {
+    const text = 'monte uma equipe de agentes para revisar esta arquitetura';
+    const ctx = createTelegramContext(text);
+    const { runtime, agentGateway, legacyUnifiedGateway, surfaceTaskDispatcher, commandRoutingService } = createRuntime();
+
+    await processTextMessage(runtime, ctx, text);
+
+    expect(commandRoutingService.dispatchPrivateCommand).toHaveBeenCalledWith(
+      expect.anything(),
+      expect.objectContaining({ command_type: '/task' }),
+      text,
+      '42',
+    );
+    expect(legacyUnifiedGateway.handleEvent).not.toHaveBeenCalled();
+    expect(surfaceTaskDispatcher.dispatchTaskMessage).not.toHaveBeenCalled();
+    expect(ctx.reply).toHaveBeenCalledWith(expect.stringContaining('Proposta de swarm estruturado preparada.'));
+    const activeRun = agentGateway.buildSnapshot({ activeSessionId: 'telegram:4242' }).activeRun;
+    expect(activeRun).toEqual(expect.objectContaining({
+      channel: 'telegram',
+      status: 'waiting_approval',
+      input: text,
+      metadata: expect.objectContaining({
+        executionEscalation: expect.objectContaining({
+          target: 'swarm',
+          reason: 'complex-objective-swarm',
+        }),
+        swarmEscalationProposal: expect.objectContaining({
+          launchServiceCalled: false,
+        }),
+      }),
+    }));
+    expect(activeRun?.approvals).toEqual([
+      expect.objectContaining({
+        status: 'pending',
+        risk: 'attention',
+      }),
+    ]);
+  });
+
+  it('routes low-signal Telegram conversation through the canonical AgentGateway', async () => {
+    const ctx = createTelegramContext('ol?');
+    const { runtime, agentGateway, legacyUnifiedGateway, surfaceTaskDispatcher } = createRuntime();
+
+    await processTextMessage(runtime, ctx, 'ol?');
+
+    expect(legacyUnifiedGateway.handleEvent).not.toHaveBeenCalled();
+    expect(surfaceTaskDispatcher.dispatchTaskMessage).not.toHaveBeenCalled();
+    expect(agentGateway.buildSnapshot({ activeSessionId: 'telegram:4242' }).activeRun).toEqual(expect.objectContaining({
+      channel: 'telegram',
+      status: 'completed',
+      input: 'ol?',
+      metadata: expect.objectContaining({
+        responseDecision: expect.objectContaining({
+          responsePath: 'fast-chat',
+        }),
+      }),
+    }));
+    expect(ctx.reply.mock.calls.some((call: any[]) => String(call[0]).includes('Pedido recebido: "ol?"'))).toBe(true);
+  });
+
+  it('holds risky Telegram requests at the universal approval gate', async () => {
+    const ctx = createTelegramContext('corrija o arquivo e rode npm test');
+    const { runtime, agentGateway, legacyUnifiedGateway, surfaceTaskDispatcher } = createRuntime();
+
+    await processTextMessage(runtime, ctx, 'corrija o arquivo e rode npm test');
+
+    expect(legacyUnifiedGateway.handleEvent).not.toHaveBeenCalled();
+    expect(surfaceTaskDispatcher.dispatchTaskMessage).not.toHaveBeenCalled();
+    expect(ctx.reply).toHaveBeenCalledWith(expect.stringContaining('Approval requerido: true'));
+    const activeRun = agentGateway.buildSnapshot({ activeSessionId: 'telegram:4242' }).activeRun;
+    expect(activeRun).toEqual(expect.objectContaining({
+      status: 'waiting_approval',
+      channel: 'telegram',
+    }));
+    expect(activeRun?.approvals).toEqual([
+      expect.objectContaining({
+        status: 'pending',
+        risk: 'danger',
+      }),
+    ]);
+  });
+
+  it('does not steal explicit slash commands from the Telegram command router', async () => {
+    const ctx = createTelegramContext('/help');
+    const { runtime, agentGateway, legacyUnifiedGateway, commandRoutingService } = createRuntime();
+    commandRoutingService.dispatchPrivateCommand.mockResolvedValue(true);
+
+    await processTextMessage(runtime, ctx, '/help');
+
+    expect(commandRoutingService.dispatchPrivateCommand).toHaveBeenCalled();
+    expect(legacyUnifiedGateway.handleEvent).not.toHaveBeenCalled();
+    expect(agentGateway.listRuns()).toHaveLength(0);
+  });
+
+  it('does not let critical operator slash commands fall through to the agent or task dispatcher', async () => {
+    const criticalCommands = [
+      '/approve task-1',
+      '/reject task-1',
+      '/lock secret',
+      '/unlock secret',
+      '/doctor desktop',
+      '/reload',
+    ];
+
+    for (const command of criticalCommands) {
+      const ctx = createTelegramContext(command);
+      const { runtime, agentGateway, legacyUnifiedGateway, surfaceTaskDispatcher } = createRuntime();
+
+      await processTextMessage(runtime, ctx, command);
+
+      expect(legacyUnifiedGateway.handleEvent).not.toHaveBeenCalled();
+      expect(surfaceTaskDispatcher.dispatchTaskMessage).not.toHaveBeenCalled();
+      expect(agentGateway.listRuns()).toHaveLength(0);
+      expect(ctx.reply).toHaveBeenCalledWith(
+        expect.stringContaining('Comando operador'),
+      );
+    }
+  });
+
+  it('keeps /doctor available through the shared surface operator boundary', async () => {
+    const sharedSurfaceCommandService = {
+      handleCommand: jest.fn(async (input: any) => {
+        await input.context.reply('Doctor compartilhado respondeu.');
+        return {
+          ok: true,
+          handled: true,
+          status: 'ok',
+          summary: 'Doctor handled by shared surface.',
+          messages: ['Doctor compartilhado respondeu.'],
+          correlation: {},
+          error: null,
+          metadata: {},
+        };
+      }),
+    };
+    const ctx = createTelegramContext('/doctor desktop');
+    const { runtime, agentGateway, legacyUnifiedGateway, surfaceTaskDispatcher } = createRuntime({
+      sharedSurfaceCommandService,
+    });
+
+    await processTextMessage(runtime, ctx, '/doctor desktop');
+
+    expect(sharedSurfaceCommandService.handleCommand).toHaveBeenCalledWith(
+      expect.objectContaining({
+        parsedCommand: expect.objectContaining({
+          command_type: '/doctor',
+          command_args: 'desktop',
+        }),
+      }),
+    );
+    expect(ctx.reply).toHaveBeenCalledWith('Doctor compartilhado respondeu.', undefined);
+    expect(legacyUnifiedGateway.handleEvent).not.toHaveBeenCalled();
+    expect(surfaceTaskDispatcher.dispatchTaskMessage).not.toHaveBeenCalled();
+    expect(agentGateway.listRuns()).toHaveLength(0);
+  });
+});

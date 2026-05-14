@@ -1,0 +1,318 @@
+import { Context } from 'grammy';
+import { Task } from '../../contracts/TaskContract.js';
+import { ExecutionGateway } from '../../execution/ExecutionGateway.js';
+import { AuditLogger } from '../../monitoring/AuditLogger.js';
+import { SmartOutputService } from '../../services/SmartOutputService.js';
+import {
+  SelfModificationApplyResult,
+  SelfModificationCommandService,
+  SelfModificationPreviewResult,
+  SelfModificationRollbackResult,
+} from '../../services/SelfModificationCommandService.js';
+
+type PersistTaskFn = (task: Task) => void;
+
+type SelfModificationExecutionServiceDeps = {
+  taskManager: {
+    advanceState(task: Task, status: Task['status']): void;
+  };
+  executionGateway: ExecutionGateway;
+  auditLogger: AuditLogger;
+  persistTask: PersistTaskFn;
+  selfModificationService: SelfModificationCommandService;
+};
+
+export class TelegramSelfModificationExecutionService {
+  constructor(private readonly deps: SelfModificationExecutionServiceDeps) {}
+
+  public async runPreview(
+    ctx: Context,
+    task: Task,
+    filePath: string,
+    instruction: string,
+    userId: string,
+  ): Promise<void> {
+    this.deps.taskManager.advanceState(task, 'running');
+    await this.deps.auditLogger
+      .logEvent({
+        timestamp: new Date().toISOString(),
+        event_type: 'SELFMOD_PREVIEW_REQUESTED',
+        task_id: task.task_id,
+        user_id: userId,
+        user_input: instruction,
+        intent: task.intent,
+        plan_id: null,
+        risk_level: task.risk_level,
+        policy_decision: 'ALLOWED',
+        policy_violations: null,
+        operational_mode: this.deps.executionGateway.getModeManager().getMode(),
+        executor: 'selfmod',
+        execution_success: null,
+        execution_summary: null,
+        metadata: { target_file: filePath },
+      })
+      .catch(() => {});
+
+    const result = await this.deps.selfModificationService.createPreview(filePath, instruction, userId);
+    await this.finishPreviewTask(ctx, task, result, filePath);
+  }
+
+  public async runApply(
+    ctx: Context,
+    task: Task,
+    previewId: string,
+    userId: string,
+  ): Promise<void> {
+    this.deps.taskManager.advanceState(task, 'running');
+    await this.deps.auditLogger
+      .logEvent({
+        timestamp: new Date().toISOString(),
+        event_type: 'SELFMOD_APPLY_REQUESTED',
+        task_id: task.task_id,
+        user_id: userId,
+        user_input: previewId,
+        intent: task.intent,
+        plan_id: null,
+        risk_level: task.risk_level,
+        policy_decision: 'ALLOWED',
+        policy_violations: null,
+        operational_mode: this.deps.executionGateway.getModeManager().getMode(),
+        executor: 'selfmod',
+        execution_success: null,
+        execution_summary: null,
+        metadata: { preview_id: previewId },
+      })
+      .catch(() => {});
+
+    const result = await this.deps.selfModificationService.applyPreview(previewId, userId);
+    task.metadata = {
+      ...(task.metadata || {}),
+      preview_id: previewId,
+      relative_path: result.relativePath,
+    };
+    task.diff_summary = result.diffSummary || null;
+    task.result_summary = result.summary;
+    task.error_summary = result.success ? null : result.summary;
+    this.deps.persistTask(task);
+    this.deps.taskManager.advanceState(task, result.success ? 'completed' : 'failed');
+
+    await this.deps.auditLogger
+      .logEvent({
+        timestamp: new Date().toISOString(),
+        event_type: result.success ? 'SELFMOD_APPLY_SUCCEEDED' : 'SELFMOD_APPLY_BLOCKED',
+        task_id: task.task_id,
+        user_id: userId,
+        user_input: previewId,
+        intent: task.intent,
+        plan_id: null,
+        risk_level: task.risk_level,
+        policy_decision: result.success ? 'ALLOWED' : 'BLOCKED',
+        policy_violations: result.success ? null : result.summary,
+        operational_mode: this.deps.executionGateway.getModeManager().getMode(),
+        executor: 'selfmod',
+        execution_success: result.success,
+        execution_summary: result.summary,
+        metadata: {
+          preview_id: previewId,
+          relative_path: result.relativePath,
+        },
+      })
+      .catch(() => {});
+
+    await SmartOutputService.reply(ctx, this.formatApplyReply(result));
+  }
+
+  public async runGoalPreview(
+    ctx: Context,
+    task: Task,
+    goal: string,
+    userId: string,
+  ): Promise<void> {
+    this.deps.taskManager.advanceState(task, 'running');
+    await this.deps.auditLogger
+      .logEvent({
+        timestamp: new Date().toISOString(),
+        event_type: 'SELFMOD_GOAL_PREVIEW_REQUESTED',
+        task_id: task.task_id,
+        user_id: userId,
+        user_input: goal,
+        intent: task.intent,
+        plan_id: null,
+        risk_level: task.risk_level,
+        policy_decision: 'ALLOWED',
+        policy_violations: null,
+        operational_mode: this.deps.executionGateway.getModeManager().getMode(),
+        executor: 'selfmod',
+        execution_success: null,
+        execution_summary: null,
+        metadata: { goal },
+      })
+      .catch(() => {});
+
+    const result = await this.deps.selfModificationService.createGoalPreview(goal, userId);
+    await this.finishPreviewTask(ctx, task, result, goal);
+  }
+
+  public async runRollback(
+    ctx: Context,
+    task: Task,
+    changeId: string,
+    userId: string,
+  ): Promise<void> {
+    this.deps.taskManager.advanceState(task, 'running');
+    const result = await this.deps.selfModificationService.rollbackChangeSet(changeId, userId);
+    task.metadata = {
+      ...(task.metadata || {}),
+      change_id: changeId,
+      restored_files: result.restoredFiles,
+    };
+    task.result_summary = result.summary;
+    task.error_summary = result.success ? null : result.summary;
+    this.deps.persistTask(task);
+    this.deps.taskManager.advanceState(task, result.success ? 'completed' : 'failed');
+
+    await this.deps.auditLogger
+      .logEvent({
+        timestamp: new Date().toISOString(),
+        event_type: result.success ? 'SELFMOD_ROLLBACK_SUCCEEDED' : 'SELFMOD_ROLLBACK_BLOCKED',
+        task_id: task.task_id,
+        user_id: userId,
+        user_input: changeId,
+        intent: task.intent,
+        plan_id: null,
+        risk_level: task.risk_level,
+        policy_decision: result.success ? 'ALLOWED' : 'BLOCKED',
+        policy_violations: result.success ? null : result.summary,
+        operational_mode: this.deps.executionGateway.getModeManager().getMode(),
+        executor: 'selfmod',
+        execution_success: result.success,
+        execution_summary: result.summary,
+        metadata: {
+          change_id: changeId,
+          restored_files: result.restoredFiles,
+        },
+      })
+      .catch(() => {});
+
+    await SmartOutputService.reply(ctx, this.formatRollbackReply(result));
+  }
+
+  private async finishPreviewTask(
+    ctx: Context,
+    task: Task,
+    result: SelfModificationPreviewResult,
+    filePath: string,
+  ): Promise<void> {
+    task.metadata = {
+      ...(task.metadata || {}),
+      preview_id: result.previewId,
+      target_file: result.relativePath || filePath,
+      selfmod_preview_mode: result.mode,
+      selfmod_change_count: result.changeCount || null,
+    };
+    task.target_files = result.relativePath ? [result.relativePath] : result.mode === 'goal' ? [] : [filePath];
+    task.diff_summary = result.diffSummary || null;
+    task.result_summary = result.summary;
+    task.error_summary = result.success ? null : result.summary;
+    this.deps.persistTask(task);
+    this.deps.taskManager.advanceState(task, result.success ? 'completed' : 'failed');
+
+    await this.deps.auditLogger
+      .logEvent({
+        timestamp: new Date().toISOString(),
+        event_type: result.success ? 'SELFMOD_PREVIEW_SUCCEEDED' : 'SELFMOD_PREVIEW_BLOCKED',
+        task_id: task.task_id,
+        user_id: task.user_id,
+        user_input: filePath,
+        intent: task.intent,
+        plan_id: null,
+        risk_level: task.risk_level,
+        policy_decision: result.success ? 'ALLOWED' : 'BLOCKED',
+        policy_violations: result.success ? null : result.summary,
+        operational_mode: this.deps.executionGateway.getModeManager().getMode(),
+        executor: 'selfmod',
+        execution_success: result.success,
+        execution_summary: result.summary,
+        metadata: {
+          preview_id: result.previewId,
+          relative_path: result.relativePath,
+        },
+      })
+      .catch(() => {});
+
+    await SmartOutputService.reply(ctx, this.formatPreviewReply(result));
+  }
+
+  private formatPreviewReply(result: SelfModificationPreviewResult): string {
+    if (!result.success) {
+      return result.validationOutput
+        ? `${result.summary}\n\nSaida da validacao:\n${result.validationOutput}`
+        : result.summary;
+    }
+
+    const lines = [
+      result.mode === 'goal'
+        ? `Preview multi-arquivo pronto para ${result.changeCount || 0} change(s).`
+        : `Preview pronto para ${result.relativePath}.`,
+      `Preview ID: ${result.previewId}`,
+      '',
+      `Resumo: ${result.summary}`,
+    ];
+
+    if (result.resourceImpact) {
+      lines.push(`Impacto estimado: ${result.resourceImpact}`);
+    }
+
+    if (result.validationPlan?.length) {
+      lines.push('', 'Plano de validacao:', ...result.validationPlan.map((entry) => `- ${entry}`));
+    }
+
+    if (result.diffSummary) {
+      lines.push('', 'Diff resumido:', result.diffSummary);
+    }
+
+    lines.push('', `Para aplicar exatamente esta versao: /selfmod apply ${result.previewId}`);
+    return lines.join('\n');
+  }
+
+  private formatApplyReply(result: SelfModificationApplyResult): string {
+    if (!result.success) {
+      return result.diffSummary
+        ? `${result.summary}\n\nDiff resumido:\n${result.diffSummary}`
+        : result.summary;
+    }
+
+    const lines = [
+      result.mode === 'goal'
+        ? `ChangeSet aplicado em ${result.changeCount || 0} arquivo(s).`
+        : `Auto-modificacao aplicada em ${result.relativePath}.`,
+      `Preview usado: ${result.previewId}`,
+      '',
+      result.summary,
+    ];
+
+    if (result.changeId) {
+      lines.push(`Change ID: ${result.changeId}`);
+      lines.push(`Rollback: /selfmod rollback ${result.changeId}`);
+    }
+
+    if (result.diffSummary) {
+      lines.push('', 'Diff resumido:', result.diffSummary);
+    }
+
+    return lines.join('\n');
+  }
+
+  private formatRollbackReply(result: SelfModificationRollbackResult): string {
+    if (!result.success) {
+      return result.summary;
+    }
+
+    return [
+      `Rollback concluido para o change ${result.changeId}.`,
+      `Arquivos restaurados: ${result.restoredFiles}.`,
+      '',
+      result.summary,
+    ].join('\n');
+  }
+}

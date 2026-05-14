@@ -1,0 +1,87 @@
+# === Dependencies ===
+node_modules/
+dist/
+*.tsbuildinfo
+
+# === Environment & Secrets ===
+.env
+.env.local
+.env.production
+config/AIGateway-overlay.json
+
+# === Database & Runtime Data ===
+data/
+data/*.db
+data/**/*.db*
+data/.lock-hash
+data/runtime/
+data/agent-bridge/
+data/antigravity-prompt/
+data/config-gitops/
+data/**/logs/
+data/secrets_honey.txt
+.external-executor/
+
+# === Logs & Audit ===
+logs/
+!src/ai-gateway/app/api/logs/
+!src/ai-gateway/app/api/logs/**
+.codex-run/
+.zavorth/logs/
+*.log
+actual-findings.txt
+error_dump.txt
+jest_output.txt
+dashboard-final-delivery*
+SECURITY_AUDIT_REPORT*.md
+security-audit*.json
+tracking.json
+tsc-*.out
+
+# === Temp Files ===
+tmp/
+.tmp_visual/
+*.tmp
+tmp_*.ts
+tmp_ag_*.ts
+tmp-antigravity*.png
+memory/*.md
+!memory/README.md
+cross-surface-*.md
+dashboard-final-delivery*
+jest_error.txt
+
+# === OS Generated ===
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# === IDE ===
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# === Build Artifacts ===
+*.js.map
+coverage/
+output/
+remote-dist/
+dist-*/
+dist-smoke/
+dist-remote-transport/
+dist-visual-smoke/
+tmp-jest-artifacts/
+scripts/out_*.html
+site/build-*/
+site/.env.vercel.production
+src/**/*.js
+!src/satellite/*.js
+tests/**/*.js
+
+.vercel
+
+# === Operational Artifacts ===
+.qa/
+ops/artifacts/generated/
+!ops/artifacts/README.md

@@ -1,0 +1,207 @@
+import fs from 'node:fs';
+import os from 'node:os';
+import path from 'node:path';
+
+import {
+  ZAVORTH_TRANSACTION_LIVE_ACTIVATION_REVIEW_OWNER_PHRASE,
+} from '../../src/contracts/ZavorthTransactionLiveActivationReviewContract.js';
+import {
+  ZAVORTH_TRANSACTION_LIVE_CANDIDATE_OWNER_PHRASE,
+} from '../../src/contracts/ZavorthTransactionLiveCandidateContract.js';
+import { ZavorthTransactionCredentialRefService } from '../../src/services/ZavorthTransactionCredentialRefService.js';
+import { ZavorthTransactionSandboxAdapterCertificationService } from '../../src/services/ZavorthTransactionSandboxAdapterCertificationService.js';
+
+const now = new Date('2026-05-12T12:00:00.000Z');
+
+describe('ZavorthTransactionSandboxAdapterCertificationService', () => {
+  let tempDir: string;
+  let service: ZavorthTransactionSandboxAdapterCertificationService;
+  let credentialRef: string | null;
+
+  beforeEach(() => {
+    tempDir = fs.mkdtempSync(path.join(os.tmpdir(), 'zavorth-sandbox-adapter-cert-test-'));
+    const credentialRefs = new ZavorthTransactionCredentialRefService({
+      storeFile: path.join(tempDir, 'credential-refs.jsonl'),
+      now: () => now,
+    });
+    credentialRef = credentialRefs.register({
+      label: 'Phase 12 exchange paper ref',
+      connectorKind: 'exchange',
+      environment: 'paper',
+      allowedActions: ['trade-order'],
+      ownerApproved: true,
+      now,
+    }).record?.ref ?? null;
+    service = new ZavorthTransactionSandboxAdapterCertificationService({
+      now: () => now,
+      ledgerFile: path.join(tempDir, 'approval-ledger.jsonl'),
+      credentialStoreFile: path.join(tempDir, 'credential-refs.jsonl'),
+    });
+  });
+
+  afterEach(() => {
+    fs.rmSync(tempDir, { recursive: true, force: true });
+  });
+
+  it('requires Phase 11 activation review readiness first', () => {
+    const result = service.certify({
+      text: 'Compre ETH ate R$300 se cair 5%, mas peca confirmacao antes.',
+      surface: 'api',
+      approve: true,
+      mode: 'paper',
+      credentialRef,
+      ownerId: 'grey',
+      ownerConfirmed: true,
+      ownerIntent: ZAVORTH_TRANSACTION_LIVE_CANDIDATE_OWNER_PHRASE,
+      useSafeSandboxAdapter: true,
+    });
+
+    expect(result.status).toBe('activation-review-required');
+    expect(result.certificationPacket).toBeUndefined();
+    expect(result.gates).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({ kind: 'phase11-review-ready', passed: false }),
+        expect.objectContaining({ kind: 'review-packet-present', passed: false }),
+      ]),
+    );
+  });
+
+  it('requires an adapter manifest after Phase 11 is ready', () => {
+    const result = service.certify({
+      ...phase11ReadyInput(),
+    });
+
+    expect(result.status).toBe('adapter-manifest-required');
+    expect(result.sourceActivationReview.status).toBe('ready-for-live-activation-review');
+    expect(result.adapterManifest).toBeNull();
+    expect(result.certificationPacket).toBeUndefined();
+  });
+
+  it('certifies a safe sandbox adapter without authorizing sandbox or live execution', () => {
+    const result = service.certify({
+      ...phase11ReadyInput(),
+      useSafeSandboxAdapter: true,
+    });
+
+    expect(result.status).toBe('sandbox-certification-ready');
+    expect(result.certificationPacket).toEqual(expect.objectContaining({
+      certificationOnly: true,
+      sandboxExecutionAuthorized: false,
+      sandboxExternalIoPerformed: false,
+      liveExecutionAuthorized: false,
+      executableNow: false,
+      liveActionApplied: false,
+      separateSandboxExecutorRequired: true,
+      separateLiveExecutorRequired: true,
+      environment: 'paper',
+    }));
+    expect(result.adapterManifest).toEqual(expect.objectContaining({
+      environment: 'paper',
+      supportsLive: false,
+      rawSecretsAccepted: false,
+      circuitBreaker: true,
+    }));
+    expect(result.safety).toEqual(expect.objectContaining({
+      certificationOnly: true,
+      noSandboxNetworkCall: true,
+      sandboxExecutionAuthorized: false,
+      liveExecutionAuthorized: false,
+      liveActionApplied: false,
+    }));
+    expect(result.gates.every((gate) => gate.passed)).toBe(true);
+  });
+
+  it('blocks live adapter endpoints and live-capable manifests', () => {
+    const result = service.certify({
+      ...phase11ReadyInput(),
+      adapterManifest: {
+        id: 'dangerous-live-adapter',
+        connectorId: 'zavorth.connector.exchange.typed',
+        connectorKind: 'exchange',
+        displayName: 'Dangerous live adapter',
+        environment: 'live',
+        endpointBaseUrl: 'https://api.binance.com',
+        allowedHosts: ['api.binance.com'],
+        credentialRef: credentialRef ?? '',
+        idempotencyHeader: 'Idempotency-Key',
+        maxRequestsPerMinute: 10,
+        timeoutMs: 5000,
+        circuitBreaker: true,
+        dryRunCommand: 'npm run dry-run',
+        sandboxSmokeCommand: 'npm run smoke',
+        supportsLive: true,
+        rawSecretsAccepted: false,
+      },
+    });
+
+    expect(result.status).toBe('sandbox-policy-blocked');
+    expect(result.certificationPacket).toBeUndefined();
+    expect(result.gates).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({ kind: 'sandbox-environment-only', passed: false }),
+        expect.objectContaining({ kind: 'endpoint-allowlist-ready', passed: false }),
+        expect.objectContaining({ kind: 'live-endpoint-blocked', passed: false }),
+      ]),
+    );
+  });
+
+  it('redacts raw adapter secrets and blocks certification before packet creation', () => {
+    const result = service.certify({
+      ...phase11ReadyInput(),
+      adapterManifest: {
+        id: 'secret-bearing-adapter',
+        connectorId: 'zavorth.connector.exchange.typed',
+        connectorKind: 'exchange',
+        displayName: 'Secret bearing adapter',
+        environment: 'paper',
+        endpointBaseUrl: 'https://paper.exchange.zavorth.local?api_key=sk-super-secret-value-123456',
+        allowedHosts: ['paper.exchange.zavorth.local'],
+        credentialRef: credentialRef ?? '',
+        idempotencyHeader: 'Idempotency-Key',
+        maxRequestsPerMinute: 10,
+        timeoutMs: 5000,
+        circuitBreaker: true,
+        dryRunCommand: 'npm run dry-run --token sk-super-secret-value-123456',
+        sandboxSmokeCommand: 'npm run smoke',
+        supportsLive: false,
+        rawSecretsAccepted: true,
+      },
+    });
+
+    expect(result.status).toBe('sandbox-policy-blocked');
+    expect(JSON.stringify(result)).not.toContain('sk-super-secret-value-123456');
+    expect(result.certificationPacket).toBeUndefined();
+  });
+
+  function phase11ReadyInput() {
+    return {
+      text: 'Compre ETH ate R$300 se cair 5%, mas peca confirmacao antes.',
+      surface: 'api' as const,
+      approve: true,
+      mode: 'paper' as const,
+      credentialRef,
+      ownerId: 'grey',
+      ownerConfirmed: true,
+      ownerIntent: ZAVORTH_TRANSACTION_LIVE_CANDIDATE_OWNER_PHRASE,
+      activationReviewConfirmed: true,
+      activationReviewIntent: ZAVORTH_TRANSACTION_LIVE_ACTIVATION_REVIEW_OWNER_PHRASE,
+      useSafeDefaultControls: true,
+      killSwitch: {
+        id: 'phase12-kill-switch',
+        enabled: true,
+        tested: true,
+        command: 'zavorth transaction disable-live --scope phase12',
+        ownerId: 'grey',
+      },
+      rollbackDrill: {
+        drillId: 'phase12-rollback-drill',
+        performed: true,
+        successful: true,
+        summary: 'Replay and rollback completed against the simulated transaction ledger.',
+        replayCommand: 'npm run zavorth:transaction-live-candidate:json -- --replay phase10',
+        rollbackCommand: 'npm run zavorth:transaction-live-activation-review -- --rollback phase11',
+        artifacts: ['data/runtime/phase12-rollback-receipt.json'],
+      },
+    };
+  }
+});

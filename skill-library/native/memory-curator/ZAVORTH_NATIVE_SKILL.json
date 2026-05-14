@@ -1,0 +1,16 @@
+{
+  "id": "memory-curator",
+  "name": "Memory Curator",
+  "native": true,
+  "description": "Decide what should be remembered, summarized, retained, redacted, or forgotten under data-lifecycle policy.",
+  "category": "memory",
+  "permissionProfileId": "workspace-read",
+  "riskLevel": "medium",
+  "capabilityTags": ["data", "document"],
+  "presets": ["basic", "research", "ops", "power-user"],
+  "inputContract": ["session context", "memory candidate", "data policy"],
+  "outputContract": ["memory decision", "redaction", "retention"],
+  "noExecutionByDefault": true,
+  "requiresPolicyBroker": true,
+  "receiptsRequired": true
+}

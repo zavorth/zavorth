@@ -1,0 +1,185 @@
+import {
+  AgentRunService,
+  ProviderArenaService,
+  type ProviderArenaSnapshot,
+  type UniversalAgentRun,
+} from '../runtime/agent/index.js';
+
+export function resolveProviderArenaCliText(args: string): string {
+  return String(args || '')
+    .trim()
+    .replace(/^(?:run|compare|status|models|providers|arena)\b/i, '')
+    .trim()
+    .replace(/^["']|["']$/g, '')
+    .trim();
+}
+
+export function buildProviderArenaCliSnapshot(input: {
+  text: string;
+  userId: string;
+  sessionId: string;
+}): ProviderArenaSnapshot {
+  const service = new AgentRunService({
+    now: () => new Date('2026-05-03T23:58:00.000Z'),
+  });
+  const run = service.createRun({
+    userId: input.userId,
+    channel: 'cli',
+    sessionId: input.sessionId,
+    text: input.text || 'comparar provider para tarefa de codigo com fallback',
+    requestedTools: ['workspace.read'],
+    modelProfile: {
+      providerLabel: 'aigateway',
+      modelLabel: 'claude-sonnet-4.5',
+      routingPolicy: 'gateway',
+      routeId: 'aigateway',
+      familyId: 'frontier-coding',
+      selectionSource: 'current-config',
+      readiness: 'ready',
+      ready: true,
+      fallbackOrder: ['aigateway', 'openai', 'gemini'],
+      selectionExplanation: ['config atual do operador', 'fallback governado habilitado'],
+      supportsTools: true,
+      supportsStreaming: true,
+    },
+    metadata: {
+      modelPickerSelection: {
+        source: 'current-config',
+        providerName: 'aigateway',
+        providerLabel: 'AI Gateway',
+        modelName: 'claude-sonnet-4.5',
+        modelLabel: 'Claude Sonnet 4.5',
+        routeId: 'aigateway',
+        familyId: 'frontier-coding',
+        readiness: 'ready',
+        ready: true,
+        fallbackOrder: ['aigateway', 'openai', 'gemini'],
+        explanation: ['config atual do operador', 'fallback governado habilitado'],
+      },
+    },
+  });
+  run.metadata = {
+    ...run.metadata,
+    runBudget: {
+      source: 'RunBudgetPolicy',
+      degraded: false,
+      estimatedCostUnits: 3,
+      maxEstimatedCostUnits: 10,
+      inputChars: run.input.length,
+      requestedToolCount: 1,
+      exposedToolCount: 1,
+    },
+    llmRuntimeRoute: {
+      source: 'LlmRuntimeService',
+      requestedProviderName: 'aigateway',
+      primaryProviderName: 'aigateway',
+      providerName: 'aigateway',
+      modelName: 'claude-sonnet-4.5',
+      fallbackAllowed: true,
+      fallbackUsed: false,
+      providerChain: ['aigateway', 'openai', 'gemini'],
+      attempts: [
+        {
+          providerName: 'aigateway',
+          modelName: 'claude-sonnet-4.5',
+          status: 'succeeded',
+          fallback: false,
+          durationMs: 960,
+        },
+      ],
+      request: {
+        messageCount: 1,
+        toolCount: 1,
+        inputChars: run.input.length,
+      },
+    },
+    providerRouteBudgetCorrelation: {
+      source: 'AgentRunService',
+      routeSource: 'LlmRuntimeService',
+      providerName: 'aigateway',
+      modelName: 'claude-sonnet-4.5',
+      primaryProviderName: 'aigateway',
+      requestedProviderName: 'aigateway',
+      routingPolicy: 'gateway',
+      fallbackUsed: false,
+      fallbackAllowed: true,
+      providerAttemptCount: 1,
+      unavailableProviderCount: 0,
+      modelPicker: {
+        source: 'current-config',
+        providerName: 'aigateway',
+        providerLabel: 'AI Gateway',
+        modelName: 'claude-sonnet-4.5',
+        modelLabel: 'Claude Sonnet 4.5',
+        routeId: 'aigateway',
+        readiness: 'ready',
+        ready: true,
+        fallbackOrder: ['aigateway', 'openai', 'gemini'],
+        explanation: ['config atual do operador', 'fallback governado habilitado'],
+        matchedEffectiveProvider: true,
+      },
+      budget: {
+        source: 'RunBudgetPolicy',
+        degraded: false,
+        estimatedCostUnits: 3,
+        maxEstimatedCostUnits: 10,
+        inputChars: run.input.length,
+        requestedToolCount: 1,
+        exposedToolCount: 1,
+      },
+    },
+  };
+  return buildProviderArenaSnapshotFromRun(run);
+}
+
+export function buildProviderArenaSnapshotFromRun(
+  run: UniversalAgentRun,
+): ProviderArenaSnapshot {
+  return new ProviderArenaService().buildSnapshot({
+    run,
+    generatedAt: run.updatedAt,
+  });
+}
+
+export function formatProviderArenaSnapshot(
+  snapshot: ProviderArenaSnapshot,
+): string {
+  const lines = [
+    'Provider Arena - Wave 34',
+    `- contrato: ${snapshot.contractVersion}`,
+    `- run: ${snapshot.identifiers.runId}`,
+    `- decisao: ${snapshot.summary.decisionSource}`,
+    `- recomendado: ${snapshot.summary.recommendedProviderLabel}/${snapshot.summary.recommendedModelLabel}`,
+    `- candidatos: ${snapshot.summary.candidateCount}`,
+    `- prontos: ${snapshot.summary.readyCandidateCount}`,
+    `- fallback usado: ${String(snapshot.summary.fallbackUsed)}`,
+    `- receipts observatory: ${snapshot.summary.observatoryReceiptCount}`,
+    `- proximo passo: ${snapshot.nextSafeAction}`,
+  ];
+
+  lines.push('', 'Candidatos');
+  for (const candidate of snapshot.candidates.slice(0, 8)) {
+    lines.push(
+      `- ${candidate.providerLabel}/${candidate.modelLabel} [${candidate.source}] score=${candidate.overallScore}`,
+      `  rota: ${candidate.routeId}; readiness=${candidate.readiness}; health=${candidate.healthStatus}`,
+      `  confiabilidade=${candidate.reliabilityScore}; custo=${candidate.costScore}; latencia=${candidate.latencyScore}`,
+    );
+  }
+
+  lines.push('', 'Receipts');
+  for (const receipt of snapshot.receipts.slice(0, 8)) {
+    lines.push(`- ${receipt.kind}: ${receipt.detail}`);
+  }
+
+  lines.push('', 'Politica');
+  lines.push('- arena read-only; nenhuma chamada de provider foi executada');
+  lines.push('- nao sobrescreve Model Picker automaticamente');
+  lines.push('- fallback e fonte da decisao ficam visiveis');
+
+  lines.push('', 'Superficies');
+  lines.push(`- Command Center: ${snapshot.surface.commandCenterPath}`);
+  lines.push(`- CLI: ${snapshot.surface.cliCommand}`);
+  lines.push(`- Hint: ${snapshot.surface.arenaHint}`);
+
+  return lines.join('\n');
+}

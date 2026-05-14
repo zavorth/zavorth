@@ -1,0 +1,52 @@
+{
+  "id": "execution",
+  "name": "Execution & Shell",
+  "version": "1.0.0",
+  "description": "Ferramentas para executar comandos shell, scripts e código em sandbox seguro.",
+  "category": "execution",
+  "dangerLevel": "high",
+  "tools": [
+    {
+      "name": "sandbox_execution",
+      "description": "Executa código ou comandos em ambiente sandbox isolado com controles de segurança.",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "command": {
+            "type": "string",
+            "description": "Comando ou script a executar."
+          },
+          "language": {
+            "type": "string",
+            "description": "Linguagem (bash, python, node, powershell)."
+          }
+        },
+        "required": ["command"]
+      }
+    },
+    {
+      "name": "remote_shell",
+      "description": "Executa comandos shell remotamente em nós conectados ao mesh.",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "command": {
+            "type": "string",
+            "description": "Comando shell a executar."
+          },
+          "nodeId": {
+            "type": "string",
+            "description": "ID do nó remoto (opcional, padrão: nó local)."
+          }
+        },
+        "required": ["command"]
+      }
+    }
+  ],
+  "metadata": {
+    "author": "zavorth-core",
+    "firewall_category": "execution",
+    "requires_sandbox": true,
+    "requires_approval": true
+  }
+}

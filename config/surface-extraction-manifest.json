@@ -1,0 +1,180 @@
+{
+  "version": 1,
+  "phase": "phase-2-complete",
+  "status": "complete",
+  "completedAt": "2026-04-07",
+  "officialRepoFocus": [
+    "runtime",
+    "terminal",
+    "api",
+    "agent capabilities"
+  ],
+  "surfaces": [
+    {
+      "id": "vercel-web",
+      "status": "externalized-client",
+      "recommendedTargetRepo": "zavorth-web",
+      "recommendedDisposition": "extract",
+      "consumes": {
+        "runtimeOwner": [
+          "src/services/WebAppService.ts",
+          "src/services/DashboardService.ts",
+          "src/services/WebRealtimeService.ts"
+        ],
+        "runtimeApi": [
+          "/api/auth/status",
+          "/api/auth/validate",
+          "/api/web/host/status",
+          "/api/web/host/readiness",
+          "/api/web/host/access-manifest",
+          "/api/web/host/install-journey",
+          "/api/web/host/official-remote-access",
+          "/api/web/host/official-remote-access/actions",
+          "/api/web/session",
+          "/api/web/session/spawn",
+          "/api/web/state",
+          "/api/web/events",
+          "/api/web/chat/send",
+          "/api/web/tasks",
+          "/api/web/tasks/approve",
+          "/api/web/tasks/reject",
+          "/api/web/permissions",
+          "/api/web/permissions/approve",
+          "/api/web/permissions/reject",
+          "/api/web/catalog",
+          "/api/web/file-preview",
+          "/api/web/platform",
+          "/api/web/platform/actions",
+          "/api/web/platform/sync",
+          "/api/web/channels",
+          "/api/web/channels/actions",
+          "/api/web/transports",
+          "/api/web/transports/actions",
+          "/api/web/operations/product-observability",
+          "/api/web/operations/zavorthBridge/mobile/start",
+          "/api/web/operations/zavorthBridge/mobile/status",
+          "/api/web/operations/zavorthBridge/mobile/stop",
+          "/api/web/operations/AIGateway/status",
+          "/api/web/operations/AIGateway/doctor",
+          "/api/web/operations/AIGateway/actions"
+        ],
+        "env": [
+          "baseUrl",
+          "token"
+        ]
+      },
+      "repoCoupling": {
+        "paths": [
+          "../zavorth-web/app.js",
+          "../zavorth-web/index.html",
+          "../zavorth-web/styles.css",
+          "../zavorth-web/vercel.json",
+          "../zavorth-web/wrangler.toml"
+        ],
+        "scripts": [
+          "scripts/prepare-remote-surfaces.mjs",
+          "scripts/publish-remote.mjs",
+          "scripts/essential-backup.mjs"
+        ],
+        "packageScripts": [
+          "remote:prepare",
+          "remote:publish",
+          "remote:publish:fast"
+        ]
+      },
+      "risks": [
+        "app.js concentra logica demais em um arquivo unico",
+        "usa muitos endpoints do runtime e depende de surface parity viva",
+        "carrega fixtures demo e microcopy operacional misturados ao cliente",
+        "o cliente externo pode divergir silenciosamente do contrato HTTP/SSE do runtime"
+      ]
+    },
+    {
+      "id": "zavorth-ui",
+      "status": "externalized-sandbox",
+      "recommendedTargetRepo": "zavorth-web",
+      "recommendedDisposition": "move-or-archive",
+      "consumes": {
+        "runtimeOwner": [
+          "src/services/WebAppService.ts",
+          "src/services/DashboardService.ts"
+        ],
+        "runtimeApi": [
+          "/api/auth/status",
+          "/api/auth/validate",
+          "/api/web/session",
+          "/api/web/state",
+          "/api/web/chat/send",
+          "/api/web/tasks",
+          "/api/web/tasks/approve",
+          "/api/web/tasks/reject",
+          "/api/web/permissions",
+          "/api/web/permissions/approve",
+          "/api/web/permissions/reject",
+          "/api/web/host/status",
+          "/api/web/host/readiness",
+          "/api/web/events"
+        ],
+        "env": [
+          "VITE_ZAVORTH_API_URL"
+        ]
+      },
+      "repoCoupling": {
+        "paths": [
+          "../zavorth-ui-sandbox/src/api.ts",
+          "../zavorth-ui-sandbox/src/hooks/useZavorth.ts",
+          "../zavorth-ui-sandbox/src/components"
+        ],
+        "scripts": [],
+        "packageScripts": []
+      },
+      "risks": [
+        "duplicacao de superficie com vercel-web",
+        "node_modules e dist versionados dentro do repo",
+        "contrato de API esta embutido no cliente React e pode divergir do shell principal",
+        "nao ha papel de produto claro enquanto coexistir com vercel-web"
+      ]
+    },
+    {
+      "id": "site",
+      "status": "externalized-docs-site",
+      "recommendedTargetRepo": "zavorth-docs",
+      "recommendedDisposition": "extract",
+      "consumes": {
+        "runtimeOwner": [
+          "docs"
+        ],
+        "runtimeApi": [],
+        "env": [
+          "ZAVORTH_DOCS_URL",
+          "ZAVORTH_APP_URL"
+        ]
+      },
+      "repoCoupling": {
+        "paths": [
+          "../zavorth-docs/content-docs",
+          "../zavorth-docs/docusaurus.config.ts",
+          "../zavorth-docs/sidebars.ts",
+          "../zavorth-docs/vercel.json",
+          "../zavorth-docs/wrangler.toml"
+        ],
+        "scripts": [
+          "../zavorth-docs/scripts/sync-docs.mjs",
+          "scripts/prepare-remote-surfaces.mjs"
+        ],
+        "packageScripts": [
+          "docs:site:start",
+          "docs:site:build",
+          "docs:site:preview",
+          "docs:site:deploy"
+        ]
+      },
+      "risks": [
+        "depende de espelhamento de docs do repo oficial",
+        "a barra de navegacao publica ainda aponta para ZAVORTH_APP_URL",
+        "o repo zavorth-docs pode ficar atrasado se o sync do markdown canonico falhar",
+        "o pipeline remoto ainda combina docs e shell do runtime no mesmo preparo operacional"
+      ]
+    }
+  ]
+}

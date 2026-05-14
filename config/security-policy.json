@@ -1,0 +1,87 @@
+{
+  "version": "1.0.0",
+  "description": "Zavorth Security Policy — Regras de contenção centralizadas",
+
+  "blocked_paths": [
+    "/etc",
+    "/etc/passwd",
+    "/etc/shadow",
+    "/etc/sudoers",
+    "~/.ssh",
+    "~/.gnupg",
+    "~/.aws",
+    "~/.config/gcloud",
+    "C:/Windows/System32",
+    "C:/Windows/SysWOW64",
+    "C:/Program Files",
+    "C:/ProgramData"
+  ],
+
+  "blocked_path_patterns": [
+    "**/.env",
+    "**/.env.*",
+    "**/credentials*",
+    "**/secrets*",
+    "**/*.pem",
+    "**/*.key",
+    "**/id_rsa*",
+    "**/id_ed25519*"
+  ],
+
+  "blocked_commands": [
+    "rm -rf /",
+    "rm -rf /*",
+    "chmod 777 -R /",
+    "chmod -R 777 /",
+    "chown -R",
+    "curl | bash",
+    "curl | sh",
+    "wget | bash",
+    "wget | sh",
+    "format c:",
+    "del /s /q C:\\",
+    "shutdown",
+    "reboot",
+    "reg delete",
+    "netsh advfirewall set allprofiles state off",
+    "drop table",
+    "drop database",
+    "truncate table"
+  ],
+
+  "blocked_command_patterns": [
+    "^rm\\s+-rf\\s+/",
+    "^del\\s+/s\\s+/q\\s+C:\\\\",
+    "format\\s+[c-z]:",
+    ">\\s*/dev/(sda|nvme|hda)",
+    "chmod\\s+-R\\s+777\\s+/",
+    "curl\\s+.*\\|\\s*(bash|sh)",
+    "wget\\s+.*\\|\\s*(bash|sh)",
+    "^:(){ :\\|:& };:",
+    "mkfs\\.",
+    "dd\\s+if=.*\\s+of=/dev/"
+  ],
+
+  "allowed_workspaces": [
+    "C:/workspace/projeto-exemplo",
+    "C:/workspace/zavorth-release"
+  ],
+
+  "sensitive_directories": [
+    "/etc",
+    "/var/log",
+    "/root",
+    "~/.ssh",
+    "~/.gnupg",
+    "~/.aws",
+    "C:/Windows",
+    "C:/Program Files",
+    "C:/ProgramData"
+  ],
+
+  "max_file_operations_per_plan": 50,
+  "max_command_timeout_seconds": 120,
+  "require_structured_plan": true,
+  "block_raw_text_execution": true,
+  "block_untrusted_content_execution": true
+}

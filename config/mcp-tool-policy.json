@@ -1,0 +1,8 @@
+{
+  "version": 1,
+  "updatedAt": "2026-05-13T06:33:19.684Z",
+  "profile": "safe",
+  "allowlist": [
+    "create_file"
+  ]
+}

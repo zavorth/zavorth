@@ -1,0 +1,16 @@
+{
+  "id": "provider-doctor",
+  "name": "Provider Doctor",
+  "native": true,
+  "description": "Diagnose provider, model, credential-ref, rate-limit, and routing readiness without exposing raw secrets.",
+  "category": "operations",
+  "permissionProfileId": "connector-live-secretref",
+  "riskLevel": "medium",
+  "capabilityTags": ["automation"],
+  "presets": ["ops", "developer", "power-user"],
+  "inputContract": ["provider id", "runtime health", "credential refs"],
+  "outputContract": ["status", "cause", "repair action"],
+  "noExecutionByDefault": true,
+  "requiresPolicyBroker": true,
+  "receiptsRequired": true
+}

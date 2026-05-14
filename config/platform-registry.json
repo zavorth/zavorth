@@ -1,0 +1,229 @@
+{
+  "version": 1,
+  "entries": [
+    {
+      "id": "plugin:openrouter",
+      "label": "OpenRouter",
+      "kind": "plugin",
+      "source": "registry:local-catalog",
+      "readiness": "partial",
+      "trust": "review",
+      "installState": "available",
+      "summary": "Gateway remoto recomendado para ampliar fallback cloud e roteamento multi-provider.",
+      "actionHint": "/plugins install openrouter",
+      "tags": ["registry", "gateway", "remote", "featured"],
+      "capabilities": ["chat", "code"],
+      "details": ["Pack: remote-gateways", "Bom ponto de partida para ampliar o plano de providers."],
+      "featured": true
+    },
+    {
+      "id": "plugin:external-agent-bridge",
+      "label": "External Agent Bridge",
+      "kind": "plugin",
+      "source": "registry:local-catalog",
+      "readiness": "partial",
+      "trust": "review",
+      "installState": "available",
+      "summary": "Conector agent-to-agent recomendado para parity e federacao com runtimes externos.",
+      "actionHint": "/plugins install external-agent-bridge",
+      "tags": ["registry", "agents", "featured"],
+      "capabilities": ["code", "agents"],
+      "details": ["Pack: agent-federation", "Conector governado para interoperar com runtimes externos."],
+      "featured": true
+    },
+    {
+      "id": "plugin:AIGateway",
+      "label": "AIGateway",
+      "kind": "plugin",
+      "source": "registry:local-catalog",
+      "readiness": "partial",
+      "trust": "review",
+      "installState": "available",
+      "summary": "Gateway de roteamento recomendado para cenarios com sidecars e observabilidade de provider.",
+      "actionHint": "/plugins install AIGateway",
+      "tags": ["registry", "routing", "gateway"],
+      "capabilities": ["chat", "code", "automation"],
+      "details": ["Pack: provider-routing"],
+      "featured": false
+    },
+    {
+      "id": "skill:playwright-interactive",
+      "label": "playwright-interactive",
+      "kind": "skill",
+      "source": "registry:local-catalog",
+      "readiness": "planned",
+      "trust": "planned",
+      "installState": "available",
+      "summary": "Skill recomendada para debugar superfícies web e automações de navegador de forma iterativa.",
+      "actionHint": "Instalar/ativar a skill playwright-interactive",
+      "tags": ["registry", "browser", "debug"],
+      "capabilities": ["prompt-workflow", "support-files"],
+      "details": ["Pack: ui-debug", "Boa candidata para ampliar o Agent OS no desktop/web."],
+      "featured": true
+    },
+    {
+      "id": "skill:figma-use",
+      "label": "figma-use",
+      "kind": "skill",
+      "source": "registry:local-catalog",
+      "readiness": "planned",
+      "trust": "planned",
+      "installState": "available",
+      "summary": "Skill sugerida para tornar design-to-code e canvas writes parte do ecossistema operacional do Zavorth.",
+      "actionHint": "Instalar/ativar a skill figma-use",
+      "tags": ["registry", "design", "figma"],
+      "capabilities": ["prompt-workflow", "design-ops"],
+      "details": ["Pack: design-system"],
+      "featured": false
+    },
+    {
+      "id": "mcp:filesystem",
+      "label": "filesystem",
+      "kind": "mcp",
+      "source": "registry:local-catalog",
+      "readiness": "partial",
+      "trust": "planned",
+      "installState": "available",
+      "summary": "Servidor MCP recomendado para expor arquivos e workspaces como capability de primeira classe.",
+      "actionHint": "Revisar manifesto MCP para filesystem",
+      "tags": ["registry", "mcp", "files"],
+      "capabilities": ["filesystem"],
+      "details": ["Pack: core-mcp"],
+      "featured": true
+    },
+    {
+      "id": "mcp:reasoning",
+      "label": "reasoning",
+      "kind": "mcp",
+      "source": "registry:local-catalog",
+      "readiness": "planned",
+      "trust": "planned",
+      "installState": "available",
+      "summary": "Servidor MCP sugerido para elevar reasoning tools ao mesmo nível do restante do tool plane.",
+      "actionHint": "Revisar manifesto MCP para reasoning",
+      "tags": ["registry", "mcp", "reasoning"],
+      "capabilities": ["reasoning"],
+      "details": ["Pack: core-mcp"],
+      "featured": false
+    },
+    {
+      "id": "mcp:playwright",
+      "label": "playwright",
+      "kind": "mcp",
+      "source": "registry:local-catalog",
+      "readiness": "planned",
+      "trust": "planned",
+      "installState": "available",
+      "summary": "Servidor MCP sugerido para tornar browser automation uma capability mais explícita no platform plane.",
+      "actionHint": "Revisar manifesto MCP para playwright",
+      "tags": ["registry", "mcp", "browser"],
+      "capabilities": ["browser"],
+      "details": ["Pack: ui-debug"],
+      "featured": false
+    }
+  ],
+  "collections": [
+    {
+      "id": "remote-gateways",
+      "label": "Remote Gateways",
+      "summary": "Colecao para ampliar roteamento cloud, fallback multi-provider e observabilidade de providers.",
+      "actionHint": "/platform collection:remote-gateways",
+      "entries": ["plugin:openrouter", "plugin:AIGateway"],
+      "tags": ["registry", "gateway", "routing"],
+      "capabilities": ["chat", "code", "automation"],
+      "details": ["Pack curado para providers e fallback cloud."],
+      "featured": true
+    },
+    {
+      "id": "agent-federation",
+      "label": "Agent Federation",
+      "summary": "Colecao curada para parity e federacao com runtimes externos no mesmo plano.",
+      "actionHint": "/platform collection:agent-federation",
+      "entries": ["plugin:external-agent-bridge"],
+      "tags": ["registry", "agents", "federation"],
+      "capabilities": ["agents", "code"],
+      "details": ["Bom ponto de partida para parity e federacao governada com runtimes externos."],
+      "featured": true
+    },
+    {
+      "id": "ui-debug",
+      "label": "UI Debug",
+      "summary": "Colecao para browser automation, debug visual e iteracao guiada no app web.",
+      "actionHint": "/platform collection:ui-debug",
+      "entries": ["skill:playwright-interactive", "mcp:playwright"],
+      "tags": ["registry", "browser", "debug"],
+      "capabilities": ["prompt-workflow", "browser"],
+      "details": ["Trilha recomendada para fortalecer o Zavorth como Agent OS web-first."],
+      "featured": true
+    },
+    {
+      "id": "core-mcp",
+      "label": "Core MCP",
+      "summary": "Colecao base para tornar capabilities MCP mais explicitas e operacionais no Zavorth.",
+      "actionHint": "/platform collection:core-mcp",
+      "entries": ["mcp:filesystem", "mcp:reasoning"],
+      "tags": ["registry", "mcp", "core"],
+      "capabilities": ["filesystem", "reasoning"],
+      "details": ["Trilha recomendada para amadurecer o tool plane e reasoning plane."],
+      "featured": false
+    },
+    {
+      "id": "design-system",
+      "label": "Design System",
+      "summary": "Colecao para design-to-code, canvas writes e design system ops como parte do ecossistema do Zavorth.",
+      "actionHint": "/platform collection:design-system",
+      "entries": ["skill:figma-use"],
+      "tags": ["registry", "design", "figma"],
+      "capabilities": ["prompt-workflow", "design-ops"],
+      "details": ["Trilha natural para aproximar Figma, skills e MCPs do platform plane."],
+      "featured": false
+    }
+  ],
+  "recipes": [
+    {
+      "id": "remote-provider-rollout",
+      "label": "Remote Provider Rollout",
+      "summary": "Recipe guiada para sincronizar gateways remotos e fechar o primeiro rollout de providers externos.",
+      "actionHint": "/platform recipe:remote-provider-rollout",
+      "targets": ["collection:remote-gateways", "plugin:external-agent-bridge"],
+      "steps": [
+        "Sincronize o catalogo remoto para puxar novidades do ecossistema.",
+        "Adote a colecao Remote Gateways no platform plane.",
+        "Prepare o conector agent-to-agent para parity e federacao externa."
+      ],
+      "tags": ["registry", "remote", "providers"],
+      "details": ["Recipe curada para o rollout inicial do ecossistema remoto do Zavorth."],
+      "featured": true
+    },
+    {
+      "id": "ui-debug-onboarding",
+      "label": "UI Debug Onboarding",
+      "summary": "Recipe para deixar browser automation, debug visual e playwright-first parte do platform plane.",
+      "actionHint": "/platform recipe:ui-debug-onboarding",
+      "targets": ["collection:ui-debug"],
+      "steps": [
+        "Adote a colecao UI Debug.",
+        "Marque a stack de browser automation como trusted apenas apos smoke local.",
+        "Leve a trilha para o app web e para o CLI conforme o runtime confirmar readiness."
+      ],
+      "tags": ["registry", "browser", "debug"],
+      "details": ["Boa trilha para reforcar o Zavorth como Agent OS com surface web forte."],
+      "featured": true
+    },
+    {
+      "id": "core-mcp-adoption",
+      "label": "Core MCP Adoption",
+      "summary": "Recipe para transformar MCPs centrais em capabilities mais operacionais no produto.",
+      "actionHint": "/platform recipe:core-mcp-adoption",
+      "targets": ["collection:core-mcp", "collection:design-system"],
+      "steps": [
+        "Adote a colecao Core MCP.",
+        "Feche a trilha de design system quando Figma e MCPs precisarem convergir.",
+        "Use o plane para acompanhar trust e estado de instalacao dos servidores MCP."
+      ],
+      "tags": ["registry", "mcp", "design"],
+      "details": ["Ajuda a tornar o tool plane mais explicito e mais proximo de um marketplace operacional."],
+      "featured": false
+    }
+  ]
+}

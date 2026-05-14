@@ -1,0 +1,58 @@
+import fs from 'fs';
+import os from 'os';
+import path from 'path';
+import { WorkspaceFsPolicy } from '../../src/tools/workspace/index.js';
+
+function normalize(target: string): string {
+  return path.resolve(target).replace(/\\/g, '/').toLowerCase();
+}
+
+describe('WorkspaceFsPolicy', () => {
+  let tempDir = '';
+
+  beforeEach(() => {
+    tempDir = fs.mkdtempSync(path.join(os.tmpdir(), 'zavorth-workspace-fs-'));
+    fs.mkdirSync(path.join(tempDir, 'src'), { recursive: true });
+    fs.writeFileSync(path.join(tempDir, 'README.md'), '# Zavorth', 'utf8');
+  });
+
+  afterEach(() => {
+    if (tempDir) {
+      fs.rmSync(tempDir, { recursive: true, force: true });
+    }
+  });
+
+  it('resolves reads inside the workspace root', () => {
+    const policy = new WorkspaceFsPolicy({ workspaceRoot: tempDir });
+    const resolved = policy.resolveReadPath('README.md');
+
+    expect(resolved.access).toBe('read');
+    expect(resolved.scope).toBe('workspace');
+    expect(normalize(resolved.absolutePath)).toBe(normalize(path.join(tempDir, 'README.md')));
+  });
+
+  it('routes legacy writes through the workspace output scope', () => {
+    const policy = new WorkspaceFsPolicy({ workspaceRoot: tempDir });
+    const resolved = policy.resolveWritePath('notes/result.md');
+
+    expect(resolved.access).toBe('write');
+    expect(resolved.scope).toBe('workspace_output');
+    expect(normalize(resolved.root)).toBe(normalize(path.join(tempDir, 'output')));
+    expect(normalize(resolved.absolutePath)).toBe(normalize(path.join(tempDir, 'output', 'notes', 'result.md')));
+  });
+
+  it('blocks sibling-prefix escapes from the output write scope', () => {
+    const policy = new WorkspaceFsPolicy({ workspaceRoot: tempDir });
+
+    expect(() => policy.resolveWritePath('../output-evil/pwned.txt')).toThrow(/Path Traversal/);
+  });
+
+  it('blocks direct reads of local secret-bearing files inside the workspace', () => {
+    fs.writeFileSync(path.join(tempDir, '.env'), 'OPENAI_API_KEY=secret', 'utf8');
+    fs.writeFileSync(path.join(tempDir, '.env.example'), 'OPENAI_API_KEY=placeholder', 'utf8');
+    const policy = new WorkspaceFsPolicy({ workspaceRoot: tempDir });
+
+    expect(() => policy.resolveReadPath('.env')).toThrow(/credenciais|sensivel/i);
+    expect(() => policy.resolveReadPath('.env.example')).not.toThrow();
+  });
+});

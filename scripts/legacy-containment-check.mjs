@@ -1,0 +1,291 @@
+import fs from 'fs';
+import path from 'path';
+
+const root = process.cwd();
+
+const checks = [
+  {
+    file: 'src/contracts/LegacySurfaceContract.ts',
+    includes: [
+      'LEGACY_SURFACE_CONTAINMENT_VERSION',
+      "canonicalEntry: '/control'",
+      "frozenSurfaces: ['/app', '/classic']",
+    ],
+  },
+  {
+    file: 'src/services/LegacySurfaceContainmentService.ts',
+    includes: [
+      'legacyFeatureFreeze: true',
+      'P3-003',
+      'decideFeatureDestination',
+      'Use /control como entrada principal',
+      'Gateway Contract, Control Plane e Control UI',
+    ],
+  },
+  {
+    file: 'src/services/RuntimeAccessManifestService.ts',
+    alternatives: [
+      'src/domain/gateway/application/runtime-access/RuntimeAccessManifestService.ts',
+      'src/runtime/access/RuntimeAccessManifestService.ts',
+    ],
+    includes: [
+      'legacyContainment',
+      'controlUrl',
+      'legacyAppUrl',
+      'classicUrl',
+      'Abrir Control UI',
+    ],
+  },
+  {
+    file: 'src/services/WebConsoleAssetService.ts',
+    alternatives: [
+      'src/domain/surface/presentation/web-console/WebConsoleRuntimeShellHtml.ts',
+      'src/domain/surface/presentation/web-console/WebConsoleAssetService.ts',
+    ],
+    includes: [
+      'legacy-surface-banner',
+      'canonical-surface-banner',
+      'Control UI canonica',
+      'Surface legada',
+    ],
+  },
+  {
+    file: 'src/services/DashboardClassicAssetService.ts',
+    alternatives: [
+      'src/domain/surface/presentation/dashboard/DashboardClassicAssetService.ts',
+    ],
+    includes: [
+      'classic-legacy-banner',
+      '/control',
+      '/app',
+    ],
+  },
+  {
+    file: 'install/install.ps1',
+    includes: [
+      '/control',
+      '/app',
+      'Legacy shell URL',
+    ],
+  },
+  {
+    file: 'scripts/launch-zavorth-supervised.ps1',
+    includes: ['/control'],
+  },
+  {
+    file: 'scripts/test-surface-qa.mjs',
+    includes: [
+      '/control',
+      'Control UI e legado',
+    ],
+  },
+  {
+    file: 'scripts/web-app-smoke.mjs',
+    includes: [
+      '/control',
+      'Control UI shell',
+    ],
+  },
+  {
+    file: 'scripts/web-app-smoke.ts',
+    includes: [
+      '/control',
+      'Control UI shell',
+    ],
+  },
+  {
+    file: 'scripts/web-app-visual-smoke.ts',
+    includes: ['/control'],
+  },
+  {
+    file: 'src/host.ts',
+    includes: ['/control'],
+  },
+  {
+    file: 'src/services/IntegrationProbeService.ts',
+    includes: ['/control'],
+  },
+  {
+    file: 'src/telegram/bot-gateway/support/BotGatewayMessageProcessing.ts',
+    includes: [
+      'tryHandleNaturalConversationThroughLegacyUnifiedGateway',
+      'const legacyUnifiedGateway = runtime.legacyUnifiedGateway || null',
+      'legacy-unified-conversation-fallback-v1',
+      'legacyUnifiedGatewayBypassed',
+    ],
+  },
+  {
+    file: 'src/services/WebAppConversationService.ts',
+    includes: [
+      'maybeHandleDirectAgentConversation',
+      'maybeHandleLegacyUnifiedGatewayIngress',
+      'resolveLegacyUnifiedGateway',
+      'legacy-unified-conversation-fallback-v1',
+      'legacyUnifiedGatewayBypassed',
+    ],
+  },
+  {
+    file: 'src/context-engine/LegacyUnifiedGatewayAdapter.ts',
+    includes: [
+      'export class LegacyUnifiedGatewayAdapter',
+      'fallback de compatibilidade',
+      'ZavorthAgentGateway canonico',
+    ],
+  },
+  {
+    file: 'src/cli/ZavorthCliContract.ts',
+    includes: [
+      'legacyUnifiedGateway?: Pick<LegacyUnifiedGatewayAdapter',
+    ],
+  },
+  {
+    file: 'src/cli/ZavorthCliFlowHelpers.ts',
+    includes: [
+      'executeCliLegacyUnifiedConversation',
+      'resolveCliLegacyUnifiedGateway',
+      'legacy_unified_gateway_adapter',
+    ],
+  },
+  {
+    file: 'README.md',
+    includes: [
+      '/control',
+      'Shell operacional legado',
+    ],
+  },
+  {
+    file: 'docs/02-quickstart.md',
+    includes: [
+      '/control',
+      'Shell operacional legado',
+    ],
+  },
+  {
+    file: 'docs/07-web.md',
+    includes: [
+      '/control',
+      'funcionalmente congeladas',
+      'Gateway Contract',
+    ],
+  },
+  {
+    file: 'docs/09-operations.md',
+    includes: [
+      '/control',
+      'shell operacional legado',
+    ],
+  },
+  {
+    file: 'docs/60-legacy-containment.md',
+    includes: [
+      '/control',
+      '/app',
+      'qa:legacy-compat',
+      'P3-003',
+    ],
+  },
+];
+
+const failures = [];
+const removedShimPath = path.join('src', 'context-engine', ['Unified', 'Gateway.ts'].join(''));
+const removedRuntimeAlias = ['unified', 'Gateway'].join('');
+
+const forbiddenGatewayReferences = [
+  {
+    pattern: /from ['"][^'"]*context-engine\/UnifiedGateway\.js['"]/,
+    label: 'direct import from deprecated context-engine/UnifiedGateway.js',
+  },
+  {
+    pattern: /\bnew\s+UnifiedGateway\b/,
+    label: 'new UnifiedGateway',
+  },
+  {
+    pattern: /\bclass\s+UnifiedGateway\b/,
+    label: 'class UnifiedGateway',
+  },
+  {
+    pattern: /\bimport\s+(?:type\s+)?\{[^}]*\bUnifiedGateway\b[^}]*\}/,
+    label: 'UnifiedGateway named import',
+  },
+];
+
+const removedLegacyAliasTokens = [
+  ['wire', 'UnifiedGateway', 'AgentCallback'].join(''),
+  ['executeCli', 'UnifiedConversation'].join(''),
+  ['attach', 'UnifiedGateway'].join(''),
+  ['include', 'UnifiedGateway'].join(''),
+];
+
+for (const check of checks) {
+  const candidateFiles = [check.file, ...(check.alternatives || [])];
+  const resolvedFile = candidateFiles.find((file) => fs.existsSync(path.join(root, file)));
+  const absolute = resolvedFile ? path.join(root, resolvedFile) : path.join(root, check.file);
+  if (!fs.existsSync(absolute)) {
+    failures.push(`${check.file}: missing`);
+    continue;
+  }
+  const content = fs.readFileSync(absolute, 'utf8');
+  for (const expected of check.includes) {
+    if (!content.includes(expected)) {
+      failures.push(`${check.file}: missing "${expected}"`);
+    }
+  }
+}
+
+if (fs.existsSync(path.join(root, removedShimPath))) {
+  failures.push(`${removedShimPath}: removed gateway shim must not exist`);
+}
+
+for (const file of collectSourceFiles(['src', 'tests'])) {
+  const relative = path.relative(root, file).replace(/\\/g, '/');
+  const content = fs.readFileSync(file, 'utf8');
+  if (content.includes(removedRuntimeAlias)) {
+    failures.push(`${relative}: removed runtime gateway alias still present; use legacyUnifiedGateway`);
+  }
+  for (const token of removedLegacyAliasTokens) {
+    if (content.includes(token)) {
+      failures.push(`${relative}: removed legacy alias "${token}" still present`);
+    }
+  }
+  for (const rule of forbiddenGatewayReferences) {
+    if (rule.pattern.test(content)) {
+      failures.push(`${relative}: forbidden ${rule.label}; use LegacyUnifiedGatewayAdapter`);
+    }
+  }
+}
+
+if (failures.length > 0) {
+  console.error('[legacy-containment] falhou');
+  for (const failure of failures) {
+    console.error(`- ${failure}`);
+  }
+  process.exit(1);
+}
+
+console.log('[legacy-containment] ok: /control canonico, /app e /classic preservados como legado congelado.');
+
+function collectSourceFiles(directories) {
+  const files = [];
+  for (const directory of directories) {
+    const absolute = path.join(root, directory);
+    if (!fs.existsSync(absolute)) {
+      continue;
+    }
+    walk(absolute, files);
+  }
+  return files.filter((file) => /\.(?:mjs|js|ts|tsx)$/.test(file));
+}
+
+function walk(directory, files) {
+  for (const entry of fs.readdirSync(directory, { withFileTypes: true })) {
+    if (entry.name === 'node_modules' || entry.name === 'dist' || entry.name === '.next') {
+      continue;
+    }
+    const absolute = path.join(directory, entry.name);
+    if (entry.isDirectory()) {
+      walk(absolute, files);
+      continue;
+    }
+    files.push(absolute);
+  }
+}

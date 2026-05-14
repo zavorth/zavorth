@@ -1,0 +1,18 @@
+[Unit]
+Description=Zavorth runtime supervisionado
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=zavorth
+WorkingDirectory=/opt/zavorth
+Environment=NODE_ENV=production
+ExecStart=/usr/bin/env npm run start:supervised
+Restart=always
+RestartSec=5
+KillSignal=SIGINT
+TimeoutStopSec=20
+
+[Install]
+WantedBy=multi-user.target

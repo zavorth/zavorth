@@ -1,0 +1,15 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "outDir": "./dist-ops",
+    "rootDir": "."
+  },
+  "include": [
+    "scripts/capability-provision.ts",
+    "scripts/install-core.ts",
+    "scripts/pack-manage.ts",
+    "scripts/profile-use.ts",
+    "scripts/mode-use.ts",
+    "scripts/mode-status.ts"
+  ]
+}

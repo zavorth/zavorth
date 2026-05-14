@@ -1,0 +1,89 @@
+import { handleZavorthCliRegistryOpsCommand } from '../../src/cli/ZavorthCliRegistryOps.js';
+import {
+  buildReleaseAdoptionReadinessCliSnapshot,
+  formatReleaseAdoptionReadinessSnapshot,
+  resolveReleaseAdoptionReadinessCliText,
+} from '../../src/cli/ZavorthCliReleaseAdoptionReadinessRenderer.js';
+
+function createFlags(json: boolean) {
+  return {
+    command: null,
+    repl: false,
+    json,
+    live: false,
+    userId: 'grey',
+    platform: 'web' as const,
+    chatId: 'web:grey',
+    sessionId: 'session-cli-release-adoption',
+    workspaceHint: null,
+    commandText: null,
+  };
+}
+
+describe('Zavorth CLI Release Adoption Readiness Wave 53', () => {
+  it('parses release-adoption-readiness text after aliases', () => {
+    expect(resolveReleaseAdoptionReadinessCliText('release-adoption-readiness "adocao publica"')).toBe('adocao publica');
+    expect(resolveReleaseAdoptionReadinessCliText('support-readiness latest')).toBe('');
+  });
+
+  it('renders release adoption JSON through the registry command', async () => {
+    const writes: string[] = [];
+
+    const result = await handleZavorthCliRegistryOpsCommand({
+      runtime: {} as any,
+      effectiveFlags: createFlags(true),
+      commandName: 'release-adoption-readiness',
+      normalized: 'release-adoption-readiness',
+      args: 'release-adoption-readiness "adocao publica"',
+      writer: {
+        line: (text) => writes.push(text),
+        error: (text) => writes.push(text),
+      },
+    });
+
+    expect(result).toEqual(expect.objectContaining({
+      ok: true,
+      handled: true,
+    }));
+    const payload = JSON.parse(writes[0] || '{}');
+    expect(payload).toEqual(expect.objectContaining({
+      contractVersion: '2026-05-04.wave-53',
+      source: 'ReleaseAdoptionReadinessService',
+      status: 'release-adoption-ready',
+      releaseTrain: expect.objectContaining({
+        status: 'ready',
+        policyCount: 4,
+      }),
+      publicAdoption: expect.objectContaining({
+        readinessScore: 95,
+        claimCount: 5,
+      }),
+      readiness: expect.objectContaining({
+        canOpenPublicAdoption: true,
+        canStartCanary: false,
+      }),
+      policy: expect.objectContaining({
+        noDeployExecuted: true,
+        noCanaryStarted: true,
+        adoptionMetricsAggregatedOnly: true,
+      }),
+    }));
+    expect(payload.surface.cliCommand).toContain('zavorth release-adoption-readiness');
+  });
+
+  it('formats a compact human summary', () => {
+    const snapshot = buildReleaseAdoptionReadinessCliSnapshot({
+      text: 'adocao publica',
+      userId: 'grey',
+      sessionId: 'session-cli-release-adoption-human',
+    });
+
+    const text = formatReleaseAdoptionReadinessSnapshot(snapshot);
+
+    expect(text).toContain('Release & Adoption Readiness - Wave 53');
+    expect(text).toContain('deploy nao foi executado');
+    expect(text).toContain('canary nao foi iniciado');
+    expect(text).toContain('metricas sao agregadas');
+    expect(text).toContain('Command Center: /control?runId=');
+  });
+});

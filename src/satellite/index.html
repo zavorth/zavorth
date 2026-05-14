@@ -1,0 +1,65 @@
+<!doctype html>
+<html lang="en-US">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+  <meta name="theme-color" content="#0a0a0f">
+  <meta name="description" content="Zavorth Satellite - interface remota para o runtime Zavorth via Node Mesh.">
+  <title>Zavorth Satellite</title>
+  <link rel="manifest" href="manifest.json">
+  <link rel="stylesheet" href="satellite.css">
+</head>
+<body>
+  <div id="app">
+    <header id="header">
+      <div class="header-left">
+        <span class="logo">Z</span>
+        <h1>Zavorth Satellite</h1>
+      </div>
+      <div class="header-right">
+        <span id="connection-status" class="status-badge disconnected">Desconectado</span>
+        <button id="btn-settings" class="icon-btn" title="Configuracoes">Config</button>
+      </div>
+    </header>
+
+    <main id="chat-area">
+      <div id="messages" role="log" aria-live="polite">
+        <div class="welcome-message">
+          <h2>Zavorth Satellite</h2>
+          <p>Interface remota leve para o runtime Zavorth.</p>
+          <p class="hint">Use o token do dashboard para conectar. Node ID e segredo sao opcionais para heartbeat do Node Mesh.</p>
+        </div>
+      </div>
+    </main>
+
+    <footer id="input-area">
+      <form id="chat-form" autocomplete="off">
+        <textarea id="chat-input" placeholder="Digite sua mensagem..." rows="1" maxlength="4000"></textarea>
+        <button type="submit" id="btn-send" disabled title="Enviar">Enviar</button>
+      </form>
+    </footer>
+
+    <dialog id="settings-dialog">
+      <div class="dialog-content">
+        <h2>Configuracoes</h2>
+        <label for="ws-url">URL do Runtime WebSocket</label>
+        <input id="ws-url" type="url" placeholder="ws://127.0.0.1:3000/api/web/satellite/ws" value="">
+        <label for="auth-token">Token do dashboard</label>
+        <input id="auth-token" type="password" placeholder="Token do dashboard">
+        <label for="node-id">Node Mesh ID opcional</label>
+        <input id="node-id" type="text" placeholder="mobile-node">
+        <label for="shared-secret">Node Mesh shared secret opcional</label>
+        <input id="shared-secret" type="password" placeholder="Segredo emitido pelo pairing">
+        <div class="dialog-actions">
+          <button id="btn-connect" class="primary">Conectar</button>
+          <button id="btn-disconnect" class="danger">Desconectar</button>
+          <button id="btn-close-settings">Fechar</button>
+        </div>
+        <div id="settings-status"></div>
+      </div>
+    </dialog>
+  </div>
+
+  <script src="satellite.js"></script>
+</body>
+</html>

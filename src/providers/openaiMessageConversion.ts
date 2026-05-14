@@ -1,0 +1,133 @@
+import type OpenAI from 'openai';
+import type { ChatMessage, InlineData } from './ILlmProvider.js';
+
+type OpenAIContentPart = Record<string, any>;
+
+export function convertChatMessagesToOpenAI(
+  messages: ChatMessage[],
+): OpenAI.ChatCompletionMessageParam[] {
+  const result: OpenAI.ChatCompletionMessageParam[] = [];
+  let pendingToolInlineData: InlineData[] = [];
+
+  const flushToolMedia = () => {
+    if (pendingToolInlineData.length === 0) {
+      return;
+    }
+
+    const content = buildOpenAIUserContent({
+      role: 'user',
+      content: '[Midia capturada pela ferramenta para analise multimodal]',
+      inlineData: pendingToolInlineData,
+    });
+    if (Array.isArray(content)) {
+      result.push({ role: 'user' as const, content: content as any });
+    }
+    pendingToolInlineData = [];
+  };
+
+  for (let index = 0; index < messages.length; index += 1) {
+    const message = messages[index];
+
+    if (message.role === 'tool') {
+      result.push({
+        role: 'tool' as const,
+        content: message.content || '',
+        tool_call_id: message.toolCallId || 'unknown',
+      });
+      if (message.inlineData?.length) {
+        pendingToolInlineData.push(...message.inlineData);
+      }
+      if (messages[index + 1]?.role !== 'tool') {
+        flushToolMedia();
+      }
+      continue;
+    }
+
+    flushToolMedia();
+
+    if (message.role === 'assistant') {
+      result.push({
+        role: 'assistant' as const,
+        content: message.content || null,
+        tool_calls: message.toolCalls?.map((toolCall) => ({
+          id: toolCall.id,
+          type: 'function' as const,
+          function: {
+            name: toolCall.name,
+            arguments: JSON.stringify(toolCall.arguments),
+          },
+        })),
+      });
+      continue;
+    }
+
+    if (message.role === 'system') {
+      result.push({
+        role: 'system' as const,
+        content: message.content || '',
+      });
+      continue;
+    }
+
+    result.push({
+      role: 'user' as const,
+      content: buildOpenAIUserContent(message) as any,
+    });
+  }
+
+  flushToolMedia();
+  return result;
+}
+
+export function buildOpenAIUserContent(
+  message: ChatMessage,
+): string | OpenAIContentPart[] {
+  const textContent = message.content || '';
+
+  if (!message.inlineData || message.inlineData.length === 0) {
+    return textContent;
+  }
+
+  const content: OpenAIContentPart[] = [];
+
+  if (textContent) {
+    content.push({
+      type: 'text',
+      text: textContent,
+    });
+  }
+
+  for (const item of message.inlineData) {
+    if (item.mimeType.startsWith('image/')) {
+      content.push({
+        type: 'image_url',
+        image_url: {
+          url: `data:${item.mimeType};base64,${item.data}`,
+        },
+      });
+      continue;
+    }
+
+    if (item.mimeType.startsWith('audio/')) {
+      content.push({
+        type: 'input_audio',
+        input_audio: {
+          data: item.data,
+          format: resolveAudioFormat(item.mimeType),
+        },
+      });
+    }
+  }
+
+  return content.length > 0 ? content : textContent;
+}
+
+function resolveAudioFormat(mimeType: string): string {
+  const normalized = String(mimeType || '').toLowerCase();
+  if (normalized.includes('mpeg') || normalized.includes('mp3')) return 'mp3';
+  if (normalized.includes('wav')) return 'wav';
+  if (normalized.includes('ogg')) return 'ogg';
+  if (normalized.includes('webm')) return 'webm';
+  if (normalized.includes('mp4') || normalized.includes('m4a')) return 'mp4';
+  return normalized.split('/')[1]?.split(';')[0] || 'wav';
+}

@@ -1,0 +1,17 @@
+{
+  "vercel": {
+    "orgId": "team_82x6cxlUE8hesCMOwPsSg6u9",
+    "projects": {
+      "docs": {
+        "projectId": "prj_bXfFxA2To7UweGGR7tJrAoDS8qzU",
+        "projectName": "docs",
+        "relativePath": "remote-dist/docs"
+      },
+      "remoteConsole": {
+        "projectId": "prj_y6CklV81Ie0nT2mmZ7rXzVxIJABY",
+        "projectName": "vercel-web",
+        "relativePath": "remote-dist/remote-console"
+      }
+    }
+  }
+}

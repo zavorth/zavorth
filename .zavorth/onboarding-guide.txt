@@ -1,0 +1,16 @@
+Zavorth Onboarding Guide
+Workspace: <repo-root>
+Profile: Operator
+Base URL: http://127.0.0.1:33333
+Control UI URL: http://127.0.0.1:33333/control
+Legacy shell URL: http://127.0.0.1:33333/app
+
+Comando guiado:
+  npm run onboarding:start -- --profile operator --base-url http://127.0.0.1:33333
+
+Passos sugeridos:
+  1. npm run ops:ready
+  2. npm run cli:fast -- doctor --json
+  3. npm run cli:fast -- nodepair desktop MeuDesktop
+  4. Use .zavorth\\companion-start.ps1 quando houver PairingToken
+  5. npm run test:nodes:smoke

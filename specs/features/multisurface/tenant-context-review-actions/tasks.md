@@ -1,0 +1,5 @@
+- [x] Expor `sessionId`, `sourceUserId` e `runtimeUserId` no snapshot de tenant governance.
+- [x] Promover `review-memoryplane` e `review-sessions` para `guided`.
+- [x] Ligar essas acoes ao `ZavorthMemoryPlaneService` e `ZavorthSessionPlaneService`.
+- [x] Atualizar `/api/web/tenants/actions` e o `/app` para aplicar os snapshots retornados.
+- [x] Validar com testes focados e build.

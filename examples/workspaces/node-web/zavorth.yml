@@ -1,0 +1,53 @@
+version: 1
+
+project:
+  name: node-web
+  root: .
+  description: Node.js web app operated by Zavorth Developer Workspace.
+
+processes:
+  - id: app
+    name: Web App
+    command: npm run dev
+    cwd: .
+    restart: on-failure
+    health:
+      type: http
+      url: http://127.0.0.1:3000
+
+  - id: tests
+    name: Tests
+    command: npm test
+    cwd: .
+    restart: never
+    health:
+      type: none
+
+mcp:
+  servers: []
+
+agents:
+  - id: maintainer
+    role: project-maintainer
+    watches:
+      - app
+      - tests
+    mode: suggest
+
+hooks:
+  - id: app-error
+    when:
+      process: app
+      pattern: "(FAIL|FAILED|Error|Exception|EADDRINUSE)"
+    action:
+      type: agent-run
+      mode: suggest
+      prompt: Diagnose the Node web failure and propose the smallest safe fix.
+
+policy:
+  defaultMode: suggest
+  requireApprovalFor:
+    - filesystem.write
+    - process.kill
+    - network.public
+    - selfmod.apply

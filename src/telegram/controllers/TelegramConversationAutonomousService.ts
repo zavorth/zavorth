@@ -1,0 +1,292 @@
+import { Context } from 'grammy';
+import { config } from '../../config/index.js';
+import { Task } from '../../contracts/TaskContract.js';
+import { SmartOutputService } from '../../services/SmartOutputService.js';
+import { buildWorkspaceContinuityContext } from '../../runtime/context/WorkspaceContinuityContext.js';
+import { classifyWorkspaceTaskProfile } from '../../services/WorkspaceTaskKind.js';
+import {
+  ExecutionEscalationPolicy,
+  inferUniversalAgentRequestedTools,
+  type UniversalAgentRunResult,
+  type ZavorthAgentGateway,
+} from '../../runtime/agent/index.js';
+import { TelegramConversationContextService } from './TelegramConversationContextService.js';
+import { TelegramConversationDecisionService } from './TelegramConversationDecisionService.js';
+import { TelegramConversationDirectReplyService } from './TelegramConversationDirectReplyService.js';
+import { TelegramConversationStateService } from './TelegramConversationStateService.js';
+
+type InlineData = Array<{ mimeType: string; data: string }>;
+type ContinuityContext = ReturnType<typeof buildWorkspaceContinuityContext>;
+
+type SummaryRecorder = {
+  recordExchange(userId: string, chatId: string, input: string, output: string): Promise<unknown>;
+};
+
+type MemoryRecorder = {
+  autoExtract(userId: string, input: string, output: string): Promise<unknown>;
+};
+
+type AgentGateway = Pick<ZavorthAgentGateway, 'handle'>;
+
+type ConversationalAgent = {
+  chat(message: string, inlineData?: InlineData, options?: Record<string, unknown>): Promise<any>;
+};
+
+export type TelegramConversationAutonomousServiceDeps = {
+  agentGateway: AgentGateway;
+  contextService: TelegramConversationContextService;
+  decisionService: TelegramConversationDecisionService;
+  directReplyService: TelegramConversationDirectReplyService;
+  executionEscalationPolicy?: ExecutionEscalationPolicy | null;
+  stateService: TelegramConversationStateService;
+  recordAssistantMessage?: ((task: Task, content: string, kind?: string | null) => Promise<void> | void) | null;
+};
+
+export type TelegramConversationAutonomousParams = {
+  ctx: Context;
+  task: Task;
+  messageText: string;
+  contextualMessage: string;
+  actionPayload: string;
+  inlineData?: InlineData;
+  continuityContext?: ContinuityContext | null;
+  isContinuationRequest?: boolean;
+  userId?: string | null;
+  chatId?: string | null;
+  convAgent: ConversationalAgent;
+  summaryService?: SummaryRecorder | null;
+  memoryService?: MemoryRecorder | null;
+};
+
+export class TelegramConversationAutonomousService {
+  private readonly executionEscalationPolicy: ExecutionEscalationPolicy;
+
+  constructor(private readonly deps: TelegramConversationAutonomousServiceDeps) {
+    this.executionEscalationPolicy = deps.executionEscalationPolicy || new ExecutionEscalationPolicy();
+  }
+
+  public async handleAutonomousSuggestion(params: TelegramConversationAutonomousParams): Promise<void> {
+    const {
+      ctx,
+      task,
+      messageText,
+      contextualMessage,
+      actionPayload,
+      inlineData,
+      continuityContext,
+      isContinuationRequest = false,
+      userId,
+      chatId,
+      convAgent,
+      summaryService,
+      memoryService,
+    } = params;
+
+    const userRoles = config.telegramUserRoles[String(userId || '')] || ['admin'];
+    if (!userRoles.includes('admin')) {
+      await ctx.reply(
+        `**Acesso Restrito:**\n\nO assistente sugeriu executar uma acao autonoma:\n\`${actionPayload}\`\n\nNo entanto, voce nao tem nivel de permissao.`,
+        { parse_mode: 'Markdown' },
+      );
+      await Promise.resolve(
+        this.deps.recordAssistantMessage?.(
+          task,
+          `**Acesso Restrito:**\n\nO assistente sugeriu executar uma acao autonoma:\n\`${actionPayload}\`\n\nNo entanto, voce nao tem nivel de permissao.`,
+          'autonomous-denied',
+        ),
+      );
+      return;
+    }
+
+    const autonomyDecision = this.deps.decisionService.decideAutonomousExecution(
+      task,
+      messageText,
+      actionPayload,
+    );
+
+    if (autonomyDecision.mode === 'direct') {
+      const directStyleHints = this.deps.decisionService.buildDirectResponseStyleHints(
+        task,
+        autonomyDecision.taskKind,
+        autonomyDecision.taskSubtype,
+      );
+      const fallbackResponse = await convAgent.chat(contextualMessage, inlineData, {
+        mode: 'direct',
+        requireContextEngine: true,
+        styleHints: directStyleHints,
+        taskKind: autonomyDecision.taskKind,
+        taskSubtype: autonomyDecision.taskSubtype,
+        workspaceOperationalMemory: task.metadata?.workspace_operational_memory || null,
+        userId,
+        chatId,
+        surface: 'telegram',
+      });
+
+      await this.deps.directReplyService.sendDirectReply({
+        ctx,
+        task,
+        messageText,
+        responseText:
+          String(
+            fallbackResponse.text
+              || 'Posso responder isso diretamente sem acionar o modo autonomo, mas nao obtive uma resposta final utilizavel.',
+          ).trim(),
+        taskKind: autonomyDecision.taskKind,
+        taskSubtype: autonomyDecision.taskSubtype,
+        styleHints: directStyleHints,
+        continuityContext,
+        isContinuationRequest,
+        llm: fallbackResponse.llm,
+        summaryService,
+        memoryService,
+        userId,
+        chatId,
+      });
+      return;
+    }
+
+    const activationMessage = [
+      'Trabalho autonomo ativado no runtime governado.',
+      '',
+      `Objetivo: ${actionPayload}`,
+      '',
+      'Abrindo uma run pelo Zavorth Agent Gateway...',
+    ].join('\n');
+    await SmartOutputService.reply(ctx, activationMessage);
+    await Promise.resolve(
+      this.deps.recordAssistantMessage?.(
+        task,
+        activationMessage,
+        'autonomous-activation',
+      ),
+    );
+
+    try {
+      const taskProfile = classifyWorkspaceTaskProfile({ text: actionPayload });
+      const requestedTools = inferUniversalAgentRequestedTools({
+        text: actionPayload,
+        fallbackTool: 'memory.read',
+      });
+      const escalationDecision = this.executionEscalationPolicy.resolve({
+        complexObjective: requestedTools.includes('swarm.run'),
+        taskGoal: actionPayload,
+        suggestedSubagents: requestedTools.includes('swarm.run')
+          ? ['planner', 'implementer', 'verifier']
+          : [],
+        metadata: {
+          source: 'TelegramConversationAutonomousService',
+          requestedTools,
+        },
+      });
+      this.deps.stateService.markAgentGatewayRunRunning(task, actionPayload);
+      const contextMessages = this.deps.contextService.buildGraphContextMessages(task);
+      const result = await this.deps.agentGateway.handle({
+        requestId: task.task_id || undefined,
+        userId: String(userId || task.user_id || 'telegram').trim() || 'telegram',
+        sessionId: String(chatId || task.chat_id || task.task_id || 'telegram').trim() || 'telegram',
+        channel: 'telegram',
+        text: actionPayload,
+        workspace: task.workspace || null,
+        requestedTools,
+        metadata: {
+          source: 'telegram',
+          surface: 'telegram',
+          taskId: task.task_id || null,
+          chatId: chatId || task.chat_id || null,
+          userId: userId || task.user_id || null,
+          taskKind: taskProfile.kind,
+          taskSubtype: taskProfile.subtype,
+          contextualMessage,
+          contextMessages,
+          workspaceProfile: task.metadata?.workspace_profile || null,
+          workspaceOperationalMemory: task.metadata?.workspace_operational_memory || null,
+          workspaceProfileSummary: task.metadata?.workspace_profile_summary || null,
+          workspaceOperationalMemorySummary: task.metadata?.workspace_operational_memory_summary || null,
+          workspaceStrategy: this.deps.contextService.buildWorkspaceStrategySnapshot(task, actionPayload),
+          responseDecision: {
+            schemaVersion: 1,
+            mode: 'operation',
+            confidence: 'high',
+            reason: 'Telegram autonomous request routed through the universal agent runtime.',
+            sourceReason: 'telegram-autonomous-policy',
+            target: { type: 'workflow', value: null },
+            requestedTools,
+            responsePath: 'agent-runtime',
+            shouldCreateArtifact: requestedTools.some((tool) => (
+              tool === 'write_file' || tool === 'filesystem.write' || tool === 'file.edit'
+            )),
+            shouldShowArtifactInChat: false,
+            diagnostics: {
+              surface: 'telegram',
+              shouldExecute: true,
+              semantic: false,
+            },
+          },
+          executionEscalation: escalationDecision,
+          graphRuntimeServiceCalled: false,
+        },
+      });
+
+      this.deps.stateService.recordAgentGatewayRunOutcome(task, actionPayload, result);
+
+      const finalText = this.deps.stateService.decorateReplyWithContinuation(
+        this.buildGatewayReplyText(result),
+        continuityContext,
+        isContinuationRequest,
+      );
+      const resultMessage = this.decorateGatewayResultMessage(result, finalText);
+      await SmartOutputService.reply(ctx, resultMessage);
+      await Promise.resolve(
+        this.deps.recordAssistantMessage?.(
+          task,
+          resultMessage,
+          this.resolveGatewayAssistantMessageKind(result),
+        ),
+      );
+    } catch (err: any) {
+      this.deps.stateService.recordAgentGatewayRunException(task, actionPayload, err);
+      await SmartOutputService.reply(ctx, `Falha na execucao governada: ${err.message}`);
+      await Promise.resolve(
+        this.deps.recordAssistantMessage?.(
+          task,
+          `Falha na execucao governada: ${err.message}`,
+          'autonomous-exception',
+        ),
+      );
+    }
+  }
+
+  private buildGatewayReplyText(result: UniversalAgentRunResult): string {
+    return String(result.replies?.[0]?.text || '').trim()
+      || String(result.run?.summary || '').trim()
+      || (result.ok ? 'Execucao registrada pelo runtime universal.' : 'A execucao governada falhou.');
+  }
+
+  private decorateGatewayResultMessage(result: UniversalAgentRunResult, finalText: string): string {
+    const status = result.run?.status || (result.ok ? 'completed' : 'failed');
+    if (status === 'completed') {
+      return `Tarefa autonoma concluida.\n\n${finalText}`;
+    }
+    if (status === 'waiting_approval') {
+      return finalText;
+    }
+    if (status === 'queued' || status === 'running' || status === 'thinking') {
+      return `Execucao governada registrada.\n\n${finalText}`;
+    }
+    return `A execucao governada falhou.\n\n${finalText}`;
+  }
+
+  private resolveGatewayAssistantMessageKind(result: UniversalAgentRunResult): string {
+    const status = result.run?.status || (result.ok ? 'completed' : 'failed');
+    if (status === 'waiting_approval') {
+      return 'autonomous-waiting-approval';
+    }
+    if (status === 'completed') {
+      return 'autonomous-result';
+    }
+    if (status === 'queued' || status === 'running' || status === 'thinking') {
+      return 'autonomous-running';
+    }
+    return 'autonomous-failure';
+  }
+}

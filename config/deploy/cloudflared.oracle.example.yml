@@ -1,0 +1,7 @@
+tunnel: zavorth-oracle
+credentials-file: /etc/cloudflared/zavorth-oracle.json
+
+ingress:
+  - hostname: zavorth.example.com
+    service: http://127.0.0.1:33333
+  - service: http_status:404

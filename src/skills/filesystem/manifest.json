@@ -1,0 +1,60 @@
+{
+  "id": "filesystem",
+  "name": "File System Operations",
+  "version": "1.0.0",
+  "description": "Ferramentas para ler, criar, listar e manipular arquivos e diretórios locais.",
+  "category": "file_operation",
+  "dangerLevel": "medium",
+  "tools": [
+    {
+      "name": "read_file",
+      "description": "Lê o conteúdo completo de um arquivo de texto local.",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "filePath": {
+            "type": "string",
+            "description": "Caminho absoluto ou relativo do arquivo."
+          }
+        },
+        "required": ["filePath"]
+      }
+    },
+    {
+      "name": "create_file",
+      "description": "Cria um arquivo no sistema local com o conteúdo especificado.",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "filepath": {
+            "type": "string",
+            "description": "Caminho relativo do arquivo a ser criado."
+          },
+          "content": {
+            "type": "string",
+            "description": "Conteúdo do arquivo."
+          }
+        },
+        "required": ["filepath", "content"]
+      }
+    },
+    {
+      "name": "list_directory",
+      "description": "Lista os arquivos e subdiretórios de um caminho local.",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "dirPath": {
+            "type": "string",
+            "description": "Caminho do diretório a listar. Vazio = diretório atual."
+          }
+        }
+      }
+    }
+  ],
+  "metadata": {
+    "author": "zavorth-core",
+    "firewall_category": "file_operation",
+    "requires_sandbox": false
+  }
+}

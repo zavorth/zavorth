@@ -1,0 +1,17 @@
+{
+  "id": "zavorth-AIGateway-overlay",
+  "version": 1,
+  "managedBy": "Zavorth",
+  "routePrefix": "/v1",
+  "localOnly": true,
+  "features": [
+    "stable-local-route",
+    "upstream-sync",
+    "compat-doctor",
+    "rollback-safe"
+  ],
+  "headers": {
+    "x-zavorth-AIGateway": "gateway",
+    "x-zavorth-managed-by": "zavorth"
+  }
+}

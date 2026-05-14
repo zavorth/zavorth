@@ -1,0 +1,53 @@
+version: 1
+
+project:
+  name: python-api
+  root: .
+  description: Python API operated by Zavorth Developer Workspace.
+
+processes:
+  - id: api
+    name: Python API
+    command: python -m uvicorn app:app --reload
+    cwd: .
+    restart: on-failure
+    health:
+      type: http
+      url: http://127.0.0.1:8000/health
+
+  - id: tests
+    name: Python Tests
+    command: pytest
+    cwd: .
+    restart: never
+    health:
+      type: none
+
+mcp:
+  servers: []
+
+agents:
+  - id: maintainer
+    role: project-maintainer
+    watches:
+      - api
+      - tests
+    mode: suggest
+
+hooks:
+  - id: api-error
+    when:
+      process: api
+      pattern: "(Traceback|FAILED|Error|Exception|Address already in use)"
+    action:
+      type: agent-run
+      mode: suggest
+      prompt: Diagnose the Python API failure and propose the smallest safe fix.
+
+policy:
+  defaultMode: suggest
+  requireApprovalFor:
+    - filesystem.write
+    - process.kill
+    - network.public
+    - selfmod.apply

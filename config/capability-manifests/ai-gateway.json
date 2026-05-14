@@ -1,0 +1,28 @@
+{
+  "id": "ai-gateway",
+  "label": "AI Gateway",
+  "kind": "remote",
+  "version": "0.1.0",
+  "boot": "sidecar",
+  "entry": "./dist/capabilities/ai-gateway/index.js",
+  "description": "Provider proxy and dashboard services run as a managed sidecar.",
+  "requires": ["network"],
+  "provides": ["provider-routing", "protocol-translation", "usage-observability"],
+  "tags": ["remote", "sidecar"],
+  "budget": {
+    "rssMb": 220,
+    "heapUsedMb": 120,
+    "activeHandles": 32
+  },
+  "sidecar": {
+    "command": "npm.cmd",
+    "args": ["run", "dev"],
+    "cwd": "data/vendor-worktrees/AIGateway",
+    "healthUrl": "http://127.0.0.1:20128/models",
+    "statusFile": "data/runtime/ai-gateway-sidecar-v2.json",
+    "logFile": "data/runtime/ai-gateway-sidecar-v2.log",
+    "readyTimeoutMs": 120000,
+    "idleTimeoutMs": 300000,
+    "restartPolicy": "on-failure"
+  }
+}

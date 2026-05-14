@@ -1,0 +1,16 @@
+{
+  "id": "repo-map",
+  "name": "Repo Map",
+  "native": true,
+  "description": "Map repository structure, ownership boundaries, important entrypoints, and high-risk modules.",
+  "category": "engineering",
+  "permissionProfileId": "workspace-read",
+  "riskLevel": "low",
+  "capabilityTags": ["code", "research"],
+  "presets": ["developer", "security", "ops", "power-user"],
+  "inputContract": ["repository root", "goal", "known files"],
+  "outputContract": ["map", "entrypoints", "risk areas"],
+  "noExecutionByDefault": true,
+  "requiresPolicyBroker": true,
+  "receiptsRequired": true
+}

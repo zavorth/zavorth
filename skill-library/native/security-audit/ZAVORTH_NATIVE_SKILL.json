@@ -1,0 +1,16 @@
+{
+  "id": "security-audit",
+  "name": "Security Audit",
+  "native": true,
+  "description": "Review code, runtime, policies, prompts, channels, and tools for security risks with evidence-first findings.",
+  "category": "security",
+  "permissionProfileId": "workspace-read",
+  "riskLevel": "medium",
+  "capabilityTags": ["security", "code"],
+  "presets": ["security", "developer", "ops", "power-user"],
+  "inputContract": ["target surface", "evidence", "policy constraints"],
+  "outputContract": ["findings", "severity", "remediation"],
+  "noExecutionByDefault": true,
+  "requiresPolicyBroker": true,
+  "receiptsRequired": true
+}

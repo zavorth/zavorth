@@ -1,0 +1,56 @@
+{
+  "name": "zavorth-zavorthBridge",
+  "displayName": "Zavorth Zavorth Bridge",
+  "description": "Companion bridge that lets Zavorth talk to the real ZavorthBridge app from inside the extension host.",
+  "version": "0.0.10",
+  "publisher": "zavorthlabs",
+  "engines": {
+    "vscode": "^1.68.0"
+  },
+  "main": "./extension.js",
+  "activationEvents": [
+    "*"
+  ],
+  "categories": [
+    "Other"
+  ],
+  "contributes": {
+    "commands": [
+      {
+        "command": "zavorthBridge.acceptVisibleStep",
+        "title": "Zavorth Bridge: Accept ZavorthBridge Step"
+      },
+      {
+        "command": "zavorthBridge.rejectVisibleStep",
+        "title": "Zavorth Bridge: Reject ZavorthBridge Step"
+      },
+      {
+        "command": "zavorthBridge.openConversationPicker",
+        "title": "Zavorth Bridge: Open ZavorthBridge Conversation Picker"
+      },
+      {
+        "command": "zavorthBridge.syncPendingHandoffs",
+        "title": "Zavorth Bridge: Sync Pending Handoffs"
+      },
+      {
+        "command": "zavorthBridge.writeStatusSnapshot",
+        "title": "Zavorth Bridge: Write Status Snapshot"
+      }
+    ],
+    "configuration": {
+      "title": "Zavorth Zavorth Bridge",
+      "properties": {
+        "zavorthBridge.bridgeRoot": {
+          "type": "string",
+          "default": "",
+          "description": "Optional override for the Zavorth bridge root. By default the bridge resolves the canonical zavorth-core/Zavorth data/agent-bridge folder."
+        },
+        "zavorthBridge.heartbeatIntervalMs": {
+          "type": "number",
+          "default": 5000,
+          "description": "How often the bridge writes a heartbeat file for Zavorth."
+        }
+      }
+    }
+  }
+}

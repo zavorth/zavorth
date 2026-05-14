@@ -1,0 +1,309 @@
+{
+  "version": 1,
+  "updatedAt": "2026-04-08T04:51:30.670Z",
+  "events": [
+    {
+      "id": "preview-20260408045128-1",
+      "kind": "preview",
+      "recordedAt": "2026-04-08T04:51:28.469Z",
+      "sourceId": "awesome-omni-skills-curated",
+      "sourceLabel": "Awesome Omni Skills (curated intake)",
+      "targetSourceId": "workspace-imported-library",
+      "targetRootPath": "C:\\TESTES DEV\\zavorth-core\\Zavorth\\skill-library\\imported",
+      "totalCandidates": 7,
+      "allowedCount": 7,
+      "blockedCount": 0,
+      "safeCount": 7,
+      "importedCount": null,
+      "skippedCount": null,
+      "skillNames": [
+        "chrome-devtools",
+        "codenavi",
+        "security-threat-model",
+        "skill-architect",
+        "technical-design-doc-creator",
+        "tlc-spec-driven",
+        "web-quality-audit"
+      ],
+      "allowedSkillNames": [
+        "chrome-devtools",
+        "codenavi",
+        "security-threat-model",
+        "skill-architect",
+        "technical-design-doc-creator",
+        "tlc-spec-driven",
+        "web-quality-audit"
+      ],
+      "blockedSkillNames": [],
+      "governance": {
+        "highestRiskLevel": "medium",
+        "highestRiskScore": 29,
+        "reviewRequiredCount": 7,
+        "blockedByLicenseCount": 0,
+        "licenseLabels": [
+          "permissive"
+        ]
+      },
+      "entries": [
+        {
+          "skillName": "chrome-devtools",
+          "allowed": true,
+          "license": "MIT",
+          "licensePolicyLabel": "permissive",
+          "riskLevel": "medium",
+          "riskScore": 29
+        },
+        {
+          "skillName": "codenavi",
+          "allowed": true,
+          "license": "MIT",
+          "licensePolicyLabel": "permissive",
+          "riskLevel": "medium",
+          "riskScore": 29
+        },
+        {
+          "skillName": "security-threat-model",
+          "allowed": true,
+          "license": "Apache-2.0",
+          "licensePolicyLabel": "permissive",
+          "riskLevel": "medium",
+          "riskScore": 29
+        },
+        {
+          "skillName": "skill-architect",
+          "allowed": true,
+          "license": "MIT",
+          "licensePolicyLabel": "permissive",
+          "riskLevel": "medium",
+          "riskScore": 29
+        },
+        {
+          "skillName": "technical-design-doc-creator",
+          "allowed": true,
+          "license": "MIT",
+          "licensePolicyLabel": "permissive",
+          "riskLevel": "medium",
+          "riskScore": 29
+        },
+        {
+          "skillName": "tlc-spec-driven",
+          "allowed": true,
+          "license": "MIT",
+          "licensePolicyLabel": "permissive",
+          "riskLevel": "medium",
+          "riskScore": 29
+        },
+        {
+          "skillName": "web-quality-audit",
+          "allowed": true,
+          "license": "MIT",
+          "licensePolicyLabel": "permissive",
+          "riskLevel": "medium",
+          "riskScore": 29
+        }
+      ]
+    },
+    {
+      "id": "preview-20260408045128-2",
+      "kind": "preview",
+      "recordedAt": "2026-04-08T04:51:28.518Z",
+      "sourceId": "awesome-omni-skills-curated",
+      "sourceLabel": "Awesome Omni Skills (curated intake)",
+      "targetSourceId": "workspace-imported-library",
+      "targetRootPath": "C:\\TESTES DEV\\zavorth-core\\Zavorth\\skill-library\\imported",
+      "totalCandidates": 7,
+      "allowedCount": 7,
+      "blockedCount": 0,
+      "safeCount": 7,
+      "importedCount": null,
+      "skippedCount": null,
+      "skillNames": [
+        "chrome-devtools",
+        "codenavi",
+        "security-threat-model",
+        "skill-architect",
+        "technical-design-doc-creator",
+        "tlc-spec-driven",
+        "web-quality-audit"
+      ],
+      "allowedSkillNames": [
+        "chrome-devtools",
+        "codenavi",
+        "security-threat-model",
+        "skill-architect",
+        "technical-design-doc-creator",
+        "tlc-spec-driven",
+        "web-quality-audit"
+      ],
+      "blockedSkillNames": [],
+      "governance": {
+        "highestRiskLevel": "medium",
+        "highestRiskScore": 29,
+        "reviewRequiredCount": 7,
+        "blockedByLicenseCount": 0,
+        "licenseLabels": [
+          "permissive"
+        ]
+      },
+      "entries": [
+        {
+          "skillName": "chrome-devtools",
+          "allowed": true,
+          "license": "MIT",
+          "licensePolicyLabel": "permissive",
+          "riskLevel": "medium",
+          "riskScore": 29
+        },
+        {
+          "skillName": "codenavi",
+          "allowed": true,
+          "license": "MIT",
+          "licensePolicyLabel": "permissive",
+          "riskLevel": "medium",
+          "riskScore": 29
+        },
+        {
+          "skillName": "security-threat-model",
+          "allowed": true,
+          "license": "Apache-2.0",
+          "licensePolicyLabel": "permissive",
+          "riskLevel": "medium",
+          "riskScore": 29
+        },
+        {
+          "skillName": "skill-architect",
+          "allowed": true,
+          "license": "MIT",
+          "licensePolicyLabel": "permissive",
+          "riskLevel": "medium",
+          "riskScore": 29
+        },
+        {
+          "skillName": "technical-design-doc-creator",
+          "allowed": true,
+          "license": "MIT",
+          "licensePolicyLabel": "permissive",
+          "riskLevel": "medium",
+          "riskScore": 29
+        },
+        {
+          "skillName": "tlc-spec-driven",
+          "allowed": true,
+          "license": "MIT",
+          "licensePolicyLabel": "permissive",
+          "riskLevel": "medium",
+          "riskScore": 29
+        },
+        {
+          "skillName": "web-quality-audit",
+          "allowed": true,
+          "license": "MIT",
+          "licensePolicyLabel": "permissive",
+          "riskLevel": "medium",
+          "riskScore": 29
+        }
+      ]
+    },
+    {
+      "id": "import-20260408045130-3",
+      "kind": "import",
+      "recordedAt": "2026-04-08T04:51:30.670Z",
+      "sourceId": "awesome-omni-skills-curated",
+      "sourceLabel": "Awesome Omni Skills (curated intake)",
+      "targetSourceId": "workspace-imported-library",
+      "targetRootPath": "C:\\TESTES DEV\\zavorth-core\\Zavorth\\skill-library\\imported",
+      "totalCandidates": 7,
+      "allowedCount": 7,
+      "blockedCount": 0,
+      "safeCount": 7,
+      "importedCount": 7,
+      "skippedCount": 0,
+      "skillNames": [
+        "chrome-devtools",
+        "codenavi",
+        "security-threat-model",
+        "skill-architect",
+        "technical-design-doc-creator",
+        "tlc-spec-driven",
+        "web-quality-audit"
+      ],
+      "allowedSkillNames": [
+        "chrome-devtools",
+        "codenavi",
+        "security-threat-model",
+        "skill-architect",
+        "technical-design-doc-creator",
+        "tlc-spec-driven",
+        "web-quality-audit"
+      ],
+      "blockedSkillNames": [],
+      "governance": {
+        "highestRiskLevel": "medium",
+        "highestRiskScore": 29,
+        "reviewRequiredCount": 7,
+        "blockedByLicenseCount": 0,
+        "licenseLabels": [
+          "permissive"
+        ]
+      },
+      "entries": [
+        {
+          "skillName": "chrome-devtools",
+          "allowed": true,
+          "license": "MIT",
+          "licensePolicyLabel": "permissive",
+          "riskLevel": "medium",
+          "riskScore": 29
+        },
+        {
+          "skillName": "codenavi",
+          "allowed": true,
+          "license": "MIT",
+          "licensePolicyLabel": "permissive",
+          "riskLevel": "medium",
+          "riskScore": 29
+        },
+        {
+          "skillName": "security-threat-model",
+          "allowed": true,
+          "license": "Apache-2.0",
+          "licensePolicyLabel": "permissive",
+          "riskLevel": "medium",
+          "riskScore": 29
+        },
+        {
+          "skillName": "skill-architect",
+          "allowed": true,
+          "license": "MIT",
+          "licensePolicyLabel": "permissive",
+          "riskLevel": "medium",
+          "riskScore": 29
+        },
+        {
+          "skillName": "technical-design-doc-creator",
+          "allowed": true,
+          "license": "MIT",
+          "licensePolicyLabel": "permissive",
+          "riskLevel": "medium",
+          "riskScore": 29
+        },
+        {
+          "skillName": "tlc-spec-driven",
+          "allowed": true,
+          "license": "MIT",
+          "licensePolicyLabel": "permissive",
+          "riskLevel": "medium",
+          "riskScore": 29
+        },
+        {
+          "skillName": "web-quality-audit",
+          "allowed": true,
+          "license": "MIT",
+          "licensePolicyLabel": "permissive",
+          "riskLevel": "medium",
+          "riskScore": 29
+        }
+      ]
+    }
+  ]
+}

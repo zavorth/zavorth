@@ -1,0 +1,156 @@
+import path from 'path';
+import {
+  SkillSourceRegistryService,
+  type SkillSourceRegistryEntry,
+} from '../services/SkillSourceRegistryService.js';
+import { SkillTrustPolicyService } from '../services/SkillTrustPolicyService.js';
+import { SkillContentScannerService, type SkillContentScanIssue } from './SkillContentScannerService.js';
+import { SkillLicenseClassifierService } from './SkillLicenseClassifierService.js';
+import { LicensePolicyService } from './LicensePolicyService.js';
+import { SkillRiskScoringService } from './SkillRiskScoringService.js';
+import type {
+  SkillImportAuditReference,
+  SkillLicensePolicyDecision,
+  SkillRiskAssessment,
+} from './SkillCatalogContract.js';
+
+type SkillImportPreviewRuntime = {
+  sourceRegistryService?: Pick<SkillSourceRegistryService, 'getSource'>;
+  skillTrustPolicyService?: Pick<SkillTrustPolicyService, 'evaluateSource' | 'evaluateSkill'>;
+  skillContentScannerService?: Pick<SkillContentScannerService, 'scanSkillDirectory'>;
+  skillLicenseClassifierService?: Pick<SkillLicenseClassifierService, 'classifySkillDirectory'>;
+  licensePolicyService?: Pick<LicensePolicyService, 'evaluateClassification'>;
+  skillRiskScoringService?: Pick<SkillRiskScoringService, 'assessImport'>;
+};
+
+export type SkillImportDetailedPreviewEntry = {
+  skillName: string;
+  sourceSkillDirPath: string;
+  targetSkillDirPath: string;
+  allowed: boolean;
+  reason: string;
+  alreadyImported: boolean;
+  license: string | null;
+  licenseConfidence: 'high' | 'medium' | 'low';
+  licenseEvidence: string[];
+  licensePolicy: SkillLicensePolicyDecision;
+  risk: SkillRiskAssessment;
+  safeToImport: boolean;
+  issues: SkillContentScanIssue[];
+  importableFiles: string[];
+  skippedFiles: string[];
+};
+
+export type SkillImportDetailedPreview = {
+  sourceId: string;
+  sourceLabel: string;
+  sourcePath: string;
+  targetSourceId: string;
+  targetRootPath: string;
+  totalCandidates: number;
+  allowedCount: number;
+  blockedCount: number;
+  safeCount: number;
+  entries: SkillImportDetailedPreviewEntry[];
+  previewAudit: SkillImportAuditReference | null;
+};
+
+export class SkillImportPreviewService {
+  private readonly sourceRegistry: Pick<SkillSourceRegistryService, 'getSource'>;
+  private readonly trustPolicy: Pick<SkillTrustPolicyService, 'evaluateSource' | 'evaluateSkill'>;
+  private readonly scanner: Pick<SkillContentScannerService, 'scanSkillDirectory'>;
+  private readonly licenseClassifier: Pick<SkillLicenseClassifierService, 'classifySkillDirectory'>;
+  private readonly licensePolicyService: Pick<LicensePolicyService, 'evaluateClassification'>;
+  private readonly riskScoringService: Pick<SkillRiskScoringService, 'assessImport'>;
+
+  constructor(runtime: SkillImportPreviewRuntime = {}) {
+    this.sourceRegistry = runtime.sourceRegistryService || new SkillSourceRegistryService();
+    this.trustPolicy = runtime.skillTrustPolicyService || new SkillTrustPolicyService();
+    this.scanner = runtime.skillContentScannerService || new SkillContentScannerService();
+    this.licenseClassifier = runtime.skillLicenseClassifierService || new SkillLicenseClassifierService();
+    this.licensePolicyService = runtime.licensePolicyService || new LicensePolicyService();
+    this.riskScoringService = runtime.skillRiskScoringService || new SkillRiskScoringService();
+  }
+
+  public buildPreview(input: {
+    source: SkillSourceRegistryEntry;
+    targetSource: SkillSourceRegistryEntry;
+    sourceSkillDirPaths: string[];
+  }): SkillImportDetailedPreview {
+    if (!input.source.enabled) {
+      throw new Error(`Fonte de skill ${input.source.id} esta desabilitada e nao pode gerar preview de import.`);
+    }
+    if (input.source.kind !== 'workspace' && !input.source.pinnedRevision) {
+      throw new Error(`Fonte externa ${input.source.id} precisa declarar pinnedRevision antes de gerar preview de import.`);
+    }
+
+    const sourceDecision = this.trustPolicy.evaluateSource(input.source.id);
+    if (!sourceDecision.allowed) {
+      throw new Error(sourceDecision.reason);
+    }
+
+    const entries = input.sourceSkillDirPaths
+      .map((sourceSkillDirPath) => {
+        const skillName = path.basename(sourceSkillDirPath);
+        const decision = this.trustPolicy.evaluateSkill(input.source.id, skillName);
+        const scan = this.scanner.scanSkillDirectory(sourceSkillDirPath);
+        const licenseClassification = this.licenseClassifier.classifySkillDirectory(sourceSkillDirPath, input.source);
+        const licensePolicy = this.licensePolicyService.evaluateClassification(licenseClassification);
+        const risk = this.riskScoringService.assessImport({
+          sourceTrust: input.source.trust,
+          sourceAllowed: sourceDecision.allowed,
+          scanIssues: scan.issues,
+          license: licenseClassification.license,
+          licenseConfidence: licenseClassification.confidence,
+          licensePolicy,
+          importableFileCount: scan.importableFiles.length,
+          skippedFileCount: scan.skippedFiles.length,
+        });
+        const targetSkillDirPath = path.join(input.targetSource.absolutePath, skillName);
+        const allowed = decision.allowed
+          && scan.safeToImport
+          && licensePolicy.allowImport
+          && risk.level !== 'blocked';
+        return {
+          skillName,
+          sourceSkillDirPath,
+          targetSkillDirPath,
+          allowed,
+          reason: !decision.allowed
+            ? decision.reason
+            : scan.safeToImport
+              ? licensePolicy.allowImport
+                ? risk.level === 'blocked'
+                  ? 'Skill bloqueada pelo score de risco.'
+                  : 'Skill aprovada para importacao seletiva.'
+                : `Skill bloqueada pela policy de licenca. ${licensePolicy.summary}`
+              : 'Skill bloqueada pelo scanner de conteudo.',
+          alreadyImported: false,
+          license: licenseClassification.license,
+          licenseConfidence: licenseClassification.confidence,
+          licenseEvidence: licenseClassification.evidence,
+          licensePolicy,
+          risk,
+          safeToImport: scan.safeToImport,
+          issues: scan.issues,
+          importableFiles: scan.importableFiles,
+          skippedFiles: scan.skippedFiles,
+        };
+      })
+      .sort((left, right) => left.skillName.localeCompare(right.skillName, 'en-US'));
+
+    return {
+      sourceId: input.source.id,
+      sourceLabel: input.source.label,
+      sourcePath: input.source.absolutePath,
+      targetSourceId: input.targetSource.id,
+      targetRootPath: input.targetSource.absolutePath,
+      totalCandidates: entries.length,
+      allowedCount: entries.filter((entry) => entry.allowed).length,
+      blockedCount: entries.filter((entry) => !entry.allowed).length,
+      safeCount: entries.filter((entry) => entry.safeToImport).length,
+      entries,
+      previewAudit: null,
+    };
+  }
+}

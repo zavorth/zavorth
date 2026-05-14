@@ -1,0 +1,16 @@
+{
+  "id": "document-analysis",
+  "name": "Document Analysis",
+  "native": true,
+  "description": "Extract structure, evidence, risks, decisions, and next actions from documents and long-form material.",
+  "category": "research",
+  "permissionProfileId": "workspace-read",
+  "riskLevel": "low",
+  "capabilityTags": ["document", "research"],
+  "presets": ["basic", "research", "ops", "power-user"],
+  "inputContract": ["document text", "document metadata", "user question"],
+  "outputContract": ["summary", "evidence", "actions"],
+  "noExecutionByDefault": true,
+  "requiresPolicyBroker": true,
+  "receiptsRequired": true
+}
