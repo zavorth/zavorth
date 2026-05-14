@@ -1,0 +1,3 @@
+- [x] Mostrar contexto operacional curto (`session`, `source`, `runtime`) na resposta de `/tenants`.
+- [x] Marcar ações de tenant com `guided` ou `compose` na surface textual.
+- [x] Validar com `SharedSurfaceCommandService.test.ts` e build.

@@ -1,0 +1,21 @@
+# Zavorth TODO
+
+This repository keeps public TODOs deliberately short. Detailed planning should
+live in issues, private project management, or scoped design docs.
+
+## Current Product Priorities
+
+- Keep `/dashboard` as the main user-facing web surface.
+- Keep CLI, Satellite and channels as thin projections over the governed runtime.
+- Preserve honest readiness for providers, channels, sandbox, scheduler,
+  subagents, skills and perception/device capabilities.
+- Keep approvals scoped, receipts readable and secrets represented as
+  `SecretRef` metadata.
+- Keep public docs small, current and free of implementation diary content.
+
+## Before Public Presentation
+
+- Run `npm run runtime:check`.
+- Run `npm run security:secrets`.
+- Run `node scripts/docs-public-repo-audit.mjs`.
+- Confirm screenshots and README assets match the current `/dashboard`.

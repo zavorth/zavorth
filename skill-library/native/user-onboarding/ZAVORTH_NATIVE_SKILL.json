@@ -1,0 +1,16 @@
+{
+  "id": "user-onboarding",
+  "name": "User Onboarding",
+  "native": true,
+  "description": "Guide first-run setup, presets, safe defaults, next steps, and plain-language recovery paths.",
+  "category": "onboarding",
+  "permissionProfileId": "local-readonly",
+  "riskLevel": "low",
+  "capabilityTags": ["workflow"],
+  "presets": ["basic", "ops", "power-user"],
+  "inputContract": ["user type", "setup state", "blocked step"],
+  "outputContract": ["preset", "next action", "recovery path"],
+  "noExecutionByDefault": true,
+  "requiresPolicyBroker": true,
+  "receiptsRequired": true
+}

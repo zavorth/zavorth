@@ -1,0 +1,16 @@
+{
+  "id": "channel-response-design",
+  "name": "Channel Response Design",
+  "native": true,
+  "description": "Shape dense, consistent responses for Telegram, WhatsApp, Signal, Discord, iMessage, CLI, and dashboard surfaces.",
+  "category": "channels",
+  "permissionProfileId": "local-readonly",
+  "riskLevel": "low",
+  "capabilityTags": ["workflow"],
+  "presets": ["basic", "ops", "power-user"],
+  "inputContract": ["message intent", "channel capabilities", "fallback constraints"],
+  "outputContract": ["shared response model", "channel fallbacks", "actions"],
+  "noExecutionByDefault": true,
+  "requiresPolicyBroker": true,
+  "receiptsRequired": true
+}

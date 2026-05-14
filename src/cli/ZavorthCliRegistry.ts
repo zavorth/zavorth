@@ -1,0 +1,981 @@
+import * as fs from 'fs';
+import * as path from 'path';
+import readline from 'readline/promises';
+import type { Interface as ReadlineInterface } from 'readline/promises';
+import { stdin as input, stdout as output } from 'process';
+import { InlineKeyboard } from 'grammy';
+import type { NodeMeshActivitySnapshot, NodeMeshNodeKind } from '../contracts/NodeMeshContract.js';
+import { config } from '../config/index.js';
+import type { IMessageContext } from '../contracts/IMessageBroker.js';
+import type { Task } from '../contracts/TaskContract.js';
+import { Database } from '../storage/Database.js';
+import { LogRepository } from '../storage/LogRepository.js';
+import { TaskRepository } from '../storage/TaskRepository.js';
+import { TaskManager } from '../orchestrator/TaskManager.js';
+import { PermissionService } from '../services/PermissionService.js';
+import { SelfModificationCommandService } from '../services/SelfModificationCommandService.js';
+import { RuntimeDiagnosticsService } from '../services/RuntimeDiagnosticsService.js';
+import {
+  RuntimeAccessReadinessService,
+  type RuntimeAccessReadinessReport,
+} from '../runtime/access/RuntimeAccessReadinessService.js';
+import {
+  RuntimeBootstrapService,
+  type RuntimeBootstrapReport,
+} from '../runtime/access/RuntimeBootstrapService.js';
+import {
+  RuntimeBootstrapRepairService,
+  type RuntimeBootstrapRepairReport,
+} from '../runtime/access/RuntimeBootstrapRepairService.js';
+import { ZavorthMemoryPlaneService } from '../services/ZavorthMemoryPlaneService.js';
+import { ZavorthLayeredMemoryService } from '../services/ZavorthLayeredMemoryService.js';
+import {
+  ZavorthLearningPlaneService,
+  type LearningPlaneActionExecution,
+  type LearningPlaneSnapshot,
+} from '../services/ZavorthLearningPlaneService.js';
+import {
+  ZavorthPlatformRegistryService,
+  type ZavorthPlatformRegistrySnapshot,
+  type ZavorthPlatformRegistryStatusSummarySnapshot,
+  type ZavorthPlatformRegistrySummarySnapshot,
+} from '../services/ZavorthPlatformRegistryService.js';
+import { ZavorthPlatformCatalogSyncService } from '../services/ZavorthPlatformCatalogSyncService.js';
+import {
+  ZavorthPlatformActionService,
+  type ZavorthPlatformActionExecution,
+} from '../services/ZavorthPlatformActionService.js';
+import {
+  ZavorthPackagePublisher,
+  type PublishResult as ZavorthPlatformPublishResult,
+} from '../platform/publish/ZavorthPackagePublisher.js';
+import { ZavorthHookPlaneService, type ZavorthHookPlaneSnapshot } from '../services/ZavorthHookPlaneService.js';
+import { ZavorthPluginActionService } from '../services/ZavorthPluginActionService.js';
+import { ZavorthPluginRegistryService } from '../services/ZavorthPluginRegistryService.js';
+import { ZavorthToolSurfaceService } from '../services/ZavorthToolSurfaceService.js';
+import type { ZavorthToolSurfaceSnapshot } from '../services/ZavorthToolSurfaceService.js';
+import { ZavorthSessionPlaneService } from '../services/ZavorthSessionPlaneService.js';
+import type {
+  ZavorthSessionPlaneSnapshot,
+  ZavorthSessionPlaneStatusSummarySnapshot,
+} from '../services/ZavorthSessionPlaneService.js';
+import { ZavorthNodeMeshService } from '../services/ZavorthNodeMeshService.js';
+import { NodeCapabilityService } from '../services/NodeCapabilityService.js';
+import { NodeDeviceProfileService } from '../services/NodeDeviceProfileService.js';
+import { NodeInvocationStoreService } from '../services/NodeInvocationStoreService.js';
+import { NodeInvokeService } from '../services/NodeInvokeService.js';
+import { NodePairingService } from '../services/NodePairingService.js';
+import {
+  AIGatewayProxyService,
+  type AIGatewayProxyStatus,
+} from '../services/AIGatewayProxyService.js';
+import { ZavorthGatewayLauncherService } from '../services/ZavorthGatewayLauncherService.js';
+import { ZavorthSessionToolsService } from '../runtime/sessions/ZavorthSessionToolsService.js';
+import type { DomainRegistrySnapshot, DomainRegistrySummarySnapshot } from '../domain/DomainRegistry.js';
+import { NodeRegistryService } from '../services/NodeRegistryService.js';
+import { ZavorthGatewayService, type ZavorthGatewaySnapshot } from '../services/ZavorthGatewayService.js';
+import { GatewayChannelRegistryService } from '../services/GatewayChannelRegistryService.js';
+import {
+  DiscordRuntimeChannelAdapter,
+  EmailRuntimeChannelAdapter,
+  IMessageRuntimeChannelAdapter,
+  SignalRuntimeChannelAdapter,
+  SlackRuntimeChannelAdapter,
+  TeamsRuntimeChannelAdapter,
+  WhatsAppRuntimeChannelAdapter,
+} from '../services/GatewayRuntimeChannelAdapters.js';
+import { GatewaySessionReadModelService } from '../runtime/sessions/GatewaySessionReadModelService.js';
+import { GatewaySessionService } from '../runtime/sessions/GatewaySessionService.js';
+import {
+  GatewaySessionStoreService,
+  type GatewaySessionSpawnSnapshot,
+} from '../runtime/sessions/GatewaySessionStoreService.js';
+import {
+  GatewaySessionToolsService,
+  type GatewaySessionSendResult,
+} from '../runtime/sessions/GatewaySessionToolsService.js';
+import { MemoryService } from '../services/MemoryService.js';
+import {
+  AutoRepairService,
+  type AutoRepairReport,
+  type AutoRepairRunResult,
+} from '../services/AutoRepairService.js';
+import {
+  OperationsActionService,
+  type OperationsActionExecution,
+} from '../services/OperationsActionService.js';
+import {
+  OperationsCockpitService,
+  type OperationsCockpitSnapshot,
+} from '../services/OperationsCockpitService.js';
+import { OperationsHealthService } from '../observability/OperationsHealthService.js';
+import {
+  OperatorBriefService,
+  type OperatorBriefSnapshot,
+} from '../observability/OperatorBriefService.js';
+import {
+  GatewayCompatibilityDoctorService,
+  type AIGatewayCompatibilityDoctorReport,
+} from '../services/GatewayCompatibilityDoctorService.js';
+import {
+  GatewayUpstreamSyncService,
+  type AIGatewayUpstreamSyncReport,
+} from '../services/GatewayUpstreamSyncService.js';
+import { CanonicalPublicApiService } from '../api/public/CanonicalPublicApiService.js';
+import {
+  createInternalSurfaceCommandApi,
+  type SurfaceCommandBoundary,
+} from '../api/internal/InternalSurfaceApiCompat.js';
+import type { OpsQualityDTO } from '../contracts/public/rest/platform-ops-dto.js';
+import type { SurfaceTaskDispatcherLike } from '../services/SurfaceRuntime.js';
+import { SurfaceTaskDispatchService } from '../services/SurfaceTaskDispatchService.js';
+import {
+  SupervisedRuntimeService,
+  type SupervisedRuntimeInspection,
+  type SupervisedReloadRequestResult,
+} from '../services/SupervisedRuntimeService.js';
+import { RuntimeCompositionService } from '../services/RuntimeCompositionService.js';
+import { WorkspaceExtensionRegistryService } from '../services/WorkspaceExtensionRegistryService.js';
+import { WorkspaceOperationalMemoryService } from '../runtime/context/WorkspaceOperationalMemoryService.js';
+import { TrustedBoundary } from '../security/TrustedBoundary.js';
+import { ExecutionGateway } from '../execution/ExecutionGateway.js';
+import { LocalExecutor } from '../execution/LocalExecutor.js';
+import { CodexExecutor } from '../execution/CodexExecutor.js';
+import { StitchExecutor } from '../execution/StitchExecutor.js';
+import { AiStudioExecutor } from '../execution/AiStudioExecutor.js';
+import { HostIdentityService } from '../services/HostIdentityService.js';
+import { BridgeManager } from '../orchestrator/BridgeManager.js';
+import { VideoHandler } from '../telegram/VideoHandler.js';
+import { TelegramConversationController } from '../telegram/controllers/TelegramConversationController.js';
+import { TelegramExecutionController } from '../telegram/controllers/TelegramExecutionController.js';
+import { TelegramPermissionController } from '../telegram/controllers/TelegramPermissionController.js';
+import { TelegramPipelineController } from '../telegram/controllers/TelegramPipelineController.js';
+import { TelegramTaskOrchestrationController } from '../telegram/controllers/TelegramTaskOrchestrationController.js';
+import { CommandParser } from '../telegram/CommandParser.js';
+import { AuditLogger } from '../monitoring/AuditLogger.js';
+import { MultiAgentPipeline } from '../runtime/workflows/MultiAgentPipeline.js';
+import { OperatorModeService } from '../services/OperatorModeService.js';
+import { PresentationModeService } from '../services/PresentationModeService.js';
+import { WorkspaceProfileService } from '../services/WorkspaceProfileService.js';
+import { extractTaskPayload, getDefaultWorkspace, persistTask } from '../telegram/TelegramTaskSupport.js';
+import {
+  formatAutoRepairRunResult as renderAutoRepairRunResult,
+  formatRuntimeAccessReadinessReport as renderRuntimeAccessReadinessReport,
+  formatRuntimeBootstrapRepairReport as renderRuntimeBootstrapRepairReport,
+  formatRuntimeBootstrapReport as renderRuntimeBootstrapReport,
+  formatSupervisedReloadResult as renderSupervisedReloadResult,
+} from './ZavorthCliOpsFormatting.js';
+import {
+  type CliContextSnapshot,
+  type CliDomainsSnapshot,
+  type CliHelpSnapshot,
+  type CliStatusSnapshot,
+  formatGatewaySnapshot,
+  formatLearningActionExecution,
+  formatLearningMetricsSnapshot,
+  formatLearningSnapshot,
+  formatLayeredMemoryProcedures,
+  formatLayeredMemorySearch,
+  formatLayeredMemoryStatus,
+  formatMemoryPlaneSnapshot,
+  formatPlatformSnapshot,
+  formatPlatformSyncResult,
+} from './ZavorthCliSurfaceHelpers.js';
+import {
+  applyInlineCliFlags,
+  canonicalizeCliCommandInput,
+  createCliReplConversationFlags,
+  createCliReplSwitchConversationFlags,
+  createDefaultSessionId,
+  defaultWriter,
+  executeCliLegacyUnifiedConversation,
+  executeCliUniversalAgentRuntime,
+  executeCliUniversalApprovalDecision,
+  executeCliWorkflowQueueCommand,
+  executeCliTaskDispatch,
+  extractCommandArgs,
+  formatCliNewConversationMessage,
+  formatCliReplPrompt,
+  formatCliSessionPlaneOutput,
+  formatCliSharedSurfaceProductOutput,
+  formatCliSwitchedConversationMessage,
+  isCliIo,
+  isCliNativeReadCommand,
+  isCliReplNewConversationCommand,
+  loadCliReplHistory,
+  normalizeCliCommandName,
+  normalizeCliInput,
+  parseCliReplSwitchConversationTarget,
+  persistCliReplHistory,
+  requiresCliTaskRuntime,
+  requiresNodeDoctorRuntime,
+  resolveCliRuntimeProfile,
+  withFilteredCliStartupLogs,
+} from './ZavorthCliFlowHelpers.js';
+import {
+  buildCliContextSnapshot,
+  buildCliDomainsSnapshot,
+  buildCliHelpSnapshot,
+  buildCliNodeMeshDoctorSnapshot,
+  buildCliOperationsDoctorSnapshot,
+  buildCliRuntimeAccessProbeInput,
+  buildCliStatusSnapshot,
+  formatAIGatewayDoctorReport,
+  formatAIGatewayGatewayStatus,
+  formatAIGatewaySyncReport,
+  formatCliContextSnapshot,
+  formatCliDomainsSnapshot,
+  formatCliHelp,
+  formatCliOperationsDoctorSnapshot,
+  formatCliOpsQualitySnapshot,
+  formatCliStatusSnapshot,
+  formatHookPlaneSnapshot,
+  formatNodeCapabilities,
+  formatNodeInvokeResult,
+  formatNodeMeshActivity,
+  formatNodeMeshDoctorSnapshot,
+  formatNodeMeshSnapshot,
+  formatNodePairingDraft,
+  formatNodeProfiles,
+  formatOperationsActionDefinitions,
+  formatOperationsActionExecution,
+  formatOperationsCockpitSnapshot,
+  formatOperatorBriefSnapshot,
+  formatPlatformActionExecution,
+  formatPlatformPublishResult,
+  formatSessionSendResult,
+  formatSessionSpawnResult,
+  formatToolSurfaceSnapshot,
+  parseCliNodeInvokeArgs,
+  parseCliNodePairArgs,
+  readCliBriefSnapshot,
+  readCliCockpitSnapshot,
+  readCliOpsQualitySnapshot,
+  resolveCliHelpTopic,
+  resolveNodeIntent,
+  withCliConsoleSuppressed,
+} from './ZavorthCliNativeRenderers.js';
+import { formatLayeredMemoryMetrics } from './ZavorthCliRenderers.js';
+import { formatCliChatAssistantMessage } from './ZavorthCliChatRenderers.js';
+import {
+  CommandCenterAccessService,
+  parseCommandCenterAccessAction,
+  type CommandCenterAccessDoctorSnapshot,
+  type CommandCenterAccessSnapshot,
+} from '../services/CommandCenterAccessService.js';
+import {
+  formatCliChatReplyEventCard,
+  formatCliRecoverableErrorEventCard,
+  formatCliSuccessEventCard,
+} from './ZavorthCliEventCards.js';
+import {
+  buildCliRuntimeFromOverrides as buildCliRuntimeFromOverridesImpl,
+  buildSessionPlaneInput,
+  parseZavorthCliArgs as parseZavorthCliArgsImpl,
+  parseZavorthCliFlags as parseZavorthCliFlagsImpl,
+  parseCliSessionSendArgs,
+  resolveCliExecutionInput,
+  resolveOperationsIntent,
+  resolvePlatformIntent,
+  resolveSessionTargetRef,
+} from './ZavorthCliCommandHelpers.js';
+import { handleZavorthCliRegistryNodesCommand } from './ZavorthCliRegistryNodes.js';
+import { handleZavorthCliRegistryOpsCommand } from './ZavorthCliRegistryOps.js';
+import { handleZavorthCliRegistryPlatformCommand } from './ZavorthCliRegistryPlatform.js';
+import { handleZavorthCliRegistrySessionsCommand } from './ZavorthCliRegistrySessions.js';
+import { handleZavorthCliRegistryTasksCommand } from './ZavorthCliRegistryTasks.js';
+import { handleZavorthCliRegistrySupervisorCommand } from './ZavorthCliRegistrySupervisor.js';
+import { handleZavorthCliRegistryHealCommand } from './ZavorthCliRegistryHeal.js';
+import { handleZavorthCliRegistryReleaseCommand } from './ZavorthCliRegistryRelease.js';
+import { handleZavorthCliRegistryWorkspaceCommand } from './ZavorthCliRegistryWorkspace.js';
+import type {
+  ZavorthCliFlags,
+  ZavorthCliRuntime,
+  CliExecutionResult,
+  CliWriter,
+} from './ZavorthCliContract.js';
+
+export type {
+  ZavorthCliDeps,
+  ZavorthCliFlags,
+  ZavorthCliIo,
+  ZavorthCliRuntime,
+  ZavorthCliServiceOverrides,
+  CliExecutionResult,
+  CliReadlineFactory,
+  CliRuntimeProfile,
+  CliWriter,
+} from './ZavorthCliContract.js';
+
+export const parseZavorthCliFlags = parseZavorthCliFlagsImpl;
+export const parseZavorthCliArgs = parseZavorthCliArgsImpl;
+export const buildCliRuntimeFromOverrides = buildCliRuntimeFromOverridesImpl;
+
+export async function executeZavorthCliCommand(params: {
+  rawInput: string;
+  flags: ZavorthCliFlags;
+  resolveRuntime: () => Promise<ZavorthCliRuntime>;
+  writer: CliWriter;
+}): Promise<CliExecutionResult> {
+  const { rawInput, flags, resolveRuntime, writer } = params;
+  const inline = applyInlineCliFlags(rawInput, flags);
+  const effectiveFlags = inline.flags;
+  const resolvedInput = resolveCliExecutionInput(inline.input);
+  const normalized = resolvedInput.surfaceText;
+  const commandName = String(resolvedInput.commandName || '').trim().toLowerCase() || null;
+  const args = resolvedInput.args;
+
+  if (!normalized) {
+    return {
+      ok: false,
+      handled: false,
+      output: [],
+      error: 'Empty command.',
+    };
+  }
+
+  if (commandName === 'context') {
+    const snapshot = buildCliContextSnapshot(effectiveFlags);
+    const body = effectiveFlags.json
+      ? JSON.stringify(snapshot, null, 2)
+      : formatCliContextSnapshot(snapshot);
+    writer.line(body);
+    return { ok: true, handled: true, output: [body], error: null };
+  }
+
+  if (commandName === 'help') {
+    const helpTopic = resolveCliHelpTopic(args);
+    const body = effectiveFlags.json
+      ? JSON.stringify(buildCliHelpSnapshot(helpTopic), null, 2)
+      : formatCliHelp(helpTopic);
+    writer.line(body);
+    return { ok: true, handled: true, output: [body], error: null };
+  }
+
+  if (commandName === 'dashboard' || commandName === 'control' || commandName === 'command-center') {
+    const access = new CommandCenterAccessService();
+    const action = parseCommandCenterAccessAction(args);
+    const snapshot = action === 'doctor'
+      ? access.doctor()
+      : action === 'repair'
+        ? access.repair()
+        : action === 'generate-token'
+          ? access.generateToken()
+          : await access.run(action);
+    const body = effectiveFlags.json
+      ? JSON.stringify(formatCommandCenterAccessJson(snapshot), null, 2)
+      : formatCommandCenterAccessCli(snapshot);
+    writer.line(body);
+    return { ok: true, handled: true, output: [body], error: null };
+  }
+
+  const dailyUseProjection = formatDailyUseCliProjection(commandName, args);
+  if (dailyUseProjection) {
+    const body = effectiveFlags.json
+      ? JSON.stringify(dailyUseProjection.json, null, 2)
+      : dailyUseProjection.text;
+    writer.line(body);
+    return { ok: true, handled: true, output: [body], error: null };
+  }
+
+  if (normalized === 'quit' || normalized === 'exit') {
+    return {
+      ok: true,
+      handled: true,
+      output: ['Closing Zavorth chat.'],
+      error: null,
+    };
+  }
+
+  const runtime = await resolveRuntime();
+  const sharedParams = { runtime, effectiveFlags, commandName, normalized, args, writer };
+
+  const opsResult = await handleZavorthCliRegistryOpsCommand(sharedParams);
+  if (opsResult) {
+    return opsResult;
+  }
+
+  const workspaceResult = await handleZavorthCliRegistryWorkspaceCommand(sharedParams);
+  if (workspaceResult) {
+    return workspaceResult;
+  }
+
+  const sessionsResult = await handleZavorthCliRegistrySessionsCommand(sharedParams);
+  if (sessionsResult) {
+    return sessionsResult;
+  }
+
+  const nodesResult = await handleZavorthCliRegistryNodesCommand(sharedParams);
+  if (nodesResult) {
+    return nodesResult;
+  }
+
+  const platformResult = await handleZavorthCliRegistryPlatformCommand(sharedParams);
+  if (platformResult) {
+    return platformResult;
+  }
+
+  const tasksResult = await handleZavorthCliRegistryTasksCommand(sharedParams);
+  if (tasksResult) {
+    return tasksResult;
+  }
+
+  const supervisorResult = await handleZavorthCliRegistrySupervisorCommand(sharedParams);
+  if (supervisorResult) {
+    return supervisorResult;
+  }
+
+  const healResult = await handleZavorthCliRegistryHealCommand(sharedParams);
+  if (healResult) {
+    return healResult;
+  }
+
+  const releaseResult = await handleZavorthCliRegistryReleaseCommand(sharedParams);
+  if (releaseResult) {
+    return releaseResult;
+  }
+
+  if (commandName === 'workflows') {
+    const workflowQueueResult = await executeCliWorkflowQueueCommand(
+      runtime,
+      args,
+      effectiveFlags,
+      writer,
+    );
+    if (workflowQueueResult) {
+      return workflowQueueResult;
+    }
+  }
+
+  if (commandName === 'approve' || commandName === 'reject') {
+    const universalApprovalResult = await executeCliUniversalApprovalDecision(
+      runtime,
+      args,
+      commandName,
+      effectiveFlags,
+      writer,
+    );
+    if (universalApprovalResult) {
+      return universalApprovalResult;
+    }
+  }
+
+  const replies: string[] = [];
+  const ctx: IMessageContext = {
+    platform: effectiveFlags.platform,
+    userId: effectiveFlags.userId,
+    chatId: effectiveFlags.chatId,
+    isGroup: false,
+    rawText: normalized,
+    transport: normalized.startsWith('/') ? 'slash_command' : 'text',
+    reply: async (text: string) => {
+      replies.push(text);
+    },
+    editMessage: async () => undefined,
+  };
+
+  const surfaceApi = createInternalSurfaceCommandApi(runtime.commandService);
+  const result = surfaceApi
+    ? await surfaceApi.handleCommand({
+      context: ctx,
+      request: {
+        surface: effectiveFlags.platform,
+        requestedBy: effectiveFlags.userId,
+        chatId: effectiveFlags.chatId,
+        threadId: effectiveFlags.sessionId,
+        correlation: {
+          sessionId: effectiveFlags.sessionId,
+        },
+        metadata: {
+          cliCommandName: commandName,
+          repl: effectiveFlags.repl,
+          json: effectiveFlags.json,
+        },
+      },
+    })
+    : null;
+
+  if (!result || result.status === 'not_handled') {
+    if (runtime.agentGateway && (commandName === 'task' || !normalized.startsWith('/'))) {
+      return executeCliUniversalAgentRuntime(runtime, normalized, effectiveFlags, writer);
+    }
+    const legacyUnifiedGateway = runtime.legacyUnifiedGateway || null;
+    if (legacyUnifiedGateway && (commandName === 'task' || !normalized.startsWith('/'))) {
+      return executeCliLegacyUnifiedConversation(legacyUnifiedGateway, normalized, effectiveFlags, writer);
+    }
+    if (runtime.surfaceTaskDispatcher && (commandName === 'task' || !normalized.startsWith('/'))) {
+      return executeCliTaskDispatch(runtime.surfaceTaskDispatcher, normalized, effectiveFlags, writer);
+    }
+    const error = 'Comando nao suportado neste CLI. Use help, gateway ou um slash command conhecido.';
+    if (effectiveFlags.repl) {
+      const body = formatCliRecoverableErrorEventCard({
+        body: 'Nao entendi esse comando no chat.',
+        command: 'help',
+        hints: ['You can also write your request in plain language.'],
+      });
+      writer.line(body);
+      return {
+        ok: false,
+        handled: false,
+        output: [body],
+        error,
+      };
+    }
+    writer.error(error);
+    return {
+      ok: false,
+      handled: false,
+      output: [],
+      error,
+    };
+  }
+
+  if (!result.ok) {
+    const error = result.summary || result.error?.message || 'Falha ao executar comando pela Surface API.';
+    if (effectiveFlags.repl) {
+      const body = formatCliRecoverableErrorEventCard({
+        body: error,
+        command: 'doctor',
+      });
+      writer.line(body);
+      return {
+        ok: false,
+        handled: true,
+        output: [body],
+        error,
+      };
+    }
+    writer.error(error);
+    return {
+      ok: false,
+      handled: true,
+      output: result.messages.length > 0 ? result.messages : [error],
+      error,
+    };
+  }
+
+  const outputReplies = result.messages.length > 0 ? result.messages : replies;
+  if (outputReplies.length === 0) {
+    const body = effectiveFlags.repl
+      ? formatCliSuccessEventCard({
+        title: 'Pronto',
+        body: 'Comando tratado sem resposta textual.',
+      })
+      : 'Comando tratado sem resposta textual.';
+    writer.line(body);
+    return {
+      ok: true,
+      handled: true,
+      output: [body],
+      error: null,
+    };
+  }
+
+  const productBody = formatCliSharedSurfaceProductOutput(
+    normalized,
+    outputReplies,
+    !effectiveFlags.repl,
+    effectiveFlags.repl,
+  );
+  if (productBody) {
+    writer.line(productBody);
+    return {
+      ok: true,
+      handled: true,
+      output: [productBody],
+      error: null,
+    };
+  }
+
+  const renderedReplies = effectiveFlags.repl
+    ? outputReplies.map((reply) =>
+      formatCliChatReplyEventCard(reply)
+      || formatCliChatAssistantMessage({
+        title: 'Zavorth',
+        body: reply,
+      }))
+    : outputReplies;
+
+  for (const reply of renderedReplies) {
+    writer.line(reply);
+  }
+
+  return {
+    ok: true,
+    handled: true,
+    output: renderedReplies,
+    error: null,
+  };
+}
+
+function formatCommandCenterAccessJson(
+  snapshot: CommandCenterAccessSnapshot | CommandCenterAccessDoctorSnapshot,
+): Record<string, unknown> {
+  if (isCommandCenterDoctorSnapshot(snapshot)) {
+    return snapshot;
+  }
+
+  const base: Record<string, unknown> = {
+    ok: true,
+    action: snapshot.action,
+    opened: snapshot.opened,
+    publicUrl: snapshot.publicUrl,
+    tokenSource: snapshot.tokenSource,
+    tokenFile: snapshot.tokenFile,
+  };
+  if (snapshot.action === 'url') {
+    base.url = snapshot.url;
+  }
+  if (snapshot.action === 'token') {
+    base.token = snapshot.token;
+  }
+  return base;
+}
+
+function formatDailyUseCliProjection(
+  commandName: string | null,
+  args: string,
+): { text: string; json: Record<string, unknown> } | null {
+  const command = String(commandName || '').trim().toLowerCase();
+  const normalizedArgs = String(args || '').trim();
+  const tables: Record<string, { title: string; summary: string; rows: Array<[string, string, string]>; notes: string[] }> = {
+    onboard: {
+      title: 'Zavorth Onboarding',
+      summary: 'Guided first-run path for daily local use.',
+      rows: [
+        ['1', 'zavorth setup', 'Create the local profile, workspace defaults and safe runtime files.'],
+        ['2', 'zavorth doctor --simple', 'Check provider, sandbox, workspace and dashboard readiness.'],
+        ['3', 'zavorth go', 'Start or resume the main /dashboard gateway.'],
+      ],
+      notes: [
+        'Personal mode keeps daily use simple. Governed mode exposes policy details.',
+        'Sensitive actions still require Policy Broker decisions and receipts.',
+      ],
+    },
+    setup: {
+      title: 'Zavorth Onboarding',
+      summary: 'Guided first-run path for daily local use.',
+      rows: [
+        ['1', 'zavorth setup', 'Create the local profile, workspace defaults and safe runtime files.'],
+        ['2', 'zavorth doctor --simple', 'Check provider, sandbox, workspace and dashboard readiness.'],
+        ['3', 'zavorth go', 'Start or resume the main /dashboard gateway.'],
+      ],
+      notes: [
+        'Personal mode keeps daily use simple. Governed mode exposes policy details.',
+        'Sensitive actions still require Policy Broker decisions and receipts.',
+      ],
+    },
+    providers: {
+      title: 'Provider Mesh',
+      summary: 'Honest model/provider readiness. Catalog entries are not treated as live until credentials and probes pass.',
+      rows: [
+        ['OpenAI', 'missing_auth', 'Add a SecretRef/API key, then run provider test.'],
+        ['Anthropic', 'missing_auth', 'Add a SecretRef/API key, then run provider test.'],
+        ['Gemini', 'needs_probe', 'Credential may exist; run a live probe before marking ready.'],
+        ['OpenRouter', 'missing_auth', 'Add key and choose a routed model.'],
+        ['Ollama', 'missing_base_url', 'Start local Ollama and set the base URL.'],
+        ['OpenAI-compatible', 'missing_base_url', 'Set base URL and API key/SecretRef if required.'],
+      ],
+      notes: [
+        'Use: zavorth providers test <provider>',
+        'Fallback is explainable; Zavorth should never silently pretend a provider is ready.',
+      ],
+    },
+    provider: {
+      title: 'Provider Mesh',
+      summary: 'Honest model/provider readiness. Catalog entries are not treated as live until credentials and probes pass.',
+      rows: [
+        ['OpenAI', 'missing_auth', 'Add a SecretRef/API key, then run provider test.'],
+        ['Anthropic', 'missing_auth', 'Add a SecretRef/API key, then run provider test.'],
+        ['Gemini', 'needs_probe', 'Credential may exist; run a live probe before marking ready.'],
+        ['OpenRouter', 'missing_auth', 'Add key and choose a routed model.'],
+        ['Ollama', 'missing_base_url', 'Start local Ollama and set the base URL.'],
+        ['OpenAI-compatible', 'missing_base_url', 'Set base URL and API key/SecretRef if required.'],
+      ],
+      notes: ['Use: zavorth providers test <provider>'],
+    },
+    channels: {
+      title: 'Channel Mesh',
+      summary: 'Surface readiness without letting any channel become a separate agent.',
+      rows: [
+        ['dashboard', 'ready', 'Main gateway for normal users.'],
+        ['cli', 'ready', 'Power-user surface and recovery path.'],
+        ['telegram', 'needs_token', 'Configure bot token and approval routing.'],
+        ['discord', 'needs_token', 'Configure bot token and component support.'],
+        ['whatsapp', 'needs_bridge_or_cloud', 'Choose Cloud API, bridge or QR flow.'],
+        ['signal/imessage', 'host_limited', 'Requires host bridge and recipient allowlist.'],
+      ],
+      notes: [
+        'Use: zavorth channels status',
+        'No channel should show ready unless transport, auth and policy checks pass.',
+      ],
+    },
+    channel: {
+      title: 'Channel Mesh',
+      summary: 'Surface readiness without letting any channel become a separate agent.',
+      rows: [
+        ['dashboard', 'ready', 'Main gateway for normal users.'],
+        ['cli', 'ready', 'Power-user surface and recovery path.'],
+        ['telegram', 'needs_token', 'Configure bot token and approval routing.'],
+        ['discord', 'needs_token', 'Configure bot token and component support.'],
+        ['whatsapp', 'needs_bridge_or_cloud', 'Choose Cloud API, bridge or QR flow.'],
+      ],
+      notes: ['Use: zavorth channels status'],
+    },
+    missions: {
+      title: 'Missions',
+      summary: 'Mission-first view: request, preview, risk, approval, execution, artifact and receipt.',
+      rows: [
+        ['active', 'none', 'No local mission projection is active in this quick view.'],
+        ['preview', 'available', 'Use zavorth run "<request>" or pick a template.'],
+        ['cancel', 'policy-bound', 'Cancellation goes through the runtime API, not direct UI mutation.'],
+      ],
+      notes: [
+        'Use: zavorth missions --json for machine-readable projection.',
+        'The dashboard should display the same mission truth as this CLI surface.',
+      ],
+    },
+    receipts: {
+      title: 'Receipts',
+      summary: 'Readable evidence for what Zavorth did, blocked or left in preview.',
+      rows: [
+        ['latest', 'not loaded', 'Start a mission or action to produce a receipt.'],
+        ['contents', 'safe', 'Files, tools, approvals, risk, artifacts and rollback status.'],
+        ['secrets', 'redacted', 'Raw secrets must never appear in receipt text.'],
+      ],
+      notes: [
+        'Use: zavorth receipts --json for audit export.',
+        'Every important action should produce a receipt, including denial and rollback.',
+      ],
+    },
+    receipt: {
+      title: 'Receipts',
+      summary: 'Readable evidence for what Zavorth did, blocked or left in preview.',
+      rows: [
+        ['latest', 'not loaded', 'Start a mission or action to produce a receipt.'],
+        ['contents', 'safe', 'Files, tools, approvals, risk, artifacts and rollback status.'],
+        ['secrets', 'redacted', 'Raw secrets must never appear in receipt text.'],
+      ],
+      notes: ['Use: zavorth receipts --json for audit export.'],
+    },
+    schedule: {
+      title: 'Scheduler',
+      summary: 'Daily autonomy with pre-approved scope, TTL, budget, renewal and kill switch.',
+      rows: [
+        ['list', 'available', 'Show recurring tasks and next run times.'],
+        ['create', 'approval_required', 'Natural schedules become scoped tasks before live execution.'],
+        ['pause/resume', 'available', 'Surface command maps to the governed scheduler.'],
+        ['revoke', 'available', 'Kill switch remains available from every surface.'],
+      ],
+      notes: [
+        'Scheduled tasks cannot create scheduled tasks.',
+        'Every tick still passes through Policy Broker.',
+      ],
+    },
+    scheduler: {
+      title: 'Scheduler',
+      summary: 'Daily autonomy with pre-approved scope, TTL, budget, renewal and kill switch.',
+      rows: [
+        ['list', 'available', 'Show recurring tasks and next run times.'],
+        ['create', 'approval_required', 'Natural schedules become scoped tasks before live execution.'],
+        ['pause/resume', 'available', 'Surface command maps to the governed scheduler.'],
+      ],
+      notes: ['Every tick still passes through Policy Broker.'],
+    },
+    skills: {
+      title: 'Skills',
+      summary: 'Governed skill memory: reusable instructions, not auto-executed code.',
+      rows: [
+        ['search', 'available', 'Find imported/native skills by intent.'],
+        ['absorb', 'preview_first', 'Large libraries are chunked, hashed, attributed and quarantined if risky.'],
+        ['use', 'policy_bound', 'Low-risk instruction use can be natural; live tools need approval.'],
+        ['learn', 'guarded', 'Only general, deterministic, low/medium-risk patterns become skill candidates.'],
+      ],
+      notes: [
+        'High-risk one-off work becomes a mission, not an automatic skill.',
+        'FTS/indexed lookup avoids injecting huge markdown into every prompt.',
+      ],
+    },
+    skill: {
+      title: 'Skills',
+      summary: 'Governed skill memory: reusable instructions, not auto-executed code.',
+      rows: [
+        ['search', 'available', 'Find imported/native skills by intent.'],
+        ['absorb', 'preview_first', 'Large libraries are chunked, hashed, attributed and quarantined if risky.'],
+        ['use', 'policy_bound', 'Low-risk instruction use can be natural; live tools need approval.'],
+      ],
+      notes: ['High-risk one-off work becomes a mission, not an automatic skill.'],
+    },
+    agents: {
+      title: 'Subagents',
+      summary: 'Governed workers for parallel analysis, build, review and QA.',
+      rows: [
+        ['spawn', 'available', 'Explicit "use subagents" creates scoped workers.'],
+        ['auto', 'guarded', 'Auto-subagents can run when parallelism is obvious and safe.'],
+        ['wait/summarize', 'available', 'Results return through the parent mission receipt.'],
+        ['cancel/list/read', 'available', 'Operator controls stay visible in CLI and dashboard.'],
+      ],
+      notes: [
+        'Budgets cover time, tokens, tools, files, network and spawn depth.',
+        'Mutations by subagents still require approval.',
+      ],
+    },
+    agent: {
+      title: 'Subagents',
+      summary: 'Governed workers for parallel analysis, build, review and QA.',
+      rows: [
+        ['spawn', 'available', 'Explicit "use subagents" creates scoped workers.'],
+        ['wait/summarize', 'available', 'Results return through the parent mission receipt.'],
+        ['cancel/list/read', 'available', 'Operator controls stay visible in CLI and dashboard.'],
+      ],
+      notes: ['Mutations by subagents still require approval.'],
+    },
+    templates: {
+      title: 'Templates',
+      summary: 'Guided safe starts for common daily missions.',
+      rows: [
+        ['dev-repo-review', 'ready', 'Read-only repository review with findings and receipt.'],
+        ['pdf-summary', 'ready', 'Document summary with evidence markers.'],
+        ['file-organization', 'preview_first', 'Plan file moves before any mutation.'],
+        ['daily-assistant', 'ready', 'Lightweight briefing and reminders.'],
+        ['safe-audit', 'ready', 'Security-oriented read-only audit path.'],
+      ],
+      notes: ['Templates are entry points, not bypasses around policy.'],
+    },
+  };
+
+  const key = command === 'models' ? 'providers' : command;
+  const table = tables[key];
+  if (!table) return null;
+
+  const text = formatDailyUseCliTable(table.title, table.summary, table.rows, table.notes, normalizedArgs);
+  return {
+    text,
+    json: {
+      surface: 'zavorth-cli',
+      command,
+      args: normalizedArgs,
+      title: table.title,
+      summary: table.summary,
+      rows: table.rows.map(([name, status, detail]) => ({ name, status, detail })),
+      notes: table.notes,
+      dashboardPath: '/dashboard',
+      canExecuteMutations: false,
+    },
+  };
+}
+
+function formatDailyUseCliTable(
+  title: string,
+  summary: string,
+  rows: Array<[string, string, string]>,
+  notes: string[],
+  args: string,
+): string {
+  const nameWidth = Math.max(10, ...rows.map(([name]) => name.length));
+  const statusWidth = Math.max(8, ...rows.map(([, status]) => status.length));
+  const lines = [
+    title,
+    '-'.repeat(title.length),
+    summary,
+  ];
+  if (args) lines.push(`Args: ${args}`);
+  lines.push('', `${'Item'.padEnd(nameWidth)}  ${'Status'.padEnd(statusWidth)}  Next step`);
+  lines.push(`${'-'.repeat(nameWidth)}  ${'-'.repeat(statusWidth)}  ${'-'.repeat(36)}`);
+  for (const [name, status, detail] of rows) {
+    lines.push(`${name.padEnd(nameWidth)}  ${status.padEnd(statusWidth)}  ${detail}`);
+  }
+  if (notes.length > 0) {
+    lines.push('', 'Notes:');
+    for (const note of notes) lines.push(`- ${note}`);
+  }
+  return lines.join('\n');
+}
+
+function formatCommandCenterAccessCli(
+  snapshot: CommandCenterAccessSnapshot | CommandCenterAccessDoctorSnapshot,
+): string {
+  if (isCommandCenterDoctorSnapshot(snapshot)) {
+    const source = snapshot.tokenSource === 'env'
+      ? 'ZAVORTH_WEB_AUTH_TOKEN'
+      : snapshot.tokenSource === 'runtime-file'
+        ? 'arquivo de runtime'
+        : snapshot.tokenSource === 'generated-runtime-file'
+          ? 'arquivo de runtime gerado agora'
+          : 'ausente';
+    const problems = snapshot.problems.length > 0
+      ? snapshot.problems.map((entry: string) => `- ${entry}`).join('\n')
+      : '- Nenhum problema de token local detectado.';
+    return [
+      snapshot.action === 'doctor'
+        ? 'Doctor do Command Center'
+        : snapshot.action === 'repair'
+          ? 'Repair do Command Center'
+          : 'Novo token do Command Center',
+      `- Estado: ${snapshot.status}`,
+      `- Painel: ${snapshot.publicUrl}`,
+      `- Origem do token: ${source}`,
+      `- Arquivo local: ${snapshot.tokenFile}`,
+      '',
+      'Diagnostico',
+      problems,
+      '',
+      'Recuperacao rapida',
+      '- zavorth dashboard: abre uma aba nova ja desbloqueada',
+      '- zavorth dashboard url: mostra link local ja desbloqueado',
+      '- zavorth dashboard repair: corrige token local ausente/vazio',
+      '- zavorth dashboard generate-token: troca o token local quando ele vem de arquivo',
+      '',
+      ...snapshot.notes.map((entry: string) => `- ${entry}`),
+    ].join('\n');
+  }
+
+  if (snapshot.action === 'token') {
+    return [
+      'Token local do Zavorth',
+      '- Use este token somente nesta maquina.',
+      `- Token: ${snapshot.token}`,
+      `- Origem: ${snapshot.tokenSource === 'env' ? '.env' : snapshot.tokenFile}`,
+      '',
+      'Dica: se voce so quer abrir o painel, use `zavorth dashboard`.',
+    ].join('\n');
+  }
+
+  if (snapshot.action === 'url') {
+    return [
+      'Link local do Command Center',
+      '- Este link ja vai desbloquear o painel nesta aba.',
+      '- Nao compartilhe este link: ele contem o token local.',
+      '',
+      snapshot.url,
+    ].join('\n');
+  }
+
+  if (snapshot.action === 'status') {
+    return [
+      'Command Center',
+      `- Painel: ${snapshot.publicUrl}`,
+      `- Acesso: protegido por token local (${snapshot.tokenSource === 'env' ? '.env' : 'arquivo de runtime'})`,
+      '- Para abrir ja desbloqueado: zavorth dashboard',
+      '- Para copiar o link: zavorth dashboard url',
+    ].join('\n');
+  }
+
+  return [
+    snapshot.opened ? 'Command Center aberto.' : 'Nao consegui abrir o navegador automaticamente.',
+    `- Painel: ${snapshot.publicUrl}`,
+    '- Acesso: desbloqueado automaticamente nesta abertura.',
+    '',
+    snapshot.opened
+      ? 'Se o navegador nao apareceu, rode `zavorth dashboard url` e cole o link.'
+      : 'Rode `zavorth dashboard url` e cole o link no navegador.',
+  ].join('\n');
+}
+
+function isCommandCenterDoctorSnapshot(
+  snapshot: CommandCenterAccessSnapshot | CommandCenterAccessDoctorSnapshot,
+): snapshot is CommandCenterAccessDoctorSnapshot {
+  return snapshot.action === 'doctor'
+    || snapshot.action === 'repair'
+    || snapshot.action === 'generate-token';
+}

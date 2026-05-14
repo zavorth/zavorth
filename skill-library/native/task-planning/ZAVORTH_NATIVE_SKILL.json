@@ -1,0 +1,16 @@
+{
+  "id": "task-planning",
+  "name": "Task Planning",
+  "native": true,
+  "description": "Break unclear goals into safe execution plans, acceptance criteria, and checkpoints.",
+  "category": "reasoning",
+  "permissionProfileId": "local-readonly",
+  "riskLevel": "low",
+  "capabilityTags": ["workflow"],
+  "presets": ["basic", "developer", "research", "ops", "power-user"],
+  "inputContract": ["user intent", "current runtime context", "known constraints"],
+  "outputContract": ["plan", "acceptance criteria", "next action"],
+  "noExecutionByDefault": true,
+  "requiresPolicyBroker": true,
+  "receiptsRequired": true
+}

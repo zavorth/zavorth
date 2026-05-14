@@ -1,0 +1,275 @@
+import { Context, InputFile, InlineKeyboard } from 'grammy';
+import * as fs from 'fs';
+import * as os from 'os';
+import * as path from 'path';
+import { DndService } from './DndService.js';
+
+const SPLIT_THRESHOLD = 3800;
+
+type ReplyMarkup = InlineKeyboard | Record<string, any> | undefined;
+
+type SmartOutputOptions = {
+  parse_mode?: 'Markdown' | 'HTML';
+  prefix?: string;
+  reply_markup?: ReplyMarkup;
+  includeDeleteAction?: boolean;
+};
+
+type BotApiLike = {
+  sendMessage(chatId: string | number, text: string, options?: Record<string, any>): Promise<unknown>;
+  sendDocument?(chatId: string | number, document: InputFile, options?: Record<string, any>): Promise<unknown>;
+};
+
+type SendTarget = {
+  sendText(text: string, options?: Record<string, any>): Promise<unknown>;
+  sendDocument?: (filePath: string, fileName: string, options?: Record<string, any>) => Promise<unknown>;
+};
+
+export class SmartOutputService {
+  public static async reply(
+    ctx: Context,
+    text: string,
+    options?: SmartOutputOptions,
+  ): Promise<void> {
+    const fullText = options?.prefix ? `${options.prefix}\n\n${text}` : text;
+    
+    // NOVO: Verifica DND (Modo Nao Perturbe) para mensagens do chatbot
+    if (ctx.chat?.id) {
+       const isQueued = await DndService.queueMessageOrSend(null, ctx.chat.id, fullText);
+       if (isQueued) return;
+    }
+
+    const replyMarkup = this.resolveReplyMarkup(options);
+
+    if (fullText.length <= SPLIT_THRESHOLD) {
+      await this.sendTextWithFormattingFallback(
+        (nextText, sendOptions) => ctx.reply(nextText, sendOptions),
+        fullText,
+        {
+          parse_mode: options?.parse_mode,
+          reply_markup: replyMarkup as any,
+        },
+      );
+      return;
+    }
+
+    await this.sendLongText(
+      {
+        sendText: (nextText, sendOptions) => ctx.reply(nextText, sendOptions),
+        sendDocument:
+          typeof (ctx as any).replyWithDocument === 'function'
+            ? (filePath, fileName, sendOptions) =>
+                (ctx as any).replyWithDocument(new InputFile(filePath, fileName), sendOptions)
+            : undefined,
+      },
+      fullText,
+      {
+        reply_markup: replyMarkup,
+      },
+    );
+  }
+
+  public static async send(
+    botApi: BotApiLike,
+    chatId: string | number,
+    text: string,
+    options?: Omit<SmartOutputOptions, 'includeDeleteAction'>,
+  ): Promise<void> {
+    const fullText = options?.prefix ? `${options.prefix}\n\n${text}` : text;
+
+    // NOVO: Verifica DND (Modo Nao Perturbe) para envio de background
+    const isQueued = await DndService.queueMessageOrSend(botApi, chatId, fullText);
+    if (isQueued) return;
+
+    if (fullText.length <= SPLIT_THRESHOLD) {
+      await this.sendTextWithFormattingFallback(
+        (nextText, sendOptions) => botApi.sendMessage(chatId, nextText, sendOptions),
+        fullText,
+        {
+          parse_mode: options?.parse_mode,
+          reply_markup: options?.reply_markup,
+        },
+      );
+      return;
+    }
+
+    await this.sendLongText(
+      {
+        sendText: (nextText, sendOptions) => botApi.sendMessage(chatId, nextText, sendOptions),
+        sendDocument:
+          typeof botApi.sendDocument === 'function'
+            ? (filePath, fileName, sendOptions) =>
+                botApi.sendDocument!(chatId, new InputFile(filePath, fileName), sendOptions)
+            : undefined,
+      },
+      fullText,
+      {
+        reply_markup: options?.reply_markup,
+      },
+    );
+  }
+
+  private static async sendLongText(
+    target: SendTarget,
+    text: string,
+    options?: {
+      reply_markup?: ReplyMarkup;
+    },
+  ): Promise<void> {
+    if (target.sendDocument) {
+      try {
+        await this.sendAsDocument(target, text, options);
+        return;
+      } catch {
+        // Fall back to chunked messages when this context cannot upload documents
+        // or when Telegram rejects the upload.
+      }
+    }
+
+    await this.sendAsChunks(target, text, options);
+  }
+
+  private static async sendTextWithFormattingFallback(
+    sendText: (text: string, options?: Record<string, any>) => Promise<unknown>,
+    text: string,
+    options?: Record<string, any>,
+  ): Promise<void> {
+    try {
+      await sendText(text, options);
+      return;
+    } catch (error: any) {
+      if (!this.shouldRetryWithoutParseMode(error, options)) {
+        throw error;
+      }
+    }
+
+    const fallbackOptions = { ...(options || {}) };
+    delete fallbackOptions.parse_mode;
+    await sendText(text, fallbackOptions);
+  }
+
+  private static shouldRetryWithoutParseMode(error: any, options?: Record<string, any>): boolean {
+    const parseMode = String(options?.parse_mode || '').trim();
+    if (!parseMode) {
+      return false;
+    }
+
+    const message = String(error?.message || error || '').toLowerCase();
+    return message.includes("can't parse entities") || message.includes('cant parse entities');
+  }
+
+  private static async sendAsDocument(
+    target: SendTarget,
+    text: string,
+    options?: {
+      reply_markup?: ReplyMarkup;
+    },
+  ): Promise<void> {
+    const tmpDir = path.join(os.tmpdir(), 'zavorth-output');
+    if (!fs.existsSync(tmpDir)) {
+      fs.mkdirSync(tmpDir, { recursive: true });
+    }
+
+    const filename = `zavorth-response-${Date.now()}.txt`;
+    const filepath = path.join(tmpDir, filename);
+
+    try {
+      fs.writeFileSync(filepath, text, 'utf-8');
+      const summary = this.generateSummary(text);
+
+      await target.sendDocument!(filepath, filename, {
+        caption: `Documento completo (${text.length} caracteres)\n\n${summary}`.slice(0, 1024),
+        reply_markup: options?.reply_markup,
+      });
+    } finally {
+      try {
+        if (fs.existsSync(filepath)) {
+          fs.unlinkSync(filepath);
+        }
+      } catch {
+        // ignore cleanup errors
+      }
+    }
+  }
+
+  private static async sendAsChunks(
+    target: SendTarget,
+    text: string,
+    options?: {
+      reply_markup?: ReplyMarkup;
+    },
+  ): Promise<void> {
+    const chunks = this.splitMessage(text, 3600);
+
+    for (const [index, chunk] of chunks.entries()) {
+      const prefix = chunks.length > 1 ? `Parte ${index + 1}/${chunks.length}\n` : '';
+      await target.sendText(`${prefix}${chunk}`, {
+        reply_markup: index === 0 ? options?.reply_markup : undefined,
+      });
+    }
+  }
+
+  private static generateSummary(text: string): string {
+    const lines = text.split('\n').filter((line) => line.trim().length > 0);
+    let summary = '';
+
+    for (const line of lines) {
+      if (summary.length + line.length > 800) {
+        break;
+      }
+      summary += `${line}\n`;
+    }
+
+    if (summary.length < text.length) {
+      summary += '\n... (continue lendo o arquivo para ver tudo)';
+    }
+
+    return summary.trim();
+  }
+
+  public static splitMessage(text: string, maxLength = SPLIT_THRESHOLD): string[] {
+    if (text.length <= maxLength) {
+      return [text];
+    }
+
+    const chunks: string[] = [];
+    const lines = text.split('\n');
+    let current = '';
+
+    for (const line of lines) {
+      if (current.length + line.length + 1 > maxLength) {
+        if (current.length > 0) {
+          chunks.push(current.trimEnd());
+          current = '';
+        }
+
+        if (line.length > maxLength) {
+          for (let index = 0; index < line.length; index += maxLength) {
+            chunks.push(line.substring(index, index + maxLength));
+          }
+          continue;
+        }
+      }
+
+      current += (current.length > 0 ? '\n' : '') + line;
+    }
+
+    if (current.length > 0) {
+      chunks.push(current.trimEnd());
+    }
+
+    return chunks;
+  }
+
+  private static resolveReplyMarkup(options?: SmartOutputOptions): ReplyMarkup {
+    if (options?.reply_markup) {
+      return options.reply_markup;
+    }
+
+    if (options?.includeDeleteAction === false) {
+      return undefined;
+    }
+
+    return new InlineKeyboard().text('Apagar', 'action:delete');
+  }
+}

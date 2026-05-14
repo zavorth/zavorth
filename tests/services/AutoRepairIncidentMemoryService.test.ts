@@ -1,0 +1,139 @@
+import fs from 'fs';
+import os from 'os';
+import path from 'path';
+import { AutoRepairIncidentMemoryService } from '../../src/services/AutoRepairIncidentMemoryService';
+import type { AutoRepairReport } from '../../src/services/AutoRepairService';
+
+describe('AutoRepairIncidentMemoryService', () => {
+  const tempDirs: string[] = [];
+
+  afterEach(() => {
+    while (tempDirs.length > 0) {
+      const target = tempDirs.pop();
+      if (target && fs.existsSync(target)) {
+        fs.rmSync(target, { recursive: true, force: true });
+      }
+    }
+  });
+
+  function createReport(overrides: Partial<AutoRepairReport> = {}): AutoRepairReport {
+    return {
+      startedAt: '2026-04-01T12:00:00.000Z',
+      finishedAt: '2026-04-01T12:01:00.000Z',
+      requestedBy: '42',
+      reason: 'Teste de memoria operacional.',
+      goal: 'auto',
+      dryRun: false,
+      force: false,
+      status: 'failed',
+      projectRoot: 'C:/workspace/zavorth',
+      bootstrapRepair: {
+        startedAt: '2026-04-01T12:00:00.000Z',
+        finishedAt: '2026-04-01T12:00:05.000Z',
+        dryRun: false,
+        initial: { projectRoot: 'root', supervisedRuntime: {}, actions: [], summary: 'ok' },
+        steps: [],
+        final: { projectRoot: 'root', supervisedRuntime: {}, actions: [], summary: 'ok' },
+        summary: 'ok',
+      } as any,
+      planner: {
+        needsCodeChange: true,
+        targetFile: 'src/services/FixService.ts',
+        instruction: 'Corrigir o arquivo alvo.',
+        summary: 'Corrigir um unico servico.',
+        confidence: 0.8,
+        warnings: [],
+        validationHints: ['tests/services/FixService.test.ts'],
+      },
+      attempts: [
+        {
+          attemptNumber: 1,
+          plannedAt: '2026-04-01T12:00:10.000Z',
+          targetFile: 'src/services/FixService.ts',
+          instruction: 'Corrigir o arquivo alvo.',
+          plannerSummary: 'Corrigir um unico servico.',
+          plannerConfidence: 0.8,
+          validation: [
+            {
+              label: 'build',
+              command: 'npm run build',
+              status: 'failed',
+              startedAt: '2026-04-01T12:00:20.000Z',
+              finishedAt: '2026-04-01T12:00:21.000Z',
+              durationMs: 1000,
+              output: 'TS1005',
+            },
+          ],
+          status: 'failed',
+          error: 'Falha no build.',
+        },
+      ],
+      reloadRequest: null,
+      warnings: [],
+      summary: 'Falha ao validar o reparo.',
+      ...overrides,
+    };
+  }
+
+  it('returns a default summary when there is no persisted history', () => {
+    const root = fs.mkdtempSync(path.join(os.tmpdir(), 'zavorth-memory-empty-'));
+    tempDirs.push(root);
+    const service = new AutoRepairIncidentMemoryService({
+      filePath: path.join(root, 'autorepair-incidents.json'),
+    });
+
+    expect(service.readEntries()).toEqual([]);
+    expect(service.summarizeForPlanner()).toContain('ainda nao existe memoria persistida');
+    expect(service.summarizeForStatus()).toContain('ainda sem incidentes persistidos');
+  });
+
+  it('records incidents and summarizes repeated targets and failures', () => {
+    const root = fs.mkdtempSync(path.join(os.tmpdir(), 'zavorth-memory-history-'));
+    tempDirs.push(root);
+    const filePath = path.join(root, 'autorepair-incidents.json');
+    const service = new AutoRepairIncidentMemoryService({ filePath });
+
+    service.recordRun(createReport(), ['autorepair', 'telegram']);
+    service.recordRun(
+      createReport({
+        finishedAt: '2026-04-01T13:01:00.000Z',
+        attempts: [
+          {
+            attemptNumber: 2,
+            plannedAt: '2026-04-01T13:00:10.000Z',
+            targetFile: 'src/services/FixService.ts',
+            instruction: 'Corrigir o arquivo alvo.',
+            plannerSummary: 'Corrigir um unico servico.',
+            plannerConfidence: 0.85,
+            validation: [
+              {
+                label: 'build',
+                command: 'npm run build',
+                status: 'failed',
+                startedAt: '2026-04-01T13:00:20.000Z',
+                finishedAt: '2026-04-01T13:00:21.000Z',
+                durationMs: 1000,
+                output: 'TS2304',
+              },
+            ],
+            status: 'failed',
+            error: 'Nova falha no build.',
+          },
+        ],
+        summary: 'Segunda falha ao validar o reparo.',
+      }),
+      ['autorepair'],
+    );
+
+    const entries = service.readEntries();
+    const summary = service.summarizeForPlanner();
+
+    expect(entries).toHaveLength(2);
+    expect(summary).toContain('Registros: 2.');
+    expect(summary).toContain('src/services/FixService.ts (2)');
+    expect(summary).toContain('build (2)');
+    expect(summary).toContain('Nova falha no build.');
+    expect(service.summarizeForStatus()).toContain('Memoria operacional: 2 registro(s).');
+    expect(service.summarizeForStatus()).toContain('Falha recorrente: build (2).');
+  });
+});

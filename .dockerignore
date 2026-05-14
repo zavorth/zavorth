@@ -1,0 +1,17 @@
+node_modules
+dist
+data
+data/**/*.db*
+data/**/logs
+data/secrets_honey.txt
+output
+tmp
+.git
+.external-executor
+.agents
+.env
+debug.log
+tmp_*.ts
+tmp_ag_*.ts
+coverage
+scripts/out_*.html

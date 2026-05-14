@@ -1,0 +1,16 @@
+{
+  "id": "prompt-injection-defense",
+  "name": "Prompt Injection Defense",
+  "native": true,
+  "description": "Classify untrusted content, isolate instructions, and produce mitigations for prompt-injection surfaces.",
+  "category": "security",
+  "permissionProfileId": "workspace-read",
+  "riskLevel": "medium",
+  "capabilityTags": ["security", "research"],
+  "presets": ["basic", "security", "developer", "power-user"],
+  "inputContract": ["content source", "untrusted text", "runtime action surface"],
+  "outputContract": ["classification", "blocked instruction", "mitigation"],
+  "noExecutionByDefault": true,
+  "requiresPolicyBroker": true,
+  "receiptsRequired": true
+}

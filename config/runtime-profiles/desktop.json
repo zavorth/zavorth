@@ -1,0 +1,20 @@
+{
+  "id": "desktop",
+  "label": "Desktop",
+  "description": "Perfil balanceado de workstation: channels sob demanda e sidecars pesados gerenciados fora do core.",
+  "budgetProfile": "desktop",
+  "resourcePosture": "balanced",
+  "pollingMode": "adaptive",
+  "maintenanceMode": "light",
+  "maxActiveSidecars": 2,
+  "sidecarIdleTimeoutMs": 300000,
+  "capabilityBootOverrides": {
+    "telegram": "on-demand",
+    "browser": "sidecar",
+    "ai-gateway": "sidecar"
+  },
+  "notes": [
+    "Bom perfil para desktop com browser ocasional.",
+    "Mantem Playwright e Gateway fora do processo principal."
+  ]
+}

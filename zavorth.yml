@@ -1,0 +1,58 @@
+version: 1
+
+project:
+  name: zavorth-core
+  root: .
+  description: Local-first Zavorth runtime and Command Center workspace.
+
+processes:
+  - id: command-center
+    name: Command Center Runtime
+    command: npm run dev:supervised
+    cwd: .
+    restart: on-failure
+    health:
+      type: http
+      url: http://127.0.0.1:3000/control
+
+  - id: runtime-check
+    name: Runtime Typecheck
+    command: npm run runtime:check -- --pretty false
+    cwd: .
+    restart: never
+
+  - id: gateway-check
+    name: Gateway Surface Check
+    command: npm run ai-gateway:check -- --pretty false
+    cwd: .
+    restart: never
+
+mcp:
+  servers: []
+
+agents:
+  - id: maintainer
+    role: project-maintainer
+    watches:
+      - command-center
+      - runtime-check
+      - gateway-check
+    mode: suggest
+
+hooks:
+  - id: typecheck-failure
+    when:
+      process: runtime-check
+      pattern: "(error TS|Command failed|FAILED|Error)"
+    action:
+      type: agent-run
+      mode: suggest
+      prompt: Diagnose the typecheck failure and propose the smallest safe fix.
+
+policy:
+  defaultMode: suggest
+  requireApprovalFor:
+    - filesystem.write
+    - process.kill
+    - network.public
+    - selfmod.apply

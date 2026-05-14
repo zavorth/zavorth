@@ -1,0 +1,16 @@
+{
+  "id": "incident-triage",
+  "name": "Incident Triage",
+  "native": true,
+  "description": "Prioritize errors, degraded integrations, security alerts, regressions, and recovery steps.",
+  "category": "operations",
+  "permissionProfileId": "workspace-read",
+  "riskLevel": "medium",
+  "capabilityTags": ["security", "workflow"],
+  "presets": ["ops", "security", "developer", "power-user"],
+  "inputContract": ["symptom", "logs or evidence", "affected surface"],
+  "outputContract": ["severity", "mitigation", "verification"],
+  "noExecutionByDefault": true,
+  "requiresPolicyBroker": true,
+  "receiptsRequired": true
+}

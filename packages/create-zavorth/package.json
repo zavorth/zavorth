@@ -1,0 +1,15 @@
+{
+  "name": "create-zavorth",
+  "version": "1.1.0",
+  "description": "Safe dry-run project bootstrap initializer for Zavorth.",
+  "bin": {
+    "create-zavorth": "bin/create-zavorth.js"
+  },
+  "files": [
+    "bin/",
+    "README.md",
+    "package.json"
+  ],
+  "license": "UNLICENSED",
+  "private": false
+}

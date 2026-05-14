@@ -1,0 +1,225 @@
+import fs from 'fs';
+import path from 'path';
+import {
+  StitchAuthConfig,
+  StitchDownloadResult,
+  StitchGeneratedScreen,
+  StitchPersistArtifactsInput,
+  StitchPersistArtifactsResult,
+} from './stitchExecutorTypes.js';
+import { safeFetch } from '../../security/SafeFetchService.js';
+
+export function resolveStitchProjectId(project: any): string {
+  return String(project?.projectId || project?.id || project?.name || '')
+    .replace(/^projects\//, '')
+    .trim();
+}
+
+export function extractStitchGeneratedScreen(raw: any): StitchGeneratedScreen | null {
+  const directScreens = Array.isArray(raw?.design?.screens) ? raw.design.screens : [];
+  if (directScreens[0]) {
+    return directScreens[0] as StitchGeneratedScreen;
+  }
+
+  const outputComponents = Array.isArray(raw?.outputComponents) ? raw.outputComponents : [];
+  for (const component of outputComponents) {
+    const screens = Array.isArray(component?.design?.screens) ? component.design.screens : [];
+    if (screens[0]) {
+      return screens[0] as StitchGeneratedScreen;
+    }
+  }
+
+  return null;
+}
+
+export function resolveStitchScreenId(screen: StitchGeneratedScreen | null): string {
+  const direct = String(screen?.id || '').trim();
+  if (direct) {
+    return direct;
+  }
+
+  const name = String(screen?.name || '').trim();
+  if (name.includes('/screens/')) {
+    return name.split('/screens/').pop() || '';
+  }
+
+  return '';
+}
+
+export function extractStitchDownloadUrl(value: any): string | null {
+  const url = String(value?.downloadUrl || value || '').trim();
+  return url || null;
+}
+
+export async function downloadStitchArtifact(
+  artifactUrl: string,
+  artifactDir: string,
+  baseName: string,
+  authConfig: StitchAuthConfig,
+): Promise<StitchDownloadResult> {
+  const headers: Record<string, string> = {};
+  if ('apiKey' in authConfig && authConfig.apiKey) {
+    headers['X-Goog-Api-Key'] = authConfig.apiKey;
+  } else if ('accessToken' in authConfig && authConfig.accessToken) {
+    headers.Authorization = `Bearer ${authConfig.accessToken}`;
+    headers['X-Goog-User-Project'] = authConfig.projectId;
+  }
+
+  const response = await safeFetch(artifactUrl, { headers }, {
+    serviceName: 'Stitch artifact download',
+  });
+  if (!response.ok) {
+    throw new Error(`Falha ao baixar artefato do Stitch: ${response.status} ${response.statusText}`);
+  }
+
+  const mimeType = String(response.headers.get('content-type') || 'application/octet-stream').split(';')[0].trim();
+  const extension = resolveStitchArtifactExtension(mimeType, artifactUrl);
+  const filePath = path.join(artifactDir, `${sanitizeStitchFilePart(baseName)}${extension}`);
+  const buffer = Buffer.from(await response.arrayBuffer());
+  await fs.promises.writeFile(filePath, buffer);
+
+  return { path: filePath, mimeType };
+}
+
+export async function persistStitchArtifacts(
+  input: StitchPersistArtifactsInput,
+): Promise<StitchPersistArtifactsResult> {
+  const metadata: Record<string, any> = {
+    stitch_project_id: input.projectId,
+    stitch_screen_id: input.screenId,
+    stitch_device_type: input.deviceType,
+    stitch_model_id: input.modelId || null,
+    stitch_image_url: input.imageUrl,
+    stitch_html_url: input.htmlUrl,
+  };
+
+  const artifacts: any[] = [];
+  if (input.imageUrl) {
+    artifacts.push({
+      type: 'link',
+      kind: 'stitch_image_url',
+      name: `stitch-screen-${input.screenId}.png`,
+      url: input.imageUrl,
+      source: 'stitch',
+      summary: 'Screenshot remoto do Stitch',
+    });
+  }
+
+  if (input.htmlUrl) {
+    artifacts.push({
+      type: 'link',
+      kind: 'stitch_html_url',
+      name: `stitch-screen-${input.screenId}.html`,
+      url: input.htmlUrl,
+      source: 'stitch',
+      summary: 'Download remoto do HTML gerado pelo Stitch',
+    });
+  }
+
+  const downloadedImage = input.imageUrl
+    ? await input
+        .downloadArtifact(input.imageUrl, input.artifactDir, `stitch-screen-${input.screenId}`, input.authConfig)
+        .catch(() => null)
+    : null;
+  const downloadedHtml = input.htmlUrl
+    ? await input
+        .downloadArtifact(input.htmlUrl, input.artifactDir, `stitch-screen-${input.screenId}`, input.authConfig)
+        .catch(() => null)
+    : null;
+
+  if (downloadedImage) {
+    artifacts.push({
+      type: 'image',
+      kind: 'stitch_screenshot',
+      name: path.basename(downloadedImage.path),
+      path: downloadedImage.path,
+      url: input.imageUrl,
+      mimeType: downloadedImage.mimeType,
+      source: 'stitch',
+      summary: 'Preview local da tela gerada pelo Stitch',
+    });
+  }
+
+  if (downloadedHtml) {
+    artifacts.push({
+      type: 'file',
+      kind: 'stitch_html',
+      name: path.basename(downloadedHtml.path),
+      path: downloadedHtml.path,
+      url: input.htmlUrl,
+      mimeType: downloadedHtml.mimeType,
+      source: 'stitch',
+      summary: 'HTML exportado pelo Stitch',
+    });
+  }
+
+  const manifestPath = path.join(input.artifactDir, 'stitch-manifest.json');
+  await fs.promises.writeFile(
+    manifestPath,
+    JSON.stringify(
+      {
+        prompt: input.prompt,
+        generationPrompt: input.generationPrompt,
+        generatedAt: new Date().toISOString(),
+        projectId: input.projectId,
+        screenId: input.screenId,
+        deviceType: input.deviceType,
+        modelId: input.modelId || null,
+        imageUrl: input.imageUrl,
+        htmlUrl: input.htmlUrl,
+        artifacts,
+      },
+      null,
+      2,
+    ),
+    'utf8',
+  );
+
+  artifacts.push({
+    type: 'file',
+    kind: 'stitch_manifest',
+    name: path.basename(manifestPath),
+    path: manifestPath,
+    mimeType: 'application/json',
+    source: 'stitch',
+    summary: 'Manifesto local com ids, links e artefatos do Stitch',
+  });
+
+  return {
+    artifacts,
+    metadata,
+    downloadedImage,
+    downloadedHtml,
+    manifestPath,
+  };
+}
+
+export function resolveStitchArtifactExtension(mimeType: string, artifactUrl: string): string {
+  const normalizedMime = String(mimeType || '').toLowerCase();
+  if (normalizedMime.includes('png')) return '.png';
+  if (normalizedMime.includes('jpeg') || normalizedMime.includes('jpg')) return '.jpg';
+  if (normalizedMime.includes('webp')) return '.webp';
+  if (normalizedMime.includes('html')) return '.html';
+  if (normalizedMime.includes('json')) return '.json';
+
+  const pathname = (() => {
+    try {
+      return new URL(artifactUrl).pathname;
+    } catch {
+      return '';
+    }
+  })();
+
+  const ext = path.extname(pathname);
+  return ext || '.bin';
+}
+
+export function sanitizeStitchFilePart(value: string): string {
+  return (
+    String(value || 'artifact')
+      .replace(/[^a-zA-Z0-9._-]+/g, '-')
+      .replace(/-+/g, '-')
+      .replace(/^-|-$/g, '')
+      .slice(0, 120) || 'artifact'
+  );
+}

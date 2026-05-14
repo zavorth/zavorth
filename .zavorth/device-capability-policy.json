@@ -1,0 +1,18 @@
+{
+  "version": 1,
+  "updatedAt": "2026-04-08T19:19:08.808Z",
+  "policies": {
+    "desktop-a": {
+      "nodeId": "desktop-a",
+      "allowedCapabilities": [
+        "clipboard.read"
+      ],
+      "autoApproveRiskLevel": "medium",
+      "source": "pairing-credentials",
+      "updatedAt": "2026-04-08T19:19:08.808Z",
+      "notes": [
+        "Allowlist local sincronizada a partir das capabilities aprovadas no pareamento."
+      ]
+    }
+  }
+}

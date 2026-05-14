@@ -1,0 +1,16 @@
+{
+  "id": "web-research-governed",
+  "name": "Web Research Governed",
+  "native": true,
+  "description": "Plan and synthesize web research with source attribution, SSRF-safe fetching, and untrusted content boundaries.",
+  "category": "research",
+  "permissionProfileId": "network-read-approval",
+  "riskLevel": "medium",
+  "capabilityTags": ["research"],
+  "presets": ["research", "security", "power-user"],
+  "inputContract": ["research question", "source constraints", "recency needs"],
+  "outputContract": ["evidence", "sources", "confidence"],
+  "noExecutionByDefault": true,
+  "requiresPolicyBroker": true,
+  "receiptsRequired": true
+}

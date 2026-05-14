@@ -1,0 +1,15 @@
+{
+  "id": "@zavorth/examples-hello-ecosystem",
+  "version": "1.0.0",
+  "name": "Hello Ecosystem",
+  "description": "Pacote minimo usado para validar publish preparado, assinatura local e inventario da Wave 9.",
+  "entrypoint": "node index.js",
+  "capabilities": [
+    "platform.example",
+    "ecosystem.publish"
+  ],
+  "permissions": {
+    "network": false,
+    "filesystem": "read-only"
+  }
+}

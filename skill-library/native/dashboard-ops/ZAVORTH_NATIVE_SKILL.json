@@ -1,0 +1,16 @@
+{
+  "id": "dashboard-ops",
+  "name": "Dashboard Ops",
+  "native": true,
+  "description": "Translate runtime state into dense operational dashboard cards, tables, filters, and safe action models.",
+  "category": "operations",
+  "permissionProfileId": "local-readonly",
+  "riskLevel": "low",
+  "capabilityTags": ["workflow", "data"],
+  "presets": ["ops", "developer", "power-user"],
+  "inputContract": ["runtime state", "approval constraints", "operator goal"],
+  "outputContract": ["cards", "tables", "filters", "actions"],
+  "noExecutionByDefault": true,
+  "requiresPolicyBroker": true,
+  "receiptsRequired": true
+}

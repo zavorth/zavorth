@@ -1,0 +1,326 @@
+import {
+  AgentRunService,
+  ProductEntryRuntimeService,
+  PublicAdoptionPilotLoopService,
+  type PublicAdoptionPilotLoopSnapshot,
+  type UniversalAgentRun,
+} from '../runtime/agent/index.js';
+
+export function resolvePublicAdoptionPilotLoopCliText(args: string): string {
+  return String(args || '')
+    .trim()
+    .replace(/^(?:(?:public-adoption-pilot-loop|pilot-loop-runtime|pilot-feedback-loop|public-pilot-loop|adoption-pilot|support-pilot-loop|run|status|latest)\b\s*)+/i, '')
+    .trim()
+    .replace(/^["']|["']$/g, '')
+    .trim();
+}
+
+export function buildPublicAdoptionPilotLoopCliSnapshot(input: {
+  text: string;
+  userId: string;
+  sessionId: string;
+}): PublicAdoptionPilotLoopSnapshot {
+  const service = new AgentRunService({
+    now: () => new Date('2026-05-04T04:51:00.000Z'),
+    productEntryRuntime: new ProductEntryRuntimeService({
+      now: () => new Date('2026-05-04T04:51:00.000Z'),
+      firstRunProfileService: {
+        buildPlan: () => ({
+          nativeContract: 'ZavorthFirstRunBootstrapPlan/v1',
+          generatedAt: '2026-05-04T04:51:00.000Z',
+          mode: 'dry-run',
+          status: 'ready',
+          dryRun: true,
+          nonInteractiveSafe: true,
+          paths: {
+            storageRoot: '<workspace>',
+            runtimeDir: 'data/runtime/first-run',
+            profilePath: 'data/runtime/first-run/profile.json',
+            workspacePath: 'data/runtime/first-run/workspace.json',
+            identityPath: 'data/runtime/first-run/identity.json',
+            policyPath: 'data/runtime/first-run/policy.json',
+          },
+          questions: [],
+          writes: [],
+          summary: ['Primeiro uso configurado para adoption pilot loop.'],
+        } as any),
+        buildWorkspaceIdentitySnapshot: () => ({
+          nativeContract: 'ZavorthWorkspaceIdentityProfileSnapshot/v1',
+          configured: true,
+          profilePath: 'data/runtime/first-run/profile.json',
+          userDisplayName: 'usuario',
+          agentDisplayName: 'Zavorth',
+          tonePreference: 'equilibrado',
+          workspaceRoot: '<workspace>',
+          memoryMode: 'local-metadata',
+          safetyPosture: 'preview-first',
+          providerStatus: 'deferred',
+        } as any),
+        resolvePaths: () => ({ profilePath: 'data/runtime/first-run/profile.json' } as any),
+      },
+      personalizationService: {
+        getStatus: () => ({
+          pending: false,
+          reasons: [],
+          files: {
+            identity: 'IDENTITY.md',
+            soul: 'SOUL.md',
+            user: 'USER.md',
+            bootstrap: 'BOOTSTRAP.md',
+          },
+          bootstrapExists: false,
+          missingUserFields: [],
+          identityName: 'Zavorth',
+        }),
+      },
+    }),
+  });
+  const run = service.createRun({
+    userId: input.userId,
+    channel: 'cli',
+    sessionId: input.sessionId,
+    text: input.text || 'preparar public adoption pilot feedback loop',
+    workspace: 'C:\\TESTES DEV\\zavorth-core\\Zavorth',
+    requestedTools: ['workspace.read'],
+    metadata: buildPublicAdoptionPilotLoopFixtureMetadata(),
+  });
+  return buildPublicAdoptionPilotLoopSnapshotFromRun(run);
+}
+
+export function buildPublicAdoptionPilotLoopSnapshotFromRun(
+  run: UniversalAgentRun,
+): PublicAdoptionPilotLoopSnapshot {
+  return new PublicAdoptionPilotLoopService().buildSnapshot({
+    run,
+    generatedAt: run.updatedAt,
+  });
+}
+
+export function formatPublicAdoptionPilotLoopSnapshot(
+  snapshot: PublicAdoptionPilotLoopSnapshot,
+): string {
+  const lines = [
+    'Public Adoption / Pilot Feedback Loop - Wave 51',
+    `- contrato: ${snapshot.contractVersion}`,
+    `- run: ${snapshot.identifiers.runId}`,
+    `- sessao: ${snapshot.identifiers.sessionId}`,
+    `- status: ${snapshot.status}`,
+    `- feedback opt-in: ${String(snapshot.feedbackProductLoop.optInReady)}`,
+    `- pilot loop: ${snapshot.pilot.contractStatus}`,
+    `- pilotos planejados: ${snapshot.adoptionLoop.plannedPilotCount}`,
+    `- dashboard agregado: ${String(snapshot.adoptionLoop.dashboardAggregationOnly)}`,
+    `- proximo passo: ${snapshot.nextSafeAction}`,
+    '',
+    'Gates',
+  ];
+
+  for (const gate of snapshot.gates) {
+    lines.push(
+      `- ${gate.status}: ${gate.label}`,
+      `  ${gate.source} - ${gate.command} - ${gate.detail}`,
+    );
+  }
+
+  lines.push('', 'Superficies');
+  for (const surface of snapshot.surfaces) {
+    lines.push(`- ${surface.status}: ${surface.label} (${surface.routeOrCommand}) - ${surface.detail}`);
+  }
+
+  lines.push('', 'Readiness');
+  lines.push(`- feedback product loop ready: ${String(snapshot.readiness.feedbackProductLoopReady)}`);
+  lines.push(`- pilot loop linked: ${String(snapshot.readiness.pilotLoopContractLinked)}`);
+  lines.push(`- templates ready: ${String(snapshot.readiness.templatesReady)}`);
+  lines.push(`- triage ready: ${String(snapshot.readiness.triageReady)}`);
+  lines.push(`- ledger ready: ${String(snapshot.readiness.ledgerReady)}`);
+  lines.push(`- dashboard ready: ${String(snapshot.readiness.dashboardReady)}`);
+  lines.push(`- controlled pilot: ${String(snapshot.readiness.canStartControlledPilot)}`);
+
+  lines.push('', 'Politica');
+  lines.push('- coleta implicita nao foi ligada');
+  lines.push('- telemetry nao foi ligada');
+  lines.push('- submissao externa nao foi feita');
+  lines.push('- payload de workspace nao foi armazenado');
+  lines.push('- ledger permanece local');
+  lines.push('- dashboard usa apenas agregados');
+  lines.push('- piloto exige owner explicito');
+
+  lines.push('', 'Rotas e comandos');
+  lines.push(`- Feedback: ${snapshot.surface.feedbackRoute}`);
+  lines.push(`- Docs: ${snapshot.surface.docsAnchor}`);
+  lines.push(`- Pilot loop: ${snapshot.surface.pilotLoopCommand}`);
+  lines.push(`- QA: ${snapshot.surface.qaCommand}`);
+  lines.push(`- Phase gate: ${snapshot.surface.phaseGateCommand}`);
+  lines.push(`- Ledger: ${snapshot.surface.ledgerArtifact}`);
+  lines.push(`- Dashboard: ${snapshot.surface.dashboardArtifact}`);
+  lines.push(`- Command Center: ${snapshot.surface.commandCenterPath}`);
+  lines.push(`- CLI: ${snapshot.surface.cliCommand}`);
+
+  return lines.join('\n');
+}
+
+function buildPublicAdoptionPilotLoopFixtureMetadata() {
+  return {
+    productizationContract: {
+      source: 'ZavorthProductizationContractService',
+      phase: 'C9',
+      status: 'ready',
+      control: { ready: true },
+      cli: { ready: true },
+      sdk: { ready: true },
+      docs: { ready: true },
+      website: { ready: true },
+    },
+    releaseStatus: {
+      status: 'preview',
+      channel: 'preview',
+      version: 'v0.1-preview',
+      rollbackAvailable: true,
+    },
+    websitePublic: {
+      phase: '46',
+      surface: 'website-public',
+      generatedAt: '2026-05-04T04:51:00.000Z',
+      status: 'ready',
+      websiteRoot: '<website>',
+      summary: { ok: true, passed: 12, warnings: 0, failed: 0 },
+      requiredRoutes: [
+        { route: '/', label: 'landing principal' },
+        { route: '/docs', label: 'documentacao publica' },
+        { route: '/privacy', label: 'privacidade' },
+        { route: '/security', label: 'seguranca' },
+      ],
+      forbiddenClaims: [],
+      checks: [],
+    },
+    publicDocsRecipes: {
+      phase: '56',
+      surface: 'public-docs-recipes',
+      generatedAt: '2026-05-04T04:51:00.000Z',
+      status: 'ready',
+      projectRoot: '<core>',
+      websiteRoot: '<website>',
+      artifactDir: '<artifacts>',
+      summary: { ok: true, passed: 10, warnings: 0, failed: 0 },
+      routes: ['/docs', '/examples'],
+      recipes: [
+        { id: 'quickstart-first-result' },
+        { id: 'release-readiness-audit' },
+        { id: 'replay-artifact-review' },
+      ],
+      troubleshooting: [],
+      noSecretsMatrix: [
+        { id: 'first-run', runsWithoutSecrets: true },
+        { id: 'release', runsWithoutSecrets: true },
+      ],
+      artifacts: { fixtureSmokePath: '<artifact>' },
+      checks: [],
+    },
+    publicDemo: {
+      phase: '47',
+      surface: 'public-demo',
+      generatedAt: '2026-05-04T04:51:00.000Z',
+      status: 'ready',
+      websiteRoot: '<website>',
+      summary: { ok: true, passed: 10, warnings: 0, failed: 0 },
+      route: '/demo',
+      fixturePath: 'data/public-demo.ts',
+      requiredStates: ['request', 'plan', 'Approval', 'artifact', 'replay', 'summary'],
+      requiredArtifacts: ['demo-build-fix-report.md', 'demo-run-2026-04-25.json'],
+      screenshots: [],
+      checks: [],
+    },
+    publicReleaseBundle: {
+      phase: '51',
+      surface: 'release-bundle',
+      generatedAt: '2026-05-04T04:51:00.000Z',
+      status: 'ready',
+      websiteRoot: '<website>',
+      summary: { ok: true, passed: 10, warnings: 0, failed: 0 },
+      route: '/release',
+      fixturePath: 'data/release-bundle.ts',
+      requiredCommands: ['release:status:fast', 'doctor:fast', 'release:changelog', 'release:rollback-preview'],
+      screenshots: [],
+      checks: [],
+    },
+    feedbackTelemetry: {
+      phase: '52',
+      surface: 'feedback-loop',
+      generatedAt: '2026-05-04T04:51:00.000Z',
+      status: 'ready',
+      websiteRoot: '<website>',
+      summary: { ok: true, passed: 11, warnings: 0, failed: 0 },
+      route: '/feedback',
+      fixturePath: 'data/feedback-loop.ts',
+      requiredCommands: ['feedback:preview', 'feedback:revoke', 'feedback:delete'],
+      screenshots: [],
+      checks: [
+        {
+          id: 'feedback-loop:route-contract',
+          title: 'Feedback route contract',
+          status: 'pass',
+          reason: 'Product feedback ledger and issue/report template ready.',
+          evidence: ['product-feedback-ledger.json', 'feedback-preview-redacted.json', 'issue/report template'],
+        },
+      ],
+      nextRecommendedPhase: {
+        phase: 'complete',
+        title: 'Product feedback loop ready',
+        reason: 'opt-in preview sem envio externo',
+      },
+    },
+    pilotLoop: {
+      phase: '57',
+      surface: 'pilot-loop',
+      generatedAt: '2026-05-04T04:51:00.000Z',
+      status: 'ready',
+      projectRoot: '<core>',
+      websiteRoot: '<website>',
+      artifactDir: '.qa/pilot-loop',
+      summary: { ok: true, passed: 16, warnings: 0, failed: 0 },
+      artifacts: {
+        feedbackPreviewPath: '.qa/pilot-loop/feedback-preview-redacted.json',
+        pilotLedgerPath: '.qa/pilot-loop/pilot-ledger.json',
+        dashboardPath: '.qa/pilot-loop/support-dashboard.json',
+      },
+      templates: [
+        { id: 'bug', requiredFields: ['a', 'b', 'c', 'd'], redactionRules: ['tokens', 'secrets', 'paths pessoais'], safePrompt: 'Use dados redigidos.' },
+        { id: 'docs', requiredFields: ['a', 'b', 'c', 'd'], redactionRules: ['workspace privado', 'logs brutos', 'credenciais'], safePrompt: 'Use exemplo redigido.' },
+        { id: 'install', requiredFields: ['a', 'b', 'c', 'd'], redactionRules: ['path pessoal', 'usuario', 'env vars'], safePrompt: 'Use ambiente redigido.' },
+        { id: 'feature', requiredFields: ['a', 'b', 'c', 'd'], redactionRules: ['cliente', 'repo privado', 'documento interno'], safePrompt: 'Use contexto redigido.' },
+      ],
+      triageRules: [
+        { id: 'install-high', area: 'install', severity: 'high', responseTarget: '1 business day', owner: 'runtime', nextAction: 'Reproduzir em fixture.' },
+        { id: 'bug-medium', area: 'bug', severity: 'medium', responseTarget: '2 business days', owner: 'runtime', nextAction: 'Triar comando publico.' },
+        { id: 'docs-low', area: 'docs', severity: 'low', responseTarget: '3 business days', owner: 'docs', nextAction: 'Atualizar docs.' },
+        { id: 'release-high', area: 'release', severity: 'high', responseTarget: '1 business day', owner: 'release', nextAction: 'Validar rollback preview.' },
+        { id: 'feature-low', area: 'feature', severity: 'low', responseTarget: 'next planning cycle', owner: 'product', nextAction: 'Registrar backlog publico.' },
+      ],
+      pilotLedger: [
+        { id: 'pilot-local-engineering', scope: 'Quickstart fixture.', status: 'planned', startedAt: '2026-04-26', result: 'Pendente.', followUp: 'Coletar friccao redigida.', dataPolicy: 'redacted-only' },
+        { id: 'pilot-release-operator', scope: 'Release readiness.', status: 'planned', startedAt: '2026-04-26', result: 'Pendente.', followUp: 'Confirmar canais.', dataPolicy: 'no-workspace-payload' },
+        { id: 'pilot-feedback-loop', scope: 'Preview e revoke/delete.', status: 'planned', startedAt: '2026-04-26', result: 'Pendente.', followUp: 'Medir template.', dataPolicy: 'redacted-only' },
+      ],
+      supportPolicy: [
+        { id: 'privacy-first', channel: 'public issue or redacted feedback preview', responseWindow: 'best effort', boundaries: ['sem secrets', 'sem payload bruto', 'sem workspace privado'], escalation: 'Pedir preview redigido.' },
+        { id: 'install-runtime', channel: 'support issue', responseWindow: '1-2 business days', boundaries: ['comando publico', 'erro resumido', 'ambiente redigido'], escalation: 'Reproduzir via fixture local.' },
+        { id: 'feature-planning', channel: 'feature request', responseWindow: 'next planning review', boundaries: ['sem promessa', 'sem dados privados', 'sem parceria implicita'], escalation: 'Converter para proposta.' },
+      ],
+      dashboardMetrics: [
+        { id: 'feedback-count-by-area', label: 'Feedback por area', aggregateOnly: true, excludesPayload: true, source: 'redacted feedback preview' },
+        { id: 'severity-mix', label: 'Distribuicao por severidade', aggregateOnly: true, excludesPayload: true, source: 'triage rules' },
+        { id: 'pilot-status', label: 'Status dos pilotos', aggregateOnly: true, excludesPayload: true, source: 'local pilot ledger' },
+        { id: 'follow-up-aging', label: 'Follow-ups pendentes', aggregateOnly: true, excludesPayload: true, source: 'local pilot ledger' },
+      ],
+      checks: [
+        { id: 'pilot-loop:feedback-preview', title: 'feedback preview redigido', status: 'pass', reason: 'preview redigido sem envio', evidence: ['feedback-preview-redacted.json'] },
+        { id: 'pilot-loop:pilot-ledger', title: 'ledger local de pilotos', status: 'pass', reason: 'ledger local sem payload', evidence: ['pilot-ledger.json'] },
+        { id: 'pilot-loop:dashboard', title: 'dashboard agregado de suporte', status: 'pass', reason: 'dashboard agregado sem payload', evidence: ['support-dashboard.json'] },
+      ],
+      nextRecommendedPhase: {
+        phase: '58',
+        title: 'Integration Showcase And Partner Surface',
+        reason: 'mostrar integracoes com fixture e degradacao segura',
+      },
+    },
+  };
+}

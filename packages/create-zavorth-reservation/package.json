@@ -1,0 +1,21 @@
+{
+  "name": "create-zavorth",
+  "version": "0.0.0-reserved.0",
+  "description": "Reserved npm create package name for the upcoming Zavorth agent runtime.",
+  "license": "MIT",
+  "bin": {
+    "create-zavorth": "bin/create-zavorth.js"
+  },
+  "files": [
+    "README.md",
+    "bin/create-zavorth.js"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/zavorth/zavorth.git"
+  },
+  "homepage": "https://github.com/zavorth",
+  "bugs": {
+    "url": "https://github.com/zavorth/zavorth/issues"
+  }
+}

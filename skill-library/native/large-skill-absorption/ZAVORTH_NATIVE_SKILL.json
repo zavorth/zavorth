@@ -1,0 +1,16 @@
+{
+  "id": "large-skill-absorption",
+  "name": "Large Skill Absorption",
+  "native": true,
+  "description": "Plan safe chunking, indexing, summarization, and normalization for oversized skill libraries.",
+  "category": "orchestration",
+  "permissionProfileId": "workspace-write-approval",
+  "riskLevel": "medium",
+  "capabilityTags": ["workflow", "document"],
+  "presets": ["developer", "security", "research", "ops", "power-user"],
+  "inputContract": ["source path", "file inventory", "policy constraints"],
+  "outputContract": ["chunk plan", "risk report", "normalized skill plan"],
+  "noExecutionByDefault": true,
+  "requiresPolicyBroker": true,
+  "receiptsRequired": true
+}

@@ -1,0 +1,965 @@
+import { AgentRunService, type AgentRunExecutionOptions, type AgentRunServiceRuntime } from './AgentRunService.js';
+import { MemoryAgentRunStore, type AgentRunStore } from './AgentRunStore.js';
+import {
+  resolveAgentGatewayTraceId,
+  withAgentGatewayTraceMetadata,
+} from './AgentGatewayTelemetry.js';
+import {
+  queryUniversalAgentRuns,
+  type UniversalAgentRunObservatoryQuery,
+  type UniversalAgentRunObservatorySnapshot,
+} from './RunObservatory.js';
+import type { StrongCapabilityLoopSnapshot } from './CapabilityLoopGovernanceService.js';
+import {
+  RuntimePromotionGovernanceService,
+  type RuntimePromotionGovernanceSnapshot,
+} from './RuntimePromotionGovernanceService.js';
+import {
+  UniversalApprovalIntentResolver,
+  type UniversalApprovalIntentDecisionResult,
+  type UniversalApprovalIntentResolveInput,
+} from './UniversalApprovalIntentResolver.js';
+import {
+  MemoryAgentWorkflowQueueStore,
+  type AgentWorkflowQueueStore,
+  type AgentWorkflowQueueStoreDescriptor,
+} from './AgentWorkflowQueueStore.js';
+import type {
+  UniversalAgentApprovalDecisionResult,
+  UniversalAgentRequest,
+  UniversalAgentRun,
+  UniversalAgentRunResult,
+  UniversalAgentWorkflowJob,
+  UniversalApprovalRequest,
+  UniversalReplyPacket,
+} from './UniversalAgentRuntimeTypes.js';
+
+export type ZavorthAgentGatewayRuntime = AgentRunServiceRuntime & {
+  runStore?: AgentRunStore | null;
+  workflowQueueStore?: AgentWorkflowQueueStore | null;
+  workflowWorkerId?: string;
+  workflowLeaseMs?: number;
+  workflowBackoffMs?: number;
+  workflowMaxBackoffMs?: number;
+  workflowMaxAttempts?: number;
+  runtimePromotionGovernance?: RuntimePromotionGovernanceService | null;
+};
+
+export type ZavorthAgentGatewaySnapshot = {
+  generatedAt: string;
+  source: {
+    kind: 'universal-agent-runtime';
+    label: 'Zavorth Agent Gateway';
+  };
+  activeRun: UniversalAgentRun | null;
+  runs: UniversalAgentRun[];
+  runObservatory: UniversalAgentRunObservatorySnapshot;
+  capabilityLoopGovernance: StrongCapabilityLoopSnapshot | null;
+  runtimePromotionGovernance: RuntimePromotionGovernanceSnapshot;
+  workflowJobs: UniversalAgentWorkflowJob[];
+  workflowQueue: AgentWorkflowQueueStoreDescriptor;
+};
+
+export type ZavorthAgentGatewaySnapshotOptions = {
+  activeRunId?: string | null;
+  activeTraceId?: string | null;
+  activeSessionId?: string | null;
+  runStatus?: UniversalAgentRunObservatoryQuery['status'];
+  runLimit?: number | null;
+};
+
+export type ZavorthAgentGatewayProcessQueueOptions = AgentRunExecutionOptions & {
+  limit?: number;
+};
+
+export type ZavorthAgentGatewayApprovalIntentInput = Omit<UniversalApprovalIntentResolveInput, 'runs'>;
+
+export type ChannelMeshGatewayEventHandler = (event: unknown) => void | Promise<void>;
+
+export type ChannelMeshEventBusLike = {
+  subscribe(eventType: string, handler: ChannelMeshGatewayEventHandler): void;
+  unsubscribe?(eventType: string, handler: ChannelMeshGatewayEventHandler): void;
+};
+
+export type ChannelMeshBridgeSubscription = {
+  detach(): void;
+};
+
+type PendingExecution = {
+  request: UniversalAgentRequest;
+  options: AgentRunExecutionOptions;
+};
+
+function normalizeText(value: unknown, fallback = ''): string {
+  const text = String(value ?? '').trim();
+  return text || fallback;
+}
+
+function toSerializableRecord(value: unknown): Record<string, unknown> {
+  if (!value || typeof value !== 'object') {
+    return {};
+  }
+  try {
+    const parsed = JSON.parse(JSON.stringify(value));
+    return parsed && typeof parsed === 'object' && !Array.isArray(parsed) ? parsed : {};
+  } catch {
+    return {};
+  }
+}
+
+function isTerminalWorkflowStatus(job: UniversalAgentWorkflowJob): boolean {
+  return job.status === 'completed' || job.status === 'failed' || job.status === 'cancelled';
+}
+
+export class ZavorthAgentGateway {
+  private readonly runService: AgentRunService;
+  private readonly runStore: AgentRunStore;
+  private readonly workflowQueueStore: AgentWorkflowQueueStore;
+  private readonly now: () => Date;
+  private readonly workflowWorkerId: string;
+  private readonly workflowLeaseMs: number;
+  private readonly workflowBackoffMs: number;
+  private readonly workflowMaxBackoffMs: number;
+  private readonly workflowMaxAttempts: number;
+  private readonly runtimePromotionGovernance: RuntimePromotionGovernanceService;
+  private readonly runs = new Map<string, UniversalAgentRun>();
+  private readonly workflowJobs = new Map<string, UniversalAgentWorkflowJob>();
+  private readonly pendingExecutions = new Map<string, PendingExecution>();
+
+  constructor(runtime: ZavorthAgentGatewayRuntime = {}) {
+    this.runService = new AgentRunService(runtime);
+    this.runStore = runtime.runStore || new MemoryAgentRunStore();
+    this.workflowQueueStore = runtime.workflowQueueStore || new MemoryAgentWorkflowQueueStore();
+    this.now = runtime.now || (() => new Date());
+    this.workflowWorkerId = normalizeText(
+      runtime.workflowWorkerId,
+      `worker-${process.pid}-${Math.random().toString(36).slice(2, 8)}`,
+    );
+    this.workflowLeaseMs = Math.max(1000, runtime.workflowLeaseMs || 30_000);
+    this.workflowBackoffMs = Math.max(100, runtime.workflowBackoffMs || 1000);
+    this.workflowMaxBackoffMs = Math.max(this.workflowBackoffMs, runtime.workflowMaxBackoffMs || 60_000);
+    this.workflowMaxAttempts = Math.max(1, runtime.workflowMaxAttempts || 3);
+    this.runtimePromotionGovernance = runtime.runtimePromotionGovernance || new RuntimePromotionGovernanceService({
+      now: this.now,
+    });
+    this.hydrateRuns();
+    this.hydrateWorkflowJobs();
+  }
+
+  public attachSelfModificationService(
+    service: ZavorthAgentGatewayRuntime['selfModificationService'],
+  ): void {
+    this.runService.attachSelfModificationService(service);
+  }
+
+  public attachWatchModeService(
+    service: ZavorthAgentGatewayRuntime['watchModeService'],
+  ): void {
+    this.runService.attachWatchModeService(service);
+  }
+
+  public attachChannelMeshEventBus(
+    eventBus: ChannelMeshEventBusLike | null | undefined,
+    options: AgentRunExecutionOptions = {},
+  ): ChannelMeshBridgeSubscription {
+    if (!eventBus) {
+      return { detach: () => undefined };
+    }
+
+    const handler: ChannelMeshGatewayEventHandler = async (event) => {
+      const request = this.extractChannelMeshNormalizedInboundMessage(event);
+      if (!request) {
+        return;
+      }
+      await this.handle(this.decorateChannelMeshRequest(request), options);
+    };
+
+    eventBus.subscribe('public_ws', handler);
+    return {
+      detach: () => eventBus.unsubscribe?.('public_ws', handler),
+    };
+  }
+
+  public async handle(
+    input: UniversalAgentRequest,
+    options: AgentRunExecutionOptions = {},
+  ): Promise<UniversalAgentRunResult> {
+    const result = await this.runService.run(input, options);
+    this.runs.set(result.run.id, result.run);
+    if (result.run.status === 'waiting_approval') {
+      this.pendingExecutions.set(result.run.id, {
+        request: input,
+        options,
+      });
+      this.ensureWorkflowJobForWaitingApproval(result.run, input);
+    }
+    this.persistAll();
+    return result;
+  }
+
+  public async approve(
+    ref: string,
+    options: AgentRunExecutionOptions = {},
+  ): Promise<UniversalAgentApprovalDecisionResult | null> {
+    const target = this.findPendingApproval(ref);
+    if (!target) {
+      return null;
+    }
+
+    const { run, approval } = target;
+    const now = this.nowIso();
+    approval.status = 'approved';
+    run.updatedAt = now;
+    run.events.push({
+      id: `${approval.id}:approved`,
+      runId: run.id,
+      kind: 'approval',
+      title: 'Aprovacao recebida',
+      detail: approval.title,
+      status: 'done',
+      createdAt: now,
+      metadata: {
+        approvalId: approval.id,
+      },
+    });
+
+    const pending = this.pendingExecutions.get(run.id);
+    const job = this.ensureWorkflowJobForApproval(
+      run,
+      pending?.request || this.buildRequestFromRun(run),
+      approval,
+      'queued',
+    );
+    const resumeRequest = pending?.request || job.request || this.buildRequestFromRun(run);
+    job.request = this.serializeRequestForWorkflow(resumeRequest, run);
+    job.status = 'queued';
+    job.updatedAt = now;
+    job.lastError = null;
+    job.nextRunAt = now;
+    job.leaseOwner = null;
+    job.leaseExpiresAt = null;
+    job.lockedAt = null;
+    job.heartbeatAt = null;
+    job.failedAt = null;
+    job.metadata = {
+      ...(job.metadata || {}),
+      approvedAt: now,
+    };
+
+    const executionOptions = this.mergeExecutionOptions(pending?.options, options);
+    if (!this.runService.canExecute(executionOptions, resumeRequest)) {
+      run.status = 'queued';
+      run.summary = 'Aprovacao registrada. Execucao duravel aguardando um executor disponivel.';
+      run.updatedAt = now;
+      run.events.push({
+        id: `${job.id}:queued`,
+        runId: run.id,
+        kind: 'status',
+        title: 'Execucao duravel na fila',
+        detail: 'O pedido sobreviveu ao restart e aguardara um worker/executor disponivel.',
+        status: 'pending',
+        createdAt: now,
+        metadata: {
+          workflowJobId: job.id,
+        },
+      });
+      this.runs.set(run.id, run);
+      this.workflowJobs.set(job.id, job);
+      this.persistRuns();
+      this.persistWorkflowJob(job);
+      return {
+        ok: true,
+        run,
+        replies: this.buildReplies(run, run.summary, now),
+        approval,
+        decision: 'approved',
+        resumed: false,
+        queued: true,
+        workflowJob: job,
+        error: null,
+      };
+    }
+
+    const result = await this.executeWorkflowJob(job, run, resumeRequest, executionOptions);
+    this.pendingExecutions.delete(run.id);
+    this.runs.set(result.run.id, result.run);
+    this.workflowJobs.set(job.id, job);
+    this.persistRuns();
+    this.persistWorkflowJob(job);
+    return {
+      ...result,
+      approval,
+      decision: 'approved',
+      resumed: result.ok,
+      queued: false,
+      workflowJob: job,
+      error: result.ok ? null : result.run.summary,
+    };
+  }
+
+  public async reject(ref: string): Promise<UniversalAgentApprovalDecisionResult | null> {
+    const target = this.findPendingApproval(ref);
+    if (!target) {
+      return null;
+    }
+
+    const { run, approval } = target;
+    const now = this.nowIso();
+    approval.status = 'rejected';
+    run.status = 'cancelled';
+    run.summary = 'Execucao cancelada pelo operador antes de tocar ferramentas sensiveis.';
+    run.updatedAt = now;
+    run.events.push({
+      id: `${approval.id}:rejected`,
+      runId: run.id,
+      kind: 'approval',
+      title: 'Aprovacao rejeitada',
+      detail: approval.title,
+      status: 'done',
+      createdAt: now,
+      metadata: {
+        approvalId: approval.id,
+      },
+    });
+    this.runService.recordLifecycleDefenseReview(run, 'cancelled', now);
+    const job = this.findWorkflowJob(run.id, approval.id);
+    if (job) {
+      job.status = 'cancelled';
+      job.updatedAt = now;
+      job.cancelledAt = now;
+      job.leaseOwner = null;
+      job.leaseExpiresAt = null;
+      job.lockedAt = null;
+      job.heartbeatAt = null;
+      job.resultRunStatus = run.status;
+      job.metadata = {
+        ...(job.metadata || {}),
+        rejectedAt: now,
+      };
+      this.workflowJobs.set(job.id, job);
+    }
+    this.pendingExecutions.delete(run.id);
+    this.runs.set(run.id, run);
+    this.persistRuns();
+    if (job) {
+      this.persistWorkflowJob(job);
+    } else {
+      this.persistWorkflowJobs();
+    }
+    return {
+      ok: true,
+      run,
+      replies: this.buildReplies(run, run.summary, now),
+      approval,
+      decision: 'rejected',
+      resumed: false,
+      queued: false,
+      workflowJob: job || null,
+      error: null,
+    };
+  }
+
+  public async resolveApprovalIntent(
+    input: ZavorthAgentGatewayApprovalIntentInput,
+    options: AgentRunExecutionOptions = {},
+  ): Promise<UniversalApprovalIntentDecisionResult> {
+    const resolver = new UniversalApprovalIntentResolver();
+    const resolution = resolver.resolve({
+      ...input,
+      runs: Array.from(this.runs.values()),
+    });
+    if (resolution.status !== 'resolved' || !resolution.decision || !resolution.target) {
+      return {
+        ok: false,
+        resolution,
+        result: null,
+        error: resolution.reason,
+      };
+    }
+
+    const ref = resolution.ref || resolution.target.approval.id;
+    const result = resolution.decision === 'approved'
+      ? await this.approve(ref, options)
+      : await this.reject(ref);
+
+    return {
+      ok: Boolean(result),
+      resolution,
+      result,
+      error: result ? null : 'Approval universal nao encontrado ou ja resolvido.',
+    };
+  }
+
+  public async processQueuedWorkflows(
+    options: ZavorthAgentGatewayProcessQueueOptions = {},
+  ): Promise<UniversalAgentRunResult[]> {
+    if (!this.runService.canExecute(options)) {
+      return [];
+    }
+
+    const limit = Math.max(1, options.limit || 20);
+    this.refreshRuns();
+    this.refreshWorkflowJobs();
+    this.releaseExpiredWorkflowLeases();
+    const jobs = this.claimQueuedWorkflowJobs(limit);
+    const results: UniversalAgentRunResult[] = [];
+
+    for (const job of jobs) {
+      const run = this.runs.get(job.runId);
+      if (!run) {
+        job.status = 'failed';
+        job.lastError = 'Run original nao encontrada para processar a fila duravel.';
+        job.updatedAt = this.nowIso();
+        job.failedAt = job.updatedAt;
+        job.leaseOwner = null;
+        job.leaseExpiresAt = null;
+        job.lockedAt = null;
+        job.heartbeatAt = null;
+        this.workflowJobs.set(job.id, job);
+        this.persistWorkflowJob(job);
+        continue;
+      }
+
+      const result = await this.executeWorkflowJob(job, run, job.request || this.buildRequestFromRun(run), options);
+      this.runs.set(result.run.id, result.run);
+      this.workflowJobs.set(job.id, job);
+      results.push(result);
+    }
+
+    this.persistRuns();
+    return results;
+  }
+
+  public heartbeatWorkflowJob(jobId: string): UniversalAgentWorkflowJob | null {
+    const now = this.nowIso();
+    const heartbeat = this.workflowQueueStore.heartbeatJob({
+      jobId,
+      workerId: this.workflowWorkerId,
+      now,
+      leaseMs: this.workflowLeaseMs,
+    });
+
+    if (heartbeat) {
+      this.workflowJobs.set(heartbeat.id, heartbeat);
+      return heartbeat;
+    }
+    return null;
+  }
+
+  public getRun(runId: string): UniversalAgentRun | null {
+    return this.runs.get(runId) || null;
+  }
+
+  public listRuns(limit = 20): UniversalAgentRun[] {
+    return Array.from(this.runs.values())
+      .sort((a, b) => b.updatedAt.localeCompare(a.updatedAt))
+      .slice(0, limit);
+  }
+
+  public queryRuns(
+    query: UniversalAgentRunObservatoryQuery = {},
+  ): UniversalAgentRunObservatorySnapshot {
+    return queryUniversalAgentRuns({
+      runs: this.listRuns(200),
+      query,
+      generatedAt: this.nowIso(),
+    });
+  }
+
+  public listWorkflowJobs(limit = 20): UniversalAgentWorkflowJob[] {
+    return Array.from(this.workflowJobs.values())
+      .sort((a, b) => b.updatedAt.localeCompare(a.updatedAt))
+      .slice(0, limit);
+  }
+
+  public buildSnapshot(input: ZavorthAgentGatewaySnapshotOptions = {}): ZavorthAgentGatewaySnapshot {
+    const runs = this.listRuns();
+    const runObservatory = this.queryRuns({
+      runId: input.activeRunId,
+      traceId: input.activeTraceId,
+      sessionId: input.activeSessionId,
+      status: input.runStatus,
+      limit: input.runLimit ?? 50,
+    });
+    const activeRun = input.activeRunId
+      ? this.getRun(input.activeRunId)
+      : input.activeTraceId || input.runStatus
+        ? runObservatory.runs[0]?.run || null
+      : input.activeSessionId
+        ? runs.find((run) => run.sessionId === input.activeSessionId) || null
+        : runs[0] || null;
+
+    const capabilityLoopGovernance = this.resolveCapabilityLoopSnapshot(activeRun);
+    return {
+      generatedAt: this.nowIso(),
+      source: {
+        kind: 'universal-agent-runtime',
+        label: 'Zavorth Agent Gateway',
+      },
+      activeRun,
+      runs,
+      runObservatory,
+      capabilityLoopGovernance,
+      runtimePromotionGovernance: this.runtimePromotionGovernance.buildSnapshot({
+        generatedAt: this.nowIso(),
+        activeRun,
+        capabilityLoopGovernance,
+      }),
+      workflowJobs: this.listWorkflowJobs(50),
+      workflowQueue: this.workflowQueueStore.describe(),
+    };
+  }
+
+  private resolveCapabilityLoopSnapshot(run: UniversalAgentRun | null): StrongCapabilityLoopSnapshot | null {
+    const candidate = toSerializableRecord(run?.metadata?.capabilityLoopGovernance);
+    return candidate.schemaVersion === 1 && candidate.source === 'CapabilityLoopGovernanceService'
+      ? candidate as StrongCapabilityLoopSnapshot
+      : null;
+  }
+
+  public findPendingApproval(ref: string): { run: UniversalAgentRun; approval: UniversalApprovalRequest } | null {
+    const normalizedRef = String(ref || '').trim();
+    if (!normalizedRef) {
+      return null;
+    }
+
+    for (const run of this.runs.values()) {
+      const approval = run.approvals.find((candidate) =>
+        candidate.status === 'pending'
+        && (candidate.id === normalizedRef || candidate.runId === normalizedRef || run.id === normalizedRef)
+      );
+      if (approval) {
+        return { run, approval };
+      }
+    }
+
+    return null;
+  }
+
+  private async executeWorkflowJob(
+    job: UniversalAgentWorkflowJob,
+    run: UniversalAgentRun,
+    request: UniversalAgentRequest,
+    options: AgentRunExecutionOptions,
+  ): Promise<UniversalAgentRunResult> {
+    const startedAt = this.nowIso();
+    if (job.status !== 'running' || job.leaseOwner !== this.workflowWorkerId) {
+      job.status = 'running';
+      job.attempts += 1;
+      job.leaseOwner = this.workflowWorkerId;
+      job.leaseExpiresAt = this.addMs(startedAt, this.workflowLeaseMs);
+      job.lockedAt = startedAt;
+      job.heartbeatAt = startedAt;
+    }
+    job.updatedAt = startedAt;
+    job.lastError = null;
+    job.metadata = {
+      ...(job.metadata || {}),
+      startedAt,
+      startedBy: this.workflowWorkerId,
+    };
+    this.workflowJobs.set(job.id, job);
+    this.persistWorkflowJob(job);
+
+    try {
+      this.heartbeatWorkflowJob(job.id);
+      const result = await this.runService.resumeApprovedRun(run, request, options);
+      const completed = result.ok && result.run.status !== 'failed' && result.run.status !== 'cancelled';
+      const failureMessage = completed ? null : this.resolveWorkflowFailureMessage(result.run);
+      const finishedAt = this.nowIso();
+      if (completed) {
+        job.status = 'completed';
+        job.completedAt = finishedAt;
+      } else {
+        this.applyWorkflowFailure(job, result.run, failureMessage || 'Executor duravel falhou.', finishedAt);
+      }
+      job.resultRunStatus = result.run.status;
+      job.updatedAt = finishedAt;
+      job.lastError = failureMessage;
+      if (completed) {
+        this.clearWorkflowLease(job);
+        job.nextRunAt = null;
+        job.failedAt = null;
+      }
+      job.metadata = {
+        ...(job.metadata || {}),
+        finishedAt: job.updatedAt,
+      };
+      this.workflowJobs.set(job.id, job);
+      this.persistWorkflowJob(job);
+      return result;
+    } catch (error: any) {
+      const failedAt = this.nowIso();
+      const message = normalizeText(error?.message, 'Executor duravel falhou ao retomar a execucao.');
+      this.applyWorkflowFailure(job, run, message, failedAt);
+      const retryScheduled = String(job.status) === 'queued';
+      run.updatedAt = failedAt;
+      this.runService.recordLifecycleDefenseReview(run, 'interrupted', failedAt);
+      run.events.push({
+        id: `${job.id}:failed`,
+        runId: run.id,
+        kind: 'error',
+        title: retryScheduled ? 'Workflow duravel reagendado' : 'Workflow duravel falhou',
+        detail: message,
+        status: retryScheduled ? 'pending' : 'failed',
+        createdAt: failedAt,
+        metadata: {
+          workflowJobId: job.id,
+          nextRunAt: job.nextRunAt || null,
+          attempts: job.attempts,
+          maxAttempts: job.maxAttempts,
+        },
+      });
+      this.workflowJobs.set(job.id, job);
+      this.persistWorkflowJob(job);
+      return {
+        ok: false,
+        run,
+        replies: this.buildReplies(run, message, failedAt),
+      };
+    }
+  }
+
+  private ensureWorkflowJobForWaitingApproval(
+    run: UniversalAgentRun,
+    request: UniversalAgentRequest,
+  ): UniversalAgentWorkflowJob | null {
+    const approval = run.approvals.find((candidate) => candidate.status === 'pending');
+    if (!approval) {
+      return null;
+    }
+    return this.ensureWorkflowJobForApproval(run, request, approval, 'waiting_approval');
+  }
+
+  private ensureWorkflowJobForApproval(
+    run: UniversalAgentRun,
+    request: UniversalAgentRequest,
+    approval: UniversalApprovalRequest,
+    status: UniversalAgentWorkflowJob['status'],
+  ): UniversalAgentWorkflowJob {
+    const existing = this.findWorkflowJob(run.id, approval.id);
+    const now = this.nowIso();
+    if (existing && !isTerminalWorkflowStatus(existing)) {
+      existing.request = this.serializeRequestForWorkflow(request, run);
+      existing.status = status;
+      existing.updatedAt = now;
+      existing.maxAttempts = Math.max(1, existing.maxAttempts || this.workflowMaxAttempts);
+      if (status === 'queued') {
+        existing.nextRunAt = existing.nextRunAt || now;
+      }
+      this.workflowJobs.set(existing.id, existing);
+      return existing;
+    }
+
+    const job: UniversalAgentWorkflowJob = {
+      id: `${run.id}:resume:${approval.id}`,
+      kind: 'resume_after_approval',
+      runId: run.id,
+      approvalId: approval.id,
+      request: this.serializeRequestForWorkflow(request, run),
+      status,
+      createdAt: now,
+      updatedAt: now,
+      attempts: 0,
+      maxAttempts: this.workflowMaxAttempts,
+      leaseOwner: null,
+      leaseExpiresAt: null,
+      lockedAt: null,
+      heartbeatAt: null,
+      nextRunAt: status === 'queued' ? now : null,
+      backoffMs: this.workflowBackoffMs,
+      completedAt: null,
+      failedAt: null,
+      cancelledAt: null,
+      lastError: null,
+      resultRunStatus: run.status,
+      metadata: {
+        approvalRisk: approval.risk,
+        channel: run.channel,
+      },
+    };
+    this.workflowJobs.set(job.id, job);
+    return job;
+  }
+
+  private findWorkflowJob(runId: string, approvalId: string): UniversalAgentWorkflowJob | null {
+    for (const job of this.workflowJobs.values()) {
+      if (job.runId === runId && job.approvalId === approvalId) {
+        return job;
+      }
+    }
+    return null;
+  }
+
+  private extractChannelMeshNormalizedInboundMessage(event: unknown): UniversalAgentRequest | null {
+    const gatewayEvent = toSerializableRecord(event);
+    if (gatewayEvent.type !== 'public_ws') {
+      return null;
+    }
+
+    const payload = toSerializableRecord(gatewayEvent.payload);
+    const message = toSerializableRecord(payload.payload);
+    if (normalizeText(message.topic) !== 'im_message') {
+      return null;
+    }
+
+    const data = toSerializableRecord(message.data);
+    const normalized = toSerializableRecord(data.normalizedInboundMessage);
+    return this.isChannelMeshUniversalAgentRequest(normalized) ? normalized : null;
+  }
+
+  private isChannelMeshUniversalAgentRequest(input: Record<string, unknown>): input is UniversalAgentRequest {
+    const channel = normalizeText(input.channel);
+    return normalizeText(input.userId) !== ''
+      && normalizeText(input.sessionId) !== ''
+      && normalizeText(input.text) !== ''
+      && ['web', 'cli', 'telegram', 'api', 'unknown'].includes(channel);
+  }
+
+  private decorateChannelMeshRequest(input: UniversalAgentRequest): UniversalAgentRequest {
+    return {
+      ...input,
+      metadata: {
+        ...toSerializableRecord(input.metadata),
+        channelMeshBridge: {
+          source: 'ZavorthAgentGateway.attachChannelMeshEventBus',
+          receivedAt: this.nowIso(),
+        },
+      },
+    };
+  }
+
+  private serializeRequestForWorkflow(
+    input: UniversalAgentRequest,
+    run: UniversalAgentRun,
+  ): UniversalAgentRequest {
+    return {
+      traceId: input.traceId ?? run.traceId,
+      requestId: normalizeText(input.requestId, run.requestId),
+      userId: normalizeText(input.userId, run.userId),
+      sessionId: input.sessionId ?? run.sessionId,
+      channel: input.channel || run.channel,
+      text: normalizeText(input.text, run.input),
+      workspace: input.workspace ?? run.workspace ?? null,
+      replyPort: input.replyPort || run.replyPorts[0],
+      requestedTools: Array.isArray(input.requestedTools)
+        ? [...input.requestedTools]
+        : run.toolExposure.tools.map((tool) => tool.id),
+      modelProfile: input.modelProfile || run.modelProfile,
+      metadata: {
+        ...toSerializableRecord(run.metadata),
+        ...toSerializableRecord(input.metadata),
+      },
+    };
+  }
+
+  private buildRequestFromRun(run: UniversalAgentRun): UniversalAgentRequest {
+    return {
+      traceId: run.traceId,
+      requestId: run.requestId,
+      userId: run.userId,
+      sessionId: run.sessionId,
+      channel: run.channel,
+      text: run.input,
+      workspace: run.workspace ?? null,
+      replyPort: run.replyPorts[0],
+      requestedTools: run.toolExposure.tools.map((tool) => tool.id),
+      modelProfile: run.modelProfile,
+      metadata: toSerializableRecord(run.metadata),
+    };
+  }
+
+  private mergeExecutionOptions(
+    base: AgentRunExecutionOptions | undefined,
+    override: AgentRunExecutionOptions,
+  ): AgentRunExecutionOptions {
+    const merged: AgentRunExecutionOptions = { ...(base || {}) };
+    if ('executor' in override) {
+      merged.executor = override.executor;
+    }
+    return merged;
+  }
+
+  private resolveWorkflowFailureMessage(run: UniversalAgentRun): string {
+    const failureSemantics = toSerializableRecord(run.metadata?.failureSemantics);
+    return normalizeText(failureSemantics.message, normalizeText(run.summary, 'Executor duravel falhou.'));
+  }
+
+  private buildReplies(
+    run: UniversalAgentRun,
+    text: string,
+    createdAt: string,
+  ): UniversalReplyPacket[] {
+    const port = run.replyPorts[0];
+    if (!port) {
+      return [];
+    }
+    return [
+      {
+        id: `${run.id}:reply:${createdAt}`,
+        runId: run.id,
+        port,
+        text,
+        createdAt,
+        metadata: {
+          channel: port.kind,
+          sessionId: run.sessionId,
+        },
+      },
+    ];
+  }
+
+  private claimQueuedWorkflowJobs(limit: number): UniversalAgentWorkflowJob[] {
+    const now = this.nowIso();
+    const claimed = this.workflowQueueStore.claimQueuedJobs({
+      workerId: this.workflowWorkerId,
+      now,
+      leaseMs: this.workflowLeaseMs,
+      limit,
+    });
+
+    claimed.forEach((job) => this.workflowJobs.set(job.id, job));
+    return claimed;
+  }
+
+  private releaseExpiredWorkflowLeases(): void {
+    const now = this.nowIso();
+    const recovered = this.workflowQueueStore.releaseExpiredLeases({ now });
+    if (recovered.length > 0) {
+      recovered.forEach((job) => this.workflowJobs.set(job.id, job));
+    }
+  }
+
+  private applyWorkflowFailure(
+    job: UniversalAgentWorkflowJob,
+    run: UniversalAgentRun,
+    message: string,
+    failedAt: string,
+  ): void {
+    const shouldRetry = job.attempts < job.maxAttempts;
+    job.updatedAt = failedAt;
+    job.lastError = message;
+    job.resultRunStatus = shouldRetry ? 'queued' : 'failed';
+    job.failedAt = failedAt;
+    job.completedAt = null;
+
+    if (shouldRetry) {
+      const backoffMs = this.computeBackoffMs(job);
+      job.status = 'queued';
+      job.backoffMs = backoffMs;
+      job.nextRunAt = this.addMs(failedAt, backoffMs);
+      this.clearWorkflowLease(job);
+      run.status = 'queued';
+      run.summary = `Workflow duravel falhou e foi reagendado: ${message}`;
+      return;
+    }
+
+    job.status = 'failed';
+    job.nextRunAt = null;
+    this.clearWorkflowLease(job);
+    run.status = 'failed';
+    run.summary = message;
+  }
+
+  private clearWorkflowLease(job: UniversalAgentWorkflowJob): void {
+    job.leaseOwner = null;
+    job.leaseExpiresAt = null;
+    job.lockedAt = null;
+    job.heartbeatAt = null;
+  }
+
+  private computeBackoffMs(job: UniversalAgentWorkflowJob): number {
+    const exponent = Math.max(0, job.attempts - 1);
+    const backoff = this.workflowBackoffMs * (2 ** exponent);
+    return Math.min(this.workflowMaxBackoffMs, Math.max(this.workflowBackoffMs, backoff));
+  }
+
+  private hydrateRuns(): void {
+    for (const run of this.runStore.loadRuns()) {
+      this.runs.set(run.id, this.ensureRunTraceId(run));
+    }
+  }
+
+  private refreshRuns(): void {
+    this.runs.clear();
+    this.hydrateRuns();
+  }
+
+  private hydrateWorkflowJobs(): void {
+    for (const job of this.workflowQueueStore.listJobs({ limit: 200 })) {
+      this.workflowJobs.set(job.id, job);
+    }
+  }
+
+  private refreshWorkflowJobs(): void {
+    this.workflowJobs.clear();
+    this.hydrateWorkflowJobs();
+  }
+
+  private persistAll(): void {
+    this.persistRuns();
+    this.persistWorkflowJobs();
+  }
+
+  private persistRuns(): void {
+    this.runStore.saveRuns(this.listRuns(200));
+  }
+
+  private persistWorkflowJobs(): void {
+    if (this.workflowQueueStore.replaceJobs) {
+      this.workflowQueueStore.replaceJobs(this.listWorkflowJobs(200));
+      return;
+    }
+    for (const job of this.listWorkflowJobs(200)) {
+      this.workflowQueueStore.upsertJob(job);
+    }
+  }
+
+  private persistWorkflowJob(job: UniversalAgentWorkflowJob): void {
+    const persisted = this.workflowQueueStore.upsertJob(job, {
+      expectedLeaseOwner: job.leaseOwner || undefined,
+    });
+    if (persisted) {
+      this.workflowJobs.set(persisted.id, persisted);
+      return;
+    }
+    this.persistWorkflowJobs();
+  }
+
+  private nowIso(): string {
+    return this.now().toISOString();
+  }
+
+  private ensureRunTraceId(run: UniversalAgentRun): UniversalAgentRun {
+    const existingTraceId = normalizeText(run.traceId);
+    if (existingTraceId) {
+      return {
+        ...run,
+        traceId: existingTraceId,
+        metadata: withAgentGatewayTraceMetadata(run.metadata, existingTraceId),
+      };
+    }
+
+    const traceId = resolveAgentGatewayTraceId({
+      channel: run.channel || 'unknown',
+      requestId: run.requestId || run.id,
+      sessionId: run.sessionId || run.id,
+      metadata: run.metadata,
+    });
+
+    return {
+      ...run,
+      traceId,
+      metadata: withAgentGatewayTraceMetadata(run.metadata, traceId),
+    };
+  }
+
+  private addMs(value: string, ms: number): string {
+    return new Date(this.parseTime(value) + Math.max(1, ms)).toISOString();
+  }
+
+  private parseTime(value: unknown): number {
+    const time = new Date(String(value || '')).getTime();
+    return Number.isFinite(time) ? time : 0;
+  }
+}

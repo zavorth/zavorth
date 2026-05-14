@@ -1,0 +1,72 @@
+version: 1
+
+project:
+  name: fullstack
+  root: .
+  description: Fullstack app operated by Zavorth Developer Workspace.
+
+processes:
+  - id: web
+    name: Web App
+    command: npm run dev
+    cwd: .
+    restart: on-failure
+    health:
+      type: http
+      url: http://127.0.0.1:3000
+
+  - id: api
+    name: API
+    command: npm run api:dev
+    cwd: .
+    restart: on-failure
+    health:
+      type: http
+      url: http://127.0.0.1:4000/health
+
+  - id: tests
+    name: Tests
+    command: npm test
+    cwd: .
+    restart: never
+    health:
+      type: none
+
+mcp:
+  servers: []
+
+agents:
+  - id: maintainer
+    role: project-maintainer
+    watches:
+      - web
+      - api
+      - tests
+    mode: suggest
+
+hooks:
+  - id: web-error
+    when:
+      process: web
+      pattern: "(FAIL|FAILED|Error|Exception|EADDRINUSE)"
+    action:
+      type: agent-run
+      mode: suggest
+      prompt: Diagnose the fullstack web failure and propose the smallest safe fix.
+
+  - id: api-error
+    when:
+      process: api
+      pattern: "(FAIL|FAILED|Error|Exception|EADDRINUSE)"
+    action:
+      type: agent-run
+      mode: suggest
+      prompt: Diagnose the fullstack API failure and propose the smallest safe fix.
+
+policy:
+  defaultMode: suggest
+  requireApprovalFor:
+    - filesystem.write
+    - process.kill
+    - network.public
+    - selfmod.apply

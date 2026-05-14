@@ -1,0 +1,20 @@
+{
+  "id": "safe-8gb",
+  "label": "Safe 8GB",
+  "description": "Perfil padrao para hosts de 8GB: chat sob demanda, browser e gateway desligados ate pedido explicito.",
+  "budgetProfile": "safe-8gb",
+  "resourcePosture": "lean",
+  "pollingMode": "event-first",
+  "maintenanceMode": "light",
+  "maxActiveSidecars": 1,
+  "sidecarIdleTimeoutMs": 120000,
+  "capabilityBootOverrides": {
+    "telegram": "on-demand",
+    "browser": "disabled",
+    "ai-gateway": "disabled"
+  },
+  "notes": [
+    "Use quando a memoria do host estiver alta.",
+    "Browser e AI Gateway continuam instalados como capabilities, mas nao entram no caminho padrao."
+  ]
+}

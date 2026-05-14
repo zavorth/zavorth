@@ -1,0 +1,27 @@
+{
+  "name": "zavorth-agent",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Zavorth Agent — Processo leve de voz com Wake Word + Hotkey que fica na bandeja do sistema",
+  "main": "src/index.ts",
+  "scripts": {
+    "start": "npx tsx src/index.ts",
+    "dev": "npx tsx watch src/index.ts",
+    "typecheck": "tsc --noEmit",
+    "smoke:echo": "npx tsx src/EchoClientService.smoke.ts",
+    "smoke:nexus": "npm run smoke:echo",
+    "smoke:voice": "npx tsx src/AgentVoiceFlow.smoke.ts"
+  },
+  "dependencies": {
+    "dotenv": "^17.4.2",
+    "node-global-key-listener": "^0.3.0",
+    "node-notifier": "^10.0.1",
+    "systray2": "^2.1.4"
+  },
+  "devDependencies": {
+    "@types/node": "^22.0.0",
+    "tsx": "^4.19.0",
+    "typescript": "~5.6.0"
+  }
+}

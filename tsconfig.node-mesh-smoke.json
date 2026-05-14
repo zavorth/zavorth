@@ -1,0 +1,19 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "rootDir": ".",
+    "outDir": "./dist-smoke",
+    "declaration": false,
+    "declarationMap": false,
+    "sourceMap": false
+  },
+  "include": [
+    "scripts/node-mesh-host.ts",
+    "scripts/node-mesh-smoke.ts"
+  ],
+  "exclude": [
+    "node_modules",
+    "dist",
+    "dist-smoke"
+  ]
+}

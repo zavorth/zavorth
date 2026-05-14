@@ -1,0 +1,655 @@
+import { v4 as uuidv4 } from 'uuid';
+import { SchedulerRepository, type ScheduledTask } from '../storage/SchedulerRepository.js';
+import type { ZavorthAutomationDeliveryService } from './ZavorthAutomationDeliveryService.js';
+import { RuntimeProfileService } from './RuntimeProfileService.js';
+
+export type SchedulerDispatchResult = {
+  summary?: string | null;
+  deliveredVia?: string[] | null;
+};
+
+export type SchedulerTaskBudget = {
+  maxRuntimeMs: number;
+  maxMemoryMb: number;
+  retries: number;
+  backoffMs: number;
+  maxConcurrentRuns: number;
+  maxPerTaskConcurrentRuns: number;
+  maintenanceWindows: Array<{
+    label: string;
+    start: string;
+    end: string;
+    timezone: 'local';
+    heavyTasksOnly: boolean;
+  }>;
+};
+
+export type SchedulerTaskGuardrails = {
+  autoPauseAfterConsecutiveFailures: number;
+  idempotencyKeySeed: string;
+  outboxTtlMs: number;
+  outboxMaxBytes: number;
+  pauseCreatesInboxNotice: boolean;
+  governedScheduledTask?: SchedulerGovernedScheduledTaskMetadata | null;
+};
+
+export type SchedulerTaskRuntimeDescriptor = {
+  budget: SchedulerTaskBudget;
+  guardrails: SchedulerTaskGuardrails;
+  autoPause: {
+    threshold: number;
+    consecutiveFailures: number;
+    paused: boolean;
+    pausedReason: string | null;
+    lastFailureAt: string | null;
+  };
+};
+
+export type SchedulerGovernedScheduledTaskMetadata = {
+  contractVersion: string;
+  phase: 'phase-3-persisted-scheduled-task-registration';
+  registryStatus: string;
+  approvalId: string | null;
+  approvalExpiresAt: string | null;
+  approvalVerificationReason: string;
+  approvedScopeHash: string;
+  approvedScope: {
+    intent: string;
+    command: string;
+    workspace: string;
+    surface: string;
+    createdBy: string;
+    allowedTools: string[];
+  };
+  approvedBudget: {
+    maxRuntimeMs: number;
+    maxTokens: number;
+    maxToolCalls: number;
+    maxNetworkRequests: number;
+    maxCommands: number;
+    maxMutations: number;
+    maxRetries: number;
+  };
+  renewalPolicy: string;
+  receipts: Array<{
+    id: string;
+    kind: string;
+    status: string;
+  }>;
+  persistedAt: string;
+  executionGatewayRequired: true;
+  noDirectToolDispatch: true;
+};
+
+export type CommandDispatcher = (
+  command: string,
+  userId: string,
+  task?: ScheduledTask,
+) => Promise<SchedulerDispatchResult | void>;
+
+export type ScheduleParserResult = {
+  kind: 'interval' | 'daily';
+  normalized: string;
+  label: string;
+};
+
+/**
+ * SchedulerService — roda tarefas recorrentes e mantém o estado operacional delas.
+ * Aceita:
+ * - "every 30m"
+ * - "every 2h"
+ * - "daily 09:00"
+ */
+export class SchedulerService {
+  private timer: NodeJS.Timeout | null = null;
+  private dispatcher: CommandDispatcher | null = null;
+  private readonly deliveryService: (
+    Pick<ZavorthAutomationDeliveryService, 'deliver'>
+    & Partial<Pick<ZavorthAutomationDeliveryService, 'recordSystemNotice'>>
+  ) | null;
+  private readonly runtimeProfile: Pick<RuntimeProfileService, 'getProfile' | 'supportsRecurringAutomation'>;
+  private readonly maxConcurrentRuns: number;
+  private readonly maxTaskRuntimeMs: number;
+  private readonly maxTaskMemoryMb: number;
+  private readonly maxRetries: number;
+  private readonly backoffMs: number;
+  private runningCount = 0;
+  private readonly runningTaskIds = new Set<string>();
+
+  constructor(
+    private repo: SchedulerRepository,
+    runtime: {
+      deliveryService?: (
+        Pick<ZavorthAutomationDeliveryService, 'deliver'>
+        & Partial<Pick<ZavorthAutomationDeliveryService, 'recordSystemNotice'>>
+      ) | null;
+      runtimeProfileService?: Pick<RuntimeProfileService, 'getProfile' | 'supportsRecurringAutomation'>;
+      maxConcurrentRuns?: number;
+      maxTaskRuntimeMs?: number;
+      maxTaskMemoryMb?: number;
+      maxRetries?: number;
+      backoffMs?: number;
+    } = {},
+  ) {
+    this.deliveryService = runtime.deliveryService || null;
+    this.runtimeProfile = runtime.runtimeProfileService || new RuntimeProfileService();
+    const profile = this.runtimeProfile.getProfile();
+    this.maxConcurrentRuns = Math.max(1, Math.min(runtime.maxConcurrentRuns || (profile === 'full' ? 2 : 1), 2));
+    this.maxTaskRuntimeMs = Math.max(5_000, Math.min(runtime.maxTaskRuntimeMs || 10 * 60 * 1000, 60 * 60 * 1000));
+    this.maxTaskMemoryMb = Math.max(64, Math.min(runtime.maxTaskMemoryMb || 256, 4096));
+    this.maxRetries = Math.max(0, Math.min(runtime.maxRetries || 2, 5));
+    this.backoffMs = Math.max(1_000, Math.min(runtime.backoffMs || 30 * 1000, 10 * 60 * 1000));
+  }
+
+  public start(dispatcher: CommandDispatcher): void {
+    if (!this.runtimeProfile.supportsRecurringAutomation()) {
+      this.dispatcher = dispatcher;
+      console.log('SchedulerService em modo preview: perfil core nao inicia loop recorrente.');
+      return;
+    }
+    this.dispatcher = dispatcher;
+
+    if (this.timer) {
+      clearInterval(this.timer);
+    }
+
+    this.timer = setInterval(() => {
+      void this.tick();
+    }, 30000);
+    this.timer.unref?.();
+    console.log('SchedulerService iniciado.');
+  }
+
+  public stop(): void {
+    if (this.timer) {
+      clearInterval(this.timer);
+      this.timer = null;
+    }
+  }
+
+  public scheduleTask(
+    command: string,
+    schedule: string,
+    userId: string,
+    options: {
+      intentText?: string | null;
+      delivery?: ScheduledTask['delivery'];
+      deliveryTarget?: string | null;
+      budget?: Partial<SchedulerTaskBudget> | null;
+      guardrails?: Partial<SchedulerTaskGuardrails> | null;
+      governedScheduledTask?: SchedulerGovernedScheduledTaskMetadata | null;
+    } = {},
+  ): ScheduledTask {
+    const parsed = this.parseSchedule(schedule);
+    if (!parsed) {
+      throw new Error('Formato de agendamento invalido. Use "every Xm", "every Xh" ou "daily HH:MM".');
+    }
+
+    const nextRun = this.calculateNextRun(parsed.normalized, new Date());
+    if (!nextRun) {
+      throw new Error('Nao foi possivel calcular a proxima execucao do agendamento.');
+    }
+
+    const task: ScheduledTask = {
+      id: uuidv4(),
+      command,
+      schedule: parsed.normalized,
+      created_at: new Date().toISOString(),
+      last_run: null,
+      next_run: nextRun.toISOString(),
+      created_by: userId,
+      status: 'active',
+      intent_text: String(options.intentText || '').trim() || command,
+      delivery: options.delivery || 'telegram',
+      delivery_target: String(options.deliveryTarget || '').trim() || null,
+      last_status: 'idle',
+      last_error: null,
+      last_result: null,
+      run_count: 0,
+      failure_count: 0,
+      budget_json: JSON.stringify(this.buildBudget(options.budget || null)),
+      guardrail_json: JSON.stringify(this.buildGuardrails(
+        command,
+        parsed.normalized,
+        userId,
+        options.guardrails || null,
+        options.governedScheduledTask || null,
+      )),
+      paused_reason: null,
+      last_failure_at: null,
+      consecutive_failures: 0,
+    };
+
+    this.repo.createTask(task);
+    return task;
+  }
+
+  public updateTaskRuntimeMetadata(
+    id: string,
+    input: {
+      budget?: Partial<SchedulerTaskBudget> | null;
+      guardrails?: Partial<SchedulerTaskGuardrails> | null;
+      governedScheduledTask?: SchedulerGovernedScheduledTaskMetadata | null;
+      pausedReason?: string | null;
+    },
+  ): ScheduledTask | null {
+    const task = this.repo.getTask(id);
+    if (!task) {
+      return null;
+    }
+    const budget = this.buildBudget({
+      ...this.parseBudget(task.budget_json),
+      ...(input.budget || {}),
+    });
+    const existingGuardrails = this.parseGuardrails(
+      task.guardrail_json,
+      task.command,
+      task.schedule,
+      task.created_by || 'system',
+    );
+    const guardrails = this.buildGuardrails(
+      task.command,
+      task.schedule,
+      task.created_by || 'system',
+      {
+        ...existingGuardrails,
+        ...(input.guardrails || {}),
+      },
+      input.governedScheduledTask === undefined
+        ? existingGuardrails.governedScheduledTask || null
+        : input.governedScheduledTask,
+    );
+    this.repo.updateRuntimeMetadata(id, {
+      budgetJson: JSON.stringify(budget),
+      guardrailJson: JSON.stringify(guardrails),
+      pausedReason: input.pausedReason,
+    });
+    return this.getTask(id);
+  }
+
+  public listTasks(includePaused = true): ScheduledTask[] {
+    const tasks = includePaused ? this.repo.listTasks() : this.repo.listActiveTasks();
+    return tasks.map((entry) => ({ ...entry }));
+  }
+
+  public getTask(id: string): ScheduledTask | null {
+    const task = this.repo.getTask(id);
+    return task ? { ...task } : null;
+  }
+
+  public findTaskByPrefix(idPrefix: string): ScheduledTask | null {
+    const normalizedPrefix = String(idPrefix || '').trim().toLowerCase();
+    if (!normalizedPrefix) {
+      return null;
+    }
+    return this.listTasks(true).find((entry) => entry.id.toLowerCase().startsWith(normalizedPrefix)) || null;
+  }
+
+  public pauseTask(id: string, reason?: string | null): ScheduledTask | null {
+    const task = this.repo.getTask(id);
+    if (!task) {
+      return null;
+    }
+    this.repo.updateStatus(id, 'paused', reason);
+    return this.getTask(id);
+  }
+
+  public resumeTask(id: string): ScheduledTask | null {
+    const task = this.repo.getTask(id);
+    if (!task) {
+      return null;
+    }
+    this.repo.updateStatus(id, 'active');
+    return this.getTask(id);
+  }
+
+  public removeTask(id: string): boolean {
+    const task = this.repo.getTask(id);
+    if (!task) {
+      return false;
+    }
+    this.repo.deleteTask(id);
+    return true;
+  }
+
+  public parseSchedule(schedule: string): ScheduleParserResult | null {
+    const normalized = String(schedule || '').trim().toLowerCase();
+    const intervalMatch = normalized.match(/^every\s+(\d+)([mh])$/);
+    if (intervalMatch) {
+      const amount = Number.parseInt(intervalMatch[1], 10);
+      const unit = intervalMatch[2];
+      if (!Number.isFinite(amount) || amount <= 0) {
+        return null;
+      }
+      return {
+        kind: 'interval',
+        normalized: `every ${amount}${unit}`,
+        label: unit === 'm' ? `a cada ${amount} minuto(s)` : `a cada ${amount} hora(s)`,
+      };
+    }
+
+    const dailyMatch = normalized.match(/^daily\s+(\d{1,2}):(\d{2})$/);
+    if (dailyMatch) {
+      const hour = Number.parseInt(dailyMatch[1], 10);
+      const minute = Number.parseInt(dailyMatch[2], 10);
+      if (hour < 0 || hour > 23 || minute < 0 || minute > 59) {
+        return null;
+      }
+      const hh = String(hour).padStart(2, '0');
+      const mm = String(minute).padStart(2, '0');
+      return {
+        kind: 'daily',
+        normalized: `daily ${hh}:${mm}`,
+        label: `todo dia as ${hh}:${mm}`,
+      };
+    }
+
+    return null;
+  }
+
+  public describeSchedule(schedule: string): string {
+    const parsed = this.parseSchedule(schedule);
+    return parsed?.label || schedule;
+  }
+
+  public describeTaskRuntime(task: ScheduledTask): SchedulerTaskRuntimeDescriptor {
+    const guardrails = this.parseGuardrails(task.guardrail_json, task.command, task.schedule, task.created_by || 'system');
+    return {
+      budget: this.parseBudget(task.budget_json),
+      guardrails,
+      autoPause: {
+        threshold: guardrails.autoPauseAfterConsecutiveFailures,
+        consecutiveFailures: Number(task.consecutive_failures || 0),
+        paused: task.status === 'paused',
+        pausedReason: task.paused_reason || null,
+        lastFailureAt: task.last_failure_at || null,
+      },
+    };
+  }
+
+  private async tick(): Promise<void> {
+    if (!this.dispatcher) {
+      return;
+    }
+
+    try {
+      const tasks = this.repo.listActiveTasks();
+      const now = new Date();
+
+      for (const task of tasks) {
+        if (!task.next_run || new Date(task.next_run) > now) {
+          continue;
+        }
+        if (this.runningCount >= this.maxConcurrentRuns) {
+          continue;
+        }
+        if (this.runningTaskIds.has(task.id)) {
+          continue;
+        }
+
+        const nextRunDate = this.calculateNextRun(
+          task.schedule,
+          new Date(task.next_run || now.toISOString()),
+        );
+        const nextRun = nextRunDate ? nextRunDate.toISOString() : null;
+        const currentRunCount = Number(task.run_count || 0) + 1;
+        const runtime = this.describeTaskRuntime(task);
+        this.runningCount += 1;
+        this.runningTaskIds.add(task.id);
+        try {
+          const result = await this.runWithTimeout(
+            this.dispatcher(task.command, task.created_by || 'system', task),
+            runtime.budget.maxRuntimeMs,
+          );
+          if (task.delivery && task.delivery !== 'telegram' && this.deliveryService) {
+            this.deliveryService.deliver(task, result?.summary);
+          }
+          this.repo.updateLastRun(task.id, {
+            lastRun: now.toISOString(),
+            nextRun,
+            lastStatus: 'completed',
+            lastError: null,
+            lastResult: String(result?.summary || '').trim() || null,
+            runCount: currentRunCount,
+            failureCount: Number(task.failure_count || 0),
+            lastFailureAt: null,
+            consecutiveFailures: 0,
+          });
+        } catch (error: any) {
+          const consecutiveFailures = Number(task.consecutive_failures || 0) + 1;
+          const shouldAutoPause = consecutiveFailures >= runtime.guardrails.autoPauseAfterConsecutiveFailures;
+          this.repo.updateLastRun(task.id, {
+            lastRun: now.toISOString(),
+            nextRun,
+            lastStatus: 'failed',
+            lastError: error?.message || String(error),
+            lastResult: null,
+            runCount: currentRunCount,
+            failureCount: Number(task.failure_count || 0) + 1,
+            lastFailureAt: now.toISOString(),
+            consecutiveFailures,
+          });
+          if (shouldAutoPause) {
+            const pausedReason = `auto-paused after ${runtime.guardrails.autoPauseAfterConsecutiveFailures} consecutive failures`;
+            this.repo.updateStatus(task.id, 'paused', pausedReason);
+            this.deliveryService?.recordSystemNotice?.({
+              taskId: task.id,
+              prompt: task.intent_text || task.command,
+              summary: `Automacao pausada automaticamente: ${pausedReason}. Ultimo erro: ${error?.message || String(error)}`,
+            });
+          }
+          console.error(`Erro ao disparar tarefa agendada ${task.id}:`, error);
+        } finally {
+          this.runningCount = Math.max(0, this.runningCount - 1);
+          this.runningTaskIds.delete(task.id);
+        }
+      }
+    } catch (error) {
+      console.error('Erro no tick do SchedulerService:', error);
+    }
+  }
+
+  private calculateNextRun(schedule: string, fromDate: Date = new Date()): Date | null {
+    const parsed = this.parseSchedule(schedule);
+    if (!parsed) {
+      return null;
+    }
+
+    if (parsed.kind === 'interval') {
+      const intervalMatch = parsed.normalized.match(/^every\s+(\d+)([mh])$/);
+      if (!intervalMatch) {
+        return null;
+      }
+      const amount = Number.parseInt(intervalMatch[1], 10);
+      const unit = intervalMatch[2];
+      const next = new Date(fromDate);
+      if (unit === 'm') {
+        next.setMinutes(next.getMinutes() + amount);
+        return next;
+      }
+      next.setHours(next.getHours() + amount);
+      return next;
+    }
+
+    const dailyMatch = parsed.normalized.match(/^daily\s+(\d{2}):(\d{2})$/);
+    if (!dailyMatch) {
+      return null;
+    }
+    const hour = Number.parseInt(dailyMatch[1], 10);
+    const minute = Number.parseInt(dailyMatch[2], 10);
+    const next = new Date(fromDate);
+    next.setSeconds(0, 0);
+    next.setHours(hour, minute, 0, 0);
+    if (next.getTime() <= fromDate.getTime()) {
+      next.setDate(next.getDate() + 1);
+    }
+    return next;
+  }
+
+  private buildDefaultBudget(): SchedulerTaskBudget {
+    return {
+      maxRuntimeMs: this.maxTaskRuntimeMs,
+      maxMemoryMb: this.maxTaskMemoryMb,
+      retries: this.maxRetries,
+      backoffMs: this.backoffMs,
+      maxConcurrentRuns: this.maxConcurrentRuns,
+      maxPerTaskConcurrentRuns: 1,
+      maintenanceWindows: [
+        {
+          label: 'default-nightly-maintenance',
+          start: '04:00',
+          end: '06:00',
+          timezone: 'local',
+          heavyTasksOnly: true,
+        },
+      ],
+    };
+  }
+
+  private buildBudget(input: Partial<SchedulerTaskBudget> | null | undefined): SchedulerTaskBudget {
+    const defaults = this.buildDefaultBudget();
+    return {
+      maxRuntimeMs: this.toBoundedNumber(input?.maxRuntimeMs, defaults.maxRuntimeMs, 5_000, 60 * 60 * 1000),
+      maxMemoryMb: this.toBoundedNumber(input?.maxMemoryMb, defaults.maxMemoryMb, 64, 4096),
+      retries: this.toBoundedNumber(input?.retries, defaults.retries, 0, 5),
+      backoffMs: this.toBoundedNumber(input?.backoffMs, defaults.backoffMs, 1_000, 10 * 60 * 1000),
+      maxConcurrentRuns: this.toBoundedNumber(input?.maxConcurrentRuns, defaults.maxConcurrentRuns, 1, 2),
+      maxPerTaskConcurrentRuns: this.toBoundedNumber(input?.maxPerTaskConcurrentRuns, 1, 1, 1),
+      maintenanceWindows: Array.isArray(input?.maintenanceWindows) && input.maintenanceWindows.length > 0
+        ? input.maintenanceWindows.slice(0, 3)
+        : defaults.maintenanceWindows,
+    };
+  }
+
+  private buildDefaultGuardrails(command: string, schedule: string, userId: string): SchedulerTaskGuardrails {
+    return {
+      autoPauseAfterConsecutiveFailures: 3,
+      idempotencyKeySeed: `task:${command}:${schedule}:${userId}`,
+      outboxTtlMs: 7 * 24 * 60 * 60 * 1000,
+      outboxMaxBytes: 100 * 1024 * 1024,
+      pauseCreatesInboxNotice: true,
+      governedScheduledTask: null,
+    };
+  }
+
+  private buildGuardrails(
+    command: string,
+    schedule: string,
+    userId: string,
+    input: Partial<SchedulerTaskGuardrails> | null | undefined,
+    governedScheduledTask: SchedulerGovernedScheduledTaskMetadata | null,
+  ): SchedulerTaskGuardrails {
+    const defaults = this.buildDefaultGuardrails(command, schedule, userId);
+    return {
+      autoPauseAfterConsecutiveFailures: this.toBoundedNumber(
+        input?.autoPauseAfterConsecutiveFailures,
+        defaults.autoPauseAfterConsecutiveFailures,
+        1,
+        10,
+      ),
+      idempotencyKeySeed: String(input?.idempotencyKeySeed || defaults.idempotencyKeySeed).trim(),
+      outboxTtlMs: this.toBoundedNumber(input?.outboxTtlMs, defaults.outboxTtlMs, 60_000, 30 * 24 * 60 * 60 * 1000),
+      outboxMaxBytes: this.toBoundedNumber(input?.outboxMaxBytes, defaults.outboxMaxBytes, 1024, 500 * 1024 * 1024),
+      pauseCreatesInboxNotice: input?.pauseCreatesInboxNotice !== false,
+      governedScheduledTask,
+    };
+  }
+
+  private parseBudget(rawValue: unknown): SchedulerTaskBudget {
+    const parsed = this.parseJsonObject(rawValue);
+    const defaults = this.buildDefaultBudget();
+    return {
+      maxRuntimeMs: this.toBoundedNumber(parsed.maxRuntimeMs, defaults.maxRuntimeMs, 5_000, 60 * 60 * 1000),
+      maxMemoryMb: this.toBoundedNumber(parsed.maxMemoryMb, defaults.maxMemoryMb, 64, 4096),
+      retries: this.toBoundedNumber(parsed.retries, defaults.retries, 0, 5),
+      backoffMs: this.toBoundedNumber(parsed.backoffMs, defaults.backoffMs, 1_000, 10 * 60 * 1000),
+      maxConcurrentRuns: this.toBoundedNumber(parsed.maxConcurrentRuns, defaults.maxConcurrentRuns, 1, 2),
+      maxPerTaskConcurrentRuns: this.toBoundedNumber(parsed.maxPerTaskConcurrentRuns, 1, 1, 1),
+      maintenanceWindows: Array.isArray(parsed.maintenanceWindows) && parsed.maintenanceWindows.length > 0
+        ? parsed.maintenanceWindows.slice(0, 3).map((entry: any) => ({
+          label: String(entry?.label || 'maintenance').trim(),
+          start: String(entry?.start || '04:00').trim(),
+          end: String(entry?.end || '06:00').trim(),
+          timezone: 'local' as const,
+          heavyTasksOnly: entry?.heavyTasksOnly !== false,
+        }))
+        : defaults.maintenanceWindows,
+    };
+  }
+
+  private parseGuardrails(
+    rawValue: unknown,
+    command: string,
+    schedule: string,
+    userId: string,
+  ): SchedulerTaskGuardrails {
+    const parsed = this.parseJsonObject(rawValue);
+    const defaults = this.buildDefaultGuardrails(command, schedule, userId);
+    return {
+      autoPauseAfterConsecutiveFailures: this.toBoundedNumber(
+        parsed.autoPauseAfterConsecutiveFailures,
+        defaults.autoPauseAfterConsecutiveFailures,
+        1,
+        10,
+      ),
+      idempotencyKeySeed: String(parsed.idempotencyKeySeed || defaults.idempotencyKeySeed).trim(),
+      outboxTtlMs: this.toBoundedNumber(parsed.outboxTtlMs, defaults.outboxTtlMs, 60_000, 30 * 24 * 60 * 60 * 1000),
+      outboxMaxBytes: this.toBoundedNumber(parsed.outboxMaxBytes, defaults.outboxMaxBytes, 1024, 500 * 1024 * 1024),
+      pauseCreatesInboxNotice: parsed.pauseCreatesInboxNotice !== false,
+      governedScheduledTask: this.parseGovernedScheduledTaskMetadata(parsed.governedScheduledTask),
+    };
+  }
+
+  private parseGovernedScheduledTaskMetadata(value: unknown): SchedulerGovernedScheduledTaskMetadata | null {
+    if (!value || typeof value !== 'object' || Array.isArray(value)) {
+      return null;
+    }
+    const record = value as Record<string, any>;
+    if (
+      typeof record.contractVersion !== 'string'
+      || record.phase !== 'phase-3-persisted-scheduled-task-registration'
+      || typeof record.approvedScopeHash !== 'string'
+      || !record.approvedScope
+      || !record.approvedBudget
+    ) {
+      return null;
+    }
+    return record as SchedulerGovernedScheduledTaskMetadata;
+  }
+
+  private parseJsonObject(rawValue: unknown): Record<string, any> {
+    if (rawValue && typeof rawValue === 'object') {
+      return rawValue as Record<string, any>;
+    }
+    try {
+      const parsed = JSON.parse(String(rawValue || '{}'));
+      return parsed && typeof parsed === 'object' && !Array.isArray(parsed) ? parsed : {};
+    } catch {
+      return {};
+    }
+  }
+
+  private toBoundedNumber(value: unknown, fallback: number, min: number, max: number): number {
+    const numeric = Number(value);
+    const candidate = Number.isFinite(numeric) ? numeric : fallback;
+    return Math.max(min, Math.min(Math.round(candidate), max));
+  }
+
+  private runWithTimeout<T>(promise: Promise<T>, timeoutMs: number): Promise<T> {
+    let timer: NodeJS.Timeout | null = null;
+    return new Promise<T>((resolve, reject) => {
+      timer = setTimeout(() => {
+        reject(new Error(`Automation run exceeded budget maxRuntimeMs=${timeoutMs}.`));
+      }, timeoutMs);
+      timer.unref?.();
+      promise
+        .then(resolve)
+        .catch(reject)
+        .finally(() => {
+          if (timer) {
+            clearTimeout(timer);
+          }
+        });
+    });
+  }
+}

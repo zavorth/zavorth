@@ -1,0 +1,1577 @@
+import { ReplyPipeline } from '../reply/ReplyPipeline.js';
+import { resolveZavorthArtifactPolicyFromMetadata, shouldPersistZavorthArtifacts } from '../../contracts/ZavorthResponseDecisionContract.js';
+import {
+  DynamicHierarchySwarmService,
+} from '../../domain/execution/application/DynamicHierarchySwarmService.js';
+import type {
+  SelfModificationCommandService,
+} from '../../services/SelfModificationCommandService.js';
+import type {
+  ComputerUseWatchModeService,
+} from '../../services/ComputerUseWatchModeService.js';
+import { AgentRunCanonicalContextService } from './AgentRunCanonicalContextService.js';
+import { AgentRunFactory, type AgentRunModelPickerContractService } from './AgentRunFactory.js';
+import type { NaturalCapabilityDiscoveryService } from './NaturalCapabilityDiscoveryService.js';
+import { NaturalFirstLightReplyService } from './NaturalFirstLightReplyService.js';
+import { NaturalFirstApprovalSafetyService } from './NaturalFirstApprovalSafetyService.js';
+import { SafetyNarrativeService } from './SafetyNarrativeService.js';
+import { NaturalFirstMemoryContinuityService } from './NaturalFirstMemoryContinuityService.js';
+import type { UniversalPreviewModeService } from './UniversalPreviewModeService.js';
+import {
+  AgentRunLlmRuntimeExecutor,
+  type UniversalAgentLlmRuntime,
+} from './AgentRunLlmRuntimeExecutor.js';
+import { applyAgentRunLlmRuntimeRouteReceipt } from './AgentRunLlmRouteReceipt.js';
+import {
+  AgentRunEchoHandsExecutor,
+  type UniversalAgentToolRuntime,
+} from './AgentRunEchoHandsExecutor.js';
+import { AgentRunCorePipeline } from './AgentRunCorePipeline.js';
+import {
+  AgentRunIntelligenceFabricCanary,
+  type AgentRunIntelligenceFabricMode,
+} from './AgentRunIntelligenceFabricCanary.js';
+import { promoteIntelligenceFabricDraftWorkspaceWrites } from './AgentRunIntelligenceFabricDraftPromotion.js';
+import { AgentRunExecutorBoundary } from './AgentRunExecutorBoundary.js';
+import {
+  AgentRunMetadataEvidenceHelpers,
+  type CoreDietBaselineDraft,
+} from './AgentRunMetadataEvidenceHelpers.js';
+import {
+  AgentRunEvidencePipeline,
+  type AgentRunEvidenceCollectorId,
+  type AgentRunEvidencePipelineStep,
+  type AgentRunEvidenceWorker,
+} from './AgentRunEvidencePipeline.js';
+import { AgentRunEvidenceStore } from './AgentRunEvidenceStore.js';
+import { installAgentRunSpecializedFlows } from './AgentRunSpecializedFlows.js';
+import { CapabilityLoopGovernanceService } from './CapabilityLoopGovernanceService.js';
+import { TrustSliderPolicyService } from '../uni/TrustSliderPolicyService.js';
+import type {
+  TrustSliderPolicyDecision,
+} from '../uni/UniversalIntentContracts.js';
+import {
+  FailureSemanticsRegistry,
+} from './FailureSemanticsRegistry.js';
+import { AgentRunFailureResultBuilder } from './AgentRunFailureResultBuilder.js';
+import {
+  ExecutionEscalationPolicy,
+} from './ExecutionEscalationPolicy.js';
+import {
+  CapabilityNegotiationService,
+  type CapabilityNegotiationSnapshot,
+} from './CapabilityNegotiationService.js';
+import {
+  ToolRehearsalService,
+  type ToolRehearsalSnapshot,
+} from './ToolRehearsalService.js';
+import { MemoryWithReceiptsService } from './MemoryWithReceiptsService.js';
+import { ProviderArenaService } from './ProviderArenaService.js';
+import { SelfingDashboardService } from './SelfingDashboardService.js';
+import { ArtifactMemoryService } from './ArtifactMemoryService.js';
+import { PersonalOpsAutopilotService } from './PersonalOpsAutopilotService.js';
+import { AgentTeamCompilerService } from './AgentTeamCompilerService.js';
+import { CrossChannelContinuityService } from './CrossChannelContinuityService.js';
+import { AskBeforeAssumptionPolicyService } from './AskBeforeAssumptionPolicyService.js';
+import { ProviderMeshConsolidationService } from './ProviderMeshConsolidationService.js';
+import {
+  UniversalIntentTrustEnforcementService,
+  type UniversalIntentTrustEnforcementSnapshot,
+} from './UniversalIntentTrustEnforcementService.js';
+import { RunArtifactReceiptReplayService } from './RunArtifactReceiptReplayService.js';
+import { ProductizationEvidenceService } from './ProductizationEvidenceService.js';
+import { ProductEntryRuntimeService } from './ProductEntryRuntimeService.js';
+import { ReleaseInstallerRollbackPathService } from './ReleaseInstallerRollbackPathService.js';
+import { PublicSiteDocsDemoSyncService } from './PublicSiteDocsDemoSyncService.js';
+import { FeedbackTelemetryProductLoopService } from './FeedbackTelemetryProductLoopService.js';
+import { PublicAdoptionPilotLoopService } from './PublicAdoptionPilotLoopService.js';
+import { IntegrationShowcasePartnerSurfaceService } from './IntegrationShowcasePartnerSurfaceService.js';
+import { ReleaseAdoptionReadinessService } from './ReleaseAdoptionReadinessService.js';
+import { ReleaseCandidatePreCanaryGateService } from './ReleaseCandidatePreCanaryGateService.js';
+import { BlueprintCompletionGateService } from './BlueprintCompletionGateService.js';
+import { RunBudgetPolicy } from './RunBudgetPolicy.js';
+import { AgentRunPolicyKernel } from './AgentRunPolicyKernel.js';
+import { SkillMcpQuarantineService } from './SkillMcpQuarantineService.js';
+import { ToolExposurePolicy } from './ToolExposurePolicy.js';
+import type { ZavorthIntelligenceFabricLearningService } from '../../services/ZavorthIntelligenceFabricLearningService.js';
+import type { ZavorthIntelligenceFabricService } from '../../services/ZavorthIntelligenceFabricService.js';
+import type { ZavorthMutationPlaneService } from '../../services/ZavorthMutationPlaneService.js';
+import {
+  CanonicalSessionContextAssembler,
+  LightweightRunProfileClassifier,
+} from './context/index.js';
+import { AgentRunAuditHooks } from './security/AgentRunAuditHooks.js';
+import { AgentRunRiskHooks, type AgentRunRiskReviewStage } from './security/AgentRunRiskHooks.js';
+import type {
+  UniversalAgentExecutor,
+  UniversalAgentExecutorResult,
+  UniversalAgentRequest,
+  UniversalAgentRun,
+  UniversalAgentRunResult,
+  UniversalApprovalRequest,
+} from './UniversalAgentRuntimeTypes.js';
+
+export type { UniversalAgentLlmRuntime } from './AgentRunLlmRuntimeExecutor.js';
+export type { UniversalAgentToolRuntime } from './AgentRunEchoHandsExecutor.js';
+
+export type AgentRunServiceRuntime = {
+  now?: () => Date;
+  idFactory?: (prefix: string) => string;
+  runtimeEventBus?: AgentRunRuntimeEventBus | null;
+  evidenceWorkerMode?: 'inline' | 'async-heavy' | 'worker-first-heavy';
+  evidenceWorker?: AgentRunEvidenceWorker | null;
+  asyncEvidenceCollectorIds?: AgentRunEvidenceCollectorId[];
+  executor?: UniversalAgentExecutor | null;
+  llmRuntime?: UniversalAgentLlmRuntime | null;
+  swarmHierarchyService?: SwarmHierarchyRuntime | null;
+  selfModificationService?: SelfModificationRuntime | null;
+  watchModeService?: WatchModeRuntime | null;
+  toolRuntime?: UniversalAgentToolRuntime | null;
+  toolPolicy?: ToolExposurePolicy;
+  runBudgetPolicy?: RunBudgetPolicy | null;
+  failureSemanticsRegistry?: FailureSemanticsRegistry | null;
+  executionEscalationPolicy?: ExecutionEscalationPolicy | null;
+  replyPipeline?: ReplyPipeline;
+  contextAssembler?: CanonicalSessionContextAssembler | null;
+  runProfileClassifier?: LightweightRunProfileClassifier | null;
+  riskHooks?: AgentRunRiskHooks | null;
+  auditHooks?: AgentRunAuditHooks | null;
+  trustSliderPolicy?: TrustSliderPolicyService | null;
+  capabilityLoopGovernance?: CapabilityLoopGovernanceService | null;
+  modelPickerContractService?: AgentRunModelPickerContractService | null;
+  naturalCapabilityDiscovery?: NaturalCapabilityDiscoveryService | null;
+  naturalFirstLightReply?: NaturalFirstLightReplyService | null;
+  naturalFirstApprovalSafety?: NaturalFirstApprovalSafetyService | null;
+  naturalFirstMemoryContinuity?: NaturalFirstMemoryContinuityService | null;
+  universalPreviewMode?: UniversalPreviewModeService | null;
+  safetyNarrative?: SafetyNarrativeService | null;
+  memoryWithReceipts?: MemoryWithReceiptsService | null;
+  capabilityNegotiation?: CapabilityNegotiationService | null;
+  toolRehearsal?: ToolRehearsalService | null;
+  selfingDashboard?: SelfingDashboardService | null;
+  artifactMemory?: ArtifactMemoryService | null;
+  personalOpsAutopilot?: PersonalOpsAutopilotService | null;
+  agentTeamCompiler?: AgentTeamCompilerService | null;
+  crossChannelContinuity?: CrossChannelContinuityService | null;
+  askBeforeAssumptionPolicy?: AskBeforeAssumptionPolicyService | null;
+  providerMeshConsolidation?: ProviderMeshConsolidationService | null;
+  universalIntentTrustEnforcement?: UniversalIntentTrustEnforcementService | null;
+  runArtifactReceiptReplay?: RunArtifactReceiptReplayService | null;
+  productizationEvidence?: ProductizationEvidenceService | null;
+  productEntryRuntime?: ProductEntryRuntimeService | null;
+  releaseInstallerRollbackPath?: ReleaseInstallerRollbackPathService | null;
+  publicSiteDocsDemoSync?: PublicSiteDocsDemoSyncService | null;
+  feedbackTelemetryProductLoop?: FeedbackTelemetryProductLoopService | null;
+  publicAdoptionPilotLoop?: PublicAdoptionPilotLoopService | null;
+  integrationShowcasePartnerSurface?: IntegrationShowcasePartnerSurfaceService | null;
+  releaseAdoptionReadiness?: ReleaseAdoptionReadinessService | null;
+  releaseCandidatePreCanaryGate?: ReleaseCandidatePreCanaryGateService | null;
+  blueprintCompletionGate?: BlueprintCompletionGateService | null;
+  providerArena?: ProviderArenaService | null;
+  skillMcpQuarantine?: SkillMcpQuarantineService | null;
+  defaultProviderLabel?: string;
+  defaultModelLabel?: string;
+  intelligenceFabric?: Pick<ZavorthIntelligenceFabricService, 'buildShadowSnapshot'> | null;
+  intelligenceFabricLearning?: Pick<ZavorthIntelligenceFabricLearningService, 'recordSnapshot'> | null;
+  mutationPlaneService?: Pick<ZavorthMutationPlaneService, 'createPlan' | 'readPlan' | 'approvePlan' | 'markApplied'> | null;
+  intelligenceFabricMode?: AgentRunIntelligenceFabricMode | null;
+};
+
+export type AgentRunRuntimeEventType =
+  | 'agent.run.created'
+  | 'agent.policy.evaluated'
+  | 'agent.approval.requested'
+  | 'agent.execution.started'
+  | 'agent.execution.completed'
+  | 'agent.execution.failed'
+  | 'agent.run.completed';
+
+export type AgentRunRuntimeEventBus = {
+  emit: (type: AgentRunRuntimeEventType, payload?: Record<string, unknown>) => void | Promise<void>;
+  snapshot?: () => unknown;
+};
+
+export type AgentRunExecutionOptions = {
+  executor?: UniversalAgentExecutor | null;
+  toolRuntime?: UniversalAgentToolRuntime | null;
+};
+
+type SwarmHierarchyRuntime = Pick<DynamicHierarchySwarmService, 'launchHierarchy'>
+  & Partial<Pick<DynamicHierarchySwarmService, 'launchHierarchyAndWait'>>;
+
+export type SelfModificationRuntime = Pick<SelfModificationCommandService, 'createGoalPreview'>;
+export type WatchModeRuntime = Pick<ComputerUseWatchModeService, 'startRun'>;
+
+function normalizeText(value: unknown, fallback = ''): string {
+  const text = String(value ?? '').trim();
+  return text || fallback;
+}
+
+function defaultIdFactory(prefix: string): string {
+  return `${prefix}-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 8)}`;
+}
+
+function recordOrNull(value: unknown): Record<string, unknown> | null {
+  return value && typeof value === 'object' && !Array.isArray(value)
+    ? value as Record<string, unknown>
+    : null;
+}
+
+export class AgentRunService {
+  declare private applyProviderArena: Function;
+  declare private applyProviderMeshConsolidation: Function;
+  declare private applyArtifactMemory: Function;
+  declare private applyPersonalOpsAutopilot: Function;
+  declare private applyAgentTeamCompiler: Function;
+  declare private applyAskBeforeAssumptionPolicy: Function;
+  declare private applyCrossChannelContinuity: Function;
+  declare private applySelfingDashboard: Function;
+  declare private applyRunArtifactReceiptReplay: Function;
+  declare private applyProductizationEvidence: Function;
+  declare private applyProductEntryRuntime: Function;
+  declare private applyReleaseInstallerRollbackPath: Function;
+  declare private applyPublicSiteDocsDemoSync: Function;
+  declare private applyFeedbackTelemetryProductLoop: Function;
+  declare private applyPublicAdoptionPilotLoop: Function;
+  declare private applyIntegrationShowcasePartnerSurface: Function;
+  declare private applyReleaseAdoptionReadiness: Function;
+  declare private applyReleaseCandidatePreCanaryGate: Function;
+  declare private applyBlueprintCompletionGate: Function;
+  declare private resolveTrustSliderDecision: Function;
+  declare private serializeTrustSliderDecision: Function;
+  declare private resolveTrustSliderLevel: Function;
+  declare private resolveTrustSliderUserRole: Function;
+  declare private resolveBooleanFlag: Function;
+  declare private createUniversalPreviewResultIfRequested: Function;
+  declare private createCapabilityNegotiationProposalIfNeeded: Function;
+  declare private createCapabilityNegotiationBlockedResult: Function;
+  declare private createToolRehearsalProposalIfNeeded: Function;
+  declare private createToolRehearsalBlockedResult: Function;
+  declare private createSwarmEscalationProposalIfNeeded: Function;
+  declare private createSelfModificationPreviewIfNeeded: Function;
+  declare private createSelfModificationActionProposalIfNeeded: Function;
+  declare public canExecute: Function;
+  declare private shouldBypassCapabilityNegotiationForSpecializedFlow: Function;
+  declare private shouldProposeSwarmEscalation: Function;
+  declare private shouldCreateSelfModificationPreview: Function;
+  declare private shouldUseNaturalCapabilityDiscoveryWithoutNegotiation: Function;
+  declare private hasResolvedTool: Function;
+  declare private collectResolvedToolIds: Function;
+  declare private collectNaturalCapabilityToolIds: Function;
+  declare private collectSpecializedToolIdsFromText: Function;
+  declare private serializeSelfModificationPreview: Function;
+  declare private buildSelfModificationPreviewReply: Function;
+  declare private buildUniversalPreviewReply: Function;
+  declare private buildCapabilityNegotiationReply: Function;
+  declare private buildToolRehearsalReply: Function;
+  declare private acknowledgeApprovedSelfModificationActionProposalIfNeeded: Function;
+  declare private createWatchModeVisualProposalIfNeeded: Function;
+  declare private acknowledgeApprovedWatchModeVisualProposalIfNeeded: Function;
+  declare private serializeWatchModeRun: Function;
+  declare private buildWatchModeVisualProposalReply: Function;
+  declare private resolveWatchModeVisualRequest: Function;
+  declare private resolveWatchModeTargetWindow: Function;
+  declare private isWatchModePolicyAllowlisted: Function;
+  declare private buildSelfModificationActionProposalReply: Function;
+  declare private resolveSelfModificationActionRequest: Function;
+  declare private resolveSelfModificationActionTargetId: Function;
+  declare private extractSelfModificationTargetIdFromText: Function;
+  declare private resolveSuggestedSubagents: Function;
+  declare private buildSwarmEscalationReply: Function;
+  declare private executeApprovedSwarmProposalIfNeeded: Function;
+  declare private serializeSwarmLaunchResult: Function;
+  declare private buildSwarmExecutionReply: Function;
+
+  private readonly now: () => Date;
+  private readonly idFactory: (prefix: string) => string;
+  private readonly runtimeEventBus: AgentRunRuntimeEventBus | null;
+  private readonly evidenceWorkerMode: 'inline' | 'async-heavy' | 'worker-first-heavy';
+  private readonly evidenceWorker: AgentRunEvidenceWorker | null;
+  private readonly asyncEvidenceCollectorIds: AgentRunEvidenceCollectorId[] | null;
+  private readonly executor: UniversalAgentExecutor | null;
+  private readonly llmRuntimeExecutor: AgentRunLlmRuntimeExecutor;
+  private readonly corePipeline: AgentRunCorePipeline<CoreDietBaselineDraft>;
+  private readonly executorBoundary: AgentRunExecutorBoundary;
+  private readonly swarmHierarchyService: SwarmHierarchyRuntime | null;
+  private selfModificationService: SelfModificationRuntime | null;
+  private watchModeService: WatchModeRuntime | null;
+  private readonly toolRuntime: UniversalAgentToolRuntime | null;
+  private readonly echoHandsExecutor: AgentRunEchoHandsExecutor;
+  private readonly toolPolicy: ToolExposurePolicy;
+  private readonly runBudgetPolicy: RunBudgetPolicy;
+  private readonly policyKernel: AgentRunPolicyKernel;
+  private readonly failureResultBuilder: AgentRunFailureResultBuilder;
+  private readonly intelligenceFabricCanary: AgentRunIntelligenceFabricCanary;
+  private readonly executionEscalationPolicy: ExecutionEscalationPolicy;
+  private readonly replyPipeline: ReplyPipeline;
+  private readonly evidencePipeline: AgentRunEvidencePipeline;
+  private readonly evidenceStore: AgentRunEvidenceStore;
+  private readonly canonicalContextService: AgentRunCanonicalContextService;
+  private readonly runFactory: AgentRunFactory;
+  private readonly riskHooks: AgentRunRiskHooks;
+  private readonly auditHooks: AgentRunAuditHooks;
+  private readonly trustSliderPolicy: TrustSliderPolicyService;
+  private readonly capabilityLoopGovernance: CapabilityLoopGovernanceService;
+  private readonly safetyNarrative: SafetyNarrativeService;
+  private readonly memoryWithReceipts: MemoryWithReceiptsService;
+  private readonly capabilityNegotiation: CapabilityNegotiationService;
+  private readonly toolRehearsal: ToolRehearsalService;
+  private readonly selfingDashboard: SelfingDashboardService;
+  private readonly artifactMemory: ArtifactMemoryService;
+  private readonly personalOpsAutopilot: PersonalOpsAutopilotService;
+  private readonly agentTeamCompiler: AgentTeamCompilerService;
+  private readonly crossChannelContinuity: CrossChannelContinuityService;
+  private readonly askBeforeAssumptionPolicy: AskBeforeAssumptionPolicyService;
+  private readonly providerMeshConsolidation: ProviderMeshConsolidationService;
+  private readonly universalIntentTrustEnforcement: UniversalIntentTrustEnforcementService;
+  private readonly runArtifactReceiptReplay: RunArtifactReceiptReplayService;
+  private readonly productizationEvidence: ProductizationEvidenceService;
+  private readonly productEntryRuntime: ProductEntryRuntimeService;
+  private readonly releaseInstallerRollbackPath: ReleaseInstallerRollbackPathService;
+  private readonly publicSiteDocsDemoSync: PublicSiteDocsDemoSyncService;
+  private readonly feedbackTelemetryProductLoop: FeedbackTelemetryProductLoopService;
+  private readonly publicAdoptionPilotLoop: PublicAdoptionPilotLoopService;
+  private readonly integrationShowcasePartnerSurface: IntegrationShowcasePartnerSurfaceService;
+  private readonly releaseAdoptionReadiness: ReleaseAdoptionReadinessService;
+  private readonly releaseCandidatePreCanaryGate: ReleaseCandidatePreCanaryGateService;
+  private readonly blueprintCompletionGate: BlueprintCompletionGateService;
+  private readonly providerArena: ProviderArenaService;
+  private readonly skillMcpQuarantine: SkillMcpQuarantineService;
+  private readonly modelPickerContractService: AgentRunModelPickerContractService | null;
+  private readonly naturalFirstLightReply: NaturalFirstLightReplyService;
+  private readonly naturalFirstApprovalSafety: NaturalFirstApprovalSafetyService;
+  private readonly naturalFirstMemoryContinuity: NaturalFirstMemoryContinuityService;
+  private readonly metadataEvidenceHelpers = new AgentRunMetadataEvidenceHelpers();
+  private readonly appliedEvidenceSnapshotChains = new WeakSet<UniversalAgentRun>();
+
+  constructor(runtime: AgentRunServiceRuntime = {}) {
+    this.now = runtime.now || (() => new Date());
+    this.idFactory = runtime.idFactory || defaultIdFactory;
+    this.runtimeEventBus = runtime.runtimeEventBus || null;
+    this.evidenceWorker = runtime.evidenceWorker || null;
+    this.evidenceWorkerMode = runtime.evidenceWorkerMode || (this.evidenceWorker ? 'worker-first-heavy' : 'inline');
+    this.asyncEvidenceCollectorIds = runtime.asyncEvidenceCollectorIds || null;
+    this.executor = runtime.executor || null;
+    this.llmRuntimeExecutor = new AgentRunLlmRuntimeExecutor({
+      llmRuntime: runtime.llmRuntime,
+    });
+    this.swarmHierarchyService = runtime.swarmHierarchyService || null;
+    this.selfModificationService = runtime.selfModificationService || null;
+    this.watchModeService = runtime.watchModeService || null;
+    this.toolRuntime = runtime.toolRuntime || null;
+    this.echoHandsExecutor = new AgentRunEchoHandsExecutor();
+    this.executorBoundary = new AgentRunExecutorBoundary({
+      executor: this.executor,
+      toolRuntime: this.toolRuntime,
+      llmRuntimeExecutor: this.llmRuntimeExecutor,
+      echoHandsExecutor: this.echoHandsExecutor,
+    });
+    this.toolPolicy = runtime.toolPolicy || new ToolExposurePolicy();
+    this.runBudgetPolicy = runtime.runBudgetPolicy || new RunBudgetPolicy();
+    const failureSemanticsRegistry = runtime.failureSemanticsRegistry || new FailureSemanticsRegistry();
+    this.executionEscalationPolicy = runtime.executionEscalationPolicy || new ExecutionEscalationPolicy();
+    this.replyPipeline = runtime.replyPipeline || new ReplyPipeline();
+    this.evidenceStore = new AgentRunEvidenceStore();
+    this.canonicalContextService = new AgentRunCanonicalContextService({
+      contextAssembler: runtime.contextAssembler,
+      runProfileClassifier: runtime.runProfileClassifier,
+    });
+    this.riskHooks = runtime.riskHooks || new AgentRunRiskHooks();
+    this.auditHooks = runtime.auditHooks || new AgentRunAuditHooks();
+    this.safetyNarrative = runtime.safetyNarrative || new SafetyNarrativeService({
+      now: this.now,
+    });
+    this.memoryWithReceipts = runtime.memoryWithReceipts || new MemoryWithReceiptsService({
+      now: this.now,
+    });
+    this.capabilityNegotiation = runtime.capabilityNegotiation || new CapabilityNegotiationService({
+      now: this.now,
+    });
+    this.toolRehearsal = runtime.toolRehearsal || new ToolRehearsalService({
+      now: this.now,
+    });
+    this.selfingDashboard = runtime.selfingDashboard || new SelfingDashboardService({
+      now: this.now,
+    });
+    this.artifactMemory = runtime.artifactMemory || new ArtifactMemoryService({
+      now: this.now,
+    });
+    this.personalOpsAutopilot = runtime.personalOpsAutopilot || new PersonalOpsAutopilotService({
+      now: this.now,
+    });
+    this.agentTeamCompiler = runtime.agentTeamCompiler || new AgentTeamCompilerService({
+      now: this.now,
+    });
+    this.crossChannelContinuity = runtime.crossChannelContinuity || new CrossChannelContinuityService({
+      now: this.now,
+    });
+    this.askBeforeAssumptionPolicy = runtime.askBeforeAssumptionPolicy || new AskBeforeAssumptionPolicyService({
+      now: this.now,
+    });
+    this.providerMeshConsolidation = runtime.providerMeshConsolidation || new ProviderMeshConsolidationService({
+      now: this.now,
+      modelPickerContractService: runtime.modelPickerContractService,
+    });
+    this.universalIntentTrustEnforcement = runtime.universalIntentTrustEnforcement || new UniversalIntentTrustEnforcementService({
+      now: this.now,
+    });
+    this.runArtifactReceiptReplay = runtime.runArtifactReceiptReplay || new RunArtifactReceiptReplayService({
+      now: this.now,
+    });
+    this.productizationEvidence = runtime.productizationEvidence || new ProductizationEvidenceService({
+      now: this.now,
+    });
+    this.productEntryRuntime = runtime.productEntryRuntime || new ProductEntryRuntimeService({
+      now: this.now,
+    });
+    this.releaseInstallerRollbackPath = runtime.releaseInstallerRollbackPath || new ReleaseInstallerRollbackPathService({
+      now: this.now,
+    });
+    this.publicSiteDocsDemoSync = runtime.publicSiteDocsDemoSync || new PublicSiteDocsDemoSyncService({
+      now: this.now,
+    });
+    this.feedbackTelemetryProductLoop = runtime.feedbackTelemetryProductLoop || new FeedbackTelemetryProductLoopService({
+      now: this.now,
+    });
+    this.publicAdoptionPilotLoop = runtime.publicAdoptionPilotLoop || new PublicAdoptionPilotLoopService({
+      now: this.now,
+    });
+    this.integrationShowcasePartnerSurface = runtime.integrationShowcasePartnerSurface || new IntegrationShowcasePartnerSurfaceService({
+      now: this.now,
+    });
+    this.releaseAdoptionReadiness = runtime.releaseAdoptionReadiness || new ReleaseAdoptionReadinessService({
+      now: this.now,
+    });
+    this.releaseCandidatePreCanaryGate = runtime.releaseCandidatePreCanaryGate || new ReleaseCandidatePreCanaryGateService({
+      now: this.now,
+    });
+    this.blueprintCompletionGate = runtime.blueprintCompletionGate || new BlueprintCompletionGateService({
+      now: this.now,
+    });
+    this.providerArena = runtime.providerArena || new ProviderArenaService({
+      now: this.now,
+    });
+    this.skillMcpQuarantine = runtime.skillMcpQuarantine || new SkillMcpQuarantineService({
+      now: this.now,
+    });
+    this.modelPickerContractService = runtime.modelPickerContractService || null;
+    this.naturalFirstLightReply = runtime.naturalFirstLightReply || new NaturalFirstLightReplyService();
+    this.naturalFirstApprovalSafety = runtime.naturalFirstApprovalSafety || new NaturalFirstApprovalSafetyService();
+    this.naturalFirstMemoryContinuity = runtime.naturalFirstMemoryContinuity || new NaturalFirstMemoryContinuityService();
+    this.trustSliderPolicy = runtime.trustSliderPolicy || new TrustSliderPolicyService({
+      now: this.now,
+      idFactory: this.idFactory,
+    });
+    this.capabilityLoopGovernance = runtime.capabilityLoopGovernance || new CapabilityLoopGovernanceService();
+    this.failureResultBuilder = new AgentRunFailureResultBuilder({
+      now: this.now,
+      idFactory: this.idFactory,
+      failureSemanticsRegistry,
+      replyPipeline: this.replyPipeline,
+      riskHooks: this.riskHooks,
+      auditHooks: this.auditHooks,
+    });
+    this.intelligenceFabricCanary = new AgentRunIntelligenceFabricCanary({
+      now: this.now,
+      fabric: runtime.intelligenceFabric || null,
+      learning: runtime.intelligenceFabricLearning || null,
+      mutationPlane: runtime.mutationPlaneService || null,
+      defaultMode: runtime.intelligenceFabricMode || 'default',
+    });
+    const defaultProviderLabel = normalizeText(runtime.defaultProviderLabel, 'provider nao informado');
+    const defaultModelLabel = normalizeText(runtime.defaultModelLabel, 'modelo nao informado');
+    this.runFactory = new AgentRunFactory({
+      now: this.now,
+      idFactory: this.idFactory,
+      toolPolicy: this.toolPolicy,
+      canonicalContextService: this.canonicalContextService,
+      modelPickerContractService: runtime.modelPickerContractService,
+      naturalCapabilityDiscovery: runtime.naturalCapabilityDiscovery,
+      universalPreviewMode: runtime.universalPreviewMode,
+      defaultProviderLabel,
+      defaultModelLabel,
+    });
+    this.evidencePipeline = this.createEvidencePipeline();
+    this.policyKernel = this.createPolicyKernel();
+    this.corePipeline = this.createCorePipeline();
+  }
+
+  public attachSelfModificationService(service: SelfModificationRuntime | null | undefined): void {
+    this.selfModificationService = service || null;
+  }
+
+  public attachWatchModeService(service: WatchModeRuntime | null | undefined): void {
+    this.watchModeService = service || null;
+  }
+
+  public recordLifecycleDefenseReview(
+    run: UniversalAgentRun,
+    stage: AgentRunRiskReviewStage,
+    now: string = this.now().toISOString(),
+  ): void {
+    this.applyDefenseReview(run, stage, run.metadata, now);
+    run.updatedAt = now;
+  }
+
+  public readEvidenceSnapshot(
+    run: UniversalAgentRun,
+    keyOrRefId: string,
+  ): Record<string, unknown> | null {
+    return this.evidenceStore.get(run, keyOrRefId)
+      || this.evidenceStore.getByRef(run, keyOrRefId);
+  }
+
+  public snapshotEvidenceRefs(run: UniversalAgentRun) {
+    return this.evidenceStore.snapshot(run);
+  }
+
+  private createPolicyKernel(): AgentRunPolicyKernel {
+    return new AgentRunPolicyKernel({
+      now: this.now,
+      idFactory: this.idFactory,
+      evaluateTrust: (run, request) => this.applyTrustSliderReview(run, request),
+      evaluateBudget: (run, request) => this.runBudgetPolicy.evaluate({ request, run }),
+      reviewPreExecution: (run) => this.applyDefenseReview(run, 'pre-executor', run.metadata),
+    });
+  }
+
+  private createCorePipeline(): AgentRunCorePipeline<CoreDietBaselineDraft> {
+    return new AgentRunCorePipeline<CoreDietBaselineDraft>({
+      createRun: (request, baseline) => this.createRun(request, baseline),
+      timeStage: (run, baseline, name, action) => this.metadataEvidenceHelpers.timeCoreDietStage(run, baseline, name, action),
+      policyKernel: this.policyKernel,
+      evidencePipeline: this.evidencePipeline,
+      publishRuntimeEvent: (run, type, payload) => this.publishRuntimeEvent(run, type, payload),
+      finishBaseline: (run, baseline) => this.finishCoreDietBaseline(run, baseline),
+      applyMetadataDiet: (run) => this.applyMetadataDiet(run),
+      readTrustMode: (run) => recordOrNull(run.metadata.trustPosture)?.trustMode || null,
+      resolveProfile: (run) => this.metadataEvidenceHelpers.resolveCoreDietBaselineProfile(run),
+    });
+  }
+
+  private createEvidencePipeline(): AgentRunEvidencePipeline {
+    const steps: AgentRunEvidencePipelineStep[] = [
+      {
+        id: 'memoryWithReceipts',
+        apply: ({ run, generatedAt }) => this.applyMemoryWithReceipts(run, generatedAt),
+      },
+      {
+        id: 'skillMcpQuarantine',
+        apply: ({ run, generatedAt }) => this.applySkillMcpQuarantine(run, generatedAt),
+      },
+      {
+        id: 'universalIntentTrustEnforcement',
+        apply: ({ run, request, generatedAt }) => this.applyUniversalIntentTrustEnforcement(run, request, generatedAt),
+      },
+      {
+        id: 'capabilityNegotiation',
+        apply: ({ run, request, generatedAt }) => this.applyCapabilityNegotiation(run, request || undefined, generatedAt),
+      },
+      {
+        id: 'toolRehearsal',
+        apply: ({ run, request, generatedAt }) => this.applyToolRehearsal(run, request || undefined, generatedAt),
+      },
+      {
+        id: 'providerArena',
+        apply: ({ run, generatedAt }) => this.applyProviderArena(run, generatedAt),
+      },
+      {
+        id: 'providerMeshConsolidation',
+        apply: ({ run, generatedAt }) => this.applyProviderMeshConsolidation(run, generatedAt),
+      },
+      {
+        id: 'crossChannelContinuity',
+        apply: ({ run, generatedAt }) => this.applyCrossChannelContinuity(run, generatedAt),
+      },
+      {
+        id: 'agentTeamCompiler',
+        apply: ({ run, generatedAt }) => this.applyAgentTeamCompiler(run, generatedAt),
+      },
+      {
+        id: 'askBeforeAssumptionPolicy',
+        apply: ({ run, generatedAt }) => this.applyAskBeforeAssumptionPolicy(run, generatedAt),
+      },
+      {
+        id: 'artifactMemory',
+        apply: ({ run, generatedAt }) => this.applyArtifactMemory(run, generatedAt),
+      },
+      {
+        id: 'personalOpsAutopilot',
+        apply: ({ run, generatedAt }) => this.applyPersonalOpsAutopilot(run, generatedAt),
+      },
+      {
+        id: 'selfingDashboard',
+        apply: ({ run, generatedAt }) => this.applySelfingDashboard(run, generatedAt),
+      },
+      {
+        id: 'runArtifactReceiptReplay',
+        apply: ({ run, generatedAt }) => this.applyRunArtifactReceiptReplay(run, generatedAt),
+      },
+      {
+        id: 'productizationEvidence',
+        apply: ({ run, generatedAt }) => this.applyProductizationEvidence(run, generatedAt),
+      },
+      {
+        id: 'productEntryRuntime',
+        apply: ({ run, generatedAt }) => this.applyProductEntryRuntime(run, generatedAt),
+      },
+      {
+        id: 'releaseInstallerRollbackPath',
+        apply: ({ run, generatedAt }) => this.applyReleaseInstallerRollbackPath(run, generatedAt),
+      },
+      {
+        id: 'publicSiteDocsDemoSync',
+        apply: ({ run, generatedAt }) => this.applyPublicSiteDocsDemoSync(run, generatedAt),
+      },
+      {
+        id: 'feedbackTelemetryProductLoop',
+        apply: ({ run, generatedAt }) => this.applyFeedbackTelemetryProductLoop(run, generatedAt),
+      },
+      {
+        id: 'publicAdoptionPilotLoop',
+        apply: ({ run, generatedAt }) => this.applyPublicAdoptionPilotLoop(run, generatedAt),
+      },
+      {
+        id: 'integrationShowcasePartnerSurface',
+        apply: ({ run, generatedAt }) => this.applyIntegrationShowcasePartnerSurface(run, generatedAt),
+      },
+      {
+        id: 'releaseAdoptionReadiness',
+        apply: ({ run, generatedAt }) => this.applyReleaseAdoptionReadiness(run, generatedAt),
+      },
+      {
+        id: 'releaseCandidatePreCanaryGate',
+        apply: ({ run, generatedAt }) => this.applyReleaseCandidatePreCanaryGate(run, generatedAt),
+      },
+      {
+        id: 'blueprintCompletionGate',
+        apply: ({ run, generatedAt }) => this.applyBlueprintCompletionGate(run, generatedAt),
+      },
+      {
+        id: 'capabilityLoopGovernance',
+        apply: ({ run, request }) => {
+          if (request) {
+            this.applyCapabilityLoopGovernance(run, request);
+          }
+        },
+      },
+    ];
+    return new AgentRunEvidencePipeline({
+      steps,
+      workerMode: this.evidenceWorkerMode,
+      worker: this.evidenceWorker,
+      asyncCollectorIds: this.asyncEvidenceCollectorIds || undefined,
+    });
+  }
+
+  public async run(
+    input: UniversalAgentRequest,
+    options: AgentRunExecutionOptions = {},
+  ): Promise<UniversalAgentRunResult> {
+    const baseline = this.metadataEvidenceHelpers.startCoreDietBaseline();
+    let run: UniversalAgentRun | null = null;
+    try {
+      const prepared = await this.corePipeline.prepare(input, baseline);
+      run = prepared.run;
+      const activeRun = run;
+      const draftApply = this.applyIntelligenceFabricDraftGuidanceIfRequested(activeRun, input);
+      if (draftApply) {
+        return draftApply;
+      }
+      this.applyIntelligenceFabricCanary(activeRun, input, options);
+      if (prepared.blockedResult) {
+        return prepared.blockedResult;
+      }
+      const budgetDecision = prepared.budgetDecision;
+      if (!budgetDecision.allowed) {
+        const now = this.now().toISOString();
+        activeRun.status = 'completed';
+        activeRun.summary = budgetDecision.summary;
+        activeRun.updatedAt = now;
+        activeRun.events.push({
+          id: this.idFactory('agent-event'),
+          runId: activeRun.id,
+          kind: 'status',
+          title: 'Budget minimo aplicado',
+          detail: budgetDecision.summary,
+          status: 'done',
+          createdAt: now,
+          metadata: budgetDecision.metadata,
+        });
+        this.metadataEvidenceHelpers.timeCoreDietStage(activeRun, baseline, 'budget-short-circuit-evidence', () => (
+          this.evidencePipeline.applyBudgetShortCircuit({
+            run: activeRun,
+            request: input,
+            generatedAt: now,
+          })
+        ));
+        return this.replyPipeline.buildResult({
+          run: activeRun,
+          text: budgetDecision.summary,
+        });
+      }
+
+      const universalPreview = this.createUniversalPreviewResultIfRequested(run, input);
+      if (universalPreview) {
+        return universalPreview;
+      }
+
+      const lightReply = this.createNaturalFirstLightReplyIfNeeded(run, input);
+      if (lightReply) {
+        return lightReply;
+      }
+
+      const memoryContinuity = this.createNaturalFirstMemoryContinuityIfNeeded(run, input);
+      if (memoryContinuity) {
+        return memoryContinuity;
+      }
+
+      this.applyNaturalFirstApprovalSafety(run, input);
+
+      const swarmProposal = this.createSwarmEscalationProposalIfNeeded(run, input);
+      if (swarmProposal) {
+        return swarmProposal;
+      }
+
+      try {
+        const selfModificationPreview = await this.createSelfModificationPreviewIfNeeded(run, input);
+        if (selfModificationPreview) {
+          return selfModificationPreview;
+        }
+      } catch (error) {
+        return this.buildFailureResult(run, error, 'selfmod');
+      }
+
+      const selfModificationActionProposal = this.createSelfModificationActionProposalIfNeeded(run, input);
+      if (selfModificationActionProposal) {
+        return selfModificationActionProposal;
+      }
+
+      const watchModeVisualProposal = this.createWatchModeVisualProposalIfNeeded(run, input);
+      if (watchModeVisualProposal) {
+        return watchModeVisualProposal;
+      }
+
+      const capabilityNegotiationProposal = this.createCapabilityNegotiationProposalIfNeeded(run, input);
+      if (capabilityNegotiationProposal) {
+        return capabilityNegotiationProposal;
+      }
+
+      const toolRehearsalProposal = this.createToolRehearsalProposalIfNeeded(run, input);
+      if (toolRehearsalProposal) {
+        return toolRehearsalProposal;
+      }
+
+      const naturalFirstApprovalFallback = this.createNaturalFirstApprovalFallbackIfNeeded(run, input);
+      if (naturalFirstApprovalFallback) {
+        return naturalFirstApprovalFallback;
+      }
+
+      const preExecutionReview = this.metadataEvidenceHelpers.timeCoreDietStage(activeRun, baseline, 'policy-kernel-pre-execution', () => (
+        this.policyKernel.reviewPreExecution(activeRun)
+      ));
+      const approvalEvent = preExecutionReview.approval;
+      if (approvalEvent) {
+        run.events.push(approvalEvent.event);
+        run.approvals.push(approvalEvent.approval);
+        run.status = 'waiting_approval';
+        run.summary = 'A execucao precisa de aprovacao antes de tocar ferramentas sensiveis.';
+        run.updatedAt = this.now().toISOString();
+        this.applyCapabilityLoopGovernance(run, input);
+        const narrative = this.applySafetyNarrative(run);
+        await this.publishRuntimeEvent(run, 'agent.approval.requested', {
+          approvalId: approvalEvent.approval.id,
+          risk: approvalEvent.approval.risk,
+          toolExposureMode: run.toolExposure.mode,
+        });
+        return this.replyPipeline.buildResult({
+          run,
+          text: [
+            'Preciso da sua aprovacao para continuar com seguranca.',
+          '',
+          narrative.userMessage,
+        ].join('\n'),
+      });
+    }
+
+    let executorResult: UniversalAgentExecutorResult;
+    try {
+      await this.publishRuntimeEvent(run, 'agent.execution.started', {
+        executor: options.executor ? 'override' : this.executor ? 'configured' : 'runtime-resolution',
+        toolExposureMode: run.toolExposure.mode,
+      });
+      executorResult = await this.execute(run, input, options);
+    } catch (error) {
+      await this.publishRuntimeEvent(run, 'agent.execution.failed', {
+        source: 'executor',
+        error: error instanceof Error ? error.message : String(error),
+      });
+      return this.buildFailureResult(run, error, 'executor');
+    }
+    this.applyExecutorResult(run, executorResult);
+    await this.publishRuntimeEvent(run, 'agent.execution.completed', {
+      status: run.status,
+      eventCount: run.events.length,
+      artifactCount: run.artifacts.length,
+      memorySignalCount: run.memorySignals.length,
+    });
+    this.applyCapabilityLoopGovernance(run, input);
+    const replyText = normalizeText(
+      executorResult.replyText,
+      run.status === 'completed'
+        ? run.summary
+        : 'A execucao foi registrada no runtime universal.',
+    );
+
+      return this.replyPipeline.buildResult({
+        run,
+        text: replyText,
+      });
+    } finally {
+      if (run) {
+        await this.corePipeline.finalize(run, baseline);
+      }
+    }
+  }
+
+  private createNaturalFirstLightReplyIfNeeded(
+    run: UniversalAgentRun,
+    request: UniversalAgentRequest,
+  ): UniversalAgentRunResult | null {
+    if (!this.naturalFirstLightReply.shouldHandle(run, request)) {
+      return null;
+    }
+    return this.naturalFirstLightReply.apply({
+      run,
+      request,
+      generatedAt: this.now().toISOString(),
+    });
+  }
+
+  private createNaturalFirstMemoryContinuityIfNeeded(
+    run: UniversalAgentRun,
+    request: UniversalAgentRequest,
+  ): UniversalAgentRunResult | null {
+    if (!this.naturalFirstMemoryContinuity.shouldHandle(run, request)) {
+      return null;
+    }
+    const generatedAt = this.now().toISOString();
+    const memoryWithReceipts = this.applyMemoryWithReceipts(run, generatedAt);
+    return this.naturalFirstMemoryContinuity.apply({
+      run,
+      request,
+      generatedAt,
+      memoryWithReceipts,
+    });
+  }
+
+  private applyNaturalFirstApprovalSafety(
+    run: UniversalAgentRun,
+    request: UniversalAgentRequest,
+  ): void {
+    this.naturalFirstApprovalSafety.record({
+      run,
+      request,
+      generatedAt: this.now().toISOString(),
+    });
+  }
+
+  private createNaturalFirstApprovalFallbackIfNeeded(
+    run: UniversalAgentRun,
+    request: UniversalAgentRequest,
+  ): UniversalAgentRunResult | null {
+    const generatedAt = this.now().toISOString();
+    const snapshot = this.naturalFirstApprovalSafety.record({
+      run,
+      request,
+      generatedAt,
+    });
+    if (!this.naturalFirstApprovalSafety.shouldOpenFallbackApproval(snapshot)) {
+      return null;
+    }
+    return this.naturalFirstApprovalSafety.openFallbackApproval({
+      run,
+      request,
+      generatedAt,
+      idFactory: this.idFactory,
+    });
+  }
+
+  public async resumeApprovedRun(
+    run: UniversalAgentRun,
+    request: UniversalAgentRequest,
+    options: AgentRunExecutionOptions = {},
+  ): Promise<UniversalAgentRunResult> {
+    run.status = 'running';
+    run.summary = 'Aprovacao recebida. Execucao retomada pelo runtime universal.';
+    run.updatedAt = this.now().toISOString();
+    run.events.push({
+      id: this.idFactory('agent-event'),
+      runId: run.id,
+      kind: 'status',
+      title: 'Execucao retomada',
+      detail: 'Approval gate liberou a execucao para o executor real.',
+      status: 'done',
+      createdAt: run.updatedAt,
+    });
+    this.markCapabilityNegotiationApprovedIfNeeded(run, run.updatedAt);
+    this.markToolRehearsalApprovedIfNeeded(run, run.updatedAt);
+    this.applyDefenseReview(run, 'resume', run.metadata, run.updatedAt);
+
+    try {
+      const swarmResult = await this.executeApprovedSwarmProposalIfNeeded(run, request);
+      if (swarmResult) {
+        return swarmResult;
+      }
+    } catch (error) {
+      return this.buildFailureResult(run, error, 'swarm');
+    }
+
+    const selfModificationActionResult = this.acknowledgeApprovedSelfModificationActionProposalIfNeeded(run, request);
+    if (selfModificationActionResult) {
+      return selfModificationActionResult;
+    }
+
+    try {
+      const watchModeVisualResult = await this.acknowledgeApprovedWatchModeVisualProposalIfNeeded(run, request);
+      if (watchModeVisualResult) {
+        return watchModeVisualResult;
+      }
+    } catch (error) {
+      return this.buildFailureResult(run, error, 'watch-mode');
+    }
+
+    this.applyToolRehearsal(run, request, run.updatedAt);
+    const toolRehearsalProposal = this.createToolRehearsalProposalIfNeeded(run, request);
+    if (toolRehearsalProposal) {
+      return toolRehearsalProposal;
+    }
+
+    let executorResult: UniversalAgentExecutorResult;
+    try {
+      executorResult = await this.execute(run, request, options);
+    } catch (error) {
+      return this.buildFailureResult(run, error, 'executor');
+    }
+    this.applyExecutorResult(run, executorResult);
+    this.applyCapabilityLoopGovernance(run, request);
+    const replyText = normalizeText(
+      executorResult.replyText,
+      run.summary || 'A execucao foi retomada pelo runtime universal.',
+    );
+
+    return this.replyPipeline.buildResult({
+      run,
+      text: replyText,
+    });
+  }
+
+  private applyTrustSliderReview(
+    run: UniversalAgentRun,
+    input: UniversalAgentRequest,
+  ): UniversalAgentRunResult | null {
+    const now = this.now().toISOString();
+    const enforcement = this.applyUniversalIntentTrustEnforcement(run, input, now);
+    const decision = enforcement.trustSlider;
+    const metadata = this.serializeTrustSliderDecision(decision);
+    run.metadata = {
+      ...run.metadata,
+      trustSlider: metadata,
+      trustPosture: {
+        source: 'TrustSliderPolicyService',
+        trustMode: decision.level,
+        permissionScope: decision.permissionScope,
+        sandboxTier: decision.sandboxTier,
+        permissionBoundary: decision.permissionBoundary,
+        blocked: decision.blocked,
+      },
+    };
+    run.events.push({
+      id: this.idFactory('agent-event'),
+      runId: run.id,
+      kind: 'status',
+      title: 'Trust Slider aplicado',
+      detail: decision.reason,
+      status: decision.blocked ? 'failed' : 'done',
+      createdAt: now,
+      metadata,
+    });
+    run.updatedAt = now;
+    this.applyCapabilityLoopGovernance(run, input, decision);
+
+    if (!decision.blocked) {
+      return null;
+    }
+
+    run.status = 'failed';
+    run.summary = `Trust Slider bloqueou a execucao em modo ${decision.level}.`;
+    const narrative = this.applySafetyNarrative(run, now);
+    return this.replyPipeline.buildResult({
+      run,
+      text: [
+        'Nenhuma ferramenta foi executada.',
+        '',
+        narrative.userMessage,
+      ].join('\n'),
+    });
+  }
+
+  private applyUniversalIntentTrustEnforcement(
+    run: UniversalAgentRun,
+    request?: UniversalAgentRequest | null,
+    generatedAt: string = run.updatedAt || this.now().toISOString(),
+  ): UniversalIntentTrustEnforcementSnapshot {
+    const snapshot = this.universalIntentTrustEnforcement.buildSnapshot({
+      run,
+      request,
+      generatedAt,
+    });
+    run.metadata = {
+      ...run.metadata,
+      universalIntent: snapshot.universalIntent,
+      universalIntentTrustEnforcement: snapshot,
+    };
+    return snapshot;
+  }
+
+  private applyCapabilityLoopGovernance(
+    run: UniversalAgentRun,
+    input: UniversalAgentRequest,
+    trustSlider: TrustSliderPolicyDecision | null = null,
+  ): void {
+    const generatedAt = this.now().toISOString();
+    const snapshot = this.capabilityLoopGovernance.buildSnapshot({
+      run,
+      request: input,
+      trustSlider,
+      generatedAt,
+    });
+    run.metadata = {
+      ...run.metadata,
+      capabilityLoopGovernance: snapshot,
+      capabilityLoopStatus: {
+        source: 'CapabilityLoopGovernanceService',
+        requestedCapabilityIds: snapshot.requestedCapabilityIds,
+        blockedCapabilityIds: snapshot.blockedCapabilityIds,
+        degradedCapabilityIds: snapshot.degradedCapabilityIds,
+        summary: snapshot.summary,
+      },
+    };
+    run.events.push({
+      id: this.idFactory('agent-event'),
+      runId: run.id,
+      kind: 'status',
+      title: 'Capability loop governado',
+      detail: snapshot.summary,
+      status: snapshot.blockedCapabilityIds.length > 0 ? 'pending' : 'done',
+      createdAt: generatedAt,
+      metadata: {
+        source: 'CapabilityLoopGovernanceService',
+        requestedCapabilityIds: snapshot.requestedCapabilityIds,
+        blockedCapabilityIds: snapshot.blockedCapabilityIds,
+        degradedCapabilityIds: snapshot.degradedCapabilityIds,
+      },
+    });
+    run.updatedAt = generatedAt;
+    this.applyEvidenceSnapshotChainOnce(run, input, generatedAt);
+  }
+
+  private applySafetyNarrative(
+    run: UniversalAgentRun,
+    generatedAt: string = run.updatedAt || this.now().toISOString(),
+  ) {
+    const narrative = this.safetyNarrative.buildSnapshot({
+      run,
+      generatedAt,
+    });
+    run.metadata = {
+      ...run.metadata,
+      safetyNarrative: narrative,
+    };
+    this.applyEvidenceSnapshotChainOnce(run, null, generatedAt);
+    return narrative;
+  }
+
+  private applyEvidenceSnapshotChainOnce(
+    run: UniversalAgentRun,
+    input: UniversalAgentRequest | null,
+    generatedAt: string,
+  ): void {
+    if (this.appliedEvidenceSnapshotChains.has(run)) {
+      return;
+    }
+
+    this.appliedEvidenceSnapshotChains.add(run);
+    this.evidencePipeline.applySecondary({
+      run,
+      request: input,
+      generatedAt,
+    });
+  }
+
+  private applyMemoryWithReceipts(
+    run: UniversalAgentRun,
+    generatedAt: string = run.updatedAt || this.now().toISOString(),
+  ) {
+    const snapshot = this.memoryWithReceipts.buildSnapshot({
+      run,
+      generatedAt,
+    });
+    if (snapshot.receipts.length === 0 && !recordOrNull(run.metadata.memoryWithReceipts)) {
+      return null;
+    }
+    run.metadata = {
+      ...run.metadata,
+      memoryWithReceipts: snapshot,
+    };
+    return snapshot;
+  }
+
+  private applySkillMcpQuarantine(
+    run: UniversalAgentRun,
+    generatedAt: string = run.updatedAt || this.now().toISOString(),
+  ) {
+    const snapshot = this.skillMcpQuarantine.buildSnapshot({
+      run,
+      generatedAt,
+    });
+    if (snapshot.summary.total === 0 && !recordOrNull(run.metadata.skillMcpQuarantine)) {
+      return null;
+    }
+    run.metadata = {
+      ...run.metadata,
+      skillMcpQuarantine: snapshot,
+    };
+    return snapshot;
+  }
+
+  private applyCapabilityNegotiation(
+    run: UniversalAgentRun,
+    request?: UniversalAgentRequest,
+    generatedAt: string = run.updatedAt || this.now().toISOString(),
+  ): CapabilityNegotiationSnapshot | null {
+    const existing = recordOrNull(run.metadata.capabilityNegotiation);
+    const existingStatus = normalizeText(existing?.status);
+    if (existingStatus === 'waiting-approval' || existingStatus === 'approved') {
+      return existing as CapabilityNegotiationSnapshot;
+    }
+    if (request && this.shouldBypassCapabilityNegotiationForSpecializedFlow(run, request)) {
+      return null;
+    }
+
+    const snapshot = this.capabilityNegotiation.buildSnapshot({
+      run,
+      request,
+      generatedAt,
+    });
+    if (snapshot.status === 'not-needed' && !existing) {
+      return null;
+    }
+    run.metadata = {
+      ...run.metadata,
+      capabilityNegotiation: snapshot,
+    };
+    return snapshot;
+  }
+
+  private markCapabilityNegotiationApprovedIfNeeded(
+    run: UniversalAgentRun,
+    approvedAt: string = run.updatedAt || this.now().toISOString(),
+  ): void {
+    const existing = recordOrNull(run.metadata.capabilityNegotiation);
+    if (!existing || normalizeText(existing.status) !== 'waiting-approval') {
+      return;
+    }
+    const approvalId = normalizeText(existing.approvalId)
+      || normalizeText(recordOrNull(existing.proposal)?.approvalId);
+    if (!approvalId || !run.approvals.some((approval) => approval.id === approvalId && approval.status === 'approved')) {
+      return;
+    }
+    const scope = recordOrNull(existing.scope) || {};
+    run.metadata = {
+      ...run.metadata,
+      capabilityNegotiation: {
+        ...existing,
+        status: 'approved',
+        approved: true,
+        approvedAt,
+        scope: {
+          ...scope,
+          approved: true,
+        },
+        policy: {
+          ...(recordOrNull(existing.policy) || {}),
+          approvalsStillRequired: false,
+        },
+        nextSafeAction: 'Executar apenas dentro do escopo aprovado.',
+      },
+    };
+  }
+
+  private applyToolRehearsal(
+    run: UniversalAgentRun,
+    request?: UniversalAgentRequest,
+    generatedAt: string = run.updatedAt || this.now().toISOString(),
+  ): ToolRehearsalSnapshot | null {
+    const existing = recordOrNull(run.metadata.toolRehearsal);
+    const existingStatus = normalizeText(existing?.status);
+    if (existingStatus === 'waiting-approval' || existingStatus === 'approved') {
+      return existing as ToolRehearsalSnapshot;
+    }
+
+    const snapshot = this.toolRehearsal.buildSnapshot({
+      run,
+      request,
+      generatedAt,
+    });
+    if (snapshot.status === 'not-needed' && !existing) {
+      return null;
+    }
+    run.metadata = {
+      ...run.metadata,
+      toolRehearsal: snapshot,
+    };
+    return snapshot;
+  }
+
+  private markToolRehearsalApprovedIfNeeded(
+    run: UniversalAgentRun,
+    approvedAt: string = run.updatedAt || this.now().toISOString(),
+  ): void {
+    const existing = recordOrNull(run.metadata.toolRehearsal);
+    if (!existing || normalizeText(existing.status) !== 'waiting-approval') {
+      return;
+    }
+    const approvalId = normalizeText(existing.approvalId)
+      || normalizeText(recordOrNull(existing.approval)?.approvalId);
+    if (!approvalId || !run.approvals.some((approval) => approval.id === approvalId && approval.status === 'approved')) {
+      return;
+    }
+    run.metadata = {
+      ...run.metadata,
+      toolRehearsal: {
+        ...existing,
+        status: 'approved',
+        approved: true,
+        approvedAt,
+        approval: {
+          ...(recordOrNull(existing.approval) || {}),
+          required: false,
+          approvalId,
+        },
+        policy: {
+          ...(recordOrNull(existing.policy) || {}),
+          approvalsStillRequired: false,
+        },
+        nextSafeAction: 'Executar somente as calls ensaiadas e aprovadas.',
+      },
+    };
+  }
+
+  private readModelPickerContractForProviderArena() {
+    if (!this.modelPickerContractService) {
+      return null;
+    }
+    try {
+      return this.modelPickerContractService.buildContract({ includeAdvanced: true });
+    } catch {
+      return null;
+    }
+  }
+
+  private finishCoreDietBaseline(run: UniversalAgentRun, baseline: CoreDietBaselineDraft): void {
+    this.metadataEvidenceHelpers.finishCoreDietBaseline(
+      run,
+      baseline,
+      this.countScheduledEvidenceWorkerJobs(run),
+    );
+  }
+
+  private countScheduledEvidenceWorkerJobs(run: UniversalAgentRun): number {
+    const evidenceWorkers = recordOrNull(run.metadata.evidenceWorkers);
+    const receipts = Array.isArray(evidenceWorkers?.receipts) ? evidenceWorkers.receipts : [];
+    return receipts.filter((receipt) => recordOrNull(receipt)?.status === 'scheduled').length;
+  }
+
+  private applyMetadataDiet(run: UniversalAgentRun): void {
+    this.metadataEvidenceHelpers.applyMetadataDiet(run, this.evidenceStore.snapshot(run).refs);
+  }
+
+  private async publishRuntimeEvent(
+    run: UniversalAgentRun,
+    type: AgentRunRuntimeEventType,
+    payload: Record<string, unknown> = {},
+  ): Promise<void> {
+    const receipt = {
+      type,
+      emittedAt: this.now().toISOString(),
+      runId: run.id,
+      status: run.status,
+    };
+    this.appendRuntimeEventReceipt(run, {
+      ...receipt,
+      delivery: this.runtimeEventBus ? 'pending' : 'not-configured',
+    });
+    if (!this.runtimeEventBus) {
+      return;
+    }
+
+    try {
+      await this.runtimeEventBus.emit(type, {
+        ...payload,
+        runId: run.id,
+        traceId: run.traceId,
+        requestId: run.requestId,
+        sessionId: run.sessionId,
+        userId: run.userId,
+        channel: run.channel,
+        status: run.status,
+      });
+      this.appendRuntimeEventReceipt(run, {
+        ...receipt,
+        delivery: 'delivered',
+      });
+    } catch (error) {
+      this.appendRuntimeEventReceipt(run, {
+        ...receipt,
+        delivery: 'failed',
+        error: error instanceof Error ? error.message : String(error),
+      });
+    }
+  }
+
+  private appendRuntimeEventReceipt(run: UniversalAgentRun, receipt: Record<string, unknown>): void {
+    const existing = recordOrNull(run.metadata.runtimeEventBus);
+    const events = Array.isArray(existing?.events) ? existing.events.slice(-19) : [];
+    run.metadata = {
+      ...run.metadata,
+      runtimeEventBus: {
+        source: 'AgentRunService',
+        phase: 2,
+        configured: Boolean(this.runtimeEventBus),
+        snapshot: this.readRuntimeEventBusSnapshot(),
+        events: [
+          ...events,
+          receipt,
+        ],
+      },
+    };
+  }
+
+  private readRuntimeEventBusSnapshot(): unknown {
+    if (!this.runtimeEventBus?.snapshot) {
+      return null;
+    }
+    try {
+      return this.runtimeEventBus.snapshot();
+    } catch {
+      return null;
+    }
+  }
+
+  private applyCachedEvidenceSnapshot<TSnapshot extends Record<string, unknown>>(
+    run: UniversalAgentRun,
+    key: string,
+    buildSnapshot: () => TSnapshot,
+    attachSnapshot: (snapshot: TSnapshot) => void,
+  ): TSnapshot {
+    const fingerprint = this.metadataEvidenceHelpers.buildEvidenceSnapshotFingerprint(run);
+    const existing = recordOrNull(run.metadata[key]);
+    if (this.metadataEvidenceHelpers.readEvidenceSnapshotFingerprint(run, key) === fingerprint) {
+      const cached = existing || this.metadataEvidenceHelpers.readCachedEvidenceSnapshot(run, key);
+      if (cached) {
+        this.metadataEvidenceHelpers.recordCoreDietSnapshot(run, key, 'cache-hit');
+        return cached as TSnapshot;
+      }
+    }
+
+    const snapshot = buildSnapshot();
+    const material = existing || this.metadataEvidenceHelpers.isMaterialEvidenceSnapshot(snapshot);
+    this.metadataEvidenceHelpers.writeCachedEvidenceSnapshot(run, key, snapshot);
+    this.evidenceStore.put(run, key, snapshot, Boolean(material));
+    if (!material) {
+      this.metadataEvidenceHelpers.writeEvidenceSnapshotFingerprint(run, key, fingerprint);
+      this.metadataEvidenceHelpers.recordCoreDietSnapshot(run, key, 'built-skipped');
+      return snapshot;
+    }
+
+    attachSnapshot(snapshot);
+    this.metadataEvidenceHelpers.writeEvidenceSnapshotFingerprint(run, key, fingerprint);
+    this.metadataEvidenceHelpers.recordCoreDietSnapshot(run, key, 'built-attached');
+    return snapshot;
+  }
+
+  public createRun(input: UniversalAgentRequest, baseline?: CoreDietBaselineDraft): UniversalAgentRun {
+    const run = this.runFactory.createRun(input);
+    if (baseline) {
+      this.metadataEvidenceHelpers.rememberCoreDietBaseline(run, baseline);
+    }
+    this.evidencePipeline.applyInitial({
+      run,
+      request: input,
+      generatedAt: run.updatedAt,
+    });
+    return run;
+  }
+
+  private applyIntelligenceFabricCanary(
+    run: UniversalAgentRun,
+    request: UniversalAgentRequest,
+    options: AgentRunExecutionOptions = {},
+  ): void {
+    this.intelligenceFabricCanary.apply({
+      run,
+      request,
+      canOrientModel: !options.executor && !this.executor && this.llmRuntimeExecutor.isAvailable(),
+    });
+  }
+
+  private applyIntelligenceFabricDraftGuidanceIfRequested(
+    run: UniversalAgentRun,
+    request: UniversalAgentRequest,
+  ): UniversalAgentRunResult | null {
+    const metadata = recordOrNull(request.metadata) || {};
+    const planId = normalizeText(metadata.intelligenceFabricApplyDraftPlanId || metadata.intelligenceFabricDraftPlanId);
+    const requested = Boolean(planId)
+      && (metadata.intelligenceFabricApplyDraftGuidance === true || /\b(aplicar|aplique|apply|commit)\b.*\b(rascunho|draft)\b/i.test(request.text));
+    if (!requested) {
+      return null;
+    }
+    const result = this.intelligenceFabricCanary.applyDraftGuidancePlan({
+      run,
+      planId,
+      permissionId: normalizeText(metadata.intelligenceFabricApprovalId),
+      approvedBy: normalizeText(metadata.approvedBy) || request.userId,
+      approveNow: metadata.intelligenceFabricApproveDraftPlan === true,
+    });
+    const now = this.now().toISOString();
+    run.updatedAt = now;
+    run.status = result.applied ? 'completed' : result.status === 'waiting_approval' ? 'waiting_approval' : 'failed';
+    run.summary = result.summary;
+    run.metadata = { ...run.metadata, intelligenceFabricDraftApply: result };
+    run.events.push({
+      id: this.idFactory('agent-event'),
+      runId: run.id,
+      kind: result.applied ? 'artifact' : 'approval',
+      title: result.applied ? 'Rascunho aplicado pelo Mutation Plane' : 'Rascunho aguardando approval',
+      detail: result.summary,
+      status: result.applied ? 'done' : 'pending',
+      createdAt: now,
+      metadata: { planId: result.planId, status: result.status, approvalRequired: result.approvalRequired, diffReceipt: result.diffReceipt, diffReceiptText: result.diffReceiptText, rollbackArtifactPath: result.execution?.rollbackArtifactPath || null },
+    });
+    return this.replyPipeline.buildResult({ run, text: result.summary });
+  }
+
+  private async execute(
+    run: UniversalAgentRun,
+    request: UniversalAgentRequest,
+    options: AgentRunExecutionOptions = {},
+  ): Promise<UniversalAgentExecutorResult> {
+    return this.executorBoundary.execute({
+      run,
+      request,
+      executorOverride: options.executor,
+      toolRuntimeOverride: options.toolRuntime,
+    });
+  }
+
+  private applyExecutorResult(
+    run: UniversalAgentRun,
+    result: UniversalAgentExecutorResult,
+  ): void {
+    const now = this.now().toISOString();
+    run.status = result.status || 'completed';
+    run.summary = normalizeText(result.summary, run.summary);
+    run.updatedAt = now;
+    const mergedMetadata = {
+      ...run.metadata,
+      ...(result.metadata || {}),
+    };
+    const resultArtifacts = Array.isArray(result.artifacts) ? result.artifacts : null;
+    if (resultArtifacts) {
+      if (shouldPersistZavorthArtifacts(mergedMetadata)) {
+        run.artifacts = resultArtifacts;
+      } else {
+        const policy = resolveZavorthArtifactPolicyFromMetadata(mergedMetadata);
+        run.artifacts = [];
+        mergedMetadata.artifactPolicySuppressed = {
+          count: resultArtifacts.length,
+          reason: policy?.reason || 'artifact-policy-disabled',
+        };
+      }
+    }
+    applyAgentRunLlmRuntimeRouteReceipt({
+      run,
+      mergedMetadata,
+      now,
+      idFactory: this.idFactory,
+    });
+    run.memorySignals = result.memorySignals || run.memorySignals;
+    run.metadata = mergedMetadata;
+    promoteIntelligenceFabricDraftWorkspaceWrites({ run, canary: this.intelligenceFabricCanary, now, idFactory: this.idFactory });
+    this.evidencePipeline.applyPostExecutor({
+      run,
+      request: null,
+      generatedAt: now,
+    });
+    (result.events || []).forEach((event) => {
+      run.events.push({
+        id: event.id || this.idFactory('agent-event'),
+        runId: run.id,
+        kind: event.kind,
+        title: event.title,
+        detail: event.detail,
+        status: event.status,
+        createdAt: event.createdAt || now,
+        metadata: event.metadata,
+      });
+    });
+    this.applyDefenseReview(run, 'post-executor', run.metadata, now);
+    this.evidencePipeline.applySecondary({
+      run,
+      request: null,
+      generatedAt: now,
+    });
+  }
+
+  private defenseReviewMetadataKey(stage: AgentRunRiskReviewStage): string {
+    if (stage === 'pre-executor') {
+      return 'preExecutor';
+    }
+    if (stage === 'post-executor') {
+      return 'postExecutor';
+    }
+    return stage;
+  }
+
+  private applyDefenseReview(
+    run: UniversalAgentRun,
+    stage: AgentRunRiskReviewStage,
+    metadataTarget: Record<string, unknown>,
+    now: string = this.now().toISOString(),
+  ): void {
+    const review = this.riskHooks.review({ run, stage });
+    const lifecycleDefense = recordOrNull(metadataTarget.lifecycleDefense) || {};
+    metadataTarget.lifecycleDefense = {
+      ...lifecycleDefense,
+      [this.defenseReviewMetadataKey(stage)]: review,
+    };
+    run.events.push(this.auditHooks.buildRiskReviewEvent({
+      run,
+      review,
+      now,
+      idFactory: this.idFactory,
+    }));
+  }
+
+  private buildFailureResult(
+    run: UniversalAgentRun,
+    error: unknown,
+    source: string,
+  ): UniversalAgentRunResult {
+    return this.failureResultBuilder.build(run, error, source);
+  }
+
+}
+
+installAgentRunSpecializedFlows(AgentRunService);

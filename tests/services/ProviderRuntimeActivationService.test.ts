@@ -1,0 +1,225 @@
+import {
+  AnthropicCompatibleProviderLiveClient,
+  GeminiRestProviderLiveClient,
+  OpenAICompatibleProviderLiveClient,
+} from '../../src/adapters/providers/ProviderP0LiveClients.js';
+import { ProviderFactory } from '../../src/providers/ProviderFactory.js';
+import { LiveReadinessService } from '../../src/services/LiveReadinessService.js';
+import { ProviderRuntimeActivationService } from '../../src/services/ProviderRuntimeActivationService.js';
+
+const response = (payload: Record<string, unknown>, init: { status?: number } = {}) =>
+  new Response(JSON.stringify(payload), {
+    status: init.status || 200,
+    headers: {
+      'Content-Type': 'application/json',
+    },
+  });
+
+describe('ProviderRuntimeActivationService Phase 4', () => {
+  it('closes Phase 4 provider activation gates without live IO', () => {
+    const snapshot = new ProviderRuntimeActivationService({
+      now: () => new Date('2026-05-04T21:00:00.000Z'),
+    }).buildSnapshot();
+
+    expect(snapshot.contractVersion).toBe('2026-05-04.live-phase-4');
+    expect(snapshot.phase).toBe('Phase 4 - Provider Runtime Activation P0');
+    expect(snapshot.status).toBe('closed');
+    expect(snapshot.summary).toEqual(
+      expect.objectContaining({
+        providers: 18,
+        firstClassLive: 6,
+        compatibleLive: 9,
+        localLive: 2,
+        gatewayLive: 1,
+        blocked: 0,
+        generatedProviderManifestsRemainingP0: false,
+        configSchemas: 18,
+        providerFactoryRoutes: 18,
+        chatSmokeCommands: 18,
+        redactedReceipts: 18,
+        liveIoRequiredByPhase4Check: false,
+        secretValuesSerialized: false,
+      }),
+    );
+    expect(snapshot.policy).toEqual(
+      expect.objectContaining({
+        noLiveIoDuringPhase4Check: true,
+        providerFactoryRoutesMustResolveWithoutFallback: true,
+        stagingLiveRequiresExplicitOperatorCommand: true,
+        noSecretsSerialized: true,
+      }),
+    );
+  });
+
+  it('gives every P0 provider config, doctor, smoke command and receipt', () => {
+    const snapshot = new ProviderRuntimeActivationService().buildSnapshot();
+    const expected = [
+      'anthropic',
+      'deepinfra',
+      'deepseek',
+      'fireworks',
+      'google',
+      'groq',
+      'huggingface',
+      'lmstudio',
+      'mistral',
+      'ollama',
+      'openai',
+      'openrouter',
+      'perplexity',
+      'qwen',
+      'together',
+      'vercel-ai-gateway',
+      'vllm',
+      'xai',
+    ];
+
+    expect(snapshot.entries.map((entry) => entry.providerId).sort()).toEqual(expected);
+    for (const entry of snapshot.entries) {
+      expect(entry.configSchema.requiredEnv.length).toBeGreaterThan(0);
+      expect(entry.doctorCommand).toContain('--profile configured');
+      expect(entry.stagingLiveSmokeCommand).toContain('--confirm-live-io');
+      expect(entry.gates.map((gate) => gate.kind)).toEqual([
+        'config-schema',
+        'provider-factory-route',
+        'runtime-adapter',
+        'model-fallback',
+        'chat-smoke',
+        'error-normalization',
+        'usage-receipt',
+        'redacted-receipt',
+        'staging-live-smoke',
+      ]);
+      expect(entry.receipt).toEqual(
+        expect.objectContaining({
+          liveIoPerformed: false,
+          stagingLiveRequiresExplicitCommand: true,
+          secretValuesSerialized: false,
+        }),
+      );
+    }
+  });
+
+  it('resolves P0 providers without fallback masking', () => {
+    const mistral = ProviderFactory.resolveRuntimeTarget('mistral');
+    expect(mistral).toEqual(
+      expect.objectContaining({
+        providerName: 'mistral',
+        adapterKind: 'openai_compatible',
+        runtimeSupported: true,
+      }),
+    );
+    expect(mistral.baseUrl).toBe('https://api.mistral.ai/v1');
+
+    const google = ProviderFactory.resolveRuntimeTarget('google');
+    expect(google).toEqual(
+      expect.objectContaining({
+        providerName: 'gemini',
+        adapterKind: 'bespoke',
+        runtimeSupported: true,
+      }),
+    );
+
+    const anthropic = ProviderFactory.resolveRuntimeTarget('anthropic');
+    expect(anthropic).toEqual(
+      expect.objectContaining({
+        providerName: 'anthropic',
+        adapterKind: 'anthropic_compatible',
+        runtimeSupported: true,
+      }),
+    );
+
+    const vercel = ProviderFactory.resolveRuntimeTarget('vercel-ai-gateway');
+    expect(vercel).toEqual(
+      expect.objectContaining({
+        providerName: 'vercel-ai-gateway',
+        adapterKind: 'openai_compatible',
+        runtimeSupported: true,
+      }),
+    );
+    expect(vercel.baseUrl).toBe('https://ai-gateway.vercel.sh/v1');
+  });
+
+  it('moves P0 providers into partial-live readiness', () => {
+    const readiness = new LiveReadinessService().buildSnapshot();
+    const entries = new Map(readiness.entries.map((entry) => [entry.normalizedSourceName, entry]));
+
+    expect(entries.get('anthropic')?.status).toBe('partial-live');
+    expect(entries.get('mistral')?.status).toBe('partial-live');
+    expect(entries.get('groq')?.status).toBe('partial-live');
+    expect(entries.get('lmstudio')?.status).toBe('partial-live');
+    expect(entries.get('vercel-ai-gateway')?.status).toBe('partial-live');
+    expect(entries.get('amazon-bedrock')?.status).toBe('partial-live');
+  });
+
+  it('runs P0 live clients with redacted receipts', async () => {
+    const calls: Array<{ url: string; body: string; authorization?: string; apiKey?: string }> = [];
+    const fetchImpl = (async (url, init) => {
+      calls.push({
+        url: String(url),
+        body: String(init?.body || ''),
+        authorization: String((init?.headers as Record<string, string>)?.Authorization || ''),
+        apiKey: String((init?.headers as Record<string, string>)?.['x-api-key'] || ''),
+      });
+      if (String(url).includes('/messages')) {
+        return response({
+          content: [{ text: 'anthropic ok' }],
+          usage: { input_tokens: 2, output_tokens: 3 },
+        });
+      }
+      if (String(url).includes(':generateContent')) {
+        return response({
+          candidates: [{ content: { parts: [{ text: 'gemini ok' }] } }],
+          usageMetadata: { promptTokenCount: 4, candidatesTokenCount: 5, totalTokenCount: 9 },
+        });
+      }
+      return response({
+        choices: [{ message: { content: 'openai compatible ok' } }],
+        usage: { prompt_tokens: 1, completion_tokens: 2, total_tokens: 3 },
+      });
+    }) as typeof fetch;
+
+    const openaiReceipt = await new OpenAICompatibleProviderLiveClient({
+      providerId: 'mistral',
+      baseUrl: 'https://api.mistral.ai/v1',
+      apiKey: 'provider-secret',
+      modelName: 'mistral-large-latest',
+    }, { fetchImpl, now: () => new Date('2026-05-04T21:01:00.000Z') }).chatSmoke({
+      messages: [{ role: 'user', content: 'ping' }],
+    });
+    expect(openaiReceipt).toEqual(
+      expect.objectContaining({
+        providerId: 'mistral',
+        family: 'openai-compatible',
+        status: 'passed',
+        totalTokens: 3,
+        liveIo: true,
+        secretValuesSerialized: false,
+      }),
+    );
+    expect(calls[0].authorization).toBe('Bearer provider-secret');
+
+    const anthropicReceipt = await new AnthropicCompatibleProviderLiveClient({
+      providerId: 'anthropic',
+      baseUrl: 'https://api.anthropic.com/v1',
+      apiKey: 'anthropic-secret',
+      modelName: 'claude-sonnet-4-5',
+    }, { fetchImpl }).chatSmoke({
+      messages: [{ role: 'user', content: 'ping' }],
+    });
+    expect(anthropicReceipt.family).toBe('anthropic-compatible');
+    expect(anthropicReceipt.totalTokens).toBe(5);
+    expect(calls[1].apiKey).toBe('anthropic-secret');
+
+    const geminiReceipt = await new GeminiRestProviderLiveClient({
+      providerId: 'google',
+      apiKey: 'gemini-secret',
+      modelName: 'gemini-2.5-flash',
+    }, { fetchImpl }).chatSmoke({
+      messages: [{ role: 'user', content: 'ping' }],
+    });
+    expect(geminiReceipt.family).toBe('gemini-rest');
+    expect(geminiReceipt.totalTokens).toBe(9);
+    expect(geminiReceipt.secretValuesSerialized).toBe(false);
+  });
+});

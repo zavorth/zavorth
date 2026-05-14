@@ -1,0 +1,39 @@
+[
+  {
+    "name": "coding_focus",
+    "description": "Abre uma bancada local de programação com editor e dashboard.",
+    "risk": "medium",
+    "actions": [
+      {
+        "action": "open_app",
+        "args": { "app": "vscode" }
+      },
+      {
+        "action": "open_url",
+        "args": { "url": "http://localhost:3000/dashboard" }
+      }
+    ]
+  },
+  {
+    "name": "night_briefing",
+    "description": "Abre o dashboard local para briefing noturno sem buscar APIs externas.",
+    "risk": "medium",
+    "actions": [
+      {
+        "action": "open_url",
+        "args": { "url": "http://localhost:3000/dashboard" }
+      }
+    ]
+  },
+  {
+    "name": "research_mode",
+    "description": "Abre uma busca inicial de pesquisa no GitHub.",
+    "risk": "medium",
+    "actions": [
+      {
+        "action": "browser_search",
+        "args": { "engine": "github", "query": "artificial intelligence agents" }
+      }
+    ]
+  }
+]

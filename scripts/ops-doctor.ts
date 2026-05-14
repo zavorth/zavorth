@@ -1,0 +1,91 @@
+#!/usr/bin/env node
+
+import { RuntimeAccessReadinessService } from '../src/runtime/access/RuntimeAccessReadinessService.js';
+
+function formatDoctorLine(label: string, status: string, summary: string | null, command: string) {
+  const detail = summary || command || 'n/d';
+  return `[zavorth-ops] ${label}: ${status} | ${detail}`;
+}
+
+async function main() {
+  const argv = process.argv.slice(2);
+  const asJson = argv.includes('--json');
+  const service = new RuntimeAccessReadinessService();
+  const report = await service.inspectLive();
+
+  if (asJson) {
+    process.stdout.write(`${JSON.stringify(report, null, 2)}\n`);
+    if (!report.local.ready || report.runtime.nodeMeshSmoke.status === 'failed') {
+      process.exitCode = 1;
+    }
+    return;
+  }
+
+  console.log('[zavorth-ops] doctor geral');
+  console.log(`[zavorth-ops] resumo: ${report.summary}`);
+  console.log(
+    `[zavorth-ops] local: ${report.local.ready ? 'pronto' : 'pendente'} | remoto: ${report.remote.ready ? 'pronto' : 'pendente'}`,
+  );
+  console.log(
+    formatDoctorLine(
+      'node mesh',
+      report.runtime.nodeMeshSmoke.status,
+      report.runtime.nodeMeshSmoke.summary,
+      report.runtime.nodeMeshSmoke.command,
+    ),
+  );
+  console.log(
+    formatDoctorLine(
+      'system overlord',
+      report.runtime.systemOverlordSmoke.status,
+      report.runtime.systemOverlordSmoke.summary,
+      report.runtime.systemOverlordSmoke.command,
+    ),
+  );
+  console.log(
+    formatDoctorLine(
+      'canais',
+      report.runtime.channelProviderDoctor.status,
+      report.runtime.channelProviderDoctor.summary,
+      report.runtime.channelProviderDoctor.command,
+    ),
+  );
+  console.log(
+    formatDoctorLine(
+      'transportes',
+      report.runtime.remoteTransportDoctor.status,
+      report.runtime.remoteTransportDoctor.summary,
+      report.runtime.remoteTransportDoctor.command,
+    ),
+  );
+
+  if (report.nextSteps.length > 0) {
+    console.log('[zavorth-ops] proximos passos:');
+    for (const step of report.nextSteps.slice(0, 6)) {
+      console.log(`- ${step.title}: ${step.description}`);
+    }
+  }
+
+  if (report.recommendations.length > 0) {
+    console.log('[zavorth-ops] recomendacoes:');
+    for (const rec of report.recommendations.slice(0, 6)) {
+      console.log(`- ${rec}`);
+    }
+  }
+
+  const failed =
+    !report.local.ready
+    || report.runtime.nodeMeshSmoke.status === 'failed'
+    || report.runtime.channelProviderDoctor.status === 'failed'
+    || report.runtime.remoteTransportDoctor.status === 'failed';
+
+  if (failed) {
+    process.exitCode = 1;
+  }
+}
+
+main().catch((error) => {
+  console.error('[zavorth-ops] doctor geral falhou.');
+  console.error(error instanceof Error ? error.message : String(error));
+  process.exitCode = 1;
+});

@@ -1,0 +1,39 @@
+{
+  "compilerOptions": {
+    "target": "ES2022",
+    "module": "NodeNext",
+    "moduleResolution": "NodeNext",
+    "lib": ["ES2022", "DOM"],
+    "outDir": "./dist-qa",
+    "rootDir": ".",
+    "strict": true,
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true,
+    "resolveJsonModule": true,
+    "declaration": false,
+    "sourceMap": true,
+    "isolatedModules": true
+  },
+  "include": [
+    "src/**/*",
+    "qa/QaSupport.ts",
+    "qa/compat/**/*.ts",
+    "qa/benchmarks/**/*.ts",
+    "qa/regression/**/*.ts",
+    "qa/smokes/**/*.ts",
+    "qa/WebShellSupport.ts",
+    "scripts/node-mesh-smoke.ts"
+  ],
+  "exclude": [
+    "node_modules",
+    "dist",
+    "dist-qa",
+    "tests",
+    "vercel-web",
+    "src/ai-gateway",
+    "src/web/components",
+    "src/runtime/supervised-launcher.ts",
+    "src/runtime/supervised-launcher.ts.tmp.ts"
+  ]
+}

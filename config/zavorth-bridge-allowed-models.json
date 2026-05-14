@@ -1,0 +1,40 @@
+{
+  "models": [
+    {
+      "key": "gemini-3.1-pro-high",
+      "label": "Gemini 3.1 Pro (High)",
+      "sentinelKey": "EI0I",
+      "aliases": [
+        "gemini 3.1 pro high",
+        "gemini-3.1-pro-high",
+        "gemini 3 1 pro high",
+        "pro high",
+        "high"
+      ]
+    },
+    {
+      "key": "gemini-3.1-pro-low",
+      "label": "Gemini 3.1 Pro (Low)",
+      "sentinelKey": "EIwI",
+      "aliases": [
+        "gemini 3.1 pro low",
+        "gemini-3.1-pro-low",
+        "gemini 3 1 pro low",
+        "pro low",
+        "low"
+      ]
+    },
+    {
+      "key": "gemini-3.1-flash",
+      "label": "Gemini 3 Flash",
+      "sentinelKey": "EJcI",
+      "aliases": [
+        "gemini 3 flash",
+        "gemini-3.1-flash",
+        "gemini 3.1 flash",
+        "gemini flash",
+        "flash"
+      ]
+    }
+  ]
+}

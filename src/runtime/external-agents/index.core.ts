@@ -1,0 +1,689 @@
+export {
+  ExternalAgentChannelBridge,
+} from './ExternalAgentChannelBridge.js';
+export type {
+  ExternalAgentBridgeChannelDescriptor,
+  ExternalAgentBridgeChannelHealthSnapshot,
+  ExternalAgentBridgeMediaAttachment,
+  ExternalAgentBridgeMediaKind,
+  ExternalAgentChannelBridgeAdapter,
+  ExternalAgentChannelBridgeOptions,
+  ExternalAgentChannelBridgeRunResult,
+  ExternalAgentChannelHistoryEntry,
+  ExternalAgentDeliveryReceipt,
+} from './ExternalAgentChannelBridge.js';
+export {
+  ExternalAgentCapabilityProvider,
+} from './ExternalAgentCapabilityProvider.js';
+export type {
+  ExternalAgentCapabilityAvailability,
+  ExternalAgentCapabilityCommandCenterVisibility,
+  ExternalAgentCapabilityFailure,
+  ExternalAgentCapabilityInventoryItem,
+  ExternalAgentCapabilityInventorySnapshot,
+  ExternalAgentCapabilityProviderOptions,
+  ExternalAgentSkillManifest,
+} from './ExternalAgentCapabilityProvider.js';
+export {
+  buildColdContextMetadataFromExternalCapabilities,
+  buildToolExposurePolicyInputFromExternalCapabilities,
+  ExternalAgentSidecarAdapter,
+  normalizeExternalAgentApprovalToZavorthRequest,
+  normalizeExternalAgentArtifactToZavorthSummary,
+  normalizeExternalAgentCapabilitiesToZavorthProviderContract,
+  normalizeExternalAgentCapabilityToZavorthContract,
+} from './ExternalAgentSidecarAdapter.js';
+export {
+  normalizeExternalAgentGatewayProtocolFrame,
+} from './ExternalAgentGatewayProtocolBoundary.js';
+export type {
+  ExternalAgentGatewayProtocolBoundaryOptions,
+  ExternalAgentGatewayProtocolFrame,
+  ExternalAgentGatewayProtocolFrameKind,
+  ExternalAgentGatewayProtocolNormalizationResult,
+  ExternalAgentGatewayProtocolSourceEvidence,
+  ExternalAgentGatewayProtocolStructuredError,
+} from './ExternalAgentGatewayProtocolBoundary.js';
+export {
+  normalizeExternalAgentGatewayHandshake,
+} from './ExternalAgentGatewayHandshakeBoundary.js';
+export type {
+  ExternalAgentGatewayHandshakeBoundaryOptions,
+  ExternalAgentGatewayHandshakeEvidence,
+  ExternalAgentGatewayHandshakeNormalization,
+  ExternalAgentGatewayHandshakeSourceEvidence,
+  ExternalAgentGatewayHandshakeTrust,
+} from './ExternalAgentGatewayHandshakeBoundary.js';
+export {
+  normalizeExternalAgentGatewayEventStream,
+} from './ExternalAgentGatewayEventStreamBoundary.js';
+export type {
+  ExternalAgentGatewayEventStreamBoundaryOptions,
+  ExternalAgentGatewayEventStreamEvent,
+  ExternalAgentGatewayEventStreamEventType,
+  ExternalAgentGatewayEventStreamNormalization,
+  ExternalAgentGatewayEventStreamOrderRecord,
+  ExternalAgentGatewayEventStreamSourceEvidence,
+} from './ExternalAgentGatewayEventStreamBoundary.js';
+export {
+  normalizeExternalAgentPluginManifestRegistry,
+} from './ExternalAgentPluginManifestRegistryBoundary.js';
+export type {
+  ExternalAgentPluginManifestRegistryBoundaryOptions,
+  ExternalAgentPluginManifestRegistryEvidence,
+  ExternalAgentPluginManifestRegistryNormalization,
+} from './ExternalAgentPluginManifestRegistryBoundary.js';
+export {
+  normalizeExternalAgentPluginRuntimeRegistry,
+} from './ExternalAgentPluginRuntimeRegistryBoundary.js';
+export type {
+  ExternalAgentPluginRuntimeRegistryBoundaryOptions,
+  ExternalAgentPluginRuntimeRegistryMetadataOnlyRecord,
+  ExternalAgentPluginRuntimeRegistryNormalization,
+  ExternalAgentPluginRuntimeRegistryRecord,
+  ExternalAgentPluginRuntimeRegistryRecordKind,
+  ExternalAgentPluginRuntimeRegistrySourceEvidence,
+} from './ExternalAgentPluginRuntimeRegistryBoundary.js';
+export {
+  normalizeExternalAgentPluginCommandDescriptors,
+} from './ExternalAgentPluginCommandDescriptorBoundary.js';
+export type {
+  ExternalAgentZavorthCommandDescriptor,
+  ExternalAgentCommandDescriptorCatalogRow,
+  ExternalAgentPluginCommandDescriptorBoundaryNormalization,
+  ExternalAgentPluginCommandDescriptorBoundaryOptions,
+  ExternalAgentPluginCommandDescriptorCategory,
+  ExternalAgentPluginCommandDescriptorExecutionGate,
+  ExternalAgentPluginCommandDescriptorFixtureCase,
+  ExternalAgentPluginCommandDescriptorSourceRecord,
+} from './ExternalAgentPluginCommandDescriptorBoundary.js';
+export {
+  normalizeExternalAgentPluginCliCommandSurfaces,
+} from './ExternalAgentPluginCliCommandSurfaceBoundary.js';
+export type {
+  ExternalAgentZavorthCliCommandSurface,
+  ExternalAgentCliCommandCatalogRow,
+  ExternalAgentPluginCliCommandClassification,
+  ExternalAgentPluginCliCommandExecutionGate,
+  ExternalAgentPluginCliCommandFixtureCase,
+  ExternalAgentPluginCliCommandKind,
+  ExternalAgentPluginCliCommandSurfaceBoundaryNormalization,
+  ExternalAgentPluginCliCommandSurfaceBoundaryOptions,
+  ExternalAgentPluginCliCommandSurfaceSourceRecord,
+} from './ExternalAgentPluginCliCommandSurfaceBoundary.js';
+export {
+  normalizeExternalAgentPluginGatewayMethodSurfaces,
+} from './ExternalAgentPluginGatewayMethodSurfaceBoundary.js';
+export type {
+  ExternalAgentZavorthGatewayMethodSurface,
+  ExternalAgentGatewayMethodCatalogRow,
+  ExternalAgentPluginGatewayMethodExecutionGate,
+  ExternalAgentPluginGatewayMethodFixtureCase,
+  ExternalAgentPluginGatewayMethodKind,
+  ExternalAgentPluginGatewayMethodSurfaceBoundaryNormalization,
+  ExternalAgentPluginGatewayMethodSurfaceBoundaryOptions,
+  ExternalAgentPluginGatewayMethodSurfaceSourceRecord,
+} from './ExternalAgentPluginGatewayMethodSurfaceBoundary.js';
+export {
+  normalizeExternalAgentPluginHttpRouteSurfaces,
+} from './ExternalAgentPluginHttpRouteSurfaceBoundary.js';
+export type {
+  ExternalAgentZavorthHttpRouteSurface,
+  ExternalAgentHttpRouteCatalogRow,
+  ExternalAgentPluginHttpMethod,
+  ExternalAgentPluginHttpRouteExecutionGate,
+  ExternalAgentPluginHttpRouteFixtureCase,
+  ExternalAgentPluginHttpRouteKind,
+  ExternalAgentPluginHttpRouteSurfaceBoundaryNormalization,
+  ExternalAgentPluginHttpRouteSurfaceBoundaryOptions,
+  ExternalAgentPluginHttpRouteSurfaceSourceRecord,
+} from './ExternalAgentPluginHttpRouteSurfaceBoundary.js';
+export {
+  normalizeExternalAgentPluginServiceSurfaces,
+} from './ExternalAgentPluginServiceSurfaceBoundary.js';
+export type {
+  ExternalAgentZavorthServiceSurface,
+  ExternalAgentPluginServiceSurfaceBoundaryNormalization,
+  ExternalAgentPluginServiceSurfaceBoundaryOptions,
+  ExternalAgentPluginServiceSurfaceExecutionGate,
+  ExternalAgentPluginServiceSurfaceFixtureCase,
+  ExternalAgentPluginServiceSurfaceKind,
+  ExternalAgentPluginServiceSurfaceSourceRecord,
+  ExternalAgentServiceCatalogRow,
+} from './ExternalAgentPluginServiceSurfaceBoundary.js';
+export {
+  normalizeExternalAgentPluginToolExposurePolicy,
+} from './ExternalAgentPluginToolExposurePolicyBoundary.js';
+export type {
+  ExternalAgentZavorthToolExposurePolicySurface,
+  ExternalAgentPluginToolExposurePolicyBoundaryNormalization,
+  ExternalAgentPluginToolExposurePolicyBoundaryOptions,
+  ExternalAgentPluginToolExposurePolicyDisposition,
+  ExternalAgentPluginToolExposurePolicyExecutionGate,
+  ExternalAgentPluginToolExposurePolicyFixtureCase,
+  ExternalAgentPluginToolExposurePolicySourceRecord,
+  ExternalAgentToolExposureCapabilityRow,
+} from './ExternalAgentPluginToolExposurePolicyBoundary.js';
+export {
+  normalizeExternalAgentCommandHttpInvocationEnvelopes,
+} from './ExternalAgentCommandHttpInvocationEnvelopeBoundary.js';
+export type {
+  ExternalAgentCommandHttpInvocationBoundaryContract,
+  ExternalAgentCommandHttpInvocationEnvelope,
+  ExternalAgentCommandHttpInvocationEnvelopeBoundaryNormalization,
+  ExternalAgentCommandHttpInvocationEnvelopeBoundaryOptions,
+  ExternalAgentCommandHttpInvocationExecutionGate,
+  ExternalAgentCommandHttpInvocationFixtureCase,
+  ExternalAgentCommandHttpInvocationIntentKind,
+  ExternalAgentCommandHttpInvocationSourceRecord,
+} from './ExternalAgentCommandHttpInvocationEnvelopeBoundary.js';
+export {
+  normalizeExternalAgentCommandHttpPolicyPreflight,
+} from './ExternalAgentCommandHttpPolicyPreflightBoundary.js';
+export type {
+  ExternalAgentCommandHttpPolicyPreflightBoundaryNormalization,
+  ExternalAgentCommandHttpPolicyPreflightBoundaryOptions,
+  ExternalAgentCommandHttpPolicyPreflightDecision,
+  ExternalAgentCommandHttpPolicyPreflightExecutionGate,
+  ExternalAgentCommandHttpPolicyPreflightFixtureCase,
+  ExternalAgentCommandHttpPolicyPreflightResult,
+  ExternalAgentCommandHttpPolicyPreflightSourceRecord,
+} from './ExternalAgentCommandHttpPolicyPreflightBoundary.js';
+export {
+  normalizeExternalAgentCommandHttpObservabilityProjection,
+} from './ExternalAgentCommandHttpObservabilityProjectionBoundary.js';
+export type {
+  ExternalAgentCommandHttpObservabilityProjectionBoundaryNormalization,
+  ExternalAgentCommandHttpObservabilityProjectionBoundaryOptions,
+  ExternalAgentCommandHttpObservabilityProjectionExecutionGate,
+  ExternalAgentCommandHttpObservabilityProjectionFixtureCase,
+  ExternalAgentCommandHttpObservabilityProjectionLogSeverity,
+  ExternalAgentCommandHttpObservabilityProjectionRow,
+  ExternalAgentCommandHttpObservabilityProjectionSourceRecord,
+  ExternalAgentCommandHttpObservabilityProjectionStatus,
+} from './ExternalAgentCommandHttpObservabilityProjectionBoundary.js';
+export {
+  createWave1SidecarReadOnlyBoundaryPackFixtureSource,
+  createWave1SidecarReadOnlyExecutionGate,
+  EXTERNAL_AGENT_WAVE1_SIDECAR_READ_ONLY_FIXTURE_NOW,
+  EXTERNAL_AGENT_WAVE1_SIDECAR_READ_ONLY_RUNTIME_ID,
+  normalizeExternalAgentSidecarReadOnlyBoundaryPack,
+  normalizeWave1SidecarReadOnlyBoundaryPackFixture,
+} from './ExternalAgentSidecarReadOnlyBoundaryPack.js';
+export type {
+  ZavorthSidecarBlockedDispatchCandidate,
+  ZavorthSidecarCapabilitySnapshot,
+  ZavorthSidecarCapabilitySnapshotRow,
+  ZavorthSidecarEventPullEnvelope,
+  ZavorthSidecarFailureRecord,
+  ZavorthSidecarObservabilityProjection,
+  ZavorthSidecarObservabilityRow,
+  ZavorthSidecarProcessDescriptor,
+  ZavorthSidecarRollbackModel,
+  ZavorthSidecarRuntimeConfigBoundary,
+  ZavorthSidecarSecretRef,
+  ExternalAgentSidecarReadOnlyBlockedActionSource,
+  ExternalAgentSidecarReadOnlyBoundaryPackNormalization,
+  ExternalAgentSidecarReadOnlyBoundaryPackOptions,
+  ExternalAgentSidecarReadOnlyBoundaryPackSource,
+  ExternalAgentSidecarReadOnlyCapabilitySource,
+  ExternalAgentSidecarReadOnlyEventSource,
+  ExternalAgentSidecarReadOnlyExecutionGate,
+  ExternalAgentSidecarReadOnlyFailureSource,
+  ExternalAgentSidecarReadOnlyProcessSource,
+  ExternalAgentSidecarReadOnlySecretPurpose,
+  ExternalAgentSidecarReadOnlySecretRefSource,
+  ExternalAgentSidecarReadOnlyStatus,
+  ExternalAgentSidecarReadOnlyTransport,
+} from './ExternalAgentSidecarReadOnlyBoundaryPack.js';
+export {
+  createExternalAgentLiveReadinessAssimilationPackFixtureSource,
+  createExternalAgentLiveReadinessNoExecutionPolicy,
+  EXTERNAL_AGENT_LIVE_READINESS_ASSIMILATION_PACK_NOW,
+  EXTERNAL_AGENT_LIVE_READINESS_ASSIMILATION_PACK_RUNTIME_ID,
+  normalizeExternalAgentLiveReadinessAssimilationPack,
+  normalizeExternalAgentLiveReadinessAssimilationPackFixture,
+} from './ExternalAgentLiveReadinessAssimilationPack.js';
+export type {
+  ExternalAgentLiveReadinessAssimilationPackNormalization,
+  ExternalAgentLiveReadinessAssimilationPackOptions,
+  ExternalAgentLiveReadinessAuditReceipt,
+  ExternalAgentLiveReadinessCapabilityAvailability,
+  ExternalAgentLiveReadinessCapabilityInventoryRow,
+  ExternalAgentLiveReadinessCapabilityRowKind,
+  ExternalAgentLiveReadinessCapabilitySnapshot,
+  ExternalAgentLiveReadinessCapabilitySource,
+  ExternalAgentLiveReadinessClassification,
+  ExternalAgentLiveReadinessCommandCenterProjection,
+  ExternalAgentLiveReadinessCommandCenterRow,
+  ExternalAgentLiveReadinessDegradedUnavailableHandling,
+  ExternalAgentLiveReadinessEventBridge,
+  ExternalAgentLiveReadinessEventBridgeEnvelope,
+  ExternalAgentLiveReadinessEventSource,
+  ExternalAgentLiveReadinessExecutionMethod,
+  ExternalAgentLiveReadinessImportClassification,
+  ExternalAgentLiveReadinessNoExecutionPolicy,
+  ExternalAgentLiveReadinessReadOnlyAdapterInterface,
+  ExternalAgentLiveReadinessSnapshotSource,
+  ExternalAgentLiveReadinessSourceEvidence,
+  ExternalAgentLiveReadinessSubgate,
+  ExternalAgentLiveReadinessSubgateName,
+} from './ExternalAgentLiveReadinessAssimilationPack.js';
+export {
+  normalizeExternalExecutorLiveReadOnlyProbe,
+} from './ExternalAgentExternalExecutorLiveReadOnlyProbe.js';
+export type {
+  ExternalExecutorReadOnlyProbeCommandKind,
+  ExternalExecutorReadOnlyProbeCommandProjection,
+  ExternalExecutorReadOnlyProbeCommandResult,
+  ExternalExecutorReadOnlyProbeCommandStatus,
+  ExternalExecutorReadOnlyProbeExecutionGate,
+  ExternalExecutorReadOnlyProbeNormalization,
+  ExternalExecutorReadOnlyProbeNormalizationOptions,
+} from './ExternalAgentExternalExecutorLiveReadOnlyProbe.js';
+export {
+  createExternalExecutorGatewaySecretRefAuthPreflightFixtureSource,
+  normalizeExternalExecutorGatewaySecretRefAuthPreflight,
+  normalizeExternalExecutorGatewaySecretRefAuthPreflightFixture,
+  EXTERNAL_EXECUTOR_GATEWAY_SECRET_REF_AUTH_PREFLIGHT_NOW,
+  EXTERNAL_EXECUTOR_GATEWAY_SECRET_REF_AUTH_PREFLIGHT_RUNTIME_ID,
+} from './ExternalAgentExternalExecutorGatewaySecretRefAuthPreflight.js';
+export type {
+  ExternalExecutorGatewayAuthConfigEvidence,
+  ExternalExecutorGatewayAuthDecision,
+  ExternalExecutorGatewayAuthFutureCommandTemplate,
+  ExternalExecutorGatewayAuthHelpEvidence,
+  ExternalExecutorGatewayCredentialKind,
+  ExternalExecutorGatewayCredentialSurfaceKind,
+  ExternalExecutorGatewaySecretRef,
+  ExternalExecutorGatewaySecretRefAuthExecutionGate,
+  ExternalExecutorGatewaySecretRefAuthPreflightNormalization,
+  ExternalExecutorGatewaySecretRefAuthPreflightOptions,
+  ExternalExecutorGatewaySecretRefAuthPreflightSource,
+} from './ExternalAgentExternalExecutorGatewaySecretRefAuthPreflight.js';
+export {
+  createExternalExecutorAuthenticatedEphemeralGatewayHealthProbeUnavailableFixtureSource,
+  normalizeExternalExecutorAuthenticatedEphemeralGatewayHealthProbe,
+  normalizeExternalExecutorAuthenticatedEphemeralGatewayHealthProbeUnavailableFixture,
+  EXTERNAL_EXECUTOR_AUTHENTICATED_EPHEMERAL_GATEWAY_HEALTH_PROBE_NOW,
+  EXTERNAL_EXECUTOR_AUTHENTICATED_EPHEMERAL_GATEWAY_HEALTH_PROBE_RUNTIME_ID,
+} from './ExternalAgentExternalExecutorAuthenticatedEphemeralGatewayHealthProbe.js';
+export type {
+  ExternalExecutorAuthenticatedCommandProjection,
+  ExternalExecutorAuthenticatedEphemeralGatewayExecutionGate,
+  ExternalExecutorAuthenticatedEphemeralGatewayHealthProbeDecision,
+  ExternalExecutorAuthenticatedEphemeralGatewayHealthProbeNormalization,
+  ExternalExecutorAuthenticatedEphemeralGatewayHealthProbeOptions,
+  ExternalExecutorAuthenticatedEphemeralGatewayHealthProbeSource,
+  ExternalExecutorAuthenticatedReadOnlyCommandKind,
+  ExternalExecutorAuthenticatedReadOnlyCommandResult,
+  ExternalExecutorGatewaySecretRefResolution,
+} from './ExternalAgentExternalExecutorAuthenticatedEphemeralGatewayHealthProbe.js';
+export {
+  createExternalExecutorRealCapabilitySnapshotReadOnlyFixtureSource,
+  normalizeExternalExecutorRealCapabilitySnapshotReadOnly,
+  normalizeExternalExecutorRealCapabilitySnapshotReadOnlyFixture,
+  EXTERNAL_EXECUTOR_REAL_CAPABILITY_SNAPSHOT_READ_ONLY_NOW,
+  EXTERNAL_EXECUTOR_REAL_CAPABILITY_SNAPSHOT_READ_ONLY_RUNTIME_ID,
+} from './ExternalAgentExternalExecutorRealCapabilitySnapshotReadOnly.js';
+export type {
+  ExternalExecutorRealCapabilitySnapshotCommandSummary,
+  ExternalExecutorRealCapabilitySnapshotDecision,
+  ExternalExecutorRealCapabilitySnapshotReadOnlyNormalization,
+  ExternalExecutorRealCapabilitySnapshotReadOnlyOptions,
+  ExternalExecutorRealCapabilitySnapshotReadOnlySource,
+} from './ExternalAgentExternalExecutorRealCapabilitySnapshotReadOnly.js';
+export {
+  createExternalExecutorLiveReadOnlyBridgeBoundaryFixtureSource,
+  normalizeExternalExecutorLiveReadOnlyBridgeBoundary,
+  normalizeExternalExecutorLiveReadOnlyBridgeBoundaryFixture,
+  EXTERNAL_EXECUTOR_LIVE_READ_ONLY_BRIDGE_BOUNDARY_NOW,
+  EXTERNAL_EXECUTOR_LIVE_READ_ONLY_BRIDGE_BOUNDARY_RUNTIME_ID,
+  EXTERNAL_EXECUTOR_LIVE_READ_ONLY_BRIDGE_SOURCE_SNAPSHOT_CAPTURED_AT,
+  EXTERNAL_EXECUTOR_LIVE_READ_ONLY_BRIDGE_SOURCE_SNAPSHOT_RUNTIME_ID,
+} from './ExternalAgentExternalExecutorLiveReadOnlyBridgeBoundary.js';
+export type {
+  ExternalExecutorLiveReadOnlyBridgeBoundaryNormalization,
+  ExternalExecutorLiveReadOnlyBridgeBoundaryOptions,
+  ExternalExecutorLiveReadOnlyBridgeDecision,
+  ExternalExecutorLiveReadOnlyBridgeExecutionGate,
+  ExternalExecutorLiveReadOnlyBridgeFailureModel,
+  ExternalExecutorLiveReadOnlyBridgeObservability,
+  ExternalExecutorLiveReadOnlyBridgeSource,
+  ExternalExecutorLiveReadOnlyBridgeSurface,
+  ExternalExecutorLiveReadOnlyBridgeSurfaceKind,
+} from './ExternalAgentExternalExecutorLiveReadOnlyBridgeBoundary.js';
+export {
+  createExternalExecutorLiveObservabilityProjectionFixtureInput,
+  normalizeExternalExecutorLiveObservabilityProjection,
+  normalizeExternalExecutorLiveObservabilityProjectionFixture,
+  EXTERNAL_EXECUTOR_LIVE_OBSERVABILITY_PROJECTION_NOW,
+  EXTERNAL_EXECUTOR_LIVE_OBSERVABILITY_PROJECTION_RUNTIME_ID,
+} from './ExternalAgentExternalExecutorLiveObservabilityProjection.js';
+export type {
+  ExternalExecutorLiveObservabilityCommandCenterProjection,
+  ExternalExecutorLiveObservabilityCommandCenterRow,
+  ExternalExecutorLiveObservabilityExecutionGate,
+  ExternalExecutorLiveObservabilityFailureProjection,
+  ExternalExecutorLiveObservabilityProjectionDecision,
+  ExternalExecutorLiveObservabilityProjectionInput,
+  ExternalExecutorLiveObservabilityProjectionNormalization,
+  ExternalExecutorLiveObservabilityProjectionOptions,
+  ExternalExecutorLiveObservabilityProjectionStatus,
+  ExternalExecutorLiveObservabilityRuntimeProjection,
+} from './ExternalAgentExternalExecutorLiveObservabilityProjection.js';
+export {
+  createExternalExecutorReadOnlyEventStreamAdapterFixtureSource,
+  normalizeExternalExecutorReadOnlyEventStreamAdapter,
+  normalizeExternalExecutorReadOnlyEventStreamAdapterFixture,
+  EXTERNAL_EXECUTOR_READ_ONLY_EVENT_STREAM_ADAPTER_NOW,
+  EXTERNAL_EXECUTOR_READ_ONLY_EVENT_STREAM_ADAPTER_RUNTIME_ID,
+} from './ExternalAgentExternalExecutorReadOnlyEventStreamAdapter.js';
+export type {
+  ExternalExecutorReadOnlyCommandCenterEventProjection,
+  ExternalExecutorReadOnlyEventStreamAdapterNormalization,
+  ExternalExecutorReadOnlyEventStreamAdapterOptions,
+  ExternalExecutorReadOnlyEventStreamAdapterSource,
+  ExternalExecutorReadOnlyEventStreamDecision,
+  ExternalExecutorReadOnlyEventStreamExecutionGate,
+  ExternalExecutorReadOnlyEventStreamRedaction,
+  ExternalExecutorReadOnlyEventStreamState,
+  ExternalExecutorReadOnlySourceEvent,
+  ExternalExecutorReadOnlySourceEventKind,
+} from './ExternalAgentExternalExecutorReadOnlyEventStreamAdapter.js';
+export {
+  createExternalExecutorSessionHistoryReadOnlyBridgeFixtureSource,
+  normalizeExternalExecutorSessionHistoryReadOnlyBridge,
+  normalizeExternalExecutorSessionHistoryReadOnlyBridgeFixture,
+  EXTERNAL_EXECUTOR_SESSION_HISTORY_READ_ONLY_BRIDGE_NOW,
+  EXTERNAL_EXECUTOR_SESSION_HISTORY_READ_ONLY_BRIDGE_RUNTIME_ID,
+} from './ExternalAgentExternalExecutorSessionHistoryReadOnlyBridge.js';
+export type {
+  ZavorthExternalMessageMetadataView,
+  ZavorthExternalSessionView,
+  ZavorthExternalSessionViewStatus,
+  ExternalExecutorLikeMessageMetadataSource,
+  ExternalExecutorLikeSessionSource,
+  ExternalExecutorSessionHistoryCommandCenterView,
+  ExternalExecutorSessionHistoryReadOnlyBridgeDecision,
+  ExternalExecutorSessionHistoryReadOnlyBridgeNormalization,
+  ExternalExecutorSessionHistoryReadOnlyBridgeOptions,
+  ExternalExecutorSessionHistoryReadOnlyBridgeSource,
+  ExternalExecutorSessionHistoryReadOnlyExecutionGate,
+  ExternalExecutorSessionHistoryReadOnlyFailure,
+} from './ExternalAgentExternalExecutorSessionHistoryReadOnlyBridge.js';
+export {
+  createExternalAgentCommandCenterLiveAssimilationFixtureSource,
+  EXTERNAL_AGENT_COMMAND_CENTER_LIVE_ASSIMILATION_NOW,
+  EXTERNAL_AGENT_COMMAND_CENTER_LIVE_ASSIMILATION_RUNTIME_ID,
+  normalizeExternalAgentCommandCenterLiveAssimilation,
+  normalizeExternalAgentCommandCenterLiveAssimilationFixture,
+} from './ExternalAgentCommandCenterLiveAssimilation.js';
+export type {
+  ZavorthCommandCenterCapabilityView,
+  ZavorthCommandCenterEventView,
+  ZavorthCommandCenterHealthStatusView,
+  ZavorthCommandCenterLiveAssimilationViewModel,
+  ZavorthCommandCenterMessageMetadataView,
+  ZavorthCommandCenterOperationalStates,
+  ZavorthCommandCenterRuntimeView,
+  ZavorthCommandCenterSessionView,
+  ZavorthCommandCenterSurfaceView,
+  ExternalAgentCommandCenterAuthorityDisposition,
+  ExternalAgentCommandCenterLiveAssimilationDecision,
+  ExternalAgentCommandCenterLiveAssimilationExecutionGate,
+  ExternalAgentCommandCenterLiveAssimilationNormalization,
+  ExternalAgentCommandCenterLiveAssimilationOptions,
+  ExternalAgentCommandCenterLiveAssimilationRedaction,
+  ExternalAgentCommandCenterLiveAssimilationSource,
+  ExternalAgentCommandCenterOperationalStatus,
+} from './ExternalAgentCommandCenterLiveAssimilation.js';
+export {
+  createZavorthExternalActionDispatchDesignFixtureRecords,
+  createZavorthExternalActionDispatchExecutionGate,
+  EXTERNAL_AGENT_CONTROLLED_ACTION_DISPATCH_DESIGN_NOW,
+  EXTERNAL_AGENT_CONTROLLED_ACTION_DISPATCH_DESIGN_RUNTIME_ID,
+  normalizeZavorthExternalActionDispatchDesign,
+  normalizeZavorthExternalActionDispatchDesignFixture,
+} from './ExternalAgentControlledActionDispatchDesign.js';
+export type {
+  ZavorthExternalActionControlLevel,
+  ZavorthExternalActionDispatchDesignDecision,
+  ZavorthExternalActionDispatchDesignNormalization,
+  ZavorthExternalActionDispatchDesignOptions,
+  ZavorthExternalActionDispatchExecutionGate,
+  ZavorthExternalActionDispatchPlan,
+  ZavorthExternalActionIntent,
+  ZavorthExternalActionIntentFixtureCase,
+  ZavorthExternalActionIntentSourceRecord,
+  ZavorthExternalActionKind,
+  ZavorthExternalActionPreflight,
+  ZavorthExternalActionPreflightDecision,
+  ZavorthExternalActionApprovalRequest,
+  ZavorthExternalActionReceipt,
+  ZavorthExternalActionReceiptStatus,
+  ZavorthExternalActionSourceCapabilityInput,
+} from './ExternalAgentControlledActionDispatchDesign.js';
+export {
+  createZavorthExternalDryRunActionPlannerExecutionGate,
+  createZavorthExternalDryRunActionPlannerFixtureIntents,
+  createZavorthExternalDryRunActionPlannerPolicy,
+  EXTERNAL_AGENT_CONTROLLED_DRY_RUN_ACTION_PLANNER_NOW,
+  EXTERNAL_AGENT_CONTROLLED_DRY_RUN_ACTION_PLANNER_RUNTIME_ID,
+  planZavorthExternalDryRunActions,
+  planZavorthExternalDryRunActionsFixture,
+} from './ExternalAgentControlledDryRunActionPlanner.js';
+export type {
+  ZavorthExternalDryRunActionPlannerApprovalRequest,
+  ZavorthExternalDryRunActionPlannerClassification,
+  ZavorthExternalDryRunActionPlannerDecision,
+  ZavorthExternalDryRunActionPlannerExecutionGate,
+  ZavorthExternalDryRunActionPlannerNormalization,
+  ZavorthExternalDryRunActionPlannerOptions,
+  ZavorthExternalDryRunActionPlannerPolicy,
+  ZavorthExternalDryRunActionPlannerPreflight,
+  ZavorthExternalDryRunActionPlannerReceiptStatus,
+  ZavorthExternalDryRunActionPlannerRow,
+  ZavorthExternalDryRunActionReceipt,
+} from './ExternalAgentControlledDryRunActionPlanner.js';
+export {
+  createFirstGovernedReadOnlyGatewayActionFixtureSource,
+  EXTERNAL_AGENT_FIRST_GOVERNED_READ_ONLY_GATEWAY_ACTION_NOW,
+  EXTERNAL_AGENT_FIRST_GOVERNED_READ_ONLY_GATEWAY_ACTION_RUNTIME_ID,
+  normalizeFirstGovernedReadOnlyGatewayAction,
+  normalizeFirstGovernedReadOnlyGatewayActionFixture,
+} from './ExternalAgentFirstGovernedReadOnlyGatewayAction.js';
+export type {
+  ZavorthFirstGovernedReadOnlyGatewayActionDecision,
+  ZavorthFirstGovernedReadOnlyGatewayActionNormalization,
+  ZavorthFirstGovernedReadOnlyGatewayActionOptions,
+  ZavorthGovernedReadOnlyGatewayActionExecutionGate,
+  ZavorthGovernedReadOnlyGatewayActionReceipt,
+  ZavorthGovernedReadOnlyGatewayActionReceiptStatus,
+  ZavorthGovernedReadOnlyGatewayActionSource,
+  ZavorthGovernedReadOnlyGatewayDispatchPlan,
+  ZavorthGovernedReadOnlyGatewayMethod,
+} from './ExternalAgentFirstGovernedReadOnlyGatewayAction.js';
+export {
+  createGovernedReadOnlyCapabilityRefreshDegradedFixtureSource,
+  createGovernedReadOnlyCapabilityRefreshFixtureSource,
+  EXTERNAL_AGENT_GOVERNED_READ_ONLY_CAPABILITY_REFRESH_NOW,
+  EXTERNAL_AGENT_GOVERNED_READ_ONLY_CAPABILITY_REFRESH_RUNTIME_ID,
+  normalizeGovernedReadOnlyCapabilityRefresh,
+  normalizeGovernedReadOnlyCapabilityRefreshFixture,
+} from './ExternalAgentGovernedReadOnlyCapabilityRefresh.js';
+export type {
+  ZavorthGovernedReadOnlyCapabilityProjectionUpdate,
+  ZavorthGovernedReadOnlyCapabilityRefreshCommandEvidence,
+  ZavorthGovernedReadOnlyCapabilityRefreshDecision,
+  ZavorthGovernedReadOnlyCapabilityRefreshDispatchPlan,
+  ZavorthGovernedReadOnlyCapabilityRefreshExecutionGate,
+  ZavorthGovernedReadOnlyCapabilityRefreshMethod,
+  ZavorthGovernedReadOnlyCapabilityRefreshNormalization,
+  ZavorthGovernedReadOnlyCapabilityRefreshOptions,
+  ZavorthGovernedReadOnlyCapabilityRefreshReceipt,
+  ZavorthGovernedReadOnlyCapabilityRefreshSnapshot,
+  ZavorthGovernedReadOnlyCapabilityRefreshSnapshotRow,
+  ZavorthGovernedReadOnlyCapabilityRefreshSource,
+} from './ExternalAgentGovernedReadOnlyCapabilityRefresh.js';
+export {
+  createApprovalRequiredMutationRehearsalExecutionGate,
+  createApprovalRequiredMutationRehearsalFixtureRecords,
+  EXTERNAL_AGENT_APPROVAL_REQUIRED_MUTATION_REHEARSAL_NOW,
+  EXTERNAL_AGENT_APPROVAL_REQUIRED_MUTATION_REHEARSAL_RUNTIME_ID,
+  normalizeApprovalRequiredMutationRehearsal,
+  normalizeApprovalRequiredMutationRehearsalFixture,
+} from './ExternalAgentApprovalRequiredMutationRehearsal.js';
+export type {
+  ZavorthApprovalRequiredMutationRehearsalDecision,
+  ZavorthApprovalRequiredMutationRehearsalExecutionGate,
+  ZavorthApprovalRequiredMutationRehearsalNormalization,
+  ZavorthApprovalRequiredMutationRehearsalOptions,
+  ZavorthMutableActionApprovalRequest,
+  ZavorthMutableActionDispatchPlan,
+  ZavorthMutableActionIntent,
+  ZavorthMutableActionPolicyDecision,
+  ZavorthMutableActionPreflight,
+  ZavorthMutableActionSimulatedReceipt,
+  ZavorthMutableExternalActionKind,
+  ZavorthMutationRehearsalFixtureCase,
+  ZavorthMutationRehearsalRow,
+  ZavorthMutationRehearsalSourceRecord,
+  ZavorthReadOnlyRegressionState,
+} from './ExternalAgentApprovalRequiredMutationRehearsal.js';
+export {
+  createApprovalGrantContractExecutionGate,
+  createApprovalGrantContractFixtureRecords,
+  EXTERNAL_AGENT_APPROVAL_GRANT_CONTRACT_NOW,
+  EXTERNAL_AGENT_APPROVAL_GRANT_CONTRACT_RUNTIME_ID,
+  normalizeApprovalGrantContract,
+  normalizeApprovalGrantContractFixture,
+} from './ExternalAgentApprovalGrantContract.js';
+export type {
+  ZavorthApprovalGrantApproverRole,
+  ZavorthApprovalGrantBlockedReason,
+  ZavorthApprovalGrantContractDecision,
+  ZavorthApprovalGrantContractExecutionGate,
+  ZavorthApprovalGrantContractNormalization,
+  ZavorthApprovalGrantContractOptions,
+  ZavorthApprovalGrantContractRow,
+  ZavorthApprovalGrantFixtureCase,
+  ZavorthApprovalGrantIdempotencyState,
+  ZavorthApprovalGrantOperation,
+  ZavorthApprovalGrantPlanState,
+  ZavorthApprovalGrantSourceRecord,
+  ZavorthExternalActionApprovalAuditReceipt,
+  ZavorthExternalActionApprovalAuditReceiptStatus,
+  ZavorthExternalActionApprovalDispatchPlanTransition,
+  ZavorthExternalActionApprovalGrant,
+  ZavorthExternalActionApprovalPolicyRecheck,
+  ZavorthExternalActionApprovalScope,
+  ZavorthExternalActionApproverMetadata,
+} from './ExternalAgentApprovalGrantContract.js';
+export {
+  createApprovedMutationExecutionHarnessFixtureRecords,
+  createApprovedMutationExecutionHarnessGate,
+  EXTERNAL_AGENT_APPROVED_MUTATION_EXECUTION_HARNESS_NOW,
+  EXTERNAL_AGENT_APPROVED_MUTATION_EXECUTION_HARNESS_RUNTIME_ID,
+  normalizeApprovedMutationExecutionHarness,
+  normalizeApprovedMutationExecutionHarnessFixture,
+} from './ExternalAgentApprovedMutationExecutionHarness.js';
+export type {
+  ZavorthApprovedMutationExecutionFixtureCase,
+  ZavorthApprovedMutationExecutionHarnessDecision,
+  ZavorthApprovedMutationExecutionHarnessGate,
+  ZavorthApprovedMutationExecutionHarnessNormalization,
+  ZavorthApprovedMutationExecutionHarnessOptions,
+  ZavorthApprovedMutationExecutionHarnessRow,
+  ZavorthApprovedMutationExecutionMode,
+  ZavorthApprovedMutationExecutionPlan,
+  ZavorthApprovedMutationExecutionReceipt,
+  ZavorthApprovedMutationExecutionReceiptStatus,
+  ZavorthApprovedMutationExecutionSourceRecord,
+  ZavorthApprovedMutationPreExecutionCheck,
+} from './ExternalAgentApprovedMutationExecutionHarness.js';
+export {
+  createFirstLiveMutationCandidateClassifications,
+  createFirstLiveMutationMicroSliceActualRecords,
+  createFirstLiveMutationMicroSliceGate,
+  createFirstLiveMutationReadOnlyDiscoveryEvidence,
+  createFirstLiveMutationSafeTargetFixtureRecord,
+  EXTERNAL_AGENT_FIRST_LIVE_MUTATION_MICRO_SLICE_NOW,
+  EXTERNAL_AGENT_FIRST_LIVE_MUTATION_MICRO_SLICE_RUNTIME_ID,
+  normalizeFirstLiveMutationMicroSlice,
+  normalizeFirstLiveMutationMicroSliceFixture,
+} from './ExternalAgentFirstLiveMutationMicroSlice.js';
+export type {
+  ZavorthFirstLiveMutationCandidateClassification,
+  ZavorthFirstLiveMutationDiscoveryDecision,
+  ZavorthFirstLiveMutationExecutionReceipt,
+  ZavorthFirstLiveMutationFixtureCase,
+  ZavorthFirstLiveMutationMicroSliceDecision,
+  ZavorthFirstLiveMutationMicroSliceGate,
+  ZavorthFirstLiveMutationMicroSliceNormalization,
+  ZavorthFirstLiveMutationMicroSliceOptions,
+  ZavorthFirstLiveMutationMicroSliceRow,
+  ZavorthFirstLiveMutationPreflight,
+  ZavorthFirstLiveMutationReadOnlyDiscoveryEvidence,
+  ZavorthFirstLiveMutationReceiptStatus,
+  ZavorthFirstLiveMutationSourceRecord,
+  ZavorthFirstLiveMutationTargetKind,
+} from './ExternalAgentFirstLiveMutationMicroSlice.js';
+export {
+  createMessageSendLiveRehearsalSourceRecords,
+  EXTERNAL_AGENT_MESSAGE_SEND_LIVE_REHEARSAL_TRANSPORT_BLOCKED_NOW,
+  EXTERNAL_AGENT_MESSAGE_SEND_LIVE_REHEARSAL_TRANSPORT_BLOCKED_RUNTIME_ID,
+  normalizeMessageSendLiveRehearsalTransportBlocked,
+  normalizeMessageSendLiveRehearsalTransportBlockedFixture,
+} from './ExternalAgentMessageSendLiveRehearsalTransportBlocked.js';
+export type {
+  ZavorthExternalMessageSendApprovalGrant,
+  ZavorthExternalMessageSendDispatchPlan,
+  ZavorthExternalMessageSendIntent,
+  ZavorthExternalMessageSendPreflight,
+  ZavorthExternalMessageSendReceipt,
+  ZavorthExternalMessageSendTarget,
+  ZavorthExternalMessageSendTransportAdapterBoundary,
+  ZavorthMessageSendFixtureCase,
+  ZavorthMessageSendLiveRehearsalTransportBlockedDecision,
+  ZavorthMessageSendLiveRehearsalTransportBlockedGate,
+  ZavorthMessageSendLiveRehearsalTransportBlockedNormalization,
+  ZavorthMessageSendLiveRehearsalTransportBlockedOptions,
+  ZavorthMessageSendLiveRehearsalTransportBlockedRow,
+  ZavorthMessageSendPlanState,
+  ZavorthMessageSendPolicyDecision,
+  ZavorthMessageSendReceiptStatus,
+  ZavorthMessageSendSourceRecord,
+} from './ExternalAgentMessageSendLiveRehearsalTransportBlocked.js';
+export {
+  createMessageTransportCapabilitySourceRecords,
+  createMessageTransportLiveDiscoveryEvidence,
+  EXTERNAL_AGENT_REAL_MESSAGE_TRANSPORT_CAPABILITY_DISCOVERY_NOW,
+  EXTERNAL_AGENT_REAL_MESSAGE_TRANSPORT_CAPABILITY_DISCOVERY_RUNTIME_ID,
+  normalizeMessageTransportCapabilityDiscovery,
+  normalizeMessageTransportCapabilityDiscoveryFixture,
+} from './ExternalAgentRealMessageTransportCapabilityDiscovery.js';
+export type {
+  ZavorthExternalMessageTransportCapability,
+  ZavorthExternalMessageTransportKind,
+  ZavorthExternalMessageTransportSecretRef,
+  ZavorthMessageTransportCapabilityDiscoveryDecision,
+  ZavorthMessageTransportCapabilityDiscoveryNormalization,
+  ZavorthMessageTransportCapabilityDiscoveryOptions,
+  ZavorthMessageTransportCapabilityRisk,
+  ZavorthMessageTransportCapabilityState,
+  ZavorthMessageTransportCredentialRequirement,
+  ZavorthMessageTransportDiscoveryExecutionGate,
+  ZavorthMessageTransportDiscoveryRow,
+  ZavorthMessageTransportLiveDiscoveryEvidence,
+  ZavorthMessageTransportSkipChannelsDecision,
+  ZavorthMessageTransportSourceRecord,
+} from './ExternalAgentRealMessageTransportCapabilityDiscovery.js';
+export {
+  createNativeAbsorptionTargetCandidates,
+  createNativeReplacementInitialSlice,
+  EXTERNAL_AGENT_NATIVE_ABSORPTION_TARGET_SELECTION_NOW,
+  EXTERNAL_AGENT_NATIVE_ABSORPTION_TARGET_SELECTION_RUNTIME_ID,
+  normalizeNativeAbsorptionTargetSelection,
+  normalizeNativeAbsorptionTargetSelectionFixture,
+} from './ExternalAgentNativeAbsorptionTargetSelection.js';

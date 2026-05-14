@@ -1,0 +1,46 @@
+{
+  "id": "information",
+  "name": "Information & Web Search",
+  "version": "1.0.0",
+  "description": "Ferramentas para buscar informações na internet e obter data/hora atual.",
+  "category": "information",
+  "dangerLevel": "low",
+  "tools": [
+    {
+      "name": "web_search",
+      "description": "Pesquisa informações atualizadas na internet via DuckDuckGo e fallbacks RSS.",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "query": {
+            "type": "string",
+            "description": "A consulta de busca."
+          },
+          "limit": {
+            "type": "number",
+            "description": "Número máximo de resultados (default: 3, max: 5)."
+          }
+        },
+        "required": ["query"]
+      }
+    },
+    {
+      "name": "get_datetime",
+      "description": "Retorna a data e hora atuais do sistema local.",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "timezone": {
+            "type": "string",
+            "description": "Fuso horário (ex: America/Sao_Paulo). Padrão: local."
+          }
+        }
+      }
+    }
+  ],
+  "metadata": {
+    "author": "zavorth-core",
+    "firewall_category": "information",
+    "requires_sandbox": false
+  }
+}

@@ -1,0 +1,28 @@
+{
+  "id": "browser",
+  "label": "Browser Automation",
+  "kind": "browser",
+  "version": "0.1.0",
+  "boot": "sidecar",
+  "entry": "./dist/capabilities/browser/index.js",
+  "description": "Playwright and visual browser automation run outside the minimal core.",
+  "requires": ["network", "filesystem"],
+  "provides": ["web-inspection", "screenshots", "browser-actions"],
+  "tags": ["heavy", "sidecar"],
+  "budget": {
+    "rssMb": 260,
+    "heapUsedMb": 140,
+    "activeHandles": 40
+  },
+  "sidecar": {
+    "command": "node",
+    "args": ["node_modules/tsx/dist/cli.cjs", "scripts/browser-sidecar-runner.ts", "--status-file=data/runtime/browser-sidecar-v2.json", "--port=20187", "--idle-timeout-ms=180000"],
+    "cwd": ".",
+    "healthUrl": "http://127.0.0.1:20187/health",
+    "statusFile": "data/runtime/browser-sidecar-v2.json",
+    "logFile": "data/runtime/browser-sidecar-v2.log",
+    "readyTimeoutMs": 30000,
+    "idleTimeoutMs": 180000,
+    "restartPolicy": "never"
+  }
+}

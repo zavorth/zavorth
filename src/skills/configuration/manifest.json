@@ -1,0 +1,38 @@
+{
+  "id": "configuration",
+  "name": "Configuration & LLM Profile",
+  "version": "1.0.0",
+  "description": "Ferramentas para configurar e trocar modelos/providers LLM.",
+  "category": "configuration",
+  "dangerLevel": "low",
+  "tools": [
+    {
+      "name": "configure_llm_profile",
+      "description": "Lista, negocia e troca o provider/modelo LLM ativo do Zavorth.",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "action": {
+            "type": "string",
+            "description": "Ação: list, set, suggest, negotiate.",
+            "enum": ["list", "set", "suggest", "negotiate"]
+          },
+          "provider": {
+            "type": "string",
+            "description": "Nome do provider (gemini, openai, deepseek, etc.)."
+          },
+          "model": {
+            "type": "string",
+            "description": "Nome do modelo específico."
+          }
+        },
+        "required": ["action"]
+      }
+    }
+  ],
+  "metadata": {
+    "author": "zavorth-core",
+    "firewall_category": "configuration",
+    "requires_sandbox": false
+  }
+}
