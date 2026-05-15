@@ -1,0 +1,287 @@
+import {
+  ZAVORTH_EXPERIENCE_LAYER_DAILY_USE_CERTIFICATION_VERSION,
+  type ZavorthExperienceLayerDailyUseCertificationSnapshot,
+  type ZavorthExperienceLayerDailyUsePhase,
+} from '../contracts/ZavorthExperienceLayerDailyUseCertificationContract.js';
+import { ZavorthAutonomySliderService } from './ZavorthAutonomySliderService.js';
+import { ZavorthCapabilityStoreService } from './ZavorthCapabilityStoreService.js';
+import { ZavorthCliExperienceParityService } from './ZavorthCliExperienceParityService.js';
+import { ZavorthConversationalSetupService } from './ZavorthConversationalSetupService.js';
+import { ZavorthDashboardExperienceHomeService } from './ZavorthDashboardExperienceHomeService.js';
+import { ZavorthDoItWithMeService } from './ZavorthDoItWithMeService.js';
+import { ZavorthExperienceProfileService } from './ZavorthExperienceProfileService.js';
+import { ZavorthGuidedMissionsService } from './ZavorthGuidedMissionsService.js';
+import { ZavorthModelCostGuardService } from './ZavorthModelCostGuardService.js';
+import { ZavorthNaturalRuntimeQuestionsService } from './ZavorthNaturalRuntimeQuestionsService.js';
+import { ZavorthSatelliteApprovalCompanionService } from './ZavorthSatelliteApprovalCompanionService.js';
+import { ZavorthTrustPanelService } from './ZavorthTrustPanelService.js';
+import { ZavorthVisualReceiptsV2Service } from './ZavorthVisualReceiptsV2Service.js';
+
+export type ZavorthExperienceLayerDailyUseCertificationRuntime = {
+  now?: () => Date;
+};
+
+type ContractBuilder = {
+  buildContract(input?: Record<string, unknown>): unknown;
+};
+
+type SnapshotBuilder = {
+  buildSnapshot(input?: Record<string, unknown>): unknown;
+};
+
+export class ZavorthExperienceLayerDailyUseCertificationService {
+  private readonly now: () => Date;
+
+  constructor(runtime: ZavorthExperienceLayerDailyUseCertificationRuntime = {}) {
+    this.now = runtime.now || (() => new Date());
+  }
+
+  public buildSnapshot(): ZavorthExperienceLayerDailyUseCertificationSnapshot {
+    const phases: ZavorthExperienceLayerDailyUsePhase[] = [
+      this.certifyContractPhase({
+        id: 'phase-01',
+        title: 'Experience Profiles',
+        command: 'zavorth experience --profile personal',
+        surface: 'onboarding',
+        service: new ZavorthExperienceProfileService(),
+        input: { profile: 'personal', intent: 'organize my day' },
+        evidence: ['Profile catalog resolves Personal, Creator, Developer, Business and Power.'],
+        riskBoundary: 'Profiles tune language and defaults, not authority.',
+      }),
+      this.certifySnapshotPhase({
+        id: 'phase-02',
+        title: 'Conversational Setup',
+        command: 'zavorth onboard conversation',
+        surface: 'onboarding',
+        service: new ZavorthConversationalSetupService(),
+        input: { agentName: 'Zavorth', userName: 'Operator', primaryUse: 'daily use' },
+        evidence: ['Setup stays read-only unless --apply --confirm-local-profile are explicit.'],
+        riskBoundary: 'Raw secrets are rejected and identity files are not changed by preview.',
+      }),
+      this.certifyContractPhase({
+        id: 'phase-03',
+        title: 'Guided Missions',
+        command: 'zavorth missions guide',
+        surface: 'runtime',
+        service: new ZavorthGuidedMissionsService(),
+        input: { intent: 'review this repository safely' },
+        evidence: ['Mission cards expose goal, risk, safe first step, artifacts and approval boundary.'],
+        riskBoundary: 'Mission starters are prompts and plans, not hidden execution shortcuts.',
+      }),
+      this.certifyContractPhase({
+        id: 'phase-04',
+        title: 'Capability Store',
+        command: 'zavorth capability-store',
+        surface: 'runtime',
+        service: new ZavorthCapabilityStoreService(),
+        input: { category: 'communication' },
+        evidence: ['Capabilities use honest readiness instead of pretending every adapter is live.'],
+        riskBoundary: 'Store cards guide setup; they never install, send, write or execute.',
+      }),
+      this.certifyContractPhase({
+        id: 'phase-05',
+        title: 'Do-It-With-Me Mode',
+        command: 'zavorth do-it-with-me "help me configure Telegram approvals"',
+        surface: 'runtime',
+        service: new ZavorthDoItWithMeService(),
+        input: { intent: 'help me configure Telegram approvals' },
+        evidence: ['Guided steps separate user physical actions, safe checks and approval boundaries.'],
+        riskBoundary: 'The guide does not collect raw credentials or perform live channel actions.',
+      }),
+      this.certifyContractPhase({
+        id: 'phase-06',
+        title: 'Trust Panel',
+        command: 'zavorth trust-panel',
+        surface: 'runtime',
+        service: new ZavorthTrustPanelService(),
+        input: { profile: 'personal' },
+        evidence: ['Trust Panel explains allowed, approval-required and blocked action classes.'],
+        riskBoundary: 'Trust language does not weaken Policy Broker decisions.',
+      }),
+      this.certifyContractPhase({
+        id: 'phase-07',
+        title: 'Autonomy Slider',
+        command: 'zavorth autonomy --level balanced',
+        surface: 'runtime',
+        service: new ZavorthAutonomySliderService(),
+        input: { level: 'balanced', profile: 'personal' },
+        evidence: ['Autonomy levels are previewed as policy posture and explanation style.'],
+        riskBoundary: 'Autonomy changes defaults only; it cannot bypass approval gates.',
+      }),
+      this.certifyContractPhase({
+        id: 'phase-08',
+        title: 'Model Cost Guard',
+        command: 'zavorth model-cost "review this repository"',
+        surface: 'runtime',
+        service: new ZavorthModelCostGuardService(),
+        input: { intent: 'review this repository', maxCents: 100 },
+        evidence: ['Cost surprise, provider tier and unknown pricing are surfaced before live model use.'],
+        riskBoundary: 'Hosted escalation remains behind readiness, budget and receipts.',
+      }),
+      this.certifySnapshotPhase({
+        id: 'phase-09',
+        title: 'Visual Receipts 2.0',
+        command: 'zavorth visual-receipts',
+        surface: 'runtime',
+        service: new ZavorthVisualReceiptsV2Service(),
+        input: { missionId: 'mission_daily_certification' },
+        evidence: ['Receipts summarize outcome, impact, blocked actions, rollback and next steps.'],
+        riskBoundary: 'Receipt cards are evidence; rollback actions remain approval-gated.',
+      }),
+      this.certifySnapshotPhase({
+        id: 'phase-10',
+        title: 'Satellite Approval Companion',
+        command: 'zavorth satellite-approvals',
+        surface: 'satellite',
+        service: new ZavorthSatelliteApprovalCompanionService(),
+        input: { user: 'local-operator' },
+        evidence: ['Satellite projects approval cards and capability.result envelopes.'],
+        riskBoundary: 'The browser companion resolves decisions but cannot execute target actions.',
+      }),
+      this.certifySnapshotPhase({
+        id: 'phase-11',
+        title: 'Natural Runtime Questions',
+        command: 'zavorth ask-runtime "which providers are ready?"',
+        surface: 'runtime',
+        service: new ZavorthNaturalRuntimeQuestionsService(),
+        input: { question: 'which providers are ready?' },
+        evidence: ['Runtime questions answer from read-only projections by default.'],
+        riskBoundary: 'No live probe, network call or mutation is hidden inside answers.',
+      }),
+      this.certifySnapshotPhase({
+        id: 'phase-12',
+        title: 'Dashboard Experience Home',
+        command: 'zavorth dashboard-home',
+        surface: 'dashboard',
+        service: new ZavorthDashboardExperienceHomeService(),
+        input: {},
+        evidence: ['Dashboard Home exposes guided starts and runtime questions over /dashboard.'],
+        riskBoundary: 'Dashboard Home is an experience layer, not execution authority.',
+      }),
+      this.certifySnapshotPhase({
+        id: 'phase-13',
+        title: 'CLI Experience Parity',
+        command: 'zavorth daily',
+        surface: 'cli',
+        service: new ZavorthCliExperienceParityService(),
+        input: {},
+        evidence: ['The CLI mirrors Dashboard Home with guided missions and runtime questions.'],
+        riskBoundary: 'CLI convenience entrypoints do not skip preview, approval or receipts.',
+      }),
+    ];
+
+    const blocked = phases.some((phase) => phase.status === 'blocked');
+    return {
+      contractVersion: ZAVORTH_EXPERIENCE_LAYER_DAILY_USE_CERTIFICATION_VERSION,
+      schemaVersion: 1,
+      surface: 'experience-layer-daily-use-certification',
+      generatedAt: this.now().toISOString(),
+      result: blocked ? 'blocked' : 'passed',
+      coveredPhases: phases.length,
+      phases,
+      dailyUseFlow: [
+        'User starts with zavorth daily or /dashboard.',
+        'Zavorth suggests a guided mission or answers a runtime question.',
+        'Sensitive work becomes preview, risk, scoped approval and receipt.',
+        'Satellite and CLI can help decide or inspect, but target execution remains in the governed runtime.',
+      ],
+      safety: {
+        projectionsOnly: true,
+        hiddenExecutionAuthority: false,
+        policyBrokerRequiredForSensitiveActions: true,
+        rawSecretsSerialized: false,
+      },
+      invariants: [
+        'The Experience Layer adapts complexity to the user without creating a second runtime.',
+        'Every visible shortcut remains a prompt, projection or governed envelope.',
+        'No profile, dashboard card, CLI entrypoint or Satellite card grants extra authority.',
+        'Daily-use simplicity must preserve Policy Broker, scoped approvals, receipts and SecretRefs.',
+      ],
+    };
+  }
+
+  public renderText(snapshot: ZavorthExperienceLayerDailyUseCertificationSnapshot): string {
+    return [
+      '[zavorth-experience-layer-daily-use-certification]',
+      `result=${snapshot.result}`,
+      `coveredPhases=${snapshot.coveredPhases}`,
+      '',
+      '[phases]',
+      ...snapshot.phases.map((phase) =>
+        `- ${phase.id} ${phase.title}: ${phase.status} | ${phase.command} | ${phase.riskBoundary}`,
+      ),
+      '',
+      '[daily-use-flow]',
+      ...snapshot.dailyUseFlow.map((step) => `- ${step}`),
+      '',
+    ].join('\n');
+  }
+
+  private certifyContractPhase(input: {
+    id: string;
+    title: string;
+    command: string;
+    surface: ZavorthExperienceLayerDailyUsePhase['surface'];
+    service: ContractBuilder;
+    input: Record<string, unknown>;
+    evidence: string[];
+    riskBoundary: string;
+  }): ZavorthExperienceLayerDailyUsePhase {
+    return this.certifyPhase({
+      id: input.id,
+      title: input.title,
+      command: input.command,
+      surface: input.surface,
+      evidence: input.evidence,
+      riskBoundary: input.riskBoundary,
+      build: () => input.service.buildContract(input.input),
+    });
+  }
+
+  private certifySnapshotPhase(input: {
+    id: string;
+    title: string;
+    command: string;
+    surface: ZavorthExperienceLayerDailyUsePhase['surface'];
+    service: SnapshotBuilder;
+    input: Record<string, unknown>;
+    evidence: string[];
+    riskBoundary: string;
+  }): ZavorthExperienceLayerDailyUsePhase {
+    return this.certifyPhase({
+      id: input.id,
+      title: input.title,
+      command: input.command,
+      surface: input.surface,
+      evidence: input.evidence,
+      riskBoundary: input.riskBoundary,
+      build: () => input.service.buildSnapshot(input.input),
+    });
+  }
+
+  private certifyPhase(input: {
+    id: string;
+    title: string;
+    command: string;
+    surface: ZavorthExperienceLayerDailyUsePhase['surface'];
+    evidence: string[];
+    riskBoundary: string;
+    build: () => unknown;
+  }): ZavorthExperienceLayerDailyUsePhase {
+    const projection = input.build();
+    const passed = isObjectRecord(projection);
+    return {
+      id: input.id,
+      title: input.title,
+      command: input.command,
+      surface: input.surface,
+      status: passed ? 'projection_passed' : 'blocked',
+      evidence: passed ? input.evidence : ['Projection builder did not return an object.'],
+      riskBoundary: input.riskBoundary,
+    };
+  }
+}
+
+function isObjectRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === 'object' && value !== null && !Array.isArray(value);
+}

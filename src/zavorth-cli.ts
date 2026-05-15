@@ -490,6 +490,273 @@ async function runProductizationProtectedRuntime(
   return 0;
 }
 
+async function runExperienceProfiles(rawArgs: string[] = []): Promise<number> {
+  const { ZavorthExperienceProfileService } = await import('./services/ZavorthExperienceProfileService.js');
+  const service = new ZavorthExperienceProfileService();
+  const positionalIntent = rawArgs.filter((arg) => !arg.startsWith('--')).join(' ').trim();
+  const contract = service.buildContract({
+    profile: readFlexibleStringFlag(rawArgs, 'profile'),
+    intent: readFlexibleStringFlag(rawArgs, 'intent') || positionalIntent,
+    dailyMode: readFlexibleStringFlag(rawArgs, 'mode') || readFlexibleStringFlag(rawArgs, 'daily-mode'),
+    detailMode: readFlexibleStringFlag(rawArgs, 'detail') || readFlexibleStringFlag(rawArgs, 'detail-mode'),
+  });
+
+  if (rawArgs.includes('--json')) {
+    process.stdout.write(`${JSON.stringify(contract, null, 2)}\n`);
+  } else {
+    process.stdout.write(service.renderText(contract));
+  }
+
+  return 0;
+}
+
+async function runConversationalSetup(rawArgs: string[] = []): Promise<number> {
+  const { ZavorthConversationalSetupService } = await import('./services/ZavorthConversationalSetupService.js');
+  const service = new ZavorthConversationalSetupService();
+  const positionalIntent = rawArgs.filter((arg) => !arg.startsWith('--')).join(' ').trim();
+  const snapshot = service.buildSnapshot({
+    agentName: readFlexibleStringFlag(rawArgs, 'agent-name'),
+    userName: readFlexibleStringFlag(rawArgs, 'user-name'),
+    preferredAddress: readFlexibleStringFlag(rawArgs, 'call-me') || readFlexibleStringFlag(rawArgs, 'preferred-address'),
+    language: readFlexibleStringFlag(rawArgs, 'language') || readFlexibleStringFlag(rawArgs, 'lang'),
+    primaryUse: readFlexibleStringFlag(rawArgs, 'primary-use')
+      || readFlexibleStringFlag(rawArgs, 'use-case')
+      || readFlexibleStringFlag(rawArgs, 'intent')
+      || positionalIntent,
+    intent: readFlexibleStringFlag(rawArgs, 'intent') || positionalIntent,
+    experienceProfile: readFlexibleStringFlag(rawArgs, 'profile') || readFlexibleStringFlag(rawArgs, 'experience-profile'),
+    detailLevel: readFlexibleStringFlag(rawArgs, 'detail') || readFlexibleStringFlag(rawArgs, 'detail-level'),
+    approvalChannel: readFlexibleStringFlag(rawArgs, 'approval-channel') || readFlexibleStringFlag(rawArgs, 'approvals'),
+    firstSafeMission: readFlexibleStringFlag(rawArgs, 'first-mission') || readFlexibleStringFlag(rawArgs, 'mission'),
+    preferredTone: readFlexibleStringFlag(rawArgs, 'tone'),
+    apply: rawArgs.includes('--apply'),
+    confirmLocalProfile: rawArgs.includes('--confirm-local-profile') || rawArgs.includes('--yes'),
+    completeBootstrap: rawArgs.includes('--complete-bootstrap'),
+  });
+
+  if (rawArgs.includes('--json')) {
+    process.stdout.write(`${JSON.stringify(snapshot, null, 2)}\n`);
+  } else {
+    process.stdout.write(service.renderText(snapshot));
+  }
+
+  return snapshot.status === 'blocked' ? 2 : 0;
+}
+
+async function runGuidedMissions(rawArgs: string[] = []): Promise<number> {
+  const { ZavorthGuidedMissionsService } = await import('./services/ZavorthGuidedMissionsService.js');
+  const service = new ZavorthGuidedMissionsService();
+  const positionalIntent = rawArgs.filter((arg) => !arg.startsWith('--')).join(' ').trim();
+  const snapshot = service.buildContract({
+    profile: readFlexibleStringFlag(rawArgs, 'profile'),
+    intent: readFlexibleStringFlag(rawArgs, 'intent') || positionalIntent,
+    missionId: readFlexibleStringFlag(rawArgs, 'mission') || readFlexibleStringFlag(rawArgs, 'template'),
+    category: readFlexibleStringFlag(rawArgs, 'category'),
+  });
+
+  if (rawArgs.includes('--json')) {
+    process.stdout.write(`${JSON.stringify(snapshot, null, 2)}\n`);
+  } else {
+    process.stdout.write(service.renderText(snapshot));
+  }
+
+  return 0;
+}
+
+async function runCapabilityStore(rawArgs: string[] = []): Promise<number> {
+  const { ZavorthCapabilityStoreService } = await import('./services/ZavorthCapabilityStoreService.js');
+  const service = new ZavorthCapabilityStoreService();
+  const positionalQuery = rawArgs.filter((arg) => !arg.startsWith('--')).join(' ').trim();
+  const snapshot = service.buildContract({
+    query: readFlexibleStringFlag(rawArgs, 'query') || positionalQuery,
+    category: readFlexibleStringFlag(rawArgs, 'category'),
+    selectedId: readFlexibleStringFlag(rawArgs, 'select') || readFlexibleStringFlag(rawArgs, 'id'),
+  });
+
+  if (rawArgs.includes('--json')) {
+    process.stdout.write(`${JSON.stringify(snapshot, null, 2)}\n`);
+  } else {
+    process.stdout.write(service.renderText(snapshot));
+  }
+
+  return 0;
+}
+
+async function runDoItWithMe(rawArgs: string[] = []): Promise<number> {
+  const { ZavorthDoItWithMeService } = await import('./services/ZavorthDoItWithMeService.js');
+  const service = new ZavorthDoItWithMeService();
+  const positionalRequest = rawArgs.filter((arg) => !arg.startsWith('--')).join(' ').trim();
+  const snapshot = service.buildContract({
+    request: readFlexibleStringFlag(rawArgs, 'request') || positionalRequest,
+    capabilityId: readFlexibleStringFlag(rawArgs, 'capability') || readFlexibleStringFlag(rawArgs, 'select'),
+    missionId: readFlexibleStringFlag(rawArgs, 'mission'),
+    category: readFlexibleStringFlag(rawArgs, 'category'),
+    profile: readFlexibleStringFlag(rawArgs, 'profile'),
+  });
+
+  if (rawArgs.includes('--json')) {
+    process.stdout.write(`${JSON.stringify(snapshot, null, 2)}\n`);
+  } else {
+    process.stdout.write(service.renderText(snapshot));
+  }
+
+  return 0;
+}
+
+async function runTrustPanel(rawArgs: string[] = []): Promise<number> {
+  const { ZavorthTrustPanelService } = await import('./services/ZavorthTrustPanelService.js');
+  const service = new ZavorthTrustPanelService();
+  const positionalQuery = rawArgs.filter((arg) => !arg.startsWith('--')).join(' ').trim();
+  const snapshot = service.buildContract({
+    profile: readFlexibleStringFlag(rawArgs, 'profile'),
+    query: readFlexibleStringFlag(rawArgs, 'query') || positionalQuery,
+    category: readFlexibleStringFlag(rawArgs, 'category'),
+  });
+
+  if (rawArgs.includes('--json')) {
+    process.stdout.write(`${JSON.stringify(snapshot, null, 2)}\n`);
+  } else {
+    process.stdout.write(service.renderText(snapshot));
+  }
+
+  return 0;
+}
+
+async function runAutonomySlider(rawArgs: string[] = []): Promise<number> {
+  const { ZavorthAutonomySliderService } = await import('./services/ZavorthAutonomySliderService.js');
+  const service = new ZavorthAutonomySliderService();
+  const positionalIntent = rawArgs.filter((arg) => !arg.startsWith('--')).join(' ').trim();
+  const snapshot = service.buildContract({
+    profile: readFlexibleStringFlag(rawArgs, 'profile'),
+    level: readFlexibleStringFlag(rawArgs, 'level') || readFlexibleStringFlag(rawArgs, 'autonomy'),
+    intent: readFlexibleStringFlag(rawArgs, 'intent') || positionalIntent,
+  });
+
+  if (rawArgs.includes('--json')) {
+    process.stdout.write(`${JSON.stringify(snapshot, null, 2)}\n`);
+  } else {
+    process.stdout.write(service.renderText(snapshot));
+  }
+
+  return 0;
+}
+
+async function runModelCostGuard(rawArgs: string[] = []): Promise<number> {
+  const { ZavorthModelCostGuardService } = await import('./services/ZavorthModelCostGuardService.js');
+  const service = new ZavorthModelCostGuardService();
+  const positionalRequest = rawArgs.filter((arg) => !arg.startsWith('--')).join(' ').trim();
+  const snapshot = service.buildContract({
+    profile: readFlexibleStringFlag(rawArgs, 'profile'),
+    autonomy: readFlexibleStringFlag(rawArgs, 'autonomy') || readFlexibleStringFlag(rawArgs, 'level'),
+    request: readFlexibleStringFlag(rawArgs, 'request') || positionalRequest,
+    maxCents: readFlexibleStringFlag(rawArgs, 'max-cents') || readFlexibleStringFlag(rawArgs, 'budget-cents'),
+    provider: readFlexibleStringFlag(rawArgs, 'provider'),
+  });
+
+  if (rawArgs.includes('--json')) {
+    process.stdout.write(`${JSON.stringify(snapshot, null, 2)}\n`);
+  } else {
+    process.stdout.write(service.renderText(snapshot));
+  }
+
+  return 0;
+}
+
+async function runVisualReceiptsV2(rawArgs: string[] = []): Promise<number> {
+  const { ZavorthVisualReceiptsV2Service } = await import('./services/ZavorthVisualReceiptsV2Service.js');
+  const service = new ZavorthVisualReceiptsV2Service();
+  const snapshot = service.buildSnapshot({
+    includeAdvanced: rawArgs.includes('--advanced'),
+    includeAdvancedStory: rawArgs.includes('--advanced-story') || rawArgs.includes('--advanced'),
+  });
+
+  if (rawArgs.includes('--json')) {
+    process.stdout.write(`${JSON.stringify(snapshot, null, 2)}\n`);
+  } else {
+    process.stdout.write(service.renderText(snapshot));
+  }
+
+  return 0;
+}
+
+async function runSatelliteApprovalCompanion(rawArgs: string[] = []): Promise<number> {
+  const { ZavorthSatelliteApprovalCompanionService } = await import('./services/ZavorthSatelliteApprovalCompanionService.js');
+  const service = new ZavorthSatelliteApprovalCompanionService();
+  const snapshot = service.buildSnapshot({
+    user: readFlexibleStringFlag(rawArgs, 'user') || 'local-operator',
+    missionId: readFlexibleStringFlag(rawArgs, 'mission'),
+    includeAdvanced: rawArgs.includes('--advanced'),
+    includeAdvancedStory: rawArgs.includes('--advanced-story') || rawArgs.includes('--advanced'),
+  });
+
+  if (rawArgs.includes('--json')) {
+    process.stdout.write(`${JSON.stringify(snapshot, null, 2)}\n`);
+  } else {
+    process.stdout.write(service.renderText(snapshot));
+  }
+
+  return 0;
+}
+
+async function runNaturalRuntimeQuestions(rawArgs: string[] = []): Promise<number> {
+  const { ZavorthNaturalRuntimeQuestionsService } = await import('./services/ZavorthNaturalRuntimeQuestionsService.js');
+  const service = new ZavorthNaturalRuntimeQuestionsService();
+  const positionalQuestion = rawArgs.filter((arg) => !arg.startsWith('--')).join(' ').trim();
+  const snapshot = service.buildSnapshot({
+    question: readFlexibleStringFlag(rawArgs, 'question') || positionalQuestion,
+  });
+
+  if (rawArgs.includes('--json')) {
+    process.stdout.write(`${JSON.stringify(snapshot, null, 2)}\n`);
+  } else {
+    process.stdout.write(service.renderText(snapshot));
+  }
+
+  return 0;
+}
+
+async function runDashboardExperienceHome(rawArgs: string[] = []): Promise<number> {
+  const { ZavorthDashboardExperienceHomeService } = await import('./services/ZavorthDashboardExperienceHomeService.js');
+  const service = new ZavorthDashboardExperienceHomeService();
+  const snapshot = service.buildSnapshot();
+
+  if (rawArgs.includes('--json')) {
+    process.stdout.write(`${JSON.stringify(snapshot, null, 2)}\n`);
+  } else {
+    process.stdout.write(service.renderText(snapshot));
+  }
+
+  return 0;
+}
+
+async function runCliExperienceParity(rawArgs: string[] = []): Promise<number> {
+  const { ZavorthCliExperienceParityService } = await import('./services/ZavorthCliExperienceParityService.js');
+  const service = new ZavorthCliExperienceParityService();
+  const snapshot = service.buildSnapshot();
+
+  if (rawArgs.includes('--json')) {
+    process.stdout.write(`${JSON.stringify(snapshot, null, 2)}\n`);
+  } else {
+    process.stdout.write(service.renderText(snapshot));
+  }
+
+  return 0;
+}
+
+async function runExperienceLayerDailyUseCertification(rawArgs: string[] = []): Promise<number> {
+  const { ZavorthExperienceLayerDailyUseCertificationService } = await import('./services/ZavorthExperienceLayerDailyUseCertificationService.js');
+  const service = new ZavorthExperienceLayerDailyUseCertificationService();
+  const snapshot = service.buildSnapshot();
+
+  if (rawArgs.includes('--json')) {
+    process.stdout.write(`${JSON.stringify(snapshot, null, 2)}\n`);
+  } else {
+    process.stdout.write(service.renderText(snapshot));
+  }
+
+  return snapshot.result === 'passed' ? 0 : 1;
+}
+
 async function runGatewaySpine(rawArgs: string[] = []): Promise<number> {
   const { GatewayChannelRegistryService } = await import('./services/GatewayChannelRegistryService.js');
   const { GatewaySpineService } = await import('./services/GatewaySpineService.js');
@@ -829,6 +1096,9 @@ async function runBuiltinLauncher(rawArgs: string[]): Promise<number | null> {
     if (restArgs.includes('--help') || restArgs.includes('-h')) {
       return printBuiltinHelp('onboard');
     }
+    if (['conversation', 'conversational', 'calibrate', 'profile'].includes(String(restArgs[0] || '').trim().toLowerCase())) {
+      return runConversationalSetup(restArgs.slice(1));
+    }
     if (['apply', 'run', 'legacy', 'setup'].includes(String(restArgs[0] || '').trim().toLowerCase())) {
       return runPromotedScript('setup-v3', restArgs.slice(1));
     }
@@ -853,12 +1123,18 @@ async function runBuiltinLauncher(rawArgs: string[]): Promise<number | null> {
     if (restArgs.includes('--help') || restArgs.includes('-h')) {
       return printBuiltinHelp('templates');
     }
+    if (restArgs.includes('--guided') || restArgs.includes('--experience')) {
+      return runGuidedMissions(restArgs);
+    }
     return runProductizationProtectedRuntime('templates', restArgs);
   }
 
   if (command === 'missions') {
     if (restArgs.includes('--help') || restArgs.includes('-h')) {
       return printBuiltinHelp('missions');
+    }
+    if (['guide', 'guided', 'catalog', 'recommend'].includes(String(restArgs[0] || '').trim().toLowerCase())) {
+      return runGuidedMissions(restArgs.slice(1));
     }
     return runProductizationProtectedRuntime('missions', restArgs);
   }
@@ -872,6 +1148,62 @@ async function runBuiltinLauncher(rawArgs: string[]): Promise<number | null> {
 
   if (command === 'product' || command === 'daily-use') {
     return runProductizationProtectedRuntime(resolveProductizationView(restArgs), restArgs);
+  }
+
+  if (command === 'experience' || command === 'profile' || command === 'profiles') {
+    return runExperienceProfiles(restArgs);
+  }
+
+  if (command === 'conversation' || command === 'conversational-setup' || command === 'calibrate') {
+    return runConversationalSetup(restArgs);
+  }
+
+  if (command === 'guided-missions' || command === 'mission-guide') {
+    return runGuidedMissions(restArgs);
+  }
+
+  if (command === 'capability-store' || command === 'store') {
+    return runCapabilityStore(restArgs);
+  }
+
+  if (command === 'do-it-with-me' || command === 'with-me' || command === 'guide-me') {
+    return runDoItWithMe(restArgs);
+  }
+
+  if (command === 'trust-panel' || command === 'trust' || command === 'safety-panel') {
+    return runTrustPanel(restArgs);
+  }
+
+  if (command === 'autonomy' || command === 'autonomy-slider') {
+    return runAutonomySlider(restArgs);
+  }
+
+  if (command === 'model-cost' || command === 'cost-guard' || command === 'budget-guard') {
+    return runModelCostGuard(restArgs);
+  }
+
+  if (command === 'visual-receipts' || command === 'receipts-v2') {
+    return runVisualReceiptsV2(restArgs);
+  }
+
+  if (command === 'satellite-approvals' || command === 'satellite-approval' || command === 'mobile-approvals') {
+    return runSatelliteApprovalCompanion(restArgs);
+  }
+
+  if (command === 'ask-runtime' || command === 'runtime-question' || command === 'runtime-ask') {
+    return runNaturalRuntimeQuestions(restArgs);
+  }
+
+  if (command === 'dashboard-home' || command === 'experience-home') {
+    return runDashboardExperienceHome(restArgs);
+  }
+
+  if (command === 'daily' || command === 'cli-home' || command === 'start-here') {
+    return runCliExperienceParity(restArgs);
+  }
+
+  if (command === 'experience-certify' || command === 'daily-certify') {
+    return runExperienceLayerDailyUseCertification(restArgs);
   }
 
   if (command === 'gateway') {

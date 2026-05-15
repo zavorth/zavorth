@@ -61,9 +61,14 @@ npm run go
 
 ```bash
 zavorth onboard
+zavorth onboard conversation
+zavorth experience --intent "I want daily personal help"
 zavorth doctor --simple
 zavorth go
 zavorth templates
+zavorth missions guide --intent "review this repository"
+zavorth capability-store --category communication
+zavorth do-it-with-me "help me configure Telegram approvals"
 ```
 
 Then use the dashboard like a normal request surface:
@@ -80,11 +85,70 @@ If you prefer terminal-only operation:
 ```bash
 zavorth chat
 zavorth run "review this repo"
+zavorth daily
+zavorth experience --profile developer
 zavorth missions
 zavorth receipts
 zavorth status --json
 zavorth doctor --json
 ```
+
+## Experience Profiles
+
+Zavorth adapts its daily-use language and defaults through five experience profiles:
+Personal, Creator, Developer, Business and Power. These profiles do not grant extra authority; they map the user's intent onto the same governed runtime, Policy Broker, approvals and receipts.
+
+## Conversational Setup
+
+`zavorth onboard conversation` previews the human first-run calibration: what the agent should be called, what it should call the user, preferred language, profile, approval surface and first safe mission. It is read-only by default. Local identity files are only updated with `--apply --confirm-local-profile`, and credentials belong in SecretRefs, not setup answers.
+
+## Guided Missions
+
+Zavorth does not start from an empty chat. `zavorth missions guide` recommends safe mission cards for Personal, Creator, Developer, Business and Power users. Each card explains the goal, risk, capabilities, expected artifacts, approval boundary and safe first step before runtime work begins.
+
+## Capability Store
+
+`zavorth capability-store` is the human-facing view of the Capability Hub. It groups communication, productivity, development, automation, security, provider and local runtime capabilities with honest readiness: available, needs setup, needs test, planned or blocked. Store cards guide setup, but they never install, send, write or execute by themselves.
+
+## Do-It-With-Me Mode
+
+`zavorth do-it-with-me` turns setup or work into a guided checklist. It separates what the user must do physically, what Zavorth can check safely, where SecretRefs are needed, and where Policy Broker approval begins. It is projection-only by default and never collects raw secrets.
+
+## Trust Panel
+
+`zavorth trust-panel` explains the current safety boundary in human language: what Zavorth can do alone, what asks first, what is blocked, and what still needs setup. It is powered by Experience Profiles and Capability Store readiness, but it never executes actions. The panel keeps the product simple on the outside while preserving Policy Broker, scoped approvals and receipts underneath.
+
+## Autonomy Slider
+
+`zavorth autonomy --level conservative|balanced|advanced|business` previews how much freedom Zavorth should have for a profile or mission. Conservative asks early, Balanced is the daily default, Advanced exposes deeper runtime workflows, and Business emphasizes evidence and scoped governance. The slider changes defaults and approval language only; it never bypasses Policy Broker or applies a runtime change by itself.
+
+## Model Cost Guard
+
+`zavorth model-cost "review this repository"` estimates mission size, cost-surprise risk, provider tier and budget posture before live model use. It separates local/free, low, standard, premium and unknown-cost routes, treats unknown pricing as approval-required, and keeps hosted model escalation behind readiness, budget and receipts.
+
+## Visual Receipts 2.0
+
+`zavorth visual-receipts` renders operational receipts as product cards: what happened, what changed, what was blocked, whether rollback exists and what the next safe action is. The cards are readable by normal users, exportable for audits, and projection-only; rollback or approval actions stay scoped and approval-gated.
+
+## Satellite Approval Companion
+
+`zavorth satellite-approvals` projects the mobile approval inbox used by `/satellite`: scoped approval cards, approve/deny/preview decisions, receipt previews and the exact `capability.result` envelope the PWA sends back to the governed runtime. Satellite is a companion surface only; it can resolve a decision through the gateway, but it cannot execute the target action inside the browser.
+
+## Natural Runtime Questions
+
+`zavorth ask-runtime "which providers are ready?"` answers operational questions in plain language using the same governed projections as the dashboard, CLI and Satellite. It can explain providers, channels, approvals, receipts, setup gaps and safety boundaries without live network calls or hidden mutations.
+
+## Dashboard Experience Home
+
+`zavorth dashboard-home` describes the gentle `/dashboard` home experience: guided mission starters, natural runtime questions and quiet readiness cues. The page is intentionally simple first; deeper provider, endpoint and tool surfaces stay one click away.
+
+## CLI Experience Parity
+
+`zavorth daily` is the terminal equivalent of the simple Dashboard Home. It shows guided starts, runtime questions, trust, receipts and Satellite approval shortcuts before exposing deeper command references. It is projection-only: mutating work still becomes a governed mission with preview, approval and receipt.
+
+## Daily-Use Certification
+
+`zavorth experience-certify` verifies the Experience Layer as one package: profiles, conversational setup, guided missions, capability store, do-it-with-me, trust, autonomy, cost guard, receipts, Satellite approvals, runtime questions, Dashboard Home and CLI parity. The certification must pass without granting hidden execution authority.
 
 ## Core Surfaces
 

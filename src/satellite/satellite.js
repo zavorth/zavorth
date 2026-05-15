@@ -107,10 +107,10 @@
     state = nextState;
     connectionBadge.className = `status-badge ${nextState}`;
     const labels = {
-      disconnected: 'Desconectado',
-      connecting: 'Conectando...',
-      authenticating: 'Autenticando...',
-      connected: 'Conectado',
+      disconnected: 'Disconnected',
+      connecting: 'Connecting...',
+      authenticating: 'Authenticating...',
+      connected: 'Connected',
     };
     connectionBadge.textContent = labels[nextState] || nextState;
     btnSend.disabled = nextState !== 'connected';
@@ -359,45 +359,45 @@
     saveConfig();
     disconnect(false);
     setState('connecting');
-    settingsStatus.textContent = 'Conectando...';
+    settingsStatus.textContent = 'Connecting...';
 
     try {
       ws = new WebSocket(url);
     } catch (error) {
       setState('disconnected');
-      settingsStatus.textContent = `URL invalida: ${error.message}`;
+      settingsStatus.textContent = `Invalid URL: ${error.message}`;
       return;
     }
 
     ws.onopen = () => {
       reconnectAttempts = 0;
       setState('authenticating');
-      settingsStatus.textContent = 'Aguardando autenticacao...';
+      settingsStatus.textContent = 'Waiting for authentication...';
       startHeartbeat();
     };
 
     ws.onmessage = (event) => {
       try {
         handleEnvelope(JSON.parse(event.data)).catch(() => {
-          addSystemMessage('Falha ao processar mensagem do runtime.');
+          addSystemMessage('Failed to process runtime message.');
         });
       } catch {
-        addSystemMessage('Mensagem invalida recebida do runtime.');
+        addSystemMessage('Invalid message received from runtime.');
       }
     };
 
     ws.onclose = () => {
       stopHeartbeat();
       if (state === 'connected') {
-        addSystemMessage('Conexao perdida. Tentando reconectar...');
+        addSystemMessage('Connection lost. Trying to reconnect...');
       }
       setState('disconnected');
-      settingsStatus.textContent = 'Desconectado.';
+      settingsStatus.textContent = 'Disconnected.';
       tryReconnect();
     };
 
     ws.onerror = () => {
-      settingsStatus.textContent = 'Erro de conexao.';
+      settingsStatus.textContent = 'Connection error.';
     };
   }
 
@@ -508,7 +508,7 @@
           pendingCompletedInvocations: completedInvocations.length,
         };
       default:
-        throw new Error(`Capability local nao suportada: ${capabilityId}`);
+        throw new Error(`Local capability is not supported: ${capabilityId}`);
     }
   }
 
@@ -533,7 +533,7 @@
 
   async function captureCamera(args) {
     if (!navigator.mediaDevices?.getUserMedia) {
-      throw new Error('Camera indisponivel neste navegador.');
+      throw new Error('Camera is not available in this browser.');
     }
     const stream = await navigator.mediaDevices.getUserMedia({
       video: {
@@ -577,7 +577,7 @@
 
   function readLocation(args) {
     if (!navigator.geolocation?.getCurrentPosition) {
-      return Promise.reject(new Error('Geolocalizacao indisponivel neste navegador.'));
+      return Promise.reject(new Error('Geolocation is not available in this browser.'));
     }
     return new Promise((resolve, reject) => {
       navigator.geolocation.getCurrentPosition(
@@ -591,7 +591,7 @@
           speed: position.coords.speed,
           capturedAt: new Date(position.timestamp).toISOString(),
         }),
-        (error) => reject(new Error(error.message || 'Falha ao ler localizacao.')),
+        (error) => reject(new Error(error.message || 'Failed to read location.')),
         {
           enableHighAccuracy: args.highAccuracy !== false,
           timeout: Number(args.timeoutMs || 15000),
@@ -603,14 +603,14 @@
 
   async function sendNotification(args) {
     if (!('Notification' in window)) {
-      throw new Error('Notificacoes indisponiveis neste navegador.');
+      throw new Error('Notifications are not available in this browser.');
     }
     let permission = Notification.permission;
     if (permission === 'default' && args.requestPermission !== false) {
       permission = await Notification.requestPermission();
     }
     if (permission !== 'granted') {
-      throw new Error(`Notificacao nao autorizada: ${permission}`);
+      throw new Error(`Notification not authorized: ${permission}`);
     }
     const notification = new Notification(String(args.title || 'Zavorth'), {
       body: String(args.body || ''),
@@ -628,7 +628,7 @@
 
   async function approveWithBiometrics(args) {
     if (!navigator.credentials?.get || !window.PublicKeyCredential) {
-      throw new Error('WebAuthn indisponivel neste navegador.');
+      throw new Error('WebAuthn is not available in this browser.');
     }
     const available = await PublicKeyCredential.isUserVerifyingPlatformAuthenticatorAvailable?.();
     if (!args.challengeBase64 && !args.challenge) {
@@ -657,7 +657,7 @@
 
   function vibrateDevice(args) {
     if (!navigator.vibrate) {
-      throw new Error('Vibracao indisponivel neste navegador.');
+      throw new Error('Vibration is not available in this browser.');
     }
     const pattern = Array.isArray(args.pattern)
       ? args.pattern.map((value) => Number(value)).filter((value) => Number.isFinite(value))
@@ -718,7 +718,7 @@
         pushCompletedInvocation({
           invocationId,
           ok: true,
-          resultSummary: `${assignment.capabilityId} executada no Satellite.`,
+          resultSummary: `${assignment.capabilityId} executed in Satellite.`,
           stdout: JSON.stringify(data, null, 2),
           stderr: null,
           exitCode: 0,
@@ -728,7 +728,7 @@
         pushCompletedInvocation({
           invocationId,
           ok: false,
-          resultSummary: `Falha ao executar ${assignment.capabilityId} no Satellite.`,
+          resultSummary: `Failed to execute ${assignment.capabilityId} in Satellite.`,
           stdout: null,
           stderr: error?.message || String(error),
           exitCode: null,
@@ -756,15 +756,15 @@
         break;
       case 'auth.ok':
         setState('connected');
-        settingsStatus.textContent = 'Conectado.';
-        addSystemMessage('Conectado ao Zavorth Runtime.');
+        settingsStatus.textContent = 'Connected.';
+        addSystemMessage('Connected to Zavorth Runtime.');
         flushOfflineQueue();
         send('status.request', {});
         break;
       case 'auth.error':
         setState('disconnected');
         settingsStatus.textContent = `Auth falhou: ${env.payload?.message || 'token invalido.'}`;
-        addSystemMessage('Autenticacao falhou. Verifique o token.');
+        addSystemMessage('Authentication failed. Check the token.');
         break;
       case 'chat.response':
         hideTyping();
@@ -793,7 +793,7 @@
         break;
       case 'capability.result':
         hideTyping();
-        addMessage(env.payload?.ok ? JSON.stringify(env.payload.result, null, 2) : `Erro: ${env.payload?.error || 'desconhecido'}`, 'agent');
+        addMessage(env.payload?.ok ? JSON.stringify(env.payload.result, null, 2) : `Error: ${env.payload?.error || 'unknown'}`, 'agent');
         break;
       case 'action.request':
       case 'approval.request':
@@ -805,7 +805,7 @@
         break;
       case 'error':
         hideTyping();
-        addSystemMessage(env.payload?.message || 'Erro desconhecido.');
+        addSystemMessage(env.payload?.message || 'Unknown error.');
         break;
       case 'heartbeat.pong':
         await handleNodeAssignments(env.payload?.nodeMesh?.assignments || env.payload?.assignments || []);
@@ -828,7 +828,7 @@
     if (delivered) {
       showTyping();
     } else {
-      addSystemMessage('Mensagem guardada para envio quando a conexao voltar.');
+      addSystemMessage('Message queued until the connection returns.');
     }
   });
 

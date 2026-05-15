@@ -4,6 +4,8 @@ import type {
 } from './ZavorthFirstRunProductJourneyContract.js';
 import type { ZavorthProductModeContract } from './ZavorthProductModeContract.js';
 import type { ZavorthSandboxReadinessContract } from './ZavorthSandboxReadinessContract.js';
+import type { ZavorthConversationalSetupLanguage } from './ZavorthConversationalSetupContract.js';
+import type { ZavorthExperienceProfileId } from './ZavorthExperienceProfileContract.js';
 
 export const ZAVORTH_UNIFIED_ONBOARDING_CONTRACT_VERSION = '2026-05-13.phase-2' as const;
 
@@ -22,6 +24,7 @@ export type ZavorthUnifiedOnboardingStepStatus = 'done' | 'ready' | 'needs_input
 
 export type ZavorthUnifiedOnboardingCommandId =
   | 'onboard'
+  | 'conversation'
   | 'go'
   | 'doctor-simple'
   | 'doctor-advanced'
@@ -70,6 +73,13 @@ export type ZavorthUnifiedOnboardingSnapshot = {
   templates: ZavorthGuidedMissionTemplate[];
   steps: ZavorthUnifiedOnboardingStep[];
   commands: ZavorthUnifiedOnboardingCommand[];
+  conversationalSetup: {
+    command: 'zavorth onboard conversation';
+    status: 'ready' | 'needs_input' | 'blocked';
+    uiLanguage: ZavorthConversationalSetupLanguage;
+    selectedProfile: ZavorthExperienceProfileId;
+    writesOnlyWithConfirmation: true;
+  };
   safeDemo: {
     command: string;
     templateId: string;

@@ -25,6 +25,7 @@ const argv = process.argv.slice(2);
 const service = new ZavorthProductizationProtectedRuntimeService();
 const view = resolveView(argv);
 const snapshot = service.buildSnapshot({
+  experienceProfile: readFlag(argv, 'experience-profile') || readFlag(argv, 'profile'),
   dailyMode: readFlag(argv, 'mode'),
   detailMode: argv.includes('--advanced') ? 'advanced' : argv.includes('--simple') ? 'simple' : readFlag(argv, 'detail'),
   selectedTemplateId: readFlag(argv, 'template'),

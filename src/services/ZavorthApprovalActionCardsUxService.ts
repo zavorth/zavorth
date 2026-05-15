@@ -162,7 +162,7 @@ function buildActions(card: ZavorthApprovalActionCard): ZavorthApprovalActionCar
   const actions: ZavorthApprovalActionCardAction[] = [
     {
       id: `${card.id}:preview`,
-      label: 'Ver preview',
+      label: 'Preview',
       kind: 'view_preview',
       command: card.preview.command,
       approvalId: card.id,
@@ -175,7 +175,7 @@ function buildActions(card: ZavorthApprovalActionCard): ZavorthApprovalActionCar
     actions.push(
       {
         id: `${card.id}:allow-once`,
-        label: 'Permitir uma vez',
+        label: 'Approve once',
         kind: 'allow_once',
         command: `zavorth approvals approve ${escapeCommandValue(card.id)} --once`,
         approvalId: card.id,
@@ -185,7 +185,7 @@ function buildActions(card: ZavorthApprovalActionCard): ZavorthApprovalActionCar
       },
       {
         id: `${card.id}:deny`,
-        label: 'Negar',
+        label: 'Deny',
         kind: 'deny',
         command: `zavorth approvals deny ${escapeCommandValue(card.id)}`,
         approvalId: card.id,
@@ -198,7 +198,7 @@ function buildActions(card: ZavorthApprovalActionCard): ZavorthApprovalActionCar
   if (card.rollback.available && card.rollback.command) {
     actions.push({
       id: `${card.id}:rollback`,
-      label: 'Ver rollback',
+      label: 'Rollback preview',
       kind: 'view_rollback',
       command: card.rollback.command,
       approvalId: card.id,
@@ -209,7 +209,7 @@ function buildActions(card: ZavorthApprovalActionCard): ZavorthApprovalActionCar
   }
   actions.push({
     id: `${card.id}:receipt`,
-    label: 'Ver receipt',
+    label: 'Receipt',
     kind: 'view_receipt',
     command: card.receipt.command,
     approvalId: card.id,

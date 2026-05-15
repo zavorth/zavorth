@@ -888,9 +888,11 @@ export function buildCliHelpSnapshot(target?: string | null): CliHelpSnapshot {
       {
         title: 'Start',
         entries: [
+          { command: 'zavorth daily', summary: 'Start with guided missions, runtime questions, trust and receipts in one calm CLI view.' },
           { command: 'zavorth setup', summary: 'Create the first-run workspace profile, tone, memory, and safe defaults.' },
           { command: 'zavorth doctor', summary: 'Check what is missing and get the next safe command.' },
           { command: 'zavorth onboard', summary: 'Review the first-run path and safe defaults.' },
+          { command: 'zavorth experience-certify', summary: 'Verify the daily-use Experience Layer without granting hidden execution authority.' },
           { command: 'zavorth go', summary: 'Open the main /dashboard gateway or explain the blocker.' },
         ],
       },
@@ -899,6 +901,7 @@ export function buildCliHelpSnapshot(target?: string | null): CliHelpSnapshot {
         entries: [
           { command: 'zavorth chat', summary: 'Talk to Zavorth in the terminal.' },
           { command: 'zavorth run "<request>"', summary: 'Send one natural-language request without opening chat.' },
+          { command: 'zavorth ask-runtime "which providers are ready?"', summary: 'Ask operational questions from read-only runtime projections.' },
           { command: 'zavorth templates', summary: 'Pick a guided safe mission for first daily use.' },
           { command: 'zavorth missions', summary: 'Inspect the active mission projection, risk, approvals, artifacts and timeline.' },
           { command: 'zavorth receipts', summary: 'Read the visual receipt for what Zavorth did or blocked.' },

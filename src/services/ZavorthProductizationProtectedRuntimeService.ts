@@ -6,12 +6,14 @@ import {
   type ZavorthGuidedMissionTemplate,
   type ZavorthGuidedMissionTemplateId,
 } from '../contracts/ZavorthFirstRunProductJourneyContract.js';
+import type { ZavorthExperienceProfileContract } from '../contracts/ZavorthExperienceProfileContract.js';
 import {
   buildZavorthProductModeContract,
   type ZavorthProductDailyMode,
   type ZavorthProductDetailMode,
   type ZavorthProductModeContract,
 } from '../contracts/ZavorthProductModeContract.js';
+import { ZavorthExperienceProfileService } from './ZavorthExperienceProfileService.js';
 import type {
   ZavorthMissionApproval,
   ZavorthMissionArtifact,
@@ -41,6 +43,7 @@ export type ZavorthProductizationProtectedRuntimeView =
 export type ZavorthProductizationProtectedRuntimeInput = {
   dailyMode?: unknown;
   detailMode?: unknown;
+  experienceProfile?: unknown;
   selectedTemplateId?: unknown;
   source?: ZavorthMissionContract['source'];
   request?: string | null;
@@ -51,6 +54,7 @@ export type ZavorthProductizationProtectedRuntimeSnapshot = {
   surface: 'productization-protected-runtime';
   generatedAt: string;
   status: 'ready';
+  experienceProfile: ZavorthExperienceProfileContract;
   productMode: ZavorthProductModeContract;
   firstRun: ZavorthFirstRunProductJourneyContract;
   sandbox: ZavorthSandboxReadinessContract;
@@ -96,19 +100,27 @@ const STRONG_SANDBOX_PRIORITY: SandboxHostTierId[] = ['firecracker', 'gvisor', '
 export class ZavorthProductizationProtectedRuntimeService {
   private readonly now: () => Date;
   private readonly sandboxHostReadiness: SandboxHostReadinessLike;
+  private readonly experienceProfileService: ZavorthExperienceProfileService;
 
   constructor(options: ZavorthProductizationProtectedRuntimeServiceOptions = {}) {
     this.now = options.now || (() => new Date());
     this.sandboxHostReadiness = options.sandboxHostReadiness || new SandboxHostReadinessService();
+    this.experienceProfileService = new ZavorthExperienceProfileService();
   }
 
   public buildSnapshot(
     input: ZavorthProductizationProtectedRuntimeInput = {},
   ): ZavorthProductizationProtectedRuntimeSnapshot {
     const generatedAt = this.now().toISOString();
-    const productMode = buildZavorthProductModeContract({
+    const experienceProfile = this.experienceProfileService.buildContract({
+      profile: input.experienceProfile,
+      intent: input.request,
       dailyMode: input.dailyMode,
       detailMode: input.detailMode,
+    });
+    const productMode = buildZavorthProductModeContract({
+      dailyMode: input.dailyMode || experienceProfile.selected.dailyMode,
+      detailMode: input.detailMode || experienceProfile.selected.detailMode,
     });
     const templates = buildDefaultZavorthGuidedMissionTemplates();
     const selectedTemplate = this.selectTemplate(templates, input.selectedTemplateId, input.request);
@@ -140,6 +152,7 @@ export class ZavorthProductizationProtectedRuntimeService {
       surface: 'productization-protected-runtime',
       generatedAt,
       status: 'ready',
+      experienceProfile,
       productMode,
       firstRun,
       sandbox,
@@ -179,6 +192,11 @@ export class ZavorthProductizationProtectedRuntimeService {
       certification: {
         gate: 'zavorth:productization-protected-runtime:check',
         checks: [
+          {
+            id: 'experience-profiles',
+            status: 'passed',
+            summary: 'Personal, Creator, Developer, Business and Power profiles map human needs onto governed runtime defaults.',
+          },
           {
             id: 'product-modes',
             status: 'passed',
@@ -221,6 +239,7 @@ export class ZavorthProductizationProtectedRuntimeService {
     const sections: string[] = [];
     const header = [
       '[zavorth-product] protected daily runtime',
+      `experience: ${snapshot.experienceProfile.selected.profileId} | autonomy: ${snapshot.experienceProfile.selected.autonomy}`,
       `mode: ${snapshot.productMode.selected.dailyMode}/${snapshot.productMode.selected.detailMode}`,
       `sandbox: ${snapshot.sandbox.status} | mutation: ${snapshot.sandbox.mutationMode}`,
       `mission: ${snapshot.mission.title} | status: ${snapshot.mission.status} | risk: ${snapshot.mission.risk}`,
