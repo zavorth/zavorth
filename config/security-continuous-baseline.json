@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updatedAt": "2026-05-13T06:33:35.769Z",
+  "updatedAt": "2026-05-15T21:13:35.668Z",
   "snapshot": {
     "controls": [
       {
@@ -48,7 +48,7 @@
       {
         "id": "security/SecurityOperationalPreset",
         "relativePath": "src/security/SecurityOperationalPreset.ts",
-        "sha256": "ae2baedcf27dc3e4081f228bd147b24d0412f4735c43abeb9b94717092873cb6",
+        "sha256": "da3c67fa561381b921aef3975cd64de051022cf25617d2bb3913a96fe6230bb0",
         "present": true
       },
       {
@@ -152,7 +152,7 @@
       {
         "id": "tests/security/SecurityOperationalPreset.test.ts",
         "relativePath": "tests/security/SecurityOperationalPreset.test.ts",
-        "sha256": "1b6c9c67f1fc6da0b04d0e55182c3c6d9b03176ac5bd3429857512b0b064b25b",
+        "sha256": "5f13b4c02c83784cb5eba4398227978e3bec255c965ca4460f39068381bc641f",
         "present": true
       },
       {

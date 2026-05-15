@@ -616,6 +616,7 @@
     "security:ci": "node scripts/security-ci-check.mjs",
     "security:doctor": "npx tsx scripts/security-doctor.ts",
     "security:continuous": "npx tsx scripts/security-continuous.ts",
+    "security:baseline": "npx tsx scripts/security-continuous.ts --update-baseline",
     "security:preset": "npx tsx scripts/security-preset.ts",
     "security:precommit": "npm run security:secrets --silent && npm run security:supply-chain --silent",
     "security:prepush": "npm run security:ci",

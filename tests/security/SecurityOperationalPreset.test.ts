@@ -65,6 +65,7 @@ describe('SecurityOperationalPreset', () => {
       projectRoot: root,
       policyFile: path.join(root, 'config', 'skill-allowlist.json'),
     });
+    expect(skillPolicy.evaluateSkill('zavorth-native', 'task-planning').allowed).toBe(true);
     expect(skillPolicy.evaluateSkill('workspace-imported-library', 'security-threat-model').allowed).toBe(true);
     expect(skillPolicy.evaluateSkill('external-review-source', 'security-threat-model').allowed).toBe(false);
   });

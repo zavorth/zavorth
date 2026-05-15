@@ -1,7 +1,7 @@
 {
   "version": 1,
   "activePreset": "professional",
-  "appliedAt": "2026-05-13T06:33:19.684Z",
+  "appliedAt": "2026-05-15T21:13:00.193Z",
   "appliedBy": "security-preset-cli",
   "securityProfile": "professional",
   "mcpProfile": "safe",
@@ -10,6 +10,7 @@
   ],
   "skillDefaultPolicy": "deny",
   "skillAllowedSourceIds": [
+    "zavorth-native",
     "workspace-agents",
     "workspace-library",
     "workspace-imported-library"
@@ -19,7 +20,7 @@
     "requireBaseline": true
   },
   "receipt": {
-    "id": "security-preset:professional:20260513T063319684Z",
+    "id": "security-preset:professional:20260515T211300193Z",
     "summary": "Preset professional aplicado com perfil professional, MCP safe e skills deny."
   }
 }
