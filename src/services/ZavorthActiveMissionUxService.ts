@@ -6,13 +6,16 @@ import {
   type ZavorthActiveMissionUxTimelineEvent,
   type ZavorthActiveMissionUxTone,
 } from '../contracts/ZavorthActiveMissionUxContract.js';
+import type { ZavorthMissionRiskLevel } from '../contracts/ZavorthMissionContract.js';
+
+type LooseRecord = Record<string, unknown>;
 
 export type ZavorthActiveMissionUxInput = {
-  runtimeSnapshot?: Record<string, any> | null;
-  sensitiveActionFlowUx?: Record<string, any> | null;
-  visualReceipts?: Record<string, any> | null;
-  providerSelectionUx?: Record<string, any> | null;
-  providerPreference?: Record<string, any> | null;
+  runtimeSnapshot?: LooseRecord | null;
+  sensitiveActionFlowUx?: LooseRecord | null;
+  visualReceipts?: LooseRecord | null;
+  providerSelectionUx?: LooseRecord | null;
+  providerPreference?: LooseRecord | null;
 };
 
 type ZavorthActiveMissionUxRuntime = {
@@ -51,7 +54,9 @@ export class ZavorthActiveMissionUxService {
     const counts = {
       timelineEvents: timeline.length,
       approvalsPending: timeline.filter((event) => event.source === 'sensitive-flow' && event.status === 'pending').length,
-      artifactsReady: Array.isArray(runtime?.artifacts) ? runtime.artifacts.filter((artifact: any) => artifact?.status === 'ready').length : 0,
+      artifactsReady: Array.isArray(runtime?.artifacts)
+        ? runtime.artifacts.filter((artifact) => asRecord(artifact)?.status === 'ready').length
+        : 0,
       receiptsReady: Array.isArray(visualReceipts?.cards) ? visualReceipts.cards.length : 0,
       blockers: timeline.filter((event) => event.status === 'blocked').length,
     };
@@ -68,13 +73,13 @@ export class ZavorthActiveMissionUxService {
         id: text(run?.id) || text(sensitiveCard?.id) || 'mission-local-preview',
         title: text(run?.title) || text(sensitiveCard?.title) || 'No active mission',
         summary: text(run?.summary) || text(sensitiveCard?.subtitle) || 'Zavorth is ready for the next request.',
-        request: text(sensitiveCard?.request) || text(run?.metadata?.request) || text(run?.title) || 'No request selected.',
+        request: text(sensitiveCard?.request) || text(recordField(run?.metadata, 'request')) || text(run?.title) || 'No request selected.',
         runId: text(run?.id) || null,
         traceId: text(run?.traceId) || null,
         sessionId: text(run?.sessionId) || null,
-        providerLabel: text(run?.providerLabel) || text(providerSelection?.selected?.providerId) || 'provider not selected',
-        modelLabel: text(run?.modelLabel) || text(providerSelection?.selected?.model) || 'model not selected',
-        risk: text(sensitiveCard?.risk) as any || 'unknown',
+        providerLabel: text(run?.providerLabel) || text(recordField(providerSelection?.selected, 'providerId')) || 'provider not selected',
+        modelLabel: text(run?.modelLabel) || text(recordField(providerSelection?.selected, 'model')) || 'model not selected',
+        risk: riskValue(text(sensitiveCard?.risk)),
       },
       counts,
       timeline,
@@ -118,10 +123,10 @@ export class ZavorthActiveMissionUxService {
 
 function buildTimeline(input: {
   generatedAt: string;
-  run: Record<string, any> | null;
-  sensitiveCard: Record<string, any> | null;
-  visualReceipts: Record<string, any> | null;
-  providerSelection: Record<string, any> | null;
+  run: LooseRecord | null;
+  sensitiveCard: LooseRecord | null;
+  visualReceipts: LooseRecord | null;
+  providerSelection: LooseRecord | null;
 }): ZavorthActiveMissionUxTimelineEvent[] {
   const events: ZavorthActiveMissionUxTimelineEvent[] = [];
   if (input.run) {
@@ -182,11 +187,12 @@ function buildTimeline(input: {
   }
 
   if (input.providerSelection) {
+    const selectedProviderId = text(recordField(input.providerSelection.selected, 'providerId'));
     events.push({
       id: 'provider:selection',
       label: 'Provider',
-      summary: text(input.providerSelection?.selected?.providerId)
-        ? `${text(input.providerSelection?.selected?.providerId)} selected by ${text(input.providerSelection?.decision) || 'projection'}.`
+      summary: selectedProviderId
+        ? `${selectedProviderId} selected by ${text(input.providerSelection?.decision) || 'projection'}.`
         : 'Provider selection is available as projection.',
       status: 'done',
       tone: input.providerSelection?.decision === 'blocked' ? 'danger' : input.providerSelection?.decision === 'use_now' ? 'ok' : 'info',
@@ -198,10 +204,10 @@ function buildTimeline(input: {
 }
 
 function buildActions(input: {
-  run: Record<string, any> | null;
-  sensitiveCard: Record<string, any> | null;
-  visualReceipts: Record<string, any> | null;
-  providerSelection: Record<string, any> | null;
+  run: LooseRecord | null;
+  sensitiveCard: LooseRecord | null;
+  visualReceipts: LooseRecord | null;
+  providerSelection: LooseRecord | null;
 }): ZavorthActiveMissionUxAction[] {
   const actions: ZavorthActiveMissionUxAction[] = [];
   if (input.run?.id) {
@@ -267,8 +273,8 @@ function buildActions(input: {
 }
 
 function resolveStatus(input: {
-  run: Record<string, any> | null;
-  sensitiveCard: Record<string, any> | null;
+  run: LooseRecord | null;
+  sensitiveCard: LooseRecord | null;
 }): ZavorthActiveMissionUxStatus {
   const sensitiveStatus = text(input.sensitiveCard?.status);
   if (sensitiveStatus === 'blocked' || sensitiveStatus === 'denied') return 'blocked';
@@ -349,8 +355,20 @@ function toneValue(value: unknown): ZavorthActiveMissionUxTone {
   return 'info';
 }
 
-function asRecord(value: unknown): Record<string, any> | null {
-  return value && typeof value === 'object' && !Array.isArray(value) ? value as Record<string, any> : null;
+function riskValue(value: string): ZavorthMissionRiskLevel | 'unknown' {
+  const normalized = value.toLowerCase();
+  if (normalized === 'low' || normalized === 'medium' || normalized === 'high') {
+    return normalized;
+  }
+  return 'unknown';
+}
+
+function asRecord(value: unknown): LooseRecord | null {
+  return value && typeof value === 'object' && !Array.isArray(value) ? value as LooseRecord : null;
+}
+
+function recordField(value: unknown, key: string): unknown {
+  return asRecord(value)?.[key];
 }
 
 function text(value: unknown): string {

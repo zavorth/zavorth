@@ -160,8 +160,10 @@ export type CanvasWorkspaceSnapshot = {
   };
 };
 
+type CanvasRecord = Record<string, unknown>;
+
 type SnapshotLike = {
-  buildSnapshot: (input?: any) => any | Promise<any>;
+  buildSnapshot: unknown;
 };
 
 type CanvasWorkspaceRuntime = {
@@ -182,12 +184,12 @@ type CanvasWorkspaceRuntime = {
 };
 
 type CanvasProjectionSources = {
-  automation: any;
-  watch: any;
-  evals: any;
-  rollout: any;
-  federatedMesh: any;
-  skillEvolution: any;
+  automation: CanvasRecord | null;
+  watch: CanvasRecord | null;
+  evals: CanvasRecord | null;
+  rollout: CanvasRecord | null;
+  federatedMesh: CanvasRecord | null;
+  skillEvolution: CanvasRecord | null;
   mutationPlans: ZavorthMutationPlan[];
 };
 
@@ -738,9 +740,9 @@ export class CanvasWorkspaceService {
     return entities;
   }
 
-  private projectAutomations(source: any, document: CanvasWorkspaceDocument, limit: number): CanvasEntity[] {
-    const summary = source?.summary || {};
-    const tasks = Array.isArray(source?.tasks) ? source.tasks.slice(0, limit) : [];
+  private projectAutomations(source: CanvasRecord | null, document: CanvasWorkspaceDocument, limit: number): CanvasEntity[] {
+    const summary = asCanvasRecord(source?.summary) || {};
+    const tasks = Array.isArray(source?.tasks) ? source.tasks.map(asCanvasRecord).filter(isCanvasRecord).slice(0, limit) : [];
     const entities = [
       this.entity({
         id: 'canvas-automations',
@@ -762,7 +764,7 @@ export class CanvasWorkspaceService {
         title: String(task.prompt || task.id || 'Automation'),
         summary: `${task.schedule || 'schedule n/d'} | ${task.status || 'idle'}`,
         status: this.statusFromText(task.status),
-        sourceRef: this.sourceRef('automation', task.id || null, 'scheduled-task', 'npm run ops:automations'),
+        sourceRef: this.sourceRef('automation', stringOrNull(task.id), 'scheduled-task', 'npm run ops:automations'),
         position: this.positionFor(index + 1, 1, document),
         metadata: task,
         mutable: true,
@@ -772,9 +774,9 @@ export class CanvasWorkspaceService {
     return entities;
   }
 
-  private projectNodes(source: any, document: CanvasWorkspaceDocument, limit: number): CanvasEntity[] {
-    const summary = source?.summary || {};
-    const nodes = Array.isArray(source?.nodes) ? source.nodes.slice(0, limit) : [];
+  private projectNodes(source: CanvasRecord | null, document: CanvasWorkspaceDocument, limit: number): CanvasEntity[] {
+    const summary = asCanvasRecord(source?.summary) || {};
+    const nodes = Array.isArray(source?.nodes) ? source.nodes.map(asCanvasRecord).filter(isCanvasRecord).slice(0, limit) : [];
     const entities = [
       this.entity({
         id: 'canvas-federated-mesh',
@@ -796,7 +798,7 @@ export class CanvasWorkspaceService {
         title: String(node.label || node.id || 'Node'),
         summary: `${node.profile || 'profile'} | ${node.status || 'unknown'} | ${Array.isArray(node.capabilityIds) ? node.capabilityIds.length : 0} capability(ies).`,
         status: this.statusFromText(node.status),
-        sourceRef: this.sourceRef('federated-mesh', node.id || null, 'node', 'npm run ops:federated-mesh'),
+        sourceRef: this.sourceRef('federated-mesh', stringOrNull(node.id), 'node', 'npm run ops:federated-mesh'),
         position: this.positionFor(index + 1, 2, document),
         metadata: {
           profile: node.profile,
@@ -810,11 +812,16 @@ export class CanvasWorkspaceService {
     return entities;
   }
 
-  private projectWatchArtifacts(source: any, document: CanvasWorkspaceDocument, limit: number): CanvasEntity[] {
-    const summary = source?.summary || {};
-    const watchMode = source?.watchMode || {};
+  private projectWatchArtifacts(source: CanvasRecord | null, document: CanvasWorkspaceDocument, limit: number): CanvasEntity[] {
+    const summary = asCanvasRecord(source?.summary) || {};
+    const watchMode = asCanvasRecord(source?.watchMode) || {};
     const runs = Array.isArray(watchMode.runs) ? watchMode.runs.slice(0, limit) : [];
-    const artifacts = runs.flatMap((run: any) => Array.isArray(run?.artifacts) ? run.artifacts : []).slice(0, limit);
+    const artifacts = runs
+      .flatMap((run) => {
+        const record = asCanvasRecord(run);
+        return Array.isArray(record?.artifacts) ? record.artifacts.map(asCanvasRecord).filter(isCanvasRecord) : [];
+      })
+      .slice(0, limit);
     const entities = [
       this.entity({
         id: 'canvas-watch-mode',
@@ -840,7 +847,7 @@ export class CanvasWorkspaceService {
         title: String(artifact.title || artifact.kind || artifact.id || 'Artifact'),
         summary: String(artifact.summary || artifact.ref || 'Artifact anexavel ao canvas.'),
         status: 'idle',
-        sourceRef: this.sourceRef('watch-mode', artifact.id || artifact.ref || null, 'artifact', 'npm run ops:watch-mode'),
+        sourceRef: this.sourceRef('watch-mode', stringOrNull(artifact.id || artifact.ref), 'artifact', 'npm run ops:watch-mode'),
         position: this.positionFor(index + 1, 3, document),
         metadata: artifact,
         mutable: true,
@@ -895,9 +902,9 @@ export class CanvasWorkspaceService {
     }));
   }
 
-  private projectEval(source: any, document: CanvasWorkspaceDocument): CanvasEntity {
-    const summary = source?.summary || {};
-    const gate = source?.regressionGate || null;
+  private projectEval(source: CanvasRecord | null, document: CanvasWorkspaceDocument): CanvasEntity {
+    const summary = asCanvasRecord(source?.summary) || {};
+    const gate = asCanvasRecord(source?.regressionGate);
     return this.entity({
       id: 'canvas-evals',
       kind: 'eval',
@@ -914,8 +921,8 @@ export class CanvasWorkspaceService {
     });
   }
 
-  private projectRollout(source: any, document: CanvasWorkspaceDocument): CanvasEntity {
-    const summary = source?.summary || {};
+  private projectRollout(source: CanvasRecord | null, document: CanvasWorkspaceDocument): CanvasEntity {
+    const summary = asCanvasRecord(source?.summary) || {};
     return this.entity({
       id: 'canvas-rollout-readiness',
       kind: 'task',
@@ -933,8 +940,8 @@ export class CanvasWorkspaceService {
     });
   }
 
-  private projectSkillEvolution(source: any, document: CanvasWorkspaceDocument): CanvasEntity {
-    const summary = source?.summary || {};
+  private projectSkillEvolution(source: CanvasRecord | null, document: CanvasWorkspaceDocument): CanvasEntity {
+    const summary = asCanvasRecord(source?.summary) || {};
     return this.entity({
       id: 'canvas-skill-evolution',
       kind: 'task',
@@ -945,7 +952,7 @@ export class CanvasWorkspaceService {
       position: this.positionFor(2, 5, document),
       metadata: {
         summary,
-        records: Array.isArray(source?.records) ? source.records.slice(0, 8).map((entry: any) => ({
+        records: Array.isArray(source?.records) ? source.records.slice(0, 8).map((entry) => asCanvasRecord(entry)).filter(isCanvasRecord).map((entry) => ({
           id: entry.id,
           skillName: entry.skillName,
           status: entry.status,
@@ -988,7 +995,7 @@ export class CanvasWorkspaceService {
           '  "Heartbeat" --> "Audit"',
         ].join('\n'),
         sourceRefs: [
-          this.sourceRef('federated-mesh', sources.federatedMesh?.localNodeId || null, 'route-planner', 'npm run ops:federated-mesh'),
+          this.sourceRef('federated-mesh', stringOrNull(sources.federatedMesh?.localNodeId), 'route-planner', 'npm run ops:federated-mesh'),
         ],
       },
     ];
@@ -996,12 +1003,12 @@ export class CanvasWorkspaceService {
 
   private buildSourceHealth(sources: CanvasProjectionSources): CanvasWorkspaceSnapshot['sourceHealth'] {
     return [
-      this.health('automation', sources.automation?.summary?.posture, 'Automations control plane', 'npm run ops:automations'),
-      this.health('watch-mode', sources.watch?.summary?.posture, 'Watch Mode projection; nao inicia captura.', 'npm run ops:watch-mode'),
-      this.health('federated-mesh', sources.federatedMesh?.summary?.posture, 'Federated Mesh projection.', 'npm run ops:federated-mesh'),
-      this.health('eval', sources.evals?.summary?.posture, sources.evals ? 'Eval control plane carregado.' : 'Eval control plane indisponivel neste snapshot.', 'npm run ops:evals'),
-      this.health('rollout', sources.rollout?.summary?.posture, 'Rollout readiness projection.', 'npm run ops:rollout-readiness'),
-      this.health('skill-evolution', sources.skillEvolution?.summary?.posture, 'Auto-Skill Evolution projection.', 'npm run ops:skill-evolution'),
+      this.health('automation', asCanvasRecord(sources.automation?.summary)?.posture, 'Automations control plane', 'npm run ops:automations'),
+      this.health('watch-mode', asCanvasRecord(sources.watch?.summary)?.posture, 'Watch Mode projection; nao inicia captura.', 'npm run ops:watch-mode'),
+      this.health('federated-mesh', asCanvasRecord(sources.federatedMesh?.summary)?.posture, 'Federated Mesh projection.', 'npm run ops:federated-mesh'),
+      this.health('eval', asCanvasRecord(sources.evals?.summary)?.posture, sources.evals ? 'Eval control plane carregado.' : 'Eval control plane indisponivel neste snapshot.', 'npm run ops:evals'),
+      this.health('rollout', asCanvasRecord(sources.rollout?.summary)?.posture, 'Rollout readiness projection.', 'npm run ops:rollout-readiness'),
+      this.health('skill-evolution', asCanvasRecord(sources.skillEvolution?.summary)?.posture, 'Auto-Skill Evolution projection.', 'npm run ops:skill-evolution'),
     ];
   }
 
@@ -1239,12 +1246,15 @@ export class CanvasWorkspaceService {
     return 'idle';
   }
 
-  private async safeSnapshot(service: SnapshotLike | null, input: any): Promise<any> {
+  private async safeSnapshot(service: SnapshotLike | null, input: unknown): Promise<CanvasRecord | null> {
     if (!service) {
       return null;
     }
     try {
-      return await service.buildSnapshot(input);
+      if (typeof service.buildSnapshot !== 'function') {
+        return null;
+      }
+      return asCanvasRecord(await (service.buildSnapshot as (input?: unknown) => unknown | Promise<unknown>)(input));
     } catch {
       return null;
     }
@@ -1451,4 +1461,17 @@ export class CanvasWorkspaceService {
     const numeric = Number(value);
     return Number.isFinite(numeric) ? numeric : fallback;
   }
+}
+
+function asCanvasRecord(value: unknown): CanvasRecord | null {
+  return value && typeof value === 'object' && !Array.isArray(value) ? value as CanvasRecord : null;
+}
+
+function isCanvasRecord(value: CanvasRecord | null): value is CanvasRecord {
+  return value !== null;
+}
+
+function stringOrNull(value: unknown): string | null {
+  const normalized = String(value || '').trim();
+  return normalized || null;
 }

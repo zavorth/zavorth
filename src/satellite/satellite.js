@@ -24,6 +24,7 @@
   let reconnectAttempts = 0;
   const maxReconnect = 10;
   const heartbeatMs = 30000;
+  const configStorageKey = 'zavorth_satellite_config';
   const offlineQueueStorageKey = 'zavorth_satellite_offline_queue';
   const completedInvocationsStorageKey = 'zavorth_satellite_completed_invocations';
   let offlineQueue = loadStoredList(offlineQueueStorageKey);
@@ -37,7 +38,15 @@
 
   function loadConfig() {
     try {
-      return JSON.parse(localStorage.getItem('zavorth_satellite_config') || '{}');
+      const raw = JSON.parse(localStorage.getItem(configStorageKey) || '{}');
+      const sanitized = {
+        wsUrl: asText(raw.wsUrl || ''),
+        nodeId: asText(raw.nodeId || ''),
+      };
+      if (raw.authToken || raw.sharedSecret) {
+        localStorage.setItem(configStorageKey, JSON.stringify(sanitized));
+      }
+      return sanitized;
     } catch {
       return {};
     }
@@ -45,24 +54,30 @@
 
   function loadStoredList(key) {
     try {
-      const value = JSON.parse(localStorage.getItem(key) || '[]');
-      return Array.isArray(value) ? value : [];
+      localStorage.removeItem(key);
     } catch {
-      return [];
+      // Storage may be blocked by browser privacy settings; keep queues in memory only.
+    }
+    return [];
+  }
+
+  function saveStoredList(key) {
+    try {
+      localStorage.removeItem(key);
+    } catch {
+      // Memory-only fallback; approval/device payloads must never be persisted here.
     }
   }
 
-  function saveStoredList(key, value) {
-    localStorage.setItem(key, JSON.stringify(Array.isArray(value) ? value.slice(-50) : []));
-  }
-
   function saveConfig() {
-    localStorage.setItem('zavorth_satellite_config', JSON.stringify({
-      wsUrl: wsUrlInput.value.trim(),
-      authToken: authTokenInput.value.trim(),
-      nodeId: nodeIdInput.value.trim(),
-      sharedSecret: sharedSecretInput.value.trim(),
-    }));
+    try {
+      localStorage.setItem(configStorageKey, JSON.stringify({
+        wsUrl: wsUrlInput.value.trim(),
+        nodeId: nodeIdInput.value.trim(),
+      }));
+    } catch {
+      // Keep the current form values in memory if localStorage is unavailable.
+    }
   }
 
   function enqueueOfflineEnvelope(envelope) {
@@ -234,7 +249,7 @@
     buttons.className = 'action-buttons';
 
     const approve = buildActionButton('approve', 'Allow');
-    const reject = buildActionButton('reject', 'Deny');
+    const reject = buildActionButton('deny', 'Deny');
     const detailsButton = buildActionButton('details', 'Details');
     detailsButton.disabled = !action.details;
 
@@ -449,7 +464,6 @@
     heartbeatTimer = window.setInterval(() => {
       send('heartbeat.ping', {
         nodeId: nodeIdInput.value.trim() || null,
-        sharedSecret: sharedSecretInput.value.trim() || null,
         capabilities: listLocalCapabilities(),
         completedInvocations: drainCompletedInvocations(),
       });
@@ -740,7 +754,6 @@
     }
     send('heartbeat.ping', {
       nodeId: nodeIdInput.value.trim() || null,
-      sharedSecret: sharedSecretInput.value.trim() || null,
       capabilities: listLocalCapabilities(),
       completedInvocations: drainCompletedInvocations(),
     });
@@ -750,7 +763,7 @@
     switch (env.type) {
       case 'auth.challenge':
         send('auth.response', {
-          token: authTokenInput.value.trim() || loadConfig().authToken || '',
+          token: authTokenInput.value.trim(),
           nonce: env.payload?.nonce || '',
         }, env.messageId);
         break;
@@ -870,9 +883,9 @@
 
   const config = loadConfig();
   wsUrlInput.value = config.wsUrl || defaultWsUrl();
-  authTokenInput.value = new URLSearchParams(window.location.search).get('token') || config.authToken || '';
+  authTokenInput.value = new URLSearchParams(window.location.search).get('token') || '';
   nodeIdInput.value = config.nodeId || '';
-  sharedSecretInput.value = config.sharedSecret || '';
+  sharedSecretInput.value = '';
   setState('disconnected');
 
   if ('serviceWorker' in navigator) {

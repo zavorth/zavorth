@@ -269,14 +269,14 @@ export class ZavorthExperienceLayerDailyUseCertificationService {
     build: () => unknown;
   }): ZavorthExperienceLayerDailyUsePhase {
     const projection = input.build();
-    const passed = isObjectRecord(projection);
+    const validation = validateProjectionSafety(projection);
     return {
       id: input.id,
       title: input.title,
       command: input.command,
       surface: input.surface,
-      status: passed ? 'projection_passed' : 'blocked',
-      evidence: passed ? input.evidence : ['Projection builder did not return an object.'],
+      status: validation.ok ? 'projection_passed' : 'blocked',
+      evidence: validation.ok ? input.evidence : validation.errors,
       riskBoundary: input.riskBoundary,
     };
   }
@@ -284,4 +284,31 @@ export class ZavorthExperienceLayerDailyUseCertificationService {
 
 function isObjectRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === 'object' && value !== null && !Array.isArray(value);
+}
+
+function validateProjectionSafety(value: unknown): { ok: boolean; errors: string[] } {
+  if (!isObjectRecord(value)) {
+    return { ok: false, errors: ['Projection builder did not return an object.'] };
+  }
+  const serialized = JSON.stringify(value);
+  const errors: string[] = [];
+  for (const [label, pattern] of [
+    ['raw secrets serialized', /"rawSecretsSerialized"\s*:\s*true/],
+    ['hidden execution authority', /"hiddenExecutionAuthority"\s*:\s*true/],
+    ['generic execution authority', /"executionAuthority"\s*:\s*true/],
+    ['dashboard execution authority', /"dashboardCanExecute(?:TargetAction)?"\s*:\s*true/],
+    ['satellite target execution authority', /"satelliteCanExecuteTargetAction"\s*:\s*true/],
+    ['cli target execution authority', /"cliCanExecuteTargetAction"\s*:\s*true/],
+    ['openai-like secret', /\bsk-[A-Za-z0-9_-]{12,}\b/],
+    ['stripe-like public/live secret', /\bpk_(?:live|test)_[A-Za-z0-9_-]{12,}\b/],
+    ['github-token-like secret', /\bgh[pousr]_[A-Za-z0-9_]{20,}\b/],
+    ['slack-token-like secret', /\bxox[baprs]-[0-9A-Za-z-]{10,}\b/],
+    ['google-api-key-like secret', /\bAIza[0-9A-Za-z_-]{20,}\b/],
+    ['bearer-token-like secret', /\bBearer\s+[A-Za-z0-9._~+/-]+=*/],
+  ] as const) {
+    if (pattern.test(serialized)) {
+      errors.push(`Unsafe projection marker detected: ${label}.`);
+    }
+  }
+  return { ok: errors.length === 0, errors };
 }

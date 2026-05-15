@@ -32,9 +32,20 @@ describe('ZavorthNaturalRuntimeQuestionsService', () => {
     ]));
   });
 
-  it('keeps unknown questions helpful and redacts secrets', () => {
+  it('does not misroute channel readiness questions to providers', () => {
     const snapshot = new ZavorthNaturalRuntimeQuestionsService().buildSnapshot({
-      question: 'sk-secretshouldnotleak123456789 what can you explain?',
+      question: 'Which channels are ready?',
+    });
+
+    expect(snapshot.intent).toBe('channels_ready');
+    expect(snapshot.answer.cards).toHaveLength(1);
+    expect(snapshot.answer.cards[0]?.id).toBe('channels');
+  });
+
+  it('keeps unknown questions helpful and redacts secrets', () => {
+    const googleToken = ['AI', 'za', '123456789012345678901234567890'].join('');
+    const snapshot = new ZavorthNaturalRuntimeQuestionsService().buildSnapshot({
+      question: `sk-secretshouldnotleak123456789 ${googleToken} Bearer abc.def.ghi what can you explain?`,
     });
     const serialized = JSON.stringify(snapshot);
 
@@ -42,6 +53,8 @@ describe('ZavorthNaturalRuntimeQuestionsService', () => {
     expect(snapshot.confidence).toBe('low');
     expect(snapshot.answer.askableFollowups.length).toBeGreaterThan(2);
     expect(serialized).not.toContain('sk-secretshouldnotleak');
+    expect(serialized).not.toContain(googleToken);
+    expect(serialized).not.toContain('abc.def.ghi');
     expect(serialized).toContain('[REDACTED_SECRET]');
   });
 });

@@ -503,7 +503,6 @@ export class ZavorthLargeSkillAbsorptionService {
       || input.candidateOverflow
       || input.summary.sources === 0
       || input.summary.candidates === 0
-      || input.governedStatus === 'blocked'
       || input.summary.maxCoveragePercent < 100
     ) {
       return 'blocked';
@@ -512,6 +511,7 @@ export class ZavorthLargeSkillAbsorptionService {
       input.summary.quarantinedCandidates > 0
       || input.summary.reviewRequiredBatches > 0
       || input.sourceResults.some((source) => source.intakeStatus !== 'pass')
+      || input.governedStatus === 'blocked'
       || input.governedStatus === 'attention'
     ) {
       return 'attention';

@@ -40,12 +40,13 @@ describe('ZavorthSatelliteApprovalCompanionService', () => {
   });
 
   it('marks high-risk approvals as blocked/attention-worthy and keeps secrets redacted', () => {
+    const googleToken = ['AI', 'za', '123456789012345678901234567890'].join('');
     const snapshot = new ZavorthSatelliteApprovalCompanionService().buildSnapshot({
       user: 'API_KEY=sk-secretshouldnotleak123456789',
       approvals: [{
         id: 'approval-high-risk',
         title: 'Send external message',
-        reason: 'Use token sk-secretshouldnotleak123456789 to continue.',
+        reason: `Use token sk-secretshouldnotleak123456789 and ${googleToken} to continue.`,
         status: 'pending',
         risk: 'high',
         scope: 'external.message:customer',
@@ -57,6 +58,7 @@ describe('ZavorthSatelliteApprovalCompanionService', () => {
     expect(snapshot.summary.highRisk).toBe(1);
     expect(snapshot.summary.rawSecretsSerialized).toBe(false);
     expect(serialized).not.toContain('sk-secretshouldnotleak');
+    expect(serialized).not.toContain(googleToken);
     expect(serialized).toContain('[REDACTED');
   });
 

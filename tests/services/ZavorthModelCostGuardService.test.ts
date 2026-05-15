@@ -41,6 +41,7 @@ describe('ZavorthModelCostGuardService', () => {
     const custom = snapshot.providerCards.find((card) => card.id === 'custom-openai-compatible');
     expect(custom?.tier).toBe('unknown');
     expect(custom?.liveUseNeedsApproval).toBe(true);
+    expect(snapshot.routing.decision).toBe('ask_before_live');
     expect(snapshot.safety.costLimitIsAdvisoryUntilProviderReportsUsage).toBe(true);
   });
 });

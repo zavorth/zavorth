@@ -185,7 +185,7 @@ function getMappedModel(model) {
   try {
     if (fs.existsSync(DB_FILE)) {
       const db = JSON.parse(fs.readFileSync(DB_FILE, "utf-8"));
-      return db.mitmAlias?.zavorthBridge?.[model] || null;
+      return db.mitmAlias?.zavorthRelay?.[model] || db.mitmAlias?.["zavorthBridge"]?.[model] || null;
     }
   } catch {
     // Ignore

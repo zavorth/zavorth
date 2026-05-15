@@ -32,6 +32,10 @@ import { SurfaceOperationalIntentService } from './SurfaceOperationalIntentServi
 import { FileInspectionService } from './FileInspectionService.js';
 import { AttachmentIntelligenceService, type AttachmentTextProfile } from './AttachmentIntelligenceService.js';
 
+type RuntimeRecord = Record<string, unknown>;
+type ComposerCatalogOptions = NonNullable<ConstructorParameters<typeof ComposerCatalogService>[0]>;
+type ComposerActionOptions = ConstructorParameters<typeof ComposerActionService>[0];
+
 type WebAppConversationDeps = {
   runtime: SharedSurfaceRuntime;
   realtime: WebRealtimeService;
@@ -56,7 +60,7 @@ export class WebAppConversationService {
     this.surfaceOperationalIntentService = deps.surfaceOperationalIntentService || new SurfaceOperationalIntentService();
   }
 
-  public createWebContext(sessionId: string): any {
+  public createWebContext(sessionId: string): unknown {
     const numericUserId = Number.parseInt(this.deps.runtime.webUserId || '1', 10) || 1;
     return {
       from: { id: numericUserId, username: 'web' },
@@ -76,15 +80,15 @@ export class WebAppConversationService {
   public getComposerCatalog(): ComposerCatalogService {
     if (!this.composerCatalog) {
       this.composerCatalog = new ComposerCatalogService({
-        taskManager: this.deps.runtime.taskManager as any,
-        permissionService: this.deps.runtime.permissionService as any,
+        taskManager: this.deps.runtime.taskManager as unknown as ComposerCatalogOptions['taskManager'],
+        permissionService: this.deps.runtime.permissionService as unknown as ComposerCatalogOptions['permissionService'],
       });
     }
 
     return this.composerCatalog;
   }
 
-  public async processChatSend(body: Record<string, any>): Promise<{
+  public async processChatSend(body: RuntimeRecord): Promise<{
     sessionId: string;
     taskId: string | null;
     snapshot: Awaited<ReturnType<WebRealtimeService['getResolvedSnapshot']>>;
@@ -588,9 +592,9 @@ export class WebAppConversationService {
 
   private async decideResponse(input: {
     message: string;
-    mentions: any[];
-    attachments?: any[];
-    selectedSkills?: any[];
+    mentions: NormalizedComposerPayload['mentions'];
+    attachments?: NormalizedComposerPayload['attachments'];
+    selectedSkills?: NormalizedComposerPayload['selectedSkills'];
     resourceImpact: TaskResourceImpact | null;
   }): Promise<ZavorthResponseDecision> {
     return this.surfaceOperationalIntentService.decideResponse({
@@ -599,7 +603,7 @@ export class WebAppConversationService {
       hasContextualMentions: this.composerContext.hasContextualMentions(input.mentions),
       hasAttachments: Array.isArray(input.attachments) && input.attachments.length > 0,
       capabilityIds: Array.isArray(input.selectedSkills)
-        ? input.selectedSkills.map((skill: any) => String(skill?.id || '').trim()).filter(Boolean)
+        ? input.selectedSkills.map((skill) => String(skill.id || '').trim()).filter(Boolean)
         : [],
       resourceImpact: input.resourceImpact,
     });
@@ -608,8 +612,8 @@ export class WebAppConversationService {
   private async maybeHandleUniversalAgentRuntime(input: {
     sessionId: string;
     message: string;
-    mentions: any[];
-    composerPayload: Record<string, any>;
+    mentions: NormalizedComposerPayload['mentions'];
+    composerPayload: RuntimeRecord;
     resourceImpact: TaskResourceImpact | null;
     requestedTools: string[];
     responseDecision: ZavorthResponseDecision;
@@ -671,7 +675,7 @@ export class WebAppConversationService {
       channel: 'web',
       sessionId: input.sessionId,
       text,
-      workspace: String((input.resourceImpact as any)?.workspace || '').trim() || null,
+      workspace: resourceWorkspace(input.resourceImpact),
       requestedTools,
       modelProfile: {
         providerLabel: this.resolveCurrentProviderLabel(),
@@ -703,7 +707,7 @@ export class WebAppConversationService {
     message: string;
     requestedTools: string[];
     responseDecision: ZavorthResponseDecision | null;
-    composerPayload?: Record<string, any> | null;
+    composerPayload?: RuntimeRecord | null;
     resourceImpact: TaskResourceImpact | null;
     userVisibleText?: string;
     kind?: string;
@@ -719,7 +723,7 @@ export class WebAppConversationService {
       channel: 'web',
       sessionId: input.sessionId,
       text,
-      workspace: String((input.resourceImpact as any)?.workspace || '').trim() || null,
+      workspace: resourceWorkspace(input.resourceImpact),
       requestedTools: input.requestedTools,
       modelProfile: {
         providerLabel: this.resolveCurrentProviderLabel(),
@@ -767,8 +771,8 @@ export class WebAppConversationService {
 
   private resolveCurrentProviderLabel(): string {
     const runtimeProvider = String(
-      (this.deps.runtime as any)?.providerLabel
-      || (this.deps.runtime as any)?.provider
+      runtimeField(this.deps.runtime, 'providerLabel')
+      || runtimeField(this.deps.runtime, 'provider')
       || '',
     ).trim();
     if (runtimeProvider) {
@@ -802,8 +806,8 @@ export class WebAppConversationService {
 
   private resolveCurrentModelLabel(): string {
     const runtimeModel = String(
-      (this.deps.runtime as any)?.modelLabel
-      || (this.deps.runtime as any)?.model
+      runtimeField(this.deps.runtime, 'modelLabel')
+      || runtimeField(this.deps.runtime, 'model')
       || '',
     ).trim();
     if (runtimeModel) {
@@ -840,9 +844,9 @@ export class WebAppConversationService {
   private getComposerActions(): ComposerActionService {
     if (!this.composerActions) {
       this.composerActions = new ComposerActionService({
-        taskManager: this.deps.runtime.taskManager as any,
-        permissionController: this.deps.runtime.permissionController as any,
-        workflowController: this.deps.runtime.workflowController as any,
+        taskManager: this.deps.runtime.taskManager as unknown as ComposerActionOptions['taskManager'],
+        permissionController: this.deps.runtime.permissionController as unknown as ComposerActionOptions['permissionController'],
+        workflowController: this.deps.runtime.workflowController as unknown as ComposerActionOptions['workflowController'],
         realtime: this.deps.realtime,
       });
     }
@@ -913,7 +917,7 @@ export class WebAppConversationService {
     sessionId: string,
     message: string,
     responseDecision?: ZavorthResponseDecision | null,
-    composerPayload?: Record<string, any> | null,
+    composerPayload?: RuntimeRecord | null,
     options: { userVisibleText?: string; kind?: string } = {},
   ): Promise<boolean> {
     const legacyUnifiedGateway = this.deps.agentGateway ? null : this.resolveLegacyUnifiedGateway();
@@ -1012,4 +1016,17 @@ export class WebAppConversationService {
       },
     });
   }
+}
+
+function asRuntimeRecord(value: unknown): RuntimeRecord | null {
+  return value && typeof value === 'object' && !Array.isArray(value) ? value as RuntimeRecord : null;
+}
+
+function runtimeField(value: unknown, key: string): unknown {
+  return asRuntimeRecord(value)?.[key];
+}
+
+function resourceWorkspace(resourceImpact: TaskResourceImpact | null): string | null {
+  const workspace = String(asRuntimeRecord(resourceImpact)?.workspace || '').trim();
+  return workspace || null;
 }

@@ -249,11 +249,11 @@ export default function ZavorthBridgeToolCard({
   const aliasCount = tool.defaultModels?.length || 0;
   const summary = isRunning
     ? translateOrFallback(
-        "cards.zavorthBridge.summaryRunning",
+        "cards.zavorthRelay.summaryRunning",
         "The Zavorth relay is live and ready to remap tool traffic through your local gateway."
       )
     : translateOrFallback(
-        "cards.zavorthBridge.summaryIdle",
+        "cards.zavorthRelay.summaryIdle",
         "Keep the relay offline until you want to intercept requests, then bring it up from this control surface."
       );
 
@@ -261,7 +261,7 @@ export default function ZavorthBridgeToolCard({
     if (status === null) {
       return (
         <CliToolMetaPill tone="neutral" icon="frame_inspect">
-          {translateOrFallback("cards.zavorthBridge.inspectState", "Inspect relay state")}
+          {translateOrFallback("cards.zavorthRelay.inspectState", "Inspect relay state")}
         </CliToolMetaPill>
       );
     }
@@ -298,7 +298,7 @@ export default function ZavorthBridgeToolCard({
         toolKey={tool.id}
         isExpanded={isExpanded}
         onToggle={onToggle}
-        eyebrow={translateOrFallback("cards.zavorthBridge.eyebrow", "Traffic bridge")}
+        eyebrow={translateOrFallback("cards.zavorthRelay.eyebrow", "Traffic bridge")}
         summary={summary}
         status={
           <>
@@ -310,7 +310,7 @@ export default function ZavorthBridgeToolCard({
           <>
             <CliToolMetaPill icon="lan">
               {translateOrFallback(
-                "cards.zavorthBridge.providers",
+                "cards.zavorthRelay.providers",
                 `${activeProviders?.length || 0} providers online`,
                 {
                   count: activeProviders?.length || 0,
@@ -318,7 +318,7 @@ export default function ZavorthBridgeToolCard({
               )}
             </CliToolMetaPill>
             <CliToolMetaPill icon="tune">
-              {translateOrFallback("cards.zavorthBridge.aliases", `${aliasCount} aliases`, {
+              {translateOrFallback("cards.zavorthRelay.aliases", `${aliasCount} aliases`, {
                 count: aliasCount,
               })}
             </CliToolMetaPill>
@@ -326,9 +326,9 @@ export default function ZavorthBridgeToolCard({
         }
       >
         <CliToolCardSection
-          title={translateOrFallback("cards.zavorthBridge.controlTitle", "Control plane")}
+          title={translateOrFallback("cards.zavorthRelay.controlTitle", "Control plane")}
           description={translateOrFallback(
-            "cards.zavorthBridge.controlDescription",
+            "cards.zavorthRelay.controlDescription",
             "Start or stop the relay from the dashboard without leaving the Zavorth surface."
           )}
           icon="deployed_code"
@@ -352,11 +352,11 @@ export default function ZavorthBridgeToolCard({
             <CliToolNotice
               tone="info"
               icon="lock_clock"
-              title={translateOrFallback("cards.zavorthBridge.cachedPassword", "Cached operator password")}
+              title={translateOrFallback("cards.zavorthRelay.cachedPassword", "Cached operator password")}
             >
               <p>
                 {translateOrFallback(
-                  "cards.zavorthBridge.cachedPasswordHint",
+                  "cards.zavorthRelay.cachedPasswordHint",
                   "The local relay already holds a cached password, so Zavorth can reuse it for the next start or stop action."
                 )}
               </p>
@@ -390,9 +390,9 @@ export default function ZavorthBridgeToolCard({
 
             <CliToolMetaPill tone={isRunning ? "success" : "warning"} icon="shield_lock">
               {isWindows
-                ? translateOrFallback("cards.zavorthBridge.platformWindows", "Windows uses UAC prompts")
+                ? translateOrFallback("cards.zavorthRelay.platformWindows", "Windows uses UAC prompts")
                 : translateOrFallback(
-                    "cards.zavorthBridge.platformUnix",
+                    "cards.zavorthRelay.platformUnix",
                     "macOS/Linux may request operator elevation"
                   )}
             </CliToolMetaPill>
@@ -402,9 +402,9 @@ export default function ZavorthBridgeToolCard({
         {isRunning ? (
           <>
             <CliToolCardSection
-              title={translateOrFallback("cards.zavorthBridge.keyTitle", "Credential route")}
+              title={translateOrFallback("cards.zavorthRelay.keyTitle", "Credential route")}
               description={translateOrFallback(
-                "cards.zavorthBridge.keyDescription",
+                "cards.zavorthRelay.keyDescription",
                 "Choose which Zavorth key the relay should present when this tool calls upstream models."
               )}
               icon="key"
@@ -412,7 +412,7 @@ export default function ZavorthBridgeToolCard({
               <CliToolLabeledField
                 label={translateOrFallback("apiKey", "API key")}
                 hint={translateOrFallback(
-                  "cards.zavorthBridge.keyHint",
+                  "cards.zavorthRelay.keyHint",
                   "The selected key is used for forwarded model requests."
                 )}
               >
@@ -436,7 +436,7 @@ export default function ZavorthBridgeToolCard({
                       cloudEnabled
                         ? translateOrFallback("noApiKeysCreateOne", "Create an API key first")
                         : translateOrFallback(
-                            "cards.zavorthBridge.localKeyInjected",
+                            "cards.zavorthRelay.localKeyInjected",
                             "Local gateway key will be injected automatically"
                           )
                     }
@@ -444,11 +444,11 @@ export default function ZavorthBridgeToolCard({
                     <p>
                       {cloudEnabled
                         ? translateOrFallback(
-                            "cards.zavorthBridge.noCloudKeyHint",
+                            "cards.zavorthRelay.noCloudKeyHint",
                             "Add a provider key in Settings before you continue."
                           )
                         : translateOrFallback(
-                            "cards.zavorthBridge.localKeyHint",
+                            "cards.zavorthRelay.localKeyHint",
                             "Zavorth keeps a local fallback key available while the relay is running."
                           )}
                     </p>
@@ -458,9 +458,9 @@ export default function ZavorthBridgeToolCard({
             </CliToolCardSection>
 
             <CliToolCardSection
-              title={translateOrFallback("cards.zavorthBridge.aliasTitle", "Alias relay")}
+              title={translateOrFallback("cards.zavorthRelay.aliasTitle", "Alias relay")}
               description={translateOrFallback(
-                "cards.zavorthBridge.aliasDescription",
+                "cards.zavorthRelay.aliasDescription",
                 "Map the tool-facing aliases to real Zavorth models before you save the relay profile."
               )}
               icon="model_training"
@@ -480,7 +480,7 @@ export default function ZavorthBridgeToolCard({
                 <CliToolLabeledField
                   key={model.alias}
                   label={model.name}
-                  hint={translateOrFallback("cards.zavorthBridge.aliasHint", "Alias") + `: ${model.alias}`}
+                  hint={translateOrFallback("cards.zavorthRelay.aliasHint", "Alias") + `: ${model.alias}`}
                 >
                   <div className="flex items-center gap-2">
                     <input
@@ -519,7 +519,7 @@ export default function ZavorthBridgeToolCard({
           <CliToolCardSection
             title={translateOrFallback("howItWorks", "How it works")}
             description={translateOrFallback(
-              "cards.zavorthBridge.howDescription",
+              "cards.zavorthRelay.howDescription",
               "Zavorth only brings the interception layer online when you explicitly start the relay."
             )}
             icon="route"
@@ -527,18 +527,18 @@ export default function ZavorthBridgeToolCard({
           >
             {(() => {
               const mitmDomains = {
-                zavorthBridge: "daily-cloudcode-pa.googleapis.com",
+                zavorthRelay: "daily-cloudcode-pa.googleapis.com",
                 kiro: "api.anthropic.com",
               };
               const toolName = tool.name || tool.id;
-              const domain = mitmDomains[tool.id] || mitmDomains.zavorthBridge;
+              const domain = mitmDomains[tool.id] || mitmDomains.zavorthRelay;
 
               return (
                 <>
                   <CliToolNotice
                     tone="info"
                     icon="privacy_tip"
-                    title={translateOrFallback("cards.zavorthBridge.boundaryTitle", "Interception boundary")}
+                    title={translateOrFallback("cards.zavorthRelay.boundaryTitle", "Interception boundary")}
                   >
                     <p>
                       {translateOrFallback(
@@ -559,7 +559,7 @@ export default function ZavorthBridgeToolCard({
                       <p className="text-sm font-medium text-text-main">
                         2.{" "}
                         {translateOrFallback(
-                          "cards.zavorthBridge.domainRoute",
+                          "cards.zavorthRelay.domainRoute",
                           "Route the tool traffic for this domain through the relay:"
                         )}
                       </p>

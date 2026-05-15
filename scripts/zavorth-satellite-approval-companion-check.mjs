@@ -1,5 +1,5 @@
 import { execFileSync } from 'node:child_process';
-import { existsSync } from 'node:fs';
+import { existsSync, readFileSync } from 'node:fs';
 import path from 'node:path';
 
 const root = process.cwd();
@@ -44,6 +44,26 @@ if (!snapshot.cards.every((card) => card.buttons.every((button) => button.websoc
 }
 if (/\bsk-[A-Za-z0-9_-]{12,}\b/.test(output)) {
   throw new Error('raw secret leaked in satellite approval companion output');
+}
+
+const satelliteJs = readFileSync(path.join(root, 'src/satellite/satellite.js'), 'utf8');
+for (const forbidden of [
+  /authToken\s*:\s*authTokenInput/,
+  /sharedSecret\s*:\s*sharedSecretInput/,
+  /config\.authToken/,
+  /config\.sharedSecret/,
+  /decision\s*===\s*['"]reject['"]/,
+  /buildActionButton\(['"]reject['"]/,
+]) {
+  if (forbidden.test(satelliteJs)) {
+    throw new Error(`satellite browser security regression: ${forbidden}`);
+  }
+}
+if (!/localStorage\.removeItem\(key\)/.test(satelliteJs)) {
+  throw new Error('satellite queues must purge legacy localStorage payloads');
+}
+if (!/buildActionButton\(['"]deny['"], ['"]Deny['"]\)/.test(satelliteJs)) {
+  throw new Error('satellite deny button must emit the governed deny decision');
 }
 
 execFileSync(

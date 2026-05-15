@@ -17,6 +17,14 @@ import { ZavorthSensitiveActionFlowUxService } from '../../../../services/Zavort
 import { ZavorthVisualReceiptUxService } from '../../../../services/ZavorthVisualReceiptUxService.js';
 import { CommandCenterContractAdapterService } from '../../../../services/CommandCenterContractAdapterService.js';
 import { ZavorthDailyUseGuiCertificationService } from '../../../../services/ZavorthDailyUseGuiCertificationService.js';
+import type { ZavorthSensitiveActionFlowDecision } from '../../../../contracts/ZavorthSensitiveActionFlowContract.js';
+
+type RuntimeRecord = Record<string, unknown>;
+type WebSessionContext = RuntimeRecord & {
+  userId: string;
+  sessionId: string;
+  chatId?: string | null;
+};
 
 type UiSurfaceHintsInput = {
   localControlEntry: string;
@@ -39,20 +47,20 @@ const AGENT_RUN_STATUS_VALUES = new Set([
 ]);
 
 export type WebAppRuntimeStateRouteHelpers = {
-  buildSessionContext: (sessionId: string) => Record<string, any>;
+  buildSessionContext: (sessionId: string) => WebSessionContext;
   isFullDetailRequested: (url: URL) => boolean;
   previewGatewayMemoryRecall: (input: HybridMemoryRecallInput) => Promise<HybridMemoryRecallResult>;
   listGatewayMemorySources: (
     input: Pick<HybridMemoryRecallInput, 'sessionId' | 'chatId' | 'userId' | 'platform' | 'workspaceHint'>,
   ) => Promise<HybridMemorySourcesResult>;
-  buildRecallQueryFromSnapshot: (snapshot: Record<string, any> | null | undefined) => string;
-  buildLightweightStateResponse: (state: Record<string, any>) => Record<string, any>;
-  buildProductMode: () => Record<string, any> | null;
+  buildRecallQueryFromSnapshot: (snapshot: RuntimeRecord | null | undefined) => string;
+  buildLightweightStateResponse: (state: RuntimeRecord) => RuntimeRecord;
+  buildProductMode: () => RuntimeRecord | null;
   buildUiSurfaceHints: (
-    productMode: Record<string, any> | null,
+    productMode: RuntimeRecord | null,
     input: UiSurfaceHintsInput,
-  ) => Record<string, any> | null;
-  buildCanonicalStatePayload: (sessionId: string, options: Record<string, any>) => Promise<Record<string, any>>;
+  ) => RuntimeRecord | null;
+  buildCanonicalStatePayload: (sessionId: string, options: RuntimeRecord) => Promise<RuntimeRecord>;
   isCanonicalSessionPlaneRoute: (pathname: string) => boolean;
 };
 
@@ -303,7 +311,7 @@ export class WebAppRuntimeStateRouteService {
           live: false,
           generatedAt: sensitiveActionFlowUx.generatedAt,
           sensitiveActionFlowUx,
-          safety: sensitiveActionFlowUx.card?.safety || {
+          safety: asRecord(asRecord(sensitiveActionFlowUx.card)?.safety) || {
             commandCenterCanExecute: false,
             rawSecretsSerialized: false,
           },
@@ -660,7 +668,7 @@ export class WebAppRuntimeStateRouteService {
     return false;
   }
 
-  private buildAgentRunQuery(url: URL): Record<string, any> {
+  private buildAgentRunQuery(url: URL): RuntimeRecord {
     const activeRunId = String(url.searchParams.get('runId') || '').trim() || null;
     const activeTraceId = String(url.searchParams.get('traceId') || '').trim() || null;
     const runStatus = this.readAgentRunStatuses(url);
@@ -676,8 +684,8 @@ export class WebAppRuntimeStateRouteService {
 
   private buildAgentRunSnapshotOptions(
     activeSessionId: string | null,
-    query: Record<string, any>,
-  ): Record<string, any> {
+    query: RuntimeRecord,
+  ): RuntimeRecord {
     const hasDirectRunQuery = Boolean(
       query.activeRunId
         || query.activeTraceId
@@ -707,8 +715,8 @@ export class WebAppRuntimeStateRouteService {
 
   private buildUnavailableAgentGatewaySnapshot(
     generatedAt: string,
-    input: Record<string, any>,
-  ): Record<string, any> {
+    input: RuntimeRecord,
+  ): RuntimeRecord {
     const query = {
       runId: input.activeRunId || null,
       traceId: input.activeTraceId || null,
@@ -760,7 +768,7 @@ export class WebAppRuntimeStateRouteService {
     };
   }
 
-  private attachLlmRuntimeTelemetry(snapshot: Record<string, any>): Record<string, any> {
+  private attachLlmRuntimeTelemetry(snapshot: RuntimeRecord): RuntimeRecord {
     const runObservatory = snapshot.runObservatory && typeof snapshot.runObservatory === 'object'
       ? { ...snapshot.runObservatory }
       : {};
@@ -773,7 +781,7 @@ export class WebAppRuntimeStateRouteService {
     };
   }
 
-  private async buildProviderCockpitProjection(url: URL): Promise<Record<string, any>> {
+  private async buildProviderCockpitProjection(url: URL): Promise<RuntimeRecord> {
     const service = new ZavorthCommandCenterProviderCockpitService();
     return service.buildProjection({
       includeAdvanced: this.readBooleanParam(url, 'advanced'),
@@ -781,13 +789,13 @@ export class WebAppRuntimeStateRouteService {
       selectedProviderId: String(url.searchParams.get('selectedProvider') || url.searchParams.get('selectedProviderId') || '').trim() || null,
       live: false,
       allowAllLive: false,
-    }) as Promise<Record<string, any>>;
+    }) as Promise<RuntimeRecord>;
   }
 
   private async buildCommandCenterContractAdapterProjection(
     url: URL,
     deps: WebAppRuntimeRouteDeps,
-  ): Promise<Record<string, any> | null> {
+  ): Promise<RuntimeRecord | null> {
     if (!deps.publicApi) {
       return null;
     }
@@ -799,10 +807,10 @@ export class WebAppRuntimeStateRouteService {
       approvalStatus: 'pending',
       missionRequest: String(url.searchParams.get('request') || url.searchParams.get('q') || '').trim() || null,
       missionTemplateId: String(url.searchParams.get('templateId') || '').trim() || null,
-    }) as Promise<Record<string, any>>;
+    }) as Promise<RuntimeRecord>;
   }
 
-  private async buildProviderSelectionProjection(url: URL): Promise<Record<string, any>> {
+  private async buildProviderSelectionProjection(url: URL): Promise<RuntimeRecord> {
     const service = new ZavorthProviderSelectionUxService();
     return service.buildSnapshot({
       includeAdvanced: this.readBooleanParam(url, 'advanced'),
@@ -810,10 +818,10 @@ export class WebAppRuntimeStateRouteService {
       intent: String(url.searchParams.get('providerIntent') || url.searchParams.get('intent') || '').trim() || null,
       requireLiveEvidence: this.readBooleanParam(url, 'requireLive') || this.readBooleanParam(url, 'liveProof'),
       live: false,
-    }) as Promise<Record<string, any>>;
+    }) as Promise<RuntimeRecord>;
   }
 
-  private async buildProviderPreferenceProjection(): Promise<Record<string, any>> {
+  private async buildProviderPreferenceProjection(): Promise<RuntimeRecord> {
     const service = new ZavorthProviderPreferencePersistenceService();
     const preference = await service.readPreference();
     return {
@@ -833,14 +841,14 @@ export class WebAppRuntimeStateRouteService {
     };
   }
 
-  private buildVisualReceiptsProjection(url: URL): Record<string, any> {
+  private buildVisualReceiptsProjection(url: URL): RuntimeRecord {
     const service = new ZavorthVisualReceiptUxService();
     return service.buildSnapshot({
       includeAdvanced: this.readBooleanParam(url, 'advanced'),
-    }) as Record<string, any>;
+    }) as RuntimeRecord;
   }
 
-  private buildSensitiveActionFlowUxProjection(url: URL): Record<string, any> {
+  private buildSensitiveActionFlowUxProjection(url: URL): RuntimeRecord {
     const service = new ZavorthSensitiveActionFlowUxService();
     return service.buildSnapshot({
       request: String(
@@ -848,46 +856,46 @@ export class WebAppRuntimeStateRouteService {
         || url.searchParams.get('q')
         || 'Review this workspace in read-only mode.',
       ).trim(),
-      decision: String(url.searchParams.get('decision') || '').trim() as any,
+      decision: this.readSensitiveActionDecision(url.searchParams.get('decision')),
       approvalId: String(url.searchParams.get('approvalId') || url.searchParams.get('approval-id') || '').trim() || null,
       sandboxReady: this.readBooleanParam(url, 'sandboxReady') || this.readBooleanParam(url, 'sandbox-ready'),
       source: 'web',
-    }) as Record<string, any>;
+    }) as RuntimeRecord;
   }
 
   private buildActiveMissionUxProjection(input: {
-    runtimeSnapshot: Record<string, any>;
-    sensitiveActionFlowUx: Record<string, any>;
-    visualReceipts: Record<string, any>;
-    providerSelectionUx: Record<string, any>;
-    providerPreference: Record<string, any>;
-  }): Record<string, any> {
+    runtimeSnapshot: RuntimeRecord;
+    sensitiveActionFlowUx: RuntimeRecord;
+    visualReceipts: RuntimeRecord;
+    providerSelectionUx: RuntimeRecord;
+    providerPreference: RuntimeRecord;
+  }): RuntimeRecord {
     const service = new ZavorthActiveMissionUxService();
-    return service.buildSnapshot(input) as Record<string, any>;
+    return service.buildSnapshot(input) as RuntimeRecord;
   }
 
   private buildApprovalActionCardsUxProjection(input: {
-    runtimeSnapshot: Record<string, any>;
-    sensitiveActionFlowUx: Record<string, any>;
-    visualReceipts: Record<string, any>;
-    activeMissionUx: Record<string, any>;
-  }): Record<string, any> {
+    runtimeSnapshot: RuntimeRecord;
+    sensitiveActionFlowUx: RuntimeRecord;
+    visualReceipts: RuntimeRecord;
+    activeMissionUx: RuntimeRecord;
+  }): RuntimeRecord {
     const service = new ZavorthApprovalActionCardsUxService();
     const approvals = Array.isArray(input.runtimeSnapshot?.approvals)
-      ? input.runtimeSnapshot.approvals as Record<string, any>[]
+      ? input.runtimeSnapshot.approvals as RuntimeRecord[]
       : [];
     return service.buildSnapshot({
       approvals,
       sensitiveActionFlowUx: input.sensitiveActionFlowUx,
       visualReceipts: input.visualReceipts,
       activeMissionUx: input.activeMissionUx,
-    }) as Record<string, any>;
+    }) as RuntimeRecord;
   }
 
   private attachProviderCockpit(
-    snapshot: Record<string, any>,
-    providerCockpit: Record<string, any>,
-  ): Record<string, any> {
+    snapshot: RuntimeRecord,
+    providerCockpit: RuntimeRecord,
+  ): RuntimeRecord {
     const activeRun = this.isRecord(snapshot.activeRun) ? snapshot.activeRun : null;
     const activeRunMetadata = this.isRecord(activeRun?.metadata) ? activeRun.metadata : null;
     const hasRunProviderCockpit = this.isRecord(activeRunMetadata?.providerCockpit);
@@ -907,9 +915,9 @@ export class WebAppRuntimeStateRouteService {
   }
 
   private attachProviderSelection(
-    snapshot: Record<string, any>,
-    providerSelectionUx: Record<string, any>,
-  ): Record<string, any> {
+    snapshot: RuntimeRecord,
+    providerSelectionUx: RuntimeRecord,
+  ): RuntimeRecord {
     return {
       ...snapshot,
       providerSelectionUx,
@@ -917,9 +925,9 @@ export class WebAppRuntimeStateRouteService {
   }
 
   private attachProviderPreference(
-    snapshot: Record<string, any>,
-    providerPreference: Record<string, any>,
-  ): Record<string, any> {
+    snapshot: RuntimeRecord,
+    providerPreference: RuntimeRecord,
+  ): RuntimeRecord {
     return {
       ...snapshot,
       providerPreference,
@@ -927,9 +935,9 @@ export class WebAppRuntimeStateRouteService {
   }
 
   private attachVisualReceipts(
-    snapshot: Record<string, any>,
-    visualReceipts: Record<string, any>,
-  ): Record<string, any> {
+    snapshot: RuntimeRecord,
+    visualReceipts: RuntimeRecord,
+  ): RuntimeRecord {
     return {
       ...snapshot,
       visualReceipts,
@@ -937,9 +945,9 @@ export class WebAppRuntimeStateRouteService {
   }
 
   private attachSensitiveActionFlowUx(
-    snapshot: Record<string, any>,
-    sensitiveActionFlowUx: Record<string, any>,
-  ): Record<string, any> {
+    snapshot: RuntimeRecord,
+    sensitiveActionFlowUx: RuntimeRecord,
+  ): RuntimeRecord {
     return {
       ...snapshot,
       sensitiveActionFlowUx,
@@ -947,9 +955,9 @@ export class WebAppRuntimeStateRouteService {
   }
 
   private attachActiveMissionUx(
-    snapshot: Record<string, any>,
-    activeMissionUx: Record<string, any>,
-  ): Record<string, any> {
+    snapshot: RuntimeRecord,
+    activeMissionUx: RuntimeRecord,
+  ): RuntimeRecord {
     return {
       ...snapshot,
       activeMissionUx,
@@ -957,9 +965,9 @@ export class WebAppRuntimeStateRouteService {
   }
 
   private attachApprovalActionCardsUx(
-    snapshot: Record<string, any>,
-    approvalActionCardsUx: Record<string, any>,
-  ): Record<string, any> {
+    snapshot: RuntimeRecord,
+    approvalActionCardsUx: RuntimeRecord,
+  ): RuntimeRecord {
     return {
       ...snapshot,
       approvalActionCardsUx,
@@ -967,9 +975,9 @@ export class WebAppRuntimeStateRouteService {
   }
 
   private attachCommandCenterContractAdapter(
-    snapshot: Record<string, any>,
-    contractAdapter: Record<string, any> | null,
-  ): Record<string, any> {
+    snapshot: RuntimeRecord,
+    contractAdapter: RuntimeRecord | null,
+  ): RuntimeRecord {
     if (!contractAdapter) {
       return snapshot;
     }
@@ -1011,7 +1019,7 @@ export class WebAppRuntimeStateRouteService {
     const body = await deps.readJsonBody(req);
     const action = String(body?.action || body?.kind || '').trim().toLowerCase();
     const requestedBy = String(body?.requestedBy || 'control-ui').trim() || 'control-ui';
-    let result: Record<string, any>;
+    let result: RuntimeRecord;
 
     switch (action) {
       case 'approval.approve':
@@ -1021,7 +1029,7 @@ export class WebAppRuntimeStateRouteService {
           approvalId: String(body?.approvalId || body?.id || '').trim(),
           decidedBy: requestedBy,
           note: String(body?.note || body?.reason || '').trim() || null,
-        }) as Record<string, any>;
+        }) as RuntimeRecord;
         break;
       case 'approval.deny':
       case 'approval.reject':
@@ -1031,7 +1039,7 @@ export class WebAppRuntimeStateRouteService {
           approvalId: String(body?.approvalId || body?.id || '').trim(),
           decidedBy: requestedBy,
           reason: String(body?.reason || body?.note || '').trim() || null,
-        }) as Record<string, any>;
+        }) as RuntimeRecord;
         break;
       case 'mission.cancel':
       case 'cancel':
@@ -1039,14 +1047,14 @@ export class WebAppRuntimeStateRouteService {
           missionId: String(body?.missionId || body?.id || '').trim(),
           requestedBy,
           reason: String(body?.reason || body?.note || '').trim() || null,
-        }) as Record<string, any>;
+        }) as RuntimeRecord;
         break;
       case 'provider.test':
         result = await deps.publicApi.testProvider({
           providerId: String(body?.providerId || body?.id || '').trim(),
           live: body?.live === true,
           approved: body?.approved === true || body?.confirmed === true,
-        }) as Record<string, any>;
+        }) as RuntimeRecord;
         break;
       case 'channel.action':
         result = await deps.publicApi.executeChannelAction({
@@ -1054,7 +1062,7 @@ export class WebAppRuntimeStateRouteService {
           actionId: String(body?.actionId || '').trim(),
           requestedBy,
           approved: body?.approved === true || body?.confirmed === true,
-        }) as Record<string, any>;
+        }) as RuntimeRecord;
         break;
       default:
         deps.writeJson(res, {
@@ -1134,28 +1142,35 @@ export class WebAppRuntimeStateRouteService {
     return raw === '1' || raw === 'true' || raw === 'yes' || raw === 'on';
   }
 
-  private isRecord(value: unknown): value is Record<string, any> {
+  private isRecord(value: unknown): value is RuntimeRecord {
     return Boolean(value && typeof value === 'object' && !Array.isArray(value));
   }
 
-  private buildSessionToolsGatewaySnapshot(canonicalState: Record<string, any>): Record<string, any> {
-    if (canonicalState?.gateway) {
-      return canonicalState.gateway;
+  private buildSessionToolsGatewaySnapshot(canonicalState: RuntimeRecord): RuntimeRecord {
+    const directGateway = asRecord(canonicalState.gateway);
+    if (directGateway) {
+      return directGateway;
     }
+    const sessionsSummary = asRecord(canonicalState.sessionsSummary);
+    const gatewaySessionTools = asRecord(canonicalState.gatewaySessionTools);
+    const gatewaySessionsSummary = asRecord(gatewaySessionTools?.sessionsSummary);
+    const sessions = asRecord(canonicalState.sessions);
+    const sessionEntries = Array.isArray(sessions?.entries) ? sessions.entries : [];
 
     const sessionTargets = Number(
-      canonicalState?.sessionsSummary?.total
-      ?? canonicalState?.gatewaySessionTools?.sessionsSummary?.total
-      ?? canonicalState?.sessions?.total
-      ?? (Array.isArray(canonicalState?.sessions?.entries)
-        ? canonicalState.sessions.entries.length
-        : Array.isArray(canonicalState?.sessions)
+      sessionsSummary?.total
+      ?? gatewaySessionsSummary?.total
+      ?? sessions?.total
+      ?? (sessionEntries.length > 0
+        ? sessionEntries.length
+        : Array.isArray(canonicalState.sessions)
           ? canonicalState.sessions.length
           : 0),
     );
+    const snapshot = asRecord(canonicalState.snapshot);
 
     return {
-      generatedAt: canonicalState?.snapshot?.generatedAt || new Date().toISOString(),
+      generatedAt: text(snapshot?.generatedAt) || new Date().toISOString(),
       summary: {
         sessionTargets,
       },
@@ -1168,11 +1183,12 @@ export class WebAppRuntimeStateRouteService {
     };
   }
 
-  private buildCurrentModelProfile(snapshot: Record<string, any>): Record<string, any> {
-    const activeRunProfile = snapshot?.activeRun?.modelProfile;
-    const latestRunProfile = Array.isArray(snapshot?.runs)
-      ? snapshot.runs.find((run: any) => run?.modelProfile)?.modelProfile
+  private buildCurrentModelProfile(snapshot: RuntimeRecord): RuntimeRecord {
+    const activeRunProfile = asRecord(asRecord(snapshot.activeRun)?.modelProfile);
+    const latestRun = Array.isArray(snapshot?.runs)
+      ? asRecord(snapshot.runs.find((run) => Boolean(asRecord(asRecord(run)?.modelProfile))))
       : null;
+    const latestRunProfile = asRecord(latestRun?.modelProfile);
     const profile = this.isKnownModelProfile(activeRunProfile)
       ? activeRunProfile
       : this.isKnownModelProfile(latestRunProfile)
@@ -1204,7 +1220,7 @@ export class WebAppRuntimeStateRouteService {
     };
   }
 
-  private isKnownModelProfile(profile: Record<string, any> | null | undefined): boolean {
+  private isKnownModelProfile(profile: RuntimeRecord | null | undefined): boolean {
     const modelLabel = String(profile?.modelLabel || profile?.model || '').trim().toLowerCase();
     return Boolean(
       modelLabel
@@ -1287,23 +1303,23 @@ export class WebAppRuntimeStateRouteService {
       : null;
     const runtimeGatewayAny = deps.runtimeGateway as
       | ({
-          buildSnapshot: (input: Record<string, any>) => Record<string, any>;
-          buildShellSnapshot?: (input: Record<string, any>) => {
+          buildSnapshot: (input: RuntimeRecord) => RuntimeRecord;
+          buildShellSnapshot?: (input: RuntimeRecord) => {
             generatedAt: string;
-            summary: Record<string, any>;
-            narrative: Record<string, any>;
+            summary: RuntimeRecord;
+            narrative: RuntimeRecord;
             memoryPlane?: {
               generatedAt: string;
-              summary: Record<string, any>;
-              narrative: Record<string, any>;
+              summary: RuntimeRecord;
+              narrative: RuntimeRecord;
             } | null;
             controlPlane?: {
               generatedAt: string;
-              summary: Record<string, any>;
-              narrative: Record<string, any>;
+              summary: RuntimeRecord;
+              narrative: RuntimeRecord;
             } | null;
           };
-        } & Record<string, any>)
+        } & RuntimeRecord)
       | null;
     const gateway = gatewayRuntimeSnapshot?.gateway || (runtimeGatewayAny
       ? fullDetail
@@ -1366,9 +1382,9 @@ export class WebAppRuntimeStateRouteService {
   }
 
   private buildCanonicalStateResponse(
-    canonicalState: Record<string, any>,
-    extra: Record<string, any> = {},
-  ): Record<string, any> {
+    canonicalState: RuntimeRecord,
+    extra: RuntimeRecord = {},
+  ): RuntimeRecord {
     return {
       ok: true,
       snapshot: canonicalState.snapshot,
@@ -1394,5 +1410,18 @@ export class WebAppRuntimeStateRouteService {
       ...extra,
     };
   }
+
+  private readSensitiveActionDecision(value: string | null): ZavorthSensitiveActionFlowDecision {
+    const normalized = String(value || '').trim();
+    if (normalized === 'approve' || normalized === 'deny') return normalized;
+    return 'none';
+  }
 }
 
+function asRecord(value: unknown): RuntimeRecord | null {
+  return value && typeof value === 'object' && !Array.isArray(value) ? value as RuntimeRecord : null;
+}
+
+function text(value: unknown): string {
+  return typeof value === 'string' ? value.trim() : '';
+}
