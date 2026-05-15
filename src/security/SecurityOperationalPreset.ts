@@ -89,6 +89,11 @@ type PresetRuntime = {
 
 const LOCAL_SKILL_RULES = [
   {
+    sourceId: 'zavorth-native',
+    mode: 'all' as const,
+    reason: 'Official Zavorth-owned native intelligence pack.',
+  },
+  {
     sourceId: 'workspace-agents',
     mode: 'all' as const,
     reason: 'Fonte principal de autoria local.',
@@ -119,7 +124,7 @@ const PRESETS: Record<SecurityOperationalPresetId, SecurityOperationalPresetDefi
     },
     skillPolicy: {
       defaultPolicy: 'deny',
-      allowedSourceIds: ['workspace-agents', 'workspace-library', 'workspace-imported-library'],
+      allowedSourceIds: ['zavorth-native', 'workspace-agents', 'workspace-library', 'workspace-imported-library'],
       rules: LOCAL_SKILL_RULES,
     },
     continuousSecurity: {
@@ -144,7 +149,7 @@ const PRESETS: Record<SecurityOperationalPresetId, SecurityOperationalPresetDefi
     },
     skillPolicy: {
       defaultPolicy: 'deny',
-      allowedSourceIds: ['workspace-agents', 'workspace-library', 'workspace-imported-library'],
+      allowedSourceIds: ['zavorth-native', 'workspace-agents', 'workspace-library', 'workspace-imported-library'],
       rules: LOCAL_SKILL_RULES,
     },
     continuousSecurity: {
@@ -169,7 +174,7 @@ const PRESETS: Record<SecurityOperationalPresetId, SecurityOperationalPresetDefi
     },
     skillPolicy: {
       defaultPolicy: 'deny',
-      allowedSourceIds: ['workspace-agents', 'workspace-library', 'workspace-imported-library'],
+      allowedSourceIds: ['zavorth-native', 'workspace-agents', 'workspace-library', 'workspace-imported-library'],
       rules: LOCAL_SKILL_RULES,
     },
     continuousSecurity: {

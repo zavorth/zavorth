@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updatedAt": "2026-05-13T06:33:19.684Z",
+  "updatedAt": "2026-05-15T21:13:00.193Z",
   "defaultPolicy": "deny",
   "allowedSourceIds": [
     "zavorth-native",
