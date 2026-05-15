@@ -30,6 +30,8 @@ describe('ZavorthExperienceLayerDailyUseCertificationService', () => {
       rawSecretsSerialized: false,
     });
     expect(snapshot.phases.every((phase) => phase.status !== 'blocked')).toBe(true);
+    expect(JSON.stringify(snapshot)).not.toContain('"executionAuthority":true');
+    expect(JSON.stringify(snapshot)).not.toContain('"rawSecretsSerialized":true');
     expect(snapshot.invariants.join(' ')).toContain('No profile, dashboard card, CLI entrypoint or Satellite card grants extra authority');
   });
 });

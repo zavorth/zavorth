@@ -141,11 +141,11 @@ export const getNpmGlobalPrefix = (): string => {
   }
 
   try {
-    const result = execFileSync("npm", ["config", "get", "prefix"], {
+    const result = execFileSync(isWindows() ? "npm.cmd" : "npm", ["config", "get", "prefix"], {
       timeout: 5000,
       encoding: "utf8",
       stdio: ["ignore", "pipe", "ignore"],
-      ...(isWindows() ? { shell: true } : {}),
+      shell: false,
     });
     const prefix = result.trim();
     if (

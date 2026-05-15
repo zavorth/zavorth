@@ -408,6 +408,7 @@ function decide(input: {
   if (provider && provider.readiness === 'blocked') return 'block_until_configured';
   if (provider && provider.readiness !== 'ready') return 'ask_before_live';
   if (input.recommendedTier === 'free_or_local') return 'allow_preview';
+  if (!provider || provider.liveUseNeedsApproval) return 'ask_before_live';
   if (input.estimateRisk === 'high' || input.maxCents <= 0) return 'ask_before_live';
   return input.maxCents >= 25 ? 'allow_with_budget' : 'ask_before_live';
 }

@@ -51,7 +51,7 @@ Sensitive work follows one path:
 7. emit a visual receipt;
 8. prepare rollback evidence before mutation.
 
-Use `zavorth preview "edit src/index.ts"` or
+Use `zavorth chat "edit src/index.ts"` for the normal CLI entry or
 `npm run zavorth:sensitive-action-flow -- --request "edit src/index.ts"` to
 inspect the projection. Dashboard can render this as an action card, but it
 does not execute actions by itself.
@@ -87,6 +87,9 @@ these capability IDs so product docs do not drift from runtime truth:
 
 Nexus is not a parallel runtime. It is a surface/API convergence layer for the
 central runtime.
+
+Nexus nao e runtime paralelo; it is only a governed projection and convergence
+surface over the central runtime.
 
 Echo is an edge interaction layer for quick voice, device and fallback flows. It
 is not the primary brain of Zavorth.

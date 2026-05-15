@@ -9,8 +9,9 @@ import {
   type ExecutionLifecycleContextLink,
 } from './ExecutionLifecycleLinkService.js';
 
-type ReplayTaskInput = SessionContinuityTask | Record<string, any>;
-type ReplayPermissionInput = Record<string, any>;
+type ReplayRecord = Record<string, unknown>;
+type ReplayTaskInput = SessionContinuityTask | ReplayRecord;
+type ReplayPermissionInput = ReplayRecord;
 type NormalizedReplayPermission = {
   permissionId: string;
   taskId: string | null;
@@ -375,8 +376,9 @@ export class SessionReplayService {
 
     for (const task of tasks) {
       const normalizedTask = this.normalizeTask(task);
-      const artifacts = Array.isArray((task as Record<string, any>)?.artifacts)
-        ? ((task as Record<string, any>).artifacts as Record<string, any>[])
+      const taskRecord = asReplayRecord(task);
+      const artifacts = Array.isArray(taskRecord?.artifacts)
+        ? taskRecord.artifacts.map((artifact) => asReplayRecord(artifact)).filter((artifact): artifact is ReplayRecord => Boolean(artifact))
         : [];
       for (const artifact of artifacts) {
         const id = String(
@@ -464,7 +466,8 @@ export class SessionReplayService {
       return null;
     }
 
-    const taskId = String((task as Record<string, any>).taskId || (task as Record<string, any>).task_id || '').trim();
+    const taskRecord = asReplayRecord(task);
+    const taskId = String(taskRecord?.taskId || taskRecord?.task_id || '').trim();
     if (!taskId) {
       return null;
     }
@@ -472,22 +475,22 @@ export class SessionReplayService {
     return {
       taskId,
       shortId:
-        String((task as Record<string, any>).shortId || (task as Record<string, any>).short_id || '').trim()
+        String(taskRecord?.shortId || taskRecord?.short_id || '').trim()
         || taskId.substring(0, 8),
-      source: String((task as Record<string, any>).source || '').trim() || 'unknown',
-      commandType: String((task as Record<string, any>).commandType || (task as Record<string, any>).command_type || '').trim(),
-      status: String((task as Record<string, any>).status || '').trim(),
-      workspace: String((task as Record<string, any>).workspace || '').trim() || null,
+      source: String(taskRecord?.source || '').trim() || 'unknown',
+      commandType: String(taskRecord?.commandType || taskRecord?.command_type || '').trim(),
+      status: String(taskRecord?.status || '').trim(),
+      workspace: String(taskRecord?.workspace || '').trim() || null,
       updatedAt:
-        String((task as Record<string, any>).updatedAt || (task as Record<string, any>).updated_at || (task as Record<string, any>).created_at || '').trim(),
+        String(taskRecord?.updatedAt || taskRecord?.updated_at || taskRecord?.created_at || '').trim(),
       summary: this.pickSummary([
-        (task as Record<string, any>).summary,
-        (task as Record<string, any>).result_summary,
-        (task as Record<string, any>).error_summary,
-        (task as Record<string, any>).raw_message,
+        taskRecord?.summary,
+        taskRecord?.result_summary,
+        taskRecord?.error_summary,
+        taskRecord?.raw_message,
       ]),
       execution:
-        ((task as Record<string, any>).execution as ExecutionLifecycleContextLink | null)
+        (taskRecord?.execution as ExecutionLifecycleContextLink | null)
         || this.lifecycleLinks.buildTaskContextLink(task as Record<string, unknown>),
     };
   }
@@ -527,4 +530,8 @@ export class SessionReplayService {
     const parsed = Date.parse(String(value || '').trim());
     return Number.isFinite(parsed) ? parsed : 0;
   }
+}
+
+function asReplayRecord(value: unknown): ReplayRecord | null {
+  return value && typeof value === 'object' && !Array.isArray(value) ? value as ReplayRecord : null;
 }

@@ -3,11 +3,17 @@
   "updatedAt": "2026-05-13T06:33:19.684Z",
   "defaultPolicy": "deny",
   "allowedSourceIds": [
+    "zavorth-native",
     "workspace-agents",
     "workspace-library",
     "workspace-imported-library"
   ],
   "rules": [
+    {
+      "sourceId": "zavorth-native",
+      "mode": "all",
+      "reason": "Official Zavorth-owned native intelligence pack."
+    },
     {
       "sourceId": "workspace-agents",
       "mode": "all",

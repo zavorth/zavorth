@@ -530,7 +530,7 @@ export default function HomePageClient({ machineId }) {
           <div>
             <div className="inline-flex items-center gap-2 rounded-full border border-primary/15 bg-primary/[0.06] px-3 py-1.5 text-[11px] font-semibold uppercase tracking-[0.24em] text-primary/80">
               <ZavorthGatewayLogo size={16} className="text-primary" />
-              Hello, Operator.
+              Zavorth Control Plane
             </div>
 
             <h2 className="mt-5 max-w-3xl text-3xl font-semibold tracking-tight text-text-main sm:text-4xl">
@@ -538,6 +538,7 @@ export default function HomePageClient({ machineId }) {
             </h2>
 
             <p className="mt-4 max-w-2xl text-sm leading-7 text-text-muted sm:text-base">
+              Hello, Operator. This operator surface keeps daily missions, readiness, approvals and receipts in one place.
               Ask naturally. Zavorth will show risk, ask when needed and leave receipts behind.
               Start with a guided mission or inspect the runtime quietly.
             </p>

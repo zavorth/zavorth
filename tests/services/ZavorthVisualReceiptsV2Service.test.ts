@@ -3,9 +3,10 @@ import { ZavorthVisualReceiptsV2Service } from '../../src/services/ZavorthVisual
 
 describe('ZavorthVisualReceiptsV2Service', () => {
   it('turns legacy receipt UX into product cards without execution authority', () => {
+    const googleToken = ['AI', 'za', '123456789012345678901234567890'].join('');
     const snapshot = new ZavorthVisualReceiptsV2Service().buildSnapshot({
       receipts: [receipt({
-        simpleText: 'Completed safely with token sk-secretshouldvanish123456.',
+        simpleText: `Completed safely with token sk-secretshouldvanish123456 and Google key ${googleToken}.`,
         filesChanged: 0,
         approvals: 0,
         risk: 'low',
@@ -20,6 +21,7 @@ describe('ZavorthVisualReceiptsV2Service', () => {
     expect(snapshot.cards[0]?.confidence).toBe('clear');
     expect(snapshot.cards[0]?.safeActions.every((action) => action.dashboardCanExecute === false)).toBe(true);
     expect(JSON.stringify(snapshot)).not.toContain('sk-secretshouldvanish');
+    expect(JSON.stringify(snapshot)).not.toContain(googleToken);
     expect(JSON.stringify(snapshot)).toContain('[REDACTED_SECRET]');
   });
 

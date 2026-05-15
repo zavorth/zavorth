@@ -1,10 +1,13 @@
 #!/usr/bin/env node
 import { spawnSync } from 'node:child_process';
 import fs from 'node:fs';
+import { createRequire } from 'node:module';
 import path from 'node:path';
 
 const root = process.cwd();
 const asJson = process.argv.includes('--json');
+const require = createRequire(import.meta.url);
+const tsxCli = require.resolve('tsx/cli');
 
 const rules = [
   filesExist('practical-agency-files', [
@@ -90,10 +93,10 @@ const rules = [
   ]),
 ];
 
-const gate = spawnSync('npx tsx scripts/practical-agency-gate.ts --json', {
+const gate = spawnSync(process.execPath, [tsxCli, 'scripts/practical-agency-gate.ts', '--json'], {
   cwd: root,
   encoding: 'utf8',
-  shell: true,
+  shell: false,
 });
 rules.push({
   id: 'practical-agency-dynamic-gate',

@@ -64,7 +64,7 @@ small: daily-use guides, stable architecture notes and integration contracts.
 - Private audits, implementation scratchpads and temporary planning notes do not belong here.
 - Commands in docs should exist in `package.json` or be plain installed CLI commands.
 - Local links should resolve before docs are committed.
-- Documentation never implies external action, install, deploy, secret access or shell execution.
+- No external action, install, deploy, secret access, or shell execution is implied by documentation, certification gates, or preview-only operational cycles.
 
 Before publishing documentation changes, run the public documentation audit from
 the repository root:

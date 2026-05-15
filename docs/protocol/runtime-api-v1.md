@@ -181,7 +181,9 @@ receipts, schedules, skills, agents, providers and channels. CLI projections do
 not execute mutations by themselves. Writes, network, device control and live
 channel actions stay inside the governed runtime and Policy Broker path.
 
-## Certification
+## Daily-Use GUI Certification
+
+Daily-Use GUI Certification is the pre-desktop gate for status, health, providers, channels, approvals, receipts, missions, chat, events and governed actions.
 
 Use these checks when changing Runtime API v1 or the user-facing runtime path:
 

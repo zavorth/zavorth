@@ -135,13 +135,14 @@ export class ZavorthNaturalRuntimeQuestionsService {
 }
 
 function classifyIntent(question: string): ZavorthNaturalRuntimeQuestionIntent {
-  if (/provider|model|openai|claude|gemini|ollama|ready/.test(question)) return 'providers_ready';
   if (/channel|telegram|whatsapp|discord|signal|slack|email/.test(question)) return 'channels_ready';
   if (/approval|approve|deny|permission|pending/.test(question)) return 'approvals_pending';
   if (/receipt|audit|evidence|what happened|done/.test(question)) return 'receipts_summary';
   if (/missing|broken|blocked|setup|configure|need/.test(question)) return 'setup_gaps';
   if (/safe|trust|allowed|blocked|permission|can do/.test(question)) return 'safety_boundary';
+  if (/provider|model|openai|claude|gemini|ollama/.test(question)) return 'providers_ready';
   if (/status|summary|runtime|everything|overall|health/.test(question)) return 'runtime_summary';
+  if (/\bready\b/.test(question)) return 'runtime_summary';
   return 'unknown';
 }
 
@@ -239,7 +240,12 @@ function sanitizeText(value: unknown): string {
   if (value === null || value === undefined) return '';
   return String(value)
     .replace(/\b([A-Z0-9_]*(?:API[_-]?KEY|SECRET|TOKEN|PASSWORD|CREDENTIAL)[A-Z0-9_]*)\s*=\s*[^\s"'`]+/gi, '$1=[REDACTED]')
-    .replace(/\b(sk|pk|ghp|gho|xox[baprs])[-_A-Za-z0-9]{8,}\b/g, '[REDACTED_SECRET]')
+    .replace(/\bAIza[0-9A-Za-z_-]{20,}\b/g, '[REDACTED_SECRET]')
+    .replace(/\bBearer\s+[A-Za-z0-9._~+/-]+=*/gi, 'Bearer [REDACTED_SECRET]')
+    .replace(/\bsk-[A-Za-z0-9_-]{12,}\b/g, '[REDACTED_SECRET]')
+    .replace(/\bpk_(?:live|test)_[A-Za-z0-9_-]{12,}\b/g, '[REDACTED_SECRET]')
+    .replace(/\bgh[pousr]_[A-Za-z0-9_]{20,}\b/g, '[REDACTED_SECRET]')
+    .replace(/\bxox[baprs]-[0-9A-Za-z-]{10,}\b/g, '[REDACTED_SECRET]')
     .replace(/\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}\b/g, '[REDACTED_EMAIL]')
     .slice(0, 1200);
 }

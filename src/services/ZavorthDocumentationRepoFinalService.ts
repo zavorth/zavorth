@@ -181,6 +181,10 @@ export class ZavorthDocumentationRepoFinalService {
       'docs/protocol/runtime-api-v1.md',
     ];
     const issues: string[] = [];
+    const externalProductIdentityPattern = new RegExp(
+      `\\bOpenClaw\\b|\\b${['Anti', 'gravity'].join('')}\\b`,
+      'i',
+    );
     for (const file of files) {
       const text = this.read(file);
       if (!text) {
@@ -188,7 +192,7 @@ export class ZavorthDocumentationRepoFinalService {
         continue;
       }
       if (/zavorth@alpha|NPM ALPHA|alpha\.3/i.test(text)) issues.push(`${file}: still publishes alpha install language`);
-      if (/\bOpenClaw\b|\bAntigravity\b/i.test(text)) issues.push(`${file}: references external product identity in public docs`);
+      if (externalProductIdentityPattern.test(text)) issues.push(`${file}: references external product identity in public docs`);
       if (/Worker\s+\d+|mock-live-harness|Post-291|291 plan/i.test(text)) issues.push(`${file}: contains old implementation diary wording`);
     }
     const readme = this.read('README.md') || '';

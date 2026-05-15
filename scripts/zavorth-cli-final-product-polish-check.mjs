@@ -144,11 +144,15 @@ function ruleWorkspaceCheck() {
 }
 
 function ruleInkPreview() {
-  const result = spawnSync('npm', ['--prefix', 'src/cli/ink-test-env', 'run', 'once', '--silent'], {
+  const command = process.platform === 'win32' ? (process.env.ComSpec || 'cmd.exe') : 'npm';
+  const args = process.platform === 'win32'
+    ? ['/d', '/s', '/c', 'npm --prefix src/cli/ink-test-env run once --silent']
+    : ['--prefix', 'src/cli/ink-test-env', 'run', 'once', '--silent'];
+  const result = spawnSync(command, args, {
     cwd: root,
     encoding: 'utf8',
     timeout: 12000,
-    shell: process.platform === 'win32',
+    shell: false,
   });
   const output = `${result.stdout || ''}\n${result.stderr || ''}`;
   const normalizedOutput = output.replace(/\s+/g, ' ');
