@@ -213,6 +213,48 @@ export default function HomePageClient({ machineId }) {
     },
   ];
 
+  const guidedStarts = [
+    {
+      label: "Organize my day",
+      description: "Turn scattered tasks into a simple plan before anything is sent or changed.",
+      prompt: "Help me organize my day safely.",
+      href: "/dashboard",
+      icon: "event_available",
+      risk: "Low",
+    },
+    {
+      label: "Review a repository",
+      description: "Read first, find risks, then ask before patches or commands.",
+      prompt: "Review this repository and show me the risks first.",
+      href: "/dashboard/cli-tools",
+      icon: "code_blocks",
+      risk: "Medium",
+    },
+    {
+      label: "Connect a channel",
+      description: "Set up Telegram, email or another channel with guided SecretRef handling.",
+      prompt: "Help me connect a channel.",
+      href: "/dashboard/providers",
+      icon: "hub",
+      risk: "Medium",
+    },
+    {
+      label: "Check readiness",
+      description: "See what is ready, blocked or waiting for setup without live probes.",
+      prompt: "What is ready and what still needs setup?",
+      href: "/dashboard/health",
+      icon: "fact_check",
+      risk: "Low",
+    },
+  ];
+
+  const runtimeQuestions = [
+    "Which providers are ready?",
+    "Which channels can I use now?",
+    "Do I have pending approvals?",
+    "What can Zavorth do without asking first?",
+  ];
+
   const pollBackgroundUpdate = useCallback(
     async ({
       channel,
@@ -488,16 +530,16 @@ export default function HomePageClient({ machineId }) {
           <div>
             <div className="inline-flex items-center gap-2 rounded-full border border-primary/15 bg-primary/[0.06] px-3 py-1.5 text-[11px] font-semibold uppercase tracking-[0.24em] text-primary/80">
               <ZavorthGatewayLogo size={16} className="text-primary" />
-              Zavorth Control Plane
+              Hello, Operator.
             </div>
 
             <h2 className="mt-5 max-w-3xl text-3xl font-semibold tracking-tight text-text-main sm:text-4xl">
-              Coordinate providers, routing, and local tool access from one operator surface.
+              What should Zavorth help with today?
             </h2>
 
             <p className="mt-4 max-w-2xl text-sm leading-7 text-text-muted sm:text-base">
-              This runtime keeps the endpoint, upstream accounts, and local developer tools aligned
-              without hiding the underlying state. Zavorth is meant to feel inspectable, not magic.
+              Ask naturally. Zavorth will show risk, ask when needed and leave receipts behind.
+              Start with a guided mission or inspect the runtime quietly.
             </p>
 
             <div className="mt-6 grid gap-3 sm:grid-cols-2">
@@ -603,6 +645,70 @@ export default function HomePageClient({ machineId }) {
           </Button>
         </div>
       )}
+
+      <div className="grid gap-8 xl:grid-cols-[1.15fr_0.85fr]">
+        <Card>
+          <div className="flex items-center justify-between gap-4">
+            <div>
+              <h2 className="text-lg font-semibold">Guided starts</h2>
+              <p className="text-sm text-text-muted">
+                Pick a gentle starting point. Sensitive work still becomes preview, approval and receipt.
+              </p>
+            </div>
+          </div>
+
+          <div className="mt-5 grid gap-3 sm:grid-cols-2">
+            {guidedStarts.map((mission) => (
+              <Link
+                key={mission.label}
+                href={mission.href}
+                className="group rounded-2xl border border-border bg-bg-subtle/70 p-4 transition-all hover:border-primary/25 hover:bg-surface"
+              >
+                <div className="flex items-start gap-3">
+                  <div className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-primary/10 text-primary">
+                    <span className="material-symbols-outlined text-[18px]">{mission.icon}</span>
+                  </div>
+                  <div className="min-w-0">
+                    <div className="flex flex-wrap items-center gap-2">
+                      <p className="text-sm font-semibold text-text-main">{mission.label}</p>
+                      <span className="rounded-full border border-border px-2 py-0.5 text-[10px] font-semibold uppercase tracking-[0.14em] text-text-muted">
+                        {mission.risk}
+                      </span>
+                    </div>
+                    <p className="mt-1 text-xs leading-5 text-text-muted">{mission.description}</p>
+                    <p className="mt-3 line-clamp-2 rounded-xl bg-surface/80 px-3 py-2 text-xs text-text-muted">
+                      {mission.prompt}
+                    </p>
+                  </div>
+                </div>
+              </Link>
+            ))}
+          </div>
+        </Card>
+
+        <Card>
+          <div>
+            <h2 className="text-lg font-semibold">Ask the runtime</h2>
+            <p className="text-sm text-text-muted">
+              Natural questions are read-only. They explain state without changing configuration.
+            </p>
+          </div>
+
+          <div className="mt-5 space-y-3">
+            {runtimeQuestions.map((question) => (
+              <div
+                key={question}
+                className="rounded-2xl border border-border bg-bg-subtle/70 px-4 py-3"
+              >
+                <p className="text-sm font-medium text-text-main">{question}</p>
+                <code className="mt-2 block break-all text-xs text-text-muted">
+                  zavorth ask-runtime &quot;{question.toLowerCase()}&quot;
+                </code>
+              </div>
+            ))}
+          </div>
+        </Card>
+      </div>
 
       <div className="grid gap-8 xl:grid-cols-[1.2fr_0.8fr]">
         <Card>

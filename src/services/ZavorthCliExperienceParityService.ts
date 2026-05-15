@@ -1,0 +1,137 @@
+import {
+  ZAVORTH_CLI_EXPERIENCE_PARITY_CONTRACT_VERSION,
+  type ZavorthCliExperienceParityCommand,
+  type ZavorthCliExperienceParitySnapshot,
+} from '../contracts/ZavorthCliExperienceParityContract.js';
+import { ZavorthDashboardExperienceHomeService } from './ZavorthDashboardExperienceHomeService.js';
+
+export type ZavorthCliExperienceParityRuntime = {
+  now?: () => Date;
+  dashboardHome?: ZavorthDashboardExperienceHomeService;
+};
+
+export class ZavorthCliExperienceParityService {
+  private readonly now: () => Date;
+  private readonly dashboardHome: ZavorthDashboardExperienceHomeService;
+
+  constructor(runtime: ZavorthCliExperienceParityRuntime = {}) {
+    this.now = runtime.now || (() => new Date());
+    this.dashboardHome = runtime.dashboardHome || new ZavorthDashboardExperienceHomeService({ now: this.now });
+  }
+
+  public buildSnapshot(): ZavorthCliExperienceParitySnapshot {
+    const home = this.dashboardHome.buildSnapshot();
+    const guidedCommands: ZavorthCliExperienceParityCommand[] = home.primaryMissions.map((mission) => ({
+      id: `mission-${mission.id}`,
+      label: mission.label,
+      command: `zavorth guided-missions --intent "${mission.prompt}"`,
+      description: mission.description,
+      kind: 'guided_mission',
+      risk: mission.risk === 'low' ? 'read_only' : 'approval_gated',
+      mirrorsDashboardHome: true,
+      cliCanExecuteTargetAction: false,
+    }));
+    const questionCommands: ZavorthCliExperienceParityCommand[] = home.runtimeQuestions.map((question) => ({
+      id: `question-${question.id}`,
+      label: question.label,
+      command: question.command,
+      description: question.question,
+      kind: 'runtime_question',
+      risk: 'read_only',
+      mirrorsDashboardHome: true,
+      cliCanExecuteTargetAction: false,
+    }));
+    const utilityCommands: ZavorthCliExperienceParityCommand[] = [
+      {
+        id: 'trust-panel',
+        label: 'Trust panel',
+        command: 'zavorth trust-panel',
+        description: 'See what Zavorth may do alone, what needs approval and what is blocked.',
+        kind: 'trust',
+        risk: 'read_only',
+        mirrorsDashboardHome: false,
+        cliCanExecuteTargetAction: false,
+      },
+      {
+        id: 'visual-receipts',
+        label: 'Visual receipts',
+        command: 'zavorth visual-receipts',
+        description: 'Read a plain-language receipt for recent work and blocked actions.',
+        kind: 'receipt',
+        risk: 'read_only',
+        mirrorsDashboardHome: false,
+        cliCanExecuteTargetAction: false,
+      },
+      {
+        id: 'satellite-approvals',
+        label: 'Satellite approvals',
+        command: 'zavorth satellite-approvals',
+        description: 'Preview the mobile approval companion without granting execution authority.',
+        kind: 'satellite',
+        risk: 'read_only',
+        mirrorsDashboardHome: false,
+        cliCanExecuteTargetAction: false,
+      },
+      {
+        id: 'dashboard',
+        label: 'Open dashboard',
+        command: 'zavorth dashboard',
+        description: 'Open the main /dashboard gateway for daily use.',
+        kind: 'dashboard',
+        risk: 'read_only',
+        mirrorsDashboardHome: true,
+        cliCanExecuteTargetAction: false,
+      },
+    ];
+
+    return {
+      contractVersion: ZAVORTH_CLI_EXPERIENCE_PARITY_CONTRACT_VERSION,
+      schemaVersion: 1,
+      surface: 'cli-experience-parity',
+      generatedAt: this.now().toISOString(),
+      entryCommands: ['zavorth daily', 'zavorth cli-home', 'zavorth start-here'],
+      headline: 'Start simple. Stay governed.',
+      promise: 'The CLI mirrors the Dashboard Home: guided missions, runtime questions and safe next steps first.',
+      commands: [...guidedCommands, ...questionCommands, ...utilityCommands],
+      recommendedFlow: [
+        'Run zavorth daily when you are not sure where to start.',
+        'Pick a guided mission or ask a runtime question.',
+        'Use trust-panel or visual-receipts when you need confidence before continuing.',
+        'Open /dashboard only when a visual flow is more comfortable.',
+      ],
+      safety: {
+        cliCanExecuteTargetAction: false,
+        projectionOnly: true,
+        policyBrokerRequiredForActions: true,
+        rawSecretsSerialized: false,
+      },
+      invariants: [
+        'CLI Experience Parity is a navigation and projection layer, not a privileged executor.',
+        'Commands that imply mutation still become governed missions, previews, approvals and receipts.',
+        'The CLI must not expose raw secrets or treat catalog entries as live readiness.',
+        'The CLI and Dashboard Home should point to the same daily-use concepts.',
+      ],
+    };
+  }
+
+  public renderText(snapshot: ZavorthCliExperienceParitySnapshot): string {
+    const commandLines = snapshot.commands.map((command) =>
+      `- ${command.label}: ${command.command} | ${command.risk} | ${command.description}`,
+    );
+    return [
+      '[zavorth-cli-experience]',
+      snapshot.headline,
+      snapshot.promise,
+      '',
+      '[entrypoints]',
+      ...snapshot.entryCommands.map((command) => `- ${command}`),
+      '',
+      '[commands]',
+      ...commandLines,
+      '',
+      '[flow]',
+      ...snapshot.recommendedFlow.map((step) => `- ${step}`),
+      '',
+    ].join('\n');
+  }
+}

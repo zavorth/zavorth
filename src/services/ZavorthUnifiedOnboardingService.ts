@@ -11,6 +11,7 @@ import {
   type ZavorthProductizationProtectedRuntimeInput,
   type ZavorthProductizationProtectedRuntimeSnapshot,
 } from './ZavorthProductizationProtectedRuntimeService.js';
+import { ZavorthConversationalSetupService } from './ZavorthConversationalSetupService.js';
 import type { SandboxHostReadinessSnapshot } from './SandboxHostReadinessService.js';
 
 type ProviderDoctorLike = Pick<ProviderDoctorService, 'inspect'>;
@@ -43,6 +44,11 @@ export class ZavorthUnifiedOnboardingService {
     const generatedAt = this.now().toISOString();
     const product = this.productization.buildSnapshot(input);
     const provider = this.buildProviderSummary(input);
+    const conversationalSetup = new ZavorthConversationalSetupService().buildSnapshot({
+      primaryUse: input.request,
+      experienceProfile: input.experienceProfile,
+      detailLevel: input.detailMode,
+    });
     const status = resolveStatus(product, provider);
     const steps = buildSteps(product, provider);
     const safeDemo = {
@@ -69,6 +75,12 @@ export class ZavorthUnifiedOnboardingService {
           id: 'onboard',
           command: 'zavorth onboard',
           summary: 'Show this unified journey without mutating the host.',
+          appliesMutation: false,
+        },
+        {
+          id: 'conversation',
+          command: 'zavorth onboard conversation',
+          summary: 'Personalize who the agent is, who the user is and how the experience should feel.',
           appliesMutation: false,
         },
         {
@@ -114,6 +126,13 @@ export class ZavorthUnifiedOnboardingService {
           appliesMutation: false,
         },
       ],
+      conversationalSetup: {
+        command: 'zavorth onboard conversation',
+        status: conversationalSetup.status === 'applied' ? 'ready' : conversationalSetup.status,
+        uiLanguage: conversationalSetup.uiLanguage,
+        selectedProfile: conversationalSetup.answers.experienceProfileId,
+        writesOnlyWithConfirmation: true,
+      },
       safeDemo,
       commandCenterProjection: {
         route: '/dashboard',
@@ -142,6 +161,11 @@ export class ZavorthUnifiedOnboardingService {
           status: 'passed',
           detail: 'Command Center consumes the projection without becoming an execution authority.',
         },
+        {
+          id: 'conversational-setup-preview-first',
+          status: 'passed',
+          detail: 'Conversational setup is part of onboarding and writes identity/user calibration only after explicit confirmation.',
+        },
       ],
       nextAction: buildNextAction(status, provider),
     };
@@ -154,6 +178,7 @@ export class ZavorthUnifiedOnboardingService {
       `mode=${snapshot.productMode.selected.dailyMode}/${snapshot.productMode.selected.detailMode}`,
       `provider=${snapshot.provider.status} ready=${snapshot.provider.ready} missing_auth=${snapshot.provider.missingAuth} needs_probe=${snapshot.provider.needsProbe}`,
       `sandbox=${snapshot.sandbox.status} mutation=${snapshot.sandbox.mutationMode}`,
+      `conversation=${snapshot.conversationalSetup.status} profile=${snapshot.conversationalSetup.selectedProfile} uiLanguage=${snapshot.conversationalSetup.uiLanguage}`,
       '',
       '[journey]',
       ...snapshot.steps.map((step) => `- ${step.id}: ${step.status} | ${step.command} | ${step.userAction}`),

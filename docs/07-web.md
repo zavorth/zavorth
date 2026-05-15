@@ -54,6 +54,10 @@ show chat, approval cards, receipts and safe runtime status from the same
 contracts used by `/dashboard`. It must not become a separate agent or bypass
 the Policy Broker.
 
+Use `zavorth satellite-approvals` to inspect the projection that powers the
+mobile approval inbox. The PWA sends governed `capability.result` decisions back
+to the runtime; the browser never executes the target action directly.
+
 ## Related
 
 - [Quickstart](/docs/02-quickstart.md)
