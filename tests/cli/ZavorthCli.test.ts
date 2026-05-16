@@ -3056,7 +3056,7 @@ describe('ZavorthCli', () => {
 
       expect(exitCode).toBe(0);
       expect(writes[0]).toContain('Zavorth');
-      expect(writes[0]).toContain('A local-first agent runtime for controlled work');
+      expect(writes[0]).toContain('A local-first assistant for daily work');
       expect(writes[0]).toContain('Start');
       expect(writes[0]).toContain('Work');
       expect(writes[0]).toContain('Inspect');
@@ -3267,7 +3267,7 @@ describe('ZavorthCli', () => {
 
     expect(exitCode).toBe(0);
     expect(writes[0]).toContain('Zavorth');
-    expect(writes[0]).toContain('A local-first agent runtime for controlled work');
+    expect(writes[0]).toContain('A local-first assistant for daily work');
     expect(writes[0]).toContain('Start');
     expect(writes[0]).toContain('Work');
     expect(writes[0]).toContain('Inspect');
@@ -3288,9 +3288,9 @@ describe('ZavorthCli', () => {
     const output = runZavorthLauncherHelp(['help', 'go']);
 
     expect(output).toContain('zavorth go');
-    expect(output).toContain('Abre a entrada principal do Zavorth ou explica exatamente o bloqueio.');
+    expect(output).toContain('Abre o Zavorth Home em /dashboard ou explica exatamente o bloqueio.');
     expect(output).toContain('Use quando');
-    expect(output).toContain('You want to open the main /dashboard gateway without remembering internal scripts.');
+    expect(output).toContain('You want the simple Home: Inbox, Tasks, Approvals, Receipts and Connectors.');
     expect(output).toContain('Modo seguro');
     expect(output).toContain('zavorth go --dry-run');
     expect(output).toContain('Saida esperada');

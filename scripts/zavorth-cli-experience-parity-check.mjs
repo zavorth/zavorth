@@ -33,6 +33,11 @@ if (!snapshot.entryCommands.includes('zavorth daily')) {
 if (snapshot.safety.cliCanExecuteTargetAction !== false) {
   throw new Error('cli experience parity must not execute target actions');
 }
+for (const area of ['home-inbox', 'home-tasks', 'home-approvals', 'home-receipts', 'home-connectors']) {
+  if (!snapshot.commands.some((command) => command.id === area && command.kind === 'home_area')) {
+    throw new Error(`home area command missing: ${area}`);
+  }
+}
 if (!snapshot.commands.some((command) => command.command.includes('zavorth ask-runtime'))) {
   throw new Error('runtime question commands missing');
 }

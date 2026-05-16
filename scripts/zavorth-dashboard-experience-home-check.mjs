@@ -36,6 +36,29 @@ if (snapshot.route !== '/dashboard') {
 if (snapshot.safety.dashboardCanExecuteTargetAction !== false) {
   throw new Error('dashboard home must not execute target actions');
 }
+if (!Array.isArray(snapshot.simpleNavigation?.areas) || snapshot.simpleNavigation.areas.length !== 5) {
+  throw new Error('dashboard home must expose the five simple product areas');
+}
+if (snapshot.gettingStarted?.title !== 'Primeiros passos') {
+  throw new Error('dashboard home must expose Primeiros passos');
+}
+if (!snapshot.gettingStarted.steps.some((entry) => entry.command === 'zavorth setup --dry-run')) {
+  throw new Error('dashboard home must point first-time users to setup dry-run');
+}
+if (!snapshot.gettingStarted.steps.some((entry) => entry.command === 'zavorth go')) {
+  throw new Error('dashboard home must keep go as the daily entrypoint');
+}
+if (!snapshot.gettingStarted.steps.some((entry) => entry.command === 'zavorth demo browser' && entry.optional === true)) {
+  throw new Error('dashboard home must keep demo optional');
+}
+if (!snapshot.gettingStarted.steps.some((entry) => entry.command === 'zavorth connectors doctor')) {
+  throw new Error('dashboard home must point first-time users to connector doctor');
+}
+for (const area of ['inbox', 'tasks', 'approvals', 'receipts', 'connectors']) {
+  if (!snapshot.simpleNavigation.areas.some((entry) => entry.id === area)) {
+    throw new Error(`dashboard home area missing: ${area}`);
+  }
+}
 
 const home = [
   readFileSync(path.join(root, 'src/ai-gateway/app/(dashboard)/dashboard/HomePageClient.tsx'), 'utf8'),
@@ -44,7 +67,14 @@ const home = [
 ].join('\n');
 for (const marker of [
   'Hello, Operator',
-  'Choose a mode, then start a mission.',
+  'Inbox, Tasks, Approvals, Receipts and Connectors.',
+  'Zavorth Home',
+  'Primeiros passos',
+  'zavorth setup --dry-run',
+  'zavorth demo browser',
+  'zavorth connectors doctor',
+  'Receipts',
+  'Connectors',
   'home-profile-grid',
   'home-readiness-strip',
   'Organize my day',

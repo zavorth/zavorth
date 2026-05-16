@@ -155,7 +155,7 @@ export class ZavorthExperienceLayerDailyUseCertificationService {
         surface: 'dashboard',
         service: new ZavorthDashboardExperienceHomeService(),
         input: {},
-        evidence: ['Dashboard Home exposes guided starts and runtime questions over /dashboard.'],
+        evidence: ['Dashboard Home exposes Inbox, Tasks, Approvals, Receipts, Connectors, guided starts and runtime questions over /dashboard.'],
         riskBoundary: 'Dashboard Home is an experience layer, not execution authority.',
       }),
       this.certifySnapshotPhase({
@@ -165,7 +165,7 @@ export class ZavorthExperienceLayerDailyUseCertificationService {
         surface: 'cli',
         service: new ZavorthCliExperienceParityService(),
         input: {},
-        evidence: ['The CLI mirrors Dashboard Home with guided missions and runtime questions.'],
+        evidence: ['The CLI mirrors Dashboard Home with home areas, guided missions and runtime questions.'],
         riskBoundary: 'CLI convenience entrypoints do not skip preview, approval or receipts.',
       }),
     ];
@@ -181,7 +181,7 @@ export class ZavorthExperienceLayerDailyUseCertificationService {
       phases,
       dailyUseFlow: [
         'User starts with zavorth daily or /dashboard.',
-        'Zavorth suggests a guided mission or answers a runtime question.',
+        'Zavorth starts from Inbox, Tasks, Approvals, Receipts or Connectors, then suggests a guided mission or answers a runtime question.',
         'Sensitive work becomes preview, risk, scoped approval and receipt.',
         'Satellite and CLI can help decide or inspect, but target execution remains in the governed runtime.',
       ],

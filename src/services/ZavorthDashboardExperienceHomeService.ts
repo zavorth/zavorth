@@ -1,5 +1,7 @@
 import {
   ZAVORTH_DASHBOARD_EXPERIENCE_HOME_CONTRACT_VERSION,
+  type ZavorthDashboardExperienceHomeArea,
+  type ZavorthDashboardExperienceHomeFirstStep,
   type ZavorthDashboardExperienceHomeMission,
   type ZavorthDashboardExperienceHomeQuestion,
   type ZavorthDashboardExperienceHomeSnapshot,
@@ -8,6 +10,54 @@ import {
 export type ZavorthDashboardExperienceHomeRuntime = {
   now?: () => Date;
 };
+
+const HOME_AREAS: ZavorthDashboardExperienceHomeArea[] = [
+  {
+    id: 'inbox',
+    label: 'Inbox',
+    summary: 'New requests, channel messages and things waiting for your attention.',
+    href: '/dashboard',
+    icon: 'inbox',
+    statusLabel: 'Start here',
+    primaryAction: 'Ask or resume',
+  },
+  {
+    id: 'tasks',
+    label: 'Tasks',
+    summary: 'Active work, guided missions and safe next steps in one place.',
+    href: '/dashboard/cli-tools',
+    icon: 'checklist',
+    statusLabel: 'Preview first',
+    primaryAction: 'Pick a mission',
+  },
+  {
+    id: 'approvals',
+    label: 'Approvals',
+    summary: 'Scoped yes/no decisions before sensitive sends, writes or commands.',
+    href: '/dashboard/logs',
+    icon: 'rule',
+    statusLabel: 'Gated',
+    primaryAction: 'Review decisions',
+  },
+  {
+    id: 'receipts',
+    label: 'Receipts',
+    summary: 'Plain proof of what Zavorth did, blocked or left waiting.',
+    href: '/dashboard/logs',
+    icon: 'receipt_long',
+    statusLabel: 'Evidence',
+    primaryAction: 'Read proof',
+  },
+  {
+    id: 'connectors',
+    label: 'Connectors',
+    summary: 'Providers, GitHub, Telegram and other channels without raw secret exposure.',
+    href: '/dashboard/providers',
+    icon: 'hub',
+    statusLabel: 'Setup',
+    primaryAction: 'Connect safely',
+  },
+];
 
 const MISSIONS: ZavorthDashboardExperienceHomeMission[] = [
   {
@@ -75,6 +125,41 @@ const QUESTIONS: ZavorthDashboardExperienceHomeQuestion[] = [
   },
 ];
 
+const GETTING_STARTED: ZavorthDashboardExperienceHomeFirstStep[] = [
+  {
+    id: 'setup',
+    label: 'Preview setup',
+    summary: 'See profile, workspace and safety defaults before anything is written.',
+    command: 'zavorth setup --dry-run',
+    href: '/dashboard/onboarding',
+    optional: false,
+  },
+  {
+    id: 'go',
+    label: 'Open Home',
+    summary: 'Return to this Inbox, Tasks, Approvals, Receipts and Connectors home.',
+    command: 'zavorth go',
+    href: '/dashboard',
+    optional: false,
+  },
+  {
+    id: 'demo',
+    label: 'Try the demo',
+    summary: 'Optional guided demo and local browser visual for first-time operators.',
+    command: 'zavorth demo browser',
+    href: '/dashboard?demo=guided',
+    optional: true,
+  },
+  {
+    id: 'connectors',
+    label: 'Connect when ready',
+    summary: 'Set up GitHub, Telegram or Discord only when you need live work.',
+    command: 'zavorth connectors doctor',
+    href: '/dashboard/providers',
+    optional: true,
+  },
+];
+
 export class ZavorthDashboardExperienceHomeService {
   private readonly now: () => Date;
 
@@ -91,6 +176,15 @@ export class ZavorthDashboardExperienceHomeService {
       route: '/dashboard',
       greeting: 'Hello, Operator.',
       promise: 'Ask naturally. Zavorth will show risk, ask when needed and leave receipts behind.',
+      simpleNavigation: {
+        headline: 'Inbox, Tasks, Approvals, Receipts and Connectors are the product home.',
+        areas: HOME_AREAS,
+      },
+      gettingStarted: {
+        title: 'Primeiros passos',
+        summary: 'Setup is the onboarding path, go is daily use, and demo is optional.',
+        steps: GETTING_STARTED,
+      },
       primaryMissions: MISSIONS,
       runtimeQuestions: QUESTIONS,
       quietReadiness: {
@@ -112,7 +206,8 @@ export class ZavorthDashboardExperienceHomeService {
         'Dashboard Home is an experience layer over governed runtime contracts, not an execution shortcut.',
         'Mission starters are prompts and routes; sensitive work still becomes preview, approval, execution and receipt.',
         'Runtime questions use read-only projections by default.',
-        'The home page should feel simple first and expose advanced depth only when the user asks.',
+        'The home page should feel simple first: Inbox, Tasks, Approvals, Receipts and Connectors before internal runtime names.',
+        'Internal names and maintenance surfaces should stay behind advanced details unless the user asks for them.',
       ],
     };
   }
@@ -122,6 +217,17 @@ export class ZavorthDashboardExperienceHomeService {
       '[zavorth-dashboard-experience-home]',
       snapshot.greeting,
       snapshot.promise,
+      snapshot.simpleNavigation.headline,
+      '',
+      '[home]',
+      ...snapshot.simpleNavigation.areas.map((area) =>
+        `- ${area.label}: ${area.summary} | ${area.statusLabel} | ${area.primaryAction} | ${area.href}`,
+      ),
+      '',
+      '[Primeiros passos]',
+      ...snapshot.gettingStarted.steps.map((step) =>
+        `- ${step.label}: ${step.command} | ${step.optional ? 'optional' : 'recommended'} | ${step.summary}`,
+      ),
       '',
       '[missions]',
       ...snapshot.primaryMissions.map((mission) =>

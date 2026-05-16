@@ -25,9 +25,12 @@ function createFlags(json: boolean) {
 describe('Zavorth CLI Governed Review', () => {
   it('parses governed review text without flags', () => {
     expect(resolveGovernedReviewCliText('run --security --file=src/a.ts "review auth"')).toBe('review auth');
+    expect(resolveGovernedReviewCliText('github --pr=42 "review approvals"')).toBe('review approvals');
     expect(shouldHandleReviewCommand('review', '')).toBe(true);
     expect(shouldHandleReviewCommand('review', '--security "auth"')).toBe(true);
+    expect(shouldHandleReviewCommand('review', 'github --pr=42')).toBe(true);
     expect(shouldHandleReviewCommand('review', 'this module')).toBe(false);
+    expect(shouldHandleReviewCommand('review', 'review github helper')).toBe(false);
   });
 
   it('renders governed review JSON through the registry command', async () => {

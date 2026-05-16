@@ -819,6 +819,7 @@ export async function handleZavorthCliRegistryOpsCommand(params: RegistryCommand
   if (
     commandName === 'governed-review'
     || commandName === 'review-kernel'
+    || commandName === 'github-review'
     || commandName === 'code-review'
     || commandName === 'security-review'
     || commandName === 'policy-review'

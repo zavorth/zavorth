@@ -11,11 +11,9 @@ import { parseTelegramCommand } from '../../BotGatewayHelpers.js';
 import { TelegramChannelContractService } from '../../TelegramChannelContractService.js';
 import type { ParsedCommand } from '../../CommandParser.js';
 import { EchoOutputStageService } from '../../../services/EchoOutputStageService.js';
-import {
-  renderUniversalApprovalIntentDecisionResult,
-} from '../../../runtime/agent/index.js';
 import type { BotGatewaySupportRuntime } from '../BotGatewaySupportTypes.js';
 import { telegramLegacySurfacePolicyService } from '../../controllers/TelegramLegacySurfacePolicyService.js';
+import { TelegramDailyAssistantService } from '../../TelegramDailyAssistantService.js';
 
 export type NaturalConversationIngressMetadata = {
   traceId?: string | null;
@@ -296,15 +294,16 @@ async function tryHandleNaturalConversationThroughAgentGateway(
     return false;
   }
 
-  const approvalIntent = await runtime.agentGateway.resolveApprovalIntent({
+  const dailyAssistant = new TelegramDailyAssistantService({
+    agentGateway: runtime.agentGateway,
+  });
+  const approvalIntent = await dailyAssistant.handleApprovalIntent({
     text,
-    source: 'text',
-    channel: 'telegram',
     userId,
     sessionId: telegramContract.threadId || chatId,
   });
-  if (approvalIntent.resolution.status !== 'not_approval_intent') {
-    await ctx.reply(renderUniversalApprovalIntentDecisionResult(approvalIntent));
+  if (approvalIntent) {
+    await ctx.reply(approvalIntent.text);
     return true;
   }
 
@@ -316,9 +315,8 @@ async function tryHandleNaturalConversationThroughAgentGateway(
   });
   const requestedTools = responseDecision.requestedTools;
 
-  const result = await runtime.agentGateway.handle({
+  const result = await dailyAssistant.handleTask({
     userId,
-    channel: 'telegram',
     sessionId: telegramContract.threadId || chatId,
     text,
     workspace: null,
@@ -343,11 +341,7 @@ async function tryHandleNaturalConversationThroughAgentGateway(
       legacyUnifiedGatewayBypassed: Boolean(runtime.legacyUnifiedGateway),
     },
   });
-
-  const primaryReply = String(result.replies[0]?.text || '').trim()
-    || result.run.summary
-    || 'Pedido processado pelo runtime universal.';
-  await ctx.reply(primaryReply);
+  await ctx.reply(result.text);
   return true;
 }
 

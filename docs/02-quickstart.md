@@ -1,145 +1,179 @@
 # Quickstart
 
-This is the shortest path into Zavorth.
+This is the shortest product path into Zavorth: install once, run `zavorth start`, open Home, then connect only the tools you actually need.
 
 ## Requirements
 
-- Node runtime 18 or newer;
-- npm;
-- a terminal on Windows, macOS or Linux;
-- provider credentials only when you decide to enable a remote model.
+- Node runtime 18 or newer
+- npm
+- a terminal on Windows, macOS or Linux
+- provider or channel credentials only when you decide to enable live connectors
 
-## From The Published Package
+## 10-Minute Path
+
+From the published package:
 
 ```bash
 npm install -g zavorth@latest
-zavorth onboard
-zavorth daily
-zavorth onboard conversation
-zavorth onboard doctor
+zavorth start
 zavorth go
-zavorth doctor --simple
-zavorth missions guide --intent "organize my day"
-zavorth capability-store
-zavorth do-it-with-me "help me configure Telegram approvals"
+zavorth connectors doctor
+zavorth demo browser
 ```
 
-The long-term product path is a private local runtime/installer. The npm package is the clean developer install path while the protected installer is prepared.
-
-## From This Repository
+From this repository:
 
 ```bash
 npm install
-npm run setup
+npm run zavorth:start
 npm run go
-npm run doctor
+npm run zavorth:connectors
+npm run zavorth:demo:check
 ```
 
-`npm run go` starts the local runtime path and opens or prints the Dashboard
-URL at `/dashboard`.
+Expected flow:
 
-## First Run Flow
+1. `start` shows the single product path: setup preview, Home, optional visual demo and connector doctor.
+2. `go` opens or prints the local Home route at `/dashboard`.
+3. `connectors doctor` tells you exactly what is missing for GitHub, Telegram and Discord.
+4. `demo browser` opens the local visual demo without requiring live secrets.
+5. The smoke check verifies the demo without requiring GitHub, Telegram or Discord tokens.
 
-1. Run `zavorth onboard` to see the unified first-run journey.
-2. Run `zavorth onboard conversation` to preview the human calibration questions.
-3. Run `zavorth missions guide` or open the Dashboard mission cards.
-4. Pick a guided mission template.
-5. Ask for work in normal language.
-5. Review approvals when Zavorth wants to write, run commands, use network or
-   touch sensitive resources.
-6. Read the receipt when the mission finishes or gets blocked.
-7. Use `doctor --simple` when something is missing.
+## Product Home
 
-Typical prompts:
+The first screen is Home, not an internal control plane:
 
-- `review this repository and list the risks`
-- `check whether my channels are ready`
-- `use subagents to audit this folder`
-- `look at the connected Android device and summarize the screen`
-- `schedule a daily status summary`
+- Inbox
+- Tasks
+- Approvals
+- Receipts
+- Connectors
 
-## Important Commands
+Open it with:
 
 ```bash
-zavorth onboard
-zavorth daily
-zavorth onboard conversation
-zavorth onboard doctor
-zavorth onboard templates
-zavorth onboard first-mission
-zavorth setup
 zavorth go
-zavorth status
-zavorth doctor
-zavorth templates
-zavorth missions guide
-zavorth capability-store --category communication
-zavorth do-it-with-me "review this repo safely"
-zavorth trust-panel
-zavorth autonomy --level conservative
-zavorth model-cost "review this repository" --max-cents 100
-zavorth visual-receipts
-zavorth satellite-approvals
-zavorth ask-runtime "which providers are ready?"
-zavorth dashboard-home
-zavorth cli-home
-zavorth experience-certify
-zavorth missions
-zavorth receipts
-zavorth run "review this repo"
 ```
 
-`zavorth onboard` is read-only and shows the unified journey. `zavorth onboard
-conversation` is also read-only by default: it previews agent name, user name,
-language, experience profile and first safe mission. Use `zavorth onboard
-conversation --apply --confirm-local-profile` only when you want to update local
-profile files: `IDENTITY.md`, `USER.md` and `SOUL.md`. Never paste provider
-keys or bot tokens there; use SecretRefs/provider setup instead.
+`zavorth onboard` is a friendly alias for the same first-run setup path.
+Use `zavorth onboard journey` only when you want the older read-only onboarding
+overview.
 
-`zavorth trust-panel` is read-only and explains what Zavorth can do alone, what
-requires approval, what is blocked and what needs setup.
-`zavorth autonomy --level <level>` previews Conservative, Balanced, Advanced or
-Business autonomy without applying hidden authority or bypassing Policy Broker.
-`zavorth model-cost` estimates model cost risk and requires visible budget
-boundaries before hosted live model escalation.
-`zavorth visual-receipts` turns runtime evidence into readable receipt cards
-with impact, rollback state, exports and safe next actions.
-`zavorth satellite-approvals` shows the mobile/PWA approval companion contract:
-approval cards, receipt previews and governed approve/deny envelopes for
-`/satellite`.
-`zavorth ask-runtime "<question>"` answers operational questions such as
-provider readiness, channel readiness, pending approvals, receipts, setup gaps
-and safety boundaries from read-only projections.
-`zavorth dashboard-home` previews the simple `/dashboard` home contract with
-guided starts and natural runtime questions.
-`zavorth daily` or `zavorth cli-home` gives the same gentle start in the
-terminal: guided missions, runtime questions, trust, receipts and Satellite
-approval shortcuts without hidden execution authority.
-`zavorth experience-certify` checks that all Experience Layer pieces are wired
-together for daily use without granting hidden execution authority.
-
-For a cloned repo:
+Use a dry run when you only want to inspect the launch path:
 
 ```bash
-npm run setup
-npm run go
-npm run status
-npm run doctor
-npm run runtime:check
-npm run security:secrets
+zavorth go --dry-run
 ```
 
-## Data And Secrets
+## GitHub checklist
+
+GitHub is used by Governed Review. Reading a PR is separate from posting a comment.
+
+```bash
+gh auth status
+zavorth review github --pr=<number> --repo=<owner/repo>
+```
+
+Posting a PR comment stays approval-aware:
+
+```bash
+zavorth review github --pr=<number> --repo=<owner/repo> --post-comment --approval-id=<approval-id>
+```
+
+Rules:
+
+- Do not paste GitHub tokens into chat.
+- Use `gh auth login`, `GH_TOKEN`, `GITHUB_TOKEN` or a SecretRef-backed setup.
+- PR comments, patches and live agents remain gated by approval and receipts.
+
+## Telegram checklist
+
+Telegram is a channel over the same governed runtime, not a separate brain.
+
+```bash
+zavorth connectors doctor telegram
+zavorth connectors setup telegram
+zavorth connectors setup telegram --apply --allowed-user=<your-telegram-user-id>
+```
+
+Minimum live setup signals:
+
+- `TELEGRAM_BOT_TOKEN` as a local env var or SecretRef
+- `TELEGRAM_ALLOWED_USER_IDS` or `ZAVORTH_CHANNEL_POLICY_TELEGRAM_ALLOWED`
+- approval routing enabled for risky tasks
+
+Daily assistant example:
+
+```text
+corrija o arquivo e rode npm test
+aprovar <approvalId>
+```
+
+The first message should wait for approval. The second should resume execution and return a receipt.
+
+## Discord checklist
+
+Discord starts with a minimal native bot scaffold: bot token, guild allowlist and optional channel/owner policy. The setup command writes placeholders and allowlist values only; it does not paste or invent the bot token.
+
+```bash
+zavorth connectors doctor discord
+zavorth connectors setup discord
+zavorth connectors setup discord --apply --guild=<guild-id> --channel=<channel-id> --owner=<owner-user-id>
+```
+
+Minimum live setup signals:
+
+- `DISCORD_BOT_TOKEN` as a local env var or SecretRef
+- `DISCORD_ALLOWED_GUILD_IDS`
+- `DISCORD_ALLOWED_CHANNEL_IDS`, `DISCORD_OWNER_USER_IDS` or `ZAVORTH_CHANNEL_POLICY_DISCORD_ALLOWED`
+- command exposure left at `minimal` until the channel smoke passes
+
+## Smoke
+
+The deterministic demo smoke does not need secrets or live network access:
+
+```bash
+npm run zavorth:demo:check
+```
+
+It verifies:
+
+- the 10-minute quickstart contract
+- Home at `/dashboard`
+- GitHub Governed Review fixture
+- Telegram approval loop fixture
+- Discord connector setup fixture
+- exact connector doctor output
+
+## Everyday Commands
+
+```bash
+zavorth start
+zavorth demo
+zavorth demo browser
+zavorth connectors doctor
+zavorth go
+zavorth chat
+zavorth run "review this repo"
+zavorth doctor --simple
+zavorth receipts
+zavorth connectors
+zavorth providers
+```
+
+## Safety
 
 - Raw provider keys should not be pasted into chat.
-- Credentials are represented as `SecretRef` metadata.
+- Credentials should be represented as `SecretRef` metadata or local environment configuration.
 - Sensitive actions require policy, approval and receipts.
-- Raw external SQLite/session history is not imported by default.
+- Demo and smoke commands never pretend unconfigured connectors are live.
+- Connector setup writes only scaffold/allowlists with `--apply`; raw secrets stay local or in SecretRefs.
 
 ## Next
 
 - [CLI](/docs/34-zavorth-cli.md)
 - [Web Dashboard](/docs/07-web.md)
-- [Operations](/docs/09-operations.md)
+- [Telegram](/docs/06-telegram.md)
+- [Discord](/docs/08-discord.md)
+- [Channel Mesh](/docs/33-channel-mesh.md)
 - [Security](/docs/05-security.md)
-- [Roadmap](/docs/11-roadmap.md)

@@ -27,6 +27,10 @@ export {
   createEmptyExecution,
 } from './ReviewActionExecutor.js';
 export {
+  GovernedReviewGitHubService,
+  defaultGovernedReviewGitHubCommandRunner,
+} from './GovernedReviewGitHubService.js';
+export {
   buildGovernedReviewDashboardSnapshot,
 } from './GovernedReviewDashboardPresenter.js';
 export {
@@ -37,6 +41,14 @@ export type {
   GovernedReviewExternalActionAdapter,
   ReviewAdapterActionResult,
 } from './ReviewActionExecutor.js';
+export type {
+  GovernedReviewGitHubCommandResult,
+  GovernedReviewGitHubCommandRunner,
+  GovernedReviewGitHubPullRequest,
+  GovernedReviewGitHubRepo,
+  GovernedReviewGitHubResult,
+  GovernedReviewGitHubRunInput,
+} from './GovernedReviewGitHubService.js';
 export type {
   GovernedReviewDashboardLaneStatus,
   GovernedReviewDashboardSnapshot,

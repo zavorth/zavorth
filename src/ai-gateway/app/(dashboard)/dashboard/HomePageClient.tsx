@@ -197,6 +197,93 @@ export default function HomePageClient({ machineId }) {
     { icon: "verified_user", label: "Approvals", ...approvalsSignal, href: "/dashboard/logs" },
   ];
 
+  const homeAreas = [
+    {
+      id: "inbox",
+      title: "Inbox",
+      summary: "Requests, messages and items waiting for your attention.",
+      icon: "inbox",
+      href: "/dashboard",
+      status: "Start here",
+      action: "Ask or resume",
+    },
+    {
+      id: "tasks",
+      title: "Tasks",
+      summary: "Guided missions, active work and the next safe step.",
+      icon: "checklist",
+      href: "/dashboard/cli-tools",
+      status: "Preview first",
+      action: "Pick a mission",
+    },
+    {
+      id: "approvals",
+      title: "Approvals",
+      summary: "Sensitive actions wait for a scoped yes or no.",
+      icon: "rule",
+      href: "/dashboard/logs",
+      status: approvalsSignal.value,
+      action: "Review decisions",
+    },
+    {
+      id: "receipts",
+      title: "Receipts",
+      summary: "Proof of what happened, what was blocked and why.",
+      icon: "receipt_long",
+      href: "/dashboard/logs",
+      status: "Evidence",
+      action: "Read proof",
+    },
+    {
+      id: "connectors",
+      title: "Connectors",
+      summary: "Providers and channels connected without exposing raw secrets.",
+      icon: "hub",
+      href: "/dashboard/providers",
+      status: configuredProvidersCount > 0 ? `${configuredProvidersCount} setup` : "Setup needed",
+      action: "Connect safely",
+    },
+  ];
+
+  const firstSteps = [
+    {
+      id: "setup",
+      label: "Setup",
+      summary: "Preview profile, workspace and safety defaults.",
+      command: "zavorth setup --dry-run",
+      href: "/dashboard/onboarding",
+      icon: "tune",
+      optional: false,
+    },
+    {
+      id: "go",
+      label: "Go",
+      summary: "Open or return to this Home for daily use.",
+      command: "zavorth go",
+      href: "/dashboard",
+      icon: "home",
+      optional: false,
+    },
+    {
+      id: "demo",
+      label: "Demo",
+      summary: "Optional browser visual and guided demo.",
+      command: "zavorth demo browser",
+      href: "/dashboard?demo=guided",
+      icon: "play_circle",
+      optional: true,
+    },
+    {
+      id: "connectors",
+      label: "Connectors",
+      summary: "Check GitHub, Telegram and Discord setup.",
+      command: "zavorth connectors doctor",
+      href: "/dashboard/providers",
+      icon: "hub",
+      optional: true,
+    },
+  ];
+
   const experienceProfiles = [
     {
       id: "personal",
@@ -378,7 +465,7 @@ export default function HomePageClient({ machineId }) {
               {
                 step: "restart",
                 status: "pending",
-                message: "Waiting for the Zavorth control plane to come back online.",
+                message: "Waiting for the Zavorth service to come back online.",
               },
             ]
           : [
@@ -390,7 +477,7 @@ export default function HomePageClient({ machineId }) {
               {
                 step: "restart",
                 status: "pending",
-                message: "Waiting for the Zavorth control plane to come back online.",
+                message: "Waiting for the Zavorth service to come back online.",
               },
             ];
 
@@ -616,38 +703,108 @@ export default function HomePageClient({ machineId }) {
         onRetry={handleUpdate}
       />
 
-      <Card className="relative overflow-hidden border-primary/15 bg-gradient-to-br from-surface via-surface to-bg-subtle shadow-sm">
-        <div className="pointer-events-none absolute inset-0 overflow-hidden">
-          <div className="absolute -top-16 left-12 h-40 w-40 rounded-full bg-primary/10 blur-3xl dark:bg-primary/[0.16]" />
-          <div className="absolute bottom-0 right-0 h-44 w-44 rounded-full bg-accent/[0.10] blur-3xl dark:bg-accent/[0.14]" />
-        </div>
-
+      <Card className="border-primary/15 bg-surface shadow-sm">
         <div className="relative grid gap-8">
           <div>
-            <div className="inline-flex items-center gap-2 rounded-full border border-primary/15 bg-primary/[0.06] px-3 py-1.5 text-[11px] font-semibold uppercase tracking-[0.24em] text-primary/80">
+            <div className="inline-flex items-center gap-2 rounded-lg border border-primary/15 bg-primary/[0.06] px-3 py-1.5 text-[11px] font-semibold uppercase tracking-[0.18em] text-primary/80">
               <ZavorthGatewayLogo size={16} className="text-primary" />
-              Zavorth Dashboard
+              Zavorth Home
             </div>
 
             <h2 className="mt-5 max-w-3xl text-3xl font-semibold tracking-tight text-text-main sm:text-4xl">
-              What should Zavorth help with today?
+              Inbox, Tasks, Approvals, Receipts and Connectors.
             </h2>
 
             <p className="mt-4 max-w-2xl text-sm leading-7 text-text-muted sm:text-base">
-              Hello, Operator. Choose how you want to work, pick a guided mission, and Zavorth will
-              keep the safety details in the background until they matter: preview first, approval
-              when needed, receipt at the end.
+              Hello, Operator. Start with the thing you need, ask naturally, and Zavorth will show a
+              preview, ask when it matters, then leave a receipt you can inspect later.
             </p>
+
+            <div className="mt-7 rounded-lg border border-primary/15 bg-primary/[0.04] p-4">
+              <div className="flex flex-wrap items-center justify-between gap-3">
+                <div>
+                  <p className="text-sm font-semibold text-text-main">Primeiros passos</p>
+                  <p className="mt-1 text-xs leading-5 text-text-muted">
+                    Setup is onboarding, Go is daily use, and Demo is optional.
+                  </p>
+                </div>
+                <Link
+                  href="/dashboard/providers"
+                  className="inline-flex items-center gap-1.5 rounded-lg border border-border px-3 py-1.5 text-xs font-semibold text-text-muted transition-colors hover:bg-surface hover:text-text-main"
+                >
+                  Connectors
+                  <span className="material-symbols-outlined text-[14px]">arrow_forward</span>
+                </Link>
+              </div>
+              <div className="mt-4 grid gap-3 md:grid-cols-3">
+                {firstSteps.map((step) => (
+                  <Link
+                    key={step.id}
+                    href={step.href}
+                    className="group rounded-lg border border-border bg-surface/80 p-3 transition-colors hover:border-primary/25 hover:bg-surface"
+                  >
+                    <div className="flex items-start gap-3">
+                      <div className="flex size-9 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary">
+                        <span className="material-symbols-outlined text-[18px]">{step.icon}</span>
+                      </div>
+                      <div className="min-w-0">
+                        <div className="flex flex-wrap items-center gap-2">
+                          <p className="text-sm font-semibold text-text-main">{step.label}</p>
+                          {step.optional && (
+                            <span className="rounded-full border border-border px-2 py-0.5 text-[10px] font-semibold uppercase tracking-[0.12em] text-text-muted">
+                              Optional
+                            </span>
+                          )}
+                        </div>
+                        <p className="mt-1 text-xs leading-5 text-text-muted">{step.summary}</p>
+                        <code className="mt-2 block truncate rounded-md bg-bg-subtle px-2 py-1 text-[11px] text-text-muted">
+                          {step.command}
+                        </code>
+                      </div>
+                    </div>
+                  </Link>
+                ))}
+              </div>
+            </div>
+
+            <div className="mt-7 grid gap-3 sm:grid-cols-2 xl:grid-cols-5">
+              {homeAreas.map((area) => (
+                <Link
+                  key={area.id}
+                  href={area.href}
+                  className="group flex min-h-[188px] flex-col justify-between rounded-lg border border-border bg-bg-subtle/70 p-4 transition-all hover:border-primary/25 hover:bg-surface"
+                >
+                  <div>
+                    <div className="flex items-start justify-between gap-3">
+                      <div className="flex size-10 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary">
+                        <span className="material-symbols-outlined text-[19px]">{area.icon}</span>
+                      </div>
+                      <span className="rounded-full border border-border px-2 py-0.5 text-[10px] font-semibold uppercase tracking-[0.12em] text-text-muted">
+                        {area.status}
+                      </span>
+                    </div>
+                    <p className="mt-4 text-sm font-semibold text-text-main">{area.title}</p>
+                    <p className="mt-2 text-xs leading-5 text-text-muted">{area.summary}</p>
+                  </div>
+                  <span className="mt-4 inline-flex items-center gap-1 text-xs font-semibold text-primary">
+                    {area.action}
+                    <span className="material-symbols-outlined text-[14px] transition-transform group-hover:translate-x-0.5">
+                      arrow_forward
+                    </span>
+                  </span>
+                </Link>
+              ))}
+            </div>
 
             <div className="mt-7 grid gap-3 lg:grid-cols-3">
               {experienceProfiles.map((profile) => (
                 <Link
                   key={profile.id}
                   href={profile.href}
-                  className="group rounded-2xl border border-black/5 bg-surface/80 p-4 transition-all hover:-translate-y-0.5 hover:border-primary/25 hover:bg-surface dark:border-white/10"
+                  className="group rounded-lg border border-black/5 bg-bg-subtle/60 p-4 transition-all hover:border-primary/25 hover:bg-surface dark:border-white/10"
                 >
                   <div className="flex items-start gap-3">
-                    <div className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-primary/10 text-primary">
+                    <div className="flex size-10 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary">
                       <span className="material-symbols-outlined text-[19px]">{profile.icon}</span>
                     </div>
                     <div>
@@ -660,34 +817,6 @@ export default function HomePageClient({ machineId }) {
             </div>
           </div>
 
-          <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
-            {basicStatus.map((signal) => (
-              <Link
-                key={signal.label}
-                href={signal.href}
-                className="rounded-2xl border border-black/5 bg-surface/80 p-4 backdrop-blur transition-colors hover:border-primary/25 hover:bg-surface dark:border-white/10"
-              >
-                <div className="flex items-start justify-between gap-3">
-                  <div className="min-w-0">
-                    <p className="text-xs font-semibold uppercase tracking-[0.2em] text-text-muted">
-                      {signal.label}
-                    </p>
-                    <p
-                      className={`mt-3 text-lg font-semibold tracking-tight ${
-                        signal.tone === "attention" ? "text-amber-500" : "text-text-main"
-                      }`}
-                    >
-                      {signal.value}
-                    </p>
-                    <p className="mt-2 text-xs leading-5 text-text-muted">{signal.detail}</p>
-                  </div>
-                  <div className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-primary/10 text-primary">
-                    <span className="material-symbols-outlined text-[18px]">{signal.icon}</span>
-                  </div>
-                </div>
-              </Link>
-            ))}
-          </div>
         </div>
       </Card>
 
@@ -701,7 +830,7 @@ export default function HomePageClient({ machineId }) {
               <p className="text-sm font-semibold">Zavorth runtime update ready: v{versionInfo.latest}</p>
               <p className="mt-0.5 text-xs opacity-80">
                 {versionInfo.autoUpdateSupported
-                  ? `Current control plane is v${versionInfo.current}. Apply the update to refresh runtime fixes and operational capabilities.`
+                  ? `Current Zavorth service is v${versionInfo.current}. Apply the update to refresh fixes and capabilities.`
                   : versionInfo.autoUpdateError ||
                     "Manual update required for this installation type."}
               </p>
@@ -786,9 +915,9 @@ export default function HomePageClient({ machineId }) {
       <details className="group rounded-2xl border border-border bg-surface">
         <summary className="flex cursor-pointer list-none items-center justify-between gap-4 px-5 py-4">
           <div>
-            <p className="text-sm font-semibold text-text-main">Advanced mode</p>
+            <p className="text-sm font-semibold text-text-main">Advanced details</p>
             <p className="mt-1 text-xs text-text-muted">
-              Provider catalog, endpoint details, node identity and operator shortcuts.
+              Provider health, endpoint details, node identity and operator shortcuts.
             </p>
           </div>
           <span className="material-symbols-outlined text-[20px] text-text-muted transition-transform group-open:rotate-180">
@@ -797,12 +926,41 @@ export default function HomePageClient({ machineId }) {
         </summary>
 
         <div className="grid gap-8 border-t border-border p-5 xl:grid-cols-[1.2fr_0.8fr]">
+          <div className="grid gap-3 sm:grid-cols-2 xl:col-span-2 xl:grid-cols-4">
+            {basicStatus.map((signal) => (
+              <Link
+                key={signal.label}
+                href={signal.href}
+                className="rounded-lg border border-border bg-bg-subtle/70 p-4 transition-colors hover:border-primary/25 hover:bg-surface"
+              >
+                <div className="flex items-start justify-between gap-3">
+                  <div className="min-w-0">
+                    <p className="text-xs font-semibold uppercase tracking-[0.14em] text-text-muted">
+                      {signal.label}
+                    </p>
+                    <p
+                      className={`mt-3 text-lg font-semibold tracking-tight ${
+                        signal.tone === "attention" ? "text-amber-500" : "text-text-main"
+                      }`}
+                    >
+                      {signal.value}
+                    </p>
+                    <p className="mt-2 text-xs leading-5 text-text-muted">{signal.detail}</p>
+                  </div>
+                  <div className="flex size-10 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary">
+                    <span className="material-symbols-outlined text-[18px]">{signal.icon}</span>
+                  </div>
+                </div>
+              </Link>
+            ))}
+          </div>
+
           <Card>
             <div className="flex items-center justify-between gap-4">
               <div>
                 <h2 className="text-lg font-semibold">Operator actions</h2>
                 <p className="text-sm text-text-muted">
-                  Move through the surfaces that shape routing, access, and resilience.
+                  Move through the detailed surfaces that shape routing, access, and resilience.
                 </p>
               </div>
               <Link

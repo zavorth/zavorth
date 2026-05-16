@@ -125,7 +125,7 @@ export class RuntimeOfficialAccessService {
       manifest = this.accessManifestService.buildManifestFromReadiness(readiness);
     }
 
-    const remoteAppUrl = manifest.remote.appUrl || (manifest.remote.baseUrl ? `${manifest.remote.baseUrl.replace(/\/+$/, '')}/control` : null);
+    const remoteAppUrl = manifest.remote.appUrl || (manifest.remote.baseUrl ? `${manifest.remote.baseUrl.replace(/\/+$/, '')}/dashboard` : null);
     const remoteAppProbe = await this.probeUrl(remoteAppUrl, { method: 'GET' });
     const remoteAuthProbe = manifest.remote.baseUrl
       ? await this.probeRemoteAuth(manifest.remote.baseUrl, tokenResolution.value)
@@ -317,12 +317,12 @@ export class RuntimeOfficialAccessService {
     }
 
     if (manifest.remote.baseUrl && !manifest.remote.appUrl) {
-      issues.push('A URL publica atual nao gerou um /control remoto valido.');
+      issues.push('A URL publica atual nao gerou um /dashboard remoto valido.');
     }
 
     if (remoteAppProbe && !remoteAppProbe.ok && !remoteProbeInconclusive) {
       issues.push(
-        `O probe do /control remoto falhou em ${remoteAppProbe.targetUrl}${remoteAppProbe.error ? ` (${remoteAppProbe.error})` : ''}.`,
+        `O probe do Home remoto falhou em ${remoteAppProbe.targetUrl}${remoteAppProbe.error ? ` (${remoteAppProbe.error})` : ''}.`,
       );
     }
 
@@ -388,7 +388,7 @@ export class RuntimeOfficialAccessService {
 
     return steps.length > 0
       ? steps
-      : ['Abra a Control UI em ' + manifest.local.appUrl + ' ou compartilhe ' + (manifest.remote.appUrl || manifest.remote.baseUrl || manifest.local.appUrl) + '.'];
+      : ['Abra o Home em ' + manifest.local.appUrl + ' ou compartilhe ' + (manifest.remote.appUrl || manifest.remote.baseUrl || manifest.local.appUrl) + '.'];
   }
 
   private resolveOfficialGoCommand(manifest: RuntimeAccessManifest): string {
@@ -462,10 +462,9 @@ export class RuntimeOfficialAccessService {
     }
 
     if (plan.primaryAction === 'open-local' && plan.openTarget) {
-      return `Abra a Control UI do runtime em ${plan.openTarget}.`;
+      return `Abra o Home em ${plan.openTarget}.`;
     }
 
     return null;
   }
 }
-

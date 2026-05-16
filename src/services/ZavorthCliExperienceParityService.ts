@@ -21,6 +21,16 @@ export class ZavorthCliExperienceParityService {
 
   public buildSnapshot(): ZavorthCliExperienceParitySnapshot {
     const home = this.dashboardHome.buildSnapshot();
+    const homeAreaCommands: ZavorthCliExperienceParityCommand[] = home.simpleNavigation.areas.map((area) => ({
+      id: `home-${area.id}`,
+      label: area.label,
+      command: commandForHomeArea(area.id),
+      description: area.summary,
+      kind: 'home_area',
+      risk: 'read_only',
+      mirrorsDashboardHome: true,
+      cliCanExecuteTargetAction: false,
+    }));
     const guidedCommands: ZavorthCliExperienceParityCommand[] = home.primaryMissions.map((mission) => ({
       id: `mission-${mission.id}`,
       label: mission.label,
@@ -91,10 +101,11 @@ export class ZavorthCliExperienceParityService {
       generatedAt: this.now().toISOString(),
       entryCommands: ['zavorth daily', 'zavorth cli-home', 'zavorth start-here'],
       headline: 'Start simple. Stay governed.',
-      promise: 'The CLI mirrors the Dashboard Home: guided missions, runtime questions and safe next steps first.',
-      commands: [...guidedCommands, ...questionCommands, ...utilityCommands],
+      promise: 'The CLI mirrors the Dashboard Home: Inbox, Tasks, Approvals, Receipts, Connectors and safe next steps first.',
+      commands: [...homeAreaCommands, ...guidedCommands, ...questionCommands, ...utilityCommands],
       recommendedFlow: [
-        'Run zavorth daily when you are not sure where to start.',
+        'Run zavorth go when you want Home, or zavorth daily when you are not sure where to start.',
+        'Choose Inbox, Tasks, Approvals, Receipts or Connectors.',
         'Pick a guided mission or ask a runtime question.',
         'Use trust-panel or visual-receipts when you need confidence before continuing.',
         'Open /dashboard only when a visual flow is more comfortable.',
@@ -109,7 +120,7 @@ export class ZavorthCliExperienceParityService {
         'CLI Experience Parity is a navigation and projection layer, not a privileged executor.',
         'Commands that imply mutation still become governed missions, previews, approvals and receipts.',
         'The CLI must not expose raw secrets or treat catalog entries as live readiness.',
-        'The CLI and Dashboard Home should point to the same daily-use concepts.',
+        'The CLI and Dashboard Home should point to the same daily-use concepts: Inbox, Tasks, Approvals, Receipts and Connectors.',
       ],
     };
   }
@@ -133,5 +144,21 @@ export class ZavorthCliExperienceParityService {
       ...snapshot.recommendedFlow.map((step) => `- ${step}`),
       '',
     ].join('\n');
+  }
+}
+
+function commandForHomeArea(areaId: string): string {
+  switch (areaId) {
+    case 'tasks':
+      return 'zavorth missions';
+    case 'approvals':
+      return 'zavorth gateway approvals';
+    case 'receipts':
+      return 'zavorth receipts';
+    case 'connectors':
+      return 'zavorth providers';
+    case 'inbox':
+    default:
+      return 'zavorth go';
   }
 }

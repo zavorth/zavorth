@@ -26,6 +26,9 @@ export type CliHelpSnapshot = {
   surface: 'zavorth-cli';
   topic:
     | 'root'
+    | 'start'
+    | 'demo'
+    | 'connectors'
     | 'onboard'
     | 'go'
     | 'dashboard'
@@ -166,6 +169,14 @@ const CLI_HELP_TOPIC_ALIASES: Record<string, CliHelpTopic> = {
   onboard: 'onboard',
   setup: 'onboard',
   init: 'onboard',
+  start: 'start',
+  quickstart: 'start',
+  comecar: 'start',
+  demo: 'demo',
+  demonstracao: 'demo',
+  connectors: 'connectors',
+  connector: 'connectors',
+  conectores: 'connectors',
   go: 'go',
   dashboard: 'dashboard',
   control: 'dashboard',
@@ -216,10 +227,107 @@ const CLI_HELP_TOPIC_ALIASES: Record<string, CliHelpTopic> = {
 };
 
 const CLI_COMMAND_HELP_PAGES: Record<Exclude<CliHelpTopic, 'root'>, CliHelpPage> = {
+  start: {
+    topic: 'start',
+    title: 'zavorth start',
+    summary: 'Entrada unica para primeiro uso: setup preview, Home, demo visual opcional e doctor dos conectores.',
+    sections: [
+      {
+        title: 'Use quando',
+        entries: [
+          { summary: 'Voce quer instalar mentalmente o produto sem decorar scripts internos.' },
+          { summary: 'Voce quer confirmar primeiro uso, Home e conectores em uma unica trilha.' },
+        ],
+      },
+      {
+        title: 'Comandos',
+        entries: [
+          { command: 'zavorth start', summary: 'Mostra o caminho unico de setup/onboard/demo.' },
+          { command: 'zavorth setup --dry-run', summary: 'Preview seguro do perfil local.' },
+          { command: 'zavorth go', summary: 'Abre o Home real.' },
+          { command: 'zavorth connectors doctor', summary: 'Mostra GitHub, Telegram e Discord com setup real por canal.' },
+          { command: 'zavorth demo browser', summary: 'Abre a demo visual local no browser.' },
+        ],
+      },
+    ],
+    notesTitle: 'Seguro',
+    notes: [
+      'O start nao coleta secrets nem publica em canal externo.',
+      'Writes de connector setup exigem --apply e envio real continua approval-gated.',
+    ],
+  },
+  demo: {
+    topic: 'demo',
+    title: 'zavorth demo',
+    summary: 'Mostra o caminho de produto, a demo visual local e o checklist honesto dos conectores.',
+    sections: [
+      {
+        title: 'Use quando',
+        entries: [
+          { summary: 'Voce quer provar o Zavorth como produto antes de decorar comandos internos.' },
+          { summary: 'Voce quer abrir o Home, ver o roteiro e entender se GitHub ou Telegram ainda precisam setup.' },
+        ],
+      },
+      {
+        title: 'Comandos',
+        entries: [
+          { command: 'zavorth demo', summary: 'Mostra o roteiro de produto, Home, checklists e smoke.' },
+          { command: 'zavorth demo browser', summary: 'Abre a demo visual local no browser.' },
+          { command: 'zavorth demo doctor', summary: 'Mostra somente o que falta para GitHub, Telegram e demo local.' },
+          { command: 'zavorth demo --json', summary: 'Exporta a mesma verdade para automacao.' },
+          { command: 'zavorth go', summary: 'Abre o Home visual em /dashboard.' },
+        ],
+      },
+      {
+        title: 'Seguro',
+        entries: [
+          { summary: 'A demo nao cola secrets, nao finge conectores live e nao posta em PR sem approval.' },
+          { summary: 'O smoke usa fixtures deterministicas; uso real de GitHub/Telegram continua approval-aware.' },
+        ],
+      },
+    ],
+    notesTitle: 'Depois',
+    notes: [
+      'Rode: zavorth go',
+      'Conectores: zavorth connectors doctor',
+      'Depois: zavorth review github --pr=<number> --repo=<owner/repo>',
+      'Para Telegram: zavorth connectors setup telegram --apply --allowed-user=<id>',
+    ],
+  },
+  connectors: {
+    topic: 'connectors',
+    title: 'zavorth connectors',
+    summary: 'Doctor e setup guiado real para GitHub, Telegram e Discord sem aceitar secrets crus no prompt.',
+    sections: [
+      {
+        title: 'Doctor',
+        entries: [
+          { command: 'zavorth connectors doctor', summary: 'Mostra todos os conectores publicos e exatamente o que falta.' },
+          { command: 'zavorth connectors doctor telegram', summary: 'Foca Telegram e roda doctor de provider quando disponivel.' },
+          { command: 'zavorth connectors doctor discord', summary: 'Foca Discord e mostra setup minimo para bot/guild/canais.' },
+          { command: 'zavorth connectors doctor --json', summary: 'Exporta o mesmo diagnostico para automacao.' },
+        ],
+      },
+      {
+        title: 'Setup',
+        entries: [
+          { command: 'zavorth connectors setup telegram', summary: 'Preview do scaffold seguro do Telegram.' },
+          { command: 'zavorth connectors setup telegram --apply --allowed-user=<id>', summary: 'Escreve placeholders e allowlist local sem token cru.' },
+          { command: 'zavorth connectors setup discord', summary: 'Preview do scaffold minimo do Discord native.' },
+          { command: 'zavorth connectors setup discord --apply --guild=<id> --channel=<id> --owner=<id>', summary: 'Escreve scaffold e policy minima do Discord.' },
+        ],
+      },
+    ],
+    notesTitle: 'Seguro',
+    notes: [
+      'GitHub usa gh auth login; Zavorth nao grava credenciais GitHub por voce.',
+      'Telegram/Discord setup preserva secrets existentes e nao posta mensagens reais.',
+    ],
+  },
   onboard: {
     topic: 'onboard',
     title: 'zavorth setup',
-    summary: 'Prepara o primeiro uso com profile canonico, workspace, tom, memoria e seguranca.',
+    summary: 'Prepara o primeiro uso com profile canonico, workspace, tom, memoria e seguranca. "zavorth onboard" e um alias amigavel deste setup.',
     sections: [
       {
         title: 'Primeiro uso',
@@ -233,6 +341,7 @@ const CLI_COMMAND_HELP_PAGES: Record<Exclude<CliHelpTopic, 'root'>, CliHelpPage>
         title: 'Preview',
         entries: [
           { command: 'zavorth setup --dry-run', summary: 'Mostra o plano sem gravar arquivos.' },
+          { command: 'zavorth onboard --dry-run', summary: 'Alias amigavel para o mesmo preview de setup.' },
           { command: 'zavorth setup --json --dry-run', summary: 'Mostra snapshot redigido para automacao segura.' },
         ],
       },
@@ -242,6 +351,7 @@ const CLI_COMMAND_HELP_PAGES: Record<Exclude<CliHelpTopic, 'root'>, CliHelpPage>
           { command: 'zavorth go --dry-run', summary: 'Confere URL e bloqueios sem iniciar runtime persistente.' },
           { command: 'zavorth doctor', summary: 'Mostra o bloqueio e o proximo comando se algo faltar.' },
           { command: 'zavorth chat', summary: 'Conversa pelo terminal quando preferir nao abrir o painel.' },
+          { command: 'zavorth onboard journey', summary: 'Mostra a antiga jornada read-only quando voce quiser mais contexto.' },
         ],
       },
     ],
@@ -253,13 +363,13 @@ const CLI_COMMAND_HELP_PAGES: Record<Exclude<CliHelpTopic, 'root'>, CliHelpPage>
   go: {
     topic: 'go',
     title: 'zavorth go',
-    summary: 'Abre a entrada principal do Zavorth ou explica exatamente o bloqueio.',
+    summary: 'Abre o Zavorth Home em /dashboard ou explica exatamente o bloqueio.',
     sections: [
       {
         title: 'Use quando',
         entries: [
-          { summary: 'You want to open the main /dashboard gateway without remembering internal scripts.' },
-          { summary: 'Quiser retomar o runtime local depois do setup.' },
+          { summary: 'You want the simple Home: Inbox, Tasks, Approvals, Receipts and Connectors.' },
+          { summary: 'Quiser retomar o Zavorth depois do setup sem decorar nomes internos.' },
         ],
       },
       {
@@ -273,6 +383,7 @@ const CLI_COMMAND_HELP_PAGES: Record<Exclude<CliHelpTopic, 'root'>, CliHelpPage>
         title: 'Depois',
         entries: [
           { command: 'zavorth chat', summary: 'Conversa pelo terminal.' },
+          { command: 'zavorth receipts', summary: 'Ve recibos do que aconteceu ou foi bloqueado.' },
           { command: 'zavorth status', summary: 'Confirma se o runtime ficou pronto.' },
         ],
       },
@@ -285,7 +396,7 @@ const CLI_COMMAND_HELP_PAGES: Record<Exclude<CliHelpTopic, 'root'>, CliHelpPage>
   dashboard: {
     topic: 'dashboard',
     title: 'zavorth dashboard',
-    summary: 'Abre o Command Center do Zavorth de um jeito humano, ja com acesso local quando possivel.',
+    summary: 'Abre o Zavorth Home de um jeito humano, ja com acesso local quando possivel.',
     sections: [
       {
         title: 'Use quando',
@@ -297,7 +408,7 @@ const CLI_COMMAND_HELP_PAGES: Record<Exclude<CliHelpTopic, 'root'>, CliHelpPage>
       {
         title: 'Comandos',
         entries: [
-          { command: 'zavorth dashboard', summary: 'Abre o Command Center ja com o token local aplicado.' },
+          { command: 'zavorth dashboard', summary: 'Abre o Home ja com o token local aplicado.' },
           { command: 'zavorth dashboard url', summary: 'Mostra um link local com token para copiar e colar.' },
           { command: 'zavorth dashboard token', summary: 'Mostra o token local quando voce realmente precisar copiar manualmente.' },
           { command: 'zavorth dashboard status', summary: 'Mostra de onde vem o acesso local sem revelar o token.' },
@@ -457,7 +568,7 @@ const CLI_COMMAND_HELP_PAGES: Record<Exclude<CliHelpTopic, 'root'>, CliHelpPage>
       {
         title: 'O que checa',
         entries: [
-          { summary: 'Node/npm/build/env, provider/modelo, SecretRefs, portas, sessoes e Command Center.' },
+          { summary: 'Node/npm/build/env, provider/modelo, SecretRefs, portas, Home e sessoes.' },
           { summary: 'Separa bloqueio atual de passos opcionais sempre que possivel.' },
         ],
       },
@@ -513,7 +624,7 @@ const CLI_COMMAND_HELP_PAGES: Record<Exclude<CliHelpTopic, 'root'>, CliHelpPage>
       {
         title: 'Use when',
         entries: [
-          { summary: 'You want the CLI view of what Command Center will show for a task.' },
+          { summary: 'You want the CLI view of what Home will show for a task.' },
           { summary: 'You want to confirm whether a mission is read-only, dry-run, blocked or waiting for approval.' },
         ],
       },
@@ -528,7 +639,7 @@ const CLI_COMMAND_HELP_PAGES: Record<Exclude<CliHelpTopic, 'root'>, CliHelpPage>
     ],
     notesTitle: 'Boundary',
     notes: [
-      'Command Center and CLI consume this projection; neither surface becomes an execution authority.',
+      'Home and CLI consume this projection; neither surface becomes an execution authority.',
     ],
   },
   receipts: {
@@ -737,7 +848,7 @@ const CLI_COMMAND_HELP_PAGES: Record<Exclude<CliHelpTopic, 'root'>, CliHelpPage>
         entries: [
           { command: 'zavorth setup', summary: 'Setup oficial do Zavorth.' },
           { command: 'zavorth go', summary: 'Sobe o runtime supervisionado e abre a superficie principal.' },
-          { command: 'zavorth dashboard', summary: 'Abre o Command Center ja com acesso local aplicado.' },
+          { command: 'zavorth dashboard', summary: 'Abre o Home ja com acesso local aplicado.' },
           { command: 'zavorth chat', summary: 'Abre o shell conversacional no terminal.' },
           { command: 'zavorth run "<pedido>"', summary: 'Envia um pedido em linguagem natural.' },
           { command: 'zavorth continue [contexto]', summary: 'Retoma o trabalho atual sem slash commands.' },
@@ -883,17 +994,18 @@ export function buildCliHelpSnapshot(target?: string | null): CliHelpSnapshot {
     surface: 'zavorth-cli',
     topic: 'root',
     title: ZAVORTH_CLI_BRAND_NAME,
-    summary: 'A local-first agent runtime for controlled work, memory, tools, and operations.',
+    summary: 'A local-first assistant for daily work with approvals, receipts, and safe connectors.',
     sections: [
       {
         title: 'Start',
         entries: [
-          { command: 'zavorth daily', summary: 'Start with guided missions, runtime questions, trust and receipts in one calm CLI view.' },
+          { command: 'zavorth start', summary: 'One command path for setup preview, Home, connector doctor and visual demo.' },
+          { command: 'zavorth go', summary: 'Open Home at /dashboard: Inbox, Tasks, Approvals, Receipts and Connectors.' },
           { command: 'zavorth setup', summary: 'Create the first-run workspace profile, tone, memory, and safe defaults.' },
+          { command: 'zavorth connectors doctor', summary: 'Check GitHub, Telegram and Discord with real per-channel setup commands.' },
+          { command: 'zavorth demo', summary: 'Optional product demo and browser visual.' },
           { command: 'zavorth doctor', summary: 'Check what is missing and get the next safe command.' },
           { command: 'zavorth onboard', summary: 'Review the first-run path and safe defaults.' },
-          { command: 'zavorth experience-certify', summary: 'Verify the daily-use Experience Layer without granting hidden execution authority.' },
-          { command: 'zavorth go', summary: 'Open the main /dashboard gateway or explain the blocker.' },
         ],
       },
       {
@@ -906,20 +1018,17 @@ export function buildCliHelpSnapshot(target?: string | null): CliHelpSnapshot {
           { command: 'zavorth missions', summary: 'Inspect the active mission projection, risk, approvals, artifacts and timeline.' },
           { command: 'zavorth receipts', summary: 'Read the visual receipt for what Zavorth did or blocked.' },
           { command: 'zavorth providers', summary: 'Inspect provider readiness without confusing catalog with live readiness.' },
-          { command: 'zavorth channels', summary: 'Inspect channel readiness and setup blockers.' },
+          { command: 'zavorth connectors', summary: 'Use the public connector doctor before lower-level channel tooling.' },
           { command: 'zavorth schedule', summary: 'Inspect daily automations and scheduler guardrails.' },
-          { command: 'zavorth skills', summary: 'Search and inspect governed skill memory.' },
-          { command: 'zavorth agents', summary: 'Inspect subagent capability and operator controls.' },
           { command: 'zavorth status', summary: 'See whether the local runtime is ready.' },
-          { command: 'zavorth workspace status', summary: 'Inspect the project manifest, processes, hooks, and log-watch state.' },
         ],
       },
       {
         title: 'Inspect',
         entries: [
-          { command: 'zavorth dashboard', summary: 'Open the main gateway at /dashboard.' },
-          { command: 'zavorth cockpit', summary: 'Review runtime, sessions, tasks, and artifacts.' },
-          { command: 'zavorth logs', summary: 'Inspect runtime evidence when a check points there.' },
+          { command: 'zavorth dashboard', summary: 'Open Home at /dashboard.' },
+          { command: 'zavorth logs', summary: 'Inspect receipts and audit evidence when a check points there.' },
+          { command: 'zavorth help advanced', summary: 'Show operator details such as skills, agents, sessions and workspace status.' },
           { command: 'zavorth help <command>', summary: 'Show focused help for a command.' },
         ],
       },
@@ -936,8 +1045,8 @@ export function buildCliHelpSnapshot(target?: string | null): CliHelpSnapshot {
     ],
     notesTitle: 'Next',
     notes: [
-      'New here? Run: zavorth setup',
-      'Need details? Run: zavorth help doctor or zavorth help go',
+      'New here? Run: zavorth start',
+      'Need details? Run: zavorth help connectors or zavorth help go',
     ],
   };
 }

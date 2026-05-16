@@ -11,6 +11,11 @@ const projectRoot = runningFromDist ? path.resolve(entryDir, '..') : path.resolv
 const PUBLIC_COMMAND_ALIASES: Record<string, string> = {
   ajuda: 'help',
   configurar: 'setup',
+  demonstracao: 'demo',
+  comecar: 'start',
+  começar: 'start',
+  inicio: 'start',
+  conectores: 'connectors',
   iniciar: 'go',
   abrir: 'go',
   estado: 'status',
@@ -1099,10 +1104,16 @@ async function runBuiltinLauncher(rawArgs: string[]): Promise<number | null> {
     if (['conversation', 'conversational', 'calibrate', 'profile'].includes(String(restArgs[0] || '').trim().toLowerCase())) {
       return runConversationalSetup(restArgs.slice(1));
     }
-    if (['apply', 'run', 'legacy', 'setup'].includes(String(restArgs[0] || '').trim().toLowerCase())) {
+    if (['journey', 'legacy', 'overview', 'doctor', 'templates', 'first-mission'].includes(String(restArgs[0] || '').trim().toLowerCase())) {
+      const forwarded = String(restArgs[0] || '').trim().toLowerCase() === 'journey'
+        ? restArgs.slice(1)
+        : restArgs;
+      return runUnifiedOnboarding(forwarded);
+    }
+    if (['apply', 'run', 'setup'].includes(String(restArgs[0] || '').trim().toLowerCase())) {
       return runPromotedScript('setup-v3', restArgs.slice(1));
     }
-    return runUnifiedOnboarding(restArgs);
+    return runPromotedScript('setup-v3', restArgs);
   }
 
   if (command === 'setup' || command === 'init') {
@@ -1117,6 +1128,24 @@ async function runBuiltinLauncher(rawArgs: string[]): Promise<number | null> {
       return printBuiltinHelp('go');
     }
     return runPromotedScript('ops-go', restArgs);
+  }
+
+  if (command === 'start' || command === 'quickstart') {
+    return npmInherited(['exec', 'tsx', '--', 'scripts/zavorth-product-demo.ts', 'start', ...restArgs], projectRoot);
+  }
+
+  if (command === 'demo') {
+    if (restArgs.includes('--help') || restArgs.includes('-h')) {
+      return printBuiltinHelp('demo');
+    }
+    return npmInherited(['exec', 'tsx', '--', 'scripts/zavorth-product-demo.ts', ...restArgs], projectRoot);
+  }
+
+  if (command === 'connectors' || command === 'connector') {
+    if (restArgs.includes('--help') || restArgs.includes('-h')) {
+      return printBuiltinHelp('connectors');
+    }
+    return npmInherited(['exec', 'tsx', '--', 'scripts/zavorth-connectors.ts', ...restArgs], projectRoot);
   }
 
   if (command === 'templates') {

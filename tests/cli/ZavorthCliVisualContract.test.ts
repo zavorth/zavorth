@@ -62,7 +62,7 @@ function makeAccessReport(ready: boolean): RuntimeOfficialAccessReport {
     readiness: {} as any,
     local: {
       ready,
-      appUrl: 'http://127.0.0.1:3000/control',
+      appUrl: 'http://127.0.0.1:3000/dashboard',
       trust: {
         attempted: false,
         applied: ready,
@@ -241,8 +241,8 @@ describe('Zavorth CLI visual anti-regression contract', () => {
     expect(output).toContain('Modelo atual: gemini-2.5-flash');
     expect(output).toContain('zavorth setup');
     expect(output).toContain('zavorth go');
-    expect(output).toContain('Command Center');
-    expect(output).toContain('/control');
+    expect(output).toContain('Home');
+    expect(output).toContain('/dashboard');
     expect(output).toContain('npm run setup');
     expect(output).toContain('npm run go');
     expect(output).toContain('npm run doctor');
@@ -256,7 +256,7 @@ describe('Zavorth CLI visual anti-regression contract', () => {
       appOpen: {
         skipped: false,
         opened: true,
-        targetUrl: 'http://127.0.0.1:3000/control',
+        targetUrl: 'http://127.0.0.1:3000/dashboard',
       },
       launcher: {
         skipped: false,
@@ -272,10 +272,12 @@ describe('Zavorth CLI visual anti-regression contract', () => {
     const output = `${ready}\n\n${blocked}\n\n${failure}`;
 
     expect(ready).toContain('Zavorth pronto');
-    expect(ready).toContain('Entrada oficial');
-    expect(ready).toContain('Command Center: http://127.0.0.1:3000/control');
-    expect(ready).toContain('Terminal');
+    expect(ready).toContain('Home');
+    expect(ready).toContain('Zavorth Home: http://127.0.0.1:3000/dashboard');
+    expect(ready).toContain('Inbox | Tasks | Approvals | Receipts | Connectors');
+    expect(ready).toContain('Comece pelo terminal se preferir');
     expect(ready).toContain('> zavorth chat');
+    expect(ready).toContain('> zavorth receipts');
     expect(ready).toContain('> zavorth doctor');
     expect(ready).not.toContain('> zavorth go');
     expect(blocked).toContain('Ajuste necessario');

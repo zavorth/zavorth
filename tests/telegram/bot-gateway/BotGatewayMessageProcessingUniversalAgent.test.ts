@@ -19,8 +19,9 @@ function createTelegramContext(text = 'compare o que mudou nesta pasta') {
 
 function createRuntime(options: {
   sharedSurfaceCommandService?: any;
+  agentGateway?: ZavorthAgentGateway;
 } = {}) {
-  const agentGateway = new ZavorthAgentGateway({
+  const agentGateway = options.agentGateway || new ZavorthAgentGateway({
     now: () => new Date('2026-04-26T11:00:00.000Z'),
     idFactory: (prefix) => `${prefix}-telegram-universal`,
   });
@@ -299,6 +300,62 @@ describe('BotGatewayMessageProcessing universal agent routing', () => {
         risk: 'danger',
       }),
     ]);
+    expect(ctx.reply).toHaveBeenCalledWith(expect.stringContaining('Recibo Zavorth'));
+    expect(ctx.reply).toHaveBeenCalledWith(expect.stringContaining('replay: zavorth replay run'));
+  });
+
+  it('runs the Telegram daily assistant loop from task to approval to receipt', async () => {
+    const executor = jest.fn(() => ({
+      status: 'completed' as const,
+      summary: 'Daily task executed after approval.',
+      replyText: 'Tarefa diaria concluida depois da aprovacao.',
+      events: [
+        {
+          kind: 'status' as const,
+          title: 'Daily assistant executor',
+          detail: 'Executor governado acionado apos approval.',
+          status: 'done' as const,
+        },
+      ],
+      metadata: {
+        dailyAssistantExecutor: true,
+      },
+    }));
+    const agentGateway = new ZavorthAgentGateway({
+      now: () => new Date('2026-04-26T11:00:00.000Z'),
+      idFactory: (prefix) => `${prefix}-telegram-daily`,
+      executor,
+    });
+    const { runtime } = createRuntime({ agentGateway });
+    const taskCtx = createTelegramContext('corrija o arquivo e rode npm test');
+
+    await processTextMessage(runtime, taskCtx, 'corrija o arquivo e rode npm test');
+
+    const pendingRun = agentGateway.buildSnapshot({ activeSessionId: 'telegram:4242' }).activeRun;
+    const approvalId = pendingRun?.approvals[0]?.id || '';
+    expect(pendingRun).toEqual(expect.objectContaining({
+      channel: 'telegram',
+      status: 'waiting_approval',
+    }));
+    expect(approvalId).toBeTruthy();
+    expect(executor).not.toHaveBeenCalled();
+    expect(taskCtx.reply).toHaveBeenCalledWith(expect.stringContaining('Recibo Zavorth'));
+    expect(taskCtx.reply).toHaveBeenCalledWith(expect.stringContaining(`approval: ${approvalId} (pending)`));
+
+    const approvalCtx = createTelegramContext(`aprovar ${approvalId}`);
+    await processTextMessage(runtime, approvalCtx, `aprovar ${approvalId}`);
+
+    expect(executor).toHaveBeenCalledTimes(1);
+    const completedRun = agentGateway.buildSnapshot({ activeSessionId: 'telegram:4242' }).activeRun;
+    expect(completedRun).toEqual(expect.objectContaining({
+      channel: 'telegram',
+      status: 'completed',
+      summary: 'Daily task executed after approval.',
+    }));
+    expect(approvalCtx.reply).toHaveBeenCalledWith(expect.stringContaining('Tarefa diaria concluida depois da aprovacao.'));
+    expect(approvalCtx.reply).toHaveBeenCalledWith(expect.stringContaining('Recibo Zavorth'));
+    expect(approvalCtx.reply).toHaveBeenCalledWith(expect.stringContaining(`approval: ${approvalId} (approved)`));
+    expect(approvalCtx.reply).toHaveBeenCalledWith(expect.stringContaining(`replay: zavorth replay run ${completedRun?.id} --json`));
   });
 
   it('does not steal explicit slash commands from the Telegram command router', async () => {

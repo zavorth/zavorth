@@ -23,10 +23,18 @@ export type ZavorthGoAppOpenSnapshot = {
   targetUrl: string | null;
 };
 
+export type ZavorthGoFirstRunSnapshot = {
+  configured: boolean;
+  profilePath: string;
+  userDisplayName?: string | null;
+  agentDisplayName?: string | null;
+};
+
 export type ZavorthGoRenderOptions = {
   launcher?: ZavorthGoLauncherSnapshot | null;
   appOpen?: ZavorthGoAppOpenSnapshot | null;
   dryRun?: boolean;
+  firstRun?: ZavorthGoFirstRunSnapshot | null;
 };
 
 function applyZavorthPublicBranding(output: string): string {
@@ -69,8 +77,8 @@ export function formatZavorthGoFailure(error: unknown): string {
   return formatZavorthFailureExplanation({
     kind: 'runtime-not-running',
     error,
-    whatHappened: 'Zavorth could not open the main entry point.',
-    likelyCause: 'The local runtime, Command Center, or browser target did not answer safely.',
+    whatHappened: 'Zavorth could not open Home.',
+    likelyCause: 'The local runtime, Home, or browser target did not answer safely.',
     nextStep: 'Run the doctor, then retry with a dry-run preview.',
     tryCommand: 'zavorth doctor',
   });
@@ -91,25 +99,36 @@ function buildReadyGoLines(
   report: RuntimeOfficialAccessReport,
   options: ZavorthGoRenderOptions,
 ): string[] {
-  const commandCenterUrl = resolveCommandCenterUrl(report, options);
+  const homeUrl = resolveHomeUrl(report, options);
   const lines = [
-    paintCliTone('Entrada oficial', 'muted'),
-    commandCenterUrl
-      ? `  > Command Center: ${commandCenterUrl}`
-      : '  > Command Center em /control',
+    paintCliTone('Home', 'muted'),
+    homeUrl
+      ? `  > Zavorth Home: ${homeUrl}`
+      : '  > Zavorth Home em /dashboard',
     '',
-    paintCliTone('Terminal', 'muted'),
+    paintCliTone('Areas principais', 'muted'),
+    '  > Inbox | Tasks | Approvals | Receipts | Connectors',
+    '',
+    paintCliTone('Comece pelo terminal se preferir', 'muted'),
     '  > zavorth chat',
+    '',
+    paintCliTone('Recibos e estado', 'muted'),
+    '  > zavorth receipts',
     '',
     paintCliTone('Se algo parecer estranho', 'muted'),
     '  > zavorth doctor',
   ];
 
+  const firstRunLines = buildFirstRunLines(options.firstRun || null);
+  if (firstRunLines.length > 0) {
+    lines.splice(6, 0, '', paintCliTone('Primeiro uso', 'muted'), ...firstRunLines.map((line) => `  > ${line}`));
+  }
+
   const openedLabel = buildOpenedLabel(options.appOpen || null);
   if (openedLabel) {
     lines.push('', paintCliTone(openedLabel.title, 'muted'), `  > ${openedLabel.value}`);
-  } else if (report.local.appUrl && report.local.appUrl !== commandCenterUrl) {
-    lines.push('', paintCliTone('Interface local', 'muted'), `  > ${report.local.appUrl}`);
+  } else if (report.local.appUrl && normalizeHomeUrl(report.local.appUrl) !== homeUrl) {
+    lines.push('', paintCliTone('Interface local', 'muted'), `  > ${normalizeHomeUrl(report.local.appUrl)}`);
   }
 
   const launcherLine = buildLauncherLine(options.launcher || null);
@@ -124,22 +143,22 @@ function buildReadyGoLines(
   return lines;
 }
 
-function resolveCommandCenterUrl(
+function resolveHomeUrl(
   report: RuntimeOfficialAccessReport,
   options: ZavorthGoRenderOptions,
 ): string | null {
   const openedTarget = String(options.appOpen?.targetUrl || '').trim();
   if (openedTarget) {
-    return openedTarget;
+    return normalizeHomeUrl(openedTarget);
   }
 
   const localTarget = String(report.local.appUrl || '').trim();
   if (localTarget) {
-    return localTarget;
+    return normalizeHomeUrl(localTarget);
   }
 
   const remoteTarget = String(report.remote.appUrl || '').trim();
-  return remoteTarget || null;
+  return remoteTarget ? normalizeHomeUrl(remoteTarget) : null;
 }
 
 function buildBlockedGoLines(
@@ -149,13 +168,18 @@ function buildBlockedGoLines(
   const lines = renderZavorthFailureExplanation(
     buildZavorthFailureExplanation({
       kind: 'runtime-not-running',
-      whatHappened: 'Zavorth could not reach the local Command Center.',
+      whatHappened: 'Zavorth could not reach the local Home.',
       likelyCause: buildShortBlockerLine(report),
       nextStep: 'Use doctor to separate missing setup, port, build, and runtime blockers.',
       tryCommand: 'zavorth doctor',
     }),
     { includeHeader: false },
   ).split('\n');
+
+  const firstRunLines = buildFirstRunLines(options.firstRun || null);
+  if (firstRunLines.length > 0) {
+    lines.push('', paintCliTone('Primeiro uso', 'muted'), ...firstRunLines.map((line) => `  > ${line}`));
+  }
 
   lines.push('', paintCliTone('After that', 'muted'), '  > zavorth status');
 
@@ -171,9 +195,20 @@ function buildBlockedGoLines(
   return lines;
 }
 
+function buildFirstRunLines(firstRun: ZavorthGoFirstRunSnapshot | null): string[] {
+  if (!firstRun || firstRun.configured) {
+    return [];
+  }
+  return [
+    'Perfil local ainda nao configurado.',
+    'zavorth setup --dry-run',
+    'zavorth setup',
+  ];
+}
+
 function buildShortBlockerLine(report: RuntimeOfficialAccessReport): string {
   if (!report.local.ready) {
-    return 'o host local ou o Command Center ainda nao respondeu.';
+    return 'o host local ou o Home ainda nao respondeu.';
   }
   if (report.local.trust.applied === false) {
     return 'este computador ainda precisa de autorizacao.';
@@ -188,7 +223,7 @@ function buildOpenedLabel(appOpen: ZavorthGoAppOpenSnapshot | null): { title: st
 
   return {
     title: appOpen.opened ? 'Interface aberta' : 'Interface',
-    value: appOpen.targetUrl,
+    value: normalizeHomeUrl(appOpen.targetUrl),
   };
 }
 
@@ -203,4 +238,26 @@ function buildLauncherLine(launcher: ZavorthGoLauncherSnapshot | null): string |
     return `nao aplicado (${launcher.error})`;
   }
   return 'nao aplicado';
+}
+
+function normalizeHomeUrl(value: string | null): string {
+  const target = String(value || '').trim();
+  if (!target) {
+    return '';
+  }
+  if (target === '/control') {
+    return '/dashboard';
+  }
+  try {
+    const url = new URL(target);
+    if (url.pathname.replace(/\/+$/u, '') === '/control') {
+      url.pathname = '/dashboard';
+      url.search = '';
+      url.hash = '';
+      return url.toString();
+    }
+  } catch {
+    return target.replace(/\/control(?:[?#].*)?$/u, '/dashboard');
+  }
+  return target;
 }

@@ -516,10 +516,10 @@ async function smokeHtmlShell(baseUrl) {
 
     const requiredMarkers = [
       'Hello, Operator',
-      'Choose a mode, then start a mission.',
-      'Personal',
-      'Developer',
-      'Business',
+      'Start with Inbox, Tasks, Approvals, Receipts or Connectors.',
+      'Inbox',
+      'Tasks',
+      'Connectors',
       'Ask Zavorth',
     ];
     const missing = requiredMarkers.filter((marker) => !html.includes(marker));
