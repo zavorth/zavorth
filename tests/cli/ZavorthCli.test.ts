@@ -3290,7 +3290,7 @@ describe('ZavorthCli', () => {
     expect(output).toContain('zavorth go');
     expect(output).toContain('Abre a entrada principal do Zavorth ou explica exatamente o bloqueio.');
     expect(output).toContain('Use quando');
-    expect(output).toContain('Quiser abrir o Command Center em /control');
+    expect(output).toContain('You want to open the main /dashboard gateway without remembering internal scripts.');
     expect(output).toContain('Modo seguro');
     expect(output).toContain('zavorth go --dry-run');
     expect(output).toContain('Saida esperada');

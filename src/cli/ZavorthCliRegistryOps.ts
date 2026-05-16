@@ -94,6 +94,11 @@ import {
   resolveAgentTeamCompilerCliText,
 } from './ZavorthCliAgentTeamCompilerRenderer.js';
 import {
+  buildGovernedReviewCliSnapshotAsync,
+  formatGovernedReviewSnapshot,
+  shouldHandleReviewCommand,
+} from './ZavorthCliGovernedReviewRenderer.js';
+import {
   buildCrossChannelContinuityCliSnapshot,
   buildCrossChannelContinuitySnapshotFromRun,
   formatCrossChannelContinuitySnapshot,
@@ -807,6 +812,29 @@ export async function handleZavorthCliRegistryOpsCommand(params: RegistryCommand
     const body = effectiveFlags.json
       ? JSON.stringify(snapshot, null, 2)
       : formatPersonalOpsAutopilotSnapshot(snapshot);
+    writer.line(body);
+    return { ok: true, handled: true, output: [body], error: null };
+  }
+
+  if (
+    commandName === 'governed-review'
+    || commandName === 'review-kernel'
+    || commandName === 'code-review'
+    || commandName === 'security-review'
+    || commandName === 'policy-review'
+    || commandName === 'regression-review'
+    || shouldHandleReviewCommand(commandName, args)
+  ) {
+    const snapshot = await buildGovernedReviewCliSnapshotAsync({
+      commandName,
+      args,
+      userId: effectiveFlags.userId,
+      sessionId: effectiveFlags.sessionId,
+      workspace: effectiveFlags.workspaceHint,
+    });
+    const body = effectiveFlags.json
+      ? JSON.stringify(snapshot, null, 2)
+      : formatGovernedReviewSnapshot(snapshot);
     writer.line(body);
     return { ok: true, handled: true, output: [body], error: null };
   }

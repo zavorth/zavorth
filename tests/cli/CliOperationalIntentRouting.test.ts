@@ -59,7 +59,7 @@ describe('CLI operational intent routing', () => {
         legacyUnifiedGatewayBypassed: true,
       }),
     }));
-    expect(output.join('\n')).toContain('Recebi: "ola"');
+    expect(output.join('\n')).toContain('Oi. Estou aqui, pronto para continuar pelo Zavorth.');
   });
 
   it('honors explicit CLI task execution', async () => {
