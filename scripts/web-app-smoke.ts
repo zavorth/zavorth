@@ -187,7 +187,10 @@ async function smokeHtmlShell(baseUrl: string): Promise<SmokeResult> {
         label: 'dashboard gateway',
         markers: [
           'Hello, Operator',
-          'What should Zavorth handle today?',
+          'Choose a mode, then start a mission.',
+          'Personal',
+          'Developer',
+          'Business',
           'Ask Zavorth',
         ],
       },

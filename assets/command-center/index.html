@@ -89,7 +89,39 @@
                 </div>
                 <div class="terminal-hero__greeting">
                   <span class="terminal-hero__hello">Hello, Operator</span>
-                  <span class="terminal-hero__question">What should Zavorth handle today?</span>
+                  <span class="terminal-hero__question">Choose a mode, then start a mission.</span>
+                </div>
+                <div class="home-profile-grid" aria-label="Experience profile">
+                  <button class="home-profile-card suggestion-chip" type="button" data-profile="personal" data-prompt="Use Personal mode and help me organize my day safely." aria-pressed="false">
+                    <span class="home-profile-card__title">Personal</span>
+                    <span class="home-profile-card__text">Daily help, reminders, files and messages.</span>
+                  </button>
+                  <button class="home-profile-card suggestion-chip" type="button" data-profile="developer" data-prompt="Use Developer mode and review this workspace safely." aria-pressed="false">
+                    <span class="home-profile-card__title">Developer</span>
+                    <span class="home-profile-card__text">Repository review, tests, patches and receipts.</span>
+                  </button>
+                  <button class="home-profile-card suggestion-chip" type="button" data-profile="business" data-prompt="Use Business mode and show approvals, audit and channel readiness." aria-pressed="false">
+                    <span class="home-profile-card__title">Business</span>
+                    <span class="home-profile-card__text">Approvals, audit trails, reports and channels.</span>
+                  </button>
+                </div>
+                <div class="home-readiness-strip" aria-label="Basic runtime state">
+                  <button class="home-readiness-card suggestion-chip" type="button" data-prompt="Which providers are ready?">
+                    <span>Provider</span>
+                    <strong>Ask readiness</strong>
+                  </button>
+                  <button class="home-readiness-card suggestion-chip" type="button" data-prompt="Is the sandbox ready for safe mutations?">
+                    <span>Sandbox</span>
+                    <strong>Preview first</strong>
+                  </button>
+                  <button class="home-readiness-card suggestion-chip" type="button" data-prompt="Which channels can I use now?">
+                    <span>Channels</span>
+                    <strong>Web + CLI</strong>
+                  </button>
+                  <button class="home-readiness-card suggestion-chip" type="button" data-prompt="Do I have pending approvals?">
+                    <span>Approvals</span>
+                    <strong>0 pending</strong>
+                  </button>
                 </div>
               </div>
 
@@ -97,29 +129,33 @@
               <div class="compose-dock">
                 <!-- Suggestion chips (visible only in empty state) -->
                 <div class="suggestion-chips" id="suggestion-chips">
-                  <button class="suggestion-chip" data-prompt="Check runtime status">
-                    <svg viewBox="0 0 24 24"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
-                    <span>Runtime status</span>
+                  <button class="suggestion-chip" data-mission="organize-day" data-auto-submit="true" data-prompt="Organize my day safely. Start read-only and tell me what needs approval.">
+                    <svg viewBox="0 0 24 24"><path d="M8 2v4"/><path d="M16 2v4"/><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M3 10h18"/></svg>
+                    <span>Organize my day</span>
                   </button>
-                  <button class="suggestion-chip" data-prompt="Review this workspace">
+                  <button class="suggestion-chip" data-mission="review-workspace" data-auto-submit="true" data-prompt="Review this workspace safely. Read first, list risks, and do not change files.">
                     <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
                     <span>Review workspace</span>
                   </button>
-                  <button class="suggestion-chip" data-prompt="List available providers">
-                    <svg viewBox="0 0 24 24"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>
-                    <span>Providers</span>
-                  </button>
-                  <button class="suggestion-chip" data-prompt="Show channel readiness">
+                  <button class="suggestion-chip" data-prompt="Help me connect a channel safely. Show the steps and keep raw tokens hidden.">
                     <svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg>
-                    <span>Channels</span>
+                    <span>Connect channel</span>
                   </button>
-                  <button class="suggestion-chip" data-prompt="Run project checks">
+                  <button class="suggestion-chip" data-prompt="Summarize a document or PDF safely. Start with a preview and receipt.">
+                    <svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><path d="M14 2v6h6"/><path d="M8 13h8"/><path d="M8 17h5"/></svg>
+                    <span>Summarize document</span>
+                  </button>
+                  <button class="suggestion-chip" data-prompt="Run safe project checks. Explain every command before anything risky.">
                     <svg viewBox="0 0 24 24"><polyline points="4 17 10 11 4 5"/><line x1="12" y1="19" x2="20" y2="19"/></svg>
                     <span>Run checks</span>
                   </button>
-                  <button class="suggestion-chip" data-prompt="What can you do?">
+                  <button class="suggestion-chip" data-mission="business-audit" data-auto-submit="true" data-prompt="Use Business mode and run a governed audit. Show policy, approval channel, scope, TTL, blocked actions and evidence receipt.">
+                    <svg viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="M9 12l2 2 4-5"/></svg>
+                    <span>Run audit</span>
+                  </button>
+                  <button class="suggestion-chip" data-prompt="What can you do without asking first, and what requires approval?">
                     <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 015.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
-                    <span>What can you do?</span>
+                    <span>Safety rules</span>
                   </button>
                 </div>
                 <div class="compose-dock__input-frame">

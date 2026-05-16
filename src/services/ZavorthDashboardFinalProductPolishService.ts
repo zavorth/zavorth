@@ -56,7 +56,8 @@ export class ZavorthDashboardFinalProductPolishService {
         blocked,
         dashboardPath: '/dashboard',
         chatFirstHome: files.indexHtml.includes('Hello, Operator')
-          && files.indexHtml.includes('What should Zavorth handle today?')
+          && files.indexHtml.includes('Choose a mode, then start a mission.')
+          && files.indexHtml.includes('home-profile-grid')
           && files.indexHtml.includes('sector-terminal'),
         nextActionsReady: files.pagesJs.includes('dashboard-next-actions')
           && files.pagesJs.includes('data-dashboard-prompt'),
@@ -127,10 +128,12 @@ export class ZavorthDashboardFinalProductPolishService {
         kind: 'home',
         passed: files.indexHtml.includes('Hello, Operator')
           && files.indexHtml.includes('suggestion-chips')
+          && files.indexHtml.includes('home-profile-grid')
+          && files.indexHtml.includes('home-readiness-strip')
           && files.indexHtml.includes('sector-terminal'),
         userVisible: true,
         defaultSimple: true,
-        evidence: ['Hello, Operator', 'suggestion-chips', 'sector-terminal'],
+        evidence: ['Hello, Operator', 'home-profile-grid', 'home-readiness-strip', 'suggestion-chips', 'sector-terminal'],
       }),
       this.entry({
         id: 'dashboard.next-actions',

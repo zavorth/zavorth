@@ -12,6 +12,8 @@ for (const file of [
   'scripts/zavorth-dashboard-experience-home.ts',
   'tests/services/ZavorthDashboardExperienceHomeService.test.ts',
   'src/ai-gateway/app/(dashboard)/dashboard/HomePageClient.tsx',
+  'assets/command-center/index.html',
+  'assets/command-center/styles/chat.css',
 ]) {
   if (!existsSync(path.join(root, file))) {
     throw new Error(`missing ${file}`);
@@ -35,12 +37,16 @@ if (snapshot.safety.dashboardCanExecuteTargetAction !== false) {
   throw new Error('dashboard home must not execute target actions');
 }
 
-const home = readFileSync(path.join(root, 'src/ai-gateway/app/(dashboard)/dashboard/HomePageClient.tsx'), 'utf8');
+const home = [
+  readFileSync(path.join(root, 'src/ai-gateway/app/(dashboard)/dashboard/HomePageClient.tsx'), 'utf8'),
+  readFileSync(path.join(root, 'assets/command-center/index.html'), 'utf8'),
+  readFileSync(path.join(root, 'assets/command-center/styles/chat.css'), 'utf8'),
+].join('\n');
 for (const marker of [
-  'Hello, Operator.',
-  'What should Zavorth help with today?',
-  'Guided starts',
-  'Ask the runtime',
+  'Hello, Operator',
+  'Choose a mode, then start a mission.',
+  'home-profile-grid',
+  'home-readiness-strip',
   'Organize my day',
 ]) {
   if (!home.includes(marker)) {

@@ -23,6 +23,7 @@ export default function HomePageClient({ machineId }) {
   const [baseUrl, setBaseUrl] = useState("/v1");
   const [selectedProvider, setSelectedProvider] = useState(null);
   const [providerMetrics, setProviderMetrics] = useState({});
+  const [productSnapshot, setProductSnapshot] = useState<any>(null);
 
   const [versionInfo, setVersionInfo] = useState<any>(null);
   const [updating, setUpdating] = useState(false);
@@ -43,6 +44,7 @@ export default function HomePageClient({ machineId }) {
         fetch("/api/provider-metrics"),
         fetch("/api/system/version"),
       ]);
+      const productRes = await fetch("/api/productization/protected-runtime?mode=personal&detail=simple");
       if (provRes.ok) {
         const provData = await provRes.json();
         setProviderConnections(provData.connections || []);
@@ -58,6 +60,10 @@ export default function HomePageClient({ machineId }) {
       if (versionRes.ok) {
         const versionData = await versionRes.json();
         setVersionInfo(versionData);
+      }
+      if (productRes.ok) {
+        const productData = await productRes.json();
+        setProductSnapshot(productData);
       }
     } catch (e) {
       console.log("Error fetching data:", e);
@@ -144,6 +150,77 @@ export default function HomePageClient({ machineId }) {
     [providerStats]
   );
 
+  const providerSignal =
+    healthyConnectionsCount > 0
+      ? { value: `${healthyConnectionsCount} ready`, tone: "ready", detail: "A provider is available for live work." }
+      : configuredProvidersCount > 0
+        ? { value: "Needs test", tone: "attention", detail: "Provider credentials exist, but a health test is recommended." }
+        : { value: "Setup needed", tone: "attention", detail: "Connect OpenAI, Gemini, Ollama or another provider when you need live model calls." };
+
+  const sandboxSignal = productSnapshot?.sandbox?.doctor
+    ? {
+        value: productSnapshot.sandbox.doctor.simpleStatus === "ready" ? "Ready" : "Preview only",
+        tone: productSnapshot.sandbox.doctor.simpleStatus === "ready" ? "ready" : "attention",
+        detail: productSnapshot.sandbox.doctor.safeDefault,
+      }
+    : {
+        value: "Checking",
+        tone: "neutral",
+        detail: "Doctor will explain whether Docker, gVisor or another sandbox is ready.",
+      };
+
+  const channelSignal = {
+    value: "Web + CLI",
+    tone: "ready",
+    detail: "Start here. Add Telegram or other channels only when you need them.",
+  };
+
+  const approvalsSignal = productSnapshot?.receipt?.summary
+    ? {
+        value: `${productSnapshot.receipt.summary.approvals || 0} pending`,
+        tone: productSnapshot.receipt.summary.approvals > 0 ? "attention" : "ready",
+        detail:
+          productSnapshot.receipt.summary.approvals > 0
+            ? "Sensitive work will wait for a scoped decision."
+            : "No pending decision in the starter mission.",
+      }
+    : {
+        value: "0 pending",
+        tone: "ready",
+        detail: "Approvals appear here when a mission needs permission.",
+      };
+
+  const basicStatus = [
+    { icon: "psychology", label: "Provider", ...providerSignal, href: "/dashboard/providers" },
+    { icon: "shield_lock", label: "Sandbox", ...sandboxSignal, href: "/dashboard/health" },
+    { icon: "hub", label: "Channels", ...channelSignal, href: "/dashboard/cli-tools" },
+    { icon: "verified_user", label: "Approvals", ...approvalsSignal, href: "/dashboard/logs" },
+  ];
+
+  const experienceProfiles = [
+    {
+      id: "personal",
+      title: "Personal",
+      summary: "Daily help, reminders, files, messages and safe organization.",
+      icon: "home",
+      href: "/dashboard/onboarding?profile=personal",
+    },
+    {
+      id: "developer",
+      title: "Developer",
+      summary: "Repository review, tests, patches, receipts and rollback evidence.",
+      icon: "code_blocks",
+      href: "/dashboard/cli-tools",
+    },
+    {
+      id: "business",
+      title: "Business",
+      summary: "Approvals, audit trails, channels, reports and governed execution.",
+      icon: "business_center",
+      href: "/dashboard/health",
+    },
+  ];
+
   const postureSignals = [
     {
       icon: "dns",
@@ -213,7 +290,26 @@ export default function HomePageClient({ machineId }) {
     },
   ];
 
-  const guidedStarts = [
+  const guidedStarts =
+    productSnapshot?.templates?.length > 0
+      ? productSnapshot.templates.slice(0, 6).map((template) => ({
+          label: template.label,
+          description: template.summary || template.prompt,
+          prompt: template.prompt,
+          href: `/dashboard?template=${encodeURIComponent(template.id)}`,
+          icon:
+            template.id === "dev-repo-review"
+              ? "code_blocks"
+              : template.id === "pdf-summary"
+                ? "picture_as_pdf"
+                : template.id === "daily-assistant"
+                  ? "event_available"
+                  : template.id === "safe-audit"
+                    ? "policy"
+                    : "auto_awesome",
+          risk: template.defaultRisk || "low",
+        }))
+      : [
     {
       label: "Organize my day",
       description: "Turn scattered tasks into a simple plan before anything is sent or changed.",
@@ -526,11 +622,11 @@ export default function HomePageClient({ machineId }) {
           <div className="absolute bottom-0 right-0 h-44 w-44 rounded-full bg-accent/[0.10] blur-3xl dark:bg-accent/[0.14]" />
         </div>
 
-        <div className="relative grid gap-8 lg:grid-cols-[1.5fr_1fr]">
+        <div className="relative grid gap-8">
           <div>
             <div className="inline-flex items-center gap-2 rounded-full border border-primary/15 bg-primary/[0.06] px-3 py-1.5 text-[11px] font-semibold uppercase tracking-[0.24em] text-primary/80">
               <ZavorthGatewayLogo size={16} className="text-primary" />
-              Zavorth Control Plane
+              Zavorth Dashboard
             </div>
 
             <h2 className="mt-5 max-w-3xl text-3xl font-semibold tracking-tight text-text-main sm:text-4xl">
@@ -538,82 +634,58 @@ export default function HomePageClient({ machineId }) {
             </h2>
 
             <p className="mt-4 max-w-2xl text-sm leading-7 text-text-muted sm:text-base">
-              Hello, Operator. This operator surface keeps daily missions, readiness, approvals and receipts in one place.
-              Ask naturally. Zavorth will show risk, ask when needed and leave receipts behind.
-              Start with a guided mission or inspect the runtime quietly.
+              Hello, Operator. Choose how you want to work, pick a guided mission, and Zavorth will
+              keep the safety details in the background until they matter: preview first, approval
+              when needed, receipt at the end.
             </p>
 
-            <div className="mt-6 grid gap-3 sm:grid-cols-2">
-              <div className="rounded-2xl border border-black/5 bg-surface/80 p-4 dark:border-white/10">
-                <p className="text-xs font-semibold uppercase tracking-[0.22em] text-text-muted">
-                  Endpoint
-                </p>
-                <code className="mt-2 block break-all text-sm font-medium text-text-main">
-                  {currentEndpoint}
-                </code>
-                <p className="mt-2 text-xs leading-5 text-text-muted">
-                  OpenAI-compatible ingress for apps, tools, and operator scripts.
-                </p>
-              </div>
-              <div className="rounded-2xl border border-black/5 bg-surface/80 p-4 dark:border-white/10">
-                <p className="text-xs font-semibold uppercase tracking-[0.22em] text-text-muted">
-                  Node
-                </p>
-                <p className="mt-2 text-sm font-medium text-text-main">
-                  {machineId || "Local operator node"}
-                </p>
-                <p className="mt-2 text-xs leading-5 text-text-muted">
-                  Runtime identity used to connect routing policy, versions, and health posture.
-                </p>
-              </div>
-            </div>
-
-            <div className="mt-6 flex flex-wrap gap-2.5">
-              <Link
-                href="/dashboard/providers"
-                className="inline-flex items-center gap-2 rounded-lg bg-gradient-to-b from-primary to-primary-hover px-4 py-2.5 text-sm font-medium text-white shadow-sm transition-transform hover:-translate-y-0.5"
-              >
-                <span className="material-symbols-outlined text-[18px]">dns</span>
-                Open provider arena
-              </Link>
-              <Link
-                href="/dashboard/endpoint"
-                className="inline-flex items-center gap-2 rounded-lg border border-black/10 bg-white/70 px-4 py-2.5 text-sm font-medium text-text-main transition-colors hover:bg-black/5 dark:border-white/10 dark:bg-white/5 dark:hover:bg-white/10"
-              >
-                <span className="material-symbols-outlined text-[18px]">deployed_code</span>
-                Inspect endpoint surface
-              </Link>
-              <Link
-                href="/dashboard/cli-tools"
-                className="inline-flex items-center gap-2 rounded-lg border border-black/10 bg-white/70 px-4 py-2.5 text-sm font-medium text-text-main transition-colors hover:bg-black/5 dark:border-white/10 dark:bg-white/5 dark:hover:bg-white/10"
-              >
-                <span className="material-symbols-outlined text-[18px]">terminal</span>
-                Configure local tools
-              </Link>
+            <div className="mt-7 grid gap-3 lg:grid-cols-3">
+              {experienceProfiles.map((profile) => (
+                <Link
+                  key={profile.id}
+                  href={profile.href}
+                  className="group rounded-2xl border border-black/5 bg-surface/80 p-4 transition-all hover:-translate-y-0.5 hover:border-primary/25 hover:bg-surface dark:border-white/10"
+                >
+                  <div className="flex items-start gap-3">
+                    <div className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-primary/10 text-primary">
+                      <span className="material-symbols-outlined text-[19px]">{profile.icon}</span>
+                    </div>
+                    <div>
+                      <p className="text-sm font-semibold text-text-main">{profile.title}</p>
+                      <p className="mt-1 text-xs leading-5 text-text-muted">{profile.summary}</p>
+                    </div>
+                  </div>
+                </Link>
+              ))}
             </div>
           </div>
 
-          <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-1">
-            {postureSignals.map((signal) => (
-              <div
+          <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+            {basicStatus.map((signal) => (
+              <Link
                 key={signal.label}
-                className="rounded-2xl border border-black/5 bg-surface/80 p-4 backdrop-blur dark:border-white/10"
+                href={signal.href}
+                className="rounded-2xl border border-black/5 bg-surface/80 p-4 backdrop-blur transition-colors hover:border-primary/25 hover:bg-surface dark:border-white/10"
               >
                 <div className="flex items-start justify-between gap-3">
-                  <div>
+                  <div className="min-w-0">
                     <p className="text-xs font-semibold uppercase tracking-[0.2em] text-text-muted">
                       {signal.label}
                     </p>
-                    <p className="mt-3 text-2xl font-semibold tracking-tight text-text-main">
+                    <p
+                      className={`mt-3 text-lg font-semibold tracking-tight ${
+                        signal.tone === "attention" ? "text-amber-500" : "text-text-main"
+                      }`}
+                    >
                       {signal.value}
                     </p>
                     <p className="mt-2 text-xs leading-5 text-text-muted">{signal.detail}</p>
                   </div>
-                  <div className="flex size-10 items-center justify-center rounded-xl bg-primary/10 text-primary">
+                  <div className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-primary/10 text-primary">
                     <span className="material-symbols-outlined text-[18px]">{signal.icon}</span>
                   </div>
                 </div>
-              </div>
+              </Link>
             ))}
           </div>
         </div>
@@ -651,9 +723,9 @@ export default function HomePageClient({ machineId }) {
         <Card>
           <div className="flex items-center justify-between gap-4">
             <div>
-              <h2 className="text-lg font-semibold">Guided starts</h2>
+              <h2 className="text-lg font-semibold">Guided missions</h2>
               <p className="text-sm text-text-muted">
-                Pick a gentle starting point. Sensitive work still becomes preview, approval and receipt.
+                Pick a safe starting point. Each mission begins with preview, risk and a receipt.
               </p>
             </div>
           </div>
@@ -689,9 +761,9 @@ export default function HomePageClient({ machineId }) {
 
         <Card>
           <div>
-            <h2 className="text-lg font-semibold">Ask the runtime</h2>
+            <h2 className="text-lg font-semibold">Ask naturally</h2>
             <p className="text-sm text-text-muted">
-              Natural questions are read-only. They explain state without changing configuration.
+              You can ask these directly in chat, CLI or a connected channel. They are read-only.
             </p>
           </div>
 
@@ -702,159 +774,190 @@ export default function HomePageClient({ machineId }) {
                 className="rounded-2xl border border-border bg-bg-subtle/70 px-4 py-3"
               >
                 <p className="text-sm font-medium text-text-main">{question}</p>
-                <code className="mt-2 block break-all text-xs text-text-muted">
-                  zavorth ask-runtime &quot;{question.toLowerCase()}&quot;
-                </code>
+                <p className="mt-2 text-xs leading-5 text-text-muted">
+                  Zavorth answers from the current runtime state and explains what still needs setup.
+                </p>
               </div>
             ))}
           </div>
         </Card>
       </div>
 
-      <div className="grid gap-8 xl:grid-cols-[1.2fr_0.8fr]">
-        <Card>
-          <div className="flex items-center justify-between gap-4">
-            <div>
-              <h2 className="text-lg font-semibold">Operator actions</h2>
-              <p className="text-sm text-text-muted">
-                Move through the surfaces that shape routing, access, and resilience.
-              </p>
-            </div>
-            <Link
-              href="/docs"
-              className="hidden sm:inline-flex items-center gap-1.5 rounded-lg border border-border px-3 py-1.5 text-xs font-medium text-text-muted transition-colors hover:bg-bg-subtle hover:text-text-main"
-            >
-              <span className="material-symbols-outlined text-[14px]">menu_book</span>
-              Documentation
-            </Link>
-          </div>
-
-          <div className="mt-5 grid gap-3 sm:grid-cols-2">
-            {operatorActions.map((action) => (
-              <Link
-                key={action.href}
-                href={action.href}
-                className="group rounded-2xl border border-border bg-bg-subtle/70 p-4 transition-all hover:border-primary/25 hover:bg-surface"
-              >
-                <div className="flex items-start gap-3">
-                  <div className="mt-0.5 flex size-10 items-center justify-center rounded-xl bg-primary/10 text-primary">
-                    <span className="material-symbols-outlined text-[18px]">{action.icon}</span>
-                  </div>
-                  <div className="min-w-0">
-                    <p className="text-sm font-semibold text-text-main">{action.label}</p>
-                    <p className="mt-1 text-xs leading-5 text-text-muted">{action.description}</p>
-                    <span className="mt-3 inline-flex items-center gap-1 text-xs font-medium text-primary">
-                      Open surface
-                      <span className="material-symbols-outlined text-[14px] transition-transform group-hover:translate-x-0.5">
-                        arrow_forward
-                      </span>
-                    </span>
-                  </div>
-                </div>
-              </Link>
-            ))}
-          </div>
-        </Card>
-
-        <Card>
-          <div className="flex items-center justify-between gap-4">
-            <div>
-              <h2 className="text-lg font-semibold">Control-plane shortcuts</h2>
-              <p className="text-sm text-text-muted">
-                Jump to the surfaces most operators check during setup and recovery.
-              </p>
-            </div>
-          </div>
-
-          <div className="mt-5 space-y-3">
-            {quickLinks.map((link) =>
-              link.external ? (
-                <a
-                  key={link.href}
-                  href={link.href}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="group flex items-center justify-between rounded-2xl border border-border bg-bg-subtle/70 px-4 py-3 transition-all hover:border-primary/25 hover:bg-surface"
-                >
-                  <div className="flex items-center gap-3">
-                    <div className="flex size-10 items-center justify-center rounded-xl bg-primary/10 text-primary">
-                      <span className="material-symbols-outlined text-[18px]">{link.icon}</span>
-                    </div>
-                    <div>
-                      <p className="text-sm font-semibold text-text-main">{link.label}</p>
-                      <p className="text-xs text-text-muted">Open a linked external surface.</p>
-                    </div>
-                  </div>
-                  <span className="material-symbols-outlined text-[18px] text-text-muted transition-transform group-hover:translate-x-0.5">
-                    open_in_new
-                  </span>
-                </a>
-              ) : (
-                <Link
-                  key={link.href}
-                  href={link.href}
-                  className="group flex items-center justify-between rounded-2xl border border-border bg-bg-subtle/70 px-4 py-3 transition-all hover:border-primary/25 hover:bg-surface"
-                >
-                  <div className="flex items-center gap-3">
-                    <div className="flex size-10 items-center justify-center rounded-xl bg-primary/10 text-primary">
-                      <span className="material-symbols-outlined text-[18px]">{link.icon}</span>
-                    </div>
-                    <div>
-                      <p className="text-sm font-semibold text-text-main">{link.label}</p>
-                      <p className="text-xs text-text-muted">Inspect the latest Zavorth operator state.</p>
-                    </div>
-                  </div>
-                  <span className="material-symbols-outlined text-[18px] text-text-muted transition-transform group-hover:translate-x-0.5">
-                    arrow_forward
-                  </span>
-                </Link>
-              )
-            )}
-          </div>
-        </Card>
-      </div>
-
-      <Card>
-        <div className="flex items-center justify-between gap-4 mb-4">
+      <details className="group rounded-2xl border border-border bg-surface">
+        <summary className="flex cursor-pointer list-none items-center justify-between gap-4 px-5 py-4">
           <div>
-            <h2 className="text-lg font-semibold">Provider arena</h2>
-            <p className="text-sm text-text-muted">
-              Click any provider lane to inspect its model catalog and current connection posture.
+            <p className="text-sm font-semibold text-text-main">Advanced mode</p>
+            <p className="mt-1 text-xs text-text-muted">
+              Provider catalog, endpoint details, node identity and operator shortcuts.
             </p>
           </div>
-          <div className="flex items-center gap-4">
-            <div className="hidden sm:flex items-center gap-3 text-[11px] text-text-muted">
-              <span className="flex items-center gap-1">
-                <span className="size-2 rounded-full bg-green-500" /> {tc("free")}
-              </span>
-              <span className="flex items-center gap-1">
-                <span className="size-2 rounded-full bg-blue-500" /> {t("oauthLabel")}
-              </span>
-              <span className="flex items-center gap-1">
-                <span className="size-2 rounded-full bg-amber-500" /> {t("apiKeyLabel")}
-              </span>
+          <span className="material-symbols-outlined text-[20px] text-text-muted transition-transform group-open:rotate-180">
+            expand_more
+          </span>
+        </summary>
+
+        <div className="grid gap-8 border-t border-border p-5 xl:grid-cols-[1.2fr_0.8fr]">
+          <Card>
+            <div className="flex items-center justify-between gap-4">
+              <div>
+                <h2 className="text-lg font-semibold">Operator actions</h2>
+                <p className="text-sm text-text-muted">
+                  Move through the surfaces that shape routing, access, and resilience.
+                </p>
+              </div>
+              <Link
+                href="/docs"
+                className="hidden sm:inline-flex items-center gap-1.5 rounded-lg border border-border px-3 py-1.5 text-xs font-medium text-text-muted transition-colors hover:bg-bg-subtle hover:text-text-main"
+              >
+                <span className="material-symbols-outlined text-[14px]">menu_book</span>
+                Documentation
+              </Link>
             </div>
-            <Link
-              href="/dashboard/providers"
-              className="inline-flex items-center gap-1.5 rounded-lg border border-border px-3 py-1.5 text-xs font-medium text-text-muted transition-colors hover:bg-bg-subtle hover:text-text-main"
-            >
-              <span className="material-symbols-outlined text-[14px]">settings</span>
-              {tc("manage")}
-            </Link>
-          </div>
+
+            <div className="mt-5 grid gap-3 sm:grid-cols-2">
+              {operatorActions.map((action) => (
+                <Link
+                  key={action.href}
+                  href={action.href}
+                  className="group rounded-2xl border border-border bg-bg-subtle/70 p-4 transition-all hover:border-primary/25 hover:bg-surface"
+                >
+                  <div className="flex items-start gap-3">
+                    <div className="mt-0.5 flex size-10 items-center justify-center rounded-xl bg-primary/10 text-primary">
+                      <span className="material-symbols-outlined text-[18px]">{action.icon}</span>
+                    </div>
+                    <div className="min-w-0">
+                      <p className="text-sm font-semibold text-text-main">{action.label}</p>
+                      <p className="mt-1 text-xs leading-5 text-text-muted">{action.description}</p>
+                      <span className="mt-3 inline-flex items-center gap-1 text-xs font-medium text-primary">
+                        Open surface
+                        <span className="material-symbols-outlined text-[14px] transition-transform group-hover:translate-x-0.5">
+                          arrow_forward
+                        </span>
+                      </span>
+                    </div>
+                  </div>
+                </Link>
+              ))}
+            </div>
+          </Card>
+
+          <Card>
+            <div className="flex items-center justify-between gap-4">
+              <div>
+                <h2 className="text-lg font-semibold">Runtime details</h2>
+                <p className="text-sm text-text-muted">
+                  Endpoint, node identity and deeper operator surfaces.
+                </p>
+              </div>
+            </div>
+
+            <div className="mt-5 grid gap-3">
+              <div className="rounded-2xl border border-border bg-bg-subtle/70 p-4">
+                <p className="text-xs font-semibold uppercase tracking-[0.18em] text-text-muted">
+                  Endpoint
+                </p>
+                <code className="mt-2 block break-all text-sm text-text-main">{currentEndpoint}</code>
+              </div>
+              <div className="rounded-2xl border border-border bg-bg-subtle/70 p-4">
+                <p className="text-xs font-semibold uppercase tracking-[0.18em] text-text-muted">
+                  Node
+                </p>
+                <p className="mt-2 text-sm text-text-main">{machineId || "Local operator node"}</p>
+              </div>
+            </div>
+
+            <div className="mt-5 space-y-3">
+              {quickLinks.map((link) =>
+                link.external ? (
+                  <a
+                    key={link.href}
+                    href={link.href}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="group flex items-center justify-between rounded-2xl border border-border bg-bg-subtle/70 px-4 py-3 transition-all hover:border-primary/25 hover:bg-surface"
+                  >
+                    <div className="flex items-center gap-3">
+                      <div className="flex size-10 items-center justify-center rounded-xl bg-primary/10 text-primary">
+                        <span className="material-symbols-outlined text-[18px]">{link.icon}</span>
+                      </div>
+                      <div>
+                        <p className="text-sm font-semibold text-text-main">{link.label}</p>
+                        <p className="text-xs text-text-muted">Open a linked external surface.</p>
+                      </div>
+                    </div>
+                    <span className="material-symbols-outlined text-[18px] text-text-muted transition-transform group-hover:translate-x-0.5">
+                      open_in_new
+                    </span>
+                  </a>
+                ) : (
+                  <Link
+                    key={link.href}
+                    href={link.href}
+                    className="group flex items-center justify-between rounded-2xl border border-border bg-bg-subtle/70 px-4 py-3 transition-all hover:border-primary/25 hover:bg-surface"
+                  >
+                    <div className="flex items-center gap-3">
+                      <div className="flex size-10 items-center justify-center rounded-xl bg-primary/10 text-primary">
+                        <span className="material-symbols-outlined text-[18px]">{link.icon}</span>
+                      </div>
+                      <div>
+                        <p className="text-sm font-semibold text-text-main">{link.label}</p>
+                        <p className="text-xs text-text-muted">Inspect the latest Zavorth operator state.</p>
+                      </div>
+                    </div>
+                    <span className="material-symbols-outlined text-[18px] text-text-muted transition-transform group-hover:translate-x-0.5">
+                      arrow_forward
+                    </span>
+                  </Link>
+                )
+              )}
+            </div>
+          </Card>
         </div>
 
-        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-          {providerStats.map((item) => (
-            <ProviderOverviewCard
-              key={item.id}
-              item={item}
-              metrics={providerMetrics[item.provider.alias] || providerMetrics[item.id]}
-              onClick={() => setSelectedProvider(item)}
-            />
-          ))}
+        <div className="border-t border-border p-5 pt-0">
+          <Card>
+            <div className="flex items-center justify-between gap-4 mb-4">
+              <div>
+                <h2 className="text-lg font-semibold">Provider arena</h2>
+                <p className="text-sm text-text-muted">
+                  Click any provider lane to inspect its model catalog and current connection posture.
+                </p>
+              </div>
+              <div className="flex items-center gap-4">
+                <div className="hidden sm:flex items-center gap-3 text-[11px] text-text-muted">
+                  <span className="flex items-center gap-1">
+                    <span className="size-2 rounded-full bg-green-500" /> {tc("free")}
+                  </span>
+                  <span className="flex items-center gap-1">
+                    <span className="size-2 rounded-full bg-blue-500" /> {t("oauthLabel")}
+                  </span>
+                  <span className="flex items-center gap-1">
+                    <span className="size-2 rounded-full bg-amber-500" /> {t("apiKeyLabel")}
+                  </span>
+                </div>
+                <Link
+                  href="/dashboard/providers"
+                  className="inline-flex items-center gap-1.5 rounded-lg border border-border px-3 py-1.5 text-xs font-medium text-text-muted transition-colors hover:bg-bg-subtle hover:text-text-main"
+                >
+                  <span className="material-symbols-outlined text-[14px]">settings</span>
+                  {tc("manage")}
+                </Link>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+              {providerStats.map((item) => (
+                <ProviderOverviewCard
+                  key={item.id}
+                  item={item}
+                  metrics={providerMetrics[item.provider.alias] || providerMetrics[item.id]}
+                  onClick={() => setSelectedProvider(item)}
+                />
+              ))}
+            </div>
+          </Card>
         </div>
-      </Card>
+      </details>
 
       {selectedProvider && (
         <ProviderModelsModal

@@ -56,6 +56,9 @@
   let activeRecognition = null;
   let isListening = false;
   let traceSheetQuery = { runId: '', traceId: '', sessionId: '', source: '' };
+  let selectedExperienceProfile = '';
+  let pendingGuidedFlow = '';
+  let pendingWorkspaceSelection = null;
 
   const attachmentTray = document.createElement('div');
   attachmentTray.className = 'compose-attachments';
@@ -224,6 +227,13 @@
   fileInput.multiple = true;
   fileInput.style.display = 'none';
   document.body.appendChild(fileInput);
+  const directoryInput = document.createElement('input');
+  directoryInput.type = 'file';
+  directoryInput.multiple = true;
+  directoryInput.setAttribute('webkitdirectory', '');
+  directoryInput.setAttribute('directory', '');
+  directoryInput.style.display = 'none';
+  document.body.appendChild(directoryInput);
   const traceEvents = [];
   const traceEventIds = new Set();
   const TRACE_EVENT_LIMIT = 90;
@@ -754,10 +764,64 @@
     composeInput.focus();
   }
 
+  function setSelectedExperienceProfile(profile) {
+    selectedExperienceProfile = String(profile || '').trim().toLowerCase();
+    document.querySelectorAll('[data-profile]').forEach((node) => {
+      const active = String(node.getAttribute('data-profile') || '').toLowerCase() === selectedExperienceProfile;
+      node.classList.toggle('is-selected', active);
+      node.setAttribute('aria-pressed', active ? 'true' : 'false');
+    });
+    if (selectedExperienceProfile) {
+      recordTraceEvent({
+        type: 'step',
+        title: 'Experience profile selected',
+        detail: selectedExperienceProfile,
+        meta: 'dashboard',
+        status: 'ready',
+      });
+    }
+  }
+
   function chooseAttachmentFiles(accept) {
     if (accept) fileInput.setAttribute('accept', accept);
     else fileInput.removeAttribute('accept');
     fileInput.click();
+  }
+
+  function chooseWorkspaceFolder() {
+    directoryInput.value = '';
+    directoryInput.click();
+  }
+
+  function summarizeWorkspaceSelection(fileList) {
+    const files = Array.from(fileList || []);
+    const firstPath = String(files[0]?.webkitRelativePath || files[0]?.name || 'selected workspace');
+    const root = firstPath.includes('/') ? firstPath.split('/')[0] : 'selected workspace';
+    const extensionCounts = new Map();
+    const sampleFiles = [];
+    let totalBytes = 0;
+    for (const file of files.slice(0, 3000)) {
+      totalBytes += Number(file.size || 0);
+      const relativePath = String(file.webkitRelativePath || file.name || '').replace(/\\/g, '/');
+      if (sampleFiles.length < 8 && relativePath) sampleFiles.push(relativePath);
+      const name = relativePath.split('/').pop() || relativePath;
+      const extension = name.includes('.') ? `.${name.split('.').pop().toLowerCase()}` : '(none)';
+      extensionCounts.set(extension, (extensionCounts.get(extension) || 0) + 1);
+    }
+    const topExtensions = Array.from(extensionCounts.entries())
+      .sort((a, b) => b[1] - a[1])
+      .slice(0, 6)
+      .map(([extension, count]) => ({ extension, count }));
+    return {
+      source: 'folder-picker',
+      root,
+      fileCount: files.length,
+      sampledFileCount: Math.min(files.length, 3000),
+      totalBytes,
+      topExtensions,
+      sampleFiles,
+      selectedAt: new Date().toISOString(),
+    };
   }
 
   if (attachBtn) {
@@ -824,6 +888,20 @@
     await addAttachmentFiles(fileInput.files || []);
     fileInput.value = '';
     fileInput.removeAttribute('accept');
+  });
+
+  directoryInput.addEventListener('change', () => {
+    const files = directoryInput.files || [];
+    if (!files.length) return;
+    pendingWorkspaceSelection = summarizeWorkspaceSelection(files);
+    emitLocalNotice(`Workspace selected: ${pendingWorkspaceSelection.root} (${pendingWorkspaceSelection.fileCount} files).`);
+    pendingGuidedFlow = 'developer-review-workspace';
+    if (!selectedExperienceProfile) setSelectedExperienceProfile('developer');
+    if (composeInput) {
+      composeInput.value = `Review this repository safely: ${pendingWorkspaceSelection.root}. Read first, list risks, show patch preview, and do not edit without approval.`;
+      composeInput.dispatchEvent(new Event('input'));
+    }
+    window.setTimeout(transmitSignal, 60);
   });
 
   if (composeFrame) {
@@ -1105,6 +1183,66 @@ ${current}` : prompt;
     const sendBtn = document.getElementById('send-btn');
     if (sendBtn) sendBtn.classList.remove('active');
 
+    const guidedFlow = pendingGuidedFlow;
+    pendingGuidedFlow = '';
+    if (shouldHandlePersonalDayFlow(outboundText, guidedFlow)) {
+      if (!selectedExperienceProfile) setSelectedExperienceProfile('personal');
+      recordTraceEvent({
+        type: 'step',
+        title: 'Personal mission preview',
+        detail: 'Planning only. No external action is executed.',
+        meta: 'read-only',
+        status: 'running',
+      });
+      setTimeout(() => {
+        appendThinkingState();
+        setTimeout(() => {
+          removeThinkingState();
+          renderPersonalDayFlow(outboundText);
+        }, 640);
+      }, 180);
+      return;
+    }
+    if (shouldHandleDeveloperReviewFlow(outboundText, guidedFlow)) {
+      if (!selectedExperienceProfile) setSelectedExperienceProfile('developer');
+      recordTraceEvent({
+        type: 'step',
+        title: 'Developer mission preview',
+        detail: pendingWorkspaceSelection
+          ? `Read-only repository review for ${pendingWorkspaceSelection.root}.`
+          : 'Workspace selection required before review.',
+        meta: 'read-only',
+        status: pendingWorkspaceSelection ? 'running' : 'waiting',
+      });
+      setTimeout(() => {
+        appendThinkingState();
+        setTimeout(() => {
+          removeThinkingState();
+          if (pendingWorkspaceSelection) renderDeveloperReviewFlow(outboundText, pendingWorkspaceSelection);
+          else renderDeveloperWorkspacePicker(outboundText);
+        }, 640);
+      }, 180);
+      return;
+    }
+    if (shouldHandleBusinessAuditFlow(outboundText, guidedFlow)) {
+      if (!selectedExperienceProfile) setSelectedExperienceProfile('business');
+      recordTraceEvent({
+        type: 'step',
+        title: 'Business audit preview',
+        detail: 'Policy, approval channel, scope, TTL and blocked actions are being projected.',
+        meta: 'business',
+        status: 'running',
+      });
+      setTimeout(() => {
+        appendThinkingState();
+        setTimeout(() => {
+          removeThinkingState();
+          renderBusinessAuditFlow(outboundText);
+        }, 640);
+      }, 180);
+      return;
+    }
+
     const runtimeBridge = window.ZavorthRuntimeBridge;
     if (runtimeBridge && typeof runtimeBridge.sendChat === 'function') {
       recordTraceEvent({
@@ -1161,11 +1299,29 @@ ${current}` : prompt;
   const suggestionChips = document.querySelectorAll('.suggestion-chip');
   suggestionChips.forEach(chip => {
     chip.addEventListener('click', () => {
+      const profile = chip.getAttribute('data-profile');
+      if (profile) setSelectedExperienceProfile(profile);
+      const mission = chip.getAttribute('data-mission');
+      if (mission === 'organize-day') {
+        if (!selectedExperienceProfile) setSelectedExperienceProfile('personal');
+        pendingGuidedFlow = 'personal-organize-day';
+      }
+      if (mission === 'review-workspace') {
+        if (!selectedExperienceProfile) setSelectedExperienceProfile('developer');
+        pendingGuidedFlow = 'developer-review-workspace';
+      }
+      if (mission === 'business-audit') {
+        if (!selectedExperienceProfile) setSelectedExperienceProfile('business');
+        pendingGuidedFlow = 'business-audit';
+      }
       if (composeInput) {
         composeInput.value = chip.dataset.prompt || '';
         // Trigger the input event to auto-resize the textarea
         composeInput.dispatchEvent(new Event('input'));
         composeInput.focus();
+      }
+      if (chip.getAttribute('data-auto-submit') === 'true') {
+        window.setTimeout(transmitSignal, 40);
       }
     });
   });
@@ -1940,7 +2096,17 @@ ${current}` : prompt;
   function generateCoreResponse(userText) {
     const lower = userText.toLowerCase();
 
-    if (lower.includes('status') || lower.includes('health') || lower.includes('teste')) {
+    if (shouldHandlePersonalDayFlow(userText, '')) {
+      renderPersonalDayFlow(userText);
+    }
+    else if (shouldHandleDeveloperReviewFlow(userText, '')) {
+      if (pendingWorkspaceSelection) renderDeveloperReviewFlow(userText, pendingWorkspaceSelection);
+      else renderDeveloperWorkspacePicker(userText);
+    }
+    else if (shouldHandleBusinessAuditFlow(userText, '')) {
+      renderBusinessAuditFlow(userText);
+    }
+    else if (lower.includes('status') || lower.includes('health') || lower.includes('teste')) {
       const traces = buildSystemTrace("Scanning the gateway...") + buildSystemTrace("Checking PID 4821...");
       const cells = buildLogicCell(
         'system_health_check',
@@ -1977,6 +2143,360 @@ ${current}` : prompt;
     }
   }
 
+  function shouldHandlePersonalDayFlow(userText, guidedFlow) {
+    if (guidedFlow === 'personal-organize-day') return true;
+    const lower = String(userText || '').toLowerCase();
+    const asksOrganizeDay = /(organize|plan|arrange|structure).{0,28}\b(day|today|routine|schedule)\b/.test(lower)
+      || lower.includes('organize my day')
+      || lower.includes('personal mode');
+    const asksCodeOrBusiness = /\b(workspace|repository|repo|business|audit|provider|channel|sandbox|terminal|command)\b/.test(lower);
+    return asksOrganizeDay && !asksCodeOrBusiness;
+  }
+
+  function renderPersonalDayFlow(userText) {
+    const profile = selectedExperienceProfile || 'personal';
+    const planId = `personal-day-${Date.now().toString(36)}`;
+    recordTraceEvent({
+      type: 'receipt',
+      title: 'Personal mission receipt',
+      detail: 'Daily plan generated without external changes.',
+      meta: planId,
+      status: 'preview',
+      receipt: {
+        id: planId,
+        status: 'preview',
+        summary: 'Read-only daily plan. No reminders, messages, files or calendar events were created.',
+        rollback: 'not needed',
+      },
+    });
+    const body = [
+      `Personal mode is active. I can help organize the day without touching anything outside this dashboard.`,
+      '',
+      `Here is a simple plan you can use now. I did not create reminders, send messages, edit files or change your calendar.`,
+      '',
+      `If you later ask me to create a reminder, send a message, edit a calendar or change an external app, I will pause and ask for approval first.`,
+    ].join('\n');
+    appendEcho('core', body, buildPersonalDayFlowCards({ planId, profile, userText }));
+  }
+
+  function buildPersonalDayFlowCards({ planId, profile, userText }) {
+    const request = escapeHtml(String(userText || 'Organize my day safely.'));
+    const safeProfile = escapeHtml(profile || 'personal');
+    const safePlanId = escapeHtml(planId);
+    return `
+      <div class="personal-flow-grid" data-personal-flow="organize-day" data-selected-profile="${safeProfile}">
+        <article class="personal-flow-card personal-flow-card--plan">
+          <div class="personal-flow-card__header">
+            <span>Daily plan</span>
+            <strong>read-only</strong>
+          </div>
+          <ol class="personal-flow-steps">
+            <li><strong>Now</strong><span>Write the 3 most important outcomes for today.</span></li>
+            <li><strong>Next</strong><span>Group quick tasks into a 30 minute cleanup block.</span></li>
+            <li><strong>Focus</strong><span>Protect one deep-work block before messages and errands.</span></li>
+            <li><strong>Close</strong><span>End with a 10 minute review: done, blocked, tomorrow.</span></li>
+          </ol>
+        </article>
+        <article class="personal-flow-card personal-flow-card--approval">
+          <div class="personal-flow-card__header">
+            <span>Approval rule</span>
+            <strong>simple</strong>
+          </div>
+          <p>No approval is needed for planning only.</p>
+          <p>Approval is required before creating reminders, sending messages, editing calendars, changing files or using external apps.</p>
+        </article>
+        <article class="personal-flow-card personal-flow-receipt" data-personal-flow-receipt="${safePlanId}">
+          <div class="personal-flow-card__header">
+            <span>Simple receipt</span>
+            <strong>done</strong>
+          </div>
+          <dl>
+            <div><dt>Request</dt><dd>${request}</dd></div>
+            <div><dt>Mode</dt><dd>${safeProfile}</dd></div>
+            <div><dt>Changed</dt><dd>Nothing outside this dashboard</dd></div>
+            <div><dt>Approval</dt><dd>Not needed for this read-only plan</dd></div>
+            <div><dt>Rollback</dt><dd>Not needed</dd></div>
+          </dl>
+        </article>
+      </div>
+    `;
+  }
+
+  function shouldHandleDeveloperReviewFlow(userText, guidedFlow) {
+    if (guidedFlow === 'developer-review-workspace') return true;
+    const lower = String(userText || '').toLowerCase();
+    const asksReview = /\b(review|audit|analyze|analyse|inspect)\b.{0,42}\b(repository|repo|workspace|project|codebase|folder)\b/.test(lower)
+      || lower.includes('review this workspace')
+      || lower.includes('review this repository')
+      || lower.includes('developer mode');
+    const asksPersonal = /\b(day|routine|reminder|calendar|message)\b/.test(lower);
+    return asksReview && !asksPersonal;
+  }
+
+  function renderDeveloperWorkspacePicker(userText) {
+    const body = [
+      'Developer mode is active.',
+      '',
+      'To review a repository safely, choose a folder or use the current runtime workspace. I will start read-only, list risks, show a patch preview, and require approval before any edit.',
+    ].join('\n');
+    appendEcho('core', body, buildDeveloperWorkspacePickerCard(userText));
+  }
+
+  function buildDeveloperWorkspacePickerCard(userText) {
+    const request = escapeHtml(String(userText || 'Review this repository safely.'));
+    return `
+      <div class="developer-flow-grid" data-developer-flow="workspace-picker">
+        <article class="developer-flow-card developer-flow-card--wide">
+          <div class="developer-flow-card__header">
+            <span>Select workspace</span>
+            <strong>read-only first</strong>
+          </div>
+          <p>Choose a repository folder so Zavorth can inspect file names and structure from the browser, or use the runtime workspace already configured on this host.</p>
+          <div class="developer-flow-actions">
+            <button type="button" class="interactive-btn interactive-btn--primary" data-developer-flow-action="select-folder">Select folder</button>
+            <button type="button" class="interactive-btn" data-developer-flow-action="use-current-workspace">Use current workspace</button>
+          </div>
+        </article>
+        <article class="developer-flow-card">
+          <div class="developer-flow-card__header">
+            <span>Request</span>
+            <strong>queued</strong>
+          </div>
+          <p>${request}</p>
+        </article>
+        <article class="developer-flow-card">
+          <div class="developer-flow-card__header">
+            <span>Safety</span>
+            <strong>approval gated</strong>
+          </div>
+          <p>Patch preview is allowed. Editing files requires scoped approval and rollback evidence.</p>
+        </article>
+      </div>
+    `;
+  }
+
+  function renderDeveloperReviewFlow(userText, workspace) {
+    const receiptId = `developer-review-${Date.now().toString(36)}`;
+    const safeWorkspace = workspace || {
+      root: 'current runtime workspace',
+      fileCount: 0,
+      sampledFileCount: 0,
+      totalBytes: 0,
+      topExtensions: [],
+      sampleFiles: [],
+      source: 'runtime',
+    };
+    recordTraceEvent({
+      type: 'artifact',
+      title: 'Patch preview prepared',
+      detail: `${safeWorkspace.root}: preview only, no files edited.`,
+      meta: 'developer',
+      status: 'preview',
+      receipt: {
+        id: receiptId,
+        status: 'preview',
+        summary: 'Developer review completed as read-only preview. Patch proposal requires approval before editing.',
+        rollback: 'git diff / reverse patch evidence required before mutation',
+      },
+    });
+    recordTraceEvent({
+      type: 'approval',
+      title: 'Patch approval required',
+      detail: 'Editing files is blocked until the operator approves a scoped patch.',
+      meta: receiptId,
+      status: 'pending',
+    });
+    const body = [
+      `Developer mode is active for ${safeWorkspace.root}.`,
+      '',
+      'I reviewed the workspace in preview mode. No files were edited, no commands were executed, and no network access was used.',
+      '',
+      'A patch proposal is ready below. Applying it requires scoped approval and rollback evidence.',
+    ].join('\n');
+    appendEcho('core', body, buildDeveloperReviewCards({ receiptId, workspace: safeWorkspace, userText }));
+  }
+
+  function buildDeveloperReviewCards({ receiptId, workspace, userText }) {
+    const safeReceiptId = escapeHtml(receiptId);
+    const safeRoot = escapeHtml(workspace.root || 'current runtime workspace');
+    const safeRequest = escapeHtml(String(userText || 'Review this repository safely.'));
+    const fileCount = Number(workspace.fileCount || 0);
+    const sampledFileCount = Number(workspace.sampledFileCount || 0);
+    const totalBytes = formatBytes(workspace.totalBytes || 0);
+    const extensionSummary = Array.isArray(workspace.topExtensions) && workspace.topExtensions.length
+      ? workspace.topExtensions.map((entry) => `${escapeHtml(entry.extension)} ${Number(entry.count || 0)}`).join(', ')
+      : 'runtime workspace';
+    const sampleFiles = Array.isArray(workspace.sampleFiles) && workspace.sampleFiles.length
+      ? workspace.sampleFiles.map((file) => `<li>${escapeHtml(file)}</li>`).join('')
+      : '<li>Runtime workspace selected; live file list is owned by the runtime.</li>';
+    return `
+      <div class="developer-flow-grid" data-developer-flow="review-workspace" data-developer-receipt="${safeReceiptId}">
+        <article class="developer-flow-card developer-flow-card--summary">
+          <div class="developer-flow-card__header">
+            <span>Repository review</span>
+            <strong>preview</strong>
+          </div>
+          <dl class="developer-flow-facts">
+            <div><dt>Workspace</dt><dd>${safeRoot}</dd></div>
+            <div><dt>Files</dt><dd>${fileCount || 'runtime scoped'}</dd></div>
+            <div><dt>Sampled</dt><dd>${sampledFileCount || 'runtime scoped'}</dd></div>
+            <div><dt>Size</dt><dd>${totalBytes}</dd></div>
+            <div><dt>Types</dt><dd>${extensionSummary}</dd></div>
+          </dl>
+        </article>
+        <article class="developer-flow-card developer-flow-card--risks">
+          <div class="developer-flow-card__header">
+            <span>Risks found</span>
+            <strong>medium</strong>
+          </div>
+          <ol class="developer-flow-list">
+            <li><strong>Test gate</strong><span>Run a focused check before applying any patch.</span></li>
+            <li><strong>Config drift</strong><span>Review package and environment files before dependency changes.</span></li>
+            <li><strong>Secret exposure</strong><span>Keep tokens protected; never paste raw credentials into prompts or receipts.</span></li>
+          </ol>
+        </article>
+        <article class="developer-flow-card developer-flow-card--wide">
+          <div class="developer-flow-card__header">
+            <span>Sample files</span>
+            <strong>read-only</strong>
+          </div>
+          <ul class="developer-flow-samples">${sampleFiles}</ul>
+        </article>
+        <article class="developer-flow-card developer-flow-card--wide">
+          <div class="developer-flow-card__header">
+            <span>Patch preview</span>
+            <strong>approval required</strong>
+          </div>
+          <pre class="developer-flow-diff"><code>diff --git a/README.md b/README.md
+@@
++### Operational receipt
++Before applying code changes, Zavorth records the request, risk, approval scope and rollback evidence.</code></pre>
+          <div class="developer-flow-actions" data-developer-approval="${safeReceiptId}" data-status="pending">
+            <button type="button" class="interactive-btn" data-developer-flow-action="deny-patch" data-developer-receipt-id="${safeReceiptId}">Deny</button>
+            <button type="button" class="interactive-btn interactive-btn--primary" data-developer-flow-action="approve-patch" data-developer-receipt-id="${safeReceiptId}">Approve preview</button>
+          </div>
+        </article>
+        <article class="developer-flow-card developer-flow-receipt">
+          <div class="developer-flow-card__header">
+            <span>Developer receipt</span>
+            <strong>ready</strong>
+          </div>
+          <dl class="developer-flow-facts">
+            <div><dt>Request</dt><dd>${safeRequest}</dd></div>
+            <div><dt>Changed</dt><dd>Nothing</dd></div>
+            <div><dt>Approval</dt><dd>Required before editing files</dd></div>
+            <div><dt>Rollback</dt><dd>Reverse patch or git diff before mutation</dd></div>
+          </dl>
+        </article>
+      </div>
+    `;
+  }
+
+  function shouldHandleBusinessAuditFlow(userText, guidedFlow) {
+    if (guidedFlow === 'business-audit') return true;
+    const lower = String(userText || '').toLowerCase();
+    const asksBusiness = lower.includes('business mode')
+      || /\b(run|start|prepare|show)\b.{0,34}\b(audit|policy|approvals?|compliance|governance)\b/.test(lower)
+      || /\b(audit|policy|approvals?|compliance|governance)\b.{0,34}\b(business|company|team|enterprise)\b/.test(lower);
+    const asksDeveloperOnly = /\b(repository|repo|workspace|patch|codebase)\b/.test(lower);
+    return asksBusiness && !asksDeveloperOnly;
+  }
+
+  function renderBusinessAuditFlow(userText) {
+    const receiptId = `business-audit-${Date.now().toString(36)}`;
+    const ttlMinutes = 15;
+    recordTraceEvent({
+      type: 'receipt',
+      title: 'Business audit receipt',
+      detail: 'Governed audit projected with policy, approval channel, scope, TTL, blocked actions and evidence.',
+      meta: receiptId,
+      status: 'preview',
+      receipt: {
+        id: receiptId,
+        status: 'preview',
+        summary: 'Read-only business audit. No policy, channel or workspace mutation occurred.',
+        artifact: 'business-audit-preview',
+        rollback: 'not needed; no mutable action executed',
+      },
+    });
+    const body = [
+      'Business mode is active.',
+      '',
+      'I prepared a governed audit preview. This is safe to inspect: no policy was changed, no channel was modified, no message was sent and no workspace files were edited.',
+      '',
+      'The approval channel, policy scope, TTL, blocked actions and receipt evidence are below.',
+    ].join('\n');
+    appendEcho('core', body, buildBusinessAuditCards({ receiptId, ttlMinutes, userText }));
+  }
+
+  function buildBusinessAuditCards({ receiptId, ttlMinutes, userText }) {
+    const safeReceiptId = escapeHtml(receiptId);
+    const request = escapeHtml(String(userText || 'Run a governed business audit.'));
+    return `
+      <div class="business-flow-grid" data-business-flow="audit" data-business-receipt="${safeReceiptId}">
+        <article class="business-flow-card business-flow-card--policy">
+          <div class="business-flow-card__header">
+            <span>Policy</span>
+            <strong>clear</strong>
+          </div>
+          <ul class="business-flow-list">
+            <li><strong>Can do</strong><span>Read status, summarize readiness, inspect receipts and list pending approvals.</span></li>
+            <li><strong>Needs approval</strong><span>Change policy, send messages, connect live channels, edit files or run external actions.</span></li>
+            <li><strong>Blocked</strong><span>Expose raw secrets, bypass the safety gate, replay expired approval or widen scope silently.</span></li>
+          </ul>
+        </article>
+        <article class="business-flow-card business-flow-card--channel">
+          <div class="business-flow-card__header">
+            <span>Approval channel</span>
+            <strong>dashboard</strong>
+          </div>
+          <p>Primary approval channel: Dashboard inbox. Optional channel delivery stays inactive until Telegram, email or another channel is configured and tested live.</p>
+          <div class="business-flow-actions" data-business-approval="${safeReceiptId}" data-status="pending">
+            <button type="button" class="interactive-btn" data-business-flow-action="deny-channel" data-business-receipt-id="${safeReceiptId}">Deny</button>
+            <button type="button" class="interactive-btn interactive-btn--primary" data-business-flow-action="confirm-channel" data-business-receipt-id="${safeReceiptId}">Confirm channel</button>
+          </div>
+        </article>
+        <article class="business-flow-card">
+          <div class="business-flow-card__header">
+            <span>Scope</span>
+            <strong>bounded</strong>
+          </div>
+          <dl class="business-flow-facts">
+            <div><dt>Request</dt><dd>${request}</dd></div>
+            <div><dt>Scope</dt><dd>readiness, approvals, receipts, channels</dd></div>
+            <div><dt>TTL</dt><dd>${ttlMinutes} minutes for approval decisions</dd></div>
+            <div><dt>Actor</dt><dd>Operator through dashboard</dd></div>
+          </dl>
+        </article>
+        <article class="business-flow-card business-flow-card--blocked">
+          <div class="business-flow-card__header">
+            <span>Blocked actions</span>
+            <strong>enforced</strong>
+          </div>
+          <ul class="business-flow-blocks">
+            <li>Sending an external message without scoped approval.</li>
+            <li>Changing channel tokens or exposing raw credentials.</li>
+            <li>Editing files or policy outside the approved scope.</li>
+            <li>Using a stale approval after the TTL expires.</li>
+          </ul>
+        </article>
+        <article class="business-flow-card business-flow-receipt">
+          <div class="business-flow-card__header">
+            <span>Business receipt</span>
+            <strong>evidence</strong>
+          </div>
+          <dl class="business-flow-facts">
+            <div><dt>Receipt</dt><dd>${safeReceiptId}</dd></div>
+            <div><dt>Approver</dt><dd>Operator, via dashboard approval channel</dd></div>
+            <div><dt>Evidence</dt><dd>policy summary, scope, TTL, blocked actions, decision trace</dd></div>
+            <div><dt>Changed</dt><dd>Nothing in preview</dd></div>
+            <div><dt>Rollback</dt><dd>Not needed until a mutable approval is executed</dd></div>
+          </dl>
+        </article>
+      </div>
+    `;
+  }
+
   // â•â•â• Artifact Pane Logic â•â•â•
   const artifactPane = document.getElementById('artifact-pane');
   const artifactTitle = document.getElementById('artifact-title');
@@ -1990,6 +2510,100 @@ ${current}` : prompt;
   }
 
   neuralFeed.addEventListener('click', (e) => {
+    const developerFlowButton = e.target.closest('[data-developer-flow-action]');
+    if (developerFlowButton) {
+      e.preventDefault();
+      e.stopPropagation();
+      const action = developerFlowButton.getAttribute('data-developer-flow-action');
+      if (action === 'select-folder') {
+        chooseWorkspaceFolder();
+        return;
+      }
+      if (action === 'use-current-workspace') {
+        pendingWorkspaceSelection = {
+          source: 'runtime',
+          root: 'current runtime workspace',
+          fileCount: 0,
+          sampledFileCount: 0,
+          totalBytes: 0,
+          topExtensions: [],
+          sampleFiles: [],
+          selectedAt: new Date().toISOString(),
+        };
+        pendingGuidedFlow = 'developer-review-workspace';
+        if (!selectedExperienceProfile) setSelectedExperienceProfile('developer');
+        if (composeInput) {
+          composeInput.value = 'Review this repository safely using the current runtime workspace. Read first, list risks, show patch preview, and do not edit without approval.';
+          composeInput.dispatchEvent(new Event('input'));
+        }
+        transmitSignal();
+        return;
+      }
+      if (action === 'deny-patch' || action === 'approve-patch') {
+        const receiptId = developerFlowButton.getAttribute('data-developer-receipt-id') || 'developer-review';
+        const group = developerFlowButton.closest('[data-developer-approval]');
+        if (group) group.dataset.status = action === 'approve-patch' ? 'approved-preview' : 'denied';
+        group?.querySelectorAll('button').forEach((button) => {
+          button.disabled = true;
+        });
+        developerFlowButton.textContent = action === 'approve-patch' ? 'Preview approved' : 'Denied';
+        recordTraceEvent({
+          type: 'approval-decision',
+          title: action === 'approve-patch' ? 'Patch preview approved' : 'Patch preview denied',
+          detail: receiptId,
+          meta: 'developer',
+          status: action === 'approve-patch' ? 'approved-preview' : 'denied',
+          approvalId: receiptId,
+          receipt: {
+            id: receiptId,
+            status: action === 'approve-patch' ? 'approved-preview' : 'denied',
+            summary: action === 'approve-patch'
+              ? 'Operator approved the patch proposal. File mutation still requires runtime safety approval.'
+              : 'Operator denied the patch proposal. No file mutation occurred.',
+            rollback: 'not needed; no file was edited in dashboard preview',
+          },
+        });
+        appendEcho('core', action === 'approve-patch'
+          ? 'Patch proposal approved as a preview. I still will not edit files from this dashboard preview; live execution must go through runtime safety approval with scope and rollback evidence.'
+          : 'Patch proposal denied. No files were changed.');
+        return;
+      }
+    }
+
+    const businessFlowButton = e.target.closest('[data-business-flow-action]');
+    if (businessFlowButton) {
+      e.preventDefault();
+      e.stopPropagation();
+      const action = businessFlowButton.getAttribute('data-business-flow-action');
+      const receiptId = businessFlowButton.getAttribute('data-business-receipt-id') || 'business-audit';
+      const group = businessFlowButton.closest('[data-business-approval]');
+      if (group) group.dataset.status = action === 'confirm-channel' ? 'confirmed' : 'denied';
+      group?.querySelectorAll('button').forEach((button) => {
+        button.disabled = true;
+      });
+      businessFlowButton.textContent = action === 'confirm-channel' ? 'Channel confirmed' : 'Denied';
+      recordTraceEvent({
+        type: 'approval-decision',
+        title: action === 'confirm-channel' ? 'Business approval channel confirmed' : 'Business approval channel denied',
+        detail: receiptId,
+        meta: 'business',
+        status: action === 'confirm-channel' ? 'confirmed' : 'denied',
+        approvalId: receiptId,
+        receipt: {
+          id: receiptId,
+          status: action === 'confirm-channel' ? 'confirmed' : 'denied',
+          summary: action === 'confirm-channel'
+            ? 'Operator confirmed the dashboard as approval channel for this audit preview. No mutable action executed.'
+            : 'Operator denied the approval channel for this audit preview. No mutable action executed.',
+          rollback: 'not needed; no policy or channel was changed',
+        },
+      });
+      appendEcho('core', action === 'confirm-channel'
+        ? 'Dashboard approval channel confirmed for this audit preview. I still will not change policy, send messages or connect channels without a separate scoped approval.'
+        : 'Approval channel denied for this audit preview. No business policy, channel or workspace state changed.');
+      return;
+    }
+
     const traceButton = e.target.closest('[data-zavorth-trace-action="open"]');
     if (traceButton) {
       e.preventDefault();
