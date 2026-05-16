@@ -9,6 +9,23 @@ describe('ZavorthDashboardExperienceHomeService', () => {
     expect(snapshot.surface).toBe('dashboard-experience-home');
     expect(snapshot.route).toBe('/dashboard');
     expect(snapshot.greeting).toBe('Hello, Operator.');
+    expect(snapshot.simpleNavigation.headline).toContain('Inbox, Tasks, Approvals, Receipts and Connectors');
+    expect(snapshot.simpleNavigation.areas.map((area) => area.id)).toEqual([
+      'inbox',
+      'tasks',
+      'approvals',
+      'receipts',
+      'connectors',
+    ]);
+    expect(snapshot.gettingStarted.title).toBe('Primeiros passos');
+    expect(snapshot.gettingStarted.summary).toContain('demo is optional');
+    expect(snapshot.gettingStarted.steps.map((step) => step.command)).toEqual(expect.arrayContaining([
+      'zavorth setup --dry-run',
+      'zavorth go',
+      'zavorth demo browser',
+      'zavorth connectors doctor',
+    ]));
+    expect(snapshot.gettingStarted.steps.find((step) => step.id === 'demo')?.optional).toBe(true);
     expect(snapshot.primaryMissions.length).toBeGreaterThanOrEqual(4);
     expect(snapshot.runtimeQuestions.length).toBeGreaterThanOrEqual(4);
     expect(snapshot.safety.dashboardCanExecuteTargetAction).toBe(false);
@@ -31,5 +48,6 @@ describe('ZavorthDashboardExperienceHomeService', () => {
       }),
     ]));
     expect(snapshot.invariants.join(' ')).toContain('not an execution shortcut');
+    expect(snapshot.invariants.join(' ')).toContain('before internal runtime names');
   });
 });

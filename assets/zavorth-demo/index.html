@@ -1,0 +1,379 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Zavorth Demo</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --ink: #18201d;
+      --muted: #64706a;
+      --line: #d7ded8;
+      --paper: #f8faf7;
+      --panel: #ffffff;
+      --green: #1f7a4f;
+      --blue: #315f9f;
+      --amber: #936316;
+      --red: #a83a32;
+      --mint: #e8f5ee;
+      --sky: #edf4ff;
+      --sand: #fff8e8;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background: var(--paper);
+      color: var(--ink);
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      letter-spacing: 0;
+    }
+
+    .shell {
+      min-height: 100vh;
+      display: grid;
+      grid-template-columns: 248px minmax(0, 1fr);
+    }
+
+    aside {
+      border-right: 1px solid var(--line);
+      background: #ffffff;
+      padding: 24px 18px;
+    }
+
+    .brand {
+      font-size: 22px;
+      font-weight: 760;
+      margin-bottom: 28px;
+    }
+
+    nav {
+      display: grid;
+      gap: 8px;
+    }
+
+    nav a {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      min-height: 40px;
+      padding: 9px 10px;
+      border-radius: 8px;
+      color: var(--ink);
+      text-decoration: none;
+      font-size: 14px;
+    }
+
+    nav a.active {
+      background: var(--mint);
+      color: var(--green);
+      font-weight: 700;
+    }
+
+    .pill {
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      padding: 2px 8px;
+      color: var(--muted);
+      font-size: 12px;
+      white-space: nowrap;
+    }
+
+    main {
+      padding: 28px;
+      display: grid;
+      gap: 20px;
+      align-content: start;
+    }
+
+    .topbar {
+      display: flex;
+      gap: 16px;
+      align-items: flex-start;
+      justify-content: space-between;
+    }
+
+    h1 {
+      margin: 0;
+      font-size: 30px;
+      line-height: 1.14;
+    }
+
+    .sub {
+      margin: 8px 0 0;
+      color: var(--muted);
+      max-width: 760px;
+      line-height: 1.5;
+    }
+
+    .command {
+      border: 1px solid var(--line);
+      background: #101512;
+      color: #f4fbf5;
+      border-radius: 8px;
+      padding: 12px 14px;
+      font-family: "SFMono-Regular", Consolas, monospace;
+      font-size: 13px;
+      white-space: nowrap;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 14px;
+    }
+
+    .card {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: var(--panel);
+      padding: 16px;
+      min-height: 132px;
+    }
+
+    .card h2,
+    .card h3 {
+      margin: 0;
+      font-size: 15px;
+      line-height: 1.3;
+    }
+
+    .card p {
+      margin: 8px 0 0;
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.45;
+    }
+
+    .status {
+      display: inline-flex;
+      align-items: center;
+      min-height: 24px;
+      border-radius: 999px;
+      padding: 3px 9px;
+      font-size: 12px;
+      font-weight: 700;
+      margin-top: 12px;
+    }
+
+    .ready {
+      background: var(--mint);
+      color: var(--green);
+    }
+
+    .setup {
+      background: var(--sand);
+      color: var(--amber);
+    }
+
+    .blocked {
+      background: #ffecea;
+      color: var(--red);
+    }
+
+    .wide {
+      display: grid;
+      grid-template-columns: minmax(0, 1.2fr) minmax(280px, 0.8fr);
+      gap: 14px;
+    }
+
+    .flow {
+      display: grid;
+      gap: 10px;
+    }
+
+    .row {
+      display: grid;
+      grid-template-columns: 120px minmax(0, 1fr) auto;
+      gap: 12px;
+      align-items: center;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #fff;
+      padding: 12px;
+      min-height: 60px;
+    }
+
+    .row strong {
+      font-size: 14px;
+    }
+
+    .row span {
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.4;
+    }
+
+    .row code,
+    .card code {
+      background: #edf1ee;
+      border-radius: 6px;
+      padding: 2px 6px;
+      color: #223028;
+      font-size: 12px;
+    }
+
+    .receipt {
+      background: var(--sky);
+      border-color: #c9d9f1;
+    }
+
+    .connector-list {
+      display: grid;
+      gap: 10px;
+      margin-top: 12px;
+    }
+
+    @media (max-width: 880px) {
+      .shell {
+        grid-template-columns: 1fr;
+      }
+
+      aside {
+        border-right: 0;
+        border-bottom: 1px solid var(--line);
+      }
+
+      nav {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+
+      .topbar,
+      .wide {
+        grid-template-columns: 1fr;
+        display: grid;
+      }
+
+      .grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+
+      .row {
+        grid-template-columns: 1fr;
+      }
+
+      .command {
+        white-space: normal;
+      }
+    }
+
+    @media (max-width: 560px) {
+      main {
+        padding: 18px;
+      }
+
+      .grid,
+      nav {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="shell">
+    <aside>
+      <div class="brand">Zavorth</div>
+      <nav aria-label="Demo sections">
+        <a class="active" href="#home">Home <span class="pill">ready</span></a>
+        <a href="#tasks">Tasks <span class="pill">3</span></a>
+        <a href="#approvals">Approvals <span class="pill">1</span></a>
+        <a href="#receipts">Receipts <span class="pill">audit</span></a>
+        <a href="#connectors">Connectors <span class="pill">setup</span></a>
+      </nav>
+    </aside>
+
+    <main id="home">
+      <section class="topbar" aria-label="Product start">
+        <div>
+          <h1>Governed local assistant, visible from the first minute.</h1>
+          <p class="sub">This visual demo shows the daily path: start, ask, approve, receive a receipt, then connect Telegram or Discord without giving the agent silent control.</p>
+        </div>
+        <div class="command">zavorth start</div>
+      </section>
+
+      <section class="grid" aria-label="Home areas">
+        <article class="card">
+          <h2>Inbox</h2>
+          <p>Requests from CLI, browser, Telegram or Discord land in one governed queue.</p>
+          <span class="status ready">ready</span>
+        </article>
+        <article class="card">
+          <h2>Tasks</h2>
+          <p>Work is tracked as a mission with risk, scope and visible next actions.</p>
+          <span class="status ready">active</span>
+        </article>
+        <article class="card">
+          <h2>Approvals</h2>
+          <p>External writes, PR comments and channel sends stop for explicit approval.</p>
+          <span class="status setup">waiting</span>
+        </article>
+        <article class="card">
+          <h2>Receipts</h2>
+          <p>Every important action leaves evidence: decision, tool, result and replay.</p>
+          <span class="status ready">audited</span>
+        </article>
+      </section>
+
+      <section class="wide" id="tasks" aria-label="Guided flow">
+        <div class="flow">
+          <div class="row">
+            <strong>1. Setup</strong>
+            <span>Preview local profile and safe defaults before any write.</span>
+            <code>zavorth setup --dry-run</code>
+          </div>
+          <div class="row">
+            <strong>2. Home</strong>
+            <span>Open the real dashboard with Inbox, Tasks, Approvals, Receipts and Connectors.</span>
+            <code>zavorth go</code>
+          </div>
+          <div class="row">
+            <strong>3. Connect</strong>
+            <span>Run connector doctor, then apply only the channel scaffold you need.</span>
+            <code>zavorth connectors doctor</code>
+          </div>
+          <div class="row">
+            <strong>4. Prove</strong>
+            <span>Use the deterministic smoke to confirm the public product path still works.</span>
+            <code>npm run zavorth:demo:check</code>
+          </div>
+        </div>
+
+        <article class="card receipt" id="receipts">
+          <h3>Latest receipt</h3>
+          <p><strong>Action:</strong> Telegram setup preview</p>
+          <p><strong>Policy:</strong> no raw secrets accepted; writes require <code>--apply</code></p>
+          <p><strong>Replay:</strong> connector doctor can reproduce the exact missing setup.</p>
+          <span class="status ready">receipt returned</span>
+        </article>
+      </section>
+
+      <section class="card" id="connectors" aria-label="Connector setup">
+        <h2>Connectors</h2>
+        <p>GitHub, Telegram and Discord are shown as real setup paths. A connector is never marked ready from marketing copy; it needs auth, allowlist and doctor signals.</p>
+        <div class="connector-list">
+          <div class="row">
+            <strong>GitHub</strong>
+            <span>Review PRs and post comments only after approval.</span>
+            <code>gh auth login</code>
+          </div>
+          <div class="row">
+            <strong>Telegram</strong>
+            <span>Mobile approvals and daily tasks through the same governed runtime.</span>
+            <code>zavorth connectors setup telegram --apply</code>
+          </div>
+          <div class="row">
+            <strong>Discord</strong>
+            <span>Minimum native bot scaffold with guild, channel and owner policy.</span>
+            <code>zavorth connectors setup discord --apply</code>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+</body>
+</html>

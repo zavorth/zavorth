@@ -59,21 +59,21 @@ export class RuntimeAccessLaunchService {
 
     if (preference === 'local') {
       return localReady
-        ? { source: 'local', url: localUrl, reason: 'Command Center local pronto para abrir.' }
-        : { source: 'none', url: null, reason: 'O Command Center local ainda nao esta pronto para abrir.' };
+        ? { source: 'local', url: localUrl, reason: 'Home local pronto para abrir.' }
+        : { source: 'none', url: null, reason: 'O Home local ainda nao esta pronto para abrir.' };
     }
 
     if (preference === 'remote') {
       return remoteReady
-      ? { source: 'remote', url: remoteUrl, reason: 'Command Center remoto pronto para abrir.' }
-      : { source: 'none', url: null, reason: 'O Command Center remoto ainda nao esta pronto para abrir.' };
+      ? { source: 'remote', url: remoteUrl, reason: 'Home remoto pronto para abrir.' }
+      : { source: 'none', url: null, reason: 'O Home remoto ainda nao esta pronto para abrir.' };
     }
 
     if (remoteReady) {
       return {
         source: 'remote',
         url: remoteUrl,
-        reason: 'Abri o Command Center remoto porque ele ja esta pronto.',
+        reason: 'Abri o Home remoto porque ele ja esta pronto.',
       };
     }
 
@@ -81,14 +81,14 @@ export class RuntimeAccessLaunchService {
       return {
         source: 'local',
         url: localUrl,
-        reason: 'Abri o Command Center local porque ele ja esta pronto.',
+        reason: 'Abri o Home local porque ele ja esta pronto.',
       };
     }
 
     return {
       source: 'none',
       url: null,
-      reason: 'Nenhum Command Center ficou pronto para abrir ainda.',
+      reason: 'Nenhum Home ficou pronto para abrir ainda.',
     };
   }
 

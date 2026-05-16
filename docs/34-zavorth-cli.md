@@ -14,7 +14,7 @@ For a cloned repository:
 
 ```bash
 npm install
-npm run setup
+npm run zavorth:start
 ```
 
 ## Happy Path
@@ -22,25 +22,27 @@ npm run setup
 Installed CLI:
 
 ```bash
-zavorth onboard
-zavorth onboard doctor
+zavorth start
 zavorth go
-zavorth status
-zavorth doctor --simple
-zavorth templates
-zavorth providers
+zavorth connectors doctor
+zavorth demo browser
 ```
 
 Local repo:
 
 ```bash
-npm run setup
+npm run zavorth:start
 npm run go
-npm run status
-npm run doctor
+npm run zavorth:connectors
+npm run zavorth:demo:check
 ```
 
 `go` opens or prints the Dashboard URL at `/dashboard`.
+`start` is the single product entrypoint: it shows setup preview, Home,
+connector doctor and optional visual demo.
+`connectors doctor` checks GitHub, Telegram and Discord with real per-channel setup commands.
+`onboard` is a friendly alias for `setup`; `onboard journey` keeps the older
+read-only onboarding overview available when you need it.
 
 ## Common Commands
 
@@ -50,7 +52,13 @@ zavorth onboard doctor
 zavorth onboard templates
 zavorth onboard first-mission
 zavorth setup
+zavorth start
 zavorth go
+zavorth demo
+zavorth demo browser
+zavorth connectors doctor
+zavorth connectors setup telegram --apply --allowed-user=<id>
+zavorth connectors setup discord --apply --guild=<id> --channel=<id> --owner=<id>
 zavorth status
 zavorth doctor
 zavorth templates
@@ -76,6 +84,8 @@ Use JSON for automation:
 
 ```bash
 zavorth status --json
+zavorth connectors doctor --json
+zavorth demo --json
 zavorth onboard --json
 zavorth onboard doctor --json
 zavorth doctor --json

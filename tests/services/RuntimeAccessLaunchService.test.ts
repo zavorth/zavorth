@@ -8,18 +8,18 @@ describe('RuntimeAccessLaunchService', () => {
       {
         local: {
           ready: true,
-          appUrl: 'http://127.0.0.1:33333/control',
+          appUrl: 'http://127.0.0.1:33333/dashboard',
         },
         remote: {
           ready: true,
-          appUrl: 'https://zavorth.example/control',
+          appUrl: 'https://zavorth.example/dashboard',
         },
       },
       'best',
     )).toEqual({
       source: 'remote',
-      url: 'https://zavorth.example/control',
-      reason: 'Abri o Command Center remoto porque ele ja esta pronto.',
+      url: 'https://zavorth.example/dashboard',
+      reason: 'Abri o Home remoto porque ele ja esta pronto.',
     });
   });
 
@@ -30,18 +30,18 @@ describe('RuntimeAccessLaunchService', () => {
       {
         local: {
           ready: true,
-          appUrl: 'http://127.0.0.1:33333/control',
+          appUrl: 'http://127.0.0.1:33333/dashboard',
         },
         remote: {
           ready: false,
-          appUrl: 'https://zavorth.example/control',
+          appUrl: 'https://zavorth.example/dashboard',
         },
       },
       'best',
     )).toEqual({
       source: 'local',
-      url: 'http://127.0.0.1:33333/control',
-      reason: 'Abri o Command Center local porque ele ja esta pronto.',
+      url: 'http://127.0.0.1:33333/dashboard',
+      reason: 'Abri o Home local porque ele ja esta pronto.',
     });
   });
 
@@ -63,7 +63,7 @@ describe('RuntimeAccessLaunchService', () => {
     )).toEqual({
       source: 'none',
       url: null,
-      reason: 'O Command Center remoto ainda nao esta pronto para abrir.',
+      reason: 'O Home remoto ainda nao esta pronto para abrir.',
     });
   });
 
@@ -81,5 +81,4 @@ describe('RuntimeAccessLaunchService', () => {
     });
   });
 });
-
 

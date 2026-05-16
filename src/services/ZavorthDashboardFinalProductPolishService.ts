@@ -56,7 +56,7 @@ export class ZavorthDashboardFinalProductPolishService {
         blocked,
         dashboardPath: '/dashboard',
         chatFirstHome: files.indexHtml.includes('Hello, Operator')
-          && files.indexHtml.includes('Choose a mode, then start a mission.')
+          && files.indexHtml.includes('Start with Inbox, Tasks, Approvals, Receipts or Connectors.')
           && files.indexHtml.includes('home-profile-grid')
           && files.indexHtml.includes('sector-terminal'),
         nextActionsReady: files.pagesJs.includes('dashboard-next-actions')

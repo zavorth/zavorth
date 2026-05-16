@@ -10,6 +10,17 @@ describe('ZavorthCliExperienceParityService', () => {
     expect(snapshot.entryCommands).toEqual(expect.arrayContaining(['zavorth daily', 'zavorth cli-home']));
     expect(snapshot.commands).toEqual(expect.arrayContaining([
       expect.objectContaining({
+        id: 'home-inbox',
+        command: 'zavorth go',
+        kind: 'home_area',
+        mirrorsDashboardHome: true,
+      }),
+      expect.objectContaining({
+        id: 'home-connectors',
+        command: 'zavorth providers',
+        kind: 'home_area',
+      }),
+      expect.objectContaining({
         command: expect.stringContaining('zavorth guided-missions'),
         mirrorsDashboardHome: true,
       }),
@@ -26,6 +37,7 @@ describe('ZavorthCliExperienceParityService', () => {
     const snapshot = new ZavorthCliExperienceParityService().buildSnapshot();
 
     expect(snapshot.commands.every((command) => command.cliCanExecuteTargetAction === false)).toBe(true);
+    expect(snapshot.promise).toContain('Inbox, Tasks, Approvals, Receipts, Connectors');
     expect(snapshot.commands).toEqual(expect.arrayContaining([
       expect.objectContaining({ command: 'zavorth trust-panel' }),
       expect.objectContaining({ command: 'zavorth visual-receipts' }),

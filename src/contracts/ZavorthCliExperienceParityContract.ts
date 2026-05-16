@@ -1,6 +1,7 @@
 export const ZAVORTH_CLI_EXPERIENCE_PARITY_CONTRACT_VERSION = '2026-05-15.experience-layer.phase-13' as const;
 
 export type ZavorthCliExperienceParityCommandKind =
+  | 'home_area'
   | 'guided_mission'
   | 'runtime_question'
   | 'trust'

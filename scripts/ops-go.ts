@@ -8,6 +8,7 @@ import {
   formatZavorthGoFailure,
   formatZavorthGoReport,
 } from '../src/cli/ZavorthCliGoRenderer.js';
+import { FirstRunWorkspaceBootstrapProfileService } from '../src/services/FirstRunWorkspaceBootstrapProfileService.js';
 
 const cliArgs = parseOfficialInstallArgs(process.argv.slice(2));
 
@@ -19,16 +20,22 @@ async function main() {
     launcher: true,
     openBest: true,
   });
+  const firstRun = new FirstRunWorkspaceBootstrapProfileService().buildWorkspaceIdentitySnapshot();
 
   if (args.json) {
-    process.stdout.write(`${JSON.stringify({ report, launcher, appOpen }, null, 2)}\n`);
+    process.stdout.write(`${JSON.stringify({ report, launcher, appOpen, firstRun }, null, 2)}\n`);
     if (!args.dryRun && !report.local.ready) {
       process.exitCode = 1;
     }
     return;
   }
 
-  console.log(formatZavorthGoReport(report, { launcher, appOpen, dryRun: args.dryRun }));
+  console.log(formatZavorthGoReport(report, {
+    launcher,
+    appOpen,
+    dryRun: args.dryRun,
+    firstRun,
+  }));
 
   if (!args.dryRun && !report.local.ready) {
     process.exitCode = 1;

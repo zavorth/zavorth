@@ -45,7 +45,7 @@ export function formatZavorthOnboardNonInteractiveHint(): string {
     `${paintCliTone('Preview', 'info')}: zavorth setup --dry-run`,
     `${paintCliTone('JSON seguro', 'info')}: zavorth setup --json --dry-run`,
     `${paintCliTone('Repo clonado', 'info')}: npm run setup`,
-    `${paintCliTone('Depois', 'success')}: zavorth go ou npm run go abre o Command Center em /control`,
+    `${paintCliTone('Depois', 'success')}: zavorth go ou npm run go abre o Home em /dashboard`,
     `${paintCliTone('Diagnostico', 'muted')}: zavorth doctor ou npm run doctor`,
   ].join('\n');
 }

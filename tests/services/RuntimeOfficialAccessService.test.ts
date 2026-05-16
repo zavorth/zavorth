@@ -404,7 +404,7 @@ describe('RuntimeOfficialAccessService', () => {
     expect(report.remote.ready).toBe(false);
     expect(report.remote.issues).toEqual(
       expect.arrayContaining([
-        expect.stringContaining('/control remoto falhou'),
+        expect.stringContaining('Home remoto falhou'),
         expect.stringContaining('/api/auth/validate'),
       ]),
     );
@@ -492,6 +492,5 @@ describe('RuntimeOfficialAccessService', () => {
     expect(report.nextSteps[0] || '').not.toContain('ops:remote:go');
   });
 });
-
 
 

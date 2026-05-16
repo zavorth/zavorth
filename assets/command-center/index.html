@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="description" content="Zavorth local-first governed agent runtime gateway">
+  <meta name="description" content="Zavorth local-first governed assistant home">
   <title>Zavorth</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -41,7 +41,7 @@
             </svg>
           </div>
           <div class="bridge__brand-text">
-            <span class="bridge__brand-eyebrow">Agent OS</span>
+            <span class="bridge__brand-eyebrow">Zavorth Home</span>
             <span class="bridge__brand-name">Zavorth</span>
           </div>
         </div>
@@ -49,13 +49,13 @@
       <div class="bridge__center">
         <span class="bridge__path" id="bridge-path">Zavorth</span>
         <span class="bridge__path-sep">&gt;</span>
-        <span class="bridge__path-current" id="bridge-current">Chat</span>
+        <span class="bridge__path-current" id="bridge-current">Inbox</span>
       </div>
       <div class="bridge__right">
         <div class="bridge__telemetry">
           <div class="bridge__pulse" id="core-pulse">
             <span class="bridge__pulse-dot"></span>
-            <span class="bridge__pulse-label">Core Online</span>
+            <span class="bridge__pulse-label">Ready</span>
           </div>
         </div>
         <button class="bridge__action-btn" id="theme-toggle" aria-label="Toggle theme">
@@ -89,20 +89,46 @@
                 </div>
                 <div class="terminal-hero__greeting">
                   <span class="terminal-hero__hello">Hello, Operator</span>
-                  <span class="terminal-hero__question">Choose a mode, then start a mission.</span>
+                  <span class="terminal-hero__question">Start with Inbox, Tasks, Approvals, Receipts or Connectors.</span>
                 </div>
-                <div class="home-profile-grid" aria-label="Experience profile">
-                  <button class="home-profile-card suggestion-chip" type="button" data-profile="personal" data-prompt="Use Personal mode and help me organize my day safely." aria-pressed="false">
-                    <span class="home-profile-card__title">Personal</span>
-                    <span class="home-profile-card__text">Daily help, reminders, files and messages.</span>
+                <div class="home-profile-grid" aria-label="Primeiros passos">
+                  <button class="home-profile-card suggestion-chip" type="button" data-profile="setup" data-prompt="Preview setup before writing any local profile files." aria-pressed="false">
+                    <span class="home-profile-card__title">Primeiros passos</span>
+                    <span class="home-profile-card__text">zavorth setup --dry-run</span>
                   </button>
-                  <button class="home-profile-card suggestion-chip" type="button" data-profile="developer" data-prompt="Use Developer mode and review this workspace safely." aria-pressed="false">
-                    <span class="home-profile-card__title">Developer</span>
-                    <span class="home-profile-card__text">Repository review, tests, patches and receipts.</span>
+                  <button class="home-profile-card suggestion-chip" type="button" data-profile="go" data-prompt="Open Zavorth Home for daily use." aria-pressed="false">
+                    <span class="home-profile-card__title">Daily use</span>
+                    <span class="home-profile-card__text">zavorth go</span>
                   </button>
-                  <button class="home-profile-card suggestion-chip" type="button" data-profile="business" data-prompt="Use Business mode and show approvals, audit and channel readiness." aria-pressed="false">
-                    <span class="home-profile-card__title">Business</span>
-                    <span class="home-profile-card__text">Approvals, audit trails, reports and channels.</span>
+                  <button class="home-profile-card suggestion-chip" type="button" data-profile="demo" data-prompt="Show the optional browser demo." aria-pressed="false">
+                    <span class="home-profile-card__title">Optional demo</span>
+                    <span class="home-profile-card__text">zavorth demo browser</span>
+                  </button>
+                  <button class="home-profile-card suggestion-chip" type="button" data-profile="connectors" data-prompt="Check GitHub, Telegram and Discord setup." aria-pressed="false">
+                    <span class="home-profile-card__title">Connectors</span>
+                    <span class="home-profile-card__text">zavorth connectors doctor</span>
+                  </button>
+                </div>
+                <div class="home-profile-grid" aria-label="Zavorth Home areas">
+                  <button class="home-profile-card suggestion-chip" type="button" data-profile="inbox" data-prompt="Open my Inbox and show what needs attention." aria-pressed="false">
+                    <span class="home-profile-card__title">Inbox</span>
+                    <span class="home-profile-card__text">Requests, messages and waiting items.</span>
+                  </button>
+                  <button class="home-profile-card suggestion-chip" type="button" data-profile="tasks" data-prompt="Show my tasks and safe next steps." aria-pressed="false">
+                    <span class="home-profile-card__title">Tasks</span>
+                    <span class="home-profile-card__text">Guided missions and active work.</span>
+                  </button>
+                  <button class="home-profile-card suggestion-chip" type="button" data-profile="approvals" data-prompt="Do I have pending approvals?" aria-pressed="false">
+                    <span class="home-profile-card__title">Approvals</span>
+                    <span class="home-profile-card__text">Scoped decisions before sensitive actions.</span>
+                  </button>
+                  <button class="home-profile-card suggestion-chip" type="button" data-profile="receipts" data-prompt="Show recent receipts and blocked actions." aria-pressed="false">
+                    <span class="home-profile-card__title">Receipts</span>
+                    <span class="home-profile-card__text">Proof of what happened and why.</span>
+                  </button>
+                  <button class="home-profile-card suggestion-chip" type="button" data-profile="connectors" data-prompt="Show connector readiness without exposing secrets." aria-pressed="false">
+                    <span class="home-profile-card__title">Connectors</span>
+                    <span class="home-profile-card__text">Providers, GitHub and channels.</span>
                   </button>
                 </div>
                 <div class="home-readiness-strip" aria-label="Basic runtime state">
@@ -219,45 +245,45 @@
       <div class="nexus-dock__rail">
         <!-- Primary -->
         <div class="dock-group">
-          <a class="dock-node active" data-sector="terminal" href="#" title="Terminal">
+          <a class="dock-node active" data-sector="terminal" href="#" title="Inbox">
             <span class="dock-node__glyph"><svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg></span>
-            <span class="dock-node__label">Chat</span>
+            <span class="dock-node__label">Inbox</span>
           </a>
-          <a class="dock-node" data-sector="overview" href="#" title="Overview">
+          <a class="dock-node" data-sector="overview" href="#" title="Tasks">
             <span class="dock-node__glyph"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg></span>
-            <span class="dock-node__label">Dashboard</span>
+            <span class="dock-node__label">Tasks</span>
           </a>
-          <a class="dock-node" data-sector="channels" href="#" title="Channels">
+          <a class="dock-node" data-sector="channels" href="#" title="Connectors">
             <span class="dock-node__glyph"><svg viewBox="0 0 24 24"><path d="M4 11a9 9 0 0118 0"/><path d="M4 4a16 16 0 0118 0"/><circle cx="12" cy="18" r="1"/><path d="M8 14a5 5 0 018 0"/></svg></span>
-            <span class="dock-node__label">Channels</span>
+            <span class="dock-node__label">Connectors</span>
           </a>
-          <a class="dock-node" data-sector="sales-os" href="#" title="Sales OS">
+          <a class="dock-node" data-sector="sales-os" href="#" title="Approvals">
             <span class="dock-node__glyph"><svg viewBox="0 0 24 24"><path d="M3 5h18v14H3z"/><path d="M7 9h4"/><path d="M7 13h7"/><path d="M17 9h.01"/><path d="M17 13h.01"/></svg></span>
-            <span class="dock-node__label">Sales OS</span>
+            <span class="dock-node__label">Approvals</span>
           </a>
-          <a class="dock-node" data-sector="instances" href="#" title="Nodes">
+          <a class="dock-node" data-sector="instances" href="#" title="Receipts">
             <span class="dock-node__glyph"><svg viewBox="0 0 24 24"><rect x="2" y="2" width="20" height="8" rx="2"/><rect x="2" y="14" width="20" height="8" rx="2"/><line x1="6" y1="6" x2="6.01" y2="6"/><line x1="6" y1="18" x2="6.01" y2="18"/></svg></span>
-            <span class="dock-node__label">Nodes</span>
+            <span class="dock-node__label">Receipts</span>
           </a>
         </div>
         <span class="dock-divider"></span>
         <!-- Secondary -->
         <div class="dock-group">
-          <a class="dock-node" data-sector="sessions" href="#" title="Sessions">
+          <a class="dock-node" data-sector="sessions" href="#" title="History">
             <span class="dock-node__glyph"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></span>
-            <span class="dock-node__label">Sessions</span>
+            <span class="dock-node__label">History</span>
           </a>
-          <a class="dock-node" data-sector="agents" href="#" title="Agents">
+          <a class="dock-node" data-sector="agents" href="#" title="Review">
             <span class="dock-node__glyph"><svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg></span>
-            <span class="dock-node__label">Agents</span>
+            <span class="dock-node__label">Review</span>
           </a>
-          <a class="dock-node" data-sector="skills" href="#" title="Skills">
+          <a class="dock-node" data-sector="skills" href="#" title="Tools">
             <span class="dock-node__glyph"><svg viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg></span>
-            <span class="dock-node__label">Skills</span>
+            <span class="dock-node__label">Tools</span>
           </a>
-          <a class="dock-node" data-sector="nodes" href="#" title="Network">
+          <a class="dock-node" data-sector="nodes" href="#" title="Advanced">
             <span class="dock-node__glyph"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><circle cx="19" cy="5" r="2"/><circle cx="5" cy="5" r="2"/><circle cx="19" cy="19" r="2"/><circle cx="5" cy="19" r="2"/><line x1="12" y1="9" x2="12" y2="5"/><line x1="14.5" y1="13.5" x2="18" y2="18"/><line x1="9.5" y1="13.5" x2="6" y2="18"/></svg></span>
-            <span class="dock-node__label">Network</span>
+            <span class="dock-node__label">Advanced</span>
           </a>
           <a class="dock-node" data-sector="dreams" href="#" title="Rest">
             <span class="dock-node__glyph"><svg viewBox="0 0 24 24"><path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/></svg></span>
@@ -326,7 +352,7 @@
       </button>
       <button class="tool-sheet__item" type="button" data-tool-sheet-action="skills">
         <span class="tool-sheet__icon"><svg viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg></span>
-        <span><strong>Skills</strong><small>Specialize the request</small></span>
+        <span><strong>Tools</strong><small>Specialize the request</small></span>
       </button>
       <button class="tool-sheet__item tool-sheet__item--wide" type="button" data-tool-sheet-action="voice">
         <span class="tool-sheet__icon"><svg viewBox="0 0 24 24"><path d="M12 1a3 3 0 00-3 3v8a3 3 0 006 0V4a3 3 0 00-3-3z"/><path d="M19 10v2a7 7 0 01-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/></svg></span>
@@ -363,7 +389,7 @@
   <aside class="mobile-drawer" id="mobile-drawer" aria-hidden="true">
     <div class="mobile-drawer__header">
       <div>
-        <div class="mobile-drawer__eyebrow">Agent OS</div>
+        <div class="mobile-drawer__eyebrow">Zavorth Home</div>
         <div class="mobile-drawer__title">Zavorth</div>
       </div>
       <button class="mobile-drawer__close" id="mobile-drawer-close" type="button" aria-label="Close menu">
@@ -371,20 +397,20 @@
       </button>
     </div>
     <nav class="mobile-drawer__nav" aria-label="Main navigation">
-      <button class="mobile-drawer__item active" type="button" data-drawer-sector="terminal">Chat</button>
-      <button class="mobile-drawer__item" type="button" data-drawer-sector="overview">Dashboard</button>
-      <button class="mobile-drawer__item" type="button" data-drawer-sector="channels">Channels</button>
-      <button class="mobile-drawer__item" type="button" data-drawer-sector="sales-os">Sales OS</button>
-      <button class="mobile-drawer__item" type="button" data-drawer-sector="instances">Nodes</button>
-      <button class="mobile-drawer__item" type="button" data-drawer-sector="sessions">Sessions</button>
-      <button class="mobile-drawer__item" type="button" data-drawer-sector="agents">Agents</button>
-      <button class="mobile-drawer__item" type="button" data-drawer-sector="skills">Skills</button>
-      <button class="mobile-drawer__item" type="button" data-drawer-sector="nodes">Network</button>
+      <button class="mobile-drawer__item active" type="button" data-drawer-sector="terminal">Inbox</button>
+      <button class="mobile-drawer__item" type="button" data-drawer-sector="overview">Tasks</button>
+      <button class="mobile-drawer__item" type="button" data-drawer-sector="channels">Connectors</button>
+      <button class="mobile-drawer__item" type="button" data-drawer-sector="sales-os">Approvals</button>
+      <button class="mobile-drawer__item" type="button" data-drawer-sector="instances">Receipts</button>
+      <button class="mobile-drawer__item" type="button" data-drawer-sector="sessions">History</button>
+      <button class="mobile-drawer__item" type="button" data-drawer-sector="agents">Review</button>
+      <button class="mobile-drawer__item" type="button" data-drawer-sector="skills">Tools</button>
+      <button class="mobile-drawer__item" type="button" data-drawer-sector="nodes">Advanced</button>
       <button class="mobile-drawer__item" type="button" data-drawer-sector="config">Config</button>
     </nav>
     <div class="mobile-drawer__footer">
       <button class="mobile-drawer__action" type="button" id="mobile-drawer-search">Search</button>
-      <span class="mobile-drawer__status">Core live</span>
+      <span class="mobile-drawer__status">Ready</span>
     </div>
   </aside>
 

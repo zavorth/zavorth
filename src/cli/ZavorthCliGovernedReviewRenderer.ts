@@ -1,16 +1,20 @@
 import {
+  GovernedReviewGitHubService,
   GovernedReviewService,
   type GovernedReviewContextFile,
+  type GovernedReviewGitHubResult,
   type GovernedReviewMode,
   type GovernedReviewRequestedActions,
   type GovernedReviewRequest,
   type GovernedReviewResult,
 } from '../runtime/review/index.js';
 
+export type GovernedReviewCliSnapshot = GovernedReviewResult | GovernedReviewGitHubResult;
+
 export function resolveGovernedReviewCliText(args: string): string {
   return stripReviewFlags(String(args || '')
     .trim()
-    .replace(/^(?:governed-review|review-kernel|code-review|security-review|policy-review|regression-review|review|run|preview|status|latest)\b/i, '')
+    .replace(/^(?:governed-review|review-kernel|code-review|security-review|policy-review|regression-review|github-review|review|github|run|preview|status|latest)\b/i, '')
     .trim())
     .replace(/^["']|["']$/g, '')
     .trim();
@@ -23,7 +27,8 @@ export function shouldHandleReviewCommand(commandName: string | null, args: stri
   }
   const normalizedArgs = String(args || '').trim();
   return normalizedArgs.length === 0
-    || /(?:^|\s)--(?:governed|kernel|security|policy|regression|mode=|file=|base=|target=|live-agents|launch-live-agents|mock-live-agents|comment-pr|post-pr-comment|apply-patch|approval-id=)\b/i.test(normalizedArgs);
+    || /^\s*github\b/i.test(normalizedArgs)
+    || /(?:^|\s)--(?:github|governed|kernel|security|policy|regression|mode=|file=|base=|target=|repo=|pr=|github-pr=|live-agents|launch-live-agents|mock-live-agents|comment-pr|post-pr-comment|post-comment|apply-patch|approval-id=)\b/i.test(normalizedArgs);
 }
 
 export function resolveGovernedReviewMode(commandName: string | null, args: string): GovernedReviewMode | null {
@@ -73,12 +78,60 @@ export async function buildGovernedReviewCliSnapshotAsync(input: {
   userId: string;
   sessionId: string;
   workspace?: string | null;
-}): Promise<GovernedReviewResult> {
+}): Promise<GovernedReviewCliSnapshot> {
+  if (shouldRunGitHubGovernedReview(input.commandName || null, input.args)) {
+    return buildGitHubGovernedReviewCliSnapshot(input);
+  }
   const request = buildGovernedReviewRequest(input);
   if (!hasRequestedActions(request.actions)) {
     return new GovernedReviewService().run(request);
   }
   return new GovernedReviewService().runWithActions(request);
+}
+
+async function buildGitHubGovernedReviewCliSnapshot(input: {
+  commandName?: string | null;
+  args: string;
+  userId: string;
+  sessionId: string;
+  workspace?: string | null;
+}): Promise<GovernedReviewGitHubResult> {
+  const prTarget = readStringFlag(input.args, 'github-pr')
+    || readStringFlag(input.args, 'pr')
+    || readStringFlag(input.args, 'pr-target');
+  if (!prTarget) {
+    throw new Error('GitHub governed review requires --pr=<number-or-url> or --github-pr=<number-or-url>.');
+  }
+  const mode = resolveGovernedReviewMode(input.commandName || null, input.args);
+  return new GovernedReviewGitHubService().run({
+    prTarget,
+    repo: readStringFlag(input.args, 'repo'),
+    workspace: readStringFlag(input.args, 'workspace') || input.workspace || null,
+    mode,
+    objective: resolveGovernedReviewCliText(input.args),
+    reviewId: readStringFlag(input.args, 'review-id'),
+    userId: input.userId,
+    sessionId: input.sessionId,
+    postComment: hasFlag(input.args, 'comment-pr')
+      || hasFlag(input.args, 'post-pr-comment')
+      || hasFlag(input.args, 'post-comment'),
+    approvalId: readStringFlag(input.args, 'approval-id'),
+    launchLiveAgents: hasFlag(input.args, 'live-agents')
+      || hasFlag(input.args, 'launch-live-agents')
+      || hasFlag(input.args, 'mock-live-agents'),
+    liveAgentMode: readLiveAgentMode(input.args),
+    maxLiveWorkers: readIntegerFlag(input.args, 'max-live-workers'),
+    maxToolCalls: readIntegerFlag(input.args, 'max-tool-calls'),
+    persistSubagentState: false,
+    instructions: [
+      'CLI GitHub governed review is approval-aware.',
+      'PR comments are posted only after explicit approval id.',
+    ],
+    metadata: {
+      source: 'zavorth-cli',
+      dashboardPath: '/dashboard/reviews',
+    },
+  });
 }
 
 function buildGovernedReviewRequest(input: {
@@ -113,7 +166,10 @@ function buildGovernedReviewRequest(input: {
   };
 }
 
-export function formatGovernedReviewSnapshot(snapshot: GovernedReviewResult): string {
+export function formatGovernedReviewSnapshot(snapshot: GovernedReviewCliSnapshot): string {
+  if (isGitHubGovernedReviewSnapshot(snapshot)) {
+    return formatGitHubGovernedReviewSnapshot(snapshot);
+  }
   const lines = [
     'Zavorth Governed Review - Phase 4',
     `- contrato: ${snapshot.contractVersion}`,
@@ -218,8 +274,9 @@ function readFiles(args: string): GovernedReviewContextFile[] {
 
 function stripReviewFlags(value: string): string {
   return value
-    .replace(/--(?:governed|kernel|security|policy|regression|live-agents|launch-live-agents|mock-live-agents|mock-live|live-llm|comment-pr|post-pr-comment|apply-patch)\b/g, '')
-    .replace(/--(?:mode|file|base|target|workspace|review-id|approval-id|pr|pr-target|patch-file|patch|live-mode|max-live-workers|max-tool-calls)=(?:"[^"]+"|'[^']+'|\S+)/g, '')
+    .replace(/^\s*github\b/i, '')
+    .replace(/--(?:github|governed|kernel|security|policy|regression|live-agents|launch-live-agents|mock-live-agents|mock-live|live-llm|comment-pr|post-pr-comment|post-comment|apply-patch)\b/g, '')
+    .replace(/--(?:mode|file|base|target|workspace|repo|review-id|approval-id|pr|github-pr|pr-target|patch-file|patch|live-mode|max-live-workers|max-tool-calls)=(?:"[^"]+"|'[^']+'|\S+)/g, '')
     .replace(/\s+/g, ' ')
     .trim();
 }
@@ -302,4 +359,32 @@ function isReviewMode(value: unknown): value is GovernedReviewMode {
     || value === 'security-review'
     || value === 'policy-review'
     || value === 'regression-review';
+}
+
+function shouldRunGitHubGovernedReview(commandName: string | null, args: string): boolean {
+  const command = String(commandName || '').trim().toLowerCase();
+  return command === 'github-review'
+    || hasFlag(args, 'github')
+    || Boolean(readStringFlag(args, 'github-pr'))
+    || /^\s*github\b/i.test(args);
+}
+
+function isGitHubGovernedReviewSnapshot(snapshot: GovernedReviewCliSnapshot): snapshot is GovernedReviewGitHubResult {
+  return (snapshot as GovernedReviewGitHubResult).source === 'GovernedReviewGitHubService';
+}
+
+function formatGitHubGovernedReviewSnapshot(snapshot: GovernedReviewGitHubResult): string {
+  const reviewText = formatGovernedReviewSnapshot(snapshot.review);
+  const lines = [
+    'Zavorth GitHub Governed Review - Phase B',
+    `- repo: ${snapshot.repo.nameWithOwner || snapshot.repo.requestedRepo || 'current'} (${snapshot.repo.status})`,
+    `- pr: ${snapshot.pullRequest.number ? `#${snapshot.pullRequest.number}` : snapshot.pullRequest.target} ${snapshot.pullRequest.title}`,
+    `- refs: ${snapshot.pullRequest.baseRef || 'base'} <- ${snapshot.pullRequest.headRef || 'head'}`,
+    `- diff: ${snapshot.pullRequest.changedFiles.length} arquivo(s); +${snapshot.pullRequest.additions}/-${snapshot.pullRequest.deletions}; sha ${snapshot.pullRequest.diffSha.slice(0, 16)}`,
+    `- comentario: ${snapshot.review.execution.outcomes.find((outcome) => outcome.action === 'comment-on-pr')?.status || 'nao solicitado'}`,
+    `- comandos gh: ${snapshot.commands.length}`,
+    '',
+    reviewText,
+  ];
+  return lines.join('\n');
 }

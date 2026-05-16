@@ -43,32 +43,32 @@ Published package:
 
 ```bash
 npm install -g zavorth@latest
-zavorth onboard
+zavorth start
 zavorth go
+zavorth connectors doctor
 ```
 
 From a cloned repository:
 
 ```bash
 npm install
-npm run setup
+npm run zavorth:start
 npm run go
+npm run zavorth:connectors
 ```
 
 `go` opens or prints the local dashboard URL at `/dashboard`.
+`start` shows the single product path: setup preview, Home, optional browser demo and connector doctor.
+`connectors doctor` tells you exactly what is missing for GitHub, Telegram or Discord.
+`onboard` is kept as a friendly alias for the setup path; the real first-run command is `setup`.
 
 ## First 60 Seconds
 
 ```bash
-zavorth onboard
-zavorth onboard conversation
-zavorth experience --intent "I want daily personal help"
-zavorth doctor --simple
+zavorth start
 zavorth go
-zavorth templates
-zavorth missions guide --intent "review this repository"
-zavorth capability-store --category communication
-zavorth do-it-with-me "help me configure Telegram approvals"
+zavorth connectors doctor
+zavorth demo browser
 ```
 
 Then use the dashboard like a normal request surface:
@@ -86,12 +86,28 @@ If you prefer terminal-only operation:
 zavorth chat
 zavorth run "review this repo"
 zavorth daily
-zavorth experience --profile developer
-zavorth missions
 zavorth receipts
-zavorth status --json
-zavorth doctor --json
+zavorth doctor --simple
 ```
+
+## Product Demo
+
+`zavorth start` is the short product path for a new operator. `zavorth demo` remains optional. The path keeps internal runtime names out of the first screen and shows:
+
+- the 10-minute setup path;
+- the visual Home route at `/dashboard`;
+- GitHub Governed Review commands;
+- Telegram Daily Assistant setup signals;
+- Discord minimum native setup;
+- receipt and smoke-test proof.
+
+For a cloned repository, the deterministic demo smoke is:
+
+```bash
+npm run zavorth:demo:check
+```
+
+The smoke uses fixtures for GitHub, Telegram and Discord, so it does not require live tokens. Real GitHub comments, shell execution and channel actions still require approval and receipts.
 
 ## Experience Profiles
 
