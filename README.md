@@ -4,8 +4,13 @@
 
   <h1 align="center">Zavorth</h1>
   
-  <h3>Local-first agent runtime for governed, auditable daily work.</h3>
-  <p>Turn natural-language requests into supervised execution, approvals, artifacts, memory, sessions, channels and operational receipts.</p>
+  <p align="center">
+    <strong>ASK NATURALLY. EXECUTE SAFELY. KEEP EVIDENCE.</strong>
+  </p>
+
+  <p align="center">
+    A governed, local-first agent operating system built for secure autonomous command execution, transaction containment, and verifiable evidence.
+  </p>
 
   <!-- Badges -->
   <p align="center">
@@ -22,39 +27,49 @@
       <img alt="local first" src="https://img.shields.io/badge/security-local--first-111827?style=for-the-badge">
     </a>
   </p>
+
+  <!-- Centered Navigation Menu -->
+  <p align="center">
+    <a href="#-why-zavorth">Why Zavorth</a> ·
+    <a href="#-quickstart-first-60-seconds">Quickstart</a> ·
+    <a href="#-the-zavorth-ecosystem">Ecosystem</a> ·
+    <a href="#-security-model--posture">Security</a> ·
+    <a href="docs/README.md">Documentation</a> ·
+    <a href="docs/11-roadmap.md">Roadmap</a>
+  </p>
 </div>
 
 ---
 
-<div align="center">
-  <strong>Ask naturally, execute safely, keep evidence.</strong>
-</div>
+<p align="center">
+  <b>Supported Surfaces & Channels:</b> Web Dashboard · Satellite Mobile PWA · Telegram · Discord · Terminal CLI
+</p>
 
 ---
 
 ## ✨ Why Zavorth?
 
-Zavorth is not just another chatbot. It is a **governed agent operating system** for people who want AI to help with real work, without giving it silent, unlimited control over their machine. 
+Zavorth is not just another chatbot. It is a **governed agent operating system** for operators who need robust AI command-execution and workflow automation without granting silent, infinite control over their machine.
 
-<table width="100%" border="0" cellspacing="0" cellpadding="0">
-  <tr>
-    <td width="50%" valign="top">
-      <h3>🖥️ Dashboard Gateway</h3>
-      <p>A beautiful local gateway for tracking requests, status, approvals, and viewing operational artifacts cleanly without terminal clutter.</p>
+<table width="100%" border="0" cellspacing="0" cellpadding="0" style="border-collapse: collapse; border: none; margin-top: 20px;">
+  <tr style="border: none;">
+    <td width="50%" valign="top" style="border: none; padding: 15px;">
+      <h3>🖥️ Dashboard & Satellite</h3>
+      <p>A beautiful web gateway for managing active subagents, reviewing scoped approval queues, and tracking transaction footprints cleanly without terminal clutter.</p>
     </td>
-    <td width="50%" valign="top">
+    <td width="50%" valign="top" style="border: none; padding: 15px;">
       <h3>⚖️ Policy Broker</h3>
-      <p>One unified decision plane for tools, providers, web fetches, skills, MCP integrations, and local file writes.</p>
+      <p>One governed decision plane that monitors and scopes tool execution, model consumption costs, network fetches, and local filesystem mutations.</p>
     </td>
   </tr>
-  <tr>
-    <td width="50%" valign="top">
+  <tr style="border: none;">
+    <td width="50%" valign="top" style="border: none; padding: 15px;">
       <h3>📜 Trust Plane</h3>
-      <p>Continuous generation of operational receipts, strict prompt-injection boundaries, and secure approval envelopes for every action.</p>
+      <p>Continuous generation of auditable cryptographic receipts, real-time prompt-injection boundaries, and visual transaction rollback cards.</p>
     </td>
-    <td width="50%" valign="top">
-      <h3>🧠 Agent Runtime</h3>
-      <p>Robust orchestration of sessions, memory, delegated subagents, skills, scheduled workloads, and reliable state recovery.</p>
+    <td width="50%" valign="top" style="border: none; padding: 15px;">
+      <h3>🧠 Autonomous Runtime</h3>
+      <p>Robust orchestration of persistent episodic memory, multi-agent mesh networks with isolated budgets, and secure offline state recovery.</p>
     </td>
   </tr>
 </table>
@@ -66,19 +81,19 @@ Zavorth is not just another chatbot. It is a **governed agent operating system**
 Zavorth is moving toward a private local runtime/installer. Currently, the npm package is the clean developer install path.
 
 ```bash
-# 1. Install globally
+# 1. Install the global runtime
 npm install -g zavorth@latest
 
-# 2. Initialize the environment
+# 2. Boot local setup & diagnostic wizard
 zavorth start
 
-# 3. Open the dashboard gateway
+# 3. Enter the dashboard gateway
 zavorth go
 ```
 
 *(From a cloned repository: `npm install`, `npm run zavorth:start`, `npm run go`)*
 
-Once running, use the dashboard like a normal request surface:
+Once running, use the dashboard or Telegram like a normal request surface:
 > *"Review this repository and tell me what is risky."* <br>
 > *"Connect the safest channel for daily approvals."* <br>
 > *"Use subagents to inspect this codebase and summarize the findings."*
@@ -87,8 +102,8 @@ Once running, use the dashboard like a normal request surface:
 
 ## 🛠️ The Zavorth Ecosystem
 
-Zavorth adapts to your workflow with a massive suite of governed surfaces. <br>
-**Click any feature below to expand and learn more:**
+Zavorth adapts to your daily routine with a massive suite of governed surfaces. <br>
+**Click any component below to expand and inspect details:**
 
 <details>
 <summary><b>👤 Experience Profiles & Conversational Setup</b></summary>
