@@ -1,0 +1,32 @@
+{
+  "version": 1,
+  "importedAt": "2026-05-18T05:38:55.419Z",
+  "importMode": "generated-zavorth-native-stub",
+  "approvalId": "skill-expansion-pack-166",
+  "skillName": "hermes-agent",
+  "source": {
+    "id": "zavorth-native-skill-library",
+    "label": "Zavorth Native Skill Library",
+    "kind": "repository",
+    "trust": "review",
+    "registrySource": "zavorth:skill-expansion-pack",
+    "upstream": null,
+    "pinnedRevision": null,
+    "license": "MIT",
+    "ownership": "native"
+  },
+  "originalSkillPath": "zavorth-native-pack://skills/autonomous-ai-agents/hermes-agent",
+  "originalRelativePath": "skills/autonomous-ai-agents/hermes-agent",
+  "copiedFiles": [],
+  "reference": {
+    "sourceRoot": "zavorth-native-pack://",
+    "bodyHash": "e8f4b0c6616a96efd056930e8156cff447cbddb697326af8e489053fb760f38e"
+  },
+  "governance": {
+    "permission": "sandbox-required",
+    "risk": "high",
+    "noExecutionPerformed": true,
+    "noUpstreamSkillBodyCopy": true,
+    "noScriptCopy": true
+  }
+}

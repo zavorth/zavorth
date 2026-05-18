@@ -1,0 +1,32 @@
+{
+  "version": 1,
+  "importedAt": "2026-05-18T05:38:55.990Z",
+  "importMode": "generated-zavorth-native-stub",
+  "approvalId": "skill-expansion-pack-166",
+  "skillName": "searxng-search",
+  "source": {
+    "id": "zavorth-native-skill-library",
+    "label": "Zavorth Native Skill Library",
+    "kind": "repository",
+    "trust": "review",
+    "registrySource": "zavorth:skill-expansion-pack",
+    "upstream": null,
+    "pinnedRevision": null,
+    "license": "MIT",
+    "ownership": "native"
+  },
+  "originalSkillPath": "zavorth-native-pack://optional-skills/research/searxng-search",
+  "originalRelativePath": "optional-skills/research/searxng-search",
+  "copiedFiles": [],
+  "reference": {
+    "sourceRoot": "zavorth-native-pack://",
+    "bodyHash": "1f3b9bd83b0d51e65b4f8a2b031bd0dddc792ecbc9d157259ff81345b3f8275c"
+  },
+  "governance": {
+    "permission": "sandbox-required",
+    "risk": "high",
+    "noExecutionPerformed": true,
+    "noUpstreamSkillBodyCopy": true,
+    "noScriptCopy": true
+  }
+}

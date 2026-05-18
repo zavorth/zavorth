@@ -244,8 +244,6 @@ describe('WebAppRuntimeRouteService', () => {
             id: 'research',
             label: 'Research',
             systemPrompt: 'Inspect rollout state.',
-            command: process.execPath,
-            args: ['-e', "console.log('ok')"],
           },
         ],
       })),
@@ -781,13 +779,13 @@ describe('WebAppRuntimeRouteService', () => {
     expect(engineeringCore.runCommand).toHaveBeenCalledWith(expect.objectContaining({
       runId: 'eng-2',
       command: 'git status',
-      approved: true,
-      dryRun: false,
+      approved: false,
+      dryRun: true,
     }));
     expect(engineeringCore.executeRun).toHaveBeenCalledWith(expect.objectContaining({
       runId: 'eng-2',
-      approved: true,
-      dryRun: false,
+      approved: false,
+      dryRun: true,
       maxAttempts: 2,
     }));
   });

@@ -1,0 +1,32 @@
+{
+  "version": 1,
+  "importedAt": "2026-05-18T05:38:55.613Z",
+  "importMode": "generated-zavorth-native-stub",
+  "approvalId": "skill-expansion-pack-166",
+  "skillName": "fastmcp",
+  "source": {
+    "id": "zavorth-native-skill-library",
+    "label": "Zavorth Native Skill Library",
+    "kind": "repository",
+    "trust": "review",
+    "registrySource": "zavorth:skill-expansion-pack",
+    "upstream": null,
+    "pinnedRevision": null,
+    "license": "MIT",
+    "ownership": "native"
+  },
+  "originalSkillPath": "zavorth-native-pack://optional-skills/mcp/fastmcp",
+  "originalRelativePath": "optional-skills/mcp/fastmcp",
+  "copiedFiles": [],
+  "reference": {
+    "sourceRoot": "zavorth-native-pack://",
+    "bodyHash": "a7d54d659c95975fc0403f25a66ca85e31cc20f13b9c569d4d94e27c780d2d43"
+  },
+  "governance": {
+    "permission": "approval-required",
+    "risk": "medium",
+    "noExecutionPerformed": true,
+    "noUpstreamSkillBodyCopy": true,
+    "noScriptCopy": true
+  }
+}

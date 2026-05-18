@@ -266,7 +266,7 @@ export class TelegramEchoApprovalController {
             kind: 'callback' as const,
             callbackData: `${ECHO_APPROVAL_PREFIX}approve:${ref}`,
             style: 'success' as const,
-            confirmationRequired: true,
+            confirmationRequired: false,
           },
           {
             id: `echo-reject-${ref}`,
@@ -274,7 +274,7 @@ export class TelegramEchoApprovalController {
             kind: 'callback' as const,
             callbackData: `${ECHO_APPROVAL_PREFIX}reject:${ref}`,
             style: 'danger' as const,
-            confirmationRequired: true,
+            confirmationRequired: false,
           },
         ];
       }),

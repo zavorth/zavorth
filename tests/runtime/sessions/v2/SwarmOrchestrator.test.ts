@@ -18,6 +18,7 @@ function buildEchoRole(label: string, extra: string) {
         '});',
       ].join(' '),
     ],
+    stdinMode: 'prompt',
   };
 }
 
@@ -62,6 +63,27 @@ describe('SwarmOrchestrator', () => {
     expect(snapshot.roles[0].status).toBe('TIMEOUT');
     expect(events).toContain('started:stuck');
     expect(events).toContain('finished:stuck:TIMEOUT');
+  });
+
+  it('does not reopen a default shell for self-contained command roles', async () => {
+    const session = buildSelfContainedSession('self-contained ok');
+    const orchestrator = new SwarmOrchestrator('Run a self-contained command', [
+      {
+        id: 'command-role',
+        label: 'Command Role',
+        systemPrompt: 'No stdin required.',
+        command: process.execPath,
+        args: ['-e', 'console.log("ok")'],
+      },
+    ], {
+      sessionFactory: () => session,
+    });
+
+    const snapshot = await orchestrator.execute();
+
+    expect(snapshot.status).toBe('completed');
+    expect(snapshot.roles[0]?.output.join('')).toContain('self-contained ok');
+    expect(session.write).not.toHaveBeenCalled();
   });
 
   it('registers swarm role ownership through the existing session factory path', async () => {
@@ -193,6 +215,21 @@ function buildStuckSession() {
   return {
     getEvents: () => events as any,
     startProcess: jest.fn(),
+    write: jest.fn(),
+    kill: jest.fn(),
+  };
+}
+
+function buildSelfContainedSession(output: string) {
+  const events = new EventEmitter();
+  return {
+    getEvents: () => events as any,
+    startProcess: jest.fn(() => {
+      setImmediate(() => {
+        events.emit('pty:data', output);
+        events.emit('pty:exit', 0);
+      });
+    }),
     write: jest.fn(),
     kill: jest.fn(),
   };

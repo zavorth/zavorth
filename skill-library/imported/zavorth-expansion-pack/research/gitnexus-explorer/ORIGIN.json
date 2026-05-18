@@ -1,0 +1,32 @@
+{
+  "version": 1,
+  "importedAt": "2026-05-18T05:38:55.966Z",
+  "importMode": "generated-zavorth-native-stub",
+  "approvalId": "skill-expansion-pack-166",
+  "skillName": "gitnexus-explorer",
+  "source": {
+    "id": "zavorth-native-skill-library",
+    "label": "Zavorth Native Skill Library",
+    "kind": "repository",
+    "trust": "review",
+    "registrySource": "zavorth:skill-expansion-pack",
+    "upstream": null,
+    "pinnedRevision": null,
+    "license": "MIT",
+    "ownership": "native"
+  },
+  "originalSkillPath": "zavorth-native-pack://optional-skills/research/gitnexus-explorer",
+  "originalRelativePath": "optional-skills/research/gitnexus-explorer",
+  "copiedFiles": [],
+  "reference": {
+    "sourceRoot": "zavorth-native-pack://",
+    "bodyHash": "a80bbb0a45f9c0bd7deb309bb5375d50d17980e4466347cfb85230cf88f246a1"
+  },
+  "governance": {
+    "permission": "sandbox-required",
+    "risk": "high",
+    "noExecutionPerformed": true,
+    "noUpstreamSkillBodyCopy": true,
+    "noScriptCopy": true
+  }
+}

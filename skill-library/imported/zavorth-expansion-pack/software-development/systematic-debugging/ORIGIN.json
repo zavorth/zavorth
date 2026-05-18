@@ -1,0 +1,32 @@
+{
+  "version": 1,
+  "importedAt": "2026-05-18T05:38:56.043Z",
+  "importMode": "generated-zavorth-native-stub",
+  "approvalId": "skill-expansion-pack-166",
+  "skillName": "systematic-debugging",
+  "source": {
+    "id": "zavorth-native-skill-library",
+    "label": "Zavorth Native Skill Library",
+    "kind": "repository",
+    "trust": "review",
+    "registrySource": "zavorth:skill-expansion-pack",
+    "upstream": null,
+    "pinnedRevision": null,
+    "license": "MIT",
+    "ownership": "native"
+  },
+  "originalSkillPath": "zavorth-native-pack://skills/software-development/systematic-debugging",
+  "originalRelativePath": "skills/software-development/systematic-debugging",
+  "copiedFiles": [],
+  "reference": {
+    "sourceRoot": "zavorth-native-pack://",
+    "bodyHash": "21e0a3a39357340cdb6e2b996866ae4dcb4b464dedc3c9ffe92f1c007e2a827b"
+  },
+  "governance": {
+    "permission": "approval-required",
+    "risk": "medium",
+    "noExecutionPerformed": true,
+    "noUpstreamSkillBodyCopy": true,
+    "noScriptCopy": true
+  }
+}

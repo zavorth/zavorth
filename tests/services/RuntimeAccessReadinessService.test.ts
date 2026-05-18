@@ -316,7 +316,7 @@ describe('RuntimeAccessReadinessService', () => {
         }),
       }),
     );
-    expect(report.remote.appUrl).toBe('https://zavorth.example.com/control');
+    expect(report.remote.appUrl).toBe('https://zavorth.example.com/dashboard');
     expect(report.runtime.remoteTransportDoctor).toEqual(
       expect.objectContaining({
         available: true,
@@ -1176,7 +1176,7 @@ describe('RuntimeAccessReadinessService', () => {
       }),
     );
     expect(report.local.baseUrl).toBe('http://127.0.0.1:33337');
-    expect(report.local.appUrl).toBe('http://127.0.0.1:33337/control');
+    expect(report.local.appUrl).toBe('http://127.0.0.1:33337/dashboard');
   });
 
   it('ignores a dashboard snapshot that does not belong to the active worker pid', () => {
@@ -1240,7 +1240,7 @@ describe('RuntimeAccessReadinessService', () => {
 
     expect(report.runtime.dashboard).toBeNull();
     expect(report.local.baseUrl).toBe('http://127.0.0.1:33333');
-    expect(report.local.appUrl).toBe('http://127.0.0.1:33333/control');
+    expect(report.local.appUrl).toBe('http://127.0.0.1:33333/dashboard');
   });
 
   it('confirms live local readiness when the app shell responds', async () => {
@@ -1856,5 +1856,4 @@ describe('RuntimeAccessReadinessService', () => {
     );
   });
 });
-
 

@@ -269,6 +269,21 @@ function toSerializableRecord(value: unknown): Record<string, unknown> | undefin
   }
 }
 
+function safeArray<T>(value: unknown): T[] {
+  return Array.isArray(value) ? value as T[] : [];
+}
+
+function normalizeRunForObservatory(run: UniversalAgentRun): UniversalAgentRun {
+  const raw = run as unknown as Record<string, unknown>;
+  return {
+    ...run,
+    events: safeArray<UniversalAgentRun['events'][number]>(raw.events),
+    artifacts: safeArray<UniversalAgentRun['artifacts'][number]>(raw.artifacts),
+    approvals: safeArray<UniversalAgentRun['approvals'][number]>(raw.approvals),
+    memorySignals: safeArray<UniversalAgentRun['memorySignals'][number]>(raw.memorySignals),
+  };
+}
+
 function runHasError(run: UniversalAgentRun): boolean {
   return run.status === 'failed'
     || run.events.some((event) => event.kind === 'error' || event.status === 'failed');
@@ -811,7 +826,9 @@ export function queryUniversalAgentRuns(input: {
 }): UniversalAgentRunObservatorySnapshot {
   const query = input.query || {};
   const limit = normalizeLimit(query.limit);
-  const sortedRuns = [...input.runs].sort((a, b) => b.updatedAt.localeCompare(a.updatedAt));
+  const sortedRuns = input.runs
+    .map(normalizeRunForObservatory)
+    .sort((a, b) => b.updatedAt.localeCompare(a.updatedAt));
   const matchedRuns = sortedRuns
     .map((run) => runMatches(run, query))
     .filter((entry): entry is UniversalAgentRunObservatoryRun => Boolean(entry))

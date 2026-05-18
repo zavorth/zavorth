@@ -131,6 +131,39 @@ describe('SupervisedExecutionGatewayService', () => {
     ]));
   });
 
+  it('redacts secret-looking values before recording supervised execution receipts', async () => {
+    const secret = 'sk-super-secret-value-1234567890';
+    const runner = jest.fn(async (request: ExecutionRequest) => ({
+      ...buildExecutionResult(request),
+      stdout: `token=${secret}`,
+      stderr: `Bearer ${secret}`,
+      metadata: {
+        apiKey: secret,
+      },
+    }));
+    const { ledger, entries } = createLedger();
+    const service = new SupervisedExecutionGatewayService({
+      ledgerService: ledger as any,
+      runner,
+    });
+
+    const result = await service.execute({
+      capability: 'host.shell',
+      profile: 'trusted',
+      autonomyLevel: 3,
+      command: 'npm run build',
+      approved: true,
+      workspace: process.cwd(),
+      metadata: {
+        token: secret,
+      },
+    });
+
+    const serialized = JSON.stringify({ result, entries });
+    expect(serialized).not.toContain(secret);
+    expect(serialized).toContain('[redacted-secret]');
+  });
+
   it('routes docker exec to a specialized adapter before generic execution', async () => {
     const adapter = {
       id: 'docker-test-adapter',

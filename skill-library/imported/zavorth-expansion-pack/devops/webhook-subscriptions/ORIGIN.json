@@ -1,0 +1,32 @@
+{
+  "version": 1,
+  "importedAt": "2026-05-18T05:38:55.547Z",
+  "importMode": "generated-zavorth-native-stub",
+  "approvalId": "skill-expansion-pack-166",
+  "skillName": "webhook-subscriptions",
+  "source": {
+    "id": "zavorth-native-skill-library",
+    "label": "Zavorth Native Skill Library",
+    "kind": "repository",
+    "trust": "review",
+    "registrySource": "zavorth:skill-expansion-pack",
+    "upstream": null,
+    "pinnedRevision": null,
+    "license": null,
+    "ownership": "native"
+  },
+  "originalSkillPath": "zavorth-native-pack://skills/devops/webhook-subscriptions",
+  "originalRelativePath": "skills/devops/webhook-subscriptions",
+  "copiedFiles": [],
+  "reference": {
+    "sourceRoot": "zavorth-native-pack://",
+    "bodyHash": "41c3419af241b39971a0e201ccf83b77f1fe2f09b3796672135051dcb7cb5566"
+  },
+  "governance": {
+    "permission": "sandbox-required",
+    "risk": "high",
+    "noExecutionPerformed": true,
+    "noUpstreamSkillBodyCopy": true,
+    "noScriptCopy": true
+  }
+}

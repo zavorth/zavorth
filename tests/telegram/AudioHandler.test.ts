@@ -126,7 +126,7 @@ describe('AudioHandler', () => {
         filePath: geminiFile,
         model: 'gemini-3.1-flash-tts-preview',
         voiceName: 'Kore',
-        languageCode: 'en',
+        languageCode: 'es',
         mimeType: 'audio/wav',
         sourceMimeType: 'audio/pcm',
         latencyMs: 21,
@@ -142,14 +142,14 @@ describe('AudioHandler', () => {
       loadEdgeTts,
     });
 
-    const output = await handler.synthesize('Can you hear me clearly?', {
-      preferredLanguageCode: 'en',
+    const output = await handler.synthesize('Puedes escucharme claramente?', {
+      preferredLanguageCode: 'es',
       policyHint: 'short_reply',
     });
 
     expect(output).toBe(geminiFile);
-    expect(geminiVoiceService.synthesizeDetailed).toHaveBeenCalledWith('Can you hear me clearly?', {
-      languageCode: 'en',
+    expect(geminiVoiceService.synthesizeDetailed).toHaveBeenCalledWith('Puedes escucharme claramente?', {
+      languageCode: 'es',
     });
     expect(loadEdgeTts).not.toHaveBeenCalled();
 

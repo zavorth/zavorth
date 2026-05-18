@@ -8,7 +8,7 @@ const cliPath = path.join(projectRoot, 'dist', 'zavorth-cli.js');
 
 if (!fs.existsSync(cliPath)) {
   console.error([
-    'Zavorth could not start.',
+    'Zavorth CLI build not found.',
     '',
     'Cause: dist/zavorth-cli.js was not found.',
     'This usually means the repo was not built yet, or the installed package is missing its build output.',
@@ -23,7 +23,7 @@ if (!fs.existsSync(cliPath)) {
     'If setup or go still fail:',
     '  npm run doctor',
     '',
-    'If this happened through npx or a package install, reinstall Zavorth or report a package integrity issue.',
+    'If this happened through npx or a global install, reinstall Zavorth or report a package integrity issue.',
   ].join('\n'));
   process.exit(1);
 }

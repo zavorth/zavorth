@@ -25,6 +25,7 @@ export function createBootstrapToolRuntime(logRepo: LogRepository) {
   const { SandboxExecutionTool } = require('../tools/SandboxExecutionTool.js');
   const { Mem0Tool } = require('../tools/Mem0Tool.js');
   const { DesktopAutomationTool } = require('../tools/DesktopAutomationTool.js');
+  const { PlanMnemosScopeTool } = require('../tools/PlanMnemosScopeTool.js');
   const { EnableMnemosTool } = require('../tools/EnableMnemosTool.js');
   const { EchoHandsTool } = require('../tools/EchoHandsTool.js');
   const { ConfigureLlmProfileTool } = require('../tools/ConfigureLlmProfileTool.js');
@@ -48,6 +49,7 @@ export function createBootstrapToolRuntime(logRepo: LogRepository) {
   toolRegistry.register(new SandboxExecutionTool());
   toolRegistry.register(new Mem0Tool());
   toolRegistry.register(new DesktopAutomationTool());
+  toolRegistry.register(new PlanMnemosScopeTool());
   toolRegistry.register(new EnableMnemosTool());
   toolRegistry.register(new EchoHandsTool());
   toolRegistry.register(new ConfigureLlmProfileTool());

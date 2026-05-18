@@ -275,4 +275,187 @@ describe('WebAppRuntimeRouteService', () => {
       200,
     );
   });
+
+  it('serves official swarm v2 launch, role library and replay on the canonical gateway route', async () => {
+    const routeService = new WebAppRuntimeRouteService();
+    const writeJson = jest.fn();
+    const swarmV2 = {
+      listSwarms: jest.fn(() => []),
+      launchSwarm: jest.fn(),
+      launchOfficialSwarmAsync: jest.fn(async () => ({
+        swarmId: 'swarm-official-1',
+        official: true,
+        experimental: false,
+        status: 'running',
+        objective: 'Scale repository review',
+        roles: [],
+        startedAt: '2026-05-17T10:00:00.000Z',
+        finishedAt: null,
+        synthesizedOutput: null,
+        queue: { status: 'queued', maxConcurrency: 2, pendingBatchIds: ['batch-1'] },
+      })),
+      launchOfficialSwarm: jest.fn(() => ({
+        swarmId: 'swarm-official-1',
+        official: true,
+        experimental: false,
+        status: 'running',
+        objective: 'Scale repository review',
+        roles: [],
+        startedAt: '2026-05-17T10:00:00.000Z',
+        finishedAt: null,
+        synthesizedOutput: null,
+        queue: { status: 'queued', maxConcurrency: 2, pendingBatchIds: ['batch-1'] },
+      })),
+      listRoleLibrary: jest.fn(() => [
+        { id: 'planner', label: 'Planner', systemPrompt: 'Plan.', defaultTools: [], tags: [] },
+      ]),
+      upsertRoleLibraryEntry: jest.fn(() => ({
+        id: 'qa-specialist',
+        label: 'QA Specialist',
+        systemPrompt: 'Verify carefully.',
+        defaultTools: [],
+        tags: ['custom'],
+      })),
+      getSwarmReplay: jest.fn(() => ({
+        ok: true,
+        events: [{ id: 'event-1', type: 'swarm.queued', summary: 'Queued.' }],
+      })),
+      getSwarm: jest.fn(),
+      cancelSwarm: jest.fn(),
+    };
+    const deps = {
+      swarmV2,
+      writeJson,
+      readJsonBody: jest.fn(async () => ({
+        objective: 'Scale repository review',
+        roleLibraryIds: ['planner', 'verifier'],
+        maxConcurrency: 2,
+        batchSize: 1,
+        isolationMode: 'temp-worktree',
+        autoSelectRoles: true,
+        benchmark: true,
+        tokenBudget: {
+          maxLlmCalls: 4,
+          maxEstimatedTokens: 24000,
+          maxEstimatedUsd: 0.2,
+          modelClass: 'cheap',
+          approved: true,
+          allowHighCost: true,
+        },
+        id: 'qa-specialist',
+        label: 'QA Specialist',
+        systemPrompt: 'Verify carefully.',
+      })),
+    } as any;
+
+    await routeService.handleRequest(
+      { method: 'GET' } as http.IncomingMessage,
+      {} as http.ServerResponse,
+      new URL('http://localhost/api/web/gateway/swarm-v2/roles'),
+      '/api/web/gateway/swarm-v2/roles',
+      deps,
+    );
+    await routeService.handleRequest(
+      { method: 'POST' } as http.IncomingMessage,
+      {} as http.ServerResponse,
+      new URL('http://localhost/api/web/gateway/swarm-v2/roles'),
+      '/api/web/gateway/swarm-v2/roles',
+      deps,
+    );
+    await routeService.handleRequest(
+      { method: 'POST' } as http.IncomingMessage,
+      {} as http.ServerResponse,
+      new URL('http://localhost/api/web/gateway/swarm-v2'),
+      '/api/web/gateway/swarm-v2',
+      deps,
+    );
+    await routeService.handleRequest(
+      { method: 'GET' } as http.IncomingMessage,
+      {} as http.ServerResponse,
+      new URL('http://localhost/api/web/gateway/swarm-v2/replay?swarmId=swarm-official-1'),
+      '/api/web/gateway/swarm-v2/replay',
+      deps,
+    );
+
+    expect(swarmV2.listRoleLibrary).toHaveBeenCalledTimes(1);
+    expect(swarmV2.upsertRoleLibraryEntry).toHaveBeenCalledWith(expect.objectContaining({
+      id: 'qa-specialist',
+      label: 'QA Specialist',
+    }));
+    expect(swarmV2.launchOfficialSwarmAsync).toHaveBeenCalledWith(expect.objectContaining({
+      objective: 'Scale repository review',
+      official: true,
+      roleLibraryIds: ['planner', 'verifier'],
+      maxConcurrency: 2,
+      batchSize: 1,
+      isolationMode: 'temp-worktree',
+      autoSelectRoles: true,
+      benchmark: true,
+      tokenBudget: expect.objectContaining({
+        maxLlmCalls: 4,
+        maxEstimatedTokens: 24000,
+        maxEstimatedUsd: 0.2,
+        modelClass: 'cheap',
+        approved: false,
+        allowHighCost: false,
+      }),
+      toolSpecs: undefined,
+    }));
+    expect(swarmV2.launchOfficialSwarm).not.toHaveBeenCalled();
+    expect(swarmV2.launchSwarm).not.toHaveBeenCalled();
+    expect(swarmV2.getSwarmReplay).toHaveBeenCalledWith('swarm-official-1');
+    expect(writeJson).toHaveBeenCalledWith(
+      expect.anything(),
+      expect.objectContaining({
+        ok: true,
+        official: true,
+      }),
+      200,
+    );
+  });
+
+  it('blocks direct Swarm v2 command/toolSpecs execution from the web route', async () => {
+    const routeService = new WebAppRuntimeRouteService();
+    const writeJson = jest.fn();
+    const swarmV2 = {
+      launchSwarm: jest.fn(),
+      launchOfficialSwarm: jest.fn(),
+      launchOfficialSwarmAsync: jest.fn(),
+      listSwarms: jest.fn(() => []),
+      listRoleLibrary: jest.fn(() => []),
+      upsertRoleLibraryEntry: jest.fn(),
+      getSwarmReplay: jest.fn(),
+      getSwarm: jest.fn(),
+      cancelSwarm: jest.fn(),
+    };
+    const deps = {
+      swarmV2,
+      writeJson,
+      readJsonBody: jest.fn(async () => ({
+        objective: 'Run shell tool',
+        roles: [{ id: 'operator', label: 'Operator', command: 'git', args: ['status'] }],
+        toolSpecs: [{ id: 'shell', command: 'git', args: ['status'] }],
+      })),
+    } as any;
+
+    const handled = await routeService.handleRequest(
+      { method: 'POST' } as http.IncomingMessage,
+      {} as http.ServerResponse,
+      new URL('http://localhost/api/web/gateway/swarm-v2'),
+      '/api/web/gateway/swarm-v2',
+      deps,
+    );
+
+    expect(handled).toBe(true);
+    expect(swarmV2.launchOfficialSwarmAsync).not.toHaveBeenCalled();
+    expect(swarmV2.launchOfficialSwarm).not.toHaveBeenCalled();
+    expect(writeJson).toHaveBeenCalledWith(
+      expect.anything(),
+      expect.objectContaining({
+        ok: false,
+        code: 'swarm_v2_governed_tool_execution_required',
+      }),
+      403,
+    );
+  });
 });

@@ -45,9 +45,9 @@ describe('ZavorthExternalContractLayerService Phase 1', () => {
       'worker',
     ]);
     expect(snapshot.runtimeDescriptors.map((entry) => entry.id)).toEqual([
-      'hermes',
-      'openclaw',
-      'openclaw-wsl',
+      'reference-runtime',
+      'acp-compatible-sidecar',
+      'acp-compatibility-fixture',
     ]);
     expect(snapshot.runtimeDescriptors.every((entry) => (
       entry.publicName === 'Zavorth'
@@ -64,10 +64,10 @@ describe('ZavorthExternalContractLayerService Phase 1', () => {
   it('normalizes safe external metadata into Zavorth envelopes without identity leakage', () => {
     const receipt = createService().normalizeExternalEnvelope({
       kind: 'capability',
-      sourceRuntimeId: 'openclaw-wsl',
+      sourceRuntimeId: 'acp-compatibility-fixture',
       sourceRef: 'extensions/telegram',
-      sourcePath: '\\\\wsl.localhost\\Ubuntu-24.04\\home\\grey\\openclaw-src\\extensions\\telegram',
-      sourceLabel: 'OpenClaw Telegram extension',
+      sourcePath: '\\\\wsl.localhost\\Ubuntu-24.04\\home\\grey\\acp-compatible-sidecar-src\\extensions\\telegram',
+      sourceLabel: 'ACP-compatible Telegram channel fixture',
       publicName: 'Zavorth',
       provenance: {
         observedAt: '2026-05-11T19:31:00.000Z',
@@ -80,7 +80,7 @@ describe('ZavorthExternalContractLayerService Phase 1', () => {
     expect(receipt.envelope).toEqual(expect.objectContaining({
       envelopeId: 'zavorth.external.capability.extensions-telegram',
       kind: 'capability',
-      sourceRuntimeId: 'openclaw-wsl',
+      sourceRuntimeId: 'acp-compatibility-fixture',
       publicName: 'Zavorth',
       naturalFirstRoute: 'capability-discovery',
       trustScope: 'policy-gated',
@@ -99,9 +99,9 @@ describe('ZavorthExternalContractLayerService Phase 1', () => {
   it('turns unsafe or invalid source data into structured Zavorth errors', () => {
     const receipt = createService().normalizeExternalEnvelope({
       kind: 'tool',
-      sourceRuntimeId: 'openclaw',
+      sourceRuntimeId: 'acp-compatible-sidecar',
       sourceRef: 'extensions/shell/tool',
-      publicName: 'OpenClaw',
+      publicName: 'ACP-compatible sidecar',
       directToolExposure: true,
       requestedLiveAction: true,
       rawSecretValue: 'sk-do-not-serialize',

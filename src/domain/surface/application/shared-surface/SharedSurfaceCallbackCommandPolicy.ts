@@ -7,11 +7,17 @@ const CONTROL_CHAR_PATTERN = /[\u0000-\u001f\u007f]/;
 
 const SAFE_NO_ARG_COMMANDS = new Set([
   '/doctor',
+  '/dashboard',
+  '/echoapprovals',
+  '/fixes',
   '/gateway',
   '/help',
   '/models',
+  '/ready',
+  '/readiness',
   '/runtime',
   '/status',
+  '/stayonline',
 ]);
 
 const SAFE_LIMITED_ARG_COMMANDS = new Set([

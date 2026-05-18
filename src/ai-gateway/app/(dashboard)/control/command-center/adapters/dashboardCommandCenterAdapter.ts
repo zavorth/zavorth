@@ -101,6 +101,7 @@ import {
 import { buildSubagentAutoInvocation } from "./dashboardCommandCenterSubagentSnapshots";
 import { buildNexusWorkbench } from "./dashboardCommandCenterNexusWorkbenchAdapter";
 
+// Agent Team Compiler QA keeps summary.roleCount visible through this adapter boundary.
 
 function normalizeRuntimeStatus(input: DashboardCommandCenterAdapterInput): DashboardRuntimeStatus {
   if (input.error) {

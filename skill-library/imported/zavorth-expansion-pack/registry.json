@@ -1,0 +1,1174 @@
+{
+  "version": 1,
+  "generatedAt": "2026-05-18T05:38:56.057Z",
+  "approvalId": "skill-expansion-pack-166",
+  "candidates": [
+    {
+      "id": "zxp:apple:apple-notes",
+      "targetRelativePath": "skill-library/imported/zavorth-expansion-pack/apple/apple-notes",
+      "category": "apple",
+      "risk": "low",
+      "permission": "approval-required"
+    },
+    {
+      "id": "zxp:apple:apple-reminders",
+      "targetRelativePath": "skill-library/imported/zavorth-expansion-pack/apple/apple-reminders",
+      "category": "apple",
+      "risk": "medium",
+      "permission": "approval-required"
+    },
+    {
+      "id": "zxp:apple:findmy",
+      "targetRelativePath": "skill-library/imported/zavorth-expansion-pack/apple/findmy",
+      "category": "apple",
+      "risk": "low",
+      "permission": "approval-required"
+    },
+    {
+      "id": "zxp:apple:imessage",
+      "targetRelativePath": "skill-library/imported/zavorth-expansion-pack/apple/imessage",
+      "category": "apple",
+      "risk": "high",
+      "permission": "sandbox-required"
+    },
+    {
+      "id": "zxp:apple:macos-computer-use",
+      "targetRelativePath": "skill-library/imported/zavorth-expansion-pack/apple/macos-computer-use",
+      "category": "apple",
+      "risk": "high",
+      "permission": "sandbox-required"
+    },
+    {
+      "id": "zxp:autonomous-ai-agents:blackbox",
+      "targetRelativePath": "skill-library/imported/zavorth-expansion-pack/autonomous-ai-agents/blackbox",
+      "category": "autonomous-ai-agents",
+      "risk": "high",
+      "permission": "sandbox-required"
+    },
+    {
+      "id": "zxp:autonomous-ai-agents:claude-code",
+      "targetRelativePath": "skill-library/imported/zavorth-expansion-pack/autonomous-ai-agents/claude-code",
+      "category": "autonomous-ai-agents",
+      "risk": "high",
+      "permission": "sandbox-required"
+    },
+    {
+      "id": "zxp:autonomous-ai-agents:codex",
+      "targetRelativePath": "skill-library/imported/zavorth-expansion-pack/autonomous-ai-agents/codex",
+      "category": "autonomous-ai-agents",
+      "risk": "high",
+      "permission": "sandbox-required"
+    },
+    {
+      "id": "zxp:autonomous-ai-agents:hermes-agent",
+      "targetRelativePath": "skill-library/imported/zavorth-expansion-pack/autonomous-ai-agents/hermes-agent",
+      "category": "autonomous-ai-agents",
+      "risk": "high",
+      "permission": "sandbox-required"
+    },
+    {
+      "id": "zxp:autonomous-ai-agents:honcho",
+      "targetRelativePath": "skill-library/imported/zavorth-expansion-pack/autonomous-ai-agents/honcho",
+      "category": "autonomous-ai-agents",
+      "risk": "high",
+      "permission": "sandbox-required"
+    },
+    {
+      "id": "zxp:autonomous-ai-agents:opencode",
+      "targetRelativePath": "skill-library/imported/zavorth-expansion-pack/autonomous-ai-agents/opencode",
+      "category": "autonomous-ai-agents",
+      "risk": "high",
+      "permission": "sandbox-required"
+    },
+    {
+      "id": "zxp:blockchain:base",
+      "targetRelativePath": "skill-library/imported/zavorth-expansion-pack/blockchain/base",
+      "category": "blockchain",
+      "risk": "high",
+      "permission": "sandbox-required"
+    },
+    {
+      "id": "zxp:blockchain:hyperliquid",
+      "targetRelativePath": "skill-library/imported/zavorth-expansion-pack/blockchain/hyperliquid",
+      "category": "blockchain",
+      "risk": "high",
+      "permission": "sandbox-required"
+    },
+    {
+      "id": "zxp:blockchain:solana",
+      "targetRelativePath": "skill-library/imported/zavorth-expansion-pack/blockchain/solana",
+      "category": "blockchain",
+      "risk": "high",
+      "permission": "sandbox-required"
+    },
+    {
+      "id": "zxp:communication:one-three-one-rule",
+      "targetRelativePath": "skill-library/imported/zavorth-expansion-pack/communication/one-three-one-rule",
+      "category": "communication",
+      "risk": "high",
+      "permission": "sandbox-required"
+    },
+    {
+      "id": "zxp:creative:architecture-diagram",
+      "targetRelativePath": "skill-library/imported/zavorth-expansion-pack/creative/architecture-diagram",
+      "category": "creative",
+      "risk": "high",
+      "permission": "sandbox-required"
+    },
+    {
+      "id": "zxp:creative:ascii-art",
+      "targetRelativePath": "skill-library/imported/zavorth-expansion-pack/creative/ascii-art",
+      "category": "creative",
+      "risk": "high",
+      "permission": "sandbox-required"
+    },
+    {
+      "id": "zxp:creative:ascii-video",
+      "targetRelativePath": "skill-library/imported/zavorth-expansion-pack/creative/ascii-video",
+      "category": "creative",
+      "risk": "medium",
+      "permission": "approval-required"
+    },
+    {
+      "id": "zxp:creative:baoyu-comic",
+      "targetRelativePath": "skill-library/imported/zavorth-expansion-pack/creative/baoyu-comic",
+      "category": "creative",
+      "risk": "medium",
+      "permission": "approval-required"
+    },
+    {
+      "id": "zxp:creative:baoyu-infographic",
+      "targetRelativePath": "skill-library/imported/zavorth-expansion-pack/creative/baoyu-infographic",
+      "category": "creative",
+      "risk": "medium",
+      "permission": "approval-required"
+    },
+    {
+      "id": "zxp:creative:blender-mcp",
+      "targetRelativePath": "skill-library/imported/zavorth-expansion-pack/creative/blender-mcp",
+      "category": "creative",
+      "risk": "medium",
+      "permission": "approval-required"
+    },
+    {
+      "id": "zxp:creative:claude-design",
+      "targetRelativePath": "skill-library/imported/zavorth-expansion-pack/creative/claude-design",
+      "category": "creative",
+      "risk": "high",
+      "permission": "sandbox-required"
+    },
+    {
+      "id": "zxp:creative:comfyui",
+      "targetRelativePath": "skill-library/imported/zavorth-expansion-pack/creative/comfyui",
+      "category": "creative",
+      "risk": "high",
+      "permission": "sandbox-required"
+    },
+    {
+      "id": "zxp:creative:concept-diagrams",
+      "targetRelativePath": "skill-library/imported/zavorth-expansion-pack/creative/concept-diagrams",
+      "category": "creative",
+      "risk": "high",
+      "permission": "sandbox-required"
+    },
+    {
+      "id": "zxp:creative:design-md",
+      "targetRelativePath": "skill-library/imported/zavorth-expansion-pack/creative/design-md",
+      "category": "creative",
+      "risk": "high",
+      "permission": "sandbox-required"
+    },
+    {
+      "id": "zxp:creative:excalidraw",
+      "targetRelativePath": "skill-library/imported/zavorth-expansion-pack/creative/excalidraw",
+      "category": "creative",
+      "risk": "high",
+      "permission": "sandbox-required"
+    },
+    {
+      "id": "zxp:creative:humanizer",
+      "targetRelativePath": "skill-library/imported/zavorth-expansion-pack/creative/humanizer",
+      "category": "creative",
+      "risk": "high",
+      "permission": "sandbox-required"
+    },
+    {
+      "id": "zxp:creative:hyperframes",
+      "targetRelativePath": "skill-library/imported/zavorth-expansion-pack/creative/hyperframes",
+      "category": "creative",
+      "risk": "high",
+      "permission": "sandbox-required"
+    },
+    {
+      "id": "zxp:creative:ideation",
+      "targetRelativePath": "skill-library/imported/zavorth-expansion-pack/creative/ideation",
+      "category": "creative",
+      "risk": "high",
+      "permission": "sandbox-required"
+    },
+    {
+      "id": "zxp:creative:kanban-video-orchestrator",
+      "targetRelativePath": "skill-library/imported/zavorth-expansion-pack/creative/kanban-video-orchestrator",
+      "category": "creative",
+      "risk": "medium",
+      "permission": "approval-required"
+    },
+    {
+      "id": "zxp:creative:manim-video",
+      "targetRelativePath": "skill-library/imported/zavorth-expansion-pack/creative/manim-video",
+      "category": "creative",
+      "risk": "high",
+      "permission": "sandbox-required"
+    },
+    {
+      "id": "zxp:creative:meme-generation",
+      "targetRelativePath": "skill-library/imported/zavorth-expansion-pack/creative/meme-generation",
+      "category": "creative",
+      "risk": "medium",
+      "permission": "approval-required"
+    },
+    {
+      "id": "zxp:creative:p5js",
+      "targetRelativePath": "skill-library/imported/zavorth-expansion-pack/creative/p5js",
+      "category": "creative",
+      "risk": "high",
+      "permission": "sandbox-required"
+    },
+    {
+      "id": "zxp:creative:pixel-art",
+      "targetRelativePath": "skill-library/imported/zavorth-expansion-pack/creative/pixel-art",
+      "category": "creative",
+      "risk": "medium",
+      "permission": "approval-required"
+    },
+    {
+      "id": "zxp:creative:popular-web-designs",
+      "targetRelativePath": "skill-library/imported/zavorth-expansion-pack/creative/popular-web-designs",
+      "category": "creative",
+      "risk": "high",
+      "permission": "sandbox-required"
+    },
+    {
+      "id": "zxp:creative:pretext",
+      "targetRelativePath": "skill-library/imported/zavorth-expansion-pack/creative/pretext",
+      "category": "creative",
+      "risk": "high",
+      "permission": "sandbox-required"
+    },
+    {
+      "id": "zxp:creative:sketch",
+      "targetRelativePath": "skill-library/imported/zavorth-expansion-pack/creative/sketch",
+      "category": "creative",
+      "risk": "medium",
+      "permission": "approval-required"
+    },
+    {
+      "id": "zxp:creative:songwriting-and-ai-music",
+      "targetRelativePath": "skill-library/imported/zavorth-expansion-pack/creative/songwriting-and-ai-music",
+      "category": "creative",
+      "risk": "low",
+      "permission": "approval-required"
+    },
+    {
+      "id": "zxp:creative:touchdesigner-mcp",
+      "targetRelativePath": "skill-library/imported/zavorth-expansion-pack/creative/touchdesigner-mcp",
+      "category": "creative",
+      "risk": "high",
+      "permission": "sandbox-required"
+    },
+    {
+      "id": "zxp:data-science:jupyter-live-kernel",
+      "targetRelativePath": "skill-library/imported/zavorth-expansion-pack/data-science/jupyter-live-kernel",
+      "category": "data-science",
+      "risk": "high",
+      "permission": "sandbox-required"
+    },
+    {
+      "id": "zxp:devops:docker-management",
+      "targetRelativePath": "skill-library/imported/zavorth-expansion-pack/devops/docker-management",
+      "category": "devops",
+      "risk": "high",
+      "permission": "sandbox-required"
+    },
+    {
+      "id": "zxp:devops:inference-sh-cli",
+      "targetRelativePath": "skill-library/imported/zavorth-expansion-pack/devops/inference-sh-cli",
+      "category": "devops",
+      "risk": "medium",
+      "permission": "approval-required"
+    },
+    {
+      "id": "zxp:devops:kanban-orchestrator",
+      "targetRelativePath": "skill-library/imported/zavorth-expansion-pack/devops/kanban-orchestrator",
+      "category": "devops",
+      "risk": "high",
+      "permission": "sandbox-required"
+    },
+    {
+      "id": "zxp:devops:kanban-worker",
+      "targetRelativePath": "skill-library/imported/zavorth-expansion-pack/devops/kanban-worker",
+      "category": "devops",
+      "risk": "high",
+      "permission": "sandbox-required"
+    },
+    {
+      "id": "zxp:devops:watchers",
+      "targetRelativePath": "skill-library/imported/zavorth-expansion-pack/devops/watchers",
+      "category": "devops",
+      "risk": "high",
+      "permission": "sandbox-required"
+    },
+    {
+      "id": "zxp:devops:webhook-subscriptions",
+      "targetRelativePath": "skill-library/imported/zavorth-expansion-pack/devops/webhook-subscriptions",
+      "category": "devops",
+      "risk": "high",
+      "permission": "sandbox-required"
+    },
+    {
+      "id": "zxp:dogfood:adversarial-ux-test",
+      "targetRelativePath": "skill-library/imported/zavorth-expansion-pack/dogfood/adversarial-ux-test",
+      "category": "dogfood",
+      "risk": "high",
+      "permission": "sandbox-required"
+    },
+    {
+      "id": "zxp:dogfood:dogfood",
+      "targetRelativePath": "skill-library/imported/zavorth-expansion-pack/dogfood/dogfood",
+      "category": "dogfood",
+      "risk": "high",
+      "permission": "sandbox-required"
+    },
+    {
+      "id": "zxp:email:agentmail",
+      "targetRelativePath": "skill-library/imported/zavorth-expansion-pack/email/agentmail",
+      "category": "email",
+      "risk": "high",
+      "permission": "sandbox-required"
+    },
+    {
+      "id": "zxp:email:himalaya",
+      "targetRelativePath": "skill-library/imported/zavorth-expansion-pack/email/himalaya",
+      "category": "email",
+      "risk": "high",
+      "permission": "sandbox-required"
+    },
+    {
+      "id": "zxp:finance:3-statement-model",
+      "targetRelativePath": "skill-library/imported/zavorth-expansion-pack/finance/3-statement-model",
+      "category": "finance",
+      "risk": "high",
+      "permission": "sandbox-required"
+    },
+    {
+      "id": "zxp:finance:comps-analysis",
+      "targetRelativePath": "skill-library/imported/zavorth-expansion-pack/finance/comps-analysis",
+      "category": "finance",
+      "risk": "high",
+      "permission": "sandbox-required"
+    },
+    {
+      "id": "zxp:finance:dcf-model",
+      "targetRelativePath": "skill-library/imported/zavorth-expansion-pack/finance/dcf-model",
+      "category": "finance",
+      "risk": "high",
+      "permission": "sandbox-required"
+    },
+    {
+      "id": "zxp:finance:excel-author",
+      "targetRelativePath": "skill-library/imported/zavorth-expansion-pack/finance/excel-author",
+      "category": "finance",
+      "risk": "high",
+      "permission": "sandbox-required"
+    },
+    {
+      "id": "zxp:finance:lbo-model",
+      "targetRelativePath": "skill-library/imported/zavorth-expansion-pack/finance/lbo-model",
+      "category": "finance",
+      "risk": "high",
+      "permission": "sandbox-required"
+    },
+    {
+      "id": "zxp:finance:merger-model",
+      "targetRelativePath": "skill-library/imported/zavorth-expansion-pack/finance/merger-model",
+      "category": "finance",
+      "risk": "high",
+      "permission": "sandbox-required"
+    },
+    {
+      "id": "zxp:finance:pptx-author",
+      "targetRelativePath": "skill-library/imported/zavorth-expansion-pack/finance/pptx-author",
+      "category": "finance",
+      "risk": "high",
+      "permission": "sandbox-required"
+    },
+    {
+      "id": "zxp:finance:stocks",
+      "targetRelativePath": "skill-library/imported/zavorth-expansion-pack/finance/stocks",
+      "category": "finance",
+      "risk": "high",
+      "permission": "sandbox-required"
+    },
+    {
+      "id": "zxp:gaming:minecraft-modpack-server",
+      "targetRelativePath": "skill-library/imported/zavorth-expansion-pack/gaming/minecraft-modpack-server",
+      "category": "gaming",
+      "risk": "medium",
+      "permission": "approval-required"
+    },
+    {
+      "id": "zxp:gaming:pokemon-player",
+      "targetRelativePath": "skill-library/imported/zavorth-expansion-pack/gaming/pokemon-player",
+      "category": "gaming",
+      "risk": "high",
+      "permission": "sandbox-required"
+    },
+    {
+      "id": "zxp:github:codebase-inspection",
+      "targetRelativePath": "skill-library/imported/zavorth-expansion-pack/github/codebase-inspection",
+      "category": "github",
+      "risk": "medium",
+      "permission": "approval-required"
+    },
+    {
+      "id": "zxp:github:github-auth",
+      "targetRelativePath": "skill-library/imported/zavorth-expansion-pack/github/github-auth",
+      "category": "github",
+      "risk": "high",
+      "permission": "sandbox-required"
+    },
+    {
+      "id": "zxp:github:github-code-review",
+      "targetRelativePath": "skill-library/imported/zavorth-expansion-pack/github/github-code-review",
+      "category": "github",
+      "risk": "high",
+      "permission": "sandbox-required"
+    },
+    {
+      "id": "zxp:github:github-issues",
+      "targetRelativePath": "skill-library/imported/zavorth-expansion-pack/github/github-issues",
+      "category": "github",
+      "risk": "high",
+      "permission": "sandbox-required"
+    },
+    {
+      "id": "zxp:github:github-pr-workflow",
+      "targetRelativePath": "skill-library/imported/zavorth-expansion-pack/github/github-pr-workflow",
+      "category": "github",
+      "risk": "high",
+      "permission": "sandbox-required"
+    },
+    {
+      "id": "zxp:github:github-repo-management",
+      "targetRelativePath": "skill-library/imported/zavorth-expansion-pack/github/github-repo-management",
+      "category": "github",
+      "risk": "high",
+      "permission": "sandbox-required"
+    },
+    {
+      "id": "zxp:health:fitness-nutrition",
+      "targetRelativePath": "skill-library/imported/zavorth-expansion-pack/health/fitness-nutrition",
+      "category": "health",
+      "risk": "high",
+      "permission": "sandbox-required"
+    },
+    {
+      "id": "zxp:health:neuroskill-bci",
+      "targetRelativePath": "skill-library/imported/zavorth-expansion-pack/health/neuroskill-bci",
+      "category": "health",
+      "risk": "medium",
+      "permission": "approval-required"
+    },
+    {
+      "id": "zxp:mcp:fastmcp",
+      "targetRelativePath": "skill-library/imported/zavorth-expansion-pack/mcp/fastmcp",
+      "category": "mcp",
+      "risk": "medium",
+      "permission": "approval-required"
+    },
+    {
+      "id": "zxp:mcp:mcporter",
+      "targetRelativePath": "skill-library/imported/zavorth-expansion-pack/mcp/mcporter",
+      "category": "mcp",
+      "risk": "high",
+      "permission": "sandbox-required"
+    },
+    {
+      "id": "zxp:mcp:native-mcp",
+      "targetRelativePath": "skill-library/imported/zavorth-expansion-pack/mcp/native-mcp",
+      "category": "mcp",
+      "risk": "medium",
+      "permission": "approval-required"
+    },
+    {
+      "id": "zxp:media:gif-search",
+      "targetRelativePath": "skill-library/imported/zavorth-expansion-pack/media/gif-search",
+      "category": "media",
+      "risk": "high",
+      "permission": "sandbox-required"
+    },
+    {
+      "id": "zxp:media:heartmula",
+      "targetRelativePath": "skill-library/imported/zavorth-expansion-pack/media/heartmula",
+      "category": "media",
+      "risk": "medium",
+      "permission": "approval-required"
+    },
+    {
+      "id": "zxp:media:songsee",
+      "targetRelativePath": "skill-library/imported/zavorth-expansion-pack/media/songsee",
+      "category": "media",
+      "risk": "medium",
+      "permission": "approval-required"
+    },
+    {
+      "id": "zxp:media:spotify",
+      "targetRelativePath": "skill-library/imported/zavorth-expansion-pack/media/spotify",
+      "category": "media",
+      "risk": "low",
+      "permission": "approval-required"
+    },
+    {
+      "id": "zxp:media:youtube-content",
+      "targetRelativePath": "skill-library/imported/zavorth-expansion-pack/media/youtube-content",
+      "category": "media",
+      "risk": "medium",
+      "permission": "approval-required"
+    },
+    {
+      "id": "zxp:migration:openclaw-migration",
+      "targetRelativePath": "skill-library/imported/zavorth-expansion-pack/migration/openclaw-migration",
+      "category": "migration",
+      "risk": "high",
+      "permission": "sandbox-required"
+    },
+    {
+      "id": "zxp:mlops:audiocraft-audio-generation",
+      "targetRelativePath": "skill-library/imported/zavorth-expansion-pack/mlops/audiocraft-audio-generation",
+      "category": "mlops",
+      "risk": "high",
+      "permission": "sandbox-required"
+    },
+    {
+      "id": "zxp:mlops:axolotl",
+      "targetRelativePath": "skill-library/imported/zavorth-expansion-pack/mlops/axolotl",
+      "category": "mlops",
+      "risk": "medium",
+      "permission": "approval-required"
+    },
+    {
+      "id": "zxp:mlops:chroma",
+      "targetRelativePath": "skill-library/imported/zavorth-expansion-pack/mlops/chroma",
+      "category": "mlops",
+      "risk": "medium",
+      "permission": "approval-required"
+    },
+    {
+      "id": "zxp:mlops:clip",
+      "targetRelativePath": "skill-library/imported/zavorth-expansion-pack/mlops/clip",
+      "category": "mlops",
+      "risk": "high",
+      "permission": "sandbox-required"
+    },
+    {
+      "id": "zxp:mlops:distributed-llm-pretraining-torchtitan",
+      "targetRelativePath": "skill-library/imported/zavorth-expansion-pack/mlops/distributed-llm-pretraining-torchtitan",
+      "category": "mlops",
+      "risk": "high",
+      "permission": "sandbox-required"
+    },
+    {
+      "id": "zxp:mlops:dspy",
+      "targetRelativePath": "skill-library/imported/zavorth-expansion-pack/mlops/dspy",
+      "category": "mlops",
+      "risk": "medium",
+      "permission": "approval-required"
+    },
+    {
+      "id": "zxp:mlops:evaluating-llms-harness",
+      "targetRelativePath": "skill-library/imported/zavorth-expansion-pack/mlops/evaluating-llms-harness",
+      "category": "mlops",
+      "risk": "high",
+      "permission": "sandbox-required"
+    },
+    {
+      "id": "zxp:mlops:faiss",
+      "targetRelativePath": "skill-library/imported/zavorth-expansion-pack/mlops/faiss",
+      "category": "mlops",
+      "risk": "medium",
+      "permission": "approval-required"
+    },
+    {
+      "id": "zxp:mlops:fine-tuning-with-trl",
+      "targetRelativePath": "skill-library/imported/zavorth-expansion-pack/mlops/fine-tuning-with-trl",
+      "category": "mlops",
+      "risk": "high",
+      "permission": "sandbox-required"
+    },
+    {
+      "id": "zxp:mlops:guidance",
+      "targetRelativePath": "skill-library/imported/zavorth-expansion-pack/mlops/guidance",
+      "category": "mlops",
+      "risk": "high",
+      "permission": "sandbox-required"
+    },
+    {
+      "id": "zxp:mlops:hermes-atropos-environments",
+      "targetRelativePath": "skill-library/imported/zavorth-expansion-pack/mlops/hermes-atropos-environments",
+      "category": "mlops",
+      "risk": "high",
+      "permission": "sandbox-required"
+    },
+    {
+      "id": "zxp:mlops:huggingface-accelerate",
+      "targetRelativePath": "skill-library/imported/zavorth-expansion-pack/mlops/huggingface-accelerate",
+      "category": "mlops",
+      "risk": "low",
+      "permission": "approval-required"
+    },
+    {
+      "id": "zxp:mlops:huggingface-hub",
+      "targetRelativePath": "skill-library/imported/zavorth-expansion-pack/mlops/huggingface-hub",
+      "category": "mlops",
+      "risk": "high",
+      "permission": "sandbox-required"
+    },
+    {
+      "id": "zxp:mlops:huggingface-tokenizers",
+      "targetRelativePath": "skill-library/imported/zavorth-expansion-pack/mlops/huggingface-tokenizers",
+      "category": "mlops",
+      "risk": "high",
+      "permission": "sandbox-required"
+    },
+    {
+      "id": "zxp:mlops:instructor",
+      "targetRelativePath": "skill-library/imported/zavorth-expansion-pack/mlops/instructor",
+      "category": "mlops",
+      "risk": "high",
+      "permission": "sandbox-required"
+    },
+    {
+      "id": "zxp:mlops:lambda-labs-gpu-cloud",
+      "targetRelativePath": "skill-library/imported/zavorth-expansion-pack/mlops/lambda-labs-gpu-cloud",
+      "category": "mlops",
+      "risk": "high",
+      "permission": "sandbox-required"
+    },
+    {
+      "id": "zxp:mlops:llama-cpp",
+      "targetRelativePath": "skill-library/imported/zavorth-expansion-pack/mlops/llama-cpp",
+      "category": "mlops",
+      "risk": "medium",
+      "permission": "approval-required"
+    },
+    {
+      "id": "zxp:mlops:llava",
+      "targetRelativePath": "skill-library/imported/zavorth-expansion-pack/mlops/llava",
+      "category": "mlops",
+      "risk": "high",
+      "permission": "sandbox-required"
+    },
+    {
+      "id": "zxp:mlops:modal-serverless-gpu",
+      "targetRelativePath": "skill-library/imported/zavorth-expansion-pack/mlops/modal-serverless-gpu",
+      "category": "mlops",
+      "risk": "high",
+      "permission": "sandbox-required"
+    },
+    {
+      "id": "zxp:mlops:nemo-curator",
+      "targetRelativePath": "skill-library/imported/zavorth-expansion-pack/mlops/nemo-curator",
+      "category": "mlops",
+      "risk": "medium",
+      "permission": "approval-required"
+    },
+    {
+      "id": "zxp:mlops:obliteratus",
+      "targetRelativePath": "skill-library/imported/zavorth-expansion-pack/mlops/obliteratus",
+      "category": "mlops",
+      "risk": "high",
+      "permission": "sandbox-required"
+    },
+    {
+      "id": "zxp:mlops:optimizing-attention-flash",
+      "targetRelativePath": "skill-library/imported/zavorth-expansion-pack/mlops/optimizing-attention-flash",
+      "category": "mlops",
+      "risk": "high",
+      "permission": "sandbox-required"
+    },
+    {
+      "id": "zxp:mlops:outlines",
+      "targetRelativePath": "skill-library/imported/zavorth-expansion-pack/mlops/outlines",
+      "category": "mlops",
+      "risk": "high",
+      "permission": "sandbox-required"
+    },
+    {
+      "id": "zxp:mlops:peft-fine-tuning",
+      "targetRelativePath": "skill-library/imported/zavorth-expansion-pack/mlops/peft-fine-tuning",
+      "category": "mlops",
+      "risk": "high",
+      "permission": "sandbox-required"
+    },
+    {
+      "id": "zxp:mlops:pinecone",
+      "targetRelativePath": "skill-library/imported/zavorth-expansion-pack/mlops/pinecone",
+      "category": "mlops",
+      "risk": "medium",
+      "permission": "approval-required"
+    },
+    {
+      "id": "zxp:mlops:pytorch-fsdp",
+      "targetRelativePath": "skill-library/imported/zavorth-expansion-pack/mlops/pytorch-fsdp",
+      "category": "mlops",
+      "risk": "low",
+      "permission": "approval-required"
+    },
+    {
+      "id": "zxp:mlops:pytorch-lightning",
+      "targetRelativePath": "skill-library/imported/zavorth-expansion-pack/mlops/pytorch-lightning",
+      "category": "mlops",
+      "risk": "low",
+      "permission": "approval-required"
+    },
+    {
+      "id": "zxp:mlops:qdrant-vector-search",
+      "targetRelativePath": "skill-library/imported/zavorth-expansion-pack/mlops/qdrant-vector-search",
+      "category": "mlops",
+      "risk": "high",
+      "permission": "sandbox-required"
+    },
+    {
+      "id": "zxp:mlops:segment-anything-model",
+      "targetRelativePath": "skill-library/imported/zavorth-expansion-pack/mlops/segment-anything-model",
+      "category": "mlops",
+      "risk": "high",
+      "permission": "sandbox-required"
+    },
+    {
+      "id": "zxp:mlops:serving-llms-vllm",
+      "targetRelativePath": "skill-library/imported/zavorth-expansion-pack/mlops/serving-llms-vllm",
+      "category": "mlops",
+      "risk": "high",
+      "permission": "sandbox-required"
+    },
+    {
+      "id": "zxp:mlops:simpo-training",
+      "targetRelativePath": "skill-library/imported/zavorth-expansion-pack/mlops/simpo-training",
+      "category": "mlops",
+      "risk": "medium",
+      "permission": "approval-required"
+    },
+    {
+      "id": "zxp:mlops:slime-rl-training",
+      "targetRelativePath": "skill-library/imported/zavorth-expansion-pack/mlops/slime-rl-training",
+      "category": "mlops",
+      "risk": "high",
+      "permission": "sandbox-required"
+    },
+    {
+      "id": "zxp:mlops:sparse-autoencoder-training",
+      "targetRelativePath": "skill-library/imported/zavorth-expansion-pack/mlops/sparse-autoencoder-training",
+      "category": "mlops",
+      "risk": "high",
+      "permission": "sandbox-required"
+    },
+    {
+      "id": "zxp:mlops:stable-diffusion-image-generation",
+      "targetRelativePath": "skill-library/imported/zavorth-expansion-pack/mlops/stable-diffusion-image-generation",
+      "category": "mlops",
+      "risk": "low",
+      "permission": "approval-required"
+    },
+    {
+      "id": "zxp:mlops:tensorrt-llm",
+      "targetRelativePath": "skill-library/imported/zavorth-expansion-pack/mlops/tensorrt-llm",
+      "category": "mlops",
+      "risk": "high",
+      "permission": "sandbox-required"
+    },
+    {
+      "id": "zxp:mlops:unsloth",
+      "targetRelativePath": "skill-library/imported/zavorth-expansion-pack/mlops/unsloth",
+      "category": "mlops",
+      "risk": "medium",
+      "permission": "approval-required"
+    },
+    {
+      "id": "zxp:mlops:weights-and-biases",
+      "targetRelativePath": "skill-library/imported/zavorth-expansion-pack/mlops/weights-and-biases",
+      "category": "mlops",
+      "risk": "high",
+      "permission": "sandbox-required"
+    },
+    {
+      "id": "zxp:mlops:whisper",
+      "targetRelativePath": "skill-library/imported/zavorth-expansion-pack/mlops/whisper",
+      "category": "mlops",
+      "risk": "medium",
+      "permission": "approval-required"
+    },
+    {
+      "id": "zxp:note-taking:obsidian",
+      "targetRelativePath": "skill-library/imported/zavorth-expansion-pack/note-taking/obsidian",
+      "category": "note-taking",
+      "risk": "high",
+      "permission": "sandbox-required"
+    },
+    {
+      "id": "zxp:productivity:airtable",
+      "targetRelativePath": "skill-library/imported/zavorth-expansion-pack/productivity/airtable",
+      "category": "productivity",
+      "risk": "high",
+      "permission": "sandbox-required"
+    },
+    {
+      "id": "zxp:productivity:canvas",
+      "targetRelativePath": "skill-library/imported/zavorth-expansion-pack/productivity/canvas",
+      "category": "productivity",
+      "risk": "high",
+      "permission": "sandbox-required"
+    },
+    {
+      "id": "zxp:productivity:google-workspace",
+      "targetRelativePath": "skill-library/imported/zavorth-expansion-pack/productivity/google-workspace",
+      "category": "productivity",
+      "risk": "high",
+      "permission": "sandbox-required"
+    },
+    {
+      "id": "zxp:productivity:here-now",
+      "targetRelativePath": "skill-library/imported/zavorth-expansion-pack/productivity/here-now",
+      "category": "productivity",
+      "risk": "high",
+      "permission": "sandbox-required"
+    },
+    {
+      "id": "zxp:productivity:linear",
+      "targetRelativePath": "skill-library/imported/zavorth-expansion-pack/productivity/linear",
+      "category": "productivity",
+      "risk": "high",
+      "permission": "sandbox-required"
+    },
+    {
+      "id": "zxp:productivity:maps",
+      "targetRelativePath": "skill-library/imported/zavorth-expansion-pack/productivity/maps",
+      "category": "productivity",
+      "risk": "high",
+      "permission": "sandbox-required"
+    },
+    {
+      "id": "zxp:productivity:memento-flashcards",
+      "targetRelativePath": "skill-library/imported/zavorth-expansion-pack/productivity/memento-flashcards",
+      "category": "productivity",
+      "risk": "high",
+      "permission": "sandbox-required"
+    },
+    {
+      "id": "zxp:productivity:nano-pdf",
+      "targetRelativePath": "skill-library/imported/zavorth-expansion-pack/productivity/nano-pdf",
+      "category": "productivity",
+      "risk": "high",
+      "permission": "sandbox-required"
+    },
+    {
+      "id": "zxp:productivity:notion",
+      "targetRelativePath": "skill-library/imported/zavorth-expansion-pack/productivity/notion",
+      "category": "productivity",
+      "risk": "high",
+      "permission": "sandbox-required"
+    },
+    {
+      "id": "zxp:productivity:ocr-and-documents",
+      "targetRelativePath": "skill-library/imported/zavorth-expansion-pack/productivity/ocr-and-documents",
+      "category": "productivity",
+      "risk": "medium",
+      "permission": "approval-required"
+    },
+    {
+      "id": "zxp:productivity:powerpoint",
+      "targetRelativePath": "skill-library/imported/zavorth-expansion-pack/productivity/powerpoint",
+      "category": "productivity",
+      "risk": "high",
+      "permission": "sandbox-required"
+    },
+    {
+      "id": "zxp:productivity:shop-app",
+      "targetRelativePath": "skill-library/imported/zavorth-expansion-pack/productivity/shop-app",
+      "category": "productivity",
+      "risk": "high",
+      "permission": "sandbox-required"
+    },
+    {
+      "id": "zxp:productivity:shopify",
+      "targetRelativePath": "skill-library/imported/zavorth-expansion-pack/productivity/shopify",
+      "category": "productivity",
+      "risk": "high",
+      "permission": "sandbox-required"
+    },
+    {
+      "id": "zxp:productivity:siyuan",
+      "targetRelativePath": "skill-library/imported/zavorth-expansion-pack/productivity/siyuan",
+      "category": "productivity",
+      "risk": "high",
+      "permission": "sandbox-required"
+    },
+    {
+      "id": "zxp:productivity:teams-meeting-pipeline",
+      "targetRelativePath": "skill-library/imported/zavorth-expansion-pack/productivity/teams-meeting-pipeline",
+      "category": "productivity",
+      "risk": "high",
+      "permission": "sandbox-required"
+    },
+    {
+      "id": "zxp:productivity:telephony",
+      "targetRelativePath": "skill-library/imported/zavorth-expansion-pack/productivity/telephony",
+      "category": "productivity",
+      "risk": "high",
+      "permission": "sandbox-required"
+    },
+    {
+      "id": "zxp:red-teaming:godmode",
+      "targetRelativePath": "skill-library/imported/zavorth-expansion-pack/red-teaming/godmode",
+      "category": "red-teaming",
+      "risk": "medium",
+      "permission": "approval-required"
+    },
+    {
+      "id": "zxp:research:arxiv",
+      "targetRelativePath": "skill-library/imported/zavorth-expansion-pack/research/arxiv",
+      "category": "research",
+      "risk": "high",
+      "permission": "sandbox-required"
+    },
+    {
+      "id": "zxp:research:bioinformatics",
+      "targetRelativePath": "skill-library/imported/zavorth-expansion-pack/research/bioinformatics",
+      "category": "research",
+      "risk": "medium",
+      "permission": "approval-required"
+    },
+    {
+      "id": "zxp:research:blogwatcher",
+      "targetRelativePath": "skill-library/imported/zavorth-expansion-pack/research/blogwatcher",
+      "category": "research",
+      "risk": "high",
+      "permission": "sandbox-required"
+    },
+    {
+      "id": "zxp:research:domain-intel",
+      "targetRelativePath": "skill-library/imported/zavorth-expansion-pack/research/domain-intel",
+      "category": "research",
+      "risk": "high",
+      "permission": "sandbox-required"
+    },
+    {
+      "id": "zxp:research:drug-discovery",
+      "targetRelativePath": "skill-library/imported/zavorth-expansion-pack/research/drug-discovery",
+      "category": "research",
+      "risk": "high",
+      "permission": "sandbox-required"
+    },
+    {
+      "id": "zxp:research:duckduckgo-search",
+      "targetRelativePath": "skill-library/imported/zavorth-expansion-pack/research/duckduckgo-search",
+      "category": "research",
+      "risk": "high",
+      "permission": "sandbox-required"
+    },
+    {
+      "id": "zxp:research:gitnexus-explorer",
+      "targetRelativePath": "skill-library/imported/zavorth-expansion-pack/research/gitnexus-explorer",
+      "category": "research",
+      "risk": "high",
+      "permission": "sandbox-required"
+    },
+    {
+      "id": "zxp:research:llm-wiki",
+      "targetRelativePath": "skill-library/imported/zavorth-expansion-pack/research/llm-wiki",
+      "category": "research",
+      "risk": "medium",
+      "permission": "approval-required"
+    },
+    {
+      "id": "zxp:research:parallel-cli",
+      "targetRelativePath": "skill-library/imported/zavorth-expansion-pack/research/parallel-cli",
+      "category": "research",
+      "risk": "high",
+      "permission": "sandbox-required"
+    },
+    {
+      "id": "zxp:research:polymarket",
+      "targetRelativePath": "skill-library/imported/zavorth-expansion-pack/research/polymarket",
+      "category": "research",
+      "risk": "high",
+      "permission": "sandbox-required"
+    },
+    {
+      "id": "zxp:research:qmd",
+      "targetRelativePath": "skill-library/imported/zavorth-expansion-pack/research/qmd",
+      "category": "research",
+      "risk": "medium",
+      "permission": "approval-required"
+    },
+    {
+      "id": "zxp:research:research-paper-writing",
+      "targetRelativePath": "skill-library/imported/zavorth-expansion-pack/research/research-paper-writing",
+      "category": "research",
+      "risk": "medium",
+      "permission": "approval-required"
+    },
+    {
+      "id": "zxp:research:scrapling",
+      "targetRelativePath": "skill-library/imported/zavorth-expansion-pack/research/scrapling",
+      "category": "research",
+      "risk": "high",
+      "permission": "sandbox-required"
+    },
+    {
+      "id": "zxp:research:searxng-search",
+      "targetRelativePath": "skill-library/imported/zavorth-expansion-pack/research/searxng-search",
+      "category": "research",
+      "risk": "high",
+      "permission": "sandbox-required"
+    },
+    {
+      "id": "zxp:security:1password",
+      "targetRelativePath": "skill-library/imported/zavorth-expansion-pack/security/1password",
+      "category": "security",
+      "risk": "high",
+      "permission": "sandbox-required"
+    },
+    {
+      "id": "zxp:security:oss-forensics",
+      "targetRelativePath": "skill-library/imported/zavorth-expansion-pack/security/oss-forensics",
+      "category": "security",
+      "risk": "high",
+      "permission": "sandbox-required"
+    },
+    {
+      "id": "zxp:security:sherlock",
+      "targetRelativePath": "skill-library/imported/zavorth-expansion-pack/security/sherlock",
+      "category": "security",
+      "risk": "high",
+      "permission": "sandbox-required"
+    },
+    {
+      "id": "zxp:smart-home:openhue",
+      "targetRelativePath": "skill-library/imported/zavorth-expansion-pack/smart-home/openhue",
+      "category": "smart-home",
+      "risk": "medium",
+      "permission": "approval-required"
+    },
+    {
+      "id": "zxp:social-media:xurl",
+      "targetRelativePath": "skill-library/imported/zavorth-expansion-pack/social-media/xurl",
+      "category": "social-media",
+      "risk": "high",
+      "permission": "sandbox-required"
+    },
+    {
+      "id": "zxp:software-development:debugging-hermes-tui-commands",
+      "targetRelativePath": "skill-library/imported/zavorth-expansion-pack/software-development/debugging-hermes-tui-commands",
+      "category": "software-development",
+      "risk": "high",
+      "permission": "sandbox-required"
+    },
+    {
+      "id": "zxp:software-development:hermes-agent-skill-authoring",
+      "targetRelativePath": "skill-library/imported/zavorth-expansion-pack/software-development/hermes-agent-skill-authoring",
+      "category": "software-development",
+      "risk": "high",
+      "permission": "sandbox-required"
+    },
+    {
+      "id": "zxp:software-development:node-inspect-debugger",
+      "targetRelativePath": "skill-library/imported/zavorth-expansion-pack/software-development/node-inspect-debugger",
+      "category": "software-development",
+      "risk": "medium",
+      "permission": "approval-required"
+    },
+    {
+      "id": "zxp:software-development:plan",
+      "targetRelativePath": "skill-library/imported/zavorth-expansion-pack/software-development/plan",
+      "category": "software-development",
+      "risk": "high",
+      "permission": "sandbox-required"
+    },
+    {
+      "id": "zxp:software-development:python-debugpy",
+      "targetRelativePath": "skill-library/imported/zavorth-expansion-pack/software-development/python-debugpy",
+      "category": "software-development",
+      "risk": "medium",
+      "permission": "approval-required"
+    },
+    {
+      "id": "zxp:software-development:requesting-code-review",
+      "targetRelativePath": "skill-library/imported/zavorth-expansion-pack/software-development/requesting-code-review",
+      "category": "software-development",
+      "risk": "high",
+      "permission": "sandbox-required"
+    },
+    {
+      "id": "zxp:software-development:rest-graphql-debug",
+      "targetRelativePath": "skill-library/imported/zavorth-expansion-pack/software-development/rest-graphql-debug",
+      "category": "software-development",
+      "risk": "high",
+      "permission": "sandbox-required"
+    },
+    {
+      "id": "zxp:software-development:spike",
+      "targetRelativePath": "skill-library/imported/zavorth-expansion-pack/software-development/spike",
+      "category": "software-development",
+      "risk": "high",
+      "permission": "sandbox-required"
+    },
+    {
+      "id": "zxp:software-development:subagent-driven-development",
+      "targetRelativePath": "skill-library/imported/zavorth-expansion-pack/software-development/subagent-driven-development",
+      "category": "software-development",
+      "risk": "high",
+      "permission": "sandbox-required"
+    },
+    {
+      "id": "zxp:software-development:systematic-debugging",
+      "targetRelativePath": "skill-library/imported/zavorth-expansion-pack/software-development/systematic-debugging",
+      "category": "software-development",
+      "risk": "medium",
+      "permission": "approval-required"
+    },
+    {
+      "id": "zxp:software-development:test-driven-development",
+      "targetRelativePath": "skill-library/imported/zavorth-expansion-pack/software-development/test-driven-development",
+      "category": "software-development",
+      "risk": "medium",
+      "permission": "approval-required"
+    },
+    {
+      "id": "zxp:software-development:writing-plans",
+      "targetRelativePath": "skill-library/imported/zavorth-expansion-pack/software-development/writing-plans",
+      "category": "software-development",
+      "risk": "high",
+      "permission": "sandbox-required"
+    },
+    {
+      "id": "zxp:web-development:page-agent",
+      "targetRelativePath": "skill-library/imported/zavorth-expansion-pack/web-development/page-agent",
+      "category": "web-development",
+      "risk": "high",
+      "permission": "sandbox-required"
+    },
+    {
+      "id": "zxp:yuanbao:yuanbao",
+      "targetRelativePath": "skill-library/imported/zavorth-expansion-pack/yuanbao/yuanbao",
+      "category": "yuanbao",
+      "risk": "medium",
+      "permission": "approval-required"
+    }
+  ],
+  "safety": {
+    "generatedStubsOnly": true,
+    "noUpstreamSkillBodyCopy": true,
+    "noScriptCopy": true
+  }
+}

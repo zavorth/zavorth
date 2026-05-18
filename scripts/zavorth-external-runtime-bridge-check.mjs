@@ -61,9 +61,11 @@ function ruleContainsMarkers() {
   const checks = [
     ['src/contracts/ZavorthExternalRuntimeBridgeContract.ts', [
       'ZAVORTH_EXTERNAL_RUNTIME_BRIDGE_CONTRACT_VERSION',
-      'natural-first-external-runtime-bridge/10',
+      'natural-first-universal-external-runtime-bridge/11',
       'ZavorthAgentGateway',
       'Zavorth ReplyPipeline',
+      'acpSupportIsProviderAgnostic',
+      'noDefaultNamedCompatibilityBridge',
       'noImplementationPerformedByBridge',
     ]],
     ['src/services/ZavorthExternalRuntimeBridgeService.ts', [
@@ -74,11 +76,6 @@ function ruleContainsMarkers() {
       'skill-curator',
       'delegated-workers',
       'phase-9-complete',
-    ]],
-    ['docs/README.md', [
-      'phase-10-complete',
-      'natural-first-external-runtime-bridge/10',
-      '291 - Plano Zavorth External Runtime Absorption',
     ]],
     ['package.json', [
       'zavorth:external-runtime-bridge',
@@ -124,8 +121,10 @@ function runBridgeFixture() {
   const snapshot = parseJson(result.stdout);
   const ok = snapshot
     && snapshot.status === 'bridge-ready'
-    && snapshot.contractVersion === 'natural-first-external-runtime-bridge/10'
+    && snapshot.contractVersion === 'natural-first-universal-external-runtime-bridge/11'
     && snapshot.gatewayPolicy?.naturalFirstClosed === true
+    && snapshot.policy?.acpSupportIsProviderAgnostic === true
+    && snapshot.policy?.noDefaultNamedCompatibilityBridge === true
     && snapshot.summary?.executionPerformed === false
     && snapshot.summary?.sourceRuntimeCodeExecuted === false
     && Array.isArray(snapshot.candidates)

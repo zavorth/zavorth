@@ -53,7 +53,7 @@ export type ZavorthExternalRuntimeExternalRuntimeDescriptor = {
   diagnosticLabel: string;
   publicName: 'Zavorth';
   sourceNameQuarantined: true;
-  role: 'reference-runtime' | 'capability-source' | 'wsl-source-clone';
+  role: 'architecture-reference' | 'acp-compatible-sidecar' | 'compatibility-fixture';
   trustScope: ZavorthExternalRuntimeContractTrustScope;
   enabledByDefault: false;
   liveExecutionAllowed: false;

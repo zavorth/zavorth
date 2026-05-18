@@ -12,6 +12,12 @@ describe('SharedSurfaceCallbackCommandPolicy', () => {
     expect(normalizeSharedSurfaceCommandCallback('/channels parity whatsapp')).toBe('/channels parity whatsapp');
     expect(normalizeSharedSurfaceCommandCallback('/commands page 2')).toBe('/commands page 2');
     expect(normalizeSharedSurfaceCommandCallback('/model gemma-4-31b-it')).toBe('/model gemma-4-31b-it');
+    expect(normalizeSharedSurfaceCommandCallback('/readiness')).toBe('/readiness');
+    expect(normalizeSharedSurfaceCommandCallback('/ready')).toBe('/ready');
+    expect(normalizeSharedSurfaceCommandCallback('/stayonline')).toBe('/stayonline');
+    expect(normalizeSharedSurfaceCommandCallback('/fixes')).toBe('/fixes');
+    expect(normalizeSharedSurfaceCommandCallback('/dashboard')).toBe('/dashboard');
+    expect(normalizeSharedSurfaceCommandCallback('/echoapprovals')).toBe('/echoapprovals');
   });
 
   it('blocks forged mutating channel callbacks', () => {

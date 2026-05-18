@@ -35,7 +35,7 @@ describe('ZavorthExternalRuntimeBridgeService Phase 10', () => {
     }));
   });
 
-  it('maps Hermes/OpenClaw candidates into Zavorth-owned next packs and Natural First routes', () => {
+  it('maps provider-agnostic candidates into Zavorth-owned next packs and Natural First routes', () => {
     const snapshot = new ZavorthExternalRuntimeBridgeService().buildSnapshot();
     const byId = new Map(snapshot.candidates.map((entry) => [entry.id, entry]));
 
@@ -63,20 +63,33 @@ describe('ZavorthExternalRuntimeBridgeService Phase 10', () => {
       }),
     }));
     expect(byId.get('channel-gateway-normalization')).toEqual(expect.objectContaining({
-      sourceRuntimeIds: expect.arrayContaining(['openclaw']),
+      sourceRuntimeIds: expect.arrayContaining(['acp-compatible-sidecar']),
       phase: 'phase-5-channels-messaging',
       naturalFirstRoute: 'capability-discovery',
     }));
   });
 
-  it('keeps external runtimes quarantined and every candidate behind Zavorth policy', () => {
+  it('keeps external runtimes as optional fixtures and every candidate behind Zavorth policy', () => {
     const snapshot = new ZavorthExternalRuntimeBridgeService().buildSnapshot();
 
     expect(snapshot.publicIdentityPolicy).toEqual(expect.objectContaining({
       publicAgentName: 'Zavorth',
       externalRuntimeNamesQuarantinedToDiagnostics: true,
+      noDefaultExternalRuntimeBranding: true,
+      compatibilityFixturesAreOptional: true,
       noSourceRuntimeCanonicalFields: true,
     }));
+    expect(snapshot.policy).toEqual(expect.objectContaining({
+      acpSupportIsProviderAgnostic: true,
+      noDefaultNamedCompatibilityBridge: true,
+      noDefaultNamedExternalRuntime: true,
+    }));
+    expect(snapshot.externalRuntimes.map((entry) => entry.id)).toEqual([
+      'reference-runtime',
+      'acp-compatible-sidecar',
+    ]);
+    const legacyRuntimeNamePattern = new RegExp(['open', 'claw'].join('') + '|her' + 'mes', 'i');
+    expect(JSON.stringify(snapshot)).not.toMatch(legacyRuntimeNamePattern);
     expect(snapshot.externalRuntimes.every((entry) => (
       entry.quarantine.diagnosticsOnly
       && entry.quarantine.publicIdentityAllowed === false
@@ -113,6 +126,7 @@ describe('ZavorthExternalRuntimeBridgeService Phase 10', () => {
     expect(text).toContain('Zavorth External Runtime Bridge - Phase 10');
     expect(text).toContain('Status: bridge-ready');
     expect(text).toContain('Source runtime code executed: false');
+    expect(text).toContain('ACP support is provider-agnostic and has no default external runtime bridge.');
     expect(text).toContain('All inbound external events enter ZavorthAgentGateway.');
   });
 });

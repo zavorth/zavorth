@@ -1,0 +1,32 @@
+{
+  "version": 1,
+  "importedAt": "2026-05-18T05:38:55.453Z",
+  "importMode": "generated-zavorth-native-stub",
+  "approvalId": "skill-expansion-pack-166",
+  "skillName": "ascii-video",
+  "source": {
+    "id": "zavorth-native-skill-library",
+    "label": "Zavorth Native Skill Library",
+    "kind": "repository",
+    "trust": "review",
+    "registrySource": "zavorth:skill-expansion-pack",
+    "upstream": null,
+    "pinnedRevision": null,
+    "license": null,
+    "ownership": "native"
+  },
+  "originalSkillPath": "zavorth-native-pack://skills/creative/ascii-video",
+  "originalRelativePath": "skills/creative/ascii-video",
+  "copiedFiles": [],
+  "reference": {
+    "sourceRoot": "zavorth-native-pack://",
+    "bodyHash": "096f52e71c6fbdde95822eeb9df8442ae4d0e43c356a4db1b7ea9a491c41123f"
+  },
+  "governance": {
+    "permission": "approval-required",
+    "risk": "medium",
+    "noExecutionPerformed": true,
+    "noUpstreamSkillBodyCopy": true,
+    "noScriptCopy": true
+  }
+}

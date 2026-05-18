@@ -64,6 +64,12 @@ describe('Mnemos MCP E2E', () => {
       });
       expect(JSON.stringify(scanResult.content)).toContain('echo-memory-note.md');
 
+      const understandingResult = await client.callTool({
+        name: 'understand_file',
+        arguments: { file_path: '/scan_volumes/0/echo-memory-note.md' },
+      });
+      expect(JSON.stringify(understandingResult.content)).toContain('mnemos-universal-file-understanding');
+
       const indexResult = await client.callTool({
         name: 'index_file',
         arguments: { file_path: '/scan_volumes/0/echo-memory-note.md' },

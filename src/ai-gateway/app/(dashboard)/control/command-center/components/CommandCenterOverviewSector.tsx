@@ -392,6 +392,24 @@ export function CommandCenterOverviewSector({
         >
           {nexusWorkbench ? (
             <div className="bcc-list">
+              <div className="bcc-list-item" data-active={nexusWorkbench.operatorExperience.tone !== "ok" ? "true" : "false"}>
+                <span className="bcc-list-item__title">
+                  {nexusWorkbench.operatorExperience.statusLabel}
+                </span>
+                <span className="bcc-list-item__meta">
+                  {nexusWorkbench.operatorExperience.primaryMessage}
+                </span>
+                <span className="bcc-list-item__meta">
+                  Proximo: {nexusWorkbench.operatorExperience.nextStep}
+                </span>
+                <span className="bcc-inline-actions">
+                  {nexusWorkbench.operatorExperience.cards.slice(0, 4).map((card) => (
+                    <span key={card.id} className="bcc-tool-chip" title={card.detail} data-risk={card.tone === "ok" ? "safe" : "attention"}>
+                      {card.label}: {card.value}
+                    </span>
+                  ))}
+                </span>
+              </div>
               <div className="bcc-list-item" data-active={nexusWorkbench.status === "ready" ? "true" : "false"}>
                 <span className="bcc-list-item__title">
                   {nexusWorkbench.runtime.primaryLabel}

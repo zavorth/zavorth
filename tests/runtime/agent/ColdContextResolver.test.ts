@@ -200,7 +200,7 @@ describe('ColdContextResolver', () => {
 
   it('combines existing memory, skill and MCP cold fragments without exposing tools by itself', () => {
     const memoryContext = new MemoryContextAssembler().assemble({
-      connectedToolNames: ['search_memory', 'scan_local_metadata'],
+      connectedToolNames: ['search_memory', 'scan_local_metadata', 'understand_file'],
       compact: true,
     });
     const skillSnapshot = new SkillSnapshotAssembler().assemble({
@@ -267,7 +267,7 @@ describe('ColdContextResolver', () => {
           failed: 0,
           disabled: 0,
           stopped: 0,
-          toolCount: 3,
+          toolCount: 4,
         },
         capabilities: ['memory'],
         entries: [
@@ -276,8 +276,8 @@ describe('ColdContextResolver', () => {
             capability: 'memory',
             enabled: true,
             status: 'connected',
-            toolCount: 3,
-            toolNames: ['search_memory', 'scan_local_metadata', 'index_file'],
+            toolCount: 4,
+            toolNames: ['search_memory', 'scan_local_metadata', 'understand_file', 'index_file'],
             command: 'node',
             args: ['mnemos.js'],
             lastAttemptedAt: null,
@@ -309,8 +309,8 @@ describe('ColdContextResolver', () => {
         memoryContextSource: 'ColdContextResolver.mcpSnapshot',
         connectedToolSource: 'McpSnapshotAssembler',
         mnemosAvailable: true,
-        connectedToolNames: ['search_memory', 'scan_local_metadata', 'index_file'],
-        cadence: ['search_memory', 'scan_local_metadata', 'index_file'],
+        connectedToolNames: ['search_memory', 'scan_local_metadata', 'understand_file', 'index_file'],
+        cadence: ['search_memory', 'scan_local_metadata', 'understand_file', 'index_file'],
         indexingTool: 'index_file',
         indexingRequiresApproval: true,
         indexingApprovalBoundary: 'human-in-the-loop',

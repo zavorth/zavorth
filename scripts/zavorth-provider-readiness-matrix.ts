@@ -1,4 +1,5 @@
 import { ZavorthProviderReadinessMatrixService } from '../src/services/ZavorthProviderReadinessMatrixService.js';
+import { ZavorthProviderLiveProofStoreService } from '../src/services/ZavorthProviderLiveProofStoreService.js';
 
 function readFlag(argv: string[], name: string): string | null {
   const prefix = `--${name}=`;
@@ -13,8 +14,10 @@ async function main(): Promise<void> {
   const positional = argv.filter((arg) => !arg.startsWith('--'));
   const action = String(positional[0] || 'matrix').trim().toLowerCase();
   const providerId = readFlag(argv, 'provider') || (action === 'test' ? positional[1] : positional[0]);
-  const service = new ZavorthProviderReadinessMatrixService();
   const live = argv.includes('--live') || action === 'live';
+  const service = new ZavorthProviderReadinessMatrixService({
+    liveProofStore: live ? new ZavorthProviderLiveProofStoreService() : null,
+  });
   const snapshot = await service.buildLiveSnapshot({
     includeAdvanced: argv.includes('--advanced'),
     providerId: providerId && providerId !== 'matrix' && providerId !== 'live' ? providerId : null,

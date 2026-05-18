@@ -84,7 +84,8 @@ function listBaseUrlCandidates(explicitBaseUrl = ''): string[] {
 
   const runtimeStateUrl = readRuntimeStateBaseUrl(config.dashboardRuntimeStateFile);
   const fallbackUrl = normalizeLocalBaseUrl(`http://${config.zavorthWebHost}:${config.zavorthWebPort}`);
-  return Array.from(new Set([runtimeStateUrl, fallbackUrl].filter(Boolean)));
+  const commonLocalUrl = normalizeLocalBaseUrl('http://127.0.0.1:3000');
+  return Array.from(new Set([runtimeStateUrl, fallbackUrl, commonLocalUrl].filter(Boolean)));
 }
 
 async function inspectCandidateBaseUrl(baseUrl: string): Promise<{ baseUrl: string; reachable: boolean }> {
@@ -122,10 +123,17 @@ function ensureHostStarted(): void {
   const result = spawnSync(npmCommand, ['run', 'ops:up', '--', '--allow-readonly'], {
     cwd: config.projectRoot,
     stdio: 'inherit',
+    timeout: 90_000,
     windowsHide: true,
   });
+  if (result.error) {
+    throw new Error(`ops:up nao concluiu: ${result.error.message}`);
+  }
   if (typeof result.status === 'number' && result.status !== 0) {
     throw new Error(`ops:up falhou com codigo ${result.status}.`);
+  }
+  if (result.status === null) {
+    throw new Error('ops:up nao retornou status dentro do timeout de 90s.');
   }
 }
 

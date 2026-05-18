@@ -24,6 +24,9 @@ export default function HomePageClient({ machineId }) {
   const [selectedProvider, setSelectedProvider] = useState(null);
   const [providerMetrics, setProviderMetrics] = useState({});
   const [productSnapshot, setProductSnapshot] = useState<any>(null);
+  const [runtimeReadiness, setRuntimeReadiness] = useState<any>(null);
+  const [runtimeGuidedFixes, setRuntimeGuidedFixes] = useState<any>(null);
+  const [swarmSnapshot, setSwarmSnapshot] = useState<any>(null);
 
   const [versionInfo, setVersionInfo] = useState<any>(null);
   const [updating, setUpdating] = useState(false);
@@ -38,11 +41,14 @@ export default function HomePageClient({ machineId }) {
 
   const fetchData = useCallback(async () => {
     try {
-      const [provRes, modelsRes, metricsRes, versionRes] = await Promise.all([
+      const [provRes, modelsRes, metricsRes, versionRes, readinessRes, guidedFixesRes, swarmRes] = await Promise.all([
         fetch("/api/providers"),
         fetch("/api/models"),
         fetch("/api/provider-metrics"),
         fetch("/api/system/version"),
+        fetch("/api/runtime/readiness"),
+        fetch("/api/runtime/readiness/fixes"),
+        fetch("/api/web/gateway/swarm-v2"),
       ]);
       const productRes = await fetch("/api/productization/protected-runtime?mode=personal&detail=simple");
       if (provRes.ok) {
@@ -65,8 +71,23 @@ export default function HomePageClient({ machineId }) {
         const productData = await productRes.json();
         setProductSnapshot(productData);
       }
+      if (readinessRes.ok) {
+        const readinessData = await readinessRes.json();
+        setRuntimeReadiness(readinessData.runtimeReadinessUx || null);
+      }
+      if (guidedFixesRes.ok) {
+        const guidedFixesData = await guidedFixesRes.json();
+        setRuntimeGuidedFixes(guidedFixesData.runtimeGuidedFixes || null);
+      }
+      if (swarmRes.ok) {
+        const swarmData = await swarmRes.json();
+        setSwarmSnapshot(swarmData);
+      } else {
+        setSwarmSnapshot({ ok: false, swarms: [] });
+      }
     } catch (e) {
       console.log("Error fetching data:", e);
+      setSwarmSnapshot({ ok: false, swarms: [] });
     } finally {
       setLoading(false);
     }
@@ -190,10 +211,69 @@ export default function HomePageClient({ machineId }) {
         detail: "Approvals appear here when a mission needs permission.",
       };
 
+  const readinessTone = runtimeReadiness?.status || "attention";
+  const readinessToneClass =
+    readinessTone === "ready"
+      ? "border-emerald-500/25 bg-emerald-500/[0.08] text-emerald-600 dark:text-emerald-300"
+      : readinessTone === "blocked"
+        ? "border-red-500/25 bg-red-500/[0.08] text-red-600 dark:text-red-300"
+        : "border-amber-500/25 bg-amber-500/[0.08] text-amber-600 dark:text-amber-300";
+  const runtimeReadinessHighlights = (runtimeReadiness?.cards || [])
+    .filter((card) => card.status !== "ready")
+    .concat((runtimeReadiness?.cards || []).filter((card) => card.status === "ready"))
+    .slice(0, 4);
+  const runtimeReadinessActionHref =
+    runtimeReadiness?.primaryAction?.route ||
+    runtimeReadiness?.dashboardProjection?.route ||
+    "/dashboard/health";
+  const runtimeGuidedFixHighlights = (runtimeGuidedFixes?.fixes || []).slice(0, 3);
+  const swarmRuns = Array.isArray(swarmSnapshot?.swarms) ? swarmSnapshot.swarms : [];
+  const activeSwarms = swarmRuns.filter((swarm) => swarm?.status === "running");
+  const latestSwarm = activeSwarms[0] || swarmRuns[0] || null;
+  const latestSwarmRoles = Array.isArray(latestSwarm?.roles) ? latestSwarm.roles : [];
+  const latestSwarmMetrics = latestSwarm?.metrics || null;
+  const swarmTone =
+    swarmSnapshot?.ok === false
+      ? "attention"
+      : activeSwarms.length > 0
+        ? "active"
+        : "ready";
+  const swarmToneClass =
+    swarmTone === "active"
+      ? "border-primary/25 bg-primary/[0.08] text-primary"
+      : swarmTone === "attention"
+        ? "border-amber-500/25 bg-amber-500/[0.08] text-amber-600 dark:text-amber-300"
+        : "border-emerald-500/25 bg-emerald-500/[0.08] text-emerald-600 dark:text-emerald-300";
+  const swarmStatusLabel =
+    swarmTone === "active"
+      ? `${activeSwarms.length} running`
+      : swarmTone === "attention"
+        ? "Unavailable"
+        : "Ready";
+  const swarmStatusDetail =
+    latestSwarm?.objective ||
+    (swarmTone === "attention"
+      ? "Swarm status could not be loaded."
+      : "No multi-agent run is active right now.");
+  const swarmRoleProgress = latestSwarmMetrics
+    ? `${latestSwarmMetrics.completedRoles}/${latestSwarmMetrics.totalRoles} roles`
+    : `${latestSwarmRoles.length} roles`;
+  const swarmBatchProgress = latestSwarmMetrics
+    ? `${latestSwarmMetrics.completedBatchCount}/${latestSwarmMetrics.batchCount} batches`
+    : "queue ready";
+
   const basicStatus = [
     { icon: "psychology", label: "Provider", ...providerSignal, href: "/dashboard/providers" },
     { icon: "shield_lock", label: "Sandbox", ...sandboxSignal, href: "/dashboard/health" },
     { icon: "hub", label: "Channels", ...channelSignal, href: "/dashboard/cli-tools" },
+    {
+      icon: "account_tree",
+      label: "Swarm",
+      value: swarmStatusLabel,
+      tone: swarmTone === "attention" ? "attention" : "ready",
+      detail: swarmStatusDetail,
+      href: "/dashboard/cli-tools",
+    },
     { icon: "verified_user", label: "Approvals", ...approvalsSignal, href: "/dashboard/logs" },
   ];
 
@@ -720,6 +800,115 @@ export default function HomePageClient({ machineId }) {
               preview, ask when it matters, then leave a receipt you can inspect later.
             </p>
 
+            <div className="mt-5 flex flex-col gap-4 rounded-lg border border-border bg-bg-subtle/60 p-4 lg:flex-row lg:items-center lg:justify-between">
+              <div className="min-w-0">
+                <div className="flex flex-wrap items-center gap-2">
+                  <span className={`rounded-full border px-2.5 py-1 text-[11px] font-semibold uppercase tracking-[0.12em] ${readinessToneClass}`}>
+                    {runtimeReadiness?.statusLabel || "Atencao"}
+                  </span>
+                  <p className="text-sm font-semibold text-text-main">
+                    {runtimeReadiness?.headline || "Zavorth readiness is loading."}
+                  </p>
+                </div>
+                <p className="mt-2 text-xs leading-5 text-text-muted">
+                  {runtimeReadiness?.subhead || "Checking provider, dashboard, Telegram, approvals, skills, memory and transaction safety."}
+                </p>
+                {runtimeReadinessHighlights.length > 0 && (
+                  <div className="mt-3 flex flex-wrap gap-2">
+                    {runtimeReadinessHighlights.map((card) => (
+                      <span
+                        key={card.id}
+                        className="rounded-md border border-border bg-surface px-2.5 py-1 text-[11px] font-medium text-text-muted"
+                      >
+                        {card.title}: {card.statusLabel}
+                      </span>
+                    ))}
+                  </div>
+                )}
+                {runtimeGuidedFixHighlights.length > 0 && (
+                  <div className="mt-3 grid gap-2 sm:grid-cols-2">
+                    {runtimeGuidedFixHighlights.map((fix) => (
+                      <div
+                        key={fix.id}
+                        className="min-w-0 rounded-md border border-border bg-surface px-3 py-2"
+                      >
+                        <div className="flex items-center justify-between gap-2">
+                          <p className="truncate text-xs font-semibold text-text-main">{fix.label}</p>
+                          {fix.route && (
+                            <Link
+                              href={fix.route}
+                              className="shrink-0 text-[11px] font-semibold text-primary"
+                            >
+                              Abrir
+                            </Link>
+                          )}
+                        </div>
+                        <p className="mt-1 line-clamp-2 text-[11px] leading-4 text-text-muted">
+                          {fix.summary}
+                        </p>
+                        {fix.command && (
+                          <code className="mt-2 block overflow-hidden text-ellipsis rounded bg-bg-subtle px-2 py-1 text-[10px] text-text-muted">
+                            {fix.command}
+                          </code>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+              <Link
+                href={runtimeReadinessActionHref}
+                className="inline-flex shrink-0 items-center justify-center gap-1.5 rounded-lg border border-border px-3 py-2 text-xs font-semibold text-text-main transition-colors hover:bg-surface"
+              >
+                {runtimeReadiness?.primaryAction?.label || "Ver readiness"}
+                <span className="material-symbols-outlined text-[14px]">arrow_forward</span>
+              </Link>
+            </div>
+
+            <div className="mt-5 rounded-lg border border-border bg-bg-subtle/60 p-4">
+              <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+                <div className="min-w-0">
+                  <div className="flex flex-wrap items-center gap-2">
+                    <div className="flex size-8 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary">
+                      <span className="material-symbols-outlined text-[17px]">account_tree</span>
+                    </div>
+                    <p className="text-sm font-semibold text-text-main">Swarm</p>
+                    <span className={`rounded-full border px-2.5 py-1 text-[11px] font-semibold uppercase tracking-[0.12em] ${swarmToneClass}`}>
+                      {swarmStatusLabel}
+                    </span>
+                  </div>
+                  <p className="mt-2 line-clamp-2 text-xs leading-5 text-text-muted">
+                    {swarmStatusDetail}
+                  </p>
+                </div>
+
+                <div className="flex flex-wrap items-center gap-2 lg:justify-end">
+                  <span className="rounded-md border border-border bg-surface px-2.5 py-1 text-[11px] font-medium text-text-muted">
+                    {swarmRuns.length} total
+                  </span>
+                  <span className="rounded-md border border-border bg-surface px-2.5 py-1 text-[11px] font-medium text-text-muted">
+                    {swarmRoleProgress}
+                  </span>
+                  <span className="rounded-md border border-border bg-surface px-2.5 py-1 text-[11px] font-medium text-text-muted">
+                    {swarmBatchProgress}
+                  </span>
+                  <span className="rounded-md border border-border bg-surface px-2.5 py-1 text-[11px] font-medium text-text-muted">
+                    {latestSwarm?.official ? "official" : "legacy"}
+                  </span>
+                  <span className="rounded-md border border-border bg-surface px-2.5 py-1 text-[11px] font-medium text-text-muted">
+                    {latestSwarm?.swarmId ? `id ${String(latestSwarm.swarmId).slice(0, 8)}` : "no run"}
+                  </span>
+                  <Link
+                    href="/dashboard/cli-tools"
+                    className="inline-flex items-center gap-1.5 rounded-lg border border-border px-3 py-1.5 text-xs font-semibold text-text-muted transition-colors hover:bg-surface hover:text-text-main"
+                  >
+                    Agents
+                    <span className="material-symbols-outlined text-[14px]">arrow_forward</span>
+                  </Link>
+                </div>
+              </div>
+            </div>
+
             <div className="mt-7 rounded-lg border border-primary/15 bg-primary/[0.04] p-4">
               <div className="flex flex-wrap items-center justify-between gap-3">
                 <div>
@@ -926,7 +1115,7 @@ export default function HomePageClient({ machineId }) {
         </summary>
 
         <div className="grid gap-8 border-t border-border p-5 xl:grid-cols-[1.2fr_0.8fr]">
-          <div className="grid gap-3 sm:grid-cols-2 xl:col-span-2 xl:grid-cols-4">
+          <div className="grid gap-3 sm:grid-cols-2 xl:col-span-2 xl:grid-cols-5">
             {basicStatus.map((signal) => (
               <Link
                 key={signal.label}

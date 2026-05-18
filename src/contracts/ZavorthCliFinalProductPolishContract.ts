@@ -43,7 +43,7 @@ export type ZavorthCliFinalProductPolishSnapshot = {
     dashboardPath: '/dashboard';
     inkPreviewRendersOnce: boolean;
     inkInteractiveMode: boolean;
-    hermesInspiredZavorthIdentity: boolean;
+    zavorthNativeCommandIdentity: boolean;
     noInfiniteRenderLoop: boolean;
     englishDefaultCriticalPath: boolean;
     noControlSurfaceByDefault: boolean;

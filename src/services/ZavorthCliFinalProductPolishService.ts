@@ -87,7 +87,7 @@ export class ZavorthCliFinalProductPolishService {
         inkInteractiveMode: files.inkIndex.includes('readline.createInterface')
           && files.inkIndex.includes('/dashboard')
           && files.inkIndex.includes('/exit'),
-        hermesInspiredZavorthIdentity: files.inkIndex.includes('Zavorth Agent OS / Command Runtime')
+        zavorthNativeCommandIdentity: files.inkIndex.includes('Zavorth Agent OS / Command Runtime')
           && files.inkIndex.includes('FOX')
           && files.inkIndex.includes('Subagent Deck')
           && files.inkIndex.includes('Receipt Preview'),
@@ -167,7 +167,8 @@ export class ZavorthCliFinalProductPolishService {
         label: 'Root help exposes real daily commands',
         kind: 'command',
         passed: REQUIRED_COMMANDS.every((command) => files.helpers.includes(command))
-          && files.helpers.includes('Open the main gateway at /dashboard.'),
+          && files.helpers.includes('/dashboard')
+          && (files.helpers.includes('Open Home at /dashboard') || files.helpers.includes('Open the main gateway at /dashboard.')),
         userVisible: true,
         evidence: [...REQUIRED_COMMANDS, '/dashboard'],
       }),
@@ -184,7 +185,7 @@ export class ZavorthCliFinalProductPolishService {
       }),
       this.entry({
         id: 'cli.ink-identity',
-        label: 'Hermes-inspired Zavorth identity',
+        label: 'Zavorth native command identity',
         kind: 'ink',
         passed: files.inkIndex.includes('Zavorth Agent OS / Command Runtime')
           && files.inkIndex.includes('FOX')

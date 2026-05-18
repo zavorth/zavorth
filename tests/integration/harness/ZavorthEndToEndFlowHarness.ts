@@ -218,6 +218,10 @@ export class ZavorthEndToEndFlowHarness {
       },
       opsController: {
         handleStatus: async (ctx: any) => ctx.reply('Status operacional: ok.'),
+        handleReadiness: async (ctx: any) => ctx.reply('Readiness: pronto.'),
+        handleReadinessFixes: async (ctx: any) => ctx.reply('Fixes: nenhum pendente.'),
+        handleReadyToGo: async (ctx: any) => ctx.reply('Ready To Go: pronto.'),
+        handleStayOnline: async (ctx: any) => ctx.reply('Stay Online: monitorando.'),
       },
       capabilityController: {
         handleCommand: async () => false,

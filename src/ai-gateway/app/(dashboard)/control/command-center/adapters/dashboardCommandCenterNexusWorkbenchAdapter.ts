@@ -139,6 +139,7 @@ export function buildNexusWorkbench(input: DashboardCommandCenterAdapterInput): 
   const fallback = asRecord(echoExperience?.fallback);
   const voice = asRecord(echoExperience?.voice);
   const watchMode = asRecord(echoExperience?.watchMode);
+  const operatorExperience = asRecord(raw.operatorExperience);
   const pending = asArray<LooseRecord>(approvals?.pending).slice(0, 8).map((entry, index) => ({
     id: asText(entry.id, `approval-${index + 1}`),
     action: asText(entry.action, "Confirmacao pendente"),
@@ -195,11 +196,49 @@ export function buildNexusWorkbench(input: DashboardCommandCenterAdapterInput): 
   const primary = asText(runtime?.primary, "ZavorthEchoService");
   const status = normalizeStatus(raw);
   const readiness = asRecord(capabilities?.readiness);
+  const operatorTone = normalizeOperatorTone(operatorExperience?.tone, status);
+  const operatorCards = asArray<LooseRecord>(operatorExperience?.cards).slice(0, 6).map((entry, index) => ({
+    id: asText(entry.id, `nexus-operator-card-${index + 1}`),
+    label: asText(entry.label, "Estado"),
+    value: asText(entry.value, "sem leitura"),
+    tone: normalizeOperatorTone(entry.tone),
+    detail: asText(entry.detail, "Sem detalhe publicado."),
+  }));
 
   return {
     status,
     headline: buildWorkbenchHeadline(raw, status),
     generatedAt: formatTimestamp(raw.generatedAt),
+    operatorExperience: {
+      statusLabel: asText(operatorExperience?.statusLabel)
+        || humanStatusForOperator(status),
+      tone: operatorTone,
+      primaryMessage: asText(operatorExperience?.primaryMessage)
+        || buildWorkbenchHeadline(raw, status),
+      nextStep: asText(operatorExperience?.nextStep)
+        || asText(capabilities?.nextAction)
+        || "Nenhuma acao pendente.",
+      cards: operatorCards.length > 0 ? operatorCards : [
+        {
+          id: "runtime",
+          label: "Runtime",
+          value: normalizeRuntimeLabel(primary),
+          tone: status === "fallback" ? "fallback" : "ok",
+          detail: runtime?.agentGatewayAvailable === true
+            ? "Agent Gateway disponivel."
+            : "Fallback Echo visivel para o operador.",
+        },
+        {
+          id: "approvals",
+          label: "Approvals",
+          value: pending.length > 0 ? `${pending.length} pendente(s)` : "Livre",
+          tone: pending.length > 0 ? "decision" : "ok",
+          detail: pending.length > 0
+            ? "Resolva as confirmacoes antes de prosseguir."
+            : "Nenhuma confirmacao pendente.",
+        },
+      ],
+    },
     runtime: {
       primary,
       primaryLabel: normalizeRuntimeLabel(primary),
@@ -265,4 +304,27 @@ function normalizeActionKind(value: unknown): DashboardNexusWorkbenchSnapshot["a
     return raw;
   }
   return "unknown";
+}
+
+function normalizeOperatorTone(
+  value: unknown,
+  fallbackStatus?: DashboardNexusWorkbenchSnapshot["status"],
+): DashboardNexusWorkbenchSnapshot["operatorExperience"]["tone"] {
+  const raw = asText(value).toLowerCase();
+  if (raw === "ok" || raw === "attention" || raw === "warning" || raw === "decision" || raw === "fallback") {
+    return raw;
+  }
+  if (fallbackStatus === "ready") return "ok";
+  if (fallbackStatus === "needs-confirmation") return "decision";
+  if (fallbackStatus === "fallback") return "fallback";
+  if (fallbackStatus === "degraded") return "warning";
+  return "attention";
+}
+
+function humanStatusForOperator(status: DashboardNexusWorkbenchSnapshot["status"]): string {
+  if (status === "ready") return "Pronto";
+  if (status === "needs-confirmation") return "Aguardando decisao";
+  if (status === "fallback") return "Fallback seguro";
+  if (status === "degraded") return "Atencao";
+  return "Offline";
 }

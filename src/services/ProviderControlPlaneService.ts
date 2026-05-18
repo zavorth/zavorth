@@ -22,6 +22,7 @@ import {
   ModelSelectionService,
   type ModelSelectionServiceResult,
 } from './providers/catalog/ModelSelectionService.js';
+import { ZavorthProviderLiveProofStoreService } from './ZavorthProviderLiveProofStoreService.js';
 
 export type ProviderCatalogMode = 'cloud' | 'local' | 'hybrid' | 'alias';
 export type ProviderCatalogVisibility = 'public' | 'advanced';
@@ -794,6 +795,9 @@ export class ProviderControlPlaneService {
       MINIMAX_API_KEY: Boolean(config.minimaxApiKey),
       PUTER_AUTH_TOKEN: Boolean(config.puterAuthToken),
       OPENROUTER_API_KEY: Boolean(config.openRouterApiKey),
+      GROQ_API_KEY: Boolean(process.env.GROQ_API_KEY),
+      HUGGINGFACE_API_KEY: Boolean(process.env.HUGGINGFACE_API_KEY || process.env.HF_TOKEN),
+      ELEVENLABS_API_KEY: Boolean(process.env.ELEVENLABS_API_KEY || process.env.XI_API_KEY),
       OPENCODE_API_KEY: Boolean(config.openCodeApiKey),
       DEEPGRAM_API_KEY: Boolean(config.deepgramApiKey),
       ANTHROPIC_API_KEY: Boolean(this.readConfigString('anthropicApiKey') || process.env.ANTHROPIC_API_KEY),
@@ -808,15 +812,19 @@ export class ProviderControlPlaneService {
     return {
       AIGateway_BASE_URL: String(config.AIGatewayBaseUrl || '').trim(),
       AIGateway_UPSTREAM_BASE_URL: String(config.AIGatewayUpstreamBaseUrl || '').trim(),
+      GROQ_BASE_URL: String(process.env.GROQ_BASE_URL || '').trim(),
+      HUGGINGFACE_BASE_URL: String(process.env.HUGGINGFACE_BASE_URL || '').trim(),
+      ELEVENLABS_BASE_URL: String(process.env.ELEVENLABS_BASE_URL || '').trim(),
       CUSTOM_OPENAI_COMPATIBLE_BASE_URL: String(process.env.CUSTOM_OPENAI_COMPATIBLE_BASE_URL || '').trim(),
       OLLAMA_BASE_URL: String(process.env.OLLAMA_BASE_URL || '').trim(),
     };
   }
 
   private buildRouteHealth(): Record<string, AccessRouteHealthInput> {
+    const providerHealth = new ZavorthProviderLiveProofStoreService().readFreshHealthMap();
     const AIGatewayBaseUrl = String(config.AIGatewayBaseUrl || '').trim();
     if (!AIGatewayBaseUrl) {
-      return {};
+      return providerHealth;
     }
 
     const AIGatewayGatewayStatus = this.readAIGatewayGatewayStatus();
@@ -846,6 +854,7 @@ export class ProviderControlPlaneService {
         };
 
     return {
+      ...providerHealth,
       AIGateway: health,
       aigateway: health,
       'ai-gateway': health,

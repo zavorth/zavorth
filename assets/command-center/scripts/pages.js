@@ -280,6 +280,28 @@
                 <div class="info-row"><span class="info-row__label">Fallback</span><span class="info-row__value mono">not configured</span></div>
               </div>
             </div>
+            <div class="config-form-section"><span class="config-form-section__title">Provider & Model Catalog</span>
+              <div class="info-grid" data-provider-model-catalog-summary>
+                <div class="info-row"><span class="info-row__label">Routes</span><span class="info-row__value mono">loading</span></div>
+                <div class="info-row"><span class="info-row__label">Live</span><span class="info-row__value mono">loading</span></div>
+                <div class="info-row"><span class="info-row__label">Models</span><span class="info-row__value mono">loading</span></div>
+                <div class="info-row"><span class="info-row__label">Media</span><span class="info-row__value mono">loading</span></div>
+              </div>
+              <div class="card-grid" data-provider-model-catalog-list style="margin-top:12px">
+                <div class="entity-card"><div class="entity-card__header"><div><div class="entity-card__name">Catalog loading</div><div class="entity-card__id">read-only</div></div><span class="badge badge--info"><span class="badge__dot"></span>Waiting</span></div><div class="entity-card__desc">Provider routes, model surface and live proof will appear here without hidden provider calls.</div></div>
+              </div>
+            </div>
+            <div class="config-form-section"><span class="config-form-section__title">Provider Activation</span>
+              <div class="info-grid" data-provider-activation-summary>
+                <div class="info-row"><span class="info-row__label">Execution</span><span class="info-row__value mono">loading</span></div>
+                <div class="info-row"><span class="info-row__label">Proof</span><span class="info-row__value mono">loading</span></div>
+                <div class="info-row"><span class="info-row__label">Adapters</span><span class="info-row__value mono">loading</span></div>
+                <div class="info-row"><span class="info-row__label">Connectors</span><span class="info-row__value mono">loading</span></div>
+              </div>
+              <div class="card-grid" data-provider-activation-list style="margin-top:12px">
+                <div class="entity-card"><div class="entity-card__header"><div><div class="entity-card__name">Activation loading</div><div class="entity-card__id">read-only</div></div><span class="badge badge--info"><span class="badge__dot"></span>Waiting</span></div><div class="entity-card__desc">Activation status, live-proof commands and connector gaps will appear here without hidden live calls.</div></div>
+              </div>
+            </div>
           </div>
         </div>
       </div>

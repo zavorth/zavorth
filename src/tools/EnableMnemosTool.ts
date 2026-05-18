@@ -22,6 +22,10 @@ export class EnableMnemosTool extends BaseTool {
         type: 'string',
         description: 'Caminhos absolutos das pastas onde o Mnemos poderá vasculhar (separados por ponto e vírgula). Se o usuário não disser, avise que você usará a pasta raiz deste projeto ou pergunte qual ele prefere (ex: pasta Downloads).',
       },
+      wide_scope_confirmed: {
+        type: 'boolean',
+        description: 'Obrigatorio como true quando scan_dirs aponta para o PC inteiro, raiz do disco, /, C:\\ ou outro escopo amplo. Use somente depois de mostrar aviso e receber confirmacao explicita.',
+      },
     },
     required: ['vault_dir', 'scan_dirs'],
   };
@@ -76,6 +80,8 @@ export class EnableMnemosTool extends BaseTool {
   public async execute(args: Record<string, unknown>): Promise<string> {
     const rawVaultDir = String(args.vault_dir || '').trim();
     const rawScanDirs = String(args.scan_dirs || '').trim();
+    const wideScopeConfirmed = args.wide_scope_confirmed === true
+      || String(args.wide_scope_confirmed || '').trim().toLowerCase() === 'true';
 
     const vaultDir = rawVaultDir
       ? this.resolveSmartPath(rawVaultDir)
@@ -94,6 +100,17 @@ export class EnableMnemosTool extends BaseTool {
       return [
         'Erro: informe pelo menos uma pasta autorizada em scan_dirs.',
         'Exemplo: Downloads ou C:\\Users\\ermys\\Downloads',
+      ].join('\n');
+    }
+
+    const wideScopeDirs = scanDirList.filter((entry) => this.isWideScopePath(entry));
+    if (wideScopeDirs.length > 0 && !wideScopeConfirmed) {
+      return [
+        'BLOQUEADO: o escopo solicitado permite busca ampla demais pelo computador.',
+        `Escopo amplo detectado: ${wideScopeDirs.join('; ')}`,
+        '',
+        'Isso pode expor documentos pessoais, credenciais, exports de navegador, fotos, arquivos financeiros e dados de projetos sem relacao com a pergunta.',
+        'Mostre esse aviso ao usuario e so execute novamente com wide_scope_confirmed=true se ele confirmar explicitamente.',
       ].join('\n');
     }
 
@@ -166,5 +183,16 @@ export class EnableMnemosTool extends BaseTool {
     output.push('[SUCESSO] O Mnemos foi instalado e configurado! Reinicie o Zavorth ou recarregue o servidor MCP "mnemos" para conectar as ferramentas.');
 
     return output.join('\n');
+  }
+
+  private isWideScopePath(inputPath: string): boolean {
+    const resolved = path.resolve(inputPath);
+    const root = path.parse(resolved).root;
+    if (root && resolved.toLowerCase() === root.toLowerCase()) {
+      return true;
+    }
+    const normalized = resolved.replace(/[\\/]+$/g, '').toLowerCase();
+    const home = os.homedir().replace(/[\\/]+$/g, '').toLowerCase();
+    return normalized === home;
   }
 }

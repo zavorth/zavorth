@@ -89,6 +89,10 @@ function createTelegramGateway(sharedSurfaceCommandService: any) {
   };
   gateway.opsController = {
     handleStatus: jest.fn(),
+    handleReadiness: jest.fn(),
+    handleReadinessFixes: jest.fn(),
+    handleReadyToGo: jest.fn(),
+    handleStayOnline: jest.fn(),
   };
   gateway.capabilityController = {
     handleCommand: jest.fn().mockResolvedValue(false),

@@ -8,6 +8,7 @@ import type {
   SystemOverlordActionRequest,
   SystemOverlordApprovalDecision,
 } from '../../contracts/SystemOverlordContract.js';
+import { redactSensitiveData, redactSensitiveText } from '../../security/SensitiveDataGuard.js';
 
 type BuildRecordInput = {
   actionId: string;
@@ -41,38 +42,42 @@ export class SupervisedExecutionGatewayRecordBuilder {
   public buildRecord(input: BuildRecordInput): SystemOverlordActionRecord {
     const updatedAt = new Date().toISOString();
     const existingLifecycle = this.readExistingLifecycle(input.actionId);
+    const request = this.sanitizeRequest(input.request);
+    const command = this.sanitizeText(input.command);
+    const workspace = this.sanitizeText(input.workspace);
+    const errorMessage = this.sanitizeText(input.errorMessage);
     const nextLifecycle = this.buildActionLifecycleRecord({
       actionId: input.actionId,
-      request: input.request,
+      request,
       status: input.status,
       decision: input.decision,
-      command: input.command,
-      workspace: input.workspace,
+      command,
+      workspace,
       errorCode: input.errorCode || null,
-      errorMessage: input.errorMessage || null,
+      errorMessage,
       createdAt: input.createdAt,
       updatedAt,
     });
     return {
       actionId: input.actionId,
-      runId: input.request.runId || null,
-      requestedBy: input.request.requestedBy || null,
-      surface: input.request.surface || null,
+      runId: request.runId || null,
+      requestedBy: request.requestedBy || null,
+      surface: request.surface || null,
       createdAt: input.createdAt,
       updatedAt,
       status: input.status,
-      request: input.request,
+      request,
       decision: input.decision,
-      command: input.command,
-      workspace: input.workspace,
-      stdout: input.stdout || null,
-      stderr: input.stderr || null,
+      command,
+      workspace,
+      stdout: this.sanitizeText(input.stdout),
+      stderr: this.sanitizeText(input.stderr),
       exitCode: input.status === 'completed' ? 0 : null,
       errorCode: input.errorCode || null,
-      errorMessage: input.errorMessage || null,
+      errorMessage,
       rollbackAvailable: Boolean(input.rollbackAvailable),
       metadata: {
-        ...(input.metadata || {}),
+        ...this.sanitizeMetadata(input.metadata),
         execution_lifecycle: this.appendLifecycleRecords(existingLifecycle, nextLifecycle),
       },
     };
@@ -88,24 +93,24 @@ export class SupervisedExecutionGatewayRecordBuilder {
       updatedAt,
       requestedBy: input.requestedBy,
       status: input.status,
-      stdout: input.stdout !== undefined ? input.stdout : action.stdout,
-      stderr: input.stderr !== undefined ? input.stderr : action.stderr,
+      stdout: input.stdout !== undefined ? this.sanitizeText(input.stdout) : this.sanitizeText(action.stdout),
+      stderr: input.stderr !== undefined ? this.sanitizeText(input.stderr) : this.sanitizeText(action.stderr),
       errorCode: input.errorCode,
-      errorMessage: input.reason,
+      errorMessage: this.sanitizeText(input.reason),
       metadata: {
-        ...(action.metadata || {}),
-        ...(input.metadata || {}),
+        ...this.sanitizeMetadata(action.metadata),
+        ...this.sanitizeMetadata(input.metadata),
         execution_lifecycle: this.appendLifecycleRecords(
           (action.metadata as Record<string, unknown> | undefined)?.execution_lifecycle,
           this.buildActionLifecycleRecord({
             actionId: action.actionId,
-            request: action.request,
+            request: this.sanitizeRequest(action.request),
             status: input.status,
             decision: action.decision,
-            command: action.command,
-            workspace: action.workspace,
+            command: this.sanitizeText(action.command),
+            workspace: this.sanitizeText(action.workspace),
             errorCode: input.errorCode,
-            errorMessage: input.reason,
+            errorMessage: this.sanitizeText(input.reason),
             createdAt: action.createdAt,
             updatedAt,
           }),
@@ -128,18 +133,18 @@ export class SupervisedExecutionGatewayRecordBuilder {
     );
     const nextLifecycle = this.buildActionLifecycleRecord({
       actionId: input.action.actionId,
-      request: input.action.request,
+      request: this.sanitizeRequest(input.action.request),
       status: input.action.status,
       decision: input.action.decision,
-      command: input.action.command,
-      workspace: input.action.workspace,
+      command: this.sanitizeText(input.action.command),
+      workspace: this.sanitizeText(input.action.workspace),
       errorCode: input.decision === 'reject' ? 'approval_rejected' : input.action.errorCode,
-      errorMessage: input.decision === 'reject' ? reason : input.action.errorMessage,
+      errorMessage: input.decision === 'reject' ? this.sanitizeText(reason) : this.sanitizeText(input.action.errorMessage),
       createdAt: input.action.createdAt,
       updatedAt: decidedAt,
       overrideKind: 'approval',
       overrideStatus: input.decision === 'approve' ? 'approved' : 'blocked',
-      overrideSummary: reason,
+      overrideSummary: this.sanitizeText(reason),
     });
     return {
       ...input.action,
@@ -147,9 +152,14 @@ export class SupervisedExecutionGatewayRecordBuilder {
       status: input.decision === 'reject' ? 'rejected' : input.action.status,
       requestedBy: String(input.requestedBy || '').trim() || input.action.requestedBy || input.action.request.requestedBy || null,
       errorCode: input.decision === 'reject' ? 'approval_rejected' : input.action.errorCode,
-      errorMessage: input.decision === 'reject' ? reason : input.action.errorMessage,
+      errorMessage: input.decision === 'reject' ? this.sanitizeText(reason) : this.sanitizeText(input.action.errorMessage),
+      command: this.sanitizeText(input.action.command),
+      workspace: this.sanitizeText(input.action.workspace),
+      stdout: this.sanitizeText(input.action.stdout),
+      stderr: this.sanitizeText(input.action.stderr),
+      request: this.sanitizeRequest(input.action.request),
       metadata: {
-        ...(input.action.metadata || {}),
+        ...this.sanitizeMetadata(input.action.metadata),
         execution_lifecycle: this.appendLifecycleRecords(
           (input.action.metadata as Record<string, unknown> | undefined)?.execution_lifecycle,
           nextLifecycle,
@@ -158,7 +168,7 @@ export class SupervisedExecutionGatewayRecordBuilder {
           decision: input.decision,
           decidedAt,
           decidedBy: String(input.requestedBy || '').trim() || null,
-          reason,
+          reason: this.sanitizeText(reason),
           previousStatus: input.action.status,
         },
       },
@@ -304,5 +314,21 @@ export class SupervisedExecutionGatewayRecordBuilder {
       }
     }
     return null;
+  }
+
+  private sanitizeText(value: string | null | undefined): string | null {
+    if (value === null || value === undefined) {
+      return null;
+    }
+    const redacted = redactSensitiveText(value);
+    return redacted || null;
+  }
+
+  private sanitizeRequest(request: SystemOverlordActionRequest): SystemOverlordActionRequest {
+    return redactSensitiveData(request) as SystemOverlordActionRequest;
+  }
+
+  private sanitizeMetadata(metadata: Record<string, unknown> | undefined): Record<string, unknown> {
+    return (redactSensitiveData(metadata || {}) || {}) as Record<string, unknown>;
   }
 }

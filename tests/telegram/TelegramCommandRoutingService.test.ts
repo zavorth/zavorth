@@ -8,6 +8,12 @@ describe('TelegramCommandRoutingService', () => {
       },
       opsController: {
         handleStatus: jest.fn().mockResolvedValue(undefined),
+        handleReadiness: jest.fn().mockResolvedValue(undefined),
+        handleReadinessFixes: jest.fn().mockResolvedValue(undefined),
+        handleReadyToGo: jest.fn().mockResolvedValue(undefined),
+        handleStayOnline: jest.fn().mockResolvedValue(undefined),
+        handleExternalAgentOnboarding: jest.fn().mockResolvedValue(undefined),
+        handleExternalAgentGateway: jest.fn().mockResolvedValue(undefined),
         handleCapabilities: jest.fn().mockResolvedValue(undefined),
         handleIntegrations: jest.fn().mockResolvedValue(undefined),
         handleDemo: jest.fn().mockResolvedValue(undefined),
@@ -240,6 +246,132 @@ describe('TelegramCommandRoutingService', () => {
 
     expect(handled).toBe(true);
     expect(deps.opsController.handleDashboard).toHaveBeenCalled();
+  });
+
+  it('routes readiness guided fixes on Telegram surfaces', async () => {
+    const { deps, service } = createService();
+
+    const handled = await service.dispatchPrivateCommand(
+      { chat: { type: 'private' } } as any,
+      {
+        command_type: '/fixes',
+        command_args: '',
+      } as any,
+      '/fixes',
+      '42',
+    );
+
+    expect(handled).toBe(true);
+    expect(deps.opsController.handleReadinessFixes).toHaveBeenCalled();
+  });
+
+  it('routes Ready To Go on Telegram surfaces', async () => {
+    const { deps, service } = createService();
+
+    const handled = await service.dispatchPrivateCommand(
+      { chat: { type: 'private' } } as any,
+      {
+        command_type: '/ready',
+        command_args: '',
+      } as any,
+      '/ready',
+      '42',
+    );
+
+    expect(handled).toBe(true);
+    expect(deps.opsController.handleReadyToGo).toHaveBeenCalled();
+  });
+
+  it('routes Stay Online on Telegram surfaces', async () => {
+    const { deps, service } = createService();
+
+    const privateHandled = await service.dispatchPrivateCommand(
+      { chat: { type: 'private' } } as any,
+      {
+        command_type: '/stayonline',
+        command_args: '',
+      } as any,
+      '/stayonline',
+      '42',
+    );
+    const groupHandled = await service.dispatchGroupCommand(
+      {} as any,
+      '/stayonline',
+      '',
+    );
+
+    expect(privateHandled).toBe(true);
+    expect(groupHandled).toBe(true);
+    expect(deps.opsController.handleStayOnline).toHaveBeenCalledTimes(2);
+  });
+
+  it('routes External Agent Onboarding on Telegram surfaces', async () => {
+    const { deps, service } = createService();
+
+    const privateHandled = await service.dispatchPrivateCommand(
+      { chat: { type: 'private' } } as any,
+      {
+        command_type: '/agentonboarding',
+        command_args: 'path C:/agents/demo consent',
+      } as any,
+      '/agentonboarding path C:/agents/demo consent',
+      '42',
+    );
+    const groupHandled = await service.dispatchGroupCommand(
+      {} as any,
+      '/agentonboarding',
+      'command claude consent',
+    );
+
+    expect(privateHandled).toBe(true);
+    expect(groupHandled).toBe(true);
+    expect(deps.opsController.handleExternalAgentOnboarding).toHaveBeenCalledTimes(2);
+  });
+
+  it('routes External Agent Gateway on Telegram surfaces', async () => {
+    const { deps, service } = createService();
+
+    const privateHandled = await service.dispatchPrivateCommand(
+      { chat: { type: 'private' } } as any,
+      {
+        command_type: '/externalagent',
+        command_args: 'run fixture -- ping approve',
+      } as any,
+      '/externalagent run fixture -- ping approve',
+      '42',
+    );
+    const groupHandled = await service.dispatchGroupCommand(
+      {} as any,
+      '/externalagent',
+      'list',
+    );
+
+    expect(privateHandled).toBe(true);
+    expect(groupHandled).toBe(true);
+    expect(deps.opsController.handleExternalAgentGateway).toHaveBeenCalledTimes(2);
+  });
+
+  it('routes readiness commands to the ops controller across private and group chats', async () => {
+    const { deps, service } = createService();
+
+    const privateHandled = await service.dispatchPrivateCommand(
+      { chat: { type: 'private' } } as any,
+      {
+        command_type: '/readiness',
+        command_args: '',
+      } as any,
+      '/readiness',
+      '42',
+    );
+    const groupHandled = await service.dispatchGroupCommand(
+      {} as any,
+      '/readiness',
+      '',
+    );
+
+    expect(privateHandled).toBe(true);
+    expect(groupHandled).toBe(true);
+    expect(deps.opsController.handleReadiness).toHaveBeenCalledTimes(2);
   });
 
   it('routes private /access commands to the ops controller', async () => {

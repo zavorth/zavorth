@@ -96,6 +96,10 @@ export async function preDispatchSharedSurfaceCommand(
     return { kind: 'handled' };
   }
 
+  if (isNaturalText && await deps.taskVariationCommandPack.maybeHandle(ctx, rawText)) {
+    return { kind: 'handled' };
+  }
+
   if (await deps.naturalMeshCommandPack.maybeHandle(ctx, rawText)) {
     return { kind: 'handled' };
   }
@@ -124,10 +128,6 @@ export async function preDispatchSharedSurfaceCommand(
   }
 
   if (isNaturalText && await deps.taskControlCommandPack.maybeHandleNaturalTaskApproval(ctx, rawText)) {
-    return { kind: 'handled' };
-  }
-
-  if (isNaturalText && await deps.taskVariationCommandPack.maybeHandle(ctx, rawText)) {
     return { kind: 'handled' };
   }
 

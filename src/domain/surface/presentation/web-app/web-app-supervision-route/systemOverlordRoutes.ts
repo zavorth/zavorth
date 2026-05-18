@@ -1,4 +1,5 @@
 import {
+  buildWebOperatorApprovalSafety,
   isSystemOverlordCapability,
   normalizeSystemOverlordAutonomyLevel,
 } from './helpers.js';
@@ -73,6 +74,7 @@ export const handleSystemOverlordRoutes: WebAppSupervisionRouteHandler = async (
       deps.writeJson(res, { ok: false, error: 'capability invalida ou ausente.' }, 400);
       return true;
     }
+    const approvalSafety = buildWebOperatorApprovalSafety(ctx, body);
     const result = await service.executeAction({
       actionId: String(body.actionId || '').trim() || null,
       runId: String(body.runId || '').trim() || null,
@@ -84,12 +86,12 @@ export const handleSystemOverlordRoutes: WebAppSupervisionRouteHandler = async (
       command: String(body.command || '').trim() || null,
       workspace: String(body.workspace || '').trim() || null,
       objective: String(body.objective || '').trim() || null,
-      approved: body.approved === true,
-      dryRun: body.dryRun === true,
+      approved: approvalSafety.operatorApprovalAccepted,
+      dryRun: body.dryRun === true || approvalSafety.bodyApprovalIgnored,
       timeoutMs: Number(body.timeoutMs || 0) || null,
       metadata: body.metadata && typeof body.metadata === 'object' ? body.metadata : null,
     });
-    deps.writeJson(res, { ok: true, ...result }, 200);
+    deps.writeJson(res, { ok: true, ...result, safety: approvalSafety }, 200);
     return true;
   }
 

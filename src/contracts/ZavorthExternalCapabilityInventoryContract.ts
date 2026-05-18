@@ -1,4 +1,5 @@
 import type {
+  ZAVORTH_EXTERNAL_RUNTIME_BRIDGE_CONTRACT_VERSION,
   ZavorthExternalRuntimeBridgePhase,
   ZavorthExternalRuntimeCapabilityId,
   ZavorthExternalRuntimeDecision,
@@ -8,7 +9,7 @@ import type {
 
 export type ZavorthExternalCapabilityInventoryProbeRuntimeId =
   | ZavorthExternalRuntimeSourceRuntimeId
-  | 'openclaw-wsl';
+  | 'acp-compatibility-fixture';
 
 export const ZAVORTH_EXTERNAL_CAPABILITY_INVENTORY_CONTRACT_VERSION =
   'zavorth-external-capability-inventory/0' as const;
@@ -95,7 +96,7 @@ export type ZavorthExternalCapabilityInventorySnapshot = {
   status: ZavorthExternalCapabilityInventoryStatus;
   planId: '291 - Plano Zavorth External Runtime Absorption';
   phase: 'phase-0-freeze-and-inventory';
-  bridgeContractVersion: 'natural-first-external-runtime-bridge/10';
+  bridgeContractVersion: typeof ZAVORTH_EXTERNAL_RUNTIME_BRIDGE_CONTRACT_VERSION;
   bridgeStatus: 'bridge-ready' | 'attention' | 'blocked';
   sourceProbes: ZavorthExternalCapabilityInventorySourceProbe[];
   items: ZavorthExternalCapabilityInventoryItem[];

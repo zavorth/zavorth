@@ -86,7 +86,8 @@ function ruleContainsMarkers() {
       'zavorth schedule',
       'zavorth skills',
       'zavorth agents',
-      'Open the main gateway at /dashboard.',
+      '/dashboard',
+      'Open Home at /dashboard',
     ]],
   ];
   const missing = [];

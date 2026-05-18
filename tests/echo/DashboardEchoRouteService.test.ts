@@ -574,6 +574,12 @@ describe('DashboardEchoRouteService', () => {
           primary: 'ZavorthEchoService',
           echoFallbackAvailable: true,
         }),
+        operatorExperience: expect.objectContaining({
+          statusLabel: expect.any(String),
+          primaryMessage: expect.any(String),
+          nextStep: expect.any(String),
+          cards: expect.any(Array),
+        }),
         approvals: expect.objectContaining({
           pendingCount: 1,
         }),

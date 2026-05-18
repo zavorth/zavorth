@@ -512,7 +512,7 @@ export class AudioHandler {
     const baseLanguage = normalizedLanguage.split('-')[0];
     const configuredVoice =
       baseLanguage === 'en'
-        ? String(config.ttsVoiceEnglish || '').trim()
+        ? String(config.ttsVoiceEnglish || config.ttsVoice || '').trim()
         : baseLanguage === 'es'
           ? String(config.ttsVoiceSpanish || '').trim()
           : String(config.ttsVoice || '').trim();

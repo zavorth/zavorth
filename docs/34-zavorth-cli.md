@@ -59,6 +59,9 @@ zavorth demo browser
 zavorth connectors doctor
 zavorth connectors setup telegram --apply --allowed-user=<id>
 zavorth connectors setup discord --apply --guild=<id> --channel=<id> --owner=<id>
+zavorth ready
+zavorth stay-online
+zavorth readiness
 zavorth status
 zavorth doctor
 zavorth templates
@@ -93,11 +96,15 @@ zavorth templates --json
 zavorth missions --json
 zavorth receipts --json
 zavorth providers --json
+zavorth readiness --json
 ```
 
 ## Daily Product Commands
 
 ```bash
+zavorth ready
+zavorth stay-online
+zavorth readiness
 zavorth templates
 zavorth missions --template=dev-repo-review
 zavorth receipts --advanced
@@ -109,6 +116,39 @@ These commands expose the same protected runtime projection that the Dashboard
 can consume: product mode, first-run journey, mission status, sandbox fallback,
 approval posture and visual receipts. They do not execute Dashboard actions
 by themselves.
+
+## Runtime Readiness
+
+```bash
+zavorth ready
+zavorth ready --offline
+zavorth stay-online
+zavorth stay-online --watch
+zavorth stay-online --watch --notify-telegram
+zavorth readiness
+zavorth readiness --json
+zavorth readiness --technical
+npm run zavorth:runtime-readiness
+npm run zavorth:runtime-readiness:check
+```
+
+`ready` is Zavorth Ready To Go: the launch guard before leaving the PC. It is
+provider-agnostic, validates the active provider plus configured fallbacks, and
+returns one verdict for remote use. By default it may run explicit safe provider
+probes; `--offline` uses stored evidence only.
+
+`readiness` is the daily operator gate. It checks the natural-first runtime,
+provider mesh, Dashboard, Telegram, approvals, transaction plane, skill imports
+and memory continuity in one read-only report. `attention` means Zavorth can be
+usable with a setup gap; `blocked` means a required safety contract failed.
+The default view is human-first (`Pronto`, `Atencao`, `Bloqueado`) with a next
+safe action. Use `--technical` for the diagnostic form with check ids and
+evidence markers.
+
+`stay-online` is the watchdog after `ready`: it keeps checking Ready To Go plus
+the supervised keepalive snapshot. `--watch` keeps it running; add
+`--notify-telegram` when Telegram env vars are configured and you want remote
+alerts while away from the PC.
 
 ## Provider Readiness
 

@@ -1,9 +1,9 @@
 export const ZAVORTH_EXTERNAL_RUNTIME_BRIDGE_CONTRACT_VERSION =
-  'natural-first-external-runtime-bridge/10' as const;
+  'natural-first-universal-external-runtime-bridge/11' as const;
 
 export type ZavorthExternalRuntimeSourceRuntimeId =
-  | 'hermes'
-  | 'openclaw';
+  | 'reference-runtime'
+  | 'acp-compatible-sidecar';
 
 export type ZavorthExternalRuntimeBridgeStatus =
   | 'bridge-ready'
@@ -51,7 +51,7 @@ export type ZavorthExternalRuntimeNaturalFirstRoute =
 export type ZavorthExternalRuntimeSourceRuntimeDescriptor = {
   id: ZavorthExternalRuntimeSourceRuntimeId;
   label: string;
-  role: 'reference-runtime' | 'optional-sidecar' | 'capability-source';
+  role: 'architecture-reference' | 'optional-compatibility-fixture' | 'capability-source';
   quarantine: {
     diagnosticsOnly: true;
     publicIdentityAllowed: false;
@@ -112,6 +112,8 @@ export type ZavorthExternalRuntimeBridgeSnapshot = {
   publicIdentityPolicy: {
     publicAgentName: 'Zavorth';
     externalRuntimeNamesQuarantinedToDiagnostics: true;
+    noDefaultExternalRuntimeBranding: true;
+    compatibilityFixturesAreOptional: true;
     noSourceRuntimeCanonicalFields: true;
     commandCenterMayShowAdapterDetailsOnly: true;
   };
@@ -140,6 +142,9 @@ export type ZavorthExternalRuntimeBridgeSnapshot = {
   }>;
   policy: {
     zavorthRemainsOnlyKernel: true;
+    acpSupportIsProviderAgnostic: true;
+    noDefaultNamedCompatibilityBridge: true;
+    noDefaultNamedExternalRuntime: true;
     externalRuntimeIsAdvisoryUntilNormalized: true;
     approvalEnvelopeRequiredForRiskyContinuation: true;
     importedMemoryRequiresProvenance: true;

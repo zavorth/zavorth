@@ -21,9 +21,9 @@ const SURFACES: Array<'web' | 'cli' | 'telegram' | 'api'> = ['web', 'cli', 'tele
 
 const SOURCE_RUNTIMES: ZavorthExternalRuntimeSourceRuntimeDescriptor[] = [
   {
-    id: 'hermes',
-    label: 'Hermes reference runtime',
-    role: 'reference-runtime',
+    id: 'reference-runtime',
+    label: 'Architecture reference runtime fixture',
+    role: 'architecture-reference',
     quarantine: {
       diagnosticsOnly: true,
       publicIdentityAllowed: false,
@@ -43,9 +43,9 @@ const SOURCE_RUNTIMES: ZavorthExternalRuntimeSourceRuntimeDescriptor[] = [
     ],
   },
   {
-    id: 'openclaw',
-    label: 'OpenClaw channel and worker reference',
-    role: 'optional-sidecar',
+    id: 'acp-compatible-sidecar',
+    label: 'ACP-compatible sidecar fixture',
+    role: 'optional-compatibility-fixture',
     quarantine: {
       diagnosticsOnly: true,
       publicIdentityAllowed: false,
@@ -70,8 +70,8 @@ const BRIDGE_CANDIDATES: ZavorthExternalRuntimeCandidate[] = [
   candidate({
     id: 'external-capability-inventory',
     label: 'External Capability Inventory',
-    sourceRuntimeIds: ['hermes', 'openclaw'],
-    sourcePattern: 'catalog skills, tools, channels, workers, sessions, health, and policies as evidence only',
+    sourceRuntimeIds: ['reference-runtime', 'acp-compatible-sidecar'],
+    sourcePattern: 'catalog capabilities, tools, channels, workers, sessions, health, and policies as provider-agnostic evidence only',
     decision: 'adapt',
     phase: 'phase-0-inventory',
     priority: 1,
@@ -91,7 +91,7 @@ const BRIDGE_CANDIDATES: ZavorthExternalRuntimeCandidate[] = [
   candidate({
     id: 'external-runtime-readonly-probe',
     label: 'External Runtime Read-Only Probe',
-    sourceRuntimeIds: ['hermes', 'openclaw'],
+    sourceRuntimeIds: ['reference-runtime', 'acp-compatible-sidecar'],
     sourcePattern: 'health, version, channel/session summaries, and degraded state probes',
     decision: 'externalize',
     phase: 'phase-3-sidecar-adapter',
@@ -112,7 +112,7 @@ const BRIDGE_CANDIDATES: ZavorthExternalRuntimeCandidate[] = [
   candidate({
     id: 'error-classifier',
     label: 'Zavorth Error Classifier',
-    sourceRuntimeIds: ['hermes'],
+    sourceRuntimeIds: ['reference-runtime'],
     sourcePattern: 'classify provider, terminal, permission, context, billing, rate-limit, and syntax failures',
     decision: 'absorb',
     phase: 'phase-2-native-engine',
@@ -133,7 +133,7 @@ const BRIDGE_CANDIDATES: ZavorthExternalRuntimeCandidate[] = [
   candidate({
     id: 'tool-call-repair',
     label: 'Zavorth Tool Call Repair',
-    sourceRuntimeIds: ['hermes'],
+    sourceRuntimeIds: ['reference-runtime'],
     sourcePattern: 'repair malformed JSON/tool arguments before tool preview or approval',
     decision: 'absorb',
     phase: 'phase-2-native-engine',
@@ -154,7 +154,7 @@ const BRIDGE_CANDIDATES: ZavorthExternalRuntimeCandidate[] = [
   candidate({
     id: 'safe-tool-parallelism',
     label: 'Zavorth Safe Tool Parallelism',
-    sourceRuntimeIds: ['hermes'],
+    sourceRuntimeIds: ['reference-runtime'],
     sourcePattern: 'parallelize tool batches only when resource/write sets do not conflict',
     decision: 'absorb',
     phase: 'phase-2-native-engine',
@@ -175,7 +175,7 @@ const BRIDGE_CANDIDATES: ZavorthExternalRuntimeCandidate[] = [
   candidate({
     id: 'procedural-memory',
     label: 'Procedural Memory',
-    sourceRuntimeIds: ['hermes'],
+    sourceRuntimeIds: ['reference-runtime'],
     sourcePattern: 'remember commands, failures, workarounds, and successful recovery paths',
     decision: 'absorb',
     phase: 'phase-6-sessions-memory-continuation',
@@ -196,7 +196,7 @@ const BRIDGE_CANDIDATES: ZavorthExternalRuntimeCandidate[] = [
   candidate({
     id: 'skill-curator',
     label: 'Zavorth Skill Curator',
-    sourceRuntimeIds: ['hermes'],
+    sourceRuntimeIds: ['reference-runtime'],
     sourcePattern: 'dedupe, merge, archive, pin, or propose skill changes with dry-run and rollback',
     decision: 'absorb',
     phase: 'phase-2-native-engine',
@@ -217,7 +217,7 @@ const BRIDGE_CANDIDATES: ZavorthExternalRuntimeCandidate[] = [
   candidate({
     id: 'channel-gateway-normalization',
     label: 'Channel Gateway Normalization',
-    sourceRuntimeIds: ['openclaw', 'hermes'],
+    sourceRuntimeIds: ['acp-compatible-sidecar', 'reference-runtime'],
     sourcePattern: 'map external chat/channel events into NormalizedInboundMessage and ReplyPipeline',
     decision: 'adapt',
     phase: 'phase-5-channels-messaging',
@@ -238,7 +238,7 @@ const BRIDGE_CANDIDATES: ZavorthExternalRuntimeCandidate[] = [
   candidate({
     id: 'delegated-workers',
     label: 'Delegated Workers',
-    sourceRuntimeIds: ['openclaw', 'hermes'],
+    sourceRuntimeIds: ['acp-compatible-sidecar', 'reference-runtime'],
     sourcePattern: 'bounded sidecar/local worker tasks with timeout, cancel, and result mapping',
     decision: 'adapt',
     phase: 'phase-7-delegated-workers',
@@ -299,6 +299,8 @@ export class ZavorthExternalRuntimeBridgeService {
       publicIdentityPolicy: {
         publicAgentName: 'Zavorth',
         externalRuntimeNamesQuarantinedToDiagnostics: true,
+        noDefaultExternalRuntimeBranding: true,
+        compatibilityFixturesAreOptional: true,
         noSourceRuntimeCanonicalFields: true,
         commandCenterMayShowAdapterDetailsOnly: true,
       },
@@ -312,6 +314,9 @@ export class ZavorthExternalRuntimeBridgeService {
       })),
       policy: {
         zavorthRemainsOnlyKernel: true,
+        acpSupportIsProviderAgnostic: true,
+        noDefaultNamedCompatibilityBridge: true,
+        noDefaultNamedExternalRuntime: true,
         externalRuntimeIsAdvisoryUntilNormalized: true,
         approvalEnvelopeRequiredForRiskyContinuation: true,
         importedMemoryRequiresProvenance: true,
@@ -354,6 +359,8 @@ export class ZavorthExternalRuntimeBridgeService {
 
     lines.push('', 'Non-negotiables:');
     lines.push('- Zavorth remains the only kernel.');
+    lines.push('- ACP support is provider-agnostic and has no default external runtime bridge.');
+    lines.push('- Compatibility sidecars are optional fixtures/probes, never canonical product identity.');
     lines.push('- External runtimes are advisory until normalized into Zavorth contracts.');
     lines.push('- All inbound external events enter ZavorthAgentGateway.');
     lines.push('- All user-facing output exits through Zavorth ReplyPipeline.');

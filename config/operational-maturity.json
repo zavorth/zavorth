@@ -106,24 +106,29 @@
     },
     {
       "id": "swarm-executor",
-      "label": "Swarm Executor",
+      "label": "Official Swarm v2",
       "status": "stable",
-      "role": "Executor multi-role acoplado ao ExecutionGateway e usado por rotas oficiais.",
-      "runtimeTruth": "SwarmExecutor e estavel; as rotas web swarm-v2 continuam experimentais.",
-      "publicStatus": "pronto no executor; experimental na UI v2",
+      "role": "Executor multi-role oficial com filas/batches, role library persistente, replay, metricas e isolamento por worker.",
+      "runtimeTruth": "Swarm v2 e superficie oficial em /api/web/gateway/swarm-v2; /experimental/swarm-v2 permanece apenas como alias legado.",
+      "publicStatus": "pronto como Swarm v2 oficial",
       "ownerLayer": "execution",
       "isPrimaryBrain": false,
       "isParallelRuntime": false,
       "evidence": [
         "src/execution/SwarmExecutor.ts",
+        "src/services/SwarmV2Service.ts",
         "src/runtime/sessions/v2/SwarmOrchestrator.ts",
+        "src/domain/surface/presentation/web-app/web-app-supervision-route/swarmV2Routes.ts",
+        "src/web/components/SwarmMonitor.tsx",
         "tests/runtime/sessions/v2/SwarmOrchestrator.test.ts"
       ],
-      "commands": [],
-      "limitations": [
-        "A surface web swarm-v2 ainda e experimental e nao deve ser vendida como UI principal."
+      "commands": [
+        { "kind": "npm-script", "value": "swarm-v2:check" }
       ],
-      "nextStep": "Manter executor estavel e promover a UI v2 somente quando replay/observabilidade final fecharem."
+      "limitations": [
+        "Isolamento temp-worktree separa cwd por role; isolamento de SO forte deve usar perfis docker, wsl ou sandbox externo aprovados."
+      ],
+      "nextStep": "Expandir perfis de worker por ambiente real sem remover batch queue, receipts e approval boundary."
     },
     {
       "id": "session-v2-pty",
