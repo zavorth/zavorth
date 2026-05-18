@@ -536,8 +536,8 @@
       "permission": "approval-required"
     },
     {
-      "id": "zxp:migration:openclaw-migration",
-      "targetRelativePath": "skill-library/imported/zavorth-expansion-pack/migration/openclaw-migration",
+      "id": "zxp:migration:legacy-agent-migration",
+      "targetRelativePath": "skill-library/imported/zavorth-expansion-pack/migration/legacy-agent-migration",
       "category": "migration",
       "risk": "high",
       "permission": "sandbox-required"

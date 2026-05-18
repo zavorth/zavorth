@@ -1,9 +1,9 @@
 ---
-name: openclaw-migration
-description: Zavorth-native capability route for Openclaw Migration.
+name: legacy-agent-migration
+description: Zavorth-native capability route for Legacy-agent Migration.
 ---
 
-# Openclaw Migration
+# Legacy-agent Migration
 
 ZAVORTH_EXPANSION_GENERATED: true
 
@@ -11,7 +11,7 @@ This skill is a Zavorth-native capability stub. It gives the agent routing conte
 
 ## When To Use
 
-- the user asks for Openclaw Migration.
+- the user asks for Legacy-agent Migration.
 - the task belongs to the migration capability area.
 - nearby skills include zavorth-agent.
 
@@ -28,4 +28,4 @@ This skill is a Zavorth-native capability stub. It gives the agent routing conte
 - Category: migration
 - Permission: sandbox-required
 - Risk: high
-- Tags: migration, openclaw, zavorth, memory, persona, import, openclaw-migration, migrate, user, customization, footprint
+- Tags: migration, legacy-agent, zavorth, memory, persona, import, legacy-agent-migration, migrate, user, customization, footprint

@@ -3,7 +3,7 @@
   "importedAt": "2026-05-18T05:38:55.641Z",
   "importMode": "generated-zavorth-native-stub",
   "approvalId": "skill-expansion-pack-166",
-  "skillName": "openclaw-migration",
+  "skillName": "legacy-agent-migration",
   "source": {
     "id": "zavorth-native-skill-library",
     "label": "Zavorth Native Skill Library",
@@ -15,8 +15,8 @@
     "license": "MIT",
     "ownership": "native"
   },
-  "originalSkillPath": "zavorth-native-pack://optional-skills/migration/openclaw-migration",
-  "originalRelativePath": "optional-skills/migration/openclaw-migration",
+  "originalSkillPath": "zavorth-native-pack://optional-skills/migration/legacy-agent-migration",
+  "originalRelativePath": "optional-skills/migration/legacy-agent-migration",
   "copiedFiles": [],
   "reference": {
     "sourceRoot": "zavorth-native-pack://",
