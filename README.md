@@ -85,10 +85,14 @@ If you prefer terminal-only operation:
 ```bash
 zavorth chat
 zavorth run "review this repo"
+zavorth agent-review
 zavorth daily
+zavorth readiness
 zavorth receipts
 zavorth doctor --simple
 ```
+
+`zavorth agent-review` is the official governed review surface. It reviews the current diff in read-only mode, reports findings with severity, confidence and file/line when available, and keeps PR comments, patches and live review agents behind explicit approval.
 
 ## Product Demo
 
@@ -161,6 +165,10 @@ Zavorth does not start from an empty chat. `zavorth missions guide` recommends s
 ## CLI Experience Parity
 
 `zavorth daily` is the terminal equivalent of the simple Dashboard Home. It shows guided starts, runtime questions, trust, receipts and Satellite approval shortcuts before exposing deeper command references. It is projection-only: mutating work still becomes a governed mission with preview, approval and receipt.
+
+## Runtime Readiness
+
+`zavorth readiness` is the one-command daily operator check. It reports provider, dashboard, Telegram, approvals, transaction plane, skill imports, memory continuity and natural-first gateway status without running hidden live probes or mutations. By default it prints the operator view (`Pronto`, `Atencao`, `Bloqueado`); `--technical` keeps the diagnostic report, and `/readiness` exposes the same safe summary on Telegram.
 
 ## Daily-Use Certification
 

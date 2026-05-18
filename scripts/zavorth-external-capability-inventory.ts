@@ -5,9 +5,9 @@ type CliOptions = {
   json: boolean;
   requirePass: boolean;
   projectRoot: string | null;
-  hermesRoot: string | null;
-  openClawRoot: string | null;
-  openClawWslRoot: string | null;
+  referenceRuntimeRoot: string | null;
+  compatibilitySidecarRoot: string | null;
+  compatibilityFixtureRoot: string | null;
   bridgeStatus: ZavorthExternalRuntimeBridgeStatus | null;
 };
 
@@ -22,9 +22,9 @@ function parseArgs(argv: string[]): CliOptions {
     json: false,
     requirePass: false,
     projectRoot: null,
-    hermesRoot: null,
-    openClawRoot: null,
-    openClawWslRoot: null,
+    referenceRuntimeRoot: null,
+    compatibilitySidecarRoot: null,
+    compatibilityFixtureRoot: null,
     bridgeStatus: null,
   };
 
@@ -43,18 +43,18 @@ function parseArgs(argv: string[]): CliOptions {
       index += 1;
       continue;
     }
-    if (arg === '--hermes-root') {
-      options.hermesRoot = readNext(argv, index, arg);
+    if (arg === '--reference-runtime-root') {
+      options.referenceRuntimeRoot = readNext(argv, index, arg);
       index += 1;
       continue;
     }
-    if (arg === '--openclaw-root') {
-      options.openClawRoot = readNext(argv, index, arg);
+    if (arg === '--compatibility-sidecar-root') {
+      options.compatibilitySidecarRoot = readNext(argv, index, arg);
       index += 1;
       continue;
     }
-    if (arg === '--openclaw-wsl-root') {
-      options.openClawWslRoot = readNext(argv, index, arg);
+    if (arg === '--compatibility-fixture-root') {
+      options.compatibilityFixtureRoot = readNext(argv, index, arg);
       index += 1;
       continue;
     }
@@ -84,9 +84,9 @@ async function main(): Promise<void> {
   const service = new ZavorthExternalCapabilityInventoryService();
   const snapshot = service.buildSnapshot({
     projectRoot: options.projectRoot,
-    hermesRoot: options.hermesRoot,
-    openClawRoot: options.openClawRoot,
-    openClawWslRoot: options.openClawWslRoot,
+    referenceRuntimeRoot: options.referenceRuntimeRoot,
+    compatibilitySidecarRoot: options.compatibilitySidecarRoot,
+    compatibilityFixtureRoot: options.compatibilityFixtureRoot,
     bridgeStatus: options.bridgeStatus,
   });
 

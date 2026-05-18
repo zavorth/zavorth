@@ -32,6 +32,13 @@ import {
   TelegramOpsRuntimeCommandService,
   type TelegramOpsRuntimeMaintenanceCommand,
 } from './TelegramOpsRuntimeCommandService.js';
+import { ZavorthRuntimeReadinessService } from '../../services/ZavorthRuntimeReadinessService.js';
+import { ZavorthRuntimeGuidedFixesService } from '../../services/ZavorthRuntimeGuidedFixesService.js';
+import { ZavorthRuntimeReadinessUxService } from '../../services/ZavorthRuntimeReadinessUxService.js';
+import { ZavorthReadyToGoService } from '../../services/ZavorthReadyToGoService.js';
+import { ZavorthStayOnlineService } from '../../services/ZavorthStayOnlineService.js';
+import { ZavorthExternalAgentOnboardingService } from '../../services/ZavorthExternalAgentOnboardingService.js';
+import { ZavorthExternalAgentGatewayService } from '../../services/ZavorthExternalAgentGatewayService.js';
 
 export class TelegramOpsController {
   private readonly administrationCommands: TelegramOpsAdministrationService;
@@ -92,6 +99,156 @@ export class TelegramOpsController {
       runtimeAccessManifestService,
       runtimeBootstrapService,
       runtimeOfficialRemoteAccessService,
+    });
+  }
+
+  public async handleReadiness(ctx: Context): Promise<void> {
+    const readiness = await new ZavorthRuntimeReadinessService().buildSnapshot({
+      userId: String(ctx.from?.id || 'telegram-operator'),
+      sessionId: `telegram-${String(ctx.chat?.id || 'readiness')}`,
+      workspaceHint: process.cwd(),
+    });
+    const uxService = new ZavorthRuntimeReadinessUxService();
+    const ux = uxService.buildSnapshot(readiness);
+    await ctx.reply(uxService.renderTelegram(ux), {
+      reply_markup: ux.telegramProjection.replyMarkup as any,
+    });
+  }
+
+  public async handleReadinessFixes(ctx: Context): Promise<void> {
+    const readiness = await new ZavorthRuntimeReadinessService().buildSnapshot({
+      userId: String(ctx.from?.id || 'telegram-operator'),
+      sessionId: `telegram-${String(ctx.chat?.id || 'guided-fixes')}`,
+      workspaceHint: process.cwd(),
+    });
+    const service = new ZavorthRuntimeGuidedFixesService();
+    const fixes = service.buildSnapshot(readiness);
+    await ctx.reply(service.renderTelegram(fixes), {
+      reply_markup: {
+        inline_keyboard: [
+          [
+            { text: 'Readiness', callback_data: '/readiness' },
+            { text: 'Providers', callback_data: '/models' },
+          ],
+          [
+            { text: 'Dashboard', callback_data: '/dashboard' },
+            { text: 'Approvals', callback_data: '/echoapprovals' },
+          ],
+        ],
+      } as any,
+    });
+  }
+
+  public async handleReadyToGo(ctx: Context): Promise<void> {
+    const service = new ZavorthReadyToGoService();
+    const readyToGo = await service.buildSnapshot({
+      refreshProviders: false,
+      userId: String(ctx.from?.id || 'telegram-operator'),
+      sessionId: `telegram-${String(ctx.chat?.id || 'ready-to-go')}`,
+      workspaceHint: process.cwd(),
+    });
+    await ctx.reply(service.renderTelegram(readyToGo), {
+      reply_markup: {
+        inline_keyboard: [
+          [
+            { text: 'Readiness', callback_data: '/readiness' },
+            { text: 'Fixes', callback_data: '/fixes' },
+          ],
+          [
+            { text: 'Dashboard', callback_data: '/dashboard' },
+            { text: 'Approvals', callback_data: '/echoapprovals' },
+          ],
+        ],
+      } as any,
+    });
+  }
+
+  public async handleStayOnline(ctx: Context): Promise<void> {
+    const service = new ZavorthStayOnlineService();
+    const stayOnline = await service.buildSnapshot({
+      refreshProviders: false,
+      userId: String(ctx.from?.id || 'telegram-operator'),
+      sessionId: `telegram-${String(ctx.chat?.id || 'stay-online')}`,
+      workspaceHint: process.cwd(),
+    });
+    await ctx.reply(service.renderTelegram(stayOnline), {
+      reply_markup: {
+        inline_keyboard: [
+          [
+            { text: 'Ready', callback_data: '/ready' },
+            { text: 'Readiness', callback_data: '/readiness' },
+          ],
+          [
+            { text: 'Fixes', callback_data: '/fixes' },
+            { text: 'Dashboard', callback_data: '/dashboard' },
+          ],
+        ],
+      } as any,
+    });
+  }
+
+  public async handleExternalAgentOnboarding(ctx: Context, args = ''): Promise<void> {
+    const parsed = parseExternalAgentOnboardingTelegramArgs(args);
+    const service = new ZavorthExternalAgentOnboardingService();
+    const onboarding = service.buildSnapshot({
+      ...parsed,
+      requestedBy: String(ctx.from?.id || 'telegram-operator'),
+      writeSnapshot: false,
+    });
+    await ctx.reply(service.renderText(onboarding), {
+      reply_markup: {
+        inline_keyboard: [
+          [
+            { text: 'Status', callback_data: '/status' },
+            { text: 'ACP', callback_data: '/agbridge' },
+          ],
+          [
+            { text: 'Readiness', callback_data: '/readiness' },
+            { text: 'Dashboard', callback_data: '/dashboard' },
+          ],
+        ],
+      } as any,
+    });
+  }
+
+  public async handleExternalAgentGateway(ctx: Context, args = ''): Promise<void> {
+    const service = new ZavorthExternalAgentGatewayService();
+    const parsed = parseExternalAgentGatewayTelegramArgs(args);
+    if (parsed.action === 'run') {
+      const receipt = await service.invoke({
+        profileId: parsed.id || '',
+        prompt: parsed.prompt || '',
+        approvalGranted: parsed.approved,
+        dryRun: !parsed.approved,
+        requestedBy: String(ctx.from?.id || 'telegram-operator'),
+      });
+      await ctx.reply(service.renderReceiptText(receipt), {
+        reply_markup: {
+          inline_keyboard: [
+            [
+              { text: 'Approvals', callback_data: '/echoapprovals' },
+              { text: 'Readiness', callback_data: '/readiness' },
+            ],
+          ],
+        } as any,
+      });
+      return;
+    }
+
+    const registry = service.buildRegistrySnapshot();
+    await ctx.reply(service.renderRegistryText(registry), {
+      reply_markup: {
+        inline_keyboard: [
+          [
+            { text: 'Onboarding', callback_data: '/agentonboarding' },
+            { text: 'ACP', callback_data: '/agbridge' },
+          ],
+          [
+            { text: 'Dashboard', callback_data: '/dashboard' },
+            { text: 'Readiness', callback_data: '/readiness' },
+          ],
+        ],
+      } as any,
     });
   }
 
@@ -350,4 +507,62 @@ export class TelegramOpsController {
   public async handleWslCommand(ctx: Context, args: string): Promise<void> {
     await this.runtimeCommands.handleWslCommand(ctx, args);
   }
+}
+
+function parseExternalAgentGatewayTelegramArgs(args: string): {
+  action: 'list' | 'run';
+  id: string | null;
+  prompt: string | null;
+  approved: boolean;
+} {
+  const raw = String(args || '').trim();
+  if (!raw || /^list\b/i.test(raw)) {
+    return { action: 'list', id: null, prompt: null, approved: false };
+  }
+  const approvalPattern = /\b(approve-external-execution|approve external execution|approved external execution|aprovo executar agente|autorizo executar agente|pode executar agente)\b/i;
+  const approved = approvalPattern.test(raw);
+  const withoutApprovalWords = raw.replace(approvalPattern, '').trim();
+  const match = withoutApprovalWords.match(/^run\s+([a-zA-Z0-9._:-]+)(?:\s+--\s+([\s\S]+)|\s+([\s\S]+))?$/i);
+  if (!match) {
+    return { action: 'list', id: null, prompt: null, approved };
+  }
+  return {
+    action: 'run',
+    id: match[1],
+    prompt: String(match[2] || match[3] || '').trim() || null,
+    approved,
+  };
+}
+
+function parseExternalAgentOnboardingTelegramArgs(args: string): {
+  consent: boolean;
+  pathHint: string | null;
+  approximatePathHint: string | null;
+  commandHint: string | null;
+  endpointHint: string | null;
+} {
+  const raw = String(args || '').trim();
+  const consent = /\b(consent|autorizo|autorizei|pode|read-only|somente leitura)\b/i.test(raw);
+  const cleaned = raw
+    .replace(/\b(consent|autorizo|autorizei|pode|read-only|somente leitura)\b/gi, '')
+    .trim();
+  const lower = cleaned.toLowerCase();
+  const readRest = (prefix: string): string | null => {
+    if (!lower.startsWith(prefix)) return null;
+    const value = cleaned.slice(prefix.length).trim();
+    return value || null;
+  };
+
+  const pathHint = readRest('path ') || readRest('pasta ');
+  const approximatePathHint = readRest('approx ') || readRest('aprox ') || readRest('aproximada ');
+  const commandHint = readRest('command ') || readRest('cli ') || readRest('comando ');
+  const endpointHint = readRest('endpoint ') || readRest('url ');
+
+  return {
+    consent,
+    pathHint,
+    approximatePathHint,
+    commandHint,
+    endpointHint,
+  };
 }

@@ -9,14 +9,14 @@ import {
 
 describe('MnemosCognitiveProtocol', () => {
   it('declara a cadencia canonica sem transformar index_file em requisito de contexto', () => {
-    expect(MNEMOS_CONTEXT_REQUIRED_TOOLS).toEqual(['search_memory', 'scan_local_metadata']);
-    expect(MNEMOS_CANONICAL_CADENCE).toEqual(['search_memory', 'scan_local_metadata', 'index_file']);
+    expect(MNEMOS_CONTEXT_REQUIRED_TOOLS).toEqual(['search_memory', 'scan_local_metadata', 'understand_file']);
+    expect(MNEMOS_CANONICAL_CADENCE).toEqual(['search_memory', 'scan_local_metadata', 'understand_file', 'index_file']);
     expect(MNEMOS_INDEXING_APPROVAL_BOUNDARY).toBe('human-in-the-loop');
   });
 
   describe('isMnemosAvailable', () => {
     it('retorna true quando ambas as tools estao presentes', () => {
-      expect(isMnemosAvailable(['search_memory', 'scan_local_metadata', 'other_tool'])).toBe(true);
+      expect(isMnemosAvailable(['search_memory', 'scan_local_metadata', 'understand_file', 'other_tool'])).toBe(true);
     });
 
     it('retorna false quando search_memory esta ausente', () => {
@@ -31,8 +31,8 @@ describe('MnemosCognitiveProtocol', () => {
       expect(isMnemosAvailable([])).toBe(false);
     });
 
-    it('retorna true com exatamente as duas tools necessarias', () => {
-      expect(isMnemosAvailable(['search_memory', 'scan_local_metadata'])).toBe(true);
+    it('retorna true com exatamente as tools necessarias', () => {
+      expect(isMnemosAvailable(['search_memory', 'scan_local_metadata', 'understand_file'])).toBe(true);
     });
   });
 
@@ -54,6 +54,7 @@ describe('MnemosCognitiveProtocol', () => {
       const instruction = buildMnemosCognitiveInstruction();
       expect(instruction).toContain('search_memory');
       expect(instruction).toContain('scan_local_metadata');
+      expect(instruction).toContain('understand_file');
       expect(instruction).toContain('index_file');
     });
 

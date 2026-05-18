@@ -15,7 +15,7 @@ describe('ZavorthCliFinalProductPolishService', () => {
     expect(snapshot.summary.inkPreviewRendersOnce).toBe(true);
     expect(snapshot.summary.inkInteractiveMode).toBe(true);
     expect(snapshot.summary.noInfiniteRenderLoop).toBe(true);
-    expect(snapshot.summary.hermesInspiredZavorthIdentity).toBe(true);
+    expect(snapshot.summary.zavorthNativeCommandIdentity).toBe(true);
     expect(snapshot.summary.cliCanExecuteMutations).toBe(false);
     expect(snapshot.summary.rawSecretsSerialized).toBe(false);
     expect(snapshot.summary.requiredCommands).toEqual(expect.arrayContaining([

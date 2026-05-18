@@ -13,11 +13,13 @@
 
 export const MNEMOS_SEARCH_MEMORY_TOOL = 'search_memory';
 export const MNEMOS_SCAN_LOCAL_METADATA_TOOL = 'scan_local_metadata';
+export const MNEMOS_UNDERSTAND_FILE_TOOL = 'understand_file';
 export const MNEMOS_INDEX_FILE_TOOL = 'index_file';
 
 export const MNEMOS_CONTEXT_REQUIRED_TOOLS = [
   MNEMOS_SEARCH_MEMORY_TOOL,
   MNEMOS_SCAN_LOCAL_METADATA_TOOL,
+  MNEMOS_UNDERSTAND_FILE_TOOL,
 ] as const;
 
 export const MNEMOS_CANONICAL_CADENCE = [
@@ -55,7 +57,9 @@ export function buildMnemosCognitiveInstruction(): string {
     '   - Ao apresentar candidatos, SEMPRE use o prefixo "🔍 **Busca no Cofre Mnemos**" na mensagem.',
     '',
     '3. ESTÁGIO 3 — HUMAN-IN-THE-LOOP: Se o usuário confirmar a indexação:',
-    '   - Use index_file(file_path="...") para indexar o arquivo.',
+    '   - Antes de indexar arquivo novo, use understand_file(file_path="...") para obter tipo, texto, OCR, tabelas, limites e receipt.',
+    '   - Se vision_required=true ou transcription_required=true, explique que leitura visual/audio precisa de aprovacao separada para provider multimodal/transcricao.',
+    '   - Use index_file(file_path="...") para indexar com o mesmo Universal File Understanding.',
     '   - Após indexação bem-sucedida, execute search_memory novamente com a query original.',
     '   - Use os resultados para gerar a resposta final.',
     '',
@@ -74,7 +78,7 @@ export function buildMnemosCognitiveInstruction(): string {
 export function buildMnemosCognitiveInstructionCompact(): string {
   return [
     'MNEMOS: Você tem acesso ao cofre de memória local.',
-    'Para perguntas sobre documentos do usuário: search_memory → scan_local_metadata → index_file.',
+    'Para perguntas sobre documentos do usuário: search_memory → scan_local_metadata → understand_file → index_file.',
     'Fragmentos extraídos são usados como contexto. Nenhum arquivo sai da máquina sem consentimento.',
   ].join(' ');
 }

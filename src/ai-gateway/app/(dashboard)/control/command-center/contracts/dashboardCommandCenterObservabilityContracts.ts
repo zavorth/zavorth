@@ -804,6 +804,19 @@ export type DashboardNexusWorkbenchSnapshot = {
   status: "ready" | "needs-confirmation" | "fallback" | "degraded" | "offline";
   headline: string;
   generatedAt: string;
+  operatorExperience: {
+    statusLabel: string;
+    tone: "ok" | "attention" | "warning" | "decision" | "fallback";
+    primaryMessage: string;
+    nextStep: string;
+    cards: Array<{
+      id: string;
+      label: string;
+      value: string;
+      tone: "ok" | "attention" | "warning" | "decision" | "fallback";
+      detail: string;
+    }>;
+  };
   runtime: {
     primary: string;
     primaryLabel: string;

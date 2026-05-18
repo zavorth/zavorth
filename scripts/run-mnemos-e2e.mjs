@@ -1,26 +1,31 @@
 #!/usr/bin/env node
-import { spawnSync } from 'node:child_process';
-import path from 'node:path';
+import { spawn } from 'node:child_process';
 
-const result = spawnSync(
-  process.execPath,
-  [
-    path.join(process.cwd(), 'node_modules', 'jest', 'bin', 'jest.js'),
-    'tests/e2e/mnemos.e2e.test.ts',
-    '--runInBand',
-    '--forceExit',
-  ],
+const runner = process.execPath;
+const child = spawn(
+  runner,
+  ['node_modules/jest/bin/jest.js', 'tests/e2e/mnemos.e2e.test.ts', '--runInBand'],
   {
-    stdio: 'inherit',
+    cwd: process.cwd(),
     env: {
       ...process.env,
       ZAVORTH_RUN_MNEMOS_E2E: '1',
     },
+    stdio: 'inherit',
+    windowsHide: true,
   },
 );
 
-if (result.error) {
-  console.error(`[mnemos-e2e] Failed to start Jest: ${result.error.message}`);
-}
+child.on('error', (error) => {
+  process.stderr.write(`[mnemos-e2e] ${error.message}\n`);
+  process.exit(1);
+});
 
-process.exit(result.status ?? 1);
+child.on('exit', (code, signal) => {
+  if (signal) {
+    process.stderr.write(`[mnemos-e2e] stopped by ${signal}\n`);
+    process.exit(1);
+  }
+
+  process.exit(code ?? 0);
+});

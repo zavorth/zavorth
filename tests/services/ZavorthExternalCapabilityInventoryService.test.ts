@@ -9,13 +9,13 @@ type FakeFsOptions = {
 
 const ROOTS = {
   project: 'C:\\fixtures\\zavorth',
-  hermes: 'C:\\fixtures\\hermes',
-  openclaw: 'C:\\fixtures\\openclaw',
-  openclawWsl: '\\\\wsl.localhost\\Ubuntu-24.04\\home\\grey\\openclaw-src',
+  referenceRuntime: 'C:\\fixtures\\reference-runtime',
+  compatibilitySidecar: 'C:\\fixtures\\acp-compatible-sidecar',
+  compatibilityFixture: '\\\\wsl.localhost\\Ubuntu-24.04\\home\\grey\\acp-compatible-sidecar-src',
 };
 
 describe('ZavorthExternalCapabilityInventoryService Phase 0', () => {
-  it('publishes a read-only Phase 0 inventory across Hermes, OpenClaw Windows, and OpenClaw WSL', () => {
+  it('publishes a read-only Phase 0 inventory across Reference runtime, ACP-compatible sidecar Windows, and ACP compatibility fixture', () => {
     const service = createService();
     const snapshot = service.buildSnapshot();
 
@@ -28,14 +28,14 @@ describe('ZavorthExternalCapabilityInventoryService Phase 0', () => {
       bridgeStatus: 'bridge-ready',
     }));
     expect(snapshot.sourceProbes.map((entry) => entry.runtimeId)).toEqual([
-      'hermes',
-      'openclaw',
-      'openclaw-wsl',
+      'reference-runtime',
+      'acp-compatible-sidecar',
+      'acp-compatibility-fixture',
     ]);
     expect(snapshot.sourceProbes.every((entry) => entry.availability === 'source-present')).toBe(true);
-    expect(snapshot.sourceProbes.find((entry) => entry.runtimeId === 'openclaw-wsl')).toEqual(expect.objectContaining({
+    expect(snapshot.sourceProbes.find((entry) => entry.runtimeId === 'acp-compatibility-fixture')).toEqual(expect.objectContaining({
       required: false,
-      rootPath: ROOTS.openclawWsl,
+      rootPath: ROOTS.compatibilityFixture,
       present: true,
     }));
     expect(snapshot.decisionSummary).toEqual(expect.objectContaining({
@@ -79,22 +79,22 @@ describe('ZavorthExternalCapabilityInventoryService Phase 0', () => {
       && entry.acceptanceGate.length > 0
       && entry.sourcePaths.length > 0
     ))).toBe(true);
-    expect(snapshot.items.find((entry) => entry.id === 'hermes:skill-curator')).toEqual(expect.objectContaining({
+    expect(snapshot.items.find((entry) => entry.id === 'reference-runtime:skill-curator')).toEqual(expect.objectContaining({
       decision: 'absorb',
       risk: 'high',
       naturalFirstRoute: 'approval-proposal',
       securityBoundary: expect.objectContaining({ approvalRequiredForLive: true }),
     }));
-    expect(snapshot.items.find((entry) => entry.id === 'openclaw:channel-gateway-normalization')).toEqual(expect.objectContaining({
+    expect(snapshot.items.find((entry) => entry.id === 'acp-compatible-sidecar:channel-gateway-normalization')).toEqual(expect.objectContaining({
       decision: 'adapt',
       targetPhase: 'phase-5-channels-messaging',
       naturalFirstRoute: 'capability-discovery',
     }));
   });
 
-  it('does not block inventory readiness when only the optional OpenClaw WSL clone is absent', () => {
+  it('does not block inventory readiness when only the optional ACP compatibility fixture clone is absent', () => {
     const snapshot = createService({ wslPresent: false }).buildSnapshot();
-    const wslProbe = snapshot.sourceProbes.find((entry) => entry.runtimeId === 'openclaw-wsl');
+    const wslProbe = snapshot.sourceProbes.find((entry) => entry.runtimeId === 'acp-compatibility-fixture');
 
     expect(snapshot.status).toBe('inventory-ready');
     expect(wslProbe).toEqual(expect.objectContaining({
@@ -118,7 +118,7 @@ describe('ZavorthExternalCapabilityInventoryService Phase 0', () => {
 
     expect(text).toContain('Zavorth External Runtime Phase 0 Inventory');
     expect(text).toContain('Status: inventory-ready');
-    expect(text).toContain('openclaw-wsl: source-present');
+    expect(text).toContain('acp-compatibility-fixture: source-present');
     expect(text).toContain('Execution performed: false');
     expect(text).toContain('Next: 291 Phase 1 - Zavorth Contract Layer');
   });
@@ -128,22 +128,22 @@ function createService(options: FakeFsOptions = {}): ZavorthExternalCapabilityIn
   const fakeExists = (target: string): boolean => {
     const normalized = normalize(target);
     const project = normalize(ROOTS.project);
-    const hermes = normalize(ROOTS.hermes);
-    const openclaw = normalize(ROOTS.openclaw);
-    const openclawWsl = normalize(ROOTS.openclawWsl);
+    const referenceRuntime = normalize(ROOTS.referenceRuntime);
+    const compatibilitySidecar = normalize(ROOTS.compatibilitySidecar);
+    const compatibilityFixture = normalize(ROOTS.compatibilityFixture);
     if (normalized.startsWith(`${project}/docs/`)) return true;
-    if (normalized === hermes || normalized.startsWith(`${hermes}/`)) return true;
-    if (normalized === openclaw || normalized.startsWith(`${openclaw}/`)) return true;
+    if (normalized === referenceRuntime || normalized.startsWith(`${referenceRuntime}/`)) return true;
+    if (normalized === compatibilitySidecar || normalized.startsWith(`${compatibilitySidecar}/`)) return true;
     if (options.wslPresent === false) return false;
-    return normalized === openclawWsl || normalized.startsWith(`${openclawWsl}/`);
+    return normalized === compatibilityFixture || normalized.startsWith(`${compatibilityFixture}/`);
   };
 
   return new ZavorthExternalCapabilityInventoryService({
     now: () => new Date('2026-05-11T18:00:00.000Z'),
     projectRoot: ROOTS.project,
-    hermesRoot: ROOTS.hermes,
-    openClawRoot: ROOTS.openclaw,
-    openClawWslRoot: ROOTS.openclawWsl,
+    referenceRuntimeRoot: ROOTS.referenceRuntime,
+    compatibilitySidecarRoot: ROOTS.compatibilitySidecar,
+    compatibilityFixtureRoot: ROOTS.compatibilityFixture,
     existsSync: fakeExists as unknown as typeof import('fs').existsSync,
     readdirSync: (() => [
       { name: 'agent', isFile: () => false, isDirectory: () => true },

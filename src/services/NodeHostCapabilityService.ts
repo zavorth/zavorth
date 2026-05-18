@@ -214,11 +214,12 @@ export class NodeHostCapabilityService {
     }
 
     const policy = this.evaluateSystemRunRequest(command, payload);
-    if (!policy.ok) {
+    if (policy.ok === false) {
       return policy.result;
     }
 
-    const result = await this.commandRunner.run(command, {
+    const invocation = this.buildSystemRunInvocation(command);
+    const result = await this.commandRunner.run(invocation, {
       cwd: policy.cwd,
       timeoutMs: normalizeTimeout(payload?.timeoutMs, 120000),
     });
@@ -306,7 +307,7 @@ export class NodeHostCapabilityService {
     }
 
     const parsed = tokenizeSystemRunCommand(command);
-    if (!parsed.ok) {
+    if (parsed.ok === false) {
       return parsed.error;
     }
 
@@ -336,6 +337,24 @@ export class NodeHostCapabilityService {
     }
 
     return null;
+  }
+
+  private buildSystemRunInvocation(command: string) {
+    if (String(this.env.ZAVORTH_NODE_HOST_SYSTEM_RUN_BREAK_GLASS || '').toLowerCase() === 'true') {
+      return command;
+    }
+
+    const parsed = tokenizeSystemRunCommand(command);
+    if (parsed.ok === false) {
+      return command;
+    }
+
+    return {
+      label: 'system.run',
+      command,
+      file: parsed.file,
+      args: parsed.args,
+    };
   }
 
   private allowedSystemRunBinaries(): Set<string> {

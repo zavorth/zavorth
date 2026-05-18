@@ -401,15 +401,16 @@ export class SchedulerService {
             this.dispatcher(task.command, task.created_by || 'system', task),
             runtime.budget.maxRuntimeMs,
           );
+          const summary = result && typeof result === 'object' ? result.summary : null;
           if (task.delivery && task.delivery !== 'telegram' && this.deliveryService) {
-            this.deliveryService.deliver(task, result?.summary);
+            this.deliveryService.deliver(task, summary);
           }
           this.repo.updateLastRun(task.id, {
             lastRun: now.toISOString(),
             nextRun,
             lastStatus: 'completed',
             lastError: null,
-            lastResult: String(result?.summary || '').trim() || null,
+            lastResult: String(summary || '').trim() || null,
             runCount: currentRunCount,
             failureCount: Number(task.failure_count || 0),
             lastFailureAt: null,

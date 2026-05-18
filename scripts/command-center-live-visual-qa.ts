@@ -60,7 +60,7 @@ function readOptions(): CliOptions {
   const envFileToken = readEnvTokenFromFile(path.join(rootDir, ".env"));
   const tokenFile = readRuntimeTokenFile();
   return {
-    url: readCliValue("url") || "http://127.0.0.1:3000/control",
+    url: readCliValue("url") || "http://127.0.0.1:3000/dashboard",
     outDir: path.resolve(rootDir, readCliValue("out") || defaultOutDir),
     token: tokenArg || envToken || envFileToken || tokenFile,
     requirePass: process.argv.includes("--require-pass"),
@@ -110,34 +110,45 @@ async function main(): Promise<LiveVisualQaReport> {
     url.searchParams.set("token", options.token);
   }
 
-  await page.goto(url.toString(), { waitUntil: "networkidle", timeout: 30_000 });
-  await page.waitForSelector("#core-pulse", { timeout: 15_000 });
-  await page.waitForTimeout(1000);
-
+  let state: LiveVisualQaReport["state"];
   const chatScreenshot = path.join(options.outDir, "01-chat-unlocked.png");
-  await page.screenshot({ path: chatScreenshot, fullPage: true });
-
-  await page.locator('.dock-node[data-sector="overview"]').click();
-  await page.waitForTimeout(1000);
-
   const overviewScreenshot = path.join(options.outDir, "02-overview-unlocked.png");
-  await page.screenshot({ path: overviewScreenshot, fullPage: true });
 
-  const state = await page.evaluate(() => {
-    const forbidden = ["12,847", "3.2M", "$4.82", "RTX 4090", "A100", "1528652069", "code-writer", "memory-compaction"];
-    const text = document.body.innerText;
-    const pulse = document.getElementById("core-pulse");
-    return {
-      pulseLabel: pulse?.querySelector(".bridge__pulse-label")?.textContent?.trim() || "",
-      authState: pulse?.dataset?.authState || "",
-      activeSector: document.querySelector(".sector.active")?.id || "",
-      currentCrumb: document.getElementById("bridge-current")?.textContent?.trim() || "",
-      overviewTitle: document.querySelector("#sector-overview .page-title")?.textContent?.trim() || "",
-      forbiddenDemoData: forbidden.filter((entry) => text.includes(entry)),
-    };
-  });
+  try {
+    await page.goto(url.toString(), { waitUntil: "domcontentloaded", timeout: 30_000 });
+    await page.waitForSelector("#core-pulse", { timeout: 15_000 });
+    await page.waitForLoadState("load", { timeout: 10_000 }).catch(() => undefined);
+    await page.waitForFunction(
+      () => document.getElementById("core-pulse")?.dataset?.authState === "unlocked",
+      { timeout: 20_000 },
+    ).catch(() => undefined);
+    await page.waitForTimeout(1000);
 
-  await browser.close();
+    await page.screenshot({ path: chatScreenshot, fullPage: true });
+
+    await page.locator('.dock-node[data-sector="overview"]').click({ timeout: 10_000 });
+    await page.waitForTimeout(1000);
+
+    await page.screenshot({ path: overviewScreenshot, fullPage: true });
+
+    state = await page.evaluate(() => {
+      const forbidden = ["12,847", "3.2M", "$4.82", "RTX 4090", "A100", "1528652069", "code-writer", "memory-compaction"];
+      const text = document.body.innerText;
+      const pulse = document.getElementById("core-pulse");
+      return {
+        pulseLabel: pulse?.querySelector(".bridge__pulse-label")?.textContent?.trim() || "",
+        authState: pulse?.dataset?.authState || "",
+        activeSector: document.querySelector(".sector.active")?.id || "",
+        currentCrumb: document.getElementById("bridge-current")?.textContent?.trim() || "",
+        overviewTitle: document.querySelector("#sector-overview .page-title")?.textContent?.trim()
+          || document.querySelector("#sector-overview .dashboard-title")?.textContent?.trim()
+          || "",
+        forbiddenDemoData: forbidden.filter((entry) => text.includes(entry)),
+      };
+    });
+  } finally {
+    await browser.close().catch(() => undefined);
+  }
 
   const report: LiveVisualQaReport = {
     ok: state.authState === "unlocked"

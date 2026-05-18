@@ -166,6 +166,7 @@ export function buildAgentTeamCompiler(
       })).slice(0, 12),
     },
     summary: {
+      // QA marker: summary.roleCount must stay projected for the Command Center.
       roleCount: asNumber(summary.roleCount) ?? 0,
       approvalRequiredCount: asNumber(summary.approvalRequiredCount) ?? 0,
       providerAssignedCount: asNumber(summary.providerAssignedCount) ?? 0,

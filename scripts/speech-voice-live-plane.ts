@@ -10,6 +10,7 @@ import type { SpeechArtifactRef } from '../src/contracts/SpeechContract.js';
 import { SpeechRuntimeService } from '../src/services/SpeechRuntimeService.js';
 import { SpeechVoiceLivePlaneService } from '../src/services/SpeechVoiceLivePlaneService.js';
 import { VoiceSessionService } from '../src/services/VoiceSessionService.js';
+import { ZavorthProviderLiveProofStoreService } from '../src/services/ZavorthProviderLiveProofStoreService.js';
 
 type Profile = 'configured' | 'staging-live';
 
@@ -40,7 +41,9 @@ async function main(): Promise<void> {
   const liveReceiptByTarget = new Map<string, unknown>();
   if (profile === 'staging-live' && confirmLiveIo) {
     for (const entry of selected) {
-      liveReceiptByTarget.set(entry.targetId, await runLiveSmoke(entry));
+      const receipt = await runLiveSmoke(entry);
+      liveReceiptByTarget.set(entry.targetId, receipt);
+      writeSpeechProviderLiveProof(entry, receipt);
     }
   }
 
@@ -333,4 +336,27 @@ function receiptHasLiveIo(receipt: unknown): boolean {
     && typeof receipt === 'object'
     && (receipt as { liveIoPerformed?: unknown }).liveIoPerformed === true,
   );
+}
+
+function writeSpeechProviderLiveProof(entry: SpeechVoiceLiveEntry, receipt: unknown): void {
+  const result = receipt as {
+    ok?: unknown;
+    operation?: unknown;
+    targetId?: unknown;
+    liveIoPerformed?: unknown;
+    secretValuesSerialized?: unknown;
+  } | null;
+  if (!result || result.ok !== true || result.liveIoPerformed !== true || result.secretValuesSerialized !== false) {
+    return;
+  }
+  new ZavorthProviderLiveProofStoreService().writeManualProof({
+    providerId: entry.targetId,
+    keys: [entry.targetId, ...entry.modalities, ...entry.capabilities],
+    status: 'healthy',
+    message: `Speech live smoke passed for ${String(result.operation || entry.capabilities[0] || 'speech')}.`,
+    target: entry.targetId,
+    httpStatus: null,
+    modelCount: null,
+    source: 'speech-voice-live-smoke',
+  });
 }

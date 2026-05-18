@@ -153,12 +153,20 @@ export class NexusFacadeService {
     const categoryCounts = this.toRecord(summary.categoryCounts);
     const firstNonStableCapability = maturitySnapshot.consoleRows.find((row) => row.status !== 'stable') || null;
     const provisionedEdges = this.buildProvisionedEdgeReadiness(maturitySnapshot);
+    const operatorExperience = this.buildOperatorExperiencePayload({
+      agentGatewayAvailable: input.agentGatewayAvailable,
+      providerOnline: connection.online,
+      pendingCount: pendingPermissions.length,
+      capabilityNextStep: firstNonStableCapability?.nextStep || null,
+      provisionedEdges,
+    });
 
     return {
       ok: true,
       source: 'NexusFacadeService',
       view: 'nexus-workbench',
       generatedAt: new Date().toISOString(),
+      operatorExperience,
       runtime: {
         primary: input.agentGatewayAvailable ? 'ZavorthAgentGateway' : 'ZavorthEchoService',
         agentGatewayAvailable: input.agentGatewayAvailable,
@@ -243,6 +251,7 @@ export class NexusFacadeService {
         'echo-fallback-visible-not-hidden',
         'approvals-resolve-through-canonical-echo-route',
         'provisioned-voice-browser-readiness-visible',
+        'operator-experience-summary-visible',
       ],
     };
   }
@@ -341,6 +350,93 @@ export class NexusFacadeService {
         'nexus-is-facade-not-parallel-runtime',
         'agent-gateway-preferred',
         'echo-is-edge-fallback',
+      ],
+    };
+  }
+
+  private buildOperatorExperiencePayload(input: {
+    agentGatewayAvailable: boolean;
+    providerOnline: boolean;
+    pendingCount: number;
+    capabilityNextStep: string | null;
+    provisionedEdges: Array<Record<string, unknown>>;
+  }): Record<string, unknown> {
+    const provisionedAttention = input.provisionedEdges.find((edge) => {
+      const readiness = this.toRecord(edge.readiness);
+      return this.readString(readiness.status) !== 'ready_for_activation_request';
+    }) || null;
+    const capabilityNextStep = input.capabilityNextStep
+      || this.readString(this.toRecord(provisionedAttention?.readiness).nextAction)
+      || this.readString(provisionedAttention?.nextStep)
+      || null;
+    const tone = input.pendingCount > 0
+      ? 'decision'
+      : !input.providerOnline
+        ? 'warning'
+        : !input.agentGatewayAvailable
+          ? 'fallback'
+          : capabilityNextStep
+            ? 'attention'
+            : 'ok';
+    const primaryMessage = input.pendingCount > 0
+      ? `${input.pendingCount} confirmacao(oes) aguardam sua decisao.`
+      : !input.providerOnline
+        ? 'Provider principal nao respondeu; Echo continua expondo o estado com seguranca.'
+        : !input.agentGatewayAvailable
+          ? 'Agent Gateway indisponivel; Nexus esta usando fallback Echo sem esconder isso.'
+          : capabilityNextStep
+            ? 'Nexus esta pronto, mas ha uma capacidade provisionada que merece atencao.'
+            : 'Nexus esta pronto para operar como painel convergente do Zavorth.';
+    const nextStep = input.pendingCount > 0
+      ? 'Aprove ou negue os pedidos pendentes.'
+      : capabilityNextStep || 'Continue usando; nenhuma correcao urgente.';
+
+    return {
+      statusLabel: tone === 'ok'
+        ? 'Pronto'
+        : tone === 'decision'
+          ? 'Aguardando decisao'
+          : tone === 'fallback'
+            ? 'Fallback seguro'
+            : 'Atencao',
+      tone,
+      primaryMessage,
+      nextStep,
+      cards: [
+        {
+          id: 'runtime',
+          label: 'Runtime',
+          value: input.agentGatewayAvailable ? 'Principal' : 'Fallback Echo',
+          tone: input.agentGatewayAvailable ? 'ok' : 'fallback',
+          detail: input.agentGatewayAvailable
+            ? 'Nexus esta ligado ao Agent Gateway.'
+            : 'Nexus nao bypassa o gateway; queda para Echo fica visivel.',
+        },
+        {
+          id: 'approvals',
+          label: 'Approvals',
+          value: input.pendingCount > 0 ? `${input.pendingCount} pendente(s)` : 'Livre',
+          tone: input.pendingCount > 0 ? 'decision' : 'ok',
+          detail: input.pendingCount > 0
+            ? 'Pedidos sensiveis estao pausados ate sua decisao.'
+            : 'Nenhum pedido sensivel aguardando.',
+        },
+        {
+          id: 'provider',
+          label: 'Provider',
+          value: input.providerOnline ? 'Online' : 'Em observacao',
+          tone: input.providerOnline ? 'ok' : 'warning',
+          detail: input.providerOnline
+            ? 'Modelo respondeu no ultimo probe do Echo.'
+            : 'Use readiness/provider doctor antes de depender de LLM live.',
+        },
+        {
+          id: 'capabilities',
+          label: 'Capacidades',
+          value: capabilityNextStep ? 'Ajustar' : 'Prontas',
+          tone: capabilityNextStep ? 'attention' : 'ok',
+          detail: capabilityNextStep || 'Sem proximo passo pendente.',
+        },
       ],
     };
   }

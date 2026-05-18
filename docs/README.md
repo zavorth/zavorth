@@ -58,6 +58,17 @@ small: daily-use guides, stable architecture notes and integration contracts.
 | [Roadmap](/docs/11-roadmap.md) | Small public roadmap |
 | [Product Pitch](/docs/01-product-pitch.md) | Positioning and narrative |
 
+## Certification Notes
+
+- Worker 5 closes the Provider Channel Smoke Proof gate with a mock-live-harness
+  only: sem chamadas externas reais and sem envios reais de canal.
+- Worker 6 continues with media/voice/web/docs diagnostics closure.
+- Phase 7 - Speech, TTS And Voice Live Plane is available through
+  `speech-voice-live-plane` and `speech-voice-live-plane:check`. Use the
+  `staging-live` profile plus explicit live confirmation for real speech I/O;
+  meeting bridges such as `google-meet` remain gated by provider capability and
+  owner approval.
+
 ## Documentation Rules
 
 - Public docs describe real current behavior or clearly marked roadmap.

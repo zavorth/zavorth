@@ -66,9 +66,24 @@ async function isUpstreamReady(): Promise<boolean> {
   return Boolean(response && response.status > 0 && response.status < 500);
 }
 
-async function isGatewayReady(): Promise<boolean> {
+async function probeGatewayProxy(): Promise<{ listening: boolean; upstreamReady: boolean; message: string | null }> {
   const response = await fetchWithTimeout(`${config.zavorthAIGatewayGatewayBaseUrl.replace(/\/+$/, '')}/health`, 5000);
-  return Boolean(response && response.ok);
+  if (!response) {
+    return {
+      listening: false,
+      upstreamReady: false,
+      message: 'Gateway proxy local ainda nao respondeu.',
+    };
+  }
+
+  const upstreamReady = response.ok;
+  return {
+    listening: true,
+    upstreamReady,
+    message: upstreamReady
+      ? null
+      : `Gateway proxy local ativo; upstream respondeu health ${response.status}.`,
+  };
 }
 
 function ensureRuntimeDir(): string {
@@ -230,9 +245,9 @@ async function ensureAIGatewayUpstream(processSpec: ManagedProcess, health: Proc
 
 async function ensureAIGatewayProxy(processSpec: ManagedProcess, health: ProcessHealth): Promise<void> {
   try {
-    const ready = await isGatewayReady();
-    updateHealth(health, ready);
-    if (!ready) {
+    const probe = await probeGatewayProxy();
+    updateHealth(health, probe.listening, probe.message);
+    if (!probe.listening) {
       spawnManaged(processSpec, health);
     }
   } catch (error) {

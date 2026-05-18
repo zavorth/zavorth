@@ -162,6 +162,21 @@ describe('CommandCenterDashboardAdapter', () => {
       nexusWorkbench: {
         ok: true,
         generatedAt: '2026-04-26T12:03:00.000Z',
+        operatorExperience: {
+          statusLabel: 'Pronto',
+          tone: 'ok',
+          primaryMessage: 'Nexus esta pronto para operar.',
+          nextStep: 'Continue usando.',
+          cards: [
+            {
+              id: 'runtime',
+              label: 'Runtime',
+              value: 'Principal',
+              tone: 'ok',
+              detail: 'Nexus esta ligado ao Agent Gateway.',
+            },
+          ],
+        },
         runtime: {
           primary: 'ZavorthAgentGateway',
           agentGatewayAvailable: true,
@@ -410,6 +425,19 @@ describe('CommandCenterDashboardAdapter', () => {
     expect(viewModel.nexusWorkbench).toEqual(expect.objectContaining({
       status: 'ready',
       headline: 'Nexus pronto pelo runtime principal.',
+      operatorExperience: expect.objectContaining({
+        statusLabel: 'Pronto',
+        tone: 'ok',
+        primaryMessage: 'Nexus esta pronto para operar.',
+        nextStep: 'Continue usando.',
+        cards: [
+          expect.objectContaining({
+            id: 'runtime',
+            label: 'Runtime',
+            value: 'Principal',
+          }),
+        ],
+      }),
       runtime: expect.objectContaining({
         primary: 'ZavorthAgentGateway',
         primaryLabel: 'Runtime principal',

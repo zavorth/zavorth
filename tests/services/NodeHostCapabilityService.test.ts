@@ -38,7 +38,12 @@ describe('NodeHostCapabilityService', () => {
     });
 
     expect(commandRunner.run).toHaveBeenCalledWith(
-      'echo NODE_MESH_OK',
+      expect.objectContaining({
+        label: 'system.run',
+        command: 'echo NODE_MESH_OK',
+        file: 'echo',
+        args: ['NODE_MESH_OK'],
+      }),
       expect.objectContaining({
         cwd: expect.any(String),
       }),

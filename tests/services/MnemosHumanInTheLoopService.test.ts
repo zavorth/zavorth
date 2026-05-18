@@ -7,7 +7,7 @@ const createMockLogRepo = () => ({
 const createMockMcpRuntime = (mnemosConnected = true) => ({
   readSnapshot: jest.fn().mockReturnValue({
     entries: mnemosConnected
-      ? [{ id: 'mnemos', status: 'connected', toolCount: 5, toolNames: ['search_memory', 'scan_local_metadata', 'index_file', 'vault_status', 'delete_memory'] }]
+      ? [{ id: 'mnemos', status: 'connected', toolCount: 6, toolNames: ['search_memory', 'scan_local_metadata', 'understand_file', 'index_file', 'vault_status', 'delete_memory'] }]
       : [{ id: 'mnemos', status: 'failed', toolCount: 0, toolNames: [] }],
   }),
 });

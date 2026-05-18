@@ -24,7 +24,7 @@ describe('ZavorthCommandCenterVisualApprovalPackService', () => {
       executionAuthority: false,
       sourceCockpitContractVersion: '2026-05-13.phase-6',
       target: expect.objectContaining({
-        route: '/control',
+        route: '/dashboard',
         defaultDecision: 'do_not_render',
       }),
       safety: expect.objectContaining({
@@ -113,7 +113,7 @@ function cockpitFixture(): ZavorthCommandCenterProviderCockpitProjection {
     healthChecks: [],
     receipts: [],
     commandCenterProjection: {
-      route: '/control',
+      route: '/dashboard',
       endpoint: '/api/providers/readiness',
       renderMode: 'projection-only',
       visualApprovalRequired: true,

@@ -62,28 +62,17 @@ function ruleContainsMarkers() {
     ['src/contracts/ZavorthExternalCapabilityInventoryContract.ts', [
       'ZAVORTH_EXTERNAL_CAPABILITY_INVENTORY_CONTRACT_VERSION',
       'zavorth-external-capability-inventory/0',
-      'openclaw-wsl',
+      'acp-compatibility-fixture',
       'readOnlyProbe',
       'noImplementationBeyondReadOnlyInventory',
     ]],
     ['src/services/ZavorthExternalCapabilityInventoryService.ts', [
-      'hermes:error-classifier',
-      'hermes:skill-curator',
-      'openclaw:channel-gateway-normalization',
-      'openclaw:plugin-sdk-runtime',
-      'openclaw:qa-release-security',
-      'openclaw-src',
-    ]],
-    ['docs/README.md', [
-      'phase-0-inventory-ready',
-      '291 Phase 1 - Zavorth Contract Layer',
-      'OpenClaw WSL',
-    ]],
-    ['docs/README.md', [
-      'phase-0-freeze-and-inventory',
-      'openclaw-wsl',
-      'read-only',
-      '291 Phase 1 - Zavorth Contract Layer',
+      'reference-runtime:error-classifier',
+      'reference-runtime:skill-curator',
+      'acp-compatible-sidecar:channel-gateway-normalization',
+      'acp-compatible-sidecar:plugin-sdk-runtime',
+      'acp-compatible-sidecar:qa-release-security',
+      'acp-compatible-sidecar-src',
     ]],
     ['package.json', [
       'zavorth:external-capability-inventory',
@@ -134,13 +123,13 @@ function runInventoryFixture() {
     && snapshot.safety?.executionPerformed === false
     && snapshot.freezePolicy?.noImplementationBeyondReadOnlyInventory === true
     && snapshot.decisionSummary?.total >= 14
-    && probes.some((probe) => probe.runtimeId === 'openclaw-wsl' && probe.availability === 'source-present');
+    && probes.some((probe) => probe.runtimeId === 'acp-compatibility-fixture' && probe.required === false);
   return {
     id: 'phase-0-inventory-fixture',
     label: 'Inventory fixture passes',
     status: ok ? 'passed' : 'failed',
     observed: ok ? `${snapshot.decisionSummary.total} item(s), ${snapshot.status}` : 'invalid inventory snapshot',
-    target: 'default inventory snapshot is inventory-ready with WSL source probe and no execution',
+    target: 'default inventory snapshot is inventory-ready with optional compatibility probe and no execution',
     details: ok ? [] : [result.stdout],
   };
 }

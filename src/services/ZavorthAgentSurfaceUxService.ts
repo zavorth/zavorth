@@ -18,7 +18,7 @@ export class ZavorthAgentSurfaceUxService {
   ): SurfaceResponse {
     const sessions = safeArray(snapshot.sessions);
     const timeline = safeArray(snapshot.timeline);
-    const summary = snapshot.summary || {};
+    const summary = snapshot.summary;
     const selectedSession = snapshot.selectedSessionId
       ? sessions.find((session) => session.sessionId === snapshot.selectedSessionId) || null
       : null;
@@ -170,7 +170,7 @@ export class ZavorthAgentSurfaceUxService {
     snapshot: ZavorthSubagentRuntimeSnapshot,
     selectedSession: ZavorthSubagentRuntimeSession | null,
   ): string {
-    const summary = snapshot.summary || {};
+    const summary = snapshot.summary;
     const lines = [
       'Zavorth Agents',
       '',

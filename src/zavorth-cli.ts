@@ -734,7 +734,237 @@ async function runDashboardExperienceHome(rawArgs: string[] = []): Promise<numbe
   return 0;
 }
 
+async function runRuntimeReadiness(rawArgs: string[] = []): Promise<number> {
+  const action = String(rawArgs[0] || '').trim().toLowerCase();
+  if (action === 'fixes' || rawArgs.includes('--fixes')) {
+    return runRuntimeGuidedFixes(action === 'fixes' ? rawArgs.slice(1) : rawArgs);
+  }
+  if (action === 'fix') {
+    return runRuntimeReadinessFix(rawArgs.slice(1));
+  }
+  const { ZavorthRuntimeReadinessService } = await import('./services/ZavorthRuntimeReadinessService.js');
+  const { ZavorthRuntimeReadinessUxService } = await import('./services/ZavorthRuntimeReadinessUxService.js');
+  const service = new ZavorthRuntimeReadinessService();
+  const uxService = new ZavorthRuntimeReadinessUxService();
+  const snapshot = await service.buildSnapshot({
+    userId: readFlexibleStringFlag(rawArgs, 'user-id') || 'operator',
+    sessionId: readFlexibleStringFlag(rawArgs, 'session-id') || 'runtime-readiness',
+    workspaceHint: readFlexibleStringFlag(rawArgs, 'workspace') || projectRoot,
+  });
+  const operatorUx = uxService.buildSnapshot(snapshot);
+
+  if (rawArgs.includes('--json')) {
+    process.stdout.write(`${JSON.stringify({ ...snapshot, operatorUx }, null, 2)}\n`);
+  } else if (rawArgs.includes('--technical') || rawArgs.includes('--raw')) {
+    process.stdout.write(service.renderText(snapshot));
+  } else {
+    process.stdout.write(uxService.renderCli(operatorUx));
+  }
+
+  return snapshot.status === 'blocked' || ((rawArgs.includes('--require-pass') || rawArgs.includes('--strict')) && snapshot.status !== 'ready')
+    ? 1
+    : 0;
+}
+
+async function runReadyToGo(rawArgs: string[] = []): Promise<number> {
+  if (rawArgs.includes('--watch') || rawArgs.includes('watch')) {
+    return runStayOnline(rawArgs);
+  }
+  const { ZavorthReadyToGoService } = await import('./services/ZavorthReadyToGoService.js');
+  const service = new ZavorthReadyToGoService();
+  const snapshot = await service.buildSnapshot({
+    refreshProviders: !rawArgs.includes('--offline') || rawArgs.includes('--refresh-providers'),
+    includeAdvancedProviders: rawArgs.includes('--advanced'),
+    userId: readFlexibleStringFlag(rawArgs, 'user-id') || 'operator',
+    sessionId: readFlexibleStringFlag(rawArgs, 'session-id') || 'ready-to-go',
+    workspaceHint: readFlexibleStringFlag(rawArgs, 'workspace') || projectRoot,
+  });
+  if (rawArgs.includes('--json')) {
+    process.stdout.write(`${JSON.stringify(snapshot, null, 2)}\n`);
+  } else {
+    process.stdout.write(service.renderCli(snapshot));
+  }
+  return snapshot.status === 'blocked' || ((rawArgs.includes('--require-pass') || rawArgs.includes('--strict')) && snapshot.status !== 'ready')
+    ? 1
+    : 0;
+}
+
+async function runStayOnline(rawArgs: string[] = []): Promise<number> {
+  return npmInherited(['exec', 'tsx', '--', 'scripts/zavorth-stay-online.ts', ...rawArgs], projectRoot);
+}
+
+async function runExternalAgentOnboarding(rawArgs: string[] = []): Promise<number> {
+  return npmInherited(['exec', 'tsx', '--', 'scripts/zavorth-external-agent-onboarding.ts', ...rawArgs], projectRoot);
+}
+
+async function runExternalAgentGateway(rawArgs: string[] = []): Promise<number> {
+  return npmInherited(['exec', 'tsx', '--', 'scripts/zavorth-external-agent-gateway.ts', ...rawArgs], projectRoot);
+}
+
+async function runCapabilityMesh(rawArgs: string[] = []): Promise<number> {
+  return npmInherited(['exec', 'tsx', '--', 'scripts/zavorth-capability-mesh.ts', ...rawArgs], projectRoot);
+}
+
+async function runAgentReview(rawArgs: string[] = []): Promise<number> {
+  return npmInherited(['exec', 'tsx', '--', 'scripts/zavorth-agent-review.ts', ...rawArgs], projectRoot);
+}
+
+async function runSkillCurator(rawArgs: string[] = []): Promise<number> {
+  return npmInherited(['exec', 'tsx', '--', 'scripts/zavorth-skill-curator-live-loop.ts', ...rawArgs], projectRoot);
+}
+
+async function runSkillExpansionPack(rawArgs: string[] = []): Promise<number> {
+  return npmInherited(['exec', 'tsx', '--', 'scripts/zavorth-skill-expansion-pack.ts', ...rawArgs], projectRoot);
+}
+
+async function runAcp(rawArgs: string[] = []): Promise<number> {
+  const action = String(rawArgs[0] || 'live').trim().toLowerCase();
+  if (action === 'session' || action === 'run') {
+    const nextArgs = rawArgs.slice(1);
+    const { AcpLiveSessionService } = await import('./services/AcpLiveSessionService.js');
+    const service = new AcpLiveSessionService();
+    const receipt = await service.run({
+      prompt: readFlexibleStringFlag(nextArgs, 'prompt') || nextArgs.find((arg) => !arg.startsWith('--')) || 'ping',
+      serverId: readFlexibleStringFlag(nextArgs, 'server') || 'local-acp',
+      transport: nextArgs.includes('--stdio') || nextArgs.includes('--acp-sdk-stdio') ? 'acp-sdk-stdio' : 'mock-jsonrpc',
+      stdioCommand: readFlexibleStringFlag(nextArgs, 'stdio-command') || undefined,
+      stdioArgs: readFlexibleStringFlag(nextArgs, 'stdio-args')?.split(/\s+/).filter(Boolean),
+      timeoutMs: Number(readFlexibleStringFlag(nextArgs, 'timeout-ms') || 0) || undefined,
+    });
+    if (nextArgs.includes('--json')) {
+      process.stdout.write(`${JSON.stringify(receipt, null, 2)}\n`);
+    } else {
+      process.stdout.write(`${service.renderText(receipt)}\n`);
+    }
+    return receipt.status === 'failed'
+      || receipt.status === 'blocked'
+      || ((nextArgs.includes('--require-pass') || nextArgs.includes('--strict')) && receipt.status !== 'completed')
+      ? 1
+      : 0;
+  }
+  const nextArgs = action === 'live' || action === 'status' || action === 'bridge'
+    ? rawArgs.slice(1)
+    : rawArgs;
+  const { AcpLiveBridgeService } = await import('./services/AcpLiveBridgeService.js');
+  const service = new AcpLiveBridgeService();
+  const snapshot = service.buildSnapshot();
+  if (nextArgs.includes('--json')) {
+    process.stdout.write(`${JSON.stringify(snapshot, null, 2)}\n`);
+  } else {
+    process.stdout.write(`${service.renderText(snapshot)}\n`);
+  }
+  return snapshot.status === 'blocked' || ((nextArgs.includes('--require-pass') || nextArgs.includes('--strict')) && snapshot.status !== 'ready')
+    ? 1
+    : 0;
+}
+
+async function runRuntimeGuidedFixes(rawArgs: string[] = []): Promise<number> {
+  const { ZavorthRuntimeGuidedFixesService } = await import('./services/ZavorthRuntimeGuidedFixesService.js');
+  const { ZavorthRuntimeReadinessService } = await import('./services/ZavorthRuntimeReadinessService.js');
+  const readiness = await new ZavorthRuntimeReadinessService().buildSnapshot({
+    userId: readFlexibleStringFlag(rawArgs, 'user-id') || 'operator',
+    sessionId: readFlexibleStringFlag(rawArgs, 'session-id') || 'runtime-guided-fixes',
+    workspaceHint: readFlexibleStringFlag(rawArgs, 'workspace') || projectRoot,
+  });
+  const service = new ZavorthRuntimeGuidedFixesService();
+  const snapshot = service.buildSnapshot(readiness);
+  if (rawArgs.includes('--json')) {
+    process.stdout.write(`${JSON.stringify(snapshot, null, 2)}\n`);
+  } else {
+    process.stdout.write(service.renderCli(snapshot));
+  }
+  return readiness.status === 'blocked' ? 1 : 0;
+}
+
+async function runRuntimeReadinessFix(rawArgs: string[] = []): Promise<number> {
+  const target = String(rawArgs[0] || '').trim().toLowerCase();
+  if (target === 'provider') {
+    return runRuntimeReadinessFixProvider(rawArgs.slice(1));
+  }
+  process.stderr.write('Fix desconhecido. Use: zavorth readiness fix provider --live-proof --provider <id>\n');
+  return 1;
+}
+
+async function runRuntimeReadinessFixProvider(rawArgs: string[] = []): Promise<number> {
+  const { ZavorthProviderLiveProofStoreService } = await import('./services/ZavorthProviderLiveProofStoreService.js');
+  const { ZavorthProviderReadinessMatrixService } = await import('./services/ZavorthProviderReadinessMatrixService.js');
+  const { ZavorthRuntimeReadinessService } = await import('./services/ZavorthRuntimeReadinessService.js');
+  const asJson = rawArgs.includes('--json');
+  const baseService = new ZavorthProviderReadinessMatrixService();
+  const baseSnapshot = baseService.buildSnapshot({ includeAdvanced: rawArgs.includes('--advanced') });
+  const providerId = readFlexibleStringFlag(rawArgs, 'provider')
+    || rawArgs.find((arg) => !arg.startsWith('--') && arg !== 'live-proof' && arg !== 'provider')
+    || baseSnapshot.activeProvider
+    || baseSnapshot.entries.find((entry) => entry.status === 'ready')?.id
+    || 'gemini';
+  const liveProofStore = new ZavorthProviderLiveProofStoreService();
+  const service = new ZavorthProviderReadinessMatrixService({ liveProofStore });
+  const snapshot = await service.buildLiveSnapshot({
+    includeAdvanced: rawArgs.includes('--advanced'),
+    providerId,
+    probe: true,
+    live: true,
+  });
+  const selected = snapshot.entries.find((entry) => entry.id === providerId || entry.familyIds.includes(providerId))
+    || snapshot.entries[0]
+    || null;
+  const readiness = await new ZavorthRuntimeReadinessService().buildSnapshot({
+    userId: readFlexibleStringFlag(rawArgs, 'user-id') || 'operator',
+    sessionId: 'runtime-readiness-provider-fix',
+    workspaceHint: readFlexibleStringFlag(rawArgs, 'workspace') || projectRoot,
+  });
+
+  if (asJson) {
+    process.stdout.write(`${JSON.stringify({
+      providerLiveProof: snapshot,
+      selected,
+      proofStore: {
+        path: liveProofStore.filePath,
+        rawSecretsSerialized: false,
+      },
+      runtimeReadiness: readiness,
+    }, null, 2)}\n`);
+  } else {
+    const passed = selected?.probe.status === 'passed';
+    process.stdout.write([
+      '[zavorth-readiness-fix] provider live proof',
+      `provider=${selected?.id || providerId}`,
+      `probe=${selected?.probe.status || 'not_found'}`,
+      `default_route=${selected?.defaultRouteAllowed ? 'allowed' : 'blocked'}`,
+      `runtime=${readiness.status}`,
+      `proof_store=${liveProofStore.filePath}`,
+      '',
+      passed
+        ? 'Provider validado com prova live persistida. Rode zavorth readiness para conferir o estado diario.'
+        : selected?.probe.summary || 'Probe live nao conseguiu validar o provider.',
+      '',
+    ].join('\n'));
+  }
+
+  return selected?.defaultRouteAllowed ? 0 : 1;
+}
+
 async function runCliExperienceParity(rawArgs: string[] = []): Promise<number> {
+  if (!rawArgs.includes('--legacy')) {
+    const { ZavorthCliTuiPolishService } = await import('./services/ZavorthCliTuiPolishService.js');
+    const service = new ZavorthCliTuiPolishService();
+    const snapshot = await service.buildSnapshot({
+      refreshProviders: rawArgs.includes('--refresh-providers') || rawArgs.includes('--live'),
+      includeAdvancedProviders: rawArgs.includes('--advanced'),
+      userId: readFlexibleStringFlag(rawArgs, 'user-id') || 'operator',
+      sessionId: readFlexibleStringFlag(rawArgs, 'session-id') || 'cli-home',
+      workspaceHint: readFlexibleStringFlag(rawArgs, 'workspace') || projectRoot,
+    });
+    if (rawArgs.includes('--json')) {
+      process.stdout.write(`${JSON.stringify(snapshot, null, 2)}\n`);
+    } else {
+      process.stdout.write(service.renderCli(snapshot));
+    }
+    return snapshot.status === 'blocked' || ((rawArgs.includes('--require-pass') || rawArgs.includes('--strict')) && snapshot.status !== 'ready')
+      ? 1
+      : 0;
+  }
+
   const { ZavorthCliExperienceParityService } = await import('./services/ZavorthCliExperienceParityService.js');
   const service = new ZavorthCliExperienceParityService();
   const snapshot = service.buildSnapshot();
@@ -1050,14 +1280,18 @@ async function runProviderReadiness(rawArgs: string[] = []): Promise<number> {
     return 0;
   }
   const { ZavorthProviderReadinessMatrixService } = await import('./services/ZavorthProviderReadinessMatrixService.js');
+  const { ZavorthProviderLiveProofStoreService } = await import('./services/ZavorthProviderLiveProofStoreService.js');
   const providerId = readFlexibleStringFlag(rawArgs, 'provider')
     || (action === 'test' ? rawArgs[1] : rawArgs.find((arg) => !arg.startsWith('--') && arg !== 'matrix' && arg !== 'live'));
-  const service = new ZavorthProviderReadinessMatrixService();
+  const live = rawArgs.includes('--live') || action === 'live';
+  const service = new ZavorthProviderReadinessMatrixService({
+    liveProofStore: live ? new ZavorthProviderLiveProofStoreService() : null,
+  });
   const snapshot = await service.buildLiveSnapshot({
     includeAdvanced: rawArgs.includes('--advanced'),
     providerId: providerId && providerId !== 'test' ? providerId : null,
     probe: action === 'test' || rawArgs.includes('--probe'),
-    live: rawArgs.includes('--live') || action === 'live',
+    live,
     allowAllLive: rawArgs.includes('--all'),
   });
 
@@ -1227,7 +1461,76 @@ async function runBuiltinLauncher(rawArgs: string[]): Promise<number | null> {
     return runDashboardExperienceHome(restArgs);
   }
 
-  if (command === 'daily' || command === 'cli-home' || command === 'start-here') {
+  if (command === 'ready' || command === 'ready-to-go') {
+    return runReadyToGo(restArgs);
+  }
+
+  if (command === 'stay-online' || command === 'stayonline') {
+    return runStayOnline(restArgs);
+  }
+
+  if (command === 'acp' || command === 'acpx') {
+    return runAcp(restArgs);
+  }
+
+  if (
+    command === 'external-agent-onboarding'
+    || command === 'agent-onboarding'
+    || command === 'agents-onboarding'
+  ) {
+    return runExternalAgentOnboarding(restArgs);
+  }
+
+  if (
+    command === 'external-agent'
+    || command === 'external-agents'
+    || command === 'agent-gateway'
+    || command === 'agents-gateway'
+  ) {
+    return runExternalAgentGateway(restArgs);
+  }
+
+  if (
+    command === 'capability-mesh'
+    || command === 'capabilities-mesh'
+    || command === 'skill-broker'
+    || command === 'capability-broker'
+  ) {
+    return runCapabilityMesh(restArgs);
+  }
+
+  if (
+    command === 'agent-review'
+    || command === 'review'
+    || command === 'code-review'
+    || command === 'repo-review'
+  ) {
+    return runAgentReview(restArgs);
+  }
+
+  if (
+    command === 'skill-curator'
+    || command === 'skills-curator'
+    || command === 'curator'
+    || command === 'curate-skills'
+  ) {
+    return runSkillCurator(restArgs);
+  }
+
+  if (
+    command === 'skill-expansion-pack'
+    || command === 'skills-expansion-pack'
+    || command === 'expand-skills'
+    || command === 'absorb-skills'
+  ) {
+    return runSkillExpansionPack(restArgs);
+  }
+
+  if (command === 'readiness' || command === 'runtime-readiness') {
+    return runRuntimeReadiness(restArgs);
+  }
+
+  if (command === 'daily' || command === 'cli-home' || command === 'start-here' || command === 'tui' || command === 'home') {
     return runCliExperienceParity(restArgs);
   }
 

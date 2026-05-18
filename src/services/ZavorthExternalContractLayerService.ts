@@ -27,9 +27,9 @@ type SnapshotInput = {
 };
 
 const SUPPORTED_RUNTIMES = new Set<ZavorthExternalCapabilityInventoryProbeRuntimeId>([
-  'hermes',
-  'openclaw',
-  'openclaw-wsl',
+  'reference-runtime',
+  'acp-compatible-sidecar',
+  'acp-compatibility-fixture',
 ]);
 
 const ENVELOPE_SCHEMAS: ZavorthExternalRuntimeEnvelopeSchema[] = [
@@ -121,7 +121,7 @@ export class ZavorthExternalContractLayerService {
       errors.push(error('unsupported_envelope_kind', 'kind', `Unsupported external envelope kind: ${input.kind || '<missing>'}`, 'Map source data to one of the Zavorth Phase 1 envelope kinds.'));
     }
     if (!sourceRuntimeId) {
-      errors.push(error('missing_required_field', 'sourceRuntimeId', 'Missing or unsupported source runtime id.', 'Use hermes, openclaw, or openclaw-wsl as diagnostic source ids.'));
+      errors.push(error('missing_required_field', 'sourceRuntimeId', 'Missing or unsupported source runtime id.', 'Use reference-runtime, acp-compatible-sidecar, or acp-compatibility-fixture as diagnostic source ids.'));
     }
     if (!input.sourceRef?.trim()) {
       errors.push(error('missing_required_field', 'sourceRef', 'Missing source reference.', 'Provide a stable source reference before normalization.'));
@@ -229,9 +229,9 @@ function schema(
 
 function buildRuntimeDescriptors(): ZavorthExternalRuntimeExternalRuntimeDescriptor[] {
   return [
-    runtimeDescriptor('hermes', 'Hermes reference runtime', 'reference-runtime', 'diagnostic-only'),
-    runtimeDescriptor('openclaw', 'OpenClaw Windows source clone', 'capability-source', 'quarantined-advisory'),
-    runtimeDescriptor('openclaw-wsl', 'OpenClaw WSL source clone', 'wsl-source-clone', 'quarantined-advisory'),
+    runtimeDescriptor('reference-runtime', 'Reference runtime fixture', 'architecture-reference', 'diagnostic-only'),
+    runtimeDescriptor('acp-compatible-sidecar', 'ACP-compatible sidecar fixture', 'acp-compatible-sidecar', 'quarantined-advisory'),
+    runtimeDescriptor('acp-compatibility-fixture', 'ACP compatibility fixture clone', 'compatibility-fixture', 'quarantined-advisory'),
   ];
 }
 
@@ -267,26 +267,26 @@ function buildFixtureInputs(): ZavorthExternalRuntimeExternalEnvelopeInput[] {
   return [
     {
       kind: 'capability',
-      sourceRuntimeId: 'openclaw',
+      sourceRuntimeId: 'acp-compatible-sidecar',
       sourceRef: 'extensions/telegram',
       sourcePath: 'extensions/telegram',
-      sourceLabel: 'OpenClaw Telegram extension',
+      sourceLabel: 'ACP-compatible Telegram channel fixture',
       publicName: 'Zavorth',
       provenance: { observedAt: '2026-05-11T00:00:00.000Z', evidence: ['docs/293-zavorth-external-runtime-phase-0-inventory.md'] },
     },
     {
       kind: 'worker',
-      sourceRuntimeId: 'hermes',
+      sourceRuntimeId: 'reference-runtime',
       sourceRef: 'run_agent.py',
       sourcePath: 'run_agent.py',
-      sourceLabel: 'Hermes run loop',
+      sourceLabel: 'Reference run loop',
       publicName: 'Zavorth',
       risk: 'high',
       provenance: { evidence: ['docs/291-zavorth-external-runtime-absorption-plan.md'] },
     },
     {
       kind: 'tool',
-      sourceRuntimeId: 'openclaw-wsl',
+      sourceRuntimeId: 'acp-compatibility-fixture',
       sourceRef: 'packages/plugin-sdk/tool',
       publicName: 'Zavorth',
       directToolExposure: true,
@@ -296,14 +296,14 @@ function buildFixtureInputs(): ZavorthExternalRuntimeExternalEnvelopeInput[] {
     },
     {
       kind: 'channel',
-      sourceRuntimeId: 'openclaw',
+      sourceRuntimeId: 'acp-compatible-sidecar',
       sourceRef: 'extensions/discord',
-      publicName: 'OpenClaw',
-      provenance: { evidence: ['docs/348-zavorth-openclaw-parity-matrix-private.md'] },
+      publicName: 'ACP-compatible sidecar',
+      provenance: { evidence: ['docs/348-zavorth-acp-compatible-sidecar-parity-matrix-private.md'] },
     },
     {
       kind: 'session',
-      sourceRuntimeId: 'hermes',
+      sourceRuntimeId: 'reference-runtime',
       publicName: 'Zavorth',
       provenance: { evidence: [] },
     },

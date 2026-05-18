@@ -167,7 +167,7 @@ export class SupervisedExecutionGatewayService {
           cancel: activeHandle.cancel,
           timeoutReason: `Timeout supervisionado da acao ${actionId}.`,
         });
-        if (supervisedResult.timedOut) {
+        if (supervisedResult.timedOut === true) {
           return this.ledger.record(this.recordBuilder.buildRecord({
             actionId,
             createdAt,
@@ -291,7 +291,7 @@ export class SupervisedExecutionGatewayService {
         cancel: null,
         timeoutReason: `Timeout supervisionado da execucao ${actionId}.`,
       });
-      if (supervisedResult.timedOut) {
+      if (supervisedResult.timedOut === true) {
         return this.ledger.record(this.recordBuilder.buildRecord({
           actionId,
           createdAt,

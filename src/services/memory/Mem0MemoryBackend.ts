@@ -19,7 +19,10 @@ export class Mem0MemoryBackend implements IMemoryBackend {
 
   constructor(
     private readonly apiKey: string = process.env.MEM0_API_KEY || '',
-    private readonly importer: ModuleImporter = async () => import('mem0ai') as Promise<Mem0Module>,
+    private readonly importer: ModuleImporter = async () => {
+      const moduleName = 'mem0ai';
+      return import(moduleName) as Promise<Mem0Module>;
+    },
   ) {}
 
   public async isAvailable(): Promise<boolean> {

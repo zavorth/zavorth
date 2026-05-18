@@ -91,7 +91,7 @@ export class DeveloperWorkspaceSurfaceService {
 
   public buildSnapshot(input: DeveloperWorkspaceSurfaceSnapshotInput = {}): DeveloperWorkspaceSurfaceSnapshot {
     const resolvedResult = this.resolveManifest(input);
-    if (!resolvedResult.ok) {
+    if (resolvedResult.ok === false) {
       return this.emptySnapshot(resolvedResult.error);
     }
 
@@ -236,7 +236,7 @@ export class DeveloperWorkspaceSurfaceService {
 
     try {
       const resolved = this.resolveManifest(input);
-      if (!resolved.ok) {
+      if (resolved.ok === false) {
         throw resolved.error;
       }
       this.logWatchService.bindSupervisor(this.processSupervisor, resolved.resolved);

@@ -14,6 +14,8 @@
   const state = {
     auth: null,
     commandCenter: null,
+    providerModelCatalog: null,
+    providerActivation: null,
     catalog: null,
     companions: null,
     gatewayRuntime: null,
@@ -1098,6 +1100,107 @@
       if (label === 'agents') value.textContent = modelProfile.modelLabel;
       if (label === 'fallback') value.textContent = modelProfile.fallbackModelLabel || 'not configured';
       if (label === 'protocol') value.textContent = `${modelProfile.providerLabel} · ${getCurrentModelRouteLabel()}`;
+    });
+  }
+
+  function updateProviderModelCatalog() {
+    const catalog = state.providerModelCatalog?.providerModelCatalog || state.providerModelCatalog;
+    const summaryGrid = document.querySelector('[data-provider-model-catalog-summary]');
+    const list = document.querySelector('[data-provider-model-catalog-list]');
+    if (!summaryGrid || !list) return;
+
+    if (!catalog || catalog.surface !== 'provider-model-catalog') {
+      summaryGrid.innerHTML = `
+        <div class="info-row"><span class="info-row__label">Routes</span><span class="info-row__value mono">waiting</span></div>
+        <div class="info-row"><span class="info-row__label">Live</span><span class="info-row__value mono">waiting</span></div>
+        <div class="info-row"><span class="info-row__label">Models</span><span class="info-row__value mono">waiting</span></div>
+        <div class="info-row"><span class="info-row__label">Media</span><span class="info-row__value mono">waiting</span></div>
+      `;
+      list.innerHTML = entityCardHtml({
+        title: 'Catalog waiting',
+        id: 'read-only',
+        status: 'Waiting',
+        detail: 'Provider and model catalog has not been published by the runtime yet.',
+      });
+      return;
+    }
+
+    const summary = catalog.summary || {};
+    const sections = catalog.sections || {};
+    summaryGrid.innerHTML = `
+      <div class="info-row"><span class="info-row__label">Routes</span><span class="info-row__value mono">${numberLabel(summary.providerRoutes || 0)} total / ${numberLabel(summary.defaultRouteAllowed || 0)} default</span></div>
+      <div class="info-row"><span class="info-row__label">Live</span><span class="info-row__value mono">${numberLabel(summary.liveReadyRoutes || 0)} proven / ${numberLabel(summary.catalogReadyButNotLive || 0)} needs proof</span></div>
+      <div class="info-row"><span class="info-row__label">Models</span><span class="info-row__value mono">${numberLabel(summary.effectiveModelSurface || 0)} surface / ${numberLabel(summary.liveDiscoveredModels || 0)} live-listed</span></div>
+      <div class="info-row"><span class="info-row__label">Media</span><span class="info-row__value mono">${numberLabel((sections.mediaCapable || []).length)} route(s)</span></div>
+    `;
+
+    const providers = Array.isArray(catalog.providers) ? catalog.providers : [];
+    const topProviders = [
+      ...providers.filter((provider) => provider.liveReady),
+      ...providers.filter((provider) => !provider.liveReady && provider.catalogReady),
+      ...providers.filter((provider) => !provider.catalogReady),
+    ].slice(0, 6);
+    list.innerHTML = topProviders.map((provider) => entityCardHtml({
+      title: provider.label || provider.id,
+      id: `${provider.id} - ${provider.routeKind || 'route'}`,
+      status: provider.liveReady ? 'Live proven' : provider.catalogReady ? 'Needs proof' : 'Configure',
+      detail: `${numberLabel(provider.effectiveModelCount || 0)} model(s). ${escapeHtml((provider.modelSample || []).slice(0, 3).join(', ') || provider.userAction || 'No model listed yet.')}`,
+      meta: `<span class="badge badge--muted">${escapeHtml((provider.modalities || []).join(' / ') || 'text')}</span><span class="badge badge--muted">${escapeHtml(provider.defaultRouteAllowed ? 'default allowed' : 'readiness gated')}</span>`,
+    })).join('') || entityCardHtml({
+      title: 'No provider routes',
+      id: 'catalog',
+      status: 'Empty',
+      detail: 'No provider route has been projected yet.',
+    });
+  }
+
+  function updateProviderActivation() {
+    const activation = state.providerActivation?.providerActivation || state.providerActivation;
+    const summaryGrid = document.querySelector('[data-provider-activation-summary]');
+    const list = document.querySelector('[data-provider-activation-list]');
+    if (!summaryGrid || !list) return;
+
+    if (!activation || activation.surface !== 'provider-activation') {
+      summaryGrid.innerHTML = `
+        <div class="info-row"><span class="info-row__label">Execution</span><span class="info-row__value mono">waiting</span></div>
+        <div class="info-row"><span class="info-row__label">Proof</span><span class="info-row__value mono">waiting</span></div>
+        <div class="info-row"><span class="info-row__label">Adapters</span><span class="info-row__value mono">waiting</span></div>
+        <div class="info-row"><span class="info-row__label">Connectors</span><span class="info-row__value mono">waiting</span></div>
+      `;
+      list.innerHTML = entityCardHtml({
+        title: 'Activation waiting',
+        id: 'read-only',
+        status: 'Waiting',
+        detail: 'Provider activation has not been published by the runtime yet.',
+      });
+      return;
+    }
+
+    const summary = activation.summary || {};
+    summaryGrid.innerHTML = `
+      <div class="info-row"><span class="info-row__label">Execution</span><span class="info-row__value mono">${numberLabel(summary.executionReady || 0)} ready / ${numberLabel(summary.routes || 0)} route(s)</span></div>
+      <div class="info-row"><span class="info-row__label">Proof</span><span class="info-row__value mono">${numberLabel(summary.liveReady || 0)} live / ${numberLabel(summary.needsLiveProof || 0)} need proof</span></div>
+      <div class="info-row"><span class="info-row__label">Adapters</span><span class="info-row__value mono">${numberLabel(summary.nativeAdapters || 0)} native / ${numberLabel(summary.openAiCompatibleAdapters || 0)} compatible</span></div>
+      <div class="info-row"><span class="info-row__label">Connectors</span><span class="info-row__value mono">${numberLabel(summary.needsConnector || 0)} gap(s)</span></div>
+    `;
+
+    const routes = Array.isArray(activation.routes) ? activation.routes : [];
+    const topRoutes = [
+      ...routes.filter((route) => route.executionReady),
+      ...routes.filter((route) => !route.executionReady && route.liveReady),
+      ...routes.filter((route) => !route.liveReady),
+    ].slice(0, 8);
+    list.innerHTML = topRoutes.map((route) => entityCardHtml({
+      title: route.label || route.id,
+      id: `${route.id} - ${route.adapterKind || 'adapter'}`,
+      status: route.executionReady ? 'Executable' : route.liveReady ? 'Needs connector' : 'Needs proof',
+      detail: `${numberLabel(route.modelCount || 0)} model(s). ${escapeHtml(route.setupAction || route.connectorAction || 'Review provider activation.')}`,
+      meta: `<span class="badge badge--muted">${escapeHtml((route.modalities || []).join(' / ') || 'text')}</span><span class="badge badge--muted">${escapeHtml(route.liveProofCommand || 'live proof command unavailable')}</span>`,
+    })).join('') || entityCardHtml({
+      title: 'No activation routes',
+      id: 'activation',
+      status: 'Empty',
+      detail: 'No provider activation route has been projected yet.',
     });
   }
 
@@ -2304,6 +2407,8 @@
     updateCron();
     updateNodes();
     updateConfig();
+    updateProviderModelCatalog();
+    updateProviderActivation();
     publishCurrentModelProfile();
     renderRemoteMeshApprovalsFromPayload(state.commandCenter || {}, window.ZavorthCommandCenterChat || {});
     renderArtifactsFromPayload(state.commandCenter || {}, window.ZavorthCommandCenterChat || {}, { display: false, reason: 'dashboard-refresh' });
@@ -2841,14 +2946,18 @@
 
   async function refresh(options = {}) {
     try {
-      const [auth, commandCenter, salesPack, salesPackChannelIo] = await Promise.all([
+      const [auth, commandCenter, providerModelCatalog, providerActivation, salesPack, salesPackChannelIo] = await Promise.all([
         readJson('/api/auth/status'),
         readJson(`/api/web/command-center${buildCommandCenterQueryString()}`, { headers: authHeaders() }),
+        readJson('/api/providers/model-catalog', { headers: authHeaders() }).catch(() => null),
+        readJson('/api/providers/activation', { headers: authHeaders() }).catch(() => null),
         readJson('/api/v2/sales-pack/snapshot').catch(() => null),
         readJson('/api/v2/sales-pack/channel-io/snapshot').catch(() => null),
       ]);
       state.auth = auth;
       state.commandCenter = commandCenter;
+      state.providerModelCatalog = providerModelCatalog?.providerModelCatalog || providerModelCatalog || null;
+      state.providerActivation = providerActivation?.providerActivation || providerActivation || null;
       state.salesPack = salesPack;
       state.salesPackChannelIo = salesPackChannelIo;
       writeRunId(commandCenter?.snapshot?.activeRun?.id || commandCenter?.activeRun?.id || readRunId());

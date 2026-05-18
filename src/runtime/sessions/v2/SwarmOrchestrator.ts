@@ -26,6 +26,15 @@ export interface SwarmRole {
   systemPrompt: string;
   command?: string;
   args?: string[];
+  cwd?: string;
+  stdinMode?: 'prompt' | 'none';
+  toolSpecId?: string | null;
+  isolation?: {
+    mode: 'direct' | 'temp-worktree' | 'docker' | 'wsl' | 'external-sandbox';
+    workerId?: string;
+    receiptId?: string;
+    description?: string;
+  };
 }
 
 export type SwarmStatus = 'idle' | 'running' | 'completed' | 'failed' | 'cancelled' | 'timed_out';
@@ -184,7 +193,9 @@ export class SwarmOrchestrator extends EventEmitter {
   private executeRole(role: SwarmRole): Promise<void> {
     return new Promise<void>((resolve) => {
       const ownership = this.buildRoleOwnership(role);
-      const session = this.options.sessionFactory?.(role) || new SessionManager(role.id, process.cwd(), {
+      const nonInteractiveCommand = Boolean(role.command && role.stdinMode !== 'prompt');
+      const session = this.options.sessionFactory?.(role) || new SessionManager(role.id, normalizeText(role.cwd, process.cwd()), {
+        ...(nonInteractiveCommand ? { loadNodePty: () => null } : {}),
         sessionRegistry: this.options.sessionRegistry,
         ownership,
       });
@@ -258,7 +269,10 @@ export class SwarmOrchestrator extends EventEmitter {
         '',
       ].join('\n');
 
-      session.write(`${prompt}\n`);
+      const shouldWritePrompt = role.stdinMode === 'prompt' || (!role.command && role.stdinMode !== 'none');
+      if (shouldWritePrompt) {
+        session.write(`${prompt}\n`);
+      }
     });
   }
 
@@ -284,6 +298,9 @@ export class SwarmOrchestrator extends EventEmitter {
         roleId: role.id,
         roleLabel: role.label,
         objective: this.objective,
+        cwd: normalizeText(role.cwd, process.cwd()),
+        isolationMode: role.isolation?.mode || 'direct',
+        isolationWorkerId: role.isolation?.workerId || null,
       },
     };
   }

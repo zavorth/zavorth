@@ -158,6 +158,8 @@ describe('CommandCenterShellWiring', () => {
     expect(overview).toContain('Nexus Workbench');
     expect(overview).toContain('viewModel.nexusWorkbench');
     expect(overview).toContain('humanNexusWorkbenchStatus');
+    expect(overview).toContain('nexusWorkbench.operatorExperience.statusLabel');
+    expect(overview).toContain('nexusWorkbench.operatorExperience.cards');
     expect(overview).toContain('Proximo passo: {nexusWorkbench.capabilities.nextAction}');
     expect(overview).toContain('onResolveNexusApproval');
     expect(overview).toContain('onRunNexusWorkbenchAction');

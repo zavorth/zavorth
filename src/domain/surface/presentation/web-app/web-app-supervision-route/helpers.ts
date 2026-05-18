@@ -1,3 +1,4 @@
+import crypto from 'crypto';
 import type {
   SystemOverlordAutonomyLevel,
   SystemOverlordCapability,
@@ -78,6 +79,49 @@ export function buildEngineeringWebContext(
   };
 }
 
+export function isWebOperatorApprovalRequested(body: Record<string, any> | null | undefined): boolean {
+  return body?.approved === true || body?.confirmed === true || body?.approvalGranted === true;
+}
+
+export function isStrongWebOperatorApprovalAccepted(
+  ctx: WebAppSupervisionRouteContext,
+  body: Record<string, any> | null | undefined,
+): boolean {
+  if (!isWebOperatorApprovalRequested(body)) {
+    return false;
+  }
+  const expected = String(
+    process.env.ZAVORTH_OPERATOR_APPROVAL_TOKEN
+    || process.env.ZAVORTH_EXTERNAL_AGENT_API_APPROVAL_TOKEN
+    || process.env.ZAVORTH_DASHBOARD_OPERATOR_TOKEN
+    || '',
+  ).trim();
+  if (expected.length < 16) {
+    return false;
+  }
+  const provided = readHeaderValue(ctx.req, 'x-zavorth-operator-approval');
+  return safeTokenEquals(provided, expected);
+}
+
+export function buildWebOperatorApprovalSafety(
+  ctx: WebAppSupervisionRouteContext,
+  body: Record<string, any> | null | undefined,
+): {
+  operatorApprovalRequested: boolean;
+  operatorApprovalAccepted: boolean;
+  bodyApprovalIgnored: boolean;
+  approvalRequiresHeaderToken: boolean;
+} {
+  const operatorApprovalRequested = isWebOperatorApprovalRequested(body);
+  const operatorApprovalAccepted = isStrongWebOperatorApprovalAccepted(ctx, body);
+  return {
+    operatorApprovalRequested,
+    operatorApprovalAccepted,
+    bodyApprovalIgnored: operatorApprovalRequested && !operatorApprovalAccepted,
+    approvalRequiresHeaderToken: true,
+  };
+}
+
 export function buildWebAppSupervisionRouteContext(
   req: http.IncomingMessage,
   res: http.ServerResponse,
@@ -111,4 +155,16 @@ export function buildWebAppSupervisionRouteContext(
     isSessionV2RecordingRoute,
     isSwarmV2Route,
   };
+}
+
+function readHeaderValue(req: http.IncomingMessage, name: string): string {
+  const raw = req.headers[name.toLowerCase()];
+  const value = Array.isArray(raw) ? raw[0] : raw;
+  return String(value || '').trim();
+}
+
+function safeTokenEquals(provided: string, expected: string): boolean {
+  const left = Buffer.from(String(provided || ''), 'utf8');
+  const right = Buffer.from(String(expected || ''), 'utf8');
+  return left.length === right.length && crypto.timingSafeEqual(left, right);
 }

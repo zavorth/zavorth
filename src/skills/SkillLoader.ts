@@ -125,23 +125,20 @@ export class SkillLoader {
         continue;
       }
 
-      const entries = fs.readdirSync(source.absolutePath, { withFileTypes: true });
-
-      for (const entry of entries) {
-        if (!entry.isDirectory()) continue;
-        if (IGNORED_SKILL_NAMES.has(entry.name)) {
+      for (const skillDir of this.discoverSkillDirectories(source)) {
+        const skillName = path.basename(skillDir);
+        if (IGNORED_SKILL_NAMES.has(skillName)) {
           if (!quiet) {
-            console.log(`Skill ignorada por configuracao: ${entry.name}`);
+            console.log(`Skill ignorada por configuracao: ${skillName}`);
           }
           continue;
         }
 
-        const skillDir = path.join(source.absolutePath, entry.name);
         const skillFile = path.join(skillDir, 'SKILL.md');
 
         if (!fs.existsSync(skillFile)) {
           if (!quiet) {
-            console.warn(`Skill sem SKILL.md ignorada: ${entry.name}`);
+            console.warn(`Skill sem SKILL.md ignorada: ${skillName}`);
           }
           continue;
         }
@@ -179,7 +176,7 @@ export class SkillLoader {
           }
         } catch (error) {
           if (!quiet) {
-            console.warn(`Erro ao carregar skill "${entry.name}": ${error}`);
+            console.warn(`Erro ao carregar skill "${skillName}": ${error}`);
           }
         }
       }
@@ -193,6 +190,50 @@ export class SkillLoader {
       console.log(`Total de skills carregadas: ${skills.length}`);
     }
     return skills;
+  }
+
+  private discoverSkillDirectories(source: SkillSourceRegistryEntry): string[] {
+    if (!this.shouldDiscoverNestedSkills(source)) {
+      return fs.readdirSync(source.absolutePath, { withFileTypes: true })
+        .filter((entry) => entry.isDirectory())
+        .map((entry) => path.join(source.absolutePath, entry.name));
+    }
+
+    const results: string[] = [];
+    const visit = (dir: string, depth: number): void => {
+      if (depth > 6) {
+        return;
+      }
+      const skillFile = path.join(dir, 'SKILL.md');
+      if (depth > 0 && fs.existsSync(skillFile)) {
+        results.push(dir);
+        return;
+      }
+      let entries: fs.Dirent[];
+      try {
+        entries = fs.readdirSync(dir, { withFileTypes: true });
+      } catch {
+        return;
+      }
+      for (const entry of entries) {
+        if (!entry.isDirectory()) {
+          continue;
+        }
+        if (entry.name.startsWith('.') || entry.name === 'node_modules') {
+          continue;
+        }
+        visit(path.join(dir, entry.name), depth + 1);
+      }
+    };
+
+    visit(source.absolutePath, 0);
+    return results;
+  }
+
+  private shouldDiscoverNestedSkills(source: SkillSourceRegistryEntry): boolean {
+    const normalizedPath = source.path.replace(/\\/g, '/').replace(/\/+$/g, '');
+    return source.id === 'workspace-imported-library'
+      || normalizedPath.endsWith('skill-library/imported');
   }
 
   public getSkillContent(skillDirPath: string): string {

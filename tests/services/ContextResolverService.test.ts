@@ -71,11 +71,11 @@ describe('ContextResolverService', () => {
     expect(snapshot.layers.map((layer) => layer.id)).not.toContain('mnemos-cognitive-protocol');
   });
 
-  it('adds Mnemos context when search and metadata tools are connected dynamically', async () => {
+  it('adds Mnemos context when universal file understanding tools are connected dynamically', async () => {
     const root = fs.mkdtempSync(path.join(os.tmpdir(), 'zavorth-context-mnemos-complete-'));
     tempDirs.push(root);
     const service = new ContextResolverService({
-      connectedToolNamesProvider: () => ['search_memory', 'scan_local_metadata'],
+      connectedToolNamesProvider: () => ['search_memory', 'scan_local_metadata', 'understand_file'],
     });
 
     const snapshot = await service.resolve({ workspace: root });

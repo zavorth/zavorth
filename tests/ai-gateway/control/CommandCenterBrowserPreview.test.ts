@@ -47,7 +47,7 @@ describe('CommandCenterBrowserPreview', () => {
       readFileSync(join(rootDir, 'package.json'), 'utf8'),
     ) as { scripts: Record<string, string> };
 
-    expect(docsIndex).toContain('Private audits, phase logs and implementation scratchpads do not belong here.');
+    expect(docsIndex).toContain('Private audits, implementation scratchpads and temporary planning notes do not belong here.');
     expect(packageJson.scripts['command-center:preview']).toContain('scripts/command-center-browser-preview.ts');
     expect(packageJson.scripts['qa:command-center-browser-preview']).toContain('--fixture=all');
   });
@@ -78,26 +78,25 @@ describe('CommandCenterBrowserPreview', () => {
       'utf8',
     );
 
-    expect(assetService).toContain('/control/review');
+    expect(assetService).toContain('/dashboard/review');
     expect(assetService).toContain('command-center-browser-preview');
-    expect(assetService).toContain('ZAVORTH_COMMAND_CENTER_EXPERIMENTAL');
     expect(assetService).toContain('ZAVORTH_COMMAND_CENTER_REVIEW_ENABLED');
     expect(assetService).toContain('ZAVORTH_COMMAND_CENTER_REVIEW_HTML');
     expect(assetService).toContain('npm run command-center:preview');
-    expect(assetService).toContain('shouldPromoteCommandCenterReviewToControl');
     expect(assetService).toContain('shouldServeCommandCenterReviewRoute');
     expect(assetService).toContain('isDevelopmentOrTestRuntime');
     expect(assetService).toContain('readCommandCenterShellHtml');
     expect(assetService).toContain("'assets', 'command-center'");
     expect(assetService).toContain('readCommandCenterAsset');
     expect(dashboardRoutes).toContain("pathname === '/control/review'");
+    expect(dashboardRoutes).toContain('isRetiredControlSurfacePath');
     expect(dashboardRoutes).toContain("pathname.startsWith('/styles/')");
     expect(dashboardRoutes).toContain("pathname.startsWith('/scripts/')");
     expect(runtimeShell).not.toContain('open-command-center-review');
     expect(runtimeShell).not.toContain('/control/review?fixture=safe-run');
     expect(stateRoutes).toContain('/api/web/command-center');
     expect(stateRoutes).toContain('deps.agentGateway?.buildSnapshot');
-    expect(stateRoutes).toContain('modelProfile: this.buildCurrentModelProfile(enrichedSnapshot)');
+    expect(stateRoutes).toContain('modelProfile: this.buildCurrentModelProfile(commandCenterSnapshot)');
     expect(stateRoutes).toContain('resolveConfiguredModel');
     expect(stateRoutes).toContain('config.llmProvider');
     expect(interactionRoutes).toContain('/api/web/agent-runs/approve');
@@ -248,7 +247,7 @@ describe('CommandCenterBrowserPreview', () => {
     expect(runtimeBridge).toContain('zavorth.commandCenter.sessionId');
     expect(runtimeBridge).toContain('X-Zavorth-Token');
     expect(runtimeBridge).toContain("source: 'command-center'");
-    expect(runtimeBridge).toContain('O Command Center');
+    expect(runtimeBridge).toContain('The dashboard is protected.');
     expect(runtimeBridge).toContain('openUnlockModal');
     expect(runtimeBridge).toContain('hydrateCurrentSession');
     expect(runtimeBridge).toContain('fetchCurrentApprovals');
@@ -261,19 +260,19 @@ describe('CommandCenterBrowserPreview', () => {
     expect(runtimeBridge).toContain('extractTranscriptMessages');
     expect(runtimeBridge).toContain('/api/auth/validate');
     expect(runtimeBridge).toContain('zavorth-unlock-token');
-    expect(runtimeBridge).toContain('Desbloquear runtime real');
+    expect(runtimeBridge).toContain('Unlock live runtime');
     expect(runtimeBridge).toContain('hashParams.get');
     expect(runtimeBridge).toContain('zavorth dashboard');
     expect(runtimeBridge).toContain('zavorth dashboard token');
-    expect(runtimeBridge).toContain('Abra uma nova aba com');
+    expect(runtimeBridge).toContain('Open a new tab with');
     expect(runtimeBridge).toContain('error.recovery');
-    expect(runtimeBridge).toContain('Core Desbloqueado');
+    expect(runtimeBridge).toContain('Core Unlocked');
     expect(runtimeBridge).toContain('openAccessStatusModal');
     expect(runtimeBridge).toContain('lockCommandCenterTab');
     expect(runtimeBridge).toContain('clearStoredToken');
     expect(runtimeBridge).toContain("pulse.dataset.authState");
-    expect(runtimeBridge).toContain('Bloquear esta aba');
-    expect(runtimeBridge).toContain('Token salvo nesta aba');
+    expect(runtimeBridge).toContain('Lock this tab');
+    expect(runtimeBridge).toContain('Token saved in this tab');
     expect(runtimeBridge).toContain('sessionStorage.setItem(AUTH_STORAGE_KEY, token)');
     expect(runtimeBridge).toContain('sessionStorage.removeItem(AUTH_STORAGE_KEY)');
     expect(runtimeBridge).toContain("pulse.addEventListener('click'");
@@ -294,11 +293,11 @@ describe('CommandCenterBrowserPreview', () => {
     expect(appScript).toContain('traceEventMatchesQuery');
     expect(appScript).toContain('traceEventIds');
     expect(appScript).toContain('runtime-history');
-    expect(pagesScript).toContain('honest placeholders');
+    expect(pagesScript).toContain('Static placeholders stay honest');
     expect(pagesScript).toContain('dashboard-glass');
-    expect(pagesScript).toContain('Runtime Pulse');
+    expect(pagesScript).toContain('Gateway');
     expect(pagesScript).toContain('data-dashboard-metric="runs"');
-    expect(pagesScript).toContain('Aguardando run real');
+    expect(pagesScript).toContain('Waiting for a mission');
     expect(pagesScript).not.toContain('12,847');
     expect(pagesScript).not.toContain('3.2M');
     expect(pagesScript).not.toContain('$4.82');

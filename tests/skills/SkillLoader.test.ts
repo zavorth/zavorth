@@ -253,4 +253,63 @@ describe('SkillLoader', () => {
       }),
     );
   });
+
+  it('discovers nested generated expansion skills under imported libraries', () => {
+    writeSkill(
+      path.join(workspaceRoot, 'skill-library', 'imported', 'zavorth-expansion-pack', 'research', 'research-pack'),
+      'research-pack',
+      'Generated Zavorth-native research route.',
+    );
+    writeSkill(
+      path.join(workspaceRoot, 'skill-library', 'imported', 'zavorth-expansion-pack', 'finance', 'trading-desk'),
+      'trading-desk',
+      'Generated Zavorth-native trading route.',
+    );
+
+    fs.writeFileSync(
+      path.join(workspaceRoot, 'config', 'skill-sources.json'),
+      JSON.stringify({
+        version: 1,
+        sources: [
+          {
+            id: 'workspace-imported-library',
+            label: 'Workspace imported skill library',
+            kind: 'workspace',
+            trust: 'review',
+            enabled: true,
+            ingestionMode: 'local-scan',
+            path: 'skill-library/imported',
+            createIfMissing: true,
+          },
+        ],
+      }, null, 2),
+      'utf8',
+    );
+    fs.writeFileSync(
+      path.join(workspaceRoot, 'config', 'skill-allowlist.json'),
+      JSON.stringify({
+        version: 1,
+        defaultPolicy: 'deny',
+        allowedSourceIds: ['workspace-imported-library'],
+        rules: [{ sourceId: 'workspace-imported-library', mode: 'all' }],
+      }, null, 2),
+      'utf8',
+    );
+
+    const loader = new SkillLoader({
+      sourceRegistryService: new SkillSourceRegistryService({
+        projectRoot: workspaceRoot,
+        configFile: path.join(workspaceRoot, 'config', 'skill-sources.json'),
+      }),
+      skillTrustPolicyService: new SkillTrustPolicyService({
+        projectRoot: workspaceRoot,
+        policyFile: path.join(workspaceRoot, 'config', 'skill-allowlist.json'),
+      }),
+    });
+
+    expect(loader.loadAll({ quiet: true }).map((entry) => entry.name).sort()).toEqual([
+      'research-pack',
+      'trading-desk',
+    ]);
+  });
 });

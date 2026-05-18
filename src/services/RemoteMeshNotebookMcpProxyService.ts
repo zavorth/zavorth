@@ -143,7 +143,7 @@ export class RemoteMeshNotebookMcpProxyService {
       return 'ZAVORTH_REMOTE_MESH_NOTEBOOK_MCP_TOKEN must be configured with at least 16 characters.';
     }
     const parsed = parseEndpoint(this.config.endpointUrl);
-    if (!parsed.ok) {
+    if (parsed.ok === false) {
       return parsed.error;
     }
     if (parsed.url.protocol === 'http:' && !isLoopback(parsed.url.hostname) && !this.config.allowInsecureHttpForTailnet) {
@@ -193,7 +193,7 @@ export class RemoteMeshNotebookMcpProxyService {
 
   private endpointLabel(): string | null {
     const parsed = parseEndpoint(this.config.endpointUrl);
-    if (!parsed.ok) {
+    if (parsed.ok === false) {
       return null;
     }
     return `${parsed.url.protocol}//${parsed.url.host}${parsed.url.pathname}`;

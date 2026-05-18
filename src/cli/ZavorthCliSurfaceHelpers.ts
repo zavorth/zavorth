@@ -1018,6 +1018,8 @@ export function buildCliHelpSnapshot(target?: string | null): CliHelpSnapshot {
           { command: 'zavorth missions', summary: 'Inspect the active mission projection, risk, approvals, artifacts and timeline.' },
           { command: 'zavorth receipts', summary: 'Read the visual receipt for what Zavorth did or blocked.' },
           { command: 'zavorth providers', summary: 'Inspect provider readiness without confusing catalog with live readiness.' },
+          { command: 'zavorth channels', summary: 'Inspect channel readiness and remote surfaces.' },
+          { command: 'zavorth agents', summary: 'Inspect agent teams, external candidates, and governed capability routes.' },
           { command: 'zavorth connectors', summary: 'Use the public connector doctor before lower-level channel tooling.' },
           { command: 'zavorth schedule', summary: 'Inspect daily automations and scheduler guardrails.' },
           { command: 'zavorth status', summary: 'See whether the local runtime is ready.' },

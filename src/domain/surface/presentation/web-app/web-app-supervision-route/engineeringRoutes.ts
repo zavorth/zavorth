@@ -1,4 +1,7 @@
-import { buildEngineeringWebContext } from './helpers.js';
+import {
+  buildEngineeringWebContext,
+  buildWebOperatorApprovalSafety,
+} from './helpers.js';
 import type { WebAppSupervisionRouteContext, WebAppSupervisionRouteHandler } from './types.js';
 
 export const handleEngineeringRoutes: WebAppSupervisionRouteHandler = async (ctx) => {
@@ -124,6 +127,7 @@ export const handleEngineeringRoutes: WebAppSupervisionRouteHandler = async (ctx
           deps.writeJson(res, { ok: false, error: 'command obrigatorio.' }, 400);
           return true;
         }
+        const approvalSafety = buildWebOperatorApprovalSafety(ctx, body);
         deps.writeJson(
           res,
           {
@@ -131,12 +135,13 @@ export const handleEngineeringRoutes: WebAppSupervisionRouteHandler = async (ctx
             run: await service.runCommand({
               runId,
               command,
-              approved: body.approved === true,
-              dryRun: body.dryRun === true,
+              approved: approvalSafety.operatorApprovalAccepted,
+              dryRun: body.dryRun === true || approvalSafety.bodyApprovalIgnored,
               requestedBy: String(body.requestedBy || deps.runtime.webUserId || '').trim() || null,
               capability: body.capability || null,
               metadata: body.metadata && typeof body.metadata === 'object' ? body.metadata : null,
             }),
+            safety: approvalSafety,
           },
           200,
         );
@@ -144,6 +149,7 @@ export const handleEngineeringRoutes: WebAppSupervisionRouteHandler = async (ctx
       }
       if (actionId === 'execute') {
         const body = await deps.readJsonBody(req);
+        const approvalSafety = buildWebOperatorApprovalSafety(ctx, body);
         deps.writeJson(
           res,
           {
@@ -151,11 +157,12 @@ export const handleEngineeringRoutes: WebAppSupervisionRouteHandler = async (ctx
             run: await service.executeRun({
               runId,
               command: String(body.command || '').trim() || null,
-              approved: body.approved === true,
-              dryRun: body.dryRun === true,
+              approved: approvalSafety.operatorApprovalAccepted,
+              dryRun: body.dryRun === true || approvalSafety.bodyApprovalIgnored,
               requestedBy: String(body.requestedBy || deps.runtime.webUserId || '').trim() || null,
               maxAttempts: Number(body.maxAttempts || 0) || null,
             }),
+            safety: approvalSafety,
           },
           200,
         );

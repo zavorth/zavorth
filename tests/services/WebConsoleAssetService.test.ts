@@ -30,7 +30,7 @@ describe('WebConsoleAssetService', () => {
       });
       const html = String(response.end.mock.calls[0][0] || '');
       expect(html).toContain('Hello, Operator');
-      expect(html).toContain('What should Zavorth handle today?');
+      expect(html).toContain('Start with Inbox, Tasks, Approvals, Receipts or Connectors.');
       expect(html).toContain('Ask Zavorth');
       expect(html).toContain('fox-semfundo.png');
       expect(writeJson).not.toHaveBeenCalled();

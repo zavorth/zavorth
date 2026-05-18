@@ -74,20 +74,9 @@ function ruleContainsMarkers() {
       'ZavorthExternalCapabilityEnvelopeContract',
       'ZavorthExternalToolEnvelopeContract',
       'ZavorthExternalWorkerEnvelopeContract',
-      'openclaw-wsl',
+      'acp-compatibility-fixture',
       'noSourceRuntimeCodeExecution',
       'noDirectToolExposure',
-    ]],
-    ['docs/README.md', [
-      'phase-1-contract-layer-ready',
-      '291 Phase 2 - Native Engine Absorption',
-      'Zavorth-owned envelopes',
-    ]],
-    ['docs/README.md', [
-      'phase-1-contract-layer-complete',
-      'Zavorth-owned envelopes',
-      'source_identity_leak',
-      '291 Phase 2 - Native Engine Absorption',
     ]],
     ['package.json', [
       'zavorth:external-contract-layer',

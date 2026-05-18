@@ -205,11 +205,11 @@ export type WebAppRuntimeRouteDeps = {
   > | null;
   swarmV2?: Pick<
     SwarmV2Service,
-    'launchSwarm' | 'listSwarms' | 'getSwarm' | 'cancelSwarm'
+    'launchSwarm' | 'launchOfficialSwarm' | 'launchOfficialSwarmAsync' | 'listSwarms' | 'getSwarm' | 'cancelSwarm' | 'listRoleLibrary' | 'upsertRoleLibraryEntry' | 'getSwarmReplay'
   > | null;
   experimentalSwarmV2?: Pick<
     SwarmV2Service,
-    'launchSwarm' | 'listSwarms' | 'getSwarm' | 'cancelSwarm'
+    'launchSwarm' | 'launchOfficialSwarm' | 'launchOfficialSwarmAsync' | 'listSwarms' | 'getSwarm' | 'cancelSwarm' | 'listRoleLibrary' | 'upsertRoleLibraryEntry' | 'getSwarmReplay'
   > | null;
   watchMode?: Pick<
     ComputerUseWatchModeService,
@@ -478,4 +478,3 @@ export class WebAppRuntimeRouteService {
   }
 
 }
-

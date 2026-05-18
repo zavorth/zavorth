@@ -61,6 +61,23 @@ does not execute actions by itself.
 The runtime coordinates tasks, tools, subagents, skills, provider calls,
 workspace operations and scheduled work.
 
+### Official Swarm v2
+
+Swarm v2 is the official multi-agent execution surface for large work. It keeps
+Zavorth's normal governance path, but adds a stronger team runtime:
+
+- canonical API: `/api/web/gateway/swarm-v2`;
+- legacy compatibility alias: `/api/web/experimental/swarm-v2`;
+- persistent role library for planner, researcher, implementer, verifier,
+  synthesizer, safety reviewer and custom roles;
+- batch queue with bounded concurrency and up to 300 planned roles;
+- per-role replay events, queue snapshots and parallelism metrics;
+- worker isolation metadata, with `temp-worktree` as the safe default cwd
+  separation and docker/wsl/external-sandbox profiles for stronger hosts;
+- deterministic final synthesis when no LLM synthesis provider is attached.
+
+Use `npm run swarm-v2:check` to verify the official Swarm v2 contract.
+
 ### Memory And Artifact Plane
 
 Session state, summaries, artifacts and receipts make work resumable without

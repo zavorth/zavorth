@@ -21,9 +21,9 @@ import {
 type Runtime = {
   now?: () => Date;
   projectRoot?: string;
-  hermesRoot?: string | null;
-  openClawRoot?: string | null;
-  openClawWslRoot?: string | null;
+  referenceRuntimeRoot?: string | null;
+  compatibilitySidecarRoot?: string | null;
+  compatibilityFixtureRoot?: string | null;
   bridgeStatus?: ZavorthExternalRuntimeBridgeStatus;
   existsSync?: typeof fs.existsSync;
   readdirSync?: typeof fs.readdirSync;
@@ -31,9 +31,9 @@ type Runtime = {
 
 type SnapshotInput = {
   projectRoot?: string | null;
-  hermesRoot?: string | null;
-  openClawRoot?: string | null;
-  openClawWslRoot?: string | null;
+  referenceRuntimeRoot?: string | null;
+  compatibilitySidecarRoot?: string | null;
+  compatibilityFixtureRoot?: string | null;
   bridgeStatus?: ZavorthExternalRuntimeBridgeStatus | null;
 };
 
@@ -71,22 +71,22 @@ type SourceProbeDefinition = {
   evidenceDocs: string[];
 };
 
-const HERMES_DOCS = [
+const REFERENCE_RUNTIME_DOCS = [
   'docs/291-zavorth-external-runtime-absorption-plan.md',
   'docs/292-natural-first-agent-runtime-pack.md',
 ];
 
-const OPENCLAW_DOCS = [
-  'docs/345-zavorth-openclaw-total-parity-audit-private.md',
-  'docs/348-zavorth-openclaw-parity-matrix-private.md',
-  'docs/399-zavorth-openclaw-full-surface-audit-private.md',
+const ACP_COMPATIBILITY_DOCS = [
+  'docs/345-zavorth-acp-compatible-sidecar-total-parity-audit-private.md',
+  'docs/348-zavorth-acp-compatible-sidecar-parity-matrix-private.md',
+  'docs/399-zavorth-acp-compatible-sidecar-full-surface-audit-private.md',
 ];
 
 const INVENTORY_ITEMS: InventoryItemDefinition[] = [
   item({
-    id: 'hermes:error-classifier',
+    id: 'reference-runtime:error-classifier',
     title: 'Centralized error classification and recovery strategy',
-    sourceRuntimeIds: ['hermes'],
+    sourceRuntimeIds: ['reference-runtime'],
     bridgeCandidateId: 'error-classifier',
     decision: 'absorb',
     targetPhase: 'phase-2-native-engine',
@@ -94,11 +94,11 @@ const INVENTORY_ITEMS: InventoryItemDefinition[] = [
     risk: 'medium',
     naturalFirstRoute: 'governed-execution',
     sourcePaths: [
-      hermesPath('agent/error_classifier.py', 'error taxonomy and recovery strategy reference'),
-      hermesPath('agent/retry_utils.py', 'retry/backoff behavior reference'),
-      hermesPath('agent/rate_limit_tracker.py', 'rate-limit tracking reference'),
+      referenceRuntimePath('agent/error_classifier.py', 'error taxonomy and recovery strategy reference'),
+      referenceRuntimePath('agent/retry_utils.py', 'retry/backoff behavior reference'),
+      referenceRuntimePath('agent/rate_limit_tracker.py', 'rate-limit tracking reference'),
     ],
-    evidenceDocs: HERMES_DOCS,
+    evidenceDocs: REFERENCE_RUNTIME_DOCS,
     observedBehavior: 'Classifies operational, provider, rate-limit, permission, context, billing, and syntax failures into recovery strategies.',
     stateConfigDependencies: ['provider error payloads', 'terminal stderr/stdout', 'retry budget', 'operator approval policy'],
     approvalRequiredForLive: false,
@@ -107,9 +107,9 @@ const INVENTORY_ITEMS: InventoryItemDefinition[] = [
     acceptanceGate: 'Classifies representative provider/terminal/context failures and emits a Zavorth recovery receipt without retrying by itself.',
   }),
   item({
-    id: 'hermes:tool-call-repair',
+    id: 'reference-runtime:tool-call-repair',
     title: 'Malformed tool-call and JSON repair',
-    sourceRuntimeIds: ['hermes'],
+    sourceRuntimeIds: ['reference-runtime'],
     bridgeCandidateId: 'tool-call-repair',
     decision: 'absorb',
     targetPhase: 'phase-2-native-engine',
@@ -117,11 +117,11 @@ const INVENTORY_ITEMS: InventoryItemDefinition[] = [
     risk: 'medium',
     naturalFirstRoute: 'tool-preview',
     sourcePaths: [
-      hermesPath('run_agent.py', 'tool-call parsing and repair reference'),
-      hermesPath('agent/tool_guardrails.py', 'tool safety reference'),
-      hermesPath('agent/gemini_schema.py', 'schema-shaping reference'),
+      referenceRuntimePath('run_agent.py', 'tool-call parsing and repair reference'),
+      referenceRuntimePath('agent/tool_guardrails.py', 'tool safety reference'),
+      referenceRuntimePath('agent/gemini_schema.py', 'schema-shaping reference'),
     ],
-    evidenceDocs: HERMES_DOCS,
+    evidenceDocs: REFERENCE_RUNTIME_DOCS,
     observedBehavior: 'Repairs common malformed tool arguments before the tool layer sees them.',
     stateConfigDependencies: ['tool schema catalog', 'raw model tool-call payload', 'approval context', 'repair receipt store'],
     approvalRequiredForLive: false,
@@ -130,9 +130,9 @@ const INVENTORY_ITEMS: InventoryItemDefinition[] = [
     acceptanceGate: 'Repair is parser/AST-first, cannot add authority, and dangerous repaired calls remain approval-gated.',
   }),
   item({
-    id: 'hermes:safe-tool-parallelism',
+    id: 'reference-runtime:safe-tool-parallelism',
     title: 'Safe tool parallelism by resource/write set',
-    sourceRuntimeIds: ['hermes'],
+    sourceRuntimeIds: ['reference-runtime'],
     bridgeCandidateId: 'safe-tool-parallelism',
     decision: 'absorb',
     targetPhase: 'phase-2-native-engine',
@@ -140,11 +140,11 @@ const INVENTORY_ITEMS: InventoryItemDefinition[] = [
     risk: 'medium',
     naturalFirstRoute: 'governed-execution',
     sourcePaths: [
-      hermesPath('run_agent.py', 'tool batch scheduling reference'),
-      hermesPath('agent/file_safety.py', 'file safety reference'),
-      hermesPath('agent/tool_guardrails.py', 'tool guardrail reference'),
+      referenceRuntimePath('run_agent.py', 'tool batch scheduling reference'),
+      referenceRuntimePath('agent/file_safety.py', 'file safety reference'),
+      referenceRuntimePath('agent/tool_guardrails.py', 'tool guardrail reference'),
     ],
-    evidenceDocs: HERMES_DOCS,
+    evidenceDocs: REFERENCE_RUNTIME_DOCS,
     observedBehavior: 'Parallelizes independent tool batches and serializes conflicts around shared files/resources.',
     stateConfigDependencies: ['tool resource declarations', 'workspace path policy', 'write intent detector', 'run budget'],
     approvalRequiredForLive: false,
@@ -153,9 +153,9 @@ const INVENTORY_ITEMS: InventoryItemDefinition[] = [
     acceptanceGate: 'Same-file writes and unknown resources serialize; parallel execution emits conflict receipts.',
   }),
   item({
-    id: 'hermes:skill-curator',
+    id: 'reference-runtime:skill-curator',
     title: 'Skill curator with dry-run, merge, archive, pinning, and rollback',
-    sourceRuntimeIds: ['hermes'],
+    sourceRuntimeIds: ['reference-runtime'],
     bridgeCandidateId: 'skill-curator',
     decision: 'absorb',
     targetPhase: 'phase-2-native-engine',
@@ -163,11 +163,11 @@ const INVENTORY_ITEMS: InventoryItemDefinition[] = [
     risk: 'high',
     naturalFirstRoute: 'approval-proposal',
     sourcePaths: [
-      hermesPath('agent/curator.py', 'skill curation reference'),
-      hermesPath('agent/skill_utils.py', 'skill library utility reference'),
-      hermesPath('agent/skill_preprocessing.py', 'skill preprocessing reference'),
+      referenceRuntimePath('agent/curator.py', 'skill curation reference'),
+      referenceRuntimePath('agent/skill_utils.py', 'skill library utility reference'),
+      referenceRuntimePath('agent/skill_preprocessing.py', 'skill preprocessing reference'),
     ],
-    evidenceDocs: HERMES_DOCS,
+    evidenceDocs: REFERENCE_RUNTIME_DOCS,
     observedBehavior: 'Reviews skills, discourages micro-skills, merges duplicates, and proposes cleanup of unused or session-specific material.',
     stateConfigDependencies: ['skill library index', 'usage/failure receipts', 'diff snapshot store', 'rollback artifact store', 'approval envelope'],
     approvalRequiredForLive: true,
@@ -176,9 +176,9 @@ const INVENTORY_ITEMS: InventoryItemDefinition[] = [
     acceptanceGate: 'Produces a dry-run diff and rollback snapshot; no skill write occurs without Zavorth approval.',
   }),
   item({
-    id: 'hermes:procedural-memory',
+    id: 'reference-runtime:procedural-memory',
     title: 'Procedural memory for commands, failures, and recovery paths',
-    sourceRuntimeIds: ['hermes'],
+    sourceRuntimeIds: ['reference-runtime'],
     bridgeCandidateId: 'procedural-memory',
     decision: 'absorb',
     targetPhase: 'phase-6-sessions-memory-continuation',
@@ -186,11 +186,11 @@ const INVENTORY_ITEMS: InventoryItemDefinition[] = [
     risk: 'medium',
     naturalFirstRoute: 'memory-recall',
     sourcePaths: [
-      hermesPath('agent/memory_manager.py', 'memory management reference'),
-      hermesPath('agent/trajectory.py', 'run trajectory and experience reference'),
-      hermesPath('agent/context_engine.py', 'context retrieval reference'),
+      referenceRuntimePath('agent/memory_manager.py', 'memory management reference'),
+      referenceRuntimePath('agent/trajectory.py', 'run trajectory and experience reference'),
+      referenceRuntimePath('agent/context_engine.py', 'context retrieval reference'),
     ],
-    evidenceDocs: HERMES_DOCS,
+    evidenceDocs: REFERENCE_RUNTIME_DOCS,
     observedBehavior: 'Keeps useful operational experience such as successful commands, failed commands, workarounds, and recovery strategies.',
     stateConfigDependencies: ['run observatory receipts', 'memory receipts', 'redaction policy', 'forget/correct commands'],
     approvalRequiredForLive: false,
@@ -199,9 +199,9 @@ const INVENTORY_ITEMS: InventoryItemDefinition[] = [
     acceptanceGate: 'Every procedural memory has provenance and can be cited, corrected, or forgotten.',
   }),
   item({
-    id: 'openclaw:extension-inventory',
+    id: 'acp-compatible-sidecar:extension-inventory',
     title: 'Extension and capability inventory',
-    sourceRuntimeIds: ['openclaw'],
+    sourceRuntimeIds: ['acp-compatible-sidecar'],
     bridgeCandidateId: 'external-capability-inventory',
     decision: 'adapt',
     targetPhase: 'phase-0-inventory',
@@ -209,11 +209,11 @@ const INVENTORY_ITEMS: InventoryItemDefinition[] = [
     risk: 'medium',
     naturalFirstRoute: 'capability-discovery',
     sourcePaths: [
-      openClawPath('extensions', 'extension/capability catalog root'),
-      openClawPath('skills', 'packaged skills catalog root'),
-      openClawPath('packages/plugin-package-contract', 'plugin package manifest contract reference'),
+      compatibilitySidecarPath('extensions', 'extension/capability catalog root'),
+      compatibilitySidecarPath('skills', 'packaged skills catalog root'),
+      compatibilitySidecarPath('packages/plugin-package-contract', 'plugin package manifest contract reference'),
     ],
-    evidenceDocs: OPENCLAW_DOCS,
+    evidenceDocs: ACP_COMPATIBILITY_DOCS,
     observedBehavior: 'Large ecosystem inventory across extensions, skills, channels, providers, media, memory, tools, docs, and QA surfaces.',
     stateConfigDependencies: ['extension manifests', 'skill manifests', 'plugin package metadata', 'source trust policy'],
     approvalRequiredForLive: false,
@@ -222,9 +222,9 @@ const INVENTORY_ITEMS: InventoryItemDefinition[] = [
     acceptanceGate: 'Each external capability receives a Zavorth decision, source path, risk, equivalent, and proof gate before exposure.',
   }),
   item({
-    id: 'openclaw:channel-gateway-normalization',
+    id: 'acp-compatible-sidecar:channel-gateway-normalization',
     title: 'Channel gateway normalization',
-    sourceRuntimeIds: ['openclaw', 'hermes'],
+    sourceRuntimeIds: ['acp-compatible-sidecar', 'reference-runtime'],
     bridgeCandidateId: 'channel-gateway-normalization',
     decision: 'adapt',
     targetPhase: 'phase-5-channels-messaging',
@@ -232,13 +232,13 @@ const INVENTORY_ITEMS: InventoryItemDefinition[] = [
     risk: 'high',
     naturalFirstRoute: 'capability-discovery',
     sourcePaths: [
-      openClawPath('src/channels', 'channel runtime contracts'),
-      openClawPath('extensions/telegram', 'Telegram channel maturity reference'),
-      openClawPath('extensions/discord', 'Discord channel maturity reference'),
-      openClawPath('extensions/slack', 'Slack channel maturity reference'),
-      hermesPath('gateway', 'Hermes gateway reference'),
+      compatibilitySidecarPath('src/channels', 'channel runtime contracts'),
+      compatibilitySidecarPath('extensions/telegram', 'Telegram channel maturity reference'),
+      compatibilitySidecarPath('extensions/discord', 'Discord channel maturity reference'),
+      compatibilitySidecarPath('extensions/slack', 'Slack channel maturity reference'),
+      referenceRuntimePath('gateway', 'Reference gateway behavior'),
     ],
-    evidenceDocs: OPENCLAW_DOCS,
+    evidenceDocs: ACP_COMPATIBILITY_DOCS,
     observedBehavior: 'Normalizes broad chat/channel events and outbound channel replies across many transports.',
     stateConfigDependencies: ['channel credentials', 'session mapping', 'reply ports', 'trust policy', 'rate limits'],
     approvalRequiredForLive: true,
@@ -247,9 +247,9 @@ const INVENTORY_ITEMS: InventoryItemDefinition[] = [
     acceptanceGate: 'One inbound event enters ZavorthAgentGateway; outbound dry-run is evaluated by Zavorth policy and real send requires approval.',
   }),
   item({
-    id: 'openclaw:provider-model-mesh',
+    id: 'acp-compatible-sidecar:provider-model-mesh',
     title: 'Provider and model ecosystem breadth',
-    sourceRuntimeIds: ['openclaw', 'hermes'],
+    sourceRuntimeIds: ['acp-compatible-sidecar', 'reference-runtime'],
     bridgeCandidateId: null,
     decision: 'adapt',
     targetPhase: 'phase-4-capability-providers',
@@ -257,14 +257,14 @@ const INVENTORY_ITEMS: InventoryItemDefinition[] = [
     risk: 'high',
     naturalFirstRoute: 'capability-discovery',
     sourcePaths: [
-      openClawPath('extensions/amazon-bedrock', 'Bedrock provider reference'),
-      openClawPath('extensions/anthropic', 'Anthropic provider reference'),
-      openClawPath('extensions/deepinfra', 'long-tail provider reference'),
-      openClawPath('src/model-catalog', 'model catalog reference'),
-      hermesPath('agent/anthropic_adapter.py', 'Hermes provider adapter reference'),
-      hermesPath('agent/bedrock_adapter.py', 'Hermes Bedrock adapter reference'),
+      compatibilitySidecarPath('extensions/amazon-bedrock', 'Bedrock provider reference'),
+      compatibilitySidecarPath('extensions/anthropic', 'Anthropic provider reference'),
+      compatibilitySidecarPath('extensions/deepinfra', 'long-tail provider reference'),
+      compatibilitySidecarPath('src/model-catalog', 'model catalog reference'),
+      referenceRuntimePath('agent/anthropic_adapter.py', 'Reference provider adapter behavior'),
+      referenceRuntimePath('agent/bedrock_adapter.py', 'Reference Bedrock adapter behavior'),
     ],
-    evidenceDocs: OPENCLAW_DOCS,
+    evidenceDocs: ACP_COMPATIBILITY_DOCS,
     observedBehavior: 'Broad provider/model adapter ecosystem with live probes, model catalogs, and provider-specific credential behavior.',
     stateConfigDependencies: ['credential refs', 'provider catalog', 'model metadata', 'billing/rate-limit policy', 'egress guard'],
     approvalRequiredForLive: true,
@@ -273,9 +273,9 @@ const INVENTORY_ITEMS: InventoryItemDefinition[] = [
     acceptanceGate: 'Provider metadata imports as catalog evidence only; live provider calls require existing Zavorth provider policy.',
   }),
   item({
-    id: 'openclaw:plugin-sdk-runtime',
+    id: 'acp-compatible-sidecar:plugin-sdk-runtime',
     title: 'Plugin SDK and runtime package surface',
-    sourceRuntimeIds: ['openclaw'],
+    sourceRuntimeIds: ['acp-compatible-sidecar'],
     bridgeCandidateId: null,
     decision: 'adapt',
     targetPhase: 'phase-4-capability-providers',
@@ -283,11 +283,11 @@ const INVENTORY_ITEMS: InventoryItemDefinition[] = [
     risk: 'high',
     naturalFirstRoute: 'capability-discovery',
     sourcePaths: [
-      openClawPath('packages/plugin-sdk', 'public plugin SDK package reference'),
-      openClawPath('src/plugin-sdk', 'runtime SDK source reference'),
-      openClawPath('src/plugins', 'plugin loader/lifecycle reference'),
+      compatibilitySidecarPath('packages/plugin-sdk', 'public plugin SDK package reference'),
+      compatibilitySidecarPath('src/plugin-sdk', 'runtime SDK source reference'),
+      compatibilitySidecarPath('src/plugins', 'plugin loader/lifecycle reference'),
     ],
-    evidenceDocs: OPENCLAW_DOCS,
+    evidenceDocs: ACP_COMPATIBILITY_DOCS,
     observedBehavior: 'Exposes a public plugin SDK, package manifests, lifecycle hooks, install/update flows, and extension release mechanics.',
     stateConfigDependencies: ['plugin manifest schema', 'source trust registry', 'package provenance', 'content scan', 'owner approval'],
     approvalRequiredForLive: true,
@@ -296,9 +296,9 @@ const INVENTORY_ITEMS: InventoryItemDefinition[] = [
     acceptanceGate: 'Imported plugins remain quarantined until manifest, provenance, license, prompt-injection, and approval gates pass.',
   }),
   item({
-    id: 'openclaw:memory-host-sdk',
+    id: 'acp-compatible-sidecar:memory-host-sdk',
     title: 'Memory host SDK and memory plugin surface',
-    sourceRuntimeIds: ['openclaw'],
+    sourceRuntimeIds: ['acp-compatible-sidecar'],
     bridgeCandidateId: 'procedural-memory',
     decision: 'adapt',
     targetPhase: 'phase-6-sessions-memory-continuation',
@@ -306,12 +306,12 @@ const INVENTORY_ITEMS: InventoryItemDefinition[] = [
     risk: 'medium',
     naturalFirstRoute: 'memory-recall',
     sourcePaths: [
-      openClawPath('packages/memory-host-sdk', 'memory host SDK reference'),
-      openClawPath('src/memory', 'memory runtime source reference'),
-      openClawPath('extensions/memory-core', 'memory-core plugin reference'),
-      openClawPath('extensions/memory-lancedb', 'vector memory plugin reference'),
+      compatibilitySidecarPath('packages/memory-host-sdk', 'memory host SDK reference'),
+      compatibilitySidecarPath('src/memory', 'memory runtime source reference'),
+      compatibilitySidecarPath('extensions/memory-core', 'memory-core plugin reference'),
+      compatibilitySidecarPath('extensions/memory-lancedb', 'vector memory plugin reference'),
     ],
-    evidenceDocs: OPENCLAW_DOCS,
+    evidenceDocs: ACP_COMPATIBILITY_DOCS,
     observedBehavior: 'Memory host package and plugins provide storage, query, embeddings, local vector, and multimodal memory surfaces.',
     stateConfigDependencies: ['memory backend', 'embedding provider', 'privacy filtering', 'retention policy', 'receipt ledger'],
     approvalRequiredForLive: false,
@@ -320,9 +320,9 @@ const INVENTORY_ITEMS: InventoryItemDefinition[] = [
     acceptanceGate: 'Imported memories are advisory until normalized with receipt provenance and forget/correct affordances.',
   }),
   item({
-    id: 'openclaw:delegated-workers',
+    id: 'acp-compatible-sidecar:delegated-workers',
     title: 'Delegated workers and task orchestration',
-    sourceRuntimeIds: ['openclaw', 'hermes'],
+    sourceRuntimeIds: ['acp-compatible-sidecar', 'reference-runtime'],
     bridgeCandidateId: 'delegated-workers',
     decision: 'adapt',
     targetPhase: 'phase-7-delegated-workers',
@@ -330,12 +330,12 @@ const INVENTORY_ITEMS: InventoryItemDefinition[] = [
     risk: 'high',
     naturalFirstRoute: 'governed-execution',
     sourcePaths: [
-      openClawPath('src/agents', 'agent runtime reference'),
-      openClawPath('src/tasks', 'task runtime reference'),
-      openClawPath('src/trajectory', 'worker trajectory reference'),
-      hermesPath('run_agent.py', 'Hermes agent run loop reference'),
+      compatibilitySidecarPath('src/agents', 'agent runtime reference'),
+      compatibilitySidecarPath('src/tasks', 'task runtime reference'),
+      compatibilitySidecarPath('src/trajectory', 'worker trajectory reference'),
+      referenceRuntimePath('run_agent.py', 'Reference agent run loop behavior'),
     ],
-    evidenceDocs: [...HERMES_DOCS, ...OPENCLAW_DOCS],
+    evidenceDocs: [...REFERENCE_RUNTIME_DOCS, ...ACP_COMPATIBILITY_DOCS],
     observedBehavior: 'Breaks work into agent/task/trajectory units and can delegate bounded work to runtimes or workers.',
     stateConfigDependencies: ['task envelope', 'worker descriptor', 'timeout/cancellation policy', 'artifact mapping', 'approval envelope'],
     approvalRequiredForLive: true,
@@ -344,9 +344,9 @@ const INVENTORY_ITEMS: InventoryItemDefinition[] = [
     acceptanceGate: 'Worker dispatch is dry-run first, launch is approval-gated, and results return only as Zavorth artifacts/events/status.',
   }),
   item({
-    id: 'openclaw:native-apps',
+    id: 'acp-compatible-sidecar:native-apps',
     title: 'Native Android, iOS, macOS, and companion app surfaces',
-    sourceRuntimeIds: ['openclaw'],
+    sourceRuntimeIds: ['acp-compatible-sidecar'],
     bridgeCandidateId: null,
     decision: 'externalize',
     targetPhase: 'phase-8-native-replacement',
@@ -354,12 +354,12 @@ const INVENTORY_ITEMS: InventoryItemDefinition[] = [
     risk: 'high',
     naturalFirstRoute: 'capability-discovery',
     sourcePaths: [
-      openClawPath('apps/android', 'Android native app reference'),
-      openClawPath('apps/ios', 'iOS/watch/share extension reference'),
-      openClawPath('apps/macos', 'macOS app reference'),
-      openClawPath('apps/shared/OpenClawKit', 'shared native kit reference'),
+      compatibilitySidecarPath('apps/android', 'Android native app reference'),
+      compatibilitySidecarPath('apps/ios', 'iOS/watch/share extension reference'),
+      compatibilitySidecarPath('apps/macos', 'macOS app reference'),
+      compatibilitySidecarPath('apps/shared/native-kit', 'shared native kit reference'),
     ],
-    evidenceDocs: OPENCLAW_DOCS,
+    evidenceDocs: ACP_COMPATIBILITY_DOCS,
     observedBehavior: 'Native apps and device companions add mobile/desktop UX, signing, release, watch/share extensions, and appcast behavior.',
     stateConfigDependencies: ['platform signing', 'native build chain', 'device pairing', 'release feed', 'owner product decision'],
     approvalRequiredForLive: true,
@@ -368,9 +368,9 @@ const INVENTORY_ITEMS: InventoryItemDefinition[] = [
     acceptanceGate: 'Owner chooses native wrappers or certifies PWA/companion replacement before any native app work starts.',
   }),
   item({
-    id: 'openclaw:qa-release-security',
+    id: 'acp-compatible-sidecar:qa-release-security',
     title: 'QA, release, security, Docker, and workflow matrix',
-    sourceRuntimeIds: ['openclaw'],
+    sourceRuntimeIds: ['acp-compatible-sidecar'],
     bridgeCandidateId: null,
     decision: 'adapt',
     targetPhase: 'phase-8-native-replacement',
@@ -378,12 +378,12 @@ const INVENTORY_ITEMS: InventoryItemDefinition[] = [
     risk: 'medium',
     naturalFirstRoute: 'governed-execution',
     sourcePaths: [
-      openClawPath('scripts', 'script/check/release matrix reference'),
-      openClawPath('qa', 'scenario catalog reference'),
-      openClawPath('security/opengrep', 'OpenGrep rule reference'),
-      openClawPath('.github/workflows', 'CI workflow reference'),
+      compatibilitySidecarPath('scripts', 'script/check/release matrix reference'),
+      compatibilitySidecarPath('qa', 'scenario catalog reference'),
+      compatibilitySidecarPath('security/opengrep', 'OpenGrep rule reference'),
+      compatibilitySidecarPath('.github/workflows', 'CI workflow reference'),
     ],
-    evidenceDocs: OPENCLAW_DOCS,
+    evidenceDocs: ACP_COMPATIBILITY_DOCS,
     observedBehavior: 'Large QA/live/Docker/security/release matrix with scenario assets, opengrep rules, and CI workflow coverage.',
     stateConfigDependencies: ['local QA runner', 'security rule metadata', 'release channel policy', 'CI parity decision'],
     approvalRequiredForLive: false,
@@ -392,9 +392,9 @@ const INVENTORY_ITEMS: InventoryItemDefinition[] = [
     acceptanceGate: 'Convert only valuable scenarios into Zavorth-native checks; do not copy workflow YAML blindly.',
   }),
   item({
-    id: 'openclaw:docs-ui-surface',
+    id: 'acp-compatible-sidecar:docs-ui-surface',
     title: 'Docs, i18n, and Vite/Lit control UI',
-    sourceRuntimeIds: ['openclaw'],
+    sourceRuntimeIds: ['acp-compatible-sidecar'],
     bridgeCandidateId: null,
     decision: 'reject',
     targetPhase: 'phase-0-inventory',
@@ -402,11 +402,11 @@ const INVENTORY_ITEMS: InventoryItemDefinition[] = [
     risk: 'low',
     naturalFirstRoute: 'capability-discovery',
     sourcePaths: [
-      openClawPath('docs', 'Mintlify docs and i18n reference'),
-      openClawPath('ui', 'Vite/Lit control UI reference'),
-      openClawPath('vendor', 'vendored UI/reference material'),
+      compatibilitySidecarPath('docs', 'Mintlify docs and i18n reference'),
+      compatibilitySidecarPath('ui', 'Vite/Lit control UI reference'),
+      compatibilitySidecarPath('vendor', 'vendored UI/reference material'),
     ],
-    evidenceDocs: OPENCLAW_DOCS,
+    evidenceDocs: ACP_COMPATIBILITY_DOCS,
     observedBehavior: 'Public docs, i18n tooling, and separate control UI are useful comparison material but not a direct Zavorth runtime target.',
     stateConfigDependencies: ['docs product decision', 'i18n roadmap', 'Command Center UX comparison'],
     approvalRequiredForLive: false,
@@ -419,9 +419,9 @@ const INVENTORY_ITEMS: InventoryItemDefinition[] = [
 export class ZavorthExternalCapabilityInventoryService {
   private readonly now: () => Date;
   private readonly defaultProjectRoot: string;
-  private readonly defaultHermesRoot: string | null;
-  private readonly defaultOpenClawRoot: string | null;
-  private readonly defaultOpenClawWslRoot: string | null;
+  private readonly defaultReferenceRuntimeRoot: string | null;
+  private readonly defaultCompatibilitySidecarRoot: string | null;
+  private readonly defaultCompatibilityFixtureRoot: string | null;
   private readonly defaultBridgeStatus: ZavorthExternalRuntimeBridgeStatus;
   private readonly existsSyncImpl: typeof fs.existsSync;
   private readonly readdirSyncImpl: typeof fs.readdirSync;
@@ -429,9 +429,9 @@ export class ZavorthExternalCapabilityInventoryService {
   constructor(runtime: Runtime = {}) {
     this.now = runtime.now || (() => new Date());
     this.defaultProjectRoot = runtime.projectRoot || process.cwd();
-    this.defaultHermesRoot = runtime.hermesRoot ?? null;
-    this.defaultOpenClawRoot = runtime.openClawRoot ?? null;
-    this.defaultOpenClawWslRoot = runtime.openClawWslRoot ?? null;
+    this.defaultReferenceRuntimeRoot = runtime.referenceRuntimeRoot ?? null;
+    this.defaultCompatibilitySidecarRoot = runtime.compatibilitySidecarRoot ?? null;
+    this.defaultCompatibilityFixtureRoot = runtime.compatibilityFixtureRoot ?? null;
     this.defaultBridgeStatus = runtime.bridgeStatus || 'bridge-ready';
     this.existsSyncImpl = runtime.existsSync || fs.existsSync.bind(fs);
     this.readdirSyncImpl = runtime.readdirSync || fs.readdirSync.bind(fs);
@@ -440,20 +440,20 @@ export class ZavorthExternalCapabilityInventoryService {
   public buildSnapshot(input: SnapshotInput = {}): ZavorthExternalCapabilityInventorySnapshot {
     const projectRoot = path.resolve(input.projectRoot || this.defaultProjectRoot);
     const roots = {
-      hermes: path.resolve(input.hermesRoot || this.defaultHermesRoot || path.join(projectRoot, '..', '..', 'temp_hermes_analysis')),
-      openclaw: path.resolve(
-        input.openClawRoot
-          || this.defaultOpenClawRoot
-          || process.env.ZAVORTH_OPENCLAW_ROOT
-          || 'C:\\Users\\ermys\\.gemini\\zavorthBridge\\scratch\\openclaw',
+      'reference-runtime': path.resolve(input.referenceRuntimeRoot || this.defaultReferenceRuntimeRoot || path.join(projectRoot, '..', '..', 'temp_reference_runtime_analysis')),
+      'acp-compatible-sidecar': path.resolve(
+        input.compatibilitySidecarRoot
+          || this.defaultCompatibilitySidecarRoot
+          || process.env.ZAVORTH_ACP_COMPATIBLE_SIDECAR_ROOT
+          || 'C:\\Users\\ermys\\.gemini\\zavorthBridge\\scratch\\acp-compatible-sidecar',
       ),
     } satisfies Record<ZavorthExternalRuntimeSourceRuntimeId, string>;
-    const openClawWslRoot =
-      input.openClawWslRoot
-      || this.defaultOpenClawWslRoot
-      || process.env.ZAVORTH_OPENCLAW_WSL_ROOT
-      || '\\\\wsl.localhost\\Ubuntu-24.04\\home\\grey\\openclaw-src';
-    const sourceProbes = this.buildSourceProbes(projectRoot, roots, openClawWslRoot);
+    const compatibilityFixtureRoot =
+      input.compatibilityFixtureRoot
+      || this.defaultCompatibilityFixtureRoot
+      || process.env.ZAVORTH_ACP_COMPATIBILITY_FIXTURE_ROOT
+      || '\\\\wsl.localhost\\Ubuntu-24.04\\home\\grey\\acp-compatible-sidecar-src';
+    const sourceProbes = this.buildSourceProbes(projectRoot, roots, compatibilityFixtureRoot);
     const items = INVENTORY_ITEMS.map((definition) => this.materializeItem(definition, roots));
     const decisionSummary = buildDecisionSummary(items);
     const status = this.resolveStatus(input.bridgeStatus || this.defaultBridgeStatus, sourceProbes, items);
@@ -524,38 +524,38 @@ export class ZavorthExternalCapabilityInventoryService {
   private buildSourceProbes(
     projectRoot: string,
     roots: Record<ZavorthExternalRuntimeSourceRuntimeId, string>,
-    openClawWslRoot: string,
+    compatibilityFixtureRoot: string,
   ): ZavorthExternalCapabilityInventorySourceProbe[] {
     const probeDefinitions: SourceProbeDefinition[] = [
       {
-        runtimeId: 'hermes',
-        label: 'Hermes reference runtime',
-        rootPath: roots.hermes,
-        required: true,
+        runtimeId: 'reference-runtime',
+        label: 'Reference runtime fixture',
+        rootPath: roots['reference-runtime'],
+        required: false,
         expected: [
           ['agent/error_classifier.py', 'error classifier reference'],
           ['agent/curator.py', 'skill curator reference'],
           ['run_agent.py', 'agent run loop reference'],
         ],
-        evidenceDocs: HERMES_DOCS,
+        evidenceDocs: REFERENCE_RUNTIME_DOCS,
       },
       {
-        runtimeId: 'openclaw',
-        label: 'OpenClaw capability source',
-        rootPath: roots.openclaw,
-        required: true,
+        runtimeId: 'acp-compatible-sidecar',
+        label: 'ACP-compatible sidecar source',
+        rootPath: roots['acp-compatible-sidecar'],
+        required: false,
         expected: [
           ['extensions', 'extension catalog root'],
           ['packages/plugin-sdk', 'plugin SDK reference'],
           ['src/channels', 'channel runtime reference'],
           ['skills', 'packaged skills root'],
         ],
-        evidenceDocs: OPENCLAW_DOCS,
+        evidenceDocs: ACP_COMPATIBILITY_DOCS,
       },
       {
-        runtimeId: 'openclaw-wsl',
-        label: 'OpenClaw WSL source clone',
-        rootPath: openClawWslRoot,
+        runtimeId: 'acp-compatibility-fixture',
+        label: 'ACP compatibility fixture clone',
+        rootPath: compatibilityFixtureRoot,
         required: false,
         expected: [
           ['extensions', 'WSL extension catalog root'],
@@ -563,7 +563,7 @@ export class ZavorthExternalCapabilityInventoryService {
           ['src/channels', 'WSL channel runtime reference'],
           ['skills', 'WSL packaged skills root'],
         ],
-        evidenceDocs: OPENCLAW_DOCS,
+        evidenceDocs: ACP_COMPATIBILITY_DOCS,
       },
     ];
 
@@ -678,12 +678,12 @@ function item(input: Omit<InventoryItemDefinition, 'notes'> & { notes?: string[]
   };
 }
 
-function hermesPath(relativePath: string, role: string): InventoryItemDefinition['sourcePaths'][number] {
-  return { runtimeId: 'hermes', relativePath, role };
+function referenceRuntimePath(relativePath: string, role: string): InventoryItemDefinition['sourcePaths'][number] {
+  return { runtimeId: 'reference-runtime', relativePath, role };
 }
 
-function openClawPath(relativePath: string, role: string): InventoryItemDefinition['sourcePaths'][number] {
-  return { runtimeId: 'openclaw', relativePath, role };
+function compatibilitySidecarPath(relativePath: string, role: string): InventoryItemDefinition['sourcePaths'][number] {
+  return { runtimeId: 'acp-compatible-sidecar', relativePath, role };
 }
 
 function owner(

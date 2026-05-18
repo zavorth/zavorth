@@ -77,6 +77,7 @@ type RuntimePromotionCatalogEntry = {
   gates: string[];
   productReason: string;
   experimentalReason: string;
+  allowPublicClaimWhenOfficial?: boolean;
 };
 
 const PROMOTION_CATALOG: RuntimePromotionCatalogEntry[] = [
@@ -137,8 +138,9 @@ const PROMOTION_CATALOG: RuntimePromotionCatalogEntry[] = [
       'operator-cancel-resume',
       'non-mock-hierarchy-tests',
     ],
-    productReason: 'Swarm escalation ja e oficial pelo AgentRunService; SwarmOrchestrator V2 fica experimental.',
+    productReason: 'Swarm v2 ja tem adapter oficial, batch queue, replay, role library, receipts e superficie canonica.',
     experimentalReason: 'O produto oficial e a escalacao governada; o orchestrator V2 ainda precisa de cancel/resume/receipts persistentes.',
+    allowPublicClaimWhenOfficial: true,
   },
   {
     itemId: 'memory-compressor',
@@ -273,7 +275,7 @@ export class RuntimePromotionGovernanceService {
       testsPresent: hasOfficialAdapter,
       receiptsPresent: Boolean(adapter?.receipts.length),
       mockDependent: false,
-      publicClaimAllowed: false,
+      publicClaimAllowed: hasOfficialAdapter && catalog.allowPublicClaimWhenOfficial === true,
       reason,
       gates: hasOfficialAdapter ? [] : [...catalog.gates],
       receipts: this.buildReceipts(catalog, {
@@ -307,7 +309,9 @@ export class RuntimePromotionGovernanceService {
       {
         id: `${catalog.itemId}:claim-control`,
         kind: 'claim-control',
-        detail: input.publicStatus === 'official'
+        detail: input.publicStatus === 'official' && catalog.allowPublicClaimWhenOfficial
+          ? 'Pode ser anunciado como superficie oficial, mantendo limites de sandbox, approvals e receipts.'
+          : input.publicStatus === 'official'
           ? 'Somente o adapter canonico pode ser anunciado; o componente V2/experimental nao pode ser descrito como stable.'
           : 'Nao anunciar como pronto/stable em UI, CLI ou docs publicas.',
       },

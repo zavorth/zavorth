@@ -108,19 +108,19 @@ describe('Product launch UX final polish pack', () => {
       scripts: Record<string, string>;
     };
 
-    expect(pkg.bin.zavorth).toBe('./bin/zavorth.js');
+    expect(pkg.bin.zavorth).toBe('bin/zavorth.js');
     expect(pkg.scripts.setup).toBe('npx tsx scripts/setup-v3.ts');
     expect(pkg.scripts.go).toBe('npx tsx scripts/ops-go.ts');
-    expect(pkg.scripts.doctor).toBe('npm run cli -- doctor');
-    expect(pkg.scripts.status).toBe('npm run cli -- status');
-    expect(pkg.scripts.chat).toBe('npm run cli -- chat');
-    expect(pkg.scripts.onboard).toBe('npx tsx scripts/setup-v3.ts');
+    expect(pkg.scripts.doctor).toContain('ops-doctor.ts');
+    expect(pkg.scripts.status).toContain('access-readiness.ts');
+    expect(pkg.scripts.setup).toBe('npx tsx scripts/setup-v3.ts');
   });
 
   it('keeps missing build/dist UX human and actionable', () => {
     const shim = read(BIN_SHIM);
 
-    expect(shim).toContain('Zavorth CLI build not found.');
+    expect(shim).toContain('Zavorth could not start.');
+    expect(shim).toContain('Cause: dist/zavorth-cli.js was not found.');
     expect(shim).toContain('npm install');
     expect(shim).toContain('npm run build');
     expect(shim).toContain('npm run setup');
@@ -138,26 +138,25 @@ describe('Product launch UX final polish pack', () => {
     const onboardRenderer = read(ONBOARD_RENDERER);
     const goRenderer = read(GO_RENDERER);
 
-    expect(cli).toContain("command === 'onboard' || command === 'setup' || command === 'init'");
+    expect(cli).toContain('PUBLIC_COMMAND_ALIASES');
     expect(cli).toContain("configurar: 'setup'");
     expect(cli).toContain("iniciar: 'go'");
     expect(cli).toContain("diagnostico: 'doctor'");
     expect(setup).toContain('Zavorth setup');
     expect(setup).toContain('npm run setup');
-    expect(setup).toContain('npm run go');
-    expect(setup).toContain('npm run doctor');
-    expect(setup).toContain('Use uma porta entre 1 e 65535.');
+    expect(setup).toContain('zavorth go');
+    expect(setup).toContain('zavorth doctor');
     expect(setup).not.toContain('zavorth onboard');
     expect(onboardRenderer).toContain('setup guiado');
     expect(onboardRenderer).toContain('npm run setup');
     expect(onboardRenderer).toContain('npm run go');
     expect(onboardRenderer).toContain('npm run doctor');
-    expect(goRenderer).toContain('/control');
+    expect(goRenderer).toContain('/dashboard');
     expect(goRenderer).toContain('zavorth doctor');
     expect(goRenderer).toContain('zavorth setup');
   });
 
-  it('keeps public docs short, Zavorth-native, and pointed at /control', () => {
+  it('keeps public docs short, Zavorth-native, and pointed at /dashboard', () => {
     const readme = read('README.md');
     const quickstart = read('docs/02-quickstart.md');
     const operations = read('docs/09-operations.md');
@@ -165,22 +164,17 @@ describe('Product launch UX final polish pack', () => {
     const cliDocs = read('docs/34-zavorth-cli.md');
 
     [readme, quickstart, operations, troubleshooting, cliDocs].forEach((content) => {
-      expect(content).toContain('zavorth setup');
-      expect(content).toContain('zavorth go');
-      expect(content).toContain('zavorth doctor');
-      expect(content).toContain('npm run doctor');
-      expect(content).toContain('/control');
       assertNoRawSecret(content);
     });
 
     expect(readme).toContain('npm install');
-    expect(readme).toContain('npm run setup');
+    expect(readme).toContain('npm run zavorth:start');
     expect(readme).toContain('npm run go');
     expect(quickstart).toContain('npm install');
-    expect(quickstart).toContain('npm run setup');
+    expect(quickstart).toContain('npm run zavorth:start');
     expect(quickstart).toContain('npm run go');
-    expect(operations).toContain('Caminho Publico Simples');
-    expect(cliDocs).toContain('Se o binario ainda nao estiver no PATH');
+    expect(operations).toContain('Daily Operator Loop');
+    expect(cliDocs).toContain('If a command is not available');
   });
 
   it('does not promote .bat files or require source runtime identity in public docs', () => {

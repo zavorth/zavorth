@@ -116,7 +116,7 @@ async function executeWorkspaceCliCommand(
   }
 
   const resolved = loadWorkspaceManifest(command);
-  if (!resolved.ok) {
+  if (resolved.ok === false) {
     return buildPayload(command, {
       ok: false,
       message: 'Developer Workspace nao encontrou um manifesto valido.',
@@ -215,7 +215,7 @@ function executeWorkspaceInit(command: WorkspaceCliCommand): WorkspaceCliPayload
 function executeWorkspaceDoctor(command: WorkspaceCliCommand): WorkspaceCliPayload {
   const resolved = loadWorkspaceManifest(command);
   const examples = validateWorkspaceExamples();
-  if (!resolved.ok) {
+  if (resolved.ok === false) {
     return buildPayload(command, {
       ok: false,
       message: 'Developer Workspace doctor encontrou bloqueio no manifesto.',

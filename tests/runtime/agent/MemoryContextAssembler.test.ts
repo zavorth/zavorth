@@ -12,8 +12,8 @@ describe('MemoryContextAssembler', () => {
     });
 
     expect(snapshot.available).toBe(false);
-    expect(snapshot.requiredTools).toEqual(['search_memory', 'scan_local_metadata']);
-    expect(snapshot.cadence).toEqual(['search_memory', 'scan_local_metadata', 'index_file']);
+    expect(snapshot.requiredTools).toEqual(['search_memory', 'scan_local_metadata', 'understand_file']);
+    expect(snapshot.cadence).toEqual(['search_memory', 'scan_local_metadata', 'understand_file', 'index_file']);
     expect(snapshot.indexing).toEqual({
       toolName: 'index_file',
       requiresApproval: true,
@@ -24,8 +24,8 @@ describe('MemoryContextAssembler', () => {
     expect(snapshot.metadata).toEqual(expect.objectContaining({
       source: 'MnemosCognitiveProtocol',
       mnemosAvailable: false,
-      requiredTools: ['search_memory', 'scan_local_metadata'],
-      cadence: ['search_memory', 'scan_local_metadata', 'index_file'],
+      requiredTools: ['search_memory', 'scan_local_metadata', 'understand_file'],
+      cadence: ['search_memory', 'scan_local_metadata', 'understand_file', 'index_file'],
       connectedToolNames: ['read_file'],
       indexingTool: 'index_file',
       indexingRequiresApproval: true,
@@ -38,7 +38,7 @@ describe('MemoryContextAssembler', () => {
     const assembler = new MemoryContextAssembler();
 
     const snapshot = assembler.assemble({
-      connectedToolNames: ['scan_local_metadata', 'search_memory', 'search_memory'],
+      connectedToolNames: ['scan_local_metadata', 'search_memory', 'understand_file', 'search_memory'],
       compact: true,
     });
 
@@ -48,9 +48,9 @@ describe('MemoryContextAssembler', () => {
     expect(snapshot.cold.memoryPrompt).toContain('scan_local_metadata');
     expect(snapshot.metadata).toEqual(expect.objectContaining({
       mnemosAvailable: true,
-      connectedToolNames: ['scan_local_metadata', 'search_memory'],
+      connectedToolNames: ['scan_local_metadata', 'search_memory', 'understand_file'],
       compact: true,
-      cadence: ['search_memory', 'scan_local_metadata', 'index_file'],
+      cadence: ['search_memory', 'scan_local_metadata', 'understand_file', 'index_file'],
       indexingTool: 'index_file',
       indexingRequiresApproval: true,
       indexingApprovalBoundary: 'human-in-the-loop',
@@ -62,7 +62,7 @@ describe('MemoryContextAssembler', () => {
     const memoryAssembler = new MemoryContextAssembler();
     const canonicalAssembler = new CanonicalSessionContextAssembler();
     const memoryContext = memoryAssembler.assemble({
-      connectedToolNames: ['search_memory', 'scan_local_metadata'],
+      connectedToolNames: ['search_memory', 'scan_local_metadata', 'understand_file'],
       compact: true,
     });
 

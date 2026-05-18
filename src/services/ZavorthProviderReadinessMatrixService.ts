@@ -16,6 +16,7 @@ import {
   ProviderControlPlaneService,
   type ProviderProfile,
 } from './ProviderControlPlaneService.js';
+import type { ZavorthProviderLiveProofStoreService } from './ZavorthProviderLiveProofStoreService.js';
 
 type ProviderControlPlaneLike = Pick<
   ProviderControlPlaneService,
@@ -35,6 +36,7 @@ export type ZavorthProviderReadinessMatrixRuntime = {
   now?: () => Date;
   providerControlPlane?: ProviderControlPlaneLike;
   fetch?: typeof fetch | null;
+  liveProofStore?: Pick<ZavorthProviderLiveProofStoreService, 'writeFromMatrixSnapshot'> | null;
 };
 
 type ProviderLiveProbeResult = {
@@ -69,11 +71,13 @@ export class ZavorthProviderReadinessMatrixService {
   private readonly now: () => Date;
   private readonly providerControlPlane: ProviderControlPlaneLike;
   private readonly fetchImpl: typeof fetch | null;
+  private readonly liveProofStore: Pick<ZavorthProviderLiveProofStoreService, 'writeFromMatrixSnapshot'> | null;
 
   constructor(runtime: ZavorthProviderReadinessMatrixRuntime = {}) {
     this.now = runtime.now || (() => new Date());
     this.providerControlPlane = runtime.providerControlPlane || new ProviderControlPlaneService();
     this.fetchImpl = runtime.fetch || null;
+    this.liveProofStore = runtime.liveProofStore || null;
   }
 
   public buildSnapshot(input: ZavorthProviderReadinessMatrixInput = {}): ZavorthProviderReadinessMatrixSnapshot {
@@ -210,16 +214,21 @@ export class ZavorthProviderReadinessMatrixService {
       });
     });
     const summary = summarize(entries);
-    return {
+    const snapshot: ZavorthProviderReadinessMatrixSnapshot = {
       ...base,
       status: summary.liveFailed > 0 ? 'attention' : base.status,
       summary,
+      liveCompletion: buildLiveCompletion(summary),
       entries,
       nextAction: buildLiveNextAction(summary, entries, {
         liveRequested: shouldRunLive,
         selectedProviderId,
       }),
     };
+    if (shouldRunLive) {
+      this.liveProofStore?.writeFromMatrixSnapshot(snapshot);
+    }
+    return snapshot;
   }
 
   public renderText(snapshot: ZavorthProviderReadinessMatrixSnapshot): string {
@@ -608,6 +617,7 @@ function resolveOpenAiCompatibleProbe(keys: Set<string>): ProviderProbeConfig | 
     { ids: ['openrouter'], url: 'https://openrouter.ai/api/v1/models', keyRef: 'OPENROUTER_API_KEY', authPrefix: 'Bearer ' },
     { ids: ['deepseek'], url: 'https://api.deepseek.com/v1/models', keyRef: 'DEEPSEEK_API_KEY', authPrefix: 'Bearer ' },
     { ids: ['groq'], url: 'https://api.groq.com/openai/v1/models', keyRef: 'GROQ_API_KEY', authPrefix: 'Bearer ' },
+    { ids: ['huggingface'], url: 'https://router.huggingface.co/v1/models', keyRef: 'HUGGINGFACE_API_KEY', authPrefix: 'Bearer ' },
     { ids: ['xai', 'x.ai'], url: 'https://api.x.ai/v1/models', keyRef: 'XAI_API_KEY', authPrefix: 'Bearer ' },
     { ids: ['mistral'], url: 'https://api.mistral.ai/v1/models', keyRef: 'MISTRAL_API_KEY', authPrefix: 'Bearer ' },
     { ids: ['together'], url: 'https://api.together.xyz/v1/models', keyRef: 'TOGETHER_API_KEY', authPrefix: 'Bearer ' },
@@ -774,6 +784,7 @@ function resolveSecretRef(ref: string): string {
     gemini_api_key: (config.geminiApiKeys && config.geminiApiKeys[0]) || config.geminiApiKey,
     openai_api_key: config.openaiApiKey,
     deepseek_api_key: config.deepseekApiKey,
+    huggingface_api_key: process.env.HF_TOKEN,
     minimax_api_key: config.minimaxApiKey,
     openrouter_api_key: config.openRouterApiKey,
     puter_auth_token: config.puterAuthToken,

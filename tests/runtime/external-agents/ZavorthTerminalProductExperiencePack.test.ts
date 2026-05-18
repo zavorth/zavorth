@@ -44,7 +44,7 @@ function makeAccessReport(ready: boolean): RuntimeOfficialAccessReport {
     readiness: {} as any,
     local: {
       ready,
-      appUrl: 'http://127.0.0.1:3000/control',
+      appUrl: 'http://127.0.0.1:3000/dashboard',
       trust: {
         attempted: false,
         applied: ready,
@@ -119,12 +119,12 @@ describe('Zavorth terminal product experience pack', () => {
     const doctorHelp = formatCliHelp('doctor');
 
     expect(rootHelp).toContain('Zavorth');
-    expect(rootHelp).toContain('A local-first agent runtime');
+    expect(rootHelp).toContain('A local-first assistant for daily work');
     expect(rootHelp).toContain('Start');
     expect(rootHelp).toContain('Work');
     expect(rootHelp).toContain('Inspect');
     expect(rootHelp).toContain('Safety');
-    expect(rootHelp).toContain('New here? Run: zavorth setup');
+    expect(rootHelp).toContain('New here? Run: zavorth start');
     expect(setupHelp).toContain('Prepara o primeiro uso');
     expect(setupHelp).toContain('provider/modelo');
     expect(doctorHelp).toContain('Diagnostica o ambiente local');
@@ -140,8 +140,8 @@ describe('Zavorth terminal product experience pack', () => {
     expect(output).toContain('Zavorth');
     expect(output).toContain('Dry-run concluido; nada foi alterado');
     expect(output).toContain('Ajuste necessario');
-    expect(output).toContain('Causa provavel');
-    expect(output).toContain('> zavorth doctor');
+    expect(output).toContain('Likely cause');
+    expect(output).toContain('Try: zavorth doctor');
     expect(output).toContain('> zavorth status');
     expect(output).toContain('dry-run: nada foi aplicado');
     expect(output).not.toContain('stack');

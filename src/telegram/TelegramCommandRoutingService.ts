@@ -38,6 +38,12 @@ type GroupSafeCommand =
   | '/skills'
   | '/integrations'
   | '/status'
+  | '/readiness'
+  | '/ready'
+  | '/stayonline'
+  | '/agentonboarding'
+  | '/externalagent'
+  | '/fixes'
   | '/dashboard'
   | '/demo'
   | '/echo'
@@ -51,6 +57,12 @@ export type TelegramCommandRoutingServiceDeps = {
   };
   opsController: {
     handleStatus: (ctx: Context) => Promise<void>;
+    handleReadiness: (ctx: Context) => Promise<void>;
+    handleReadinessFixes: (ctx: Context) => Promise<void>;
+    handleReadyToGo: (ctx: Context) => Promise<void>;
+    handleStayOnline: (ctx: Context) => Promise<void>;
+    handleExternalAgentOnboarding?: (ctx: Context, args: string) => Promise<void>;
+    handleExternalAgentGateway?: (ctx: Context, args: string) => Promise<void>;
     handleCapabilities: (ctx: Context, args: string) => Promise<void>;
     handleProfile: (ctx: Context, args: string) => Promise<void>;
     handleEnable: (ctx: Context, args: string) => Promise<void>;
@@ -201,6 +213,36 @@ export class TelegramCommandRoutingService {
         return true;
       case '/skills':
         await this.deps.skillCatalogController.handleSkills(ctx, parsed.command_args);
+        return true;
+      case '/status':
+        await this.deps.opsController.handleStatus(ctx);
+        return true;
+      case '/readiness':
+        await this.deps.opsController.handleReadiness(ctx);
+        return true;
+      case '/ready':
+        await this.deps.opsController.handleReadyToGo(ctx);
+        return true;
+      case '/stayonline':
+        await this.deps.opsController.handleStayOnline(ctx);
+        return true;
+      case '/agentonboarding':
+        if (this.deps.opsController.handleExternalAgentOnboarding) {
+          await this.deps.opsController.handleExternalAgentOnboarding(ctx, parsed.command_args);
+          return true;
+        }
+        return false;
+      case '/externalagent':
+        if (this.deps.opsController.handleExternalAgentGateway) {
+          await this.deps.opsController.handleExternalAgentGateway(ctx, parsed.command_args);
+          return true;
+        }
+        return false;
+      case '/fixes':
+        await this.deps.opsController.handleReadinessFixes(ctx);
+        return true;
+      case '/dashboard':
+        await this.deps.opsController.handleDashboard(ctx);
         return true;
       case '/wsl':
         await this.deps.opsController.handleWslCommand(ctx, parsed.command_args);
@@ -438,6 +480,30 @@ export class TelegramCommandRoutingService {
         case '/status':
           await this.deps.opsController.handleStatus(ctx);
           return true;
+        case '/readiness':
+          await this.deps.opsController.handleReadiness(ctx);
+          return true;
+        case '/ready':
+          await this.deps.opsController.handleReadyToGo(ctx);
+          return true;
+        case '/stayonline':
+          await this.deps.opsController.handleStayOnline(ctx);
+          return true;
+        case '/agentonboarding':
+          if (this.deps.opsController.handleExternalAgentOnboarding) {
+            await this.deps.opsController.handleExternalAgentOnboarding(ctx, args);
+            return true;
+          }
+          return false;
+        case '/externalagent':
+          if (this.deps.opsController.handleExternalAgentGateway) {
+            await this.deps.opsController.handleExternalAgentGateway(ctx, args);
+            return true;
+          }
+          return false;
+        case '/fixes':
+          await this.deps.opsController.handleReadinessFixes(ctx);
+          return true;
         case '/integrations':
           await this.deps.opsController.handleIntegrations(ctx, args);
           return true;
@@ -491,6 +557,12 @@ export class TelegramCommandRoutingService {
       '/skills',
       '/integrations',
       '/status',
+      '/readiness',
+      '/ready',
+      '/stayonline',
+      '/agentonboarding',
+      '/externalagent',
+      '/fixes',
       '/dashboard',
       '/demo',
       '/echo',

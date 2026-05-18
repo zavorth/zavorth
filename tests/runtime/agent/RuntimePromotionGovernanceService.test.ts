@@ -219,7 +219,7 @@ describe('RuntimePromotionGovernanceService', () => {
       publicStatus: 'official',
       productAdapterId: 'swarm.escalation',
       agentLoopIntegrated: true,
-      publicClaimAllowed: false,
+      publicClaimAllowed: true,
       mockDependent: false,
     }));
     expect(swarm?.receipts).toEqual(expect.arrayContaining([

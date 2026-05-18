@@ -159,6 +159,14 @@ export const NATIVE_AGENT_TOOL_SECURITY_DEFINITIONS: AgentToolSecurityDefinition
     description: 'Changes memory capability configuration.',
   },
   {
+    toolName: 'plan_mnemos_scope',
+    surface: 'native-tool',
+    capabilities: ['configuration', 'memory', 'local-observation'],
+    defaultRisk: 'safe',
+    requiresConfirmation: false,
+    description: 'Builds a confirmable Mnemos scan scope proposal without changing configuration.',
+  },
+  {
     toolName: 'configure_llm_profile',
     surface: 'native-tool',
     capabilities: ['configuration', 'credential'],
@@ -192,6 +200,7 @@ export const BOOTSTRAP_NATIVE_TOOL_SECURITY_MANIFEST = [
   { className: 'SandboxExecutionTool', toolName: 'run_sandbox_code' },
   { className: 'Mem0Tool', toolName: 'semantic_memory' },
   { className: 'DesktopAutomationTool', toolName: 'desktop_automation' },
+  { className: 'PlanMnemosScopeTool', toolName: 'plan_mnemos_scope' },
   { className: 'EnableMnemosTool', toolName: 'enable_mnemos' },
   { className: 'EchoHandsTool', toolName: 'echo_hands' },
   { className: 'ConfigureLlmProfileTool', toolName: 'configure_llm_profile' },
