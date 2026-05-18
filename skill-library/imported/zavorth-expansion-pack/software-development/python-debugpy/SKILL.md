@@ -13,7 +13,7 @@ This skill is a Zavorth-native capability stub. It gives the agent routing conte
 
 - the user asks for Python Debugpy.
 - the task belongs to the software-development capability area.
-- nearby skills include systematic-debugging, node-inspect-debugger, debugging-hermes-tui-commands.
+- nearby skills include systematic-debugging, node-inspect-debugger, debugging-zavorth-tui-commands.
 
 ## Operating Contract
 

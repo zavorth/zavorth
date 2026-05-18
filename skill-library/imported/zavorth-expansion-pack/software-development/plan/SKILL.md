@@ -28,4 +28,4 @@ This skill is a Zavorth-native capability stub. It gives the agent routing conte
 - Category: software-development
 - Permission: sandbox-required
 - Risk: high
-- Tags: software-development, planning, plan-mode, implementation, workflow, plan, mode, write, markdown, hermes
+- Tags: software-development, planning, plan-mode, implementation, workflow, plan, mode, write, markdown, zavorth

@@ -1,9 +1,9 @@
 {
   "version": 1,
-  "importedAt": "2026-05-18T05:38:56.016Z",
+  "importedAt": "2026-05-18T05:38:56.012Z",
   "importMode": "generated-zavorth-native-stub",
   "approvalId": "skill-expansion-pack-166",
-  "skillName": "hermes-agent-skill-authoring",
+  "skillName": "debugging-zavorth-tui-commands",
   "source": {
     "id": "zavorth-native-skill-library",
     "label": "Zavorth Native Skill Library",
@@ -15,12 +15,12 @@
     "license": "MIT",
     "ownership": "native"
   },
-  "originalSkillPath": "zavorth-native-pack://skills/software-development/hermes-agent-skill-authoring",
-  "originalRelativePath": "skills/software-development/hermes-agent-skill-authoring",
+  "originalSkillPath": "zavorth-native-pack://skills/software-development/debugging-zavorth-tui-commands",
+  "originalRelativePath": "skills/software-development/debugging-zavorth-tui-commands",
   "copiedFiles": [],
   "reference": {
     "sourceRoot": "zavorth-native-pack://",
-    "bodyHash": "86a74e8851d572c5a696fcba8d9666b298a53e0d81f2ef6a3aa28470dacc52de"
+    "bodyHash": "c2e3cb5131ecb40bb1ff51613f438aa2bb913b4600dda003025eebb3979df4c5"
   },
   "governance": {
     "permission": "sandbox-required",

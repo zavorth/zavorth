@@ -13,7 +13,7 @@ This skill is a Zavorth-native capability stub. It gives the agent routing conte
 
 - the user asks for Touchdesigner Mcp.
 - the task belongs to the creative capability area.
-- nearby skills include native-mcp, ascii-video, manim-video, hermes-video.
+- nearby skills include native-mcp, ascii-video, manim-video, zavorth-video.
 
 ## Operating Contract
 

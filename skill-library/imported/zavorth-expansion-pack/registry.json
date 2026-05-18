@@ -60,8 +60,8 @@
       "permission": "sandbox-required"
     },
     {
-      "id": "zxp:autonomous-ai-agents:hermes-agent",
-      "targetRelativePath": "skill-library/imported/zavorth-expansion-pack/autonomous-ai-agents/hermes-agent",
+      "id": "zxp:autonomous-ai-agents:zavorth-agent",
+      "targetRelativePath": "skill-library/imported/zavorth-expansion-pack/autonomous-ai-agents/zavorth-agent",
       "category": "autonomous-ai-agents",
       "risk": "high",
       "permission": "sandbox-required"
@@ -613,8 +613,8 @@
       "permission": "sandbox-required"
     },
     {
-      "id": "zxp:mlops:hermes-atropos-environments",
-      "targetRelativePath": "skill-library/imported/zavorth-expansion-pack/mlops/hermes-atropos-environments",
+      "id": "zxp:mlops:zavorth-atropos-environments",
+      "targetRelativePath": "skill-library/imported/zavorth-expansion-pack/mlops/zavorth-atropos-environments",
       "category": "mlops",
       "risk": "high",
       "permission": "sandbox-required"
@@ -1068,15 +1068,15 @@
       "permission": "sandbox-required"
     },
     {
-      "id": "zxp:software-development:debugging-hermes-tui-commands",
-      "targetRelativePath": "skill-library/imported/zavorth-expansion-pack/software-development/debugging-hermes-tui-commands",
+      "id": "zxp:software-development:debugging-zavorth-tui-commands",
+      "targetRelativePath": "skill-library/imported/zavorth-expansion-pack/software-development/debugging-zavorth-tui-commands",
       "category": "software-development",
       "risk": "high",
       "permission": "sandbox-required"
     },
     {
-      "id": "zxp:software-development:hermes-agent-skill-authoring",
-      "targetRelativePath": "skill-library/imported/zavorth-expansion-pack/software-development/hermes-agent-skill-authoring",
+      "id": "zxp:software-development:zavorth-agent-skill-authoring",
+      "targetRelativePath": "skill-library/imported/zavorth-expansion-pack/software-development/zavorth-agent-skill-authoring",
       "category": "software-development",
       "risk": "high",
       "permission": "sandbox-required"

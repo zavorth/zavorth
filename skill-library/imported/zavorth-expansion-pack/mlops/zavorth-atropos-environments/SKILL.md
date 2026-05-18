@@ -1,9 +1,9 @@
 ---
-name: debugging-hermes-tui-commands
-description: Zavorth-native capability route for Debugging Hermes Tui Commands.
+name: zavorth-atropos-environments
+description: Zavorth-native capability route for Zavorth Atropos Environments.
 ---
 
-# Debugging Hermes Tui Commands
+# Zavorth Atropos Environments
 
 ZAVORTH_EXPANSION_GENERATED: true
 
@@ -11,9 +11,9 @@ This skill is a Zavorth-native capability stub. It gives the agent routing conte
 
 ## When To Use
 
-- the user asks for Debugging Hermes Tui Commands.
-- the task belongs to the software-development capability area.
-- nearby skills include python-debugpy, node-inspect-debugger, systematic-debugging.
+- the user asks for Zavorth Atropos Environments.
+- the task belongs to the mlops capability area.
+- nearby skills include axolotl, fine-tuning-with-trl, lm-evaluation-harness.
 
 ## Operating Contract
 
@@ -25,7 +25,7 @@ This skill is a Zavorth-native capability stub. It gives the agent routing conte
 
 ## Capability Metadata
 
-- Category: software-development
+- Category: mlops
 - Permission: sandbox-required
 - Risk: high
-- Tags: software-development, debugging, hermes-agent, tui, slash-commands, typescript, python, debugging-hermes-tui-commands, hermes, commands, debug
+- Tags: mlops, atropos, rl, environments, training, reinforcement-learning, reward-functions, zavorth-atropos-environments, zavorth, build, test, and, debug

@@ -1,9 +1,9 @@
 {
   "version": 1,
-  "importedAt": "2026-05-18T05:38:55.673Z",
+  "importedAt": "2026-05-18T05:38:56.016Z",
   "importMode": "generated-zavorth-native-stub",
   "approvalId": "skill-expansion-pack-166",
-  "skillName": "hermes-atropos-environments",
+  "skillName": "zavorth-agent-skill-authoring",
   "source": {
     "id": "zavorth-native-skill-library",
     "label": "Zavorth Native Skill Library",
@@ -15,12 +15,12 @@
     "license": "MIT",
     "ownership": "native"
   },
-  "originalSkillPath": "zavorth-native-pack://optional-skills/mlops/hermes-atropos-environments",
-  "originalRelativePath": "optional-skills/mlops/hermes-atropos-environments",
+  "originalSkillPath": "zavorth-native-pack://skills/software-development/zavorth-agent-skill-authoring",
+  "originalRelativePath": "skills/software-development/zavorth-agent-skill-authoring",
   "copiedFiles": [],
   "reference": {
     "sourceRoot": "zavorth-native-pack://",
-    "bodyHash": "2e6d98da04f08c0daac83a573b2ad6e5c32fbe2404c3a155251470c8d70c7684"
+    "bodyHash": "86a74e8851d572c5a696fcba8d9666b298a53e0d81f2ef6a3aa28470dacc52de"
   },
   "governance": {
     "permission": "sandbox-required",

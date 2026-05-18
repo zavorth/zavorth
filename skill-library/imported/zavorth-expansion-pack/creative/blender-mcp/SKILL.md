@@ -27,4 +27,4 @@ This skill is a Zavorth-native capability stub. It gives the agent routing conte
 - Category: creative
 - Permission: approval-required
 - Risk: medium
-- Tags: creative, blender, 3d, animation, modeling, bpy, mcp, blender-mcp, control, directly, from, hermes
+- Tags: creative, blender, 3d, animation, modeling, bpy, mcp, blender-mcp, control, directly, from, zavorth
