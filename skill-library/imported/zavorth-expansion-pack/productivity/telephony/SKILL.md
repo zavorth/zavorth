@@ -28,4 +28,4 @@ This skill is a Zavorth-native capability stub. It gives the agent routing conte
 - Category: productivity
 - Permission: sandbox-required
 - Risk: high
-- Tags: productivity, telephony, phone, sms, mms, voice, twilio, bland-ai, vapi, calling, texting, give, hermes, capabilities, without, core
+- Tags: productivity, telephony, phone, sms, mms, voice, twilio, bland-ai, vapi, calling, texting, give, zavorth, capabilities, without, core

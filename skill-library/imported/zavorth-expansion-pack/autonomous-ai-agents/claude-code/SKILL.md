@@ -13,7 +13,7 @@ This skill is a Zavorth-native capability stub. It gives the agent routing conte
 
 - the user asks for Claude Code.
 - the task belongs to the autonomous-ai-agents capability area.
-- nearby skills include codex, hermes-agent, opencode.
+- nearby skills include codex, zavorth-agent, opencode.
 
 ## Operating Contract
 

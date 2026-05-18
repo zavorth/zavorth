@@ -1,9 +1,9 @@
 ---
-name: hermes-agent
-description: Zavorth-native capability route for Hermes Agent.
+name: zavorth-agent
+description: Zavorth-native capability route for Zavorth Agent.
 ---
 
-# Hermes Agent
+# Zavorth Agent
 
 ZAVORTH_EXPANSION_GENERATED: true
 
@@ -11,7 +11,7 @@ This skill is a Zavorth-native capability stub. It gives the agent routing conte
 
 ## When To Use
 
-- the user asks for Hermes Agent.
+- the user asks for Zavorth Agent.
 - the task belongs to the autonomous-ai-agents capability area.
 - nearby skills include claude-code, codex, opencode.
 
@@ -28,4 +28,4 @@ This skill is a Zavorth-native capability stub. It gives the agent routing conte
 - Category: autonomous-ai-agents
 - Permission: sandbox-required
 - Risk: high
-- Tags: autonomous-ai-agents, hermes, setup, configuration, multi-agent, spawning, cli, gateway, development, hermes-agent, agent, configure, extend, contribute
+- Tags: autonomous-ai-agents, zavorth, setup, configuration, multi-agent, spawning, cli, gateway, development, zavorth-agent, agent, configure, extend, contribute

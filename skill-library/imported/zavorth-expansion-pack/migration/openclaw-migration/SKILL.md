@@ -13,7 +13,7 @@ This skill is a Zavorth-native capability stub. It gives the agent routing conte
 
 - the user asks for Openclaw Migration.
 - the task belongs to the migration capability area.
-- nearby skills include hermes-agent.
+- nearby skills include zavorth-agent.
 
 ## Operating Contract
 
@@ -28,4 +28,4 @@ This skill is a Zavorth-native capability stub. It gives the agent routing conte
 - Category: migration
 - Permission: sandbox-required
 - Risk: high
-- Tags: migration, openclaw, hermes, memory, persona, import, openclaw-migration, migrate, user, customization, footprint
+- Tags: migration, openclaw, zavorth, memory, persona, import, openclaw-migration, migrate, user, customization, footprint

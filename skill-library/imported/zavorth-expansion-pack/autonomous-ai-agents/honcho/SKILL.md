@@ -13,7 +13,7 @@ This skill is a Zavorth-native capability stub. It gives the agent routing conte
 
 - the user asks for Honcho.
 - the task belongs to the autonomous-ai-agents capability area.
-- nearby skills include hermes-agent.
+- nearby skills include zavorth-agent.
 
 ## Operating Contract
 
