@@ -13,6 +13,7 @@ describe('TelegramCommandRoutingService', () => {
         handleReadyToGo: jest.fn().mockResolvedValue(undefined),
         handleStayOnline: jest.fn().mockResolvedValue(undefined),
         handleExternalAgentOnboarding: jest.fn().mockResolvedValue(undefined),
+        handleExternalAgentMigrationPack: jest.fn().mockResolvedValue(undefined),
         handleExternalAgentGateway: jest.fn().mockResolvedValue(undefined),
         handleCapabilities: jest.fn().mockResolvedValue(undefined),
         handleIntegrations: jest.fn().mockResolvedValue(undefined),
@@ -118,6 +119,9 @@ describe('TelegramCommandRoutingService', () => {
         shouldHandleFreeForm: jest.fn().mockReturnValue(false),
         handleFreeForm: jest.fn().mockResolvedValue(undefined),
       },
+      mnemosMemoryUxController: {
+        handleMnemos: jest.fn().mockResolvedValue(undefined),
+      },
       naturalCapabilityRouter: {
         dispatch: jest.fn().mockResolvedValue(false),
       },
@@ -217,6 +221,24 @@ describe('TelegramCommandRoutingService', () => {
     expect(handled).toBe(true);
     expect(deps.menuController.renderHelpCard).toHaveBeenCalled();
     expect(deps.naturalCapabilityRouter.dispatch).not.toHaveBeenCalled();
+  });
+
+  it('routes /mnemos to the governed memory UX controller', async () => {
+    const { deps, service } = createService();
+    const ctx = { chat: { type: 'private' } } as any;
+
+    const handled = await service.dispatchPrivateCommand(
+      ctx,
+      {
+        command_type: '/mnemos',
+        command_args: 'procedural',
+      } as any,
+      '/mnemos procedural',
+      '42',
+    );
+
+    expect(handled).toBe(true);
+    expect(deps.mnemosMemoryUxController.handleMnemos).toHaveBeenCalledWith(ctx, 'procedural', '42');
   });
 
   it('routes group admin commands to the matching group controller handler', async () => {
@@ -349,6 +371,29 @@ describe('TelegramCommandRoutingService', () => {
     expect(privateHandled).toBe(true);
     expect(groupHandled).toBe(true);
     expect(deps.opsController.handleExternalAgentGateway).toHaveBeenCalledTimes(2);
+  });
+
+  it('routes External Agent Migration Pack on Telegram surfaces', async () => {
+    const { deps, service } = createService();
+
+    const privateHandled = await service.dispatchPrivateCommand(
+      { chat: { type: 'private' } } as any,
+      {
+        command_type: '/agentimport',
+        command_args: 'path C:/agents/demo consent preset capabilities',
+      } as any,
+      '/agentimport path C:/agents/demo consent preset capabilities',
+      '42',
+    );
+    const groupHandled = await service.dispatchGroupCommand(
+      {} as any,
+      '/agentmigration',
+      'pasta C:/agents/demo consent',
+    );
+
+    expect(privateHandled).toBe(true);
+    expect(groupHandled).toBe(true);
+    expect(deps.opsController.handleExternalAgentMigrationPack).toHaveBeenCalledTimes(2);
   });
 
   it('routes readiness commands to the ops controller across private and group chats', async () => {

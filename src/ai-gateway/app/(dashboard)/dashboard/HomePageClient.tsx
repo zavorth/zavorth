@@ -325,6 +325,86 @@ export default function HomePageClient({ machineId }) {
     },
   ];
 
+  const permissionPanelItems = [
+    {
+      id: "permissions",
+      label: "Permissões",
+      summary: "Pendentes, aprovadas, recusadas e expiradas em uma fila só.",
+      icon: "verified_user",
+      href: "/dashboard/logs",
+      status: approvalsSignal.value,
+      action: "Review",
+      risk: "low",
+    },
+    {
+      id: "auto-approvals",
+      label: "Auto-aprovações",
+      summary: "Regras persistentes com escopo, prazo, limite e recibo.",
+      icon: "rule_settings",
+      href: "/dashboard/settings",
+      status: "Limited",
+      action: "Manage",
+      risk: "medium",
+    },
+    {
+      id: "extreme-mode",
+      label: "Modo extremo",
+      summary: "Break-glass com confirmação forte e bloqueios de catástrofe.",
+      icon: "emergency_home",
+      href: "/dashboard/settings",
+      status: "Guarded",
+      action: "Inspect",
+      risk: "critical",
+    },
+    {
+      id: "revoke",
+      label: "Revogar",
+      summary: "Corte permissões persistentes, canais ou sessões sensíveis.",
+      icon: "lock_reset",
+      href: "/dashboard/settings",
+      status: "Fast off",
+      action: "Revoke",
+      risk: "medium",
+    },
+    {
+      id: "receipts",
+      label: "Receipts",
+      summary: "Prova legível para cada decisão sensível.",
+      icon: "receipt_long",
+      href: "/dashboard/logs",
+      status: "Audit",
+      action: "Open proof",
+      risk: "low",
+    },
+  ];
+
+  const memoryPanelItems = [
+    {
+      id: "memory-health",
+      label: "Memory Health",
+      summary: "Wiki lint, source links and secret checks before memory is trusted.",
+      icon: "neurology",
+      command: "zavorth memory mnemos",
+      status: "Read-only",
+    },
+    {
+      id: "procedural-rules",
+      label: "Procedural Rules",
+      summary: "Operator habits become scoped, reviewable and revocable rules.",
+      icon: "rule_folder",
+      command: "zavorth memory procedural list",
+      status: "Approval gated",
+    },
+    {
+      id: "wiki-query",
+      label: "Wiki Query",
+      summary: "Ask synthesized memory with top-k context instead of raw dumps.",
+      icon: "manage_search",
+      command: "zavorth memory mnemos query",
+      status: "Safe recall",
+    },
+  ];
+
   const firstSteps = [
     {
       id: "setup",
@@ -906,6 +986,118 @@ export default function HomePageClient({ machineId }) {
                     <span className="material-symbols-outlined text-[14px]">arrow_forward</span>
                   </Link>
                 </div>
+              </div>
+            </div>
+
+            <div className="mt-5 rounded-lg border border-border bg-bg-subtle/60 p-4">
+              <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
+                <div className="min-w-0">
+                  <div className="flex flex-wrap items-center gap-2">
+                    <div className="flex size-8 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary">
+                      <span className="material-symbols-outlined text-[17px]">admin_panel_settings</span>
+                    </div>
+                    <p className="text-sm font-semibold text-text-main">Permissões</p>
+                    <span className="rounded-full border border-border bg-surface px-2.5 py-1 text-[11px] font-semibold uppercase tracking-[0.12em] text-text-muted">
+                      Governed
+                    </span>
+                  </div>
+                  <p className="mt-2 max-w-2xl text-xs leading-5 text-text-muted">
+                    Auto-aprovações, modo extremo e revogações aparecem como controle de confiança,
+                    não como atalho silencioso para executar ações sensíveis.
+                  </p>
+                </div>
+                <Link
+                  href="/dashboard/logs"
+                  className="inline-flex shrink-0 items-center gap-1.5 rounded-lg border border-border px-3 py-1.5 text-xs font-semibold text-text-muted transition-colors hover:bg-surface hover:text-text-main"
+                >
+                  Receipts
+                  <span className="material-symbols-outlined text-[14px]">arrow_forward</span>
+                </Link>
+              </div>
+
+              <div className="mt-4 grid gap-2 sm:grid-cols-2 xl:grid-cols-5">
+                {permissionPanelItems.map((item) => (
+                  <Link
+                    key={item.id}
+                    href={item.href}
+                    className="group rounded-lg border border-border bg-surface/80 p-3 transition-colors hover:border-primary/25 hover:bg-surface"
+                  >
+                    <div className="flex items-start justify-between gap-2">
+                      <div className="flex size-8 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary">
+                        <span className="material-symbols-outlined text-[16px]">{item.icon}</span>
+                      </div>
+                      <span
+                        className={`rounded-full border px-2 py-0.5 text-[10px] font-semibold uppercase tracking-[0.12em] ${
+                          item.risk === "critical"
+                            ? "border-red-500/25 bg-red-500/[0.08] text-red-600 dark:text-red-300"
+                            : item.risk === "medium"
+                              ? "border-amber-500/25 bg-amber-500/[0.08] text-amber-600 dark:text-amber-300"
+                              : "border-emerald-500/25 bg-emerald-500/[0.08] text-emerald-600 dark:text-emerald-300"
+                        }`}
+                      >
+                        {item.status}
+                      </span>
+                    </div>
+                    <p className="mt-3 text-sm font-semibold text-text-main">{item.label}</p>
+                    <p className="mt-1 min-h-[40px] text-xs leading-5 text-text-muted">{item.summary}</p>
+                    <span className="mt-3 inline-flex items-center gap-1 text-xs font-semibold text-primary">
+                      {item.action}
+                      <span className="material-symbols-outlined text-[14px] transition-transform group-hover:translate-x-0.5">
+                        arrow_forward
+                      </span>
+                    </span>
+                  </Link>
+                ))}
+              </div>
+            </div>
+
+            <div className="mt-5 rounded-lg border border-border bg-bg-subtle/60 p-4">
+              <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
+                <div className="min-w-0">
+                  <div className="flex flex-wrap items-center gap-2">
+                    <div className="flex size-8 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary">
+                      <span className="material-symbols-outlined text-[17px]">neurology</span>
+                    </div>
+                    <p className="text-sm font-semibold text-text-main">Mnemos Memory</p>
+                    <span className="rounded-full border border-emerald-500/25 bg-emerald-500/[0.08] px-2.5 py-1 text-[11px] font-semibold uppercase tracking-[0.12em] text-emerald-600 dark:text-emerald-300">
+                      Governed
+                    </span>
+                  </div>
+                  <p className="mt-2 max-w-2xl text-xs leading-5 text-text-muted">
+                    Memory Health, Procedural Rules and Wiki Query stay visible without giving the
+                    dashboard silent write authority.
+                  </p>
+                </div>
+                <Link
+                  href="/dashboard/logs"
+                  className="inline-flex shrink-0 items-center gap-1.5 rounded-lg border border-border px-3 py-1.5 text-xs font-semibold text-text-muted transition-colors hover:bg-surface hover:text-text-main"
+                >
+                  Memory receipts
+                  <span className="material-symbols-outlined text-[14px]">arrow_forward</span>
+                </Link>
+              </div>
+
+              <div className="mt-4 grid gap-2 md:grid-cols-3">
+                {memoryPanelItems.map((item) => (
+                  <div
+                    key={item.id}
+                    className="rounded-lg border border-border bg-surface/80 p-3"
+                  >
+                    <div className="flex items-start justify-between gap-2">
+                      <div className="flex size-8 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary">
+                        <span className="material-symbols-outlined text-[16px]">{item.icon}</span>
+                      </div>
+                      <span className="rounded-full border border-border bg-bg-subtle px-2 py-0.5 text-[10px] font-semibold uppercase tracking-[0.12em] text-text-muted">
+                        {item.status}
+                      </span>
+                    </div>
+                    <p className="mt-3 text-sm font-semibold text-text-main">{item.label}</p>
+                    <p className="mt-1 min-h-[40px] text-xs leading-5 text-text-muted">{item.summary}</p>
+                    <code className="mt-3 block overflow-hidden text-ellipsis rounded bg-bg-subtle px-2 py-1 text-[10px] text-text-muted">
+                      {item.command}
+                    </code>
+                  </div>
+                ))}
               </div>
             </div>
 

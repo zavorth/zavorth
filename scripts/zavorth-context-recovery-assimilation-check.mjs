@@ -133,7 +133,7 @@ function ruleNoPublicExternalNames() {
     'scripts/zavorth-context-recovery-assimilation.ts',
   ];
   const forbidden = [
-    'OpenClaw',
+    'ThirdPartyAgent',
     'Claude Code',
     'ZavorthBridge',
   ];

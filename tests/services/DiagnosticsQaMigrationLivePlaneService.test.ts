@@ -194,7 +194,7 @@ describe('DiagnosticsQaMigrationLivePlaneService Phase 10', () => {
   });
 
   it('blocks migration apply until operator confirmation', async () => {
-    const sourceFile = path.join(workspaceRoot, 'hermes.json');
+    const sourceFile = path.join(workspaceRoot, 'external-agent.json');
     await fs.promises.writeFile(sourceFile, JSON.stringify({ channel: 'signal' }), 'utf8');
     const service = new MigrationImportService({
       artifactDir,
@@ -207,7 +207,7 @@ describe('DiagnosticsQaMigrationLivePlaneService Phase 10', () => {
         kind: 'config-file',
         ref: sourceFile,
       },
-      targetNamespace: 'hermes',
+      targetNamespace: 'external-agent',
       dryRun: false,
       outputDir: artifactDir,
       allowedRoots: [workspaceRoot, artifactDir],
@@ -225,7 +225,7 @@ describe('DiagnosticsQaMigrationLivePlaneService Phase 10', () => {
         kind: 'config-file',
         ref: sourceFile,
       },
-      targetNamespace: 'hermes',
+      targetNamespace: 'external-agent',
       dryRun: false,
       confirmApply: true,
       outputDir: artifactDir,
@@ -234,7 +234,7 @@ describe('DiagnosticsQaMigrationLivePlaneService Phase 10', () => {
 
     expect(applied.ok).toBe(true);
     expect(applied.status).toBe('applied');
-    const manifest = (await fs.promises.readdir(artifactDir)).find((file) => file.startsWith('zavorth.migration.hermes'));
+    const manifest = (await fs.promises.readdir(artifactDir)).find((file) => file.startsWith('zavorth.migration.external-agent'));
     expect(manifest).toBeTruthy();
   });
 });

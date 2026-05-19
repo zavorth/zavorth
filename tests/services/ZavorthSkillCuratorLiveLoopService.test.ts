@@ -2,6 +2,7 @@ import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 
+import { jest } from '@jest/globals';
 import { ZavorthSkillCuratorLiveLoopService } from '../../src/services/ZavorthSkillCuratorLiveLoopService.js';
 
 describe('ZavorthSkillCuratorLiveLoopService', () => {
@@ -110,6 +111,69 @@ describe('ZavorthSkillCuratorLiveLoopService', () => {
     const patchPreview = JSON.parse(fs.readFileSync(path.join(root, 'data', 'skill-curator', 'skill-curator-patch-preview.json'), 'utf8'));
     expect(patchPreview.requiresSeparatePatchApproval).toBe(true);
     expect(patchPreview.patches.length).toBeGreaterThan(0);
+    expect(fs.existsSync(path.join(root, 'skill-library/native/repo-map/SKILL.md'))).toBe(true);
+  });
+
+  it('can use a scoped persistent approval policy for non-destructive proposals', () => {
+    const service = new ZavorthSkillCuratorLiveLoopService({
+      projectRoot: root,
+      stateDir: path.join(root, 'data', 'skill-curator'),
+      sourceRegistry: sourceRegistry(root),
+      persistentApprovals: {
+        resolve: jest.fn().mockReturnValue({
+          allowed: true,
+          policy: { id: 'pap-skill-curator-live-loop-metadata' },
+          reason: 'matched',
+          receiptId: 'pap-skill-curator-live-loop-metadata.receipt',
+        }),
+      },
+    });
+
+    const applied = service.buildSnapshot({
+      apply: true,
+      usePersistentApproval: true,
+      proposalIds: ['metadata:skill-library/imported/pdf-reader'],
+    });
+
+    expect(applied.apply.applied).toBe(true);
+    expect(applied.apply.approvalMode).toBe('persistent-policy');
+    expect(applied.apply.persistentPolicyId).toBe('pap-skill-curator-live-loop-metadata');
+    expect(fs.existsSync(path.join(root, 'skill-library/imported/pdf-reader/SKILL.md'))).toBe(true);
+  });
+
+  it('applies only safe native metadata when explicitly requested and approved', () => {
+    fs.rmSync(path.join(root, 'skill-library/native/repo-map/ZAVORTH_NATIVE_SKILL.json'), { force: true });
+    fs.rmSync(path.join(root, 'skill-library/native/repo-inventory/ZAVORTH_NATIVE_SKILL.json'), { force: true });
+    const service = new ZavorthSkillCuratorLiveLoopService({
+      now: () => new Date('2026-05-18T10:00:00.000Z'),
+      projectRoot: root,
+      stateDir: path.join(root, 'data', 'skill-curator'),
+      sourceRegistry: sourceRegistry(root),
+    });
+
+    const applied = service.buildSnapshot({
+      apply: true,
+      applySafeMetadata: true,
+      approvalId: 'appr-native-metadata',
+      proposalIds: [
+        'metadata:skill-library/native/repo-map',
+        'metadata:skill-library/native/repo-inventory',
+      ],
+    });
+
+    expect(applied.apply.applied).toBe(true);
+    expect(applied.apply.safeMetadataApplyRequested).toBe(true);
+    expect(applied.apply.safeMetadataApplyEligible).toBe(true);
+    expect(applied.apply.safeMetadataApplied).toBe(true);
+    expect(applied.apply.safeMetadataFiles).toEqual(expect.arrayContaining([
+      'skill-library/native/repo-map/ZAVORTH_NATIVE_SKILL.json',
+      'skill-library/native/repo-inventory/ZAVORTH_NATIVE_SKILL.json',
+    ]));
+    expect(applied.evolution.liveMutationPerformed).toBe(true);
+    expect(applied.safety.applyWritesCuratorStateOnly).toBe(false);
+    const manifest = JSON.parse(fs.readFileSync(path.join(root, 'skill-library/native/repo-map/ZAVORTH_NATIVE_SKILL.json'), 'utf8'));
+    expect(manifest.safeMetadataApply).toBe(true);
+    expect(manifest.contractVersion).toBe('zavorth-skill-curator-live-loop/1');
     expect(fs.existsSync(path.join(root, 'skill-library/native/repo-map/SKILL.md'))).toBe(true);
   });
 

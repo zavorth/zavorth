@@ -42,7 +42,10 @@ type GroupSafeCommand =
   | '/ready'
   | '/stayonline'
   | '/agentonboarding'
+  | '/agentimport'
+  | '/agentmigration'
   | '/externalagent'
+  | '/mnemos'
   | '/fixes'
   | '/dashboard'
   | '/demo'
@@ -62,6 +65,7 @@ export type TelegramCommandRoutingServiceDeps = {
     handleReadyToGo: (ctx: Context) => Promise<void>;
     handleStayOnline: (ctx: Context) => Promise<void>;
     handleExternalAgentOnboarding?: (ctx: Context, args: string) => Promise<void>;
+    handleExternalAgentMigrationPack?: (ctx: Context, args: string) => Promise<void>;
     handleExternalAgentGateway?: (ctx: Context, args: string) => Promise<void>;
     handleCapabilities: (ctx: Context, args: string) => Promise<void>;
     handleProfile: (ctx: Context, args: string) => Promise<void>;
@@ -150,6 +154,9 @@ export type TelegramCommandRoutingServiceDeps = {
   swarmController?: {
     handleSwarm: (ctx: Context, args: string) => Promise<void>;
   } | null;
+  mnemosMemoryUxController?: {
+    handleMnemos: (ctx: Context, args: string, userId: string) => Promise<void>;
+  } | null;
   naturalCapabilityRouter?: {
     dispatch: (ctx: Context, effectiveText: string, userId: string) => Promise<boolean>;
   } | null;
@@ -232,9 +239,22 @@ export class TelegramCommandRoutingService {
           return true;
         }
         return false;
+      case '/agentimport':
+      case '/agentmigration':
+        if (this.deps.opsController.handleExternalAgentMigrationPack) {
+          await this.deps.opsController.handleExternalAgentMigrationPack(ctx, parsed.command_args);
+          return true;
+        }
+        return false;
       case '/externalagent':
         if (this.deps.opsController.handleExternalAgentGateway) {
           await this.deps.opsController.handleExternalAgentGateway(ctx, parsed.command_args);
+          return true;
+        }
+        return false;
+      case '/mnemos':
+        if (this.deps.mnemosMemoryUxController) {
+          await this.deps.mnemosMemoryUxController.handleMnemos(ctx, parsed.command_args, userId);
           return true;
         }
         return false;
@@ -495,6 +515,13 @@ export class TelegramCommandRoutingService {
             return true;
           }
           return false;
+        case '/agentimport':
+        case '/agentmigration':
+          if (this.deps.opsController.handleExternalAgentMigrationPack) {
+            await this.deps.opsController.handleExternalAgentMigrationPack(ctx, args);
+            return true;
+          }
+          return false;
         case '/externalagent':
           if (this.deps.opsController.handleExternalAgentGateway) {
             await this.deps.opsController.handleExternalAgentGateway(ctx, args);
@@ -561,6 +588,8 @@ export class TelegramCommandRoutingService {
       '/ready',
       '/stayonline',
       '/agentonboarding',
+      '/agentimport',
+      '/agentmigration',
       '/externalagent',
       '/fixes',
       '/dashboard',

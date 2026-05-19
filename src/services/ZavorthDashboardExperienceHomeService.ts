@@ -3,6 +3,7 @@ import {
   type ZavorthDashboardExperienceHomeArea,
   type ZavorthDashboardExperienceHomeFirstStep,
   type ZavorthDashboardExperienceHomeMission,
+  type ZavorthDashboardPermissionPanelItem,
   type ZavorthDashboardExperienceHomeQuestion,
   type ZavorthDashboardExperienceHomeSnapshot,
 } from '../contracts/ZavorthDashboardExperienceHomeContract.js';
@@ -125,6 +126,59 @@ const QUESTIONS: ZavorthDashboardExperienceHomeQuestion[] = [
   },
 ];
 
+const PERMISSION_PANEL: ZavorthDashboardPermissionPanelItem[] = [
+  {
+    id: 'permissions',
+    label: 'Permissoes',
+    summary: 'Veja o que esta pendente, aprovado, rejeitado ou expirado antes de continuar.',
+    icon: 'verified_user',
+    href: '/dashboard/logs',
+    statusLabel: 'Scoped',
+    actionLabel: 'Review',
+    risk: 'low',
+  },
+  {
+    id: 'auto-approvals',
+    label: 'Auto-aprovacoes',
+    summary: 'Permissoes persistentes ficam limitadas por escopo, prazo, risco e recibo.',
+    icon: 'rule_settings',
+    href: '/dashboard/settings',
+    statusLabel: 'Limited',
+    actionLabel: 'Manage',
+    risk: 'medium',
+  },
+  {
+    id: 'extreme-mode',
+    label: 'Modo extremo',
+    summary: 'Break-glass exige confirmacao forte; ainda bloqueia catastrofes obvias.',
+    icon: 'emergency_home',
+    href: '/dashboard/settings',
+    statusLabel: 'Guarded',
+    actionLabel: 'Inspect',
+    risk: 'critical',
+  },
+  {
+    id: 'revoke',
+    label: 'Revogar',
+    summary: 'Corte rapidamente permissoes persistentes, canais, providers ou sessoes sensiveis.',
+    icon: 'lock_reset',
+    href: '/dashboard/settings',
+    statusLabel: 'Fast off',
+    actionLabel: 'Revoke',
+    risk: 'medium',
+  },
+  {
+    id: 'receipts',
+    label: 'Receipts',
+    summary: 'Toda decisao sensivel deve deixar prova legivel do escopo e do motivo.',
+    icon: 'receipt_long',
+    href: '/dashboard/logs',
+    statusLabel: 'Audit',
+    actionLabel: 'Open proof',
+    risk: 'low',
+  },
+];
+
 const GETTING_STARTED: ZavorthDashboardExperienceHomeFirstStep[] = [
   {
     id: 'setup',
@@ -187,6 +241,12 @@ export class ZavorthDashboardExperienceHomeService {
       },
       primaryMissions: MISSIONS,
       runtimeQuestions: QUESTIONS,
+      permissionPanel: {
+        title: 'Permissoes',
+        summary: 'Controle approvals, auto-aprovacoes, modo extremo, revogacao e receipts sem transformar o dashboard em atalho de execucao.',
+        items: PERMISSION_PANEL,
+        defaultPosture: 'Projection-only: botoes abrem revisao, configuracao ou recibos; a acao sensivel continua no Trust Plane.',
+      },
       quietReadiness: {
         title: 'Quiet readiness',
         bullets: [
@@ -237,6 +297,12 @@ export class ZavorthDashboardExperienceHomeService {
       '[ask runtime]',
       ...snapshot.runtimeQuestions.map((question) =>
         `- ${question.label}: ${question.question} | ${question.command}`,
+      ),
+      '',
+      '[permissoes]',
+      snapshot.permissionPanel.summary,
+      ...snapshot.permissionPanel.items.map((item) =>
+        `- ${item.label}: ${item.statusLabel} | risk=${item.risk} | ${item.actionLabel} | ${item.href}`,
       ),
       '',
     ].join('\n');

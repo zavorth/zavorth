@@ -7,10 +7,12 @@ const service = new ZavorthSkillCuratorLiveLoopService();
 const snapshot = service.buildSnapshot({
   apply: args.includes('--apply'),
   approvalId: readFlag(args, 'approval-id'),
+  usePersistentApproval: args.includes('--use-persistent-approval') || args.includes('--auto-approve-if-policy'),
   includeImported: !args.includes('--no-imported'),
   includeWorkspace: !args.includes('--no-workspace'),
   maxSkills: Number(readFlag(args, 'max-skills') || 0) || undefined,
   proposalIds: readRepeatedFlag(args, 'proposal'),
+  applySafeMetadata: args.includes('--apply-safe-metadata'),
 });
 
 if (args.includes('--json')) {

@@ -3,6 +3,7 @@ import path from 'node:path';
 
 import { config } from '../config/index.js';
 import { SkillSourceRegistryService, type SkillSourceRegistryEntry } from './SkillSourceRegistryService.js';
+import { ZavorthPersistentApprovalPolicyService } from './ZavorthPersistentApprovalPolicyService.js';
 
 export const ZAVORTH_SKILL_CURATOR_LIVE_LOOP_CONTRACT_VERSION = 'zavorth-skill-curator-live-loop/1' as const;
 const MAX_SKILL_FILE_BYTES = 256 * 1024;
@@ -107,7 +108,7 @@ export type ZavorthSkillCuratorSnapshot = {
     usageSignalsRead: boolean;
     patchPreviewGenerated: boolean;
     rollbackPlanned: boolean;
-    liveMutationPerformed: false;
+    liveMutationPerformed: boolean;
     receiptBacked: boolean;
   };
   skills: ZavorthSkillCuratorSkill[];
@@ -118,9 +119,15 @@ export type ZavorthSkillCuratorSnapshot = {
     approvalRequired: boolean;
     approvalSatisfied: boolean;
     approvalId: string | null;
+    approvalMode: 'manual' | 'persistent-policy' | null;
+    persistentPolicyId: string | null;
     proposalIds: string[];
     proposalSelectionSatisfied: boolean;
     missingProposalIds: string[];
+    safeMetadataApplyRequested: boolean;
+    safeMetadataApplyEligible: boolean;
+    safeMetadataApplied: boolean;
+    safeMetadataFiles: string[];
     statePath: string;
     receiptPath: string;
     patchPreviewPath: string;
@@ -137,7 +144,9 @@ export type ZavorthSkillCuratorSnapshot = {
     noExternalNetworkProbe: true;
     noSkillExecution: true;
     applyRequiresApprovalId: true;
-    applyWritesCuratorStateOnly: true;
+    applyWritesCuratorStateOnly: boolean;
+    safeMetadataApplyRequiresExplicitFlag: true;
+    safeMetadataApplyLimitedToNativeSkills: true;
     generatedPatchRequiresSeparateApproval: true;
     rollbackPlanRequired: true;
   };
@@ -146,10 +155,12 @@ export type ZavorthSkillCuratorSnapshot = {
 export type ZavorthSkillCuratorLiveLoopInput = {
   apply?: boolean;
   approvalId?: string | null;
+  usePersistentApproval?: boolean;
   includeImported?: boolean;
   includeWorkspace?: boolean;
   maxSkills?: number;
   proposalIds?: string[];
+  applySafeMetadata?: boolean;
 };
 
 export type ZavorthSkillCuratorRuntime = {
@@ -158,6 +169,7 @@ export type ZavorthSkillCuratorRuntime = {
   stateDir?: string;
   sourceRegistry?: Pick<SkillSourceRegistryService, 'listSearchSources'>;
   usageRoots?: string[];
+  persistentApprovals?: Pick<ZavorthPersistentApprovalPolicyService, 'resolve'>;
 };
 
 type SkillPair = {
@@ -173,12 +185,14 @@ export class ZavorthSkillCuratorLiveLoopService {
   private readonly stateDir: string;
   private readonly sourceRegistry: Pick<SkillSourceRegistryService, 'listSearchSources'>;
   private readonly usageRoots: string[];
+  private readonly persistentApprovals: Pick<ZavorthPersistentApprovalPolicyService, 'resolve'>;
 
   public constructor(runtime: ZavorthSkillCuratorRuntime = {}) {
     this.now = runtime.now || (() => new Date());
     this.projectRoot = runtime.projectRoot || config.projectRoot;
     this.stateDir = runtime.stateDir || path.join(this.projectRoot, 'data', 'skill-curator');
     this.sourceRegistry = runtime.sourceRegistry || new SkillSourceRegistryService({ projectRoot: this.projectRoot });
+    this.persistentApprovals = runtime.persistentApprovals || new ZavorthPersistentApprovalPolicyService({ projectRoot: this.projectRoot });
     this.usageRoots = runtime.usageRoots || [
       path.join(this.projectRoot, 'data'),
       path.join(this.projectRoot, '.zavorth'),
@@ -203,15 +217,43 @@ export class ZavorthSkillCuratorLiveLoopService {
     const statePath = path.join(this.stateDir, 'skill-curator-state.json');
     const receiptPath = path.join(this.stateDir, 'skill-curator-receipt.json');
     const patchPreviewPath = path.join(this.stateDir, 'skill-curator-patch-preview.json');
-    const applied = applyRequested && approvalSatisfied && proposalSelectionSatisfied;
-    if (applied && approvalId) {
+    const persistentResolution = applyRequested && !approvalSatisfied && input.usePersistentApproval === true
+      ? this.persistentApprovals.resolve({
+        surface: 'skill-curator-live-loop',
+        actions: uniqueStrings(proposals.map((proposal) => proposal.kind)),
+        maxRisk: maxProposalRisk(proposals),
+        destructivePreview: proposals.some((proposal) => proposal.destructive),
+      })
+      : null;
+    const effectiveApprovalId = approvalId || persistentResolution?.policy?.id || null;
+    const effectiveApprovalMode = approvalId
+      ? 'manual'
+      : persistentResolution?.allowed
+        ? 'persistent-policy'
+        : null;
+    const effectiveApprovalSatisfied = Boolean(effectiveApprovalId);
+    const safeMetadataApplyRequested = input.applySafeMetadata === true;
+    const safeMetadataApplyEligible = proposalSelectionSatisfied
+      && proposals.length > 0
+      && proposals.every((proposal) => isSafeNativeMetadataProposal(proposal));
+    const applied = applyRequested && effectiveApprovalSatisfied && proposalSelectionSatisfied;
+    let safeMetadataFiles: string[] = [];
+    let safeMetadataApplied = false;
+    if (applied && effectiveApprovalId) {
+      if (safeMetadataApplyRequested && safeMetadataApplyEligible) {
+        safeMetadataFiles = this.writeSafeMetadataFiles(proposals);
+        safeMetadataApplied = safeMetadataFiles.length > 0;
+      }
       this.writeCuratorState({
         statePath,
         receiptPath,
         patchPreviewPath,
-        approvalId,
+        approvalId: effectiveApprovalId,
+        approvalMode: effectiveApprovalMode || 'manual',
+        persistentPolicyId: persistentResolution?.policy?.id || null,
         proposals,
         skills,
+        safeMetadataFiles,
       });
     }
     const duplicateGroups = proposals.filter((proposal) => proposal.kind === 'merge-candidates').length;
@@ -250,7 +292,7 @@ export class ZavorthSkillCuratorLiveLoopService {
         usageSignalsRead: true,
         patchPreviewGenerated: proposals.some((proposal) => proposal.patchPreview.files.length > 0),
         rollbackPlanned: proposals.every((proposal) => proposal.patchPreview.rollback.length > 0),
-        liveMutationPerformed: false,
+        liveMutationPerformed: safeMetadataApplied,
         receiptBacked: applied,
       },
       skills,
@@ -261,11 +303,17 @@ export class ZavorthSkillCuratorLiveLoopService {
         requested: applyRequested,
         applied,
         approvalRequired: applyRequested,
-        approvalSatisfied,
-        approvalId,
+        approvalSatisfied: effectiveApprovalSatisfied,
+        approvalId: effectiveApprovalId,
+        approvalMode: effectiveApprovalMode,
+        persistentPolicyId: persistentResolution?.policy?.id || null,
         proposalIds: requestedProposalIds,
         proposalSelectionSatisfied,
         missingProposalIds,
+        safeMetadataApplyRequested,
+        safeMetadataApplyEligible,
+        safeMetadataApplied,
+        safeMetadataFiles,
         statePath,
         receiptPath,
         patchPreviewPath,
@@ -282,7 +330,9 @@ export class ZavorthSkillCuratorLiveLoopService {
         noExternalNetworkProbe: true,
         noSkillExecution: true,
         applyRequiresApprovalId: true,
-        applyWritesCuratorStateOnly: true,
+        applyWritesCuratorStateOnly: !safeMetadataApplied,
+        safeMetadataApplyRequiresExplicitFlag: true,
+        safeMetadataApplyLimitedToNativeSkills: true,
         generatedPatchRequiresSeparateApproval: true,
         rollbackPlanRequired: true,
       },
@@ -313,7 +363,7 @@ export class ZavorthSkillCuratorLiveLoopService {
         ? snapshot.apply.applied
           ? `Applied curator state: ${snapshot.apply.statePath}`
           : snapshot.apply.proposalSelectionSatisfied
-            ? 'Apply bloqueado: informe --approval-id <id>.'
+            ? 'Apply bloqueado: informe --approval-id <id> ou use --use-persistent-approval com uma policy compativel.'
             : `Apply bloqueado: proposal inexistente (${snapshot.apply.missingProposalIds.join(', ')}).`
         : `Apply governado: ${snapshot.commands.apply}`,
       `Patch preview: ${snapshot.apply.patchPreviewPath}`,
@@ -518,19 +568,25 @@ export class ZavorthSkillCuratorLiveLoopService {
     receiptPath: string;
     patchPreviewPath: string;
     approvalId: string;
+    approvalMode: 'manual' | 'persistent-policy';
+    persistentPolicyId: string | null;
     proposals: ZavorthSkillCuratorProposal[];
     skills: ZavorthSkillCuratorSkill[];
+    safeMetadataFiles: string[];
   }): void {
     fs.mkdirSync(path.dirname(input.statePath), { recursive: true });
     const payload = {
       contractVersion: ZAVORTH_SKILL_CURATOR_LIVE_LOOP_CONTRACT_VERSION,
       appliedAt: this.now().toISOString(),
       approvalId: input.approvalId,
+      approvalMode: input.approvalMode,
+      persistentPolicyId: input.persistentPolicyId,
       mode: 'non-destructive-curator-state',
       proposals: input.proposals,
       skillCount: input.skills.length,
       safety: {
-        noSkillFileMutation: true,
+        noSkillFileMutation: input.safeMetadataFiles.length === 0,
+        safeMetadataFiles: input.safeMetadataFiles,
         noDelete: true,
         noMerge: true,
         noExecution: true,
@@ -548,11 +604,40 @@ export class ZavorthSkillCuratorLiveLoopService {
       })),
       liveMutationPerformed: false,
       requiresSeparatePatchApproval: true,
+      safeMetadataFilesApplied: input.safeMetadataFiles,
     }, null, 2)}\n`, 'utf8');
     fs.writeFileSync(input.receiptPath, `${JSON.stringify({
       ...payload,
       receiptKind: 'skill-curator-live-loop',
     }, null, 2)}\n`, 'utf8');
+  }
+
+  private writeSafeMetadataFiles(proposals: ZavorthSkillCuratorProposal[]): string[] {
+    const written: string[] = [];
+    const nativeRoot = path.resolve(this.projectRoot, 'skill-library', 'native');
+    for (const proposal of proposals) {
+      if (!isSafeNativeMetadataProposal(proposal)) {
+        throw new Error(`Unsafe metadata proposal cannot be applied: ${proposal.id}`);
+      }
+      for (const file of proposal.patchPreview.files) {
+        const target = path.resolve(this.projectRoot, file.path);
+        if (!isPathInside(target, nativeRoot) || path.basename(target) !== 'ZAVORTH_NATIVE_SKILL.json') {
+          throw new Error(`Safe metadata apply refused path outside native skill metadata: ${file.path}`);
+        }
+        const parsed = JSON.parse(file.preview);
+        const payload = {
+          ...parsed,
+          curatedBy: 'zavorth-skill-curator',
+          contractVersion: ZAVORTH_SKILL_CURATOR_LIVE_LOOP_CONTRACT_VERSION,
+          updatedAt: this.now().toISOString(),
+          safeMetadataApply: true,
+        };
+        fs.mkdirSync(path.dirname(target), { recursive: true });
+        fs.writeFileSync(target, `${JSON.stringify(payload, null, 2)}\n`, 'utf8');
+        written.push(normalizePath(path.relative(this.projectRoot, target)));
+      }
+    }
+    return written;
   }
 }
 
@@ -938,6 +1023,30 @@ function isUsageEvidenceFile(filePath: string, name: string): boolean {
 
 function uniqueStrings(values: string[]): string[] {
   return Array.from(new Set(values.map((value) => String(value || '').trim()).filter(Boolean)));
+}
+
+function maxProposalRisk(proposals: ZavorthSkillCuratorProposal[]): 'none' | 'low' | 'medium' {
+  if (proposals.some((proposal) => proposal.risk === 'medium')) return 'medium';
+  if (proposals.some((proposal) => proposal.risk === 'low')) return 'low';
+  return 'none';
+}
+
+function isSafeNativeMetadataProposal(proposal: ZavorthSkillCuratorProposal): boolean {
+  return proposal.kind === 'metadata-repair'
+    && proposal.risk === 'low'
+    && proposal.destructive === false
+    && proposal.skillIds.length === 1
+    && proposal.skillIds[0].startsWith('skill-library/native/')
+    && proposal.patchPreview.files.length > 0
+    && proposal.patchPreview.files.every((file) =>
+      file.action !== 'archive'
+      && normalizePath(file.path).startsWith('skill-library/native/')
+      && normalizePath(file.path).endsWith('/ZAVORTH_NATIVE_SKILL.json'));
+}
+
+function isPathInside(candidate: string, root: string): boolean {
+  const relative = path.relative(root, candidate);
+  return relative === '' || (!relative.startsWith('..') && !path.isAbsolute(relative));
 }
 
 function timestampFromPathOrStat(filePath: string): string | null {

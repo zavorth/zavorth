@@ -28,6 +28,15 @@ describe('ZavorthDashboardExperienceHomeService', () => {
     expect(snapshot.gettingStarted.steps.find((step) => step.id === 'demo')?.optional).toBe(true);
     expect(snapshot.primaryMissions.length).toBeGreaterThanOrEqual(4);
     expect(snapshot.runtimeQuestions.length).toBeGreaterThanOrEqual(4);
+    expect(snapshot.permissionPanel.title).toBe('Permissoes');
+    expect(snapshot.permissionPanel.items.map((item) => item.id)).toEqual([
+      'permissions',
+      'auto-approvals',
+      'extreme-mode',
+      'revoke',
+      'receipts',
+    ]);
+    expect(snapshot.permissionPanel.defaultPosture).toContain('Projection-only');
     expect(snapshot.safety.dashboardCanExecuteTargetAction).toBe(false);
     expect(snapshot.safety.policyBrokerRequiredForActions).toBe(true);
   });
@@ -49,5 +58,7 @@ describe('ZavorthDashboardExperienceHomeService', () => {
     ]));
     expect(snapshot.invariants.join(' ')).toContain('not an execution shortcut');
     expect(snapshot.invariants.join(' ')).toContain('before internal runtime names');
+    expect(snapshot.permissionPanel.items.find((item) => item.id === 'extreme-mode')?.risk).toBe('critical');
+    expect(snapshot.permissionPanel.items.find((item) => item.id === 'auto-approvals')?.summary).toContain('escopo');
   });
 });

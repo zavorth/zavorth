@@ -49,10 +49,20 @@ function spawnInherited(command: string, commandArgs: string[], cwd: string): Pr
 }
 
 function npmInherited(commandArgs: string[], cwd: string): Promise<number> {
-  if (process.platform === 'win32') {
-    return spawnInherited('cmd.exe', ['/d', '/s', '/c', 'npm', ...commandArgs], cwd);
+  const npmCli = resolveNpmCli();
+  if (npmCli) {
+    return spawnInherited(process.execPath, [npmCli, ...commandArgs], cwd);
   }
   return spawnInherited('npm', commandArgs, cwd);
+}
+
+function resolveNpmCli(): string | null {
+  const candidates = [
+    path.resolve(path.dirname(process.execPath), 'node_modules', 'npm', 'bin', 'npm-cli.js'),
+    process.env.ProgramFiles ? path.join(process.env.ProgramFiles, 'nodejs', 'node_modules', 'npm', 'bin', 'npm-cli.js') : '',
+    process.env['ProgramFiles(x86)'] ? path.join(process.env['ProgramFiles(x86)'], 'nodejs', 'node_modules', 'npm', 'bin', 'npm-cli.js') : '',
+  ].filter(Boolean);
+  return candidates.find((candidate) => existsSync(candidate)) || null;
 }
 
 function printBuiltinHelp(target?: string | null): number {
@@ -627,6 +637,10 @@ async function runTrustPanel(rawArgs: string[] = []): Promise<number> {
   return 0;
 }
 
+async function runTrustApprovalUxFinal(rawArgs: string[] = []): Promise<number> {
+  return npmInherited(['exec', 'tsx', '--', 'scripts/zavorth-trust-approval-ux-final.ts', ...rawArgs], projectRoot);
+}
+
 async function runAutonomySlider(rawArgs: string[] = []): Promise<number> {
   const { ZavorthAutonomySliderService } = await import('./services/ZavorthAutonomySliderService.js');
   const service = new ZavorthAutonomySliderService();
@@ -789,12 +803,40 @@ async function runReadyToGo(rawArgs: string[] = []): Promise<number> {
     : 0;
 }
 
+async function runOneCommandOperatorCheck(rawArgs: string[] = []): Promise<number> {
+  const { ZavorthOneCommandOperatorCheckService } = await import('./services/ZavorthOneCommandOperatorCheckService.js');
+  const service = new ZavorthOneCommandOperatorCheckService();
+  const snapshot = await service.buildSnapshot({
+    live: rawArgs.includes('--live'),
+    strict: rawArgs.includes('--strict') || rawArgs.includes('--require-pass'),
+    userId: readFlexibleStringFlag(rawArgs, 'user-id') || 'operator',
+    sessionId: readFlexibleStringFlag(rawArgs, 'session-id') || 'operator-check',
+    workspaceHint: readFlexibleStringFlag(rawArgs, 'workspace') || projectRoot,
+  });
+  if (rawArgs.includes('--json')) {
+    process.stdout.write(`${JSON.stringify(snapshot, null, 2)}\n`);
+  } else {
+    process.stdout.write(service.renderCli(snapshot));
+  }
+  return snapshot.status === 'blocked' || ((rawArgs.includes('--strict') || rawArgs.includes('--require-pass')) && snapshot.strictPass !== true)
+    ? 1
+    : 0;
+}
+
 async function runStayOnline(rawArgs: string[] = []): Promise<number> {
   return npmInherited(['exec', 'tsx', '--', 'scripts/zavorth-stay-online.ts', ...rawArgs], projectRoot);
 }
 
+async function runSmartCommands(rawArgs: string[] = []): Promise<number> {
+  return npmInherited(['exec', 'tsx', '--', 'scripts/zavorth-smart-commands.ts', ...rawArgs], projectRoot);
+}
+
 async function runExternalAgentOnboarding(rawArgs: string[] = []): Promise<number> {
   return npmInherited(['exec', 'tsx', '--', 'scripts/zavorth-external-agent-onboarding.ts', ...rawArgs], projectRoot);
+}
+
+async function runExternalAgentMigrationPack(rawArgs: string[] = []): Promise<number> {
+  return npmInherited(['exec', 'tsx', '--', 'scripts/zavorth-external-agent-migration-pack.ts', ...rawArgs], projectRoot);
 }
 
 async function runExternalAgentGateway(rawArgs: string[] = []): Promise<number> {
@@ -813,8 +855,32 @@ async function runSkillCurator(rawArgs: string[] = []): Promise<number> {
   return npmInherited(['exec', 'tsx', '--', 'scripts/zavorth-skill-curator-live-loop.ts', ...rawArgs], projectRoot);
 }
 
+async function runPersistentApprovals(rawArgs: string[] = []): Promise<number> {
+  return npmInherited(['exec', 'tsx', '--', 'scripts/zavorth-persistent-approval-policy.ts', ...rawArgs], projectRoot);
+}
+
 async function runSkillExpansionPack(rawArgs: string[] = []): Promise<number> {
   return npmInherited(['exec', 'tsx', '--', 'scripts/zavorth-skill-expansion-pack.ts', ...rawArgs], projectRoot);
+}
+
+async function runSupremacyParity(rawArgs: string[] = []): Promise<number> {
+  return npmInherited(['exec', 'tsx', '--', 'scripts/zavorth-supremacy-parity.ts', ...rawArgs], projectRoot);
+}
+
+async function runProviderParity(rawArgs: string[] = []): Promise<number> {
+  return npmInherited(['exec', 'tsx', '--', 'scripts/zavorth-provider-parity.ts', ...rawArgs], projectRoot);
+}
+
+async function runGatewayMatrix(rawArgs: string[] = []): Promise<number> {
+  return npmInherited(['exec', 'tsx', '--', 'scripts/zavorth-gateway-matrix.ts', ...rawArgs], projectRoot);
+}
+
+async function runExecutionBackends(rawArgs: string[] = []): Promise<number> {
+  return npmInherited(['exec', 'tsx', '--', 'scripts/zavorth-execution-backends.ts', ...rawArgs], projectRoot);
+}
+
+async function runSkillEcosystem(rawArgs: string[] = []): Promise<number> {
+  return npmInherited(['exec', 'tsx', '--', 'scripts/zavorth-skill-ecosystem-pack.ts', ...rawArgs], projectRoot);
 }
 
 async function runAcp(rawArgs: string[] = []): Promise<number> {
@@ -1433,7 +1499,11 @@ async function runBuiltinLauncher(rawArgs: string[]): Promise<number | null> {
     return runDoItWithMe(restArgs);
   }
 
-  if (command === 'trust-panel' || command === 'trust' || command === 'safety-panel') {
+  if (command === 'trust' || command === 'trust-approval' || command === 'approval-ux') {
+    return runTrustApprovalUxFinal(restArgs);
+  }
+
+  if (command === 'trust-panel' || command === 'safety-panel') {
     return runTrustPanel(restArgs);
   }
 
@@ -1465,12 +1535,70 @@ async function runBuiltinLauncher(rawArgs: string[]): Promise<number | null> {
     return runReadyToGo(restArgs);
   }
 
+  if (
+    command === 'operator-check'
+    || command === 'operator'
+    || command === 'opcheck'
+    || command === 'one-check'
+  ) {
+    return runOneCommandOperatorCheck(restArgs);
+  }
+
   if (command === 'stay-online' || command === 'stayonline') {
     return runStayOnline(restArgs);
   }
 
+  if (
+    command === 'smart-command'
+    || command === 'smart-commands'
+    || command === 'slash'
+    || command === 'slash-command'
+    || command === 'commands-parity'
+  ) {
+    return runSmartCommands(restArgs);
+  }
+
+  if ([
+    'new',
+    'reset',
+    'model',
+    'models',
+    'personality',
+    'persona',
+    'retry',
+    'undo',
+    'compress',
+    'usage',
+    'insights',
+    'skills',
+    'skill',
+    'stop',
+    'platforms',
+    'sethome',
+  ].includes(command)) {
+    return runSmartCommands([`/${command}`, ...restArgs]);
+  }
+
   if (command === 'acp' || command === 'acpx') {
     return runAcp(restArgs);
+  }
+
+  // agent import -> governed external agent migration pack
+  if (
+    (command === 'agent' || command === 'agents')
+    && ['import', 'migrate', 'migration'].includes(String(restArgs[0] || '').trim().toLowerCase())
+  ) {
+    return runExternalAgentMigrationPack(restArgs.slice(1));
+  }
+
+  if (
+    command === 'external-agent-migration'
+    || command === 'external-agent-migration-pack'
+    || command === 'agent-import'
+    || command === 'agent-migrate'
+    || command === 'agents-import'
+  ) {
+    return runExternalAgentMigrationPack(restArgs);
   }
 
   if (
@@ -1518,12 +1646,49 @@ async function runBuiltinLauncher(rawArgs: string[]): Promise<number | null> {
   }
 
   if (
+    command === 'persistent-approvals'
+    || command === 'approval-policy'
+    || command === 'auto-approval'
+    || command === 'always-allow'
+    || command === 'permito-sempre'
+    || command === 'break-glass'
+    || command === 'modo-extremo'
+    || command === 'responsabilidade-total'
+  ) {
+    return runPersistentApprovals(restArgs);
+  }
+
+  if (command === 'approvals' && ['always', 'auto', 'policy', 'permito-sempre', 'break-glass'].includes(String(restArgs[0] || '').trim().toLowerCase())) {
+    return runPersistentApprovals(restArgs.slice(1));
+  }
+
+  if (
     command === 'skill-expansion-pack'
     || command === 'skills-expansion-pack'
     || command === 'expand-skills'
     || command === 'absorb-skills'
   ) {
     return runSkillExpansionPack(restArgs);
+  }
+
+  if (command === 'supremacy-parity' || command === 'supremacy' || command === 'parity-pack') {
+    return runSupremacyParity(restArgs);
+  }
+
+  if (command === 'provider-parity' || command === 'providers-parity') {
+    return runProviderParity(restArgs);
+  }
+
+  if (command === 'gateway-matrix' || command === 'channels-matrix') {
+    return runGatewayMatrix(restArgs);
+  }
+
+  if (command === 'execution-backends' || command === 'backends' || command === 'sandbox-backends') {
+    return runExecutionBackends(restArgs);
+  }
+
+  if (command === 'skill-ecosystem' || command === 'skills-ecosystem') {
+    return runSkillEcosystem(restArgs);
   }
 
   if (command === 'readiness' || command === 'runtime-readiness') {
@@ -1539,6 +1704,9 @@ async function runBuiltinLauncher(rawArgs: string[]): Promise<number | null> {
   }
 
   if (command === 'gateway') {
+    if (String(restArgs[0] || '').trim().toLowerCase() === 'matrix') {
+      return runGatewayMatrix(restArgs.slice(1));
+    }
     if (restArgs.includes('--help') || restArgs.includes('-h')) {
       process.stdout.write([
         'Zavorth Gateway',
@@ -1565,6 +1733,9 @@ async function runBuiltinLauncher(rawArgs: string[]): Promise<number | null> {
   }
 
   if (command === 'providers' || command === 'models') {
+    if (String(restArgs[0] || '').trim().toLowerCase() === 'parity') {
+      return runProviderParity(restArgs.slice(1));
+    }
     return runProviderReadiness(restArgs);
   }
 

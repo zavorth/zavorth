@@ -1,0 +1,20 @@
+{
+  "id": "zavorth-file-document-understanding",
+  "title": "Zavorth File And Document Understanding",
+  "source": "workspace-library",
+  "trust": "trusted",
+  "tags": [
+    "file",
+    "document",
+    "understanding",
+    "documents",
+    "extraction",
+    "files",
+    "analysis",
+    "appropriate"
+  ],
+  "curatedBy": "zavorth-skill-curator",
+  "contractVersion": "zavorth-skill-curator-live-loop/1",
+  "updatedAt": "2026-05-18T18:40:32.047Z",
+  "safeMetadataApply": true
+}

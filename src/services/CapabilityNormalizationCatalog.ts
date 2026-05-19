@@ -595,7 +595,7 @@ export const GROUPS: SourceGroup[] = [
     'acpx',
   ]),
   group('migration', 'migration.import', 'tool', [
-    'migrate-claude', 'migrate-hermes',
+    'migrate-claude', 'migrate-generic-agent',
   ]),
   group('workspace', 'workspace.command', 'workspace', [
     'skill-workshop',

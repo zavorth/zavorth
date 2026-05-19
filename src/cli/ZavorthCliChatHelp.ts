@@ -4,7 +4,10 @@ const CLI_CHAT_HELP_ENTRIES = [
   { command: 'status', summary: 'ver se esta tudo certo' },
   { command: 'doctor', summary: 'corrigir algo que travou' },
   { command: 'history', summary: 'ver conversas recentes' },
-  { command: 'new', summary: 'comecar conversa nova' },
+  { command: '/new ou /reset', summary: 'comecar conversa nova' },
+  { command: '/model', summary: 'ver ou trocar provider/modelo com readiness' },
+  { command: '/skills', summary: 'buscar habilidades e acionar o mesh' },
+  { command: '/usage', summary: 'ver uso leve, providers e skills conhecidas' },
   { command: 'quit', summary: 'sair' },
 ] as const;
 

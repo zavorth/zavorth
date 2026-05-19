@@ -38,7 +38,9 @@ import { ZavorthRuntimeReadinessUxService } from '../../services/ZavorthRuntimeR
 import { ZavorthReadyToGoService } from '../../services/ZavorthReadyToGoService.js';
 import { ZavorthStayOnlineService } from '../../services/ZavorthStayOnlineService.js';
 import { ZavorthExternalAgentOnboardingService } from '../../services/ZavorthExternalAgentOnboardingService.js';
+import { ZavorthExternalAgentMigrationPackService } from '../../services/ZavorthExternalAgentMigrationPackService.js';
 import { ZavorthExternalAgentGatewayService } from '../../services/ZavorthExternalAgentGatewayService.js';
+import type { ZavorthExternalAgentMigrationPreset } from '../../contracts/ZavorthExternalAgentMigrationPackContract.js';
 
 export class TelegramOpsController {
   private readonly administrationCommands: TelegramOpsAdministrationService;
@@ -205,6 +207,30 @@ export class TelegramOpsController {
           [
             { text: 'Readiness', callback_data: '/readiness' },
             { text: 'Dashboard', callback_data: '/dashboard' },
+          ],
+        ],
+      } as any,
+    });
+  }
+
+  public async handleExternalAgentMigrationPack(ctx: Context, args = ''): Promise<void> {
+    const parsed = parseExternalAgentMigrationTelegramArgs(args);
+    const service = new ZavorthExternalAgentMigrationPackService();
+    const snapshot = service.buildSnapshot({
+      ...parsed,
+      requestedBy: String(ctx.from?.id || 'telegram-operator'),
+      writeReceipt: false,
+    });
+    await ctx.reply(service.renderText(snapshot), {
+      reply_markup: {
+        inline_keyboard: [
+          [
+            { text: 'Onboarding', callback_data: '/agentonboarding' },
+            { text: 'External Agents', callback_data: '/externalagent' },
+          ],
+          [
+            { text: 'Approvals', callback_data: '/echoapprovals' },
+            { text: 'Readiness', callback_data: '/readiness' },
           ],
         ],
       } as any,
@@ -565,4 +591,65 @@ function parseExternalAgentOnboardingTelegramArgs(args: string): {
     commandHint,
     endpointHint,
   };
+}
+
+function parseExternalAgentMigrationTelegramArgs(args: string): {
+  consent: boolean;
+  pathHint: string | null;
+  approximatePathHint: string | null;
+  commandHint: string | null;
+  endpointHint: string | null;
+  preset: ZavorthExternalAgentMigrationPreset | null;
+  apply: boolean;
+  approvalId: string | null;
+  overwrite: boolean;
+  registerAsArm: boolean;
+} {
+  const raw = String(args || '').trim();
+  const consent = /\b(consent|autorizo|autorizei|pode|read-only|somente leitura)\b/i.test(raw);
+  const apply = /\b(apply|aplicar|importar agora|migrar agora)\b/i.test(raw);
+  const overwrite = /\b(overwrite|sobrescrever)\b/i.test(raw);
+  const registerAsArm = /\b(register-as-arm|usar como braco|registrar como braco|braço)\b/i.test(raw);
+  const approvalId = readTelegramOption(raw, 'approval-id') || readTelegramOption(raw, 'approval') || readTelegramOption(raw, 'aprovacao');
+  const preset = normalizeTelegramMigrationPreset(readTelegramOption(raw, 'preset') || readTelegramOption(raw, 'modo'));
+  const cleaned = raw
+    .replace(/\b(consent|autorizo|autorizei|pode|read-only|somente leitura|apply|aplicar|importar agora|migrar agora|overwrite|sobrescrever|register-as-arm|usar como braco|registrar como braco|braço)\b/gi, '')
+    .replace(/\s+--(?:approval-id|approval|aprovacao|preset|modo)(?:=|\s+)\S+/gi, '')
+    .trim();
+  const lower = cleaned.toLowerCase();
+  const readRest = (prefix: string): string | null => {
+    if (!lower.startsWith(prefix)) return null;
+    const value = cleaned.slice(prefix.length).trim();
+    return value || null;
+  };
+
+  return {
+    consent,
+    pathHint: readRest('path ') || readRest('pasta '),
+    approximatePathHint: readRest('approx ') || readRest('aprox ') || readRest('aproximada '),
+    commandHint: readRest('command ') || readRest('cli ') || readRest('comando '),
+    endpointHint: readRest('endpoint ') || readRest('url '),
+    preset,
+    apply,
+    approvalId,
+    overwrite,
+    registerAsArm,
+  };
+}
+
+function readTelegramOption(raw: string, name: string): string | null {
+  const escaped = name.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  const match = String(raw || '').match(new RegExp(`(?:^|\\s)--${escaped}(?:=|\\s+)(\\S+)`, 'i'));
+  return match?.[1]?.trim() || null;
+}
+
+function normalizeTelegramMigrationPreset(value: string | null): ZavorthExternalAgentMigrationPreset | null {
+  const normalized = String(value || '').trim().toLowerCase();
+  if (['preview', 'user-data', 'capabilities', 'full'].includes(normalized)) {
+    return normalized as ZavorthExternalAgentMigrationPreset;
+  }
+  if (normalized === 'usuario' || normalized === 'dados') return 'user-data';
+  if (normalized === 'capacidades') return 'capabilities';
+  if (normalized === 'completo') return 'full';
+  return null;
 }

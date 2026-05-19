@@ -1,0 +1,20 @@
+{
+  "id": "zavorth-security-review",
+  "title": "Zavorth Security Review",
+  "source": "workspace-library",
+  "trust": "trusted",
+  "tags": [
+    "review",
+    "security",
+    "findings",
+    "risk",
+    "secrets",
+    "skills",
+    "abuse-case",
+    "agent"
+  ],
+  "curatedBy": "zavorth-skill-curator",
+  "contractVersion": "zavorth-skill-curator-live-loop/1",
+  "updatedAt": "2026-05-18T18:40:32.050Z",
+  "safeMetadataApply": true
+}

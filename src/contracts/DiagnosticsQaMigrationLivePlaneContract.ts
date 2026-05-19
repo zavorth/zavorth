@@ -11,7 +11,7 @@ export type DiagnosticsQaMigrationLiveTargetId =
   | 'synthetic'
   | 'test-support'
   | 'migrate-claude'
-  | 'migrate-hermes';
+  | 'migrate-generic-agent';
 
 export type DiagnosticsQaMigrationLiveCapability =
   | 'diagnostics.trace'

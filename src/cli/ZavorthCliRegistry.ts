@@ -265,6 +265,7 @@ import {
 } from '../services/CommandCenterAccessService.js';
 import { ZavorthProductDemoService } from '../services/ZavorthProductDemoService.js';
 import { ZavorthConnectorExperienceService } from '../services/ZavorthConnectorExperienceService.js';
+import { ZavorthSmartCommandSurfaceService } from '../services/ZavorthSmartCommandSurfaceService.js';
 import {
   formatCliChatReplyEventCard,
   formatCliRecoverableErrorEventCard,
@@ -352,6 +353,27 @@ export async function executeZavorthCliCommand(params: {
       : formatCliHelp(helpTopic);
     writer.line(body);
     return { ok: true, handled: true, output: [body], error: null };
+  }
+
+  const smartCommandSurface = new ZavorthSmartCommandSurfaceService();
+  if (normalized.trim().startsWith('/') && smartCommandSurface.canHandle(normalized)) {
+    const snapshot = await smartCommandSurface.buildSnapshot({
+      rawText: normalized,
+      channel: effectiveFlags.platform,
+      sessionId: effectiveFlags.sessionId,
+      apply: /\s--apply\b/i.test(` ${normalized}`),
+      approvalId: extractInlineValue(normalized, 'approval-id'),
+    });
+    const body = effectiveFlags.json
+      ? JSON.stringify(snapshot, null, 2)
+      : smartCommandSurface.renderText(snapshot);
+    writer.line(body);
+    return {
+      ok: snapshot.status !== 'blocked' && snapshot.status !== 'not-handled',
+      handled: true,
+      output: [body],
+      error: snapshot.status === 'blocked' || snapshot.status === 'not-handled' ? snapshot.reply.body : null,
+    };
   }
 
   if (commandName === 'dashboard' || commandName === 'control' || commandName === 'command-center') {
@@ -758,6 +780,15 @@ function readConnectorMany(tokens: string[], names: string[]): string[] {
     }
   }
   return values;
+}
+
+function extractInlineValue(raw: string, name: string): string | null {
+  const tokens = String(raw || '').trim().split(/\s+/).filter(Boolean);
+  const inlinePrefix = `--${name}=`;
+  const inline = tokens.find((token) => token.startsWith(inlinePrefix));
+  if (inline) return inline.slice(inlinePrefix.length).trim() || null;
+  const index = tokens.indexOf(`--${name}`);
+  return index >= 0 ? String(tokens[index + 1] || '').trim() || null : null;
 }
 
 function formatDailyUseCliProjection(

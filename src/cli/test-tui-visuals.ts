@@ -1,7 +1,7 @@
 import pc from 'picocolors';
 import figlet from 'figlet';
 
-// Configuração de Cores "Hermes/Amber"
+// Configuração de Cores "Zavorth/Amber"
 const theme = {
   primary: pc.yellow,
   secondary: (text: string) => pc.yellow(pc.dim(text)),
@@ -42,7 +42,7 @@ function renderMainInterface() {
                + theme.secondary(box.h.repeat((width - versionInfo.length) / 2));
   console.log(topBar);
 
-  // Escudo ASCII esquerdo (estilo Hermes Caduceus)
+  // Escudo ASCII esquerdo (estilo Zavorth mark)
   const shield = [
     `       .█████.       `,
     `      █████████      `,

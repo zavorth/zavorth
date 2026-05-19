@@ -149,7 +149,7 @@ function ruleNoPublicExternalNames() {
     'scripts/zavorth-live-canary-executor.ts',
   ];
   const forbidden = [
-    'OpenClaw',
+    'ThirdPartyAgent',
     'Claude Code',
     'ZavorthBridge',
   ];

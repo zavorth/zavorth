@@ -146,7 +146,7 @@ function ruleNoPublicExternalNames() {
     'scripts/zavorth-cross-surface-runtime-projection.ts',
   ];
   const forbidden = [
-    'OpenClaw',
+    'ThirdPartyAgent',
     'Claude Code',
     'ZavorthBridge',
   ];

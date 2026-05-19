@@ -1,0 +1,20 @@
+{
+  "id": "zavorth-research-synthesis",
+  "title": "Zavorth Research Synthesis",
+  "source": "workspace-library",
+  "trust": "trusted",
+  "tags": [
+    "synthesis",
+    "research",
+    "sources",
+    "uncertainty",
+    "with",
+    "answer",
+    "caveats",
+    "citations"
+  ],
+  "curatedBy": "zavorth-skill-curator",
+  "contractVersion": "zavorth-skill-curator-live-loop/1",
+  "updatedAt": "2026-05-18T18:40:32.049Z",
+  "safeMetadataApply": true
+}

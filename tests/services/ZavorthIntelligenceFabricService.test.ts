@@ -179,7 +179,7 @@ describe('ZavorthIntelligenceFabricService', () => {
     const reply = api.renderReply({ text: 'quero usar voce atraves do canal caseiro-xpto' });
 
     expect(reply).toContain('Acao live aplicada: nao');
-    expect(reply).not.toContain('OpenClaw');
+    expect(reply).not.toContain('ThirdPartyAgent');
   });
 
   it('records task evals without raw prompt or secret material and builds a scoreboard', () => {

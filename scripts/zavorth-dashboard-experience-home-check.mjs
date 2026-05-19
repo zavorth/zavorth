@@ -54,6 +54,14 @@ if (!snapshot.gettingStarted.steps.some((entry) => entry.command === 'zavorth de
 if (!snapshot.gettingStarted.steps.some((entry) => entry.command === 'zavorth connectors doctor')) {
   throw new Error('dashboard home must point first-time users to connector doctor');
 }
+if (snapshot.permissionPanel?.title !== 'Permissoes') {
+  throw new Error('dashboard home must expose permission polish panel');
+}
+for (const item of ['permissions', 'auto-approvals', 'extreme-mode', 'revoke', 'receipts']) {
+  if (!snapshot.permissionPanel.items.some((entry) => entry.id === item)) {
+    throw new Error(`permission panel item missing: ${item}`);
+  }
+}
 for (const area of ['inbox', 'tasks', 'approvals', 'receipts', 'connectors']) {
   if (!snapshot.simpleNavigation.areas.some((entry) => entry.id === area)) {
     throw new Error(`dashboard home area missing: ${area}`);
@@ -75,6 +83,10 @@ for (const marker of [
   'zavorth connectors doctor',
   'Receipts',
   'Connectors',
+  'Permissões',
+  'Auto-aprovações',
+  'Modo extremo',
+  'Revogar',
   'home-profile-grid',
   'home-readiness-strip',
   'Organize my day',

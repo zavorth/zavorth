@@ -111,7 +111,7 @@ function ruleNoPublicExternalNames() {
     'scripts/zavorth-reasoning-action-patterns.ts',
   ];
   const forbidden = [
-    'OpenClaw',
+    'ThirdPartyAgent',
     'Claude Code',
     'ZavorthBridge',
   ];

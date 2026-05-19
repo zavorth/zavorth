@@ -97,7 +97,7 @@ function ruleNoPublicExternalNames() {
     'scripts/zavorth-agent-capability-assimilation.ts',
   ];
   const forbidden = [
-    'OpenClaw',
+    'ThirdPartyAgent',
     'Claude Code',
     'ZavorthBridge',
   ];

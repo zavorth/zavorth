@@ -43,7 +43,7 @@ const rules = [
       'synthetic',
       'test-support',
       'migrate-claude',
-      'migrate-hermes',
+      'migrate-generic-agent',
       'diagnosticsMarkedLiveBySyntheticSnapshot: false',
       'migrationMarkedLiveByPlanOnly: false',
       'Phase 11 - Satellite And Device Live Plane',

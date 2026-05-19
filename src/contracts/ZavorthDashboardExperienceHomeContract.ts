@@ -34,6 +34,17 @@ export type ZavorthDashboardExperienceHomeQuestion = {
   command: string;
 };
 
+export type ZavorthDashboardPermissionPanelItem = {
+  id: 'permissions' | 'auto-approvals' | 'extreme-mode' | 'revoke' | 'receipts';
+  label: string;
+  summary: string;
+  icon: string;
+  href: string;
+  statusLabel: string;
+  actionLabel: string;
+  risk: 'low' | 'medium' | 'critical';
+};
+
 export type ZavorthDashboardExperienceHomeFirstStep = {
   id: 'setup' | 'go' | 'demo' | 'connectors';
   label: string;
@@ -62,6 +73,12 @@ export type ZavorthDashboardExperienceHomeSnapshot = {
   };
   primaryMissions: ZavorthDashboardExperienceHomeMission[];
   runtimeQuestions: ZavorthDashboardExperienceHomeQuestion[];
+  permissionPanel: {
+    title: 'Permissoes';
+    summary: string;
+    items: ZavorthDashboardPermissionPanelItem[];
+    defaultPosture: string;
+  };
   quietReadiness: {
     title: string;
     bullets: string[];

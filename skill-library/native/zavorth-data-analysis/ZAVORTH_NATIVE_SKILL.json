@@ -1,0 +1,20 @@
+{
+  "id": "zavorth-data-analysis",
+  "title": "Zavorth Data Analysis",
+  "source": "workspace-library",
+  "trust": "trusted",
+  "tags": [
+    "data",
+    "analysis",
+    "reproducible",
+    "structured",
+    "analyze",
+    "assumptions",
+    "avoid",
+    "credentials"
+  ],
+  "curatedBy": "zavorth-skill-curator",
+  "contractVersion": "zavorth-skill-curator-live-loop/1",
+  "updatedAt": "2026-05-18T18:40:32.045Z",
+  "safeMetadataApply": true
+}

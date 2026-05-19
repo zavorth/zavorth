@@ -2,6 +2,7 @@ import { TaskManager } from '../../orchestrator/TaskManager.js';
 import { LogRepository } from '../../storage/LogRepository.js';
 import { TelegramCallbackController } from '../controllers/TelegramCallbackController.js';
 import { TelegramMnemosController } from '../controllers/TelegramMnemosController.js';
+import { TelegramMnemosMemoryUxController } from '../controllers/TelegramMnemosMemoryUxController.js';
 import { TelegramCommandRoutingService } from '../TelegramCommandRoutingService.js';
 import { TelegramNaturalCapabilityRoutingService } from '../TelegramNaturalCapabilityRoutingService.js';
 import { TelegramPriorityCommandService } from '../TelegramPriorityCommandService.js';
@@ -33,6 +34,7 @@ export function finalizeBotGatewayBootstrap(
         gateway.runtimeComposition.getToolRuntime().executeTool(toolName, args),
     },
   });
+  gateway.mnemosMemoryUxController = new TelegramMnemosMemoryUxController();
   gateway.callbackController = new TelegramCallbackController({
     handleHubCallback: gateway.hubController.handleHubCallback.bind(
       gateway.hubController,
@@ -84,6 +86,7 @@ export function finalizeBotGatewayBootstrap(
     zavorthBridgeController: gateway.zavorthBridgeController,
     fileDeliveryController: gateway.fileDeliveryController,
     swarmController: gateway.swarmController,
+    mnemosMemoryUxController: gateway.mnemosMemoryUxController,
     naturalCapabilityRouter: new TelegramNaturalCapabilityRoutingService({
       fileDeliveryController: gateway.fileDeliveryController,
       inspectionController: gateway.inspectionController,
