@@ -1,6 +1,6 @@
 import type { ZavorthCommandCenterProviderCockpitProjection } from './ZavorthCommandCenterProviderCockpitContract.js';
 
-export const ZAVORTH_COMMAND_CENTER_VISUAL_APPROVAL_PACK_CONTRACT_VERSION = '2026-05-13.phase-7' as const;
+export const ZAVORTH_COMMAND_CENTER_VISUAL_APPROVAL_PACK_CONTRACT_VERSION = '2026-05-13.checkpoint-7' as const;
 
 export type ZavorthCommandCenterVisualApprovalPackStatus = 'ready_for_review' | 'blocked';
 

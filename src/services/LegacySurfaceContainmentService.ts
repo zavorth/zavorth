@@ -40,8 +40,8 @@ export class LegacySurfaceContainmentService {
       consolidation: {
         phase: 'P3-003',
         canonicalDocs: [
-          'docs/07-web.md',
-          'docs/60-legacy-containment.md',
+          'docs/web-dashboard.md',
+          'docs/product-direction.md',
         ],
         rule: 'Produto novo e regras de negocio novas entram em /dashboard, Runtime API, Gateway Contract ou control plane; /app e /classic recebem apenas manutencao, seguranca, bugfix e compatibilidade.',
       },

@@ -134,13 +134,13 @@ export type ZavorthNativeCapabilityRegistrySnapshot = {
     byKind: Record<ZavorthNativeCapabilityRegistryEntryKind, number>;
   };
   sourceArtifactsConsumed: {
-    realCapabilitySnapshot: 'docs/161-wave-1-real-capability-snapshot-read-only.md';
-    liveReadOnlyBridge: 'docs/169-wave-1-external-executor-live-read-only-bridge-boundary.md';
-    observabilityProjection: 'docs/170-wave-1-external-executor-live-observability-projection.md';
-    eventStreamAdapter: 'docs/171-wave-1-external-executor-read-only-event-stream-adapter.md';
-    commandCenterAssimilation: 'docs/173-wave-1-command-center-live-assimilation.md';
-    dryRunPlanner: 'docs/175-wave-2-controlled-dry-run-action-planner.md';
-    transportDiscovery: 'docs/183-wave-2-real-message-transport-capability-discovery.md';
+    realCapabilitySnapshot: 'docs/real-capability-snapshot-read-only.md';
+    liveReadOnlyBridge: 'docs/external-executor-live-read-only-bridge-boundary.md';
+    observabilityProjection: 'docs/external-executor-live-observability-projection.md';
+    eventStreamAdapter: 'docs/external-executor-read-only-event-stream-adapter.md';
+    commandCenterAssimilation: 'docs/command-center-live-assimilation.md';
+    dryRunPlanner: 'docs/controlled-dry-run-action-planner.md';
+    transportDiscovery: 'docs/real-message-transport-capability-discovery.md';
   };
   runtimeExternalExecutorRequiredForRegistryLookup: false;
   sourceRuntimeAuthority: false;
@@ -488,8 +488,8 @@ function snapshotEntry(
     toolNames: row.toolNames,
     provenance: provenance('real-capability-snapshot', [
       row.sourceEvidence.evidenceId,
-      'docs/161-wave-1-real-capability-snapshot-read-only.md',
-      'docs/169-wave-1-external-executor-live-read-only-bridge-boundary.md',
+      'docs/real-capability-snapshot-read-only.md',
+      'docs/external-executor-live-read-only-bridge-boundary.md',
     ]),
     runtimeExternalExecutorRequiredForLookup: false,
     sourceRuntimeAuthority: false,
@@ -547,7 +547,7 @@ function transportEntry(
     provenance: provenance('transport-discovery', [
       capability.id,
       ...capability.sourceEvidence,
-      'docs/183-wave-2-real-message-transport-capability-discovery.md',
+      'docs/real-message-transport-capability-discovery.md',
     ]),
     runtimeExternalExecutorRequiredForLookup: false,
     sourceRuntimeAuthority: false,
@@ -617,13 +617,13 @@ function buildRegistrySnapshot(
       byKind: byKindIndex(entries),
     },
     sourceArtifactsConsumed: {
-      realCapabilitySnapshot: 'docs/161-wave-1-real-capability-snapshot-read-only.md',
-      liveReadOnlyBridge: 'docs/169-wave-1-external-executor-live-read-only-bridge-boundary.md',
-      observabilityProjection: 'docs/170-wave-1-external-executor-live-observability-projection.md',
-      eventStreamAdapter: 'docs/171-wave-1-external-executor-read-only-event-stream-adapter.md',
-      commandCenterAssimilation: 'docs/173-wave-1-command-center-live-assimilation.md',
-      dryRunPlanner: 'docs/175-wave-2-controlled-dry-run-action-planner.md',
-      transportDiscovery: 'docs/183-wave-2-real-message-transport-capability-discovery.md',
+      realCapabilitySnapshot: 'docs/real-capability-snapshot-read-only.md',
+      liveReadOnlyBridge: 'docs/external-executor-live-read-only-bridge-boundary.md',
+      observabilityProjection: 'docs/external-executor-live-observability-projection.md',
+      eventStreamAdapter: 'docs/external-executor-read-only-event-stream-adapter.md',
+      commandCenterAssimilation: 'docs/command-center-live-assimilation.md',
+      dryRunPlanner: 'docs/controlled-dry-run-action-planner.md',
+      transportDiscovery: 'docs/real-message-transport-capability-discovery.md',
     },
     runtimeExternalExecutorRequiredForRegistryLookup: false,
     sourceRuntimeAuthority: false,

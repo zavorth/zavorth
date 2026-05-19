@@ -30,7 +30,7 @@ const snapshot = {
 if (asJson) {
   console.log(JSON.stringify(snapshot, null, 2));
 } else {
-  console.log('[zavorth-universal-skill-bridge-registry] checking Phase 4');
+  console.log('[zavorth-universal-skill-bridge-registry] checking Connector registry');
   for (const rule of rules) {
     const marker = rule.status === 'passed' ? 'ok' : 'fail';
     console.log(`[zavorth-universal-skill-bridge-registry] ${marker} ${rule.label}: ${rule.observed} | ${rule.target}`);
@@ -59,7 +59,7 @@ function ruleFilesExist() {
   const missing = files.filter((file) => !fs.existsSync(path.join(root, file)));
   return {
     id: 'universal-skill-bridge-registry-files',
-    label: 'Phase 4 files exist',
+    label: 'Connector registry files exist',
     status: missing.length === 0 ? 'passed' : 'failed',
     observed: `${files.length - missing.length}/${files.length} file(s) present`,
     target: 'registry contract, service, CLI, API surface and tests are present',
@@ -72,7 +72,7 @@ function ruleContainsMarkers() {
     ['src/contracts/ZavorthUniversalSkillBridgeRegistryContract.ts', [
       'ZAVORTH_UNIVERSAL_SKILL_BRIDGE_REGISTRY_CONTRACT_VERSION',
       'catalogActionsUseBridgeOnly',
-      'Phase 5 - Activation UX and Channel Command Packs',
+      'Credential vault - Activation UX and Channel Command Packs',
     ]],
     ['src/services/UniversalSkillBridgeRegistryService.ts', [
       'buildProjection',
@@ -115,7 +115,7 @@ function ruleContainsMarkers() {
   }
   return {
     id: 'universal-skill-bridge-registry-markers',
-    label: 'Phase 4 markers are present',
+    label: 'Connector registry markers are present',
     status: missing.length === 0 ? 'passed' : 'failed',
     observed: missing.length === 0 ? 'all markers present' : `${missing.length} missing marker(s)`,
     target: 'registry is wired to catalog, library and dashboard API markers',
@@ -147,7 +147,7 @@ function runInvocationFixture() {
   try {
     return runRegistryRule({
       id: 'universal-skill-bridge-registry-invoke',
-      label: 'Registry invokes Phase 3 bridge on request',
+      label: 'Registry invokes Approval gate bridge on request',
       target: 'invoke=1 returns a dry-run bridge invocation and prepared envelope',
       args: ['--project-root', fixture.root, '--skill', 'research-pack', '--invoke', '--json'],
       expect: (snapshot) => snapshot.invocation?.status === 'dry-run'
@@ -178,6 +178,38 @@ function runLiveApprovalFixture() {
 
 function createFixture() {
   const rootDir = fs.mkdtempSync(path.join(os.tmpdir(), 'zavorth-usbr-'));
+  fs.mkdirSync(path.join(rootDir, 'config'), { recursive: true });
+  fs.writeFileSync(path.join(rootDir, 'config', 'skill-sources.json'), JSON.stringify({
+    version: 1,
+    updatedAt: '2026-05-10T16:00:00.000Z',
+    sources: [
+      {
+        id: 'workspace-library',
+        label: 'Workspace skill library',
+        kind: 'workspace',
+        trust: 'trusted',
+        enabled: true,
+        ingestionMode: 'local-scan',
+        path: 'skill-library',
+        createIfMissing: true,
+        ownership: 'workspace',
+        registrySource: 'zavorth:local-workspace',
+      },
+      {
+        id: 'workspace-imported-library',
+        label: 'Workspace imported skill library',
+        kind: 'workspace',
+        trust: 'review',
+        enabled: true,
+        ingestionMode: 'local-scan',
+        path: 'skill-library/imported',
+        createIfMissing: false,
+        ownership: 'curated-import',
+        registrySource: 'zavorth:curated-import',
+        notes: ['Fixture source for governed bridge registry checks.'],
+      },
+    ],
+  }, null, 2), 'utf8');
   fs.mkdirSync(path.join(rootDir, '.agents', 'skills'), { recursive: true });
   fs.mkdirSync(path.join(rootDir, 'skill-library'), { recursive: true });
   writeImportedSkill(rootDir, 'research-pack', 'Research local documents and produce evidence notes.', 'Read local notes and produce evidence.');

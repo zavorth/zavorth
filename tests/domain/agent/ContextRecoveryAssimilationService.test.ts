@@ -11,7 +11,7 @@ describe('ZavorthContextRecoveryAssimilationService', () => {
       surface: 'cli',
       actorId: 'owner',
       sessionId: 'session-1',
-      priorSummary: 'A fase anterior criou action patterns seguros.',
+      priorSummary: 'A etapa anterior criou action patterns seguros.',
       recentEvents: ['Usuário pediu continuação da auditoria.'],
       memoryFacts: [
         {
@@ -24,7 +24,7 @@ describe('ZavorthContextRecoveryAssimilationService', () => {
       ],
     });
 
-    expect(snapshot.contractVersion).toBe('2026-05-11.context-memory-error-recovery-phase-3');
+    expect(snapshot.contractVersion).toBe('2026-05-11.context-memory-error-recovery-checkpoint-3');
     expect(snapshot.status).toBe('ready');
     expect(snapshot.safety.rawMemorySerialized).toBe(false);
     expect(snapshot.safety.ledgerBeatsRecall).toBe(true);
@@ -32,7 +32,7 @@ describe('ZavorthContextRecoveryAssimilationService', () => {
     expect(snapshot.contextPack.warm).toHaveLength(1);
     expect(snapshot.contextPack.cold).toHaveLength(1);
     expect(snapshot.contextPack.secretsSerialized).toBe(false);
-    expect(snapshot.receipts.map((receipt) => receipt.kind)).toContain('phase-3-context-pack');
+    expect(snapshot.receipts.map((receipt) => receipt.kind)).toContain('checkpoint-3-context-pack');
   });
 
   it('classifies recoverable provider failures and avoids blind repeated tool use', () => {
@@ -54,7 +54,7 @@ describe('ZavorthContextRecoveryAssimilationService', () => {
     expect(snapshot.recovery.steps.join('\n')).toContain('Avoid repeating browser.observe');
   });
 
-  it('inherits approval boundaries from Phase 2 for impact actions', () => {
+  it('inherits approval boundaries from Preview engine for impact actions', () => {
     const snapshot = new ZavorthContextRecoveryAssimilationService().buildSnapshot({
       text: 'edite arquivos e rode comando powershell',
       surface: 'web',

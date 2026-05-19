@@ -46,7 +46,7 @@ const rules = [
       'native-speech-contract',
       'native-voice-session-contract',
       'native-document-extract-contract',
-      'Fase 13 - Remaining Runtime Decisions',
+      'Etapa 13 - Remaining Runtime Decisions',
       'liveExternalCallRequired: false',
       'filesystemWriteRequired: false',
       'secretValuesSerialized: false',
@@ -119,10 +119,10 @@ const rules = [
   ruleContainsAll({
     id: 'capability-normalization-promotes-contracts-tests',
     label: 'Capability Normalization tests prove needs-review zero',
-    target: 'Tests assert native-contract primitives are normalized after Phase 12',
+    target: 'Tests assert native-contract primitives are normalized after Intent model2',
     files: ['tests/services/CapabilityNormalizationService.test.ts'],
     needles: [
-      'native-contract primitives normalized after Phase 12 closure',
+      'native-contract primitives normalized after Intent model2 closure',
       'no native-contract primitives remain in review',
     ],
   }),
@@ -183,7 +183,7 @@ const snapshot = {
 if (asJson) {
   console.log(JSON.stringify(snapshot, null, 2));
 } else {
-  console.log('[native-capability-closure] checking Phase 12');
+  console.log('[native-capability-closure] checking Intent model2');
   for (const rule of rules) {
     const marker = rule.status === 'passed' ? 'ok' : 'fail';
     console.log(`[native-capability-closure] ${marker} ${rule.label}: ${rule.observed} | ${rule.target}`);

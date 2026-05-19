@@ -48,7 +48,7 @@ export class ZavorthLiveCanaryExecutionAdapterReviewService {
       generatedAt,
       contractVersion: ZAVORTH_LIVE_CANARY_EXECUTION_ADAPTER_REVIEW_CONTRACT_VERSION,
       source: 'ZavorthLiveCanaryExecutionAdapterReviewService',
-      phase: 'phase-8-live-canary-execution-adapter-review',
+      phase: 'checkpoint-8-live-canary-execution-adapter-review',
       status,
       mode,
       evidenceCanary,
@@ -71,7 +71,7 @@ export class ZavorthLiveCanaryExecutionAdapterReviewService {
         report: 'npx tsx scripts/zavorth-live-canary-adapter-review.ts',
         json: 'npx tsx scripts/zavorth-live-canary-adapter-review.ts --json',
         check: 'node scripts/zavorth-live-canary-adapter-review-check.mjs',
-        nextPhase: 'Phase 9 - Live Canary Apply Gate And Rollback Drill',
+        nextStage: 'Certification matrix - Live Canary Apply Gate And Rollback Drill',
       },
       narrative: narrativeForStatus(status, mode, summary),
     };
@@ -79,7 +79,7 @@ export class ZavorthLiveCanaryExecutionAdapterReviewService {
 
   public formatSnapshotText(snapshot: ZavorthLiveCanaryExecutionAdapterReviewSnapshot): string {
     const lines = [
-      'Zavorth Live Canary Execution Adapter Review - Phase 8',
+      'Zavorth Live Canary Execution Adapter Review - Dashboard controls',
       '',
       `Status: ${snapshot.status}`,
       `Mode: ${snapshot.mode}`,
@@ -90,7 +90,7 @@ export class ZavorthLiveCanaryExecutionAdapterReviewService {
       'Checks:',
       ...snapshot.checks.map((check) => `- ${check.kind}: ${check.status} | ${check.summary}`),
       '',
-      `Next: ${snapshot.commands.nextPhase}`,
+      `Next: ${snapshot.commands.nextStage}`,
     ];
     return lines.join('\n');
   }
@@ -118,7 +118,7 @@ function normalizeAdapter(adapter: ZavorthLiveCanaryAdapterInput | null | undefi
     };
   }
   return {
-    id: 'phase-8-default-live-canary-adapter',
+    id: 'checkpoint-8-default-live-canary-adapter',
     surface: 'api',
     actionKind: 'api_invoke',
     target: 'local canary adapter',
@@ -262,37 +262,37 @@ function buildReceipts(
 ): ZavorthLiveCanaryAdapterReviewReceipt[] {
   return [
     {
-      id: 'phase-8-live-canary-adapter-review',
-      kind: 'phase-8-live-canary-adapter-review',
+      id: 'checkpoint-8-live-canary-adapter-review',
+      kind: 'checkpoint-8-live-canary-adapter-review',
       status: receiptStatus(status),
       summary: `Adapter ${adapter.id} reviewed with status ${status}.`,
     },
     {
-      id: 'phase-8-lower-phase-boundary',
+      id: 'checkpoint-8-lower-phase-boundary',
       kind: 'lower-phase-boundary',
       status: receiptStatus(status),
-      summary: 'Adapter review depends on Phase 7 UX evidence canary review.',
+      summary: 'Adapter review depends on Surface controls UX evidence canary review.',
     },
     {
-      id: 'phase-8-owner-approval-boundary',
+      id: 'checkpoint-8-owner-approval-boundary',
       kind: 'owner-approval-boundary',
       status: approvalAccepted ? 'recorded' : 'requires-approval',
       summary: approvalAccepted ? 'Owner approval accepted.' : 'Owner approval is required before live adapter review.',
     },
     {
-      id: 'phase-8-rollback-boundary',
+      id: 'checkpoint-8-rollback-boundary',
       kind: 'rollback-boundary',
       status: !requireRollback || adapter.rollbackPlan ? 'recorded' : 'blocked',
       summary: adapter.rollbackPlan ? 'Rollback plan present.' : 'Rollback plan missing.',
     },
     {
-      id: 'phase-8-execution-disabled-boundary',
+      id: 'checkpoint-8-execution-disabled-boundary',
       kind: 'execution-disabled-boundary',
       status: 'recorded',
       summary: 'Execution remains disabled; this phase only prepares a review envelope.',
     },
     {
-      id: 'phase-8-visual-change-boundary',
+      id: 'checkpoint-8-visual-change-boundary',
       kind: 'visual-change-boundary',
       status: 'recorded',
       summary: 'No dashboard visual mutation is performed by adapter review.',
@@ -331,7 +331,7 @@ function narrativeForStatus(
     return {
       headline: 'Live canary adapter review passed.',
       operatorSummary: `${summary.passedChecks}/${summary.checks} checks passed. The envelope is ready for final human-trigger review.`,
-      nextAction: 'Run Phase 9 apply gate and rollback drill before enabling execution.',
+      nextAction: 'Run Certification matrix apply gate and rollback drill before enabling execution.',
     };
   }
   if (status === 'approval-required') {
@@ -345,7 +345,7 @@ function narrativeForStatus(
     return {
       headline: 'Live canary adapter review needs UX evidence.',
       operatorSummary: `Adapter mode is ${mode}; lower evidence gate is not satisfied.`,
-      nextAction: 'Collect Phase 7 UX evidence first.',
+      nextAction: 'Collect Surface controls UX evidence first.',
     };
   }
   return {

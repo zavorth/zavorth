@@ -1,12 +1,12 @@
 import { ParityCertificationService } from '../../src/services/ParityCertificationService.js';
 
-describe('ParityCertificationService Phase 9', () => {
+describe('ParityCertificationService Certification matrix', () => {
   it('builds certified private absorption certification after remaining runtime decisions', () => {
     const snapshot = new ParityCertificationService({
       now: () => new Date('2026-05-04T19:00:00.000Z'),
     }).buildSnapshot();
 
-    expect(snapshot.contractVersion).toBe('2026-05-04.phase-9');
+    expect(snapshot.contractVersion).toBe('2026-05-04.checkpoint-9');
     expect(snapshot.profile).toBe('private-absorption');
     expect(snapshot.status).toBe('certified');
     expect(snapshot.summary).toEqual(

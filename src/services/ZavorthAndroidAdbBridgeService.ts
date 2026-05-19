@@ -498,7 +498,7 @@ export class ZavorthAndroidAdbBridgeService {
       },
       policy: {
         decision,
-        profile: 'android-adb-phase-4',
+        profile: 'android-adb-checkpoint-4',
         reason: policyReason,
         mutationAllowed: false,
         providerPayloadMinimized: true,
@@ -531,7 +531,7 @@ export class ZavorthAndroidAdbBridgeService {
         plan: '/device plan',
         approve: '/device approve <plan>',
         cancel: '/device cancel',
-        nextPhase: 'Phase 5 - Natural Agent Use And Subagent Perception',
+        nextStage: 'Credential vault - Natural Agent Use And Subagent Perception',
       },
       nextSafeAction: nextSafeAction(status, input),
     };
@@ -567,7 +567,7 @@ export class ZavorthAndroidAdbBridgeService {
       ));
     }
     if (input.action === 'device.approve' && input.input.approvalId) {
-      receipts.push(receipt('approval', 'done', 'Approval reference accepted for preview; live mutation remains disabled in Phase 4.'));
+      receipts.push(receipt('approval', 'done', 'Approval reference accepted for preview; live mutation remains disabled in Connector registry.'));
     }
     if (input.action === 'device.cancel') {
       receipts.push(receipt('cancel', 'done', 'Device bridge cancel is represented as a safe preview; no mutation command was running.'));
@@ -874,7 +874,7 @@ function resolvePolicyReason(
   if (status === 'no-device') return 'No authorized Android device was found for live observation.';
   if (status === 'unauthorized') return 'Android device is connected but not authorized for ADB.';
   if (approvalRequired) return 'Android tap, swipe, text input, keyevent and intent actions require owner approval.';
-  if (mutationRequested) return 'Android mutation remains preview-only even with an approval reference in Phase 4.';
+  if (mutationRequested) return 'Android mutation remains preview-only even with an approval reference in Connector registry.';
   return 'Read-only Android ADB observation is allowed; live mutation is disabled.';
 }
 

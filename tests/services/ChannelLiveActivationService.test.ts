@@ -11,14 +11,14 @@ const response = (payload: Record<string, unknown>, init: { status?: number } = 
     },
   });
 
-describe('ChannelLiveActivationService Phase 2', () => {
-  it('closes Phase 2 P0 channel activation gates without live IO', () => {
+describe('ChannelLiveActivationService Preview engine', () => {
+  it('closes Preview engine P0 channel activation gates without live IO', () => {
     const snapshot = new ChannelLiveActivationService({
       now: () => new Date('2026-05-04T19:00:00.000Z'),
     }).buildSnapshot();
 
-    expect(snapshot.contractVersion).toBe('2026-05-04.live-phase-2');
-    expect(snapshot.phase).toBe('Phase 2 - Channel Live Activation P0');
+    expect(snapshot.contractVersion).toBe('2026-05-04.live-checkpoint-2');
+    expect(snapshot.phase).toBe('Preview engine - Channel Live Activation P0');
     expect(snapshot.status).toBe('closed');
     expect(snapshot.summary).toEqual(
       expect.objectContaining({
@@ -34,13 +34,13 @@ describe('ChannelLiveActivationService Phase 2', () => {
         outboundMockTests: 6,
         stagingLiveSmokeCommands: 6,
         redactedReceipts: 6,
-        liveIoRequiredByPhase2Check: false,
+        liveIoRequiredByStage2Check: false,
         secretValuesSerialized: false,
       }),
     );
     expect(snapshot.policy).toEqual(
       expect.objectContaining({
-        noLiveIoDuringPhase2Check: true,
+        noLiveIoDuringStage2Check: true,
         stagingLiveRequiresExplicitOperatorCommand: true,
         outboxAllowedOnlyAsFallback: true,
         signalUsesJsonRpcOrSignalCli: true,

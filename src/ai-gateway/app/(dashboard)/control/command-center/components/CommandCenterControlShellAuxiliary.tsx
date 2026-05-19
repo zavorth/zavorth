@@ -11,10 +11,10 @@ export function renderCommandCenterDocsSector() {
     <CommandCenterCard label="Docs" title="Referencias locais">
       <div className="bcc-list">
         {[
-          ["CLI", "docs/34-zavorth-cli.md"],
-          ["Web", "docs/07-web.md"],
-          ["Command Center", "docs/71-dashboard-command-center-architecture.md"],
-          ["Inventario visual", "docs/72-dashboard-command-center-phase-0-inventory.md"],
+          ["CLI", "docs/zavorth-cli.md"],
+          ["Web", "docs/web-dashboard.md"],
+          ["Command Center", "docs/product-direction.md"],
+          ["Inventario visual", "docs/product-direction.md"],
         ].map(([title, path]) => (
           <div key={path} className="bcc-list-item">
             <span className="bcc-list-item__title">{title}</span>

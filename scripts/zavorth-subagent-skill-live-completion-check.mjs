@@ -21,7 +21,7 @@ const snapshot = {
 if (asJson) {
   console.log(JSON.stringify(snapshot, null, 2));
 } else {
-  console.log('[zavorth-subagent-skill-live-completion] checking Phase 6');
+  console.log('[zavorth-subagent-skill-live-completion] checking Runtime gateway');
   for (const item of rules) {
     console.log(`[zavorth-subagent-skill-live-completion] ${item.status === 'passed' ? 'ok' : 'fail'} ${item.label}: ${item.observed} | ${item.target}`);
     for (const detail of item.details.slice(0, 10)) console.log(`  - ${detail}`);
@@ -38,7 +38,7 @@ function filesExist() {
     'tests/services/ZavorthSubagentSkillLiveCompletionService.test.ts',
   ];
   const missing = files.filter((file) => !fs.existsSync(path.join(root, file)));
-  return rule('files', 'Phase 6 files exist', missing.length === 0, `${files.length - missing.length}/${files.length}`, 'all files present', missing);
+  return rule('files', 'Runtime gateway files exist', missing.length === 0, `${files.length - missing.length}/${files.length}`, 'all files present', missing);
 }
 
 function packageScriptsWired() {
@@ -57,7 +57,7 @@ function workspaceCheckWired() {
   const pkg = JSON.parse(read('package.json'));
   const workspace = String(pkg.scripts?.['workspace:check'] || '');
   const marker = 'zavorth:subagent-skill-live-completion:check';
-  return rule('workspace-check', 'workspace:check includes Phase 6 gate', workspace.includes(marker), workspace.includes(marker) ? 'wired' : 'missing', marker, []);
+  return rule('workspace-check', 'workspace:check includes Runtime gateway gate', workspace.includes(marker), workspace.includes(marker) ? 'wired' : 'missing', marker, []);
 }
 
 function runCompletionSnapshot() {
@@ -76,7 +76,7 @@ function runCompletionSnapshot() {
   }
   try {
     const data = JSON.parse(result.stdout);
-    const pass = data.contractVersion === '2026-05-14.phase-6-subagent-skill-live-completion'
+    const pass = data.contractVersion === '2026-05-14.checkpoint-6-subagent-skill-live-completion'
       && data.status !== 'blocked'
       && data.summary?.subagentRuntimeLiveReady === true
       && data.liveCompletion?.skillLiveUseRequiresOwnerApproval === true

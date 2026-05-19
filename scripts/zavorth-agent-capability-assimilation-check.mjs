@@ -23,7 +23,7 @@ const snapshot = {
 if (asJson) {
   console.log(JSON.stringify(snapshot, null, 2));
 } else {
-  console.log('[zavorth-agent-capability-assimilation] checking Phase 1');
+  console.log('[zavorth-agent-capability-assimilation] checking Intent model');
   printRules(rules, '[zavorth-agent-capability-assimilation]');
 }
 if (failed.length > 0) process.exitCode = 1;
@@ -38,7 +38,7 @@ function ruleFilesExist() {
     'docs/README.md',
   ];
   const missing = files.filter((file) => !fs.existsSync(path.join(root, file)));
-  return rule('assimilation-files', 'Phase 1 files exist', missing.length === 0, `${files.length - missing.length}/${files.length}`, 'contract, service, CLI, check, tests and docs are present', missing);
+  return rule('assimilation-files', 'Intent model files exist', missing.length === 0, `${files.length - missing.length}/${files.length}`, 'contract, service, CLI, check, tests and docs are present', missing);
 }
 
 function ruleMarkers() {
@@ -56,13 +56,13 @@ function ruleMarkers() {
       if (!text.includes(needle)) missing.push(`${file}: missing ${needle}`);
     }
   }
-  return rule('assimilation-markers', 'Phase 1 markers are wired', missing.length === 0, missing.length === 0 ? 'all markers' : `${missing.length} missing`, 'matrix contract, service, SDK and CLI markers exist', missing);
+  return rule('assimilation-markers', 'Intent model markers are wired', missing.length === 0, missing.length === 0 ? 'all markers' : `${missing.length} missing`, 'matrix contract, service, SDK and CLI markers exist', missing);
 }
 
 function runMatrixFixture() {
   const result = runTs('scripts/zavorth-agent-capability-assimilation.ts', ['--json']);
   return jsonRule('assimilation-matrix-fixture', 'Assimilation matrix builds', result, (snapshot) =>
-    snapshot.contractVersion === '2026-05-11.agent-capability-assimilation-phase-1'
+    snapshot.contractVersion === '2026-05-11.agent-capability-assimilation-checkpoint-1'
     && snapshot.status === 'attention'
     && snapshot.summary.items >= 10
     && snapshot.summary.categoriesCovered === 9
@@ -124,7 +124,7 @@ function jsonRule(id, label, result, expect) {
   try {
     const snapshot = JSON.parse(result.stdout);
     const passed = expect(snapshot);
-    return rule(id, label, passed, `status=${snapshot.status}; items=${snapshot.summary?.items ?? snapshot.matrix?.length ?? 'n/a'}`, 'expected Phase 1 matrix', passed ? [] : [JSON.stringify(snapshot, null, 2)]);
+    return rule(id, label, passed, `status=${snapshot.status}; items=${snapshot.summary?.items ?? snapshot.matrix?.length ?? 'n/a'}`, 'expected Intent model matrix', passed ? [] : [JSON.stringify(snapshot, null, 2)]);
   } catch (error) {
     return rule(id, label, false, 'invalid JSON', 'valid JSON fixture', [String(error), ...compact(result.stderr, result.stdout)]);
   }

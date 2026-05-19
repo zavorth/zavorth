@@ -287,10 +287,10 @@ export class CapabilityAutopilotCanaryMonitoringPromotionGateService {
         phase: 'consolidation',
         title: 'Capability Autopilot Release Readiness Consolidation',
         reason:
-          'Nao ha nova fase automatica recomendada; o proximo passo e integrar o release readiness consolidado ao produto real e medir uso antes de criar novos gates.',
+          'Nao ha nova etapa automatica recomendada; o proximo passo e integrar o release readiness consolidado ao produto real e medir uso antes de criar novos gates.',
       },
       metadata: {
-        phase: 'capability-autopilot-phase-83',
+        phase: 'capability-autopilot-checkpoint-83',
         sourceSnapshotStatus: source.status,
         sourceRecommendation: source.recommendation,
         autoExecute: false,
@@ -308,7 +308,7 @@ export class CapabilityAutopilotCanaryMonitoringPromotionGateService {
 
   public renderReport(snapshot: CapabilityAutopilotCanaryPromotionSnapshot): string {
     const lines: string[] = [];
-    lines.push('[capability-autopilot-canary-promotion] Fase 83 - Capability Autopilot v1.1 Canary Monitoring And Promotion Gate');
+    lines.push('[capability-autopilot-canary-promotion] Etapa 83 - Capability Autopilot v1.1 Canary Monitoring And Promotion Gate');
     lines.push(`status: ${snapshot.status}`);
     lines.push(`recommendation: ${snapshot.recommendation}`);
     lines.push(`ok: ${snapshot.summary.ok ? 'yes' : 'no'} | pass=${snapshot.summary.passed} warn=${snapshot.summary.warnings} fail=${snapshot.summary.failed}`);
@@ -566,7 +566,7 @@ export class CapabilityAutopilotCanaryMonitoringPromotionGateService {
           !options.skipApprovalEnabled
           ? 'pass'
           : 'fail',
-        'Fase 83 permite promocao controlada, mas bloqueia auto-promote, rollout global e skip-approval.',
+        'Etapa 83 permite promocao controlada, mas bloqueia auto-promote, rollout global e skip-approval.',
         [
           `rollbackRunbookReady=${options.rollbackRunbookReady}`,
           `observabilityReviewReady=${options.observabilityReviewReady}`,

@@ -5,7 +5,7 @@ import { ZavorthSkillPackReceiptEmitterService } from '../../src/services/Zavort
 import { ZavorthSkillPermissionProfileService } from '../../src/services/ZavorthSkillPermissionProfileService.js';
 import { ZavorthSkillSmokeRunnerService } from '../../src/services/ZavorthSkillSmokeRunnerService.js';
 
-describe('ZavorthSkillEcosystemPackService Phase 8', () => {
+describe('ZavorthSkillEcosystemPackService Dashboard controls', () => {
   const now = () => new Date('2026-05-05T20:00:00.000Z');
   const catalogEntries = [
     catalogEntry({
@@ -142,7 +142,7 @@ describe('ZavorthSkillEcosystemPackService Phase 8', () => {
     expect(receipts.secretValuesSerialized).toBe(false);
   });
 
-  it('emits a passing Phase 8 skill ecosystem snapshot', () => {
+  it('emits a passing Dashboard controls skill ecosystem snapshot', () => {
     const importer = new ZavorthSkillEcosystemImporterService({
       now,
       catalogEntries,
@@ -182,9 +182,9 @@ describe('ZavorthSkillEcosystemPackService Phase 8', () => {
       noCoreBloat: true,
       mcpAcpBridgeOptional: true,
     }));
-    expect(snapshot.commands.nextPhase).toBe('Phase 9 - Full Functional Closure');
-    expect(text).toContain('Zavorth Skill Ecosystem Pack - Phase 8');
-    expect(text).toContain('Next: Phase 9 - Full Functional Closure');
+    expect(snapshot.commands.nextStage).toBe('Certification matrix - Full Functional Closure');
+    expect(text).toContain('Zavorth Skill Ecosystem Pack - Dashboard controls');
+    expect(text).toContain('Next: Certification matrix - Full Functional Closure');
   });
 });
 

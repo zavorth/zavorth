@@ -1199,7 +1199,7 @@
     "toolsAndScopes": "Herramientas y alcances",
     "tableTool": "Herramienta",
     "tableScopes": "Alcances",
-    "tablePhase": "Fase",
+    "tablePhase": "Etapa",
     "tableAudit": "Auditoría",
     "auditLog": "Registro de auditoría",
     "auditSummary": "Llamadas: {total} | página {page} de {totalPages}",

@@ -15,7 +15,7 @@
  * - Exposes sensitive content without signaling.
  *
  * Architectural references:
- * - docs/327-zavorth-native-absorption-execution-plan.md (Wave 3)
+ * - docs/native-absorption-execution-plan.md
  * - src/contracts/MediaUnderstandingContract.ts
  *
  * @module services/MediaUnderstandingService

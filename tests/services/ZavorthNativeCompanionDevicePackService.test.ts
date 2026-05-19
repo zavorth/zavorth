@@ -6,7 +6,7 @@ import { ZavorthMlxTtsRuntimeAdapter } from '../../src/services/ZavorthMlxTtsRun
 import { ZavorthNativeCompanionDevicePackService } from '../../src/services/ZavorthNativeCompanionDevicePackService.js';
 import { ZavorthSatelliteCapabilityBridgeService } from '../../src/services/ZavorthSatelliteCapabilityBridgeService.js';
 
-describe('ZavorthNativeCompanionDevicePackService Phase 6', () => {
+describe('ZavorthNativeCompanionDevicePackService Runtime gateway', () => {
   const now = () => new Date('2026-05-05T18:00:00.000Z');
   let tempRoot: string;
 
@@ -104,7 +104,7 @@ describe('ZavorthNativeCompanionDevicePackService Phase 6', () => {
     expect(blockedPreview.processSpawned).toBe(false);
   });
 
-  it('emits a passing Phase 6 native companion/device snapshot', async () => {
+  it('emits a passing Runtime gateway native companion/device snapshot', async () => {
     const service = new ZavorthNativeCompanionDevicePackService({
       now,
       cwd: tempRoot,
@@ -160,8 +160,8 @@ describe('ZavorthNativeCompanionDevicePackService Phase 6', () => {
       mlxTtsNeverEnabledByDefault: true,
       unsupportedNativeApisExplicit: true,
     }));
-    expect(snapshot.commands.nextPhase).toBe('Phase 7 - QA, Security And Release Certification Pack');
-    expect(text).toContain('Zavorth Native Companion Device Pack - Phase 6');
-    expect(text).toContain('Next: Phase 7 - QA, Security And Release Certification Pack');
+    expect(snapshot.commands.nextStage).toBe('Surface controls - QA, Security And Release Certification Pack');
+    expect(text).toContain('Zavorth Native Companion Device Pack - Runtime gateway');
+    expect(text).toContain('Next: Surface controls - QA, Security And Release Certification Pack');
   });
 });

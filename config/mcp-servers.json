@@ -27,7 +27,7 @@
   },
   {
     "id": "mnemos",
-    "enabled": true,
+    "enabled": false,
     "command": "${nodeCommand}",
     "args": [
       "scripts/start-mnemos-mcp.mjs"

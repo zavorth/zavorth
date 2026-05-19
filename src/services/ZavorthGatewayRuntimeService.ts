@@ -44,9 +44,9 @@ import type {
   AIGatewayProxyStatus,
 } from './AIGatewayProxyService.js';
 import {
-  AIGatewayDeforkConvergenceService,
-  type AIGatewayDeforkConvergenceSnapshot,
-} from './AIGatewayDeforkConvergenceService.js';
+  AIGatewayNativeConvergenceService,
+  type AIGatewayNativeConvergenceSnapshot,
+} from './AIGatewayNativeConvergenceService.js';
 import type { ZavorthProductModeSnapshot } from './ProductModeService.js';
 import {
   ZavorthProductizationContractService,
@@ -98,7 +98,7 @@ export type ZavorthGatewayRuntimeSnapshot = {
     | Awaited<ReturnType<ZavorthGatewayService['buildHydratedSnapshot']>>
     | ReturnType<ZavorthGatewayService['buildShellSnapshot']>
     | null;
-  aiGatewayConvergence: AIGatewayDeforkConvergenceSnapshot | null;
+  aiGatewayConvergence: AIGatewayNativeConvergenceSnapshot | null;
   productization: ZavorthProductizationContractSnapshot | null;
 };
 
@@ -610,14 +610,14 @@ export class ZavorthGatewayRuntimeService {
   private async buildAIGatewayConvergenceSnapshot(
     runtimeSnapshot: ZavorthGatewayRuntimeSnapshot,
     context: ZavorthAgentGatewayHandoffContext,
-  ): Promise<AIGatewayDeforkConvergenceSnapshot | null> {
+  ): Promise<AIGatewayNativeConvergenceSnapshot | null> {
     const agentGatewaySnapshot = this.readAgentGatewaySnapshot(context);
     const handoffSnapshot = await this.readAgentGatewayHandoff(context);
     if (!agentGatewaySnapshot && !handoffSnapshot) {
       return null;
     }
 
-    return new AIGatewayDeforkConvergenceService({
+    return new AIGatewayNativeConvergenceService({
       now: () => new Date(runtimeSnapshot.generatedAt),
     }).buildSnapshot({
       runtimeSnapshot,

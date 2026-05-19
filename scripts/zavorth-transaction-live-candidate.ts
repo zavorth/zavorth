@@ -27,7 +27,7 @@ if (!options.text) {
   if (options.json) {
     console.log(JSON.stringify(snapshot, null, 2));
   } else {
-    console.log('[transaction-live-candidate] Phase 10 owner-gated live candidate envelope');
+    console.log('[transaction-live-candidate] Intent model0 owner-gated live candidate envelope');
     console.log(`[transaction-live-candidate] version: ${snapshot.version}`);
     console.log(`[transaction-live-candidate] owner-phrase: ${snapshot.ownerPhrase}`);
   }

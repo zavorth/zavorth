@@ -20,7 +20,7 @@ function createFlags(json: boolean) {
   };
 }
 
-describe('Zavorth CLI Product Entry Runtime Wave 47', () => {
+describe('Zavorth CLI Product Entry Runtime Channel mesh7', () => {
   it('parses product-entry text after aliases', () => {
     expect(resolveProductEntryRuntimeCliText('product-entry "primeiro uso"')).toBe('primeiro uso');
     expect(resolveProductEntryRuntimeCliText('first-run-runtime latest')).toBe('');
@@ -47,7 +47,7 @@ describe('Zavorth CLI Product Entry Runtime Wave 47', () => {
     }));
     const payload = JSON.parse(writes[0] || '{}');
     expect(payload).toEqual(expect.objectContaining({
-      contractVersion: '2026-05-04.wave-47',
+      contractVersion: '2026-05-04.product-entry',
       source: 'ProductEntryRuntimeService',
       status: 'handoff_to_agent_runtime',
       firstRun: expect.objectContaining({
@@ -78,7 +78,7 @@ describe('Zavorth CLI Product Entry Runtime Wave 47', () => {
 
     const text = formatProductEntryRuntimeSnapshot(snapshot);
 
-    expect(text).toContain('Product Entry Runtime / First Run - Wave 47');
+    expect(text).toContain('Product Entry Runtime / First Run - Channel mesh7');
     expect(text).toContain('snapshot nao grava profile');
     expect(text).toContain('first-run e estado compartilhado');
     expect(text).toContain('Command Center: /control?runId=');

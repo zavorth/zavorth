@@ -5,7 +5,7 @@ import {
 } from '../../src/services/CapabilityNormalizationService.js';
 import { PluginRegistryService } from '../../src/services/PluginRegistryService.js';
 
-describe('CapabilityNormalizationService Phase 3', () => {
+describe('CapabilityNormalizationService Approval gate', () => {
   it('normalizes the private module inventory into Zavorth primitives with no unmapped defaults', () => {
     const service = new CapabilityNormalizationService({
       now: () => new Date('2026-05-04T13:00:00.000Z'),
@@ -94,7 +94,7 @@ describe('CapabilityNormalizationService Phase 3', () => {
     );
   });
 
-  it('keeps native-contract primitives normalized after Phase 12 closure', () => {
+  it('keeps native-contract primitives normalized after Intent model2 closure', () => {
     const service = new CapabilityNormalizationService();
 
     expect(service.resolveSourceModule('voice-call')).toEqual(

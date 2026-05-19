@@ -18,15 +18,15 @@ export type ZavorthExternalRuntimeDecision =
   | 'reject';
 
 export type ZavorthExternalRuntimeBridgePhase =
-  | 'phase-0-inventory'
-  | 'phase-1-contract-layer'
-  | 'phase-2-native-engine'
-  | 'phase-3-sidecar-adapter'
-  | 'phase-4-capability-providers'
-  | 'phase-5-channels-messaging'
-  | 'phase-6-sessions-memory-continuation'
-  | 'phase-7-delegated-workers'
-  | 'phase-8-native-replacement';
+  | 'inventory'
+  | 'contract-layer'
+  | 'native-engine'
+  | 'sidecar-adapter'
+  | 'capability-providers'
+  | 'channels-messaging'
+  | 'sessions-memory-continuation'
+  | 'delegated-workers'
+  | 'native-replacement';
 
 export type ZavorthExternalRuntimeCapabilityId =
   | 'external-capability-inventory'
@@ -95,7 +95,7 @@ export type ZavorthExternalRuntimeBridgeSnapshot = {
   generatedAt: string;
   contractVersion: typeof ZAVORTH_EXTERNAL_RUNTIME_BRIDGE_CONTRACT_VERSION;
   status: ZavorthExternalRuntimeBridgeStatus;
-  planId: '291 - Plano Zavorth External Runtime Absorption';
+  planId: 'Zavorth External Runtime Integration';
   naturalFirstPackStatus: string;
   externalRuntimes: ZavorthExternalRuntimeSourceRuntimeDescriptor[];
   candidates: ZavorthExternalRuntimeCandidate[];
@@ -157,6 +157,6 @@ export type ZavorthExternalRuntimeBridgeSnapshot = {
     inspect: 'npm run zavorth:external-runtime-bridge';
     inspectJson: 'npm run zavorth:external-runtime-bridge:json';
     check: 'npm run zavorth:external-runtime-bridge:check --silent';
-    nextPhase: '291 Phase 0 - Freeze And Inventory';
+    nextStage: '291 Security contract - Freeze And Inventory';
   };
 };

@@ -46,7 +46,7 @@ type SemanticPhaseSnapshot = {
     check?: string;
     qa?: string;
     releaseGate?: string;
-    nextPhase?: string;
+    nextStage?: string;
     nextStep?: string;
   };
 };
@@ -249,7 +249,7 @@ export class ZavorthSemanticClosureConsolidationService {
       enabledByDefault: anyBoolean(summary, ['enabledByDefault']),
       releaseAllowed: booleanValue(summary.releaseAllowed),
       releaseBlockers: numberValue(summary.releaseBlockers),
-      next: snapshot.commands.nextStep || snapshot.commands.nextPhase || 'complete',
+      next: snapshot.commands.nextStep || snapshot.commands.nextStage || 'complete',
     };
   }
 

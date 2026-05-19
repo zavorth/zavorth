@@ -16,7 +16,7 @@
  * - Contorna políticas de segurança.
  *
  * Referências arquiteturais:
- * - docs/327-zavorth-native-absorption-execution-plan.md (Wave 1)
+ * - docs/native-absorption-execution-plan.md
  * - src/contracts/MediaGenerationContract.ts
  * - src/services/MediaGenerationService.ts
  * - src/tools/BaseTool.ts

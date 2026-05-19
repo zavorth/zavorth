@@ -42,7 +42,7 @@ function ruleFilesExist() {
     'scripts/zavorth-capability-mesh.ts',
     'scripts/zavorth-capability-mesh-check.mjs',
     'tests/services/ZavorthCapabilityMeshService.test.ts',
-    'docs/39-capability-mesh.md',
+    'docs/capability-mesh.md',
     'package.json',
     'src/zavorth-cli.ts',
   ];

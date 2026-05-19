@@ -88,7 +88,7 @@ function createRun(overrides: Partial<UniversalAgentRun> = {}): UniversalAgentRu
   };
 }
 
-describe('PersonalOpsAutopilotService Wave 39', () => {
+describe('PersonalOpsAutopilotService Personal Ops Autopilot', () => {
   it('builds governed suggestions without executing mutable actions', () => {
     const snapshot = new PersonalOpsAutopilotService({
       now: () => new Date('2026-05-04T00:40:00.000Z'),

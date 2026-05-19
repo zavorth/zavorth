@@ -1,7 +1,7 @@
 import { ZavorthDistributedRuntimeControlPlaneService } from '../../src/services/ZavorthDistributedRuntimeControlPlaneService.js';
 
 describe('ZavorthDistributedRuntimeControlPlaneService', () => {
-  it('builds a healthy Wave 10 snapshot when channels, fleet, transports and surfaces are ready', async () => {
+  it('builds a healthy Distributed runtime snapshot when channels, fleet, transports and surfaces are ready', async () => {
     const service = new ZavorthDistributedRuntimeControlPlaneService({
       now: () => new Date('2026-04-12T20:00:00.000Z'),
       workspaceRoot: 'C:\\TESTES DEV\\zavorth-core\\Zavorth',
@@ -85,7 +85,7 @@ describe('ZavorthDistributedRuntimeControlPlaneService', () => {
     expect(snapshot.summary.advancedCapabilityCoverage).toBe(8);
     expect(snapshot.cards.find((entry) => entry.id === 'fleet')?.posture).toBe('healthy');
     expect(await service.renderReport({ selectedId: 'signal' })).toContain(
-      'Wave 10: Runtime distribuido e superficies avancadas',
+      'Distributed runtime: Runtime distribuido e superficies avancadas',
     );
   });
 

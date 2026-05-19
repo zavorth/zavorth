@@ -1,5 +1,5 @@
 /**
- * EpisodicMemoryBridge — Ponte entre Memória de Curto e Longo Prazo (Phase 7)
+ * EpisodicMemoryBridge — Ponte entre Memória de Curto e Longo Prazo (Surface controls)
  *
  * No Zavorth pré-merge:
  * - ContextEngine (short-term): sliding window de 12 turnos, compactação local

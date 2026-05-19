@@ -25,7 +25,7 @@ const snapshot = {
 if (asJson) {
   console.log(JSON.stringify(snapshot, null, 2));
 } else {
-  console.log('[zavorth-scheduled-task-persistence] checking Phase 3');
+  console.log('[zavorth-scheduled-task-persistence] checking Approval gate');
   printRules(rules, '[zavorth-scheduled-task-persistence]');
 }
 if (failed.length > 0) process.exitCode = 1;
@@ -40,13 +40,13 @@ function ruleFilesExist() {
     'docs/README.md',
   ];
   const missing = files.filter((file) => !fs.existsSync(path.join(root, file)));
-  return rule('scheduled-task-persistence-files', 'Phase 3 files exist', missing.length === 0, `${files.length - missing.length}/${files.length}`, 'contract, service, CLI, check, tests and docs are present', missing);
+  return rule('scheduled-task-persistence-files', 'Approval gate files exist', missing.length === 0, `${files.length - missing.length}/${files.length}`, 'contract, service, CLI, check, tests and docs are present', missing);
 }
 
 function ruleMarkers() {
   const checks = [
     ['src/contracts/ZavorthScheduledTaskPersistenceContract.ts', ['ZAVORTH_SCHEDULED_TASK_PERSISTENCE_CONTRACT_VERSION', 'persisted', 'reapproved', 'storesGovernedScopeInGuardrails']],
-    ['src/services/ZavorthScheduledTaskPersistenceService.ts', ['phase-3-persisted-scheduled-task-registration', 'scheduleTask', 'governedScheduledTask', 'updateTaskRuntimeMetadata']],
+    ['src/services/ZavorthScheduledTaskPersistenceService.ts', ['checkpoint-3-persisted-scheduled-task-registration', 'scheduleTask', 'governedScheduledTask', 'updateTaskRuntimeMetadata']],
     ['src/services/SchedulerService.ts', ['governedScheduledTask', 'updateTaskRuntimeMetadata', 'SchedulerGovernedScheduledTaskMetadata']],
     ['src/storage/SchedulerRepository.ts', ['updateRuntimeMetadata']],
     ['scripts/zavorth-scheduled-task-persistence.ts', ['--action=', '--fixture-scheduler', '--owner-confirmed', '--approval=']],
@@ -60,13 +60,13 @@ function ruleMarkers() {
       if (!text.includes(needle)) missing.push(`${file}: missing ${needle}`);
     }
   }
-  return rule('scheduled-task-persistence-markers', 'Phase 3 markers are wired', missing.length === 0, missing.length === 0 ? 'all markers' : `${missing.length} missing`, 'contract, service, scheduler, SDK and CLI markers exist', missing);
+  return rule('scheduled-task-persistence-markers', 'Approval gate markers are wired', missing.length === 0, missing.length === 0 ? 'all markers' : `${missing.length} missing`, 'contract, service, scheduler, SDK and CLI markers exist', missing);
 }
 
 function runPreviewFixture() {
   const result = runTs(approvedArgs());
   return jsonRule('scheduled-task-persistence-preview', 'Preview prepares governed metadata without persistence', result, (snapshot) =>
-    snapshot.contractVersion === '2026-05-12.persisted-scheduled-task-registration-phase-3'
+    snapshot.contractVersion === '2026-05-12.persisted-scheduled-task-registration-checkpoint-3'
     && snapshot.status === 'preview_ready'
     && snapshot.summary.runtimeReady === true
     && snapshot.summary.taskPersisted === false
@@ -120,7 +120,7 @@ function approvedArgs() {
 function ruleWorkspaceCheck() {
   const text = read('package.json');
   const marker = 'node scripts/zavorth-scheduled-task-persistence-check.mjs';
-  return rule('workspace-check-wire', 'workspace:check includes Phase 3 scheduled persistence gate', text.includes(marker), text.includes(marker) ? 'wired' : 'missing', marker, []);
+  return rule('workspace-check-wire', 'workspace:check includes Approval gate scheduled persistence gate', text.includes(marker), text.includes(marker) ? 'wired' : 'missing', marker, []);
 }
 
 function ruleNoPublicExternalNames() {
@@ -137,7 +137,7 @@ function ruleNoPublicExternalNames() {
       if (text.includes(word)) hits.push(`${file}: ${word}`);
     }
   }
-  return rule('no-public-external-names', 'Phase 3 public core remains neutral', hits.length === 0, hits.length === 0 ? 'neutral' : `${hits.length} hit(s)`, 'no external product names in public core files', hits);
+  return rule('no-public-external-names', 'Approval gate public core remains neutral', hits.length === 0, hits.length === 0 ? 'neutral' : `${hits.length} hit(s)`, 'no external product names in public core files', hits);
 }
 
 function runTs(args) {

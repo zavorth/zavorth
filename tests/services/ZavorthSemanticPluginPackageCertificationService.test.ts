@@ -71,7 +71,7 @@ describe('ZavorthSemanticPluginPackageCertificationService S1', () => {
       exportFamiliesMustMapToZavorthCapability: true,
       gapsBlockRelease: true,
     }));
-    expect(snapshot.commands.nextPhase).toBe('S2 - Agent Runtime Semantics');
+    expect(snapshot.commands.nextStage).toBe('S2 - Agent Runtime Semantics');
   });
 
   it('fails S1 when package semantics cannot be extracted', () => {
@@ -95,7 +95,7 @@ describe('ZavorthSemanticPluginPackageCertificationService S1', () => {
     ]));
   });
 
-  it('can consume an injected Phase 1 absorption service', () => {
+  it('can consume an injected Intent model absorption service', () => {
     const absorptionService = new SourcePluginOsAbsorptionService({
       now,
       sourceRoot,

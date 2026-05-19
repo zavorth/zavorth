@@ -31,7 +31,7 @@ describe('ZavorthTransactionLiveMicroRolloutCertificationService', () => {
       now: () => now,
     });
     credentialRef = credentialRefs.register({
-      label: 'Phase 14-15 exchange paper ref',
+      label: 'Intent model4-15 exchange paper ref',
       connectorKind: 'exchange',
       environment: 'paper',
       allowedActions: ['trade-order'],
@@ -49,7 +49,7 @@ describe('ZavorthTransactionLiveMicroRolloutCertificationService', () => {
     fs.rmSync(tempDir, { recursive: true, force: true });
   });
 
-  it('requires Phase 13 sandbox execution first', () => {
+  it('requires Intent model3 sandbox execution first', () => {
     const result = service.certify({
       ...baseReadyBeforeSandboxExecution(),
       microRolloutReviewConfirmed: true,
@@ -61,7 +61,7 @@ describe('ZavorthTransactionLiveMicroRolloutCertificationService', () => {
     expect(result.certificationPacket).toBeUndefined();
     expect(result.gates).toEqual(
       expect.arrayContaining([
-        expect.objectContaining({ kind: 'phase13-sandbox-executed', passed: false }),
+        expect.objectContaining({ kind: 'intent-model3-sandbox-executed', passed: false }),
         expect.objectContaining({ kind: 'sandbox-execution-receipt-present', passed: false }),
       ]),
     );
@@ -69,7 +69,7 @@ describe('ZavorthTransactionLiveMicroRolloutCertificationService', () => {
 
   it('requires a dedicated micro-rollout owner review phrase', () => {
     const result = service.certify({
-      ...phase13ExecutedInput(),
+      ...intent-model3ExecutedInput(),
       useSafeMicroRolloutControls: true,
     });
 
@@ -85,7 +85,7 @@ describe('ZavorthTransactionLiveMicroRolloutCertificationService', () => {
 
   it('certifies final micro-rollout readiness without authorizing live execution', () => {
     const result = service.certify({
-      ...phase13ExecutedInput(),
+      ...intent-model3ExecutedInput(),
       microRolloutReviewConfirmed: true,
       microRolloutReviewIntent: ZAVORTH_TRANSACTION_LIVE_MICRO_ROLLOUT_CERTIFICATION_OWNER_PHRASE,
       useSafeMicroRolloutControls: true,
@@ -116,7 +116,7 @@ describe('ZavorthTransactionLiveMicroRolloutCertificationService', () => {
 
   it('blocks oversized micro rollout limits', () => {
     const result = service.certify({
-      ...phase13ExecutedInput(),
+      ...intent-model3ExecutedInput(),
       microRolloutReviewConfirmed: true,
       microRolloutReviewIntent: ZAVORTH_TRANSACTION_LIVE_MICRO_ROLLOUT_CERTIFICATION_OWNER_PHRASE,
       rolloutLimits: {
@@ -140,7 +140,7 @@ describe('ZavorthTransactionLiveMicroRolloutCertificationService', () => {
 
   it('fails final certification when an aggressive scenario fails', () => {
     const result = service.certify({
-      ...phase13ExecutedInput(),
+      ...intent-model3ExecutedInput(),
       microRolloutReviewConfirmed: true,
       microRolloutReviewIntent: ZAVORTH_TRANSACTION_LIVE_MICRO_ROLLOUT_CERTIFICATION_OWNER_PHRASE,
       useSafeMicroRolloutControls: true,
@@ -158,7 +158,7 @@ describe('ZavorthTransactionLiveMicroRolloutCertificationService', () => {
 
   it('does not leak raw secrets from blocked final certification input', () => {
     const result = service.certify({
-      ...phase13ExecutedInput(),
+      ...intent-model3ExecutedInput(),
       text: 'Compre ETH ate R$100 usando api_key=sk-super-secret-value-123456.',
       microRolloutReviewConfirmed: true,
       microRolloutReviewIntent: ZAVORTH_TRANSACTION_LIVE_MICRO_ROLLOUT_CERTIFICATION_OWNER_PHRASE,
@@ -185,30 +185,30 @@ describe('ZavorthTransactionLiveMicroRolloutCertificationService', () => {
       useSafeDefaultControls: true,
       useSafeSandboxAdapter: true,
       killSwitch: {
-        id: 'phase14-15-kill-switch',
+        id: 'intent-model4-15-kill-switch',
         enabled: true,
         tested: true,
-        command: 'zavorth transaction disable-live --scope phase14-15',
+        command: 'zavorth transaction disable-live --scope intent-model4-15',
         ownerId: 'grey',
       },
       rollbackDrill: {
-        drillId: 'phase14-15-rollback-drill',
+        drillId: 'intent-model4-15-rollback-drill',
         performed: true,
         successful: true,
         summary: 'Replay and rollback completed against the simulated transaction ledger.',
-        replayCommand: 'npm run zavorth:transaction-live-candidate:json -- --replay phase10',
-        rollbackCommand: 'npm run zavorth:transaction-live-activation-review -- --rollback phase11',
-        artifacts: ['data/runtime/phase14-15-rollback-receipt.json'],
+        replayCommand: 'npm run zavorth:transaction-live-candidate:json -- --replay intent-model0',
+        rollbackCommand: 'npm run zavorth:transaction-live-activation-review -- --rollback intent-model1',
+        artifacts: ['data/runtime/intent-model4-15-rollback-receipt.json'],
       },
     };
   }
 
-  function phase13ExecutedInput() {
+  function intent-model3ExecutedInput() {
     return {
       ...baseReadyBeforeSandboxExecution(),
       sandboxExecutionConfirmed: true,
       sandboxExecutionIntent: ZAVORTH_TRANSACTION_SANDBOX_CONTROLLED_EXECUTOR_OWNER_PHRASE,
-      sandboxRunId: 'phase14-15-sandbox-run',
+      sandboxRunId: 'intent-model4-15-sandbox-run',
     };
   }
 });

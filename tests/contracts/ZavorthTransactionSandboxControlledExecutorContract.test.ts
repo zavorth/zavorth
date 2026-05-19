@@ -5,7 +5,7 @@ import {
 } from '../../src/contracts/ZavorthTransactionSandboxControlledExecutorContract.js';
 
 describe('ZavorthTransactionSandboxControlledExecutorContract', () => {
-  it('publishes the Phase 13 controlled sandbox executor contract', () => {
+  it('publishes the Intent model3 controlled sandbox executor contract', () => {
     const snapshot = buildZavorthTransactionSandboxControlledExecutorContractSnapshot();
 
     expect(snapshot.version).toBe(ZAVORTH_TRANSACTION_SANDBOX_CONTROLLED_EXECUTOR_CONTRACT_VERSION);
@@ -17,7 +17,7 @@ describe('ZavorthTransactionSandboxControlledExecutorContract', () => {
       'sandbox-executed',
     ]);
     expect(snapshot.gateKinds).toEqual([
-      'phase12-certification-ready',
+      'intent-model2-certification-ready',
       'certification-packet-present',
       'sandbox-operator-confirmation',
       'local-sandbox-only',
@@ -40,10 +40,10 @@ describe('ZavorthTransactionSandboxControlledExecutorContract', () => {
 
     expect(snapshot.invariants).toEqual(
       expect.arrayContaining([
-        'Phase 13 performs only a deterministic local sandbox simulation and never calls external sandbox or live endpoints.',
-        'Sandbox execution requires a dedicated owner phrase separate from Phase 10 and Phase 11 phrases.',
+        'Intent model3 performs only a deterministic local sandbox simulation and never calls external sandbox or live endpoints.',
+        'Sandbox execution requires a dedicated owner phrase separate from Intent model0 and Intent model1 phrases.',
         'Sandbox execution receipts may report sandboxExecutionAuthorized=true for the local simulation only.',
-        'Every Phase 13 result keeps sandboxExternalIoPerformed=false, externalSideEffects=false, liveExecutionAuthorized=false and liveActionApplied=false.',
+        'Every Intent model3 result keeps sandboxExternalIoPerformed=false, externalSideEffects=false, liveExecutionAuthorized=false and liveActionApplied=false.',
       ]),
     );
   });

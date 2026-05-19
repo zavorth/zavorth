@@ -237,7 +237,7 @@ export class ZavorthFunctionalClosureService {
 
   public formatSnapshotText(snapshot: ZavorthFunctionalClosureSnapshot): string {
     const lines = [
-      'Zavorth Functional Closure - Phase 9',
+      'Zavorth Functional Closure - Certification matrix',
       `Status: ${snapshot.status}`,
       `Contract: ${snapshot.contractVersion}`,
       `Items: ${snapshot.summary.items}`,
@@ -278,7 +278,7 @@ export class ZavorthFunctionalClosureService {
   }): ZavorthFunctionalClosureItem[] {
     return [
       this.item({
-        id: 'phase-0-ledger-governance',
+        id: 'checkpoint-0-ledger-governance',
         phase: 0,
         label: 'Executable full-surface ledger governance',
         category: 'ledger-governance',
@@ -292,7 +292,7 @@ export class ZavorthFunctionalClosureService {
         notes: ['The full-surface ledger is executable infrastructure with drift detection.'],
       }),
       this.item({
-        id: 'phase-1-plugin-os-package-sdk',
+        id: 'checkpoint-1-plugin-os-package-sdk',
         phase: 1,
         label: 'Plugin OS and package SDK absorption',
         category: 'plugin-os',
@@ -306,7 +306,7 @@ export class ZavorthFunctionalClosureService {
         notes: ['No external plugin executes without policy profile.'],
       }),
       this.item({
-        id: 'phase-2-agent-runtime-bridge',
+        id: 'checkpoint-2-agent-runtime-bridge',
         phase: 2,
         label: 'Agent runtime bridge pack',
         category: 'agent-runtime',
@@ -320,7 +320,7 @@ export class ZavorthFunctionalClosureService {
         notes: ['Tool execution remains governed by cwd, approval and receipt policy.'],
       }),
       this.item({
-        id: 'phase-3-provider-mesh',
+        id: 'checkpoint-3-provider-mesh',
         phase: 3,
         label: 'Provider mesh expansion pack',
         category: 'provider-mesh',
@@ -334,7 +334,7 @@ export class ZavorthFunctionalClosureService {
         notes: ['Cloud and direct provider routes stay explicit and credential-routed.'],
       }),
       this.item({
-        id: 'phase-4-channel-mesh',
+        id: 'checkpoint-4-channel-mesh',
         phase: 4,
         label: 'Channel mesh expansion pack',
         category: 'channel-mesh',
@@ -348,7 +348,7 @@ export class ZavorthFunctionalClosureService {
         notes: ['Live channel sends require explicit operator command, SecretRef and allowlist.'],
       }),
       this.item({
-        id: 'phase-5-memory-document-terminal',
+        id: 'checkpoint-5-memory-document-terminal',
         phase: 5,
         label: 'Memory, document, search and terminal pack',
         category: 'memory-document-terminal',
@@ -362,7 +362,7 @@ export class ZavorthFunctionalClosureService {
         notes: ['Dangerous terminal behavior remains blocked by policy.'],
       }),
       this.item({
-        id: 'phase-6-native-companion-device',
+        id: 'checkpoint-6-native-companion-device',
         phase: 6,
         label: 'Native companion and device capability pack',
         category: 'native-companion-device',
@@ -376,7 +376,7 @@ export class ZavorthFunctionalClosureService {
         notes: ['Native wrappers remain owner-gated until product scope is approved.'],
       }),
       this.item({
-        id: 'phase-7-qa-security-release',
+        id: 'checkpoint-7-qa-security-release',
         phase: 7,
         label: 'QA, security and release certification pack',
         category: 'qa-security-release',
@@ -390,7 +390,7 @@ export class ZavorthFunctionalClosureService {
         notes: ['Workflow behavior is local semantic checks, not copied workflow files.'],
       }),
       this.item({
-        id: 'phase-8-skill-ecosystem',
+        id: 'checkpoint-8-skill-ecosystem',
         phase: 8,
         label: 'Skill ecosystem pack',
         category: 'skill-ecosystem',
@@ -404,7 +404,7 @@ export class ZavorthFunctionalClosureService {
         notes: ['Skill breadth is optional ecosystem capacity, not core bloat.'],
       }),
       this.item({
-        id: 'phase-9-baseline-worker-chain',
+        id: 'checkpoint-9-baseline-worker-chain',
         phase: 9,
         label: 'Baseline worker closure chain',
         category: 'baseline-certification',
@@ -415,7 +415,7 @@ export class ZavorthFunctionalClosureService {
         passStatuses: ['certified'],
         observed: summaryLine(input.finalAbsorptionCertification, ['evidenceItems', 'failed', 'totalReceipts']),
         required: 'prior worker closure chain remains certified and no-live-IO',
-        notes: ['Phase 9 wraps prior worker closure plus phases 7 and 8 into one receipt.'],
+        notes: ['Certification matrix wraps prior worker closure plus phases 7 and 8 into one receipt.'],
       }),
     ];
   }
@@ -425,7 +425,7 @@ export class ZavorthFunctionalClosureService {
     const pass = input.passStatuses.includes(rawStatus);
     const status: ZavorthFunctionalClosureItemStatus = pass ? 'pass' : rawStatus === 'warn' ? 'warn' : 'fail';
     const risk: ZavorthFunctionalClosureRiskLevel = status === 'fail' ? 'blocking' : status === 'warn' ? 'attention' : 'none';
-    const receiptId = `zavorth.phase9.functional-closure.${input.id}.${this.now().getTime()}.receipt`;
+    const receiptId = `zavorth.certification-matrix.functional-closure.${input.id}.${this.now().getTime()}.receipt`;
 
     return {
       id: input.id,
@@ -451,7 +451,7 @@ export class ZavorthFunctionalClosureService {
     item: ZavorthFunctionalClosureItem,
   ): ZavorthFunctionalClosureReceipt {
     return {
-      id: item.receiptIds[0] || `zavorth.phase9.functional-closure.${item.id}.${generatedAt}.receipt`,
+      id: item.receiptIds[0] || `zavorth.certification-matrix.functional-closure.${item.id}.${generatedAt}.receipt`,
       phase: item.phase,
       itemId: item.id,
       status: item.status,

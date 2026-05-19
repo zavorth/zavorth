@@ -1,7 +1,7 @@
 import type { ZavorthExperienceProfileId } from './ZavorthExperienceProfileContract.js';
 import type { ZavorthTrustPanelContract } from './ZavorthTrustPanelContract.js';
 
-export const ZAVORTH_AUTONOMY_SLIDER_CONTRACT_VERSION = '2026-05-15.experience-layer.phase-7' as const;
+export const ZAVORTH_AUTONOMY_SLIDER_CONTRACT_VERSION = '2026-05-15.experience-layer.checkpoint-7' as const;
 
 export type ZavorthAutonomySliderLevel =
   | 'conservative'

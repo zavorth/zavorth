@@ -8,8 +8,8 @@ const asJson = process.argv.includes('--json');
 
 const rules = [
   ruleFilesExist({
-    id: 'zavorth-native-companion-device-phase-6-files',
-    label: 'Phase 6 files exist',
+    id: 'zavorth-native-companion-device-checkpoint-6-files',
+    label: 'Runtime gateway files exist',
     target: 'contract, Satellite bridge, desktop bridge, MLX TTS adapter, pack service, command, tests and package scripts are present',
     files: [
       'src/contracts/ZavorthNativeCompanionDeviceContract.ts',
@@ -67,7 +67,7 @@ const rules = [
   ruleContainsAll({
     id: 'zavorth-native-companion-policy',
     label: 'Pack policy keeps native wrappers optional',
-    target: 'service emits browser-first receipts, owner-gated native wrappers and Phase 7 handoff',
+    target: 'service emits browser-first receipts, owner-gated native wrappers and Surface controls handoff',
     files: ['src/services/ZavorthNativeCompanionDevicePackService.ts'],
     needles: [
       'browserPwaFirst',
@@ -76,12 +76,12 @@ const rules = [
       'cameraLocationRequirePermission',
       'biometricOrDeviceConfirmRequiresTrust',
       'unsupportedNativeApisExplicit',
-      'Phase 7 - QA, Security And Release Certification Pack',
+      'Surface controls - QA, Security And Release Certification Pack',
     ],
   }),
   ruleContainsAll({
     id: 'package-exposes-zavorth-native-companion-device-pack',
-    label: 'package exposes Phase 6 gates',
+    label: 'package exposes Runtime gateway gates',
     target: 'operators can inspect, inspect JSON, run check and QA without source branding',
     files: ['package.json'],
     needles: [
@@ -110,7 +110,7 @@ const snapshot = {
 if (asJson) {
   console.log(JSON.stringify(snapshot, null, 2));
 } else {
-  console.log('[zavorth-native-companion-device-pack] checking Phase 6');
+  console.log('[zavorth-native-companion-device-pack] checking Runtime gateway');
   for (const rule of rules) {
     const marker = rule.status === 'passed' ? 'ok' : 'fail';
     console.log(`[zavorth-native-companion-device-pack] ${marker} ${rule.label}: ${rule.observed} | ${rule.target}`);
@@ -139,10 +139,10 @@ function runRuntimeRule() {
   if (result.status !== 0) {
     return {
       id: 'zavorth-native-companion-device-runtime-receipt',
-      label: 'Runtime Phase 6 receipt passes',
+      label: 'Runtime Runtime gateway receipt passes',
       status: 'failed',
       observed: `exit ${result.status ?? 'unknown'}`,
-      target: 'Phase 6 command emits a passing native companion/device snapshot',
+      target: 'Runtime gateway command emits a passing native companion/device snapshot',
       details: compactDetails(result.error instanceof Error ? result.error.message : '', result.stderr, result.stdout),
     };
   }
@@ -151,26 +151,26 @@ function runRuntimeRule() {
     const receipt = JSON.parse(result.stdout);
     return {
       id: 'zavorth-native-companion-device-runtime-receipt',
-      label: 'Runtime Phase 6 receipt passes',
+      label: 'Runtime Runtime gateway receipt passes',
       status: receipt.status === 'passed' ? 'passed' : 'failed',
       observed: `status=${receipt.status}, targets=${receipt.summary?.targets}, capabilities=${receipt.summary?.capabilitiesReported}`,
-      target: 'Phase 6 command emits a passing native companion/device snapshot',
+      target: 'Runtime gateway command emits a passing native companion/device snapshot',
       details: [
         `pwaBridgeFunctional=${receipt.summary?.pwaBridgeFunctional}`,
         `desktopBridgeFunctional=${receipt.summary?.desktopBridgeFunctional}`,
         `nativeWrappersOwnerGated=${receipt.summary?.nativeWrappersOwnerGated}`,
         `liveExternalIoPerformed=${receipt.summary?.liveExternalIoPerformed}`,
         `enabledByDefault=${receipt.summary?.enabledByDefault}`,
-        `next=${receipt.commands?.nextPhase}`,
+        `next=${receipt.commands?.nextStage}`,
       ],
     };
   } catch (error) {
     return {
       id: 'zavorth-native-companion-device-runtime-receipt',
-      label: 'Runtime Phase 6 receipt passes',
+      label: 'Runtime Runtime gateway receipt passes',
       status: 'failed',
       observed: 'invalid JSON receipt',
-      target: 'Phase 6 command emits a passing native companion/device snapshot',
+      target: 'Runtime gateway command emits a passing native companion/device snapshot',
       details: [error instanceof Error ? error.message : String(error), ...compactDetails(result.stderr, result.stdout)],
     };
   }
@@ -204,7 +204,7 @@ function ruleContainsNoForbiddenNames() {
     label: 'No forbidden source branding outside reports',
     status: details.length > 0 ? 'failed' : 'passed',
     observed: details.length > 0 ? `${details.length} file(s) with forbidden source branding` : 'no forbidden source branding in code/scripts/tests/package',
-    target: 'new Phase 6 code and public surfaces use Zavorth-owned names only',
+    target: 'new Runtime gateway code and public surfaces use Zavorth-owned names only',
     details,
   };
 }

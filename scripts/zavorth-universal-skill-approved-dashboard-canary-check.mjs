@@ -28,7 +28,7 @@ const snapshot = {
 if (asJson) {
   console.log(JSON.stringify(snapshot, null, 2));
 } else {
-  console.log('[zavorth-universal-skill-approved-dashboard-canary] checking Phase 10');
+  console.log('[zavorth-universal-skill-approved-dashboard-canary] checking Intent model0');
   for (const rule of rules) {
     const marker = rule.status === 'passed' ? 'ok' : 'fail';
     console.log(`[zavorth-universal-skill-approved-dashboard-canary] ${marker} ${rule.label}: ${rule.observed} | ${rule.target}`);
@@ -52,7 +52,7 @@ function ruleFilesExist() {
   const missing = files.filter((file) => !fs.existsSync(path.join(root, file)));
   return {
     id: 'universal-skill-approved-dashboard-canary-files',
-    label: 'Phase 10 files exist',
+    label: 'Intent model0 files exist',
     status: missing.length === 0 ? 'passed' : 'failed',
     observed: `${files.length - missing.length}/${files.length} file(s) present`,
     target: 'approved dashboard canary contract, service, CLI, check, docs, endpoint and tests are present',
@@ -65,10 +65,10 @@ function ruleContainsMarkers() {
     ['src/contracts/ZavorthUniversalSkillApprovedDashboardCanaryContract.ts', [
       'ZAVORTH_UNIVERSAL_SKILL_APPROVED_DASHBOARD_CANARY_CONTRACT_VERSION',
       'endpointRequiresManagementAuth',
-      'Phase 11 - Dashboard Visual Rendering Approval and Canary Monitoring',
+      'Intent model1 - Dashboard Visual Rendering Approval and Canary Monitoring',
     ]],
     ['src/services/UniversalSkillApprovedDashboardCanaryService.ts', [
-      'phase9ScaleHardeningIsAuthority',
+      'certificationMatrixScaleHardeningIsAuthority',
       'noLayoutMutationPerformed',
       'liveCanaryRequiresApprovalId',
       'canaryPreparationDoesNotExecuteSkills',
@@ -103,7 +103,7 @@ function ruleContainsMarkers() {
   }
   return {
     id: 'universal-skill-approved-dashboard-canary-markers',
-    label: 'Phase 10 markers are present',
+    label: 'Intent model0 markers are present',
     status: missing.length === 0 ? 'passed' : 'failed',
     observed: missing.length === 0 ? 'all markers present' : `${missing.length} missing marker(s)`,
     target: 'dashboard endpoint, approval gate, canary and no-execution markers are present',
@@ -114,7 +114,7 @@ function ruleContainsMarkers() {
 function runDashboardModelFixture() {
   const fixture = createFixture(4);
   try {
-    return runPhase10Rule({
+    return runLiveCandidateRule({
       id: 'approved-dashboard-model',
       label: 'Builds approved dashboard view model',
       target: 'dashboard-only returns endpoint, cards, table, filters and no visual mutation',
@@ -134,7 +134,7 @@ function runDashboardModelFixture() {
 function runDryRunCanaryFixture() {
   const fixture = createFixture(3);
   try {
-    return runPhase10Rule({
+    return runLiveCandidateRule({
       id: 'dry-run-canary',
       label: 'Prepares dry-run canary without execution',
       target: 'dry-run canary prepares receipt and keeps execution false',
@@ -153,7 +153,7 @@ function runDryRunCanaryFixture() {
 function runLiveApprovalRequiredFixture() {
   const fixture = createFixture(2);
   try {
-    return runPhase10Rule({
+    return runLiveCandidateRule({
       id: 'live-approval-required',
       label: 'Requires approval for live canary',
       target: 'live canary without approval returns attention and approval-required',
@@ -171,7 +171,7 @@ function runLiveApprovalRequiredFixture() {
 function runLivePreparedFixture() {
   const fixture = createFixture(2);
   try {
-    return runPhase10Rule({
+    return runLiveCandidateRule({
       id: 'live-prepared',
       label: 'Prepares live canary with explicit approval',
       target: 'live canary with approval prepares live envelope but still does not execute',
@@ -190,7 +190,7 @@ function runLivePreparedFixture() {
 function runBlockedGateFixture() {
   const fixture = createFixture(5);
   try {
-    return runPhase10Rule({
+    return runLiveCandidateRule({
       id: 'blocked-gate',
       label: 'Propagates blocked scale gate',
       target: 'lower scale gate blocks dashboard/canary readiness',
@@ -204,7 +204,7 @@ function runBlockedGateFixture() {
   }
 }
 
-function runPhase10Rule(input) {
+function runLiveCandidateRule(input) {
   const result = spawnSync(process.execPath, [
     path.join(root, 'node_modules', 'tsx', 'dist', 'cli.mjs'),
     'scripts/zavorth-universal-skill-approved-dashboard-canary.ts',
@@ -246,7 +246,7 @@ function runPhase10Rule(input) {
 }
 
 function createFixture(skillCount) {
-  const rootDir = fs.mkdtempSync(path.join(os.tmpdir(), 'zavorth-phase10-'));
+  const rootDir = fs.mkdtempSync(path.join(os.tmpdir(), 'zavorth-intent-model0-'));
   const source = path.join(rootDir, 'skill-source');
   fs.mkdirSync(source, { recursive: true });
   for (let index = 1; index <= skillCount; index += 1) {

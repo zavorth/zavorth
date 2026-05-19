@@ -153,7 +153,7 @@ function buildPack(overrides: Record<string, any> = {}): SharedSurfaceGatewayToo
       canUseOperationalCommand: jest.fn(() => true),
     } as any,
     providerDoctorService: {
-      renderStatusReport: jest.fn(() => 'Providers prontos agora\nPerfil recomendado para esta fase'),
+      renderStatusReport: jest.fn(() => 'Providers prontos agora\nPerfil recomendado para esta etapa'),
     } as any,
     providerControlPlaneService: {
       getUsageTargets: jest.fn(() => ['chat', 'code']),

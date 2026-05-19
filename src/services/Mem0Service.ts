@@ -2,7 +2,7 @@ import { MemoryRuntimeService } from './memory/MemoryRuntimeService.js';
 
 /**
  * @deprecated Use MemoryRuntimeService.
- * Mantido por compatibilidade durante a migracao da fase de memoria.
+ * Mantido por compatibilidade durante a migracao da etapa de memoria.
  */
 export class Mem0Service {
   constructor(private readonly memoryRuntime: MemoryRuntimeService = new MemoryRuntimeService()) {}

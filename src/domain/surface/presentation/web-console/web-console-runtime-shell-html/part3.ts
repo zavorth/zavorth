@@ -42,7 +42,7 @@ export function buildRuntimeShellHtmlPart3(): string {
       </section>
 
       <section id="hub-control-plane-card" class="handoff-card">
-        <p class="profile-tag">Wave 5</p>
+        <p class="profile-tag">Track 5</p>
         <h2>Hub + MCP product plane</h2>
         <p class="muted-copy section-note">
           Esta leitura junta Integration Hub, plugin plane, platform plane, skill plane e MCP num cockpit unico para discovery, trust, sync e doctor.
@@ -109,7 +109,7 @@ export function buildRuntimeShellHtmlPart3(): string {
       </section>
 
       <section id="qa-control-plane-card" class="handoff-card">
-        <p class="profile-tag">Wave 6</p>
+        <p class="profile-tag">QA release</p>
         <h2>QA, budgets e release gates</h2>
         <p class="muted-copy section-note">
           Esta leitura junta benchmarks, smokes, regressions e gate de release num plano unico para decidir se o host esta pronto para alpha ou beta.
@@ -119,7 +119,7 @@ export function buildRuntimeShellHtmlPart3(): string {
             <p class="profile-tag">Postura</p>
             <strong id="qa-control-plane-state">Valide o token</strong>
             <p id="qa-control-plane-summary" class="muted-copy">
-              O consolidado da Wave 6 aparece aqui assim que o shell protegido for liberado.
+              O consolidado da QA release aparece aqui assim que o shell protegido for liberado.
             </p>
           </article>
           <article class="ops-summary-card">
@@ -176,7 +176,7 @@ export function buildRuntimeShellHtmlPart3(): string {
       </section>
 
       <section id="release-ux-wizard-card" class="handoff-card">
-        <p class="profile-tag">Fase 44</p>
+        <p class="profile-tag">Etapa 44</p>
         <h2>Release wizard</h2>
         <p class="muted-copy section-note">
           Publish, diff, rollback e changelog ficam no mesmo fluxo preview-first para reduzir medo de publicar ou reverter.
@@ -220,7 +220,7 @@ export function buildRuntimeShellHtmlPart3(): string {
       </section>
 
       <section id="governance-control-plane-card" class="handoff-card">
-        <p class="profile-tag">Wave 7</p>
+        <p class="profile-tag">Governance</p>
         <h2>Governance, tenants e policy</h2>
         <p class="muted-copy section-note">
           Esta leitura junta tenants, trust decisions, allowlists, channels, nodes, plugins, platform e transports numa camada unica de governanca operacional.
@@ -230,7 +230,7 @@ export function buildRuntimeShellHtmlPart3(): string {
             <p class="profile-tag">Postura</p>
             <strong id="governance-control-plane-state">Valide o token</strong>
             <p id="governance-control-plane-summary" class="muted-copy">
-              A postura consolidada da Wave 7 aparece aqui assim que o shell protegido for liberado.
+              A postura consolidada da Governance aparece aqui assim que o shell protegido for liberado.
             </p>
           </article>
           <article class="ops-summary-card">
@@ -285,7 +285,7 @@ export function buildRuntimeShellHtmlPart3(): string {
       </section>
 
       <section id="tenant-team-ops-card" class="handoff-card">
-        <p class="profile-tag">Fase 42</p>
+        <p class="profile-tag">Etapa 42</p>
         <h2>Tenant/team ops</h2>
         <p class="muted-copy section-note">
           Identidade, policy, permissoes e isolamento ficam segmentados por workspace, projeto, tenant e time.
@@ -328,7 +328,7 @@ export function buildRuntimeShellHtmlPart3(): string {
       </section>
 
       <section id="replay-learning-control-plane-card" class="handoff-card">
-        <p class="profile-tag">Wave 8</p>
+        <p class="profile-tag">Replay learning</p>
         <h2>Replay, artifacts e learning loop</h2>
         <p class="muted-copy section-note">
           Esta leitura transforma replay, artifacts, memoria e learning em pontos reutilizaveis de comparacao, retomada e promocao operacional.
@@ -364,7 +364,7 @@ export function buildRuntimeShellHtmlPart3(): string {
           </article>
         </div>
         <div class="action-row compact-remote-actions">
-          <button id="replay-learning-refresh-action" type="button" class="action-button secondary compact-action" hidden>Atualizar Wave 8</button>
+          <button id="replay-learning-refresh-action" type="button" class="action-button secondary compact-action" hidden>Atualizar Replay learning</button>
           <button id="replay-learning-copy-command" type="button" class="action-button secondary compact-action" data-copy="npm run ops:replay-learning">Copiar ops:replay-learning</button>
         </div>
         <p id="replay-learning-status" class="muted-copy section-note">
@@ -393,7 +393,7 @@ export function buildRuntimeShellHtmlPart3(): string {
       </section>
 
       <section id="artifact-replay-workbench-card" class="handoff-card">
-        <p class="profile-tag">Fase 43</p>
+        <p class="profile-tag">Etapa 43</p>
         <h2>Artifact and Replay Workbench</h2>
         <p class="muted-copy section-note">
           Esta bancada junta indice de artifacts, comparacao entre runs, replay redigido, learning marks e export controlado de evidencias.
@@ -433,7 +433,7 @@ export function buildRuntimeShellHtmlPart3(): string {
       </section>
 
       <section id="ecosystem-control-plane-card" class="handoff-card">
-        <p class="profile-tag">Wave 9</p>
+        <p class="profile-tag">Ecosystem</p>
         <h2>Ecossistema, SDKs e third-party platform</h2>
         <p class="muted-copy section-note">
           Esta leitura junta SDKs oficiais, guias publicos, publish, recipes e o catalogo do platform plane num cockpit unico para integradores e operadores.
@@ -469,7 +469,7 @@ export function buildRuntimeShellHtmlPart3(): string {
           </article>
         </div>
         <div class="action-row compact-remote-actions">
-          <button id="ecosystem-control-plane-refresh-action" type="button" class="action-button secondary compact-action" hidden>Atualizar Wave 9</button>
+          <button id="ecosystem-control-plane-refresh-action" type="button" class="action-button secondary compact-action" hidden>Atualizar Ecosystem</button>
           <button id="ecosystem-control-plane-copy-command" type="button" class="action-button secondary compact-action" data-copy="npm run ops:ecosystem">Copiar ops:ecosystem</button>
         </div>
         <p id="ecosystem-control-plane-status" class="muted-copy section-note">
@@ -498,7 +498,7 @@ export function buildRuntimeShellHtmlPart3(): string {
       </section>
 
       <section id="distributed-runtime-control-plane-card" class="handoff-card">
-        <p class="profile-tag">Wave 10</p>
+        <p class="profile-tag">Distributed runtime</p>
         <h2>Runtime distribuido e superficies avancadas</h2>
         <p class="muted-copy section-note">
           Esta leitura junta channels avancados, fleet do Node Mesh, remote transports e superficies oficiais em uma postura unica para o runtime distribuido.
@@ -541,7 +541,7 @@ export function buildRuntimeShellHtmlPart3(): string {
           </article>
         </div>
         <div class="action-row compact-remote-actions">
-          <button id="distributed-runtime-control-plane-refresh-action" type="button" class="action-button secondary compact-action" hidden>Atualizar Wave 10</button>
+          <button id="distributed-runtime-control-plane-refresh-action" type="button" class="action-button secondary compact-action" hidden>Atualizar Distributed runtime</button>
           <button id="distributed-runtime-control-plane-copy-command" type="button" class="action-button secondary compact-action" data-copy="npm run ops:distributed">Copiar ops:distributed</button>
         </div>
         <p id="distributed-runtime-control-plane-status" class="muted-copy section-note">

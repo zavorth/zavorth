@@ -34,7 +34,7 @@ const PROFILES: ZavorthUniversalSkillSourceProfile[] = [
     priority: 85,
     description: 'Manifest-driven tool/resource pack that can later be exposed as governed MCP capability metadata.',
     entrypointPatterns: ['manifest.json', 'mcp.json', 'TOOLS.md'],
-    notes: ['Phase 1 only inventories the pack; live tool exposure remains denied by default.'],
+    notes: ['Intent model only inventories the pack; live tool exposure remains denied by default.'],
   },
   {
     id: 'agent-extension',

@@ -128,7 +128,7 @@ describe('CapabilityAutopilotSurfaceUxService', () => {
       permissionSummary: '1 permissao(oes) pendente(s) com escopo explicito.',
       fallbackSummary: '2 fallback(s) disponivel(is), nenhum automatico.',
       metadata: {
-        phase: 'capability-autopilot-phase-63',
+        stage: 'capability-autopilot-checkpoint-63',
         permissionCount: 1,
         fallbackCount: 2,
       },

@@ -56,7 +56,7 @@ export function formatReleaseCandidatePreCanaryGateSnapshot(
   snapshot: ReleaseCandidatePreCanaryGateSnapshot,
 ): string {
   const lines = [
-    'Release Candidate / Pre-Canary Gate - Wave 54',
+    'Release Candidate / Pre-Canary Gate - Pre-Canary Gate',
     `- contrato: ${snapshot.contractVersion}`,
     `- run: ${snapshot.identifiers.runId}`,
     `- sessao: ${snapshot.identifiers.sessionId}`,
@@ -117,7 +117,7 @@ export function formatReleaseCandidatePreCanaryGateSnapshot(
 
 function buildReleaseAdoptionReadySnapshot(run: UniversalAgentRun) {
   return {
-    contractVersion: '2026-05-04.wave-53',
+    contractVersion: '2026-05-04.release-readiness',
     source: 'ReleaseAdoptionReadinessService',
     generatedAt: '2026-05-04T06:54:00.000Z',
     identifiers: {
@@ -176,7 +176,7 @@ function buildEcosystemPublishingSnapshot() {
 
 function buildShowcaseReadySnapshot(run: UniversalAgentRun) {
   return {
-    contractVersion: '2026-05-04.wave-52',
+    contractVersion: '2026-05-04.integration-showcase',
     source: 'IntegrationShowcasePartnerSurfaceService',
     generatedAt: '2026-05-04T06:54:00.000Z',
     identifiers: {
@@ -195,7 +195,7 @@ function buildShowcaseReadySnapshot(run: UniversalAgentRun) {
 
 function buildAutopilotReleaseCandidateSnapshot() {
   return {
-    phase: '80',
+    stage: '80',
     surface: 'capability-autopilot-release-candidate-gate',
     status: 'release_candidate_ready',
     recommendation: 'promote_to_release_candidate',

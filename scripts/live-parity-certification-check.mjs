@@ -34,8 +34,8 @@ const sdkIndex = read('src/sdk/index.ts');
 const pkg = read('package.json');
 
 checks.push(
-  has(contract, 'contract:version', '2026-05-05.live-phase-13'),
-  has(contract, 'contract:phase', 'Phase 13 - Live Parity Certification'),
+  has(contract, 'contract:version', '2026-05-05.live-checkpoint-13'),
+  has(contract, 'contract:phase', 'Intent model3 - Live Parity Certification'),
   has(contract, 'contract:profiles', 'staging-live', 'production-live'),
   has(contract, 'contract:inventory', 'sourceModules: 125', 'providers: 47', 'channels: 23'),
   has(contract, 'contract:disallowed-status', 'misleadingAdapterBacked: 0', 'dryRunOnly: number', 'templateOnly: number', 'planned: number'),
@@ -68,7 +68,7 @@ checks.push(
   has(service, 'service:truthfulness', 'signedExclusionsLedger', 'not-claimed-without-operator-live-receipts', 'not-executed-by-certification'),
   has(script, 'script:cli', '--profile', '--require-certified', 'formatCertificationText', 'production-live'),
   has(tests, 'tests:coverage', 'staging-live', 'production-live', '125', '47', '23', 'signedExclusionsLedger', 'stagingLiveSmokeCommands'),
-  has(docs, 'docs:ledger', 'Phase 13 - Live Parity Certification', '125/125', '47 providers', '23 channels', 'No live external IO'),
+  has(docs, 'docs:ledger', 'Intent model3 - Live Parity Certification', '125/125', '47 providers', '23 channels', 'No live external IO'),
   has(sdkContracts, 'sdk:contract-export', 'LiveParityCertificationContract'),
   has(sdkIndex, 'sdk:service-export', 'LiveParityCertificationService'),
   has(pkg, 'package:scripts',

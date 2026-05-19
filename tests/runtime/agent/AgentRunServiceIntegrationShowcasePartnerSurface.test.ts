@@ -10,7 +10,7 @@ function createIdFactory() {
 
 function pilotReadySnapshot() {
   return {
-    contractVersion: '2026-05-04.wave-51',
+    contractVersion: '2026-05-04.adoption-pilot',
     source: 'PublicAdoptionPilotLoopService',
     generatedAt: '2026-05-04T05:52:00.000Z',
     status: 'pilot-ready',
@@ -43,7 +43,7 @@ function matrix(id: string) {
 
 function integrationShowcase() {
   return {
-    phase: '58',
+    stage: '58',
     surface: 'integration-showcase',
     generatedAt: '2026-05-04T05:52:00.000Z',
     status: 'ready',
@@ -71,11 +71,11 @@ function integrationShowcase() {
       { id: 'integration-showcase:matrix-artifact', status: 'pass' },
       { id: 'integration-showcase:partner-artifact', status: 'pass' },
     ],
-    nextRecommendedPhase: { phase: '59', title: 'Release Train', reason: 'release readiness' },
+    nextRecommendedStage: { stage: '59', title: 'Release Train', reason: 'release readiness' },
   };
 }
 
-describe('AgentRunService Integration Showcase Partner Surface Wave 52', () => {
+describe('AgentRunService Integration Showcase Partner Surface Integration Showcase', () => {
   it('publishes run.metadata.integrationShowcasePartnerSurface after publicAdoptionPilotLoop', async () => {
     const service = new AgentRunService({
       now: () => new Date('2026-05-04T05:52:00.000Z'),

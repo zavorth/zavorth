@@ -142,7 +142,7 @@ describe('CapabilityAutopilotApprovedRepairRunnerService', () => {
       validationRequired: false,
       steps: [],
       metadata: {
-        phase: 'capability-autopilot-phase-61',
+        stage: 'capability-autopilot-checkpoint-61',
       },
     });
     expect(executor).not.toHaveBeenCalled();

@@ -15,7 +15,7 @@ import type {
   ProviderIntegrationRouteManifest,
 } from '../services/providers/catalog/ProviderIntegrationManifest.js';
 
-export const ZAVORTH_PROVIDER_MESH_PARITY_CONTRACT_VERSION = '2026-05-04.phase-4';
+export const ZAVORTH_PROVIDER_MESH_PARITY_CONTRACT_VERSION = '2026-05-04.checkpoint-4';
 
 export type ProviderMeshParityStatus =
   | 'first-class'

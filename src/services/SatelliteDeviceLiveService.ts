@@ -165,7 +165,7 @@ export class SatelliteDeviceLiveService {
     const approvedCapabilityIds = input.approvedCapabilityIds || PHONE_CAPABILITY_IDS;
     const draft = this.createPhoneDraft({
       nodeId: input.nodeId || null,
-      label: input.label || 'Phase 11 Browser Phone',
+      label: input.label || 'Intent model1 Browser Phone',
       capabilityIds: PHONE_CAPABILITY_IDS,
       approvedCapabilityIds,
     });
@@ -174,18 +174,18 @@ export class SatelliteDeviceLiveService {
 
     const invocations = [
       this.invokeRequired(draft.entry.id, 'camera.capture', 'capture', {
-        contentBase64: String(input.cameraContentBase64 || Buffer.from('zavorth-phase-11-camera-proof').toString('base64')),
+        contentBase64: String(input.cameraContentBase64 || Buffer.from('zavorth-checkpoint-11-camera-proof').toString('base64')),
         outputPath: path.join(this.tempRoot, 'captures', `${draft.entry.id}.camera.png`),
       }),
       this.invokeRequired(draft.entry.id, 'location.read', 'read', input.location || {
         latitude: -23.55052,
         longitude: -46.633308,
         accuracyMeters: 12,
-        label: 'phase-11-satellite-smoke',
+        label: 'checkpoint-11-satellite-smoke',
       }),
       this.invokeRequired(draft.entry.id, 'device.confirm', 'confirm', {
         action: 'phone-control-sensitive-command',
-        challenge: 'phase-11-webauthn-challenge',
+        challenge: 'checkpoint-11-webauthn-challenge',
         credentialId: 'credential-redacted',
         userPresent: true,
       }),
@@ -238,7 +238,7 @@ export class SatelliteDeviceLiveService {
 
   public runSensitiveApprovalProbe(): SatelliteSensitiveApprovalProbe {
     const draft = this.createPhoneDraft({
-      label: 'Phase 11 Approval Probe',
+      label: 'Intent model1 Approval Probe',
       capabilityIds: ['device.info', 'camera.capture'],
       approvedCapabilityIds: ['device.info'],
     });
@@ -250,7 +250,7 @@ export class SatelliteDeviceLiveService {
       payload: {
         contentBase64: Buffer.from('blocked-camera-proof').toString('base64'),
       },
-      requestedBy: 'phase-11-sensitive-approval-probe',
+      requestedBy: 'checkpoint-11-sensitive-approval-probe',
       surface: 'satellite-device-live-plane',
     });
 
@@ -268,12 +268,12 @@ export class SatelliteDeviceLiveService {
 
   public runOfflineQueueProof(): SatelliteOfflineQueueProof {
     const draft = this.createPhoneDraft({
-      label: 'Phase 11 Offline Queue',
+      label: 'Intent model1 Offline Queue',
       capabilityIds: ['device.info'],
       approvedCapabilityIds: ['device.info'],
     });
     const claim = this.claimDraft(draft, ['device.info']);
-    this.registryService.markNodeOffline(draft.entry.id, 'Phase 11 offline queue proof.');
+    this.registryService.markNodeOffline(draft.entry.id, 'Intent model1 offline queue proof.');
     const result = this.invokeService.invoke({
       nodeId: draft.entry.id,
       capabilityId: 'device.info',
@@ -281,7 +281,7 @@ export class SatelliteDeviceLiveService {
       payload: {
         deviceModel: 'PWA offline queue fixture',
       },
-      requestedBy: 'phase-11-offline-queue-proof',
+      requestedBy: 'checkpoint-11-offline-queue-proof',
       surface: 'satellite-device-live-plane',
     });
     const heartbeat = this.receiveHeartbeatRequired(draft.entry.id, claim.sharedSecret, [], ['device.info']);
@@ -340,23 +340,23 @@ export class SatelliteDeviceLiveService {
     approvedCapabilityIds: NodeMeshCapabilityId[];
   }): NodeMeshPairingDraft {
     return this.pairingService.createPairingDraft({
-      nodeId: input.nodeId || `phase11-phone-${crypto.randomUUID().slice(0, 8)}`,
+      nodeId: input.nodeId || `intent-model1-phone-${crypto.randomUUID().slice(0, 8)}`,
       profileId: 'mobile-companion',
-      label: input.label || 'Phase 11 Phone',
+      label: input.label || 'Intent model1 Phone',
       kind: 'mobile',
       transport: 'remote',
       capabilityIds: input.capabilityIds,
       approvedCapabilityIds: input.approvedCapabilityIds,
-      requestedBy: 'phase-11-satellite-device-live-plane',
+      requestedBy: 'checkpoint-11-satellite-device-live-plane',
       hostHints: {
-        hostname: 'phase-11-phone',
+        hostname: 'checkpoint-11-phone',
         platform: 'browser-pwa',
         surface: 'satellite-pwa',
         deviceModel: 'Browser Phone',
-        appVersion: 'phase-11',
+        appVersion: 'checkpoint-11',
         networkType: 'loopback-smoke',
       },
-      notes: ['Phase 11 Satellite/device live proof.'],
+      notes: ['Intent model1 Satellite/device live proof.'],
     });
   }
 
@@ -366,14 +366,14 @@ export class SatelliteDeviceLiveService {
       pairingCode: draft.pairingCode,
       capabilityIds,
       hostHints: {
-        hostname: 'phase-11-phone',
+        hostname: 'checkpoint-11-phone',
         platform: 'browser-pwa',
         surface: 'satellite-pwa',
         latencyMs: 8,
       },
     });
     if (!claim) {
-      throw new Error('Phase 11 could not claim the Satellite pairing draft.');
+      throw new Error('Intent model1 could not claim the Satellite pairing draft.');
     }
     return claim;
   }
@@ -389,14 +389,14 @@ export class SatelliteDeviceLiveService {
       capabilityId,
       action,
       payload,
-      requestedBy: 'phase-11-satellite-device-live-plane',
+      requestedBy: 'checkpoint-11-satellite-device-live-plane',
       surface: 'satellite-device-live-plane',
       correlation: {
-        approvalId: capabilityId === 'device.confirm' ? 'phase-11-device-confirmation' : null,
+        approvalId: capabilityId === 'device.confirm' ? 'checkpoint-11-device-confirmation' : null,
       },
     });
     if (!result.ok || result.status !== 'queued') {
-      throw new Error(`Phase 11 could not queue ${capabilityId}: ${result.reason}`);
+      throw new Error(`Intent model1 could not queue ${capabilityId}: ${result.reason}`);
     }
     return result;
   }
@@ -413,7 +413,7 @@ export class SatelliteDeviceLiveService {
       status: 'online',
       capabilityIds,
       hostHints: {
-        hostname: 'phase-11-phone',
+        hostname: 'checkpoint-11-phone',
         platform: 'browser-pwa',
         surface: 'satellite-pwa',
         latencyMs: 7,
@@ -429,7 +429,7 @@ export class SatelliteDeviceLiveService {
       })),
     });
     if (!heartbeat) {
-      throw new Error('Phase 11 heartbeat was rejected by the Node Mesh.');
+      throw new Error('Intent model1 heartbeat was rejected by the Node Mesh.');
     }
     return heartbeat;
   }

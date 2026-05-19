@@ -3,7 +3,7 @@ export function buildRuntimeShellHtmlPart2(): string {
           <article class="system-overlord-detail-card">
             <p class="profile-tag">Deliveries</p>
             <ul id="automation-control-plane-deliveries" class="handoff-list compact">
-              <li>Valide o token para revisar app, email e webhook registrados pela Wave F.</li>
+              <li>Valide o token para revisar app, email e webhook registrados pela Scheduled runs.</li>
             </ul>
           </article>
         </div>
@@ -397,7 +397,7 @@ export function buildRuntimeShellHtmlPart2(): string {
       </section>
 
       <section id="eval-control-plane-card" class="handoff-card">
-        <p class="profile-tag">Wave 4</p>
+        <p class="profile-tag">Channel mesh</p>
         <h2>Eval e observabilidade operacional</h2>
         <p class="muted-copy section-note">
           Esta leitura transforma tasks, approvals, workflows, traces e artifacts reais em scorecards, datasets, tendencia historica e regressions operacionais.

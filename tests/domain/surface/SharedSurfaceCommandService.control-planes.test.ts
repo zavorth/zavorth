@@ -19,7 +19,7 @@ describe('SharedSurfaceCommandService', () => {
     (config as any).zavorthSelfmodPolicy = originalSelfmodPolicy;
   });
 
-  it('renders the Wave 9 ecosystem control plane through /ecosystem', async () => {
+  it('renders the Ecosystem ecosystem control plane through /ecosystem', async () => {
     const ctx = {
       platform: 'telegram',
       userId: 'telegram-user',
@@ -29,7 +29,7 @@ describe('SharedSurfaceCommandService', () => {
       reply: jest.fn(async () => undefined),
       editMessage: jest.fn(async () => undefined),
     };
-    const renderReport = jest.fn(() => 'Wave 9: Ecossistema, SDKs e third-party platform\nPostura: healthy.');
+    const renderReport = jest.fn(() => 'Ecosystem: Ecossistema, SDKs e third-party platform\nPostura: healthy.');
     const service = new SharedSurfaceCommandService({
       runtimeDiagnostics: { writeSnapshot: jest.fn(() => ({})) } as any,
       supervisedRuntimeService: { summarizeRecentChanges: jest.fn(), requestReload: jest.fn() } as any,
@@ -48,11 +48,11 @@ describe('SharedSurfaceCommandService', () => {
       query: 'openrouter',
     });
     expect(ctx.reply).toHaveBeenCalledWith(
-      expect.stringContaining('Wave 9: Ecossistema, SDKs e third-party platform'),
+      expect.stringContaining('Ecosystem: Ecossistema, SDKs e third-party platform'),
     );
   });
 
-  it('renders the Wave 10 distributed runtime control plane through /fleet', async () => {
+  it('renders the Distributed runtime distributed runtime control plane through /fleet', async () => {
     const ctx = {
       platform: 'telegram',
       userId: 'telegram-user',
@@ -62,7 +62,7 @@ describe('SharedSurfaceCommandService', () => {
       reply: jest.fn(async () => undefined),
       editMessage: jest.fn(async () => undefined),
     };
-    const renderReport = jest.fn(async () => 'Wave 10: Runtime distribuido e superficies avancadas\nPostura: attention.');
+    const renderReport = jest.fn(async () => 'Distributed runtime: Runtime distribuido e superficies avancadas\nPostura: attention.');
     const service = new SharedSurfaceCommandService({
       runtimeDiagnostics: { writeSnapshot: jest.fn(() => ({})) } as any,
       supervisedRuntimeService: { summarizeRecentChanges: jest.fn(), requestReload: jest.fn() } as any,
@@ -81,7 +81,7 @@ describe('SharedSurfaceCommandService', () => {
       query: 'signal',
     });
     expect(ctx.reply).toHaveBeenCalledWith(
-      expect.stringContaining('Wave 10: Runtime distribuido e superficies avancadas'),
+      expect.stringContaining('Distributed runtime: Runtime distribuido e superficies avancadas'),
     );
   });
 
@@ -151,7 +151,7 @@ describe('SharedSurfaceCommandService', () => {
       reply: jest.fn(async () => undefined),
       editMessage: jest.fn(async () => undefined),
     };
-    const renderReport = jest.fn(async () => 'Wave A: Natural Setup Agent\nPostura: attention.');
+    const renderReport = jest.fn(async () => 'Natural setup: Natural Setup Agent\nPostura: attention.');
     const service = new SharedSurfaceCommandService({
       runtimeDiagnostics: { writeSnapshot: jest.fn(() => ({})) } as any,
       supervisedRuntimeService: { summarizeRecentChanges: jest.fn(), requestReload: jest.fn() } as any,
@@ -166,7 +166,7 @@ describe('SharedSurfaceCommandService', () => {
 
     expect(handled).toBe(true);
     expect(renderReport).toHaveBeenCalledWith(expect.objectContaining({ intentText: 'quero conectar ao discord' }));
-    expect(ctx.reply).toHaveBeenCalledWith(expect.stringContaining('Wave A: Natural Setup Agent'));
+    expect(ctx.reply).toHaveBeenCalledWith(expect.stringContaining('Natural setup: Natural Setup Agent'));
   });
 
   it('renders the automation control plane through /automations', async () => {
@@ -179,7 +179,7 @@ describe('SharedSurfaceCommandService', () => {
       reply: jest.fn(async () => undefined),
       editMessage: jest.fn(async () => undefined),
     };
-    const renderReport = jest.fn(async () => 'Wave F: Automations e scheduled runs\nPostura: attention.');
+    const renderReport = jest.fn(async () => 'Scheduled runs: Automations e scheduled runs\nPostura: attention.');
     const service = new SharedSurfaceCommandService({
       runtimeDiagnostics: { writeSnapshot: jest.fn(() => ({})) } as any,
       supervisedRuntimeService: { summarizeRecentChanges: jest.fn(), requestReload: jest.fn() } as any,
@@ -194,7 +194,7 @@ describe('SharedSurfaceCommandService', () => {
 
     expect(handled).toBe(true);
     expect(renderReport).toHaveBeenCalledWith();
-    expect(ctx.reply).toHaveBeenCalledWith(expect.stringContaining('Wave F: Automations e scheduled runs'));
+    expect(ctx.reply).toHaveBeenCalledWith(expect.stringContaining('Scheduled runs: Automations e scheduled runs'));
   });
 
   it('creates automations from natural language through /automations', async () => {
@@ -341,7 +341,7 @@ describe('SharedSurfaceCommandService', () => {
       reply: jest.fn(async () => undefined),
       editMessage: jest.fn(async () => undefined),
     };
-    const renderReport = jest.fn(() => 'Wave C: Watch Mode supervisionado\nPostura: healthy.');
+    const renderReport = jest.fn(() => 'Watch mode: Watch Mode supervisionado\nPostura: healthy.');
     const setStrictApprovalDefault = jest.fn();
     const service = new SharedSurfaceCommandService({
       runtimeDiagnostics: { writeSnapshot: jest.fn(() => ({})) } as any,
@@ -812,7 +812,7 @@ describe('SharedSurfaceCommandService', () => {
     expect(handled).toBe(true);
     expect(ctx.reply).toHaveBeenCalledWith(expect.stringContaining('Acesso remoto oficial: pendente | Ainda falta validar a URL publica oficial.'));
     expect(ctx.reply).toHaveBeenCalledWith(expect.stringContaining('Paridade entre superficies: Web e Telegram estao alinhados para access, bootstrap e workflow.'));
-    expect(ctx.reply).toHaveBeenCalledWith(expect.stringContaining('Fases oficiais ainda pendentes:'));
+    expect(ctx.reply).toHaveBeenCalledWith(expect.stringContaining('Etapas oficiais ainda pendentes:'));
     expect(ctx.reply).toHaveBeenCalledWith(expect.stringContaining('Autostart no sistema: npm run launcher:startup:install'));
   });
 

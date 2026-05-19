@@ -24,7 +24,7 @@ const snapshot = {
 if (asJson) {
   console.log(JSON.stringify(snapshot, null, 2));
 } else {
-  console.log('[zavorth-scheduled-task-operational-guard] checking Phase 5');
+  console.log('[zavorth-scheduled-task-operational-guard] checking Credential vault');
   printRules(rules, '[zavorth-scheduled-task-operational-guard]');
 }
 if (failed.length > 0) process.exitCode = 1;
@@ -39,13 +39,13 @@ function ruleFilesExist() {
     'docs/README.md',
   ];
   const missing = files.filter((file) => !fs.existsSync(path.join(root, file)));
-  return rule('scheduled-task-operational-guard-files', 'Phase 5 files exist', missing.length === 0, `${files.length - missing.length}/${files.length}`, 'contract, service, CLI, check, tests and docs are present', missing);
+  return rule('scheduled-task-operational-guard-files', 'Credential vault files exist', missing.length === 0, `${files.length - missing.length}/${files.length}`, 'contract, service, CLI, check, tests and docs are present', missing);
 }
 
 function ruleMarkers() {
   const checks = [
     ['src/contracts/ZavorthScheduledTaskOperationalGuardContract.ts', ['ZAVORTH_SCHEDULED_TASK_OPERATIONAL_GUARD_CONTRACT_VERSION', 'approvalExpiredTasks', 'explicitApplyRequiredForAutoPause']],
-    ['src/services/ZavorthScheduledTaskOperationalGuardService.ts', ['phase-5-renewal-expiry-auto-pause', 'approval_expired', 'auto_pause_recommended', 'noWorkloadExecution']],
+    ['src/services/ZavorthScheduledTaskOperationalGuardService.ts', ['checkpoint-5-renewal-expiry-auto-pause', 'approval_expired', 'auto_pause_recommended', 'noWorkloadExecution']],
     ['src/services/ZavorthAutomationActionService.ts', ["'reapprove'", 'automation-reapprove']],
     ['src/domain/surface/application/shared-surface/SharedSurfaceOperationsCommandPack.ts', ['reapprove|renew']],
     ['src/telegram/controllers/TelegramSchedulerController.ts', ['reapprove|renew']],
@@ -61,7 +61,7 @@ function ruleMarkers() {
       if (!text.includes(needle)) missing.push(`${file}: missing ${needle}`);
     }
   }
-  return rule('scheduled-task-operational-guard-markers', 'Phase 5 markers are wired', missing.length === 0, missing.length === 0 ? 'all markers' : `${missing.length} missing`, 'contract, service, action, surface and control-plane markers exist', missing);
+  return rule('scheduled-task-operational-guard-markers', 'Credential vault markers are wired', missing.length === 0, missing.length === 0 ? 'all markers' : `${missing.length} missing`, 'contract, service, action, surface and control-plane markers exist', missing);
 }
 
 function runHealthyFixture() {
@@ -93,7 +93,7 @@ function runAutoPauseFixture() {
 function ruleWorkspaceCheck() {
   const text = read('package.json');
   const marker = 'node scripts/zavorth-scheduled-task-operational-guard-check.mjs';
-  return rule('workspace-check-wire', 'workspace:check includes Phase 5 operational guard gate', text.includes(marker), text.includes(marker) ? 'wired' : 'missing', marker, []);
+  return rule('workspace-check-wire', 'workspace:check includes Credential vault operational guard gate', text.includes(marker), text.includes(marker) ? 'wired' : 'missing', marker, []);
 }
 
 function ruleNoPublicExternalNames() {
@@ -114,7 +114,7 @@ function ruleNoPublicExternalNames() {
       if (text.includes(word)) hits.push(`${file}: ${word}`);
     }
   }
-  return rule('no-public-external-names', 'Phase 5 public core remains neutral', hits.length === 0, hits.length === 0 ? 'neutral' : `${hits.length} hit(s)`, 'no external product names in public core files', hits);
+  return rule('no-public-external-names', 'Credential vault public core remains neutral', hits.length === 0, hits.length === 0 ? 'neutral' : `${hits.length} hit(s)`, 'no external product names in public core files', hits);
 }
 
 function runTs(args) {

@@ -1,6 +1,6 @@
 import type { LiveReadinessStatus } from './LiveReadinessContract.js';
 
-export const ZAVORTH_DIAGNOSTICS_QA_MIGRATION_LIVE_PLANE_CONTRACT_VERSION = '2026-05-05.live-phase-10' as const;
+export const ZAVORTH_DIAGNOSTICS_QA_MIGRATION_LIVE_PLANE_CONTRACT_VERSION = '2026-05-05.live-checkpoint-10' as const;
 
 export type DiagnosticsQaMigrationLiveTargetId =
   | 'diagnostics-otel'
@@ -117,7 +117,7 @@ export type DiagnosticsQaMigrationLiveEntry = {
 export type DiagnosticsQaMigrationLivePlaneSnapshot = {
   generatedAt: string;
   contractVersion: typeof ZAVORTH_DIAGNOSTICS_QA_MIGRATION_LIVE_PLANE_CONTRACT_VERSION;
-  phase: 'Phase 10 - Diagnostics, QA And Migration Live Plane';
+  phase: 'Intent model0 - Diagnostics, QA And Migration Live Plane';
   status: 'closed' | 'attention' | 'blocked';
   summary: {
     targets: 9;
@@ -136,13 +136,13 @@ export type DiagnosticsQaMigrationLivePlaneSnapshot = {
     blocked: number;
     diagnosticsMarkedLiveBySyntheticSnapshot: false;
     migrationMarkedLiveByPlanOnly: false;
-    liveIoRequiredByPhase10Check: false;
+    liveIoRequiredByLiveCandidateCheck: false;
     secretValuesSerialized: false;
   };
   entries: DiagnosticsQaMigrationLiveEntry[];
   receipts: DiagnosticsQaMigrationLiveReceipt[];
   policy: {
-    noLiveIoDuringPhase10Check: true;
+    noLiveIoDuringLiveCandidateCheck: true;
     otelExportArtifactRequired: true;
     prometheusScrapeProofRequired: true;
     realHealthMetricsRequired: true;
@@ -159,6 +159,6 @@ export type DiagnosticsQaMigrationLivePlaneSnapshot = {
     stagingLiveSmoke: 'npm run diagnostics-qa-migration-live-plane -- --profile staging-live --target <target> --confirm-live-io';
     focusedTests: string[];
     typecheck: 'npm run runtime:check --silent';
-    nextPhase: 'Phase 11 - Satellite And Device Live Plane';
+    nextStage: 'Intent model1 - Satellite And Device Live Plane';
   };
 };

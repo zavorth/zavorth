@@ -19,7 +19,7 @@ const requiredFiles = [
   'tests/services/ZavorthReadyToGoService.test.ts',
   'tests/services/ZavorthStayOnlineService.test.ts',
   'tests/services/ZavorthProviderLiveProofStoreService.test.ts',
-  'docs/36-runtime-readiness.md',
+  'docs/runtime-readiness.md',
 ];
 
 const requiredMarkers = {

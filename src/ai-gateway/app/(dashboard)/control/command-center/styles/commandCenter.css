@@ -1144,7 +1144,7 @@
   background: rgba(255, 255, 255, 0.035);
 }
 
-/* Phase 7: premium Command Center polish inspired by the prototype. */
+/* Surface controls: premium Command Center polish inspired by the prototype. */
 .bcc-bridge {
   min-height: 58px;
   border-radius: 0;
@@ -1407,7 +1407,7 @@
   background: var(--b-pulse);
 }
 
-/* Phase 8: fixture-driven cockpit polish. */
+/* Dashboard controls: fixture-driven cockpit polish. */
 .bcc-mission-brief {
   display: grid;
   grid-template-columns: minmax(0, 1.35fr) minmax(320px, 1fr) minmax(180px, 0.42fr);

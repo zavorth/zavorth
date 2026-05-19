@@ -98,7 +98,7 @@ export class CapabilityAutopilotRepairExecutionService {
         validationRequired: false,
         resumeIntent: input.repairPlan.resumeIntent || null,
         metadata: {
-          phase: 'capability-autopilot-phase-62',
+          phase: 'capability-autopilot-checkpoint-62',
           blockedReason: `permission_${permissionStatus}`,
         },
         validationRuns: [],
@@ -173,7 +173,7 @@ export class CapabilityAutopilotRepairExecutionService {
       validationRequired: hasExecutableStep && !dryRun,
       resumeIntent: input.repairPlan.resumeIntent || null,
       metadata: {
-        phase: 'capability-autopilot-phase-62',
+        phase: 'capability-autopilot-checkpoint-62',
         validateAfterEachStep,
         stoppedAfterResume,
         executableSteps: steps.filter((step) => step.command).length,
@@ -193,7 +193,7 @@ export class CapabilityAutopilotRepairExecutionService {
     const finishedAt = this.now().toISOString();
     if (!input.step.command) {
       return this.stepResult(input.step, 'skipped', input.startedAt, finishedAt, {
-        summary: 'Step nao possui comando executavel nesta fase.',
+        summary: 'Step nao possui comando executavel nesta etapa.',
         detail: 'Apenas steps com CapabilityRepairCommand sao elegiveis para execucao controlada.',
       });
     }
@@ -225,7 +225,7 @@ export class CapabilityAutopilotRepairExecutionService {
     if (!this.runner) {
       return this.stepResult(input.step, 'failed', input.startedAt, finishedAt, {
         summary: 'Runner de repair nao configurado.',
-        detail: 'A Fase 62 exige runner injetado para executar comandos reais com seguranca.',
+        detail: 'A Etapa 62 exige runner injetado para executar comandos reais com seguranca.',
       });
     }
 

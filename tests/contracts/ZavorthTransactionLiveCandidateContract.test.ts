@@ -5,7 +5,7 @@ import {
 } from '../../src/contracts/ZavorthTransactionLiveCandidateContract.js';
 
 describe('ZavorthTransactionLiveCandidateContract', () => {
-  it('publishes the Phase 10 live-candidate contract', () => {
+  it('publishes the Intent model0 live-candidate contract', () => {
     const snapshot = buildZavorthTransactionLiveCandidateContractSnapshot();
 
     expect(snapshot.version).toBe(ZAVORTH_TRANSACTION_LIVE_CANDIDATE_CONTRACT_VERSION);
@@ -17,7 +17,7 @@ describe('ZavorthTransactionLiveCandidateContract', () => {
       'candidate-ready',
     ]);
     expect(snapshot.gateKinds).toEqual([
-      'phase9-certification',
+      'certification-matrix-certification',
       'command-center-simulated',
       'approval-ledger-approved',
       'credential-ref-ready',
@@ -33,10 +33,10 @@ describe('ZavorthTransactionLiveCandidateContract', () => {
 
     expect(snapshot.invariants).toEqual(
       expect.arrayContaining([
-        'Phase 10 may produce a live-candidate envelope, but it still cannot execute a live transaction.',
-        'A candidate-ready envelope requires Phase 9 certification to pass first.',
+        'Intent model0 may produce a live-candidate envelope, but it still cannot execute a live transaction.',
+        'A candidate-ready envelope requires Certification matrix certification to pass first.',
         'A candidate-ready envelope requires explicit owner confirmation using the required phrase.',
-        'Every Phase 10 result reports externalSideEffects=false, liveExecutionAuthorized=false, executableNow=false and liveActionApplied=false.',
+        'Every Intent model0 result reports externalSideEffects=false, liveExecutionAuthorized=false, executableNow=false and liveActionApplied=false.',
       ]),
     );
   });

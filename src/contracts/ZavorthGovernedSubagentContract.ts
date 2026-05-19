@@ -7,7 +7,7 @@ import type {
 import type { ZavorthUniversalSkillPermissionProfileId } from './ZavorthUniversalSkillIntakeContract.js';
 
 export const ZAVORTH_GOVERNED_SUBAGENT_CONTRACT_VERSION =
-  '2026-05-10.governed-subagent-phase-2' as const;
+  '2026-05-10.governed-subagent-checkpoint-2' as const;
 
 export type ZavorthGovernedSubagentStatus =
   | 'passed'
@@ -126,6 +126,6 @@ export type ZavorthGovernedSubagentSnapshot = {
     previewJson: 'npm run zavorth:governed-subagents:json';
     prepareDeveloper: 'npm run zavorth:governed-subagents -- --preset developer --prepare';
     check: 'npm run zavorth:governed-subagents:check --silent';
-    nextPhase: 'Phase 3 - Large Skill Absorption Pipeline';
+    nextStage: 'Approval gate - Large Skill Absorption Pipeline';
   };
 };

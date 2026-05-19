@@ -31,7 +31,7 @@ const snapshot = {
 if (asJson) {
   console.log(JSON.stringify(snapshot, null, 2));
 } else {
-  console.log('[zavorth-universal-skill-bridge] checking Phase 3');
+  console.log('[zavorth-universal-skill-bridge] checking Approval gate');
   for (const rule of rules) {
     const marker = rule.status === 'passed' ? 'ok' : 'fail';
     console.log(`[zavorth-universal-skill-bridge] ${marker} ${rule.label}: ${rule.observed} | ${rule.target}`);
@@ -57,7 +57,7 @@ function ruleFilesExist() {
   const missing = files.filter((file) => !fs.existsSync(path.join(root, file)));
   return {
     id: 'universal-skill-bridge-files',
-    label: 'Phase 3 files exist',
+    label: 'Approval gate files exist',
     status: missing.length === 0 ? 'passed' : 'failed',
     observed: `${files.length - missing.length}/${files.length} file(s) present`,
     target: 'contract, runtime service, CLI, check and tests are present',
@@ -73,7 +73,7 @@ function ruleContainsMarkers() {
       'importedOnlyByDefault',
       'untrustedSkillContent',
       'noUpstreamRuntimeCodeExecuted',
-      'Phase 4 - Expansion Registry and Catalog Integration',
+      'Connector registry - Expansion Registry and Catalog Integration',
     ]],
     ['src/skills/UniversalSkillBridgeRuntimeService.ts', [
       'detectPromptInjectionIndicators',
@@ -104,7 +104,7 @@ function ruleContainsMarkers() {
   }
   return {
     id: 'universal-skill-bridge-markers',
-    label: 'Phase 3 markers are present',
+    label: 'Approval gate markers are present',
     status: missing.length === 0 ? 'passed' : 'failed',
     observed: missing.length === 0 ? 'all markers present' : `${missing.length} missing marker(s)`,
     target: 'source has policy broker, approval, prompt-injection and no-execution markers',
@@ -202,6 +202,26 @@ function runPromptInjectionDenialFixture() {
 
 function createImportedFixture(input) {
   const rootDir = fs.mkdtempSync(path.join(os.tmpdir(), 'zavorth-usb-'));
+  fs.mkdirSync(path.join(rootDir, 'config'), { recursive: true });
+  fs.writeFileSync(path.join(rootDir, 'config', 'skill-sources.json'), JSON.stringify({
+    version: 1,
+    updatedAt: '2026-05-10T15:00:00.000Z',
+    sources: [
+      {
+        id: 'workspace-imported-library',
+        label: 'Workspace imported skill library',
+        kind: 'workspace',
+        trust: 'review',
+        enabled: true,
+        ingestionMode: 'local-scan',
+        path: 'skill-library/imported',
+        createIfMissing: false,
+        ownership: 'curated-import',
+        registrySource: 'zavorth:curated-import',
+        notes: ['Fixture source for governed bridge checks.'],
+      },
+    ],
+  }, null, 2), 'utf8');
   const skillDir = path.join(rootDir, 'skill-library', 'imported', input.skillName);
   fs.mkdirSync(path.join(skillDir, 'references'), { recursive: true });
   fs.writeFileSync(path.join(skillDir, 'SKILL.md'), [

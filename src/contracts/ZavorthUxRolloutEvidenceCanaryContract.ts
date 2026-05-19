@@ -5,7 +5,7 @@ import type {
 } from './ZavorthOperationalRolloutEvalContract.js';
 
 export const ZAVORTH_UX_ROLLOUT_EVIDENCE_CANARY_CONTRACT_VERSION =
-  '2026-05-11.ux-rollout-evidence-canary-phase-7' as const;
+  '2026-05-11.ux-rollout-evidence-canary-checkpoint-7' as const;
 
 export type ZavorthUxRolloutEvidenceCanaryStatus =
   | 'ready-for-dry-run-canary'
@@ -96,7 +96,7 @@ export type ZavorthUxRolloutCanaryPlan = {
 export type ZavorthUxRolloutReceipt = {
   id: string;
   kind:
-    | 'phase-7-ux-evidence-review'
+    | 'checkpoint-7-ux-evidence-review'
     | 'evidence-redaction'
     | 'canary-plan'
     | 'live-approval-boundary'
@@ -121,7 +121,7 @@ export type ZavorthUxRolloutEvidenceCanarySnapshot = {
   generatedAt: string;
   contractVersion: typeof ZAVORTH_UX_ROLLOUT_EVIDENCE_CANARY_CONTRACT_VERSION;
   source: 'ZavorthUxRolloutEvidenceCanaryService';
-  phase: 'phase-7-ux-rollout-evidence-canary';
+  phase: 'checkpoint-7-ux-rollout-evidence-canary';
   status: ZavorthUxRolloutEvidenceCanaryStatus;
   rolloutEval: ZavorthOperationalRolloutEvalSnapshot;
   sanitizedEvidence: ZavorthUxEvidenceSanitizedItem[];
@@ -143,7 +143,7 @@ export type ZavorthUxRolloutEvidenceCanarySnapshot = {
     report: 'npx tsx scripts/zavorth-ux-rollout-evidence-canary.ts';
     json: 'npx tsx scripts/zavorth-ux-rollout-evidence-canary.ts --json';
     check: 'node scripts/zavorth-ux-rollout-evidence-canary-check.mjs';
-    nextPhase: 'Phase 8 - Live Canary Execution Adapter Review';
+    nextStage: 'Dashboard controls - Live Canary Execution Adapter Review';
   };
   narrative: {
     headline: string;

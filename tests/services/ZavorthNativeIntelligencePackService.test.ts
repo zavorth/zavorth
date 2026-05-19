@@ -1,7 +1,7 @@
 import path from 'path';
 import { ZavorthNativeIntelligencePackService } from '../../src/services/ZavorthNativeIntelligencePackService.js';
 
-describe('ZavorthNativeIntelligencePackService Phase 1', () => {
+describe('ZavorthNativeIntelligencePackService Intent model', () => {
   const projectRoot = process.cwd();
 
   it('publishes the native intelligence pack with presets and no execution', () => {
@@ -11,7 +11,7 @@ describe('ZavorthNativeIntelligencePackService Phase 1', () => {
     }).buildSnapshot({ projectRoot });
 
     expect(snapshot.status).toBe('passed');
-    expect(snapshot.contractVersion).toBe('2026-05-10.native-intelligence-phase-1');
+    expect(snapshot.contractVersion).toBe('2026-05-10.native-intelligence-checkpoint-1');
     expect(snapshot.nativeRootPath).toBe(path.join(projectRoot, 'skill-library', 'native'));
     expect(snapshot.summary).toEqual(expect.objectContaining({
       nativeSkills: 15,

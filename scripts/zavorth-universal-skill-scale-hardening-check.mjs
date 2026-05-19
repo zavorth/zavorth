@@ -31,7 +31,7 @@ const snapshot = {
 if (asJson) {
   console.log(JSON.stringify(snapshot, null, 2));
 } else {
-  console.log('[zavorth-universal-skill-scale-hardening] checking Phase 9');
+  console.log('[zavorth-universal-skill-scale-hardening] checking Certification matrix');
   for (const rule of rules) {
     const marker = rule.status === 'passed' ? 'ok' : 'fail';
     console.log(`[zavorth-universal-skill-scale-hardening] ${marker} ${rule.label}: ${rule.observed} | ${rule.target}`);
@@ -58,7 +58,7 @@ function ruleFilesExist() {
   const missing = files.filter((file) => !fs.existsSync(path.join(root, file)));
   return {
     id: 'universal-skill-scale-hardening-files',
-    label: 'Phase 9 files exist',
+    label: 'Certification matrix files exist',
     status: missing.length === 0 ? 'passed' : 'failed',
     observed: `${files.length - missing.length}/${files.length} file(s) present`,
     target: 'scale hardening contract, service, CLI, check, docs and tests are present',
@@ -71,10 +71,10 @@ function ruleContainsMarkers() {
     ['src/contracts/ZavorthUniversalSkillScaleHardeningContract.ts', [
       'ZAVORTH_UNIVERSAL_SKILL_SCALE_HARDENING_CONTRACT_VERSION',
       'noVisualChangeWithoutOwnerApproval',
-      'Phase 10 - Approved Dashboard Implementation and Live Scale Canary',
+      'Intent model0 - Approved Dashboard Implementation and Live Scale Canary',
     ]],
     ['src/services/UniversalSkillScaleHardeningService.ts', [
-      'phase8OnboardingIsAuthority',
+      'dashboardControlsOnboardingIsAuthority',
       'buildDashboardReviewItems',
       'canaryBeforeBulkApply',
       'dashboardReviewDoesNotChangeVisuals',
@@ -106,7 +106,7 @@ function ruleContainsMarkers() {
   }
   return {
     id: 'universal-skill-scale-hardening-markers',
-    label: 'Phase 9 markers are present',
+    label: 'Certification matrix markers are present',
     status: missing.length === 0 ? 'passed' : 'failed',
     observed: missing.length === 0 ? 'all markers present' : `${missing.length} missing marker(s)`,
     target: 'scale hardening has batch, canary, dashboard review and no-visual-mutation markers',
@@ -146,7 +146,7 @@ function runScaleGateFixture() {
     return runScaleRule({
       id: 'universal-skill-scale-hardening-scale-gate',
       label: 'Blocks when lower phase scale gate blocks',
-      target: 'max-candidates gate propagates blocked status into Phase 9',
+      target: 'max-candidates gate propagates blocked status into Certification matrix',
       args: [
         '--project-root', fixture.root,
         '--source', fixture.source,
@@ -155,7 +155,7 @@ function runScaleGateFixture() {
         '--json',
       ],
       expect: (snapshot) => snapshot.status === 'blocked'
-        && snapshot.gates.some((gate) => gate.id === 'phase8-onboarding' && gate.status === 'blocked')
+        && snapshot.gates.some((gate) => gate.id === 'dashboard-controls-onboarding' && gate.status === 'blocked')
         && snapshot.rollout.recommendedMode === 'hold',
     });
   } finally {

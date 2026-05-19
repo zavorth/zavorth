@@ -28,7 +28,7 @@ const snapshot = {
 if (asJson) {
   console.log(JSON.stringify(snapshot, null, 2));
 } else {
-  console.log('[zavorth-scheduled-task-runtime] checking Phase 2');
+  console.log('[zavorth-scheduled-task-runtime] checking Preview engine');
   printRules(rules, '[zavorth-scheduled-task-runtime]');
 }
 if (failed.length > 0) process.exitCode = 1;
@@ -43,13 +43,13 @@ function ruleFilesExist() {
     'docs/README.md',
   ];
   const missing = files.filter((file) => !fs.existsSync(path.join(root, file)));
-  return rule('scheduled-task-runtime-files', 'Phase 2 files exist', missing.length === 0, `${files.length - missing.length}/${files.length}`, 'contract, service, CLI, check, tests and docs are present', missing);
+  return rule('scheduled-task-runtime-files', 'Preview engine files exist', missing.length === 0, `${files.length - missing.length}/${files.length}`, 'contract, service, CLI, check, tests and docs are present', missing);
 }
 
 function ruleMarkers() {
   const checks = [
     ['src/contracts/ZavorthScheduledTaskRuntimeContract.ts', ['ZAVORTH_SCHEDULED_TASK_RUNTIME_CONTRACT_VERSION', 'dry_run_submitted', 'gateway_unavailable', 'usesExecutionGatewaySubmit']],
-    ['src/services/ZavorthScheduledTaskExecutionGatewayRuntimeService.ts', ['phase-2-scheduled-task-execution-gateway', 'gateway.submit', 'ZavorthGovernedScheduledTaskRegistryService', 'ScheduledTaskDryRunGateway']],
+    ['src/services/ZavorthScheduledTaskExecutionGatewayRuntimeService.ts', ['checkpoint-2-scheduled-task-execution-gateway', 'gateway.submit', 'ZavorthGovernedScheduledTaskRegistryService', 'ScheduledTaskDryRunGateway']],
     ['scripts/zavorth-scheduled-task-runtime.ts', ['--submit', '--live', '--override-command', '--kill-switch']],
     ['src/sdk/contracts.ts', ['ZavorthScheduledTaskRuntimeContract']],
     ['src/sdk/index.ts', ['ZavorthScheduledTaskExecutionGatewayRuntimeService']],
@@ -61,13 +61,13 @@ function ruleMarkers() {
       if (!text.includes(needle)) missing.push(`${file}: missing ${needle}`);
     }
   }
-  return rule('scheduled-task-runtime-markers', 'Phase 2 markers are wired', missing.length === 0, missing.length === 0 ? 'all markers' : `${missing.length} missing`, 'contract, service, SDK and CLI markers exist', missing);
+  return rule('scheduled-task-runtime-markers', 'Preview engine markers are wired', missing.length === 0, missing.length === 0 ? 'all markers' : `${missing.length} missing`, 'contract, service, SDK and CLI markers exist', missing);
 }
 
 function runNeedsReapprovalFixture() {
   const result = runTs(['--json']);
   return jsonRule('scheduled-task-runtime-needs-reapproval', 'Missing approval prevents runtime submit', result, (snapshot) =>
-    snapshot.contractVersion === '2026-05-12.scheduled-task-execution-gateway-phase-2'
+    snapshot.contractVersion === '2026-05-12.scheduled-task-execution-gateway-checkpoint-2'
     && snapshot.status === 'needs_reapproval'
     && snapshot.summary.gatewayCalled === false
     && snapshot.summary.executionPerformed === false
@@ -159,7 +159,7 @@ function approvedArgs() {
 function ruleWorkspaceCheck() {
   const text = read('package.json');
   const marker = 'node scripts/zavorth-scheduled-task-runtime-check.mjs';
-  return rule('workspace-check-wire', 'workspace:check includes Phase 2 scheduled runtime gate', text.includes(marker), text.includes(marker) ? 'wired' : 'missing', marker, []);
+  return rule('workspace-check-wire', 'workspace:check includes Preview engine scheduled runtime gate', text.includes(marker), text.includes(marker) ? 'wired' : 'missing', marker, []);
 }
 
 function ruleNoPublicExternalNames() {
@@ -176,7 +176,7 @@ function ruleNoPublicExternalNames() {
       if (text.includes(word)) hits.push(`${file}: ${word}`);
     }
   }
-  return rule('no-public-external-names', 'Phase 2 public core remains neutral', hits.length === 0, hits.length === 0 ? 'neutral' : `${hits.length} hit(s)`, 'no external product names in public core files', hits);
+  return rule('no-public-external-names', 'Preview engine public core remains neutral', hits.length === 0, hits.length === 0 ? 'neutral' : `${hits.length} hit(s)`, 'no external product names in public core files', hits);
 }
 
 function runTs(args) {

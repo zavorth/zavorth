@@ -2,7 +2,7 @@ import type { ZavorthScheduledTaskRuntimeSnapshot } from './ZavorthScheduledTask
 import type { ZavorthScheduledTaskInput } from './ZavorthScheduledTaskContract.js';
 
 export const ZAVORTH_SCHEDULED_TASK_PERSISTENCE_CONTRACT_VERSION =
-  '2026-05-12.persisted-scheduled-task-registration-phase-3' as const;
+  '2026-05-12.persisted-scheduled-task-registration-checkpoint-3' as const;
 
 export type ZavorthScheduledTaskPersistenceAction =
   | 'preview'
@@ -52,7 +52,7 @@ export type ZavorthPersistedScheduledTask = {
 
 export type ZavorthPersistedScheduledTaskGovernedMetadata = {
   contractVersion: string;
-  phase: 'phase-3-persisted-scheduled-task-registration';
+  phase: 'checkpoint-3-persisted-scheduled-task-registration';
   registryStatus: string;
   approvalId: string | null;
   approvalExpiresAt: string | null;
@@ -105,7 +105,7 @@ export type ZavorthScheduledTaskPersistenceCheck = {
 export type ZavorthScheduledTaskPersistenceReceipt = {
   id: string;
   kind:
-    | 'phase-3-persisted-scheduled-task-registration'
+    | 'checkpoint-3-persisted-scheduled-task-registration'
     | 'runtime-consumed'
     | 'scheduler-task-created'
     | 'scheduler-task-paused'
@@ -119,7 +119,7 @@ export type ZavorthScheduledTaskPersistenceReceipt = {
 };
 
 export type ZavorthScheduledTaskPersistenceSafety = {
-  persistsOnlyPhase2ReadyRuntime: true;
+  persistsOnlyStage2ReadyRuntime: true;
   storesGovernedScopeInGuardrails: true;
   storesBudgetsInSchedulerMetadata: true;
   pauseResumeRevokeUseSchedulerService: true;
@@ -132,7 +132,7 @@ export type ZavorthScheduledTaskPersistenceSnapshot = {
   generatedAt: string;
   contractVersion: typeof ZAVORTH_SCHEDULED_TASK_PERSISTENCE_CONTRACT_VERSION;
   source: 'ZavorthScheduledTaskPersistenceService';
-  phase: 'phase-3-persisted-scheduled-task-registration';
+  phase: 'checkpoint-3-persisted-scheduled-task-registration';
   status: ZavorthScheduledTaskPersistenceStatus;
   action: ZavorthScheduledTaskPersistenceAction;
   runtime: ZavorthScheduledTaskRuntimeSnapshot;

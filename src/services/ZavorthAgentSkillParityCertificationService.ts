@@ -7,7 +7,7 @@ import { ZavorthNaturalInvocationRouter } from './ZavorthNaturalInvocationRouter
 import { ZavorthSkillAbsorptionMaterializationService } from './ZavorthSkillAbsorptionMaterializationService.js';
 
 export const ZAVORTH_AGENT_SKILL_PARITY_CERTIFICATION_VERSION =
-  '2026-05-10.agent-skill-parity-phase-9' as const;
+  '2026-05-10.agent-skill-parity-checkpoint-9' as const;
 
 export type ZavorthAgentSkillParityFeatureId =
   | 'explicit_spawn'
@@ -187,7 +187,7 @@ export class ZavorthAgentSkillParityCertificationService {
 
   public formatSnapshotText(snapshot: ZavorthAgentSkillParitySnapshot): string {
     const lines = [
-      'Zavorth Agent + Skill Parity Certification - Phase 9',
+      'Zavorth Agent + Skill Parity Certification - Certification matrix',
       '',
       `Status: ${snapshot.status}`,
       `Features: ${snapshot.summary.passed}/${snapshot.summary.features} passed, attention=${snapshot.summary.attention}, blocked=${snapshot.summary.blocked}`,

@@ -1,17 +1,17 @@
 import type { PluginRegistrySnapshot } from '../services/PluginRegistryService.js';
 import type { ZavorthPluginManifest } from './PluginManifestContract.js';
 
-export const ZAVORTH_OPERATIONAL_PARITY_TOOLING_CONTRACT_VERSION = '2026-05-04.phase-8';
+export const ZAVORTH_OPERATIONAL_PARITY_TOOLING_CONTRACT_VERSION = '2026-05-04.checkpoint-8';
 
 export type OperationalParityPhaseId =
-  | 'phase-1-parity-matrix'
-  | 'phase-2-plugin-os'
-  | 'phase-3-capability-normalization'
-  | 'phase-4-provider-mesh'
-  | 'phase-5-channel-mesh'
-  | 'phase-6-satellite-apps'
-  | 'phase-7-memory-artifacts'
-  | 'phase-8-operational-tooling';
+  | 'checkpoint-1-parity-matrix'
+  | 'checkpoint-2-plugin-os'
+  | 'checkpoint-3-capability-normalization'
+  | 'checkpoint-4-provider-mesh'
+  | 'checkpoint-5-channel-mesh'
+  | 'checkpoint-6-satellite-apps'
+  | 'checkpoint-7-memory-artifacts'
+  | 'checkpoint-8-operational-tooling';
 
 export type OperationalParityStatus = 'passed' | 'attention' | 'blocked';
 
@@ -110,7 +110,7 @@ export type OperationalParitySnapshot = {
     staticGate: string;
     focusedTests: string[];
     typecheck: string;
-    nextPhase: string;
+    nextStage: string;
   };
   certification: {
     releaseReady: boolean;

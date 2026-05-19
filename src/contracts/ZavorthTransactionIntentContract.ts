@@ -5,7 +5,7 @@ import type {
   ZavorthTransactionRiskLevel,
 } from './ZavorthTransactionPlaneContract.js';
 
-export const ZAVORTH_TRANSACTION_INTENT_CONTRACT_VERSION = 'zavorth-transaction-intent/phase-1' as const;
+export const ZAVORTH_TRANSACTION_INTENT_CONTRACT_VERSION = 'zavorth-transaction-intent/checkpoint-1' as const;
 
 export type ZavorthTransactionIntentKind =
   | 'monitor-price'
@@ -209,7 +209,7 @@ export const ZAVORTH_TRANSACTION_INTENT_EXAMPLES: readonly ZavorthTransactionInt
 export function buildZavorthTransactionIntentContractSnapshot(): ZavorthTransactionIntentContractSnapshot {
   return {
     version: ZAVORTH_TRANSACTION_INTENT_CONTRACT_VERSION,
-    summary: 'Natural-language transaction intent contract for Zavorth Transaction Plane Phase 1.',
+    summary: 'Natural-language transaction intent contract for Zavorth Transaction Plane Intent model.',
     supportedIntents: [...ZAVORTH_TRANSACTION_INTENT_SUPPORTED_INTENTS],
     supportedTargets: [...ZAVORTH_TRANSACTION_INTENT_SUPPORTED_TARGETS],
     naturalFirstRoutes: ['light-chat', 'llm-reply', 'tool-preview', 'approval-proposal', 'governed-execution'],

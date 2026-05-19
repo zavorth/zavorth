@@ -7,7 +7,7 @@ import type {
   ProviderRouteKind,
 } from './ModelPickerContract.js';
 
-export const ZAVORTH_PROVIDER_READINESS_MATRIX_CONTRACT_VERSION = '2026-05-14.phase-3-live-completion' as const;
+export const ZAVORTH_PROVIDER_READINESS_MATRIX_CONTRACT_VERSION = '2026-05-14.checkpoint-3-live-completion' as const;
 
 export type ZavorthProviderReadinessStatus =
   | 'ready'

@@ -3,7 +3,7 @@ import type { ZavorthScheduledTaskOperationalGuardSnapshot } from './ZavorthSche
 import type { ZavorthScheduledTaskRuntimeSnapshot } from './ZavorthScheduledTaskRuntimeContract.js';
 
 export const ZAVORTH_SCHEDULED_TASK_LIVE_TICK_CERTIFICATION_CONTRACT_VERSION =
-  '2026-05-12.scheduled-task-live-tick-certification-phase-6' as const;
+  '2026-05-12.scheduled-task-live-tick-certification-checkpoint-6' as const;
 
 export type ZavorthScheduledTaskLiveTickCertificationStatus =
   | 'passed'
@@ -59,7 +59,7 @@ export type ZavorthScheduledTaskLiveTickScenario = {
 export type ZavorthScheduledTaskLiveTickReceipt = {
   id: string;
   kind:
-    | 'phase-6-scheduled-task-live-tick-certification'
+    | 'checkpoint-6-scheduled-task-live-tick-certification'
     | 'operational-guard-consumed'
     | 'scope-drift-check'
     | 'execution-gateway-submit'
@@ -82,7 +82,7 @@ export type ZavorthScheduledTaskLiveTickCertificationSnapshot = {
   generatedAt: string;
   contractVersion: typeof ZAVORTH_SCHEDULED_TASK_LIVE_TICK_CERTIFICATION_CONTRACT_VERSION;
   source: 'ZavorthScheduledTaskLiveTickCertificationService';
-  phase: 'phase-6-scheduler-live-tick-certification';
+  phase: 'checkpoint-6-scheduler-live-tick-certification';
   status: ZavorthScheduledTaskLiveTickCertificationStatus;
   summary: {
     scenarios: number;

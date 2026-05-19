@@ -10,7 +10,7 @@ tags:
   - governance
 sources:
   - skill-library
-  - docs/39-capability-mesh.md
+  - docs/capability-mesh.md
 ---
 
 ## Purpose
@@ -38,7 +38,7 @@ Capture stable facts about Zavorth-native skills and their evolution loop.
 ## Source Links
 
 - `skill-library`
-- `docs/39-capability-mesh.md`
+- `docs/capability-mesh.md`
 
 ## Maintenance Notes
 

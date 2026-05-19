@@ -46,7 +46,7 @@ describe('Zavorth CLI Natural Capability Discovery', () => {
     }));
     const payload = JSON.parse(writes[0] || '{}');
     expect(payload).toEqual(expect.objectContaining({
-      contractVersion: '2026-05-03.wave-29',
+      contractVersion: '2026-05-03.capability-discovery',
       recommendedToolNames: expect.arrayContaining(['write_file', 'shell.exec']),
       safety: expect.objectContaining({
         noExecutionPerformed: true,
@@ -65,7 +65,7 @@ describe('Zavorth CLI Natural Capability Discovery', () => {
 
     const text = formatNaturalCapabilityDiscoverySnapshot(snapshot);
 
-    expect(text).toContain('Natural Capability Discovery - Wave 29');
+    expect(text).toContain('Natural Capability Discovery - Capability Discovery');
     expect(text).toContain('selfmod.preview');
     expect(text).toContain('Command Center: /control?sector=skills');
   });

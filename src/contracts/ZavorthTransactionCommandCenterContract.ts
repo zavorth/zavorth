@@ -8,7 +8,7 @@ import type {
   ZavorthTransactionRuntimeStatus,
 } from './ZavorthTransactionRuntimeContract.js';
 
-export const ZAVORTH_TRANSACTION_COMMAND_CENTER_CONTRACT_VERSION = 'zavorth-transaction-command-center/phase-8' as const;
+export const ZAVORTH_TRANSACTION_COMMAND_CENTER_CONTRACT_VERSION = 'zavorth-transaction-command-center/checkpoint-8' as const;
 
 export type ZavorthTransactionCommandCenterLaneKind =
   | 'intake'
@@ -157,12 +157,12 @@ export type ZavorthTransactionCommandCenterContractSnapshot = {
 export function buildZavorthTransactionCommandCenterContractSnapshot(): ZavorthTransactionCommandCenterContractSnapshot {
   return {
     version: ZAVORTH_TRANSACTION_COMMAND_CENTER_CONTRACT_VERSION,
-    summary: 'Command Center projection contract for Zavorth Transaction Plane Phase 8.',
+    summary: 'Command Center projection contract for Zavorth Transaction Plane Dashboard controls.',
     laneKinds: ['intake', 'natural-first', 'preview', 'approval', 'credential', 'connector', 'ledger', 'safety'],
     tileKinds: ['status', 'action', 'target', 'amount', 'approval', 'credential', 'connector', 'safety'],
     timelineStatuses: ['done', 'pending', 'blocked', 'skipped'],
     invariants: [
-      'Phase 8 is a cockpit projection over Phase 7; it does not introduce execution authority.',
+      'Dashboard controls is a cockpit projection over Surface controls; it does not introduce execution authority.',
       'Every Command Center projection keeps live execution disabled.',
       'Operator actions are visual affordances backed by governed surface actions.',
       'Approval, rejection and credential prompts remain explicit operator decisions.',

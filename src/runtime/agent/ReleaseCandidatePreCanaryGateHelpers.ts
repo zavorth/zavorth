@@ -40,7 +40,7 @@ export function statusLevel(ready: boolean, linked = true, blocked = false): Rel
 
 export function resolveReleaseCandidateNextSafeAction(status: ReleaseCandidatePreCanaryGateStatus): string {
   if (status === 'needs-release-adoption-readiness') {
-    return 'Fechar Wave 53 como release-adoption-ready antes do gate RC/pre-canary.';
+    return 'Fechar Release Adoption Readiness como release-adoption-ready antes do gate RC/pre-canary.';
   }
   if (status === 'needs-evidence-pack') {
     return 'Montar evidence pack com checks, artifacts, release notes, changelog, rollback e known issues.';

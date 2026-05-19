@@ -55,7 +55,7 @@ addCheck(
 
 const service = read('src/services/ZavorthSemanticQaSecurityReleaseCertificationService.ts');
 addCheck(
-  'Service certifies guarded Phase 7 release semantics',
+  'Service certifies guarded Surface controls release semantics',
   [
     'ZavorthQaSecurityReleaseCertificationPackService',
     'familyClaim',
@@ -67,7 +67,7 @@ addCheck(
     'patchRiskClaim',
     'unsafeReleaseClaims',
   ].every((marker) => service.includes(marker)),
-  'service converts Phase 7 QA/security/release evidence into behavior-level semantic claims',
+  'service converts Surface controls QA/security/release evidence into behavior-level semantic claims',
 );
 
 const command = read('scripts/semantic-qa-security-release-certification.ts');
@@ -149,7 +149,7 @@ if (runtime.status !== 0) {
         && snapshot.summary.secretValuesSerialized === false
         && receiptIdsValid
         && claimIdsUnique,
-      `status=${snapshot.status}, claims=${snapshot.summary.semanticClaims}, gaps=${snapshot.summary.gaps}, receiptIdsValid=${receiptIdsValid}, claimIdsUnique=${claimIdsUnique}, next=${snapshot.commands.nextPhase}`,
+      `status=${snapshot.status}, claims=${snapshot.summary.semanticClaims}, gaps=${snapshot.summary.gaps}, receiptIdsValid=${receiptIdsValid}, claimIdsUnique=${claimIdsUnique}, next=${snapshot.commands.nextStage}`,
     );
   } catch (error) {
     addCheck('Runtime S7 semantic receipt passes', false, `invalid JSON: ${error.message}`);

@@ -26,7 +26,7 @@ function createRun(metadata: Record<string, unknown> = {}) {
 
 function releaseBundle(status = 'ready') {
   return {
-    phase: '51',
+    stage: '51',
     surface: 'release-bundle',
     generatedAt: '2026-05-04T02:48:00.000Z',
     status,
@@ -37,15 +37,15 @@ function releaseBundle(status = 'ready') {
     requiredCommands: ['release:status:fast', 'doctor:fast', 'release:changelog', 'release:rollback-preview'],
     screenshots: [],
     checks: [],
-    nextRecommendedPhase: {
-      phase: '52',
+    nextRecommendedStage: {
+      stage: '52',
       title: 'Feedback, Telemetry Opt-In And Product Loop',
-      reason: 'proxima fase',
+      reason: 'proximo passo',
     },
   } as any;
 }
 
-describe('ReleaseInstallerRollbackPathService Wave 48', () => {
+describe('ReleaseInstallerRollbackPathService Channel mesh8', () => {
   it('links Product Entry, Productization Evidence and Public Release Bundle without executing release actions', () => {
     const run = createRun();
     run.metadata.productEntryRuntime = {

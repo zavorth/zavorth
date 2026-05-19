@@ -96,8 +96,8 @@ export class ZavorthExternalSidecarAdapterService {
       generatedAt: this.now().toISOString(),
       contractVersion: ZAVORTH_EXTERNAL_SIDECAR_ADAPTER_CONTRACT_VERSION,
       status,
-      planId: '291 - Plano Zavorth External Runtime Absorption',
-      phase: 'phase-3-sidecar-adapter',
+      planId: 'Zavorth External Runtime Integration',
+      phase: 'sidecar-adapter',
       previousNativeEngineStatus,
       readOnlyProbe,
       inboundGatewayReceipt,
@@ -132,7 +132,7 @@ export class ZavorthExternalSidecarAdapterService {
         inspect: 'npm run zavorth:external-sidecar-adapter',
         inspectJson: 'npm run zavorth:external-sidecar-adapter:json',
         check: 'npm run zavorth:external-sidecar-adapter:check --silent',
-        nextPhase: '291 Phase 4 - Capability Providers',
+        nextStage: '291 Connector registry - Capability Providers',
       },
     };
   }
@@ -418,14 +418,14 @@ export class ZavorthExternalSidecarAdapterService {
         'no sidecar execution',
       ],
       nextSafeAction: input.status === 'sidecar-adapter-ready'
-        ? 'Proceed to 291 Phase 4 - Capability Providers.'
+        ? 'Proceed to 291 Connector registry - Capability Providers.'
         : 'Fix failed adapter acceptance gates before continuing.',
     };
   }
 
   public formatSnapshotText(snapshot: ZavorthExternalSidecarAdapterSnapshot): string {
     const lines = [
-      'Zavorth External Sidecar Adapter - Phase 3',
+      'Zavorth External Sidecar Adapter - Approval gate',
       '',
       `Status: ${snapshot.status}`,
       `Previous native engine: ${snapshot.previousNativeEngineStatus}`,
@@ -447,7 +447,7 @@ export class ZavorthExternalSidecarAdapterService {
       'Acceptance:',
       ...snapshot.acceptanceMatrix.map((entry) => `- ${entry.status} ${entry.requirementId}: ${entry.evidence}`),
       '',
-      `Next: ${snapshot.commands.nextPhase}`,
+      `Next: ${snapshot.commands.nextStage}`,
     ];
     return lines.join('\n');
   }
@@ -470,7 +470,7 @@ function buildAcceptanceMatrix(
   riskyOutboundDryRunReceipt: ZavorthExternalSidecarOutboundDryRunReceipt,
 ): ZavorthExternalSidecarAdapterSnapshot['acceptanceMatrix'] {
   return [
-    acceptance('phase-2-native-engine-ready', previousNativeEngineStatus === 'native-engine-ready', `previousNativeEngineStatus=${previousNativeEngineStatus}`),
+    acceptance('native-engine-ready', previousNativeEngineStatus === 'native-engine-ready', `previousNativeEngineStatus=${previousNativeEngineStatus}`),
     acceptance('read-only-probe-lists-source-surfaces', readOnlyProbe.summary.channels > 0
       && readOnlyProbe.summary.skills > 0
       && readOnlyProbe.summary.tools > 0

@@ -23,7 +23,7 @@ type PermissionDecisionEntry = {
 
 export type TaskSecurityPosture = {
   current_status: string;
-  lifecycle_phase: string | null;
+  lifecycle_stage: string | null;
   risk_level: number;
   risk_band: 'low' | 'moderate' | 'high';
   requires_approval: boolean;
@@ -87,7 +87,7 @@ export class TaskSecurityPostureService {
 
     return {
       current_status: task.status,
-      lifecycle_phase: String(metadata?.lifecycle?.phase || '').trim() || null,
+      lifecycle_stage: String(metadata?.lifecycle?.phase || '').trim() || null,
       risk_level: Number(task.risk_level || 0),
       risk_band: this.resolveRiskBand(task.risk_level),
       requires_approval: Boolean(task.requires_approval),

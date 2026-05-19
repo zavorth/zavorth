@@ -27,7 +27,7 @@ describe('ZavorthEcosystemControlPlaneService', () => {
     return root;
   }
 
-  it('builds a healthy Wave 9 snapshot when SDKs, guides, examples and publish are ready', () => {
+  it('builds a healthy Ecosystem snapshot when SDKs, guides, examples and publish are ready', () => {
     const root = createWorkspace();
     const requiredFiles = [
       'sdk/typescript/src/index.ts',
@@ -103,7 +103,7 @@ describe('ZavorthEcosystemControlPlaneService', () => {
     expect(snapshot.cards.find((entry) => entry.id === 'sdk')?.posture).toBe('healthy');
     expect(snapshot.cards.find((entry) => entry.id === 'registry')?.posture).toBe('healthy');
     expect(service.renderReport({ selectedId: 'openrouter' })).toContain(
-      'Wave 9: Ecossistema, SDKs e third-party platform',
+      'Ecosystem: Ecossistema, SDKs e third-party platform',
     );
   });
 

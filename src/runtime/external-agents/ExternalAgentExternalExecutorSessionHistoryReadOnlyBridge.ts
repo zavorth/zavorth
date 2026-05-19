@@ -50,17 +50,17 @@ export type ExternalExecutorLikeMessageMetadataSource = {
 
 export type ExternalExecutorSessionHistoryReadOnlyBridgeSource = {
   eventStream: ExternalExecutorReadOnlyEventStreamAdapterNormalization;
-  sourceSnapshotDoc: 'docs/161-wave-1-real-capability-snapshot-read-only.md';
-  bridgeDoc: 'docs/169-wave-1-external-executor-live-read-only-bridge-boundary.md';
-  observabilityDoc: 'docs/170-wave-1-external-executor-live-observability-projection.md';
-  eventStreamDoc: 'docs/171-wave-1-external-executor-read-only-event-stream-adapter.md';
-  sqliteDryRunDesignDoc: 'docs/167-wave-1-sqlite-session-store-dry-run-design.md';
+  sourceSnapshotDoc: 'docs/real-capability-snapshot-read-only.md';
+  bridgeDoc: 'docs/external-executor-live-read-only-bridge-boundary.md';
+  observabilityDoc: 'docs/external-executor-live-observability-projection.md';
+  eventStreamDoc: 'docs/external-executor-read-only-event-stream-adapter.md';
+  sqliteDryRunDesignDoc: 'docs/sqlite-session-store-dry-run-design.md';
   migrationStrategyDocs: [
-    'docs/162-wave-0-external-agent-config-state-migration-strategy.md',
-    'docs/163-wave-1-external-agent-config-state-read-only-inventory.md',
-    'docs/164-wave-1-redaction-and-secretref-mapping.md',
-    'docs/165-wave-1-dry-run-migration-plan.md',
-    'docs/166-wave-1-rollback-restore-rehearsal.md',
+    'docs/external-agent-config-state-migration-strategy.md',
+    'docs/external-agent-config-state-read-only-inventory.md',
+    'docs/redaction-and-secretref-mapping.md',
+    'docs/dry-run-migration-plan.md',
+    'docs/rollback-restore-rehearsal.md',
   ];
   sourceDbOpenedForWrite: false;
   sourceDbCopied: false;
@@ -341,17 +341,17 @@ export function createExternalExecutorSessionHistoryReadOnlyBridgeFixtureSource(
 
   return {
     eventStream: normalizeExternalExecutorReadOnlyEventStreamAdapterFixture(),
-    sourceSnapshotDoc: 'docs/161-wave-1-real-capability-snapshot-read-only.md',
-    bridgeDoc: 'docs/169-wave-1-external-executor-live-read-only-bridge-boundary.md',
-    observabilityDoc: 'docs/170-wave-1-external-executor-live-observability-projection.md',
-    eventStreamDoc: 'docs/171-wave-1-external-executor-read-only-event-stream-adapter.md',
-    sqliteDryRunDesignDoc: 'docs/167-wave-1-sqlite-session-store-dry-run-design.md',
+    sourceSnapshotDoc: 'docs/real-capability-snapshot-read-only.md',
+    bridgeDoc: 'docs/external-executor-live-read-only-bridge-boundary.md',
+    observabilityDoc: 'docs/external-executor-live-observability-projection.md',
+    eventStreamDoc: 'docs/external-executor-read-only-event-stream-adapter.md',
+    sqliteDryRunDesignDoc: 'docs/sqlite-session-store-dry-run-design.md',
     migrationStrategyDocs: [
-      'docs/162-wave-0-external-agent-config-state-migration-strategy.md',
-      'docs/163-wave-1-external-agent-config-state-read-only-inventory.md',
-      'docs/164-wave-1-redaction-and-secretref-mapping.md',
-      'docs/165-wave-1-dry-run-migration-plan.md',
-      'docs/166-wave-1-rollback-restore-rehearsal.md',
+      'docs/external-agent-config-state-migration-strategy.md',
+      'docs/external-agent-config-state-read-only-inventory.md',
+      'docs/redaction-and-secretref-mapping.md',
+      'docs/dry-run-migration-plan.md',
+      'docs/rollback-restore-rehearsal.md',
     ],
     sourceDbOpenedForWrite: false,
     sourceDbCopied: false,

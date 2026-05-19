@@ -37,7 +37,7 @@ Track provider and model routing facts in a safe, non-secret form.
 ## Source Links
 
 - `docs/provider-mesh.md`
-- `docs/36-runtime-readiness.md`
+- `docs/runtime-readiness.md`
 
 ## Maintenance Notes
 

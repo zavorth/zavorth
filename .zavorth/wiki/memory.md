@@ -9,7 +9,7 @@ tags:
   - memory
   - compaction
 sources:
-  - docs/42-mnemos-memory-os.md
+  - docs/mnemos-memory-os.md
   - src/contracts/ZavorthMnemosMemoryOsContract.ts
 ---
 
@@ -40,7 +40,7 @@ Define the semantic memory baseline for Mnemos Memory OS.
 
 ## Source Links
 
-- `docs/42-mnemos-memory-os.md`
+- `docs/mnemos-memory-os.md`
 - `src/services/ContextCompactionService.ts`
 - `src/services/ZavorthHandoffEnvelopeService.ts`
 

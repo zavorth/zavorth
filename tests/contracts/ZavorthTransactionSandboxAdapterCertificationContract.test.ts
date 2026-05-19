@@ -4,7 +4,7 @@ import {
 } from '../../src/contracts/ZavorthTransactionSandboxAdapterCertificationContract.js';
 
 describe('ZavorthTransactionSandboxAdapterCertificationContract', () => {
-  it('publishes the Phase 12 sandbox adapter certification contract', () => {
+  it('publishes the Intent model2 sandbox adapter certification contract', () => {
     const snapshot = buildZavorthTransactionSandboxAdapterCertificationContractSnapshot();
 
     expect(snapshot.version).toBe(ZAVORTH_TRANSACTION_SANDBOX_ADAPTER_CERTIFICATION_CONTRACT_VERSION);
@@ -15,7 +15,7 @@ describe('ZavorthTransactionSandboxAdapterCertificationContract', () => {
       'sandbox-certification-ready',
     ]);
     expect(snapshot.gateKinds).toEqual([
-      'phase11-review-ready',
+      'intent-model1-review-ready',
       'review-packet-present',
       'adapter-manifest-present',
       'sandbox-environment-only',
@@ -34,14 +34,14 @@ describe('ZavorthTransactionSandboxAdapterCertificationContract', () => {
     ]);
   });
 
-  it('documents that Phase 12 is certification-only', () => {
+  it('documents that Intent model2 is certification-only', () => {
     const snapshot = buildZavorthTransactionSandboxAdapterCertificationContractSnapshot();
 
     expect(snapshot.invariants).toEqual(
       expect.arrayContaining([
-        'Phase 12 consumes a Phase 11 ready-for-live-activation-review packet before certifying any adapter.',
-        'Phase 12 certifies sandbox or paper adapter readiness only; it does not call external networks.',
-        'Live and production adapter endpoints are blocked in Phase 12.',
+        'Intent model2 consumes a Intent model1 ready-for-live-activation-review packet before certifying any adapter.',
+        'Intent model2 certifies sandbox or paper adapter readiness only; it does not call external networks.',
+        'Live and production adapter endpoints are blocked in Intent model2.',
         'A sandbox-certification-ready packet still reports sandboxExecutionAuthorized=false and liveExecutionAuthorized=false.',
       ]),
     );

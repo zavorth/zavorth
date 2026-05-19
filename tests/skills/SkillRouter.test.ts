@@ -42,7 +42,7 @@ describe('SkillRouter hardening', () => {
     const router = new SkillRouter(provider);
 
     const selection = await router.routeSelection(
-      'Use zavorth maestro com system design para organizar este projeto em fases',
+      'Use zavorth maestro com system design para organizar este projeto em etapas',
       skills,
     );
 

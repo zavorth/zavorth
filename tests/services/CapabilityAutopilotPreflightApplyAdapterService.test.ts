@@ -88,7 +88,7 @@ function createSnapshot(hint: CapabilityPreflightHintResult): CapabilityAutopilo
   const payloads = surfaceService.buildPayloads(hint, ['cli', 'web', 'chat', 'telegram', 'api']);
 
   return {
-    phase: '68',
+    stage: '68',
     surface: 'capability-autopilot-preflight-entrypoint',
     generatedAt: FIXED_NOW.toISOString(),
     capabilityId: 'executor-gemini-cli',
@@ -103,8 +103,8 @@ function createSnapshot(hint: CapabilityPreflightHintResult): CapabilityAutopilo
     records: [],
     payloads,
     checks: [],
-    nextRecommendedPhase: {
-      phase: '69',
+    nextRecommendedStage: {
+      stage: '69',
       title: 'Preflight Action Handler Wiring',
       reason: 'Wire explicit actions.',
     },
@@ -169,11 +169,11 @@ describe('CapabilityAutopilotPreflightApplyAdapterService', () => {
       explicitApplyConfirmed: true,
       actorId: 'operator-1',
       applyConfirmationId: 'apply-confirm-1',
-      reason: 'phase-73-test',
+      reason: 'checkpoint-73-test',
     });
 
     expect(apply).toMatchObject({
-      phase: '73',
+      stage: '73',
       status: 'ready',
       summary: {
         ok: true,
@@ -262,7 +262,7 @@ describe('CapabilityAutopilotPreflightApplyAdapterService', () => {
         dryRun: true,
       },
     });
-    expect(service.renderReport(apply)).toContain('Fase 73 - Preflight Dispatch Apply Adapter');
-    expect(service.renderReport(apply)).toContain('proxima fase recomendada: 74 - Preflight Apply Dry-Run Executor');
+    expect(service.renderReport(apply)).toContain('Etapa 73 - Preflight Dispatch Apply Adapter');
+    expect(service.renderReport(apply)).toContain('proximo passo recomendada: 74 - Preflight Apply Dry-Run Executor');
   });
 });

@@ -66,7 +66,7 @@ export class ZavorthToolOrchestrationVerificationService {
       generatedAt,
       contractVersion: ZAVORTH_TOOL_ORCHESTRATION_VERIFICATION_CONTRACT_VERSION,
       source: 'ZavorthToolOrchestrationVerificationService',
-      phase: 'phase-4-tool-orchestration-verification',
+      phase: 'checkpoint-4-tool-orchestration-verification',
       status,
       request: {
         surface: contextRecovery.request.surface,
@@ -81,7 +81,7 @@ export class ZavorthToolOrchestrationVerificationService {
       receipts,
       safety: {
         noToolExecutionPerformed: true,
-        policyDecisionInheritedFromPhase3: true,
+        policyDecisionInheritedFromStage3: true,
         noLiveImpactWithoutApproval: true,
         verificationRequiredBeforeCompletion: true,
         untrustedToolOutputRequiresEvidenceBoundary: true,
@@ -93,7 +93,7 @@ export class ZavorthToolOrchestrationVerificationService {
         report: 'npx tsx scripts/zavorth-tool-orchestration-verification.ts --text "<request>"',
         json: 'npx tsx scripts/zavorth-tool-orchestration-verification.ts --json --text "<request>"',
         check: 'node scripts/zavorth-tool-orchestration-verification-check.mjs',
-        nextPhase: 'Phase 5 - Cross-Surface Runtime Projection Assimilation',
+        nextStage: 'Credential vault - Cross-Surface Runtime Projection Assimilation',
       },
       narrative: buildNarrative(status, routes, verification),
     };
@@ -101,7 +101,7 @@ export class ZavorthToolOrchestrationVerificationService {
 
   public formatSnapshotText(snapshot: ZavorthToolOrchestrationVerificationSnapshot): string {
     const lines = [
-      'Zavorth Tool Orchestration And Verification - Phase 4',
+      'Zavorth Tool Orchestration And Verification - Connector registry',
       '',
       `Status: ${snapshot.status}`,
       `Routes: ${snapshot.summary.routes} | readonly=${snapshot.summary.readonlyRoutes} | approval=${snapshot.summary.approvalRoutes} | setup=${snapshot.summary.setupRoutes} | denied=${snapshot.summary.deniedRoutes}`,
@@ -117,7 +117,7 @@ export class ZavorthToolOrchestrationVerificationService {
       'Final answer guard:',
       ...snapshot.finalAnswerGuard.requiredDisclosures.map((item) => `- ${item}`),
       '',
-      `Next: ${snapshot.commands.nextPhase}`,
+      `Next: ${snapshot.commands.nextStage}`,
     ];
     return lines.join('\n');
   }
@@ -281,7 +281,7 @@ function buildVerification(input: {
         routeId: route.id,
         kind: 'policy_receipt',
         status: 'satisfied',
-        source: 'phase-4',
+        source: 'checkpoint-4',
         evidenceRequired: ['No tool route required.'],
         passCondition: 'Direct answer uses compact context only.',
         commandHint: null,
@@ -326,7 +326,7 @@ function verificationItem(input: {
     routeId: input.route.id,
     kind: input.kind,
     status,
-    source: status === 'satisfied' ? 'provided-evidence' : 'phase-4-plan',
+    source: status === 'satisfied' ? 'provided-evidence' : 'checkpoint-4-plan',
     evidenceRequired: evidenceRequired(input.route, input.kind),
     passCondition: passCondition(input.route, input.kind),
     commandHint: commandHint(input.route, input.kind),
@@ -432,8 +432,8 @@ function buildReceipts(
 ): ZavorthToolOrchestrationReceipt[] {
   const receipts: ZavorthToolOrchestrationReceipt[] = [
     {
-      id: 'receipt-phase-4-route-plan',
-      kind: 'phase-4-route-plan',
+      id: 'receipt-checkpoint-4-route-plan',
+      kind: 'checkpoint-4-route-plan',
       status: 'recorded',
       summary: `Built ${routes.length} route(s) without executing tools.`,
       routeIds: routes.map((route) => route.id),

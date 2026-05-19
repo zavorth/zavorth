@@ -33,7 +33,7 @@ const rules = [
       'OperationalParityGap',
       'OperationalParityPluginInventoryItem',
       'OperationalParitySnapshot',
-      'phase-8-operational-tooling',
+      'checkpoint-8-operational-tooling',
       'liveExternalCallRequired: false',
       'liveChannelSendRequired: false',
       'liveDeviceRequired: false',
@@ -61,7 +61,7 @@ const rules = [
       'channel-template-routes',
       'satellite-native-wrapper-decision',
       'memory-wiki-template',
-      'Fase 9 - Certification',
+      'Etapa 9 - Certification',
     ],
   }),
   ruleContainsAll({
@@ -124,7 +124,7 @@ const snapshot = {
 if (asJson) {
   console.log(JSON.stringify(snapshot, null, 2));
 } else {
-  console.log('[operational-parity-tooling] checking Phase 8');
+  console.log('[operational-parity-tooling] checking Dashboard controls');
   for (const rule of rules) {
     const marker = rule.status === 'passed' ? 'ok' : 'fail';
     console.log(`[operational-parity-tooling] ${marker} ${rule.label}: ${rule.observed} | ${rule.target}`);

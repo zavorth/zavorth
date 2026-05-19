@@ -3,7 +3,7 @@ import path from 'node:path';
 import {
   CAPABILITY_HUB_COMPLETION_CONTRACT_VERSION,
   type CapabilityHubCompletionJourney,
-  type CapabilityHubCompletionPhase,
+  type CapabilityHubCompletionCheckpoint,
   type CapabilityHubCompletionSnapshot,
   type CapabilityHubCompletionStatus,
 } from '../contracts/CapabilityHubCompletionContract.js';
@@ -18,26 +18,26 @@ export type ZavorthCapabilityHubCompletionRuntime = ZavorthCapabilitySetupQueueR
   requestLedgerPath?: string;
 };
 
-type PhaseDefinition = {
+type CapabilityCheckpointDefinition = {
   id: string;
   title: string;
   requiredFiles: string[];
   gate: string;
 };
 
-const PHASES: PhaseDefinition[] = [
-  phase('phase-0', 'Capability Hub', 'capability-hub', 'ZavorthCapabilityHubService', 'CapabilityHubContract'),
-  phase('phase-1', 'Governance Recipes', 'governance-recipes', 'ZavorthGovernanceRecipeService', 'GovernanceRecipeContract'),
-  phase('phase-2', 'Natural Setup Assistant', 'natural-setup', 'ZavorthNaturalSetupAssistantService', 'NaturalSetupAssistantContract'),
-  phase('phase-3', 'Capability Importer', 'capability-import', 'ZavorthCapabilityImportService', 'CapabilityImportContract'),
-  phase('phase-4', 'Capability Activation Flow', 'capability-activation-flow', 'ZavorthCapabilityActivationFlowService', 'CapabilityActivationFlowContract'),
-  phase('phase-5', 'Capability Pack Catalog', 'capability-packs', 'ZavorthCapabilityPackCatalogService', 'CapabilityPackCatalogContract'),
-  phase('phase-6', 'Capability Pack Readiness', 'capability-pack-readiness', 'ZavorthCapabilityPackReadinessDoctorService', 'CapabilityPackReadinessContract'),
-  phase('phase-7', 'Capability Setup Conversation', 'capability-setup-guide', 'ZavorthCapabilitySetupConversationService', 'CapabilitySetupConversationContract'),
-  phase('phase-8', 'Capability Setup Queue', 'capability-setup-queue', 'ZavorthCapabilitySetupQueueService', 'CapabilitySetupQueueContract'),
-  phase('phase-9', 'Capability Setup Executor', 'capability-setup-executor', 'ZavorthCapabilitySetupExecutorService', 'CapabilitySetupExecutorContract'),
+const CHECKPOINTS: CapabilityCheckpointDefinition[] = [
+  checkpoint('checkpoint-0', 'Capability Hub', 'capability-hub', 'ZavorthCapabilityHubService', 'CapabilityHubContract'),
+  checkpoint('checkpoint-1', 'Governance Recipes', 'governance-recipes', 'ZavorthGovernanceRecipeService', 'GovernanceRecipeContract'),
+  checkpoint('checkpoint-2', 'Natural Setup Assistant', 'natural-setup', 'ZavorthNaturalSetupAssistantService', 'NaturalSetupAssistantContract'),
+  checkpoint('checkpoint-3', 'Capability Importer', 'capability-import', 'ZavorthCapabilityImportService', 'CapabilityImportContract'),
+  checkpoint('checkpoint-4', 'Capability Activation Flow', 'capability-activation-flow', 'ZavorthCapabilityActivationFlowService', 'CapabilityActivationFlowContract'),
+  checkpoint('checkpoint-5', 'Capability Pack Catalog', 'capability-packs', 'ZavorthCapabilityPackCatalogService', 'CapabilityPackCatalogContract'),
+  checkpoint('checkpoint-6', 'Capability Pack Readiness', 'capability-pack-readiness', 'ZavorthCapabilityPackReadinessDoctorService', 'CapabilityPackReadinessContract'),
+  checkpoint('checkpoint-7', 'Capability Setup Conversation', 'capability-setup-guide', 'ZavorthCapabilitySetupConversationService', 'CapabilitySetupConversationContract'),
+  checkpoint('checkpoint-8', 'Capability Setup Queue', 'capability-setup-queue', 'ZavorthCapabilitySetupQueueService', 'CapabilitySetupQueueContract'),
+  checkpoint('checkpoint-9', 'Capability Setup Executor', 'capability-setup-executor', 'ZavorthCapabilitySetupExecutorService', 'CapabilitySetupExecutorContract'),
   {
-    id: 'phase-10',
+    id: 'checkpoint-10',
     title: 'Capability Console',
     gate: 'node scripts/capability-console-check.mjs',
     requiredFiles: [
@@ -51,7 +51,7 @@ const PHASES: PhaseDefinition[] = [
     ],
   },
   {
-    id: 'phase-11',
+    id: 'checkpoint-11',
     title: 'Capability Natural Operator',
     gate: 'node scripts/capability-natural-operator-check.mjs',
     requiredFiles: [
@@ -81,7 +81,7 @@ export class ZavorthCapabilityHubCompletionService {
   }
 
   public buildSnapshot(): CapabilityHubCompletionSnapshot {
-    const phases = PHASES.map((definition) => this.inspectPhase(definition));
+    const phases = CHECKPOINTS.map((definition) => this.inspectCheckpoint(definition));
     const journeys = this.runJourneys();
     const liveViolations = journeys.filter((journey) => journey.assertions.liveActivationApplied).length;
     const secretSerializationViolations = journeys.filter((journey) => journey.assertions.rawSecretsSerialized).length;
@@ -119,12 +119,12 @@ export class ZavorthCapabilityHubCompletionService {
       journeys,
       narrative: {
         headline: status === 'passed'
-          ? 'Capability Hub completo: fases 0-11 aceitas.'
+          ? 'Capability Hub completo: etapas 0-11 aceitas.'
           : 'Capability Hub ainda tem falhas de aceitacao.',
-        operatorSummary: `${phasesPassed}/${phases.length} fase(s), ${journeysPassed}/${journeys.length} jornada(s), ${liveViolations} violacao(oes) live.`,
+        operatorSummary: `${phasesPassed}/${phases.length} etapa(s), ${journeysPassed}/${journeys.length} jornada(s), ${liveViolations} violacao(oes) live.`,
         nextAction: status === 'passed'
-          ? 'Promover para uso operacional controlado ou iniciar fase de UI/produto.'
-          : 'Corrigir fases ou jornadas marcadas como failed antes de promover.',
+          ? 'Promover para uso operacional controlado ou iniciar etapa de UI/produto.'
+          : 'Corrigir etapas ou jornadas marcadas como failed antes de promover.',
       },
     };
   }
@@ -136,7 +136,7 @@ export class ZavorthCapabilityHubCompletionService {
       snapshot.narrative.headline,
       snapshot.narrative.operatorSummary,
       '',
-      'Fases:',
+      'Etapas:',
     ];
     for (const phaseEntry of snapshot.phases) {
       lines.push(`- ${phaseEntry.id} ${phaseEntry.status}: ${phaseEntry.title}`);
@@ -152,7 +152,7 @@ export class ZavorthCapabilityHubCompletionService {
     return lines.join('\n');
   }
 
-  private inspectPhase(definition: PhaseDefinition): CapabilityHubCompletionPhase {
+  private inspectCheckpoint(definition: CapabilityCheckpointDefinition): CapabilityHubCompletionCheckpoint {
     const missingFiles = definition.requiredFiles.filter((file) => !fs.existsSync(path.join(this.rootDir, file)));
     return {
       id: definition.id,
@@ -289,7 +289,7 @@ export class ZavorthCapabilityHubCompletionService {
   }
 }
 
-function phase(id: string, title: string, scriptBase: string, serviceName: string, contractName: string): PhaseDefinition {
+function checkpoint(id: string, title: string, scriptBase: string, serviceName: string, contractName: string): CapabilityCheckpointDefinition {
   return {
     id,
     title,

@@ -4,7 +4,7 @@ import {
   buildModelsSurfaceResponseExample,
   buildRuntimeSurfaceResponse,
   buildStatusSurfaceResponseExample,
-  buildSurfaceResponsePhase2Examples,
+  buildSurfaceResponseStage2Examples,
   buildToolReceiptSurfaceResponseExample,
   buildWorkflowStageSurfaceResponse,
   renderCliSurfaceResponse,
@@ -18,7 +18,7 @@ import { formatCliSurfaceResponse } from '../../../src/cli/ZavorthCliSurfaceResp
 
 describe('Surface Response Contract phase 2', () => {
   it('defines canonical examples for status, models, approvals and tool receipts', () => {
-    const examples = buildSurfaceResponsePhase2Examples();
+    const examples = buildSurfaceResponseStage2Examples();
 
     expect(examples.map((example) => example.version)).toEqual([
       SURFACE_RESPONSE_CONTRACT_VERSION,
@@ -36,7 +36,7 @@ describe('Surface Response Contract phase 2', () => {
   });
 
   it('renders every example in every non-dashboard surface target', () => {
-    for (const response of buildSurfaceResponsePhase2Examples()) {
+    for (const response of buildSurfaceResponseStage2Examples()) {
       for (const target of ['plain', 'cli', 'telegram', 'discord', 'whatsapp', 'instagram', 'teams', 'email', 'signal', 'imessage', 'slack', 'web'] as const) {
         const rendered = renderSurfaceResponseForTarget(target, response);
 

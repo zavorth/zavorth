@@ -208,15 +208,15 @@ export type ZavorthNativeIntegrationRegistrySnapshot = {
     degradedOrUnavailableIds: string[];
   };
   sourceArtifactsConsumed: {
-    realCapabilitySnapshot: 'docs/161-wave-1-real-capability-snapshot-read-only.md';
-    liveReadOnlyBridge: 'docs/169-wave-1-external-executor-live-read-only-bridge-boundary.md';
-    observabilityProjection: 'docs/170-wave-1-external-executor-live-observability-projection.md';
-    eventStreamAdapter: 'docs/171-wave-1-external-executor-read-only-event-stream-adapter.md';
-    sessionHistoryBridge: 'docs/172-wave-1-external-executor-session-history-read-only-bridge.md';
-    commandCenterAssimilation: 'docs/173-wave-1-command-center-live-assimilation.md';
-    transportDiscovery: 'docs/183-wave-2-real-message-transport-capability-discovery.md';
-    nativeCapabilityRegistry: 'docs/185-wave-3-first-native-capability-registry-replacement-slice.md';
-    dashboardViewModelRegistry: 'docs/186-wave-3-dashboard-view-model-registry-native-slice.md';
+    realCapabilitySnapshot: 'docs/real-capability-snapshot-read-only.md';
+    liveReadOnlyBridge: 'docs/external-executor-live-read-only-bridge-boundary.md';
+    observabilityProjection: 'docs/external-executor-live-observability-projection.md';
+    eventStreamAdapter: 'docs/external-executor-read-only-event-stream-adapter.md';
+    sessionHistoryBridge: 'docs/external-executor-session-history-read-only-bridge.md';
+    commandCenterAssimilation: 'docs/command-center-live-assimilation.md';
+    transportDiscovery: 'docs/real-message-transport-capability-discovery.md';
+    nativeCapabilityRegistry: 'docs/first-native-capability-registry-replacement-slice.md';
+    dashboardViewModelRegistry: 'docs/dashboard-view-model-registry-native-slice.md';
   };
   runtimeExternalExecutorRequiredForIntegrationLookup: false;
   runtimeExternalExecutorRequiredForTransportClassification: false;
@@ -442,8 +442,8 @@ function providerRecords(
     dashboardViewModelIds: dashboardIdsForType(source.dashboardRegistry, 'provider'),
     provenance: provenance('native-capability-registry', [
       entry.id,
-      'docs/161-wave-1-real-capability-snapshot-read-only.md',
-      'docs/185-wave-3-first-native-capability-registry-replacement-slice.md',
+      'docs/real-capability-snapshot-read-only.md',
+      'docs/first-native-capability-registry-replacement-slice.md',
     ]),
     runtimeExternalExecutorRequiredForIntegrationLookup: false,
     runtimeExternalExecutorRequiredForTransportClassification: false,
@@ -490,8 +490,8 @@ function channelRecords(
     dashboardViewModelIds: dashboardIdsForType(source.dashboardRegistry, 'channel'),
     provenance: provenance('live-read-only-bridge', [
       entry.id,
-      'docs/169-wave-1-external-executor-live-read-only-bridge-boundary.md',
-      'docs/185-wave-3-first-native-capability-registry-replacement-slice.md',
+      'docs/external-executor-live-read-only-bridge-boundary.md',
+      'docs/first-native-capability-registry-replacement-slice.md',
     ]),
     runtimeExternalExecutorRequiredForIntegrationLookup: false,
     runtimeExternalExecutorRequiredForTransportClassification: false,
@@ -579,7 +579,7 @@ function transportRecords(
       provenance: provenance('transport-discovery', [
         capability.id,
         ...capability.sourceEvidence,
-        'docs/183-wave-2-real-message-transport-capability-discovery.md',
+        'docs/real-message-transport-capability-discovery.md',
       ]),
       runtimeExternalExecutorRequiredForIntegrationLookup: false,
       runtimeExternalExecutorRequiredForTransportClassification: false,
@@ -666,15 +666,15 @@ function buildSnapshot(
         .map((record) => record.id),
     },
     sourceArtifactsConsumed: {
-      realCapabilitySnapshot: 'docs/161-wave-1-real-capability-snapshot-read-only.md',
-      liveReadOnlyBridge: 'docs/169-wave-1-external-executor-live-read-only-bridge-boundary.md',
-      observabilityProjection: 'docs/170-wave-1-external-executor-live-observability-projection.md',
-      eventStreamAdapter: 'docs/171-wave-1-external-executor-read-only-event-stream-adapter.md',
-      sessionHistoryBridge: 'docs/172-wave-1-external-executor-session-history-read-only-bridge.md',
-      commandCenterAssimilation: 'docs/173-wave-1-command-center-live-assimilation.md',
-      transportDiscovery: 'docs/183-wave-2-real-message-transport-capability-discovery.md',
-      nativeCapabilityRegistry: 'docs/185-wave-3-first-native-capability-registry-replacement-slice.md',
-      dashboardViewModelRegistry: 'docs/186-wave-3-dashboard-view-model-registry-native-slice.md',
+      realCapabilitySnapshot: 'docs/real-capability-snapshot-read-only.md',
+      liveReadOnlyBridge: 'docs/external-executor-live-read-only-bridge-boundary.md',
+      observabilityProjection: 'docs/external-executor-live-observability-projection.md',
+      eventStreamAdapter: 'docs/external-executor-read-only-event-stream-adapter.md',
+      sessionHistoryBridge: 'docs/external-executor-session-history-read-only-bridge.md',
+      commandCenterAssimilation: 'docs/command-center-live-assimilation.md',
+      transportDiscovery: 'docs/real-message-transport-capability-discovery.md',
+      nativeCapabilityRegistry: 'docs/first-native-capability-registry-replacement-slice.md',
+      dashboardViewModelRegistry: 'docs/dashboard-view-model-registry-native-slice.md',
     },
     runtimeExternalExecutorRequiredForIntegrationLookup: false,
     runtimeExternalExecutorRequiredForTransportClassification: false,

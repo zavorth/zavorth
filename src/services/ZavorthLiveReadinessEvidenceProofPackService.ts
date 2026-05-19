@@ -108,14 +108,14 @@ export class ZavorthLiveReadinessEvidenceProofPackService {
         providerMatrix: 'npm run zavorth:provider-live-matrix --silent',
         channelMesh: 'npm run channels:mesh --silent',
         smokeProof: 'npm run provider-channel-smoke-proof:check --silent',
-        nextPhase: 'Phase 10 - Final Daily Runtime Closure and Release Gate',
+        nextStage: 'Intent model0 - Final Daily Runtime Closure and Release Gate',
       },
     };
   }
 
   public formatSnapshotText(snapshot: ZavorthLiveReadinessEvidenceProofPackSnapshot): string {
     const lines = [
-      'Zavorth Live Readiness Evidence + Channel Provider Proof Pack - Phase 9',
+      'Zavorth Live Readiness Evidence + Channel Provider Proof Pack - Certification matrix',
       '',
       `Status: ${snapshot.status}`,
       `Providers: live=${snapshot.summary.providerLiveReady}/${snapshot.summary.providerTotal}, default=${snapshot.summary.providerDefaultRouteAllowed}`,
@@ -131,7 +131,7 @@ export class ZavorthLiveReadinessEvidenceProofPackService {
       if (entry.operatorAction) lines.push(`  next: ${entry.operatorAction}`);
     }
     lines.push('', 'Catalog support is never treated as live proof. Provider network probes and channel sends remain explicit operator actions.');
-    lines.push(`Next: ${snapshot.commands.nextPhase}`);
+    lines.push(`Next: ${snapshot.commands.nextStage}`);
     return lines.join('\n');
   }
 }

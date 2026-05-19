@@ -10,7 +10,7 @@ import type {
 import type { ZavorthInvocationReceipt } from './ZavorthInvocationReceiptContract.js';
 
 export const ZAVORTH_SUBAGENT_RUNTIME_CONTRACT_VERSION =
-  '2026-05-10.subagent-runtime-parity-phase-4' as const;
+  '2026-05-10.subagent-runtime-parity-checkpoint-4' as const;
 
 export type ZavorthSubagentRuntimeAction =
   | 'subagents.spawn'
@@ -221,6 +221,6 @@ export type ZavorthSubagentRuntimeSnapshot = {
     summarize: 'npm run zavorth:subagents -- summarize --session <id>';
     surface: '/agents spawn --live <task>';
     check: 'npm run zavorth:subagents:check --silent';
-    nextPhase: 'Live runtime is wired; next expand UI projection only with approval.';
+    nextStage: 'Live runtime is wired; next expand UI projection only with approval.';
   };
 };

@@ -55,7 +55,7 @@ async function main(): Promise<void> {
     status: profile === 'staging-live' && !confirmLiveIo ? 'blocked-until-confirmed' : 'ready-for-operator',
     reason: profile === 'staging-live' && !confirmLiveIo
       ? 'staging-live speech/voice requires --confirm-live-io and real operator credentials/artifacts.'
-      : 'Phase 7 exposes STT, TTS, local TTS and push-to-talk live paths with redacted receipts.',
+      : 'Surface controls exposes STT, TTS, local TTS and push-to-talk live paths with redacted receipts.',
     entries: selected.map((entry) => ({
       targetId: entry.targetId,
       status: entry.status,

@@ -108,7 +108,7 @@ export type BotGatewaySupportRuntime = {
   canUseInteractiveGroupAi?: (ctx: Context) => Promise<boolean>;
   state: BotGatewaySupportState;
   getSharedSurfaceCommandService: () => BotGatewaySupportState['sharedSurfaceCommandService'];
-  // Phase 9: Dependências opcionais para Modo Echo (resposta por voz)
+  // Certification matrix: Dependências opcionais para Modo Echo (resposta por voz)
   echoAudioHandler?: {
     synthesize: (text: string, voiceIdOrOptions?: string | AudioSynthesisOptions) => Promise<string | null>;
     cleanup: (filePath: string) => void;

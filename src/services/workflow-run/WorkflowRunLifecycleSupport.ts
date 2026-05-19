@@ -171,23 +171,23 @@ export class WorkflowRunLifecycleSupport {
 
   public static buildStageExecutionId(
     run: WorkflowRunSnapshot,
-    stage: WorkflowRunStageSnapshot,
+    phase: WorkflowRunStageSnapshot,
   ): string {
-    const taskId = normalizeNullableString(stage.task_id);
+    const taskId = normalizeNullableString(phase.task_id);
     if (taskId) {
       return taskId;
     }
-    return `${run.workflow_run_id}:${stage.id}:attempt:${Math.max(1, Number(stage.attempt_count || 0) || 1)}`;
+    return `${run.workflow_run_id}:${phase.id}:attempt:${Math.max(1, Number(phase.attempt_count || 0) || 1)}`;
   }
 
   public static buildStageApprovalId(
     run: WorkflowRunSnapshot,
-    stage: WorkflowRunStageSnapshot,
+    phase: WorkflowRunStageSnapshot,
   ): string {
-    const taskId = normalizeNullableString(stage.task_id);
+    const taskId = normalizeNullableString(phase.task_id);
     if (taskId) {
       return `${taskId}:approval`;
     }
-    return `approval:${run.workflow_run_id}:${stage.id}:${Math.max(1, Number(stage.attempt_count || 0) || 1)}`;
+    return `approval:${run.workflow_run_id}:${phase.id}:${Math.max(1, Number(phase.attempt_count || 0) || 1)}`;
   }
 }

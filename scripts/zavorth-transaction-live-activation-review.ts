@@ -30,7 +30,7 @@ if (!options.text) {
   if (options.json) {
     console.log(JSON.stringify(snapshot, null, 2));
   } else {
-    console.log('[transaction-live-activation-review] Phase 11 live activation review gate');
+    console.log('[transaction-live-activation-review] Intent model1 live activation review gate');
     console.log(`[transaction-live-activation-review] version: ${snapshot.version}`);
     console.log(`[transaction-live-activation-review] owner-phrase: ${snapshot.ownerPhrase}`);
   }

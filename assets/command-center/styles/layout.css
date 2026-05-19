@@ -22,6 +22,48 @@
   background: var(--b-app-gradient);
   animation: b-frame-enter 0.3s var(--b-ease-out);
 }
+
+/* Light mode must be designed, not inverted over the dark shell. */
+[data-theme="light"] .core-frame {
+  background:
+    linear-gradient(180deg, #ffffff 0%, #f8fafc 100%);
+}
+
+[data-theme="light"] .core-frame::before {
+  opacity: 0.24;
+  filter: blur(46px);
+}
+
+[data-theme="light"] .core-frame::after {
+  opacity: 0.08;
+}
+
+[data-theme="light"] .sidebar,
+[data-theme="light"] .nexus-dock {
+  background: rgba(255, 255, 255, 0.94);
+  border-right-color: rgba(15, 23, 42, 0.12);
+}
+
+[data-theme="light"] .bridge {
+  background: rgba(255, 255, 255, 0.9);
+  border-bottom-color: rgba(15, 23, 42, 0.1);
+}
+
+[data-theme="light"] .bridge__search,
+[data-theme="light"] .bridge__action-btn,
+[data-theme="light"] .dock-sys-info {
+  background: rgba(248, 250, 252, 0.94);
+  color: #334155;
+}
+
+[data-theme="light"] .dock-node {
+  color: #475569;
+}
+
+[data-theme="light"] .dock-node.active {
+  background: rgba(5, 150, 105, 0.09);
+  color: #064e3b;
+}
 .core-frame::before,
 .core-frame::after {
   content: "";
@@ -528,5 +570,294 @@
     min-width: 44px;
     height: 44px;
     border-radius: 16px;
+  }
+}
+
+/* Premium dashboard shell: desktop sidebar, compact top bar, mobile keeps bottom nav */
+@media (min-width: 981px) {
+  .core-frame {
+    --dock-width: 292px;
+    --bridge-height: 64px;
+    grid-template-columns: var(--dock-width) minmax(0, 1fr);
+    grid-template-rows: var(--bridge-height) minmax(0, 1fr);
+    grid-template-areas:
+      "dock bridge"
+      "dock viewport";
+  }
+
+  .bridge {
+    padding: 0 28px;
+    background: color-mix(in srgb, var(--b-chrome-strong) 82%, transparent);
+  }
+
+  .bridge__left .bridge__brand { display: none; }
+
+  .bridge__center {
+    position: static;
+    transform: none;
+    margin-right: auto;
+    padding-left: 2px;
+  }
+
+  .bridge__right { margin-left: auto; }
+  .bridge__search { min-width: 260px; }
+
+  .nexus-dock {
+    align-items: stretch;
+    justify-content: flex-start;
+    flex-direction: column;
+    gap: 18px;
+    height: 100%;
+    padding: 22px 18px;
+    border-top: 0;
+    border-right: 1px solid color-mix(in srgb, var(--b-shell) 66%, transparent);
+    background:
+      linear-gradient(180deg, color-mix(in srgb, var(--b-glass-highlight) 7%, transparent), transparent 34%),
+      color-mix(in srgb, var(--b-chrome-strong) 92%, transparent);
+    overflow: hidden;
+  }
+
+  .nexus-dock::before {
+    content: "Zavorth\A Control";
+    white-space: pre;
+    display: block;
+    min-height: 64px;
+    padding: 8px 10px 18px 52px;
+    color: var(--b-signal-strong);
+    font-family: var(--b-font-display);
+    font-size: 18px;
+    font-weight: 800;
+    line-height: 1.1;
+    letter-spacing: 0;
+    border-bottom: 1px solid color-mix(in srgb, var(--b-shell) 60%, transparent);
+    background: linear-gradient(135deg, color-mix(in srgb, var(--b-pulse) 10%, transparent), transparent 55%);
+    position: relative;
+  }
+
+  .nexus-dock::after {
+    content: "Z";
+    position: absolute;
+    top: 28px;
+    left: 28px;
+    display: grid;
+    place-items: center;
+    width: 34px;
+    height: 34px;
+    border-radius: 11px;
+    border: 1px solid color-mix(in srgb, var(--b-pulse) 30%, transparent);
+    background: color-mix(in srgb, var(--b-pulse) 12%, transparent);
+    color: var(--b-pulse);
+    font-family: var(--b-font-display);
+    font-weight: 800;
+  }
+
+  .nexus-dock__rail {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 16px;
+    width: 100%;
+    max-width: none;
+    min-height: 0;
+    overflow-y: auto;
+    overflow-x: hidden;
+    padding: 0 2px 84px;
+  }
+
+  .dock-group {
+    display: grid;
+    gap: 6px;
+  }
+
+  .dock-group::before {
+    color: var(--b-signal-muted);
+    font-family: var(--b-mono);
+    font-size: 10px;
+    font-weight: 800;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    padding: 0 10px 4px;
+  }
+
+  .dock-group:nth-of-type(1)::before { content: "Operate"; }
+  .dock-group:nth-of-type(2)::before { content: "Agent"; }
+  .dock-group:nth-of-type(3)::before { content: "System"; }
+  .dock-divider { display: none; }
+
+  .dock-node {
+    flex-direction: row;
+    justify-content: flex-start;
+    gap: 12px;
+    min-width: 0;
+    min-height: 48px;
+    width: 100%;
+    padding: 0 12px;
+    border-radius: 12px;
+    color: color-mix(in srgb, var(--b-signal) 74%, transparent);
+  }
+
+  .dock-node:hover {
+    background: color-mix(in srgb, var(--b-glass-highlight) 24%, transparent);
+    color: var(--b-signal-strong);
+  }
+
+  .dock-node.active {
+    border-color: color-mix(in srgb, var(--b-pulse) 24%, var(--b-glass-border));
+    background:
+      linear-gradient(135deg, color-mix(in srgb, var(--b-pulse) 12%, transparent), transparent 66%),
+      color-mix(in srgb, var(--b-glass-highlight) 28%, transparent);
+    color: var(--b-signal-strong);
+  }
+
+  .dock-node__glyph {
+    width: 21px;
+    height: 21px;
+    opacity: 0.88;
+  }
+
+  .dock-node__label {
+    display: inline;
+    font-size: 14px;
+    font-weight: 750;
+    text-transform: none;
+    letter-spacing: 0;
+  }
+
+  .dock-sys-info {
+    position: absolute;
+    left: 18px;
+    right: 18px;
+    bottom: 18px;
+    display: flex;
+    justify-content: space-between;
+    min-height: 48px;
+    padding: 0 14px;
+    border: 1px solid var(--b-glass-border);
+    border-radius: 16px;
+    background: color-mix(in srgb, var(--b-glass-highlight) 16%, transparent);
+  }
+}
+
+@media (max-width: 980px) {
+  .bridge__center { display: none; }
+}
+
+/* Platform polish: compact navigation and calm operator chrome */
+@media (min-width: 981px) {
+  .core-frame {
+    --dock-width: 236px;
+    --bridge-height: 56px;
+  }
+
+  .bridge {
+    padding: 0 22px;
+    border-bottom-color: color-mix(in srgb, var(--b-shell) 42%, transparent);
+    background: color-mix(in srgb, #07110f 92%, transparent);
+  }
+
+  .bridge__center {
+    font-size: 12px;
+  }
+
+  .bridge__search {
+    min-width: 220px;
+    min-height: 32px;
+    border-radius: 16px;
+  }
+
+  .bridge__action-btn {
+    width: 32px;
+    height: 32px;
+    border-radius: 12px;
+  }
+
+  .bridge__pulse {
+    min-height: 30px;
+    padding: 3px 10px 3px 8px;
+  }
+
+  .nexus-dock {
+    gap: 12px;
+    padding: 18px 14px;
+    background:
+      linear-gradient(180deg, color-mix(in srgb, var(--b-pulse) 5%, transparent), transparent 28%),
+      color-mix(in srgb, #04100d 96%, transparent);
+  }
+
+  .nexus-dock::before {
+    min-height: 54px;
+    padding: 6px 8px 14px 44px;
+    font-size: 16px;
+    border-bottom-color: color-mix(in srgb, var(--b-shell) 52%, transparent);
+    background: transparent;
+  }
+
+  .nexus-dock::after {
+    top: 23px;
+    left: 22px;
+    width: 32px;
+    height: 32px;
+    border-radius: 10px;
+  }
+
+  .nexus-dock__rail {
+    gap: 12px;
+    padding: 0 0 78px;
+  }
+
+  .dock-group {
+    gap: 2px;
+  }
+
+  .dock-group::before {
+    padding: 0 8px 5px;
+    font-size: 9px;
+    letter-spacing: 0.14em;
+  }
+
+  .dock-node {
+    min-height: 38px;
+    gap: 10px;
+    padding: 0 10px;
+    border-radius: 10px;
+    border-color: transparent;
+    color: color-mix(in srgb, var(--b-signal-muted) 88%, transparent);
+    box-shadow: none;
+  }
+
+  .dock-node:hover {
+    background: color-mix(in srgb, var(--b-glass-highlight) 14%, transparent);
+    box-shadow: none;
+  }
+
+  .dock-node.active {
+    border-color: color-mix(in srgb, var(--b-pulse) 34%, transparent);
+    background: color-mix(in srgb, var(--b-pulse) 9%, transparent);
+    box-shadow: none;
+  }
+
+  .dock-node__glyph {
+    width: 18px;
+    height: 18px;
+  }
+
+  .dock-node__glyph svg {
+    width: 17px;
+    height: 17px;
+  }
+
+  .dock-node__label {
+    font-size: 12.5px;
+    font-weight: 700;
+  }
+
+  .dock-sys-info {
+    left: 14px;
+    right: 14px;
+    bottom: 14px;
+    min-height: 34px;
+    padding: 0 11px;
+    border-radius: 12px;
+    background: color-mix(in srgb, var(--b-glass-highlight) 10%, transparent);
   }
 }

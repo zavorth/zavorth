@@ -30,6 +30,6 @@ blocked or unsupported.
 
 ## Related
 
-- [Operations](/docs/09-operations.md)
+- [Operations](/docs/operations.md)
 - [Provider Mesh](/docs/provider-mesh.md)
-- [Channel Mesh](/docs/33-channel-mesh.md)
+- [Channel Mesh](/docs/channel-mesh.md)

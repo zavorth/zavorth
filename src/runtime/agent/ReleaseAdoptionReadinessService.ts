@@ -5,7 +5,7 @@ import type { PublicAdoptionPilotLoopSnapshot } from './PublicAdoptionPilotLoopS
 import type { FeedbackTelemetryProductLoopSnapshot } from './FeedbackTelemetryProductLoopService.js';
 import type { UniversalAgentRun } from './UniversalAgentRuntimeTypes.js';
 
-export const RELEASE_ADOPTION_READINESS_CONTRACT_VERSION = '2026-05-04.wave-53' as const;
+export const RELEASE_ADOPTION_READINESS_CONTRACT_VERSION = '2026-05-04.release-readiness' as const;
 export const RELEASE_ADOPTION_READINESS_METADATA_KEY = 'releaseAdoptionReadiness' as const;
 
 export type ReleaseAdoptionReadinessStatus =
@@ -476,7 +476,7 @@ export class ReleaseAdoptionReadinessService {
         source: 'IntegrationShowcasePartnerSurfaceService',
         command: 'zavorth integration-showcase-partner-surface --json',
         detail: input.showcaseReady
-          ? 'Wave 52 publicou showcase fixture-first e partner surface auditavel.'
+          ? 'Integration Showcase publicou showcase fixture-first e partner surface auditavel.'
           : 'Release/adoption depende da showcase de integracoes sem claim formal indevido.',
         critical: true,
       },
@@ -674,7 +674,7 @@ export class ReleaseAdoptionReadinessService {
 
   private resolveNextSafeAction(status: ReleaseAdoptionReadinessStatus): string {
     if (status === 'needs-integration-showcase') {
-      return 'Fechar Wave 52 como showcase-ready antes de consolidar release/adoption.';
+      return 'Fechar Integration Showcase como showcase-ready antes de consolidar release/adoption.';
     }
     if (status === 'needs-release-train') {
       return 'Anexar ReleaseTrainSnapshot ready com baseline, rollback, hotfix e LTS.';

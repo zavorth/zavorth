@@ -1,6 +1,6 @@
 import type { LiveReadinessStatus } from './LiveReadinessContract.js';
 
-export const ZAVORTH_WEB_RESEARCH_LIVE_PLANE_CONTRACT_VERSION = '2026-05-04.live-phase-8' as const;
+export const ZAVORTH_WEB_RESEARCH_LIVE_PLANE_CONTRACT_VERSION = '2026-05-04.live-checkpoint-8' as const;
 
 export type WebResearchLiveTargetId =
   | 'brave'
@@ -102,7 +102,7 @@ export type WebResearchLiveEntry = {
 export type WebResearchLivePlaneSnapshot = {
   generatedAt: string;
   contractVersion: typeof ZAVORTH_WEB_RESEARCH_LIVE_PLANE_CONTRACT_VERSION;
-  phase: 'Phase 8 - Research, Web Extraction And Browser Live Plane';
+  phase: 'Dashboard controls - Research, Web Extraction And Browser Live Plane';
   status: 'closed' | 'attention' | 'blocked';
   summary: {
     targets: 7;
@@ -119,13 +119,13 @@ export type WebResearchLivePlaneSnapshot = {
     redactedReceipts: number;
     blocked: number;
     browserExtractionMarkedLiveByNoNetworkPlan: false;
-    liveIoRequiredByPhase8Check: false;
+    liveIoRequiredByStage8Check: false;
     secretValuesSerialized: false;
   };
   entries: WebResearchLiveEntry[];
   receipts: WebResearchLiveReceipt[];
   policy: {
-    noLiveIoDuringPhase8Check: true;
+    noLiveIoDuringStage8Check: true;
     searchProviderChoiceRequired: true;
     citationArtifactsRequired: true;
     extractionArtifactsRequired: true;
@@ -141,6 +141,6 @@ export type WebResearchLivePlaneSnapshot = {
     stagingLiveSmoke: 'npm run web-research-live-plane -- --profile staging-live --target <target> --confirm-live-io';
     focusedTests: string[];
     typecheck: 'npm run runtime:check --silent';
-    nextPhase: 'Phase 9 - File, Document, Diff And Prose Live Plane';
+    nextStage: 'Certification matrix - File, Document, Diff And Prose Live Plane';
   };
 };

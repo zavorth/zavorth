@@ -81,8 +81,8 @@ export class PublicAdoptionReadinessService {
         release: 'v1.0.0',
         packageName: this.readPackage()?.name || '<ausente>',
         packageVersion: this.readPackage()?.version || '<ausente>',
-        roadmapPath: 'docs/11-roadmap.md',
-        planningPath: 'docs/76-public-adoption-architecture.md',
+        roadmapPath: 'docs/product-direction.md',
+        planningPath: 'docs/product-direction.md',
       },
       requiredScripts: [...PUBLIC_ADOPTION_REQUIRED_CORE_SCRIPTS],
       launchChecklist: checks.filter((check) => isLaunchChecklistCheck(check.id)),
@@ -101,7 +101,7 @@ export class PublicAdoptionReadinessService {
 
   public renderReport(snapshot: PublicAdoptionReadinessSnapshot = this.buildSnapshot()): string {
     const lines: string[] = [];
-    lines.push('[public-adoption] Fase 53 - Public Adoption Readiness');
+    lines.push('[public-adoption] Readiness checkpoint 3 - Public Adoption Readiness');
     lines.push(`status: ${snapshot.status}`);
     lines.push(`ok: ${snapshot.summary.ok ? 'yes' : 'no'} | pass=${snapshot.summary.passed} warn=${snapshot.summary.warnings} fail=${snapshot.summary.failed}`);
     lines.push(`readiness-score: ${snapshot.summary.readinessScore}`);
@@ -122,7 +122,7 @@ export class PublicAdoptionReadinessService {
       lines.push(`- ${step.minute} ${step.route}: ${step.label}`);
     }
     lines.push('');
-    lines.push(`proxima fase recomendada: ${snapshot.nextRecommendedPhase.phase} - ${snapshot.nextRecommendedPhase.title}`);
+    lines.push(`proximo passo recomendada: ${snapshot.nextRecommendedPhase.phase} - ${snapshot.nextRecommendedPhase.title}`);
     lines.push(snapshot.nextRecommendedPhase.reason);
     return lines.join('\n');
   }
@@ -255,7 +255,7 @@ export class PublicAdoptionReadinessService {
       ok
         ? 'runbook cobre landing, demo, first run, docs, release e feedback com fallback.'
         : 'runbook precisa cobrir todas as rotas e ter prova/fallback por etapa.',
-      'docs/76-public-adoption-architecture.md',
+      'docs/product-direction.md',
       [
         `routes=${Array.from(routes).join(',')}`,
         ...missing.map((route) => `faltando: ${route}`),
@@ -272,25 +272,25 @@ export class PublicAdoptionReadinessService {
       exists ? 'pass' : 'warn',
       exists
         ? 'zavorth-website foi encontrado para apoiar demo/adocao publica.'
-        : 'zavorth-website nao foi encontrado nesta workspace; configure ZAVORTH_WEBSITE_REPO_ROOT antes da Fase 54.',
+        : 'zavorth-website nao foi encontrado nesta workspace; configure ZAVORTH_WEBSITE_REPO_ROOT antes da Readiness checkpoint 4.',
       this.websiteRoot,
     );
   }
 
   private checkNextPhasePlanning(): PublicAdoptionReadinessCheck {
-    const content = this.readCoreText('docs/76-public-adoption-architecture.md') || '';
-    const hasPhase = content.includes('Fase 54 - Hosted Website And Demo Operations');
+    const content = this.readCoreText('docs/product-direction.md') || '';
+    const hasPhase = content.includes('Readiness checkpoint 4 - Hosted Website And Demo Operations');
     const hasGate = content.includes('qa:phase:54');
     const ok = hasPhase && hasGate;
     return this.check(
       'public-adoption:next-phase',
-      'proxima fase planejada',
+      'proximo passo planejada',
       ok ? 'pass' : 'fail',
       ok
-        ? 'planejamento do ciclo aponta para a Fase 54 com gate proprio.'
-        : 'docs/76 precisa manter Fase 54 e seu gate planejado.',
-      'docs/76-public-adoption-architecture.md',
-      [`phase54=${hasPhase}`, `gate54=${hasGate}`],
+        ? 'planejamento do ciclo aponta para a Readiness checkpoint 4 com gate proprio.'
+        : 'docs/product-direction precisa manter Readiness checkpoint 4 e seu gate planejado.',
+      'docs/product-direction.md',
+      [`credential-vault4=${hasPhase}`, `gate54=${hasGate}`],
     );
   }
 

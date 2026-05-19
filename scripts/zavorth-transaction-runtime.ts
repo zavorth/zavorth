@@ -39,7 +39,7 @@ if (!options.text) {
   if (options.json) {
     console.log(JSON.stringify(snapshot, null, 2));
   } else {
-    console.log('[transaction-runtime] Phase 6 transaction runtime');
+    console.log('[transaction-runtime] Runtime gateway transaction runtime');
     console.log(`[transaction-runtime] version: ${snapshot.version}`);
     console.log(`[transaction-runtime] summary: ${snapshot.summary}`);
     console.log(`[transaction-runtime] stages: ${snapshot.stages.join(', ')}`);

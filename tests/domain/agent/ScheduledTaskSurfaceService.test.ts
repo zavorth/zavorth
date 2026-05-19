@@ -27,7 +27,7 @@ describe('ZavorthScheduledTaskSurfaceService', () => {
       'u1',
       expect.objectContaining({
         governedScheduledTask: expect.objectContaining({
-          phase: 'phase-3-persisted-scheduled-task-registration',
+          stage: 'checkpoint-3-persisted-scheduled-task-registration',
           approvalId: 'surface-approval-1',
         }),
       }),
@@ -173,8 +173,8 @@ class MemoryScheduler {
 
 function governedMetadata() {
   return {
-    contractVersion: '2026-05-12.persisted-scheduled-task-registration-phase-3',
-    phase: 'phase-3-persisted-scheduled-task-registration',
+    contractVersion: '2026-05-12.persisted-scheduled-task-registration-checkpoint-3',
+    stage: 'checkpoint-3-persisted-scheduled-task-registration',
     registryStatus: 'active',
     approvalId: 'existing-approval',
     approvalExpiresAt: '2026-05-19T10:00:00.000Z',

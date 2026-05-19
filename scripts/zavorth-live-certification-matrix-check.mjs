@@ -25,7 +25,7 @@ const snapshot = {
 if (asJson) {
   console.log(JSON.stringify(snapshot, null, 2));
 } else {
-  console.log('[zavorth-live-certification-matrix] checking Phase 13');
+  console.log('[zavorth-live-certification-matrix] checking Intent model3');
   for (const rule of rules) {
     const marker = rule.status === 'passed' ? 'ok' : 'fail';
     console.log(`[zavorth-live-certification-matrix] ${marker} ${rule.label}: ${rule.observed} | ${rule.target}`);
@@ -45,8 +45,8 @@ function ruleFilesExist() {
   ];
   const missing = files.filter((file) => !fs.existsSync(path.join(root, file)));
   return rule(
-    'phase-13-files',
-    'Phase 13 files exist',
+    'checkpoint-13-files',
+    'Intent model3 files exist',
     missing.length === 0,
     `${files.length - missing.length}/${files.length}`,
     'contract, service, CLI, check and tests are present',
@@ -90,7 +90,7 @@ function ruleContainsMarkers() {
     }
   }
   return rule(
-    'phase-13-markers',
+    'checkpoint-13-markers',
     'Live matrix markers are wired',
     missing.length === 0,
     missing.length === 0 ? 'all markers' : `${missing.length} missing`,
@@ -124,7 +124,7 @@ function ruleWorkspaceCheck() {
   const marker = 'zavorth:live-certification-matrix:check';
   return rule(
     'workspace-check',
-    'workspace:check includes Phase 13 gate',
+    'workspace:check includes Intent model3 gate',
     text.includes(marker),
     text.includes(marker) ? 'wired' : 'missing',
     marker,
@@ -151,7 +151,7 @@ function ruleSnapshot() {
   const data = parseJson(result.stdout);
   const statuses = new Set((data?.matrix || []).map((entry) => entry.status));
   const pass = data
-    && data.contractVersion === '2026-05-14.phase-13-live-certification-matrix'
+    && data.contractVersion === '2026-05-14.checkpoint-13-live-certification-matrix'
     && data.status === 'passed'
     && data.summary?.dashboardCertified === true
     && data.summary?.cliCertified === true

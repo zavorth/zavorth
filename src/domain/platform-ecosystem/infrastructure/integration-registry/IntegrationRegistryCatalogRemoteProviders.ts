@@ -175,7 +175,7 @@ export const INTEGRATION_REMOTE_PROVIDER_MANIFESTS: IntegrationManifest[] = [
         choices: [
           choice('balanced', 'Uso geral', 'EquilÃƒÂ­brio entre chat, cÃƒÂ³digo e pesquisa.'),
           choice('research', 'Pesquisa', 'Mais profundidade e evidÃƒÂªncia.'),
-          choice('code', 'CÃƒÂ³digo', 'ÃƒÅ nfase em revisÃƒÂ£o e implementaÃƒÂ§ÃƒÂ£o.'),
+          choice('code', 'CÃƒÂ³digo', 'ÃƒÅ netapa em revisÃƒÂ£o e implementaÃƒÂ§ÃƒÂ£o.'),
         ],
       }),
     ],

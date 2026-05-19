@@ -1,6 +1,6 @@
 import type { LiveReadinessStatus } from './LiveReadinessContract.js';
 
-export const ZAVORTH_CHANNEL_LIVE_ACTIVATION_CONTRACT_VERSION = '2026-05-04.live-phase-2' as const;
+export const ZAVORTH_CHANNEL_LIVE_ACTIVATION_CONTRACT_VERSION = '2026-05-04.live-checkpoint-2' as const;
 
 export type ChannelLiveActivationP0Id =
   | 'signal'
@@ -80,7 +80,7 @@ export type ChannelLiveActivationEntry = {
 export type ChannelLiveActivationSnapshot = {
   generatedAt: string;
   contractVersion: typeof ZAVORTH_CHANNEL_LIVE_ACTIVATION_CONTRACT_VERSION;
-  phase: 'Phase 2 - Channel Live Activation P0';
+  phase: 'Preview engine - Channel Live Activation P0';
   status: 'closed' | 'attention' | 'blocked';
   summary: {
     channels: 6;
@@ -95,13 +95,13 @@ export type ChannelLiveActivationSnapshot = {
     outboundMockTests: number;
     stagingLiveSmokeCommands: number;
     redactedReceipts: number;
-    liveIoRequiredByPhase2Check: false;
+    liveIoRequiredByStage2Check: false;
     secretValuesSerialized: false;
   };
   entries: ChannelLiveActivationEntry[];
   receipts: ChannelLiveActivationReceipt[];
   policy: {
-    noLiveIoDuringPhase2Check: true;
+    noLiveIoDuringStage2Check: true;
     stagingLiveRequiresExplicitOperatorCommand: true;
     outboxAllowedOnlyAsFallback: true;
     signalUsesJsonRpcOrSignalCli: true;
@@ -114,6 +114,6 @@ export type ChannelLiveActivationSnapshot = {
     stagingLiveSmoke: 'npm run channel-live-activation -- --profile staging-live --channel <channel> --confirm-live-io';
     focusedTests: string[];
     typecheck: 'npm run runtime:check --silent';
-    nextPhase: 'Phase 4 - Provider Runtime Activation P0';
+    nextStage: 'Connector registry - Provider Runtime Activation P0';
   };
 };

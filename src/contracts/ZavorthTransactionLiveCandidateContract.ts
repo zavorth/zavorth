@@ -17,7 +17,7 @@ import type {
   ZavorthTransactionSurfaceKind,
 } from './ZavorthTransactionSurfaceContract.js';
 
-export const ZAVORTH_TRANSACTION_LIVE_CANDIDATE_CONTRACT_VERSION = 'zavorth-transaction-live-candidate/phase-10' as const;
+export const ZAVORTH_TRANSACTION_LIVE_CANDIDATE_CONTRACT_VERSION = 'zavorth-transaction-live-candidate/checkpoint-10' as const;
 
 export const ZAVORTH_TRANSACTION_LIVE_CANDIDATE_OWNER_PHRASE = 'ZAVORTH LIVE CANDIDATE ONLY' as const;
 
@@ -28,7 +28,7 @@ export type ZavorthTransactionLiveCandidateStatus =
   | 'candidate-ready';
 
 export type ZavorthTransactionLiveCandidateGateKind =
-  | 'phase9-certification'
+  | 'certification-matrix-certification'
   | 'command-center-simulated'
   | 'approval-ledger-approved'
   | 'credential-ref-ready'
@@ -132,7 +132,7 @@ export type ZavorthTransactionLiveCandidateContractSnapshot = {
 export function buildZavorthTransactionLiveCandidateContractSnapshot(): ZavorthTransactionLiveCandidateContractSnapshot {
   return {
     version: ZAVORTH_TRANSACTION_LIVE_CANDIDATE_CONTRACT_VERSION,
-    summary: 'Owner-gated live-candidate envelope contract for Zavorth Transaction Plane Phase 10.',
+    summary: 'Owner-gated live-candidate envelope contract for Zavorth Transaction Plane Intent model0.',
     statuses: [
       'certification-required',
       'runtime-blocked',
@@ -140,7 +140,7 @@ export function buildZavorthTransactionLiveCandidateContractSnapshot(): ZavorthT
       'candidate-ready',
     ],
     gateKinds: [
-      'phase9-certification',
+      'certification-matrix-certification',
       'command-center-simulated',
       'approval-ledger-approved',
       'credential-ref-ready',
@@ -151,12 +151,12 @@ export function buildZavorthTransactionLiveCandidateContractSnapshot(): ZavorthT
     ],
     ownerPhrase: ZAVORTH_TRANSACTION_LIVE_CANDIDATE_OWNER_PHRASE,
     invariants: [
-      'Phase 10 may produce a live-candidate envelope, but it still cannot execute a live transaction.',
-      'A candidate-ready envelope requires Phase 9 certification to pass first.',
+      'Intent model0 may produce a live-candidate envelope, but it still cannot execute a live transaction.',
+      'A candidate-ready envelope requires Certification matrix certification to pass first.',
       'A candidate-ready envelope requires explicit owner confirmation using the required phrase.',
       'A candidate-ready envelope requires approval-granted, credential-ready and typed connector simulated receipts.',
       'Candidate envelopes may include credential refs, but never raw credential values.',
-      'Every Phase 10 result reports externalSideEffects=false, liveExecutionAuthorized=false, executableNow=false and liveActionApplied=false.',
+      'Every Intent model0 result reports externalSideEffects=false, liveExecutionAuthorized=false, executableNow=false and liveActionApplied=false.',
     ],
   };
 }

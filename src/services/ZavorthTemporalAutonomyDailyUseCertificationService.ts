@@ -41,8 +41,8 @@ export class ZavorthTemporalAutonomyDailyUseCertificationService {
     const agentRunRecovery = new ZavorthContextRecoveryAssimilationService({ now }).buildSnapshot({
       text: 'Continue a tarefa diaria mesmo se o provider falhar, preservando contexto e approvals.',
       surface: 'scheduler',
-      actorId: 'phase-8-certification',
-      sessionId: 'phase-8-daily-use',
+      actorId: 'checkpoint-8-certification',
+      sessionId: 'checkpoint-8-daily-use',
       lastFailure: {
         message: 'provider timeout while running scheduled task',
         toolId: 'llm.provider',
@@ -61,11 +61,11 @@ export class ZavorthTemporalAutonomyDailyUseCertificationService {
       schedule: 'daily 09:00',
       workspace: this.cwd(),
       surface: 'api',
-      createdBy: 'phase-8-certification',
+      createdBy: 'checkpoint-8-certification',
       allowedTools: ['read_file'],
       approval: {
         ownerConfirmed: true,
-        approvalId: 'phase-8-no-compound-approval',
+        approvalId: 'checkpoint-8-no-compound-approval',
         approvedBy: 'owner',
       },
     });
@@ -93,7 +93,7 @@ export class ZavorthTemporalAutonomyDailyUseCertificationService {
       generatedAt,
       contractVersion: ZAVORTH_TEMPORAL_AUTONOMY_DAILY_USE_CERTIFICATION_CONTRACT_VERSION,
       source: 'ZavorthTemporalAutonomyDailyUseCertificationService',
-      phase: 'phase-8-certification-and-daily-use-gate',
+      phase: 'checkpoint-8-certification-and-daily-use-gate',
       status,
       dailyOpsReadiness,
       liveTickCertification,
@@ -105,7 +105,7 @@ export class ZavorthTemporalAutonomyDailyUseCertificationService {
       summary,
       receipts,
       safety: {
-        consumesPhase6LiveTickCertification: true,
+        consumesStage6LiveTickCertification: true,
         consumesDailyOpsReadiness: true,
         consumesChannelCapabilityAwareness: true,
         acpBridgeGovernedByMcp: true,
@@ -129,7 +129,7 @@ export class ZavorthTemporalAutonomyDailyUseCertificationService {
 
   public renderReport(snapshot: ZavorthTemporalAutonomyDailyUseCertificationSnapshot): string {
     const lines = [
-      'Temporal Autonomy Daily-Use Certification - Phase 8',
+      'Temporal Autonomy Daily-Use Certification - Dashboard controls',
       '',
       `Status: ${snapshot.status}`,
       snapshot.narrative.operatorSummary,
@@ -206,7 +206,7 @@ function buildAbuseScenarios(input: {
       blocked: true,
       gatewayCalled: false,
       executionPerformed: false,
-      receiptIds: ['phase-8-acp-mcp-governance'],
+      receiptIds: ['checkpoint-8-acp-mcp-governance'],
       policySurface: 'agent-runtime-bridge',
       summary: 'ACP bridge is certified only as an optional owner-gated bridge under MCP and tool policy receipts.',
     },
@@ -216,7 +216,7 @@ function buildAbuseScenarios(input: {
       blocked: false,
       gatewayCalled: false,
       executionPerformed: false,
-      receiptIds: ['phase-8-channel-fallback'],
+      receiptIds: ['checkpoint-8-channel-fallback'],
       policySurface: 'channel-renderer',
       summary: 'A channel without native buttons receives structured text fallback from the same response contract.',
     },
@@ -240,7 +240,7 @@ function buildMatrix(input: {
         `dailyOps=${input.dailyOpsReadiness.status}`,
         `failedDailyOpsGates=${input.dailyOpsReadiness.summary.failedGates}`,
       ],
-      'Fix Phase 6/7 scheduled-task gates before daily use.',
+      'Fix Runtime gateway/7 scheduled-task gates before daily use.',
     ),
     matrix(
       'approvals',
@@ -348,40 +348,40 @@ function buildReceipts(
 ): ZavorthTemporalAutonomyDailyUseReceipt[] {
   return [
     {
-      id: 'phase-8-daily-use-certification',
-      kind: 'phase-8-daily-use-certification',
+      id: 'checkpoint-8-daily-use-certification',
+      kind: 'checkpoint-8-daily-use-certification',
       status: status === 'certified' ? 'passed' : status,
-      summary: `Phase 8 daily-use certification status is ${status}.`,
+      summary: `Dashboard controls daily-use certification status is ${status}.`,
     },
     {
-      id: 'phase-8-scheduled-task-certification-consumed',
+      id: 'checkpoint-8-scheduled-task-certification-consumed',
       kind: 'scheduled-task-certification-consumed',
       status: matrix.find((entry) => entry.area === 'scheduled_tasks')?.status === 'pass' ? 'passed' : 'blocked',
       summary: 'Scheduled-task registration, live tick and daily ops readiness were consumed.',
     },
     {
-      id: 'phase-8-channel-capability-consumed',
+      id: 'checkpoint-8-channel-capability-consumed',
       kind: 'channel-capability-consumed',
       status: matrix.find((entry) => entry.area === 'channel_ux')?.status === 'pass' ? 'passed' : 'blocked',
       summary: 'Channel capability awareness was consumed without dashboard visual mutation.',
     },
     ...abuseScenarios.map((scenario): ZavorthTemporalAutonomyDailyUseReceipt => ({
-      id: `phase-8-${scenario.id}`,
+      id: `checkpoint-8-${scenario.id}`,
       kind: 'abuse-scenario',
       status: scenario.status === 'failed' ? 'blocked' : 'passed',
       summary: scenario.summary,
     })),
     {
-      id: 'phase-8-parity-matrix',
+      id: 'checkpoint-8-parity-matrix',
       kind: 'parity-matrix',
       status: matrix.every((entry) => entry.status === 'pass') ? 'passed' : 'blocked',
       summary: `${matrix.filter((entry) => entry.status === 'pass').length}/${matrix.length} daily-use matrix areas passed.`,
     },
     {
-      id: 'phase-8-no-dashboard-visual-mutation',
+      id: 'checkpoint-8-no-dashboard-visual-mutation',
       kind: 'no-dashboard-visual-mutation',
       status: 'recorded',
-      summary: 'Phase 8 exposes certification data and does not add dashboard visual sections.',
+      summary: 'Dashboard controls exposes certification data and does not add dashboard visual sections.',
     },
   ];
 }
@@ -409,7 +409,7 @@ function narrativeForStatus(
     return {
       headline: 'Temporal autonomy is usable with attention notes.',
       operatorSummary: `${summary.passedMatrixAreas}/${summary.matrixAreas} matrix areas passed with warnings.`,
-      nextAction: 'Inspect warning matrix entries and rerun the Phase 8 check after host-specific validation.',
+      nextAction: 'Inspect warning matrix entries and rerun the Dashboard controls check after host-specific validation.',
     };
   }
   return {

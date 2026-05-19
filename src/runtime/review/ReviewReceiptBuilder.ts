@@ -150,7 +150,7 @@ export class ReviewReceiptBuilder {
         generatedAt,
         source: 'GovernedReviewService',
         status: 'needs-approval',
-        detail: 'Phase 4 scores, verifies and surfaces findings but performs no mutation, PR comment, external egress or patch application.',
+        detail: 'Connector registry scores, verifies and surfaces findings but performs no mutation, PR comment, external egress or patch application.',
         metadata: {
           noMutationApplied: true,
           externalEgressNotPerformed: true,

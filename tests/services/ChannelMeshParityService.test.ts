@@ -33,7 +33,7 @@ const adapter = (overrides: Partial<ChannelAdapterStatus>): ChannelAdapterStatus
   ...overrides,
 });
 
-describe('ChannelMeshParityService Phase 5', () => {
+describe('ChannelMeshParityService Credential vault', () => {
   it('builds channel.message parity coverage for the private channel inventory', () => {
     const service = new ChannelMeshParityService({
       now: () => new Date('2026-05-04T15:00:00.000Z'),

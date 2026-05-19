@@ -122,22 +122,22 @@ export class AiFirstPromotionCandidateRegistryService {
       ],
       gates: [
         {
-          id: 'phase-5-registry-only',
+          id: 'checkpoint-5-registry-only',
           status: 'passed',
           detail: 'Candidate registry records eligibility but does not activate routes.',
         },
         {
-          id: 'phase-5-allowlist-proposal-only',
+          id: 'checkpoint-5-allowlist-proposal-only',
           status: 'passed',
           detail: 'Allowlist entries are proposed or withheld; none are enabled by default.',
         },
         {
-          id: 'phase-5-manual-activation-required',
+          id: 'checkpoint-5-manual-activation-required',
           status: 'passed',
-          detail: 'Every allowlist entry requires manual activation and Phase 3 guardrails.',
+          detail: 'Every allowlist entry requires manual activation and Approval gate guardrails.',
         },
         {
-          id: 'phase-5-current-runtime-preserved',
+          id: 'checkpoint-5-current-runtime-preserved',
           status: 'passed',
           detail: 'defaultRuntimeChanged is false and keepCurrentRuntimeDecision is true.',
         },
@@ -147,7 +147,7 @@ export class AiFirstPromotionCandidateRegistryService {
 
   public renderMarkdown(snapshot: AiFirstPromotionCandidateRegistrySnapshot): string {
     const lines: string[] = [];
-    lines.push('# Zavorth AI-first Router Phase 5');
+    lines.push('# Zavorth AI-first Router Credential vault');
     lines.push('');
     lines.push(`- contract: ${snapshot.contractVersion}`);
     lines.push(`- registryId: ${snapshot.registryId}`);
@@ -216,7 +216,7 @@ export class AiFirstPromotionCandidateRegistryService {
       surfaces: proposed ? candidate.allowedSurfaces : [],
       allowedRiskLevels,
       maxRisk: maxRisk(allowedRiskLevels),
-      requiresPhase3Guardrail: true,
+      requiresStage3Guardrail: true,
       requiresBatchReceipt: true,
       requiresManualActivation: true,
       defaultEnabled: false,
@@ -428,7 +428,7 @@ function buildPromotionPlan(input: {
   const steps: AiFirstPromotionPlanStep[] = [
     {
       order: 1,
-      id: 'phase-5:keep-default-runtime',
+      id: 'checkpoint-5:keep-default-runtime',
       kind: 'keep-default-runtime',
       status: 'planned',
       detail: 'Keep current runtime route as authoritative.',
@@ -437,14 +437,14 @@ function buildPromotionPlan(input: {
   if (input.summary.proposedAllowlistEntries > 0) {
     steps.push({
       order: 2,
-      id: 'phase-5:register-allowlist-proposal',
+      id: 'checkpoint-5:register-allowlist-proposal',
       kind: 'register-allowlist-proposal',
       status: 'planned',
       detail: `Prepare ${input.summary.proposedAllowlistEntries} allowlist proposal(s), disabled by default.`,
     });
     steps.push({
       order: 3,
-      id: 'phase-5:manual-canary-review',
+      id: 'checkpoint-5:manual-canary-review',
       kind: 'manual-canary-review',
       status: 'planned',
       detail: 'Require owner review before any limited canary activation.',
@@ -454,7 +454,7 @@ function buildPromotionPlan(input: {
   if (input.recommendation.action === 'investigate-blocks') {
     steps.push({
       order: 2,
-      id: 'phase-5:investigate-blocks',
+      id: 'checkpoint-5:investigate-blocks',
       kind: 'investigate-blocks',
       status: 'planned',
       detail: 'Investigate blocked families and high-risk mismatches before collecting promotion candidates.',
@@ -462,10 +462,10 @@ function buildPromotionPlan(input: {
   } else {
     steps.push({
       order: 2,
-      id: 'phase-5:continue-shadow',
+      id: 'checkpoint-5:continue-shadow',
       kind: 'continue-shadow',
       status: 'planned',
-      detail: 'Collect more Phase 4 batches before creating allowlist proposals.',
+      detail: 'Collect more Connector registry batches before creating allowlist proposals.',
     });
   }
   return steps;

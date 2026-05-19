@@ -129,7 +129,7 @@ const snapshot = {
 if (asJson) {
   console.log(JSON.stringify(snapshot, null, 2));
 } else {
-  console.log('[remaining-runtime-decisions] checking Phase 13');
+  console.log('[remaining-runtime-decisions] checking Intent model3');
   for (const rule of rules) {
     const marker = rule.status === 'passed' ? 'ok' : 'fail';
     console.log(`[remaining-runtime-decisions] ${marker} ${rule.label}: ${rule.observed} | ${rule.target}`);

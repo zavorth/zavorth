@@ -644,7 +644,7 @@ export class WebRealtimeService {
       created_at: run.created_at,
       updated_at: run.updated_at,
       status: run.status,
-      stages: Array.isArray(run.stages) ? run.stages : [],
+      phases: Array.isArray(run.phases) ? run.phases : [],
       resume_stage: run.resume_stage || null,
       actionable_stages: Array.isArray((run as any).actionable_stages) ? (run as any).actionable_stages : [],
       resume_prompt: run.resume_prompt || null,

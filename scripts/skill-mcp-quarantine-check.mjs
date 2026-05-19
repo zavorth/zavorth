@@ -8,7 +8,7 @@ const asJson = process.argv.includes('--json');
 const rules = [
   ruleFilesExist({
     id: 'skill-mcp-quarantine-files',
-    label: 'Wave 33 files exist',
+    label: 'Skill MCP Quarantine files exist',
     target: 'Runtime, CLI, Command Center, tests and docs are present',
     files: [
       'src/runtime/agent/SkillMcpQuarantineService.ts',
@@ -27,7 +27,7 @@ const rules = [
     files: ['src/runtime/agent/SkillMcpQuarantineService.ts'],
     needles: [
       'SKILL_MCP_QUARANTINE_CONTRACT_VERSION',
-      '2026-05-03.wave-33',
+      '2026-05-03.skill-mcp-quarantine',
       'externalImportsNeverTrustedAutomatically',
       'naturalLanguageDoesNotBypassQuarantine',
       'promotionsRequireExplicitOperatorAction',
@@ -63,7 +63,7 @@ const rules = [
     ],
     needles: [
       'quarantine',
-      'Skill/MCP Quarantine - Wave 33',
+      'Skill/MCP Quarantine - Skill MCP Quarantine',
       'resolveSkillMcpQuarantineCliText',
       'formatSkillMcpQuarantineSnapshot',
       'zavorth quarantine promote',
@@ -92,7 +92,7 @@ const rules = [
   }),
   ruleContainsAll({
     id: 'package-exposes-skill-mcp-quarantine-gate',
-    label: 'package exposes Wave 33 gate',
+    label: 'package exposes Skill MCP Quarantine gate',
     target: 'local QA can run skill-mcp-quarantine:check and qa:skill-mcp-quarantine',
     files: ['package.json'],
     needles: [
@@ -118,7 +118,7 @@ const snapshot = {
 if (asJson) {
   console.log(JSON.stringify(snapshot, null, 2));
 } else {
-  console.log('[skill-mcp-quarantine] checking Wave 33');
+  console.log('[skill-mcp-quarantine] checking Skill MCP Quarantine');
   for (const rule of rules) {
     const marker = rule.status === 'passed' ? 'ok' : 'fail';
     console.log(`[skill-mcp-quarantine] ${marker} ${rule.label}: ${rule.observed} | ${rule.target}`);

@@ -29,7 +29,7 @@ export type ExternalExecutorLiveReadOnlyBridgeSurfaceKind =
 
 export type ExternalExecutorLiveReadOnlyBridgeSource = {
   realSnapshot: ExternalExecutorRealCapabilitySnapshotReadOnlyNormalization;
-  sourceSnapshotDoc: 'docs/161-wave-1-real-capability-snapshot-read-only.md';
+  sourceSnapshotDoc: 'docs/real-capability-snapshot-read-only.md';
   secretRefId: 'external-executor-gateway-token';
   secretInjectionChannel: 'env-var';
   tokenStatus: 'present-redacted';
@@ -227,7 +227,7 @@ function buildFailureModel(
 export function createExternalExecutorLiveReadOnlyBridgeBoundaryFixtureSource(): ExternalExecutorLiveReadOnlyBridgeSource {
   return {
     realSnapshot: normalizeExternalExecutorRealCapabilitySnapshotReadOnlyFixture(),
-    sourceSnapshotDoc: 'docs/161-wave-1-real-capability-snapshot-read-only.md',
+    sourceSnapshotDoc: 'docs/real-capability-snapshot-read-only.md',
     secretRefId: 'external-executor-gateway-token',
     secretInjectionChannel: 'env-var',
     tokenStatus: 'present-redacted',

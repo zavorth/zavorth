@@ -4,7 +4,7 @@ import {
 } from '../../src/contracts/ZavorthTransactionCredentialContract.js';
 
 describe('ZavorthTransactionCredentialContract', () => {
-  it('publishes the Phase 5 credential ref contract', () => {
+  it('publishes the Credential vault credential ref contract', () => {
     const snapshot = buildZavorthTransactionCredentialContractSnapshot();
 
     expect(snapshot.version).toBe(ZAVORTH_TRANSACTION_CREDENTIAL_CONTRACT_VERSION);
@@ -17,7 +17,7 @@ describe('ZavorthTransactionCredentialContract', () => {
 
     expect(snapshot.invariants).toEqual(
       expect.arrayContaining([
-        'Phase 5 stores credential references and metadata only, never raw secret values.',
+        'Credential vault stores credential references and metadata only, never raw secret values.',
         'Raw credential values are blocked and redacted before any store write.',
         'Credential references do not authorize live execution by themselves.',
       ]),

@@ -5,7 +5,7 @@ import type {
 } from './ZavorthScheduledTaskPersistenceContract.js';
 
 export const ZAVORTH_SCHEDULED_TASK_SURFACE_CONTRACT_VERSION =
-  '2026-05-12.governed-scheduled-task-surfaces-phase-4' as const;
+  '2026-05-12.governed-scheduled-task-surfaces-checkpoint-4' as const;
 
 export type ZavorthScheduledTaskSurfaceAction =
   | 'preview'
@@ -68,7 +68,7 @@ export type ZavorthScheduledTaskSurfaceResult = {
   generatedAt: string;
   contractVersion: typeof ZAVORTH_SCHEDULED_TASK_SURFACE_CONTRACT_VERSION;
   source: 'ZavorthScheduledTaskSurfaceService';
-  phase: 'phase-4-governed-scheduled-task-surfaces';
+  phase: 'checkpoint-4-governed-scheduled-task-surfaces';
   action: ZavorthScheduledTaskSurfaceAction;
   status: ZavorthScheduledTaskSurfaceStatus;
   ok: boolean;

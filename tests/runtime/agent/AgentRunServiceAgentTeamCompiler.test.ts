@@ -8,7 +8,7 @@ function createIdFactory() {
   return (prefix: string) => `${prefix}-agent-team-${++index}`;
 }
 
-describe('AgentRunService Agent Team Compiler Wave 40', () => {
+describe('AgentRunService Agent Team Compiler Channel mesh0', () => {
   it('publishes run.metadata.agentTeamCompiler during the agent run lifecycle', async () => {
     const service = new AgentRunService({
       now: () => new Date('2026-05-04T00:40:00.000Z'),

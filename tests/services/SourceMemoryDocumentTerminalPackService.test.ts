@@ -7,14 +7,14 @@ import { SourceDocumentExtractionService } from '../../src/services/SourceDocume
 import { SourceMemoryDocumentTerminalPackService } from '../../src/services/SourceMemoryDocumentTerminalPackService.js';
 import { ShellSafetyClassifier } from '../../src/services/ShellSafetyClassifier.js';
 
-describe('SourceMemoryDocumentTerminalPackService Phase 5', () => {
+describe('SourceMemoryDocumentTerminalPackService Credential vault', () => {
   const now = () => new Date('2026-05-05T17:00:00.000Z');
   let tempRoot: string;
   let sourceRoot: string;
   let zavorthRoot: string;
 
   beforeEach(() => {
-    tempRoot = fs.mkdtempSync(path.join(os.tmpdir(), 'zavorth-source-phase5-'));
+    tempRoot = fs.mkdtempSync(path.join(os.tmpdir(), 'zavorth-source-credential-vault-'));
     sourceRoot = path.join(tempRoot, 'source');
     zavorthRoot = path.join(tempRoot, 'zavorth');
     createFixtureSource(sourceRoot);
@@ -31,7 +31,7 @@ describe('SourceMemoryDocumentTerminalPackService Phase 5', () => {
       dbPath: path.join(tempRoot, 'memory.sqlite'),
     });
     const write = backend.write({
-      namespace: 'phase5-test',
+      namespace: 'credential-vault-test',
       text: 'Source memory host behavior is represented by sqlite vector recall.',
       metadata: {
         source: 'test',
@@ -39,7 +39,7 @@ describe('SourceMemoryDocumentTerminalPackService Phase 5', () => {
       },
     });
     const query = backend.query({
-      namespace: 'phase5-test',
+      namespace: 'credential-vault-test',
       query: 'sqlite vector recall',
     });
 
@@ -65,7 +65,7 @@ describe('SourceMemoryDocumentTerminalPackService Phase 5', () => {
 
     expect(smoke.artifacts).toHaveLength(2);
     expect(smoke.receipts.map((receipt) => receipt.status)).toEqual(['artifact-created', 'artifact-created']);
-    expect(smoke.artifacts[0].text).toContain('Phase 5 PDF extraction smoke artifact');
+    expect(smoke.artifacts[0].text).toContain('Credential vault PDF extraction smoke artifact');
     expect(smoke.artifacts[1].text).toContain('Readability extraction creates an artifact-first receipt');
     expect(smoke.receipts.every((receipt) => receipt.liveIoPerformed === false)).toBe(true);
   });
@@ -114,12 +114,12 @@ describe('SourceMemoryDocumentTerminalPackService Phase 5', () => {
     );
   });
 
-  it('emits a passing Phase 5 pack snapshot', async () => {
+  it('emits a passing Credential vault pack snapshot', async () => {
     const service = new SourceMemoryDocumentTerminalPackService({
       now,
       sourceRoot,
       zavorthRoot,
-      memoryDbPath: path.join(tempRoot, 'phase5.sqlite'),
+      memoryDbPath: path.join(tempRoot, 'credential-vault.sqlite'),
       shellSafetyClassifier: new ShellSafetyClassifier({
         now,
         allowedRoots: [zavorthRoot],
@@ -157,9 +157,9 @@ describe('SourceMemoryDocumentTerminalPackService Phase 5', () => {
         scopedCwdRootsRequired: true,
       }),
     );
-    expect(snapshot.commands.nextPhase).toBe('Phase 6 - Native Companion And Device Capability Pack');
-    expect(text).toContain('Zavorth Source Memory Document Terminal Pack - Phase 5');
-    expect(text).toContain('Next: Phase 6 - Native Companion And Device Capability Pack');
+    expect(snapshot.commands.nextStage).toBe('Runtime gateway - Native Companion And Device Capability Pack');
+    expect(text).toContain('Zavorth Source Memory Document Terminal Pack - Credential vault');
+    expect(text).toContain('Next: Runtime gateway - Native Companion And Device Capability Pack');
   });
 });
 
@@ -200,7 +200,7 @@ function createFixtureSource(root: string): void {
     "import 'proxy-agent';",
     "import 'https-proxy-agent';",
     "import 'undici';",
-    'export const phase5 = { Readability, JSDOM };',
+    'export const credential-vault = { Readability, JSDOM };',
   ].join('\n'));
 }
 
@@ -222,7 +222,7 @@ function createFixtureZavorth(root: string): void {
       'node-pty': '^1.0.0',
     },
   });
-  fs.writeFileSync(path.join(root, 'src', 'phase5.ts'), [
+  fs.writeFileSync(path.join(root, 'src', 'credential-vault.ts'), [
     "import 'pdfjs-dist';",
     "import '@mozilla/readability';",
     "import 'jsdom';",

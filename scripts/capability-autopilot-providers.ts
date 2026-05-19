@@ -14,7 +14,7 @@ type CapabilityAutopilotProvidersCheck = {
 };
 
 type CapabilityAutopilotProvidersSnapshot = CapabilityProviderExpansionSnapshot & {
-  phase: '65';
+  stage: '65';
   status: 'ready' | 'attention' | 'blocked';
   summary: {
     ok: boolean;
@@ -23,8 +23,8 @@ type CapabilityAutopilotProvidersSnapshot = CapabilityProviderExpansionSnapshot 
     failed: number;
   };
   checks: CapabilityAutopilotProvidersCheck[];
-  nextRecommendedPhase: {
-    phase: '66';
+  nextRecommendedStage: {
+    stage: '66';
     title: string;
     reason: string;
   };
@@ -94,7 +94,7 @@ function buildSnapshot(
 
   return {
     ...expansion,
-    phase: '65',
+    stage: '65',
     status: failed > 0 ? 'blocked' : warnings > 0 ? 'attention' : 'ready',
     summary: {
       ok: failed === 0,
@@ -103,8 +103,8 @@ function buildSnapshot(
       failed,
     },
     checks,
-    nextRecommendedPhase: {
-      phase: '66',
+    nextRecommendedStage: {
+      stage: '66',
       title: 'v1.1 Release Decision Gate',
       reason:
         'Depois da expansao de providers e fallbacks explicitos, o proximo passo e decidir se o Capability Autopilot entra na v1.1, fica atras de flag ou volta ao backlog.',
@@ -163,7 +163,7 @@ function buildChecks(
         expansion.coverage.localRuntimes > 0 &&
         expansion.coverage.channels > 0 &&
         expansion.coverage.capabilityTargets > 0 ? 'pass' : 'fail',
-      'A fase 65 precisa provar providers remotos, runtimes locais, canais e executores no mesmo contrato.',
+      'A etapa 65 precisa provar providers remotos, runtimes locais, canais e executores no mesmo contrato.',
       [
         `remoteProviders=${expansion.coverage.remoteProviders}`,
         `localRuntimes=${expansion.coverage.localRuntimes}`,
@@ -219,7 +219,7 @@ function check(
 
 function renderReport(snapshot: CapabilityAutopilotProvidersSnapshot): string {
   const lines: string[] = [];
-  lines.push('[capability-autopilot-providers] Fase 65 - Provider And Integration Expansion');
+  lines.push('[capability-autopilot-providers] Etapa 65 - Provider And Integration Expansion');
   lines.push(`status: ${snapshot.status}`);
   lines.push(`ok: ${snapshot.summary.ok ? 'yes' : 'no'} | pass=${snapshot.summary.passed} warn=${snapshot.summary.warnings} fail=${snapshot.summary.failed}`);
   lines.push(`targets: ${snapshot.entries.length}`);
@@ -233,7 +233,7 @@ function renderReport(snapshot: CapabilityAutopilotProvidersSnapshot): string {
     }
   }
   lines.push('');
-  lines.push(`proxima fase recomendada: ${snapshot.nextRecommendedPhase.phase} - ${snapshot.nextRecommendedPhase.title}`);
-  lines.push(snapshot.nextRecommendedPhase.reason);
+  lines.push(`proximo passo recomendada: ${snapshot.nextRecommendedStage.phase} - ${snapshot.nextRecommendedStage.title}`);
+  lines.push(snapshot.nextRecommendedStage.reason);
   return lines.join('\n');
 }

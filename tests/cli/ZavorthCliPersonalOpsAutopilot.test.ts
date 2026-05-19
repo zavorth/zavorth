@@ -46,7 +46,7 @@ describe('Zavorth CLI Personal Ops Autopilot', () => {
     }));
     const payload = JSON.parse(writes[0] || '{}');
     expect(payload).toEqual(expect.objectContaining({
-      contractVersion: '2026-05-03.wave-39',
+      contractVersion: '2026-05-03.personal-ops',
       source: 'PersonalOpsAutopilotService',
       summary: expect.objectContaining({
         suggestionCount: expect.any(Number),
@@ -71,7 +71,7 @@ describe('Zavorth CLI Personal Ops Autopilot', () => {
 
     const text = formatPersonalOpsAutopilotSnapshot(snapshot);
 
-    expect(text).toContain('Personal Ops Autopilot - Wave 39');
+    expect(text).toContain('Personal Ops Autopilot - Personal Ops Autopilot');
     expect(text).toContain('Sugestoes');
     expect(text).toContain('nenhuma acao mutavel foi executada');
     expect(text).toContain('Command Center: /control?sector=overview');

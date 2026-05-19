@@ -83,7 +83,7 @@ export class ChannelLongTailActivationService {
     return {
       generatedAt: this.now().toISOString(),
       contractVersion: ZAVORTH_CHANNEL_LONG_TAIL_ACTIVATION_CONTRACT_VERSION,
-      phase: 'Phase 3 - Channel Live Activation Long Tail',
+      phase: 'Approval gate - Channel Live Activation Long Tail',
       status: blocked > 0 ? 'blocked' : 'closed',
       summary: {
         channels: 17,
@@ -101,13 +101,13 @@ export class ChannelLongTailActivationService {
         configuredDoctors: entries.filter((entry) => this.hasGate(entry, 'configured-doctor')).length,
         stagingLiveSmokeCommands: entries.filter((entry) => this.hasGate(entry, 'staging-live-smoke')).length,
         redactedReceipts: receipts.filter((receipt) => receipt.secretValuesSerialized === false).length,
-        liveIoRequiredByPhase3Check: false,
+        liveIoRequiredByStage3Check: false,
         secretValuesSerialized: false,
       },
       entries,
       receipts,
       policy: {
-        noLiveIoDuringPhase3Check: true,
+        noLiveIoDuringStage3Check: true,
         stagingLiveRequiresExplicitOperatorCommand: true,
         familyAdaptersPreferredOverOneOffCopies: true,
         allowlistsRequiredBeforeLiveSend: true,
@@ -119,7 +119,7 @@ export class ChannelLongTailActivationService {
         stagingLiveSmoke: 'npm run channel-long-tail-activation -- --profile staging-live --channel <channel> --confirm-live-io',
         focusedTests: ['npx jest tests/services/ChannelLongTailActivationService.test.ts --runInBand'],
         typecheck: 'npm run runtime:check --silent',
-        nextPhase: 'Phase 4 - Provider Runtime Activation P0',
+        nextStage: 'Connector registry - Provider Runtime Activation P0',
       },
     };
   }
@@ -219,14 +219,14 @@ export class ChannelLongTailActivationService {
 
     try {
       const recipients = this.resolveRecipients(descriptor, input.recipients || []);
-      const message = String(input.message || `Zavorth Phase 3 staging smoke for ${descriptor.channelId}`).trim();
+      const message = String(input.message || `Zavorth Approval gate staging smoke for ${descriptor.channelId}`).trim();
       const client = this.buildClient(descriptor, recipients);
       const sendReceipt = await client.sendText({
         channelId: descriptor.channelId,
         message,
         recipients,
         metadata: {
-          phase: 'Phase 3 - Channel Live Activation Long Tail',
+          phase: 'Approval gate - Channel Live Activation Long Tail',
           receiptId: id,
         },
       });

@@ -116,14 +116,14 @@ export class ZavorthNativeCompanionDevicePackService {
         check: 'npm run zavorth-native-companion-device-pack:check --silent',
         qa: 'npm run qa:zavorth-native-companion-device-pack --silent',
         liveMlxTts: 'npm run zavorth-native-companion-device-pack -- --mlx-tts "hello" --approval-id <id>',
-        nextPhase: 'Phase 7 - QA, Security And Release Certification Pack',
+        nextStage: 'Surface controls - QA, Security And Release Certification Pack',
       },
     };
   }
 
   public formatSnapshotText(snapshot: ZavorthNativeCompanionDeviceSnapshot): string {
     const lines = [
-      'Zavorth Native Companion Device Pack - Phase 6',
+      'Zavorth Native Companion Device Pack - Runtime gateway',
       `Status: ${snapshot.status}`,
       `Contract: ${snapshot.contractVersion}`,
       `Targets: ${snapshot.summary.targets}`,
@@ -141,7 +141,7 @@ export class ZavorthNativeCompanionDevicePackService {
     for (const entry of snapshot.parity) {
       lines.push(`- ${entry.target}: ${entry.status}, decision=${entry.decision}, capabilities=${entry.capabilities.length}`);
     }
-    lines.push(`Next: ${snapshot.commands.nextPhase}`);
+    lines.push(`Next: ${snapshot.commands.nextStage}`);
     return lines.join('\n');
   }
 

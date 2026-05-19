@@ -1,6 +1,6 @@
 import type { CapabilityNormalizationFamily } from './CapabilityNormalizationContract.js';
 
-export const ZAVORTH_LIVE_READINESS_CONTRACT_VERSION = '2026-05-04.live-phase-1' as const;
+export const ZAVORTH_LIVE_READINESS_CONTRACT_VERSION = '2026-05-04.live-checkpoint-1' as const;
 
 export type LiveReadinessProfile =
   | 'dry-audit'
@@ -125,6 +125,6 @@ export type LiveReadinessSnapshot = {
     check: 'npm run live-readiness:check --silent';
     focusedTests: string[];
     typecheck: 'npm run runtime:check --silent';
-    nextPhase: 'Phase 2 - Channel Live Activation P0';
+    nextStage: 'Preview engine - Channel Live Activation P0';
   };
 };

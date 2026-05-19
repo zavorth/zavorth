@@ -413,7 +413,7 @@ const staticRules = [
     needles: [
       'zavorth-intelligence-fabric-default-release/v1',
       'Zavorth Intelligence Fabric Default',
-      'phase: 7',
+      'stage: 7',
       'metadata.intelligenceFabricMode = disabled',
       'risk4RequiresSandboxOrApproval',
       'Risk 0-2: pensamento',
@@ -466,7 +466,7 @@ const staticRules = [
       'src/ai-gateway/app/(dashboard)/control/command-center/contracts/dashboardCommandCenterObservabilityContracts.ts',
       'src/ai-gateway/app/(dashboard)/control/command-center/adapters/dashboardCommandCenterRunObservatory.ts',
       'src/ai-gateway/app/(dashboard)/control/command-center/components/CommandCenterOverviewSector.tsx',
-      'tests/ai-gateway/control/CommandCenterRunObservatoryWave28.test.ts',
+      'tests/ai-gateway/control/CommandCenterRunObservatory.test.ts',
       'tests/runtime/agent/RunObservatoryProduct.test.ts',
     ],
     needles: [

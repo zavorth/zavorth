@@ -9,7 +9,7 @@ function createIdFactory() {
   return (prefix: string) => `${prefix}-observatory-${++index}`;
 }
 
-describe('Run Observatory Wave 28', () => {
+describe('Run Observatory Run Observatory', () => {
   it('projects runs into receipts, timeline, replay and health without creating a parallel pipeline', async () => {
     const executor: UniversalAgentExecutor = ({ request, run }) => ({
       status: request.text.includes('falhe') ? 'failed' : 'completed',

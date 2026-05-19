@@ -133,7 +133,7 @@ export class ZavorthBrowserVisionBridgeService {
         applyWithoutApproval ? 'approval-required' : 'done',
         applyWithoutApproval
           ? 'Apply was not executed because mutating browser actions require approval.'
-          : 'Apply is prepared under policy; Phase 2 does not perform unapproved mutation.',
+          : 'Apply is prepared under policy; Preview engine does not perform unapproved mutation.',
       ));
     }
 
@@ -433,7 +433,7 @@ export class ZavorthBrowserVisionBridgeService {
       },
       policy: {
         decision,
-        profile: 'browser-vision-phase-2',
+        profile: 'browser-vision-checkpoint-2',
         reason: policyReason,
         publicEgressAllowed: input.publicEgressAllowed,
         mutationAllowed: false,
@@ -463,7 +463,7 @@ export class ZavorthBrowserVisionBridgeService {
         inspect: '/vision browser inspect',
         plan: '/computer browser plan',
         apply: '/computer browser apply <plan>',
-        nextPhase: 'Phase 3 - Desktop Computer Use Governado',
+        nextStage: 'Approval gate - Desktop Computer Use Governado',
       },
       nextSafeAction: nextSafeAction(redactedStatus, mutationRequested, approvalRequired, input.sidecarConfigured),
     };

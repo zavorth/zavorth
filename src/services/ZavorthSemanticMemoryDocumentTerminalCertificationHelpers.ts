@@ -1,5 +1,5 @@
 import type {
-  Phase5PackageEvidence,
+  Stage5PackageEvidence,
   SourceMemoryDocumentTerminalPackageName,
 } from '../contracts/SourceMemoryDocumentTerminalPackContract.js';
 import type {
@@ -10,7 +10,7 @@ import type {
   ZavorthSemanticMemoryDocumentTerminalScenario,
 } from '../contracts/ZavorthSemanticMemoryDocumentTerminalCertificationContract.js';
 
-export function packageStatus(evidence: Phase5PackageEvidence): ZavorthSemanticMemoryDocumentTerminalClaimStatus {
+export function packageStatus(evidence: Stage5PackageEvidence): ZavorthSemanticMemoryDocumentTerminalClaimStatus {
   if (evidence.decision === 'owner-gated') {
     return 'owner-gated';
   }
@@ -56,7 +56,7 @@ export function packagePriority(packageName: SourceMemoryDocumentTerminalPackage
 
 export function packageEquivalent(
   packageName: SourceMemoryDocumentTerminalPackageName,
-  decision: Phase5PackageEvidence['decision'],
+  decision: Stage5PackageEvidence['decision'],
 ): string {
   if (decision === 'implemented-zavorth-native') {
     return 'Zavorth-native memory/artifact runtime capability.';

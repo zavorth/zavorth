@@ -33,7 +33,7 @@ export class OpenTelemetryJsonExportAdapter {
           },
           scopeSpans: [{
             scope: {
-              name: 'zavorth.phase10.diagnostics',
+              name: 'zavorth.intent-model0.diagnostics',
             },
             spans: input.signals.map((signal) => ({
               traceId: this.hashLike(`${signal.name}:${signal.observedAt}`).padEnd(32, '0').slice(0, 32),

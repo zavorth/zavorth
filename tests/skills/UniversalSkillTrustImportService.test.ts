@@ -35,7 +35,7 @@ function writeSkill(root: string, input: {
   return dir;
 }
 
-describe('UniversalSkillTrustImportService Phase 2', () => {
+describe('UniversalSkillTrustImportService Preview engine', () => {
   let root: string;
   let source: string;
   let target: string;

@@ -34,14 +34,14 @@ const rules = [
       'ParityCertificationWaiver',
       'ParityCertificationReceipt',
       'ParityCertificationSnapshot',
-      'Fase 10 - P0 Gap Closure',
+      'Etapa 10 - P0 Gap Closure',
       'waiversMustBeExplicit: true',
       'secretValuesSerialized: false',
     ],
   }),
   ruleContainsAll({
     id: 'parity-certification-service',
-    label: 'Service certifies the Phase 8 doctor snapshot',
+    label: 'Service certifies the Dashboard controls doctor snapshot',
     target: 'Service consumes OperationalParityToolingService, builds gates, receipts, blockers, waivers and profile decisions',
     files: ['src/services/ParityCertificationService.ts'],
     needles: [
@@ -120,7 +120,7 @@ const snapshot = {
 if (asJson) {
   console.log(JSON.stringify(snapshot, null, 2));
 } else {
-  console.log('[parity-certification] checking Phase 9');
+  console.log('[parity-certification] checking Certification matrix');
   for (const rule of rules) {
     const marker = rule.status === 'passed' ? 'ok' : 'fail';
     console.log(`[parity-certification] ${marker} ${rule.label}: ${rule.observed} | ${rule.target}`);

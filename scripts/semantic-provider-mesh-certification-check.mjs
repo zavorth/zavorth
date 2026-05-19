@@ -133,7 +133,7 @@ if (runtime.status !== 0) {
         && adapterStatuses['google-genai'] !== 'missing'
         && receiptIdsValid
         && claimIdsUnique,
-      `status=${snapshot.status}, claims=${snapshot.summary.semanticClaims}, gaps=${snapshot.summary.gaps}, receiptIdsValid=${receiptIdsValid}, claimIdsUnique=${claimIdsUnique}, next=${snapshot.commands.nextPhase}`,
+      `status=${snapshot.status}, claims=${snapshot.summary.semanticClaims}, gaps=${snapshot.summary.gaps}, receiptIdsValid=${receiptIdsValid}, claimIdsUnique=${claimIdsUnique}, next=${snapshot.commands.nextStage}`,
     );
   } catch (error) {
     addCheck('Runtime S3 semantic receipt passes', false, `invalid JSON: ${error.message}`);

@@ -34,7 +34,7 @@ const rules = [
       'p1-channel-webhook-template',
       'generic-provider-runtime',
       'bot-api-channel-runtime',
-      'Fase 12 - Native Capability Closure',
+      'Etapa 12 - Native Capability Closure',
       'liveExternalCallRequired: false',
       'liveChannelSendRequired: false',
       'secretValuesSerialized: false',
@@ -89,7 +89,7 @@ const rules = [
   }),
   ruleContainsAll({
     id: 'runtime-adapter-closure-service',
-    label: 'Service proves Phase 11 closure and certification handoff',
+    label: 'Service proves Intent model1 closure and certification handoff',
     target: 'Service counts closed provider/channel templates, remaining unsupported channels, and P1 certification gaps',
     files: ['src/services/RuntimeAdapterClosureService.ts'],
     needles: [
@@ -145,7 +145,7 @@ const snapshot = {
 if (asJson) {
   console.log(JSON.stringify(snapshot, null, 2));
 } else {
-  console.log('[runtime-adapter-closure] checking Phase 11');
+  console.log('[runtime-adapter-closure] checking Intent model1');
   for (const rule of rules) {
     const marker = rule.status === 'passed' ? 'ok' : 'fail';
     console.log(`[runtime-adapter-closure] ${marker} ${rule.label}: ${rule.observed} | ${rule.target}`);

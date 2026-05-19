@@ -84,7 +84,7 @@ function buildPlanArtifact() {
 
   return {
     schemaVersion: '1.0.0',
-    phase: '59',
+    stage: '59',
     generatedAt: new Date().toISOString(),
     ok: results.every((result) => result.status === 'pass'),
     baseline: 'v1.0.0',
@@ -102,7 +102,7 @@ function buildChecklistArtifact() {
 
   return {
     schemaVersion: '1.0.0',
-    phase: '59',
+    stage: '59',
     generatedAt: new Date().toISOString(),
     ok: results.every((result) => result.status === 'pass'),
     mode: 'release-candidate',
@@ -119,7 +119,7 @@ function buildHotfixArtifact() {
 
   return {
     schemaVersion: '1.0.0',
-    phase: '59',
+    stage: '59',
     generatedAt: new Date().toISOString(),
     ok: results.every((result) => result.status === 'pass'),
     lane: 'v1.0.x',

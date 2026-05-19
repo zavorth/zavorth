@@ -87,31 +87,31 @@ export class AiFirstFinalActivationGateService {
         {
           id: this.idFactory('receipt'),
           kind: 'no-runtime-change',
-          detail: 'Phase 10 does not flip the default runtime and does not execute tools.',
+          detail: 'Intent model0 does not flip the default runtime and does not execute tools.',
         },
       ],
       gates: [
         {
-          id: 'phase-10-receipts-present',
+          id: 'checkpoint-10-receipts-present',
           status: aggregate.allReceiptsPresent ? 'passed' : 'warning',
           detail: aggregate.allReceiptsPresent
             ? 'Required phase receipts are present.'
             : 'One or more phase snapshots has no receipts.',
         },
         {
-          id: 'phase-10-runtime-invariants-preserved',
+          id: 'checkpoint-10-runtime-invariants-preserved',
           status: aggregate.allRuntimeInvariantsPreserved ? 'passed' : 'blocked',
           detail: aggregate.allRuntimeInvariantsPreserved
             ? 'All phase recommendations preserve runtime invariants.'
             : 'One or more phase recommendation violates runtime invariants.',
         },
         {
-          id: 'phase-10-owner-controlled-only',
+          id: 'checkpoint-10-owner-controlled-only',
           status: 'passed',
           detail: 'Automatic activation remains disabled and owner approval remains required.',
         },
         {
-          id: 'phase-10-final-readiness',
+          id: 'checkpoint-10-final-readiness',
           status: recommendation.readiness === 'blocked'
             ? 'blocked'
             : recommendation.readiness === 'hold'
@@ -125,7 +125,7 @@ export class AiFirstFinalActivationGateService {
 
   public renderMarkdown(snapshot: AiFirstFinalActivationGateSnapshot): string {
     const lines: string[] = [];
-    lines.push('# Zavorth AI-first Router Phase 10');
+    lines.push('# Zavorth AI-first Router Intent model0');
     lines.push('');
     lines.push(`- contract: ${snapshot.contractVersion}`);
     lines.push(`- activationGateId: ${snapshot.activationGateId}`);
@@ -164,7 +164,7 @@ type AggregateDraft = Omit<AiFirstFinalActivationGateSnapshot['aggregate'], 'fin
 function buildPhaseSummaries(input: AiFirstFinalActivationGateInput): AiFirstFinalActivationPhaseSummary[] {
   return [
     {
-      phase: 'phase-4',
+      phase: 'checkpoint-4',
       sourceId: safeId(input.batchSnapshot.batchId),
       readiness: input.batchSnapshot.recommendation.readiness,
       action: input.batchSnapshot.recommendation.action,
@@ -178,7 +178,7 @@ function buildPhaseSummaries(input: AiFirstFinalActivationGateInput): AiFirstFin
       detail: `${input.batchSnapshot.score.sampleCount} shadow sample(s), passRate=${formatRate(input.batchSnapshot.score.passRate)}.`,
     },
     {
-      phase: 'phase-5',
+      phase: 'checkpoint-5',
       sourceId: safeId(input.registrySnapshot.registryId),
       readiness: input.registrySnapshot.recommendation.readiness,
       action: input.registrySnapshot.recommendation.action,
@@ -192,7 +192,7 @@ function buildPhaseSummaries(input: AiFirstFinalActivationGateInput): AiFirstFin
       detail: `${input.registrySnapshot.summary.eligibleFamilies} eligible family/families and ${input.registrySnapshot.summary.proposedAllowlistEntries} allowlist proposal(s).`,
     },
     {
-      phase: 'phase-6',
+      phase: 'checkpoint-6',
       sourceId: safeId(input.switchboardSnapshot.switchboardId),
       readiness: input.switchboardSnapshot.recommendation.readiness,
       action: input.switchboardSnapshot.recommendation.action,
@@ -204,7 +204,7 @@ function buildPhaseSummaries(input: AiFirstFinalActivationGateInput): AiFirstFin
       detail: `${input.switchboardSnapshot.summary.canaryEnabledRoutes} route(s) enabled and ${input.switchboardSnapshot.summary.aiFirstCanarySelections} canary selection(s).`,
     },
     {
-      phase: 'phase-8',
+      phase: 'checkpoint-8',
       sourceId: safeId(input.ledgerSnapshot.ledgerId),
       readiness: input.ledgerSnapshot.recommendation.readiness,
       action: input.ledgerSnapshot.recommendation.action,
@@ -216,7 +216,7 @@ function buildPhaseSummaries(input: AiFirstFinalActivationGateInput): AiFirstFin
       detail: `${input.ledgerSnapshot.summary.totalEntries} runtime receipt entrie(s) captured.`,
     },
     {
-      phase: 'phase-9',
+      phase: 'checkpoint-9',
       sourceId: safeId(input.historicalGateSnapshot.gateId),
       readiness: input.historicalGateSnapshot.recommendation.status,
       action: input.historicalGateSnapshot.recommendation.action,
@@ -272,7 +272,7 @@ function buildFindings(
     detail: string,
   ) => {
     findings.push({
-      id: `phase-10-${kind}-${findings.length + 1}`,
+      id: `checkpoint-10-${kind}-${findings.length + 1}`,
       kind,
       severity,
       detail,

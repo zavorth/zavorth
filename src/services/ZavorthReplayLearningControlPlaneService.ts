@@ -293,7 +293,7 @@ export class ZavorthReplayLearningControlPlaneService {
         lifecycle,
       },
       narrative: {
-        headline: 'Wave 8: Replay, artifacts e learning loop',
+        headline: 'Replay learning: Replay, artifacts e learning loop',
         operatorSummary: buildReplayLearningOperatorSummary(summary),
         nextAction: actions[0]?.label || 'Revisar replay, artifacts e learning periodicamente.',
       },
@@ -310,7 +310,7 @@ export class ZavorthReplayLearningControlPlaneService {
   } = {}): Promise<string> {
     const snapshot = await this.buildSnapshot(input);
     const lines = [
-      'Wave 8: Replay, artifacts e learning loop',
+      'Replay learning: Replay, artifacts e learning loop',
       '',
       snapshot.narrative.operatorSummary,
       `Postura: ${snapshot.summary.posture}.`,

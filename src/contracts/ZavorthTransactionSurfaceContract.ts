@@ -3,7 +3,7 @@ import type {
   ZavorthTransactionRuntimeStatus,
 } from './ZavorthTransactionRuntimeContract.js';
 
-export const ZAVORTH_TRANSACTION_SURFACE_CONTRACT_VERSION = 'zavorth-transaction-surface/phase-7' as const;
+export const ZAVORTH_TRANSACTION_SURFACE_CONTRACT_VERSION = 'zavorth-transaction-surface/checkpoint-7' as const;
 
 export type ZavorthTransactionSurfaceKind =
   | 'web'
@@ -109,7 +109,7 @@ export type ZavorthTransactionSurfaceContractSnapshot = {
 export function buildZavorthTransactionSurfaceContractSnapshot(): ZavorthTransactionSurfaceContractSnapshot {
   return {
     version: ZAVORTH_TRANSACTION_SURFACE_CONTRACT_VERSION,
-    summary: 'Surface projection gateway for Zavorth Transaction Plane Phase 7.',
+    summary: 'Surface projection gateway for Zavorth Transaction Plane Surface controls.',
     surfaces: ['web', 'cli', 'telegram', 'api', 'natural-first'],
     cardKinds: ['runtime-summary', 'preview', 'approval', 'credential', 'connector', 'safety'],
     actionKinds: [

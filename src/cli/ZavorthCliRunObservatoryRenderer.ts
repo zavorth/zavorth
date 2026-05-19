@@ -84,7 +84,7 @@ export function formatRunObservatorySnapshot(
   snapshot: UniversalAgentRunObservatorySnapshot,
 ): string {
   const lines = [
-    'Run Observatory - Wave 28',
+    'Run Observatory - Run Observatory',
     `Contrato: ${snapshot.contractVersion}`,
     `Status: ${snapshot.health.status}`,
     `Runs: ${snapshot.matchedRuns}/${snapshot.totalRuns}`,

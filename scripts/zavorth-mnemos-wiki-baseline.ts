@@ -59,7 +59,7 @@ function main(): void {
       root: index.root,
     },
     pages,
-    next: 'Phase 4: mnemos:ingest',
+    next: 'Connector registry: mnemos:ingest',
   };
 
   if (json) {

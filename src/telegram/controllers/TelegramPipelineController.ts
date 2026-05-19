@@ -33,12 +33,12 @@ export class TelegramPipelineController {
           '- research: pesquisa, sintetiza e devolve um briefing claro',
           '- sdd: roda o proximo papel do loop spec/plan/tasks de uma feature',
           '- resume: retoma um workflow existente pelo run id e, se quiser, por uma etapa especifica',
-          '- restart-stage: reexecuta uma etapa especifica de um workflow existente',
+          '- restart-phase: reexecuta uma etapa especifica de um workflow existente',
           '- close: encerra um workflow bloqueado ou com falha para ele deixar de aparecer como retomada',
           '',
           'Exemplo de retomada:',
           '/workflow resume wf-ship-abc123 review',
-          '/workflow restart-stage wf-ship-abc123 draft',
+          '/workflow restart-phase wf-ship-abc123 draft',
         ].join('\n'),
       );
       return;
@@ -47,18 +47,18 @@ export class TelegramPipelineController {
     const [workflowRaw, ...rest] = trimmed.split(/\s+/);
     const pipeline = this.createPipeline();
     const workflowCommand = String(workflowRaw || '').trim().toLowerCase();
-    if (workflowCommand === 'resume' || workflowCommand === 'restart-stage') {
+    if (workflowCommand === 'resume' || workflowCommand === 'restart-phase') {
       const { workflowRunId, stageId } = this.parseResumeArgs(rest);
       if (!workflowRunId) {
         await ctx.reply(
-          workflowCommand === 'restart-stage'
-            ? 'Faltou o identificador do workflow. Exemplo: /workflow restart-stage wf-ship-abc123 <etapa>'
+          workflowCommand === 'restart-phase'
+            ? 'Faltou o identificador do workflow. Exemplo: /workflow restart-phase wf-ship-abc123 <etapa>'
             : 'Faltou o identificador do workflow. Exemplo: /workflow resume wf-ship-abc123 [etapa]',
         );
         return;
       }
-      if (workflowCommand === 'restart-stage' && !stageId) {
-        await ctx.reply('Faltou a etapa para reiniciar. Exemplo: /workflow restart-stage wf-ship-abc123 <etapa>');
+      if (workflowCommand === 'restart-phase' && !stageId) {
+        await ctx.reply('Faltou a etapa para reiniciar. Exemplo: /workflow restart-phase wf-ship-abc123 <etapa>');
         return;
       }
       await pipeline.resumeWorkflow(ctx, workflowRunId, stageId ? { stageId } : undefined);
@@ -80,7 +80,7 @@ export class TelegramPipelineController {
     const objective = rest.join(' ').trim();
 
     if (!workflow) {
-      await ctx.reply('Workflow desconhecido. Use /workflow review, /workflow ship, /workflow research, /workflow sdd, /workflow resume, /workflow restart-stage ou /workflow close.');
+      await ctx.reply('Workflow desconhecido. Use /workflow review, /workflow ship, /workflow research, /workflow sdd, /workflow resume, /workflow restart-phase ou /workflow close.');
       return;
     }
 
@@ -175,7 +175,7 @@ export class TelegramPipelineController {
     }
 
     let stageId = '';
-    if (tokens[1] === '--stage') {
+    if (tokens[1] === '--phase') {
       stageId = tokens[2] || '';
     } else if (tokens.length > 1) {
       stageId = tokens[1] || '';

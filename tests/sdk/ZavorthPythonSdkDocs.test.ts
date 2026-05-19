@@ -22,7 +22,7 @@ describe('Zavorth Python SDK docs', () => {
     expect(readme).toContain('REST v1');
     expect(readme).toContain('PUBLIC_ECOSYSTEM_CONTRACTS');
     expect(readme).toContain('nao e um SDK de runtime');
-    expect(readme).toContain('docs/112-public-ecosystem-contracts.md');
+    expect(readme).toContain('docs/product-direction.md');
     expect(example).toContain('ZavorthClient');
     expect(example).toContain('public contracts');
     expect(protocol).toContain('examples/clients/simple-bot.py');

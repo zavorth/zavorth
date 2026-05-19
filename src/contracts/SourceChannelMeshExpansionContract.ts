@@ -1,4 +1,4 @@
-export const ZAVORTH_SOURCE_CHANNEL_MESH_EXPANSION_CONTRACT_VERSION = '2026-05-05.phase-4' as const;
+export const ZAVORTH_SOURCE_CHANNEL_MESH_EXPANSION_CONTRACT_VERSION = '2026-05-05.checkpoint-4' as const;
 
 export const SOURCE_CHANNEL_MESH_PACKAGES = [
   '@slack/web-api',
@@ -201,7 +201,7 @@ export type SourceChannelMeshExpansionSnapshot = {
   policy: {
     noSourceSourceCopy: true;
     optionalPacksOnly: true;
-    noLiveIoDuringPhase4Check: true;
+    noLiveIoDuringStage4Check: true;
     stagingLiveRequiresExplicitOperatorCommand: true;
     secretRefOnlyChannelAuth: true;
     allowlistRequiredBeforeLiveSend: true;
@@ -214,6 +214,6 @@ export type SourceChannelMeshExpansionSnapshot = {
     check: 'npm run source-channel-mesh-expansion:check --silent';
     qa: 'npm run qa:source-channel-mesh-expansion --silent';
     liveSmoke: 'npm run source-channel-mesh-expansion -- --channel <channel> --confirm-live-io';
-    nextPhase: 'Phase 5 - Memory, Document, Search And Terminal Pack';
+    nextStage: 'Credential vault - Memory, Document, Search And Terminal Pack';
   };
 };

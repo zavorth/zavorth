@@ -195,7 +195,7 @@ export class ZavorthReplayLearningService {
         heavyRuntimesStarted: false,
       },
       narrative: {
-        headline: 'Fase 20: Replay Learning e Gemeo Digital local',
+        headline: 'Replay learning: Replay Learning e Gemeo Digital local',
         operatorSummary: `${records.length} aprendizado(s) redigido(s), ${approved} aprovado(s), ${pending} aguardando approval.`,
         nextAction: pending > 0
           ? 'Aprovar ou revogar aprendizados pendentes antes de usar no perfil.'
@@ -293,7 +293,7 @@ export class ZavorthReplayLearningService {
         'Confirmar que secretsPersisted=false e redaction notes foram geradas.',
         'Aplicar somente em DigitalTwinProfile local suggest-only.',
         'Manter revogacao por record id.',
-        'Nao criar skill automaticamente; skill-candidate deve passar pela Fase 19.',
+        'Nao criar skill automaticamente; skill-candidate deve passar pela Etapa 19.',
       ],
       rollbackPlan: [
         'Revogar record ids aprovados.',
@@ -580,7 +580,7 @@ export class ZavorthReplayLearningService {
       push('coding-style', 'Preferencia de estilo de codigo observada.', /(eslint|prettier|naming|camelcase|snake_case|typescript|tests?|commits?|estrutura|folders?)/i, ['code-review', 'implementation']);
     }
     if (/(automatiz|skill|script|repetir|sempre que|toda vez|transformar em)/i.test(joined)) {
-      push('skill-candidate', 'Procedimento pode virar skill draft pela Fase 19.', /(automatiz|skill|script|repetir|sempre que|toda vez|transformar em)/i, ['skill-evolution'], 0.72);
+      push('skill-candidate', 'Procedimento pode virar skill draft pela Etapa 19.', /(automatiz|skill|script|repetir|sempre que|toda vez|transformar em)/i, ['skill-evolution'], 0.72);
     }
     if (proposals.length === 0 && lines.length > 0) {
       push('procedure', 'Replay contem procedimento potencial, mantido como sugestao.', /.+/, ['suggestion'], 0.55);

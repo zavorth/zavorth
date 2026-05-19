@@ -3,16 +3,16 @@ import {
 } from '../../src/contracts/ZavorthExternalContractLayerContract.js';
 import { ZavorthExternalContractLayerService } from '../../src/services/ZavorthExternalContractLayerService.js';
 
-describe('ZavorthExternalContractLayerService Phase 1', () => {
-  it('publishes the Zavorth-owned contract layer after Phase 0 inventory readiness', () => {
+describe('ZavorthExternalContractLayerService Intent model', () => {
+  it('publishes the Zavorth-owned contract layer after Security contract inventory readiness', () => {
     const snapshot = createService().buildSnapshot();
 
     expect(snapshot).toEqual(expect.objectContaining({
       generatedAt: '2026-05-11T19:30:00.000Z',
       contractVersion: ZAVORTH_EXTERNAL_CONTRACT_LAYER_VERSION,
       status: 'contract-layer-ready',
-      planId: '291 - Plano Zavorth External Runtime Absorption',
-      phase: 'phase-1-contract-layer',
+      planId: 'Zavorth External Runtime Integration',
+      stage: 'contract-layer',
       previousInventoryStatus: 'inventory-ready',
     }));
     expect(snapshot.summary).toEqual(expect.objectContaining({
@@ -25,10 +25,10 @@ describe('ZavorthExternalContractLayerService Phase 1', () => {
       liveExecutionPerformed: false,
       sourceRuntimeCodeExecuted: false,
     }));
-    expect(snapshot.commands.nextPhase).toBe('291 Phase 2 - Native Engine Absorption');
+    expect(snapshot.commands.nextStage).toBe('291 Preview engine - Native Engine Absorption');
   });
 
-  it('defines all Phase 1 envelopes and keeps external runtime descriptors quarantined', () => {
+  it('defines all Intent model envelopes and keeps external runtime descriptors quarantined', () => {
     const snapshot = createService().buildSnapshot();
 
     expect(snapshot.envelopeSchemas.map((entry) => entry.kind)).toEqual([
@@ -71,7 +71,7 @@ describe('ZavorthExternalContractLayerService Phase 1', () => {
       publicName: 'Zavorth',
       provenance: {
         observedAt: '2026-05-11T19:31:00.000Z',
-        evidence: ['docs/293-zavorth-external-runtime-phase-0-inventory.md'],
+        evidence: ['docs/product-direction.md'],
       },
     });
 
@@ -126,12 +126,12 @@ describe('ZavorthExternalContractLayerService Phase 1', () => {
     }));
   });
 
-  it('blocks Phase 1 if Phase 0 inventory is not ready', () => {
+  it('blocks Intent model if Security contract inventory is not ready', () => {
     const snapshot = createService().buildSnapshot({ inventoryStatus: 'blocked' });
 
     expect(snapshot.status).toBe('blocked');
     expect(snapshot.previousInventoryStatus).toBe('blocked');
-    expect(snapshot.acceptanceMatrix.find((entry) => entry.requirementId === 'phase-0-inventory-ready')).toEqual(expect.objectContaining({
+    expect(snapshot.acceptanceMatrix.find((entry) => entry.requirementId === 'inventory-ready')).toEqual(expect.objectContaining({
       status: 'failed',
     }));
   });
@@ -140,11 +140,11 @@ describe('ZavorthExternalContractLayerService Phase 1', () => {
     const service = createService();
     const text = service.formatSnapshotText(service.buildSnapshot());
 
-    expect(text).toContain('Zavorth External Runtime Phase 1 Contract Layer');
+    expect(text).toContain('Zavorth External Runtime Intent model Contract Layer');
     expect(text).toContain('Status: contract-layer-ready');
     expect(text).toContain('Envelope schemas: 11');
     expect(text).toContain('Live execution performed: false');
-    expect(text).toContain('Next: 291 Phase 2 - Native Engine Absorption');
+    expect(text).toContain('Next: 291 Preview engine - Native Engine Absorption');
   });
 });
 

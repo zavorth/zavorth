@@ -9,7 +9,7 @@ tags:
   - runtime
   - governance
 sources:
-  - docs/03-architecture.md
+  - docs/architecture.md
   - README.md
 ---
 
@@ -39,8 +39,8 @@ across sessions.
 
 ## Source Links
 
-- `docs/03-architecture.md`
-- `docs/05-security.md`
+- `docs/architecture.md`
+- `docs/security.md`
 - `README.md`
 
 ## Maintenance Notes

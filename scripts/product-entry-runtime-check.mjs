@@ -8,7 +8,7 @@ const asJson = process.argv.includes('--json');
 const rules = [
   ruleFilesExist({
     id: 'product-entry-runtime-files',
-    label: 'Wave 47 files exist',
+    label: 'Channel mesh7 files exist',
     target: 'Runtime, CLI, Command Center, tests and docs are present',
     files: [
       'src/runtime/agent/ProductEntryRuntimeService.ts',
@@ -27,7 +27,7 @@ const rules = [
     files: ['src/runtime/agent/ProductEntryRuntimeService.ts'],
     needles: [
       'PRODUCT_ENTRY_RUNTIME_CONTRACT_VERSION',
-      '2026-05-04.wave-47',
+      '2026-05-04.product-entry',
       'FirstRunWorkspaceBootstrapProfileService',
       'FirstRunPersonalizationService',
       'FirstRunOnboardingContractService',
@@ -67,7 +67,7 @@ const rules = [
     needles: [
       'product-entry',
       'first-run-runtime',
-      'Product Entry Runtime / First Run - Wave 47',
+      'Product Entry Runtime / First Run - Channel mesh7',
       'resolveProductEntryRuntimeCliText',
       'formatProductEntryRuntimeSnapshot',
       'zavorth product-entry',
@@ -96,7 +96,7 @@ const rules = [
   }),
   ruleContainsAll({
     id: 'package-exposes-product-entry-runtime-gate',
-    label: 'package exposes Wave 47 gate',
+    label: 'package exposes Channel mesh7 gate',
     target: 'local QA can run product-entry:check and qa:product-entry',
     files: ['package.json'],
     needles: [
@@ -122,7 +122,7 @@ const snapshot = {
 if (asJson) {
   console.log(JSON.stringify(snapshot, null, 2));
 } else {
-  console.log('[product-entry] checking Wave 47');
+  console.log('[product-entry] checking Channel mesh7');
   for (const rule of rules) {
     const marker = rule.status === 'passed' ? 'ok' : 'fail';
     console.log(`[product-entry] ${marker} ${rule.label}: ${rule.observed} | ${rule.target}`);

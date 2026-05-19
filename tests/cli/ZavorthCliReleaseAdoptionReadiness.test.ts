@@ -20,7 +20,7 @@ function createFlags(json: boolean) {
   };
 }
 
-describe('Zavorth CLI Release Adoption Readiness Wave 53', () => {
+describe('Zavorth CLI Release Adoption Readiness Release Adoption Readiness', () => {
   it('parses release-adoption-readiness text after aliases', () => {
     expect(resolveReleaseAdoptionReadinessCliText('release-adoption-readiness "adocao publica"')).toBe('adocao publica');
     expect(resolveReleaseAdoptionReadinessCliText('support-readiness latest')).toBe('');
@@ -47,7 +47,7 @@ describe('Zavorth CLI Release Adoption Readiness Wave 53', () => {
     }));
     const payload = JSON.parse(writes[0] || '{}');
     expect(payload).toEqual(expect.objectContaining({
-      contractVersion: '2026-05-04.wave-53',
+      contractVersion: '2026-05-04.release-readiness',
       source: 'ReleaseAdoptionReadinessService',
       status: 'release-adoption-ready',
       releaseTrain: expect.objectContaining({
@@ -80,7 +80,7 @@ describe('Zavorth CLI Release Adoption Readiness Wave 53', () => {
 
     const text = formatReleaseAdoptionReadinessSnapshot(snapshot);
 
-    expect(text).toContain('Release & Adoption Readiness - Wave 53');
+    expect(text).toContain('Release & Adoption Readiness - Release Adoption Readiness');
     expect(text).toContain('deploy nao foi executado');
     expect(text).toContain('canary nao foi iniciado');
     expect(text).toContain('metricas sao agregadas');

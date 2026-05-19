@@ -29,7 +29,7 @@ type SatelliteDeviceLiveDescriptor = {
   gaps: string[];
 };
 
-const PHASE = 'Phase 11 - Satellite And Device Live Plane' as const;
+const PHASE = 'Intent model1 - Satellite And Device Live Plane' as const;
 
 const TARGETS: SatelliteDeviceLiveDescriptor[] = [
   target(
@@ -125,13 +125,13 @@ export class SatelliteDeviceLivePlaneService {
         deviceMarkedLiveWithoutPairing: false,
         sensitiveInvokeBypassesTrust: false,
         unsupportedNativeApisHidden: false,
-        liveIoRequiredByPhase11Check: false,
+        liveIoRequiredByActivationReviewCheck: false,
         secretValuesSerialized: false,
       },
       entries,
       receipts,
       policy: {
-        noLiveIoDuringPhase11Check: true,
+        noLiveIoDuringActivationReviewCheck: true,
         pairingClaimRequired: true,
         heartbeatRequired: true,
         sensitiveCommandsRequireDeviceTrust: true,
@@ -148,7 +148,7 @@ export class SatelliteDeviceLivePlaneService {
         stagingLiveSmoke: 'npm run satellite-device-live-plane -- --profile staging-live --target <target> --confirm-live-io',
         focusedTests: ['npx jest tests/services/SatelliteDeviceLivePlaneService.test.ts --runInBand'],
         typecheck: 'npm run runtime:check --silent',
-        nextPhase: 'Phase 12 - Memory, Artifacts And Runtime Executor Live Closure',
+        nextStage: 'Intent model2 - Memory, Artifacts And Runtime Executor Live Closure',
       },
     };
   }

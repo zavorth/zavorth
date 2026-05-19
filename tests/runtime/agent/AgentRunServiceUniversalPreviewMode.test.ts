@@ -49,7 +49,7 @@ describe('AgentRunService Universal Preview Mode', () => {
         requiresApproval: true,
       }),
     }));
-    expect(result.replies[0].text).toContain('Universal Preview Mode - Wave 30');
+    expect(result.replies[0].text).toContain('Universal Preview Mode - Universal Preview');
     expect(result.replies[0].text).toContain('nenhuma ferramenta foi executada');
   });
 

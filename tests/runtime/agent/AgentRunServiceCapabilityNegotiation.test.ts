@@ -8,7 +8,7 @@ function createIdFactory() {
   return (prefix: string) => `${prefix}-capability-negotiation-${++index}`;
 }
 
-describe('AgentRunService Capability Negotiation Wave 35', () => {
+describe('AgentRunService Capability Negotiation Capability Negotiation', () => {
   it('creates a negotiated scope approval before executing sensitive tools', async () => {
     const executor = jest.fn(({ run }) => ({
       status: 'completed' as const,
@@ -58,7 +58,7 @@ describe('AgentRunService Capability Negotiation Wave 35', () => {
       status: 'pending',
       risk: 'danger',
     }));
-    expect(result.replies[0]?.text).toContain('Capability Negotiation - Wave 35');
+    expect(result.replies[0]?.text).toContain('Capability Negotiation - Capability Negotiation');
 
     const approved = await gateway.approve(result.run.id);
 

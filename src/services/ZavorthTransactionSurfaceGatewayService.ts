@@ -107,7 +107,7 @@ export class ZavorthTransactionSurfaceGatewayService {
 
   public renderReport(projection: ZavorthTransactionSurfaceProjection): string {
     return [
-      '[transaction-surface] Phase 7 transaction surface gateway',
+      '[transaction-surface] Surface controls transaction surface gateway',
       `[transaction-surface] surface: ${projection.surface}`,
       `[transaction-surface] status: ${projection.status}`,
       `[transaction-surface] natural-first-route: ${projection.naturalFirst.route}`,
@@ -281,7 +281,7 @@ function buildActions(
     label: 'Live execution disabled',
     enabled: false,
     requiresConfirmation: true,
-    reason: 'Phase 7 exposes surface actions only; it cannot authorize live execution.',
+    reason: 'Surface controls exposes surface actions only; it cannot authorize live execution.',
   });
 
   return actions;

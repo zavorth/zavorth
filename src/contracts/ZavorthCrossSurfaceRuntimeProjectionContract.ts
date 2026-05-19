@@ -6,7 +6,7 @@ import type {
 } from './ZavorthToolOrchestrationVerificationContract.js';
 
 export const ZAVORTH_CROSS_SURFACE_RUNTIME_PROJECTION_CONTRACT_VERSION =
-  '2026-05-11.cross-surface-runtime-projection-phase-5' as const;
+  '2026-05-11.cross-surface-runtime-projection-checkpoint-5' as const;
 
 export type ZavorthCrossSurfaceProjectionSurface =
   | 'cli'
@@ -109,7 +109,7 @@ export type ZavorthCommandCenterRuntimeProjection = {
 export type ZavorthCrossSurfaceProjectionReceipt = {
   id: string;
   kind:
-    | 'phase-5-cross-surface-projection'
+    | 'checkpoint-5-cross-surface-projection'
     | 'surface-card'
     | 'channel-fallback'
     | 'api-projection'
@@ -134,7 +134,7 @@ export type ZavorthCrossSurfaceRuntimeProjectionSnapshot = {
   generatedAt: string;
   contractVersion: typeof ZAVORTH_CROSS_SURFACE_RUNTIME_PROJECTION_CONTRACT_VERSION;
   source: 'ZavorthCrossSurfaceRuntimeProjectionService';
-  phase: 'phase-5-cross-surface-runtime-projection';
+  phase: 'checkpoint-5-cross-surface-runtime-projection';
   status: ZavorthToolOrchestrationVerificationStatus;
   request: {
     surface: string;
@@ -162,7 +162,7 @@ export type ZavorthCrossSurfaceRuntimeProjectionSnapshot = {
     report: 'npx tsx scripts/zavorth-cross-surface-runtime-projection.ts --text "<request>"';
     json: 'npx tsx scripts/zavorth-cross-surface-runtime-projection.ts --json --text "<request>"';
     check: 'node scripts/zavorth-cross-surface-runtime-projection-check.mjs';
-    nextPhase: 'Phase 6 - Operational Rollout And Continuous Eval Assimilation';
+    nextStage: 'Runtime gateway - Operational Rollout And Continuous Eval Assimilation';
   };
   narrative: {
     headline: string;

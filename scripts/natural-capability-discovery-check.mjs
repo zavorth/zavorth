@@ -8,7 +8,7 @@ const asJson = process.argv.includes('--json');
 const rules = [
   ruleFilesExist({
     id: 'natural-capability-discovery-files',
-    label: 'Wave 29 files exist',
+    label: 'Capability Discovery files exist',
     target: 'Runtime, CLI, Command Center, tests and docs are present',
     files: [
       'src/runtime/agent/NaturalCapabilityDiscoveryService.ts',
@@ -27,7 +27,7 @@ const rules = [
     files: ['src/runtime/agent/NaturalCapabilityDiscoveryService.ts'],
     needles: [
       'NATURAL_CAPABILITY_DISCOVERY_CONTRACT_VERSION',
-      '2026-05-03.wave-29',
+      '2026-05-03.capability-discovery',
       'toolHintProfile',
       'noExecutionPerformed',
       'naturalLanguageDoesNotBypassPolicy',
@@ -67,7 +67,7 @@ const rules = [
     needles: [
       'discover',
       'capability-discovery',
-      'Natural Capability Discovery - Wave 29',
+      'Natural Capability Discovery - Capability Discovery',
       'resolveCapabilityDiscoveryCliText',
       'zavorth discover "<pedido>" [--json]',
     ],
@@ -95,7 +95,7 @@ const rules = [
   }),
   ruleContainsAll({
     id: 'package-exposes-discovery-gate',
-    label: 'package exposes Wave 29 gate',
+    label: 'package exposes Capability Discovery gate',
     target: 'local QA can run natural-capability-discovery:check and qa:natural-capability-discovery',
     files: ['package.json'],
     needles: [
@@ -121,7 +121,7 @@ const snapshot = {
 if (asJson) {
   console.log(JSON.stringify(snapshot, null, 2));
 } else {
-  console.log('[natural-capability-discovery] checking Wave 29');
+  console.log('[natural-capability-discovery] checking Capability Discovery');
   for (const rule of rules) {
     const marker = rule.status === 'passed' ? 'ok' : 'fail';
     console.log(`[natural-capability-discovery] ${marker} ${rule.label}: ${rule.observed} | ${rule.target}`);

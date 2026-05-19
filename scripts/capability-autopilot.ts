@@ -18,7 +18,7 @@ type CapabilityAutopilotGateCheck = {
 };
 
 type CapabilityAutopilotGateSnapshot = {
-  phase: '60';
+  stage: '60';
   surface: 'capability-autopilot';
   generatedAt: string;
   capabilityId: string;
@@ -32,8 +32,8 @@ type CapabilityAutopilotGateSnapshot = {
   receipt: CapabilityReceipt;
   permissionMappings: CapabilityAutopilotPermissionMapping[];
   checks: CapabilityAutopilotGateCheck[];
-  nextRecommendedPhase: {
-    phase: '61';
+  nextRecommendedStage: {
+    stage: '61';
     title: string;
     reason: string;
   };
@@ -102,7 +102,7 @@ function buildSnapshot(
   const passed = checks.filter((check) => check.status === 'pass').length;
 
   return {
-    phase: '60',
+    stage: '60',
     surface: 'capability-autopilot',
     generatedAt: new Date().toISOString(),
     capabilityId: receipt.capabilityId,
@@ -116,8 +116,8 @@ function buildSnapshot(
     receipt,
     permissionMappings: mappings,
     checks,
-    nextRecommendedPhase: {
-      phase: '61',
+    nextRecommendedStage: {
+      stage: '61',
       title: 'Capability Autopilot Approved Repair Runner',
       reason:
         'Depois do preflight, diagnostico, plano, receipt e mapeamento de permissao, o proximo passo e executar reparos somente apos aprovacao explicita.',
@@ -188,8 +188,8 @@ function buildChecks(
     'sem comando invisivel',
     executableSteps.length === 0 ? 'pass' : 'fail',
     executableSteps.length === 0
-      ? 'A fase 60 so propõe plano/receipt; nenhum comando de reparo fica armado para execucao.'
-      : 'Repair steps desta fase nao devem carregar comandos executaveis.',
+      ? 'A etapa 60 so propõe plano/receipt; nenhum comando de reparo fica armado para execucao.'
+      : 'Repair steps desta etapa nao devem carregar comandos executaveis.',
     executableSteps.map((step) => step.id),
   ));
 
@@ -217,7 +217,7 @@ function buildChecks(
     receipt.metadata?.readOnly === true && Boolean(receipt.timeline.length) ? 'pass' : 'fail',
     receipt.metadata?.readOnly === true
       ? 'O receipt preserva trilha auditavel e declara modo read-only.'
-      : 'O receipt precisa ser auditavel e read-only nesta fase.',
+      : 'O receipt precisa ser auditavel e read-only nesta etapa.',
     [
       `stage=${receipt.stage}`,
       `timeline=${String(receipt.timeline.length)}`,
@@ -246,7 +246,7 @@ function check(
 
 function renderReport(snapshot: CapabilityAutopilotGateSnapshot): string {
   const lines: string[] = [];
-  lines.push('[capability-autopilot] Fase 60 - Capability Autopilot Preflight');
+  lines.push('[capability-autopilot] Etapa 60 - Capability Autopilot Preflight');
   lines.push(`status: ${snapshot.status}`);
   lines.push(`ok: ${snapshot.summary.ok ? 'yes' : 'no'} | pass=${snapshot.summary.passed} warn=${snapshot.summary.warnings} fail=${snapshot.summary.failed}`);
   lines.push(`capability: ${snapshot.capabilityId}`);
@@ -261,7 +261,7 @@ function renderReport(snapshot: CapabilityAutopilotGateSnapshot): string {
     }
   }
   lines.push('');
-  lines.push(`proxima fase recomendada: ${snapshot.nextRecommendedPhase.phase} - ${snapshot.nextRecommendedPhase.title}`);
-  lines.push(snapshot.nextRecommendedPhase.reason);
+  lines.push(`proximo passo recomendada: ${snapshot.nextRecommendedStage.phase} - ${snapshot.nextRecommendedStage.title}`);
+  lines.push(snapshot.nextRecommendedStage.reason);
   return lines.join('\n');
 }

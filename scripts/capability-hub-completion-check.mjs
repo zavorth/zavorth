@@ -9,7 +9,7 @@ const asJson = process.argv.includes('--json');
 const staticRules = [
   ruleFilesExist({
     id: 'capability-hub-completion-files',
-    label: 'Capability Hub Completion Phase 12 files exist',
+    label: 'Capability Hub Completion Intent model2 files exist',
     target: 'contract, service, API facade, dynamic gate, tests and docs are present',
     files: [
       'src/contracts/CapabilityHubCompletionContract.ts',
@@ -94,7 +94,7 @@ const snapshot = {
 if (asJson) {
   console.log(JSON.stringify(snapshot, null, 2));
 } else {
-  console.log('[capability-hub-completion] checking Phase 12');
+  console.log('[capability-hub-completion] checking Intent model2');
   for (const rule of rules) {
     const marker = rule.status === 'passed' ? 'ok' : 'fail';
     console.log(`[capability-hub-completion] ${marker} ${rule.label}: ${rule.observed} | ${rule.target}`);

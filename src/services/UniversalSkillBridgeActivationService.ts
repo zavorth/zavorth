@@ -133,7 +133,7 @@ export class UniversalSkillBridgeActivationService {
         live: '/skills live <skill> --approval-id <approval-id>',
         origin: '/skills origin <skill>',
         check: 'npm run zavorth:universal-skill-bridge-activation:check --silent',
-        nextPhase: 'Phase 6 - Trust-Governed Skill Expansion at Scale',
+        nextStage: 'Runtime gateway - Trust-Governed Skill Expansion at Scale',
       },
     };
   }

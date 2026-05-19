@@ -6,7 +6,7 @@ import { ZavorthTransactionApprovalLedgerService } from '../../src/services/Zavo
 import { ZavorthTransactionConnectorRegistryService } from '../../src/services/ZavorthTransactionConnectorRegistryService.js';
 import { ZavorthTransactionPreviewService } from '../../src/services/ZavorthTransactionPreviewService.js';
 
-const signingKey = 'phase4-test-signing-key-000000000000000000000000000000';
+const signingKey = 'connector-registry-test-signing-key-000000000000000000000000000000';
 const now = new Date('2026-05-11T12:00:00.000Z');
 
 describe('ZavorthTransactionConnectorRegistryService', () => {
@@ -33,7 +33,7 @@ describe('ZavorthTransactionConnectorRegistryService', () => {
     fs.rmSync(tempDir, { recursive: true, force: true });
   });
 
-  it('blocks real-money connector dry-run until Phase 3 approval is granted', () => {
+  it('blocks real-money connector dry-run until Approval gate approval is granted', () => {
     const preview = previewService.buildPreview({
       text: 'Compre ETH ate R$300 se cair 5%, mas peca confirmacao antes.',
       now,

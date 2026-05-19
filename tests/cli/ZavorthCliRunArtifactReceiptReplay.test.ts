@@ -47,7 +47,7 @@ describe('Zavorth CLI run/artifact/receipt replay hardening', () => {
     }));
     const payload = JSON.parse(writes[0] || '{}');
     expect(payload).toEqual(expect.objectContaining({
-      contractVersion: '2026-05-04.wave-45',
+      contractVersion: '2026-05-04.receipt-replay',
       source: 'RunArtifactReceiptReplayService',
       summary: expect.objectContaining({
         frameCount: expect.any(Number),
@@ -72,7 +72,7 @@ describe('Zavorth CLI run/artifact/receipt replay hardening', () => {
 
     const text = formatRunArtifactReceiptReplaySnapshot(snapshot);
 
-    expect(text).toContain('Run / Artifact / Receipt Replay Hardening - Wave 45');
+    expect(text).toContain('Run / Artifact / Receipt Replay Hardening - Channel mesh5');
     expect(text).toContain('replay nao executa tools');
     expect(text).toContain('conteudo de artifact nao foi inventado');
     expect(text).toContain('Command Center: /control?runId=');

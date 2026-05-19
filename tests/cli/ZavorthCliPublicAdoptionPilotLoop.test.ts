@@ -20,7 +20,7 @@ function createFlags(json: boolean) {
   };
 }
 
-describe('Zavorth CLI Public Adoption Pilot Loop Wave 51', () => {
+describe('Zavorth CLI Public Adoption Pilot Loop Public Adoption Pilot', () => {
   it('parses public-adoption-pilot-loop text after aliases', () => {
     expect(resolvePublicAdoptionPilotLoopCliText('public-adoption-pilot-loop "piloto controlado"')).toBe('piloto controlado');
     expect(resolvePublicAdoptionPilotLoopCliText('pilot-feedback-loop latest')).toBe('');
@@ -47,7 +47,7 @@ describe('Zavorth CLI Public Adoption Pilot Loop Wave 51', () => {
     }));
     const payload = JSON.parse(writes[0] || '{}');
     expect(payload).toEqual(expect.objectContaining({
-      contractVersion: '2026-05-04.wave-51',
+      contractVersion: '2026-05-04.adoption-pilot',
       source: 'PublicAdoptionPilotLoopService',
       status: 'pilot-ready',
       readiness: expect.objectContaining({
@@ -77,7 +77,7 @@ describe('Zavorth CLI Public Adoption Pilot Loop Wave 51', () => {
 
     const text = formatPublicAdoptionPilotLoopSnapshot(snapshot);
 
-    expect(text).toContain('Public Adoption / Pilot Feedback Loop - Wave 51');
+    expect(text).toContain('Public Adoption / Pilot Feedback Loop - Public Adoption Pilot');
     expect(text).toContain('coleta implicita nao foi ligada');
     expect(text).toContain('payload de workspace nao foi armazenado');
     expect(text).toContain('dashboard usa apenas agregados');

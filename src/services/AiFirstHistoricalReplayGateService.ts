@@ -116,24 +116,24 @@ export class AiFirstHistoricalReplayGateService {
       ],
       gates: [
         {
-          id: 'phase-9-history-loaded',
+          id: 'checkpoint-9-history-loaded',
           status: history.length >= criteria.minLedgers ? 'passed' : 'warning',
           detail: `${history.length} ledger(s) loaded; minimum is ${criteria.minLedgers}.`,
         },
         {
-          id: 'phase-9-no-source-violations',
+          id: 'checkpoint-9-no-source-violations',
           status: aggregate.sourceViolationCount === 0 ? 'passed' : 'blocked',
           detail: `${aggregate.sourceViolationCount} source invariant violation(s) detected.`,
         },
         {
-          id: 'phase-9-no-secret-leaks',
+          id: 'checkpoint-9-no-secret-leaks',
           status: aggregate.secretLeakDetected ? 'blocked' : 'passed',
           detail: aggregate.secretLeakDetected
             ? 'Secret-like value detected in the historical input.'
             : 'No secret-like value detected in the historical input.',
         },
         {
-          id: 'phase-9-no-runtime-change',
+          id: 'checkpoint-9-no-runtime-change',
           status: 'passed',
           detail: 'defaultRuntimeChanged remains false and canExecuteNow remains false.',
         },
@@ -143,7 +143,7 @@ export class AiFirstHistoricalReplayGateService {
 
   public renderMarkdown(snapshot: AiFirstHistoricalReplayGateSnapshot): string {
     const lines: string[] = [];
-    lines.push('# Zavorth AI-first Router Phase 9');
+    lines.push('# Zavorth AI-first Router Certification matrix');
     lines.push('');
     lines.push(`- contract: ${snapshot.contractVersion}`);
     lines.push(`- gateId: ${snapshot.gateId}`);
@@ -334,7 +334,7 @@ function buildFindings(input: {
     detail: string,
   ) => {
     findings.push({
-      id: `phase-9-${kind}-${findings.length + 1}`,
+      id: `checkpoint-9-${kind}-${findings.length + 1}`,
       kind,
       severity,
       detail,
@@ -467,7 +467,8 @@ function nonNegativeInteger(value: unknown, fallback: number): number {
 function hasSecretLeak(value: string): boolean {
   return /\bxox[pbarfs]-[A-Za-z0-9-]{6,}\b/i.test(value)
     || /\bsk-[A-Za-z0-9_-]{12,}\b/.test(value)
-    || /\bgh[pousr]_[A-Za-z0-9_]{12,}\b/.test(value);
+    || /\bgh[pousr]_[A-Za-z0-9_]{12,}\b/.test(value)
+    || /\b[A-Z0-9_]*(?:TOKEN|SECRET|PASSWORD|API_KEY|ACCESS_KEY|PRIVATE_KEY|CREDENTIAL)[A-Z0-9_]*\s*[:=]\s*[^\s,;]+/i.test(value);
 }
 
 function safeText(value: unknown): string {

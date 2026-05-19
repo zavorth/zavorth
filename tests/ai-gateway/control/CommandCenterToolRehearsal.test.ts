@@ -11,7 +11,7 @@ function createIdFactory() {
   return (prefix: string) => `${prefix}-cc-tool-rehearsal-${++index}`;
 }
 
-describe('Command Center Tool Rehearsal Wave 36', () => {
+describe('Command Center Tool Rehearsal Tool Rehearsal', () => {
   it('projects toolRehearsal metadata into the dashboard view model', () => {
     const run = new AgentRunService({
       now: () => new Date('2026-05-04T00:36:00.000Z'),
@@ -55,7 +55,7 @@ describe('Command Center Tool Rehearsal Wave 36', () => {
     });
 
     expect(viewModel.toolRehearsal).toEqual(expect.objectContaining({
-      contractVersion: '2026-05-03.wave-36',
+      contractVersion: '2026-05-03.tool-rehearsal',
       status: 'proposal',
       summary: expect.objectContaining({
         callCount: 3,
@@ -103,7 +103,7 @@ describe('Command Center Tool Rehearsal Wave 36', () => {
     );
 
     expect(projection.toolRehearsal).toEqual(expect.objectContaining({
-      contractVersion: '2026-05-03.wave-36',
+      contractVersion: '2026-05-03.tool-rehearsal',
       status: 'waiting-approval',
       summary: expect.objectContaining({
         callCount: 3,

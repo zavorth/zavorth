@@ -6,7 +6,7 @@ import {
 } from '../../src/contracts/ZavorthLargeSkillAbsorptionContract.js';
 import { ZavorthLargeSkillAbsorptionService } from '../../src/services/ZavorthLargeSkillAbsorptionService.js';
 
-describe('ZavorthLargeSkillAbsorptionService Phase 3', () => {
+describe('ZavorthLargeSkillAbsorptionService Approval gate', () => {
   it('indexes, chunks and batches a clean library without import or execution', async () => {
     const fixture = createFixture({
       cleanCount: 5,

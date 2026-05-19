@@ -52,7 +52,7 @@ async function main(): Promise<void> {
     status: profile === 'staging-live' && !confirmLiveIo ? 'blocked-until-confirmed' : 'ready-for-operator',
     reason: profile === 'staging-live' && !confirmLiveIo
       ? 'staging-live web/search requires --confirm-live-io and real operator credentials/targets.'
-      : 'Phase 8 exposes configured search providers, web extraction adapters, crawl policy and redacted receipts.',
+      : 'Dashboard controls exposes configured search providers, web extraction adapters, crawl policy and redacted receipts.',
     entries: selected.map((entry) => ({
       targetId: entry.targetId,
       status: entry.status,

@@ -1,7 +1,7 @@
 import type { SurfaceResponse } from '../domain/surface/application/surface-response/index.js';
 
 export const ZAVORTH_AGENT_PRACTICALITY_COMPLETION_VERSION =
-  '2026-05-11.agent-practicality-phase-6' as const;
+  '2026-05-11.agent-practicality-checkpoint-6' as const;
 
 export type ZavorthAgentPracticalitySurface =
   | 'cli'
@@ -60,7 +60,7 @@ export type ZavorthAgentPracticalityCompletionSnapshot = {
   };
   nextArchitectureSuggestion: {
     title: 'Vision, Computer And Device Control Plane';
-    shouldSuggestAfterPhase6: true;
+    shouldSuggestAfterStage6: true;
     scope: string[];
   };
 };

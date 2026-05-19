@@ -14,7 +14,7 @@ describe('Web app security mesh endpoint', () => {
   });
 
   it('exposes the Runtime & Security Mesh on the protected web surface', async () => {
-    config.zavorthWebAuthToken = 'phase-7-token';
+    config.zavorthWebAuthToken = 'checkpoint-7-token';
     const service = new DashboardService(logRepo, {
       securityMeshService: {
         buildSnapshot: jest.fn(() => ({
@@ -86,7 +86,7 @@ describe('Web app security mesh endpoint', () => {
 
     await service.start();
     const result = await fetchDashboardJson(service.getUrl(), '/api/web/security-mesh', {
-      token: 'phase-7-token',
+      token: 'checkpoint-7-token',
     });
     await service.stopAsync();
 

@@ -24,7 +24,7 @@ async function main() {
   if (asJson) {
     process.stdout.write(`${JSON.stringify(snapshot, null, 2)}\n`);
   } else {
-    console.log('[zavorth-governance] leitura consolidada da Wave 7');
+    console.log('[zavorth-governance] leitura consolidada da Governance');
     console.log(`[zavorth-governance] postura: ${snapshot.summary.posture}`);
     console.log(`[zavorth-governance] resumo: ${snapshot.narrative.operatorSummary}`);
     console.log(`[zavorth-governance] tenants: ${snapshot.summary.tenants} | shared: ${snapshot.summary.sharedTenants} | onboarding: ${snapshot.summary.pendingOnboarding}`);

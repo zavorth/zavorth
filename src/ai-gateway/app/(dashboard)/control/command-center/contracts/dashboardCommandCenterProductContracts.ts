@@ -289,7 +289,7 @@ export type DashboardProductizationEvidenceSnapshot = {
   productization: {
     contractService: string;
     c9Linked: boolean;
-    phase: string | null;
+    stage: string | null;
     status: string | null;
     controlReady: boolean;
     cliReady: boolean;
@@ -307,7 +307,7 @@ export type DashboardProductizationEvidenceSnapshot = {
     noReleasePublished: boolean;
     noInstallerExecuted: boolean;
     noCanaryStarted: boolean;
-    nextReleaseWave: string;
+    nextReleaseTrack: string;
   };
   runtimeEvidence: {
     runArtifactReceiptReplay: boolean;

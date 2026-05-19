@@ -10,7 +10,7 @@ type ZavorthHookPlaneRuntime = {
 export type ZavorthHookEventSnapshot = {
   id: string;
   label: string;
-  stage: 'session' | 'dispatch' | 'tool' | 'workflow' | 'approval' | 'runtime' | 'integration' | 'plugin' | 'transport' | 'release';
+  phase: 'session' | 'dispatch' | 'tool' | 'workflow' | 'approval' | 'runtime' | 'integration' | 'plugin' | 'transport' | 'release';
   description: string;
   status: 'ready' | 'partial' | 'planned';
   registeredHooks: number;
@@ -47,84 +47,84 @@ export type ZavorthHookPlaneSnapshot = {
 const SUPPORTED_EVENTS: Array<{
   id: string;
   label: string;
-  stage: ZavorthHookEventSnapshot['stage'];
+  phase: ZavorthHookEventSnapshot['phase'];
   description: string;
   status: ZavorthHookEventSnapshot['status'];
 }> = [
   {
     id: 'before-task-dispatch',
     label: 'Antes do dispatch',
-    stage: 'dispatch',
+    phase: 'dispatch',
     description: 'Executa validacoes antes de enviar trabalho para o runtime.',
     status: 'ready',
   },
   {
     id: 'after-task-dispatch',
     label: 'Depois do dispatch',
-    stage: 'dispatch',
+    phase: 'dispatch',
     description: 'Executa passos de pos-processamento apos a criacao da task.',
     status: 'ready',
   },
   {
     id: 'task-dispatch-failed',
     label: 'Falha no dispatch',
-    stage: 'dispatch',
+    phase: 'dispatch',
     description: 'Permite resposta operacional quando o dispatch falha.',
     status: 'partial',
   },
   {
     id: 'before-tool-execute',
     label: 'Antes da tool',
-    stage: 'tool',
+    phase: 'tool',
     description: 'Permite gates antes de executar tools e acoes sensiveis.',
     status: 'partial',
   },
   {
     id: 'after-tool-execute',
     label: 'Depois da tool',
-    stage: 'tool',
+    phase: 'tool',
     description: 'Permite registrar telemetria e follow-ups apos o uso de tools.',
     status: 'partial',
   },
   {
     id: 'before-workflow-start',
     label: 'Antes do workflow',
-    stage: 'workflow',
+    phase: 'workflow',
     description: 'Permite preparar contexto antes de abrir um workflow composto.',
     status: 'partial',
   },
   {
     id: 'after-workflow-complete',
     label: 'Depois do workflow',
-    stage: 'workflow',
+    phase: 'workflow',
     description: 'Permite publicar artefatos e sumarizar o resultado final.',
     status: 'partial',
   },
   {
     id: 'permission-required',
     label: 'Permissao pendente',
-    stage: 'approval',
+    phase: 'approval',
     description: 'Permite automacoes quando uma permissao bloqueia a trilha.',
     status: 'partial',
   },
   {
     id: 'handoff-generated',
     label: 'Handoff gerado',
-    stage: 'session',
+    phase: 'session',
     description: 'Permite automacoes quando um handoff entre superficies e gerado.',
     status: 'partial',
   },
   {
     id: 'before-complete',
     label: 'Antes de concluir',
-    stage: 'release',
+    phase: 'release',
     description: 'Hook operacional de workspace antes de concluir uma entrega.',
     status: 'ready',
   },
   {
     id: 'before-publish',
     label: 'Antes de publicar',
-    stage: 'release',
+    phase: 'release',
     description: 'Hook operacional de workspace antes de publicar ou shippar algo.',
     status: 'ready',
   },
@@ -156,7 +156,7 @@ export class ZavorthHookPlaneService {
       return {
         id: event.id,
         label: event.label,
-        stage: this.normalizeStage(event.stage),
+        phase: this.normalizeStage(event.phase),
         description: event.summary,
         status: event.status,
         registeredHooks: matchedHooks.length,
@@ -192,9 +192,9 @@ export class ZavorthHookPlaneService {
   }
 
   private normalizeStage(
-    stage: string,
-  ): ZavorthHookEventSnapshot['stage'] {
-    switch (stage) {
+    phase: string,
+  ): ZavorthHookEventSnapshot['phase'] {
+    switch (phase) {
       case 'session':
       case 'dispatch':
       case 'workflow':
@@ -205,7 +205,7 @@ export class ZavorthHookPlaneService {
       case 'transport':
       case 'release':
       case 'tool':
-        return stage;
+        return phase;
       default:
         return 'tool';
     }

@@ -82,7 +82,7 @@ const smokeProof = {
   },
 };
 
-describe('ZavorthLiveReadinessEvidenceProofPackService Phase 9', () => {
+describe('ZavorthLiveReadinessEvidenceProofPackService Certification matrix', () => {
   it('certifies provider and channel live readiness without false default routing', async () => {
     const snapshot = await new ZavorthLiveReadinessEvidenceProofPackService({
       now: () => new Date('2026-05-14T15:00:00.000Z'),
@@ -97,7 +97,7 @@ describe('ZavorthLiveReadinessEvidenceProofPackService Phase 9', () => {
       },
     }).buildSnapshot();
 
-    expect(snapshot.contractVersion).toBe('2026-05-14.phase-9-live-readiness-evidence-proof-pack');
+    expect(snapshot.contractVersion).toBe('2026-05-14.checkpoint-9-live-readiness-evidence-proof-pack');
     expect(snapshot.status).toBe('passed');
     expect(snapshot.summary.providerLiveReady).toBe(1);
     expect(snapshot.summary.providerDefaultRouteAllowed).toBe(1);

@@ -188,7 +188,7 @@ export class CapabilityAutopilotPreflightRealApplyApprovalGateService {
         reason: options.reason || null,
       },
       metadata: {
-        phase: 'capability-autopilot-phase-75',
+        phase: 'capability-autopilot-checkpoint-75',
         sourceDryRunStatus: execution.status,
         sourceActionKind: execution.sourceAction?.kind || null,
         autoExecute: false,
@@ -237,7 +237,7 @@ export class CapabilityAutopilotPreflightRealApplyApprovalGateService {
           'Depois do gate final, o proximo passo e executar apply real somente com adapter injetado, budget travado, auditoria e rollback plan por superficie.',
       },
       metadata: {
-        phase: 'capability-autopilot-phase-75',
+        phase: 'capability-autopilot-checkpoint-75',
         sourceSnapshotStatus: source.status,
         dryRunExecutionCount: source.executions.length,
         decisionCount: decisions.length,
@@ -255,7 +255,7 @@ export class CapabilityAutopilotPreflightRealApplyApprovalGateService {
 
   public renderReport(snapshot: CapabilityPreflightRealApplyApprovalGateSnapshot): string {
     const lines: string[] = [];
-    lines.push('[capability-autopilot-preflight-real-apply] Fase 75 - Preflight Real Apply Approval Gate');
+    lines.push('[capability-autopilot-preflight-real-apply] Etapa 75 - Preflight Real Apply Approval Gate');
     lines.push(`status: ${snapshot.status}`);
     lines.push(`ok: ${snapshot.summary.ok ? 'yes' : 'no'} | pass=${snapshot.summary.passed} warn=${snapshot.summary.warnings} fail=${snapshot.summary.failed}`);
     lines.push(`capability: ${snapshot.capabilityId}`);
@@ -269,7 +269,7 @@ export class CapabilityAutopilotPreflightRealApplyApprovalGateService {
       }
     }
     lines.push('');
-    lines.push(`proxima fase recomendada: ${snapshot.nextRecommendedPhase.phase} - ${snapshot.nextRecommendedPhase.title}`);
+    lines.push(`proximo passo recomendada: ${snapshot.nextRecommendedPhase.phase} - ${snapshot.nextRecommendedPhase.title}`);
     lines.push(snapshot.nextRecommendedPhase.reason);
     return lines.join('\n');
   }
@@ -529,7 +529,7 @@ export class CapabilityAutopilotPreflightRealApplyApprovalGateService {
     if (status === 'blocked') {
       return `Apply real bloqueado para ${execution.sourceAction?.kind || '<sem-action>'}; nenhum alvo real foi invocado.`;
     }
-    return `Apply real autorizado para ${execution.sourceAction?.kind || '<sem-action>'}; aguardando executor controlado, sem invocacao real nesta fase.`;
+    return `Apply real autorizado para ${execution.sourceAction?.kind || '<sem-action>'}; aguardando executor controlado, sem invocacao real nesta etapa.`;
   }
 
   private check(

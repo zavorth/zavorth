@@ -154,14 +154,14 @@ const checks = [
     ],
   },
   {
-    file: 'docs/02-quickstart.md',
+    file: 'docs/quickstart.md',
     includes: [
       '/control',
       'Shell operacional legado',
     ],
   },
   {
-    file: 'docs/07-web.md',
+    file: 'docs/web-dashboard.md',
     includes: [
       '/control',
       'funcionalmente congeladas',
@@ -169,14 +169,14 @@ const checks = [
     ],
   },
   {
-    file: 'docs/09-operations.md',
+    file: 'docs/operations.md',
     includes: [
       '/control',
       'shell operacional legado',
     ],
   },
   {
-    file: 'docs/60-legacy-containment.md',
+    file: 'docs/product-direction.md',
     includes: [
       '/control',
       '/app',

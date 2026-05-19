@@ -163,7 +163,7 @@ describe('CommandCenterRuntimeProjection', () => {
     const viewModel = buildCommandCenterViewModelFromZavorthAgentGatewaySnapshot(snapshot);
 
     expect(projection.runObservatory).toEqual(expect.objectContaining({
-      contractVersion: '2026-05-03.wave-28',
+      contractVersion: '2026-05-03.run-observatory',
       query: expect.objectContaining({
         traceId: 'trace-projection-observatory-b',
         status: 'failed',

@@ -4,7 +4,7 @@ import {
 } from '../../src/contracts/ZavorthTransactionCommandCenterContract.js';
 
 describe('ZavorthTransactionCommandCenterContract', () => {
-  it('publishes the Phase 8 transaction Command Center contract', () => {
+  it('publishes the Dashboard controls transaction Command Center contract', () => {
     const snapshot = buildZavorthTransactionCommandCenterContractSnapshot();
 
     expect(snapshot.version).toBe(ZAVORTH_TRANSACTION_COMMAND_CENTER_CONTRACT_VERSION);
@@ -36,7 +36,7 @@ describe('ZavorthTransactionCommandCenterContract', () => {
 
     expect(snapshot.invariants).toEqual(
       expect.arrayContaining([
-        'Phase 8 is a cockpit projection over Phase 7; it does not introduce execution authority.',
+        'Dashboard controls is a cockpit projection over Surface controls; it does not introduce execution authority.',
         'Every Command Center projection keeps live execution disabled.',
         'Operator actions are visual affordances backed by governed surface actions.',
         'Raw transaction secrets must never be serialized into cockpit lanes, tiles, notifications or API payloads.',

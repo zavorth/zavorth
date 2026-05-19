@@ -2,7 +2,7 @@ import type { SurfaceResponse } from '../domain/surface/application/surface-resp
 import type { ZavorthPerceptionInvocationPlan } from './ZavorthPerceptionInvocationContract.js';
 
 export const ZAVORTH_PERCEPTION_CROSS_SURFACE_CERTIFICATION_VERSION =
-  '2026-05-11.perception-cross-surface-phase-6' as const;
+  '2026-05-11.perception-cross-surface-checkpoint-6' as const;
 
 export type ZavorthPerceptionCrossSurfaceStatus = 'passed' | 'attention' | 'blocked';
 

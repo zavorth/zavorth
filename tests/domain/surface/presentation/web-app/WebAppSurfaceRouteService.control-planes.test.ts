@@ -415,7 +415,7 @@ describe('WebAppSurfaceRouteService', () => {
         optionCount: 3,
       },
       narrative: {
-        headline: 'Wave A: Natural Setup Agent',
+        headline: 'Natural setup: Natural Setup Agent',
         operatorSummary: 'Faltam duas chaves para concluir o Discord.',
         nextAction: 'Preencher o token e rodar o doctor.',
       },
@@ -458,7 +458,7 @@ describe('WebAppSurfaceRouteService', () => {
             missingEnvKeys: 2,
           }),
           narrative: expect.objectContaining({
-            headline: 'Wave A: Natural Setup Agent',
+            headline: 'Natural setup: Natural Setup Agent',
           }),
         }),
       }),
@@ -482,7 +482,7 @@ describe('WebAppSurfaceRouteService', () => {
         deliveries: 3,
       },
       narrative: {
-        headline: 'Wave F: Automations e scheduled runs',
+        headline: 'Scheduled runs: Automations e scheduled runs',
         operatorSummary: 'Uma automacao segue ativa e uma pausa precisa de revisao.',
         nextAction: 'Revisar a rotina diaria antes do proximo envio.',
       },
@@ -522,7 +522,7 @@ describe('WebAppSurfaceRouteService', () => {
             totalTasks: 2,
           }),
           narrative: expect.objectContaining({
-            headline: 'Wave F: Automations e scheduled runs',
+            headline: 'Scheduled runs: Automations e scheduled runs',
           }),
         }),
       }),
@@ -618,7 +618,7 @@ describe('WebAppSurfaceRouteService', () => {
         allowedSites: 1,
       },
       narrative: {
-        headline: 'Wave C: Watch Mode supervisionado',
+        headline: 'Watch mode: Watch Mode supervisionado',
         operatorSummary: 'Chrome aguardando approval.',
         nextAction: 'Decidir o handoff visual.',
       },
@@ -660,7 +660,7 @@ describe('WebAppSurfaceRouteService', () => {
             pendingApprovals: 1,
           }),
           narrative: expect.objectContaining({
-            headline: 'Wave C: Watch Mode supervisionado',
+            headline: 'Watch mode: Watch Mode supervisionado',
           }),
         }),
       }),
@@ -690,7 +690,7 @@ describe('WebAppSurfaceRouteService', () => {
             releaseReady: true,
           },
           narrative: {
-            headline: 'Wave 6 pronta',
+            headline: 'QA release pronta',
             operatorSummary: 'Todos os gates principais ficaram verdes.',
             nextAction: 'Rodar release alpha.',
           },
@@ -719,7 +719,7 @@ describe('WebAppSurfaceRouteService', () => {
             releaseReady: true,
           }),
           narrative: expect.objectContaining({
-            headline: 'Wave 6 pronta',
+            headline: 'QA release pronta',
           }),
         }),
       }),
@@ -746,7 +746,7 @@ describe('WebAppSurfaceRouteService', () => {
         limit,
       },
       narrative: {
-        headline: 'Wave 7 pronta',
+        headline: 'Governance pronta',
         operatorSummary: 'Governance consolidada.',
         nextAction: 'Revisar onboarding pendente.',
       },
@@ -780,7 +780,7 @@ describe('WebAppSurfaceRouteService', () => {
             tenants: 2,
           }),
           narrative: expect.objectContaining({
-            headline: 'Wave 7 pronta',
+            headline: 'Governance pronta',
           }),
         }),
       }),
@@ -803,7 +803,7 @@ describe('WebAppSurfaceRouteService', () => {
         pendingLearning: 0,
       },
       narrative: {
-        headline: 'Wave 8 pronta',
+        headline: 'Replay learning pronta',
         operatorSummary: 'Replay e learning consolidados.',
         nextAction: 'Comparar runs recentes.',
       },
@@ -845,7 +845,7 @@ describe('WebAppSurfaceRouteService', () => {
             timelineEvents: 3,
           }),
           narrative: expect.objectContaining({
-            headline: 'Wave 8 pronta',
+            headline: 'Replay learning pronta',
           }),
         }),
       }),

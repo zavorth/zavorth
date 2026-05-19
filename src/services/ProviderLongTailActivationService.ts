@@ -98,7 +98,7 @@ export class ProviderLongTailActivationService {
     return {
       generatedAt: this.now().toISOString(),
       contractVersion: ZAVORTH_PROVIDER_LONG_TAIL_ACTIVATION_CONTRACT_VERSION,
-      phase: 'Phase 5 - Provider Runtime Activation Long Tail',
+      phase: 'Credential vault - Provider Runtime Activation Long Tail',
       status: blocked > 0 || generatedProviderManifests > 0 ? 'blocked' : 'closed',
       summary: {
         providers: 29,
@@ -115,13 +115,13 @@ export class ProviderLongTailActivationService {
         chatSmokeCommands: entries.filter((entry) => this.hasGate(entry, 'chat-smoke')).length,
         embeddingSmokeCommands: entries.filter((entry) => this.hasGate(entry, 'embedding-smoke')).length,
         redactedReceipts: receipts.filter((receipt) => receipt.secretValuesSerialized === false).length,
-        liveIoRequiredByPhase5Check: false,
+        liveIoRequiredByStage5Check: false,
         secretValuesSerialized: false,
       },
       entries,
       receipts,
       policy: {
-        noLiveIoDuringPhase5Check: true,
+        noLiveIoDuringStage5Check: true,
         namedManifestsRequiredForEveryLongTailProvider: true,
         providerFactoryRoutesMustResolveWithoutFallback: true,
         managedGatewaysRequireOperatorBaseUrl: true,
@@ -135,7 +135,7 @@ export class ProviderLongTailActivationService {
         stagingLiveSmoke: 'npm run provider-long-tail-activation -- --profile staging-live --provider <provider> --confirm-live-io',
         focusedTests: ['npx jest tests/services/ProviderLongTailActivationService.test.ts --runInBand'],
         typecheck: 'npm run runtime:check --silent',
-        nextPhase: 'Phase 13 - Live Parity Certification',
+        nextStage: 'Intent model3 - Live Parity Certification',
       },
     };
   }

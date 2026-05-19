@@ -36,7 +36,7 @@ export function formatUniversalPreviewModeSnapshot(
   snapshot: UniversalPreviewModeSnapshot,
 ): string {
   const lines = [
-    'Universal Preview Mode - Wave 30',
+    'Universal Preview Mode - Universal Preview',
     `- contrato: ${snapshot.contractVersion}`,
     `- modo: ${snapshot.mode}`,
     `- risco: ${snapshot.risk.highestRisk} | approval=${String(snapshot.risk.requiresApproval)} | preview=${String(snapshot.risk.previewRequired)}`,

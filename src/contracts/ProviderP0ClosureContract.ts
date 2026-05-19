@@ -1,7 +1,7 @@
 import type { ProviderMeshParitySnapshot } from './ProviderMeshParityContract.js';
 import type { ParityCertificationSnapshot } from './ParityCertificationContract.js';
 
-export const ZAVORTH_PROVIDER_P0_CLOSURE_CONTRACT_VERSION = '2026-05-04.phase-10';
+export const ZAVORTH_PROVIDER_P0_CLOSURE_CONTRACT_VERSION = '2026-05-04.checkpoint-10';
 
 export type ProviderP0ClosureStatus = 'closed' | 'blocked';
 
@@ -40,7 +40,7 @@ export type ProviderP0ClosureSnapshot = {
     check: string;
     providerParity: string;
     certify: string;
-    nextPhase: 'Fase 11 - P1 Provider Adapter Runtime';
+    nextStage: 'Etapa 11 - P1 Provider Adapter Runtime';
   };
   policy: {
     closureIsClassificationOnly: true;

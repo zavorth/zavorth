@@ -14,7 +14,7 @@ export async function GET(request: Request) {
         name: tool.name,
         description: tool.description,
         scopes: [...tool.scopes],
-        phase: tool.phase,
+        stage: tool.phase,
         auditLevel: tool.auditLevel,
         sourceEndpoints: [...tool.sourceEndpoints],
       })),

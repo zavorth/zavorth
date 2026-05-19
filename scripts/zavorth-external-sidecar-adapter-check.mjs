@@ -26,7 +26,7 @@ const snapshot = {
 if (asJson) {
   console.log(JSON.stringify(snapshot, null, 2));
 } else {
-  console.log('[zavorth-external-sidecar-adapter] checking Phase 3');
+  console.log('[zavorth-external-sidecar-adapter] checking Approval gate');
   for (const rule of rules) {
     const marker = rule.status === 'passed' ? 'ok' : 'fail';
     console.log(`[zavorth-external-sidecar-adapter] ${marker} ${rule.label}: ${rule.observed} | ${rule.target}`);
@@ -49,8 +49,8 @@ function ruleFilesExist() {
   ];
   const missing = files.filter((file) => !fs.existsSync(path.join(root, file)));
   return {
-    id: 'phase-3-files',
-    label: 'Phase 3 sidecar adapter files exist',
+    id: 'checkpoint-3-files',
+    label: 'Approval gate sidecar adapter files exist',
     status: missing.length === 0 ? 'passed' : 'failed',
     observed: `${files.length - missing.length}/${files.length} file(s) present`,
     target: 'contract, service, CLI, check, tests, docs and package scripts are present',
@@ -76,16 +76,16 @@ function ruleContainsMarkers() {
       'risky-outbound-blocks-without-approval',
     ]],
     ['docs/README.md', [
-      'phase-3-sidecar-adapter-ready',
-      '291 Phase 4 - Capability Providers',
+      'sidecar-adapter-ready',
+      '291 Connector registry - Capability Providers',
       'Zavorth External Sidecar Adapter',
     ]],
     ['docs/README.md', [
-      'phase-3-sidecar-adapter-complete',
+      'sidecar-adapter-complete',
       'Zavorth External Sidecar Adapter',
       'read-only',
       'dry-run',
-      '291 Phase 4 - Capability Providers',
+      '291 Connector registry - Capability Providers',
     ]],
     ['package.json', [
       'zavorth:external-sidecar-adapter',
@@ -104,8 +104,8 @@ function ruleContainsMarkers() {
     }
   }
   return {
-    id: 'phase-3-markers',
-    label: 'Phase 3 sidecar adapter markers are present',
+    id: 'checkpoint-3-markers',
+    label: 'Approval gate sidecar adapter markers are present',
     status: missing.length === 0 ? 'passed' : 'failed',
     observed: missing.length === 0 ? 'all markers present' : `${missing.length} missing marker(s)`,
     target: 'adapter contract, gateway routing, dry-run outbound policy, docs and scripts markers are present',
@@ -125,7 +125,7 @@ function runSidecarAdapterFixture() {
   });
   if (result.status !== 0) {
     return {
-      id: 'phase-3-sidecar-adapter-fixture',
+      id: 'sidecar-adapter-fixture',
       label: 'Sidecar adapter fixture passes',
       status: 'failed',
       observed: `exit ${result.status}`,
@@ -148,7 +148,7 @@ function runSidecarAdapterFixture() {
     && snapshot.safety?.sidecarsStarted === false
     && snapshot.safety?.outboundIoPerformed === false;
   return {
-    id: 'phase-3-sidecar-adapter-fixture',
+    id: 'sidecar-adapter-fixture',
     label: 'Sidecar adapter fixture passes',
     status: ok ? 'passed' : 'failed',
     observed: ok ? `${snapshot.status}, ${snapshot.summary.sourceChannelsListed} channel(s), ${snapshot.summary.outboundDryRunsEvaluated} dry-run(s)` : 'invalid sidecar adapter snapshot',
@@ -177,7 +177,7 @@ function runSidecarAdapterLiveReadOnlyFixture() {
     && snapshot.readOnlyProbe?.safety?.noSourceRuntimeCodeExecuted === true
     && snapshot.readOnlyProbe?.safety?.noOutboundIo === true;
   return {
-    id: 'phase-3-live-readonly-fixture',
+    id: 'checkpoint-3-live-readonly-fixture',
     label: 'Live-readonly probe mode stays non-executing',
     status: ok ? 'passed' : 'failed',
     observed: ok ? `${snapshot.readOnlyProbe.mode}, sourceCodeExecuted=${snapshot.readOnlyProbe.safety.noSourceRuntimeCodeExecuted}` : `exit ${result.status}`,
@@ -203,11 +203,11 @@ function runSidecarAdapterBlockedFixture() {
     && snapshot.status === 'blocked'
     && snapshot.previousNativeEngineStatus === 'blocked';
   return {
-    id: 'phase-3-blocked-fixture',
-    label: 'Sidecar adapter blocks without Phase 2 readiness',
+    id: 'checkpoint-3-blocked-fixture',
+    label: 'Sidecar adapter blocks without Preview engine readiness',
     status: ok ? 'passed' : 'failed',
     observed: ok ? `${snapshot.status}, nativeEngine=${snapshot.previousNativeEngineStatus}` : `exit ${result.status}`,
-    target: 'Phase 3 cannot advance while Phase 2 native engine is blocked',
+    target: 'Approval gate cannot advance while Preview engine native engine is blocked',
     details: ok ? [] : [result.error?.message || result.stderr || result.stdout || 'no output'],
   };
 }

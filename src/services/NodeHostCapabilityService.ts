@@ -349,6 +349,11 @@ export class NodeHostCapabilityService {
       return command;
     }
 
+    const binary = path.basename(parsed.file).toLowerCase();
+    if (this.platform === 'win32' && binary === 'echo') {
+      return command;
+    }
+
     return {
       label: 'system.run',
       command,

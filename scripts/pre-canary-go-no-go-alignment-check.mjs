@@ -41,7 +41,7 @@ const rules = [
   ruleContainsAll({
     id: 'pre-canary-go-no-go-alignment-service',
     label: 'Service aligns pre-canary go/no-go from distribution rehearsal',
-    target: 'Service consumes Phase 17, links runtime gates, prepares owners and keeps canary disabled',
+    target: 'Service consumes Intent model7, links runtime gates, prepares owners and keeps canary disabled',
     files: ['src/services/PreCanaryGoNoGoAlignmentService.ts'],
     needles: [
       'PreCanaryGoNoGoAlignmentService',
@@ -117,7 +117,7 @@ const snapshot = {
 if (asJson) {
   console.log(JSON.stringify(snapshot, null, 2));
 } else {
-  console.log('[pre-canary-go-no-go-alignment] checking Phase 18');
+  console.log('[pre-canary-go-no-go-alignment] checking Intent model8');
   for (const rule of rules) {
     const marker = rule.status === 'passed' ? 'ok' : 'fail';
     console.log(`[pre-canary-go-no-go-alignment] ${marker} ${rule.label}: ${rule.observed} | ${rule.target}`);

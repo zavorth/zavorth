@@ -74,8 +74,10 @@ const home = [
   readFileSync(path.join(root, 'assets/command-center/styles/chat.css'), 'utf8'),
 ].join('\n');
 for (const marker of [
-  'Hello, Operator',
-  'Inbox, Tasks, Approvals, Receipts and Connectors.',
+  'chat-console-bar',
+  'Ask normally. Zavorth will answer, preview risky work, and ask before acting.',
+  'Provider',
+  'Channel',
   'Zavorth Home',
   'Primeiros passos',
   'zavorth setup --dry-run',

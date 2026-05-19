@@ -506,10 +506,10 @@ export class AgentRunService {
 
   public recordLifecycleDefenseReview(
     run: UniversalAgentRun,
-    stage: AgentRunRiskReviewStage,
+    phase: AgentRunRiskReviewStage,
     now: string = this.now().toISOString(),
   ): void {
-    this.applyDefenseReview(run, stage, run.metadata, now);
+    this.applyDefenseReview(run, phase, run.metadata, now);
     run.updatedAt = now;
   }
 
@@ -1534,27 +1534,27 @@ export class AgentRunService {
     });
   }
 
-  private defenseReviewMetadataKey(stage: AgentRunRiskReviewStage): string {
-    if (stage === 'pre-executor') {
+  private defenseReviewMetadataKey(phase: AgentRunRiskReviewStage): string {
+    if (phase === 'pre-executor') {
       return 'preExecutor';
     }
-    if (stage === 'post-executor') {
+    if (phase === 'post-executor') {
       return 'postExecutor';
     }
-    return stage;
+    return phase;
   }
 
   private applyDefenseReview(
     run: UniversalAgentRun,
-    stage: AgentRunRiskReviewStage,
+    phase: AgentRunRiskReviewStage,
     metadataTarget: Record<string, unknown>,
     now: string = this.now().toISOString(),
   ): void {
-    const review = this.riskHooks.review({ run, stage });
+    const review = this.riskHooks.review({ run, phase });
     const lifecycleDefense = recordOrNull(metadataTarget.lifecycleDefense) || {};
     metadataTarget.lifecycleDefense = {
       ...lifecycleDefense,
-      [this.defenseReviewMetadataKey(stage)]: review,
+      [this.defenseReviewMetadataKey(phase)]: review,
     };
     run.events.push(this.auditHooks.buildRiskReviewEvent({
       run,

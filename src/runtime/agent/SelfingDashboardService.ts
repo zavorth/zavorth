@@ -4,7 +4,7 @@ import type {
   UniversalToolRiskLevel,
 } from './UniversalAgentRuntimeTypes.js';
 
-export const SELFING_DASHBOARD_CONTRACT_VERSION = '2026-05-03.wave-37' as const;
+export const SELFING_DASHBOARD_CONTRACT_VERSION = '2026-05-03.selfing-dashboard' as const;
 
 export type SelfingDashboardStatus = 'ready' | 'needs-review' | 'empty' | 'blocked';
 

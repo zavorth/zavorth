@@ -1,6 +1,6 @@
 import type { UniversalAgentRun } from './UniversalAgentRuntimeTypes.js';
 
-export const PRODUCTIZATION_EVIDENCE_CONTRACT_VERSION = '2026-05-04.wave-46' as const;
+export const PRODUCTIZATION_EVIDENCE_CONTRACT_VERSION = '2026-05-04.product-evidence' as const;
 
 export type ProductizationEvidenceStatus = 'ready' | 'partial' | 'blocked';
 export type ProductizationEvidenceGateStatus = 'ready' | 'partial' | 'missing' | 'blocked';
@@ -90,7 +90,7 @@ export type ProductizationEvidenceSnapshot = {
     noReleasePublished: boolean;
     noInstallerExecuted: boolean;
     noCanaryStarted: boolean;
-    nextReleaseWave: 'Wave 47 - Product Entry Runtime / First Run';
+    nextReleaseTrack: 'Channel mesh7 - Product Entry Runtime / First Run';
   };
   runtimeEvidence: {
     runArtifactReceiptReplay: boolean;
@@ -287,7 +287,7 @@ export class ProductizationEvidenceService {
         noReleasePublished: !realReleasePublished,
         noInstallerExecuted: !installerExecuted,
         noCanaryStarted: !canaryStarted,
-        nextReleaseWave: 'Wave 47 - Product Entry Runtime / First Run',
+        nextReleaseTrack: 'Channel mesh7 - Product Entry Runtime / First Run',
       },
       runtimeEvidence,
       gates,
@@ -382,8 +382,8 @@ export class ProductizationEvidenceService {
         id: 'docs',
         label: 'Docs',
         status: 'ready',
-        path: 'docs/339-zavorth-blueprint-wave-46-productization-evidence-release-readiness.md',
-        evidence: 'Wave 46 documenta preview-only, gates e proxima wave.',
+        path: 'docs/product-direction.md',
+        evidence: 'Channel mesh6 documenta preview-only, gates e proxima wave.',
       },
       {
         id: 'website',
@@ -547,10 +547,10 @@ export class ProductizationEvidenceService {
       return 'Remover claim stable ou publicar evidencia real de release, installer e rollback antes de continuar.';
     }
     if (stableAllowed) {
-      return 'Preparar Wave 47 com Product Entry Runtime e First Run sem quebrar gates.';
+      return 'Preparar Channel mesh7 com Product Entry Runtime e First Run sem quebrar gates.';
     }
     if (releaseStatus === 'preview-ready') {
-      return 'Seguir para Wave 47 mantendo canal preview e receipts de produto.';
+      return 'Seguir para Channel mesh7 mantendo canal preview e receipts de produto.';
     }
     return 'Executar gates locais e manter release em preview-only.';
   }

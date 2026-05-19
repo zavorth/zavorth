@@ -8,7 +8,7 @@ const asJson = process.argv.includes('--json');
 const rules = [
   ruleFilesExist({
     id: 'agent-team-compiler-files',
-    label: 'Wave 40 files exist',
+    label: 'Channel mesh0 files exist',
     target: 'Runtime, CLI, Command Center, tests and docs are present',
     files: [
       'src/runtime/agent/AgentTeamCompilerService.ts',
@@ -27,7 +27,7 @@ const rules = [
     files: ['src/runtime/agent/AgentTeamCompilerService.ts'],
     needles: [
       'AGENT_TEAM_COMPILER_CONTRACT_VERSION',
-      '2026-05-03.wave-40',
+      '2026-05-03.track-40',
       'AgentTeamCompilerRole',
       'AgentTeamCompilerReceipt',
       'noSubagentsLaunched',
@@ -63,7 +63,7 @@ const rules = [
     ],
     needles: [
       'agent-team',
-      'Agent Team Compiler - Wave 40',
+      'Agent Team Compiler - Channel mesh0',
       'resolveAgentTeamCompilerCliText',
       'formatAgentTeamCompilerSnapshot',
       'zavorth agent-team',
@@ -92,7 +92,7 @@ const rules = [
   }),
   ruleContainsAll({
     id: 'package-exposes-agent-team-compiler-gate',
-    label: 'package exposes Wave 40 gate',
+    label: 'package exposes Channel mesh0 gate',
     target: 'local QA can run agent-team-compiler:check and qa:agent-team-compiler',
     files: ['package.json'],
     needles: [
@@ -118,7 +118,7 @@ const snapshot = {
 if (asJson) {
   console.log(JSON.stringify(snapshot, null, 2));
 } else {
-  console.log('[agent-team-compiler] checking Wave 40');
+  console.log('[agent-team-compiler] checking Channel mesh0');
   for (const rule of rules) {
     const marker = rule.status === 'passed' ? 'ok' : 'fail';
     console.log(`[agent-team-compiler] ${marker} ${rule.label}: ${rule.observed} | ${rule.target}`);

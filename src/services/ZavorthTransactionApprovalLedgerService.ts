@@ -141,7 +141,7 @@ export class ZavorthTransactionApprovalLedgerService {
 
   public renderEntry(entry: ZavorthTransactionApprovalLedgerEntry): string {
     return [
-      '[transaction-approval] Phase 3 approval ledger',
+      '[transaction-approval] Approval gate approval ledger',
       `[transaction-approval] kind: ${entry.kind}`,
       `[transaction-approval] preview: ${entry.previewId}`,
       `[transaction-approval] approval: ${entry.approvalId ?? 'none'} (${entry.approvalStatus})`,
@@ -162,7 +162,7 @@ export class ZavorthTransactionApprovalLedgerService {
 
   public renderSummary(summary: ZavorthTransactionApprovalLedgerSummary = this.buildSummary()): string {
     return [
-      '[transaction-approval] Phase 3 approval ledger summary',
+      '[transaction-approval] Approval gate approval ledger summary',
       `[transaction-approval] ledger: ${summary.ledgerFile}`,
       `[transaction-approval] entries: ${summary.entries}`,
       `[transaction-approval] previews-recorded: ${summary.previewsRecorded}`,
@@ -280,7 +280,7 @@ function approvalBlocker(preview: ZavorthTransactionPreview): string | null {
 
 function defaultDecisionReason(decision: 'approved' | 'rejected', preview: ZavorthTransactionPreview): string {
   return decision === 'approved'
-    ? `Operator approved preview ${preview.id}; live execution remains unauthorized in Phase 3.`
+    ? `Operator approved preview ${preview.id}; live execution remains unauthorized in Approval gate.`
     : `Operator rejected preview ${preview.id}.`;
 }
 

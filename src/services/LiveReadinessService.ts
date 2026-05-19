@@ -235,7 +235,7 @@ export class LiveReadinessService {
         check: 'npm run live-readiness:check --silent',
         focusedTests: ['npx jest tests/services/LiveReadinessService.test.ts --runInBand'],
         typecheck: 'npm run runtime:check --silent',
-        nextPhase: 'Phase 2 - Channel Live Activation P0',
+        nextStage: 'Preview engine - Channel Live Activation P0',
       },
     };
   }
@@ -306,7 +306,7 @@ export class LiveReadinessService {
       return {
         status: 'blocked',
         profileFloor: 'dry-audit',
-        recommendedPhase: 'Phase 4 - Provider Runtime P0',
+        recommendedPhase: 'Connector registry - Provider Runtime P0',
         reason: `${mapping.normalizedSourceName} cannot resolve to a supported provider runtime yet.`,
         liveAdapterTarget: providerEntry.adapterStrategy,
         requiredConfig,
@@ -322,8 +322,8 @@ export class LiveReadinessService {
       return {
         status: 'partial-live',
         profileFloor: 'mock-live',
-        recommendedPhase: 'Phase 4 - Provider Runtime Activation P0',
-        reason: `${mapping.normalizedSourceName} has a Phase 4 provider runtime activation path with adapter, config schema and staging smoke command.`,
+        recommendedPhase: 'Connector registry - Provider Runtime Activation P0',
+        reason: `${mapping.normalizedSourceName} has a Connector registry provider runtime activation path with adapter, config schema and staging smoke command.`,
         liveAdapterTarget: providerEntry.adapterStrategy,
         requiredConfig,
         gaps: ['configured provider doctor receipt is missing', 'staging live provider smoke receipt is missing'],
@@ -331,7 +331,7 @@ export class LiveReadinessService {
           ...baseGates,
           this.gate('real-adapter', 'passed', providerEntry.adapterStrategy, null),
           this.gate('runtime-wiring', 'passed', providerEntry.smokeGate.expected, providerEntry.smokeGate.command),
-          this.gate('mock-smoke', 'passed', 'Phase 4 provider activation proves routing without live IO', 'npm run provider-runtime-activation:check --silent'),
+          this.gate('mock-smoke', 'passed', 'Connector registry provider activation proves routing without live IO', 'npm run provider-runtime-activation:check --silent'),
           this.gate('live-smoke', 'missing', 'staging-live provider call requires operator credentials and --confirm-live-io', null),
           this.gate('truthful-status', 'passed', 'P0 provider is runtime-ready but not production-certified without live receipts'),
         ],
@@ -341,8 +341,8 @@ export class LiveReadinessService {
       return {
         status: 'partial-live',
         profileFloor: 'mock-live',
-        recommendedPhase: 'Phase 5 - Provider Runtime Activation Long Tail',
-        reason: `${mapping.normalizedSourceName} has a Phase 5 long-tail provider activation path with a named manifest, config schema and staging smoke command.`,
+        recommendedPhase: 'Credential vault - Provider Runtime Activation Long Tail',
+        reason: `${mapping.normalizedSourceName} has a Credential vault long-tail provider activation path with a named manifest, config schema and staging smoke command.`,
         liveAdapterTarget: providerEntry.adapterStrategy,
         requiredConfig,
         gaps: ['configured provider doctor receipt is missing', 'staging live provider smoke receipt is missing'],
@@ -350,7 +350,7 @@ export class LiveReadinessService {
           ...baseGates,
           this.gate('real-adapter', 'passed', providerEntry.adapterStrategy, null),
           this.gate('runtime-wiring', 'passed', providerEntry.smokeGate.expected, providerEntry.smokeGate.command),
-          this.gate('mock-smoke', 'passed', 'Phase 5 provider long-tail activation proves routing without live IO', 'npm run provider-long-tail-activation:check --silent'),
+          this.gate('mock-smoke', 'passed', 'Credential vault provider long-tail activation proves routing without live IO', 'npm run provider-long-tail-activation:check --silent'),
           this.gate('live-smoke', 'missing', 'staging-live provider call requires operator credentials and --confirm-live-io', null),
           this.gate('truthful-status', 'passed', 'long-tail provider is runtime-ready but not production-certified without live receipts'),
         ],
@@ -360,7 +360,7 @@ export class LiveReadinessService {
       return {
         status: 'template-only',
         profileFloor: 'dry-audit',
-        recommendedPhase: 'Phase 5 - Provider Long Tail',
+        recommendedPhase: 'Credential vault - Provider Long Tail',
         reason: `${mapping.normalizedSourceName} is represented by a generated provider manifest, not a dedicated live adapter.`,
         liveAdapterTarget: providerEntry.adapterStrategy,
         requiredConfig,
@@ -381,8 +381,8 @@ export class LiveReadinessService {
       status: providerEntry.firstClassProvider ? 'partial-live' : 'configured-only',
       profileFloor: providerEntry.firstClassProvider ? 'mock-live' : 'configured-doctor',
       recommendedPhase: providerEntry.firstClassProvider
-        ? 'Phase 4 - Provider Runtime P0'
-        : 'Phase 5 - Provider Long Tail',
+        ? 'Connector registry - Provider Runtime P0'
+        : 'Credential vault - Provider Long Tail',
       reason: providerEntry.firstClassProvider
         ? `${mapping.normalizedSourceName} has a first-class runtime path but still needs configured live smoke evidence.`
         : `${mapping.normalizedSourceName} resolves through a compatible runtime path and needs configured doctor evidence.`,
@@ -394,8 +394,8 @@ export class LiveReadinessService {
         this.gate('real-adapter', providerEntry.firstClassProvider ? 'passed' : 'partial', providerEntry.adapterStrategy, null),
         this.gate('runtime-wiring', 'passed', providerEntry.smokeGate.expected, providerEntry.smokeGate.command),
         this.gate('mock-smoke', 'passed', providerEntry.smokeGate.expected, providerEntry.smokeGate.command),
-        this.gate('live-smoke', 'missing', 'live provider call intentionally not executed by Phase 1', null),
-        this.gate('truthful-status', 'passed', 'provider remains below live certification until Phase 4/5'),
+        this.gate('live-smoke', 'missing', 'live provider call intentionally not executed by Intent model', null),
+        this.gate('truthful-status', 'passed', 'provider remains below live certification until Connector registry/5'),
       ],
     };
   }
@@ -411,7 +411,7 @@ export class LiveReadinessService {
       return {
         status: 'live-ready',
         profileFloor: 'configured-doctor',
-        recommendedPhase: 'Phase 2 - Channel Live Activation P0',
+        recommendedPhase: 'Preview engine - Channel Live Activation P0',
         reason: `${name} has a native channel adapter with a full runtime path; activation still needs operator credentials and live receipts.`,
         liveAdapterTarget: channelEntry.route.adapterTarget,
         requiredConfig,
@@ -421,7 +421,7 @@ export class LiveReadinessService {
           this.gate('real-adapter', 'passed', channelEntry.route.transportStrategy, null),
           this.gate('runtime-wiring', 'passed', channelEntry.smokeGate.expected, channelEntry.smokeGate.command),
           this.gate('configured-doctor', channelEntry.gatewayStatus?.configured ? 'passed' : 'partial', 'gateway adapter status inspected', null),
-          this.gate('live-smoke', 'missing', 'no real channel send is executed by Phase 1', null),
+          this.gate('live-smoke', 'missing', 'no real channel send is executed by Intent model', null),
           this.gate('truthful-status', 'passed', 'channel is code-ready but not production-certified'),
         ],
       };
@@ -430,7 +430,7 @@ export class LiveReadinessService {
       return {
         status: 'partial-live',
         profileFloor: 'mock-live',
-        recommendedPhase: 'Phase 2 - Channel Live Activation P0',
+        recommendedPhase: 'Preview engine - Channel Live Activation P0',
         reason: `${name} has live-capable code paths, but the adapter still needs a configured doctor and live send smoke.`,
         liveAdapterTarget: channelEntry.route.adapterTarget,
         requiredConfig,
@@ -440,7 +440,7 @@ export class LiveReadinessService {
           this.gate('real-adapter', 'partial', channelEntry.route.transportStrategy, null),
           this.gate('runtime-wiring', 'passed', channelEntry.smokeGate.expected, channelEntry.smokeGate.command),
           this.gate('mock-smoke', 'passed', 'dry inbound/outbound envelopes are normalized', channelEntry.smokeGate.command),
-          this.gate('live-smoke', 'missing', 'live channel send intentionally not executed by Phase 1', null),
+          this.gate('live-smoke', 'missing', 'live channel send intentionally not executed by Intent model', null),
           this.gate('truthful-status', 'passed', 'partial-live channel cannot be certified as complete'),
         ],
       };
@@ -449,7 +449,7 @@ export class LiveReadinessService {
       return {
         status: 'dry-run-only',
         profileFloor: 'dry-audit',
-        recommendedPhase: 'Phase 2 - Channel Live Activation P0',
+        recommendedPhase: 'Preview engine - Channel Live Activation P0',
         reason: `${name} is currently represented by a local/outbox or dry-run bridge instead of a live delivery adapter.`,
         liveAdapterTarget: channelEntry.route.adapterTarget,
         requiredConfig,
@@ -467,7 +467,7 @@ export class LiveReadinessService {
       return {
         status: 'planned',
         profileFloor: 'dry-audit',
-        recommendedPhase: 'Phase 3 - Channel Long Tail',
+        recommendedPhase: 'Approval gate - Channel Long Tail',
         reason: `${name} needs a device or local bridge implementation before it can be activated live.`,
         liveAdapterTarget: channelEntry.route.adapterTarget,
         requiredConfig,
@@ -484,7 +484,7 @@ export class LiveReadinessService {
       return {
         status: 'template-only',
         profileFloor: 'dry-audit',
-        recommendedPhase: 'Phase 3 - Channel Long Tail',
+        recommendedPhase: 'Approval gate - Channel Long Tail',
         reason: `${name} is normalized through a channel route template, not a dedicated live adapter.`,
         liveAdapterTarget: channelEntry.route.adapterTarget,
         requiredConfig,
@@ -521,7 +521,7 @@ export class LiveReadinessService {
           this.gate('runtime-wiring', 'passed', runtimeEntry.serviceTarget, null),
           this.gate('artifact-receipt', 'passed', runtimeEntry.receiptKinds.join(', '), null),
           this.gate('mock-smoke', 'passed', `${runtimeEntry.primitiveId} has Worker 7 no-live proof`, null),
-          this.gate('live-smoke', 'missing', 'no live runtime call executed by Phase 1', null),
+          this.gate('live-smoke', 'missing', 'no live runtime call executed by Intent model', null),
           this.gate('truthful-status', 'passed', 'partial runtime coverage is explicit'),
         ],
       };
@@ -550,7 +550,7 @@ export class LiveReadinessService {
   private classifyNativeSurface(mapping: CapabilitySourceMapping): LiveClassification {
     const baseGates = this.commonGates(mapping, []);
     const primitiveId = mapping.primitiveId || '';
-    const phase12Primitives = new Set([
+    const intentModel2Primitives = new Set([
       'agent.runtime',
       'memory.active',
       'memory.vector',
@@ -560,30 +560,30 @@ export class LiveReadinessService {
       'workspace.command',
       'bridge.protocol',
     ]);
-    if (phase12Primitives.has(primitiveId) || primitiveId === 'artifact.diff') {
+    if (intentModel2Primitives.has(primitiveId) || primitiveId === 'artifact.diff') {
       const recommendedPhase = primitiveId === 'artifact.diff'
-        ? 'Phase 9 - File, Document, and Diff Live Activation'
-        : 'Phase 12 - Memory, Artifacts, Runtime Executor';
+        ? 'Certification matrix - File, Document, and Diff Live Activation'
+        : 'Intent model2 - Memory, Artifacts, Runtime Executor';
       return {
         status: 'partial-live',
         profileFloor: 'mock-live',
         recommendedPhase,
         reason: primitiveId === 'artifact.diff'
           ? `${primitiveId} has native Zavorth surfaces, but still needs live execution receipts tied to activation profiles.`
-          : `${primitiveId} has a Phase 12 live closure path with memory/artifact/runtime receipts and explicit approval gates.`,
+          : `${primitiveId} has a Intent model2 live closure path with memory/artifact/runtime receipts and explicit approval gates.`,
         liveAdapterTarget: mapping.targetFiles.adapter,
         requiredConfig: [],
         gaps: primitiveId === 'artifact.diff'
           ? ['add live activation receipt for this internal runtime surface']
-          : ['configured Phase 12 doctor receipt is missing', 'staging live memory/artifact/runtime receipt is missing'],
+          : ['configured Intent model2 doctor receipt is missing', 'staging live memory/artifact/runtime receipt is missing'],
         gates: [
           ...baseGates,
           this.gate('runtime-wiring', primitiveId === 'artifact.diff' ? 'partial' : 'passed', mapping.targetFiles.service || 'service target missing', null),
           ...(primitiveId === 'artifact.diff'
             ? [this.gate('live-smoke', 'missing', 'no profile-specific live receipt exists yet', null)]
             : [
-                this.gate('mock-smoke', 'passed', 'Phase 12 memory/artifact/runtime closure proof exists', 'npm run qa:memory-artifacts-runtime-live-closure --silent'),
-                this.gate('live-smoke', 'missing', 'staging-live Phase 12 proof requires --confirm-live-io', null),
+                this.gate('mock-smoke', 'passed', 'Intent model2 memory/artifact/runtime closure proof exists', 'npm run qa:memory-artifacts-runtime-live-closure --silent'),
+                this.gate('live-smoke', 'missing', 'staging-live Intent model2 proof requires --confirm-live-io', null),
               ]),
           this.gate('truthful-status', 'passed', `${primitiveId} remains partial-live until operator staging receipts exist`),
         ],
@@ -593,8 +593,8 @@ export class LiveReadinessService {
       return {
         status: 'partial-live',
         profileFloor: 'mock-live',
-        recommendedPhase: 'Phase 11 - Satellite and Device Live Activation',
-        reason: `${primitiveId} has a Phase 11 paired-device execution path with pairing, heartbeat, offline queue, camera/location/confirmation proof and policy receipts.`,
+        recommendedPhase: 'Intent model1 - Satellite and Device Live Activation',
+        reason: `${primitiveId} has a Intent model1 paired-device execution path with pairing, heartbeat, offline queue, camera/location/confirmation proof and policy receipts.`,
         liveAdapterTarget: mapping.targetFiles.adapter,
         requiredConfig: [],
         gaps: ['configured Satellite/device doctor receipt is missing', 'staging live paired-device receipt is missing'],
@@ -602,7 +602,7 @@ export class LiveReadinessService {
           ...baseGates,
           this.gate('real-adapter', 'partial', mapping.targetFiles.adapter || 'src/services/NodeHostCapabilityService.ts', null),
           this.gate('runtime-wiring', 'passed', 'src/services/SatelliteDeviceLiveService.ts', null),
-          this.gate('mock-smoke', 'passed', 'Phase 11 Satellite/device proof covers pairing, heartbeat, camera, location and confirmation', 'npm run qa:satellite-device-live-plane --silent'),
+          this.gate('mock-smoke', 'passed', 'Intent model1 Satellite/device proof covers pairing, heartbeat, camera, location and confirmation', 'npm run qa:satellite-device-live-plane --silent'),
           this.gate('live-smoke', 'missing', 'staging-live paired device receipt requires --confirm-live-io', null),
           this.gate('truthful-status', 'passed', 'device.invoke remains partial-live until operator staging receipts exist'),
         ],
@@ -619,7 +619,7 @@ export class LiveReadinessService {
       gates: [
         ...baseGates,
         this.gate('runtime-wiring', 'partial', mapping.targetFiles.service || 'service target missing', null),
-        this.gate('configured-doctor', 'missing', 'configured doctor not run by Phase 1', null),
+        this.gate('configured-doctor', 'missing', 'configured doctor not run by Intent model', null),
         this.gate('truthful-status', 'passed', 'configured-only status remains explicit'),
       ],
     };
@@ -629,7 +629,7 @@ export class LiveReadinessService {
     return {
       status: 'blocked',
       profileFloor: 'dry-audit',
-      recommendedPhase: 'Phase 13 - Live Parity Certification',
+      recommendedPhase: 'Intent model3 - Live Parity Certification',
       reason,
       liveAdapterTarget: null,
       requiredConfig: [],
@@ -693,36 +693,36 @@ export class LiveReadinessService {
 
   private phaseForPrimitive(primitiveId: string): string {
     if (primitiveId === 'media.generate') {
-      return 'Phase 6 - Media Generation Live Activation';
+      return 'Runtime gateway - Media Generation Live Activation';
     }
     if (primitiveId === 'media.understand') {
-      return 'Phase 6 - Media Understanding Live Activation';
+      return 'Runtime gateway - Media Understanding Live Activation';
     }
     if (primitiveId === 'search.query' || primitiveId === 'web.extract') {
-      return 'Phase 8 - Research, Web, and Browser Live Activation';
+      return 'Dashboard controls - Research, Web, and Browser Live Activation';
     }
     if (primitiveId === 'speech.transcribe' || primitiveId === 'speech.synthesize' || primitiveId === 'voice.session') {
-      return 'Phase 7 - Speech, TTS, and Voice Live Activation';
+      return 'Surface controls - Speech, TTS, and Voice Live Activation';
     }
     if (primitiveId === 'file.transfer' || primitiveId === 'document.extract') {
-      return 'Phase 9 - File, Document, and Diff Live Activation';
+      return 'Certification matrix - File, Document, and Diff Live Activation';
     }
     if (primitiveId === 'artifact.diff') {
-      return 'Phase 9 - File, Document, and Diff Live Activation';
+      return 'Certification matrix - File, Document, and Diff Live Activation';
     }
     if (primitiveId === 'diagnostics.trace' || primitiveId === 'migration.import' || primitiveId === 'qa.scenario') {
-      return 'Phase 10 - Diagnostics, QA, and Migration Live Activation';
+      return 'Intent model0 - Diagnostics, QA, and Migration Live Activation';
     }
     if (primitiveId === 'provider.call') {
-      return 'Phase 4 - Provider Runtime P0';
+      return 'Connector registry - Provider Runtime P0';
     }
     if (primitiveId === 'channel.message') {
-      return 'Phase 2 - Channel Live Activation P0';
+      return 'Preview engine - Channel Live Activation P0';
     }
     if (primitiveId === 'device.invoke') {
-      return 'Phase 11 - Satellite and Device Live Activation';
+      return 'Intent model1 - Satellite and Device Live Activation';
     }
-    return 'Phase 12 - Memory, Artifacts, Runtime Executor';
+    return 'Intent model2 - Memory, Artifacts, Runtime Executor';
   }
 
   private gate(

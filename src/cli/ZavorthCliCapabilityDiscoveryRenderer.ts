@@ -13,7 +13,7 @@ export function formatNaturalCapabilityDiscoverySnapshot(
   const confidence = Math.round(snapshot.confidence * 100);
   const recommendations = snapshot.recommendations.slice(0, 6);
   const lines = [
-    'Natural Capability Discovery - Wave 29',
+    'Natural Capability Discovery - Capability Discovery',
     `- contrato: ${snapshot.contractVersion}`,
     `- intent: ${snapshot.intentCategory} | confianca ${confidence}%`,
     `- tools: ${snapshot.recommendedToolNames.length > 0 ? snapshot.recommendedToolNames.join(', ') : 'nenhuma'}`,

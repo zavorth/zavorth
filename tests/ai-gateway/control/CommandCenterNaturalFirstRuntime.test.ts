@@ -8,7 +8,7 @@ function createIdFactory() {
   return (prefix: string) => `${prefix}-cc-natural-first-${++index}`;
 }
 
-describe('Command Center Natural First Runtime Phase 8', () => {
+describe('Command Center Natural First Runtime Dashboard controls', () => {
   it('projects Natural First metadata into a Command Center UX snapshot', () => {
     const viewModel = buildDashboardCommandCenterViewModel({
       runtime: {

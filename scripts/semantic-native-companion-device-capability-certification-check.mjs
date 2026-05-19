@@ -54,7 +54,7 @@ addCheck(
 
 const service = read('src/services/ZavorthSemanticNativeCompanionDeviceCapabilityCertificationService.ts');
 addCheck(
-  'Service certifies guarded Phase 6 runtime semantics',
+  'Service certifies guarded Runtime gateway runtime semantics',
   [
     'ZavorthNativeCompanionDevicePackService',
     'targetClaim',
@@ -66,7 +66,7 @@ addCheck(
     'permissionPolicyClaims',
     'unsafeNativeClaims',
   ].every((marker) => service.includes(marker)),
-  'service converts Phase 6 native companion/device pack evidence into behavior-level semantic claims',
+  'service converts Runtime gateway native companion/device pack evidence into behavior-level semantic claims',
 );
 
 const command = read('scripts/semantic-native-companion-device-capability-certification.ts');
@@ -145,7 +145,7 @@ if (runtime.status !== 0) {
         && snapshot.summary.secretValuesSerialized === false
         && receiptIdsValid
         && claimIdsUnique,
-      `status=${snapshot.status}, claims=${snapshot.summary.semanticClaims}, gaps=${snapshot.summary.gaps}, receiptIdsValid=${receiptIdsValid}, claimIdsUnique=${claimIdsUnique}, next=${snapshot.commands.nextPhase}`,
+      `status=${snapshot.status}, claims=${snapshot.summary.semanticClaims}, gaps=${snapshot.summary.gaps}, receiptIdsValid=${receiptIdsValid}, claimIdsUnique=${claimIdsUnique}, next=${snapshot.commands.nextStage}`,
     );
   } catch (error) {
     addCheck('Runtime S6 semantic receipt passes', false, `invalid JSON: ${error.message}`);

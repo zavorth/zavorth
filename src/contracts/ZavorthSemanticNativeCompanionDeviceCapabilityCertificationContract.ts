@@ -132,6 +132,6 @@ export type ZavorthSemanticNativeCompanionDeviceCapabilityCertificationSnapshot 
     inspectJson: 'npm run semantic-native-companion-device-capability-certification:json --silent';
     check: 'npm run semantic-native-companion-device-capability-certification:check --silent';
     qa: 'npm run qa:semantic-native-companion-device-capability-certification --silent';
-    nextPhase: 'S7 - QA, Security And Release Certification Semantics';
+    nextStage: 'S7 - QA, Security And Release Certification Semantics';
   };
 };

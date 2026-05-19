@@ -314,8 +314,8 @@ export class ZavorthLearningPlaneService {
     run: WorkflowRunSnapshot,
     stateEntries: Record<string, LearningStateEntry>,
   ): LearningCandidateSnapshot | null {
-    const completedStages = run.stages.filter((stage) => stage.status === 'completed').length;
-    const totalStages = run.stages.length;
+    const completedStages = run.phases.filter((phase) => phase.status === 'completed').length;
+    const totalStages = run.phases.length;
     const artifactCount = Array.isArray(run.artifacts) ? run.artifacts.length : 0;
     if (!completedStages && artifactCount === 0) {
       return null;
@@ -332,9 +332,9 @@ export class ZavorthLearningPlaneService {
     );
     const state = stateEntries[candidateId] || null;
     const kind = this.resolveKind(run, totalStages, artifactCount);
-    const steps = run.stages
-      .filter((stage) => Boolean(stage.label))
-      .map((stage) => this.renderStageStep(stage))
+    const steps = run.phases
+      .filter((phase) => Boolean(phase.label))
+      .map((phase) => this.renderStageStep(phase))
       .slice(0, 6);
     const lifecycle = state?.lifecycle
       || (state?.reviewState === 'rejected' ? 'quarantined' : 'learned_draft');
@@ -370,7 +370,7 @@ export class ZavorthLearningPlaneService {
         `Workflow: ${run.workflow_name}`,
         `Workspace: ${run.workspace}`,
         `Objective: ${run.objective}`,
-        `Stages completed: ${completedStages}/${totalStages}`,
+        `phases completed: ${completedStages}/${totalStages}`,
         `Artifacts: ${artifactCount}`,
         ...(run.resume_prompt ? [`Resume prompt: ${run.resume_prompt}`] : []),
       ],
@@ -408,9 +408,9 @@ export class ZavorthLearningPlaneService {
     return 'skill';
   }
 
-  private renderStageStep(stage: WorkflowRunStageSnapshot): string {
-    const label = String(stage.label || stage.id || 'stage').trim();
-    const executor = String(stage.executor || '').trim();
+  private renderStageStep(phase: WorkflowRunStageSnapshot): string {
+    const label = String(phase.label || phase.id || 'phase').trim();
+    const executor = String(phase.executor || '').trim();
     return executor ? `${label} (${executor})` : label;
   }
 

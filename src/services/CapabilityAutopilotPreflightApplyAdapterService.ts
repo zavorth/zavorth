@@ -163,7 +163,7 @@ export class CapabilityAutopilotPreflightApplyAdapterService {
         reason: options.reason || null,
       },
       metadata: {
-        phase: 'capability-autopilot-phase-73',
+        phase: 'capability-autopilot-checkpoint-73',
         sourceDecisionStatus: decision.status,
         sourceActionKind: decision.sourceAction?.kind || null,
         autoExecute: false,
@@ -208,7 +208,7 @@ export class CapabilityAutopilotPreflightApplyAdapterService {
           'Depois de preparar receipts de apply, o proximo passo e executar somente dry-runs instrumentados antes de permitir side effects reais por superficie.',
       },
       metadata: {
-        phase: 'capability-autopilot-phase-73',
+        phase: 'capability-autopilot-checkpoint-73',
         sourceSnapshotStatus: source.status,
         decisionCount: source.decisions.length,
         applyReceiptCount: applyReceipts.length,
@@ -223,7 +223,7 @@ export class CapabilityAutopilotPreflightApplyAdapterService {
 
   public renderReport(snapshot: CapabilityPreflightApplyAdapterSnapshot): string {
     const lines: string[] = [];
-    lines.push('[capability-autopilot-preflight-apply] Fase 73 - Preflight Dispatch Apply Adapter');
+    lines.push('[capability-autopilot-preflight-apply] Etapa 73 - Preflight Dispatch Apply Adapter');
     lines.push(`status: ${snapshot.status}`);
     lines.push(`ok: ${snapshot.summary.ok ? 'yes' : 'no'} | pass=${snapshot.summary.passed} warn=${snapshot.summary.warnings} fail=${snapshot.summary.failed}`);
     lines.push(`capability: ${snapshot.capabilityId}`);
@@ -237,7 +237,7 @@ export class CapabilityAutopilotPreflightApplyAdapterService {
       }
     }
     lines.push('');
-    lines.push(`proxima fase recomendada: ${snapshot.nextRecommendedPhase.phase} - ${snapshot.nextRecommendedPhase.title}`);
+    lines.push(`proximo passo recomendada: ${snapshot.nextRecommendedPhase.phase} - ${snapshot.nextRecommendedPhase.title}`);
     lines.push(snapshot.nextRecommendedPhase.reason);
     return lines.join('\n');
   }
@@ -335,7 +335,7 @@ export class CapabilityAutopilotPreflightApplyAdapterService {
         'capability-autopilot-preflight-apply:dry-run-plan',
         'plano dry-run',
         applyReceipts.every((receipt) => receipt.invocationPlan.dryRun === true) ? 'pass' : 'fail',
-        'A Fase 73 so prepara plano dry-run para a proxima fase.',
+        'A Etapa 73 so prepara plano dry-run para a proximo passo.',
         applyReceipts.map((receipt) => `${receipt.sourceSurface}:${receipt.applyAdapterKind}:dryRun=${receipt.invocationPlan.dryRun}`),
       ),
       this.check(

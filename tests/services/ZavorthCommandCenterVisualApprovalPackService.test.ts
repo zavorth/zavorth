@@ -16,13 +16,13 @@ describe('ZavorthCommandCenterVisualApprovalPackService', () => {
     });
 
     expect(pack).toEqual(expect.objectContaining({
-      contractVersion: '2026-05-13.phase-7',
+      contractVersion: '2026-05-13.checkpoint-7',
       surface: 'command-center-visual-approval-pack',
       approvalRequired: true,
       approved: false,
       visualMutationApplied: false,
       executionAuthority: false,
-      sourceCockpitContractVersion: '2026-05-13.phase-6',
+      sourceCockpitContractVersion: '2026-05-13.checkpoint-6',
       target: expect.objectContaining({
         route: '/dashboard',
         defaultDecision: 'do_not_render',
@@ -66,12 +66,12 @@ describe('ZavorthCommandCenterVisualApprovalPackService', () => {
 
 function cockpitFixture(): ZavorthCommandCenterProviderCockpitProjection {
   return {
-    contractVersion: '2026-05-13.phase-6',
+    contractVersion: '2026-05-13.checkpoint-6',
     schemaVersion: 1,
     surface: 'command-center-provider-cockpit',
     generatedAt: '2026-05-13T12:00:00.000Z',
     status: 'ready',
-    sourceMatrixContractVersion: '2026-05-13.phase-5',
+    sourceMatrixContractVersion: '2026-05-13.checkpoint-5',
     visualMutationApplied: false,
     executionAuthority: false,
     selectedProviderId: 'openai',

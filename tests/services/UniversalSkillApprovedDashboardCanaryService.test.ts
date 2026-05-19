@@ -31,7 +31,7 @@ function writeSkills(root: string, count: number): void {
   }
 }
 
-describe('UniversalSkillApprovedDashboardCanaryService Phase 10', () => {
+describe('UniversalSkillApprovedDashboardCanaryService Intent model0', () => {
   let root: string;
   let source: string;
 
@@ -119,8 +119,8 @@ describe('UniversalSkillApprovedDashboardCanaryService Phase 10', () => {
       },
       gates: [
         {
-          id: 'phase8-onboarding',
-          label: 'Phase 8 onboarding',
+          id: 'dashboard-controls-onboarding',
+          label: 'Dashboard controls onboarding',
           status: 'attention',
           severity: 'warning',
           observed: 'preview coverage warning',
@@ -230,8 +230,8 @@ describe('UniversalSkillApprovedDashboardCanaryService Phase 10', () => {
       },
       gates: [
         {
-          id: 'phase8-onboarding',
-          label: 'Phase 8 onboarding',
+          id: 'dashboard-controls-onboarding',
+          label: 'Dashboard controls onboarding',
           status: 'attention',
           severity: 'warning',
           observed: 'hostile candidate blocked',

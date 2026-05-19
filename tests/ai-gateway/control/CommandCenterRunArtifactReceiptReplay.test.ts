@@ -11,7 +11,7 @@ function createIdFactory() {
   return (prefix: string) => `${prefix}-cc-replay-hardening-${++index}`;
 }
 
-describe('Command Center run/artifact/receipt replay hardening Wave 45', () => {
+describe('Command Center run/artifact/receipt replay hardening Channel mesh5', () => {
   it('projects runArtifactReceiptReplay metadata into the dashboard view model', () => {
     const run = new AgentRunService({
       now: () => new Date('2026-05-04T00:45:00.000Z'),
@@ -53,7 +53,7 @@ describe('Command Center run/artifact/receipt replay hardening Wave 45', () => {
     });
 
     expect(viewModel.runArtifactReceiptReplay).toEqual(expect.objectContaining({
-      contractVersion: '2026-05-04.wave-45',
+      contractVersion: '2026-05-04.receipt-replay',
       status: expect.stringMatching(/ready|partial/),
       summary: expect.objectContaining({
         frameCount: expect.any(Number),
@@ -103,7 +103,7 @@ describe('Command Center run/artifact/receipt replay hardening Wave 45', () => {
     );
 
     expect(projection.runArtifactReceiptReplay).toEqual(expect.objectContaining({
-      contractVersion: '2026-05-04.wave-45',
+      contractVersion: '2026-05-04.receipt-replay',
       summary: expect.objectContaining({
         artifactLinkCount: expect.any(Number),
         replayable: true,

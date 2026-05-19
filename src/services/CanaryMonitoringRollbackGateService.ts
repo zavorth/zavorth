@@ -149,7 +149,7 @@ export class CanaryMonitoringRollbackGateService {
           'npm run canary-monitoring-rollback-gate --silent -- --require-gate-ready',
         ],
         typecheck: 'npm run runtime:check --silent',
-        nextPhase: 'Canary promotion decision ledger',
+        nextStage: 'Canary promotion decision ledger',
       },
       policy: {
         monitoringGateOnly: true,
@@ -219,7 +219,7 @@ export class CanaryMonitoringRollbackGateService {
         `- ${gate.status.toUpperCase()} ${gate.id}: ${gate.observed} / ${gate.threshold} - ${gate.nextAction}`,
       ),
       '',
-      `Next: ${snapshot.commands.nextPhase}`,
+      `Next: ${snapshot.commands.nextStage}`,
     ].join('\n');
   }
 
@@ -379,7 +379,7 @@ export class CanaryMonitoringRollbackGateService {
         observed: input.launchRehearsalReady,
         threshold: true,
         receipt: 'canary-monitoring-rollback.launch-rehearsal-ready.receipt',
-        nextAction: 'finish Phase 21 before monitoring and rollback gate',
+        nextAction: 'finish Preview engine1 before monitoring and rollback gate',
       }),
       gate({
         id: 'held-release-execution-gate-linked',

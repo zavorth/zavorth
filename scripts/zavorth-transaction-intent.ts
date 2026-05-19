@@ -26,7 +26,7 @@ if (!options.text) {
   if (options.json) {
     console.log(JSON.stringify(snapshot, null, 2));
   } else {
-    console.log('[transaction-intent] Phase 1 natural transaction intent');
+    console.log('[transaction-intent] Intent model natural transaction intent');
     console.log(`[transaction-intent] version: ${snapshot.version}`);
     console.log(`[transaction-intent] summary: ${snapshot.summary}`);
     console.log(`[transaction-intent] supported intents: ${snapshot.supportedIntents.join(', ')}`);

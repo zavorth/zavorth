@@ -90,7 +90,7 @@ function createSnapshot(hint: CapabilityPreflightHintResult): CapabilityAutopilo
   const payloads = surfaceService.buildPayloads(hint, ['cli', 'web', 'chat', 'telegram', 'api']);
 
   return {
-    phase: '68',
+    stage: '68',
     surface: 'capability-autopilot-preflight-entrypoint',
     generatedAt: FIXED_NOW.toISOString(),
     capabilityId: 'executor-gemini-cli',
@@ -105,8 +105,8 @@ function createSnapshot(hint: CapabilityPreflightHintResult): CapabilityAutopilo
     records: [],
     payloads,
     checks: [],
-    nextRecommendedPhase: {
-      phase: '69',
+    nextRecommendedStage: {
+      stage: '69',
       title: 'Preflight Action Handler Wiring',
       reason: 'Wire explicit actions.',
     },
@@ -195,11 +195,11 @@ describe('CapabilityAutopilotPreflightRealApplyApprovalGateService', () => {
       finalApprovalReceiptId: 'final-approval-1',
       budgetReceiptId: 'budget-1',
       scopeReceiptId: 'scope-1',
-      reason: 'phase-75-test',
+      reason: 'checkpoint-75-test',
     });
 
     expect(approval).toMatchObject({
-      phase: '75',
+      stage: '75',
       status: 'ready',
       summary: {
         ok: true,
@@ -328,7 +328,7 @@ describe('CapabilityAutopilotPreflightRealApplyApprovalGateService', () => {
         scopeReceiptId: 'resume-scope',
       },
     });
-    expect(service.renderReport(approval)).toContain('Fase 75 - Preflight Real Apply Approval Gate');
-    expect(service.renderReport(approval)).toContain('proxima fase recomendada: 76 - Preflight Controlled Real Apply Executor');
+    expect(service.renderReport(approval)).toContain('Etapa 75 - Preflight Real Apply Approval Gate');
+    expect(service.renderReport(approval)).toContain('proximo passo recomendada: 76 - Preflight Controlled Real Apply Executor');
   });
 });

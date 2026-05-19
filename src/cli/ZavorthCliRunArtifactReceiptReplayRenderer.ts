@@ -32,7 +32,7 @@ export function buildRunArtifactReceiptReplayCliSnapshot(input: {
     metadata: {
       artifactMemory: {
         source: 'ArtifactMemoryService',
-        contractVersion: '2026-05-03.wave-38',
+        contractVersion: '2026-05-03.track-38',
         status: 'ready',
         entries: [],
         receipts: [
@@ -47,7 +47,7 @@ export function buildRunArtifactReceiptReplayCliSnapshot(input: {
       },
       memoryWithReceipts: {
         source: 'MemoryWithReceiptsService',
-        contractVersion: '2026-05-03.wave-32',
+        contractVersion: '2026-05-03.memory-receipts',
         receipts: [
           {
             id: 'memory:cli-receipt',
@@ -87,7 +87,7 @@ export function formatRunArtifactReceiptReplaySnapshot(
   snapshot: RunArtifactReceiptReplaySnapshot,
 ): string {
   const lines = [
-    'Run / Artifact / Receipt Replay Hardening - Wave 45',
+    'Run / Artifact / Receipt Replay Hardening - Channel mesh5',
     `- contrato: ${snapshot.contractVersion}`,
     `- run: ${snapshot.identifiers.runId}`,
     `- sessao: ${snapshot.identifiers.sessionId}`,

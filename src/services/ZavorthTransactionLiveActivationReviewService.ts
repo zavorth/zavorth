@@ -121,7 +121,7 @@ export class ZavorthTransactionLiveActivationReviewService {
 
   public renderReport(result: ZavorthTransactionLiveActivationReviewResult): string {
     return [
-      '[transaction-live-activation-review] Phase 11 live activation review gate',
+      '[transaction-live-activation-review] Intent model1 live activation review gate',
       `[transaction-live-activation-review] status: ${result.status}`,
       `[transaction-live-activation-review] candidate: ${result.sourceCandidate.status}`,
       `[transaction-live-activation-review] owner: ${result.ownerReview.ownerId}`,
@@ -249,9 +249,9 @@ function buildGates(input: {
 
   return [
     gate(
-      'phase10-candidate-ready',
+      'intent-model0-candidate-ready',
       input.sourceCandidate.status === 'candidate-ready',
-      'Phase 10 must produce a candidate-ready result first.',
+      'Intent model0 must produce a candidate-ready result first.',
       [`status=${input.sourceCandidate.status}`],
     ),
     gate(
@@ -275,7 +275,7 @@ function buildGates(input: {
     gate(
       'canary-limit-ready',
       canaryEvaluation.passed,
-      'Phase 11 only accepts small canary-sized limits.',
+      'Intent model1 only accepts small canary-sized limits.',
       canaryEvaluation.evidence,
     ),
     gate(
@@ -311,7 +311,7 @@ function buildGates(input: {
     gate(
       'connector-live-still-disabled',
       runtimeConnector?.supportsLive === false,
-      'The Phase 11 source connector must still be a simulated connector, not a live executor.',
+      'The Intent model1 source connector must still be a simulated connector, not a live executor.',
       [`connector=${runtimeConnector?.id ?? 'none'}`, `supportsLive=${String(runtimeConnector?.supportsLive ?? 'unknown')}`],
     ),
     gate(
@@ -412,7 +412,7 @@ function gate(
 function resolveStatus(
   gates: ZavorthTransactionLiveActivationReviewGate[],
 ): ZavorthTransactionLiveActivationReviewStatus {
-  if (!isGatePassed(gates, 'phase10-candidate-ready') || !isGatePassed(gates, 'candidate-envelope-present')) {
+  if (!isGatePassed(gates, 'intent-model0-candidate-ready') || !isGatePassed(gates, 'candidate-envelope-present')) {
     return 'candidate-required';
   }
   if (!isGatePassed(gates, 'owner-activation-review')) {
@@ -490,7 +490,7 @@ function buildReviewPacket(input: {
       'This packet is a live activation review artifact only.',
       'It expires quickly and cannot be reused as an execution authorization.',
       'A separate future live executor must verify owner approval, limits, kill switch, rollback and connector certification again.',
-      'No live transaction was executed or authorized by Phase 11.',
+      'No live transaction was executed or authorized by Intent model1.',
     ],
   };
 }
@@ -500,7 +500,7 @@ function summaryForStatus(status: ZavorthTransactionLiveActivationReviewStatus):
     return 'Live activation review packet is ready for a future separate executor; no live execution occurred.';
   }
   if (status === 'candidate-required') {
-    return 'Phase 10 candidate-ready envelope is required before live activation review.';
+    return 'Intent model0 candidate-ready envelope is required before live activation review.';
   }
   if (status === 'owner-review-required') {
     return 'Candidate exists, but the dedicated owner activation review phrase is still required.';
@@ -517,12 +517,12 @@ function nextStepsForStatus(
 ): string[] {
   if (status === 'ready-for-live-activation-review') {
     return [
-      'Review this packet in a future separate live executor phase; do not execute from Phase 11.',
+      'Review this packet in a future separate live executor phase; do not execute from Intent model1.',
       'Keep canary limits, kill switch and rollback receipts attached to the future executor request.',
     ];
   }
   if (status === 'candidate-required') {
-    return ['Create a Phase 10 candidate-ready envelope first.'];
+    return ['Create a Intent model0 candidate-ready envelope first.'];
   }
   if (status === 'owner-review-required') {
     return [`Re-run with owner activation review phrase: ${ZAVORTH_TRANSACTION_LIVE_ACTIVATION_REVIEW_OWNER_PHRASE}`];
@@ -534,7 +534,7 @@ function nextStepsForStatus(
 }
 
 function buildResultId(text: string, now: Date): string {
-  const hash = createHash('sha256').update(`${now.toISOString()}:phase11:${text}`).digest('hex').slice(0, 16);
+  const hash = createHash('sha256').update(`${now.toISOString()}:intent-model1:${text}`).digest('hex').slice(0, 16);
   return `ztx-live-activation-review-${hash}`;
 }
 

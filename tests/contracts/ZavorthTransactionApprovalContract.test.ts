@@ -4,7 +4,7 @@ import {
 } from '../../src/contracts/ZavorthTransactionApprovalContract.js';
 
 describe('ZavorthTransactionApprovalContract', () => {
-  it('publishes the Phase 3 approval ledger contract', () => {
+  it('publishes the Approval gate approval ledger contract', () => {
     const snapshot = buildZavorthTransactionApprovalContractSnapshot();
 
     expect(snapshot.version).toBe(ZAVORTH_TRANSACTION_APPROVAL_CONTRACT_VERSION);
@@ -22,7 +22,7 @@ describe('ZavorthTransactionApprovalContract', () => {
 
     expect(snapshot.invariants).toEqual(
       expect.arrayContaining([
-        'Approving a preview in Phase 3 does not execute a transaction.',
+        'Approving a preview in Approval gate does not execute a transaction.',
         'Approved previews still report liveExecutionAuthorized=false until a later connector execution phase.',
         'Raw secrets must never appear in approval ledger entries.',
       ]),

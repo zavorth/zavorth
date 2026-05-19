@@ -44,7 +44,7 @@ async function main(): Promise<void> {
     status: profile === 'staging-live' && !confirmLiveIo ? 'blocked-until-confirmed' : 'ready-for-operator',
     reason: profile === 'staging-live' && !confirmLiveIo
       ? 'staging-live smoke requires --confirm-live-io and real operator credentials.'
-      : 'Phase 4 exposes provider runtime routes, adapter families and redacted activation receipts.',
+      : 'Connector registry exposes provider runtime routes, adapter families and redacted activation receipts.',
     entries: selected.map((entry) => ({
       providerId: entry.providerId,
       status: entry.status,

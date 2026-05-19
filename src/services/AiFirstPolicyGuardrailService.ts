@@ -226,22 +226,22 @@ export class AiFirstPolicyGuardrailService {
       ],
       gates: [
         {
-          id: 'phase-3-deterministic-policy-authoritative',
+          id: 'checkpoint-3-deterministic-policy-authoritative',
           status: 'passed',
           detail: 'UniversalIntent policy validates the AI-first proposal before promotion.',
         },
         {
-          id: 'phase-3-preview-no-execution',
+          id: 'checkpoint-3-preview-no-execution',
           status: 'passed',
           detail: 'Preview mode produced a no-execution snapshot.',
         },
         {
-          id: 'phase-3-approval-preserved',
+          id: 'checkpoint-3-approval-preserved',
           status: 'passed',
           detail: 'Approval requirements cannot be removed by the AI-first plan.',
         },
         {
-          id: 'phase-3-current-runtime-preserved',
+          id: 'checkpoint-3-current-runtime-preserved',
           status: 'passed',
           detail: 'defaultRuntimeChanged is false and keepCurrentRuntimeDecision is true.',
         },
@@ -251,7 +251,7 @@ export class AiFirstPolicyGuardrailService {
 
   public renderMarkdown(snapshot: AiFirstPolicyGuardrailSnapshot): string {
     const lines: string[] = [];
-    lines.push('# Zavorth AI-first Router Phase 3');
+    lines.push('# Zavorth AI-first Router Approval gate');
     lines.push('');
     lines.push(`- contract: ${snapshot.contractVersion}`);
     lines.push(`- guardrailId: ${snapshot.guardrailId}`);
@@ -363,7 +363,7 @@ export class AiFirstPolicyGuardrailService {
       mismatches.push(this.mismatch({
         kind: 'plan-invalid',
         severity: 'high',
-        detail: 'AI-first plan was not accepted by the Phase 1 contract normalizer.',
+        detail: 'AI-first plan was not accepted by the Intent model contract normalizer.',
         aiFirst: 'invalid',
         deterministic: 'fallback-required',
       }));

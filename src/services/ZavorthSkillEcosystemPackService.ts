@@ -109,14 +109,14 @@ export class ZavorthSkillEcosystemPackService {
         inspectJson: 'npm run zavorth-skill-ecosystem-pack:json --silent',
         check: 'npm run zavorth-skill-ecosystem-pack:check --silent',
         qa: 'npm run qa:zavorth-skill-ecosystem-pack --silent',
-        nextPhase: 'Phase 9 - Full Functional Closure',
+        nextStage: 'Certification matrix - Full Functional Closure',
       },
     };
   }
 
   public formatSnapshotText(snapshot: ZavorthSkillEcosystemPackSnapshot): string {
     const lines = [
-      'Zavorth Skill Ecosystem Pack - Phase 8',
+      'Zavorth Skill Ecosystem Pack - Dashboard controls',
       `Status: ${snapshot.status}`,
       `Contract: ${snapshot.contractVersion}`,
       `Manifests: ${snapshot.summary.manifests}`,
@@ -136,7 +136,7 @@ export class ZavorthSkillEcosystemPackService {
       ...snapshot.importer.manifests.slice(0, 12).map((manifest) => (
         `- ${manifest.id}: profile=${manifest.permissionProfileId}, tags=${manifest.capabilityTags.join(',')}`
       )),
-      `Next: ${snapshot.commands.nextPhase}`,
+      `Next: ${snapshot.commands.nextStage}`,
     ];
     return lines.join('\n');
   }

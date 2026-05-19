@@ -8,8 +8,8 @@ const asJson = process.argv.includes('--json');
 
 const fileRules = [
   ruleFilesExist({
-    id: 'source-surface-ledger-phase-0-files',
-    label: 'Phase 0 files exist',
+    id: 'source-surface-ledger-checkpoint-0-files',
+    label: 'Security contract files exist',
     target: 'contract, scanner, diff, planner, ledger service, command, tests and package scripts are present',
     files: [
       'src/contracts/SourceSurfaceLedgerContract.ts',
@@ -39,7 +39,7 @@ const fileRules = [
   ruleContainsAll({
     id: 'source-surface-ledger-runtime-markers',
     label: 'Ledger service emits executable receipts',
-    target: 'service layer loads the ledger, scans Source, detects drift and produces Phase 0 receipts',
+    target: 'service layer loads the ledger, scans Source, detects drift and produces Security contract receipts',
     files: ['src/services/SourceSurfaceLedgerService.ts'],
     needles: ['buildReceipt', 'validateLedger', 'formatReceiptText', 'SourceSurfaceScannerService'],
   }),
@@ -66,7 +66,7 @@ const fileRules = [
   }),
   ruleContainsAll({
     id: 'source-surface-ledger-package-scripts',
-    label: 'package exposes Phase 0 gates',
+    label: 'package exposes Security contract gates',
     target: 'operators can inspect, inspect JSON, run check and QA gate',
     files: ['package.json'],
     needles: [
@@ -95,7 +95,7 @@ const snapshot = {
 if (asJson) {
   console.log(JSON.stringify(snapshot, null, 2));
 } else {
-  console.log('[source-surface-ledger] checking Phase 0');
+  console.log('[source-surface-ledger] checking Security contract');
   for (const rule of rules) {
     const marker = rule.status === 'passed' ? 'ok' : 'fail';
     console.log(`[source-surface-ledger] ${marker} ${rule.label}: ${rule.observed} | ${rule.target}`);
@@ -127,7 +127,7 @@ function runRuntimeRule() {
       label: 'Runtime receipt passes',
       status: 'failed',
       observed: `exit ${result.status ?? 'unknown'}`,
-      target: 'Phase 0 command emits a passing receipt against the current Source checkout',
+      target: 'Security contract command emits a passing receipt against the current Source checkout',
       details: compactDetails(result.error instanceof Error ? result.error.message : '', result.stderr, result.stdout),
     };
   }
@@ -139,7 +139,7 @@ function runRuntimeRule() {
       label: 'Runtime receipt passes',
       status: receipt.status === 'passed' ? 'passed' : 'failed',
       observed: `status=${receipt.status}, entries=${receipt.summary?.total}, discovered=${receipt.summary?.discoveredSurfaces}, unclassified=${receipt.summary?.unclassifiedSurfaces}`,
-      target: 'Phase 0 command emits a passing receipt against the current Source checkout',
+      target: 'Security contract command emits a passing receipt against the current Source checkout',
       details: [
         `classified=${receipt.summary?.classifiedSurfaces}`,
         `missing=${receipt.summary?.missingLedgerSurfaces}`,
@@ -153,7 +153,7 @@ function runRuntimeRule() {
       label: 'Runtime receipt passes',
       status: 'failed',
       observed: 'invalid JSON receipt',
-      target: 'Phase 0 command emits a passing receipt against the current Source checkout',
+      target: 'Security contract command emits a passing receipt against the current Source checkout',
       details: [error instanceof Error ? error.message : String(error), ...compactDetails(result.stderr, result.stdout)],
     };
   }

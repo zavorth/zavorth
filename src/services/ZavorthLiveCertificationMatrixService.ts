@@ -56,14 +56,14 @@ export class ZavorthLiveCertificationMatrixService {
     ] = await Promise.all([
       Promise.resolve(this.dashboard.buildSnapshot()),
       Promise.resolve(this.cli.buildSnapshot()),
-      this.missionFlow.buildSnapshot({ sessionId: 'phase-13-live-certification-matrix' }),
+      this.missionFlow.buildSnapshot({ sessionId: 'checkpoint-13-live-certification-matrix' }),
       this.liveReadiness.buildSnapshot({ includeAdvanced: true }),
     ]);
     const subagentSkill = missionFlow.subagentSkillCompletion;
     const schedulerPerceptionDevice = missionFlow.schedulerPerceptionDeviceCompletion;
     const sandbox = this.sandbox.buildSnapshot({
       command: 'npm test -- --runInBand',
-      requestedBy: 'phase-13-live-certification-matrix',
+      requestedBy: 'checkpoint-13-live-certification-matrix',
       sourceSurface: 'certification',
     });
     const matrix = buildMatrix({
@@ -103,14 +103,14 @@ export class ZavorthLiveCertificationMatrixService {
         inspectJson: 'npm run zavorth:live-certification-matrix:json',
         check: 'npm run zavorth:live-certification-matrix:check --silent',
         dailyCertify: 'npm run daily:certify --silent',
-        nextPhase: 'Phase 14 - Documentation And Repo Final',
+        nextStage: 'Intent model4 - Documentation And Repo Final',
       },
     };
   }
 
   public formatSnapshotText(snapshot: ZavorthLiveCertificationMatrixSnapshot): string {
     const lines = [
-      'Zavorth Live Certification Matrix - Phase 13',
+      'Zavorth Live Certification Matrix - Intent model3',
       '',
       `Status: ${snapshot.status}`,
       `Matrix: live=${snapshot.summary.livePassed}, dry-run=${snapshot.summary.dryRunPassed}, needs_setup=${snapshot.summary.needsSetup}, blocked=${snapshot.summary.blocked}, unsupported=${snapshot.summary.unsupported}`,
@@ -128,7 +128,7 @@ export class ZavorthLiveCertificationMatrixService {
       lines.push(`- ${abuse.label}: ${abuse.status} (${abuse.expectedDisposition})`);
     }
     lines.push('', 'No live provider calls, channel sends, workspace mutations or device mutations are performed by this certification.');
-    lines.push(`Next: ${snapshot.commands.nextPhase}`);
+    lines.push(`Next: ${snapshot.commands.nextStage}`);
     return lines.join('\n');
   }
 }

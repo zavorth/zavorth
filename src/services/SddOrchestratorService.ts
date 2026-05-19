@@ -116,7 +116,7 @@ export class SddOrchestratorService {
       default:
         return snapshot.currentTask
           ? `Proxima execucao sugerida: ${snapshot.currentTask.text}`
-          : 'Feature pronta para a fase de execucao.';
+          : 'Feature pronta para a etapa de execucao.';
     }
   }
 }

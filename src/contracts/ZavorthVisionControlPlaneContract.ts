@@ -1,5 +1,5 @@
 export const ZAVORTH_VISION_CONTROL_PLANE_CONTRACT_VERSION =
-  '2026-05-11.vision-control-plane-phase-1' as const;
+  '2026-05-11.vision-control-plane-checkpoint-1' as const;
 
 export type ZavorthVisionControlPlaneAction =
   | 'vision.status'
@@ -98,7 +98,7 @@ export type ZavorthVisionControlPlaneSnapshot = {
   };
   policy: {
     decision: ZavorthVisionPolicyDecision;
-    profile: 'vision-readonly-phase-1';
+    profile: 'vision-readonly-checkpoint-1';
     reason: string;
     mutationAllowed: false;
     externalIoAllowed: false;
@@ -109,7 +109,7 @@ export type ZavorthVisionControlPlaneSnapshot = {
     status: '/vision status';
     inspect: '/vision inspect';
     explain: '/vision explain';
-    nextPhase: 'Phase 2 - Browser Vision And Structured Web Control';
+    nextStage: 'Preview engine - Browser Vision And Structured Web Control';
   };
   safety: {
     readOnlyOnly: true;

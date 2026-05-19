@@ -322,7 +322,7 @@ export class NaturalFirstApprovalSafetyService {
           runId: run.id,
           port,
           text: [
-            'Aprovacao Natural First - Phase 7',
+            'Aprovacao Natural First - Surface controls',
             'O pedido parece sensivel e foi parado antes de qualquer executor ou tool.',
             `Approval requerido: true`,
             `Approval: ${approval.id}`,

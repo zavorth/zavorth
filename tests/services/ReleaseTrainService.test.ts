@@ -10,7 +10,7 @@ import {
 } from '../../src/contracts/ReleaseTrainContract';
 
 describe('ReleaseTrainService', () => {
-  it('builds an ok Phase 59 snapshot from release train fixtures', () => {
+  it('builds an ok Credential vault9 snapshot from release train fixtures', () => {
     const service = serviceFromFixture({}, { requireArtifacts: true });
 
     const snapshot = service.buildSnapshot();
@@ -138,8 +138,8 @@ describe('ReleaseTrainService', () => {
 
   it('fails when cycle closure is removed from docs', () => {
     const service = serviceFromFixture({
-      'core:docs/76-public-adoption-architecture.md': docs76Source().replaceAll('ciclo 53-59 fechado', 'ciclo em aberto'),
-      'core:docs/11-roadmap.md': roadmapSource().replaceAll('ciclo 53-59 fechado', 'ciclo em aberto'),
+      'core:docs/product-direction.md': docs76Source().replaceAll('ciclo 53-59 fechado', 'ciclo em aberto'),
+      'core:docs/product-direction.md': roadmapSource().replaceAll('ciclo 53-59 fechado', 'ciclo em aberto'),
     }, { requireArtifacts: true });
 
     const snapshot = service.buildSnapshot();
@@ -158,7 +158,7 @@ describe('ReleaseTrainService', () => {
 
     const report = service.renderReport();
 
-    expect(report).toContain('Fase 59 - v1.x Release Train And LTS Policy');
+    expect(report).toContain('Readiness checkpoint 9 - v1.x Release Train And LTS Policy');
     expect(report).toContain('proxima acao recomendada: Ciclo 53-59 fechado');
   });
 });
@@ -204,8 +204,8 @@ function filesFixture(): Record<string, string> {
       version: '1.0.0',
       scripts: coreScriptsFixture(),
     }, null, 2),
-    'core:docs/76-public-adoption-architecture.md': docs76Source(),
-    'core:docs/11-roadmap.md': roadmapSource(),
+    'core:docs/product-direction.md': docs76Source(),
+    'core:docs/product-direction.md': roadmapSource(),
     'website:app/release/page.tsx': websiteReleaseSource(),
     'website:app/changelog/page.tsx': websiteReleaseSource(),
     'website:app/docs/page.tsx': websiteReleaseSource(),
@@ -240,13 +240,13 @@ function websiteReleaseSource() {
     'GitHub Releases',
     'tags',
     'qa:release-train',
-    'qa:phase:59',
+    'qa:stage:59',
   ].join('\n');
 }
 
 function docs76Source() {
   return [
-    'Fase 59 - v1.x Release Train And LTS Policy',
+    'Readiness checkpoint 9 - v1.x Release Train And LTS Policy',
     'release train',
     'LTS',
     'v1.0.0',
@@ -259,7 +259,7 @@ function docs76Source() {
     'rollback',
     'GitHub Releases',
     'qa:release-train',
-    'qa:phase:59',
+    'qa:stage:59',
     'Nao Objetivos',
     'ciclo 53-59 fechado',
   ].join('\n');
@@ -267,10 +267,10 @@ function docs76Source() {
 
 function roadmapSource() {
   return [
-    'Fase 59 - v1.x Release Train And LTS Policy: implementada.',
+    'Readiness checkpoint 9 - v1.x Release Train And LTS Policy: implementada.',
     'release train LTS v1.0.0 stable baseline v1.0.x v1.1.0 hotfix release candidate rollback GitHub Releases',
     'qa:release-train',
-    'qa:phase:59',
+    'qa:stage:59',
     'Nao Objetivos',
     'ciclo 53-59 fechado',
   ].join('\n');
@@ -279,7 +279,7 @@ function roadmapSource() {
 function planArtifact() {
   return {
     schemaVersion: '1.0.0',
-    phase: '59',
+    stage: '59',
     generatedAt: '2026-04-25T00:00:00.000Z',
     ok: true,
     results: RELEASE_TRAIN_VERSION_POLICIES.map((policy) => ({
@@ -293,7 +293,7 @@ function planArtifact() {
 function checklistArtifact() {
   return {
     schemaVersion: '1.0.0',
-    phase: '59',
+    stage: '59',
     generatedAt: '2026-04-25T00:00:00.000Z',
     ok: true,
     results: RELEASE_CANDIDATE_CHECKLIST.map((item) => ({
@@ -307,7 +307,7 @@ function checklistArtifact() {
 function hotfixArtifact() {
   return {
     schemaVersion: '1.0.0',
-    phase: '59',
+    stage: '59',
     generatedAt: '2026-04-25T00:00:00.000Z',
     ok: true,
     results: HOTFIX_PLAYBOOK.map((step) => ({

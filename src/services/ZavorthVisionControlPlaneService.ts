@@ -133,7 +133,7 @@ export class ZavorthVisionControlPlaneService {
       },
       policy: {
         decision: policyDecision,
-        profile: 'vision-readonly-phase-1',
+        profile: 'vision-readonly-checkpoint-1',
         reason: policyDecision === 'allow_with_redaction'
           ? 'Evidence was minimized before provider use because it contained secrets or prompt injection text.'
           : 'Read-only visual reasoning is allowed; no click, type, workspace mutation or external I/O is permitted.',
@@ -146,7 +146,7 @@ export class ZavorthVisionControlPlaneService {
         status: '/vision status',
         inspect: '/vision inspect',
         explain: '/vision explain',
-        nextPhase: 'Phase 2 - Browser Vision And Structured Web Control',
+        nextStage: 'Preview engine - Browser Vision And Structured Web Control',
       },
       safety: {
         readOnlyOnly: true,
@@ -362,7 +362,7 @@ export class ZavorthVisionControlPlaneService {
         id: 'vision-capture-receipt',
         kind: 'capture',
         status: 'done',
-        reason: 'Phase 1 stores references and redacted text only; live screenshot capture is deferred.',
+        reason: 'Intent model stores references and redacted text only; live screenshot capture is deferred.',
         artifactRefId,
         rawSecretSerialized: false,
       },
@@ -414,7 +414,7 @@ export class ZavorthVisionControlPlaneService {
     if (action === 'vision.status') {
       return 'Run /vision inspect with a concrete target when the user wants visual reasoning.';
     }
-    return `Keep ${targetKind} perception read-only until Phase 2+ enables governed live capture and control.`;
+    return `Keep ${targetKind} perception read-only until Preview engine+ enables governed live capture and control.`;
   }
 }
 

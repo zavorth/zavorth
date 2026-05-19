@@ -108,7 +108,7 @@ export function buildReleaseInstallerRollbackCliSnapshot(input: {
     metadata: {
       productizationContract: {
         source: 'ZavorthProductizationContractService',
-        phase: 'C9',
+        stage: 'C9',
         status: 'ready',
         control: { ready: true },
         cli: { ready: true },
@@ -123,7 +123,7 @@ export function buildReleaseInstallerRollbackCliSnapshot(input: {
         rollbackAvailable: true,
       },
       publicReleaseBundle: {
-        phase: '51',
+        stage: '51',
         surface: 'release-bundle',
         generatedAt: '2026-05-04T02:48:00.000Z',
         status: 'ready',
@@ -139,8 +139,8 @@ export function buildReleaseInstallerRollbackCliSnapshot(input: {
         ],
         screenshots: [],
         checks: [],
-        nextRecommendedPhase: {
-          phase: '52',
+        nextRecommendedStage: {
+          stage: '52',
           title: 'Feedback, Telemetry Opt-In And Product Loop',
           reason: 'Depois do release path, abrir loop de produto sem canary real.',
         },
@@ -163,7 +163,7 @@ export function formatReleaseInstallerRollbackSnapshot(
   snapshot: ReleaseInstallerRollbackPathSnapshot,
 ): string {
   const lines = [
-    'Release / Installer / Rollback Path - Wave 48',
+    'Release / Installer / Rollback Path - Channel mesh8',
     `- contrato: ${snapshot.contractVersion}`,
     `- run: ${snapshot.identifiers.runId}`,
     `- sessao: ${snapshot.identifiers.sessionId}`,

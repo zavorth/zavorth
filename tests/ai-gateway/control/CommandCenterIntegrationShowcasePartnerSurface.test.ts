@@ -12,7 +12,7 @@ function createIdFactory() {
 
 function pilotReadySnapshot() {
   return {
-    contractVersion: '2026-05-04.wave-51',
+    contractVersion: '2026-05-04.adoption-pilot',
     source: 'PublicAdoptionPilotLoopService',
     generatedAt: '2026-05-04T05:52:00.000Z',
     status: 'pilot-ready',
@@ -46,7 +46,7 @@ function matrix(id: string) {
 function metadata() {
   return {
     integrationShowcase: {
-      phase: '58',
+      stage: '58',
       surface: 'integration-showcase',
       generatedAt: '2026-05-04T05:52:00.000Z',
       status: 'ready',
@@ -74,12 +74,12 @@ function metadata() {
         { id: 'integration-showcase:matrix-artifact', status: 'pass' },
         { id: 'integration-showcase:partner-artifact', status: 'pass' },
       ],
-      nextRecommendedPhase: { phase: '59', title: 'Release Train', reason: 'release readiness' },
+      nextRecommendedStage: { stage: '59', title: 'Release Train', reason: 'release readiness' },
     },
   };
 }
 
-describe('Command Center Integration Showcase Partner Surface Wave 52', () => {
+describe('Command Center Integration Showcase Partner Surface Integration Showcase', () => {
   it('projects integrationShowcasePartnerSurface metadata into the dashboard view model', () => {
     const run = new AgentRunService({
       now: () => new Date('2026-05-04T05:52:00.000Z'),
@@ -103,7 +103,7 @@ describe('Command Center Integration Showcase Partner Surface Wave 52', () => {
     });
 
     expect(viewModel.integrationShowcasePartnerSurface).toEqual(expect.objectContaining({
-      contractVersion: '2026-05-04.wave-52',
+      contractVersion: '2026-05-04.integration-showcase',
       status: 'showcase-ready',
       showcase: expect.objectContaining({
         vendorCount: 4,
@@ -146,7 +146,7 @@ describe('Command Center Integration Showcase Partner Surface Wave 52', () => {
     );
 
     expect(projection.integrationShowcasePartnerSurface).toEqual(expect.objectContaining({
-      contractVersion: '2026-05-04.wave-52',
+      contractVersion: '2026-05-04.integration-showcase',
       status: 'showcase-ready',
       partnerSurface: expect.objectContaining({
         unsafeFormalClaims: [],

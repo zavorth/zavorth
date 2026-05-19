@@ -69,7 +69,7 @@ export class RemoteMeshNotebookApprovalUxService {
         json: 'npm run remote-mesh:notebook:approval-ux:json --silent',
         focusedTests: 'npx jest tests/services/RemoteMeshNotebookApprovalUxService.test.ts --runInBand',
         typecheck: 'npm run runtime:check --silent',
-        nextPhase: 'Real Mobile Command Center Wiring',
+        nextStage: 'Real Mobile Command Center Wiring',
       },
     };
   }

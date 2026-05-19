@@ -8,7 +8,7 @@ function createIdFactory() {
   return (prefix: string) => `${prefix}-provider-mesh-${++index}`;
 }
 
-describe('AgentRunService Provider Mesh Consolidation Wave 43', () => {
+describe('AgentRunService Provider Mesh Consolidation Channel mesh3', () => {
   it('publishes run.metadata.providerMeshConsolidation during the agent run lifecycle', async () => {
     const service = new AgentRunService({
       now: () => new Date('2026-05-04T00:43:00.000Z'),

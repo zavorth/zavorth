@@ -3,7 +3,7 @@ import os from 'os';
 import path from 'path';
 import { ZavorthAgentSkillParityCertificationService } from '../../src/services/ZavorthAgentSkillParityCertificationService.js';
 
-describe('ZavorthAgentSkillParityCertificationService Phase 9', () => {
+describe('ZavorthAgentSkillParityCertificationService Certification matrix', () => {
   it('certifies subagent and skill parity through safe mocked flows', async () => {
     const fixture = createFixture();
     try {

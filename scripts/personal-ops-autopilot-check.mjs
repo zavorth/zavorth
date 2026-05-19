@@ -8,7 +8,7 @@ const asJson = process.argv.includes('--json');
 const rules = [
   ruleFilesExist({
     id: 'personal-ops-autopilot-files',
-    label: 'Wave 39 files exist',
+    label: 'Personal Ops Autopilot files exist',
     target: 'Runtime, CLI, Command Center, tests and docs are present',
     files: [
       'src/runtime/agent/PersonalOpsAutopilotService.ts',
@@ -27,7 +27,7 @@ const rules = [
     files: ['src/runtime/agent/PersonalOpsAutopilotService.ts'],
     needles: [
       'PERSONAL_OPS_AUTOPILOT_CONTRACT_VERSION',
-      '2026-05-03.wave-39',
+      '2026-05-03.personal-ops',
       'PersonalOpsAutopilotSuggestion',
       'PersonalOpsAutopilotReceipt',
       'noMutableActionExecuted',
@@ -63,7 +63,7 @@ const rules = [
     ],
     needles: [
       'personal-ops',
-      'Personal Ops Autopilot - Wave 39',
+      'Personal Ops Autopilot - Personal Ops Autopilot',
       'resolvePersonalOpsAutopilotCliText',
       'formatPersonalOpsAutopilotSnapshot',
       'zavorth personal-ops',
@@ -92,7 +92,7 @@ const rules = [
   }),
   ruleContainsAll({
     id: 'package-exposes-personal-ops-autopilot-gate',
-    label: 'package exposes Wave 39 gate',
+    label: 'package exposes Personal Ops Autopilot gate',
     target: 'local QA can run personal-ops-autopilot:check and qa:personal-ops-autopilot',
     files: ['package.json'],
     needles: [
@@ -118,7 +118,7 @@ const snapshot = {
 if (asJson) {
   console.log(JSON.stringify(snapshot, null, 2));
 } else {
-  console.log('[personal-ops-autopilot] checking Wave 39');
+  console.log('[personal-ops-autopilot] checking Personal Ops Autopilot');
   for (const rule of rules) {
     const marker = rule.status === 'passed' ? 'ok' : 'fail';
     console.log(`[personal-ops-autopilot] ${marker} ${rule.label}: ${rule.observed} | ${rule.target}`);

@@ -30,14 +30,14 @@ const readyOptions: CapabilityAutopilotBetaFieldTrialOptions = {
   rollbackRehearsalReceiptId: 'rollback-rehearsal-1',
   successCriteriaId: 'success-criteria-1',
   privacyNoticeReceiptId: 'privacy-notice-1',
-  reason: 'phase-79-test',
+  reason: 'checkpoint-79-test',
 };
 
 function createSource(
   overrides: Partial<CapabilityAutopilotBetaReadinessSnapshot> = {},
 ): CapabilityAutopilotBetaReadinessSnapshot {
   return {
-    phase: '78',
+    stage: '78',
     betaReadinessId: 'executor-gemini-cli-beta-readiness-1',
     generatedAt: FIXED_NOW.toISOString(),
     surface: 'capability-autopilot-beta-readiness-gate',
@@ -50,7 +50,7 @@ function createSource(
       warnings: 0,
       failed: 0,
     },
-    sourceSnapshotPhase: '77',
+    sourceSnapshotStage: '77',
     sourceStatus: 'ready',
     betaChecklistApproved: true,
     releaseNotesReady: true,
@@ -79,10 +79,10 @@ function createSource(
     audit: {
       sourceGeneratedAt: FIXED_NOW.toISOString(),
       actorId: 'release-operator',
-      reason: 'phase-78-test',
+      reason: 'checkpoint-78-test',
     },
-    nextRecommendedPhase: {
-      phase: '79',
+    nextRecommendedStage: {
+      stage: '79',
       title: 'Capability Autopilot Beta Field Trial Loop',
       reason: 'Operate limited beta field trial.',
     },
@@ -106,7 +106,7 @@ describe('CapabilityAutopilotBetaFieldTrialLoopService', () => {
     const snapshot = service.buildFieldTrialSnapshot(createSource(), readyOptions);
 
     expect(snapshot).toMatchObject({
-      phase: '79',
+      stage: '79',
       status: 'field_trial_ready',
       recommendation: 'start_limited_beta_field_trial',
       summary: {
@@ -211,7 +211,7 @@ describe('CapabilityAutopilotBetaFieldTrialLoopService', () => {
     const service = createService();
     const snapshot = service.buildFieldTrialSnapshot(createSource(), readyOptions);
 
-    expect(service.renderReport(snapshot)).toContain('Fase 79 - Capability Autopilot Beta Field Trial Loop');
-    expect(service.renderReport(snapshot)).toContain('proxima fase recomendada: 80 - Capability Autopilot Release Candidate Gate');
+    expect(service.renderReport(snapshot)).toContain('Etapa 79 - Capability Autopilot Beta Field Trial Loop');
+    expect(service.renderReport(snapshot)).toContain('proximo passo recomendada: 80 - Capability Autopilot Release Candidate Gate');
   });
 });

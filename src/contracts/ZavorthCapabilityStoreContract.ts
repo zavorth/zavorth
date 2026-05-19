@@ -3,7 +3,7 @@ import type {
   CapabilityHubReadiness,
 } from './CapabilityHubContract.js';
 
-export const ZAVORTH_CAPABILITY_STORE_CONTRACT_VERSION = '2026-05-15.experience-layer.phase-4' as const;
+export const ZAVORTH_CAPABILITY_STORE_CONTRACT_VERSION = '2026-05-15.experience-layer.checkpoint-4' as const;
 
 export type ZavorthCapabilityStoreCategoryId =
   | 'communication'

@@ -67,7 +67,7 @@ export async function handleSaveApiKeyAction(formData: any, deps: any) {
         deps.setImportProgress({
           current: 0,
           total: 0,
-          phase: "fetching",
+          stage: "fetching",
           status: deps.t("fetchingModels"),
           logs: [],
           error: "",
@@ -84,7 +84,7 @@ export async function handleSaveApiKeyAction(formData: any, deps: any) {
           if (!syncRes.ok || syncData.error) {
             deps.setImportProgress((prev: any) => ({
               ...prev,
-              phase: "error",
+              stage: "error",
               status: deps.t("failedFetchModels"),
               error: syncData.error?.message || syncData.error || deps.t("failedImportModels"),
             }));
@@ -104,7 +104,7 @@ export async function handleSaveApiKeyAction(formData: any, deps: any) {
 
           deps.setImportProgress((prev: any) => ({
             ...prev,
-            phase: "done",
+            stage: "done",
             status: deps.t("modelsImported", { count: syncedCount }),
             total: syncedCount,
             current: syncedCount,
@@ -116,7 +116,7 @@ export async function handleSaveApiKeyAction(formData: any, deps: any) {
         } catch (syncError) {
           deps.setImportProgress((prev: any) => ({
             ...prev,
-            phase: "error",
+            stage: "error",
             status: deps.t("failedFetchModels"),
             error: String(syncError),
           }));

@@ -36,12 +36,12 @@ export class SharedSurfaceControlPlaneCommandPack {
       planes: [
         {
           id: 'evals',
-          label: 'Wave D evals',
+          label: 'Eval observability evals',
           buildSnapshot: (request) => this.deps.evalControlPlaneService.buildSnapshot(this.readEvalsQuery(request.query)),
         },
         {
           id: 'qa',
-          label: 'Wave 6 QA',
+          label: 'QA release QA',
           buildSnapshot: (request) => this.deps.qaControlPlaneService.buildSnapshot({
             profile: this.readString(request.query, 'profile') || undefined,
           }),
@@ -51,7 +51,7 @@ export class SharedSurfaceControlPlaneCommandPack {
         },
         {
           id: 'governance',
-          label: 'Wave 7 governance',
+          label: 'Governance governance',
           buildSnapshot: (request) => this.deps.governanceControlPlaneService.buildSnapshot({
             limit: this.readNumber(request.query, 'limit') || undefined,
           }),
@@ -61,7 +61,7 @@ export class SharedSurfaceControlPlaneCommandPack {
         },
         {
           id: 'replay-learning',
-          label: 'Wave 8 replay learning',
+          label: 'Replay learning replay learning',
           buildSnapshot: (request) => this.deps.replayLearningControlPlaneService.buildSnapshot({
             userId: this.readNullableString(request.query, 'userId'),
             platform: this.readNullableString(request.query, 'platform'),
@@ -77,7 +77,7 @@ export class SharedSurfaceControlPlaneCommandPack {
         },
         {
           id: 'ecosystem',
-          label: 'Wave 9 ecosystem',
+          label: 'Ecosystem ecosystem',
           buildSnapshot: (request) => this.deps.ecosystemControlPlaneService.buildSnapshot({
             selectedId: this.readNullableString(request.query, 'selectedId'),
             query: this.readNullableString(request.query, 'query'),
@@ -89,7 +89,7 @@ export class SharedSurfaceControlPlaneCommandPack {
         },
         {
           id: 'distributed-runtime',
-          label: 'Wave 10 distributed runtime',
+          label: 'Distributed runtime distributed runtime',
           buildSnapshot: (request) => this.deps.distributedRuntimeControlPlaneService.buildSnapshot({
             selectedId: this.readNullableString(request.query, 'selectedId'),
             query: this.readNullableString(request.query, 'query'),
@@ -238,7 +238,7 @@ export class SharedSurfaceControlPlaneCommandPack {
     if (!snapshotResult.ok || !snapshotResult.data) {
       await ctx.reply(this.renderControlPlaneReport(
         'evals',
-        'Wave D: Eval + Observability',
+        'Eval observability: Eval + Observability',
         snapshotResult.summary,
         { status: 'failed' },
       ));
@@ -249,7 +249,7 @@ export class SharedSurfaceControlPlaneCommandPack {
     const topTrace = snapshot.telemetry?.traces?.[0] || null;
     const latestTrend = snapshot.history?.trend?.[snapshot.history.trend.length - 1] || null;
     const text = [
-      'Wave D: Eval + Observability',
+      'Eval observability: Eval + Observability',
       '',
       `Postura: ${snapshot.summary.posture}`,
       snapshot.narrative.operatorSummary,
@@ -268,7 +268,7 @@ export class SharedSurfaceControlPlaneCommandPack {
       snapshot.telemetry.recommendation ? `Recomendacao: ${snapshot.telemetry.recommendation}` : null,
       snapshot.history.recommendation ? `Tendencia: ${snapshot.history.recommendation}` : null,
     ].filter(Boolean).join('\n');
-    await ctx.reply(this.renderControlPlaneReport('evals', 'Wave D: Eval + Observability', text, {
+    await ctx.reply(this.renderControlPlaneReport('evals', 'Eval observability: Eval + Observability', text, {
       query: this.readEvalsQuery(this.buildSnapshotRequest(ctx, 'evals', {
         workspace: this.readFlag(args, ['workspace', '--workspace']),
         sourceSurface: this.readFlag(args, ['surface', '--surface', 'sourceSurface', '--source-surface']),
@@ -328,11 +328,11 @@ export class SharedSurfaceControlPlaneCommandPack {
   private getPlaneTitle(planeId: string): string {
     switch (planeId) {
       case 'evals':
-        return 'Wave D: Eval + Observability';
+        return 'Eval observability: Eval + Observability';
       case 'qa':
-        return 'Wave 6: QA, budgets e release gates';
+        return 'QA release: QA, budgets e release gates';
       case 'governance':
-        return 'Wave 7 governance';
+        return 'Governance governance';
       case 'replay-learning':
         return 'Replay learning';
       case 'ecosystem':

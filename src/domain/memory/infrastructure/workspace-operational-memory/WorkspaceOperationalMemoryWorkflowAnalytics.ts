@@ -30,7 +30,7 @@ export class WorkspaceOperationalMemoryWorkflowAnalytics {
         recentCheckpoints.find((checkpoint) => checkpoint?.event === 'stage_interrupted')?.resume_stage_id || '',
       ).trim() || null;
       const latestInterruptedStageLabel = latestInterruptedStageId
-        ? (run.stages.find((stage) => stage.id === latestInterruptedStageId)?.label || null)
+        ? (run.phases.find((stage) => stage.id === latestInterruptedStageId)?.label || null)
         : (String(run.resume_stage?.label || '').trim() || null);
       const recoveredFromInterruption = run.status === 'completed' && interruptionCount > 0;
 
@@ -40,8 +40,8 @@ export class WorkspaceOperationalMemoryWorkflowAnalytics {
         status: run.status,
         operator_state: run.operator_state,
         operator_close_reason: run.operator_close_reason,
-        completed_stages: run.stages.filter((stage) => stage.status === 'completed').length,
-        total_stages: run.stages.length,
+        completed_stages: run.phases.filter((stage) => stage.status === 'completed').length,
+        total_stages: run.phases.length,
         primary_artifact_name:
           typeof run.artifacts_manifest?.primary_artifact_name === 'string'
             ? run.artifacts_manifest.primary_artifact_name
@@ -56,7 +56,7 @@ export class WorkspaceOperationalMemoryWorkflowAnalytics {
           .map((checkpoint) => String(checkpoint?.event || '').trim())
           .filter((event): event is string => Boolean(event)),
         updated_at: run.updated_at,
-        stage_executors: run.stages.map((stage) => ({
+        stage_executors: run.phases.map((stage) => ({
           executor: stage.executor,
           role: stage.role,
           status: stage.status,

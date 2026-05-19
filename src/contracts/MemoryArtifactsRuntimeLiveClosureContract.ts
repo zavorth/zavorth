@@ -1,6 +1,6 @@
 import type { LiveReadinessStatus } from './LiveReadinessContract.js';
 
-export const ZAVORTH_MEMORY_ARTIFACTS_RUNTIME_LIVE_CLOSURE_CONTRACT_VERSION = '2026-05-05.live-phase-12' as const;
+export const ZAVORTH_MEMORY_ARTIFACTS_RUNTIME_LIVE_CLOSURE_CONTRACT_VERSION = '2026-05-05.live-checkpoint-12' as const;
 
 export type MemoryArtifactsRuntimeLiveTargetId =
   | 'memory-core'
@@ -143,7 +143,7 @@ export type MemoryArtifactsRuntimeLiveEntry = {
 export type MemoryArtifactsRuntimeLiveClosureSnapshot = {
   generatedAt: string;
   contractVersion: typeof ZAVORTH_MEMORY_ARTIFACTS_RUNTIME_LIVE_CLOSURE_CONTRACT_VERSION;
-  phase: 'Phase 12 - Memory, Artifacts And Runtime Executor Live Closure';
+  phase: 'Intent model2 - Memory, Artifacts And Runtime Executor Live Closure';
   status: 'closed' | 'attention' | 'blocked';
   summary: {
     targets: 11;
@@ -164,13 +164,13 @@ export type MemoryArtifactsRuntimeLiveClosureSnapshot = {
     artifactsMarkedLiveWithoutReplay: false;
     runtimeMarkedLiveWithoutExecutionProfile: false;
     unsafeRuntimeBypassesApproval: false;
-    liveIoRequiredByPhase12Check: false;
+    liveIoRequiredBySandboxAdapterCheck: false;
     secretValuesSerialized: false;
   };
   entries: MemoryArtifactsRuntimeLiveEntry[];
   receipts: MemoryArtifactsRuntimeLiveReceipt[];
   policy: {
-    noLiveIoDuringPhase12Check: true;
+    noLiveIoDuringSandboxAdapterCheck: true;
     memoryWriteRecallForgetRequired: true;
     artifactIndexReplayRequired: true;
     threadOwnershipRequired: true;
@@ -185,6 +185,6 @@ export type MemoryArtifactsRuntimeLiveClosureSnapshot = {
     stagingLiveSmoke: 'npm run memory-artifacts-runtime-live-closure -- --profile staging-live --target <target> --confirm-live-io';
     focusedTests: string[];
     typecheck: 'npm run runtime:check --silent';
-    nextPhase: 'Phase 3 - Channel Live Activation Long Tail';
+    nextStage: 'Approval gate - Channel Live Activation Long Tail';
   };
 };

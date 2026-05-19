@@ -7,7 +7,7 @@ function createIdFactory() {
   return (prefix: string) => `${prefix}-cc-memory-${++index}`;
 }
 
-describe('Command Center Memory With Receipts Wave 32', () => {
+describe('Command Center Memory With Receipts Memory Receipts', () => {
   it('projects memoryWithReceipts metadata into the dashboard view model', () => {
     const viewModel = buildDashboardCommandCenterViewModel({
       runtime: {
@@ -19,7 +19,7 @@ describe('Command Center Memory With Receipts Wave 32', () => {
         status: 'completed',
         metadata: {
           memoryWithReceipts: {
-            contractVersion: '2026-05-03.wave-32',
+            contractVersion: '2026-05-03.memory-receipts',
             generatedAt: '2026-05-03T23:30:00.000Z',
             identifiers: {
               runId: 'run-memory',
@@ -78,7 +78,7 @@ describe('Command Center Memory With Receipts Wave 32', () => {
     });
 
     expect(viewModel.memoryWithReceipts).toEqual(expect.objectContaining({
-      contractVersion: '2026-05-03.wave-32',
+      contractVersion: '2026-05-03.memory-receipts',
       summary: expect.objectContaining({
         receiptCount: 1,
       }),
@@ -126,7 +126,7 @@ describe('Command Center Memory With Receipts Wave 32', () => {
     );
 
     expect(projection.memoryWithReceipts).toEqual(expect.objectContaining({
-      contractVersion: '2026-05-03.wave-32',
+      contractVersion: '2026-05-03.memory-receipts',
       audit: expect.objectContaining({
         allMemoryHasReceipt: true,
         runObservatoryLinked: true,

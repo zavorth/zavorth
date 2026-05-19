@@ -41,7 +41,7 @@ const rules = [
   ruleContainsAll({
     id: 'canary-monitoring-rollback-gate-service',
     label: 'Service builds monitoring and rollback gate from launch rehearsal',
-    target: 'Service consumes Phase 21, prepares monitoring/rollback controls, and keeps launch/publish/promotion locked',
+    target: 'Service consumes Preview engine1, prepares monitoring/rollback controls, and keeps launch/publish/promotion locked',
     files: ['src/services/CanaryMonitoringRollbackGateService.ts'],
     needles: [
       'CanaryMonitoringRollbackGateService',
@@ -118,7 +118,7 @@ const snapshot = {
 if (asJson) {
   console.log(JSON.stringify(snapshot, null, 2));
 } else {
-  console.log('[canary-monitoring-rollback-gate] checking Phase 22');
+  console.log('[canary-monitoring-rollback-gate] checking Preview engine2');
   for (const rule of rules) {
     const marker = rule.status === 'passed' ? 'ok' : 'fail';
     console.log(`[canary-monitoring-rollback-gate] ${marker} ${rule.label}: ${rule.observed} | ${rule.target}`);

@@ -3,7 +3,7 @@ import type {
   AiFirstRuntimeEntrypointSelectedPath,
 } from './AiFirstRuntimeEntrypointAdapterContract.js';
 
-export const AI_FIRST_HISTORICAL_REPLAY_GATE_CONTRACT_VERSION = '2026-05-06.phase-9' as const;
+export const AI_FIRST_HISTORICAL_REPLAY_GATE_CONTRACT_VERSION = '2026-05-06.checkpoint-9' as const;
 
 export type AiFirstHistoricalReplayGateStatus = 'go' | 'hold' | 'no-go';
 

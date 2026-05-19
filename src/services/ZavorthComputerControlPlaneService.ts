@@ -356,7 +356,7 @@ export class ZavorthComputerControlPlaneService {
       },
       policy: {
         decision,
-        profile: 'computer-control-phase-3',
+        profile: 'computer-control-checkpoint-3',
         reason: policyReason,
         mutationAllowed: false,
         providerPayloadMinimized: true,
@@ -389,7 +389,7 @@ export class ZavorthComputerControlPlaneService {
         plan: '/computer plan',
         approve: '/computer approve <plan>',
         cancel: '/computer cancel',
-        nextPhase: 'Phase 4 - Android ADB And Device Bridge',
+        nextStage: 'Connector registry - Android ADB And Device Bridge',
       },
       nextSafeAction: nextSafeAction(redactedStatus, input.hardBlocks, mutationRequested, approvalRequired, input.watchSnapshot !== null),
     };

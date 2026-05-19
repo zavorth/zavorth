@@ -5,7 +5,7 @@ import path from 'node:path';
 import { ZavorthTransactionApprovalLedgerService } from '../../src/services/ZavorthTransactionApprovalLedgerService.js';
 import { ZavorthTransactionPreviewService } from '../../src/services/ZavorthTransactionPreviewService.js';
 
-const signingKey = 'phase3-test-signing-key-000000000000000000000000000000';
+const signingKey = 'approval-gate-test-signing-key-000000000000000000000000000000';
 
 describe('ZavorthTransactionApprovalLedgerService', () => {
   let tempDir: string;

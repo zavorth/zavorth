@@ -63,7 +63,7 @@ export class WebResearchLivePlaneService {
     return {
       generatedAt: this.now().toISOString(),
       contractVersion: ZAVORTH_WEB_RESEARCH_LIVE_PLANE_CONTRACT_VERSION,
-      phase: 'Phase 8 - Research, Web Extraction And Browser Live Plane',
+      phase: 'Dashboard controls - Research, Web Extraction And Browser Live Plane',
       status: blocked > 0 ? 'blocked' : 'closed',
       summary: {
         targets: 7,
@@ -80,13 +80,13 @@ export class WebResearchLivePlaneService {
         redactedReceipts: receipts.filter((receipt) => receipt.secretValuesSerialized === false).length,
         blocked,
         browserExtractionMarkedLiveByNoNetworkPlan: false,
-        liveIoRequiredByPhase8Check: false,
+        liveIoRequiredByStage8Check: false,
         secretValuesSerialized: false,
       },
       entries,
       receipts,
       policy: {
-        noLiveIoDuringPhase8Check: true,
+        noLiveIoDuringStage8Check: true,
         searchProviderChoiceRequired: true,
         citationArtifactsRequired: true,
         extractionArtifactsRequired: true,
@@ -102,7 +102,7 @@ export class WebResearchLivePlaneService {
         stagingLiveSmoke: 'npm run web-research-live-plane -- --profile staging-live --target <target> --confirm-live-io',
         focusedTests: ['npx jest tests/services/WebResearchLivePlaneService.test.ts --runInBand'],
         typecheck: 'npm run runtime:check --silent',
-        nextPhase: 'Phase 9 - File, Document, Diff And Prose Live Plane',
+        nextStage: 'Certification matrix - File, Document, Diff And Prose Live Plane',
       },
     };
   }
@@ -158,7 +158,7 @@ export class WebResearchLivePlaneService {
     const gates: WebResearchLiveGate[] = [];
     if (descriptor.capabilities.includes('search.query')) {
       gates.push(this.gate('provider-adapter', 'passed', 'SearchProviderLiveAdapter normalizes Brave, Exa, SearXNG and Tavily response shapes.', null));
-      gates.push(this.gate('citation-artifact', 'passed', 'Phase 8 staging receipts include normalized search citations and redacted provider evidence.', null));
+      gates.push(this.gate('citation-artifact', 'passed', 'Dashboard controls staging receipts include normalized search citations and redacted provider evidence.', null));
       gates.push(this.gate('network-policy', 'passed', 'SearchQueryService evaluates network policy before provider invocation.', null));
     }
     if (descriptor.adapterFamily === 'firecrawl-extract') {

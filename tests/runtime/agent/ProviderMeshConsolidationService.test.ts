@@ -4,7 +4,7 @@ import {
   ProviderMeshConsolidationService,
 } from '../../../src/runtime/agent/index.js';
 
-describe('ProviderMeshConsolidationService Wave 43', () => {
+describe('ProviderMeshConsolidationService Channel mesh3', () => {
   it('consolidates P0-extra services without executing providers or serializing secrets', () => {
     const run = new AgentRunService({
       now: () => new Date('2026-05-04T00:43:00.000Z'),

@@ -131,18 +131,18 @@ export class LiveParityCertificationService {
     const memoryArtifactsRuntime = this.memoryArtifactsRuntime.buildSnapshot();
 
     const phases = [
-      this.phaseReport('phase-1-live-readiness', 'Phase 1 - Live Readiness Kernel', readiness.status, readiness.summary.sourceModules, readiness.summary.blocked, readiness.summary.receipts, 0, readiness.commands.check, readiness.commands.focusedTests),
-      this.phaseReport('phase-2-channel-p0', channelP0.phase, channelP0.status, channelP0.summary.channels, channelP0.summary.blocked, channelP0.summary.redactedReceipts, channelP0.summary.stagingLiveSmokeCommands, channelP0.commands.check, channelP0.commands.focusedTests),
-      this.phaseReport('phase-3-channel-long-tail', channelLongTail.phase, channelLongTail.status, channelLongTail.summary.channels, channelLongTail.summary.blocked, channelLongTail.summary.redactedReceipts, channelLongTail.summary.stagingLiveSmokeCommands, channelLongTail.commands.check, channelLongTail.commands.focusedTests),
-      this.phaseReport('phase-4-provider-p0', providerP0.phase, providerP0.status, providerP0.summary.providers, providerP0.summary.blocked, providerP0.summary.redactedReceipts, providerP0.summary.chatSmokeCommands, providerP0.commands.check, providerP0.commands.focusedTests),
-      this.phaseReport('phase-5-provider-long-tail', providerLongTail.phase, providerLongTail.status, providerLongTail.summary.providers, providerLongTail.summary.blocked, providerLongTail.summary.redactedReceipts, providerLongTail.summary.smokeCommands, providerLongTail.commands.check, providerLongTail.commands.focusedTests),
-      this.phaseReport('phase-6-media-generation', mediaGeneration.phase, mediaGeneration.status, mediaGeneration.summary.targets, mediaGeneration.summary.blocked, mediaGeneration.summary.redactedReceipts, mediaGeneration.summary.stagingLiveSmokeCommands, mediaGeneration.commands.check, mediaGeneration.commands.focusedTests),
-      this.phaseReport('phase-7-speech-voice', speechVoice.phase, speechVoice.status, speechVoice.summary.targets, speechVoice.summary.blocked, speechVoice.summary.redactedReceipts, speechVoice.summary.stagingLiveSmokeCommands, speechVoice.commands.check, speechVoice.commands.focusedTests),
-      this.phaseReport('phase-8-web-research', webResearch.phase, webResearch.status, webResearch.summary.targets, webResearch.summary.blocked, webResearch.summary.redactedReceipts, webResearch.summary.stagingLiveSmokeCommands, webResearch.commands.check, webResearch.commands.focusedTests),
-      this.phaseReport('phase-9-file-document-diff', fileDocumentDiff.phase, fileDocumentDiff.status, fileDocumentDiff.summary.targets, fileDocumentDiff.summary.blocked, fileDocumentDiff.summary.redactedReceipts, fileDocumentDiff.summary.stagingLiveSmokeCommands, fileDocumentDiff.commands.check, fileDocumentDiff.commands.focusedTests),
-      this.phaseReport('phase-10-diagnostics-qa-migration', diagnosticsQaMigration.phase, diagnosticsQaMigration.status, diagnosticsQaMigration.summary.targets, diagnosticsQaMigration.summary.blocked, diagnosticsQaMigration.summary.redactedReceipts, diagnosticsQaMigration.summary.stagingLiveSmokeCommands, diagnosticsQaMigration.commands.check, diagnosticsQaMigration.commands.focusedTests),
-      this.phaseReport('phase-11-satellite-device', satelliteDevice.phase, satelliteDevice.status, satelliteDevice.summary.targets, satelliteDevice.summary.blocked, satelliteDevice.summary.redactedReceipts, satelliteDevice.summary.stagingLiveSmokeCommands, satelliteDevice.commands.check, satelliteDevice.commands.focusedTests),
-      this.phaseReport('phase-12-memory-artifacts-runtime', memoryArtifactsRuntime.phase, memoryArtifactsRuntime.status, memoryArtifactsRuntime.summary.targets, memoryArtifactsRuntime.summary.blocked, memoryArtifactsRuntime.summary.redactedReceipts, memoryArtifactsRuntime.summary.stagingLiveSmokeCommands, memoryArtifactsRuntime.commands.check, memoryArtifactsRuntime.commands.focusedTests),
+      this.phaseReport('checkpoint-1-live-readiness', 'Intent model - Live Readiness Kernel', readiness.status, readiness.summary.sourceModules, readiness.summary.blocked, readiness.summary.receipts, 0, readiness.commands.check, readiness.commands.focusedTests),
+      this.phaseReport('checkpoint-2-channel-p0', channelP0.phase, channelP0.status, channelP0.summary.channels, channelP0.summary.blocked, channelP0.summary.redactedReceipts, channelP0.summary.stagingLiveSmokeCommands, channelP0.commands.check, channelP0.commands.focusedTests),
+      this.phaseReport('checkpoint-3-channel-long-tail', channelLongTail.phase, channelLongTail.status, channelLongTail.summary.channels, channelLongTail.summary.blocked, channelLongTail.summary.redactedReceipts, channelLongTail.summary.stagingLiveSmokeCommands, channelLongTail.commands.check, channelLongTail.commands.focusedTests),
+      this.phaseReport('checkpoint-4-provider-p0', providerP0.phase, providerP0.status, providerP0.summary.providers, providerP0.summary.blocked, providerP0.summary.redactedReceipts, providerP0.summary.chatSmokeCommands, providerP0.commands.check, providerP0.commands.focusedTests),
+      this.phaseReport('checkpoint-5-provider-long-tail', providerLongTail.phase, providerLongTail.status, providerLongTail.summary.providers, providerLongTail.summary.blocked, providerLongTail.summary.redactedReceipts, providerLongTail.summary.smokeCommands, providerLongTail.commands.check, providerLongTail.commands.focusedTests),
+      this.phaseReport('checkpoint-6-media-generation', mediaGeneration.phase, mediaGeneration.status, mediaGeneration.summary.targets, mediaGeneration.summary.blocked, mediaGeneration.summary.redactedReceipts, mediaGeneration.summary.stagingLiveSmokeCommands, mediaGeneration.commands.check, mediaGeneration.commands.focusedTests),
+      this.phaseReport('checkpoint-7-speech-voice', speechVoice.phase, speechVoice.status, speechVoice.summary.targets, speechVoice.summary.blocked, speechVoice.summary.redactedReceipts, speechVoice.summary.stagingLiveSmokeCommands, speechVoice.commands.check, speechVoice.commands.focusedTests),
+      this.phaseReport('checkpoint-8-web-research', webResearch.phase, webResearch.status, webResearch.summary.targets, webResearch.summary.blocked, webResearch.summary.redactedReceipts, webResearch.summary.stagingLiveSmokeCommands, webResearch.commands.check, webResearch.commands.focusedTests),
+      this.phaseReport('checkpoint-9-file-document-diff', fileDocumentDiff.phase, fileDocumentDiff.status, fileDocumentDiff.summary.targets, fileDocumentDiff.summary.blocked, fileDocumentDiff.summary.redactedReceipts, fileDocumentDiff.summary.stagingLiveSmokeCommands, fileDocumentDiff.commands.check, fileDocumentDiff.commands.focusedTests),
+      this.phaseReport('checkpoint-10-diagnostics-qa-migration', diagnosticsQaMigration.phase, diagnosticsQaMigration.status, diagnosticsQaMigration.summary.targets, diagnosticsQaMigration.summary.blocked, diagnosticsQaMigration.summary.redactedReceipts, diagnosticsQaMigration.summary.stagingLiveSmokeCommands, diagnosticsQaMigration.commands.check, diagnosticsQaMigration.commands.focusedTests),
+      this.phaseReport('checkpoint-11-satellite-device', satelliteDevice.phase, satelliteDevice.status, satelliteDevice.summary.targets, satelliteDevice.summary.blocked, satelliteDevice.summary.redactedReceipts, satelliteDevice.summary.stagingLiveSmokeCommands, satelliteDevice.commands.check, satelliteDevice.commands.focusedTests),
+      this.phaseReport('checkpoint-12-memory-artifacts-runtime', memoryArtifactsRuntime.phase, memoryArtifactsRuntime.status, memoryArtifactsRuntime.summary.targets, memoryArtifactsRuntime.summary.blocked, memoryArtifactsRuntime.summary.redactedReceipts, memoryArtifactsRuntime.summary.stagingLiveSmokeCommands, memoryArtifactsRuntime.commands.check, memoryArtifactsRuntime.commands.focusedTests),
     ];
 
     const disallowed = this.countDisallowed(readiness);
@@ -249,12 +249,12 @@ export class LiveParityCertificationService {
           && memoryArtifactsRuntime.summary.artifactsMarkedLiveWithoutReplay === false
           && memoryArtifactsRuntime.summary.runtimeMarkedLiveWithoutExecutionProfile === false
           && memoryArtifactsRuntime.summary.unsafeRuntimeBypassesApproval === false,
-        observed: `${memoryArtifactsRuntime.summary.targets} Phase 12 targets, ${memoryArtifactsRuntime.summary.rememberRecallForgetTargets} memory write/recall targets, ${memoryArtifactsRuntime.summary.artifactIndexReplayTargets} artifact replay targets`,
+        observed: `${memoryArtifactsRuntime.summary.targets} Intent model2 targets, ${memoryArtifactsRuntime.summary.rememberRecallForgetTargets} memory write/recall targets, ${memoryArtifactsRuntime.summary.artifactIndexReplayTargets} artifact replay targets`,
         required: 'memory writes/recalls/forgets, artifacts replay, runtime execution profile and approvals are proven',
         command: memoryArtifactsRuntime.commands.check,
         evidence: [
           `${memoryArtifactsRuntime.summary.approvalGateTargets} approval-gated runtime targets.`,
-          `${memoryArtifactsRuntime.summary.redactedReceipts} redacted Phase 12 receipts.`,
+          `${memoryArtifactsRuntime.summary.redactedReceipts} redacted Intent model2 receipts.`,
         ],
       }),
       this.evidence({
@@ -290,7 +290,7 @@ export class LiveParityCertificationService {
     return {
       generatedAt,
       contractVersion: ZAVORTH_LIVE_PARITY_CERTIFICATION_CONTRACT_VERSION,
-      phase: 'Phase 13 - Live Parity Certification',
+      phase: 'Intent model3 - Live Parity Certification',
       profile,
       status,
       claim: 'tracked-source-surface-live-parity-certified',

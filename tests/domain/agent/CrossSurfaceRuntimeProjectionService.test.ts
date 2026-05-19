@@ -16,7 +16,7 @@ describe('ZavorthCrossSurfaceRuntimeProjectionService', () => {
     });
 
     expect(snapshot.contractVersion).toBe(ZAVORTH_CROSS_SURFACE_RUNTIME_PROJECTION_CONTRACT_VERSION);
-    expect(snapshot.phase).toBe('phase-5-cross-surface-runtime-projection');
+    expect(snapshot.phase).toBe('checkpoint-5-cross-surface-runtime-projection');
     expect(snapshot.status).toBe('verification-required');
     expect(snapshot.safety).toMatchObject({
       noDashboardVisualMutation: true,

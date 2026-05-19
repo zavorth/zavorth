@@ -163,7 +163,7 @@ describe('CanonicalPublicApiService', () => {
         missionId: chat.mission.id,
       }),
       flow: expect.objectContaining({
-        phase: 'preview',
+        stage: 'preview',
         previewFirst: true,
         sourceOfTruth: 'runtime-api',
         receiptReady: true,

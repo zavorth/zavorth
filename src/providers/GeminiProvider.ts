@@ -265,7 +265,7 @@ export class GeminiProvider implements ILlmProvider {
             },
           ],
         });
-        // Phase 8: Se a tool response trouxer inlineData (screenshot/visão),
+        // Dashboard controls: Se a tool response trouxer inlineData (screenshot/visão),
         // emite como mensagem 'user' complementar imediatamente após para que
         // o Gemini enxergue a imagem no contexto.
         if (message.inlineData && message.inlineData.length > 0) {

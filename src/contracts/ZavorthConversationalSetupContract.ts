@@ -3,7 +3,7 @@ import type {
   ZavorthExperienceProfileId,
 } from './ZavorthExperienceProfileContract.js';
 
-export const ZAVORTH_CONVERSATIONAL_SETUP_CONTRACT_VERSION = '2026-05-15.experience-layer.phase-2' as const;
+export const ZAVORTH_CONVERSATIONAL_SETUP_CONTRACT_VERSION = '2026-05-15.experience-layer.checkpoint-2' as const;
 
 export type ZavorthConversationalSetupLanguage = 'en-US';
 

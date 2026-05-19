@@ -22,9 +22,9 @@ import { WebsitePublicContractService } from '../services/WebsitePublicContractS
 import { ZavorthProductizationContractService } from '../services/ZavorthProductizationContractService.js';
 import { ZavorthSandboxControlPlaneService } from '../services/ZavorthSandboxControlPlaneService.js';
 import {
-  buildCliPhase25CockpitSnapshot,
-  formatCliPhase25CockpitSnapshot,
-} from './ZavorthCliPhase25Cockpit.js';
+  buildCliOperationsCockpitSnapshot,
+  formatCliOperationsCockpitSnapshot,
+} from './ZavorthCliOperationsCockpit.js';
 import { formatZavorthProductizationContractSnapshot } from './ZavorthCliProductizationRenderer.js';
 import {
   formatRunObservatorySnapshot,
@@ -1270,7 +1270,7 @@ export async function handleZavorthCliRegistryOpsCommand(params: RegistryCommand
       writer.line(body);
       return { ok: execution.status === 'started', handled: true, output: [body], error: execution.note };
     }
-    const snapshot = await buildCliPhase25CockpitSnapshot(runtime, effectiveFlags);
+    const snapshot = await buildCliOperationsCockpitSnapshot(runtime, effectiveFlags);
     if (!snapshot) {
       const error = 'Cockpit operacional indisponivel neste runtime da CLI.';
       writer.error(error);
@@ -1278,7 +1278,7 @@ export async function handleZavorthCliRegistryOpsCommand(params: RegistryCommand
     }
     const body = effectiveFlags.json
       ? JSON.stringify(snapshot, null, 2)
-      : formatCliPhase25CockpitSnapshot(snapshot);
+      : formatCliOperationsCockpitSnapshot(snapshot);
 
     writer.line(body);
     return { ok: true, handled: true, output: [body], error: null };

@@ -30,7 +30,7 @@ if (!options.text) {
   if (options.json) {
     console.log(JSON.stringify(snapshot, null, 2));
   } else {
-    console.log('[transaction-sandbox-controlled-executor] Phase 13 controlled sandbox executor');
+    console.log('[transaction-sandbox-controlled-executor] Intent model3 controlled sandbox executor');
     console.log(`[transaction-sandbox-controlled-executor] version: ${snapshot.version}`);
     console.log(`[transaction-sandbox-controlled-executor] owner-phrase: ${snapshot.ownerPhrase}`);
   }

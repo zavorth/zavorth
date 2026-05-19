@@ -93,7 +93,7 @@ export function finalizeBotGatewayBootstrap(
       researchController: gateway.researchController,
       schedulerController: gateway.schedulerController,
     }),
-    // Phase 9: Modo Echo
+    // Certification matrix: Modo Echo
     echoPreferenceStore: gateway.zavorthBridgePreferenceStore,
   });
   gateway.priorityCommandService = new TelegramPriorityCommandService({

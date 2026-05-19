@@ -160,7 +160,7 @@ export type TelegramCommandRoutingServiceDeps = {
   naturalCapabilityRouter?: {
     dispatch: (ctx: Context, effectiveText: string, userId: string) => Promise<boolean>;
   } | null;
-  // Phase 9: Modo Echo
+  // Certification matrix: Modo Echo
   echoPreferenceStore?: {
     isEchoModeActive: () => Promise<boolean>;
     setEchoMode: (active: boolean) => Promise<any>;
@@ -380,7 +380,7 @@ export class TelegramCommandRoutingService {
           return true;
         }
         return false;
-      // Phase 9: Modo Echo — resposta por voz
+      // Certification matrix: Modo Echo — resposta por voz
       case '/echo':
         await this.handleEchoCommand(ctx, parsed.command_args);
         return true;
@@ -599,7 +599,7 @@ export class TelegramCommandRoutingService {
     ]).has(commandType);
   }
 
-  // Phase 9: Handler do Modo Echo
+  // Certification matrix: Handler do Modo Echo
   private async handleEchoCommand(ctx: Context, args: string): Promise<void> {
     const store = this.deps.echoPreferenceStore;
     if (!store) {

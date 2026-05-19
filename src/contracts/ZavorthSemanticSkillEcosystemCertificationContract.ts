@@ -141,6 +141,6 @@ export type ZavorthSemanticSkillEcosystemCertificationSnapshot = {
     inspectJson: 'npm run semantic-skill-ecosystem-certification:json --silent';
     check: 'npm run semantic-skill-ecosystem-certification:check --silent';
     qa: 'npm run qa:semantic-skill-ecosystem-certification --silent';
-    nextPhase: 'S9 - Full Functional Closure Semantics';
+    nextStage: 'S9 - Full Functional Closure Semantics';
   };
 };

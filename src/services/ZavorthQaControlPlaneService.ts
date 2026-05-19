@@ -240,7 +240,7 @@ export class ZavorthQaControlPlaneService {
       releaseGates,
       actions,
       narrative: {
-        headline: 'Wave 6: QA, budgets e release gates',
+        headline: 'QA release: QA, budgets e release gates',
         operatorSummary:
           `${summary.checks} check(s) lido(s), ${summary.healthy} healthy, ${summary.attention} attention, `
           + `${summary.critical} critical, ${summary.missing} missing e arquitetura ${architecture.gate.status} para o perfil ${profile}.`,
@@ -252,7 +252,7 @@ export class ZavorthQaControlPlaneService {
   public renderReport(input: ZavorthQaControlPlaneQuery = {}): string {
     const snapshot = this.buildSnapshot(input);
     const lines = [
-      'Wave 6: QA, budgets e release gates',
+      'QA release: QA, budgets e release gates',
       '',
       snapshot.narrative.operatorSummary,
       `Postura: ${snapshot.summary.posture}.`,

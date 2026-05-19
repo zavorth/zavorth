@@ -300,7 +300,7 @@ export class TelegramSchedulerController {
     execution: Awaited<ReturnType<ZavorthAutomationActionService['execute']>>,
   ): string {
     return [
-      'Wave F: Automations e scheduled runs',
+      'Scheduled runs: Automations e scheduled runs',
       '',
       execution.summary,
       ...execution.details.map((entry) => `- ${entry}`),

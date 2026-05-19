@@ -1,5 +1,5 @@
 export const ZAVORTH_LIVE_CERTIFICATION_MATRIX_CONTRACT_VERSION =
-  '2026-05-14.phase-13-live-certification-matrix' as const;
+  '2026-05-14.checkpoint-13-live-certification-matrix' as const;
 
 export type ZavorthLiveCertificationGateStatus = 'passed' | 'attention' | 'blocked';
 
@@ -89,6 +89,6 @@ export type ZavorthLiveCertificationMatrixSnapshot = {
     inspectJson: 'npm run zavorth:live-certification-matrix:json';
     check: 'npm run zavorth:live-certification-matrix:check --silent';
     dailyCertify: 'npm run daily:certify --silent';
-    nextPhase: 'Phase 14 - Documentation And Repo Final';
+    nextStage: 'Intent model4 - Documentation And Repo Final';
   };
 };

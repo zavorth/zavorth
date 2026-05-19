@@ -3,7 +3,7 @@ import type { IntegrationShowcasePartnerSurfaceSnapshot } from './IntegrationSho
 import type { ReleaseAdoptionReadinessSnapshot } from './ReleaseAdoptionReadinessService.js';
 import type { UniversalAgentRun } from './UniversalAgentRuntimeTypes.js';
 
-export const RELEASE_CANDIDATE_PRE_CANARY_GATE_CONTRACT_VERSION = '2026-05-04.wave-54' as const;
+export const RELEASE_CANDIDATE_PRE_CANARY_GATE_CONTRACT_VERSION = '2026-05-04.pre-canary' as const;
 export const RELEASE_CANDIDATE_PRE_CANARY_GATE_METADATA_KEY = 'releaseCandidatePreCanaryGate' as const;
 
 export type ReleaseCandidatePreCanaryGateStatus =
@@ -606,7 +606,7 @@ export class ReleaseCandidatePreCanaryGateService {
         source: 'ReleaseAdoptionReadinessService',
         command: 'zavorth release-adoption-readiness --json',
         detail: input.releaseAdoptionReady
-          ? 'Wave 53 permite adocao publica controlada e ainda impede canary.'
+          ? 'Release Adoption Readiness permite adocao publica controlada e ainda impede canary.'
           : 'Pre-canary depende de release/adoption ready com canStartCanary false.',
         critical: true,
       },
@@ -660,7 +660,7 @@ export class ReleaseCandidatePreCanaryGateService {
         status: statusLevel(!input.autopilot.globalRolloutEnabled && !input.autopilot.autoPromoteEnabled, true, input.blocked),
         source: 'ReleaseCandidatePreCanaryGateService',
         command: 'npm run qa:phase:59',
-        detail: 'Wave 54 so abre pre-canary gate; nao executa canary, deploy, global rollout ou promocao automatica.',
+        detail: 'Pre-Canary Gate so abre pre-canary gate; nao executa canary, deploy, global rollout ou promocao automatica.',
         critical: true,
       },
     ];

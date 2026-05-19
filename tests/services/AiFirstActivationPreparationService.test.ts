@@ -19,7 +19,7 @@ function createService(outputDir: string): AiFirstActivationPreparationService {
 }
 
 describe('AiFirstActivationPreparationService', () => {
-  it('writes a Phase 10 snapshot and returns ready-to-run activation commands', () => {
+  it('writes a Intent model0 snapshot and returns ready-to-run activation commands', () => {
     const dir = tempDir();
     try {
       const service = createService(dir);

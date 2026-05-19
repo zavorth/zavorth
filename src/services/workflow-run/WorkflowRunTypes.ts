@@ -182,7 +182,7 @@ export type WorkflowRunSnapshot = {
   operator_closed_at: string | null;
   operator_close_reason: string | null;
   operator_closed_by_surface: string | null;
-  stages: WorkflowRunStageSnapshot[];
+  phases: WorkflowRunStageSnapshot[];
   resume_stage: WorkflowRunResumeStageSnapshot | null;
   actionable_stages: WorkflowRunActionableStageSnapshot[];
   resume_prompt: string | null;

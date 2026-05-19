@@ -130,7 +130,7 @@ describe('ZavorthGovernanceControlPlaneService', () => {
       ...overrides,
     });
 
-  it('builds a healthy governance snapshot across all Wave 7 surfaces', () => {
+  it('builds a healthy governance snapshot across all Governance surfaces', () => {
     const service = createService();
 
     const snapshot = service.buildSnapshot({ limit: 12 });
@@ -152,7 +152,7 @@ describe('ZavorthGovernanceControlPlaneService', () => {
       'workspace',
     ]);
     expect(snapshot.actions.length).toBeGreaterThan(0);
-    expect(service.renderReport()).toContain('Wave 7: Tenancy, governance e policy');
+    expect(service.renderReport()).toContain('Governance: Tenancy, governance e policy');
   });
 
   it('promotes critical governance decisions when trust and tenant boundaries are unsafe', () => {

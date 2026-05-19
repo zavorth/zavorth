@@ -97,7 +97,7 @@ export type SandboxHostSmokeOptions = {
   includeMicrovm?: boolean;
 };
 
-const DEFAULT_FIRECRACKER_DOC = 'docs/29-firecracker-host-bootstrap.md';
+const DEFAULT_FIRECRACKER_DOC = 'docs/product-direction.md';
 
 export class SandboxHostReadinessService {
   private readonly platform: NodeJS.Platform;

@@ -2,7 +2,7 @@ import type { ZavorthCapabilityOsRouteDecision } from '../services/ZavorthCapabi
 import { IntentRouterV2, type IntentRouterV2Options } from '../orchestrator/IntentRouterV2.js';
 
 export type ExecutionGatewayV2FallbackPlan = {
-  phase: '26';
+  stage: '26';
   surface: 'execution-gateway-v2';
   generatedAt: string;
   input: string;
@@ -58,7 +58,7 @@ export class ExecutionGatewayV2 {
       : ['report'];
 
     return {
-      phase: '26',
+      stage: '26',
       surface: 'execution-gateway-v2',
       generatedAt: this.now().toISOString(),
       input: String(input || '').trim(),

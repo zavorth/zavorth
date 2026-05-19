@@ -228,10 +228,10 @@ export class ZavorthDashboardExperienceHomeService {
       surface: 'dashboard-experience-home',
       generatedAt: this.now().toISOString(),
       route: '/dashboard',
-      greeting: 'Hello, Operator.',
+      greeting: 'Zavorth is ready.',
       promise: 'Ask naturally. Zavorth will show risk, ask when needed and leave receipts behind.',
       simpleNavigation: {
-        headline: 'Inbox, Tasks, Approvals, Receipts and Connectors are the product home.',
+        headline: 'Chat, Overview, Channels, Approvals and Receipts are the product home.',
         areas: HOME_AREAS,
       },
       gettingStarted: {
@@ -266,7 +266,7 @@ export class ZavorthDashboardExperienceHomeService {
         'Dashboard Home is an experience layer over governed runtime contracts, not an execution shortcut.',
         'Mission starters are prompts and routes; sensitive work still becomes preview, approval, execution and receipt.',
         'Runtime questions use read-only projections by default.',
-        'The home page should feel simple first: Inbox, Tasks, Approvals, Receipts and Connectors before internal runtime names.',
+        'The home page should feel simple first: Chat, Overview, Channels, Approvals and Receipts before internal runtime names.',
         'Internal names and maintenance surfaces should stay behind advanced details unless the user asks for them.',
       ],
     };

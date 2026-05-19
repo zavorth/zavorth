@@ -355,7 +355,7 @@ export class ChannelMeshParityService {
   ): string[] {
     const findings: string[] = [];
     if (!gatewayStatus) {
-      findings.push('channel route generated from Phase 5 parity template');
+      findings.push('channel route generated from Credential vault parity template');
     }
     if (status === 'unsupported') {
       findings.push('channel needs product decision before adapter implementation');

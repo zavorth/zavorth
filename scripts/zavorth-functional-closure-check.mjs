@@ -8,8 +8,8 @@ const asJson = process.argv.includes('--json');
 
 const rules = [
   ruleFilesExist({
-    id: 'zavorth-functional-closure-phase-9-files',
-    label: 'Phase 9 files exist',
+    id: 'zavorth-functional-closure-checkpoint-9-files',
+    label: 'Certification matrix files exist',
     target: 'contract, dashboard, ledger updater, release gate, closure service, command, SDK export and tests are present',
     files: [
       'src/contracts/ZavorthFunctionalClosureContract.ts',
@@ -54,9 +54,9 @@ const rules = [
       'neverUpdateWithoutReceipt',
       'p0MustBeReceiptBacked',
       'releaseAllowed',
-      'phase-0-ledger-governance',
-      'phase-8-skill-ecosystem',
-      'phase-9-baseline-worker-chain',
+      'checkpoint-0-ledger-governance',
+      'checkpoint-8-skill-ecosystem',
+      'checkpoint-9-baseline-worker-chain',
     ],
   }),
   ruleContainsAll({
@@ -74,7 +74,7 @@ const rules = [
   }),
   ruleContainsAll({
     id: 'package-exposes-zavorth-functional-closure',
-    label: 'package exposes Phase 9 gates',
+    label: 'package exposes Certification matrix gates',
     target: 'operators can inspect, inspect JSON, run check and QA from package scripts',
     files: ['package.json'],
     needles: [
@@ -104,7 +104,7 @@ const snapshot = {
 if (asJson) {
   console.log(JSON.stringify(snapshot, null, 2));
 } else {
-  console.log('[zavorth-functional-closure] checking Phase 9');
+  console.log('[zavorth-functional-closure] checking Certification matrix');
   for (const rule of rules) {
     const marker = rule.status === 'passed' ? 'ok' : 'fail';
     console.log(`[zavorth-functional-closure] ${marker} ${rule.label}: ${rule.observed} | ${rule.target}`);
@@ -133,10 +133,10 @@ function runRuntimeRule() {
   if (result.status !== 0) {
     return {
       id: 'zavorth-functional-closure-runtime-receipt',
-      label: 'Runtime Phase 9 receipt passes',
+      label: 'Runtime Certification matrix receipt passes',
       status: 'failed',
       observed: `exit ${result.status ?? 'unknown'}`,
-      target: 'Phase 9 command emits a passing full functional closure snapshot',
+      target: 'Certification matrix command emits a passing full functional closure snapshot',
       details: compactDetails(result.error instanceof Error ? result.error.message : '', result.stderr, result.stdout),
     };
   }
@@ -156,10 +156,10 @@ function runRuntimeRule() {
       && receipt.releaseGate?.status === 'passed';
     return {
       id: 'zavorth-functional-closure-runtime-receipt',
-      label: 'Runtime Phase 9 receipt passes',
+      label: 'Runtime Certification matrix receipt passes',
       status: pass ? 'passed' : 'failed',
       observed: `status=${receipt.status}, items=${receipt.summary?.items}, releaseAllowed=${receipt.summary?.releaseAllowed}`,
-      target: 'Phase 9 command emits a passing full functional closure snapshot',
+      target: 'Certification matrix command emits a passing full functional closure snapshot',
       details: [
         `p0Items=${receipt.summary?.p0Items}`,
         `p1Items=${receipt.summary?.p1Items}`,
@@ -174,10 +174,10 @@ function runRuntimeRule() {
   } catch (error) {
     return {
       id: 'zavorth-functional-closure-runtime-receipt',
-      label: 'Runtime Phase 9 receipt passes',
+      label: 'Runtime Certification matrix receipt passes',
       status: 'failed',
       observed: 'invalid JSON receipt',
-      target: 'Phase 9 command emits a passing full functional closure snapshot',
+      target: 'Certification matrix command emits a passing full functional closure snapshot',
       details: [error instanceof Error ? error.message : String(error), ...compactDetails(result.stderr, result.stdout)],
     };
   }
@@ -201,7 +201,7 @@ function ruleContainsNoForbiddenNames() {
     label: 'No forbidden source branding outside reports',
     status: details.length > 0 ? 'failed' : 'passed',
     observed: details.length > 0 ? `${details.length} file(s) with forbidden source branding` : 'no forbidden source branding in code/scripts/tests/package',
-    target: 'new Phase 9 code and public surfaces use Zavorth-owned names only',
+    target: 'new Certification matrix code and public surfaces use Zavorth-owned names only',
     details,
   };
 }

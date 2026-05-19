@@ -81,7 +81,7 @@ describe('CodexExecutor', () => {
       task_id: 'task-2',
       executor: 'codex',
       workspace: 'C:/repo',
-      objective: 'Continuar a fase atual',
+      objective: 'Continuar a etapa atual',
       instructions: ['Verifique o estado atual'],
       allowed_paths: ['C:/repo'],
       blocked_paths: [],

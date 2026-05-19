@@ -8,7 +8,7 @@ const asJson = process.argv.includes('--json');
 const rules = [
   ruleFilesExist({
     id: 'safety-narrative-files',
-    label: 'Wave 31 files exist',
+    label: 'Safety Narrative files exist',
     target: 'Runtime, CLI, Command Center, tests and docs are present',
     files: [
       'src/runtime/agent/SafetyNarrativeService.ts',
@@ -27,7 +27,7 @@ const rules = [
     files: ['src/runtime/agent/SafetyNarrativeService.ts'],
     needles: [
       'SAFETY_NARRATIVE_CONTRACT_VERSION',
-      '2026-05-03.wave-31',
+      '2026-05-03.safety-narrative',
       'highRiskBlockPresent',
       'alternativesDoNotExecute',
       'naturalLanguageDoesNotBypassPolicy',
@@ -66,7 +66,7 @@ const rules = [
     needles: [
       'safety',
       'safety-narrative',
-      'Safety Narrative - Wave 31',
+      'Safety Narrative - Safety Narrative',
       'resolveSafetyNarrativeCliText',
       'zavorth safety "<pedido>" [--json]',
     ],
@@ -94,7 +94,7 @@ const rules = [
   }),
   ruleContainsAll({
     id: 'package-exposes-safety-narrative-gate',
-    label: 'package exposes Wave 31 gate',
+    label: 'package exposes Safety Narrative gate',
     target: 'local QA can run safety-narrative:check and qa:safety-narrative',
     files: ['package.json'],
     needles: [
@@ -120,7 +120,7 @@ const snapshot = {
 if (asJson) {
   console.log(JSON.stringify(snapshot, null, 2));
 } else {
-  console.log('[safety-narrative] checking Wave 31');
+  console.log('[safety-narrative] checking Safety Narrative');
   for (const rule of rules) {
     const marker = rule.status === 'passed' ? 'ok' : 'fail';
     console.log(`[safety-narrative] ${marker} ${rule.label}: ${rule.observed} | ${rule.target}`);

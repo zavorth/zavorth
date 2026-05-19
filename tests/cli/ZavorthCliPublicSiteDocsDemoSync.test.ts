@@ -20,7 +20,7 @@ function createFlags(json: boolean) {
   };
 }
 
-describe('Zavorth CLI Public Site Docs Demo Sync Wave 49', () => {
+describe('Zavorth CLI Public Site Docs Demo Sync Channel mesh9', () => {
   it('parses public-sync text after aliases', () => {
     expect(resolvePublicSiteDocsDemoSyncCliText('public-sync "alinhar docs"')).toBe('alinhar docs');
     expect(resolvePublicSiteDocsDemoSyncCliText('site-docs-demo latest')).toBe('');
@@ -47,7 +47,7 @@ describe('Zavorth CLI Public Site Docs Demo Sync Wave 49', () => {
     }));
     const payload = JSON.parse(writes[0] || '{}');
     expect(payload).toEqual(expect.objectContaining({
-      contractVersion: '2026-05-04.wave-49',
+      contractVersion: '2026-05-04.docs-demo',
       source: 'PublicSiteDocsDemoSyncService',
       status: 'synced-preview',
       sync: expect.objectContaining({
@@ -82,7 +82,7 @@ describe('Zavorth CLI Public Site Docs Demo Sync Wave 49', () => {
 
     const text = formatPublicSiteDocsDemoSyncSnapshot(snapshot);
 
-    expect(text).toContain('Public Site / Docs / Demo Sync - Wave 49');
+    expect(text).toContain('Public Site / Docs / Demo Sync - Channel mesh9');
     expect(text).toContain('build publico nao foi executado');
     expect(text).toContain('stable claim nao foi publicado');
     expect(text).toContain('Command Center: /control?runId=');

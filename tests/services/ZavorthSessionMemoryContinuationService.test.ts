@@ -4,16 +4,16 @@ import {
 } from '../../src/contracts/ZavorthSessionMemoryContinuationContract.js';
 import { ZavorthSessionMemoryContinuationService } from '../../src/services/ZavorthSessionMemoryContinuationService.js';
 
-describe('ZavorthSessionMemoryContinuationService Phase 6', () => {
-  it('publishes the session memory continuation snapshot after Phase 5 readiness', () => {
+describe('ZavorthSessionMemoryContinuationService Runtime gateway', () => {
+  it('publishes the session memory continuation snapshot after Credential vault readiness', () => {
     const snapshot = createService().buildSnapshot();
 
     expect(snapshot).toEqual(expect.objectContaining({
       generatedAt: '2026-05-11T22:00:00.000Z',
       contractVersion: ZAVORTH_SESSION_MEMORY_CONTINUATION_CONTRACT_VERSION,
       status: 'session-memory-continuation-ready',
-      planId: '291 - Plano Zavorth External Runtime Absorption',
-      phase: 'phase-6-sessions-memory-continuation',
+      planId: 'Zavorth External Runtime Integration',
+      stage: 'sessions-memory-continuation',
       previousChannelMessagingStatus: 'channel-messaging-bridge-ready',
     }));
     expect(snapshot.summary).toEqual(expect.objectContaining({
@@ -28,7 +28,7 @@ describe('ZavorthSessionMemoryContinuationService Phase 6', () => {
       hiddenMemoryAuthorityCreated: false,
       sourceRuntimeCodeExecuted: false,
     }));
-    expect(snapshot.commands.nextPhase).toBe('291 Phase 7 - Delegated Workers');
+    expect(snapshot.commands.nextStage).toBe('291 Surface controls - Delegated Workers');
   });
 
   it('bridges source session history without making the source canonical', () => {
@@ -173,7 +173,7 @@ describe('ZavorthSessionMemoryContinuationService Phase 6', () => {
         'no memory write',
         'ZavorthAgentGateway continuation',
       ]),
-      nextSafeAction: 'Proceed to 291 Phase 7 - Delegated Workers.',
+      nextSafeAction: 'Proceed to 291 Surface controls - Delegated Workers.',
     }));
     expect(snapshot.commandCenterProjection.cards.map((entry) => entry.id)).toEqual(expect.arrayContaining([
       'history',
@@ -186,12 +186,12 @@ describe('ZavorthSessionMemoryContinuationService Phase 6', () => {
     ]));
   });
 
-  it('blocks Phase 6 if Phase 5 channel messaging is not ready', () => {
+  it('blocks Runtime gateway if Credential vault channel messaging is not ready', () => {
     const snapshot = createService().buildSnapshot({ channelMessagingStatus: 'blocked' });
 
     expect(snapshot.status).toBe('blocked');
     expect(snapshot.previousChannelMessagingStatus).toBe('blocked');
-    expect(snapshot.acceptanceMatrix.find((entry) => entry.requirementId === 'phase-5-channels-and-messaging-ready')).toEqual(expect.objectContaining({
+    expect(snapshot.acceptanceMatrix.find((entry) => entry.requirementId === 'checkpoint-5-channels-and-messaging-ready')).toEqual(expect.objectContaining({
       status: 'failed',
     }));
   });
@@ -200,12 +200,12 @@ describe('ZavorthSessionMemoryContinuationService Phase 6', () => {
     const service = createService();
     const text = service.formatSnapshotText(service.buildSnapshot());
 
-    expect(text).toContain('Zavorth Session Memory Continuation - Phase 6');
+    expect(text).toContain('Zavorth Session Memory Continuation - Runtime gateway');
     expect(text).toContain('Status: session-memory-continuation-ready');
     expect(text).toContain('Filtered private/restricted/secret items: 3');
     expect(text).toContain('Memory writes performed: false');
     expect(text).toContain('Hidden memory authority created: false');
-    expect(text).toContain('Next: 291 Phase 7 - Delegated Workers');
+    expect(text).toContain('Next: 291 Surface controls - Delegated Workers');
   });
 });
 

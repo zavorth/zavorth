@@ -2,13 +2,13 @@ import { CapabilityNormalizationService } from '../../src/services/CapabilityNor
 import { NativeCapabilityClosureService } from '../../src/services/NativeCapabilityClosureService.js';
 import { ParityCertificationService } from '../../src/services/ParityCertificationService.js';
 
-describe('NativeCapabilityClosureService Phase 12', () => {
+describe('NativeCapabilityClosureService Intent model2', () => {
   it('closes formerly needs-review capability primitives with native contracts', () => {
     const snapshot = new NativeCapabilityClosureService({
       now: () => new Date('2026-05-04T22:00:00.000Z'),
     }).buildSnapshot();
 
-    expect(snapshot.contractVersion).toBe('2026-05-04.phase-12');
+    expect(snapshot.contractVersion).toBe('2026-05-04.checkpoint-12');
     expect(snapshot.status).toBe('closed');
     expect(snapshot.summary).toEqual(
       expect.objectContaining({
@@ -119,6 +119,6 @@ describe('NativeCapabilityClosureService Phase 12', () => {
         releaseReady: true,
       }),
     );
-    expect(certification.commands.nextPhase).toBe('Release certification profile hardening');
+    expect(certification.commands.nextStage).toBe('Release certification profile hardening');
   });
 });

@@ -46,7 +46,7 @@ describe('Zavorth CLI Ask Before Assumption Policy', () => {
     }));
     const payload = JSON.parse(writes[0] || '{}');
     expect(payload).toEqual(expect.objectContaining({
-      contractVersion: '2026-05-03.wave-42',
+      contractVersion: '2026-05-03.track-42',
       source: 'AskBeforeAssumptionPolicyService',
       status: 'blocked',
       summary: expect.objectContaining({
@@ -71,7 +71,7 @@ describe('Zavorth CLI Ask Before Assumption Policy', () => {
 
     const text = formatAskBeforeAssumptionPolicySnapshot(snapshot);
 
-    expect(text).toContain('Ask Before Assumption Policy - Wave 42');
+    expect(text).toContain('Ask Before Assumption Policy - Channel mesh2');
     expect(text).toContain('Perguntas');
     expect(text).toContain('nenhuma assuncao foi executada');
     expect(text).toContain('Command Center: /control?sector=config');

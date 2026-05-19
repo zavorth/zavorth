@@ -101,7 +101,7 @@ export class ProviderDoctorService {
       `Providers que pedem configuracao: ${this.formatProviderList(report.pendingConfigProviders)}`,
       `Providers que pedem probe local/runtime: ${this.formatProviderList(report.probeProviders)}`,
       '',
-      `Perfil recomendado para esta fase: ${report.recommendedProfile.profile.label}`,
+      `Perfil recomendado para esta etapa: ${report.recommendedProfile.profile.label}`,
       `Rota sugerida: ${this.formatPreferredOrder(report.recommendedProfile.profile)}`,
       `Estrategia atual aprendida: ${report.recommendedProfile.strategy.providerName}${report.recommendedProfile.strategy.modelName ? `/${report.recommendedProfile.strategy.modelName}` : ''}`,
       '',

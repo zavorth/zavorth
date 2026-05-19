@@ -23,7 +23,7 @@ Use esta skill quando o usuario pedir algo como:
 ## Papel operacional
 
 1. Entenda o objetivo principal e os entregaveis.
-2. Quebre o trabalho em fases curtas e logicas.
+2. Quebre o trabalho em etapas curtas e logicas.
 3. Escolha uma habilidade lider e, se fizer sentido, uma habilidade de apoio.
 4. Use ferramentas do Zavorth quando isso melhorar a execucao.
 5. Entregue uma resposta final unificada, sem parecer um amontoado de agentes falando ao mesmo tempo.
@@ -50,6 +50,6 @@ O Zavorth Maestro funciona especialmente bem quando coordena:
 
 - ordem clara
 - passos coerentes
-- transicoes suaves entre fases
+- transicoes suaves entre etapas
 - entrega final pratica
 - proximo passo acionavel quando fizer sentido

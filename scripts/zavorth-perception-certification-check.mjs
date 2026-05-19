@@ -22,7 +22,7 @@ const snapshot = {
 if (asJson) {
   console.log(JSON.stringify(snapshot, null, 2));
 } else {
-  console.log('[zavorth-perception-certification] checking Phase 6');
+  console.log('[zavorth-perception-certification] checking Runtime gateway');
   printRules(rules, '[zavorth-perception-certification]');
 }
 if (failed.length > 0) process.exitCode = 1;
@@ -37,7 +37,7 @@ function ruleFilesExist() {
     'docs/README.md',
   ];
   const missing = files.filter((file) => !fs.existsSync(path.join(root, file)));
-  return rule('perception-certification-files', 'Perception certification files exist', missing.length === 0, `${files.length - missing.length}/${files.length}`, 'all Phase 6 files present', missing);
+  return rule('perception-certification-files', 'Perception certification files exist', missing.length === 0, `${files.length - missing.length}/${files.length}`, 'all Runtime gateway files present', missing);
 }
 
 function ruleMarkers() {
@@ -94,7 +94,7 @@ function runTextFixture() {
   const result = runTs('scripts/zavorth-perception-certification.ts', []);
   const output = `${result.stdout}\n${result.stderr}`;
   const passed = result.status === 0
-    && output.includes('Zavorth Perception Cross-Surface Certification - Phase 6')
+    && output.includes('Zavorth Perception Cross-Surface Certification - Runtime gateway')
     && output.includes('/vision status')
     && output.includes('/computer approve <plan>')
     && output.includes('/device screenshot');
@@ -114,7 +114,7 @@ function jsonRule(id, label, result, expect) {
   try {
     const parsed = JSON.parse(result.stdout);
     const passed = expect(parsed);
-    return rule(id, label, passed, `status=${parsed.status}; matrix=${parsed.certificationMatrix?.length ?? 0}`, 'expected Phase 6 certification behavior', passed ? [] : [JSON.stringify(parsed, null, 2)]);
+    return rule(id, label, passed, `status=${parsed.status}; matrix=${parsed.certificationMatrix?.length ?? 0}`, 'expected Runtime gateway certification behavior', passed ? [] : [JSON.stringify(parsed, null, 2)]);
   } catch (error) {
     return rule(id, label, false, 'invalid JSON', 'valid JSON fixture', [String(error), ...compact(result.stderr, result.stdout)]);
   }

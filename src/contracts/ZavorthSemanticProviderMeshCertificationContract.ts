@@ -115,6 +115,6 @@ export type ZavorthSemanticProviderMeshCertificationSnapshot = {
     inspectJson: 'npm run semantic-provider-mesh-certification:json --silent';
     check: 'npm run semantic-provider-mesh-certification:check --silent';
     qa: 'npm run qa:semantic-provider-mesh-certification --silent';
-    nextPhase: 'S4 - Channel Mesh Semantics';
+    nextStage: 'S4 - Channel Mesh Semantics';
   };
 };

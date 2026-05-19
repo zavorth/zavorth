@@ -233,7 +233,7 @@ describe('AiFirstHistoricalReplayGateService', () => {
   it('rejects promotion on source invariant violations or secret-like historical input', () => {
     const service = createGateService();
     const snapshot = service.buildGate({
-      gateName: 'secret sk-phase9secret123456',
+      gateName: 'secret SECRET=FAKE_CERTIFICATION_MATRIX_123456',
       ledgers: [
         ledger('baseline', [
           { requestId: 'request-web', selectedPath: 'ai-first-canary' },
@@ -243,7 +243,7 @@ describe('AiFirstHistoricalReplayGateService', () => {
           { requestId: 'request-web', selectedPath: 'ai-first-canary' },
           { requestId: 'request-cli', selectedPath: 'current-runtime', fallbackReason: 'surface-not-enabled' },
         ], {
-          ledgerName: 'latest sk-phase9secret123456',
+          ledgerName: 'latest SECRET=FAKE_CERTIFICATION_MATRIX_123456',
           sourceViolations: ['request-web:canExecuteNow'],
         }),
       ],
@@ -255,7 +255,7 @@ describe('AiFirstHistoricalReplayGateService', () => {
       'source-invariant-violation',
       'secret-leak',
     ]));
-    expect(JSON.stringify(snapshot)).not.toContain('sk-phase9secret123456');
+    expect(JSON.stringify(snapshot)).not.toContain('SECRET=FAKE_CERTIFICATION_MATRIX_123456');
     expect(JSON.stringify(snapshot)).toContain('[redacted-secret]');
   });
 

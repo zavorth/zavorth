@@ -95,7 +95,7 @@ function createRun(): UniversalAgentRun {
   };
 }
 
-describe('Command Center Provider Arena Wave 34', () => {
+describe('Command Center Provider Arena Provider Arena', () => {
   it('projects providerArena metadata into the dashboard view model', () => {
     const run = createRun();
     run.metadata.providerArena = new ProviderArenaService().buildSnapshot({
@@ -116,7 +116,7 @@ describe('Command Center Provider Arena Wave 34', () => {
     });
 
     expect(viewModel.providerArena).toEqual(expect.objectContaining({
-      contractVersion: '2026-05-03.wave-34',
+      contractVersion: '2026-05-03.provider-arena',
       summary: expect.objectContaining({
         hasProviderEvidence: true,
         decisionSource: 'learned',
@@ -186,7 +186,7 @@ describe('Command Center Provider Arena Wave 34', () => {
     );
 
     expect(projection.providerArena).toEqual(expect.objectContaining({
-      contractVersion: '2026-05-03.wave-34',
+      contractVersion: '2026-05-03.provider-arena',
       summary: expect.objectContaining({
         routeObserved: true,
         budgetObserved: true,

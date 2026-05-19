@@ -41,7 +41,7 @@ const completeSatelliteJs = [
   'localStorage',
 ].join('\n');
 
-describe('SatelliteAppParityService Phase 6', () => {
+describe('SatelliteAppParityService Runtime gateway', () => {
   it('builds Satellite/App parity from the current PWA without live devices', () => {
     const service = new SatelliteAppParityService({
       now: () => new Date('2026-05-04T16:00:00.000Z'),
@@ -49,7 +49,7 @@ describe('SatelliteAppParityService Phase 6', () => {
 
     const snapshot = service.buildSnapshot();
 
-    expect(snapshot.contractVersion).toBe('2026-05-04.phase-6');
+    expect(snapshot.contractVersion).toBe('2026-05-04.checkpoint-6');
     expect(snapshot.summary).toEqual(
       expect.objectContaining({
         surfaces: 13,

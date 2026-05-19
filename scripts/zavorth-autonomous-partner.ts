@@ -214,7 +214,7 @@ async function main() {
   if (asJson) {
     await printJson(snapshot);
   } else {
-    console.log('[partner] leitura oficial da Fase 24');
+    console.log('[partner] leitura oficial da Etapa 24');
     console.log(`[partner] postura=${snapshot.summary.posture} | missoes=${snapshot.summary.missions} | ativas=${snapshot.summary.activeMissions} | pausadas=${snapshot.summary.pausedMissions}`);
     console.log(`[partner] approvals=${snapshot.summary.pendingMissionApprovals} | coreIdle=${snapshot.summary.coreIdle ? 'sim' : 'nao'} | heavy=${snapshot.summary.heavyRuntimesStarted ? 'sim' : 'nao'}`);
     console.log(`[partner] resumo: ${snapshot.narrative.operatorSummary}`);

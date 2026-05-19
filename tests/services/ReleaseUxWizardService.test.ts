@@ -126,8 +126,8 @@ describe('ReleaseUxWizardService', () => {
 
     const report = await service.renderReport();
 
-    expect(report).toContain('Fase 44 - Release UX');
-    expect(report).toContain('proxima fase recomendada: 42 - Tenant/Team Ops');
+    expect(report).toContain('Etapa 44 - Release UX');
+    expect(report).toContain('proximo passo recomendada: 42 - Tenant/Team Ops');
   });
 });
 
@@ -154,7 +154,7 @@ function scriptCommandFixture(scriptName: string): string {
     'release:wizard': 'npx tsx scripts/release-ux-wizard.ts',
     'release:wizard:json': 'npx tsx scripts/release-ux-wizard.ts --json',
     'qa:release-ux': 'npx tsx scripts/release-ux-wizard.ts --require-pass',
-    'qa:phase:44': 'node scripts/phases-39-45-check.mjs --phase=44',
+    'qa:stage:44': 'node scripts/capability-suite-market-check.mjs --phase=44',
     'release:scan': 'npx tsx scripts/release-hygiene-scan.ts',
     'release:alpha': 'node scripts/release-train.mjs --profile=alpha',
     'release:beta': 'node scripts/release-train.mjs --profile=beta',
@@ -165,7 +165,7 @@ function scriptCommandFixture(scriptName: string): string {
 function releasePresenceFixture(overrides: Partial<ZavorthReleasePresenceSnapshot> = {}): ZavorthReleasePresenceSnapshot {
   const base: ZavorthReleasePresenceSnapshot = {
     generatedAt: '2026-04-24T17:00:00.000Z',
-    phase: '31',
+    stage: '31',
     surface: 'release-presence-control-plane',
     mode: 'status',
     status: 'ready',

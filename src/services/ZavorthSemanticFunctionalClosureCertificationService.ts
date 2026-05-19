@@ -222,7 +222,7 @@ export class ZavorthSemanticFunctionalClosureCertificationService {
       sourceStatus: item.status,
       risk: item.risk,
       expectedBehavior: `${item.label} is represented as a functional closure item with command, decision and receipts.`,
-      zavorthEquivalent: 'ZavorthFunctionalClosureItem in the Phase 9 machine-readable closure snapshot.',
+      zavorthEquivalent: 'ZavorthFunctionalClosureItem in the Certification matrix machine-readable closure snapshot.',
       evidence: [
         `phase=${item.phase}`,
         `category=${item.category}`,

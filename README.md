@@ -15,9 +15,9 @@
 
   <p>
     <a href="LICENSE"><img alt="License" src="https://img.shields.io/badge/license-proprietary-111827?style=for-the-badge"></a>
-    <a href="docs/05-security.md"><img alt="Security" src="https://img.shields.io/badge/security-governed-0f766e?style=for-the-badge"></a>
-    <a href="docs/36-runtime-readiness.md"><img alt="Readiness" src="https://img.shields.io/badge/readiness-operator--first-2563eb?style=for-the-badge"></a>
-    <a href="docs/34-zavorth-cli.md"><img alt="CLI" src="https://img.shields.io/badge/cli-premium-7c3aed?style=for-the-badge"></a>
+    <a href="docs/security.md"><img alt="Security" src="https://img.shields.io/badge/security-governed-0f766e?style=for-the-badge"></a>
+    <a href="docs/runtime-readiness.md"><img alt="Readiness" src="https://img.shields.io/badge/readiness-operator--first-2563eb?style=for-the-badge"></a>
+    <a href="docs/zavorth-cli.md"><img alt="CLI" src="https://img.shields.io/badge/cli-premium-7c3aed?style=for-the-badge"></a>
   </p>
 
   <p>
@@ -163,17 +163,17 @@ false readiness, and prevents accidental execution with missing credentials.
 ## Documentation
 
 - [Documentation index](docs/README.md)
-- [Quickstart](docs/02-quickstart.md)
-- [Architecture](docs/03-architecture.md)
-- [Security](docs/05-security.md)
-- [Telegram](docs/06-telegram.md)
-- [Web dashboard](docs/07-web.md)
-- [CLI guide](docs/34-zavorth-cli.md)
-- [Runtime readiness](docs/36-runtime-readiness.md)
-- [External agent onboarding](docs/37-external-agent-onboarding.md)
-- [External agent gateway](docs/38-external-agent-gateway.md)
-- [Capability mesh](docs/39-capability-mesh.md)
-- [Roadmap](docs/11-roadmap.md)
+- [Quickstart](docs/quickstart.md)
+- [Architecture](docs/architecture.md)
+- [Security](docs/security.md)
+- [Telegram](docs/telegram.md)
+- [Web dashboard](docs/web-dashboard.md)
+- [CLI guide](docs/zavorth-cli.md)
+- [Runtime readiness](docs/runtime-readiness.md)
+- [External agent onboarding](docs/external-agent-onboarding.md)
+- [External agent gateway](docs/external-agent-gateway.md)
+- [Capability mesh](docs/capability-mesh.md)
+- [Roadmap](docs/product-direction.md)
 
 ---
 

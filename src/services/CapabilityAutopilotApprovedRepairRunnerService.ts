@@ -107,7 +107,7 @@ export class CapabilityAutopilotApprovedRepairRunnerService {
       validationRequired: status === 'completed',
       resumeIntent: input.repairPlan.resumeIntent || null,
       metadata: {
-        phase: 'capability-autopilot-phase-61',
+        phase: 'capability-autopilot-checkpoint-61',
         requestedBy: input.requestedBy || null,
         permissionCount: permissions.length,
         stepCount: steps.length,
@@ -196,7 +196,7 @@ export class CapabilityAutopilotApprovedRepairRunnerService {
         startedAt,
         status: 'blocked',
         summary: `${input.step.title} sem executor configurado.`,
-        detail: 'A Fase 61 exige stepExecutor injetado para executar comandos reais.',
+        detail: 'A Etapa 61 exige stepExecutor injetado para executar comandos reais.',
       });
     }
 
@@ -303,7 +303,7 @@ export class CapabilityAutopilotApprovedRepairRunnerService {
       validationRequired: false,
       resumeIntent: input.repairPlan.resumeIntent || null,
       metadata: {
-        phase: 'capability-autopilot-phase-61',
+        phase: 'capability-autopilot-checkpoint-61',
         blockedReason: `permissionStatus=${input.permissionStatus}`,
         permissionCount: input.permissions.length,
       },

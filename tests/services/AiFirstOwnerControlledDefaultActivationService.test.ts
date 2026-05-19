@@ -75,7 +75,7 @@ function cleanSnapshot(input: Partial<AiFirstFinalActivationGateSnapshot> = {}):
 }
 
 describe('AiFirstOwnerControlledDefaultActivationService', () => {
-  it('plans activation from a clean Phase 10 snapshot without writing state', () => {
+  it('plans activation from a clean Intent model0 snapshot without writing state', () => {
     const dir = tempDir();
     try {
       const service = createService(dir);

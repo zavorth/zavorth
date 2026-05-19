@@ -104,7 +104,7 @@ async function main() {
     console.info = originalConsole.info;
     process.stdout.write(`${JSON.stringify(snapshot, null, 2)}\n`);
   } else {
-    console.log('[workspace-canvas] leitura oficial da Fase 22');
+    console.log('[workspace-canvas] leitura oficial da Workspace canvas');
     console.log(`[workspace-canvas] postura=${snapshot.summary.posture} | entities=${snapshot.summary.entities} | approvals=${snapshot.summary.pendingApprovals}/${snapshot.summary.approvals}`);
     console.log(`[workspace-canvas] locks=${snapshot.summary.locks} | attachments=${snapshot.summary.attachments} | diagrams=${snapshot.summary.diagrams}`);
     console.log(`[workspace-canvas] runtime pesado iniciado=${snapshot.summary.heavyRuntimesStarted ? 'yes' : 'no'}`);

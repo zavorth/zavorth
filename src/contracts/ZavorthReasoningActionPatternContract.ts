@@ -4,7 +4,7 @@ import type {
 } from './ZavorthAgentCapabilityAssimilationContract.js';
 
 export const ZAVORTH_REASONING_ACTION_PATTERN_CONTRACT_VERSION =
-  '2026-05-11.reasoning-action-pattern-phase-2' as const;
+  '2026-05-11.reasoning-action-pattern-checkpoint-2' as const;
 
 export type ZavorthReasoningActionPatternStatus =
   | 'ready'
@@ -93,7 +93,7 @@ export type ZavorthReasoningActionPatternReasoningBlock = {
 export type ZavorthReasoningActionPatternReceipt = {
   id: string;
   kind:
-    | 'phase-2-pattern-plan'
+    | 'checkpoint-2-pattern-plan'
     | 'policy-decision'
     | 'approval-request'
     | 'blocked-action'
@@ -108,7 +108,7 @@ export type ZavorthReasoningActionPatternSnapshot = {
   generatedAt: string;
   contractVersion: typeof ZAVORTH_REASONING_ACTION_PATTERN_CONTRACT_VERSION;
   source: 'ZavorthReasoningActionPatternService';
-  phase: 'phase-2-reasoning-action-patterns';
+  phase: 'checkpoint-2-reasoning-action-patterns';
   status: ZavorthReasoningActionPatternStatus;
   request: {
     surface: string;
@@ -158,7 +158,7 @@ export type ZavorthReasoningActionPatternSnapshot = {
     report: 'npx tsx scripts/zavorth-reasoning-action-patterns.ts --text "<request>"';
     json: 'npx tsx scripts/zavorth-reasoning-action-patterns.ts --json --text "<request>"';
     check: 'node scripts/zavorth-reasoning-action-patterns-check.mjs';
-    nextPhase: 'Phase 3 - Context Memory And Error Recovery Assimilation';
+    nextStage: 'Approval gate - Context Memory And Error Recovery Assimilation';
   };
   narrative: {
     headline: string;

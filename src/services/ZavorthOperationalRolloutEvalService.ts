@@ -73,7 +73,7 @@ export class ZavorthOperationalRolloutEvalService {
       generatedAt,
       contractVersion: ZAVORTH_OPERATIONAL_ROLLOUT_EVAL_CONTRACT_VERSION,
       source: 'ZavorthOperationalRolloutEvalService',
-      phase: 'phase-6-operational-rollout-eval',
+      phase: 'checkpoint-6-operational-rollout-eval',
       status,
       rolloutMode,
       strict,
@@ -98,7 +98,7 @@ export class ZavorthOperationalRolloutEvalService {
         report: 'npx tsx scripts/zavorth-operational-rollout-eval.ts',
         json: 'npx tsx scripts/zavorth-operational-rollout-eval.ts --json',
         check: 'node scripts/zavorth-operational-rollout-eval-check.mjs',
-        nextPhase: 'Phase 7 - UX Rollout Evidence And Live Canary Review',
+        nextStage: 'Surface controls - UX Rollout Evidence And Live Canary Review',
       },
       narrative: narrativeForStatus(status, rolloutMode, summary),
     };
@@ -106,7 +106,7 @@ export class ZavorthOperationalRolloutEvalService {
 
   public formatSnapshotText(snapshot: ZavorthOperationalRolloutEvalSnapshot): string {
     const lines = [
-      'Zavorth Operational Rollout And Continuous Eval - Phase 6',
+      'Zavorth Operational Rollout And Continuous Eval - Runtime gateway',
       '',
       `Status: ${snapshot.status}`,
       `Rollout mode: ${snapshot.rolloutMode}`,
@@ -119,7 +119,7 @@ export class ZavorthOperationalRolloutEvalService {
       'Surface coverage:',
       ...snapshot.surfaceCoverage.map((item) => `- ${item.surface}: pass=${item.passed}/${item.scenarios} warnings=${item.warnings} failures=${item.failures}`),
       '',
-      `Next: ${snapshot.commands.nextPhase}`,
+      `Next: ${snapshot.commands.nextStage}`,
     ];
     return lines.join('\n');
   }
@@ -485,31 +485,31 @@ function buildReceipts(
 ): ZavorthOperationalRolloutReceipt[] {
   return [
     {
-      id: 'phase-6-operational-eval',
-      kind: 'phase-6-operational-eval',
+      id: 'checkpoint-6-operational-eval',
+      kind: 'checkpoint-6-operational-eval',
       status: receiptStatus(status),
       summary: `${scenarioEvals.length} scenarios evaluated in projections-only mode.`,
     },
     {
-      id: 'phase-6-rollout-decision',
+      id: 'checkpoint-6-rollout-decision',
       kind: 'rollout-decision',
       status: receiptStatus(status),
       summary: `Recommended rollout mode: ${mode}.`,
     },
     {
-      id: 'phase-6-surface-coverage',
+      id: 'checkpoint-6-surface-coverage',
       kind: 'surface-coverage',
       status: surfaceCoverage.some((surface) => surface.failures > 0) ? 'blocked' : 'recorded',
       summary: `${surfaceCoverage.length} surfaces evaluated for parity, fallback and action coverage.`,
     },
     {
-      id: 'phase-6-visual-change-boundary',
+      id: 'checkpoint-6-visual-change-boundary',
       kind: 'visual-change-boundary',
       status: 'recorded',
       summary: 'No dashboard visual mutation is performed by operational eval.',
     },
     {
-      id: 'phase-6-continuous-eval-boundary',
+      id: 'checkpoint-6-continuous-eval-boundary',
       kind: 'continuous-eval-boundary',
       status: 'recorded',
       summary: 'Continuous eval snapshots are returned to caller and are not persisted by default.',
@@ -564,7 +564,7 @@ function scenarioEvalToSample(
       rawSecretsSerialized: false,
     },
     commandCenterProjection: {
-      projectionId: 'phase-6-sample',
+      projectionId: 'checkpoint-6-sample',
       title: 'Runtime projection sample',
       statusPill: scenarioEval.observedStatus,
       visualMutationApplied: false,

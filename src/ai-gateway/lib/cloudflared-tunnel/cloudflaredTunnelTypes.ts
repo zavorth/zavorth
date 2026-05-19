@@ -74,7 +74,7 @@ export type CloudflaredTunnelStatus = {
   publicUrl: string | null;
   apiUrl: string | null;
   targetUrl: string;
-  phase: TunnelPhase;
+  stage: TunnelPhase;
   lastError: string | null;
   logPath: string;
 };

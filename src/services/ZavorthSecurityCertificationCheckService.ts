@@ -78,7 +78,7 @@ const SECURITY_CONTROLS: SecurityControl[] = [
     evidenceKind: 'local-file',
     relativePath: 'src/services/ZavorthSecurityMeshService.ts',
     target: 'The local security mesh service is available as part of the release certification surface.',
-    notes: ['This advisory control ties Phase 7 to the Zavorth security runtime surface.'],
+    notes: ['This advisory control ties Surface controls to the Zavorth security runtime surface.'],
   },
 ];
 
@@ -118,7 +118,7 @@ export class ZavorthSecurityCertificationCheckService {
         : 'warn';
 
     return {
-      id: `zavorth.phase7.security.${control.controlId}.${this.now().getTime()}.receipt`,
+      id: `zavorth.surface-controls.security.${control.controlId}.${this.now().getTime()}.receipt`,
       familyId: 'security',
       checkId: control.controlId,
       controlId: control.controlId,

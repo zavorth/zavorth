@@ -199,7 +199,7 @@ export class UniversalSkillBridgeRuntimeService {
 
   public formatSnapshotText(snapshot: ZavorthUniversalSkillBridgeSnapshot): string {
     const lines = [
-      'Zavorth Universal Skill Bridge Runtime - Phase 3',
+      'Zavorth Universal Skill Bridge Runtime - Approval gate',
       `Status: ${snapshot.status}`,
       `Mode: ${snapshot.mode}`,
       `Skill: ${snapshot.skillName}`,
@@ -220,7 +220,7 @@ export class UniversalSkillBridgeRuntimeService {
       lines.push('', 'Prompt envelope:', snapshot.promptEnvelope.text);
     }
 
-    lines.push('', `Next: ${snapshot.commands.nextPhase}`);
+    lines.push('', `Next: ${snapshot.commands.nextStage}`);
     return lines.join('\n');
   }
 
@@ -321,7 +321,7 @@ export class UniversalSkillBridgeRuntimeService {
       reasons.push(input.trustDecision.reason || 'Skill negada pela trust policy.');
     }
     if (!imported && !input.allowLocalSkills) {
-      reasons.push('Fase 3 aceita somente skills importadas por padrao; use allowLocalSkills apenas em testes controlados.');
+      reasons.push('Etapa 3 aceita somente skills importadas por padrao; use allowLocalSkills apenas em testes controlados.');
     }
     if (input.contentScan.issues.some((issue) => issue.severity === 'error')) {
       reasons.push('Scanner de conteudo encontrou issue bloqueante dentro da skill.');
@@ -618,7 +618,7 @@ export class UniversalSkillBridgeRuntimeService {
         dryRun: 'npm run zavorth:universal-skill-bridge -- --skill <name>',
         live: 'npm run zavorth:universal-skill-bridge -- --skill <name> --live --approval-id <approval-id>',
         check: 'npm run zavorth:universal-skill-bridge:check --silent',
-        nextPhase: 'Phase 4 - Expansion Registry and Catalog Integration',
+        nextStage: 'Connector registry - Expansion Registry and Catalog Integration',
       },
     };
   }

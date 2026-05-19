@@ -19,7 +19,7 @@ const snapshot = { generatedAt: new Date().toISOString(), status: failed.length 
 
 if (asJson) console.log(JSON.stringify(snapshot, null, 2));
 else {
-  console.log('[zavorth-natural-invocation] checking Phase 5/7');
+  console.log('[zavorth-natural-invocation] checking Credential vault/7');
   printRules(rules, '[zavorth-natural-invocation]');
 }
 if (failed.length > 0) process.exitCode = 1;

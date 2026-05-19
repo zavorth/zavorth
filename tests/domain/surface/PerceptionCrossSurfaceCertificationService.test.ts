@@ -7,7 +7,7 @@ import {
 
 function createIdFactory() {
   let index = 0;
-  return (prefix: string) => `${prefix}-perception-phase6-${++index}`;
+  return (prefix: string) => `${prefix}-perception-runtime-gateway-${++index}`;
 }
 
 describe('ZavorthPerceptionCrossSurfaceCertificationService', () => {
@@ -61,7 +61,7 @@ describe('ZavorthPerceptionCrossSurfaceCertificationService', () => {
     const result = await gateway.handle({
       userId: 'owner',
       channel: 'web',
-      sessionId: 'session-perception-phase6',
+      sessionId: 'session-perception-runtime-gateway',
       text: 'mostre a projecao de percepcao',
       requestedTools: [],
       metadata: {

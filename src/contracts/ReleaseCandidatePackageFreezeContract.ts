@@ -1,7 +1,7 @@
 import type { ParityCertificationGateStatus } from './ParityCertificationContract.js';
 import type { PublicLaunchSmokeEvidenceLedgerSnapshot } from './PublicLaunchSmokeEvidenceLedgerContract.js';
 
-export const ZAVORTH_RELEASE_CANDIDATE_PACKAGE_FREEZE_CONTRACT_VERSION = '2026-05-04.phase-16';
+export const ZAVORTH_RELEASE_CANDIDATE_PACKAGE_FREEZE_CONTRACT_VERSION = '2026-05-04.checkpoint-16';
 export const ZAVORTH_RELEASE_CANDIDATE_PACKAGE_NAME = 'zavorth';
 export const ZAVORTH_RELEASE_CANDIDATE_PACKAGE_VERSION = '1.1.0';
 export const ZAVORTH_RELEASE_CANDIDATE_FREEZE_ID = 'zavorth@1.1.0-rc.1';
@@ -121,7 +121,7 @@ export type ReleaseCandidatePackageFreezeSnapshot = {
     smokeLedger: string;
     releasePath: string;
     focusedTests: string[];
-    nextPhase: 'Release candidate distribution rehearsal';
+    nextStage: 'Release candidate distribution rehearsal';
   };
   policy: {
     freezeOnly: true;

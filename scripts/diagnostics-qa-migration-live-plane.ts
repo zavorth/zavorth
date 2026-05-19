@@ -44,7 +44,7 @@ async function main(): Promise<void> {
     status: profile === 'staging-live' && !confirmLiveIo ? 'blocked-until-confirmed' : 'ready-for-operator',
     reason: profile === 'staging-live' && !confirmLiveIo
       ? 'staging-live diagnostics/QA/migration requires --confirm-live-io and explicit source paths for migration.'
-      : 'Phase 10 exposes real diagnostics metrics, QA smoke matrix and migration import artifacts.',
+      : 'Intent model0 exposes real diagnostics metrics, QA smoke matrix and migration import artifacts.',
     entries: selected.map((entry) => ({
       targetId: entry.targetId,
       status: entry.status,

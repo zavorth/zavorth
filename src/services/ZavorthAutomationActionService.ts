@@ -351,13 +351,13 @@ export class ZavorthAutomationActionService {
         details.push(...lifecycle.details);
       }
     } else if (input.actionId === 'maintenance-on') {
-      maintenanceStatus = maintenance.enable(requestedBy, 'Wave F: manutencao recorrente habilitada pelo control plane.');
+      maintenanceStatus = maintenance.enable(requestedBy, 'Scheduled runs: manutencao recorrente habilitada pelo control plane.');
       summary = 'Manutencao recorrente habilitada.';
     } else if (input.actionId === 'maintenance-off') {
-      maintenanceStatus = maintenance.disable(requestedBy, 'Wave F: manutencao recorrente desabilitada pelo control plane.');
+      maintenanceStatus = maintenance.disable(requestedBy, 'Scheduled runs: manutencao recorrente desabilitada pelo control plane.');
       summary = 'Manutencao recorrente desabilitada.';
     } else if (input.actionId === 'maintenance-run') {
-      maintenanceStatus = maintenance.triggerNow(requestedBy, 'Wave F: disparo manual de manutencao recorrente.');
+      maintenanceStatus = maintenance.triggerNow(requestedBy, 'Scheduled runs: disparo manual de manutencao recorrente.');
       summary = 'Manutencao recorrente disparada.';
     }
 

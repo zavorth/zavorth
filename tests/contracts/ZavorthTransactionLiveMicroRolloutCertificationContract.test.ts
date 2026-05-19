@@ -5,7 +5,7 @@ import {
 } from '../../src/contracts/ZavorthTransactionLiveMicroRolloutCertificationContract.js';
 
 describe('ZavorthTransactionLiveMicroRolloutCertificationContract', () => {
-  it('publishes the combined Phase 14-15 contract', () => {
+  it('publishes the combined Intent model4-15 contract', () => {
     const snapshot = buildZavorthTransactionLiveMicroRolloutCertificationContractSnapshot();
 
     expect(snapshot.version).toBe(ZAVORTH_TRANSACTION_LIVE_MICRO_ROLLOUT_CERTIFICATION_CONTRACT_VERSION);
@@ -36,7 +36,7 @@ describe('ZavorthTransactionLiveMicroRolloutCertificationContract', () => {
 
     expect(snapshot.invariants).toEqual(
       expect.arrayContaining([
-        'Phase 14-15 defines a live micro-rollout ladder but does not execute a live microtransaction.',
+        'Intent model4-15 defines a live micro-rollout ladder but does not execute a live microtransaction.',
         'Micro-rollout certification requires a dedicated owner phrase separate from earlier transaction phrases.',
         'A micro-rollout-certified packet still reports liveMicroRolloutAuthorized=false, liveExecutionAuthorized=false and liveActionApplied=false.',
       ]),

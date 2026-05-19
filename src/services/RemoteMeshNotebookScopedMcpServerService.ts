@@ -274,7 +274,7 @@ export class RemoteMeshNotebookScopedMcpServerService {
         serve: 'npm run remote-mesh:notebook:scoped-mcp-server:serve --silent',
         focusedTests: 'npx jest tests/services/RemoteMeshNotebookScopedMcpServerService.test.ts --runInBand',
         typecheck: 'npm run runtime:check --silent',
-        nextPhase: r10Enabled
+        nextStage: r10Enabled
           ? 'R11 - Mobile UX Integration'
           : r9Enabled
             ? 'R10 - Scoped Project File Reads'

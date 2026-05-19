@@ -15,14 +15,14 @@ const response = (payload: Record<string, unknown>, init: { status?: number } = 
     },
   });
 
-describe('ProviderLongTailActivationService Phase 5', () => {
-  it('closes Phase 5 long-tail activation gates without live IO', () => {
+describe('ProviderLongTailActivationService Credential vault', () => {
+  it('closes Credential vault long-tail activation gates without live IO', () => {
     const snapshot = new ProviderLongTailActivationService({
       now: () => new Date('2026-05-04T22:30:00.000Z'),
     }).buildSnapshot();
 
-    expect(snapshot.contractVersion).toBe('2026-05-04.live-phase-5');
-    expect(snapshot.phase).toBe('Phase 5 - Provider Runtime Activation Long Tail');
+    expect(snapshot.contractVersion).toBe('2026-05-04.live-checkpoint-5');
+    expect(snapshot.phase).toBe('Credential vault - Provider Runtime Activation Long Tail');
     expect(snapshot.status).toBe('closed');
     expect(snapshot.summary).toEqual(
       expect.objectContaining({
@@ -40,20 +40,20 @@ describe('ProviderLongTailActivationService Phase 5', () => {
         chatSmokeCommands: 28,
         embeddingSmokeCommands: 1,
         redactedReceipts: 29,
-        liveIoRequiredByPhase5Check: false,
+        liveIoRequiredByStage5Check: false,
         secretValuesSerialized: false,
       }),
     );
     expect(snapshot.policy).toEqual(
       expect.objectContaining({
-        noLiveIoDuringPhase5Check: true,
+        noLiveIoDuringStage5Check: true,
         namedManifestsRequiredForEveryLongTailProvider: true,
         providerFactoryRoutesMustResolveWithoutFallback: true,
         managedGatewaysRequireOperatorBaseUrl: true,
         noSecretsSerialized: true,
       }),
     );
-    expect(snapshot.commands.nextPhase).toBe('Phase 13 - Live Parity Certification');
+    expect(snapshot.commands.nextStage).toBe('Intent model3 - Live Parity Certification');
   });
 
   it('gives every long-tail provider config, doctor, smoke command and receipt', () => {

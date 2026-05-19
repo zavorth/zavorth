@@ -34,7 +34,7 @@ describe('ZavorthTransactionLiveExecutorGateService', () => {
       now: () => now,
     });
     credentialRef = credentialRefs.register({
-      label: 'Phase 16 exchange paper ref',
+      label: 'Intent model6 exchange paper ref',
       connectorKind: 'exchange',
       environment: 'paper',
       allowedActions: ['trade-order'],
@@ -52,7 +52,7 @@ describe('ZavorthTransactionLiveExecutorGateService', () => {
     fs.rmSync(tempDir, { recursive: true, force: true });
   });
 
-  it('requires Phase 14-15 micro-rollout certification first', () => {
+  it('requires Intent model4-15 micro-rollout certification first', () => {
     const result = service.prepare({
       ...baseReadyBeforeMicroRolloutCertification(),
       liveOperatorConfirmed: true,
@@ -91,7 +91,7 @@ describe('ZavorthTransactionLiveExecutorGateService', () => {
       ...microRolloutCertifiedInput(),
       liveOperatorConfirmed: true,
       liveOperatorIntent: ZAVORTH_TRANSACTION_LIVE_EXECUTOR_GATE_OWNER_PHRASE,
-      liveRunId: 'phase16-live-run',
+      liveRunId: 'intent-model6-live-run',
       useSafeLiveAdapterControls: true,
     });
 
@@ -182,24 +182,24 @@ describe('ZavorthTransactionLiveExecutorGateService', () => {
       useSafeDefaultControls: true,
       useSafeSandboxAdapter: true,
       killSwitch: {
-        id: 'phase16-kill-switch',
+        id: 'intent-model6-kill-switch',
         enabled: true,
         tested: true,
-        command: 'zavorth transaction disable-live --scope phase16',
+        command: 'zavorth transaction disable-live --scope intent-model6',
         ownerId: 'grey',
       },
       rollbackDrill: {
-        drillId: 'phase16-rollback-drill',
+        drillId: 'intent-model6-rollback-drill',
         performed: true,
         successful: true,
         summary: 'Replay and rollback completed against the simulated transaction ledger.',
-        replayCommand: 'npm run zavorth:transaction-live-candidate:json -- --replay phase10',
-        rollbackCommand: 'npm run zavorth:transaction-live-activation-review -- --rollback phase11',
-        artifacts: ['data/runtime/phase16-rollback-receipt.json'],
+        replayCommand: 'npm run zavorth:transaction-live-candidate:json -- --replay intent-model0',
+        rollbackCommand: 'npm run zavorth:transaction-live-activation-review -- --rollback intent-model1',
+        artifacts: ['data/runtime/intent-model6-rollback-receipt.json'],
       },
       sandboxExecutionConfirmed: true,
       sandboxExecutionIntent: ZAVORTH_TRANSACTION_SANDBOX_CONTROLLED_EXECUTOR_OWNER_PHRASE,
-      sandboxRunId: 'phase16-sandbox-run',
+      sandboxRunId: 'intent-model6-sandbox-run',
     };
   }
 
@@ -208,7 +208,7 @@ describe('ZavorthTransactionLiveExecutorGateService', () => {
       ...baseReadyBeforeMicroRolloutCertification(),
       microRolloutReviewConfirmed: true,
       microRolloutReviewIntent: ZAVORTH_TRANSACTION_LIVE_MICRO_ROLLOUT_CERTIFICATION_OWNER_PHRASE,
-      microRolloutReviewId: 'phase16-micro-rollout-review',
+      microRolloutReviewId: 'intent-model6-micro-rollout-review',
       useSafeMicroRolloutControls: true,
     };
   }

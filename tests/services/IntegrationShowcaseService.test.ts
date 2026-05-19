@@ -10,7 +10,7 @@ import {
 } from '../../src/contracts/IntegrationShowcaseContract';
 
 describe('IntegrationShowcaseService', () => {
-  it('builds an ok Phase 58 snapshot from integration showcase fixtures', () => {
+  it('builds an ok Credential vault8 snapshot from integration showcase fixtures', () => {
     const service = serviceFromFixture({}, { requireArtifacts: true });
 
     const snapshot = service.buildSnapshot();
@@ -25,8 +25,8 @@ describe('IntegrationShowcaseService', () => {
       'Vercel',
       'Figma',
     ]));
-    expect(snapshot.nextRecommendedPhase).toEqual(expect.objectContaining({
-      phase: '59',
+    expect(snapshot.nextRecommendedStage).toEqual(expect.objectContaining({
+      stage: '59',
       title: 'v1.x Release Train And LTS Policy',
     }));
   });
@@ -145,13 +145,13 @@ describe('IntegrationShowcaseService', () => {
 
   it('fails when next phase planning is removed from docs', () => {
     const service = serviceFromFixture({
-      'core:docs/76-public-adoption-architecture.md': docs76Source().replace(
-        'Fase 59 - v1.x Release Train And LTS Policy',
-        'Fase futura',
+      'core:docs/product-direction.md': docs76Source().replace(
+        'Readiness checkpoint 9 - v1.x Release Train And LTS Policy',
+        'Etapa futura',
       ),
-      'core:docs/11-roadmap.md': roadmapSource().replace(
-        'Fase 59 - v1.x Release Train And LTS Policy',
-        'Fase futura',
+      'core:docs/product-direction.md': roadmapSource().replace(
+        'Readiness checkpoint 9 - v1.x Release Train And LTS Policy',
+        'Etapa futura',
       ),
     }, { requireArtifacts: true });
 
@@ -171,8 +171,8 @@ describe('IntegrationShowcaseService', () => {
 
     const report = service.renderReport();
 
-    expect(report).toContain('Fase 58 - Integration Showcase And Partner Surface');
-    expect(report).toContain('proxima fase recomendada: 59 - v1.x Release Train And LTS Policy');
+    expect(report).toContain('Readiness checkpoint 8 - Integration Showcase And Partner Surface');
+    expect(report).toContain('proximo passo recomendada: 59 - v1.x Release Train And LTS Policy');
   });
 });
 
@@ -218,8 +218,8 @@ function filesFixture(): Record<string, string> {
     'core:package.json': JSON.stringify({
       scripts: coreScriptsFixture(),
     }, null, 2),
-    'core:docs/76-public-adoption-architecture.md': docs76Source(),
-    'core:docs/11-roadmap.md': roadmapSource(),
+    'core:docs/product-direction.md': docs76Source(),
+    'core:docs/product-direction.md': roadmapSource(),
     'website:package.json': JSON.stringify({
       scripts: websiteScriptsFixture(),
     }, null, 2),
@@ -288,7 +288,7 @@ function docsPageSource() {
 
 function docs76Source() {
   return [
-    'Fase 58 - Integration Showcase And Partner Surface',
+    'Readiness checkpoint 8 - Integration Showcase And Partner Surface',
     'integration showcase',
     'partner surface',
     'Slack',
@@ -299,27 +299,27 @@ function docs76Source() {
     'degradacao segura',
     'Trust Plane',
     'qa:integration-showcase',
-    'qa:phase:58',
-    'Fase 59 - v1.x Release Train And LTS Policy',
-    'qa:phase:59',
+    'qa:stage:58',
+    'Readiness checkpoint 9 - v1.x Release Train And LTS Policy',
+    'qa:stage:59',
   ].join('\n');
 }
 
 function roadmapSource() {
   return [
-    'Fase 58 - Integration Showcase And Partner Surface: implementada.',
+    'Readiness checkpoint 8 - Integration Showcase And Partner Surface: implementada.',
     'integration showcase partner surface Slack GitHub Vercel Figma fixture degradacao segura Trust Plane',
     'qa:integration-showcase',
-    'qa:phase:58',
-    'Fase 59 - v1.x Release Train And LTS Policy',
-    'qa:phase:59',
+    'qa:stage:58',
+    'Readiness checkpoint 9 - v1.x Release Train And LTS Policy',
+    'qa:stage:59',
   ].join('\n');
 }
 
 function smokeArtifact() {
   return {
     schemaVersion: '1.0.0',
-    phase: '58',
+    stage: '58',
     generatedAt: '2026-04-25T00:00:00.000Z',
     mode: 'fixture',
     ok: true,
@@ -340,7 +340,7 @@ function smokeArtifact() {
 function matrixArtifact() {
   return {
     schemaVersion: '1.0.0',
-    phase: '58',
+    stage: '58',
     generatedAt: '2026-04-25T00:00:00.000Z',
     ok: true,
     matrix: INTEGRATION_SHOWCASE_ITEMS.map((item) => ({
@@ -359,7 +359,7 @@ function matrixArtifact() {
 function partnerSurfaceArtifact() {
   return {
     schemaVersion: '1.0.0',
-    phase: '58',
+    stage: '58',
     generatedAt: '2026-04-25T00:00:00.000Z',
     ok: true,
     formalPartnersRegistered: 0,

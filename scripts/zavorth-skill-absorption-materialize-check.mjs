@@ -17,7 +17,7 @@ const snapshot = { generatedAt: new Date().toISOString(), status: failed.length 
 
 if (asJson) console.log(JSON.stringify(snapshot, null, 2));
 else {
-  console.log('[zavorth-skill-absorption-materialize] checking Phase 6/8');
+  console.log('[zavorth-skill-absorption-materialize] checking Runtime gateway/8');
   printRules(rules, '[zavorth-skill-absorption-materialize]');
 }
 if (failed.length > 0) process.exitCode = 1;

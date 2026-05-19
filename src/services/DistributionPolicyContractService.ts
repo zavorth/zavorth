@@ -103,7 +103,7 @@ export class DistributionPolicyContractService {
 
   public renderReport(snapshot: DistributionPolicyContractSnapshot = this.buildSnapshot()): string {
     const lines: string[] = [];
-    lines.push('[distribution-policy] Fase 50 - Editions, Plans And Distribution Policy');
+    lines.push('[distribution-policy] Readiness checkpoint 0 - Editions, Plans And Distribution Policy');
     lines.push(`status: ${snapshot.status}`);
     lines.push(`ok: ${snapshot.summary.ok ? 'yes' : 'no'} | pass=${snapshot.summary.passed} warn=${snapshot.summary.warnings} fail=${snapshot.summary.failed}`);
     lines.push(`website: ${snapshot.websiteRoot}`);
@@ -117,7 +117,7 @@ export class DistributionPolicyContractService {
       }
     }
     lines.push('');
-    lines.push(`proxima fase recomendada: ${snapshot.nextRecommendedPhase.phase} - ${snapshot.nextRecommendedPhase.title}`);
+    lines.push(`proximo passo recomendada: ${snapshot.nextRecommendedPhase.phase} - ${snapshot.nextRecommendedPhase.title}`);
     lines.push(snapshot.nextRecommendedPhase.reason);
     return lines.join('\n');
   }
@@ -161,7 +161,7 @@ export class DistributionPolicyContractService {
         `script canonico ${scriptName}`,
         command ? 'pass' : 'fail',
         command
-          ? `repo principal expoe "${scriptName}" para a Fase 50.`
+          ? `repo principal expoe "${scriptName}" para a Readiness checkpoint 0.`
           : `repo principal precisa expor "${scriptName}" no package.json.`,
         'package.json',
         [`script=${command || '<ausente>'}`],

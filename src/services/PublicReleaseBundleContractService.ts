@@ -102,7 +102,7 @@ export class PublicReleaseBundleContractService {
 
   public renderReport(snapshot: PublicReleaseBundleContractSnapshot = this.buildSnapshot()): string {
     const lines: string[] = [];
-    lines.push('[release-bundle] Fase 51 - Release Bundle And Installer Distribution');
+    lines.push('[release-bundle] Readiness checkpoint 1 - Release Bundle And Installer Distribution');
     lines.push(`status: ${snapshot.status}`);
     lines.push(`ok: ${snapshot.summary.ok ? 'yes' : 'no'} | pass=${snapshot.summary.passed} warn=${snapshot.summary.warnings} fail=${snapshot.summary.failed}`);
     lines.push(`website: ${snapshot.websiteRoot}`);
@@ -116,7 +116,7 @@ export class PublicReleaseBundleContractService {
       }
     }
     lines.push('');
-    lines.push(`proxima fase recomendada: ${snapshot.nextRecommendedPhase.phase} - ${snapshot.nextRecommendedPhase.title}`);
+    lines.push(`proximo passo recomendada: ${snapshot.nextRecommendedPhase.phase} - ${snapshot.nextRecommendedPhase.title}`);
     lines.push(snapshot.nextRecommendedPhase.reason);
     return lines.join('\n');
   }
@@ -160,7 +160,7 @@ export class PublicReleaseBundleContractService {
         `script canonico ${scriptName}`,
         command ? 'pass' : 'fail',
         command
-          ? `repo principal expoe "${scriptName}" para a Fase 51.`
+          ? `repo principal expoe "${scriptName}" para a Readiness checkpoint 1.`
           : `repo principal precisa expor "${scriptName}" no package.json.`,
         'package.json',
         [`script=${command || '<ausente>'}`],

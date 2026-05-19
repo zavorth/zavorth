@@ -77,7 +77,7 @@ function personalization(pending: boolean) {
   };
 }
 
-describe('ProductEntryRuntimeService Wave 47', () => {
+describe('ProductEntryRuntimeService Channel mesh7', () => {
   it('routes new users to the shared first-run state without side effects', () => {
     const run = createRun();
     run.metadata.productizationEvidence = {

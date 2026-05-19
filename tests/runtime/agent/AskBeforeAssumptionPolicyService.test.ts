@@ -4,7 +4,7 @@ import {
   AskBeforeAssumptionPolicyService,
 } from '../../../src/runtime/agent/index.js';
 
-describe('AskBeforeAssumptionPolicyService Wave 42', () => {
+describe('AskBeforeAssumptionPolicyService Channel mesh2', () => {
   it('turns ambiguous mutable requests into blocking questions without executing assumptions', () => {
     const run = new AgentRunService({
       now: () => new Date('2026-05-04T00:42:00.000Z'),

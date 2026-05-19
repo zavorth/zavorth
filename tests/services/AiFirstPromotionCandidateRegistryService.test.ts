@@ -109,7 +109,7 @@ describe('AiFirstPromotionCandidateRegistryService', () => {
       defaultEnabled: false,
       canExecuteNow: false,
       requiresManualActivation: true,
-      requiresPhase3Guardrail: true,
+      requiresStage3Guardrail: true,
       requiresBatchReceipt: true,
     }));
     expect(snapshot.recommendation.activateAutomatically).toBe(false);

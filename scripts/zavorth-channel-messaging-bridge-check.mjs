@@ -25,7 +25,7 @@ const snapshot = {
 if (asJson) {
   console.log(JSON.stringify(snapshot, null, 2));
 } else {
-  console.log('[zavorth-channel-messaging-bridge] checking Phase 5');
+  console.log('[zavorth-channel-messaging-bridge] checking Credential vault');
   for (const rule of rules) {
     const marker = rule.status === 'passed' ? 'ok' : 'fail';
     console.log(`[zavorth-channel-messaging-bridge] ${marker} ${rule.label}: ${rule.observed} | ${rule.target}`);
@@ -48,8 +48,8 @@ function ruleFilesExist() {
   ];
   const missing = files.filter((file) => !fs.existsSync(path.join(root, file)));
   return {
-    id: 'phase-5-files',
-    label: 'Phase 5 channel messaging files exist',
+    id: 'checkpoint-5-files',
+    label: 'Credential vault channel messaging files exist',
     status: missing.length === 0 ? 'passed' : 'failed',
     observed: `${files.length - missing.length}/${files.length} file(s) present`,
     target: 'contract, service, CLI, check, tests, docs and package scripts are present',
@@ -77,17 +77,17 @@ function ruleContainsMarkers() {
       'outbound-reply-exits-through-reply-pipeline',
     ]],
     ['docs/README.md', [
-      'phase-5-channels-and-messaging-ready',
-      '291 Phase 6 - Sessions, Memory, And Continuation',
+      'checkpoint-5-channels-and-messaging-ready',
+      '291 Runtime gateway - Sessions, Memory, And Continuation',
       'Zavorth Channel Messaging Bridge',
     ]],
     ['docs/README.md', [
-      'phase-5-channels-and-messaging-complete',
+      'checkpoint-5-channels-and-messaging-complete',
       'Zavorth Channel Messaging Bridge',
       'NormalizedInboundMessage',
       'ReplyPipeline',
       'ZavorthTrustPlane',
-      '291 Phase 6 - Sessions, Memory, And Continuation',
+      '291 Runtime gateway - Sessions, Memory, And Continuation',
     ]],
     ['package.json', [
       'zavorth:channel-messaging-bridge',
@@ -106,8 +106,8 @@ function ruleContainsMarkers() {
     }
   }
   return {
-    id: 'phase-5-markers',
-    label: 'Phase 5 channel messaging markers are present',
+    id: 'checkpoint-5-markers',
+    label: 'Credential vault channel messaging markers are present',
     status: missing.length === 0 ? 'passed' : 'failed',
     observed: missing.length === 0 ? 'all markers present' : `${missing.length} missing marker(s)`,
     target: 'channel descriptor, inbound normalization, reply pipeline, trust and credential markers are present',
@@ -127,7 +127,7 @@ function runChannelMessagingFixture() {
   });
   if (result.status !== 0) {
     return {
-      id: 'phase-5-channel-messaging-fixture',
+      id: 'checkpoint-5-channel-messaging-fixture',
       label: 'Channel messaging bridge fixture passes',
       status: 'failed',
       observed: `exit ${result.status}`,
@@ -152,7 +152,7 @@ function runChannelMessagingFixture() {
     && snapshot.safety?.noLiveOutboundSend === true
     && snapshot.safety?.noRawCredentialStorage === true;
   return {
-    id: 'phase-5-channel-messaging-fixture',
+    id: 'checkpoint-5-channel-messaging-fixture',
     label: 'Channel messaging bridge fixture passes',
     status: ok ? 'passed' : 'failed',
     observed: ok ? `${snapshot.status}, ${snapshot.summary.normalizedChannels} channel(s), ${snapshot.summary.replyPacketsBuilt} reply packet(s)` : 'invalid channel messaging snapshot',
@@ -178,11 +178,11 @@ function runChannelMessagingBlockedFixture() {
     && snapshot.status === 'blocked'
     && snapshot.previousCapabilityProviderStatus === 'blocked';
   return {
-    id: 'phase-5-blocked-fixture',
-    label: 'Channel messaging bridge blocks without Phase 4 readiness',
+    id: 'checkpoint-5-blocked-fixture',
+    label: 'Channel messaging bridge blocks without Connector registry readiness',
     status: ok ? 'passed' : 'failed',
     observed: ok ? `${snapshot.status}, capabilityProvider=${snapshot.previousCapabilityProviderStatus}` : `exit ${result.status}`,
-    target: 'Phase 5 cannot advance while Phase 4 capability providers are blocked',
+    target: 'Credential vault cannot advance while Connector registry capability providers are blocked',
     details: ok ? [] : [result.error?.message || result.stderr || result.stdout || 'no output'],
   };
 }

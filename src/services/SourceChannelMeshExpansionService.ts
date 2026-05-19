@@ -241,7 +241,7 @@ export class SourceChannelMeshExpansionService {
       policy: {
         noSourceSourceCopy: true,
         optionalPacksOnly: true,
-        noLiveIoDuringPhase4Check: true,
+        noLiveIoDuringStage4Check: true,
         stagingLiveRequiresExplicitOperatorCommand: true,
         secretRefOnlyChannelAuth: true,
         allowlistRequiredBeforeLiveSend: true,
@@ -254,14 +254,14 @@ export class SourceChannelMeshExpansionService {
         check: 'npm run source-channel-mesh-expansion:check --silent',
         qa: 'npm run qa:source-channel-mesh-expansion --silent',
         liveSmoke: 'npm run source-channel-mesh-expansion -- --channel <channel> --confirm-live-io',
-        nextPhase: 'Phase 5 - Memory, Document, Search And Terminal Pack',
+        nextStage: 'Credential vault - Memory, Document, Search And Terminal Pack',
       },
     };
   }
 
   public formatSnapshotText(snapshot = this.buildSnapshot()): string {
     const lines = [
-      'Zavorth Source Channel Mesh Expansion - Phase 4',
+      'Zavorth Source Channel Mesh Expansion - Connector registry',
       `Status: ${snapshot.status}`,
       `Contract: ${snapshot.contractVersion}`,
       `Channel packages tracked: ${snapshot.summary.packagesTracked}`,
@@ -279,7 +279,7 @@ export class SourceChannelMeshExpansionService {
     for (const pack of snapshot.packs) {
       lines.push(`- ${pack.channelId}: ${pack.status}, decision=${pack.decision}, configured=${pack.configured}`);
     }
-    lines.push(`Next: ${snapshot.commands.nextPhase}`);
+    lines.push(`Next: ${snapshot.commands.nextStage}`);
     return lines.join('\n');
   }
 

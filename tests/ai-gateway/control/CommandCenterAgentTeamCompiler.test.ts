@@ -11,7 +11,7 @@ function createIdFactory() {
   return (prefix: string) => `${prefix}-cc-agent-team-${++index}`;
 }
 
-describe('Command Center Agent Team Compiler Wave 40', () => {
+describe('Command Center Agent Team Compiler Channel mesh0', () => {
   it('projects agentTeamCompiler metadata into the dashboard view model', () => {
     const run = new AgentRunService({
       now: () => new Date('2026-05-04T00:40:00.000Z'),
@@ -46,7 +46,7 @@ describe('Command Center Agent Team Compiler Wave 40', () => {
     });
 
     expect(viewModel.agentTeamCompiler).toEqual(expect.objectContaining({
-      contractVersion: '2026-05-03.wave-40',
+      contractVersion: '2026-05-03.track-40',
       status: 'waiting-approval',
       summary: expect.objectContaining({
         roleCount: 3,
@@ -90,7 +90,7 @@ describe('Command Center Agent Team Compiler Wave 40', () => {
     );
 
     expect(projection.agentTeamCompiler).toEqual(expect.objectContaining({
-      contractVersion: '2026-05-03.wave-40',
+      contractVersion: '2026-05-03.track-40',
       summary: expect.objectContaining({
         roleCount: 2,
         approvalRequiredCount: 2,

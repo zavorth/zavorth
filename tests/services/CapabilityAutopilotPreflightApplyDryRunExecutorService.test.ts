@@ -89,7 +89,7 @@ function createSnapshot(hint: CapabilityPreflightHintResult): CapabilityAutopilo
   const payloads = surfaceService.buildPayloads(hint, ['cli', 'web', 'chat', 'telegram', 'api']);
 
   return {
-    phase: '68',
+    stage: '68',
     surface: 'capability-autopilot-preflight-entrypoint',
     generatedAt: FIXED_NOW.toISOString(),
     capabilityId: 'executor-gemini-cli',
@@ -104,8 +104,8 @@ function createSnapshot(hint: CapabilityPreflightHintResult): CapabilityAutopilo
     records: [],
     payloads,
     checks: [],
-    nextRecommendedPhase: {
-      phase: '69',
+    nextRecommendedStage: {
+      stage: '69',
       title: 'Preflight Action Handler Wiring',
       reason: 'Wire explicit actions.',
     },
@@ -179,11 +179,11 @@ describe('CapabilityAutopilotPreflightApplyDryRunExecutorService', () => {
       dryRunConfirmed: true,
       actorId: 'operator-1',
       dryRunReceiptId: 'dry-run-1',
-      reason: 'phase-74-test',
+      reason: 'checkpoint-74-test',
     });
 
     expect(dryRun).toMatchObject({
-      phase: '74',
+      stage: '74',
       status: 'ready',
       summary: {
         ok: true,
@@ -279,7 +279,7 @@ describe('CapabilityAutopilotPreflightApplyDryRunExecutorService', () => {
       sideEffectInvoked: false,
     });
     expect(apiResume?.evidence).toContain('targetShape=api-operation');
-    expect(service.renderReport(dryRun)).toContain('Fase 74 - Preflight Apply Dry-Run Executor');
-    expect(service.renderReport(dryRun)).toContain('proxima fase recomendada: 75 - Preflight Real Apply Approval Gate');
+    expect(service.renderReport(dryRun)).toContain('Etapa 74 - Preflight Apply Dry-Run Executor');
+    expect(service.renderReport(dryRun)).toContain('proximo passo recomendada: 75 - Preflight Real Apply Approval Gate');
   });
 });

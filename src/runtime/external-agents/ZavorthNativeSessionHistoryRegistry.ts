@@ -200,17 +200,17 @@ export type ZavorthNativeSessionHistoryRegistrySnapshot = {
     transportIntegrationLinkedSessionIds: string[];
   };
   sourceArtifactsConsumed: {
-    sqliteSessionStoreDryRunDesign: 'docs/167-wave-1-sqlite-session-store-dry-run-design.md';
-    sessionHistoryReadOnlyBridge: 'docs/172-wave-1-external-executor-session-history-read-only-bridge.md';
-    commandCenterAssimilation: 'docs/173-wave-1-command-center-live-assimilation.md';
-    nativeCapabilityRegistry: 'docs/185-wave-3-first-native-capability-registry-replacement-slice.md';
-    dashboardViewModelRegistry: 'docs/186-wave-3-dashboard-view-model-registry-native-slice.md';
-    integrationRegistry: 'docs/187-wave-3-provider-channel-transport-native-registry.md';
-    migrationStrategy: 'docs/162-wave-0-external-agent-config-state-migration-strategy.md';
-    readOnlyInventory: 'docs/163-wave-1-external-agent-config-state-read-only-inventory.md';
-    redactionSecretRefMapping: 'docs/164-wave-1-redaction-and-secretref-mapping.md';
-    dryRunMigrationPlan: 'docs/165-wave-1-dry-run-migration-plan.md';
-    rollbackRestoreRehearsal: 'docs/166-wave-1-rollback-restore-rehearsal.md';
+    sqliteSessionStoreDryRunDesign: 'docs/sqlite-session-store-dry-run-design.md';
+    sessionHistoryReadOnlyBridge: 'docs/external-executor-session-history-read-only-bridge.md';
+    commandCenterAssimilation: 'docs/command-center-live-assimilation.md';
+    nativeCapabilityRegistry: 'docs/first-native-capability-registry-replacement-slice.md';
+    dashboardViewModelRegistry: 'docs/dashboard-view-model-registry-native-slice.md';
+    integrationRegistry: 'docs/provider-channel-transport-native-registry.md';
+    migrationStrategy: 'docs/external-agent-config-state-migration-strategy.md';
+    readOnlyInventory: 'docs/external-agent-config-state-read-only-inventory.md';
+    redactionSecretRefMapping: 'docs/redaction-and-secretref-mapping.md';
+    dryRunMigrationPlan: 'docs/dry-run-migration-plan.md';
+    rollbackRestoreRehearsal: 'docs/rollback-restore-rehearsal.md';
   };
   runtimeExternalExecutorRequiredForSessionLookup: false;
   runtimeExternalExecutorRequiredForHistoryRender: false;
@@ -286,13 +286,13 @@ export type ZavorthNativeSessionHistoryRegistrySource = {
   dashboardRegistry: ZavorthNativeDashboardViewModelRegistry;
   nativeIntegrationRegistry: ZavorthNativeIntegrationRegistryNormalization;
   integrationRegistry: ZavorthNativeIntegrationRegistry;
-  sqliteSessionStoreDryRunDesignDoc: 'docs/167-wave-1-sqlite-session-store-dry-run-design.md';
+  sqliteSessionStoreDryRunDesignDoc: 'docs/sqlite-session-store-dry-run-design.md';
   migrationStrategyDocs: [
-    'docs/162-wave-0-external-agent-config-state-migration-strategy.md',
-    'docs/163-wave-1-external-agent-config-state-read-only-inventory.md',
-    'docs/164-wave-1-redaction-and-secretref-mapping.md',
-    'docs/165-wave-1-dry-run-migration-plan.md',
-    'docs/166-wave-1-rollback-restore-rehearsal.md',
+    'docs/external-agent-config-state-migration-strategy.md',
+    'docs/external-agent-config-state-read-only-inventory.md',
+    'docs/redaction-and-secretref-mapping.md',
+    'docs/dry-run-migration-plan.md',
+    'docs/rollback-restore-rehearsal.md',
   ];
   gatewayLiveCalledDuringLookup: false;
   sourceDbOpenedForWrite: false;
@@ -466,8 +466,8 @@ function threadRecord(
     rawThreadIdSerialized: false,
     provenance: provenance('session-history-read-only-bridge', [
       view.id,
-      'docs/172-wave-1-external-executor-session-history-read-only-bridge.md',
-      'docs/167-wave-1-sqlite-session-store-dry-run-design.md',
+      'docs/external-executor-session-history-read-only-bridge.md',
+      'docs/sqlite-session-store-dry-run-design.md',
     ]),
     readOnly: true,
     migrationAllowed: false,
@@ -504,7 +504,7 @@ function messageRecord(
     provenance: provenance('session-history-read-only-bridge', [
       message.id,
       sessionRecordId,
-      'docs/172-wave-1-external-executor-session-history-read-only-bridge.md',
+      'docs/external-executor-session-history-read-only-bridge.md',
     ]),
     readOnly: true,
     migrationAllowed: false,
@@ -545,8 +545,8 @@ function sessionRecord(
     provenance: provenance('session-history-read-only-bridge', [
       view.id,
       view.source.sourceEvidenceAlias,
-      'docs/172-wave-1-external-executor-session-history-read-only-bridge.md',
-      'docs/167-wave-1-sqlite-session-store-dry-run-design.md',
+      'docs/external-executor-session-history-read-only-bridge.md',
+      'docs/sqlite-session-store-dry-run-design.md',
     ]),
     readOnly: true,
     runtimeExternalExecutorRequiredForSessionLookup: false,
@@ -650,17 +650,17 @@ function buildSnapshot(
         .map((session) => session.id),
     },
     sourceArtifactsConsumed: {
-      sqliteSessionStoreDryRunDesign: 'docs/167-wave-1-sqlite-session-store-dry-run-design.md',
-      sessionHistoryReadOnlyBridge: 'docs/172-wave-1-external-executor-session-history-read-only-bridge.md',
-      commandCenterAssimilation: 'docs/173-wave-1-command-center-live-assimilation.md',
-      nativeCapabilityRegistry: 'docs/185-wave-3-first-native-capability-registry-replacement-slice.md',
-      dashboardViewModelRegistry: 'docs/186-wave-3-dashboard-view-model-registry-native-slice.md',
-      integrationRegistry: 'docs/187-wave-3-provider-channel-transport-native-registry.md',
-      migrationStrategy: 'docs/162-wave-0-external-agent-config-state-migration-strategy.md',
-      readOnlyInventory: 'docs/163-wave-1-external-agent-config-state-read-only-inventory.md',
-      redactionSecretRefMapping: 'docs/164-wave-1-redaction-and-secretref-mapping.md',
-      dryRunMigrationPlan: 'docs/165-wave-1-dry-run-migration-plan.md',
-      rollbackRestoreRehearsal: 'docs/166-wave-1-rollback-restore-rehearsal.md',
+      sqliteSessionStoreDryRunDesign: 'docs/sqlite-session-store-dry-run-design.md',
+      sessionHistoryReadOnlyBridge: 'docs/external-executor-session-history-read-only-bridge.md',
+      commandCenterAssimilation: 'docs/command-center-live-assimilation.md',
+      nativeCapabilityRegistry: 'docs/first-native-capability-registry-replacement-slice.md',
+      dashboardViewModelRegistry: 'docs/dashboard-view-model-registry-native-slice.md',
+      integrationRegistry: 'docs/provider-channel-transport-native-registry.md',
+      migrationStrategy: 'docs/external-agent-config-state-migration-strategy.md',
+      readOnlyInventory: 'docs/external-agent-config-state-read-only-inventory.md',
+      redactionSecretRefMapping: 'docs/redaction-and-secretref-mapping.md',
+      dryRunMigrationPlan: 'docs/dry-run-migration-plan.md',
+      rollbackRestoreRehearsal: 'docs/rollback-restore-rehearsal.md',
     },
     runtimeExternalExecutorRequiredForSessionLookup: false,
     runtimeExternalExecutorRequiredForHistoryRender: false,
@@ -967,13 +967,13 @@ export function createZavorthNativeSessionHistoryRegistryFixtureSource(): Zavort
     dashboardRegistry: createZavorthNativeDashboardViewModelRegistryFixture(),
     nativeIntegrationRegistry: normalizeZavorthNativeIntegrationRegistryFixture(),
     integrationRegistry: createZavorthNativeIntegrationRegistryFixture(),
-    sqliteSessionStoreDryRunDesignDoc: 'docs/167-wave-1-sqlite-session-store-dry-run-design.md',
+    sqliteSessionStoreDryRunDesignDoc: 'docs/sqlite-session-store-dry-run-design.md',
     migrationStrategyDocs: [
-      'docs/162-wave-0-external-agent-config-state-migration-strategy.md',
-      'docs/163-wave-1-external-agent-config-state-read-only-inventory.md',
-      'docs/164-wave-1-redaction-and-secretref-mapping.md',
-      'docs/165-wave-1-dry-run-migration-plan.md',
-      'docs/166-wave-1-rollback-restore-rehearsal.md',
+      'docs/external-agent-config-state-migration-strategy.md',
+      'docs/external-agent-config-state-read-only-inventory.md',
+      'docs/redaction-and-secretref-mapping.md',
+      'docs/dry-run-migration-plan.md',
+      'docs/rollback-restore-rehearsal.md',
     ],
     gatewayLiveCalledDuringLookup: false,
     sourceDbOpenedForWrite: false,

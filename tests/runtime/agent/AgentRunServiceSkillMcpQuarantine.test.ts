@@ -8,7 +8,7 @@ function createIdFactory() {
   return (prefix: string) => `${prefix}-skill-mcp-quarantine-${++index}`;
 }
 
-describe('AgentRunService Skill/MCP Quarantine Wave 33', () => {
+describe('AgentRunService Skill/MCP Quarantine Skill MCP Quarantine', () => {
   it('attaches skillMcpQuarantine and blocks quarantined imported tools', () => {
     const service = new AgentRunService({
       now: () => new Date('2026-05-03T23:42:00.000Z'),

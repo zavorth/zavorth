@@ -64,8 +64,8 @@ describe('AiFirstShadowRouterService', () => {
     expect(snapshot.summary.totalDivergences).toBe(0);
     expect(snapshot.recommendation.action).toBe('ready-for-shadow-batch');
     expect(snapshot.gates).toEqual(expect.arrayContaining([
-      expect.objectContaining({ id: 'phase-2-shadow-only', status: 'passed' }),
-      expect.objectContaining({ id: 'phase-2-current-runtime-preserved', status: 'passed' }),
+      expect.objectContaining({ id: 'checkpoint-2-shadow-only', status: 'passed' }),
+      expect.objectContaining({ id: 'checkpoint-2-current-runtime-preserved', status: 'passed' }),
     ]));
   });
 

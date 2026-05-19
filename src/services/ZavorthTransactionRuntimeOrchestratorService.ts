@@ -58,14 +58,14 @@ export class ZavorthTransactionRuntimeOrchestratorService {
       channel: input.channel ?? 'transaction-runtime',
       now,
     });
-    const stageReceipts: ZavorthTransactionRuntimeStageReceipt[] = [
+    const phaseReceipts: ZavorthTransactionRuntimeStageReceipt[] = [
       {
-        stage: 'intent',
+        phase: 'intent',
         status: preview.intent.kind,
         receiptIds: [preview.intent.intentId],
       },
       {
-        stage: 'preview',
+        phase: 'preview',
         status: preview.status,
         receiptIds: preview.receipts.map((receipt) => receipt.id),
       },
@@ -86,13 +86,13 @@ export class ZavorthTransactionRuntimeOrchestratorService {
         status: preview.status === 'needs-clarification' ? 'needs-clarification' : 'blocked',
         blockers,
         warnings,
-        stageReceipts,
+        phaseReceipts,
       });
     }
 
     previewEntry = this.approvalLedger.recordPreview(preview, 'system');
-    stageReceipts.push({
-      stage: 'approval-ledger',
+    phaseReceipts.push({
+      phase: 'approval-ledger',
       status: previewEntry.kind,
       receiptIds: [previewEntry.id],
     });
@@ -103,7 +103,7 @@ export class ZavorthTransactionRuntimeOrchestratorService {
           preview,
           decision: 'rejected',
           actor: 'owner',
-          reason: 'Rejected by Phase 6 runtime input.',
+          reason: 'Rejected by Runtime gateway runtime input.',
         });
         blockers.push('approval_rejected');
       } else if (input.approve === true) {
@@ -111,7 +111,7 @@ export class ZavorthTransactionRuntimeOrchestratorService {
           preview,
           decision: 'approved',
           actor: 'owner',
-          reason: 'Approved by Phase 6 runtime input for simulation only.',
+          reason: 'Approved by Runtime gateway runtime input for simulation only.',
         });
         if (approvalEntry.kind !== 'approval-granted') {
           blockers.push('approval_not_granted');
@@ -120,8 +120,8 @@ export class ZavorthTransactionRuntimeOrchestratorService {
         blockers.push('approval_required');
       }
       if (approvalEntry) {
-        stageReceipts.push({
-          stage: 'approval-ledger',
+        phaseReceipts.push({
+          phase: 'approval-ledger',
           status: approvalEntry.kind,
           receiptIds: [approvalEntry.id],
         });
@@ -140,8 +140,8 @@ export class ZavorthTransactionRuntimeOrchestratorService {
         actionKind: preview.intent.actionKind,
         now,
       });
-      stageReceipts.push({
-        stage: 'credential-validation',
+      phaseReceipts.push({
+        phase: 'credential-validation',
         status: credentialValidation.status,
         receiptIds: credentialValidation.receipts,
       });
@@ -151,8 +151,8 @@ export class ZavorthTransactionRuntimeOrchestratorService {
       warnings.push(...credentialValidation.warnings);
     } else if (credentialRequired) {
       blockers.push('credential_ref_required');
-      stageReceipts.push({
-        stage: 'credential-validation',
+      phaseReceipts.push({
+        phase: 'credential-validation',
         status: 'missing',
         receiptIds: ['transaction-runtime-credential-ref-required'],
       });
@@ -170,7 +170,7 @@ export class ZavorthTransactionRuntimeOrchestratorService {
         status: resolveBlockedStatus(blockers),
         blockers,
         warnings,
-        stageReceipts,
+        phaseReceipts,
       });
     }
 
@@ -182,8 +182,8 @@ export class ZavorthTransactionRuntimeOrchestratorService {
       credentialRef: credentialValidation?.canUseForConnectorRun ? credentialValidation.ref : input.credentialRef ?? null,
       now,
     });
-    stageReceipts.push({
-      stage: 'typed-connector',
+    phaseReceipts.push({
+      phase: 'typed-connector',
       status: connectorRun.status,
       receiptIds: connectorRun.receipts,
     });
@@ -204,13 +204,13 @@ export class ZavorthTransactionRuntimeOrchestratorService {
       status: connectorRun.status === 'simulated' ? 'simulated' : 'blocked',
       blockers,
       warnings,
-      stageReceipts,
+      phaseReceipts,
     });
   }
 
   public renderReport(result: ZavorthTransactionRuntimeRunResult): string {
     return [
-      '[transaction-runtime] Phase 6 transaction runtime',
+      '[transaction-runtime] Runtime gateway transaction runtime',
       `[transaction-runtime] status: ${result.status}`,
       `[transaction-runtime] mode: ${result.mode}`,
       `[transaction-runtime] action: ${result.preview.intent.actionKind}`,
@@ -241,7 +241,7 @@ export class ZavorthTransactionRuntimeOrchestratorService {
     status: ZavorthTransactionRuntimeStatus;
     blockers: string[];
     warnings: string[];
-    stageReceipts: ZavorthTransactionRuntimeStageReceipt[];
+    phaseReceipts: ZavorthTransactionRuntimeStageReceipt[];
   }): ZavorthTransactionRuntimeRunResult {
     const blockers = unique(input.blockers);
     return {
@@ -258,7 +258,7 @@ export class ZavorthTransactionRuntimeOrchestratorService {
       ...(input.connectorRun ? { connectorRun: input.connectorRun } : {}),
       blockers,
       warnings: unique(input.warnings),
-      stageReceipts: input.stageReceipts,
+      phaseReceipts: input.phaseReceipts,
       nextSteps: buildNextSteps(input.status, blockers),
       externalSideEffects: false,
       liveActionApplied: false,

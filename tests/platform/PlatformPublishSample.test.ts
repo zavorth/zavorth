@@ -15,7 +15,7 @@ describe('platform publish sample', () => {
     }
   });
 
-  it('creates an inspectable prepared publish artifact for the Wave 9 sample package', async () => {
+  it('creates an inspectable prepared publish artifact for the Ecosystem sample package', async () => {
     const outputDir = fs.mkdtempSync(path.join(os.tmpdir(), 'zavorth-platform-sample-'));
     tempDirs.push(outputDir);
 

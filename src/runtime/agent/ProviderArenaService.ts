@@ -9,7 +9,7 @@ import {
 } from './RunObservatory.js';
 import type { UniversalAgentRun } from './UniversalAgentRuntimeTypes.js';
 
-export const PROVIDER_ARENA_CONTRACT_VERSION = '2026-05-03.wave-34' as const;
+export const PROVIDER_ARENA_CONTRACT_VERSION = '2026-05-03.provider-arena' as const;
 
 export type ProviderArenaDecisionSource =
   | 'configured'

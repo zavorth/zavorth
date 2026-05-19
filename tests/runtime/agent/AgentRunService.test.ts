@@ -155,7 +155,7 @@ describe('AgentRunService', () => {
     }));
     expect(result.run.metadata.policyKernel).toEqual(expect.objectContaining({
       source: 'AgentRunPolicyKernel',
-      phase: 6,
+      stage: 6,
       lastStage: 'pre-execution',
       receipts: expect.arrayContaining([
         expect.objectContaining({
@@ -174,7 +174,7 @@ describe('AgentRunService', () => {
     }));
     expect(result.run.metadata.executorBoundary).toEqual(expect.objectContaining({
       source: 'AgentRunExecutorBoundary',
-      phase: 8,
+      stage: 8,
       selected: 'custom-executor',
     }));
     expect(result.run.metadata.naturalFirstRoute).toEqual(expect.objectContaining({
@@ -225,7 +225,7 @@ describe('AgentRunService', () => {
     ]));
     expect(result.run.metadata.corePipeline).toEqual(expect.objectContaining({
       source: 'AgentRunCorePipeline',
-      phase: 12,
+      stage: 12,
       lastStage: 'finalized',
       receipts: expect.arrayContaining([
         expect.objectContaining({ stage: 'created' }),
@@ -235,7 +235,7 @@ describe('AgentRunService', () => {
     }));
     expect(result.run.metadata.coreDietBaseline).toEqual(expect.objectContaining({
       source: 'AgentRunService',
-      phase: 0,
+      stage: 0,
       profile: 'default',
       metadataBytes: expect.any(Number),
       metadataKeyCount: expect.any(Number),
@@ -257,7 +257,7 @@ describe('AgentRunService', () => {
     }));
     expect(result.run.metadata.coreDietObservability).toEqual(expect.objectContaining({
       source: 'AgentRunService',
-      phase: 10,
+      stage: 10,
       profile: 'default',
       status: expect.stringMatching(/within-budget|over-budget/),
       violations: expect.any(Array),
@@ -277,7 +277,7 @@ describe('AgentRunService', () => {
     }));
     expect(result.run.metadata.evidenceRefs).toEqual(expect.objectContaining({
       source: 'AgentRunEvidenceStore',
-      phase: 4,
+      stage: 4,
       refs: expect.arrayContaining([
         expect.objectContaining({
           key: 'providerMeshConsolidation',
@@ -288,7 +288,7 @@ describe('AgentRunService', () => {
     }));
     expect(result.run.metadata.metadataDiet).toEqual(expect.objectContaining({
       source: 'AgentRunService',
-      phase: 5,
+      stage: 5,
       operationalKeys: expect.arrayContaining(['runBudget', 'providerArena', 'evidenceRefs', 'coreDietObservability']),
       auditKeys: expect.arrayContaining(['providerMeshConsolidation']),
       debugKeys: expect.arrayContaining(['coreDietBaseline']),
@@ -368,7 +368,7 @@ describe('AgentRunService', () => {
     }));
     expect(result.run.metadata.naturalFirstLightReply).toEqual(expect.objectContaining({
       contractVersion: 'natural-first-light-reply/4',
-      phase: 4,
+      stage: 4,
       route: 'light-chat',
       kind: 'greeting',
       safety: expect.objectContaining({
@@ -446,7 +446,7 @@ describe('AgentRunService', () => {
     }));
     expect(result.run.metadata.runtimeEventBus).toEqual(expect.objectContaining({
       source: 'AgentRunService',
-      phase: 2,
+      stage: 2,
       configured: true,
       events: expect.arrayContaining([
         expect.objectContaining({
@@ -549,7 +549,7 @@ describe('AgentRunService', () => {
     }));
     expect(result.run.metadata.naturalFirstLlmRuntime).toEqual(expect.objectContaining({
       contractVersion: 'natural-first-llm-runtime/5',
-      phase: 5,
+      stage: 5,
       route: 'llm-reply',
       providerConfigured: true,
       providerUsed: true,
@@ -591,7 +591,7 @@ describe('AgentRunService', () => {
     }));
     expect(result.run.metadata.naturalFirstLlmRuntime).toEqual(expect.objectContaining({
       contractVersion: 'natural-first-llm-runtime/5',
-      phase: 5,
+      stage: 5,
       route: 'llm-reply',
       providerConfigured: false,
       providerUsed: false,
@@ -908,7 +908,7 @@ describe('AgentRunService', () => {
     expect(result.run.metadata.llmRuntimeRoute).toEqual(routeReceipt);
     expect(result.run.metadata.executorBoundary).toEqual(expect.objectContaining({
       source: 'AgentRunExecutorBoundary',
-      phase: 8,
+      stage: 8,
       selected: 'custom-executor',
     }));
     expect(result.run.metadata.providerRouteBudgetCorrelation).toEqual(expect.objectContaining({
@@ -1068,7 +1068,7 @@ describe('AgentRunService', () => {
       }),
     ]));
     expect(result.replies[0]).toEqual(expect.objectContaining({
-      text: expect.stringContaining('Tool Rehearsal - Wave 36'),
+      text: expect.stringContaining('Tool Rehearsal - Tool Rehearsal'),
     }));
   });
 
@@ -1137,7 +1137,7 @@ describe('AgentRunService', () => {
     }));
     expect(result.run.metadata.executorBoundary).toEqual(expect.objectContaining({
       source: 'AgentRunExecutorBoundary',
-      phase: 8,
+      stage: 8,
       selected: 'tool-runtime',
     }));
     expect(result.run.metadata.lifecycleDefense).toEqual(expect.objectContaining({
@@ -1263,7 +1263,7 @@ describe('AgentRunService', () => {
     }));
     expect(result.run.metadata.executorBoundary).toEqual(expect.objectContaining({
       source: 'AgentRunExecutorBoundary',
-      phase: 8,
+      stage: 8,
       selected: 'tool-runtime',
     }));
     expect(result.run.events).toEqual(expect.arrayContaining([

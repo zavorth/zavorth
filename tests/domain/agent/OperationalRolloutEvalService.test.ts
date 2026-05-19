@@ -12,7 +12,7 @@ describe('ZavorthOperationalRolloutEvalService', () => {
     const snapshot = service.buildSnapshot();
 
     expect(snapshot.contractVersion).toBe(ZAVORTH_OPERATIONAL_ROLLOUT_EVAL_CONTRACT_VERSION);
-    expect(snapshot.phase).toBe('phase-6-operational-rollout-eval');
+    expect(snapshot.phase).toBe('checkpoint-6-operational-rollout-eval');
     expect(snapshot.status).toBe('passed');
     expect(snapshot.rolloutMode).toBe('dry_run_canary');
     expect(snapshot.summary.scenarios).toBe(5);

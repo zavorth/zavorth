@@ -20,7 +20,7 @@ function createFlags(json: boolean) {
   };
 }
 
-describe('Zavorth CLI Release Candidate Pre-Canary Gate Wave 54', () => {
+describe('Zavorth CLI Release Candidate Pre-Canary Gate Pre-Canary Gate', () => {
   it('parses pre-canary text after aliases', () => {
     expect(resolveReleaseCandidatePreCanaryGateCliText('release-candidate-pre-canary "preparar rc"')).toBe('preparar rc');
     expect(resolveReleaseCandidatePreCanaryGateCliText('pre-canary-gate latest')).toBe('');
@@ -47,7 +47,7 @@ describe('Zavorth CLI Release Candidate Pre-Canary Gate Wave 54', () => {
     }));
     const payload = JSON.parse(writes[0] || '{}');
     expect(payload).toEqual(expect.objectContaining({
-      contractVersion: '2026-05-04.wave-54',
+      contractVersion: '2026-05-04.pre-canary',
       source: 'ReleaseCandidatePreCanaryGateService',
       status: 'pre-canary-ready',
       releaseAdoption: expect.objectContaining({
@@ -89,7 +89,7 @@ describe('Zavorth CLI Release Candidate Pre-Canary Gate Wave 54', () => {
 
     const text = formatReleaseCandidatePreCanaryGateSnapshot(snapshot);
 
-    expect(text).toContain('Release Candidate / Pre-Canary Gate - Wave 54');
+    expect(text).toContain('Release Candidate / Pre-Canary Gate - Pre-Canary Gate');
     expect(text).toContain('canary nao foi iniciado');
     expect(text).toContain('rollout nao foi iniciado');
     expect(text).toContain('go/no-go exige aprovacao explicita');

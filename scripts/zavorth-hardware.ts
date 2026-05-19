@@ -192,7 +192,7 @@ async function main() {
   if (asJson) {
     await printJson(snapshot);
   } else {
-    console.log('[hardware] leitura oficial da Fase 23');
+    console.log('[hardware] leitura oficial da Etapa 23');
     console.log(`[hardware] postura=${snapshot.summary.posture} | providers=${snapshot.summary.configuredProviders}/${snapshot.summary.providers} configurados | devices=${snapshot.summary.devices}`);
     console.log(`[hardware] allowlisted=${snapshot.summary.allowlistedDevices} | read-only=${snapshot.summary.readOnlyDevices} | hidden=${snapshot.summary.hiddenDevices}`);
     console.log(`[hardware] emergencyStop=${snapshot.summary.emergencyStopActive ? 'ativo' : 'inativo'} | autoPaused=${snapshot.summary.autoPausedAutomations}`);

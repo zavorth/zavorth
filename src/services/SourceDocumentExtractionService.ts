@@ -46,28 +46,28 @@ export class SourceDocumentExtractionService {
     receipts: DocumentExtractionReceipt[];
   } {
     const pdf = this.extractPdf({
-      sourceName: 'phase5-source-memory-document-terminal.pdf',
+      sourceName: 'credential-vault-source-memory-document-terminal.pdf',
       bytes: Buffer.from([
         '%PDF-1.7',
         '1 0 obj',
         '<< /Type /Page >>',
         'stream',
-        'BT (Phase 5 PDF extraction smoke artifact) Tj ET',
+        'BT (Credential vault PDF extraction smoke artifact) Tj ET',
         'endstream',
         'endobj',
         '%%EOF',
       ].join('\n'), 'latin1'),
     });
     const html = this.extractHtml({
-      sourceName: 'phase5-source-memory-document-terminal.html',
-      url: 'https://example.invalid/phase5',
+      sourceName: 'credential-vault-source-memory-document-terminal.html',
+      url: 'https://example.invalid/credential-vault',
       html: [
         '<!doctype html>',
         '<html>',
-        '<head><title>Phase 5 HTML extraction smoke</title></head>',
+        '<head><title>Credential vault HTML extraction smoke</title></head>',
         '<body>',
         '<nav>Skip navigation</nav>',
-        '<article><h1>Phase 5 HTML extraction smoke</h1>',
+        '<article><h1>Credential vault HTML extraction smoke</h1>',
         '<p>Readability extraction creates an artifact-first receipt for Zavorth.</p></article>',
         '</body>',
         '</html>',

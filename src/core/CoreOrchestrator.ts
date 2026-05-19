@@ -189,7 +189,7 @@ export class CoreOrchestrator implements IMessageBroker {
           await this.deliverOutput(ctx, text, rawText);
         },
         metadata: {
-          phase: 'legacy-unified-conversation-fallback-v1',
+          stage: 'legacy-unified-conversation-fallback-v1',
           transport: ctx.transport || 'text',
           messageId: ctx.messageId || null,
           channelId: ctx.channelId || null,

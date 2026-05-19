@@ -48,7 +48,7 @@ describe('ZavorthWatchModeControlPlaneService', () => {
     expect(snapshot.summary.screenshotRedactionMode).toBe('redacted');
     expect(snapshot.cost).toEqual(expect.objectContaining({ level: 'low', score: 0 }));
     expect(snapshot.actions[0]).toEqual(expect.objectContaining({ id: 'review-status' }));
-    expect(service.renderReport()).toContain('Wave C: Watch Mode supervisionado');
+    expect(service.renderReport()).toContain('Watch mode: Watch Mode supervisionado');
   });
 
   it('raises attention when approvals are pending and suggests allowlist actions', () => {

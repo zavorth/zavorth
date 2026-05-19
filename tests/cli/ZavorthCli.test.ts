@@ -8,7 +8,7 @@ import { ZavorthAgentGateway } from '../../src/runtime/agent';
 function createReleasePresenceSnapshot(mode: 'status' | 'diff' | 'rollback-preview' | 'presence' = 'status') {
   return {
     generatedAt: '2026-04-24T17:00:00.000Z',
-    phase: '31',
+    stage: '31',
     surface: 'release-presence-control-plane',
     mode,
     status: mode === 'rollback-preview' ? 'ready' : 'degraded',
@@ -744,7 +744,7 @@ function createStubServices() {
     capabilityOs: {
       buildSnapshot: jest.fn(() => ({
         generatedAt: '2026-04-24T12:00:00.000Z',
-        phase: '26',
+        stage: '26',
         surface: 'capability-os',
         summary: {
           total: 3,
@@ -851,7 +851,7 @@ function createStubServices() {
         },
       })),
       explainRoute: jest.fn((input: string) => ({
-        phase: '26',
+        stage: '26',
         surface: 'capability-route',
         generatedAt: '2026-04-24T12:01:00.000Z',
         input,
@@ -909,11 +909,11 @@ function createStubServices() {
     taskOperatingSystem: {
       buildSnapshot: jest.fn(async () => ({
         generatedAt: '2026-04-24T13:00:00.000Z',
-        phase: '27',
+        stage: '27',
         surface: 'task-os',
         taskLedger: {
           generatedAt: '2026-04-24T13:00:00.000Z',
-          phase: '27',
+          stage: '27',
           surface: 'task-ledger',
           summary: {
             total: 1,
@@ -939,7 +939,7 @@ function createStubServices() {
           },
           tasks: [
             {
-              taskId: 'task-phase-27',
+              taskId: 'task-checkpoint-27',
               shortId: 'task-pha',
               createdAt: '2026-04-24T12:00:00.000Z',
               updatedAt: '2026-04-24T12:10:00.000Z',
@@ -954,7 +954,7 @@ function createStubServices() {
               state: {
                 state: 'awaiting_permission',
                 legacyStatus: 'waiting_approval',
-                phase: 'permission',
+                stage: 'permission',
                 terminal: false,
                 active: true,
                 resumable: true,
@@ -966,7 +966,7 @@ function createStubServices() {
               approval: {
                 required: true,
                 status: 'pending',
-                pendingPermissionId: 'perm-phase-27',
+                pendingPermissionId: 'perm-checkpoint-27',
                 resumesTask: true,
               },
               artifacts: {
@@ -974,23 +974,23 @@ function createStubServices() {
                 manifest: null,
                 kinds: {},
                 redeliverable: false,
-                command: 'zavorth artifacts task task-phase-27',
+                command: 'zavorth artifacts task task-checkpoint-27',
               },
               retry: {
                 available: false,
-                command: 'zavorth tasks retry task-phase-27',
+                command: 'zavorth tasks retry task-checkpoint-27',
                 reason: 'Retry bloqueado ate estado terminal.',
               },
               resume: {
                 available: true,
-                command: 'zavorth approve task-phase-27',
+                command: 'zavorth approve task-checkpoint-27',
                 reason: 'Aprovacao retoma esta task.',
               },
               relation: {
                 conversation: 'web:session-1',
                 workspace: 'C:/repo',
                 executor: 'codex',
-                approvals: ['perm-phase-27'],
+                approvals: ['perm-checkpoint-27'],
                 artifacts: [],
               },
               summary: 'Task aguardando permissao.',
@@ -1000,7 +1000,7 @@ function createStubServices() {
         },
         permissionLedger: {
           generatedAt: '2026-04-24T13:00:00.000Z',
-          phase: '27',
+          stage: '27',
           surface: 'permission-scope-ledger',
           summary: {
             total: 1,
@@ -1019,8 +1019,8 @@ function createStubServices() {
           },
           entries: [
             {
-              permissionId: 'perm-phase-27',
-              taskId: 'task-phase-27',
+              permissionId: 'perm-checkpoint-27',
+              taskId: 'task-checkpoint-27',
               executor: 'codex',
               kind: 'workspace_access',
               status: 'pending',
@@ -1034,12 +1034,12 @@ function createStubServices() {
               expiresAt: null,
               revokable: true,
               audit: {
-                command: 'zavorth permissions revoke perm-phase-27',
+                command: 'zavorth permissions revoke perm-checkpoint-27',
                 reason: 'Permissao auditavel.',
               },
               resumesTask: {
-                taskId: 'task-phase-27',
-                command: 'zavorth approve task-phase-27',
+                taskId: 'task-checkpoint-27',
+                command: 'zavorth approve task-checkpoint-27',
                 reason: 'Aprovacao retoma a task correta.',
               },
             },
@@ -1073,7 +1073,7 @@ function createStubServices() {
       })),
       listArtifactsForTask: jest.fn(async (taskId: string) => ({
         generatedAt: '2026-04-24T13:01:00.000Z',
-        phase: '27',
+        stage: '27',
         surface: 'task-artifacts',
         task: {
           taskId,
@@ -1113,7 +1113,7 @@ function createStubServices() {
       })),
       buildContinuationPlan: jest.fn(async (taskId: string, action: string) => ({
         generatedAt: '2026-04-24T13:02:00.000Z',
-        phase: '27',
+        stage: '27',
         surface: 'task-continuation',
         action,
         task: {
@@ -1137,11 +1137,11 @@ function createStubServices() {
     supervisorGraph: {
       buildSnapshot: jest.fn(async () => ({
         generatedAt: '2026-04-24T14:00:00.000Z',
-        phase: '28',
+        stage: '28',
         surface: 'supervisor-graph',
         objective: {
           preview: 'corrija um bug e rode os testes',
-          digest: 'digest-phase-28',
+          digest: 'digest-checkpoint-28',
         },
         mode: 'graph',
         status: 'ready',
@@ -1242,7 +1242,7 @@ function createStubServices() {
             evidence: {
               kind: 'intake',
               summary: 'Objetivo normalizado.',
-              inputDigest: 'digest-phase-28',
+              inputDigest: 'digest-checkpoint-28',
               sensitiveData: 'redacted',
             },
           },
@@ -2130,7 +2130,7 @@ function createStubServices() {
     workspaceMemoryOs: {
       buildReview: jest.fn(async () => ({
         generatedAt: '2026-04-24T15:00:00.000Z',
-        phase: '29',
+        stage: '29',
         surface: 'workspace-memory-os',
         workspaceProfile: {
           workspace: 'C:/repo',
@@ -2145,12 +2145,12 @@ function createStubServices() {
           repeatedFailures: [],
         },
         recentTaskResolver: {
-          taskId: 'task-phase-29',
+          taskId: 'task-checkpoint-29',
           state: 'completed',
           workspace: 'C:/repo',
           executor: 'codex',
           artifacts: ['artifact://report'],
-          command: 'zavorth tasks retry task-phase-29',
+          command: 'zavorth tasks retry task-checkpoint-29',
           reason: 'Follow-up aponta para task recente.',
         },
         conversationSummary: {
@@ -2162,7 +2162,7 @@ function createStubServices() {
             {
               label: 'report.md',
               kind: 'report',
-              command: 'zavorth artifacts task task-phase-29',
+              command: 'zavorth artifacts task task-checkpoint-29',
             },
           ],
         },
@@ -2210,8 +2210,8 @@ function createStubServices() {
           examples: [
             {
               input: 'continua',
-              resolvesTo: 'task-phase-29',
-              command: 'zavorth tasks retry task-phase-29',
+              resolvesTo: 'task-checkpoint-29',
+              command: 'zavorth tasks retry task-checkpoint-29',
             },
           ],
         },
@@ -2231,28 +2231,28 @@ function createStubServices() {
         },
         narrative: {
           headline: '1 memoria revisavel para repo.',
-          operatorSummary: 'Follow-ups podem retomar task-phase-29.',
+          operatorSummary: 'Follow-ups podem retomar task-checkpoint-29.',
         },
       })),
       resolveFollowUp: jest.fn(async (input: string) => ({
         generatedAt: '2026-04-24T15:01:00.000Z',
-        phase: '29',
+        stage: '29',
         surface: 'workspace-memory-resolution',
         input,
         intent: 'continue_task',
         resolved: true,
         target: {
-          taskId: 'task-phase-29',
+          taskId: 'task-checkpoint-29',
           workspace: 'C:/repo',
           artifactCommand: null,
-          nextCommand: 'zavorth tasks retry task-phase-29',
+          nextCommand: 'zavorth tasks retry task-checkpoint-29',
         },
-        evidence: ['task:task-phase-29', 'workspace:repo'],
+        evidence: ['task:task-checkpoint-29', 'workspace:repo'],
         reason: 'Resolvido pela task recente.',
       })),
       executeAction: jest.fn(async ({ action, key }: any) => ({
         generatedAt: '2026-04-24T15:02:00.000Z',
-        phase: '29',
+        stage: '29',
         surface: 'workspace-memory-action',
         action,
         key,
@@ -2260,7 +2260,7 @@ function createStubServices() {
         status: 'applied',
         summary: `Memoria ${key} atualizada.`,
         review: {
-          phase: '29',
+          stage: '29',
           surface: 'workspace-memory-os',
           review: { total: 1, entries: [] },
           preferenceLedger: { total: 1 },
@@ -2271,7 +2271,7 @@ function createStubServices() {
     selfHealControlPlane: {
       buildPreview: jest.fn(async ({ apply, budget }: any = {}) => ({
         generatedAt: '2026-04-24T16:00:00.000Z',
-        phase: '30',
+        stage: '30',
         surface: 'self-heal-control-plane',
         mode: apply ? 'apply' : 'preview',
         status: apply ? 'blocked' : 'ready',
@@ -2383,7 +2383,7 @@ function createStubServices() {
       })),
       buildDailyReport: jest.fn(async () => ({
         generatedAt: '2026-04-24T16:10:00.000Z',
-        phase: '30',
+        stage: '30',
         surface: 'self-heal-control-plane',
         mode: 'daily-report',
         status: 'ready',
@@ -4180,13 +4180,13 @@ describe('ZavorthCli', () => {
     );
     expect(JSON.parse(writes[0] || '{}')).toEqual(
       expect.objectContaining({
-        phase: '29',
+        stage: '29',
         surface: 'workspace-memory-os',
       }),
     );
     expect(JSON.parse(writes[1] || '{}')).toEqual(
       expect.objectContaining({
-        phase: '29',
+        stage: '29',
         surface: 'workspace-memory-resolution',
         intent: 'continue_task',
       }),
@@ -4237,14 +4237,14 @@ describe('ZavorthCli', () => {
     );
     expect(JSON.parse(writes[0] || '{}')).toEqual(
       expect.objectContaining({
-        phase: '29',
+        stage: '29',
         surface: 'workspace-memory-action',
         action: 'forget',
       }),
     );
     expect(JSON.parse(writes[1] || '{}')).toEqual(
       expect.objectContaining({
-        phase: '29',
+        stage: '29',
         surface: 'workspace-memory-action',
         action: 'correct',
       }),
@@ -4312,14 +4312,14 @@ describe('ZavorthCli', () => {
     );
     expect(JSON.parse(writes[0] || '{}')).toEqual(
       expect.objectContaining({
-        phase: '30',
+        stage: '30',
         surface: 'self-heal-control-plane',
         mode: 'preview',
       }),
     );
     expect(JSON.parse(writes[1] || '{}')).toEqual(
       expect.objectContaining({
-        phase: '30',
+        stage: '30',
         surface: 'self-heal-control-plane',
         mode: 'apply',
         status: 'blocked',
@@ -4327,7 +4327,7 @@ describe('ZavorthCli', () => {
     );
     expect(JSON.parse(writes[2] || '{}')).toEqual(
       expect.objectContaining({
-        phase: '30',
+        stage: '30',
         surface: 'self-heal-control-plane',
         mode: 'daily-report',
       }),
@@ -4393,28 +4393,28 @@ describe('ZavorthCli', () => {
     );
     expect(JSON.parse(writes[0] || '{}')).toEqual(
       expect.objectContaining({
-        phase: '31',
+        stage: '31',
         surface: 'release-presence-control-plane',
         mode: 'status',
       }),
     );
     expect(JSON.parse(writes[1] || '{}')).toEqual(
       expect.objectContaining({
-        phase: '31',
+        stage: '31',
         surface: 'release-presence-control-plane',
         mode: 'diff',
       }),
     );
     expect(JSON.parse(writes[2] || '{}')).toEqual(
       expect.objectContaining({
-        phase: '31',
+        stage: '31',
         surface: 'release-presence-control-plane',
         mode: 'rollback-preview',
       }),
     );
     expect(JSON.parse(writes[3] || '{}')).toEqual(
       expect.objectContaining({
-        phase: '31',
+        stage: '31',
         surface: 'release-presence-control-plane',
         mode: 'presence',
       }),
@@ -4527,7 +4527,7 @@ describe('ZavorthCli', () => {
     expect(exitCode).toBe(0);
     expect(parsed).toEqual(
       expect.objectContaining({
-        phase: '25',
+        stage: '25',
         surface: 'zavorth-cockpit',
         status: 'attention',
         statusSnapshot: expect.any(Object),
@@ -6089,7 +6089,7 @@ describe('ZavorthCli', () => {
         text: 'review this module',
         metadata: expect.objectContaining({
           channel: 'cli',
-          phase: 'legacy-unified-cli-v1',
+          stage: 'legacy-unified-cli-v1',
           cli: true,
         }),
       }),
@@ -7671,7 +7671,7 @@ describe('ZavorthCli', () => {
     expect(services.capabilityOs.buildSnapshot).toHaveBeenCalled();
     expect(JSON.parse(writes[0] || '{}')).toEqual(
       expect.objectContaining({
-        phase: '26',
+        stage: '26',
         surface: 'capability-os',
       }),
     );
@@ -7704,7 +7704,7 @@ describe('ZavorthCli', () => {
     );
     expect(JSON.parse(writes[0] || '{}')).toEqual(
       expect.objectContaining({
-        phase: '26',
+        stage: '26',
         surface: 'capability-route',
         fallbackChain: ['research', 'conversation'],
       }),
@@ -7735,7 +7735,7 @@ describe('ZavorthCli', () => {
     );
     expect(JSON.parse(writes[0] || '{}')).toEqual(
       expect.objectContaining({
-        phase: '27',
+        stage: '27',
         surface: 'task-os',
       }),
     );
@@ -7746,7 +7746,7 @@ describe('ZavorthCli', () => {
     const services = createStubServices();
 
     const exitCode = await runZavorthCli(
-      ['artifacts', 'task', 'task-phase-27', '--json'],
+      ['artifacts', 'task', 'task-checkpoint-27', '--json'],
       {
         write: (value) => writes.push(value),
         error: () => undefined,
@@ -7758,10 +7758,10 @@ describe('ZavorthCli', () => {
     );
 
     expect(exitCode).toBe(0);
-    expect(services.taskOperatingSystem.listArtifactsForTask).toHaveBeenCalledWith('task-phase-27');
+    expect(services.taskOperatingSystem.listArtifactsForTask).toHaveBeenCalledWith('task-checkpoint-27');
     expect(JSON.parse(writes[0] || '{}')).toEqual(
       expect.objectContaining({
-        phase: '27',
+        stage: '27',
         surface: 'task-artifacts',
       }),
     );
@@ -7772,7 +7772,7 @@ describe('ZavorthCli', () => {
     const services = createStubServices();
 
     const exitCode = await runZavorthCli(
-      ['tasks', 'resume', 'task-phase-27', '--json'],
+      ['tasks', 'resume', 'task-checkpoint-27', '--json'],
       {
         write: (value) => writes.push(value),
         error: () => undefined,
@@ -7784,10 +7784,10 @@ describe('ZavorthCli', () => {
     );
 
     expect(exitCode).toBe(0);
-    expect(services.taskOperatingSystem.buildContinuationPlan).toHaveBeenCalledWith('task-phase-27', 'resume');
+    expect(services.taskOperatingSystem.buildContinuationPlan).toHaveBeenCalledWith('task-checkpoint-27', 'resume');
     expect(JSON.parse(writes[0] || '{}')).toEqual(
       expect.objectContaining({
-        phase: '27',
+        stage: '27',
         surface: 'task-continuation',
         expectedState: 'running',
       }),
@@ -7819,7 +7819,7 @@ describe('ZavorthCli', () => {
     );
     expect(JSON.parse(writes[0] || '{}')).toEqual(
       expect.objectContaining({
-        phase: '28',
+        stage: '28',
         surface: 'supervisor-graph',
         mode: 'graph',
       }),
@@ -7853,7 +7853,7 @@ describe('ZavorthCli', () => {
     );
     expect(JSON.parse(writes[0] || '{}')).toEqual(
       expect.objectContaining({
-        phase: '28',
+        stage: '28',
         surface: 'supervisor-graph',
       }),
     );

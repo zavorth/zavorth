@@ -140,7 +140,7 @@ export class ZavorthSemanticProviderMeshCertificationService {
         inspectJson: 'npm run semantic-provider-mesh-certification:json --silent',
         check: 'npm run semantic-provider-mesh-certification:check --silent',
         qa: 'npm run qa:semantic-provider-mesh-certification --silent',
-        nextPhase: 'S4 - Channel Mesh Semantics',
+        nextStage: 'S4 - Channel Mesh Semantics',
       },
     };
   }
@@ -167,7 +167,7 @@ export class ZavorthSemanticProviderMeshCertificationService {
       ...snapshot.claims.map((claim) =>
         `- ${claim.status} ${claim.priority} ${claim.id}: ${claim.expectedBehavior} -> ${claim.zavorthEquivalent}`,
       ),
-      `Next: ${snapshot.commands.nextPhase}`,
+      `Next: ${snapshot.commands.nextStage}`,
     ];
     return lines.join('\n');
   }

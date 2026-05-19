@@ -1,4 +1,4 @@
-export const AI_FIRST_FINAL_ACTIVATION_GATE_CONTRACT_VERSION = '2026-05-06.phase-10' as const;
+export const AI_FIRST_FINAL_ACTIVATION_GATE_CONTRACT_VERSION = '2026-05-06.checkpoint-10' as const;
 
 export type AiFirstFinalActivationReadiness =
   | 'ready-for-owner-controlled-default'
@@ -41,7 +41,7 @@ export type AiFirstFinalActivationFinding = {
 };
 
 export type AiFirstFinalActivationPhaseSummary = {
-  phase: 'phase-4' | 'phase-5' | 'phase-6' | 'phase-8' | 'phase-9';
+  phase: 'checkpoint-4' | 'checkpoint-5' | 'checkpoint-6' | 'checkpoint-8' | 'checkpoint-9';
   sourceId: string;
   readiness: string;
   action: string;

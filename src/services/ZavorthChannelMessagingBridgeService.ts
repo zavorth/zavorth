@@ -73,7 +73,7 @@ export class ZavorthChannelMessagingBridgeService {
       kind: 'telegram',
       senderRef: 'operator-fixture',
       senderDisplayName: 'Operator fixture',
-      text: 'continue a fase de canais pelo gateway',
+      text: 'continue a etapa de canais pelo gateway',
       threadRef: 'thread-fixture-001',
       receivedAt: this.now().toISOString(),
       attachments: [{ id: 'att-fixture-001', kind: 'text', safeRef: 'attachment://att-fixture-001' }],
@@ -122,8 +122,8 @@ export class ZavorthChannelMessagingBridgeService {
       generatedAt: this.now().toISOString(),
       contractVersion: ZAVORTH_CHANNEL_MESSAGING_BRIDGE_CONTRACT_VERSION,
       status,
-      planId: '291 - Plano Zavorth External Runtime Absorption',
-      phase: 'phase-5-channels-and-messaging',
+      planId: 'Zavorth External Runtime Integration',
+      phase: 'checkpoint-5-channels-and-messaging',
       previousCapabilityProviderStatus,
       channelDescriptors,
       normalizedInboundMessage,
@@ -162,7 +162,7 @@ export class ZavorthChannelMessagingBridgeService {
         inspect: 'npm run zavorth:channel-messaging-bridge',
         inspectJson: 'npm run zavorth:channel-messaging-bridge:json',
         check: 'npm run zavorth:channel-messaging-bridge:check --silent',
-        nextPhase: '291 Phase 6 - Sessions, Memory, And Continuation',
+        nextStage: '291 Runtime gateway - Sessions, Memory, And Continuation',
       },
     };
   }
@@ -403,14 +403,14 @@ export class ZavorthChannelMessagingBridgeService {
         'no direct channel send',
       ],
       nextSafeAction: input.status === 'channel-messaging-bridge-ready'
-        ? 'Proceed to 291 Phase 6 - Sessions, Memory, And Continuation.'
+        ? 'Proceed to 291 Runtime gateway - Sessions, Memory, And Continuation.'
         : 'Fix failed channel messaging gates before session and memory continuation.',
     };
   }
 
   public formatSnapshotText(snapshot: ZavorthChannelMessagingBridgeSnapshot): string {
     const lines = [
-      'Zavorth Channel Messaging Bridge - Phase 5',
+      'Zavorth Channel Messaging Bridge - Credential vault',
       '',
       `Status: ${snapshot.status}`,
       `Previous capability providers: ${snapshot.previousCapabilityProviderStatus}`,
@@ -430,7 +430,7 @@ export class ZavorthChannelMessagingBridgeService {
       'Acceptance:',
       ...snapshot.acceptanceMatrix.map((entry) => `- ${entry.status} ${entry.requirementId}: ${entry.evidence}`),
       '',
-      `Next: ${snapshot.commands.nextPhase}`,
+      `Next: ${snapshot.commands.nextStage}`,
     ];
     return lines.join('\n');
   }
@@ -451,7 +451,7 @@ function buildAcceptanceMatrix(
     .filter((entry) => entry.directChannelSendAllowed || entry.liveSendPerformed || entry.sourceRuntimeSendBypassAllowed).length;
 
   return [
-    acceptance('phase-4-capability-providers-ready', previousCapabilityProviderStatus === 'capability-provider-registry-ready', `previousCapabilityProviderStatus=${previousCapabilityProviderStatus}`),
+    acceptance('capability-providers-ready', previousCapabilityProviderStatus === 'capability-provider-registry-ready', `previousCapabilityProviderStatus=${previousCapabilityProviderStatus}`),
     acceptance('channel-descriptors-normalized', channelDescriptors.length >= 2
       && channelDescriptors.every((entry) => entry.channelId.startsWith('zavorth.channel.') && entry.publicName === 'Zavorth' && entry.sourceRuntimeDiagnosticsOnly), `${channelDescriptors.length} channel descriptor(s)`),
     acceptance('inbound-message-normalized-for-gateway', normalizedInboundMessage.gatewayEntrypoint === 'ZavorthAgentGateway'

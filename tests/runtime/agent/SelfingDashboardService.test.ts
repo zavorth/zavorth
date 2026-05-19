@@ -145,7 +145,7 @@ function createRun(overrides: Partial<UniversalAgentRun> = {}): UniversalAgentRu
   };
 }
 
-describe('SelfingDashboardService Wave 37', () => {
+describe('SelfingDashboardService Selfing Dashboard', () => {
   it('builds a read-only identity and memory dashboard with preview/versioning policy', () => {
     const snapshot = new SelfingDashboardService({
       now: () => new Date('2026-05-04T00:38:00.000Z'),

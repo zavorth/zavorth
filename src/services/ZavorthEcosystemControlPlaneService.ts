@@ -203,7 +203,7 @@ export class ZavorthEcosystemControlPlaneService {
         platform,
       },
       narrative: {
-        headline: 'Wave 9: Ecossistema, SDKs e third-party platform',
+        headline: 'Ecosystem: Ecossistema, SDKs e third-party platform',
         operatorSummary:
           `${summary.registryEntries} item(ns) no platform plane, `
           + `${summary.sdkFilesReady}/${summary.sdkFilesExpected} arquivo(s)-chave dos SDKs prontos, `
@@ -220,7 +220,7 @@ export class ZavorthEcosystemControlPlaneService {
   } = {}): string {
     const snapshot = this.buildSnapshot(input);
     const lines = [
-      'Wave 9: Ecossistema, SDKs e third-party platform',
+      'Ecosystem: Ecossistema, SDKs e third-party platform',
       '',
       snapshot.narrative.operatorSummary,
       `Postura: ${snapshot.summary.posture}.`,

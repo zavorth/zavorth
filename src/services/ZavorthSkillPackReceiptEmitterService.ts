@@ -92,7 +92,7 @@ export class ZavorthSkillPackReceiptEmitterService {
     reason: string;
   }): ZavorthSkillPackReceipt {
     return {
-      id: `zavorth.phase8.skill-pack.${input.kind}.${safeId(input.manifest.id)}.${this.now().getTime()}.receipt`,
+      id: `zavorth.dashboard-controls.skill-pack.${input.kind}.${safeId(input.manifest.id)}.${this.now().getTime()}.receipt`,
       kind: input.kind,
       manifestId: input.manifest.id,
       status: input.status,

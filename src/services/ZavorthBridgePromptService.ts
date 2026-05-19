@@ -28,7 +28,7 @@ import { ZavorthBridgePromptSurfaceSupport } from './zavorth-bridge-prompt/Zavor
 export type ZavorthBridgePromptStartResult = {
   ok: boolean;
   taskId: string;
-  stage: string;
+  phase: string;
   verified: boolean;
   promptText: string | null;
   selectedModel: string | null;
@@ -53,7 +53,7 @@ export type ZavorthBridgePromptStartResult = {
 export type ZavorthBridgePromptCompletionResult = {
   ok: boolean;
   taskId: string;
-  stage: string;
+  phase: string;
   verified: boolean;
   partial: boolean;
   source:
@@ -107,7 +107,7 @@ export class ZavorthBridgePromptService {
       return {
         ok: false,
         taskId: task.task_id,
-        stage: 'validation',
+        phase: 'validation',
         verified: false,
         promptText: normalizedPrompt,
         selectedModel: null,
@@ -139,7 +139,7 @@ export class ZavorthBridgePromptService {
       return {
         ok: false,
         taskId: task.task_id,
-        stage: 'bridge',
+        phase: 'bridge',
         verified: false,
         promptText: normalizedPrompt,
         selectedModel: modelResult.selectedModel,
@@ -162,7 +162,7 @@ export class ZavorthBridgePromptService {
       return {
         ok: false,
         taskId: task.task_id,
-        stage: 'bridge',
+        phase: 'bridge',
         verified: false,
         promptText: normalizedPrompt,
         selectedModel: modelResult.selectedModel,
@@ -186,7 +186,7 @@ export class ZavorthBridgePromptService {
       return {
         ok: false,
         taskId: task.task_id,
-        stage: 'session_preflight',
+        phase: 'session_preflight',
         verified: false,
         promptText: normalizedPrompt,
         selectedModel: modelResult.selectedModel,
@@ -230,7 +230,7 @@ export class ZavorthBridgePromptService {
       return {
         ok: false,
         taskId: task.task_id,
-        stage: 'surface_not_ready',
+        phase: 'surface_not_ready',
         verified: false,
         promptText: normalizedPrompt,
         selectedModel: modelResult.selectedModel,
@@ -288,7 +288,7 @@ export class ZavorthBridgePromptService {
     return {
       ok: true,
       taskId: task.task_id,
-      stage: 'prompt_sent',
+      phase: 'prompt_sent',
       verified: true,
       promptText: normalizedPrompt,
       selectedModel: modelResult.selectedModel,
@@ -323,7 +323,7 @@ export class ZavorthBridgePromptService {
       return {
         ok: false,
         taskId: start.taskId,
-        stage: 'invalid_start_state',
+        phase: 'invalid_start_state',
         verified: false,
         partial: false,
         source: 'error',
@@ -357,7 +357,7 @@ export class ZavorthBridgePromptService {
         return {
           ok: true,
           taskId: start.taskId,
-          stage: 'completed',
+          phase: 'completed',
           verified: true,
           partial: false,
           source: responseFileResult.processedPath ? 'response-file-processed' : 'response-file',
@@ -387,7 +387,7 @@ export class ZavorthBridgePromptService {
             return {
               ok: true,
               taskId: start.taskId,
-              stage: 'completed',
+              phase: 'completed',
               verified: true,
               partial: false,
               source: 'artifact-walkthrough',
@@ -423,7 +423,7 @@ export class ZavorthBridgePromptService {
           return {
             ok: false,
             taskId: start.taskId,
-            stage: 'permission_prompt',
+            phase: 'permission_prompt',
             verified: false,
             partial: false,
             source: 'error',
@@ -476,7 +476,7 @@ export class ZavorthBridgePromptService {
             return {
               ok: true,
               taskId: start.taskId,
-              stage: 'completed',
+              phase: 'completed',
               verified: true,
               partial: false,
               source: 'ui-capture',
@@ -506,7 +506,7 @@ export class ZavorthBridgePromptService {
       return {
         ok: true,
         taskId: start.taskId,
-        stage: 'timeout_partial',
+        phase: 'timeout_partial',
         verified: false,
         partial: true,
         source: 'ui-capture-partial',
@@ -526,7 +526,7 @@ export class ZavorthBridgePromptService {
       return {
         ok: true,
         taskId: start.taskId,
-        stage: 'timeout_partial',
+        phase: 'timeout_partial',
         verified: false,
         partial: true,
         source: 'artifact-partial',
@@ -545,7 +545,7 @@ export class ZavorthBridgePromptService {
     return {
       ok: false,
       taskId: start.taskId,
-      stage: 'timeout',
+      phase: 'timeout',
       verified: false,
       partial: false,
       source: 'timeout',
@@ -565,7 +565,7 @@ export class ZavorthBridgePromptService {
     return {
       ok: false,
       taskId: task.task_id,
-      stage: result.stage,
+      phase: result.phase,
       verified: false,
       promptText: String(task.metadata?.zavorthBridgePromptText || ''),
       selectedModel: result.selectedModel,

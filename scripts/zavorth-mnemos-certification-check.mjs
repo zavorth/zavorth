@@ -4,7 +4,7 @@ import { execFileSync, spawnSync } from 'node:child_process';
 const requiredFiles = [
   'scripts/zavorth-mnemos-certification.ts',
   'scripts/zavorth-mnemos-certification-check.mjs',
-  'docs/42-mnemos-memory-os.md',
+  'docs/mnemos-memory-os.md',
 ];
 
 const failures = [];
@@ -32,7 +32,7 @@ for (const marker of ['mnemos:certify', 'mnemos:certify:json', 'mnemos:certify:c
   if (!packageJson.includes(marker)) failures.push(`package script missing: ${marker}`);
 }
 
-for (const marker of ['Phase 9 Certification', 'npm run mnemos:certify', 'local checks only']) {
+for (const marker of ['Certification matrix Certification', 'npm run mnemos:certify', 'local checks only']) {
   if (!docs.includes(marker)) failures.push(`docs marker missing: ${marker}`);
 }
 

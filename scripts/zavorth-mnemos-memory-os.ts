@@ -56,7 +56,7 @@ function main(): void {
       providerCall: compaction.receipt.providerCall,
       durableMutation: compaction.receipt.durableMutation,
     },
-    next: contract.nextPhases[0],
+    next: contract.nextStages[0],
   };
 
   if (json) {

@@ -2,7 +2,7 @@ import type { ChannelMeshParitySnapshot } from './ChannelMeshParityContract.js';
 import type { ParityCertificationSnapshot } from './ParityCertificationContract.js';
 import type { ProviderMeshParitySnapshot } from './ProviderMeshParityContract.js';
 
-export const ZAVORTH_RUNTIME_ADAPTER_CLOSURE_CONTRACT_VERSION = '2026-05-04.phase-11';
+export const ZAVORTH_RUNTIME_ADAPTER_CLOSURE_CONTRACT_VERSION = '2026-05-04.checkpoint-11';
 
 export type RuntimeAdapterClosureStatus = 'closed' | 'attention';
 
@@ -62,7 +62,7 @@ export type RuntimeAdapterClosureSnapshot = {
     providerParity: string;
     channelParity: string;
     certify: string;
-    nextPhase: 'Fase 12 - Native Capability Closure';
+    nextStage: 'Etapa 12 - Native Capability Closure';
   };
   policy: {
     closureIsRuntimeClassificationOnly: true;

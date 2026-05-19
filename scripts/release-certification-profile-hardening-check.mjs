@@ -116,7 +116,7 @@ const snapshot = {
 if (asJson) {
   console.log(JSON.stringify(snapshot, null, 2));
 } else {
-  console.log('[release-certification-profile-hardening] checking Phase 14');
+  console.log('[release-certification-profile-hardening] checking Intent model4');
   for (const rule of rules) {
     const marker = rule.status === 'passed' ? 'ok' : 'fail';
     console.log(`[release-certification-profile-hardening] ${marker} ${rule.label}: ${rule.observed} | ${rule.target}`);

@@ -92,8 +92,8 @@ export const DISTRIBUTION_HARDENING_REQUIRED_CORE_SCRIPTS = [
 export const DISTRIBUTION_HARDENING_MANIFEST_ITEMS = [
   { path: 'package.json', required: true },
   { path: 'README.md', required: true },
-  { path: 'docs/75-public-productization-architecture.md', required: true },
-  { path: 'docs/76-public-adoption-architecture.md', required: true },
+  { path: 'docs/product-direction.md', required: true },
+  { path: 'docs/product-direction.md', required: true },
   { path: 'scripts/release-bundle.ts', required: true },
   { path: 'scripts/distribution-policy.ts', required: true },
   { path: 'scripts/distribution-hardening.ts', required: true },

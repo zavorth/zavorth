@@ -89,7 +89,7 @@ export class AgentRunFailureResultBuilder {
   }
 
   private applyInterruptedDefenseReview(run: UniversalAgentRun, now: string): void {
-    const review = this.riskHooks.review({ run, stage: 'interrupted' });
+    const review = this.riskHooks.review({ run, phase: 'interrupted' });
     const lifecycleDefense = recordOrNull(run.metadata.lifecycleDefense) || {};
     run.metadata.lifecycleDefense = {
       ...lifecycleDefense,

@@ -96,14 +96,14 @@ export class ZavorthSchedulerPerceptionDeviceLiveCompletionService {
         inspect: 'npm run zavorth:scheduler-perception-device-live-completion',
         inspectJson: 'npm run zavorth:scheduler-perception-device-live-completion:json',
         check: 'npm run zavorth:scheduler-perception-device-live-completion:check --silent',
-        nextPhase: 'Phase 8 - End-to-End Mission Flow and Public Runtime Certification',
+        nextStage: 'Dashboard controls - End-to-End Mission Flow and Public Runtime Certification',
       },
     };
   }
 
   public formatSnapshotText(snapshot: ZavorthSchedulerPerceptionDeviceLiveCompletionSnapshot): string {
     const lines = [
-      'Zavorth Scheduler + Perception + Device Live Completion - Phase 7',
+      'Zavorth Scheduler + Perception + Device Live Completion - Surface controls',
       '',
       `Status: ${snapshot.status}`,
       `Entries: ${snapshot.summary.passed}/${snapshot.summary.entries} passed, attention=${snapshot.summary.attention}, blocked=${snapshot.summary.blocked}`,
@@ -119,7 +119,7 @@ export class ZavorthSchedulerPerceptionDeviceLiveCompletionService {
       if (entry.defaultBlockReason) lines.push(`  block: ${entry.defaultBlockReason}`);
     }
     lines.push('', 'Safety: live ADB/browser/computer control remains owner-gated and policy-gated.');
-    lines.push(`Next: ${snapshot.commands.nextPhase}`);
+    lines.push(`Next: ${snapshot.commands.nextStage}`);
     return lines.join('\n');
   }
 }

@@ -1,7 +1,7 @@
 import type { ParityCertificationGateStatus } from './ParityCertificationContract.js';
 import type { ReleaseCandidateDistributionRehearsalSnapshot } from './ReleaseCandidateDistributionRehearsalContract.js';
 
-export const ZAVORTH_PRE_CANARY_GO_NO_GO_ALIGNMENT_CONTRACT_VERSION = '2026-05-04.phase-18';
+export const ZAVORTH_PRE_CANARY_GO_NO_GO_ALIGNMENT_CONTRACT_VERSION = '2026-05-04.checkpoint-18';
 
 export type PreCanaryGoNoGoAlignmentStatus = 'aligned' | 'attention' | 'blocked';
 
@@ -171,7 +171,7 @@ export type PreCanaryGoNoGoAlignmentSnapshot = {
     rollbackPreview: string;
     focusedTests: string[];
     typecheck: string;
-    nextPhase: 'Canary plan dry-run and hold';
+    nextStage: 'Canary plan dry-run and hold';
   };
   policy: {
     alignmentOnly: true;

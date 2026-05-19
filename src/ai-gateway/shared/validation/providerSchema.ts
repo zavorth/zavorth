@@ -1,5 +1,5 @@
 /**
- * Provider Schema Validation — Phase 7.2
+ * Provider Schema Validation — Surface controls.2
  *
  * Zod schemas for provider constant validation.
  * Validates FREE_PROVIDERS, OAUTH_PROVIDERS, and APIKEY_PROVIDERS

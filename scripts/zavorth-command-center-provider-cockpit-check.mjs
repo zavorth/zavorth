@@ -24,7 +24,7 @@ for (const file of requiredFiles) {
 const projection = runCockpit(['--json']);
 
 if (projection) {
-  assertRule('contract:version', projection.contractVersion === '2026-05-13.phase-6', 'Command Center provider cockpit contract is current');
+  assertRule('contract:version', projection.contractVersion === '2026-05-13.checkpoint-6', 'Command Center provider cockpit contract is current');
   assertRule('surface:cockpit', projection.surface === 'command-center-provider-cockpit', 'Provider cockpit projection surface is exposed');
   assertRule('policy:no-execution', projection.executionAuthority === false, 'Command Center provider cockpit cannot execute provider calls');
   assertRule('policy:no-visual-mutation', projection.visualMutationApplied === false, 'Provider cockpit does not mutate dashboard visuals without approval');

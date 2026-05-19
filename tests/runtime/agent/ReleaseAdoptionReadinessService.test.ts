@@ -71,7 +71,7 @@ function showcaseReady() {
 
 function releaseTrain(status = 'ready') {
   return {
-    phase: '59',
+    stage: '59',
     surface: 'release-train',
     status,
     summary: { ok: status === 'ready', passed: 18, warnings: 0, failed: status === 'ready' ? 0 : 1 },
@@ -87,12 +87,12 @@ function releaseTrain(status = 'ready') {
 
 function publicAdoption(status = 'ready') {
   return {
-    phase: '53',
+    stage: '53',
     surface: 'public-adoption-readiness',
     status,
     summary: { ok: status === 'ready', passed: 20, warnings: 0, failed: status === 'ready' ? 0 : 1, readinessScore: status === 'ready' ? 95 : 40 },
     baseline: { release: 'v1.0.0', packageName: 'zavorth', packageVersion: '1.1.0' },
-    requiredScripts: ['public-adoption', 'qa:public-adoption', 'qa:phase:53'],
+    requiredScripts: ['public-adoption', 'qa:public-adoption', 'qa:stage:53'],
     launchChecklist: [],
     claims: [{ id: 'a' }, { id: 'b' }, { id: 'c' }, { id: 'd' }, { id: 'e' }],
     risks: [{ id: 'a' }, { id: 'b' }, { id: 'c' }, { id: 'd' }],
@@ -112,7 +112,7 @@ function readyMetadata(overrides: Record<string, unknown> = {}) {
   };
 }
 
-describe('ReleaseAdoptionReadinessService Wave 53', () => {
+describe('ReleaseAdoptionReadinessService Release Adoption Readiness', () => {
   it('condenses release train, public adoption and support loop without deploy or canary', () => {
     const run = createRun(readyMetadata());
     run.metadata = { ...run.metadata, ...readyMetadata() };
@@ -160,7 +160,7 @@ describe('ReleaseAdoptionReadinessService Wave 53', () => {
     }));
   });
 
-  it('requires the Wave 52 integration showcase first', () => {
+  it('requires the Integration Showcase integration showcase first', () => {
     const run = createRun(readyMetadata({ integrationShowcasePartnerSurface: { status: 'needs-smoke' } }));
     run.metadata = { ...run.metadata, ...readyMetadata({ integrationShowcasePartnerSurface: { status: 'needs-smoke' } }) };
 

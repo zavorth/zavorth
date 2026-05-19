@@ -129,7 +129,7 @@ export class WebsitePublicContractService {
 
   public renderReport(snapshot: WebsitePublicContractSnapshot = this.buildSnapshot()): string {
     const lines: string[] = [];
-    lines.push('[website-public] Fase 46 - Website/Landing Real');
+    lines.push('[website-public] Etapa 46 - Website/Landing Real');
     lines.push(`status: ${snapshot.status}`);
     lines.push(`ok: ${snapshot.summary.ok ? 'yes' : 'no'} | pass=${snapshot.summary.passed} warn=${snapshot.summary.warnings} fail=${snapshot.summary.failed}`);
     lines.push(`website: ${snapshot.websiteRoot}`);
@@ -143,7 +143,7 @@ export class WebsitePublicContractService {
       }
     }
     lines.push('');
-    lines.push(`proxima fase recomendada: ${snapshot.nextRecommendedPhase.phase} - ${snapshot.nextRecommendedPhase.title}`);
+    lines.push(`proximo passo recomendada: ${snapshot.nextRecommendedPhase.phase} - ${snapshot.nextRecommendedPhase.title}`);
     lines.push(snapshot.nextRecommendedPhase.reason);
     return lines.join('\n');
   }
@@ -205,7 +205,7 @@ export class WebsitePublicContractService {
         `script canonico ${scriptName}`,
         command ? 'pass' : 'fail',
         command
-          ? `repo principal expoe "${scriptName}" para a Fase 46.`
+          ? `repo principal expoe "${scriptName}" para a Etapa 46.`
           : `repo principal precisa expor "${scriptName}" no package.json.`,
         'package.json',
         [`script=${command || '<ausente>'}`],
@@ -298,7 +298,7 @@ export class WebsitePublicContractService {
       missing.length === 0 ? 'pass' : 'fail',
       missing.length === 0
         ? 'copy publica cobre produto, local-first, approvals, evidencia, replay e opt-in.'
-        : 'copy publica ainda nao cobre toda a narrativa minima da Fase 46.',
+        : 'copy publica ainda nao cobre toda a narrativa minima da Etapa 46.',
       undefined,
       missing.map((phrase) => `faltando: ${phrase}`),
     );

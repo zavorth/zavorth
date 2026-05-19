@@ -141,7 +141,7 @@ export class CapabilityAutopilotPreflightSideEffectGateService {
         reason: options.reason || null,
       },
       metadata: {
-        phase: 'capability-autopilot-phase-72',
+        phase: 'capability-autopilot-checkpoint-72',
         sourceAdapterKind: envelope.adapterKind,
         sourceActionKind: envelope.sourceAction?.kind || null,
         autoExecute: false,
@@ -185,7 +185,7 @@ export class CapabilityAutopilotPreflightSideEffectGateService {
           'Depois do side-effect gate, o proximo passo e criar adapters de apply que recebam uma decisao autorizada e ainda emitam receipt antes de invocar qualquer superficie real.',
       },
       metadata: {
-        phase: 'capability-autopilot-phase-72',
+        phase: 'capability-autopilot-checkpoint-72',
         sourceSnapshotStatus: source.status,
         envelopeCount: source.envelopes.length,
         decisionCount: decisions.length,
@@ -199,7 +199,7 @@ export class CapabilityAutopilotPreflightSideEffectGateService {
 
   public renderReport(snapshot: CapabilityPreflightSideEffectGateSnapshot): string {
     const lines: string[] = [];
-    lines.push('[capability-autopilot-preflight-side-effect] Fase 72 - Preflight Dispatch Side-Effect Gate');
+    lines.push('[capability-autopilot-preflight-side-effect] Etapa 72 - Preflight Dispatch Side-Effect Gate');
     lines.push(`status: ${snapshot.status}`);
     lines.push(`ok: ${snapshot.summary.ok ? 'yes' : 'no'} | pass=${snapshot.summary.passed} warn=${snapshot.summary.warnings} fail=${snapshot.summary.failed}`);
     lines.push(`capability: ${snapshot.capabilityId}`);
@@ -213,7 +213,7 @@ export class CapabilityAutopilotPreflightSideEffectGateService {
       }
     }
     lines.push('');
-    lines.push(`proxima fase recomendada: ${snapshot.nextRecommendedPhase.phase} - ${snapshot.nextRecommendedPhase.title}`);
+    lines.push(`proximo passo recomendada: ${snapshot.nextRecommendedPhase.phase} - ${snapshot.nextRecommendedPhase.title}`);
     lines.push(snapshot.nextRecommendedPhase.reason);
     return lines.join('\n');
   }

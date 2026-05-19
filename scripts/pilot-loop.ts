@@ -74,7 +74,7 @@ function resolveArtifactDir(): string {
 function buildFeedbackPreview() {
   return {
     schemaVersion: '1.0.0',
-    phase: '57',
+    stage: '57',
     generatedAt: new Date().toISOString(),
     ok: true,
     telemetry: 'disabled-by-default',
@@ -95,7 +95,7 @@ function buildFeedbackPreview() {
 function buildPilotLedger() {
   return {
     schemaVersion: '1.0.0',
-    phase: '57',
+    stage: '57',
     generatedAt: new Date().toISOString(),
     ok: true,
     entries: PILOT_LEDGER_ENTRIES,
@@ -116,7 +116,7 @@ function buildDashboard() {
   }));
   return {
     schemaVersion: '1.0.0',
-    phase: '57',
+    stage: '57',
     generatedAt: new Date().toISOString(),
     ok: true,
     containsPayload: false,

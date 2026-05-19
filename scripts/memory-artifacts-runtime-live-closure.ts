@@ -42,7 +42,7 @@ async function main(): Promise<void> {
     status: profile === 'staging-live' && !confirmLiveIo ? 'blocked-until-confirmed' : 'ready-for-operator',
     reason: profile === 'staging-live' && !confirmLiveIo
       ? 'staging-live memory/artifact/runtime closure requires --confirm-live-io before local runtime state is touched.'
-      : 'Phase 12 exposes real memory writes, artifact replay and governed runtime execution receipts.',
+      : 'Intent model2 exposes real memory writes, artifact replay and governed runtime execution receipts.',
     entries: selected.map((entry) => ({
       targetId: entry.targetId,
       status: entry.status,

@@ -1,12 +1,12 @@
 import { ZavorthSchedulerPerceptionDeviceLiveCompletionService } from '../../src/services/ZavorthSchedulerPerceptionDeviceLiveCompletionService.js';
 
-describe('ZavorthSchedulerPerceptionDeviceLiveCompletionService Phase 7', () => {
+describe('ZavorthSchedulerPerceptionDeviceLiveCompletionService Surface controls', () => {
   it('certifies scheduler, perception and device completion without unsafe defaults', async () => {
     const snapshot = await new ZavorthSchedulerPerceptionDeviceLiveCompletionService({
       now: () => new Date('2026-05-14T13:00:00.000Z'),
     }).buildSnapshot();
 
-    expect(snapshot.contractVersion).toBe('2026-05-14.phase-7-scheduler-perception-device-live-completion');
+    expect(snapshot.contractVersion).toBe('2026-05-14.checkpoint-7-scheduler-perception-device-live-completion');
     expect(snapshot.status).toBe('passed');
     expect(snapshot.summary.schedulerDailyUseReady).toBe(true);
     expect(snapshot.summary.perceptionReadOnlyReady).toBe(true);

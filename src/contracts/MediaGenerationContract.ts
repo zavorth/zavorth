@@ -13,9 +13,9 @@
  * Capability canônica: `media.generate`
  *
  * Referências arquiteturais:
- * - docs/327-zavorth-native-absorption-execution-plan.md (Wave 1)
- * - docs/328 roadmap (Seção 6: Media Generation)
- * - docs/326 auditoria de originalidade (P1-1)
+ * - docs/native-absorption-execution-plan.md
+ * - docs/product-direction roadmap (Seção 6: Media Generation)
+ * - docs/product-direction auditoria de originalidade (P1-1)
  *
  * @module contracts/MediaGenerationContract
  * @since 2026-05-03

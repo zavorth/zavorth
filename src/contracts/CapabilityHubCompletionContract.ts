@@ -13,6 +13,8 @@ export type CapabilityHubCompletionPhase = {
   gate: string;
 };
 
+export type CapabilityHubCompletionCheckpoint = CapabilityHubCompletionPhase;
+
 export type CapabilityHubCompletionJourney = {
   id: string;
   prompt: string;

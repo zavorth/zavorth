@@ -58,7 +58,7 @@ export function formatUniversalIntentTrustSnapshot(
   snapshot: UniversalIntentTrustEnforcementSnapshot,
 ): string {
   const lines = [
-    'UNI / Trust Slider Enforcement - Wave 44',
+    'UNI / Trust Slider Enforcement - Channel mesh4',
     `- contrato: ${snapshot.contractVersion}`,
     `- run: ${snapshot.identifiers.runId}`,
     `- sessao: ${snapshot.identifiers.sessionId}`,

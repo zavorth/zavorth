@@ -1,6 +1,6 @@
 import { ZavorthAgentPracticalityCompletionService } from '../../../src/services/ZavorthAgentPracticalityCompletionService.js';
 
-describe('ZavorthAgentPracticalityCompletionService Phase 6', () => {
+describe('ZavorthAgentPracticalityCompletionService Runtime gateway', () => {
   it('certifies channel-neutral agent practicality without visual mutation', async () => {
     const snapshot = await new ZavorthAgentPracticalityCompletionService({
       now: () => new Date('2026-05-11T10:00:00.000Z'),
@@ -42,6 +42,6 @@ describe('ZavorthAgentPracticalityCompletionService Phase 6', () => {
       noRawSecretsSerialized: true,
       visualChangesRequireOwnerApproval: true,
     }));
-    expect(snapshot.nextArchitectureSuggestion.shouldSuggestAfterPhase6).toBe(true);
+    expect(snapshot.nextArchitectureSuggestion.shouldSuggestAfterStage6).toBe(true);
   });
 });

@@ -49,14 +49,14 @@ const readyOptions: CapabilityAutopilotCanaryPromotionOptions = {
   rollbackRunbookId: 'rollback-runbook-1',
   observabilityReviewId: 'observability-review-1',
   auditReceiptId: 'audit-1',
-  reason: 'phase-83-test',
+  reason: 'checkpoint-83-test',
 };
 
 function createSource(
   overrides: Partial<CapabilityAutopilotReleaseExecutionSnapshot> = {},
 ): CapabilityAutopilotReleaseExecutionSnapshot {
   return {
-    phase: '82',
+    stage: '82',
     releaseExecutionGateId: 'executor-gemini-cli-release-execution-1',
     generatedAt: FIXED_NOW.toISOString(),
     surface: 'capability-autopilot-release-execution-gate',
@@ -69,7 +69,7 @@ function createSource(
       warnings: 0,
       failed: 0,
     },
-    sourceSnapshotPhase: '81',
+    sourceSnapshotStage: '81',
     sourceStatus: 'rollout_plan_ready',
     sourceRecommendation: 'prepare_manual_v1_1_rollout',
     executionIntent: {
@@ -130,11 +130,11 @@ function createSource(
       sourceGeneratedAt: FIXED_NOW.toISOString(),
       sourceRolloutPlanId: 'rollout-plan-1',
       actorId: 'release-operator',
-      reason: 'phase-82-test',
+      reason: 'checkpoint-82-test',
       executionGateReceiptId: 'execution-gate-1',
     },
-    nextRecommendedPhase: {
-      phase: '83',
+    nextRecommendedStage: {
+      stage: '83',
       title: 'Capability Autopilot v1.1 Canary Monitoring And Promotion Gate',
       reason: 'Monitor canary.',
     },
@@ -158,7 +158,7 @@ describe('CapabilityAutopilotCanaryMonitoringPromotionGateService', () => {
     const snapshot = service.buildCanaryPromotionSnapshot(createSource(), readyOptions);
 
     expect(snapshot).toMatchObject({
-      phase: '83',
+      stage: '83',
       status: 'canary_promotion_ready',
       recommendation: 'promote_canary_to_next_cohort',
       summary: {
@@ -322,7 +322,7 @@ describe('CapabilityAutopilotCanaryMonitoringPromotionGateService', () => {
     const service = createService();
     const snapshot = service.buildCanaryPromotionSnapshot(createSource(), readyOptions);
 
-    expect(service.renderReport(snapshot)).toContain('Fase 83 - Capability Autopilot v1.1 Canary Monitoring And Promotion Gate');
+    expect(service.renderReport(snapshot)).toContain('Etapa 83 - Capability Autopilot v1.1 Canary Monitoring And Promotion Gate');
     expect(service.renderReport(snapshot)).toContain('proxima etapa recomendada: consolidation - Capability Autopilot Release Readiness Consolidation');
   });
 });

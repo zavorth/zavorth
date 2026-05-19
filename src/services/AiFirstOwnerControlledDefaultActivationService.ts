@@ -270,13 +270,13 @@ export class AiFirstOwnerControlledDefaultActivationService {
   ): AiFirstOwnerControlledDefaultFinding[] {
     const findings: AiFirstOwnerControlledDefaultFinding[] = [];
     if (!snapshot) {
-      findings.push(this.finding('snapshot-missing', 'high', 'A Phase 10 activation snapshot is required.'));
+      findings.push(this.finding('snapshot-missing', 'high', 'A Intent model0 activation snapshot is required.'));
     } else {
       if (
         snapshot.contractVersion !== AI_FIRST_FINAL_ACTIVATION_GATE_CONTRACT_VERSION
         || snapshot.source !== 'ai-first-final-activation-gate'
       ) {
-        findings.push(this.finding('snapshot-source-invalid', 'high', 'Snapshot is not a valid Phase 10 final activation gate snapshot.'));
+        findings.push(this.finding('snapshot-source-invalid', 'high', 'Snapshot is not a valid Intent model0 final activation gate snapshot.'));
       }
       if (
         snapshot.recommendation.readiness !== 'ready-for-owner-controlled-default'
@@ -511,8 +511,8 @@ export class AiFirstOwnerControlledDefaultActivationService {
 
   private commands(): AiFirstOwnerControlledDefaultResult['commands'] {
     return {
-      plan: 'zavorth ai-first plan --snapshot <phase10.json> --owner-approval-id <id>',
-      activate: 'zavorth ai-first activate --snapshot <phase10.json> --owner-approval-id <id> --apply --confirm-owner-controlled-default',
+      plan: 'zavorth ai-first plan --snapshot <intent-model0.json> --owner-approval-id <id>',
+      activate: 'zavorth ai-first activate --snapshot <intent-model0.json> --owner-approval-id <id> --apply --confirm-owner-controlled-default',
       status: 'zavorth ai-first status',
       rollback: 'zavorth ai-first rollback --owner-approval-id <id> --apply --confirm-rollback',
     };

@@ -25,16 +25,16 @@ const rules = [
   }),
   ruleContainsAll({
     id: 'media-generation-live-contract',
-    label: 'Contract defines Phase 6 vocabulary',
+    label: 'Contract defines Runtime gateway vocabulary',
     target: 'Contract captures modalities, targets, gates, receipts and next phase handoff',
     files: ['src/contracts/MediaGenerationLivePlaneContract.ts'],
     needles: [
       'ZAVORTH_MEDIA_GENERATION_LIVE_PLANE_CONTRACT_VERSION',
-      '2026-05-04.live-phase-6',
+      '2026-05-04.live-checkpoint-6',
       'image-generation-core',
       'video-generation-core',
-      'audioRoutedToPhase7: true',
-      'Phase 7 - Speech, TTS And Voice Live Plane',
+      'audioRoutedToStage7: true',
+      'Surface controls - Speech, TTS And Voice Live Plane',
     ],
   }),
   ruleContainsAll({
@@ -53,7 +53,7 @@ const rules = [
   }),
   ruleContainsAll({
     id: 'media-generation-live-service',
-    label: 'Service closes Phase 6 gates',
+    label: 'Service closes Runtime gateway gates',
     target: 'Service maps eight media generation targets with modality coverage and staging-live commands',
     files: ['src/services/MediaGenerationLivePlaneService.ts'],
     needles: [
@@ -65,27 +65,27 @@ const rules = [
       'minimax',
       'byteplus',
       'volcengine',
-      'audioRoutedToPhase7: true',
+      'audioRoutedToStage7: true',
       '--confirm-live-io',
     ],
   }),
   ruleContainsAll({
     id: 'media-generation-live-tests',
-    label: 'Tests prove Phase 6 behavior',
+    label: 'Tests prove Runtime gateway behavior',
     target: 'Tests cover snapshot, artifact storage, direct image adapter and async video adapter',
     files: ['tests/services/MediaGenerationLivePlaneService.test.ts'],
     needles: [
-      'closes Phase 6 media generation gates',
+      'closes Runtime gateway media generation gates',
       'stores direct image output as a GeneratedMediaArtifact',
       'stores async video output as a GeneratedMediaArtifact',
       'exposes job status and cancellation receipts',
-      'audioRoutedToPhase7: true',
+      'audioRoutedToStage7: true',
     ],
   }),
   ruleContainsAll({
     id: 'media-generation-live-package',
-    label: 'Package exposes Phase 6 scripts',
-    target: 'Phase 6 can be run through package scripts',
+    label: 'Package exposes Runtime gateway scripts',
+    target: 'Runtime gateway can be run through package scripts',
     files: ['package.json'],
     needles: [
       'media-generation-live-plane',
@@ -95,8 +95,8 @@ const rules = [
   }),
   ruleContainsAll({
     id: 'media-generation-live-sdk',
-    label: 'SDK exposes Phase 6 contract and service',
-    target: 'Phase 6 can be imported from SDK barrels',
+    label: 'SDK exposes Runtime gateway contract and service',
+    target: 'Runtime gateway can be imported from SDK barrels',
     files: ['src/sdk/contracts.ts', 'src/sdk/index.ts'],
     needles: [
       'MediaGenerationLivePlane',
@@ -104,11 +104,11 @@ const rules = [
   }),
   ruleContainsAll({
     id: 'media-generation-live-doc',
-    label: 'Docs record Phase 6 closure',
-    target: 'Phase 6 documentation explains media generation live plane and staging-live flow',
+    label: 'Docs record Runtime gateway closure',
+    target: 'Runtime gateway documentation explains media generation live plane and staging-live flow',
     files: ['docs/README.md'],
     needles: [
-      'Phase 6',
+      'Runtime gateway',
       'Media Generation Live Plane',
       'staging-live',
     ],
@@ -130,7 +130,7 @@ const snapshot = {
 if (asJson) {
   console.log(JSON.stringify(snapshot, null, 2));
 } else {
-  console.log('[media-generation-live-plane] checking Phase 6');
+  console.log('[media-generation-live-plane] checking Runtime gateway');
   for (const rule of rules) {
     const marker = rule.status === 'passed' ? 'ok' : 'fail';
     console.log(`[media-generation-live-plane] ${marker} ${rule.label}: ${rule.observed} | ${rule.target}`);

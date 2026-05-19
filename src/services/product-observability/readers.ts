@@ -63,8 +63,8 @@ export function matchesWorkflowScope(run: WorkflowRunSnapshot, scope: ProductObs
     return false;
   }
   if (scope.executor) {
-    const hasExecutor = Array.isArray(run.stages)
-      && run.stages.some((stage) => normalizeOptionalString(stage.executor) === scope.executor);
+    const hasExecutor = Array.isArray(run.phases)
+      && run.phases.some((phase) => normalizeOptionalString(phase.executor) === scope.executor);
     if (!hasExecutor) {
       return false;
     }

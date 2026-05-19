@@ -5,7 +5,7 @@ import type { MemoryEntry } from '../../src/services/MemoryService';
 import { ZavorthWorkspaceMemoryOsService } from '../../src/services/ZavorthWorkspaceMemoryOsService';
 
 function createWorkspace(): string {
-  const workspace = fs.mkdtempSync(path.join(os.tmpdir(), 'zavorth-phase-29-'));
+  const workspace = fs.mkdtempSync(path.join(os.tmpdir(), 'zavorth-checkpoint-29-'));
   fs.mkdirSync(path.join(workspace, 'src'));
   fs.mkdirSync(path.join(workspace, 'tests'));
   fs.writeFileSync(
@@ -161,11 +161,11 @@ describe('ZavorthWorkspaceMemoryOsService', () => {
       taskOperatingSystemService: {
         buildSnapshot: jest.fn(async () => ({
           generatedAt: '2026-04-24T15:00:00.000Z',
-          phase: '27',
+          stage: '27',
           surface: 'task-os',
           taskLedger: {
             generatedAt: '2026-04-24T15:00:00.000Z',
-            phase: '27',
+            stage: '27',
             surface: 'task-ledger',
             summary: { total: 1 },
             selected: null,

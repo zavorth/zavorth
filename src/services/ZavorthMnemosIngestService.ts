@@ -23,7 +23,7 @@ type ZavorthMnemosIngestInput = {
 };
 
 const DEFAULT_SOURCE_PATHS = [
-  'docs/42-mnemos-memory-os.md',
+  'docs/mnemos-memory-os.md',
   'README.md',
 ];
 

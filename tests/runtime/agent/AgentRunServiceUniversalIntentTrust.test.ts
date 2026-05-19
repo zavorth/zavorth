@@ -8,7 +8,7 @@ function createIdFactory() {
   return (prefix: string) => `${prefix}-uni-trust-${++index}`;
 }
 
-describe('AgentRunService UNI / Trust enforcement Wave 44', () => {
+describe('AgentRunService UNI / Trust enforcement Channel mesh4', () => {
   it('publishes universalIntentTrustEnforcement before the executor runs', async () => {
     const executor = jest.fn<ReturnType<UniversalAgentExecutor>, Parameters<UniversalAgentExecutor>>(({ run }) => ({
       status: 'completed',
@@ -35,7 +35,7 @@ describe('AgentRunService UNI / Trust enforcement Wave 44', () => {
 
     expect(executor).toHaveBeenCalledTimes(1);
     expect(result.run.metadata.universalIntentTrustEnforcement).toEqual(expect.objectContaining({
-      contractVersion: '2026-05-04.wave-44',
+      contractVersion: '2026-05-04.trust-enforcement',
       status: 'allow',
       summary: expect.objectContaining({
         trustLevel: 'collaborator',

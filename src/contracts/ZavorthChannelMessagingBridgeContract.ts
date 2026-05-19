@@ -199,8 +199,8 @@ export type ZavorthChannelMessagingBridgeSnapshot = {
   generatedAt: string;
   contractVersion: typeof ZAVORTH_CHANNEL_MESSAGING_BRIDGE_CONTRACT_VERSION;
   status: ZavorthChannelMessagingBridgeStatus;
-  planId: '291 - Plano Zavorth External Runtime Absorption';
-  phase: 'phase-5-channels-and-messaging';
+  planId: 'Zavorth External Runtime Integration';
+  phase: 'checkpoint-5-channels-and-messaging';
   previousCapabilityProviderStatus: ZavorthCapabilityProviderRegistryStatus;
   channelDescriptors: ZavorthNormalizedChannelDescriptor[];
   normalizedInboundMessage: ZavorthNormalizedInboundMessage;
@@ -243,6 +243,6 @@ export type ZavorthChannelMessagingBridgeSnapshot = {
     inspect: 'npm run zavorth:channel-messaging-bridge';
     inspectJson: 'npm run zavorth:channel-messaging-bridge:json';
     check: 'npm run zavorth:channel-messaging-bridge:check --silent';
-    nextPhase: '291 Phase 6 - Sessions, Memory, And Continuation';
+    nextStage: '291 Runtime gateway - Sessions, Memory, And Continuation';
   };
 };

@@ -1,4 +1,4 @@
-export const ZAVORTH_SOURCE_SURFACE_LEDGER_CONTRACT_VERSION = '2026-05-05.phase-0' as const;
+export const ZAVORTH_SOURCE_SURFACE_LEDGER_CONTRACT_VERSION = '2026-05-05.checkpoint-0' as const;
 
 export const SOURCE_SURFACE_CATEGORIES = [
   'root_directory',
@@ -200,6 +200,6 @@ export type SourceSurfaceLedgerReceipt = {
     inspectJson: 'npm run source-surface-ledger:json --silent';
     check: 'npm run source-surface-ledger:check --silent';
     qa: 'npm run qa:source-surface-ledger --silent';
-    nextPhase: 'Phase 1 - Plugin OS And Package SDK Absorption';
+    nextStage: 'Intent model - Plugin OS And Package SDK Absorption';
   };
 };

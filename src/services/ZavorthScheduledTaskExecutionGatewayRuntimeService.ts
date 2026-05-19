@@ -44,7 +44,7 @@ type NormalizedTick = {
   };
 };
 
-const DEFAULT_TASK_ID = 'scheduled-task-phase-2-preview';
+const DEFAULT_TASK_ID = 'scheduled-task-checkpoint-2-preview';
 
 export class ZavorthScheduledTaskExecutionGatewayRuntimeService {
   private readonly now: () => Date;
@@ -78,7 +78,7 @@ export class ZavorthScheduledTaskExecutionGatewayRuntimeService {
       generatedAt,
       contractVersion: ZAVORTH_SCHEDULED_TASK_RUNTIME_CONTRACT_VERSION,
       source: 'ZavorthScheduledTaskExecutionGatewayRuntimeService',
-      phase: 'phase-2-scheduled-task-execution-gateway',
+      phase: 'checkpoint-2-scheduled-task-execution-gateway',
       status,
       mode: modeForStatus(status, tick),
       registry,
@@ -88,7 +88,7 @@ export class ZavorthScheduledTaskExecutionGatewayRuntimeService {
       checks,
       receipts,
       safety: {
-        consumesPhase1Registry: true,
+        consumesStage1Registry: true,
         validatesEnvelopeOnEveryTick: true,
         preservesApprovedScope: true,
         usesExecutionGatewaySubmit: true,
@@ -110,7 +110,7 @@ export class ZavorthScheduledTaskExecutionGatewayRuntimeService {
 
   public formatSnapshotText(snapshot: ZavorthScheduledTaskRuntimeSnapshot): string {
     const lines = [
-      'Zavorth Scheduled Task Execution Gateway Runtime - Phase 2',
+      'Zavorth Scheduled Task Execution Gateway Runtime - Preview engine',
       '',
       `Status: ${snapshot.status}`,
       `Mode: ${snapshot.mode}`,
@@ -263,7 +263,7 @@ function buildTask(registry: ZavorthScheduledTaskSnapshot, tick: NormalizedTick,
     requires_planning: false,
     requires_approval: false,
     approval_status: registry.approvalVerification.ok ? 'approved' : 'pending',
-    planner_used: 'scheduled-task-runtime-phase-2',
+    planner_used: 'scheduled-task-runtime-checkpoint-2',
     executor_used: null,
     fallback_used: false,
     parent_task_id: null,
@@ -278,7 +278,7 @@ function buildTask(registry: ZavorthScheduledTaskSnapshot, tick: NormalizedTick,
     error_summary: null,
     rollback_available: false,
     metadata: {
-      scheduledTaskRuntime: 'phase-2-scheduled-task-execution-gateway',
+      scheduledTaskRuntime: 'checkpoint-2-scheduled-task-execution-gateway',
       scheduledTaskApprovalId: registry.approvalEnvelope?.approvalId || null,
       schedule: registry.schedule?.normalized || null,
       budget: registry.budget,
@@ -328,7 +328,7 @@ function buildPlan(registry: ZavorthScheduledTaskSnapshot, tick: NormalizedTick,
     success_condition: 'ExecutionGateway accepted or completed the scheduled task without scope expansion.',
     rollback_condition: 'Pause the scheduled task and request re-approval if scope, policy, mode or budget checks fail.',
     notes: [
-      'Phase 2 consumes the Phase 1 registry snapshot.',
+      'Preview engine consumes the Intent model registry snapshot.',
       'A real host must inject ExecutionGateway for non-dry-run execution.',
     ],
   };
@@ -341,13 +341,13 @@ function buildChecks(
   gatewayDecision: ZavorthScheduledTaskGatewayDecisionSummary,
 ): ZavorthScheduledTaskRuntimeCheck[] {
   return [
-    check('registry-active', registry.status === 'active', 'registry-active', `Registry status is ${registry.status}.`, 'Complete Phase 1 approval before runtime ticks.'),
+    check('registry-active', registry.status === 'active', 'registry-active', `Registry status is ${registry.status}.`, 'Complete Intent model approval before runtime ticks.'),
     check('due-window', tick.due, 'due-window', tick.due ? 'Scheduled task is due now.' : 'Scheduled task is not due yet.', 'Wait until next_run before submitting to ExecutionGateway.'),
     warn('submit-request', tick.submit, 'submit-request', tick.submit ? 'Tick requested ExecutionGateway submit.' : 'Tick only prepared the gateway task and plan.', 'Submit only from the scheduler tick path.'),
     check('scope-envelope-fresh', registry.approvalVerification.ok, 'scope-envelope-fresh', `Approval verification: ${registry.approvalVerification.reason}.`, 'Renew the signed scheduled-task approval envelope.'),
     check('scope-invariance', scopeInvariant, 'scope-invariance', scopeInvariant ? 'No scope override was detected.' : 'A tick tried to alter command, workspace or schedule.', 'Reject scope changes and ask the owner to approve a new schedule.'),
     check('kill-switch', !tick.killSwitchEnabled, 'kill-switch', tick.killSwitchEnabled ? 'Runtime kill switch is enabled.' : 'Runtime kill switch is clear.', 'Disable the kill switch before recurring execution.'),
-    check('budget-boundary', registry.checks.every((item) => item.kind !== 'budget-boundary' || item.status !== 'fail'), 'budget-boundary', 'Budget boundary from Phase 1 was consumed.', 'Lower recurring task budget before execution.'),
+    check('budget-boundary', registry.checks.every((item) => item.kind !== 'budget-boundary' || item.status !== 'fail'), 'budget-boundary', 'Budget boundary from Intent model was consumed.', 'Lower recurring task budget before execution.'),
     tick.submit
       ? check('execution-gateway', gatewayDecision.called && gatewayDecision.allowed, 'execution-gateway', gatewayDecision.called ? `Gateway reason: ${gatewayDecision.reason || 'none'}.` : 'ExecutionGateway was not called.', 'Inject an ExecutionGateway or use dry-run for preview.')
       : warn('execution-gateway', true, 'execution-gateway', 'ExecutionGateway call is pending until a due scheduler tick submits.', null),
@@ -364,43 +364,43 @@ function buildReceipts(
 ): ZavorthScheduledTaskRuntimeReceipt[] {
   return [
     {
-      id: 'phase-2-scheduled-task-execution-gateway',
-      kind: 'phase-2-scheduled-task-execution-gateway',
+      id: 'checkpoint-2-scheduled-task-execution-gateway',
+      kind: 'checkpoint-2-scheduled-task-execution-gateway',
       status: status === 'blocked' ? 'blocked' : 'recorded',
       summary: `Scheduled task runtime status is ${status}.`,
     },
     {
-      id: 'phase-2-registry-consumed',
+      id: 'checkpoint-2-registry-consumed',
       kind: 'registry-consumed',
       status: registry.status === 'active' ? 'recorded' : 'blocked',
-      summary: `Consumed Phase 1 registry snapshot with status ${registry.status}.`,
+      summary: `Consumed Intent model registry snapshot with status ${registry.status}.`,
     },
     {
-      id: registry.approvalEnvelope?.approvalId || 'phase-2-scope-revalidated',
+      id: registry.approvalEnvelope?.approvalId || 'checkpoint-2-scope-revalidated',
       kind: 'scope-revalidated',
       status: registry.approvalVerification.ok ? 'recorded' : 'blocked',
       summary: `Approval envelope revalidation result: ${registry.approvalVerification.reason}.`,
     },
     {
-      id: 'phase-2-scope-invariance',
+      id: 'checkpoint-2-scope-invariance',
       kind: 'scope-invariance',
       status: scopeInvariant ? 'recorded' : 'blocked',
       summary: scopeInvariant ? 'Tick preserved the approved command, workspace and schedule.' : 'Tick tried to change the approved scope.',
     },
     {
-      id: 'phase-2-gateway-submit',
+      id: 'checkpoint-2-gateway-submit',
       kind: 'gateway-submit',
       status: gatewayDecision.called ? 'submitted' : tick.submit ? 'blocked' : 'skipped',
       summary: gatewayDecision.called ? 'Tick entered ExecutionGateway.submit().' : 'Tick did not submit to ExecutionGateway.',
     },
     {
-      id: gatewayDecision.executionId || 'phase-2-gateway-result',
+      id: gatewayDecision.executionId || 'checkpoint-2-gateway-result',
       kind: 'gateway-result',
       status: gatewayDecision.called && gatewayDecision.allowed ? 'recorded' : gatewayDecision.called ? 'failed' : 'skipped',
       summary: gatewayDecision.reason || 'No gateway result was produced.',
     },
     {
-      id: 'phase-2-execution-boundary',
+      id: 'checkpoint-2-execution-boundary',
       kind: 'execution-boundary',
       status: 'recorded',
       summary: 'Scheduler path delegates through ExecutionGateway and does not directly execute tools.',
@@ -442,8 +442,8 @@ function narrativeForStatus(
   if (status === 'dry_run_submitted') {
     return {
       headline: 'Scheduled task reached ExecutionGateway in dry-run mode.',
-      operatorSummary: 'The due tick consumed the signed Phase 1 registry and entered the gateway without performing live execution.',
-      nextAction: 'Phase 3 should add channel commands and scheduler persistence around this runtime path.',
+      operatorSummary: 'The due tick consumed the signed Intent model registry and entered the gateway without performing live execution.',
+      nextAction: 'Approval gate should add channel commands and scheduler persistence around this runtime path.',
     };
   }
   if (status === 'completed' || status === 'submitted') {

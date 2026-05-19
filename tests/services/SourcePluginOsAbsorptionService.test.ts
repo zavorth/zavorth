@@ -6,7 +6,7 @@ import { SourcePluginPackageAdapterService } from '../../src/services/SourcePlug
 import { SourcePluginRuntimeDoctorService } from '../../src/services/SourcePluginRuntimeDoctorService.js';
 import { SourcePluginSdkCompatibilityMatrixService } from '../../src/services/SourcePluginSdkCompatibilityMatrixService.js';
 
-describe('SourcePluginOsAbsorptionService Phase 1', () => {
+describe('SourcePluginOsAbsorptionService Intent model', () => {
   const now = () => new Date('2026-05-05T13:00:00.000Z');
   let tempRoot: string;
   let sourceRoot: string;
@@ -30,7 +30,7 @@ describe('SourcePluginOsAbsorptionService Phase 1', () => {
       digest: 'sha256:test',
     });
 
-    expect(snapshot.contractVersion).toBe('2026-05-05.phase-1');
+    expect(snapshot.contractVersion).toBe('2026-05-05.checkpoint-1');
     expect(snapshot.status).toBe('converted');
     expect(snapshot.manifest).toEqual(
       expect.objectContaining({
@@ -140,7 +140,7 @@ describe('SourcePluginOsAbsorptionService Phase 1', () => {
     expect(doctor.policy.noExternalPluginCodeExecution).toBe(true);
   });
 
-  it('emits a Phase 1 absorption snapshot and next-phase handoff', () => {
+  it('emits a Intent model absorption snapshot and next-phase handoff', () => {
     const service = new SourcePluginOsAbsorptionService({
       now,
       sourceRoot,
@@ -168,9 +168,9 @@ describe('SourcePluginOsAbsorptionService Phase 1', () => {
         artifactFirstReceipts: true,
       }),
     );
-    expect(snapshot.commands.nextPhase).toBe('Phase 2 - Agent Runtime Bridge Pack');
-    expect(text).toContain('Zavorth Source Plugin OS Absorption - Phase 1');
-    expect(text).toContain('Next: Phase 2 - Agent Runtime Bridge Pack');
+    expect(snapshot.commands.nextStage).toBe('Preview engine - Agent Runtime Bridge Pack');
+    expect(text).toContain('Zavorth Source Plugin OS Absorption - Intent model');
+    expect(text).toContain('Next: Preview engine - Agent Runtime Bridge Pack');
   });
 });
 

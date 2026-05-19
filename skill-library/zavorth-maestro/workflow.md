@@ -13,7 +13,7 @@
 - evitar combinacoes desnecessarias
 
 3. Execucao
-- processar o material ou a tarefa por fases
+- processar o material ou a tarefa por etapas
 - usar ferramentas locais quando isso trouxer precisao
 - manter uma resposta unificada
 

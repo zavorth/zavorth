@@ -13,7 +13,7 @@ describe('ZavorthUxRolloutEvidenceCanaryService', () => {
     const snapshot = service.buildSnapshot();
 
     expect(snapshot.contractVersion).toBe(ZAVORTH_UX_ROLLOUT_EVIDENCE_CANARY_CONTRACT_VERSION);
-    expect(snapshot.phase).toBe('phase-7-ux-rollout-evidence-canary');
+    expect(snapshot.phase).toBe('checkpoint-7-ux-rollout-evidence-canary');
     expect(snapshot.status).toBe('needs-evidence');
     expect(snapshot.canaryPlan.dryRunReady).toBe(false);
     expect(snapshot.summary.evidenceItems).toBe(0);

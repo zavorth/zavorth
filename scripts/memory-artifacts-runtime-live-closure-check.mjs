@@ -25,12 +25,12 @@ const rules = [
   }),
   ruleContainsAll({
     id: 'memory-artifacts-runtime-contract',
-    label: 'Contract defines Phase 12 vocabulary',
+    label: 'Contract defines Intent model2 vocabulary',
     target: 'Contract captures all 11 targets, capabilities, receipts and next phase handoff',
     files: ['src/contracts/MemoryArtifactsRuntimeLiveClosureContract.ts'],
     needles: [
       'ZAVORTH_MEMORY_ARTIFACTS_RUNTIME_LIVE_CLOSURE_CONTRACT_VERSION',
-      '2026-05-05.live-phase-12',
+      '2026-05-05.live-checkpoint-12',
       'memory-core',
       'active-memory',
       'memory-wiki',
@@ -45,7 +45,7 @@ const rules = [
       'memoryMarkedLiveWithoutWrite: false',
       'artifactsMarkedLiveWithoutReplay: false',
       'runtimeMarkedLiveWithoutExecutionProfile: false',
-      'Phase 3 - Channel Live Activation Long Tail',
+      'Approval gate - Channel Live Activation Long Tail',
     ],
   }),
   ruleContainsAll({
@@ -68,7 +68,7 @@ const rules = [
   }),
   ruleContainsAll({
     id: 'memory-artifacts-runtime-closure-service',
-    label: 'Closure service maps all Phase 12 targets',
+    label: 'Closure service maps all Intent model2 targets',
     target: 'Snapshot includes gates for memory, artifacts, ownership, runtime, workflow, plugin and bridge',
     files: ['src/services/MemoryArtifactsRuntimeLiveClosureService.ts'],
     needles: [
@@ -87,8 +87,8 @@ const rules = [
   }),
   ruleContainsAll({
     id: 'memory-artifacts-runtime-readiness-live',
-    label: 'Readiness promotes Phase 12 primitives',
-    target: 'Memory, runtime, sandbox, task, workspace and bridge primitives become partial-live with Phase 12 gates',
+    label: 'Readiness promotes Intent model2 primitives',
+    target: 'Memory, runtime, sandbox, task, workspace and bridge primitives become partial-live with Intent model2 gates',
     files: ['src/services/LiveReadinessService.ts'],
     needles: [
       'memory.vector',
@@ -98,13 +98,13 @@ const rules = [
       'task.orchestrate',
       'workspace.command',
       'bridge.protocol',
-      'Phase 12 - Memory, Artifacts, Runtime Executor',
+      'Intent model2 - Memory, Artifacts, Runtime Executor',
     ],
   }),
   ruleContainsAll({
     id: 'memory-artifacts-runtime-normalization',
-    label: 'Capability normalization points to Phase 12 runtime service',
-    target: 'Memory, workspace and bridge primitives point to the Phase 12 service and contract',
+    label: 'Capability normalization points to Intent model2 runtime service',
+    target: 'Memory, workspace and bridge primitives point to the Intent model2 service and contract',
     files: ['src/services/CapabilityNormalizationService.ts'],
     needles: [
       'memory.vector',
@@ -118,11 +118,11 @@ const rules = [
   }),
   ruleContainsAll({
     id: 'memory-artifacts-runtime-tests',
-    label: 'Tests prove Phase 12 behavior',
+    label: 'Tests prove Intent model2 behavior',
     target: 'Tests cover snapshot, memory lifecycle, artifact replay, runtime execution and workspace/bridge gates',
     files: ['tests/services/MemoryArtifactsRuntimeLiveClosureService.test.ts'],
     needles: [
-      'closes Phase 12 memory, artifacts and runtime gates',
+      'closes Intent model2 memory, artifacts and runtime gates',
       'writes recalls cites and forgets real memory entries',
       'indexes and replays real artifact bodies',
       'executes a controlled runtime profile',
@@ -131,8 +131,8 @@ const rules = [
   }),
   ruleContainsAll({
     id: 'memory-artifacts-runtime-package',
-    label: 'Package exposes Phase 12 scripts',
-    target: 'Phase 12 can be run through package scripts',
+    label: 'Package exposes Intent model2 scripts',
+    target: 'Intent model2 can be run through package scripts',
     files: ['package.json'],
     needles: [
       'memory-artifacts-runtime-live-closure',
@@ -142,8 +142,8 @@ const rules = [
   }),
   ruleContainsAll({
     id: 'memory-artifacts-runtime-sdk-contract',
-    label: 'SDK exposes Phase 12 contract',
-    target: 'Phase 12 contract is available from SDK contract barrel',
+    label: 'SDK exposes Intent model2 contract',
+    target: 'Intent model2 contract is available from SDK contract barrel',
     files: ['src/sdk/contracts.ts'],
     needles: [
       'MemoryArtifactsRuntimeLiveClosureContract',
@@ -151,8 +151,8 @@ const rules = [
   }),
   ruleContainsAll({
     id: 'memory-artifacts-runtime-sdk-services',
-    label: 'SDK exposes Phase 12 services',
-    target: 'Phase 12 services are available from SDK service barrel',
+    label: 'SDK exposes Intent model2 services',
+    target: 'Intent model2 services are available from SDK service barrel',
     files: ['src/sdk/index.ts'],
     needles: [
       'MemoryArtifactsRuntimeLiveClosureService',
@@ -161,11 +161,11 @@ const rules = [
   }),
   ruleContainsAll({
     id: 'memory-artifacts-runtime-doc',
-    label: 'Docs record Phase 12 closure',
+    label: 'Docs record Intent model2 closure',
     target: 'Documentation explains memory, artifact replay, runtime execution, approvals and handoff',
     files: ['docs/README.md'],
     needles: [
-      'Phase 12',
+      'Intent model2',
       'Memory, Artifacts And Runtime Executor Live Closure',
       'memory-core',
       'artifact replay',
@@ -192,7 +192,7 @@ const snapshot = {
 if (asJson) {
   console.log(JSON.stringify(snapshot, null, 2));
 } else {
-  console.log('[memory-artifacts-runtime-live-closure] checking Phase 12');
+  console.log('[memory-artifacts-runtime-live-closure] checking Intent model2');
   for (const rule of rules) {
     const marker = rule.status === 'passed' ? 'ok' : 'fail';
     console.log(`[memory-artifacts-runtime-live-closure] ${marker} ${rule.label}: ${rule.observed} | ${rule.target}`);

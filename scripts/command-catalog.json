@@ -85,10 +85,10 @@
       "command": "node scripts/zavorth-command.mjs --list",
       "description": "Comando canonico: command:list"
     },
-    "defork:check": {
+    "identity:hygiene": {
       "status": "canonical",
-      "command": "node scripts/defork-check.mjs",
-      "description": "Comando canonico: defork:check"
+      "command": "node scripts/zavorth-native-hygiene-check.mjs",
+      "description": "Comando canonico: identity:hygiene"
     },
     "dev": {
       "status": "canonical",
@@ -258,11 +258,11 @@
     "test:cross-surface": {
       "status": "canonical",
       "command": "jest tests/integration/CrossSurfaceContinuity.test.ts --runInBand",
-      "description": "Comando canonico mantido por defork gate: test:cross-surface"
+      "description": "Comando canonico mantido por native-hygiene gate: test:cross-surface"
     },
     "workspace:check": {
       "status": "canonical",
-      "command": "npm run runtime:check && npm run identity:public && npm run defork:check && npm run surfaces:check && npm run architecture:boundaries && npm run architecture:hardening && npm run architecture:lazy-loading && npm run architecture:event-first && npm run architecture:contracts && npm run architecture:activation && npm run architecture:activation-ledger && npm run architecture:activation-replay && npm run architecture:retention",
+      "command": "npm run runtime:check && npm run identity:public && npm run identity:hygiene && npm run surfaces:check && npm run architecture:boundaries && npm run architecture:hardening && npm run architecture:lazy-loading && npm run architecture:event-first && npm run architecture:contracts && npm run architecture:activation && npm run architecture:activation-ledger && npm run architecture:activation-replay && npm run architecture:retention",
       "description": "Comando canonico: workspace:check"
     },
     "security:doctor": {

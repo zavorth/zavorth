@@ -42,7 +42,7 @@ export class VoiceRecorderService {
         using System.IO;
         using System.Runtime.InteropServices;
 
-        public class WaveRecorder {
+        public class TrackRecorder {
           [DllImport("winmm.dll")]
           public static extern int mciSendString(string command, System.Text.StringBuilder buffer, int bufferSize, IntPtr callback);
 
@@ -58,7 +58,7 @@ export class VoiceRecorderService {
           }
         }
 "@
-      [WaveRecorder]::Record('${escapedOutputPath}', ${this.maxDurationMs})
+      [TrackRecorder]::Record('${escapedOutputPath}', ${this.maxDurationMs})
     `;
 
     try {

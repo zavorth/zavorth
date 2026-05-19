@@ -27,7 +27,7 @@ const DEFAULT_REPLACEMENTS: ZavorthNativeReplacementInput[] = [
   {
     capabilityId: 'error-recovery-classification',
     capabilityName: 'Error Recovery Classification',
-    sourcePatternRef: 'diagnostic://phase-2/error-recovery',
+    sourcePatternRef: 'diagnostic://checkpoint-2/error-recovery',
     zavorthNativeOwner: 'ZavorthNativeEngineAbsorptionService',
     replacementDecision: 'promote-native',
     parityCoveragePercent: 100,
@@ -39,7 +39,7 @@ const DEFAULT_REPLACEMENTS: ZavorthNativeReplacementInput[] = [
   {
     capabilityId: 'tool-call-argument-repair',
     capabilityName: 'Tool Call Argument Repair',
-    sourcePatternRef: 'diagnostic://phase-2/tool-argument-repair',
+    sourcePatternRef: 'diagnostic://checkpoint-2/tool-argument-repair',
     zavorthNativeOwner: 'ZavorthNativeEngineAbsorptionService',
     replacementDecision: 'promote-native',
     parityCoveragePercent: 96,
@@ -51,7 +51,7 @@ const DEFAULT_REPLACEMENTS: ZavorthNativeReplacementInput[] = [
   {
     capabilityId: 'channel-messaging-bridge',
     capabilityName: 'Channel Messaging Bridge',
-    sourcePatternRef: 'diagnostic://phase-5/channel-messaging',
+    sourcePatternRef: 'diagnostic://checkpoint-5/channel-messaging',
     zavorthNativeOwner: 'ZavorthChannelMessagingBridgeService',
     replacementDecision: 'keep-optional-adapter',
     parityCoveragePercent: 92,
@@ -63,7 +63,7 @@ const DEFAULT_REPLACEMENTS: ZavorthNativeReplacementInput[] = [
   {
     capabilityId: 'delegated-worker-bridge',
     capabilityName: 'Delegated Worker Bridge',
-    sourcePatternRef: 'diagnostic://phase-7/delegated-workers',
+    sourcePatternRef: 'diagnostic://checkpoint-7/delegated-workers',
     zavorthNativeOwner: 'ZavorthDelegatedWorkerBridgeService',
     replacementDecision: 'defer',
     parityCoveragePercent: 88,
@@ -115,8 +115,8 @@ export class ZavorthNativeReplacementDecommissionService {
       generatedAt: this.now().toISOString(),
       contractVersion: ZAVORTH_NATIVE_REPLACEMENT_DECOMMISSION_CONTRACT_VERSION,
       status,
-      planId: '291 - Plano Zavorth External Runtime Absorption',
-      phase: 'phase-8-native-replacement-decommission',
+      planId: 'Zavorth External Runtime Integration',
+      phase: 'native-replacement-decommission',
       previousDelegatedWorkerStatus,
       registryEntries,
       parityHarnessReceipts,
@@ -324,7 +324,7 @@ export class ZavorthNativeReplacementDecommissionService {
 
   public formatSnapshotText(snapshot: ZavorthNativeReplacementDecommissionSnapshot): string {
     const lines = [
-      'Zavorth Native Replacement Decommission - Phase 8',
+      'Zavorth Native Replacement Decommission - Dashboard controls',
       '',
       `Status: ${snapshot.status}`,
       `Previous delegated worker bridge: ${snapshot.previousDelegatedWorkerStatus}`,
@@ -359,7 +359,7 @@ function buildAcceptanceMatrix(
 ): ZavorthNativeReplacementDecommissionSnapshot['acceptanceMatrix'] {
   const promotedEntries = registryEntries.filter((entry) => entry.replacementDecision === 'promote-native');
   return [
-    acceptance('phase-7-delegated-workers-ready', previousDelegatedWorkerStatus === 'delegated-worker-bridge-ready', `previousDelegatedWorkerStatus=${previousDelegatedWorkerStatus}`),
+    acceptance('delegated-workers-ready', previousDelegatedWorkerStatus === 'delegated-worker-bridge-ready', `previousDelegatedWorkerStatus=${previousDelegatedWorkerStatus}`),
     acceptance('native-replacement-registry-ready', registryEntries.length >= 4
       && registryEntries.every((entry) => entry.publicName === 'Zavorth' && entry.sourcePatternDiagnosticsOnly), `${registryEntries.length} registry entry(ies)`),
     acceptance('promoted-capabilities-run-without-source-runtime', promotedEntries.length >= 2

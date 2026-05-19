@@ -29,7 +29,7 @@ type FileDocumentDiffLiveDescriptor = {
   gaps: string[];
 };
 
-const PHASE = 'Phase 9 - File, Document, Diff And Prose Live Plane' as const;
+const PHASE = 'Certification matrix - File, Document, Diff And Prose Live Plane' as const;
 
 const FILE_DOCUMENT_DIFF_TARGETS: FileDocumentDiffLiveDescriptor[] = [
   target('file-transfer', 'file-transfer-live', ['file.transfer'], 'local-filesystem-transfer', ['import', 'export', 'copy', 'move'], [], ['ZAVORTH_FILE_TRANSFER_WORKSPACE_ROOT']),
@@ -79,13 +79,13 @@ export class FileDocumentDiffLivePlaneService {
         blocked,
         fileTransferMarkedLiveByPlanOnly: false,
         documentExtractMarkedLiveByDryPlaceholder: false,
-        liveIoRequiredByPhase9Check: false,
+        liveIoRequiredByStage9Check: false,
         secretValuesSerialized: false,
       },
       entries,
       receipts,
       policy: {
-        noLiveIoDuringPhase9Check: true,
+        noLiveIoDuringStage9Check: true,
         workspaceWritesRequireExplicitApproval: true,
         documentExtractionArtifactsRequired: true,
         tableExtractionBaselineRequired: true,
@@ -100,7 +100,7 @@ export class FileDocumentDiffLivePlaneService {
         stagingLiveSmoke: 'npm run file-document-diff-live-plane -- --profile staging-live --target <target> --confirm-live-io',
         focusedTests: ['npx jest tests/services/FileDocumentDiffLivePlaneService.test.ts --runInBand'],
         typecheck: 'npm run runtime:check --silent',
-        nextPhase: 'Phase 10 - Diagnostics, QA And Migration Live Plane',
+        nextStage: 'Intent model0 - Diagnostics, QA And Migration Live Plane',
       },
     };
   }

@@ -68,7 +68,7 @@ export class ZavorthPatchRiskLedgerService {
 
   private buildPatchReceipt(patchFile: string): ZavorthPatchRiskReceipt {
     return {
-      id: `zavorth.phase7.patch-risk.${safeId(patchFile)}.${this.now().getTime()}.receipt`,
+      id: `zavorth.surface-controls.patch-risk.${safeId(patchFile)}.${this.now().getTime()}.receipt`,
       familyId: 'patch-risk',
       checkId: `patch.${safeId(patchFile)}`,
       patchId: patchFile,
@@ -86,13 +86,13 @@ export class ZavorthPatchRiskLedgerService {
       secretValuesSerialized: false,
       rawWorkflowYamlCopied: false,
       dependencyPatchAcceptedSilently: false,
-      notes: ['Patch file presence is never accepted silently by Phase 7.'],
+      notes: ['Patch file presence is never accepted silently by Surface controls.'],
     };
   }
 
   private buildNoPatchReceipt(): ZavorthPatchRiskReceipt {
     return {
-      id: `zavorth.phase7.patch-risk.none.${this.now().getTime()}.receipt`,
+      id: `zavorth.surface-controls.patch-risk.none.${this.now().getTime()}.receipt`,
       familyId: 'patch-risk',
       checkId: 'patch.none-present',
       patchId: 'none',

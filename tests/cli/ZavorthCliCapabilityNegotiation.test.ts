@@ -46,7 +46,7 @@ describe('Zavorth CLI Capability Negotiation', () => {
     }));
     const payload = JSON.parse(writes[0] || '{}');
     expect(payload).toEqual(expect.objectContaining({
-      contractVersion: '2026-05-03.wave-35',
+      contractVersion: '2026-05-03.capability-negotiation',
       status: 'proposal',
       summary: expect.objectContaining({
         approvalRequired: true,
@@ -70,7 +70,7 @@ describe('Zavorth CLI Capability Negotiation', () => {
 
     const text = formatCapabilityNegotiationSnapshot(snapshot);
 
-    expect(text).toContain('Capability Negotiation - Wave 35');
+    expect(text).toContain('Capability Negotiation - Capability Negotiation');
     expect(text).toContain('Escopo');
     expect(text).toContain('negotiation nao executa tools');
     expect(text).toContain('Command Center: /control?sector=skills');

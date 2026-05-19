@@ -25,7 +25,7 @@ const snapshot = {
 if (asJson) {
   console.log(JSON.stringify(snapshot, null, 2));
 } else {
-  console.log('[zavorth-dashboard-final-product-polish] checking Phase 11');
+  console.log('[zavorth-dashboard-final-product-polish] checking Intent model1');
   for (const rule of rules) {
     const marker = rule.status === 'passed' ? 'ok' : 'fail';
     console.log(`[zavorth-dashboard-final-product-polish] ${marker} ${rule.label}: ${rule.observed} | ${rule.target}`);
@@ -45,8 +45,8 @@ function ruleFilesExist() {
   ];
   const missing = files.filter((file) => !fs.existsSync(path.join(root, file)));
   return rule(
-    'phase-11-files',
-    'Phase 11 files exist',
+    'checkpoint-11-files',
+    'Intent model1 files exist',
     missing.length === 0,
     `${files.length - missing.length}/${files.length}`,
     'contract, service, CLI, check and tests are present',
@@ -65,20 +65,20 @@ function ruleContainsMarkers() {
       'sector-overview',
     ]],
     ['assets/command-center/scripts/pages.js', [
-      'operator-page',
-      'operator-hero',
-      'Your work queue, without the noise.',
-      'Quiet background mode.',
-      'operator-rest-mark',
-      '<details class="dashboard-advanced">',
-      'The dashboard displays decisions and requests actions; it does not execute mutations directly.',
+      'data-zavorth-premium-dashboard-v2',
+      'premium-page',
+      'Operate Zavorth from one clean surface.',
+      'Every channel uses the same rules.',
+      'Capabilities you can actually trust.',
+      'Background mode, kept quiet.',
+      'Settings without secret leaks.',
     ]],
     ['assets/command-center/styles/pages.css', [
-      '.operator-page',
-      '.operator-hero',
-      '.operator-workspace',
-      '.operator-rest-mark',
-      '.dashboard-advanced',
+      '.premium-page',
+      '.premium-hero',
+      '.premium-layout',
+      '.premium-skill-list',
+      '.usage-filter-bar',
       '@media (max-width: 768px)',
     ]],
     ['src/contracts/ZavorthDashboardFinalProductPolishContract.ts', [
@@ -100,7 +100,7 @@ function ruleContainsMarkers() {
     }
   }
   return rule(
-    'phase-11-markers',
+    'checkpoint-11-markers',
     'Dashboard polish markers are wired',
     missing.length === 0,
     missing.length === 0 ? 'all markers' : `${missing.length} missing`,
@@ -134,7 +134,7 @@ function ruleWorkspaceCheck() {
   const marker = 'zavorth:dashboard-final-product-polish:check';
   return rule(
     'workspace-check',
-    'workspace:check includes Phase 11 gate',
+    'workspace:check includes Intent model1 gate',
     text.includes(marker),
     text.includes(marker) ? 'wired' : 'missing',
     marker,
@@ -159,7 +159,7 @@ function ruleSnapshot() {
   }
   const data = parseJson(result.stdout);
   const pass = data
-    && data.contractVersion === '2026-05-14.phase-11-dashboard-final-product-polish'
+    && data.contractVersion === '2026-05-14.checkpoint-11-dashboard-final-product-polish'
     && data.status === 'passed'
     && data.summary?.dashboardPath === '/dashboard'
     && data.summary?.chatFirstHome === true

@@ -58,7 +58,7 @@ describe('ZavorthMaturityService', () => {
         'src/security/SensitiveDataGuard.ts': 'ok',
         'src/ai-gateway/lib/logExportRedaction.ts': 'ok',
         'src/ai-gateway/lib/db/backupSanitizer.ts': 'ok',
-        'docs/05-security.md': 'ok',
+        'docs/security.md': 'ok',
       },
     });
 
@@ -148,7 +148,7 @@ function defaultFiles(): Record<string, string> {
     'src/security/SensitiveDataGuard.ts': 'ok',
     'src/ai-gateway/lib/logExportRedaction.ts': 'ok',
     'src/ai-gateway/lib/db/backupSanitizer.ts': 'ok',
-    'docs/05-security.md': 'ok',
+    'docs/security.md': 'ok',
   };
 }
 

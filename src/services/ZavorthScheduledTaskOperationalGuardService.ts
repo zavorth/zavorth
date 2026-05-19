@@ -41,8 +41,8 @@ export class ZavorthScheduledTaskOperationalGuardService {
     const warningMs = normalizeWarningMs(input.approvalExpiryWarningMs);
     const tasks = this.scheduler?.listTasks(true) || [];
     const receipts: ZavorthScheduledTaskOperationalGuardReceipt[] = [{
-      id: 'phase-5-scheduled-task-operational-guard',
-      kind: 'phase-5-scheduled-task-operational-guard',
+      id: 'checkpoint-5-scheduled-task-operational-guard',
+      kind: 'checkpoint-5-scheduled-task-operational-guard',
       status: 'recorded',
       summary: 'Scheduled task renewal, expiry and auto-pause guard scanned the scheduler state.',
     }];
@@ -59,7 +59,7 @@ export class ZavorthScheduledTaskOperationalGuardService {
       workloadExecutionPerformed: false as false,
     };
     receipts.push({
-      id: 'phase-5-no-workload-execution',
+      id: 'checkpoint-5-no-workload-execution',
       kind: 'no-workload-execution',
       status: 'recorded',
       summary: 'Operational guard never dispatches scheduled workloads.',
@@ -69,7 +69,7 @@ export class ZavorthScheduledTaskOperationalGuardService {
       generatedAt,
       contractVersion: ZAVORTH_SCHEDULED_TASK_OPERATIONAL_GUARD_CONTRACT_VERSION,
       source: 'ZavorthScheduledTaskOperationalGuardService',
-      phase: 'phase-5-renewal-expiry-auto-pause',
+      phase: 'checkpoint-5-renewal-expiry-auto-pause',
       status,
       summary,
       tasks: taskCards,
@@ -329,7 +329,7 @@ function readGuardrails(task: ScheduledTask): Record<string, any> {
 
 function readGovernedMetadata(task: ScheduledTask): SchedulerGovernedScheduledTaskMetadata | null {
   const metadata = readGuardrails(task).governedScheduledTask;
-  return metadata?.phase === 'phase-3-persisted-scheduled-task-registration'
+  return metadata?.phase === 'checkpoint-3-persisted-scheduled-task-registration'
     ? metadata as SchedulerGovernedScheduledTaskMetadata
     : null;
 }

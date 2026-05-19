@@ -17,7 +17,7 @@ describe('ZavorthVisualReceiptUxService', () => {
       })],
     });
 
-    expect(snapshot.contractVersion).toBe('2026-05-13.phase-14');
+    expect(snapshot.contractVersion).toBe('2026-05-13.checkpoint-14');
     expect(snapshot.surface).toBe('visual-receipt-ux');
     expect(snapshot.status).toBe('attention');
     expect(snapshot.summary).toEqual(expect.objectContaining({

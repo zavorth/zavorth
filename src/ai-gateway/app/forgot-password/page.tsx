@@ -3,7 +3,7 @@
 import { useTranslations } from "next-intl";
 
 /**
- * Forgot Password Page — Phase 8.2
+ * Forgot Password Page — Dashboard controls.2
  *
  * Provides two recovery methods:
  * 1. CLI reset via zavorth reset-password command

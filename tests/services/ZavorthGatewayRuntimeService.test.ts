@@ -320,7 +320,7 @@ describe('ZavorthGatewayRuntimeService', () => {
     expect(serialized).not.toContain('profile-secret');
   });
 
-  it('attaches the C8 AI Gateway de-fork convergence snapshot to the canonical runtime snapshot', async () => {
+  it('attaches the C8 AI Gateway native hygiene convergence snapshot to the canonical runtime snapshot', async () => {
     const auth = {
       getStatus: jest.fn(() => ({
         enabled: true,
@@ -524,7 +524,7 @@ describe('ZavorthGatewayRuntimeService', () => {
       buildHandoffSnapshot: jest.fn(async () => ({
         version: 'zavorth-agent-gateway-handoff/1',
         generatedAt: '2026-05-03T18:10:00.000Z',
-        phase: 'prepared',
+        stage: 'prepared',
         context: {},
         gateway: {},
         runtime: {},
@@ -572,7 +572,7 @@ describe('ZavorthGatewayRuntimeService', () => {
     );
     expect(snapshot.aiGatewayConvergence).toEqual(expect.objectContaining({
       schemaVersion: 1,
-      phase: 'C8',
+      stage: 'C8',
       status: 'ready',
       activeRunId: 'run-1',
     }));
@@ -584,7 +584,7 @@ describe('ZavorthGatewayRuntimeService', () => {
     }));
     expect(snapshot.productization).toEqual(expect.objectContaining({
       schemaVersion: 1,
-      phase: 'C9',
+      stage: 'C9',
       cli: expect.objectContaining({
         sameContract: true,
         command: 'zavorth productization --json',

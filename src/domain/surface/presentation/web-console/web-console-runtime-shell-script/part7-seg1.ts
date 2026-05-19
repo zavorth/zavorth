@@ -115,7 +115,7 @@ export const runtimeShellScriptPart7Seg1: string = [
     "}",
     "",
     "function formatJourneyPhase(phase) {",
-    "  const title = normalizeText(phase?.title || phase?.id || 'fase');",
+    "  const title = normalizeText(phase?.title || phase?.id || 'etapa');",
     "  const command = normalizeText(phase?.command);",
     "  const summary = normalizeText(phase?.summary);",
     "  return '<strong>' + title + ':</strong> ' + (command || summary || 'Sem resumo.');",

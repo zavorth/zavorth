@@ -25,7 +25,7 @@ const snapshot = {
 if (asJson) {
   console.log(JSON.stringify(snapshot, null, 2));
 } else {
-  console.log('[zavorth-native-intelligence-pack] checking Phase 1');
+  console.log('[zavorth-native-intelligence-pack] checking Intent model');
   for (const rule of rules) {
     const marker = rule.status === 'passed' ? 'ok' : 'fail';
     console.log(`[zavorth-native-intelligence-pack] ${marker} ${rule.label}: ${rule.observed} | ${rule.target}`);
@@ -50,7 +50,7 @@ function ruleFilesExist() {
   const missing = files.filter((file) => !fs.existsSync(path.join(root, file)));
   return {
     id: 'native-intelligence-pack-files',
-    label: 'Phase 1 files exist',
+    label: 'Intent model files exist',
     status: missing.length === 0 ? 'passed' : 'failed',
     observed: `${files.length - missing.length}/${files.length} file(s) present`,
     target: 'contract, service, CLI, check, tests, docs, config and package scripts are present',
@@ -64,7 +64,7 @@ function ruleContainsMarkers() {
       'ZAVORTH_NATIVE_INTELLIGENCE_PACK_CONTRACT_VERSION',
       'ZavorthNativeSkillPresetId',
       'noExecutionByDefault',
-      'Phase 2 - Governed Subagent Model',
+      'Preview engine - Governed Subagent Model',
     ]],
     ['src/services/ZavorthNativeIntelligencePackService.ts', [
       'ZAVORTH_NATIVE_SKILL_DEFINITIONS',
@@ -102,7 +102,7 @@ function ruleContainsMarkers() {
   }
   return {
     id: 'native-intelligence-pack-markers',
-    label: 'Phase 1 markers are present',
+    label: 'Intent model markers are present',
     status: missing.length === 0 ? 'passed' : 'failed',
     observed: missing.length === 0 ? 'all markers present' : `${missing.length} missing marker(s)`,
     target: 'native source, presets, no-execution and package markers are present',

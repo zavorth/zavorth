@@ -195,16 +195,16 @@ export type ZavorthNativeConfigStateRegistrySnapshot = {
     secretRefRecordIds: string[];
   };
   sourceArtifactsConsumed: {
-    secretRefResolverBoundary: 'docs/157-wave-1-external-agent-secret-ref-resolver-injection-boundary.md';
-    configStateMigrationStrategy: 'docs/162-wave-0-external-agent-config-state-migration-strategy.md';
-    configStateReadOnlyInventory: 'docs/163-wave-1-external-agent-config-state-read-only-inventory.md';
-    redactionSecretRefMapping: 'docs/164-wave-1-redaction-and-secretref-mapping.md';
-    dryRunMigrationPlan: 'docs/165-wave-1-dry-run-migration-plan.md';
-    rollbackRestoreRehearsal: 'docs/166-wave-1-rollback-restore-rehearsal.md';
-    nativeCapabilityRegistry: 'docs/185-wave-3-first-native-capability-registry-replacement-slice.md';
-    dashboardViewModelRegistry: 'docs/186-wave-3-dashboard-view-model-registry-native-slice.md';
-    integrationRegistry: 'docs/187-wave-3-provider-channel-transport-native-registry.md';
-    sessionHistoryRegistry: 'docs/188-wave-3-session-history-native-registry.md';
+    secretRefResolverBoundary: 'docs/external-agent-secret-ref-resolver-injection-boundary.md';
+    configStateMigrationStrategy: 'docs/external-agent-config-state-migration-strategy.md';
+    configStateReadOnlyInventory: 'docs/external-agent-config-state-read-only-inventory.md';
+    redactionSecretRefMapping: 'docs/redaction-and-secretref-mapping.md';
+    dryRunMigrationPlan: 'docs/dry-run-migration-plan.md';
+    rollbackRestoreRehearsal: 'docs/rollback-restore-rehearsal.md';
+    nativeCapabilityRegistry: 'docs/first-native-capability-registry-replacement-slice.md';
+    dashboardViewModelRegistry: 'docs/dashboard-view-model-registry-native-slice.md';
+    integrationRegistry: 'docs/provider-channel-transport-native-registry.md';
+    sessionHistoryRegistry: 'docs/session-history-native-registry.md';
   };
   runtimeExternalExecutorRequiredForConfigLookup: false;
   runtimeExternalExecutorRequiredForSecretMetadataLookup: false;
@@ -437,8 +437,8 @@ function fixtureRecords(): ConfigStateFixtureRecord[] {
       safeMetadataFields: [...defaultSafeMetadataFields(), 'gateway-port', 'gateway-bind', 'auth-mode'],
       forbiddenOutputs: defaultForbiddenOutputs(),
       evidenceDocs: [
-        'docs/163-wave-1-external-agent-config-state-read-only-inventory.md',
-        'docs/164-wave-1-redaction-and-secretref-mapping.md',
+        'docs/external-agent-config-state-read-only-inventory.md',
+        'docs/redaction-and-secretref-mapping.md',
       ],
       degradedOrUnavailableReason: 'secret-bearing-source-config-metadata-only',
     },
@@ -459,8 +459,8 @@ function fixtureRecords(): ConfigStateFixtureRecord[] {
       safeMetadataFields: ['SecretRef id', 'purpose', 'status', 'allowed-injection-channel'],
       forbiddenOutputs: defaultForbiddenOutputs(),
       evidenceDocs: [
-        'docs/157-wave-1-external-agent-secret-ref-resolver-injection-boundary.md',
-        'docs/164-wave-1-redaction-and-secretref-mapping.md',
+        'docs/external-agent-secret-ref-resolver-injection-boundary.md',
+        'docs/redaction-and-secretref-mapping.md',
       ],
     },
     {
@@ -480,8 +480,8 @@ function fixtureRecords(): ConfigStateFixtureRecord[] {
       safeMetadataFields: ['provider-family', 'configured-boolean', 'SecretRef id', 'status'],
       forbiddenOutputs: defaultForbiddenOutputs(),
       evidenceDocs: [
-        'docs/164-wave-1-redaction-and-secretref-mapping.md',
-        'docs/187-wave-3-provider-channel-transport-native-registry.md',
+        'docs/redaction-and-secretref-mapping.md',
+        'docs/provider-channel-transport-native-registry.md',
       ],
       degradedOrUnavailableReason: 'provider-credential-values-not-read',
     },
@@ -502,8 +502,8 @@ function fixtureRecords(): ConfigStateFixtureRecord[] {
       safeMetadataFields: ['channel-family', 'configured-boolean', 'SecretRef id', 'status'],
       forbiddenOutputs: defaultForbiddenOutputs(),
       evidenceDocs: [
-        'docs/164-wave-1-redaction-and-secretref-mapping.md',
-        'docs/187-wave-3-provider-channel-transport-native-registry.md',
+        'docs/redaction-and-secretref-mapping.md',
+        'docs/provider-channel-transport-native-registry.md',
       ],
       degradedOrUnavailableReason: 'channel-credential-values-not-read',
     },
@@ -524,8 +524,8 @@ function fixtureRecords(): ConfigStateFixtureRecord[] {
       safeMetadataFields: ['device-presence-boolean', 'pairing-count', 'status'],
       forbiddenOutputs: defaultForbiddenOutputs(),
       evidenceDocs: [
-        'docs/163-wave-1-external-agent-config-state-read-only-inventory.md',
-        'docs/166-wave-1-rollback-restore-rehearsal.md',
+        'docs/external-agent-config-state-read-only-inventory.md',
+        'docs/rollback-restore-rehearsal.md',
       ],
       degradedOrUnavailableReason: 'device-trust-material-externalized',
     },
@@ -546,8 +546,8 @@ function fixtureRecords(): ConfigStateFixtureRecord[] {
       safeMetadataFields: ['plugin-family', 'path-alias', 'configured-boolean', 'status'],
       forbiddenOutputs: defaultForbiddenOutputs(),
       evidenceDocs: [
-        'docs/162-wave-0-external-agent-config-state-migration-strategy.md',
-        'docs/185-wave-3-first-native-capability-registry-replacement-slice.md',
+        'docs/external-agent-config-state-migration-strategy.md',
+        'docs/first-native-capability-registry-replacement-slice.md',
       ],
     },
     {
@@ -567,8 +567,8 @@ function fixtureRecords(): ConfigStateFixtureRecord[] {
       safeMetadataFields: ['store-type', 'size', 'mtime', 'status'],
       forbiddenOutputs: defaultForbiddenOutputs(),
       evidenceDocs: [
-        'docs/163-wave-1-external-agent-config-state-read-only-inventory.md',
-        'docs/165-wave-1-dry-run-migration-plan.md',
+        'docs/external-agent-config-state-read-only-inventory.md',
+        'docs/dry-run-migration-plan.md',
       ],
       degradedOrUnavailableReason: 'runtime-cache-content-not-imported',
     },
@@ -589,8 +589,8 @@ function fixtureRecords(): ConfigStateFixtureRecord[] {
       safeMetadataFields: ['log-kind', 'error-class', 'status', 'size', 'mtime'],
       forbiddenOutputs: defaultForbiddenOutputs(),
       evidenceDocs: [
-        'docs/164-wave-1-redaction-and-secretref-mapping.md',
-        'docs/166-wave-1-rollback-restore-rehearsal.md',
+        'docs/redaction-and-secretref-mapping.md',
+        'docs/rollback-restore-rehearsal.md',
       ],
     },
     {
@@ -610,8 +610,8 @@ function fixtureRecords(): ConfigStateFixtureRecord[] {
       safeMetadataFields: ['path-alias', 'file-type-class', 'count', 'status'],
       forbiddenOutputs: defaultForbiddenOutputs(),
       evidenceDocs: [
-        'docs/163-wave-1-external-agent-config-state-read-only-inventory.md',
-        'docs/165-wave-1-dry-run-migration-plan.md',
+        'docs/external-agent-config-state-read-only-inventory.md',
+        'docs/dry-run-migration-plan.md',
       ],
       degradedOrUnavailableReason: 'workspace-content-privacy-gate-required',
     },
@@ -632,8 +632,8 @@ function fixtureRecords(): ConfigStateFixtureRecord[] {
       safeMetadataFields: ['store-type', 'size', 'mtime', 'row-count-future-only', 'status'],
       forbiddenOutputs: [...defaultForbiddenOutputs(), 'raw-row-content', 'sqlite-page-content'],
       evidenceDocs: [
-        'docs/167-wave-1-sqlite-session-store-dry-run-design.md',
-        'docs/188-wave-3-session-history-native-registry.md',
+        'docs/sqlite-session-store-dry-run-design.md',
+        'docs/session-history-native-registry.md',
       ],
       degradedOrUnavailableReason: 'real-sqlite-db-not-opened',
     },
@@ -654,8 +654,8 @@ function fixtureRecords(): ConfigStateFixtureRecord[] {
       safeMetadataFields: ['manifest-id', 'receipt-id', 'status', 'restore-target-safety'],
       forbiddenOutputs: defaultForbiddenOutputs(),
       evidenceDocs: [
-        'docs/165-wave-1-dry-run-migration-plan.md',
-        'docs/166-wave-1-rollback-restore-rehearsal.md',
+        'docs/dry-run-migration-plan.md',
+        'docs/rollback-restore-rehearsal.md',
       ],
     },
     {
@@ -675,8 +675,8 @@ function fixtureRecords(): ConfigStateFixtureRecord[] {
       safeMetadataFields: ['source-evidence-kind', 'rejection-reason', 'status'],
       forbiddenOutputs: [...defaultForbiddenOutputs(), 'source-implementation-content'],
       evidenceDocs: [
-        'docs/163-wave-1-external-agent-config-state-read-only-inventory.md',
-        'docs/165-wave-1-dry-run-migration-plan.md',
+        'docs/external-agent-config-state-read-only-inventory.md',
+        'docs/dry-run-migration-plan.md',
       ],
       degradedOrUnavailableReason: 'source-module-copy-rejected',
     },
@@ -899,16 +899,16 @@ function buildSnapshot(
         .map((record) => record.id),
     },
     sourceArtifactsConsumed: {
-      secretRefResolverBoundary: 'docs/157-wave-1-external-agent-secret-ref-resolver-injection-boundary.md',
-      configStateMigrationStrategy: 'docs/162-wave-0-external-agent-config-state-migration-strategy.md',
-      configStateReadOnlyInventory: 'docs/163-wave-1-external-agent-config-state-read-only-inventory.md',
-      redactionSecretRefMapping: 'docs/164-wave-1-redaction-and-secretref-mapping.md',
-      dryRunMigrationPlan: 'docs/165-wave-1-dry-run-migration-plan.md',
-      rollbackRestoreRehearsal: 'docs/166-wave-1-rollback-restore-rehearsal.md',
-      nativeCapabilityRegistry: 'docs/185-wave-3-first-native-capability-registry-replacement-slice.md',
-      dashboardViewModelRegistry: 'docs/186-wave-3-dashboard-view-model-registry-native-slice.md',
-      integrationRegistry: 'docs/187-wave-3-provider-channel-transport-native-registry.md',
-      sessionHistoryRegistry: 'docs/188-wave-3-session-history-native-registry.md',
+      secretRefResolverBoundary: 'docs/external-agent-secret-ref-resolver-injection-boundary.md',
+      configStateMigrationStrategy: 'docs/external-agent-config-state-migration-strategy.md',
+      configStateReadOnlyInventory: 'docs/external-agent-config-state-read-only-inventory.md',
+      redactionSecretRefMapping: 'docs/redaction-and-secretref-mapping.md',
+      dryRunMigrationPlan: 'docs/dry-run-migration-plan.md',
+      rollbackRestoreRehearsal: 'docs/rollback-restore-rehearsal.md',
+      nativeCapabilityRegistry: 'docs/first-native-capability-registry-replacement-slice.md',
+      dashboardViewModelRegistry: 'docs/dashboard-view-model-registry-native-slice.md',
+      integrationRegistry: 'docs/provider-channel-transport-native-registry.md',
+      sessionHistoryRegistry: 'docs/session-history-native-registry.md',
     },
     runtimeExternalExecutorRequiredForConfigLookup: false,
     runtimeExternalExecutorRequiredForSecretMetadataLookup: false,

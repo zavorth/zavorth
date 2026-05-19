@@ -159,7 +159,7 @@ export class ZavorthSkillPermissionProfileService {
   }
 
   public buildReceiptId(manifestId: string, action: string): string {
-    return `zavorth.phase8.skill-permission.${safeId(manifestId)}.${safeId(action)}.${this.now().getTime()}.receipt`;
+    return `zavorth.dashboard-controls.skill-permission.${safeId(manifestId)}.${safeId(action)}.${this.now().getTime()}.receipt`;
   }
 
   private denialReason(input: {

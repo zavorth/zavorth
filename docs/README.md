@@ -7,19 +7,19 @@ small: daily-use guides, stable architecture notes and integration contracts.
 
 | Doc | Use it for |
 | --- | --- |
-| [Overview](/docs/00-overview.md) | Product and runtime summary |
-| [Quickstart](/docs/02-quickstart.md) | First local setup |
-| [Web Dashboard](/docs/07-web.md) | Using `/dashboard` |
-| [CLI](/docs/34-zavorth-cli.md) | Terminal operation and JSON output |
-| [Troubleshooting](/docs/10-troubleshooting.md) | Fixing common runtime issues |
+| [Overview](/docs/overview.md) | Product and runtime summary |
+| [Quickstart](/docs/quickstart.md) | First local setup |
+| [Web Dashboard](/docs/web-dashboard.md) | Using `/dashboard` |
+| [CLI](/docs/zavorth-cli.md) | Terminal operation and JSON output |
+| [Troubleshooting](/docs/troubleshooting.md) | Fixing common runtime issues |
 
 ## Architecture
 
 | Doc | Use it for |
 | --- | --- |
-| [Architecture](/docs/03-architecture.md) | Runtime shape and major planes |
-| [Executors](/docs/04-executors.md) | Execution providers and supervised work |
-| [Security](/docs/05-security.md) | Policy, approvals, egress and receipts |
+| [Architecture](/docs/architecture.md) | Runtime shape and major planes |
+| [Executors](/docs/execution.md) | Execution providers and supervised work |
+| [Security](/docs/security.md) | Policy, approvals, egress and receipts |
 | [Provider Mesh](/docs/provider-mesh.md) | Provider selection and live readiness |
 | [Self Modification](/docs/self-modification.md) | How Zavorth changes its own repo safely |
 
@@ -27,10 +27,10 @@ small: daily-use guides, stable architecture notes and integration contracts.
 
 | Doc | Use it for |
 | --- | --- |
-| [Channel Mesh](/docs/33-channel-mesh.md) | Multi-channel status and setup |
-| [Telegram](/docs/06-telegram.md) | Telegram-specific operation |
+| [Channel Mesh](/docs/channel-mesh.md) | Multi-channel status and setup |
+| [Telegram](/docs/telegram.md) | Telegram-specific operation |
 | [Capability Plugins](/docs/capability-plugins.md) | Capability packs and governed extension |
-| [Capabilities And Plugins](/docs/08-capabilities-plugins.md) | Product-level plugin overview |
+| [Capabilities And Plugins](/docs/capabilities-and-plugins.md) | Product-level plugin overview |
 | [Gateway Control API](/docs/gateway-control-api.md) | Control-plane HTTP surface |
 
 ## Operator And Developer Guides
@@ -55,8 +55,8 @@ small: daily-use guides, stable architecture notes and integration contracts.
 
 | Doc | Use it for |
 | --- | --- |
-| [Roadmap](/docs/11-roadmap.md) | Small public roadmap |
-| [Product Pitch](/docs/01-product-pitch.md) | Positioning and narrative |
+| [Roadmap](/docs/product-direction.md) | Small public roadmap |
+| [Product Pitch](/docs/product-story.md) | Positioning and narrative |
 
 ## Certification Notes
 

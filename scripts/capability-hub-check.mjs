@@ -8,7 +8,7 @@ const asJson = process.argv.includes('--json');
 const rules = [
   ruleFilesExist({
     id: 'capability-hub-foundation-files',
-    label: 'Capability Hub Phase 0 files exist',
+    label: 'Capability Hub Security contract files exist',
     target: 'contract, service, API facade, CLI, tests and docs are present',
     files: [
       'src/contracts/CapabilityHubContract.ts',
@@ -92,7 +92,7 @@ const snapshot = {
 if (asJson) {
   console.log(JSON.stringify(snapshot, null, 2));
 } else {
-  console.log('[capability-hub] checking Phase 0');
+  console.log('[capability-hub] checking Security contract');
   for (const rule of rules) {
     const marker = rule.status === 'passed' ? 'ok' : 'fail';
     console.log(`[capability-hub] ${marker} ${rule.label}: ${rule.observed} | ${rule.target}`);

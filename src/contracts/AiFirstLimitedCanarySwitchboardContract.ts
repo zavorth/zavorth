@@ -7,7 +7,7 @@ import type {
   AiFirstPromotionRegistryReadiness,
 } from './AiFirstPromotionCandidateRegistryContract.js';
 
-export const AI_FIRST_LIMITED_CANARY_SWITCHBOARD_CONTRACT_VERSION = '2026-05-06.phase-6' as const;
+export const AI_FIRST_LIMITED_CANARY_SWITCHBOARD_CONTRACT_VERSION = '2026-05-06.checkpoint-6' as const;
 
 export type AiFirstLimitedCanaryRouteStatus =
   | 'canary-enabled'
@@ -23,7 +23,7 @@ export type AiFirstLimitedCanaryFallbackReason =
   | 'route-not-enabled'
   | 'surface-not-enabled'
   | 'risk-not-allowed'
-  | 'phase3-guardrail-missing'
+  | 'approval-gate-guardrail-missing'
   | 'registry-receipt-missing'
   | 'allowlist-withheld'
   | 'manual-activation-missing'
@@ -44,7 +44,7 @@ export type AiFirstLimitedCanaryRouteProbe = {
   familyId: AiFirstRoutePlanIntent;
   surface: string;
   risk: AiFirstRoutePlanRisk;
-  phase3GuardrailPassed: boolean;
+  approvalGateGuardrailPassed: boolean;
   registryReceiptPresent: boolean;
 };
 
@@ -60,7 +60,7 @@ export type AiFirstLimitedCanaryRouteEntry = {
   maxRisk: AiFirstRoutePlanRisk;
   activationId: string | null;
   fallbackRoute: 'current-runtime';
-  requiresPhase3Guardrail: true;
+  requiresStage3Guardrail: true;
   requiresRegistryReceipt: true;
   requiresManualActivation: true;
   defaultEnabled: false;
@@ -78,7 +78,7 @@ export type AiFirstLimitedCanaryRouteDecision = {
   matchedRouteKey: string | null;
   fallbackReason: AiFirstLimitedCanaryFallbackReason | null;
   fallbackRoute: 'current-runtime';
-  phase3GuardrailRequired: true;
+  approvalGateGuardrailRequired: true;
   registryReceiptRequired: true;
   fallbackAvailable: true;
   defaultRuntimeChanged: false;

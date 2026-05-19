@@ -21,10 +21,10 @@ export type CapabilityAutopilotReleaseDecisionSnapshot = {
     defaultEnabled: boolean;
     reason: string;
   };
-  requiredPhases: string[];
-  passedPhases: string[];
-  missingPhases: string[];
-  failedPhases: string[];
+  requiredCheckpoints: string[];
+  passedCheckpoints: string[];
+  missingCheckpoints: string[];
+  failedCheckpoints: string[];
   riskPosture: 'low' | 'medium' | 'high';
   releaseChannel: 'alpha' | 'beta' | 'stable' | 'backlog';
   rolloutPlan: string[];
@@ -44,7 +44,7 @@ export type CapabilityAutopilotReleaseDecisionRuntime = {
   now?: () => Date;
 };
 
-const REQUIRED_PHASES: Array<CapabilityAutopilotReleaseGateEvidence['phase']> = [
+const REQUIRED_STAGES: Array<CapabilityAutopilotReleaseGateEvidence['phase']> = [
   '60',
   '61',
   '62',
@@ -64,19 +64,19 @@ export class CapabilityAutopilotReleaseDecisionService {
     input: CapabilityAutopilotReleaseDecisionInput,
   ): CapabilityAutopilotReleaseDecisionSnapshot {
     const evidence = this.normalizeEvidence(input.evidence);
-    const passedPhases = REQUIRED_PHASES.filter((phase) =>
+    const passedCheckpoints = REQUIRED_STAGES.filter((phase) =>
       evidence.some((entry) => entry.phase === phase && entry.passed),
     );
-    const failedPhases = REQUIRED_PHASES.filter((phase) =>
+    const failedCheckpoints = REQUIRED_STAGES.filter((phase) =>
       evidence.some((entry) => entry.phase === phase && !entry.passed),
     );
-    const missingPhases = REQUIRED_PHASES.filter((phase) =>
+    const missingCheckpoints = REQUIRED_STAGES.filter((phase) =>
       !evidence.some((entry) => entry.phase === phase),
     );
-    const riskPosture = this.resolveRiskPosture(evidence, failedPhases, missingPhases);
+    const riskPosture = this.resolveRiskPosture(evidence, failedCheckpoints, missingCheckpoints);
     const decision = this.resolveDecision({
-      failedPhases,
-      missingPhases,
+      failedCheckpoints,
+      missingCheckpoints,
       riskPosture,
       allowDefaultOn: Boolean(input.allowDefaultOn),
     });
@@ -90,23 +90,23 @@ export class CapabilityAutopilotReleaseDecisionService {
         defaultEnabled: decision === 'ship_v1_1_default_on',
         reason: this.featureFlagReason(decision, riskPosture),
       },
-      requiredPhases: REQUIRED_PHASES.slice(),
-      passedPhases,
-      missingPhases,
-      failedPhases,
+      requiredCheckpoints: REQUIRED_STAGES.slice(),
+      passedCheckpoints,
+      missingCheckpoints,
+      failedCheckpoints,
       riskPosture,
       releaseChannel: this.resolveReleaseChannel(decision),
       rolloutPlan: this.buildRolloutPlan(decision),
       rollbackPlan: this.buildRollbackPlan(decision),
       guardrails: this.buildGuardrails(),
       evidence,
-      summary: this.buildSummary(decision, passedPhases, missingPhases, failedPhases, riskPosture),
+      summary: this.buildSummary(decision, passedCheckpoints, missingCheckpoints, failedCheckpoints, riskPosture),
       metadata: {
-        phase: 'capability-autopilot-phase-66',
+        phase: 'capability-autopilot-checkpoint-66',
         baseline: 'v1.0.0',
         candidate: 'v1.1.0',
         defaultOnAllowed: Boolean(input.allowDefaultOn),
-        requiredPhaseCount: REQUIRED_PHASES.length,
+        requiredCheckpointCount: REQUIRED_STAGES.length,
       },
     };
   }
@@ -147,13 +147,13 @@ export class CapabilityAutopilotReleaseDecisionService {
 
   private resolveRiskPosture(
     evidence: CapabilityAutopilotReleaseGateEvidence[],
-    failedPhases: string[],
-    missingPhases: string[],
+    failedCheckpoints: string[],
+    missingCheckpoints: string[],
   ): CapabilityAutopilotReleaseDecisionSnapshot['riskPosture'] {
-    if (failedPhases.length > 0) {
+    if (failedCheckpoints.length > 0) {
       return 'high';
     }
-    if (missingPhases.length > 0) {
+    if (missingCheckpoints.length > 0) {
       return 'medium';
     }
     if (evidence.some((entry) => entry.risk === 'high')) {
@@ -166,15 +166,15 @@ export class CapabilityAutopilotReleaseDecisionService {
   }
 
   private resolveDecision(input: {
-    failedPhases: string[];
-    missingPhases: string[];
+    failedCheckpoints: string[];
+    missingCheckpoints: string[];
     riskPosture: CapabilityAutopilotReleaseDecisionSnapshot['riskPosture'];
     allowDefaultOn: boolean;
   }): CapabilityAutopilotReleaseDecision {
-    if (input.failedPhases.length > 0) {
+    if (input.failedCheckpoints.length > 0) {
       return 'hold_backlog';
     }
-    if (input.missingPhases.length > 0) {
+    if (input.missingCheckpoints.length > 0) {
       return 'needs_more_evidence';
     }
     if (input.allowDefaultOn && input.riskPosture === 'low') {
@@ -220,7 +220,7 @@ export class CapabilityAutopilotReleaseDecisionService {
       return [
         'Do not include Capability Autopilot in the v1.1 release train.',
         'Keep scripts and docs available only as development evidence.',
-        'Re-run missing or failed phase gates before reconsidering release.',
+        'Re-run missing or failed checkpoint gates before reconsidering release.',
       ];
     }
 
@@ -228,7 +228,7 @@ export class CapabilityAutopilotReleaseDecisionService {
       'Ship Capability Autopilot in v1.1.0 behind ZAVORTH_CAPABILITY_AUTOPILOT.',
       'Keep default disabled for stable users; enable only for alpha/operator sessions.',
       'Require explicit permission for repair, fallback and provider handoff.',
-      'Collect redacted receipts and phase gate evidence before beta promotion.',
+      'Collect redacted receipts and checkpoint gate evidence before beta promotion.',
     ];
   }
 
@@ -258,20 +258,20 @@ export class CapabilityAutopilotReleaseDecisionService {
 
   private buildSummary(
     decision: CapabilityAutopilotReleaseDecision,
-    passedPhases: string[],
-    missingPhases: string[],
-    failedPhases: string[],
+    passedCheckpoints: string[],
+    missingCheckpoints: string[],
+    failedCheckpoints: string[],
     riskPosture: CapabilityAutopilotReleaseDecisionSnapshot['riskPosture'],
   ): string {
     if (decision === 'ship_v1_1_flagged') {
-      return `Capability Autopilot can enter v1.1.0 behind flag: ${passedPhases.length}/${REQUIRED_PHASES.length} phase gates passed; risk=${riskPosture}.`;
+      return `Capability Autopilot can enter v1.1.0 behind flag: ${passedCheckpoints.length}/${REQUIRED_STAGES.length} checkpoint gates passed; risk=${riskPosture}.`;
     }
     if (decision === 'ship_v1_1_default_on') {
       return 'Capability Autopilot can enter v1.1.0 default-on because all evidence is low risk.';
     }
     if (decision === 'needs_more_evidence') {
-      return `Capability Autopilot needs more evidence before release; missing phases: ${missingPhases.join(', ') || 'none'}.`;
+      return `Capability Autopilot needs more evidence before release; missing phases: ${missingCheckpoints.join(', ') || 'none'}.`;
     }
-    return `Capability Autopilot stays in backlog; failed phases: ${failedPhases.join(', ') || 'unknown'}.`;
+    return `Capability Autopilot stays in backlog; failed phases: ${failedCheckpoints.join(', ') || 'unknown'}.`;
   }
 }

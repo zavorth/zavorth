@@ -4,7 +4,7 @@ import type {
   UniversalToolRiskLevel,
 } from './UniversalAgentRuntimeTypes.js';
 
-export const CAPABILITY_NEGOTIATION_CONTRACT_VERSION = '2026-05-03.wave-35' as const;
+export const CAPABILITY_NEGOTIATION_CONTRACT_VERSION = '2026-05-03.capability-negotiation' as const;
 
 export type CapabilityNegotiationStatus =
   | 'not-needed'

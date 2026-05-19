@@ -125,14 +125,14 @@ export class ZavorthPerceptionDeviceControlCompletionService {
         inspect: 'npm run zavorth:perception-device-control-completion',
         inspectJson: 'npm run zavorth:perception-device-control-completion:json',
         check: 'npm run zavorth:perception-device-control-completion:check --silent',
-        nextPhase: 'Phase 11 - Dashboard Final Product Polish',
+        nextStage: 'Intent model1 - Dashboard Final Product Polish',
       },
     };
   }
 
   public formatSnapshotText(snapshot: ZavorthPerceptionDeviceControlCompletionSnapshot): string {
     const lines = [
-      'Zavorth Perception And Device Control Completion - Phase 10',
+      'Zavorth Perception And Device Control Completion - Intent model0',
       '',
       `Status: ${snapshot.status}`,
       `Entries: ${snapshot.summary.passed}/${snapshot.summary.entries} passed, attention=${snapshot.summary.attention}, blocked=${snapshot.summary.blocked}`,
@@ -154,7 +154,7 @@ export class ZavorthPerceptionDeviceControlCompletionService {
       lines.push(`- "${command.utterance}" -> ${command.route} (${command.defaultMode}) via ${command.commandHint}`);
     }
     lines.push('', 'Safety: read-only vision may route naturally; tap/type/click/install/control always stays policy/approval-gated.');
-    lines.push(`Next: ${snapshot.commands.nextPhase}`);
+    lines.push(`Next: ${snapshot.commands.nextStage}`);
     return lines.join('\n');
   }
 }

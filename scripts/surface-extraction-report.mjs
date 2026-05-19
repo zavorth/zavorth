@@ -16,7 +16,7 @@ function readManifest() {
 
 function printText(manifest) {
   const roots = describeExternalSurfaceRoots();
-  console.log(`Fase: ${manifest.phase}`);
+  console.log(`Etapa: ${manifest.phase}`);
   if (manifest.status) {
     console.log(`Status: ${manifest.status}`);
   }

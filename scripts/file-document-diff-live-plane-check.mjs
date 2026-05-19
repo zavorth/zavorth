@@ -30,12 +30,12 @@ const rules = [
   }),
   ruleContainsAll({
     id: 'file-document-diff-live-contract',
-    label: 'Contract defines Phase 9 vocabulary',
+    label: 'Contract defines Certification matrix vocabulary',
     target: 'Contract captures targets, capabilities, gates, receipts and next phase handoff',
     files: ['src/contracts/FileDocumentDiffLivePlaneContract.ts'],
     needles: [
       'ZAVORTH_FILE_DOCUMENT_DIFF_LIVE_PLANE_CONTRACT_VERSION',
-      '2026-05-04.live-phase-9',
+      '2026-05-04.live-checkpoint-9',
       'file-transfer',
       'document-extract',
       'diffs',
@@ -43,7 +43,7 @@ const rules = [
       'lobster',
       'fileTransferMarkedLiveByPlanOnly: false',
       'documentExtractMarkedLiveByDryPlaceholder: false',
-      'Phase 10 - Diagnostics, QA And Migration Live Plane',
+      'Intent model0 - Diagnostics, QA And Migration Live Plane',
     ],
   }),
   ruleContainsAll({
@@ -118,7 +118,7 @@ const rules = [
   }),
   ruleContainsAll({
     id: 'file-document-diff-live-service',
-    label: 'Service closes Phase 9 gates',
+    label: 'Service closes Certification matrix gates',
     target: 'Service maps five targets with policy, extraction, diff and workflow receipts',
     files: ['src/services/FileDocumentDiffLivePlaneService.ts'],
     needles: [
@@ -133,20 +133,20 @@ const rules = [
   }),
   ruleContainsAll({
     id: 'file-document-diff-live-readiness',
-    label: 'Live readiness promotes Phase 9 runtime families',
-    target: 'file.transfer, document.extract and artifact.diff point at Phase 9 live activation',
+    label: 'Live readiness promotes Certification matrix runtime families',
+    target: 'file.transfer, document.extract and artifact.diff point at Certification matrix live activation',
     files: ['src/services/LiveReadinessService.ts'],
     needles: [
       'file.transfer',
       'document.extract',
       'artifact.diff',
-      'Phase 9 - File, Document, and Diff Live Activation',
+      'Certification matrix - File, Document, and Diff Live Activation',
     ],
   }),
   ruleContainsAll({
     id: 'file-document-diff-normalization',
     label: 'Capability normalization points artifact.diff at live service',
-    target: 'artifact.diff uses the Phase 9 ArtifactDiffService target',
+    target: 'artifact.diff uses the Certification matrix ArtifactDiffService target',
     files: ['src/services/CapabilityNormalizationService.ts'],
     needles: [
       'artifact.diff',
@@ -156,11 +156,11 @@ const rules = [
   }),
   ruleContainsAll({
     id: 'file-document-diff-live-tests',
-    label: 'Tests prove Phase 9 behavior',
+    label: 'Tests prove Certification matrix behavior',
     target: 'Tests cover snapshot, real bytes, extraction, diff and workflow decisions',
     files: ['tests/services/FileDocumentDiffLivePlaneService.test.ts'],
     needles: [
-      'closes Phase 9 file, document, diff and prose gates',
+      'closes Certification matrix file, document, diff and prose gates',
       'copies real bytes under approved workspace policy',
       'extracts text, metadata and tables from a real HTML document',
       'creates a real unified diff artifact',
@@ -169,8 +169,8 @@ const rules = [
   }),
   ruleContainsAll({
     id: 'file-document-diff-live-package',
-    label: 'Package exposes Phase 9 scripts',
-    target: 'Phase 9 can be run through package scripts',
+    label: 'Package exposes Certification matrix scripts',
+    target: 'Certification matrix can be run through package scripts',
     files: ['package.json'],
     needles: [
       'file-document-diff-live-plane',
@@ -180,8 +180,8 @@ const rules = [
   }),
   ruleContainsAll({
     id: 'file-document-diff-live-sdk',
-    label: 'SDK exposes Phase 9 contract and service',
-    target: 'Phase 9 can be imported from SDK barrels',
+    label: 'SDK exposes Certification matrix contract and service',
+    target: 'Certification matrix can be imported from SDK barrels',
     files: ['src/sdk/contracts.ts'],
     needles: [
       'FileDocumentDiffLivePlane',
@@ -190,8 +190,8 @@ const rules = [
   }),
   ruleContainsAll({
     id: 'file-document-diff-live-sdk-service',
-    label: 'SDK exposes Phase 9 services',
-    target: 'Phase 9 services can be imported from SDK index',
+    label: 'SDK exposes Certification matrix services',
+    target: 'Certification matrix services can be imported from SDK index',
     files: ['src/sdk/index.ts'],
     needles: [
       'FileDocumentDiffLivePlaneService',
@@ -200,11 +200,11 @@ const rules = [
   }),
   ruleContainsAll({
     id: 'file-document-diff-live-doc',
-    label: 'Docs record Phase 9 closure',
-    target: 'Phase 9 documentation explains file bytes, extraction, diff and workflow decisions',
+    label: 'Docs record Certification matrix closure',
+    target: 'Certification matrix documentation explains file bytes, extraction, diff and workflow decisions',
     files: ['docs/README.md'],
     needles: [
-      'Phase 9',
+      'Certification matrix',
       'File, Document, Diff And Prose Live Plane',
       'file.transfer',
       'document.extract',
@@ -231,7 +231,7 @@ const snapshot = {
 if (asJson) {
   console.log(JSON.stringify(snapshot, null, 2));
 } else {
-  console.log('[file-document-diff-live-plane] checking Phase 9');
+  console.log('[file-document-diff-live-plane] checking Certification matrix');
   for (const rule of rules) {
     const marker = rule.status === 'passed' ? 'ok' : 'fail';
     console.log(`[file-document-diff-live-plane] ${marker} ${rule.label}: ${rule.observed} | ${rule.target}`);

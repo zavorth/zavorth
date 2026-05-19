@@ -161,31 +161,31 @@ export class ToolRunRecordService {
 
   private buildWorkflowStageRuns(workflowRun: WorkflowRunSnapshot): ToolRunRecord[] {
     const workflowRunId = String(workflowRun?.workflow_run_id || '').trim();
-    if (!workflowRunId || !Array.isArray(workflowRun?.stages)) {
+    if (!workflowRunId || !Array.isArray(workflowRun?.phases)) {
       return [];
     }
 
-    return workflowRun.stages.map((stage: any) => {
-      const runId = `workflow-${this.safeSegment(workflowRunId)}-${this.safeSegment(stage?.id || 'stage')}-${Number(stage?.attempt_count || 0)}`;
+    return workflowRun.phases.map((phase: any) => {
+      const runId = `workflow-${this.safeSegment(workflowRunId)}-${this.safeSegment(phase?.id || 'phase')}-${Number(phase?.attempt_count || 0)}`;
       const stageArtifacts = this.normalizeArtifacts(workflowRun.artifacts, {
-        sourceTaskId: stage?.task_id || null,
+        sourceTaskId: phase?.task_id || null,
         workflowRunId,
         toolRunId: runId,
       });
       return {
         runId,
-        taskId: this.normalizeNullableString(stage?.task_id),
+        taskId: this.normalizeNullableString(phase?.task_id),
         workflowRunId,
         source: 'workflow',
-        executor: this.normalizeNullableString(stage?.executor),
-        toolName: this.normalizeNullableString(stage?.label || stage?.id) || 'workflow-stage',
-        kind: 'workflow-stage',
-        status: this.normalizeStatus(stage?.status),
-        startedAt: this.normalizeNullableString(stage?.started_at),
-        finishedAt: this.normalizeNullableString(stage?.finished_at),
-        durationMs: this.resolveDurationMs({}, stage?.started_at, stage?.finished_at),
+        executor: this.normalizeNullableString(phase?.executor),
+        toolName: this.normalizeNullableString(phase?.label || phase?.id) || 'workflow-phase',
+        kind: 'workflow-phase',
+        status: this.normalizeStatus(phase?.status),
+        startedAt: this.normalizeNullableString(phase?.started_at),
+        finishedAt: this.normalizeNullableString(phase?.finished_at),
+        durationMs: this.resolveDurationMs({}, phase?.started_at, phase?.finished_at),
         workspace: this.normalizeNullableString(workflowRun.workspace),
-        summary: this.summarizeText(stage?.result_summary || stage?.handoff_summary || workflowRun.objective, 800),
+        summary: this.summarizeText(phase?.result_summary || phase?.handoff_summary || workflowRun.objective, 800),
         stdout: null,
         stderr: null,
         exitCode: null,
@@ -196,8 +196,8 @@ export class ToolRunRecordService {
           patches: [],
         },
         approval: {
-          required: String(stage?.status || '').trim() === 'approval_pending',
-          status: String(stage?.status || '').trim() === 'approval_pending' ? 'pending' : null,
+          required: String(phase?.status || '').trim() === 'approval_pending',
+          status: String(phase?.status || '').trim() === 'approval_pending' ? 'pending' : null,
           permissionId: null,
         },
       };

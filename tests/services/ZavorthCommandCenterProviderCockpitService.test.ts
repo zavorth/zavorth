@@ -15,7 +15,7 @@ describe('ZavorthCommandCenterProviderCockpitService', () => {
     });
 
     expect(projection).toEqual(expect.objectContaining({
-      contractVersion: '2026-05-13.phase-6',
+      contractVersion: '2026-05-13.checkpoint-6',
       surface: 'command-center-provider-cockpit',
       executionAuthority: false,
       visualMutationApplied: false,
@@ -95,7 +95,7 @@ describe('ZavorthCommandCenterProviderCockpitService', () => {
 
 function matrixFixture(): ZavorthProviderReadinessMatrixSnapshot {
   return {
-    contractVersion: '2026-05-13.phase-5',
+    contractVersion: '2026-05-13.checkpoint-5',
     schemaVersion: 1,
     surface: 'provider-readiness-matrix',
     generatedAt: '2026-05-13T12:00:00.000Z',

@@ -25,16 +25,16 @@ const rules = [
   }),
   ruleContainsAll({
     id: 'provider-runtime-activation-contract',
-    label: 'Contract defines Phase 4 provider vocabulary',
+    label: 'Contract defines Connector registry provider vocabulary',
     target: 'Contract captures 18 P0 providers, statuses, gates, receipts and no-template closure',
     files: ['src/contracts/ProviderRuntimeActivationContract.ts'],
     needles: [
       'ZAVORTH_PROVIDER_RUNTIME_ACTIVATION_CONTRACT_VERSION',
-      '2026-05-04.live-phase-4',
+      '2026-05-04.live-checkpoint-4',
       'ProviderRuntimeActivationP0Id',
       'vercel-ai-gateway',
       'generatedProviderManifestsRemainingP0: false',
-      'Phase 6 - Media Generation Live Plane',
+      'Runtime gateway - Media Generation Live Plane',
     ],
   }),
   ruleContainsAll({
@@ -67,7 +67,7 @@ const rules = [
       'vercel-ai-gateway',
       'generatedProviderManifestsRemainingP0: false',
       '--confirm-live-io',
-      'Phase 6 - Media Generation Live Plane',
+      'Runtime gateway - Media Generation Live Plane',
     ],
   }),
   ruleContainsAll({
@@ -100,11 +100,11 @@ const rules = [
   }),
   ruleContainsAll({
     id: 'provider-runtime-tests',
-    label: 'Tests prove Phase 4 behavior',
+    label: 'Tests prove Connector registry behavior',
     target: 'Tests cover snapshot, factory routing, readiness promotion and provider live client receipts',
     files: ['tests/services/ProviderRuntimeActivationService.test.ts'],
     needles: [
-      'closes Phase 4 provider activation gates',
+      'closes Connector registry provider activation gates',
       'resolves P0 providers without fallback masking',
       'moves P0 providers into partial-live readiness',
       'runs P0 live clients with redacted receipts',
@@ -113,8 +113,8 @@ const rules = [
   }),
   ruleContainsAll({
     id: 'provider-runtime-package',
-    label: 'Package exposes Phase 4 scripts',
-    target: 'Phase 4 can be run through package scripts',
+    label: 'Package exposes Connector registry scripts',
+    target: 'Connector registry can be run through package scripts',
     files: ['package.json'],
     needles: [
       'provider-runtime-activation',
@@ -124,8 +124,8 @@ const rules = [
   }),
   ruleContainsAll({
     id: 'provider-runtime-sdk',
-    label: 'SDK exposes Phase 4 contract and service',
-    target: 'Phase 4 can be imported from SDK barrels',
+    label: 'SDK exposes Connector registry contract and service',
+    target: 'Connector registry can be imported from SDK barrels',
     files: ['src/sdk/contracts.ts', 'src/sdk/index.ts'],
     needles: [
       'ProviderRuntimeActivation',
@@ -133,11 +133,11 @@ const rules = [
   }),
   ruleContainsAll({
     id: 'provider-runtime-doc',
-    label: 'Docs record Phase 4 closure',
-    target: 'Phase 4 documentation explains Provider Runtime Activation and staging-live flow',
+    label: 'Docs record Connector registry closure',
+    target: 'Connector registry documentation explains Provider Runtime Activation and staging-live flow',
     files: ['docs/README.md'],
     needles: [
-      'Phase 4',
+      'Connector registry',
       'Provider Runtime Activation P0',
       'staging-live',
     ],
@@ -159,7 +159,7 @@ const snapshot = {
 if (asJson) {
   console.log(JSON.stringify(snapshot, null, 2));
 } else {
-  console.log('[provider-runtime-activation] checking Phase 4');
+  console.log('[provider-runtime-activation] checking Connector registry');
   for (const rule of rules) {
     const marker = rule.status === 'passed' ? 'ok' : 'fail';
     console.log(`[provider-runtime-activation] ${marker} ${rule.label}: ${rule.observed} | ${rule.target}`);

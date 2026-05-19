@@ -70,7 +70,7 @@ export function formatMemoryWithReceiptsSnapshot(
   snapshot: MemoryWithReceiptsSnapshot,
 ): string {
   const lines = [
-    'Memory With Receipts - Wave 32',
+    'Memory With Receipts - Memory Receipts',
     `- contrato: ${snapshot.contractVersion}`,
     `- run: ${snapshot.identifiers.runId}`,
     `- memoria: ${snapshot.summary.memoryCount} item(ns) com ${snapshot.summary.receiptCount} receipt(s)`,

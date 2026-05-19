@@ -35,7 +35,7 @@ type McpTool = {
   name: string;
   description: string;
   scopes: string[];
-  phase: 1 | 2;
+  stage: 1 | 2;
   auditLevel: "none" | "basic" | "full";
   sourceEndpoints: string[];
 };

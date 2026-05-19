@@ -25,7 +25,7 @@ const snapshot = {
 if (asJson) {
   console.log(JSON.stringify(snapshot, null, 2));
 } else {
-  console.log('[zavorth-external-contract-layer] checking Phase 1');
+  console.log('[zavorth-external-contract-layer] checking Intent model');
   for (const rule of rules) {
     const marker = rule.status === 'passed' ? 'ok' : 'fail';
     console.log(`[zavorth-external-contract-layer] ${marker} ${rule.label}: ${rule.observed} | ${rule.target}`);
@@ -48,8 +48,8 @@ function ruleFilesExist() {
   ];
   const missing = files.filter((file) => !fs.existsSync(path.join(root, file)));
   return {
-    id: 'phase-1-files',
-    label: 'Phase 1 contract layer files exist',
+    id: 'checkpoint-1-files',
+    label: 'Intent model contract layer files exist',
     status: missing.length === 0 ? 'passed' : 'failed',
     observed: `${files.length - missing.length}/${files.length} file(s) present`,
     target: 'contract, service, CLI, check, tests, docs and package scripts are present',
@@ -95,8 +95,8 @@ function ruleContainsMarkers() {
     }
   }
   return {
-    id: 'phase-1-markers',
-    label: 'Phase 1 contract layer markers are present',
+    id: 'checkpoint-1-markers',
+    label: 'Intent model contract layer markers are present',
     status: missing.length === 0 ? 'passed' : 'failed',
     observed: missing.length === 0 ? 'all markers present' : `${missing.length} missing marker(s)`,
     target: 'contract layer, quarantine, structured errors, docs and scripts markers are present',
@@ -111,7 +111,7 @@ function runContractLayerFixture() {
   });
   if (result.status !== 0) {
     return {
-      id: 'phase-1-contract-layer-fixture',
+      id: 'contract-layer-fixture',
       label: 'Contract layer fixture passes',
       status: 'failed',
       observed: `exit ${result.status}`,
@@ -130,7 +130,7 @@ function runContractLayerFixture() {
     && snapshot.safety?.sourceRuntimeCodeExecuted === false
     && snapshot.safety?.liveExecutionPerformed === false;
   return {
-    id: 'phase-1-contract-layer-fixture',
+    id: 'contract-layer-fixture',
     label: 'Contract layer fixture passes',
     status: ok ? 'passed' : 'failed',
     observed: ok ? `${snapshot.summary.envelopeSchemas} schema(s), ${snapshot.status}` : 'invalid contract layer snapshot',
@@ -156,11 +156,11 @@ function runContractLayerBlockedFixture() {
     && snapshot.status === 'blocked'
     && snapshot.previousInventoryStatus === 'blocked';
   return {
-    id: 'phase-1-blocked-fixture',
-    label: 'Contract layer blocks without Phase 0 readiness',
+    id: 'checkpoint-1-blocked-fixture',
+    label: 'Contract layer blocks without Security contract readiness',
     status: ok ? 'passed' : 'failed',
     observed: ok ? `${snapshot.status}, inventory=${snapshot.previousInventoryStatus}` : `exit ${result.status}`,
-    target: 'Phase 1 cannot advance while Phase 0 inventory is blocked',
+    target: 'Intent model cannot advance while Security contract inventory is blocked',
     details: ok ? [] : [result.error?.message || result.stderr || result.stdout || 'no output'],
   };
 }

@@ -95,7 +95,7 @@ describe('DynamicHierarchySwarmService', () => {
       roles: [],
       startedAt: '2026-04-18T10:00:00.000Z',
       finishedAt: '2026-04-18T10:00:02.000Z',
-      synthesizedOutput: 'Wave 7 closed by final swarm synthesis.',
+      synthesizedOutput: 'Governance closed by final swarm synthesis.',
       subagentReceipts: [
         { roleId: 'planner', status: 'completed' },
       ],
@@ -119,7 +119,7 @@ describe('DynamicHierarchySwarmService', () => {
     expect(result.snapshot).toEqual(expect.objectContaining({
       swarmId: 'hierarchy-2',
       status: 'completed',
-      synthesizedOutput: 'Wave 7 closed by final swarm synthesis.',
+      synthesizedOutput: 'Governance closed by final swarm synthesis.',
     }));
   });
 });

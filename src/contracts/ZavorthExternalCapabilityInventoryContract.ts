@@ -94,8 +94,8 @@ export type ZavorthExternalCapabilityInventorySnapshot = {
   generatedAt: string;
   contractVersion: typeof ZAVORTH_EXTERNAL_CAPABILITY_INVENTORY_CONTRACT_VERSION;
   status: ZavorthExternalCapabilityInventoryStatus;
-  planId: '291 - Plano Zavorth External Runtime Absorption';
-  phase: 'phase-0-freeze-and-inventory';
+  planId: 'Zavorth External Runtime Integration';
+  phase: 'checkpoint-0-freeze-and-inventory';
   bridgeContractVersion: typeof ZAVORTH_EXTERNAL_RUNTIME_BRIDGE_CONTRACT_VERSION;
   bridgeStatus: 'bridge-ready' | 'attention' | 'blocked';
   sourceProbes: ZavorthExternalCapabilityInventorySourceProbe[];
@@ -117,7 +117,7 @@ export type ZavorthExternalCapabilityInventorySnapshot = {
     noImplementationBeyondReadOnlyInventory: true;
     sourceNamesAllowedOnlyInDiagnostics: true;
     importedCapabilitiesAdvisoryOnly: true;
-    nextPhaseRequiresContractLayer: true;
+    nextStageRequiresContractLayer: true;
   };
   safety: {
     executionPerformed: false;
@@ -132,6 +132,6 @@ export type ZavorthExternalCapabilityInventorySnapshot = {
     inspect: 'npm run zavorth:external-capability-inventory';
     inspectJson: 'npm run zavorth:external-capability-inventory:json';
     check: 'npm run zavorth:external-capability-inventory:check --silent';
-    nextPhase: '291 Phase 1 - Zavorth Contract Layer';
+    nextStage: '291 Intent model - Zavorth Contract Layer';
   };
 };

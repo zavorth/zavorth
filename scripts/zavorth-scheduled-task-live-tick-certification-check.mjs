@@ -27,7 +27,7 @@ const snapshot = {
 if (asJson) {
   console.log(JSON.stringify(snapshot, null, 2));
 } else {
-  console.log('[zavorth-scheduled-task-live-tick-certification] checking Phase 6');
+  console.log('[zavorth-scheduled-task-live-tick-certification] checking Runtime gateway');
   printRules(rules, '[zavorth-scheduled-task-live-tick-certification]');
 }
 if (failed.length > 0) process.exitCode = 1;
@@ -42,13 +42,13 @@ function ruleFilesExist() {
     'docs/README.md',
   ];
   const missing = files.filter((file) => !fs.existsSync(path.join(root, file)));
-  return rule('scheduled-task-live-tick-files', 'Phase 6 files exist', missing.length === 0, `${files.length - missing.length}/${files.length}`, 'contract, service, CLI, check, tests and docs are present', missing);
+  return rule('scheduled-task-live-tick-files', 'Runtime gateway files exist', missing.length === 0, `${files.length - missing.length}/${files.length}`, 'contract, service, CLI, check, tests and docs are present', missing);
 }
 
 function ruleMarkers() {
   const checks = [
     ['src/contracts/ZavorthScheduledTaskLiveTickCertificationContract.ts', ['ZAVORTH_SCHEDULED_TASK_LIVE_TICK_CERTIFICATION_CONTRACT_VERSION', 'routesThroughExecutionGateway', 'blocksScopeDrift']],
-    ['src/services/ZavorthScheduledTaskLiveTickCertificationService.ts', ['phase-6-scheduler-live-tick-certification', 'ZavorthScheduledTaskOperationalGuardService', 'ZavorthScheduledTaskExecutionGatewayRuntimeService', 'noDirectDispatcherBypass']],
+    ['src/services/ZavorthScheduledTaskLiveTickCertificationService.ts', ['checkpoint-6-scheduler-live-tick-certification', 'ZavorthScheduledTaskOperationalGuardService', 'ZavorthScheduledTaskExecutionGatewayRuntimeService', 'noDirectDispatcherBypass']],
     ['scripts/zavorth-scheduled-task-live-tick-certification.ts', ['--task=', '--dry-run', 'ZavorthScheduledTaskLiveTickCertificationService']],
     ['src/sdk/contracts.ts', ['ZavorthScheduledTaskLiveTickCertificationContract']],
     ['src/sdk/index.ts', ['ZavorthScheduledTaskLiveTickCertificationService']],
@@ -60,7 +60,7 @@ function ruleMarkers() {
       if (!text.includes(needle)) missing.push(`${file}: missing ${needle}`);
     }
   }
-  return rule('scheduled-task-live-tick-markers', 'Phase 6 markers are wired', missing.length === 0, missing.length === 0 ? 'all markers' : `${missing.length} missing`, 'contract, service, CLI and SDK markers exist', missing);
+  return rule('scheduled-task-live-tick-markers', 'Runtime gateway markers are wired', missing.length === 0, missing.length === 0 ? 'all markers' : `${missing.length} missing`, 'contract, service, CLI and SDK markers exist', missing);
 }
 
 function runAllFixture() {
@@ -122,7 +122,7 @@ function runAutoPauseFixture() {
 function ruleWorkspaceCheck() {
   const text = read('package.json');
   const marker = 'node scripts/zavorth-scheduled-task-live-tick-certification-check.mjs';
-  return rule('workspace-check-wire', 'workspace:check includes Phase 6 live tick certification gate', text.includes(marker), text.includes(marker) ? 'wired' : 'missing', marker, []);
+  return rule('workspace-check-wire', 'workspace:check includes Runtime gateway live tick certification gate', text.includes(marker), text.includes(marker) ? 'wired' : 'missing', marker, []);
 }
 
 function ruleNoPublicExternalNames() {
@@ -143,7 +143,7 @@ function ruleNoPublicExternalNames() {
       if (text.includes(word)) hits.push(`${file}: ${word}`);
     }
   }
-  return rule('no-public-external-names', 'Phase 6 public core remains neutral', hits.length === 0, hits.length === 0 ? 'neutral' : `${hits.length} hit(s)`, 'no external product names in public core files', hits);
+  return rule('no-public-external-names', 'Runtime gateway public core remains neutral', hits.length === 0, hits.length === 0 ? 'neutral' : `${hits.length} hit(s)`, 'no external product names in public core files', hits);
 }
 
 function runTs(args) {

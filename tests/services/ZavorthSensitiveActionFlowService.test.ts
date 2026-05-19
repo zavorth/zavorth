@@ -10,7 +10,7 @@ describe('ZavorthSensitiveActionFlowService', () => {
       request: 'Edit src/index.ts to change the boot message.',
     });
 
-    expect(snapshot.contractVersion).toBe('2026-05-13.phase-3');
+    expect(snapshot.contractVersion).toBe('2026-05-13.checkpoint-3');
     expect(snapshot.status).toBe('needs_approval');
     expect(snapshot.risk).toBe('medium');
     expect(snapshot.preview.filesChanged).toBe(1);

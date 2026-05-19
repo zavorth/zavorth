@@ -25,12 +25,12 @@ const rules = [
   }),
   ruleContainsAll({
     id: 'channel-long-tail-contract',
-    label: 'Contract defines Phase 3 long-tail vocabulary',
+    label: 'Contract defines Approval gate long-tail vocabulary',
     target: 'Contract captures 17 channels, adapter families, gates, receipts and no-template closure',
     files: ['src/contracts/ChannelLongTailActivationContract.ts'],
     needles: [
       'ZAVORTH_CHANNEL_LONG_TAIL_ACTIVATION_CONTRACT_VERSION',
-      '2026-05-04.live-phase-3',
+      '2026-05-04.live-checkpoint-3',
       'ChannelLongTailActivationId',
       'bluebubbles',
       'feishu',
@@ -80,7 +80,7 @@ const rules = [
   ruleContainsAll({
     id: 'channel-long-tail-cli',
     label: 'CLI runs doctors and gated staging-live smokes',
-    target: 'Script uses Phase 3 service methods instead of only printing activation metadata',
+    target: 'Script uses Approval gate service methods instead of only printing activation metadata',
     files: ['scripts/channel-long-tail-activation.ts'],
     needles: [
       'runConfiguredDoctor',
@@ -116,11 +116,11 @@ const rules = [
   }),
   ruleContainsAll({
     id: 'channel-long-tail-tests',
-    label: 'Tests prove Phase 3 behavior',
+    label: 'Tests prove Approval gate behavior',
     target: 'Tests cover snapshot, readiness promotion and all adapter families',
     files: ['tests/services/ChannelLongTailActivationService.test.ts'],
     needles: [
-      'closes Phase 3 long-tail activation gates',
+      'closes Approval gate long-tail activation gates',
       'moves long-tail channels out of template-only and planned readiness',
       'sends through webhook and bot HTTP family adapters',
       'sends through relay/local bridge and Apple bridge adapters',
@@ -133,8 +133,8 @@ const rules = [
   }),
   ruleContainsAll({
     id: 'channel-long-tail-package',
-    label: 'Package exposes Phase 3 scripts',
-    target: 'Phase 3 can be run through package scripts',
+    label: 'Package exposes Approval gate scripts',
+    target: 'Approval gate can be run through package scripts',
     files: ['package.json'],
     needles: [
       'channel-long-tail-activation',
@@ -144,8 +144,8 @@ const rules = [
   }),
   ruleContainsAll({
     id: 'channel-long-tail-sdk',
-    label: 'SDK exposes Phase 3 contract and service',
-    target: 'Phase 3 can be imported from SDK barrels',
+    label: 'SDK exposes Approval gate contract and service',
+    target: 'Approval gate can be imported from SDK barrels',
     files: ['src/sdk/contracts.ts', 'src/sdk/index.ts'],
     needles: [
       'ChannelLongTailActivation',
@@ -153,11 +153,11 @@ const rules = [
   }),
   ruleContainsAll({
     id: 'channel-long-tail-doc',
-    label: 'Docs record Phase 3 closure',
-    target: 'Phase 3 documentation explains Long Tail and staging-live flow',
+    label: 'Docs record Approval gate closure',
+    target: 'Approval gate documentation explains Long Tail and staging-live flow',
     files: ['docs/README.md'],
     needles: [
-      'Phase 3',
+      'Approval gate',
       'Long Tail',
       'staging-live',
     ],
@@ -179,7 +179,7 @@ const snapshot = {
 if (asJson) {
   console.log(JSON.stringify(snapshot, null, 2));
 } else {
-  console.log('[channel-long-tail-activation] checking Phase 3');
+  console.log('[channel-long-tail-activation] checking Approval gate');
   for (const rule of rules) {
     const marker = rule.status === 'passed' ? 'ok' : 'fail';
     console.log(`[channel-long-tail-activation] ${marker} ${rule.label}: ${rule.observed} | ${rule.target}`);

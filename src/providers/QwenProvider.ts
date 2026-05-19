@@ -105,7 +105,7 @@ export class QwenProvider implements ILlmProvider {
           content: message.content || '',
           tool_call_id: message.toolCallId || 'unknown',
         });
-        // Phase 8: Vision passthrough para tool responses
+        // Dashboard controls: Vision passthrough para tool responses
         if (message.inlineData && message.inlineData.length > 0) {
           const visionContent: Array<OpenAI.ChatCompletionContentPartText | OpenAI.ChatCompletionContentPartImage> = [
             { type: 'text', text: '[Imagem capturada pela ferramenta para analise visual]' },

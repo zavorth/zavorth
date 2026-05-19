@@ -64,7 +64,7 @@ export class ZavorthLiveCanaryControlledExecutorService {
       generatedAt,
       contractVersion: ZAVORTH_LIVE_CANARY_CONTROLLED_EXECUTOR_CONTRACT_VERSION,
       source: 'ZavorthLiveCanaryControlledExecutorService',
-      phase: 'phase-10-live-canary-controlled-executor',
+      phase: 'checkpoint-10-live-canary-controlled-executor',
       status,
       mode,
       applyGate,
@@ -73,7 +73,7 @@ export class ZavorthLiveCanaryControlledExecutorService {
       executionResult,
       receipts,
       safety: {
-        executesOnlyWithPhase9Authorization: true,
+        executesOnlyWithStage9Authorization: true,
         explicitOperatorExecuteRequired: true,
         noImplicitExecutionFromChecks: true,
         idempotencyKeyRequiredForExecution: true,
@@ -95,7 +95,7 @@ export class ZavorthLiveCanaryControlledExecutorService {
 
   public formatSnapshotText(snapshot: ZavorthLiveCanaryControlledExecutorSnapshot): string {
     const lines = [
-      'Zavorth Live Canary Controlled Executor - Phase 10',
+      'Zavorth Live Canary Controlled Executor - Intent model0',
       '',
       `Status: ${snapshot.status}`,
       `Mode: ${snapshot.mode}`,
@@ -203,15 +203,15 @@ function buildChecks(
 ): ZavorthLiveCanaryControlledExecutorCheck[] {
   const expiresAt = applyGate.authorizationPacket.expiresAt ? Date.parse(applyGate.authorizationPacket.expiresAt) : Number.NaN;
   return [
-    check('apply-gate-open', applyGate.authorizationPacket.applyGateOpen, 'apply-gate-open', `Apply gate status is ${applyGate.status}.`, 'Complete Phase 9 apply gate first.'),
-    check('authorization-fresh', Number.isFinite(expiresAt) && expiresAt > now.getTime(), 'authorization-fresh', applyGate.authorizationPacket.expiresAt ? `Authorization expires at ${applyGate.authorizationPacket.expiresAt}.` : 'Authorization is missing.', 'Regenerate the Phase 9 authorization packet.'),
+    check('apply-gate-open', applyGate.authorizationPacket.applyGateOpen, 'apply-gate-open', `Apply gate status is ${applyGate.status}.`, 'Complete Certification matrix apply gate first.'),
+    check('authorization-fresh', Number.isFinite(expiresAt) && expiresAt > now.getTime(), 'authorization-fresh', applyGate.authorizationPacket.expiresAt ? `Authorization expires at ${applyGate.authorizationPacket.expiresAt}.` : 'Authorization is missing.', 'Regenerate the Certification matrix authorization packet.'),
     check('executor-selected', Boolean(request.executorId), 'executor-selected', `Executor selected: ${request.executorId}.`, 'Select local_ack or provider_live_canary.'),
     check('adapter-supported', adapterSupported, 'adapter-supported', adapterSupported ? 'Selected executor supports this adapter.' : 'Selected executor does not support this adapter.', 'Use local_ack for local api canary or provider_live_canary for provider_call adapter.'),
     check('idempotency-key', Boolean(request.idempotencyKey), 'idempotency-key', request.idempotencyKey ? 'Idempotency key is present.' : 'Idempotency key is missing.', 'Provide idempotency key before execution.'),
     warn('explicit-execute', request.execute, 'explicit-execute', request.execute ? 'Explicit execution requested.' : 'Execution not requested; gate is ready only.', 'Pass --execute-local or --execute-provider when ready.'),
     check('operator-confirmation', !request.execute || request.operatorConfirmed, 'operator-confirmation', request.operatorConfirmed ? 'Operator confirmation is present.' : 'Operator confirmation is missing.', 'Confirm execution explicitly before live executor runs.'),
     check('no-secret-output', true, 'no-secret-output', 'Executor output is redacted before serialization.', null),
-    check('rollback-boundary', Boolean(applyGate.authorizationPacket.rollbackDrillId), 'rollback-boundary', applyGate.authorizationPacket.rollbackDrillId ? 'Rollback drill receipt is attached.' : 'Rollback drill receipt is missing.', 'Run Phase 9 rollback drill first.'),
+    check('rollback-boundary', Boolean(applyGate.authorizationPacket.rollbackDrillId), 'rollback-boundary', applyGate.authorizationPacket.rollbackDrillId ? 'Rollback drill receipt is attached.' : 'Rollback drill receipt is missing.', 'Run Certification matrix rollback drill first.'),
   ];
 }
 
@@ -305,13 +305,13 @@ function buildReceipts(
 ): ZavorthLiveCanaryControlledExecutorReceipt[] {
   return [
     {
-      id: 'phase-10-live-canary-controlled-executor',
-      kind: 'phase-10-live-canary-controlled-executor',
+      id: 'checkpoint-10-live-canary-controlled-executor',
+      kind: 'checkpoint-10-live-canary-controlled-executor',
       status: receiptStatus(status),
       summary: `Controlled executor status is ${status}.`,
     },
     {
-      id: 'phase-10-apply-gate-consumed',
+      id: 'checkpoint-10-apply-gate-consumed',
       kind: 'apply-gate-consumed',
       status: applyGate.authorizationPacket.executionAuthorized ? 'recorded' : 'blocked',
       summary: applyGate.authorizationPacket.authorizationReceiptId
@@ -319,31 +319,31 @@ function buildReceipts(
         : 'No apply gate authorization was available.',
     },
     {
-      id: result.executionReceiptId || 'phase-10-execution-receipt',
+      id: result.executionReceiptId || 'checkpoint-10-execution-receipt',
       kind: 'execution-receipt',
       status: result.status === 'performed' ? 'recorded' : request.execute ? 'failed' : 'skipped',
       summary: result.status === 'performed' ? 'Execution receipt emitted.' : 'Execution was not performed.',
     },
     {
-      id: result.rollbackReceiptId || 'phase-10-rollback-receipt',
+      id: result.rollbackReceiptId || 'checkpoint-10-rollback-receipt',
       kind: 'rollback-receipt',
       status: result.status === 'performed' ? 'recorded' : 'skipped',
       summary: result.status === 'performed' ? 'Rollback receipt emitted for post-run recovery path.' : 'Rollback receipt was not needed.',
     },
     {
-      id: 'phase-10-unsupported-adapter',
+      id: 'checkpoint-10-unsupported-adapter',
       kind: 'unsupported-adapter',
       status: adapterSupported ? 'skipped' : 'blocked',
       summary: adapterSupported ? 'Adapter is supported by selected executor.' : 'Adapter is not supported by selected executor.',
     },
     {
-      id: 'phase-10-no-secret-output-boundary',
+      id: 'checkpoint-10-no-secret-output-boundary',
       kind: 'no-secret-output-boundary',
       status: 'recorded',
       summary: 'Output preview and errors are redacted before serialization.',
     },
     {
-      id: 'phase-10-visual-change-boundary',
+      id: 'checkpoint-10-visual-change-boundary',
       kind: 'visual-change-boundary',
       status: 'recorded',
       summary: 'No dashboard visual mutation is performed by controlled executor.',
@@ -445,14 +445,14 @@ function executionReceiptId(
   applyGate: ReturnType<ZavorthLiveCanaryApplyGateRollbackDrillService['buildSnapshot']>,
   request: NormalizedExecutionRequest,
 ): string {
-  return `phase-10-execution:${applyGate.adapter.id}:${request.idempotencyKey}`;
+  return `checkpoint-10-execution:${applyGate.adapter.id}:${request.idempotencyKey}`;
 }
 
 function rollbackReceiptId(
   applyGate: ReturnType<ZavorthLiveCanaryApplyGateRollbackDrillService['buildSnapshot']>,
   request: NormalizedExecutionRequest,
 ): string {
-  return `phase-10-rollback:${applyGate.adapter.id}:${request.idempotencyKey}`;
+  return `checkpoint-10-rollback:${applyGate.adapter.id}:${request.idempotencyKey}`;
 }
 
 function clean(value: unknown): string | null {

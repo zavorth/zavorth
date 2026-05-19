@@ -199,7 +199,7 @@ function buildWavFile(
 
   header.write('RIFF', 0);
   header.writeUInt32LE(36 + pcmData.length, 4);
-  header.write('WAVE', 8);
+  header.write('TRACK', 8);
   header.write('fmt ', 12);
   header.writeUInt32LE(16, 16);
   header.writeUInt16LE(1, 20);

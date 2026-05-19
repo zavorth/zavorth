@@ -51,7 +51,7 @@ export class CapabilityAutopilotSurfaceUxService {
     const audience = input.audience || input.receipt.audience;
     const permissionCount = input.receipt.repairPlan?.permissionRequirements.length || 0;
     const fallbackCount = input.receipt.repairPlan?.fallbackOptions.length || 0;
-    const stage = input.receipt.stage;
+    const phase = input.receipt.phase;
 
     return {
       generatedAt: this.now().toISOString(),
@@ -59,8 +59,8 @@ export class CapabilityAutopilotSurfaceUxService {
       audience,
       capabilityId: input.receipt.capabilityId,
       capabilityLabel: input.receipt.capabilityLabel,
-      stage,
-      tone: this.resolveTone(stage, input.receipt),
+      phase,
+      tone: this.resolveTone(phase, input.receipt),
       headline: this.buildHeadline(input.receipt, surface, audience),
       body: this.buildBody(input.receipt, surface, audience),
       technicalBody: audience === 'technical_operator' || surface === 'api'
@@ -76,7 +76,7 @@ export class CapabilityAutopilotSurfaceUxService {
       actions: this.buildActions(input.receipt, surface),
       receipt: input.receipt,
       metadata: {
-        phase: 'capability-autopilot-phase-63',
+        phase: 'capability-autopilot-checkpoint-63',
         sourceReceiptId: input.receipt.receiptId,
         permissionCount,
         fallbackCount,
@@ -94,16 +94,16 @@ export class CapabilityAutopilotSurfaceUxService {
   }
 
   private resolveTone(
-    stage: CapabilityReceiptStage,
+    phase: CapabilityReceiptStage,
     receipt: CapabilityReceipt,
   ): CapabilitySurfaceUxPayload['tone'] {
-    if (stage === 'completed' || stage === 'resume') {
+    if (phase === 'completed' || phase === 'resume') {
       return 'success';
     }
-    if (stage === 'failed' || receipt.readiness?.severity === 'critical') {
+    if (phase === 'failed' || receipt.readiness?.severity === 'critical') {
       return 'blocked';
     }
-    if (stage === 'permission' || stage === 'repair' || stage === 'validation') {
+    if (phase === 'permission' || phase === 'repair' || phase === 'validation') {
       return 'attention';
     }
     return 'neutral';
@@ -115,12 +115,12 @@ export class CapabilityAutopilotSurfaceUxService {
     audience: CapabilityAutopilotAudience,
   ): string {
     if (surface === 'api') {
-      return `${receipt.capabilityId}:${receipt.stage}`;
+      return `${receipt.capabilityId}:${receipt.phase}`;
     }
     if (audience === 'technical_operator') {
       return receipt.headline;
     }
-    if (COMPACT_SURFACES.has(surface) && receipt.stage === 'permission') {
+    if (COMPACT_SURFACES.has(surface) && receipt.phase === 'permission') {
       return `${receipt.capabilityLabel} precisa de permissao.`;
     }
     return receipt.headline;
@@ -158,7 +158,7 @@ export class CapabilityAutopilotSurfaceUxService {
     const entries = COMPACT_SURFACES.has(surface)
       ? receipt.timeline.slice(-3)
       : receipt.timeline;
-    return entries.map((entry) => `${entry.stage}:${entry.status}:${entry.summary}`);
+    return entries.map((entry) => `${entry.phase}:${entry.status}:${entry.summary}`);
   }
 
   private buildActions(
@@ -179,7 +179,7 @@ export class CapabilityAutopilotSurfaceUxService {
       callbackData: this.callback(surface, receipt, 'details'),
     }));
 
-    if (receipt.stage === 'permission' && receipt.repairPlan?.permissionRequirements.length) {
+    if (receipt.phase === 'permission' && receipt.repairPlan?.permissionRequirements.length) {
       actions.push(this.action({
         id: 'approve-permission',
         kind: 'approve_permission',
@@ -200,7 +200,7 @@ export class CapabilityAutopilotSurfaceUxService {
       }));
     }
 
-    if (receipt.stage === 'repair' || receipt.stage === 'failed' || receipt.stage === 'permission') {
+    if (receipt.phase === 'repair' || receipt.phase === 'failed' || receipt.phase === 'permission') {
       actions.push(this.action({
         id: 'run-validation',
         kind: 'run_validation',
@@ -229,7 +229,7 @@ export class CapabilityAutopilotSurfaceUxService {
       }));
     }
 
-    if (receipt.stage === 'resume') {
+    if (receipt.phase === 'resume') {
       actions.push(this.action({
         id: 'resume-intent',
         kind: 'resume_intent',

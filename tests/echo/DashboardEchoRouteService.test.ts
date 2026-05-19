@@ -367,7 +367,7 @@ describe('DashboardEchoRouteService', () => {
         prompt: 'listar tools',
         category: 'OS',
         requestedBy: 'dashboard-ui',
-        surface: 'modern-ui',
+        surface: 'dashboard-ui',
       }),
       resExecute,
       new URL('http://localhost/api/v2/echo/execute'),
@@ -387,7 +387,7 @@ describe('DashboardEchoRouteService', () => {
       category: 'OS',
       sessionId: undefined,
       requestedBy: 'dashboard-ui',
-      surface: 'modern-ui',
+      surface: 'dashboard-ui',
     });
     expect(calls[0]).toEqual({
       statusCode: 200,
@@ -749,7 +749,7 @@ describe('DashboardEchoRouteService', () => {
       createReq('POST', '/api/v2/echo/audio/speech', {
         input: 'Fale no dashboard.',
         surface: 'dashboard',
-        requestedBy: 'modern-ui',
+        requestedBy: 'dashboard-ui',
         sessionId: 'dashboard-session',
       }),
       audioRes,
@@ -771,7 +771,7 @@ describe('DashboardEchoRouteService', () => {
     expect(echo.synthesizeSpeech).toHaveBeenCalledWith({
       text: 'Fale no dashboard.',
       surface: 'dashboard',
-      requestedBy: 'modern-ui',
+      requestedBy: 'dashboard-ui',
       sessionId: 'dashboard-session',
       model: undefined,
       voiceName: undefined,

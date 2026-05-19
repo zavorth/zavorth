@@ -8,7 +8,7 @@ const asJson = process.argv.includes('--json');
 const rules = [
   ruleFilesExist({
     id: 'memory-with-receipts-files',
-    label: 'Wave 32 files exist',
+    label: 'Memory Receipts files exist',
     target: 'Runtime, CLI, Command Center, tests and docs are present',
     files: [
       'src/runtime/agent/MemoryWithReceiptsService.ts',
@@ -27,7 +27,7 @@ const rules = [
     files: ['src/runtime/agent/MemoryWithReceiptsService.ts'],
     needles: [
       'MEMORY_WITH_RECEIPTS_CONTRACT_VERSION',
-      '2026-05-03.wave-32',
+      '2026-05-03.memory-receipts',
       'sourceQuestionHint',
       'allMemoryHasReceipt',
       'runObservatoryLinked',
@@ -64,7 +64,7 @@ const rules = [
     ],
     needles: [
       'memory receipts',
-      'Memory With Receipts - Wave 32',
+      'Memory With Receipts - Memory Receipts',
       'resolveMemoryWithReceiptsCliText',
       'formatMemoryWithReceiptsSnapshot',
       'zavorth memory source',
@@ -93,7 +93,7 @@ const rules = [
   }),
   ruleContainsAll({
     id: 'package-exposes-memory-with-receipts-gate',
-    label: 'package exposes Wave 32 gate',
+    label: 'package exposes Memory Receipts gate',
     target: 'local QA can run memory-with-receipts:check and qa:memory-with-receipts',
     files: ['package.json'],
     needles: [
@@ -119,7 +119,7 @@ const snapshot = {
 if (asJson) {
   console.log(JSON.stringify(snapshot, null, 2));
 } else {
-  console.log('[memory-with-receipts] checking Wave 32');
+  console.log('[memory-with-receipts] checking Memory Receipts');
   for (const rule of rules) {
     const marker = rule.status === 'passed' ? 'ok' : 'fail';
     console.log(`[memory-with-receipts] ${marker} ${rule.label}: ${rule.observed} | ${rule.target}`);

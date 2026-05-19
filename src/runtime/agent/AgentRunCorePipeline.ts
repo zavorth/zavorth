@@ -115,7 +115,7 @@ export class AgentRunCorePipeline<TBaseline> {
     });
   }
 
-  private appendReceipt(run: UniversalAgentRun, stage: string): void {
+  private appendReceipt(run: UniversalAgentRun, phase: string): void {
     const existing = run.metadata.corePipeline;
     const receipts = existing
       && typeof existing === 'object'
@@ -128,11 +128,11 @@ export class AgentRunCorePipeline<TBaseline> {
       corePipeline: {
         source: 'AgentRunCorePipeline',
         phase: 12,
-        lastStage: stage,
+        lastStage: phase,
         receipts: [
           ...receipts,
           {
-            stage,
+            phase,
             status: run.status,
           },
         ],

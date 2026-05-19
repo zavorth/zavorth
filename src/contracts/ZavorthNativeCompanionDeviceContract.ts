@@ -1,4 +1,4 @@
-export const ZAVORTH_NATIVE_COMPANION_DEVICE_CONTRACT_VERSION = '2026-05-05.phase-6' as const;
+export const ZAVORTH_NATIVE_COMPANION_DEVICE_CONTRACT_VERSION = '2026-05-05.checkpoint-6' as const;
 
 export type ZavorthNativeRuntimeTarget =
   | 'satellite-pwa'
@@ -167,6 +167,6 @@ export type ZavorthNativeCompanionDeviceSnapshot = {
     check: 'npm run zavorth-native-companion-device-pack:check --silent';
     qa: 'npm run qa:zavorth-native-companion-device-pack --silent';
     liveMlxTts: 'npm run zavorth-native-companion-device-pack -- --mlx-tts "hello" --approval-id <id>';
-    nextPhase: 'Phase 7 - QA, Security And Release Certification Pack';
+    nextStage: 'Surface controls - QA, Security And Release Certification Pack';
   };
 };

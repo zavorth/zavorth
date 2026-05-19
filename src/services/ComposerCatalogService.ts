@@ -374,7 +374,7 @@ export class ComposerCatalogService {
 
           if (resumeStageId) {
             actions.push({
-              id: `action:resume-workflow-stage:${workflowRunId}:${resumeStageId}`,
+              id: `action:resume-workflow-phase:${workflowRunId}:${resumeStageId}`,
               type: 'action',
               label: `#retomar-etapa:${this.toToken(resumeStageLabel || resumeStageId)}`,
               description: resumeStageLabel
@@ -393,13 +393,13 @@ export class ComposerCatalogService {
             });
           }
 
-          const workflowStages = Array.isArray(workflowRun?.stages)
-            ? [...workflowRun.stages].sort((left, right) => Number(left?.index || 0) - Number(right?.index || 0))
+          const workflowStages = Array.isArray(workflowRun?.phases)
+            ? [...workflowRun.phases].sort((left, right) => Number(left?.index || 0) - Number(right?.index || 0))
             : [];
-          for (const stage of workflowStages) {
-            const stageId = String(stage?.id || '').trim();
-            const stageLabel = String(stage?.label || stageId || '').trim();
-            const stageStatus = String(stage?.status || '').trim().toLowerCase();
+          for (const phase of workflowStages) {
+            const stageId = String(phase?.id || '').trim();
+            const stageLabel = String(phase?.label || stageId || '').trim();
+            const stageStatus = String(phase?.status || '').trim().toLowerCase();
             if (!stageId || !stageLabel || stageId === resumeStageId) {
               continue;
             }
@@ -411,7 +411,7 @@ export class ComposerCatalogService {
             }
 
             actions.push({
-              id: `action:resume-workflow-stage:${workflowRunId}:${stageId}:${stageStatus || 'stage'}`,
+              id: `action:resume-workflow-phase:${workflowRunId}:${stageId}:${stageStatus || 'phase'}`,
               type: 'action',
               label: `${isCompletedStage ? '#reiniciar-etapa' : '#retomar-etapa'}:${this.toToken(stageLabel)}`,
               description: isCompletedStage
@@ -424,7 +424,7 @@ export class ComposerCatalogService {
                 taskId: String(firstTask.payload?.taskId || '').trim() || null,
                 resumeStageId: stageId,
                 resumeStageLabel: stageLabel,
-                resumeStageReason: String(stage?.result_summary || stage?.handoff_summary || '').trim() || null,
+                resumeStageReason: String(phase?.result_summary || phase?.handoff_summary || '').trim() || null,
                 resumePrompt: String(workflowRun?.resume_prompt || '').trim() || null,
               },
             });

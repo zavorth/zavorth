@@ -25,7 +25,7 @@ const snapshot = {
 if (asJson) {
   console.log(JSON.stringify(snapshot, null, 2));
 } else {
-  console.log('[zavorth-context-recovery-assimilation] checking Phase 3');
+  console.log('[zavorth-context-recovery-assimilation] checking Approval gate');
   printRules(rules, '[zavorth-context-recovery-assimilation]');
 }
 if (failed.length > 0) process.exitCode = 1;
@@ -40,13 +40,13 @@ function ruleFilesExist() {
     'docs/README.md',
   ];
   const missing = files.filter((file) => !fs.existsSync(path.join(root, file)));
-  return rule('context-recovery-files', 'Phase 3 files exist', missing.length === 0, `${files.length - missing.length}/${files.length}`, 'contract, service, CLI, check, tests and docs are present', missing);
+  return rule('context-recovery-files', 'Approval gate files exist', missing.length === 0, `${files.length - missing.length}/${files.length}`, 'contract, service, CLI, check, tests and docs are present', missing);
 }
 
 function ruleMarkers() {
   const checks = [
     ['src/contracts/ZavorthContextRecoveryAssimilationContract.ts', ['ZAVORTH_CONTEXT_RECOVERY_ASSIMILATION_CONTRACT_VERSION', 'ledgerBeatsRecall', 'retryOnlyWhenEvidenceChanges', 'rawMemorySerialized']],
-    ['src/services/ZavorthContextRecoveryAssimilationService.ts', ['phase-3-context-memory-error-recovery', 'ZavorthReasoningActionPatternService', 'avoidSameFailingToolUntilEvidenceChanges', 'ledger remains authoritative']],
+    ['src/services/ZavorthContextRecoveryAssimilationService.ts', ['checkpoint-3-context-memory-error-recovery', 'ZavorthReasoningActionPatternService', 'avoidSameFailingToolUntilEvidenceChanges', 'ledger remains authoritative']],
     ['scripts/zavorth-context-recovery-assimilation.ts', ['--failure', '--memory', '--event', '--json']],
     ['src/sdk/contracts.ts', ['ZavorthContextRecoveryAssimilationContract']],
     ['src/sdk/index.ts', ['ZavorthContextRecoveryAssimilationService']],
@@ -58,7 +58,7 @@ function ruleMarkers() {
       if (!text.includes(needle)) missing.push(`${file}: missing ${needle}`);
     }
   }
-  return rule('context-recovery-markers', 'Phase 3 markers are wired', missing.length === 0, missing.length === 0 ? 'all markers' : `${missing.length} missing`, 'context, recovery, SDK and CLI markers exist', missing);
+  return rule('context-recovery-markers', 'Approval gate markers are wired', missing.length === 0, missing.length === 0 ? 'all markers' : `${missing.length} missing`, 'context, recovery, SDK and CLI markers exist', missing);
 }
 
 function runContextFixture() {
@@ -69,13 +69,13 @@ function runContextFixture() {
     '--memory=mem-1|Workspace uses governed subagents|fixture|0.9|warm',
   ]);
   return jsonRule('context-recovery-context-fixture', 'Compact context pack builds', result, (snapshot) =>
-    snapshot.contractVersion === '2026-05-11.context-memory-error-recovery-phase-3'
+    snapshot.contractVersion === '2026-05-11.context-memory-error-recovery-checkpoint-3'
     && snapshot.status === 'ready'
     && snapshot.contextPack.rawMemorySerialized === false
     && snapshot.safety.ledgerBeatsRecall === true
     && snapshot.summary.hot >= 1
     && snapshot.summary.warm >= 1
-    && snapshot.receipts.some((item) => item.kind === 'phase-3-context-pack'));
+    && snapshot.receipts.some((item) => item.kind === 'checkpoint-3-context-pack'));
 }
 
 function runRecoveryFixture() {
@@ -99,7 +99,7 @@ function runApprovalFixture() {
     '--json',
     '--text=edite arquivos e rode comando powershell',
   ]);
-  return jsonRule('context-recovery-approval-fixture', 'Phase 2 approval boundary is inherited', result, (snapshot) =>
+  return jsonRule('context-recovery-approval-fixture', 'Preview engine approval boundary is inherited', result, (snapshot) =>
     snapshot.status === 'approval-required'
     && snapshot.failure.kind === 'approval_missing'
     && snapshot.receipts.some((item) => item.kind === 'approval-boundary' && item.status === 'requires-approval'));
@@ -123,7 +123,7 @@ function runBlockedFixture() {
 function ruleWorkspaceCheck() {
   const text = read('package.json');
   const marker = 'node scripts/zavorth-context-recovery-assimilation-check.mjs';
-  return rule('workspace-check-wire', 'workspace:check includes Phase 3 gate', text.includes(marker), text.includes(marker) ? 'wired' : 'missing', marker, []);
+  return rule('workspace-check-wire', 'workspace:check includes Approval gate gate', text.includes(marker), text.includes(marker) ? 'wired' : 'missing', marker, []);
 }
 
 function ruleNoPublicExternalNames() {
@@ -144,7 +144,7 @@ function ruleNoPublicExternalNames() {
       if (text.includes(word)) hits.push(`${file}: ${word}`);
     }
   }
-  return rule('no-public-external-names', 'Phase 3 public core remains neutral', hits.length === 0, hits.length === 0 ? 'neutral' : `${hits.length} hit(s)`, 'no external product names in public core files', hits);
+  return rule('no-public-external-names', 'Approval gate public core remains neutral', hits.length === 0, hits.length === 0 ? 'neutral' : `${hits.length} hit(s)`, 'no external product names in public core files', hits);
 }
 
 function runTs(script, args) {
@@ -162,7 +162,7 @@ function jsonRule(id, label, result, expect) {
   try {
     const snapshot = JSON.parse(result.stdout);
     const passed = expect(snapshot);
-    return rule(id, label, passed, `status=${snapshot.status}; failure=${snapshot.failure?.kind ?? 'n/a'}`, 'expected Phase 3 recovery snapshot', passed ? [] : [JSON.stringify(snapshot, null, 2)]);
+    return rule(id, label, passed, `status=${snapshot.status}; failure=${snapshot.failure?.kind ?? 'n/a'}`, 'expected Approval gate recovery snapshot', passed ? [] : [JSON.stringify(snapshot, null, 2)]);
   } catch (error) {
     return rule(id, label, false, 'invalid JSON', 'valid JSON fixture', [String(error), ...compact(result.stderr, result.stdout)]);
   }

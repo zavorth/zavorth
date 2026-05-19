@@ -3,7 +3,7 @@ import { ZavorthCapabilityHubService } from '../../src/services/ZavorthCapabilit
 import { CAPABILITY_HUB_CONTRACT_VERSION } from '../../src/contracts/CapabilityHubContract';
 
 describe('ZavorthCapabilityHubService', () => {
-  it('builds the canonical Phase 0 catalog across channels, skills, MCP, providers and recipes', () => {
+  it('builds the canonical Security contract catalog across channels, skills, MCP, providers and recipes', () => {
     const service = new ZavorthCapabilityHubService(buildRuntime());
 
     const snapshot = service.buildSnapshot();

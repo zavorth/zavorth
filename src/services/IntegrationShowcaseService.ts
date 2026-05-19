@@ -122,7 +122,7 @@ export class IntegrationShowcaseService {
 
   public renderReport(snapshot: IntegrationShowcaseSnapshot = this.buildSnapshot()): string {
     const lines: string[] = [];
-    lines.push('[integration-showcase] Fase 58 - Integration Showcase And Partner Surface');
+    lines.push('[integration-showcase] Readiness checkpoint 8 - Integration Showcase And Partner Surface');
     lines.push(`status: ${snapshot.status}`);
     lines.push(`ok: ${snapshot.summary.ok ? 'yes' : 'no'} | pass=${snapshot.summary.passed} warn=${snapshot.summary.warnings} fail=${snapshot.summary.failed}`);
     lines.push(`website: ${snapshot.websiteRoot}`);
@@ -137,7 +137,7 @@ export class IntegrationShowcaseService {
       }
     }
     lines.push('');
-    lines.push(`proxima fase recomendada: ${snapshot.nextRecommendedPhase.phase} - ${snapshot.nextRecommendedPhase.title}`);
+    lines.push(`proximo passo recomendada: ${snapshot.nextRecommendedPhase.phase} - ${snapshot.nextRecommendedPhase.title}`);
     lines.push(snapshot.nextRecommendedPhase.reason);
     return lines.join('\n');
   }
@@ -349,7 +349,7 @@ export class IntegrationShowcaseService {
   private checkForbiddenClaims(): IntegrationShowcaseCheck {
     const source = [
       this.websiteShowcaseSource(),
-      this.readCoreText('docs/76-public-adoption-architecture.md') || '',
+      this.readCoreText('docs/product-direction.md') || '',
     ].join('\n');
     const forbiddenMatches = INTEGRATION_SHOWCASE_FORBIDDEN_CLAIMS
       .filter((claim) => source.toLowerCase().includes(String(claim).toLowerCase()));
@@ -500,11 +500,11 @@ export class IntegrationShowcaseService {
 
   private checkDocsRunbook(): IntegrationShowcaseCheck {
     const source = [
-      this.readCoreText('docs/76-public-adoption-architecture.md') || '',
-      this.readCoreText('docs/11-roadmap.md') || '',
+      this.readCoreText('docs/product-direction.md') || '',
+      this.readCoreText('docs/product-direction.md') || '',
     ].join('\n').toLowerCase();
     const required = [
-      'fase 58',
+      'etapa 58',
       'integration showcase',
       'partner surface',
       'slack',
@@ -520,31 +520,31 @@ export class IntegrationShowcaseService {
     const missing = required.filter((term) => !source.includes(term));
     return this.check(
       'integration-showcase:docs-runbook',
-      'documentacao e runbook da Fase 58',
+      'documentacao e runbook da Readiness checkpoint 8',
       missing.length === 0 ? 'pass' : 'fail',
       missing.length === 0
-        ? 'docs explicam showcase, vendors, fixtures, Trust Plane, partner surface e gates da Fase 58.'
+        ? 'docs explicam showcase, vendors, fixtures, Trust Plane, partner surface e gates da Readiness checkpoint 8.'
         : 'docs precisam explicar como fechar e operar integration showcase.',
-      'docs/76-public-adoption-architecture.md',
+      'docs/product-direction.md',
       missing.map((term) => `faltando: ${term}`),
     );
   }
 
   private checkNextPhasePlanning(): IntegrationShowcaseCheck {
     const source = [
-      this.readCoreText('docs/76-public-adoption-architecture.md') || '',
-      this.readCoreText('docs/11-roadmap.md') || '',
+      this.readCoreText('docs/product-direction.md') || '',
+      this.readCoreText('docs/product-direction.md') || '',
     ].join('\n');
-    const missing = ['Fase 59 - v1.x Release Train And LTS Policy', 'qa:phase:59']
+    const missing = ['Readiness checkpoint 9 - v1.x Release Train And LTS Policy', 'qa:phase:59']
       .filter((term) => !source.includes(term));
     return this.check(
       'integration-showcase:next-phase',
-      'recomendacao para Fase 59',
+      'recomendacao para Readiness checkpoint 9',
       missing.length === 0 ? 'pass' : 'fail',
       missing.length === 0
-        ? 'Fase 58 aponta explicitamente para release train v1.x e LTS.'
-        : 'Fase 58 precisa deixar a Fase 59 como proxima acao.',
-      'docs/76-public-adoption-architecture.md',
+        ? 'Readiness checkpoint 8 aponta explicitamente para release train v1.x e LTS.'
+        : 'Readiness checkpoint 8 precisa deixar a Readiness checkpoint 9 como proxima acao.',
+      'docs/product-direction.md',
       missing,
     );
   }

@@ -23,7 +23,7 @@ describe('GatewaySpineService', () => {
       channelRegistrySnapshot: channelSnapshot(),
     });
 
-    expect(snapshot.contractVersion).toBe('2026-05-13.phase-1');
+    expect(snapshot.contractVersion).toBe('2026-05-13.checkpoint-1');
     expect(snapshot.spine.singleSourceOfTruth).toBe(true);
     expect(snapshot.channels.summary.total).toBe(3);
     expect(snapshot.channels.summary.ready).toBe(2);

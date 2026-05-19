@@ -20,7 +20,7 @@ describe('ZavorthProviderSelectionUxService', () => {
       requireLiveEvidence: true,
     });
 
-    expect(snapshot.contractVersion).toBe('2026-05-13.phase-11');
+    expect(snapshot.contractVersion).toBe('2026-05-13.checkpoint-11');
     expect(snapshot.decision).toBe('test_first');
     expect(snapshot.selected?.providerId).toBe('openai');
     expect(snapshot.safety).toEqual(expect.objectContaining({
@@ -143,7 +143,7 @@ function readinessPlane(routes: AccessRouteCatalogEntry[]) {
           };
         });
       return {
-        contractVersion: '2026-05-13.phase-5',
+        contractVersion: '2026-05-13.checkpoint-5',
         schemaVersion: 1,
         surface: 'provider-readiness-matrix',
         generatedAt: '2026-05-13T12:00:00.000Z',

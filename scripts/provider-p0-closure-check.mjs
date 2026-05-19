@@ -32,7 +32,7 @@ const rules = [
       'ProviderP0ClosureSnapshot',
       'unsupported_anthropic',
       'anthropic-compatible-runtime',
-      'Fase 11 - P1 Provider Adapter Runtime',
+      'Etapa 11 - P1 Provider Adapter Runtime',
       'liveExternalCallRequired: false',
       'secretValuesSerialized: false',
     ],
@@ -117,7 +117,7 @@ const snapshot = {
 if (asJson) {
   console.log(JSON.stringify(snapshot, null, 2));
 } else {
-  console.log('[provider-p0-closure] checking Phase 10');
+  console.log('[provider-p0-closure] checking Intent model0');
   for (const rule of rules) {
     const marker = rule.status === 'passed' ? 'ok' : 'fail';
     console.log(`[provider-p0-closure] ${marker} ${rule.label}: ${rule.observed} | ${rule.target}`);

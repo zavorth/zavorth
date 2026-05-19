@@ -5,13 +5,13 @@ import path from 'path';
 import { SatelliteDeviceLivePlaneService } from '../../src/services/SatelliteDeviceLivePlaneService.js';
 import { SatelliteDeviceLiveService } from '../../src/services/SatelliteDeviceLiveService.js';
 
-describe('SatelliteDeviceLivePlaneService Phase 11', () => {
+describe('SatelliteDeviceLivePlaneService Intent model1', () => {
   let workspaceRoot: string;
   let tempRoot: string;
 
   beforeEach(async () => {
-    workspaceRoot = await fs.promises.mkdtemp(path.join(os.tmpdir(), 'zavorth-phase11-workspace-'));
-    tempRoot = await fs.promises.mkdtemp(path.join(os.tmpdir(), 'zavorth-phase11-state-'));
+    workspaceRoot = await fs.promises.mkdtemp(path.join(os.tmpdir(), 'zavorth-intent-model1-workspace-'));
+    tempRoot = await fs.promises.mkdtemp(path.join(os.tmpdir(), 'zavorth-intent-model1-state-'));
   });
 
   afterEach(async () => {
@@ -19,13 +19,13 @@ describe('SatelliteDeviceLivePlaneService Phase 11', () => {
     await fs.promises.rm(tempRoot, { recursive: true, force: true });
   });
 
-  it('closes Phase 11 Satellite and device gates without live IO', () => {
+  it('closes Intent model1 Satellite and device gates without live IO', () => {
     const snapshot = new SatelliteDeviceLivePlaneService({
       now: () => new Date('2026-05-05T00:11:00.000Z'),
     }).buildSnapshot();
 
-    expect(snapshot.contractVersion).toBe('2026-05-05.live-phase-11');
-    expect(snapshot.phase).toBe('Phase 11 - Satellite And Device Live Plane');
+    expect(snapshot.contractVersion).toBe('2026-05-05.live-checkpoint-11');
+    expect(snapshot.phase).toBe('Intent model1 - Satellite And Device Live Plane');
     expect(snapshot.status).toBe('closed');
     expect(snapshot.summary).toEqual(
       expect.objectContaining({
@@ -47,7 +47,7 @@ describe('SatelliteDeviceLivePlaneService Phase 11', () => {
         deviceMarkedLiveWithoutPairing: false,
         sensitiveInvokeBypassesTrust: false,
         unsupportedNativeApisHidden: false,
-        liveIoRequiredByPhase11Check: false,
+        liveIoRequiredByActivationReviewCheck: false,
         secretValuesSerialized: false,
       }),
     );

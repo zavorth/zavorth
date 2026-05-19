@@ -38,7 +38,7 @@ function showcaseReady() {
 
 function releaseTrain() {
   return {
-    phase: '59',
+    stage: '59',
     surface: 'release-train',
     status: 'ready',
     summary: { ok: true, passed: 18, warnings: 0, failed: 0 },
@@ -54,12 +54,12 @@ function releaseTrain() {
 
 function publicAdoption() {
   return {
-    phase: '53',
+    stage: '53',
     surface: 'public-adoption-readiness',
     status: 'ready',
     summary: { ok: true, passed: 20, warnings: 0, failed: 0, readinessScore: 95 },
     baseline: { release: 'v1.0.0', packageName: 'zavorth', packageVersion: '1.1.0' },
-    requiredScripts: ['public-adoption', 'qa:public-adoption', 'qa:phase:53'],
+    requiredScripts: ['public-adoption', 'qa:public-adoption', 'qa:stage:53'],
     launchChecklist: [],
     claims: [{ id: 'a' }, { id: 'b' }, { id: 'c' }, { id: 'd' }, { id: 'e' }],
     risks: [{ id: 'a' }, { id: 'b' }, { id: 'c' }, { id: 'd' }],
@@ -68,7 +68,7 @@ function publicAdoption() {
   };
 }
 
-describe('AgentRunService Release Adoption Readiness Wave 53', () => {
+describe('AgentRunService Release Adoption Readiness Release Adoption Readiness', () => {
   it('publishes run.metadata.releaseAdoptionReadiness after integrationShowcasePartnerSurface', async () => {
     const service = new AgentRunService({
       now: () => new Date('2026-05-04T06:53:00.000Z'),

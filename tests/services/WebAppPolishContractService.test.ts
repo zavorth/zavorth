@@ -13,8 +13,8 @@ describe('WebAppPolishContractService', () => {
     expect(snapshot.summary.ok).toBe(true);
     expect(snapshot.status).toBe('ready');
     expect(snapshot.requirements.map((requirement) => requirement.id)).toContain('product-command-rail');
-    expect(snapshot.nextRecommendedPhase).toEqual(expect.objectContaining({
-      phase: '43',
+    expect(snapshot.nextRecommendedStage).toEqual(expect.objectContaining({
+      stage: '43',
       title: 'Artifact And Replay Workbench',
     }));
   });
@@ -50,7 +50,7 @@ describe('WebAppPolishContractService', () => {
       styles: buildRuntimeShellStyles(),
       packageJson: packageJsonFixture({
         'qa:web-app-polish': '',
-        'qa:phase:40': '',
+        'qa:stage:40': '',
       }),
       existsSync: () => true,
       readFileSync: () => '',
@@ -65,7 +65,7 @@ describe('WebAppPolishContractService', () => {
         status: 'fail',
       }),
       expect.objectContaining({
-        id: 'package:qa:phase:40',
+        id: 'package:qa:stage:40',
         status: 'fail',
       }),
     ]));
@@ -105,8 +105,8 @@ describe('WebAppPolishContractService', () => {
 
     const report = service.renderReport();
 
-    expect(report).toContain('Fase 40 - Web/App Polish');
-    expect(report).toContain('proxima fase recomendada: 43 - Artifact And Replay Workbench');
+    expect(report).toContain('Etapa 40 - Web/App Polish');
+    expect(report).toContain('proximo passo recomendada: 43 - Artifact And Replay Workbench');
   });
 });
 
@@ -117,7 +117,7 @@ function packageJsonFixture(overrides: Record<string, string> = {}) {
       'test:web:qa': 'jest tests/domain/surface/presentation/dashboard --runInBand',
       'test:web:smoke': 'node scripts/web-app-smoke.mjs',
       'qa:web-app-polish': 'npx tsx scripts/web-app-polish.ts --require-pass',
-      'qa:phase:40': 'node scripts/phases-39-45-check.mjs --phase=40',
+      'qa:stage:40': 'node scripts/capability-suite-market-check.mjs --phase=40',
       ...overrides,
     },
   };

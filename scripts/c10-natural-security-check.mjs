@@ -73,7 +73,7 @@ const rules = [
     ],
     needles: [
       'UniversalIntentEvaluationHarness',
-      'Wave 27',
+      'Track 27',
       'C10',
       'naturalLanguageDoesNotBypassSecurity',
     ],

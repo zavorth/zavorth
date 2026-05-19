@@ -13,6 +13,7 @@ export const HIDEABLE_SIDEBAR_ITEM_IDS = [
   "agents",
   "memory",
   "skills",
+  "expressive",
   "translator",
   "playground",
   "media",
@@ -65,6 +66,7 @@ const CLI_SIDEBAR_ITEMS: readonly SidebarItemDefinition[] = [
   { id: "agents", href: "/dashboard/agents", i18nKey: "agents", icon: "smart_toy" },
   { id: "memory", href: "/dashboard/memory", i18nKey: "memory", icon: "psychology" },
   { id: "skills", href: "/dashboard/skills", i18nKey: "skills", icon: "auto_fix_high" },
+  { id: "expressive" as any, href: "/dashboard/expressive", i18nKey: "expressive", icon: "blur_on" },
 ];
 
 const DEBUG_SIDEBAR_ITEMS: readonly SidebarItemDefinition[] = [

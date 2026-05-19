@@ -9,7 +9,7 @@ import {
 } from '../../src/contracts/DistributionHardeningContract';
 
 describe('DistributionHardeningService', () => {
-  it('builds an ok Phase 55 snapshot from distribution artifacts', () => {
+  it('builds an ok Credential vault5 snapshot from distribution artifacts', () => {
     const service = serviceFromFixture({}, { requireArtifacts: true });
 
     const snapshot = service.buildSnapshot();
@@ -19,8 +19,8 @@ describe('DistributionHardeningService', () => {
     expect(snapshot.summary.ok).toBe(true);
     expect(snapshot.status).toBe('ready');
     expect(snapshot.release.expectedTag).toBe('v1.0.0');
-    expect(snapshot.nextRecommendedPhase).toEqual(expect.objectContaining({
-      phase: '56',
+    expect(snapshot.nextRecommendedStage).toEqual(expect.objectContaining({
+      stage: '56',
       title: 'Public Docs, Examples And Recipes Expansion',
     }));
   });
@@ -132,8 +132,8 @@ describe('DistributionHardeningService', () => {
 
     const report = service.renderReport();
 
-    expect(report).toContain('Fase 55 - Installer And Distribution Hardening');
-    expect(report).toContain('proxima fase recomendada: 56 - Public Docs, Examples And Recipes Expansion');
+    expect(report).toContain('Readiness checkpoint 5 - Installer And Distribution Hardening');
+    expect(report).toContain('proximo passo recomendada: 56 - Public Docs, Examples And Recipes Expansion');
   });
 });
 
@@ -169,29 +169,29 @@ function filesFixture(): Record<string, string> {
       scripts: coreScriptsFixture(),
     }, null, 2),
     'core:README.md': 'Zavorth v1.0.0 public runtime',
-    'core:docs/75-public-productization-architecture.md': [
-      'Fase 50 - Editions, Plans And Distribution Policy',
-      'Fase 51 - Release Bundle And Installer Distribution',
+    'core:docs/product-direction.md': [
+      'Readiness checkpoint 0 - Editions, Plans And Distribution Policy',
+      'Readiness checkpoint 1 - Release Bundle And Installer Distribution',
     ].join('\n'),
-    'core:docs/76-public-adoption-architecture.md': [
-      'Fase 55 - Installer And Distribution Hardening',
+    'core:docs/product-direction.md': [
+      'Readiness checkpoint 5 - Installer And Distribution Hardening',
       'manifest de distribuicao',
       'checksums sha256',
       'installer preview',
       'install smoke',
       'cleanup',
       'qa:distribution-hardening',
-      'qa:phase:55',
-      'Fase 56 - Public Docs, Examples And Recipes Expansion',
-      'qa:phase:56',
+      'qa:stage:55',
+      'Readiness checkpoint 6 - Public Docs, Examples And Recipes Expansion',
+      'qa:stage:56',
     ].join('\n'),
-    'core:docs/11-roadmap.md': [
-      'Fase 55 - Installer And Distribution Hardening: implementada.',
+    'core:docs/product-direction.md': [
+      'Readiness checkpoint 5 - Installer And Distribution Hardening: implementada.',
       'manifest checksum preview install cleanup',
       'qa:distribution-hardening',
-      'qa:phase:55',
-      'Fase 56 - Public Docs, Examples And Recipes Expansion',
-      'qa:phase:56',
+      'qa:stage:55',
+      'Readiness checkpoint 6 - Public Docs, Examples And Recipes Expansion',
+      'qa:stage:56',
     ].join('\n'),
     'core:src/contracts/PublicReleaseBundleContract.ts': 'sha256:faae33f9400fdaf6a75a359a883d887cd5079ceff9f0b1011bc63f9078f74f91',
     'core:scripts/release-bundle.ts': 'new PublicReleaseBundleContractService()',

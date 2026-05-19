@@ -1,5 +1,5 @@
 import {
-  createWave1SidecarReadOnlyExecutionGate,
+  createCanonicalSidecarReadOnlyExecutionGate,
 } from './ExternalAgentSidecarReadOnlyBoundaryPack.js';
 
 export const EXTERNAL_EXECUTOR_AUTHENTICATED_EPHEMERAL_GATEWAY_HEALTH_PROBE_NOW = '2026-04-28T17:00:00.000Z' as const;
@@ -218,7 +218,7 @@ function buildExecutionGate(
   const readOnlyProbeCommandsAttempted = source.commandResults.some((result) => result.attempted);
 
   return {
-    ...createWave1SidecarReadOnlyExecutionGate(),
+    ...createCanonicalSidecarReadOnlyExecutionGate(),
     authenticatedEphemeralProbeGate: true,
     priorSecretRefDecisionKnown: true,
     secretRefResolutionAttempted: true,
@@ -353,7 +353,7 @@ export function normalizeExternalExecutorAuthenticatedEphemeralGatewayHealthProb
     },
     executionGate: buildExecutionGate(options.source),
     nextGateRecommended: decision === 'authenticated-health-ok'
-      ? 'docs/161-wave-1-real-capability-snapshot-read-only.md'
+      ? 'docs/real-capability-snapshot-read-only.md'
       : null,
     sourceModulesCopied: false,
     adapterRemoved: false,

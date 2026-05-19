@@ -66,7 +66,7 @@ export class ZavorthChannelCapabilityAwarenessService {
       generatedAt,
       contractVersion: CHANNEL_CAPABILITY_CONTRACT_VERSION,
       source: 'ZavorthChannelCapabilityAwarenessService',
-      phase: 'phase-7-channel-capability-awareness',
+      phase: 'checkpoint-7-channel-capability-awareness',
       status,
       profiles: visibleProfiles,
       adaptedExamples,
@@ -118,7 +118,7 @@ export class ZavorthChannelCapabilityAwarenessService {
 
   public renderReport(snapshot = this.buildSnapshot()): string {
     const lines = [
-      'Channel Capability Awareness - Phase 7',
+      'Channel Capability Awareness - Surface controls',
       '',
       `Status: ${snapshot.status}`,
       snapshot.narrative.operatorSummary,
@@ -481,6 +481,6 @@ function narrativeForStatus(
   return {
     headline: 'Channel capability awareness needs attention.',
     operatorSummary: `${summary.failedChecks} check(s) failed across ${summary.requiredProfiles} required channel profiles.`,
-    nextAction: 'Fix failed channel render/capability checks before marking Phase 7 complete.',
+    nextAction: 'Fix failed channel render/capability checks before marking Surface controls complete.',
   };
 }

@@ -175,7 +175,7 @@ export class SharedSurfaceGatewayToolingCommandPack {
     const snapshot = this.deps.hookPlaneService.buildSnapshot();
     const visibleEvents = query
       ? snapshot.events.filter((event) =>
-        [event.id, event.label, event.stage, event.description]
+        [event.id, event.label, event.phase, event.description]
           .some((value) => String(value || '').toLowerCase().includes(query)))
       : snapshot.events;
     const visibleRegistrations = query
@@ -199,7 +199,7 @@ export class SharedSurfaceGatewayToolingCommandPack {
     if (visibleEvents.length > 0) {
       lines.push('', query ? 'Eventos visiveis:' : 'Eventos em destaque:');
       for (const event of visibleEvents.slice(0, 6)) {
-        lines.push(`- ${event.label} (${event.stage}) | status: ${event.status} | hooks: ${event.registeredHooks}`);
+        lines.push(`- ${event.label} (${event.phase}) | status: ${event.status} | hooks: ${event.registeredHooks}`);
       }
     } else {
       lines.push('', 'Nenhum evento de hook bateu com esse filtro.');

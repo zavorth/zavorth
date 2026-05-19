@@ -245,7 +245,7 @@ export class CapabilityAutopilotReleaseCandidateGateService {
           'Depois do release candidate, o proximo passo e preparar rollout gradual de v1.1 com cohorts, rollback, changelog e promocao manual.',
       },
       metadata: {
-        phase: 'capability-autopilot-phase-80',
+        phase: 'capability-autopilot-checkpoint-80',
         sourceSnapshotStatus: source.status,
         sourceRecommendation: source.recommendation,
         autoExecute: false,
@@ -264,7 +264,7 @@ export class CapabilityAutopilotReleaseCandidateGateService {
 
   public renderReport(snapshot: CapabilityAutopilotReleaseCandidateSnapshot): string {
     const lines: string[] = [];
-    lines.push('[capability-autopilot-release-candidate] Fase 80 - Capability Autopilot Release Candidate Gate');
+    lines.push('[capability-autopilot-release-candidate] Etapa 80 - Capability Autopilot Release Candidate Gate');
     lines.push(`status: ${snapshot.status}`);
     lines.push(`recommendation: ${snapshot.recommendation}`);
     lines.push(`ok: ${snapshot.summary.ok ? 'yes' : 'no'} | pass=${snapshot.summary.passed} warn=${snapshot.summary.warnings} fail=${snapshot.summary.failed}`);
@@ -280,7 +280,7 @@ export class CapabilityAutopilotReleaseCandidateGateService {
       }
     }
     lines.push('');
-    lines.push(`proxima fase recomendada: ${snapshot.nextRecommendedPhase.phase} - ${snapshot.nextRecommendedPhase.title}`);
+    lines.push(`proximo passo recomendada: ${snapshot.nextRecommendedPhase.phase} - ${snapshot.nextRecommendedPhase.title}`);
     lines.push(snapshot.nextRecommendedPhase.reason);
     return lines.join('\n');
   }

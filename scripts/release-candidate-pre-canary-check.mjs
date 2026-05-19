@@ -8,7 +8,7 @@ const asJson = process.argv.includes('--json');
 const rules = [
   ruleFilesExist({
     id: 'release-candidate-pre-canary-files',
-    label: 'Wave 54 files exist',
+    label: 'Pre-Canary Gate files exist',
     target: 'Runtime, CLI, Command Center, tests and docs are present',
     files: [
       'src/runtime/agent/ReleaseCandidatePreCanaryGateService.ts',
@@ -27,7 +27,7 @@ const rules = [
     files: ['src/runtime/agent/ReleaseCandidatePreCanaryGateService.ts'],
     needles: [
       'RELEASE_CANDIDATE_PRE_CANARY_GATE_CONTRACT_VERSION',
-      '2026-05-04.wave-54',
+      '2026-05-04.pre-canary',
       'ReleaseAdoptionReadinessService',
       'ReleaseCandidateEvidencePack',
       'IntegrationShowcasePartnerSurfaceService',
@@ -73,7 +73,7 @@ const rules = [
       'pre-canary-gate',
       'rc-pre-canary',
       'go-no-go',
-      'Release Candidate / Pre-Canary Gate - Wave 54',
+      'Release Candidate / Pre-Canary Gate - Pre-Canary Gate',
       'resolveReleaseCandidatePreCanaryGateCliText',
       'formatReleaseCandidatePreCanaryGateSnapshot',
     ],
@@ -103,7 +103,7 @@ const rules = [
   }),
   ruleContainsAll({
     id: 'package-exposes-pre-canary-gate',
-    label: 'package exposes Wave 54 gate',
+    label: 'package exposes Pre-Canary Gate gate',
     target: 'local QA can run release-candidate-pre-canary:check and qa:release-candidate-pre-canary',
     files: ['package.json'],
     needles: [
@@ -129,7 +129,7 @@ const snapshot = {
 if (asJson) {
   console.log(JSON.stringify(snapshot, null, 2));
 } else {
-  console.log('[release-candidate-pre-canary] checking Wave 54');
+  console.log('[release-candidate-pre-canary] checking Pre-Canary Gate');
   for (const rule of rules) {
     const marker = rule.status === 'passed' ? 'ok' : 'fail';
     console.log(`[release-candidate-pre-canary] ${marker} ${rule.label}: ${rule.observed} | ${rule.target}`);

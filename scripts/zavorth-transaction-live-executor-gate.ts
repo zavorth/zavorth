@@ -38,7 +38,7 @@ if (!options.text) {
   if (options.json) {
     console.log(JSON.stringify(snapshot, null, 2));
   } else {
-    console.log('[transaction-live-executor-gate] Phase 16 live executor readiness gate');
+    console.log('[transaction-live-executor-gate] Intent model6 live executor readiness gate');
     console.log(`[transaction-live-executor-gate] version: ${snapshot.version}`);
     console.log(`[transaction-live-executor-gate] owner-phrase: ${snapshot.ownerPhrase}`);
   }

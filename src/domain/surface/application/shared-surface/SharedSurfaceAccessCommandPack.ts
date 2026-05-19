@@ -126,7 +126,7 @@ export class SharedSurfaceAccessCommandPack {
       ...(journeyPhases.length > 0
         ? [
             '',
-            'Fases oficiais ainda pendentes:',
+            'Etapas oficiais ainda pendentes:',
             ...journeyPhases.map((phase) => `- ${phase.title}: ${phase.command || phase.summary}`),
           ]
         : []),

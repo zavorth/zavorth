@@ -8,7 +8,7 @@
  * Nunca recebe URLs externas como entrada.
  *
  * Referências arquiteturais:
- * - docs/327-zavorth-native-absorption-execution-plan.md (Wave 3)
+ * - docs/native-absorption-execution-plan.md
  * - src/contracts/MediaUnderstandingContract.ts
  *
  * @module adapters/media/GeminiVisionAnalysisAdapter

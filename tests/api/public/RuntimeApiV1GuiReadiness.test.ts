@@ -329,7 +329,7 @@ describe('Runtime API v1 GUI readiness certification', () => {
         surface: 'visual-receipt',
       }),
       flow: expect.objectContaining({
-        phase: 'preview',
+        stage: 'preview',
         previewFirst: true,
         approvalGate: expect.objectContaining({
           required: expect.any(Boolean),

@@ -24,7 +24,7 @@ const snapshot = {
 if (asJson) {
   console.log(JSON.stringify(snapshot, null, 2));
 } else {
-  console.log('[zavorth-android-adb-bridge] checking Phase 4');
+  console.log('[zavorth-android-adb-bridge] checking Connector registry');
   printRules(rules, '[zavorth-android-adb-bridge]');
 }
 if (failed.length > 0) process.exitCode = 1;
@@ -39,7 +39,7 @@ function ruleFilesExist() {
     'docs/README.md',
   ];
   const missing = files.filter((file) => !fs.existsSync(path.join(root, file)));
-  return rule('android-adb-files', 'Android ADB bridge files exist', missing.length === 0, `${files.length - missing.length}/${files.length}`, 'all Phase 4 files present', missing);
+  return rule('android-adb-files', 'Android ADB bridge files exist', missing.length === 0, `${files.length - missing.length}/${files.length}`, 'all Connector registry files present', missing);
 }
 
 function ruleMarkers() {
@@ -153,7 +153,7 @@ function jsonRule(id, label, result, expect, options = {}) {
   try {
     const fixture = JSON.parse(result.stdout);
     const passed = expect(fixture, result.stdout);
-    return rule(id, label, passed, `status=${fixture.status}; decision=${fixture.policy?.decision}`, 'expected safe Phase 4 behavior', passed ? [] : [JSON.stringify(fixture, null, 2), ...compact(result.stderr)]);
+    return rule(id, label, passed, `status=${fixture.status}; decision=${fixture.policy?.decision}`, 'expected safe Connector registry behavior', passed ? [] : [JSON.stringify(fixture, null, 2), ...compact(result.stderr)]);
   } catch (error) {
     return rule(id, label, false, 'invalid JSON', 'valid JSON fixture', [String(error), ...compact(result.stderr, result.stdout)]);
   }

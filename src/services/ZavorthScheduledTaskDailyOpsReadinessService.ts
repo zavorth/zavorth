@@ -62,7 +62,7 @@ export class ZavorthScheduledTaskDailyOpsReadinessService {
       generatedAt,
       contractVersion: ZAVORTH_SCHEDULED_TASK_DAILY_OPS_READINESS_CONTRACT_VERSION,
       source: 'ZavorthScheduledTaskDailyOpsReadinessService',
-      phase: 'phase-7-scheduled-task-daily-ops-readiness',
+      phase: 'checkpoint-7-scheduled-task-daily-ops-readiness',
       status,
       liveTickCertification,
       hostTaskCertification,
@@ -72,7 +72,7 @@ export class ZavorthScheduledTaskDailyOpsReadinessService {
       summary,
       receipts,
       safety: {
-        consumesPhase6LiveTickCertification: true,
+        consumesStage6LiveTickCertification: true,
         allUserActionsGoThroughGovernedSurfaces: true,
         hostTaskCertificationIsExplicit: true,
         noDashboardVisualMutation: true,
@@ -91,7 +91,7 @@ export class ZavorthScheduledTaskDailyOpsReadinessService {
 
   public renderReport(snapshot: ZavorthScheduledTaskDailyOpsReadinessSnapshot): string {
     const lines = [
-      'Scheduled Task Daily Ops Readiness - Phase 7',
+      'Scheduled Task Daily Ops Readiness - Surface controls',
       '',
       `Status: ${snapshot.status}`,
       snapshot.narrative.operatorSummary,
@@ -178,10 +178,10 @@ function buildGates(
   const hostOk = !hostTask || hostTask.status === 'passed';
   return [
     gate(
-      'phase-6-live-tick',
+      'checkpoint-6-live-tick',
       'live-tick-certification',
       liveTick.status === 'passed' ? 'pass' : 'fail',
-      `Phase 6 live tick certification is ${liveTick.status}.`,
+      `Runtime gateway live tick certification is ${liveTick.status}.`,
       'Fix live tick certification before relying on recurring automation.',
     ),
     gate(
@@ -211,14 +211,14 @@ function buildGates(
       'dashboard-visual-mutation',
       'no-dashboard-visual-mutation',
       'pass',
-      'Phase 7 exposes backend/readiness only and does not create dashboard visual sections.',
+      'Surface controls exposes backend/readiness only and does not create dashboard visual sections.',
       null,
     ),
     gate(
       'no-direct-dispatch',
       'no-direct-dispatch',
       liveTick.safety.noDirectDispatcherBypass ? 'pass' : 'fail',
-      'Daily operations rely on governed surfaces and Phase 6 gateway certification, not direct dispatcher bypass.',
+      'Daily operations rely on governed surfaces and Runtime gateway gateway certification, not direct dispatcher bypass.',
       'Route recurring execution through the certified gateway path.',
     ),
   ];
@@ -282,19 +282,19 @@ function buildReceipts(
 ): ZavorthScheduledTaskDailyOpsReadinessReceipt[] {
   return [
     {
-      id: 'phase-7-scheduled-task-daily-ops-readiness',
-      kind: 'phase-7-scheduled-task-daily-ops-readiness',
+      id: 'checkpoint-7-scheduled-task-daily-ops-readiness',
+      kind: 'checkpoint-7-scheduled-task-daily-ops-readiness',
       status: status === 'blocked' ? 'blocked' : status === 'attention' ? 'attention' : 'ready',
       summary: `Daily ops readiness status is ${status}.`,
     },
     {
-      id: 'phase-7-live-tick-consumed',
-      kind: 'phase-6-live-tick-consumed',
+      id: 'checkpoint-7-live-tick-consumed',
+      kind: 'checkpoint-6-live-tick-consumed',
       status: liveTick.status === 'passed' ? 'ready' : 'blocked',
-      summary: `Consumed Phase 6 live tick certification with status ${liveTick.status}.`,
+      summary: `Consumed Runtime gateway live tick certification with status ${liveTick.status}.`,
     },
     {
-      id: 'phase-7-surface-commands-certified',
+      id: 'checkpoint-7-surface-commands-certified',
       kind: 'surface-commands-certified',
       status: surfaces.every((surface) => surface.status === 'ready' || surface.status === 'projection_only')
         ? 'ready'
@@ -302,19 +302,19 @@ function buildReceipts(
       summary: `${surfaces.length} surface command entries were certified for daily operations.`,
     },
     {
-      id: 'phase-7-operator-runbook',
+      id: 'checkpoint-7-operator-runbook',
       kind: 'operator-runbook',
       status: 'recorded',
       summary: 'Daily create/list/pause/resume/reapprove/revoke/certify commands are documented in the snapshot.',
     },
     {
-      id: 'phase-7-no-visual-mutation',
+      id: 'checkpoint-7-no-visual-mutation',
       kind: 'no-visual-mutation',
       status: 'recorded',
-      summary: 'No dashboard visual section or card was created by Phase 7.',
+      summary: 'No dashboard visual section or card was created by Surface controls.',
     },
     {
-      id: 'phase-7-no-direct-dispatch',
+      id: 'checkpoint-7-no-direct-dispatch',
       kind: 'no-direct-dispatch',
       status: liveTick.safety.noDirectDispatcherBypass && (!hostTask || hostTask.safety.noDirectDispatcherBypass)
         ? 'recorded'
@@ -345,6 +345,6 @@ function narrativeForStatus(
   return {
     headline: 'Governed scheduled tasks are blocked for daily operation.',
     operatorSummary: `${summary.failedGates} gate(s) failed and must be fixed before recurring automation is considered ready.`,
-    nextAction: 'Inspect failed gates and rerun the Phase 7 check.',
+    nextAction: 'Inspect failed gates and rerun the Surface controls check.',
   };
 }

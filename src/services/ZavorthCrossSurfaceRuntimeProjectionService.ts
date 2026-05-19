@@ -68,7 +68,7 @@ export class ZavorthCrossSurfaceRuntimeProjectionService {
       generatedAt,
       contractVersion: ZAVORTH_CROSS_SURFACE_RUNTIME_PROJECTION_CONTRACT_VERSION,
       source: 'ZavorthCrossSurfaceRuntimeProjectionService',
-      phase: 'phase-5-cross-surface-runtime-projection',
+      phase: 'checkpoint-5-cross-surface-runtime-projection',
       status: toolOrchestration.status,
       request: {
         surface: toolOrchestration.request.surface,
@@ -88,7 +88,7 @@ export class ZavorthCrossSurfaceRuntimeProjectionService {
         report: 'npx tsx scripts/zavorth-cross-surface-runtime-projection.ts --text "<request>"',
         json: 'npx tsx scripts/zavorth-cross-surface-runtime-projection.ts --json --text "<request>"',
         check: 'node scripts/zavorth-cross-surface-runtime-projection-check.mjs',
-        nextPhase: 'Phase 6 - Operational Rollout And Continuous Eval Assimilation',
+        nextStage: 'Runtime gateway - Operational Rollout And Continuous Eval Assimilation',
       },
       narrative: buildNarrative(toolOrchestration.status, surfaceCards, commandCenterProjection),
     };
@@ -96,7 +96,7 @@ export class ZavorthCrossSurfaceRuntimeProjectionService {
 
   public formatSnapshotText(snapshot: ZavorthCrossSurfaceRuntimeProjectionSnapshot): string {
     const lines = [
-      'Zavorth Cross-Surface Runtime Projection - Phase 5',
+      'Zavorth Cross-Surface Runtime Projection - Credential vault',
       '',
       `Status: ${snapshot.status}`,
       `Surfaces: ${snapshot.summary.surfaces} | actions=${snapshot.summary.actionCount} | approvals=${snapshot.summary.approvalActions} | disabled=${snapshot.summary.disabledActions}`,
@@ -111,7 +111,7 @@ export class ZavorthCrossSurfaceRuntimeProjectionService {
       'Fallbacks:',
       ...snapshot.surfaceCards.filter((card) => TEXT_FALLBACK_SURFACES.has(card.surface)).map((card) => `- ${card.surface}: ${card.fallbackText}`),
       '',
-      `Next: ${snapshot.commands.nextPhase}`,
+      `Next: ${snapshot.commands.nextStage}`,
     ];
     return lines.join('\n');
   }
@@ -151,7 +151,7 @@ function buildSurfaceCard(
   ];
 
   return {
-    id: `phase-5-card-${surface}`,
+    id: `checkpoint-5-card-${surface}`,
     surface,
     title: titleForSurface(surface),
     status: runtime.status,
@@ -217,7 +217,7 @@ function action(
   reason: string,
 ): ZavorthCrossSurfaceActionProjection {
   return {
-    id: `phase-5-action-${surface}-${kind}`,
+    id: `checkpoint-5-action-${surface}-${kind}`,
     surface,
     kind,
     label,
@@ -281,7 +281,7 @@ function buildApiProjection(runtime: ZavorthToolOrchestrationVerificationSnapsho
 
 function buildCommandCenterProjection(runtime: ZavorthToolOrchestrationVerificationSnapshot): ZavorthCommandCenterRuntimeProjection {
   return {
-    projectionId: 'phase-5-command-center-runtime-projection',
+    projectionId: 'checkpoint-5-command-center-runtime-projection',
     title: 'Runtime projection',
     statusPill: runtime.status,
     visualMutationApplied: false,
@@ -299,21 +299,21 @@ function buildReceipts(
 ): ZavorthCrossSurfaceProjectionReceipt[] {
   const receipts: ZavorthCrossSurfaceProjectionReceipt[] = [
     {
-      id: 'phase-5-projection-receipt',
-      kind: 'phase-5-cross-surface-projection',
+      id: 'checkpoint-5-projection-receipt',
+      kind: 'checkpoint-5-cross-surface-projection',
       surface: 'all',
       status: receiptStatus(status),
       summary: `${cards.length} superfícies receberam a mesma decisão sem executar ação live.`,
     },
     {
-      id: 'phase-5-api-projection-receipt',
+      id: 'checkpoint-5-api-projection-receipt',
       kind: 'api-projection',
       surface: 'api',
       status: receiptStatus(status),
       summary: `${apiProjection.endpoints.length} endpoints projetados como contrato JSON.`,
     },
     {
-      id: 'phase-5-command-center-boundary-receipt',
+      id: 'checkpoint-5-command-center-boundary-receipt',
       kind: 'visual-change-boundary',
       surface: 'command_center',
       status: 'recorded',
@@ -324,7 +324,7 @@ function buildReceipts(
   ];
   for (const card of cards) {
     receipts.push({
-      id: `phase-5-card-receipt-${card.surface}`,
+      id: `checkpoint-5-card-receipt-${card.surface}`,
       kind: TEXT_FALLBACK_SURFACES.has(card.surface) ? 'channel-fallback' : 'surface-card',
       surface: card.surface,
       status: receiptStatus(card.status),

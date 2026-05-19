@@ -4,7 +4,7 @@ import {
 } from '../../src/contracts/ZavorthTransactionCertificationContract.js';
 
 describe('ZavorthTransactionCertificationContract', () => {
-  it('publishes the Phase 9 transaction certification contract', () => {
+  it('publishes the Certification matrix transaction certification contract', () => {
     const snapshot = buildZavorthTransactionCertificationContractSnapshot();
 
     expect(snapshot.version).toBe(ZAVORTH_TRANSACTION_CERTIFICATION_CONTRACT_VERSION);
@@ -32,7 +32,7 @@ describe('ZavorthTransactionCertificationContract', () => {
 
     expect(snapshot.invariants).toEqual(
       expect.arrayContaining([
-        'Phase 9 certifies Phases 0-8 as one transaction plane.',
+        'Certification matrix certifies Phases 0-8 as one transaction plane.',
         'Certification scenarios must never serialize raw transaction secrets.',
         'A passed report still does not authorize live transaction execution.',
       ]),

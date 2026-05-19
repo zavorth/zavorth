@@ -194,7 +194,8 @@
     "themeCyan": "Cyan",
     "cliToolsShort": "Ferramentas",
     "cache": "Cache",
-    "cacheShort": "Cache"
+    "cacheShort": "Cache",
+    "expressive": "Expressive"
   },
   "themesPage": {
     "title": "Themes",
@@ -1208,7 +1209,7 @@
     "toolsAndScopes": "Ferramentas e scopes",
     "tableTool": "Ferramenta",
     "tableScopes": "Scopes",
-    "tablePhase": "Fase",
+    "tablePhase": "Etapa",
     "tableAudit": "Auditoria",
     "auditLog": "Log de auditoria",
     "auditSummary": "Chamadas: {total} | página {page} de {totalPages}",

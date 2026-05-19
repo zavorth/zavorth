@@ -1,6 +1,6 @@
 # Hello Ecosystem
 
-Extensao minima para validar o fluxo publico de publish da Wave 9.
+Extensao minima para validar o fluxo publico de publish da Ecosystem.
 
 Ela existe para provar que o Zavorth consegue:
 

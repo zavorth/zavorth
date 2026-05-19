@@ -25,7 +25,7 @@ describe('CommandCenterComposerAffordancesQa', () => {
       'utf8',
     );
     const docs = readFileSync(
-      join(rootDir, 'docs/110-command-center-composer-affordances-qa.md'),
+      join(rootDir, 'docs/product-direction.md'),
       'utf8',
     );
 

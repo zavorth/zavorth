@@ -1,6 +1,6 @@
 import type { LiveReadinessStatus } from './LiveReadinessContract.js';
 
-export const ZAVORTH_SATELLITE_DEVICE_LIVE_PLANE_CONTRACT_VERSION = '2026-05-05.live-phase-11' as const;
+export const ZAVORTH_SATELLITE_DEVICE_LIVE_PLANE_CONTRACT_VERSION = '2026-05-05.live-checkpoint-11' as const;
 
 export type SatelliteDeviceLiveTargetId =
   | 'device-pair'
@@ -123,7 +123,7 @@ export type SatelliteDeviceLiveEntry = {
 export type SatelliteDeviceLivePlaneSnapshot = {
   generatedAt: string;
   contractVersion: typeof ZAVORTH_SATELLITE_DEVICE_LIVE_PLANE_CONTRACT_VERSION;
-  phase: 'Phase 11 - Satellite And Device Live Plane';
+  phase: 'Intent model1 - Satellite And Device Live Plane';
   status: 'closed' | 'attention' | 'blocked';
   summary: {
     targets: 5;
@@ -144,13 +144,13 @@ export type SatelliteDeviceLivePlaneSnapshot = {
     deviceMarkedLiveWithoutPairing: false;
     sensitiveInvokeBypassesTrust: false;
     unsupportedNativeApisHidden: false;
-    liveIoRequiredByPhase11Check: false;
+    liveIoRequiredByActivationReviewCheck: false;
     secretValuesSerialized: false;
   };
   entries: SatelliteDeviceLiveEntry[];
   receipts: SatelliteDeviceLiveReceipt[];
   policy: {
-    noLiveIoDuringPhase11Check: true;
+    noLiveIoDuringActivationReviewCheck: true;
     pairingClaimRequired: true;
     heartbeatRequired: true;
     sensitiveCommandsRequireDeviceTrust: true;
@@ -167,6 +167,6 @@ export type SatelliteDeviceLivePlaneSnapshot = {
     stagingLiveSmoke: 'npm run satellite-device-live-plane -- --profile staging-live --target <target> --confirm-live-io';
     focusedTests: string[];
     typecheck: 'npm run runtime:check --silent';
-    nextPhase: 'Phase 12 - Memory, Artifacts And Runtime Executor Live Closure';
+    nextStage: 'Intent model2 - Memory, Artifacts And Runtime Executor Live Closure';
   };
 };

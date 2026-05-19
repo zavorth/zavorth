@@ -136,7 +136,7 @@ function collectChecks(text) {
 function collectExplicitLines(text) {
   return text.split(/\r?\n/)
     .map((line) => line.trim())
-    .filter((line) => /not implemented|nao implementado|não implementado|fixture-parity-covered|planned|future|futuro|planejado|pending|pendente|todo|tbd|next gate|future gate|futura|próxima fase|proxima fase/i.test(line))
+    .filter((line) => /not implemented|nao implementado|não implementado|fixture-parity-covered|planned|future|futuro|planejado|pending|pendente|todo|tbd|next gate|future gate|futura|próxima etapa|proximo passo/i.test(line))
     .slice(0, 30);
 }
 
@@ -328,7 +328,7 @@ function clean(value) {
 
 function isPublicLike(file) {
   return /^docs\/(?:0[0-9]|1[0-6]|2[0-9]|3[0-9]|product\/|architecture\/|roadmap|README|quickstart|security|operations)/i.test(file)
-    || ['docs/61-product-experience-readiness.md', 'docs/69-cli-ux-diagnosis.md', 'docs/75-public-productization-architecture.md', 'docs/76-public-adoption-architecture.md'].includes(file);
+    || ['docs/product-direction.md', 'docs/product-direction.md', 'docs/product-direction.md', 'docs/product-direction.md'].includes(file);
 }
 
 function isHistoricalLike(file) {

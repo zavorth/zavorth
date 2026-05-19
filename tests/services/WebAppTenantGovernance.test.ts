@@ -14,7 +14,7 @@ describe('Web app tenant governance endpoint', () => {
   });
 
   it('exposes tenant governance on the protected web surface', async () => {
-    config.zavorthWebAuthToken = 'phase-5-token';
+    config.zavorthWebAuthToken = 'checkpoint-5-token';
     const service = new DashboardService(logRepo, {
       tenantGovernanceService: {
         buildSnapshot: jest.fn(() => ({
@@ -83,7 +83,7 @@ describe('Web app tenant governance endpoint', () => {
 
     await service.start();
     const result = await fetchDashboardJson(service.getUrl(), '/api/web/tenants', {
-      token: 'phase-5-token',
+      token: 'checkpoint-5-token',
     });
     await service.stopAsync();
 
@@ -117,7 +117,7 @@ describe('Web app tenant governance endpoint', () => {
   });
 
   it('executes guided tenant actions through the protected web surface', async () => {
-    config.zavorthWebAuthToken = 'phase-5-token';
+    config.zavorthWebAuthToken = 'checkpoint-5-token';
     const tenantGovernanceActionService = {
       execute: jest.fn(async () => ({
         action: {
@@ -165,7 +165,7 @@ describe('Web app tenant governance endpoint', () => {
 
     await service.start();
     const result = await fetchDashboardJson(service.getUrl(), '/api/web/tenants/actions', {
-      token: 'phase-5-token',
+      token: 'checkpoint-5-token',
       init: {
         method: 'POST',
         headers: {
@@ -209,7 +209,7 @@ describe('Web app tenant governance endpoint', () => {
   });
 
   it('executes a guided tenant action on the protected web surface', async () => {
-    config.zavorthWebAuthToken = 'phase-5-token';
+    config.zavorthWebAuthToken = 'checkpoint-5-token';
     const execute = jest.fn(async () => ({
       action: {
         status: 'completed',
@@ -250,7 +250,7 @@ describe('Web app tenant governance endpoint', () => {
 
     await service.start();
     const result = await fetchDashboardJson(service.getUrl(), '/api/web/tenants/actions', {
-      token: 'phase-5-token',
+      token: 'checkpoint-5-token',
       init: {
         method: 'POST',
         headers: {
@@ -296,7 +296,7 @@ describe('Web app tenant governance endpoint', () => {
   });
 
   it('returns 202 when a tenant action starts a workflow review', async () => {
-    config.zavorthWebAuthToken = 'phase-5-token';
+    config.zavorthWebAuthToken = 'checkpoint-5-token';
     const execute = jest.fn(async () => ({
       action: {
         status: 'started',
@@ -338,7 +338,7 @@ describe('Web app tenant governance endpoint', () => {
 
     await service.start();
     const result = await fetchDashboardJson(service.getUrl(), '/api/web/tenants/actions', {
-      token: 'phase-5-token',
+      token: 'checkpoint-5-token',
       init: {
         method: 'POST',
         headers: {
@@ -365,7 +365,7 @@ describe('Web app tenant governance endpoint', () => {
   });
 
   it('returns memory and session plane payloads for guided tenant context reviews', async () => {
-    config.zavorthWebAuthToken = 'phase-5-token';
+    config.zavorthWebAuthToken = 'checkpoint-5-token';
     const execute = jest.fn(async ({ actionId }: { actionId: string }) => {
       if (actionId === 'review-memoryplane') {
         return {
@@ -430,7 +430,7 @@ describe('Web app tenant governance endpoint', () => {
 
     await service.start();
     const memoryResult = await fetchDashboardJson(service.getUrl(), '/api/web/tenants/actions', {
-      token: 'phase-5-token',
+      token: 'checkpoint-5-token',
       init: {
         method: 'POST',
         headers: {
@@ -443,7 +443,7 @@ describe('Web app tenant governance endpoint', () => {
       },
     });
     const sessionResult = await fetchDashboardJson(service.getUrl(), '/api/web/tenants/actions', {
-      token: 'phase-5-token',
+      token: 'checkpoint-5-token',
       init: {
         method: 'POST',
         headers: {

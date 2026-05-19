@@ -3,16 +3,16 @@ import {
 } from '../../src/contracts/ZavorthCapabilityProviderRegistryContract.js';
 import { ZavorthCapabilityProviderRegistryService } from '../../src/services/ZavorthCapabilityProviderRegistryService.js';
 
-describe('ZavorthCapabilityProviderRegistryService Phase 4', () => {
-  it('publishes the capability provider registry snapshot after Phase 3 readiness', () => {
+describe('ZavorthCapabilityProviderRegistryService Connector registry', () => {
+  it('publishes the capability provider registry snapshot after Approval gate readiness', () => {
     const snapshot = createService().buildSnapshot();
 
     expect(snapshot).toEqual(expect.objectContaining({
       generatedAt: '2026-05-11T21:10:00.000Z',
       contractVersion: ZAVORTH_CAPABILITY_PROVIDER_REGISTRY_CONTRACT_VERSION,
       status: 'capability-provider-registry-ready',
-      planId: '291 - Plano Zavorth External Runtime Absorption',
-      phase: 'phase-4-capability-providers',
+      planId: 'Zavorth External Runtime Integration',
+      stage: 'capability-providers',
       previousSidecarAdapterStatus: 'sidecar-adapter-ready',
     }));
     expect(snapshot.summary).toEqual(expect.objectContaining({
@@ -31,7 +31,7 @@ describe('ZavorthCapabilityProviderRegistryService Phase 4', () => {
     expect(snapshot.summary.approvalRequiredCapabilities).toBeGreaterThanOrEqual(3);
     expect(snapshot.summary.dangerousCapabilitiesApprovalGated).toBeGreaterThanOrEqual(2);
     expect(snapshot.summary.unavailableCapabilitiesFailHonestly).toBe(1);
-    expect(snapshot.commands.nextPhase).toBe('291 Phase 5 - Channels And Messaging');
+    expect(snapshot.commands.nextStage).toBe('291 Credential vault - Channels And Messaging');
   });
 
   it('normalizes capability metadata as Zavorth-owned registry entries', () => {
@@ -191,7 +191,7 @@ describe('ZavorthCapabilityProviderRegistryService Phase 4', () => {
         'honest unavailable',
         'no direct tool exposure',
       ]),
-      nextSafeAction: 'Proceed to 291 Phase 5 - Channels And Messaging.',
+      nextSafeAction: 'Proceed to 291 Credential vault - Channels And Messaging.',
     }));
     expect(snapshot.commandCenterProjection.cards.map((entry) => entry.id)).toEqual(expect.arrayContaining([
       'capabilities',
@@ -204,12 +204,12 @@ describe('ZavorthCapabilityProviderRegistryService Phase 4', () => {
     ]));
   });
 
-  it('blocks Phase 4 if Phase 3 sidecar adapter is not ready', () => {
+  it('blocks Connector registry if Approval gate sidecar adapter is not ready', () => {
     const snapshot = createService().buildSnapshot({ sidecarAdapterStatus: 'blocked' });
 
     expect(snapshot.status).toBe('blocked');
     expect(snapshot.previousSidecarAdapterStatus).toBe('blocked');
-    expect(snapshot.acceptanceMatrix.find((entry) => entry.requirementId === 'phase-3-sidecar-adapter-ready')).toEqual(expect.objectContaining({
+    expect(snapshot.acceptanceMatrix.find((entry) => entry.requirementId === 'sidecar-adapter-ready')).toEqual(expect.objectContaining({
       status: 'failed',
     }));
   });
@@ -218,11 +218,11 @@ describe('ZavorthCapabilityProviderRegistryService Phase 4', () => {
     const service = createService();
     const text = service.formatSnapshotText(service.buildSnapshot());
 
-    expect(text).toContain('Zavorth Capability Provider Registry - Phase 4');
+    expect(text).toContain('Zavorth Capability Provider Registry - Connector registry');
     expect(text).toContain('Status: capability-provider-registry-ready');
     expect(text).toContain('Direct tool exposure allowed: 0');
     expect(text).toContain('Tool execution performed: false');
-    expect(text).toContain('Next: 291 Phase 5 - Channels And Messaging');
+    expect(text).toContain('Next: 291 Credential vault - Channels And Messaging');
   });
 });
 

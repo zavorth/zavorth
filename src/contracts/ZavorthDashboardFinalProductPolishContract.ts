@@ -1,5 +1,5 @@
 export const ZAVORTH_DASHBOARD_FINAL_PRODUCT_POLISH_CONTRACT_VERSION =
-  '2026-05-14.phase-11-dashboard-final-product-polish' as const;
+  '2026-05-14.checkpoint-11-dashboard-final-product-polish' as const;
 
 export type ZavorthDashboardFinalProductPolishStatus = 'passed' | 'attention' | 'blocked';
 
@@ -65,6 +65,6 @@ export type ZavorthDashboardFinalProductPolishSnapshot = {
     inspect: 'npm run zavorth:dashboard-final-product-polish';
     inspectJson: 'npm run zavorth:dashboard-final-product-polish:json';
     check: 'npm run zavorth:dashboard-final-product-polish:check --silent';
-    nextPhase: 'Phase 12 - CLI Final Product Polish';
+    nextStage: 'Dashboard visual QA and operator copy pass';
   };
 };

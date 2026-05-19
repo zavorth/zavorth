@@ -43,7 +43,7 @@ function ruleFilesExist() {
     'scripts/zavorth-external-agent-onboarding.ts',
     'scripts/zavorth-external-agent-onboarding-check.mjs',
     'tests/services/ZavorthExternalAgentOnboardingService.test.ts',
-    'docs/37-external-agent-onboarding.md',
+    'docs/external-agent-onboarding.md',
     'src/zavorth-cli.ts',
     'src/domain/surface/presentation/web-app/WebAppRuntimeStateRouteService.ts',
     'src/telegram/TelegramCommandRoutingService.ts',

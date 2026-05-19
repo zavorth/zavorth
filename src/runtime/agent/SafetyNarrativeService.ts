@@ -3,7 +3,7 @@ import type {
   UniversalToolRiskLevel,
 } from './UniversalAgentRuntimeTypes.js';
 
-export const SAFETY_NARRATIVE_CONTRACT_VERSION = '2026-05-03.wave-31' as const;
+export const SAFETY_NARRATIVE_CONTRACT_VERSION = '2026-05-03.safety-narrative' as const;
 
 export type SafetyNarrativeStatus =
   | 'clear'
@@ -388,16 +388,16 @@ export class SafetyNarrativeService {
     }
 
     const lifecycleDefense = recordOrNull(run.metadata.lifecycleDefense);
-    for (const [stage, rawReview] of Object.entries(lifecycleDefense || {})) {
+    for (const [phase, rawReview] of Object.entries(lifecycleDefense || {})) {
       const review = recordOrNull(rawReview);
       if (!review || review.blocked !== true) {
         continue;
       }
       addReason({
-        id: `safety:risk-review:${stage}`,
+        id: `safety:risk-review:${phase}`,
         kind: 'risk-review',
         title: 'Risk review bloqueou o executor',
-        detail: normalizeText(review.summary, `Risk review ${stage} bloqueou execucao sensivel.`),
+        detail: normalizeText(review.summary, `Risk review ${phase} bloqueou execucao sensivel.`),
         risk: normalizeRisk(review.risk),
         source: 'AgentRunRiskHooks',
         toolIds: normalizeList(review.approvalRequiredToolIds ?? review.toolIds),

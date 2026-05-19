@@ -4,7 +4,7 @@ import type {
   OperationalParitySnapshot,
 } from './OperationalParityToolingContract.js';
 
-export const ZAVORTH_PARITY_CERTIFICATION_CONTRACT_VERSION = '2026-05-04.phase-9';
+export const ZAVORTH_PARITY_CERTIFICATION_CONTRACT_VERSION = '2026-05-04.checkpoint-9';
 
 export type ParityCertificationProfile =
   | 'private-absorption'
@@ -51,10 +51,10 @@ export type ParityCertificationGate = {
 };
 
 export type ParityCertificationNextPhase =
-  | 'Fase 10 - P0 Gap Closure'
-  | 'Fase 11 - P1 Provider Adapter Runtime'
-  | 'Fase 12 - Native Capability Closure'
-  | 'Fase 13 - Remaining Runtime Decisions'
+  | 'Etapa 10 - P0 Gap Closure'
+  | 'Etapa 11 - P1 Provider Adapter Runtime'
+  | 'Etapa 12 - Native Capability Closure'
+  | 'Etapa 13 - Remaining Runtime Decisions'
   | 'Release certification profile hardening';
 
 export type ParityCertificationReceipt = {
@@ -113,7 +113,7 @@ export type ParityCertificationSnapshot = {
   sourceGaps: OperationalParityGap[];
   sourceGates: OperationalParityGate[];
   recommendations: {
-    nextPhase: ParityCertificationNextPhase;
+    nextStage: ParityCertificationNextPhase;
     minimumAction: string;
     releaseDecision: string;
   };
@@ -124,7 +124,7 @@ export type ParityCertificationSnapshot = {
     sourceDoctor: string;
     focusedTests: string[];
     typecheck: string;
-    nextPhase: ParityCertificationNextPhase;
+    nextStage: ParityCertificationNextPhase;
   };
   policy: {
     certificationOnly: true;

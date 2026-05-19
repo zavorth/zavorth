@@ -176,7 +176,7 @@ describe('CapabilityAutopilotPreflightEntrypointService', () => {
     });
 
     expect(snapshot).toMatchObject({
-      phase: '68',
+      stage: '68',
       surface: 'capability-autopilot-preflight-entrypoint',
       status: 'ready',
       capabilityId: 'executor-gemini-cli',
@@ -268,7 +268,7 @@ describe('CapabilityAutopilotPreflightEntrypointService', () => {
       expectedSurfaces: ['cli'],
     });
 
-    expect(service.renderReport(snapshot)).toContain('Fase 68 - Canonical Preflight Entrypoint');
-    expect(service.renderReport(snapshot)).toContain('proxima fase recomendada: 69 - Preflight Action Handler Wiring');
+    expect(service.renderReport(snapshot)).toContain('Etapa 68 - Canonical Preflight Entrypoint');
+    expect(service.renderReport(snapshot)).toContain('proximo passo recomendada: 69 - Preflight Action Handler Wiring');
   });
 });

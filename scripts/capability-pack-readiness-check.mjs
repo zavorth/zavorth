@@ -8,7 +8,7 @@ const asJson = process.argv.includes('--json');
 const rules = [
   ruleFilesExist({
     id: 'capability-pack-readiness-files',
-    label: 'Capability Pack Readiness Phase 6 files exist',
+    label: 'Capability Pack Readiness Runtime gateway files exist',
     target: 'contract, service, API facade, CLI, tests and docs are present',
     files: [
       'src/contracts/CapabilityPackReadinessContract.ts',
@@ -112,7 +112,7 @@ const snapshot = {
 if (asJson) {
   console.log(JSON.stringify(snapshot, null, 2));
 } else {
-  console.log('[capability-pack-readiness] checking Phase 6');
+  console.log('[capability-pack-readiness] checking Runtime gateway');
   for (const rule of rules) {
     const marker = rule.status === 'passed' ? 'ok' : 'fail';
     console.log(`[capability-pack-readiness] ${marker} ${rule.label}: ${rule.observed} | ${rule.target}`);

@@ -26,12 +26,12 @@ const rules = [
   }),
   ruleContainsAll({
     id: 'channel-live-activation-contract',
-    label: 'Contract defines Phase 2 activation vocabulary',
+    label: 'Contract defines Preview engine activation vocabulary',
     target: 'Contract captures six P0 channels, config schema, gates, staging-live smoke and redacted receipts',
     files: ['src/contracts/ChannelLiveActivationContract.ts'],
     needles: [
       'ZAVORTH_CHANNEL_LIVE_ACTIVATION_CONTRACT_VERSION',
-      '2026-05-04.live-phase-2',
+      '2026-05-04.live-checkpoint-2',
       'ChannelLiveActivationP0Id',
       'signal',
       'msteams',
@@ -39,7 +39,7 @@ const rules = [
       'config-schema',
       'redacted-receipt',
       'signalAndTeamsOutboxOnly: false',
-      'Phase 4 - Provider Runtime Activation P0',
+      'Connector registry - Provider Runtime Activation P0',
     ],
   }),
   ruleContainsAll({
@@ -115,11 +115,11 @@ const rules = [
   }),
   ruleContainsAll({
     id: 'channel-live-activation-tests',
-    label: 'Tests prove Phase 2 behavior',
+    label: 'Tests prove Preview engine behavior',
     target: 'Tests cover P0 snapshot, readiness promotion, Signal JSON-RPC/CLI and Teams Graph send',
     files: ['tests/services/ChannelLiveActivationService.test.ts'],
     needles: [
-      'closes Phase 2 P0 channel activation gates',
+      'closes Preview engine P0 channel activation gates',
       'moves Signal and Teams out of dry-run-only readiness',
       'sends Signal messages through JSON-RPC or signal-cli',
       'sends Microsoft Teams messages through Graph with redacted receipts',
@@ -130,8 +130,8 @@ const rules = [
   }),
   ruleContainsAll({
     id: 'channel-live-activation-package',
-    label: 'Package exposes Phase 2 scripts',
-    target: 'Phase 2 can be run through package scripts',
+    label: 'Package exposes Preview engine scripts',
+    target: 'Preview engine can be run through package scripts',
     files: ['package.json'],
     needles: [
       'channel-live-activation',
@@ -141,8 +141,8 @@ const rules = [
   }),
   ruleContainsAll({
     id: 'channel-live-activation-sdk',
-    label: 'SDK exposes Phase 2 service and contract',
-    target: 'Phase 2 can be imported from SDK barrels',
+    label: 'SDK exposes Preview engine service and contract',
+    target: 'Preview engine can be imported from SDK barrels',
     files: ['src/sdk/contracts.ts', 'src/sdk/index.ts'],
     needles: [
       'ChannelLiveActivation',
@@ -150,11 +150,11 @@ const rules = [
   }),
   ruleContainsAll({
     id: 'channel-live-activation-doc',
-    label: 'Docs record Phase 2 closure',
-    target: 'Phase 2 documentation explains P0 channels and staging-live flow',
+    label: 'Docs record Preview engine closure',
+    target: 'Preview engine documentation explains P0 channels and staging-live flow',
     files: ['docs/README.md'],
     needles: [
-      'Phase 2',
+      'Preview engine',
       'Signal',
       'Microsoft Teams',
       'staging-live',
@@ -177,7 +177,7 @@ const snapshot = {
 if (asJson) {
   console.log(JSON.stringify(snapshot, null, 2));
 } else {
-  console.log('[channel-live-activation] checking Phase 2');
+  console.log('[channel-live-activation] checking Preview engine');
   for (const rule of rules) {
     const marker = rule.status === 'passed' ? 'ok' : 'fail';
     console.log(`[channel-live-activation] ${marker} ${rule.label}: ${rule.observed} | ${rule.target}`);

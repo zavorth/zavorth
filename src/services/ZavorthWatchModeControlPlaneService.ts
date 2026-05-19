@@ -147,7 +147,7 @@ export class ZavorthWatchModeControlPlaneService {
       actions,
       watchMode,
       narrative: {
-        headline: 'Wave C: Watch Mode supervisionado',
+        headline: 'Watch mode: Watch Mode supervisionado',
         operatorSummary: this.buildOperatorSummary(activeRun, summary, watchMode),
         nextAction: actions[0]?.label || 'Ligar o Watch Mode somente quando existir um objetivo visual claro.',
       },
@@ -157,7 +157,7 @@ export class ZavorthWatchModeControlPlaneService {
   public renderReport(input: { limit?: number } = {}): string {
     const snapshot = this.buildSnapshot(input);
     const lines = [
-      'Wave C: Watch Mode supervisionado',
+      'Watch mode: Watch Mode supervisionado',
       '',
       snapshot.narrative.operatorSummary,
       `Postura: ${snapshot.summary.posture}.`,

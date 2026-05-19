@@ -25,7 +25,7 @@ const snapshot = {
 if (asJson) {
   console.log(JSON.stringify(snapshot, null, 2));
 } else {
-  console.log('[zavorth-capability-provider-registry] checking Phase 4');
+  console.log('[zavorth-capability-provider-registry] checking Connector registry');
   for (const rule of rules) {
     const marker = rule.status === 'passed' ? 'ok' : 'fail';
     console.log(`[zavorth-capability-provider-registry] ${marker} ${rule.label}: ${rule.observed} | ${rule.target}`);
@@ -48,8 +48,8 @@ function ruleFilesExist() {
   ];
   const missing = files.filter((file) => !fs.existsSync(path.join(root, file)));
   return {
-    id: 'phase-4-files',
-    label: 'Phase 4 capability provider files exist',
+    id: 'checkpoint-4-files',
+    label: 'Connector registry capability provider files exist',
     status: missing.length === 0 ? 'passed' : 'failed',
     observed: `${files.length - missing.length}/${files.length} file(s) present`,
     target: 'contract, service, CLI, check, tests, docs and package scripts are present',
@@ -76,16 +76,16 @@ function ruleContainsMarkers() {
       'unavailable-capabilities-fail-honestly',
     ]],
     ['docs/README.md', [
-      'phase-4-capability-providers-ready',
-      '291 Phase 5 - Channels And Messaging',
+      'capability-providers-ready',
+      '291 Credential vault - Channels And Messaging',
       'Zavorth Capability Provider Registry',
     ]],
     ['docs/README.md', [
-      'phase-4-capability-providers-complete',
+      'capability-providers-complete',
       'Zavorth Capability Provider Registry',
       'honest-unavailable',
       'no direct tool exposure',
-      '291 Phase 5 - Channels And Messaging',
+      '291 Credential vault - Channels And Messaging',
     ]],
     ['package.json', [
       'zavorth:capability-provider-registry',
@@ -104,8 +104,8 @@ function ruleContainsMarkers() {
     }
   }
   return {
-    id: 'phase-4-markers',
-    label: 'Phase 4 capability provider markers are present',
+    id: 'checkpoint-4-markers',
+    label: 'Connector registry capability provider markers are present',
     status: missing.length === 0 ? 'passed' : 'failed',
     observed: missing.length === 0 ? 'all markers present' : `${missing.length} missing marker(s)`,
     target: 'provider registry, policy, unavailable semantics, docs and scripts markers are present',
@@ -125,7 +125,7 @@ function runCapabilityProviderFixture() {
   });
   if (result.status !== 0) {
     return {
-      id: 'phase-4-capability-provider-fixture',
+      id: 'checkpoint-4-capability-provider-fixture',
       label: 'Capability provider registry fixture passes',
       status: 'failed',
       observed: `exit ${result.status}`,
@@ -149,7 +149,7 @@ function runCapabilityProviderFixture() {
     && snapshot.safety?.noToolExposurePerformed === true
     && snapshot.safety?.noSkillMutationPerformed === true;
   return {
-    id: 'phase-4-capability-provider-fixture',
+    id: 'checkpoint-4-capability-provider-fixture',
     label: 'Capability provider registry fixture passes',
     status: ok ? 'passed' : 'failed',
     observed: ok ? `${snapshot.status}, ${snapshot.summary.normalizedCapabilities} capability(ies), ${snapshot.summary.classifiedTools} tool(s)` : 'invalid capability provider snapshot',
@@ -175,11 +175,11 @@ function runCapabilityProviderBlockedFixture() {
     && snapshot.status === 'blocked'
     && snapshot.previousSidecarAdapterStatus === 'blocked';
   return {
-    id: 'phase-4-blocked-fixture',
-    label: 'Capability provider registry blocks without Phase 3 readiness',
+    id: 'checkpoint-4-blocked-fixture',
+    label: 'Capability provider registry blocks without Approval gate readiness',
     status: ok ? 'passed' : 'failed',
     observed: ok ? `${snapshot.status}, sidecarAdapter=${snapshot.previousSidecarAdapterStatus}` : `exit ${result.status}`,
-    target: 'Phase 4 cannot advance while Phase 3 sidecar adapter is blocked',
+    target: 'Connector registry cannot advance while Approval gate sidecar adapter is blocked',
     details: ok ? [] : [result.error?.message || result.stderr || result.stdout || 'no output'],
   };
 }

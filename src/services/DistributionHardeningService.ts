@@ -121,7 +121,7 @@ export class DistributionHardeningService {
 
   public renderReport(snapshot: DistributionHardeningSnapshot = this.buildSnapshot()): string {
     const lines: string[] = [];
-    lines.push('[distribution-hardening] Fase 55 - Installer And Distribution Hardening');
+    lines.push('[distribution-hardening] Readiness checkpoint 5 - Installer And Distribution Hardening');
     lines.push(`status: ${snapshot.status}`);
     lines.push(`ok: ${snapshot.summary.ok ? 'yes' : 'no'} | pass=${snapshot.summary.passed} warn=${snapshot.summary.warnings} fail=${snapshot.summary.failed}`);
     lines.push(`release: ${snapshot.release.expectedTag} | package=${snapshot.release.packageName}@${snapshot.release.packageVersion}`);
@@ -136,7 +136,7 @@ export class DistributionHardeningService {
       }
     }
     lines.push('');
-    lines.push(`proxima fase recomendada: ${snapshot.nextRecommendedPhase.phase} - ${snapshot.nextRecommendedPhase.title}`);
+    lines.push(`proximo passo recomendada: ${snapshot.nextRecommendedPhase.phase} - ${snapshot.nextRecommendedPhase.title}`);
     lines.push(snapshot.nextRecommendedPhase.reason);
     return lines.join('\n');
   }
@@ -190,9 +190,9 @@ export class DistributionHardeningService {
         label: 'gate de release bundle usa service canonico',
       },
       {
-        path: 'docs/75-public-productization-architecture.md',
-        phrase: 'Fase 51 - Release Bundle And Installer Distribution',
-        label: 'Fase 51 documentada como bundle/installer',
+        path: 'docs/product-direction.md',
+        phrase: 'Readiness checkpoint 1 - Release Bundle And Installer Distribution',
+        label: 'Readiness checkpoint 1 documentada como bundle/installer',
       },
       {
         path: 'src/services/DistributionPolicyContractService.ts',
@@ -205,9 +205,9 @@ export class DistributionHardeningService {
         label: 'gate de distribution policy usa service canonico',
       },
       {
-        path: 'docs/75-public-productization-architecture.md',
-        phrase: 'Fase 50 - Editions, Plans And Distribution Policy',
-        label: 'Fase 50 documentada como policy de canais',
+        path: 'docs/product-direction.md',
+        phrase: 'Readiness checkpoint 0 - Editions, Plans And Distribution Policy',
+        label: 'Readiness checkpoint 0 documentada como policy de canais',
       },
     ];
     const missing = evidence
@@ -215,11 +215,11 @@ export class DistributionHardeningService {
       .map((item) => `${item.path}: ${item.label}`);
     return this.check(
       'distribution-hardening:prior-phase-evidence',
-      'evidencias das Fases 50 e 51',
+      'evidencias das Etapas 50 e 51',
       missing.length === 0 ? 'pass' : 'fail',
       missing.length === 0
         ? 'distribution policy e release bundle existem como base da distribuicao hardening.'
-        : 'Fase 55 depende de policy e bundle publicos ja fechados.',
+        : 'Readiness checkpoint 5 depende de policy e bundle publicos ja fechados.',
       undefined,
       missing,
     );
@@ -442,11 +442,11 @@ export class DistributionHardeningService {
 
   private checkDocsRunbook(): DistributionHardeningCheck {
     const source = [
-      this.readCoreText('docs/76-public-adoption-architecture.md') || '',
-      this.readCoreText('docs/11-roadmap.md') || '',
+      this.readCoreText('docs/product-direction.md') || '',
+      this.readCoreText('docs/product-direction.md') || '',
     ].join('\n').toLowerCase();
     const required = [
-      'fase 55',
+      'etapa 55',
       'manifest',
       'checksum',
       'preview',
@@ -458,31 +458,31 @@ export class DistributionHardeningService {
     const missing = required.filter((term) => !source.includes(term));
     return this.check(
       'distribution-hardening:docs-runbook',
-      'documentacao e runbook da Fase 55',
+      'documentacao e runbook da Readiness checkpoint 5',
       missing.length === 0 ? 'pass' : 'fail',
       missing.length === 0
-        ? 'docs explicam manifest, checksums, installer preview, smoke e gates da Fase 55.'
+        ? 'docs explicam manifest, checksums, installer preview, smoke e gates da Readiness checkpoint 5.'
         : 'docs precisam explicar como fechar e operar a distribuicao hardening.',
-      'docs/76-public-adoption-architecture.md',
+      'docs/product-direction.md',
       missing.map((term) => `faltando: ${term}`),
     );
   }
 
   private checkNextPhasePlanning(): DistributionHardeningCheck {
     const source = [
-      this.readCoreText('docs/76-public-adoption-architecture.md') || '',
-      this.readCoreText('docs/11-roadmap.md') || '',
+      this.readCoreText('docs/product-direction.md') || '',
+      this.readCoreText('docs/product-direction.md') || '',
     ].join('\n');
-    const missing = ['Fase 56 - Public Docs, Examples And Recipes Expansion', 'qa:phase:56']
+    const missing = ['Readiness checkpoint 6 - Public Docs, Examples And Recipes Expansion', 'qa:phase:56']
       .filter((term) => !source.includes(term));
     return this.check(
       'distribution-hardening:next-phase',
-      'recomendacao para Fase 56',
+      'recomendacao para Readiness checkpoint 6',
       missing.length === 0 ? 'pass' : 'fail',
       missing.length === 0
-        ? 'Fase 55 aponta explicitamente para docs, examples e recipes publicas.'
-        : 'Fase 55 precisa deixar a Fase 56 como proxima acao.',
-      'docs/76-public-adoption-architecture.md',
+        ? 'Readiness checkpoint 5 aponta explicitamente para docs, examples e recipes publicas.'
+        : 'Readiness checkpoint 5 precisa deixar a Readiness checkpoint 6 como proxima acao.',
+      'docs/product-direction.md',
       missing,
     );
   }

@@ -261,7 +261,7 @@ export class ZavorthAutonomousEngineeringPartnerService {
       audit: state.audit.slice(0, limit),
       actions,
       narrative: {
-        headline: 'Fase 24: Autonomous Engineering Partner',
+        headline: 'Etapa 24: Autonomous Engineering Partner',
         operatorSummary:
           `${missions.length} missao(oes), ${activeMissions} ativa(s), ${pausedMissions} pausada(s), `
           + `${pendingMissionApprovals} approval(s) pendente(s), core idle=${summary.coreIdle ? 'sim' : 'nao'}, `
@@ -1454,7 +1454,7 @@ export class ZavorthAutonomousEngineeringPartnerService {
         audit: [],
         actions: [],
         narrative: {
-          headline: 'Fase 24: Autonomous Engineering Partner',
+          headline: 'Etapa 24: Autonomous Engineering Partner',
           operatorSummary: summary,
           nextAction: 'Verificar o missionId informado.',
         },

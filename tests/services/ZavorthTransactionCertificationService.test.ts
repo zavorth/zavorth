@@ -26,7 +26,7 @@ describe('ZavorthTransactionCertificationService', () => {
   it('certifies the transaction plane across surfaces without live execution', () => {
     const report = service.certify();
 
-    expect(report.version).toBe('zavorth-transaction-certification/phase-9');
+    expect(report.version).toBe('zavorth-transaction-certification/checkpoint-9');
     expect(report.status).toBe('passed');
     expect(report.scenarioCount).toBe(5);
     expect(report.passedScenarioCount).toBe(5);

@@ -4,7 +4,7 @@ import type {
 } from './ZavorthVisionControlPlaneContract.js';
 
 export const ZAVORTH_ANDROID_ADB_BRIDGE_CONTRACT_VERSION =
-  '2026-05-11.android-adb-bridge-phase-4' as const;
+  '2026-05-11.android-adb-bridge-checkpoint-4' as const;
 
 export type ZavorthAndroidAdbAction =
   | 'device.status'
@@ -173,7 +173,7 @@ export type ZavorthAndroidAdbSnapshot = {
   };
   policy: {
     decision: ZavorthVisionPolicyDecision;
-    profile: 'android-adb-phase-4';
+    profile: 'android-adb-checkpoint-4';
     reason: string;
     mutationAllowed: false;
     providerPayloadMinimized: true;
@@ -206,7 +206,7 @@ export type ZavorthAndroidAdbSnapshot = {
     plan: '/device plan';
     approve: '/device approve <plan>';
     cancel: '/device cancel';
-    nextPhase: 'Phase 5 - Natural Agent Use And Subagent Perception';
+    nextStage: 'Credential vault - Natural Agent Use And Subagent Perception';
   };
   nextSafeAction: string;
 };

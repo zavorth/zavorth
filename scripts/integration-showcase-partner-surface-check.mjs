@@ -8,7 +8,7 @@ const asJson = process.argv.includes('--json');
 const rules = [
   ruleFilesExist({
     id: 'integration-showcase-partner-surface-files',
-    label: 'Wave 52 files exist',
+    label: 'Integration Showcase files exist',
     target: 'Runtime, CLI, Command Center, tests and docs are present',
     files: [
       'src/runtime/agent/IntegrationShowcasePartnerSurfaceService.ts',
@@ -27,7 +27,7 @@ const rules = [
     files: ['src/runtime/agent/IntegrationShowcasePartnerSurfaceService.ts'],
     needles: [
       'INTEGRATION_SHOWCASE_PARTNER_SURFACE_CONTRACT_VERSION',
-      '2026-05-04.wave-52',
+      '2026-05-04.integration-showcase',
       'PublicAdoptionPilotLoopService',
       'IntegrationShowcaseService',
       'integrationShowcasePartnerSurface',
@@ -69,7 +69,7 @@ const rules = [
       'integration-showcase-runtime',
       'partner-surface',
       'showcase-partners',
-      'Integration Showcase / Partner Surface - Wave 52',
+      'Integration Showcase / Partner Surface - Integration Showcase',
       'resolveIntegrationShowcasePartnerSurfaceCliText',
       'formatIntegrationShowcasePartnerSurfaceSnapshot',
     ],
@@ -98,7 +98,7 @@ const rules = [
   }),
   ruleContainsAll({
     id: 'package-exposes-integration-showcase-gate',
-    label: 'package exposes Wave 52 gate',
+    label: 'package exposes Integration Showcase gate',
     target: 'local QA can run integration-showcase-partner-surface:check and qa:integration-showcase-partner-surface',
     files: ['package.json'],
     needles: [
@@ -124,7 +124,7 @@ const snapshot = {
 if (asJson) {
   console.log(JSON.stringify(snapshot, null, 2));
 } else {
-  console.log('[integration-showcase-partner-surface] checking Wave 52');
+  console.log('[integration-showcase-partner-surface] checking Integration Showcase');
   for (const rule of rules) {
     const marker = rule.status === 'passed' ? 'ok' : 'fail';
     console.log(`[integration-showcase-partner-surface] ${marker} ${rule.label}: ${rule.observed} | ${rule.target}`);

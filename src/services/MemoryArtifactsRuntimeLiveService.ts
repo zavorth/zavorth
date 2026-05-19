@@ -88,7 +88,7 @@ export type TaskWorkspaceBridgeProof = {
   secretValuesSerialized: false;
 };
 
-export type Phase12FullProof = {
+export type SandboxAdapterFullProof = {
   ok: boolean;
   memory: MemoryLiveProof;
   wiki: WikiLiveProof;
@@ -116,7 +116,7 @@ export class MemoryArtifactsRuntimeLiveService {
     this.openShellRuntime = runtime.openShellRuntime || new OpenShellRemoteSandboxService({ now: this.now });
   }
 
-  public async runFullProof(input: { confirmExecution?: boolean } = {}): Promise<Phase12FullProof> {
+  public async runFullProof(input: { confirmExecution?: boolean } = {}): Promise<SandboxAdapterFullProof> {
     const memory = await this.runMemoryProof();
     const wiki = await this.runWikiPersistenceProof();
     const artifact = await this.runArtifactIndexReplayProof();
@@ -138,12 +138,12 @@ export class MemoryArtifactsRuntimeLiveService {
   public async runMemoryProof(): Promise<MemoryLiveProof> {
     const memoryDir = this.ensureDir('memory');
     const artifactDir = this.ensureDir('artifacts');
-    const sourceArtifactPath = path.join(artifactDir, 'phase-12-memory-source.md');
-    fs.writeFileSync(sourceArtifactPath, '# Phase 12 Memory Source\n\nZavorth runtime memory can cite artifact-backed facts.\n', 'utf8');
+    const sourceArtifactPath = path.join(artifactDir, 'checkpoint-12-memory-source.md');
+    fs.writeFileSync(sourceArtifactPath, '# Intent model2 Memory Source\n\nZavorth runtime memory can cite artifact-backed facts.\n', 'utf8');
     const sourceArtifactId = `artifact:${this.shortHash(sourceArtifactPath)}`;
     const entry = {
       id: `memory-${crypto.randomUUID().slice(0, 8)}`,
-      key: 'phase-12-runtime-memory',
+      key: 'checkpoint-12-runtime-memory',
       value: 'Zavorth memory live closure writes, recalls, cites and forgets real entries.',
       category: 'runtime-live',
       sourceArtifactId,
@@ -157,7 +157,7 @@ export class MemoryArtifactsRuntimeLiveService {
 
     const reloaded = this.readJson<{ entries: any[]; history: any[] }>(ledgerPath, { entries: [], history: [] });
     const recalled = reloaded.entries.find((item) =>
-      String(item.key).includes('phase-12') && String(item.value).includes('recalls'));
+      String(item.key).includes('checkpoint-12') && String(item.value).includes('recalls'));
     const citation = {
       id: `memory-citation-${this.shortHash(entry.id)}`,
       memoryId: entry.id,
@@ -177,7 +177,7 @@ export class MemoryArtifactsRuntimeLiveService {
     const afterForget = this.readJson<{ entries: any[] }>(ledgerPath, { entries: [] });
     const receiptPath = path.join(memoryDir, 'memory-proof-receipt.json');
     this.writeJson(receiptPath, {
-      receiptId: 'phase12.memory-core.receipt',
+      receiptId: 'intent-model2.memory-core.receipt',
       remembered: true,
       recalled: Boolean(recalled),
       cited,
@@ -203,28 +203,28 @@ export class MemoryArtifactsRuntimeLiveService {
     const wikiDir = this.ensureDir('wiki');
     const service = new MemoryWikiService({ now: this.now });
     const upsert = service.upsertPage({
-      title: 'Phase 12 Runtime Memory',
-      body: 'Wiki memory persistence and search are part of the Phase 12 live closure.',
-      tags: ['phase-12', 'runtime', 'memory'],
-      sourceArtifactIds: ['artifact:phase12-wiki'],
-      sessionId: 'phase-12',
+      title: 'Intent model2 Runtime Memory',
+      body: 'Wiki memory persistence and search are part of the Intent model2 live closure.',
+      tags: ['checkpoint-12', 'runtime', 'memory'],
+      sourceArtifactIds: ['artifact:intent-model2-wiki'],
+      sessionId: 'checkpoint-12',
     });
     if (!upsert.ok || !upsert.page) {
-      throw new Error(upsert.error || 'Phase 12 wiki upsert failed.');
+      throw new Error(upsert.error || 'Intent model2 wiki upsert failed.');
     }
     const pagePath = path.join(wikiDir, `${upsert.page.pageId}.json`);
     this.writeJson(pagePath, {
       ...upsert.page,
-      body: 'Wiki memory persistence and search are part of the Phase 12 live closure.',
-      tags: ['phase-12', 'runtime', 'memory'],
-      sourceArtifactIds: ['artifact:phase12-wiki'],
+      body: 'Wiki memory persistence and search are part of the Intent model2 live closure.',
+      tags: ['checkpoint-12', 'runtime', 'memory'],
+      sourceArtifactIds: ['artifact:intent-model2-wiki'],
     });
     const persisted = this.readJson<any>(pagePath, null);
     const reloaded = new MemoryWikiService({
       now: this.now,
       pages: persisted ? [persisted] : [],
     } as any);
-    const search = reloaded.searchPages({ query: 'runtime memory', limit: 3, sessionId: 'phase-12' });
+    const search = reloaded.searchPages({ query: 'runtime memory', limit: 3, sessionId: 'checkpoint-12' });
     return {
       ok: Boolean(persisted && search.ok && search.pages.length > 0),
       persisted: Boolean(persisted),
@@ -237,20 +237,20 @@ export class MemoryArtifactsRuntimeLiveService {
 
   public async runArtifactIndexReplayProof(): Promise<ArtifactIndexReplayProof> {
     const artifactDir = this.ensureDir('artifacts');
-    const artifactPath = path.join(artifactDir, 'phase-12-runtime-artifact.txt');
-    const body = 'Phase 12 artifact body indexing and replay proof for Zavorth runtime closure.';
+    const artifactPath = path.join(artifactDir, 'checkpoint-12-runtime-artifact.txt');
+    const body = 'Intent model2 artifact body indexing and replay proof for Zavorth runtime closure.';
     fs.writeFileSync(artifactPath, body, 'utf8');
     const artifacts = this.artifactPipeline.normalizeArtifacts([{
       path: artifactPath,
-      name: 'phase-12-runtime-artifact.txt',
+      name: 'checkpoint-12-runtime-artifact.txt',
       kind: 'report',
-      summary: 'Phase 12 runtime artifact proof',
-      source: 'phase-12',
-    }], 'phase-12');
+      summary: 'Intent model2 runtime artifact proof',
+      source: 'checkpoint-12',
+    }], 'checkpoint-12');
     const manifest = this.artifactPipeline.buildManifest(artifacts, {
-      traceId: 'phase-12-artifact',
-      runId: 'phase-12-artifact',
-      sessionId: 'phase-12',
+      traceId: 'checkpoint-12-artifact',
+      runId: 'checkpoint-12-artifact',
+      sessionId: 'checkpoint-12',
       source: 'memory-artifacts-runtime-live',
     });
     const checksum = this.sha256(body);
@@ -270,7 +270,7 @@ export class MemoryArtifactsRuntimeLiveService {
     const replayed = fs.readFileSync(artifactPath, 'utf8');
     const replayReceiptPath = path.join(artifactDir, 'artifact-replay-receipt.json');
     this.writeJson(replayReceiptPath, {
-      receiptId: 'phase12.artifact.replay.receipt',
+      receiptId: 'intent-model2.artifact.replay.receipt',
       artifactPath,
       replayChecksum: this.sha256(replayed),
       checksumMatched: this.sha256(replayed) === checksum,
@@ -292,12 +292,12 @@ export class MemoryArtifactsRuntimeLiveService {
     const sessionsDir = this.ensureDir('sessions');
     const receiptPath = path.join(sessionsDir, 'thread-ownership-receipt.json');
     const ownership = {
-      sessionId: 'phase-12-thread',
-      ownerRef: 'agent:phase-12-owner',
+      sessionId: 'checkpoint-12-thread',
+      ownerRef: 'agent:checkpoint-12-owner',
       status: 'active',
       registeredAt: this.now().toISOString(),
     };
-    const conflictingOwner = 'agent:phase-12-conflict';
+    const conflictingOwner = 'agent:checkpoint-12-conflict';
     const conflictBlocked = ownership.ownerRef !== conflictingOwner && ownership.status === 'active';
     const released = {
       ...ownership,
@@ -305,7 +305,7 @@ export class MemoryArtifactsRuntimeLiveService {
       releasedAt: this.now().toISOString(),
     };
     this.writeJson(receiptPath, {
-      receiptId: 'phase12.thread-ownership.receipt',
+      receiptId: 'intent-model2.thread-ownership.receipt',
       registered: ownership,
       conflict: {
         ownerRef: conflictingOwner,
@@ -327,31 +327,31 @@ export class MemoryArtifactsRuntimeLiveService {
   public async runRuntimeExecutorProof(input: { confirmExecution?: boolean } = {}): Promise<RuntimeExecutorProof> {
     const runtimeDir = this.ensureDir('runtime');
     const codexRun = this.codexRuntime.buildRunPlan({
-      prompt: 'Phase 12 runtime executor smoke',
+      prompt: 'Intent model2 runtime executor smoke',
       workspaceRoot: this.workspaceRoot,
       hostTools: [
         { id: 'filesystem.read', label: 'Filesystem Read' },
-        { id: 'phase12.safe-tool', label: 'Phase 12 Safe Tool' },
+        { id: 'intent-model2.safe-tool', label: 'Intent model2 Safe Tool' },
       ],
     });
     const openShell = this.openShellRuntime.buildCommandPlan({
-      command: 'node -e "console.log(\'phase12\')"',
+      command: 'node -e "console.log(\'intent-model2\')"',
       localRoot: this.workspaceRoot,
-      scopeKey: 'phase-12',
+      scopeKey: 'checkpoint-12',
     });
     let stdout: string | null = null;
     let localRuntimeExecuted = false;
     if (input.confirmExecution === true) {
-      const result = await execFileAsync(process.execPath, ['-e', 'console.log("zavorth-phase-12-runtime")'], {
+      const result = await execFileAsync(process.execPath, ['-e', 'console.log("zavorth-checkpoint-12-runtime")'], {
         cwd: this.workspaceRoot,
         timeout: 5000,
       });
       stdout = String(result.stdout || '').trim();
-      localRuntimeExecuted = stdout === 'zavorth-phase-12-runtime';
+      localRuntimeExecuted = stdout === 'zavorth-checkpoint-12-runtime';
     }
     const receiptPath = path.join(runtimeDir, 'runtime-executor-receipt.json');
     this.writeJson(receiptPath, {
-      receiptId: 'phase12.runtime.executor.receipt',
+      receiptId: 'intent-model2.runtime.executor.receipt',
       codexRun,
       openShell,
       localRuntimeExecuted,
@@ -375,23 +375,23 @@ export class MemoryArtifactsRuntimeLiveService {
   public async runTaskWorkspaceBridgeProof(): Promise<TaskWorkspaceBridgeProof> {
     const workflowDir = this.ensureDir('workflow');
     const artifactPath = path.join(workflowDir, 'task-output.txt');
-    fs.writeFileSync(artifactPath, 'Phase 12 task orchestration artifact.\n', 'utf8');
+    fs.writeFileSync(artifactPath, 'Intent model2 task orchestration artifact.\n', 'utf8');
     const workflowRuns = new WorkflowRunService({
       storageDir: workflowDir,
       persist: true,
       now: this.now,
     });
-    const run = workflowRuns.createRun('review', 'Phase 12 task orchestration proof', this.workspaceRoot, [{
-      id: 'phase12-task',
-      label: 'Phase 12 Task',
+    const run = workflowRuns.createRun('review', 'Intent model2 task orchestration proof', this.workspaceRoot, [{
+      id: 'intent-model2-task',
+      label: 'Intent model2 Task',
       executor: 'codex',
       role: 'worker',
-      intro: 'Run the controlled Phase 12 task proof.',
-      strategy_note: 'Controlled Phase 12 live proof.',
-      buildObjective: () => 'Write a Phase 12 proof artifact and return a receipt.',
+      intro: 'Run the controlled Intent model2 task proof.',
+      strategy_note: 'Controlled Intent model2 live proof.',
+      buildObjective: () => 'Write a Intent model2 proof artifact and return a receipt.',
     }]);
-    workflowRuns.markStageStarted(run, 'phase12-task', 'Write a proof artifact.', 'Phase 12 handoff.', 'task-phase12');
-    workflowRuns.markStageCompleted(run, 'phase12-task', this.executionResult(artifactPath), 'Phase 12 task completed.');
+    workflowRuns.markStageStarted(run, 'intent-model2-task', 'Write a proof artifact.', 'Intent model2 handoff.', 'task-intent-model2');
+    workflowRuns.markStageCompleted(run, 'intent-model2-task', this.executionResult(artifactPath), 'Intent model2 task completed.');
     const persistedPath = path.join(workflowDir, `${run.workflow_run_id}.json`);
     const workflowPersisted = fs.existsSync(persistedPath);
 
@@ -399,20 +399,20 @@ export class MemoryArtifactsRuntimeLiveService {
       now: this.now,
       manifests: [this.skillWorkshopManifest()],
       handlers: {
-        'skill-workshop.phase12': () => ({
+        'skill-workshop.intent-model2': () => ({
           ok: true,
           artifactPath,
           summary: 'Skill workshop handler executed after approval.',
         }),
       },
     });
-    plugin.install('skill-workshop.phase12', { approved: true });
-    plugin.enable('skill-workshop.phase12', { approved: true });
+    plugin.install('skill-workshop.intent-model2', { approved: true });
+    plugin.enable('skill-workshop.intent-model2', { approved: true });
     const pluginResult = await plugin.invoke({
-      pluginId: 'skill-workshop.phase12',
+      pluginId: 'skill-workshop.intent-model2',
       capabilityId: 'workspace.command',
       approved: true,
-      requestedBy: 'phase-12',
+      requestedBy: 'checkpoint-12',
       input: {
         artifactPath,
       },
@@ -420,7 +420,7 @@ export class MemoryArtifactsRuntimeLiveService {
 
     const bridgeReceiptPath = path.join(workflowDir, 'acpx-bridge-receipt.json');
     this.writeJson(bridgeReceiptPath, {
-      receiptId: 'phase12.acpx.bridge.receipt',
+      receiptId: 'intent-model2.acpx.bridge.receipt',
       protocol: 'acpx',
       envelope: {
         id: `acpx-${crypto.randomUUID().slice(0, 8)}`,
@@ -449,9 +449,9 @@ export class MemoryArtifactsRuntimeLiveService {
   private executionResult(artifactPath: string): ExecutionResult {
     const now = this.now().toISOString();
     return {
-      execution_id: 'phase12-execution',
-      task_id: 'task-phase12',
-      executor: 'phase12-local-executor',
+      execution_id: 'intent-model2-execution',
+      task_id: 'task-intent-model2',
+      executor: 'intent-model2-local-executor',
       success: true,
       started_at: now,
       finished_at: now,
@@ -460,14 +460,14 @@ export class MemoryArtifactsRuntimeLiveService {
       files_written: [artifactPath],
       files_deleted: [],
       commands_executed: [],
-      stdout: 'phase12 task completed',
+      stdout: 'intent-model2 task completed',
       stderr: null,
       diff_summary: null,
       artifacts: [{
         path: artifactPath,
         name: path.basename(artifactPath),
         kind: 'report',
-        summary: 'Phase 12 task orchestration artifact',
+        summary: 'Intent model2 task orchestration artifact',
       }],
       rollback_available: false,
       error_code: null,
@@ -481,16 +481,16 @@ export class MemoryArtifactsRuntimeLiveService {
   private skillWorkshopManifest(): ZavorthPluginManifest {
     return {
       schemaVersion: ZAVORTH_PLUGIN_OS_API_VERSION,
-      id: 'skill-workshop.phase12',
-      label: 'Phase 12 Skill Workshop',
+      id: 'skill-workshop.intent-model2',
+      label: 'Intent model2 Skill Workshop',
       version: '1.0.0',
       moduleKind: 'workspace',
-      summary: 'Controlled workspace command proof for Phase 12.',
+      summary: 'Controlled workspace command proof for Intent model2.',
       description: 'Executes a governed workspace command handler after explicit approval.',
-      tags: ['phase-12', 'workspace-command'],
+      tags: ['checkpoint-12', 'workspace-command'],
       source: {
         kind: 'workspace',
-        locator: 'phase12://skill-workshop',
+        locator: 'intent-model2://skill-workshop',
         trusted: true,
       },
       compatibility: {
@@ -504,7 +504,7 @@ export class MemoryArtifactsRuntimeLiveService {
         summary: 'Runs a controlled workspace command proof.',
         artifactKinds: ['workspace.command'],
         command: {
-          name: 'phase12-workspace-command',
+          name: 'intent-model2-workspace-command',
         },
       }],
       permissions: [
@@ -516,7 +516,7 @@ export class MemoryArtifactsRuntimeLiveService {
         },
       ],
       entrypoint: {
-        module: 'phase12://skill-workshop',
+        module: 'intent-model2://skill-workshop',
         exportName: 'invoke',
         runtime: 'node',
       },

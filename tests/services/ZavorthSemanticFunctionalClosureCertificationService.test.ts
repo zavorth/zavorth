@@ -59,12 +59,12 @@ describe('ZavorthSemanticFunctionalClosureCertificationService S9', () => {
   it('keeps closure items and optional-pack decisions explicit by semantic status', async () => {
     const snapshot = await buildFixtureService().buildSnapshot();
 
-    expect(itemClaim(snapshot, 'phase-0-ledger-governance')).toEqual(expect.objectContaining({
+    expect(itemClaim(snapshot, 'checkpoint-0-ledger-governance')).toEqual(expect.objectContaining({
       status: 'covered',
       priority: 'P0',
       decision: 'implemented',
     }));
-    expect(itemClaim(snapshot, 'phase-8-skill-ecosystem')).toEqual(expect.objectContaining({
+    expect(itemClaim(snapshot, 'checkpoint-8-skill-ecosystem')).toEqual(expect.objectContaining({
       status: 'covered',
       priority: 'P2',
       decision: 'optional-pack',

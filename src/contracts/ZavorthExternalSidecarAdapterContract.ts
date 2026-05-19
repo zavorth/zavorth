@@ -225,8 +225,8 @@ export type ZavorthExternalSidecarAdapterSnapshot = {
   generatedAt: string;
   contractVersion: typeof ZAVORTH_EXTERNAL_SIDECAR_ADAPTER_CONTRACT_VERSION;
   status: ZavorthExternalSidecarAdapterStatus;
-  planId: '291 - Plano Zavorth External Runtime Absorption';
-  phase: 'phase-3-sidecar-adapter';
+  planId: 'Zavorth External Runtime Integration';
+  phase: 'sidecar-adapter';
   previousNativeEngineStatus: ZavorthNativeEngineAbsorptionStatus;
   readOnlyProbe: ZavorthExternalSidecarReadOnlyProbeSnapshot;
   inboundGatewayReceipt: ZavorthExternalSidecarInboundGatewayReceipt;
@@ -264,6 +264,6 @@ export type ZavorthExternalSidecarAdapterSnapshot = {
     inspect: 'npm run zavorth:external-sidecar-adapter';
     inspectJson: 'npm run zavorth:external-sidecar-adapter:json';
     check: 'npm run zavorth:external-sidecar-adapter:check --silent';
-    nextPhase: '291 Phase 4 - Capability Providers';
+    nextStage: '291 Connector registry - Capability Providers';
   };
 };

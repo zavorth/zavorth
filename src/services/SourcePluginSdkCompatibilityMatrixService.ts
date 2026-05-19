@@ -75,7 +75,7 @@ export class SourcePluginSdkCompatibilityMatrixService {
         decision: 'owner-decision-required',
         targetPhase: packageName === '@source/memory-host-sdk' ? 5 : 1,
         zavorthTarget: 'missing-package-owner-decision',
-        reason: 'Source package path was not found during Phase 1 scan.',
+        reason: 'Source package path was not found during Intent model scan.',
       };
     }
 
@@ -112,7 +112,7 @@ function targetForPackage(packageName: SourceInternalPluginPackageName): string 
     case '@source/sdk':
       return 'Zavorth stable ./sdk public subpaths';
     case '@source/memory-host-sdk':
-      return 'MemoryKnowledgeContract follow-up in Phase 5, with package semantics tracked now';
+      return 'MemoryKnowledgeContract follow-up in Credential vault, with package semantics tracked now';
     default:
       return 'Zavorth-native Plugin OS';
   }
@@ -126,7 +126,7 @@ function reasonForPackage(
     return `${packageName} is replaced by stable Zavorth SDK subpaths; no Source import-path shim is provided.`;
   }
   if (packageName === '@source/memory-host-sdk') {
-    return `${packageName} semantics are tracked in Plugin OS now and promoted to functional memory backend work in Phase 5.`;
+    return `${packageName} semantics are tracked in Plugin OS now and promoted to functional memory backend work in Credential vault.`;
   }
   return `${packageName} is absorbed as Zavorth-native Plugin OS contracts, adapter checks and lifecycle receipts.`;
 }

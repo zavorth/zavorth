@@ -70,7 +70,7 @@ function publicMetadata() {
   return {
     productizationContract: {
       source: 'ZavorthProductizationContractService',
-      phase: 'C9',
+      stage: 'C9',
       status: 'ready',
       control: { ready: true },
       cli: { ready: true },
@@ -85,7 +85,7 @@ function publicMetadata() {
       rollbackAvailable: true,
     },
     websitePublic: {
-      phase: '46',
+      stage: '46',
       surface: 'website-public',
       generatedAt: '2026-05-04T02:49:00.000Z',
       status: 'ready',
@@ -96,7 +96,7 @@ function publicMetadata() {
       checks: [],
     },
     publicDocsRecipes: {
-      phase: '56',
+      stage: '56',
       surface: 'public-docs-recipes',
       generatedAt: '2026-05-04T02:49:00.000Z',
       status: 'ready',
@@ -112,7 +112,7 @@ function publicMetadata() {
       checks: [],
     },
     publicDemo: {
-      phase: '47',
+      stage: '47',
       surface: 'public-demo',
       generatedAt: '2026-05-04T02:49:00.000Z',
       status: 'ready',
@@ -126,7 +126,7 @@ function publicMetadata() {
       checks: [],
     },
     publicReleaseBundle: {
-      phase: '51',
+      stage: '51',
       surface: 'release-bundle',
       generatedAt: '2026-05-04T02:49:00.000Z',
       status: 'ready',
@@ -141,7 +141,7 @@ function publicMetadata() {
   };
 }
 
-describe('Command Center Public Site Docs Demo Sync Wave 49', () => {
+describe('Command Center Public Site Docs Demo Sync Channel mesh9', () => {
   it('projects publicSiteDocsDemoSync metadata into the dashboard view model', () => {
     const run = new AgentRunService({
       now: () => new Date('2026-05-04T02:49:00.000Z'),
@@ -171,7 +171,7 @@ describe('Command Center Public Site Docs Demo Sync Wave 49', () => {
     });
 
     expect(viewModel.publicSiteDocsDemoSync).toEqual(expect.objectContaining({
-      contractVersion: '2026-05-04.wave-49',
+      contractVersion: '2026-05-04.docs-demo',
       status: 'synced-preview',
       readiness: expect.objectContaining({
         releaseInstallerRollbackPathLinked: true,
@@ -213,7 +213,7 @@ describe('Command Center Public Site Docs Demo Sync Wave 49', () => {
     );
 
     expect(projection.publicSiteDocsDemoSync).toEqual(expect.objectContaining({
-      contractVersion: '2026-05-04.wave-49',
+      contractVersion: '2026-05-04.docs-demo',
       status: 'synced-preview',
       readiness: expect.objectContaining({
         releaseInstallerRollbackPathLinked: true,

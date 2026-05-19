@@ -71,7 +71,7 @@ export function formatAgentTeamCompilerSnapshot(
   snapshot: AgentTeamCompilerSnapshot,
 ): string {
   const lines = [
-    'Agent Team Compiler - Wave 40',
+    'Agent Team Compiler - Channel mesh0',
     `- contrato: ${snapshot.contractVersion}`,
     `- run: ${snapshot.identifiers.runId}`,
     `- status: ${snapshot.status}`,

@@ -25,7 +25,7 @@ const snapshot = {
 if (asJson) {
   console.log(JSON.stringify(snapshot, null, 2));
 } else {
-  console.log('[zavorth-native-engine-absorption] checking Phase 2');
+  console.log('[zavorth-native-engine-absorption] checking Preview engine');
   for (const rule of rules) {
     const marker = rule.status === 'passed' ? 'ok' : 'fail';
     console.log(`[zavorth-native-engine-absorption] ${marker} ${rule.label}: ${rule.observed} | ${rule.target}`);
@@ -48,8 +48,8 @@ function ruleFilesExist() {
   ];
   const missing = files.filter((file) => !fs.existsSync(path.join(root, file)));
   return {
-    id: 'phase-2-files',
-    label: 'Phase 2 native engine files exist',
+    id: 'checkpoint-2-files',
+    label: 'Preview engine native engine files exist',
     status: missing.length === 0 ? 'passed' : 'failed',
     observed: `${files.length - missing.length}/${files.length} file(s) present`,
     target: 'contract, service, CLI, check, tests, docs and package scripts are present',
@@ -78,15 +78,15 @@ function ruleContainsMarkers() {
       'sourceRuntimeDependency: false',
     ]],
     ['docs/README.md', [
-      'phase-2-native-engine-ready',
-      '291 Phase 3 - Sidecar Adapter',
+      'native-engine-ready',
+      '291 Approval gate - Sidecar Adapter',
       'Zavorth Native Engine Absorption',
     ]],
     ['docs/README.md', [
-      'phase-2-native-engine-absorption-complete',
+      'native-engine-absorption-complete',
       'Zavorth Native Engine Absorption',
       'no source runtime dependency',
-      '291 Phase 3 - Sidecar Adapter',
+      '291 Approval gate - Sidecar Adapter',
     ]],
     ['package.json', [
       'zavorth:native-engine-absorption',
@@ -105,8 +105,8 @@ function ruleContainsMarkers() {
     }
   }
   return {
-    id: 'phase-2-markers',
-    label: 'Phase 2 native engine markers are present',
+    id: 'checkpoint-2-markers',
+    label: 'Preview engine native engine markers are present',
     status: missing.length === 0 ? 'passed' : 'failed',
     observed: missing.length === 0 ? 'all markers present' : `${missing.length} missing marker(s)`,
     target: 'native engine features, no source dependency, docs and scripts markers are present',
@@ -121,7 +121,7 @@ function runNativeEngineFixture() {
   });
   if (result.status !== 0) {
     return {
-      id: 'phase-2-native-engine-fixture',
+      id: 'native-engine-fixture',
       label: 'Native engine fixture passes',
       status: 'failed',
       observed: `exit ${result.status}`,
@@ -140,7 +140,7 @@ function runNativeEngineFixture() {
     && snapshot.safety?.skillMutationsPerformed === false
     && snapshot.fixtureReceipts?.skillCuration?.safety?.dryRunOnly === true;
   return {
-    id: 'phase-2-native-engine-fixture',
+    id: 'native-engine-fixture',
     label: 'Native engine fixture passes',
     status: ok ? 'passed' : 'failed',
     observed: ok ? `${snapshot.summary.features} feature(s), ${snapshot.status}` : 'invalid native engine snapshot',
@@ -166,11 +166,11 @@ function runNativeEngineBlockedFixture() {
     && snapshot.status === 'blocked'
     && snapshot.previousContractLayerStatus === 'blocked';
   return {
-    id: 'phase-2-blocked-fixture',
-    label: 'Native engine blocks without Phase 1 readiness',
+    id: 'checkpoint-2-blocked-fixture',
+    label: 'Native engine blocks without Intent model readiness',
     status: ok ? 'passed' : 'failed',
     observed: ok ? `${snapshot.status}, contractLayer=${snapshot.previousContractLayerStatus}` : `exit ${result.status}`,
-    target: 'Phase 2 cannot advance while Phase 1 contract layer is blocked',
+    target: 'Preview engine cannot advance while Intent model contract layer is blocked',
     details: ok ? [] : [result.error?.message || result.stderr || result.stdout || 'no output'],
   };
 }

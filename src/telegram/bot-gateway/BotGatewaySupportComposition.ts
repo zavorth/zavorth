@@ -56,7 +56,7 @@ export function getOrCreateBotGatewaySupport(gateway: BotGatewaySupportHost): Bo
     hostIdentityService: gateway.hostIdentityService,
     telegramChannelContractService: gateway.telegramChannelContractService || new TelegramChannelContractService(),
     callbackController: gateway.callbackController || { handleCallback: async () => undefined },
-    // Phase 9: Modo Echo — resposta por voz
+    // Certification matrix: Modo Echo — resposta por voz
     echoAudioHandler: gateway.audioHandler || undefined,
     echoPreferenceStore: gateway.zavorthBridgePreferenceStore || undefined,
     echoOutputStage: gateway.echoOutputStage || new EchoOutputStageService({

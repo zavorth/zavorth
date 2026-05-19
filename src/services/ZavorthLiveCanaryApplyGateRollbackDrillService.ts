@@ -64,7 +64,7 @@ export class ZavorthLiveCanaryApplyGateRollbackDrillService {
       generatedAt,
       contractVersion: ZAVORTH_LIVE_CANARY_APPLY_GATE_ROLLBACK_DRILL_CONTRACT_VERSION,
       source: 'ZavorthLiveCanaryApplyGateRollbackDrillService',
-      phase: 'phase-9-live-canary-apply-gate-rollback-drill',
+      phase: 'checkpoint-9-live-canary-apply-gate-rollback-drill',
       status,
       mode,
       adapterReview,
@@ -96,7 +96,7 @@ export class ZavorthLiveCanaryApplyGateRollbackDrillService {
 
   public formatSnapshotText(snapshot: ZavorthLiveCanaryApplyGateRollbackDrillSnapshot): string {
     const lines = [
-      'Zavorth Live Canary Apply Gate And Rollback Drill - Phase 9',
+      'Zavorth Live Canary Apply Gate And Rollback Drill - Certification matrix',
       '',
       `Status: ${snapshot.status}`,
       `Mode: ${snapshot.mode}`,
@@ -151,7 +151,7 @@ function buildChecks(
       adapterReview.status === 'adapter-reviewed' && adapterReview.executionEnvelope.preparedForReview && adapterReview.executionEnvelope.executionEnabled === false,
       'adapter-review-ready',
       `Adapter review status is ${adapterReview.status}.`,
-      'Complete Phase 8 adapter review before opening the apply gate.',
+      'Complete Dashboard controls adapter review before opening the apply gate.',
     ),
     check(
       'final-owner-trigger',
@@ -191,10 +191,10 @@ function buildChecks(
     ),
     check(
       'receipt-chain',
-      adapterReview.receipts.some((receipt) => receipt.kind === 'phase-8-live-canary-adapter-review' && receipt.status === 'recorded'),
+      adapterReview.receipts.some((receipt) => receipt.kind === 'checkpoint-8-live-canary-adapter-review' && receipt.status === 'recorded'),
       'receipt-chain',
-      'Phase 8 adapter review receipt chain is present.',
-      'Re-run Phase 8 review to produce recorded receipts.',
+      'Dashboard controls adapter review receipt chain is present.',
+      'Re-run Dashboard controls review to produce recorded receipts.',
     ),
     check(
       'no-implicit-execution',
@@ -276,7 +276,7 @@ function buildAuthorizationPacket(
     rollbackDrillReceiptRequired: true,
     finalTriggerId: authorized ? finalTrigger.triggerId : null,
     rollbackDrillId: authorized ? rollbackDrill.drillId : null,
-    authorizationReceiptId: authorized ? `phase-9-authorization:${adapter.id}:${finalTrigger.triggerId}` : null,
+    authorizationReceiptId: authorized ? `checkpoint-9-authorization:${adapter.id}:${finalTrigger.triggerId}` : null,
     expiresAt: authorized ? new Date(now.getTime() + AUTHORIZATION_TTL_MS).toISOString() : null,
     requiredFinalPhrase: ZAVORTH_LIVE_CANARY_REQUIRED_FINAL_PHRASE,
     conditions: [
@@ -297,31 +297,31 @@ function buildReceipts(
 ): ZavorthLiveCanaryApplyGateReceipt[] {
   return [
     {
-      id: 'phase-9-live-canary-apply-gate',
-      kind: 'phase-9-live-canary-apply-gate',
+      id: 'checkpoint-9-live-canary-apply-gate',
+      kind: 'checkpoint-9-live-canary-apply-gate',
       status: receiptStatus(status),
       summary: `Apply gate status is ${status}.`,
     },
     {
-      id: 'phase-9-adapter-review-chain',
+      id: 'checkpoint-9-adapter-review-chain',
       kind: 'adapter-review-chain',
       status: adapterReviewStatus === 'adapter-reviewed' ? 'recorded' : receiptStatus(status),
-      summary: `Phase 8 adapter review status is ${adapterReviewStatus}.`,
+      summary: `Dashboard controls adapter review status is ${adapterReviewStatus}.`,
     },
     {
-      id: 'phase-9-final-trigger-boundary',
+      id: 'checkpoint-9-final-trigger-boundary',
       kind: 'final-trigger-boundary',
       status: finalTrigger.triggerId && finalTrigger.ownerConfirmed && finalTrigger.phraseAccepted ? 'recorded' : 'requires-approval',
       summary: finalTrigger.phraseAccepted ? 'Final trigger phrase accepted.' : 'Final owner trigger is required.',
     },
     {
-      id: 'phase-9-rollback-drill-boundary',
+      id: 'checkpoint-9-rollback-drill-boundary',
       kind: 'rollback-drill-boundary',
       status: rollbackDrill.drillId && rollbackDrill.performed && rollbackDrill.successful ? 'recorded' : 'blocked',
       summary: rollbackDrill.successful ? 'Rollback drill succeeded.' : 'Rollback drill is required before apply.',
     },
     {
-      id: 'phase-9-execution-scope-boundary',
+      id: 'checkpoint-9-execution-scope-boundary',
       kind: 'execution-scope-boundary',
       status: authorizationPacket.executionAuthorized ? 'recorded' : receiptStatus(status),
       summary: authorizationPacket.executionAuthorized
@@ -329,13 +329,13 @@ function buildReceipts(
         : 'Execution authorization was not issued.',
     },
     {
-      id: 'phase-9-no-implicit-execution-boundary',
+      id: 'checkpoint-9-no-implicit-execution-boundary',
       kind: 'no-implicit-execution-boundary',
       status: 'recorded',
       summary: 'The apply gate produced authorization only; no live action was executed.',
     },
     {
-      id: 'phase-9-visual-change-boundary',
+      id: 'checkpoint-9-visual-change-boundary',
       kind: 'visual-change-boundary',
       status: 'recorded',
       summary: 'No dashboard visual mutation is performed by the apply gate.',
@@ -398,8 +398,8 @@ function narrativeForStatus(
   if (status === 'needs-adapter-review') {
     return {
       headline: 'Live canary apply gate needs adapter review.',
-      operatorSummary: 'Phase 8 adapter review is not recorded as adapter-reviewed.',
-      nextAction: 'Complete Phase 8 evidence, approval and adapter review first.',
+      operatorSummary: 'Dashboard controls adapter review is not recorded as adapter-reviewed.',
+      nextAction: 'Complete Dashboard controls evidence, approval and adapter review first.',
     };
   }
   return {

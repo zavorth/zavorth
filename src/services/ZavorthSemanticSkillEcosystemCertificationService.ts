@@ -145,7 +145,7 @@ export class ZavorthSemanticSkillEcosystemCertificationService {
         inspectJson: 'npm run semantic-skill-ecosystem-certification:json --silent',
         check: 'npm run semantic-skill-ecosystem-certification:check --silent',
         qa: 'npm run qa:semantic-skill-ecosystem-certification --silent',
-        nextPhase: 'S9 - Full Functional Closure Semantics',
+        nextStage: 'S9 - Full Functional Closure Semantics',
       },
     };
   }
@@ -172,7 +172,7 @@ export class ZavorthSemanticSkillEcosystemCertificationService {
       ...snapshot.claims.map((claim) =>
         `- ${claim.status} ${claim.priority} ${claim.id}: ${claim.expectedBehavior} -> ${claim.zavorthEquivalent}`,
       ),
-      `Next: ${snapshot.commands.nextPhase}`,
+      `Next: ${snapshot.commands.nextStage}`,
     ];
     return lines.join('\n');
   }

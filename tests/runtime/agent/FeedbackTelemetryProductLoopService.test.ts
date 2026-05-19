@@ -26,7 +26,7 @@ function createRun(metadata: Record<string, unknown> = {}) {
 
 function publicSync(status = 'synced-preview') {
   return {
-    contractVersion: '2026-05-04.wave-49',
+    contractVersion: '2026-05-04.docs-demo',
     source: 'PublicSiteDocsDemoSyncService',
     status,
     sync: {
@@ -56,7 +56,7 @@ function publicSync(status = 'synced-preview') {
 
 function feedbackTelemetry(status = 'ready') {
   return {
-    phase: '52',
+    stage: '52',
     surface: 'feedback-loop',
     generatedAt: '2026-05-04T03:50:00.000Z',
     status,
@@ -75,15 +75,15 @@ function feedbackTelemetry(status = 'ready') {
         evidence: ['product-feedback-ledger.json', 'feedback-preview-redacted.json', 'issue/report template'],
       },
     ],
-    nextRecommendedPhase: {
-      phase: 'complete',
+    nextRecommendedStage: {
+      stage: 'complete',
       title: 'Product feedback loop ready',
       reason: 'opt-in preview sem envio externo',
     },
   };
 }
 
-describe('FeedbackTelemetryProductLoopService Wave 50', () => {
+describe('FeedbackTelemetryProductLoopService Feedback Telemetry', () => {
   it('publishes an opt-in-only product loop without enabling telemetry or sending feedback', () => {
     const run = createRun({
       publicSiteDocsDemoSync: publicSync(),
@@ -150,7 +150,7 @@ describe('FeedbackTelemetryProductLoopService Wave 50', () => {
 
     expect(snapshot.status).toBe('needs-public-sync');
     expect(snapshot.readiness.publicSiteDocsDemoSyncLinked).toBe(false);
-    expect(snapshot.nextSafeAction).toContain('Wave 49');
+    expect(snapshot.nextSafeAction).toContain('Channel mesh9');
   });
 
   it('blocks when the underlying feedback telemetry contract is blocked', () => {

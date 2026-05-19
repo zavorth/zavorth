@@ -109,7 +109,7 @@ export class PublicDocsRecipesService {
 
   public renderReport(snapshot: PublicDocsRecipesSnapshot = this.buildSnapshot()): string {
     const lines: string[] = [];
-    lines.push('[public-docs-recipes] Fase 56 - Public Docs, Examples And Recipes Expansion');
+    lines.push('[public-docs-recipes] Readiness checkpoint 6 - Public Docs, Examples And Recipes Expansion');
     lines.push(`status: ${snapshot.status}`);
     lines.push(`ok: ${snapshot.summary.ok ? 'yes' : 'no'} | pass=${snapshot.summary.passed} warn=${snapshot.summary.warnings} fail=${snapshot.summary.failed}`);
     lines.push(`website: ${snapshot.websiteRoot}`);
@@ -124,7 +124,7 @@ export class PublicDocsRecipesService {
       }
     }
     lines.push('');
-    lines.push(`proxima fase recomendada: ${snapshot.nextRecommendedPhase.phase} - ${snapshot.nextRecommendedPhase.title}`);
+    lines.push(`proximo passo recomendada: ${snapshot.nextRecommendedPhase.phase} - ${snapshot.nextRecommendedPhase.title}`);
     lines.push(snapshot.nextRecommendedPhase.reason);
     return lines.join('\n');
   }
@@ -253,7 +253,7 @@ export class PublicDocsRecipesService {
   private checkTroubleshootingCoverage(): PublicDocsRecipesCheck {
     const source = [
       this.websiteDocsSource(),
-      this.readCoreText('docs/10-troubleshooting.md') || '',
+      this.readCoreText('docs/troubleshooting.md') || '',
     ].join('\n').toLowerCase();
     const missing = PUBLIC_DOCS_TROUBLESHOOTING.flatMap((item) => {
       const terms = [item.id, item.safeCommand, item.symptom.split(' ')[0]].map((term) => term.toLowerCase());
@@ -266,7 +266,7 @@ export class PublicDocsRecipesService {
       missing.length === 0
         ? 'troubleshooting cobre install, runtime, site e feedback com comandos seguros.'
         : 'troubleshooting publico precisa cobrir install, runtime, site e feedback.',
-      'docs/10-troubleshooting.md',
+      'docs/troubleshooting.md',
       missing,
     );
   }
@@ -301,7 +301,7 @@ export class PublicDocsRecipesService {
   private checkForbiddenClaims(): PublicDocsRecipesCheck {
     const source = [
       this.websiteDocsSource(),
-      this.readCoreText('docs/76-public-adoption-architecture.md') || '',
+      this.readCoreText('docs/product-direction.md') || '',
     ].join('\n');
     const forbiddenMatches = PUBLIC_DOCS_RECIPES_FORBIDDEN_CLAIMS.filter((claim) => source.toLowerCase().includes(String(claim).toLowerCase()));
     const tokenMatches = source.match(/(^|[^A-Za-z])sk-[A-Za-z0-9_-]{12,}/g) || [];
@@ -376,11 +376,11 @@ export class PublicDocsRecipesService {
 
   private checkDocsRunbook(): PublicDocsRecipesCheck {
     const source = [
-      this.readCoreText('docs/76-public-adoption-architecture.md') || '',
-      this.readCoreText('docs/11-roadmap.md') || '',
+      this.readCoreText('docs/product-direction.md') || '',
+      this.readCoreText('docs/product-direction.md') || '',
     ].join('\n').toLowerCase();
     const required = [
-      'fase 56',
+      'etapa 56',
       'public docs',
       'recipes',
       'pre-requisitos',
@@ -393,31 +393,31 @@ export class PublicDocsRecipesService {
     const missing = required.filter((term) => !source.includes(term));
     return this.check(
       'public-docs-recipes:docs-runbook',
-      'documentacao e runbook da Fase 56',
+      'documentacao e runbook da Readiness checkpoint 6',
       missing.length === 0 ? 'pass' : 'fail',
       missing.length === 0
-        ? 'docs explicam recipes, pre-requisitos, fixture mode, sem secrets, troubleshooting e gates da Fase 56.'
+        ? 'docs explicam recipes, pre-requisitos, fixture mode, sem secrets, troubleshooting e gates da Readiness checkpoint 6.'
         : 'docs precisam explicar como fechar e operar public docs recipes.',
-      'docs/76-public-adoption-architecture.md',
+      'docs/product-direction.md',
       missing.map((term) => `faltando: ${term}`),
     );
   }
 
   private checkNextPhasePlanning(): PublicDocsRecipesCheck {
     const source = [
-      this.readCoreText('docs/76-public-adoption-architecture.md') || '',
-      this.readCoreText('docs/11-roadmap.md') || '',
+      this.readCoreText('docs/product-direction.md') || '',
+      this.readCoreText('docs/product-direction.md') || '',
     ].join('\n');
-    const missing = ['Fase 57 - Feedback, Support And Pilot Loop', 'qa:phase:57']
+    const missing = ['Readiness checkpoint 7 - Feedback, Support And Pilot Loop', 'qa:phase:57']
       .filter((term) => !source.includes(term));
     return this.check(
       'public-docs-recipes:next-phase',
-      'recomendacao para Fase 57',
+      'recomendacao para Readiness checkpoint 7',
       missing.length === 0 ? 'pass' : 'fail',
       missing.length === 0
-        ? 'Fase 56 aponta explicitamente para feedback, support e pilot loop.'
-        : 'Fase 56 precisa deixar a Fase 57 como proxima acao.',
-      'docs/76-public-adoption-architecture.md',
+        ? 'Readiness checkpoint 6 aponta explicitamente para feedback, support e pilot loop.'
+        : 'Readiness checkpoint 6 precisa deixar a Readiness checkpoint 7 como proxima acao.',
+      'docs/product-direction.md',
       missing,
     );
   }

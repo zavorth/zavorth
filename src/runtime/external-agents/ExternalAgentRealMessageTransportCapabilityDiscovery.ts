@@ -209,7 +209,7 @@ export type ZavorthMessageTransportCapabilityDiscoveryNormalization = {
   capabilities: ZavorthExternalMessageTransportCapability[];
   rows: ZavorthMessageTransportDiscoveryRow[];
   feedsRehearsal: {
-    doc: 'docs/182-wave-2-message-send-live-rehearsal-transport-blocked.md';
+    doc: 'docs/message-send-live-rehearsal-transport-blocked.md';
     rehearsalDecision: ZavorthMessageSendLiveRehearsalTransportBlockedNormalization['decision'];
     transportLiveBlocked: true;
   };
@@ -448,7 +448,7 @@ export function normalizeMessageTransportCapabilityDiscovery<TRuntimeId extends 
     capabilities,
     rows,
     feedsRehearsal: {
-      doc: 'docs/182-wave-2-message-send-live-rehearsal-transport-blocked.md',
+      doc: 'docs/message-send-live-rehearsal-transport-blocked.md',
       rehearsalDecision: options.messageSendRehearsal.decision,
       transportLiveBlocked: true,
     },

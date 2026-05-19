@@ -31,7 +31,7 @@ async function main() {
     return;
   }
 
-  console.log('[zavorth-distributed-runtime] leitura consolidada da Wave 10');
+  console.log('[zavorth-distributed-runtime] leitura consolidada da Distributed runtime');
   console.log(`[zavorth-distributed-runtime] postura: ${snapshot.summary.posture}`);
   console.log(
     `[zavorth-distributed-runtime] implementation=${snapshot.summary.implementationReady ? 'ready' : 'pending'} | infra=${snapshot.summary.infrastructureState}${snapshot.summary.infrastructureOfflineReason ? ` | ${snapshot.summary.infrastructureOfflineReason}` : ''}`,

@@ -136,7 +136,7 @@ export class RuntimeIdleBudgetService {
 
   public renderReport(snapshot: RuntimeIdleBudgetSnapshot = this.buildSnapshot()): string {
     const lines: string[] = [];
-    lines.push('[idle-budget] Fase 45 - Runtime Performance And Idle Budget');
+    lines.push('[idle-budget] Etapa 45 - Runtime Performance And Idle Budget');
     lines.push(`status: ${snapshot.status}`);
     lines.push(`ok: ${snapshot.summary.ok ? 'yes' : 'no'} | pass=${snapshot.summary.passed} warn=${snapshot.summary.warnings} fail=${snapshot.summary.failed}`);
     lines.push('');
@@ -153,7 +153,7 @@ export class RuntimeIdleBudgetService {
       }
     }
     lines.push('');
-    lines.push(`proxima fase recomendada: ${snapshot.nextRecommendedPhase.phase} - ${snapshot.nextRecommendedPhase.title}`);
+    lines.push(`proximo passo recomendada: ${snapshot.nextRecommendedPhase.phase} - ${snapshot.nextRecommendedPhase.title}`);
     lines.push(snapshot.nextRecommendedPhase.reason);
     return lines.join('\n');
   }

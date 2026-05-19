@@ -249,7 +249,7 @@ describe('ZavorthProductizationContractService', () => {
         },
       },
       firstRunSnapshot: {
-        phase: '48',
+        stage: '48',
         surface: 'first-run-onboarding',
         generatedAt: '2026-05-03T19:40:00.000Z',
         status: 'ready',
@@ -266,14 +266,14 @@ describe('ZavorthProductizationContractService', () => {
         requiredArtifacts: ['fixture/zavorth-first-run-workspace'],
         screenshots: [],
         checks: [],
-        nextRecommendedPhase: {
-          phase: '49',
+        nextRecommendedStage: {
+          stage: '49',
           title: 'External Docs',
           reason: 'fixture',
         },
       },
       websiteSnapshot: {
-        phase: '46',
+        stage: '46',
         surface: 'website-public',
         generatedAt: '2026-05-03T19:40:00.000Z',
         status: 'ready',
@@ -306,8 +306,8 @@ describe('ZavorthProductizationContractService', () => {
             reason: 'sem claims proibidas',
           },
         ],
-        nextRecommendedPhase: {
-          phase: '47',
+        nextRecommendedStage: {
+          stage: '47',
           title: 'Public demo',
           reason: 'fixture',
         },

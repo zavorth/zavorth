@@ -160,11 +160,11 @@ environment quirks in `TOOLS.md`.
 
 When changing this repo, keep the canonical ownership map current:
 
-- Repository hygiene: `docs/64-repository-hygiene.md`, protected by `npm run ops:repo:doctor`
-- Surface pipelines: `docs/65-surface-pipelines.md`, protected by `npm run surfaces:check`
-- Architecture graph: `docs/66-architecture-hotspots.md`, protected by `npm run qa:architecture`
-- Surface composition roots: `docs/67-surface-composition-roots.md`, protected by `npm run test:telegram:smoke`
-- Hardening thresholds and alias policy: `docs/68-architecture-hardening.md`, protected by `npm run architecture:hardening`
+- Repository hygiene: `docs/product-direction.md`, protected by `npm run ops:repo:doctor`
+- Surface pipelines: `docs/product-direction.md`, protected by `npm run surfaces:check`
+- Architecture graph: `docs/product-direction.md`, protected by `npm run qa:architecture`
+- Surface composition roots: `docs/product-direction.md`, protected by `npm run test:telegram:smoke`
+- Hardening thresholds and alias policy: `docs/product-direction.md`, protected by `npm run architecture:hardening`
 
 Prefer canonical homes over compatibility aliases: domains live in
 `src/domain/<domain>`, large surface tests live in `tests/domain/surface`, and

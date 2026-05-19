@@ -1,4 +1,4 @@
-export const ZAVORTH_SOURCE_PROVIDER_MESH_EXPANSION_CONTRACT_VERSION = '2026-05-05.phase-3' as const;
+export const ZAVORTH_SOURCE_PROVIDER_MESH_EXPANSION_CONTRACT_VERSION = '2026-05-05.checkpoint-3' as const;
 
 export const SOURCE_PROVIDER_MESH_PACKAGES = [
   '@anthropic-ai/sdk',
@@ -165,6 +165,6 @@ export type SourceProviderMeshExpansionSnapshot = {
     check: 'npm run source-provider-mesh-expansion:check --silent';
     qa: 'npm run qa:source-provider-mesh-expansion --silent';
     liveSmoke: 'npm run source-provider-mesh-expansion -- --provider <provider> --confirm-live-io';
-    nextPhase: 'Phase 4 - Channel Mesh Expansion Pack';
+    nextStage: 'Connector registry - Channel Mesh Expansion Pack';
   };
 };

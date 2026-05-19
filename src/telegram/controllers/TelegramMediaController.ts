@@ -113,7 +113,7 @@ export class TelegramMediaController {
       fs.writeFileSync(filePath, buffer);
       const audioConfig = config.tools.media.audio;
 
-      // Phase 9: Injetar o Ã¡udio real como inlineData para processamento multimodal.
+      // Certification matrix: Injetar o Ã¡udio real como inlineData para processamento multimodal.
       // O Gemini poderÃ¡ "ouvir" entonaÃ§Ã£o, emoÃ§Ã£o e sons ambiente alÃ©m do texto.
       const audioInlineData: InlineData = [{
         mimeType: file.mime_type || 'audio/ogg',

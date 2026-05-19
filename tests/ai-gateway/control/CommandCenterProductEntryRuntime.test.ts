@@ -66,7 +66,7 @@ function productEntryRuntime() {
   });
 }
 
-describe('Command Center Product Entry Runtime Wave 47', () => {
+describe('Command Center Product Entry Runtime Channel mesh7', () => {
   it('projects productEntryRuntime metadata into the dashboard view model', () => {
     const run = new AgentRunService({
       now: () => new Date('2026-05-04T02:47:00.000Z'),
@@ -82,7 +82,7 @@ describe('Command Center Product Entry Runtime Wave 47', () => {
       metadata: {
         productizationContract: {
           source: 'ZavorthProductizationContractService',
-          phase: 'C9',
+          stage: 'C9',
           status: 'ready',
           control: { ready: true },
           cli: { ready: true },
@@ -111,7 +111,7 @@ describe('Command Center Product Entry Runtime Wave 47', () => {
     });
 
     expect(viewModel.productEntryRuntime).toEqual(expect.objectContaining({
-      contractVersion: '2026-05-04.wave-47',
+      contractVersion: '2026-05-04.product-entry',
       status: 'handoff_to_agent_runtime',
       firstRun: expect.objectContaining({
         profileConfigured: true,
@@ -151,7 +151,7 @@ describe('Command Center Product Entry Runtime Wave 47', () => {
       metadata: {
         productizationContract: {
           source: 'ZavorthProductizationContractService',
-          phase: 'C9',
+          stage: 'C9',
           status: 'ready',
           control: { ready: true },
           cli: { ready: true },
@@ -171,7 +171,7 @@ describe('Command Center Product Entry Runtime Wave 47', () => {
     );
 
     expect(projection.productEntryRuntime).toEqual(expect.objectContaining({
-      contractVersion: '2026-05-04.wave-47',
+      contractVersion: '2026-05-04.product-entry',
       status: 'handoff_to_agent_runtime',
       entry: expect.objectContaining({
         handoffAllowed: true,

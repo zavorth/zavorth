@@ -1,12 +1,12 @@
 import { ZavorthDashboardFinalProductPolishService } from '../../src/services/ZavorthDashboardFinalProductPolishService.js';
 
-describe('ZavorthDashboardFinalProductPolishService Phase 11', () => {
+describe('ZavorthDashboardFinalProductPolishService Intent model1', () => {
   it('certifies the /dashboard daily-use surface as simple, traceable and display-only', () => {
     const snapshot = new ZavorthDashboardFinalProductPolishService({
       now: () => new Date('2026-05-14T15:00:00.000Z'),
     }).buildSnapshot();
 
-    expect(snapshot.contractVersion).toBe('2026-05-14.phase-11-dashboard-final-product-polish');
+    expect(snapshot.contractVersion).toBe('2026-05-14.checkpoint-11-dashboard-final-product-polish');
     expect(snapshot.status).toBe('passed');
     expect(snapshot.summary.dashboardPath).toBe('/dashboard');
     expect(snapshot.summary.chatFirstHome).toBe(true);

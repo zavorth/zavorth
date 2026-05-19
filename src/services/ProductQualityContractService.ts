@@ -115,7 +115,7 @@ export class ProductQualityContractService {
 
   public renderReport(snapshot: ProductQualityContractSnapshot = this.buildSnapshot()): string {
     const lines: string[] = [];
-    lines.push('[product-quality] Fase 39 - Product Quality Contract');
+    lines.push('[product-quality] Etapa 39 - Product Quality Contract');
     lines.push(`status: ${snapshot.status}`);
     lines.push(`ok: ${snapshot.summary.ok ? 'yes' : 'no'} | pass=${snapshot.summary.passed} warn=${snapshot.summary.warnings} fail=${snapshot.summary.failed}`);
     lines.push(`jornada: ${snapshot.officialJourney.join(' -> ')}`);
@@ -129,7 +129,7 @@ export class ProductQualityContractService {
       }
     }
     lines.push('');
-    lines.push(`proxima fase recomendada: ${snapshot.nextRecommendedPhase.phase} - ${snapshot.nextRecommendedPhase.title}`);
+    lines.push(`proximo passo recomendada: ${snapshot.nextRecommendedPhase.phase} - ${snapshot.nextRecommendedPhase.title}`);
     lines.push(snapshot.nextRecommendedPhase.reason);
     return lines.join('\n');
   }
@@ -269,7 +269,7 @@ export class ProductQualityContractService {
   }
 
   private checkHumanJsonContractDoc(): ProductQualityCheck {
-    const cliDoc = this.readText('docs/34-zavorth-cli.md') || '';
+    const cliDoc = this.readText('docs/zavorth-cli.md') || '';
     const hasHuman = cliDoc.includes('Sem `--json`, a CLI deve ser produto');
     const hasMachine = cliDoc.includes('Com `--json`, a CLI deve ser previsivel para automacao');
     const hasCleanJsonRule = cliDoc.includes('Regra: humano bonito; JSON limpo.');
@@ -279,9 +279,9 @@ export class ProductQualityContractService {
       'contrato humano vs JSON',
       ok ? 'pass' : 'fail',
       ok
-        ? 'docs/34 declara separacao entre UX humana e JSON parseavel.'
-        : 'docs/34 precisa declarar explicitamente a separacao entre humano e JSON.',
-      'docs/34-zavorth-cli.md',
+        ? 'docs/product-direction declara separacao entre UX humana e JSON parseavel.'
+        : 'docs/product-direction precisa declarar explicitamente a separacao entre humano e JSON.',
+      'docs/zavorth-cli.md',
       [
         `human=${hasHuman}`,
         `machine=${hasMachine}`,

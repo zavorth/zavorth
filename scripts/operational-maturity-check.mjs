@@ -7,7 +7,7 @@ const root = process.cwd();
 const matrixPath = path.join(root, 'config', 'operational-maturity.json');
 const packagePath = path.join(root, 'package.json');
 const docsToCheck = [
-  'docs/03-architecture.md',
+  'docs/architecture.md',
 ];
 const allowedCliCommands = new Set([
   'ai-first',
@@ -164,23 +164,23 @@ function main() {
     }
   }
 
-  const architectureDoc = fs.readFileSync(path.join(root, 'docs', '03-architecture.md'), 'utf8');
+  const architectureDoc = fs.readFileSync(path.join(root, 'docs', 'architecture.md'), 'utf8');
   for (const capability of matrix.capabilities || []) {
     if (!architectureDoc.includes(`\`${capability.id}\``)) {
-      issues.push(`docs/03-architecture.md nao referencia capability canonica ${capability.id}`);
+      issues.push(`docs/architecture.md nao referencia capability canonica ${capability.id}`);
     }
   }
   if (!architectureDoc.includes('Nexus nao e runtime paralelo')) {
-    issues.push('docs/03-architecture.md precisa declarar que Nexus nao e runtime paralelo');
+    issues.push('docs/architecture.md precisa declarar que Nexus nao e runtime paralelo');
   }
   if (!architectureDoc.includes('Intelligence Fabric')) {
-    issues.push('docs/03-architecture.md precisa apontar o cerebro real para o Intelligence Fabric');
+    issues.push('docs/architecture.md precisa apontar o cerebro real para o Intelligence Fabric');
   }
   if (architectureDoc.toLowerCase().includes('nexus e o cerebro')) {
-    issues.push('docs/03-architecture.md contem claim proibido: Nexus e o cerebro');
+    issues.push('docs/architecture.md contem claim proibido: Nexus e o cerebro');
   }
   if (architectureDoc.toLowerCase().includes('echo e o cerebro principal')) {
-    issues.push('docs/03-architecture.md contem claim proibido: Echo e o cerebro principal');
+    issues.push('docs/architecture.md contem claim proibido: Echo e o cerebro principal');
   }
 
   const serviceSource = fs.readFileSync(

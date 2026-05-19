@@ -28,7 +28,7 @@ function createSensitiveRun() {
   });
 }
 
-describe('ToolRehearsalService Wave 36', () => {
+describe('ToolRehearsalService Tool Rehearsal', () => {
   it('builds a no-effect rehearsal proposal inside an approved scope', () => {
     const run = createSensitiveRun();
     const negotiation = run.metadata.capabilityNegotiation as any;

@@ -19,7 +19,7 @@ export type CloudflaredTunnelStatus = {
   publicUrl: string | null;
   apiUrl: string | null;
   targetUrl: string;
-  phase: CloudflaredTunnelPhase;
+  stage: CloudflaredTunnelPhase;
   lastError: string | null;
   logPath: string;
 };

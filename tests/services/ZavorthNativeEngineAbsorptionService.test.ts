@@ -3,16 +3,16 @@ import {
 } from '../../src/contracts/ZavorthNativeEngineAbsorptionContract.js';
 import { ZavorthNativeEngineAbsorptionService } from '../../src/services/ZavorthNativeEngineAbsorptionService.js';
 
-describe('ZavorthNativeEngineAbsorptionService Phase 2', () => {
-  it('publishes the native engine absorption snapshot after Phase 1 readiness', () => {
+describe('ZavorthNativeEngineAbsorptionService Preview engine', () => {
+  it('publishes the native engine absorption snapshot after Intent model readiness', () => {
     const snapshot = createService().buildSnapshot();
 
     expect(snapshot).toEqual(expect.objectContaining({
       generatedAt: '2026-05-11T20:15:00.000Z',
       contractVersion: ZAVORTH_NATIVE_ENGINE_ABSORPTION_CONTRACT_VERSION,
       status: 'native-engine-ready',
-      planId: '291 - Plano Zavorth External Runtime Absorption',
-      phase: 'phase-2-native-engine-absorption',
+      planId: 'Zavorth External Runtime Integration',
+      stage: 'native-engine-absorption',
       previousContractLayerStatus: 'contract-layer-ready',
     }));
     expect(snapshot.summary).toEqual(expect.objectContaining({
@@ -24,7 +24,7 @@ describe('ZavorthNativeEngineAbsorptionService Phase 2', () => {
       memoryWritesPerformed: false,
       skillMutationsPerformed: false,
     }));
-    expect(snapshot.commands.nextPhase).toBe('291 Phase 3 - Sidecar Adapter');
+    expect(snapshot.commands.nextStage).toBe('291 Approval gate - Sidecar Adapter');
   });
 
   it('defines the five native Zavorth engine features without source runtime dependency', () => {
@@ -175,12 +175,12 @@ describe('ZavorthNativeEngineAbsorptionService Phase 2', () => {
     }));
   });
 
-  it('blocks Phase 2 if Phase 1 contract layer is not ready', () => {
+  it('blocks Preview engine if Intent model contract layer is not ready', () => {
     const snapshot = createService().buildSnapshot({ contractLayerStatus: 'blocked' });
 
     expect(snapshot.status).toBe('blocked');
     expect(snapshot.previousContractLayerStatus).toBe('blocked');
-    expect(snapshot.acceptanceMatrix.find((entry) => entry.requirementId === 'phase-1-contract-layer-ready')).toEqual(expect.objectContaining({
+    expect(snapshot.acceptanceMatrix.find((entry) => entry.requirementId === 'contract-layer-ready')).toEqual(expect.objectContaining({
       status: 'failed',
     }));
   });
@@ -189,11 +189,11 @@ describe('ZavorthNativeEngineAbsorptionService Phase 2', () => {
     const service = createService();
     const text = service.formatSnapshotText(service.buildSnapshot());
 
-    expect(text).toContain('Zavorth Native Engine Absorption - Phase 2');
+    expect(text).toContain('Zavorth Native Engine Absorption - Preview engine');
     expect(text).toContain('Status: native-engine-ready');
     expect(text).toContain('Features: 5');
     expect(text).toContain('Tool execution performed: false');
-    expect(text).toContain('Next: 291 Phase 3 - Sidecar Adapter');
+    expect(text).toContain('Next: 291 Approval gate - Sidecar Adapter');
   });
 });
 

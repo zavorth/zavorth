@@ -643,8 +643,8 @@ export const BUILTIN_CAPABILITIES: CapabilityDefinition[] = [
   },
 
   // =========================================================================
-  // Zavorth-Native Capabilities (Wave 1+)
-  // Ref: docs/327-zavorth-native-absorption-execution-plan.md
+  // Zavorth-Native Capabilities (Track 1+)
+  // Ref: docs/product-direction.md
   // =========================================================================
 
   {

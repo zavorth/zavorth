@@ -88,7 +88,7 @@ export class AgentRunPolicyKernel {
 
   private appendReceipt(
     run: UniversalAgentRun,
-    stage: string,
+    phase: string,
     decision: string,
     metadata: Record<string, unknown> = {},
   ): void {
@@ -104,11 +104,11 @@ export class AgentRunPolicyKernel {
       policyKernel: {
         source: 'AgentRunPolicyKernel',
         phase: 6,
-        lastStage: stage,
+        lastStage: phase,
         receipts: [
           ...receipts,
           {
-            stage,
+            phase,
             decision,
             emittedAt: this.now().toISOString(),
             ...metadata,

@@ -344,7 +344,7 @@ export class ZavorthGatewayAgentHandoffAdapterService {
           'Control websocket event stream',
         ],
         integrationContract: 'ZavorthGatewayRuntimeSnapshot.sessionBus + GatewayCanonicalStatePayload',
-        compatibilityBoundary: 'Do not move ingress/reply/context ownership in Wave 5.',
+        compatibilityBoundary: 'Do not move ingress/reply/context ownership in Track 5.',
         nextIntegrationSteps: [
           'During the agent loop refactor, map session ownership to ZavorthAgentGateway before moving reply routing.',
         ],
@@ -451,7 +451,7 @@ export class ZavorthGatewayAgentHandoffAdapterService {
         owner: 'agent-loop',
         description: 'Deep ZavorthAgentGateway fusion is intentionally deferred to the larger agent loop architecture plan.',
         evidence: [
-          'zavorth_defork_plan.md Wave 5 forbids refactoring ingress/reply/context in this wave.',
+          'zavorth_native-hygiene_plan.md Track 5 forbids refactoring ingress/reply/context in this wave.',
         ],
       },
       {

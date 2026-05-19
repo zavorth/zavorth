@@ -260,10 +260,10 @@ export function collectWorkflowOverviews(runs: WorkflowRunSnapshot[]): WorkflowO
       const lastInterrupted = recentCheckpoints.find((checkpoint) => String(checkpoint?.event || '').trim() === 'stage_interrupted') || null;
       const lastInterruptedStageId = String(lastInterrupted?.resume_stage_id || '').trim() || null;
       const lastInterruptedStageLabel = lastInterruptedStageId
-        ? (run.stages.find((stage) => stage.id === lastInterruptedStageId)?.label || null)
+        ? (run.phases.find((phase) => phase.id === lastInterruptedStageId)?.label || null)
         : null;
       const recoveredFromInterruption = run.status === 'completed'
-        && Boolean(lastInterrupted || run.stages.some((stage) => Number(stage.attempt_count || 0) > 1));
+        && Boolean(lastInterrupted || run.phases.some((phase) => Number(phase.attempt_count || 0) > 1));
 
       return {
         workflow_run_id: run.workflow_run_id,
@@ -271,8 +271,8 @@ export function collectWorkflowOverviews(runs: WorkflowRunSnapshot[]): WorkflowO
         status: run.status,
         operator_state: (run.operator_state === 'closed' ? 'closed' : 'active') as 'active' | 'closed',
         operator_close_reason: String(run.operator_close_reason || '').trim() || null,
-        completed_stages: run.stages.filter((stage) => stage.status === 'completed').length,
-        total_stages: run.stages.length,
+        completed_stages: run.phases.filter((phase) => phase.status === 'completed').length,
+        total_stages: run.phases.length,
         resume_stage_id: run.resume_stage?.id || null,
         resume_stage_label: run.resume_stage?.label || null,
         recovered_from_interruption: recoveredFromInterruption,

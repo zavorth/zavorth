@@ -13,7 +13,7 @@ if (!options.text) {
   if (options.json) {
     console.log(JSON.stringify(snapshot, null, 2));
   } else {
-    console.log('[transaction-preview] Phase 2 transaction preview');
+    console.log('[transaction-preview] Preview engine transaction preview');
     console.log(`[transaction-preview] version: ${snapshot.version}`);
     console.log(`[transaction-preview] summary: ${snapshot.summary}`);
     console.log(`[transaction-preview] statuses: ${snapshot.statuses.join(', ')}`);

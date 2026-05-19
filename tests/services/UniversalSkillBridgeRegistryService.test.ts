@@ -59,7 +59,7 @@ function entry(overrides: Partial<SkillCatalogEntry>): SkillCatalogEntry {
   };
 }
 
-describe('UniversalSkillBridgeRegistryService Phase 4', () => {
+describe('UniversalSkillBridgeRegistryService Connector registry', () => {
   it('projects imported skills into bridge-ready catalog actions without executing them', async () => {
     const invoke = jest.fn();
     const service = new UniversalSkillBridgeRegistryService({
@@ -115,7 +115,7 @@ describe('UniversalSkillBridgeRegistryService Phase 4', () => {
     expect(invoke).not.toHaveBeenCalled();
   });
 
-  it('invokes the governed Phase 3 bridge only when explicitly requested', async () => {
+  it('invokes the governed Approval gate bridge only when explicitly requested', async () => {
     const invoke = jest.fn(async () => ({
       status: 'dry-run',
       promptEnvelope: { text: '<untrusted_skill_content>safe</untrusted_skill_content>' },

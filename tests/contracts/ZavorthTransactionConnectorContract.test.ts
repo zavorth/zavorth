@@ -21,7 +21,7 @@ describe('ZavorthTransactionConnectorContract', () => {
     },
   ];
 
-  it('publishes the Phase 4 typed connector contract', () => {
+  it('publishes the Connector registry typed connector contract', () => {
     const snapshot = buildZavorthTransactionConnectorContractSnapshot(connectors);
 
     expect(snapshot.version).toBe(ZAVORTH_TRANSACTION_CONNECTOR_CONTRACT_VERSION);
@@ -38,9 +38,9 @@ describe('ZavorthTransactionConnectorContract', () => {
 
     expect(snapshot.invariants).toEqual(
       expect.arrayContaining([
-        'Phase 4 connectors can validate and simulate payloads, but cannot execute live effects.',
+        'Connector registry connectors can validate and simulate payloads, but cannot execute live effects.',
         'All connector run results report externalSideEffects=false.',
-        'supportsLive remains false for every Phase 4 connector.',
+        'supportsLive remains false for every Connector registry connector.',
       ]),
     );
   });

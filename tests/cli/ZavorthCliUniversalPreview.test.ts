@@ -46,7 +46,7 @@ describe('Zavorth CLI Universal Preview Mode', () => {
     }));
     const payload = JSON.parse(writes[0] || '{}');
     expect(payload).toEqual(expect.objectContaining({
-      contractVersion: '2026-05-03.wave-30',
+      contractVersion: '2026-05-03.universal-preview',
       mode: 'preview-only',
       safety: expect.objectContaining({
         noExecutionPerformed: true,
@@ -65,7 +65,7 @@ describe('Zavorth CLI Universal Preview Mode', () => {
 
     const text = formatUniversalPreviewModeSnapshot(snapshot);
 
-    expect(text).toContain('Universal Preview Mode - Wave 30');
+    expect(text).toContain('Universal Preview Mode - Universal Preview');
     expect(text).toContain('chamadas reais: 0');
     expect(text).toContain('Command Center: /control?sector=overview');
   });

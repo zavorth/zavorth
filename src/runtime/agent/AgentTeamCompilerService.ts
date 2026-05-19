@@ -8,7 +8,7 @@ import {
 } from './subagents/index.js';
 import type { UniversalAgentRun } from './UniversalAgentRuntimeTypes.js';
 
-export const AGENT_TEAM_COMPILER_CONTRACT_VERSION = '2026-05-03.wave-40' as const;
+export const AGENT_TEAM_COMPILER_CONTRACT_VERSION = '2026-05-03.track-40' as const;
 
 export type AgentTeamCompilerStatus = 'not-needed' | 'compiled' | 'waiting-approval' | 'blocked';
 

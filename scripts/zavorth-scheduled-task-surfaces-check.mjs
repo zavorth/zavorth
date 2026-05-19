@@ -22,7 +22,7 @@ const snapshot = {
 if (asJson) {
   console.log(JSON.stringify(snapshot, null, 2));
 } else {
-  console.log('[zavorth-scheduled-task-surfaces] checking Phase 4');
+  console.log('[zavorth-scheduled-task-surfaces] checking Connector registry');
   printRules(rules, '[zavorth-scheduled-task-surfaces]');
 }
 if (failed.length > 0) process.exitCode = 1;
@@ -35,13 +35,13 @@ function ruleFilesExist() {
     'docs/README.md',
   ];
   const missing = files.filter((file) => !fs.existsSync(path.join(root, file)));
-  return rule('scheduled-task-surface-files', 'Phase 4 files exist', missing.length === 0, `${files.length - missing.length}/${files.length}`, 'contract, service, tests and docs are present', missing);
+  return rule('scheduled-task-surface-files', 'Connector registry files exist', missing.length === 0, `${files.length - missing.length}/${files.length}`, 'contract, service, tests and docs are present', missing);
 }
 
 function ruleMarkers() {
   const checks = [
     ['src/contracts/ZavorthScheduledTaskSurfaceContract.ts', ['ZAVORTH_SCHEDULED_TASK_SURFACE_CONTRACT_VERSION', 'noLegacyDirectSchedulerMutation', '/unschedule <id>']],
-    ['src/services/ZavorthScheduledTaskSurfaceService.ts', ['ZavorthScheduledTaskPersistenceService', 'phase-4-governed-scheduled-task-surfaces', 'approvalEnvelopeRequiredForMutation']],
+    ['src/services/ZavorthScheduledTaskSurfaceService.ts', ['ZavorthScheduledTaskPersistenceService', 'checkpoint-4-governed-scheduled-task-surfaces', 'approvalEnvelopeRequiredForMutation']],
     ['src/services/ZavorthAutomationActionService.ts', ['ZavorthScheduledTaskSurfaceService', 'Persistencia: ZavorthScheduledTaskPersistenceService']],
     ['src/telegram/controllers/TelegramSchedulerController.ts', ['ZavorthScheduledTaskSurfaceService', 'Agendamento governado criado', 'Relatorio governado agendado']],
     ['src/domain/surface/application/shared-surface/SharedSurfaceOperationsCommandPack.ts', ["case '/schedule'", "case '/unschedule'", 'handleSchedule', 'handleReport']],
@@ -56,7 +56,7 @@ function ruleMarkers() {
       if (!text.includes(needle)) missing.push(`${file}: missing ${needle}`);
     }
   }
-  return rule('scheduled-task-surface-markers', 'Phase 4 markers are wired', missing.length === 0, missing.length === 0 ? 'all markers' : `${missing.length} missing`, 'surface, Telegram, shared command and SDK markers exist', missing);
+  return rule('scheduled-task-surface-markers', 'Connector registry markers are wired', missing.length === 0, missing.length === 0 ? 'all markers' : `${missing.length} missing`, 'surface, Telegram, shared command and SDK markers exist', missing);
 }
 
 function ruleTelegramNoDirectSchedulerMutation() {
@@ -79,7 +79,7 @@ function ruleSharedSurfaceWiring() {
 function ruleWorkspaceCheck() {
   const text = read('package.json');
   const marker = 'node scripts/zavorth-scheduled-task-surfaces-check.mjs';
-  return rule('workspace-check-wire', 'workspace:check includes Phase 4 scheduled surfaces gate', text.includes(marker), text.includes(marker) ? 'wired' : 'missing', marker, []);
+  return rule('workspace-check-wire', 'workspace:check includes Connector registry scheduled surfaces gate', text.includes(marker), text.includes(marker) ? 'wired' : 'missing', marker, []);
 }
 
 function ruleNoPublicExternalNames() {
@@ -100,7 +100,7 @@ function ruleNoPublicExternalNames() {
       if (text.includes(word)) hits.push(`${file}: ${word}`);
     }
   }
-  return rule('no-public-external-names', 'Phase 4 public core remains neutral', hits.length === 0, hits.length === 0 ? 'neutral' : `${hits.length} hit(s)`, 'no external product names in public core files', hits);
+  return rule('no-public-external-names', 'Connector registry public core remains neutral', hits.length === 0, hits.length === 0 ? 'neutral' : `${hits.length} hit(s)`, 'no external product names in public core files', hits);
 }
 
 function read(file) {

@@ -4,7 +4,7 @@ import type {
   ZavorthPluginPermission,
 } from './PluginManifestContract.js';
 
-export const ZAVORTH_CAPABILITY_NORMALIZATION_CONTRACT_VERSION = '2026-05-04.phase-3';
+export const ZAVORTH_CAPABILITY_NORMALIZATION_CONTRACT_VERSION = '2026-05-04.checkpoint-3';
 
 export type CapabilityNormalizationFamily =
   | 'agent'

@@ -98,7 +98,7 @@ export class CapabilityAutopilotRepairPlannerService {
       fallbackOptions: draft.fallbackOptions,
       resumeIntent: context.resumeIntent || null,
       metadata: {
-        phase: 'capability-autopilot-phase-4',
+        phase: 'capability-autopilot-checkpoint-4',
         readOnly: true,
         failureKind: diagnosis.failureKind,
         readinessStatus: readiness?.status || diagnosis.status,
@@ -329,7 +329,7 @@ export class CapabilityAutopilotRepairPlannerService {
           'manual-repair',
           'manual',
           'Reparo manual supervisionado',
-          'Sem receita automatica segura nesta fase.',
+          'Sem receita automatica segura nesta etapa.',
           permissionIds,
           'Operador decide proximo caminho.',
         ));

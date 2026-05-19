@@ -50,7 +50,7 @@ describe('CommandCenterFixtureScreenPolish', () => {
     expect(doctor.health.checks.length).toBeGreaterThan(1);
   });
 
-  it('ships the Phase 8 visual classes without importing fake dashboard metrics', () => {
+  it('ships the Dashboard controls visual classes without importing fake dashboard metrics', () => {
     const css = readFileSync(
       join(commandCenterDir, 'styles/commandCenter.css'),
       'utf8',
@@ -78,7 +78,7 @@ describe('CommandCenterFixtureScreenPolish', () => {
 
   it('documents fixture-by-fixture polish over the official runtime contract', () => {
     const docs = readFileSync(
-      join(process.cwd(), 'docs/104-command-center-fixture-screen-polish.md'),
+      join(process.cwd(), 'docs/product-direction.md'),
       'utf8',
     );
 

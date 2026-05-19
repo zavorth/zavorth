@@ -4,7 +4,7 @@ import type {
 } from './ZavorthUniversalSkillBridgeRegistryContract.js';
 
 export const ZAVORTH_UNIVERSAL_SKILL_BRIDGE_ACTIVATION_CONTRACT_VERSION =
-  '2026-05-10.phase-5' as const;
+  '2026-05-10.checkpoint-5' as const;
 
 export type ZavorthUniversalSkillBridgeActivationAction =
   | 'help'
@@ -64,6 +64,6 @@ export type ZavorthUniversalSkillBridgeActivationSnapshot = {
     live: '/skills live <skill> --approval-id <approval-id>';
     origin: '/skills origin <skill>';
     check: 'npm run zavorth:universal-skill-bridge-activation:check --silent';
-    nextPhase: 'Phase 6 - Trust-Governed Skill Expansion at Scale';
+    nextStage: 'Runtime gateway - Trust-Governed Skill Expansion at Scale';
   };
 };

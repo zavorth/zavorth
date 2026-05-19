@@ -345,6 +345,209 @@ button .material-symbols-outlined,
   background: var(--color-traffic-green);
 }
 
+/* ══════════════════════════════════════════════════════════
+   Neural Expressive — Dark Premium Design System
+   Inspired by Google I/O 2026 Neural Expressive language.
+   Applied exclusively on /dashboard/expressive routes.
+   ══════════════════════════════════════════════════════════ */
+
+/* Neon accent palette */
+:root {
+  --neon-cyan: #00E5FF;
+  --neon-emerald: #10B981;
+  --neon-teal: #14B8A6;
+  --neon-violet: #8B5CF6;
+  --expressive-bg: #000000;
+  --expressive-bg-elevated: #050505;
+  --expressive-surface: rgba(10, 10, 10, 0.45);
+  --expressive-border: rgba(255, 255, 255, 0.05);
+  --expressive-border-hover: rgba(255, 255, 255, 0.12);
+  --expressive-text: #E8E8F0;
+  --expressive-text-muted: #71717A;
+}
+
+/* Canvas: the pitch-black background for the expressive route */
+.expressive-canvas {
+  background: var(--expressive-bg);
+  color: var(--expressive-text);
+  min-height: 100dvh;
+  position: relative;
+  overflow: hidden;
+}
+
+/* Ambient glow orbs behind content */
+.expressive-canvas::before,
+.expressive-canvas::after {
+  content: "";
+  position: absolute;
+  border-radius: 50%;
+  pointer-events: none;
+  filter: blur(120px);
+  opacity: 0.18;
+  z-index: 0;
+}
+
+.expressive-canvas::before {
+  width: 500px;
+  height: 500px;
+  top: -120px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: radial-gradient(circle, var(--neon-cyan) 0%, transparent 70%);
+  animation: expressive-glow-drift 20s ease-in-out infinite alternate;
+}
+
+.expressive-canvas::after {
+  width: 400px;
+  height: 400px;
+  bottom: -80px;
+  right: -60px;
+  background: radial-gradient(circle, var(--neon-emerald) 0%, transparent 70%);
+  animation: expressive-glow-drift 25s ease-in-out infinite alternate-reverse;
+}
+
+/* Glassmorphic panel */
+.glass-panel {
+  background: var(--expressive-surface);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid var(--expressive-border);
+  border-radius: 1.25rem;
+  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.5);
+}
+
+.glass-panel-sm {
+  background: var(--expressive-surface);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid var(--expressive-border);
+  border-radius: 0.875rem;
+}
+
+/* Animated gradient border (for prompt bar during thinking/streaming) */
+.gradient-border-animated {
+  position: relative;
+}
+
+.gradient-border-animated::before {
+  content: "";
+  position: absolute;
+  inset: -1px;
+  border-radius: inherit;
+  padding: 1px;
+  background: linear-gradient(
+    90deg,
+    var(--neon-cyan),
+    var(--neon-emerald),
+    var(--neon-teal),
+    var(--neon-cyan)
+  );
+  background-size: 300% 100%;
+  animation: gradient-flow 3s linear infinite;
+  -webkit-mask:
+    linear-gradient(#fff 0 0) content-box,
+    linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  pointer-events: none;
+  z-index: 1;
+}
+
+/* Neon glow on hover */
+.neon-glow-cyan {
+  filter: drop-shadow(0 0 8px rgba(0, 229, 255, 0.3));
+  transition: filter 0.3s ease;
+}
+
+.neon-glow-cyan:hover {
+  filter: drop-shadow(0 0 14px rgba(0, 229, 255, 0.55));
+}
+
+.neon-glow-emerald {
+  filter: drop-shadow(0 0 8px rgba(16, 185, 129, 0.3));
+  transition: filter 0.3s ease;
+}
+
+/* Keyframes */
+@keyframes expressive-glow-drift {
+  0% {
+    transform: translateX(-50%) translateY(0);
+    opacity: 0.14;
+  }
+  100% {
+    transform: translateX(-45%) translateY(20px);
+    opacity: 0.22;
+  }
+}
+
+@keyframes gradient-flow {
+  0% {
+    background-position: 0% 50%;
+  }
+  100% {
+    background-position: 300% 50%;
+  }
+}
+
+@keyframes expressive-ripple {
+  0% {
+    transform: scale(0.8);
+    opacity: 0.6;
+  }
+  100% {
+    transform: scale(2.2);
+    opacity: 0;
+  }
+}
+
+@keyframes expressive-orbit {
+  0% {
+    transform: rotate(0deg) translateX(32px) rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg) translateX(32px) rotate(-360deg);
+  }
+}
+
+@keyframes expressive-float {
+  0%, 100% {
+    transform: translateY(0) translateX(0);
+    opacity: 0.3;
+  }
+  50% {
+    transform: translateY(-8px) translateX(4px);
+    opacity: 0.6;
+  }
+}
+
+@keyframes streaming-dots {
+  0%, 80%, 100% {
+    transform: scale(0.6);
+    opacity: 0.3;
+  }
+  40% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+.streaming-dot {
+  display: inline-block;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--neon-cyan);
+  animation: streaming-dots 1.4s ease-in-out infinite;
+}
+
+.streaming-dot:nth-child(2) {
+  animation-delay: 0.16s;
+}
+
+.streaming-dot:nth-child(3) {
+  animation-delay: 0.32s;
+}
+
 /* ── Mobile Layout Fixes (Issue #659) ── */
 @media (max-width: 768px) {
   .ant-table-wrapper {

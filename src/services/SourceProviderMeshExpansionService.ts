@@ -176,7 +176,7 @@ const ADAPTERS: AdapterDescriptor[] = [
     },
     packages: ['proxy-agent', 'https-proxy-agent', 'undici'],
     ownerGated: false,
-    notes: ['Proxy support is policy metadata for provider routes; no network call is performed by the Phase 3 check.'],
+    notes: ['Proxy support is policy metadata for provider routes; no network call is performed by the Approval gate check.'],
   },
   {
     providerId: 'local-openai-compatible',
@@ -277,14 +277,14 @@ export class SourceProviderMeshExpansionService {
         check: 'npm run source-provider-mesh-expansion:check --silent',
         qa: 'npm run qa:source-provider-mesh-expansion --silent',
         liveSmoke: 'npm run source-provider-mesh-expansion -- --provider <provider> --confirm-live-io',
-        nextPhase: 'Phase 4 - Channel Mesh Expansion Pack',
+        nextStage: 'Connector registry - Channel Mesh Expansion Pack',
       },
     };
   }
 
   public formatSnapshotText(snapshot = this.buildSnapshot()): string {
     const lines = [
-      'Zavorth Source Provider Mesh Expansion - Phase 3',
+      'Zavorth Source Provider Mesh Expansion - Approval gate',
       `Status: ${snapshot.status}`,
       `Contract: ${snapshot.contractVersion}`,
       `Provider packages tracked: ${snapshot.summary.packagesTracked}`,
@@ -304,7 +304,7 @@ export class SourceProviderMeshExpansionService {
     }
 
     lines.push(`Local models: ${snapshot.localModelPolicy.recommendation}`);
-    lines.push(`Next: ${snapshot.commands.nextPhase}`);
+    lines.push(`Next: ${snapshot.commands.nextStage}`);
     return lines.join('\n');
   }
 

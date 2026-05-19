@@ -10,7 +10,7 @@ import { ZavorthTransactionRuntimeOrchestratorService } from '../../src/services
 import { ZavorthTransactionSurfaceGatewayService } from '../../src/services/ZavorthTransactionSurfaceGatewayService.js';
 
 const now = new Date('2026-05-11T12:00:00.000Z');
-const signingKey = 'phase7-test-signing-key-000000000000000000000000000000';
+const signingKey = 'surface-controls-test-signing-key-000000000000000000000000000000';
 
 describe('ZavorthTransactionSurfaceGatewayService', () => {
   let tempDir: string;

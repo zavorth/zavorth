@@ -21,7 +21,7 @@ const snapshot = {
 if (asJson) {
   console.log(JSON.stringify(snapshot, null, 2));
 } else {
-  console.log('[zavorth-vision-control-plane] checking Phase 1');
+  console.log('[zavorth-vision-control-plane] checking Intent model');
   printRules(rules, '[zavorth-vision-control-plane]');
 }
 if (failed.length > 0) process.exitCode = 1;
@@ -36,13 +36,13 @@ function ruleFilesExist() {
     'docs/README.md',
   ];
   const missing = files.filter((file) => !fs.existsSync(path.join(root, file)));
-  return rule('vision-files', 'Vision control plane files exist', missing.length === 0, `${files.length - missing.length}/${files.length}`, 'all Phase 1 files present', missing);
+  return rule('vision-files', 'Vision control plane files exist', missing.length === 0, `${files.length - missing.length}/${files.length}`, 'all Intent model files present', missing);
 }
 
 function ruleMarkers() {
   const checks = [
     ['src/contracts/ZavorthVisionControlPlaneContract.ts', ['rawContentStored: false', 'liveActionApplied: false', 'allow_readonly', 'allow_with_redaction', 'noClickOrType', 'noExternalIo']],
-    ['src/services/ZavorthVisionControlPlaneService.ts', ['untrusted_visual_evidence', 'Policy Broker profile permits read-only perception only', 'noRawSecretsSerialized', 'Phase 1 stores references and redacted text only']],
+    ['src/services/ZavorthVisionControlPlaneService.ts', ['untrusted_visual_evidence', 'Policy Broker profile permits read-only perception only', 'noRawSecretsSerialized', 'Intent model stores references and redacted text only']],
     ['src/domain/surface/application/shared-surface/SharedSurfaceEcosystemCommandPack.ts', ['/vision', 'parseVisionCommand', 'ZavorthPerceptionInvocationRouter']],
     ['src/services/SharedSurfaceCommandContract.ts', ["discordSlashName: 'vision'", 'Observa evidencias visuais']],
   ];
@@ -57,7 +57,7 @@ function ruleMarkers() {
 }
 
 function runRedactionFixture() {
-  const secret = 'sk-' + 'phase1SecretShouldDisappear999';
+  const secret = 'sk-' + 'intent-modelSecretShouldDisappear999';
   const result = runTs('scripts/zavorth-vision-control-plane.ts', [
     '--json',
     '--target-kind', 'desktop',
@@ -106,7 +106,7 @@ function jsonRule(id, label, result, expect) {
   try {
     const snapshot = JSON.parse(result.stdout);
     const passed = expect(snapshot, result.stdout);
-    return rule(id, label, passed, `status=${snapshot.status}; decision=${snapshot.policy?.decision}`, 'expected safe Phase 1 behavior', passed ? [] : [JSON.stringify(snapshot, null, 2)]);
+    return rule(id, label, passed, `status=${snapshot.status}; decision=${snapshot.policy?.decision}`, 'expected safe Intent model behavior', passed ? [] : [JSON.stringify(snapshot, null, 2)]);
   } catch (error) {
     return rule(id, label, false, 'invalid JSON', 'valid JSON fixture', [String(error), ...compact(result.stderr, result.stdout)]);
   }

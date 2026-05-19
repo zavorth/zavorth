@@ -597,7 +597,7 @@ describe('SharedSurfaceCommandService', () => {
       editMessage: jest.fn(async () => undefined),
     };
     const qaControlPlaneService = {
-      renderReport: jest.fn(() => 'Wave 6: QA, budgets e release gates\n\nRelease beta: pronto.'),
+      renderReport: jest.fn(() => 'QA release: QA, budgets e release gates\n\nRelease beta: pronto.'),
       buildSnapshot: jest.fn(),
     };
     const service = new SharedSurfaceCommandService({
@@ -611,7 +611,7 @@ describe('SharedSurfaceCommandService', () => {
 
     expect(handled).toBe(true);
     expect(qaControlPlaneService.renderReport).toHaveBeenCalledWith({ profile: 'beta' });
-    expect(ctx.reply).toHaveBeenCalledWith(expect.stringContaining('Wave 6: QA, budgets e release gates'));
+    expect(ctx.reply).toHaveBeenCalledWith(expect.stringContaining('QA release: QA, budgets e release gates'));
   });
 
   it('starts a Codex Remote session from the shared surface', async () => {

@@ -47,7 +47,7 @@ export type SchedulerTaskRuntimeDescriptor = {
 
 export type SchedulerGovernedScheduledTaskMetadata = {
   contractVersion: string;
-  phase: 'phase-3-persisted-scheduled-task-registration';
+  phase: 'checkpoint-3-persisted-scheduled-task-registration';
   registryStatus: string;
   approvalId: string | null;
   approvalExpiresAt: string | null;
@@ -608,7 +608,7 @@ export class SchedulerService {
     const record = value as Record<string, any>;
     if (
       typeof record.contractVersion !== 'string'
-      || record.phase !== 'phase-3-persisted-scheduled-task-registration'
+      || record.phase !== 'checkpoint-3-persisted-scheduled-task-registration'
       || typeof record.approvedScopeHash !== 'string'
       || !record.approvedScope
       || !record.approvedBudget

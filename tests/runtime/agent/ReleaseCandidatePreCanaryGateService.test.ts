@@ -108,7 +108,7 @@ function readyMetadata(overrides: Record<string, unknown> = {}) {
   };
 }
 
-describe('ReleaseCandidatePreCanaryGateService Wave 54', () => {
+describe('ReleaseCandidatePreCanaryGateService Pre-Canary Gate', () => {
   it('condenses evidence, ecosystem, Autopilot RC and go/no-go without canary or rollout', () => {
     const run = createRun(readyMetadata());
     run.metadata = { ...run.metadata, ...readyMetadata() };

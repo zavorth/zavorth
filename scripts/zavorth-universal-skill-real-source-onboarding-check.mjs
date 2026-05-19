@@ -31,7 +31,7 @@ const snapshot = {
 if (asJson) {
   console.log(JSON.stringify(snapshot, null, 2));
 } else {
-  console.log('[zavorth-universal-skill-real-source-onboarding] checking Phase 8');
+  console.log('[zavorth-universal-skill-real-source-onboarding] checking Dashboard controls');
   for (const rule of rules) {
     const marker = rule.status === 'passed' ? 'ok' : 'fail';
     console.log(`[zavorth-universal-skill-real-source-onboarding] ${marker} ${rule.label}: ${rule.observed} | ${rule.target}`);
@@ -58,7 +58,7 @@ function ruleFilesExist() {
   const missing = files.filter((file) => !fs.existsSync(path.join(root, file)));
   return {
     id: 'universal-skill-real-source-onboarding-files',
-    label: 'Phase 8 files exist',
+    label: 'Dashboard controls files exist',
     status: missing.length === 0 ? 'passed' : 'failed',
     observed: `${files.length - missing.length}/${files.length} file(s) present`,
     target: 'real source onboarding contract, service, CLI, check, docs and tests are present',
@@ -71,7 +71,7 @@ function ruleContainsMarkers() {
     ['src/contracts/ZavorthUniversalSkillRealSourceOnboardingContract.ts', [
       'ZAVORTH_UNIVERSAL_SKILL_REAL_SOURCE_ONBOARDING_CONTRACT_VERSION',
       'historyContainsAggregateOnly',
-      'Phase 9 - Real Library Scale Hardening and Dashboard Review',
+      'Certification matrix - Real Library Scale Hardening and Dashboard Review',
     ]],
     ['src/services/UniversalSkillRealSourceOnboardingService.ts', [
       'ZAVORTH_SKILL_SOURCE_PATHS',
@@ -106,7 +106,7 @@ function ruleContainsMarkers() {
   }
   return {
     id: 'universal-skill-real-source-onboarding-markers',
-    label: 'Phase 8 markers are present',
+    label: 'Dashboard controls markers are present',
     status: missing.length === 0 ? 'passed' : 'failed',
     observed: missing.length === 0 ? 'all markers present' : `${missing.length} missing marker(s)`,
     target: 'onboarding has discovery, history, regression and no-execution markers',
@@ -168,7 +168,7 @@ function runRegressionFixture() {
   const historyPath = path.join(fixture.root, '.zavorth', 'reports', 'history.json');
   fs.mkdirSync(path.dirname(historyPath), { recursive: true });
   fs.writeFileSync(historyPath, JSON.stringify({
-    contractVersion: '2026-05-10.phase-8',
+    contractVersion: '2026-05-10.checkpoint-8',
     updatedAt: '2026-05-10T00:00:00.000Z',
     entries: [{
       runId: 'previous',
@@ -278,6 +278,7 @@ function runOnboardingRule(input) {
 
 function createFixture() {
   const rootDir = fs.mkdtempSync(path.join(os.tmpdir(), 'zavorth-usrs-'));
+  writeSkillSourceFixtureConfig(rootDir);
   const skillLibrary = path.join(rootDir, 'skill-library');
   const clean = path.join(rootDir, 'clean-source');
   fs.mkdirSync(skillLibrary, { recursive: true });
@@ -286,6 +287,41 @@ function createFixture() {
   writeSkill(clean, 'research-pack', 'Research local documents and produce evidence notes.', 'Read local notes.');
   writeSkill(clean, 'writing-pack', 'Draft concise operator updates from trusted notes.', 'Write concise notes.');
   return { root: rootDir, skillLibrary, clean };
+}
+
+function writeSkillSourceFixtureConfig(rootDir) {
+  fs.mkdirSync(path.join(rootDir, 'config'), { recursive: true });
+  fs.writeFileSync(path.join(rootDir, 'config', 'skill-sources.json'), JSON.stringify({
+    version: 1,
+    updatedAt: '2026-05-10T17:00:00.000Z',
+    sources: [
+      {
+        id: 'workspace-library',
+        label: 'Workspace skill library',
+        kind: 'workspace',
+        trust: 'trusted',
+        enabled: true,
+        ingestionMode: 'local-scan',
+        path: 'skill-library',
+        createIfMissing: true,
+        ownership: 'workspace',
+        registrySource: 'zavorth:local-workspace',
+      },
+      {
+        id: 'workspace-imported-library',
+        label: 'Workspace imported skill library',
+        kind: 'workspace',
+        trust: 'review',
+        enabled: true,
+        ingestionMode: 'local-scan',
+        path: 'skill-library/imported',
+        createIfMissing: false,
+        ownership: 'curated-import',
+        registrySource: 'zavorth:curated-import',
+        notes: ['Fixture source for governed real source onboarding checks.'],
+      },
+    ],
+  }, null, 2), 'utf8');
 }
 
 function writeSkill(rootDir, name, description, body) {

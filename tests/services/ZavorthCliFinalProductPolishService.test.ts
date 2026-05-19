@@ -9,7 +9,7 @@ describe('ZavorthCliFinalProductPolishService', () => {
 
     const snapshot = service.buildSnapshot();
 
-    expect(snapshot.contractVersion).toBe('2026-05-14.phase-12-cli-final-product-polish');
+    expect(snapshot.contractVersion).toBe('2026-05-14.checkpoint-12-cli-final-product-polish');
     expect(snapshot.status).toBe('passed');
     expect(snapshot.summary.dashboardPath).toBe('/dashboard');
     expect(snapshot.summary.inkPreviewRendersOnce).toBe(true);

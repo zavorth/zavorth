@@ -179,8 +179,8 @@ export type ZavorthSessionMemoryContinuationSnapshot = {
   generatedAt: string;
   contractVersion: typeof ZAVORTH_SESSION_MEMORY_CONTINUATION_CONTRACT_VERSION;
   status: ZavorthSessionMemoryContinuationStatus;
-  planId: '291 - Plano Zavorth External Runtime Absorption';
-  phase: 'phase-6-sessions-memory-continuation';
+  planId: 'Zavorth External Runtime Integration';
+  phase: 'sessions-memory-continuation';
   previousChannelMessagingStatus: ZavorthChannelMessagingBridgeStatus;
   historyBridgeReceipt: ZavorthSessionHistoryBridgeReceipt;
   privacyFilteringReceipt: ZavorthPrivacyFilteringReceipt;
@@ -220,6 +220,6 @@ export type ZavorthSessionMemoryContinuationSnapshot = {
     inspect: 'npm run zavorth:session-memory-continuation';
     inspectJson: 'npm run zavorth:session-memory-continuation:json';
     check: 'npm run zavorth:session-memory-continuation:check --silent';
-    nextPhase: '291 Phase 7 - Delegated Workers';
+    nextStage: '291 Surface controls - Delegated Workers';
   };
 };

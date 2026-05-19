@@ -83,7 +83,7 @@ export class AiFirstRuntimeEntrypointAdapterService {
         currentRuntimeWouldHandle: true,
         aiFirstCanaryWouldHandle: effective.canarySelected,
         selectedDecisionRecordedBesideCurrent: true,
-        canaryDecisionSource: canary.decision === 'unavailable' ? 'missing' : 'phase-6-switchboard',
+        canaryDecisionSource: canary.decision === 'unavailable' ? 'missing' : 'checkpoint-6-switchboard',
       },
       receipts: [
         {
@@ -100,7 +100,7 @@ export class AiFirstRuntimeEntrypointAdapterService {
           id: this.idFactory('receipt'),
           kind: 'canary',
           detail: effective.canarySelected
-            ? 'AI-first canary selected by Phase 6 switchboard.'
+            ? 'AI-first canary selected by Runtime gateway switchboard.'
             : 'AI-first canary was not selected; fallback/current runtime remains active.',
         },
         {
@@ -116,27 +116,27 @@ export class AiFirstRuntimeEntrypointAdapterService {
       ],
       gates: [
         {
-          id: 'phase-7-switchboard-required',
+          id: 'checkpoint-7-switchboard-required',
           status: 'passed',
-          detail: 'Canary selection requires a Phase 6 switchboard decision.',
+          detail: 'Canary selection requires a Runtime gateway switchboard decision.',
         },
         {
-          id: 'phase-7-current-runtime-retained',
+          id: 'checkpoint-7-current-runtime-retained',
           status: 'passed',
           detail: 'Current runtime decision is retained beside the canary decision.',
         },
         {
-          id: 'phase-7-fallback-preserved',
+          id: 'checkpoint-7-fallback-preserved',
           status: 'passed',
           detail: 'Every adapted decision preserves fallback to the current runtime.',
         },
         {
-          id: 'phase-7-adapter-only-no-execution',
+          id: 'checkpoint-7-adapter-only-no-execution',
           status: 'passed',
           detail: 'Adapter records selected path but does not execute.',
         },
         {
-          id: 'phase-7-default-runtime-preserved',
+          id: 'checkpoint-7-default-runtime-preserved',
           status: 'passed',
           detail: 'defaultRuntimeChanged is false and keepCurrentRuntimeDecision is true.',
         },
@@ -146,7 +146,7 @@ export class AiFirstRuntimeEntrypointAdapterService {
 
   public renderMarkdown(snapshot: AiFirstRuntimeEntrypointAdapterSnapshot): string {
     const lines: string[] = [];
-    lines.push('# Zavorth AI-first Router Phase 7');
+    lines.push('# Zavorth AI-first Router Surface controls');
     lines.push('');
     lines.push(`- contract: ${snapshot.contractVersion}`);
     lines.push(`- adapterId: ${snapshot.adapterId}`);
@@ -205,7 +205,7 @@ export class AiFirstRuntimeEntrypointAdapterService {
         requestId: input.canaryDecision?.requestId || null,
         matchedRouteKey: null,
         fallbackReason: input.switchboard ? 'canary-decision-missing' : 'switchboard-missing',
-        phase3GuardrailRequired: true,
+        approvalGateGuardrailRequired: true,
         registryReceiptRequired: true,
         fallbackAvailable: true,
         defaultRuntimeChanged: false,
@@ -221,7 +221,7 @@ export class AiFirstRuntimeEntrypointAdapterService {
       fallbackReason: input.canaryDecision.decision === 'select-ai-first-canary'
         ? null
         : input.canaryDecision.fallbackReason || 'canary-not-selected',
-      phase3GuardrailRequired: true,
+      approvalGateGuardrailRequired: true,
       registryReceiptRequired: true,
       fallbackAvailable: true,
       defaultRuntimeChanged: false,
@@ -242,7 +242,7 @@ export class AiFirstRuntimeEntrypointAdapterService {
       selectedPath,
       dispatchTarget: selectedPath,
       reason: canarySelected
-        ? 'Phase 6 switchboard selected AI-first canary for this request.'
+        ? 'Runtime gateway switchboard selected AI-first canary for this request.'
         : `Current runtime selected because canary is not available (${canary.fallbackReason || 'unknown'}).`,
       canarySelected,
       currentRuntimeDecisionRetained: true,

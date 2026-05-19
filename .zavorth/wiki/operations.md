@@ -9,8 +9,8 @@ tags:
   - readiness
   - approvals
 sources:
-  - docs/09-operations.md
-  - docs/36-runtime-readiness.md
+  - docs/operations.md
+  - docs/runtime-readiness.md
 ---
 
 ## Purpose
@@ -37,9 +37,9 @@ Capture daily operator facts and safe runtime procedures.
 
 ## Source Links
 
-- `docs/09-operations.md`
-- `docs/36-runtime-readiness.md`
-- `docs/34-zavorth-cli.md`
+- `docs/operations.md`
+- `docs/runtime-readiness.md`
+- `docs/zavorth-cli.md`
 
 ## Maintenance Notes
 

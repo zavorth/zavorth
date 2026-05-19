@@ -18,7 +18,7 @@ import {
   formatOperationsCockpitSnapshot,
   formatOperatorBriefSnapshot,
 } from '../../src/cli/ZavorthCliNativeRenderers.runtime';
-import { formatCliPhase25CockpitSnapshot } from '../../src/cli/ZavorthCliPhase25Cockpit';
+import { formatCliOperationsCockpitSnapshot } from '../../src/cli/ZavorthCliOperationsCockpit';
 import {
   formatZavorthGoFailure,
   formatZavorthGoReport,
@@ -379,9 +379,9 @@ describe('Zavorth CLI visual anti-regression contract', () => {
   });
 
   it('keeps the phase 25 cockpit consolidated without leaking internal commands', () => {
-    const output = formatCliPhase25CockpitSnapshot({
+    const output = formatCliOperationsCockpitSnapshot({
       generatedAt: '2026-04-24T00:00:00.000Z',
-      phase: '25',
+      stage: '25',
       surface: 'zavorth-cockpit',
       status: 'attention',
       headline: '1/2 sidecars habilitados estao prontos.',

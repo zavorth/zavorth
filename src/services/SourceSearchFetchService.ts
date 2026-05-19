@@ -28,7 +28,7 @@ export class SourceSearchFetchService {
     const query = String(input.query || '').trim();
     const resultCount = Math.max(0, input.resultCount || 0);
     return {
-      id: `phase5.search.${hashId(`${query}:${this.now().toISOString()}`)}`,
+      id: `credential-vault.search.${hashId(`${query}:${this.now().toISOString()}`)}`,
       status: query ? 'simulated' : 'blocked',
       mode: 'search',
       query,
@@ -76,7 +76,7 @@ export class SourceSearchFetchService {
         signal: controller.signal,
         headers: {
           'accept': 'text/html,text/plain,application/json;q=0.8,*/*;q=0.2',
-          'user-agent': 'Zavorth-Source-Phase5/1.0',
+          'user-agent': 'Zavorth-Source-Stage5/1.0',
         },
       });
       return this.fetchReceipt({
@@ -122,7 +122,7 @@ export class SourceSearchFetchService {
     reason: string;
   }): SearchFetchReceipt {
     return {
-      id: `phase5.fetch.${hashId(`${input.url}:${this.now().toISOString()}`)}`,
+      id: `credential-vault.fetch.${hashId(`${input.url}:${this.now().toISOString()}`)}`,
       status: input.status,
       mode: 'fetch',
       query: null,

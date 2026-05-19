@@ -1,7 +1,7 @@
 import { DistributionPolicyContractService } from '../../src/services/DistributionPolicyContractService';
 
 describe('DistributionPolicyContractService', () => {
-  it('builds an ok Phase 50 snapshot from the distribution policy fixture', () => {
+  it('builds an ok Credential vault0 snapshot from the distribution policy fixture', () => {
     const service = serviceFromFixture();
     const snapshot = service.buildSnapshot();
 
@@ -10,8 +10,8 @@ describe('DistributionPolicyContractService', () => {
     expect(snapshot.summary.ok).toBe(true);
     expect(snapshot.status).toBe('ready');
     expect(snapshot.route).toBe('/editions');
-    expect(snapshot.nextRecommendedPhase).toEqual(expect.objectContaining({
-      phase: '51',
+    expect(snapshot.nextRecommendedStage).toEqual(expect.objectContaining({
+      stage: '51',
       title: 'Release Bundle And Installer Distribution',
     }));
   });
@@ -40,7 +40,7 @@ describe('DistributionPolicyContractService', () => {
       'website:components/Footer.tsx': '',
       'website:app/docs/page.tsx': '<section id="distribution-policy">Policy</section>',
       'website:app/examples/page.tsx': '<a href="/examples">Examples</a>',
-      'website:app/changelog/page.tsx': 'Fase 50',
+      'website:app/changelog/page.tsx': 'Readiness checkpoint 0',
     });
 
     const snapshot = service.buildSnapshot();
@@ -58,8 +58,8 @@ describe('DistributionPolicyContractService', () => {
     const service = serviceFromFixture();
     const report = service.renderReport();
 
-    expect(report).toContain('Fase 50 - Editions, Plans And Distribution Policy');
-    expect(report).toContain('proxima fase recomendada: 51 - Release Bundle And Installer Distribution');
+    expect(report).toContain('Readiness checkpoint 0 - Editions, Plans And Distribution Policy');
+    expect(report).toContain('proximo passo recomendada: 51 - Release Bundle And Installer Distribution');
   });
 });
 
@@ -80,7 +80,7 @@ function filesFixture(overrides: Record<string, string> = {}) {
       scripts: {
         'distribution-policy': 'npx tsx scripts/distribution-policy.ts',
         'qa:distribution-policy': 'npx tsx scripts/distribution-policy.ts --require-pass --build --screenshots',
-        'qa:phase:50': 'node scripts/phases-46-52-check.mjs --phase=50',
+        'qa:stage:50': 'node scripts/capability-suite-adoption-check.mjs --phase=50',
       },
     }),
     'website:package.json': JSON.stringify({
@@ -97,7 +97,7 @@ function filesFixture(overrides: Record<string, string> = {}) {
     'website:components/Footer.tsx': '<a href="/editions">Edicoes</a>',
     'website:app/docs/page.tsx': '<a href="/editions">/editions</a><a href="/docs#distribution-policy">Policy</a>',
     'website:app/examples/page.tsx': '<a href="/examples">Examples</a>',
-    'website:app/changelog/page.tsx': 'Fase 50',
+    'website:app/changelog/page.tsx': 'Readiness checkpoint 0',
     ...overrides,
   };
 }

@@ -563,13 +563,16 @@ async function runQa(options: CliOptions): Promise<QaReport> {
 
     const shellState = await page.evaluate(() => ({
       hasCoreFrame: Boolean(document.getElementById("core-frame")),
-      hasMascot: Boolean(document.querySelector(".terminal-hero__mascot")),
+      hasLargeMascot: Array.from(document.querySelectorAll("img")).some((img) => {
+        const box = img.getBoundingClientRect();
+        return box.width > 220 || box.height > 220;
+      }),
       hasComposer: Boolean(document.getElementById("compose-input")),
       hasSendButton: Boolean(document.getElementById("send-btn")),
       pulseLabel: document.querySelector("#core-pulse .bridge__pulse-label")?.textContent?.trim() || "",
       authState: document.getElementById("core-pulse")?.getAttribute("data-auth-state") || "",
     }));
-    pushCheck(report, "preserves-user-dashboard-shell", shellState.hasCoreFrame && shellState.hasMascot && shellState.hasComposer && shellState.hasSendButton, "Dashboard bonito original continua sendo o shell testado.");
+    pushCheck(report, "preserves-user-dashboard-shell", shellState.hasCoreFrame && !shellState.hasLargeMascot && shellState.hasComposer && shellState.hasSendButton, "Dashboard premium continua sendo o shell testado sem imagem gigante bloqueando a tela.");
     pushCheck(report, "runtime-unlocked-state-visible", shellState.authState === "unlocked" && /Core/.test(shellState.pulseLabel), "Topo indica runtime local desbloqueado/conectado.");
 
     await page.evaluate(() => {

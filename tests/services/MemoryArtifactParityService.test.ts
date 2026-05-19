@@ -1,13 +1,13 @@
 import { MemoryArtifactParityService } from '../../src/services/MemoryArtifactParityService.js';
 import { PluginRegistryService } from '../../src/services/PluginRegistryService.js';
 
-describe('MemoryArtifactParityService Phase 7', () => {
+describe('MemoryArtifactParityService Surface controls', () => {
   it('builds Memory/Artifact parity over the current Zavorth memory plane without writes', () => {
     const snapshot = new MemoryArtifactParityService({
       now: () => new Date('2026-05-04T17:00:00.000Z'),
     }).buildSnapshot();
 
-    expect(snapshot.contractVersion).toBe('2026-05-04.phase-7');
+    expect(snapshot.contractVersion).toBe('2026-05-04.checkpoint-7');
     expect(snapshot.summary).toEqual(
       expect.objectContaining({
         surfaces: 15,

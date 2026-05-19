@@ -41,7 +41,7 @@ export async function runWslSmoke(input: {
     return failFromSmokeAction(
       'wsl.exec',
       inspect,
-      'WSL supervisionado falhou ainda na fase de inspeÃ§Ã£o do runtime.',
+      'WSL supervisionado falhou ainda na etapa de inspeÃ§Ã£o do runtime.',
     );
   }
 

@@ -61,7 +61,7 @@ export class ZavorthAgentCapabilityAssimilationService {
       generatedAt: this.now().toISOString(),
       contractVersion: ZAVORTH_AGENT_CAPABILITY_ASSIMILATION_CONTRACT_VERSION,
       source: 'ZavorthAgentCapabilityAssimilationService',
-      phase: 'phase-1-capability-assimilation-matrix',
+      phase: 'checkpoint-1-capability-assimilation-matrix',
       status: blocked ? 'blocked' : attention ? 'attention' : 'passed',
       referenceProfiles,
       matrix,
@@ -80,19 +80,19 @@ export class ZavorthAgentCapabilityAssimilationService {
         report: 'npx tsx scripts/zavorth-agent-capability-assimilation.ts',
         json: 'npx tsx scripts/zavorth-agent-capability-assimilation.ts --json',
         check: 'node scripts/zavorth-agent-capability-assimilation-check.mjs',
-        nextPhase: 'Phase 2 - Reasoning And Action Patterns',
+        nextStage: 'Preview engine - Reasoning And Action Patterns',
       },
       narrative: {
         headline: 'Agent capability assimilation matrix ready',
         operatorSummary: 'Zavorth now has a governed map for studying external agent patterns without copying identity, source code, prompts or unsafe behavior.',
-        nextStep: 'Implement Phase 2 by turning approved reasoning/action patterns into compact plans, evidence, blocked actions, receipts and recovery policy.',
+        nextStep: 'Implement Preview engine by turning approved reasoning/action patterns into compact plans, evidence, blocked actions, receipts and recovery policy.',
       },
     };
   }
 
   public formatSnapshotText(snapshot: ZavorthAgentCapabilityAssimilationSnapshot = this.buildSnapshot()): string {
     const lines = [
-      'Zavorth Agent Capability Assimilation - Phase 1',
+      'Zavorth Agent Capability Assimilation - Intent model',
       '',
       `Status: ${snapshot.status}`,
       `Items: ${snapshot.summary.items} | assimilated=${snapshot.summary.assimilated} | partial=${snapshot.summary.partial} | planned=${snapshot.summary.planned} | rejected=${snapshot.summary.rejected}`,
@@ -109,7 +109,7 @@ export class ZavorthAgentCapabilityAssimilationService {
       '- Pattern assimilation only; no source code or prompt copy.',
       '- Risky actions require Policy Broker, approval, receipts and redaction as applicable.',
       '',
-      `Next: ${snapshot.commands.nextPhase}`,
+      `Next: ${snapshot.commands.nextStage}`,
     ];
     return lines.join('\n');
   }

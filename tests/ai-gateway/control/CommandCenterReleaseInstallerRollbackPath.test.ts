@@ -70,7 +70,7 @@ function releaseMetadata() {
   return {
     productizationContract: {
       source: 'ZavorthProductizationContractService',
-      phase: 'C9',
+      stage: 'C9',
       status: 'ready',
       control: { ready: true },
       cli: { ready: true },
@@ -85,7 +85,7 @@ function releaseMetadata() {
       rollbackAvailable: true,
     },
     publicReleaseBundle: {
-      phase: '51',
+      stage: '51',
       surface: 'release-bundle',
       generatedAt: '2026-05-04T02:48:00.000Z',
       status: 'ready',
@@ -96,16 +96,16 @@ function releaseMetadata() {
       requiredCommands: ['release:status:fast', 'doctor:fast', 'release:changelog', 'release:rollback-preview'],
       screenshots: [],
       checks: [],
-      nextRecommendedPhase: {
-        phase: '52',
+      nextRecommendedStage: {
+        stage: '52',
         title: 'Feedback, Telemetry Opt-In And Product Loop',
-        reason: 'proxima fase',
+        reason: 'proximo passo',
       },
     },
   };
 }
 
-describe('Command Center Release Installer Rollback Path Wave 48', () => {
+describe('Command Center Release Installer Rollback Path Channel mesh8', () => {
   it('projects releaseInstallerRollbackPath metadata into the dashboard view model', () => {
     const run = new AgentRunService({
       now: () => new Date('2026-05-04T02:48:00.000Z'),
@@ -135,7 +135,7 @@ describe('Command Center Release Installer Rollback Path Wave 48', () => {
     });
 
     expect(viewModel.releaseInstallerRollbackPath).toEqual(expect.objectContaining({
-      contractVersion: '2026-05-04.wave-48',
+      contractVersion: '2026-05-04.release-rollback',
       status: 'preview-ready',
       release: expect.objectContaining({
         releaseBundleStatus: 'ready',
@@ -185,7 +185,7 @@ describe('Command Center Release Installer Rollback Path Wave 48', () => {
     );
 
     expect(projection.releaseInstallerRollbackPath).toEqual(expect.objectContaining({
-      contractVersion: '2026-05-04.wave-48',
+      contractVersion: '2026-05-04.release-rollback',
       status: 'preview-ready',
       readiness: expect.objectContaining({
         productEntryRuntimeLinked: true,

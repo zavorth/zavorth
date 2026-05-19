@@ -46,7 +46,7 @@ describe('Zavorth CLI Agent Team Compiler', () => {
     }));
     const payload = JSON.parse(writes[0] || '{}');
     expect(payload).toEqual(expect.objectContaining({
-      contractVersion: '2026-05-03.wave-40',
+      contractVersion: '2026-05-03.track-40',
       source: 'AgentTeamCompilerService',
       status: 'waiting-approval',
       summary: expect.objectContaining({
@@ -72,7 +72,7 @@ describe('Zavorth CLI Agent Team Compiler', () => {
 
     const text = formatAgentTeamCompilerSnapshot(snapshot);
 
-    expect(text).toContain('Agent Team Compiler - Wave 40');
+    expect(text).toContain('Agent Team Compiler - Channel mesh0');
     expect(text).toContain('Roles');
     expect(text).toContain('nenhum subagente foi lancado');
     expect(text).toContain('Command Center: /control?sector=agents');

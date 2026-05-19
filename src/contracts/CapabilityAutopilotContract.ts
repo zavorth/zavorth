@@ -477,7 +477,7 @@ export type CapabilityValidationResult = {
 
 export type CapabilityReceiptTimelineEntry = {
   at: string;
-  stage: CapabilityReceiptStage;
+  phase: CapabilityReceiptStage;
   status: 'pending' | 'running' | 'completed' | 'blocked' | 'failed' | 'skipped';
   summary: string;
   detail?: string | null;
@@ -486,7 +486,7 @@ export type CapabilityReceiptTimelineEntry = {
 export type CapabilityReceipt = {
   receiptId: string;
   generatedAt: string;
-  stage: CapabilityReceiptStage;
+  phase: CapabilityReceiptStage;
   surface: CapabilityAutopilotSurface;
   audience: CapabilityAutopilotAudience;
   capabilityId: string;
@@ -534,7 +534,7 @@ export type CapabilitySurfaceUxPayload = {
   audience: CapabilityAutopilotAudience;
   capabilityId: string;
   capabilityLabel: string;
-  stage: CapabilityReceiptStage;
+  phase: CapabilityReceiptStage;
   tone: 'neutral' | 'attention' | 'blocked' | 'success';
   headline: string;
   body: string;
@@ -570,7 +570,7 @@ export type CapabilityMemoryRecord = {
   workspaceHash: string | null;
   intentFingerprint: string | null;
   outcome: CapabilityMemoryOutcome;
-  stage: CapabilityReceiptStage;
+  phase: CapabilityReceiptStage;
   failureKind?: CapabilityFailureKind | null;
   readinessStatus?: CapabilityReadinessStatus | null;
   permissionCount: number;

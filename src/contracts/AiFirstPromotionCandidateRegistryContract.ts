@@ -4,7 +4,7 @@ import type {
 } from './AiFirstRoutePlanContract.js';
 import type { AiFirstShadowBatchReadiness } from './AiFirstShadowBatchRecorderContract.js';
 
-export const AI_FIRST_PROMOTION_CANDIDATE_REGISTRY_CONTRACT_VERSION = '2026-05-06.phase-5' as const;
+export const AI_FIRST_PROMOTION_CANDIDATE_REGISTRY_CONTRACT_VERSION = '2026-05-06.checkpoint-5' as const;
 
 export type AiFirstPromotionCandidateStatus = 'eligible' | 'watch' | 'blocked';
 
@@ -56,7 +56,7 @@ export type AiFirstPromotionAllowlistEntry = {
   surfaces: string[];
   allowedRiskLevels: AiFirstRoutePlanRisk[];
   maxRisk: AiFirstRoutePlanRisk;
-  requiresPhase3Guardrail: true;
+  requiresStage3Guardrail: true;
   requiresBatchReceipt: true;
   requiresManualActivation: true;
   defaultEnabled: false;

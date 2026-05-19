@@ -53,7 +53,7 @@ const P0_CHANNELS: P0Descriptor[] = [
     },
     gaps: [
       'operator must run signal-cli daemon or expose JSON-RPC before staging-live smoke',
-      'attachments and edits remain out of Phase 2 scope',
+      'attachments and edits remain out of Preview engine scope',
     ],
   },
   {
@@ -143,7 +143,7 @@ const P0_CHANNELS: P0Descriptor[] = [
       webhookValidation: true,
       fallbackOutbox: true,
     },
-    gaps: ['Baileys remains planned; Phase 2 certifies Cloud API as the live path'],
+    gaps: ['Baileys remains planned; Preview engine certifies Cloud API as the live path'],
   },
   {
     channelId: 'discord',
@@ -223,7 +223,7 @@ export class ChannelLiveActivationService {
     return {
       generatedAt: this.now().toISOString(),
       contractVersion: ZAVORTH_CHANNEL_LIVE_ACTIVATION_CONTRACT_VERSION,
-      phase: 'Phase 2 - Channel Live Activation P0',
+      phase: 'Preview engine - Channel Live Activation P0',
       status: blocked > 0 ? 'blocked' : 'closed',
       summary: {
         channels: 6,
@@ -238,13 +238,13 @@ export class ChannelLiveActivationService {
         outboundMockTests: entries.filter((entry) => this.hasGate(entry, 'outbound-mock')).length,
         stagingLiveSmokeCommands: entries.filter((entry) => this.hasGate(entry, 'staging-live-smoke')).length,
         redactedReceipts: receipts.filter((receipt) => receipt.secretValuesSerialized === false).length,
-        liveIoRequiredByPhase2Check: false,
+        liveIoRequiredByStage2Check: false,
         secretValuesSerialized: false,
       },
       entries,
       receipts,
       policy: {
-        noLiveIoDuringPhase2Check: true,
+        noLiveIoDuringStage2Check: true,
         stagingLiveRequiresExplicitOperatorCommand: true,
         outboxAllowedOnlyAsFallback: true,
         signalUsesJsonRpcOrSignalCli: true,
@@ -257,7 +257,7 @@ export class ChannelLiveActivationService {
         stagingLiveSmoke: 'npm run channel-live-activation -- --profile staging-live --channel <channel> --confirm-live-io',
         focusedTests: ['npx jest tests/services/ChannelLiveActivationService.test.ts --runInBand'],
         typecheck: 'npm run runtime:check --silent',
-        nextPhase: 'Phase 4 - Provider Runtime Activation P0',
+        nextStage: 'Connector registry - Provider Runtime Activation P0',
       },
     };
   }

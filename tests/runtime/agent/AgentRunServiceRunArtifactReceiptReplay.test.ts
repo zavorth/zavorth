@@ -8,7 +8,7 @@ function createIdFactory() {
   return (prefix: string) => `${prefix}-agent-replay-hardening-${++index}`;
 }
 
-describe('AgentRunService run/artifact/receipt replay hardening Wave 45', () => {
+describe('AgentRunService run/artifact/receipt replay hardening Channel mesh5', () => {
   it('publishes run.metadata.runArtifactReceiptReplay after executor artifacts are merged', async () => {
     const service = new AgentRunService({
       now: () => new Date('2026-05-04T00:45:00.000Z'),
@@ -29,7 +29,7 @@ describe('AgentRunService run/artifact/receipt replay hardening Wave 45', () => 
         metadata: {
           memoryWithReceipts: {
             source: 'MemoryWithReceiptsService',
-            contractVersion: '2026-05-03.wave-32',
+            contractVersion: '2026-05-03.memory-receipts',
             receipts: [
               {
                 id: 'memory:agent-replay',

@@ -1,7 +1,7 @@
 import type { ZavorthApprovalActionCard } from './ZavorthApprovalActionCardsUxContract.js';
 import type { ZavorthVisualReceiptV2Card } from './ZavorthVisualReceiptsV2Contract.js';
 
-export const ZAVORTH_SATELLITE_APPROVAL_COMPANION_CONTRACT_VERSION = '2026-05-15.experience-layer.phase-10' as const;
+export const ZAVORTH_SATELLITE_APPROVAL_COMPANION_CONTRACT_VERSION = '2026-05-15.experience-layer.checkpoint-10' as const;
 
 export type ZavorthSatelliteApprovalDecision = 'approve' | 'deny' | 'preview' | 'rollback_preview' | 'receipt';
 

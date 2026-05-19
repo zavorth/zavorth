@@ -207,7 +207,7 @@ export class CapabilityAutopilotBetaFieldTrialLoopService {
           'Depois do field trial beta, o proximo passo e decidir release candidate com sinais reais, incidentes, feedback e rollback rehearsal auditados.',
       },
       metadata: {
-        phase: 'capability-autopilot-phase-79',
+        phase: 'capability-autopilot-checkpoint-79',
         sourceSnapshotStatus: source.status,
         sourceRecommendation: source.recommendation,
         autoExecute: false,
@@ -225,7 +225,7 @@ export class CapabilityAutopilotBetaFieldTrialLoopService {
 
   public renderReport(snapshot: CapabilityAutopilotBetaFieldTrialSnapshot): string {
     const lines: string[] = [];
-    lines.push('[capability-autopilot-beta-field-trial] Fase 79 - Capability Autopilot Beta Field Trial Loop');
+    lines.push('[capability-autopilot-beta-field-trial] Etapa 79 - Capability Autopilot Beta Field Trial Loop');
     lines.push(`status: ${snapshot.status}`);
     lines.push(`recommendation: ${snapshot.recommendation}`);
     lines.push(`ok: ${snapshot.summary.ok ? 'yes' : 'no'} | pass=${snapshot.summary.passed} warn=${snapshot.summary.warnings} fail=${snapshot.summary.failed}`);
@@ -240,7 +240,7 @@ export class CapabilityAutopilotBetaFieldTrialLoopService {
       }
     }
     lines.push('');
-    lines.push(`proxima fase recomendada: ${snapshot.nextRecommendedPhase.phase} - ${snapshot.nextRecommendedPhase.title}`);
+    lines.push(`proximo passo recomendada: ${snapshot.nextRecommendedPhase.phase} - ${snapshot.nextRecommendedPhase.title}`);
     lines.push(snapshot.nextRecommendedPhase.reason);
     return lines.join('\n');
   }

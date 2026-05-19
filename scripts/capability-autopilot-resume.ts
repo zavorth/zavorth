@@ -17,7 +17,7 @@ type CapabilityAutopilotResumeCheck = {
 };
 
 type CapabilityAutopilotResumeSnapshot = {
-  phase: '62';
+  stage: '62';
   surface: 'capability-autopilot-resume';
   generatedAt: string;
   capabilityId: string;
@@ -31,8 +31,8 @@ type CapabilityAutopilotResumeSnapshot = {
   initialReceipt: CapabilityReceipt;
   result: Awaited<ReturnType<CapabilityAutopilotValidationResumeService['validateForResume']>>;
   checks: CapabilityAutopilotResumeCheck[];
-  nextRecommendedPhase: {
-    phase: '63';
+  nextRecommendedStage: {
+    stage: '63';
     title: string;
     reason: string;
   };
@@ -90,7 +90,7 @@ function buildFixtureApprovals(receipt: CapabilityReceipt): PermissionRequest[] 
   }
 
   return repairPlan.permissionRequirements.map((requirement, index) => ({
-    permission_id: `phase-62-fixture-${index + 1}`,
+    permission_id: `checkpoint-62-fixture-${index + 1}`,
     created_at: receipt.generatedAt,
     updated_at: receipt.generatedAt,
     task_id: receipt.resumeIntent?.taskId || null,
@@ -108,12 +108,12 @@ function buildFixtureApprovals(receipt: CapabilityReceipt): PermissionRequest[] 
     requested_value: requirement.requestedValue || null,
     resolved_value: requirement.resolvedValue || null,
     reason: requirement.reason,
-    requested_by: receipt.resumeIntent?.userId || 'phase-62-gate',
-    decided_by: 'phase-62-gate',
-    decision_note: 'Fixture local do gate Phase 62; nao persiste no ledger.',
+    requested_by: receipt.resumeIntent?.userId || 'checkpoint-62-gate',
+    decided_by: 'checkpoint-62-gate',
+    decision_note: 'Fixture local do gate Runtime gateway2; nao persiste no ledger.',
     metadata: {
       capability_autopilot: true,
-      phase: 'capability-autopilot-phase-62',
+      stage: 'capability-autopilot-checkpoint-62',
       requirement_id: requirement.id,
       fixture: true,
     },
@@ -130,7 +130,7 @@ function buildSnapshot(
   const passed = checks.filter((check) => check.status === 'pass').length;
 
   return {
-    phase: '62',
+    stage: '62',
     surface: 'capability-autopilot-resume',
     generatedAt: new Date().toISOString(),
     capabilityId: initialReceipt.capabilityId,
@@ -144,8 +144,8 @@ function buildSnapshot(
     initialReceipt,
     result,
     checks,
-    nextRecommendedPhase: {
-      phase: '63',
+    nextRecommendedStage: {
+      stage: '63',
       title: 'Cross-Surface Capability UX',
       reason:
         'Depois de validar retomada com seguranca, o proximo passo e expor o mesmo receipt e estado em CLI, web, chat e mensageria.',
@@ -170,7 +170,7 @@ function buildChecks(
       'capability-autopilot-resume:readiness-recomputed',
       'readiness recalculado',
       result.readiness ? 'pass' : 'fail',
-      'Depois do gate de permissao, a Fase 62 recalcula readiness antes de retomar.',
+      'Depois do gate de permissao, a Etapa 62 recalcula readiness antes de retomar.',
       [`readiness=${result.readiness?.status || '<ausente>'}`, `safeToRun=${String(result.readiness?.safeToRun ?? '<ausente>')}`],
     ),
     check(
@@ -219,7 +219,7 @@ function check(
 
 function renderReport(snapshot: CapabilityAutopilotResumeSnapshot): string {
   const lines: string[] = [];
-  lines.push('[capability-autopilot-resume] Fase 62 - Validation And Resume Loop');
+  lines.push('[capability-autopilot-resume] Etapa 62 - Validation And Resume Loop');
   lines.push(`status: ${snapshot.status}`);
   lines.push(`ok: ${snapshot.summary.ok ? 'yes' : 'no'} | pass=${snapshot.summary.passed} warn=${snapshot.summary.warnings} fail=${snapshot.summary.failed}`);
   lines.push(`capability: ${snapshot.capabilityId}`);
@@ -233,7 +233,7 @@ function renderReport(snapshot: CapabilityAutopilotResumeSnapshot): string {
     }
   }
   lines.push('');
-  lines.push(`proxima fase recomendada: ${snapshot.nextRecommendedPhase.phase} - ${snapshot.nextRecommendedPhase.title}`);
-  lines.push(snapshot.nextRecommendedPhase.reason);
+  lines.push(`proximo passo recomendada: ${snapshot.nextRecommendedStage.phase} - ${snapshot.nextRecommendedStage.title}`);
+  lines.push(snapshot.nextRecommendedStage.reason);
   return lines.join('\n');
 }

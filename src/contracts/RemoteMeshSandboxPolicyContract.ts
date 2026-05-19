@@ -168,6 +168,6 @@ export type RemoteMeshSandboxPolicySnapshot = {
     check: 'npm run remote-mesh:sandbox:policy --silent';
     focusedTests: 'npx jest tests/services/RemoteMeshSandboxPolicyService.test.ts --runInBand';
     typecheck: 'npm run runtime:check --silent';
-    nextPhase: 'R3 - Remote Adapter Dry-Run Bindings';
+    nextStage: 'R3 - Remote Adapter Dry-Run Bindings';
   };
 };

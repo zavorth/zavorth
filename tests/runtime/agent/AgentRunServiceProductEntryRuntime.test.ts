@@ -64,7 +64,7 @@ function productEntryRuntime() {
   });
 }
 
-describe('AgentRunService Product Entry Runtime Wave 47', () => {
+describe('AgentRunService Product Entry Runtime Channel mesh7', () => {
   it('publishes run.metadata.productEntryRuntime after Productization Evidence', async () => {
     const service = new AgentRunService({
       now: () => new Date('2026-05-04T02:47:00.000Z'),
@@ -87,7 +87,7 @@ describe('AgentRunService Product Entry Runtime Wave 47', () => {
       metadata: {
         productizationContract: {
           source: 'ZavorthProductizationContractService',
-          phase: 'C9',
+          stage: 'C9',
           status: 'ready',
           control: { ready: true },
           cli: { ready: true },

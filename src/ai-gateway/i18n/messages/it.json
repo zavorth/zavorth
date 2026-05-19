@@ -2356,7 +2356,7 @@
     "pipelineVisualizationHint": "Invia un messaggio per vedere come scorre la tua richiesta attraverso rilevamento → traduzione → chiamata al fornitore.",
     "chatTesterDescription": "Invia messaggi in un formato client specifico e ispeziona ogni passaggio della pipeline di traduzione.",
     "chatTesterFlow": "Richiesta client → Rilevamento formato → OpenAI Intermediate → Formato provider → Risposta",
-    "clickStepToInspect": "Fare clic su qualsiasi passaggio per controllare i dati in quella fase.",
+    "clickStepToInspect": "Fare clic su qualsiasi passaggio per controllare i dati in quella etapa.",
     "clientFormat": "Formato cliente",
     "provider": "Fornitore",
     "modelPlaceholder": "Seleziona o digita il nome di un modello...",

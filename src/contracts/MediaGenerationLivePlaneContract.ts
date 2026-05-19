@@ -1,7 +1,7 @@
 import type { LiveReadinessStatus } from './LiveReadinessContract.js';
 import type { MediaGenerationModality } from './MediaGenerationContract.js';
 
-export const ZAVORTH_MEDIA_GENERATION_LIVE_PLANE_CONTRACT_VERSION = '2026-05-04.live-phase-6' as const;
+export const ZAVORTH_MEDIA_GENERATION_LIVE_PLANE_CONTRACT_VERSION = '2026-05-04.live-checkpoint-6' as const;
 
 export type MediaGenerationLiveTargetId =
   | 'image-generation-core'
@@ -18,7 +18,7 @@ export type MediaGenerationLiveStatus =
   | 'video-live'
   | 'image-video-live'
   | 'local-image-video-live'
-  | 'routed-to-phase-7'
+  | 'routed-to-checkpoint-7'
   | 'blocked';
 
 export type MediaGenerationLiveAdapterFamily =
@@ -95,13 +95,13 @@ export type MediaGenerationLiveEntry = {
 export type MediaGenerationLivePlaneSnapshot = {
   generatedAt: string;
   contractVersion: typeof ZAVORTH_MEDIA_GENERATION_LIVE_PLANE_CONTRACT_VERSION;
-  phase: 'Phase 6 - Media Generation Live Plane';
+  phase: 'Runtime gateway - Media Generation Live Plane';
   status: 'closed' | 'attention' | 'blocked';
   summary: {
     targets: 8;
     imageCapableTargets: number;
     videoCapableTargets: number;
-    audioRoutedToPhase7: true;
+    audioRoutedToStage7: true;
     directImageTargets: number;
     asyncJobTargets: number;
     localTargets: number;
@@ -112,13 +112,13 @@ export type MediaGenerationLivePlaneSnapshot = {
     stagingLiveSmokeCommands: number;
     redactedReceipts: number;
     blocked: number;
-    liveIoRequiredByPhase6Check: false;
+    liveIoRequiredByStage6Check: false;
     secretValuesSerialized: false;
   };
   entries: MediaGenerationLiveEntry[];
   receipts: MediaGenerationLiveReceipt[];
   policy: {
-    noLiveIoDuringPhase6Check: true;
+    noLiveIoDuringStage6Check: true;
     artifactFirstOutputsRequired: true;
     imageOnlyCannotCloseVideo: true;
     asyncProvidersRequirePollingAndStatus: true;
@@ -132,6 +132,6 @@ export type MediaGenerationLivePlaneSnapshot = {
     stagingLiveSmoke: 'npm run media-generation-live-plane -- --profile staging-live --target <target> --confirm-live-io';
     focusedTests: string[];
     typecheck: 'npm run runtime:check --silent';
-    nextPhase: 'Phase 7 - Speech, TTS And Voice Live Plane';
+    nextStage: 'Surface controls - Speech, TTS And Voice Live Plane';
   };
 };

@@ -3,19 +3,19 @@ import {
 } from '../../src/contracts/ZavorthExternalRuntimeBridgeContract.js';
 import { ZavorthExternalRuntimeBridgeService } from '../../src/services/ZavorthExternalRuntimeBridgeService.js';
 
-describe('ZavorthExternalRuntimeBridgeService Phase 10', () => {
+describe('ZavorthExternalRuntimeBridgeService Intent model0', () => {
   it('publishes the Natural First bridge into the Zavorth External Runtime plan without execution', () => {
     const snapshot = new ZavorthExternalRuntimeBridgeService({
       now: () => new Date('2026-05-11T17:00:00.000Z'),
-      naturalFirstPackStatus: 'phase-9-complete',
+      naturalFirstPackStatus: 'checkpoint-9-complete',
     }).buildSnapshot();
 
     expect(snapshot).toEqual(expect.objectContaining({
       generatedAt: '2026-05-11T17:00:00.000Z',
       contractVersion: ZAVORTH_EXTERNAL_RUNTIME_BRIDGE_CONTRACT_VERSION,
       status: 'bridge-ready',
-      planId: '291 - Plano Zavorth External Runtime Absorption',
-      naturalFirstPackStatus: 'phase-9-complete',
+      planId: 'Zavorth External Runtime Integration',
+      naturalFirstPackStatus: 'checkpoint-9-complete',
     }));
     expect(snapshot.gatewayPolicy).toEqual(expect.objectContaining({
       naturalFirstClosed: true,
@@ -47,7 +47,7 @@ describe('ZavorthExternalRuntimeBridgeService Phase 10', () => {
     ]);
     expect(byId.get('error-classifier')).toEqual(expect.objectContaining({
       decision: 'absorb',
-      phase: 'phase-2-native-engine',
+      stage: 'native-engine',
       naturalFirstRoute: 'governed-execution',
       zavorthOwner: expect.objectContaining({
         contract: 'ZavorthErrorClassifierContract',
@@ -64,7 +64,7 @@ describe('ZavorthExternalRuntimeBridgeService Phase 10', () => {
     }));
     expect(byId.get('channel-gateway-normalization')).toEqual(expect.objectContaining({
       sourceRuntimeIds: expect.arrayContaining(['acp-compatible-sidecar']),
-      phase: 'phase-5-channels-messaging',
+      stage: 'channels-messaging',
       naturalFirstRoute: 'capability-discovery',
     }));
   });
@@ -108,7 +108,7 @@ describe('ZavorthExternalRuntimeBridgeService Phase 10', () => {
 
   it('blocks the bridge if Natural First has not reached phase 9 closure', () => {
     const snapshot = new ZavorthExternalRuntimeBridgeService().buildSnapshot({
-      naturalFirstPackStatus: 'phase-8-complete',
+      naturalFirstPackStatus: 'checkpoint-8-complete',
     });
 
     expect(snapshot.status).toBe('blocked');
@@ -123,7 +123,7 @@ describe('ZavorthExternalRuntimeBridgeService Phase 10', () => {
     const service = new ZavorthExternalRuntimeBridgeService();
     const text = service.formatSnapshotText(service.buildSnapshot());
 
-    expect(text).toContain('Zavorth External Runtime Bridge - Phase 10');
+    expect(text).toContain('Zavorth External Runtime Bridge - Intent model0');
     expect(text).toContain('Status: bridge-ready');
     expect(text).toContain('Source runtime code executed: false');
     expect(text).toContain('ACP support is provider-agnostic and has no default external runtime bridge.');

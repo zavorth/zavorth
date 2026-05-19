@@ -62,7 +62,7 @@ export class SlackChannelPack {
 
     const response = await this.client().chat.postMessage({
       channel: input.channelId,
-      text: String(input.text || 'Zavorth Phase 4 Slack live smoke').trim(),
+      text: String(input.text || 'Zavorth Connector registry Slack live smoke').trim(),
       unfurl_links: false,
       unfurl_media: false,
     });

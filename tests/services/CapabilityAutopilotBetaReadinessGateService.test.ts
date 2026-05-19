@@ -24,7 +24,7 @@ const readyOptions: CapabilityAutopilotBetaReadinessOptions = {
   rollbackDrillReceiptId: 'rollback-drill-1',
   telemetryReceiptId: 'telemetry-1',
   docsReceiptId: 'docs-1',
-  reason: 'phase-78-test',
+  reason: 'checkpoint-78-test',
 };
 
 function createEntry(
@@ -33,7 +33,7 @@ function createEntry(
   overrides: Partial<CapabilityPreflightPostRunRollbackLedgerEntry> = {},
 ): CapabilityPreflightPostRunRollbackLedgerEntry {
   return {
-    phase: '77',
+    stage: '77',
     postRunLedgerEntryId: `entry-${sourceSurface}-${sourceActionKind}`,
     generatedAt: FIXED_NOW.toISOString(),
     surface: 'capability-autopilot-preflight-post-run-rollback-ledger',
@@ -114,7 +114,7 @@ function createSource(
   overrides: Partial<CapabilityPreflightPostRunRollbackLedgerSnapshot> = {},
 ): CapabilityPreflightPostRunRollbackLedgerSnapshot {
   return {
-    phase: '77',
+    stage: '77',
     surface: 'capability-autopilot-preflight-post-run-rollback-ledger',
     generatedAt: FIXED_NOW.toISOString(),
     capabilityId: 'executor-gemini-cli',
@@ -125,11 +125,11 @@ function createSource(
       warnings: 0,
       failed: 0,
     },
-    sourceSnapshotPhase: '76',
+    sourceSnapshotStage: '76',
     entries,
     checks: [],
-    nextRecommendedPhase: {
-      phase: '78',
+    nextRecommendedStage: {
+      stage: '78',
       title: 'Capability Autopilot v1.1 Beta Readiness Gate',
       reason: 'Decide beta readiness.',
     },
@@ -156,7 +156,7 @@ describe('CapabilityAutopilotBetaReadinessGateService', () => {
     const snapshot = service.buildReadinessSnapshot(source, readyOptions);
 
     expect(snapshot).toMatchObject({
-      phase: '78',
+      stage: '78',
       status: 'beta_candidate_ready',
       recommendation: 'promote_to_beta_candidate',
       summary: {
@@ -270,7 +270,7 @@ describe('CapabilityAutopilotBetaReadinessGateService', () => {
     const service = createService();
     const snapshot = service.buildReadinessSnapshot(createSource(), readyOptions);
 
-    expect(service.renderReport(snapshot)).toContain('Fase 78 - Capability Autopilot v1.1 Beta Readiness Gate');
-    expect(service.renderReport(snapshot)).toContain('proxima fase recomendada: 79 - Capability Autopilot Beta Field Trial Loop');
+    expect(service.renderReport(snapshot)).toContain('Etapa 78 - Capability Autopilot v1.1 Beta Readiness Gate');
+    expect(service.renderReport(snapshot)).toContain('proximo passo recomendada: 79 - Capability Autopilot Beta Field Trial Loop');
   });
 });

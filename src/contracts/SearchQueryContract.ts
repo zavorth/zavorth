@@ -14,8 +14,8 @@
  * Capability canônica: `search.query`
  *
  * Referências arquiteturais:
- * - docs/327-zavorth-native-absorption-execution-plan.md (Wave 2)
- * - docs/329-wave1-media-generate-implementation.md (padrão de referência)
+ * - docs/native-absorption-execution-plan.md
+ * - docs/product-direction.md (padrão de referência)
  *
  * @module contracts/SearchQueryContract
  * @since 2026-05-03

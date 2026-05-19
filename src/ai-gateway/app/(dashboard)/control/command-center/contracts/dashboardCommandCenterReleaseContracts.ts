@@ -34,7 +34,7 @@ export type DashboardReleaseAdoptionReadinessSnapshot = {
   releaseTrain: {
     linked: boolean;
     status: string;
-    phase: string | null;
+    stage: string | null;
     baselineVersion: string | null;
     packageVersion: string | null;
     policyCount: number;
@@ -47,7 +47,7 @@ export type DashboardReleaseAdoptionReadinessSnapshot = {
   publicAdoption: {
     linked: boolean;
     status: string;
-    phase: string | null;
+    stage: string | null;
     readinessScore: number;
     claimCount: number;
     riskCount: number;

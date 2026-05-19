@@ -137,7 +137,7 @@ export class CanaryLaunchRehearsalService {
           'npm run canary-launch-rehearsal --silent -- --require-rehearsed',
         ],
         typecheck: 'npm run runtime:check --silent',
-        nextPhase: 'Canary monitoring and rollback gate',
+        nextStage: 'Canary monitoring and rollback gate',
       },
       policy: {
         launchRehearsalOnly: true,
@@ -199,7 +199,7 @@ export class CanaryLaunchRehearsalService {
         `- ${gate.status.toUpperCase()} ${gate.id}: ${gate.observed} / ${gate.threshold} - ${gate.nextAction}`,
       ),
       '',
-      `Next: ${snapshot.commands.nextPhase}`,
+      `Next: ${snapshot.commands.nextStage}`,
     ].join('\n');
   }
 
@@ -357,7 +357,7 @@ export class CanaryLaunchRehearsalService {
         observed: input.approvalLedgerReady,
         threshold: true,
         receipt: 'canary-launch-rehearsal.approval-ledger-ready.receipt',
-        nextAction: 'finish Phase 20 before launch rehearsal',
+        nextAction: 'finish Preview engine0 before launch rehearsal',
       }),
       gate({
         id: 'held-release-execution-gate-linked',

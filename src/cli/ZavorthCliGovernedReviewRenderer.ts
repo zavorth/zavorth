@@ -171,7 +171,7 @@ export function formatGovernedReviewSnapshot(snapshot: GovernedReviewCliSnapshot
     return formatGitHubGovernedReviewSnapshot(snapshot);
   }
   const lines = [
-    'Zavorth Governed Review - Phase 4',
+    'Zavorth Governed Review - Connector registry',
     `- contrato: ${snapshot.contractVersion}`,
     `- review: ${snapshot.reviewId}`,
     `- modo: ${snapshot.mode}`,

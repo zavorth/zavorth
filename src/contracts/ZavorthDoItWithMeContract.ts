@@ -1,7 +1,7 @@
 import type { ZavorthCapabilityStoreCard } from './ZavorthCapabilityStoreContract.js';
 import type { ZavorthGuidedMissionCard } from './ZavorthGuidedMissionsContract.js';
 
-export const ZAVORTH_DO_IT_WITH_ME_CONTRACT_VERSION = '2026-05-15.experience-layer.phase-5' as const;
+export const ZAVORTH_DO_IT_WITH_ME_CONTRACT_VERSION = '2026-05-15.experience-layer.checkpoint-5' as const;
 
 export type ZavorthDoItWithMeMode =
   | 'setup_capability'

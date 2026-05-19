@@ -91,20 +91,23 @@ export class McpCapabilityControlPlaneService {
     manifestEntry: ResolvedMcpServerManifestEntry,
     runtimeEntry: McpRuntimeSnapshot['entries'][number] | null,
   ): IntegrationHubMcpServerEntry {
-    const status = runtimeEntry?.status || (manifestEntry.enabled ? 'manifest_only' : 'disabled');
-    const toolCount = Number(runtimeEntry?.toolCount || 0);
+    const manifestEnabled = manifestEntry.enabled !== false;
+    const status = manifestEnabled
+      ? runtimeEntry?.status || 'manifest_only'
+      : 'disabled';
+    const toolCount = manifestEnabled ? Number(runtimeEntry?.toolCount || 0) : 0;
     const capability = String(runtimeEntry?.capability || manifestEntry.capability || '').trim() || null;
     return {
       id: manifestEntry.id,
       capability,
-      enabled: manifestEntry.enabled !== false,
+      enabled: manifestEnabled,
       status,
       toolCount,
-      toolNames: [...(runtimeEntry?.toolNames || [])],
+      toolNames: manifestEnabled ? [...(runtimeEntry?.toolNames || [])] : [],
       summary: this.buildEntrySummary(status, capability, toolCount),
-      issue: runtimeEntry?.lastError || null,
-      lastAttemptedAt: runtimeEntry?.lastAttemptedAt || null,
-      lastConnectedAt: runtimeEntry?.lastConnectedAt || null,
+      issue: manifestEnabled ? runtimeEntry?.lastError || null : null,
+      lastAttemptedAt: manifestEnabled ? runtimeEntry?.lastAttemptedAt || null : null,
+      lastConnectedAt: manifestEnabled ? runtimeEntry?.lastConnectedAt || null : null,
     };
   }
 

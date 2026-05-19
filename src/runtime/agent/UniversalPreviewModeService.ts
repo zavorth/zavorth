@@ -6,7 +6,7 @@ import type {
   UniversalToolRiskLevel,
 } from './UniversalAgentRuntimeTypes.js';
 
-export const UNIVERSAL_PREVIEW_MODE_CONTRACT_VERSION = '2026-05-03.wave-30' as const;
+export const UNIVERSAL_PREVIEW_MODE_CONTRACT_VERSION = '2026-05-03.universal-preview' as const;
 
 export type UniversalPreviewModePlanStepKind =
   | 'read'

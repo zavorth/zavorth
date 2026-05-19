@@ -123,7 +123,7 @@ export class CapabilityAutopilotPreflightSurfaceService {
       actions: this.buildActions(input.hint, surface),
       hint: input.hint,
       metadata: {
-        phase: 'capability-autopilot-phase-15',
+        phase: 'capability-autopilot-checkpoint-15',
         compact: COMPACT_SURFACES.has(surface),
         sourceHintStatus: input.hint.status,
         sourceHintKind: input.hint.hintKind,

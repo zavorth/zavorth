@@ -32,5 +32,5 @@ if (json) {
     console.log(`blockers: ${snapshot.apply.blockers.join(', ')}`);
   }
   console.log(`receipt: ${snapshot.receipt.id}`);
-  console.log('next: Phase 5 mnemos:query');
+  console.log('next: Credential vault mnemos:query');
 }

@@ -1,7 +1,7 @@
 import { getEncoding } from 'js-tiktoken';
 
 /**
- * TokenCounter — Guarda Costeira Preventiva (Fase 4 do God-Mode).
+ * TokenCounter — Guarda Costeira Preventiva (Etapa 4 do God-Mode).
  * Funciona medindo o peso semântico das conversas e do histórico do Agentic RAG
  * ANTES de enviá-los às APIs pagas (OpenAI / Anthropic / Gemini).
  * Se o limite for rompido, o Zavorth truncará o histórico defensivamente.

@@ -21,7 +21,7 @@ describe('ZavorthApprovalReceiptTrustUxService', () => {
       visualReceipts,
     });
 
-    expect(snapshot.contractVersion).toBe('2026-05-14.phase-5-approval-receipt-trust-ux');
+    expect(snapshot.contractVersion).toBe('2026-05-14.checkpoint-5-approval-receipt-trust-ux');
     expect(snapshot.status).toBe('attention');
     expect(snapshot.summary.pendingApprovals).toBe(1);
     expect(snapshot.simpleMode.primaryText).toContain('Approval is scoped to the exact action shown');

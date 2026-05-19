@@ -100,7 +100,7 @@ export class UniversalSkillExpansionQaService {
 
   public formatSnapshotText(snapshot: ZavorthUniversalSkillExpansionQaSnapshot): string {
     const lines = [
-      'Universal Skill Expansion QA - Phase 7',
+      'Universal Skill Expansion QA - Surface controls',
       '',
       `Status: ${snapshot.status}`,
       `Modo recomendado: ${snapshot.rollout.recommendedMode}`,
@@ -118,8 +118,8 @@ export class UniversalSkillExpansionQaService {
     }
 
     lines.push('', 'Rollout:');
-    for (const stage of snapshot.rollout.stages) {
-      lines.push(`- ${stage.label}: ${stage.status} | ${stage.summary}`);
+    for (const phase of snapshot.rollout.phases) {
+      lines.push(`- ${phase.label}: ${phase.status} | ${phase.summary}`);
     }
 
     lines.push('', 'Proximas acoes:');
@@ -127,7 +127,7 @@ export class UniversalSkillExpansionQaService {
       lines.push(`- ${action}`);
     }
 
-    lines.push('', `Next: ${snapshot.commands.nextPhase}`);
+    lines.push('', `Next: ${snapshot.commands.nextStage}`);
     return lines.join('\n');
   }
 
@@ -176,7 +176,7 @@ export class UniversalSkillExpansionQaService {
         run: 'npm run zavorth:universal-skill-expansion-qa -- --source <path>',
         runJson: 'npm run zavorth:universal-skill-expansion-qa:json -- --source <path>',
         check: 'npm run zavorth:universal-skill-expansion-qa:check --silent',
-        nextPhase: 'Phase 8 - Real Source Onboarding and Continuous Regression',
+        nextStage: 'Dashboard controls - Real Source Onboarding and Continuous Regression',
       },
     };
   }
@@ -229,7 +229,7 @@ export class UniversalSkillExpansionQaService {
     status: ZavorthUniversalSkillExpansionQaStatus;
   }): ZavorthUniversalSkillExpansionQaSnapshot['rollout'] {
     const expansion = input.expansion;
-    const stages: ZavorthUniversalSkillExpansionQaRolloutStage[] = [
+    const phases: ZavorthUniversalSkillExpansionQaRolloutStage[] = [
       {
         id: 'preview',
         label: 'Preview de fontes',
@@ -279,7 +279,7 @@ export class UniversalSkillExpansionQaService {
         label: 'Monitoramento',
         status: input.status === 'blocked' ? 'blocked' : 'passed',
         summary: 'Relatorio QA agregado disponivel para regressao.',
-        nextAction: 'Adicionar o check da Fase 7 ao workspace:check.',
+        nextAction: 'Adicionar o check da Etapa 7 ao workspace:check.',
       },
     ];
     const recommendedMode = input.status === 'blocked'
@@ -293,7 +293,7 @@ export class UniversalSkillExpansionQaService {
     return {
       readyForOperatorUse: input.status !== 'blocked',
       recommendedMode,
-      stages,
+      phases,
       nextActions: this.buildNextActions(expansion, input.status),
     };
   }

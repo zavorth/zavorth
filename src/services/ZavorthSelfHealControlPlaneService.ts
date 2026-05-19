@@ -829,7 +829,7 @@ export class ZavorthSelfHealControlPlaneService {
       force: input.force,
       goal: 'auto',
       requestedBy: input.requestedBy || 'cli-operator',
-      reason: 'Self-Heal Fase 30 aplicou recuperacao segura e supervisionada.',
+      reason: 'Self-Heal Etapa 30 aplicou recuperacao segura e supervisionada.',
     } as SelfHealDynamic);
 
     return {

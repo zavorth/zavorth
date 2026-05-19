@@ -222,14 +222,14 @@ export class UniversalSkillTrustImportService {
         plan: 'npm run zavorth:universal-skill-import -- --source <path>',
         apply: 'npm run zavorth:universal-skill-import -- --source <path> --allow-source --skills <name> --apply',
         check: 'npm run zavorth:universal-skill-import:check --silent',
-        nextPhase: 'Phase 3 - Skill Bridge Runtime',
+        nextStage: 'Approval gate - Skill Bridge Runtime',
       },
     };
   }
 
   public formatSnapshotText(snapshot: ZavorthUniversalSkillImportSnapshot): string {
     const lines = [
-      'Zavorth Universal Skill Import - Phase 2',
+      'Zavorth Universal Skill Import - Preview engine',
       `Status: ${snapshot.status}`,
       `Apply: ${snapshot.apply}`,
       `Source: ${snapshot.trustPolicy.sourceLabel} (${snapshot.trustPolicy.sourceId})`,
@@ -251,7 +251,7 @@ export class UniversalSkillTrustImportService {
       );
     }
 
-    lines.push('', `Next: ${snapshot.commands.nextPhase}`);
+    lines.push('', `Next: ${snapshot.commands.nextStage}`);
     return lines.join('\n');
   }
 

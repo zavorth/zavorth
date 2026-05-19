@@ -42,7 +42,7 @@ function ruleFilesExist() {
     'scripts/zavorth-external-agent-gateway.ts',
     'scripts/zavorth-external-agent-gateway-check.mjs',
     'tests/services/ZavorthExternalAgentGatewayService.test.ts',
-    'docs/38-external-agent-gateway.md',
+    'docs/external-agent-gateway.md',
     'src/zavorth-cli.ts',
     'src/domain/surface/presentation/web-app/WebAppRuntimeStateRouteService.ts',
     'src/telegram/TelegramCommandRoutingService.ts',

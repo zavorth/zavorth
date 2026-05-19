@@ -161,7 +161,7 @@ async function main() {
     console.info = originalConsole.info;
     process.stdout.write(`${JSON.stringify(snapshot, null, 2)}\n`);
   } else {
-    console.log('[federated-mesh] leitura oficial da Fase 21');
+    console.log('[federated-mesh] leitura oficial da Etapa 21');
     console.log(`[federated-mesh] postura=${snapshot.summary.posture} | infra=${snapshot.summary.infrastructureState} | implementation=${snapshot.summary.implementationReady ? 'ready' : 'pending'}`);
     console.log(`[federated-mesh] nodes=${snapshot.summary.onlineNodes}/${snapshot.summary.remoteNodes} online | revoked=${snapshot.summary.revokedNodes} | capabilities=${snapshot.summary.routeableCapabilities}/${snapshot.summary.capabilityCount}`);
     console.log(`[federated-mesh] runtime pesado iniciado=${snapshot.summary.heavyRuntimesStarted ? 'yes' : 'no'}`);

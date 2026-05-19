@@ -7,7 +7,7 @@ import { SourceChannelMeshExpansionService } from '../../src/services/SourceChan
 import { SourceChannelSecretPolicyService } from '../../src/services/SourceChannelSecretPolicyService.js';
 import { SourceChannelSimulatorService } from '../../src/services/SourceChannelSimulatorService.js';
 
-describe('SourceChannelMeshExpansionService Phase 4', () => {
+describe('SourceChannelMeshExpansionService Connector registry', () => {
   const now = () => new Date('2026-05-05T16:00:00.000Z');
   let tempRoot: string;
   let sourceRoot: string;
@@ -132,7 +132,7 @@ describe('SourceChannelMeshExpansionService Phase 4', () => {
     );
   });
 
-  it('emits a passing Phase 4 Channel Mesh expansion snapshot', () => {
+  it('emits a passing Connector registry Channel Mesh expansion snapshot', () => {
     const service = new SourceChannelMeshExpansionService({
       now,
       sourceRoot,
@@ -184,14 +184,14 @@ describe('SourceChannelMeshExpansionService Phase 4', () => {
       expect.objectContaining({
         noSourceSourceCopy: true,
         optionalPacksOnly: true,
-        noLiveIoDuringPhase4Check: true,
+        noLiveIoDuringStage4Check: true,
         secretRefOnlyChannelAuth: true,
         whatsappBaileysRequiresPatchRiskOwnerDecision: true,
       }),
     );
-    expect(snapshot.commands.nextPhase).toBe('Phase 5 - Memory, Document, Search And Terminal Pack');
-    expect(text).toContain('Zavorth Source Channel Mesh Expansion - Phase 4');
-    expect(text).toContain('Next: Phase 5 - Memory, Document, Search And Terminal Pack');
+    expect(snapshot.commands.nextStage).toBe('Credential vault - Memory, Document, Search And Terminal Pack');
+    expect(text).toContain('Zavorth Source Channel Mesh Expansion - Connector registry');
+    expect(text).toContain('Next: Credential vault - Memory, Document, Search And Terminal Pack');
   });
 });
 

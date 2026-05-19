@@ -5,7 +5,7 @@ import type { SourceSurfaceLedgerDocument, SourceSurfaceLedgerEntry } from '../.
 import { SourceSurfaceLedgerService } from '../../src/services/SourceSurfaceLedgerService.js';
 import { SourceSurfaceScannerService } from '../../src/services/SourceSurfaceScannerService.js';
 
-describe('SourceSurfaceLedgerService Phase 0', () => {
+describe('SourceSurfaceLedgerService Security contract', () => {
   const now = () => new Date('2026-05-05T12:00:00.000Z');
   let tempRoot: string;
   let sourceRoot: string;
@@ -87,7 +87,7 @@ describe('SourceSurfaceLedgerService Phase 0', () => {
     const receipt = service.buildReceipt();
 
     expect(receipt.status).toBe('passed');
-    expect(receipt.contractVersion).toBe('2026-05-05.phase-0');
+    expect(receipt.contractVersion).toBe('2026-05-05.checkpoint-0');
     expect(receipt.phase).toBe(0);
     expect(receipt.summary.total).toBe(20);
     expect(receipt.summary.unclassifiedSurfaces).toBe(0);
@@ -100,7 +100,7 @@ describe('SourceSurfaceLedgerService Phase 0', () => {
         failOnUnclassifiedSurfaces: true,
       }),
     );
-    expect(receipt.commands.nextPhase).toBe('Phase 1 - Plugin OS And Package SDK Absorption');
+    expect(receipt.commands.nextStage).toBe('Intent model - Plugin OS And Package SDK Absorption');
   });
 
   it('fails the receipt when a new app or important runtime dependency is unclassified', () => {
@@ -136,10 +136,10 @@ describe('SourceSurfaceLedgerService Phase 0', () => {
     });
     const text = service.formatReceiptText();
 
-    expect(text).toContain('Zavorth Source Surface Ledger - Phase 0');
+    expect(text).toContain('Zavorth Source Surface Ledger - Security contract');
     expect(text).toContain('Status: passed');
     expect(text).toContain('Entries: 20');
-    expect(text).toContain('Next: Phase 1 - Plugin OS And Package SDK Absorption');
+    expect(text).toContain('Next: Intent model - Plugin OS And Package SDK Absorption');
   });
 });
 

@@ -150,8 +150,8 @@ export type ZavorthCapabilityProviderRegistrySnapshot = {
   generatedAt: string;
   contractVersion: typeof ZAVORTH_CAPABILITY_PROVIDER_REGISTRY_CONTRACT_VERSION;
   status: ZavorthCapabilityProviderRegistryStatus;
-  planId: '291 - Plano Zavorth External Runtime Absorption';
-  phase: 'phase-4-capability-providers';
+  planId: 'Zavorth External Runtime Integration';
+  phase: 'capability-providers';
   previousSidecarAdapterStatus: ZavorthExternalSidecarAdapterStatus;
   normalizedCapabilities: ZavorthCapabilityProviderNormalizedCapability[];
   manifestImportReceipts: ZavorthCapabilityProviderManifestImportReceipt[];
@@ -192,6 +192,6 @@ export type ZavorthCapabilityProviderRegistrySnapshot = {
     inspect: 'npm run zavorth:capability-provider-registry';
     inspectJson: 'npm run zavorth:capability-provider-registry:json';
     check: 'npm run zavorth:capability-provider-registry:check --silent';
-    nextPhase: '291 Phase 5 - Channels And Messaging';
+    nextStage: '291 Credential vault - Channels And Messaging';
   };
 };

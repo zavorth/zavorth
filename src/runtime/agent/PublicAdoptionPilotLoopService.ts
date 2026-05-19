@@ -2,7 +2,7 @@ import type { PilotLoopSnapshot } from '../../contracts/PilotLoopContract.js';
 import type { FeedbackTelemetryProductLoopSnapshot } from './FeedbackTelemetryProductLoopService.js';
 import type { UniversalAgentRun } from './UniversalAgentRuntimeTypes.js';
 
-export const PUBLIC_ADOPTION_PILOT_LOOP_CONTRACT_VERSION = '2026-05-04.wave-51' as const;
+export const PUBLIC_ADOPTION_PILOT_LOOP_CONTRACT_VERSION = '2026-05-04.adoption-pilot' as const;
 export const PUBLIC_ADOPTION_PILOT_LOOP_METADATA_KEY = 'publicAdoptionPilotLoop' as const;
 
 export type PublicAdoptionPilotLoopStatus =
@@ -74,7 +74,7 @@ export type PublicAdoptionPilotLoopSnapshot = {
     ledgerEntryCount: number;
     supportPolicyCount: number;
     dashboardMetricCount: number;
-    nextPhase: string | null;
+    nextStage: string | null;
   };
   artifacts: {
     feedbackPreviewPath: string | null;
@@ -288,7 +288,7 @@ export class PublicAdoptionPilotLoopService {
         ledgerEntryCount: ledgerEntries.length,
         supportPolicyCount,
         dashboardMetricCount: dashboardMetrics.length,
-        nextPhase: normalizeText(pilot?.nextRecommendedPhase?.phase) || null,
+        nextStage: normalizeText(pilot?.nextRecommendedPhase?.phase) || null,
       },
       artifacts: {
         feedbackPreviewPath: normalizeText(pilot?.artifacts.feedbackPreviewPath) || null,
@@ -426,7 +426,7 @@ export class PublicAdoptionPilotLoopService {
         command: 'zavorth feedback-product-loop --json',
         detail: input.feedbackProductLoopReady
           ? 'Feedback esta opt-in-ready, redigido e reversivel.'
-          : 'Piloto depende da Wave 50 opt-in-ready.',
+          : 'Piloto depende da Feedback Telemetry opt-in-ready.',
         critical: true,
       },
       {
@@ -542,7 +542,7 @@ export class PublicAdoptionPilotLoopService {
         label: 'Integration showcase',
         routeOrCommand: 'npm run qa:phase:58',
         status: input.canStartControlledPilot ? 'ready' : 'needs-action',
-        detail: 'Fase 58 so deve abrir depois do piloto estar pronto.',
+        detail: 'Readiness checkpoint 8 so deve abrir depois do piloto estar pronto.',
       },
     ];
   }
@@ -604,7 +604,7 @@ export class PublicAdoptionPilotLoopService {
 
   private resolveNextSafeAction(status: PublicAdoptionPilotLoopStatus): string {
     if (status === 'needs-feedback-product-loop') {
-      return 'Publicar Wave 50 como opt-in-ready antes de iniciar piloto.';
+      return 'Publicar Feedback Telemetry como opt-in-ready antes de iniciar piloto.';
     }
     if (status === 'needs-pilot-loop') {
       return 'Rodar npm run qa:pilot-loop e anexar PilotLoopSnapshot ao run.';

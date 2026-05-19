@@ -5,7 +5,7 @@ import type {
 } from './CapabilityNormalizationContract.js';
 import type { ParityCertificationSnapshot } from './ParityCertificationContract.js';
 
-export const ZAVORTH_NATIVE_CAPABILITY_CLOSURE_CONTRACT_VERSION = '2026-05-04.phase-12';
+export const ZAVORTH_NATIVE_CAPABILITY_CLOSURE_CONTRACT_VERSION = '2026-05-04.checkpoint-12';
 
 export type NativeCapabilityClosureStatus = 'closed' | 'attention';
 
@@ -59,7 +59,7 @@ export type NativeCapabilityClosureSnapshot = {
     check: string;
     capabilityNormalization: string;
     certify: string;
-    nextPhase: 'Fase 13 - Remaining Runtime Decisions';
+    nextStage: 'Etapa 13 - Remaining Runtime Decisions';
   };
   policy: {
     closureIsContractDeclarationOnly: true;

@@ -23,16 +23,16 @@ const rules = [
   ruleContainsAll({
     id: 'final-canary-release-closure-contract',
     label: 'Contract defines final closure vocabulary',
-    target: 'Contract includes closure items, gates, receipts, commands and Phase 24 sequence closure policy',
+    target: 'Contract includes closure items, gates, receipts, commands and Preview engine4 sequence closure policy',
     files: ['src/contracts/FinalCanaryReleaseClosureContract.ts'],
     needles: [
       'ZAVORTH_FINAL_CANARY_RELEASE_CLOSURE_CONTRACT_VERSION',
       'FinalCanaryReleaseClosureItem',
       'FinalCanaryReleaseClosureSnapshot',
       'closed-dry-run',
-      "phaseRange: '20-24'",
-      'noFurtherAutomatedPhase: true',
-      'sequenceClosesAtPhase24: true',
+      "stageRange: '20-24'",
+      'noFurtherAutomatedStage: true',
+      'sequenceClosesAtStage24: true',
       'separateManualReleaseDecisionRequired: true',
       'closesCanaryDryRunSequence: true',
       'secretsSerialized: false',
@@ -41,19 +41,19 @@ const rules = [
   ruleContainsAll({
     id: 'final-canary-release-closure-service',
     label: 'Service closes canary dry-run sequence from promotion decision ledger',
-    target: 'Service consumes Phase 23, links phases 20-24, prepares handoff evidence, and keeps every live side effect locked',
+    target: 'Service consumes Preview engine3, links phases 20-24, prepares handoff evidence, and keeps every live side effect locked',
     files: ['src/services/FinalCanaryReleaseClosureService.ts'],
     needles: [
       'FinalCanaryReleaseClosureService',
       'CanaryPromotionDecisionLedgerService',
       'promotion-decision-ledger-input',
-      'phase-20-approval-ledger-link',
-      'phase-21-launch-rehearsal-link',
-      'phase-22-monitoring-rollback-link',
-      'phase-23-promotion-decision-link',
+      'checkpoint-20-approval-ledger-link',
+      'checkpoint-21-launch-rehearsal-link',
+      'checkpoint-22-monitoring-rollback-link',
+      'checkpoint-23-promotion-decision-link',
       'side-effect-zeroing-evidence',
       'manual-release-decision-handoff',
-      'Canary dry-run sequence complete at Phase 24',
+      'Canary dry-run sequence complete at Preview engine4',
     ],
   }),
   ruleContainsAll({
@@ -117,7 +117,7 @@ const snapshot = {
 if (asJson) {
   console.log(JSON.stringify(snapshot, null, 2));
 } else {
-  console.log('[final-canary-release-closure] checking Phase 24');
+  console.log('[final-canary-release-closure] checking Preview engine4');
   for (const rule of rules) {
     const marker = rule.status === 'passed' ? 'ok' : 'fail';
     console.log(`[final-canary-release-closure] ${marker} ${rule.label}: ${rule.observed} | ${rule.target}`);

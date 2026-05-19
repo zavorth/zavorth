@@ -140,7 +140,7 @@ export class CanaryExecutionApprovalLedgerService {
           'npm run canary-execution-approval-ledger --silent -- --require-ledger-ready',
         ],
         typecheck: 'npm run runtime:check --silent',
-        nextPhase: 'Canary launch rehearsal',
+        nextStage: 'Canary launch rehearsal',
       },
       policy: {
         approvalLedgerOnly: true,
@@ -199,7 +199,7 @@ export class CanaryExecutionApprovalLedgerService {
         `- ${gate.status.toUpperCase()} ${gate.id}: ${gate.observed} / ${gate.threshold} - ${gate.nextAction}`,
       ),
       '',
-      `Next: ${snapshot.commands.nextPhase}`,
+      `Next: ${snapshot.commands.nextStage}`,
     ].join('\n');
   }
 
@@ -337,7 +337,7 @@ export class CanaryExecutionApprovalLedgerService {
         observed: input.canaryPlanReady,
         threshold: true,
         receipt: 'canary-execution-approval.canary-plan-ready.receipt',
-        nextAction: 'finish Phase 19 before preparing execution approval ledger',
+        nextAction: 'finish Intent model9 before preparing execution approval ledger',
       }),
       gate({
         id: 'release-execution-gate-linked',

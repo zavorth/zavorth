@@ -101,7 +101,7 @@ export class ZavorthAgentPracticalityCompletionService {
       },
       nextArchitectureSuggestion: {
         title: 'Vision, Computer And Device Control Plane',
-        shouldSuggestAfterPhase6: true,
+        shouldSuggestAfterStage6: true,
         scope: ['PC vision', 'browser vision', 'Android ADB bridge', '/device', '/vision', '/computer', 'Policy Broker'],
       },
     };
@@ -109,7 +109,7 @@ export class ZavorthAgentPracticalityCompletionService {
 
   public formatSnapshotText(snapshot: ZavorthAgentPracticalityCompletionSnapshot): string {
     return [
-      'Zavorth Agent Practicality Completion - Phase 6',
+      'Zavorth Agent Practicality Completion - Runtime gateway',
       '',
       `Status: ${snapshot.status}`,
       `Surfaces: ${snapshot.surfaceProjections.filter((surface) => surface.status === 'passed').length}/${snapshot.surfaceProjections.length}`,
@@ -134,8 +134,8 @@ function buildAxes(
     axis('surface-response', 'Agent UX is a channel-neutral SurfaceResponse', response.blocks.length >= 3 && safeActions(response).length >= 4, `${response.blocks.length} blocks and ${safeActions(response).length} actions`),
     axis('commands', 'Daily agent commands are discoverable', REQUIRED_COMMANDS.every((command) => commands.includes(command)), `${commands.length} commands projected`),
     axis('cross-surface', 'Main channels can consume equivalent actions', surfaceProjections.every((surface) => surface.status === 'passed'), `${surfaceProjections.length} surfaces projected`),
-    axis('command-center', 'Command Center/API projection is operational before visual mutation', true, 'Phase 5 exposes operational/actions/timeline/receipts without changing layout'),
-    axis('safety', 'Phase 6 stays read-only and approval-first', true, 'no workspace mutation, no external I/O, visual changes require owner approval'),
+    axis('command-center', 'Command Center/API projection is operational before visual mutation', true, 'Credential vault exposes operational/actions/timeline/receipts without changing layout'),
+    axis('safety', 'Runtime gateway stays read-only and approval-first', true, 'no workspace mutation, no external I/O, visual changes require owner approval'),
   ];
 }
 

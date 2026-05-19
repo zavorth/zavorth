@@ -90,7 +90,7 @@ describe('ZavorthNaturalSetupControlPlaneService', () => {
     expect(snapshot.planPreview.capability?.state).toBe('dormant');
     expect(snapshot.actions[0]).toEqual(expect.objectContaining({ id: 'fill-missing-env' }));
     expect(await service.renderReport({ intentText: 'Quero me conectar ao Discord' })).toContain(
-      'Wave A: Natural Setup Agent',
+      'Natural setup: Natural Setup Agent',
     );
   });
 

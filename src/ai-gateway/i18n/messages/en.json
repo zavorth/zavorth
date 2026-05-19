@@ -194,7 +194,8 @@
     "themeCyan": "Cyan",
     "cliToolsShort": "Tools",
     "cache": "Cache",
-    "cacheShort": "Cache"
+    "cacheShort": "Cache",
+    "expressive": "Expressive"
   },
   "themesPage": {
     "title": "Themes",

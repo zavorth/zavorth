@@ -120,7 +120,7 @@ export class ZavorthTransactionLiveCandidateEnvelopeService {
 
   public renderReport(result: ZavorthTransactionLiveCandidateResult): string {
     return [
-      '[transaction-live-candidate] Phase 10 owner-gated live candidate envelope',
+      '[transaction-live-candidate] Intent model0 owner-gated live candidate envelope',
       `[transaction-live-candidate] status: ${result.status}`,
       `[transaction-live-candidate] owner: ${result.ownerGate.ownerId}`,
       `[transaction-live-candidate] owner-confirmed: ${result.ownerGate.confirmed}`,
@@ -140,14 +140,14 @@ export class ZavorthTransactionLiveCandidateEnvelopeService {
 
 function certificationLedgerFile(ledgerFile: string | undefined): string {
   return ledgerFile
-    ? `${ledgerFile}.phase9-certification.jsonl`
-    : path.join(process.cwd(), 'data', 'runtime', 'zavorth-transaction-live-candidate-phase9-certification-ledger.jsonl');
+    ? `${ledgerFile}.certification-matrix-certification.jsonl`
+    : path.join(process.cwd(), 'data', 'runtime', 'zavorth-transaction-live-candidate-certification-matrix-certification-ledger.jsonl');
 }
 
 function certificationCredentialStoreFile(storeFile: string | undefined): string {
   return storeFile
-    ? `${storeFile}.phase9-certification.jsonl`
-    : path.join(process.cwd(), 'data', 'runtime', 'zavorth-transaction-live-candidate-phase9-certification-credential-refs.jsonl');
+    ? `${storeFile}.certification-matrix-certification.jsonl`
+    : path.join(process.cwd(), 'data', 'runtime', 'zavorth-transaction-live-candidate-certification-matrix-certification-credential-refs.jsonl');
 }
 
 function createCommandCenter(input: {
@@ -257,9 +257,9 @@ function buildGates(input: {
   const connectorStatus = runtime.connectorRun?.status ?? 'not-run';
   return [
     gate(
-      'phase9-certification',
+      'certification-matrix-certification',
       input.certificationStatus === 'passed',
-      'Phase 9 certification must pass before any live-candidate envelope is considered.',
+      'Certification matrix certification must pass before any live-candidate envelope is considered.',
       [`certification=${input.certificationStatus}`],
     ),
     gate(
@@ -303,7 +303,7 @@ function buildGates(input: {
       projection.safety.liveActionApplied === false
         && projection.safety.liveExecutionAuthorized === false
         && projection.safety.executableNow === false,
-      'Phase 10 keeps live execution disabled even when a candidate envelope is ready.',
+      'Intent model0 keeps live execution disabled even when a candidate envelope is ready.',
       [
         `liveActionApplied=${projection.safety.liveActionApplied}`,
         `liveExecutionAuthorized=${projection.safety.liveExecutionAuthorized}`,
@@ -328,7 +328,7 @@ function gate(
 }
 
 function resolveStatus(gates: ZavorthTransactionLiveCandidateGate[]): ZavorthTransactionLiveCandidateStatus {
-  if (!isGatePassed(gates, 'phase9-certification')) {
+  if (!isGatePassed(gates, 'certification-matrix-certification')) {
     return 'certification-required';
   }
   const runtimeGates = [
@@ -360,7 +360,7 @@ function summaryForStatus(status: ZavorthTransactionLiveCandidateStatus): string
     return 'Runtime is ready for a candidate envelope, but explicit owner confirmation is still required.';
   }
   if (status === 'certification-required') {
-    return 'Phase 9 certification must pass before a live-candidate envelope can be considered.';
+    return 'Certification matrix certification must pass before a live-candidate envelope can be considered.';
   }
   return 'Runtime, approval, credential, connector or redaction gate blocked the live-candidate envelope.';
 }
@@ -372,20 +372,20 @@ function nextStepsForStatus(
   if (status === 'candidate-ready') {
     return [
       'Review the candidate envelope in a separate owner-gated live activation phase.',
-      'Do not execute live from Phase 10; this result is candidate-only.',
+      'Do not execute live from Intent model0; this result is candidate-only.',
     ];
   }
   if (status === 'owner-confirmation-required') {
     return [`Re-run with owner confirmation phrase: ${ZAVORTH_TRANSACTION_LIVE_CANDIDATE_OWNER_PHRASE}`];
   }
   if (status === 'certification-required') {
-    return ['Run Phase 9 certification and resolve any failed gate before trying Phase 10 again.'];
+    return ['Run Certification matrix certification and resolve any failed gate before trying Intent model0 again.'];
   }
   return blockers.map((blocker) => `Resolve gate: ${blocker}`);
 }
 
 function buildResultId(text: string, now: Date): string {
-  const hash = createHash('sha256').update(`${now.toISOString()}:phase10:${text}`).digest('hex').slice(0, 16);
+  const hash = createHash('sha256').update(`${now.toISOString()}:intent-model0:${text}`).digest('hex').slice(0, 16);
   return `ztx-live-candidate-${hash}`;
 }
 

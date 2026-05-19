@@ -238,7 +238,7 @@ export class ZavorthAutomationControlPlaneService {
         'a cada 30m verifique os transports via webhook https://example.com/hook',
       ],
       narrative: {
-        headline: 'Fase 17: Automations e scheduled runs',
+        headline: 'Etapa 17: Automations e scheduled runs',
         operatorSummary:
           `${summary.activeTasks} automacao(oes) ativa(s), ${summary.failedTasks} com falha recente, `
           + `${summary.autoPausedTasks} auto-pausada(s) e ${summary.outboxQueued} entrega(s) pendente(s) no outbox.`,
@@ -250,7 +250,7 @@ export class ZavorthAutomationControlPlaneService {
   public async renderReport(input: { query?: string | null; limit?: number } = {}): Promise<string> {
     const snapshot = await this.buildSnapshot(input);
     const lines = [
-      'Wave F: Automations e scheduled runs',
+      'Scheduled runs: Automations e scheduled runs',
       '',
       snapshot.narrative.operatorSummary,
       `Postura: ${snapshot.summary.posture}.`,

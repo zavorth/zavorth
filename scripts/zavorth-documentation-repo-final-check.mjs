@@ -25,7 +25,7 @@ const snapshot = {
 if (asJson) {
   console.log(JSON.stringify(snapshot, null, 2));
 } else {
-  console.log('[zavorth-documentation-repo-final] checking Phase 15');
+  console.log('[zavorth-documentation-repo-final] checking Intent model5');
   for (const rule of rules) {
     const marker = rule.status === 'passed' ? 'ok' : 'fail';
     console.log(`[zavorth-documentation-repo-final] ${marker} ${rule.label}: ${rule.observed} | ${rule.target}`);
@@ -45,8 +45,8 @@ function ruleFilesExist() {
   ];
   const missing = files.filter((file) => !fs.existsSync(path.join(root, file)));
   return rule(
-    'phase-15-files',
-    'Phase 15 files exist',
+    'checkpoint-15-files',
+    'Intent model5 files exist',
     missing.length === 0,
     `${files.length - missing.length}/${files.length}`,
     'contract, service, CLI, check and tests are present',
@@ -59,7 +59,7 @@ function ruleContainsMarkers() {
     ['src/contracts/ZavorthDocumentationRepoFinalContract.ts', [
       'ZAVORTH_DOCUMENTATION_REPO_FINAL_CONTRACT_VERSION',
       'dashboardIsPrimarySurface',
-      'docsDoNotPublishPhaseDiaries',
+      'docsDoNotPublishImplementationDiaries',
       'publicIdentityIsZavorthNative',
       'proprietaryDistributionIsExplicit',
     ]],
@@ -85,7 +85,7 @@ function ruleContainsMarkers() {
     }
   }
   return rule(
-    'phase-15-markers',
+    'checkpoint-15-markers',
     'Final repo markers are wired',
     missing.length === 0,
     missing.length === 0 ? 'all markers' : `${missing.length} missing`,
@@ -122,7 +122,7 @@ function ruleWorkspaceCheck() {
   if (!daily.includes('zavorth:documentation-repo-final:check')) failures.push('daily:certify missing final closure gate');
   return rule(
     'workspace-check',
-    'workspace and daily gates include Phase 15',
+    'workspace and daily gates include Intent model5',
     failures.length === 0,
     failures.length === 0 ? 'wired' : `${failures.length} missing`,
     'workspace:check and daily:certify include final closure gate',
@@ -148,7 +148,7 @@ function ruleSnapshot() {
   }
   const data = parseJson(result.stdout);
   const pass = data
-    && data.contractVersion === '2026-05-14.phase-15-documentation-repo-final'
+    && data.contractVersion === '2026-05-14.checkpoint-15-documentation-repo-final'
     && data.status === 'passed'
     && data.summary?.publicDocsNeedingFix === 0
     && data.summary?.archiveOrDeleteCandidates === 0

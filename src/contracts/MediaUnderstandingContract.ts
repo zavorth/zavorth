@@ -16,9 +16,9 @@
  * Capability canônica: `media.understand`
  *
  * Referências arquiteturais:
- * - docs/327-zavorth-native-absorption-execution-plan.md (Wave 3)
- * - docs/329-wave1-media-generate-implementation.md (padrão contract)
- * - docs/330-wave2-search-query-implementation.md (padrão contract)
+ * - docs/native-absorption-execution-plan.md
+ * - docs/product-direction.md (padrão contract)
+ * - docs/product-direction.md (padrão contract)
  *
  * @module contracts/MediaUnderstandingContract
  * @since 2026-05-03

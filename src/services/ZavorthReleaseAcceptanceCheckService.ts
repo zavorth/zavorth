@@ -50,7 +50,7 @@ const RELEASE_CHECKS: ReleaseCheck[] = [
     evidenceKind: 'local-command',
     scriptName: 'final-absorption-certification:check',
     target: 'Final absorption certification remains part of release acceptance.',
-    notes: ['The Phase 7 pack links prior certification to release readiness.'],
+    notes: ['The Surface controls pack links prior certification to release readiness.'],
   },
   {
     acceptanceId: 'release-hardening-gate',
@@ -62,21 +62,21 @@ const RELEASE_CHECKS: ReleaseCheck[] = [
     notes: ['This gate is required before treating a package as releasable.'],
   },
   {
-    acceptanceId: 'phase6-device-release-gate',
+    acceptanceId: 'runtime-gateway-device-release-gate',
     label: 'Native companion device release gate is registered',
     severity: 'required',
     evidenceKind: 'local-command',
     scriptName: 'zavorth-native-companion-device-pack:check',
-    target: 'Phase 6 device behavior remains part of release acceptance.',
+    target: 'Runtime gateway device behavior remains part of release acceptance.',
     notes: ['The check keeps optional native/device surfaces owner-gated and receipt-first.'],
   },
   {
-    acceptanceId: 'phase7-release-gate',
-    label: 'Phase 7 certification gate is registered',
+    acceptanceId: 'surface-controls-release-gate',
+    label: 'Surface controls certification gate is registered',
     severity: 'blocking',
     evidenceKind: 'local-command',
     scriptName: 'zavorth-qa-security-release-certification-pack:check',
-    target: 'The Phase 7 pack can certify itself locally.',
+    target: 'The Surface controls pack can certify itself locally.',
     notes: ['Self-registration prevents the certification runner from becoming a hidden-only API.'],
   },
   {
@@ -99,11 +99,11 @@ const RELEASE_CHECKS: ReleaseCheck[] = [
   },
   {
     acceptanceId: 'sdk-export-release-surface',
-    label: 'Phase 7 SDK export is present',
+    label: 'Surface controls SDK export is present',
     severity: 'required',
     evidenceKind: 'package-manifest',
     manifestCheck: (manifest) => Boolean(manifest.exports?.['./sdk/qa-security-release-certification-pack']),
-    target: 'The Phase 7 certification pack is importable from the SDK surface.',
+    target: 'The Surface controls certification pack is importable from the SDK surface.',
     notes: ['Operators can use the certification pack without importing private service paths.'],
   },
 ];
@@ -145,7 +145,7 @@ export class ZavorthReleaseAcceptanceCheckService {
         : 'warn';
 
     return {
-      id: `zavorth.phase7.release.${check.acceptanceId}.${this.now().getTime()}.receipt`,
+      id: `zavorth.surface-controls.release.${check.acceptanceId}.${this.now().getTime()}.receipt`,
       familyId: 'release-acceptance',
       checkId: check.acceptanceId,
       acceptanceId: check.acceptanceId,

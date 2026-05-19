@@ -205,7 +205,7 @@ export class GovernedReviewService {
       requiresApprovalBeforeMutation: true,
       policyTags: [
         'governed-review',
-        'phase-4',
+        'checkpoint-4',
         'read-only',
         `role:${kind}`,
       ],

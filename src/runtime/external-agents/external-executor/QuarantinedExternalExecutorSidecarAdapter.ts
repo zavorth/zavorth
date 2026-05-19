@@ -40,7 +40,7 @@ const EXTERNAL_EXECUTOR_DIAGNOSTICS: ExternalAgentAdapterDiagnostics = {
   endpointHint: '/mnt/c/TESTES DEV/zavorth-core/Zavorth/data/vendor/external-executor-repo',
   notes: [
     'Quarantined source-specific adapter; source name is diagnostic evidence only.',
-    'Phase 3 connects through an injected client and does not copy source runtime modules.',
+    'Approval gate connects through an injected client and does not copy source runtime modules.',
   ],
 };
 
@@ -66,7 +66,7 @@ export type QuarantinedExternalExecutorSidecarAdapterOptions = {
 };
 
 export const QUARANTINED_EXTERNAL_EXECUTOR_SIDECAR_LIFECYCLE: ExternalAgentAdapterLifecycleContract = {
-  phase: 'sidecar-adapter',
+  stage: 'sidecar-adapter',
   startBehavior: 'connect-existing-runtime-only',
   stopBehavior: 'disconnect-client-only',
   canSpawnSourceRuntime: false,
@@ -88,7 +88,7 @@ export class QuarantinedExternalExecutorSidecarAdapter implements ExternalAgentA
     adapterKind: 'sidecar',
     runtimeKind: 'external-agent-runtime',
     transport: 'stdio',
-    version: 'phase-3',
+    version: 'checkpoint-3',
     diagnostics: EXTERNAL_EXECUTOR_DIAGNOSTICS,
     namingQuarantine: EXTERNAL_AGENT_NAMING_QUARANTINE,
     boundary: EXTERNAL_AGENT_ADAPTER_BOUNDARY_POLICY,

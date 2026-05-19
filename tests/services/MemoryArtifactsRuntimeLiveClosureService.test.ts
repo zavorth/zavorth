@@ -5,13 +5,13 @@ import path from 'path';
 import { MemoryArtifactsRuntimeLiveClosureService } from '../../src/services/MemoryArtifactsRuntimeLiveClosureService.js';
 import { MemoryArtifactsRuntimeLiveService } from '../../src/services/MemoryArtifactsRuntimeLiveService.js';
 
-describe('MemoryArtifactsRuntimeLiveClosureService Phase 12', () => {
+describe('MemoryArtifactsRuntimeLiveClosureService Intent model2', () => {
   let workspaceRoot: string;
   let tempRoot: string;
 
   beforeEach(async () => {
-    workspaceRoot = await fs.promises.mkdtemp(path.join(os.tmpdir(), 'zavorth-phase12-workspace-'));
-    tempRoot = await fs.promises.mkdtemp(path.join(os.tmpdir(), 'zavorth-phase12-state-'));
+    workspaceRoot = await fs.promises.mkdtemp(path.join(os.tmpdir(), 'zavorth-intent-model2-workspace-'));
+    tempRoot = await fs.promises.mkdtemp(path.join(os.tmpdir(), 'zavorth-intent-model2-state-'));
   });
 
   afterEach(async () => {
@@ -19,13 +19,13 @@ describe('MemoryArtifactsRuntimeLiveClosureService Phase 12', () => {
     await fs.promises.rm(tempRoot, { recursive: true, force: true });
   });
 
-  it('closes Phase 12 memory, artifacts and runtime gates without live IO', () => {
+  it('closes Intent model2 memory, artifacts and runtime gates without live IO', () => {
     const snapshot = new MemoryArtifactsRuntimeLiveClosureService({
       now: () => new Date('2026-05-05T00:12:00.000Z'),
     }).buildSnapshot();
 
-    expect(snapshot.contractVersion).toBe('2026-05-05.live-phase-12');
-    expect(snapshot.phase).toBe('Phase 12 - Memory, Artifacts And Runtime Executor Live Closure');
+    expect(snapshot.contractVersion).toBe('2026-05-05.live-checkpoint-12');
+    expect(snapshot.phase).toBe('Intent model2 - Memory, Artifacts And Runtime Executor Live Closure');
     expect(snapshot.status).toBe('closed');
     expect(snapshot.summary).toEqual(
       expect.objectContaining({
@@ -47,7 +47,7 @@ describe('MemoryArtifactsRuntimeLiveClosureService Phase 12', () => {
         artifactsMarkedLiveWithoutReplay: false,
         runtimeMarkedLiveWithoutExecutionProfile: false,
         unsafeRuntimeBypassesApproval: false,
-        liveIoRequiredByPhase12Check: false,
+        liveIoRequiredBySandboxAdapterCheck: false,
         secretValuesSerialized: false,
       }),
     );
@@ -116,7 +116,7 @@ describe('MemoryArtifactsRuntimeLiveClosureService Phase 12', () => {
     expect(runtime.codexRunPlan).toBe(true);
     expect(runtime.openShellCommandPlan).toBe(true);
     expect(runtime.localRuntimeExecuted).toBe(true);
-    expect(runtime.stdout).toBe('zavorth-phase-12-runtime');
+    expect(runtime.stdout).toBe('zavorth-checkpoint-12-runtime');
     expect(runtime.approvalRequired).toBe(true);
   });
 

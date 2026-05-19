@@ -316,7 +316,7 @@ export class CanvasWorkspaceService {
       diagrams,
       sourceHealth,
       narrative: {
-        headline: 'Fase 22: Workspace Canvas Infinito',
+        headline: 'Workspace canvas: Workspace Canvas Infinito',
         operatorSummary: `${entities.length} entidade(s) projetada(s), ${summary.pendingApprovals} approval(s) pendente(s), ${summary.locks} lock(s) ativo(s), ${summary.attachments} anexo(s), sem iniciar Watch Mode, nodes ou automacoes.`,
         nextAction: pendingApprovals > 0
           ? 'Abrir entidade approval no canvas e aprovar pelo Mutation Plane quando fizer sentido.'

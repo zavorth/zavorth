@@ -92,12 +92,12 @@ describe('ZavorthSemanticQaSecurityReleaseCertificationService S7', () => {
       expect.objectContaining({
         kind: 'release-acceptance-policy',
         status: 'covered',
-        checkId: 'phase7-release-gate',
+        checkId: 'surface-controls-release-gate',
       }),
       expect.objectContaining({
         kind: 'workflow-semantic-policy',
         status: 'covered',
-        checkId: 'phase7-certification-before-release',
+        checkId: 'surface-controls-certification-before-release',
       }),
     ]));
   });

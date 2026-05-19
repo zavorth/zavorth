@@ -179,14 +179,14 @@ export type ZavorthNativeDashboardViewModelRegistrySnapshot = {
     degradedOrUnavailableIds: string[];
   };
   sourceArtifactsConsumed: {
-    realCapabilitySnapshot: 'docs/161-wave-1-real-capability-snapshot-read-only.md';
-    liveReadOnlyBridge: 'docs/169-wave-1-external-executor-live-read-only-bridge-boundary.md';
-    observabilityProjection: 'docs/170-wave-1-external-executor-live-observability-projection.md';
-    eventStreamAdapter: 'docs/171-wave-1-external-executor-read-only-event-stream-adapter.md';
-    sessionHistoryBridge: 'docs/172-wave-1-external-executor-session-history-read-only-bridge.md';
-    commandCenterAssimilation: 'docs/173-wave-1-command-center-live-assimilation.md';
-    transportDiscovery: 'docs/183-wave-2-real-message-transport-capability-discovery.md';
-    nativeCapabilityRegistry: 'docs/185-wave-3-first-native-capability-registry-replacement-slice.md';
+    realCapabilitySnapshot: 'docs/real-capability-snapshot-read-only.md';
+    liveReadOnlyBridge: 'docs/external-executor-live-read-only-bridge-boundary.md';
+    observabilityProjection: 'docs/external-executor-live-observability-projection.md';
+    eventStreamAdapter: 'docs/external-executor-read-only-event-stream-adapter.md';
+    sessionHistoryBridge: 'docs/external-executor-session-history-read-only-bridge.md';
+    commandCenterAssimilation: 'docs/command-center-live-assimilation.md';
+    transportDiscovery: 'docs/real-message-transport-capability-discovery.md';
+    nativeCapabilityRegistry: 'docs/first-native-capability-registry-replacement-slice.md';
   };
   runtimeExternalExecutorRequiredForDashboardViewLookup: false;
   runtimeExternalExecutorRequiredForDashboardRender: false;
@@ -405,7 +405,7 @@ function recordsFromCapabilityRegistry(
       view.status,
       view.nativeContract,
       'native-capability-registry',
-      [view.registryEntryId, 'docs/185-wave-3-first-native-capability-registry-replacement-slice.md'],
+      [view.registryEntryId, 'docs/first-native-capability-registry-replacement-slice.md'],
       view.registryEntryId,
     )
   ));
@@ -427,7 +427,7 @@ function recordsFromHealth(
       runtime.status,
       runtime.nativeContract,
       'command-center-assimilation',
-      [runtime.id, 'docs/173-wave-1-command-center-live-assimilation.md'],
+      [runtime.id, 'docs/command-center-live-assimilation.md'],
     ),
     record(
       idPrefix,
@@ -438,7 +438,7 @@ function recordsFromHealth(
       health.status,
       health.nativeContract,
       'live-observability-projection',
-      [health.id, 'docs/170-wave-1-external-executor-live-observability-projection.md'],
+      [health.id, 'docs/external-executor-live-observability-projection.md'],
     ),
   ];
 }
@@ -458,7 +458,7 @@ function recordsFromEvents(
       event.status,
       event.nativeContract,
       'event-stream-adapter',
-      [event.id, 'docs/171-wave-1-external-executor-read-only-event-stream-adapter.md'],
+      [event.id, 'docs/external-executor-read-only-event-stream-adapter.md'],
     )
   ));
 }
@@ -478,7 +478,7 @@ function recordsFromSessions(
       session.status,
       session.nativeContract,
       'session-history-bridge',
-      [session.id, 'docs/172-wave-1-external-executor-session-history-read-only-bridge.md'],
+      [session.id, 'docs/external-executor-session-history-read-only-bridge.md'],
     )
   ));
 }
@@ -498,7 +498,7 @@ function recordsFromMessages(
       message.contentState === 'unavailable' ? 'unavailable' : 'ready',
       message.nativeContract,
       'session-history-bridge',
-      [message.id, message.sessionViewId, 'docs/172-wave-1-external-executor-session-history-read-only-bridge.md'],
+      [message.id, message.sessionViewId, 'docs/external-executor-session-history-read-only-bridge.md'],
     )
   ));
 }
@@ -520,7 +520,7 @@ function recordsFromSurfaces(
       surface.status,
       surface.nativeContract,
       provenanceKind,
-      [surface.id, 'docs/173-wave-1-command-center-live-assimilation.md'],
+      [surface.id, 'docs/command-center-live-assimilation.md'],
     )
   ));
 }
@@ -599,14 +599,14 @@ function buildSnapshot(
       degradedOrUnavailableIds: degradedOrUnavailableIds(records),
     },
     sourceArtifactsConsumed: {
-      realCapabilitySnapshot: 'docs/161-wave-1-real-capability-snapshot-read-only.md',
-      liveReadOnlyBridge: 'docs/169-wave-1-external-executor-live-read-only-bridge-boundary.md',
-      observabilityProjection: 'docs/170-wave-1-external-executor-live-observability-projection.md',
-      eventStreamAdapter: 'docs/171-wave-1-external-executor-read-only-event-stream-adapter.md',
-      sessionHistoryBridge: 'docs/172-wave-1-external-executor-session-history-read-only-bridge.md',
-      commandCenterAssimilation: 'docs/173-wave-1-command-center-live-assimilation.md',
-      transportDiscovery: 'docs/183-wave-2-real-message-transport-capability-discovery.md',
-      nativeCapabilityRegistry: 'docs/185-wave-3-first-native-capability-registry-replacement-slice.md',
+      realCapabilitySnapshot: 'docs/real-capability-snapshot-read-only.md',
+      liveReadOnlyBridge: 'docs/external-executor-live-read-only-bridge-boundary.md',
+      observabilityProjection: 'docs/external-executor-live-observability-projection.md',
+      eventStreamAdapter: 'docs/external-executor-read-only-event-stream-adapter.md',
+      sessionHistoryBridge: 'docs/external-executor-session-history-read-only-bridge.md',
+      commandCenterAssimilation: 'docs/command-center-live-assimilation.md',
+      transportDiscovery: 'docs/real-message-transport-capability-discovery.md',
+      nativeCapabilityRegistry: 'docs/first-native-capability-registry-replacement-slice.md',
     },
     runtimeExternalExecutorRequiredForDashboardViewLookup: false,
     runtimeExternalExecutorRequiredForDashboardRender: false,

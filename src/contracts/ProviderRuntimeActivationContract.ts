@@ -1,6 +1,6 @@
 import type { LiveReadinessStatus } from './LiveReadinessContract.js';
 
-export const ZAVORTH_PROVIDER_RUNTIME_ACTIVATION_CONTRACT_VERSION = '2026-05-04.live-phase-4' as const;
+export const ZAVORTH_PROVIDER_RUNTIME_ACTIVATION_CONTRACT_VERSION = '2026-05-04.live-checkpoint-4' as const;
 
 export type ProviderRuntimeActivationP0Id =
   | 'openai'
@@ -100,7 +100,7 @@ export type ProviderRuntimeActivationEntry = {
 export type ProviderRuntimeActivationSnapshot = {
   generatedAt: string;
   contractVersion: typeof ZAVORTH_PROVIDER_RUNTIME_ACTIVATION_CONTRACT_VERSION;
-  phase: 'Phase 4 - Provider Runtime Activation P0';
+  phase: 'Connector registry - Provider Runtime Activation P0';
   status: 'closed' | 'attention' | 'blocked';
   summary: {
     providers: 18;
@@ -114,13 +114,13 @@ export type ProviderRuntimeActivationSnapshot = {
     providerFactoryRoutes: number;
     chatSmokeCommands: number;
     redactedReceipts: number;
-    liveIoRequiredByPhase4Check: false;
+    liveIoRequiredByStage4Check: false;
     secretValuesSerialized: false;
   };
   entries: ProviderRuntimeActivationEntry[];
   receipts: ProviderRuntimeActivationReceipt[];
   policy: {
-    noLiveIoDuringPhase4Check: true;
+    noLiveIoDuringStage4Check: true;
     providerFactoryRoutesMustResolveWithoutFallback: true;
     stagingLiveRequiresExplicitOperatorCommand: true;
     noSecretsSerialized: true;
@@ -133,6 +133,6 @@ export type ProviderRuntimeActivationSnapshot = {
     stagingLiveSmoke: 'npm run provider-runtime-activation -- --profile staging-live --provider <provider> --confirm-live-io';
     focusedTests: string[];
     typecheck: 'npm run runtime:check --silent';
-    nextPhase: 'Phase 6 - Media Generation Live Plane';
+    nextStage: 'Runtime gateway - Media Generation Live Plane';
   };
 };

@@ -1,7 +1,7 @@
 import type { SkillMetadata } from '../../src/skills/SkillLoader.js';
 import { ZavorthSubagentSkillLiveCompletionService } from '../../src/services/ZavorthSubagentSkillLiveCompletionService.js';
 
-describe('ZavorthSubagentSkillLiveCompletionService Phase 6', () => {
+describe('ZavorthSubagentSkillLiveCompletionService Runtime gateway', () => {
   it('certifies live-ready subagents and governed instruction-only skills', async () => {
     const snapshot = await new ZavorthSubagentSkillLiveCompletionService({
       now: () => new Date('2026-05-14T12:00:00.000Z'),
@@ -10,7 +10,7 @@ describe('ZavorthSubagentSkillLiveCompletionService Phase 6', () => {
       },
     }).buildSnapshot();
 
-    expect(snapshot.contractVersion).toBe('2026-05-14.phase-6-subagent-skill-live-completion');
+    expect(snapshot.contractVersion).toBe('2026-05-14.checkpoint-6-subagent-skill-live-completion');
     expect(snapshot.status).toBe('passed');
     expect(snapshot.summary.subagentRuntimeLiveReady).toBe(true);
     expect(snapshot.summary.naturalInvocationReady).toBe(true);

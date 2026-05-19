@@ -5,7 +5,7 @@ import type {
 } from './ZavorthUxRolloutEvidenceCanaryContract.js';
 
 export const ZAVORTH_LIVE_CANARY_EXECUTION_ADAPTER_REVIEW_CONTRACT_VERSION =
-  '2026-05-11.live-canary-execution-adapter-review-phase-8' as const;
+  '2026-05-11.live-canary-execution-adapter-review-checkpoint-8' as const;
 
 export type ZavorthLiveCanaryAdapterReviewStatus =
   | 'adapter-reviewed'
@@ -84,7 +84,7 @@ export type ZavorthLiveCanaryExecutionEnvelope = {
 export type ZavorthLiveCanaryAdapterReviewReceipt = {
   id: string;
   kind:
-    | 'phase-8-live-canary-adapter-review'
+    | 'checkpoint-8-live-canary-adapter-review'
     | 'lower-phase-boundary'
     | 'owner-approval-boundary'
     | 'rollback-boundary'
@@ -109,7 +109,7 @@ export type ZavorthLiveCanaryExecutionAdapterReviewSnapshot = {
   generatedAt: string;
   contractVersion: typeof ZAVORTH_LIVE_CANARY_EXECUTION_ADAPTER_REVIEW_CONTRACT_VERSION;
   source: 'ZavorthLiveCanaryExecutionAdapterReviewService';
-  phase: 'phase-8-live-canary-execution-adapter-review';
+  phase: 'checkpoint-8-live-canary-execution-adapter-review';
   status: ZavorthLiveCanaryAdapterReviewStatus;
   mode: ZavorthLiveCanaryAdapterMode;
   evidenceCanary: ZavorthUxRolloutEvidenceCanarySnapshot;
@@ -131,7 +131,7 @@ export type ZavorthLiveCanaryExecutionAdapterReviewSnapshot = {
     report: 'npx tsx scripts/zavorth-live-canary-adapter-review.ts';
     json: 'npx tsx scripts/zavorth-live-canary-adapter-review.ts --json';
     check: 'node scripts/zavorth-live-canary-adapter-review-check.mjs';
-    nextPhase: 'Phase 9 - Live Canary Apply Gate And Rollback Drill';
+    nextStage: 'Certification matrix - Live Canary Apply Gate And Rollback Drill';
   };
   narrative: {
     headline: string;

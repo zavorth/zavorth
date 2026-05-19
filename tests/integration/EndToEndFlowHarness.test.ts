@@ -1,13 +1,13 @@
 import {
   ZavorthEndToEndFlowHarness,
-  PHASE33_FLOW_FIXTURES,
+  STAGE33_FLOW_FIXTURES,
 } from './harness/ZavorthEndToEndFlowHarness';
 
-describe('Phase 33 end-to-end flow harness', () => {
+describe('Approval gate3 end-to-end flow harness', () => {
   it('runs Telegram command -> parser -> task -> gateway -> executor -> response', async () => {
     const harness = new ZavorthEndToEndFlowHarness();
 
-    const result = await harness.sendTelegram(PHASE33_FLOW_FIXTURES.telegramCommand);
+    const result = await harness.sendTelegram(STAGE33_FLOW_FIXTURES.telegramCommand);
 
     expect(result.task).toEqual(expect.objectContaining({
       command_type: '/task',
@@ -25,13 +25,13 @@ describe('Phase 33 end-to-end flow harness', () => {
       'executor.started',
       'task.completed',
     ]));
-    expect(result.task?.metadata.correlation.traceId).toMatch(/^phase33-trace-/);
+    expect(result.task?.metadata.correlation.traceId).toMatch(/^approval-gate3-trace-/);
   });
 
   it('covers permission request -> approve/reject -> resumed or stopped execution', async () => {
     const harness = new ZavorthEndToEndFlowHarness();
 
-    const approvalStart = await harness.sendTelegram(PHASE33_FLOW_FIXTURES.permissionRequest);
+    const approvalStart = await harness.sendTelegram(STAGE33_FLOW_FIXTURES.permissionRequest);
     const approvalId = approvalStart.task?.metadata.pendingPermissionId;
     expect(approvalStart.task?.status).toBe('waiting_approval');
     expect(approvalStart.replies[0]?.text).toContain('Aprovacao necessaria');
@@ -47,7 +47,7 @@ describe('Phase 33 end-to-end flow harness', () => {
     }));
     expect(harness.eventsForTask(approvedTask).map((event) => event.eventType)).toContain('permission.approved');
 
-    const rejectionStart = await harness.sendTelegram(PHASE33_FLOW_FIXTURES.permissionRequest);
+    const rejectionStart = await harness.sendTelegram(STAGE33_FLOW_FIXTURES.permissionRequest);
     const rejectionId = rejectionStart.task?.metadata.pendingPermissionId;
     await harness.sendTelegram(`/reject ${rejectionId}`);
     const rejectedPermission = harness.permissions.get(rejectionId);
@@ -63,7 +63,7 @@ describe('Phase 33 end-to-end flow harness', () => {
   it('repairs ExternalExecutor workspace mismatch and reexecutes in the corrected workspace', async () => {
     const harness = new ZavorthEndToEndFlowHarness();
 
-    const result = await harness.sendTelegram(PHASE33_FLOW_FIXTURES.externalExecutorWorkspaceMismatch);
+    const result = await harness.sendTelegram(STAGE33_FLOW_FIXTURES.externalExecutorWorkspaceMismatch);
 
     expect(result.task).toEqual(expect.objectContaining({
       status: 'completed',
@@ -86,7 +86,7 @@ describe('Phase 33 end-to-end flow harness', () => {
   it('retries ZavorthBridge timeout and falls back without external host dependencies', async () => {
     const harness = new ZavorthEndToEndFlowHarness();
 
-    const result = await harness.sendTelegram(PHASE33_FLOW_FIXTURES.zavorthBridgeTimeout);
+    const result = await harness.sendTelegram(STAGE33_FLOW_FIXTURES.zavorthBridgeTimeout);
 
     expect(result.task).toEqual(expect.objectContaining({
       status: 'completed',
@@ -105,14 +105,14 @@ describe('Phase 33 end-to-end flow harness', () => {
 
   it('shares web session state and control approval over the same permission plane', async () => {
     const harness = new ZavorthEndToEndFlowHarness();
-    const sessionId = 'phase33-web-session';
+    const sessionId = 'approval-gate3-web-session';
 
-    const start = await harness.sendWeb(sessionId, PHASE33_FLOW_FIXTURES.webApproval);
+    const start = await harness.sendWeb(sessionId, STAGE33_FLOW_FIXTURES.webApproval);
     const approvalId = start.task?.metadata.pendingPermissionId;
     const beforeApproval = harness.getControlSnapshot(sessionId);
 
     expect(start.session.messages).toEqual(expect.arrayContaining([
-      expect.objectContaining({ role: 'user', content: PHASE33_FLOW_FIXTURES.webApproval }),
+      expect.objectContaining({ role: 'user', content: STAGE33_FLOW_FIXTURES.webApproval }),
       expect.objectContaining({ role: 'assistant', content: expect.stringContaining('Aprovacao necessaria') }),
     ]));
     expect(beforeApproval.approvalPlane.pending).toEqual([

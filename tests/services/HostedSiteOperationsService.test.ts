@@ -5,7 +5,7 @@ import {
 import { HOSTED_SITE_REQUIRED_CORE_SCRIPTS } from '../../src/contracts/HostedSiteOperationsContract';
 
 describe('HostedSiteOperationsService', () => {
-  it('builds an ok Phase 54 snapshot from the hosted site fixture', () => {
+  it('builds an ok Credential vault4 snapshot from the hosted site fixture', () => {
     const service = serviceFromFixture();
     const snapshot = service.buildSnapshot();
 
@@ -15,8 +15,8 @@ describe('HostedSiteOperationsService', () => {
     expect(snapshot.summary.failed).toBe(0);
     expect(snapshot.summary.warnings).toBeGreaterThanOrEqual(1);
     expect(snapshot.release.expectedVersion).toBe('v1.0.0');
-    expect(snapshot.nextRecommendedPhase).toEqual(expect.objectContaining({
-      phase: '55',
+    expect(snapshot.nextRecommendedStage).toEqual(expect.objectContaining({
+      stage: '55',
       title: 'Installer And Distribution Hardening',
     }));
   });
@@ -82,9 +82,9 @@ describe('HostedSiteOperationsService', () => {
 
     const report = service.renderReport();
 
-    expect(report).toContain('Fase 54 - Hosted Website And Demo Operations');
+    expect(report).toContain('Readiness checkpoint 4 - Hosted Website And Demo Operations');
     expect(report).toContain('runbook publish/rollback');
-    expect(report).toContain('proxima fase recomendada: 55 - Installer And Distribution Hardening');
+    expect(report).toContain('proximo passo recomendada: 55 - Installer And Distribution Hardening');
   });
 });
 
@@ -111,15 +111,15 @@ function filesFixture(overrides: Record<string, string> = {}) {
       version: '1.0.0',
       scripts: coreScriptsFixture(),
     }, null, 2),
-    'core:docs/76-public-adoption-architecture.md': [
-      'Fase 54 - Hosted Website And Demo Operations',
+    'core:docs/product-direction.md': [
+      'Readiness checkpoint 4 - Hosted Website And Demo Operations',
       'qa:hosted-site',
       'preview',
       'publish',
       'rollback',
       'smoke',
-      'Fase 55 - Installer And Distribution Hardening',
-      'qa:phase:55',
+      'Readiness checkpoint 5 - Installer And Distribution Hardening',
+      'qa:stage:55',
     ].join('\n'),
     'website:package.json': JSON.stringify({
       name: 'zavorth-website',
@@ -161,7 +161,7 @@ function coreScriptsFixture() {
   }
   scripts['hosted-site'] = 'npx tsx scripts/hosted-site.ts';
   scripts['qa:hosted-site'] = 'npx tsx scripts/hosted-site.ts --require-pass --build --smoke --screenshots';
-  scripts['qa:phase:54'] = 'node scripts/phases-53-59-check.mjs --phase=54';
+  scripts['qa:stage:54'] = 'node scripts/capability-suite-growth-check.mjs --phase=54';
   return scripts;
 }
 

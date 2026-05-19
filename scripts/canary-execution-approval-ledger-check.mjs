@@ -43,7 +43,7 @@ const rules = [
   ruleContainsAll({
     id: 'canary-execution-approval-ledger-service',
     label: 'Service builds approval ledger from canary dry-run plan',
-    target: 'Service consumes Phase 19, prepares signature slots/artifacts, links release execution and locks launch/promotion',
+    target: 'Service consumes Intent model9, prepares signature slots/artifacts, links release execution and locks launch/promotion',
     files: ['src/services/CanaryExecutionApprovalLedgerService.ts'],
     needles: [
       'CanaryExecutionApprovalLedgerService',
@@ -120,7 +120,7 @@ const snapshot = {
 if (asJson) {
   console.log(JSON.stringify(snapshot, null, 2));
 } else {
-  console.log('[canary-execution-approval-ledger] checking Phase 20');
+  console.log('[canary-execution-approval-ledger] checking Preview engine0');
   for (const rule of rules) {
     const marker = rule.status === 'passed' ? 'ok' : 'fail';
     console.log(`[canary-execution-approval-ledger] ${marker} ${rule.label}: ${rule.observed} | ${rule.target}`);

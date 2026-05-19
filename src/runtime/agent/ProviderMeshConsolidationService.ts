@@ -41,7 +41,7 @@ import {
 } from '../../providers/ProviderFactory.js';
 import type { UniversalAgentRun } from './UniversalAgentRuntimeTypes.js';
 
-export const PROVIDER_MESH_CONSOLIDATION_CONTRACT_VERSION = '2026-05-04.wave-43' as const;
+export const PROVIDER_MESH_CONSOLIDATION_CONTRACT_VERSION = '2026-05-04.provider-mesh' as const;
 
 export type ProviderMeshConsolidationStatus = 'ready' | 'partial' | 'blocked';
 

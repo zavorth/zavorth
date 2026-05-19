@@ -8,7 +8,7 @@ describe('ZavorthScheduledTaskExecutionGatewayRuntimeService', () => {
   const fixedNow = () => new Date('2026-05-12T12:00:00.000Z');
   const cwd = () => 'C:/TESTES DEV/zavorth-core/Zavorth';
 
-  it('does not submit when Phase 1 registry still needs approval', async () => {
+  it('does not submit when Intent model registry still needs approval', async () => {
     const service = new ZavorthScheduledTaskExecutionGatewayRuntimeService({ now: fixedNow, cwd });
     const snapshot = await service.buildSnapshot({
       tick: {
@@ -17,12 +17,12 @@ describe('ZavorthScheduledTaskExecutionGatewayRuntimeService', () => {
     });
 
     expect(snapshot.contractVersion).toBe(ZAVORTH_SCHEDULED_TASK_RUNTIME_CONTRACT_VERSION);
-    expect(snapshot.phase).toBe('phase-2-scheduled-task-execution-gateway');
+    expect(snapshot.phase).toBe('checkpoint-2-scheduled-task-execution-gateway');
     expect(snapshot.status).toBe('needs_reapproval');
     expect(snapshot.summary.gatewayCalled).toBe(false);
     expect(snapshot.summary.executionPerformed).toBe(false);
     expect(snapshot.safety).toMatchObject({
-      consumesPhase1Registry: true,
+      consumesStage1Registry: true,
       validatesEnvelopeOnEveryTick: true,
       preservesApprovedScope: true,
       usesExecutionGatewaySubmit: true,

@@ -52,7 +52,7 @@ export function formatCapabilityNegotiationSnapshot(
   snapshot: CapabilityNegotiationSnapshot,
 ): string {
   const lines = [
-    'Capability Negotiation - Wave 35',
+    'Capability Negotiation - Capability Negotiation',
     `- contrato: ${snapshot.contractVersion}`,
     `- run: ${snapshot.identifiers.runId}`,
     `- status: ${snapshot.status}`,

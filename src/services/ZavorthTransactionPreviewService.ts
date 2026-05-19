@@ -72,7 +72,7 @@ export class ZavorthTransactionPreviewService {
 
   public renderReport(preview: ZavorthTransactionPreview): string {
     const lines = [
-      '[transaction-preview] Phase 2 transaction preview',
+      '[transaction-preview] Preview engine transaction preview',
       `[transaction-preview] status: ${preview.status}`,
       `[transaction-preview] title: ${preview.title}`,
       `[transaction-preview] action: ${preview.intent.actionKind}`,
@@ -313,7 +313,7 @@ function buildReceipts(
     },
     {
       id: `${previewId}.policy`,
-      summary: `Phase 0 policy returned ${intent.safetyDecision.status}.`,
+      summary: `Security contract policy returned ${intent.safetyDecision.status}.`,
     },
     {
       id: `${previewId}.connector`,
@@ -369,7 +369,7 @@ function buildNextSteps(
   if (approval.required && validation.canAskApproval) {
     return ['Show this preview to the operator and request explicit approval before any live execution plan.'];
   }
-  return ['Keep this as read-only preview or monitoring setup; no live execution is available in Phase 2.'];
+  return ['Keep this as read-only preview or monitoring setup; no live execution is available in Preview engine.'];
 }
 
 function buildPreviewTitle(intent: ZavorthTransactionIntent): string {

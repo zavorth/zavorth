@@ -55,7 +55,7 @@ addCheck(
 
 const service = read('src/services/ZavorthSemanticSkillEcosystemCertificationService.ts');
 addCheck(
-  'Service certifies guarded Phase 8 skill semantics',
+  'Service certifies guarded Dashboard controls skill semantics',
   [
     'ZavorthSkillEcosystemPackService',
     'manifestClaim',
@@ -67,7 +67,7 @@ addCheck(
     'lifecycleReceiptClaim',
     'unsafeSkillClaims',
   ].every((marker) => service.includes(marker)),
-  'service converts Phase 8 skill ecosystem evidence into behavior-level semantic claims',
+  'service converts Dashboard controls skill ecosystem evidence into behavior-level semantic claims',
 );
 
 const command = read('scripts/semantic-skill-ecosystem-certification.ts');
@@ -150,7 +150,7 @@ if (runtime.status !== 0) {
         && snapshot.summary.secretValuesSerialized === false
         && receiptIdsValid
         && claimIdsUnique,
-      `status=${snapshot.status}, claims=${snapshot.summary.semanticClaims}, gaps=${snapshot.summary.gaps}, receiptIdsValid=${receiptIdsValid}, claimIdsUnique=${claimIdsUnique}, next=${snapshot.commands.nextPhase}`,
+      `status=${snapshot.status}, claims=${snapshot.summary.semanticClaims}, gaps=${snapshot.summary.gaps}, receiptIdsValid=${receiptIdsValid}, claimIdsUnique=${claimIdsUnique}, next=${snapshot.commands.nextStage}`,
     );
   } catch (error) {
     addCheck('Runtime S8 semantic receipt passes', false, `invalid JSON: ${error.message}`);

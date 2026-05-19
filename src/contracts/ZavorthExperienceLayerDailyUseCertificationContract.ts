@@ -1,5 +1,5 @@
 export const ZAVORTH_EXPERIENCE_LAYER_DAILY_USE_CERTIFICATION_VERSION =
-  '2026-05-15.experience-layer.phase-14' as const;
+  '2026-05-15.experience-layer.checkpoint-14' as const;
 
 export type ZavorthExperienceLayerDailyUsePhaseStatus =
   | 'contract_passed'

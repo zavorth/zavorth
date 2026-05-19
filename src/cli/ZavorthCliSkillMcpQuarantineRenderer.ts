@@ -91,7 +91,7 @@ export function formatSkillMcpQuarantineSnapshot(
   snapshot: SkillMcpQuarantineSnapshot,
 ): string {
   const lines = [
-    'Skill/MCP Quarantine - Wave 33',
+    'Skill/MCP Quarantine - Skill MCP Quarantine',
     `- contrato: ${snapshot.contractVersion}`,
     `- run: ${snapshot.identifiers.runId}`,
     `- total: ${snapshot.summary.total}`,

@@ -4,7 +4,7 @@ import {
   UniversalIntentTrustEnforcementService,
 } from '../../../src/runtime/agent/index.js';
 
-describe('UniversalIntentTrustEnforcementService Wave 44', () => {
+describe('UniversalIntentTrustEnforcementService Channel mesh4', () => {
   it('consolidates Universal Intent, permission narrative and Trust Slider without executing tools', () => {
     const run = new AgentRunService({
       now: () => new Date('2026-05-04T00:44:00.000Z'),

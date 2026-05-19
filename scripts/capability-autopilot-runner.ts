@@ -16,7 +16,7 @@ type CapabilityAutopilotRunnerCheck = {
 };
 
 type CapabilityAutopilotRunnerSnapshot = {
-  phase: '61';
+  stage: '61';
   surface: 'capability-autopilot-runner';
   generatedAt: string;
   capabilityId: string;
@@ -31,8 +31,8 @@ type CapabilityAutopilotRunnerSnapshot = {
   receipt: CapabilityReceipt;
   run: CapabilityRepairRunResult;
   checks: CapabilityAutopilotRunnerCheck[];
-  nextRecommendedPhase: {
-    phase: '62';
+  nextRecommendedStage: {
+    stage: '62';
     title: string;
     reason: string;
   };
@@ -65,7 +65,7 @@ async function main(): Promise<void> {
     repairPlan: receipt.repairPlan,
     permissions: buildFixtureApprovals(receipt),
     dryRun,
-    requestedBy: 'phase-61-gate',
+    requestedBy: 'checkpoint-61-gate',
   });
   const snapshot = buildSnapshot(receipt, run, dryRun);
 
@@ -93,7 +93,7 @@ function buildFixtureApprovals(receipt: CapabilityReceipt): PermissionRequest[] 
   }
 
   return repairPlan.permissionRequirements.map((requirement, index) => ({
-    permission_id: `phase-61-fixture-${index + 1}`,
+    permission_id: `checkpoint-61-fixture-${index + 1}`,
     created_at: receipt.generatedAt,
     updated_at: receipt.generatedAt,
     task_id: receipt.resumeIntent?.taskId || null,
@@ -111,12 +111,12 @@ function buildFixtureApprovals(receipt: CapabilityReceipt): PermissionRequest[] 
     requested_value: requirement.requestedValue || null,
     resolved_value: requirement.resolvedValue || null,
     reason: requirement.reason,
-    requested_by: receipt.resumeIntent?.userId || 'phase-61-gate',
-    decided_by: 'phase-61-gate',
-    decision_note: 'Fixture local do gate Phase 61; nao persiste no ledger.',
+    requested_by: receipt.resumeIntent?.userId || 'checkpoint-61-gate',
+    decided_by: 'checkpoint-61-gate',
+    decision_note: 'Fixture local do gate Runtime gateway1; nao persiste no ledger.',
     metadata: {
       capability_autopilot: true,
-      phase: 'capability-autopilot-phase-61',
+      stage: 'capability-autopilot-checkpoint-61',
       requirement_id: requirement.id,
       fixture: true,
     },
@@ -134,7 +134,7 @@ function buildSnapshot(
   const passed = checks.filter((check) => check.status === 'pass').length;
 
   return {
-    phase: '61',
+    stage: '61',
     surface: 'capability-autopilot-runner',
     generatedAt: new Date().toISOString(),
     capabilityId: receipt.capabilityId,
@@ -149,8 +149,8 @@ function buildSnapshot(
     receipt,
     run,
     checks,
-    nextRecommendedPhase: {
-      phase: '62',
+    nextRecommendedStage: {
+      stage: '62',
       title: 'Validation And Resume Loop',
       reason:
         'Depois do runner aprovado, o proximo passo e validar readiness pos-reparo e retomar o pedido original somente quando a capability estiver pronta.',
@@ -222,7 +222,7 @@ function check(
 
 function renderReport(snapshot: CapabilityAutopilotRunnerSnapshot): string {
   const lines: string[] = [];
-  lines.push('[capability-autopilot-runner] Fase 61 - Approved Repair Runner');
+  lines.push('[capability-autopilot-runner] Etapa 61 - Approved Repair Runner');
   lines.push(`status: ${snapshot.status}`);
   lines.push(`ok: ${snapshot.summary.ok ? 'yes' : 'no'} | pass=${snapshot.summary.passed} warn=${snapshot.summary.warnings} fail=${snapshot.summary.failed}`);
   lines.push(`capability: ${snapshot.capabilityId}`);
@@ -236,7 +236,7 @@ function renderReport(snapshot: CapabilityAutopilotRunnerSnapshot): string {
     }
   }
   lines.push('');
-  lines.push(`proxima fase recomendada: ${snapshot.nextRecommendedPhase.phase} - ${snapshot.nextRecommendedPhase.title}`);
-  lines.push(snapshot.nextRecommendedPhase.reason);
+  lines.push(`proximo passo recomendada: ${snapshot.nextRecommendedStage.phase} - ${snapshot.nextRecommendedStage.title}`);
+  lines.push(snapshot.nextRecommendedStage.reason);
   return lines.join('\n');
 }

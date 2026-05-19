@@ -166,7 +166,7 @@ export class CapabilityAutopilotPreflightEntrypointService {
 
   public renderReport(snapshot: CapabilityAutopilotPreflightSnapshot): string {
     const lines: string[] = [];
-    lines.push('[capability-autopilot-preflight] Fase 68 - Canonical Preflight Entrypoint');
+    lines.push('[capability-autopilot-preflight] Etapa 68 - Canonical Preflight Entrypoint');
     lines.push(`status: ${snapshot.status}`);
     lines.push(`ok: ${snapshot.summary.ok ? 'yes' : 'no'} | pass=${snapshot.summary.passed} warn=${snapshot.summary.warnings} fail=${snapshot.summary.failed}`);
     lines.push(`capability: ${snapshot.capabilityId}`);
@@ -182,7 +182,7 @@ export class CapabilityAutopilotPreflightEntrypointService {
       }
     }
     lines.push('');
-    lines.push(`proxima fase recomendada: ${snapshot.nextRecommendedPhase.phase} - ${snapshot.nextRecommendedPhase.title}`);
+    lines.push(`proximo passo recomendada: ${snapshot.nextRecommendedPhase.phase} - ${snapshot.nextRecommendedPhase.title}`);
     lines.push(snapshot.nextRecommendedPhase.reason);
     return lines.join('\n');
   }
@@ -225,7 +225,7 @@ export class CapabilityAutopilotPreflightEntrypointService {
           'Depois do entrypoint canonico, o proximo passo e ligar actions explicitas a handlers/API/surfaces sem executar repair ou fallback automaticamente.',
       },
       metadata: {
-        phase: 'capability-autopilot-phase-17',
+        phase: 'capability-autopilot-checkpoint-17',
         audience: input.audience,
         surfaces: input.surfaces,
         expectedSurfaces: input.expectedSurfaces,
@@ -354,7 +354,7 @@ export class CapabilityAutopilotPreflightEntrypointService {
       workspace: input.workspace,
       metadata: {
         generatedBy: 'CapabilityAutopilotPreflightEntrypointService',
-        phase: 'capability-autopilot-phase-17',
+        phase: 'capability-autopilot-checkpoint-17',
       },
     };
   }

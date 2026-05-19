@@ -92,7 +92,7 @@ export function formatSelfingDashboardSnapshot(
   snapshot: SelfingDashboardSnapshot,
 ): string {
   const lines = [
-    'Selfing Dashboard - Wave 37',
+    'Selfing Dashboard - Selfing Dashboard',
     `- contrato: ${snapshot.contractVersion}`,
     `- run: ${snapshot.identifiers.runId}`,
     `- status: ${snapshot.status}`,

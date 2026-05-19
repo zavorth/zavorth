@@ -135,7 +135,7 @@ export type RemoteMeshSandboxAuditTimelineSnapshot = {
     check: 'npm run remote-mesh:sandbox:audit-timeline --silent';
     focusedTests: 'npx jest tests/services/RemoteMeshSandboxAuditTimelineService.test.ts --runInBand';
     typecheck: 'npm run runtime:check --silent';
-    nextPhase: 'R7 - Scoped MCP Status Transport';
+    nextStage: 'R7 - Scoped MCP Status Transport';
   };
 };
 

@@ -88,14 +88,14 @@ export class WebAppPolishContractService {
         phase: '43',
         title: 'Artifact And Replay Workbench',
         reason:
-          'Depois de polir a web/app como superficie de produto, a proxima fase combinada aprofunda artifacts, replay e comparacao de runs.',
+          'Depois de polir a web/app como superficie de produto, a proximo passo combinada aprofunda artifacts, replay e comparacao de runs.',
       },
     };
   }
 
   public renderReport(snapshot: WebAppPolishSnapshot = this.buildSnapshot()): string {
     const lines: string[] = [];
-    lines.push('[web-app-polish] Fase 40 - Web/App Polish');
+    lines.push('[web-app-polish] Etapa 40 - Web/App Polish');
     lines.push(`status: ${snapshot.status}`);
     lines.push(`ok: ${snapshot.summary.ok ? 'yes' : 'no'} | pass=${snapshot.summary.passed} warn=${snapshot.summary.warnings} fail=${snapshot.summary.failed}`);
     lines.push('');
@@ -107,7 +107,7 @@ export class WebAppPolishContractService {
       }
     }
     lines.push('');
-    lines.push(`proxima fase recomendada: ${snapshot.nextRecommendedPhase.phase} - ${snapshot.nextRecommendedPhase.title}`);
+    lines.push(`proximo passo recomendada: ${snapshot.nextRecommendedPhase.phase} - ${snapshot.nextRecommendedPhase.title}`);
     lines.push(snapshot.nextRecommendedPhase.reason);
     return lines.join('\n');
   }
@@ -136,7 +136,7 @@ export class WebAppPolishContractService {
         `script ${scriptName}`,
         command ? 'pass' : 'fail',
         command
-          ? `package.json expoe ${scriptName} para a Fase 40.`
+          ? `package.json expoe ${scriptName} para a Etapa 40.`
           : `package.json precisa expor ${scriptName}.`,
         'package',
         [`command=${command || '<ausente>'}`],

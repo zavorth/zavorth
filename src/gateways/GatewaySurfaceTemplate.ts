@@ -106,7 +106,7 @@ export function createGatewaySurfaceTemplate(input: GatewaySurfaceTemplateInput)
       summary: 'Sem credencial configurada, a gateway permanece disabled e nao aceita mutacoes.',
     },
     docs: {
-      operatorGuide: input.operatorGuide || 'docs/73-gateway-surface-contract.md',
+      operatorGuide: input.operatorGuide || 'docs/product-direction.md',
       setupCommand: input.setupCommand || null,
     },
   };

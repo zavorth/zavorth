@@ -222,7 +222,7 @@ export class ZavorthTransactionCredentialRefService {
   public renderRegister(result: ZavorthTransactionCredentialRegisterResult): string {
     const record = result.record;
     return [
-      '[transaction-credential] Phase 5 credential ref',
+      '[transaction-credential] Credential vault credential ref',
       `[transaction-credential] status: ${result.status}`,
       `[transaction-credential] ref: ${record?.ref ?? 'none'}`,
       `[transaction-credential] connector: ${record?.connectorKind ?? 'none'}`,
@@ -236,7 +236,7 @@ export class ZavorthTransactionCredentialRefService {
 
   public renderValidation(result: ZavorthTransactionCredentialValidationResult): string {
     return [
-      '[transaction-credential] Phase 5 credential validation',
+      '[transaction-credential] Credential vault credential validation',
       `[transaction-credential] status: ${result.status}`,
       `[transaction-credential] ref: ${result.ref}`,
       `[transaction-credential] connector: ${result.connectorKind}`,
@@ -251,7 +251,7 @@ export class ZavorthTransactionCredentialRefService {
 
   public renderSummary(summary: ZavorthTransactionCredentialStoreSummary = this.buildSummary()): string {
     return [
-      '[transaction-credential] Phase 5 credential store summary',
+      '[transaction-credential] Credential vault credential store summary',
       `[transaction-credential] store: ${summary.storeFile}`,
       `[transaction-credential] records: ${summary.records}`,
       `[transaction-credential] registered: ${summary.registered}`,

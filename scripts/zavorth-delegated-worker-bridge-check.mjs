@@ -25,7 +25,7 @@ const snapshot = {
 if (asJson) {
   console.log(JSON.stringify(snapshot, null, 2));
 } else {
-  console.log('[zavorth-delegated-worker-bridge] checking Phase 7');
+  console.log('[zavorth-delegated-worker-bridge] checking Surface controls');
   for (const rule of rules) {
     const marker = rule.status === 'passed' ? 'ok' : 'fail';
     console.log(`[zavorth-delegated-worker-bridge] ${marker} ${rule.label}: ${rule.observed} | ${rule.target}`);
@@ -48,8 +48,8 @@ function ruleFilesExist() {
   ];
   const missing = files.filter((file) => !fs.existsSync(path.join(root, file)));
   return {
-    id: 'phase-7-files',
-    label: 'Phase 7 delegated worker files exist',
+    id: 'checkpoint-7-files',
+    label: 'Surface controls delegated worker files exist',
     status: missing.length === 0 ? 'passed' : 'failed',
     observed: `${files.length - missing.length}/${files.length} file(s) present`,
     target: 'contract, service, CLI, check, tests, docs and package scripts are present',
@@ -77,17 +77,17 @@ function ruleContainsMarkers() {
       'source-worker-launch-blocked-until-later-gate',
     ]],
     ['docs/README.md', [
-      'phase-7-delegated-workers-ready',
-      '291 Phase 8 - Native Replacement And Decommission',
+      'delegated-workers-ready',
+      '291 Dashboard controls - Native Replacement And Decommission',
       'Zavorth Delegated Worker Bridge',
     ]],
     ['docs/README.md', [
-      'phase-7-delegated-workers-complete',
+      'delegated-workers-complete',
       'Zavorth Delegated Worker Bridge',
       'zavorth-gateway-delegated-only',
       'dry-run',
       'artifact/event/status',
-      '291 Phase 8 - Native Replacement And Decommission',
+      '291 Dashboard controls - Native Replacement And Decommission',
     ]],
     ['package.json', [
       'zavorth:delegated-worker-bridge',
@@ -106,8 +106,8 @@ function ruleContainsMarkers() {
     }
   }
   return {
-    id: 'phase-7-markers',
-    label: 'Phase 7 delegated worker markers are present',
+    id: 'checkpoint-7-markers',
+    label: 'Surface controls delegated worker markers are present',
     status: missing.length === 0 ? 'passed' : 'failed',
     observed: missing.length === 0 ? 'all markers present' : `${missing.length} missing marker(s)`,
     target: 'worker descriptor, delegated envelope, timeout, launch gate, lifecycle and result markers are present',
@@ -127,7 +127,7 @@ function runDelegatedWorkerFixture() {
   });
   if (result.status !== 0) {
     return {
-      id: 'phase-7-delegated-worker-fixture',
+      id: 'checkpoint-7-delegated-worker-fixture',
       label: 'Delegated worker bridge fixture passes',
       status: 'failed',
       observed: `exit ${result.status}`,
@@ -151,7 +151,7 @@ function runDelegatedWorkerFixture() {
     && snapshot.safety?.dispatchMode === 'zavorth-gateway-delegated-only'
     && snapshot.safety?.noWorkerLaunchPerformed === true;
   return {
-    id: 'phase-7-delegated-worker-fixture',
+    id: 'checkpoint-7-delegated-worker-fixture',
     label: 'Delegated worker bridge fixture passes',
     status: ok ? 'passed' : 'failed',
     observed: ok ? `${snapshot.status}, ${snapshot.summary.workerDescriptors} worker(s), ${snapshot.summary.artifactEventsReturned} artifact event(s)` : 'invalid delegated worker snapshot',
@@ -177,11 +177,11 @@ function runDelegatedWorkerBlockedFixture() {
     && snapshot.status === 'blocked'
     && snapshot.previousSessionMemoryStatus === 'blocked';
   return {
-    id: 'phase-7-blocked-fixture',
-    label: 'Delegated worker bridge blocks without Phase 6 readiness',
+    id: 'checkpoint-7-blocked-fixture',
+    label: 'Delegated worker bridge blocks without Runtime gateway readiness',
     status: ok ? 'passed' : 'failed',
     observed: ok ? `${snapshot.status}, sessionMemory=${snapshot.previousSessionMemoryStatus}` : `exit ${result.status}`,
-    target: 'Phase 7 cannot advance while Phase 6 session memory is blocked',
+    target: 'Surface controls cannot advance while Runtime gateway session memory is blocked',
     details: ok ? [] : [result.error?.message || result.stderr || result.stdout || 'no output'],
   };
 }

@@ -2,7 +2,7 @@ import type { IntegrationShowcaseSnapshot } from '../../contracts/IntegrationSho
 import type { PublicAdoptionPilotLoopSnapshot } from './PublicAdoptionPilotLoopService.js';
 import type { UniversalAgentRun } from './UniversalAgentRuntimeTypes.js';
 
-export const INTEGRATION_SHOWCASE_PARTNER_SURFACE_CONTRACT_VERSION = '2026-05-04.wave-52' as const;
+export const INTEGRATION_SHOWCASE_PARTNER_SURFACE_CONTRACT_VERSION = '2026-05-04.integration-showcase' as const;
 export const INTEGRATION_SHOWCASE_PARTNER_SURFACE_METADATA_KEY = 'integrationShowcasePartnerSurface' as const;
 
 export type IntegrationShowcasePartnerSurfaceStatus =
@@ -73,7 +73,7 @@ export type IntegrationShowcasePartnerSurfaceSnapshot = {
     fixtureReadyCount: number;
     credentialModeCount: number;
     formalPartnersRegistered: number;
-    nextPhase: string | null;
+    nextStage: string | null;
   };
   artifacts: {
     smokePath: string | null;
@@ -301,7 +301,7 @@ export class IntegrationShowcasePartnerSurfaceService {
         fixtureReadyCount: integrations.filter((item) => item.fixtureAvailable === true && arrayOrEmpty<string>(item.modes).includes('fixture')).length,
         credentialModeCount: integrations.filter((item) => arrayOrEmpty<string>(item.modes).includes('credential')).length,
         formalPartnersRegistered: integrations.filter((item) => item.formalPartnerRegistered === true).length,
-        nextPhase: normalizeText(showcase?.nextRecommendedPhase?.phase) || null,
+        nextStage: normalizeText(showcase?.nextRecommendedPhase?.phase) || null,
       },
       artifacts: {
         smokePath: normalizeText(showcaseArtifacts?.smokePath) || null,
@@ -446,7 +446,7 @@ export class IntegrationShowcasePartnerSurfaceService {
         command: 'zavorth public-adoption-pilot-loop --json',
         detail: input.pilotReady
           ? 'Piloto controlado esta pronto para alimentar showcase.'
-          : 'Integration showcase depende da Wave 51 pilot-ready.',
+          : 'Integration showcase depende da Public Adoption Pilot pilot-ready.',
         critical: true,
       },
       {
@@ -570,7 +570,7 @@ export class IntegrationShowcasePartnerSurfaceService {
         label: 'Release train',
         routeOrCommand: 'npm run qa:phase:59',
         status: input.canPublishShowcasePreview ? 'ready' : 'needs-action',
-        detail: 'Fase 59 abre apenas depois da showcase ficar auditavel.',
+        detail: 'Readiness checkpoint 9 abre apenas depois da showcase ficar auditavel.',
       },
     ];
   }
@@ -634,7 +634,7 @@ export class IntegrationShowcasePartnerSurfaceService {
 
   private resolveNextSafeAction(status: IntegrationShowcasePartnerSurfaceStatus): string {
     if (status === 'needs-public-adoption-pilot-loop') {
-      return 'Publicar Wave 51 como pilot-ready antes de abrir integration showcase.';
+      return 'Publicar Public Adoption Pilot como pilot-ready antes de abrir integration showcase.';
     }
     if (status === 'needs-integration-showcase') {
       return 'Rodar npm run qa:integration-showcase e anexar IntegrationShowcaseSnapshot ao run.';

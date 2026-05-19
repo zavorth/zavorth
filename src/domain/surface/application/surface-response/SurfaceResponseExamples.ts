@@ -115,7 +115,7 @@ export function buildApprovalSurfaceResponseExample(): SurfaceResponse {
       {
         kind: 'receipt',
         receipt: {
-          id: 'approval-phase2-001',
+          id: 'approval-preview-engine-001',
           title: 'Policy broker',
           status: 'require_user_confirmation',
           reason: 'A escrita local exige confirmacao do dono.',
@@ -128,18 +128,18 @@ export function buildApprovalSurfaceResponseExample(): SurfaceResponse {
     ],
     actions: [
       {
-        id: 'approve-phase2-001',
+        id: 'approve-preview-engine-001',
         label: 'Aprovar uma vez',
         kind: 'callback',
-        callbackData: 'approval:approve:phase2-001:once',
+        callbackData: 'approval:approve:preview-engine-001:once',
         style: 'success',
         confirmationRequired: true,
       },
       {
-        id: 'reject-phase2-001',
+        id: 'reject-preview-engine-001',
         label: 'Rejeitar',
         kind: 'callback',
-        callbackData: 'approval:reject:phase2-001',
+        callbackData: 'approval:reject:preview-engine-001',
         style: 'danger',
       },
     ],
@@ -189,7 +189,7 @@ export function buildToolReceiptSurfaceResponseExample(): SurfaceResponse {
   });
 }
 
-export function buildSurfaceResponsePhase2Examples(): SurfaceResponse[] {
+export function buildSurfaceResponseStage2Examples(): SurfaceResponse[] {
   return [
     buildStatusSurfaceResponseExample(),
     buildModelsSurfaceResponseExample(),

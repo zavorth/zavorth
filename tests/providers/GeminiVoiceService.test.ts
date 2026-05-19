@@ -51,7 +51,7 @@ describe('GeminiVoiceService', () => {
 
     const output = fs.readFileSync(filePath!);
     expect(output.subarray(0, 4).toString()).toBe('RIFF');
-    expect(output.subarray(8, 12).toString()).toBe('WAVE');
+    expect(output.subarray(8, 12).toString()).toBe('TRACK');
 
     service.cleanup(filePath!);
     expect(fs.existsSync(filePath!)).toBe(false);
