@@ -6,31 +6,7 @@ import path from 'node:path';
 const projectRoot = process.cwd();
 const jestBin = path.join(projectRoot, 'node_modules', 'jest', 'bin', 'jest.js');
 
-const representativeExternalAgentRuntimePaths = [
-  'tests/runtime/external-agents/ZavorthFinalAdapterDomainDecommissionPack.test.ts',
-  'tests/runtime/external-agents/ZavorthFinalZavorthOnlyAbsorptionHardeningReport.test.ts',
-  'tests/runtime/external-agents/ZavorthWave4DMessageSendExpansionAndAuditPack.test.ts',
-  'tests/runtime/external-agents/ZavorthWave4EProviderExecutionAbsorptionPack.test.ts',
-  'tests/runtime/external-agents/ZavorthWave4FToolCommandExecutionAbsorptionPack.test.ts',
-];
-
-const externalAgentRuntimeGroups = representativeExternalAgentRuntimePaths.map((pathForShard, index) => {
-  const shard = index + 1;
-  return {
-    id: `runtime-external-${shard}`,
-    label: `External agent runtime representative shard ${shard}/${representativeExternalAgentRuntimePaths.length}`,
-    paths: [pathForShard],
-  };
-});
-
-const ARCHIVE_GROUPS = [
-  {
-    id: 'archive-external-agents',
-    label: 'Archived full external agent evidence suite',
-    paths: ['tests/runtime/external-agents'],
-    archived: true,
-  },
-];
+const ARCHIVE_GROUPS = [];
 
 const GROUPS = [
   {
@@ -83,7 +59,6 @@ const GROUPS = [
     label: 'Agent runtime contracts',
     paths: ['tests/runtime/agent'],
   },
-  ...externalAgentRuntimeGroups,
   {
     id: 'runtime-sessions',
     label: 'Runtime sessions and swarm contracts',
@@ -93,7 +68,7 @@ const GROUPS = [
     id: 'runtime-other',
     label: 'Remaining runtime contracts',
     paths: ['tests/runtime'],
-    exclude: ['tests/runtime/agent', 'tests/runtime/external-agents', 'tests/runtime/sessions'],
+    exclude: ['tests/runtime/agent', 'tests/runtime/sessions'],
   },
   {
     id: 'integration',
@@ -161,6 +136,9 @@ function listGroups() {
     const paths = existingPaths(group.paths);
     console.log(`${group.id.padEnd(16, ' ')} ${group.label}`);
     console.log(`  ${paths.join(' ') || '(sem paths existentes)'}`);
+  }
+  if (ARCHIVE_GROUPS.length === 0) {
+    return;
   }
   console.log('\nArquivados fora do CI padrao:');
   for (const group of ARCHIVE_GROUPS) {

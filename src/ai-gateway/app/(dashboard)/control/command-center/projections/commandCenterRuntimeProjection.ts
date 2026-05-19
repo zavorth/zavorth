@@ -7,7 +7,6 @@ import {
   createZavorthNativeDashboardViewModelRegistryFixture,
   createZavorthNativeIntegrationRegistryFixture,
   createZavorthNativeSessionHistoryRegistryFixture,
-  normalizeZavorthPartialAdapterDeprecationGateFixture,
 } from "../../../../../../contracts/CommandCenterRuntimeBoundaryContract.js";
 import type {
   ZavorthNativeCapabilityRegistry,
@@ -20,7 +19,6 @@ import type {
   ZavorthNativeIntegrationRegistry,
   ZavorthNativeSessionHistoryRegistry,
   ZavorthNativeSessionMetadataRecord,
-  ZavorthPartialAdapterDeprecationNormalization,
 } from "../../../../../../contracts/CommandCenterRuntimeBoundaryContract.js";
 import type {
   DashboardAgentEvent,
@@ -79,9 +77,19 @@ import type {
 
 export const COMMAND_CENTER_RUNTIME_PROJECTION_VERSION = "command-center-runtime-projection/v1" as const;
 export const COMMAND_CENTER_NATIVE_FIRST_RUNTIME_PROJECTION_VERSION = "command-center-native-first-runtime-projection/v1" as const;
+export const COMMAND_CENTER_NATIVE_FIRST_RUNTIME_NOW = "2026-05-19T00:00:00.000Z" as const;
+
+type CommandCenterNativeFirstRuntimePolicy = {
+  generatedAt: string;
+  adapterRefreshAllowed: boolean;
+  adapterRemovalAllowed: boolean;
+  blockedSurfaces: string[];
+  runtimeWarnings: string[];
+  logs: DashboardLogEntry[];
+};
 
 export type CommandCenterNativeFirstConsumerIntegrationSource = {
-  adapterDeprecation: ZavorthPartialAdapterDeprecationNormalization;
+  nativeFirstPolicy: CommandCenterNativeFirstRuntimePolicy;
   capabilityRegistry: ZavorthNativeCapabilityRegistry;
   dashboardRegistry: ZavorthNativeDashboardViewModelRegistry;
   integrationRegistry: ZavorthNativeIntegrationRegistry;
@@ -247,20 +255,31 @@ function toolExposureFromCapability(entry: ZavorthNativeCapabilityRegistryEntry)
   };
 }
 
-function healthStatusFromPolicies(
-  adapterDeprecation: ZavorthPartialAdapterDeprecationNormalization,
-): DashboardRuntimeStatus {
-  return adapterDeprecation.blockedSurfaces.length > 0 || adapterDeprecation.adapterRequiredSurfaces.length > 0
-    ? "degraded"
-    : "ready";
+function createCommandCenterNativeFirstRuntimePolicy(): CommandCenterNativeFirstRuntimePolicy {
+  return {
+    generatedAt: COMMAND_CENTER_NATIVE_FIRST_RUNTIME_NOW,
+    adapterRefreshAllowed: false,
+    adapterRemovalAllowed: false,
+    blockedSurfaces: [],
+    runtimeWarnings: [],
+    logs: [
+      {
+        id: "native-first-policy:default",
+        level: "info",
+        source: "native-registry-policy",
+        message: "Command Center renderiza direto dos registries Zavorth-native.",
+        createdAt: COMMAND_CENTER_NATIVE_FIRST_RUNTIME_NOW,
+      },
+    ],
+  };
 }
 
 function healthFromNativeFirstPolicy(
-  adapterDeprecation: ZavorthPartialAdapterDeprecationNormalization,
+  policy: CommandCenterNativeFirstRuntimePolicy,
   dashboardRegistry: ZavorthNativeDashboardViewModelRegistry,
 ): DashboardHealthSnapshot {
   return {
-    status: healthStatusFromPolicies(adapterDeprecation),
+    status: policy.blockedSurfaces.length > 0 ? "degraded" : "ready",
     summary: "Command Center usando registries Zavorth-native no caminho padrao.",
     checks: [
       {
@@ -270,10 +289,10 @@ function healthFromNativeFirstPolicy(
         detail: "Lookup e render usam registries Zavorth-native.",
       },
       {
-        id: "adapter-refresh-explicit",
-        label: "Adapter refresh explicito",
-        status: "degraded",
-        detail: "Adapter reservado para refresh, reconciliacao ou fallback degradado.",
+        id: "native-registry-only",
+        label: "Superficie nativa",
+        status: "ready",
+        detail: "Renderizacao nao depende de adapter legado ou reconciliacao historica.",
       },
       {
         id: "dashboard-registry-degraded-rows",
@@ -380,7 +399,7 @@ function messagesFromNativeRegistry(
 
 function eventsFromNativeDashboardViews(
   dashboardRegistry: ZavorthNativeDashboardViewModelRegistry,
-  adapterDeprecation: ZavorthPartialAdapterDeprecationNormalization,
+  policy: CommandCenterNativeFirstRuntimePolicy,
 ): DashboardAgentEvent[] {
   const viewEvents = dashboardRegistry.list({ degradedOrUnavailable: true }).slice(0, 12).map((view): DashboardAgentEvent => ({
     id: `native-view:${view.id}`,
@@ -394,8 +413,8 @@ function eventsFromNativeDashboardViews(
       id: "native-first-policy:adapter-refresh",
       kind: "status" as const,
       title: "Adapter refresh explicit",
-      detail: `${adapterDeprecation.adapterRequiredSurfaces.length} surface remains adapter-required for refresh/reconciliation.`,
-      status: "pending" as const,
+      detail: policy.adapterRefreshAllowed ? "Refresh explicito habilitado por policy." : "Refresh por adapter legado desativado no caminho padrao.",
+      status: "done" as const,
     },
   ];
 
@@ -412,8 +431,8 @@ function runtimeMetadata(
       commandCenterDefaultAdapterCall: false,
       externalSourceRequiredForCommandCenterRender: false,
       externalSourceRequiredForCommandCenterLookup: false,
-      adapterRefreshAllowed: source.adapterDeprecation.executionGate.adapterRefreshAllowed,
-      adapterRemovalAllowed: source.adapterDeprecation.executionGate.adapterRemovalAllowed,
+      adapterRefreshAllowed: source.nativeFirstPolicy.adapterRefreshAllowed,
+      adapterRemovalAllowed: source.nativeFirstPolicy.adapterRemovalAllowed,
     },
     nativeRegistryCounts: {
       capabilities: source.capabilityRegistry.list().length,
@@ -427,7 +446,7 @@ function runtimeMetadata(
 
 export function createCommandCenterNativeFirstConsumerIntegrationFixtureSource(): CommandCenterNativeFirstConsumerIntegrationSource {
   return {
-    adapterDeprecation: normalizeZavorthPartialAdapterDeprecationGateFixture(),
+    nativeFirstPolicy: createCommandCenterNativeFirstRuntimePolicy(),
     capabilityRegistry: createZavorthNativeCapabilityRegistryFixture(),
     dashboardRegistry: createZavorthNativeDashboardViewModelRegistryFixture(),
     integrationRegistry: createZavorthNativeIntegrationRegistryFixture(),
@@ -447,9 +466,9 @@ export function createCommandCenterNativeFirstConsumerIntegrationFixtureSource()
 export function buildCommandCenterNativeFirstRuntimeProjection(
   source: CommandCenterNativeFirstConsumerIntegrationSource = createCommandCenterNativeFirstConsumerIntegrationFixtureSource(),
 ): CommandCenterNativeFirstConsumerIntegrationResult {
-  const generatedAt = source.adapterDeprecation.generatedAt;
+  const generatedAt = source.nativeFirstPolicy.generatedAt;
   const capabilities = source.capabilityRegistry.list().map(toolExposureFromCapability);
-  const health = healthFromNativeFirstPolicy(source.adapterDeprecation, source.dashboardRegistry);
+  const health = healthFromNativeFirstPolicy(source.nativeFirstPolicy, source.dashboardRegistry);
   const projection: CommandCenterRuntimeProjection = {
     projectionVersion: COMMAND_CENTER_RUNTIME_PROJECTION_VERSION,
     generatedAt,
@@ -473,7 +492,7 @@ export function buildCommandCenterNativeFirstRuntimeProjection(
     sessions: sessionsFromNativeRegistry(source.sessionHistoryRegistry),
     messages: messagesFromNativeRegistry(source.sessionHistoryRegistry),
     tasks: [],
-    events: eventsFromNativeDashboardViews(source.dashboardRegistry, source.adapterDeprecation),
+    events: eventsFromNativeDashboardViews(source.dashboardRegistry, source.nativeFirstPolicy),
     approvals: [],
     artifacts: [],
     memorySignals: [],
@@ -530,17 +549,11 @@ export function buildCommandCenterNativeFirstRuntimeProjection(
       firstRunStatus: "complete",
       summary: "Zavorth Command Center using native registry view models.",
     },
-    logs: source.adapterDeprecation.policies.map((policy) => ({
-      id: `native-first-policy:${policy.surfaceId}`,
-      level: policy.policyMode === "blocked" ? "warn" : "info",
-      source: "native-registry-policy",
-      message: `${policy.surfaceId}: ${policy.policyMode}`,
-      createdAt: generatedAt,
-    })),
+    logs: source.nativeFirstPolicy.logs,
     workflowJobs: [],
     runtimeWarnings: [
-      "Adapter refresh/reconciliation is explicit and not the default render path.",
-      ...source.adapterDeprecation.blockedSurfaces.map((surfaceId) => `Blocked surface: ${surfaceId}`),
+      ...source.nativeFirstPolicy.runtimeWarnings,
+      ...source.nativeFirstPolicy.blockedSurfaces.map((surfaceId) => `Blocked surface: ${surfaceId}`),
     ],
   };
   const adapterInput = buildDashboardAdapterInputFromCommandCenterRuntimeProjection(projection);

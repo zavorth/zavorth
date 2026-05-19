@@ -5,9 +5,9 @@
   "usage": "npm run command -- <nome> [-- args]",
   "summary": {
     "packageScripts": 54,
-    "catalogCommands": 876,
-    "canonicalCommands": 54,
-    "legacyCatalogCommands": 822
+    "catalogCommands": 872,
+    "canonicalCommands": 52,
+    "legacyCatalogCommands": 820
   },
   "commands": {
     "agent-team-compiler:check": {
@@ -4150,30 +4150,10 @@
       "command": "jest tests/integration/CrossSurfaceContinuity.test.ts --runInBand",
       "description": "Comando canonico mantido por defork gate: test:cross-surface"
     },
-    "test:external-agents:full": {
-      "status": "legacy-catalog",
-      "command": "jest tests/runtime/external-agents --runInBand",
-      "description": "Comando catalogado: test:external-agents:full"
-    },
     "test:external-agents:heavy-shards": {
       "status": "legacy-catalog",
       "command": "npm run test:external-agents:shard -- 3/16 --testTimeout=30000 && npm run test:external-agents:shard -- 8/16 --testTimeout=30000 && npm run test:external-agents:shard -- 11/16 --testTimeout=30000 && npm run test:external-agents:shard -- 12/16 --testTimeout=30000 && npm run test:external-agents:shard -- 15/16 --testTimeout=30000",
       "description": "Comando catalogado: test:external-agents:heavy-shards"
-    },
-    "test:external-agents:open-handles": {
-      "status": "legacy-catalog",
-      "command": "jest tests/runtime/external-agents --runInBand --detectOpenHandles --logHeapUsage --testTimeout=30000",
-      "description": "Comando catalogado: test:external-agents:open-handles"
-    },
-    "test:external-agents:representative": {
-      "status": "canonical",
-      "command": "jest tests/runtime/external-agents/ZavorthFinalAdapterDomainDecommissionPack.test.ts tests/runtime/external-agents/ZavorthFinalZavorthOnlyAbsorptionHardeningReport.test.ts tests/runtime/external-agents/ZavorthWave4DMessageSendExpansionAndAuditPack.test.ts tests/runtime/external-agents/ZavorthWave4EProviderExecutionAbsorptionPack.test.ts tests/runtime/external-agents/ZavorthWave4FToolCommandExecutionAbsorptionPack.test.ts --runInBand",
-      "description": "Comando canonico: test:external-agents:representative"
-    },
-    "test:external-agents:shard": {
-      "status": "canonical",
-      "command": "jest tests/runtime/external-agents --runInBand --shard",
-      "description": "Comando canonico: test:external-agents:shard"
     },
     "test:gateway:smoke": {
       "status": "legacy-catalog",

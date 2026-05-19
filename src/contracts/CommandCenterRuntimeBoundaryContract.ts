@@ -4,7 +4,6 @@ export {
   createZavorthNativeDashboardViewModelRegistryFixture,
   createZavorthNativeIntegrationRegistryFixture,
   createZavorthNativeSessionHistoryRegistryFixture,
-  normalizeZavorthPartialAdapterDeprecationGateFixture,
 } from '../runtime/external-agents/index.js';
 export type {
   ExternalAgentBridgeChannelHealthSnapshot,
@@ -22,7 +21,6 @@ export type {
   ZavorthNativeIntegrationRegistry,
   ZavorthNativeSessionHistoryRegistry,
   ZavorthNativeSessionMetadataRecord,
-  ZavorthPartialAdapterDeprecationNormalization,
 } from '../runtime/external-agents/index.js';
 export type {
   UniversalAgentEvent,
