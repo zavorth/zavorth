@@ -44,12 +44,23 @@ silently taking unlimited control of their machine.
 
 ## Start Fast
 
+Install the current CLI:
+
+```bash
+npm install -g zavorth@latest
+```
+
+For a local checkout:
+
 ```bash
 npm install
 npm run zavorth:operator-check
 npm run zavorth:ready-to-go
 npm run dashboard
 ```
+
+The primary user surface is `/dashboard`: open it for readiness, providers,
+approvals, receipts, skills, review, memory, and daily operator work.
 
 For terminal-first use:
 

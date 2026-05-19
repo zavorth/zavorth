@@ -60,14 +60,12 @@ small: daily-use guides, stable architecture notes and integration contracts.
 
 ## Certification Notes
 
-- Worker 5 closes the Provider Channel Smoke Proof gate with a mock-live-harness
-  only: sem chamadas externas reais and sem envios reais de canal.
-- Worker 6 continues with media/voice/web/docs diagnostics closure.
-- Phase 7 - Speech, TTS And Voice Live Plane is available through
-  `speech-voice-live-plane` and `speech-voice-live-plane:check`. Use the
-  `staging-live` profile plus explicit live confirmation for real speech I/O;
-  meeting bridges such as `google-meet` remain gated by provider capability and
-  owner approval.
+- Provider, channel, speech and media checks are explicit readiness gates.
+- Live I/O requires configured credentials, provider capability, owner approval
+  and a receipt.
+- Preview-only and certification commands must not perform external sends,
+  payments, installs or secret access unless the command name and operator
+  confirmation make that live behavior explicit.
 
 ## Documentation Rules
 
