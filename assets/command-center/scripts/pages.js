@@ -326,6 +326,99 @@
     </tbody></table></div>
   `);
 
+  populate('sector-overview', `
+    <div class="operator-page">
+      <section class="operator-hero" aria-label="Task overview">
+        <div>
+          <span class="dashboard-eyebrow"><span class="dashboard-live-dot"></span>Tasks</span>
+          <h1 class="operator-title">Your work queue, without the noise.</h1>
+          <p class="operator-subtitle">Track active missions, waiting approvals, safe next steps and recent receipts in one readable place.</p>
+        </div>
+        <button class="operator-primary-action" type="button" data-dashboard-prompt="Show my tasks and the safest next step.">
+          Show next step
+        </button>
+      </section>
+
+      <section class="operator-metrics" aria-label="Task metrics">
+        <article class="operator-metric"><span>Active</span><strong data-dashboard-metric="runs">0</strong><small data-dashboard-meta="runs">no active mission</small></article>
+        <article class="operator-metric"><span>Waiting</span><strong data-dashboard-metric="approvals">0</strong><small data-dashboard-meta="approvals">no pending approval</small></article>
+        <article class="operator-metric"><span>Receipts</span><strong data-dashboard-metric="artifacts">0</strong><small data-dashboard-meta="artifacts">nothing recorded yet</small></article>
+      </section>
+
+      <section class="operator-workspace" aria-label="Task workflow">
+        <article class="operator-panel operator-panel--wide">
+          <div class="operator-panel__header">
+            <div><span>Current mission</span><h2 data-dashboard-runtime-title>Waiting for a mission</h2></div>
+            <span class="dashboard-pill dashboard-pill--safe">ready</span>
+          </div>
+          <p data-dashboard-runtime-text>Ask in Inbox. Zavorth will keep the task read-only until a preview, policy check and approval are ready.</p>
+          <div class="operator-step-list">
+            <div><span>1</span><strong>Ask normally</strong><small>Use plain language.</small></div>
+            <div><span>2</span><strong>Preview risk</strong><small>See what would happen.</small></div>
+            <div><span>3</span><strong>Approve or reject</strong><small>Only scoped work runs.</small></div>
+          </div>
+        </article>
+
+        <article class="operator-panel">
+          <div class="operator-panel__header"><div><span>Approvals</span><h2>Decisions</h2></div><span class="dashboard-pill dashboard-pill--warm">policy</span></div>
+          <p>No pending decisions. Risky file writes, network sends, device control and external agents appear here first.</p>
+          <button class="operator-secondary-action" type="button" data-dashboard-prompt="Show pending approvals and explain what each one would do.">Open approvals</button>
+        </article>
+
+        <article class="operator-panel">
+          <div class="operator-panel__header"><div><span>Readiness</span><h2>Safe to act?</h2></div><span class="dashboard-pill">honest</span></div>
+          <div class="dashboard-status-list">
+            <div class="dashboard-status-row"><span>Sandbox</span><strong data-dashboard-remote="docker">approval required</strong></div>
+            <div class="dashboard-status-row"><span>Providers</span><strong data-dashboard-remote="mcp">token protected</strong></div>
+            <div class="dashboard-status-row"><span>Channels</span><strong data-dashboard-remote="files">read scoped</strong></div>
+          </div>
+        </article>
+      </section>
+
+      <section class="operator-panel">
+        <div class="operator-panel__header">
+          <div><span>Latest signals</span><h2>Activity timeline</h2></div>
+          <span class="dashboard-pill">live</span>
+        </div>
+        <div class="dashboard-mini-timeline" data-dashboard-timeline>
+          <div class="dashboard-timeline-item"><span></span><p>Gateway loaded</p><strong>now</strong></div>
+          <div class="dashboard-timeline-item"><span></span><p>Runtime waiting for a request</p><strong>idle</strong></div>
+          <div class="dashboard-timeline-item"><span></span><p>Receipts ready when actions run</p><strong>ready</strong></div>
+        </div>
+      </section>
+    </div>
+  `);
+
+  populate('sector-dreams', `
+    <div class="operator-page">
+      <section class="operator-hero operator-hero--rest" aria-label="Rest mode">
+        <div>
+          <span class="dashboard-eyebrow"><span class="dashboard-live-dot"></span>Rest</span>
+          <h1 class="operator-title">Quiet background mode.</h1>
+          <p class="operator-subtitle">Rest is for memory cleanup, compaction and low-priority maintenance. It should never cover the screen or hide controls.</p>
+        </div>
+        <div class="operator-rest-mark" aria-hidden="true">
+          <img src="./assets/fox-semfundo.png" alt="">
+        </div>
+      </section>
+
+      <section class="operator-workspace">
+        <article class="operator-panel">
+          <div class="operator-panel__header"><div><span>Memory</span><h2>Consolidation</h2></div><span class="dashboard-pill dashboard-pill--safe">idle</span></div>
+          <p>Waits for real session data before writing durable memory.</p>
+        </article>
+        <article class="operator-panel">
+          <div class="operator-panel__header"><div><span>Context</span><h2>Compaction</h2></div><span class="dashboard-pill">scheduled</span></div>
+          <p>Clears bulky old output only when it is safe and useful.</p>
+        </article>
+        <article class="operator-panel">
+          <div class="operator-panel__header"><div><span>Cleanup</span><h2>Maintenance</h2></div><span class="dashboard-pill">preview</span></div>
+          <p>Background maintenance stays visible, reversible and receipt-backed.</p>
+        </article>
+      </section>
+    </div>
+  `);
+
   function populate(id, html) {
     const el = document.getElementById(id);
     if (el) el.innerHTML = html;
