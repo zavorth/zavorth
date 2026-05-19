@@ -124,16 +124,16 @@ export class IdentityContainmentService {
 
   private registerKnownSurfaces(): void {
     this.addSurface({
-      id: 'runtime-external-agents',
+      id: 'runtime-agent-connectors',
       category: 'file-path',
-      description: 'Private external-agent compatibility archive.',
+      description: 'Governed external runtime connector surface.',
       location: 'src/runtime/external-agents/',
-      occurrences: 101,
-      status: 'contained',
+      occurrences: 1,
+      status: 'migrated',
       nativeReplacement: 'src/runtime/execution-adapters/',
       migrationRisk: 4,
-      notes: 'Private compatibility zone. It must not appear in launch-facing surfaces.',
-      zone: 'private-archive',
+      notes: 'Current connector boundary; historical phase packs were removed from this surface.',
+      zone: 'launch-facing',
     });
 
     this.addSurface({

@@ -1,5 +1,0 @@
-- [x] Ligar `SharedSurfaceCommandService` ao `ZavorthTenantGovernanceActionService`.
-- [x] Suportar `/tenants run <tenantId> <actionId>` e forma implicita segura.
-- [x] Reutilizar o workflow controller do runtime principal para tenant reviews iniciados por workflow.
-- [x] Atualizar ajuda, catalogo e normalizacao do CLI.
-- [x] Validar com testes focados e build.
