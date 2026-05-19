@@ -54,9 +54,6 @@ export * from '../contracts/ZavorthTransactionLiveMicroRolloutCertificationContr
 export * from '../contracts/ZavorthTransactionLiveExecutorGateContract.js';
 export * from '../contracts/ZavorthDelegatedWorkerBridgeContract.js';
 export * from '../contracts/ZavorthNativeReplacementDecommissionContract.js';
-export * from '../contracts/ZavorthPost291CertificationSwarmContract.js';
-export * from '../contracts/ZavorthPost291LiveCanarySwarmContract.js';
-export * from '../contracts/ZavorthPost291ReleaseCandidateContract.js';
 export * from '../contracts/ZavorthSessionMemoryContinuationContract.js';
 export * from '../contracts/ZavorthChannelMessagingBridgeContract.js';
 export * from '../contracts/ZavorthCapabilityProviderRegistryContract.js';

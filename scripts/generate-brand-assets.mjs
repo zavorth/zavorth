@@ -14,19 +14,6 @@ function dataUrl(filePath) {
   return `data:${mime};base64,${fs.readFileSync(filePath).toString('base64')}`;
 }
 
-function writeLogoSvg() {
-  const svg = `<svg width="900" height="220" viewBox="0 0 900 220" fill="none" xmlns="http://www.w3.org/2000/svg">
-  <rect width="900" height="220" rx="40" fill="#07110F"/>
-  <rect x="24" y="24" width="172" height="172" rx="38" fill="#DFF5EE"/>
-  <image href="${dataUrl(logoPath)}" x="44" y="44" width="132" height="132" preserveAspectRatio="xMidYMid meet"/>
-  <text x="230" y="96" font-family="Inter, Segoe UI, Arial, sans-serif" font-size="56" font-weight="800" fill="#F8FFFC">Zavorth</text>
-  <text x="233" y="144" font-family="Inter, Segoe UI, Arial, sans-serif" font-size="24" font-weight="600" fill="#78D6BE">Governed Agent Runtime</text>
-  <path d="M232 166H692" stroke="#123C33" stroke-width="2"/>
-  <text x="233" y="194" font-family="Inter, Segoe UI, Arial, sans-serif" font-size="18" fill="#ADC8BF">Ask naturally. Execute safely. Keep evidence.</text>
-</svg>`;
-  fs.writeFileSync(path.join(outDir, 'zavorth-logo-horizontal.svg'), svg);
-}
-
 function html({ kind }) {
   const logo = dataUrl(logoPath);
   const isSocial = kind === 'social';
@@ -181,9 +168,7 @@ async function render(name, kind) {
   await browser.close();
 }
 
-writeLogoSvg();
 await render('zavorth-readme-banner.png', 'banner');
 await render('zavorth-social-preview.png', 'social');
-await render('command-center-preview.png', 'social');
 
 console.log(`Generated brand assets in ${outDir}`);
