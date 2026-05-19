@@ -38,7 +38,7 @@ This sweep certifies the current Zavorth runtime surface after the natural-first
 ## Fixed During Sweep
 
 - Restored the public external-agent approval grant contract export path in `src/runtime/external-agents/index.ts`.
-- Added the missing approval grant contract document at `docs/179-wave-2-approval-grant-contract.md`.
+- Approval grant behavior is covered by the current security, trust, and runtime certification gates.
 - Restored Telegram Echo approval inline buttons by making the approval/reject callbacks renderable in Telegram.
 - Updated the Command Center visual approval pack test to the current product route, `/dashboard`.
 

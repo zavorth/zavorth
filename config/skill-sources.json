@@ -55,15 +55,15 @@
       "label": "Workspace imported skill library",
       "kind": "workspace",
       "trust": "review",
-      "enabled": true,
+      "enabled": false,
       "ingestionMode": "local-scan",
       "path": "skill-library/imported",
-      "createIfMissing": true,
+      "createIfMissing": false,
       "ownership": "curated-import",
       "registrySource": "zavorth:curated-import",
       "notes": [
-        "Destino oficial dos imports seletivos vindos de fontes externas revisadas.",
-        "So deve receber skills materializadas pelo pipeline de import do Zavorth."
+        "Zona temporaria para imports seletivos revisados.",
+        "Fica desativada por padrao para manter a superficie de produto limpa."
       ]
     }
   ]

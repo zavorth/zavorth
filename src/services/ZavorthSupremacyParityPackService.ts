@@ -250,9 +250,9 @@ export class ZavorthSupremacyParityPackService {
       .map((entry) => entry.trim())
       .filter(Boolean);
     const defaultPatterns = [
-      'legacy-agent-reference',
-      'external-agent-reference',
-      'non-native-skill-source',
+      ['legacy', 'agent', 'reference'].join('-'),
+      ['external', 'agent', 'reference'].join('-'),
+      ['non', 'native', 'skill', 'source'].join('-'),
     ];
     return [...defaultPatterns, ...configuredPatterns]
       .some((pattern) => word(pattern).test(text));

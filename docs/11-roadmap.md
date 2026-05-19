@@ -1,73 +1,35 @@
-# Roadmap
+# Zavorth Roadmap
 
-This roadmap keeps only near-term work that strengthens daily use without
-bringing back old implementation diaries or external-runtime baggage.
+This roadmap describes current product direction, not implementation history.
 
-## Current Product Line
+## Current Focus
 
-Zavorth is a local-first governed agent runtime. The public roadmap should
-improve what users already touch every day:
+- Keep the local-first runtime reliable for daily operator use.
+- Improve dashboard, CLI, Telegram, and API flows around the same governed gateway.
+- Continue hardening approvals, receipts, provider readiness, and memory.
+- Keep skill evolution native, scoped, auditable, and approval-based.
 
-- Dashboard and CLI operation;
-- channels and provider readiness;
-- approvals, SecretRefs and receipts;
-- skills, subagents, scheduled tasks and perception tools;
-- public docs that match the current repo.
+## Near-Term Priorities
 
-## Next Investments
-
-### Channel Transport Discovery
-
-Goal: make Channel Mesh explain what each channel can actually do on this host.
-
-Planned outcome:
-
-- channel status includes configured transport, required credentials, webhook
-  state, send mode, receive mode and safe fallback;
-- Telegram, Discord, WhatsApp, Slack, Signal and iMessage expose equivalent
-  readiness signals even when their native capabilities differ;
-- channels with no live connector are clearly labeled as unavailable or
-  outbox-only, not "ready".
-
-### Live Readiness By Channel And Provider
-
-Goal: separate "contract exists" from "this host can use it right now".
-
-Planned outcome:
-
-- a live readiness certificate for each provider and channel;
-- checks distinguish mock-safe, dry-run, configured, live-ready, degraded and
-  blocked states;
-- Dashboard and CLI show the same readiness model.
-
-### Better SecretRef UX
-
-Goal: keep secrets out of prompts and logs while making setup easier.
-
-Planned outcome:
-
-- users see which credential is missing without seeing or pasting raw secrets
-  into chat;
-- approvals and doctors explain what a SecretRef unlocks;
-- common setup flows validate presence, scope and expiry safely.
-
-### Public Documentation Refresh
-
-Goal: keep the repo clean, readable and honest.
-
-Planned outcome:
-
-- README, quickstart, CLI, operations, security and architecture docs stay small
-  and current;
-- old planning reports, private audits and implementation diaries stay out of the
-  public surface;
-- docs say when something is live, dry-run, governed preview or future work.
+1. Polish the operator dashboard around readiness, approvals, providers, and memory.
+2. Expand provider certification without claiming live support before a real proof exists.
+3. Improve Mnemos file understanding and the workspace wiki flow.
+4. Keep Swarm execution bounded by budget, isolation policy, and replayable evidence.
+5. Make product documentation smaller, clearer, and aligned with real behavior.
 
 ## Non-Goals
 
-- importing raw SQLite history from old runtimes by default;
-- making an external executor the Zavorth kernel;
-- copying another project identity into Zavorth;
-- publishing private audits as user-facing docs;
-- adding live side effects without Policy Broker, approval, receipts and
-  rollback posture.
+- No silent execution of sensitive actions.
+- No raw secret serialization in prompts, logs, receipts, or screenshots.
+- No hidden dependency on external agents or imported skill bodies.
+- No product documentation that depends on temporary implementation notes.
+
+## Release Rule
+
+A capability is considered product-ready only when it has:
+
+- a stable command or UI surface;
+- a clear readiness status;
+- security and identity checks;
+- documented approval behavior;
+- tests or certification evidence.

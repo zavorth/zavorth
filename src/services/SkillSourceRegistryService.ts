@@ -99,10 +99,10 @@ const DEFAULT_SOURCE_REGISTRY: SkillSourceRegistryRawDocument = {
       label: 'Workspace imported skill library',
       kind: 'workspace',
       trust: 'review',
-      enabled: true,
+      enabled: false,
       ingestionMode: 'local-scan',
       path: 'skill-library/imported',
-      createIfMissing: true,
+      createIfMissing: false,
       ownership: 'curated-import',
       registrySource: 'zavorth:curated-import',
     },
@@ -201,7 +201,9 @@ export class SkillSourceRegistryService {
       ingestionMode,
       path: pathValue,
       absolutePath: this.resolveProjectPath(pathValue),
-      createIfMissing: raw.createIfMissing === true || (kind === 'workspace' && ingestionMode === 'local-scan'),
+      createIfMissing: typeof raw.createIfMissing === 'boolean'
+        ? raw.createIfMissing
+        : (kind === 'workspace' && ingestionMode === 'local-scan'),
       ownership: String(raw.ownership || (kind === 'workspace' ? 'workspace' : 'external')).trim() || 'external',
       registrySource: this.normalizeNullableString(raw.registrySource),
       upstream: this.normalizeNullableString(raw.upstream),
