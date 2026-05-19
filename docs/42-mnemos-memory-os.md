@@ -50,7 +50,7 @@ Use Mnemos when you want Zavorth to answer questions like:
 If a memory action would broaden scope or persist new knowledge, Zavorth should
 show a preview and require the appropriate approval.
 
-## Phase 9 Certification
+## Certification
 
 The Mnemos certification command verifies this memory surface with local checks
 only. In other words: local checks only. It does not call providers, does not

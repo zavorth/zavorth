@@ -1,4 +1,4 @@
-# 35 - Certification Sweep
+# Certification Sweep
 
 Date: 2026-05-16
 Status: certification-sweep-green-with-full-suite-yellow
@@ -27,7 +27,7 @@ This sweep certifies the current Zavorth runtime surface after the natural-first
 - Telegram channel tests passed: 6 suites, 44 tests.
 - Command Center/dashboard tests passed: 5 suites, 11 tests.
 - Transaction plane tests passed: 9 suites, 36 tests.
-- `npm run zavorth:transaction-live-executor-gate:phase16:check --silent` passed.
+- `npm run qa:zavorth-transaction-live-executor-gate --silent` passed.
 - `npm run zavorth:natural-invocation:check --silent` passed.
 - `npm run security:secrets --silent` passed with no versioned secret detected.
 - `npm run security:supply-chain --silent` passed with no supply-chain risk detected.
@@ -61,7 +61,7 @@ Zavorth remains fail-closed for risky execution:
 - Telegram, dashboard and approval surfaces route through explicit approval controls
 - no removed external-source identifiers were found in the scanned runtime/docs/tests outside ignored build/data directories
 
-## Next Recommended Phase
+## Next Operational Step
 
 Start Runtime Readiness next.
 

@@ -56,10 +56,12 @@ For a local checkout:
 npm install
 npm run zavorth:operator-check
 npm run zavorth:ready-to-go
+npm run go
 npm run dashboard
 ```
 
-The primary user surface is `/dashboard`: open it for readiness, providers,
+The primary user surface is `/dashboard`: start the local runtime with
+`npm run go`, then open it with `npm run dashboard` for readiness, providers,
 approvals, receipts, skills, review, memory, and daily operator work.
 
 For terminal-first use:
@@ -111,6 +113,8 @@ Review this repository and tell me what is risky.
 | --- | --- |
 | `npm run zavorth:operator-check` | One command operator check for daily readiness. |
 | `npm run zavorth:ready-to-go` | Launch guard for remote use and provider readiness. |
+| `npm run go` | Start the local operator runtime and make `/dashboard` available. |
+| `npm run dashboard` | Open the local dashboard with the current access token. |
 | `npm run zavorth:provider-model-catalog` | Show provider and model catalog status. |
 | `npm run zavorth:provider-parity` | Validate nominal provider coverage and safe readiness. |
 | `npm run zavorth:skill-ecosystem` | Inspect native skill ecosystem coverage. |
