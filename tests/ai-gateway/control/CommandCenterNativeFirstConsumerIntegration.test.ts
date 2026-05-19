@@ -10,10 +10,7 @@ import {
   createCommandCenterNativeFirstConsumerIntegrationFixtureSource,
 } from '../../../src/ai-gateway/app/(dashboard)/control/command-center/projections/index.js';
 
-const DOC = 'docs/192-wave-3-command-center-native-first-consumer-integration.md';
-const GO_NO_GO_DOC = 'docs/117-external-agent-full-absorption-go-no-go.md';
-const PAUSE_DOC = 'docs/159-external-executor-secret-provisioning-pause.md';
-const DEPRECATION_DOC = 'docs/191-wave-3-partial-adapter-deprecation-gate.md';
+const PAUSE_DOC = 'docs/external-executor-secret-provisioning.md';
 const PROJECTION = 'src/ai-gateway/app/(dashboard)/control/command-center/projections/commandCenterRuntimeProjection.ts';
 const PROJECTION_INDEX = 'src/ai-gateway/app/(dashboard)/control/command-center/projections/index.ts';
 const COMMAND_CENTER_INDEX = 'src/ai-gateway/app/(dashboard)/control/command-center/index.ts';
@@ -26,29 +23,14 @@ function read(relativePath: string): string {
 }
 
 describe('Command Center native-first consumer integration', () => {
-  it('documents 192 as the Command Center native-first consumer integration', () => {
-    const content = read(DOC);
+  it('documents the native-first external executor secret posture in product docs', () => {
+    const content = read(PAUSE_DOC);
 
-    expect(content).toContain('Status: command-center-native-first-consumer-integration-ready');
-    expect(content).toContain('CommandCenterNativeFirstConsumerIntegration/v1');
-    expect(content).toContain('COMMAND_CENTER_NATIVE_FIRST_RUNTIME_PROJECTION_VERSION');
-    expect(content).toContain('docs/173-wave-1-command-center-live-assimilation.md');
-    expect(content).toContain('docs/186-wave-3-dashboard-view-model-registry-native-slice.md');
-    expect(content).toContain('docs/190-wave-3-native-registry-parity-and-dependency-reduction.md');
-    expect(content).toContain('docs/191-wave-3-partial-adapter-deprecation-gate.md');
-    expect(content).toContain('commandCenterNativeFirstEnabled=true');
-    expect(content).toContain('commandCenterDefaultAdapterCall=false');
-    expect(content).toContain('externalSourceRequiredForCommandCenterRender=false');
+    expect(content).toContain('Zavorth does not migrate or expose raw secrets');
+    expect(content).toContain('SecretRef');
+    expect(content).toContain('every live invocation produces a receipt');
     expect(content).not.toMatch(RAW_GATEWAY_TOKEN_ASSIGNMENT_PATTERN);
     expect(content).not.toMatch(/(^|[^A-Za-z])sk-[A-Za-z0-9_-]{8,}/);
-  });
-
-  it('updates tracking docs for the Command Center native-first integration', () => {
-    expect(read(GO_NO_GO_DOC)).toContain('docs/192-wave-3-command-center-native-first-consumer-integration.md');
-    expect(read(PAUSE_DOC)).toContain('`192` is the Command Center native-first consumer integration');
-    expect(read(DEPRECATION_DOC)).toContain('Command Center native-first consumer follow-up: docs/192-wave-3-command-center-native-first-consumer-integration.md');
-    expect(read(DEPRECATION_DOC)).toContain('Do not advance to');
-    expect(read(DEPRECATION_DOC)).toContain('`193`');
   });
 
   it('exports the native-first projection consumer from the Command Center package', () => {
@@ -81,8 +63,8 @@ describe('Command Center native-first consumer integration', () => {
         status: 'ready',
       }),
       expect.objectContaining({
-        id: 'adapter-refresh-explicit',
-        status: 'degraded',
+        id: 'native-registry-only',
+        status: 'ready',
       }),
     ]));
   });
@@ -95,7 +77,7 @@ describe('Command Center native-first consumer integration', () => {
       commandCenterDefaultAdapterCall: false,
       externalSourceRequiredForCommandCenterRender: false,
       externalSourceRequiredForCommandCenterLookup: false,
-      adapterRefreshAllowed: true,
+      adapterRefreshAllowed: false,
       adapterRemovalAllowed: false,
       executionAuthority: false,
       messageActuallySent: false,
@@ -114,9 +96,7 @@ describe('Command Center native-first consumer integration', () => {
       configStateMetadataFromNativeRegistry: true,
       adapterFallbackExplicitOnly: true,
     });
-    expect(result.projection.runtimeWarnings).toEqual(expect.arrayContaining([
-      'Adapter refresh/reconciliation is explicit and not the default render path.',
-    ]));
+    expect(result.projection.runtimeWarnings).toEqual([]);
   });
 
   it('renders the dashboard view model without public ExternalExecutor identity', () => {
@@ -127,7 +107,7 @@ describe('Command Center native-first consumer integration', () => {
     expect(viewModel.adapterSource).toEqual(expect.objectContaining({
       label: 'Zavorth Native Registry Projection',
     }));
-    expect(viewModel.runtime.status).toBe('degraded');
+    expect(viewModel.runtime.status).toBe('ready');
     expect(viewModel.toolExposure.tools.length).toBeGreaterThan(0);
     expect(viewModel.integrations.length).toBeGreaterThan(0);
     expect(viewModel.sessions.length).toBeGreaterThan(0);
@@ -153,19 +133,15 @@ describe('Command Center native-first consumer integration', () => {
     ]));
     expect(viewModel.health.checks).toEqual(expect.arrayContaining([
       expect.objectContaining({
-        id: 'adapter-refresh-explicit',
-        status: 'degraded',
+        id: 'native-registry-only',
+        status: 'ready',
       }),
       expect.objectContaining({
         id: 'dashboard-registry-degraded-rows',
         status: 'degraded',
       }),
     ]));
-    expect(viewModel.runtime.blockers).toEqual(expect.arrayContaining([
-      expect.objectContaining({
-        id: expect.stringContaining('runtime-warning'),
-      }),
-    ]));
+    expect(viewModel.runtime.blockers).toEqual([]);
   });
 
   it('does not perform execution, migration, source copy, or raw secret serialization', () => {

@@ -567,7 +567,7 @@ export function buildCommandCenterNativeFirstRuntimeProjection(
       commandCenterDefaultAdapterCall: false,
       externalSourceRequiredForCommandCenterRender: false,
       externalSourceRequiredForCommandCenterLookup: false,
-      adapterRefreshAllowed: true,
+      adapterRefreshAllowed: false,
       adapterRemovalAllowed: false,
       executionAuthority: false,
       messageActuallySent: false,

@@ -28,7 +28,7 @@ if (list || !commandName) {
     const status = entry.status || 'legacy';
     console.log(`${name.padEnd(34)} ${status.padEnd(12)} ${entry.description || entry.command}`);
   }
-  process.exit(commandName ? 0 : 1);
+  process.exit(list ? 0 : 1);
 }
 
 const entry = commands[commandName];

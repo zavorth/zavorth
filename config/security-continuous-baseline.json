@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updatedAt": "2026-05-19T04:31:44.794Z",
+  "updatedAt": "2026-05-19T04:53:06.557Z",
   "snapshot": {
     "controls": [
       {
@@ -216,7 +216,7 @@
       {
         "id": "scripts/command-catalog.json",
         "relativePath": "scripts/command-catalog.json",
-        "sha256": "b7518ec64d65f366af26b5f51c08260c98f94207a4561d1a8b61ee6eca923f23",
+        "sha256": "b88417abe35811438817f2616b95a679b008b017fe1872008b84a9c870b43d9f",
         "present": true
       }
     ],

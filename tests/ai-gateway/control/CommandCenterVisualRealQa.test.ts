@@ -153,7 +153,7 @@ describe('CommandCenterVisualRealQa', () => {
       'utf8',
     );
     const docs = readFileSync(
-      join(rootDir, 'docs/106-command-center-visual-real-qa.md'),
+      join(rootDir, 'docs/command-center-visual-qa.md'),
       'utf8',
     );
 
