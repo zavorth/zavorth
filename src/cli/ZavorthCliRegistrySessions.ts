@@ -32,6 +32,9 @@ import {
   formatMemoryWithReceiptsSnapshot,
   resolveMemoryWithReceiptsCliText,
 } from './ZavorthCliMemoryWithReceiptsRenderer.js';
+import { ZavorthMnemosMemoryUxService } from '../services/ZavorthMnemosMemoryUxService.js';
+import { ZavorthMnemosProceduralMemoryService } from '../services/ZavorthMnemosProceduralMemoryService.js';
+import { ZavorthMnemosQueryService } from '../services/ZavorthMnemosQueryService.js';
 
 type RegistryCommandParams = {
   runtime: ZavorthCliRuntime;
@@ -171,6 +174,44 @@ export async function handleZavorthCliRegistrySessionsCommand(params: RegistryCo
     const tokens = String(args || '').trim().split(/\s+/).filter(Boolean);
     const first = String(tokens[0] || '').trim().toLowerCase();
     const rest = tokens.slice(1).join(' ').trim();
+    if (first === 'mnemos' || first === 'mnemos-ux') {
+      const mnemosAction = String(tokens[1] || '').trim().toLowerCase();
+      if (mnemosAction === 'query') {
+        const queryText = tokens.slice(2).join(' ').trim();
+        const snapshot = new ZavorthMnemosQueryService().query({ query: queryText });
+        const body = effectiveFlags.json
+          ? JSON.stringify(snapshot, null, 2)
+          : formatMnemosQueryCli(snapshot);
+        writer.line(body);
+        return { ok: true, handled: true, output: [body], error: null };
+      }
+      const service = new ZavorthMnemosMemoryUxService();
+      const snapshot = service.buildSnapshot();
+      const body = effectiveFlags.json
+        ? JSON.stringify(snapshot, null, 2)
+        : service.formatCli(snapshot);
+      writer.line(body);
+      return { ok: snapshot.status !== 'blocked', handled: true, output: [body], error: snapshot.status === 'blocked' ? 'Mnemos memory UX blocked.' : null };
+    }
+    if (first === 'procedural') {
+      const service = new ZavorthMnemosProceduralMemoryService();
+      const subcommand = String(tokens[1] || 'list').toLowerCase();
+      const parsed = parseProceduralMemoryArgs(tokens.slice(2));
+      const snapshot = subcommand === 'preview'
+        ? service.preview({ text: parsed.text || parsed.rest, scope: parsed.scope })
+        : subcommand === 'apply'
+          ? service.apply({ text: parsed.text || parsed.rest, scope: parsed.scope, approvalId: parsed.approvalId })
+          : subcommand === 'query'
+            ? service.query({ query: parsed.text || parsed.rest })
+            : subcommand === 'revoke'
+              ? service.revoke({ id: parsed.id || parsed.rest, approvalId: parsed.approvalId, reason: parsed.reason })
+              : service.list();
+      const body = effectiveFlags.json
+        ? JSON.stringify(snapshot, null, 2)
+        : formatProceduralMemoryCli(snapshot);
+      writer.line(body);
+      return { ok: snapshot.status !== 'blocked', handled: true, output: [body], error: snapshot.status === 'blocked' ? 'Mnemos procedural memory blocked.' : null };
+    }
     if (first === 'receipts' || first === 'source' || first === 'sources' || first === 'origem') {
       const gatewaySnapshot = runtime.agentGateway?.buildSnapshot({
         activeSessionId: effectiveFlags.sessionId,
@@ -307,4 +348,85 @@ export async function handleZavorthCliRegistrySessionsCommand(params: RegistryCo
   }
 
   return null;
+}
+
+function parseProceduralMemoryArgs(tokens: string[]): {
+  text: string;
+  rest: string;
+  approvalId: string | null;
+  id: string | null;
+  reason: string | null;
+  scope: string[];
+} {
+  const remaining: string[] = [];
+  let text = '';
+  let approvalId: string | null = null;
+  let id: string | null = null;
+  let reason: string | null = null;
+  let scope: string[] = [];
+  for (let index = 0; index < tokens.length; index += 1) {
+    const token = tokens[index];
+    const next = tokens[index + 1] || '';
+    if (token === '--text') {
+      text = next;
+      index += 1;
+    } else if (token === '--approval-id') {
+      approvalId = next;
+      index += 1;
+    } else if (token === '--id') {
+      id = next;
+      index += 1;
+    } else if (token === '--reason') {
+      reason = next;
+      index += 1;
+    } else if (token === '--scope') {
+      scope = next.split(',').map((entry) => entry.trim()).filter(Boolean);
+      index += 1;
+    } else {
+      remaining.push(token);
+    }
+  }
+  return {
+    text,
+    rest: remaining.join(' ').trim(),
+    approvalId,
+    id,
+    reason,
+    scope,
+  };
+}
+
+function formatProceduralMemoryCli(snapshot: any): string {
+  const lines = [
+    'Mnemos Procedural Memory',
+    `status: ${snapshot.status}`,
+    `action: ${snapshot.action}`,
+    `rules: ${snapshot.summary?.active || 0}/${snapshot.summary?.total || 0} active`,
+  ];
+  if (snapshot.rule) {
+    lines.push(`rule: ${snapshot.rule.id}`);
+    lines.push(`kind: ${snapshot.rule.kind}`);
+    lines.push(`risk: ${snapshot.rule.risk}`);
+    lines.push(`statement: ${snapshot.rule.statement}`);
+  }
+  const rules = Array.isArray(snapshot.rules) ? snapshot.rules.slice(0, 8) : [];
+  for (const rule of rules) {
+    lines.push(`- ${rule.id} [${rule.status}/${rule.kind}/${rule.risk}] ${rule.statement}`);
+  }
+  return lines.join('\n');
+}
+
+function formatMnemosQueryCli(snapshot: any): string {
+  const lines = [
+    'Mnemos Wiki Query',
+    `status: ${snapshot.status}`,
+    `hits: ${snapshot.summary?.hits || 0}/${snapshot.summary?.pagesScanned || 0}`,
+  ];
+  for (const hit of Array.isArray(snapshot.hits) ? snapshot.hits.slice(0, 6) : []) {
+    lines.push(`- ${hit.title || hit.pageId} (${hit.score}): ${hit.path}`);
+  }
+  if (!snapshot.hits?.length) {
+    lines.push('No matching wiki pages.');
+  }
+  return lines.join('\n');
 }

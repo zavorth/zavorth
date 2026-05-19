@@ -1,0 +1,20 @@
+{
+  "id": "zavorth-media-generation-review",
+  "title": "Zavorth Media Generation Review",
+  "source": "workspace-library",
+  "trust": "trusted",
+  "tags": [
+    "generation",
+    "review",
+    "media",
+    "artifact",
+    "modality",
+    "provider",
+    "audio",
+    "avoid"
+  ],
+  "curatedBy": "zavorth-skill-curator",
+  "contractVersion": "zavorth-skill-curator-live-loop/1",
+  "updatedAt": "2026-05-18T18:40:32.047Z",
+  "safeMetadataApply": true
+}

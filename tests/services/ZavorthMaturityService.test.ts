@@ -54,7 +54,7 @@ describe('ZavorthMaturityService', () => {
     const service = buildService({
       files: {
         'package.json': JSON.stringify({ scripts: requiredScripts() }),
-        'src/services/BadName.ts': 'export const bad = "OpenClaw";',
+        'src/services/BadName.ts': 'export const bad = "ThirdPartyAgent";',
         'src/security/SensitiveDataGuard.ts': 'ok',
         'src/ai-gateway/lib/logExportRedaction.ts': 'ok',
         'src/ai-gateway/lib/db/backupSanitizer.ts': 'ok',

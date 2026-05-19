@@ -129,7 +129,7 @@ function ruleNoPublicExternalNames() {
     'src/services/ZavorthScheduledTaskPersistenceService.ts',
     'scripts/zavorth-scheduled-task-persistence.ts',
   ];
-  const forbidden = ['OpenClaw', 'Claude Code', 'ZavorthBridge'];
+  const forbidden = ['ThirdPartyAgent', 'Claude Code', 'ZavorthBridge'];
   const hits = [];
   for (const file of files) {
     const text = read(file);

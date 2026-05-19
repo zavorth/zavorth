@@ -1,0 +1,20 @@
+{
+  "id": "zavorth-transaction-safe-finance",
+  "title": "Zavorth Transaction-safe Finance",
+  "source": "workspace-library",
+  "trust": "trusted",
+  "tags": [
+    "approval",
+    "finance",
+    "preview",
+    "transaction-safe",
+    "actions",
+    "ledger",
+    "risk",
+    "after"
+  ],
+  "curatedBy": "zavorth-skill-curator",
+  "contractVersion": "zavorth-skill-curator-live-loop/1",
+  "updatedAt": "2026-05-18T18:40:32.051Z",
+  "safeMetadataApply": true
+}

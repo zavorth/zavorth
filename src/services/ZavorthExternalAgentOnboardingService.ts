@@ -523,7 +523,7 @@ export class ZavorthExternalAgentOnboardingService {
         || name.includes('claw')
         || name.includes('claude')
         || name.includes('codex')
-        || name.includes('hermes')
+        || name.includes('external-agent')
         || rel.includes('acp')
         || rel.includes('mcp')
       ) {
@@ -759,13 +759,13 @@ function signalsFromPath(target: string): ZavorthExternalAgentOnboardingSignal[]
   const lowered = target.toLowerCase();
   const signals: ZavorthExternalAgentOnboardingSignal[] = [];
   if (lowered.includes('claw')) {
-    signals.push(signal('known-family-claw', 'Claw-style agent family marker', 3, maskHome(target)));
+    signals.push(signal('known-family-agent-family', 'Generic local agent family marker', 3, maskHome(target)));
   }
   if (lowered.includes('claude')) {
     signals.push(signal('known-family-claude', 'Claude-style CLI agent marker', 3, maskHome(target)));
   }
-  if (lowered.includes('hermes')) {
-    signals.push(signal('known-family-hermes', 'Hermes-style agent runtime marker', 3, maskHome(target)));
+  if (lowered.includes('external-agent')) {
+    signals.push(signal('known-family-agent', 'Generic agent runtime marker', 3, maskHome(target)));
   }
   if (lowered.includes('codex')) {
     signals.push(signal('known-family-codex', 'Codex-style agent runtime marker', 2, maskHome(target)));
@@ -825,10 +825,10 @@ function signalsFromManifests(manifests: Map<string, string>): ZavorthExternalAg
       signals.push(signal('known-family-claude-manifest', 'Manifest references Claude-style tooling', 3, file));
     }
     if (lowered.includes('claw')) {
-      signals.push(signal('known-family-claw-manifest', 'Manifest references Claw-style tooling', 3, file));
+      signals.push(signal('known-family-agent-family-manifest', 'Manifest references Generic local agent tooling', 3, file));
     }
-    if (lowered.includes('hermes')) {
-      signals.push(signal('known-family-hermes-manifest', 'Manifest references Hermes-style tooling', 3, file));
+    if (lowered.includes('external-agent')) {
+      signals.push(signal('known-family-agent-manifest', 'Manifest references Generic agent tooling', 3, file));
     }
   }
   return signals;
@@ -945,8 +945,8 @@ function labelForCandidate(
 ): string {
   const ids = signals.map((entry) => entry.id).join('|');
   if (ids.includes('known-family-claude')) return 'External agent candidate: Claude-style CLI';
-  if (ids.includes('known-family-claw')) return 'External agent candidate: Claw-style runtime';
-  if (ids.includes('known-family-hermes')) return 'External agent candidate: Hermes-style runtime';
+  if (ids.includes('known-family-agent-family')) return 'External agent candidate: local agent runtime';
+  if (ids.includes('known-family-agent')) return 'External agent candidate: generic agent runtime';
   if (protocols.includes('acp')) return 'External agent candidate: ACP-compatible runtime';
   if (protocols.includes('mcp')) return 'External agent candidate: MCP-compatible runtime';
   const base = path.basename(sourceValue.replace(/\\/g, '/')) || 'declared source';

@@ -20,6 +20,7 @@ import {
   type SharedSurfaceCommandServiceComposition,
   type SharedSurfaceCommandServiceDeps,
 } from '../domain/surface/application/shared-surface/factory/SharedSurfaceCommandServiceFactory.js';
+import { ZavorthSmartCommandSurfaceService } from './ZavorthSmartCommandSurfaceService.js';
 
 export class SharedSurfaceCommandService {
   private readonly parser!: SharedSurfaceCommandServiceComposition['parser'];
@@ -51,6 +52,7 @@ export class SharedSurfaceCommandService {
   private readonly taskVariationCommandPack!: SharedSurfaceCommandServiceComposition['taskVariationCommandPack'];
   private readonly workflowGovernanceCommandPack!: SharedSurfaceCommandServiceComposition['workflowGovernanceCommandPack'];
   private readonly presentationCommandPack!: SharedSurfaceCommandServiceComposition['presentationCommandPack'];
+  private readonly smartCommandSurface = new ZavorthSmartCommandSurfaceService();
 
   constructor(private readonly deps: SharedSurfaceCommandServiceDeps) {
     Object.assign(
@@ -86,6 +88,18 @@ export class SharedSurfaceCommandService {
     const rawText = String(ctx.rawText || '').trim();
     if (!rawText) {
       return false;
+    }
+
+    if (rawText.startsWith('/') && this.smartCommandSurface.canHandle(rawText)) {
+      const snapshot = await this.smartCommandSurface.buildSnapshot({
+        rawText,
+        channel: ctx.platform,
+        sessionId: ctx.chatId,
+        apply: hasSharedSurfaceFlag(rawText, 'apply'),
+        approvalId: extractSharedSurfaceInlineValue(rawText, 'approval-id'),
+      });
+      await ctx.reply(this.smartCommandSurface.renderText(snapshot));
+      return true;
     }
 
     const preDispatch = await preDispatchSharedSurfaceCommand({
@@ -185,4 +199,14 @@ export class SharedSurfaceCommandService {
 
 }
 
+function hasSharedSurfaceFlag(rawText: string, name: string): boolean {
+  const escaped = name.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  return new RegExp(`(?:^|\\s)--${escaped}(?:\\s|$)`, 'i').test(String(rawText || ''));
+}
+
+function extractSharedSurfaceInlineValue(rawText: string, name: string): string | null {
+  const escaped = name.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  const match = String(rawText || '').match(new RegExp(`(?:^|\\s)--${escaped}\\s+([^\\s]+)`, 'i'));
+  return match?.[1]?.trim() || null;
+}
 

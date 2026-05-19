@@ -168,7 +168,7 @@ function ruleNoPublicExternalNames() {
     'src/services/ZavorthScheduledTaskExecutionGatewayRuntimeService.ts',
     'scripts/zavorth-scheduled-task-runtime.ts',
   ];
-  const forbidden = ['OpenClaw', 'Claude Code', 'ZavorthBridge'];
+  const forbidden = ['ThirdPartyAgent', 'Claude Code', 'ZavorthBridge'];
   const hits = [];
   for (const file of files) {
     const text = read(file);

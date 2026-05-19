@@ -1,0 +1,20 @@
+{
+  "id": "zavorth-dev-workbench",
+  "title": "Zavorth Dev Workbench",
+  "source": "workspace-library",
+  "trust": "trusted",
+  "tags": [
+    "workbench",
+    "implementation",
+    "inspect",
+    "through",
+    "actions",
+    "approvals",
+    "before",
+    "build"
+  ],
+  "curatedBy": "zavorth-skill-curator",
+  "contractVersion": "zavorth-skill-curator-live-loop/1",
+  "updatedAt": "2026-05-18T18:40:32.046Z",
+  "safeMetadataApply": true
+}

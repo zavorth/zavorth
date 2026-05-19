@@ -127,7 +127,7 @@ function ruleNoPublicExternalNames() {
     'scripts/zavorth-operational-rollout-eval.ts',
   ];
   const forbidden = [
-    'OpenClaw',
+    'ThirdPartyAgent',
     'Claude Code',
     'ZavorthBridge',
   ];

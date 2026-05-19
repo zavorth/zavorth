@@ -1,0 +1,20 @@
+{
+  "id": "zavorth-communication-control",
+  "title": "Zavorth Communication Control",
+  "source": "workspace-library",
+  "trust": "trusted",
+  "tags": [
+    "communication",
+    "control",
+    "approval",
+    "channel",
+    "messages",
+    "across",
+    "actions",
+    "approve"
+  ],
+  "curatedBy": "zavorth-skill-curator",
+  "contractVersion": "zavorth-skill-curator-live-loop/1",
+  "updatedAt": "2026-05-18T18:40:32.044Z",
+  "safeMetadataApply": true
+}

@@ -1,0 +1,20 @@
+{
+  "id": "zavorth-browser-operator",
+  "title": "Zavorth Browser Operator",
+  "source": "workspace-library",
+  "trust": "trusted",
+  "tags": [
+    "browser",
+    "operator",
+    "evidence",
+    "local",
+    "approval",
+    "avoid",
+    "behavior",
+    "capture"
+  ],
+  "curatedBy": "zavorth-skill-curator",
+  "contractVersion": "zavorth-skill-curator-live-loop/1",
+  "updatedAt": "2026-05-18T18:40:32.043Z",
+  "safeMetadataApply": true
+}

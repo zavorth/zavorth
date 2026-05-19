@@ -86,7 +86,7 @@ describe('ZavorthCapabilityNaturalOperatorService', () => {
 
     expect(reply).toContain('Mostrei a fila');
     expect(reply).toContain('sem ativacao live');
-    expect(reply).not.toContain('OpenClaw');
+    expect(reply).not.toContain('ThirdPartyAgent');
   });
 
   function runtime() {

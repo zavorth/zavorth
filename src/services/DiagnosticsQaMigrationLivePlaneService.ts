@@ -40,7 +40,7 @@ const TARGETS: DiagnosticsQaMigrationLiveDescriptor[] = [
   target('synthetic', 'qa-matrix-live', ['qa.scenario'], 'qa-smoke-matrix', ['synthetic-smoke'], [], ['ZAVORTH_QA_PROFILE']),
   target('test-support', 'qa-matrix-live', ['qa.scenario'], 'qa-smoke-matrix', ['test-fixture'], [], ['ZAVORTH_QA_PROFILE']),
   target('migrate-claude', 'migration-import-live', ['migration.import'], 'migration-manifest-importer', ['inventory-read', 'dry-run-diff', 'operator-apply'], [], ['ZAVORTH_MIGRATION_ARTIFACT_DIR']),
-  target('migrate-hermes', 'migration-import-live', ['migration.import'], 'migration-manifest-importer', ['inventory-read', 'dry-run-diff', 'operator-apply'], [], ['ZAVORTH_MIGRATION_ARTIFACT_DIR']),
+  target('migrate-generic-agent', 'migration-import-live', ['migration.import'], 'migration-manifest-importer', ['inventory-read', 'dry-run-diff', 'operator-apply'], [], ['ZAVORTH_MIGRATION_ARTIFACT_DIR']),
 ];
 
 export class DiagnosticsQaMigrationLivePlaneService {

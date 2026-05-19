@@ -59,7 +59,7 @@ const IDENTITY_SCAN_ROOTS = [
   'src',
   'package.json',
 ];
-const EXTERNAL_BASELINE_NAME_PATTERN = new RegExp(['open', 'claw'].join(''), 'i');
+const EXTERNAL_BASELINE_NAME_PATTERN = /\bThirdPartyAgent\b/i;
 
 export class ZavorthMaturityService {
   private readonly now: () => Date;
