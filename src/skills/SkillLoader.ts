@@ -475,10 +475,6 @@ export class SkillLoader {
   ): string[] {
     const directories: string[] = [];
 
-    if (skillName === 'super-agente-universitario') {
-      directories.push(path.resolve(skillDirPath, '../../../../SUPER AGENTE UNIVERSITARIO'));
-    }
-
     const collected = new Set<string>();
     for (const directoryPath of directories) {
       if (!this.isAllowedExternalSupportDirectory(directoryPath, source)) {

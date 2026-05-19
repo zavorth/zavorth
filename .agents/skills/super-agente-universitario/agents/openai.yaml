@@ -1,7 +1,0 @@
-interface:
-  display_name: "Super Agente Universitario"
-  short_description: "Estudo, revisao, provas e reflexao"
-  default_prompt: "Use $super-agente-universitario to study a text, review an assignment, or generate exam-style questions."
-
-policy:
-  allow_implicit_invocation: false

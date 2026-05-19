@@ -48,10 +48,10 @@ describe('ZavorthSupremacyParityPackService', () => {
     expect(snapshot.executionBackends.entries.every((backend) => backend.liveByDefault === false)).toBe(true);
   });
 
-  it('blocks conceptual external reference leaks while allowing official model names elsewhere', async () => {
+  it('blocks configured identity reference leaks', async () => {
     const files = new Map<string, string | null>([
-      ['C:/fixture/src/clean.ts', 'const model = "NousResearch/Hermes-4-14B";'],
-      ['C:/fixture/src/leak.ts', `const ref = "${['Open', 'Claw'].join('')}";`],
+      ['C:/fixture/src/clean.ts', 'const model = "zavorth-default-model";'],
+      ['C:/fixture/src/leak.ts', 'const ref = "legacy-agent-reference";'],
       ['C:/fixture/scripts', null],
       ['C:/fixture/tests', null],
       ['C:/fixture/package.json', '{}'],

@@ -49,6 +49,6 @@ Quando fizer sentido, entregue em secoes:
 
 - Use com `system-design` quando os requisitos precisarem virar arquitetura.
 - Use com `debugging` quando for preciso distinguir bug real de comportamento nao especificado.
-- Use com `super-agente-universitario` para trabalhos, projetos ou entregas academicas com rubrica.
+- Use com `discover-research` para trabalhos, projetos ou entregas academicas com rubrica e base bibliografica.
 
 Leia `references/spec-template.md` quando precisar de uma estrutura de especificacao mais detalhada e `references/question-lens.md` quando a ambiguidade do pedido ainda estiver alta.

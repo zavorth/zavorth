@@ -27,12 +27,6 @@ const REQUIRED_PROVIDER_PARITY_ROUTES = [
   'qwen-oauth',
 ] as const;
 
-const ALLOWED_MODEL_NAME_REFERENCES = [
-  'NousResearch/Hermes',
-  'DeepHermes',
-  'hermes-3-llama',
-];
-
 type Runtime = {
   now?: () => Date;
   projectRoot?: string;
@@ -245,9 +239,23 @@ export class ZavorthSupremacyParityPackService {
     }
     if (!/\.(ts|tsx|js|mjs|json)$/i.test(target)) return;
     const text = this.readFileSync(target, 'utf8');
-    if (hasConceptualExternalReference(text)) {
+    if (this.hasIdentityBlocklistReference(text)) {
       leaks.push(path.relative(this.projectRoot, target).replace(/\\/g, '/'));
     }
+  }
+
+  private hasIdentityBlocklistReference(text: string): boolean {
+    const configuredPatterns = (this.env.ZAVORTH_IDENTITY_BLOCKLIST || '')
+      .split(',')
+      .map((entry) => entry.trim())
+      .filter(Boolean);
+    const defaultPatterns = [
+      'legacy-agent-reference',
+      'external-agent-reference',
+      'non-native-skill-source',
+    ];
+    return [...defaultPatterns, ...configuredPatterns]
+      .some((pattern) => word(pattern).test(text));
   }
 }
 
@@ -355,22 +363,6 @@ function category(
   requiredApproval: ZavorthSkillEcosystemNativeCategory['requiredApproval'],
 ): ZavorthSkillEcosystemNativeCategory {
   return { id, skillId, title, risk, requiredApproval };
-}
-
-function hasConceptualExternalReference(text: string): boolean {
-  const forbidden = [
-    word(['Open', 'Claw'].join('')),
-    word(['temp', 'hermes', 'analysis'].join('_')),
-    word(['local', 'reference', 'skill', 'library'].join('-')),
-    word(['diego', 'souza', 'pw'].join('')),
-    word(['Hermes', 'style'].join('-')),
-    word(['Claw', 'style'].join('-')),
-    word(['migrate', 'hermes'].join('-')),
-    word(['hermes', 'json'].join('.')),
-    word(['zavorth', 'migration', 'hermes'].join('.')),
-  ];
-  if (!forbidden.some((pattern) => pattern.test(text))) return false;
-  return !ALLOWED_MODEL_NAME_REFERENCES.some((allowed) => text.includes(allowed));
 }
 
 function word(value: string): RegExp {

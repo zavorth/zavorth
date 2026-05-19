@@ -52,6 +52,6 @@ Transforme requisitos em uma estrutura tecnica coerente, explicando as decisoes 
 
 - Use com `requirements-analysis` para sair de ideia vaga e chegar em arquitetura.
 - Use com `debugging` para falhas sistemicas, gargalos ou revisao de desenho.
-- Use com `super-agente-universitario` quando o usuario precisar explicar a arquitetura em relatorio, TCC ou apresentacao.
+- Use com `discover-research` quando o usuario precisar explicar a arquitetura em relatorio tecnico, TCC ou apresentacao.
 
 Leia `references/design-checklist.md` para revisar o desenho antes de entregar e `references/decision-patterns.md` quando precisar comparar opcoes.

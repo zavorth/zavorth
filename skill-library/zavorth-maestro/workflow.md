@@ -25,7 +25,7 @@
 ## Cadeias uteis
 
 ### Estudo completo
-`discover-research` -> `super-agente-universitario`
+`discover-research` -> `requirements-analysis`
 
 Use quando o usuario quer entender um tema com base melhor e depois transformar isso em aprendizado aplicado.
 
@@ -40,7 +40,7 @@ Use quando o usuario tem uma ideia, uma necessidade ou um projeto e quer sair co
 Use quando ha falha, gargalo ou comportamento estranho e o problema pode envolver tanto bug quanto desenho do sistema.
 
 ### Revisao de trabalho
-`super-agente-universitario` -> `discover-research`
+`requirements-analysis` -> `discover-research`
 
 Use quando o usuario envia atividade, relatorio ou resposta escrita e quer critica, melhoria e reforco conceitual.
 

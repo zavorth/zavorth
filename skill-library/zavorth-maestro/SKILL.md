@@ -41,12 +41,10 @@ Use esta skill quando o usuario pedir algo como:
 
 O Zavorth Maestro funciona especialmente bem quando coordena:
 
-- `super-agente-universitario` para estudo, aprendizado, debate e revisao academica
 - `discover-research` para pesquisa, revisao de literatura e sintese baseada em evidencia
 - `requirements-analysis` para transformar pedidos vagos em requisitos claros e criterios de aceite
 - `debugging` para diagnostico tecnico orientado por causa raiz
 - `system-design` para arquitetura, trade-offs e decomposicao de sistema
-- `general` como fallback para trechos nao especializados
 
 ## Qualidade esperada
 
