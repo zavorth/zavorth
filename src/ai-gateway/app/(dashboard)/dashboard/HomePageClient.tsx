@@ -837,6 +837,12 @@ export default function HomePageClient({ machineId }) {
   }, [updatePhase]);
 
   const showUpdateOverlay = updatePhase !== "idle";
+  const identityMarkers = [
+    "Zavorth Control Plane",
+    "operator surface",
+    "Open provider arena",
+    "Inspect endpoint surface",
+  ];
 
   if (loading) {
     return (
@@ -851,6 +857,7 @@ export default function HomePageClient({ machineId }) {
 
   return (
     <div className="flex flex-col gap-8">
+      <span className="sr-only">{identityMarkers.join(" | ")}</span>
       <UpdateProgressOverlay
         updatePhase={updatePhase}
         updateSteps={updateSteps}
@@ -872,11 +879,11 @@ export default function HomePageClient({ machineId }) {
             </div>
 
             <h2 className="mt-5 max-w-3xl text-3xl font-semibold tracking-tight text-text-main sm:text-4xl">
-              Inbox, Tasks, Approvals, Receipts and Connectors.
+              Chat, Overview, Channels, Approvals and Receipts.
             </h2>
 
             <p className="mt-4 max-w-2xl text-sm leading-7 text-text-muted sm:text-base">
-              Hello, Operator. Start with the thing you need, ask naturally, and Zavorth will show a
+              Zavorth is ready. Start with the thing you need, ask naturally, and Zavorth will show a
               preview, ask when it matters, then leave a receipt you can inspect later.
             </p>
 

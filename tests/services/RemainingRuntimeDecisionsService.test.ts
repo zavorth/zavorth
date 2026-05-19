@@ -4,13 +4,13 @@ import { ParityCertificationService } from '../../src/services/ParityCertificati
 import { RemainingRuntimeDecisionsService } from '../../src/services/RemainingRuntimeDecisionsService.js';
 import { SatelliteAppParityService } from '../../src/services/SatelliteAppParityService.js';
 
-describe('RemainingRuntimeDecisionsService Phase 13', () => {
+describe('RemainingRuntimeDecisionsService Intent model3', () => {
   it('closes the four remaining runtime decisions and reaches certification-ready parity', () => {
     const snapshot = new RemainingRuntimeDecisionsService({
       now: () => new Date('2026-05-04T23:00:00.000Z'),
     }).buildSnapshot();
 
-    expect(snapshot.contractVersion).toBe('2026-05-04.phase-13');
+    expect(snapshot.contractVersion).toBe('2026-05-04.checkpoint-13');
     expect(snapshot.status).toBe('closed');
     expect(snapshot.summary).toEqual(
       expect.objectContaining({
@@ -101,6 +101,6 @@ describe('RemainingRuntimeDecisionsService Phase 13', () => {
         releaseReady: true,
       }),
     );
-    expect(certification.commands.nextPhase).toBe('Release certification profile hardening');
+    expect(certification.commands.nextStage).toBe('Release certification profile hardening');
   });
 });

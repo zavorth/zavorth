@@ -1,12 +1,12 @@
 import { ReleaseCandidatePackageFreezeService } from '../../src/services/ReleaseCandidatePackageFreezeService.js';
 
-describe('ReleaseCandidatePackageFreezeService Phase 16', () => {
+describe('ReleaseCandidatePackageFreezeService Intent model6', () => {
   it('freezes a release candidate package from the public launch smoke ledger', () => {
     const snapshot = new ReleaseCandidatePackageFreezeService({
       now: () => new Date('2026-05-05T00:40:00.000Z'),
     }).buildSnapshot();
 
-    expect(snapshot.contractVersion).toBe('2026-05-04.phase-16');
+    expect(snapshot.contractVersion).toBe('2026-05-04.checkpoint-16');
     expect(snapshot.status).toBe('frozen');
     expect(snapshot.package).toEqual(
       expect.objectContaining({
@@ -98,7 +98,7 @@ describe('ReleaseCandidatePackageFreezeService Phase 16', () => {
         typecheck: 'npm run runtime:check --silent',
         packDryRun: 'npm pack --dry-run',
         smokeLedger: 'npm run public-launch-smoke-ledger --silent -- --require-ready',
-        nextPhase: 'Release candidate distribution rehearsal',
+        nextStage: 'Release candidate distribution rehearsal',
       }),
     );
     expect(snapshot.policy).toEqual(

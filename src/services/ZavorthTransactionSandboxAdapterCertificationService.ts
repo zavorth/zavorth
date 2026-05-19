@@ -104,7 +104,7 @@ export class ZavorthTransactionSandboxAdapterCertificationService {
 
   public renderReport(result: ZavorthTransactionSandboxAdapterCertificationResult): string {
     return [
-      '[transaction-sandbox-adapter-certification] Phase 12 sandbox adapter certification',
+      '[transaction-sandbox-adapter-certification] Intent model2 sandbox adapter certification',
       `[transaction-sandbox-adapter-certification] status: ${result.status}`,
       `[transaction-sandbox-adapter-certification] activation-review: ${result.sourceActivationReview.status}`,
       `[transaction-sandbox-adapter-certification] adapter: ${result.adapterManifest?.id ?? 'none'}`,
@@ -215,15 +215,15 @@ function buildGates(input: {
 
   return [
     gate(
-      'phase11-review-ready',
+      'intent-model1-review-ready',
       review.status === 'ready-for-live-activation-review',
-      'Phase 11 must produce a ready activation review packet first.',
+      'Intent model1 must produce a ready activation review packet first.',
       [`status=${review.status}`],
     ),
     gate(
       'review-packet-present',
       Boolean(packet?.reviewOnly && packet.activationAuthorized === false),
-      'A review-only Phase 11 packet must be present.',
+      'A review-only Intent model1 packet must be present.',
       [`packet=${packet?.id ?? 'none'}`],
     ),
     gate(
@@ -235,7 +235,7 @@ function buildGates(input: {
     gate(
       'sandbox-environment-only',
       manifest?.environment === 'sandbox' || manifest?.environment === 'paper',
-      'Only sandbox or paper environments may be certified in Phase 12.',
+      'Only sandbox or paper environments may be certified in Intent model2.',
       [`environment=${manifest?.environment ?? 'none'}`],
     ),
     gate(
@@ -247,7 +247,7 @@ function buildGates(input: {
     gate(
       'credential-ref-bound',
       credentialBound,
-      'Adapter credential must be the same metadata-only SecretRef from Phase 11.',
+      'Adapter credential must be the same metadata-only SecretRef from Intent model1.',
       [`manifestRef=${manifest?.credentialRef ? 'present' : 'missing'}`, `reviewRef=${packet?.credentialRef ? 'present' : 'missing'}`, `bound=${credentialBound}`],
     ),
     gate(
@@ -277,13 +277,13 @@ function buildGates(input: {
     gate(
       'kill-switch-linked',
       killSwitchLinked,
-      'Phase 12 must inherit the tested Phase 11 kill switch.',
+      'Intent model2 must inherit the tested Intent model1 kill switch.',
       [`packetKillSwitch=${packet?.killSwitchId ?? 'none'}`, `reviewKillSwitch=${review.killSwitch.id ?? 'none'}`, `tested=${review.killSwitch.tested}`],
     ),
     gate(
       'rollback-linked',
       rollbackLinked,
-      'Phase 12 must inherit the successful Phase 11 rollback drill.',
+      'Intent model2 must inherit the successful Intent model1 rollback drill.',
       [`packetRollback=${packet?.rollbackDrillId ?? 'none'}`, `reviewRollback=${review.rollbackDrill.drillId ?? 'none'}`, `successful=${review.rollbackDrill.successful}`],
     ),
     gate(
@@ -295,13 +295,13 @@ function buildGates(input: {
     gate(
       'separate-sandbox-executor-required',
       SAFETY.separateSandboxExecutorRequired === true && SAFETY.sandboxExecutionAuthorized === false,
-      'Phase 12 can certify adapter readiness only; a separate future sandbox executor is required.',
+      'Intent model2 can certify adapter readiness only; a separate future sandbox executor is required.',
       ['separateSandboxExecutorRequired=true', 'sandboxExecutionAuthorized=false'],
     ),
     gate(
       'no-external-io',
       SAFETY.noSandboxNetworkCall === true && SAFETY.sandboxExternalIoPerformed === false && SAFETY.externalSideEffects === false,
-      'Phase 12 must not perform sandbox network calls or external side effects.',
+      'Intent model2 must not perform sandbox network calls or external side effects.',
       ['noSandboxNetworkCall=true', 'sandboxExternalIoPerformed=false', 'externalSideEffects=false'],
     ),
     gate(
@@ -321,7 +321,7 @@ function buildCertificationPacket(input: {
   const reviewPacket = input.sourceActivationReview.reviewPacket;
   const envelope = input.sourceActivationReview.sourceCandidate.envelope;
   if (!reviewPacket || !envelope) {
-    throw new Error('Cannot build Phase 12 packet without Phase 11 review packet and Phase 10 envelope.');
+    throw new Error('Cannot build Intent model2 packet without Intent model1 review packet and Intent model0 envelope.');
   }
   const endpointHost = safeHost(input.adapterManifest.endpointBaseUrl) ?? 'unknown';
   const packetCore = {
@@ -362,8 +362,8 @@ function buildCertificationPacket(input: {
     conditions: [
       'This packet certifies sandbox adapter readiness only.',
       'No network call, sandbox order, payment, purchase or live transaction was executed.',
-      'A future sandbox executor must re-check Phase 11 review, adapter certification, SecretRef, kill switch and rollback.',
-      'Live execution remains out of scope for Phase 12.',
+      'A future sandbox executor must re-check Intent model1 review, adapter certification, SecretRef, kill switch and rollback.',
+      'Live execution remains out of scope for Intent model2.',
     ],
   };
 }
@@ -385,7 +385,7 @@ function gate(
 function resolveStatus(
   gates: ZavorthTransactionSandboxAdapterCertificationGate[],
 ): ZavorthTransactionSandboxAdapterCertificationStatus {
-  if (!isGatePassed(gates, 'phase11-review-ready') || !isGatePassed(gates, 'review-packet-present')) {
+  if (!isGatePassed(gates, 'intent-model1-review-ready') || !isGatePassed(gates, 'review-packet-present')) {
     return 'activation-review-required';
   }
   if (!isGatePassed(gates, 'adapter-manifest-present')) {
@@ -421,7 +421,7 @@ function summaryForStatus(status: ZavorthTransactionSandboxAdapterCertificationS
     return 'Sandbox adapter certification packet is ready for a future separate sandbox executor; no external call occurred.';
   }
   if (status === 'activation-review-required') {
-    return 'Phase 11 activation review readiness is required before sandbox adapter certification.';
+    return 'Intent model1 activation review readiness is required before sandbox adapter certification.';
   }
   if (status === 'adapter-manifest-required') {
     return 'A sandbox/paper adapter manifest is required before certification.';
@@ -435,12 +435,12 @@ function nextStepsForStatus(
 ): string[] {
   if (status === 'sandbox-certification-ready') {
     return [
-      'Use this certification packet in a future separate sandbox executor phase; do not execute from Phase 12.',
+      'Use this certification packet in a future separate sandbox executor phase; do not execute from Intent model2.',
       'Keep endpoint allowlist, idempotency, SecretRef, kill switch and rollback receipts attached.',
     ];
   }
   if (status === 'activation-review-required') {
-    return ['Produce a Phase 11 ready-for-live-activation-review packet first.'];
+    return ['Produce a Intent model1 ready-for-live-activation-review packet first.'];
   }
   if (status === 'adapter-manifest-required') {
     return ['Provide a typed sandbox/paper adapter manifest or run with safe sandbox adapter defaults.'];
@@ -556,7 +556,7 @@ function isCredentialRef(value: string): boolean {
 }
 
 function buildResultId(text: string, now: Date): string {
-  const hash = createHash('sha256').update(`${now.toISOString()}:phase12:${text}`).digest('hex').slice(0, 16);
+  const hash = createHash('sha256').update(`${now.toISOString()}:intent-model2:${text}`).digest('hex').slice(0, 16);
   return `ztx-sandbox-adapter-cert-${hash}`;
 }
 

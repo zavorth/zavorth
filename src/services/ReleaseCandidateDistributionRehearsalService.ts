@@ -99,7 +99,7 @@ export class ReleaseCandidateDistributionRehearsalService {
           'npm run release-candidate-distribution-rehearsal --silent -- --require-rehearsed',
         ],
         typecheck: 'npm run runtime:check --silent',
-        nextPhase: 'Pre-canary go/no-go alignment',
+        nextStage: 'Pre-canary go/no-go alignment',
       },
       policy: {
         rehearsalOnly: true,
@@ -139,7 +139,7 @@ export class ReleaseCandidateDistributionRehearsalService {
         `- ${gate.status.toUpperCase()} ${gate.id}: ${gate.observed} / ${gate.threshold} - ${gate.nextAction}`,
       ),
       '',
-      `Next: ${snapshot.commands.nextPhase}`,
+      `Next: ${snapshot.commands.nextStage}`,
     ].join('\n');
   }
 
@@ -254,7 +254,7 @@ export class ReleaseCandidateDistributionRehearsalService {
         observed: input.freezeReady,
         threshold: true,
         receipt: 'release-candidate-distribution.rc-freeze-ready.receipt',
-        nextAction: 'finish Phase 16 package freeze before distribution rehearsal',
+        nextAction: 'finish Intent model6 package freeze before distribution rehearsal',
       }),
       gate({
         id: 'required-rehearsal-steps-ready',

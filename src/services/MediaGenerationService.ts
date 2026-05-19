@@ -15,8 +15,8 @@
  * - Carrega SDKs externos diretamente.
  *
  * Referências arquiteturais:
- * - docs/327-zavorth-native-absorption-execution-plan.md (Wave 1)
- * - docs/328 roadmap (Seção 6: Media Generation)
+ * - docs/native-absorption-execution-plan.md
+ * - docs/product-direction roadmap (Seção 6: Media Generation)
  * - src/contracts/MediaGenerationContract.ts
  *
  * @module services/MediaGenerationService

@@ -26,7 +26,7 @@ function createRun(metadata: Record<string, unknown> = {}) {
 
 function feedbackProductLoop(status = 'opt-in-ready') {
   return {
-    contractVersion: '2026-05-04.wave-50',
+    contractVersion: '2026-05-04.feedback-telemetry',
     source: 'FeedbackTelemetryProductLoopService',
     status,
     surface: {
@@ -45,7 +45,7 @@ function feedbackProductLoop(status = 'opt-in-ready') {
 
 function pilotLoop(status = 'ready') {
   return {
-    phase: '57',
+    stage: '57',
     surface: 'pilot-loop',
     generatedAt: '2026-05-04T04:51:00.000Z',
     status,
@@ -83,15 +83,15 @@ function pilotLoop(status = 'ready') {
       { id: 'pilot-loop:pilot-ledger', status: 'pass' },
       { id: 'pilot-loop:dashboard', status: 'pass' },
     ],
-    nextRecommendedPhase: {
-      phase: '58',
+    nextRecommendedStage: {
+      stage: '58',
       title: 'Integration Showcase And Partner Surface',
       reason: 'fixture e degradacao segura',
     },
   };
 }
 
-describe('PublicAdoptionPilotLoopService Wave 51', () => {
+describe('PublicAdoptionPilotLoopService Public Adoption Pilot', () => {
   it('publishes a controlled pilot loop without implicit collection or raw payload storage', () => {
     const run = createRun({
       feedbackTelemetryProductLoop: feedbackProductLoop(),
@@ -141,7 +141,7 @@ describe('PublicAdoptionPilotLoopService Wave 51', () => {
     }));
   });
 
-  it('requires the Wave 50 feedback product loop before opening pilots', () => {
+  it('requires the Feedback Telemetry feedback product loop before opening pilots', () => {
     const run = createRun({
       pilotLoop: pilotLoop(),
     });
@@ -155,7 +155,7 @@ describe('PublicAdoptionPilotLoopService Wave 51', () => {
 
     expect(snapshot.status).toBe('needs-feedback-product-loop');
     expect(snapshot.readiness.feedbackProductLoopReady).toBe(false);
-    expect(snapshot.nextSafeAction).toContain('Wave 50');
+    expect(snapshot.nextSafeAction).toContain('Feedback Telemetry');
   });
 
   it('requires generated pilot artifacts before controlled adoption', () => {

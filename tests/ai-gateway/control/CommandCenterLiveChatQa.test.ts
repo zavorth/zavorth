@@ -13,7 +13,7 @@ describe('CommandCenterLiveChatQa', () => {
       'utf8',
     );
     const docs = readFileSync(
-      join(rootDir, 'docs/109-command-center-live-chat-qa.md'),
+      join(rootDir, 'docs/product-direction.md'),
       'utf8',
     );
 

@@ -164,7 +164,7 @@ export type CanonicalChatPreviewDTO = {
   mode: CanonicalChatMode;
   nextAction: string;
   flow: {
-    phase: CanonicalChatMode;
+    stage: CanonicalChatMode;
     previewFirst: true;
     sourceOfTruth: 'runtime-api';
     approvalGate: {

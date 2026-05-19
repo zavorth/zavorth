@@ -121,4 +121,68 @@ describe('McpCapabilityControlPlaneService', () => {
     expect(snapshot.recommendations[0]).toContain('falhando');
     expect(snapshot.narrative.operatorSummary).toContain('1/2 servidor(es) MCP conectado(s)');
   });
+
+  it('lets a disabled manifest entry override stale failed runtime state', () => {
+    const root = fs.mkdtempSync(path.join(os.tmpdir(), 'zavorth-mcp-plane-'));
+    const runtimeStateFile = path.join(root, 'mcp-runtime-state.json');
+    fs.writeFileSync(
+      runtimeStateFile,
+      JSON.stringify({
+        generatedAt: '2026-04-03T20:00:00.000Z',
+        manifestPath: 'config/mcp-servers.json',
+        summary: { total: 1, enabled: 1, connected: 0, failed: 1, disabled: 0, stopped: 0, toolCount: 0 },
+        capabilities: ['memory'],
+        entries: [
+          {
+            id: 'mnemos',
+            capability: 'memory',
+            enabled: true,
+            status: 'failed',
+            toolCount: 0,
+            toolNames: [],
+            command: 'node.exe',
+            args: ['scripts/start-mnemos-mcp.mjs'],
+            lastAttemptedAt: '2026-04-03T20:00:00.000Z',
+            lastConnectedAt: null,
+            lastError: 'MCP error -32000: Connection closed',
+          },
+        ],
+      }, null, 2),
+      'utf8',
+    );
+
+    const service = new McpCapabilityControlPlaneService({
+      runtimeStateFile,
+      manifestLoader: {
+        load: jest.fn(() => [
+          {
+            id: 'mnemos',
+            enabled: false,
+            command: 'node.exe',
+            args: ['scripts/start-mnemos-mcp.mjs'],
+            env: {},
+            capability: 'memory',
+          },
+        ]),
+      } as any,
+    });
+
+    const snapshot = service.buildSnapshot();
+
+    expect(snapshot.summary).toEqual(expect.objectContaining({
+      enabled: 0,
+      connected: 0,
+      failed: 0,
+      disabled: 1,
+      toolCount: 0,
+    }));
+    expect(snapshot.entries[0]).toEqual(expect.objectContaining({
+      id: 'mnemos',
+      enabled: false,
+      status: 'disabled',
+      issue: null,
+      toolNames: [],
+    }));
+    expect(snapshot.recommendations.join('\n')).not.toContain('falhando');
+  });
 });

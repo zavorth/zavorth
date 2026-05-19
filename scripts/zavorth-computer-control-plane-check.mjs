@@ -24,7 +24,7 @@ const snapshot = {
 if (asJson) {
   console.log(JSON.stringify(snapshot, null, 2));
 } else {
-  console.log('[zavorth-computer-control-plane] checking Phase 3');
+  console.log('[zavorth-computer-control-plane] checking Approval gate');
   printRules(rules, '[zavorth-computer-control-plane]');
 }
 if (failed.length > 0) process.exitCode = 1;
@@ -39,7 +39,7 @@ function ruleFilesExist() {
     'docs/README.md',
   ];
   const missing = files.filter((file) => !fs.existsSync(path.join(root, file)));
-  return rule('computer-control-files', 'Computer control plane files exist', missing.length === 0, `${files.length - missing.length}/${files.length}`, 'all Phase 3 files present', missing);
+  return rule('computer-control-files', 'Computer control plane files exist', missing.length === 0, `${files.length - missing.length}/${files.length}`, 'all Approval gate files present', missing);
 }
 
 function ruleMarkers() {
@@ -153,7 +153,7 @@ function jsonRule(id, label, result, expect, options = {}) {
   try {
     const fixture = JSON.parse(result.stdout);
     const passed = expect(fixture, result.stdout);
-    return rule(id, label, passed, `status=${fixture.status}; decision=${fixture.policy?.decision}`, 'expected safe Phase 3 behavior', passed ? [] : [JSON.stringify(fixture, null, 2), ...compact(result.stderr)]);
+    return rule(id, label, passed, `status=${fixture.status}; decision=${fixture.policy?.decision}`, 'expected safe Approval gate behavior', passed ? [] : [JSON.stringify(fixture, null, 2), ...compact(result.stderr)]);
   } catch (error) {
     return rule(id, label, false, 'invalid JSON', 'valid JSON fixture', [String(error), ...compact(result.stderr, result.stdout)]);
   }

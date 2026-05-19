@@ -6,7 +6,7 @@ import type {
 } from './ZavorthUniversalSkillScaleHardeningContract.js';
 
 export const ZAVORTH_UNIVERSAL_SKILL_APPROVED_DASHBOARD_CANARY_CONTRACT_VERSION =
-  '2026-05-10.phase-10' as const;
+  '2026-05-10.checkpoint-10' as const;
 
 export type ZavorthUniversalSkillApprovedDashboardCanaryStatus =
   ZavorthUniversalSkillExpansionQaStatus;
@@ -107,7 +107,7 @@ export type ZavorthUniversalSkillApprovedDashboardCanarySnapshot = {
     rawSecretsSerialized: false;
   };
   policy: {
-    phase9ScaleHardeningIsAuthority: true;
+    certificationMatrixScaleHardeningIsAuthority: true;
     approvedDashboardItemsOnly: true;
     endpointRequiresManagementAuth: true;
     noLayoutMutationPerformed: true;
@@ -122,6 +122,6 @@ export type ZavorthUniversalSkillApprovedDashboardCanarySnapshot = {
     run: 'npm run zavorth:universal-skill-approved-dashboard-canary -- --discover';
     runJson: 'npm run zavorth:universal-skill-approved-dashboard-canary:json -- --discover';
     check: 'npm run zavorth:universal-skill-approved-dashboard-canary:check --silent';
-    nextPhase: 'Phase 11 - Dashboard Visual Rendering Approval and Canary Monitoring';
+    nextStage: 'Intent model1 - Dashboard Visual Rendering Approval and Canary Monitoring';
   };
 };

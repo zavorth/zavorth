@@ -9,7 +9,7 @@ import type {
   UniversalArtifactSummary,
 } from './UniversalAgentRuntimeTypes.js';
 
-export const RUN_ARTIFACT_RECEIPT_REPLAY_CONTRACT_VERSION = '2026-05-04.wave-45' as const;
+export const RUN_ARTIFACT_RECEIPT_REPLAY_CONTRACT_VERSION = '2026-05-04.receipt-replay' as const;
 
 export type RunArtifactReceiptReplayStatus = 'ready' | 'partial' | 'empty' | 'blocked';
 

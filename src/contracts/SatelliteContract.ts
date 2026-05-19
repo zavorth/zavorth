@@ -17,7 +17,7 @@
  * Capability canônica: `satellite.connect`
  *
  * Referências arquiteturais:
- * - docs/327-zavorth-native-absorption-execution-plan.md (Wave 4)
+ * - docs/product-direction.md (Channel mesh)
  * - src/contracts/NodeMeshContract.ts (transport base)
  *
  * @module contracts/SatelliteContract

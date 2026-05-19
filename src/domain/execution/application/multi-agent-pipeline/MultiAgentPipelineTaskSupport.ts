@@ -36,7 +36,7 @@ export class MultiAgentPipelineTaskSupport {
     workspaceContext?: WorkflowWorkspaceContext | null,
   ): Task {
     const now = new Date().toISOString();
-    const previousStageAttempt = run.stages.find((entry) => entry.id === stage.id) || null;
+    const previousStageAttempt = run.phases.find((entry) => entry.id === stage.id) || null;
     const runtimeUserId = String(run.origin.runtime_user_id || run.origin.origin_user_id || '').trim() || 'workflow';
     const parentTaskId = previousStageAttempt?.task_id || run.origin.origin_task_id || null;
     const writeScopeMetadata = this.buildWorkflowWriteScopeMetadata(workflow, workspace, stage);

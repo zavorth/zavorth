@@ -8,7 +8,7 @@ const asJson = process.argv.includes('--json');
 const rules = [
   ruleFilesExist({
     id: 'public-sync-files',
-    label: 'Wave 49 files exist',
+    label: 'Channel mesh9 files exist',
     target: 'Runtime, CLI, Command Center, tests and docs are present',
     files: [
       'src/runtime/agent/PublicSiteDocsDemoSyncService.ts',
@@ -27,7 +27,7 @@ const rules = [
     files: ['src/runtime/agent/PublicSiteDocsDemoSyncService.ts'],
     needles: [
       'PUBLIC_SITE_DOCS_DEMO_SYNC_CONTRACT_VERSION',
-      '2026-05-04.wave-49',
+      '2026-05-04.docs-demo',
       'ReleaseInstallerRollbackPathService',
       'WebsitePublicContractService',
       'PublicDemoContractService',
@@ -71,7 +71,7 @@ const rules = [
       'site-docs-demo',
       'public-site-sync',
       'docs-demo-sync',
-      'Public Site / Docs / Demo Sync - Wave 49',
+      'Public Site / Docs / Demo Sync - Channel mesh9',
       'resolvePublicSiteDocsDemoSyncCliText',
       'formatPublicSiteDocsDemoSyncSnapshot',
     ],
@@ -99,7 +99,7 @@ const rules = [
   }),
   ruleContainsAll({
     id: 'package-exposes-public-sync-gate',
-    label: 'package exposes Wave 49 gate',
+    label: 'package exposes Channel mesh9 gate',
     target: 'local QA can run public-sync:check and qa:public-sync',
     files: ['package.json'],
     needles: [
@@ -125,7 +125,7 @@ const snapshot = {
 if (asJson) {
   console.log(JSON.stringify(snapshot, null, 2));
 } else {
-  console.log('[public-sync] checking Wave 49');
+  console.log('[public-sync] checking Channel mesh9');
   for (const rule of rules) {
     const marker = rule.status === 'passed' ? 'ok' : 'fail';
     console.log(`[public-sync] ${marker} ${rule.label}: ${rule.observed} | ${rule.target}`);

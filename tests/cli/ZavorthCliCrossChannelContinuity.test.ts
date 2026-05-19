@@ -46,7 +46,7 @@ describe('Zavorth CLI Cross-Channel Continuity', () => {
     }));
     const payload = JSON.parse(writes[0] || '{}');
     expect(payload).toEqual(expect.objectContaining({
-      contractVersion: '2026-05-03.wave-41',
+      contractVersion: '2026-05-03.cross-channel',
       source: 'CrossChannelContinuityService',
       status: 'handoff-ready',
       summary: expect.objectContaining({
@@ -73,7 +73,7 @@ describe('Zavorth CLI Cross-Channel Continuity', () => {
 
     const text = formatCrossChannelContinuitySnapshot(snapshot);
 
-    expect(text).toContain('Cross-Channel Continuity - Wave 41');
+    expect(text).toContain('Cross-Channel Continuity - Channel mesh1');
     expect(text).toContain('Canais');
     expect(text).toContain('nenhuma mensagem cross-channel foi enviada');
     expect(text).toContain('Command Center: /control?sector=channels');

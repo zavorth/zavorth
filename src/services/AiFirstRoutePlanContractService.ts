@@ -245,7 +245,7 @@ export class AiFirstRoutePlanContractService {
   renderMarkdown(result: AiFirstRoutePlanNormalizationResult): string {
     const plan = result.normalized;
     const lines: string[] = [];
-    lines.push('# Zavorth AI-first Router Phase 1');
+    lines.push('# Zavorth AI-first Router Intent model');
     lines.push('');
     lines.push(`- status: ${result.accepted ? 'accepted' : 'fallback'}`);
     lines.push(`- contract: ${plan.contractVersion}`);

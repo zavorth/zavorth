@@ -11,7 +11,7 @@ import { ZavorthTransactionRuntimeOrchestratorService } from '../../src/services
 import { ZavorthTransactionSurfaceGatewayService } from '../../src/services/ZavorthTransactionSurfaceGatewayService.js';
 
 const now = new Date('2026-05-11T12:00:00.000Z');
-const signingKey = 'phase8-test-signing-key-000000000000000000000000000000';
+const signingKey = 'dashboard-controls-test-signing-key-000000000000000000000000000000';
 
 describe('ZavorthTransactionCommandCenterProjectionService', () => {
   let tempDir: string;
@@ -58,7 +58,7 @@ describe('ZavorthTransactionCommandCenterProjectionService', () => {
       mode: 'paper',
     });
 
-    expect(projection.version).toBe('zavorth-transaction-command-center/phase-8');
+    expect(projection.version).toBe('zavorth-transaction-command-center/checkpoint-8');
     expect(projection.status).toBe('approval-required');
     expect(projection.tone).toBe('attention');
     expect(projection.lanes.map((lane) => lane.kind)).toEqual([

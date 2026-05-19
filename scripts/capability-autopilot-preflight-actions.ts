@@ -13,8 +13,8 @@ const capabilityId = readArg('--capability=') || 'executor-gemini-cli';
 const audience = (readArg('--audience=') || (asJson ? 'technical_operator' : 'everyday_user')) as CapabilityAutopilotAudience;
 const surfaces = readSurfaces('--surfaces=') || ['cli', 'web', 'chat', 'telegram', 'api'];
 const expectedSurfaces = readSurfaces('--expected-surfaces=') || surfaces;
-const rawIntentProbe = 'PHASE69-RAW-INTENT-MUST-NOT-LEAK';
-const rawWorkspaceProbe = 'C:/private/PHASE69-RAW-WORKSPACE-MUST-NOT-LEAK';
+const rawIntentProbe = 'STAGE69-RAW-INTENT-MUST-NOT-LEAK';
+const rawWorkspaceProbe = 'C:/private/STAGE69-RAW-WORKSPACE-MUST-NOT-LEAK';
 
 main().catch((error) => {
   process.stderr.write(`[capability-autopilot-preflight-actions] falha: ${error instanceof Error ? error.message : String(error)}\n`);

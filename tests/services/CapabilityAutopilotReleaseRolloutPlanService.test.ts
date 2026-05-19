@@ -45,14 +45,14 @@ const readyOptions: CapabilityAutopilotReleaseRolloutPlanOptions = {
   releaseOwnerId: 'release-owner-1',
   releaseTrainSlotId: 'release-train-slot-1',
   artifactRetentionPolicyId: 'artifact-retention-1',
-  reason: 'phase-81-test',
+  reason: 'checkpoint-81-test',
 };
 
 function createSource(
   overrides: Partial<CapabilityAutopilotReleaseCandidateSnapshot> = {},
 ): CapabilityAutopilotReleaseCandidateSnapshot {
   return {
-    phase: '80',
+    stage: '80',
     releaseCandidateGateId: 'executor-gemini-cli-release-candidate-1',
     generatedAt: FIXED_NOW.toISOString(),
     surface: 'capability-autopilot-release-candidate-gate',
@@ -65,7 +65,7 @@ function createSource(
       warnings: 0,
       failed: 0,
     },
-    sourceSnapshotPhase: '79',
+    sourceSnapshotStage: '79',
     sourceStatus: 'field_trial_ready',
     sourceRecommendation: 'start_limited_beta_field_trial',
     releaseCandidateApproved: true,
@@ -112,11 +112,11 @@ function createSource(
       sourceGeneratedAt: FIXED_NOW.toISOString(),
       sourceFieldTrialId: 'field-trial-1',
       actorId: 'rc-operator',
-      reason: 'phase-80-test',
+      reason: 'checkpoint-80-test',
       releaseCandidateReceiptId: 'release-candidate-1',
     },
-    nextRecommendedPhase: {
-      phase: '81',
+    nextRecommendedStage: {
+      stage: '81',
       title: 'Capability Autopilot v1.1 Release Rollout Plan',
       reason: 'Prepare rollout plan.',
     },
@@ -140,7 +140,7 @@ describe('CapabilityAutopilotReleaseRolloutPlanService', () => {
     const snapshot = service.buildRolloutPlanSnapshot(createSource(), readyOptions);
 
     expect(snapshot).toMatchObject({
-      phase: '81',
+      stage: '81',
       status: 'rollout_plan_ready',
       recommendation: 'prepare_manual_v1_1_rollout',
       summary: {
@@ -268,7 +268,7 @@ describe('CapabilityAutopilotReleaseRolloutPlanService', () => {
     const service = createService();
     const snapshot = service.buildRolloutPlanSnapshot(createSource(), readyOptions);
 
-    expect(service.renderReport(snapshot)).toContain('Fase 81 - Capability Autopilot v1.1 Release Rollout Plan');
-    expect(service.renderReport(snapshot)).toContain('proxima fase recomendada: 82 - Capability Autopilot v1.1 Release Execution Gate');
+    expect(service.renderReport(snapshot)).toContain('Etapa 81 - Capability Autopilot v1.1 Release Rollout Plan');
+    expect(service.renderReport(snapshot)).toContain('proximo passo recomendada: 82 - Capability Autopilot v1.1 Release Execution Gate');
   });
 });

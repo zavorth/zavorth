@@ -143,7 +143,7 @@ describe('ZavorthQaControlPlaneService', () => {
     expect(snapshot.regressions[0]?.status).toBe('healthy');
     expect(snapshot.smokes[0]?.status).toBe('healthy');
     expect(snapshot.releaseGates[0]?.ready).toBe(true);
-    expect(service.renderReport({ profile: 'alpha' })).toContain('Wave 6: QA, budgets e release gates');
+    expect(service.renderReport({ profile: 'alpha' })).toContain('QA release: QA, budgets e release gates');
   });
 
   it('flags missing or stale reports as gate problems', () => {

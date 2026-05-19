@@ -344,7 +344,7 @@ export function buildRuntimeShellHtmlPart1(input: { externalWebClientUrl: string
           </div>
           <p id="journey-action-status" class="muted-copy section-note">Valide o token para usar as acoes do host oficial.</p>
           <ul id="install-journey" class="handoff-list">
-            <li>Valide o token para ver as fases do caminho oficial deste host.</li>
+            <li>Valide o token para ver as etapas do caminho oficial deste host.</li>
           </ul>
         </article>
         <article id="remote-card" class="handoff-card">
@@ -362,7 +362,7 @@ export function buildRuntimeShellHtmlPart1(input: { externalWebClientUrl: string
       </section>
 
       <section id="automation-control-plane-card" class="handoff-card">
-        <p class="profile-tag">Wave F</p>
+        <p class="profile-tag">Scheduled runs</p>
         <h2>Automations e scheduled runs</h2>
         <p class="muted-copy section-note">
           Esta leitura junta automacoes naturais, manutencao recorrente, entregas por surface e o estado dos scheduled runs em um cockpit unico.
@@ -400,7 +400,7 @@ export function buildRuntimeShellHtmlPart1(input: { externalWebClientUrl: string
         <div class="action-row compact-remote-actions">
           <input id="automation-control-plane-intent" type="text" class="field-input compact-inline-input" placeholder="Ex.: todo dia as 9h verifique meus canais no app" />
           <button id="automation-control-plane-create-action" type="button" class="action-button" hidden>Criar automacao</button>
-          <button id="automation-control-plane-refresh-action" type="button" class="action-button secondary compact-action" hidden>Atualizar Wave F</button>
+          <button id="automation-control-plane-refresh-action" type="button" class="action-button secondary compact-action" hidden>Atualizar Scheduled runs</button>
           <button id="automation-control-plane-maintenance-on-action" type="button" class="action-button secondary compact-action" hidden>Ligar maintenance</button>
           <button id="automation-control-plane-maintenance-off-action" type="button" class="action-button secondary compact-action" hidden>Desligar maintenance</button>
           <button id="automation-control-plane-maintenance-run-action" type="button" class="action-button secondary compact-action" hidden>Rodar maintenance</button>

@@ -50,7 +50,7 @@ rules.push(
   {
     id: 'workspace:gate',
     status: packageJson.includes('zavorth:sensitive-action-flow-ux:check') && packageJson.includes('qa:zavorth-sensitive-action-flow-ux') ? 'passed' : 'failed',
-    summary: 'Package scripts expose the Phase 15 certification gate.',
+    summary: 'Package scripts expose the Intent model5 certification gate.',
   },
 );
 

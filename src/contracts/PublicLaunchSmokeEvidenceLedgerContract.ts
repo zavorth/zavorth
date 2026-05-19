@@ -1,7 +1,7 @@
 import type { ParityCertificationGateStatus } from './ParityCertificationContract.js';
 import type { ReleaseCertificationProfileHardeningSnapshot } from './ReleaseCertificationProfileHardeningContract.js';
 
-export const ZAVORTH_PUBLIC_LAUNCH_SMOKE_EVIDENCE_LEDGER_CONTRACT_VERSION = '2026-05-04.phase-15';
+export const ZAVORTH_PUBLIC_LAUNCH_SMOKE_EVIDENCE_LEDGER_CONTRACT_VERSION = '2026-05-04.checkpoint-15';
 
 export type PublicLaunchSmokeEvidenceLedgerStatus = 'ready' | 'attention' | 'blocked';
 
@@ -117,7 +117,7 @@ export type PublicLaunchSmokeEvidenceLedgerSnapshot = {
     optInLiveCommands: string[];
     focusedTests: string[];
     typecheck: string;
-    nextPhase: 'Release candidate package freeze';
+    nextStage: 'Release candidate package freeze';
   };
   policy: {
     evidenceLedgerOnly: true;

@@ -72,14 +72,14 @@ type SourceProbeDefinition = {
 };
 
 const REFERENCE_RUNTIME_DOCS = [
-  'docs/291-zavorth-external-runtime-absorption-plan.md',
-  'docs/292-natural-first-agent-runtime-pack.md',
+  'docs/product-direction.md',
+  'docs/product-direction.md',
 ];
 
 const ACP_COMPATIBILITY_DOCS = [
-  'docs/345-zavorth-acp-compatible-sidecar-total-parity-audit-private.md',
-  'docs/348-zavorth-acp-compatible-sidecar-parity-matrix-private.md',
-  'docs/399-zavorth-acp-compatible-sidecar-full-surface-audit-private.md',
+  'docs/product-direction.md',
+  'docs/product-direction.md',
+  'docs/product-direction.md',
 ];
 
 const INVENTORY_ITEMS: InventoryItemDefinition[] = [
@@ -89,7 +89,7 @@ const INVENTORY_ITEMS: InventoryItemDefinition[] = [
     sourceRuntimeIds: ['reference-runtime'],
     bridgeCandidateId: 'error-classifier',
     decision: 'absorb',
-    targetPhase: 'phase-2-native-engine',
+    targetPhase: 'native-engine',
     priority: 1,
     risk: 'medium',
     naturalFirstRoute: 'governed-execution',
@@ -112,7 +112,7 @@ const INVENTORY_ITEMS: InventoryItemDefinition[] = [
     sourceRuntimeIds: ['reference-runtime'],
     bridgeCandidateId: 'tool-call-repair',
     decision: 'absorb',
-    targetPhase: 'phase-2-native-engine',
+    targetPhase: 'native-engine',
     priority: 2,
     risk: 'medium',
     naturalFirstRoute: 'tool-preview',
@@ -135,7 +135,7 @@ const INVENTORY_ITEMS: InventoryItemDefinition[] = [
     sourceRuntimeIds: ['reference-runtime'],
     bridgeCandidateId: 'safe-tool-parallelism',
     decision: 'absorb',
-    targetPhase: 'phase-2-native-engine',
+    targetPhase: 'native-engine',
     priority: 3,
     risk: 'medium',
     naturalFirstRoute: 'governed-execution',
@@ -158,7 +158,7 @@ const INVENTORY_ITEMS: InventoryItemDefinition[] = [
     sourceRuntimeIds: ['reference-runtime'],
     bridgeCandidateId: 'skill-curator',
     decision: 'absorb',
-    targetPhase: 'phase-2-native-engine',
+    targetPhase: 'native-engine',
     priority: 4,
     risk: 'high',
     naturalFirstRoute: 'approval-proposal',
@@ -181,7 +181,7 @@ const INVENTORY_ITEMS: InventoryItemDefinition[] = [
     sourceRuntimeIds: ['reference-runtime'],
     bridgeCandidateId: 'procedural-memory',
     decision: 'absorb',
-    targetPhase: 'phase-6-sessions-memory-continuation',
+    targetPhase: 'sessions-memory-continuation',
     priority: 5,
     risk: 'medium',
     naturalFirstRoute: 'memory-recall',
@@ -204,7 +204,7 @@ const INVENTORY_ITEMS: InventoryItemDefinition[] = [
     sourceRuntimeIds: ['acp-compatible-sidecar'],
     bridgeCandidateId: 'external-capability-inventory',
     decision: 'adapt',
-    targetPhase: 'phase-0-inventory',
+    targetPhase: 'inventory',
     priority: 6,
     risk: 'medium',
     naturalFirstRoute: 'capability-discovery',
@@ -227,7 +227,7 @@ const INVENTORY_ITEMS: InventoryItemDefinition[] = [
     sourceRuntimeIds: ['acp-compatible-sidecar', 'reference-runtime'],
     bridgeCandidateId: 'channel-gateway-normalization',
     decision: 'adapt',
-    targetPhase: 'phase-5-channels-messaging',
+    targetPhase: 'channels-messaging',
     priority: 7,
     risk: 'high',
     naturalFirstRoute: 'capability-discovery',
@@ -252,7 +252,7 @@ const INVENTORY_ITEMS: InventoryItemDefinition[] = [
     sourceRuntimeIds: ['acp-compatible-sidecar', 'reference-runtime'],
     bridgeCandidateId: null,
     decision: 'adapt',
-    targetPhase: 'phase-4-capability-providers',
+    targetPhase: 'capability-providers',
     priority: 8,
     risk: 'high',
     naturalFirstRoute: 'capability-discovery',
@@ -278,7 +278,7 @@ const INVENTORY_ITEMS: InventoryItemDefinition[] = [
     sourceRuntimeIds: ['acp-compatible-sidecar'],
     bridgeCandidateId: null,
     decision: 'adapt',
-    targetPhase: 'phase-4-capability-providers',
+    targetPhase: 'capability-providers',
     priority: 9,
     risk: 'high',
     naturalFirstRoute: 'capability-discovery',
@@ -301,7 +301,7 @@ const INVENTORY_ITEMS: InventoryItemDefinition[] = [
     sourceRuntimeIds: ['acp-compatible-sidecar'],
     bridgeCandidateId: 'procedural-memory',
     decision: 'adapt',
-    targetPhase: 'phase-6-sessions-memory-continuation',
+    targetPhase: 'sessions-memory-continuation',
     priority: 10,
     risk: 'medium',
     naturalFirstRoute: 'memory-recall',
@@ -325,7 +325,7 @@ const INVENTORY_ITEMS: InventoryItemDefinition[] = [
     sourceRuntimeIds: ['acp-compatible-sidecar', 'reference-runtime'],
     bridgeCandidateId: 'delegated-workers',
     decision: 'adapt',
-    targetPhase: 'phase-7-delegated-workers',
+    targetPhase: 'delegated-workers',
     priority: 11,
     risk: 'high',
     naturalFirstRoute: 'governed-execution',
@@ -349,7 +349,7 @@ const INVENTORY_ITEMS: InventoryItemDefinition[] = [
     sourceRuntimeIds: ['acp-compatible-sidecar'],
     bridgeCandidateId: null,
     decision: 'externalize',
-    targetPhase: 'phase-8-native-replacement',
+    targetPhase: 'native-replacement',
     priority: 12,
     risk: 'high',
     naturalFirstRoute: 'capability-discovery',
@@ -373,7 +373,7 @@ const INVENTORY_ITEMS: InventoryItemDefinition[] = [
     sourceRuntimeIds: ['acp-compatible-sidecar'],
     bridgeCandidateId: null,
     decision: 'adapt',
-    targetPhase: 'phase-8-native-replacement',
+    targetPhase: 'native-replacement',
     priority: 13,
     risk: 'medium',
     naturalFirstRoute: 'governed-execution',
@@ -397,7 +397,7 @@ const INVENTORY_ITEMS: InventoryItemDefinition[] = [
     sourceRuntimeIds: ['acp-compatible-sidecar'],
     bridgeCandidateId: null,
     decision: 'reject',
-    targetPhase: 'phase-0-inventory',
+    targetPhase: 'inventory',
     priority: 14,
     risk: 'low',
     naturalFirstRoute: 'capability-discovery',
@@ -462,8 +462,8 @@ export class ZavorthExternalCapabilityInventoryService {
       generatedAt: this.now().toISOString(),
       contractVersion: ZAVORTH_EXTERNAL_CAPABILITY_INVENTORY_CONTRACT_VERSION,
       status,
-      planId: '291 - Plano Zavorth External Runtime Absorption',
-      phase: 'phase-0-freeze-and-inventory',
+      planId: 'Zavorth External Runtime Integration',
+      phase: 'checkpoint-0-freeze-and-inventory',
       bridgeContractVersion: ZAVORTH_EXTERNAL_RUNTIME_BRIDGE_CONTRACT_VERSION,
       bridgeStatus: input.bridgeStatus || this.defaultBridgeStatus,
       sourceProbes,
@@ -475,7 +475,7 @@ export class ZavorthExternalCapabilityInventoryService {
         noImplementationBeyondReadOnlyInventory: true,
         sourceNamesAllowedOnlyInDiagnostics: true,
         importedCapabilitiesAdvisoryOnly: true,
-        nextPhaseRequiresContractLayer: true,
+        nextStageRequiresContractLayer: true,
       },
       safety: {
         executionPerformed: false,
@@ -490,14 +490,14 @@ export class ZavorthExternalCapabilityInventoryService {
         inspect: 'npm run zavorth:external-capability-inventory',
         inspectJson: 'npm run zavorth:external-capability-inventory:json',
         check: 'npm run zavorth:external-capability-inventory:check --silent',
-        nextPhase: '291 Phase 1 - Zavorth Contract Layer',
+        nextStage: '291 Intent model - Zavorth Contract Layer',
       },
     };
   }
 
   public formatSnapshotText(snapshot: ZavorthExternalCapabilityInventorySnapshot): string {
     const lines = [
-      'Zavorth External Runtime Phase 0 Inventory',
+      'Zavorth External Runtime Security contract Inventory',
       '',
       `Status: ${snapshot.status}`,
       `Bridge: ${snapshot.bridgeStatus}`,
@@ -517,7 +517,7 @@ export class ZavorthExternalCapabilityInventoryService {
       lines.push(`  gate: ${entry.acceptanceGate}`);
     }
 
-    lines.push('', `Next: ${snapshot.commands.nextPhase}`);
+    lines.push('', `Next: ${snapshot.commands.nextStage}`);
     return lines.join('\n');
   }
 

@@ -166,7 +166,7 @@ export class ZavorthLargeSkillAbsorptionService {
       quarantine,
       summary,
       pipeline: {
-        stages: this.buildStages(governedSubagents.summary.approvalRequiredRoles > 0),
+        phases: this.buildStages(governedSubagents.summary.approvalRequiredRoles > 0),
         maxCandidatesPerBatch,
         maxPromptCharsPerChunk,
         maxSources,
@@ -188,14 +188,14 @@ export class ZavorthLargeSkillAbsorptionService {
         preview: 'npm run zavorth:large-skill-absorption -- --source <path>',
         previewJson: 'npm run zavorth:large-skill-absorption:json -- --source <path>',
         check: 'npm run zavorth:large-skill-absorption:check --silent',
-        nextPhase: 'Phase 4 - Absorption Materialization and Bridge Handoff',
+        nextStage: 'Connector registry - Absorption Materialization and Bridge Handoff',
       },
     };
   }
 
   public formatSnapshotText(snapshot: ZavorthLargeSkillAbsorptionSnapshot): string {
     const lines = [
-      'Zavorth Large Skill Absorption Pipeline - Phase 3',
+      'Zavorth Large Skill Absorption Pipeline - Approval gate',
       '',
       `Status: ${snapshot.status}`,
       `Sources: ${snapshot.summary.sources} | candidates: ${snapshot.summary.candidates} | indexed: ${snapshot.summary.indexedCandidates}`,
@@ -220,7 +220,7 @@ export class ZavorthLargeSkillAbsorptionService {
     }
 
     lines.push('', 'Policy: preview-only; chunking before LLM context; no import; no execution; no upstream runtime trust.');
-    lines.push(`Next: ${snapshot.commands.nextPhase}`);
+    lines.push(`Next: ${snapshot.commands.nextStage}`);
     return lines.join('\n');
   }
 
@@ -268,7 +268,7 @@ export class ZavorthLargeSkillAbsorptionService {
         userConfirmationRequired: false,
         reasons: [
           'Large Skill Absorption only previews, indexes and chunks source skills.',
-          'No import, execution or upstream runtime use is allowed in Phase 3.',
+          'No import, execution or upstream runtime use is allowed in Approval gate.',
           `Source ${source.sourceId} produced ${preview.summary.candidates} candidate(s).`,
         ],
         metadata: {
@@ -451,7 +451,7 @@ export class ZavorthLargeSkillAbsorptionService {
     };
   }
 
-  private buildStages(approvalRequired: boolean): ZavorthLargeSkillAbsorptionSnapshot['pipeline']['stages'] {
+  private buildStages(approvalRequired: boolean): ZavorthLargeSkillAbsorptionSnapshot['pipeline']['phases'] {
     return [
       {
         id: 'source-preview',
@@ -479,14 +479,14 @@ export class ZavorthLargeSkillAbsorptionService {
         label: 'Prepare normalization and materialization plan only after approval',
         roleIds: ['coder', 'qa'],
         status: 'approval-required',
-        output: 'Batch plan for future materialization without applying it in Phase 3.',
+        output: 'Batch plan for future materialization without applying it in Approval gate.',
       },
       {
         id: 'bridge-handoff',
         label: 'Hand off clean batches to bridge/import phases',
         roleIds: ['qa', 'memory-curator'],
         status: 'ready',
-        output: 'Dry-run handoff contract for Phase 4.',
+        output: 'Dry-run handoff contract for Connector registry.',
       },
     ];
   }

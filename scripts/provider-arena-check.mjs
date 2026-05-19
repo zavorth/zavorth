@@ -8,7 +8,7 @@ const asJson = process.argv.includes('--json');
 const rules = [
   ruleFilesExist({
     id: 'provider-arena-files',
-    label: 'Wave 34 files exist',
+    label: 'Provider Arena files exist',
     target: 'Runtime, CLI, Command Center, tests and docs are present',
     files: [
       'src/runtime/agent/ProviderArenaService.ts',
@@ -27,7 +27,7 @@ const rules = [
     files: ['src/runtime/agent/ProviderArenaService.ts'],
     needles: [
       'PROVIDER_ARENA_CONTRACT_VERSION',
-      '2026-05-03.wave-34',
+      '2026-05-03.provider-arena',
       'ProviderArenaCandidate',
       'decisionSource',
       'noProviderExecutionPerformed',
@@ -63,7 +63,7 @@ const rules = [
     ],
     needles: [
       'arena',
-      'Provider Arena - Wave 34',
+      'Provider Arena - Provider Arena',
       'resolveProviderArenaCliText',
       'formatProviderArenaSnapshot',
       'zavorth arena',
@@ -92,7 +92,7 @@ const rules = [
   }),
   ruleContainsAll({
     id: 'package-exposes-provider-arena-gate',
-    label: 'package exposes Wave 34 gate',
+    label: 'package exposes Provider Arena gate',
     target: 'local QA can run provider-arena:check and qa:provider-arena',
     files: ['package.json'],
     needles: [
@@ -118,7 +118,7 @@ const snapshot = {
 if (asJson) {
   console.log(JSON.stringify(snapshot, null, 2));
 } else {
-  console.log('[provider-arena] checking Wave 34');
+  console.log('[provider-arena] checking Provider Arena');
   for (const rule of rules) {
     const marker = rule.status === 'passed' ? 'ok' : 'fail';
     console.log(`[provider-arena] ${marker} ${rule.label}: ${rule.observed} | ${rule.target}`);

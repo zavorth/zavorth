@@ -97,7 +97,7 @@ function buildSmokeArtifact() {
 
   return {
     schemaVersion: '1.0.0',
-    phase: '58',
+    stage: '58',
     generatedAt: new Date().toISOString(),
     mode: 'fixture',
     ok: results.every((result) => (
@@ -120,7 +120,7 @@ function buildSmokeArtifact() {
 function buildMatrixArtifact() {
   return {
     schemaVersion: '1.0.0',
-    phase: '58',
+    stage: '58',
     generatedAt: new Date().toISOString(),
     ok: INTEGRATION_CAPABILITY_MATRIX.length >= INTEGRATION_SHOWCASE_ITEMS.length,
     matrix: INTEGRATION_CAPABILITY_MATRIX,
@@ -130,7 +130,7 @@ function buildMatrixArtifact() {
 function buildPartnerSurfaceArtifact() {
   return {
     schemaVersion: '1.0.0',
-    phase: '58',
+    stage: '58',
     generatedAt: new Date().toISOString(),
     ok: PARTNER_SURFACE_POLICY.registryRequiredForFormalClaim,
     formalPartnersRegistered: INTEGRATION_SHOWCASE_ITEMS.filter((item) => item.formalPartnerRegistered).length,

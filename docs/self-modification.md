@@ -32,6 +32,6 @@ preview and mutation.
 
 ## Related
 
-- [Security](/docs/05-security.md)
-- [Operations](/docs/09-operations.md)
-- [Troubleshooting](/docs/10-troubleshooting.md)
+- [Security](/docs/security.md)
+- [Operations](/docs/operations.md)
+- [Troubleshooting](/docs/troubleshooting.md)

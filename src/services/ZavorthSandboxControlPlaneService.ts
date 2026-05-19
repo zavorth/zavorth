@@ -194,7 +194,7 @@ export class ZavorthSandboxControlPlaneService {
       envelopePreview,
       actions,
       narrative: {
-        headline: 'Fase 18: Sandbox forte lazy',
+        headline: 'Etapa 18: Sandbox forte lazy',
         operatorSummary:
           `${summary.availableProfiles} perfil(is) de sandbox disponiveis, `
           + `${summary.strongProfilesReady} forte(s), runtime pesado iniciado=${summary.heavyRuntimesStarted ? 'sim' : 'nao'}.`,
@@ -206,7 +206,7 @@ export class ZavorthSandboxControlPlaneService {
   public renderReport(input: ZavorthSandboxEnvelopeInput = {}): string {
     const snapshot = this.buildSnapshot(input);
     const lines = [
-      'Fase 18: Sandbox forte lazy',
+      'Etapa 18: Sandbox forte lazy',
       '',
       snapshot.narrative.operatorSummary,
       `Postura: ${snapshot.summary.posture}.`,
@@ -482,7 +482,7 @@ export class ZavorthSandboxControlPlaneService {
       || status.detail.includes('Kernel')
       || status.detail.includes('firecracker')
     ) {
-      return { status: 'not_installed', recommendedAction: 'Seguir docs/31-firecracker-wsl-local.md.' };
+      return { status: 'not_installed', recommendedAction: 'Seguir docs/product-direction.md.' };
     }
     return { status: 'degraded', recommendedAction: 'npm run sandbox:doctor' };
   }
@@ -536,7 +536,7 @@ export class ZavorthSandboxControlPlaneService {
         label: 'Configurar gVisor/runsc',
         severity: 'info',
         reason: 'Container existe como tier medio, mas gVisor ainda nao esta configurado.',
-        command: 'docs/30-gvisor-wsl-local.md',
+        command: 'docs/product-direction.md',
       });
     }
     if (envelope?.status === 'waiting_approval') {

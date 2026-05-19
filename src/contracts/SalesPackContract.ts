@@ -172,7 +172,7 @@ export type CommercialSignal = {
   intent: SalesIntent;
   objection: SalesObjection;
   leadScore: number;
-  stage: 'new' | 'qualifying' | 'negotiating' | 'hot' | 'support' | 'handoff';
+  phase: 'new' | 'qualifying' | 'negotiating' | 'hot' | 'support' | 'handoff';
   nextAction: string;
   risk: SalesRiskLevel;
   explanation: string;

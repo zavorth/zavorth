@@ -130,7 +130,7 @@ export class ReleaseUxWizardService {
         phase: '42',
         title: 'Tenant/Team Ops',
         reason:
-          'Depois de transformar release em fluxo de produto, a ultima fase desta ordem fecha operacao segmentada por workspace, tenant e time.',
+          'Depois de transformar release em fluxo de produto, a ultima etapa desta ordem fecha operacao segmentada por workspace, tenant e time.',
       },
     };
   }
@@ -138,7 +138,7 @@ export class ReleaseUxWizardService {
   public async renderReport(snapshot: ReleaseUxWizardSnapshot | null = null): Promise<string> {
     const resolved = snapshot || await this.buildSnapshot();
     const lines: string[] = [];
-    lines.push('[release-ux] Fase 44 - Release UX');
+    lines.push('[release-ux] Etapa 44 - Release UX');
     lines.push(`status: ${resolved.status}`);
     lines.push(`ok: ${resolved.summary.ok ? 'yes' : 'no'} | pass=${resolved.summary.passed} warn=${resolved.summary.warnings} fail=${resolved.summary.failed}`);
     lines.push(`steps=${resolved.summary.steps} approvals=${resolved.summary.approvalsRequired} changelog=${resolved.summary.changelogEntries} rollbackEvidence=${resolved.summary.rollbackEvidence}`);
@@ -159,7 +159,7 @@ export class ReleaseUxWizardService {
       }
     }
     lines.push('');
-    lines.push(`proxima fase recomendada: ${resolved.nextRecommendedPhase.phase} - ${resolved.nextRecommendedPhase.title}`);
+    lines.push(`proximo passo recomendada: ${resolved.nextRecommendedPhase.phase} - ${resolved.nextRecommendedPhase.title}`);
     lines.push(resolved.nextRecommendedPhase.reason);
     return lines.join('\n');
   }
@@ -266,7 +266,7 @@ export class ReleaseUxWizardService {
       {
         id: 'readiness',
         label: 'Ler readiness de release',
-        stage: 'readiness',
+        phase: 'readiness',
         command: 'npm run release:status',
         previewOnly: true,
         requiresApproval: false,
@@ -277,7 +277,7 @@ export class ReleaseUxWizardService {
       {
         id: 'human-diff',
         label: 'Revisar diff humano',
-        stage: 'diff',
+        phase: 'diff',
         command: humanDiff.command,
         previewOnly: true,
         requiresApproval: false,
@@ -288,7 +288,7 @@ export class ReleaseUxWizardService {
       {
         id: 'release-hygiene',
         label: 'Rodar hygiene scan',
-        stage: 'hygiene',
+        phase: 'hygiene',
         command: 'npm run release:scan',
         previewOnly: true,
         requiresApproval: false,
@@ -299,7 +299,7 @@ export class ReleaseUxWizardService {
       {
         id: 'publish-alpha-beta',
         label: 'Publicar alpha/beta somente apos aprovacao',
-        stage: 'publish',
+        phase: 'publish',
         command: releaseStatus.release.channel === 'beta' ? 'npm run release:beta' : 'npm run release:alpha',
         previewOnly: true,
         requiresApproval: true,
@@ -310,7 +310,7 @@ export class ReleaseUxWizardService {
       {
         id: 'rollback-preview',
         label: 'Preparar rollback preview',
-        stage: 'rollback',
+        phase: 'rollback',
         command: rollback.command,
         previewOnly: true,
         requiresApproval: true,
@@ -321,7 +321,7 @@ export class ReleaseUxWizardService {
       {
         id: 'changelog',
         label: 'Gerar changelog operacional',
-        stage: 'changelog',
+        phase: 'changelog',
         command: changelog.command,
         previewOnly: true,
         requiresApproval: false,
@@ -394,9 +394,9 @@ export class ReleaseUxWizardService {
   }
 
   private checkPreviewFirstWizard(steps: ReleaseUxWizardStep[], rollback: ReleaseUxRollbackPreview): ReleaseUxCheck {
-    const unsafeSteps = steps.filter((step) => !step.previewOnly && (step.stage === 'publish' || step.stage === 'rollback'));
+    const unsafeSteps = steps.filter((step) => !step.previewOnly && (step.phase === 'publish' || step.phase === 'rollback'));
     const publishWithoutApproval = steps.filter((step) =>
-      (step.stage === 'publish' || step.stage === 'rollback') && !step.requiresApproval);
+      (step.phase === 'publish' || step.phase === 'rollback') && !step.requiresApproval);
     const ok = unsafeSteps.length === 0
       && publishWithoutApproval.length === 0
       && rollback.executed === false;
@@ -480,7 +480,7 @@ export class ReleaseUxWizardService {
       'release UX nao inicia background persistente',
       offenders.length === 0 ? 'pass' : 'fail',
       offenders.length === 0
-        ? 'Wizard e gate da Fase 44 sao leituras sob demanda.'
+        ? 'Wizard e gate da Etapa 44 sao leituras sob demanda.'
         : 'Wizard ou gate de release UX apontam para processo persistente.',
       'wizard',
       offenders,

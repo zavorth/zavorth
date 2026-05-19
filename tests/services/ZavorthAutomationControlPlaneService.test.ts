@@ -39,8 +39,8 @@ describe('ZavorthAutomationControlPlaneService', () => {
               outboxMaxBytes: 104857600,
               pauseCreatesInboxNotice: true,
               governedScheduledTask: {
-                contractVersion: '2026-05-12.persisted-scheduled-task-registration-phase-3',
-                phase: 'phase-3-persisted-scheduled-task-registration',
+                contractVersion: '2026-05-12.persisted-scheduled-task-registration-checkpoint-3',
+                stage: 'checkpoint-3-persisted-scheduled-task-registration',
                 registryStatus: 'active',
                 approvalId: 'approval-ok',
                 approvalExpiresAt: '2026-05-19T10:00:00.000Z',

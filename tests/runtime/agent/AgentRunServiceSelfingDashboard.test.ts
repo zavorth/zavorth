@@ -8,7 +8,7 @@ function createIdFactory() {
   return (prefix: string) => `${prefix}-agent-selfing-${++index}`;
 }
 
-describe('AgentRunService Selfing Dashboard Wave 37', () => {
+describe('AgentRunService Selfing Dashboard Selfing Dashboard', () => {
   it('publishes run.metadata.selfingDashboard during the agent run lifecycle', async () => {
     const service = new AgentRunService({
       now: () => new Date('2026-05-04T00:37:00.000Z'),

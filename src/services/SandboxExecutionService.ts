@@ -185,7 +185,7 @@ export class SandboxExecutionService {
       throw new Error(`Envelope ${envelope.id} esta em modo ${envelope.mode}; use preview/approval antes do apply.`);
     }
     if (envelope.networkPolicy !== 'none') {
-      throw new Error(`Network policy ${envelope.networkPolicy} ainda nao tem executor isolado nesta fase.`);
+      throw new Error(`Network policy ${envelope.networkPolicy} ainda nao tem executor isolado nesta etapa.`);
     }
     if (
       envelope.filesystemPolicy.tempWorkspaceOnly !== true

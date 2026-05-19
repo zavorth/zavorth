@@ -40,7 +40,7 @@ export function formatSafetyNarrativeSnapshot(
   snapshot: SafetyNarrativeSnapshot,
 ): string {
   const lines = [
-    'Safety Narrative - Wave 31',
+    'Safety Narrative - Safety Narrative',
     `- contrato: ${snapshot.contractVersion}`,
     `- status: ${snapshot.status}`,
     `- high-risk: ${String(snapshot.highRiskBlockPresent)}`,

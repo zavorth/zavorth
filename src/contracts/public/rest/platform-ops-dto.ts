@@ -1,4 +1,4 @@
-// schemas complementares a Phase 1
+// schemas complementares a Intent model
 import { NodeDTO } from './dto';
 
 export interface PluginDTO {

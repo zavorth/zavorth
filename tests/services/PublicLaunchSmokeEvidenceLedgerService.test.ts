@@ -1,12 +1,12 @@
 import { PublicLaunchSmokeEvidenceLedgerService } from '../../src/services/PublicLaunchSmokeEvidenceLedgerService.js';
 
-describe('PublicLaunchSmokeEvidenceLedgerService Phase 15', () => {
+describe('PublicLaunchSmokeEvidenceLedgerService Intent model5', () => {
   it('builds a public launch-ready smoke evidence ledger', () => {
     const snapshot = new PublicLaunchSmokeEvidenceLedgerService({
       now: () => new Date('2026-05-05T00:10:00.000Z'),
     }).buildSnapshot();
 
-    expect(snapshot.contractVersion).toBe('2026-05-04.phase-15');
+    expect(snapshot.contractVersion).toBe('2026-05-04.checkpoint-15');
     expect(snapshot.status).toBe('ready');
     expect(snapshot.summary).toEqual(
       expect.objectContaining({
@@ -125,7 +125,7 @@ describe('PublicLaunchSmokeEvidenceLedgerService Phase 15', () => {
         runJson: 'npm run public-launch-smoke-ledger:json --silent',
         check: 'npm run public-launch-smoke-ledger:check --silent',
         requireReady: 'npm run public-launch-smoke-ledger --silent -- --require-ready',
-        nextPhase: 'Release candidate package freeze',
+        nextStage: 'Release candidate package freeze',
       }),
     );
     expect(snapshot.commands.drySmokeCommands).toEqual(

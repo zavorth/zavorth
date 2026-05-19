@@ -196,7 +196,7 @@ export const PRODUCT_QUALITY_DOCS: ProductQualityDocSpec[] = [
     advancedPhrase: 'Trilha Avancada E De Manutencao',
   },
   {
-    path: 'docs/02-quickstart.md',
+    path: 'docs/quickstart.md',
     label: 'Quickstart',
     requiredPhrases: [
       'zavorth setup',
@@ -207,7 +207,7 @@ export const PRODUCT_QUALITY_DOCS: ProductQualityDocSpec[] = [
     ],
   },
   {
-    path: 'docs/34-zavorth-cli.md',
+    path: 'docs/zavorth-cli.md',
     label: 'CLI canonica',
     requiredPhrases: [
       'Caminho Feliz',
@@ -220,14 +220,14 @@ export const PRODUCT_QUALITY_DOCS: ProductQualityDocSpec[] = [
     ],
   },
   {
-    path: 'docs/69-cli-ux-diagnosis.md',
+    path: 'docs/product-direction.md',
     label: 'Diagnostico de UX da CLI',
     requiredPhrases: [
       'uma trilha oficial curta',
       'zavorth setup',
       'zavorth go',
       'zavorth chat',
-      'Checklist de aceitacao da fase CLI',
+      'Checklist de aceitacao da etapa CLI',
     ],
   },
 ];

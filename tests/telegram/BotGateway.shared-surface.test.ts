@@ -163,7 +163,7 @@ describe('BotGateway shared surface fallback', () => {
       text: 'consegue me ouvir?',
       inlineData: [{ mimeType: 'audio/ogg', data: 'abc' }],
       metadata: expect.objectContaining({
-        phase: 'legacy-unified-conversation-fallback-v1',
+        stage: 'legacy-unified-conversation-fallback-v1',
         isVoiceInput: true,
       }),
     }));
@@ -195,7 +195,7 @@ describe('BotGateway shared surface fallback', () => {
 
     expect(gateway.legacyUnifiedGateway.handleEvent).toHaveBeenCalledWith(expect.objectContaining({
       metadata: expect.objectContaining({
-        phase: 'legacy-unified-conversation-fallback-v1',
+        stage: 'legacy-unified-conversation-fallback-v1',
         isVoiceInput: true,
         preferredLanguageCode: 'en-US',
         traceId: 'trace-voice-1',

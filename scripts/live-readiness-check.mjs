@@ -24,11 +24,11 @@ const rules = [
   ruleContainsAll({
     id: 'live-readiness-contract',
     label: 'Contract defines live readiness vocabulary',
-    target: 'Contract captures dry-audit profile, live statuses, gates, receipts and Phase 2 handoff',
+    target: 'Contract captures dry-audit profile, live statuses, gates, receipts and Preview engine handoff',
     files: ['src/contracts/LiveReadinessContract.ts'],
     needles: [
       'ZAVORTH_LIVE_READINESS_CONTRACT_VERSION',
-      '2026-05-04.live-phase-1',
+      '2026-05-04.live-checkpoint-1',
       'dry-audit',
       'live-ready',
       'partial-live',
@@ -39,7 +39,7 @@ const rules = [
       'LiveReadinessGate',
       'LiveReadinessReceipt',
       'liveExternalCallRequiredToBuildSnapshot: false',
-      'Phase 2 - Channel Live Activation P0',
+      'Preview engine - Channel Live Activation P0',
     ],
   }),
   ruleContainsAll({
@@ -60,7 +60,7 @@ const rules = [
       'noLiveIoDuringReadinessKernel: true',
       'templatesCannotBeCertifiedAsLive: true',
       'dryRunCannotBeCertifiedAsLive: true',
-      'Phase 2 - Channel Live Activation P0',
+      'Preview engine - Channel Live Activation P0',
     ],
   }),
   ruleContainsAll({
@@ -105,18 +105,18 @@ const rules = [
   }),
   ruleContainsAll({
     id: 'live-readiness-doc',
-    label: 'Private doc records Phase 1 closure',
+    label: 'Private doc records Intent model closure',
     target: 'Documentation explains the kernel, its categories, and the next phase',
     files: ['docs/README.md'],
     needles: [
-      'Phase 1',
+      'Intent model',
       'Live Readiness Kernel',
       'no live IO',
       'live-ready',
       'partial-live',
       'template-only',
       'dry-run-only',
-      'Phase 2',
+      'Preview engine',
     ],
   }),
 ];
@@ -136,7 +136,7 @@ const snapshot = {
 if (asJson) {
   console.log(JSON.stringify(snapshot, null, 2));
 } else {
-  console.log('[live-readiness] checking Phase 1');
+  console.log('[live-readiness] checking Intent model');
   for (const rule of rules) {
     const marker = rule.status === 'passed' ? 'ok' : 'fail';
     console.log(`[live-readiness] ${marker} ${rule.label}: ${rule.observed} | ${rule.target}`);

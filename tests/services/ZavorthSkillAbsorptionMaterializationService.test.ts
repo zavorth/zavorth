@@ -3,7 +3,7 @@ import os from 'os';
 import path from 'path';
 import { ZavorthSkillAbsorptionMaterializationService } from '../../src/services/ZavorthSkillAbsorptionMaterializationService.js';
 
-describe('ZavorthSkillAbsorptionMaterializationService Phase 6/8', () => {
+describe('ZavorthSkillAbsorptionMaterializationService Runtime gateway/8', () => {
   it('previews batches without writing imported skill files', async () => {
     const fixture = createFixture();
     try {

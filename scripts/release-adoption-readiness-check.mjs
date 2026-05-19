@@ -8,7 +8,7 @@ const asJson = process.argv.includes('--json');
 const rules = [
   ruleFilesExist({
     id: 'release-adoption-readiness-files',
-    label: 'Wave 53 files exist',
+    label: 'Release Adoption Readiness files exist',
     target: 'Runtime, CLI, Command Center, tests and docs are present',
     files: [
       'src/runtime/agent/ReleaseAdoptionReadinessService.ts',
@@ -27,7 +27,7 @@ const rules = [
     files: ['src/runtime/agent/ReleaseAdoptionReadinessService.ts'],
     needles: [
       'RELEASE_ADOPTION_READINESS_CONTRACT_VERSION',
-      '2026-05-04.wave-53',
+      '2026-05-04.release-readiness',
       'ReleaseTrainService',
       'PublicAdoptionReadinessService',
       'releaseAdoptionReadiness',
@@ -69,7 +69,7 @@ const rules = [
       'release-adoption',
       'adoption-readiness',
       'support-readiness',
-      'Release & Adoption Readiness - Wave 53',
+      'Release & Adoption Readiness - Release Adoption Readiness',
       'resolveReleaseAdoptionReadinessCliText',
       'formatReleaseAdoptionReadinessSnapshot',
     ],
@@ -98,7 +98,7 @@ const rules = [
   }),
   ruleContainsAll({
     id: 'package-exposes-release-adoption-gate',
-    label: 'package exposes Wave 53 gate',
+    label: 'package exposes Release Adoption Readiness gate',
     target: 'local QA can run release-adoption-readiness:check and qa:release-adoption-readiness',
     files: ['package.json'],
     needles: [
@@ -124,7 +124,7 @@ const snapshot = {
 if (asJson) {
   console.log(JSON.stringify(snapshot, null, 2));
 } else {
-  console.log('[release-adoption-readiness] checking Wave 53');
+  console.log('[release-adoption-readiness] checking Release Adoption Readiness');
   for (const rule of rules) {
     const marker = rule.status === 'passed' ? 'ok' : 'fail';
     console.log(`[release-adoption-readiness] ${marker} ${rule.label}: ${rule.observed} | ${rule.target}`);

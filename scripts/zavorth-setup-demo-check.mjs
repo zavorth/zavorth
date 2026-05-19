@@ -11,7 +11,7 @@ for (const file of [
   'src/services/ZavorthSetupDemoReadinessService.ts',
   'scripts/zavorth-setup-demo.ts',
   'tests/services/ZavorthSetupDemoReadinessService.test.ts',
-  'tests/e2e/ZavorthPhaseDSetupDemoSmoke.test.ts',
+  'tests/e2e/ZavorthSetupDemoSmoke.test.ts',
 ]) {
   if (!existsSync(path.join(root, file))) {
     throw new Error(`missing ${file}`);
@@ -71,7 +71,7 @@ execFileSync(
     'jest',
     '--runTestsByPath',
     'tests/services/ZavorthSetupDemoReadinessService.test.ts',
-    'tests/e2e/ZavorthPhaseDSetupDemoSmoke.test.ts',
+    'tests/e2e/ZavorthSetupDemoSmoke.test.ts',
     '--runInBand',
   ],
   { cwd: root, stdio: 'inherit' },

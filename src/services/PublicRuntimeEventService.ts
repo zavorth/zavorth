@@ -178,12 +178,12 @@ export class PublicRuntimeEventService {
   }
 
   private resolveWorkflowProgress(payload: any): number | null {
-    const stages = safeArray(payload.stages);
-    if (stages.length === 0) {
+    const phases = safeArray(payload.phases);
+    if (phases.length === 0) {
       return null;
     }
-    const completed = stages.filter((stage: any) => String(stage?.status || '').toLowerCase() === 'completed').length;
-    return Math.round((completed / stages.length) * 100);
+    const completed = phases.filter((phase: any) => String(phase?.status || '').toLowerCase() === 'completed').length;
+    return Math.round((completed / phases.length) * 100);
   }
 
   private wrap<TType extends PublicRuntimeEvent['type']>(

@@ -6,7 +6,7 @@ import type {
 } from './ZavorthScheduledTaskContract.js';
 
 export const ZAVORTH_SCHEDULED_TASK_RUNTIME_CONTRACT_VERSION =
-  '2026-05-12.scheduled-task-execution-gateway-phase-2' as const;
+  '2026-05-12.scheduled-task-execution-gateway-checkpoint-2' as const;
 
 export type ZavorthScheduledTaskRuntimeStatus =
   | 'ready'
@@ -78,7 +78,7 @@ export type ZavorthScheduledTaskRuntimeCheck = {
 export type ZavorthScheduledTaskRuntimeReceipt = {
   id: string;
   kind:
-    | 'phase-2-scheduled-task-execution-gateway'
+    | 'checkpoint-2-scheduled-task-execution-gateway'
     | 'registry-consumed'
     | 'scope-revalidated'
     | 'gateway-submit'
@@ -90,7 +90,7 @@ export type ZavorthScheduledTaskRuntimeReceipt = {
 };
 
 export type ZavorthScheduledTaskRuntimeSafety = {
-  consumesPhase1Registry: true;
+  consumesStage1Registry: true;
   validatesEnvelopeOnEveryTick: true;
   preservesApprovedScope: true;
   usesExecutionGatewaySubmit: true;
@@ -104,7 +104,7 @@ export type ZavorthScheduledTaskRuntimeSnapshot = {
   generatedAt: string;
   contractVersion: typeof ZAVORTH_SCHEDULED_TASK_RUNTIME_CONTRACT_VERSION;
   source: 'ZavorthScheduledTaskExecutionGatewayRuntimeService';
-  phase: 'phase-2-scheduled-task-execution-gateway';
+  phase: 'checkpoint-2-scheduled-task-execution-gateway';
   status: ZavorthScheduledTaskRuntimeStatus;
   mode: ZavorthScheduledTaskRuntimeMode;
   registry: ZavorthScheduledTaskSnapshot;

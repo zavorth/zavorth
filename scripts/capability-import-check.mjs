@@ -8,7 +8,7 @@ const asJson = process.argv.includes('--json');
 const rules = [
   ruleFilesExist({
     id: 'capability-import-files',
-    label: 'Capability Importer Phase 3 files exist',
+    label: 'Capability Importer Approval gate files exist',
     target: 'contract, service, API facade, CLI, tests and docs are present',
     files: [
       'src/contracts/CapabilityImportContract.ts',
@@ -103,7 +103,7 @@ const snapshot = {
 if (asJson) {
   console.log(JSON.stringify(snapshot, null, 2));
 } else {
-  console.log('[capability-import] checking Phase 3');
+  console.log('[capability-import] checking Approval gate');
   for (const rule of rules) {
     const marker = rule.status === 'passed' ? 'ok' : 'fail';
     console.log(`[capability-import] ${marker} ${rule.label}: ${rule.observed} | ${rule.target}`);

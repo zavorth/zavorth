@@ -2411,7 +2411,7 @@
     "pipelineVisualizationHint": "Envie uma mensagem para ver como sua solicitação flui através de detecção → tradução → chamada do provedor.",
     "chatTesterDescription": "Envie mensagens em um formato de cliente específico e inspecione cada etapa do pipeline de tradução.",
     "chatTesterFlow": "Solicitação do cliente → Detecção de formato → OpenAI Intermediário → Formato do provedor → Resposta",
-    "clickStepToInspect": "Clique em qualquer etapa para inspecionar os dados nessa fase.",
+    "clickStepToInspect": "Clique em qualquer etapa para inspecionar os dados nessa etapa.",
     "clientFormat": "Formato do cliente",
     "provider": "Provedor",
     "modelPlaceholder": "Selecione ou digite um nome de modelo...",

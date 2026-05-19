@@ -100,7 +100,7 @@ export class ReviewPolicyGate {
       reason,
       policyTags: [
         'governed-review',
-        'phase-4',
+        'checkpoint-4',
         `action:${action}`,
         allowed ? 'gate:allow' : requiresApproval ? 'gate:approval-required' : 'gate:blocked',
       ],

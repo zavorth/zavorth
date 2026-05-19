@@ -37,7 +37,7 @@ describe('StateMachine', () => {
 
     expect(snapshot).toEqual(expect.objectContaining({
       current_status: 'planned',
-      phase: 'planning',
+      stage: 'planning',
       can_resume: true,
       can_retry: false,
       updated_at: '2026-03-31T10:00:00.000Z',

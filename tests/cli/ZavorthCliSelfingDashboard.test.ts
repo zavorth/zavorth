@@ -46,7 +46,7 @@ describe('Zavorth CLI Selfing Dashboard', () => {
     }));
     const payload = JSON.parse(writes[0] || '{}');
     expect(payload).toEqual(expect.objectContaining({
-      contractVersion: '2026-05-03.wave-37',
+      contractVersion: '2026-05-03.selfing-dashboard',
       source: 'SelfingDashboardService',
       summary: expect.objectContaining({
         identityFileCount: 3,
@@ -71,7 +71,7 @@ describe('Zavorth CLI Selfing Dashboard', () => {
 
     const text = formatSelfingDashboardSnapshot(snapshot);
 
-    expect(text).toContain('Selfing Dashboard - Wave 37');
+    expect(text).toContain('Selfing Dashboard - Selfing Dashboard');
     expect(text).toContain('Cards');
     expect(text).toContain('snapshot read-only');
     expect(text).toContain('Command Center: /control?sector=dreams');

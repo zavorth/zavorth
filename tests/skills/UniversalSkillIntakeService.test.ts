@@ -25,7 +25,7 @@ function writeSkill(root: string, name: string, description: string): string {
   return dir;
 }
 
-describe('UniversalSkillIntakeService Phase 1', () => {
+describe('UniversalSkillIntakeService Intent model', () => {
   let root: string;
 
   beforeEach(() => {
@@ -44,7 +44,7 @@ describe('UniversalSkillIntakeService Phase 1', () => {
     }).previewSource({ sourcePath: root });
 
     expect(preview.status).toBe('pass');
-    expect(preview.contractVersion).toBe('2026-05-10.phase-1');
+    expect(preview.contractVersion).toBe('2026-05-10.checkpoint-1');
     expect(preview.summary).toEqual(expect.objectContaining({
       candidates: 1,
       blockedCandidates: 0,

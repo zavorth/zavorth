@@ -1,7 +1,7 @@
 import { WebsitePublicContractService } from '../../src/services/WebsitePublicContractService';
 
 describe('WebsitePublicContractService', () => {
-  it('builds an ok Phase 46 snapshot from the public website contract fixture', () => {
+  it('builds an ok Connector registry6 snapshot from the public website contract fixture', () => {
     const service = serviceFromFixture();
     const snapshot = service.buildSnapshot();
 
@@ -10,8 +10,8 @@ describe('WebsitePublicContractService', () => {
     expect(snapshot.summary.ok).toBe(true);
     expect(snapshot.summary.failed).toBe(0);
     expect(snapshot.canonicalBase.repoName).toBe('zavorth-website');
-    expect(snapshot.nextRecommendedPhase).toEqual(expect.objectContaining({
-      phase: '47',
+    expect(snapshot.nextRecommendedStage).toEqual(expect.objectContaining({
+      stage: '47',
       title: 'Public Demo And Guided Story',
     }));
   });
@@ -63,8 +63,8 @@ describe('WebsitePublicContractService', () => {
 
     const report = service.renderReport();
 
-    expect(report).toContain('Fase 46 - Website/Landing Real');
-    expect(report).toContain('proxima fase recomendada: 47 - Public Demo And Guided Story');
+    expect(report).toContain('Etapa 46 - Website/Landing Real');
+    expect(report).toContain('proximo passo recomendada: 47 - Public Demo And Guided Story');
   });
 });
 
@@ -88,7 +88,7 @@ function filesFixture(overrides: Record<string, string> = {}) {
         'website:build': 'node scripts/run-external-surface.mjs website npm run website:build',
         'website:public': 'npx tsx scripts/website-public.ts',
         'qa:website-public': 'npx tsx scripts/website-public.ts --require-pass --build --screenshots',
-        'qa:phase:46': 'node scripts/phases-46-52-check.mjs --phase=46',
+        'qa:stage:46': 'node scripts/capability-suite-adoption-check.mjs --phase=46',
       },
     }),
     'website:package.json': JSON.stringify({
@@ -112,7 +112,7 @@ function filesFixture(overrides: Record<string, string> = {}) {
       '<Footer />',
     ].join('\n'),
     'website:app/docs/page.tsx': 'Quickstart npm install npm run go npm run chat replay',
-    'website:app/changelog/page.tsx': 'v0.1 Preview Fase 46',
+    'website:app/changelog/page.tsx': 'v0.1 Preview Etapa 46',
     'website:app/security/page.tsx': 'Seguranca Aprovacoes opt-in preview',
     'website:app/privacy/page.tsx': 'Privacidade local-first Telemetria opt-in',
     'website:app/terms/page.tsx': 'Termos preview publico',

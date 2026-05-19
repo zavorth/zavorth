@@ -29,7 +29,7 @@ type DiagnosticsQaMigrationLiveDescriptor = {
   gaps: string[];
 };
 
-const PHASE = 'Phase 10 - Diagnostics, QA And Migration Live Plane' as const;
+const PHASE = 'Intent model0 - Diagnostics, QA And Migration Live Plane' as const;
 
 const TARGETS: DiagnosticsQaMigrationLiveDescriptor[] = [
   target('diagnostics-otel', 'diagnostics-live', ['diagnostics.trace'], 'otel-json-export', ['otel-export', 'health-metrics'], [], ['ZAVORTH_DIAGNOSTICS_ARTIFACT_DIR']),
@@ -86,13 +86,13 @@ export class DiagnosticsQaMigrationLivePlaneService {
         blocked,
         diagnosticsMarkedLiveBySyntheticSnapshot: false,
         migrationMarkedLiveByPlanOnly: false,
-        liveIoRequiredByPhase10Check: false,
+        liveIoRequiredByLiveCandidateCheck: false,
         secretValuesSerialized: false,
       },
       entries,
       receipts,
       policy: {
-        noLiveIoDuringPhase10Check: true,
+        noLiveIoDuringLiveCandidateCheck: true,
         otelExportArtifactRequired: true,
         prometheusScrapeProofRequired: true,
         realHealthMetricsRequired: true,
@@ -109,7 +109,7 @@ export class DiagnosticsQaMigrationLivePlaneService {
         stagingLiveSmoke: 'npm run diagnostics-qa-migration-live-plane -- --profile staging-live --target <target> --confirm-live-io',
         focusedTests: ['npx jest tests/services/DiagnosticsQaMigrationLivePlaneService.test.ts --runInBand'],
         typecheck: 'npm run runtime:check --silent',
-        nextPhase: 'Phase 11 - Satellite And Device Live Plane',
+        nextStage: 'Intent model1 - Satellite And Device Live Plane',
       },
     };
   }

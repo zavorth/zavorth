@@ -43,7 +43,7 @@ describe('ZavorthCapabilityHubCompletionService', () => {
     const report = api.renderReport();
 
     expect(report).toContain('Capability Hub completo');
-    expect(report).toContain('phase-11 passed');
+    expect(report).toContain('checkpoint-11 passed');
     expect(report).not.toContain('xoxb-redact-fixture');
   });
 

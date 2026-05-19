@@ -69,7 +69,7 @@ export class ProviderP0ClosureService {
         check: 'npm run provider-p0-closure:check --silent',
         providerParity: 'npm run provider-mesh-parity:check --silent',
         certify: 'npm run parity-certify --silent',
-        nextPhase: 'Fase 11 - P1 Provider Adapter Runtime',
+        nextStage: 'Etapa 11 - P1 Provider Adapter Runtime',
       },
       policy: {
         closureIsClassificationOnly: true,

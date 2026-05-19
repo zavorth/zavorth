@@ -93,7 +93,7 @@ export class ZavorthNativeEngineAbsorptionService {
       proceduralMemory: this.buildProceduralMemorySignal({
         command: 'npm run runtime:check --silent',
         outcome: 'success',
-        lesson: 'Runtime typecheck validated the native engine contract after Phase 2 changes.',
+        lesson: 'Runtime typecheck validated the native engine contract after Preview engine changes.',
         evidence: ['tests/services/ZavorthNativeEngineAbsorptionService.test.ts'],
       }),
       skillCuration: this.previewSkillCuration({
@@ -112,8 +112,8 @@ export class ZavorthNativeEngineAbsorptionService {
       generatedAt: this.now().toISOString(),
       contractVersion: ZAVORTH_NATIVE_ENGINE_ABSORPTION_CONTRACT_VERSION,
       status,
-      planId: '291 - Plano Zavorth External Runtime Absorption',
-      phase: 'phase-2-native-engine-absorption',
+      planId: 'Zavorth External Runtime Integration',
+      phase: 'native-engine-absorption',
       previousContractLayerStatus,
       features: FEATURES,
       fixtureReceipts,
@@ -147,7 +147,7 @@ export class ZavorthNativeEngineAbsorptionService {
         inspect: 'npm run zavorth:native-engine-absorption',
         inspectJson: 'npm run zavorth:native-engine-absorption:json',
         check: 'npm run zavorth:native-engine-absorption:check --silent',
-        nextPhase: '291 Phase 3 - Sidecar Adapter',
+        nextStage: '291 Approval gate - Sidecar Adapter',
       },
     };
   }
@@ -361,7 +361,7 @@ export class ZavorthNativeEngineAbsorptionService {
 
   public formatSnapshotText(snapshot: ZavorthNativeEngineAbsorptionSnapshot): string {
     const lines = [
-      'Zavorth Native Engine Absorption - Phase 2',
+      'Zavorth Native Engine Absorption - Preview engine',
       '',
       `Status: ${snapshot.status}`,
       `Previous contract layer: ${snapshot.previousContractLayerStatus}`,
@@ -377,7 +377,7 @@ export class ZavorthNativeEngineAbsorptionService {
       'Acceptance:',
       ...snapshot.acceptanceMatrix.map((entry) => `- ${entry.status} ${entry.requirementId}: ${entry.evidence}`),
       '',
-      `Next: ${snapshot.commands.nextPhase}`,
+      `Next: ${snapshot.commands.nextStage}`,
     ];
     return lines.join('\n');
   }
@@ -491,7 +491,7 @@ function buildAcceptanceMatrix(
 ): ZavorthNativeEngineAbsorptionSnapshot['acceptanceMatrix'] {
   const curation = fixtureReceipts.skillCuration;
   return [
-    acceptance('phase-1-contract-layer-ready', previousContractLayerStatus === 'contract-layer-ready', `previousContractLayerStatus=${previousContractLayerStatus}`),
+    acceptance('contract-layer-ready', previousContractLayerStatus === 'contract-layer-ready', `previousContractLayerStatus=${previousContractLayerStatus}`),
     acceptance('five-native-features-defined', FEATURES.length === 5, `${FEATURES.length}/5 feature(s)`),
     acceptance('error-classifier-strategy-receipt', fixtureReceipts.errorClassifier.category === 'rate_limit' && fixtureReceipts.errorClassifier.strategy === 'retry_with_backoff', `${fixtureReceipts.errorClassifier.category}:${fixtureReceipts.errorClassifier.strategy}`),
     acceptance('tool-repair-parser-first', fixtureReceipts.toolArgumentRepair.status === 'repaired' && fixtureReceipts.toolArgumentRepair.safety.noToolExecution, `${fixtureReceipts.toolArgumentRepair.status}, noToolExecution=${fixtureReceipts.toolArgumentRepair.safety.noToolExecution}`),

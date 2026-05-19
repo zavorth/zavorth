@@ -1101,7 +1101,7 @@ export class ZavorthSubagentRuntimeService {
         summarize: 'npm run zavorth:subagents -- summarize --session <id>',
         surface: '/agents spawn --live <task>',
         check: 'npm run zavorth:subagents:check --silent',
-        nextPhase: 'Live runtime is wired; next expand UI projection only with approval.',
+        nextStage: 'Live runtime is wired; next expand UI projection only with approval.',
       },
     };
   }

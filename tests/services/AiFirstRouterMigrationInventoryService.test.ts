@@ -14,11 +14,11 @@ describe('AiFirstRouterMigrationInventoryService', () => {
     expect(snapshot.summary.policyGuardrails).toBeGreaterThan(5);
     expect(snapshot.gates).toEqual(expect.arrayContaining([
       expect.objectContaining({
-        id: 'phase-0-no-runtime-change',
+        id: 'checkpoint-0-no-runtime-change',
         status: 'passed',
       }),
       expect.objectContaining({
-        id: 'phase-0-policy-preserved',
+        id: 'checkpoint-0-policy-preserved',
         status: 'passed',
       }),
     ]));

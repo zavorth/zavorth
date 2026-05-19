@@ -3,16 +3,16 @@ import {
 } from '../../src/contracts/ZavorthExternalSidecarAdapterContract.js';
 import { ZavorthExternalSidecarAdapterService } from '../../src/services/ZavorthExternalSidecarAdapterService.js';
 
-describe('ZavorthExternalSidecarAdapterService Phase 3', () => {
-  it('publishes the sidecar adapter snapshot after Phase 2 readiness', () => {
+describe('ZavorthExternalSidecarAdapterService Approval gate', () => {
+  it('publishes the sidecar adapter snapshot after Preview engine readiness', () => {
     const snapshot = createService().buildSnapshot();
 
     expect(snapshot).toEqual(expect.objectContaining({
       generatedAt: '2026-05-11T20:45:00.000Z',
       contractVersion: ZAVORTH_EXTERNAL_SIDECAR_ADAPTER_CONTRACT_VERSION,
       status: 'sidecar-adapter-ready',
-      planId: '291 - Plano Zavorth External Runtime Absorption',
-      phase: 'phase-3-sidecar-adapter',
+      planId: 'Zavorth External Runtime Integration',
+      stage: 'sidecar-adapter',
       previousNativeEngineStatus: 'native-engine-ready',
     }));
     expect(snapshot.summary).toEqual(expect.objectContaining({
@@ -27,7 +27,7 @@ describe('ZavorthExternalSidecarAdapterService Phase 3', () => {
       sidecarsStarted: false,
       liveIoPerformed: false,
     }));
-    expect(snapshot.commands.nextPhase).toBe('291 Phase 4 - Capability Providers');
+    expect(snapshot.commands.nextStage).toBe('291 Connector registry - Capability Providers');
   });
 
   it('lists external surfaces through a read-only probe without starting sidecars', () => {
@@ -147,7 +147,7 @@ describe('ZavorthExternalSidecarAdapterService Phase 3', () => {
         'approval-gated risk',
         'no sidecar execution',
       ]),
-      nextSafeAction: 'Proceed to 291 Phase 4 - Capability Providers.',
+      nextSafeAction: 'Proceed to 291 Connector registry - Capability Providers.',
     }));
     expect(snapshot.commandCenterProjection.cards.map((entry) => entry.id)).toEqual(expect.arrayContaining([
       'health',
@@ -161,12 +161,12 @@ describe('ZavorthExternalSidecarAdapterService Phase 3', () => {
     ]));
   });
 
-  it('blocks Phase 3 if Phase 2 native engine is not ready', () => {
+  it('blocks Approval gate if Preview engine native engine is not ready', () => {
     const snapshot = createService().buildSnapshot({ nativeEngineStatus: 'blocked' });
 
     expect(snapshot.status).toBe('blocked');
     expect(snapshot.previousNativeEngineStatus).toBe('blocked');
-    expect(snapshot.acceptanceMatrix.find((entry) => entry.requirementId === 'phase-2-native-engine-ready')).toEqual(expect.objectContaining({
+    expect(snapshot.acceptanceMatrix.find((entry) => entry.requirementId === 'native-engine-ready')).toEqual(expect.objectContaining({
       status: 'failed',
     }));
   });
@@ -175,12 +175,12 @@ describe('ZavorthExternalSidecarAdapterService Phase 3', () => {
     const service = createService();
     const text = service.formatSnapshotText(service.buildSnapshot());
 
-    expect(text).toContain('Zavorth External Sidecar Adapter - Phase 3');
+    expect(text).toContain('Zavorth External Sidecar Adapter - Approval gate');
     expect(text).toContain('Status: sidecar-adapter-ready');
     expect(text).toContain('Inbound routed to gateway: 1');
     expect(text).toContain('Risky outbound blocked: 1');
     expect(text).toContain('Sidecars started: false');
-    expect(text).toContain('Next: 291 Phase 4 - Capability Providers');
+    expect(text).toContain('Next: 291 Connector registry - Capability Providers');
   });
 });
 

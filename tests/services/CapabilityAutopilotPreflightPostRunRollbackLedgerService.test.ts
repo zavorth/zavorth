@@ -126,7 +126,7 @@ function createSnapshot(hint: CapabilityPreflightHintResult): CapabilityAutopilo
   const payloads = surfaceService.buildPayloads(hint, ['cli', 'web', 'chat', 'telegram', 'api']);
 
   return {
-    phase: '68',
+    stage: '68',
     surface: 'capability-autopilot-preflight-entrypoint',
     generatedAt: FIXED_NOW.toISOString(),
     capabilityId: 'executor-gemini-cli',
@@ -141,8 +141,8 @@ function createSnapshot(hint: CapabilityPreflightHintResult): CapabilityAutopilo
     records: [],
     payloads,
     checks: [],
-    nextRecommendedPhase: {
-      phase: '69',
+    nextRecommendedStage: {
+      stage: '69',
       title: 'Preflight Action Handler Wiring',
       reason: 'Wire explicit actions.',
     },
@@ -258,11 +258,11 @@ describe('CapabilityAutopilotPreflightPostRunRollbackLedgerService', () => {
       verificationReceiptId: 'verification-1',
       rollbackLedgerId: 'rollback-ledger-1',
       auditReceiptId: 'post-run-audit-1',
-      reason: 'phase-77-test',
+      reason: 'checkpoint-77-test',
     });
 
     expect(postRun).toMatchObject({
-      phase: '77',
+      stage: '77',
       status: 'ready',
       summary: {
         ok: true,
@@ -391,7 +391,7 @@ describe('CapabilityAutopilotPreflightPostRunRollbackLedgerService', () => {
         auditReceiptId: 'resume-audit',
       },
     });
-    expect(service.renderReport(postRun)).toContain('Fase 77 - Real Apply Post-Run Verification And Rollback Ledger');
-    expect(service.renderReport(postRun)).toContain('proxima fase recomendada: 78 - Capability Autopilot v1.1 Beta Readiness Gate');
+    expect(service.renderReport(postRun)).toContain('Etapa 77 - Real Apply Post-Run Verification And Rollback Ledger');
+    expect(service.renderReport(postRun)).toContain('proximo passo recomendada: 78 - Capability Autopilot v1.1 Beta Readiness Gate');
   });
 });

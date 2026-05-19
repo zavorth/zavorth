@@ -9,7 +9,7 @@ function createIdFactory() {
   return (prefix: string) => `${prefix}-productization-evidence-${++index}`;
 }
 
-describe('ProductizationEvidenceService Wave 46', () => {
+describe('ProductizationEvidenceService Channel mesh6', () => {
   it('builds release readiness evidence without publishing a release', () => {
     const run = new AgentRunService({
       now: () => new Date('2026-05-04T01:46:00.000Z'),
@@ -24,7 +24,7 @@ describe('ProductizationEvidenceService Wave 46', () => {
       metadata: {
         productizationContract: {
           source: 'ZavorthProductizationContractService',
-          phase: 'C9',
+          stage: 'C9',
           status: 'ready',
           control: { ready: true },
           cli: { ready: true },
@@ -62,7 +62,7 @@ describe('ProductizationEvidenceService Wave 46', () => {
       productization: expect.objectContaining({
         contractService: 'ZavorthProductizationContractService',
         c9Linked: true,
-        phase: 'C9',
+        stage: 'C9',
       }),
       releaseReadiness: expect.objectContaining({
         status: 'preview-ready',

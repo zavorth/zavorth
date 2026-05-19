@@ -107,7 +107,7 @@ const snapshot = {
 if (asJson) {
   console.log(JSON.stringify(snapshot, null, 2));
 } else {
-  console.log('[memory-artifact-parity] checking Phase 7');
+  console.log('[memory-artifact-parity] checking Surface controls');
   for (const rule of rules) {
     const marker = rule.status === 'passed' ? 'ok' : 'fail';
     console.log(`[memory-artifact-parity] ${marker} ${rule.label}: ${rule.observed} | ${rule.target}`);

@@ -22,7 +22,7 @@ const snapshot = {
 if (asJson) {
   console.log(JSON.stringify(snapshot, null, 2));
 } else {
-  console.log('[zavorth-subagents] checking Phase 4');
+  console.log('[zavorth-subagents] checking Connector registry');
   printRules(rules, '[zavorth-subagents]');
 }
 if (failed.length > 0) process.exitCode = 1;

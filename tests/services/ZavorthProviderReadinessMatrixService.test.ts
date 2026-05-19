@@ -21,7 +21,7 @@ describe('ZavorthProviderReadinessMatrixService', () => {
 
     const snapshot = service.buildSnapshot();
 
-    expect(snapshot.contractVersion).toBe('2026-05-14.phase-3-live-completion');
+    expect(snapshot.contractVersion).toBe('2026-05-14.checkpoint-3-live-completion');
     expect(snapshot.summary.ready).toBe(1);
     expect(snapshot.summary.liveNotRun).toBeGreaterThan(0);
     expect(snapshot.summary.catalogReadyButNotLive).toBe(1);

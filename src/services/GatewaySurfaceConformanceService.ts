@@ -335,7 +335,7 @@ export function buildTelegramGatewaySurfaceDescriptor(): GatewaySurfaceDescripto
       summary: 'Sem bot token, a surface fica desabilitada e mantem contratos/documentacao disponiveis.',
     },
     docs: {
-      operatorGuide: 'docs/33-channel-mesh.md',
+      operatorGuide: 'docs/channel-mesh.md',
       setupCommand: 'npm run setup:channels',
     },
   };
@@ -445,7 +445,7 @@ export function buildWebGatewaySurfaceDescriptor(): GatewaySurfaceDescriptor {
       summary: 'Sem token remoto, a surface permanece local/loopback e nao vira acesso publico.',
     },
     docs: {
-      operatorGuide: 'docs/07-web.md',
+      operatorGuide: 'docs/web-dashboard.md',
       setupCommand: 'npm run ops:start',
     },
   };
@@ -651,7 +651,7 @@ export function buildApiGatewaySurfaceDescriptor(): GatewaySurfaceDescriptor {
       summary: 'Sem auth/API key exigida, a API permanece local-only ou rejeita mutacoes conforme politica.',
     },
     docs: {
-      operatorGuide: 'docs/112-public-ecosystem-contracts.md',
+      operatorGuide: 'docs/product-direction.md',
       setupCommand: null,
     },
   };

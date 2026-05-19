@@ -5,7 +5,7 @@ import type {
   UniversalReplyPortStatus,
 } from './UniversalAgentRuntimeTypes.js';
 
-export const CROSS_CHANNEL_CONTINUITY_CONTRACT_VERSION = '2026-05-03.wave-41' as const;
+export const CROSS_CHANNEL_CONTINUITY_CONTRACT_VERSION = '2026-05-03.cross-channel' as const;
 
 export type CrossChannelContinuityStatus =
   | 'single-channel'

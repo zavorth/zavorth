@@ -25,7 +25,7 @@ const snapshot = {
 if (asJson) {
   console.log(JSON.stringify(snapshot, null, 2));
 } else {
-  console.log('[zavorth-perception-device-control-completion] checking Phase 10');
+  console.log('[zavorth-perception-device-control-completion] checking Intent model0');
   for (const rule of rules) {
     const marker = rule.status === 'passed' ? 'ok' : 'fail';
     console.log(`[zavorth-perception-device-control-completion] ${marker} ${rule.label}: ${rule.observed} | ${rule.target}`);
@@ -45,8 +45,8 @@ function ruleFilesExist() {
   ];
   const missing = files.filter((file) => !fs.existsSync(path.join(root, file)));
   return rule(
-    'phase-10-files',
-    'Phase 10 files exist',
+    'checkpoint-10-files',
+    'Intent model0 files exist',
     missing.length === 0,
     `${files.length - missing.length}/${files.length}`,
     'contract, service, CLI, check and tests are present',
@@ -92,8 +92,8 @@ function ruleContainsMarkers() {
     }
   }
   return rule(
-    'phase-10-markers',
-    'Phase 10 markers are wired',
+    'checkpoint-10-markers',
+    'Intent model0 markers are wired',
     missing.length === 0,
     missing.length === 0 ? 'all markers' : `${missing.length} missing`,
     'PC/browser/Android/natural command/artifact/safety markers exist',
@@ -126,7 +126,7 @@ function ruleWorkspaceCheck() {
   const marker = 'zavorth:perception-device-control-completion:check';
   return rule(
     'workspace-check',
-    'workspace:check includes Phase 10 gate',
+    'workspace:check includes Intent model0 gate',
     text.includes(marker),
     text.includes(marker) ? 'wired' : 'missing',
     marker,
@@ -151,7 +151,7 @@ function ruleSnapshot() {
   }
   const data = parseJson(result.stdout);
   const pass = data
-    && data.contractVersion === '2026-05-14.phase-10-perception-device-control-completion'
+    && data.contractVersion === '2026-05-14.checkpoint-10-perception-device-control-completion'
     && data.status === 'passed'
     && data.summary?.pcScreenshotReadOnlyReady === true
     && data.summary?.browserViewReady === true

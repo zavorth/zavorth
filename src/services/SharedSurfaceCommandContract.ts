@@ -474,7 +474,7 @@ const SHARED_SURFACE_COMMAND_CONTRACT: SharedSurfaceCommandContractEntry[] = [
     handler: 'shared-service',
     fallbackVisible: false,
     discordSlashVisibility: 'none',
-    description: 'Mostra a Wave D com scorecards, traces e historico operacional.',
+    description: 'Mostra a Eval observability com scorecards, traces e historico operacional.',
   },
   {
     commandType: '/qa',
@@ -482,7 +482,7 @@ const SHARED_SURFACE_COMMAND_CONTRACT: SharedSurfaceCommandContractEntry[] = [
     handler: 'shared-service',
     fallbackVisible: false,
     discordSlashVisibility: 'none',
-    description: 'Mostra budgets, smokes, regressions e gates da Wave 6.',
+    description: 'Mostra budgets, smokes, regressions e gates da QA release.',
   },
   {
     commandType: '/governance',
@@ -490,7 +490,7 @@ const SHARED_SURFACE_COMMAND_CONTRACT: SharedSurfaceCommandContractEntry[] = [
     handler: 'shared-service',
     fallbackVisible: false,
     discordSlashVisibility: 'none',
-    description: 'Mostra tenants, trust decisions, allowlists e policy da Wave 7.',
+    description: 'Mostra tenants, trust decisions, allowlists e policy da Governance.',
   },
   {
     commandType: '/replayloop',
@@ -498,7 +498,7 @@ const SHARED_SURFACE_COMMAND_CONTRACT: SharedSurfaceCommandContractEntry[] = [
     handler: 'shared-service',
     fallbackVisible: false,
     discordSlashVisibility: 'none',
-    description: 'Mostra replay, artifacts reutilizaveis e learning loop da Wave 8.',
+    description: 'Mostra replay, artifacts reutilizaveis e learning loop da Replay learning.',
   },
   {
     commandType: '/ecosystem',
@@ -506,7 +506,7 @@ const SHARED_SURFACE_COMMAND_CONTRACT: SharedSurfaceCommandContractEntry[] = [
     handler: 'shared-service',
     fallbackVisible: false,
     discordSlashVisibility: 'none',
-    description: 'Mostra SDKs, guides, publish e receitas publicas da Wave 9.',
+    description: 'Mostra SDKs, guides, publish e receitas publicas da Ecosystem.',
   },
   {
     commandType: '/fleet',
@@ -514,7 +514,7 @@ const SHARED_SURFACE_COMMAND_CONTRACT: SharedSurfaceCommandContractEntry[] = [
     handler: 'shared-service',
     fallbackVisible: false,
     discordSlashVisibility: 'none',
-    description: 'Mostra channels, fleet, transports e superficies da Wave 10.',
+    description: 'Mostra channels, fleet, transports e superficies da Distributed runtime.',
   },
   {
     commandType: '/stability',
@@ -538,7 +538,7 @@ const SHARED_SURFACE_COMMAND_CONTRACT: SharedSurfaceCommandContractEntry[] = [
     handler: 'shared-service',
     fallbackVisible: false,
     discordSlashVisibility: 'none',
-    description: 'Mostra a leitura oficial da Wave A para setup natural de canais.',
+    description: 'Mostra a leitura oficial da Natural setup para setup natural de canais.',
   },
   {
     commandType: '/automations',
@@ -546,7 +546,7 @@ const SHARED_SURFACE_COMMAND_CONTRACT: SharedSurfaceCommandContractEntry[] = [
     handler: 'shared-service',
     fallbackVisible: false,
     discordSlashVisibility: 'none',
-    description: 'Mostra e opera a Wave F de automacoes e scheduled runs.',
+    description: 'Mostra e opera a Scheduled runs de automacoes e scheduled runs.',
   },
   {
     commandType: '/schedule',

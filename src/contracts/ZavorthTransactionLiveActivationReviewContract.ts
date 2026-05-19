@@ -7,7 +7,7 @@ import type {
 } from './ZavorthTransactionSurfaceContract.js';
 
 export const ZAVORTH_TRANSACTION_LIVE_ACTIVATION_REVIEW_CONTRACT_VERSION =
-  'zavorth-transaction-live-activation-review/phase-11' as const;
+  'zavorth-transaction-live-activation-review/checkpoint-11' as const;
 
 export const ZAVORTH_TRANSACTION_LIVE_ACTIVATION_REVIEW_OWNER_PHRASE =
   'ZAVORTH LIVE ACTIVATION REVIEW ONLY' as const;
@@ -20,7 +20,7 @@ export type ZavorthTransactionLiveActivationReviewStatus =
   | 'ready-for-live-activation-review';
 
 export type ZavorthTransactionLiveActivationReviewGateKind =
-  | 'phase10-candidate-ready'
+  | 'intent-model0-candidate-ready'
   | 'candidate-envelope-present'
   | 'owner-activation-review'
   | 'bounded-limits'
@@ -198,7 +198,7 @@ export type ZavorthTransactionLiveActivationReviewContractSnapshot = {
 export function buildZavorthTransactionLiveActivationReviewContractSnapshot(): ZavorthTransactionLiveActivationReviewContractSnapshot {
   return {
     version: ZAVORTH_TRANSACTION_LIVE_ACTIVATION_REVIEW_CONTRACT_VERSION,
-    summary: 'Owner-gated live activation review contract for Zavorth Transaction Plane Phase 11.',
+    summary: 'Owner-gated live activation review contract for Zavorth Transaction Plane Intent model1.',
     ownerPhrase: ZAVORTH_TRANSACTION_LIVE_ACTIVATION_REVIEW_OWNER_PHRASE,
     statuses: [
       'candidate-required',
@@ -208,7 +208,7 @@ export function buildZavorthTransactionLiveActivationReviewContractSnapshot(): Z
       'ready-for-live-activation-review',
     ],
     gateKinds: [
-      'phase10-candidate-ready',
+      'intent-model0-candidate-ready',
       'candidate-envelope-present',
       'owner-activation-review',
       'bounded-limits',
@@ -220,12 +220,12 @@ export function buildZavorthTransactionLiveActivationReviewContractSnapshot(): Z
       'raw-secret-redaction',
     ],
     invariants: [
-      'Phase 11 consumes a Phase 10 candidate-ready envelope and turns it into a review-only activation packet.',
+      'Intent model1 consumes a Intent model0 candidate-ready envelope and turns it into a review-only activation packet.',
       'A ready-for-live-activation-review packet requires a second owner phrase dedicated to activation review.',
       'A ready-for-live-activation-review packet requires explicit bounded limits, kill switch and rollback drill receipts.',
-      'Phase 11 does not authorize or execute a live transaction.',
-      'Every Phase 11 result reports externalSideEffects=false, liveExecutionAuthorized=false, executableNow=false and liveActionApplied=false.',
-      'Phase 11 requires a separate future live executor and cannot be used as that executor.',
+      'Intent model1 does not authorize or execute a live transaction.',
+      'Every Intent model1 result reports externalSideEffects=false, liveExecutionAuthorized=false, executableNow=false and liveActionApplied=false.',
+      'Intent model1 requires a separate future live executor and cannot be used as that executor.',
       'Raw transaction secrets must never be serialized by the review packet.',
     ],
   };

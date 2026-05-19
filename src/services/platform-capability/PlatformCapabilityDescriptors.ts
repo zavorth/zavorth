@@ -298,7 +298,7 @@ function describeWhatsApp(runtime: PlatformCapabilityRuntime): CapabilityDescrip
               : 'WhatsApp Cloud API foi escolhida como provider-alvo, mas ainda faltam phone number id, access token ou webhook verify token.'
             : provider === 'baileys'
               ? providerConfigured
-                ? 'WhatsApp Baileys foi escolhido como provider-alvo e ja tem session dir para a proxima fase do adapter.'
+                ? 'WhatsApp Baileys foi escolhido como provider-alvo e ja tem session dir para a proximo passo do adapter.'
                 : 'WhatsApp Baileys foi escolhido como provider-alvo, mas WHATSAPP_SESSION_DIR ainda nao foi definido.'
               : 'WhatsApp segue em modo local supervisionado enquanto o provider oficial nao e conectado.',
           runtimeReady

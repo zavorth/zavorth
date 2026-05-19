@@ -12,8 +12,8 @@ describe('ZavorthReasoningActionPatternService', () => {
       actorId: 'owner',
     });
 
-    expect(snapshot.contractVersion).toBe('2026-05-11.reasoning-action-pattern-phase-2');
-    expect(snapshot.phase).toBe('phase-2-reasoning-action-patterns');
+    expect(snapshot.contractVersion).toBe('2026-05-11.reasoning-action-pattern-checkpoint-2');
+    expect(snapshot.phase).toBe('checkpoint-2-reasoning-action-patterns');
     expect(snapshot.status).toBe('ready');
     expect(snapshot.safety.compactReasoningOnly).toBe(true);
     expect(snapshot.safety.rawReasoningSerialized).toBe(false);
@@ -27,7 +27,7 @@ describe('ZavorthReasoningActionPatternService', () => {
       'large-skill-library-intake',
       'approval-and-receipt-governance',
     ]));
-    expect(snapshot.receipts.map((item) => item.kind)).toContain('phase-2-pattern-plan');
+    expect(snapshot.receipts.map((item) => item.kind)).toContain('checkpoint-2-pattern-plan');
     expect(snapshot.reasoningBlocks.every((block) => block.rawReasoning === false)).toBe(true);
   });
 

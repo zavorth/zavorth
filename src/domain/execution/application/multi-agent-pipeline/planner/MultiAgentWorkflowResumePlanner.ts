@@ -27,7 +27,7 @@ export class MultiAgentWorkflowResumePlanner {
     run: WorkflowRunSnapshot,
     workspaceContext?: WorkflowWorkspaceContext | null,
   ): WorkflowStage[] {
-    const persistedStages = [...run.stages].sort((left, right) => left.index - right.index);
+    const persistedStages = [...run.phases].sort((left, right) => left.index - right.index);
     return persistedStages.map((stage, index) => ({
       id: stage.id,
       executor: stage.executor,
@@ -52,7 +52,7 @@ export class MultiAgentWorkflowResumePlanner {
 
   private buildPersistedWorkflowStageObjective(
     workflow: WorkflowKind,
-    stage: WorkflowRunSnapshot['stages'][number],
+    stage: WorkflowRunSnapshot['phases'][number],
     originalObjective: string,
     previousResults: ExecutionResult[],
     workspaceContext?: WorkflowWorkspaceContext | null,

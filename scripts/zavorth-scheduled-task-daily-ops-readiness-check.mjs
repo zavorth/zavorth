@@ -23,7 +23,7 @@ const snapshot = {
 if (asJson) {
   console.log(JSON.stringify(snapshot, null, 2));
 } else {
-  console.log('[zavorth-scheduled-task-daily-ops-readiness] checking Phase 7');
+  console.log('[zavorth-scheduled-task-daily-ops-readiness] checking Surface controls');
   printRules(rules, '[zavorth-scheduled-task-daily-ops-readiness]');
 }
 if (failed.length > 0) process.exitCode = 1;
@@ -38,13 +38,13 @@ function ruleFilesExist() {
     'docs/README.md',
   ];
   const missing = files.filter((file) => !fs.existsSync(path.join(root, file)));
-  return rule('scheduled-task-daily-ops-files', 'Phase 7 files exist', missing.length === 0, `${files.length - missing.length}/${files.length}`, 'contract, service, CLI, check, tests and docs are present', missing);
+  return rule('scheduled-task-daily-ops-files', 'Surface controls files exist', missing.length === 0, `${files.length - missing.length}/${files.length}`, 'contract, service, CLI, check, tests and docs are present', missing);
 }
 
 function ruleMarkers() {
   const checks = [
     ['src/contracts/ZavorthScheduledTaskDailyOpsReadinessContract.ts', ['ZAVORTH_SCHEDULED_TASK_DAILY_OPS_READINESS_CONTRACT_VERSION', 'dailyUseReady', 'noDashboardVisualMutation']],
-    ['src/services/ZavorthScheduledTaskDailyOpsReadinessService.ts', ['phase-7-scheduled-task-daily-ops-readiness', 'ZavorthScheduledTaskLiveTickCertificationService', 'allUserActionsGoThroughGovernedSurfaces']],
+    ['src/services/ZavorthScheduledTaskDailyOpsReadinessService.ts', ['checkpoint-7-scheduled-task-daily-ops-readiness', 'ZavorthScheduledTaskLiveTickCertificationService', 'allUserActionsGoThroughGovernedSurfaces']],
     ['scripts/zavorth-scheduled-task-daily-ops-readiness.ts', ['--task=', 'ZavorthScheduledTaskDailyOpsReadinessService']],
     ['src/sdk/contracts.ts', ['ZavorthScheduledTaskDailyOpsReadinessContract']],
     ['src/sdk/index.ts', ['ZavorthScheduledTaskDailyOpsReadinessService']],
@@ -56,7 +56,7 @@ function ruleMarkers() {
       if (!text.includes(needle)) missing.push(`${file}: missing ${needle}`);
     }
   }
-  return rule('scheduled-task-daily-ops-markers', 'Phase 7 markers are wired', missing.length === 0, missing.length === 0 ? 'all markers' : `${missing.length} missing`, 'contract, service, CLI and SDK markers exist', missing);
+  return rule('scheduled-task-daily-ops-markers', 'Surface controls markers are wired', missing.length === 0, missing.length === 0 ? 'all markers' : `${missing.length} missing`, 'contract, service, CLI and SDK markers exist', missing);
 }
 
 function runReadinessFixture() {
@@ -91,7 +91,7 @@ function ruleSurfaceCommandMarkers() {
 function ruleWorkspaceCheck() {
   const text = read('package.json');
   const marker = 'node scripts/zavorth-scheduled-task-daily-ops-readiness-check.mjs';
-  return rule('workspace-check-wire', 'workspace:check includes Phase 7 daily ops readiness gate', text.includes(marker), text.includes(marker) ? 'wired' : 'missing', marker, []);
+  return rule('workspace-check-wire', 'workspace:check includes Surface controls daily ops readiness gate', text.includes(marker), text.includes(marker) ? 'wired' : 'missing', marker, []);
 }
 
 function ruleNoPublicExternalNames() {
@@ -112,7 +112,7 @@ function ruleNoPublicExternalNames() {
       if (text.includes(word)) hits.push(`${file}: ${word}`);
     }
   }
-  return rule('no-public-external-names', 'Phase 7 public core remains neutral', hits.length === 0, hits.length === 0 ? 'neutral' : `${hits.length} hit(s)`, 'no external product names in public core files', hits);
+  return rule('no-public-external-names', 'Surface controls public core remains neutral', hits.length === 0, hits.length === 0 ? 'neutral' : `${hits.length} hit(s)`, 'no external product names in public core files', hits);
 }
 
 function runTs(args) {

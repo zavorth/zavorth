@@ -3,16 +3,16 @@ import {
 } from '../../src/contracts/ZavorthNativeReplacementDecommissionContract.js';
 import { ZavorthNativeReplacementDecommissionService } from '../../src/services/ZavorthNativeReplacementDecommissionService.js';
 
-describe('ZavorthNativeReplacementDecommissionService Phase 8', () => {
-  it('publishes the native replacement and decommission snapshot after Phase 7 readiness', () => {
+describe('ZavorthNativeReplacementDecommissionService Dashboard controls', () => {
+  it('publishes the native replacement and decommission snapshot after Surface controls readiness', () => {
     const snapshot = createService().buildSnapshot();
 
     expect(snapshot).toEqual(expect.objectContaining({
       generatedAt: '2026-05-11T22:50:00.000Z',
       contractVersion: ZAVORTH_NATIVE_REPLACEMENT_DECOMMISSION_CONTRACT_VERSION,
       status: 'native-replacement-decommission-ready',
-      planId: '291 - Plano Zavorth External Runtime Absorption',
-      phase: 'phase-8-native-replacement-decommission',
+      planId: 'Zavorth External Runtime Integration',
+      stage: 'native-replacement-decommission',
       previousDelegatedWorkerStatus: 'delegated-worker-bridge-ready',
     }));
     expect(snapshot.summary).toEqual(expect.objectContaining({
@@ -214,12 +214,12 @@ describe('ZavorthNativeReplacementDecommissionService Phase 8', () => {
     ]));
   });
 
-  it('blocks Phase 8 if Phase 7 delegated workers are not ready', () => {
+  it('blocks Dashboard controls if Surface controls delegated workers are not ready', () => {
     const snapshot = createService().buildSnapshot({ delegatedWorkerStatus: 'blocked' });
 
     expect(snapshot.status).toBe('blocked');
     expect(snapshot.previousDelegatedWorkerStatus).toBe('blocked');
-    expect(snapshot.acceptanceMatrix.find((entry) => entry.requirementId === 'phase-7-delegated-workers-ready')).toEqual(expect.objectContaining({
+    expect(snapshot.acceptanceMatrix.find((entry) => entry.requirementId === 'delegated-workers-ready')).toEqual(expect.objectContaining({
       status: 'failed',
     }));
   });
@@ -228,7 +228,7 @@ describe('ZavorthNativeReplacementDecommissionService Phase 8', () => {
     const service = createService();
     const text = service.formatSnapshotText(service.buildSnapshot());
 
-    expect(text).toContain('Zavorth Native Replacement Decommission - Phase 8');
+    expect(text).toContain('Zavorth Native Replacement Decommission - Dashboard controls');
     expect(text).toContain('Status: native-replacement-decommission-ready');
     expect(text).toContain('Promoted native capabilities: 2');
     expect(text).toContain('Source runtime required for promoted capabilities: false');

@@ -177,14 +177,14 @@ export class UniversalSkillRealSourceOnboardingService {
         run: 'npm run zavorth:universal-skill-real-source-onboarding -- --discover',
         runJson: 'npm run zavorth:universal-skill-real-source-onboarding:json -- --discover',
         check: 'npm run zavorth:universal-skill-real-source-onboarding:check --silent',
-        nextPhase: 'Phase 9 - Real Library Scale Hardening and Dashboard Review',
+        nextStage: 'Certification matrix - Real Library Scale Hardening and Dashboard Review',
       },
     };
   }
 
   public formatSnapshotText(snapshot: ZavorthUniversalSkillRealSourceOnboardingSnapshot): string {
     const lines = [
-      'Universal Skill Real Source Onboarding - Phase 8',
+      'Universal Skill Real Source Onboarding - Dashboard controls',
       '',
       `Status: ${snapshot.status}`,
       `Modo: ${snapshot.mode} | Canal: ${snapshot.channel}`,
@@ -217,7 +217,7 @@ export class UniversalSkillRealSourceOnboardingService {
       lines.push(`- ${action}`);
     }
 
-    lines.push('', `Next: ${snapshot.commands.nextPhase}`);
+    lines.push('', `Next: ${snapshot.commands.nextStage}`);
     return lines.join('\n');
   }
 
@@ -607,7 +607,7 @@ function buildRunId(
     .map((source) => path.resolve(source.sourcePath).toLowerCase())
     .sort()
     .join('|');
-  return `phase8-${generatedAt.replace(/[^0-9]/g, '').slice(0, 14)}-${stableHash(`${projectRoot}|${sourcePart}`)}`;
+  return `dashboard-controls-${generatedAt.replace(/[^0-9]/g, '').slice(0, 14)}-${stableHash(`${projectRoot}|${sourcePart}`)}`;
 }
 
 function stableHash(value: string): string {

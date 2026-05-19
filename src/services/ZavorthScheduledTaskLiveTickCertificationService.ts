@@ -104,7 +104,7 @@ export class ZavorthScheduledTaskLiveTickCertificationService {
       generatedAt,
       contractVersion: ZAVORTH_SCHEDULED_TASK_LIVE_TICK_CERTIFICATION_CONTRACT_VERSION,
       source: 'ZavorthScheduledTaskLiveTickCertificationService',
-      phase: 'phase-6-scheduler-live-tick-certification',
+      phase: 'checkpoint-6-scheduler-live-tick-certification',
       status,
       summary,
       guard,
@@ -134,7 +134,7 @@ export class ZavorthScheduledTaskLiveTickCertificationService {
 
   public renderReport(snapshot: ZavorthScheduledTaskLiveTickCertificationSnapshot): string {
     const lines = [
-      'Scheduled Task Live Tick Certification - Phase 6',
+      'Scheduled Task Live Tick Certification - Runtime gateway',
       '',
       `Status: ${snapshot.status}`,
       snapshot.narrative.operatorSummary,
@@ -271,7 +271,7 @@ class FixtureExecutionGateway implements GatewayLike {
     const now = this.now().toISOString();
     return {
       allowed: true,
-      reason: 'Phase 6 fixture gateway accepted the governed scheduled tick without external IO.',
+      reason: 'Runtime gateway fixture gateway accepted the governed scheduled tick without external IO.',
       requires_confirmation: false,
       correlation: {
         traceId: `trace-${task.task_id}`,
@@ -296,7 +296,7 @@ class FixtureExecutionGateway implements GatewayLike {
         files_written: [],
         files_deleted: [],
         commands_executed: [],
-        stdout: 'phase-6 scheduled task fixture execution',
+        stdout: 'checkpoint-6 scheduled task fixture execution',
         stderr: null,
         diff_summary: null,
         artifacts: [],
@@ -306,7 +306,7 @@ class FixtureExecutionGateway implements GatewayLike {
         metadata: {
           fixture: true,
           noExternalIo: true,
-          phase: 'phase-6-scheduler-live-tick-certification',
+          phase: 'checkpoint-6-scheduler-live-tick-certification',
         },
       },
     };
@@ -358,7 +358,7 @@ class FixtureScheduler implements SchedulerLiveTickLike {
       },
       guardrails: {
         autoPauseAfterConsecutiveFailures: Number(guardrails.autoPauseAfterConsecutiveFailures || 3),
-        idempotencyKeySeed: 'phase-6-fixture',
+        idempotencyKeySeed: 'checkpoint-6-fixture',
         outboxTtlMs: 604800000,
         outboxMaxBytes: 104857600,
         pauseCreatesInboxNotice: true,
@@ -376,16 +376,17 @@ class FixtureScheduler implements SchedulerLiveTickLike {
 }
 
 function buildFixtureTasks(scenario: ZavorthScheduledTaskLiveTickScenarioId | 'all'): ScheduledTask[] {
+  const stableFutureApproval = '2099-05-19T10:00:00.000Z';
   const fixtures: Record<Exclude<ZavorthScheduledTaskLiveTickScenarioId, 'host_task'>, ScheduledTask> = {
-    valid_gateway_submit: makeTask('valid-gateway-submit', governedMetadata('valid-approval', '2026-05-19T10:00:00.000Z')),
+    valid_gateway_submit: makeTask('valid-gateway-submit', governedMetadata('valid-approval', stableFutureApproval)),
     expired_approval_block: makeTask('expired-approval-block', governedMetadata('expired-approval', '2026-05-11T10:00:00.000Z')),
     scope_drift_block: {
-      ...makeTask('scope-drift-block', governedMetadata('drift-approval', '2026-05-19T10:00:00.000Z')),
+      ...makeTask('scope-drift-block', governedMetadata('drift-approval', stableFutureApproval)),
       command: '/gateway tampered',
     },
     legacy_task_block: makeTask('legacy-task-block', null),
     failure_auto_pause_block: {
-      ...makeTask('failure-auto-pause-block', governedMetadata('failing-approval', '2026-05-19T10:00:00.000Z')),
+      ...makeTask('failure-auto-pause-block', governedMetadata('failing-approval', stableFutureApproval)),
       last_status: 'failed',
       consecutive_failures: 3,
     },
@@ -425,8 +426,8 @@ function makeTask(id: string, metadata: SchedulerGovernedScheduledTaskMetadata |
 
 function governedMetadata(approvalId: string, expiresAt: string): SchedulerGovernedScheduledTaskMetadata {
   return {
-    contractVersion: '2026-05-12.persisted-scheduled-task-registration-phase-3',
-    phase: 'phase-3-persisted-scheduled-task-registration',
+    contractVersion: '2026-05-12.persisted-scheduled-task-registration-checkpoint-3',
+    phase: 'checkpoint-3-persisted-scheduled-task-registration',
     registryStatus: 'active',
     approvalId,
     approvalExpiresAt: expiresAt,
@@ -601,7 +602,7 @@ function readGovernedMetadata(task: ScheduledTask | null): SchedulerGovernedSche
     const metadata = parsed?.governedScheduledTask;
     if (
       metadata
-      && metadata.phase === 'phase-3-persisted-scheduled-task-registration'
+      && metadata.phase === 'checkpoint-3-persisted-scheduled-task-registration'
       && typeof metadata.approvedScopeHash === 'string'
     ) {
       return metadata as SchedulerGovernedScheduledTaskMetadata;
@@ -652,19 +653,19 @@ function buildReceipts(
 ): ZavorthScheduledTaskLiveTickReceipt[] {
   const receipts: ZavorthScheduledTaskLiveTickReceipt[] = [
     {
-      id: 'phase-6-scheduled-task-live-tick-certification',
-      kind: 'phase-6-scheduled-task-live-tick-certification',
+      id: 'checkpoint-6-scheduled-task-live-tick-certification',
+      kind: 'checkpoint-6-scheduled-task-live-tick-certification',
       status: status === 'failed' ? 'failed' : 'passed',
-      summary: `Phase 6 live tick certification status is ${status}.`,
+      summary: `Runtime gateway live tick certification status is ${status}.`,
     },
     {
-      id: 'phase-6-operational-guard-consumed',
+      id: 'checkpoint-6-operational-guard-consumed',
       kind: 'operational-guard-consumed',
       status: guard.status === 'critical' ? 'blocked' : 'recorded',
       summary: `Operational guard scanned ${guard.summary.totalTasks} scheduled task(s) before gateway submission.`,
     },
     {
-      id: 'phase-6-no-direct-dispatch',
+      id: 'checkpoint-6-no-direct-dispatch',
       kind: 'no-direct-dispatch',
       status: 'recorded',
       summary: 'Certified path does not invoke the scheduler dispatcher directly.',
@@ -672,14 +673,14 @@ function buildReceipts(
   ];
   for (const scenario of scenarios) {
     receipts.push({
-      id: `phase-6-${scenario.id}`,
+      id: `checkpoint-6-${scenario.id}`,
       kind: scenario.gatewayCalled ? 'execution-gateway-submit' : 'blocked-before-gateway',
       status: scenario.gatewayCalled ? 'passed' : scenario.autoPauseApplied ? 'applied' : 'blocked',
       summary: `${scenario.id}: ${scenario.summary}`,
     });
     if (scenario.blockReason === 'scope_drift') {
       receipts.push({
-        id: `phase-6-${scenario.id}-scope-drift`,
+        id: `checkpoint-6-${scenario.id}-scope-drift`,
         kind: 'scope-drift-check',
         status: 'blocked',
         summary: 'Scope drift was blocked before ExecutionGateway.',

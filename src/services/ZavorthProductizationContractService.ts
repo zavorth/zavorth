@@ -156,9 +156,9 @@ const CONTROL_ITEM_IDS: ZavorthProductizationControlItemId[] = [
 ];
 
 const DEFAULT_DOC_PATHS = [
-  'docs/02-quickstart.md',
-  'docs/05-security.md',
-  'docs/34-zavorth-cli.md',
+  'docs/quickstart.md',
+  'docs/security.md',
+  'docs/zavorth-cli.md',
   'docs/zavorth-gateway-convergence-handoff.md',
   'docs/README.md',
 ];

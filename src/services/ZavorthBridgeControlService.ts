@@ -25,7 +25,7 @@ type AllowedModelFile = {
 export type ZavorthBridgeControlResult = {
   ok: boolean;
   action: ZavorthBridgeControlAction;
-  stage: string;
+  phase: string;
   verified: boolean;
   changed?: boolean;
   appInstalled: boolean;
@@ -127,7 +127,7 @@ export class ZavorthBridgeControlService {
       return {
         ok: false,
         action: 'set-model',
-        stage: 'validation',
+        phase: 'validation',
         verified: false,
         appInstalled: fs.existsSync(config.zavorthBridgeCliPath),
         processFound: false,
@@ -326,7 +326,7 @@ export class ZavorthBridgeControlService {
     const base = preflight.statusResult || {
       ok: false,
       action,
-      stage: 'preflight',
+      phase: 'preflight',
       verified: false,
       appInstalled: fs.existsSync(config.zavorthBridgeCliPath),
       processFound: Boolean(preflight.processId),
@@ -347,7 +347,7 @@ export class ZavorthBridgeControlService {
         ...base,
         action,
         ok: preflight.ok && base.ok,
-        stage: preflight.ok ? base.stage : 'preflight',
+        phase: preflight.ok ? base.phase : 'preflight',
         errorCode: preflight.ok ? base.errorCode : (preflight.errorCode || base.errorCode),
         errorMessage: preflight.ok ? base.errorMessage : (preflight.errorMessage || base.errorMessage),
         message: preflight.ok ? base.message : (preflight.message || base.message),
@@ -419,7 +419,7 @@ export class ZavorthBridgeControlService {
         return {
           ok: true,
           action: 'set-model',
-          stage: 'completed',
+          phase: 'completed',
           verified: true,
           changed: true,
           appInstalled: restartResult.appInstalled,

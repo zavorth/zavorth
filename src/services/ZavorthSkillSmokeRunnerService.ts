@@ -57,7 +57,7 @@ export class ZavorthSkillSmokeRunnerService {
         smokeTest,
         status: 'fail',
         mode: 'denial',
-        observed: 'destructive smoke test is not allowed in Phase 8',
+        observed: 'destructive smoke test is not allowed in Dashboard controls',
       });
     }
 
@@ -98,7 +98,7 @@ export class ZavorthSkillSmokeRunnerService {
     observed: string;
   }): ZavorthSkillSmokeResult {
     return {
-      id: `zavorth.phase8.skill-smoke.${safeId(input.manifest.id)}.${safeId(input.smokeTest.id)}.${this.now().getTime()}.receipt`,
+      id: `zavorth.dashboard-controls.skill-smoke.${safeId(input.manifest.id)}.${safeId(input.smokeTest.id)}.${this.now().getTime()}.receipt`,
       manifestId: input.manifest.id,
       promptId: input.smokeTest.id,
       status: input.status,

@@ -8,8 +8,8 @@ const asJson = process.argv.includes('--json');
 
 const rules = [
   ruleFilesExist({
-    id: 'source-agent-runtime-bridge-phase-2-files',
-    label: 'Phase 2 files exist',
+    id: 'source-agent-runtime-bridge-checkpoint-2-files',
+    label: 'Preview engine files exist',
     target: 'contract, policy doctor, bridge adapters, service, command, tests and package scripts are present',
     files: [
       'src/contracts/SourceAgentRuntimeBridgeContract.ts',
@@ -25,7 +25,7 @@ const rules = [
   ruleContainsAll({
     id: 'source-agent-runtime-bridge-contract',
     label: 'Contract captures agent runtime bridge vocabulary',
-    target: 'contract includes package evidence, bridge readiness, tool decisions and Phase 2 snapshot',
+    target: 'contract includes package evidence, bridge readiness, tool decisions and Preview engine snapshot',
     files: ['src/contracts/SourceAgentRuntimeBridgeContract.ts'],
     needles: [
       'ZAVORTH_SOURCE_AGENT_RUNTIME_BRIDGE_CONTRACT_VERSION',
@@ -64,7 +64,7 @@ const rules = [
       '@anthropic-ai/claude-code',
       '@agentclientprotocol/claude-agent-acp',
       'Provider Mesh via Ollama',
-      'Phase 3 - Provider Mesh Expansion Pack',
+      'Approval gate - Provider Mesh Expansion Pack',
     ],
   }),
   ruleContainsAll({
@@ -84,7 +84,7 @@ const rules = [
   }),
   ruleContainsAll({
     id: 'source-agent-runtime-package-scripts',
-    label: 'package exposes Phase 2 gates',
+    label: 'package exposes Preview engine gates',
     target: 'operators can inspect, inspect JSON, run check and QA gate',
     files: ['package.json'],
     needles: [
@@ -112,7 +112,7 @@ const snapshot = {
 if (asJson) {
   console.log(JSON.stringify(snapshot, null, 2));
 } else {
-  console.log('[source-agent-runtime-bridge] checking Phase 2');
+  console.log('[source-agent-runtime-bridge] checking Preview engine');
   for (const rule of rules) {
     const marker = rule.status === 'passed' ? 'ok' : 'fail';
     console.log(`[source-agent-runtime-bridge] ${marker} ${rule.label}: ${rule.observed} | ${rule.target}`);
@@ -144,7 +144,7 @@ function runRuntimeRule() {
       label: 'Runtime bridge receipt passes',
       status: 'failed',
       observed: `exit ${result.status ?? 'unknown'}`,
-      target: 'Phase 2 command emits a passing bridge snapshot against the current Source checkout',
+      target: 'Preview engine command emits a passing bridge snapshot against the current Source checkout',
       details: compactDetails(result.error instanceof Error ? result.error.message : '', result.stderr, result.stdout),
     };
   }
@@ -156,14 +156,14 @@ function runRuntimeRule() {
       label: 'Runtime bridge receipt passes',
       status: receipt.status === 'passed' ? 'passed' : 'failed',
       observed: `status=${receipt.status}, bridgesReady=${receipt.summary?.bridgesReady}, ownerGated=${receipt.summary?.bridgesOwnerGated}`,
-      target: 'Phase 2 command emits a passing bridge snapshot against the current Source checkout',
+      target: 'Preview engine command emits a passing bridge snapshot against the current Source checkout',
       details: [
         `packagesPresentInSource=${receipt.summary?.packagesPresentInSource}`,
         `packagesImplementedInZavorth=${receipt.summary?.packagesImplementedInZavorth}`,
         `enabledByDefault=${receipt.summary?.enabledByDefault}`,
         `liveExecutionPerformed=${receipt.summary?.liveExecutionPerformed}`,
         `bypassPermissionsAllowed=${receipt.summary?.bypassPermissionsAllowed}`,
-        `next=${receipt.commands?.nextPhase}`,
+        `next=${receipt.commands?.nextStage}`,
       ],
     };
   } catch (error) {
@@ -172,7 +172,7 @@ function runRuntimeRule() {
       label: 'Runtime bridge receipt passes',
       status: 'failed',
       observed: 'invalid JSON receipt',
-      target: 'Phase 2 command emits a passing bridge snapshot against the current Source checkout',
+      target: 'Preview engine command emits a passing bridge snapshot against the current Source checkout',
       details: [error instanceof Error ? error.message : String(error), ...compactDetails(result.stderr, result.stdout)],
     };
   }

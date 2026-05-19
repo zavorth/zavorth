@@ -121,7 +121,7 @@ export class CapabilityAutopilotPreflightDispatchAdapterService {
       blockers,
       safeSummary: this.buildSafeSummary(receipt, adapterKind, status),
       metadata: {
-        phase: 'capability-autopilot-phase-71',
+        phase: 'capability-autopilot-checkpoint-71',
         sourceReceiptPhase: receipt.phase,
         sourceReceiptStatus: receipt.status,
         sourceActionKind: receipt.sourceAction?.kind || null,
@@ -165,7 +165,7 @@ export class CapabilityAutopilotPreflightDispatchAdapterService {
           'Depois de preparar adapters por superficie, o proximo passo e criar um gate de side effect que exige approval/validation antes de qualquer invocacao real.',
       },
       metadata: {
-        phase: 'capability-autopilot-phase-71',
+        phase: 'capability-autopilot-checkpoint-71',
         sourceSnapshotStatus: source.status,
         receiptCount: source.receipts.length,
         envelopeCount: envelopes.length,
@@ -178,7 +178,7 @@ export class CapabilityAutopilotPreflightDispatchAdapterService {
 
   public renderReport(snapshot: CapabilityPreflightDispatchAdapterSnapshot): string {
     const lines: string[] = [];
-    lines.push('[capability-autopilot-preflight-adapters] Fase 71 - Preflight Dispatch Adapter Integration');
+    lines.push('[capability-autopilot-preflight-adapters] Etapa 71 - Preflight Dispatch Adapter Integration');
     lines.push(`status: ${snapshot.status}`);
     lines.push(`ok: ${snapshot.summary.ok ? 'yes' : 'no'} | pass=${snapshot.summary.passed} warn=${snapshot.summary.warnings} fail=${snapshot.summary.failed}`);
     lines.push(`capability: ${snapshot.capabilityId}`);
@@ -192,7 +192,7 @@ export class CapabilityAutopilotPreflightDispatchAdapterService {
       }
     }
     lines.push('');
-    lines.push(`proxima fase recomendada: ${snapshot.nextRecommendedPhase.phase} - ${snapshot.nextRecommendedPhase.title}`);
+    lines.push(`proximo passo recomendada: ${snapshot.nextRecommendedPhase.phase} - ${snapshot.nextRecommendedPhase.title}`);
     lines.push(snapshot.nextRecommendedPhase.reason);
     return lines.join('\n');
   }

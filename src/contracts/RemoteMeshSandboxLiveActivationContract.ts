@@ -120,6 +120,6 @@ export type RemoteMeshSandboxLiveActivationSnapshot = {
     check: 'npm run remote-mesh:sandbox:live-activation --silent';
     focusedTests: 'npx jest tests/services/RemoteMeshSandboxLiveActivationService.test.ts --runInBand';
     typecheck: 'npm run runtime:check --silent';
-    nextPhase: 'R5 - Single Low-Risk Live Probe Executor';
+    nextStage: 'R5 - Single Low-Risk Live Probe Executor';
   };
 };

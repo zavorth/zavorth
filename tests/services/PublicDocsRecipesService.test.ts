@@ -8,7 +8,7 @@ import {
 } from '../../src/contracts/PublicDocsRecipesContract';
 
 describe('PublicDocsRecipesService', () => {
-  it('builds an ok Phase 56 snapshot from public docs recipes fixtures', () => {
+  it('builds an ok Credential vault6 snapshot from public docs recipes fixtures', () => {
     const service = serviceFromFixture({}, { requireArtifacts: true });
 
     const snapshot = service.buildSnapshot();
@@ -18,8 +18,8 @@ describe('PublicDocsRecipesService', () => {
     expect(snapshot.summary.ok).toBe(true);
     expect(snapshot.status).toBe('ready');
     expect(snapshot.recipes.length).toBeGreaterThanOrEqual(3);
-    expect(snapshot.nextRecommendedPhase).toEqual(expect.objectContaining({
-      phase: '57',
+    expect(snapshot.nextRecommendedStage).toEqual(expect.objectContaining({
+      stage: '57',
       title: 'Feedback, Support And Pilot Loop',
     }));
   });
@@ -99,13 +99,13 @@ describe('PublicDocsRecipesService', () => {
 
   it('fails when next phase planning is removed from docs', () => {
     const service = serviceFromFixture({
-      'core:docs/76-public-adoption-architecture.md': docs76Source().replace(
-        'Fase 57 - Feedback, Support And Pilot Loop',
-        'Fase futura',
+      'core:docs/product-direction.md': docs76Source().replace(
+        'Readiness checkpoint 7 - Feedback, Support And Pilot Loop',
+        'Etapa futura',
       ),
-      'core:docs/11-roadmap.md': roadmapSource().replace(
-        'Fase 57 - Feedback, Support And Pilot Loop',
-        'Fase futura',
+      'core:docs/product-direction.md': roadmapSource().replace(
+        'Readiness checkpoint 7 - Feedback, Support And Pilot Loop',
+        'Etapa futura',
       ),
     }, { requireArtifacts: true });
 
@@ -125,8 +125,8 @@ describe('PublicDocsRecipesService', () => {
 
     const report = service.renderReport();
 
-    expect(report).toContain('Fase 56 - Public Docs, Examples And Recipes Expansion');
-    expect(report).toContain('proxima fase recomendada: 57 - Feedback, Support And Pilot Loop');
+    expect(report).toContain('Readiness checkpoint 6 - Public Docs, Examples And Recipes Expansion');
+    expect(report).toContain('proximo passo recomendada: 57 - Feedback, Support And Pilot Loop');
   });
 });
 
@@ -170,14 +170,14 @@ function filesFixture(): Record<string, string> {
     'core:package.json': JSON.stringify({
       scripts: coreScriptsFixture(),
     }, null, 2),
-    'core:docs/10-troubleshooting.md': [
+    'core:docs/troubleshooting.md': [
       'install npm run doctor',
       'runtime npm run status:fast',
       'site npm run website:build',
       'feedback npm run feedback:preview',
     ].join('\n'),
-    'core:docs/76-public-adoption-architecture.md': docs76Source(),
-    'core:docs/11-roadmap.md': roadmapSource(),
+    'core:docs/product-direction.md': docs76Source(),
+    'core:docs/product-direction.md': roadmapSource(),
     'website:app/docs/page.tsx': docsSource(),
     'website:app/examples/page.tsx': examplesSource(),
     'website:data/external-docs.ts': externalDocsData(),
@@ -246,7 +246,7 @@ function externalDocsData() {
 
 function docs76Source() {
   return [
-    'Fase 56 - Public Docs, Examples And Recipes Expansion',
+    'Readiness checkpoint 6 - Public Docs, Examples And Recipes Expansion',
     'Public docs',
     'recipes',
     'pre-requisitos',
@@ -254,27 +254,27 @@ function docs76Source() {
     'sem secrets',
     'troubleshooting',
     'qa:public-docs-recipes',
-    'qa:phase:56',
-    'Fase 57 - Feedback, Support And Pilot Loop',
-    'qa:phase:57',
+    'qa:stage:56',
+    'Readiness checkpoint 7 - Feedback, Support And Pilot Loop',
+    'qa:stage:57',
   ].join('\n');
 }
 
 function roadmapSource() {
   return [
-    'Fase 56 - Public Docs, Examples And Recipes Expansion: implementada.',
+    'Readiness checkpoint 6 - Public Docs, Examples And Recipes Expansion: implementada.',
     'Public docs recipes pre-requisitos fixture sem secrets troubleshooting',
     'qa:public-docs-recipes',
-    'qa:phase:56',
-    'Fase 57 - Feedback, Support And Pilot Loop',
-    'qa:phase:57',
+    'qa:stage:56',
+    'Readiness checkpoint 7 - Feedback, Support And Pilot Loop',
+    'qa:stage:57',
   ].join('\n');
 }
 
 function fixtureSmokeArtifact() {
   return {
     schemaVersion: '1.0.0',
-    phase: '56',
+    stage: '56',
     generatedAt: '2026-04-25T00:00:00.000Z',
     mode: 'fixture',
     ok: true,

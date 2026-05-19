@@ -57,7 +57,7 @@ export class AiFirstActivationPreparationService {
 
   constructor(options: AiFirstActivationPreparationOptions = {}) {
     this.projectRoot = options.projectRoot || findProjectRoot();
-    this.outputDir = options.outputDir || path.resolve(this.projectRoot, 'data', 'runtime', 'ai-first-phase10-snapshots');
+    this.outputDir = options.outputDir || path.resolve(this.projectRoot, 'data', 'runtime', 'ai-first-intent-model0-snapshots');
     this.now = options.runtime?.now || (() => new Date());
     this.idFactory = options.runtime?.idFactory || ((prefix) => `${prefix}-${this.now().getTime().toString(36)}-${++this.sequence}`);
   }
@@ -67,7 +67,7 @@ export class AiFirstActivationPreparationService {
     const ownerApprovalId = clean(input.ownerApprovalId);
     const snapshotPath = path.resolve(input.outputPath || path.join(
       this.outputDir,
-      `phase10-${snapshot.activationGateId}.json`,
+      `intent-model0-${snapshot.activationGateId}.json`,
     ));
     const status = snapshot.recommendation.readiness === 'ready-for-owner-controlled-default'
       && snapshot.findings.length === 0
@@ -89,8 +89,8 @@ export class AiFirstActivationPreparationService {
       snapshot,
       commands: this.commands(snapshotPath, ownerApprovalId),
       message: written
-        ? `Phase 10 snapshot saved to ${snapshotPath}.`
-        : `Phase 10 snapshot prepared for ${snapshotPath}; write disabled.`,
+        ? `Intent model0 snapshot saved to ${snapshotPath}.`
+        : `Intent model0 snapshot prepared for ${snapshotPath}; write disabled.`,
     };
   }
 
@@ -164,7 +164,7 @@ export class AiFirstActivationPreparationService {
           familyId: 'conversation',
           surface: 'web',
           risk: 'safe',
-          phase3GuardrailPassed: true,
+          approvalGateGuardrailPassed: true,
           registryReceiptPresent: true,
         },
         {
@@ -172,7 +172,7 @@ export class AiFirstActivationPreparationService {
           familyId: 'conversation',
           surface: 'cli',
           risk: 'safe',
-          phase3GuardrailPassed: true,
+          approvalGateGuardrailPassed: true,
           registryReceiptPresent: true,
         },
       ],

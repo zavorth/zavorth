@@ -2,7 +2,7 @@ import { ZavorthSupervisorGraphService } from '../../src/services/ZavorthSupervi
 
 function createRoute(overrides: Record<string, unknown> = {}) {
   return {
-    phase: '26',
+    stage: '26',
     surface: 'capability-route',
     generatedAt: '2026-04-24T14:00:00.000Z',
     input: 'corrija um bug e rode os testes',

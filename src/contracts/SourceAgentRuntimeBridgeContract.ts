@@ -1,4 +1,4 @@
-export const ZAVORTH_SOURCE_AGENT_RUNTIME_BRIDGE_CONTRACT_VERSION = '2026-05-05.phase-2' as const;
+export const ZAVORTH_SOURCE_AGENT_RUNTIME_BRIDGE_CONTRACT_VERSION = '2026-05-05.checkpoint-2' as const;
 
 export const SOURCE_AGENT_RUNTIME_PACKAGES = [
   '@anthropic-ai/sdk',
@@ -194,6 +194,6 @@ export type SourceAgentRuntimeBridgePackSnapshot = {
     inspectJson: 'npm run source-agent-runtime-bridge:json --silent';
     check: 'npm run source-agent-runtime-bridge:check --silent';
     qa: 'npm run qa:source-agent-runtime-bridge --silent';
-    nextPhase: 'Phase 3 - Provider Mesh Expansion Pack';
+    nextStage: 'Approval gate - Provider Mesh Expansion Pack';
   };
 };

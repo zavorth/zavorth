@@ -12,7 +12,7 @@ describe('ZavorthTransactionPreviewService', () => {
       now,
     });
 
-    expect(preview.version).toBe('zavorth-transaction-preview/phase-2');
+    expect(preview.version).toBe('zavorth-transaction-preview/checkpoint-2');
     expect(preview.status).toBe('ready-for-review');
     expect(preview.intent.kind).toBe('execute-trade');
     expect(preview.intent.actionKind).toBe('trade-order');

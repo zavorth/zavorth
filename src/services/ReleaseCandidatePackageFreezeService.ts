@@ -101,7 +101,7 @@ export class ReleaseCandidatePackageFreezeService {
           'npm run release-candidate-freeze:check --silent',
           'npm run release-candidate-freeze --silent -- --require-frozen',
         ],
-        nextPhase: 'Release candidate distribution rehearsal',
+        nextStage: 'Release candidate distribution rehearsal',
       },
       policy: {
         freezeOnly: true,
@@ -139,7 +139,7 @@ export class ReleaseCandidatePackageFreezeService {
         `- ${gate.status.toUpperCase()} ${gate.id}: ${gate.observed} / ${gate.threshold} - ${gate.nextAction}`,
       ),
       '',
-      `Next: ${snapshot.commands.nextPhase}`,
+      `Next: ${snapshot.commands.nextStage}`,
     ].join('\n');
   }
 
@@ -245,7 +245,7 @@ export class ReleaseCandidatePackageFreezeService {
         observed: input.publicLaunchReady,
         threshold: true,
         receipt: 'release-candidate-freeze.public-launch-ledger.receipt',
-        nextAction: 'finish Phase 15 public launch smoke evidence before freezing RC package',
+        nextAction: 'finish Intent model5 public launch smoke evidence before freezing RC package',
       }),
       gate({
         id: 'required-artifacts-locked',

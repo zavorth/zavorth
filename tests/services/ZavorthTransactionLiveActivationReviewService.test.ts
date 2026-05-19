@@ -25,7 +25,7 @@ describe('ZavorthTransactionLiveActivationReviewService', () => {
       now: () => now,
     });
     credentialRef = credentialRefs.register({
-      label: 'Phase 11 exchange paper ref',
+      label: 'Intent model1 exchange paper ref',
       connectorKind: 'exchange',
       environment: 'paper',
       allowedActions: ['trade-order'],
@@ -43,7 +43,7 @@ describe('ZavorthTransactionLiveActivationReviewService', () => {
     fs.rmSync(tempDir, { recursive: true, force: true });
   });
 
-  it('requires a Phase 10 candidate-ready envelope first', () => {
+  it('requires a Intent model0 candidate-ready envelope first', () => {
     const result = service.review({
       text: 'Compre ETH ate R$300 se cair 5%, mas peca confirmacao antes.',
       surface: 'api',
@@ -57,13 +57,13 @@ describe('ZavorthTransactionLiveActivationReviewService', () => {
     expect(result.reviewPacket).toBeUndefined();
     expect(result.gates).toEqual(
       expect.arrayContaining([
-        expect.objectContaining({ kind: 'phase10-candidate-ready', passed: false }),
+        expect.objectContaining({ kind: 'intent-model0-candidate-ready', passed: false }),
         expect.objectContaining({ kind: 'candidate-envelope-present', passed: false }),
       ]),
     );
   });
 
-  it('requires a second owner activation review phrase after Phase 10 candidate readiness', () => {
+  it('requires a second owner activation review phrase after Intent model0 candidate readiness', () => {
     const result = service.review({
       ...baseReadyCandidateInput(),
       useSafeDefaultControls: true,
@@ -76,7 +76,7 @@ describe('ZavorthTransactionLiveActivationReviewService', () => {
     expect(result.reviewPacket).toBeUndefined();
     expect(result.gates).toEqual(
       expect.arrayContaining([
-        expect.objectContaining({ kind: 'phase10-candidate-ready', passed: true }),
+        expect.objectContaining({ kind: 'intent-model0-candidate-ready', passed: true }),
         expect.objectContaining({ kind: 'owner-activation-review', passed: false }),
       ]),
     );
@@ -120,8 +120,8 @@ describe('ZavorthTransactionLiveActivationReviewService', () => {
       executableNow: false,
       liveActionApplied: false,
       separateLiveExecutorRequired: true,
-      rollbackDrillId: 'phase11-rollback-drill',
-      killSwitchId: 'phase11-kill-switch',
+      rollbackDrillId: 'intent-model1-rollback-drill',
+      killSwitchId: 'intent-model1-kill-switch',
     }));
     expect(result.safety).toEqual(expect.objectContaining({
       activationReviewOnly: true,
@@ -197,22 +197,22 @@ describe('ZavorthTransactionLiveActivationReviewService', () => {
 
 function readyKillSwitch() {
   return {
-    id: 'phase11-kill-switch',
+    id: 'intent-model1-kill-switch',
     enabled: true,
     tested: true,
-    command: 'zavorth transaction disable-live --scope phase11',
+    command: 'zavorth transaction disable-live --scope intent-model1',
     ownerId: 'grey',
   };
 }
 
 function readyRollbackDrill() {
   return {
-    drillId: 'phase11-rollback-drill',
+    drillId: 'intent-model1-rollback-drill',
     performed: true,
     successful: true,
     summary: 'Replay and rollback completed against the simulated transaction ledger.',
-    replayCommand: 'npm run zavorth:transaction-live-candidate:json -- --replay phase10',
-    rollbackCommand: 'npm run zavorth:transaction-live-activation-review -- --rollback phase11',
-    artifacts: ['data/runtime/phase11-rollback-receipt.json'],
+    replayCommand: 'npm run zavorth:transaction-live-candidate:json -- --replay intent-model0',
+    rollbackCommand: 'npm run zavorth:transaction-live-activation-review -- --rollback intent-model1',
+    artifacts: ['data/runtime/intent-model1-rollback-receipt.json'],
   };
 }

@@ -1,7 +1,7 @@
 import type { NodeMeshCapabilityId } from './NodeMeshContract.js';
 import type { ZavorthPluginManifest } from './PluginManifestContract.js';
 
-export const ZAVORTH_SATELLITE_APP_PARITY_CONTRACT_VERSION = '2026-05-04.phase-6';
+export const ZAVORTH_SATELLITE_APP_PARITY_CONTRACT_VERSION = '2026-05-04.checkpoint-6';
 
 export type SatelliteAppParitySurface =
   | 'pwa-shell'

@@ -1,6 +1,6 @@
 import type { ZavorthVisualReceiptUxSnapshot } from './ZavorthVisualReceiptUxContract.js';
 
-export const ZAVORTH_VISUAL_RECEIPTS_V2_CONTRACT_VERSION = '2026-05-15.experience-layer.phase-9' as const;
+export const ZAVORTH_VISUAL_RECEIPTS_V2_CONTRACT_VERSION = '2026-05-15.experience-layer.checkpoint-9' as const;
 
 export type ZavorthVisualReceiptV2Tone = 'calm' | 'attention' | 'risk' | 'blocked';
 

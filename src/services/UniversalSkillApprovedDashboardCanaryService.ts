@@ -121,7 +121,7 @@ export class UniversalSkillApprovedDashboardCanaryService {
 
   public formatSnapshotText(snapshot: ZavorthUniversalSkillApprovedDashboardCanarySnapshot): string {
     const lines = [
-      'Universal Skill Approved Dashboard Canary - Phase 10',
+      'Universal Skill Approved Dashboard Canary - Intent model0',
       '',
       `Status: ${snapshot.status}`,
       `Dashboard endpoint: ${snapshot.dashboardImplementation.endpoint}`,
@@ -152,7 +152,7 @@ export class UniversalSkillApprovedDashboardCanaryService {
       lines.push(`- ${action}`);
     }
 
-    lines.push('', `Next: ${snapshot.commands.nextPhase}`);
+    lines.push('', `Next: ${snapshot.commands.nextStage}`);
     return lines.join('\n');
   }
 
@@ -198,7 +198,7 @@ export class UniversalSkillApprovedDashboardCanaryService {
         rawSecretsSerialized: false,
       },
       policy: {
-        phase9ScaleHardeningIsAuthority: true,
+        certificationMatrixScaleHardeningIsAuthority: true,
         approvedDashboardItemsOnly: true,
         endpointRequiresManagementAuth: true,
         noLayoutMutationPerformed: true,
@@ -213,7 +213,7 @@ export class UniversalSkillApprovedDashboardCanaryService {
         run: 'npm run zavorth:universal-skill-approved-dashboard-canary -- --discover',
         runJson: 'npm run zavorth:universal-skill-approved-dashboard-canary:json -- --discover',
         check: 'npm run zavorth:universal-skill-approved-dashboard-canary:check --silent',
-        nextPhase: 'Phase 11 - Dashboard Visual Rendering Approval and Canary Monitoring',
+        nextStage: 'Intent model1 - Dashboard Visual Rendering Approval and Canary Monitoring',
       },
     };
   }
@@ -224,7 +224,7 @@ export class UniversalSkillApprovedDashboardCanaryService {
     selectedBatch: ZavorthUniversalSkillScaleBatch | null;
     approvalId: string | null;
   }): ZavorthUniversalSkillApprovedDashboardCanarySnapshot['canary'] {
-    const receiptId = `phase10-${this.now().toISOString().replace(/[^0-9]/g, '').slice(0, 14)}-${stableHash(`${input.mode}|${input.selectedBatch?.id || 'none'}`)}`;
+    const receiptId = `intent-model0-${this.now().toISOString().replace(/[^0-9]/g, '').slice(0, 14)}-${stableHash(`${input.mode}|${input.selectedBatch?.id || 'none'}`)}`;
     const baseCommands = buildCanaryCommands(input.selectedBatch, input.approvalId);
     const blockedReason = input.scale.status === 'blocked'
       ? 'Scale hardening bloqueado; canary nao pode prosseguir.'
@@ -321,13 +321,13 @@ function buildCards(
   const blockedGates = scale.gates.filter((gate) => gate.status === 'blocked').length;
   const attentionGates = scale.gates.filter((gate) => gate.status === 'attention').length;
   return [
-    card('operational-status', 'Status operacional', operationalStatus, toneForStatus(operationalStatus), 'Status consolidado da Fase 10 para operar dashboard/canary.'),
-    card('scale-status', 'Escala/Fase 9', scale.status, toneForStatus(scale.status), 'Status bruto da Fase 9 mantido como evidencia de escala e cobertura.'),
+    card('operational-status', 'Status operacional', operationalStatus, toneForStatus(operationalStatus), 'Status consolidado da Etapa 10 para operar dashboard/canary.'),
+    card('scale-status', 'Escala/Etapa 9', scale.status, toneForStatus(scale.status), 'Status bruto da Etapa 9 mantido como evidencia de escala e cobertura.'),
     card('sources', 'Fontes em QA', scale.capacity.includedSourceCount, 'neutral', 'Fontes reais incluidas na certificacao.'),
     card('candidates', 'Candidatos', scale.capacity.candidateCount, 'neutral', 'Candidatos avaliados pela cadeia de intake/QA.'),
     card('batches', 'Batches', scale.capacity.batchCount, scale.capacity.batchCount > 0 ? 'success' : 'warning', 'Batches/canary com approval obrigatorio.'),
-    card('regression', 'Regressoes', scale.onboarding.regression.findings.length, scale.onboarding.regression.findings.length > 0 ? 'warning' : 'success', 'Findings agregados da Fase 8.'),
-    card('gates', 'Gates com atencao', blockedGates + attentionGates, blockedGates > 0 ? 'danger' : attentionGates > 0 ? 'warning' : 'success', 'Gates blocked/attention da Fase 9.'),
+    card('regression', 'Regressoes', scale.onboarding.regression.findings.length, scale.onboarding.regression.findings.length > 0 ? 'warning' : 'success', 'Findings agregados da Etapa 8.'),
+    card('gates', 'Gates com atencao', blockedGates + attentionGates, blockedGates > 0 ? 'danger' : attentionGates > 0 ? 'warning' : 'success', 'Gates blocked/attention da Etapa 9.'),
   ];
 }
 
@@ -429,7 +429,7 @@ function buildRollout(
       readyForLiveCanary: false,
       nextActions: [
         'Resolver gates blocked antes de renderizar canary operacional.',
-        'Reexecutar Fase 10 em dashboard-only depois da correcao.',
+        'Reexecutar Etapa 10 em dashboard-only depois da correcao.',
       ],
     };
   }
@@ -505,7 +505,7 @@ function isAdvisoryScaleAttention(
     return false;
   }
   const attentionGates = scale.gates.filter((gate) => gate.status === 'attention');
-  if (attentionGates.some((gate) => gate.id !== 'phase8-onboarding')) {
+  if (attentionGates.some((gate) => gate.id !== 'dashboard-controls-onboarding')) {
     return false;
   }
   if (scale.onboarding.regression.findings.some((finding) => finding.severity !== 'info')) {

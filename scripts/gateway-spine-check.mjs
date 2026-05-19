@@ -44,7 +44,7 @@ try {
 }
 
 if (snapshot) {
-  assertRule('contract:version', snapshot.contractVersion === '2026-05-13.phase-1', 'Gateway Spine contract version is current');
+  assertRule('contract:version', snapshot.contractVersion === '2026-05-13.checkpoint-1', 'Gateway Spine contract version is current');
   assertRule('spine:single-source', snapshot.spine?.singleSourceOfTruth === true, 'Gateway Spine owns the canonical truth');
   assertRule('channels:registry', snapshot.channels?.summary?.total > 0, 'Channel registry is attached to the spine');
   assertRule('commands:status', hasCommand(snapshot, 'gateway.status'), 'Gateway status command is exposed');

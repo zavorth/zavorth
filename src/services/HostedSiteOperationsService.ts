@@ -133,7 +133,7 @@ export class HostedSiteOperationsService {
 
   public renderReport(snapshot: HostedSiteOperationsSnapshot = this.buildSnapshot()): string {
     const lines: string[] = [];
-    lines.push('[hosted-site] Fase 54 - Hosted Website And Demo Operations');
+    lines.push('[hosted-site] Readiness checkpoint 4 - Hosted Website And Demo Operations');
     lines.push(`status: ${snapshot.status}`);
     lines.push(`ok: ${snapshot.summary.ok ? 'yes' : 'no'} | pass=${snapshot.summary.passed} warn=${snapshot.summary.warnings} fail=${snapshot.summary.failed}`);
     lines.push(`release: expected=${snapshot.release.expectedVersion} core=${snapshot.release.packageVersion} website=${snapshot.release.websiteVersion}`);
@@ -153,7 +153,7 @@ export class HostedSiteOperationsService {
       lines.push(`- ${step.id}: ${step.command} | rollback: ${step.rollback}`);
     }
     lines.push('');
-    lines.push(`proxima fase recomendada: ${snapshot.nextRecommendedPhase.phase} - ${snapshot.nextRecommendedPhase.title}`);
+    lines.push(`proximo passo recomendada: ${snapshot.nextRecommendedPhase.phase} - ${snapshot.nextRecommendedPhase.title}`);
     lines.push(snapshot.nextRecommendedPhase.reason);
     return lines.join('\n');
   }
@@ -348,7 +348,7 @@ export class HostedSiteOperationsService {
   }
 
   private checkRollbackRunbook(): HostedSiteOperationsCheck {
-    const doc = this.readCoreText('docs/76-public-adoption-architecture.md') || '';
+    const doc = this.readCoreText('docs/product-direction.md') || '';
     const required = ['preview', 'publish', 'rollback', 'smoke', 'qa:hosted-site'];
     const missing = required.filter((phrase) => !doc.toLowerCase().includes(phrase.toLowerCase()));
     const runbookComplete = HOSTED_SITE_ROLLBACK_RUNBOOK.every((step) =>
@@ -361,7 +361,7 @@ export class HostedSiteOperationsService {
       missing.length === 0 && runbookComplete
         ? 'docs e contrato explicam preview, publish, smoke e rollback.'
         : 'runbook precisa cobrir preview, publish, smoke, rollback e qa:hosted-site.',
-      'docs/76-public-adoption-architecture.md',
+      'docs/product-direction.md',
       [...missing.map((phrase) => `faltando: ${phrase}`), `contractRunbook=${runbookComplete}`],
     );
   }
@@ -466,18 +466,18 @@ export class HostedSiteOperationsService {
   }
 
   private checkNextPhasePlanning(): HostedSiteOperationsCheck {
-    const doc = this.readCoreText('docs/76-public-adoption-architecture.md') || '';
-    const hasPhase = doc.includes('Fase 55 - Installer And Distribution Hardening');
+    const doc = this.readCoreText('docs/product-direction.md') || '';
+    const hasPhase = doc.includes('Readiness checkpoint 5 - Installer And Distribution Hardening');
     const hasGate = doc.includes('qa:phase:55');
     return this.check(
       'hosted-site:next-phase',
-      'proxima fase planejada',
+      'proximo passo planejada',
       hasPhase && hasGate ? 'pass' : 'fail',
       hasPhase && hasGate
-        ? 'planejamento aponta para Fase 55 e gate qa:phase:55.'
-        : 'docs/76 precisa manter Fase 55 e gate qa:phase:55 planejados.',
-      'docs/76-public-adoption-architecture.md',
-      [`phase55=${hasPhase}`, `gate55=${hasGate}`],
+        ? 'planejamento aponta para Readiness checkpoint 5 e gate qa:release:55.'
+        : 'docs/product-direction precisa manter Readiness checkpoint 5 e gate qa:release:55 planejados.',
+      'docs/product-direction.md',
+      [`credential-vault5=${hasPhase}`, `gate55=${hasGate}`],
     );
   }
 

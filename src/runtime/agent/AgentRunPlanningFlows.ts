@@ -621,7 +621,7 @@ export function installAgentRunPlanningFlows(AgentRunServiceClass: { prototype: 
     const planSteps = Array.isArray(preview.planSteps) ? preview.planSteps : [];
     const nextSafeAction = normalizeText(preview.nextSafeAction, 'Confirmar escopo antes de executar.');
     const lines = [
-      'Universal Preview Mode - Wave 30',
+      'Universal Preview Mode - Universal Preview',
       '',
       run.summary,
       `Risco: ${normalizeText(risk.highestRisk, 'unknown')}`,
@@ -646,7 +646,7 @@ export function installAgentRunPlanningFlows(AgentRunServiceClass: { prototype: 
     approvalId: string | null,
   ): string {
     const lines = [
-      'Capability Negotiation - Wave 35',
+      'Capability Negotiation - Capability Negotiation',
       '',
       snapshot.proposal?.summary || snapshot.scope.summary,
       `Status: ${snapshot.status}`,
@@ -679,7 +679,7 @@ export function installAgentRunPlanningFlows(AgentRunServiceClass: { prototype: 
     approvalId: string | null,
   ): string {
     const lines = [
-      'Tool Rehearsal - Wave 36',
+      'Tool Rehearsal - Tool Rehearsal',
       '',
       `Status: ${snapshot.status}`,
       `Tools ensaiadas: ${snapshot.summary.callCount}`,

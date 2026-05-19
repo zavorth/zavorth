@@ -114,11 +114,11 @@
 
 /* ═══ Light Theme ═══ */
 [data-theme="light"] {
-  --b-void: #f5f7fa;
-  --b-void-accent: #edf0f5;
+  --b-void: #f8fafc;
+  --b-void-accent: #eef6f3;
   --b-void-elevated: #ffffff;
-  --b-void-hover: #dce2ea;
-  --b-void-muted: #dce2ea;
+  --b-void-hover: #e8eef5;
+  --b-void-muted: #e2e8f0;
 
   --b-surface: #ffffff;
   --b-surface-fg: #0f172a;
@@ -126,12 +126,12 @@
   --b-popover: #ffffff;
   --b-popover-fg: #0f172a;
 
-  --b-chrome: rgba(245, 247, 250, 0.96);
-  --b-chrome-strong: rgba(245, 247, 250, 0.98);
-  --b-glass: rgba(255, 255, 255, 0.64);
-  --b-glass-strong: rgba(255, 255, 255, 0.82);
-  --b-glass-border: rgba(148, 163, 184, 0.24);
-  --b-glass-highlight: rgba(255, 255, 255, 0.74);
+  --b-chrome: rgba(255, 255, 255, 0.94);
+  --b-chrome-strong: rgba(255, 255, 255, 0.98);
+  --b-glass: rgba(255, 255, 255, 0.84);
+  --b-glass-strong: rgba(255, 255, 255, 0.94);
+  --b-glass-border: rgba(15, 23, 42, 0.11);
+  --b-glass-highlight: rgba(255, 255, 255, 0.92);
   --b-glass-blur: 24px;
   --b-glass-saturate: 1.65;
 
@@ -140,10 +140,10 @@
   --b-signal-muted: #64748b;
   --b-signal-dim: #94a3b8;
 
-  --b-shell: #dce2ea;
-  --b-shell-strong: #c2cad6;
-  --b-shell-hover: #94a3b8;
-  --b-input-border: #dce2ea;
+  --b-shell: #d8e2ea;
+  --b-shell-strong: #aebdca;
+  --b-shell-hover: #8da0b3;
+  --b-input-border: #cbd5e1;
 
   --b-pulse: #059669;
   --b-pulse-hover: #047857;
@@ -161,12 +161,12 @@
   --b-glass-shadow: 0 20px 42px rgba(15, 23, 42, 0.10);
   --b-glass-shadow-soft: 0 10px 28px rgba(15, 23, 42, 0.08);
   --b-app-gradient:
-    linear-gradient(140deg, rgba(5, 150, 105, 0.18) 0%, rgba(14, 165, 233, 0.09) 38%, transparent 70%),
-    linear-gradient(225deg, rgba(59, 130, 246, 0.13) 0%, transparent 48%),
-    linear-gradient(180deg, #fbfdff 0%, #eef8f5 54%, #f5f7fa 100%);
+    linear-gradient(140deg, rgba(5, 150, 105, 0.10) 0%, rgba(14, 165, 233, 0.06) 38%, transparent 70%),
+    linear-gradient(225deg, rgba(59, 130, 246, 0.06) 0%, transparent 48%),
+    linear-gradient(180deg, #ffffff 0%, #f5faf8 54%, #f8fafc 100%);
   --b-aurora-layer:
-    linear-gradient(120deg, transparent 0%, rgba(5, 150, 105, 0.16) 28%, rgba(14, 165, 233, 0.12) 52%, transparent 78%),
-    linear-gradient(300deg, transparent 8%, rgba(59, 130, 246, 0.12) 42%, rgba(5, 150, 105, 0.08) 68%, transparent 100%);
+    linear-gradient(120deg, transparent 0%, rgba(5, 150, 105, 0.08) 28%, rgba(14, 165, 233, 0.06) 52%, transparent 78%),
+    linear-gradient(300deg, transparent 8%, rgba(59, 130, 246, 0.06) 42%, rgba(5, 150, 105, 0.04) 68%, transparent 100%);
 
   color-scheme: light;
 }

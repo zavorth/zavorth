@@ -23,7 +23,7 @@ const snapshot = {
 if (asJson) {
   console.log(JSON.stringify(snapshot, null, 2));
 } else {
-  console.log('[zavorth-browser-vision-bridge] checking Phase 2');
+  console.log('[zavorth-browser-vision-bridge] checking Preview engine');
   printRules(rules, '[zavorth-browser-vision-bridge]');
 }
 if (failed.length > 0) process.exitCode = 1;
@@ -38,7 +38,7 @@ function ruleFilesExist() {
     'docs/README.md',
   ];
   const missing = files.filter((file) => !fs.existsSync(path.join(root, file)));
-  return rule('browser-vision-files', 'Browser vision bridge files exist', missing.length === 0, `${files.length - missing.length}/${files.length}`, 'all Phase 2 files present', missing);
+  return rule('browser-vision-files', 'Browser vision bridge files exist', missing.length === 0, `${files.length - missing.length}/${files.length}`, 'all Preview engine files present', missing);
 }
 
 function ruleMarkers() {
@@ -137,7 +137,7 @@ function jsonRule(id, label, result, expect, options = {}) {
   try {
     const snapshot = JSON.parse(result.stdout);
     const passed = expect(snapshot, result.stdout);
-    return rule(id, label, passed, `status=${snapshot.status}; decision=${snapshot.policy?.decision}`, 'expected safe Phase 2 behavior', passed ? [] : [JSON.stringify(snapshot, null, 2), ...compact(result.stderr)]);
+    return rule(id, label, passed, `status=${snapshot.status}; decision=${snapshot.policy?.decision}`, 'expected safe Preview engine behavior', passed ? [] : [JSON.stringify(snapshot, null, 2), ...compact(result.stderr)]);
   } catch (error) {
     return rule(id, label, false, 'invalid JSON', 'valid JSON fixture', [String(error), ...compact(result.stderr, result.stdout)]);
   }

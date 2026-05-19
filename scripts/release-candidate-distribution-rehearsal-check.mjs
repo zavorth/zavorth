@@ -41,7 +41,7 @@ const rules = [
   ruleContainsAll({
     id: 'release-candidate-distribution-rehearsal-service',
     label: 'Service rehearses RC distribution from frozen package',
-    target: 'Service consumes Phase 16, models dry-run/operator steps, forbids publication side effects and emits receipts',
+    target: 'Service consumes Intent model6, models dry-run/operator steps, forbids publication side effects and emits receipts',
     files: ['src/services/ReleaseCandidateDistributionRehearsalService.ts'],
     needles: [
       'ReleaseCandidateDistributionRehearsalService',
@@ -114,7 +114,7 @@ const snapshot = {
 if (asJson) {
   console.log(JSON.stringify(snapshot, null, 2));
 } else {
-  console.log('[release-candidate-distribution-rehearsal] checking Phase 17');
+  console.log('[release-candidate-distribution-rehearsal] checking Intent model7');
   for (const rule of rules) {
     const marker = rule.status === 'passed' ? 'ok' : 'fail';
     console.log(`[release-candidate-distribution-rehearsal] ${marker} ${rule.label}: ${rule.observed} | ${rule.target}`);

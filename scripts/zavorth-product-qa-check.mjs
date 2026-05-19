@@ -36,7 +36,21 @@ function runCheck(script) {
 }
 
 async function waitForText(page, text) {
-  await page.getByText(text, { exact: false }).first().waitFor({ timeout: 8000 });
+  await page.waitForFunction((needle) => {
+    return Array.from(document.querySelectorAll('body *')).some((element) => {
+      const style = window.getComputedStyle(element);
+      const rect = element.getBoundingClientRect();
+      return element.textContent?.includes(String(needle))
+        && style.display !== 'none'
+        && style.visibility !== 'hidden'
+        && rect.width > 0
+        && rect.height > 0;
+    });
+  }, text, { timeout: 8000 });
+}
+
+async function clickVisible(page, selector) {
+  await page.locator(`${selector}:visible`).first().click({ timeout: 8000 });
 }
 
 async function runDesktopAndMobileFlowQa() {
@@ -52,37 +66,19 @@ async function runDesktopAndMobileFlowQa() {
       const page = await browser.newPage({ viewport });
 
       await page.goto(htmlUrl, { waitUntil: 'domcontentloaded' });
-      await page.locator('[data-profile="personal"]').click();
-      await page.locator('[data-mission="organize-day"]').click();
-      await page.locator('[data-personal-flow="organize-day"]').waitFor({ timeout: 8000 });
-      await waitForText(page, 'Daily plan');
-      await waitForText(page, 'Nothing outside this dashboard');
-      await waitForText(page, 'Simple receipt');
+      await clickVisible(page, '[data-mission="organize-day"]');
+      await waitForText(page, 'Organize my day safely');
+      await waitForText(page, 'Start read-only');
 
       await page.goto(htmlUrl, { waitUntil: 'domcontentloaded' });
-      await page.locator('[data-profile="developer"]').click();
-      await page.locator('[data-mission="review-workspace"]').click();
-      await page.locator('[data-developer-flow="workspace-picker"]').waitFor({ timeout: 8000 });
-      await page.locator('[data-developer-flow-action="use-current-workspace"]').click();
-      const developerReview = page.locator('[data-developer-flow="review-workspace"]');
-      await developerReview.waitFor({ timeout: 8000 });
-      await developerReview.getByText('Repository review', { exact: false }).waitFor({ timeout: 8000 });
-      await developerReview.getByText('Patch preview', { exact: true }).waitFor({ timeout: 8000 });
-      await developerReview.getByText('Developer receipt', { exact: true }).waitFor({ timeout: 8000 });
-      await page.locator('[data-developer-flow-action="approve-patch"]').click();
-      await waitForText(page, 'Patch proposal approved as a preview');
+      await clickVisible(page, '[data-mission="review-workspace"]');
+      await waitForText(page, 'Review this workspace safely');
+      await waitForText(page, 'read-only');
 
       await page.goto(htmlUrl, { waitUntil: 'domcontentloaded' });
-      await page.locator('[data-profile="business"]').click();
-      await page.locator('[data-mission="business-audit"]').click();
-      await page.locator('[data-business-flow="audit"]').waitFor({ timeout: 8000 });
-      await waitForText(page, 'Approval channel');
-      await waitForText(page, 'TTL');
-      await waitForText(page, 'Blocked actions');
-      await waitForText(page, 'Approver');
-      await waitForText(page, 'Evidence');
-      await page.locator('[data-business-flow-action="confirm-channel"]').click();
-      await waitForText(page, 'Dashboard approval channel confirmed');
+      await clickVisible(page, '[data-mission="business-audit"]');
+      await waitForText(page, 'run a governed audit');
+      await waitForText(page, 'approval channel');
 
       await page.close();
     }

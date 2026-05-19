@@ -14,8 +14,8 @@ const capabilityId = readArg('--capability=') || 'executor-gemini-cli';
 const audience = (readArg('--audience=') || (asJson ? 'technical_operator' : 'everyday_user')) as CapabilityAutopilotAudience;
 const surfaces = readSurfaces('--surfaces=') || ['cli', 'web', 'chat', 'telegram', 'api'];
 const expectedSurfaces = readSurfaces('--expected-surfaces=') || surfaces;
-const rawIntentProbe = 'PHASE70-RAW-INTENT-MUST-NOT-LEAK';
-const rawWorkspaceProbe = 'C:/private/PHASE70-RAW-WORKSPACE-MUST-NOT-LEAK';
+const rawIntentProbe = 'STAGE70-RAW-INTENT-MUST-NOT-LEAK';
+const rawWorkspaceProbe = 'C:/private/STAGE70-RAW-WORKSPACE-MUST-NOT-LEAK';
 
 main().catch((error) => {
   process.stderr.write(`[capability-autopilot-preflight-dispatch] falha: ${error instanceof Error ? error.message : String(error)}\n`);
@@ -35,9 +35,9 @@ async function main(): Promise<void> {
   const receiptService = new CapabilityAutopilotPreflightDispatchReceiptService();
   const snapshot = receiptService.buildReceiptSnapshot(sourceSnapshot, {
     explicitlyConfirmed,
-    actorId: 'phase-70-gate',
-    confirmationId: explicitlyConfirmed ? 'phase-70-explicit-confirmation' : null,
-    reason: 'phase-70-dispatch-receipt-gate',
+    actorId: 'checkpoint-70-gate',
+    confirmationId: explicitlyConfirmed ? 'checkpoint-70-explicit-confirmation' : null,
+    reason: 'checkpoint-70-dispatch-receipt-gate',
   });
 
   if (asJson) {

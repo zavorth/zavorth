@@ -219,8 +219,8 @@ export class BlueprintCompletionGateService {
     const releaseDecisionReady = Boolean(
       decisionRaw
       && (decisionRaw.decision === 'ship_v1_1_flagged' || decisionRaw.decision === 'ship_v1_1_default_on')
-      && arrayOrEmpty(decisionRaw.missingPhases).length === 0
-      && arrayOrEmpty(decisionRaw.failedPhases).length === 0,
+      && arrayOrEmpty(decisionRaw.missingCheckpoints).length === 0
+      && arrayOrEmpty(decisionRaw.failedCheckpoints).length === 0,
     );
     const safeguardsReady = Boolean(
       rolloutRaw?.safeguards?.manualPromotionRequired === true
@@ -337,8 +337,8 @@ export class BlueprintCompletionGateService {
         ready: releaseDecisionReady,
         releaseChannel: decisionRaw?.releaseChannel || 'unknown',
         riskPosture: decisionRaw?.riskPosture || 'unknown',
-        missingPhaseCount: arrayOrEmpty(decisionRaw?.missingPhases).length,
-        failedPhaseCount: arrayOrEmpty(decisionRaw?.failedPhases).length,
+        missingPhaseCount: arrayOrEmpty(decisionRaw?.missingCheckpoints).length,
+        failedPhaseCount: arrayOrEmpty(decisionRaw?.failedCheckpoints).length,
         featureFlagDefaultEnabled: decisionRaw?.featureFlag?.defaultEnabled === true,
       },
       readiness,
@@ -463,7 +463,7 @@ export class BlueprintCompletionGateService {
         status: gateLevel(input.preCanaryReady, input.preCanaryLinked),
         source: 'ReleaseCandidatePreCanaryGateService',
         command: 'npm run qa:release-candidate-pre-canary',
-        detail: 'Wave 54 precisa estar pre-canary-ready antes do fechamento final.',
+        detail: 'Pre-Canary Gate precisa estar pre-canary-ready antes do fechamento final.',
         critical: true,
       },
       {
@@ -499,7 +499,7 @@ export class BlueprintCompletionGateService {
         status: gateLevel(input.releaseDecisionReady, input.decisionLinked),
         source: 'CapabilityAutopilotReleaseDecisionService',
         command: 'npm run qa:capability-autopilot-release-decision',
-        detail: 'Decision precisa ship flagged/default-on sem fases faltando ou falhando.',
+        detail: 'Decision precisa ship flagged/default-on sem etapas faltando ou falhando.',
         critical: true,
       },
       {
@@ -563,7 +563,7 @@ export class BlueprintCompletionGateService {
 
   private resolveNextSafeAction(status: BlueprintCompletionGateStatus): string {
     if (status === 'needs-pre-canary') {
-      return 'Fechar Wave 54 como pre-canary-ready.';
+      return 'Fechar Pre-Canary Gate como pre-canary-ready.';
     }
     if (status === 'needs-rollout-plan') {
       return 'Anexar rollout_plan_ready com manual promotion, cohorts e rollback.';
@@ -575,7 +575,7 @@ export class BlueprintCompletionGateService {
       return 'Anexar canary_promotion_ready com metricas, incident review e aprovacao.';
     }
     if (status === 'needs-release-decision') {
-      return 'Anexar release decision ship_v1_1_flagged/default_on sem fases faltando ou falhando.';
+      return 'Anexar release decision ship_v1_1_flagged/default_on sem etapas faltando ou falhando.';
     }
     if (status === 'blocked') {
       return 'Remover bloqueios e qualquer auto/global/skip antes de marcar o blueprint como completo.';

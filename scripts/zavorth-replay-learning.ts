@@ -149,7 +149,7 @@ async function main() {
     console.info = originalConsole.info;
     process.stdout.write(`${JSON.stringify(snapshot, null, 2)}\n`);
   } else {
-    console.log('[replay-learning] leitura oficial da Fase 20');
+    console.log('[replay-learning] leitura oficial da Replay learning');
     console.log(`[replay-learning] postura: ${snapshot.summary.posture}`);
     console.log(`[replay-learning] resumo: ${snapshot.narrative.operatorSummary}`);
     console.log(`[replay-learning] replay: ${snapshot.summary.timelineEvents} evento(s) | compare ${snapshot.summary.compareReady ? 'pronto' : 'nao pronto'} | resume ${snapshot.summary.resumeReady ? 'pronto' : 'sem alvo'}`);

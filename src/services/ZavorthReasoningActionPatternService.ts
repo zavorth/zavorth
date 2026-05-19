@@ -104,7 +104,7 @@ export class ZavorthReasoningActionPatternService {
       generatedAt,
       contractVersion: ZAVORTH_REASONING_ACTION_PATTERN_CONTRACT_VERSION,
       source: 'ZavorthReasoningActionPatternService',
-      phase: 'phase-2-reasoning-action-patterns',
+      phase: 'checkpoint-2-reasoning-action-patterns',
       status,
       request: {
         surface: normalizeSurface(input.surface),
@@ -141,7 +141,7 @@ export class ZavorthReasoningActionPatternService {
         report: 'npx tsx scripts/zavorth-reasoning-action-patterns.ts --text "<request>"',
         json: 'npx tsx scripts/zavorth-reasoning-action-patterns.ts --json --text "<request>"',
         check: 'node scripts/zavorth-reasoning-action-patterns-check.mjs',
-        nextPhase: 'Phase 3 - Context Memory And Error Recovery Assimilation',
+        nextStage: 'Approval gate - Context Memory And Error Recovery Assimilation',
       },
       narrative: buildNarrative(status, summary),
     };
@@ -151,7 +151,7 @@ export class ZavorthReasoningActionPatternService {
     text: 'responder com seguranca',
   })): string {
     const lines = [
-      'Zavorth Reasoning And Action Patterns - Phase 2',
+      'Zavorth Reasoning And Action Patterns - Preview engine',
       '',
       `Status: ${snapshot.status}`,
       `Actions: ${snapshot.summary.actions} | allowed=${snapshot.summary.allowed} | approval=${snapshot.summary.approvalRequired} | denied=${snapshot.summary.denied}`,
@@ -171,7 +171,7 @@ export class ZavorthReasoningActionPatternService {
       lines.push('', 'Approvals:');
       for (const approval of snapshot.approvalRequests) lines.push(`- ${approval.reason}`);
     }
-    lines.push('', `Next: ${snapshot.commands.nextPhase}`);
+    lines.push('', `Next: ${snapshot.commands.nextStage}`);
     return lines.join('\n');
   }
 }
@@ -396,8 +396,8 @@ function buildReceipts(input: {
 }): ZavorthReasoningActionPatternReceipt[] {
   const receipts: ZavorthReasoningActionPatternReceipt[] = [
     {
-      id: 'receipt-phase-2',
-      kind: 'phase-2-pattern-plan',
+      id: 'receipt-checkpoint-2',
+      kind: 'checkpoint-2-pattern-plan',
       status: 'recorded',
       summary: `Reasoning/action pattern plan built with status ${input.status}.`,
       actionIds: input.actions.map((item) => item.id),

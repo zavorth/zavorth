@@ -4,7 +4,7 @@ import {
 } from '../../src/contracts/ZavorthTransactionIntentContract.js';
 
 describe('ZavorthTransactionIntentContract', () => {
-  it('publishes the Phase 1 transaction intent contract', () => {
+  it('publishes the Intent model transaction intent contract', () => {
     const snapshot = buildZavorthTransactionIntentContractSnapshot();
 
     expect(snapshot.version).toBe(ZAVORTH_TRANSACTION_INTENT_CONTRACT_VERSION);

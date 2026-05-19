@@ -1,472 +1,393 @@
 /**
- * Zavorth Gateway sector content.
+ * Zavorth Command Center pages.
  * Static placeholders stay honest; runtime-bridge replaces them with live data.
  */
 (function () {
   'use strict';
 
   populate('sector-overview', `
-    <div class="dashboard-glass">
-      <section class="dashboard-hero" aria-label="Zavorth gateway overview">
-        <div class="dashboard-hero__copy">
-          <span class="dashboard-eyebrow"><span class="dashboard-live-dot"></span>Gateway</span>
-          <h1 class="dashboard-title">Zavorth is ready.</h1>
-          <p class="dashboard-subtitle">Start with a plain request. Zavorth previews risky work, asks for scoped approval when needed, and leaves a receipt behind.</p>
+    <div class="premium-page premium-page--platform" data-zavorth-premium-dashboard-v2>
+      <section class="premium-hero premium-hero--platform" aria-label="Operations overview">
+        <div>
+          <span class="dashboard-eyebrow"><span class="dashboard-live-dot"></span>Overview</span>
+          <h1 class="premium-title">Operate Zavorth from one clean surface.</h1>
+          <p class="premium-subtitle">Ask, approve, inspect receipts and check readiness without hunting through logs.</p>
         </div>
-        <div class="dashboard-hero__chips" aria-label="Runtime summary">
-          <span class="badge badge--ok"><span class="badge__dot"></span>Local runtime</span>
-          <span class="badge badge--info"><span class="badge__dot"></span>Approvals on</span>
-          <span class="badge badge--muted"><span class="badge__dot"></span>Receipts on</span>
+        <div class="premium-hero__actions">
+          <button class="operator-primary-action" type="button" data-dashboard-prompt="Run Zavorth Ready To Go and summarize the result in simple language.">Ready check</button>
+          <button class="operator-secondary-action" type="button" data-dashboard-sector="terminal">Ask Zavorth</button>
         </div>
       </section>
 
-      <section class="dashboard-next-actions" aria-label="Recommended next actions">
-        <button class="dashboard-action-card" type="button" data-dashboard-prompt="Review this workspace safely">
-          <span>Start a mission</span>
-          <strong>Review this workspace safely</strong>
-        </button>
-        <button class="dashboard-action-card" type="button" data-dashboard-prompt="What providers and channels are ready right now?">
-          <span>Check readiness</span>
-          <strong>Providers and channels</strong>
-        </button>
-        <button class="dashboard-action-card" type="button" data-dashboard-sector="channels">
-          <span>Open surface</span>
-          <strong>Channel Mesh</strong>
-        </button>
-        <button class="dashboard-action-card" type="button" data-dashboard-prompt="Show pending approvals and recent receipts">
-          <span>Review safety</span>
-          <strong>Approvals and receipts</strong>
-        </button>
+      <section class="platform-summary" aria-label="Core status">
+        ${platformStat('Gateway', 'Ready', 'Local dashboard connected', 'ok')}
+        ${platformStat('Provider', 'Auto', 'Uses configured route', 'info')}
+        ${platformStat('Approvals', '<span data-dashboard-metric="approvals">0</span>', '<span data-dashboard-meta="approvals">No pending decision</span>', 'warn')}
+        ${platformStat('Receipts', '<span data-dashboard-metric="artifacts">0</span>', '<span data-dashboard-meta="artifacts">No receipt yet</span>', 'info')}
       </section>
 
-      <section class="dashboard-mosaic" aria-label="Operational summary">
-        <article class="dashboard-primary">
-          <div class="dashboard-primary__copy">
-            <span class="dashboard-card__label">Current state</span>
-            <h2 class="dashboard-card__title" data-dashboard-runtime-title>Waiting for a mission</h2>
-            <p class="dashboard-card__text" data-dashboard-runtime-text>Use the chat tab to ask naturally. If a request needs write access, external delivery or sensitive network activity, Zavorth will preview it and ask for scoped approval.</p>
+      <section class="platform-workspace">
+        <div class="platform-main">
+          <div class="platform-section-title">Current work</div>
+          <button class="platform-command-row" type="button" data-dashboard-sector="terminal">
+            <span>
+              <strong data-dashboard-runtime-title>Waiting for a mission</strong>
+              <small data-dashboard-runtime-text>Use Chat for natural requests. Zavorth previews risky actions, asks when needed and writes receipts after completion.</small>
+            </span>
+            <em>Open chat</em>
+          </button>
+          <div class="platform-process" aria-label="Governed flow">
+            ${premiumStep('1', 'Ask', 'plain language')}
+            ${premiumStep('2', 'Preview', 'risk and tools')}
+            ${premiumStep('3', 'Approve', 'scope and TTL')}
+            ${premiumStep('4', 'Receipt', 'proof and replay')}
           </div>
-          <div class="dashboard-fox" aria-hidden="true">
-            <img src="./assets/fox-semfundo.png" alt="">
-          </div>
-        </article>
-
-        <article class="dashboard-card dashboard-card--metric">
-          <div class="dashboard-card__header">
-            <span class="dashboard-card__label">Missions</span>
-            <span class="dashboard-pill">local</span>
-          </div>
-          <span class="dashboard-card__value" data-dashboard-metric="runs">0</span>
-          <span class="dashboard-card__meta" data-dashboard-meta="runs">no active mission</span>
-        </article>
-
-        <article class="dashboard-card dashboard-card--metric">
-          <div class="dashboard-card__header">
-            <span class="dashboard-card__label">Approvals</span>
-            <span class="dashboard-pill dashboard-pill--warm">policy</span>
-          </div>
-          <span class="dashboard-card__value" data-dashboard-metric="approvals">0</span>
-          <span class="dashboard-card__meta" data-dashboard-meta="approvals">no pending decision</span>
-        </article>
-
-        <article class="dashboard-card dashboard-card--metric">
-          <div class="dashboard-card__header">
-            <span class="dashboard-card__label">Artifacts</span>
-            <span class="dashboard-pill">receipt</span>
-          </div>
-          <span class="dashboard-card__value" data-dashboard-metric="artifacts">0</span>
-          <span class="dashboard-card__meta" data-dashboard-meta="artifacts">none in this session</span>
-        </article>
-
-        <article class="dashboard-card dashboard-card--mesh">
-          <div class="dashboard-card__header">
-            <span class="dashboard-card__label">Readiness</span>
-            <span class="dashboard-pill dashboard-pill--safe">honest</span>
-          </div>
-          <div class="dashboard-status-list">
-            <div class="dashboard-status-row"><span>Sandbox</span><strong data-dashboard-remote="docker">dry-run fallback</strong></div>
-            <div class="dashboard-status-row"><span>Providers</span><strong data-dashboard-remote="mcp">ask or open Models</strong></div>
-            <div class="dashboard-status-row"><span>Channels</span><strong data-dashboard-remote="files">ask or open Channels</strong></div>
-          </div>
-        </article>
-
-        <article class="dashboard-card dashboard-card--trace">
-          <div class="dashboard-card__header">
-            <span class="dashboard-card__label">Latest signals</span>
-            <span class="dashboard-pill">live</span>
-          </div>
-          <div class="dashboard-mini-timeline" data-dashboard-timeline>
-            <div class="dashboard-timeline-item"><span></span><p>Gateway loaded</p><strong>now</strong></div>
-            <div class="dashboard-timeline-item"><span></span><p>Runtime waiting for a request</p><strong>idle</strong></div>
-            <div class="dashboard-timeline-item"><span></span><p>Receipts ready when actions run</p><strong>ready</strong></div>
-          </div>
-        </article>
-      </section>
-
-      <section class="dashboard-daily-grid" aria-label="Daily operation">
-        <article class="dashboard-inbox dashboard-approval-inbox">
-          <div class="dashboard-card__header">
-            <span class="dashboard-card__label">Approvals inbox</span>
-            <span class="dashboard-pill dashboard-pill--warm">scoped</span>
-          </div>
-          <div class="dashboard-inbox__body">
-            <p>No pending approvals. When Zavorth needs write access, network delivery, device control or live bridge use, the decision appears here first.</p>
-          </div>
-        </article>
-
-        <article class="dashboard-inbox dashboard-receipt-list">
-          <div class="dashboard-card__header">
-            <span class="dashboard-card__label">Recent receipts</span>
-            <span class="dashboard-pill">evidence</span>
-          </div>
-          <div class="dashboard-inbox__body">
-            <p>No receipt in this session yet. Completed missions will summarize files touched, tools used, blocked risks, artifacts and rollback evidence.</p>
-          </div>
-        </article>
-
-        <article class="dashboard-inbox dashboard-mission-timeline">
-          <div class="dashboard-card__header">
-            <span class="dashboard-card__label">Mission timeline</span>
-            <span class="dashboard-pill dashboard-pill--safe">traceable</span>
-          </div>
-          <div class="dashboard-mini-timeline" data-dashboard-timeline="mission">
-            <div class="dashboard-timeline-item"><span></span><p>Waiting for a mission</p><strong>idle</strong></div>
-            <div class="dashboard-timeline-item"><span></span><p>Preview, approval and receipt stay in sequence</p><strong>ready</strong></div>
-          </div>
-        </article>
-      </section>
-
-      <section class="dashboard-strip" aria-label="Daily-use guardrails">
-        <div class="dashboard-strip__item"><span class="dashboard-strip__key">Status</span><strong data-dashboard-strip="status">online</strong><span data-dashboard-strip-detail="status">local gateway available</span></div>
-        <div class="dashboard-strip__item"><span class="dashboard-strip__key">Model</span><strong data-dashboard-strip="model">selected by runtime</strong><span data-dashboard-strip-detail="model">provider readiness is verified before live use</span></div>
-        <div class="dashboard-strip__item"><span class="dashboard-strip__key">Sandbox</span><strong data-dashboard-strip="budget">preview first</strong><span data-dashboard-strip-detail="budget">mutations need strong sandbox or approval</span></div>
-        <div class="dashboard-strip__item"><span class="dashboard-strip__key">Safety</span><strong data-dashboard-strip="security">policy gated</strong><span data-dashboard-strip-detail="security">preview, approval and receipt stay central</span></div>
-      </section>
-
-      <details class="dashboard-advanced">
-        <summary>Advanced runtime details</summary>
-        <div class="dashboard-advanced__grid">
-          <div><span>Authority</span><strong>Runtime only</strong><small>The dashboard displays decisions and requests actions; it does not execute mutations directly.</small></div>
-          <div><span>Policy</span><strong>Broker gated</strong><small>Workspace writes, external delivery, device control and sensitive network use stay approval-bound.</small></div>
-          <div><span>Mode</span><strong>Preview first</strong><small>When sandbox readiness is missing, mutable work remains dry-run until explicitly approved.</small></div>
         </div>
-      </details>
+
+        <aside class="platform-side">
+          <div class="platform-section-title">Readiness</div>
+          <div class="premium-status-list">
+            ${premiumStatus('Web dashboard', 'ready', 'ok')}
+            ${premiumStatus('CLI/TUI', 'ready', 'ok')}
+            ${premiumStatus('Telegram', 'configurable', 'info')}
+            ${premiumStatus('Mutable work', 'approval gated', 'ok')}
+          </div>
+          <button class="operator-secondary-action" type="button" data-dashboard-sector="channels">Open channels</button>
+        </aside>
+      </section>
+
+      <section class="platform-activity" aria-label="Recent activity" data-dashboard-timeline hidden>
+      </section>
     </div>
   `);
 
   populate('sector-channels', `
-    <div class="page-header"><h1 class="page-title">Channels</h1><p class="page-subtitle">Channel readiness reported by the governed gateway. Ask Zavorth for a natural summary when you do not need the table.</p></div>
-    <div class="card-grid">
-      ${channelCard('Dashboard Gateway', 'web:/dashboard', 'Local', 'info', 'Primary local web surface. It displays state and decisions; execution stays in the runtime.')}
-      ${channelCard('Realtime events', '/api/web/events', 'Waiting', 'info', 'Live stream attaches when the local runtime exposes an unlocked session snapshot.')}
-      ${channelCard('External channels', 'Telegram / CLI / API', 'No live snapshot', 'muted', 'No external channel has reported a live state in this tab yet.')}
+    <div class="premium-page">
+      <section class="premium-hero premium-hero--compact">
+        <div>
+          <span class="dashboard-eyebrow"><span class="dashboard-live-dot"></span>Channel Gateway</span>
+          <h1 class="premium-title">Every channel uses the same rules.</h1>
+          <p class="premium-subtitle">Natural-first input, approval resolver, redaction, receipts and channel-aware actions stay unified.</p>
+        </div>
+        <button class="operator-primary-action" type="button" data-dashboard-prompt="Help me configure a channel safely. Show only the next safe step.">Configure channel</button>
+      </section>
+      <section class="premium-grid">
+        ${surfaceCard('Web dashboard', 'Ready', 'ok', 'Live operator surface for chat, approvals, receipts and readiness.')}
+        ${surfaceCard('CLI / TUI', 'Ready', 'ok', 'Terminal operator mode for status, ready checks, providers and curator.')}
+        ${surfaceCard('Telegram', 'Configurable', 'info', 'Remote approvals and status can be enabled with scoped secrets.')}
+        ${surfaceCard('Discord', 'Configurable', 'info', 'Shared command surface; rich buttons when available.')}
+        ${surfaceCard('Slack', 'Configurable', 'info', 'Workspace channel bridge with redaction and receipts.')}
+        ${surfaceCard('WhatsApp / Signal / Email', 'Configurable', 'info', 'External messaging remains opt-in and policy-gated.')}
+      </section>
     </div>
   `);
 
   populate('sector-sales-os', `
-    <div class="page-header">
-      <h1 class="page-title">Sales OS</h1>
-      <p class="page-subtitle">Governed sales inbox, CRM signals, official channels, policy and audit trail.</p>
-    </div>
-    <div class="stats-grid">
-      <div class="summary-card summary-card--hero summary-card--accent"><span class="summary-card__label">Inbox</span><span class="summary-card__value" data-sales-os-metric="conversations">0</span><span class="summary-card__sub" data-sales-os-meta="conversations">no inbound conversation</span></div>
-      <div class="summary-card"><span class="summary-card__label">Lead score</span><span class="summary-card__value" data-sales-os-metric="score">0</span><span class="summary-card__sub" data-sales-os-meta="score">waiting for signal</span></div>
-      <div class="summary-card"><span class="summary-card__label">Channel I/O</span><span class="summary-card__value" data-sales-os-metric="processed">0</span><span class="summary-card__sub" data-sales-os-meta="processed">0 inbound messages</span></div>
-      <div class="summary-card"><span class="summary-card__label">Governance</span><span class="summary-card__value" data-sales-os-metric="approvals">0</span><span class="summary-card__sub" data-sales-os-meta="approvals">no pending approval</span></div>
-    </div>
-    <div class="card-grid" data-sales-os-grid>
-      ${channelCard('Unified inbox', 'conversations', 'Demo ready', 'info', 'Receive local inbound or WhatsApp Cloud API events and track the lead in the Sales Pack.')}
-      ${channelCard('CRM intelligence', 'lead score', 'Waiting for signal', 'info', 'Intent, objection, risk and next action appear after the first conversation.')}
-      ${channelCard('Channel I/O', 'stub / cloud-api', 'Local', 'info', 'Idempotency, status and receipts stay visible in the channel ledger.')}
-      ${channelCard('Agent Builder', 'AgentProfile', '5 profiles', 'info', 'Sales, support, recovery, CRM and supervisor profiles enter through core contracts.')}
-    </div>
-    <div class="callout info">
-      <strong>Demo mode:</strong> simulate a WhatsApp message locally without real credentials.
-      <button class="core-btn core-btn--primary" type="button" data-sales-os-action="demo-inbound">Create local conversation</button>
+    <div class="premium-page">
+      <section class="premium-hero premium-hero--compact">
+        <div>
+          <span class="dashboard-eyebrow"><span class="dashboard-live-dot"></span>Approvals</span>
+          <h1 class="premium-title">Decisions should be obvious.</h1>
+          <p class="premium-subtitle">Accept, reject, allow for a scope or revoke later. Critical actions keep extra confirmations.</p>
+        </div>
+        <button class="operator-primary-action" type="button" data-dashboard-prompt="Show pending approvals, auto-approvals and break-glass status.">Review approvals</button>
+      </section>
+      <section class="premium-metrics">
+        ${premiumMetric('Pending', '<span data-sales-os-metric="approvals">0</span>', '<span data-sales-os-meta="approvals">no pending approval</span>', 'warn')}
+        ${premiumMetric('Auto approvals', 'Scoped', 'time-limited and revocable', 'info')}
+        ${premiumMetric('Extreme mode', 'Locked', 'requires maximum confirmation', 'warn')}
+        ${premiumMetric('Receipts', 'On', 'every decision leaves proof', 'ok')}
+      </section>
+      <section class="premium-layout">
+        ${plainPanel('Pending decisions', 'No pending approvals. Risky work appears here with clear approve and reject actions.')}
+        ${plainPanel('Allowed scopes', 'Persistent permissions stay limited by action, folder, channel, TTL and risk ceiling.')}
+        ${plainPanel('Break-glass', 'Extreme mode stays off by default and requires repeated confirmation plus an audit receipt.')}
+      </section>
     </div>
   `);
 
   populate('sector-instances', `
-    <div class="page-header"><h1 class="page-title">Nodes</h1><p class="page-subtitle">Runtime instances known to the gateway.</p></div>
-    <div class="data-table-wrap"><table class="data-table"><thead><tr><th>ID</th><th>Host</th><th>PID</th><th>Memory</th><th>Uptime</th><th>Status</th></tr></thead><tbody>
-      <tr><td class="mono">zavorth-web</td><td class="mono">local</td><td class="mono">-</td><td>-</td><td>-</td><td><span class="badge badge--info"><span class="badge__dot"></span>Waiting for runtime</span></td></tr>
-      <tr><td class="mono">agent-gateway</td><td class="mono">runtime</td><td class="mono">-</td><td>-</td><td>-</td><td><span class="badge badge--info"><span class="badge__dot"></span>Waiting for snapshot</span></td></tr>
-    </tbody></table></div>
+    <div class="premium-page">
+      <section class="premium-hero premium-hero--compact">
+        <div>
+          <span class="dashboard-eyebrow"><span class="dashboard-live-dot"></span>Receipts</span>
+          <h1 class="premium-title">Proof, not mystery logs.</h1>
+          <p class="premium-subtitle">See what ran, what was blocked, which approval authorized it and what can be rolled back.</p>
+        </div>
+        <button class="operator-primary-action" type="button" data-dashboard-prompt="Show recent receipts and summarize them for a non-technical user.">Show receipts</button>
+      </section>
+      <section class="premium-layout premium-layout--wide-right">
+        <article class="premium-panel">
+          <div class="premium-panel__header"><div><span>Recent receipts</span><h2>No receipt yet</h2></div><span class="dashboard-pill">evidence</span></div>
+          <p>After a mission, this area shows files touched, tools used, approvals, blocked risks, cost and rollback notes.</p>
+        </article>
+        <article class="premium-panel premium-panel--table">
+          <div class="data-table-wrap"><table class="data-table"><thead><tr><th>Surface</th><th>Mode</th><th>Status</th><th>Next step</th></tr></thead><tbody>
+            <tr><td>Web</td><td>operator</td><td><span class="badge badge--ok"><span class="badge__dot"></span>Ready</span></td><td>Ask in Chat</td></tr>
+            <tr><td>CLI</td><td>operator</td><td><span class="badge badge--ok"><span class="badge__dot"></span>Ready</span></td><td>Run ready check</td></tr>
+            <tr><td>External agents</td><td>optional</td><td><span class="badge badge--info"><span class="badge__dot"></span>Consent required</span></td><td>Onboard first</td></tr>
+          </tbody></table></div>
+        </article>
+      </section>
+    </div>
   `);
 
   populate('sector-sessions', `
-    <div class="page-header"><h1 class="page-title">Sessions</h1><p class="page-subtitle">Conversation and execution history.</p></div>
-    <div class="data-table-wrap"><table class="data-table"><thead><tr><th>Run</th><th>Channel</th><th>Events</th><th>Artifacts</th><th>Next action</th><th>Updated</th><th>Status</th></tr></thead><tbody>
-      <tr><td class="mono">local runtime</td><td>Web</td><td>0</td><td>-</td><td>Wait for first mission</td><td>now</td><td><span class="badge badge--info"><span class="badge__dot"></span>Ready</span></td></tr>
-    </tbody></table></div>
+    <div class="premium-page">
+      <section class="premium-hero premium-hero--compact">
+        <div>
+          <span class="dashboard-eyebrow"><span class="dashboard-live-dot"></span>History</span>
+          <h1 class="premium-title">Past work stays readable.</h1>
+          <p class="premium-subtitle">Sessions, handoffs and receipts appear as a timeline instead of raw runtime noise.</p>
+        </div>
+        <button class="operator-primary-action" type="button" data-dashboard-prompt="Summarize my recent sessions and what still needs attention.">Summarize history</button>
+      </section>
+      <div class="data-table-wrap"><table class="data-table"><thead><tr><th>Session</th><th>Channel</th><th>Events</th><th>Receipts</th><th>Status</th></tr></thead><tbody>
+        <tr><td class="mono">main</td><td>Web</td><td>0</td><td>0</td><td><span class="badge badge--info"><span class="badge__dot"></span>Waiting</span></td></tr>
+      </tbody></table></div>
+    </div>
   `);
 
   populate('sector-usage', `
-    <div class="page-header"><h1 class="page-title">Usage</h1><p class="page-subtitle">Known runtime consumption and operational signals.</p></div>
-    <div class="stats-grid">
-      <div class="summary-card summary-card--hero summary-card--accent"><span class="summary-card__label">Runs</span><span class="summary-card__value">0</span><span class="summary-card__sub">no execution recorded</span></div>
-      <div class="summary-card"><span class="summary-card__label">Current model</span><span class="summary-card__value">-</span><span class="summary-card__sub">waiting for runtime selection</span></div>
-      <div class="summary-card"><span class="summary-card__label">Artifacts</span><span class="summary-card__value">0</span><span class="summary-card__sub">none in this session</span></div>
-      <div class="summary-card"><span class="summary-card__label">Approvals</span><span class="summary-card__value">0</span><span class="summary-card__sub">no pending decision</span></div>
+    <div class="premium-page">
+      <section class="premium-hero premium-hero--compact">
+        <div>
+          <span class="dashboard-eyebrow"><span class="dashboard-live-dot"></span>Usage</span>
+          <h1 class="premium-title">Cost and tokens without guesswork.</h1>
+          <p class="premium-subtitle">Filter by day, provider, model, channel and tool when runtime usage data is available.</p>
+        </div>
+        <button class="operator-primary-action" type="button" data-dashboard-prompt="Show provider, model, token and cost usage. Explain gaps honestly.">Analyze usage</button>
+      </section>
+      <section class="usage-filter-bar" aria-label="Usage filters">
+        <button>Today</button><button>7d</button><button>30d</button><button>All</button>
+        <select aria-label="Provider filter"><option>All providers</option><option>Gemini</option><option>OpenRouter</option><option>Groq</option></select>
+        <select aria-label="Channel filter"><option>All channels</option><option>Web</option><option>CLI</option><option>Telegram</option></select>
+      </section>
+      <section class="premium-metrics">
+        ${premiumMetric('Tokens', '0', 'no measured usage yet', 'info')}
+        ${premiumMetric('Cost', '$0.00', 'provider cost proof pending', 'info')}
+        ${premiumMetric('Tool calls', '0', 'no execution recorded', 'info')}
+        ${premiumMetric('Errors', '0', 'no visible errors', 'ok')}
+      </section>
     </div>
-    <h3 class="section-title">Model Consumption</h3>
-    <div class="data-table-wrap"><table class="data-table"><thead><tr><th>Model</th><th>Runs</th><th>Events</th><th>Artifacts</th><th>Status</th></tr></thead><tbody>
-      <tr><td class="mono">current model</td><td>0</td><td>0</td><td>0</td><td><span class="badge badge--info"><span class="badge__dot"></span>Waiting for run</span></td></tr>
-    </tbody></table></div>
-    <div class="chart-placeholder"><div class="empty-state"><div class="empty-state__icon">o</div><div class="empty-state__title">No token curve yet</div><div class="empty-state__desc">This area stays empty until the runtime publishes token or cost measurements.</div></div></div>
   `);
 
   populate('sector-agents', `
-    <div class="page-header"><h1 class="page-title">Agents</h1><p class="page-subtitle">Agent Gateway executions.</p></div>
-    <div class="card-grid">
-      ${agentCard('Agent Gateway', 'No live run has been registered yet. When you talk to Zavorth, executions appear here.', 'Waiting', false, 'current model')}
+    <div class="premium-page">
+      <section class="premium-hero premium-hero--compact">
+        <div>
+          <span class="dashboard-eyebrow"><span class="dashboard-live-dot"></span>Agent Review</span>
+          <h1 class="premium-title">Review before changing.</h1>
+          <p class="premium-subtitle">Read-only findings, file references, severity and patch previews stay separate from apply actions.</p>
+        </div>
+        <button class="operator-primary-action" type="button" data-dashboard-prompt="Run Agent Review in read-only mode and list the highest risk findings first.">Start review</button>
+      </section>
+      <section class="premium-grid">
+        ${surfaceCard('Read-only review', 'Ready', 'ok', 'Finds bugs and risks without editing files.')}
+        ${surfaceCard('Patch preview', 'Approval gated', 'info', 'Shows proposed changes before apply.')}
+        ${surfaceCard('Swarm review', 'Budget guarded', 'info', 'Uses parallel agents only when useful and within token limits.')}
+      </section>
     </div>
   `);
 
   populate('sector-skills', `
-    <div class="page-header"><h1 class="page-title">Skills</h1><p class="page-subtitle">Governed skills and tools exposed to active runs.</p></div>
-    <div class="card-grid">
-      ${skillCard('Active run tools', 'No tools are exposed by an active run right now.', false)}
+    <div class="premium-page">
+      <section class="premium-hero premium-hero--compact">
+        <div>
+          <span class="dashboard-eyebrow"><span class="dashboard-live-dot"></span>Skills</span>
+          <h1 class="premium-title">Capabilities you can actually trust.</h1>
+          <p class="premium-subtitle">Search, enable, validate and evolve Zavorth-native skills with setup status and safe previews.</p>
+        </div>
+        <button class="operator-primary-action" type="button" data-dashboard-prompt="Show skill curator proposals and only safe metadata updates first.">Open curator</button>
+      </section>
+      <section class="skill-toolbar">
+        <input type="search" placeholder="Search skills, tools or categories" aria-label="Search skills">
+        <button>Ready</button><button>Needs setup</button><button>Drafts</button><button>Evolution</button>
+      </section>
+      <section class="premium-skill-list">
+        ${skillRow('Workspace review', 'Ready', 'Read-only repo analysis, risks and next steps.', 'ok')}
+        ${skillRow('Mnemos file understanding', 'Needs scope', 'Reads approved folders and explains documents with receipts.', 'info')}
+        ${skillRow('Skill curator', 'Preview first', 'Suggests merge, quality score and metadata fixes before approval.', 'info')}
+        ${skillRow('Transaction plane', 'Simulation', 'Previews and audits transactions; live money remains strongly gated.', 'warn')}
+        ${skillRow('External agent onboarding', 'Consent required', 'Detects user-provided agent folders and creates profiles safely.', 'info')}
+      </section>
     </div>
   `);
 
   populate('sector-nodes', `
-    <div class="page-header"><h1 class="page-title">Network</h1><p class="page-subtitle">Nodes and companions connected to the runtime.</p></div>
-    <div class="data-table-wrap"><table class="data-table"><thead><tr><th>Node</th><th>Type</th><th>Processes</th><th>Memory</th><th>Summary</th><th>Actions</th><th>Status</th></tr></thead><tbody>
-      <tr><td class="mono">companions</td><td>Runtime</td><td>0</td><td>-</td><td>Waiting for live snapshot</td><td>-</td><td><span class="badge badge--info"><span class="badge__dot"></span>Waiting</span></td></tr>
-    </tbody></table></div>
+    <div class="premium-page">
+      <section class="premium-hero premium-hero--compact">
+        <div>
+          <span class="dashboard-eyebrow"><span class="dashboard-live-dot"></span>Nexus</span>
+          <h1 class="premium-title">Connected runtimes stay scoped.</h1>
+          <p class="premium-subtitle">Web, CLI, Telegram, Mnemos, Swarm, external agents, ACP and sandbox backends show readiness clearly.</p>
+        </div>
+        <button class="operator-primary-action" type="button" data-dashboard-prompt="Show connected surfaces, external agents and sandbox backend readiness.">Inspect Nexus</button>
+      </section>
+      <section class="premium-grid">
+        ${surfaceCard('Mnemos', 'Configurable', 'info', 'Memory vault scopes require explicit user consent.')}
+        ${surfaceCard('Swarm v2', 'Ready', 'ok', 'Parallel work with budget guard and receipts.')}
+        ${surfaceCard('ACP', 'Opt-in', 'info', 'Universal support, provider-agnostic and policy-gated.')}
+        ${surfaceCard('Docker / WSL / SSH / Remote sandbox', 'Policy gated', 'warn', 'Execution backends require configuration and approval for risky work.')}
+        ${surfaceCard('External agents', 'Consent required', 'info', 'Profiles are created from user-provided paths, never silent scanning.')}
+      </section>
+    </div>
   `);
 
   populate('sector-dreams', `
-    <div class="dreams">
-      <img class="dreams__mascot dreams__mascot-img" src="./assets/fox-semfundo.png" alt="Zavorth fox resting">
-      <span class="dreams__z">z</span><span class="dreams__z">z</span><span class="dreams__z">z</span>
-      <div class="dreams__status">
-        <span class="dreams__status-label">Rest mode</span>
-        <span class="dreams__status-detail"><span class="dreams__status-dot"></span>Memory consolidation waits for real data</span>
-      </div>
-      <div class="dreams__phases">
-        <div class="dreams__phase"><span class="dreams__phase-dot dreams__phase-dot--on"></span><span class="dreams__phase-name">Consolidation</span><span class="dreams__phase-next">waiting for data</span></div>
-        <div class="dreams__phase"><span class="dreams__phase-dot"></span><span class="dreams__phase-name">Compaction</span><span class="dreams__phase-next">not scheduled</span></div>
-        <div class="dreams__phase"><span class="dreams__phase-dot"></span><span class="dreams__phase-name">Cleanup</span><span class="dreams__phase-next">not scheduled</span></div>
-      </div>
+    <div class="premium-page">
+      <section class="premium-hero premium-hero--compact">
+        <div>
+          <span class="dashboard-eyebrow"><span class="dashboard-live-dot"></span>Rest</span>
+          <h1 class="premium-title">Background mode, kept quiet.</h1>
+          <p class="premium-subtitle">Memory compaction, low-priority checks and maintenance summarize only when there is something useful.</p>
+        </div>
+        <button class="operator-primary-action" type="button" data-dashboard-prompt="Show Stay Online status without noisy notifications.">Stay Online status</button>
+      </section>
+      <section class="premium-layout">
+        ${plainPanel('Memory consolidation', 'Idle until useful context can be saved safely.')}
+        ${plainPanel('Keepalive', 'Quiet summaries replace repeated noisy notifications.')}
+        ${plainPanel('Maintenance', 'Cleanup actions remain previewed, reversible and receipt-backed.')}
+      </section>
     </div>
   `);
 
   populate('sector-config', `
-    <div class="config-layout">
-      <div class="config-main">
-        <div class="config-top-tabs">
-          <button class="config-tab active">General</button><button class="config-tab">Models</button><button class="config-tab">Appearance</button><button class="config-tab">Security</button><button class="config-tab">Advanced</button>
+    <div class="premium-page">
+      <section class="premium-hero premium-hero--compact">
+        <div>
+          <span class="dashboard-eyebrow"><span class="dashboard-live-dot"></span>Config</span>
+          <h1 class="premium-title">Settings without secret leaks.</h1>
+          <p class="premium-subtitle">Providers, models, approvals, memory scopes, channel setup and dashboard preferences stay readable and redacted.</p>
         </div>
-        <div class="config-section-hero">
-          <div class="config-section-hero__icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4"/></svg></div>
-          <div class="config-section-hero__text"><span class="config-section-hero__title">Gateway Settings</span><span class="config-section-hero__desc">Local endpoint, runtime defaults and security state.</span></div>
-        </div>
-        <div class="config-content">
-          <div class="config-form">
-            <div class="config-form-section"><span class="config-form-section__title">Gateway</span>
-              <div class="info-grid">
-                <div class="info-row"><span class="info-row__label">Endpoint</span><span class="info-row__value mono">/api</span></div>
-                <div class="info-row"><span class="info-row__label">Auth</span><span class="info-row__value mono">local session</span></div>
-                <div class="info-row"><span class="info-row__label">Protocol</span><span class="info-row__value">local runtime</span></div>
-                <div class="info-row"><span class="info-row__label">Status</span><span class="info-row__value"><span class="badge badge--info"><span class="badge__dot"></span>Waiting</span></span></div>
-              </div>
-            </div>
-            <div class="config-form-section"><span class="config-form-section__title">Default Model</span>
-              <div class="info-grid">
-                <div class="info-row"><span class="info-row__label">Chat</span><span class="info-row__value mono">current model</span></div>
-                <div class="info-row"><span class="info-row__label">Agents</span><span class="info-row__value mono">current model</span></div>
-                <div class="info-row"><span class="info-row__label">Fallback</span><span class="info-row__value mono">not configured</span></div>
-              </div>
-            </div>
-            <div class="config-form-section"><span class="config-form-section__title">Provider & Model Catalog</span>
-              <div class="info-grid" data-provider-model-catalog-summary>
-                <div class="info-row"><span class="info-row__label">Routes</span><span class="info-row__value mono">loading</span></div>
-                <div class="info-row"><span class="info-row__label">Live</span><span class="info-row__value mono">loading</span></div>
-                <div class="info-row"><span class="info-row__label">Models</span><span class="info-row__value mono">loading</span></div>
-                <div class="info-row"><span class="info-row__label">Media</span><span class="info-row__value mono">loading</span></div>
-              </div>
-              <div class="card-grid" data-provider-model-catalog-list style="margin-top:12px">
-                <div class="entity-card"><div class="entity-card__header"><div><div class="entity-card__name">Catalog loading</div><div class="entity-card__id">read-only</div></div><span class="badge badge--info"><span class="badge__dot"></span>Waiting</span></div><div class="entity-card__desc">Provider routes, model surface and live proof will appear here without hidden provider calls.</div></div>
-              </div>
-            </div>
-            <div class="config-form-section"><span class="config-form-section__title">Provider Activation</span>
-              <div class="info-grid" data-provider-activation-summary>
-                <div class="info-row"><span class="info-row__label">Execution</span><span class="info-row__value mono">loading</span></div>
-                <div class="info-row"><span class="info-row__label">Proof</span><span class="info-row__value mono">loading</span></div>
-                <div class="info-row"><span class="info-row__label">Adapters</span><span class="info-row__value mono">loading</span></div>
-                <div class="info-row"><span class="info-row__label">Connectors</span><span class="info-row__value mono">loading</span></div>
-              </div>
-              <div class="card-grid" data-provider-activation-list style="margin-top:12px">
-                <div class="entity-card"><div class="entity-card__header"><div><div class="entity-card__name">Activation loading</div><div class="entity-card__id">read-only</div></div><span class="badge badge--info"><span class="badge__dot"></span>Waiting</span></div><div class="entity-card__desc">Activation status, live-proof commands and connector gaps will appear here without hidden live calls.</div></div>
-              </div>
-            </div>
+        <button class="operator-primary-action" type="button" data-dashboard-prompt="Open settings health and tell me what should be configured next.">Settings health</button>
+      </section>
+      <section class="premium-layout premium-layout--wide-left">
+        <article class="premium-panel">
+          <div class="premium-panel__header"><div><span>Provider catalog</span><h2>Model routes</h2></div><span class="dashboard-pill">redacted</span></div>
+          <div class="info-grid" data-provider-model-catalog-summary>
+            <div class="info-row"><span class="info-row__label">Routes</span><span class="info-row__value mono">loading</span></div>
+            <div class="info-row"><span class="info-row__label">Live</span><span class="info-row__value mono">loading</span></div>
+            <div class="info-row"><span class="info-row__label">Models</span><span class="info-row__value mono">loading</span></div>
+            <div class="info-row"><span class="info-row__label">Media</span><span class="info-row__value mono">loading</span></div>
           </div>
-        </div>
-      </div>
+          <div class="card-grid" data-provider-model-catalog-list style="margin-top:12px"></div>
+        </article>
+        <article class="premium-panel">
+          <div class="premium-panel__header"><div><span>Activation</span><h2>Live proofs</h2></div><span class="dashboard-pill">safe</span></div>
+          <div class="info-grid" data-provider-activation-summary>
+            <div class="info-row"><span class="info-row__label">Execution</span><span class="info-row__value mono">loading</span></div>
+            <div class="info-row"><span class="info-row__label">Proof</span><span class="info-row__value mono">loading</span></div>
+            <div class="info-row"><span class="info-row__label">Adapters</span><span class="info-row__value mono">loading</span></div>
+            <div class="info-row"><span class="info-row__label">Connectors</span><span class="info-row__value mono">loading</span></div>
+          </div>
+          <div class="card-grid" data-provider-activation-list style="margin-top:12px"></div>
+        </article>
+        <article class="premium-panel">
+          <div class="premium-panel__header"><div><span>Permissions</span><h2>Trust plane</h2></div><span class="dashboard-pill dashboard-pill--warm">scoped</span></div>
+          <div class="premium-status-list">
+            ${premiumStatus('Auto approvals', 'limited', 'info')}
+            ${premiumStatus('Break-glass', 'locked', 'warn')}
+            ${premiumStatus('Receipts', 'on', 'ok')}
+          </div>
+        </article>
+      </section>
     </div>
   `);
 
   populate('sector-docs', `
-    <div class="page-header"><h1 class="page-title">Docs</h1><p class="page-subtitle">Technical reference for the local runtime.</p></div>
-    <div class="callout info">Local project docs remain the source of truth while the gateway renders live runtime state.</div>
-    <div class="card-grid">
-      ${docCard('Quickstart', 'Install, configure the gateway and run the first safe mission.', '5 min')}
-      ${docCard('Dashboard Gateway', 'How this surface reads runs, approvals, artifacts and events.', '8 min')}
-      ${docCard('Runtime API', 'Execution contracts, replay and durable queue.', '12 min')}
-      ${docCard('Security', 'Sandboxing, approvals and governed agent behavior.', '6 min')}
+    <div class="premium-page">
+      <section class="premium-hero premium-hero--compact">
+        <div>
+          <span class="dashboard-eyebrow"><span class="dashboard-live-dot"></span>Docs</span>
+          <h1 class="premium-title">Use the product first, docs second.</h1>
+          <p class="premium-subtitle">Short references explain setup, providers, approvals, memory, skills and safe execution.</p>
+        </div>
+        <button class="operator-primary-action" type="button" data-dashboard-prompt="Tell me the shortest path to use Zavorth today.">Quickstart</button>
+      </section>
+      <section class="premium-grid">
+        ${surfaceCard('Quickstart', '2 minutes', 'ok', 'Open, choose a goal, verify provider and run the first safe task.')}
+        ${surfaceCard('Approvals', 'Important', 'warn', 'Understand allow always, scoped approvals and break-glass mode.')}
+        ${surfaceCard('Mnemos', 'Guided', 'info', 'Configure folders and ask about files safely.')}
+        ${surfaceCard('Providers', 'Catalog', 'info', 'See which routes are configured, provable and live.')}
+      </section>
     </div>
   `);
 
   populate('sector-cron', `
-    <div class="page-header"><h1 class="page-title">Scheduled Tasks</h1><p class="page-subtitle">Durable jobs known to the runtime.</p></div>
-    <div class="data-table-wrap"><table class="data-table"><thead><tr><th>Job</th><th>Type</th><th>Attempts</th><th>Next</th><th>Updated</th><th>Status</th></tr></thead><tbody>
-      <tr><td class="mono">workflow queue</td><td>local durable</td><td>0</td><td>-</td><td>now</td><td><span class="badge badge--info"><span class="badge__dot"></span>No live jobs</span></td></tr>
-    </tbody></table></div>
-  `);
-
-  populate('sector-overview', `
-    <div class="operator-page">
-      <section class="operator-hero" aria-label="Task overview">
+    <div class="premium-page">
+      <section class="premium-hero premium-hero--compact">
         <div>
-          <span class="dashboard-eyebrow"><span class="dashboard-live-dot"></span>Tasks</span>
-          <h1 class="operator-title">Your work queue, without the noise.</h1>
-          <p class="operator-subtitle">Track active missions, waiting approvals, safe next steps and recent receipts in one readable place.</p>
+          <span class="dashboard-eyebrow"><span class="dashboard-live-dot"></span>Automations</span>
+          <h1 class="premium-title">Scheduled work stays explicit.</h1>
+          <p class="premium-subtitle">Recurring jobs, monitors and reminders are visible, revocable and policy checked.</p>
         </div>
-        <button class="operator-primary-action" type="button" data-dashboard-prompt="Show my tasks and the safest next step.">
-          Show next step
-        </button>
+        <button class="operator-primary-action" type="button" data-dashboard-prompt="Show scheduled tasks and whether any are risky or noisy.">Check automations</button>
       </section>
-
-      <section class="operator-metrics" aria-label="Task metrics">
-        <article class="operator-metric"><span>Active</span><strong data-dashboard-metric="runs">0</strong><small data-dashboard-meta="runs">no active mission</small></article>
-        <article class="operator-metric"><span>Waiting</span><strong data-dashboard-metric="approvals">0</strong><small data-dashboard-meta="approvals">no pending approval</small></article>
-        <article class="operator-metric"><span>Receipts</span><strong data-dashboard-metric="artifacts">0</strong><small data-dashboard-meta="artifacts">nothing recorded yet</small></article>
-      </section>
-
-      <section class="operator-workspace" aria-label="Task workflow">
-        <article class="operator-panel operator-panel--wide">
-          <div class="operator-panel__header">
-            <div><span>Current mission</span><h2 data-dashboard-runtime-title>Waiting for a mission</h2></div>
-            <span class="dashboard-pill dashboard-pill--safe">ready</span>
-          </div>
-          <p data-dashboard-runtime-text>Ask in Inbox. Zavorth will keep the task read-only until a preview, policy check and approval are ready.</p>
-          <div class="operator-step-list">
-            <div><span>1</span><strong>Ask normally</strong><small>Use plain language.</small></div>
-            <div><span>2</span><strong>Preview risk</strong><small>See what would happen.</small></div>
-            <div><span>3</span><strong>Approve or reject</strong><small>Only scoped work runs.</small></div>
-          </div>
-        </article>
-
-        <article class="operator-panel">
-          <div class="operator-panel__header"><div><span>Approvals</span><h2>Decisions</h2></div><span class="dashboard-pill dashboard-pill--warm">policy</span></div>
-          <p>No pending decisions. Risky file writes, network sends, device control and external agents appear here first.</p>
-          <button class="operator-secondary-action" type="button" data-dashboard-prompt="Show pending approvals and explain what each one would do.">Open approvals</button>
-        </article>
-
-        <article class="operator-panel">
-          <div class="operator-panel__header"><div><span>Readiness</span><h2>Safe to act?</h2></div><span class="dashboard-pill">honest</span></div>
-          <div class="dashboard-status-list">
-            <div class="dashboard-status-row"><span>Sandbox</span><strong data-dashboard-remote="docker">approval required</strong></div>
-            <div class="dashboard-status-row"><span>Providers</span><strong data-dashboard-remote="mcp">token protected</strong></div>
-            <div class="dashboard-status-row"><span>Channels</span><strong data-dashboard-remote="files">read scoped</strong></div>
-          </div>
-        </article>
-      </section>
-
-      <section class="operator-panel">
-        <div class="operator-panel__header">
-          <div><span>Latest signals</span><h2>Activity timeline</h2></div>
-          <span class="dashboard-pill">live</span>
-        </div>
-        <div class="dashboard-mini-timeline" data-dashboard-timeline>
-          <div class="dashboard-timeline-item"><span></span><p>Gateway loaded</p><strong>now</strong></div>
-          <div class="dashboard-timeline-item"><span></span><p>Runtime waiting for a request</p><strong>idle</strong></div>
-          <div class="dashboard-timeline-item"><span></span><p>Receipts ready when actions run</p><strong>ready</strong></div>
-        </div>
-      </section>
+      <div class="data-table-wrap"><table class="data-table"><thead><tr><th>Automation</th><th>Type</th><th>Next</th><th>Status</th></tr></thead><tbody>
+        <tr><td class="mono">none visible</td><td>local</td><td>-</td><td><span class="badge badge--info"><span class="badge__dot"></span>Waiting</span></td></tr>
+      </tbody></table></div>
     </div>
   `);
 
-  populate('sector-dreams', `
-    <div class="operator-page">
-      <section class="operator-hero operator-hero--rest" aria-label="Rest mode">
-        <div>
-          <span class="dashboard-eyebrow"><span class="dashboard-live-dot"></span>Rest</span>
-          <h1 class="operator-title">Quiet background mode.</h1>
-          <p class="operator-subtitle">Rest is for memory cleanup, compaction and low-priority maintenance. It should never cover the screen or hide controls.</p>
-        </div>
-        <div class="operator-rest-mark" aria-hidden="true">
-          <img src="./assets/fox-semfundo.png" alt="">
-        </div>
-      </section>
-
-      <section class="operator-workspace">
-        <article class="operator-panel">
-          <div class="operator-panel__header"><div><span>Memory</span><h2>Consolidation</h2></div><span class="dashboard-pill dashboard-pill--safe">idle</span></div>
-          <p>Waits for real session data before writing durable memory.</p>
-        </article>
-        <article class="operator-panel">
-          <div class="operator-panel__header"><div><span>Context</span><h2>Compaction</h2></div><span class="dashboard-pill">scheduled</span></div>
-          <p>Clears bulky old output only when it is safe and useful.</p>
-        </article>
-        <article class="operator-panel">
-          <div class="operator-panel__header"><div><span>Cleanup</span><h2>Maintenance</h2></div><span class="dashboard-pill">preview</span></div>
-          <p>Background maintenance stays visible, reversible and receipt-backed.</p>
-        </article>
-      </section>
-    </div>
-  `);
+  window.ZavorthCommandCenterChat?.refreshDashboard?.();
+  bindPromptActions();
 
   function populate(id, html) {
     const el = document.getElementById(id);
     if (el) el.innerHTML = html;
   }
 
-  function channelCard(name, id, status, type, detail) {
-    return `<div class="entity-card"><div class="entity-card__header"><div><div class="entity-card__name">${name}</div><div class="entity-card__id">${id}</div></div><span class="badge badge--${type}"><span class="badge__dot"></span>${status}</span></div><div class="entity-card__desc">${detail}</div></div>`;
-  }
-
-  function agentCard(name, desc, status, enabled, model) {
-    const t = status === 'Running' ? 'ok' : status === 'Idle' || status === 'Waiting' ? 'info' : 'muted';
-    return `<div class="entity-card"><div class="entity-card__header"><div><div class="entity-card__name">${name}</div></div><span class="badge badge--${t}"><span class="badge__dot"></span>${status}</span></div><div class="entity-card__desc">${desc}</div><div class="entity-card__meta"><span class="badge badge--muted">${model}</span><div class="entity-card__toggle"><input type="checkbox" class="toggle-switch" ${enabled ? 'checked' : ''}><span style="font-size:12px;color:var(--b-signal-muted)">${enabled ? 'Active' : 'Inactive'}</span></div></div></div>`;
-  }
-
-  function skillCard(name, desc, enabled) {
-    return `<div class="entity-card"><div class="entity-card__header"><div class="entity-card__name" style="font-family:var(--b-mono);font-size:13px">${name}</div><div class="entity-card__toggle"><input type="checkbox" class="toggle-switch" ${enabled ? 'checked' : ''}></div></div><div class="entity-card__desc">${desc}</div></div>`;
-  }
-
-  function docCard(title, desc, time) {
-    return `<div class="entity-card" style="cursor:pointer"><div class="entity-card__name">${title}</div><div class="entity-card__desc">${desc}</div><span class="badge badge--muted">${time} read</span></div>`;
-  }
-
-  window.ZavorthCommandCenterChat?.refreshDashboard?.();
-
-  document.querySelectorAll('.config-tab').forEach(tab => {
-    tab.addEventListener('click', () => {
-      tab.parentElement.querySelectorAll('.config-tab').forEach(t => t.classList.remove('active'));
-      tab.classList.add('active');
+  function bindPromptActions() {
+    document.querySelectorAll('[data-dashboard-prompt]').forEach(button => {
+      if (button.dataset.zavorthPromptBound === '1') return;
+      button.dataset.zavorthPromptBound = '1';
+      button.addEventListener('click', () => {
+        const input = document.getElementById('compose-input');
+        const prompt = button.getAttribute('data-dashboard-prompt') || '';
+        document.querySelector('[data-sector="terminal"]')?.click();
+        if (input) {
+          input.value = prompt;
+          input.dispatchEvent(new Event('input', { bubbles: true }));
+          input.focus();
+        }
+      });
     });
-  });
-
-  document.querySelectorAll('[data-dashboard-prompt]').forEach(button => {
-    button.addEventListener('click', () => {
-      const input = document.getElementById('compose-input');
-      const prompt = button.getAttribute('data-dashboard-prompt') || '';
-      document.querySelector('[data-sector="terminal"]')?.click();
-      if (input) {
-        input.value = prompt;
-        input.dispatchEvent(new Event('input', { bubbles: true }));
-        input.focus();
-      }
+    document.querySelectorAll('[data-dashboard-sector]').forEach(button => {
+      if (button.dataset.zavorthSectorBound === '1') return;
+      button.dataset.zavorthSectorBound = '1';
+      button.addEventListener('click', () => {
+        const sector = button.getAttribute('data-dashboard-sector');
+        if (sector) document.querySelector(`[data-sector="${sector}"]`)?.click();
+      });
     });
-  });
+  }
 
-  document.querySelectorAll('[data-dashboard-sector]').forEach(button => {
-    button.addEventListener('click', () => {
-      const sector = button.getAttribute('data-dashboard-sector');
-      if (sector) document.querySelector(`[data-sector="${sector}"]`)?.click();
-    });
-  });
+  function premiumMetric(label, value, sub, tone) {
+    return `<article class="premium-metric premium-metric--${tone}"><span>${label}</span><strong>${value}</strong><small>${sub}</small></article>`;
+  }
+
+  function platformStat(label, value, sub, tone) {
+    return `<article class="platform-stat platform-stat--${tone}"><span>${label}</span><strong>${value}</strong><small>${sub}</small></article>`;
+  }
+
+  function premiumStep(index, title, detail) {
+    return `<div><span>${index}</span><strong>${title}</strong><small>${detail}</small></div>`;
+  }
+
+  function premiumStatus(name, state, tone) {
+    return `<div class="premium-status premium-status--${tone}"><span>${name}</span><strong>${state}</strong></div>`;
+  }
+
+  function surfaceCard(name, status, tone, detail) {
+    return `<article class="premium-card premium-card--${tone}"><div class="premium-card__top"><h2>${name}</h2><span>${status}</span></div><p>${detail}</p></article>`;
+  }
+
+  function plainPanel(title, detail) {
+    return `<article class="premium-panel"><div class="premium-panel__header"><div><span>Control</span><h2>${title}</h2></div><span class="dashboard-pill">ready</span></div><p>${detail}</p></article>`;
+  }
+
+  function skillRow(name, status, detail, tone) {
+    return `<article class="skill-row skill-row--${tone}"><div><h2>${name}</h2><p>${detail}</p></div><span>${status}</span><label><input type="checkbox" class="toggle-switch" ${tone === 'ok' ? 'checked' : ''} aria-label="${name} enabled"></label></article>`;
+  }
 })();

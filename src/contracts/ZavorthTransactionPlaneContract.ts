@@ -1,4 +1,4 @@
-export const ZAVORTH_TRANSACTION_PLANE_CONTRACT_VERSION = 'zavorth-transaction-plane/phase-0' as const;
+export const ZAVORTH_TRANSACTION_PLANE_CONTRACT_VERSION = 'zavorth-transaction-plane/checkpoint-0' as const;
 
 export type ZavorthTransactionRiskLevel = 'low' | 'medium' | 'high' | 'critical';
 
@@ -198,7 +198,7 @@ export const ZAVORTH_TRANSACTION_RISK_TAXONOMY: Record<ZavorthTransactionRiskLev
   },
   critical: {
     level: 'critical',
-    summary: 'External value movement such as withdrawal or asset transfer; blocked by default in Phase 0.',
+    summary: 'External value movement such as withdrawal or asset transfer; blocked by default in Security contract.',
     examples: ['asset-transfer', 'asset-withdrawal'],
     requiredControls: ['manual owner policy', 'dual confirmation', 'cooldown', 'ledger receipt'],
   },
@@ -207,7 +207,7 @@ export const ZAVORTH_TRANSACTION_RISK_TAXONOMY: Record<ZavorthTransactionRiskLev
 export function buildZavorthTransactionPlaneContractSnapshot(): ZavorthTransactionPlaneContractSnapshot {
   return {
     version: ZAVORTH_TRANSACTION_PLANE_CONTRACT_VERSION,
-    summary: 'Security contract for Zavorth Transaction Plane Phase 0.',
+    summary: 'Security contract for Zavorth Transaction Plane Security contract.',
     invariants: [...ZAVORTH_TRANSACTION_PLANE_INVARIANTS],
     riskTaxonomy: ZAVORTH_TRANSACTION_RISK_TAXONOMY,
     irreversibleActions: [...ZAVORTH_TRANSACTION_IRREVERSIBLE_ACTIONS],
@@ -258,7 +258,7 @@ export function evaluateZavorthTransactionPlaneSafety(
 
   if (criticalValueMovement && liveEffect) {
     blockers.push('critical_value_movement_blocked_by_default');
-    reasons.push('External transfers and withdrawals remain blocked by default in Phase 0.');
+    reasons.push('External transfers and withdrawals remain blocked by default in Security contract.');
   }
 
   if (typedConnectorRequired && input.typedConnector !== true && liveEffect) {
@@ -291,7 +291,7 @@ export function evaluateZavorthTransactionPlaneSafety(
   }
 
   if (blockers.length === 0) {
-    reasons.push(liveEffect ? 'Live transaction controls satisfied for Phase 0 policy.' : 'Non-live transaction activity stays inside simulation or preview boundaries.');
+    reasons.push(liveEffect ? 'Live transaction controls satisfied for Security contract policy.' : 'Non-live transaction activity stays inside simulation or preview boundaries.');
   }
 
   return {

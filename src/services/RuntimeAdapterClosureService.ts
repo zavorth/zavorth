@@ -105,7 +105,7 @@ export class RuntimeAdapterClosureService {
         providerParity: 'npm run provider-mesh-parity:check --silent',
         channelParity: 'npm run channel-mesh-parity:check --silent',
         certify: 'npm run parity-certify --silent',
-        nextPhase: 'Fase 12 - Native Capability Closure',
+        nextStage: 'Etapa 12 - Native Capability Closure',
       },
       policy: {
         closureIsRuntimeClassificationOnly: true,

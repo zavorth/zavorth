@@ -3,7 +3,7 @@
 import { useTranslations } from "next-intl";
 
 /**
- * 403 Forbidden Page — Phase 8.1
+ * 403 Forbidden Page — Dashboard controls.1
  *
  * Displayed when access is denied due to:
  * - Invalid API key

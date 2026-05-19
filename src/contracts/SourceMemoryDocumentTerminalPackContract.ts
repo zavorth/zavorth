@@ -1,4 +1,4 @@
-export const ZAVORTH_SOURCE_MEMORY_DOCUMENT_TERMINAL_PACK_CONTRACT_VERSION = '2026-05-05.phase-5' as const;
+export const ZAVORTH_SOURCE_MEMORY_DOCUMENT_TERMINAL_PACK_CONTRACT_VERSION = '2026-05-05.checkpoint-5' as const;
 
 export const SOURCE_MEMORY_DOCUMENT_TERMINAL_PACKAGES = [
   '@source/memory-host-sdk',
@@ -19,7 +19,7 @@ export const SOURCE_MEMORY_DOCUMENT_TERMINAL_PACKAGES = [
 export type SourceMemoryDocumentTerminalPackageName =
   typeof SOURCE_MEMORY_DOCUMENT_TERMINAL_PACKAGES[number];
 
-export type SourcePhase5Decision =
+export type SourceStage5Decision =
   | 'implemented'
   | 'implemented-zavorth-native'
   | 'implemented-optional-runtime'
@@ -167,14 +167,14 @@ export type GovernedTerminalReceipt = {
   reason: string;
 };
 
-export type Phase5PackageEvidence = {
+export type Stage5PackageEvidence = {
   packageName: SourceMemoryDocumentTerminalPackageName;
   presentInSource: boolean;
   presentInZavorthPackageJson: boolean;
   presentInZavorthLockfile: boolean;
   sourceReferenceFiles: string[];
   zavorthReferenceFiles: string[];
-  decision: SourcePhase5Decision;
+  decision: SourceStage5Decision;
 };
 
 export type SourceMemoryDocumentTerminalPackSnapshot = {
@@ -185,7 +185,7 @@ export type SourceMemoryDocumentTerminalPackSnapshot = {
   statement: 'Source memory, document, search and terminal behavior is absorbed as governed Zavorth-native runtimes with artifact-first receipts.';
   sourceRoot: string;
   zavorthRoot: string;
-  packageEvidence: Phase5PackageEvidence[];
+  packageEvidence: Stage5PackageEvidence[];
   memory: {
     backendId: MemoryKnowledgeBackendId;
     writeReceipt: MemoryKnowledgeWriteReceipt;
@@ -234,6 +234,6 @@ export type SourceMemoryDocumentTerminalPackSnapshot = {
     qa: 'npm run qa:source-memory-document-terminal-pack --silent';
     liveFetch: 'npm run source-memory-document-terminal-pack -- --fetch <url> --confirm-live-network';
     terminalSmoke: 'npm run source-memory-document-terminal-pack -- --terminal <command> --cwd <path> --approval-id <id>';
-    nextPhase: 'Phase 6 - Native Companion And Device Capability Pack';
+    nextStage: 'Runtime gateway - Native Companion And Device Capability Pack';
   };
 };

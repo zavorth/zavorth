@@ -142,7 +142,7 @@ function resolvePublicIdentityPaths(manifest) {
     'AGENTS.md',
     'ops/recovery/DisasterRecoveryPlan.md',
     'scripts/command-catalog.json',
-    'docs/62-architecture-source-of-truth.md',
+    'docs/product-direction.md',
     'docs/README.md',
     'src/zavorth-cli.ts',
     'scripts/setup-v3.ts',

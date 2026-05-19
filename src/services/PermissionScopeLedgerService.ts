@@ -127,7 +127,7 @@ export class PermissionScopeLedgerService {
   }
 
   private normalizeScope(permission: PermissionRequest): ZavorthPermissionOsScope {
-    const metadataScope = String(permission.metadata?.phase27_scope || permission.metadata?.scope || '').trim().toLowerCase();
+    const metadataScope = String(permission.metadata?.['preview-engine7_scope'] || permission.metadata?.scope || '').trim().toLowerCase();
     if (metadataScope === 'timeboxed') {
       return 'timeboxed';
     }

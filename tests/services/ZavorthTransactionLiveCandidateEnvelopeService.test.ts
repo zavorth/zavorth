@@ -23,7 +23,7 @@ describe('ZavorthTransactionLiveCandidateEnvelopeService', () => {
       now: () => now,
     });
     credentialRef = credentialRefs.register({
-      label: 'Phase 10 exchange paper ref',
+      label: 'Intent model0 exchange paper ref',
       connectorKind: 'exchange',
       environment: 'paper',
       allowedActions: ['trade-order'],
@@ -55,7 +55,7 @@ describe('ZavorthTransactionLiveCandidateEnvelopeService', () => {
     expect(result.envelope).toBeUndefined();
     expect(result.gates).toEqual(
       expect.arrayContaining([
-        expect.objectContaining({ kind: 'phase9-certification', passed: true }),
+        expect.objectContaining({ kind: 'certification-matrix-certification', passed: true }),
         expect.objectContaining({ kind: 'command-center-simulated', passed: true }),
         expect.objectContaining({ kind: 'approval-ledger-approved', passed: true }),
         expect.objectContaining({ kind: 'credential-ref-ready', passed: true }),

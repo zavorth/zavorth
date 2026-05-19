@@ -30,7 +30,7 @@ const snapshot = {
 if (asJson) {
   console.log(JSON.stringify(snapshot, null, 2));
 } else {
-  console.log('[zavorth-universal-skill-import] checking Phase 2');
+  console.log('[zavorth-universal-skill-import] checking Preview engine');
   for (const rule of rules) {
     const marker = rule.status === 'passed' ? 'ok' : 'fail';
     console.log(`[zavorth-universal-skill-import] ${marker} ${rule.label}: ${rule.observed} | ${rule.target}`);
@@ -56,7 +56,7 @@ function ruleFilesExist() {
   const missing = files.filter((file) => !fs.existsSync(path.join(root, file)));
   return {
     id: 'universal-skill-import-files',
-    label: 'Phase 2 files exist',
+    label: 'Preview engine files exist',
     status: missing.length === 0 ? 'passed' : 'failed',
     observed: `${files.length - missing.length}/${files.length} file(s) present`,
     target: 'contract, import service, CLI, check and tests are present',
@@ -72,7 +72,7 @@ function ruleContainsMarkers() {
       'sourceAllowlistRequired',
       'skillAllowlistRequired',
       'targetIsImportedLibrary',
-      'Phase 3 - Skill Bridge Runtime',
+      'Approval gate - Skill Bridge Runtime',
     ]],
     ['src/skills/UniversalSkillTrustImportService.ts', [
       'buildSnapshot',
@@ -103,7 +103,7 @@ function ruleContainsMarkers() {
   }
   return {
     id: 'universal-skill-import-markers',
-    label: 'Phase 2 markers are present',
+    label: 'Preview engine markers are present',
     status: missing.length === 0 ? 'passed' : 'failed',
     observed: missing.length === 0 ? 'all markers present' : `${missing.length} missing marker(s)`,
     target: 'source has trust policy, provenance, receipts and no-execution markers',

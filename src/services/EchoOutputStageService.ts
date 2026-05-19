@@ -50,7 +50,7 @@ type EchoOutputStageDeps = {
  * Cross-surface output post-processor for Echo voice mode.
  *
  * Surfaces provide delivery primitives (text, optional voice, optional action)
- * and this stage decides whether a reply should become voice or remain text.
+ * and this phase decides whether a reply should become voice or remain text.
  */
 export class EchoOutputStageService {
   constructor(private readonly deps: EchoOutputStageDeps = {}) {}
@@ -127,7 +127,7 @@ export class EchoOutputStageService {
         policyHint,
         traceId,
         surface: request.surface,
-        requestedBy: request.requestedBy || `${request.surface}-output-stage`,
+        requestedBy: request.requestedBy || `${request.surface}-output-phase`,
         sessionId: request.sessionId || '',
       });
       if (!audioPath) {

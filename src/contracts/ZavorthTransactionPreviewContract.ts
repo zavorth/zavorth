@@ -13,7 +13,7 @@ import type {
   ZavorthTransactionRiskLevel,
 } from './ZavorthTransactionPlaneContract.js';
 
-export const ZAVORTH_TRANSACTION_PREVIEW_CONTRACT_VERSION = 'zavorth-transaction-preview/phase-2' as const;
+export const ZAVORTH_TRANSACTION_PREVIEW_CONTRACT_VERSION = 'zavorth-transaction-preview/checkpoint-2' as const;
 
 export type ZavorthTransactionPreviewStatus = 'ready-for-review' | 'needs-clarification' | 'blocked';
 
@@ -127,12 +127,12 @@ export type ZavorthTransactionPreviewContractSnapshot = {
 export function buildZavorthTransactionPreviewContractSnapshot(): ZavorthTransactionPreviewContractSnapshot {
   return {
     version: ZAVORTH_TRANSACTION_PREVIEW_CONTRACT_VERSION,
-    summary: 'Human-reviewable transaction preview contract for Zavorth Transaction Plane Phase 2.',
+    summary: 'Human-reviewable transaction preview contract for Zavorth Transaction Plane Preview engine.',
     statuses: ['ready-for-review', 'needs-clarification', 'blocked'],
     connectorKinds: ['market-data', 'commerce', 'payment', 'exchange', 'currency-exchange', 'subscription', 'wallet', 'unknown'],
     invariants: [
       'A preview never applies a live transaction effect.',
-      'A preview must carry the parsed intent snapshot and Phase 0 policy decision.',
+      'A preview must carry the parsed intent snapshot and Security contract policy decision.',
       'A preview must expose connector, amount, target, approval and blocker information.',
       'Real-money previews require explicit approval before any live execution plan can exist.',
       'Raw secrets are never allowed in connector requirements, quote, approval or receipts.',

@@ -8,7 +8,7 @@ const asJson = process.argv.includes('--json');
 const rules = [
   ruleFilesExist({
     id: 'cross-channel-continuity-files',
-    label: 'Wave 41 files exist',
+    label: 'Channel mesh1 files exist',
     target: 'Runtime, CLI, Command Center, tests and docs are present',
     files: [
       'src/runtime/agent/CrossChannelContinuityService.ts',
@@ -27,7 +27,7 @@ const rules = [
     files: ['src/runtime/agent/CrossChannelContinuityService.ts'],
     needles: [
       'CROSS_CHANNEL_CONTINUITY_CONTRACT_VERSION',
-      '2026-05-03.wave-41',
+      '2026-05-03.cross-channel',
       'CrossChannelContinuityChannel',
       'CrossChannelContinuityHandoff',
       'noCrossChannelMessageSent',
@@ -63,7 +63,7 @@ const rules = [
     ],
     needles: [
       'continuity',
-      'Cross-Channel Continuity - Wave 41',
+      'Cross-Channel Continuity - Channel mesh1',
       'resolveCrossChannelContinuityCliText',
       'formatCrossChannelContinuitySnapshot',
       'zavorth continuity',
@@ -92,7 +92,7 @@ const rules = [
   }),
   ruleContainsAll({
     id: 'package-exposes-cross-channel-continuity-gate',
-    label: 'package exposes Wave 41 gate',
+    label: 'package exposes Channel mesh1 gate',
     target: 'local QA can run cross-channel-continuity:check and qa:cross-channel-continuity',
     files: ['package.json'],
     needles: [
@@ -118,7 +118,7 @@ const snapshot = {
 if (asJson) {
   console.log(JSON.stringify(snapshot, null, 2));
 } else {
-  console.log('[cross-channel-continuity] checking Wave 41');
+  console.log('[cross-channel-continuity] checking Channel mesh1');
   for (const rule of rules) {
     const marker = rule.status === 'passed' ? 'ok' : 'fail';
     console.log(`[cross-channel-continuity] ${marker} ${rule.label}: ${rule.observed} | ${rule.target}`);

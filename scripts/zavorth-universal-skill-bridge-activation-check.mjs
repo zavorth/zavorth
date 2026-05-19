@@ -30,7 +30,7 @@ const snapshot = {
 if (asJson) {
   console.log(JSON.stringify(snapshot, null, 2));
 } else {
-  console.log('[zavorth-universal-skill-bridge-activation] checking Phase 5');
+  console.log('[zavorth-universal-skill-bridge-activation] checking Credential vault');
   for (const rule of rules) {
     const marker = rule.status === 'passed' ? 'ok' : 'fail';
     console.log(`[zavorth-universal-skill-bridge-activation] ${marker} ${rule.label}: ${rule.observed} | ${rule.target}`);
@@ -58,7 +58,7 @@ function ruleFilesExist() {
   const missing = files.filter((file) => !fs.existsSync(path.join(root, file)));
   return {
     id: 'universal-skill-bridge-activation-files',
-    label: 'Phase 5 files exist',
+    label: 'Credential vault files exist',
     status: missing.length === 0 ? 'passed' : 'failed',
     observed: `${files.length - missing.length}/${files.length} file(s) present`,
     target: 'activation contract, service, CLI, channel command wiring and tests are present',
@@ -71,7 +71,7 @@ function ruleContainsMarkers() {
     ['src/contracts/ZavorthUniversalSkillBridgeActivationContract.ts', [
       'ZAVORTH_UNIVERSAL_SKILL_BRIDGE_ACTIVATION_CONTRACT_VERSION',
       'activationUsesRegistryAndBridgeOnly',
-      'Phase 6 - Trust-Governed Skill Expansion at Scale',
+      'Runtime gateway - Trust-Governed Skill Expansion at Scale',
     ]],
     ['src/services/UniversalSkillBridgeActivationService.ts', [
       'executeCommand',
@@ -109,7 +109,7 @@ function ruleContainsMarkers() {
   }
   return {
     id: 'universal-skill-bridge-activation-markers',
-    label: 'Phase 5 markers are present',
+    label: 'Credential vault markers are present',
     status: missing.length === 0 ? 'passed' : 'failed',
     observed: missing.length === 0 ? 'all markers present' : `${missing.length} missing marker(s)`,
     target: 'activation is wired into shared commands, Telegram and CLI checks',
@@ -219,6 +219,38 @@ function runActivationRule(input) {
 
 function createFixture() {
   const rootDir = fs.mkdtempSync(path.join(os.tmpdir(), 'zavorth-usba-'));
+  fs.mkdirSync(path.join(rootDir, 'config'), { recursive: true });
+  fs.writeFileSync(path.join(rootDir, 'config', 'skill-sources.json'), JSON.stringify({
+    version: 1,
+    updatedAt: '2026-05-10T17:00:00.000Z',
+    sources: [
+      {
+        id: 'workspace-library',
+        label: 'Workspace skill library',
+        kind: 'workspace',
+        trust: 'trusted',
+        enabled: true,
+        ingestionMode: 'local-scan',
+        path: 'skill-library',
+        createIfMissing: true,
+        ownership: 'workspace',
+        registrySource: 'zavorth:local-workspace',
+      },
+      {
+        id: 'workspace-imported-library',
+        label: 'Workspace imported skill library',
+        kind: 'workspace',
+        trust: 'review',
+        enabled: true,
+        ingestionMode: 'local-scan',
+        path: 'skill-library/imported',
+        createIfMissing: false,
+        ownership: 'curated-import',
+        registrySource: 'zavorth:curated-import',
+        notes: ['Fixture source for governed bridge activation checks.'],
+      },
+    ],
+  }, null, 2), 'utf8');
   fs.mkdirSync(path.join(rootDir, 'skill-library', 'imported', 'research-pack', 'references'), { recursive: true });
   const skillDir = path.join(rootDir, 'skill-library', 'imported', 'research-pack');
   fs.writeFileSync(path.join(skillDir, 'SKILL.md'), [

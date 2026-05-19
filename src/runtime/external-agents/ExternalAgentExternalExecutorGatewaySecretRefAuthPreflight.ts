@@ -2,7 +2,7 @@ import type {
   ExternalAgentSidecarReadOnlyExecutionGate,
 } from './ExternalAgentSidecarReadOnlyBoundaryPack.js';
 import {
-  createWave1SidecarReadOnlyExecutionGate,
+  createCanonicalSidecarReadOnlyExecutionGate,
 } from './ExternalAgentSidecarReadOnlyBoundaryPack.js';
 
 export const EXTERNAL_EXECUTOR_GATEWAY_SECRET_REF_AUTH_PREFLIGHT_NOW = '2026-04-28T16:00:00.000Z' as const;
@@ -105,7 +105,7 @@ export type ExternalExecutorGatewaySecretRefAuthPreflightNormalization<TRuntimeI
     serializedOutputContainsAccidentalRawCredential: false;
     secretPlaceholder: '<SecretRef:external-executor-gateway-token>';
   };
-  nextGateRecommended: 'docs/156-wave-1-authenticated-ephemeral-external-executor-gateway-health-probe.md' | null;
+  nextGateRecommended: 'docs/authenticated-ephemeral-external-executor-gateway-health-probe.md' | null;
   executionGate: ExternalExecutorGatewaySecretRefAuthExecutionGate;
   sidecarOptional: true;
   zavorthRunsWithoutSidecar: true;
@@ -128,7 +128,7 @@ function unique<TValue>(values: TValue[]): TValue[] {
 
 function createExternalExecutorGatewaySecretRefAuthExecutionGate(): ExternalExecutorGatewaySecretRefAuthExecutionGate {
   return {
-    ...createWave1SidecarReadOnlyExecutionGate(),
+    ...createCanonicalSidecarReadOnlyExecutionGate(),
     authPreflightOnly: true,
     helpConsultedReadOnly: true,
     configReadOnly: true,
@@ -327,7 +327,7 @@ export function normalizeExternalExecutorGatewaySecretRefAuthPreflight<TRuntimeI
       secretPlaceholder: '<SecretRef:external-executor-gateway-token>',
     },
     nextGateRecommended: decision === 'secret-ref-path-known'
-      ? 'docs/156-wave-1-authenticated-ephemeral-external-executor-gateway-health-probe.md'
+      ? 'docs/authenticated-ephemeral-external-executor-gateway-health-probe.md'
       : null,
     executionGate: options.createExecutionGate?.() || createExternalExecutorGatewaySecretRefAuthExecutionGate(),
     sidecarOptional: true,

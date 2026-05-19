@@ -4,7 +4,7 @@ import { ZavorthFunctionalClosureService } from '../../src/services/ZavorthFunct
 import { ZavorthFunctionalReleaseGateService } from '../../src/services/ZavorthFunctionalReleaseGateService.js';
 import { ZavorthLedgerDecisionUpdaterService } from '../../src/services/ZavorthLedgerDecisionUpdaterService.js';
 
-describe('ZavorthFunctionalClosureService Phase 9', () => {
+describe('ZavorthFunctionalClosureService Certification matrix', () => {
   const now = () => new Date('2026-05-05T21:00:00.000Z');
 
   it('builds dashboard rows with category status, risk and receipts', () => {
@@ -203,7 +203,7 @@ describe('ZavorthFunctionalClosureService Phase 9', () => {
     expect(closure.ledgerDecisionUpdater.blockedUpdates).toBe(0);
     expect(closure.dashboard.report).toContain('phase 8 skill-ecosystem');
     expect(closure.commands.nextStep).toBe('Functional absorption closure complete');
-    expect(text).toContain('Zavorth Functional Closure - Phase 9');
+    expect(text).toContain('Zavorth Functional Closure - Certification matrix');
     expect(text).toContain('Next: Functional absorption closure complete');
   });
 });
@@ -219,7 +219,7 @@ function item(input: Partial<ZavorthFunctionalClosureItem>): ZavorthFunctionalCl
   const receiptCount = input.receiptCount ?? 1;
   return {
     id: input.id || 'item',
-    phase: input.phase || 1,
+    stage: input.phase || 1,
     label: input.label || input.id || 'item',
     category: input.category || 'category',
     priority: input.priority || 'P1',

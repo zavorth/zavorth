@@ -16,7 +16,7 @@ type CapabilityAutopilotSurfacesCheck = {
 };
 
 type CapabilityAutopilotSurfacesSnapshot = {
-  phase: '63';
+  stage: '63';
   surface: 'capability-autopilot-surfaces';
   generatedAt: string;
   capabilityId: string;
@@ -29,8 +29,8 @@ type CapabilityAutopilotSurfacesSnapshot = {
   };
   payloads: CapabilitySurfaceUxPayload[];
   checks: CapabilityAutopilotSurfacesCheck[];
-  nextRecommendedPhase: {
-    phase: '64';
+  nextRecommendedStage: {
+    stage: '64';
     title: string;
     reason: string;
   };
@@ -91,7 +91,7 @@ function buildSnapshot(payloads: CapabilitySurfaceUxPayload[]): CapabilityAutopi
   const first = payloads[0];
 
   return {
-    phase: '63',
+    stage: '63',
     surface: 'capability-autopilot-surfaces',
     generatedAt: new Date().toISOString(),
     capabilityId: first?.capabilityId || '<ausente>',
@@ -104,8 +104,8 @@ function buildSnapshot(payloads: CapabilitySurfaceUxPayload[]): CapabilityAutopi
     },
     payloads,
     checks,
-    nextRecommendedPhase: {
-      phase: '64',
+    nextRecommendedStage: {
+      stage: '64',
       title: 'Capability Memory And Replay Learning',
       reason:
         'Depois de padronizar a experiencia cross-surface, o proximo passo e guardar aprendizados por workspace/capability sem payload sensivel.',
@@ -190,7 +190,7 @@ function check(
 
 function renderReport(snapshot: CapabilityAutopilotSurfacesSnapshot): string {
   const lines: string[] = [];
-  lines.push('[capability-autopilot-surfaces] Fase 63 - Cross-Surface Capability UX');
+  lines.push('[capability-autopilot-surfaces] Etapa 63 - Cross-Surface Capability UX');
   lines.push(`status: ${snapshot.status}`);
   lines.push(`ok: ${snapshot.summary.ok ? 'yes' : 'no'} | pass=${snapshot.summary.passed} warn=${snapshot.summary.warnings} fail=${snapshot.summary.failed}`);
   lines.push(`capability: ${snapshot.capabilityId}`);
@@ -204,7 +204,7 @@ function renderReport(snapshot: CapabilityAutopilotSurfacesSnapshot): string {
     }
   }
   lines.push('');
-  lines.push(`proxima fase recomendada: ${snapshot.nextRecommendedPhase.phase} - ${snapshot.nextRecommendedPhase.title}`);
-  lines.push(snapshot.nextRecommendedPhase.reason);
+  lines.push(`proximo passo recomendada: ${snapshot.nextRecommendedStage.phase} - ${snapshot.nextRecommendedStage.title}`);
+  lines.push(snapshot.nextRecommendedStage.reason);
   return lines.join('\n');
 }

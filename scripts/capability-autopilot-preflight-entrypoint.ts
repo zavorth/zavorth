@@ -15,8 +15,8 @@ const capabilityId = readArg('--capability=') || 'executor-gemini-cli';
 const audience = (readArg('--audience=') || (asJson ? 'technical_operator' : 'everyday_user')) as CapabilityAutopilotAudience;
 const surfaces = readSurfaces('--surfaces=') || ['cli', 'web', 'chat', 'telegram', 'api'];
 const expectedSurfaces = readSurfaces('--expected-surfaces=') || surfaces;
-const rawIntentProbe = 'PHASE68-RAW-INTENT-MUST-NOT-LEAK';
-const rawWorkspaceProbe = 'C:/private/PHASE68-RAW-WORKSPACE-MUST-NOT-LEAK';
+const rawIntentProbe = 'STAGE68-RAW-INTENT-MUST-NOT-LEAK';
+const rawWorkspaceProbe = 'C:/private/STAGE68-RAW-WORKSPACE-MUST-NOT-LEAK';
 
 main().catch((error) => {
   process.stderr.write(`[capability-autopilot-preflight-entrypoint] falha: ${error instanceof Error ? error.message : String(error)}\n`);

@@ -474,10 +474,10 @@ function buildOperationalInsight(operationalMemory: Record<string, any>): string
     : null;
   if (workflowFriction) {
     const workflow = asText(workflowFriction.workflow) || 'workflow';
-    const stage = asText(workflowFriction.last_resume_stage_label);
+    const phase = asText(workflowFriction.last_resume_stage_label);
     const rationale = asText(workflowFriction.rationale);
     return normalizeInsightText(
-      `Atencao operacional: ${workflow}${stage ? ` costuma travar em ${stage}` : ' exige cuidado na retomada'}${rationale ? ` (${rationale})` : ''}.`,
+      `Atencao operacional: ${workflow}${phase ? ` costuma travar em ${phase}` : ' exige cuidado na retomada'}${rationale ? ` (${rationale})` : ''}.`,
     );
   }
 

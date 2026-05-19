@@ -346,7 +346,7 @@ describe('CoreOrchestrator role-aware broadcasts', () => {
       chatId: 'discord:dm:42',
       text: 'me explique o plano atual',
       metadata: expect.objectContaining({
-        phase: 'legacy-unified-conversation-fallback-v1',
+        stage: 'legacy-unified-conversation-fallback-v1',
         transport: 'text',
       }),
     }));

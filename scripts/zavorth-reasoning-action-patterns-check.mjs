@@ -24,7 +24,7 @@ const snapshot = {
 if (asJson) {
   console.log(JSON.stringify(snapshot, null, 2));
 } else {
-  console.log('[zavorth-reasoning-action-patterns] checking Phase 2');
+  console.log('[zavorth-reasoning-action-patterns] checking Preview engine');
   printRules(rules, '[zavorth-reasoning-action-patterns]');
 }
 if (failed.length > 0) process.exitCode = 1;
@@ -39,13 +39,13 @@ function ruleFilesExist() {
     'docs/README.md',
   ];
   const missing = files.filter((file) => !fs.existsSync(path.join(root, file)));
-  return rule('reasoning-pattern-files', 'Phase 2 files exist', missing.length === 0, `${files.length - missing.length}/${files.length}`, 'contract, service, CLI, check, tests and docs are present', missing);
+  return rule('reasoning-pattern-files', 'Preview engine files exist', missing.length === 0, `${files.length - missing.length}/${files.length}`, 'contract, service, CLI, check, tests and docs are present', missing);
 }
 
 function ruleMarkers() {
   const checks = [
     ['src/contracts/ZavorthReasoningActionPatternContract.ts', ['ZAVORTH_REASONING_ACTION_PATTERN_CONTRACT_VERSION', 'compactReasoningOnly', 'rawReasoningSerialized', 'policyBrokerRequiredForImpact']],
-    ['src/services/ZavorthReasoningActionPatternService.ts', ['phase-2-reasoning-action-patterns', 'Compact plan', 'Bounded retry', 'Raw internal reasoning request denied']],
+    ['src/services/ZavorthReasoningActionPatternService.ts', ['checkpoint-2-reasoning-action-patterns', 'Compact plan', 'Bounded retry', 'Raw internal reasoning request denied']],
     ['scripts/zavorth-reasoning-action-patterns.ts', ['--text', '--surfaces', '--owner-confirmed', '--json']],
     ['src/sdk/contracts.ts', ['ZavorthReasoningActionPatternContract']],
     ['src/sdk/index.ts', ['ZavorthReasoningActionPatternService']],
@@ -57,7 +57,7 @@ function ruleMarkers() {
       if (!text.includes(needle)) missing.push(`${file}: missing ${needle}`);
     }
   }
-  return rule('reasoning-pattern-markers', 'Phase 2 markers are wired', missing.length === 0, missing.length === 0 ? 'all markers' : `${missing.length} missing`, 'pattern contract, service, SDK and CLI markers exist', missing);
+  return rule('reasoning-pattern-markers', 'Preview engine markers are wired', missing.length === 0, missing.length === 0 ? 'all markers' : `${missing.length} missing`, 'pattern contract, service, SDK and CLI markers exist', missing);
 }
 
 function runSafeFixture() {
@@ -66,12 +66,12 @@ function runSafeFixture() {
     '--text=use subagentes e audite uma biblioteca grande de skills',
   ]);
   return jsonRule('reasoning-pattern-safe-fixture', 'Safe read-only pattern builds', result, (snapshot) =>
-    snapshot.contractVersion === '2026-05-11.reasoning-action-pattern-phase-2'
+    snapshot.contractVersion === '2026-05-11.reasoning-action-pattern-checkpoint-2'
     && snapshot.status === 'ready'
     && snapshot.safety.rawReasoningSerialized === false
     && snapshot.actions.some((item) => item.kind === 'spawn_subagent' && item.decision === 'allow_readonly')
     && snapshot.actions.some((item) => item.kind === 'use_skill')
-    && snapshot.receipts.some((item) => item.kind === 'phase-2-pattern-plan'));
+    && snapshot.receipts.some((item) => item.kind === 'checkpoint-2-pattern-plan'));
 }
 
 function runApprovalFixture() {
@@ -101,7 +101,7 @@ function runBlockedFixture() {
 function ruleWorkspaceCheck() {
   const text = read('package.json');
   const marker = 'node scripts/zavorth-reasoning-action-patterns-check.mjs';
-  return rule('workspace-check-wire', 'workspace:check includes Phase 2 gate', text.includes(marker), text.includes(marker) ? 'wired' : 'missing', marker, []);
+  return rule('workspace-check-wire', 'workspace:check includes Preview engine gate', text.includes(marker), text.includes(marker) ? 'wired' : 'missing', marker, []);
 }
 
 function ruleNoPublicExternalNames() {
@@ -122,7 +122,7 @@ function ruleNoPublicExternalNames() {
       if (text.includes(word)) hits.push(`${file}: ${word}`);
     }
   }
-  return rule('no-public-external-names', 'Phase 2 public core remains neutral', hits.length === 0, hits.length === 0 ? 'neutral' : `${hits.length} hit(s)`, 'no external product names in public core files', hits);
+  return rule('no-public-external-names', 'Preview engine public core remains neutral', hits.length === 0, hits.length === 0 ? 'neutral' : `${hits.length} hit(s)`, 'no external product names in public core files', hits);
 }
 
 function runTs(script, args) {
@@ -140,7 +140,7 @@ function jsonRule(id, label, result, expect) {
   try {
     const snapshot = JSON.parse(result.stdout);
     const passed = expect(snapshot);
-    return rule(id, label, passed, `status=${snapshot.status}; actions=${snapshot.summary?.actions ?? 'n/a'}`, 'expected Phase 2 pattern snapshot', passed ? [] : [JSON.stringify(snapshot, null, 2)]);
+    return rule(id, label, passed, `status=${snapshot.status}; actions=${snapshot.summary?.actions ?? 'n/a'}`, 'expected Preview engine pattern snapshot', passed ? [] : [JSON.stringify(snapshot, null, 2)]);
   } catch (error) {
     return rule(id, label, false, 'invalid JSON', 'valid JSON fixture', [String(error), ...compact(result.stderr, result.stdout)]);
   }

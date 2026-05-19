@@ -7,13 +7,13 @@ import { DiagnosticsTraceService } from '../../src/services/DiagnosticsTraceServ
 import { MigrationImportService } from '../../src/services/MigrationImportService.js';
 import { QaSmokeMatrixService } from '../../src/services/QaSmokeMatrixService.js';
 
-describe('DiagnosticsQaMigrationLivePlaneService Phase 10', () => {
+describe('DiagnosticsQaMigrationLivePlaneService Intent model0', () => {
   let workspaceRoot: string;
   let artifactDir: string;
 
   beforeEach(async () => {
-    workspaceRoot = await fs.promises.mkdtemp(path.join(os.tmpdir(), 'zavorth-phase10-workspace-'));
-    artifactDir = await fs.promises.mkdtemp(path.join(os.tmpdir(), 'zavorth-phase10-artifacts-'));
+    workspaceRoot = await fs.promises.mkdtemp(path.join(os.tmpdir(), 'zavorth-intent-model0-workspace-'));
+    artifactDir = await fs.promises.mkdtemp(path.join(os.tmpdir(), 'zavorth-intent-model0-artifacts-'));
   });
 
   afterEach(async () => {
@@ -21,13 +21,13 @@ describe('DiagnosticsQaMigrationLivePlaneService Phase 10', () => {
     await fs.promises.rm(artifactDir, { recursive: true, force: true });
   });
 
-  it('closes Phase 10 diagnostics, QA and migration gates without live IO', () => {
+  it('closes Intent model0 diagnostics, QA and migration gates without live IO', () => {
     const snapshot = new DiagnosticsQaMigrationLivePlaneService({
       now: () => new Date('2026-05-05T00:10:00.000Z'),
     }).buildSnapshot();
 
-    expect(snapshot.contractVersion).toBe('2026-05-05.live-phase-10');
-    expect(snapshot.phase).toBe('Phase 10 - Diagnostics, QA And Migration Live Plane');
+    expect(snapshot.contractVersion).toBe('2026-05-05.live-checkpoint-10');
+    expect(snapshot.phase).toBe('Intent model0 - Diagnostics, QA And Migration Live Plane');
     expect(snapshot.status).toBe('closed');
     expect(snapshot.summary).toEqual(
       expect.objectContaining({
@@ -47,13 +47,13 @@ describe('DiagnosticsQaMigrationLivePlaneService Phase 10', () => {
         blocked: 0,
         diagnosticsMarkedLiveBySyntheticSnapshot: false,
         migrationMarkedLiveByPlanOnly: false,
-        liveIoRequiredByPhase10Check: false,
+        liveIoRequiredByLiveCandidateCheck: false,
         secretValuesSerialized: false,
       }),
     );
     expect(snapshot.policy).toEqual(
       expect.objectContaining({
-        noLiveIoDuringPhase10Check: true,
+        noLiveIoDuringLiveCandidateCheck: true,
         otelExportArtifactRequired: true,
         prometheusScrapeProofRequired: true,
         realHealthMetricsRequired: true,

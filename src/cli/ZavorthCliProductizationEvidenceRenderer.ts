@@ -32,7 +32,7 @@ export function buildProductizationEvidenceCliSnapshot(input: {
     metadata: {
       productizationContract: {
         source: 'ZavorthProductizationContractService',
-        phase: 'C9',
+        stage: 'C9',
         status: 'ready',
         control: { ready: true },
         cli: { ready: true },
@@ -48,7 +48,7 @@ export function buildProductizationEvidenceCliSnapshot(input: {
       },
       memoryWithReceipts: {
         source: 'MemoryWithReceiptsService',
-        contractVersion: '2026-05-03.wave-32',
+        contractVersion: '2026-05-03.memory-receipts',
         receipts: [
           {
             id: 'productization-evidence:memory-receipt',
@@ -87,7 +87,7 @@ export function formatProductizationEvidenceSnapshot(
   snapshot: ProductizationEvidenceSnapshot,
 ): string {
   const lines = [
-    'Productization Evidence & Release Readiness - Wave 46',
+    'Productization Evidence & Release Readiness - Channel mesh6',
     `- contrato: ${snapshot.contractVersion}`,
     `- run: ${snapshot.identifiers.runId}`,
     `- sessao: ${snapshot.identifiers.sessionId}`,

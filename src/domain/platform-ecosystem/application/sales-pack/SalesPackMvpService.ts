@@ -324,7 +324,7 @@ export class SalesPackMvpService {
       intent: input.intent,
       objection,
       leadScore,
-      stage: handoffRequired
+      phase: handoffRequired
         ? 'handoff'
         : input.intent === 'order_status'
           ? 'support'

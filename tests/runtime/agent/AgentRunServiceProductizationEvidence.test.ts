@@ -8,7 +8,7 @@ function createIdFactory() {
   return (prefix: string) => `${prefix}-agent-productization-evidence-${++index}`;
 }
 
-describe('AgentRunService productization evidence Wave 46', () => {
+describe('AgentRunService productization evidence Channel mesh6', () => {
   it('publishes run.metadata.productizationEvidence after replay hardening', async () => {
     const service = new AgentRunService({
       now: () => new Date('2026-05-04T01:46:00.000Z'),
@@ -39,7 +39,7 @@ describe('AgentRunService productization evidence Wave 46', () => {
       metadata: {
         productizationContract: {
           source: 'ZavorthProductizationContractService',
-          phase: 'C9',
+          stage: 'C9',
           status: 'ready',
           control: { ready: true },
           cli: { ready: true },

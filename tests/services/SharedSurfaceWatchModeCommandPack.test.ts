@@ -15,7 +15,7 @@ function buildCtx(rawText = '/watchmode') {
 function buildPack(overrides: Record<string, any> = {}): SharedSurfaceWatchModeCommandPack {
   return new SharedSurfaceWatchModeCommandPack({
     watchModeControlPlaneService: {
-      renderReport: jest.fn(() => 'Wave C: Watch Mode supervisionado\nPostura: healthy.'),
+      renderReport: jest.fn(() => 'Watch mode: Watch Mode supervisionado\nPostura: healthy.'),
     } as any,
     watchModePolicyFileService: {
       setStrictApprovalDefault: jest.fn(),

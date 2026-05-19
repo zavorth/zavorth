@@ -118,7 +118,7 @@ export class ZavorthTransactionLiveExecutorGateService {
 
   public renderReport(result: ZavorthTransactionLiveExecutorGateResult): string {
     return [
-      '[transaction-live-executor-gate] Phase 16 live executor readiness gate',
+      '[transaction-live-executor-gate] Intent model6 live executor readiness gate',
       `[transaction-live-executor-gate] status: ${result.status}`,
       `[transaction-live-executor-gate] source-micro-rollout: ${result.sourceMicroRolloutCertification.status}`,
       `[transaction-live-executor-gate] owner: ${result.operatorGate.ownerId}`,
@@ -264,9 +264,9 @@ function buildGates(input: {
 
   return [
     gate(
-      'phase14-15-micro-rollout-certified',
+      'intent-model4-15-micro-rollout-certified',
       source.status === 'micro-rollout-certified',
-      'Phase 16 requires a certified Phase 14-15 micro-rollout packet.',
+      'Intent model6 requires a certified Intent model4-15 micro-rollout packet.',
       [`status=${source.status}`],
     ),
     gate(
@@ -443,8 +443,8 @@ function buildReadinessPacket(input: {
     receiptDigest: digestPayload(packetCore),
     conditions: [
       'This packet makes the Zavorth live executor gate ready for a separately implemented external adapter.',
-      'No bundled financial adapter is included in Phase 16.',
-      'No live external request was made by Phase 16.',
+      'No bundled financial adapter is included in Intent model6.',
+      'No live external request was made by Intent model6.',
       'A future external adapter must re-check price, balance, idempotency, kill switch, rollback and provider receipt before any real action.',
       'executeLive=true is policy-blocked by this readiness gate.',
     ],
@@ -452,7 +452,7 @@ function buildReadinessPacket(input: {
 }
 
 function resolveStatus(gates: ZavorthTransactionLiveExecutorGate[]): ZavorthTransactionLiveExecutorGateStatus {
-  if (!isGatePassed(gates, 'phase14-15-micro-rollout-certified') || !isGatePassed(gates, 'micro-rollout-packet-present')) {
+  if (!isGatePassed(gates, 'intent-model4-15-micro-rollout-certified') || !isGatePassed(gates, 'micro-rollout-packet-present')) {
     return 'micro-rollout-certification-required';
   }
   if (!isGatePassed(gates, 'live-operator-confirmation')) {
@@ -476,7 +476,7 @@ function summaryForStatus(status: ZavorthTransactionLiveExecutorGateStatus): str
     return 'Live executor readiness is prepared and held for a separately bound external adapter.';
   }
   if (status === 'micro-rollout-certification-required') {
-    return 'Phase 14-15 micro-rollout certification is required before live executor readiness.';
+    return 'Intent model4-15 micro-rollout certification is required before live executor readiness.';
   }
   if (status === 'live-operator-confirmation-required') {
     return 'Dedicated live executor owner confirmation is required.';
@@ -495,7 +495,7 @@ function nextStepsForStatus(status: ZavorthTransactionLiveExecutorGateStatus, bl
     ];
   }
   if (status === 'micro-rollout-certification-required') {
-    return ['Produce a Phase 14-15 micro-rollout-certified packet first.'];
+    return ['Produce a Intent model4-15 micro-rollout-certified packet first.'];
   }
   if (status === 'live-operator-confirmation-required') {
     return [`Re-run with live executor phrase: ${ZAVORTH_TRANSACTION_LIVE_EXECUTOR_GATE_OWNER_PHRASE}`];
@@ -533,7 +533,7 @@ function endpointHostFromManifest(manifest: ZavorthTransactionLiveExecutorAdapte
 }
 
 function buildResultId(text: string, now: Date): string {
-  const hash = createHash('sha256').update(`${now.toISOString()}:phase16:${text}`).digest('hex').slice(0, 16);
+  const hash = createHash('sha256').update(`${now.toISOString()}:intent-model6:${text}`).digest('hex').slice(0, 16);
   return `ztx-live-executor-gate-${hash}`;
 }
 

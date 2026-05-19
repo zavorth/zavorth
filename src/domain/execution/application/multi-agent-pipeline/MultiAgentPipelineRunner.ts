@@ -76,7 +76,7 @@ export class MultiAgentPipelineRunner {
       const handoffSummary = stageResults.length > 0
         ? this.deps.workflowPlanner.summarizeResult(stageResults[stageResults.length - 1])
         : null;
-      const existingStage = run.stages.find((entry) => entry.id === stage.id);
+      const existingStage = run.phases.find((entry) => entry.id === stage.id);
       const shouldReuseObjective = Boolean(existingStage?.objective)
         && ((startIndex > 0 && index === startIndex) || run.workflow_name === 'sdd');
       const stageObjectiveBase = shouldReuseObjective
@@ -151,21 +151,21 @@ export class MultiAgentPipelineRunner {
   public resolveResumeStageIndex(run: WorkflowRunSnapshot, requestedStageId?: string | null): number {
     const requested = String(requestedStageId || '').trim();
     if (requested) {
-      return run.stages.findIndex((stage) => stage.id === requested);
+      return run.phases.findIndex((stage) => stage.id === requested);
     }
 
-    const resumableStatus = new Set<WorkflowRunSnapshot['stages'][number]['status']>([
+    const resumableStatus = new Set<WorkflowRunSnapshot['phases'][number]['status']>([
       'approval_pending',
       'blocked',
       'failed',
       'running',
       'pending',
     ]);
-    return run.stages.findIndex((stage) => resumableStatus.has(stage.status));
+    return run.phases.findIndex((stage) => resumableStatus.has(stage.status));
   }
 
   public buildHistoricalResults(run: WorkflowRunSnapshot, untilStageIndex: number): ExecutionResult[] {
-    return run.stages
+    return run.phases
       .filter((stage) => stage.index < untilStageIndex && stage.status === 'completed')
       .sort((left, right) => left.index - right.index)
       .map((stage) => this.toHistoricalExecutionResult(run, stage));
@@ -446,7 +446,7 @@ export class MultiAgentPipelineRunner {
 
   private toHistoricalExecutionResult(
     run: WorkflowRunSnapshot,
-    stage: WorkflowRunSnapshot['stages'][number],
+    stage: WorkflowRunSnapshot['phases'][number],
   ): ExecutionResult {
     const timestamp = stage.finished_at || stage.started_at || run.updated_at || run.created_at;
     return {

@@ -86,7 +86,7 @@ export class DeterministicQaMatrixService {
 
   public renderReport(snapshot: DeterministicQaMatrixSnapshot = this.buildSnapshot()): string {
     const lines: string[] = [];
-    lines.push('[deterministic-qa] Fase 41 - QA Deterministico');
+    lines.push('[deterministic-qa] Etapa 41 - QA Deterministico');
     lines.push(`status: ${snapshot.status}`);
     lines.push(`ok: ${snapshot.summary.ok ? 'yes' : 'no'} | gates=${snapshot.summary.gates} required=${snapshot.summary.required}`);
     for (const tier of TIER_ORDER) {
@@ -102,7 +102,7 @@ export class DeterministicQaMatrixService {
       }
     }
     lines.push('');
-    lines.push(`proxima fase recomendada: ${snapshot.nextRecommendedPhase.phase} - ${snapshot.nextRecommendedPhase.title}`);
+    lines.push(`proximo passo recomendada: ${snapshot.nextRecommendedPhase.phase} - ${snapshot.nextRecommendedPhase.title}`);
     lines.push(snapshot.nextRecommendedPhase.reason);
     return lines.join('\n');
   }

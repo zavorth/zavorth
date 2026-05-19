@@ -158,8 +158,8 @@ describe('TenantTeamOpsService', () => {
 
     const report = service.renderReport();
 
-    expect(report).toContain('Fase 42 - Tenant/Team Ops');
-    expect(report).toContain('proxima fase recomendada: complete - Ciclo 39-45 fechado');
+    expect(report).toContain('Etapa 42 - Tenant/Team Ops');
+    expect(report).toContain('proximo passo recomendada: complete - Ciclo 39-45 fechado');
   });
 });
 
@@ -183,7 +183,7 @@ function scriptCommandFixture(scriptName: string): string {
     'tenant:ops': 'npx tsx scripts/tenant-team-ops.ts',
     'tenant:ops:json': 'npx tsx scripts/tenant-team-ops.ts --json',
     'qa:tenant-team-ops': 'npx tsx scripts/tenant-team-ops.ts --require-pass',
-    'qa:phase:42': 'node scripts/phases-39-45-check.mjs --phase=42',
+    'qa:stage:42': 'node scripts/capability-suite-market-check.mjs --phase=42',
   };
   return commands[scriptName] || `npm run ${scriptName}`;
 }
@@ -348,7 +348,7 @@ function governanceFixture(
       },
     },
     narrative: {
-      headline: 'Wave 7: Tenancy, governance e policy',
+      headline: 'Governance: Tenancy, governance e policy',
       operatorSummary: 'Governance attention.',
       nextAction: 'Fechar onboarding.',
     },

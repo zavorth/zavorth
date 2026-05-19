@@ -136,7 +136,7 @@ export class CanaryPlanDryRunHoldService {
           'npm run canary-plan-dry-run-hold --silent -- --require-dry-run-ready',
         ],
         typecheck: 'npm run runtime:check --silent',
-        nextPhase: 'Canary execution approval ledger',
+        nextStage: 'Canary execution approval ledger',
       },
       policy: {
         canaryPlanOnly: true,
@@ -192,7 +192,7 @@ export class CanaryPlanDryRunHoldService {
         `- ${gate.status.toUpperCase()} ${gate.id}: ${gate.observed} / ${gate.threshold} - ${gate.nextAction}`,
       ),
       '',
-      `Next: ${snapshot.commands.nextPhase}`,
+      `Next: ${snapshot.commands.nextStage}`,
     ].join('\n');
   }
 
@@ -219,7 +219,7 @@ export class CanaryPlanDryRunHoldService {
       dryRunControl({
         id: 'feature-flag-default-off-plan',
         surface: 'feature-flag',
-        command: 'dry-run:stage-feature-flag --key zavorth.rc.1.1.canary --default off --cohort dry-run-canary-cohort',
+        command: 'dry-run:phase-feature-flag --key zavorth.rc.1.1.canary --default off --cohort dry-run-canary-cohort',
         evidence: 'RC canary flag remains default-off and scoped to the planned cohort.',
       }),
       dryRunControl({
@@ -334,7 +334,7 @@ export class CanaryPlanDryRunHoldService {
         observed: input.alignmentReady,
         threshold: true,
         receipt: 'canary-plan-dry-run.pre-canary-alignment-ready.receipt',
-        nextAction: 'finish Phase 18 before building the canary dry-run plan',
+        nextAction: 'finish Intent model8 before building the canary dry-run plan',
       }),
       gate({
         id: 'rollout-plan-dry-run-linked',

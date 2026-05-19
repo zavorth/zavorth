@@ -10,7 +10,7 @@ function createIdFactory() {
 
 function releaseAdoptionReady() {
   return {
-    contractVersion: '2026-05-04.wave-53',
+    contractVersion: '2026-05-04.release-readiness',
     source: 'ReleaseAdoptionReadinessService',
     status: 'release-adoption-ready',
     readiness: {
@@ -72,7 +72,7 @@ function metadata() {
   };
 }
 
-describe('AgentRunService Release Candidate Pre-Canary Gate Wave 54', () => {
+describe('AgentRunService Release Candidate Pre-Canary Gate Pre-Canary Gate', () => {
   it('publishes run.metadata.releaseCandidatePreCanaryGate after releaseAdoptionReadiness', async () => {
     const service = new AgentRunService({
       now: () => new Date('2026-05-04T06:54:00.000Z'),

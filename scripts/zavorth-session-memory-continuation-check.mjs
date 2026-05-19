@@ -25,7 +25,7 @@ const snapshot = {
 if (asJson) {
   console.log(JSON.stringify(snapshot, null, 2));
 } else {
-  console.log('[zavorth-session-memory-continuation] checking Phase 6');
+  console.log('[zavorth-session-memory-continuation] checking Runtime gateway');
   for (const rule of rules) {
     const marker = rule.status === 'passed' ? 'ok' : 'fail';
     console.log(`[zavorth-session-memory-continuation] ${marker} ${rule.label}: ${rule.observed} | ${rule.target}`);
@@ -48,8 +48,8 @@ function ruleFilesExist() {
   ];
   const missing = files.filter((file) => !fs.existsSync(path.join(root, file)));
   return {
-    id: 'phase-6-files',
-    label: 'Phase 6 session memory files exist',
+    id: 'checkpoint-6-files',
+    label: 'Runtime gateway session memory files exist',
     status: missing.length === 0 ? 'passed' : 'failed',
     observed: `${files.length - missing.length}/${files.length} file(s) present`,
     target: 'contract, service, CLI, check, tests, docs and package scripts are present',
@@ -78,17 +78,17 @@ function ruleContainsMarkers() {
       'memory-signals-provenance-backed-advisory-only',
     ]],
     ['docs/README.md', [
-      'phase-6-sessions-memory-continuation-ready',
-      '291 Phase 7 - Delegated Workers',
+      'sessions-memory-continuation-ready',
+      '291 Surface controls - Delegated Workers',
       'Zavorth Session Memory Continuation',
     ]],
     ['docs/README.md', [
-      'phase-6-sessions-memory-continuation-complete',
+      'sessions-memory-continuation-complete',
       'Zavorth Session Memory Continuation',
       'privateFilteredBeforeContext',
       'ZavorthAgentGateway',
       'provenance',
-      '291 Phase 7 - Delegated Workers',
+      '291 Surface controls - Delegated Workers',
     ]],
     ['package.json', [
       'zavorth:session-memory-continuation',
@@ -107,8 +107,8 @@ function ruleContainsMarkers() {
     }
   }
   return {
-    id: 'phase-6-markers',
-    label: 'Phase 6 session memory markers are present',
+    id: 'checkpoint-6-markers',
+    label: 'Runtime gateway session memory markers are present',
     status: missing.length === 0 ? 'passed' : 'failed',
     observed: missing.length === 0 ? 'all markers present' : `${missing.length} missing marker(s)`,
     target: 'history bridge, privacy filter, memory signal, replay and continuation markers are present',
@@ -128,7 +128,7 @@ function runSessionMemoryFixture() {
   });
   if (result.status !== 0) {
     return {
-      id: 'phase-6-session-memory-fixture',
+      id: 'checkpoint-6-session-memory-fixture',
       label: 'Session memory continuation fixture passes',
       status: 'failed',
       observed: `exit ${result.status}`,
@@ -152,7 +152,7 @@ function runSessionMemoryFixture() {
     && snapshot.safety?.continuationThroughGateway === true
     && snapshot.safety?.noPrivateContextLeak === true;
   return {
-    id: 'phase-6-session-memory-fixture',
+    id: 'checkpoint-6-session-memory-fixture',
     label: 'Session memory continuation fixture passes',
     status: ok ? 'passed' : 'failed',
     observed: ok ? `${snapshot.status}, ${snapshot.summary.memorySignals} signal(s), ${snapshot.summary.privateRestrictedSecretItemsFiltered} filtered item(s)` : 'invalid session memory snapshot',
@@ -178,11 +178,11 @@ function runSessionMemoryBlockedFixture() {
     && snapshot.status === 'blocked'
     && snapshot.previousChannelMessagingStatus === 'blocked';
   return {
-    id: 'phase-6-blocked-fixture',
-    label: 'Session memory continuation blocks without Phase 5 readiness',
+    id: 'checkpoint-6-blocked-fixture',
+    label: 'Session memory continuation blocks without Credential vault readiness',
     status: ok ? 'passed' : 'failed',
     observed: ok ? `${snapshot.status}, channelMessaging=${snapshot.previousChannelMessagingStatus}` : `exit ${result.status}`,
-    target: 'Phase 6 cannot advance while Phase 5 channel messaging is blocked',
+    target: 'Runtime gateway cannot advance while Credential vault channel messaging is blocked',
     details: ok ? [] : [result.error?.message || result.stderr || result.stdout || 'no output'],
   };
 }

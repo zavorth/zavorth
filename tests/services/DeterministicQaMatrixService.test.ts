@@ -13,8 +13,8 @@ describe('DeterministicQaMatrixService', () => {
     expect(snapshot.tiers.quick.gates).toContain('product-quality');
     expect(snapshot.tiers.standard.gates).toEqual(expect.arrayContaining(snapshot.tiers.quick.gates));
     expect(snapshot.tiers.release.gates).toEqual(expect.arrayContaining(snapshot.tiers.standard.gates));
-    expect(snapshot.nextRecommendedPhase).toEqual(expect.objectContaining({
-      phase: '45',
+    expect(snapshot.nextRecommendedStage).toEqual(expect.objectContaining({
+      stage: '45',
       title: 'Runtime Performance And Idle Budget',
     }));
   });
@@ -106,8 +106,8 @@ describe('DeterministicQaMatrixService', () => {
 
     const report = service.renderReport();
 
-    expect(report).toContain('Fase 41 - QA Deterministico');
-    expect(report).toContain('proxima fase recomendada: 45 - Runtime Performance And Idle Budget');
+    expect(report).toContain('Etapa 41 - QA Deterministico');
+    expect(report).toContain('proximo passo recomendada: 45 - Runtime Performance And Idle Budget');
   });
 });
 

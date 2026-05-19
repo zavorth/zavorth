@@ -8,7 +8,7 @@ const asJson = process.argv.includes('--json');
 const rules = [
   ruleFilesExist({
     id: 'replay-hardening-files',
-    label: 'Wave 45 files exist',
+    label: 'Channel mesh5 files exist',
     target: 'Runtime, CLI, Command Center, tests and docs are present',
     files: [
       'src/runtime/agent/RunArtifactReceiptReplayService.ts',
@@ -23,11 +23,11 @@ const rules = [
   ruleContainsAll({
     id: 'replay-hardening-contract',
     label: 'Replay contract consolidates run, artifacts and receipts',
-    target: 'RunArtifactReceiptReplaySnapshot links RunObservatory, ArtifactMemory, MemoryWithReceipts and Wave 35-44 feature receipts',
+    target: 'RunArtifactReceiptReplaySnapshot links RunObservatory, ArtifactMemory, MemoryWithReceipts and Capability Negotiation-44 feature receipts',
     files: ['src/runtime/agent/RunArtifactReceiptReplayService.ts'],
     needles: [
       'RUN_ARTIFACT_RECEIPT_REPLAY_CONTRACT_VERSION',
-      '2026-05-04.wave-45',
+      '2026-05-04.receipt-replay',
       'queryUniversalAgentRuns',
       'artifactMemory',
       'memoryWithReceipts',
@@ -65,7 +65,7 @@ const rules = [
     needles: [
       'replay',
       'artifact-replay',
-      'Run / Artifact / Receipt Replay Hardening - Wave 45',
+      'Run / Artifact / Receipt Replay Hardening - Channel mesh5',
       'resolveRunArtifactReceiptReplayCliText',
       'formatRunArtifactReceiptReplaySnapshot',
       'zavorth replay',
@@ -94,7 +94,7 @@ const rules = [
   }),
   ruleContainsAll({
     id: 'package-exposes-replay-hardening-gate',
-    label: 'package exposes Wave 45 gate',
+    label: 'package exposes Channel mesh5 gate',
     target: 'local QA can run replay-hardening:check and qa:replay-hardening',
     files: ['package.json'],
     needles: [
@@ -120,7 +120,7 @@ const snapshot = {
 if (asJson) {
   console.log(JSON.stringify(snapshot, null, 2));
 } else {
-  console.log('[replay-hardening] checking Wave 45');
+  console.log('[replay-hardening] checking Channel mesh5');
   for (const rule of rules) {
     const marker = rule.status === 'passed' ? 'ok' : 'fail';
     console.log(`[replay-hardening] ${marker} ${rule.label}: ${rule.observed} | ${rule.target}`);

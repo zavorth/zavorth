@@ -4,7 +4,7 @@ import type {
   ProviderLongTailEmbeddingSmokeReceipt,
 } from '../adapters/providers/ProviderLongTailLiveClients.js';
 
-export const ZAVORTH_PROVIDER_LONG_TAIL_ACTIVATION_CONTRACT_VERSION = '2026-05-04.live-phase-5' as const;
+export const ZAVORTH_PROVIDER_LONG_TAIL_ACTIVATION_CONTRACT_VERSION = '2026-05-04.live-checkpoint-5' as const;
 
 export type ProviderLongTailActivationId =
   | 'alibaba'
@@ -146,7 +146,7 @@ export type ProviderLongTailActivationEntry = {
 export type ProviderLongTailActivationSnapshot = {
   generatedAt: string;
   contractVersion: typeof ZAVORTH_PROVIDER_LONG_TAIL_ACTIVATION_CONTRACT_VERSION;
-  phase: 'Phase 5 - Provider Runtime Activation Long Tail';
+  phase: 'Credential vault - Provider Runtime Activation Long Tail';
   status: 'closed' | 'attention' | 'blocked';
   summary: {
     providers: 29;
@@ -163,13 +163,13 @@ export type ProviderLongTailActivationSnapshot = {
     chatSmokeCommands: number;
     embeddingSmokeCommands: number;
     redactedReceipts: number;
-    liveIoRequiredByPhase5Check: false;
+    liveIoRequiredByStage5Check: false;
     secretValuesSerialized: false;
   };
   entries: ProviderLongTailActivationEntry[];
   receipts: ProviderLongTailActivationReceipt[];
   policy: {
-    noLiveIoDuringPhase5Check: true;
+    noLiveIoDuringStage5Check: true;
     namedManifestsRequiredForEveryLongTailProvider: true;
     providerFactoryRoutesMustResolveWithoutFallback: true;
     managedGatewaysRequireOperatorBaseUrl: true;
@@ -183,6 +183,6 @@ export type ProviderLongTailActivationSnapshot = {
     stagingLiveSmoke: 'npm run provider-long-tail-activation -- --profile staging-live --provider <provider> --confirm-live-io';
     focusedTests: string[];
     typecheck: 'npm run runtime:check --silent';
-    nextPhase: 'Phase 13 - Live Parity Certification';
+    nextStage: 'Intent model3 - Live Parity Certification';
   };
 };

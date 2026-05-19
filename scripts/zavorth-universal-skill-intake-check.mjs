@@ -30,7 +30,7 @@ const snapshot = {
 if (asJson) {
   console.log(JSON.stringify(snapshot, null, 2));
 } else {
-  console.log('[zavorth-universal-skill-intake] checking Phase 1');
+  console.log('[zavorth-universal-skill-intake] checking Intent model');
   for (const rule of rules) {
     const marker = rule.status === 'passed' ? 'ok' : 'fail';
     console.log(`[zavorth-universal-skill-intake] ${marker} ${rule.label}: ${rule.observed} | ${rule.target}`);
@@ -57,7 +57,7 @@ function ruleFilesExist() {
   const missing = files.filter((file) => !fs.existsSync(path.join(root, file)));
   return {
     id: 'universal-skill-intake-files',
-    label: 'Phase 1 files exist',
+    label: 'Intent model files exist',
     status: missing.length === 0 ? 'passed' : 'failed',
     observed: `${files.length - missing.length}/${files.length} file(s) present`,
     target: 'contract, registry, service, CLI, check and tests are present',
@@ -73,7 +73,7 @@ function ruleContainsMarkers() {
       'ZavorthUniversalSkillSourceProfileId',
       'pathTraversalBlocked',
       'zipSlipBlocked',
-      'Phase 2 - Trust-Governed Import Pipeline',
+      'Preview engine - Trust-Governed Import Pipeline',
     ]],
     ['src/skills/UniversalSkillIntakeService.ts', [
       'previewSource',
@@ -106,7 +106,7 @@ function ruleContainsMarkers() {
   }
   return {
     id: 'universal-skill-intake-markers',
-    label: 'Phase 1 markers are present',
+    label: 'Intent model markers are present',
     status: missing.length === 0 ? 'passed' : 'failed',
     observed: missing.length === 0 ? 'all markers present' : `${missing.length} missing marker(s)`,
     target: 'source has preview-only, profiles, zip and path safety markers',

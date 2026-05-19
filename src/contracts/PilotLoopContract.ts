@@ -235,7 +235,7 @@ export const PILOT_SUPPORT_POLICY: PilotSupportPolicy[] = [
     channel: 'feature request',
     responseWindow: 'next planning review',
     boundaries: ['sem promessa de roadmap', 'sem dados privados', 'sem parceria implicita'],
-    escalation: 'Converter para proposta de fase apenas com preview de demanda repetida.',
+    escalation: 'Converter para proposta de etapa apenas com preview de demanda repetida.',
   },
 ];
 

@@ -4,7 +4,7 @@ import type {
   ZavorthUniversalSkillBridgeSnapshot,
 } from './ZavorthUniversalSkillBridgeRuntimeContract.js';
 
-export const ZAVORTH_UNIVERSAL_SKILL_BRIDGE_REGISTRY_CONTRACT_VERSION = '2026-05-10.phase-4' as const;
+export const ZAVORTH_UNIVERSAL_SKILL_BRIDGE_REGISTRY_CONTRACT_VERSION = '2026-05-10.checkpoint-4' as const;
 
 export type ZavorthUniversalSkillBridgeRegistryEntryStatus =
   | 'ready'
@@ -90,6 +90,6 @@ export type ZavorthUniversalSkillBridgeRegistrySnapshot = {
     invokeDryRun: 'npm run zavorth:universal-skill-bridge-registry -- --skill <name> --invoke';
     invokeLive: 'npm run zavorth:universal-skill-bridge-registry -- --skill <name> --invoke --live --approval-id <approval-id>';
     check: 'npm run zavorth:universal-skill-bridge-registry:check --silent';
-    nextPhase: 'Phase 5 - Activation UX and Channel Command Packs';
+    nextStage: 'Credential vault - Activation UX and Channel Command Packs';
   };
 };

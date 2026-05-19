@@ -125,7 +125,7 @@ export function buildReliabilityCompatReport(options: ReliabilityCompatOptions =
       status: missingOperations.length === 0 ? 'passed' : 'failed',
       summary: missingOperations.length === 0
         ? `${requirement.operations.length} metrica(s) presentes no relatorio.`
-        : 'Relatorio nao cobre todas as metricas minimas da fase 7.',
+        : 'Relatorio nao cobre todas as metricas minimas da etapa 7.',
       details: missingOperations.length === 0
         ? requirement.operations.map((entry) => `ok: ${formatBenchmarkOperationRequirement(entry)}`)
         : missingOperations.map((entry) => `ausente: ${formatBenchmarkOperationRequirement(entry)}`),
@@ -229,7 +229,7 @@ export function buildReliabilityCompatReport(options: ReliabilityCompatOptions =
 
 export function renderReliabilityCompatReport(report: ReliabilityCompatReport): string {
   const lines = [
-    'Reliability compat da fase 7',
+    'Reliability compat da etapa 7',
     `Status: ${report.status}.`,
     `Checks: ${report.summary.passed} passed, ${report.summary.warning} warning, ${report.summary.failed} failed.`,
     `Metricas: boot=${formatMetric(report.metrics.bootMs)} | status=${formatMetric(report.metrics.statusMs)} | doctor=${formatMetric(report.metrics.doctorMs)} | /app=${formatMetric(report.metrics.appLatencyMs)} | nodeinvoke=${formatMetric(report.metrics.nodeInvokeMs)} | autorepair=${formatRate(report.metrics.autorepairSuccessRate, report.metrics.autorepairSamples)}`,

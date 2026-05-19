@@ -8,7 +8,7 @@ const asJson = process.argv.includes('--json');
 const rules = [
   ruleFilesExist({
     id: 'universal-preview-files',
-    label: 'Wave 30 files exist',
+    label: 'Universal Preview files exist',
     target: 'Runtime, CLI, Command Center, tests and docs are present',
     files: [
       'src/runtime/agent/UniversalPreviewModeService.ts',
@@ -27,7 +27,7 @@ const rules = [
     files: ['src/runtime/agent/UniversalPreviewModeService.ts'],
     needles: [
       'UNIVERSAL_PREVIEW_MODE_CONTRACT_VERSION',
-      '2026-05-03.wave-30',
+      '2026-05-03.universal-preview',
       'planSteps',
       'noExecutionPerformed',
       'naturalLanguageDoesNotBypassPolicy',
@@ -56,7 +56,7 @@ const rules = [
   ruleContainsAcross({
     id: 'cli-exposes-preview',
     label: 'CLI exposes Universal Preview',
-    target: 'zavorth preview renders a Wave 30 snapshot in text or JSON',
+    target: 'zavorth preview renders a Universal Preview snapshot in text or JSON',
     files: [
       'src/cli/ZavorthCliRegistryOps.ts',
       'src/cli/ZavorthCliUniversalPreviewRenderer.ts',
@@ -66,7 +66,7 @@ const rules = [
     needles: [
       'preview',
       'universal-preview',
-      'Universal Preview Mode - Wave 30',
+      'Universal Preview Mode - Universal Preview',
       'resolveUniversalPreviewCliText',
       'zavorth preview "<pedido>" [--json]',
     ],
@@ -94,7 +94,7 @@ const rules = [
   }),
   ruleContainsAll({
     id: 'package-exposes-preview-gate',
-    label: 'package exposes Wave 30 gate',
+    label: 'package exposes Universal Preview gate',
     target: 'local QA can run universal-preview:check and qa:universal-preview',
     files: ['package.json'],
     needles: [
@@ -120,7 +120,7 @@ const snapshot = {
 if (asJson) {
   console.log(JSON.stringify(snapshot, null, 2));
 } else {
-  console.log('[universal-preview] checking Wave 30');
+  console.log('[universal-preview] checking Universal Preview');
   for (const rule of rules) {
     const marker = rule.status === 'passed' ? 'ok' : 'fail';
     console.log(`[universal-preview] ${marker} ${rule.label}: ${rule.observed} | ${rule.target}`);

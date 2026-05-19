@@ -5,7 +5,7 @@ import type { WebsitePublicContractSnapshot } from '../../contracts/WebsitePubli
 import type { ReleaseInstallerRollbackPathSnapshot } from './ReleaseInstallerRollbackPathService.js';
 import type { UniversalAgentRun } from './UniversalAgentRuntimeTypes.js';
 
-export const PUBLIC_SITE_DOCS_DEMO_SYNC_CONTRACT_VERSION = '2026-05-04.wave-49' as const;
+export const PUBLIC_SITE_DOCS_DEMO_SYNC_CONTRACT_VERSION = '2026-05-04.docs-demo' as const;
 export const PUBLIC_SITE_DOCS_DEMO_SYNC_METADATA_KEY = 'publicSiteDocsDemoSync' as const;
 
 export type PublicSiteDocsDemoSyncStatus =
@@ -484,7 +484,7 @@ export class PublicSiteDocsDemoSyncService {
         command: 'zavorth release-path --json',
         detail: input.releasePath
           ? `Release path esta ${input.releasePath.status}.`
-          : 'Public sync precisa da Wave 48 publicada no run.',
+          : 'Public sync precisa da Channel mesh8 publicada no run.',
         critical: true,
       },
       {
@@ -663,7 +663,7 @@ export class PublicSiteDocsDemoSyncService {
 
   private resolveNextSafeAction(status: PublicSiteDocsDemoSyncStatus): string {
     if (status === 'needs-release-path') {
-      return 'Executar Wave 48 e publicar releaseInstallerRollbackPath antes de sincronizar site/docs/demo.';
+      return 'Executar Channel mesh8 e publicar releaseInstallerRollbackPath antes de sincronizar site/docs/demo.';
     }
     if (status === 'needs-public-site') {
       return 'Anexar WebsitePublicContract e validar npm run qa:website-public.';

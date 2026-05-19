@@ -56,19 +56,19 @@ const WORKFLOW_SEMANTICS: WorkflowSemantic[] = [
     notes: ['The command is suitable for local and optional CI invocation.'],
   },
   {
-    semanticId: 'phase7-certification-before-release',
-    label: 'Phase 7 certification semantic is local',
+    semanticId: 'surface-controls-certification-before-release',
+    label: 'Surface controls certification semantic is local',
     scriptName: 'zavorth-qa-security-release-certification-pack:check',
     severity: 'blocking',
-    target: 'Phase 7 certification behavior is represented by a local package command.',
+    target: 'Surface controls certification behavior is represented by a local package command.',
     notes: ['The command is the canonical local replacement for copied workflow gates.'],
   },
   {
-    semanticId: 'phase7-qa-before-release',
-    label: 'Phase 7 QA semantic is local',
+    semanticId: 'surface-controls-qa-before-release',
+    label: 'Surface controls QA semantic is local',
     scriptName: 'qa:zavorth-qa-security-release-certification-pack',
     severity: 'required',
-    target: 'Phase 7 QA behavior is represented by a local package command.',
+    target: 'Surface controls QA behavior is represented by a local package command.',
     notes: ['The QA command runs the focused tests plus the certification gate.'],
   },
 ];
@@ -105,7 +105,7 @@ export class ZavorthWorkflowSemanticCheckService {
         ? 'fail'
         : 'warn';
     return {
-      id: `zavorth.phase7.workflow.${semantic.semanticId}.${this.now().getTime()}.receipt`,
+      id: `zavorth.surface-controls.workflow.${semantic.semanticId}.${this.now().getTime()}.receipt`,
       familyId: 'workflow-semantics',
       checkId: semantic.semanticId,
       semanticId: semantic.semanticId,

@@ -5,7 +5,7 @@ import type {
   ZavorthTransactionConnectorKind,
 } from './ZavorthTransactionPreviewContract.js';
 
-export const ZAVORTH_TRANSACTION_CREDENTIAL_CONTRACT_VERSION = 'zavorth-transaction-credential/phase-5' as const;
+export const ZAVORTH_TRANSACTION_CREDENTIAL_CONTRACT_VERSION = 'zavorth-transaction-credential/checkpoint-5' as const;
 
 export type ZavorthTransactionCredentialEnvironment =
   | 'dry-run'
@@ -114,11 +114,11 @@ export type ZavorthTransactionCredentialContractSnapshot = {
 export function buildZavorthTransactionCredentialContractSnapshot(): ZavorthTransactionCredentialContractSnapshot {
   return {
     version: ZAVORTH_TRANSACTION_CREDENTIAL_CONTRACT_VERSION,
-    summary: 'Credential reference boundary for Zavorth Transaction Plane Phase 5.',
+    summary: 'Credential reference boundary for Zavorth Transaction Plane Credential vault.',
     environments: ['dry-run', 'sandbox', 'paper', 'live-candidate'],
     validationStatuses: ['ready', 'missing', 'blocked', 'mismatch', 'expired'],
     invariants: [
-      'Phase 5 stores credential references and metadata only, never raw secret values.',
+      'Credential vault stores credential references and metadata only, never raw secret values.',
       'Raw credential values are blocked and redacted before any store write.',
       'LLM-visible outputs may include SecretRef metadata, but never the credential value.',
       'Connector runs can use only valid vault-style credential references.',

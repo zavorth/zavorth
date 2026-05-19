@@ -1,6 +1,6 @@
 import type { ZavorthMissionRiskLevel } from './ZavorthMissionContract.js';
 
-export const ZAVORTH_APPROVAL_ACTION_CARDS_UX_CONTRACT_VERSION = '2026-05-13.phase-17' as const;
+export const ZAVORTH_APPROVAL_ACTION_CARDS_UX_CONTRACT_VERSION = '2026-05-13.checkpoint-17' as const;
 
 export type ZavorthApprovalActionCardTone = 'ok' | 'info' | 'warn' | 'danger';
 

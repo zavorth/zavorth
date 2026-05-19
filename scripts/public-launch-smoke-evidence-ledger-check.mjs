@@ -115,7 +115,7 @@ const snapshot = {
 if (asJson) {
   console.log(JSON.stringify(snapshot, null, 2));
 } else {
-  console.log('[public-launch-smoke-evidence-ledger] checking Phase 15');
+  console.log('[public-launch-smoke-evidence-ledger] checking Intent model5');
   for (const rule of rules) {
     const marker = rule.status === 'passed' ? 'ok' : 'fail';
     console.log(`[public-launch-smoke-evidence-ledger] ${marker} ${rule.label}: ${rule.observed} | ${rule.target}`);

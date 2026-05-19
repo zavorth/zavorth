@@ -1,7 +1,7 @@
 import type { ZavorthApprovalActionCardsUxSnapshot } from './ZavorthApprovalActionCardsUxContract.js';
 import type { ZavorthVisualReceiptUxSnapshot } from './ZavorthVisualReceiptUxContract.js';
 
-export const ZAVORTH_APPROVAL_RECEIPT_TRUST_UX_CONTRACT_VERSION = '2026-05-14.phase-5-approval-receipt-trust-ux' as const;
+export const ZAVORTH_APPROVAL_RECEIPT_TRUST_UX_CONTRACT_VERSION = '2026-05-14.checkpoint-5-approval-receipt-trust-ux' as const;
 
 export type ZavorthApprovalReceiptTrustUxSnapshot = {
   contractVersion: typeof ZAVORTH_APPROVAL_RECEIPT_TRUST_UX_CONTRACT_VERSION;

@@ -1,6 +1,6 @@
 import type { LiveReadinessStatus } from './LiveReadinessContract.js';
 
-export const ZAVORTH_LIVE_PARITY_CERTIFICATION_CONTRACT_VERSION = '2026-05-05.live-phase-13' as const;
+export const ZAVORTH_LIVE_PARITY_CERTIFICATION_CONTRACT_VERSION = '2026-05-05.live-checkpoint-13' as const;
 
 export type LiveParityCertificationProfile =
   | 'staging-live'
@@ -16,18 +16,18 @@ export type LiveParityCertificationEvidenceStatus =
   | 'failed';
 
 export type LiveParityCertificationPhaseId =
-  | 'phase-1-live-readiness'
-  | 'phase-2-channel-p0'
-  | 'phase-3-channel-long-tail'
-  | 'phase-4-provider-p0'
-  | 'phase-5-provider-long-tail'
-  | 'phase-6-media-generation'
-  | 'phase-7-speech-voice'
-  | 'phase-8-web-research'
-  | 'phase-9-file-document-diff'
-  | 'phase-10-diagnostics-qa-migration'
-  | 'phase-11-satellite-device'
-  | 'phase-12-memory-artifacts-runtime';
+  | 'checkpoint-1-live-readiness'
+  | 'checkpoint-2-channel-p0'
+  | 'checkpoint-3-channel-long-tail'
+  | 'checkpoint-4-provider-p0'
+  | 'checkpoint-5-provider-long-tail'
+  | 'checkpoint-6-media-generation'
+  | 'checkpoint-7-speech-voice'
+  | 'checkpoint-8-web-research'
+  | 'checkpoint-9-file-document-diff'
+  | 'checkpoint-10-diagnostics-qa-migration'
+  | 'checkpoint-11-satellite-device'
+  | 'checkpoint-12-memory-artifacts-runtime';
 
 export type LiveParityCertificationEvidenceId =
   | 'absorbed-source-classification'
@@ -95,7 +95,7 @@ export type LiveParityCertificationReceipt = {
 export type LiveParityCertificationSnapshot = {
   generatedAt: string;
   contractVersion: typeof ZAVORTH_LIVE_PARITY_CERTIFICATION_CONTRACT_VERSION;
-  phase: 'Phase 13 - Live Parity Certification';
+  phase: 'Intent model3 - Live Parity Certification';
   profile: LiveParityCertificationProfile;
   status: LiveParityCertificationStatus;
   claim: 'tracked-source-surface-live-parity-certified';

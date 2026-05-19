@@ -10,7 +10,7 @@ function createIdFactory() {
   return (prefix: string) => `${prefix}-memory-receipts-${++index}`;
 }
 
-describe('AgentRunService Memory With Receipts Wave 32', () => {
+describe('AgentRunService Memory With Receipts Memory Receipts', () => {
   it('attaches memoryWithReceipts after executor returns memory signals', async () => {
     const executor = jest.fn<ReturnType<UniversalAgentExecutor>, Parameters<UniversalAgentExecutor>>(() => ({
       status: 'completed',
@@ -122,7 +122,7 @@ describe('AgentRunService Memory With Receipts Wave 32', () => {
     }));
     expect(result.run.metadata.naturalFirstMemoryContinuity).toEqual(expect.objectContaining({
       contractVersion: NATURAL_FIRST_MEMORY_CONTINUITY_CONTRACT_VERSION,
-      phase: 6,
+      stage: 6,
       route: 'memory-recall',
       status: 'memory-cited',
       memoryWithReceiptsLinked: true,

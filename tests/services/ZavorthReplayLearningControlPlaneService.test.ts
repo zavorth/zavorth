@@ -16,10 +16,10 @@ describe('ZavorthReplayLearningControlPlaneService', () => {
     artifacts: [
       {
         id: 'artifact-workflow-docs',
-        name: 'wave-8-notes.md',
+        name: 'track-8-notes.md',
         kind: 'doc',
-        summary: 'Notas reutilizaveis da Wave 8.',
-        path: 'docs/wave-8-notes.md',
+        summary: 'Notas reutilizaveis da Replay learning.',
+        path: 'docs/notes.md',
         createdAt: '2026-04-12T17:45:00.000Z',
       },
     ],
@@ -195,7 +195,7 @@ describe('ZavorthReplayLearningControlPlaneService', () => {
       ...overrides,
     } as any);
 
-  it('builds a Wave 8 snapshot with replay, reusable artifacts and learning candidates', async () => {
+  it('builds a Replay learning snapshot with replay, reusable artifacts and learning candidates', async () => {
     const service = createService();
 
     const snapshot = await service.buildSnapshot({ limit: 12 });
@@ -219,7 +219,7 @@ describe('ZavorthReplayLearningControlPlaneService', () => {
       'resume-workflow',
       'review-learning-candidate',
     ]));
-    await expect(service.renderReport({ limit: 12 })).resolves.toContain('Wave 8: Replay, artifacts e learning loop');
+    await expect(service.renderReport({ limit: 12 })).resolves.toContain('Replay learning: Replay, artifacts e learning loop');
   });
 
   it('promotes critical posture when memory pressure is critical', async () => {

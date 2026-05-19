@@ -127,7 +127,7 @@ function createRun(overrides: Partial<UniversalAgentRun> = {}): UniversalAgentRu
   };
 }
 
-describe('CapabilityNegotiationService Wave 35', () => {
+describe('CapabilityNegotiationService Capability Negotiation', () => {
   it('builds a proposal scope for sensitive multi-tool tasks', () => {
     const snapshot = new CapabilityNegotiationService({
       now: () => new Date('2026-05-04T00:36:00.000Z'),

@@ -18,7 +18,7 @@ import type {
   UniversalAgentRun,
 } from './UniversalAgentRuntimeTypes.js';
 
-export const PRODUCT_ENTRY_RUNTIME_CONTRACT_VERSION = '2026-05-04.wave-47' as const;
+export const PRODUCT_ENTRY_RUNTIME_CONTRACT_VERSION = '2026-05-04.product-entry' as const;
 
 export type ProductEntryRuntimeStatus =
   | 'ready'
@@ -458,7 +458,7 @@ export class ProductEntryRuntimeService {
         command: 'zavorth productization-evidence --json',
         detail: productizationEvidence
           ? `${productizationEvidence.status}; release ${productizationEvidence.releaseReadiness.status}.`
-          : 'Wave 46 evidence precisa estar linkada antes do handoff final.',
+          : 'Channel mesh6 evidence precisa estar linkada antes do handoff final.',
         critical: true,
       },
     ];

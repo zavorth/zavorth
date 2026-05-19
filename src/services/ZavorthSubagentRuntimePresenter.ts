@@ -84,7 +84,7 @@ export function formatSubagentRuntimeSnapshotText(snapshot: ZavorthSubagentRunti
   lines.push('- /agents summarize latest');
   lines.push('- /agents cancel latest');
   lines.push('', 'Policy: read-only explicit subagents can run; writes, sensitive network and live I/O require approval.');
-  lines.push(`Next: ${snapshot.commands.nextPhase}`);
+  lines.push(`Next: ${snapshot.commands.nextStage}`);
   return lines.join('\n');
 }
 

@@ -61,7 +61,7 @@ export class ShellSafetyClassifier {
     const approvalRequired = blocked || attention;
 
     return {
-      id: `phase5.shell-safety.${hashText(`${command}:${cwd}:${this.now().toISOString()}`)}`,
+      id: `credential-vault.shell-safety.${hashText(`${command}:${cwd}:${this.now().toISOString()}`)}`,
       command,
       level,
       approvalRequired,

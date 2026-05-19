@@ -98,7 +98,7 @@ export class ZavorthTransactionSandboxControlledExecutorService {
 
   public renderReport(result: ZavorthTransactionSandboxControlledExecutorResult): string {
     return [
-      '[transaction-sandbox-controlled-executor] Phase 13 controlled sandbox executor',
+      '[transaction-sandbox-controlled-executor] Intent model3 controlled sandbox executor',
       `[transaction-sandbox-controlled-executor] status: ${result.status}`,
       `[transaction-sandbox-controlled-executor] certification: ${result.sourceCertification.status}`,
       `[transaction-sandbox-controlled-executor] operator: ${result.operatorGate.ownerId}`,
@@ -190,15 +190,15 @@ function buildGates(input: {
 
   return [
     gate(
-      'phase12-certification-ready',
+      'intent-model2-certification-ready',
       certification.status === 'sandbox-certification-ready',
-      'Phase 12 must produce a sandbox-certification-ready packet first.',
+      'Intent model2 must produce a sandbox-certification-ready packet first.',
       [`status=${certification.status}`],
     ),
     gate(
       'certification-packet-present',
       Boolean(packet?.certificationOnly && packet.sandboxExecutionAuthorized === false),
-      'A certification-only Phase 12 packet must be present.',
+      'A certification-only Intent model2 packet must be present.',
       [`packet=${packet?.id ?? 'none'}`],
     ),
     gate(
@@ -210,8 +210,8 @@ function buildGates(input: {
     gate(
       'local-sandbox-only',
       certification.safety.noSandboxNetworkCall === true && certification.safety.separateSandboxExecutorRequired === true,
-      'Phase 13 executes a local sandbox simulation only, not a network adapter call.',
-      ['localSandboxSimulationOnly=true', `phase12NoNetwork=${certification.safety.noSandboxNetworkCall}`],
+      'Intent model3 executes a local sandbox simulation only, not a network adapter call.',
+      ['localSandboxSimulationOnly=true', `intent-model2NoNetwork=${certification.safety.noSandboxNetworkCall}`],
     ),
     gate(
       'endpoint-not-called',
@@ -222,13 +222,13 @@ function buildGates(input: {
     gate(
       'amount-within-certified-limits',
       amountWithinCertifiedLimits,
-      'Sandbox amount must remain within the Phase 11 certified limits.',
+      'Sandbox amount must remain within the Intent model1 certified limits.',
       [`amount=${amount ?? 'none'}`, `maxSingle=${maxSingle ?? 'missing'}`, `within=${amountWithinCertifiedLimits}`],
     ),
     gate(
       'credential-ref-bound',
       credentialBound,
-      'Sandbox execution must use the same metadata-only SecretRef certified in Phase 12.',
+      'Sandbox execution must use the same metadata-only SecretRef certified in Intent model2.',
       [`packetRef=${packet?.credentialRef ? 'present' : 'missing'}`, `reviewRef=${reviewPacket?.credentialRef ? 'present' : 'missing'}`, `bound=${credentialBound}`],
     ),
     gate(
@@ -240,13 +240,13 @@ function buildGates(input: {
     gate(
       'kill-switch-ready',
       killSwitchReady,
-      'The tested kill switch from Phase 11 must remain linked.',
+      'The tested kill switch from Intent model1 must remain linked.',
       [`packetKillSwitch=${packet?.killSwitchId ?? 'none'}`, `tested=${certification.sourceActivationReview.killSwitch.tested}`],
     ),
     gate(
       'rollback-ready',
       rollbackReady,
-      'The successful rollback drill from Phase 11 must remain linked.',
+      'The successful rollback drill from Intent model1 must remain linked.',
       [`packetRollback=${packet?.rollbackDrillId ?? 'none'}`, `successful=${certification.sourceActivationReview.rollbackDrill.successful}`],
     ),
     gate(
@@ -273,7 +273,7 @@ function buildGates(input: {
         && packet.liveActionApplied === false
         && SAFETY.liveExecutionAuthorized === false
         && SAFETY.liveActionApplied === false,
-      'Phase 13 must keep live execution disabled even when sandbox execution is recorded.',
+      'Intent model3 must keep live execution disabled even when sandbox execution is recorded.',
       [
         `packetLiveExecutionAuthorized=${packet?.liveExecutionAuthorized ?? 'none'}`,
         `packetLiveActionApplied=${packet?.liveActionApplied ?? 'none'}`,
@@ -299,7 +299,7 @@ function buildExecutionReceipt(input: {
   const review = input.sourceCertification.sourceActivationReview;
   const envelope = review.sourceCandidate.envelope;
   if (!envelope) {
-    throw new Error('Cannot build Phase 13 sandbox execution receipt without Phase 10 envelope.');
+    throw new Error('Cannot build Intent model3 sandbox execution receipt without Intent model0 envelope.');
   }
   const receiptCore = {
     sourceCertificationResultId: input.sourceCertification.id,
@@ -371,7 +371,7 @@ function gate(
 function resolveStatus(
   gates: ZavorthTransactionSandboxControlledExecutorGate[],
 ): ZavorthTransactionSandboxControlledExecutorStatus {
-  if (!isGatePassed(gates, 'phase12-certification-ready') || !isGatePassed(gates, 'certification-packet-present')) {
+  if (!isGatePassed(gates, 'intent-model2-certification-ready') || !isGatePassed(gates, 'certification-packet-present')) {
     return 'certification-required';
   }
   if (!isGatePassed(gates, 'sandbox-operator-confirmation')) {
@@ -406,10 +406,10 @@ function summaryForStatus(status: ZavorthTransactionSandboxControlledExecutorSta
     return 'Controlled local sandbox execution receipt was emitted; no external or live execution occurred.';
   }
   if (status === 'certification-required') {
-    return 'Phase 12 sandbox certification is required before controlled sandbox execution.';
+    return 'Intent model2 sandbox certification is required before controlled sandbox execution.';
   }
   if (status === 'sandbox-operator-approval-required') {
-    return 'Phase 12 is ready, but the dedicated sandbox execution owner phrase is still required.';
+    return 'Intent model2 is ready, but the dedicated sandbox execution owner phrase is still required.';
   }
   return 'Controlled sandbox execution gates blocked receipt emission.';
 }
@@ -421,11 +421,11 @@ function nextStepsForStatus(
   if (status === 'sandbox-executed') {
     return [
       'Review the local sandbox execution receipt and rollback availability.',
-      'Do not treat Phase 13 as live authorization; live execution remains a separate future phase.',
+      'Do not treat Intent model3 as live authorization; live execution remains a separate future phase.',
     ];
   }
   if (status === 'certification-required') {
-    return ['Produce a Phase 12 sandbox-certification-ready packet first.'];
+    return ['Produce a Intent model2 sandbox-certification-ready packet first.'];
   }
   if (status === 'sandbox-operator-approval-required') {
     return [`Re-run with sandbox execution phrase: ${ZAVORTH_TRANSACTION_SANDBOX_CONTROLLED_EXECUTOR_OWNER_PHRASE}`];
@@ -434,7 +434,7 @@ function nextStepsForStatus(
 }
 
 function buildResultId(text: string, now: Date): string {
-  const hash = createHash('sha256').update(`${now.toISOString()}:phase13:${text}`).digest('hex').slice(0, 16);
+  const hash = createHash('sha256').update(`${now.toISOString()}:intent-model3:${text}`).digest('hex').slice(0, 16);
   return `ztx-sandbox-controlled-executor-${hash}`;
 }
 

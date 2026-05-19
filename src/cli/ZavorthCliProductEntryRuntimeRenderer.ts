@@ -32,7 +32,7 @@ export function buildProductEntryRuntimeCliSnapshot(input: {
     metadata: {
       productizationContract: {
         source: 'ZavorthProductizationContractService',
-        phase: 'C9',
+        stage: 'C9',
         status: 'ready',
         control: { ready: true },
         cli: { ready: true },
@@ -114,7 +114,7 @@ export function buildProductEntryRuntimeCliSnapshot(input: {
         identityName: 'Zavorth',
       },
       firstRunOnboarding: {
-        phase: '48',
+        stage: '48',
         surface: 'first-run-onboarding',
         generatedAt: '2026-05-04T02:47:00.000Z',
         status: 'ready',
@@ -126,8 +126,8 @@ export function buildProductEntryRuntimeCliSnapshot(input: {
         requiredArtifacts: [],
         screenshots: [],
         checks: [],
-        nextRecommendedPhase: {
-          phase: '49',
+        nextRecommendedStage: {
+          stage: '49',
           title: 'External Docs And Examples',
           reason: 'docs externas depois do first-run',
         },
@@ -150,7 +150,7 @@ export function formatProductEntryRuntimeSnapshot(
   snapshot: ProductEntryRuntimeSnapshot,
 ): string {
   const lines = [
-    'Product Entry Runtime / First Run - Wave 47',
+    'Product Entry Runtime / First Run - Channel mesh7',
     `- contrato: ${snapshot.contractVersion}`,
     `- run: ${snapshot.identifiers.runId}`,
     `- sessao: ${snapshot.identifiers.sessionId}`,

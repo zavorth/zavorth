@@ -9,7 +9,7 @@ type ExternalizedWorkflowRunSnapshot = {
   workspace: string;
   status: string;
   updated_at: string;
-  stages: Array<{
+  phases: Array<{
     id: string;
     label: string;
     executor: string;
@@ -72,7 +72,7 @@ type WorkflowCheckpointRecord = WorkflowCheckpointReplaySnapshot & {
   workflow_run_id: string;
   workflow_name: string;
   state_hash: string;
-  stages: Array<{
+  phases: Array<{
     id: string;
     status: string;
     task_id: string | null;
@@ -156,12 +156,12 @@ export class WorkflowExternalizedStateService {
         updated_at: String(run.updated_at || timestamp).trim() || timestamp,
       })),
       resume_stage_id: String(run.resume_stage?.id || '').trim() || null,
-      stages: Array.isArray(run.stages)
-        ? run.stages.map((stage) => ({
-            id: String(stage?.id || '').trim(),
-            status: String(stage?.status || '').trim(),
-            task_id: String(stage?.task_id || '').trim() || null,
-            attempt_count: Math.max(0, Number(stage?.attempt_count || 0)),
+      phases: Array.isArray(run.phases)
+        ? run.phases.map((phase) => ({
+            id: String(phase?.id || '').trim(),
+            status: String(phase?.status || '').trim(),
+            task_id: String(phase?.task_id || '').trim() || null,
+            attempt_count: Math.max(0, Number(phase?.attempt_count || 0)),
           }))
         : [],
     };

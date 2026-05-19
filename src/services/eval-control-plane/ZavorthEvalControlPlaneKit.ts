@@ -127,14 +127,14 @@ export function buildEvalDatasets(
       0,
     );
     const examples = observability.learning.workflowResumeStages.slice(0, 4).map((entry) => {
-      return String(entry.workflow || 'workflow') + ' -> ' + String(entry.stage_label || 'stage');
+      return String(entry.workflow || 'workflow') + ' -> ' + String(entry.stage_label || 'phase');
     });
     datasets.push({
       id,
       label: 'Resume pressure',
       kind,
       sampleCount,
-      description: 'Stages que mais pedem retomada, unblock ou repair na janela atual.',
+      description: 'phases que mais pedem retomada, unblock ou repair na janela atual.',
       examples,
       manifest: buildEvalDatasetManifest({
         id,
@@ -143,7 +143,7 @@ export function buildEvalDatasets(
         sampleCount,
         examples,
         selectors: observability.learning.workflowResumeStages.slice(0, 4).map((entry) => {
-          return 'workflow:' + String(entry.workflow || 'workflow') + ':stage:' + String(entry.stage_label || 'stage');
+          return 'workflow:' + String(entry.workflow || 'workflow') + ':phase:' + String(entry.stage_label || 'phase');
         }),
       }),
     });
@@ -291,17 +291,17 @@ export function buildEvalRegressions(
   });
   if (blockedResumeStage) {
     regressions.push({
-      id: 'regression:resume-stage:' + String(blockedResumeStage.workflow || 'workflow'),
+      id: 'regression:resume-phase:' + String(blockedResumeStage.workflow || 'workflow'),
       label: String(blockedResumeStage.workflow || 'workflow') + ' precisa de repair',
       severity: Number(blockedResumeStage.failed || 0) > 0 ? 'critical' : 'medium',
       evidence:
-        String(blockedResumeStage.stage_label || 'stage')
+        String(blockedResumeStage.stage_label || 'phase')
         + ' teve '
         + String(blockedResumeStage.blocked || 0)
         + ' bloqueio(s) e '
         + String(blockedResumeStage.failed || 0)
         + ' falha(s).',
-      recommendedAction: 'Capturar replay do stage, revisar prerequisites e promover recipe de recovery.',
+      recommendedAction: 'Capturar replay do phase, revisar prerequisites e promover recipe de recovery.',
     });
   }
 
@@ -523,10 +523,10 @@ export function buildEvalNarrative(input: {
   );
   const headline =
     input.summary.posture === 'critical'
-      ? 'Wave 4 em modo de recuperacao'
+      ? 'Channel mesh em modo de recuperacao'
       : input.summary.posture === 'attention'
-        ? 'Wave 4 com pontos de atencao'
-        : 'Wave 4 estavel';
+        ? 'Channel mesh com pontos de atencao'
+        : 'Channel mesh estavel';
   const operatorSummary = [
     briefHint,
     input.regressions.length > 0

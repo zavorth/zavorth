@@ -25,7 +25,7 @@ const snapshot = {
 if (asJson) {
   console.log(JSON.stringify(snapshot, null, 2));
 } else {
-  console.log('[zavorth-channel-capability-awareness] checking Phase 7');
+  console.log('[zavorth-channel-capability-awareness] checking Surface controls');
   printRules(rules, '[zavorth-channel-capability-awareness]');
 }
 if (failed.length > 0) process.exitCode = 1;
@@ -40,13 +40,13 @@ function ruleFilesExist() {
     'docs/README.md',
   ];
   const missing = files.filter((file) => !fs.existsSync(path.join(root, file)));
-  return rule('channel-capability-files', 'Phase 7 files exist', missing.length === 0, `${files.length - missing.length}/${files.length}`, 'contract, service, CLI, check, tests and docs are present', missing);
+  return rule('channel-capability-files', 'Surface controls files exist', missing.length === 0, `${files.length - missing.length}/${files.length}`, 'contract, service, CLI, check, tests and docs are present', missing);
 }
 
 function ruleMarkers() {
   const checks = [
     ['src/contracts/ChannelCapabilityContract.ts', ['CHANNEL_CAPABILITY_CONTRACT_VERSION', 'telegram_inline_keyboard', 'discord_components', 'structured_text_fallback']],
-    ['src/services/ZavorthChannelCapabilityAwarenessService.ts', ['phase-7-channel-capability-awareness', 'renderSurfaceResponseForTarget', 'noTelegramPrivileging']],
+    ['src/services/ZavorthChannelCapabilityAwarenessService.ts', ['checkpoint-7-channel-capability-awareness', 'renderSurfaceResponseForTarget', 'noTelegramPrivileging']],
     ['scripts/zavorth-channel-capability-awareness.ts', ['--channel=', 'ZavorthChannelCapabilityAwarenessService']],
     ['src/sdk/contracts.ts', ['ChannelCapabilityContract']],
     ['src/sdk/index.ts', ['ZavorthChannelCapabilityAwarenessService']],
@@ -58,7 +58,7 @@ function ruleMarkers() {
       if (!text.includes(needle)) missing.push(`${file}: missing ${needle}`);
     }
   }
-  return rule('channel-capability-markers', 'Phase 7 markers are wired', missing.length === 0, missing.length === 0 ? 'all markers' : `${missing.length} missing`, 'contract, service, CLI and SDK markers exist', missing);
+  return rule('channel-capability-markers', 'Surface controls markers are wired', missing.length === 0, missing.length === 0 ? 'all markers' : `${missing.length} missing`, 'contract, service, CLI and SDK markers exist', missing);
 }
 
 function runAllFixture() {
@@ -99,7 +99,7 @@ function runFallbackFixture() {
 function ruleWorkspaceCheck() {
   const text = read('package.json');
   const marker = 'node scripts/zavorth-channel-capability-awareness-check.mjs';
-  return rule('workspace-check-wire', 'workspace:check includes Channel Capability Phase 7 gate', text.includes(marker), text.includes(marker) ? 'wired' : 'missing', marker, []);
+  return rule('workspace-check-wire', 'workspace:check includes Channel Capability Surface controls gate', text.includes(marker), text.includes(marker) ? 'wired' : 'missing', marker, []);
 }
 
 function ruleNoPublicExternalNames() {
@@ -120,7 +120,7 @@ function ruleNoPublicExternalNames() {
       if (text.includes(word)) hits.push(`${file}: ${word}`);
     }
   }
-  return rule('no-public-external-names', 'Phase 7 public core remains neutral', hits.length === 0, hits.length === 0 ? 'neutral' : `${hits.length} hit(s)`, 'no external product names in public core files', hits);
+  return rule('no-public-external-names', 'Surface controls public core remains neutral', hits.length === 0, hits.length === 0 ? 'neutral' : `${hits.length} hit(s)`, 'no external product names in public core files', hits);
 }
 
 function runTs(args) {

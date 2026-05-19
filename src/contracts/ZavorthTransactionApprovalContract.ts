@@ -10,7 +10,7 @@ import type {
   ZavorthTransactionRiskLevel,
 } from './ZavorthTransactionPlaneContract.js';
 
-export const ZAVORTH_TRANSACTION_APPROVAL_CONTRACT_VERSION = 'zavorth-transaction-approval/phase-3' as const;
+export const ZAVORTH_TRANSACTION_APPROVAL_CONTRACT_VERSION = 'zavorth-transaction-approval/checkpoint-3' as const;
 
 export type ZavorthTransactionApprovalDecision = 'approved' | 'rejected';
 
@@ -96,12 +96,12 @@ export type ZavorthTransactionApprovalContractSnapshot = {
 export function buildZavorthTransactionApprovalContractSnapshot(): ZavorthTransactionApprovalContractSnapshot {
   return {
     version: ZAVORTH_TRANSACTION_APPROVAL_CONTRACT_VERSION,
-    summary: 'Signed approval ledger contract for Zavorth Transaction Plane Phase 3.',
+    summary: 'Signed approval ledger contract for Zavorth Transaction Plane Approval gate.',
     ledgerEntryKinds: ['preview-recorded', 'approval-granted', 'approval-rejected', 'approval-blocked'],
     decisions: ['approved', 'rejected'],
     invariants: [
       'Approval ledger entries are append-only JSONL records.',
-      'Approving a preview in Phase 3 does not execute a transaction.',
+      'Approving a preview in Approval gate does not execute a transaction.',
       'Approved previews still report liveExecutionAuthorized=false until a later connector execution phase.',
       'Blocked or clarification-needed previews cannot become approval-granted.',
       'Every entry includes payload digest, signature and previous-entry digest for auditability.',

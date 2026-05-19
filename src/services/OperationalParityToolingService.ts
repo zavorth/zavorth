@@ -142,7 +142,7 @@ export class OperationalParityToolingService {
           'npm run parity-doctor --silent',
         ],
         typecheck: 'npm run runtime:check --silent',
-        nextPhase: 'Fase 9 - Certification',
+        nextStage: 'Etapa 9 - Certification',
       },
       certification: {
         releaseReady: gapTotals.total === 0 && status === 'passed',
@@ -151,7 +151,7 @@ export class OperationalParityToolingService {
           : 'Operational tooling is ready, but parity certification still has tracked gaps.',
         minimumNextAction: gapTotals.total === 0
           ? 'Run the certification phase against the full release profile.'
-          : 'Start Phase 9 - Certification to turn tracked gaps into signed pass/fail release gates.',
+          : 'Start Certification matrix - Certification to turn tracked gaps into signed pass/fail release gates.',
       },
       policy: {
         operationalToolingOnly: true,
@@ -184,7 +184,7 @@ export class OperationalParityToolingService {
       ),
       '',
       `Policy: external calls ${snapshot.summary.liveExternalCallRequired}, live sends ${snapshot.summary.liveChannelSendRequired}, live device ${snapshot.summary.liveDeviceRequired}, memory writes ${snapshot.summary.liveMemoryWriteRequired}`,
-      `Next: ${snapshot.commands.nextPhase}`,
+      `Next: ${snapshot.commands.nextStage}`,
     ];
     return lines.join('\n');
   }
@@ -209,10 +209,10 @@ export class OperationalParityToolingService {
 
     return [
       {
-        id: 'phase-1-parity-matrix',
-        title: 'Phase 1 - Parity Matrix',
+        id: 'checkpoint-1-parity-matrix',
+        title: 'Intent model - Parity Matrix',
         status: 'passed',
-        document: 'docs/348-zavorth-source-parity-matrix-private.md',
+        document: 'docs/product-direction.md',
         service: null,
         checkCommand: 'npm run operational-parity-tooling:check --silent',
         testCommand: null,
@@ -225,10 +225,10 @@ export class OperationalParityToolingService {
         notes: ['Private source inventory is normalized into later phase gates.'],
       },
       {
-        id: 'phase-2-plugin-os',
-        title: 'Phase 2 - Plugin OS',
+        id: 'checkpoint-2-plugin-os',
+        title: 'Preview engine - Plugin OS',
         status: input.pluginRegistry.summary.total > 0 ? 'passed' : 'blocked',
-        document: 'docs/349-zavorth-plugin-os-architecture-private.md',
+        document: 'docs/product-direction.md',
         service: 'src/services/PluginRegistryService.ts',
         checkCommand: 'npm run plugin-os:check --silent',
         testCommand: 'npx jest tests/services/PluginRegistryService.test.ts --runInBand',
@@ -242,10 +242,10 @@ export class OperationalParityToolingService {
         notes: ['Plugin OS can register generated parity manifests without invoking live handlers.'],
       },
       {
-        id: 'phase-3-capability-normalization',
-        title: 'Phase 3 - Capability Normalization',
+        id: 'checkpoint-3-capability-normalization',
+        title: 'Approval gate - Capability Normalization',
         status: input.capability.summary.needsReview > 0 ? 'attention' : 'passed',
-        document: 'docs/350-zavorth-capability-normalization-layer-private.md',
+        document: 'docs/product-direction.md',
         service: 'src/services/CapabilityNormalizationService.ts',
         checkCommand: 'npm run capability-normalization:check --silent',
         testCommand: 'npx jest tests/services/CapabilityNormalizationService.test.ts --runInBand',
@@ -255,10 +255,10 @@ export class OperationalParityToolingService {
         notes: ['All private modules are mapped; some primitives still need native contracts or runtime proof.'],
       },
       {
-        id: 'phase-4-provider-mesh',
-        title: 'Phase 4 - Provider Mesh',
+        id: 'checkpoint-4-provider-mesh',
+        title: 'Connector registry - Provider Mesh',
         status: providerGapCount > 0 ? 'attention' : 'passed',
-        document: 'docs/351-zavorth-provider-mesh-parity-private.md',
+        document: 'docs/product-direction.md',
         service: 'src/services/ProviderMeshParityService.ts',
         checkCommand: 'npm run provider-mesh-parity:check --silent',
         testCommand: 'npx jest tests/services/ProviderMeshParityService.test.ts --runInBand',
@@ -268,10 +268,10 @@ export class OperationalParityToolingService {
         notes: ['Provider parity is manifest-complete; template and unsupported adapters remain tracked.'],
       },
       {
-        id: 'phase-5-channel-mesh',
-        title: 'Phase 5 - Channel Mesh',
+        id: 'checkpoint-5-channel-mesh',
+        title: 'Credential vault - Channel Mesh',
         status: channelGapCount > 0 ? 'attention' : 'passed',
-        document: 'docs/352-zavorth-channel-mesh-parity-private.md',
+        document: 'docs/product-direction.md',
         service: 'src/services/ChannelMeshParityService.ts',
         checkCommand: 'npm run channel-mesh-parity:check --silent',
         testCommand: 'npx jest tests/services/ChannelMeshParityService.test.ts --runInBand',
@@ -281,10 +281,10 @@ export class OperationalParityToolingService {
         notes: ['Channel parity simulates inbound/outbound envelopes without live sends.'],
       },
       {
-        id: 'phase-6-satellite-apps',
-        title: 'Phase 6 - Satellite/Apps',
+        id: 'checkpoint-6-satellite-apps',
+        title: 'Runtime gateway - Satellite/Apps',
         status: satelliteGapCount > 0 ? 'attention' : 'passed',
-        document: 'docs/353-zavorth-satellite-app-parity-private.md',
+        document: 'docs/product-direction.md',
         service: 'src/services/SatelliteAppParityService.ts',
         checkCommand: 'npm run satellite-app-parity:check --silent',
         testCommand: 'npx jest tests/services/SatelliteAppParityService.test.ts --runInBand',
@@ -294,10 +294,10 @@ export class OperationalParityToolingService {
         notes: ['Satellite PWA/app parity is inspectable without a live mobile device.'],
       },
       {
-        id: 'phase-7-memory-artifacts',
-        title: 'Phase 7 - Memory/Artifacts',
+        id: 'checkpoint-7-memory-artifacts',
+        title: 'Surface controls - Memory/Artifacts',
         status: memoryGapCount > 0 ? 'attention' : 'passed',
-        document: 'docs/354-zavorth-memory-artifact-parity-private.md',
+        document: 'docs/product-direction.md',
         service: 'src/services/MemoryArtifactParityService.ts',
         checkCommand: 'npm run memory-artifact-parity:check --silent',
         testCommand: 'npx jest tests/services/MemoryArtifactParityService.test.ts --runInBand',
@@ -307,10 +307,10 @@ export class OperationalParityToolingService {
         notes: ['Memory/artifact parity proves receipts and replay through dry-run snapshots.'],
       },
       {
-        id: 'phase-8-operational-tooling',
-        title: 'Phase 8 - Operational Tooling',
+        id: 'checkpoint-8-operational-tooling',
+        title: 'Dashboard controls - Operational Tooling',
         status: 'passed',
-        document: 'docs/355-zavorth-operational-parity-tooling-private.md',
+        document: 'docs/product-direction.md',
         service: 'src/services/OperationalParityToolingService.ts',
         checkCommand: 'npm run operational-parity-tooling:check --silent',
         testCommand: 'npx jest tests/services/OperationalParityToolingService.test.ts --runInBand',
@@ -328,29 +328,29 @@ export class OperationalParityToolingService {
 
   private buildGates(): OperationalParityGate[] {
     const staticGates: OperationalParityGate[] = [
-      gate('plugin-os-static', 'phase-2-plugin-os', 'static-check', 'npm run plugin-os:check --silent'),
-      gate('capability-normalization-static', 'phase-3-capability-normalization', 'static-check', 'npm run capability-normalization:check --silent'),
-      gate('provider-mesh-parity-static', 'phase-4-provider-mesh', 'static-check', 'npm run provider-mesh-parity:check --silent'),
-      gate('channel-mesh-parity-static', 'phase-5-channel-mesh', 'static-check', 'npm run channel-mesh-parity:check --silent'),
-      gate('satellite-app-parity-static', 'phase-6-satellite-apps', 'static-check', 'npm run satellite-app-parity:check --silent'),
-      gate('memory-artifact-parity-static', 'phase-7-memory-artifacts', 'static-check', 'npm run memory-artifact-parity:check --silent'),
-      gate('operational-parity-tooling-static', 'phase-8-operational-tooling', 'static-check', 'npm run operational-parity-tooling:check --silent'),
+      gate('plugin-os-static', 'checkpoint-2-plugin-os', 'static-check', 'npm run plugin-os:check --silent'),
+      gate('capability-normalization-static', 'checkpoint-3-capability-normalization', 'static-check', 'npm run capability-normalization:check --silent'),
+      gate('provider-mesh-parity-static', 'checkpoint-4-provider-mesh', 'static-check', 'npm run provider-mesh-parity:check --silent'),
+      gate('channel-mesh-parity-static', 'checkpoint-5-channel-mesh', 'static-check', 'npm run channel-mesh-parity:check --silent'),
+      gate('satellite-app-parity-static', 'checkpoint-6-satellite-apps', 'static-check', 'npm run satellite-app-parity:check --silent'),
+      gate('memory-artifact-parity-static', 'checkpoint-7-memory-artifacts', 'static-check', 'npm run memory-artifact-parity:check --silent'),
+      gate('operational-parity-tooling-static', 'checkpoint-8-operational-tooling', 'static-check', 'npm run operational-parity-tooling:check --silent'),
     ];
     const jestGates: OperationalParityGate[] = [
-      gate('plugin-os-jest', 'phase-2-plugin-os', 'jest', 'npx jest tests/services/PluginRegistryService.test.ts --runInBand'),
-      gate('capability-normalization-jest', 'phase-3-capability-normalization', 'jest', 'npx jest tests/services/CapabilityNormalizationService.test.ts --runInBand'),
-      gate('provider-mesh-parity-jest', 'phase-4-provider-mesh', 'jest', 'npx jest tests/services/ProviderMeshParityService.test.ts --runInBand'),
-      gate('channel-mesh-parity-jest', 'phase-5-channel-mesh', 'jest', 'npx jest tests/services/ChannelMeshParityService.test.ts --runInBand'),
-      gate('satellite-app-parity-jest', 'phase-6-satellite-apps', 'jest', 'npx jest tests/services/SatelliteAppParityService.test.ts --runInBand'),
-      gate('memory-artifact-parity-jest', 'phase-7-memory-artifacts', 'jest', 'npx jest tests/services/MemoryArtifactParityService.test.ts --runInBand'),
-      gate('operational-parity-tooling-jest', 'phase-8-operational-tooling', 'jest', 'npx jest tests/services/OperationalParityToolingService.test.ts --runInBand'),
+      gate('plugin-os-jest', 'checkpoint-2-plugin-os', 'jest', 'npx jest tests/services/PluginRegistryService.test.ts --runInBand'),
+      gate('capability-normalization-jest', 'checkpoint-3-capability-normalization', 'jest', 'npx jest tests/services/CapabilityNormalizationService.test.ts --runInBand'),
+      gate('provider-mesh-parity-jest', 'checkpoint-4-provider-mesh', 'jest', 'npx jest tests/services/ProviderMeshParityService.test.ts --runInBand'),
+      gate('channel-mesh-parity-jest', 'checkpoint-5-channel-mesh', 'jest', 'npx jest tests/services/ChannelMeshParityService.test.ts --runInBand'),
+      gate('satellite-app-parity-jest', 'checkpoint-6-satellite-apps', 'jest', 'npx jest tests/services/SatelliteAppParityService.test.ts --runInBand'),
+      gate('memory-artifact-parity-jest', 'checkpoint-7-memory-artifacts', 'jest', 'npx jest tests/services/MemoryArtifactParityService.test.ts --runInBand'),
+      gate('operational-parity-tooling-jest', 'checkpoint-8-operational-tooling', 'jest', 'npx jest tests/services/OperationalParityToolingService.test.ts --runInBand'),
     ];
     return [
       ...staticGates,
       ...jestGates,
-      gate('parity-doctor-text', 'phase-8-operational-tooling', 'doctor', 'npm run parity-doctor --silent'),
-      gate('runtime-typecheck', 'phase-8-operational-tooling', 'typecheck', 'npm run runtime:check --silent'),
-      gate('operational-parity-doc', 'phase-8-operational-tooling', 'documentation', 'docs/355-zavorth-operational-parity-tooling-private.md'),
+      gate('parity-doctor-text', 'checkpoint-8-operational-tooling', 'doctor', 'npm run parity-doctor --silent'),
+      gate('runtime-typecheck', 'checkpoint-8-operational-tooling', 'typecheck', 'npm run runtime:check --silent'),
+      gate('operational-parity-doc', 'checkpoint-8-operational-tooling', 'documentation', 'docs/product-direction.md'),
     ];
   }
 
@@ -362,7 +362,7 @@ export class OperationalParityToolingService {
     return [
       gap({
         id: 'capability-native-contracts',
-        phaseId: 'phase-3-capability-normalization',
+        phaseId: 'checkpoint-3-capability-normalization',
         severity: 'p1',
         status: 'tracked',
         surface: 'capability primitives',
@@ -373,7 +373,7 @@ export class OperationalParityToolingService {
       }),
       gap({
         id: 'provider-template-runtime-adapters',
-        phaseId: 'phase-4-provider-mesh',
+        phaseId: 'checkpoint-4-provider-mesh',
         severity: 'p1',
         status: 'tracked',
         surface: 'provider.call',
@@ -384,7 +384,7 @@ export class OperationalParityToolingService {
       }),
       gap({
         id: 'provider-unsupported-runtime-adapters',
-        phaseId: 'phase-4-provider-mesh',
+        phaseId: 'checkpoint-4-provider-mesh',
         severity: 'p0',
         status: 'open',
         surface: 'provider.call',
@@ -395,7 +395,7 @@ export class OperationalParityToolingService {
       }),
       gap({
         id: 'channel-template-routes',
-        phaseId: 'phase-5-channel-mesh',
+        phaseId: 'checkpoint-5-channel-mesh',
         severity: 'p1',
         status: 'tracked',
         surface: 'channel.message',
@@ -406,7 +406,7 @@ export class OperationalParityToolingService {
       }),
       gap({
         id: 'channel-unsupported-routes',
-        phaseId: 'phase-5-channel-mesh',
+        phaseId: 'checkpoint-5-channel-mesh',
         severity: 'p1',
         status: 'open',
         surface: 'channel.message',
@@ -417,7 +417,7 @@ export class OperationalParityToolingService {
       }),
       gap({
         id: 'satellite-native-wrapper-decision',
-        phaseId: 'phase-6-satellite-apps',
+        phaseId: 'checkpoint-6-satellite-apps',
         severity: 'p2',
         status: 'decision-required',
         surface: 'satellite native wrapper',
@@ -428,7 +428,7 @@ export class OperationalParityToolingService {
       }),
       gap({
         id: 'memory-wiki-template',
-        phaseId: 'phase-7-memory-artifacts',
+        phaseId: 'checkpoint-7-memory-artifacts',
         severity: 'p1',
         status: 'tracked',
         surface: 'memory.wiki',
@@ -439,7 +439,7 @@ export class OperationalParityToolingService {
       }),
       gap({
         id: 'memory-vector-backend-choice',
-        phaseId: 'phase-7-memory-artifacts',
+        phaseId: 'checkpoint-7-memory-artifacts',
         severity: 'p2',
         status: 'decision-required',
         surface: 'memory.vector.backend',

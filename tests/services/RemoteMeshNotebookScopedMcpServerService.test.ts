@@ -16,7 +16,7 @@ const allowedProject = 'zavorth-r10-test';
 const readiness = (target: string): RemoteMeshSandboxReadinessSnapshot => ({
   generatedAt: '2026-05-05T19:00:00.000Z',
   contractVersion: ZAVORTH_REMOTE_MESH_SANDBOX_R0_CONTRACT_VERSION,
-  phase: 'R0',
+  stage: 'R0',
   status: 'ready',
   target: {
     nodeId: target,
@@ -55,7 +55,7 @@ const readiness = (target: string): RemoteMeshSandboxReadinessSnapshot => ({
     readiness: 'npx tsx scripts/remote-mesh-sandbox-readiness.ts --json',
     readinessNoLiveProbes: 'npx tsx scripts/remote-mesh-sandbox-readiness.ts --json --no-live-probes',
     focusedTests: 'npx jest tests/services/RemoteMeshSandboxReadinessService.test.ts --runInBand',
-    nextPhase: 'R1 - Remote Mesh and Sandbox Contracts',
+    nextStage: 'R1 - Remote Mesh and Sandbox Contracts',
   },
 });
 

@@ -1,12 +1,12 @@
 import { ReleaseCandidateDistributionRehearsalService } from '../../src/services/ReleaseCandidateDistributionRehearsalService.js';
 
-describe('ReleaseCandidateDistributionRehearsalService Phase 17', () => {
+describe('ReleaseCandidateDistributionRehearsalService Intent model7', () => {
   it('rehearses distribution from the frozen release candidate package', () => {
     const snapshot = new ReleaseCandidateDistributionRehearsalService({
       now: () => new Date('2026-05-05T01:10:00.000Z'),
     }).buildSnapshot();
 
-    expect(snapshot.contractVersion).toBe('2026-05-04.phase-17');
+    expect(snapshot.contractVersion).toBe('2026-05-04.checkpoint-17');
     expect(snapshot.status).toBe('rehearsed');
     expect(snapshot.releaseCandidate).toEqual(
       expect.objectContaining({
@@ -99,7 +99,7 @@ describe('ReleaseCandidateDistributionRehearsalService Phase 17', () => {
         freeze: 'npm run release-candidate-freeze --silent -- --require-frozen',
         packDryRun: 'npm pack --dry-run',
         npmPublishDryRun: 'npm publish --dry-run --tag rc',
-        nextPhase: 'Pre-canary go/no-go alignment',
+        nextStage: 'Pre-canary go/no-go alignment',
       }),
     );
     expect(snapshot.policy).toEqual(

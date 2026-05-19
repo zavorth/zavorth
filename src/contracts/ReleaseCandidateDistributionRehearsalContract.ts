@@ -1,7 +1,7 @@
 import type { ParityCertificationGateStatus } from './ParityCertificationContract.js';
 import type { ReleaseCandidatePackageFreezeSnapshot } from './ReleaseCandidatePackageFreezeContract.js';
 
-export const ZAVORTH_RELEASE_CANDIDATE_DISTRIBUTION_REHEARSAL_CONTRACT_VERSION = '2026-05-04.phase-17';
+export const ZAVORTH_RELEASE_CANDIDATE_DISTRIBUTION_REHEARSAL_CONTRACT_VERSION = '2026-05-04.checkpoint-17';
 
 export type ReleaseCandidateDistributionRehearsalStatus = 'rehearsed' | 'attention' | 'blocked';
 
@@ -130,7 +130,7 @@ export type ReleaseCandidateDistributionRehearsalSnapshot = {
     distributionPolicy: string;
     focusedTests: string[];
     typecheck: string;
-    nextPhase: 'Pre-canary go/no-go alignment';
+    nextStage: 'Pre-canary go/no-go alignment';
   };
   policy: {
     rehearsalOnly: true;

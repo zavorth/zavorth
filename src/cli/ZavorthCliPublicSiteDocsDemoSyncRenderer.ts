@@ -102,7 +102,7 @@ export function formatPublicSiteDocsDemoSyncSnapshot(
   snapshot: PublicSiteDocsDemoSyncSnapshot,
 ): string {
   const lines = [
-    'Public Site / Docs / Demo Sync - Wave 49',
+    'Public Site / Docs / Demo Sync - Channel mesh9',
     `- contrato: ${snapshot.contractVersion}`,
     `- run: ${snapshot.identifiers.runId}`,
     `- sessao: ${snapshot.identifiers.sessionId}`,
@@ -162,7 +162,7 @@ function buildPublicSyncFixtureMetadata() {
   return {
     productizationContract: {
       source: 'ZavorthProductizationContractService',
-      phase: 'C9',
+      stage: 'C9',
       status: 'ready',
       control: { ready: true },
       cli: { ready: true },
@@ -177,7 +177,7 @@ function buildPublicSyncFixtureMetadata() {
       rollbackAvailable: true,
     },
     websitePublic: {
-      phase: '46',
+      stage: '46',
       surface: 'website-public',
       generatedAt: '2026-05-04T02:49:00.000Z',
       status: 'ready',
@@ -191,10 +191,10 @@ function buildPublicSyncFixtureMetadata() {
       ],
       forbiddenClaims: [],
       checks: [],
-      nextRecommendedPhase: { phase: '47', title: 'Public Demo', reason: 'demo fixture-first' },
+      nextRecommendedStage: { stage: '47', title: 'Public Demo', reason: 'demo fixture-first' },
     },
     publicDocsRecipes: {
-      phase: '56',
+      stage: '56',
       surface: 'public-docs-recipes',
       generatedAt: '2026-05-04T02:49:00.000Z',
       status: 'ready',
@@ -215,10 +215,10 @@ function buildPublicSyncFixtureMetadata() {
       ],
       artifacts: { fixtureSmokePath: '<artifact>' },
       checks: [],
-      nextRecommendedPhase: { phase: '57', title: 'Feedback', reason: 'feedback opt-in' },
+      nextRecommendedStage: { stage: '57', title: 'Feedback', reason: 'feedback opt-in' },
     },
     publicDemo: {
-      phase: '47',
+      stage: '47',
       surface: 'public-demo',
       generatedAt: '2026-05-04T02:49:00.000Z',
       status: 'ready',
@@ -230,10 +230,10 @@ function buildPublicSyncFixtureMetadata() {
       requiredArtifacts: ['demo-build-fix-report.md', 'demo-run-2026-04-25.json'],
       screenshots: [],
       checks: [],
-      nextRecommendedPhase: { phase: '48', title: 'Public Onboarding', reason: 'first-run publico' },
+      nextRecommendedStage: { stage: '48', title: 'Public Onboarding', reason: 'first-run publico' },
     },
     publicReleaseBundle: {
-      phase: '51',
+      stage: '51',
       surface: 'release-bundle',
       generatedAt: '2026-05-04T02:49:00.000Z',
       status: 'ready',
@@ -244,8 +244,8 @@ function buildPublicSyncFixtureMetadata() {
       requiredCommands: ['release:status:fast', 'doctor:fast', 'release:changelog', 'release:rollback-preview'],
       screenshots: [],
       checks: [],
-      nextRecommendedPhase: {
-        phase: '52',
+      nextRecommendedStage: {
+        stage: '52',
         title: 'Feedback, Telemetry Opt-In And Product Loop',
         reason: 'loop publico',
       },

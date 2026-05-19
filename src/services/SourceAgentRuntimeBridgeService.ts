@@ -173,14 +173,14 @@ export class SourceAgentRuntimeBridgeService {
         inspectJson: 'npm run source-agent-runtime-bridge:json --silent',
         check: 'npm run source-agent-runtime-bridge:check --silent',
         qa: 'npm run qa:source-agent-runtime-bridge --silent',
-        nextPhase: 'Phase 3 - Provider Mesh Expansion Pack',
+        nextStage: 'Approval gate - Provider Mesh Expansion Pack',
       },
     };
   }
 
   public formatSnapshotText(snapshot = this.buildSnapshot()): string {
     const lines = [
-      'Zavorth Source Agent Runtime Bridge - Phase 2',
+      'Zavorth Source Agent Runtime Bridge - Preview engine',
       `Status: ${snapshot.status}`,
       `Contract: ${snapshot.contractVersion}`,
       `Source runtime packages tracked: ${snapshot.summary.packagesTracked}`,
@@ -205,7 +205,7 @@ export class SourceAgentRuntimeBridgeService {
 
     lines.push(`Tool policy: allowed=${snapshot.toolPolicyDoctor.summary.allowed}, approvalRequired=${snapshot.toolPolicyDoctor.summary.approvalRequired}, denied=${snapshot.toolPolicyDoctor.summary.denied}`);
     lines.push(`Local models: ${snapshot.configRoutes.localModelRecommendation}`);
-    lines.push(`Next: ${snapshot.commands.nextPhase}`);
+    lines.push(`Next: ${snapshot.commands.nextStage}`);
     return lines.join('\n');
   }
 
@@ -536,7 +536,7 @@ function notesForPackage(
   if (usageKind === 'acp-bridge') {
     return ['ACP/ACPX usage is treated as an optional bridge behind owner approval and Zavorth policy'];
   }
-  return ['package usage is tracked by Phase 2 bridge certification'];
+  return ['package usage is tracked by Preview engine bridge certification'];
 }
 
 function collectCandidateFiles(root: string): string[] {

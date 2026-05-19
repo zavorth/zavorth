@@ -30,7 +30,7 @@ const snapshot = {
 if (asJson) {
   console.log(JSON.stringify(snapshot, null, 2));
 } else {
-  console.log('[zavorth-large-skill-absorption] checking Phase 3');
+  console.log('[zavorth-large-skill-absorption] checking Approval gate');
   for (const rule of rules) {
     const marker = rule.status === 'passed' ? 'ok' : 'fail';
     console.log(`[zavorth-large-skill-absorption] ${marker} ${rule.label}: ${rule.observed} | ${rule.target}`);
@@ -57,7 +57,7 @@ function ruleFilesExist() {
   const missing = files.filter((file) => !fs.existsSync(path.join(root, file)));
   return {
     id: 'large-skill-absorption-files',
-    label: 'Phase 3 files exist',
+    label: 'Approval gate files exist',
     status: missing.length === 0 ? 'passed' : 'failed',
     observed: `${files.length - missing.length}/${files.length} file(s) present`,
     target: 'contract, service, CLI, check, docs and tests are present',
@@ -71,7 +71,7 @@ function ruleContainsMarkers() {
       'ZAVORTH_LARGE_SKILL_ABSORPTION_CONTRACT_VERSION',
       'chunkingBeforeLlmContext',
       'everyCandidateIndexedOrQuarantined',
-      'Phase 4 - Absorption Materialization and Bridge Handoff',
+      'Connector registry - Absorption Materialization and Bridge Handoff',
     ]],
     ['src/services/ZavorthLargeSkillAbsorptionService.ts', [
       'UniversalSkillIntakeService',
@@ -110,7 +110,7 @@ function ruleContainsMarkers() {
   }
   return {
     id: 'large-skill-absorption-markers',
-    label: 'Phase 3 markers are present',
+    label: 'Approval gate markers are present',
     status: missing.length === 0 ? 'passed' : 'failed',
     observed: missing.length === 0 ? 'all markers present' : `${missing.length} missing marker(s)`,
     target: 'absorption pipeline has chunking, subagent governance, quarantine and no-execution markers',

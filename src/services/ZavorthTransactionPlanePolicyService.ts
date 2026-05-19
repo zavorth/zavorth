@@ -12,7 +12,7 @@ export type ZavorthTransactionPlanePolicySnapshot = {
   status: 'ready';
   summary: string;
   contract: ZavorthTransactionPlaneContractSnapshot;
-  phase0: {
+  securityContract: {
     liveExecutionAuthorizedByDefault: false;
     llmDirectExecutionAllowed: false;
     realMoneyRequiresExplicitApproval: true;
@@ -27,9 +27,9 @@ export class ZavorthTransactionPlanePolicyService {
     return {
       generatedAt: now.toISOString(),
       status: 'ready',
-      summary: 'Zavorth Transaction Plane Phase 0 is ready as a security contract and policy gate.',
+      summary: 'Zavorth Transaction Plane Security contract is ready as a security contract and policy gate.',
       contract,
-      phase0: {
+      securityContract: {
         liveExecutionAuthorizedByDefault: false,
         llmDirectExecutionAllowed: false,
         realMoneyRequiresExplicitApproval: true,
@@ -55,12 +55,12 @@ export class ZavorthTransactionPlanePolicyService {
 
   public renderReport(snapshot: ZavorthTransactionPlanePolicySnapshot = this.buildSnapshot()): string {
     const lines = [
-      '[transaction-plane] Phase 0 security contract',
+      '[transaction-plane] Security contract security contract',
       `[transaction-plane] status: ${snapshot.status}`,
       `[transaction-plane] summary: ${snapshot.summary}`,
-      `[transaction-plane] llm direct execution: ${snapshot.phase0.llmDirectExecutionAllowed ? 'allowed' : 'blocked'}`,
-      `[transaction-plane] real money approval: ${snapshot.phase0.realMoneyRequiresExplicitApproval ? 'required' : 'not-required'}`,
-      `[transaction-plane] critical value movement: ${snapshot.phase0.criticalValueMovementBlockedByDefault ? 'blocked-by-default' : 'allowed'}`,
+      `[transaction-plane] llm direct execution: ${snapshot.securityContract.llmDirectExecutionAllowed ? 'allowed' : 'blocked'}`,
+      `[transaction-plane] real money approval: ${snapshot.securityContract.realMoneyRequiresExplicitApproval ? 'required' : 'not-required'}`,
+      `[transaction-plane] critical value movement: ${snapshot.securityContract.criticalValueMovementBlockedByDefault ? 'blocked-by-default' : 'allowed'}`,
       `[transaction-plane] irreversible actions: ${snapshot.contract.irreversibleActions.join(', ')}`,
       `[transaction-plane] default controls: ${snapshot.contract.defaultControls.join(', ')}`,
     ];

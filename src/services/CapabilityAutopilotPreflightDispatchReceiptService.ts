@@ -143,7 +143,7 @@ export class CapabilityAutopilotPreflightDispatchReceiptService {
         reason: options.reason || null,
       },
       metadata: {
-        phase: 'capability-autopilot-phase-70',
+        phase: 'capability-autopilot-checkpoint-70',
         sourceActionKind: plan.sourceAction?.kind || null,
         sourceHandlerKind: plan.handlerKind,
         autoExecute: false,
@@ -199,7 +199,7 @@ export class CapabilityAutopilotPreflightDispatchReceiptService {
           'Depois de registrar receipts de dispatch explicito, o proximo passo e conectar adapters reais de CLI, web, chat, Telegram e API sem perder approval, validation e auditoria.',
       },
       metadata: {
-        phase: 'capability-autopilot-phase-70',
+        phase: 'capability-autopilot-checkpoint-70',
         sourceSnapshotStatus: source.status,
         receiptCount: receipts.length,
         autoExecute: false,
@@ -211,7 +211,7 @@ export class CapabilityAutopilotPreflightDispatchReceiptService {
 
   public renderReport(snapshot: CapabilityPreflightDispatchReceiptSnapshot): string {
     const lines: string[] = [];
-    lines.push('[capability-autopilot-preflight-dispatch] Fase 70 - Preflight Handler Execution Receipts');
+    lines.push('[capability-autopilot-preflight-dispatch] Etapa 70 - Preflight Handler Execution Receipts');
     lines.push(`status: ${snapshot.status}`);
     lines.push(`ok: ${snapshot.summary.ok ? 'yes' : 'no'} | pass=${snapshot.summary.passed} warn=${snapshot.summary.warnings} fail=${snapshot.summary.failed}`);
     lines.push(`capability: ${snapshot.capabilityId}`);
@@ -225,7 +225,7 @@ export class CapabilityAutopilotPreflightDispatchReceiptService {
       }
     }
     lines.push('');
-    lines.push(`proxima fase recomendada: ${snapshot.nextRecommendedPhase.phase} - ${snapshot.nextRecommendedPhase.title}`);
+    lines.push(`proximo passo recomendada: ${snapshot.nextRecommendedPhase.phase} - ${snapshot.nextRecommendedPhase.title}`);
     lines.push(snapshot.nextRecommendedPhase.reason);
     return lines.join('\n');
   }
@@ -319,7 +319,7 @@ export class CapabilityAutopilotPreflightDispatchReceiptService {
           receipt.requiresExplicitUserAction &&
           receipt.dispatchPrepared
         ) ? 'pass' : 'fail',
-        'A Fase 70 so prepara receipt pronto quando existe confirmacao explicita.',
+        'A Etapa 70 so prepara receipt pronto quando existe confirmacao explicita.',
         receipts.map((receipt) =>
           `${receipt.sourceSurface}:${receipt.sourceAction?.kind || '<none>'}:confirmed=${receipt.explicitlyConfirmed}:prepared=${receipt.dispatchPrepared}`,
         ),

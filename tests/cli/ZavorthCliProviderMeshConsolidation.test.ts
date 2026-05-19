@@ -46,7 +46,7 @@ describe('Zavorth CLI Provider Mesh Consolidation', () => {
     }));
     const payload = JSON.parse(writes[0] || '{}');
     expect(payload).toEqual(expect.objectContaining({
-      contractVersion: '2026-05-04.wave-43',
+      contractVersion: '2026-05-04.provider-mesh',
       source: 'ProviderMeshConsolidationService',
       summary: expect.objectContaining({
         routeCount: expect.any(Number),
@@ -74,7 +74,7 @@ describe('Zavorth CLI Provider Mesh Consolidation', () => {
 
     const text = formatProviderMeshConsolidationSnapshot(snapshot);
 
-    expect(text).toContain('Provider Mesh / Model Picker Consolidation - Wave 43');
+    expect(text).toContain('Provider Mesh / Model Picker Consolidation - Channel mesh3');
     expect(text).toContain('P0-extra');
     expect(text).toContain('nenhum provider foi executado');
     expect(text).toContain('Command Center: /control?sector=config');

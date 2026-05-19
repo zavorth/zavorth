@@ -58,9 +58,9 @@ export class SqliteVecMemoryBackend {
     this.vectorDimensions = runtime.vectorDimensions || DEFAULT_VECTOR_DIMENSIONS;
     this.dbPath = runtime.dbPath === ':memory:'
       ? ':memory:'
-      : path.resolve(runtime.dbPath || path.join(process.cwd(), 'data', 'source-phase5', 'memory.sqlite'));
+      : path.resolve(runtime.dbPath || path.join(process.cwd(), 'data', 'source-credential-vault', 'memory.sqlite'));
     this.jsonFallbackPath = this.dbPath === ':memory:'
-      ? path.join(os.tmpdir(), 'zavorth-source-phase5-memory-fallback.json')
+      ? path.join(os.tmpdir(), 'zavorth-source-credential-vault-memory-fallback.json')
       : this.dbPath.replace(/\.sqlite$/i, '.json');
     this.db = runtime.forceJsonFallback ? null : this.openSqlite(this.dbPath);
     this.backendId = this.db ? 'sqlite-vector-concept-backend' : 'json-fallback-memory-backend';
@@ -99,7 +99,7 @@ export class SqliteVecMemoryBackend {
 
     if (this.db) {
       this.db.prepare(`
-        INSERT OR REPLACE INTO phase5_memory_records
+        INSERT OR REPLACE INTO credential-vault_memory_records
           (id, namespace, text, metadata_json, keywords_json, vector_json, vector_hash, created_at)
         VALUES (?, ?, ?, ?, ?, ?, ?, ?)
       `).run(
@@ -179,7 +179,7 @@ export class SqliteVecMemoryBackend {
     };
   }
 
-  public buildReplaySnapshot(namespace = 'phase5'): {
+  public buildReplaySnapshot(namespace = 'credential-vault'): {
     backendId: MemoryKnowledgeBackendId;
     namespace: string;
     records: number;
@@ -207,7 +207,7 @@ export class SqliteVecMemoryBackend {
       const Database = require('better-sqlite3') as SqliteConstructor;
       const db = new Database(dbPath);
       db.exec(`
-        CREATE TABLE IF NOT EXISTS phase5_memory_records (
+        CREATE TABLE IF NOT EXISTS credential-vault_memory_records (
           id TEXT PRIMARY KEY,
           namespace TEXT NOT NULL,
           text TEXT NOT NULL,
@@ -217,8 +217,8 @@ export class SqliteVecMemoryBackend {
           vector_hash TEXT NOT NULL,
           created_at TEXT NOT NULL
         );
-        CREATE INDEX IF NOT EXISTS idx_phase5_memory_namespace ON phase5_memory_records(namespace);
-        CREATE INDEX IF NOT EXISTS idx_phase5_memory_created ON phase5_memory_records(created_at);
+        CREATE INDEX IF NOT EXISTS idx_credential-vault_memory_namespace ON credential-vault_memory_records(namespace);
+        CREATE INDEX IF NOT EXISTS idx_credential-vault_memory_created ON credential-vault_memory_records(created_at);
       `);
       return db;
     } catch {
@@ -229,7 +229,7 @@ export class SqliteVecMemoryBackend {
   private loadRecords(namespace: string): MemoryKnowledgeRecord[] {
     if (this.db) {
       const rows = this.db.prepare(
-        'SELECT * FROM phase5_memory_records WHERE namespace = ? ORDER BY created_at DESC',
+        'SELECT * FROM credential-vault_memory_records WHERE namespace = ? ORDER BY created_at DESC',
       ).all(normalizeNamespace(namespace)) as MemoryRow[];
       return rows.map(rowToRecord);
     }
@@ -243,7 +243,7 @@ export class SqliteVecMemoryBackend {
     reason: string,
   ): MemoryKnowledgeWriteReceipt {
     return {
-      id: `phase5.memory.write.${hashId(`${namespace}:${recordId || reason}`)}`,
+      id: `credential-vault.memory.write.${hashId(`${namespace}:${recordId || reason}`)}`,
       status,
       backendId: this.backendId,
       recordId,
@@ -267,7 +267,7 @@ export class SqliteVecMemoryBackend {
     reason: string,
   ): MemoryKnowledgeQueryReceipt {
     return {
-      id: `phase5.memory.query.${hashId(`${namespace}:${query}`)}`,
+      id: `credential-vault.memory.query.${hashId(`${namespace}:${query}`)}`,
       status,
       backendId: this.backendId,
       namespace,
@@ -334,12 +334,12 @@ function normalizeRecord(value: Partial<MemoryKnowledgeRecord> | null): MemoryKn
 }
 
 function normalizeNamespace(value: unknown): string {
-  return String(value || 'phase5')
+  return String(value || 'credential-vault')
     .trim()
     .toLowerCase()
     .replace(/[^a-z0-9_.:-]+/g, '-')
     .replace(/-+/g, '-')
-    .replace(/^-|-$/g, '') || 'phase5';
+    .replace(/^-|-$/g, '') || 'credential-vault';
 }
 
 function normalizeId(value: string): string {
@@ -348,7 +348,7 @@ function normalizeId(value: string): string {
     .toLowerCase()
     .replace(/[^a-z0-9_.:-]+/g, '-')
     .replace(/-+/g, '-')
-    .replace(/^-|-$/g, '') || hashId('phase5-memory-record');
+    .replace(/^-|-$/g, '') || hashId('credential-vault-memory-record');
 }
 
 function sanitizeMetadata(value: Record<string, unknown>): Record<string, unknown> {

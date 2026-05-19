@@ -232,7 +232,7 @@ async function runCriticStep(
 }
 
 /**
- * Phase 8 — Vision In The Loop.
+ * Dashboard controls — Vision In The Loop.
  *
  * Extrai referências de imagem do output textual de ferramentas e converte
  * em InlineData para o pipeline VLM do provedor (Gemini, etc.).
@@ -304,7 +304,7 @@ async function executeToolCall(
       toolCallId,
     };
 
-    // Phase 8: Injeção de visão computacional
+    // Dashboard controls: Injeção de visão computacional
     const visionPayload = extractVisionPayload(contentStr);
     if (visionPayload) {
       chatMsg.inlineData = [visionPayload];
@@ -338,7 +338,7 @@ function trimMessagesForContext(messages: ChatMessage[]): ChatMessage[] {
       64_000,
     )
   ) {
-    // Phase 8: Encontrar um par de mensagens para remover que NÃO contenha
+    // Dashboard controls: Encontrar um par de mensagens para remover que NÃO contenha
     // inlineData (screenshots), para não perder o payload visual.
     let spliceIndex = 1;
     while (spliceIndex < trimmed.length - 2) {

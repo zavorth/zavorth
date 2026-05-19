@@ -60,7 +60,7 @@ export class ZavorthUxRolloutEvidenceCanaryService {
       generatedAt,
       contractVersion: ZAVORTH_UX_ROLLOUT_EVIDENCE_CANARY_CONTRACT_VERSION,
       source: 'ZavorthUxRolloutEvidenceCanaryService',
-      phase: 'phase-7-ux-rollout-evidence-canary',
+      phase: 'checkpoint-7-ux-rollout-evidence-canary',
       status,
       rolloutEval,
       sanitizedEvidence,
@@ -82,7 +82,7 @@ export class ZavorthUxRolloutEvidenceCanaryService {
         report: 'npx tsx scripts/zavorth-ux-rollout-evidence-canary.ts',
         json: 'npx tsx scripts/zavorth-ux-rollout-evidence-canary.ts --json',
         check: 'node scripts/zavorth-ux-rollout-evidence-canary-check.mjs',
-        nextPhase: 'Phase 8 - Live Canary Execution Adapter Review',
+        nextStage: 'Dashboard controls - Live Canary Execution Adapter Review',
       },
       narrative: narrativeForStatus(status, canaryPlan, summary),
     };
@@ -90,7 +90,7 @@ export class ZavorthUxRolloutEvidenceCanaryService {
 
   public formatSnapshotText(snapshot: ZavorthUxRolloutEvidenceCanarySnapshot): string {
     const lines = [
-      'Zavorth UX Rollout Evidence And Canary Review - Phase 7',
+      'Zavorth UX Rollout Evidence And Canary Review - Surface controls',
       '',
       `Status: ${snapshot.status}`,
       `Canary mode: ${snapshot.canaryPlan.mode}`,
@@ -103,7 +103,7 @@ export class ZavorthUxRolloutEvidenceCanaryService {
       'Canary next actions:',
       ...snapshot.canaryPlan.nextActions.map((action) => `- ${action}`),
       '',
-      `Next: ${snapshot.commands.nextPhase}`,
+      `Next: ${snapshot.commands.nextStage}`,
     ];
     return lines.join('\n');
   }
@@ -295,25 +295,25 @@ function buildReceipts(
 ): ZavorthUxRolloutReceipt[] {
   const receipts: ZavorthUxRolloutReceipt[] = [
     {
-      id: 'phase-7-ux-evidence-review',
-      kind: 'phase-7-ux-evidence-review',
+      id: 'checkpoint-7-ux-evidence-review',
+      kind: 'checkpoint-7-ux-evidence-review',
       status: receiptStatus(status),
       summary: `${reviews.length} evidence review entries evaluated.`,
     },
     {
-      id: 'phase-7-canary-plan',
+      id: 'checkpoint-7-canary-plan',
       kind: 'canary-plan',
       status: receiptStatus(status),
       summary: `Canary mode ${canaryPlan.mode}; dryRunReady=${canaryPlan.dryRunReady}; liveReviewReady=${canaryPlan.liveReviewReady}.`,
     },
     {
-      id: 'phase-7-visual-change-boundary',
+      id: 'checkpoint-7-visual-change-boundary',
       kind: 'visual-change-boundary',
       status: 'recorded',
       summary: 'No dashboard visual mutation is performed by canary review.',
     },
     {
-      id: 'phase-7-no-persistence-boundary',
+      id: 'checkpoint-7-no-persistence-boundary',
       kind: 'no-persistence-boundary',
       status: 'recorded',
       summary: 'Evidence is reviewed from input and is not persisted by default.',
@@ -321,7 +321,7 @@ function buildReceipts(
   ];
   if (evidence.some((item) => item.redacted)) {
     receipts.push({
-      id: 'phase-7-evidence-redaction',
+      id: 'checkpoint-7-evidence-redaction',
       kind: 'evidence-redaction',
       status: 'recorded',
       summary: 'One or more evidence summaries were redacted before review.',
@@ -329,7 +329,7 @@ function buildReceipts(
   }
   if (canaryPlan.liveApprovalRequired) {
     receipts.push({
-      id: 'phase-7-live-approval-boundary',
+      id: 'checkpoint-7-live-approval-boundary',
       kind: 'live-approval-boundary',
       status: 'requires-approval',
       summary: 'Live canary review requires owner approval and an approval id.',

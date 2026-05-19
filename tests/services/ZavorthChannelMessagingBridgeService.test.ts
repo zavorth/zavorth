@@ -3,16 +3,16 @@ import {
 } from '../../src/contracts/ZavorthChannelMessagingBridgeContract.js';
 import { ZavorthChannelMessagingBridgeService } from '../../src/services/ZavorthChannelMessagingBridgeService.js';
 
-describe('ZavorthChannelMessagingBridgeService Phase 5', () => {
-  it('publishes the channel messaging bridge snapshot after Phase 4 readiness', () => {
+describe('ZavorthChannelMessagingBridgeService Credential vault', () => {
+  it('publishes the channel messaging bridge snapshot after Connector registry readiness', () => {
     const snapshot = createService().buildSnapshot();
 
     expect(snapshot).toEqual(expect.objectContaining({
       generatedAt: '2026-05-11T21:35:00.000Z',
       contractVersion: ZAVORTH_CHANNEL_MESSAGING_BRIDGE_CONTRACT_VERSION,
       status: 'channel-messaging-bridge-ready',
-      planId: '291 - Plano Zavorth External Runtime Absorption',
-      phase: 'phase-5-channels-and-messaging',
+      planId: 'Zavorth External Runtime Integration',
+      stage: 'checkpoint-5-channels-and-messaging',
       previousCapabilityProviderStatus: 'capability-provider-registry-ready',
     }));
     expect(snapshot.summary).toEqual(expect.objectContaining({
@@ -29,7 +29,7 @@ describe('ZavorthChannelMessagingBridgeService Phase 5', () => {
       sourceRuntimeCodeExecuted: false,
       liveOutboundSendPerformed: false,
     }));
-    expect(snapshot.commands.nextPhase).toBe('291 Phase 6 - Sessions, Memory, And Continuation');
+    expect(snapshot.commands.nextStage).toBe('291 Runtime gateway - Sessions, Memory, And Continuation');
   });
 
   it('normalizes channel descriptors without adopting source identity', () => {
@@ -229,7 +229,7 @@ describe('ZavorthChannelMessagingBridgeService Phase 5', () => {
         'ZavorthTrustPlane',
         'no direct channel send',
       ]),
-      nextSafeAction: 'Proceed to 291 Phase 6 - Sessions, Memory, And Continuation.',
+      nextSafeAction: 'Proceed to 291 Runtime gateway - Sessions, Memory, And Continuation.',
     }));
     expect(snapshot.commandCenterProjection.cards.map((entry) => entry.id)).toEqual(expect.arrayContaining([
       'channels',
@@ -242,12 +242,12 @@ describe('ZavorthChannelMessagingBridgeService Phase 5', () => {
     ]));
   });
 
-  it('blocks Phase 5 if Phase 4 capability providers are not ready', () => {
+  it('blocks Credential vault if Connector registry capability providers are not ready', () => {
     const snapshot = createService().buildSnapshot({ capabilityProviderStatus: 'blocked' });
 
     expect(snapshot.status).toBe('blocked');
     expect(snapshot.previousCapabilityProviderStatus).toBe('blocked');
-    expect(snapshot.acceptanceMatrix.find((entry) => entry.requirementId === 'phase-4-capability-providers-ready')).toEqual(expect.objectContaining({
+    expect(snapshot.acceptanceMatrix.find((entry) => entry.requirementId === 'capability-providers-ready')).toEqual(expect.objectContaining({
       status: 'failed',
     }));
   });
@@ -256,12 +256,12 @@ describe('ZavorthChannelMessagingBridgeService Phase 5', () => {
     const service = createService();
     const text = service.formatSnapshotText(service.buildSnapshot());
 
-    expect(text).toContain('Zavorth Channel Messaging Bridge - Phase 5');
+    expect(text).toContain('Zavorth Channel Messaging Bridge - Credential vault');
     expect(text).toContain('Status: channel-messaging-bridge-ready');
     expect(text).toContain('Reply packets built: 1');
     expect(text).toContain('Raw credentials stored: 0');
     expect(text).toContain('Direct channel sends: 0');
-    expect(text).toContain('Next: 291 Phase 6 - Sessions, Memory, And Continuation');
+    expect(text).toContain('Next: 291 Runtime gateway - Sessions, Memory, And Continuation');
   });
 });
 

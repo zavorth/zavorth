@@ -60,22 +60,25 @@ export class ZavorthDashboardFinalProductPolishService {
           && files.indexHtml.includes('home-command-panel')
           && files.indexHtml.includes('home-profile-grid')
           && files.indexHtml.includes('sector-terminal'),
-        nextActionsReady: files.pagesJs.includes('operator-hero')
-          && files.pagesJs.includes('Your work queue, without the noise.')
+        nextActionsReady: files.pagesJs.includes('premium-hero')
+          && files.pagesJs.includes('Ready check')
+          && files.pagesJs.includes('Ask Zavorth')
           && files.pagesJs.includes('data-dashboard-prompt'),
-        readinessSummaryReady: files.pagesJs.includes('Readiness')
-          && files.pagesJs.includes('dashboard-status-list'),
-        approvalsInboxReady: files.pagesJs.includes('Open approvals')
-          && files.pagesJs.includes('No pending decisions'),
+        readinessSummaryReady: files.pagesJs.includes('Web dashboard')
+          && files.pagesJs.includes('CLI/TUI')
+          && files.pagesJs.includes('Telegram')
+          && files.pagesJs.includes('premium-status-list'),
+        approvalsInboxReady: files.pagesJs.includes('Review approvals')
+          && files.pagesJs.includes('No pending approvals'),
         receiptsViewerReady: files.pagesJs.includes('Receipts')
-          && files.pagesJs.includes('nothing recorded yet'),
-        missionTimelineReady: files.pagesJs.includes('Latest signals')
+          && files.pagesJs.includes('No receipt yet'),
+        missionTimelineReady: (files.pagesJs.includes('Timeline') || files.pagesJs.includes('Recent activity'))
           && files.pagesJs.includes('data-dashboard-timeline'),
-        advancedModeCollapsed: files.pagesJs.includes('<details class="dashboard-advanced">')
-          && !files.pagesJs.includes('<details class="dashboard-advanced" open'),
+        advancedModeCollapsed: files.indexHtml.includes('data-sector="nodes"')
+          && !files.indexHtml.includes('id="sector-nodes" class="sector active"'),
         mobileResponsive: files.pagesCss.includes('@media (max-width: 768px)')
-          && files.pagesCss.includes('.operator-page')
-          && files.pagesCss.includes('.operator-workspace'),
+          && files.pagesCss.includes('.premium-page')
+          && files.pagesCss.includes('.premium-layout'),
         noControlSurfaceByDefault,
         dashboardCanExecute: false,
         rawSecretsSerialized: false,
@@ -92,7 +95,7 @@ export class ZavorthDashboardFinalProductPolishService {
         inspect: 'npm run zavorth:dashboard-final-product-polish',
         inspectJson: 'npm run zavorth:dashboard-final-product-polish:json',
         check: 'npm run zavorth:dashboard-final-product-polish:check --silent',
-        nextPhase: 'Phase 12 - CLI Final Product Polish',
+        nextStage: 'Dashboard visual QA and operator copy pass',
       },
     };
   }
@@ -118,7 +121,7 @@ export class ZavorthDashboardFinalProductPolishService {
       for (const blocker of entry.blockers) lines.push(`  blocker: ${blocker}`);
     }
     lines.push('', 'Safety: dashboard requests and displays; mutable execution remains owned by the governed runtime.');
-    lines.push(`Next: ${snapshot.commands.nextPhase}`);
+    lines.push(`Next: ${snapshot.commands.nextStage}`);
     return lines.join('\n');
   }
 
@@ -142,81 +145,81 @@ export class ZavorthDashboardFinalProductPolishService {
         id: 'dashboard.next-actions',
         label: 'Simple next actions',
         kind: 'mission',
-        passed: files.pagesJs.includes('operator-hero')
-          && files.pagesJs.includes('Your work queue, without the noise.')
-          && files.pagesJs.includes('Show next step')
+        passed: files.pagesJs.includes('premium-hero')
+          && files.pagesJs.includes('Ready check')
+          && files.pagesJs.includes('Ask Zavorth')
           && files.pagesJs.includes('data-dashboard-prompt'),
         userVisible: true,
         defaultSimple: true,
-        evidence: ['operator-hero', 'Show next step', 'data-dashboard-prompt'],
+        evidence: ['premium-hero', 'Ready check', 'Ask Zavorth', 'data-dashboard-prompt'],
       }),
       this.entry({
         id: 'dashboard.readiness-summary',
         label: 'Discreet readiness summary',
         kind: 'readiness',
-        passed: files.pagesJs.includes('Readiness')
-          && files.pagesJs.includes('Sandbox')
-          && files.pagesJs.includes('Providers')
-          && files.pagesJs.includes('Channels'),
+        passed: files.pagesJs.includes('Web dashboard')
+          && files.pagesJs.includes('CLI/TUI')
+          && files.pagesJs.includes('Telegram')
+          && files.pagesJs.includes('premium-status-list'),
         userVisible: true,
         defaultSimple: true,
-        evidence: ['Readiness', 'Sandbox', 'Providers', 'Channels'],
+        evidence: ['Web dashboard', 'CLI/TUI', 'Telegram', 'premium-status-list'],
       }),
       this.entry({
         id: 'dashboard.approvals-inbox',
         label: 'Approvals inbox',
         kind: 'approval',
-        passed: files.pagesJs.includes('Open approvals')
-          && files.pagesJs.includes('No pending decisions')
-          && files.pagesJs.includes('Risky file writes'),
+        passed: files.pagesJs.includes('Review approvals')
+          && files.pagesJs.includes('No pending approvals')
+          && files.pagesJs.includes('Critical actions keep extra confirmations'),
         userVisible: true,
         defaultSimple: true,
-        evidence: ['Open approvals', 'No pending decisions'],
+        evidence: ['Review approvals', 'No pending approvals'],
       }),
       this.entry({
         id: 'dashboard.receipts-viewer',
         label: 'Receipts viewer',
         kind: 'receipt',
         passed: files.pagesJs.includes('Receipts')
-          && files.pagesJs.includes('nothing recorded yet')
-          && files.pagesJs.includes('Receipts ready when actions run'),
+          && files.pagesJs.includes('No receipt yet')
+          && files.pagesJs.includes('After a mission, this area shows files touched'),
         userVisible: true,
         defaultSimple: true,
-        evidence: ['Receipts', 'nothing recorded yet'],
+        evidence: ['Receipts', 'No receipt yet'],
       }),
       this.entry({
         id: 'dashboard.mission-timeline',
         label: 'Mission timeline',
         kind: 'mission',
-        passed: files.pagesJs.includes('Latest signals')
+        passed: (files.pagesJs.includes('Timeline') || files.pagesJs.includes('Recent activity'))
           && files.pagesJs.includes('Waiting for a mission')
           && files.pagesJs.includes('data-dashboard-timeline'),
         userVisible: true,
         defaultSimple: true,
-        evidence: ['Latest signals', 'data-dashboard-timeline'],
+        evidence: ['Timeline', 'data-dashboard-timeline'],
       }),
       this.entry({
         id: 'dashboard.advanced-collapsed',
         label: 'Advanced details stay optional',
         kind: 'advanced',
-        passed: files.pagesJs.includes('<details class="dashboard-advanced">')
-          && files.pagesJs.includes('Runtime only')
-          && !files.pagesJs.includes('<details class="dashboard-advanced" open'),
+        passed: files.indexHtml.includes('data-sector="nodes"')
+          && files.indexHtml.includes('data-sector="config"')
+          && !files.indexHtml.includes('id="sector-nodes" class="sector active"'),
         userVisible: true,
         defaultSimple: true,
-        evidence: ['dashboard-advanced', 'details closed by default'],
+        evidence: ['advanced sectors are optional', 'default sector is Chat'],
       }),
       this.entry({
         id: 'dashboard.mobile-responsive',
         label: 'Mobile responsive layout',
         kind: 'responsive',
         passed: files.pagesCss.includes('@media (max-width: 768px)')
-          && files.pagesCss.includes('.operator-page')
-          && files.pagesCss.includes('.operator-workspace')
-          && files.pagesCss.includes('.operator-rest-mark'),
+          && files.pagesCss.includes('.premium-page')
+          && files.pagesCss.includes('.premium-layout')
+          && files.pagesCss.includes('.skill-row'),
         userVisible: true,
         defaultSimple: true,
-        evidence: ['@media (max-width: 768px)', 'operator-page', 'operator-workspace'],
+        evidence: ['@media (max-width: 768px)', 'premium-page', 'premium-layout'],
       }),
       this.entry({
         id: 'dashboard.display-only-safety',
@@ -224,7 +227,8 @@ export class ZavorthDashboardFinalProductPolishService {
         kind: 'safety',
         passed: !files.indexHtml.includes('/control')
           && !files.pagesJs.includes('/control')
-          && files.pagesJs.includes('The dashboard displays decisions and requests actions; it does not execute mutations directly.'),
+          && files.pagesJs.includes('data-dashboard-prompt')
+          && !files.pagesJs.includes('fetch('),
         userVisible: false,
         defaultSimple: true,
         evidence: ['no /control link', 'runtime-only authority copy'],

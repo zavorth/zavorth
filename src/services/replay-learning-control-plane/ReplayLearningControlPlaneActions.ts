@@ -44,7 +44,7 @@ export function buildReplayLearningActions(input: {
       label: `Retomar workflow ${resumableRun.workflow_name}`,
       severity: 'warn',
       command: '/workflow resume',
-      reason: resumableRun.resume_stage?.reason || 'Workflow possui stage de retomada.',
+      reason: resumableRun.resume_stage?.reason || 'Workflow possui phase de retomada.',
       prompt: resumableRun.resume_prompt || null,
     });
   }

@@ -109,7 +109,7 @@ export class FeedbackTelemetryContractService {
 
   public renderReport(snapshot: FeedbackTelemetryContractSnapshot = this.buildSnapshot()): string {
     const lines: string[] = [];
-    lines.push('[feedback-loop] Fase 52 - Feedback, Telemetry Opt-In And Product Loop');
+    lines.push('[feedback-loop] Readiness checkpoint 2 - Feedback, Telemetry Opt-In And Product Loop');
     lines.push(`status: ${snapshot.status}`);
     lines.push(`ok: ${snapshot.summary.ok ? 'yes' : 'no'} | pass=${snapshot.summary.passed} warn=${snapshot.summary.warnings} fail=${snapshot.summary.failed}`);
     lines.push(`website: ${snapshot.websiteRoot}`);
@@ -123,7 +123,7 @@ export class FeedbackTelemetryContractService {
       }
     }
     lines.push('');
-    lines.push(`proxima fase recomendada: ${snapshot.nextRecommendedPhase.phase} - ${snapshot.nextRecommendedPhase.title}`);
+    lines.push(`proximo passo recomendada: ${snapshot.nextRecommendedPhase.phase} - ${snapshot.nextRecommendedPhase.title}`);
     lines.push(snapshot.nextRecommendedPhase.reason);
     return lines.join('\n');
   }
@@ -167,7 +167,7 @@ export class FeedbackTelemetryContractService {
         `script canonico ${scriptName}`,
         command ? 'pass' : 'fail',
         command
-          ? `repo principal expoe "${scriptName}" para a Fase 52.`
+          ? `repo principal expoe "${scriptName}" para a Readiness checkpoint 2.`
           : `repo principal precisa expor "${scriptName}" no package.json.`,
         'package.json',
         [`script=${command || '<ausente>'}`],

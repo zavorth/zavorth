@@ -193,5 +193,5 @@ export const WEB_APP_POLISH_CONTRACTS = [
   'A web/app precisa expor a mesma jornada canonica da CLI: onboard, go, chat, status e doctor.',
   'Approvals, diffs, artifacts, memoria, recursos e health precisam estar no mesmo workspace operacional.',
   'Estados vazios autenticados devem explicar o caminho de liberacao sem stack trace ou inventario bruto.',
-  'O gate da Fase 40 valida fonte estatica e nao inicia servidor persistente.',
+  'O gate da Etapa 40 valida fonte estatica e nao inicia servidor persistente.',
 ];

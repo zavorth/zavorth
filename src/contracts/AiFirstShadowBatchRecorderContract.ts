@@ -8,7 +8,7 @@ import type {
 } from './AiFirstRoutePlanContract.js';
 import type { UniversalIntentCategory } from '../runtime/uni/UniversalIntentContracts.js';
 
-export const AI_FIRST_SHADOW_BATCH_RECORDER_CONTRACT_VERSION = '2026-05-06.phase-4' as const;
+export const AI_FIRST_SHADOW_BATCH_RECORDER_CONTRACT_VERSION = '2026-05-06.checkpoint-4' as const;
 
 export type AiFirstShadowBatchReadiness = 'candidate' | 'needs-more-samples' | 'not-ready';
 

@@ -73,7 +73,7 @@ const BRIDGE_CANDIDATES: ZavorthExternalRuntimeCandidate[] = [
     sourceRuntimeIds: ['reference-runtime', 'acp-compatible-sidecar'],
     sourcePattern: 'catalog capabilities, tools, channels, workers, sessions, health, and policies as provider-agnostic evidence only',
     decision: 'adapt',
-    phase: 'phase-0-inventory',
+    phase: 'inventory',
     priority: 1,
     naturalFirstRoute: 'capability-discovery',
     contract: 'ZavorthExternalCapabilityInventoryContract',
@@ -94,7 +94,7 @@ const BRIDGE_CANDIDATES: ZavorthExternalRuntimeCandidate[] = [
     sourceRuntimeIds: ['reference-runtime', 'acp-compatible-sidecar'],
     sourcePattern: 'health, version, channel/session summaries, and degraded state probes',
     decision: 'externalize',
-    phase: 'phase-3-sidecar-adapter',
+    phase: 'sidecar-adapter',
     priority: 2,
     naturalFirstRoute: 'capability-discovery',
     contract: 'ZavorthExternalRuntimeReadOnlyProbeContract',
@@ -115,7 +115,7 @@ const BRIDGE_CANDIDATES: ZavorthExternalRuntimeCandidate[] = [
     sourceRuntimeIds: ['reference-runtime'],
     sourcePattern: 'classify provider, terminal, permission, context, billing, rate-limit, and syntax failures',
     decision: 'absorb',
-    phase: 'phase-2-native-engine',
+    phase: 'native-engine',
     priority: 3,
     naturalFirstRoute: 'governed-execution',
     contract: 'ZavorthErrorClassifierContract',
@@ -136,7 +136,7 @@ const BRIDGE_CANDIDATES: ZavorthExternalRuntimeCandidate[] = [
     sourceRuntimeIds: ['reference-runtime'],
     sourcePattern: 'repair malformed JSON/tool arguments before tool preview or approval',
     decision: 'absorb',
-    phase: 'phase-2-native-engine',
+    phase: 'native-engine',
     priority: 4,
     naturalFirstRoute: 'tool-preview',
     contract: 'ZavorthToolCallRepairContract',
@@ -157,7 +157,7 @@ const BRIDGE_CANDIDATES: ZavorthExternalRuntimeCandidate[] = [
     sourceRuntimeIds: ['reference-runtime'],
     sourcePattern: 'parallelize tool batches only when resource/write sets do not conflict',
     decision: 'absorb',
-    phase: 'phase-2-native-engine',
+    phase: 'native-engine',
     priority: 5,
     naturalFirstRoute: 'governed-execution',
     contract: 'ZavorthSafeToolParallelismContract',
@@ -178,7 +178,7 @@ const BRIDGE_CANDIDATES: ZavorthExternalRuntimeCandidate[] = [
     sourceRuntimeIds: ['reference-runtime'],
     sourcePattern: 'remember commands, failures, workarounds, and successful recovery paths',
     decision: 'absorb',
-    phase: 'phase-6-sessions-memory-continuation',
+    phase: 'sessions-memory-continuation',
     priority: 6,
     naturalFirstRoute: 'memory-recall',
     contract: 'ZavorthProceduralMemoryContract',
@@ -199,7 +199,7 @@ const BRIDGE_CANDIDATES: ZavorthExternalRuntimeCandidate[] = [
     sourceRuntimeIds: ['reference-runtime'],
     sourcePattern: 'dedupe, merge, archive, pin, or propose skill changes with dry-run and rollback',
     decision: 'absorb',
-    phase: 'phase-2-native-engine',
+    phase: 'native-engine',
     priority: 7,
     naturalFirstRoute: 'approval-proposal',
     contract: 'ZavorthSkillCuratorContract',
@@ -220,7 +220,7 @@ const BRIDGE_CANDIDATES: ZavorthExternalRuntimeCandidate[] = [
     sourceRuntimeIds: ['acp-compatible-sidecar', 'reference-runtime'],
     sourcePattern: 'map external chat/channel events into NormalizedInboundMessage and ReplyPipeline',
     decision: 'adapt',
-    phase: 'phase-5-channels-messaging',
+    phase: 'channels-messaging',
     priority: 8,
     naturalFirstRoute: 'capability-discovery',
     contract: 'ZavorthExternalChannelGatewayContract',
@@ -241,7 +241,7 @@ const BRIDGE_CANDIDATES: ZavorthExternalRuntimeCandidate[] = [
     sourceRuntimeIds: ['acp-compatible-sidecar', 'reference-runtime'],
     sourcePattern: 'bounded sidecar/local worker tasks with timeout, cancel, and result mapping',
     decision: 'adapt',
-    phase: 'phase-7-delegated-workers',
+    phase: 'delegated-workers',
     priority: 9,
     naturalFirstRoute: 'governed-execution',
     contract: 'ZavorthDelegatedWorkerBridgeContract',
@@ -264,7 +264,7 @@ export class ZavorthExternalRuntimeBridgeService {
 
   constructor(runtime: Runtime = {}) {
     this.now = runtime.now || (() => new Date());
-    this.defaultNaturalFirstPackStatus = runtime.naturalFirstPackStatus || 'phase-9-complete';
+    this.defaultNaturalFirstPackStatus = runtime.naturalFirstPackStatus || 'checkpoint-9-complete';
   }
 
   public listCandidates(): ZavorthExternalRuntimeCandidate[] {
@@ -273,14 +273,14 @@ export class ZavorthExternalRuntimeBridgeService {
 
   public buildSnapshot(input: BridgeSnapshotInput = {}): ZavorthExternalRuntimeBridgeSnapshot {
     const naturalFirstPackStatus = String(input.naturalFirstPackStatus || this.defaultNaturalFirstPackStatus).trim();
-    const naturalFirstClosed = naturalFirstPackStatus === 'phase-9-complete' || naturalFirstPackStatus === 'phase-10-complete';
+    const naturalFirstClosed = naturalFirstPackStatus === 'checkpoint-9-complete' || naturalFirstPackStatus === 'checkpoint-10-complete';
     const candidates = this.listCandidates();
     const status = this.resolveStatus(naturalFirstClosed, candidates);
     return {
       generatedAt: this.now().toISOString(),
       contractVersion: ZAVORTH_EXTERNAL_RUNTIME_BRIDGE_CONTRACT_VERSION,
       status,
-      planId: '291 - Plano Zavorth External Runtime Absorption',
+      planId: 'Zavorth External Runtime Integration',
       naturalFirstPackStatus,
       externalRuntimes: SOURCE_RUNTIMES.map(clone),
       candidates,
@@ -329,14 +329,14 @@ export class ZavorthExternalRuntimeBridgeService {
         inspect: 'npm run zavorth:external-runtime-bridge',
         inspectJson: 'npm run zavorth:external-runtime-bridge:json',
         check: 'npm run zavorth:external-runtime-bridge:check --silent',
-        nextPhase: '291 Phase 0 - Freeze And Inventory',
+        nextStage: '291 Security contract - Freeze And Inventory',
       },
     };
   }
 
   public formatSnapshotText(snapshot: ZavorthExternalRuntimeBridgeSnapshot): string {
     const lines = [
-      'Zavorth External Runtime Bridge - Phase 10',
+      'Zavorth External Runtime Bridge - Intent model0',
       '',
       `Status: ${snapshot.status}`,
       `Natural First: ${snapshot.naturalFirstPackStatus} | closed=${snapshot.gatewayPolicy.naturalFirstClosed}`,
@@ -364,7 +364,7 @@ export class ZavorthExternalRuntimeBridgeService {
     lines.push('- External runtimes are advisory until normalized into Zavorth contracts.');
     lines.push('- All inbound external events enter ZavorthAgentGateway.');
     lines.push('- All user-facing output exits through Zavorth ReplyPipeline.');
-    lines.push('', `Next: ${snapshot.commands.nextPhase}`);
+    lines.push('', `Next: ${snapshot.commands.nextStage}`);
     return lines.join('\n');
   }
 

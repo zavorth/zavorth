@@ -178,7 +178,7 @@ export class ZavorthTransactionIntentService {
   public renderReport(result: ZavorthTransactionIntentParseResult): string {
     const intent = result.intent;
     const lines = [
-      '[transaction-intent] Phase 1 transaction intent',
+      '[transaction-intent] Intent model transaction intent',
       `[transaction-intent] status: ${result.status}`,
       `[transaction-intent] kind: ${intent.kind}`,
       `[transaction-intent] action: ${intent.actionKind}`,

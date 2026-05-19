@@ -33,7 +33,7 @@ const requiredSecurityTests = [
   "tests/security/UntrustedContent.test.ts",
   "tests/security/LlmEgressGuard.test.ts",
   "tests/security/ToolOutputTrust.test.ts",
-  "tests/security/PromptInjectionPhase2.test.ts",
+  "tests/security/PromptInjectionHardening.test.ts",
   "tests/services/llm/LlmRuntimeService.test.ts",
   "tests/context-engine/ContextEngine.test.ts",
   "tests/context-engine/EpisodicMemoryBridge.security.test.ts",
@@ -49,7 +49,6 @@ const auditWorkspaces = [
   { label: "zavorth", cwd: root, required: true },
   { label: "zavorth-agent", cwd: resolve(root, "agent"), required: true },
   { label: "zavorth-docs", cwd: resolve(root, "..", "zavorth-docs"), required: false },
-  { label: "zavorth-modern-ui", cwd: resolve(root, "..", "Zavorth-Modern-UI"), required: false },
 ];
 
 function run(label, command, args, options = {}) {

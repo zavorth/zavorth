@@ -104,7 +104,7 @@ export class ReleaseCertificationProfileHardeningService {
           'npm run release-certification-hardening --silent -- --require-ready',
         ],
         typecheck: 'npm run runtime:check --silent',
-        nextPhase: 'Public launch smoke and evidence ledger',
+        nextStage: 'Public launch smoke and evidence ledger',
       },
       policy: {
         hardensAllProfiles: true,
@@ -143,7 +143,7 @@ export class ReleaseCertificationProfileHardeningService {
         `- ${gate.status.toUpperCase()} ${gate.id}: ${gate.observed} / ${gate.threshold} - ${gate.nextAction}`,
       ),
       '',
-      `Next: ${snapshot.commands.nextPhase}`,
+      `Next: ${snapshot.commands.nextStage}`,
     ].join('\n');
   }
 

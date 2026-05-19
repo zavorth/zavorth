@@ -52,15 +52,15 @@ describe('CommandCenterQaIntegration', () => {
 
   it('documents the QA integration as part of the Command Center readiness pack', () => {
     const readiness = readFileSync(
-      join(rootDir, 'docs/96-command-center-universal-runtime-readiness.md'),
+      join(rootDir, 'docs/product-direction.md'),
       'utf8',
     );
     const qaIntegration = readFileSync(
-      join(rootDir, 'docs/101-command-center-qa-integration.md'),
+      join(rootDir, 'docs/product-direction.md'),
       'utf8',
     );
 
-    expect(readiness).toContain('Fase 5');
+    expect(readiness).toContain('Data readiness');
     expect(readiness).toContain('qa:command-center');
     expect(qaIntegration).toContain('qa:command-center');
     expect(qaIntegration).toContain('qa:command-center-real');

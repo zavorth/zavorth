@@ -27,7 +27,7 @@ export type McpScope = (typeof MCP_SCOPE_LIST)[number];
 
 /** Maps each MCP tool to its required scopes */
 export const MCP_TOOL_SCOPES: Record<string, readonly McpScope[]> = {
-  // Phase 1: Essential Tools
+  // Intent model: Essential Tools
   ZavorthGateway_get_health: ["read:health"],
   ZavorthGateway_list_combos: ["read:combos"],
   ZavorthGateway_get_combo_metrics: ["read:combos"],
@@ -38,7 +38,7 @@ export const MCP_TOOL_SCOPES: Record<string, readonly McpScope[]> = {
   ZavorthGateway_cost_report: ["read:usage"],
   ZavorthGateway_list_models_catalog: ["read:models"],
 
-  // Phase 2: Advanced Tools
+  // Preview engine: Advanced Tools
   ZavorthGateway_simulate_route: ["read:health", "read:combos"],
   ZavorthGateway_set_budget_guard: ["write:budget"],
   ZavorthGateway_set_resilience_profile: ["write:resilience"],

@@ -1310,7 +1310,7 @@ describe('SharedSurfaceCommandService', () => {
 
     expect(handled).toBe(true);
     expect(ctx.reply.mock.calls[0][0]).toContain('Providers prontos agora');
-    expect(ctx.reply.mock.calls[0][0]).toContain('Perfil recomendado para esta fase');
+    expect(ctx.reply.mock.calls[0][0]).toContain('Perfil recomendado para esta etapa');
     expect(ctx.reply.mock.calls[0][0]).toContain('Targets aceitos em /model');
     expect(ctx.reply.mock.calls[0][1]).toEqual(expect.objectContaining({
       reply_markup: expect.any(Object),
@@ -1420,7 +1420,7 @@ describe('SharedSurfaceCommandService', () => {
     expect(ctx.reply).toHaveBeenCalledWith(expect.stringContaining('Discord owner DM: owner_only'));
   });
 
-  it('renders the Wave 7 governance control plane through /governance', async () => {
+  it('renders the Governance governance control plane through /governance', async () => {
     const ctx = {
       platform: 'telegram',
       userId: 'telegram-user',
@@ -1430,7 +1430,7 @@ describe('SharedSurfaceCommandService', () => {
       reply: jest.fn(async () => undefined),
       editMessage: jest.fn(async () => undefined),
     };
-    const renderReport = jest.fn(() => 'Wave 7: Tenancy, governance e policy\nPostura: healthy.');
+    const renderReport = jest.fn(() => 'Governance: Tenancy, governance e policy\nPostura: healthy.');
     const service = new SharedSurfaceCommandService({
       runtimeDiagnostics: { writeSnapshot: jest.fn(() => ({})) } as any,
       supervisedRuntimeService: { summarizeRecentChanges: jest.fn(), requestReload: jest.fn() } as any,
@@ -1445,10 +1445,10 @@ describe('SharedSurfaceCommandService', () => {
 
     expect(handled).toBe(true);
     expect(renderReport).toHaveBeenCalledWith({ limit: 12 });
-    expect(ctx.reply).toHaveBeenCalledWith(expect.stringContaining('Wave 7: Tenancy, governance e policy'));
+    expect(ctx.reply).toHaveBeenCalledWith(expect.stringContaining('Governance: Tenancy, governance e policy'));
   });
 
-  it('renders the Wave 8 replay learning control plane through /replayloop', async () => {
+  it('renders the Replay learning replay learning control plane through /replayloop', async () => {
     const ctx = {
       platform: 'telegram',
       userId: 'telegram-user',
@@ -1458,7 +1458,7 @@ describe('SharedSurfaceCommandService', () => {
       reply: jest.fn(async () => undefined),
       editMessage: jest.fn(async () => undefined),
     };
-    const renderReport = jest.fn(async () => 'Wave 8: Replay, artifacts e learning loop\nPostura: healthy.');
+    const renderReport = jest.fn(async () => 'Replay learning: Replay, artifacts e learning loop\nPostura: healthy.');
     const service = new SharedSurfaceCommandService({
       runtimeDiagnostics: { writeSnapshot: jest.fn(() => ({})) } as any,
       supervisedRuntimeService: { summarizeRecentChanges: jest.fn(), requestReload: jest.fn() } as any,
@@ -1478,10 +1478,10 @@ describe('SharedSurfaceCommandService', () => {
       chatId: 'telegram:chat-1',
       limit: 12,
     });
-    expect(ctx.reply).toHaveBeenCalledWith(expect.stringContaining('Wave 8: Replay, artifacts e learning loop'));
+    expect(ctx.reply).toHaveBeenCalledWith(expect.stringContaining('Replay learning: Replay, artifacts e learning loop'));
   });
 
-  it('renders the Wave D eval control plane through /evals', async () => {
+  it('renders the Eval observability eval control plane through /evals', async () => {
     const ctx = {
       platform: 'telegram',
       userId: 'telegram-user',
@@ -1555,7 +1555,7 @@ describe('SharedSurfaceCommandService', () => {
       executor: null,
       workflow: null,
     });
-    expect(ctx.reply).toHaveBeenCalledWith(expect.stringContaining('Wave D: Eval + Observability'));
+    expect(ctx.reply).toHaveBeenCalledWith(expect.stringContaining('Eval observability: Eval + Observability'));
     expect(ctx.reply).toHaveBeenCalledWith(expect.stringContaining('Telemetry: active'));
   });
 

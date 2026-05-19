@@ -4,7 +4,7 @@ import {
 } from '../../src/contracts/ZavorthTransactionSurfaceContract.js';
 
 describe('ZavorthTransactionSurfaceContract', () => {
-  it('publishes the Phase 7 transaction surface contract', () => {
+  it('publishes the Surface controls transaction surface contract', () => {
     const snapshot = buildZavorthTransactionSurfaceContractSnapshot();
 
     expect(snapshot.version).toBe(ZAVORTH_TRANSACTION_SURFACE_CONTRACT_VERSION);

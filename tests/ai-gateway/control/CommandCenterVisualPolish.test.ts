@@ -62,7 +62,7 @@ describe('CommandCenterVisualPolish', () => {
 
   it('documents the phase as polish over the runtime contract, not a replacement surface', () => {
     const docs = readFileSync(
-      join(process.cwd(), 'docs/103-command-center-visual-polish.md'),
+      join(process.cwd(), 'docs/product-direction.md'),
       'utf8',
     );
 

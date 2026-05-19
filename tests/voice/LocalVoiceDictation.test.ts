@@ -88,7 +88,7 @@ describe('LocalVoiceDictation', () => {
       spawn,
     });
 
-    const transcript = await dictation.transcribeBuffer(Buffer.from('RIFF....WAVE', 'utf8'));
+    const transcript = await dictation.transcribeBuffer(Buffer.from('RIFF....TRACK', 'utf8'));
 
     expect(transcript).toBe('ola zavorth');
     expect(spawn).toHaveBeenCalled();

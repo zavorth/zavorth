@@ -86,7 +86,7 @@ function createRun(overrides: Partial<UniversalAgentRun> = {}): UniversalAgentRu
   };
 }
 
-describe('SkillMcpQuarantineService Wave 33', () => {
+describe('SkillMcpQuarantineService Skill MCP Quarantine', () => {
   it('builds product quarantine snapshot with origin, trust and promotion actions', () => {
     const snapshot = new SkillMcpQuarantineService({
       now: () => new Date('2026-05-03T23:41:00.000Z'),

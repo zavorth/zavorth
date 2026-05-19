@@ -6,7 +6,7 @@ import type { ZavorthTransactionActionKind } from './ZavorthTransactionPlaneCont
 import type { ZavorthTransactionConnectorKind } from './ZavorthTransactionPreviewContract.js';
 
 export const ZAVORTH_TRANSACTION_LIVE_EXECUTOR_GATE_CONTRACT_VERSION =
-  'zavorth-transaction-live-executor-gate/phase-16' as const;
+  'zavorth-transaction-live-executor-gate/checkpoint-16' as const;
 
 export const ZAVORTH_TRANSACTION_LIVE_EXECUTOR_GATE_OWNER_PHRASE =
   'ZAVORTH LIVE EXECUTOR READY HOLD' as const;
@@ -19,7 +19,7 @@ export type ZavorthTransactionLiveExecutorGateStatus =
   | 'live-ready-held';
 
 export type ZavorthTransactionLiveExecutorGateKind =
-  | 'phase14-15-micro-rollout-certified'
+  | 'intent-model4-15-micro-rollout-certified'
   | 'micro-rollout-packet-present'
   | 'live-operator-confirmation'
   | 'live-adapter-manifest-present'
@@ -183,7 +183,7 @@ export type ZavorthTransactionLiveExecutorGateContractSnapshot = {
 export function buildZavorthTransactionLiveExecutorGateContractSnapshot(): ZavorthTransactionLiveExecutorGateContractSnapshot {
   return {
     version: ZAVORTH_TRANSACTION_LIVE_EXECUTOR_GATE_CONTRACT_VERSION,
-    summary: 'Live executor readiness gate for Zavorth Transaction Plane Phase 16.',
+    summary: 'Live executor readiness gate for Zavorth Transaction Plane Intent model6.',
     ownerPhrase: ZAVORTH_TRANSACTION_LIVE_EXECUTOR_GATE_OWNER_PHRASE,
     statuses: [
       'micro-rollout-certification-required',
@@ -193,7 +193,7 @@ export function buildZavorthTransactionLiveExecutorGateContractSnapshot(): Zavor
       'live-ready-held',
     ],
     gateKinds: [
-      'phase14-15-micro-rollout-certified',
+      'intent-model4-15-micro-rollout-certified',
       'micro-rollout-packet-present',
       'live-operator-confirmation',
       'live-adapter-manifest-present',
@@ -214,12 +214,12 @@ export function buildZavorthTransactionLiveExecutorGateContractSnapshot(): Zavor
       'raw-secret-redaction',
     ],
     invariants: [
-      'Phase 16 consumes a Phase 14-15 micro-rollout-certified packet before any live executor readiness packet can be emitted.',
-      'Phase 16 ships no bundled financial adapter and performs no live execution by default.',
+      'Intent model6 consumes a Intent model4-15 micro-rollout-certified packet before any live executor readiness packet can be emitted.',
+      'Intent model6 ships no bundled financial adapter and performs no live execution by default.',
       'A dedicated live executor owner phrase is required after the micro-rollout certification phrase.',
       'A live-ready-held packet means the system is prepared for external adapter binding, not that money has moved.',
       'executeLive=true is deliberately policy-blocked in this readiness gate.',
-      'Every Phase 16 result keeps liveExecutionAuthorized=false, executableNow=false, liveActionApplied=false and externalSideEffects=false.',
+      'Every Intent model6 result keeps liveExecutionAuthorized=false, executableNow=false, liveActionApplied=false and externalSideEffects=false.',
       'Raw transaction secrets must never be serialized by the readiness packet.',
     ],
   };

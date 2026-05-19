@@ -1,6 +1,6 @@
 import type { LiveReadinessStatus } from './LiveReadinessContract.js';
 
-export const ZAVORTH_FILE_DOCUMENT_DIFF_LIVE_PLANE_CONTRACT_VERSION = '2026-05-04.live-phase-9' as const;
+export const ZAVORTH_FILE_DOCUMENT_DIFF_LIVE_PLANE_CONTRACT_VERSION = '2026-05-04.live-checkpoint-9' as const;
 
 export type FileDocumentDiffLiveTargetId =
   | 'file-transfer'
@@ -114,7 +114,7 @@ export type FileDocumentDiffLiveEntry = {
 export type FileDocumentDiffLivePlaneSnapshot = {
   generatedAt: string;
   contractVersion: typeof ZAVORTH_FILE_DOCUMENT_DIFF_LIVE_PLANE_CONTRACT_VERSION;
-  phase: 'Phase 9 - File, Document, Diff And Prose Live Plane';
+  phase: 'Certification matrix - File, Document, Diff And Prose Live Plane';
   status: 'closed' | 'attention' | 'blocked';
   summary: {
     targets: 5;
@@ -130,13 +130,13 @@ export type FileDocumentDiffLivePlaneSnapshot = {
     blocked: number;
     fileTransferMarkedLiveByPlanOnly: false;
     documentExtractMarkedLiveByDryPlaceholder: false;
-    liveIoRequiredByPhase9Check: false;
+    liveIoRequiredByStage9Check: false;
     secretValuesSerialized: false;
   };
   entries: FileDocumentDiffLiveEntry[];
   receipts: FileDocumentDiffLiveReceipt[];
   policy: {
-    noLiveIoDuringPhase9Check: true;
+    noLiveIoDuringStage9Check: true;
     workspaceWritesRequireExplicitApproval: true;
     documentExtractionArtifactsRequired: true;
     tableExtractionBaselineRequired: true;
@@ -151,6 +151,6 @@ export type FileDocumentDiffLivePlaneSnapshot = {
     stagingLiveSmoke: 'npm run file-document-diff-live-plane -- --profile staging-live --target <target> --confirm-live-io';
     focusedTests: string[];
     typecheck: 'npm run runtime:check --silent';
-    nextPhase: 'Phase 10 - Diagnostics, QA And Migration Live Plane';
+    nextStage: 'Intent model0 - Diagnostics, QA And Migration Live Plane';
   };
 };

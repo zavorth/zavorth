@@ -1,7 +1,7 @@
 import { FeedbackTelemetryContractService } from '../../src/services/FeedbackTelemetryContractService';
 
 describe('FeedbackTelemetryContractService', () => {
-  it('builds an ok Phase 52 snapshot from the feedback fixture', () => {
+  it('builds an ok Credential vault2 snapshot from the feedback fixture', () => {
     const service = serviceFromFixture();
     const snapshot = service.buildSnapshot();
 
@@ -10,8 +10,8 @@ describe('FeedbackTelemetryContractService', () => {
     expect(snapshot.summary.ok).toBe(true);
     expect(snapshot.status).toBe('ready');
     expect(snapshot.route).toBe('/feedback');
-    expect(snapshot.nextRecommendedPhase).toEqual(expect.objectContaining({
-      phase: 'complete',
+    expect(snapshot.nextRecommendedStage).toEqual(expect.objectContaining({
+      stage: 'complete',
       title: 'Public Productization Complete',
     }));
   });
@@ -41,7 +41,7 @@ describe('FeedbackTelemetryContractService', () => {
           'feedback:preview': 'npx tsx scripts/feedback-loop.ts --preview',
           'feedback:revoke': 'npx tsx scripts/feedback-loop.ts --revoke',
           'qa:feedback-loop': 'npx tsx scripts/feedback-loop.ts --require-pass --build --screenshots',
-          'qa:phase:52': 'node scripts/phases-46-52-check.mjs --phase=52',
+          'qa:stage:52': 'node scripts/capability-suite-adoption-check.mjs --phase=52',
         },
       }),
     });
@@ -64,7 +64,7 @@ describe('FeedbackTelemetryContractService', () => {
       'website:components/Footer.tsx': '',
       'website:app/docs/page.tsx': '<section id="feedback-loop">Docs</section>',
       'website:app/release/page.tsx': '<a href="/release">Release</a>',
-      'website:app/changelog/page.tsx': 'Fase 52',
+      'website:app/changelog/page.tsx': 'Readiness checkpoint 2',
       'website:app/privacy/page.tsx': '<a href="/privacy">Privacy</a>',
       'website:data/external-docs.ts': '',
     });
@@ -84,8 +84,8 @@ describe('FeedbackTelemetryContractService', () => {
     const service = serviceFromFixture();
     const report = service.renderReport();
 
-    expect(report).toContain('Fase 52 - Feedback, Telemetry Opt-In And Product Loop');
-    expect(report).toContain('proxima fase recomendada: complete - Public Productization Complete');
+    expect(report).toContain('Readiness checkpoint 2 - Feedback, Telemetry Opt-In And Product Loop');
+    expect(report).toContain('proximo passo recomendada: complete - Public Productization Complete');
   });
 });
 
@@ -109,7 +109,7 @@ function filesFixture(overrides: Record<string, string> = {}) {
         'feedback:revoke': 'npx tsx scripts/feedback-loop.ts --revoke',
         'feedback:delete': 'npx tsx scripts/feedback-loop.ts --delete',
         'qa:feedback-loop': 'npx tsx scripts/feedback-loop.ts --require-pass --build --screenshots',
-        'qa:phase:52': 'node scripts/phases-46-52-check.mjs --phase=52',
+        'qa:stage:52': 'node scripts/capability-suite-adoption-check.mjs --phase=52',
       },
     }),
     'website:package.json': JSON.stringify({
@@ -126,7 +126,7 @@ function filesFixture(overrides: Record<string, string> = {}) {
     'website:components/Footer.tsx': '<a href="/feedback">Feedback</a><a href="/docs#feedback-loop">Feedback docs</a>',
     'website:app/docs/page.tsx': '<a href="/feedback">/feedback</a><a href="/docs#feedback-loop">Feedback loop</a> npm run feedback:preview npm run feedback:revoke npm run feedback:delete',
     'website:app/release/page.tsx': '<a href="/release">Release</a>',
-    'website:app/changelog/page.tsx': 'Fase 52',
+    'website:app/changelog/page.tsx': 'Readiness checkpoint 2',
     'website:app/privacy/page.tsx': '<a href="/privacy">Privacy</a>',
     'website:data/external-docs.ts': '<a href="/feedback">Feedback</a>',
     ...overrides,

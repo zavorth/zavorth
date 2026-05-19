@@ -187,7 +187,7 @@ export class CapabilityAutopilotProviderExpansionService {
       descriptorFound: Boolean(descriptor),
       manifestFound: Boolean(manifest),
       metadata: {
-        phase: 'capability-autopilot-phase-65',
+        phase: 'capability-autopilot-checkpoint-65',
         required: target.required,
         fallbackMenuStatus: fallbackMenu.status,
         integrationId: manifest?.id || descriptor?.integration?.integrationId || null,

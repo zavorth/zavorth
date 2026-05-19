@@ -238,14 +238,14 @@ export class SourceSurfaceLedgerService {
         inspectJson: 'npm run source-surface-ledger:json --silent',
         check: 'npm run source-surface-ledger:check --silent',
         qa: 'npm run qa:source-surface-ledger --silent',
-        nextPhase: 'Phase 1 - Plugin OS And Package SDK Absorption',
+        nextStage: 'Intent model - Plugin OS And Package SDK Absorption',
       },
     };
   }
 
   public formatReceiptText(receipt = this.buildReceipt()): string {
     const lines = [
-      'Zavorth Source Surface Ledger - Phase 0',
+      'Zavorth Source Surface Ledger - Security contract',
       `Status: ${receipt.status}`,
       `Contract: ${receipt.contractVersion}`,
       `Ledger: ${receipt.paths.ledgerPath}`,
@@ -283,7 +283,7 @@ export class SourceSurfaceLedgerService {
       }
     }
 
-    lines.push(`Next: ${receipt.commands.nextPhase}`);
+    lines.push(`Next: ${receipt.commands.nextStage}`);
     return lines.join('\n');
   }
 }

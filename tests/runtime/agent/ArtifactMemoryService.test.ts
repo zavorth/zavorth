@@ -34,15 +34,15 @@ function createRun(overrides: Partial<UniversalAgentRun> = {}): UniversalAgentRu
     approvals: [],
     artifacts: [
       {
-        id: 'artifact-plan-wave-38',
-        title: 'Plano Wave 38 Artifact Memory',
+        id: 'artifact-plan-track-38',
+        title: 'Plano Track 38 Artifact Memory',
         kind: 'plan',
         createdAt: '2026-05-04T00:38:00.000Z',
         sessionId: 'session-artifact-memory-1',
         status: 'ready',
       },
       {
-        id: 'artifact-report-wave-38',
+        id: 'artifact-report-track-38',
         title: 'Relatorio Artifact Memory',
         kind: 'report',
         createdAt: '2026-05-04T00:38:00.000Z',
@@ -50,7 +50,7 @@ function createRun(overrides: Partial<UniversalAgentRun> = {}): UniversalAgentRu
         status: 'ready',
       },
       {
-        id: 'artifact-diff-wave-38',
+        id: 'artifact-diff-track-38',
         title: 'Diff Artifact Memory',
         kind: 'diff',
         createdAt: '2026-05-04T00:38:00.000Z',
@@ -60,9 +60,9 @@ function createRun(overrides: Partial<UniversalAgentRun> = {}): UniversalAgentRu
     ],
     memorySignals: [],
     metadata: {
-      taskId: 'wave-38',
+      taskId: 'track-38',
       artifactSummaries: {
-        'artifact-plan-wave-38': {
+        'artifact-plan-track-38': {
           summary: 'Plano para pesquisa e reuso de artifacts com origem.',
         },
       },
@@ -72,8 +72,8 @@ function createRun(overrides: Partial<UniversalAgentRun> = {}): UniversalAgentRu
             id: 'receipt-artifact-plan',
             origin: {
               kind: 'artifact',
-              artifactId: 'artifact-plan-wave-38',
-              ref: 'artifact-plan-wave-38',
+              artifactId: 'artifact-plan-track-38',
+              ref: 'artifact-plan-track-38',
             },
           },
         ],
@@ -83,7 +83,7 @@ function createRun(overrides: Partial<UniversalAgentRun> = {}): UniversalAgentRu
   };
 }
 
-describe('ArtifactMemoryService Wave 38', () => {
+describe('ArtifactMemoryService Track 38', () => {
   it('builds a read-only searchable memory index for artifacts with receipts', () => {
     const snapshot = new ArtifactMemoryService({
       now: () => new Date('2026-05-04T00:39:00.000Z'),
@@ -121,12 +121,12 @@ describe('ArtifactMemoryService Wave 38', () => {
     ]));
     expect(snapshot.entries).toEqual(expect.arrayContaining([
       expect.objectContaining({
-        artifactId: 'artifact-plan-wave-38',
+        artifactId: 'artifact-plan-track-38',
         receipt: expect.objectContaining({
           memoryReceiptId: 'receipt-artifact-plan',
         }),
         actions: expect.objectContaining({
-          citeCommand: 'zavorth artifact-memory cite artifact-plan-wave-38',
+          citeCommand: 'zavorth artifact-memory cite artifact-plan-track-38',
         }),
       }),
     ]));

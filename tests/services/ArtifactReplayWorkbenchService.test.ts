@@ -11,8 +11,8 @@ describe('ArtifactReplayWorkbenchService', () => {
     expect(snapshot.surface).toBe('artifact-replay-workbench');
     expect(snapshot.summary.ok).toBe(true);
     expect(snapshot.summary.heavyRuntimesStarted).toBe(false);
-    expect(snapshot.nextRecommendedPhase).toEqual(expect.objectContaining({
-      phase: '44',
+    expect(snapshot.nextRecommendedStage).toEqual(expect.objectContaining({
+      stage: '44',
       title: 'Release UX',
     }));
   });
@@ -87,7 +87,7 @@ describe('ArtifactReplayWorkbenchService', () => {
     const service = new ArtifactReplayWorkbenchService({
       packageJson: packageJsonFixture({
         'artifact:workbench': '',
-        'qa:phase:43': '',
+        'qa:stage:43': '',
       }),
       html: buildRuntimeShellHtml('/control'),
       controlPlaneSnapshot: controlPlaneFixture(),
@@ -101,7 +101,7 @@ describe('ArtifactReplayWorkbenchService', () => {
     expect(snapshot.summary.ok).toBe(false);
     expect(snapshot.checks).toEqual(expect.arrayContaining([
       expect.objectContaining({ id: 'package:artifact:workbench', status: 'fail' }),
-      expect.objectContaining({ id: 'package:qa:phase:43', status: 'fail' }),
+      expect.objectContaining({ id: 'package:qa:stage:43', status: 'fail' }),
     ]));
   });
 
@@ -137,7 +137,7 @@ describe('ArtifactReplayWorkbenchService', () => {
       now: () => new Date('2026-04-24T00:00:00.000Z'),
     });
 
-    await expect(service.renderReport({ limit: 12 })).resolves.toContain('proxima fase recomendada: 44 - Release UX');
+    await expect(service.renderReport({ limit: 12 })).resolves.toContain('proximo passo recomendada: 44 - Release UX');
   });
 });
 
@@ -148,7 +148,7 @@ function packageJsonFixture(overrides: Record<string, string> = {}) {
       'ops:replay-learning:json': 'npx tsx scripts/zavorth-replay-learning.ts --json',
       'artifact:workbench': 'npx tsx scripts/artifact-replay-workbench.ts',
       'qa:artifact-workbench': 'npx tsx scripts/artifact-replay-workbench.ts --require-pass',
-      'qa:phase:43': 'node scripts/phases-39-45-check.mjs --phase=43',
+      'qa:stage:43': 'node scripts/capability-suite-market-check.mjs --phase=43',
       ...overrides,
     },
   };
@@ -309,7 +309,7 @@ function replayLearningFixture(overrides: Record<string, any> = {}) {
       heavyRuntimesStarted: false,
     },
     narrative: {
-      headline: 'Fase 20',
+      headline: 'Replay learning',
       operatorSummary: '1 aprendizado.',
       nextAction: 'Revisar.',
     },

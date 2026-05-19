@@ -41,7 +41,7 @@ export class ReadabilityExtractionAdapter {
     const sourceName = input.sourceName || input.url || 'article.html';
     const mimeType = input.mimeType || 'text/html';
     const extracted = extractReadableHtml(input.html, input.url || null);
-    const artifactId = `phase5.document.html.${hashId(`${sourceName}:${extracted.text}`)}`;
+    const artifactId = `credential-vault.document.html.${hashId(`${sourceName}:${extracted.text}`)}`;
     const receiptId = `${artifactId}.receipt`;
     const producedAt = this.now().toISOString();
     const artifact: DocumentExtractionArtifact = {

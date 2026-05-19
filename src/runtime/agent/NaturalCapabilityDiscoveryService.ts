@@ -10,7 +10,7 @@ import type {
 } from './UniversalAgentRuntimeTypes.js';
 import { resolveToolGroupCatalogEntry, ToolGroupCatalog } from './tools/ToolGroupCatalog.js';
 
-export const NATURAL_CAPABILITY_DISCOVERY_CONTRACT_VERSION = '2026-05-03.wave-29' as const;
+export const NATURAL_CAPABILITY_DISCOVERY_CONTRACT_VERSION = '2026-05-03.capability-discovery' as const;
 
 export type NaturalCapabilityDiscoveryIntentCategory =
   | 'workspace-inspection'

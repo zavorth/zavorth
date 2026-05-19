@@ -29,12 +29,12 @@ const rules = [
   }),
   ruleContainsAll({
     id: 'diagnostics-qa-migration-live-contract',
-    label: 'Contract defines Phase 10 vocabulary',
+    label: 'Contract defines Intent model0 vocabulary',
     target: 'Contract captures targets, capabilities, gates, receipts and next phase handoff',
     files: ['src/contracts/DiagnosticsQaMigrationLivePlaneContract.ts'],
     needles: [
       'ZAVORTH_DIAGNOSTICS_QA_MIGRATION_LIVE_PLANE_CONTRACT_VERSION',
-      '2026-05-05.live-phase-10',
+      '2026-05-05.live-checkpoint-10',
       'diagnostics-otel',
       'diagnostics-prometheus',
       'qa-channel',
@@ -46,7 +46,7 @@ const rules = [
       'migrate-generic-agent',
       'diagnosticsMarkedLiveBySyntheticSnapshot: false',
       'migrationMarkedLiveByPlanOnly: false',
-      'Phase 11 - Satellite And Device Live Plane',
+      'Intent model1 - Satellite And Device Live Plane',
     ],
   }),
   ruleContainsAll({
@@ -107,7 +107,7 @@ const rules = [
   }),
   ruleContainsAll({
     id: 'diagnostics-qa-migration-live-service',
-    label: 'Service closes Phase 10 gates',
+    label: 'Service closes Intent model0 gates',
     target: 'Service maps nine targets with telemetry, QA matrix and migration receipts',
     files: ['src/services/DiagnosticsQaMigrationLivePlaneService.ts'],
     needles: [
@@ -124,19 +124,19 @@ const rules = [
   }),
   ruleContainsAll({
     id: 'diagnostics-qa-migration-live-readiness',
-    label: 'Live readiness promotes Phase 10 runtime families',
-    target: 'diagnostics.trace, qa.scenario and migration.import point at Phase 10 live activation',
+    label: 'Live readiness promotes Intent model0 runtime families',
+    target: 'diagnostics.trace, qa.scenario and migration.import point at Intent model0 live activation',
     files: ['src/services/LiveReadinessService.ts'],
     needles: [
       'diagnostics.trace',
       'qa.scenario',
       'migration.import',
-      'Phase 10 - Diagnostics, QA, and Migration Live Activation',
+      'Intent model0 - Diagnostics, QA, and Migration Live Activation',
     ],
   }),
   ruleContainsAll({
     id: 'diagnostics-qa-migration-normalization',
-    label: 'Capability normalization points Phase 10 primitives at live services',
+    label: 'Capability normalization points Intent model0 primitives at live services',
     target: 'diagnostics, QA and migration use Zavorth-native service targets',
     files: ['src/services/CapabilityNormalizationService.ts'],
     needles: [
@@ -148,11 +148,11 @@ const rules = [
   }),
   ruleContainsAll({
     id: 'diagnostics-qa-migration-live-tests',
-    label: 'Tests prove Phase 10 behavior',
+    label: 'Tests prove Intent model0 behavior',
     target: 'Tests cover snapshot, diagnostics, QA matrix and migration dry-run/apply',
     files: ['tests/services/DiagnosticsQaMigrationLivePlaneService.test.ts'],
     needles: [
-      'closes Phase 10 diagnostics, QA and migration gates',
+      'closes Intent model0 diagnostics, QA and migration gates',
       'exports real diagnostics telemetry as OTel and Prometheus artifacts',
       'builds channel, provider and runtime QA smoke matrix entries',
       'imports real source inventory with dry-run diff and redacted secrets',
@@ -161,8 +161,8 @@ const rules = [
   }),
   ruleContainsAll({
     id: 'diagnostics-qa-migration-live-package',
-    label: 'Package exposes Phase 10 scripts',
-    target: 'Phase 10 can be run through package scripts',
+    label: 'Package exposes Intent model0 scripts',
+    target: 'Intent model0 can be run through package scripts',
     files: ['package.json'],
     needles: [
       'diagnostics-qa-migration-live-plane',
@@ -172,8 +172,8 @@ const rules = [
   }),
   ruleContainsAll({
     id: 'diagnostics-qa-migration-live-sdk-contracts',
-    label: 'SDK exposes Phase 10 contracts',
-    target: 'Phase 10 contracts can be imported from SDK barrels',
+    label: 'SDK exposes Intent model0 contracts',
+    target: 'Intent model0 contracts can be imported from SDK barrels',
     files: ['src/sdk/contracts.ts'],
     needles: [
       'DiagnosticsQaMigrationLivePlane',
@@ -182,8 +182,8 @@ const rules = [
   }),
   ruleContainsAll({
     id: 'diagnostics-qa-migration-live-sdk-services',
-    label: 'SDK exposes Phase 10 services',
-    target: 'Phase 10 services can be imported from SDK index',
+    label: 'SDK exposes Intent model0 services',
+    target: 'Intent model0 services can be imported from SDK index',
     files: ['src/sdk/index.ts'],
     needles: [
       'DiagnosticsQaMigrationLivePlaneService',
@@ -192,11 +192,11 @@ const rules = [
   }),
   ruleContainsAll({
     id: 'diagnostics-qa-migration-live-doc',
-    label: 'Docs record Phase 10 closure',
-    target: 'Phase 10 documentation explains telemetry, QA matrix, migration and staging-live flow',
+    label: 'Docs record Intent model0 closure',
+    target: 'Intent model0 documentation explains telemetry, QA matrix, migration and staging-live flow',
     files: ['docs/README.md'],
     needles: [
-      'Phase 10',
+      'Intent model0',
       'Diagnostics, QA And Migration Live Plane',
       'diagnostics.trace',
       'qa.scenario',
@@ -223,7 +223,7 @@ const snapshot = {
 if (asJson) {
   console.log(JSON.stringify(snapshot, null, 2));
 } else {
-  console.log('[diagnostics-qa-migration-live-plane] checking Phase 10');
+  console.log('[diagnostics-qa-migration-live-plane] checking Intent model0');
   for (const rule of rules) {
     const marker = rule.status === 'passed' ? 'ok' : 'fail';
     console.log(`[diagnostics-qa-migration-live-plane] ${marker} ${rule.label}: ${rule.observed} | ${rule.target}`);

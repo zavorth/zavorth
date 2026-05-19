@@ -131,7 +131,7 @@ export class TenantTeamOpsService {
 
   public renderReport(snapshot: TenantTeamOpsSnapshot = this.buildSnapshot()): string {
     const lines: string[] = [];
-    lines.push('[tenant-team-ops] Fase 42 - Tenant/Team Ops');
+    lines.push('[tenant-team-ops] Etapa 42 - Tenant/Team Ops');
     lines.push(`status: ${snapshot.status}`);
     lines.push(`ok: ${snapshot.summary.ok ? 'yes' : 'no'} | pass=${snapshot.summary.passed} warn=${snapshot.summary.warnings} fail=${snapshot.summary.failed}`);
     lines.push(`tenants=${snapshot.summary.tenants} shared=${snapshot.summary.sharedTenants} personal=${snapshot.summary.personalTenants} teams=${snapshot.summary.teams} scopes=${snapshot.summary.policyScopes}`);
@@ -150,7 +150,7 @@ export class TenantTeamOpsService {
       }
     }
     lines.push('');
-    lines.push(`proxima fase recomendada: ${snapshot.nextRecommendedPhase.phase} - ${snapshot.nextRecommendedPhase.title}`);
+    lines.push(`proximo passo recomendada: ${snapshot.nextRecommendedPhase.phase} - ${snapshot.nextRecommendedPhase.title}`);
     lines.push(snapshot.nextRecommendedPhase.reason);
     return lines.join('\n');
   }
@@ -411,7 +411,7 @@ export class TenantTeamOpsService {
       'Tenant/Team Ops nao inicia background persistente',
       offenders.length === 0 ? 'pass' : 'fail',
       offenders.length === 0
-        ? 'Scripts e gate da Fase 42 sao leituras sob demanda.'
+        ? 'Scripts e gate da Etapa 42 sao leituras sob demanda.'
         : 'Scripts de Tenant/Team Ops apontam para processo persistente.',
       'tenant',
       offenders,

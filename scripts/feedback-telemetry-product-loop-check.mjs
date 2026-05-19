@@ -8,7 +8,7 @@ const asJson = process.argv.includes('--json');
 const rules = [
   ruleFilesExist({
     id: 'feedback-product-loop-files',
-    label: 'Wave 50 files exist',
+    label: 'Feedback Telemetry files exist',
     target: 'Runtime, CLI, Command Center, tests and docs are present',
     files: [
       'src/runtime/agent/FeedbackTelemetryProductLoopService.ts',
@@ -27,7 +27,7 @@ const rules = [
     files: ['src/runtime/agent/FeedbackTelemetryProductLoopService.ts'],
     needles: [
       'FEEDBACK_TELEMETRY_PRODUCT_LOOP_CONTRACT_VERSION',
-      '2026-05-04.wave-50',
+      '2026-05-04.feedback-telemetry',
       'PublicSiteDocsDemoSyncService',
       'FeedbackTelemetryContractService',
       'feedbackTelemetryProductLoop',
@@ -69,7 +69,7 @@ const rules = [
       'feedback-runtime',
       'telemetry-opt-in',
       'product-loop',
-      'Feedback / Telemetry Opt-In / Product Loop - Wave 50',
+      'Feedback / Telemetry Opt-In / Product Loop - Feedback Telemetry',
       'resolveFeedbackTelemetryProductLoopCliText',
       'formatFeedbackTelemetryProductLoopSnapshot',
     ],
@@ -97,7 +97,7 @@ const rules = [
   }),
   ruleContainsAll({
     id: 'package-exposes-feedback-product-loop-gate',
-    label: 'package exposes Wave 50 gate',
+    label: 'package exposes Feedback Telemetry gate',
     target: 'local QA can run feedback-product-loop:check and qa:feedback-product-loop',
     files: ['package.json'],
     needles: [
@@ -123,7 +123,7 @@ const snapshot = {
 if (asJson) {
   console.log(JSON.stringify(snapshot, null, 2));
 } else {
-  console.log('[feedback-product-loop] checking Wave 50');
+  console.log('[feedback-product-loop] checking Feedback Telemetry');
   for (const rule of rules) {
     const marker = rule.status === 'passed' ? 'ok' : 'fail';
     console.log(`[feedback-product-loop] ${marker} ${rule.label}: ${rule.observed} | ${rule.target}`);

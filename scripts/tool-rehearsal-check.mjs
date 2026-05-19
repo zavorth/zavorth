@@ -8,7 +8,7 @@ const asJson = process.argv.includes('--json');
 const rules = [
   ruleFilesExist({
     id: 'tool-rehearsal-files',
-    label: 'Wave 36 files exist',
+    label: 'Tool Rehearsal files exist',
     target: 'Runtime, CLI, Command Center, tests and docs are present',
     files: [
       'src/runtime/agent/ToolRehearsalService.ts',
@@ -27,7 +27,7 @@ const rules = [
     files: ['src/runtime/agent/ToolRehearsalService.ts'],
     needles: [
       'TOOL_REHEARSAL_CONTRACT_VERSION',
-      '2026-05-03.wave-36',
+      '2026-05-03.tool-rehearsal',
       'ToolRehearsalCall',
       'approximateArguments',
       'expectedOutput',
@@ -64,7 +64,7 @@ const rules = [
     ],
     needles: [
       'rehearse',
-      'Tool Rehearsal - Wave 36',
+      'Tool Rehearsal - Tool Rehearsal',
       'resolveToolRehearsalCliText',
       'formatToolRehearsalSnapshot',
       'zavorth rehearse',
@@ -93,7 +93,7 @@ const rules = [
   }),
   ruleContainsAll({
     id: 'package-exposes-tool-rehearsal-gate',
-    label: 'package exposes Wave 36 gate',
+    label: 'package exposes Tool Rehearsal gate',
     target: 'local QA can run tool-rehearsal:check and qa:tool-rehearsal',
     files: ['package.json'],
     needles: [
@@ -119,7 +119,7 @@ const snapshot = {
 if (asJson) {
   console.log(JSON.stringify(snapshot, null, 2));
 } else {
-  console.log('[tool-rehearsal] checking Wave 36');
+  console.log('[tool-rehearsal] checking Tool Rehearsal');
   for (const rule of rules) {
     const marker = rule.status === 'passed' ? 'ok' : 'fail';
     console.log(`[tool-rehearsal] ${marker} ${rule.label}: ${rule.observed} | ${rule.target}`);

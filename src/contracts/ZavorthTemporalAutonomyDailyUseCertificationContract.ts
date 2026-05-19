@@ -5,7 +5,7 @@ import type { ZavorthScheduledTaskDailyOpsReadinessSnapshot } from './ZavorthSch
 import type { ZavorthScheduledTaskLiveTickCertificationSnapshot } from './ZavorthScheduledTaskLiveTickCertificationContract.js';
 
 export const ZAVORTH_TEMPORAL_AUTONOMY_DAILY_USE_CERTIFICATION_CONTRACT_VERSION =
-  '2026-05-12.temporal-autonomy-daily-use-certification-phase-8' as const;
+  '2026-05-12.temporal-autonomy-daily-use-certification-checkpoint-8' as const;
 
 export type ZavorthTemporalAutonomyDailyUseCertificationStatus =
   | 'certified'
@@ -54,7 +54,7 @@ export type ZavorthTemporalAutonomyDailyUseAbuseScenario = {
 export type ZavorthTemporalAutonomyDailyUseReceipt = {
   id: string;
   kind:
-    | 'phase-8-daily-use-certification'
+    | 'checkpoint-8-daily-use-certification'
     | 'scheduled-task-certification-consumed'
     | 'channel-capability-consumed'
     | 'abuse-scenario'
@@ -73,7 +73,7 @@ export type ZavorthTemporalAutonomyDailyUseCertificationSnapshot = {
   generatedAt: string;
   contractVersion: typeof ZAVORTH_TEMPORAL_AUTONOMY_DAILY_USE_CERTIFICATION_CONTRACT_VERSION;
   source: 'ZavorthTemporalAutonomyDailyUseCertificationService';
-  phase: 'phase-8-certification-and-daily-use-gate';
+  phase: 'checkpoint-8-certification-and-daily-use-gate';
   status: ZavorthTemporalAutonomyDailyUseCertificationStatus;
   dailyOpsReadiness: ZavorthScheduledTaskDailyOpsReadinessSnapshot;
   liveTickCertification: ZavorthScheduledTaskLiveTickCertificationSnapshot;
@@ -95,7 +95,7 @@ export type ZavorthTemporalAutonomyDailyUseCertificationSnapshot = {
   };
   receipts: ZavorthTemporalAutonomyDailyUseReceipt[];
   safety: {
-    consumesPhase6LiveTickCertification: true;
+    consumesStage6LiveTickCertification: true;
     consumesDailyOpsReadiness: true;
     consumesChannelCapabilityAwareness: true;
     acpBridgeGovernedByMcp: true;

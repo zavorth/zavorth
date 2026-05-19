@@ -72,7 +72,7 @@ const baseManifest = (overrides: Partial<ZavorthPluginManifest> = {}): ZavorthPl
   ...overrides,
 });
 
-describe('Plugin OS Phase 2', () => {
+describe('Plugin OS Preview engine', () => {
   it('registers a manifest and exposes lifecycle state in the registry snapshot', () => {
     const service = new PluginRegistryService({
       now: () => new Date('2026-05-04T12:00:00.000Z'),

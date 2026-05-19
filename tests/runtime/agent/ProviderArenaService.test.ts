@@ -118,7 +118,7 @@ function createRun(overrides: Partial<UniversalAgentRun> = {}): UniversalAgentRu
   };
 }
 
-describe('ProviderArenaService Wave 34', () => {
+describe('ProviderArenaService Provider Arena', () => {
   it('builds a read-only provider arena from route, budget and observatory receipts', () => {
     const snapshot = new ProviderArenaService({
       now: () => new Date('2026-05-03T23:59:00.000Z'),

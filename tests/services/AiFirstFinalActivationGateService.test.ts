@@ -115,7 +115,7 @@ function createCleanInputs(): Parameters<AiFirstFinalActivationGateService['buil
         familyId: 'conversation',
         surface: 'web',
         risk: 'safe',
-        phase3GuardrailPassed: true,
+        approvalGateGuardrailPassed: true,
         registryReceiptPresent: true,
       },
       {
@@ -123,7 +123,7 @@ function createCleanInputs(): Parameters<AiFirstFinalActivationGateService['buil
         familyId: 'conversation',
         surface: 'cli',
         risk: 'safe',
-        phase3GuardrailPassed: true,
+        approvalGateGuardrailPassed: true,
         registryReceiptPresent: true,
       },
     ],
@@ -272,7 +272,7 @@ describe('AiFirstFinalActivationGateService', () => {
     expect(snapshot.recommendation.readiness).toBe('blocked');
     expect(snapshot.recommendation.action).toBe('reject-activation');
     expect(snapshot.findings.map((finding) => finding.kind)).toContain('runtime-invariant-violation');
-    expect(snapshot.gates.find((gate) => gate.id === 'phase-10-runtime-invariants-preserved')?.status).toBe('blocked');
+    expect(snapshot.gates.find((gate) => gate.id === 'checkpoint-10-runtime-invariants-preserved')?.status).toBe('blocked');
   });
 
   it('holds for historical hold without pretending activation is ready', () => {
@@ -309,7 +309,7 @@ describe('AiFirstFinalActivationGateService', () => {
     const service = createFinalService();
     const snapshot = service.buildGate({
       ...createCleanInputs(),
-      activationName: 'phase10 sk-finalactivation123456',
+      activationName: 'intent-model0 sk-finalactivation123456',
     });
     const serialized = JSON.stringify(snapshot);
 

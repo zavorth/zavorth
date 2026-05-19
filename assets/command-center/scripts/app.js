@@ -619,18 +619,24 @@
   function updateDashboardTimeline(events) {
     const timeline = document.querySelector('[data-dashboard-timeline]');
     if (!timeline) return;
-    const items = events.length > 0 ? events : [
-      { title: 'Gateway loaded', time: 'now', status: 'ready', type: 'session' },
-      { title: 'Gateway waiting for a request', time: 'idle', status: 'idle', type: 'step' },
-      { title: 'Timeline ready for receipts', time: 'ready', status: 'ready', type: 'receipt' },
-    ];
-    timeline.innerHTML = items.slice(0, 3).map((event) => `
+    if (events.length === 0) {
+      timeline.hidden = true;
+      timeline.innerHTML = '';
+      return;
+    }
+    timeline.hidden = false;
+    timeline.innerHTML = `
+      <div class="platform-section-title">Recent activity</div>
+      <div class="dashboard-mini-timeline">
+        ${events.slice(0, 3).map((event) => `
       <div class="dashboard-timeline-item dashboard-timeline-item--${escapeHtml(traceEventClass(event.type))}">
         <span></span>
         <p>${escapeHtml(event.title || traceEventLabel(event.type))}</p>
         <strong>${escapeHtml(event.status || event.time || 'event')}</strong>
       </div>
-    `).join('');
+        `).join('')}
+      </div>
+    `;
   }
 
   function updateDashboardGlass() {
@@ -3051,8 +3057,8 @@ ${current}` : prompt;
   const savedTheme = localStorage.getItem('zavorth_theme');
   if (savedTheme) {
     setTheme(savedTheme);
-  } else if (window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches) {
-    setTheme('light');
+  } else {
+    setTheme('zavorth');
   }
 
   if (themeToggle) {

@@ -8,8 +8,8 @@ const asJson = process.argv.includes('--json');
 
 const rules = [
   ruleFilesExist({
-    id: 'zavorth-skill-ecosystem-phase-8-files',
-    label: 'Phase 8 files exist',
+    id: 'zavorth-skill-ecosystem-checkpoint-8-files',
+    label: 'Dashboard controls files exist',
     target: 'contract, importer, permission profile, smoke runner, receipt emitter, pack service, command, SDK export and tests are present',
     files: [
       'src/contracts/ZavorthSkillEcosystemPackContract.ts',
@@ -27,7 +27,7 @@ const rules = [
   ruleContainsAll({
     id: 'zavorth-skill-ecosystem-contract',
     label: 'Contract captures optional skill ecosystem model',
-    target: 'contract includes manifests, permission profiles, SecretRef policy, smoke results and Phase 9 handoff',
+    target: 'contract includes manifests, permission profiles, SecretRef policy, smoke results and Certification matrix handoff',
     files: ['src/contracts/ZavorthSkillEcosystemPackContract.ts'],
     needles: [
       'ZAVORTH_SKILL_ECOSYSTEM_PACK_CONTRACT_VERSION',
@@ -38,7 +38,7 @@ const rules = [
       'connector-live-secretref',
       'SecretRef',
       'inspectableBeforeEnablement',
-      'Phase 9 - Full Functional Closure',
+      'Certification matrix - Full Functional Closure',
     ],
   }),
   ruleContainsAcross({
@@ -75,12 +75,12 @@ const rules = [
       'liveSkillsRequireOwnerApproval',
       'liveSkillsRequireSecretRef',
       'noCoreBloat',
-      'Phase 9 - Full Functional Closure',
+      'Certification matrix - Full Functional Closure',
     ],
   }),
   ruleContainsAll({
     id: 'package-exposes-zavorth-skill-ecosystem-pack',
-    label: 'package exposes Phase 8 gates',
+    label: 'package exposes Dashboard controls gates',
     target: 'operators can inspect, inspect JSON, run check and QA from package scripts',
     files: ['package.json'],
     needles: [
@@ -110,7 +110,7 @@ const snapshot = {
 if (asJson) {
   console.log(JSON.stringify(snapshot, null, 2));
 } else {
-  console.log('[zavorth-skill-ecosystem-pack] checking Phase 8');
+  console.log('[zavorth-skill-ecosystem-pack] checking Dashboard controls');
   for (const rule of rules) {
     const marker = rule.status === 'passed' ? 'ok' : 'fail';
     console.log(`[zavorth-skill-ecosystem-pack] ${marker} ${rule.label}: ${rule.observed} | ${rule.target}`);
@@ -139,10 +139,10 @@ function runRuntimeRule() {
   if (result.status !== 0) {
     return {
       id: 'zavorth-skill-ecosystem-runtime-receipt',
-      label: 'Runtime Phase 8 receipt passes',
+      label: 'Runtime Dashboard controls receipt passes',
       status: 'failed',
       observed: `exit ${result.status ?? 'unknown'}`,
-      target: 'Phase 8 command emits a passing skill ecosystem snapshot',
+      target: 'Dashboard controls command emits a passing skill ecosystem snapshot',
       details: compactDetails(result.error instanceof Error ? result.error.message : '', result.stderr, result.stdout),
     };
   }
@@ -162,10 +162,10 @@ function runRuntimeRule() {
       && receipt.summary?.secretValuesSerialized === false;
     return {
       id: 'zavorth-skill-ecosystem-runtime-receipt',
-      label: 'Runtime Phase 8 receipt passes',
+      label: 'Runtime Dashboard controls receipt passes',
       status: pass ? 'passed' : 'failed',
       observed: `status=${receipt.status}, manifests=${receipt.summary?.manifests}, connectorConcepts=${receipt.summary?.connectorConcepts}`,
-      target: 'Phase 8 command emits a passing skill ecosystem snapshot',
+      target: 'Dashboard controls command emits a passing skill ecosystem snapshot',
       details: [
         `permissionProfiles=${receipt.summary?.permissionProfiles}`,
         `smokeTests=${receipt.summary?.smokeTests}`,
@@ -174,16 +174,16 @@ function runRuntimeRule() {
         `liveSkillsRequireOwnerApproval=${receipt.summary?.liveSkillsRequireOwnerApproval}`,
         `liveSkillsRequireSecretRef=${receipt.summary?.liveSkillsRequireSecretRef}`,
         `nonDestructiveSmokeOnly=${receipt.summary?.nonDestructiveSmokeOnly}`,
-        `next=${receipt.commands?.nextPhase}`,
+        `next=${receipt.commands?.nextStage}`,
       ],
     };
   } catch (error) {
     return {
       id: 'zavorth-skill-ecosystem-runtime-receipt',
-      label: 'Runtime Phase 8 receipt passes',
+      label: 'Runtime Dashboard controls receipt passes',
       status: 'failed',
       observed: 'invalid JSON receipt',
-      target: 'Phase 8 command emits a passing skill ecosystem snapshot',
+      target: 'Dashboard controls command emits a passing skill ecosystem snapshot',
       details: [error instanceof Error ? error.message : String(error), ...compactDetails(result.stderr, result.stdout)],
     };
   }
@@ -207,7 +207,7 @@ function ruleContainsNoForbiddenNames() {
     label: 'No forbidden source branding outside reports',
     status: details.length > 0 ? 'failed' : 'passed',
     observed: details.length > 0 ? `${details.length} file(s) with forbidden source branding` : 'no forbidden source branding in code/scripts/tests/package',
-    target: 'new Phase 8 code and public surfaces use Zavorth-owned names only',
+    target: 'new Dashboard controls code and public surfaces use Zavorth-owned names only',
     details,
   };
 }

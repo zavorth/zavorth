@@ -17,7 +17,7 @@ const snapshot = { generatedAt: new Date().toISOString(), status: failed.length 
 if (asJson) {
   console.log(JSON.stringify(snapshot, null, 2));
 } else {
-  console.log('[zavorth-scheduler-perception-device-live-completion] checking Phase 7');
+  console.log('[zavorth-scheduler-perception-device-live-completion] checking Surface controls');
   for (const item of rules) {
     console.log(`[zavorth-scheduler-perception-device-live-completion] ${item.status === 'passed' ? 'ok' : 'fail'} ${item.label}: ${item.observed} | ${item.target}`);
     for (const detail of item.details.slice(0, 10)) console.log(`  - ${detail}`);
@@ -34,7 +34,7 @@ function filesExist() {
     'tests/services/ZavorthSchedulerPerceptionDeviceLiveCompletionService.test.ts',
   ];
   const missing = files.filter((file) => !fs.existsSync(path.join(root, file)));
-  return rule('files', 'Phase 7 files exist', missing.length === 0, `${files.length - missing.length}/${files.length}`, 'all files present', missing);
+  return rule('files', 'Surface controls files exist', missing.length === 0, `${files.length - missing.length}/${files.length}`, 'all files present', missing);
 }
 
 function packageScriptsWired() {
@@ -51,7 +51,7 @@ function packageScriptsWired() {
 function workspaceCheckWired() {
   const workspace = String(JSON.parse(read('package.json')).scripts?.['workspace:check'] || '');
   const marker = 'zavorth:scheduler-perception-device-live-completion:check';
-  return rule('workspace-check', 'workspace:check includes Phase 7 gate', workspace.includes(marker), workspace.includes(marker) ? 'wired' : 'missing', marker, []);
+  return rule('workspace-check', 'workspace:check includes Surface controls gate', workspace.includes(marker), workspace.includes(marker) ? 'wired' : 'missing', marker, []);
 }
 
 function runCompletionSnapshot() {
@@ -66,7 +66,7 @@ function runCompletionSnapshot() {
   }
   try {
     const data = JSON.parse(result.stdout);
-    const pass = data.contractVersion === '2026-05-14.phase-7-scheduler-perception-device-live-completion'
+    const pass = data.contractVersion === '2026-05-14.checkpoint-7-scheduler-perception-device-live-completion'
       && data.status !== 'blocked'
       && data.summary?.schedulerDailyUseReady === true
       && data.summary?.perceptionReadOnlyReady === true

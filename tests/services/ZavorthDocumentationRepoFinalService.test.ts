@@ -8,7 +8,7 @@ describe('ZavorthDocumentationRepoFinalService', () => {
     });
     const snapshot = service.buildSnapshot();
 
-    expect(snapshot.contractVersion).toBe('2026-05-14.phase-15-documentation-repo-final');
+    expect(snapshot.contractVersion).toBe('2026-05-14.checkpoint-15-documentation-repo-final');
     expect(snapshot.source).toBe('ZavorthDocumentationRepoFinalService');
     expect(snapshot.guarantees.dashboardIsPrimarySurface).toBe(true);
     expect(snapshot.guarantees.satelliteAndCliRemainValidSurfaces).toBe(true);

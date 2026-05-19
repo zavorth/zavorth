@@ -8,7 +8,7 @@ const asJson = process.argv.includes('--json');
 const rules = [
   ruleFilesExist({
     id: 'governance-recipes-files',
-    label: 'Governance Recipes Phase 1 files exist',
+    label: 'Governance Recipes Intent model files exist',
     target: 'contract, service, API facade, CLI, tests and docs are present',
     files: [
       'src/contracts/GovernanceRecipeContract.ts',
@@ -90,7 +90,7 @@ const snapshot = {
 if (asJson) {
   console.log(JSON.stringify(snapshot, null, 2));
 } else {
-  console.log('[governance-recipes] checking Phase 1');
+  console.log('[governance-recipes] checking Intent model');
   for (const rule of rules) {
     const marker = rule.status === 'passed' ? 'ok' : 'fail';
     console.log(`[governance-recipes] ${marker} ${rule.label}: ${rule.observed} | ${rule.target}`);

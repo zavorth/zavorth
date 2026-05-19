@@ -285,12 +285,12 @@ const ARCHITECTURE_ONBOARDING_DOCS = [
   {
     id: 'architecture-source-of-truth',
     label: 'Mapa oficial de dominios e boundaries',
-    path: 'docs/62-architecture-source-of-truth.md',
+    path: 'docs/product-direction.md',
   },
   {
     id: 'contributing-architecture',
     label: 'Guia de onde colocar codigo novo',
-    path: 'docs/63-contributing-architecture.md',
+    path: 'docs/product-direction.md',
   },
 ] as const;
 
@@ -816,7 +816,7 @@ export class ArchitectureRefactorScorecardService {
         id: 'finish-priority-domain-ownership',
         label: 'Fechar ownership dos dominios prioritarios',
         severity: 'warn',
-        reason: 'Execution, sessions, channels e nodes devem ter use cases reais e camadas explicitas antes de encerrar a Fase 2.',
+        reason: 'Execution, sessions, channels e nodes devem ter use cases reais e camadas explicitas antes de encerrar a Etapa 2.',
         command: 'npm run ops:architecture:json',
       });
     }
@@ -861,7 +861,7 @@ export class ArchitectureRefactorScorecardService {
         id: 'finish-control-plane-platform-kit',
         label: 'Fechar plataforma comum de control planes',
         severity: 'warn',
-        reason: 'Operational, Trust, Product, kit comum e catalogo devem ficar presentes antes de encerrar a Fase 5.',
+        reason: 'Operational, Trust, Product, kit comum e catalogo devem ficar presentes antes de encerrar a Data readiness.',
         command: 'npm run ops:architecture:json',
       });
     }

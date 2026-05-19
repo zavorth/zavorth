@@ -1,5 +1,5 @@
 /**
- * Semantic Cache — Phase 9.1
+ * Semantic Cache — Certification matrix.1
  *
  * Caches non-streaming LLM responses (temperature=0) to reduce cost and latency.
  * Two-tier: in-memory LRU (fast) + SQLite (persistent across restarts).

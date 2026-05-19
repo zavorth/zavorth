@@ -40,14 +40,14 @@ function createFakeChild() {
   return child;
 }
 
-describe('SpeechVoiceLivePlaneService Phase 7', () => {
+describe('SpeechVoiceLivePlaneService Surface controls', () => {
   let artifactDir: string;
   let inputAudio: string;
 
   beforeEach(async () => {
     artifactDir = await fs.promises.mkdtemp(path.join(os.tmpdir(), 'zavorth-speech-live-plane-'));
     inputAudio = path.join(artifactDir, 'input.wav');
-    await fs.promises.writeFile(inputAudio, Buffer.from('RIFF....WAVE phase 7'));
+    await fs.promises.writeFile(inputAudio, Buffer.from('RIFF....TRACK phase 7'));
   });
 
   afterEach(async () => {
@@ -55,13 +55,13 @@ describe('SpeechVoiceLivePlaneService Phase 7', () => {
     jest.restoreAllMocks();
   });
 
-  it('closes Phase 7 speech, TTS and voice gates without live IO', () => {
+  it('closes Surface controls speech, TTS and voice gates without live IO', () => {
     const snapshot = new SpeechVoiceLivePlaneService({
       now: () => new Date('2026-05-04T23:30:00.000Z'),
     }).buildSnapshot();
 
-    expect(snapshot.contractVersion).toBe('2026-05-04.live-phase-7');
-    expect(snapshot.phase).toBe('Phase 7 - Speech, TTS And Voice Live Plane');
+    expect(snapshot.contractVersion).toBe('2026-05-04.live-checkpoint-7');
+    expect(snapshot.phase).toBe('Surface controls - Speech, TTS And Voice Live Plane');
     expect(snapshot.status).toBe('closed');
     expect(snapshot.summary).toEqual(
       expect.objectContaining({
@@ -76,13 +76,13 @@ describe('SpeechVoiceLivePlaneService Phase 7', () => {
         stagingLiveSmokeCommands: 10,
         redactedReceipts: 10,
         blocked: 0,
-        liveIoRequiredByPhase7Check: false,
+        liveIoRequiredByStage7Check: false,
         secretValuesSerialized: false,
       }),
     );
     expect(snapshot.policy).toEqual(
       expect.objectContaining({
-        noLiveIoDuringPhase7Check: true,
+        noLiveIoDuringStage7Check: true,
         artifactFirstTranscriptsRequired: true,
         artifactFirstAudioRequired: true,
         recordingConsentRequiredForLiveCalls: true,
@@ -131,7 +131,7 @@ describe('SpeechVoiceLivePlaneService Phase 7', () => {
       results: {
         channels: [{
           alternatives: [{
-            transcript: 'ola zavorth fase sete',
+            transcript: 'ola zavorth etapa sete',
             confidence: 0.98,
           }],
         }],
@@ -159,7 +159,7 @@ describe('SpeechVoiceLivePlaneService Phase 7', () => {
     });
 
     expect(result.ok).toBe(true);
-    expect(result.text).toBe('ola zavorth fase sete');
+    expect(result.text).toBe('ola zavorth etapa sete');
     expect(result.transcriptArtifact).toEqual(
       expect.objectContaining({
         contentType: 'application/json',
@@ -167,14 +167,14 @@ describe('SpeechVoiceLivePlaneService Phase 7', () => {
     );
     expect(JSON.parse(await fs.promises.readFile(result.transcriptArtifact!.storageRef, 'utf8'))).toEqual(
       expect.objectContaining({
-        text: 'ola zavorth fase sete',
+        text: 'ola zavorth etapa sete',
         secretValuesSerialized: false,
       }),
     );
   });
 
   it('stores synthesized audio as a real artifact', async () => {
-    const audioBytes = Buffer.from('phase-7-audio');
+    const audioBytes = Buffer.from('checkpoint-7-audio');
     const fetchImpl = (async () => audioResponse(audioBytes, 'audio/mpeg')) as typeof fetch;
     const service = new SpeechRuntimeService({
       artifactDir,
@@ -202,7 +202,7 @@ describe('SpeechVoiceLivePlaneService Phase 7', () => {
         contentType: 'audio/mpeg',
       }),
     );
-    expect(await fs.promises.readFile(result.audioArtifact!.storageRef, 'utf8')).toBe('phase-7-audio');
+    expect(await fs.promises.readFile(result.audioArtifact!.storageRef, 'utf8')).toBe('checkpoint-7-audio');
   });
 
   it('runs a local CLI TTS adapter', async () => {

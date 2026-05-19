@@ -726,7 +726,7 @@ describe('WebAppSurfaceRouteService', () => {
             operatorCostState: 'moderate',
           },
           narrative: {
-            headline: 'Wave 4 com pontos de atencao',
+            headline: 'Channel mesh com pontos de atencao',
             operatorSummary: 'Maior pressao atual no setup de canais.',
           },
           telemetry: {
@@ -760,7 +760,7 @@ describe('WebAppSurfaceRouteService', () => {
             scorecards: 4,
           }),
           narrative: expect.objectContaining({
-            headline: 'Wave 4 com pontos de atencao',
+            headline: 'Channel mesh com pontos de atencao',
           }),
           telemetry: expect.objectContaining({
             status: 'active',
@@ -845,7 +845,7 @@ describe('WebAppSurfaceRouteService', () => {
         recipes: 1,
       },
       narrative: {
-        headline: 'Wave 9 pronta',
+        headline: 'Ecosystem pronta',
         operatorSummary: 'Ecossistema oficial consolidado.',
         nextAction: 'Revisar o catalogo publico.',
       },
@@ -890,7 +890,7 @@ describe('WebAppSurfaceRouteService', () => {
             registryEntries: 3,
           }),
           narrative: expect.objectContaining({
-            headline: 'Wave 9 pronta',
+            headline: 'Ecosystem pronta',
           }),
         }),
       }),
@@ -917,7 +917,7 @@ describe('WebAppSurfaceRouteService', () => {
         totalSurfaces: 5,
       },
       narrative: {
-        headline: 'Wave 10 pronta',
+        headline: 'Distributed runtime pronta',
         operatorSummary: 'Runtime distribuido consolidado.',
         nextAction: 'Fechar o rollout remoto oficial.',
       },
@@ -957,7 +957,7 @@ describe('WebAppSurfaceRouteService', () => {
             readyChannels: 4,
           }),
           narrative: expect.objectContaining({
-            headline: 'Wave 10 pronta',
+            headline: 'Distributed runtime pronta',
           }),
         }),
       }),

@@ -8,7 +8,7 @@ function createIdFactory() {
   return (prefix: string) => `${prefix}-cross-channel-${++index}`;
 }
 
-describe('AgentRunService Cross-Channel Continuity Wave 41', () => {
+describe('AgentRunService Cross-Channel Continuity Channel mesh1', () => {
   it('publishes run.metadata.crossChannelContinuity during the agent run lifecycle', async () => {
     const service = new AgentRunService({
       now: () => new Date('2026-05-04T00:41:00.000Z'),

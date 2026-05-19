@@ -84,7 +84,7 @@ const rules = [
     needles: [
       'with no unmapped defaults',
       'can be registered by the Plugin OS kernel',
-      'native-contract primitives normalized after Phase 12 closure',
+      'native-contract primitives normalized after Intent model2 closure',
       'unknown modules explicit',
       'PluginRegistryService',
     ],
@@ -117,7 +117,7 @@ const snapshot = {
 if (asJson) {
   console.log(JSON.stringify(snapshot, null, 2));
 } else {
-  console.log('[capability-normalization] checking Phase 3');
+  console.log('[capability-normalization] checking Approval gate');
   for (const rule of rules) {
     const marker = rule.status === 'passed' ? 'ok' : 'fail';
     console.log(`[capability-normalization] ${marker} ${rule.label}: ${rule.observed} | ${rule.target}`);

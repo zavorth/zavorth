@@ -41,7 +41,7 @@ const rules = [
   ruleContainsAll({
     id: 'canary-promotion-decision-ledger-service',
     label: 'Service builds promotion decision ledger from monitoring rollback gate',
-    target: 'Service consumes Phase 22, prepares expand/pause/rollback decision paths, and keeps execution/publish/promotion locked',
+    target: 'Service consumes Preview engine2, prepares expand/pause/rollback decision paths, and keeps execution/publish/promotion locked',
     files: ['src/services/CanaryPromotionDecisionLedgerService.ts'],
     needles: [
       'CanaryPromotionDecisionLedgerService',
@@ -117,7 +117,7 @@ const snapshot = {
 if (asJson) {
   console.log(JSON.stringify(snapshot, null, 2));
 } else {
-  console.log('[canary-promotion-decision-ledger] checking Phase 23');
+  console.log('[canary-promotion-decision-ledger] checking Preview engine3');
   for (const rule of rules) {
     const marker = rule.status === 'passed' ? 'ok' : 'fail';
     console.log(`[canary-promotion-decision-ledger] ${marker} ${rule.label}: ${rule.observed} | ${rule.target}`);

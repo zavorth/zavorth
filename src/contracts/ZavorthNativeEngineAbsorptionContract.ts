@@ -201,8 +201,8 @@ export type ZavorthNativeEngineAbsorptionSnapshot = {
   generatedAt: string;
   contractVersion: typeof ZAVORTH_NATIVE_ENGINE_ABSORPTION_CONTRACT_VERSION;
   status: ZavorthNativeEngineAbsorptionStatus;
-  planId: '291 - Plano Zavorth External Runtime Absorption';
-  phase: 'phase-2-native-engine-absorption';
+  planId: 'Zavorth External Runtime Integration';
+  phase: 'native-engine-absorption';
   previousContractLayerStatus: ZavorthExternalContractLayerStatus;
   features: ZavorthNativeEngineFeatureSpec[];
   fixtureReceipts: {
@@ -241,6 +241,6 @@ export type ZavorthNativeEngineAbsorptionSnapshot = {
     inspect: 'npm run zavorth:native-engine-absorption';
     inspectJson: 'npm run zavorth:native-engine-absorption:json';
     check: 'npm run zavorth:native-engine-absorption:check --silent';
-    nextPhase: '291 Phase 3 - Sidecar Adapter';
+    nextStage: '291 Approval gate - Sidecar Adapter';
   };
 };

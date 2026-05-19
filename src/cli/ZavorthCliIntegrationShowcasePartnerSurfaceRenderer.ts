@@ -105,7 +105,7 @@ export function formatIntegrationShowcasePartnerSurfaceSnapshot(
   snapshot: IntegrationShowcasePartnerSurfaceSnapshot,
 ): string {
   const lines = [
-    'Integration Showcase / Partner Surface - Wave 52',
+    'Integration Showcase / Partner Surface - Integration Showcase',
     `- contrato: ${snapshot.contractVersion}`,
     `- run: ${snapshot.identifiers.runId}`,
     `- sessao: ${snapshot.identifiers.sessionId}`,
@@ -166,7 +166,7 @@ export function formatIntegrationShowcasePartnerSurfaceSnapshot(
 
 function buildPilotReadySnapshot(run: UniversalAgentRun) {
   return {
-    contractVersion: '2026-05-04.wave-51',
+    contractVersion: '2026-05-04.adoption-pilot',
     source: 'PublicAdoptionPilotLoopService',
     generatedAt: '2026-05-04T05:52:00.000Z',
     identifiers: {
@@ -217,7 +217,7 @@ function matrix(id: string) {
 
 function buildIntegrationShowcaseFixture() {
   return {
-    phase: '58',
+    stage: '58',
     surface: 'integration-showcase',
     generatedAt: '2026-05-04T05:52:00.000Z',
     status: 'ready',
@@ -254,8 +254,8 @@ function buildIntegrationShowcaseFixture() {
       { id: 'integration-showcase:matrix-artifact', title: 'capability matrix', status: 'pass' },
       { id: 'integration-showcase:partner-artifact', title: 'partner surface', status: 'pass' },
     ],
-    nextRecommendedPhase: {
-      phase: '59',
+    nextRecommendedStage: {
+      stage: '59',
       title: 'v1.x Release Train And LTS Policy',
       reason: 'showcase auditavel antes de claims publicos fortes',
     },

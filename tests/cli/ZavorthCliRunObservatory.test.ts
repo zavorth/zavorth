@@ -81,7 +81,7 @@ describe('Zavorth CLI Run Observatory', () => {
     }));
     const payload = JSON.parse(writes[0] || '{}');
     expect(payload).toEqual(expect.objectContaining({
-      contractVersion: '2026-05-03.wave-28',
+      contractVersion: '2026-05-03.run-observatory',
       matchedRuns: 1,
       health: expect.objectContaining({
         status: 'degraded',
@@ -140,7 +140,7 @@ describe('Zavorth CLI Run Observatory', () => {
 
     const text = formatRunObservatorySnapshot(gateway.queryRuns());
 
-    expect(text).toContain('Run Observatory - Wave 28');
+    expect(text).toContain('Run Observatory - Run Observatory');
     expect(text).toContain('Receipts:');
     expect(text).toContain('Previas de alteracao:');
     expect(text).toContain('aplicar rascunho plan-cli-diff-preview');

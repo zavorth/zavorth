@@ -68,15 +68,15 @@ function productEntryRuntime() {
 
 function publicMetadata() {
   return {
-    productizationContract: { source: 'ZavorthProductizationContractService', phase: 'C9', status: 'ready', control: { ready: true }, cli: { ready: true }, sdk: { ready: true }, docs: { ready: true }, website: { ready: true } },
+    productizationContract: { source: 'ZavorthProductizationContractService', stage: 'C9', status: 'ready', control: { ready: true }, cli: { ready: true }, sdk: { ready: true }, docs: { ready: true }, website: { ready: true } },
     releaseStatus: { status: 'preview', channel: 'preview', version: 'v0.1-preview', rollbackAvailable: true },
-    websitePublic: { phase: '46', surface: 'website-public', generatedAt: '2026-05-04T04:51:00.000Z', status: 'ready', websiteRoot: '<website>', summary: { ok: true, passed: 12, warnings: 0, failed: 0 }, requiredRoutes: [{ route: '/' }, { route: '/docs' }, { route: '/privacy' }, { route: '/security' }], forbiddenClaims: [], checks: [] },
-    publicDocsRecipes: { phase: '56', surface: 'public-docs-recipes', generatedAt: '2026-05-04T04:51:00.000Z', status: 'ready', projectRoot: '<core>', websiteRoot: '<website>', artifactDir: '<artifacts>', summary: { ok: true, passed: 9, warnings: 0, failed: 0 }, routes: ['/docs', '/examples'], recipes: [{ id: 'quickstart' }, { id: 'release' }], troubleshooting: [], noSecretsMatrix: [{ id: 'first-run', runsWithoutSecrets: true }], artifacts: { fixtureSmokePath: '<artifact>' }, checks: [] },
-    publicDemo: { phase: '47', surface: 'public-demo', generatedAt: '2026-05-04T04:51:00.000Z', status: 'ready', websiteRoot: '<website>', summary: { ok: true, passed: 9, warnings: 0, failed: 0 }, route: '/demo', fixturePath: 'data/public-demo.ts', requiredStates: ['request', 'Approval', 'artifact', 'replay', 'summary'], requiredArtifacts: ['demo-build-fix-report.md'], screenshots: [], checks: [] },
-    publicReleaseBundle: { phase: '51', surface: 'release-bundle', generatedAt: '2026-05-04T04:51:00.000Z', status: 'ready', websiteRoot: '<website>', summary: { ok: true, passed: 9, warnings: 0, failed: 0 }, route: '/release', fixturePath: 'data/release-bundle.ts', requiredCommands: ['release:status:fast', 'doctor:fast', 'release:rollback-preview'], screenshots: [], checks: [] },
-    feedbackTelemetry: { phase: '52', surface: 'feedback-loop', generatedAt: '2026-05-04T04:51:00.000Z', status: 'ready', websiteRoot: '<website>', summary: { ok: true, passed: 11, warnings: 0, failed: 0 }, route: '/feedback', fixturePath: 'data/feedback-loop.ts', requiredCommands: ['feedback:preview', 'feedback:revoke', 'feedback:delete'], screenshots: [], checks: [{ id: 'feedback-loop:route-contract', title: 'Feedback route contract', status: 'pass', reason: 'Product feedback ledger and issue/report template ready.', evidence: ['product-feedback-ledger.json', 'feedback-preview-redacted.json', 'issue/report template'] }], nextRecommendedPhase: { phase: 'complete', title: 'Product feedback loop ready', reason: 'opt-in preview sem envio externo' } },
+    websitePublic: { stage: '46', surface: 'website-public', generatedAt: '2026-05-04T04:51:00.000Z', status: 'ready', websiteRoot: '<website>', summary: { ok: true, passed: 12, warnings: 0, failed: 0 }, requiredRoutes: [{ route: '/' }, { route: '/docs' }, { route: '/privacy' }, { route: '/security' }], forbiddenClaims: [], checks: [] },
+    publicDocsRecipes: { stage: '56', surface: 'public-docs-recipes', generatedAt: '2026-05-04T04:51:00.000Z', status: 'ready', projectRoot: '<core>', websiteRoot: '<website>', artifactDir: '<artifacts>', summary: { ok: true, passed: 9, warnings: 0, failed: 0 }, routes: ['/docs', '/examples'], recipes: [{ id: 'quickstart' }, { id: 'release' }], troubleshooting: [], noSecretsMatrix: [{ id: 'first-run', runsWithoutSecrets: true }], artifacts: { fixtureSmokePath: '<artifact>' }, checks: [] },
+    publicDemo: { stage: '47', surface: 'public-demo', generatedAt: '2026-05-04T04:51:00.000Z', status: 'ready', websiteRoot: '<website>', summary: { ok: true, passed: 9, warnings: 0, failed: 0 }, route: '/demo', fixturePath: 'data/public-demo.ts', requiredStates: ['request', 'Approval', 'artifact', 'replay', 'summary'], requiredArtifacts: ['demo-build-fix-report.md'], screenshots: [], checks: [] },
+    publicReleaseBundle: { stage: '51', surface: 'release-bundle', generatedAt: '2026-05-04T04:51:00.000Z', status: 'ready', websiteRoot: '<website>', summary: { ok: true, passed: 9, warnings: 0, failed: 0 }, route: '/release', fixturePath: 'data/release-bundle.ts', requiredCommands: ['release:status:fast', 'doctor:fast', 'release:rollback-preview'], screenshots: [], checks: [] },
+    feedbackTelemetry: { stage: '52', surface: 'feedback-loop', generatedAt: '2026-05-04T04:51:00.000Z', status: 'ready', websiteRoot: '<website>', summary: { ok: true, passed: 11, warnings: 0, failed: 0 }, route: '/feedback', fixturePath: 'data/feedback-loop.ts', requiredCommands: ['feedback:preview', 'feedback:revoke', 'feedback:delete'], screenshots: [], checks: [{ id: 'feedback-loop:route-contract', title: 'Feedback route contract', status: 'pass', reason: 'Product feedback ledger and issue/report template ready.', evidence: ['product-feedback-ledger.json', 'feedback-preview-redacted.json', 'issue/report template'] }], nextRecommendedStage: { stage: 'complete', title: 'Product feedback loop ready', reason: 'opt-in preview sem envio externo' } },
     pilotLoop: {
-      phase: '57',
+      stage: '57',
       surface: 'pilot-loop',
       generatedAt: '2026-05-04T04:51:00.000Z',
       status: 'ready',
@@ -91,12 +91,12 @@ function publicMetadata() {
       supportPolicy: [{ id: 'privacy-first' }, { id: 'install-runtime' }, { id: 'feature-planning' }],
       dashboardMetrics: [{ id: 'feedback-count-by-area', aggregateOnly: true, excludesPayload: true }, { id: 'severity-mix', aggregateOnly: true, excludesPayload: true }, { id: 'pilot-status', aggregateOnly: true, excludesPayload: true }, { id: 'follow-up-aging', aggregateOnly: true, excludesPayload: true }],
       checks: [{ id: 'pilot-loop:feedback-preview', status: 'pass' }, { id: 'pilot-loop:pilot-ledger', status: 'pass' }, { id: 'pilot-loop:dashboard', status: 'pass' }],
-      nextRecommendedPhase: { phase: '58', title: 'Integration Showcase And Partner Surface', reason: 'fixture e degradacao segura' },
+      nextRecommendedStage: { stage: '58', title: 'Integration Showcase And Partner Surface', reason: 'fixture e degradacao segura' },
     },
   };
 }
 
-describe('Command Center Public Adoption Pilot Loop Wave 51', () => {
+describe('Command Center Public Adoption Pilot Loop Public Adoption Pilot', () => {
   it('projects publicAdoptionPilotLoop metadata into the dashboard view model', () => {
     const run = new AgentRunService({
       now: () => new Date('2026-05-04T04:51:00.000Z'),
@@ -120,7 +120,7 @@ describe('Command Center Public Adoption Pilot Loop Wave 51', () => {
     });
 
     expect(viewModel.publicAdoptionPilotLoop).toEqual(expect.objectContaining({
-      contractVersion: '2026-05-04.wave-51',
+      contractVersion: '2026-05-04.adoption-pilot',
       status: 'pilot-ready',
       readiness: expect.objectContaining({
         feedbackProductLoopReady: true,
@@ -160,7 +160,7 @@ describe('Command Center Public Adoption Pilot Loop Wave 51', () => {
     );
 
     expect(projection.publicAdoptionPilotLoop).toEqual(expect.objectContaining({
-      contractVersion: '2026-05-04.wave-51',
+      contractVersion: '2026-05-04.adoption-pilot',
       status: 'pilot-ready',
       adoptionLoop: expect.objectContaining({
         plannedPilotCount: 3,

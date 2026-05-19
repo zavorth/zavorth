@@ -13,7 +13,7 @@ describe('LiveParityCertificationService', () => {
     const snapshot = build().buildSnapshot({ profile: 'staging-live' });
 
     expect(snapshot.contractVersion).toBe(ZAVORTH_LIVE_PARITY_CERTIFICATION_CONTRACT_VERSION);
-    expect(snapshot.phase).toBe('Phase 13 - Live Parity Certification');
+    expect(snapshot.phase).toBe('Intent model3 - Live Parity Certification');
     expect(snapshot.profile).toBe('staging-live');
     expect(snapshot.status).toBe('certified');
     expect(snapshot.summary.sourceModules).toBe(125);
@@ -80,9 +80,9 @@ describe('LiveParityCertificationService', () => {
 
     expect(snapshot.phases).toHaveLength(12);
     expect(snapshot.phases.map((phase) => phase.phaseId)).toEqual(expect.arrayContaining([
-      'phase-3-channel-long-tail',
-      'phase-5-provider-long-tail',
-      'phase-12-memory-artifacts-runtime',
+      'checkpoint-3-channel-long-tail',
+      'checkpoint-5-provider-long-tail',
+      'checkpoint-12-memory-artifacts-runtime',
     ]));
     expect(snapshot.phases.every((phase) => phase.checkCommand.length > 0)).toBe(true);
     expect(snapshot.phases.every((phase) => phase.blocked === 0)).toBe(true);

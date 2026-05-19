@@ -39,14 +39,14 @@ const readyOptions: CapabilityAutopilotReleaseCandidateOptions = {
   killSwitchReceiptId: 'kill-switch-1',
   telemetryReviewId: 'telemetry-review-1',
   privacyReviewId: 'privacy-review-1',
-  reason: 'phase-80-test',
+  reason: 'checkpoint-80-test',
 };
 
 function createSource(
   overrides: Partial<CapabilityAutopilotBetaFieldTrialSnapshot> = {},
 ): CapabilityAutopilotBetaFieldTrialSnapshot {
   return {
-    phase: '79',
+    stage: '79',
     fieldTrialId: 'executor-gemini-cli-beta-field-trial-1',
     generatedAt: FIXED_NOW.toISOString(),
     surface: 'capability-autopilot-beta-field-trial-loop',
@@ -59,7 +59,7 @@ function createSource(
       warnings: 0,
       failed: 0,
     },
-    sourceSnapshotPhase: '78',
+    sourceSnapshotStage: '78',
     sourceStatus: 'beta_candidate_ready',
     sourceRecommendation: 'promote_to_beta_candidate',
     fieldTrialApproved: true,
@@ -96,7 +96,7 @@ function createSource(
       sourceGeneratedAt: FIXED_NOW.toISOString(),
       sourceBetaReadinessId: 'beta-readiness-1',
       actorId: 'beta-operator',
-      reason: 'phase-79-test',
+      reason: 'checkpoint-79-test',
       fieldTrialReceiptId: 'field-trial-1',
     },
     nextRecommendedPhase: {
@@ -253,7 +253,7 @@ describe('CapabilityAutopilotReleaseCandidateGateService', () => {
     const service = createService();
     const snapshot = service.buildReleaseCandidateSnapshot(createSource(), readyOptions);
 
-    expect(service.renderReport(snapshot)).toContain('Fase 80 - Capability Autopilot Release Candidate Gate');
-    expect(service.renderReport(snapshot)).toContain('proxima fase recomendada: 81 - Capability Autopilot v1.1 Release Rollout Plan');
+    expect(service.renderReport(snapshot)).toContain('Etapa 80 - Capability Autopilot Release Candidate Gate');
+    expect(service.renderReport(snapshot)).toContain('proximo passo recomendada: 81 - Capability Autopilot v1.1 Release Rollout Plan');
   });
 });

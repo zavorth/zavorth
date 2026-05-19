@@ -102,7 +102,7 @@ export class AiFirstShadowBatchRecorderService {
         {
           id: this.idFactory('receipt'),
           kind: 'batch',
-          detail: `${samples.length} sample(s) evaluated through Phase 3 guardrails.`,
+          detail: `${samples.length} sample(s) evaluated through Approval gate guardrails.`,
         },
         {
           id: this.idFactory('receipt'),
@@ -122,22 +122,22 @@ export class AiFirstShadowBatchRecorderService {
       ],
       gates: [
         {
-          id: 'phase-4-batch-only',
+          id: 'checkpoint-4-batch-only',
           status: 'passed',
-          detail: 'Batch recorder aggregates Phase 3 snapshots without promotion.',
+          detail: 'Batch recorder aggregates Approval gate snapshots without promotion.',
         },
         {
-          id: 'phase-4-no-execution',
+          id: 'checkpoint-4-no-execution',
           status: 'passed',
           detail: 'All sample summaries preserve canExecuteNow=false.',
         },
         {
-          id: 'phase-4-default-runtime-preserved',
+          id: 'checkpoint-4-default-runtime-preserved',
           status: 'passed',
           detail: 'defaultRuntimeChanged is false and keepCurrentRuntimeDecision is true.',
         },
         {
-          id: 'phase-4-secret-redaction-checked',
+          id: 'checkpoint-4-secret-redaction-checked',
           status: 'passed',
           detail: 'Serialized snapshots were scanned for obvious unredacted secret patterns.',
         },
@@ -147,7 +147,7 @@ export class AiFirstShadowBatchRecorderService {
 
   public renderMarkdown(snapshot: AiFirstShadowBatchRecorderSnapshot): string {
     const lines: string[] = [];
-    lines.push('# Zavorth AI-first Router Phase 4');
+    lines.push('# Zavorth AI-first Router Connector registry');
     lines.push('');
     lines.push(`- contract: ${snapshot.contractVersion}`);
     lines.push(`- batchId: ${snapshot.batchId}`);

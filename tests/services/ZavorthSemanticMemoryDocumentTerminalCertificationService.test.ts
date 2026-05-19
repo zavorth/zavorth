@@ -12,7 +12,7 @@ describe('ZavorthSemanticMemoryDocumentTerminalCertificationService S5', () => {
   let zavorthRoot: string;
 
   beforeEach(() => {
-    tempRoot = fs.mkdtempSync(path.join(os.tmpdir(), 'zavorth-semantic-phase5-'));
+    tempRoot = fs.mkdtempSync(path.join(os.tmpdir(), 'zavorth-semantic-credential-vault-'));
     sourceRoot = path.join(tempRoot, 'source');
     zavorthRoot = path.join(tempRoot, 'zavorth');
     createFixtureSource(sourceRoot);
@@ -195,7 +195,7 @@ function buildService(input: {
       now: input.now,
       sourceRoot: input.sourceRoot,
       zavorthRoot: input.zavorthRoot,
-      memoryDbPath: path.join(input.tempRoot, 'semantic-phase5.sqlite'),
+      memoryDbPath: path.join(input.tempRoot, 'semantic-credential-vault.sqlite'),
       shellSafetyClassifier: new ShellSafetyClassifier({
         now: input.now,
         allowedRoots: [input.zavorthRoot],
@@ -261,7 +261,7 @@ function createFixtureSource(root: string): void {
     "import 'proxy-agent';",
     "import 'https-proxy-agent';",
     "import 'undici';",
-    'export const phase5 = { Readability, JSDOM };',
+    'export const credential-vault = { Readability, JSDOM };',
   ].join('\n'));
 }
 
@@ -283,7 +283,7 @@ function createFixtureZavorth(root: string): void {
       'node-pty': '^1.0.0',
     },
   });
-  fs.writeFileSync(path.join(root, 'src', 'phase5.ts'), [
+  fs.writeFileSync(path.join(root, 'src', 'credential-vault.ts'), [
     "import 'pdfjs-dist';",
     "import '@mozilla/readability';",
     "import 'jsdom';",

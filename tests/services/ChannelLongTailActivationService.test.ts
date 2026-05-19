@@ -14,14 +14,14 @@ const response = (payload: Record<string, unknown>, init: { status?: number } = 
     },
   });
 
-describe('ChannelLongTailActivationService Phase 3', () => {
-  it('closes Phase 3 long-tail activation gates without live IO', () => {
+describe('ChannelLongTailActivationService Approval gate', () => {
+  it('closes Approval gate long-tail activation gates without live IO', () => {
     const snapshot = new ChannelLongTailActivationService({
       now: () => new Date('2026-05-04T20:00:00.000Z'),
     }).buildSnapshot();
 
-    expect(snapshot.contractVersion).toBe('2026-05-04.live-phase-3');
-    expect(snapshot.phase).toBe('Phase 3 - Channel Live Activation Long Tail');
+    expect(snapshot.contractVersion).toBe('2026-05-04.live-checkpoint-3');
+    expect(snapshot.phase).toBe('Approval gate - Channel Live Activation Long Tail');
     expect(snapshot.status).toBe('closed');
     expect(snapshot.summary).toEqual(
       expect.objectContaining({
@@ -40,13 +40,13 @@ describe('ChannelLongTailActivationService Phase 3', () => {
         configuredDoctors: 17,
         stagingLiveSmokeCommands: 17,
         redactedReceipts: 17,
-        liveIoRequiredByPhase3Check: false,
+        liveIoRequiredByStage3Check: false,
         secretValuesSerialized: false,
       }),
     );
     expect(snapshot.policy).toEqual(
       expect.objectContaining({
-        noLiveIoDuringPhase3Check: true,
+        noLiveIoDuringStage3Check: true,
         stagingLiveRequiresExplicitOperatorCommand: true,
         familyAdaptersPreferredOverOneOffCopies: true,
         allowlistsRequiredBeforeLiveSend: true,
@@ -251,7 +251,7 @@ describe('ChannelLongTailActivationService Phase 3', () => {
         url: String(url),
         body: String(init?.body || ''),
       });
-      return response({ id: 'phase3-live-receipt' });
+      return response({ id: 'approval-gate-live-receipt' });
     }) as typeof fetch;
 
     const webhookService = new ChannelLongTailActivationService({

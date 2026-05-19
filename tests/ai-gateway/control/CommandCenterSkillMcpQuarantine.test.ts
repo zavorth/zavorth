@@ -7,7 +7,7 @@ function createIdFactory() {
   return (prefix: string) => `${prefix}-cc-quarantine-${++index}`;
 }
 
-describe('Command Center Skill/MCP Quarantine Wave 33', () => {
+describe('Command Center Skill/MCP Quarantine Skill MCP Quarantine', () => {
   it('projects skillMcpQuarantine metadata into the dashboard view model', () => {
     const viewModel = buildDashboardCommandCenterViewModel({
       runtime: {
@@ -19,7 +19,7 @@ describe('Command Center Skill/MCP Quarantine Wave 33', () => {
         status: 'completed',
         metadata: {
           skillMcpQuarantine: {
-            contractVersion: '2026-05-03.wave-33',
+            contractVersion: '2026-05-03.skill-mcp-quarantine',
             generatedAt: '2026-05-03T23:50:00.000Z',
             identifiers: {
               runId: 'run-quarantine',
@@ -86,7 +86,7 @@ describe('Command Center Skill/MCP Quarantine Wave 33', () => {
     });
 
     expect(viewModel.skillMcpQuarantine).toEqual(expect.objectContaining({
-      contractVersion: '2026-05-03.wave-33',
+      contractVersion: '2026-05-03.skill-mcp-quarantine',
       summary: expect.objectContaining({
         quarantined: 1,
         blockedToolCount: 1,
@@ -149,7 +149,7 @@ describe('Command Center Skill/MCP Quarantine Wave 33', () => {
     );
 
     expect(projection.skillMcpQuarantine).toEqual(expect.objectContaining({
-      contractVersion: '2026-05-03.wave-33',
+      contractVersion: '2026-05-03.skill-mcp-quarantine',
       summary: expect.objectContaining({
         quarantined: 1,
       }),

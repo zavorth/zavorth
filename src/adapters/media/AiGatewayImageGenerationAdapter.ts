@@ -12,7 +12,7 @@
  * Todo o resto do stack (service, tool, capability) opera sobre contratos Zavorth.
  *
  * Referências arquiteturais:
- * - docs/327-zavorth-native-absorption-execution-plan.md (Wave 1)
+ * - docs/native-absorption-execution-plan.md
  * - src/contracts/MediaGenerationContract.ts
  *
  * @module adapters/media/AiGatewayImageGenerationAdapter

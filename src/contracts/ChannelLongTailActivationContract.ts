@@ -4,7 +4,7 @@ import type {
 } from '../adapters/channels/ChannelLongTailLiveClients.js';
 import type { LiveReadinessStatus } from './LiveReadinessContract.js';
 
-export const ZAVORTH_CHANNEL_LONG_TAIL_ACTIVATION_CONTRACT_VERSION = '2026-05-04.live-phase-3' as const;
+export const ZAVORTH_CHANNEL_LONG_TAIL_ACTIVATION_CONTRACT_VERSION = '2026-05-04.live-checkpoint-3' as const;
 
 export type ChannelLongTailActivationId =
   | 'bluebubbles'
@@ -122,7 +122,7 @@ export type ChannelLongTailActivationEntry = {
 export type ChannelLongTailActivationSnapshot = {
   generatedAt: string;
   contractVersion: typeof ZAVORTH_CHANNEL_LONG_TAIL_ACTIVATION_CONTRACT_VERSION;
-  phase: 'Phase 3 - Channel Live Activation Long Tail';
+  phase: 'Approval gate - Channel Live Activation Long Tail';
   status: 'closed' | 'attention' | 'blocked';
   summary: {
     channels: 17;
@@ -140,13 +140,13 @@ export type ChannelLongTailActivationSnapshot = {
     configuredDoctors: number;
     stagingLiveSmokeCommands: number;
     redactedReceipts: number;
-    liveIoRequiredByPhase3Check: false;
+    liveIoRequiredByStage3Check: false;
     secretValuesSerialized: false;
   };
   entries: ChannelLongTailActivationEntry[];
   receipts: ChannelLongTailActivationReceipt[];
   policy: {
-    noLiveIoDuringPhase3Check: true;
+    noLiveIoDuringStage3Check: true;
     stagingLiveRequiresExplicitOperatorCommand: true;
     familyAdaptersPreferredOverOneOffCopies: true;
     allowlistsRequiredBeforeLiveSend: true;
@@ -158,6 +158,6 @@ export type ChannelLongTailActivationSnapshot = {
     stagingLiveSmoke: 'npm run channel-long-tail-activation -- --profile staging-live --channel <channel> --confirm-live-io';
     focusedTests: string[];
     typecheck: 'npm run runtime:check --silent';
-    nextPhase: 'Phase 4 - Provider Runtime Activation P0';
+    nextStage: 'Connector registry - Provider Runtime Activation P0';
   };
 };

@@ -5,7 +5,7 @@ import { ZavorthScheduledTaskDailyOpsReadinessService } from '../../../src/servi
 describe('ZavorthScheduledTaskDailyOpsReadinessService', () => {
   const now = () => new Date('2026-05-12T10:00:00.000Z');
 
-  it('builds daily readiness from Phase 6 and existing governed surfaces', async () => {
+  it('builds daily readiness from Runtime gateway and existing governed surfaces', async () => {
     const service = new ZavorthScheduledTaskDailyOpsReadinessService({ now });
 
     const snapshot = await service.buildSnapshot();
@@ -14,7 +14,7 @@ describe('ZavorthScheduledTaskDailyOpsReadinessService', () => {
     expect(snapshot.summary.dailyUseReady).toBe(true);
     expect(snapshot.liveTickCertification.status).toBe('passed');
     expect(snapshot.safety).toMatchObject({
-      consumesPhase6LiveTickCertification: true,
+      consumesStage6LiveTickCertification: true,
       allUserActionsGoThroughGovernedSurfaces: true,
       noDashboardVisualMutation: true,
       noDirectDispatcherBypass: true,
@@ -158,8 +158,8 @@ function makeTask(id: string, metadata: SchedulerGovernedScheduledTaskMetadata |
 
 function governedMetadata(approvalId: string, expiresAt: string): SchedulerGovernedScheduledTaskMetadata {
   return {
-    contractVersion: '2026-05-12.persisted-scheduled-task-registration-phase-3',
-    phase: 'phase-3-persisted-scheduled-task-registration',
+    contractVersion: '2026-05-12.persisted-scheduled-task-registration-checkpoint-3',
+    stage: 'checkpoint-3-persisted-scheduled-task-registration',
     registryStatus: 'active',
     approvalId,
     approvalExpiresAt: expiresAt,

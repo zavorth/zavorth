@@ -235,7 +235,7 @@ export class ProviderMeshParityService {
     const findings: string[] = [];
     const credentialRefs = input.route.credentialRefs || [];
     if (!input.resolved) {
-      findings.push('provider manifest generated from Phase 4 parity template');
+      findings.push('provider manifest generated from Connector registry parity template');
     }
     if (input.status === 'unsupported') {
       findings.push('runtime adapter is not yet supported');

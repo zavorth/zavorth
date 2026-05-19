@@ -31,7 +31,7 @@ export interface IntentClassification {
 
 export interface IntentSecondPassReview {
   source: 'ContextualIntentSecondPass';
-  phase: 7;
+  stage: 7;
   mode: 'local-contextual';
   verdict: 'confirmed' | 'downgraded' | 'left-ambiguous';
   originalCategory: IntentCategory;
@@ -198,7 +198,7 @@ export class IntentClassifier {
       downgradedBy: draft.downgradedBy || [],
       secondPass: draft.secondPass || {
         source: 'ContextualIntentSecondPass',
-        phase: 7,
+        stage: 7,
         mode: 'local-contextual',
         verdict: 'confirmed',
         originalCategory: draft.category,
@@ -243,7 +243,7 @@ export class IntentClassifier {
       downgradedBy: Array.from(new Set(downgradedBy)),
       secondPass: {
         source: 'ContextualIntentSecondPass',
-        phase: 7,
+        stage: 7,
         mode: 'local-contextual',
         verdict,
         originalCategory,

@@ -9,7 +9,7 @@ const rules = [
   ruleFilesExist({
     id: 'run-observatory-contract-exists',
     label: 'Run Observatory contract exists',
-    target: 'Wave 28 has a canonical runtime contract, focused tests and documentation',
+    target: 'Run Observatory has a canonical runtime contract, focused tests and documentation',
     files: [
       'src/runtime/agent/RunObservatory.ts',
       'tests/runtime/agent/RunObservatoryProduct.test.ts',
@@ -17,13 +17,13 @@ const rules = [
     ],
   }),
   ruleContainsAll({
-    id: 'run-observatory-wave-28-fields',
-    label: 'Wave 28 fields are explicit',
+    id: 'run-observatory-run-observatory-fields',
+    label: 'Run Observatory fields are explicit',
     target: 'Observatory exposes contractVersion, summary, health, receipts, sidecars, timeline, replay and surface payload',
     files: ['src/runtime/agent/RunObservatory.ts'],
     needles: [
       'RUN_OBSERVATORY_CONTRACT_VERSION',
-      '2026-05-03.wave-28',
+      '2026-05-03.run-observatory',
       'UniversalAgentRunObservatoryReceipt',
       'UniversalAgentRunObservatoryTimelineEvent',
       'UniversalAgentRunObservatoryReplaySnapshot',
@@ -55,8 +55,8 @@ const rules = [
     ],
   }),
   ruleContainsAcross({
-    id: 'command-center-projects-wave-28',
-    label: 'Command Center projects Wave 28',
+    id: 'command-center-projects-run-observatory',
+    label: 'Command Center projects Run Observatory',
     target: '/control preserves receipts, sidecars, timeline, replay and health from the runtime snapshot',
     files: [
       'src/ai-gateway/app/(dashboard)/control/command-center/contracts/dashboardCommandCenterContracts.ts',
@@ -65,7 +65,7 @@ const rules = [
       'src/ai-gateway/app/(dashboard)/control/command-center/components/CommandCenterControlShell.tsx',
       'src/ai-gateway/app/(dashboard)/control/command-center/components/CommandCenterOverviewSector.tsx',
       'src/domain/surface/presentation/web-app/WebAppRuntimeInteractionRouteService.ts',
-      'tests/ai-gateway/control/CommandCenterRunObservatoryWave28.test.ts',
+      'tests/ai-gateway/control/CommandCenterRunObservatory.test.ts',
       'tests/services/WebAppRuntimeInteractionRouteService.test.ts',
     ],
     needles: [
@@ -76,7 +76,7 @@ const rules = [
       'diffPreviews',
       'replay',
       'health',
-      'Wave 28',
+      'Run Observatory',
       'viewModel.runObservatory.receipts',
       'visibleDiffPreviews',
       'onApplyDiffPreview',
@@ -104,7 +104,7 @@ const rules = [
   }),
   ruleContainsAll({
     id: 'package-exposes-run-observatory-gate',
-    label: 'package exposes Wave 28 gate',
+    label: 'package exposes Run Observatory gate',
     target: 'local QA can run run-observatory:check and qa:run-observatory',
     files: ['package.json'],
     needles: [
@@ -130,7 +130,7 @@ const snapshot = {
 if (asJson) {
   console.log(JSON.stringify(snapshot, null, 2));
 } else {
-  console.log('[run-observatory] checking Wave 28');
+  console.log('[run-observatory] checking Run Observatory');
   for (const rule of rules) {
     const marker = rule.status === 'passed' ? 'ok' : 'fail';
     console.log(`[run-observatory] ${marker} ${rule.label}: ${rule.observed} | ${rule.target}`);

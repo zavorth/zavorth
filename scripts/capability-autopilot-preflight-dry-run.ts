@@ -22,8 +22,8 @@ const capabilityId = readArg('--capability=') || 'executor-gemini-cli';
 const audience = (readArg('--audience=') || (asJson ? 'technical_operator' : 'everyday_user')) as CapabilityAutopilotAudience;
 const surfaces = readSurfaces('--surfaces=') || ['cli', 'web', 'chat', 'telegram', 'api'];
 const expectedSurfaces = readSurfaces('--expected-surfaces=') || surfaces;
-const rawIntentProbe = 'PHASE74-RAW-INTENT-MUST-NOT-LEAK';
-const rawWorkspaceProbe = 'C:/private/PHASE74-RAW-WORKSPACE-MUST-NOT-LEAK';
+const rawIntentProbe = 'STAGE74-RAW-INTENT-MUST-NOT-LEAK';
+const rawWorkspaceProbe = 'C:/private/STAGE74-RAW-WORKSPACE-MUST-NOT-LEAK';
 
 main().catch((error) => {
   process.stderr.write(`[capability-autopilot-preflight-dry-run] falha: ${error instanceof Error ? error.message : String(error)}\n`);
@@ -43,9 +43,9 @@ async function main(): Promise<void> {
   const receiptService = new CapabilityAutopilotPreflightDispatchReceiptService();
   const receiptSnapshot = receiptService.buildReceiptSnapshot(sourceSnapshot, {
     explicitlyConfirmed,
-    actorId: 'phase-74-gate',
-    confirmationId: explicitlyConfirmed ? 'phase-74-explicit-confirmation' : null,
-    reason: 'phase-74-dry-run-executor-gate',
+    actorId: 'checkpoint-74-gate',
+    confirmationId: explicitlyConfirmed ? 'checkpoint-74-explicit-confirmation' : null,
+    reason: 'checkpoint-74-dry-run-executor-gate',
   });
   const adapterService = new CapabilityAutopilotPreflightDispatchAdapterService();
   const adapterSnapshot = adapterService.buildAdapterSnapshot(receiptSnapshot);
@@ -53,24 +53,24 @@ async function main(): Promise<void> {
   const sideEffectSnapshot = sideEffectGateService.buildGateSnapshot(adapterSnapshot, {
     approvalGranted,
     validationPassed,
-    actorId: 'phase-74-gate',
-    approvalReceiptId: approvalGranted ? 'phase-74-approval' : null,
-    validationReceiptId: validationPassed ? 'phase-74-validation' : null,
-    reason: 'phase-74-dry-run-executor-gate',
+    actorId: 'checkpoint-74-gate',
+    approvalReceiptId: approvalGranted ? 'checkpoint-74-approval' : null,
+    validationReceiptId: validationPassed ? 'checkpoint-74-validation' : null,
+    reason: 'checkpoint-74-dry-run-executor-gate',
   });
   const applyService = new CapabilityAutopilotPreflightApplyAdapterService();
   const applySnapshot = applyService.buildApplySnapshot(sideEffectSnapshot, {
     explicitApplyConfirmed,
-    actorId: 'phase-74-gate',
-    applyConfirmationId: explicitApplyConfirmed ? 'phase-74-apply-confirmation' : null,
-    reason: 'phase-74-dry-run-executor-gate',
+    actorId: 'checkpoint-74-gate',
+    applyConfirmationId: explicitApplyConfirmed ? 'checkpoint-74-apply-confirmation' : null,
+    reason: 'checkpoint-74-dry-run-executor-gate',
   });
   const dryRunService = new CapabilityAutopilotPreflightApplyDryRunExecutorService();
   const snapshot = dryRunService.buildExecutorSnapshot(applySnapshot, {
     dryRunConfirmed,
-    actorId: 'phase-74-gate',
-    dryRunReceiptId: dryRunConfirmed ? 'phase-74-dry-run-confirmation' : null,
-    reason: 'phase-74-dry-run-executor-gate',
+    actorId: 'checkpoint-74-gate',
+    dryRunReceiptId: dryRunConfirmed ? 'checkpoint-74-dry-run-confirmation' : null,
+    reason: 'checkpoint-74-dry-run-executor-gate',
   });
 
   if (asJson) {

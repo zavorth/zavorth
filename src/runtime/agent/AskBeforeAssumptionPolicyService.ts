@@ -1,6 +1,6 @@
 import type { UniversalAgentRun } from './UniversalAgentRuntimeTypes.js';
 
-export const ASK_BEFORE_ASSUMPTION_POLICY_CONTRACT_VERSION = '2026-05-03.wave-42' as const;
+export const ASK_BEFORE_ASSUMPTION_POLICY_CONTRACT_VERSION = '2026-05-03.track-42' as const;
 
 export type AskBeforeAssumptionPolicyStatus = 'clear' | 'needs-question' | 'blocked';
 

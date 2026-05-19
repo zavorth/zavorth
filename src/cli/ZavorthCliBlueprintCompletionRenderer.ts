@@ -115,7 +115,7 @@ function buildPreCanaryReady() {
 
 function buildRolloutPlanReady() {
   return {
-    phase: '81',
+    stage: '81',
     status: 'rollout_plan_ready',
     recommendation: 'prepare_manual_v1_1_rollout',
     rollout: {
@@ -133,7 +133,7 @@ function buildRolloutPlanReady() {
 
 function buildReleaseExecutionReady() {
   return {
-    phase: '82',
+    stage: '82',
     status: 'release_execution_ready',
     recommendation: 'execute_manual_v1_1_release',
     executionIntent: {
@@ -158,7 +158,7 @@ function buildReleaseExecutionReady() {
 
 function buildCanaryPromotionReady() {
   return {
-    phase: '83',
+    stage: '83',
     status: 'canary_promotion_ready',
     recommendation: 'promote_canary_to_next_cohort',
     incidents: {

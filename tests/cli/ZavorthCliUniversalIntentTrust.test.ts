@@ -46,7 +46,7 @@ describe('Zavorth CLI UNI / Trust enforcement', () => {
     }));
     const payload = JSON.parse(writes[0] || '{}');
     expect(payload).toEqual(expect.objectContaining({
-      contractVersion: '2026-05-04.wave-44',
+      contractVersion: '2026-05-04.trust-enforcement',
       source: 'UniversalIntentTrustEnforcementService',
       summary: expect.objectContaining({
         trustLevel: 'collaborator',
@@ -70,7 +70,7 @@ describe('Zavorth CLI UNI / Trust enforcement', () => {
 
     const text = formatUniversalIntentTrustSnapshot(snapshot);
 
-    expect(text).toContain('UNI / Trust Slider Enforcement - Wave 44');
+    expect(text).toContain('UNI / Trust Slider Enforcement - Channel mesh4');
     expect(text).toContain('Trust Slider e aplicado antes do executor');
     expect(text).toContain('host inteiro exige Overlord');
     expect(text).toContain('Command Center: /control?sector=config');

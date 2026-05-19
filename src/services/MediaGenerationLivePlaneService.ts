@@ -60,13 +60,13 @@ export class MediaGenerationLivePlaneService {
     return {
       generatedAt: this.now().toISOString(),
       contractVersion: ZAVORTH_MEDIA_GENERATION_LIVE_PLANE_CONTRACT_VERSION,
-      phase: 'Phase 6 - Media Generation Live Plane',
+      phase: 'Runtime gateway - Media Generation Live Plane',
       status: blocked > 0 ? 'blocked' : 'closed',
       summary: {
         targets: 8,
         imageCapableTargets: entries.filter((entry) => entry.modalities.includes('image')).length,
         videoCapableTargets: entries.filter((entry) => entry.modalities.includes('video')).length,
-        audioRoutedToPhase7: true,
+        audioRoutedToStage7: true,
         directImageTargets: entries.filter((entry) => entry.adapterFamily === 'direct-image').length,
         asyncJobTargets: entries.filter((entry) => entry.adapterFamily !== 'direct-image').length,
         localTargets: entries.filter((entry) => entry.adapterFamily === 'local-comfy-job').length,
@@ -77,13 +77,13 @@ export class MediaGenerationLivePlaneService {
         stagingLiveSmokeCommands: entries.filter((entry) => this.hasGate(entry, 'staging-live-smoke')).length,
         redactedReceipts: receipts.filter((receipt) => receipt.secretValuesSerialized === false).length,
         blocked,
-        liveIoRequiredByPhase6Check: false,
+        liveIoRequiredByStage6Check: false,
         secretValuesSerialized: false,
       },
       entries,
       receipts,
       policy: {
-        noLiveIoDuringPhase6Check: true,
+        noLiveIoDuringStage6Check: true,
         artifactFirstOutputsRequired: true,
         imageOnlyCannotCloseVideo: true,
         asyncProvidersRequirePollingAndStatus: true,
@@ -97,7 +97,7 @@ export class MediaGenerationLivePlaneService {
         stagingLiveSmoke: 'npm run media-generation-live-plane -- --profile staging-live --target <target> --confirm-live-io',
         focusedTests: ['npx jest tests/services/MediaGenerationLivePlaneService.test.ts --runInBand'],
         typecheck: 'npm run runtime:check --silent',
-        nextPhase: 'Phase 7 - Speech, TTS And Voice Live Plane',
+        nextStage: 'Surface controls - Speech, TTS And Voice Live Plane',
       },
     };
   }
@@ -220,7 +220,7 @@ function target(
       secretValuesSerialized: false,
     },
     gaps: modalities.includes('audio')
-      ? ['audio/music generation is routed to Phase 7 speech and voice live plane']
+      ? ['audio/music generation is routed to Surface controls speech and voice live plane']
       : [],
   };
 }

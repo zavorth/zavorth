@@ -75,7 +75,7 @@ async function main(): Promise<void> {
       ? 'staging-live smoke requires --confirm-live-io, provider credentials and runtime base URL before live call.'
       : missingDoctors.length > 0
         ? 'configured doctor found missing provider environment or runtime config.'
-        : 'Phase 5 exposes long-tail provider routes, adapter families and redacted activation receipts.',
+        : 'Credential vault exposes long-tail provider routes, adapter families and redacted activation receipts.',
     entries: activationEntries,
   };
 

@@ -8,7 +8,7 @@ const asJson = process.argv.includes('--json');
 const rules = [
   ruleFilesExist({
     id: 'provider-mesh-files',
-    label: 'Wave 43 files exist',
+    label: 'Channel mesh3 files exist',
     target: 'Runtime, CLI, Command Center, tests and docs are present',
     files: [
       'src/runtime/agent/ProviderMeshConsolidationService.ts',
@@ -27,7 +27,7 @@ const rules = [
     files: ['src/runtime/agent/ProviderMeshConsolidationService.ts'],
     needles: [
       'PROVIDER_MESH_CONSOLIDATION_CONTRACT_VERSION',
-      '2026-05-04.wave-43',
+      '2026-05-04.provider-mesh',
       'ProviderIntegrationRegistry',
       'ModelCatalogAggregationService',
       'AccessRouteResolutionService',
@@ -67,7 +67,7 @@ const rules = [
     needles: [
       'provider-mesh',
       'model-picker',
-      'Provider Mesh / Model Picker Consolidation - Wave 43',
+      'Provider Mesh / Model Picker Consolidation - Channel mesh3',
       'resolveProviderMeshConsolidationCliText',
       'formatProviderMeshConsolidationSnapshot',
       'zavorth provider-mesh',
@@ -96,7 +96,7 @@ const rules = [
   }),
   ruleContainsAll({
     id: 'package-exposes-provider-mesh-gate',
-    label: 'package exposes Wave 43 gate',
+    label: 'package exposes Channel mesh3 gate',
     target: 'local QA can run provider-mesh:check and qa:provider-mesh',
     files: ['package.json'],
     needles: [
@@ -122,7 +122,7 @@ const snapshot = {
 if (asJson) {
   console.log(JSON.stringify(snapshot, null, 2));
 } else {
-  console.log('[provider-mesh] checking Wave 43');
+  console.log('[provider-mesh] checking Channel mesh3');
   for (const rule of rules) {
     const marker = rule.status === 'passed' ? 'ok' : 'fail';
     console.log(`[provider-mesh] ${marker} ${rule.label}: ${rule.observed} | ${rule.target}`);

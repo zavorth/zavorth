@@ -3,7 +3,7 @@ import {
   UniversalPreviewModeService,
 } from '../../../src/runtime/agent/index.js';
 
-describe('UniversalPreviewModeService Wave 30', () => {
+describe('UniversalPreviewModeService Universal Preview', () => {
   it('builds a non-executing preview envelope for risky tools', () => {
     const snapshot = new UniversalPreviewModeService({
       now: () => new Date('2026-05-03T21:00:00.000Z'),

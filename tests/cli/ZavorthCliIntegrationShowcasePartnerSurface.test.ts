@@ -20,7 +20,7 @@ function createFlags(json: boolean) {
   };
 }
 
-describe('Zavorth CLI Integration Showcase Partner Surface Wave 52', () => {
+describe('Zavorth CLI Integration Showcase Partner Surface Integration Showcase', () => {
   it('parses integration-showcase-partner-surface text after aliases', () => {
     expect(resolveIntegrationShowcasePartnerSurfaceCliText('integration-showcase-partner-surface "showcase seguro"')).toBe('showcase seguro');
     expect(resolveIntegrationShowcasePartnerSurfaceCliText('partner-surface latest')).toBe('');
@@ -47,7 +47,7 @@ describe('Zavorth CLI Integration Showcase Partner Surface Wave 52', () => {
     }));
     const payload = JSON.parse(writes[0] || '{}');
     expect(payload).toEqual(expect.objectContaining({
-      contractVersion: '2026-05-04.wave-52',
+      contractVersion: '2026-05-04.integration-showcase',
       source: 'IntegrationShowcasePartnerSurfaceService',
       status: 'showcase-ready',
       showcase: expect.objectContaining({
@@ -80,7 +80,7 @@ describe('Zavorth CLI Integration Showcase Partner Surface Wave 52', () => {
 
     const text = formatIntegrationShowcasePartnerSurfaceSnapshot(snapshot);
 
-    expect(text).toContain('Integration Showcase / Partner Surface - Wave 52');
+    expect(text).toContain('Integration Showcase / Partner Surface - Integration Showcase');
     expect(text).toContain('fixture nao exige credencial');
     expect(text).toContain('fixture nao chama rede');
     expect(text).toContain('compatibilidade tecnica nao vira parceria formal');

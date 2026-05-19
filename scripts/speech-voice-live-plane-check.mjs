@@ -25,18 +25,18 @@ const rules = [
   }),
   ruleContainsAll({
     id: 'speech-voice-live-contract',
-    label: 'Contract defines Phase 7 vocabulary',
+    label: 'Contract defines Surface controls vocabulary',
     target: 'Contract captures targets, capabilities, gates, receipts and next phase handoff',
     files: ['src/contracts/SpeechVoiceLivePlaneContract.ts'],
     needles: [
       'ZAVORTH_SPEECH_VOICE_LIVE_PLANE_CONTRACT_VERSION',
-      '2026-05-04.live-phase-7',
+      '2026-05-04.live-checkpoint-7',
       'azure-speech',
       'deepgram',
       'elevenlabs',
       'voice.session',
       'meetingBridgesLiveOrExcluded: true',
-      'Phase 8 - Research, Web Extraction And Browser Live Plane',
+      'Dashboard controls - Research, Web Extraction And Browser Live Plane',
     ],
   }),
   ruleContainsAll({
@@ -76,7 +76,7 @@ const rules = [
   }),
   ruleContainsAll({
     id: 'speech-voice-live-service',
-    label: 'Service closes Phase 7 gates',
+    label: 'Service closes Surface controls gates',
     target: 'Service maps ten speech/voice targets with STT, TTS, session and meeting decisions',
     files: ['src/services/SpeechVoiceLivePlaneService.ts'],
     needles: [
@@ -93,11 +93,11 @@ const rules = [
   }),
   ruleContainsAll({
     id: 'speech-voice-live-tests',
-    label: 'Tests prove Phase 7 behavior',
+    label: 'Tests prove Surface controls behavior',
     target: 'Tests cover snapshot, transcript artifact, audio artifact, local TTS and push-to-talk session',
     files: ['tests/services/SpeechVoiceLivePlaneService.test.ts'],
     needles: [
-      'closes Phase 7 speech, TTS and voice gates',
+      'closes Surface controls speech, TTS and voice gates',
       'stores a live transcript artifact from an audio artifact',
       'stores synthesized audio as a real artifact',
       'runs a local CLI TTS adapter',
@@ -106,8 +106,8 @@ const rules = [
   }),
   ruleContainsAll({
     id: 'speech-voice-live-package',
-    label: 'Package exposes Phase 7 scripts',
-    target: 'Phase 7 can be run through package scripts',
+    label: 'Package exposes Surface controls scripts',
+    target: 'Surface controls can be run through package scripts',
     files: ['package.json'],
     needles: [
       'speech-voice-live-plane',
@@ -117,8 +117,8 @@ const rules = [
   }),
   ruleContainsAll({
     id: 'speech-voice-live-sdk',
-    label: 'SDK exposes Phase 7 contract and service',
-    target: 'Phase 7 can be imported from SDK barrels',
+    label: 'SDK exposes Surface controls contract and service',
+    target: 'Surface controls can be imported from SDK barrels',
     files: ['src/sdk/contracts.ts', 'src/sdk/index.ts'],
     needles: [
       'SpeechVoiceLivePlane',
@@ -126,11 +126,11 @@ const rules = [
   }),
   ruleContainsAll({
     id: 'speech-voice-live-doc',
-    label: 'Docs record Phase 7 closure',
-    target: 'Phase 7 documentation explains speech, TTS, voice and staging-live flow',
+    label: 'Docs record Surface controls closure',
+    target: 'Surface controls documentation explains speech, TTS, voice and staging-live flow',
     files: ['docs/README.md'],
     needles: [
-      'Phase 7',
+      'Surface controls',
       'Speech, TTS And Voice Live Plane',
       'staging-live',
       'google-meet',
@@ -153,7 +153,7 @@ const snapshot = {
 if (asJson) {
   console.log(JSON.stringify(snapshot, null, 2));
 } else {
-  console.log('[speech-voice-live-plane] checking Phase 7');
+  console.log('[speech-voice-live-plane] checking Surface controls');
   for (const rule of rules) {
     const marker = rule.status === 'passed' ? 'ok' : 'fail';
     console.log(`[speech-voice-live-plane] ${marker} ${rule.label}: ${rule.observed} | ${rule.target}`);

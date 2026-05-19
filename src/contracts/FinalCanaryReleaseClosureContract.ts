@@ -1,7 +1,7 @@
 import type { ParityCertificationGateStatus } from './ParityCertificationContract.js';
 import type { CanaryPromotionDecisionLedgerSnapshot } from './CanaryPromotionDecisionLedgerContract.js';
 
-export const ZAVORTH_FINAL_CANARY_RELEASE_CLOSURE_CONTRACT_VERSION = '2026-05-04.phase-24';
+export const ZAVORTH_FINAL_CANARY_RELEASE_CLOSURE_CONTRACT_VERSION = '2026-05-04.checkpoint-24';
 
 export type FinalCanaryReleaseClosureStatus =
   | 'closure-ready'
@@ -40,10 +40,10 @@ export type FinalCanaryReleaseClosureItem = {
   id:
     | 'promotion-decision-ledger-input'
     | 'held-release-execution-gate'
-    | 'phase-20-approval-ledger-link'
-    | 'phase-21-launch-rehearsal-link'
-    | 'phase-22-monitoring-rollback-link'
-    | 'phase-23-promotion-decision-link'
+    | 'checkpoint-20-approval-ledger-link'
+    | 'checkpoint-21-launch-rehearsal-link'
+    | 'checkpoint-22-monitoring-rollback-link'
+    | 'checkpoint-23-promotion-decision-link'
     | 'side-effect-zeroing-evidence'
     | 'signed-evidence-requirement-record'
     | 'release-handoff-package'
@@ -140,8 +140,8 @@ export type FinalCanaryReleaseClosureSnapshot = {
     observationWindowHours: CanaryPromotionDecisionLedgerSnapshot['ledger']['observationWindowHours'];
     selectedPromotionDecision: CanaryPromotionDecisionLedgerSnapshot['ledger']['selectedDecision'];
     recommendedPromotionDecision: CanaryPromotionDecisionLedgerSnapshot['ledger']['recommendedDecision'];
-    noFurtherAutomatedPhase: true;
-    sequenceClosesAtPhase24: true;
+    noFurtherAutomatedStage: true;
+    sequenceClosesAtStage24: true;
   };
   summary: {
     items: number;
@@ -158,10 +158,10 @@ export type FinalCanaryReleaseClosureSnapshot = {
     promotionDecisionLedgerStatus: CanaryPromotionDecisionLedgerSnapshot['status'];
     promotionDecisionLedgerReady: boolean;
     heldReleaseExecutionGateLinked: boolean;
-    phase20Linked: boolean;
-    phase21Linked: boolean;
-    phase22Linked: boolean;
-    phase23Linked: boolean;
+    previewEngine0Linked: boolean;
+    previewEngine1Linked: boolean;
+    previewEngine2Linked: boolean;
+    previewEngine3Linked: boolean;
     phaseChainComplete: boolean;
     closureEvidenceComplete: boolean;
     manualHandoffsReady: boolean;
@@ -197,14 +197,14 @@ export type FinalCanaryReleaseClosureSnapshot = {
     manualReleaseDecisionHandoff: string;
     focusedTests: string[];
     typecheck: string;
-    completion: 'Canary dry-run sequence complete at Phase 24';
+    completion: 'Canary dry-run sequence complete at Preview engine4';
   };
   policy: {
     finalClosureOnly: true;
     consumesCanaryPromotionDecisionLedger: true;
     closesCanaryDryRunSequence: true;
-    sequenceClosesAtPhase24: true;
-    noFurtherAutomatedPhase: true;
+    sequenceClosesAtStage24: true;
+    noFurtherAutomatedStage: true;
     noManualReleaseDecisionRecordedByDefault: true;
     noReleaseExecuted: true;
     noCanaryStarted: true;

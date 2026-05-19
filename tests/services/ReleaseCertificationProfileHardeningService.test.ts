@@ -1,12 +1,12 @@
 import { ReleaseCertificationProfileHardeningService } from '../../src/services/ReleaseCertificationProfileHardeningService.js';
 
-describe('ReleaseCertificationProfileHardeningService Phase 14', () => {
+describe('ReleaseCertificationProfileHardeningService Intent model4', () => {
   it('certifies private, release-candidate and public-launch profiles together', () => {
     const snapshot = new ReleaseCertificationProfileHardeningService({
       now: () => new Date('2026-05-04T23:40:00.000Z'),
     }).buildSnapshot();
 
-    expect(snapshot.contractVersion).toBe('2026-05-04.phase-14');
+    expect(snapshot.contractVersion).toBe('2026-05-04.checkpoint-14');
     expect(snapshot.status).toBe('certified');
     expect(snapshot.summary).toEqual(
       expect.objectContaining({
@@ -99,7 +99,7 @@ describe('ReleaseCertificationProfileHardeningService Phase 14', () => {
       expect.objectContaining({
         releaseCandidate: 'npm run parity-certify:release-candidate --silent',
         publicLaunch: 'npm run parity-certify:public-launch --silent',
-        nextPhase: 'Public launch smoke and evidence ledger',
+        nextStage: 'Public launch smoke and evidence ledger',
       }),
     );
     expect(snapshot.policy).toEqual(

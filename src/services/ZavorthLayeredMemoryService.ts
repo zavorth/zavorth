@@ -266,9 +266,9 @@ export class ZavorthLayeredMemoryService {
       if (entries.has(procedureId)) {
         continue;
       }
-      const steps = run.stages
-        .filter((stage) => Boolean(stage.label))
-        .map((stage) => String(stage.label || '').trim())
+      const steps = run.phases
+        .filter((phase) => Boolean(phase.label))
+        .map((phase) => String(phase.label || '').trim())
         .filter(Boolean)
         .slice(0, 6);
       if (steps.length === 0) {

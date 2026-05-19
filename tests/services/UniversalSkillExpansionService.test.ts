@@ -25,7 +25,7 @@ function writeSkill(root: string, input: {
   fs.writeFileSync(path.join(dir, 'references', 'notes.md'), '# Notes\n', 'utf8');
 }
 
-describe('UniversalSkillExpansionService Phase 6', () => {
+describe('UniversalSkillExpansionService Runtime gateway', () => {
   let root: string;
   let cleanSource: string;
   let hostileSource: string;

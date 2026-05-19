@@ -46,7 +46,7 @@ describe('Zavorth CLI Tool Rehearsal', () => {
     }));
     const payload = JSON.parse(writes[0] || '{}');
     expect(payload).toEqual(expect.objectContaining({
-      contractVersion: '2026-05-03.wave-36',
+      contractVersion: '2026-05-03.tool-rehearsal',
       status: 'proposal',
       summary: expect.objectContaining({
         callCount: 3,
@@ -75,7 +75,7 @@ describe('Zavorth CLI Tool Rehearsal', () => {
 
     const text = formatToolRehearsalSnapshot(snapshot);
 
-    expect(text).toContain('Tool Rehearsal - Wave 36');
+    expect(text).toContain('Tool Rehearsal - Tool Rehearsal');
     expect(text).toContain('Calls');
     expect(text).toContain('rehearsal nao executa tools');
     expect(text).toContain('Command Center: /control?sector=skills');

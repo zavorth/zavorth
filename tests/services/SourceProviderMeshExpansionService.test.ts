@@ -8,7 +8,7 @@ import { SourceProviderCredentialRouteService } from '../../src/services/SourceP
 import { SourceProviderMeshExpansionService } from '../../src/services/SourceProviderMeshExpansionService.js';
 import { ProviderFactory } from '../../src/providers/ProviderFactory.js';
 
-describe('SourceProviderMeshExpansionService Phase 3', () => {
+describe('SourceProviderMeshExpansionService Approval gate', () => {
   const now = () => new Date('2026-05-05T15:00:00.000Z');
   let tempRoot: string;
   let sourceRoot: string;
@@ -96,7 +96,7 @@ describe('SourceProviderMeshExpansionService Phase 3', () => {
     );
   });
 
-  it('exposes explicit ProviderFactory runtime targets for Phase 3 routes', () => {
+  it('exposes explicit ProviderFactory runtime targets for Approval gate routes', () => {
     expect(ProviderFactory.resolveRuntimeTarget('anthropic-direct')).toEqual(
       expect.objectContaining({
         providerName: 'anthropic-direct',
@@ -141,7 +141,7 @@ describe('SourceProviderMeshExpansionService Phase 3', () => {
     );
   });
 
-  it('emits a passing Phase 3 Provider Mesh expansion snapshot', () => {
+  it('emits a passing Approval gate Provider Mesh expansion snapshot', () => {
     const service = new SourceProviderMeshExpansionService({
       now,
       sourceRoot,
@@ -196,9 +196,9 @@ describe('SourceProviderMeshExpansionService Phase 3', () => {
       }),
     );
     expect(snapshot.policy.noAnthropicApiImpersonation).toBe(true);
-    expect(snapshot.commands.nextPhase).toBe('Phase 4 - Channel Mesh Expansion Pack');
-    expect(text).toContain('Zavorth Source Provider Mesh Expansion - Phase 3');
-    expect(text).toContain('Next: Phase 4 - Channel Mesh Expansion Pack');
+    expect(snapshot.commands.nextStage).toBe('Connector registry - Channel Mesh Expansion Pack');
+    expect(text).toContain('Zavorth Source Provider Mesh Expansion - Approval gate');
+    expect(text).toContain('Next: Connector registry - Channel Mesh Expansion Pack');
   });
 });
 

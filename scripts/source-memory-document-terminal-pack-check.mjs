@@ -8,8 +8,8 @@ const asJson = process.argv.includes('--json');
 
 const rules = [
   ruleFilesExist({
-    id: 'source-memory-document-terminal-phase-5-files',
-    label: 'Phase 5 files exist',
+    id: 'source-memory-document-terminal-checkpoint-5-files',
+    label: 'Credential vault files exist',
     target: 'contract, memory backend, document adapters, search/fetch service, shell policy, terminal runtime, command and tests are present',
     files: [
       'src/contracts/SourceMemoryDocumentTerminalPackContract.ts',
@@ -42,7 +42,7 @@ const rules = [
       'sqlite-vec',
       '@mozilla/readability',
       'node-pty',
-      'Phase 6 - Native Companion And Device Capability Pack',
+      'Runtime gateway - Native Companion And Device Capability Pack',
     ],
   }),
   ruleContainsAll({
@@ -53,7 +53,7 @@ const rules = [
     needles: [
       'SqliteVecMemoryBackend',
       'better-sqlite3',
-      'phase5_memory_records',
+      'credential-vault_memory_records',
       'vectorize',
       'cosineSimilarity',
       'artifactFirst: true',
@@ -99,7 +99,7 @@ const rules = [
   }),
   ruleContainsAll({
     id: 'package-exposes-source-memory-document-terminal-pack',
-    label: 'package exposes Phase 5 gates and parser dependencies',
+    label: 'package exposes Credential vault gates and parser dependencies',
     target: 'operators can inspect, inspect JSON, run check/QA and parser deps are direct',
     files: ['package.json'],
     needles: [
@@ -130,7 +130,7 @@ const snapshot = {
 if (asJson) {
   console.log(JSON.stringify(snapshot, null, 2));
 } else {
-  console.log('[source-memory-document-terminal-pack] checking Phase 5');
+  console.log('[source-memory-document-terminal-pack] checking Credential vault');
   for (const rule of rules) {
     const marker = rule.status === 'passed' ? 'ok' : 'fail';
     console.log(`[source-memory-document-terminal-pack] ${marker} ${rule.label}: ${rule.observed} | ${rule.target}`);
@@ -159,10 +159,10 @@ function runRuntimeRule() {
   if (result.status !== 0) {
     return {
       id: 'source-memory-document-terminal-runtime-receipt',
-      label: 'Runtime Phase 5 receipt passes',
+      label: 'Runtime Credential vault receipt passes',
       status: 'failed',
       observed: `exit ${result.status ?? 'unknown'}`,
-      target: 'Phase 5 command emits a passing memory/document/search/terminal snapshot',
+      target: 'Credential vault command emits a passing memory/document/search/terminal snapshot',
       details: compactDetails(result.error instanceof Error ? result.error.message : '', result.stderr, result.stdout),
     };
   }
@@ -171,10 +171,10 @@ function runRuntimeRule() {
     const receipt = JSON.parse(result.stdout);
     return {
       id: 'source-memory-document-terminal-runtime-receipt',
-      label: 'Runtime Phase 5 receipt passes',
+      label: 'Runtime Credential vault receipt passes',
       status: receipt.status === 'passed' ? 'passed' : 'failed',
       observed: `status=${receipt.status}, documentArtifacts=${receipt.summary?.documentArtifacts}, terminalReceipts=${receipt.summary?.terminalReceipts}`,
-      target: 'Phase 5 command emits a passing memory/document/search/terminal snapshot',
+      target: 'Credential vault command emits a passing memory/document/search/terminal snapshot',
       details: [
         `packagesPresentInSource=${receipt.summary?.packagesPresentInSource}`,
         `packagesImplementedInZavorth=${receipt.summary?.packagesImplementedInZavorth}`,
@@ -182,16 +182,16 @@ function runRuntimeRule() {
         `dangerousCommandsBlocked=${receipt.summary?.dangerousCommandsBlocked}`,
         `liveNetworkPerformed=${receipt.summary?.liveNetworkPerformed}`,
         `liveProcessSpawnedByDefault=${receipt.summary?.liveProcessSpawnedByDefault}`,
-        `next=${receipt.commands?.nextPhase}`,
+        `next=${receipt.commands?.nextStage}`,
       ],
     };
   } catch (error) {
     return {
       id: 'source-memory-document-terminal-runtime-receipt',
-      label: 'Runtime Phase 5 receipt passes',
+      label: 'Runtime Credential vault receipt passes',
       status: 'failed',
       observed: 'invalid JSON receipt',
-      target: 'Phase 5 command emits a passing memory/document/search/terminal snapshot',
+      target: 'Credential vault command emits a passing memory/document/search/terminal snapshot',
       details: [error instanceof Error ? error.message : String(error), ...compactDetails(result.stderr, result.stdout)],
     };
   }

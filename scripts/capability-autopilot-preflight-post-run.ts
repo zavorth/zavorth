@@ -43,12 +43,12 @@ const expectedSurfaces = readSurfaces('--expected-surfaces=') || surfaces;
 const allowedSurfaces = readSurfaces('--allowed-surfaces=') || surfaces;
 const budgetLimitUnits = readNumberArg('--budget-limit=', 25);
 const estimatedBudgetUnits = readOptionalNumberArg('--estimated-budget=');
-const rawIntentProbe = 'PHASE77-RAW-INTENT-MUST-NOT-LEAK';
-const rawWorkspaceProbe = 'C:/private/PHASE77-RAW-WORKSPACE-MUST-NOT-LEAK';
+const rawIntentProbe = 'STAGE77-RAW-INTENT-MUST-NOT-LEAK';
+const rawWorkspaceProbe = 'C:/private/STAGE77-RAW-WORKSPACE-MUST-NOT-LEAK';
 
 const fixtureAdapter: CapabilityPreflightControlledRealApplyAdapter = (decision, context) => ({
   ok: true,
-  adapterReceiptId: `phase-77-fixture-${decision.realApplyGateId.slice(-8)}`,
+  adapterReceiptId: `checkpoint-77-fixture-${decision.realApplyGateId.slice(-8)}`,
   mode: 'fixture',
   sideEffectInvoked: true,
   executedAgainstRealTarget: false,
@@ -59,7 +59,7 @@ const fixtureAdapter: CapabilityPreflightControlledRealApplyAdapter = (decision,
     `rollbackPlan=${context.rollbackPlanId || '<none>'}`,
     `auditReceipt=${context.auditReceiptId || '<none>'}`,
   ],
-  rollbackToken: `phase-77-rollback-${decision.sourceSurface}-${decision.sourceAction?.kind || 'none'}`,
+  rollbackToken: `checkpoint-77-rollback-${decision.sourceSurface}-${decision.sourceAction?.kind || 'none'}`,
   metadata: {
     fixture: true,
   },
@@ -83,9 +83,9 @@ async function main(): Promise<void> {
   const receiptService = new CapabilityAutopilotPreflightDispatchReceiptService();
   const receiptSnapshot = receiptService.buildReceiptSnapshot(sourceSnapshot, {
     explicitlyConfirmed,
-    actorId: 'phase-77-gate',
-    confirmationId: explicitlyConfirmed ? 'phase-77-explicit-confirmation' : null,
-    reason: 'phase-77-post-run-rollback-ledger',
+    actorId: 'checkpoint-77-gate',
+    confirmationId: explicitlyConfirmed ? 'checkpoint-77-explicit-confirmation' : null,
+    reason: 'checkpoint-77-post-run-rollback-ledger',
   });
   const adapterService = new CapabilityAutopilotPreflightDispatchAdapterService();
   const adapterSnapshot = adapterService.buildAdapterSnapshot(receiptSnapshot);
@@ -93,24 +93,24 @@ async function main(): Promise<void> {
   const sideEffectSnapshot = sideEffectGateService.buildGateSnapshot(adapterSnapshot, {
     approvalGranted,
     validationPassed,
-    actorId: 'phase-77-gate',
-    approvalReceiptId: approvalGranted ? 'phase-77-approval' : null,
-    validationReceiptId: validationPassed ? 'phase-77-validation' : null,
-    reason: 'phase-77-post-run-rollback-ledger',
+    actorId: 'checkpoint-77-gate',
+    approvalReceiptId: approvalGranted ? 'checkpoint-77-approval' : null,
+    validationReceiptId: validationPassed ? 'checkpoint-77-validation' : null,
+    reason: 'checkpoint-77-post-run-rollback-ledger',
   });
   const applyService = new CapabilityAutopilotPreflightApplyAdapterService();
   const applySnapshot = applyService.buildApplySnapshot(sideEffectSnapshot, {
     explicitApplyConfirmed,
-    actorId: 'phase-77-gate',
-    applyConfirmationId: explicitApplyConfirmed ? 'phase-77-apply-confirmation' : null,
-    reason: 'phase-77-post-run-rollback-ledger',
+    actorId: 'checkpoint-77-gate',
+    applyConfirmationId: explicitApplyConfirmed ? 'checkpoint-77-apply-confirmation' : null,
+    reason: 'checkpoint-77-post-run-rollback-ledger',
   });
   const dryRunService = new CapabilityAutopilotPreflightApplyDryRunExecutorService();
   const dryRunSnapshot = dryRunService.buildExecutorSnapshot(applySnapshot, {
     dryRunConfirmed,
-    actorId: 'phase-77-gate',
-    dryRunReceiptId: dryRunConfirmed ? 'phase-77-dry-run-confirmation' : null,
-    reason: 'phase-77-post-run-rollback-ledger',
+    actorId: 'checkpoint-77-gate',
+    dryRunReceiptId: dryRunConfirmed ? 'checkpoint-77-dry-run-confirmation' : null,
+    reason: 'checkpoint-77-post-run-rollback-ledger',
   });
   const realApplyGateService = new CapabilityAutopilotPreflightRealApplyApprovalGateService();
   const approvalSnapshot = realApplyGateService.buildGateSnapshot(dryRunSnapshot, {
@@ -120,11 +120,11 @@ async function main(): Promise<void> {
     allowedSurfaces,
     budgetLimitUnits,
     estimatedBudgetUnits,
-    actorId: 'phase-77-gate',
-    finalApprovalReceiptId: finalApprovalGranted ? 'phase-77-final-approval' : null,
-    budgetReceiptId: budgetApproved ? 'phase-77-budget' : null,
-    scopeReceiptId: scopeApproved ? 'phase-77-scope' : null,
-    reason: 'phase-77-post-run-rollback-ledger',
+    actorId: 'checkpoint-77-gate',
+    finalApprovalReceiptId: finalApprovalGranted ? 'checkpoint-77-final-approval' : null,
+    budgetReceiptId: budgetApproved ? 'checkpoint-77-budget' : null,
+    scopeReceiptId: scopeApproved ? 'checkpoint-77-scope' : null,
+    reason: 'checkpoint-77-post-run-rollback-ledger',
   });
   const controlledApplyService = new CapabilityAutopilotPreflightControlledRealApplyExecutorService({
     adapter: adapterEnabled ? fixtureAdapter : null,
@@ -134,12 +134,12 @@ async function main(): Promise<void> {
     budgetLocked,
     rollbackPlanApproved,
     auditSinkReady,
-    actorId: 'phase-77-gate',
-    executionReceiptId: controlledExecutionConfirmed ? 'phase-77-controlled-execution' : null,
-    budgetLockId: budgetLocked ? 'phase-77-budget-lock' : null,
-    rollbackPlanId: rollbackPlanApproved ? 'phase-77-rollback-plan' : null,
-    auditReceiptId: auditSinkReady ? 'phase-77-audit' : null,
-    reason: 'phase-77-post-run-rollback-ledger',
+    actorId: 'checkpoint-77-gate',
+    executionReceiptId: controlledExecutionConfirmed ? 'checkpoint-77-controlled-execution' : null,
+    budgetLockId: budgetLocked ? 'checkpoint-77-budget-lock' : null,
+    rollbackPlanId: rollbackPlanApproved ? 'checkpoint-77-rollback-plan' : null,
+    auditReceiptId: auditSinkReady ? 'checkpoint-77-audit' : null,
+    reason: 'checkpoint-77-post-run-rollback-ledger',
   });
   const postRunService = new CapabilityAutopilotPreflightPostRunRollbackLedgerService();
   const snapshot = postRunService.buildLedgerSnapshot(controlledSnapshot, {
@@ -147,12 +147,12 @@ async function main(): Promise<void> {
     verificationPassed,
     rollbackLedgerPersisted,
     auditPersisted,
-    actorId: 'phase-77-gate',
-    postRunReceiptId: postRunVerificationConfirmed ? 'phase-77-post-run' : null,
-    verificationReceiptId: postRunVerificationConfirmed ? 'phase-77-verification' : null,
-    rollbackLedgerId: rollbackLedgerPersisted ? 'phase-77-rollback-ledger' : null,
-    auditReceiptId: auditPersisted ? 'phase-77-post-run-audit' : null,
-    reason: 'phase-77-post-run-rollback-ledger',
+    actorId: 'checkpoint-77-gate',
+    postRunReceiptId: postRunVerificationConfirmed ? 'checkpoint-77-post-run' : null,
+    verificationReceiptId: postRunVerificationConfirmed ? 'checkpoint-77-verification' : null,
+    rollbackLedgerId: rollbackLedgerPersisted ? 'checkpoint-77-rollback-ledger' : null,
+    auditReceiptId: auditPersisted ? 'checkpoint-77-post-run-audit' : null,
+    reason: 'checkpoint-77-post-run-rollback-ledger',
   });
 
   if (asJson) {

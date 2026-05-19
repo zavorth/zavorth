@@ -45,7 +45,7 @@
       "evidence": [
         "src/services/DashboardEchoRouteService.ts",
         "tests/services/DashboardNexusAgentGatewayRoute.test.ts",
-        "docs/03-architecture.md"
+        "docs/architecture.md"
       ],
       "commands": [
         { "kind": "cli", "value": "zavorth serve" },

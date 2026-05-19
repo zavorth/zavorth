@@ -34,7 +34,7 @@ if (!options.text) {
   if (options.json) {
     console.log(JSON.stringify(snapshot, null, 2));
   } else {
-    console.log('[transaction-live-micro-rollout-certification] Phase 14-15 live micro-rollout certification');
+    console.log('[transaction-live-micro-rollout-certification] Intent model4-15 live micro-rollout certification');
     console.log(`[transaction-live-micro-rollout-certification] version: ${snapshot.version}`);
     console.log(`[transaction-live-micro-rollout-certification] owner-phrase: ${snapshot.ownerPhrase}`);
   }

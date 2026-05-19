@@ -116,7 +116,7 @@ function switchboardWithProbes(): AiFirstLimitedCanarySwitchboardSnapshot {
         familyId: 'conversation',
         surface: 'web',
         risk: 'safe',
-        phase3GuardrailPassed: true,
+        approvalGateGuardrailPassed: true,
         registryReceiptPresent: true,
       },
       {
@@ -124,7 +124,7 @@ function switchboardWithProbes(): AiFirstLimitedCanarySwitchboardSnapshot {
         familyId: 'conversation',
         surface: 'cli',
         risk: 'safe',
-        phase3GuardrailPassed: true,
+        approvalGateGuardrailPassed: true,
         registryReceiptPresent: true,
       },
     ],
@@ -132,7 +132,7 @@ function switchboardWithProbes(): AiFirstLimitedCanarySwitchboardSnapshot {
 }
 
 describe('AiFirstRuntimeEntrypointAdapterService', () => {
-  it('selects AI-first canary only when Phase 6 authorized it', () => {
+  it('selects AI-first canary only when Runtime gateway authorized it', () => {
     const service = createAdapterService();
     const snapshot = service.adapt({
       adapterName: 'adapter',

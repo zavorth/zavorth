@@ -66,8 +66,8 @@ export class ZavorthExternalContractLayerService {
       generatedAt: this.now().toISOString(),
       contractVersion: ZAVORTH_EXTERNAL_CONTRACT_LAYER_VERSION,
       status,
-      planId: '291 - Plano Zavorth External Runtime Absorption',
-      phase: 'phase-1-contract-layer',
+      planId: 'Zavorth External Runtime Integration',
+      phase: 'contract-layer',
       previousInventoryStatus,
       runtimeDescriptors,
       envelopeSchemas: ENVELOPE_SCHEMAS,
@@ -103,7 +103,7 @@ export class ZavorthExternalContractLayerService {
         inspect: 'npm run zavorth:external-contract-layer',
         inspectJson: 'npm run zavorth:external-contract-layer:json',
         check: 'npm run zavorth:external-contract-layer:check --silent',
-        nextPhase: '291 Phase 2 - Native Engine Absorption',
+        nextStage: '291 Preview engine - Native Engine Absorption',
       },
     };
   }
@@ -118,7 +118,7 @@ export class ZavorthExternalContractLayerService {
     const evidence = input.provenance?.evidence?.filter((entry): entry is string => Boolean(entry && entry.trim())) || [];
 
     if (!kind) {
-      errors.push(error('unsupported_envelope_kind', 'kind', `Unsupported external envelope kind: ${input.kind || '<missing>'}`, 'Map source data to one of the Zavorth Phase 1 envelope kinds.'));
+      errors.push(error('unsupported_envelope_kind', 'kind', `Unsupported external envelope kind: ${input.kind || '<missing>'}`, 'Map source data to one of the Zavorth Intent model envelope kinds.'));
     }
     if (!sourceRuntimeId) {
       errors.push(error('missing_required_field', 'sourceRuntimeId', 'Missing or unsupported source runtime id.', 'Use reference-runtime, acp-compatible-sidecar, or acp-compatibility-fixture as diagnostic source ids.'));
@@ -133,13 +133,13 @@ export class ZavorthExternalContractLayerService {
       errors.push(error('source_identity_leak', 'publicName', 'External runtime name cannot become public identity.', 'Keep external names in diagnostics and expose public identity as Zavorth.'));
     }
     if (input.rawSecretValue) {
-      errors.push(error('raw_secret_value', 'rawSecretValue', 'Raw secret values cannot enter Phase 1 envelopes.', 'Pass a secret reference handled by Zavorth ports instead.'));
+      errors.push(error('raw_secret_value', 'rawSecretValue', 'Raw secret values cannot enter Intent model envelopes.', 'Pass a secret reference handled by Zavorth ports instead.'));
     }
     if (input.directToolExposure) {
       errors.push(error('direct_tool_exposure', 'directToolExposure', 'External tools cannot be exposed directly.', 'Represent the tool as metadata and route live invocation through Zavorth policy.'));
     }
     if (input.requestedLiveAction) {
-      errors.push(error('live_execution_requested', 'requestedLiveAction', 'Phase 1 does not allow live source actions.', 'Create an advisory envelope or an approval proposal for a later phase.'));
+      errors.push(error('live_execution_requested', 'requestedLiveAction', 'Intent model does not allow live source actions.', 'Create an advisory envelope or an approval proposal for a later phase.'));
     }
 
     if (errors.some((entry) => entry.severity === 'error') || !schemaForKind || !sourceRuntimeId || !input.sourceRef?.trim()) {
@@ -179,7 +179,7 @@ export class ZavorthExternalContractLayerService {
 
   public formatSnapshotText(snapshot: ZavorthExternalContractLayerSnapshot): string {
     const lines = [
-      'Zavorth External Runtime Phase 1 Contract Layer',
+      'Zavorth External Runtime Intent model Contract Layer',
       '',
       `Status: ${snapshot.status}`,
       `Previous inventory: ${snapshot.previousInventoryStatus}`,
@@ -194,7 +194,7 @@ export class ZavorthExternalContractLayerService {
       'Acceptance:',
       ...snapshot.acceptanceMatrix.map((entry) => `- ${entry.status} ${entry.requirementId}: ${entry.evidence}`),
       '',
-      `Next: ${snapshot.commands.nextPhase}`,
+      `Next: ${snapshot.commands.nextStage}`,
     ];
 
     return lines.join('\n');
@@ -272,7 +272,7 @@ function buildFixtureInputs(): ZavorthExternalRuntimeExternalEnvelopeInput[] {
       sourcePath: 'extensions/telegram',
       sourceLabel: 'ACP-compatible Telegram channel fixture',
       publicName: 'Zavorth',
-      provenance: { observedAt: '2026-05-11T00:00:00.000Z', evidence: ['docs/293-zavorth-external-runtime-phase-0-inventory.md'] },
+      provenance: { observedAt: '2026-05-11T00:00:00.000Z', evidence: ['docs/product-direction.md'] },
     },
     {
       kind: 'worker',
@@ -282,7 +282,7 @@ function buildFixtureInputs(): ZavorthExternalRuntimeExternalEnvelopeInput[] {
       sourceLabel: 'Reference run loop',
       publicName: 'Zavorth',
       risk: 'high',
-      provenance: { evidence: ['docs/291-zavorth-external-runtime-absorption-plan.md'] },
+      provenance: { evidence: ['docs/product-direction.md'] },
     },
     {
       kind: 'tool',
@@ -292,14 +292,14 @@ function buildFixtureInputs(): ZavorthExternalRuntimeExternalEnvelopeInput[] {
       directToolExposure: true,
       requestedLiveAction: true,
       rawSecretValue: 'sk-redacted-example',
-      provenance: { evidence: ['docs/293-zavorth-external-runtime-phase-0-inventory.md'] },
+      provenance: { evidence: ['docs/product-direction.md'] },
     },
     {
       kind: 'channel',
       sourceRuntimeId: 'acp-compatible-sidecar',
       sourceRef: 'extensions/discord',
       publicName: 'ACP-compatible sidecar',
-      provenance: { evidence: ['docs/348-zavorth-acp-compatible-sidecar-parity-matrix-private.md'] },
+      provenance: { evidence: ['docs/product-direction.md'] },
     },
     {
       kind: 'session',
@@ -321,7 +321,7 @@ function buildAcceptanceMatrix(
   const structuredErrors = receipts.flatMap((entry) => entry.errors);
   const noIdentityLeak = receipts.every((entry) => !entry.envelope || entry.envelope.publicName === 'Zavorth');
   return [
-    acceptance('phase-0-inventory-ready', previousInventoryStatus === 'inventory-ready', `previousInventoryStatus=${previousInventoryStatus}`),
+    acceptance('inventory-ready', previousInventoryStatus === 'inventory-ready', `previousInventoryStatus=${previousInventoryStatus}`),
     acceptance('all-envelope-kinds-represented', kindSet.size === 11, `${kindSet.size}/11 envelope kind(s)`),
     acceptance('runtime-descriptors-quarantined', runtimeDescriptors.every((entry) => entry.sourceNameQuarantined && !entry.enabledByDefault && !entry.liveExecutionAllowed), `${runtimeDescriptors.length} descriptor(s) quarantined`),
     acceptance('invalid-data-structured-errors', blockedReceipts.length >= 3 && structuredErrors.length >= 4, `${blockedReceipts.length} blocked fixture(s), ${structuredErrors.length} structured error(s)`),

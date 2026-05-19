@@ -1,7 +1,7 @@
 import type { ZavorthScheduledTaskLiveTickCertificationSnapshot } from './ZavorthScheduledTaskLiveTickCertificationContract.js';
 
 export const ZAVORTH_SCHEDULED_TASK_DAILY_OPS_READINESS_CONTRACT_VERSION =
-  '2026-05-12.scheduled-task-daily-ops-readiness-phase-7' as const;
+  '2026-05-12.scheduled-task-daily-ops-readiness-checkpoint-7' as const;
 
 export type ZavorthScheduledTaskDailyOpsReadinessStatus =
   | 'ready'
@@ -41,8 +41,8 @@ export type ZavorthScheduledTaskDailyOpsReadinessSurfaceCommand = {
 export type ZavorthScheduledTaskDailyOpsReadinessReceipt = {
   id: string;
   kind:
-    | 'phase-7-scheduled-task-daily-ops-readiness'
-    | 'phase-6-live-tick-consumed'
+    | 'checkpoint-7-scheduled-task-daily-ops-readiness'
+    | 'checkpoint-6-live-tick-consumed'
     | 'surface-commands-certified'
     | 'operator-runbook'
     | 'no-visual-mutation'
@@ -61,7 +61,7 @@ export type ZavorthScheduledTaskDailyOpsReadinessSnapshot = {
   generatedAt: string;
   contractVersion: typeof ZAVORTH_SCHEDULED_TASK_DAILY_OPS_READINESS_CONTRACT_VERSION;
   source: 'ZavorthScheduledTaskDailyOpsReadinessService';
-  phase: 'phase-7-scheduled-task-daily-ops-readiness';
+  phase: 'checkpoint-7-scheduled-task-daily-ops-readiness';
   status: ZavorthScheduledTaskDailyOpsReadinessStatus;
   liveTickCertification: ZavorthScheduledTaskLiveTickCertificationSnapshot;
   hostTaskCertification: ZavorthScheduledTaskLiveTickCertificationSnapshot | null;
@@ -88,7 +88,7 @@ export type ZavorthScheduledTaskDailyOpsReadinessSnapshot = {
   };
   receipts: ZavorthScheduledTaskDailyOpsReadinessReceipt[];
   safety: {
-    consumesPhase6LiveTickCertification: true;
+    consumesStage6LiveTickCertification: true;
     allUserActionsGoThroughGovernedSurfaces: true;
     hostTaskCertificationIsExplicit: true;
     noDashboardVisualMutation: true;

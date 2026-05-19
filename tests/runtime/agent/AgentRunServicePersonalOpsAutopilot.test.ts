@@ -8,7 +8,7 @@ function createIdFactory() {
   return (prefix: string) => `${prefix}-agent-personal-ops-${++index}`;
 }
 
-describe('AgentRunService Personal Ops Autopilot Wave 39', () => {
+describe('AgentRunService Personal Ops Autopilot Personal Ops Autopilot', () => {
   it('publishes run.metadata.personalOpsAutopilot during the agent run lifecycle', async () => {
     const service = new AgentRunService({
       now: () => new Date('2026-05-04T00:39:00.000Z'),

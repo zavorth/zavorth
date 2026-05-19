@@ -9,8 +9,8 @@ const asJson = process.argv.includes('--json');
 
 const rules = [
   ruleFilesExist({
-    id: 'source-plugin-os-phase-1-files',
-    label: 'Phase 1 files exist',
+    id: 'source-plugin-os-checkpoint-1-files',
+    label: 'Intent model files exist',
     target: 'contract, adapter, matrix, doctor, absorption service, command, tests and package scripts are present',
     files: [
       'src/contracts/SourcePluginPackageContract.ts',
@@ -26,7 +26,7 @@ const rules = [
   ruleContainsAll({
     id: 'source-plugin-package-contract',
     label: 'Contract captures package absorption vocabulary',
-    target: 'contract includes package matrix, adapter receipts, runtime doctor and Phase 1 snapshot',
+    target: 'contract includes package matrix, adapter receipts, runtime doctor and Intent model snapshot',
     files: ['src/contracts/SourcePluginPackageContract.ts'],
     needles: [
       'ZAVORTH_SOURCE_PLUGIN_PACKAGE_ABSORPTION_CONTRACT_VERSION',
@@ -82,19 +82,19 @@ const rules = [
   ruleContainsAll({
     id: 'source-plugin-absorption-service',
     label: 'Absorption service combines matrix and doctor',
-    target: 'Phase 1 snapshot proves package scan, manifest conversion, policy and receipts',
+    target: 'Intent model snapshot proves package scan, manifest conversion, policy and receipts',
     files: ['src/services/SourcePluginOsAbsorptionService.ts'],
     needles: [
       'buildSnapshot',
       'formatSnapshotText',
-      'Phase 2 - Agent Runtime Bridge Pack',
+      'Preview engine - Agent Runtime Bridge Pack',
       'noSourceSourceCopy',
       'artifactFirstReceipts',
     ],
   }),
   ruleContainsAll({
     id: 'package-exposes-source-plugin-os-gate',
-    label: 'package exposes Phase 1 gates',
+    label: 'package exposes Intent model gates',
     target: 'operators can inspect, inspect JSON, run check and QA gate',
     files: ['package.json'],
     needles: [
@@ -122,7 +122,7 @@ const snapshot = {
 if (asJson) {
   console.log(JSON.stringify(snapshot, null, 2));
 } else {
-  console.log('[source-plugin-os-absorption] checking Phase 1');
+  console.log('[source-plugin-os-absorption] checking Intent model');
   for (const rule of rules) {
     const marker = rule.status === 'passed' ? 'ok' : 'fail';
     console.log(`[source-plugin-os-absorption] ${marker} ${rule.label}: ${rule.observed} | ${rule.target}`);
@@ -160,7 +160,7 @@ function runRuntimeRule() {
       label: 'Runtime receipt passes',
       status: 'failed',
       observed: `exit ${result.status ?? 'unknown'}`,
-      target: 'Phase 1 command emits a passing snapshot against the current Source checkout',
+      target: 'Intent model command emits a passing snapshot against the current Source checkout',
       details: compactDetails(result.error instanceof Error ? result.error.message : '', result.stderr, result.stdout),
     };
   }
@@ -172,12 +172,12 @@ function runRuntimeRule() {
       label: 'Runtime receipt passes',
       status: receipt.status === 'passed' ? 'passed' : 'failed',
       observed: `status=${receipt.status}, packages=${receipt.summary?.packagesFound}, exports=${receipt.summary?.declaredExports}, manifests=${receipt.summary?.manifestsConverted}`,
-      target: 'Phase 1 command emits a passing snapshot against the current Source checkout',
+      target: 'Intent model command emits a passing snapshot against the current Source checkout',
       details: [
         `lifecycleReceipts=${receipt.summary?.lifecycleReceipts}`,
         `approvalsRequired=${receipt.summary?.approvalsRequired}`,
         `runtimeExecutionPerformed=${receipt.summary?.runtimeExecutionPerformed}`,
-        `next=${receipt.commands?.nextPhase}`,
+        `next=${receipt.commands?.nextStage}`,
       ],
     };
   } catch (error) {
@@ -186,7 +186,7 @@ function runRuntimeRule() {
       label: 'Runtime receipt passes',
       status: 'failed',
       observed: 'invalid JSON receipt',
-      target: 'Phase 1 command emits a passing snapshot against the current Source checkout',
+      target: 'Intent model command emits a passing snapshot against the current Source checkout',
       details: [error instanceof Error ? error.message : String(error), ...compactDetails(result.stderr, result.stdout)],
     };
   }

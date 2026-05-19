@@ -146,7 +146,7 @@ export class ZavorthSemanticAgentRuntimeCertificationService {
         inspectJson: 'npm run semantic-agent-runtime-certification:json --silent',
         check: 'npm run semantic-agent-runtime-certification:check --silent',
         qa: 'npm run qa:semantic-agent-runtime-certification --silent',
-        nextPhase: 'S3 - Provider Mesh Semantics',
+        nextStage: 'S3 - Provider Mesh Semantics',
       },
     };
   }
@@ -171,7 +171,7 @@ export class ZavorthSemanticAgentRuntimeCertificationService {
       ...snapshot.claims.map((claim) =>
         `- ${claim.status} ${claim.priority} ${claim.id}: ${claim.expectedBehavior} -> ${claim.zavorthEquivalent}`,
       ),
-      `Next: ${snapshot.commands.nextPhase}`,
+      `Next: ${snapshot.commands.nextStage}`,
     ];
     return lines.join('\n');
   }

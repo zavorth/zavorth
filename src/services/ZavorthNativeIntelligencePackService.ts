@@ -195,14 +195,14 @@ export class ZavorthNativeIntelligencePackService {
         listJson: 'npm run zavorth:native-intelligence-pack:json',
         activatePreset: 'npm run zavorth:native-intelligence-pack -- --preset developer --activate',
         check: 'npm run zavorth:native-intelligence-pack:check --silent',
-        nextPhase: 'Phase 2 - Governed Subagent Model',
+        nextStage: 'Preview engine - Governed Subagent Model',
       },
     };
   }
 
   public formatSnapshotText(snapshot: ZavorthNativeIntelligencePackSnapshot): string {
     const lines = [
-      'Zavorth Native Intelligence Pack - Phase 1',
+      'Zavorth Native Intelligence Pack - Intent model',
       '',
       `Status: ${snapshot.status}`,
       `Native root: ${snapshot.nativeRootPath}`,
@@ -234,7 +234,7 @@ export class ZavorthNativeIntelligencePackService {
       lines.push(`- approval required: ${snapshot.activationPlan.approvalRequiredSkillIds.join(', ') || 'none'}`);
     }
 
-    lines.push('', `Next: ${snapshot.commands.nextPhase}`);
+    lines.push('', `Next: ${snapshot.commands.nextStage}`);
     return lines.join('\n');
   }
 

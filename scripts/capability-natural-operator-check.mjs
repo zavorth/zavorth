@@ -8,7 +8,7 @@ const asJson = process.argv.includes('--json');
 const rules = [
   ruleFilesExist({
     id: 'capability-natural-operator-files',
-    label: 'Capability Natural Operator Phase 11 files exist',
+    label: 'Capability Natural Operator Intent model1 files exist',
     target: 'contract, service, API facade, console CLI integration, tests and docs are present',
     files: [
       'src/contracts/CapabilityNaturalOperatorContract.ts',
@@ -91,7 +91,7 @@ const snapshot = {
 if (asJson) {
   console.log(JSON.stringify(snapshot, null, 2));
 } else {
-  console.log('[capability-natural-operator] checking Phase 11');
+  console.log('[capability-natural-operator] checking Intent model1');
   for (const rule of rules) {
     const marker = rule.status === 'passed' ? 'ok' : 'fail';
     console.log(`[capability-natural-operator] ${marker} ${rule.label}: ${rule.observed} | ${rule.target}`);

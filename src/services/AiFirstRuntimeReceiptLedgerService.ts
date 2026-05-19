@@ -51,7 +51,7 @@ export class AiFirstRuntimeReceiptLedgerService {
       ? {
           readiness: 'review-source-violations' as const,
           action: 'review-ledger' as const,
-          reason: 'One or more source adapter snapshots violated Phase 7 invariants.',
+          reason: 'One or more source adapter snapshots violated Surface controls invariants.',
           defaultRuntimeChanged: false as const,
           keepCurrentRuntimeDecision: true as const,
           canExecuteNow: false as const,
@@ -113,22 +113,22 @@ export class AiFirstRuntimeReceiptLedgerService {
       ],
       gates: [
         {
-          id: 'phase-8-receipt-ledger-only',
+          id: 'checkpoint-8-receipt-ledger-only',
           status: 'passed',
           detail: 'Ledger captures receipts without changing routing behavior.',
         },
         {
-          id: 'phase-8-replay-index-built',
+          id: 'checkpoint-8-replay-index-built',
           status: 'passed',
-          detail: 'Replay and comparison indexes were generated from Phase 7 snapshots.',
+          detail: 'Replay and comparison indexes were generated from Surface controls snapshots.',
         },
         {
-          id: 'phase-8-no-execution',
+          id: 'checkpoint-8-no-execution',
           status: 'passed',
           detail: 'Ledger entries preserve canExecuteNow=false.',
         },
         {
-          id: 'phase-8-current-runtime-preserved',
+          id: 'checkpoint-8-current-runtime-preserved',
           status: 'passed',
           detail: 'defaultRuntimeChanged is false and keepCurrentRuntimeDecision is true.',
         },
@@ -145,7 +145,7 @@ export class AiFirstRuntimeReceiptLedgerService {
 
   public renderMarkdown(snapshot: AiFirstRuntimeReceiptLedgerSnapshot): string {
     const lines: string[] = [];
-    lines.push('# Zavorth AI-first Router Phase 8');
+    lines.push('# Zavorth AI-first Router Dashboard controls');
     lines.push('');
     lines.push(`- contract: ${snapshot.contractVersion}`);
     lines.push(`- ledgerId: ${snapshot.ledgerId}`);

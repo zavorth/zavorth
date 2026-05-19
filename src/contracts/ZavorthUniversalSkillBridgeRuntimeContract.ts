@@ -9,7 +9,7 @@ import type {
   SkillRiskAssessment,
 } from '../skills/SkillCatalogContract.js';
 
-export const ZAVORTH_UNIVERSAL_SKILL_BRIDGE_RUNTIME_CONTRACT_VERSION = '2026-05-10.phase-3' as const;
+export const ZAVORTH_UNIVERSAL_SKILL_BRIDGE_RUNTIME_CONTRACT_VERSION = '2026-05-10.checkpoint-3' as const;
 
 export type ZavorthUniversalSkillBridgeMode = 'dry-run' | 'live';
 
@@ -159,6 +159,6 @@ export type ZavorthUniversalSkillBridgeSnapshot = {
     dryRun: 'npm run zavorth:universal-skill-bridge -- --skill <name>';
     live: 'npm run zavorth:universal-skill-bridge -- --skill <name> --live --approval-id <approval-id>';
     check: 'npm run zavorth:universal-skill-bridge:check --silent';
-    nextPhase: 'Phase 4 - Expansion Registry and Catalog Integration';
+    nextStage: 'Connector registry - Expansion Registry and Catalog Integration';
   };
 };

@@ -68,7 +68,7 @@ export function formatAskBeforeAssumptionPolicySnapshot(
   snapshot: AskBeforeAssumptionPolicySnapshot,
 ): string {
   const lines = [
-    'Ask Before Assumption Policy - Wave 42',
+    'Ask Before Assumption Policy - Channel mesh2',
     `- contrato: ${snapshot.contractVersion}`,
     `- run: ${snapshot.identifiers.runId}`,
     `- sessao: ${snapshot.identifiers.sessionId}`,

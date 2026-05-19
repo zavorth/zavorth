@@ -69,7 +69,7 @@ export class ProviderRuntimeActivationService {
     return {
       generatedAt: this.now().toISOString(),
       contractVersion: ZAVORTH_PROVIDER_RUNTIME_ACTIVATION_CONTRACT_VERSION,
-      phase: 'Phase 4 - Provider Runtime Activation P0',
+      phase: 'Connector registry - Provider Runtime Activation P0',
       status: blocked > 0 ? 'blocked' : 'closed',
       summary: {
         providers: 18,
@@ -83,13 +83,13 @@ export class ProviderRuntimeActivationService {
         providerFactoryRoutes: entries.filter((entry) => this.hasGate(entry, 'provider-factory-route')).length,
         chatSmokeCommands: entries.filter((entry) => this.hasGate(entry, 'chat-smoke')).length,
         redactedReceipts: receipts.filter((receipt) => receipt.secretValuesSerialized === false).length,
-        liveIoRequiredByPhase4Check: false,
+        liveIoRequiredByStage4Check: false,
         secretValuesSerialized: false,
       },
       entries,
       receipts,
       policy: {
-        noLiveIoDuringPhase4Check: true,
+        noLiveIoDuringStage4Check: true,
         providerFactoryRoutesMustResolveWithoutFallback: true,
         stagingLiveRequiresExplicitOperatorCommand: true,
         noSecretsSerialized: true,
@@ -102,7 +102,7 @@ export class ProviderRuntimeActivationService {
         stagingLiveSmoke: 'npm run provider-runtime-activation -- --profile staging-live --provider <provider> --confirm-live-io',
         focusedTests: ['npx jest tests/services/ProviderRuntimeActivationService.test.ts --runInBand'],
         typecheck: 'npm run runtime:check --silent',
-        nextPhase: 'Phase 6 - Media Generation Live Plane',
+        nextStage: 'Runtime gateway - Media Generation Live Plane',
       },
     };
   }

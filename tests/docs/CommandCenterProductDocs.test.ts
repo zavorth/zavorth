@@ -18,16 +18,16 @@ describe('Command Center product docs', () => {
     expect(readme).toContain('artifacts');
     expect(readme).toContain('approvals');
     expect(readme).toContain('memoria');
-    expect(readme).toContain('docs/34-zavorth-cli.md');
+    expect(readme).toContain('docs/zavorth-cli.md');
     expect(readme).toContain('docs/self-modification.md');
     expect(readme).not.toContain('## Comandos Principais');
     expect(readme.split(/\r?\n/u).length).toBeLessThan(140);
   });
 
   it('points quickstart and web docs to Command Center as the official entry', () => {
-    const quickstart = readWorkspaceFile('docs/02-quickstart.md');
-    const web = readWorkspaceFile('docs/07-web.md');
-    const walkthrough = readWorkspaceFile('docs/73-command-center-product-walkthrough.md');
+    const quickstart = readWorkspaceFile('docs/quickstart.md');
+    const web = readWorkspaceFile('docs/web-dashboard.md');
+    const walkthrough = readWorkspaceFile('docs/product-direction.md');
 
     expect(quickstart).toContain('zavorth go');
     expect(quickstart).toContain('Command Center');

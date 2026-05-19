@@ -11,7 +11,7 @@ function createIdFactory() {
   return (prefix: string) => `${prefix}-cc-selfing-${++index}`;
 }
 
-describe('Command Center Selfing Dashboard Wave 37', () => {
+describe('Command Center Selfing Dashboard Selfing Dashboard', () => {
   it('projects selfingDashboard metadata into the dashboard view model', () => {
     const run = new AgentRunService({
       now: () => new Date('2026-05-04T00:37:00.000Z'),
@@ -64,7 +64,7 @@ describe('Command Center Selfing Dashboard Wave 37', () => {
     });
 
     expect(viewModel.selfingDashboard).toEqual(expect.objectContaining({
-      contractVersion: '2026-05-03.wave-37',
+      contractVersion: '2026-05-03.selfing-dashboard',
       status: expect.any(String),
       identity: expect.objectContaining({
         agentName: 'Zavorth',
@@ -138,7 +138,7 @@ describe('Command Center Selfing Dashboard Wave 37', () => {
     );
 
     expect(projection.selfingDashboard).toEqual(expect.objectContaining({
-      contractVersion: '2026-05-03.wave-37',
+      contractVersion: '2026-05-03.selfing-dashboard',
       identity: expect.objectContaining({
         agentName: 'Zavorth',
       }),

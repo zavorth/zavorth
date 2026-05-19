@@ -15,7 +15,7 @@ export class AgentRunAuditHooks {
       id: input.idFactory('agent-event'),
       runId: input.run.id,
       kind: 'status',
-      title: `Defense hook ${input.review.stage}`,
+      title: `Defense hook ${input.review.phase}`,
       detail: input.review.summary,
       status: input.review.blocked ? 'pending' : 'done',
       createdAt: input.now,

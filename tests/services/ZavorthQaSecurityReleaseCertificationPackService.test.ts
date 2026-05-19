@@ -8,7 +8,7 @@ import { ZavorthReleaseAcceptanceCheckService } from '../../src/services/Zavorth
 import { ZavorthSecurityCertificationCheckService } from '../../src/services/ZavorthSecurityCertificationCheckService.js';
 import { ZavorthWorkflowSemanticCheckService } from '../../src/services/ZavorthWorkflowSemanticCheckService.js';
 
-describe('ZavorthQaSecurityReleaseCertificationPackService Phase 7', () => {
+describe('ZavorthQaSecurityReleaseCertificationPackService Surface controls', () => {
   const now = () => new Date('2026-05-05T19:00:00.000Z');
   let tempRoot: string;
 
@@ -82,7 +82,7 @@ describe('ZavorthQaSecurityReleaseCertificationPackService Phase 7', () => {
     expect(release.packageDistExported).toBe(true);
     expect(release.receipts).toEqual(expect.arrayContaining([
       expect.objectContaining({
-        acceptanceId: 'phase7-release-gate',
+        acceptanceId: 'surface-controls-release-gate',
         status: 'pass',
       }),
       expect.objectContaining({
@@ -116,7 +116,7 @@ describe('ZavorthQaSecurityReleaseCertificationPackService Phase 7', () => {
     ]);
   });
 
-  it('emits a passing Phase 7 certification snapshot with warnable patch risk', () => {
+  it('emits a passing Surface controls certification snapshot with warnable patch risk', () => {
     const service = new ZavorthQaSecurityReleaseCertificationPackService({
       now,
       rootDir: tempRoot,
@@ -155,9 +155,9 @@ describe('ZavorthQaSecurityReleaseCertificationPackService Phase 7', () => {
       noLiveChannelSends: true,
       artifactFirstReceipts: true,
     }));
-    expect(snapshot.commands.nextPhase).toBe('Phase 8 - Skill Ecosystem Pack');
-    expect(text).toContain('Zavorth QA Security Release Certification Pack - Phase 7');
-    expect(text).toContain('Next: Phase 8 - Skill Ecosystem Pack');
+    expect(snapshot.commands.nextStage).toBe('Dashboard controls - Skill Ecosystem Pack');
+    expect(text).toContain('Zavorth QA Security Release Certification Pack - Surface controls');
+    expect(text).toContain('Next: Dashboard controls - Skill Ecosystem Pack');
   });
 });
 

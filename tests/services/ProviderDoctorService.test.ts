@@ -65,7 +65,7 @@ describe('ProviderDoctorService', () => {
     });
 
     expect(text).toContain('Providers prontos agora');
-    expect(text).toContain('Perfil recomendado para esta fase: Coding');
+    expect(text).toContain('Perfil recomendado para esta etapa: Coding');
     expect(text).toContain('Modelo preferido do ZavorthBridge: gemini-2.5-pro');
     expect(text).toContain('Recomendacoes:');
   });

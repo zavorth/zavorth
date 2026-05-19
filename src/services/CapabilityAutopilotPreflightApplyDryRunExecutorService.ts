@@ -163,7 +163,7 @@ export class CapabilityAutopilotPreflightApplyDryRunExecutorService {
         reason: options.reason || null,
       },
       metadata: {
-        phase: 'capability-autopilot-phase-74',
+        phase: 'capability-autopilot-checkpoint-74',
         sourceApplyStatus: receipt.status,
         sourceActionKind: receipt.sourceAction?.kind || null,
         autoExecute: false,
@@ -212,7 +212,7 @@ export class CapabilityAutopilotPreflightApplyDryRunExecutorService {
           'Depois do dry-run instrumentado, o proximo passo e exigir approval final e budget antes de qualquer side effect real por superficie.',
       },
       metadata: {
-        phase: 'capability-autopilot-phase-74',
+        phase: 'capability-autopilot-checkpoint-74',
         sourceSnapshotStatus: source.status,
         applyReceiptCount: source.applyReceipts.length,
         dryRunExecutionCount: executions.length,
@@ -229,7 +229,7 @@ export class CapabilityAutopilotPreflightApplyDryRunExecutorService {
 
   public renderReport(snapshot: CapabilityPreflightApplyDryRunExecutorSnapshot): string {
     const lines: string[] = [];
-    lines.push('[capability-autopilot-preflight-dry-run] Fase 74 - Preflight Apply Dry-Run Executor');
+    lines.push('[capability-autopilot-preflight-dry-run] Etapa 74 - Preflight Apply Dry-Run Executor');
     lines.push(`status: ${snapshot.status}`);
     lines.push(`ok: ${snapshot.summary.ok ? 'yes' : 'no'} | pass=${snapshot.summary.passed} warn=${snapshot.summary.warnings} fail=${snapshot.summary.failed}`);
     lines.push(`capability: ${snapshot.capabilityId}`);
@@ -243,7 +243,7 @@ export class CapabilityAutopilotPreflightApplyDryRunExecutorService {
       }
     }
     lines.push('');
-    lines.push(`proxima fase recomendada: ${snapshot.nextRecommendedPhase.phase} - ${snapshot.nextRecommendedPhase.title}`);
+    lines.push(`proximo passo recomendada: ${snapshot.nextRecommendedPhase.phase} - ${snapshot.nextRecommendedPhase.title}`);
     lines.push(snapshot.nextRecommendedPhase.reason);
     return lines.join('\n');
   }
@@ -348,7 +348,7 @@ export class CapabilityAutopilotPreflightApplyDryRunExecutorService {
           execution.dryRunPassed &&
           execution.sideEffectLevel === 'dry_run_only'
         ) ? 'pass' : 'fail',
-        'A Fase 74 so considera ready quando todos os dry-runs foram simulados com sucesso.',
+        'A Etapa 74 so considera ready quando todos os dry-runs foram simulados com sucesso.',
         executions.map((execution) =>
           `${execution.sourceSurface}:${execution.sourceAction?.kind || '<none>'}:confirmed=${execution.dryRunConfirmed}:passed=${execution.dryRunPassed}`,
         ),
@@ -361,7 +361,7 @@ export class CapabilityAutopilotPreflightApplyDryRunExecutorService {
           execution.sourceInvocationPlan.dryRun === true &&
           execution.sourceApplyStatus === 'apply_receipt_ready'
         ) ? 'pass' : 'fail',
-        'Dry-run executor aceita somente apply receipts preparados pela Fase 73.',
+        'Dry-run executor aceita somente apply receipts preparados pela Etapa 73.',
         executions.map((execution) =>
           `${execution.sourceSurface}:${execution.applyAdapterKind}:sourcePrepared=${execution.sourceApplyPrepared}:sourceDryRun=${execution.sourceInvocationPlan.dryRun}`,
         ),

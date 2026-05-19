@@ -6,7 +6,7 @@ import type {
   UniversalToolRiskLevel,
 } from './UniversalAgentRuntimeTypes.js';
 
-export const TOOL_REHEARSAL_CONTRACT_VERSION = '2026-05-03.wave-36' as const;
+export const TOOL_REHEARSAL_CONTRACT_VERSION = '2026-05-03.tool-rehearsal' as const;
 
 export type ToolRehearsalStatus =
   | 'not-needed'

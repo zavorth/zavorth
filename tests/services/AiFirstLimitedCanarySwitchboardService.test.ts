@@ -166,7 +166,7 @@ describe('AiFirstLimitedCanarySwitchboardService', () => {
           familyId: 'conversation',
           surface: 'web',
           risk: 'safe',
-          phase3GuardrailPassed: true,
+          approvalGateGuardrailPassed: true,
           registryReceiptPresent: true,
         },
       ],
@@ -200,7 +200,7 @@ describe('AiFirstLimitedCanarySwitchboardService', () => {
           familyId: 'conversation',
           surface: 'web',
           risk: 'safe',
-          phase3GuardrailPassed: true,
+          approvalGateGuardrailPassed: true,
           registryReceiptPresent: true,
         },
       ],
@@ -233,7 +233,7 @@ describe('AiFirstLimitedCanarySwitchboardService', () => {
           familyId: 'conversation',
           surface: 'cli',
           risk: 'safe',
-          phase3GuardrailPassed: true,
+          approvalGateGuardrailPassed: true,
           registryReceiptPresent: true,
         },
         {
@@ -241,7 +241,7 @@ describe('AiFirstLimitedCanarySwitchboardService', () => {
           familyId: 'conversation',
           surface: 'web',
           risk: 'attention',
-          phase3GuardrailPassed: true,
+          approvalGateGuardrailPassed: true,
           registryReceiptPresent: true,
         },
         {
@@ -249,7 +249,7 @@ describe('AiFirstLimitedCanarySwitchboardService', () => {
           familyId: 'conversation',
           surface: 'web',
           risk: 'safe',
-          phase3GuardrailPassed: false,
+          approvalGateGuardrailPassed: false,
           registryReceiptPresent: true,
         },
         {
@@ -257,7 +257,7 @@ describe('AiFirstLimitedCanarySwitchboardService', () => {
           familyId: 'conversation',
           surface: 'web',
           risk: 'safe',
-          phase3GuardrailPassed: true,
+          approvalGateGuardrailPassed: true,
           registryReceiptPresent: false,
         },
       ],
@@ -266,7 +266,7 @@ describe('AiFirstLimitedCanarySwitchboardService', () => {
     expect(snapshot.decisions.map((decision) => decision.fallbackReason)).toEqual([
       'surface-not-enabled',
       'risk-not-allowed',
-      'phase3-guardrail-missing',
+      'approval-gate-guardrail-missing',
       'registry-receipt-missing',
     ]);
     expect(snapshot.summary.fallbackSelections).toBe(4);
@@ -290,7 +290,7 @@ describe('AiFirstLimitedCanarySwitchboardService', () => {
           familyId: 'conversation',
           surface: 'web',
           risk: 'safe',
-          phase3GuardrailPassed: true,
+          approvalGateGuardrailPassed: true,
           registryReceiptPresent: true,
         },
       ],

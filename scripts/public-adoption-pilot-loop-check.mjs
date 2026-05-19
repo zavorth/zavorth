@@ -8,7 +8,7 @@ const asJson = process.argv.includes('--json');
 const rules = [
   ruleFilesExist({
     id: 'public-adoption-pilot-loop-files',
-    label: 'Wave 51 files exist',
+    label: 'Public Adoption Pilot files exist',
     target: 'Runtime, CLI, Command Center, tests and docs are present',
     files: [
       'src/runtime/agent/PublicAdoptionPilotLoopService.ts',
@@ -27,7 +27,7 @@ const rules = [
     files: ['src/runtime/agent/PublicAdoptionPilotLoopService.ts'],
     needles: [
       'PUBLIC_ADOPTION_PILOT_LOOP_CONTRACT_VERSION',
-      '2026-05-04.wave-51',
+      '2026-05-04.adoption-pilot',
       'FeedbackTelemetryProductLoopService',
       'PilotLoopService',
       'publicAdoptionPilotLoop',
@@ -68,7 +68,7 @@ const rules = [
       'public-adoption-pilot-loop',
       'pilot-loop-runtime',
       'pilot-feedback-loop',
-      'Public Adoption / Pilot Feedback Loop - Wave 51',
+      'Public Adoption / Pilot Feedback Loop - Public Adoption Pilot',
       'resolvePublicAdoptionPilotLoopCliText',
       'formatPublicAdoptionPilotLoopSnapshot',
     ],
@@ -96,7 +96,7 @@ const rules = [
   }),
   ruleContainsAll({
     id: 'package-exposes-public-adoption-pilot-loop-gate',
-    label: 'package exposes Wave 51 gate',
+    label: 'package exposes Public Adoption Pilot gate',
     target: 'local QA can run public-adoption-pilot-loop:check and qa:public-adoption-pilot-loop',
     files: ['package.json'],
     needles: [
@@ -122,7 +122,7 @@ const snapshot = {
 if (asJson) {
   console.log(JSON.stringify(snapshot, null, 2));
 } else {
-  console.log('[public-adoption-pilot-loop] checking Wave 51');
+  console.log('[public-adoption-pilot-loop] checking Public Adoption Pilot');
   for (const rule of rules) {
     const marker = rule.status === 'passed' ? 'ok' : 'fail';
     console.log(`[public-adoption-pilot-loop] ${marker} ${rule.label}: ${rule.observed} | ${rule.target}`);

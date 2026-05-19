@@ -148,8 +148,8 @@ export type ZavorthNativeReplacementDecommissionSnapshot = {
   generatedAt: string;
   contractVersion: typeof ZAVORTH_NATIVE_REPLACEMENT_DECOMMISSION_CONTRACT_VERSION;
   status: ZavorthNativeReplacementDecommissionStatus;
-  planId: '291 - Plano Zavorth External Runtime Absorption';
-  phase: 'phase-8-native-replacement-decommission';
+  planId: 'Zavorth External Runtime Integration';
+  phase: 'native-replacement-decommission';
   previousDelegatedWorkerStatus: ZavorthDelegatedWorkerBridgeStatus;
   registryEntries: ZavorthNativeReplacementRegistryEntry[];
   parityHarnessReceipts: ZavorthParityTestHarnessReceipt[];

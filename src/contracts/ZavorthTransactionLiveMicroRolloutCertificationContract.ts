@@ -4,7 +4,7 @@ import type {
 } from './ZavorthTransactionSandboxControlledExecutorContract.js';
 
 export const ZAVORTH_TRANSACTION_LIVE_MICRO_ROLLOUT_CERTIFICATION_CONTRACT_VERSION =
-  'zavorth-transaction-live-micro-rollout-certification/phase-14-15' as const;
+  'zavorth-transaction-live-micro-rollout-certification/checkpoint-14-15' as const;
 
 export const ZAVORTH_TRANSACTION_LIVE_MICRO_ROLLOUT_CERTIFICATION_OWNER_PHRASE =
   'ZAVORTH MICRO ROLLOUT CERTIFICATION ONLY' as const;
@@ -58,7 +58,7 @@ export type ZavorthTransactionLiveMicroRolloutCertificationScenario = {
 };
 
 export type ZavorthTransactionLiveMicroRolloutCertificationGateKind =
-  | 'phase13-sandbox-executed'
+  | 'intent-model3-sandbox-executed'
   | 'sandbox-execution-receipt-present'
   | 'owner-micro-rollout-review'
   | 'rollout-ladder-defined'
@@ -115,7 +115,7 @@ export type ZavorthTransactionLiveMicroRolloutCertificationPacket = {
   targetLabel: string;
   currency?: string;
   limits: ZavorthTransactionLiveMicroRolloutLimits;
-  stages: ZavorthTransactionLiveMicroRolloutStage[];
+  phases: ZavorthTransactionLiveMicroRolloutStage[];
   scenarios: ZavorthTransactionLiveMicroRolloutCertificationScenario[];
   certifiedForFutureLiveMicroRollout: true;
   certificationOnly: true;
@@ -184,7 +184,7 @@ export type ZavorthTransactionLiveMicroRolloutCertificationContractSnapshot = {
   summary: string;
   ownerPhrase: typeof ZAVORTH_TRANSACTION_LIVE_MICRO_ROLLOUT_CERTIFICATION_OWNER_PHRASE;
   statuses: ZavorthTransactionLiveMicroRolloutCertificationStatus[];
-  stages: ZavorthTransactionLiveMicroRolloutStageKind[];
+  phases: ZavorthTransactionLiveMicroRolloutStageKind[];
   scenarios: ZavorthTransactionLiveMicroRolloutCertificationScenarioId[];
   gateKinds: ZavorthTransactionLiveMicroRolloutCertificationGateKind[];
   invariants: string[];
@@ -193,7 +193,7 @@ export type ZavorthTransactionLiveMicroRolloutCertificationContractSnapshot = {
 export function buildZavorthTransactionLiveMicroRolloutCertificationContractSnapshot(): ZavorthTransactionLiveMicroRolloutCertificationContractSnapshot {
   return {
     version: ZAVORTH_TRANSACTION_LIVE_MICRO_ROLLOUT_CERTIFICATION_CONTRACT_VERSION,
-    summary: 'Combined live micro-rollout and aggressive certification contract for Zavorth Transaction Plane Phase 14-15.',
+    summary: 'Combined live micro-rollout and aggressive certification contract for Zavorth Transaction Plane Intent model4-15.',
     ownerPhrase: ZAVORTH_TRANSACTION_LIVE_MICRO_ROLLOUT_CERTIFICATION_OWNER_PHRASE,
     statuses: [
       'sandbox-execution-required',
@@ -202,7 +202,7 @@ export function buildZavorthTransactionLiveMicroRolloutCertificationContractSnap
       'certification-failed',
       'micro-rollout-certified',
     ],
-    stages: [
+    phases: [
       'observe-only',
       'preview-only',
       'sandbox-certified',
@@ -225,7 +225,7 @@ export function buildZavorthTransactionLiveMicroRolloutCertificationContractSnap
       'incomplete-ledger',
     ],
     gateKinds: [
-      'phase13-sandbox-executed',
+      'intent-model3-sandbox-executed',
       'sandbox-execution-receipt-present',
       'owner-micro-rollout-review',
       'rollout-ladder-defined',
@@ -240,8 +240,8 @@ export function buildZavorthTransactionLiveMicroRolloutCertificationContractSnap
       'raw-secret-redaction',
     ],
     invariants: [
-      'Phase 14-15 consumes a Phase 13 sandbox-executed receipt before any micro-rollout certification packet can be emitted.',
-      'Phase 14-15 defines a live micro-rollout ladder but does not execute a live microtransaction.',
+      'Intent model4-15 consumes a Intent model3 sandbox-executed receipt before any micro-rollout certification packet can be emitted.',
+      'Intent model4-15 defines a live micro-rollout ladder but does not execute a live microtransaction.',
       'Micro-rollout certification requires a dedicated owner phrase separate from earlier transaction phrases.',
       'The aggressive certification suite must prove injection, token leak, replay, expired mandate, connector outage, price drift, wrong user, duplicate execution, missing rollback and incomplete ledger are blocked.',
       'A micro-rollout-certified packet still reports liveMicroRolloutAuthorized=false, liveExecutionAuthorized=false and liveActionApplied=false.',

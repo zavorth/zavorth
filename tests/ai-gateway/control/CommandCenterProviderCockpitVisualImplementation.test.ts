@@ -5,12 +5,12 @@ import { buildDashboardAdapterInputFromCommandCenterRuntimeProjection } from '..
 
 function createProviderCockpitFixture() {
   return {
-    contractVersion: '2026-05-13.phase-6',
+    contractVersion: '2026-05-13.checkpoint-6',
     schemaVersion: 1,
     surface: 'command-center-provider-cockpit',
     generatedAt: '2026-05-13T20:00:00.000Z',
     status: 'ready',
-    sourceMatrixContractVersion: '2026-05-13.phase-5',
+    sourceMatrixContractVersion: '2026-05-13.checkpoint-5',
     visualMutationApplied: false,
     executionAuthority: false,
     selectedProviderId: 'openai',

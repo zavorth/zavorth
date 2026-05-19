@@ -46,9 +46,9 @@ export type ExternalExecutorReadOnlySourceEvent = {
 
 export type ExternalExecutorReadOnlyEventStreamAdapterSource = {
   observabilityProjection: ExternalExecutorLiveObservabilityProjectionNormalization;
-  observabilityDoc: 'docs/170-wave-1-external-executor-live-observability-projection.md';
-  bridgeDoc: 'docs/169-wave-1-external-executor-live-read-only-bridge-boundary.md';
-  sourceSnapshotDoc: 'docs/161-wave-1-real-capability-snapshot-read-only.md';
+  observabilityDoc: 'docs/external-executor-live-observability-projection.md';
+  bridgeDoc: 'docs/external-executor-live-read-only-bridge-boundary.md';
+  sourceSnapshotDoc: 'docs/real-capability-snapshot-read-only.md';
   candidateRealStreamEndpoint?: string | null;
   liveStreamConnected: false;
   mutableStreamOpened: false;
@@ -305,9 +305,9 @@ export function createExternalExecutorReadOnlyEventStreamAdapterFixtureSource():
 
   return {
     observabilityProjection,
-    observabilityDoc: 'docs/170-wave-1-external-executor-live-observability-projection.md',
-    bridgeDoc: 'docs/169-wave-1-external-executor-live-read-only-bridge-boundary.md',
-    sourceSnapshotDoc: 'docs/161-wave-1-real-capability-snapshot-read-only.md',
+    observabilityDoc: 'docs/external-executor-live-observability-projection.md',
+    bridgeDoc: 'docs/external-executor-live-read-only-bridge-boundary.md',
+    sourceSnapshotDoc: 'docs/real-capability-snapshot-read-only.md',
     candidateRealStreamEndpoint: null,
     liveStreamConnected: false,
     mutableStreamOpened: false,

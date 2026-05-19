@@ -8,8 +8,8 @@ describe('ZavorthDashboardExperienceHomeService', () => {
 
     expect(snapshot.surface).toBe('dashboard-experience-home');
     expect(snapshot.route).toBe('/dashboard');
-    expect(snapshot.greeting).toBe('Hello, Operator.');
-    expect(snapshot.simpleNavigation.headline).toContain('Inbox, Tasks, Approvals, Receipts and Connectors');
+    expect(snapshot.greeting).toBe('Zavorth is ready.');
+    expect(snapshot.simpleNavigation.headline).toContain('Chat, Overview, Channels, Approvals and Receipts');
     expect(snapshot.simpleNavigation.areas.map((area) => area.id)).toEqual([
       'inbox',
       'tasks',
@@ -57,7 +57,7 @@ describe('ZavorthDashboardExperienceHomeService', () => {
       }),
     ]));
     expect(snapshot.invariants.join(' ')).toContain('not an execution shortcut');
-    expect(snapshot.invariants.join(' ')).toContain('before internal runtime names');
+    expect(snapshot.invariants.join(' ')).toContain('Chat, Overview, Channels');
     expect(snapshot.permissionPanel.items.find((item) => item.id === 'extreme-mode')?.risk).toBe('critical');
     expect(snapshot.permissionPanel.items.find((item) => item.id === 'auto-approvals')?.summary).toContain('escopo');
   });

@@ -396,7 +396,7 @@ export class ExternalAgentCapabilityProvider {
       adapterSource: {
         kind: 'universal-agent-runtime',
         label: 'Zavorth External Capability Provider',
-        version: 'phase-4',
+        version: 'checkpoint-4',
       },
       capabilities: items.map((item) => ({
         id: item.id,

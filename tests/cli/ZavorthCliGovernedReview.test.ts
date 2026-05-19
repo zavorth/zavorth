@@ -89,7 +89,7 @@ describe('Zavorth CLI Governed Review', () => {
 
     const text = formatGovernedReviewSnapshot(snapshot);
 
-    expect(text).toContain('Zavorth Governed Review - Phase 4');
+    expect(text).toContain('Zavorth Governed Review - Connector registry');
     expect(text).toContain('Agentes');
     expect(text).toContain('Policy Gate');
     expect(text).toContain('/dashboard/reviews');

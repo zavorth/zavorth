@@ -155,7 +155,7 @@ export class ReviewAgentOrchestrator {
         {
           id: 'workspace.write',
           label: 'Workspace write',
-          reason: 'Phase 4 compiles and surfaces review output but does not launch mutations.',
+          reason: 'Connector registry compiles and surfaces review output but does not launch mutations.',
         },
         {
           id: 'github.comment',

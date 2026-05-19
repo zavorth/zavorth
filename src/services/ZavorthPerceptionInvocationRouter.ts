@@ -141,7 +141,7 @@ export class ZavorthPerceptionInvocationRouter {
       title: entry.kind,
       status: mapReceiptStatus(entry.status),
       reason: entry.reason,
-      policyProfile: 'perception-invocation-phase-5',
+      policyProfile: 'perception-invocation-checkpoint-5',
       redacted: false,
       riskBlocked: entry.status === 'blocked',
       createdAt: plan.generatedAt,

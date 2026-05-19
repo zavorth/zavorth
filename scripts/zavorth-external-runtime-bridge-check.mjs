@@ -25,7 +25,7 @@ const snapshot = {
 if (asJson) {
   console.log(JSON.stringify(snapshot, null, 2));
 } else {
-  console.log('[zavorth-external-runtime-bridge] checking Phase 10');
+  console.log('[zavorth-external-runtime-bridge] checking Intent model0');
   for (const rule of rules) {
     const marker = rule.status === 'passed' ? 'ok' : 'fail';
     console.log(`[zavorth-external-runtime-bridge] ${marker} ${rule.label}: ${rule.observed} | ${rule.target}`);
@@ -48,8 +48,8 @@ function ruleFilesExist() {
   ];
   const missing = files.filter((file) => !fs.existsSync(path.join(root, file)));
   return {
-    id: 'phase-10-files',
-    label: 'Phase 10 bridge files exist',
+    id: 'checkpoint-10-files',
+    label: 'Intent model0 bridge files exist',
     status: missing.length === 0 ? 'passed' : 'failed',
     observed: `${files.length - missing.length}/${files.length} file(s) present`,
     target: 'contract, service, CLI, check, tests, docs and package scripts are present',
@@ -75,7 +75,7 @@ function ruleContainsMarkers() {
       'safe-tool-parallelism',
       'skill-curator',
       'delegated-workers',
-      'phase-9-complete',
+      'checkpoint-9-complete',
     ]],
     ['package.json', [
       'zavorth:external-runtime-bridge',
@@ -94,8 +94,8 @@ function ruleContainsMarkers() {
     }
   }
   return {
-    id: 'phase-10-markers',
-    label: 'Phase 10 bridge markers are present',
+    id: 'checkpoint-10-markers',
+    label: 'Intent model0 bridge markers are present',
     status: missing.length === 0 ? 'passed' : 'failed',
     observed: missing.length === 0 ? 'all markers present' : `${missing.length} missing marker(s)`,
     target: 'bridge contract, Natural First, docs and scripts markers are present',
@@ -110,7 +110,7 @@ function runBridgeFixture() {
   });
   if (result.status !== 0) {
     return {
-      id: 'phase-10-bridge-fixture',
+      id: 'checkpoint-10-bridge-fixture',
       label: 'Bridge fixture passes',
       status: 'failed',
       observed: `exit ${result.status}`,
@@ -130,7 +130,7 @@ function runBridgeFixture() {
     && Array.isArray(snapshot.candidates)
     && snapshot.candidates.length >= 9;
   return {
-    id: 'phase-10-bridge-fixture',
+    id: 'checkpoint-10-bridge-fixture',
     label: 'Bridge fixture passes',
     status: ok ? 'passed' : 'failed',
     observed: ok ? `${snapshot.candidates.length} candidate(s), ${snapshot.status}` : 'invalid bridge snapshot',
@@ -145,7 +145,7 @@ function runBridgeBlockedFixture() {
     'scripts/zavorth-external-runtime-bridge.ts',
     '--json',
     '--natural-first-status',
-    'phase-8-complete',
+    'checkpoint-8-complete',
   ], {
     cwd: root,
     encoding: 'utf8',
@@ -156,11 +156,11 @@ function runBridgeBlockedFixture() {
     && snapshot.status === 'blocked'
     && snapshot.gatewayPolicy?.naturalFirstClosed === false;
   return {
-    id: 'phase-10-blocked-fixture',
+    id: 'checkpoint-10-blocked-fixture',
     label: 'Bridge blocks before Natural First closure',
     status: ok ? 'passed' : 'failed',
     observed: ok ? `${snapshot.status}, naturalFirstClosed=${snapshot.gatewayPolicy.naturalFirstClosed}` : `exit ${result.status}`,
-    target: 'bridge is blocked if Natural First is not phase-9 or phase-10 complete',
+    target: 'bridge is blocked if Natural First is not checkpoint-9 or checkpoint-10 complete',
     details: ok ? [] : [result.error?.message || result.stderr || result.stdout || 'no output'],
   };
 }

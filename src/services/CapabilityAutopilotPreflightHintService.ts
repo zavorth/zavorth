@@ -97,7 +97,7 @@ export class CapabilityAutopilotPreflightHintService {
       requiresExplicitUserChoice: hintKind === 'fallback' || hintKind === 'permission' || hintKind === 'repair',
       shouldRunAutomatically: false,
       metadata: {
-        phase: 'capability-autopilot-phase-14',
+        phase: 'capability-autopilot-checkpoint-14',
         autoExecute: false,
         rawIntentStored: false,
         rawWorkspaceStored: false,

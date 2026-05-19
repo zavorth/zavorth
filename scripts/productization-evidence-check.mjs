@@ -8,7 +8,7 @@ const asJson = process.argv.includes('--json');
 const rules = [
   ruleFilesExist({
     id: 'productization-evidence-files',
-    label: 'Wave 46 files exist',
+    label: 'Channel mesh6 files exist',
     target: 'Runtime, CLI, Command Center, tests and docs are present',
     files: [
       'src/runtime/agent/ProductizationEvidenceService.ts',
@@ -27,7 +27,7 @@ const rules = [
     files: ['src/runtime/agent/ProductizationEvidenceService.ts'],
     needles: [
       'PRODUCTIZATION_EVIDENCE_CONTRACT_VERSION',
-      '2026-05-04.wave-46',
+      '2026-05-04.product-evidence',
       'ZavorthProductizationContractService',
       'runArtifactReceiptReplay',
       'releaseReadiness',
@@ -66,7 +66,7 @@ const rules = [
     needles: [
       'productization-evidence',
       'release-readiness',
-      'Productization Evidence & Release Readiness - Wave 46',
+      'Productization Evidence & Release Readiness - Channel mesh6',
       'resolveProductizationEvidenceCliText',
       'formatProductizationEvidenceSnapshot',
       'zavorth productization-evidence',
@@ -95,7 +95,7 @@ const rules = [
   }),
   ruleContainsAll({
     id: 'package-exposes-productization-evidence-gate',
-    label: 'package exposes Wave 46 gate',
+    label: 'package exposes Channel mesh6 gate',
     target: 'local QA can run productization-evidence:check and qa:productization-evidence',
     files: ['package.json'],
     needles: [
@@ -121,7 +121,7 @@ const snapshot = {
 if (asJson) {
   console.log(JSON.stringify(snapshot, null, 2));
 } else {
-  console.log('[productization-evidence] checking Wave 46');
+  console.log('[productization-evidence] checking Channel mesh6');
   for (const rule of rules) {
     const marker = rule.status === 'passed' ? 'ok' : 'fail';
     console.log(`[productization-evidence] ${marker} ${rule.label}: ${rule.observed} | ${rule.target}`);

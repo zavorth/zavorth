@@ -13,7 +13,7 @@ export type CoreDietBaselineStageRecord = {
 export type CoreDietBaselineDraft = {
   startedAtMs: number;
   snapshots: CoreDietBaselineSnapshotRecord[];
-  stages: CoreDietBaselineStageRecord[];
+  phases: CoreDietBaselineStageRecord[];
 };
 
 export type CoreDietBaselineBudget = {
@@ -22,7 +22,7 @@ export type CoreDietBaselineBudget = {
   attachedSnapshots: number;
   skippedSnapshots: number;
   cacheHits: number;
-  stageCount: number;
+  phaseCount: number;
   maxStageMs: number;
   scheduledWorkerJobs: number;
 };
@@ -41,7 +41,7 @@ const CORE_DIET_BASELINE_BUDGETS: Record<string, CoreDietBaselineBudget> = {
     attachedSnapshots: 12,
     skippedSnapshots: 24,
     cacheHits: 24,
-    stageCount: 8,
+    phaseCount: 8,
     maxStageMs: 500,
     scheduledWorkerJobs: 2,
   },
@@ -51,7 +51,7 @@ const CORE_DIET_BASELINE_BUDGETS: Record<string, CoreDietBaselineBudget> = {
     attachedSnapshots: 20,
     skippedSnapshots: 32,
     cacheHits: 32,
-    stageCount: 12,
+    phaseCount: 12,
     maxStageMs: 1000,
     scheduledWorkerJobs: 4,
   },
@@ -134,7 +134,7 @@ export class AgentRunMetadataEvidenceHelpers {
     return {
       startedAtMs: Date.now(),
       snapshots: [],
-      stages: [],
+      phases: [],
     };
   }
 
@@ -152,7 +152,7 @@ export class AgentRunMetadataEvidenceHelpers {
     try {
       return action();
     } finally {
-      baseline.stages.push({
+      baseline.phases.push({
         name,
         elapsedMs: Math.max(0, Date.now() - startedAtMs),
       });
@@ -188,15 +188,15 @@ export class AgentRunMetadataEvidenceHelpers {
     const cacheHits = baseline.snapshots.filter((snapshot) => snapshot.status === 'cache-hit').length;
     const profile = this.resolveCoreDietBaselineProfile(run);
     const budget = CORE_DIET_BASELINE_BUDGETS[profile] || CORE_DIET_BASELINE_BUDGETS.default;
-    const stageCount = baseline.stages.length;
-    const maxStageMs = baseline.stages.reduce((max, stage) => Math.max(max, stage.elapsedMs), 0);
+    const phaseCount = baseline.phases.length;
+    const maxStageMs = baseline.phases.reduce((max, phase) => Math.max(max, phase.elapsedMs), 0);
     const overBudget = [
       metadataBytes > budget.metadataBytes ? 'metadataBytes' : '',
       snapshotBuilds > budget.snapshotBuilds ? 'snapshotBuilds' : '',
       attachedSnapshots > budget.attachedSnapshots ? 'attachedSnapshots' : '',
       skippedSnapshots > budget.skippedSnapshots ? 'skippedSnapshots' : '',
       cacheHits > budget.cacheHits ? 'cacheHits' : '',
-      stageCount > budget.stageCount ? 'stageCount' : '',
+      phaseCount > budget.phaseCount ? 'phaseCount' : '',
       maxStageMs > budget.maxStageMs ? 'maxStageMs' : '',
       scheduledWorkerJobs > budget.scheduledWorkerJobs ? 'scheduledWorkerJobs' : '',
     ].filter(Boolean);
@@ -214,12 +214,12 @@ export class AgentRunMetadataEvidenceHelpers {
         attachedSnapshots,
         skippedSnapshots,
         cacheHits,
-        stageCount,
+        phaseCount,
         maxStageMs,
         scheduledWorkerJobs,
         overBudget,
         budget,
-        stages: baseline.stages.slice(),
+        phases: baseline.phases.slice(),
         snapshotEvents: baseline.snapshots.slice(),
       },
       coreDietObservability: {
@@ -235,7 +235,7 @@ export class AgentRunMetadataEvidenceHelpers {
           attachedSnapshots,
           skippedSnapshots,
           cacheHits,
-          stageCount,
+          phaseCount,
           maxStageMs,
           scheduledWorkerJobs,
         },

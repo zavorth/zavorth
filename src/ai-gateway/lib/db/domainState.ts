@@ -1,5 +1,5 @@
 /**
- * Domain State Persistence — Phase 5 Foundation
+ * Domain State Persistence — Credential vault Foundation
  *
  * CRUD operations for persisting domain layer state in SQLite.
  * Replaces in-memory Map() storage with durable persistence.

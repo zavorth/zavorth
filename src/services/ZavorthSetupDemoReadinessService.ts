@@ -107,7 +107,7 @@ const SMOKE_CHECKS: ZavorthSetupDemoSmokeCheck[] = [
     id: 'e2e-fixture-flow',
     label: 'End-to-end deterministic fixture flow',
     covers: ['phase-a', 'phase-b', 'phase-c', 'phase-d'],
-    command: 'npx jest tests/e2e/ZavorthPhaseDSetupDemoSmoke.test.ts --runInBand',
+    command: 'npx jest tests/e2e/ZavorthSetupDemoSmoke.test.ts --runInBand',
     requiresSecrets: false,
     requiresNetwork: false,
     expectedSignal: 'dashboard home, GitHub governed review and Telegram approval loop all return receipts.',

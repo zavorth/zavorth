@@ -208,7 +208,7 @@ export class CapabilityAutopilotPreflightActionHandlerService {
       blockers,
       safeSummary: this.buildSafeSummary(action, mapping?.handlerKind || null, status),
       metadata: {
-        phase: 'capability-autopilot-phase-69',
+        phase: 'capability-autopilot-checkpoint-69',
         sourceSnapshotPhase: snapshot.phase,
         sourcePayloadSurface: payload.surface,
         sourceActionId: action.id,
@@ -258,7 +258,7 @@ export class CapabilityAutopilotPreflightActionHandlerService {
           'Depois de mapear actions para handlers explicitos, o proximo passo e gerar receipts de dispatch sem executar repair, fallback ou resume automaticamente.',
       },
       metadata: {
-        phase: 'capability-autopilot-phase-69',
+        phase: 'capability-autopilot-checkpoint-69',
         sourceSnapshotStatus: snapshot.status,
         payloadCount: snapshot.payloads.length,
         actionPlanCount: plans.length,
@@ -270,7 +270,7 @@ export class CapabilityAutopilotPreflightActionHandlerService {
 
   public renderReport(snapshot: CapabilityPreflightActionHandlerSnapshot): string {
     const lines: string[] = [];
-    lines.push('[capability-autopilot-preflight-actions] Fase 69 - Preflight Action Handler Wiring');
+    lines.push('[capability-autopilot-preflight-actions] Etapa 69 - Preflight Action Handler Wiring');
     lines.push(`status: ${snapshot.status}`);
     lines.push(`ok: ${snapshot.summary.ok ? 'yes' : 'no'} | pass=${snapshot.summary.passed} warn=${snapshot.summary.warnings} fail=${snapshot.summary.failed}`);
     lines.push(`capability: ${snapshot.capabilityId}`);
@@ -284,7 +284,7 @@ export class CapabilityAutopilotPreflightActionHandlerService {
       }
     }
     lines.push('');
-    lines.push(`proxima fase recomendada: ${snapshot.nextRecommendedPhase.phase} - ${snapshot.nextRecommendedPhase.title}`);
+    lines.push(`proximo passo recomendada: ${snapshot.nextRecommendedPhase.phase} - ${snapshot.nextRecommendedPhase.title}`);
     lines.push(snapshot.nextRecommendedPhase.reason);
     return lines.join('\n');
   }
@@ -348,7 +348,7 @@ export class CapabilityAutopilotPreflightActionHandlerService {
           plan.dispatchAttempted === false &&
           plan.metadata.autoExecute === false
         ) ? 'pass' : 'fail',
-        'A Fase 69 so prepara wiring; nenhum handler pode despachar execucao automaticamente.',
+        'A Etapa 69 so prepara wiring; nenhum handler pode despachar execucao automaticamente.',
         plans.map((plan) =>
           `${plan.sourceSurface}:${plan.sourceAction?.kind || '<none>'}:auto=${plan.shouldRunAutomatically}:dispatch=${plan.dispatchAttempted}`,
         ),
@@ -426,7 +426,7 @@ export class CapabilityAutopilotPreflightActionHandlerService {
       blockers,
       safeSummary: `Action handler bloqueado: ${blockers.join(', ')}.`,
       metadata: {
-        phase: 'capability-autopilot-phase-69',
+        phase: 'capability-autopilot-checkpoint-69',
         sourceSnapshotPhase: snapshot.phase,
         requestedSurface: request.surface,
         requestedActionId: request.actionId || null,

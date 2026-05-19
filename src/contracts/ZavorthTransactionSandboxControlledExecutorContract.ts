@@ -10,7 +10,7 @@ import type {
 } from './ZavorthTransactionSandboxAdapterCertificationContract.js';
 
 export const ZAVORTH_TRANSACTION_SANDBOX_CONTROLLED_EXECUTOR_CONTRACT_VERSION =
-  'zavorth-transaction-sandbox-controlled-executor/phase-13' as const;
+  'zavorth-transaction-sandbox-controlled-executor/checkpoint-13' as const;
 
 export const ZAVORTH_TRANSACTION_SANDBOX_CONTROLLED_EXECUTOR_OWNER_PHRASE =
   'ZAVORTH CONTROLLED SANDBOX EXECUTION ONLY' as const;
@@ -22,7 +22,7 @@ export type ZavorthTransactionSandboxControlledExecutorStatus =
   | 'sandbox-executed';
 
 export type ZavorthTransactionSandboxControlledExecutorGateKind =
-  | 'phase12-certification-ready'
+  | 'intent-model2-certification-ready'
   | 'certification-packet-present'
   | 'sandbox-operator-confirmation'
   | 'local-sandbox-only'
@@ -144,7 +144,7 @@ export type ZavorthTransactionSandboxControlledExecutorContractSnapshot = {
 export function buildZavorthTransactionSandboxControlledExecutorContractSnapshot(): ZavorthTransactionSandboxControlledExecutorContractSnapshot {
   return {
     version: ZAVORTH_TRANSACTION_SANDBOX_CONTROLLED_EXECUTOR_CONTRACT_VERSION,
-    summary: 'Controlled local sandbox executor contract for Zavorth Transaction Plane Phase 13.',
+    summary: 'Controlled local sandbox executor contract for Zavorth Transaction Plane Intent model3.',
     ownerPhrase: ZAVORTH_TRANSACTION_SANDBOX_CONTROLLED_EXECUTOR_OWNER_PHRASE,
     statuses: [
       'certification-required',
@@ -153,7 +153,7 @@ export function buildZavorthTransactionSandboxControlledExecutorContractSnapshot
       'sandbox-executed',
     ],
     gateKinds: [
-      'phase12-certification-ready',
+      'intent-model2-certification-ready',
       'certification-packet-present',
       'sandbox-operator-confirmation',
       'local-sandbox-only',
@@ -170,11 +170,11 @@ export function buildZavorthTransactionSandboxControlledExecutorContractSnapshot
       'raw-secret-redaction',
     ],
     invariants: [
-      'Phase 13 consumes a Phase 12 sandbox-certification-ready packet before any sandbox execution receipt can be emitted.',
-      'Phase 13 performs only a deterministic local sandbox simulation and never calls external sandbox or live endpoints.',
-      'Sandbox execution requires a dedicated owner phrase separate from Phase 10 and Phase 11 phrases.',
+      'Intent model3 consumes a Intent model2 sandbox-certification-ready packet before any sandbox execution receipt can be emitted.',
+      'Intent model3 performs only a deterministic local sandbox simulation and never calls external sandbox or live endpoints.',
+      'Sandbox execution requires a dedicated owner phrase separate from Intent model0 and Intent model1 phrases.',
       'Sandbox execution receipts may report sandboxExecutionAuthorized=true for the local simulation only.',
-      'Every Phase 13 result keeps sandboxExternalIoPerformed=false, externalSideEffects=false, liveExecutionAuthorized=false and liveActionApplied=false.',
+      'Every Intent model3 result keeps sandboxExternalIoPerformed=false, externalSideEffects=false, liveExecutionAuthorized=false and liveActionApplied=false.',
       'Kill switch and rollback drill receipts from earlier phases must remain linked.',
       'Raw transaction secrets must never be serialized by the execution receipt.',
     ],

@@ -205,7 +205,7 @@ export class CapabilityAutopilotBetaReadinessGateService {
           'Depois do beta readiness, o proximo passo e operar um field trial limitado com feedback, rollback rehearsal e criterio de promocao para release candidate.',
       },
       metadata: {
-        phase: 'capability-autopilot-phase-78',
+        phase: 'capability-autopilot-checkpoint-78',
         sourceSnapshotStatus: source.status,
         autoExecute: false,
         recommendation,
@@ -220,7 +220,7 @@ export class CapabilityAutopilotBetaReadinessGateService {
 
   public renderReport(snapshot: CapabilityAutopilotBetaReadinessSnapshot): string {
     const lines: string[] = [];
-    lines.push('[capability-autopilot-beta-readiness] Fase 78 - Capability Autopilot v1.1 Beta Readiness Gate');
+    lines.push('[capability-autopilot-beta-readiness] Etapa 78 - Capability Autopilot v1.1 Beta Readiness Gate');
     lines.push(`status: ${snapshot.status}`);
     lines.push(`recommendation: ${snapshot.recommendation}`);
     lines.push(`ok: ${snapshot.summary.ok ? 'yes' : 'no'} | pass=${snapshot.summary.passed} warn=${snapshot.summary.warnings} fail=${snapshot.summary.failed}`);
@@ -235,7 +235,7 @@ export class CapabilityAutopilotBetaReadinessGateService {
       }
     }
     lines.push('');
-    lines.push(`proxima fase recomendada: ${snapshot.nextRecommendedPhase.phase} - ${snapshot.nextRecommendedPhase.title}`);
+    lines.push(`proximo passo recomendada: ${snapshot.nextRecommendedPhase.phase} - ${snapshot.nextRecommendedPhase.title}`);
     lines.push(snapshot.nextRecommendedPhase.reason);
     return lines.join('\n');
   }

@@ -138,7 +138,7 @@ function readinessFromEnv(target: string | null): RemoteMeshSandboxReadinessSnap
   return {
     generatedAt: new Date().toISOString(),
     contractVersion: '2026-05-05.remote-mesh-sandbox-r0',
-    phase: 'R0',
+    stage: 'R0',
     status: 'ready',
     target: {
       nodeId: target,
@@ -177,7 +177,7 @@ function readinessFromEnv(target: string | null): RemoteMeshSandboxReadinessSnap
       readiness: 'npx tsx scripts/remote-mesh-sandbox-readiness.ts --json',
       readinessNoLiveProbes: 'npx tsx scripts/remote-mesh-sandbox-readiness.ts --json --no-live-probes',
       focusedTests: 'npx jest tests/services/RemoteMeshSandboxReadinessService.test.ts --runInBand',
-      nextPhase: 'R1 - Remote Mesh and Sandbox Contracts',
+      nextStage: 'R1 - Remote Mesh and Sandbox Contracts',
     },
   };
 }

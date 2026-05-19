@@ -72,7 +72,7 @@ async function main(): Promise<void> {
       ? 'staging-live smoke requires --confirm-live-io, provider config and allowlisted recipients before live send.'
       : missingDoctors.length > 0
         ? 'configured doctor found missing environment, runtime endpoint/script or recipient allowlist.'
-        : 'Phase 3 exposes configured doctors, family adapters and redacted live-send receipts.',
+        : 'Approval gate exposes configured doctors, family adapters and redacted live-send receipts.',
     entries: activationEntries,
   };
 

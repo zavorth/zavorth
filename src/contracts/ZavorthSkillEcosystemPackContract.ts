@@ -1,4 +1,4 @@
-export const ZAVORTH_SKILL_ECOSYSTEM_PACK_CONTRACT_VERSION = '2026-05-05.phase-8' as const;
+export const ZAVORTH_SKILL_ECOSYSTEM_PACK_CONTRACT_VERSION = '2026-05-05.checkpoint-8' as const;
 
 export type ZavorthSkillEcosystemStatus = 'passed' | 'failed';
 
@@ -218,6 +218,6 @@ export type ZavorthSkillEcosystemPackSnapshot = {
     inspectJson: 'npm run zavorth-skill-ecosystem-pack:json --silent';
     check: 'npm run zavorth-skill-ecosystem-pack:check --silent';
     qa: 'npm run qa:zavorth-skill-ecosystem-pack --silent';
-    nextPhase: 'Phase 9 - Full Functional Closure';
+    nextStage: 'Certification matrix - Full Functional Closure';
   };
 };

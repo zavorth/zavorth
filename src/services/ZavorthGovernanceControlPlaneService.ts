@@ -215,7 +215,7 @@ export class ZavorthGovernanceControlPlaneService {
         teams,
       },
       narrative: {
-        headline: 'Wave 7: Tenancy, governance e policy',
+        headline: 'Governance: Tenancy, governance e policy',
         operatorSummary: this.buildOperatorSummary({ tenants, trust, channels, nodes, plugins, transports, teams, posture }),
         nextAction: actions[0]?.label || 'Revisar periodicamente tenants, trust decisions e allowlists por superficie.',
       },
@@ -225,7 +225,7 @@ export class ZavorthGovernanceControlPlaneService {
   public renderReport(input: { limit?: number | null } = {}): string {
     const snapshot = this.buildSnapshot(input);
     const lines = [
-      'Wave 7: Tenancy, governance e policy',
+      'Governance: Tenancy, governance e policy',
       '',
       snapshot.narrative.operatorSummary,
       `Postura: ${snapshot.summary.posture}.`,

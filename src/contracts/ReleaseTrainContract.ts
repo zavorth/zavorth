@@ -162,7 +162,7 @@ export const RELEASE_TRAIN_VERSION_POLICIES: ReleaseTrainVersionPolicy[] = [
     lane: 'minor',
     versionPattern: 'v1.1.0',
     purpose: 'novo ciclo de feature aprovado antes de implementacao',
-    allowedScope: ['fase nova aprovada', 'docs de arquitetura', 'gate dedicado'],
+    allowedScope: ['etapa nova aprovada', 'docs de arquitetura', 'gate dedicado'],
     requiresApprovedPlanning: true,
     requiresRollback: true,
     gates: ['qa:architecture', 'qa:release-train', 'qa:phase:new-cycle'],
@@ -200,7 +200,7 @@ export const RELEASE_TRAIN_CALENDAR: ReleaseTrainCalendarItem[] = [
     cadence: 'per-minor',
     trigger: 'quando v1.1.0 ou feature train for proposto',
     owner: 'product/architecture',
-    output: 'documento de fase aprovado antes de implementacao',
+    output: 'documento de etapa aprovado antes de implementacao',
     alwaysOn: false,
   },
   {

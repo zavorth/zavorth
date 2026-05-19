@@ -3,7 +3,7 @@ import type { ProductEntryRuntimeSnapshot } from './ProductEntryRuntimeService.j
 import type { ProductizationEvidenceSnapshot } from './ProductizationEvidenceService.js';
 import type { UniversalAgentRun } from './UniversalAgentRuntimeTypes.js';
 
-export const RELEASE_INSTALLER_ROLLBACK_PATH_CONTRACT_VERSION = '2026-05-04.wave-48' as const;
+export const RELEASE_INSTALLER_ROLLBACK_PATH_CONTRACT_VERSION = '2026-05-04.release-rollback' as const;
 export const RELEASE_INSTALLER_ROLLBACK_PATH_METADATA_KEY = 'releaseInstallerRollbackPath' as const;
 
 export type ReleaseInstallerRollbackPathStatus =
@@ -436,12 +436,12 @@ export class ReleaseInstallerRollbackPathService {
       },
       {
         id: 'canary-dormant',
-        label: 'Fase 84 / canary dormente',
+        label: 'Etapa 84 / canary dormente',
         status: 'ready',
         source: 'ReleaseInstallerRollbackPathService',
         command: 'zavorth release canary --dry-run',
         detail: input.canPublishStable
-          ? 'Mesmo com stable potencial, canary real permanece dormente na Wave 48.'
+          ? 'Mesmo com stable potencial, canary real permanece dormente na Channel mesh8.'
           : 'Canary real fica bloqueado ate produto operavel e usuarios reais.',
         critical: false,
       },
@@ -481,7 +481,7 @@ export class ReleaseInstallerRollbackPathService {
         label: 'Installer dry-run',
         commandOrPath: 'zavorth release install --dry-run',
         status: installerPreviewAvailable ? 'ready' : 'needs-action',
-        detail: 'Installer nao e executado pela Wave 48.',
+        detail: 'Installer nao e executado pela Channel mesh8.',
       },
       {
         id: 'rollback-preview',
@@ -540,7 +540,7 @@ export class ReleaseInstallerRollbackPathService {
         id: 'release-path:policy',
         kind: 'policy',
         source: 'ReleaseInstallerRollbackPathService',
-        detail: 'Wave 48 nao publica release, nao executa installer e nao inicia canary.',
+        detail: 'Channel mesh8 nao publica release, nao executa installer e nao inicia canary.',
         status: 'ready',
       },
     ];
@@ -563,8 +563,8 @@ export class ReleaseInstallerRollbackPathService {
       return 'Rebaixar para preview e corrigir stable, bundle ou rollback antes de qualquer publicacao.';
     }
     if (status === 'dormant-canary') {
-      return 'Manter Fase 84 dormente ate produto operavel e usuarios reais.';
+      return 'Manter Etapa 84 dormente ate produto operavel e usuarios reais.';
     }
-    return 'Manter release em preview; use dry-run de installer e rollback antes da Wave 49.';
+    return 'Manter release em preview; use dry-run de installer e rollback antes da Channel mesh9.';
   }
 }

@@ -1,7 +1,7 @@
 import type { ParityCertificationGateStatus } from './ParityCertificationContract.js';
 import type { CanaryLaunchRehearsalSnapshot } from './CanaryLaunchRehearsalContract.js';
 
-export const ZAVORTH_CANARY_MONITORING_ROLLBACK_GATE_CONTRACT_VERSION = '2026-05-04.phase-22';
+export const ZAVORTH_CANARY_MONITORING_ROLLBACK_GATE_CONTRACT_VERSION = '2026-05-04.checkpoint-22';
 
 export type CanaryMonitoringRollbackGateStatus =
   | 'monitoring-gate-ready'
@@ -203,7 +203,7 @@ export type CanaryMonitoringRollbackGateSnapshot = {
     rollbackDryRun: string;
     focusedTests: string[];
     typecheck: string;
-    nextPhase: 'Canary promotion decision ledger';
+    nextStage: 'Canary promotion decision ledger';
   };
   policy: {
     monitoringGateOnly: true;

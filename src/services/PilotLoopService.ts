@@ -122,7 +122,7 @@ export class PilotLoopService {
 
   public renderReport(snapshot: PilotLoopSnapshot = this.buildSnapshot()): string {
     const lines: string[] = [];
-    lines.push('[pilot-loop] Fase 57 - Feedback, Support And Pilot Loop');
+    lines.push('[pilot-loop] Readiness checkpoint 7 - Feedback, Support And Pilot Loop');
     lines.push(`status: ${snapshot.status}`);
     lines.push(`ok: ${snapshot.summary.ok ? 'yes' : 'no'} | pass=${snapshot.summary.passed} warn=${snapshot.summary.warnings} fail=${snapshot.summary.failed}`);
     lines.push(`website: ${snapshot.websiteRoot}`);
@@ -137,7 +137,7 @@ export class PilotLoopService {
       }
     }
     lines.push('');
-    lines.push(`proxima fase recomendada: ${snapshot.nextRecommendedPhase.phase} - ${snapshot.nextRecommendedPhase.title}`);
+    lines.push(`proximo passo recomendada: ${snapshot.nextRecommendedPhase.phase} - ${snapshot.nextRecommendedPhase.title}`);
     lines.push(snapshot.nextRecommendedPhase.reason);
     return lines.join('\n');
   }
@@ -201,8 +201,8 @@ export class PilotLoopService {
         phrase: 'feedback-preview-redacted.json',
       },
       {
-        path: 'docs/75-public-productization-architecture.md',
-        phrase: 'Fase 52 - Feedback, Telemetry Opt-In And Product Loop',
+        path: 'docs/product-direction.md',
+        phrase: 'Readiness checkpoint 2 - Feedback, Telemetry Opt-In And Product Loop',
       },
     ];
     const missing = evidence
@@ -210,11 +210,11 @@ export class PilotLoopService {
       .map((item) => `${item.path}: ${item.phrase}`);
     return this.check(
       'pilot-loop:feedback-foundation',
-      'fundacao feedback opt-in da Fase 52',
+      'fundacao feedback opt-in da Readiness checkpoint 2',
       missing.length === 0 ? 'pass' : 'fail',
       missing.length === 0
         ? 'feedback opt-in, preview redigido, revoke/delete e ledger local ja existem como base.'
-        : 'Fase 57 depende da fundacao de feedback opt-in da Fase 52.',
+        : 'Readiness checkpoint 7 depende da fundacao de feedback opt-in da Readiness checkpoint 2.',
       undefined,
       missing,
     );
@@ -367,7 +367,7 @@ export class PilotLoopService {
       this.readWebsiteText('app/feedback/page.tsx') || '',
       this.readWebsiteText('data/feedback-loop.ts') || '',
       this.readWebsiteText('app/docs/page.tsx') || '',
-      this.readCoreText('docs/76-public-adoption-architecture.md') || '',
+      this.readCoreText('docs/product-direction.md') || '',
     ].join('\n').toLowerCase();
     const required = [
       'issue/report template',
@@ -388,7 +388,7 @@ export class PilotLoopService {
       missing.length === 0
         ? 'site/docs conectam templates, ledger, agregacao, triagem, pilotos e suporte.'
         : 'docs publicas precisam linkar support templates, triagem e pilotos.',
-      'docs/76-public-adoption-architecture.md',
+      'docs/product-direction.md',
       missing.map((term) => `faltando: ${term}`),
     );
   }
@@ -397,7 +397,7 @@ export class PilotLoopService {
     const source = [
       this.readWebsiteText('app/feedback/page.tsx') || '',
       this.readWebsiteText('data/feedback-loop.ts') || '',
-      this.readCoreText('docs/76-public-adoption-architecture.md') || '',
+      this.readCoreText('docs/product-direction.md') || '',
     ].join('\n');
     const forbiddenMatches = PILOT_LOOP_FORBIDDEN_CLAIMS.filter((claim) => source.toLowerCase().includes(String(claim).toLowerCase()));
     const tokenMatches = source.match(/(^|[^A-Za-z])sk-[A-Za-z0-9_-]{12,}/g) || [];
@@ -528,11 +528,11 @@ export class PilotLoopService {
 
   private checkDocsRunbook(): PilotLoopCheck {
     const source = [
-      this.readCoreText('docs/76-public-adoption-architecture.md') || '',
-      this.readCoreText('docs/11-roadmap.md') || '',
+      this.readCoreText('docs/product-direction.md') || '',
+      this.readCoreText('docs/product-direction.md') || '',
     ].join('\n').toLowerCase();
     const required = [
-      'fase 57',
+      'etapa 57',
       'feedback',
       'support',
       'pilot loop',
@@ -545,31 +545,31 @@ export class PilotLoopService {
     const missing = required.filter((term) => !source.includes(term));
     return this.check(
       'pilot-loop:docs-runbook',
-      'documentacao e runbook da Fase 57',
+      'documentacao e runbook da Readiness checkpoint 7',
       missing.length === 0 ? 'pass' : 'fail',
       missing.length === 0
-        ? 'docs explicam feedback, suporte, pilotos, triagem, ledger e gates da Fase 57.'
+        ? 'docs explicam feedback, suporte, pilotos, triagem, ledger e gates da Readiness checkpoint 7.'
         : 'docs precisam explicar como operar o pilot loop.',
-      'docs/76-public-adoption-architecture.md',
+      'docs/product-direction.md',
       missing.map((term) => `faltando: ${term}`),
     );
   }
 
   private checkNextPhasePlanning(): PilotLoopCheck {
     const source = [
-      this.readCoreText('docs/76-public-adoption-architecture.md') || '',
-      this.readCoreText('docs/11-roadmap.md') || '',
+      this.readCoreText('docs/product-direction.md') || '',
+      this.readCoreText('docs/product-direction.md') || '',
     ].join('\n');
-    const missing = ['Fase 58 - Integration Showcase And Partner Surface', 'qa:phase:58']
+    const missing = ['Readiness checkpoint 8 - Integration Showcase And Partner Surface', 'qa:phase:58']
       .filter((term) => !source.includes(term));
     return this.check(
       'pilot-loop:next-phase',
-      'recomendacao para Fase 58',
+      'recomendacao para Readiness checkpoint 8',
       missing.length === 0 ? 'pass' : 'fail',
       missing.length === 0
-        ? 'Fase 57 aponta explicitamente para integration showcase e partner surface.'
-        : 'Fase 57 precisa deixar a Fase 58 como proxima acao.',
-      'docs/76-public-adoption-architecture.md',
+        ? 'Readiness checkpoint 7 aponta explicitamente para integration showcase e partner surface.'
+        : 'Readiness checkpoint 7 precisa deixar a Readiness checkpoint 8 como proxima acao.',
+      'docs/product-direction.md',
       missing,
     );
   }

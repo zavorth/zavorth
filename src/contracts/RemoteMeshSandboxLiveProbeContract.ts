@@ -125,6 +125,6 @@ export type RemoteMeshSandboxLiveProbeSnapshot = {
     check: 'npm run remote-mesh:sandbox:live-probe --silent';
     focusedTests: 'npx jest tests/services/RemoteMeshSandboxLiveProbeExecutorService.test.ts --runInBand';
     typecheck: 'npm run runtime:check --silent';
-    nextPhase: 'R6 - Remote Session Timeline and Audit Surface';
+    nextStage: 'R6 - Remote Session Timeline and Audit Surface';
   };
 };

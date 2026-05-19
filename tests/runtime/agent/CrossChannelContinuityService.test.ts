@@ -4,7 +4,7 @@ import {
   CrossChannelContinuityService,
 } from '../../../src/runtime/agent/index.js';
 
-describe('CrossChannelContinuityService Wave 41', () => {
+describe('CrossChannelContinuityService Channel mesh1', () => {
   it('builds bridged continuity with approval-first handoffs without sending messages', () => {
     const run = new AgentRunService({
       now: () => new Date('2026-05-04T00:41:00.000Z'),

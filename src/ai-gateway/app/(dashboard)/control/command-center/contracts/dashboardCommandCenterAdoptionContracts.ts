@@ -259,14 +259,14 @@ export type DashboardPublicAdoptionPilotLoopSnapshot = {
   pilot: {
     contractLinked: boolean;
     contractStatus: "ready" | "attention" | "blocked" | "unknown";
-    phase: string | null;
+    stage: string | null;
     artifactDir: string | null;
     templateCount: number;
     triageRuleCount: number;
     ledgerEntryCount: number;
     supportPolicyCount: number;
     dashboardMetricCount: number;
-    nextPhase: string | null;
+    nextStage: string | null;
   };
   artifacts: {
     feedbackPreviewPath: string | null;
@@ -375,14 +375,14 @@ export type DashboardIntegrationShowcasePartnerSurfaceSnapshot = {
   showcase: {
     contractLinked: boolean;
     contractStatus: "ready" | "attention" | "blocked" | "unknown";
-    phase: string | null;
+    stage: string | null;
     routeCount: number;
     integrationCount: number;
     vendorCount: number;
     fixtureReadyCount: number;
     credentialModeCount: number;
     formalPartnersRegistered: number;
-    nextPhase: string | null;
+    nextStage: string | null;
   };
   artifacts: {
     smokePath: string | null;

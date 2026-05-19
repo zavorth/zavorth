@@ -31,12 +31,12 @@ const rules = [
   }),
   ruleContainsAll({
     id: 'satellite-device-live-contract',
-    label: 'Contract defines Phase 11 vocabulary',
-    target: 'Contract captures targets, device capabilities, gates, receipts and Phase 12 handoff',
+    label: 'Contract defines Intent model1 vocabulary',
+    target: 'Contract captures targets, device capabilities, gates, receipts and Intent model2 handoff',
     files: ['src/contracts/SatelliteDeviceLivePlaneContract.ts'],
     needles: [
       'ZAVORTH_SATELLITE_DEVICE_LIVE_PLANE_CONTRACT_VERSION',
-      '2026-05-05.live-phase-11',
+      '2026-05-05.live-checkpoint-11',
       'device-pair',
       'phone-control',
       'bonjour',
@@ -47,7 +47,7 @@ const rules = [
       'webauthn-confirmation',
       'offline-queue',
       'unsupportedNativeApisHidden: false',
-      'Phase 12 - Memory, Artifacts And Runtime Executor Live Closure',
+      'Intent model2 - Memory, Artifacts And Runtime Executor Live Closure',
     ],
   }),
   ruleContainsAll({
@@ -130,11 +130,11 @@ const rules = [
   ruleContainsAll({
     id: 'satellite-device-readiness',
     label: 'Live readiness promotes device.invoke',
-    target: 'device.invoke is partial-live with Phase 11 gates',
+    target: 'device.invoke is partial-live with Intent model1 gates',
     files: ['src/services/LiveReadinessService.ts'],
     needles: [
       'device.invoke',
-      'Phase 11 - Satellite and Device Live Activation',
+      'Intent model1 - Satellite and Device Live Activation',
       'src/services/SatelliteDeviceLiveService.ts',
     ],
   }),
@@ -151,11 +151,11 @@ const rules = [
   }),
   ruleContainsAll({
     id: 'satellite-device-tests',
-    label: 'Tests prove Phase 11 behavior',
+    label: 'Tests prove Intent model1 behavior',
     target: 'Tests cover snapshot, live paired phone proof, sensitive approval, offline queue and explicit native decisions',
     files: ['tests/services/SatelliteDeviceLivePlaneService.test.ts'],
     needles: [
-      'closes Phase 11 Satellite and device gates',
+      'closes Intent model1 Satellite and device gates',
       'pairs a browser phone and invokes camera, location and confirmation',
       'blocks sensitive device invokes unless the allowlist approves them',
       'delivers offline queue work on the next heartbeat',
@@ -164,8 +164,8 @@ const rules = [
   }),
   ruleContainsAll({
     id: 'satellite-device-package',
-    label: 'Package exposes Phase 11 scripts',
-    target: 'Phase 11 can be run through package scripts',
+    label: 'Package exposes Intent model1 scripts',
+    target: 'Intent model1 can be run through package scripts',
     files: ['package.json'],
     needles: [
       'satellite-device-live-plane',
@@ -175,8 +175,8 @@ const rules = [
   }),
   ruleContainsAll({
     id: 'satellite-device-sdk',
-    label: 'SDK exposes Phase 11 contracts and services',
-    target: 'Phase 11 contracts can be imported from SDK contract barrel',
+    label: 'SDK exposes Intent model1 contracts and services',
+    target: 'Intent model1 contracts can be imported from SDK contract barrel',
     files: ['src/sdk/contracts.ts'],
     needles: [
       'SatelliteDeviceLivePlane',
@@ -184,8 +184,8 @@ const rules = [
   }),
   ruleContainsAll({
     id: 'satellite-device-sdk-services',
-    label: 'SDK exposes Phase 11 services',
-    target: 'Phase 11 services can be imported from SDK index',
+    label: 'SDK exposes Intent model1 services',
+    target: 'Intent model1 services can be imported from SDK index',
     files: ['src/sdk/index.ts'],
     needles: [
       'SatelliteDeviceLivePlaneService',
@@ -194,11 +194,11 @@ const rules = [
   }),
   ruleContainsAll({
     id: 'satellite-device-doc',
-    label: 'Docs record Phase 11 closure',
-    target: 'Phase 11 documentation explains pairing, heartbeat, phone controls, approvals, offline queue and native decisions',
+    label: 'Docs record Intent model1 closure',
+    target: 'Intent model1 documentation explains pairing, heartbeat, phone controls, approvals, offline queue and native decisions',
     files: ['docs/README.md'],
     needles: [
-      'Phase 11',
+      'Intent model1',
       'Satellite And Device Live Plane',
       'pairing',
       'heartbeat',
@@ -227,7 +227,7 @@ const snapshot = {
 if (asJson) {
   console.log(JSON.stringify(snapshot, null, 2));
 } else {
-  console.log('[satellite-device-live-plane] checking Phase 11');
+  console.log('[satellite-device-live-plane] checking Intent model1');
   for (const rule of rules) {
     const marker = rule.status === 'passed' ? 'ok' : 'fail';
     console.log(`[satellite-device-live-plane] ${marker} ${rule.label}: ${rule.observed} | ${rule.target}`);

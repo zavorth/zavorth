@@ -94,7 +94,7 @@ const snapshot = {
 if (asJson) {
   console.log(JSON.stringify(snapshot, null, 2));
 } else {
-  console.log('[provider-mesh-parity] checking Phase 4');
+  console.log('[provider-mesh-parity] checking Connector registry');
   for (const rule of rules) {
     const marker = rule.status === 'passed' ? 'ok' : 'fail';
     console.log(`[provider-mesh-parity] ${marker} ${rule.label}: ${rule.observed} | ${rule.target}`);

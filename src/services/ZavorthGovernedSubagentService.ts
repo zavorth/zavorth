@@ -319,14 +319,14 @@ export class ZavorthGovernedSubagentService {
         previewJson: 'npm run zavorth:governed-subagents:json',
         prepareDeveloper: 'npm run zavorth:governed-subagents -- --preset developer --prepare',
         check: 'npm run zavorth:governed-subagents:check --silent',
-        nextPhase: 'Phase 3 - Large Skill Absorption Pipeline',
+        nextStage: 'Approval gate - Large Skill Absorption Pipeline',
       },
     };
   }
 
   public formatSnapshotText(snapshot: ZavorthGovernedSubagentSnapshot): string {
     const lines = [
-      'Zavorth Governed Subagents - Phase 2',
+      'Zavorth Governed Subagents - Preview engine',
       '',
       `Status: ${snapshot.status}`,
       `Preset: ${snapshot.selectedPreset}`,
@@ -351,7 +351,7 @@ export class ZavorthGovernedSubagentService {
     lines.push('- compiler-only; no subagents launched');
     lines.push('- no tools invoked and no workspace mutation');
     lines.push('- launch requires user approval, Policy Broker, budget and receipts');
-    lines.push('', `Next: ${snapshot.commands.nextPhase}`);
+    lines.push('', `Next: ${snapshot.commands.nextStage}`);
     return lines.join('\n');
   }
 
@@ -440,7 +440,7 @@ export class ZavorthGovernedSubagentService {
       deniedPaths: input.profile.deniedPaths,
       requiresApproval: true,
       policyTags: [
-        'governed-subagent-phase-2',
+        'governed-subagent-checkpoint-2',
         `native-preset:${input.selectedPreset}`,
         `native-role:${input.profile.id}`,
       ],

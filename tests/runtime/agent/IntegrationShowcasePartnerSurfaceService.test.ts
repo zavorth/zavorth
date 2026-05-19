@@ -26,7 +26,7 @@ function createRun(metadata: Record<string, unknown> = {}) {
 
 function pilotReady() {
   return {
-    contractVersion: '2026-05-04.wave-51',
+    contractVersion: '2026-05-04.adoption-pilot',
     source: 'PublicAdoptionPilotLoopService',
     status: 'pilot-ready',
     surface: {
@@ -59,7 +59,7 @@ function matrix(id: string) {
 
 function integrationShowcase(overrides: Record<string, unknown> = {}) {
   return {
-    phase: '58',
+    stage: '58',
     surface: 'integration-showcase',
     generatedAt: '2026-05-04T05:52:00.000Z',
     status: 'ready',
@@ -87,12 +87,12 @@ function integrationShowcase(overrides: Record<string, unknown> = {}) {
       { id: 'integration-showcase:matrix-artifact', status: 'pass' },
       { id: 'integration-showcase:partner-artifact', status: 'pass' },
     ],
-    nextRecommendedPhase: { phase: '59', title: 'Release Train', reason: 'release readiness' },
+    nextRecommendedStage: { stage: '59', title: 'Release Train', reason: 'release readiness' },
     ...overrides,
   };
 }
 
-describe('IntegrationShowcasePartnerSurfaceService Wave 52', () => {
+describe('IntegrationShowcasePartnerSurfaceService Integration Showcase', () => {
   it('publishes fixture-first integration showcase without formal partner claims', () => {
     const run = createRun();
     run.metadata.publicAdoptionPilotLoop = pilotReady();
@@ -150,7 +150,7 @@ describe('IntegrationShowcasePartnerSurfaceService Wave 52', () => {
 
     expect(snapshot.status).toBe('needs-public-adoption-pilot-loop');
     expect(snapshot.readiness.publicAdoptionPilotLoopReady).toBe(false);
-    expect(snapshot.nextSafeAction).toContain('Wave 51');
+    expect(snapshot.nextSafeAction).toContain('Public Adoption Pilot');
   });
 
   it('blocks unsafe formal partner claims without registry proof', () => {

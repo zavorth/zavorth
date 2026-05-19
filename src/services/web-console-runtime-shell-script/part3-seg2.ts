@@ -268,7 +268,7 @@ export const runtimeShellScriptPart3Seg2: string = [
     "      governanceControlPlaneSummary,",
     "      protectedShellUnlocked",
     "        ? 'O consolidado de governance ainda nao respondeu neste runtime.'",
-    "        : 'A postura consolidada da Wave 7 aparece aqui assim que o shell protegido for liberado.',",
+    "        : 'A postura consolidada da Governance aparece aqui assim que o shell protegido for liberado.',",
     "    );",
     "    setText(governanceControlPlaneTenantsState, 'Sem leitura');",
     "    setText(governanceControlPlaneTenantsSummary, 'Tenants compartilhados, pessoais, onboarding e public servers aparecem aqui.');",

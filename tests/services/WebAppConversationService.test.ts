@@ -193,7 +193,7 @@ describe('WebAppConversationService natural-first routing', () => {
       chatId: 'web:session-web-gateway',
       text: 'me explique o plano atual',
       metadata: expect.objectContaining({
-        phase: 'legacy-unified-conversation-fallback-v1',
+        stage: 'legacy-unified-conversation-fallback-v1',
         sessionId: 'session-web-gateway',
       }),
     }));
@@ -447,7 +447,7 @@ describe('WebAppConversationService natural-first routing', () => {
     }));
     expect(realtime.recordAssistantMessage).toHaveBeenCalledWith(
       'session-command-center-skill',
-      expect.stringContaining('Capability Negotiation - Wave 35'),
+      expect.stringContaining('Capability Negotiation - Capability Negotiation'),
       null,
       'universal-agent-runtime',
     );
@@ -649,7 +649,7 @@ describe('WebAppConversationService natural-first routing', () => {
     }));
     expect(realtime.recordAssistantMessage).toHaveBeenCalledWith(
       'session-command-center',
-      expect.stringContaining('Capability Negotiation - Wave 35'),
+      expect.stringContaining('Capability Negotiation - Capability Negotiation'),
       null,
       'universal-agent-runtime',
     );
@@ -713,7 +713,7 @@ describe('WebAppConversationService natural-first routing', () => {
     expect(result.taskId).toBeNull();
     expect(realtime.recordAssistantMessage).toHaveBeenCalledWith(
       'session-command-center-risk',
-      expect.stringContaining('Capability Negotiation - Wave 35'),
+      expect.stringContaining('Capability Negotiation - Capability Negotiation'),
       null,
       'universal-agent-runtime',
     );

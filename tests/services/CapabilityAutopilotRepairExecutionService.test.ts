@@ -167,7 +167,7 @@ describe('CapabilityAutopilotRepairExecutionService', () => {
       permissionStatus: 'pending',
       validationRuns: [],
       metadata: {
-        phase: 'capability-autopilot-phase-62',
+        stage: 'capability-autopilot-checkpoint-62',
       },
     });
     expect(result.steps[0]).toMatchObject({

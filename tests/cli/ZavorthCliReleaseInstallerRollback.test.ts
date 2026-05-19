@@ -20,7 +20,7 @@ function createFlags(json: boolean) {
   };
 }
 
-describe('Zavorth CLI Release Installer Rollback Wave 48', () => {
+describe('Zavorth CLI Release Installer Rollback Channel mesh8', () => {
   it('parses release-path text after aliases', () => {
     expect(resolveReleaseInstallerRollbackCliText('release-path "preparar installer"')).toBe('preparar installer');
     expect(resolveReleaseInstallerRollbackCliText('release-installer latest')).toBe('');
@@ -47,7 +47,7 @@ describe('Zavorth CLI Release Installer Rollback Wave 48', () => {
     }));
     const payload = JSON.parse(writes[0] || '{}');
     expect(payload).toEqual(expect.objectContaining({
-      contractVersion: '2026-05-04.wave-48',
+      contractVersion: '2026-05-04.release-rollback',
       source: 'ReleaseInstallerRollbackPathService',
       status: 'preview-ready',
       release: expect.objectContaining({
@@ -83,7 +83,7 @@ describe('Zavorth CLI Release Installer Rollback Wave 48', () => {
 
     const text = formatReleaseInstallerRollbackSnapshot(snapshot);
 
-    expect(text).toContain('Release / Installer / Rollback Path - Wave 48');
+    expect(text).toContain('Release / Installer / Rollback Path - Channel mesh8');
     expect(text).toContain('release nao foi publicado');
     expect(text).toContain('rollback exige comando explicito');
     expect(text).toContain('Command Center: /control?runId=');

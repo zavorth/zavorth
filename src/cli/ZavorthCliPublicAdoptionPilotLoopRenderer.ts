@@ -100,7 +100,7 @@ export function formatPublicAdoptionPilotLoopSnapshot(
   snapshot: PublicAdoptionPilotLoopSnapshot,
 ): string {
   const lines = [
-    'Public Adoption / Pilot Feedback Loop - Wave 51',
+    'Public Adoption / Pilot Feedback Loop - Public Adoption Pilot',
     `- contrato: ${snapshot.contractVersion}`,
     `- run: ${snapshot.identifiers.runId}`,
     `- sessao: ${snapshot.identifiers.sessionId}`,
@@ -162,7 +162,7 @@ function buildPublicAdoptionPilotLoopFixtureMetadata() {
   return {
     productizationContract: {
       source: 'ZavorthProductizationContractService',
-      phase: 'C9',
+      stage: 'C9',
       status: 'ready',
       control: { ready: true },
       cli: { ready: true },
@@ -177,7 +177,7 @@ function buildPublicAdoptionPilotLoopFixtureMetadata() {
       rollbackAvailable: true,
     },
     websitePublic: {
-      phase: '46',
+      stage: '46',
       surface: 'website-public',
       generatedAt: '2026-05-04T04:51:00.000Z',
       status: 'ready',
@@ -193,7 +193,7 @@ function buildPublicAdoptionPilotLoopFixtureMetadata() {
       checks: [],
     },
     publicDocsRecipes: {
-      phase: '56',
+      stage: '56',
       surface: 'public-docs-recipes',
       generatedAt: '2026-05-04T04:51:00.000Z',
       status: 'ready',
@@ -216,7 +216,7 @@ function buildPublicAdoptionPilotLoopFixtureMetadata() {
       checks: [],
     },
     publicDemo: {
-      phase: '47',
+      stage: '47',
       surface: 'public-demo',
       generatedAt: '2026-05-04T04:51:00.000Z',
       status: 'ready',
@@ -230,7 +230,7 @@ function buildPublicAdoptionPilotLoopFixtureMetadata() {
       checks: [],
     },
     publicReleaseBundle: {
-      phase: '51',
+      stage: '51',
       surface: 'release-bundle',
       generatedAt: '2026-05-04T04:51:00.000Z',
       status: 'ready',
@@ -243,7 +243,7 @@ function buildPublicAdoptionPilotLoopFixtureMetadata() {
       checks: [],
     },
     feedbackTelemetry: {
-      phase: '52',
+      stage: '52',
       surface: 'feedback-loop',
       generatedAt: '2026-05-04T04:51:00.000Z',
       status: 'ready',
@@ -262,14 +262,14 @@ function buildPublicAdoptionPilotLoopFixtureMetadata() {
           evidence: ['product-feedback-ledger.json', 'feedback-preview-redacted.json', 'issue/report template'],
         },
       ],
-      nextRecommendedPhase: {
-        phase: 'complete',
+      nextRecommendedStage: {
+        stage: 'complete',
         title: 'Product feedback loop ready',
         reason: 'opt-in preview sem envio externo',
       },
     },
     pilotLoop: {
-      phase: '57',
+      stage: '57',
       surface: 'pilot-loop',
       generatedAt: '2026-05-04T04:51:00.000Z',
       status: 'ready',
@@ -316,8 +316,8 @@ function buildPublicAdoptionPilotLoopFixtureMetadata() {
         { id: 'pilot-loop:pilot-ledger', title: 'ledger local de pilotos', status: 'pass', reason: 'ledger local sem payload', evidence: ['pilot-ledger.json'] },
         { id: 'pilot-loop:dashboard', title: 'dashboard agregado de suporte', status: 'pass', reason: 'dashboard agregado sem payload', evidence: ['support-dashboard.json'] },
       ],
-      nextRecommendedPhase: {
-        phase: '58',
+      nextRecommendedStage: {
+        stage: '58',
         title: 'Integration Showcase And Partner Surface',
         reason: 'mostrar integracoes com fixture e degradacao segura',
       },

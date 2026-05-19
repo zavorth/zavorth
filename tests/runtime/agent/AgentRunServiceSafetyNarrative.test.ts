@@ -9,7 +9,7 @@ function createIdFactory() {
   return (prefix: string) => `${prefix}-safety-narrative-${++index}`;
 }
 
-describe('AgentRunService Safety Narrative Wave 31', () => {
+describe('AgentRunService Safety Narrative Safety Narrative', () => {
   it('attaches safety narrative when dangerous tools wait for approval', async () => {
     const executor = jest.fn<ReturnType<UniversalAgentExecutor>, Parameters<UniversalAgentExecutor>>();
     const service = new AgentRunService({

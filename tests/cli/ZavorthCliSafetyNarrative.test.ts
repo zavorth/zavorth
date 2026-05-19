@@ -46,7 +46,7 @@ describe('Zavorth CLI Safety Narrative', () => {
     }));
     const payload = JSON.parse(writes[0] || '{}');
     expect(payload).toEqual(expect.objectContaining({
-      contractVersion: '2026-05-03.wave-31',
+      contractVersion: '2026-05-03.safety-narrative',
       highRiskBlockPresent: true,
       policy: expect.objectContaining({
         alternativesDoNotExecute: true,
@@ -65,7 +65,7 @@ describe('Zavorth CLI Safety Narrative', () => {
 
     const text = formatSafetyNarrativeSnapshot(snapshot);
 
-    expect(text).toContain('Safety Narrative - Wave 31');
+    expect(text).toContain('Safety Narrative - Safety Narrative');
     expect(text).toContain('Alternativas seguras');
     expect(text).toContain('Command Center: /control?sector=overview');
   });

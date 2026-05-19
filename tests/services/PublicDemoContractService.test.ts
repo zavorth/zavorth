@@ -1,7 +1,7 @@
 import { PublicDemoContractService } from '../../src/services/PublicDemoContractService';
 
 describe('PublicDemoContractService', () => {
-  it('builds an ok Phase 47 snapshot from the demo fixture contract', () => {
+  it('builds an ok Connector registry7 snapshot from the demo fixture contract', () => {
     const service = serviceFromFixture();
     const snapshot = service.buildSnapshot();
 
@@ -10,8 +10,8 @@ describe('PublicDemoContractService', () => {
     expect(snapshot.summary.ok).toBe(true);
     expect(snapshot.status).toBe('ready');
     expect(snapshot.route).toBe('/demo');
-    expect(snapshot.nextRecommendedPhase).toEqual(expect.objectContaining({
-      phase: '48',
+    expect(snapshot.nextRecommendedStage).toEqual(expect.objectContaining({
+      stage: '48',
       title: 'Public Onboarding And First Run',
     }));
   });
@@ -39,7 +39,7 @@ describe('PublicDemoContractService', () => {
       'website:components/CTASection.tsx': '',
       'website:components/Footer.tsx': '',
       'website:app/docs/page.tsx': '<section id="demo">roteiro</section>',
-      'website:app/changelog/page.tsx': 'Fase 47',
+      'website:app/changelog/page.tsx': 'Etapa 47',
     });
 
     const snapshot = service.buildSnapshot();
@@ -57,8 +57,8 @@ describe('PublicDemoContractService', () => {
     const service = serviceFromFixture();
     const report = service.renderReport();
 
-    expect(report).toContain('Fase 47 - Public Demo And Guided Story');
-    expect(report).toContain('proxima fase recomendada: 48 - Public Onboarding And First Run');
+    expect(report).toContain('Etapa 47 - Public Demo And Guided Story');
+    expect(report).toContain('proximo passo recomendada: 48 - Public Onboarding And First Run');
   });
 });
 
@@ -79,7 +79,7 @@ function filesFixture(overrides: Record<string, string> = {}) {
       scripts: {
         'public-demo': 'npx tsx scripts/public-demo.ts',
         'qa:public-demo': 'npx tsx scripts/public-demo.ts --require-pass --build --screenshots',
-        'qa:phase:47': 'node scripts/phases-46-52-check.mjs --phase=47',
+        'qa:stage:47': 'node scripts/capability-suite-adoption-check.mjs --phase=47',
       },
     }),
     'website:package.json': JSON.stringify({
@@ -104,7 +104,7 @@ function filesFixture(overrides: Record<string, string> = {}) {
     'website:components/CTASection.tsx': '<a href="/demo">Demo</a>',
     'website:components/Footer.tsx': '<a href="/demo">Demo</a>',
     'website:app/docs/page.tsx': '<section id="demo"><a href="/demo">/demo</a></section>',
-    'website:app/changelog/page.tsx': 'Fase 47 /docs#demo',
+    'website:app/changelog/page.tsx': 'Etapa 47 /docs#demo',
     ...overrides,
   };
 }

@@ -3,7 +3,7 @@ import * as path from 'path';
 import * as os from 'os';
 import { extractVisionPayload } from '../../src/orchestrator/graph/SupervisorGraph';
 
-describe('extractVisionPayload (Phase 8 - Vision In The Loop)', () => {
+describe('extractVisionPayload (Dashboard controls - Vision In The Loop)', () => {
   let tempDir: string;
   let testPng: string;
   let testJpg: string;

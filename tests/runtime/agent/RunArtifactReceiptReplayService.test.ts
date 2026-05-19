@@ -9,7 +9,7 @@ function createIdFactory() {
   return (prefix: string) => `${prefix}-replay-hardening-${++index}`;
 }
 
-describe('RunArtifactReceiptReplayService Wave 45', () => {
+describe('RunArtifactReceiptReplayService Channel mesh5', () => {
   it('builds a receipts-only replay snapshot across run, artifacts, and feature metadata', () => {
     const run = new AgentRunService({
       now: () => new Date('2026-05-04T00:45:00.000Z'),
@@ -24,7 +24,7 @@ describe('RunArtifactReceiptReplayService Wave 45', () => {
       metadata: {
         artifactMemory: {
           source: 'ArtifactMemoryService',
-          contractVersion: '2026-05-03.wave-38',
+          contractVersion: '2026-05-03.track-38',
           status: 'ready',
           entries: [
             {
@@ -50,7 +50,7 @@ describe('RunArtifactReceiptReplayService Wave 45', () => {
         },
         memoryWithReceipts: {
           source: 'MemoryWithReceiptsService',
-          contractVersion: '2026-05-03.wave-32',
+          contractVersion: '2026-05-03.memory-receipts',
           receipts: [
             {
               id: 'memory:artifact-replay-plan',
@@ -63,7 +63,7 @@ describe('RunArtifactReceiptReplayService Wave 45', () => {
         },
         providerMeshConsolidation: {
           source: 'ProviderMeshConsolidationService',
-          contractVersion: '2026-05-04.wave-43',
+          contractVersion: '2026-05-04.provider-mesh',
           status: 'ready',
           receipts: [
             {
@@ -77,7 +77,7 @@ describe('RunArtifactReceiptReplayService Wave 45', () => {
         },
         universalIntentTrustEnforcement: {
           source: 'UniversalIntentTrustEnforcementService',
-          contractVersion: '2026-05-04.wave-44',
+          contractVersion: '2026-05-04.trust-enforcement',
           status: 'allow',
           receipts: [
             {

@@ -78,7 +78,7 @@ export class WorkflowRunService {
     workflow: WorkflowKind,
     objective: string,
     workspace: string,
-    stages: WorkflowStageDefinition[],
+    phases: WorkflowStageDefinition[],
     workspaceContext?: WorkflowWorkspaceContext | null,
     options: WorkflowRunCreateOptions = {},
   ): WorkflowRunSnapshot {
@@ -100,12 +100,12 @@ export class WorkflowRunService {
       operator_closed_at: null,
       operator_close_reason: null,
       operator_closed_by_surface: null,
-      stages: stages.map((stage, index) => ({
-        id: stage.id,
-        label: stage.label,
-        executor: stage.executor,
-        role: stage.role,
-        strategy_note: stage.strategy_note || null,
+      phases: phases.map((phase, index) => ({
+        id: phase.id,
+        label: phase.label,
+        executor: phase.executor,
+        role: phase.role,
+        strategy_note: phase.strategy_note || null,
         index,
         status: "pending",
         task_id: null,
@@ -155,38 +155,38 @@ export class WorkflowRunService {
     handoffSummary: string | null,
     taskId?: string | null,
   ): void {
-    const stage = run.stages.find((entry) => entry.id === stageId);
-    if (!stage) {
+    const phase = run.phases.find((entry) => entry.id === stageId);
+    if (!phase) {
       return;
     }
 
     const now = this.now().toISOString();
-    stage.status = "running";
-    stage.task_id = String(taskId || "").trim() || stage.task_id || null;
-    stage.attempt_count = Math.max(0, Number(stage.attempt_count || 0)) + 1;
-    stage.objective = objective;
-    stage.handoff_summary = handoffSummary || null;
-    stage.started_at = stage.started_at || now;
-    stage.finished_at = null;
-    stage.result_summary = null;
+    phase.status = "running";
+    phase.task_id = String(taskId || "").trim() || phase.task_id || null;
+    phase.attempt_count = Math.max(0, Number(phase.attempt_count || 0)) + 1;
+    phase.objective = objective;
+    phase.handoff_summary = handoffSummary || null;
+    phase.started_at = phase.started_at || now;
+    phase.finished_at = null;
+    phase.result_summary = null;
     run.updated_at = now;
     this.syncRunDerivedState(run);
     this.appendLifecycle(
       run,
       this.buildWorkflowLifecycleRecord(run, {
         kind: "execution",
-        id: this.buildStageExecutionId(run, stage),
+        id: this.buildStageExecutionId(run, phase),
         status: "running",
-        summary: `Etapa ${stage.label} iniciada.`,
+        summary: `Etapa ${phase.label} iniciada.`,
         at: now,
         parentId: run.workflow_run_id,
         metadata: {
           event: "stage_started",
-          stageId: stage.id,
-          stageLabel: stage.label,
-          executor: stage.executor,
-          attemptCount: stage.attempt_count,
-          taskId: stage.task_id,
+          stageId: phase.id,
+          stageLabel: phase.label,
+          executor: phase.executor,
+          attemptCount: phase.attempt_count,
+          taskId: phase.task_id,
           objective,
         },
       }),
@@ -200,47 +200,47 @@ export class WorkflowRunService {
     result: ExecutionResult,
     summary: string,
   ): void {
-    const stage = run.stages.find((entry) => entry.id === stageId);
-    if (!stage) {
+    const phase = run.phases.find((entry) => entry.id === stageId);
+    if (!phase) {
       return;
     }
 
     const now = this.now().toISOString();
-    stage.status = "completed";
-    stage.task_id =
-      String(result.task_id || "").trim() || stage.task_id || null;
-    stage.finished_at = now;
-    stage.result_summary = summary;
+    phase.status = "completed";
+    phase.task_id =
+      String(result.task_id || "").trim() || phase.task_id || null;
+    phase.finished_at = now;
+    phase.result_summary = summary;
     const normalizedArtifacts = this.artifactPipeline.normalizeArtifacts(
       Array.isArray(result.artifacts) ? result.artifacts : [],
-      stage.executor,
+      phase.executor,
     );
-    stage.artifact_count = normalizedArtifacts.length;
+    phase.artifact_count = normalizedArtifacts.length;
     run.artifacts = this.artifactPipeline.normalizeArtifacts(
       [...run.artifacts, ...normalizedArtifacts],
       "workflow",
     );
     run.artifacts_manifest = this.artifactPipeline.buildManifest(
       run.artifacts,
-      this.buildRunArtifactContext(run, stage.executor),
+      this.buildRunArtifactContext(run, phase.executor),
     );
     run.updated_at = now;
     this.syncRunDerivedState(run);
     this.appendLifecycle(run, [
       this.buildWorkflowLifecycleRecord(run, {
         kind: "execution",
-        id: this.buildStageExecutionId(run, stage),
+        id: this.buildStageExecutionId(run, phase),
         status: "completed",
-        summary: `Etapa ${stage.label} concluida.`,
+        summary: `Etapa ${phase.label} concluida.`,
         at: now,
         parentId: run.workflow_run_id,
         metadata: {
           event: "stage_completed",
-          stageId: stage.id,
-          stageLabel: stage.label,
-          executor: stage.executor,
-          attemptCount: stage.attempt_count,
-          taskId: stage.task_id,
+          stageId: phase.id,
+          stageLabel: phase.label,
+          executor: phase.executor,
+          attemptCount: phase.attempt_count,
+          taskId: phase.task_id,
           artifactCount: normalizedArtifacts.length,
           executionId: String(result.execution_id || "").trim() || null,
         },
@@ -255,8 +255,8 @@ export class WorkflowRunService {
         at: now,
         metadata: {
           event: "stage_completed",
-          stageId: stage.id,
-          stageLabel: stage.label,
+          stageId: phase.id,
+          stageLabel: phase.label,
         },
       }),
     ]);
@@ -273,43 +273,43 @@ export class WorkflowRunService {
       taskId?: string | null;
     },
   ): void {
-    const stage = run.stages.find((entry) => entry.id === stageId);
-    if (!stage) {
+    const phase = run.phases.find((entry) => entry.id === stageId);
+    if (!phase) {
       return;
     }
 
     const now = this.now().toISOString();
-    stage.status = "completed";
-    stage.task_id = String(input.taskId || "").trim() || stage.task_id || null;
-    stage.attempt_count = Math.max(1, Number(stage.attempt_count || 0) || 0);
-    stage.objective =
-      String(input.objective || "").trim() || stage.objective || null;
-    stage.handoff_summary =
+    phase.status = "completed";
+    phase.task_id = String(input.taskId || "").trim() || phase.task_id || null;
+    phase.attempt_count = Math.max(1, Number(phase.attempt_count || 0) || 0);
+    phase.objective =
+      String(input.objective || "").trim() || phase.objective || null;
+    phase.handoff_summary =
       String(input.handoffSummary || "").trim() ||
-      stage.handoff_summary ||
+      phase.handoff_summary ||
       null;
-    stage.started_at = stage.started_at || now;
-    stage.finished_at = now;
-    stage.result_summary =
-      String(input.summary || "").trim() || stage.result_summary || null;
-    stage.artifact_count = stage.artifact_count || 0;
+    phase.started_at = phase.started_at || now;
+    phase.finished_at = now;
+    phase.result_summary =
+      String(input.summary || "").trim() || phase.result_summary || null;
+    phase.artifact_count = phase.artifact_count || 0;
     run.updated_at = now;
     this.syncRunDerivedState(run);
     this.appendLifecycle(run, [
       this.buildWorkflowLifecycleRecord(run, {
         kind: "execution",
-        id: this.buildStageExecutionId(run, stage),
+        id: this.buildStageExecutionId(run, phase),
         status: "completed",
-        summary: `Etapa ${stage.label} seeded como concluida.`,
+        summary: `Etapa ${phase.label} seeded como concluida.`,
         at: now,
         parentId: run.workflow_run_id,
         metadata: {
           event: "stage_seeded_completed",
-          stageId: stage.id,
-          stageLabel: stage.label,
-          executor: stage.executor,
-          attemptCount: stage.attempt_count,
-          taskId: stage.task_id,
+          stageId: phase.id,
+          stageLabel: phase.label,
+          executor: phase.executor,
+          attemptCount: phase.attempt_count,
+          taskId: phase.task_id,
         },
       }),
       this.buildWorkflowLifecycleRecord(run, {
@@ -322,7 +322,7 @@ export class WorkflowRunService {
         at: now,
         metadata: {
           event: "stage_seeded_completed",
-          stageId: stage.id,
+          stageId: phase.id,
         },
       }),
     ]);
@@ -403,14 +403,14 @@ export class WorkflowRunService {
 
   public buildTaskMetadata(
     run: WorkflowRunSnapshot,
-    stage: WorkflowStageDefinition,
+    phase: WorkflowStageDefinition,
     stageIndex: number,
     handoffSummary: string | null,
     workspaceContext?: WorkflowWorkspaceContext | null,
   ): Record<string, any> {
     return this.workflowRunSupport.buildTaskMetadata(
       run,
-      stage,
+      phase,
       stageIndex,
       handoffSummary,
       workspaceContext,
@@ -419,13 +419,13 @@ export class WorkflowRunService {
 
   public buildPlanNotes(
     run: WorkflowRunSnapshot,
-    stage: WorkflowStageDefinition,
+    phase: WorkflowStageDefinition,
     handoffSummary: string | null,
     workspaceContext?: WorkflowWorkspaceContext | null,
   ): string[] {
     return this.workflowRunSupport.buildPlanNotes(
       run,
-      stage,
+      phase,
       handoffSummary,
       workspaceContext,
     );
@@ -485,7 +485,7 @@ export class WorkflowRunService {
       stageId?: string | null;
       taskId?: string | null;
     },
-  ): WorkflowRunSnapshot["stages"][number] | null {
+  ): WorkflowRunSnapshot["phases"][number] | null {
     return this.workflowRunSupport.resolveStageByDecisionReference(run, input);
   }
 
@@ -502,9 +502,9 @@ export class WorkflowRunService {
   }
 
   private describeActionableStageReason(
-    stage: WorkflowRunSnapshot["stages"][number],
+    phase: WorkflowRunSnapshot["phases"][number],
   ): string {
-    return this.workflowRunSupport.describeActionableStageReason(stage);
+    return this.workflowRunSupport.describeActionableStageReason(phase);
   }
 
   private describeActionableStageAction(
@@ -515,9 +515,9 @@ export class WorkflowRunService {
 
   private buildResumePrompt(
     run: WorkflowRunSnapshot,
-    stage: WorkflowRunResumeStageSnapshot,
+    phase: WorkflowRunResumeStageSnapshot,
   ): string {
-    return this.workflowRunSupport.buildResumePrompt(run, stage);
+    return this.workflowRunSupport.buildResumePrompt(run, phase);
   }
 
   private persistRun(
@@ -613,16 +613,16 @@ export class WorkflowRunService {
 
   private buildStageExecutionId(
     run: WorkflowRunSnapshot,
-    stage: WorkflowRunSnapshot["stages"][number],
+    phase: WorkflowRunSnapshot["phases"][number],
   ): string {
-    return this.workflowRunSupport.buildStageExecutionId(run, stage);
+    return this.workflowRunSupport.buildStageExecutionId(run, phase);
   }
 
   private buildStageApprovalId(
     run: WorkflowRunSnapshot,
-    stage: WorkflowRunSnapshot["stages"][number],
+    phase: WorkflowRunSnapshot["phases"][number],
   ): string {
-    return this.workflowRunSupport.buildStageApprovalId(run, stage);
+    return this.workflowRunSupport.buildStageApprovalId(run, phase);
   }
 
   private buildWorkspaceContextSummary(

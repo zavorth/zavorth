@@ -14,8 +14,8 @@ const ROOTS = {
   compatibilityFixture: '\\\\wsl.localhost\\Ubuntu-24.04\\home\\grey\\acp-compatible-sidecar-src',
 };
 
-describe('ZavorthExternalCapabilityInventoryService Phase 0', () => {
-  it('publishes a read-only Phase 0 inventory across Reference runtime, ACP-compatible sidecar Windows, and ACP compatibility fixture', () => {
+describe('ZavorthExternalCapabilityInventoryService Security contract', () => {
+  it('publishes a read-only Security contract inventory across Reference runtime, ACP-compatible sidecar Windows, and ACP compatibility fixture', () => {
     const service = createService();
     const snapshot = service.buildSnapshot();
 
@@ -23,8 +23,8 @@ describe('ZavorthExternalCapabilityInventoryService Phase 0', () => {
       generatedAt: '2026-05-11T18:00:00.000Z',
       contractVersion: ZAVORTH_EXTERNAL_CAPABILITY_INVENTORY_CONTRACT_VERSION,
       status: 'inventory-ready',
-      planId: '291 - Plano Zavorth External Runtime Absorption',
-      phase: 'phase-0-freeze-and-inventory',
+      planId: 'Zavorth External Runtime Integration',
+      stage: 'checkpoint-0-freeze-and-inventory',
       bridgeStatus: 'bridge-ready',
     }));
     expect(snapshot.sourceProbes.map((entry) => entry.runtimeId)).toEqual([
@@ -67,7 +67,7 @@ describe('ZavorthExternalCapabilityInventoryService Phase 0', () => {
       noImplementationBeyondReadOnlyInventory: true,
       sourceNamesAllowedOnlyInDiagnostics: true,
       importedCapabilitiesAdvisoryOnly: true,
-      nextPhaseRequiresContractLayer: true,
+      nextStageRequiresContractLayer: true,
     }));
     expect(snapshot.items.every((entry) => (
       entry.zavorthEquivalent.publicName === 'Zavorth'
@@ -87,7 +87,7 @@ describe('ZavorthExternalCapabilityInventoryService Phase 0', () => {
     }));
     expect(snapshot.items.find((entry) => entry.id === 'acp-compatible-sidecar:channel-gateway-normalization')).toEqual(expect.objectContaining({
       decision: 'adapt',
-      targetPhase: 'phase-5-channels-messaging',
+      targetPhase: 'channels-messaging',
       naturalFirstRoute: 'capability-discovery',
     }));
   });
@@ -104,23 +104,23 @@ describe('ZavorthExternalCapabilityInventoryService Phase 0', () => {
     }));
   });
 
-  it('blocks the inventory if the Phase 10 bridge is blocked', () => {
+  it('blocks the inventory if the Intent model0 bridge is blocked', () => {
     const snapshot = createService().buildSnapshot({ bridgeStatus: 'blocked' });
 
     expect(snapshot.status).toBe('blocked');
     expect(snapshot.bridgeStatus).toBe('blocked');
-    expect(snapshot.commands.nextPhase).toBe('291 Phase 1 - Zavorth Contract Layer');
+    expect(snapshot.commands.nextStage).toBe('291 Intent model - Zavorth Contract Layer');
   });
 
   it('formats an operator inventory without enabling runtimes or tools', () => {
     const service = createService();
     const text = service.formatSnapshotText(service.buildSnapshot());
 
-    expect(text).toContain('Zavorth External Runtime Phase 0 Inventory');
+    expect(text).toContain('Zavorth External Runtime Security contract Inventory');
     expect(text).toContain('Status: inventory-ready');
     expect(text).toContain('acp-compatibility-fixture: source-present');
     expect(text).toContain('Execution performed: false');
-    expect(text).toContain('Next: 291 Phase 1 - Zavorth Contract Layer');
+    expect(text).toContain('Next: 291 Intent model - Zavorth Contract Layer');
   });
 });
 

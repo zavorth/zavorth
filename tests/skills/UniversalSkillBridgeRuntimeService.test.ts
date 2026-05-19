@@ -41,7 +41,7 @@ async function importSkill(root: string, source: string, target: string, skillNa
   expect(snapshot.status).toBe('passed');
 }
 
-describe('UniversalSkillBridgeRuntimeService Phase 3', () => {
+describe('UniversalSkillBridgeRuntimeService Approval gate', () => {
   let root: string;
   let source: string;
   let importedTarget: string;

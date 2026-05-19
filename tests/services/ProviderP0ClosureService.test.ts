@@ -2,13 +2,13 @@ import { ProviderP0ClosureService } from '../../src/services/ProviderP0ClosureSe
 import { ProviderMeshParityService } from '../../src/services/ProviderMeshParityService.js';
 import { ParityCertificationService } from '../../src/services/ParityCertificationService.js';
 
-describe('ProviderP0ClosureService Phase 10', () => {
+describe('ProviderP0ClosureService Intent model0', () => {
   it('closes the two provider P0 gaps by moving Anthropic-compatible routes to supported templates', () => {
     const snapshot = new ProviderP0ClosureService({
       now: () => new Date('2026-05-04T20:00:00.000Z'),
     }).buildSnapshot();
 
-    expect(snapshot.contractVersion).toBe('2026-05-04.phase-10');
+    expect(snapshot.contractVersion).toBe('2026-05-04.checkpoint-10');
     expect(snapshot.status).toBe('closed');
     expect(snapshot.summary).toEqual(
       expect.objectContaining({

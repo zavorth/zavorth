@@ -71,12 +71,12 @@ const BASE_INPUT: DashboardCommandCenterAdapterInput = {
     supportsStreaming: true,
   },
   providerCockpit: {
-    contractVersion: "2026-05-13.phase-6",
+    contractVersion: "2026-05-13.checkpoint-6",
     schemaVersion: 1,
     surface: "command-center-provider-cockpit",
     generatedAt: "2026-05-13T20:00:00.000Z",
     status: "ready",
-    sourceMatrixContractVersion: "2026-05-13.phase-5",
+    sourceMatrixContractVersion: "2026-05-13.checkpoint-5",
     visualMutationApplied: false,
     executionAuthority: false,
     selectedProviderId: "openai",
@@ -636,7 +636,7 @@ export const DASHBOARD_COMMAND_CENTER_FIXTURES: Record<DashboardCommandCenterFix
           remoteMeshApprovalUx: {
             generatedAt: "2026-05-06T12:00:00.000Z",
             contractVersion: "2026-05-05.remote-mesh-r11-mobile-command-center-approval-ux",
-            phase: "R11",
+            stage: "R11",
             status: "ready",
             summary: {
               cards: 1,
@@ -652,7 +652,7 @@ export const DASHBOARD_COMMAND_CENTER_FIXTURES: Record<DashboardCommandCenterFix
               {
                 generatedAt: "2026-05-06T12:00:00.000Z",
                 contractVersion: "2026-05-05.remote-mesh-r11-mobile-command-center-approval-ux",
-                phase: "R11",
+                stage: "R11",
                 surface: "command-center",
                 state: "approval-required",
                 sourceToolName: "notebook.docker.preview_control",

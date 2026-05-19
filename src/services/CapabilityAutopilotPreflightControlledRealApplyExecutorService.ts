@@ -236,7 +236,7 @@ export class CapabilityAutopilotPreflightControlledRealApplyExecutorService {
       evidence: this.buildEvidence(decision, budgetLock, adapterResult),
       safeSummary: this.buildSafeSummary(decision, status, adapterResult),
       metadata: {
-        phase: 'capability-autopilot-phase-76',
+        phase: 'capability-autopilot-checkpoint-76',
         sourceDecisionStatus: decision.status,
         sourceActionKind: decision.sourceAction?.kind || null,
         autoExecute: false,
@@ -285,7 +285,7 @@ export class CapabilityAutopilotPreflightControlledRealApplyExecutorService {
           'Depois da execucao controlada, o proximo passo e verificar resultado real, consolidar rollback ledger e registrar auditoria pos-run por superficie.',
       },
       metadata: {
-        phase: 'capability-autopilot-phase-76',
+        phase: 'capability-autopilot-checkpoint-76',
         sourceSnapshotStatus: source.status,
         decisionCount: source.decisions.length,
         executionCount: executions.length,
@@ -300,7 +300,7 @@ export class CapabilityAutopilotPreflightControlledRealApplyExecutorService {
 
   public renderReport(snapshot: CapabilityPreflightControlledRealApplyExecutorSnapshot): string {
     const lines: string[] = [];
-    lines.push('[capability-autopilot-preflight-controlled-apply] Fase 76 - Preflight Controlled Real Apply Executor');
+    lines.push('[capability-autopilot-preflight-controlled-apply] Etapa 76 - Preflight Controlled Real Apply Executor');
     lines.push(`status: ${snapshot.status}`);
     lines.push(`ok: ${snapshot.summary.ok ? 'yes' : 'no'} | pass=${snapshot.summary.passed} warn=${snapshot.summary.warnings} fail=${snapshot.summary.failed}`);
     lines.push(`capability: ${snapshot.capabilityId}`);
@@ -314,7 +314,7 @@ export class CapabilityAutopilotPreflightControlledRealApplyExecutorService {
       }
     }
     lines.push('');
-    lines.push(`proxima fase recomendada: ${snapshot.nextRecommendedPhase.phase} - ${snapshot.nextRecommendedPhase.title}`);
+    lines.push(`proximo passo recomendada: ${snapshot.nextRecommendedPhase.phase} - ${snapshot.nextRecommendedPhase.title}`);
     lines.push(snapshot.nextRecommendedPhase.reason);
     return lines.join('\n');
   }
@@ -389,7 +389,7 @@ export class CapabilityAutopilotPreflightControlledRealApplyExecutorService {
       ],
       safeSummary: `Execucao controlada bloqueada para ${decision.sourceAction?.kind || '<sem-action>'}; adapter nao foi invocado.`,
       metadata: {
-        phase: 'capability-autopilot-phase-76',
+        phase: 'capability-autopilot-checkpoint-76',
         sourceDecisionStatus: decision.status,
         sourceActionKind: decision.sourceAction?.kind || null,
         autoExecute: false,
@@ -489,7 +489,7 @@ export class CapabilityAutopilotPreflightControlledRealApplyExecutorService {
       ),
       this.check(
         'capability-autopilot-preflight-controlled-apply:source-authorization',
-        'fonte autorizada pela fase 75',
+        'fonte autorizada pela etapa 75',
         executions.every((execution) =>
           execution.sourceRealApplyAuthorized &&
           execution.status === 'controlled_apply_succeeded'
@@ -529,7 +529,7 @@ export class CapabilityAutopilotPreflightControlledRealApplyExecutorService {
           execution.dispatchExecuted &&
           execution.sideEffectLevel === 'controlled_real_apply'
         ) ? 'pass' : 'fail',
-        'A Fase 76 e a primeira que invoca um adapter de apply real controlado.',
+        'A Etapa 76 e a primeira que invoca um adapter de apply real controlado.',
         executions.map((execution) =>
           `${execution.sourceSurface}:${execution.adapterResult?.mode || '<none>'}:adapter=${execution.adapterInvoked}:sideEffect=${execution.sideEffectInvoked}`,
         ),
@@ -553,7 +553,7 @@ export class CapabilityAutopilotPreflightControlledRealApplyExecutorService {
           execution.shouldRunAutomatically === false &&
           execution.metadata.autoExecute === false
         ) ? 'pass' : 'fail',
-        'Mesmo executando adapter real controlado, a fase continua dependente de acao explicita.',
+        'Mesmo executando adapter real controlado, a etapa continua dependente de acao explicita.',
         executions.map((execution) =>
           `${execution.sourceSurface}:auto=${execution.shouldRunAutomatically}:confirmed=${execution.controlledExecutionConfirmed}`,
         ),

@@ -88,7 +88,7 @@ function createService(root: string, snapshot: ZavorthProviderSelectionUxSnapsho
 function selection(providerId: string, status: 'ready' | 'missing_auth'): ZavorthProviderSelectionUxSnapshot {
   const ready = status === 'ready';
   return {
-    contractVersion: '2026-05-13.phase-11',
+    contractVersion: '2026-05-13.checkpoint-11',
     schemaVersion: 1,
     surface: 'provider-selection-ux',
     generatedAt: '2026-05-13T12:00:00.000Z',

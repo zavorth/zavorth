@@ -3,16 +3,16 @@ import {
 } from '../../src/contracts/ZavorthDelegatedWorkerBridgeContract.js';
 import { ZavorthDelegatedWorkerBridgeService } from '../../src/services/ZavorthDelegatedWorkerBridgeService.js';
 
-describe('ZavorthDelegatedWorkerBridgeService Phase 7', () => {
-  it('publishes the delegated worker bridge snapshot after Phase 6 readiness', () => {
+describe('ZavorthDelegatedWorkerBridgeService Surface controls', () => {
+  it('publishes the delegated worker bridge snapshot after Runtime gateway readiness', () => {
     const snapshot = createService().buildSnapshot();
 
     expect(snapshot).toEqual(expect.objectContaining({
       generatedAt: '2026-05-11T22:25:00.000Z',
       contractVersion: ZAVORTH_DELEGATED_WORKER_BRIDGE_CONTRACT_VERSION,
       status: 'delegated-worker-bridge-ready',
-      planId: '291 - Plano Zavorth External Runtime Absorption',
-      phase: 'phase-7-delegated-workers',
+      planId: 'Zavorth External Runtime Integration',
+      stage: 'delegated-workers',
       previousSessionMemoryStatus: 'session-memory-continuation-ready',
     }));
     expect(snapshot.summary).toEqual(expect.objectContaining({
@@ -28,7 +28,7 @@ describe('ZavorthDelegatedWorkerBridgeService Phase 7', () => {
       toolExecutionPerformed: false,
     }));
     expect(snapshot.summary.artifactEventsReturned).toBeGreaterThanOrEqual(1);
-    expect(snapshot.commands.nextPhase).toBe('291 Phase 8 - Native Replacement And Decommission');
+    expect(snapshot.commands.nextStage).toBe('291 Dashboard controls - Native Replacement And Decommission');
   });
 
   it('normalizes worker descriptors without making source workers canonical', () => {
@@ -245,7 +245,7 @@ describe('ZavorthDelegatedWorkerBridgeService Phase 7', () => {
         'dry-run lifecycle',
         'artifact/event/status mapping',
       ]),
-      nextSafeAction: 'Proceed to 291 Phase 8 - Native Replacement And Decommission.',
+      nextSafeAction: 'Proceed to 291 Dashboard controls - Native Replacement And Decommission.',
     }));
     expect(snapshot.commandCenterProjection.cards.map((entry) => entry.id)).toEqual(expect.arrayContaining([
       'workers',
@@ -258,12 +258,12 @@ describe('ZavorthDelegatedWorkerBridgeService Phase 7', () => {
     ]));
   });
 
-  it('blocks Phase 7 if Phase 6 session memory is not ready', () => {
+  it('blocks Surface controls if Runtime gateway session memory is not ready', () => {
     const snapshot = createService().buildSnapshot({ sessionMemoryStatus: 'blocked' });
 
     expect(snapshot.status).toBe('blocked');
     expect(snapshot.previousSessionMemoryStatus).toBe('blocked');
-    expect(snapshot.acceptanceMatrix.find((entry) => entry.requirementId === 'phase-6-sessions-memory-continuation-ready')).toEqual(expect.objectContaining({
+    expect(snapshot.acceptanceMatrix.find((entry) => entry.requirementId === 'sessions-memory-continuation-ready')).toEqual(expect.objectContaining({
       status: 'failed',
     }));
   });
@@ -272,11 +272,11 @@ describe('ZavorthDelegatedWorkerBridgeService Phase 7', () => {
     const service = createService();
     const text = service.formatSnapshotText(service.buildSnapshot());
 
-    expect(text).toContain('Zavorth Delegated Worker Bridge - Phase 7');
+    expect(text).toContain('Zavorth Delegated Worker Bridge - Surface controls');
     expect(text).toContain('Status: delegated-worker-bridge-ready');
     expect(text).toContain('Worker descriptors: 2');
     expect(text).toContain('Live workers started: 0');
-    expect(text).toContain('Next: 291 Phase 8 - Native Replacement And Decommission');
+    expect(text).toContain('Next: 291 Dashboard controls - Native Replacement And Decommission');
   });
 });
 

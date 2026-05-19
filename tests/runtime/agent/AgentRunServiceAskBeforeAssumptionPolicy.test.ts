@@ -8,7 +8,7 @@ function createIdFactory() {
   return (prefix: string) => `${prefix}-ask-policy-${++index}`;
 }
 
-describe('AgentRunService Ask Before Assumption Policy Wave 42', () => {
+describe('AgentRunService Ask Before Assumption Policy Channel mesh2', () => {
   it('publishes run.metadata.askBeforeAssumptionPolicy during the agent run lifecycle', async () => {
     const service = new AgentRunService({
       now: () => new Date('2026-05-04T00:42:00.000Z'),

@@ -32,7 +32,7 @@ export class MultiAgentWorkflowSddPlanner {
   }
 
   public buildSddResumeStages(run: WorkflowRunSnapshot): WorkflowStage[] {
-    const persistedStage = run.stages.find((stage) => stage.id === run.resume_stage?.id) || run.stages[0];
+    const persistedStage = run.phases.find((stage) => stage.id === run.resume_stage?.id) || run.phases[0];
     if (!persistedStage) {
       return [];
     }

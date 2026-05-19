@@ -86,7 +86,7 @@ export class TelegramPermissionDescriptorService {
   }
 
   public resolveExternalExecutorAgentRoleFromInput(assignments: Record<string, string>): string {
-    const role = assignments.role || assignments.agent_role || assignments.stage || '';
+    const role = assignments.role || assignments.agent_role || assignments.phase || '';
     return String(role || 'default').trim().toLowerCase();
   }
 

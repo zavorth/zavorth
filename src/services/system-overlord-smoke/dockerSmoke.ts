@@ -99,7 +99,7 @@ export async function runDockerSmoke(input: {
       return failFromSmokeAction(
         'docker.exec',
         inspect,
-        'Docker supervisionado falhou ainda na fase de inspecao do runtime.',
+        'Docker supervisionado falhou ainda na etapa de inspecao do runtime.',
       );
     }
 

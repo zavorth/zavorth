@@ -27,7 +27,7 @@ const snapshot = {
 if (asJson) {
   console.log(JSON.stringify(snapshot, null, 2));
 } else {
-  console.log('[zavorth-governed-scheduled-tasks] checking Phase 1');
+  console.log('[zavorth-governed-scheduled-tasks] checking Intent model');
   printRules(rules, '[zavorth-governed-scheduled-tasks]');
 }
 if (failed.length > 0) process.exitCode = 1;
@@ -42,13 +42,13 @@ function ruleFilesExist() {
     'docs/README.md',
   ];
   const missing = files.filter((file) => !fs.existsSync(path.join(root, file)));
-  return rule('governed-scheduled-task-files', 'Phase 1 files exist', missing.length === 0, `${files.length - missing.length}/${files.length}`, 'contract, service, CLI, check, tests and docs are present', missing);
+  return rule('governed-scheduled-task-files', 'Intent model files exist', missing.length === 0, `${files.length - missing.length}/${files.length}`, 'contract, service, CLI, check, tests and docs are present', missing);
 }
 
 function ruleMarkers() {
   const checks = [
     ['src/contracts/ZavorthScheduledTaskContract.ts', ['ZAVORTH_SCHEDULED_TASK_CONTRACT_VERSION', 'needs_reapproval', 'blocked', 'ZAVORTH_SCHEDULED_TASK_APPROVAL_TOOL']],
-    ['src/services/ZavorthGovernedScheduledTaskRegistryService.ts', ['phase-1-governed-scheduled-task-contract', 'createToolSecurityApprovalEnvelope', 'verifyToolSecurityApprovalEnvelope', 'noCompoundScheduling']],
+    ['src/services/ZavorthGovernedScheduledTaskRegistryService.ts', ['checkpoint-1-governed-scheduled-task-contract', 'createToolSecurityApprovalEnvelope', 'verifyToolSecurityApprovalEnvelope', 'noCompoundScheduling']],
     ['scripts/zavorth-governed-scheduled-tasks.ts', ['--owner-confirmed', '--approval=', '--kill-switch', '--max-mutations']],
     ['src/sdk/contracts.ts', ['ZavorthScheduledTaskContract']],
     ['src/sdk/index.ts', ['ZavorthGovernedScheduledTaskRegistryService']],
@@ -60,13 +60,13 @@ function ruleMarkers() {
       if (!text.includes(needle)) missing.push(`${file}: missing ${needle}`);
     }
   }
-  return rule('governed-scheduled-task-markers', 'Phase 1 markers are wired', missing.length === 0, missing.length === 0 ? 'all markers' : `${missing.length} missing`, 'contract, service, SDK and CLI markers exist', missing);
+  return rule('governed-scheduled-task-markers', 'Intent model markers are wired', missing.length === 0, missing.length === 0 ? 'all markers' : `${missing.length} missing`, 'contract, service, SDK and CLI markers exist', missing);
 }
 
 function runNeedsReapprovalFixture() {
   const result = runTs(['--json']);
   return jsonRule('governed-scheduled-task-needs-reapproval', 'Missing approval requires re-approval without executing', result, (snapshot) =>
-    snapshot.contractVersion === '2026-05-12.governed-scheduled-task-phase-1'
+    snapshot.contractVersion === '2026-05-12.governed-scheduled-task-checkpoint-1'
     && snapshot.status === 'needs_reapproval'
     && snapshot.summary.registrationReady === false
     && snapshot.summary.executionPerformed === false
@@ -150,7 +150,7 @@ function runBudgetCeilingFixture() {
 function ruleWorkspaceCheck() {
   const text = read('package.json');
   const marker = 'node scripts/zavorth-governed-scheduled-tasks-check.mjs';
-  return rule('workspace-check-wire', 'workspace:check includes Phase 1 scheduled-task gate', text.includes(marker), text.includes(marker) ? 'wired' : 'missing', marker, []);
+  return rule('workspace-check-wire', 'workspace:check includes Intent model scheduled-task gate', text.includes(marker), text.includes(marker) ? 'wired' : 'missing', marker, []);
 }
 
 function ruleNoPublicExternalNames() {
@@ -167,7 +167,7 @@ function ruleNoPublicExternalNames() {
       if (text.includes(word)) hits.push(`${file}: ${word}`);
     }
   }
-  return rule('no-public-external-names', 'Phase 1 public core remains neutral', hits.length === 0, hits.length === 0 ? 'neutral' : `${hits.length} hit(s)`, 'no external product names in public core files', hits);
+  return rule('no-public-external-names', 'Intent model public core remains neutral', hits.length === 0, hits.length === 0 ? 'neutral' : `${hits.length} hit(s)`, 'no external product names in public core files', hits);
 }
 
 function runTs(args) {

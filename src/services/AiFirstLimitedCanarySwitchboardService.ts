@@ -122,22 +122,22 @@ export class AiFirstLimitedCanarySwitchboardService {
       ],
       gates: [
         {
-          id: 'phase-6-manual-activation-only',
+          id: 'checkpoint-6-manual-activation-only',
           status: 'passed',
           detail: 'Canary routes require explicit manual activation.',
         },
         {
-          id: 'phase-6-fallback-preserved',
+          id: 'checkpoint-6-fallback-preserved',
           status: 'passed',
           detail: 'Every decision keeps fallbackRoute=current-runtime.',
         },
         {
-          id: 'phase-6-guardrails-required',
+          id: 'checkpoint-6-guardrails-required',
           status: 'passed',
-          detail: 'Canary selection requires Phase 3 guardrail and registry receipt.',
+          detail: 'Canary selection requires Approval gate guardrail and registry receipt.',
         },
         {
-          id: 'phase-6-current-runtime-preserved',
+          id: 'checkpoint-6-current-runtime-preserved',
           status: 'passed',
           detail: 'defaultRuntimeChanged is false and keepCurrentRuntimeDecision is true.',
         },
@@ -147,7 +147,7 @@ export class AiFirstLimitedCanarySwitchboardService {
 
   public renderMarkdown(snapshot: AiFirstLimitedCanarySwitchboardSnapshot): string {
     const lines: string[] = [];
-    lines.push('# Zavorth AI-first Router Phase 6');
+    lines.push('# Zavorth AI-first Router Runtime gateway');
     lines.push('');
     lines.push(`- contract: ${snapshot.contractVersion}`);
     lines.push(`- switchboardId: ${snapshot.switchboardId}`);
@@ -226,7 +226,7 @@ export class AiFirstLimitedCanarySwitchboardService {
       maxRisk: allowlist.maxRisk,
       activationId: activationValid ? activation?.activationId || null : null,
       fallbackRoute: 'current-runtime',
-      requiresPhase3Guardrail: true,
+      requiresStage3Guardrail: true,
       requiresRegistryReceipt: true,
       requiresManualActivation: true,
       defaultEnabled: false,
@@ -263,7 +263,7 @@ export class AiFirstLimitedCanarySwitchboardService {
       matchedRouteKey: route?.routeKey || null,
       fallbackReason,
       fallbackRoute: 'current-runtime',
-      phase3GuardrailRequired: true,
+      approvalGateGuardrailRequired: true,
       registryReceiptRequired: true,
       fallbackAvailable: true,
       defaultRuntimeChanged: false,
@@ -365,8 +365,8 @@ function resolveFallbackReason(
   if (!route.allowedRiskLevels.includes(probe.risk) || RISK_RANK[probe.risk] > RISK_RANK[route.maxRisk]) {
     return 'risk-not-allowed';
   }
-  if (!probe.phase3GuardrailPassed) {
-    return 'phase3-guardrail-missing';
+  if (!probe.approvalGateGuardrailPassed) {
+    return 'approval-gate-guardrail-missing';
   }
   if (!probe.registryReceiptPresent) {
     return 'registry-receipt-missing';

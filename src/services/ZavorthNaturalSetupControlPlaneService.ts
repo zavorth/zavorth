@@ -213,7 +213,7 @@ export class ZavorthNaturalSetupControlPlaneService {
         approvalRequiredForMutation: true,
       },
       narrative: {
-        headline: 'Wave A: Natural Setup Agent',
+        headline: 'Natural setup: Natural Setup Agent',
         operatorSummary: this.redactSensitiveText(turn?.naturalReply || assistant.naturalReply)
           || 'Natural Setup pronto para receber um pedido em linguagem natural.',
         nextAction: actions[0]?.label || 'Dizer em linguagem natural qual canal voce quer conectar.',
@@ -233,7 +233,7 @@ export class ZavorthNaturalSetupControlPlaneService {
   } = {}): Promise<string> {
     const snapshot = await this.buildSnapshot(input);
     const lines = [
-      'Wave A: Natural Setup Agent',
+      'Natural setup: Natural Setup Agent',
       '',
       snapshot.narrative.operatorSummary,
       `Postura: ${snapshot.summary.posture}.`,

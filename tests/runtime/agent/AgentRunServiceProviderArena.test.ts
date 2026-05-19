@@ -8,7 +8,7 @@ function createIdFactory() {
   return (prefix: string) => `${prefix}-provider-arena-${++index}`;
 }
 
-describe('AgentRunService Provider Arena Wave 34', () => {
+describe('AgentRunService Provider Arena Provider Arena', () => {
   it('attaches providerArena after LLM route correlation and run budget', async () => {
     const service = new AgentRunService({
       now: () => new Date('2026-05-03T23:58:00.000Z'),

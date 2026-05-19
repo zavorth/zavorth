@@ -24,7 +24,7 @@ const snapshot = {
 if (asJson) {
   console.log(JSON.stringify(snapshot, null, 2));
 } else {
-  console.log('[zavorth-perception-invocation] checking Phase 5');
+  console.log('[zavorth-perception-invocation] checking Credential vault');
   printRules(rules, '[zavorth-perception-invocation]');
 }
 if (failed.length > 0) process.exitCode = 1;
@@ -39,7 +39,7 @@ function ruleFilesExist() {
     'docs/README.md',
   ];
   const missing = files.filter((file) => !fs.existsSync(path.join(root, file)));
-  return rule('perception-files', 'Perception invocation files exist', missing.length === 0, `${files.length - missing.length}/${files.length}`, 'all Phase 5 files present', missing);
+  return rule('perception-files', 'Perception invocation files exist', missing.length === 0, `${files.length - missing.length}/${files.length}`, 'all Credential vault files present', missing);
 }
 
 function ruleMarkers() {
@@ -133,7 +133,7 @@ function jsonRule(id, label, result, expect) {
   try {
     const plan = JSON.parse(result.stdout);
     const passed = expect(plan);
-    return rule(id, label, passed, `route=${plan.primaryRoute}; status=${plan.status}`, 'expected Phase 5 route', passed ? [] : [JSON.stringify(plan, null, 2)]);
+    return rule(id, label, passed, `route=${plan.primaryRoute}; status=${plan.status}`, 'expected Credential vault route', passed ? [] : [JSON.stringify(plan, null, 2)]);
   } catch (error) {
     return rule(id, label, false, 'invalid JSON', 'valid JSON fixture', [String(error), ...compact(result.stderr, result.stdout)]);
   }

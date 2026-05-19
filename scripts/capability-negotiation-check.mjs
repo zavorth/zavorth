@@ -8,7 +8,7 @@ const asJson = process.argv.includes('--json');
 const rules = [
   ruleFilesExist({
     id: 'capability-negotiation-files',
-    label: 'Wave 35 files exist',
+    label: 'Capability Negotiation files exist',
     target: 'Runtime, CLI, Command Center, tests and docs are present',
     files: [
       'src/runtime/agent/CapabilityNegotiationService.ts',
@@ -27,7 +27,7 @@ const rules = [
     files: ['src/runtime/agent/CapabilityNegotiationService.ts'],
     needles: [
       'CAPABILITY_NEGOTIATION_CONTRACT_VERSION',
-      '2026-05-03.wave-35',
+      '2026-05-03.capability-negotiation',
       'CapabilityNegotiationScope',
       'allowedToolIds',
       'blockedToolIds',
@@ -64,7 +64,7 @@ const rules = [
     ],
     needles: [
       'negotiate',
-      'Capability Negotiation - Wave 35',
+      'Capability Negotiation - Capability Negotiation',
       'resolveCapabilityNegotiationCliText',
       'formatCapabilityNegotiationSnapshot',
       'zavorth negotiate',
@@ -93,7 +93,7 @@ const rules = [
   }),
   ruleContainsAll({
     id: 'package-exposes-capability-negotiation-gate',
-    label: 'package exposes Wave 35 gate',
+    label: 'package exposes Capability Negotiation gate',
     target: 'local QA can run capability-negotiation:check and qa:capability-negotiation',
     files: ['package.json'],
     needles: [
@@ -119,7 +119,7 @@ const snapshot = {
 if (asJson) {
   console.log(JSON.stringify(snapshot, null, 2));
 } else {
-  console.log('[capability-negotiation] checking Wave 35');
+  console.log('[capability-negotiation] checking Capability Negotiation');
   for (const rule of rules) {
     const marker = rule.status === 'passed' ? 'ok' : 'fail';
     console.log(`[capability-negotiation] ${marker} ${rule.label}: ${rule.observed} | ${rule.target}`);

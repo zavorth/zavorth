@@ -1,5 +1,5 @@
 /**
- * IntentEnrichedParser — Parser de Comandos com Enriquecimento de Intenção (Phase 6)
+ * IntentEnrichedParser — Parser de Comandos com Enriquecimento de Intenção (Runtime gateway)
  *
  * Wrapper em torno do CommandParser original que adiciona o resultado do
  * NaturalLanguageRouter ao ParsedCommand. Quando uma mensagem de texto

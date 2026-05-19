@@ -198,8 +198,8 @@ export type ZavorthDelegatedWorkerBridgeSnapshot = {
   generatedAt: string;
   contractVersion: typeof ZAVORTH_DELEGATED_WORKER_BRIDGE_CONTRACT_VERSION;
   status: ZavorthDelegatedWorkerBridgeStatus;
-  planId: '291 - Plano Zavorth External Runtime Absorption';
-  phase: 'phase-7-delegated-workers';
+  planId: 'Zavorth External Runtime Integration';
+  phase: 'delegated-workers';
   previousSessionMemoryStatus: ZavorthSessionMemoryContinuationStatus;
   workerDescriptors: ZavorthWorkerDescriptor[];
   delegatedTaskEnvelope: ZavorthDelegatedTaskEnvelope;
@@ -241,6 +241,6 @@ export type ZavorthDelegatedWorkerBridgeSnapshot = {
     inspect: 'npm run zavorth:delegated-worker-bridge';
     inspectJson: 'npm run zavorth:delegated-worker-bridge:json';
     check: 'npm run zavorth:delegated-worker-bridge:check --silent';
-    nextPhase: '291 Phase 8 - Native Replacement And Decommission';
+    nextStage: '291 Dashboard controls - Native Replacement And Decommission';
   };
 };

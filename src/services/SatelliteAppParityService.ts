@@ -269,7 +269,7 @@ const SPECS: SurfaceSpec[] = [
       contract: 'src/contracts/SatelliteAppParityContract.ts',
       service: 'src/services/SatelliteAppParityService.ts',
       client: 'apps/zavorth-satellite',
-      policy: 'docs/352-zavorth-channel-mesh-parity-private.md',
+      policy: 'docs/product-direction.md',
     },
     markers: [
       { file: 'manifestJson', marker: '"display": "standalone"' },

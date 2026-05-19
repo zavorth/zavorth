@@ -54,7 +54,7 @@ addCheck(
 
 const service = read('src/services/ZavorthSemanticMemoryDocumentTerminalCertificationService.ts');
 addCheck(
-  'Service certifies guarded Phase 5 runtime semantics',
+  'Service certifies guarded Credential vault runtime semantics',
   [
     'SourceMemoryDocumentTerminalPackService',
     'SourceSearchFetchService',
@@ -67,7 +67,7 @@ addCheck(
     'terminalClaim',
     'unsafeOperationClaims',
   ].every((marker) => service.includes(marker)),
-  'service converts Phase 5 evidence into behavior-level semantic claims',
+  'service converts Credential vault evidence into behavior-level semantic claims',
 );
 
 const command = read('scripts/semantic-memory-document-terminal-certification.ts');
@@ -134,7 +134,7 @@ if (runtime.status !== 0) {
         && snapshot.summary.terminalClaimsCertified >= 2
         && receiptIdsValid
         && claimIdsUnique,
-      `status=${snapshot.status}, claims=${snapshot.summary.semanticClaims}, gaps=${snapshot.summary.gaps}, receiptIdsValid=${receiptIdsValid}, claimIdsUnique=${claimIdsUnique}, next=${snapshot.commands.nextPhase}`,
+      `status=${snapshot.status}, claims=${snapshot.summary.semanticClaims}, gaps=${snapshot.summary.gaps}, receiptIdsValid=${receiptIdsValid}, claimIdsUnique=${claimIdsUnique}, next=${snapshot.commands.nextStage}`,
     );
   } catch (error) {
     addCheck('Runtime S5 semantic receipt passes', false, `invalid JSON: ${error.message}`);

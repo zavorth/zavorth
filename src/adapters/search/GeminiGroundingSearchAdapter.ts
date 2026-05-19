@@ -7,7 +7,7 @@
  * Usado quando mode='grounded' no SearchQueryRequest.
  *
  * Referências arquiteturais:
- * - docs/327-zavorth-native-absorption-execution-plan.md (Wave 2)
+ * - docs/native-absorption-execution-plan.md
  * - src/contracts/SearchQueryContract.ts
  *
  * @module adapters/search/GeminiGroundingSearchAdapter

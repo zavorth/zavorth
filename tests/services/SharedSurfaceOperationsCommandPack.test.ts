@@ -4,7 +4,7 @@ function buildPack(overrides: Record<string, any> = {}): SharedSurfaceOperations
   return new SharedSurfaceOperationsCommandPack({
     hubControlPlaneService: { renderReport: jest.fn(() => 'Hub + MCP product plane') } as any,
     hubActionService: { execute: jest.fn() } as any,
-    automationControlPlaneService: { renderReport: jest.fn(async () => 'Wave F: Automations e scheduled runs') } as any,
+    automationControlPlaneService: { renderReport: jest.fn(async () => 'Scheduled runs: Automations e scheduled runs') } as any,
     automationActionService: { execute: jest.fn(), apply: jest.fn() } as any,
     trustPlaneService: { renderReport: jest.fn(() => 'Trust Plane do Zavorth') } as any,
     trustPlaneActionService: { execute: jest.fn(), apply: jest.fn() } as any,

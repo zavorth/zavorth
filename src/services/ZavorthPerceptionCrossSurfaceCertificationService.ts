@@ -100,7 +100,7 @@ export class ZavorthPerceptionCrossSurfaceCertificationService {
     const naturalPlan = this.router.plan({
       text: 'use subagentes para revisar o que aparece na tela e diga o proximo passo seguro',
       channel: 'web',
-      actorId: 'phase-6-certification',
+      actorId: 'checkpoint-6-certification',
     });
     const surfaceResponse = this.router.buildSurfaceResponse(naturalPlan);
     const phaseSnapshots = await this.buildPhaseSnapshots();
@@ -151,7 +151,7 @@ export class ZavorthPerceptionCrossSurfaceCertificationService {
       `${pad(row.id, 35)} ${pad(row.status, 10)} ${row.evidence}`,
     );
     return [
-      'Zavorth Perception Cross-Surface Certification - Phase 6',
+      'Zavorth Perception Cross-Surface Certification - Runtime gateway',
       '',
       `Status: ${snapshot.status}`,
       `Surfaces: ${snapshot.surfaceProjections.filter((surface) => surface.status === 'passed').length}/${snapshot.surfaceProjections.length}`,
@@ -310,7 +310,7 @@ function buildCommandCenterProjection(
       visualMutationApplied: false,
     },
     receipts: matrix.map((entry) => ({
-      id: `phase-6:${entry.id}`,
+      id: `checkpoint-6:${entry.id}`,
       kind: 'certification',
       status: entry.status,
       reason: entry.evidence,

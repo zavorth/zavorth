@@ -46,7 +46,7 @@ describe('Zavorth CLI Provider Arena', () => {
     }));
     const payload = JSON.parse(writes[0] || '{}');
     expect(payload).toEqual(expect.objectContaining({
-      contractVersion: '2026-05-03.wave-34',
+      contractVersion: '2026-05-03.provider-arena',
       summary: expect.objectContaining({
         hasProviderEvidence: true,
         decisionSource: 'learned',
@@ -69,7 +69,7 @@ describe('Zavorth CLI Provider Arena', () => {
 
     const text = formatProviderArenaSnapshot(snapshot);
 
-    expect(text).toContain('Provider Arena - Wave 34');
+    expect(text).toContain('Provider Arena - Provider Arena');
     expect(text).toContain('Candidatos');
     expect(text).toContain('arena read-only');
     expect(text).toContain('Command Center: /control?sector=config');

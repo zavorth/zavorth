@@ -1,12 +1,12 @@
 import { CanaryMonitoringRollbackGateService } from '../../src/services/CanaryMonitoringRollbackGateService.js';
 
-describe('CanaryMonitoringRollbackGateService Phase 22', () => {
+describe('CanaryMonitoringRollbackGateService Preview engine2', () => {
   it('builds a monitoring and rollback gate from the canary launch rehearsal', () => {
     const snapshot = new CanaryMonitoringRollbackGateService({
       now: () => new Date('2026-05-05T04:50:00.000Z'),
     }).buildSnapshot();
 
-    expect(snapshot.contractVersion).toBe('2026-05-04.phase-22');
+    expect(snapshot.contractVersion).toBe('2026-05-04.checkpoint-22');
     expect(snapshot.status).toBe('monitoring-gate-ready');
     expect(snapshot.releaseCandidate).toEqual(
       expect.objectContaining({
@@ -131,7 +131,7 @@ describe('CanaryMonitoringRollbackGateService Phase 22', () => {
         releaseExecutionHeld: 'npm run capability-autopilot:release-execution --silent -- --no-execution-approval --no-tag-approval --no-publish-approval --no-canary-launch-approval',
         monitoringDryRun: 'dry-run:monitor-canary --cohort dry-run-canary-cohort --window-hours 48 --no-traffic',
         rollbackDryRun: 'dry-run:rollback-command --checkpoint required --no-execute',
-        nextPhase: 'Canary promotion decision ledger',
+        nextStage: 'Canary promotion decision ledger',
       }),
     );
     expect(snapshot.policy).toEqual(

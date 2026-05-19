@@ -36,7 +36,7 @@ function showcaseReady() {
 
 function releaseTrain() {
   return {
-    phase: '59',
+    stage: '59',
     surface: 'release-train',
     status: 'ready',
     summary: { ok: true, passed: 18, warnings: 0, failed: 0 },
@@ -52,12 +52,12 @@ function releaseTrain() {
 
 function publicAdoption() {
   return {
-    phase: '53',
+    stage: '53',
     surface: 'public-adoption-readiness',
     status: 'ready',
     summary: { ok: true, passed: 20, warnings: 0, failed: 0, readinessScore: 95 },
     baseline: { release: 'v1.0.0', packageName: 'zavorth', packageVersion: '1.1.0' },
-    requiredScripts: ['public-adoption', 'qa:public-adoption', 'qa:phase:53'],
+    requiredScripts: ['public-adoption', 'qa:public-adoption', 'qa:stage:53'],
     launchChecklist: [],
     claims: [{ id: 'a' }, { id: 'b' }, { id: 'c' }, { id: 'd' }, { id: 'e' }],
     risks: [{ id: 'a' }, { id: 'b' }, { id: 'c' }, { id: 'd' }],
@@ -83,7 +83,7 @@ function agentService() {
   });
 }
 
-describe('Command Center Release Adoption Readiness Wave 53', () => {
+describe('Command Center Release Adoption Readiness Release Adoption Readiness', () => {
   it('projects releaseAdoptionReadiness metadata into the dashboard view model', () => {
     const run = agentService().createRun({
       userId: 'grey',
@@ -103,7 +103,7 @@ describe('Command Center Release Adoption Readiness Wave 53', () => {
     });
 
     expect(viewModel.releaseAdoptionReadiness).toEqual(expect.objectContaining({
-      contractVersion: '2026-05-04.wave-53',
+      contractVersion: '2026-05-04.release-readiness',
       status: 'release-adoption-ready',
       publicAdoption: expect.objectContaining({
         readinessScore: 95,
@@ -148,7 +148,7 @@ describe('Command Center Release Adoption Readiness Wave 53', () => {
     );
 
     expect(projection.releaseAdoptionReadiness).toEqual(expect.objectContaining({
-      contractVersion: '2026-05-04.wave-53',
+      contractVersion: '2026-05-04.release-readiness',
       status: 'release-adoption-ready',
       releaseTrain: expect.objectContaining({
         policyCount: 4,

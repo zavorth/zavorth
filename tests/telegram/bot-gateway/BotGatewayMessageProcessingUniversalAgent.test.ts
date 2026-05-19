@@ -112,7 +112,7 @@ describe('BotGatewayMessageProcessing universal agent routing', () => {
           legacyUnifiedGatewayAvailable: true,
           legacyUnifiedGatewayBypassed: true,
           telegramThinAdapterPolicy: expect.objectContaining({
-            phase: 'P3-001',
+            stage: 'P3-001',
             telegramRole: 'thin-adapter',
             canonicalEntrypoint: 'ZavorthAgentGateway.handle',
             retiredProductPaths: expect.arrayContaining(['menus', 'hubs', 'chat-cleanup']),

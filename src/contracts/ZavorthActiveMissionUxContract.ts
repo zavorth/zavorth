@@ -1,6 +1,6 @@
 import type { ZavorthMissionRiskLevel } from './ZavorthMissionContract.js';
 
-export const ZAVORTH_ACTIVE_MISSION_UX_CONTRACT_VERSION = '2026-05-13.phase-16' as const;
+export const ZAVORTH_ACTIVE_MISSION_UX_CONTRACT_VERSION = '2026-05-13.checkpoint-16' as const;
 
 export type ZavorthActiveMissionUxTone = 'ok' | 'info' | 'warn' | 'danger';
 

@@ -119,7 +119,7 @@ export class ZavorthTransactionLiveMicroRolloutCertificationService {
 
   public renderReport(result: ZavorthTransactionLiveMicroRolloutCertificationResult): string {
     return [
-      '[transaction-live-micro-rollout-certification] Phase 14-15 live micro-rollout certification',
+      '[transaction-live-micro-rollout-certification] Intent model4-15 live micro-rollout certification',
       `[transaction-live-micro-rollout-certification] status: ${result.status}`,
       `[transaction-live-micro-rollout-certification] sandbox-execution: ${result.sourceSandboxExecution.status}`,
       `[transaction-live-micro-rollout-certification] owner: ${result.ownerReview.ownerId}`,
@@ -195,18 +195,18 @@ function normalizeRolloutLimits(
 
 function buildRolloutStages(limits: ZavorthTransactionLiveMicroRolloutLimits): ZavorthTransactionLiveMicroRolloutStage[] {
   return [
-    stage(1, 'observe-only', 'certified', undefined, 'Observation and market/product data lookup only.'),
-    stage(2, 'preview-only', 'certified', undefined, 'Transaction preview generation remains allowed without execution.'),
-    stage(3, 'sandbox-certified', 'certified', undefined, 'Phase 12 adapter certification and Phase 13 sandbox receipt are prerequisites.'),
-    stage(4, 'paper-trading', 'certified', undefined, 'Paper or fake-cart flow remains the highest executed mode in the current code path.'),
-    stage(5, 'micro-transaction-hold', 'hold', limits.maxMicroAmount ?? undefined, 'Future live microtransaction is held behind separate live executor approval.'),
-    stage(6, 'daily-limit-hold', 'hold', limits.maxDailyAmount ?? undefined, 'Future daily spend remains held behind limit enforcement.'),
-    stage(7, 'mandate-limit-hold', 'hold', limits.maxDailyAmount ?? undefined, 'Future mandate-scoped execution remains held behind explicit mandate policy.'),
-    stage(8, 'controlled-production-hold', 'hold', undefined, 'Production remains held until a separate live executor phase exists.'),
+    phase(1, 'observe-only', 'certified', undefined, 'Observation and market/product data lookup only.'),
+    phase(2, 'preview-only', 'certified', undefined, 'Transaction preview generation remains allowed without execution.'),
+    phase(3, 'sandbox-certified', 'certified', undefined, 'Intent model2 adapter certification and Intent model3 sandbox receipt are prerequisites.'),
+    phase(4, 'paper-trading', 'certified', undefined, 'Paper or fake-cart flow remains the highest executed mode in the current code path.'),
+    phase(5, 'micro-transaction-hold', 'hold', limits.maxMicroAmount ?? undefined, 'Future live microtransaction is held behind separate live executor approval.'),
+    phase(6, 'daily-limit-hold', 'hold', limits.maxDailyAmount ?? undefined, 'Future daily spend remains held behind limit enforcement.'),
+    phase(7, 'mandate-limit-hold', 'hold', limits.maxDailyAmount ?? undefined, 'Future mandate-scoped execution remains held behind explicit mandate policy.'),
+    phase(8, 'controlled-production-hold', 'hold', undefined, 'Production remains held until a separate live executor phase exists.'),
   ];
 }
 
-function stage(
+function phase(
   order: number,
   kind: ZavorthTransactionLiveMicroRolloutStage['kind'],
   status: ZavorthTransactionLiveMicroRolloutStage['status'],
@@ -259,7 +259,7 @@ function buildCertificationScenarios(
       id: 'expired-mandate',
       label: 'Expired mandate or rollout window',
       expected: 'future mandate/live executor must reject expired scope',
-      observed: 'production stage is held and not executable',
+      observed: 'production phase is held and not executable',
       remediation: 'Create a fresh bounded mandate before future live execution.',
     },
     {
@@ -287,7 +287,7 @@ function buildCertificationScenarios(
       id: 'duplicate-execution',
       label: 'Duplicate execution',
       expected: 'idempotency key prevents duplicate effect',
-      observed: 'idempotency key is carried from Phase 10 through Phase 13',
+      observed: 'idempotency key is carried from Intent model0 through Intent model3',
       remediation: 'Return existing receipt and do not execute again.',
     },
     {
@@ -357,9 +357,9 @@ function buildGates(input: {
 
   return [
     gate(
-      'phase13-sandbox-executed',
+      'intent-model3-sandbox-executed',
       source.status === 'sandbox-executed',
-      'Phase 13 must emit a local sandbox execution receipt first.',
+      'Intent model3 must emit a local sandbox execution receipt first.',
       [`status=${source.status}`],
     ),
     gate(
@@ -377,8 +377,8 @@ function buildGates(input: {
     gate(
       'rollout-ladder-defined',
       stagesDefined,
-      'Rollout ladder must certify non-live stages and hold all live stages.',
-      [`stages=${input.rolloutStages.length}`, `defined=${stagesDefined}`],
+      'Rollout ladder must certify non-live phases and hold all live phases.',
+      [`phases=${input.rolloutStages.length}`, `defined=${stagesDefined}`],
     ),
     gate(
       'micro-amount-limit-ready',
@@ -431,7 +431,7 @@ function buildGates(input: {
         && SAFETY.liveExecutionAuthorized === false
         && SAFETY.liveActionApplied === false
         && (receipt?.liveExecutionAuthorized === false || receipt == null),
-      'Phase 14-15 certifies readiness only and keeps live execution disabled.',
+      'Intent model4-15 certifies readiness only and keeps live execution disabled.',
       [
         'liveMicroRolloutAuthorized=false',
         'liveExecutionAuthorized=false',
@@ -461,7 +461,7 @@ function buildCertificationPacket(input: {
     sourceSandboxExecutionReceiptId: input.receipt.id,
     ownerRolloutReviewId: input.ownerReview.rolloutReviewId,
     limits: input.rolloutLimits,
-    stages: input.rolloutStages,
+    phases: input.rolloutStages,
     scenarios: input.scenarios.map((scenario) => ({ id: scenario.id, passed: scenario.passed })),
   };
   return {
@@ -475,7 +475,7 @@ function buildCertificationPacket(input: {
     ownerRolloutReviewId: input.ownerReview.rolloutReviewId,
     rolloutPlanDigest: digestPayload({
       limits: input.rolloutLimits,
-      stages: input.rolloutStages,
+      phases: input.rolloutStages,
     }),
     certificationDigest: digestPayload(packetCore),
     connectorId: input.receipt.connectorId,
@@ -483,7 +483,7 @@ function buildCertificationPacket(input: {
     targetLabel: input.receipt.targetLabel,
     ...(input.receipt.currency ? { currency: input.receipt.currency } : {}),
     limits: input.rolloutLimits,
-    stages: input.rolloutStages,
+    phases: input.rolloutStages,
     scenarios: input.scenarios,
     certifiedForFutureLiveMicroRollout: true,
     certificationOnly: true,
@@ -519,7 +519,7 @@ function gate(
 function resolveStatus(
   gates: ZavorthTransactionLiveMicroRolloutCertificationGate[],
 ): ZavorthTransactionLiveMicroRolloutCertificationStatus {
-  if (!isGatePassed(gates, 'phase13-sandbox-executed') || !isGatePassed(gates, 'sandbox-execution-receipt-present')) {
+  if (!isGatePassed(gates, 'intent-model3-sandbox-executed') || !isGatePassed(gates, 'sandbox-execution-receipt-present')) {
     return 'sandbox-execution-required';
   }
   if (!isGatePassed(gates, 'owner-micro-rollout-review')) {
@@ -554,7 +554,7 @@ function summaryForStatus(status: ZavorthTransactionLiveMicroRolloutCertificatio
     return 'Future live micro-rollout readiness is certified, but no live execution was authorized or performed.';
   }
   if (status === 'sandbox-execution-required') {
-    return 'Phase 13 sandbox execution receipt is required before final micro-rollout certification.';
+    return 'Intent model3 sandbox execution receipt is required before final micro-rollout certification.';
   }
   if (status === 'micro-rollout-owner-review-required') {
     return 'Sandbox execution is ready, but the dedicated micro-rollout owner phrase is required.';
@@ -572,11 +572,11 @@ function nextStepsForStatus(
   if (status === 'micro-rollout-certified') {
     return [
       'Use this packet only as input to a future separate live micro executor.',
-      'Do not execute live from Phase 14-15; the certified rollout remains held.',
+      'Do not execute live from Intent model4-15; the certified rollout remains held.',
     ];
   }
   if (status === 'sandbox-execution-required') {
-    return ['Produce a Phase 13 sandbox-executed receipt first.'];
+    return ['Produce a Intent model3 sandbox-executed receipt first.'];
   }
   if (status === 'micro-rollout-owner-review-required') {
     return [`Re-run with micro-rollout certification phrase: ${ZAVORTH_TRANSACTION_LIVE_MICRO_ROLLOUT_CERTIFICATION_OWNER_PHRASE}`];
@@ -588,7 +588,7 @@ function nextStepsForStatus(
 }
 
 function buildResultId(text: string, now: Date): string {
-  const hash = createHash('sha256').update(`${now.toISOString()}:phase14-15:${text}`).digest('hex').slice(0, 16);
+  const hash = createHash('sha256').update(`${now.toISOString()}:intent-model4-15:${text}`).digest('hex').slice(0, 16);
   return `ztx-live-micro-rollout-cert-${hash}`;
 }
 

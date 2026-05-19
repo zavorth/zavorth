@@ -182,7 +182,7 @@ export class CapabilityAutopilotPreflightPostRunRollbackLedgerService {
       }),
       safeSummary: this.buildSafeSummary(execution, status),
       metadata: {
-        phase: 'capability-autopilot-phase-77',
+        phase: 'capability-autopilot-checkpoint-77',
         sourceExecutionStatus: execution.status,
         sourceActionKind: execution.sourceAction?.kind || null,
         autoExecute: false,
@@ -229,7 +229,7 @@ export class CapabilityAutopilotPreflightPostRunRollbackLedgerService {
           'Depois da verificacao pos-run e rollback ledger, o proximo passo e decidir se o Capability Autopilot pode avancar do alpha para beta com gates agregados.',
       },
       metadata: {
-        phase: 'capability-autopilot-phase-77',
+        phase: 'capability-autopilot-checkpoint-77',
         sourceSnapshotStatus: source.status,
         executionCount: source.executions.length,
         ledgerEntryCount: entries.length,
@@ -243,7 +243,7 @@ export class CapabilityAutopilotPreflightPostRunRollbackLedgerService {
 
   public renderReport(snapshot: CapabilityPreflightPostRunRollbackLedgerSnapshot): string {
     const lines: string[] = [];
-    lines.push('[capability-autopilot-preflight-post-run] Fase 77 - Real Apply Post-Run Verification And Rollback Ledger');
+    lines.push('[capability-autopilot-preflight-post-run] Etapa 77 - Real Apply Post-Run Verification And Rollback Ledger');
     lines.push(`status: ${snapshot.status}`);
     lines.push(`ok: ${snapshot.summary.ok ? 'yes' : 'no'} | pass=${snapshot.summary.passed} warn=${snapshot.summary.warnings} fail=${snapshot.summary.failed}`);
     lines.push(`capability: ${snapshot.capabilityId}`);
@@ -257,7 +257,7 @@ export class CapabilityAutopilotPreflightPostRunRollbackLedgerService {
       }
     }
     lines.push('');
-    lines.push(`proxima fase recomendada: ${snapshot.nextRecommendedPhase.phase} - ${snapshot.nextRecommendedPhase.title}`);
+    lines.push(`proximo passo recomendada: ${snapshot.nextRecommendedPhase.phase} - ${snapshot.nextRecommendedPhase.title}`);
     lines.push(snapshot.nextRecommendedPhase.reason);
     return lines.join('\n');
   }
@@ -407,7 +407,7 @@ export class CapabilityAutopilotPreflightPostRunRollbackLedgerService {
           entry.shouldRunAutomatically === false &&
           entry.metadata.autoExecute === false
         ) ? 'pass' : 'fail',
-        'A Fase 77 registra rollback ledger, mas nao dispara rollback automatico.',
+        'A Etapa 77 registra rollback ledger, mas nao dispara rollback automatico.',
         entries.map((entry) =>
           `${entry.sourceSurface}:rollbackInvoked=${entry.rollback.rollbackInvoked}:auto=${entry.shouldRunAutomatically}`,
         ),

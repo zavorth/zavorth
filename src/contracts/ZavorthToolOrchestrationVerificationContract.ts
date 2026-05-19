@@ -5,7 +5,7 @@ import type {
 import type { ZavorthReasoningActionPatternActionKind } from './ZavorthReasoningActionPatternContract.js';
 
 export const ZAVORTH_TOOL_ORCHESTRATION_VERIFICATION_CONTRACT_VERSION =
-  '2026-05-11.tool-orchestration-verification-phase-4' as const;
+  '2026-05-11.tool-orchestration-verification-checkpoint-4' as const;
 
 export type ZavorthToolOrchestrationVerificationStatus =
   | 'ready'
@@ -103,7 +103,7 @@ export type ZavorthToolFinalAnswerGuard = {
 export type ZavorthToolOrchestrationReceipt = {
   id: string;
   kind:
-    | 'phase-4-route-plan'
+    | 'checkpoint-4-route-plan'
     | 'verification-plan'
     | 'approval-boundary'
     | 'setup-boundary'
@@ -118,7 +118,7 @@ export type ZavorthToolOrchestrationVerificationSnapshot = {
   generatedAt: string;
   contractVersion: typeof ZAVORTH_TOOL_ORCHESTRATION_VERIFICATION_CONTRACT_VERSION;
   source: 'ZavorthToolOrchestrationVerificationService';
-  phase: 'phase-4-tool-orchestration-verification';
+  phase: 'checkpoint-4-tool-orchestration-verification';
   status: ZavorthToolOrchestrationVerificationStatus;
   request: {
     surface: string;
@@ -133,7 +133,7 @@ export type ZavorthToolOrchestrationVerificationSnapshot = {
   receipts: ZavorthToolOrchestrationReceipt[];
   safety: {
     noToolExecutionPerformed: true;
-    policyDecisionInheritedFromPhase3: true;
+    policyDecisionInheritedFromStage3: true;
     noLiveImpactWithoutApproval: true;
     verificationRequiredBeforeCompletion: true;
     untrustedToolOutputRequiresEvidenceBoundary: true;
@@ -155,7 +155,7 @@ export type ZavorthToolOrchestrationVerificationSnapshot = {
     report: 'npx tsx scripts/zavorth-tool-orchestration-verification.ts --text "<request>"';
     json: 'npx tsx scripts/zavorth-tool-orchestration-verification.ts --json --text "<request>"';
     check: 'node scripts/zavorth-tool-orchestration-verification-check.mjs';
-    nextPhase: 'Phase 5 - Cross-Surface Runtime Projection Assimilation';
+    nextStage: 'Credential vault - Cross-Surface Runtime Projection Assimilation';
   };
   narrative: {
     headline: string;

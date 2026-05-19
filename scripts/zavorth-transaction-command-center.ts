@@ -44,7 +44,7 @@ if (!options.text) {
   if (options.json) {
     console.log(JSON.stringify(snapshot, null, 2));
   } else {
-    console.log('[transaction-command-center] Phase 8 transaction Command Center projection');
+    console.log('[transaction-command-center] Dashboard controls transaction Command Center projection');
     console.log(`[transaction-command-center] version: ${snapshot.version}`);
     console.log(`[transaction-command-center] summary: ${snapshot.summary}`);
     console.log(`[transaction-command-center] lanes: ${snapshot.laneKinds.join(', ')}`);

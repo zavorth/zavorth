@@ -276,43 +276,43 @@ export function CommandCenterOverviewSector({
         <CommandCenterStateCard
           label="Release Path"
           value={releaseInstallerRollbackPath?.status ?? "sem path"}
-          detail={releaseInstallerRollbackPath?.nextSafeAction ?? "Release, installer e rollback aparecem quando a Wave 48 publicar o snapshot."}
+          detail={releaseInstallerRollbackPath?.nextSafeAction ?? "Release, installer e rollback aparecem quando a Channel mesh8 publicar o snapshot."}
           tone={releaseInstallerRollbackPath?.status === "blocked" ? "danger" : releaseInstallerRollbackPath?.status?.startsWith("needs-") ? "warn" : releaseInstallerRollbackPath ? "info" : "ok"}
         />
         <CommandCenterStateCard
           label="Public Sync"
           value={publicSiteDocsDemoSync?.status ?? "sem sync"}
-          detail={publicSiteDocsDemoSync?.nextSafeAction ?? "Site/docs/demo aparecem quando a Wave 49 publicar o snapshot."}
+          detail={publicSiteDocsDemoSync?.nextSafeAction ?? "Site/docs/demo aparecem quando a Channel mesh9 publicar o snapshot."}
           tone={publicSiteDocsDemoSync?.status === "blocked" || publicSiteDocsDemoSync?.status === "stable-claim-blocked" ? "danger" : publicSiteDocsDemoSync?.status?.startsWith("needs-") ? "warn" : publicSiteDocsDemoSync ? "info" : "ok"}
         />
         <CommandCenterStateCard
           label="Feedback Loop"
           value={feedbackTelemetryProductLoop?.status ?? "sem loop"}
-          detail={feedbackTelemetryProductLoop?.nextSafeAction ?? "Feedback opt-in aparece quando a Wave 50 publicar o snapshot."}
+          detail={feedbackTelemetryProductLoop?.nextSafeAction ?? "Feedback opt-in aparece quando a Feedback Telemetry publicar o snapshot."}
           tone={feedbackTelemetryProductLoop?.status === "blocked" ? "danger" : feedbackTelemetryProductLoop?.status?.startsWith("needs-") ? "warn" : feedbackTelemetryProductLoop ? "info" : "ok"}
         />
         <CommandCenterStateCard
           label="Pilot Loop"
           value={publicAdoptionPilotLoop?.status ?? "sem piloto"}
-          detail={publicAdoptionPilotLoop?.nextSafeAction ?? "Piloto publico aparece quando a Wave 51 publicar o snapshot."}
+          detail={publicAdoptionPilotLoop?.nextSafeAction ?? "Piloto publico aparece quando a Public Adoption Pilot publicar o snapshot."}
           tone={publicAdoptionPilotLoop?.status === "blocked" ? "danger" : publicAdoptionPilotLoop?.status?.startsWith("needs-") ? "warn" : publicAdoptionPilotLoop ? "info" : "ok"}
         />
         <CommandCenterStateCard
           label="Integration Showcase"
           value={integrationShowcasePartnerSurface?.status ?? "sem showcase"}
-          detail={integrationShowcasePartnerSurface?.nextSafeAction ?? "Showcase de integracoes aparece quando a Wave 52 publicar o snapshot."}
+          detail={integrationShowcasePartnerSurface?.nextSafeAction ?? "Showcase de integracoes aparece quando a Integration Showcase publicar o snapshot."}
           tone={integrationShowcasePartnerSurface?.status === "blocked" || integrationShowcasePartnerSurface?.status === "partner-claim-blocked" ? "danger" : integrationShowcasePartnerSurface?.status?.startsWith("needs-") ? "warn" : integrationShowcasePartnerSurface ? "info" : "ok"}
         />
         <CommandCenterStateCard
           label="Release Adoption"
           value={releaseAdoptionReadiness?.status ?? "sem readiness"}
-          detail={releaseAdoptionReadiness?.nextSafeAction ?? "Release/adoption aparece quando a Wave 53 publicar o snapshot."}
+          detail={releaseAdoptionReadiness?.nextSafeAction ?? "Release/adoption aparece quando a Release Adoption Readiness publicar o snapshot."}
           tone={releaseAdoptionReadiness?.status === "blocked" ? "danger" : releaseAdoptionReadiness?.status?.startsWith("needs-") ? "warn" : releaseAdoptionReadiness ? "info" : "ok"}
         />
         <CommandCenterStateCard
           label="Pre-Canary"
           value={releaseCandidatePreCanaryGate?.status ?? "sem gate"}
-          detail={releaseCandidatePreCanaryGate?.nextSafeAction ?? "Release candidate/pre-canary aparece quando a Wave 54 publicar o snapshot."}
+          detail={releaseCandidatePreCanaryGate?.nextSafeAction ?? "Release candidate/pre-canary aparece quando a Pre-Canary Gate publicar o snapshot."}
           tone={releaseCandidatePreCanaryGate?.status === "blocked" ? "danger" : releaseCandidatePreCanaryGate?.status?.startsWith("needs-") ? "warn" : releaseCandidatePreCanaryGate ? "info" : "ok"}
         />
         <CommandCenterStateCard

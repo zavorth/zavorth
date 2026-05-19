@@ -62,7 +62,7 @@ export function formatToolRehearsalSnapshot(
   snapshot: ToolRehearsalSnapshot,
 ): string {
   const lines = [
-    'Tool Rehearsal - Wave 36',
+    'Tool Rehearsal - Tool Rehearsal',
     `- contrato: ${snapshot.contractVersion}`,
     `- run: ${snapshot.identifiers.runId}`,
     `- status: ${snapshot.status}`,

@@ -41,7 +41,7 @@ describe('ZavorthScheduledTaskPersistenceService', () => {
       'owner',
       expect.objectContaining({
         governedScheduledTask: expect.objectContaining({
-          phase: 'phase-3-persisted-scheduled-task-registration',
+          stage: 'checkpoint-3-persisted-scheduled-task-registration',
         }),
       }),
     );

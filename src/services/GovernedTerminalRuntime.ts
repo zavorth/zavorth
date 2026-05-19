@@ -149,7 +149,7 @@ export class GovernedTerminalRuntime {
     reason: string;
   }): GovernedTerminalReceipt {
     return {
-      id: `phase5.terminal.${hashText(`${input.command}:${input.cwd}:${this.now().toISOString()}`)}`,
+      id: `credential-vault.terminal.${hashText(`${input.command}:${input.cwd}:${this.now().toISOString()}`)}`,
       status: input.status,
       command: input.command,
       cwd: input.cwd,

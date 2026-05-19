@@ -7,7 +7,7 @@ describe('ZavorthTransactionPlanePolicyService', () => {
 
     expect(snapshot.status).toBe('ready');
     expect(snapshot.generatedAt).toBe('2026-05-11T00:00:00.000Z');
-    expect(snapshot.phase0).toEqual(expect.objectContaining({
+    expect(snapshot.securityContract).toEqual(expect.objectContaining({
       liveExecutionAuthorizedByDefault: false,
       llmDirectExecutionAllowed: false,
       realMoneyRequiresExplicitApproval: true,
@@ -20,7 +20,7 @@ describe('ZavorthTransactionPlanePolicyService', () => {
     const service = new ZavorthTransactionPlanePolicyService();
     const report = service.renderReport(service.buildSnapshot(new Date('2026-05-11T00:00:00.000Z')));
 
-    expect(report).toContain('Phase 0 security contract');
+    expect(report).toContain('Security contract security contract');
     expect(report).toContain('llm direct execution: blocked');
     expect(report).toContain('real money approval: required');
     expect(report).toContain('critical value movement: blocked-by-default');

@@ -272,7 +272,7 @@ export class CapabilityAutopilotFallbackHandoffService {
       fallbackOptions: [],
       resumeIntent: input.resumeIntent,
       metadata: {
-        phase: 'capability-autopilot-phase-66',
+        phase: 'capability-autopilot-checkpoint-66',
         fallbackId: input.selectedFallback.id,
         fallbackLabel: input.selectedFallback.label,
         previousCapabilityId: input.selection.capabilityId,
@@ -341,12 +341,12 @@ export class CapabilityAutopilotFallbackHandoffService {
     return {
       ...receipt,
       generatedAt,
-      stage: 'permission',
+      phase: 'permission',
       timeline: [
         ...receipt.timeline,
         {
           at: generatedAt,
-          stage: 'permission',
+          phase: 'permission',
           status: 'pending',
           summary: permissionRequestResult.reason,
           detail: `permissions=${permissionRequestResult.permissions.length}; repairPlan=${permissionRequestResult.repairPlanId}`,
@@ -354,7 +354,7 @@ export class CapabilityAutopilotFallbackHandoffService {
       ],
       metadata: {
         ...(receipt.metadata || {}),
-        phase: 'capability-autopilot-phase-66',
+        phase: 'capability-autopilot-checkpoint-66',
         fallbackPermissionRequested: true,
       },
     };
@@ -428,7 +428,7 @@ export class CapabilityAutopilotFallbackHandoffService {
       summary: input.summary,
       technicalSummary: input.technicalSummary,
       metadata: {
-        phase: 'capability-autopilot-phase-66',
+        phase: 'capability-autopilot-checkpoint-66',
         autoFallbackExecuted: false,
         explicitSelectionRequired: true,
         selectionStatus: input.selection.status,

@@ -12,7 +12,7 @@ import type {
   ZavorthTransactionPreview,
 } from './ZavorthTransactionPreviewContract.js';
 
-export const ZAVORTH_TRANSACTION_CONNECTOR_CONTRACT_VERSION = 'zavorth-transaction-connector/phase-4' as const;
+export const ZAVORTH_TRANSACTION_CONNECTOR_CONTRACT_VERSION = 'zavorth-transaction-connector/checkpoint-4' as const;
 
 export type ZavorthTransactionConnectorMode = 'dry-run' | 'sandbox' | 'paper';
 
@@ -110,16 +110,16 @@ export function buildZavorthTransactionConnectorContractSnapshot(
 ): ZavorthTransactionConnectorContractSnapshot {
   return {
     version: ZAVORTH_TRANSACTION_CONNECTOR_CONTRACT_VERSION,
-    summary: 'Typed connector dry-run contract for Zavorth Transaction Plane Phase 4.',
+    summary: 'Typed connector dry-run contract for Zavorth Transaction Plane Connector registry.',
     supportedModes: ['dry-run', 'sandbox', 'paper'],
     connectors,
     invariants: [
-      'Phase 4 connectors can validate and simulate payloads, but cannot execute live effects.',
+      'Connector registry connectors can validate and simulate payloads, but cannot execute live effects.',
       'All connector run results report externalSideEffects=false.',
-      'Real-money dry-runs require a Phase 3 approval-granted ledger entry.',
+      'Real-money dry-runs require a Approval gate approval-granted ledger entry.',
       'Connector payloads accept vault credential references only, never raw secrets.',
       'Every simulated connector call carries an idempotency key and receipts.',
-      'supportsLive remains false for every Phase 4 connector.',
+      'supportsLive remains false for every Connector registry connector.',
     ],
   };
 }

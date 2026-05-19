@@ -56,7 +56,7 @@ function createRun(overrides: Partial<UniversalAgentRun> = {}): UniversalAgentRu
   };
 }
 
-describe('SafetyNarrativeService Wave 31', () => {
+describe('SafetyNarrativeService Safety Narrative', () => {
   it('explains high-risk blocks with safe alternatives and redaction', () => {
     const snapshot = new SafetyNarrativeService({
       now: () => new Date('2026-05-03T22:01:00.000Z'),

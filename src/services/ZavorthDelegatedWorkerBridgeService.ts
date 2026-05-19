@@ -66,7 +66,7 @@ export class ZavorthDelegatedWorkerBridgeService {
       workerId: workerDescriptors[0].workerId,
       requestedBySessionId: 'zavorth.session.telegram.thread-fixture-001',
       objective: 'Read repository metadata and return a bounded summary artifact.',
-      resourceRefs: ['repo://current', 'docs/291-zavorth-external-runtime-absorption-plan.md'],
+      resourceRefs: ['repo://current', 'docs/product-direction.md'],
       risk: 'medium',
       timeoutMs: 120000,
       cancellationToken: 'cancel-task-fixture-001',
@@ -107,8 +107,8 @@ export class ZavorthDelegatedWorkerBridgeService {
       generatedAt: this.now().toISOString(),
       contractVersion: ZAVORTH_DELEGATED_WORKER_BRIDGE_CONTRACT_VERSION,
       status,
-      planId: '291 - Plano Zavorth External Runtime Absorption',
-      phase: 'phase-7-delegated-workers',
+      planId: 'Zavorth External Runtime Integration',
+      phase: 'delegated-workers',
       previousSessionMemoryStatus,
       workerDescriptors,
       delegatedTaskEnvelope,
@@ -146,7 +146,7 @@ export class ZavorthDelegatedWorkerBridgeService {
         inspect: 'npm run zavorth:delegated-worker-bridge',
         inspectJson: 'npm run zavorth:delegated-worker-bridge:json',
         check: 'npm run zavorth:delegated-worker-bridge:check --silent',
-        nextPhase: '291 Phase 8 - Native Replacement And Decommission',
+        nextStage: '291 Dashboard controls - Native Replacement And Decommission',
       },
     };
   }
@@ -315,7 +315,7 @@ export class ZavorthDelegatedWorkerBridgeService {
         card('launch', 'Source Launch', input.sourceWorkerLaunchGateReceipt.status, 'Source worker launch blocked until later gate'),
         card('lifecycle', 'Lifecycle Dry Run', input.lifecycleDryRunReceipt.status, 'Lifecycle preview only, no worker started'),
         card('result', 'Result Mapping', input.executorResultMappingReceipt.runStatus.state, 'Worker result mapped to artifact/event/status'),
-        card('live-workers', 'Live Workers', '0', 'Phase 7 does not start workers'),
+        card('live-workers', 'Live Workers', '0', 'Surface controls does not start workers'),
       ],
       policyPills: [
         'zavorth-gateway-delegated-only',
@@ -326,14 +326,14 @@ export class ZavorthDelegatedWorkerBridgeService {
         'artifact/event/status mapping',
       ],
       nextSafeAction: input.status === 'delegated-worker-bridge-ready'
-        ? 'Proceed to 291 Phase 8 - Native Replacement And Decommission.'
+        ? 'Proceed to 291 Dashboard controls - Native Replacement And Decommission.'
         : 'Fix failed worker delegation gates before native replacement.',
     };
   }
 
   public formatSnapshotText(snapshot: ZavorthDelegatedWorkerBridgeSnapshot): string {
     const lines = [
-      'Zavorth Delegated Worker Bridge - Phase 7',
+      'Zavorth Delegated Worker Bridge - Surface controls',
       '',
       `Status: ${snapshot.status}`,
       `Previous session memory: ${snapshot.previousSessionMemoryStatus}`,
@@ -353,7 +353,7 @@ export class ZavorthDelegatedWorkerBridgeService {
       'Acceptance:',
       ...snapshot.acceptanceMatrix.map((entry) => `- ${entry.status} ${entry.requirementId}: ${entry.evidence}`),
       '',
-      `Next: ${snapshot.commands.nextPhase}`,
+      `Next: ${snapshot.commands.nextStage}`,
     ];
     return lines.join('\n');
   }
@@ -369,7 +369,7 @@ function buildAcceptanceMatrix(
   executorResultMappingReceipt: ZavorthExecutorResultMappingReceipt,
 ): ZavorthDelegatedWorkerBridgeSnapshot['acceptanceMatrix'] {
   return [
-    acceptance('phase-6-sessions-memory-continuation-ready', previousSessionMemoryStatus === 'session-memory-continuation-ready', `previousSessionMemoryStatus=${previousSessionMemoryStatus}`),
+    acceptance('sessions-memory-continuation-ready', previousSessionMemoryStatus === 'session-memory-continuation-ready', `previousSessionMemoryStatus=${previousSessionMemoryStatus}`),
     acceptance('worker-descriptors-normalized', workerDescriptors.length >= 2
       && workerDescriptors.every((entry) => entry.workerId.startsWith('zavorth.worker.') && entry.dispatchMode === 'zavorth-gateway-delegated-only' && !entry.directSourceLaunchAllowed), `${workerDescriptors.length} worker descriptor(s)`),
     acceptance('delegated-task-envelope-gateway-only', delegatedTaskEnvelope.status === 'dry-run-ready'

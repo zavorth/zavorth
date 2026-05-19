@@ -11,7 +11,7 @@ function createIdFactory() {
   return (prefix: string) => `${prefix}-cc-artifact-memory-${++index}`;
 }
 
-describe('Command Center Artifact Memory Wave 38', () => {
+describe('Command Center Artifact Memory Track 38', () => {
   it('projects artifactMemory metadata into the dashboard view model', () => {
     const run = new AgentRunService({
       now: () => new Date('2026-05-04T00:38:00.000Z'),
@@ -24,7 +24,7 @@ describe('Command Center Artifact Memory Wave 38', () => {
       workspace: 'C:\\TESTES DEV\\zavorth-core\\Zavorth',
       requestedTools: ['workspace.read', 'artifacts.read'],
       metadata: {
-        taskId: 'cc-wave-38',
+        taskId: 'cc-track-38',
       },
     });
     run.summary = 'Artifact Memory disponivel.';
@@ -56,7 +56,7 @@ describe('Command Center Artifact Memory Wave 38', () => {
     });
 
     expect(viewModel.artifactMemory).toEqual(expect.objectContaining({
-      contractVersion: '2026-05-03.wave-38',
+      contractVersion: '2026-05-03.track-38',
       status: 'ready',
       summary: expect.objectContaining({
         artifactCount: 1,
@@ -106,7 +106,7 @@ describe('Command Center Artifact Memory Wave 38', () => {
     );
 
     expect(projection.artifactMemory).toEqual(expect.objectContaining({
-      contractVersion: '2026-05-03.wave-38',
+      contractVersion: '2026-05-03.track-38',
       summary: expect.objectContaining({
         artifactCount: 1,
         memoryEntryCount: 2,

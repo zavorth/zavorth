@@ -8,7 +8,7 @@ const asJson = process.argv.includes('--json');
 const rules = [
   ruleFilesExist({
     id: 'release-path-files',
-    label: 'Wave 48 files exist',
+    label: 'Channel mesh8 files exist',
     target: 'Runtime, CLI, Command Center, tests and docs are present',
     files: [
       'src/runtime/agent/ReleaseInstallerRollbackPathService.ts',
@@ -27,7 +27,7 @@ const rules = [
     files: ['src/runtime/agent/ReleaseInstallerRollbackPathService.ts'],
     needles: [
       'RELEASE_INSTALLER_ROLLBACK_PATH_CONTRACT_VERSION',
-      '2026-05-04.wave-48',
+      '2026-05-04.release-rollback',
       'ProductEntryRuntimeService',
       'ProductizationEvidenceService',
       'PublicReleaseBundleContractService',
@@ -68,7 +68,7 @@ const rules = [
       'release-path',
       'release-installer',
       'installer-rollback',
-      'Release / Installer / Rollback Path - Wave 48',
+      'Release / Installer / Rollback Path - Channel mesh8',
       'resolveReleaseInstallerRollbackCliText',
       'formatReleaseInstallerRollbackSnapshot',
     ],
@@ -96,7 +96,7 @@ const rules = [
   }),
   ruleContainsAll({
     id: 'package-exposes-release-path-gate',
-    label: 'package exposes Wave 48 gate',
+    label: 'package exposes Channel mesh8 gate',
     target: 'local QA can run release-path:check and qa:release-path',
     files: ['package.json'],
     needles: [
@@ -122,7 +122,7 @@ const snapshot = {
 if (asJson) {
   console.log(JSON.stringify(snapshot, null, 2));
 } else {
-  console.log('[release-path] checking Wave 48');
+  console.log('[release-path] checking Channel mesh8');
   for (const rule of rules) {
     const marker = rule.status === 'passed' ? 'ok' : 'fail';
     console.log(`[release-path] ${marker} ${rule.label}: ${rule.observed} | ${rule.target}`);

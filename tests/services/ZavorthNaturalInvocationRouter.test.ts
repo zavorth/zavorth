@@ -1,7 +1,7 @@
 import type { SkillMetadata } from '../../src/skills/SkillLoader.js';
 import { ZavorthNaturalInvocationRouter } from '../../src/services/ZavorthNaturalInvocationRouter.js';
 
-describe('ZavorthNaturalInvocationRouter Phase 5/7', () => {
+describe('ZavorthNaturalInvocationRouter Credential vault/7', () => {
   it('routes natural subagent requests and exposes all shared channel commands', async () => {
     const router = new ZavorthNaturalInvocationRouter({
       now: () => new Date('2026-05-10T14:10:00.000Z'),

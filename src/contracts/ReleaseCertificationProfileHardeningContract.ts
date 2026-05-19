@@ -4,7 +4,7 @@ import type {
   ParityCertificationSnapshot,
 } from './ParityCertificationContract.js';
 
-export const ZAVORTH_RELEASE_CERTIFICATION_PROFILE_HARDENING_CONTRACT_VERSION = '2026-05-04.phase-14';
+export const ZAVORTH_RELEASE_CERTIFICATION_PROFILE_HARDENING_CONTRACT_VERSION = '2026-05-04.checkpoint-14';
 
 export const RELEASE_CERTIFICATION_HARDENED_PROFILES = [
   'private-absorption',
@@ -117,7 +117,7 @@ export type ReleaseCertificationProfileHardeningSnapshot = {
     publicLaunch: string;
     focusedTests: string[];
     typecheck: string;
-    nextPhase: 'Public launch smoke and evidence ledger';
+    nextStage: 'Public launch smoke and evidence ledger';
   };
   policy: {
     hardensAllProfiles: true;

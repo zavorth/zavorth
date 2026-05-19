@@ -145,7 +145,7 @@ export function formatProviderArenaSnapshot(
   snapshot: ProviderArenaSnapshot,
 ): string {
   const lines = [
-    'Provider Arena - Wave 34',
+    'Provider Arena - Provider Arena',
     `- contrato: ${snapshot.contractVersion}`,
     `- run: ${snapshot.identifiers.runId}`,
     `- decisao: ${snapshot.summary.decisionSource}`,

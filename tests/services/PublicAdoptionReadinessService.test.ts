@@ -2,7 +2,7 @@ import { PublicAdoptionReadinessService } from '../../src/services/PublicAdoptio
 import { PUBLIC_ADOPTION_REQUIRED_CORE_SCRIPTS } from '../../src/contracts/PublicAdoptionReadinessContract';
 
 describe('PublicAdoptionReadinessService', () => {
-  it('builds an ok Phase 53 snapshot from the public adoption fixture', () => {
+  it('builds an ok Credential vault3 snapshot from the public adoption fixture', () => {
     const service = serviceFromFixture();
     const snapshot = service.buildSnapshot();
 
@@ -17,8 +17,8 @@ describe('PublicAdoptionReadinessService', () => {
         status: 'warn',
       }),
     ]));
-    expect(snapshot.nextRecommendedPhase).toEqual(expect.objectContaining({
-      phase: '54',
+    expect(snapshot.nextRecommendedStage).toEqual(expect.objectContaining({
+      stage: '54',
       title: 'Hosted Website And Demo Operations',
     }));
   });
@@ -76,9 +76,9 @@ describe('PublicAdoptionReadinessService', () => {
 
     const report = service.renderReport();
 
-    expect(report).toContain('Fase 53 - Public Adoption Readiness');
+    expect(report).toContain('Readiness checkpoint 3 - Public Adoption Readiness');
     expect(report).toContain('runbook demo 10min');
-    expect(report).toContain('proxima fase recomendada: 54 - Hosted Website And Demo Operations');
+    expect(report).toContain('proximo passo recomendada: 54 - Hosted Website And Demo Operations');
   });
 });
 
@@ -107,21 +107,21 @@ function filesFixture(
       scripts: coreScriptsFixture(scriptOverrides),
     }, null, 2),
     'core:README.md': 'Zavorth runtime governado local-first com approvals e artefatos.',
-    'core:docs/11-roadmap.md': [
+    'core:docs/product-direction.md': [
       'Public Adoption And Release Operations 53-59',
-      'Fase 53 - Public Adoption Readiness',
+      'Readiness checkpoint 3 - Public Adoption Readiness',
     ].join('\n'),
-    'core:docs/75-public-productization-architecture.md': [
-      'Fase 52',
+    'core:docs/product-direction.md': [
+      'Readiness checkpoint 2',
       'Local-first como confianca.',
       'recurso local-first deve continuar funcional sem cloud obrigatoria.',
       'preview obrigatorio',
     ].join('\n'),
-    'core:docs/76-public-adoption-architecture.md': [
-      'Fase 53 - Public Adoption Readiness',
-      'Fase 54 - Hosted Website And Demo Operations',
-      'gate qa:phase:54',
-      'Fase 59 - v1.x Release Train And LTS Policy',
+    'core:docs/product-direction.md': [
+      'Readiness checkpoint 3 - Public Adoption Readiness',
+      'Readiness checkpoint 4 - Hosted Website And Demo Operations',
+      'gate qa:release:54',
+      'Readiness checkpoint 9 - v1.x Release Train And LTS Policy',
     ].join('\n'),
     'core:src/services/WebsitePublicContractService.ts': 'forbiddenClaims public contract',
     'core:src/services/PublicDemoContractService.ts': 'fixture demo contract',
@@ -142,7 +142,7 @@ function coreScriptsFixture(scriptOverrides: Record<string, string | null> = {})
   }
   scripts['public-adoption'] = 'npx tsx scripts/public-adoption.ts';
   scripts['qa:public-adoption'] = 'npx tsx scripts/public-adoption.ts --require-pass';
-  scripts['qa:phase:53'] = 'node scripts/phases-53-59-check.mjs --phase=53';
+  scripts['qa:stage:53'] = 'node scripts/capability-suite-growth-check.mjs --phase=53';
 
   for (const [scriptName, command] of Object.entries(scriptOverrides)) {
     if (command === null) {

@@ -7,7 +7,7 @@ import type {
 import type { ZavorthCrossSurfaceProjectionSurface } from './ZavorthCrossSurfaceRuntimeProjectionContract.js';
 
 export const ZAVORTH_LIVE_CANARY_APPLY_GATE_ROLLBACK_DRILL_CONTRACT_VERSION =
-  '2026-05-11.live-canary-apply-gate-rollback-drill-phase-9' as const;
+  '2026-05-11.live-canary-apply-gate-rollback-drill-checkpoint-9' as const;
 
 export const ZAVORTH_LIVE_CANARY_REQUIRED_FINAL_PHRASE = 'APPLY ZAVORTH LIVE CANARY' as const;
 
@@ -95,7 +95,7 @@ export type ZavorthLiveCanaryApplyAuthorizationPacket = {
 export type ZavorthLiveCanaryApplyGateReceipt = {
   id: string;
   kind:
-    | 'phase-9-live-canary-apply-gate'
+    | 'checkpoint-9-live-canary-apply-gate'
     | 'adapter-review-chain'
     | 'final-trigger-boundary'
     | 'rollback-drill-boundary'
@@ -121,7 +121,7 @@ export type ZavorthLiveCanaryApplyGateRollbackDrillSnapshot = {
   generatedAt: string;
   contractVersion: typeof ZAVORTH_LIVE_CANARY_APPLY_GATE_ROLLBACK_DRILL_CONTRACT_VERSION;
   source: 'ZavorthLiveCanaryApplyGateRollbackDrillService';
-  phase: 'phase-9-live-canary-apply-gate-rollback-drill';
+  phase: 'checkpoint-9-live-canary-apply-gate-rollback-drill';
   status: ZavorthLiveCanaryApplyGateStatus;
   mode: ZavorthLiveCanaryApplyGateMode;
   adapterReview: ZavorthLiveCanaryExecutionAdapterReviewSnapshot;

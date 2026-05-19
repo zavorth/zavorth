@@ -114,7 +114,7 @@ export class ZavorthGovernedScheduledTaskRegistryService {
       generatedAt,
       contractVersion: ZAVORTH_SCHEDULED_TASK_CONTRACT_VERSION,
       source: 'ZavorthGovernedScheduledTaskRegistryService',
-      phase: 'phase-1-governed-scheduled-task-contract',
+      phase: 'checkpoint-1-governed-scheduled-task-contract',
       status,
       schedule,
       scope,
@@ -148,7 +148,7 @@ export class ZavorthGovernedScheduledTaskRegistryService {
 
   public formatSnapshotText(snapshot: ZavorthScheduledTaskSnapshot): string {
     const lines = [
-      'Zavorth Governed Scheduled Task Registry - Phase 1',
+      'Zavorth Governed Scheduled Task Registry - Intent model',
       '',
       `Status: ${snapshot.status}`,
       `Schedule: ${snapshot.schedule?.normalized || 'invalid'}`,
@@ -369,7 +369,7 @@ function buildChecks(input: {
       'no-execution',
       true,
       'no-execution',
-      'Phase 1 registers governed scope only; no scheduled tick is executed here.',
+      'Intent model registers governed scope only; no scheduled tick is executed here.',
       null,
     ),
   ];
@@ -445,7 +445,7 @@ function buildRegistrationPlan(
     },
     executionPerformed: false,
     persistedToScheduler: false,
-    nextPhase: 'phase-2-execution-gateway-integration',
+    nextStage: 'checkpoint-2-execution-gateway-integration',
   };
 }
 
@@ -459,13 +459,13 @@ function buildReceipts(
 ): ZavorthScheduledTaskReceipt[] {
   return [
     {
-      id: 'phase-1-governed-scheduled-task-contract',
-      kind: 'phase-1-governed-scheduled-task-contract',
+      id: 'checkpoint-1-governed-scheduled-task-contract',
+      kind: 'checkpoint-1-governed-scheduled-task-contract',
       status: status === 'blocked' ? 'blocked' : 'recorded',
       summary: `Governed scheduled-task status is ${status}.`,
     },
     {
-      id: envelope?.approvalId || 'phase-1-scope-envelope',
+      id: envelope?.approvalId || 'checkpoint-1-scope-envelope',
       kind: 'scope-envelope',
       status: verification.ok ? 'ready' : 'requires-approval',
       summary: verification.ok
@@ -473,33 +473,33 @@ function buildReceipts(
         : `Scope envelope not ready: ${verification.reason}.`,
     },
     {
-      id: 'phase-1-registration-preview',
+      id: 'checkpoint-1-registration-preview',
       kind: 'registration-preview',
       status: registration.recorded ? 'ready' : 'skipped',
       summary: registration.recorded
-        ? 'SchedulerService registration payload is ready, but not persisted by Phase 1.'
+        ? 'SchedulerService registration payload is ready, but not persisted by Intent model.'
         : 'Registration payload is held until policy gates pass.',
     },
     {
-      id: 'phase-1-policy-boundary',
+      id: 'checkpoint-1-policy-boundary',
       kind: 'policy-boundary',
       status: status === 'blocked' ? 'blocked' : 'recorded',
       summary: 'Recurring work is constrained to the approved scope, workspace, surface and budgets.',
     },
     {
-      id: 'phase-1-no-compound-boundary',
+      id: 'checkpoint-1-no-compound-boundary',
       kind: 'no-compound-boundary',
       status: noCompoundBlocked ? 'blocked' : 'recorded',
       summary: noCompoundBlocked ? 'Compound scheduling was blocked.' : 'Compound scheduling boundary is clear.',
     },
     {
-      id: 'phase-1-budget-boundary',
+      id: 'checkpoint-1-budget-boundary',
       kind: 'budget-boundary',
       status: budgetBlocked ? 'blocked' : 'recorded',
       summary: budgetBlocked ? 'Budget ceiling blocked registration.' : 'Budget ceiling accepted registration.',
     },
     {
-      id: 'phase-1-scheduler-adapter',
+      id: 'checkpoint-1-scheduler-adapter',
       kind: 'scheduler-adapter',
       status: registration.schedulerServiceCompatible ? 'recorded' : 'blocked',
       summary: registration.schedulerServiceCompatible
@@ -507,10 +507,10 @@ function buildReceipts(
         : 'Payload cannot be adapted to SchedulerService.',
     },
     {
-      id: 'phase-1-execution-boundary',
+      id: 'checkpoint-1-execution-boundary',
       kind: 'execution-boundary',
       status: 'recorded',
-      summary: 'No recurring tick, tool call, network request, command or workspace mutation is executed in Phase 1.',
+      summary: 'No recurring tick, tool call, network request, command or workspace mutation is executed in Intent model.',
     },
   ];
 }
@@ -546,7 +546,7 @@ function narrativeForStatus(
     return {
       headline: 'Governed scheduled task is ready for registry handoff.',
       operatorSummary: 'The recurring task has a verified pre-approved scope, bounded budgets and a SchedulerService-compatible registration payload.',
-      nextAction: 'Phase 2 should connect this registration plan to ExecutionGateway ticks without expanding the approved scope.',
+      nextAction: 'Preview engine should connect this registration plan to ExecutionGateway ticks without expanding the approved scope.',
     };
   }
   if (status === 'needs_reapproval') {

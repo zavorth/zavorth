@@ -3,7 +3,7 @@ import {
   NaturalCapabilityDiscoveryService,
 } from '../../../src/runtime/agent/index.js';
 
-describe('NaturalCapabilityDiscoveryService Wave 29', () => {
+describe('NaturalCapabilityDiscoveryService Capability Discovery', () => {
   it('discovers mutation and shell tools without executing anything', () => {
     const snapshot = new NaturalCapabilityDiscoveryService({
       now: () => new Date('2026-05-03T20:00:00.000Z'),

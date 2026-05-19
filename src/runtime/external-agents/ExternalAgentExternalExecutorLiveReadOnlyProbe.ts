@@ -7,7 +7,7 @@ import type {
   ExternalAgentSidecarReadOnlyExecutionGate,
 } from './ExternalAgentSidecarReadOnlyBoundaryPack.js';
 import {
-  createWave1SidecarReadOnlyExecutionGate,
+  createCanonicalSidecarReadOnlyExecutionGate,
 } from './ExternalAgentSidecarReadOnlyBoundaryPack.js';
 
 export type ExternalExecutorReadOnlyProbeCommandKind =
@@ -182,7 +182,7 @@ function redactedCommandLabel(result: ExternalExecutorReadOnlyProbeCommandResult
 
 function createExternalExecutorReadOnlyProbeExecutionGate(): ExternalExecutorReadOnlyProbeExecutionGate {
   return {
-    ...createWave1SidecarReadOnlyExecutionGate(),
+    ...createCanonicalSidecarReadOnlyExecutionGate(),
     manualSmokeOnly: true,
     readOnlyCommandsCaptured: true,
     daemonStarted: false,

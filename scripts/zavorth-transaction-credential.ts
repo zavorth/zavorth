@@ -92,7 +92,7 @@ const snapshot = service.buildSnapshot();
 if (options.json) {
   console.log(JSON.stringify(snapshot, null, 2));
 } else {
-  console.log('[transaction-credential] Phase 5 credential ref');
+  console.log('[transaction-credential] Credential vault credential ref');
   console.log(`[transaction-credential] version: ${snapshot.version}`);
   console.log(`[transaction-credential] summary: ${snapshot.summary}`);
   console.log(`[transaction-credential] environments: ${snapshot.environments.join(', ')}`);

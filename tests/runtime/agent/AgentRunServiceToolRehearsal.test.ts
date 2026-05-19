@@ -8,7 +8,7 @@ function createIdFactory() {
   return (prefix: string) => `${prefix}-agent-tool-rehearsal-${++index}`;
 }
 
-describe('AgentRunService Tool Rehearsal Wave 36', () => {
+describe('AgentRunService Tool Rehearsal Tool Rehearsal', () => {
   it('runs Tool Rehearsal after scope approval and before executor', async () => {
     const executor = jest.fn(() => ({
       status: 'completed' as const,

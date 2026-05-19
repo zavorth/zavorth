@@ -30,7 +30,7 @@ async function main() {
     return;
   }
 
-  console.log('[zavorth-ecosystem] leitura consolidada da Wave 9');
+  console.log('[zavorth-ecosystem] leitura consolidada da Ecosystem');
   console.log(`[zavorth-ecosystem] postura: ${snapshot.summary.posture}`);
   console.log(`[zavorth-ecosystem] resumo: ${snapshot.narrative.operatorSummary}`);
   console.log(

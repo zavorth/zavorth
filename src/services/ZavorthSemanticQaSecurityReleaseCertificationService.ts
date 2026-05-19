@@ -139,7 +139,7 @@ export class ZavorthSemanticQaSecurityReleaseCertificationService {
         inspectJson: 'npm run semantic-qa-security-release-certification:json --silent',
         check: 'npm run semantic-qa-security-release-certification:check --silent',
         qa: 'npm run qa:semantic-qa-security-release-certification --silent',
-        nextPhase: 'S8 - Skill Ecosystem Semantics',
+        nextStage: 'S8 - Skill Ecosystem Semantics',
       },
     };
   }
@@ -167,7 +167,7 @@ export class ZavorthSemanticQaSecurityReleaseCertificationService {
       ...snapshot.claims.map((claim) =>
         `- ${claim.status} ${claim.priority} ${claim.id}: ${claim.expectedBehavior} -> ${claim.zavorthEquivalent}`,
       ),
-      `Next: ${snapshot.commands.nextPhase}`,
+      `Next: ${snapshot.commands.nextStage}`,
     ];
     return lines.join('\n');
   }
@@ -327,7 +327,7 @@ export class ZavorthSemanticQaSecurityReleaseCertificationService {
             : 'gap',
         priority: 'P0',
         expectedBehavior: 'QA/security/release certification stays local-only and performs no live provider/channel/device I/O.',
-        zavorthEquivalent: 'Phase 7 policy and receipt flags keep all checks local.',
+        zavorthEquivalent: 'Surface controls policy and receipt flags keep all checks local.',
         evidence: [
           `localChecksOnly=${pack.policy.localChecksOnly}`,
           `noLiveProviderCalls=${pack.policy.noLiveProviderCalls}`,
@@ -608,7 +608,7 @@ function scenarioEquivalent(id: ZavorthSemanticQaSecurityReleaseScenario['id']):
     case 'workflow-semantics-do-not-copy-yaml':
       return 'WorkflowSemanticCheck receipts set copiedWorkflowYaml=false.';
     case 'release-certification-stays-local-only':
-      return 'Phase 7 policy and receipts keep liveExternalIoPerformed=false.';
+      return 'Surface controls policy and receipts keep liveExternalIoPerformed=false.';
     default:
       return 'Zavorth QA/security/release semantic scenario receipt.';
   }

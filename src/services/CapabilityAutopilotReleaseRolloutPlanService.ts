@@ -265,7 +265,7 @@ export class CapabilityAutopilotReleaseRolloutPlanService {
           'Depois do rollout plan, o proximo passo e executar a release manualmente com tag/publish gated, canary inicial, rollback e observabilidade.',
       },
       metadata: {
-        phase: 'capability-autopilot-phase-81',
+        phase: 'capability-autopilot-checkpoint-81',
         sourceSnapshotStatus: source.status,
         sourceRecommendation: source.recommendation,
         autoExecute: false,
@@ -283,7 +283,7 @@ export class CapabilityAutopilotReleaseRolloutPlanService {
 
   public renderReport(snapshot: CapabilityAutopilotReleaseRolloutPlanSnapshot): string {
     const lines: string[] = [];
-    lines.push('[capability-autopilot-release-rollout] Fase 81 - Capability Autopilot v1.1 Release Rollout Plan');
+    lines.push('[capability-autopilot-release-rollout] Etapa 81 - Capability Autopilot v1.1 Release Rollout Plan');
     lines.push(`status: ${snapshot.status}`);
     lines.push(`recommendation: ${snapshot.recommendation}`);
     lines.push(`ok: ${snapshot.summary.ok ? 'yes' : 'no'} | pass=${snapshot.summary.passed} warn=${snapshot.summary.warnings} fail=${snapshot.summary.failed}`);
@@ -299,7 +299,7 @@ export class CapabilityAutopilotReleaseRolloutPlanService {
       }
     }
     lines.push('');
-    lines.push(`proxima fase recomendada: ${snapshot.nextRecommendedPhase.phase} - ${snapshot.nextRecommendedPhase.title}`);
+    lines.push(`proximo passo recomendada: ${snapshot.nextRecommendedPhase.phase} - ${snapshot.nextRecommendedPhase.title}`);
     lines.push(snapshot.nextRecommendedPhase.reason);
     return lines.join('\n');
   }
@@ -514,7 +514,7 @@ export class CapabilityAutopilotReleaseRolloutPlanService {
           !options.autoRolloutEnabled
           ? 'pass'
           : 'fail',
-        'A Fase 81 prepara o rollout, mas nao publica tag, nao libera global e nao executa auto-rollout.',
+        'A Etapa 81 prepara o rollout, mas nao publica tag, nao libera global e nao executa auto-rollout.',
         [
           `manualPromotionRequired=${options.manualPromotionRequired}`,
           `rcFlagDefaultOff=${options.rcFlagDefaultOff}`,

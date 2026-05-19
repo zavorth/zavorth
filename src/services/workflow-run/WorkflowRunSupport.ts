@@ -48,23 +48,23 @@ export class WorkflowRunSupport {
       operator_closed_at: this.normalizeNullableString((run as any)?.operator_closed_at),
       operator_close_reason: this.normalizeNullableString((run as any)?.operator_close_reason),
       operator_closed_by_surface: this.normalizeNullableString((run as any)?.operator_closed_by_surface),
-      stages: Array.isArray(run?.stages)
-        ? run.stages.map((stage, index) => ({
-            id: String(stage?.id || '').trim(),
-            label: String(stage?.label || '').trim(),
-            executor: String(stage?.executor || 'codex').trim() as WorkflowRunStageSnapshot['executor'],
-            role: String(stage?.role || '').trim(),
-            strategy_note: this.normalizeNullableString((stage as any)?.strategy_note),
-            index: Number.isFinite(stage?.index) ? Number(stage.index) : index,
-            status: String(stage?.status || 'pending').trim() as WorkflowStageStatus,
-            task_id: this.normalizeNullableString(stage?.task_id),
-            attempt_count: Math.max(0, Number(stage?.attempt_count || 0)),
-            objective: this.normalizeNullableString(stage?.objective),
-            handoff_summary: this.normalizeNullableString(stage?.handoff_summary),
-            started_at: this.normalizeNullableString(stage?.started_at),
-            finished_at: this.normalizeNullableString(stage?.finished_at),
-            result_summary: this.normalizeNullableString(stage?.result_summary),
-            artifact_count: Math.max(0, Number(stage?.artifact_count || 0)),
+      phases: Array.isArray(run?.phases)
+        ? run.phases.map((phase, index) => ({
+            id: String(phase?.id || '').trim(),
+            label: String(phase?.label || '').trim(),
+            executor: String(phase?.executor || 'codex').trim() as WorkflowRunStageSnapshot['executor'],
+            role: String(phase?.role || '').trim(),
+            strategy_note: this.normalizeNullableString((phase as any)?.strategy_note),
+            index: Number.isFinite(phase?.index) ? Number(phase.index) : index,
+            status: String(phase?.status || 'pending').trim() as WorkflowStageStatus,
+            task_id: this.normalizeNullableString(phase?.task_id),
+            attempt_count: Math.max(0, Number(phase?.attempt_count || 0)),
+            objective: this.normalizeNullableString(phase?.objective),
+            handoff_summary: this.normalizeNullableString(phase?.handoff_summary),
+            started_at: this.normalizeNullableString(phase?.started_at),
+            finished_at: this.normalizeNullableString(phase?.finished_at),
+            result_summary: this.normalizeNullableString(phase?.result_summary),
+            artifact_count: Math.max(0, Number(phase?.artifact_count || 0)),
           }))
         : [],
       artifacts: Array.isArray(run?.artifacts) ? run.artifacts : [],
@@ -146,61 +146,61 @@ export class WorkflowRunSupport {
     status: 'blocked' | 'failed' | 'approval_pending',
     summary: string,
   ): void {
-    const stage = run.stages.find((entry) => entry.id === stageId);
-    if (!stage) {
+    const phase = run.phases.find((entry) => entry.id === stageId);
+    if (!phase) {
       return;
     }
 
     const now = this.runtime.now().toISOString();
-    stage.status = status;
-    stage.finished_at = now;
-    stage.result_summary = summary;
+    phase.status = status;
+    phase.finished_at = now;
+    phase.result_summary = summary;
     run.updated_at = now;
     this.syncRunDerivedState(run);
     this.appendLifecycle(run, [
       status === 'approval_pending'
         ? this.buildWorkflowLifecycleRecord(run, {
             kind: 'approval',
-            id: this.buildStageApprovalId(run, stage),
+            id: this.buildStageApprovalId(run, phase),
             status: 'approval_required',
-            summary: summary || `Etapa ${stage.label} aguardando aprovacao.`,
+            summary: summary || `Etapa ${phase.label} aguardando aprovacao.`,
             at: now,
             parentId: run.workflow_run_id,
-            approvalId: this.buildStageApprovalId(run, stage),
+            approvalId: this.buildStageApprovalId(run, phase),
             metadata: {
               event: 'stage_interrupted',
-              stageId: stage.id,
-              stageLabel: stage.label,
-              executor: stage.executor,
-              taskId: stage.task_id,
+              stageId: phase.id,
+              stageLabel: phase.label,
+              executor: phase.executor,
+              taskId: phase.task_id,
               workflowStatus: run.status,
             },
           })
         : this.buildWorkflowLifecycleRecord(run, {
             kind: 'execution',
-            id: this.buildStageExecutionId(run, stage),
+            id: this.buildStageExecutionId(run, phase),
             status: status === 'blocked' ? 'blocked' : 'failed',
-            summary: summary || `Etapa ${stage.label} interrompida.`,
+            summary: summary || `Etapa ${phase.label} interrompida.`,
             at: now,
             parentId: run.workflow_run_id,
             metadata: {
               event: 'stage_interrupted',
-              stageId: stage.id,
-              stageLabel: stage.label,
-              executor: stage.executor,
-              taskId: stage.task_id,
+              stageId: phase.id,
+              stageLabel: phase.label,
+              executor: phase.executor,
+              taskId: phase.task_id,
               workflowStatus: run.status,
             },
           }),
       this.buildWorkflowLifecycleRecord(run, {
         kind: 'run',
         status: this.mapWorkflowStatusToLifecycle(run.status),
-        summary: summary || `Workflow ${run.workflow_name} interrompido na etapa ${stage.label}.`,
+        summary: summary || `Workflow ${run.workflow_name} interrompido na etapa ${phase.label}.`,
         at: now,
         metadata: {
           event: 'stage_interrupted',
-          stageId: stage.id,
-          stageLabel: stage.label,
+          stageId: phase.id,
+          stageLabel: phase.label,
           workflowStatus: run.status,
         },
       }),
@@ -225,23 +225,23 @@ export class WorkflowRunSupport {
       return null;
     }
 
-    const stage = this.resolveStageByDecisionReference(run, {
+    const phase = this.resolveStageByDecisionReference(run, {
       stageId: input.stageId,
       taskId: input.taskId,
     });
-    if (!stage) {
+    if (!phase) {
       return run;
     }
 
     const now = this.runtime.now().toISOString();
     if (input.action === 'approve') {
-      stage.status = 'pending';
-      stage.finished_at = null;
-      stage.result_summary = String(input.summary || '').trim() || stage.result_summary || null;
+      phase.status = 'pending';
+      phase.finished_at = null;
+      phase.result_summary = String(input.summary || '').trim() || phase.result_summary || null;
     } else {
-      stage.status = 'blocked';
-      stage.finished_at = now;
-      stage.result_summary = String(input.summary || '').trim() || stage.result_summary || null;
+      phase.status = 'blocked';
+      phase.finished_at = now;
+      phase.result_summary = String(input.summary || '').trim() || phase.result_summary || null;
     }
 
     run.updated_at = now;
@@ -249,17 +249,17 @@ export class WorkflowRunSupport {
     this.appendLifecycle(run, [
       this.buildWorkflowLifecycleRecord(run, {
         kind: 'approval',
-        id: this.buildStageApprovalId(run, stage),
+        id: this.buildStageApprovalId(run, phase),
         status: input.action === 'approve' ? 'approved' : 'blocked',
-        summary: String(input.summary || '').trim() || `Aprovacao da etapa ${stage.label} registrada.`,
+        summary: String(input.summary || '').trim() || `Aprovacao da etapa ${phase.label} registrada.`,
         at: now,
         parentId: run.workflow_run_id,
-        approvalId: this.buildStageApprovalId(run, stage),
+        approvalId: this.buildStageApprovalId(run, phase),
         metadata: {
           event: input.action === 'approve' ? 'stage_approved' : 'stage_rejected',
-          stageId: stage.id,
-          stageLabel: stage.label,
-          taskId: stage.task_id,
+          stageId: phase.id,
+          stageLabel: phase.label,
+          taskId: phase.task_id,
           workflowStatus: run.status,
         },
       }),
@@ -272,8 +272,8 @@ export class WorkflowRunSupport {
         at: now,
         metadata: {
           event: input.action === 'approve' ? 'stage_approved' : 'stage_rejected',
-          stageId: stage.id,
-          stageLabel: stage.label,
+          stageId: phase.id,
+          stageLabel: phase.label,
         },
       }),
     ]);
@@ -345,7 +345,7 @@ export class WorkflowRunSupport {
 
   public buildTaskMetadata(
     run: WorkflowRunSnapshot,
-    stage: WorkflowStageDefinition,
+    phase: WorkflowStageDefinition,
     stageIndex: number,
     handoffSummary: string | null,
     workspaceContext?: WorkflowWorkspaceContext | null,
@@ -373,12 +373,12 @@ export class WorkflowRunSupport {
       workflow_trigger_task_kind: run.trigger.task_kind,
       workflow_trigger_task_subtype: run.trigger.task_subtype,
       workflow_trigger_feature_id: run.trigger.feature_id,
-      workflow_stage_id: stage.id,
-      workflow_stage_label: stage.label,
-      workflow_stage_executor: stage.executor,
-      workflow_stage_role: stage.role,
+      workflow_stage_id: phase.id,
+      workflow_stage_label: phase.label,
+      workflow_stage_executor: phase.executor,
+      workflow_stage_role: phase.role,
       workflow_stage_index: stageIndex + 1,
-      workflow_stage_total: run.stages.length,
+      workflow_stage_total: run.phases.length,
       workflow_handoff_summary: handoffSummary || null,
       workflow_status: run.status,
       traceId: correlation.traceId,
@@ -390,7 +390,7 @@ export class WorkflowRunSupport {
       workflow_resume_stage_index: Number.isFinite(run.resume_stage?.index) ? Number(run.resume_stage?.index) + 1 : null,
       workflow_resume_stage_summary: run.resume_stage?.result_summary || run.resume_stage?.handoff_summary || null,
       workflow_resume_prompt: run.resume_prompt,
-      workflow_stage_strategy_note: stage.strategy_note || null,
+      workflow_stage_strategy_note: phase.strategy_note || null,
       workflow_artifacts_manifest: run.artifacts_manifest,
       workflow_execution_lifecycle: Array.isArray(run.execution_lifecycle)
         ? run.execution_lifecycle.slice(-25)
@@ -402,17 +402,17 @@ export class WorkflowRunSupport {
 
   public buildPlanNotes(
     run: WorkflowRunSnapshot,
-    stage: WorkflowStageDefinition,
+    phase: WorkflowStageDefinition,
     handoffSummary: string | null,
     workspaceContext?: WorkflowWorkspaceContext | null,
   ): string[] {
     return [
       `workflow_run_id=${run.workflow_run_id}`,
       `workflow=${run.workflow_name}`,
-      `stage=${stage.id}`,
+      `phase=${phase.id}`,
       run.trigger.feature_id ? `feature=${run.trigger.feature_id}` : null,
       handoffSummary ? `handoff=${handoffSummary}` : null,
-      stage.strategy_note ? `workflow_stage_strategy=${stage.strategy_note}` : null,
+      phase.strategy_note ? `workflow_stage_strategy=${phase.strategy_note}` : null,
       ...this.buildWorkspaceContextNotes(workspaceContext),
     ].filter((value): value is string => Boolean(value));
   }
@@ -427,7 +427,7 @@ export class WorkflowRunSupport {
 
     const details = [
       `Run: ${run.workflow_run_id}`,
-      `Etapas concluidas: ${run.stages.filter((stage) => stage.status === 'completed').length}/${run.stages.length}`,
+      `Etapas concluidas: ${run.phases.filter((phase) => phase.status === 'completed').length}/${run.phases.length}`,
       run.resume_stage ? `Retomada sugerida: ${run.resume_stage.label}` : null,
       run.resume_stage?.reason ? `Motivo: ${run.resume_stage.reason}` : null,
       run.artifacts.length > 0 ? `Entregas agregadas: ${run.artifacts.length}` : null,
@@ -479,7 +479,7 @@ export class WorkflowRunSupport {
       stageId?: string | null;
       taskId?: string | null;
     },
-  ): WorkflowRunSnapshot['stages'][number] | null {
+  ): WorkflowRunSnapshot['phases'][number] | null {
     return WorkflowRunStageStateSupport.resolveStageByDecisionReference(run, input);
   }
 
@@ -492,9 +492,9 @@ export class WorkflowRunSupport {
   }
 
   public describeActionableStageReason(
-    stage: WorkflowRunSnapshot['stages'][number],
+    phase: WorkflowRunSnapshot['phases'][number],
   ): string {
-    return WorkflowRunStageStateSupport.describeActionableStageReason(stage);
+    return WorkflowRunStageStateSupport.describeActionableStageReason(phase);
   }
 
   public describeActionableStageAction(
@@ -505,9 +505,9 @@ export class WorkflowRunSupport {
 
   public buildResumePrompt(
     run: WorkflowRunSnapshot,
-    stage: WorkflowRunResumeStageSnapshot,
+    phase: WorkflowRunResumeStageSnapshot,
   ): string {
-    return WorkflowRunStageStateSupport.buildResumePrompt(run, stage);
+    return WorkflowRunStageStateSupport.buildResumePrompt(run, phase);
   }
 
   public buildRunCorrelation(
@@ -562,16 +562,16 @@ export class WorkflowRunSupport {
 
   public buildStageExecutionId(
     run: WorkflowRunSnapshot,
-    stage: WorkflowRunStageSnapshot,
+    phase: WorkflowRunStageSnapshot,
   ): string {
-    return WorkflowRunLifecycleSupport.buildStageExecutionId(run, stage);
+    return WorkflowRunLifecycleSupport.buildStageExecutionId(run, phase);
   }
 
   public buildStageApprovalId(
     run: WorkflowRunSnapshot,
-    stage: WorkflowRunStageSnapshot,
+    phase: WorkflowRunStageSnapshot,
   ): string {
-    return WorkflowRunLifecycleSupport.buildStageApprovalId(run, stage);
+    return WorkflowRunLifecycleSupport.buildStageApprovalId(run, phase);
   }
 
   public persistRun(run: WorkflowRunSnapshot, event: string = 'state_updated'): void {

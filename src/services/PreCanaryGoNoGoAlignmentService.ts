@@ -125,7 +125,7 @@ export class PreCanaryGoNoGoAlignmentService {
           'npm run pre-canary-go-no-go-alignment --silent -- --require-aligned',
         ],
         typecheck: 'npm run runtime:check --silent',
-        nextPhase: 'Canary plan dry-run and hold',
+        nextStage: 'Canary plan dry-run and hold',
       },
       policy: {
         alignmentOnly: true,
@@ -175,7 +175,7 @@ export class PreCanaryGoNoGoAlignmentService {
         `- ${gate.status.toUpperCase()} ${gate.id}: ${gate.observed} / ${gate.threshold} - ${gate.nextAction}`,
       ),
       '',
-      `Next: ${snapshot.commands.nextPhase}`,
+      `Next: ${snapshot.commands.nextStage}`,
     ].join('\n');
   }
 
@@ -303,7 +303,7 @@ export class PreCanaryGoNoGoAlignmentService {
         observed: input.distributionReady,
         threshold: true,
         receipt: 'pre-canary-go-no-go.distribution-rehearsal-ready.receipt',
-        nextAction: 'finish Phase 17 distribution rehearsal before go/no-go alignment',
+        nextAction: 'finish Intent model7 distribution rehearsal before go/no-go alignment',
       }),
       gate({
         id: 'pre-canary-runtime-gates-linked',

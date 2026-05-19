@@ -137,7 +137,7 @@ export class ZavorthSemanticNativeCompanionDeviceCapabilityCertificationService 
         inspectJson: 'npm run semantic-native-companion-device-capability-certification:json --silent',
         check: 'npm run semantic-native-companion-device-capability-certification:check --silent',
         qa: 'npm run qa:semantic-native-companion-device-capability-certification --silent',
-        nextPhase: 'S7 - QA, Security And Release Certification Semantics',
+        nextStage: 'S7 - QA, Security And Release Certification Semantics',
       },
     };
   }
@@ -167,7 +167,7 @@ export class ZavorthSemanticNativeCompanionDeviceCapabilityCertificationService 
       ...snapshot.claims.map((claim) =>
         `- ${claim.status} ${claim.priority} ${claim.id}: ${claim.expectedBehavior} -> ${claim.zavorthEquivalent}`,
       ),
-      `Next: ${snapshot.commands.nextPhase}`,
+      `Next: ${snapshot.commands.nextStage}`,
     ];
     return lines.join('\n');
   }
@@ -457,7 +457,7 @@ export class ZavorthSemanticNativeCompanionDeviceCapabilityCertificationService 
             : 'gap',
         priority: 'P0',
         expectedBehavior: 'Native companion/device certification performs no live external I/O and enables no device bridge by default.',
-        zavorthEquivalent: 'Phase 6 pack summary and receipt policy keep native surfaces disabled by default.',
+        zavorthEquivalent: 'Runtime gateway pack summary and receipt policy keep native surfaces disabled by default.',
         evidence: [
           `liveExternalIoPerformed=${pack.summary.liveExternalIoPerformed}`,
           `enabledByDefault=${pack.summary.enabledByDefault}`,

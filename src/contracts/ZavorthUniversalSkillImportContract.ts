@@ -8,7 +8,7 @@ import type {
   ZavorthUniversalSkillIntakePreview,
 } from './ZavorthUniversalSkillIntakeContract.js';
 
-export const ZAVORTH_UNIVERSAL_SKILL_IMPORT_CONTRACT_VERSION = '2026-05-10.phase-2' as const;
+export const ZAVORTH_UNIVERSAL_SKILL_IMPORT_CONTRACT_VERSION = '2026-05-10.checkpoint-2' as const;
 
 export type ZavorthUniversalSkillImportStatus = 'passed' | 'blocked' | 'preview-only' | 'partial';
 
@@ -111,7 +111,7 @@ export type ZavorthUniversalSkillImportSnapshot = {
     plan: 'npm run zavorth:universal-skill-import -- --source <path>';
     apply: 'npm run zavorth:universal-skill-import -- --source <path> --allow-source --skills <name> --apply';
     check: 'npm run zavorth:universal-skill-import:check --silent';
-    nextPhase: 'Phase 3 - Skill Bridge Runtime';
+    nextStage: 'Approval gate - Skill Bridge Runtime';
   };
 };
 

@@ -8,8 +8,8 @@ const asJson = process.argv.includes('--json');
 
 const rules = [
   ruleFilesExist({
-    id: 'zavorth-qa-security-release-phase-7-files',
-    label: 'Phase 7 files exist',
+    id: 'zavorth-qa-security-release-checkpoint-7-files',
+    label: 'Surface controls files exist',
     target: 'contract, five family services, runner, command, SDK export and tests are present',
     files: [
       'src/contracts/ZavorthQaSecurityReleaseCertificationContract.ts',
@@ -27,8 +27,8 @@ const rules = [
   }),
   ruleContainsAll({
     id: 'zavorth-qa-security-release-contract',
-    label: 'Contract captures Phase 7 certification model',
-    target: 'contract includes family ids, pass/warn/fail receipts, policies and Phase 8 handoff',
+    label: 'Contract captures Surface controls certification model',
+    target: 'contract includes family ids, pass/warn/fail receipts, policies and Dashboard controls handoff',
     files: ['src/contracts/ZavorthQaSecurityReleaseCertificationContract.ts'],
     needles: [
       'ZAVORTH_QA_SECURITY_RELEASE_CERTIFICATION_CONTRACT_VERSION',
@@ -41,7 +41,7 @@ const rules = [
       'ZavorthFunctionalParityCertificationRunnerSnapshot',
       'dependencyPatchesAcceptedSilently',
       'rawWorkflowYamlCopied',
-      'Phase 8 - Skill Ecosystem Pack',
+      'Dashboard controls - Skill Ecosystem Pack',
     ],
   }),
   ruleContainsAcross({
@@ -78,12 +78,12 @@ const rules = [
       'noLiveProviderCalls',
       'noLiveChannelSends',
       'artifactFirstReceipts',
-      'Phase 8 - Skill Ecosystem Pack',
+      'Dashboard controls - Skill Ecosystem Pack',
     ],
   }),
   ruleContainsAll({
     id: 'package-exposes-zavorth-qa-security-release-pack',
-    label: 'package exposes Phase 7 gates',
+    label: 'package exposes Surface controls gates',
     target: 'operators can inspect, inspect JSON, run check and QA from package scripts',
     files: ['package.json'],
     needles: [
@@ -113,7 +113,7 @@ const snapshot = {
 if (asJson) {
   console.log(JSON.stringify(snapshot, null, 2));
 } else {
-  console.log('[zavorth-qa-security-release-certification-pack] checking Phase 7');
+  console.log('[zavorth-qa-security-release-certification-pack] checking Surface controls');
   for (const rule of rules) {
     const marker = rule.status === 'passed' ? 'ok' : 'fail';
     console.log(`[zavorth-qa-security-release-certification-pack] ${marker} ${rule.label}: ${rule.observed} | ${rule.target}`);
@@ -142,10 +142,10 @@ function runRuntimeRule() {
   if (result.status !== 0) {
     return {
       id: 'zavorth-qa-security-release-runtime-receipt',
-      label: 'Runtime Phase 7 receipt passes',
+      label: 'Runtime Surface controls receipt passes',
       status: 'failed',
       observed: `exit ${result.status ?? 'unknown'}`,
-      target: 'Phase 7 command emits a passing QA/security/release snapshot',
+      target: 'Surface controls command emits a passing QA/security/release snapshot',
       details: compactDetails(result.error instanceof Error ? result.error.message : '', result.stderr, result.stdout),
     };
   }
@@ -160,10 +160,10 @@ function runRuntimeRule() {
       && receipt.summary?.liveExternalIoPerformed === false;
     return {
       id: 'zavorth-qa-security-release-runtime-receipt',
-      label: 'Runtime Phase 7 receipt passes',
+      label: 'Runtime Surface controls receipt passes',
       status: pass ? 'passed' : 'failed',
       observed: `status=${receipt.status}, families=${receipt.summary?.families}, failFamilies=${receipt.summary?.failFamilies}`,
-      target: 'Phase 7 command emits a passing QA/security/release snapshot',
+      target: 'Surface controls command emits a passing QA/security/release snapshot',
       details: [
         `scenariosImported=${receipt.summary?.scenariosImported}`,
         `securityChecks=${receipt.summary?.securityChecks}`,
@@ -172,16 +172,16 @@ function runRuntimeRule() {
         `patchRisksTracked=${receipt.summary?.patchRisksTracked}`,
         `rawWorkflowYamlCopied=${receipt.summary?.rawWorkflowYamlCopied}`,
         `dependencyPatchesAcceptedSilently=${receipt.summary?.dependencyPatchesAcceptedSilently}`,
-        `next=${receipt.commands?.nextPhase}`,
+        `next=${receipt.commands?.nextStage}`,
       ],
     };
   } catch (error) {
     return {
       id: 'zavorth-qa-security-release-runtime-receipt',
-      label: 'Runtime Phase 7 receipt passes',
+      label: 'Runtime Surface controls receipt passes',
       status: 'failed',
       observed: 'invalid JSON receipt',
-      target: 'Phase 7 command emits a passing QA/security/release snapshot',
+      target: 'Surface controls command emits a passing QA/security/release snapshot',
       details: [error instanceof Error ? error.message : String(error), ...compactDetails(result.stderr, result.stdout)],
     };
   }
@@ -205,7 +205,7 @@ function ruleContainsNoForbiddenNames() {
     label: 'No forbidden source branding outside reports',
     status: details.length > 0 ? 'failed' : 'passed',
     observed: details.length > 0 ? `${details.length} file(s) with forbidden source branding` : 'no forbidden source branding in code/scripts/tests/package',
-    target: 'new Phase 7 code and public surfaces use Zavorth-owned names only',
+    target: 'new Surface controls code and public surfaces use Zavorth-owned names only',
     details,
   };
 }

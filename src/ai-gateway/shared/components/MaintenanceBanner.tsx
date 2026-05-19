@@ -1,7 +1,7 @@
 "use client";
 
 /**
- * Maintenance Banner — Phase 8.4
+ * Maintenance Banner — Dashboard controls.4
  *
  * Shows a warning banner at the top of the dashboard when the server
  * is restarting or in maintenance mode. Auto-dismisses when the server

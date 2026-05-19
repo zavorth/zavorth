@@ -1,12 +1,12 @@
 import { CanaryLaunchRehearsalService } from '../../src/services/CanaryLaunchRehearsalService.js';
 
-describe('CanaryLaunchRehearsalService Phase 21', () => {
+describe('CanaryLaunchRehearsalService Preview engine1', () => {
   it('builds a launch rehearsal from the canary execution approval ledger', () => {
     const snapshot = new CanaryLaunchRehearsalService({
       now: () => new Date('2026-05-05T04:30:00.000Z'),
     }).buildSnapshot();
 
-    expect(snapshot.contractVersion).toBe('2026-05-04.phase-21');
+    expect(snapshot.contractVersion).toBe('2026-05-04.checkpoint-21');
     expect(snapshot.status).toBe('rehearsal-ready');
     expect(snapshot.releaseCandidate).toEqual(
       expect.objectContaining({
@@ -127,7 +127,7 @@ describe('CanaryLaunchRehearsalService Phase 21', () => {
         releaseExecutionHeld: 'npm run capability-autopilot:release-execution --silent -- --no-execution-approval --no-tag-approval --no-publish-approval --no-canary-launch-approval',
         launchCommandDryRun: 'dry-run:render-canary-launch-command --no-execute',
         rollbackDryRun: 'dry-run:rollback-checkpoint --no-write',
-        nextPhase: 'Canary monitoring and rollback gate',
+        nextStage: 'Canary monitoring and rollback gate',
       }),
     );
     expect(snapshot.policy).toEqual(

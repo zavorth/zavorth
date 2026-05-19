@@ -11,7 +11,7 @@ function createIdFactory() {
   return (prefix: string) => `${prefix}-cc-uni-trust-${++index}`;
 }
 
-describe('Command Center UNI / Trust enforcement Wave 44', () => {
+describe('Command Center UNI / Trust enforcement Channel mesh4', () => {
   it('projects universalIntentTrustEnforcement metadata into the dashboard view model', () => {
     const run = new AgentRunService({
       now: () => new Date('2026-05-04T00:44:00.000Z'),
@@ -48,7 +48,7 @@ describe('Command Center UNI / Trust enforcement Wave 44', () => {
     });
 
     expect(viewModel.universalIntentTrustEnforcement).toEqual(expect.objectContaining({
-      contractVersion: '2026-05-04.wave-44',
+      contractVersion: '2026-05-04.trust-enforcement',
       status: 'requires-permission',
       summary: expect.objectContaining({
         trustLevel: 'collaborator',
@@ -94,7 +94,7 @@ describe('Command Center UNI / Trust enforcement Wave 44', () => {
     );
 
     expect(projection.universalIntentTrustEnforcement).toEqual(expect.objectContaining({
-      contractVersion: '2026-05-04.wave-44',
+      contractVersion: '2026-05-04.trust-enforcement',
       summary: expect.objectContaining({
         trustLevel: 'collaborator',
         trustDecision: 'requires_permission',

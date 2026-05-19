@@ -54,7 +54,7 @@ addCheck(
 
 const service = read('src/services/ZavorthSemanticFunctionalClosureCertificationService.ts');
 addCheck(
-  'Service certifies guarded Phase 9 closure semantics',
+  'Service certifies guarded Certification matrix closure semantics',
   [
     'ZavorthFunctionalClosureService',
     'itemClaim',
@@ -66,7 +66,7 @@ addCheck(
     'releaseGateClaim',
     'unsafeClosureClaims',
   ].every((marker) => service.includes(marker)),
-  'service converts Phase 9 functional closure evidence into final semantic claims',
+  'service converts Certification matrix functional closure evidence into final semantic claims',
 );
 
 const command = read('scripts/semantic-functional-closure-certification.ts');

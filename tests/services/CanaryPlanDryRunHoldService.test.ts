@@ -1,12 +1,12 @@
 import { CanaryPlanDryRunHoldService } from '../../src/services/CanaryPlanDryRunHoldService.js';
 
-describe('CanaryPlanDryRunHoldService Phase 19', () => {
+describe('CanaryPlanDryRunHoldService Intent model9', () => {
   it('builds a canary dry-run plan from pre-canary go/no-go alignment', () => {
     const snapshot = new CanaryPlanDryRunHoldService({
       now: () => new Date('2026-05-05T03:10:00.000Z'),
     }).buildSnapshot();
 
-    expect(snapshot.contractVersion).toBe('2026-05-04.phase-19');
+    expect(snapshot.contractVersion).toBe('2026-05-04.checkpoint-19');
     expect(snapshot.status).toBe('dry-run-ready');
     expect(snapshot.releaseCandidate).toEqual(
       expect.objectContaining({
@@ -124,7 +124,7 @@ describe('CanaryPlanDryRunHoldService Phase 19', () => {
         capabilityAutopilotRolloutPlan: 'npm run capability-autopilot:release-rollout --silent -- --require-pass',
         releaseExecutionHold: 'manual:hold-release-execution --no-publish --no-tag --no-canary-start',
         canaryPromotionHold: 'manual:hold-canary-promotion --no-next-cohort --no-auto-promote',
-        nextPhase: 'Canary execution approval ledger',
+        nextStage: 'Canary execution approval ledger',
       }),
     );
     expect(snapshot.policy).toEqual(

@@ -15,7 +15,7 @@ type LangfuseLangchainModule = {
 };
 
 /**
- * Singleton Observability Builder (Fase 4).
+ * Singleton Observability Builder (Etapa 4).
  * Permite usar OpenTelemetry (se houver credenciais da API do Langfuse) 
  * ou falhar graciosamente mantendo os consoles limpos.
  */

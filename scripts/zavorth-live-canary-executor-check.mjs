@@ -26,7 +26,7 @@ const snapshot = {
 if (asJson) {
   console.log(JSON.stringify(snapshot, null, 2));
 } else {
-  console.log('[zavorth-live-canary-executor] checking Phase 10');
+  console.log('[zavorth-live-canary-executor] checking Intent model0');
   printRules(rules, '[zavorth-live-canary-executor]');
 }
 if (failed.length > 0) process.exitCode = 1;
@@ -41,13 +41,13 @@ function ruleFilesExist() {
     'docs/README.md',
   ];
   const missing = files.filter((file) => !fs.existsSync(path.join(root, file)));
-  return rule('live-canary-executor-files', 'Phase 10 files exist', missing.length === 0, `${files.length - missing.length}/${files.length}`, 'contract, service, CLI, check, tests and docs are present', missing);
+  return rule('live-canary-executor-files', 'Intent model0 files exist', missing.length === 0, `${files.length - missing.length}/${files.length}`, 'contract, service, CLI, check, tests and docs are present', missing);
 }
 
 function ruleMarkers() {
   const checks = [
     ['src/contracts/ZavorthLiveCanaryControlledExecutorContract.ts', ['ZAVORTH_LIVE_CANARY_CONTROLLED_EXECUTOR_CONTRACT_VERSION', 'local_ack', 'provider_live_canary', 'idempotencyKeyRequiredForExecution']],
-    ['src/services/ZavorthLiveCanaryControlledExecutorService.ts', ['phase-10-live-canary-controlled-executor', 'ZavorthLiveCanaryApplyGateRollbackDrillService', 'ZavorthProviderLiveCanaryService', 'supportsAdapter']],
+    ['src/services/ZavorthLiveCanaryControlledExecutorService.ts', ['checkpoint-10-live-canary-controlled-executor', 'ZavorthLiveCanaryApplyGateRollbackDrillService', 'ZavorthProviderLiveCanaryService', 'supportsAdapter']],
     ['scripts/zavorth-live-canary-executor.ts', ['--execute-local', '--execute-provider', '--idempotency-key', '--operator-confirmed']],
     ['src/sdk/contracts.ts', ['ZavorthLiveCanaryControlledExecutorContract']],
     ['src/sdk/index.ts', ['ZavorthLiveCanaryControlledExecutorService']],
@@ -59,13 +59,13 @@ function ruleMarkers() {
       if (!text.includes(needle)) missing.push(`${file}: missing ${needle}`);
     }
   }
-  return rule('live-canary-executor-markers', 'Phase 10 markers are wired', missing.length === 0, missing.length === 0 ? 'all markers' : `${missing.length} missing`, 'executor, SDK and CLI markers exist', missing);
+  return rule('live-canary-executor-markers', 'Intent model0 markers are wired', missing.length === 0, missing.length === 0 ? 'all markers' : `${missing.length} missing`, 'executor, SDK and CLI markers exist', missing);
 }
 
 function runNeedsApplyGateFixture() {
   const result = runTs('scripts/zavorth-live-canary-executor.ts', ['--json']);
-  return jsonRule('live-canary-executor-needs-gate', 'Executor requires Phase 9 apply gate first', result, (snapshot) =>
-    snapshot.contractVersion === '2026-05-11.live-canary-controlled-executor-phase-10'
+  return jsonRule('live-canary-executor-needs-gate', 'Executor requires Certification matrix apply gate first', result, (snapshot) =>
+    snapshot.contractVersion === '2026-05-11.live-canary-controlled-executor-checkpoint-10'
     && snapshot.status === 'needs-apply-gate'
     && snapshot.executionResult.status === 'not-run'
     && snapshot.safety.noImplicitExecutionFromChecks === true);
@@ -90,8 +90,8 @@ function runLocalExecutionFixture() {
     && snapshot.mode === 'controlled-live-execution'
     && snapshot.summary.executionPerformed === true
     && snapshot.summary.externalIoPerformed === false
-    && snapshot.executionResult.executionReceiptId === 'phase-10-execution:phase-8-default-live-canary-adapter:idem-123'
-    && snapshot.executionResult.rollbackReceiptId === 'phase-10-rollback:phase-8-default-live-canary-adapter:idem-123');
+    && snapshot.executionResult.executionReceiptId === 'checkpoint-10-execution:checkpoint-8-default-live-canary-adapter:idem-123'
+    && snapshot.executionResult.rollbackReceiptId === 'checkpoint-10-rollback:checkpoint-8-default-live-canary-adapter:idem-123');
 }
 
 function runMissingIdempotencyFixture() {
@@ -139,7 +139,7 @@ function canonicalEvidence() {
 function ruleWorkspaceCheck() {
   const text = read('package.json');
   const marker = 'node scripts/zavorth-live-canary-executor-check.mjs';
-  return rule('workspace-check-wire', 'workspace:check includes Phase 10 gate', text.includes(marker), text.includes(marker) ? 'wired' : 'missing', marker, []);
+  return rule('workspace-check-wire', 'workspace:check includes Intent model0 gate', text.includes(marker), text.includes(marker) ? 'wired' : 'missing', marker, []);
 }
 
 function ruleNoPublicExternalNames() {
@@ -160,7 +160,7 @@ function ruleNoPublicExternalNames() {
       if (text.includes(word)) hits.push(`${file}: ${word}`);
     }
   }
-  return rule('no-public-external-names', 'Phase 10 public core remains neutral', hits.length === 0, hits.length === 0 ? 'neutral' : `${hits.length} hit(s)`, 'no external product names in public core files', hits);
+  return rule('no-public-external-names', 'Intent model0 public core remains neutral', hits.length === 0, hits.length === 0 ? 'neutral' : `${hits.length} hit(s)`, 'no external product names in public core files', hits);
 }
 
 function runTs(script, args) {
@@ -178,7 +178,7 @@ function jsonRule(id, label, result, expect) {
   try {
     const snapshot = JSON.parse(result.stdout);
     const passed = expect(snapshot);
-    return rule(id, label, passed, `status=${snapshot.status}; mode=${snapshot.mode}`, 'expected Phase 10 executor snapshot', passed ? [] : [JSON.stringify(snapshot, null, 2)]);
+    return rule(id, label, passed, `status=${snapshot.status}; mode=${snapshot.mode}`, 'expected Intent model0 executor snapshot', passed ? [] : [JSON.stringify(snapshot, null, 2)]);
   } catch (error) {
     return rule(id, label, false, 'invalid JSON', 'valid JSON fixture', [String(error), ...compact(result.stderr, result.stdout)]);
   }

@@ -47,7 +47,7 @@ async function main(): Promise<void> {
     status: profile === 'staging-live' && !confirmLiveIo ? 'blocked-until-confirmed' : 'ready-for-operator',
     reason: profile === 'staging-live' && !confirmLiveIo
       ? 'staging-live media generation requires --confirm-live-io and real operator credentials.'
-      : 'Phase 6 exposes modality-aware media adapters, artifact storage and redacted receipts.',
+      : 'Runtime gateway exposes modality-aware media adapters, artifact storage and redacted receipts.',
     entries: selected.map((entry) => ({
       targetId: entry.targetId,
       status: entry.status,

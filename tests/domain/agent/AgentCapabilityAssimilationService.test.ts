@@ -8,7 +8,7 @@ describe('ZavorthAgentCapabilityAssimilationService', () => {
 
     const snapshot = service.buildSnapshot();
 
-    expect(snapshot.contractVersion).toBe('2026-05-11.agent-capability-assimilation-phase-1');
+    expect(snapshot.contractVersion).toBe('2026-05-11.agent-capability-assimilation-checkpoint-1');
     expect(snapshot.status).toBe('attention');
     expect(snapshot.summary.categoriesCovered).toBe(9);
     expect(snapshot.summary.externalProductNamesInPublicCore).toBe(0);

@@ -29,8 +29,8 @@ const expectedSurfaces = readSurfaces('--expected-surfaces=') || surfaces;
 const allowedSurfaces = readSurfaces('--allowed-surfaces=') || surfaces;
 const budgetLimitUnits = readNumberArg('--budget-limit=', 25);
 const estimatedBudgetUnits = readOptionalNumberArg('--estimated-budget=');
-const rawIntentProbe = 'PHASE75-RAW-INTENT-MUST-NOT-LEAK';
-const rawWorkspaceProbe = 'C:/private/PHASE75-RAW-WORKSPACE-MUST-NOT-LEAK';
+const rawIntentProbe = 'STAGE75-RAW-INTENT-MUST-NOT-LEAK';
+const rawWorkspaceProbe = 'C:/private/STAGE75-RAW-WORKSPACE-MUST-NOT-LEAK';
 
 main().catch((error) => {
   process.stderr.write(`[capability-autopilot-preflight-real-apply] falha: ${error instanceof Error ? error.message : String(error)}\n`);
@@ -50,9 +50,9 @@ async function main(): Promise<void> {
   const receiptService = new CapabilityAutopilotPreflightDispatchReceiptService();
   const receiptSnapshot = receiptService.buildReceiptSnapshot(sourceSnapshot, {
     explicitlyConfirmed,
-    actorId: 'phase-75-gate',
-    confirmationId: explicitlyConfirmed ? 'phase-75-explicit-confirmation' : null,
-    reason: 'phase-75-real-apply-approval-gate',
+    actorId: 'checkpoint-75-gate',
+    confirmationId: explicitlyConfirmed ? 'checkpoint-75-explicit-confirmation' : null,
+    reason: 'checkpoint-75-real-apply-approval-gate',
   });
   const adapterService = new CapabilityAutopilotPreflightDispatchAdapterService();
   const adapterSnapshot = adapterService.buildAdapterSnapshot(receiptSnapshot);
@@ -60,24 +60,24 @@ async function main(): Promise<void> {
   const sideEffectSnapshot = sideEffectGateService.buildGateSnapshot(adapterSnapshot, {
     approvalGranted,
     validationPassed,
-    actorId: 'phase-75-gate',
-    approvalReceiptId: approvalGranted ? 'phase-75-approval' : null,
-    validationReceiptId: validationPassed ? 'phase-75-validation' : null,
-    reason: 'phase-75-real-apply-approval-gate',
+    actorId: 'checkpoint-75-gate',
+    approvalReceiptId: approvalGranted ? 'checkpoint-75-approval' : null,
+    validationReceiptId: validationPassed ? 'checkpoint-75-validation' : null,
+    reason: 'checkpoint-75-real-apply-approval-gate',
   });
   const applyService = new CapabilityAutopilotPreflightApplyAdapterService();
   const applySnapshot = applyService.buildApplySnapshot(sideEffectSnapshot, {
     explicitApplyConfirmed,
-    actorId: 'phase-75-gate',
-    applyConfirmationId: explicitApplyConfirmed ? 'phase-75-apply-confirmation' : null,
-    reason: 'phase-75-real-apply-approval-gate',
+    actorId: 'checkpoint-75-gate',
+    applyConfirmationId: explicitApplyConfirmed ? 'checkpoint-75-apply-confirmation' : null,
+    reason: 'checkpoint-75-real-apply-approval-gate',
   });
   const dryRunService = new CapabilityAutopilotPreflightApplyDryRunExecutorService();
   const dryRunSnapshot = dryRunService.buildExecutorSnapshot(applySnapshot, {
     dryRunConfirmed,
-    actorId: 'phase-75-gate',
-    dryRunReceiptId: dryRunConfirmed ? 'phase-75-dry-run-confirmation' : null,
-    reason: 'phase-75-real-apply-approval-gate',
+    actorId: 'checkpoint-75-gate',
+    dryRunReceiptId: dryRunConfirmed ? 'checkpoint-75-dry-run-confirmation' : null,
+    reason: 'checkpoint-75-real-apply-approval-gate',
   });
   const realApplyGateService = new CapabilityAutopilotPreflightRealApplyApprovalGateService();
   const snapshot = realApplyGateService.buildGateSnapshot(dryRunSnapshot, {
@@ -87,11 +87,11 @@ async function main(): Promise<void> {
     allowedSurfaces,
     budgetLimitUnits,
     estimatedBudgetUnits,
-    actorId: 'phase-75-gate',
-    finalApprovalReceiptId: finalApprovalGranted ? 'phase-75-final-approval' : null,
-    budgetReceiptId: budgetApproved ? 'phase-75-budget' : null,
-    scopeReceiptId: scopeApproved ? 'phase-75-scope' : null,
-    reason: 'phase-75-real-apply-approval-gate',
+    actorId: 'checkpoint-75-gate',
+    finalApprovalReceiptId: finalApprovalGranted ? 'checkpoint-75-final-approval' : null,
+    budgetReceiptId: budgetApproved ? 'checkpoint-75-budget' : null,
+    scopeReceiptId: scopeApproved ? 'checkpoint-75-scope' : null,
+    reason: 'checkpoint-75-real-apply-approval-gate',
   });
 
   if (asJson) {

@@ -93,7 +93,7 @@ export class AiFirstShadowRouterService {
         {
           id: this.idFactory('receipt'),
           kind: 'no-runtime-change',
-          detail: 'Current runtime decision remains authoritative in Phase 2.',
+          detail: 'Current runtime decision remains authoritative in Preview engine.',
         },
         ...(divergences.length > 0
           ? [{
@@ -105,17 +105,17 @@ export class AiFirstShadowRouterService {
       ],
       gates: [
         {
-          id: 'phase-2-shadow-only',
+          id: 'checkpoint-2-shadow-only',
           status: 'passed',
           detail: 'Shadow router reports differences but does not replace the current route.',
         },
         {
-          id: 'phase-2-no-execution',
+          id: 'checkpoint-2-no-execution',
           status: 'passed',
           detail: 'The AI-first route plan cannot execute from shadow mode.',
         },
         {
-          id: 'phase-2-current-runtime-preserved',
+          id: 'checkpoint-2-current-runtime-preserved',
           status: 'passed',
           detail: 'defaultRuntimeChanged is false and keepCurrentRuntimeDecision is true.',
         },
@@ -125,7 +125,7 @@ export class AiFirstShadowRouterService {
 
   public renderMarkdown(snapshot: AiFirstShadowRouterSnapshot): string {
     const lines: string[] = [];
-    lines.push('# Zavorth AI-first Router Phase 2');
+    lines.push('# Zavorth AI-first Router Preview engine');
     lines.push('');
     lines.push(`- contract: ${snapshot.contractVersion}`);
     lines.push(`- shadowId: ${snapshot.shadowId}`);

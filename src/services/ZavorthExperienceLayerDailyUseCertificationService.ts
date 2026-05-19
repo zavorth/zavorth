@@ -39,7 +39,7 @@ export class ZavorthExperienceLayerDailyUseCertificationService {
   public buildSnapshot(): ZavorthExperienceLayerDailyUseCertificationSnapshot {
     const phases: ZavorthExperienceLayerDailyUsePhase[] = [
       this.certifyContractPhase({
-        id: 'phase-01',
+        id: 'checkpoint-01',
         title: 'Experience Profiles',
         command: 'zavorth experience --profile personal',
         surface: 'onboarding',
@@ -49,7 +49,7 @@ export class ZavorthExperienceLayerDailyUseCertificationService {
         riskBoundary: 'Profiles tune language and defaults, not authority.',
       }),
       this.certifySnapshotPhase({
-        id: 'phase-02',
+        id: 'checkpoint-02',
         title: 'Conversational Setup',
         command: 'zavorth onboard conversation',
         surface: 'onboarding',
@@ -59,7 +59,7 @@ export class ZavorthExperienceLayerDailyUseCertificationService {
         riskBoundary: 'Raw secrets are rejected and identity files are not changed by preview.',
       }),
       this.certifyContractPhase({
-        id: 'phase-03',
+        id: 'checkpoint-03',
         title: 'Guided Missions',
         command: 'zavorth missions guide',
         surface: 'runtime',
@@ -69,7 +69,7 @@ export class ZavorthExperienceLayerDailyUseCertificationService {
         riskBoundary: 'Mission starters are prompts and plans, not hidden execution shortcuts.',
       }),
       this.certifyContractPhase({
-        id: 'phase-04',
+        id: 'checkpoint-04',
         title: 'Capability Store',
         command: 'zavorth capability-store',
         surface: 'runtime',
@@ -79,7 +79,7 @@ export class ZavorthExperienceLayerDailyUseCertificationService {
         riskBoundary: 'Store cards guide setup; they never install, send, write or execute.',
       }),
       this.certifyContractPhase({
-        id: 'phase-05',
+        id: 'checkpoint-05',
         title: 'Do-It-With-Me Mode',
         command: 'zavorth do-it-with-me "help me configure Telegram approvals"',
         surface: 'runtime',
@@ -89,7 +89,7 @@ export class ZavorthExperienceLayerDailyUseCertificationService {
         riskBoundary: 'The guide does not collect raw credentials or perform live channel actions.',
       }),
       this.certifyContractPhase({
-        id: 'phase-06',
+        id: 'checkpoint-06',
         title: 'Trust Panel',
         command: 'zavorth trust-panel',
         surface: 'runtime',
@@ -99,7 +99,7 @@ export class ZavorthExperienceLayerDailyUseCertificationService {
         riskBoundary: 'Trust language does not weaken Policy Broker decisions.',
       }),
       this.certifyContractPhase({
-        id: 'phase-07',
+        id: 'checkpoint-07',
         title: 'Autonomy Slider',
         command: 'zavorth autonomy --level balanced',
         surface: 'runtime',
@@ -109,7 +109,7 @@ export class ZavorthExperienceLayerDailyUseCertificationService {
         riskBoundary: 'Autonomy changes defaults only; it cannot bypass approval gates.',
       }),
       this.certifyContractPhase({
-        id: 'phase-08',
+        id: 'checkpoint-08',
         title: 'Model Cost Guard',
         command: 'zavorth model-cost "review this repository"',
         surface: 'runtime',
@@ -119,7 +119,7 @@ export class ZavorthExperienceLayerDailyUseCertificationService {
         riskBoundary: 'Hosted escalation remains behind readiness, budget and receipts.',
       }),
       this.certifySnapshotPhase({
-        id: 'phase-09',
+        id: 'checkpoint-09',
         title: 'Visual Receipts 2.0',
         command: 'zavorth visual-receipts',
         surface: 'runtime',
@@ -129,7 +129,7 @@ export class ZavorthExperienceLayerDailyUseCertificationService {
         riskBoundary: 'Receipt cards are evidence; rollback actions remain approval-gated.',
       }),
       this.certifySnapshotPhase({
-        id: 'phase-10',
+        id: 'checkpoint-10',
         title: 'Satellite Approval Companion',
         command: 'zavorth satellite-approvals',
         surface: 'satellite',
@@ -139,7 +139,7 @@ export class ZavorthExperienceLayerDailyUseCertificationService {
         riskBoundary: 'The browser companion resolves decisions but cannot execute target actions.',
       }),
       this.certifySnapshotPhase({
-        id: 'phase-11',
+        id: 'checkpoint-11',
         title: 'Natural Runtime Questions',
         command: 'zavorth ask-runtime "which providers are ready?"',
         surface: 'runtime',
@@ -149,7 +149,7 @@ export class ZavorthExperienceLayerDailyUseCertificationService {
         riskBoundary: 'No live probe, network call or mutation is hidden inside answers.',
       }),
       this.certifySnapshotPhase({
-        id: 'phase-12',
+        id: 'checkpoint-12',
         title: 'Dashboard Experience Home',
         command: 'zavorth dashboard-home',
         surface: 'dashboard',
@@ -159,7 +159,7 @@ export class ZavorthExperienceLayerDailyUseCertificationService {
         riskBoundary: 'Dashboard Home is an experience layer, not execution authority.',
       }),
       this.certifySnapshotPhase({
-        id: 'phase-13',
+        id: 'checkpoint-13',
         title: 'CLI Experience Parity',
         command: 'zavorth daily',
         surface: 'cli',

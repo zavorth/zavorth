@@ -2,7 +2,7 @@ import type { ZavorthUniversalSkillImportSnapshot } from './ZavorthUniversalSkil
 import type { ZavorthUniversalSkillBridgeRegistrySnapshot } from './ZavorthUniversalSkillBridgeRegistryContract.js';
 
 export const ZAVORTH_UNIVERSAL_SKILL_EXPANSION_CONTRACT_VERSION =
-  '2026-05-10.phase-6' as const;
+  '2026-05-10.checkpoint-6' as const;
 
 export type ZavorthUniversalSkillExpansionStatus =
   | 'preview-only'
@@ -110,6 +110,6 @@ export type ZavorthUniversalSkillExpansionSnapshot = {
     preview: 'npm run zavorth:universal-skill-expansion -- --source <path>';
     apply: 'npm run zavorth:universal-skill-expansion -- --source <path> --apply --allow-source --skills <name>';
     check: 'npm run zavorth:universal-skill-expansion:check --silent';
-    nextPhase: 'Phase 7 - Expansion QA, Telemetry and Operator Rollout';
+    nextStage: 'Surface controls - Expansion QA, Telemetry and Operator Rollout';
   };
 };

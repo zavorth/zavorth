@@ -10,14 +10,14 @@
  */
 
 interface PhaseTiming {
-  phase: string;
+  stage: string;
   startMs: number;
   endMs: number;
   durationMs: number;
   [key: string]: unknown;
 }
 
-const PHASES = ["parse", "validate", "policy", "resolve", "connect", "stream", "finalize"] as const;
+const STAGES = ["parse", "validate", "policy", "resolve", "connect", "stream", "finalize"] as const;
 
 interface TelemetrySummary {
   requestId: string;
@@ -62,7 +62,7 @@ export class RequestTelemetry {
 
     const now = Date.now();
     this.phases.push({
-      phase: this._currentPhase,
+      stage: this._currentPhase,
       startMs: this._phaseStart - this.startTime,
       endMs: now - this.startTime,
       durationMs: now - this._phaseStart,
@@ -160,7 +160,7 @@ export function getTelemetrySummary(windowMs = 300000) {
 
   // Phase breakdown
   const phaseBreakdown = {};
-  for (const phase of PHASES) {
+  for (const phase of STAGES) {
     const durations = recent
       .flatMap((h) => h.phases.filter((p) => p.phase === phase).map((p) => p.durationMs))
       .sort((a, b) => a - b);
@@ -184,4 +184,4 @@ export function getTelemetrySummary(windowMs = 300000) {
   };
 }
 
-export { PHASES };
+export { STAGES };

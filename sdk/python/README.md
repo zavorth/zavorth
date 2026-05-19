@@ -78,7 +78,7 @@ manifesto publico do runtime:
 - `src/runtime/agent/contracts/index.ts`
 - `PUBLIC_ECOSYSTEM_CONTRACT_VERSION`
 - `PUBLIC_ECOSYSTEM_CONTRACTS`
-- `docs/112-public-ecosystem-contracts.md`
+- `docs/product-direction.md`
 
 O Python SDK deve continuar consumindo endpoints como
 `/api/v1/platform/catalog`. O manifesto descreve contratos de ecossistema para

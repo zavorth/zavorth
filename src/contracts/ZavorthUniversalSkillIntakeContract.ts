@@ -1,4 +1,4 @@
-export const ZAVORTH_UNIVERSAL_SKILL_INTAKE_CONTRACT_VERSION = '2026-05-10.phase-1' as const;
+export const ZAVORTH_UNIVERSAL_SKILL_INTAKE_CONTRACT_VERSION = '2026-05-10.checkpoint-1' as const;
 
 export type ZavorthUniversalSkillIntakeStatus = 'pass' | 'warn' | 'fail';
 
@@ -156,6 +156,6 @@ export type ZavorthUniversalSkillIntakePreview = {
     inspect: 'npm run zavorth:universal-skill-intake -- --source <path>';
     inspectJson: 'npm run zavorth:universal-skill-intake:json -- --source <path>';
     check: 'npm run zavorth:universal-skill-intake:check --silent';
-    nextPhase: 'Phase 2 - Trust-Governed Import Pipeline';
+    nextStage: 'Preview engine - Trust-Governed Import Pipeline';
   };
 };

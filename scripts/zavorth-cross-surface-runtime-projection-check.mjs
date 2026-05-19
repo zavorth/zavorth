@@ -26,7 +26,7 @@ const snapshot = {
 if (asJson) {
   console.log(JSON.stringify(snapshot, null, 2));
 } else {
-  console.log('[zavorth-cross-surface-runtime-projection] checking Phase 5');
+  console.log('[zavorth-cross-surface-runtime-projection] checking Credential vault');
   printRules(rules, '[zavorth-cross-surface-runtime-projection]');
 }
 if (failed.length > 0) process.exitCode = 1;
@@ -41,13 +41,13 @@ function ruleFilesExist() {
     'docs/README.md',
   ];
   const missing = files.filter((file) => !fs.existsSync(path.join(root, file)));
-  return rule('cross-surface-files', 'Phase 5 files exist', missing.length === 0, `${files.length - missing.length}/${files.length}`, 'contract, service, CLI, check, tests and docs are present', missing);
+  return rule('cross-surface-files', 'Credential vault files exist', missing.length === 0, `${files.length - missing.length}/${files.length}`, 'contract, service, CLI, check, tests and docs are present', missing);
 }
 
 function ruleMarkers() {
   const checks = [
     ['src/contracts/ZavorthCrossSurfaceRuntimeProjectionContract.ts', ['ZAVORTH_CROSS_SURFACE_RUNTIME_PROJECTION_CONTRACT_VERSION', 'noDashboardVisualMutation', 'telegramNotPrivileged', 'commandCenterIsViewModelOnly']],
-    ['src/services/ZavorthCrossSurfaceRuntimeProjectionService.ts', ['phase-5-cross-surface-runtime-projection', 'ZavorthToolOrchestrationVerificationService', 'visualMutationApplied: false', 'BUTTON_SURFACES']],
+    ['src/services/ZavorthCrossSurfaceRuntimeProjectionService.ts', ['checkpoint-5-cross-surface-runtime-projection', 'ZavorthToolOrchestrationVerificationService', 'visualMutationApplied: false', 'BUTTON_SURFACES']],
     ['scripts/zavorth-cross-surface-runtime-projection.ts', ['--project', '--surfaces', '--evidence', '--json']],
     ['src/sdk/contracts.ts', ['ZavorthCrossSurfaceRuntimeProjectionContract']],
     ['src/sdk/index.ts', ['ZavorthCrossSurfaceRuntimeProjectionService']],
@@ -59,7 +59,7 @@ function ruleMarkers() {
       if (!text.includes(needle)) missing.push(`${file}: missing ${needle}`);
     }
   }
-  return rule('cross-surface-markers', 'Phase 5 markers are wired', missing.length === 0, missing.length === 0 ? 'all markers' : `${missing.length} missing`, 'projection, SDK and CLI markers exist', missing);
+  return rule('cross-surface-markers', 'Credential vault markers are wired', missing.length === 0, missing.length === 0 ? 'all markers' : `${missing.length} missing`, 'projection, SDK and CLI markers exist', missing);
 }
 
 function runVerificationRequiredFixture() {
@@ -68,7 +68,7 @@ function runVerificationRequiredFixture() {
     '--text=use subagentes e audite uma biblioteca grande de skills',
   ]);
   return jsonRule('cross-surface-verification-required', 'Verification need is projected to all surfaces', result, (snapshot) =>
-    snapshot.contractVersion === '2026-05-11.cross-surface-runtime-projection-phase-5'
+    snapshot.contractVersion === '2026-05-11.cross-surface-runtime-projection-checkpoint-5'
     && snapshot.status === 'verification-required'
     && snapshot.summary.surfaces === 9
     && snapshot.safety.noDashboardVisualMutation === true
@@ -136,7 +136,7 @@ function runBlockedFixture() {
 function ruleWorkspaceCheck() {
   const text = read('package.json');
   const marker = 'node scripts/zavorth-cross-surface-runtime-projection-check.mjs';
-  return rule('workspace-check-wire', 'workspace:check includes Phase 5 gate', text.includes(marker), text.includes(marker) ? 'wired' : 'missing', marker, []);
+  return rule('workspace-check-wire', 'workspace:check includes Credential vault gate', text.includes(marker), text.includes(marker) ? 'wired' : 'missing', marker, []);
 }
 
 function ruleNoPublicExternalNames() {
@@ -157,7 +157,7 @@ function ruleNoPublicExternalNames() {
       if (text.includes(word)) hits.push(`${file}: ${word}`);
     }
   }
-  return rule('no-public-external-names', 'Phase 5 public core remains neutral', hits.length === 0, hits.length === 0 ? 'neutral' : `${hits.length} hit(s)`, 'no external product names in public core files', hits);
+  return rule('no-public-external-names', 'Credential vault public core remains neutral', hits.length === 0, hits.length === 0 ? 'neutral' : `${hits.length} hit(s)`, 'no external product names in public core files', hits);
 }
 
 function runTs(script, args) {
@@ -175,7 +175,7 @@ function jsonRule(id, label, result, expect) {
   try {
     const snapshot = JSON.parse(result.stdout);
     const passed = expect(snapshot);
-    return rule(id, label, passed, `status=${snapshot.status}; surfaces=${snapshot.summary?.surfaces ?? 'n/a'}`, 'expected Phase 5 projection snapshot', passed ? [] : [JSON.stringify(snapshot, null, 2)]);
+    return rule(id, label, passed, `status=${snapshot.status}; surfaces=${snapshot.summary?.surfaces ?? 'n/a'}`, 'expected Credential vault projection snapshot', passed ? [] : [JSON.stringify(snapshot, null, 2)]);
   } catch (error) {
     return rule(id, label, false, 'invalid JSON', 'valid JSON fixture', [String(error), ...compact(result.stderr, result.stdout)]);
   }

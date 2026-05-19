@@ -2,7 +2,7 @@ import type { FeedbackTelemetryContractSnapshot } from '../../contracts/Feedback
 import type { PublicSiteDocsDemoSyncSnapshot } from './PublicSiteDocsDemoSyncService.js';
 import type { UniversalAgentRun } from './UniversalAgentRuntimeTypes.js';
 
-export const FEEDBACK_TELEMETRY_PRODUCT_LOOP_CONTRACT_VERSION = '2026-05-04.wave-50' as const;
+export const FEEDBACK_TELEMETRY_PRODUCT_LOOP_CONTRACT_VERSION = '2026-05-04.feedback-telemetry' as const;
 export const FEEDBACK_TELEMETRY_PRODUCT_LOOP_METADATA_KEY = 'feedbackTelemetryProductLoop' as const;
 
 export type FeedbackTelemetryProductLoopStatus =
@@ -392,7 +392,7 @@ export class FeedbackTelemetryProductLoopService {
         command: 'zavorth public-sync --json',
         detail: input.publicSync
           ? `Public sync esta ${input.publicSync.status}.`
-          : 'Feedback loop precisa da Wave 49 publicada no run.',
+          : 'Feedback loop precisa da Channel mesh9 publicada no run.',
         critical: true,
       },
       {
@@ -555,7 +555,7 @@ export class FeedbackTelemetryProductLoopService {
         id: 'feedback-loop:policy',
         kind: 'policy',
         source: 'FeedbackTelemetryProductLoopService',
-        detail: 'Telemetry fica disabled-by-default e nenhum envio externo ocorre na Wave 50.',
+        detail: 'Telemetry fica disabled-by-default e nenhum envio externo ocorre na Feedback Telemetry.',
         status: 'ready',
       },
     ];
@@ -563,7 +563,7 @@ export class FeedbackTelemetryProductLoopService {
 
   private resolveNextSafeAction(status: FeedbackTelemetryProductLoopStatus): string {
     if (status === 'needs-public-sync') {
-      return 'Executar Wave 49 e publicar publicSiteDocsDemoSync antes do feedback loop.';
+      return 'Executar Channel mesh9 e publicar publicSiteDocsDemoSync antes do feedback loop.';
     }
     if (status === 'needs-feedback-loop') {
       return 'Anexar FeedbackTelemetryContract e validar npm run qa:feedback-loop.';

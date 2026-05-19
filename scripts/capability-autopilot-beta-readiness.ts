@@ -51,12 +51,12 @@ const allowedSurfaces = readSurfaces('--allowed-surfaces=') || surfaces;
 const budgetLimitUnits = readNumberArg('--budget-limit=', 25);
 const estimatedBudgetUnits = readOptionalNumberArg('--estimated-budget=');
 const minVerifiedEntries = readOptionalNumberArg('--min-verified-entries=');
-const rawIntentProbe = 'PHASE78-RAW-INTENT-MUST-NOT-LEAK';
-const rawWorkspaceProbe = 'C:/private/PHASE78-RAW-WORKSPACE-MUST-NOT-LEAK';
+const rawIntentProbe = 'STAGE78-RAW-INTENT-MUST-NOT-LEAK';
+const rawWorkspaceProbe = 'C:/private/STAGE78-RAW-WORKSPACE-MUST-NOT-LEAK';
 
 const fixtureAdapter: CapabilityPreflightControlledRealApplyAdapter = (decision, context) => ({
   ok: true,
-  adapterReceiptId: `phase-78-fixture-${decision.realApplyGateId.slice(-8)}`,
+  adapterReceiptId: `checkpoint-78-fixture-${decision.realApplyGateId.slice(-8)}`,
   mode: 'fixture',
   sideEffectInvoked: true,
   executedAgainstRealTarget: false,
@@ -67,7 +67,7 @@ const fixtureAdapter: CapabilityPreflightControlledRealApplyAdapter = (decision,
     `rollbackPlan=${context.rollbackPlanId || '<none>'}`,
     `auditReceipt=${context.auditReceiptId || '<none>'}`,
   ],
-  rollbackToken: `phase-78-rollback-${decision.sourceSurface}-${decision.sourceAction?.kind || 'none'}`,
+  rollbackToken: `checkpoint-78-rollback-${decision.sourceSurface}-${decision.sourceAction?.kind || 'none'}`,
   metadata: {
     fixture: true,
   },
@@ -91,9 +91,9 @@ async function main(): Promise<void> {
   const receiptService = new CapabilityAutopilotPreflightDispatchReceiptService();
   const receiptSnapshot = receiptService.buildReceiptSnapshot(sourceSnapshot, {
     explicitlyConfirmed,
-    actorId: 'phase-78-gate',
-    confirmationId: explicitlyConfirmed ? 'phase-78-explicit-confirmation' : null,
-    reason: 'phase-78-beta-readiness-gate',
+    actorId: 'checkpoint-78-gate',
+    confirmationId: explicitlyConfirmed ? 'checkpoint-78-explicit-confirmation' : null,
+    reason: 'checkpoint-78-beta-readiness-gate',
   });
   const adapterService = new CapabilityAutopilotPreflightDispatchAdapterService();
   const adapterSnapshot = adapterService.buildAdapterSnapshot(receiptSnapshot);
@@ -101,24 +101,24 @@ async function main(): Promise<void> {
   const sideEffectSnapshot = sideEffectGateService.buildGateSnapshot(adapterSnapshot, {
     approvalGranted,
     validationPassed,
-    actorId: 'phase-78-gate',
-    approvalReceiptId: approvalGranted ? 'phase-78-approval' : null,
-    validationReceiptId: validationPassed ? 'phase-78-validation' : null,
-    reason: 'phase-78-beta-readiness-gate',
+    actorId: 'checkpoint-78-gate',
+    approvalReceiptId: approvalGranted ? 'checkpoint-78-approval' : null,
+    validationReceiptId: validationPassed ? 'checkpoint-78-validation' : null,
+    reason: 'checkpoint-78-beta-readiness-gate',
   });
   const applyService = new CapabilityAutopilotPreflightApplyAdapterService();
   const applySnapshot = applyService.buildApplySnapshot(sideEffectSnapshot, {
     explicitApplyConfirmed,
-    actorId: 'phase-78-gate',
-    applyConfirmationId: explicitApplyConfirmed ? 'phase-78-apply-confirmation' : null,
-    reason: 'phase-78-beta-readiness-gate',
+    actorId: 'checkpoint-78-gate',
+    applyConfirmationId: explicitApplyConfirmed ? 'checkpoint-78-apply-confirmation' : null,
+    reason: 'checkpoint-78-beta-readiness-gate',
   });
   const dryRunService = new CapabilityAutopilotPreflightApplyDryRunExecutorService();
   const dryRunSnapshot = dryRunService.buildExecutorSnapshot(applySnapshot, {
     dryRunConfirmed,
-    actorId: 'phase-78-gate',
-    dryRunReceiptId: dryRunConfirmed ? 'phase-78-dry-run-confirmation' : null,
-    reason: 'phase-78-beta-readiness-gate',
+    actorId: 'checkpoint-78-gate',
+    dryRunReceiptId: dryRunConfirmed ? 'checkpoint-78-dry-run-confirmation' : null,
+    reason: 'checkpoint-78-beta-readiness-gate',
   });
   const realApplyGateService = new CapabilityAutopilotPreflightRealApplyApprovalGateService();
   const approvalSnapshot = realApplyGateService.buildGateSnapshot(dryRunSnapshot, {
@@ -128,11 +128,11 @@ async function main(): Promise<void> {
     allowedSurfaces,
     budgetLimitUnits,
     estimatedBudgetUnits,
-    actorId: 'phase-78-gate',
-    finalApprovalReceiptId: finalApprovalGranted ? 'phase-78-final-approval' : null,
-    budgetReceiptId: budgetApproved ? 'phase-78-budget' : null,
-    scopeReceiptId: scopeApproved ? 'phase-78-scope' : null,
-    reason: 'phase-78-beta-readiness-gate',
+    actorId: 'checkpoint-78-gate',
+    finalApprovalReceiptId: finalApprovalGranted ? 'checkpoint-78-final-approval' : null,
+    budgetReceiptId: budgetApproved ? 'checkpoint-78-budget' : null,
+    scopeReceiptId: scopeApproved ? 'checkpoint-78-scope' : null,
+    reason: 'checkpoint-78-beta-readiness-gate',
   });
   const controlledApplyService = new CapabilityAutopilotPreflightControlledRealApplyExecutorService({
     adapter: adapterEnabled ? fixtureAdapter : null,
@@ -142,12 +142,12 @@ async function main(): Promise<void> {
     budgetLocked,
     rollbackPlanApproved,
     auditSinkReady,
-    actorId: 'phase-78-gate',
-    executionReceiptId: controlledExecutionConfirmed ? 'phase-78-controlled-execution' : null,
-    budgetLockId: budgetLocked ? 'phase-78-budget-lock' : null,
-    rollbackPlanId: rollbackPlanApproved ? 'phase-78-rollback-plan' : null,
-    auditReceiptId: auditSinkReady ? 'phase-78-audit' : null,
-    reason: 'phase-78-beta-readiness-gate',
+    actorId: 'checkpoint-78-gate',
+    executionReceiptId: controlledExecutionConfirmed ? 'checkpoint-78-controlled-execution' : null,
+    budgetLockId: budgetLocked ? 'checkpoint-78-budget-lock' : null,
+    rollbackPlanId: rollbackPlanApproved ? 'checkpoint-78-rollback-plan' : null,
+    auditReceiptId: auditSinkReady ? 'checkpoint-78-audit' : null,
+    reason: 'checkpoint-78-beta-readiness-gate',
   });
   const postRunService = new CapabilityAutopilotPreflightPostRunRollbackLedgerService();
   const postRunSnapshot = postRunService.buildLedgerSnapshot(controlledSnapshot, {
@@ -155,12 +155,12 @@ async function main(): Promise<void> {
     verificationPassed,
     rollbackLedgerPersisted,
     auditPersisted,
-    actorId: 'phase-78-gate',
-    postRunReceiptId: postRunVerificationConfirmed ? 'phase-78-post-run' : null,
-    verificationReceiptId: postRunVerificationConfirmed ? 'phase-78-verification' : null,
-    rollbackLedgerId: rollbackLedgerPersisted ? 'phase-78-rollback-ledger' : null,
-    auditReceiptId: auditPersisted ? 'phase-78-post-run-audit' : null,
-    reason: 'phase-78-beta-readiness-gate',
+    actorId: 'checkpoint-78-gate',
+    postRunReceiptId: postRunVerificationConfirmed ? 'checkpoint-78-post-run' : null,
+    verificationReceiptId: postRunVerificationConfirmed ? 'checkpoint-78-verification' : null,
+    rollbackLedgerId: rollbackLedgerPersisted ? 'checkpoint-78-rollback-ledger' : null,
+    auditReceiptId: auditPersisted ? 'checkpoint-78-post-run-audit' : null,
+    reason: 'checkpoint-78-beta-readiness-gate',
   });
   const betaReadinessService = new CapabilityAutopilotBetaReadinessGateService();
   const snapshot = betaReadinessService.buildReadinessSnapshot(postRunSnapshot, {
@@ -171,14 +171,14 @@ async function main(): Promise<void> {
     telemetryOptInReady,
     docsUpdated,
     minVerifiedEntries,
-    actorId: 'phase-78-gate',
-    betaReadinessReceiptId: 'phase-78-beta-readiness',
-    releaseChecklistId: betaChecklistApproved ? 'phase-78-release-checklist' : null,
-    flagPolicyId: featureFlagDefaultOff ? 'phase-78-flag-policy' : null,
-    rollbackDrillReceiptId: rollbackDrillReady ? 'phase-78-rollback-drill' : null,
-    telemetryReceiptId: telemetryOptInReady ? 'phase-78-telemetry-opt-in' : null,
-    docsReceiptId: docsUpdated ? 'phase-78-docs' : null,
-    reason: 'phase-78-beta-readiness-gate',
+    actorId: 'checkpoint-78-gate',
+    betaReadinessReceiptId: 'checkpoint-78-beta-readiness',
+    releaseChecklistId: betaChecklistApproved ? 'checkpoint-78-release-checklist' : null,
+    flagPolicyId: featureFlagDefaultOff ? 'checkpoint-78-flag-policy' : null,
+    rollbackDrillReceiptId: rollbackDrillReady ? 'checkpoint-78-rollback-drill' : null,
+    telemetryReceiptId: telemetryOptInReady ? 'checkpoint-78-telemetry-opt-in' : null,
+    docsReceiptId: docsUpdated ? 'checkpoint-78-docs' : null,
+    reason: 'checkpoint-78-beta-readiness-gate',
   });
 
   if (asJson) {

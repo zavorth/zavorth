@@ -26,6 +26,7 @@ describe('NodeHostCapabilityService', () => {
     };
     const service = new NodeHostCapabilityService({
       commandRunner,
+      platform: 'linux',
     });
 
     const result = await service.executeAssignment({
@@ -56,6 +57,39 @@ describe('NodeHostCapabilityService', () => {
         stdout: 'NODE_MESH_OK',
       }),
     );
+  });
+
+  it('runs validated echo commands through the shell on Windows because echo is a shell builtin', async () => {
+    const commandRunner = {
+      run: jest.fn(async () => ({
+        ok: true,
+        stdout: 'NODE_MESH_OK',
+        stderr: null,
+        exitCode: 0,
+      })),
+    };
+    const service = new NodeHostCapabilityService({
+      commandRunner,
+      platform: 'win32',
+    });
+
+    const result = await service.executeAssignment({
+      id: 'invoke-windows-echo',
+      capabilityId: 'system.run',
+      action: 'run',
+      payload: {
+        command: 'echo NODE_MESH_OK',
+      },
+    });
+
+    expect(commandRunner.run).toHaveBeenCalledWith(
+      'echo NODE_MESH_OK',
+      expect.objectContaining({
+        cwd: expect.any(String),
+      }),
+    );
+    expect(result.ok).toBe(true);
+    expect(result.stdout).toBe('NODE_MESH_OK');
   });
 
   it('blocks system.run shell metacharacters before reaching the command runner', async () => {

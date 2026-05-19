@@ -22,8 +22,8 @@ export type ExternalExecutorLiveObservabilityProjectionStatus =
 
 export type ExternalExecutorLiveObservabilityProjectionInput = {
   bridge: ExternalExecutorLiveReadOnlyBridgeBoundaryNormalization;
-  bridgeDoc: 'docs/169-wave-1-external-executor-live-read-only-bridge-boundary.md';
-  sourceSnapshotDoc: 'docs/161-wave-1-real-capability-snapshot-read-only.md';
+  bridgeDoc: 'docs/external-executor-live-read-only-bridge-boundary.md';
+  sourceSnapshotDoc: 'docs/real-capability-snapshot-read-only.md';
   secretRefId: 'external-executor-gateway-token';
   tokenStatus: 'present-redacted';
   liveExternalExecutorStartedByProjection: false;
@@ -285,8 +285,8 @@ function buildFailureProjection(
 export function createExternalExecutorLiveObservabilityProjectionFixtureInput(): ExternalExecutorLiveObservabilityProjectionInput {
   return {
     bridge: normalizeExternalExecutorLiveReadOnlyBridgeBoundaryFixture(),
-    bridgeDoc: 'docs/169-wave-1-external-executor-live-read-only-bridge-boundary.md',
-    sourceSnapshotDoc: 'docs/161-wave-1-real-capability-snapshot-read-only.md',
+    bridgeDoc: 'docs/external-executor-live-read-only-bridge-boundary.md',
+    sourceSnapshotDoc: 'docs/real-capability-snapshot-read-only.md',
     secretRefId: 'external-executor-gateway-token',
     tokenStatus: 'present-redacted',
     liveExternalExecutorStartedByProjection: false,

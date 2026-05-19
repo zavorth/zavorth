@@ -42,7 +42,7 @@ const DEFAULT_RECIPES: SkillRecipeDefinition[] = [
     label: 'Entrega guiada por spec',
     summary: 'Combina descoberta, desenho tecnico e execucao guiada por especificacao.',
     rationale: 'Boa para evoluir features com menos drift entre ideia, desenho tecnico e implementacao.',
-    actionHint: 'Use para fases de discovery, design e implementacao coordenadas.',
+    actionHint: 'Use para etapas de discovery, design e implementacao coordenadas.',
     tags: ['spec', 'design', 'delivery'],
     recommendedFor: ['spec', 'arquitetura', 'feature', 'roadmap', 'implementacao', 'design doc'],
     skillIds: ['tlc-spec-driven', 'technical-design-doc-creator', 'skill-architect'],

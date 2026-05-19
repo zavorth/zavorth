@@ -743,7 +743,7 @@ async function executeCliUniversalFallback(input: {
       },
       metadata: {
         channel: sourceChannel || 'cli',
-        phase: 'universal-agent-cli-v1',
+        stage: 'universal-agent-cli-v1',
         sessionId: flags.sessionId,
         workspaceContext: flags.workspaceHint || null,
         transport: trimmed.startsWith('/') ? 'slash_command' : 'text',
@@ -1380,7 +1380,7 @@ export async function executeCliLegacyUnifiedConversation(
       },
       metadata: {
         channel: 'cli',
-        phase: 'legacy-unified-cli-v1',
+        stage: 'legacy-unified-cli-v1',
         sessionId: flags.sessionId,
         workspaceContext: flags.workspaceHint || null,
         transport: trimmed.startsWith('/') ? 'slash_command' : 'text',

@@ -133,14 +133,14 @@ export class ZavorthSubagentSkillLiveCompletionService {
         inspect: 'npm run zavorth:subagent-skill-live-completion',
         inspectJson: 'npm run zavorth:subagent-skill-live-completion:json',
         check: 'npm run zavorth:subagent-skill-live-completion:check --silent',
-        nextPhase: 'Phase 7 - Scheduler, Perception and Device Live Completion',
+        nextStage: 'Surface controls - Scheduler, Perception and Device Live Completion',
       },
     };
   }
 
   public formatSnapshotText(snapshot: ZavorthSubagentSkillLiveCompletionSnapshot): string {
     const lines = [
-      'Zavorth Subagent + Skill Live Completion - Phase 6',
+      'Zavorth Subagent + Skill Live Completion - Runtime gateway',
       '',
       `Status: ${snapshot.status}`,
       `Entries: ${snapshot.summary.passed}/${snapshot.summary.entries} passed, attention=${snapshot.summary.attention}, blocked=${snapshot.summary.blocked}`,
@@ -155,7 +155,7 @@ export class ZavorthSubagentSkillLiveCompletionService {
       if (entry.defaultBlockReason) lines.push(`  block: ${entry.defaultBlockReason}`);
     }
     lines.push('', 'Safety: imported skills remain instruction-only; live skill use requires owner approval.');
-    lines.push(`Next: ${snapshot.commands.nextPhase}`);
+    lines.push(`Next: ${snapshot.commands.nextStage}`);
     return lines.join('\n');
   }
 
@@ -347,7 +347,7 @@ function syntheticSkill(): SkillMetadata {
     sourceLabel: 'Synthetic imported skill',
     sourceKind: 'workspace',
     sourceTrust: 'review',
-    sourceRegistrySource: 'zavorth:phase-6-completion',
+    sourceRegistrySource: 'zavorth:checkpoint-6-completion',
     license: 'MIT',
     bundleTags: ['review'],
     provenance: {
@@ -355,7 +355,7 @@ function syntheticSkill(): SkillMetadata {
       sourceLabel: 'Synthetic imported skill',
       sourceKind: 'workspace',
       sourceTrust: 'review',
-      registrySource: 'zavorth:phase-6-completion',
+      registrySource: 'zavorth:checkpoint-6-completion',
       ownership: 'zavorth',
       license: 'MIT',
       importMode: 'manual',

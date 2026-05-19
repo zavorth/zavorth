@@ -22,7 +22,7 @@ import type {
   UniversalAgentRun,
 } from './UniversalAgentRuntimeTypes.js';
 
-export const UNIVERSAL_INTENT_TRUST_ENFORCEMENT_CONTRACT_VERSION = '2026-05-04.wave-44' as const;
+export const UNIVERSAL_INTENT_TRUST_ENFORCEMENT_CONTRACT_VERSION = '2026-05-04.trust-enforcement' as const;
 
 export type UniversalIntentTrustEnforcementStatus =
   | 'allow'

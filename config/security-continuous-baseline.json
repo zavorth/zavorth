@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updatedAt": "2026-05-19T04:53:06.557Z",
+  "updatedAt": "2026-05-19T22:37:37.850Z",
   "snapshot": {
     "controls": [
       {
@@ -192,7 +192,7 @@
       {
         "id": "scripts/security-ci-check.mjs",
         "relativePath": "scripts/security-ci-check.mjs",
-        "sha256": "d4cab62b49d8c5de469e55c1219a65f61cd0c4977f603a7cdc693f14f1ecf54f",
+        "sha256": "fd3085fc4212ebeb56f0ad69779e6f58b64f2992298baf3ec855cedb18403491",
         "present": true
       },
       {
@@ -216,7 +216,7 @@
       {
         "id": "scripts/command-catalog.json",
         "relativePath": "scripts/command-catalog.json",
-        "sha256": "b88417abe35811438817f2616b95a679b008b017fe1872008b84a9c870b43d9f",
+        "sha256": "7916e08a4337e99a63dd67db0ffcff6866ddb438eafac408f62d74002935d094",
         "present": true
       }
     ],

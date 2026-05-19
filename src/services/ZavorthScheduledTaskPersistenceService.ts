@@ -110,7 +110,7 @@ export class ZavorthScheduledTaskPersistenceService {
       generatedAt,
       contractVersion: ZAVORTH_SCHEDULED_TASK_PERSISTENCE_CONTRACT_VERSION,
       source: 'ZavorthScheduledTaskPersistenceService',
-      phase: 'phase-3-persisted-scheduled-task-registration',
+      phase: 'checkpoint-3-persisted-scheduled-task-registration',
       status,
       action,
       runtime,
@@ -119,7 +119,7 @@ export class ZavorthScheduledTaskPersistenceService {
       checks,
       receipts,
       safety: {
-        persistsOnlyPhase2ReadyRuntime: true,
+        persistsOnlyStage2ReadyRuntime: true,
         storesGovernedScopeInGuardrails: true,
         storesBudgetsInSchedulerMetadata: true,
         pauseResumeRevokeUseSchedulerService: true,
@@ -140,7 +140,7 @@ export class ZavorthScheduledTaskPersistenceService {
 
   public formatSnapshotText(snapshot: ZavorthScheduledTaskPersistenceSnapshot): string {
     const lines = [
-      'Zavorth Persisted Scheduled Task Registration - Phase 3',
+      'Zavorth Persisted Scheduled Task Registration - Approval gate',
       '',
       `Status: ${snapshot.status}`,
       `Action: ${snapshot.action}`,
@@ -324,7 +324,7 @@ function buildGovernedMetadata(
   });
   return {
     contractVersion: ZAVORTH_SCHEDULED_TASK_PERSISTENCE_CONTRACT_VERSION,
-    phase: 'phase-3-persisted-scheduled-task-registration',
+    phase: 'checkpoint-3-persisted-scheduled-task-registration',
     registryStatus: registry.status,
     approvalId: registry.approvalEnvelope?.approvalId || null,
     approvalExpiresAt: registry.approvalEnvelope?.expiresAt || null,
@@ -408,7 +408,7 @@ function readGovernedMetadata(task: ScheduledTask | null): SchedulerGovernedSche
     const metadata = parsed?.governedScheduledTask;
     if (
       metadata
-      && metadata.phase === 'phase-3-persisted-scheduled-task-registration'
+      && metadata.phase === 'checkpoint-3-persisted-scheduled-task-registration'
       && typeof metadata.approvedScopeHash === 'string'
     ) {
       return metadata as SchedulerGovernedScheduledTaskMetadata;
@@ -447,17 +447,17 @@ function buildChecks(input: {
   persistencePerformed: boolean;
 }): ZavorthScheduledTaskPersistenceCheck[] {
   return [
-    check('runtime-ready', input.runtimeReady, 'runtime-ready', input.runtimeReady ? 'Phase 2 runtime is ready.' : `Runtime is ${input.status}.`, 'Resolve Phase 1/2 gates before persistence.'),
+    check('runtime-ready', input.runtimeReady, 'runtime-ready', input.runtimeReady ? 'Preview engine runtime is ready.' : `Runtime is ${input.status}.`, 'Resolve Intent model/2 gates before persistence.'),
     input.action === 'preview'
       ? warn('scheduler-available', input.schedulerAvailable, 'scheduler-available', input.schedulerAvailable ? 'SchedulerService is available.' : 'Preview can run without SchedulerService.', 'Inject SchedulerService for register/pause/resume/revoke.')
       : check('scheduler-available', input.schedulerAvailable, 'scheduler-available', input.schedulerAvailable ? 'SchedulerService is available.' : 'SchedulerService is missing.', 'Inject SchedulerService before mutating scheduled tasks.'),
-    check('action-supported', true, 'action-supported', `Action ${input.action} is supported by Phase 3.`, null),
+    check('action-supported', true, 'action-supported', `Action ${input.action} is supported by Approval gate.`, null),
     input.action === 'register' || input.action === 'preview'
       ? warn('task-found', true, 'task-found', 'Existing task lookup is not required for this action.', null)
       : check('task-found', input.taskFound, 'task-found', input.taskFound ? 'Target scheduled task was found.' : 'Target scheduled task was not found.', 'Pass a valid task id or prefix.'),
     input.action === 'register' || input.action === 'preview'
       ? warn('governed-metadata', input.taskGoverned || input.action === 'preview', 'governed-metadata', input.taskGoverned ? 'Governed metadata is present.' : 'Governed metadata is prepared for persistence.', null)
-      : check('governed-metadata', input.taskGoverned, 'governed-metadata', input.taskGoverned ? 'Task has governed metadata.' : 'Task is not a governed scheduled task.', 'Use a Phase 3-governed scheduled task.'),
+      : check('governed-metadata', input.taskGoverned, 'governed-metadata', input.taskGoverned ? 'Task has governed metadata.' : 'Task is not a governed scheduled task.', 'Use a Approval gate-governed scheduled task.'),
     check('approval-fresh', input.approvalFresh, 'approval-fresh', input.approvalFresh ? 'Approval envelope is fresh.' : 'Approval envelope is missing, invalid or expired.', 'Reapprove the scheduled task scope.'),
     input.action === 'preview'
       ? warn('persistence', true, 'persistence', 'Preview does not persist by design.', null)
@@ -476,19 +476,19 @@ function buildReceipts(
 ): ZavorthScheduledTaskPersistenceReceipt[] {
   return [
     {
-      id: 'phase-3-persisted-scheduled-task-registration',
-      kind: 'phase-3-persisted-scheduled-task-registration',
+      id: 'checkpoint-3-persisted-scheduled-task-registration',
+      kind: 'checkpoint-3-persisted-scheduled-task-registration',
       status: status === 'blocked' ? 'blocked' : 'recorded',
       summary: `Persistence action ${action} resolved as ${status}.`,
     },
     {
-      id: 'phase-3-runtime-consumed',
+      id: 'checkpoint-3-runtime-consumed',
       kind: 'runtime-consumed',
       status: runtime.status === 'ready' ? 'recorded' : 'blocked',
-      summary: `Consumed Phase 2 runtime status ${runtime.status}.`,
+      summary: `Consumed Preview engine runtime status ${runtime.status}.`,
     },
     {
-      id: task?.id || 'phase-3-scheduler-task-created',
+      id: task?.id || 'checkpoint-3-scheduler-task-created',
       kind: action === 'pause'
         ? 'scheduler-task-paused'
         : action === 'resume'
@@ -502,13 +502,13 @@ function buildReceipts(
       summary: task ? `Scheduler task ${task.id} handled through SchedulerService.` : 'No scheduler task was mutated.',
     },
     {
-      id: metadata?.approvedScopeHash || 'phase-3-metadata-boundary',
+      id: metadata?.approvedScopeHash || 'checkpoint-3-metadata-boundary',
       kind: 'metadata-boundary',
       status: metadata ? 'recorded' : 'blocked',
       summary: metadata ? 'Governed metadata is attached to guardrail_json.' : 'Governed metadata is missing.',
     },
     {
-      id: 'phase-3-execution-boundary',
+      id: 'checkpoint-3-execution-boundary',
       kind: 'execution-boundary',
       status: 'recorded',
       summary: 'No scheduled workload is executed during register, pause, resume, revoke or reapprove.',
@@ -525,7 +525,7 @@ function narrativeForStatus(
     return {
       headline: 'Governed scheduled task persisted.',
       operatorSummary: 'The approved recurring scope is now stored in SchedulerService with budget and guardrail metadata.',
-      nextAction: 'Phase 4 should expose the governed schedule lifecycle cleanly across Telegram, CLI, web and Command Center projections.',
+      nextAction: 'Connector registry should expose the governed schedule lifecycle cleanly across Telegram, CLI, web and Command Center projections.',
     };
   }
   if (status === 'preview_ready') {

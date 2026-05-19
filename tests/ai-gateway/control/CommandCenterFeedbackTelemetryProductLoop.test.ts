@@ -70,7 +70,7 @@ function publicMetadata() {
   return {
     productizationContract: {
       source: 'ZavorthProductizationContractService',
-      phase: 'C9',
+      stage: 'C9',
       status: 'ready',
       control: { ready: true },
       cli: { ready: true },
@@ -85,7 +85,7 @@ function publicMetadata() {
       rollbackAvailable: true,
     },
     websitePublic: {
-      phase: '46',
+      stage: '46',
       surface: 'website-public',
       generatedAt: '2026-05-04T03:50:00.000Z',
       status: 'ready',
@@ -96,7 +96,7 @@ function publicMetadata() {
       checks: [],
     },
     publicDocsRecipes: {
-      phase: '56',
+      stage: '56',
       surface: 'public-docs-recipes',
       generatedAt: '2026-05-04T03:50:00.000Z',
       status: 'ready',
@@ -112,7 +112,7 @@ function publicMetadata() {
       checks: [],
     },
     publicDemo: {
-      phase: '47',
+      stage: '47',
       surface: 'public-demo',
       generatedAt: '2026-05-04T03:50:00.000Z',
       status: 'ready',
@@ -126,7 +126,7 @@ function publicMetadata() {
       checks: [],
     },
     publicReleaseBundle: {
-      phase: '51',
+      stage: '51',
       surface: 'release-bundle',
       generatedAt: '2026-05-04T03:50:00.000Z',
       status: 'ready',
@@ -139,7 +139,7 @@ function publicMetadata() {
       checks: [],
     },
     feedbackTelemetry: {
-      phase: '52',
+      stage: '52',
       surface: 'feedback-loop',
       generatedAt: '2026-05-04T03:50:00.000Z',
       status: 'ready',
@@ -158,8 +158,8 @@ function publicMetadata() {
           evidence: ['product-feedback-ledger.json', 'feedback-preview-redacted.json', 'issue/report template'],
         },
       ],
-      nextRecommendedPhase: {
-        phase: 'complete',
+      nextRecommendedStage: {
+        stage: 'complete',
         title: 'Product feedback loop ready',
         reason: 'opt-in preview sem envio externo',
       },
@@ -167,7 +167,7 @@ function publicMetadata() {
   };
 }
 
-describe('Command Center Feedback Telemetry Product Loop Wave 50', () => {
+describe('Command Center Feedback Telemetry Product Loop Feedback Telemetry', () => {
   it('projects feedbackTelemetryProductLoop metadata into the dashboard view model', () => {
     const run = new AgentRunService({
       now: () => new Date('2026-05-04T03:50:00.000Z'),
@@ -198,7 +198,7 @@ describe('Command Center Feedback Telemetry Product Loop Wave 50', () => {
     });
 
     expect(viewModel.feedbackTelemetryProductLoop).toEqual(expect.objectContaining({
-      contractVersion: '2026-05-04.wave-50',
+      contractVersion: '2026-05-04.feedback-telemetry',
       status: 'opt-in-ready',
       readiness: expect.objectContaining({
         publicSiteDocsDemoSyncLinked: true,
@@ -244,7 +244,7 @@ describe('Command Center Feedback Telemetry Product Loop Wave 50', () => {
     );
 
     expect(projection.feedbackTelemetryProductLoop).toEqual(expect.objectContaining({
-      contractVersion: '2026-05-04.wave-50',
+      contractVersion: '2026-05-04.feedback-telemetry',
       status: 'opt-in-ready',
       telemetry: expect.objectContaining({
         enabledByDefault: false,

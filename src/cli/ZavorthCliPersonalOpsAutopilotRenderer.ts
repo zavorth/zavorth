@@ -84,11 +84,11 @@ export function buildPersonalOpsAutopilotCliSnapshot(input: {
         },
         entries: [
           {
-            artifactId: 'artifact-plan-wave-39',
+            artifactId: 'artifact-plan-personal-ops',
             title: 'Plano de ops autopilot',
           },
           {
-            artifactId: 'artifact-report-wave-39',
+            artifactId: 'artifact-report-personal-ops',
             title: 'Relatorio de diagnostico',
           },
         ],
@@ -112,7 +112,7 @@ export function formatPersonalOpsAutopilotSnapshot(
   snapshot: PersonalOpsAutopilotSnapshot,
 ): string {
   const lines = [
-    'Personal Ops Autopilot - Wave 39',
+    'Personal Ops Autopilot - Personal Ops Autopilot',
     `- contrato: ${snapshot.contractVersion}`,
     `- run: ${snapshot.identifiers.runId}`,
     `- status: ${snapshot.status}`,

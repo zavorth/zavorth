@@ -1,5 +1,5 @@
 export const ZAVORTH_CLI_FINAL_PRODUCT_POLISH_CONTRACT_VERSION =
-  '2026-05-14.phase-12-cli-final-product-polish' as const;
+  '2026-05-14.checkpoint-12-cli-final-product-polish' as const;
 
 export type ZavorthCliFinalProductPolishStatus = 'passed' | 'attention' | 'blocked';
 
@@ -60,6 +60,6 @@ export type ZavorthCliFinalProductPolishSnapshot = {
     inspect: 'npm run zavorth:cli-final-product-polish';
     inspectJson: 'npm run zavorth:cli-final-product-polish:json';
     check: 'npm run zavorth:cli-final-product-polish:check --silent';
-    nextPhase: 'Phase 13 - Live Certification Matrix';
+    nextStage: 'Intent model3 - Live Certification Matrix';
   };
 };

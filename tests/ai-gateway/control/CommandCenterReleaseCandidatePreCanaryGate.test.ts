@@ -12,7 +12,7 @@ function createIdFactory() {
 
 function releaseAdoptionReady() {
   return {
-    contractVersion: '2026-05-04.wave-53',
+    contractVersion: '2026-05-04.release-readiness',
     source: 'ReleaseAdoptionReadinessService',
     status: 'release-adoption-ready',
     readiness: {
@@ -82,7 +82,7 @@ function agentService() {
   });
 }
 
-describe('Command Center Release Candidate Pre-Canary Gate Wave 54', () => {
+describe('Command Center Release Candidate Pre-Canary Gate Pre-Canary Gate', () => {
   it('projects releaseCandidatePreCanaryGate metadata into the dashboard view model', () => {
     const run = agentService().createRun({
       userId: 'grey',
@@ -102,7 +102,7 @@ describe('Command Center Release Candidate Pre-Canary Gate Wave 54', () => {
     });
 
     expect(viewModel.releaseCandidatePreCanaryGate).toEqual(expect.objectContaining({
-      contractVersion: '2026-05-04.wave-54',
+      contractVersion: '2026-05-04.pre-canary',
       status: 'pre-canary-ready',
       evidencePack: expect.objectContaining({
         evidencePackReady: true,
@@ -146,7 +146,7 @@ describe('Command Center Release Candidate Pre-Canary Gate Wave 54', () => {
     );
 
     expect(projection.releaseCandidatePreCanaryGate).toEqual(expect.objectContaining({
-      contractVersion: '2026-05-04.wave-54',
+      contractVersion: '2026-05-04.pre-canary',
       status: 'pre-canary-ready',
       goNoGo: expect.objectContaining({
         decision: 'go',

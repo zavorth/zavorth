@@ -89,7 +89,7 @@ export class RemoteMeshSandboxAdapterDryRunService {
         check: 'npm run remote-mesh:sandbox:adapters --silent',
         focusedTests: 'npx jest tests/services/RemoteMeshSandboxAdapterDryRunService.test.ts --runInBand',
         typecheck: 'npm run runtime:check --silent',
-        nextPhase: 'R4 - Owner-Gated Live Remote Activation',
+        nextStage: 'R4 - Owner-Gated Live Remote Activation',
       },
     };
   }

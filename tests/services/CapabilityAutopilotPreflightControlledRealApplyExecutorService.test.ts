@@ -126,7 +126,7 @@ function createSnapshot(hint: CapabilityPreflightHintResult): CapabilityAutopilo
   const payloads = surfaceService.buildPayloads(hint, ['cli', 'web', 'chat', 'telegram', 'api']);
 
   return {
-    phase: '68',
+    stage: '68',
     surface: 'capability-autopilot-preflight-entrypoint',
     generatedAt: FIXED_NOW.toISOString(),
     capabilityId: 'executor-gemini-cli',
@@ -141,8 +141,8 @@ function createSnapshot(hint: CapabilityPreflightHintResult): CapabilityAutopilo
     records: [],
     payloads,
     checks: [],
-    nextRecommendedPhase: {
-      phase: '69',
+    nextRecommendedStage: {
+      stage: '69',
       title: 'Preflight Action Handler Wiring',
       reason: 'Wire explicit actions.',
     },
@@ -247,11 +247,11 @@ describe('CapabilityAutopilotPreflightControlledRealApplyExecutorService', () =>
       budgetLockId: 'budget-lock-1',
       rollbackPlanId: 'rollback-plan-1',
       auditReceiptId: 'audit-1',
-      reason: 'phase-76-test',
+      reason: 'checkpoint-76-test',
     });
 
     expect(result).toMatchObject({
-      phase: '76',
+      stage: '76',
       status: 'ready',
       summary: {
         ok: true,
@@ -381,7 +381,7 @@ describe('CapabilityAutopilotPreflightControlledRealApplyExecutorService', () =>
       },
     });
     expect(apiResume?.adapterResult?.rollbackToken).toBe('rollback-api-resume_after_check');
-    expect(service.renderReport(result)).toContain('Fase 76 - Preflight Controlled Real Apply Executor');
-    expect(service.renderReport(result)).toContain('proxima fase recomendada: 77 - Real Apply Post-Run Verification And Rollback Ledger');
+    expect(service.renderReport(result)).toContain('Etapa 76 - Preflight Controlled Real Apply Executor');
+    expect(service.renderReport(result)).toContain('proximo passo recomendada: 77 - Real Apply Post-Run Verification And Rollback Ledger');
   });
 });

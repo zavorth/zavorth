@@ -12,7 +12,7 @@ import type {
   ZavorthTransactionPreview,
 } from './ZavorthTransactionPreviewContract.js';
 
-export const ZAVORTH_TRANSACTION_RUNTIME_CONTRACT_VERSION = 'zavorth-transaction-runtime/phase-6' as const;
+export const ZAVORTH_TRANSACTION_RUNTIME_CONTRACT_VERSION = 'zavorth-transaction-runtime/checkpoint-6' as const;
 
 export type ZavorthTransactionRuntimeStatus =
   | 'preview-ready'
@@ -41,7 +41,7 @@ export type ZavorthTransactionRuntimeRunInput = {
 };
 
 export type ZavorthTransactionRuntimeStageReceipt = {
-  stage: ZavorthTransactionRuntimeStage;
+  phase: ZavorthTransactionRuntimeStage;
   status: string;
   receiptIds: string[];
 };
@@ -60,7 +60,7 @@ export type ZavorthTransactionRuntimeRunResult = {
   connectorRun?: ZavorthTransactionConnectorRunResult;
   blockers: string[];
   warnings: string[];
-  stageReceipts: ZavorthTransactionRuntimeStageReceipt[];
+  phaseReceipts: ZavorthTransactionRuntimeStageReceipt[];
   nextSteps: string[];
   externalSideEffects: false;
   liveActionApplied: false;
@@ -72,18 +72,18 @@ export type ZavorthTransactionRuntimeContractSnapshot = {
   version: typeof ZAVORTH_TRANSACTION_RUNTIME_CONTRACT_VERSION;
   summary: string;
   statuses: ZavorthTransactionRuntimeStatus[];
-  stages: ZavorthTransactionRuntimeStage[];
+  phases: ZavorthTransactionRuntimeStage[];
   invariants: string[];
 };
 
 export function buildZavorthTransactionRuntimeContractSnapshot(): ZavorthTransactionRuntimeContractSnapshot {
   return {
     version: ZAVORTH_TRANSACTION_RUNTIME_CONTRACT_VERSION,
-    summary: 'End-to-end natural transaction runtime orchestrator for Zavorth Transaction Plane Phase 6.',
+    summary: 'End-to-end natural transaction runtime orchestrator for Zavorth Transaction Plane Runtime gateway.',
     statuses: ['preview-ready', 'approval-required', 'credential-required', 'simulated', 'blocked', 'needs-clarification'],
-    stages: ['intent', 'preview', 'approval-ledger', 'credential-validation', 'typed-connector'],
+    phases: ['intent', 'preview', 'approval-ledger', 'credential-validation', 'typed-connector'],
     invariants: [
-      'Phase 6 orchestrates existing transaction stages but does not introduce live execution.',
+      'Runtime gateway orchestrates existing transaction phases but does not introduce live execution.',
       'Every runtime result exposes preview, approval, credential and connector artifacts when they exist.',
       'Real-money connector dry-runs require approval before typed connector simulation.',
       'Credential refs are validated before they are passed to connector payloads.',

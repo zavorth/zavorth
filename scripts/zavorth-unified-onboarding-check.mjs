@@ -44,7 +44,7 @@ try {
 }
 
 if (snapshot) {
-  assertRule('contract:version', snapshot.contractVersion === '2026-05-13.phase-2', 'Unified onboarding contract version is current');
+  assertRule('contract:version', snapshot.contractVersion === '2026-05-13.checkpoint-2', 'Unified onboarding contract version is current');
   assertRule('surface:unified', snapshot.surface === 'unified-onboarding', 'Unified onboarding surface is exposed');
   assertRule('commands:onboard', hasCommand(snapshot, 'onboard'), 'zavorth onboard is the canonical entry');
   assertRule('commands:doctor-simple', hasCommand(snapshot, 'doctor-simple'), 'simple doctor is part of the same journey');

@@ -26,7 +26,7 @@ function createRun(metadata: Record<string, unknown> = {}) {
 
 function releasePath(status = 'preview-ready') {
   return {
-    contractVersion: '2026-05-04.wave-48',
+    contractVersion: '2026-05-04.release-rollback',
     source: 'ReleaseInstallerRollbackPathService',
     status,
     release: {
@@ -66,7 +66,7 @@ function releasePath(status = 'preview-ready') {
 
 function websitePublic(status = 'ready') {
   return {
-    phase: '46',
+    stage: '46',
     surface: 'website-public',
     generatedAt: '2026-05-04T02:49:00.000Z',
     status,
@@ -84,7 +84,7 @@ function websitePublic(status = 'ready') {
 
 function publicDocs(status = 'ready') {
   return {
-    phase: '56',
+    stage: '56',
     surface: 'public-docs-recipes',
     generatedAt: '2026-05-04T02:49:00.000Z',
     status,
@@ -103,7 +103,7 @@ function publicDocs(status = 'ready') {
 
 function publicDemo(status = 'ready') {
   return {
-    phase: '47',
+    stage: '47',
     surface: 'public-demo',
     generatedAt: '2026-05-04T02:49:00.000Z',
     status,
@@ -120,7 +120,7 @@ function publicDemo(status = 'ready') {
 
 function releaseBundle(status = 'ready') {
   return {
-    phase: '51',
+    stage: '51',
     surface: 'release-bundle',
     generatedAt: '2026-05-04T02:49:00.000Z',
     status,
@@ -134,7 +134,7 @@ function releaseBundle(status = 'ready') {
   };
 }
 
-describe('PublicSiteDocsDemoSyncService Wave 49', () => {
+describe('PublicSiteDocsDemoSyncService Channel mesh9', () => {
   it('syncs public site, docs, demo and release path in preview-only mode', () => {
     const run = createRun();
     run.metadata.releaseInstallerRollbackPath = releasePath();

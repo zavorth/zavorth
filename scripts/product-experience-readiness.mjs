@@ -159,7 +159,7 @@ function finish(results, startedAt) {
   } else if (payload.ok) {
     console.log('\n[product-experience] pronto: modos, escalation, Control UI, Telegram/web, memoria hibrida e legado passaram.');
   } else {
-    console.error('\n[product-experience] bloqueado: algum gate da fase 7 falhou.');
+    console.error('\n[product-experience] bloqueado: algum gate da etapa 7 falhou.');
   }
   process.exit(payload.ok ? 0 : 1);
 }

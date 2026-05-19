@@ -947,7 +947,7 @@ export class CanonicalPublicApiService {
 
   private buildChatFlow(
     snapshot: ReturnType<ZavorthProductizationProtectedRuntimeService['buildSnapshot']>,
-    phase: CanonicalChatPreviewDTO['mode'],
+    stage: CanonicalChatPreviewDTO['mode'],
   ): CanonicalChatPreviewDTO['flow'] {
     const primaryApproval = snapshot.mission.approvals.find((approval) => approval.status === 'pending')
       || snapshot.mission.approvals[0]
@@ -957,7 +957,7 @@ export class CanonicalPublicApiService {
       : primaryApproval?.status || 'not_required';
 
     return {
-      phase,
+      stage,
       previewFirst: true,
       sourceOfTruth: 'runtime-api',
       approvalGate: {

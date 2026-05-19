@@ -285,7 +285,7 @@ describe('ZavorthBridgePromptService', () => {
       targetInstanceId: 'bridge-1',
       processId: 321,
       expectedModel: 'gemini-3.1-flash',
-      phase: 'send',
+      stage: 'send',
     });
 
     expect(result.ready).toBe(true);

@@ -68,7 +68,7 @@ function publicMetadata() {
   return {
     productizationContract: {
       source: 'ZavorthProductizationContractService',
-      phase: 'C9',
+      stage: 'C9',
       status: 'ready',
       control: { ready: true },
       cli: { ready: true },
@@ -83,7 +83,7 @@ function publicMetadata() {
       rollbackAvailable: true,
     },
     websitePublic: {
-      phase: '46',
+      stage: '46',
       surface: 'website-public',
       generatedAt: '2026-05-04T03:50:00.000Z',
       status: 'ready',
@@ -94,7 +94,7 @@ function publicMetadata() {
       checks: [],
     },
     publicDocsRecipes: {
-      phase: '56',
+      stage: '56',
       surface: 'public-docs-recipes',
       generatedAt: '2026-05-04T03:50:00.000Z',
       status: 'ready',
@@ -110,7 +110,7 @@ function publicMetadata() {
       checks: [],
     },
     publicDemo: {
-      phase: '47',
+      stage: '47',
       surface: 'public-demo',
       generatedAt: '2026-05-04T03:50:00.000Z',
       status: 'ready',
@@ -124,7 +124,7 @@ function publicMetadata() {
       checks: [],
     },
     publicReleaseBundle: {
-      phase: '51',
+      stage: '51',
       surface: 'release-bundle',
       generatedAt: '2026-05-04T03:50:00.000Z',
       status: 'ready',
@@ -137,7 +137,7 @@ function publicMetadata() {
       checks: [],
     },
     feedbackTelemetry: {
-      phase: '52',
+      stage: '52',
       surface: 'feedback-loop',
       generatedAt: '2026-05-04T03:50:00.000Z',
       status: 'ready',
@@ -156,8 +156,8 @@ function publicMetadata() {
           evidence: ['product-feedback-ledger.json', 'feedback-preview-redacted.json', 'issue/report template'],
         },
       ],
-      nextRecommendedPhase: {
-        phase: 'complete',
+      nextRecommendedStage: {
+        stage: 'complete',
         title: 'Product feedback loop ready',
         reason: 'opt-in preview sem envio externo',
       },
@@ -165,7 +165,7 @@ function publicMetadata() {
   };
 }
 
-describe('AgentRunService Feedback Telemetry Product Loop Wave 50', () => {
+describe('AgentRunService Feedback Telemetry Product Loop Feedback Telemetry', () => {
   it('publishes run.metadata.feedbackTelemetryProductLoop after public sync', async () => {
     const service = new AgentRunService({
       now: () => new Date('2026-05-04T03:50:00.000Z'),

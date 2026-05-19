@@ -8,7 +8,7 @@ const asJson = process.argv.includes('--json');
 const rules = [
   ruleFilesExist({
     id: 'selfing-dashboard-files',
-    label: 'Wave 37 files exist',
+    label: 'Selfing Dashboard files exist',
     target: 'Runtime, CLI, Command Center, tests and docs are present',
     files: [
       'src/runtime/agent/SelfingDashboardService.ts',
@@ -27,7 +27,7 @@ const rules = [
     files: ['src/runtime/agent/SelfingDashboardService.ts'],
     needles: [
       'SELFING_DASHBOARD_CONTRACT_VERSION',
-      '2026-05-03.wave-37',
+      '2026-05-03.selfing-dashboard',
       'SelfingDashboardCard',
       'SelfingDashboardSuggestion',
       'SelfingDashboardReceipt',
@@ -65,7 +65,7 @@ const rules = [
     ],
     needles: [
       'selfing',
-      'Selfing Dashboard - Wave 37',
+      'Selfing Dashboard - Selfing Dashboard',
       'resolveSelfingDashboardCliText',
       'formatSelfingDashboardSnapshot',
       'zavorth selfing',
@@ -94,7 +94,7 @@ const rules = [
   }),
   ruleContainsAll({
     id: 'package-exposes-selfing-dashboard-gate',
-    label: 'package exposes Wave 37 gate',
+    label: 'package exposes Selfing Dashboard gate',
     target: 'local QA can run selfing-dashboard:check and qa:selfing-dashboard',
     files: ['package.json'],
     needles: [
@@ -120,7 +120,7 @@ const snapshot = {
 if (asJson) {
   console.log(JSON.stringify(snapshot, null, 2));
 } else {
-  console.log('[selfing-dashboard] checking Wave 37');
+  console.log('[selfing-dashboard] checking Selfing Dashboard');
   for (const rule of rules) {
     const marker = rule.status === 'passed' ? 'ok' : 'fail';
     console.log(`[selfing-dashboard] ${marker} ${rule.label}: ${rule.observed} | ${rule.target}`);

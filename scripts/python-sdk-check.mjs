@@ -10,7 +10,7 @@ const pythonFiles = [
   path.resolve(projectRoot, 'sdk', 'python', 'pyproject.toml'),
   path.resolve(projectRoot, 'examples', 'clients', 'simple-bot.py'),
   path.resolve(projectRoot, 'docs', '112-public-ecosystem-contracts.md'),
-  path.resolve(projectRoot, 'docs', '50-wave-9-ecosystem-sdk.md'),
+  path.resolve(projectRoot, 'docs', '50-track-9-ecosystem-sdk.md'),
   path.resolve(projectRoot, 'docs', 'platform', 'integrar-client.md'),
   path.resolve(projectRoot, 'docs', 'platform', 'registrar-node.md'),
   path.resolve(projectRoot, 'docs', 'platform', 'publicar-plugin.md'),

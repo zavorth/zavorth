@@ -1,12 +1,12 @@
 import { CanaryPromotionDecisionLedgerService } from '../../src/services/CanaryPromotionDecisionLedgerService.js';
 
-describe('CanaryPromotionDecisionLedgerService Phase 23', () => {
+describe('CanaryPromotionDecisionLedgerService Preview engine3', () => {
   it('builds a promotion decision ledger from the canary monitoring rollback gate', () => {
     const snapshot = new CanaryPromotionDecisionLedgerService({
       now: () => new Date('2026-05-05T05:10:00.000Z'),
     }).buildSnapshot();
 
-    expect(snapshot.contractVersion).toBe('2026-05-04.phase-23');
+    expect(snapshot.contractVersion).toBe('2026-05-04.checkpoint-23');
     expect(snapshot.status).toBe('decision-ledger-ready');
     expect(snapshot.releaseCandidate).toEqual(
       expect.objectContaining({
@@ -124,7 +124,7 @@ describe('CanaryPromotionDecisionLedgerService Phase 23', () => {
         releaseExecutionHeld: 'npm run capability-autopilot:release-execution --silent -- --no-execution-approval --no-tag-approval --no-publish-approval --no-canary-launch-approval',
         promotionDecisionDryRun: 'dry-run:canary-promotion-decision --cohort dry-run-canary-cohort --from 5 --to 10 --no-execute',
         rollbackDecisionDryRun: 'dry-run:canary-rollback-decision --checkpoint required --no-execute',
-        nextPhase: 'Final canary release closure',
+        nextStage: 'Final canary release closure',
       }),
     );
     expect(snapshot.policy).toEqual(

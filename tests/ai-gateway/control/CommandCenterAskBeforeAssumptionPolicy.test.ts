@@ -11,7 +11,7 @@ function createIdFactory() {
   return (prefix: string) => `${prefix}-cc-ask-policy-${++index}`;
 }
 
-describe('Command Center Ask Before Assumption Policy Wave 42', () => {
+describe('Command Center Ask Before Assumption Policy Channel mesh2', () => {
   it('projects askBeforeAssumptionPolicy metadata into the dashboard view model', () => {
     const run = new AgentRunService({
       now: () => new Date('2026-05-04T00:42:00.000Z'),
@@ -43,7 +43,7 @@ describe('Command Center Ask Before Assumption Policy Wave 42', () => {
     });
 
     expect(viewModel.askBeforeAssumptionPolicy).toEqual(expect.objectContaining({
-      contractVersion: '2026-05-03.wave-42',
+      contractVersion: '2026-05-03.track-42',
       status: 'blocked',
       summary: expect.objectContaining({
         questionCount: expect.any(Number),
@@ -83,7 +83,7 @@ describe('Command Center Ask Before Assumption Policy Wave 42', () => {
     );
 
     expect(projection.askBeforeAssumptionPolicy).toEqual(expect.objectContaining({
-      contractVersion: '2026-05-03.wave-42',
+      contractVersion: '2026-05-03.track-42',
       summary: expect.objectContaining({
         questionCount: expect.any(Number),
       }),

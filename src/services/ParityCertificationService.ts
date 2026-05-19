@@ -55,12 +55,12 @@ export class ParityCertificationService {
     const waived = gates.filter((gate) => gate.status === 'waived').length;
     const status = this.resolveStatus({ blockingFailures, failed, warned, waived });
     const releaseReady = status === 'certified';
-    const nextPhase = operational.summary.p0Gaps > 0
-      ? 'Fase 10 - P0 Gap Closure'
+    const nextStage = operational.summary.p0Gaps > 0
+      ? 'Etapa 10 - P0 Gap Closure'
       : operational.summary.p1Gaps > 2
-        ? 'Fase 12 - Native Capability Closure'
+        ? 'Etapa 12 - Native Capability Closure'
         : operational.summary.p1Gaps > 0 || operational.summary.p2Gaps > 0
-          ? 'Fase 13 - Remaining Runtime Decisions'
+          ? 'Etapa 13 - Remaining Runtime Decisions'
         : 'Release certification profile hardening';
 
     return {
@@ -108,7 +108,7 @@ export class ParityCertificationService {
       sourceGaps: operational.gaps,
       sourceGates: operational.gates,
       recommendations: {
-        nextPhase,
+        nextStage,
         minimumAction: this.minimumAction(operational, gates, profile),
         releaseDecision: this.releaseDecision(status, operational, gates),
       },
@@ -123,7 +123,7 @@ export class ParityCertificationService {
           'npm run parity-certify --silent',
         ],
         typecheck: operational.commands.typecheck,
-        nextPhase,
+        nextStage,
       },
       policy: {
         certificationOnly: true,
@@ -155,7 +155,7 @@ export class ParityCertificationService {
       '',
       `Decision: ${snapshot.recommendations.releaseDecision}`,
       `Minimum action: ${snapshot.recommendations.minimumAction}`,
-      `Next: ${snapshot.commands.nextPhase}`,
+      `Next: ${snapshot.commands.nextStage}`,
     ];
     return lines.join('\n');
   }
@@ -178,8 +178,8 @@ export class ParityCertificationService {
         status: 'pass',
         title: 'Operational snapshot is present',
         observed: operational.contractVersion,
-        threshold: '2026-05-04.phase-8',
-        reason: 'Certification consumes the Phase 8 operational parity snapshot.',
+        threshold: '2026-05-04.checkpoint-8',
+        reason: 'Certification consumes the Dashboard controls operational parity snapshot.',
         nextAction: 'keep parity doctor current as certification input',
         sourceCommand: operational.commands.doctorJson,
         sourceGaps: [],
@@ -292,7 +292,7 @@ export class ParityCertificationService {
         severity: 'required',
         status: 'pass',
         title: 'Certification documentation exists',
-        observed: 'docs/356-zavorth-parity-certification-private.md',
+        observed: 'docs/product-direction.md',
         threshold: 'documented',
         reason: 'Private release operators need a stable certification handoff document.',
         nextAction: 'keep certification documentation synchronized with service output',

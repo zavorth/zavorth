@@ -4,13 +4,13 @@ import { LiveReadinessService } from '../../src/services/LiveReadinessService.js
 const byName = (snapshot: ReturnType<LiveReadinessService['buildSnapshot']>) =>
   new Map(snapshot.entries.map((entry) => [entry.normalizedSourceName, entry]));
 
-describe('LiveReadinessService Phase 1', () => {
+describe('LiveReadinessService Intent model', () => {
   it('builds a truthful no-live-IO readiness snapshot for the full tracked surface', () => {
     const snapshot = new LiveReadinessService({
       now: () => new Date('2026-05-04T18:00:00.000Z'),
     }).buildSnapshot();
 
-    expect(snapshot.contractVersion).toBe('2026-05-04.live-phase-1');
+    expect(snapshot.contractVersion).toBe('2026-05-04.live-checkpoint-1');
     expect(snapshot.profile).toBe('dry-audit');
     expect(snapshot.status).toBe('attention');
     expect(snapshot.summary.sourceModules).toBe(125);
@@ -52,7 +52,7 @@ describe('LiveReadinessService Phase 1', () => {
       expect.objectContaining({
         primitiveId: 'channel.message',
         status: 'live-ready',
-        recommendedPhase: 'Phase 2 - Channel Live Activation P0',
+        recommendedPhase: 'Preview engine - Channel Live Activation P0',
       }),
     );
     expect(entries.get('discord')?.status).toBe('partial-live');
@@ -75,7 +75,7 @@ describe('LiveReadinessService Phase 1', () => {
       expect.objectContaining({
         primitiveId: 'provider.call',
         status: 'partial-live',
-        recommendedPhase: 'Phase 4 - Provider Runtime Activation P0',
+        recommendedPhase: 'Connector registry - Provider Runtime Activation P0',
       }),
     );
     expect(entries.get('anthropic')?.status).toBe('partial-live');
@@ -87,7 +87,7 @@ describe('LiveReadinessService Phase 1', () => {
       expect.objectContaining({
         primitiveId: 'provider.call',
         status: 'partial-live',
-        recommendedPhase: 'Phase 5 - Provider Runtime Activation Long Tail',
+        recommendedPhase: 'Credential vault - Provider Runtime Activation Long Tail',
       }),
     );
     expect(entries.get('anthropic-vertex')?.status).toBe('partial-live');
@@ -98,20 +98,20 @@ describe('LiveReadinessService Phase 1', () => {
       expect.objectContaining({
         primitiveId: 'search.query',
         status: 'partial-live',
-        recommendedPhase: 'Phase 8 - Research, Web, and Browser Live Activation',
+        recommendedPhase: 'Dashboard controls - Research, Web, and Browser Live Activation',
       }),
     );
     expect(entries.get('deepgram')).toEqual(
       expect.objectContaining({
         primitiveId: 'speech.transcribe',
         status: 'partial-live',
-        recommendedPhase: 'Phase 7 - Speech, TTS, and Voice Live Activation',
+        recommendedPhase: 'Surface controls - Speech, TTS, and Voice Live Activation',
       }),
     );
     expect(entries.get('document-extract')).toEqual(
       expect.objectContaining({
         status: 'partial-live',
-        recommendedPhase: 'Phase 9 - File, Document, and Diff Live Activation',
+        recommendedPhase: 'Certification matrix - File, Document, and Diff Live Activation',
       }),
     );
     expect(entries.get('phone-control')?.status).toBe('partial-live');
@@ -121,16 +121,16 @@ describe('LiveReadinessService Phase 1', () => {
     const snapshot = new LiveReadinessService().buildSnapshot();
     const phases = snapshot.gaps.map((gap) => gap.phase);
 
-    expect(phases).toContain('Phase 2 - Channel Live Activation P0');
-    expect(phases).not.toContain('Phase 3 - Channel Long Tail');
-    expect(phases).not.toContain('Phase 5 - Provider Long Tail');
-    expect(phases).toContain('Phase 5 - Provider Runtime Activation Long Tail');
+    expect(phases).toContain('Preview engine - Channel Live Activation P0');
+    expect(phases).not.toContain('Approval gate - Channel Long Tail');
+    expect(phases).not.toContain('Credential vault - Provider Long Tail');
+    expect(phases).toContain('Credential vault - Provider Runtime Activation Long Tail');
     expect(snapshot.receipts).toHaveLength(snapshot.summary.sourceModules);
     expect(snapshot.commands).toEqual(
       expect.objectContaining({
         check: 'npm run live-readiness:check --silent',
         typecheck: 'npm run runtime:check --silent',
-        nextPhase: 'Phase 2 - Channel Live Activation P0',
+        nextStage: 'Preview engine - Channel Live Activation P0',
       }),
     );
     expect(JSON.stringify(snapshot)).not.toContain('sk-');

@@ -13,7 +13,7 @@ import type { ZavorthSchedulerPerceptionDeviceLiveCompletionSnapshot } from './Z
 import type { ZavorthSubagentSkillLiveCompletionSnapshot } from './ZavorthSubagentSkillLiveCompletionContract.js';
 
 export const ZAVORTH_END_TO_END_MISSION_FLOW_PUBLIC_RUNTIME_CERTIFICATION_CONTRACT_VERSION =
-  '2026-05-14.phase-8-end-to-end-mission-flow-public-runtime-certification' as const;
+  '2026-05-14.checkpoint-8-end-to-end-mission-flow-public-runtime-certification' as const;
 
 export type ZavorthEndToEndMissionFlowCertificationStatus = 'passed' | 'attention' | 'blocked';
 
@@ -106,6 +106,6 @@ export type ZavorthEndToEndMissionFlowPublicRuntimeCertificationSnapshot = {
     inspect: 'npm run zavorth:end-to-end-mission-flow-public-runtime-certification';
     inspectJson: 'npm run zavorth:end-to-end-mission-flow-public-runtime-certification:json';
     check: 'npm run zavorth:end-to-end-mission-flow-public-runtime-certification:check --silent';
-    nextPhase: 'Phase 9 - Live Readiness Evidence and Channel Provider Proof Pack';
+    nextStage: 'Certification matrix - Live Readiness Evidence and Channel Provider Proof Pack';
   };
 };

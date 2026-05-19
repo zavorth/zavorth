@@ -8,7 +8,7 @@ import { SurfaceTaskDispatchService } from '../../../src/services/SurfaceTaskDis
 import type { PermissionRequest } from '../../../src/contracts/PermissionRequest';
 import type { Task } from '../../../src/contracts/TaskContract';
 
-export const PHASE33_FLOW_FIXTURES = {
+export const STAGE33_FLOW_FIXTURES = {
   telegramCommand: '/task gerar resumo operacional',
   permissionRequest: '/task deploy production --needs-approval',
   externalExecutorWorkspaceMismatch: '/task external_executor aplicar patch no workspace errado',
@@ -262,8 +262,8 @@ export class ZavorthEndToEndFlowHarness {
 
   private createTask(input: any): Task {
     const now = new Date('2026-04-24T12:00:00.000Z').toISOString();
-    const taskId = `phase33-task-${String(++this.taskSequence).padStart(3, '0')}`;
-    const traceId = `phase33-trace-${String(++this.traceSequence).padStart(3, '0')}`;
+    const taskId = `approval-gate3-task-${String(++this.taskSequence).padStart(3, '0')}`;
+    const traceId = `approval-gate3-trace-${String(++this.traceSequence).padStart(3, '0')}`;
     const parsed = input.parsed || this.parser.parse(input.text);
     return {
       task_id: taskId,
@@ -275,7 +275,7 @@ export class ZavorthEndToEndFlowHarness {
       raw_message: input.text,
       normalized_message: parsed.normalized_message || String(input.text || '').toLowerCase(),
       command_type: parsed.command_type,
-      intent: 'phase33_flow',
+      intent: 'approval-gate3_flow',
       target: null,
       workspace: input.surfaceMetadata?.tenant?.workspace || '<repo>',
       risk_level: 1,
@@ -461,7 +461,7 @@ export class ZavorthEndToEndFlowHarness {
   private createPermission(task: Task): PermissionRequest {
     const now = new Date('2026-04-24T12:00:00.000Z').toISOString();
     const permission: PermissionRequest = {
-      permission_id: `phase33-perm-${String(++this.permissionSequence).padStart(3, '0')}`,
+      permission_id: `approval-gate3-perm-${String(++this.permissionSequence).padStart(3, '0')}`,
       created_at: now,
       updated_at: now,
       task_id: task.task_id,

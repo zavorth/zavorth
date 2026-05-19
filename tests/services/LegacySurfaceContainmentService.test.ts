@@ -17,10 +17,10 @@ describe('LegacySurfaceContainmentService', () => {
         frozenSurfaces: ['/app', '/classic'],
         generatedAt: '2026-04-14T12:00:00.000Z',
         consolidation: expect.objectContaining({
-          phase: 'P3-003',
+          stage: 'P3-003',
           canonicalDocs: expect.arrayContaining([
-            'docs/07-web.md',
-            'docs/60-legacy-containment.md',
+            'docs/web-dashboard.md',
+            'docs/product-direction.md',
           ]),
           rule: expect.stringContaining('/app e /classic recebem apenas manutencao'),
         }),
@@ -67,7 +67,7 @@ describe('LegacySurfaceContainmentService', () => {
 
     expect(service.decideFeatureDestination('/dashboard', 'product-feature')).toEqual(
       expect.objectContaining({
-        phase: 'P3-003',
+        stage: 'P3-003',
         allowed: true,
         featureKind: 'product-feature',
         requestedPath: '/dashboard',
@@ -77,7 +77,7 @@ describe('LegacySurfaceContainmentService', () => {
     );
     expect(service.decideFeatureDestination('/app', 'business-rule')).toEqual(
       expect.objectContaining({
-        phase: 'P3-003',
+        stage: 'P3-003',
         allowed: false,
         featureKind: 'business-rule',
         requestedPath: '/app',
@@ -87,7 +87,7 @@ describe('LegacySurfaceContainmentService', () => {
     );
     expect(service.decideFeatureDestination('/classic', 'observability-maintenance')).toEqual(
       expect.objectContaining({
-        phase: 'P3-003',
+        stage: 'P3-003',
         allowed: true,
         featureKind: 'observability-maintenance',
         requestedPath: '/classic',

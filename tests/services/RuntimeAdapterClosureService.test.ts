@@ -2,13 +2,13 @@ import { ChannelMeshParityService } from '../../src/services/ChannelMeshParitySe
 import { ProviderMeshParityService } from '../../src/services/ProviderMeshParityService.js';
 import { RuntimeAdapterClosureService } from '../../src/services/RuntimeAdapterClosureService.js';
 
-describe('RuntimeAdapterClosureService Phase 11', () => {
+describe('RuntimeAdapterClosureService Intent model1', () => {
   it('closes provider and channel template runtimes without live IO', () => {
     const snapshot = new RuntimeAdapterClosureService({
       now: () => new Date('2026-05-04T21:00:00.000Z'),
     }).buildSnapshot();
 
-    expect(snapshot.contractVersion).toBe('2026-05-04.phase-11');
+    expect(snapshot.contractVersion).toBe('2026-05-04.checkpoint-11');
     expect(snapshot.status).toBe('closed');
     expect(snapshot.summary).toEqual(
       expect.objectContaining({

@@ -37,8 +37,8 @@ export class SourcePluginOsAbsorptionService {
     const matrix = this.matrixService.buildSnapshot(sourceRoot);
     const doctor = this.doctorService.doctorPackageJson({
       packageJson: this.buildSampleSourcePluginPackage(),
-      packagePath: 'phase1://sample/source-compatible-provider',
-      digest: 'sha256:phase1-sample',
+      packagePath: 'intent-model://sample/source-compatible-provider',
+      digest: 'sha256:intent-model-sample',
     });
     const status = matrix.status === 'passed' && doctor.status === 'passed' ? 'passed' : 'failed';
 
@@ -74,14 +74,14 @@ export class SourcePluginOsAbsorptionService {
         inspectJson: 'npm run source-plugin-os-absorption:json --silent',
         check: 'npm run source-plugin-os-absorption:check --silent',
         qa: 'npm run qa:source-plugin-os-absorption --silent',
-        nextPhase: 'Phase 2 - Agent Runtime Bridge Pack',
+        nextStage: 'Preview engine - Agent Runtime Bridge Pack',
       },
     };
   }
 
   public formatSnapshotText(snapshot = this.buildSnapshot()): string {
     const lines = [
-      'Zavorth Source Plugin OS Absorption - Phase 1',
+      'Zavorth Source Plugin OS Absorption - Intent model',
       `Status: ${snapshot.status}`,
       `Contract: ${snapshot.contractVersion}`,
       `Packages found: ${snapshot.summary.packagesFound}/${snapshot.matrix.summary.packagesExpected}`,
@@ -102,7 +102,7 @@ export class SourcePluginOsAbsorptionService {
       lines.push(`- ${entry.packageName}: ${entry.status}, exports=${entry.declaredExports}, decision=${entry.decision}, target=${entry.zavorthTarget}`);
     }
 
-    lines.push(`Next: ${snapshot.commands.nextPhase}`);
+    lines.push(`Next: ${snapshot.commands.nextStage}`);
     return lines.join('\n');
   }
 
@@ -110,7 +110,7 @@ export class SourcePluginOsAbsorptionService {
     return {
       name: '@example/source-weather-provider',
       version: '1.2.3',
-      description: 'Source-compatible provider plugin used by Zavorth Phase 1 doctor.',
+      description: 'Source-compatible provider plugin used by Zavorth Intent model doctor.',
       keywords: ['source', 'provider', 'auth'],
       main: './dist/index.js',
       source: {

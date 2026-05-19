@@ -8,8 +8,8 @@ const asJson = process.argv.includes('--json');
 
 const rules = [
   ruleFilesExist({
-    id: 'source-channel-mesh-phase-4-files',
-    label: 'Phase 4 files exist',
+    id: 'source-channel-mesh-checkpoint-4-files',
+    label: 'Connector registry files exist',
     target: 'contract, simulator, secret policy, Slack/WhatsApp packs, expansion service, command, tests and package scripts are present',
     files: [
       'src/contracts/SourceChannelMeshExpansionContract.ts',
@@ -26,7 +26,7 @@ const rules = [
   ruleContainsAll({
     id: 'source-channel-mesh-contract',
     label: 'Contract captures Channel Mesh runtime vocabulary',
-    target: 'contract includes send/receive/thread/edit/delete/reaction/attachment semantics, packages, patch risk and Phase 4 snapshot',
+    target: 'contract includes send/receive/thread/edit/delete/reaction/attachment semantics, packages, patch risk and Connector registry snapshot',
     files: ['src/contracts/SourceChannelMeshExpansionContract.ts'],
     needles: [
       'ZAVORTH_SOURCE_CHANNEL_MESH_EXPANSION_CONTRACT_VERSION',
@@ -87,14 +87,14 @@ const rules = [
       'buildPack',
       'buildPackageEvidence',
       'whatsapp-baileys',
-      'Phase 5 - Memory, Document, Search And Terminal Pack',
+      'Credential vault - Memory, Document, Search And Terminal Pack',
       'noSourceSourceCopy',
       'whatsappBaileysRequiresPatchRiskOwnerDecision',
     ],
   }),
   ruleContainsAll({
     id: 'package-exposes-source-channel-mesh-gate',
-    label: 'package exposes Phase 4 gates and dependencies',
+    label: 'package exposes Connector registry gates and dependencies',
     target: 'operators can inspect, inspect JSON, run check/QA and safe channel dependencies are direct',
     files: ['package.json'],
     needles: [
@@ -124,7 +124,7 @@ const snapshot = {
 if (asJson) {
   console.log(JSON.stringify(snapshot, null, 2));
 } else {
-  console.log('[source-channel-mesh-expansion] checking Phase 4');
+  console.log('[source-channel-mesh-expansion] checking Connector registry');
   for (const rule of rules) {
     const marker = rule.status === 'passed' ? 'ok' : 'fail';
     console.log(`[source-channel-mesh-expansion] ${marker} ${rule.label}: ${rule.observed} | ${rule.target}`);
@@ -156,7 +156,7 @@ function runRuntimeRule() {
       label: 'Runtime Channel Mesh receipt passes',
       status: 'failed',
       observed: `exit ${result.status ?? 'unknown'}`,
-      target: 'Phase 4 command emits a passing channel mesh snapshot against the current Source checkout',
+      target: 'Connector registry command emits a passing channel mesh snapshot against the current Source checkout',
       details: compactDetails(result.error instanceof Error ? result.error.message : '', result.stderr, result.stdout),
     };
   }
@@ -168,13 +168,13 @@ function runRuntimeRule() {
       label: 'Runtime Channel Mesh receipt passes',
       status: receipt.status === 'passed' ? 'passed' : 'failed',
       observed: `status=${receipt.status}, packs=${receipt.summary?.packs}, simulatorReceipts=${receipt.summary?.simulatorReceipts}`,
-      target: 'Phase 4 command emits a passing channel mesh snapshot against the current Source checkout',
+      target: 'Connector registry command emits a passing channel mesh snapshot against the current Source checkout',
       details: [
         `packagesPresentInSource=${receipt.summary?.packagesPresentInSource}`,
         `packagesImplementedInZavorth=${receipt.summary?.packagesImplementedInZavorth}`,
         `ownerGatedPacks=${receipt.summary?.ownerGatedPacks}`,
         `liveIoPerformed=${receipt.summary?.liveIoPerformed}`,
-        `next=${receipt.commands?.nextPhase}`,
+        `next=${receipt.commands?.nextStage}`,
       ],
     };
   } catch (error) {
@@ -183,7 +183,7 @@ function runRuntimeRule() {
       label: 'Runtime Channel Mesh receipt passes',
       status: 'failed',
       observed: 'invalid JSON receipt',
-      target: 'Phase 4 command emits a passing channel mesh snapshot against the current Source checkout',
+      target: 'Connector registry command emits a passing channel mesh snapshot against the current Source checkout',
       details: [error instanceof Error ? error.message : String(error), ...compactDetails(result.stderr, result.stdout)],
     };
   }

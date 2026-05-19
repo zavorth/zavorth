@@ -6,7 +6,7 @@ import {
   type UniversalAgentExecutor,
 } from '../../../src/runtime/agent/index.js';
 
-type Phase9SurfaceCase = {
+type Stage9SurfaceCase = {
   label: string;
   text: string;
   expectedRoute: NaturalFirstRoute;
@@ -16,7 +16,7 @@ type Phase9SurfaceCase = {
 
 const PHASE_9_SURFACES: UniversalAgentChannel[] = ['web', 'cli', 'telegram', 'api'];
 
-const PHASE_9_CASES: Phase9SurfaceCase[] = [
+const PHASE_9_CASES: Stage9SurfaceCase[] = [
   {
     label: 'light greeting',
     text: 'oi',
@@ -69,7 +69,7 @@ const PHASE_9_CASES: Phase9SurfaceCase[] = [
 
 function createIdFactory(seed: string) {
   let index = 0;
-  return (prefix: string) => `${prefix}-phase9-${seed}-${++index}`;
+  return (prefix: string) => `${prefix}-certification-matrix-${seed}-${++index}`;
 }
 
 function createExecutor() {
@@ -80,7 +80,7 @@ function createExecutor() {
   }));
 }
 
-describe('Natural First surface behavior Phase 9', () => {
+describe('Natural First surface behavior Certification matrix', () => {
   const classifier = new NaturalFirstRunClassifier();
 
   it.each(

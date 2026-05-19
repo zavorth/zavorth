@@ -1,14 +1,14 @@
 import { ZavorthLiveCertificationMatrixService } from '../../src/services/ZavorthLiveCertificationMatrixService.js';
 
 describe('ZavorthLiveCertificationMatrixService', () => {
-  it('builds the Phase 13 daily runtime certification matrix', async () => {
+  it('builds the Intent model3 daily runtime certification matrix', async () => {
     const service = new ZavorthLiveCertificationMatrixService({
       now: () => new Date('2026-05-14T13:00:00.000Z'),
     });
 
     const snapshot = await service.buildSnapshot();
 
-    expect(snapshot.contractVersion).toBe('2026-05-14.phase-13-live-certification-matrix');
+    expect(snapshot.contractVersion).toBe('2026-05-14.checkpoint-13-live-certification-matrix');
     expect(snapshot.status).toBe('passed');
     expect(snapshot.summary.dashboardCertified).toBe(true);
     expect(snapshot.summary.cliCertified).toBe(true);

@@ -4,7 +4,7 @@ export type ReleaseUxSource = 'package' | 'web' | 'control-plane' | 'wizard' | '
 export type ReleaseUxWizardStep = {
   id: string;
   label: string;
-  stage: 'readiness' | 'diff' | 'hygiene' | 'publish' | 'rollback' | 'changelog';
+  phase: 'readiness' | 'diff' | 'hygiene' | 'publish' | 'rollback' | 'changelog';
   command: string;
   previewOnly: boolean;
   requiresApproval: boolean;

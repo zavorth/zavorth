@@ -6,7 +6,7 @@ import type {
 } from './ZavorthTransactionLiveActivationReviewContract.js';
 
 export const ZAVORTH_TRANSACTION_SANDBOX_ADAPTER_CERTIFICATION_CONTRACT_VERSION =
-  'zavorth-transaction-sandbox-adapter-certification/phase-12' as const;
+  'zavorth-transaction-sandbox-adapter-certification/checkpoint-12' as const;
 
 export type ZavorthTransactionSandboxAdapterCertificationStatus =
   | 'activation-review-required'
@@ -21,7 +21,7 @@ export type ZavorthTransactionSandboxAdapterEnvironment =
   | 'production';
 
 export type ZavorthTransactionSandboxAdapterCertificationGateKind =
-  | 'phase11-review-ready'
+  | 'intent-model1-review-ready'
   | 'review-packet-present'
   | 'adapter-manifest-present'
   | 'sandbox-environment-only'
@@ -187,7 +187,7 @@ export type ZavorthTransactionSandboxAdapterCertificationContractSnapshot = {
 export function buildZavorthTransactionSandboxAdapterCertificationContractSnapshot(): ZavorthTransactionSandboxAdapterCertificationContractSnapshot {
   return {
     version: ZAVORTH_TRANSACTION_SANDBOX_ADAPTER_CERTIFICATION_CONTRACT_VERSION,
-    summary: 'Sandbox/paper adapter certification contract for Zavorth Transaction Plane Phase 12.',
+    summary: 'Sandbox/paper adapter certification contract for Zavorth Transaction Plane Intent model2.',
     statuses: [
       'activation-review-required',
       'adapter-manifest-required',
@@ -196,7 +196,7 @@ export function buildZavorthTransactionSandboxAdapterCertificationContractSnapsh
     ],
     environments: ['sandbox', 'paper', 'live', 'production'],
     gateKinds: [
-      'phase11-review-ready',
+      'intent-model1-review-ready',
       'review-packet-present',
       'adapter-manifest-present',
       'sandbox-environment-only',
@@ -214,12 +214,12 @@ export function buildZavorthTransactionSandboxAdapterCertificationContractSnapsh
       'raw-secret-redaction',
     ],
     invariants: [
-      'Phase 12 consumes a Phase 11 ready-for-live-activation-review packet before certifying any adapter.',
-      'Phase 12 certifies sandbox or paper adapter readiness only; it does not call external networks.',
+      'Intent model2 consumes a Intent model1 ready-for-live-activation-review packet before certifying any adapter.',
+      'Intent model2 certifies sandbox or paper adapter readiness only; it does not call external networks.',
       'Sandbox certification requires allowlisted endpoint hosts, SecretRef binding, idempotency, rate limit, timeout and circuit breaker controls.',
-      'Live and production adapter endpoints are blocked in Phase 12.',
+      'Live and production adapter endpoints are blocked in Intent model2.',
       'A sandbox-certification-ready packet still reports sandboxExecutionAuthorized=false and liveExecutionAuthorized=false.',
-      'Phase 12 requires a separate future sandbox executor and a separate future live executor.',
+      'Intent model2 requires a separate future sandbox executor and a separate future live executor.',
       'Raw transaction secrets must never be serialized by the certification packet.',
     ],
   };

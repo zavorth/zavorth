@@ -83,7 +83,7 @@ export class MemoryArtifactParityService {
         reusedArtifactMustCiteOrigin: true,
         secretsSerialized: false,
       },
-      nextPhase: {
+      nextStage: {
         id: 'operational-tooling',
         reason: 'Memory/artifacts now have parity coverage; the next layer should expose certifiable operator tooling and parity doctors.',
       },
@@ -268,13 +268,13 @@ export class MemoryArtifactParityService {
   private buildProofRun(): UniversalAgentRun {
     const generatedAt = this.now().toISOString();
     return {
-      id: 'phase-7-memory-artifact-run',
-      traceId: 'phase-7-memory-artifact-trace',
-      requestId: 'phase-7-memory-artifact-request',
-      sessionId: 'phase-7-memory-artifact-session',
-      userId: 'phase-7-operator',
+      id: 'checkpoint-7-memory-artifact-run',
+      traceId: 'checkpoint-7-memory-artifact-trace',
+      requestId: 'checkpoint-7-memory-artifact-request',
+      sessionId: 'checkpoint-7-memory-artifact-session',
+      userId: 'checkpoint-7-operator',
       channel: 'cli',
-      title: 'Phase 7 Memory Artifact parity proof',
+      title: 'Surface controls Memory Artifact parity proof',
       input: 'prove memory and artifact parity without writes',
       workspace: 'C:\\TESTES DEV\\zavorth-core\\Zavorth',
       status: 'completed',
@@ -283,8 +283,8 @@ export class MemoryArtifactParityService {
       summary: 'Dry proof for artifact memory, memory receipts, and run artifact replay.',
       events: [
         {
-          id: 'phase-7-event-artifact-index',
-          runId: 'phase-7-memory-artifact-run',
+          id: 'checkpoint-7-event-artifact-index',
+          runId: 'checkpoint-7-memory-artifact-run',
           kind: 'artifact',
           title: 'Artifact indexed',
           detail: 'Artifact Memory generated a searchable receipt-linked entry.',
@@ -309,25 +309,25 @@ export class MemoryArtifactParityService {
       approvals: [],
       artifacts: [
         {
-          id: 'phase-7-artifact-plan',
-          title: 'Phase 7 Memory Artifact Plan',
+          id: 'checkpoint-7-artifact-plan',
+          title: 'Surface controls Memory Artifact Plan',
           kind: 'plan',
           createdAt: generatedAt,
-          sessionId: 'phase-7-memory-artifact-session',
+          sessionId: 'checkpoint-7-memory-artifact-session',
           status: 'ready',
         },
         {
-          id: 'phase-7-artifact-report',
-          title: 'Phase 7 Memory Artifact Report',
+          id: 'checkpoint-7-artifact-report',
+          title: 'Surface controls Memory Artifact Report',
           kind: 'report',
           createdAt: generatedAt,
-          sessionId: 'phase-7-memory-artifact-session',
+          sessionId: 'checkpoint-7-memory-artifact-session',
           status: 'ready',
         },
       ],
       memorySignals: [
         {
-          id: 'phase-7-memory-signal',
+          id: 'checkpoint-7-memory-signal',
           title: 'Memory Artifact parity source',
           layer: 'semantic',
           summary: 'Memory/artifact parity requires receipts and artifact citations.',
@@ -335,9 +335,9 @@ export class MemoryArtifactParityService {
         },
       ],
       metadata: {
-        taskId: 'phase-7',
+        taskId: 'checkpoint-7',
         artifactSummaries: {
-          'phase-7-artifact-plan': {
+          'checkpoint-7-artifact-plan': {
             summary: 'Plan artifact proving Memory/Artifact parity with receipts.',
           },
         },

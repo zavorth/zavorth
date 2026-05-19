@@ -4,7 +4,7 @@ import path from 'node:path';
 import { SourceAgentRuntimeBridgeService } from '../../src/services/SourceAgentRuntimeBridgeService.js';
 import { SourceAgentRuntimeToolPolicyService } from '../../src/services/SourceAgentRuntimeToolPolicyService.js';
 
-describe('SourceAgentRuntimeBridgeService Phase 2', () => {
+describe('SourceAgentRuntimeBridgeService Preview engine', () => {
   const now = () => new Date('2026-05-05T14:00:00.000Z');
   let tempRoot: string;
   let sourceRoot: string;
@@ -199,9 +199,9 @@ describe('SourceAgentRuntimeBridgeService Phase 2', () => {
         artifactFirstReceipts: true,
       }),
     );
-    expect(snapshot.commands.nextPhase).toBe('Phase 3 - Provider Mesh Expansion Pack');
-    expect(text).toContain('Zavorth Source Agent Runtime Bridge - Phase 2');
-    expect(text).toContain('Next: Phase 3 - Provider Mesh Expansion Pack');
+    expect(snapshot.commands.nextStage).toBe('Approval gate - Provider Mesh Expansion Pack');
+    expect(text).toContain('Zavorth Source Agent Runtime Bridge - Preview engine');
+    expect(text).toContain('Next: Approval gate - Provider Mesh Expansion Pack');
   });
 });
 

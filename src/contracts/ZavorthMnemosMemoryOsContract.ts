@@ -1,4 +1,4 @@
-export const ZAVORTH_MNEMOS_MEMORY_OS_VERSION = 'mnemos-memory-os-v3-phase-0-1';
+export const ZAVORTH_MNEMOS_MEMORY_OS_VERSION = 'mnemos-memory-os-v3-checkpoint-0-1';
 
 export const ZAVORTH_MNEMOS_WIKI_ROOT = '.zavorth/wiki';
 export const ZAVORTH_MNEMOS_RAW_ROOT = '.zavorth/raw';
@@ -68,7 +68,7 @@ export type ZavorthMnemosMemoryOsContractSnapshot = {
   compaction: ZavorthMnemosCompactionContract[];
   wiki: ZavorthMnemosWikiContract;
   hardRules: string[];
-  nextPhases: string[];
+  nextStages: string[];
 };
 
 export function buildZavorthMnemosMemoryOsContractSnapshot(now: Date = new Date()): ZavorthMnemosMemoryOsContractSnapshot {
@@ -216,15 +216,15 @@ export function buildZavorthMnemosMemoryOsContractSnapshot(now: Date = new Date(
       'Semantic wiki updates are source-linked and lintable.',
       'Procedural memory stores habits and policy, not credentials.',
     ],
-    nextPhases: [
-      'Phase 2: Zavorth Handoff Envelope',
-      'Phase 3: .zavorth/wiki baseline',
-      'Phase 4: mnemos:ingest',
-      'Phase 5: mnemos:query with hybrid RRF',
-      'Phase 6: mnemos:lint',
-      'Phase 7: procedural memory',
-      'Phase 8: dashboard/CLI/Telegram UX',
-      'Phase 9: certification/security',
+    nextStages: [
+      'Preview engine: Zavorth Handoff Envelope',
+      'Approval gate: .zavorth/wiki baseline',
+      'Connector registry: mnemos:ingest',
+      'Credential vault: mnemos:query with hybrid RRF',
+      'Runtime gateway: mnemos:lint',
+      'Surface controls: procedural memory',
+      'Dashboard controls: dashboard/CLI/Telegram UX',
+      'Certification matrix: certification/security',
     ],
   };
 }

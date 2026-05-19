@@ -15,14 +15,14 @@ const response = (payload: Record<string, unknown>, init: { status?: number } = 
     },
   });
 
-describe('ProviderRuntimeActivationService Phase 4', () => {
-  it('closes Phase 4 provider activation gates without live IO', () => {
+describe('ProviderRuntimeActivationService Connector registry', () => {
+  it('closes Connector registry provider activation gates without live IO', () => {
     const snapshot = new ProviderRuntimeActivationService({
       now: () => new Date('2026-05-04T21:00:00.000Z'),
     }).buildSnapshot();
 
-    expect(snapshot.contractVersion).toBe('2026-05-04.live-phase-4');
-    expect(snapshot.phase).toBe('Phase 4 - Provider Runtime Activation P0');
+    expect(snapshot.contractVersion).toBe('2026-05-04.live-checkpoint-4');
+    expect(snapshot.phase).toBe('Connector registry - Provider Runtime Activation P0');
     expect(snapshot.status).toBe('closed');
     expect(snapshot.summary).toEqual(
       expect.objectContaining({
@@ -37,13 +37,13 @@ describe('ProviderRuntimeActivationService Phase 4', () => {
         providerFactoryRoutes: 18,
         chatSmokeCommands: 18,
         redactedReceipts: 18,
-        liveIoRequiredByPhase4Check: false,
+        liveIoRequiredByStage4Check: false,
         secretValuesSerialized: false,
       }),
     );
     expect(snapshot.policy).toEqual(
       expect.objectContaining({
-        noLiveIoDuringPhase4Check: true,
+        noLiveIoDuringStage4Check: true,
         providerFactoryRoutesMustResolveWithoutFallback: true,
         stagingLiveRequiresExplicitOperatorCommand: true,
         noSecretsSerialized: true,

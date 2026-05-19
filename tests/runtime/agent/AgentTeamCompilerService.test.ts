@@ -4,7 +4,7 @@ import {
   AgentTeamCompilerService,
 } from '../../../src/runtime/agent/index.js';
 
-describe('AgentTeamCompilerService Wave 40', () => {
+describe('AgentTeamCompilerService Channel mesh0', () => {
   it('compiles governed subagent roles without launching a team', () => {
     const run = new AgentRunService({
       now: () => new Date('2026-05-04T00:40:00.000Z'),

@@ -8,7 +8,7 @@ const asJson = process.argv.includes('--json');
 const rules = [
   ruleFilesExist({
     id: 'uni-trust-files',
-    label: 'Wave 44 files exist',
+    label: 'Channel mesh4 files exist',
     target: 'Runtime, CLI, Command Center, tests and docs are present',
     files: [
       'src/runtime/agent/UniversalIntentTrustEnforcementService.ts',
@@ -27,7 +27,7 @@ const rules = [
     files: ['src/runtime/agent/UniversalIntentTrustEnforcementService.ts'],
     needles: [
       'UNIVERSAL_INTENT_TRUST_ENFORCEMENT_CONTRACT_VERSION',
-      '2026-05-04.wave-44',
+      '2026-05-04.trust-enforcement',
       'UniversalIntentService',
       'TrustSliderPolicyDecision',
       'ConversationalPermissionService',
@@ -65,7 +65,7 @@ const rules = [
     needles: [
       'uni',
       'trust-slider',
-      'UNI / Trust Slider Enforcement - Wave 44',
+      'UNI / Trust Slider Enforcement - Channel mesh4',
       'resolveUniversalIntentTrustCliText',
       'formatUniversalIntentTrustSnapshot',
       'zavorth uni',
@@ -94,7 +94,7 @@ const rules = [
   }),
   ruleContainsAll({
     id: 'package-exposes-uni-trust-gate',
-    label: 'package exposes Wave 44 gate',
+    label: 'package exposes Channel mesh4 gate',
     target: 'local QA can run uni-trust:check and qa:uni-trust',
     files: ['package.json'],
     needles: [
@@ -120,7 +120,7 @@ const snapshot = {
 if (asJson) {
   console.log(JSON.stringify(snapshot, null, 2));
 } else {
-  console.log('[uni-trust] checking Wave 44');
+  console.log('[uni-trust] checking Channel mesh4');
   for (const rule of rules) {
     const marker = rule.status === 'passed' ? 'ok' : 'fail';
     console.log(`[uni-trust] ${marker} ${rule.label}: ${rule.observed} | ${rule.target}`);

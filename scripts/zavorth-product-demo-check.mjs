@@ -16,7 +16,7 @@ for (const file of [
   'tests/services/ZavorthProductDemoService.test.ts',
   'tests/services/ZavorthConnectorExperienceService.test.ts',
   'tests/cli/ZavorthCliProductDemo.test.ts',
-  'docs/02-quickstart.md',
+  'docs/quickstart.md',
 ]) {
   if (!existsSync(path.join(root, file))) {
     throw new Error(`missing ${file}`);
@@ -95,7 +95,7 @@ if (snapshot.safety?.internalRuntimeNamesHiddenFromPrimaryPath !== true) {
   throw new Error('Phase F must keep internals hidden from the primary path');
 }
 
-const quickstart = readFileSync(path.join(root, 'docs/02-quickstart.md'), 'utf8');
+const quickstart = readFileSync(path.join(root, 'docs/quickstart.md'), 'utf8');
 for (const marker of [
   'zavorth start',
   'zavorth demo',

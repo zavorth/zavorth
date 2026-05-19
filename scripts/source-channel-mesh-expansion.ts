@@ -36,7 +36,7 @@ async function main(): Promise<void> {
           threadId: null,
           liveIoPerformed: false,
           secretValuesSerialized: false,
-          reason: 'Phase 4 live smoke command currently supports Slack only; other channels use their existing channel-live-activation commands.',
+          reason: 'Connector registry live smoke command currently supports Slack only; other channels use their existing channel-live-activation commands.',
         };
     if (asJson) {
       console.log(JSON.stringify({

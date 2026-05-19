@@ -187,7 +187,7 @@ export class ZavorthSkillAbsorptionMaterializationService {
 
   public formatSnapshotText(snapshot: ZavorthSkillAbsorptionMaterializationSnapshot): string {
     const lines = [
-      'Zavorth Skill Absorption Materialization - Phase 6',
+      'Zavorth Skill Absorption Materialization - Runtime gateway',
       '',
       `Status: ${snapshot.status}`,
       `Apply: ${snapshot.apply}`,
@@ -209,7 +209,7 @@ export class ZavorthSkillAbsorptionMaterializationService {
       }
     }
     lines.push('', 'Policy: imported skills are governed instructions; support files are not executable tools.');
-    lines.push(`Next: ${snapshot.commands.nextPhase}`);
+    lines.push(`Next: ${snapshot.commands.nextStage}`);
     return lines.join('\n');
   }
 
@@ -343,7 +343,7 @@ export class ZavorthSkillAbsorptionMaterializationService {
         preview: 'npm run zavorth:skill-absorption-materialize -- --source <path>',
         apply: 'npm run zavorth:skill-absorption-materialize -- --source <path> --apply --approval-id <approval-id> --allow-source --skills <name>',
         check: 'npm run zavorth:skill-absorption-materialize:check --silent',
-        nextPhase: 'Phase 7 - Natural Cross-Surface Commands',
+        nextStage: 'Surface controls - Natural Cross-Surface Commands',
       },
     };
   }

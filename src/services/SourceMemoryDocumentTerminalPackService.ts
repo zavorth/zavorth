@@ -4,8 +4,8 @@ import { SqliteVecMemoryBackend } from '../adapters/memory/SqliteVecMemoryBacken
 import type {
   SourceMemoryDocumentTerminalPackSnapshot,
   SourceMemoryDocumentTerminalPackageName,
-  SourcePhase5Decision,
-  Phase5PackageEvidence,
+  SourceStage5Decision,
+  Stage5PackageEvidence,
 } from '../contracts/SourceMemoryDocumentTerminalPackContract.js';
 import {
   SOURCE_MEMORY_DOCUMENT_TERMINAL_PACKAGES,
@@ -113,15 +113,15 @@ export class SourceMemoryDocumentTerminalPackService {
       dbPath: this.memoryDbPath || ':memory:',
     });
     const memoryWrite = memoryBackend.write({
-      namespace: 'source-phase5',
-      text: 'Phase 5 absorbs Source memory host semantics with sqlite-backed deterministic vector recall.',
+      namespace: 'source-credential-vault',
+      text: 'Credential vault absorbs Source memory host semantics with sqlite-backed deterministic vector recall.',
       metadata: {
         source: 'source-memory-document-terminal-pack',
         secretValuesSerialized: false,
       },
     });
     const memoryQuery = memoryBackend.query({
-      namespace: 'source-phase5',
+      namespace: 'source-credential-vault',
       query: 'sqlite vector memory recall',
       limit: 3,
     });
@@ -167,7 +167,7 @@ export class SourceMemoryDocumentTerminalPackService {
         command: 'rm -rf .',
         cwd: zavorthRoot,
         allowExecution: true,
-        approvalId: 'phase5-danger-check',
+        approvalId: 'credential-vault-danger-check',
       }),
     ];
     const dangerousCommandsBlocked = [
@@ -247,14 +247,14 @@ export class SourceMemoryDocumentTerminalPackService {
         qa: 'npm run qa:source-memory-document-terminal-pack --silent',
         liveFetch: 'npm run source-memory-document-terminal-pack -- --fetch <url> --confirm-live-network',
         terminalSmoke: 'npm run source-memory-document-terminal-pack -- --terminal <command> --cwd <path> --approval-id <id>',
-        nextPhase: 'Phase 6 - Native Companion And Device Capability Pack',
+        nextStage: 'Runtime gateway - Native Companion And Device Capability Pack',
       },
     };
   }
 
   public formatSnapshotText(snapshot: SourceMemoryDocumentTerminalPackSnapshot): string {
     const lines = [
-      'Zavorth Source Memory Document Terminal Pack - Phase 5',
+      'Zavorth Source Memory Document Terminal Pack - Credential vault',
       `Status: ${snapshot.status}`,
       `Contract: ${snapshot.contractVersion}`,
       `Packages tracked: ${snapshot.summary.packagesTracked}`,
@@ -273,7 +273,7 @@ export class SourceMemoryDocumentTerminalPackService {
     for (const entry of snapshot.packageEvidence) {
       lines.push(`- ${entry.packageName}: ${entry.decision}, source=${entry.presentInSource}, zavorthPackage=${entry.presentInZavorthPackageJson}`);
     }
-    lines.push(`Next: ${snapshot.commands.nextPhase}`);
+    lines.push(`Next: ${snapshot.commands.nextStage}`);
     return lines.join('\n');
   }
 
@@ -327,7 +327,7 @@ export class SourceMemoryDocumentTerminalPackService {
     packageName: SourceMemoryDocumentTerminalPackageName,
     sourceRoot: string,
     zavorthRoot: string,
-  ): Phase5PackageEvidence {
+  ): Stage5PackageEvidence {
     const sourceReferences = this.findPackageReferences(sourceRoot, packageName);
     const zavorthReferences = this.findPackageReferences(zavorthRoot, packageName);
     return {
@@ -369,7 +369,7 @@ export class SourceMemoryDocumentTerminalPackService {
   }
 }
 
-function packageDecision(packageName: SourceMemoryDocumentTerminalPackageName): SourcePhase5Decision {
+function packageDecision(packageName: SourceMemoryDocumentTerminalPackageName): SourceStage5Decision {
   if (packageName === '@source/memory-host-sdk') return 'implemented-zavorth-native';
   if (packageName === 'sqlite-vec') return 'implemented-zavorth-native';
   if (packageName === 'pdfjs-dist' || packageName === '@mozilla/readability' || packageName === 'jsdom') return 'implemented';

@@ -1,6 +1,6 @@
 import type { LiveReadinessStatus } from './LiveReadinessContract.js';
 
-export const ZAVORTH_SPEECH_VOICE_LIVE_PLANE_CONTRACT_VERSION = '2026-05-04.live-phase-7' as const;
+export const ZAVORTH_SPEECH_VOICE_LIVE_PLANE_CONTRACT_VERSION = '2026-05-04.live-checkpoint-7' as const;
 
 export type SpeechVoiceLiveTargetId =
   | 'azure-speech'
@@ -118,7 +118,7 @@ export type SpeechVoiceLiveEntry = {
 export type SpeechVoiceLivePlaneSnapshot = {
   generatedAt: string;
   contractVersion: typeof ZAVORTH_SPEECH_VOICE_LIVE_PLANE_CONTRACT_VERSION;
-  phase: 'Phase 7 - Speech, TTS And Voice Live Plane';
+  phase: 'Surface controls - Speech, TTS And Voice Live Plane';
   status: 'closed' | 'attention' | 'blocked';
   summary: {
     targets: 10;
@@ -135,13 +135,13 @@ export type SpeechVoiceLivePlaneSnapshot = {
     stagingLiveSmokeCommands: number;
     redactedReceipts: number;
     blocked: number;
-    liveIoRequiredByPhase7Check: false;
+    liveIoRequiredByStage7Check: false;
     secretValuesSerialized: false;
   };
   entries: SpeechVoiceLiveEntry[];
   receipts: SpeechVoiceLiveReceipt[];
   policy: {
-    noLiveIoDuringPhase7Check: true;
+    noLiveIoDuringStage7Check: true;
     artifactFirstTranscriptsRequired: true;
     artifactFirstAudioRequired: true;
     recordingConsentRequiredForLiveCalls: true;
@@ -155,6 +155,6 @@ export type SpeechVoiceLivePlaneSnapshot = {
     stagingLiveSmoke: 'npm run speech-voice-live-plane -- --profile staging-live --target <target> --confirm-live-io';
     focusedTests: string[];
     typecheck: 'npm run runtime:check --silent';
-    nextPhase: 'Phase 8 - Research, Web Extraction And Browser Live Plane';
+    nextStage: 'Dashboard controls - Research, Web Extraction And Browser Live Plane';
   };
 };

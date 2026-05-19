@@ -46,7 +46,7 @@ describe('Zavorth CLI Artifact Memory', () => {
     }));
     const payload = JSON.parse(writes[0] || '{}');
     expect(payload).toEqual(expect.objectContaining({
-      contractVersion: '2026-05-03.wave-38',
+      contractVersion: '2026-05-03.track-38',
       source: 'ArtifactMemoryService',
       summary: expect.objectContaining({
         artifactCount: 3,
@@ -72,7 +72,7 @@ describe('Zavorth CLI Artifact Memory', () => {
 
     const text = formatArtifactMemorySnapshot(snapshot);
 
-    expect(text).toContain('Artifact Memory - Wave 38');
+    expect(text).toContain('Artifact Memory - Track 38');
     expect(text).toContain('Artifacts indexados');
     expect(text).toContain('nao le conteudo de arquivo');
     expect(text).toContain('Command Center: /control?sector=dreams');

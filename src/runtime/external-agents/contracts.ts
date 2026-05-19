@@ -15,7 +15,7 @@ import type {
 export type ExternalAgentAdapterLifecycleStatus = 'created' | 'starting' | 'ready' | 'stopped' | 'degraded' | 'offline';
 
 export type ExternalAgentAdapterLifecycleContract = {
-  phase: 'contract-layer' | 'sidecar-adapter';
+  stage: 'contract-layer' | 'sidecar-adapter';
   startBehavior: 'health-discovery-only' | 'connect-existing-runtime-only';
   stopBehavior: 'local-adapter-state-only' | 'disconnect-client-only';
   canSpawnSourceRuntime: false;
@@ -290,7 +290,7 @@ export type ExternalAgentAdapter = {
 };
 
 export const EXTERNAL_AGENT_ADAPTER_LIFECYCLE_CONTRACT: ExternalAgentAdapterLifecycleContract = {
-  phase: 'contract-layer',
+  stage: 'contract-layer',
   startBehavior: 'health-discovery-only',
   stopBehavior: 'local-adapter-state-only',
   canSpawnSourceRuntime: false,

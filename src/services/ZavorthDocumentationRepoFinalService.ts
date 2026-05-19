@@ -71,7 +71,7 @@ export class ZavorthDocumentationRepoFinalService {
         dashboardIsPrimarySurface: true,
         satelliteAndCliRemainValidSurfaces: true,
         retiredVisualSurfacesAreNotUserFacing: true,
-        docsDoNotPublishPhaseDiaries: true,
+        docsDoNotPublishImplementationDiaries: true,
         publicIdentityIsZavorthNative: true,
         proprietaryDistributionIsExplicit: true,
         liveCertificationRemainsWired: true,
@@ -89,7 +89,7 @@ export class ZavorthDocumentationRepoFinalService {
 
   public formatSnapshotText(snapshot: ZavorthDocumentationRepoFinalSnapshot): string {
     const lines = [
-      'Zavorth Documentation And Repo Final - Phase 15',
+      'Zavorth Documentation And Repo Final - Intent model5',
       '',
       `Status: ${snapshot.status}`,
       `Checks: ${snapshot.summary.passed}/${snapshot.summary.checks} passed, ${snapshot.summary.attention} attention, ${snapshot.summary.failed} failed`,
@@ -154,7 +154,7 @@ export class ZavorthDocumentationRepoFinalService {
       'live-certification',
       'Live certification matrix remains wired',
       result.ok ? 'passed' : 'failed',
-      result.ok ? 'phase-13 gate passed' : `exit=${result.status}`,
+      result.ok ? 'checkpoint-13 gate passed' : `exit=${result.status}`,
       'live certification matrix passes without live side effects',
       result.ok ? [] : [result.stderr || result.stdout || 'no output'],
     );
@@ -176,8 +176,8 @@ export class ZavorthDocumentationRepoFinalService {
     const files = [
       'README.md',
       'docs/README.md',
-      'docs/00-overview.md',
-      'docs/07-web.md',
+      'docs/overview.md',
+      'docs/web-dashboard.md',
       'docs/protocol/runtime-api-v1.md',
     ];
     const issues: string[] = [];
@@ -207,12 +207,12 @@ export class ZavorthDocumentationRepoFinalService {
   }
 
   private checkSurfacePosture(): ZavorthDocumentationRepoFinalCheck {
-    const webDoc = this.read('docs/07-web.md') || '';
+    const webDoc = this.read('docs/web-dashboard.md') || '';
     const apiDoc = this.read('docs/protocol/runtime-api-v1.md') || '';
     const issues = [];
-    if (!/\/dashboard/.test(webDoc)) issues.push('docs/07-web.md: dashboard is not named as final user surface');
-    if (!/\/satellite/.test(webDoc)) issues.push('docs/07-web.md: satellite is not named as companion surface');
-    if (!/not final-user surfaces/i.test(webDoc)) issues.push('docs/07-web.md: maintenance shell posture is unclear');
+    if (!/\/dashboard/.test(webDoc)) issues.push('docs/web-dashboard.md: dashboard is not named as final user surface');
+    if (!/\/satellite/.test(webDoc)) issues.push('docs/web-dashboard.md: satellite is not named as companion surface');
+    if (!/not final-user surfaces/i.test(webDoc)) issues.push('docs/web-dashboard.md: maintenance shell posture is unclear');
     if (!/does not execute actions by itself/i.test(apiDoc)) issues.push('runtime-api-v1.md: dashboard display-only posture is unclear');
     if (!/Policy Broker/i.test(apiDoc)) issues.push('runtime-api-v1.md: Policy Broker requirement is missing');
 

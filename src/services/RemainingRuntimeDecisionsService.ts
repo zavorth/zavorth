@@ -90,7 +90,7 @@ export class RemainingRuntimeDecisionsService {
       commands: {
         check: 'npm run remaining-runtime-decisions:check --silent',
         certify: 'npm run parity-certify --silent',
-        nextPhase: 'Release certification profile hardening',
+        nextStage: 'Release certification profile hardening',
       },
       policy: {
         decisionsAreRuntimeScoped: true,

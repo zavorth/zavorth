@@ -195,7 +195,7 @@ export class ZavorthTransactionConnectorRegistryService {
 
   public renderReport(result: ZavorthTransactionConnectorRunResult): string {
     return [
-      '[transaction-connector] Phase 4 typed connector dry-run',
+      '[transaction-connector] Connector registry typed connector dry-run',
       `[transaction-connector] status: ${result.status}`,
       `[transaction-connector] mode: ${result.mode}`,
       `[transaction-connector] connector: ${result.connector?.id ?? 'missing'}`,
@@ -235,7 +235,7 @@ function buildBlockers(
       blockers.push('connector_mode_unsupported');
     }
     if (connector.supportsLive !== false) {
-      blockers.push('phase4_live_connector_forbidden');
+      blockers.push('connector-registry_live_connector_forbidden');
     }
     if (connector.rawSecretsAccepted !== false) {
       blockers.push('raw_secret_accepting_connector_forbidden');
@@ -306,7 +306,7 @@ function buildReceipts(
   approvalEntry: ZavorthTransactionApprovalLedgerEntry | null,
 ): string[] {
   const receipts = [
-    'transaction-connector-phase4-run-created',
+    'transaction-connector-connector-registry-run-created',
     `transaction-connector-mode-${mode}`,
     'transaction-connector-no-external-side-effects',
     'transaction-connector-live-disabled',
@@ -326,7 +326,7 @@ function buildNextSteps(status: ZavorthTransactionConnectorRunStatus, blockers: 
     return ['Use the simulated payload for review, connector onboarding or future sandbox certification; no live call was made.'];
   }
   if (blockers.includes('approval_grant_required')) {
-    return ['Approve the Phase 2 preview through the Phase 3 approval ledger before running a real-money dry-run.'];
+    return ['Approve the Preview engine preview through the Approval gate approval ledger before running a real-money dry-run.'];
   }
   if (blockers.includes('typed_connector_disabled')) {
     return ['Enable or replace the typed connector in a future owner-gated connector phase.'];

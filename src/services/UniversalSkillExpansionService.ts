@@ -244,14 +244,14 @@ export class UniversalSkillExpansionService {
         preview: 'npm run zavorth:universal-skill-expansion -- --source <path>',
         apply: 'npm run zavorth:universal-skill-expansion -- --source <path> --apply --allow-source --skills <name>',
         check: 'npm run zavorth:universal-skill-expansion:check --silent',
-        nextPhase: 'Phase 7 - Expansion QA, Telemetry and Operator Rollout',
+        nextStage: 'Surface controls - Expansion QA, Telemetry and Operator Rollout',
       },
     };
   }
 
   public formatSnapshotText(snapshot: ZavorthUniversalSkillExpansionSnapshot): string {
     const lines = [
-      'Universal Skill Expansion - Phase 6',
+      'Universal Skill Expansion - Runtime gateway',
       '',
       `Status: ${snapshot.status}`,
       `Apply: ${snapshot.apply} | Sources: ${snapshot.summary.sources} | Candidates: ${snapshot.summary.candidates}`,
@@ -274,7 +274,7 @@ export class UniversalSkillExpansionService {
     for (const reason of snapshot.certification.reasons) {
       lines.push(`- ${reason}`);
     }
-    lines.push('', `Next: ${snapshot.commands.nextPhase}`);
+    lines.push('', `Next: ${snapshot.commands.nextStage}`);
     return lines.join('\n');
   }
 

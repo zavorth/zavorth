@@ -14,7 +14,7 @@ type CapabilityAutopilotReleaseDecisionCheck = {
 };
 
 type CapabilityAutopilotReleaseDecisionGateSnapshot = CapabilityAutopilotReleaseDecisionSnapshot & {
-  phase: '66';
+  stage: '66';
   surface: 'capability-autopilot-release-decision';
   gateStatus: 'ready' | 'attention' | 'blocked';
   gateSummary: {
@@ -93,7 +93,7 @@ function buildSnapshot(
 
   return {
     ...decision,
-    phase: '66',
+    stage: '66',
     surface: 'capability-autopilot-release-decision',
     gateStatus: failed > 0 ? 'blocked' : warnings > 0 ? 'attention' : 'ready',
     gateSummary: {
@@ -113,7 +113,7 @@ function buildChecks(
   return [
     check(
       'capability-autopilot-release:all-phases',
-      'fases 60-65 com evidencia',
+      'etapas 60-65 com evidencia',
       decision.missingPhases.length === 0 && decision.failedPhases.length === 0 ? 'pass' : 'fail',
       'A decisao de v1.1 exige evidencia de todos os gates 60-65.',
       [
@@ -183,7 +183,7 @@ function check(
 
 function renderReport(snapshot: CapabilityAutopilotReleaseDecisionGateSnapshot): string {
   const lines: string[] = [];
-  lines.push('[capability-autopilot-release-decision] Fase 66 - v1.1 Release Decision Gate');
+  lines.push('[capability-autopilot-release-decision] Etapa 66 - v1.1 Release Decision Gate');
   lines.push(`status: ${snapshot.gateStatus}`);
   lines.push(`ok: ${snapshot.gateSummary.ok ? 'yes' : 'no'} | pass=${snapshot.gateSummary.passed} warn=${snapshot.gateSummary.warnings} fail=${snapshot.gateSummary.failed}`);
   lines.push(`decision: ${snapshot.decision}`);

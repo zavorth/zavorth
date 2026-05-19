@@ -96,7 +96,7 @@ export class UniversalSkillBridgeRegistryService {
         invokeDryRun: 'npm run zavorth:universal-skill-bridge-registry -- --skill <name> --invoke',
         invokeLive: 'npm run zavorth:universal-skill-bridge-registry -- --skill <name> --invoke --live --approval-id <approval-id>',
         check: 'npm run zavorth:universal-skill-bridge-registry:check --silent',
-        nextPhase: 'Phase 5 - Activation UX and Channel Command Packs',
+        nextStage: 'Credential vault - Activation UX and Channel Command Packs',
       },
     };
   }
@@ -170,7 +170,7 @@ export class UniversalSkillBridgeRegistryService {
       }
     }
 
-    lines.push('', `Next: ${snapshot.commands.nextPhase}`);
+    lines.push('', `Next: ${snapshot.commands.nextStage}`);
     return lines.join('\n');
   }
 

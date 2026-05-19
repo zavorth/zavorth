@@ -55,8 +55,8 @@ export type PublicAdoptionReadinessSnapshot = {
     release: 'v1.0.0';
     packageName: string;
     packageVersion: string;
-    roadmapPath: 'docs/11-roadmap.md';
-    planningPath: 'docs/76-public-adoption-architecture.md';
+    roadmapPath: 'docs/product-direction.md';
+    planningPath: 'docs/product-direction.md';
   };
   requiredScripts: string[];
   launchChecklist: PublicAdoptionReadinessCheck[];
@@ -99,19 +99,19 @@ export const PUBLIC_ADOPTION_REQUIRED_DOCS = [
     label: 'README publico do runtime',
   },
   {
-    path: 'docs/11-roadmap.md',
+    path: 'docs/product-direction.md',
     phrase: 'Public Adoption And Release Operations 53-59',
     label: 'roadmap aponta para o ciclo 53-59',
   },
   {
-    path: 'docs/75-public-productization-architecture.md',
-    phrase: 'Fase 52',
+    path: 'docs/product-direction.md',
+    phrase: 'Readiness checkpoint 2',
     label: 'baseline publica 46-52',
   },
   {
-    path: 'docs/76-public-adoption-architecture.md',
-    phrase: 'Fase 53 - Public Adoption Readiness',
-    label: 'planejamento da Fase 53',
+    path: 'docs/product-direction.md',
+    phrase: 'Readiness checkpoint 3 - Public Adoption Readiness',
+    label: 'planejamento da Readiness checkpoint 3',
   },
 ] as const;
 
@@ -121,14 +121,14 @@ export const PUBLIC_ADOPTION_CLAIMS: PublicAdoptionReadinessClaim[] = [
     claim: 'Zavorth e um runtime local-first governado, nao apenas uma landing.',
     evidence: [
       { kind: 'doc', path: 'README.md', phrase: 'local-first' },
-      { kind: 'doc', path: 'docs/75-public-productization-architecture.md', phrase: 'local-first' },
+      { kind: 'doc', path: 'docs/product-direction.md', phrase: 'local-first' },
     ],
   },
   {
     id: 'preview-approval-evidence',
     claim: 'A jornada publica promete preview, aprovacao e evidencia.',
     evidence: [
-      { kind: 'doc', path: 'docs/75-public-productization-architecture.md', phrase: 'preview' },
+      { kind: 'doc', path: 'docs/product-direction.md', phrase: 'preview' },
       { kind: 'service', path: 'src/services/WebsitePublicContractService.ts', phrase: 'forbiddenClaims' },
     ],
   },
@@ -160,7 +160,7 @@ export const PUBLIC_ADOPTION_CLAIMS: PublicAdoptionReadinessClaim[] = [
     id: 'v1-release-train',
     claim: 'O proximo ciclo deve preservar v1.0.0 como baseline e planejar v1.x.',
     evidence: [
-      { kind: 'doc', path: 'docs/76-public-adoption-architecture.md', phrase: 'v1.x Release Train' },
+      { kind: 'doc', path: 'docs/product-direction.md', phrase: 'v1.x Release Train' },
       { kind: 'release', path: 'package.json', phrase: '"version": "1.0.0"' },
     ],
   },
@@ -171,7 +171,7 @@ export const PUBLIC_ADOPTION_RISKS: PublicAdoptionReadinessRisk[] = [
     id: 'website-not-present',
     title: 'Site publico pode nao existir em uma workspace nova.',
     severity: 'medium',
-    mitigation: 'Usar ZAVORTH_WEBSITE_REPO_ROOT ou fixtures ate a Fase 54 fechar deploy/preview.',
+    mitigation: 'Usar ZAVORTH_WEBSITE_REPO_ROOT ou fixtures ate a Readiness checkpoint 4 fechar deploy/preview.',
     evidencePath: 'scripts/website-public.ts',
   },
   {
@@ -192,8 +192,8 @@ export const PUBLIC_ADOPTION_RISKS: PublicAdoptionReadinessRisk[] = [
     id: 'release-drift',
     title: 'Tag/release pode apontar para commit errado se o fluxo for manual.',
     severity: 'high',
-    mitigation: 'Fase 59 exige politica v1.x e tags apontando para commit final em main.',
-    evidencePath: 'docs/76-public-adoption-architecture.md',
+    mitigation: 'Readiness checkpoint 9 exige politica v1.x e tags apontando para commit final em main.',
+    evidencePath: 'docs/product-direction.md',
   },
 ];
 

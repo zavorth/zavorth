@@ -36,7 +36,7 @@ function writeSkills(root: string, count: number): void {
   }
 }
 
-describe('UniversalSkillScaleHardeningService Phase 9', () => {
+describe('UniversalSkillScaleHardeningService Certification matrix', () => {
   let root: string;
   let source: string;
 
@@ -95,7 +95,7 @@ describe('UniversalSkillScaleHardeningService Phase 9', () => {
 
     expect(snapshot.status).toBe('blocked');
     expect(snapshot.gates).toEqual(expect.arrayContaining([
-      expect.objectContaining({ id: 'phase8-onboarding', status: 'blocked' }),
+      expect.objectContaining({ id: 'dashboard-controls-onboarding', status: 'blocked' }),
       expect.objectContaining({ id: 'candidate-scale-limit', status: 'blocked' }),
     ]));
     expect(snapshot.rollout.recommendedMode).toBe('hold');
@@ -138,7 +138,7 @@ describe('UniversalSkillScaleHardeningService Phase 9', () => {
     expect(snapshot.report.path).toBe(scaleReportPath);
     expect(fs.existsSync(scaleReportPath)).toBe(true);
     expect(JSON.parse(fs.readFileSync(scaleReportPath, 'utf8'))).toEqual(expect.objectContaining({
-      contractVersion: '2026-05-10.phase-9',
+      contractVersion: '2026-05-10.checkpoint-9',
       report: expect.objectContaining({ rawSecretsSerialized: false }),
     }));
   });

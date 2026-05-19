@@ -4,7 +4,7 @@ import type {
 } from './ZavorthVisionControlPlaneContract.js';
 
 export const ZAVORTH_COMPUTER_CONTROL_PLANE_CONTRACT_VERSION =
-  '2026-05-11.computer-control-phase-3' as const;
+  '2026-05-11.computer-control-checkpoint-3' as const;
 
 export type ZavorthComputerControlAction =
   | 'computer.status'
@@ -125,7 +125,7 @@ export type ZavorthComputerControlSnapshot = {
   };
   policy: {
     decision: ZavorthVisionPolicyDecision;
-    profile: 'computer-control-phase-3';
+    profile: 'computer-control-checkpoint-3';
     reason: string;
     mutationAllowed: false;
     providerPayloadMinimized: true;
@@ -158,7 +158,7 @@ export type ZavorthComputerControlSnapshot = {
     plan: '/computer plan';
     approve: '/computer approve <plan>';
     cancel: '/computer cancel';
-    nextPhase: 'Phase 4 - Android ADB And Device Bridge';
+    nextStage: 'Connector registry - Android ADB And Device Bridge';
   };
   nextSafeAction: string;
 };

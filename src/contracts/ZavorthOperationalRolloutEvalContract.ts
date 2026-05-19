@@ -6,7 +6,7 @@ import type {
 import type { ZavorthToolOrchestrationVerificationStatus } from './ZavorthToolOrchestrationVerificationContract.js';
 
 export const ZAVORTH_OPERATIONAL_ROLLOUT_EVAL_CONTRACT_VERSION =
-  '2026-05-11.operational-rollout-eval-phase-6' as const;
+  '2026-05-11.operational-rollout-eval-checkpoint-6' as const;
 
 export type ZavorthOperationalRolloutEvalStatus = 'passed' | 'attention' | 'blocked';
 
@@ -93,7 +93,7 @@ export type ZavorthOperationalRolloutSurfaceCoverage = {
 export type ZavorthOperationalRolloutReceipt = {
   id: string;
   kind:
-    | 'phase-6-operational-eval'
+    | 'checkpoint-6-operational-eval'
     | 'scenario-eval'
     | 'surface-coverage'
     | 'rollout-decision'
@@ -117,7 +117,7 @@ export type ZavorthOperationalRolloutEvalSnapshot = {
   generatedAt: string;
   contractVersion: typeof ZAVORTH_OPERATIONAL_ROLLOUT_EVAL_CONTRACT_VERSION;
   source: 'ZavorthOperationalRolloutEvalService';
-  phase: 'phase-6-operational-rollout-eval';
+  phase: 'checkpoint-6-operational-rollout-eval';
   status: ZavorthOperationalRolloutEvalStatus;
   rolloutMode: ZavorthOperationalRolloutMode;
   strict: boolean;
@@ -147,7 +147,7 @@ export type ZavorthOperationalRolloutEvalSnapshot = {
     report: 'npx tsx scripts/zavorth-operational-rollout-eval.ts';
     json: 'npx tsx scripts/zavorth-operational-rollout-eval.ts --json';
     check: 'node scripts/zavorth-operational-rollout-eval-check.mjs';
-    nextPhase: 'Phase 7 - UX Rollout Evidence And Live Canary Review';
+    nextStage: 'Surface controls - UX Rollout Evidence And Live Canary Review';
   };
   narrative: {
     headline: string;

@@ -54,7 +54,7 @@ export type C10NaturalSecuritySuiteSnapshot = {
 
 export type C10NaturalSecurityEvaluationSnapshot = {
   schemaVersion: 1;
-  phase: 'C10';
+  stage: 'C10';
   generatedAt: string;
   status: C10NaturalSecurityStatus;
   suites: C10NaturalSecuritySuiteSnapshot[];
@@ -144,7 +144,7 @@ export class UniversalIntentEvaluationHarness {
 
     return {
       schemaVersion: 1,
-      phase: 'C10',
+      stage: 'C10',
       generatedAt: this.now().toISOString(),
       status: blockers.length === 0 ? 'passed' : 'failed',
       suites,

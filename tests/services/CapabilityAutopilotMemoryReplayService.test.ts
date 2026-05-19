@@ -9,8 +9,8 @@ import type {
 } from '../../src/contracts/CapabilityAutopilotContract';
 
 const FIXED_NOW = new Date('2026-04-25T21:00:00.000Z');
-const RAW_INTENT = 'Use Gemini CLI with super secret phrase PHASE64-RAW-INTENT.';
-const RAW_WORKSPACE = 'C:/Users/example/private workspace PHASE64-RAW-WORKSPACE';
+const RAW_INTENT = 'Use Gemini CLI with super secret phrase STAGE64-RAW-INTENT.';
+const RAW_WORKSPACE = 'C:/Users/example/private workspace STAGE64-RAW-WORKSPACE';
 
 const resumeIntent: OriginalIntentEnvelope = {
   intentId: 'intent-64',
@@ -184,7 +184,7 @@ describe('CapabilityAutopilotMemoryReplayService', () => {
       fallbackCount: 1,
       replayable: true,
       metadata: {
-        phase: 'capability-autopilot-phase-64',
+        stage: 'capability-autopilot-checkpoint-64',
       },
     });
     expect(record.signals.map((signal) => signal.kind)).toEqual(

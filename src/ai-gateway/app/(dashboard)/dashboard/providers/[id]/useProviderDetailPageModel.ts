@@ -69,7 +69,7 @@ export function useProviderDetailPageModel() {
   const [importProgress, setImportProgress] = useState({
     current: 0,
     total: 0,
-    phase: "idle" as "idle" | "fetching" | "importing" | "done" | "error",
+    stage: "idle" as "idle" | "fetching" | "importing" | "done" | "error",
     status: "",
     logs: [] as string[],
     error: "",

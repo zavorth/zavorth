@@ -92,7 +92,7 @@ function collectReadinessSignals(text) {
     planned: ['planned', 'future', 'futuro', 'planejado'],
     notImplemented: ['not implemented', 'nao implementado', 'não implementado', 'fixture-parity-covered'],
     todo: ['todo', 'pendente', 'pending', 'tbd'],
-    phase: ['phase', 'fase', 'wave'],
+    stage: ['phase', 'etapa', 'wave'],
     gate: ['gate', 'readiness', 'canary', 'certification', 'certificacao', 'certificação'],
   };
   const lower = text.toLowerCase();

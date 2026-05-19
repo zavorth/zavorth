@@ -29,10 +29,10 @@ describe('WebConsoleAssetService', () => {
         'Content-Type': 'text/html; charset=utf-8',
       });
       const html = String(response.end.mock.calls[0][0] || '');
-      expect(html).toContain('Hello, Operator');
-      expect(html).toContain('Start with Inbox, Tasks, Approvals, Receipts or Connectors.');
+      expect(html).toContain('Local gateway ready');
+      expect(html).toContain('Ask normally. Zavorth will answer, preview risky work, and ask before acting.');
       expect(html).toContain('Ask Zavorth');
-      expect(html).toContain('fox-semfundo.png');
+      expect(html).toContain('zavorth-icon.svg');
       expect(writeJson).not.toHaveBeenCalled();
     }
   });

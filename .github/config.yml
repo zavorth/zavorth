@@ -1,7 +1,7 @@
 blank_issues_enabled: false
 contact_links:
   - name: Security posture
-    url: https://github.com/zavorth/zavorth/blob/main/docs/05-security.md
+    url: https://github.com/zavorth/zavorth/blob/main/docs/security.md
     about: Read the public security model before opening a security hardening issue.
   - name: Documentation index
     url: https://github.com/zavorth/zavorth/blob/main/docs/README.md

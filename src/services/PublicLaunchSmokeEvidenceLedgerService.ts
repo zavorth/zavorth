@@ -93,7 +93,7 @@ export class PublicLaunchSmokeEvidenceLedgerService {
           'npm run public-launch-smoke-ledger --silent -- --require-ready',
         ],
         typecheck: 'npm run runtime:check --silent',
-        nextPhase: 'Release candidate package freeze',
+        nextStage: 'Release candidate package freeze',
       },
       policy: {
         evidenceLedgerOnly: true,
@@ -135,7 +135,7 @@ export class PublicLaunchSmokeEvidenceLedgerService {
         `- ${gate.status.toUpperCase()} ${gate.id}: ${gate.observed} / ${gate.threshold} - ${gate.nextAction}`,
       ),
       '',
-      `Next: ${snapshot.commands.nextPhase}`,
+      `Next: ${snapshot.commands.nextStage}`,
     ].join('\n');
   }
 

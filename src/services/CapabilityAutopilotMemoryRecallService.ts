@@ -144,7 +144,7 @@ export class CapabilityAutopilotMemoryRecallService {
       recommendedNextAction: bestMatch.recommendedNextAction,
       safeSummary: this.buildSafeSummary(bestMatch),
       metadata: {
-        phase: 'capability-autopilot-phase-13',
+        phase: 'capability-autopilot-checkpoint-13',
         totalRecords: records.length,
         matchCount: matches.length,
         autoExecute: false,
@@ -280,7 +280,7 @@ export class CapabilityAutopilotMemoryRecallService {
       recommendedNextAction: null,
       safeSummary: input.safeSummary,
       metadata: {
-        phase: 'capability-autopilot-phase-13',
+        phase: 'capability-autopilot-checkpoint-13',
         autoExecute: false,
         rawIntentStored: false,
         rawWorkspaceStored: false,

@@ -8,7 +8,7 @@ import { DocumentWorkflowDecisionService } from '../../src/services/DocumentWork
 import { FileDocumentDiffLivePlaneService } from '../../src/services/FileDocumentDiffLivePlaneService.js';
 import { FileTransferService } from '../../src/services/FileTransferService.js';
 
-describe('FileDocumentDiffLivePlaneService Phase 9', () => {
+describe('FileDocumentDiffLivePlaneService Certification matrix', () => {
   let workspaceRoot: string;
   let artifactDir: string;
 
@@ -22,13 +22,13 @@ describe('FileDocumentDiffLivePlaneService Phase 9', () => {
     await fs.promises.rm(artifactDir, { recursive: true, force: true });
   });
 
-  it('closes Phase 9 file, document, diff and prose gates without live IO', () => {
+  it('closes Certification matrix file, document, diff and prose gates without live IO', () => {
     const snapshot = new FileDocumentDiffLivePlaneService({
       now: () => new Date('2026-05-04T23:59:00.000Z'),
     }).buildSnapshot();
 
-    expect(snapshot.contractVersion).toBe('2026-05-04.live-phase-9');
-    expect(snapshot.phase).toBe('Phase 9 - File, Document, Diff And Prose Live Plane');
+    expect(snapshot.contractVersion).toBe('2026-05-04.live-checkpoint-9');
+    expect(snapshot.phase).toBe('Certification matrix - File, Document, Diff And Prose Live Plane');
     expect(snapshot.status).toBe('closed');
     expect(snapshot.summary).toEqual(
       expect.objectContaining({
@@ -45,13 +45,13 @@ describe('FileDocumentDiffLivePlaneService Phase 9', () => {
         blocked: 0,
         fileTransferMarkedLiveByPlanOnly: false,
         documentExtractMarkedLiveByDryPlaceholder: false,
-        liveIoRequiredByPhase9Check: false,
+        liveIoRequiredByStage9Check: false,
         secretValuesSerialized: false,
       }),
     );
     expect(snapshot.policy).toEqual(
       expect.objectContaining({
-        noLiveIoDuringPhase9Check: true,
+        noLiveIoDuringStage9Check: true,
         workspaceWritesRequireExplicitApproval: true,
         documentExtractionArtifactsRequired: true,
         tableExtractionBaselineRequired: true,
@@ -61,7 +61,7 @@ describe('FileDocumentDiffLivePlaneService Phase 9', () => {
     );
   });
 
-  it('gives every Phase 9 target doctor, staging smoke and redacted receipt', () => {
+  it('gives every Certification matrix target doctor, staging smoke and redacted receipt', () => {
     const snapshot = new FileDocumentDiffLivePlaneService().buildSnapshot();
     expect(snapshot.entries.map((entry) => entry.targetId).sort()).toEqual([
       'diffs',
@@ -126,7 +126,7 @@ describe('FileDocumentDiffLivePlaneService Phase 9', () => {
     const sourcePath = path.join(workspaceRoot, 'report.html');
     await fs.promises.writeFile(
       sourcePath,
-      '<html><head><title>Phase 9 Report</title></head><body><h1>Hello Zavorth</h1><table><caption>Scores</caption><tr><th>Name</th><th>Score</th></tr><tr><td>Zavorth</td><td>9</td></tr></table></body></html>',
+      '<html><head><title>Certification matrix Report</title></head><body><h1>Hello Zavorth</h1><table><caption>Scores</caption><tr><th>Name</th><th>Score</th></tr><tr><td>Zavorth</td><td>9</td></tr></table></body></html>',
       'utf8',
     );
     const service = new DocumentExtractService({
@@ -160,7 +160,7 @@ describe('FileDocumentDiffLivePlaneService Phase 9', () => {
       expect.objectContaining({
         contentType: 'text/html',
         dryRun: false,
-        title: 'Phase 9 Report',
+        title: 'Certification matrix Report',
       }),
     );
     expect(result.outputArtifactId).toMatch(/^document\.extracted\./);

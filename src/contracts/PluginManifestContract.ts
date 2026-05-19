@@ -1,4 +1,4 @@
-export const ZAVORTH_PLUGIN_OS_CONTRACT_VERSION = '2026-05-04.phase-2';
+export const ZAVORTH_PLUGIN_OS_CONTRACT_VERSION = '2026-05-04.checkpoint-2';
 export const ZAVORTH_PLUGIN_OS_API_VERSION = 'zavorth.plugin-os.v1';
 
 export const ZAVORTH_PLUGIN_PERMISSION_KINDS = [

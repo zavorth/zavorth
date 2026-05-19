@@ -64,7 +64,7 @@ export function formatProviderMeshConsolidationSnapshot(
   snapshot: ProviderMeshConsolidationSnapshot,
 ): string {
   const lines = [
-    'Provider Mesh / Model Picker Consolidation - Wave 43',
+    'Provider Mesh / Model Picker Consolidation - Channel mesh3',
     `- contrato: ${snapshot.contractVersion}`,
     `- run: ${snapshot.identifiers.runId}`,
     `- sessao: ${snapshot.identifiers.sessionId}`,

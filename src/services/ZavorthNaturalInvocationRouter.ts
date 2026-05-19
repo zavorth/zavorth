@@ -241,14 +241,14 @@ export class ZavorthNaturalInvocationRouter {
         invoke: 'npm run zavorth:natural-invocation -- --text "<request>"',
         invokeJson: 'npm run zavorth:natural-invocation:json -- --text "<request>"',
         check: 'npm run zavorth:natural-invocation:check --silent',
-        nextPhase: 'Phase 6 - Absorption Materialization And Bridge Handoff',
+        nextStage: 'Runtime gateway - Absorption Materialization And Bridge Handoff',
       },
     };
   }
 
   public renderPlan(plan: ZavorthNaturalInvocationPlan): string {
     const lines = [
-      'Zavorth Natural Invocation Router - Phase 5',
+      'Zavorth Natural Invocation Router - Credential vault',
       '',
       `Status: ${plan.status}`,
       `Action: ${plan.primaryAction}`,
@@ -269,7 +269,7 @@ export class ZavorthNaturalInvocationRouter {
     if (plan.approval.required) {
       lines.push('', `Approval required: ${plan.approval.reason || 'policy'}`);
     }
-    lines.push('', `Next: ${plan.commands.nextPhase}`);
+    lines.push('', `Next: ${plan.commands.nextStage}`);
     return lines.join('\n');
   }
 

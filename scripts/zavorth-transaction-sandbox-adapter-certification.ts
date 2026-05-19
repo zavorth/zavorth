@@ -29,7 +29,7 @@ if (!options.text) {
   if (options.json) {
     console.log(JSON.stringify(snapshot, null, 2));
   } else {
-    console.log('[transaction-sandbox-adapter-certification] Phase 12 sandbox adapter certification');
+    console.log('[transaction-sandbox-adapter-certification] Intent model2 sandbox adapter certification');
     console.log(`[transaction-sandbox-adapter-certification] version: ${snapshot.version}`);
   }
   process.exit(0);

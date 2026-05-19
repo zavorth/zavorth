@@ -403,7 +403,7 @@ export class SharedSurfaceOperationsCommandPack {
 
   private formatAutomationActionReply(execution: AutomationExecutionResult): string {
     const lines = [
-      'Wave F: Automations e scheduled runs',
+      'Scheduled runs: Automations e scheduled runs',
       '',
       `${execution.summary}`,
       ...execution.details.map((entry) => `- ${entry}`),

@@ -247,7 +247,7 @@ export const REMOTE_MANIFESTS: IntegrationManifest[] = [
         choices: [
           choice('balanced', 'Uso geral', 'Equilibrio entre chat, codigo e pesquisa.'),
           choice('research', 'Pesquisa', 'Mais profundidade e evidencia.'),
-          choice('code', 'Codigo', 'Enfase em revisao e implementacao.'),
+          choice('code', 'Codigo', 'Enetapa em revisao e implementacao.'),
         ],
       }),
     ],

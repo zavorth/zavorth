@@ -138,7 +138,7 @@ export class ArtifactReplayWorkbenchService {
       ? snapshotOrInput
       : await this.buildSnapshot(snapshotOrInput);
     const lines: string[] = [];
-    lines.push('[artifact-workbench] Fase 43 - Artifact And Replay Workbench');
+    lines.push('[artifact-workbench] Etapa 43 - Artifact And Replay Workbench');
     lines.push(`status: ${snapshot.status}`);
     lines.push(`ok: ${snapshot.summary.ok ? 'yes' : 'no'} | pass=${snapshot.summary.passed} warn=${snapshot.summary.warnings} fail=${snapshot.summary.failed}`);
     lines.push(`artifacts=${snapshot.summary.indexedArtifacts} reusable=${snapshot.summary.reusableArtifacts} compare=${snapshot.summary.compareCandidates} learning=${snapshot.summary.learningMarks} exports=${snapshot.summary.evidenceExports}`);
@@ -157,7 +157,7 @@ export class ArtifactReplayWorkbenchService {
       }
     }
     lines.push('');
-    lines.push(`proxima fase recomendada: ${snapshot.nextRecommendedPhase.phase} - ${snapshot.nextRecommendedPhase.title}`);
+    lines.push(`proximo passo recomendada: ${snapshot.nextRecommendedPhase.phase} - ${snapshot.nextRecommendedPhase.title}`);
     lines.push(snapshot.nextRecommendedPhase.reason);
     return lines.join('\n');
   }

@@ -1,5 +1,5 @@
 /**
- * Idempotency Layer — Phase 9.2
+ * Idempotency Layer — Certification matrix.2
  *
  * In-memory deduplication of requests with the same idempotency key.
  * If a request with the same key arrives within 5 seconds, returns

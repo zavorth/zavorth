@@ -89,8 +89,8 @@ export class ZavorthCapabilityProviderRegistryService {
       generatedAt: this.now().toISOString(),
       contractVersion: ZAVORTH_CAPABILITY_PROVIDER_REGISTRY_CONTRACT_VERSION,
       status,
-      planId: '291 - Plano Zavorth External Runtime Absorption',
-      phase: 'phase-4-capability-providers',
+      planId: 'Zavorth External Runtime Integration',
+      phase: 'capability-providers',
       previousSidecarAdapterStatus,
       normalizedCapabilities,
       manifestImportReceipts,
@@ -128,7 +128,7 @@ export class ZavorthCapabilityProviderRegistryService {
         inspect: 'npm run zavorth:capability-provider-registry',
         inspectJson: 'npm run zavorth:capability-provider-registry:json',
         check: 'npm run zavorth:capability-provider-registry:check --silent',
-        nextPhase: '291 Phase 5 - Channels And Messaging',
+        nextStage: '291 Credential vault - Channels And Messaging',
       },
     };
   }
@@ -295,7 +295,7 @@ export class ZavorthCapabilityProviderRegistryService {
         card('approval', 'Approval Required', String(approvalRequired), 'Dangerous or outbound capabilities require approval'),
         card('quarantine', 'Quarantined', String(quarantined), 'Quarantined capabilities cannot expose tools'),
         card('unavailable', 'Unavailable', String(input.unavailableReceipts.length), 'Unavailable capabilities fail honestly'),
-        card('direct-tools', 'Direct Tool Exposure', '0', 'Phase 4 publishes registry metadata only'),
+        card('direct-tools', 'Direct Tool Exposure', '0', 'Connector registry publishes registry metadata only'),
       ],
       policyPills: [
         'metadata normalization',
@@ -306,14 +306,14 @@ export class ZavorthCapabilityProviderRegistryService {
         'no direct tool exposure',
       ],
       nextSafeAction: input.status === 'capability-provider-registry-ready'
-        ? 'Proceed to 291 Phase 5 - Channels And Messaging.'
+        ? 'Proceed to 291 Credential vault - Channels And Messaging.'
         : 'Fix failed capability provider gates before channel activation.',
     };
   }
 
   public formatSnapshotText(snapshot: ZavorthCapabilityProviderRegistrySnapshot): string {
     const lines = [
-      'Zavorth Capability Provider Registry - Phase 4',
+      'Zavorth Capability Provider Registry - Connector registry',
       '',
       `Status: ${snapshot.status}`,
       `Previous sidecar adapter: ${snapshot.previousSidecarAdapterStatus}`,
@@ -333,7 +333,7 @@ export class ZavorthCapabilityProviderRegistryService {
       'Acceptance:',
       ...snapshot.acceptanceMatrix.map((entry) => `- ${entry.status} ${entry.requirementId}: ${entry.evidence}`),
       '',
-      `Next: ${snapshot.commands.nextPhase}`,
+      `Next: ${snapshot.commands.nextStage}`,
     ];
     return lines.join('\n');
   }
@@ -401,7 +401,7 @@ function buildPolicyEnvelope(
     return policy('approval-required', true, false, false, 'approval-required', 'Capability requires approval before any live activation.');
   }
   if (kind === 'tool') {
-    return policy('preview-only', false, false, false, 'none', 'Tool metadata can be previewed, but direct exposure is disabled in Phase 4.');
+    return policy('preview-only', false, false, false, 'none', 'Tool metadata can be previewed, but direct exposure is disabled in Connector registry.');
   }
   return policy('allow', false, false, true, 'none', 'Capability metadata is allowed in the governed registry.');
 }
@@ -450,7 +450,7 @@ function buildAcceptanceMatrix(
     .filter((binding) => binding.directExposureAllowed).length;
 
   return [
-    acceptance('phase-3-sidecar-adapter-ready', previousSidecarAdapterStatus === 'sidecar-adapter-ready', `previousSidecarAdapterStatus=${previousSidecarAdapterStatus}`),
+    acceptance('sidecar-adapter-ready', previousSidecarAdapterStatus === 'sidecar-adapter-ready', `previousSidecarAdapterStatus=${previousSidecarAdapterStatus}`),
     acceptance('capability-metadata-normalized', normalizedCapabilities.length >= 5
       && normalizedCapabilities.every((entry) => entry.capabilityId.startsWith('zavorth.capability.') && entry.publicName === 'Zavorth' && entry.sourceRuntimeDiagnosticsOnly), `${normalizedCapabilities.length} normalized capability(ies)`),
     acceptance('skill-manifest-import-dry-run', manifestImportReceipts.some((entry) => entry.status === 'import-ready')

@@ -1,7 +1,7 @@
 import { PluginRegistryService } from '../../src/services/PluginRegistryService.js';
 import { ProviderMeshParityService } from '../../src/services/ProviderMeshParityService.js';
 
-describe('ProviderMeshParityService Phase 4', () => {
+describe('ProviderMeshParityService Connector registry', () => {
   it('builds provider.call parity coverage for the private provider inventory', () => {
     const service = new ProviderMeshParityService({
       now: () => new Date('2026-05-04T14:00:00.000Z'),
@@ -87,7 +87,7 @@ describe('ProviderMeshParityService Phase 4', () => {
     expect(entry.status).toBe('generic-compatible');
     expect(entry.adapterStrategy).toBe('anthropic-compatible-runtime');
     expect(entry.runtimeSupported).toBe(true);
-    expect(entry.findings).toContain('provider manifest generated from Phase 4 parity template');
+    expect(entry.findings).toContain('provider manifest generated from Connector registry parity template');
   });
 
   it('emits provider plugin manifests that register in the Plugin OS kernel', () => {

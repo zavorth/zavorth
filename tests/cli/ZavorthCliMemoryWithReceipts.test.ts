@@ -45,7 +45,7 @@ describe('Zavorth CLI Memory With Receipts', () => {
     }));
     const payload = JSON.parse(writes[0] || '{}');
     expect(payload).toEqual(expect.objectContaining({
-      contractVersion: '2026-05-03.wave-32',
+      contractVersion: '2026-05-03.memory-receipts',
       audit: expect.objectContaining({
         allMemoryHasReceipt: true,
         canForgetOrCorrect: true,
@@ -68,7 +68,7 @@ describe('Zavorth CLI Memory With Receipts', () => {
 
     const text = formatMemoryWithReceiptsSnapshot(snapshot);
 
-    expect(text).toContain('Memory With Receipts - Wave 32');
+    expect(text).toContain('Memory With Receipts - Memory Receipts');
     expect(text).toContain('Receipts');
     expect(text).toContain('esquecer: zavorth memory forget');
     expect(text).toContain('Command Center: /control?sector=dreams');

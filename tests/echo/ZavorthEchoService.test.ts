@@ -239,7 +239,7 @@ describe('ZavorthEchoService', () => {
             runs: [],
           },
           narrative: {
-            headline: 'Wave C: Watch Mode supervisionado',
+            headline: 'Watch mode: Watch Mode supervisionado',
             operatorSummary: 'Chrome aguarda decisao humana.',
             nextAction: 'Decidir approvals pendentes',
           },
@@ -329,7 +329,7 @@ describe('ZavorthEchoService', () => {
     const result = await service.synthesizeSpeech({
       text: 'Fale no dashboard.',
       surface: 'dashboard',
-      requestedBy: 'modern-ui',
+      requestedBy: 'dashboard-ui',
       sessionId: 'dashboard-session',
     });
 

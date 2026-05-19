@@ -44,7 +44,7 @@ function createRun(overrides: Partial<UniversalAgentRun> = {}): UniversalAgentRu
         id: 'memory-open-task',
         title: 'Tarefa aberta',
         layer: 'episodic',
-        summary: 'Wave 32 esta focada em receipts de memoria.',
+        summary: 'Memory Receipts esta focada em receipts de memoria.',
         confidence: 0.42,
       },
     ],
@@ -53,7 +53,7 @@ function createRun(overrides: Partial<UniversalAgentRun> = {}): UniversalAgentRu
   };
 }
 
-describe('MemoryWithReceiptsService Wave 32', () => {
+describe('MemoryWithReceiptsService Memory Receipts', () => {
   it('builds receipts with origin, confidence and forget/correct actions for memory signals', () => {
     const snapshot = new MemoryWithReceiptsService({
       now: () => new Date('2026-05-03T23:01:00.000Z'),

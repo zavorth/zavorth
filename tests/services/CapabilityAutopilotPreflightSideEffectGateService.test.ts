@@ -87,7 +87,7 @@ function createSnapshot(hint: CapabilityPreflightHintResult): CapabilityAutopilo
   const payloads = surfaceService.buildPayloads(hint, ['cli', 'web', 'chat', 'telegram', 'api']);
 
   return {
-    phase: '68',
+    stage: '68',
     surface: 'capability-autopilot-preflight-entrypoint',
     generatedAt: FIXED_NOW.toISOString(),
     capabilityId: 'executor-gemini-cli',
@@ -102,8 +102,8 @@ function createSnapshot(hint: CapabilityPreflightHintResult): CapabilityAutopilo
     records: [],
     payloads,
     checks: [],
-    nextRecommendedPhase: {
-      phase: '69',
+    nextRecommendedStage: {
+      stage: '69',
       title: 'Preflight Action Handler Wiring',
       reason: 'Wire explicit actions.',
     },
@@ -156,11 +156,11 @@ describe('CapabilityAutopilotPreflightSideEffectGateService', () => {
       actorId: 'operator-1',
       approvalReceiptId: 'approval-1',
       validationReceiptId: 'validation-1',
-      reason: 'phase-72-test',
+      reason: 'checkpoint-72-test',
     });
 
     expect(gate).toMatchObject({
-      phase: '72',
+      stage: '72',
       status: 'ready',
       summary: {
         ok: true,
@@ -238,7 +238,7 @@ describe('CapabilityAutopilotPreflightSideEffectGateService', () => {
 
     expect(gate.status).toBe('blocked');
     expect(gate.decisions.some((decision) => decision.blockers.includes('receipt_confirmation_missing'))).toBe(true);
-    expect(service.renderReport(gate)).toContain('Fase 72 - Preflight Dispatch Side-Effect Gate');
-    expect(service.renderReport(gate)).toContain('proxima fase recomendada: 73 - Preflight Dispatch Apply Adapter');
+    expect(service.renderReport(gate)).toContain('Etapa 72 - Preflight Dispatch Side-Effect Gate');
+    expect(service.renderReport(gate)).toContain('proximo passo recomendada: 73 - Preflight Dispatch Apply Adapter');
   });
 });

@@ -11,7 +11,7 @@ function createIdFactory() {
   return (prefix: string) => `${prefix}-cc-provider-mesh-${++index}`;
 }
 
-describe('Command Center Provider Mesh Consolidation Wave 43', () => {
+describe('Command Center Provider Mesh Consolidation Channel mesh3', () => {
   it('projects providerMeshConsolidation metadata into the dashboard view model', () => {
     const run = new AgentRunService({
       now: () => new Date('2026-05-04T00:43:00.000Z'),
@@ -43,7 +43,7 @@ describe('Command Center Provider Mesh Consolidation Wave 43', () => {
     });
 
     expect(viewModel.providerMeshConsolidation).toEqual(expect.objectContaining({
-      contractVersion: '2026-05-04.wave-43',
+      contractVersion: '2026-05-04.provider-mesh',
       summary: expect.objectContaining({
         routeCount: expect.any(Number),
         readyRouteCount: expect.any(Number),
@@ -83,7 +83,7 @@ describe('Command Center Provider Mesh Consolidation Wave 43', () => {
     );
 
     expect(projection.providerMeshConsolidation).toEqual(expect.objectContaining({
-      contractVersion: '2026-05-04.wave-43',
+      contractVersion: '2026-05-04.provider-mesh',
       summary: expect.objectContaining({
         routeCount: expect.any(Number),
         modelCount: expect.any(Number),

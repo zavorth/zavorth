@@ -1,12 +1,12 @@
 import { CanaryExecutionApprovalLedgerService } from '../../src/services/CanaryExecutionApprovalLedgerService.js';
 
-describe('CanaryExecutionApprovalLedgerService Phase 20', () => {
+describe('CanaryExecutionApprovalLedgerService Preview engine0', () => {
   it('builds an approval ledger from the canary dry-run plan', () => {
     const snapshot = new CanaryExecutionApprovalLedgerService({
       now: () => new Date('2026-05-05T04:10:00.000Z'),
     }).buildSnapshot();
 
-    expect(snapshot.contractVersion).toBe('2026-05-04.phase-20');
+    expect(snapshot.contractVersion).toBe('2026-05-04.checkpoint-20');
     expect(snapshot.status).toBe('ledger-ready');
     expect(snapshot.releaseCandidate).toEqual(
       expect.objectContaining({
@@ -127,7 +127,7 @@ describe('CanaryExecutionApprovalLedgerService Phase 20', () => {
         releaseExecutionGate: 'npm run capability-autopilot:release-execution --silent -- --no-execution-approval --no-tag-approval --no-publish-approval --no-canary-launch-approval',
         approvalLedgerSign: 'manual:sign-canary-execution-approval-ledger --requires-release-approver-manual-operator-rollback-owner-incident-commander-audit-owner',
         launchHold: 'policy:hold-canary-launch --until-signed-ledger-and-launch-rehearsal',
-        nextPhase: 'Canary launch rehearsal',
+        nextStage: 'Canary launch rehearsal',
       }),
     );
     expect(snapshot.policy).toEqual(

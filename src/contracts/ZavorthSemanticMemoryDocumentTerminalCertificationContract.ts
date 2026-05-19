@@ -120,6 +120,6 @@ export type ZavorthSemanticMemoryDocumentTerminalCertificationSnapshot = {
     inspectJson: 'npm run semantic-memory-document-terminal-certification:json --silent';
     check: 'npm run semantic-memory-document-terminal-certification:check --silent';
     qa: 'npm run qa:semantic-memory-document-terminal-certification --silent';
-    nextPhase: 'S6 - Native Companion And Device Capability Semantics';
+    nextStage: 'S6 - Native Companion And Device Capability Semantics';
   };
 };

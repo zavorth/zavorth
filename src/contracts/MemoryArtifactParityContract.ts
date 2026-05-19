@@ -1,6 +1,6 @@
 import type { ZavorthPluginManifest } from './PluginManifestContract.js';
 
-export const ZAVORTH_MEMORY_ARTIFACT_PARITY_CONTRACT_VERSION = '2026-05-04.phase-7';
+export const ZAVORTH_MEMORY_ARTIFACT_PARITY_CONTRACT_VERSION = '2026-05-04.checkpoint-7';
 
 export type MemoryArtifactParitySurface =
   | 'artifact-ledger'
@@ -146,7 +146,7 @@ export type MemoryArtifactParitySnapshot = {
     reusedArtifactMustCiteOrigin: true;
     secretsSerialized: false;
   };
-  nextPhase: {
+  nextStage: {
     id: 'operational-tooling';
     reason: string;
   };

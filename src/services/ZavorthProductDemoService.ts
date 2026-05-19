@@ -214,7 +214,7 @@ export class ZavorthProductDemoService {
         command: 'gh auth status && zavorth review github --pr=<number> --repo=<owner/repo>',
         setupCommand: 'gh auth login',
         doctorCommand: 'gh auth status',
-        docsPath: 'docs/02-quickstart.md#github-real',
+        docsPath: 'docs/quickstart.md#github-real',
         safeByDefault: true,
       },
       {
@@ -225,7 +225,7 @@ export class ZavorthProductDemoService {
         command: 'zavorth review github --pr=<number> --repo=<owner/repo> --post-comment --approval-id=<approval-id>',
         setupCommand: 'gh auth login',
         doctorCommand: 'zavorth connectors doctor github',
-        docsPath: 'docs/02-quickstart.md#github-real',
+        docsPath: 'docs/quickstart.md#github-real',
         safeByDefault: true,
       },
       {
@@ -239,7 +239,7 @@ export class ZavorthProductDemoService {
         command: 'zavorth connectors setup telegram --apply',
         setupCommand: 'zavorth connectors setup telegram --apply',
         doctorCommand: 'zavorth connectors doctor telegram',
-        docsPath: 'docs/06-telegram.md',
+        docsPath: 'docs/telegram.md',
         safeByDefault: true,
       },
       {
@@ -254,7 +254,7 @@ export class ZavorthProductDemoService {
         command: 'zavorth connectors setup discord --apply',
         setupCommand: 'zavorth connectors setup discord --apply',
         doctorCommand: 'zavorth connectors doctor discord',
-        docsPath: 'docs/08-discord.md',
+        docsPath: 'docs/discord.md',
         safeByDefault: true,
       },
     ];

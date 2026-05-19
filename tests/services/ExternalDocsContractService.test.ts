@@ -1,7 +1,7 @@
 import { ExternalDocsContractService } from '../../src/services/ExternalDocsContractService';
 
 describe('ExternalDocsContractService', () => {
-  it('builds an ok Phase 49 snapshot from the external docs fixture contract', () => {
+  it('builds an ok Connector registry9 snapshot from the external docs fixture contract', () => {
     const service = serviceFromFixture();
     const snapshot = service.buildSnapshot();
 
@@ -10,8 +10,8 @@ describe('ExternalDocsContractService', () => {
     expect(snapshot.summary.ok).toBe(true);
     expect(snapshot.status).toBe('ready');
     expect(snapshot.routes).toEqual(['/docs', '/examples']);
-    expect(snapshot.nextRecommendedPhase).toEqual(expect.objectContaining({
-      phase: '50',
+    expect(snapshot.nextRecommendedStage).toEqual(expect.objectContaining({
+      stage: '50',
       title: 'Editions, Plans And Distribution Policy',
     }));
   });
@@ -42,7 +42,7 @@ describe('ExternalDocsContractService', () => {
           'status:fast': 'npm run cli:fast -- status',
           'external-docs': 'npx tsx scripts/external-docs.ts',
           'qa:external-docs': 'npx tsx scripts/external-docs.ts --require-pass --build --screenshots',
-          'qa:phase:49': 'node scripts/phases-46-52-check.mjs --phase=49',
+          'qa:stage:49': 'node scripts/capability-suite-adoption-check.mjs --phase=49',
         },
       }),
     });
@@ -62,8 +62,8 @@ describe('ExternalDocsContractService', () => {
     const service = serviceFromFixture();
     const report = service.renderReport();
 
-    expect(report).toContain('Fase 49 - External Docs And Examples');
-    expect(report).toContain('proxima fase recomendada: 50 - Editions, Plans And Distribution Policy');
+    expect(report).toContain('Etapa 49 - External Docs And Examples');
+    expect(report).toContain('proximo passo recomendada: 50 - Editions, Plans And Distribution Policy');
   });
 });
 
@@ -89,7 +89,7 @@ function filesFixture(overrides: Record<string, string> = {}) {
         'release:status:fast': 'npm run cli:fast -- release status',
         'external-docs': 'npx tsx scripts/external-docs.ts',
         'qa:external-docs': 'npx tsx scripts/external-docs.ts --require-pass --build --screenshots',
-        'qa:phase:49': 'node scripts/phases-46-52-check.mjs --phase=49',
+        'qa:stage:49': 'node scripts/capability-suite-adoption-check.mjs --phase=49',
       },
     }),
     'website:package.json': JSON.stringify({
@@ -105,7 +105,7 @@ function filesFixture(overrides: Record<string, string> = {}) {
     'website:components/Navbar.tsx': '<a href="/examples">Exemplos</a>',
     'website:components/CTASection.tsx': '<a href="/examples">Examples</a>',
     'website:components/Footer.tsx': '<a href="/examples">Exemplos</a>',
-    'website:app/changelog/page.tsx': 'Fase 49 /docs#external-docs',
+    'website:app/changelog/page.tsx': 'Etapa 49 /docs#external-docs',
     ...overrides,
   };
 }

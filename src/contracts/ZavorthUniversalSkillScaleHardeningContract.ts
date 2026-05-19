@@ -5,7 +5,7 @@ import type {
 import type { ZavorthUniversalSkillRealSourceOnboardingSnapshot } from './ZavorthUniversalSkillRealSourceOnboardingContract.js';
 
 export const ZAVORTH_UNIVERSAL_SKILL_SCALE_HARDENING_CONTRACT_VERSION =
-  '2026-05-10.phase-9' as const;
+  '2026-05-10.checkpoint-9' as const;
 
 export type ZavorthUniversalSkillScaleHardeningStatus =
   ZavorthUniversalSkillExpansionQaStatus;
@@ -87,7 +87,7 @@ export type ZavorthUniversalSkillScaleHardeningSnapshot = {
     rawSecretsSerialized: false;
   };
   policy: {
-    phase8OnboardingIsAuthority: true;
+    dashboardControlsOnboardingIsAuthority: true;
     previewFirstForLargeLibraries: true;
     batchApplyRequiresExplicitAllowlist: true;
     canaryBeforeBulkApply: true;
@@ -101,6 +101,6 @@ export type ZavorthUniversalSkillScaleHardeningSnapshot = {
     run: 'npm run zavorth:universal-skill-scale-hardening -- --discover';
     runJson: 'npm run zavorth:universal-skill-scale-hardening:json -- --discover';
     check: 'npm run zavorth:universal-skill-scale-hardening:check --silent';
-    nextPhase: 'Phase 10 - Approved Dashboard Implementation and Live Scale Canary';
+    nextStage: 'Intent model0 - Approved Dashboard Implementation and Live Scale Canary';
   };
 };

@@ -25,7 +25,7 @@ const snapshot = {
 if (asJson) {
   console.log(JSON.stringify(snapshot, null, 2));
 } else {
-  console.log('[zavorth-external-capability-inventory] checking Phase 0');
+  console.log('[zavorth-external-capability-inventory] checking Security contract');
   for (const rule of rules) {
     const marker = rule.status === 'passed' ? 'ok' : 'fail';
     console.log(`[zavorth-external-capability-inventory] ${marker} ${rule.label}: ${rule.observed} | ${rule.target}`);
@@ -48,8 +48,8 @@ function ruleFilesExist() {
   ];
   const missing = files.filter((file) => !fs.existsSync(path.join(root, file)));
   return {
-    id: 'phase-0-files',
-    label: 'Phase 0 inventory files exist',
+    id: 'checkpoint-0-files',
+    label: 'Security contract inventory files exist',
     status: missing.length === 0 ? 'passed' : 'failed',
     observed: `${files.length - missing.length}/${files.length} file(s) present`,
     target: 'contract, service, CLI, check, tests, docs and package scripts are present',
@@ -91,8 +91,8 @@ function ruleContainsMarkers() {
     }
   }
   return {
-    id: 'phase-0-markers',
-    label: 'Phase 0 inventory markers are present',
+    id: 'checkpoint-0-markers',
+    label: 'Security contract inventory markers are present',
     status: missing.length === 0 ? 'passed' : 'failed',
     observed: missing.length === 0 ? 'all markers present' : `${missing.length} missing marker(s)`,
     target: 'inventory contract, WSL probe, docs and scripts markers are present',
@@ -107,7 +107,7 @@ function runInventoryFixture() {
   });
   if (result.status !== 0) {
     return {
-      id: 'phase-0-inventory-fixture',
+      id: 'inventory-fixture',
       label: 'Inventory fixture passes',
       status: 'failed',
       observed: `exit ${result.status}`,
@@ -125,7 +125,7 @@ function runInventoryFixture() {
     && snapshot.decisionSummary?.total >= 14
     && probes.some((probe) => probe.runtimeId === 'acp-compatibility-fixture' && probe.required === false);
   return {
-    id: 'phase-0-inventory-fixture',
+    id: 'inventory-fixture',
     label: 'Inventory fixture passes',
     status: ok ? 'passed' : 'failed',
     observed: ok ? `${snapshot.decisionSummary.total} item(s), ${snapshot.status}` : 'invalid inventory snapshot',
@@ -150,13 +150,13 @@ function runInventoryBlockedFixture() {
     && snapshot
     && snapshot.status === 'blocked'
     && snapshot.bridgeStatus === 'blocked'
-    && snapshot.freezePolicy?.nextPhaseRequiresContractLayer === true;
+    && snapshot.freezePolicy?.nextStageRequiresContractLayer === true;
   return {
-    id: 'phase-0-blocked-fixture',
+    id: 'checkpoint-0-blocked-fixture',
     label: 'Inventory blocks when bridge is blocked',
     status: ok ? 'passed' : 'failed',
     observed: ok ? `${snapshot.status}, bridge=${snapshot.bridgeStatus}` : `exit ${result.status}`,
-    target: 'Phase 0 cannot advance while Phase 10 bridge is blocked',
+    target: 'Security contract cannot advance while Intent model0 bridge is blocked',
     details: ok ? [] : [result.error?.message || result.stderr || result.stdout || 'no output'],
   };
 }

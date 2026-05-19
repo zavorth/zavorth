@@ -46,7 +46,7 @@ if (!options.text) {
   if (options.json) {
     console.log(JSON.stringify(snapshot, null, 2));
   } else {
-    console.log('[transaction-surface] Phase 7 transaction surface gateway');
+    console.log('[transaction-surface] Surface controls transaction surface gateway');
     console.log(`[transaction-surface] version: ${snapshot.version}`);
     console.log(`[transaction-surface] summary: ${snapshot.summary}`);
     console.log(`[transaction-surface] surfaces: ${snapshot.surfaces.join(', ')}`);

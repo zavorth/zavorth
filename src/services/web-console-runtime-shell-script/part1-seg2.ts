@@ -475,7 +475,7 @@ export const runtimeShellScriptPart1Seg2: string = [
     "    const actionablePhases = report.phases.filter((phase) => String(phase?.status || '') !== 'ready');",
     "    const phases = actionablePhases.length > 0 ? actionablePhases : report.phases.slice(0, 3);",
     "    for (const phase of phases.slice(0, 4)) {",
-    "      const title = String(phase?.title || phase?.id || 'fase');",
+    "      const title = String(phase?.title || phase?.id || 'etapa');",
     "      const status = String(phase?.status || 'unknown');",
     "      const command = String(phase?.command || '').trim();",
     "      const summary = String(phase?.summary || '').trim();",

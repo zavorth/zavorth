@@ -4,7 +4,7 @@ import path from 'path';
 import { ZavorthSubagentRuntimeService } from '../../src/services/ZavorthSubagentRuntimeService.js';
 import { ZavorthSubagentAutoInvocationPolicyService } from '../../src/services/ZavorthSubagentAutoInvocationPolicyService.js';
 
-describe('ZavorthSubagentRuntimeService Phase 4', () => {
+describe('ZavorthSubagentRuntimeService Connector registry', () => {
   it('spawns explicit read-only subagents without mutating the workspace', async () => {
     const fixture = createFixture();
     try {

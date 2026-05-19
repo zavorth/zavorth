@@ -7,7 +7,7 @@ function createIdFactory() {
   return (prefix: string) => `${prefix}-cc-discovery-${++index}`;
 }
 
-describe('Command Center Natural Capability Discovery Wave 29', () => {
+describe('Command Center Natural Capability Discovery Capability Discovery', () => {
   it('projects discovery from run metadata into the dashboard view model', () => {
     const viewModel = buildDashboardCommandCenterViewModel({
       runtime: {
@@ -19,7 +19,7 @@ describe('Command Center Natural Capability Discovery Wave 29', () => {
         status: 'waiting_approval',
         metadata: {
           naturalCapabilityDiscovery: {
-            contractVersion: '2026-05-03.wave-29',
+            contractVersion: '2026-05-03.capability-discovery',
             generatedAt: '2026-05-03T20:30:00.000Z',
             intentCategory: 'workspace-mutation',
             confidence: 0.9,
@@ -62,7 +62,7 @@ describe('Command Center Natural Capability Discovery Wave 29', () => {
     });
 
     expect(viewModel.capabilityDiscovery).toEqual(expect.objectContaining({
-      contractVersion: '2026-05-03.wave-29',
+      contractVersion: '2026-05-03.capability-discovery',
       intentCategory: 'workspace-mutation',
       recommendedToolNames: ['write_file', 'shell.exec'],
       safety: expect.objectContaining({
@@ -103,7 +103,7 @@ describe('Command Center Natural Capability Discovery Wave 29', () => {
     );
 
     expect(projection.capabilityDiscovery).toEqual(expect.objectContaining({
-      contractVersion: '2026-05-03.wave-29',
+      contractVersion: '2026-05-03.capability-discovery',
       intentCategory: 'workspace-inspection',
       recommendedToolNames: expect.arrayContaining(['read_file']),
     }));

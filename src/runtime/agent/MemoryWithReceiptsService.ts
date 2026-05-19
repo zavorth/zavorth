@@ -7,7 +7,7 @@ import type {
   UniversalMemorySignal,
 } from './UniversalAgentRuntimeTypes.js';
 
-export const MEMORY_WITH_RECEIPTS_CONTRACT_VERSION = '2026-05-03.wave-32' as const;
+export const MEMORY_WITH_RECEIPTS_CONTRACT_VERSION = '2026-05-03.memory-receipts' as const;
 
 export type MemoryWithReceiptSourceType =
   | 'memory-signal'

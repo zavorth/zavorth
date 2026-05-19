@@ -13,7 +13,7 @@
  * - NUNCA retornar dados como autoridade do domÃ­nio.
  *
  * ReferÃªncias arquiteturais:
- * - docs/327-zavorth-native-absorption-execution-plan.md (Wave 2)
+ * - docs/native-absorption-execution-plan.md
  * - src/contracts/SearchQueryContract.ts
  *
  * @module adapters/search/DuckDuckGoSearchAdapter

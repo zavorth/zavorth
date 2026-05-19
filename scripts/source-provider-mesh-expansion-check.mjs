@@ -8,8 +8,8 @@ const asJson = process.argv.includes('--json');
 
 const rules = [
   ruleFilesExist({
-    id: 'source-provider-mesh-phase-3-files',
-    label: 'Phase 3 files exist',
+    id: 'source-provider-mesh-checkpoint-3-files',
+    label: 'Approval gate files exist',
     target: 'contract, adapters, credential routes, expansion service, command, tests and package scripts are present',
     files: [
       'src/contracts/SourceProviderMeshExpansionContract.ts',
@@ -27,7 +27,7 @@ const rules = [
   ruleContainsAll({
     id: 'source-provider-mesh-contract',
     label: 'Contract captures Provider Mesh expansion vocabulary',
-    target: 'contract includes provider runtime contract, package evidence, credential routes and Phase 3 snapshot',
+    target: 'contract includes provider runtime contract, package evidence, credential routes and Approval gate snapshot',
     files: ['src/contracts/SourceProviderMeshExpansionContract.ts'],
     needles: [
       'ZAVORTH_SOURCE_PROVIDER_MESH_EXPANSION_CONTRACT_VERSION',
@@ -71,12 +71,12 @@ const rules = [
       'bedrock-claude',
       'google-genai',
       'Use Provider Mesh via Ollama',
-      'Phase 4 - Channel Mesh Expansion Pack',
+      'Connector registry - Channel Mesh Expansion Pack',
     ],
   }),
   ruleContainsAcross({
-    id: 'provider-factory-exposes-phase-3-routes',
-    label: 'ProviderFactory exposes Phase 3 routes',
+    id: 'provider-factory-exposes-checkpoint-3-routes',
+    label: 'ProviderFactory exposes Approval gate routes',
     target: 'ProviderFactory and LlmRuntimeService know explicit Anthropic, Vertex, Bedrock, Google GenAI and local routes',
     files: [
       'src/providers/ProviderFactory.ts',
@@ -98,7 +98,7 @@ const rules = [
   }),
   ruleContainsAll({
     id: 'package-exposes-source-provider-mesh-gate',
-    label: 'package exposes Phase 3 gates and dependencies',
+    label: 'package exposes Approval gate gates and dependencies',
     target: 'operators can inspect, inspect JSON, run check/QA and dependencies are direct',
     files: ['package.json'],
     needles: [
@@ -133,7 +133,7 @@ const snapshot = {
 if (asJson) {
   console.log(JSON.stringify(snapshot, null, 2));
 } else {
-  console.log('[source-provider-mesh-expansion] checking Phase 3');
+  console.log('[source-provider-mesh-expansion] checking Approval gate');
   for (const rule of rules) {
     const marker = rule.status === 'passed' ? 'ok' : 'fail';
     console.log(`[source-provider-mesh-expansion] ${marker} ${rule.label}: ${rule.observed} | ${rule.target}`);
@@ -165,7 +165,7 @@ function runRuntimeRule() {
       label: 'Runtime Provider Mesh receipt passes',
       status: 'failed',
       observed: `exit ${result.status ?? 'unknown'}`,
-      target: 'Phase 3 command emits a passing provider mesh snapshot against the current Source checkout',
+      target: 'Approval gate command emits a passing provider mesh snapshot against the current Source checkout',
       details: compactDetails(result.error instanceof Error ? result.error.message : '', result.stderr, result.stdout),
     };
   }
@@ -177,13 +177,13 @@ function runRuntimeRule() {
       label: 'Runtime Provider Mesh receipt passes',
       status: receipt.status === 'passed' ? 'passed' : 'failed',
       observed: `status=${receipt.status}, adaptersReady=${receipt.summary?.adaptersReady}, providerFactoryRoutes=${receipt.summary?.providerFactoryRoutes}`,
-      target: 'Phase 3 command emits a passing provider mesh snapshot against the current Source checkout',
+      target: 'Approval gate command emits a passing provider mesh snapshot against the current Source checkout',
       details: [
         `packagesPresentInSource=${receipt.summary?.packagesPresentInSource}`,
         `packagesImplementedInZavorth=${receipt.summary?.packagesImplementedInZavorth}`,
         `enabledByDefault=${receipt.summary?.enabledByDefault}`,
         `liveIoPerformed=${receipt.summary?.liveIoPerformed}`,
-        `next=${receipt.commands?.nextPhase}`,
+        `next=${receipt.commands?.nextStage}`,
       ],
     };
   } catch (error) {
@@ -192,7 +192,7 @@ function runRuntimeRule() {
       label: 'Runtime Provider Mesh receipt passes',
       status: 'failed',
       observed: 'invalid JSON receipt',
-      target: 'Phase 3 command emits a passing provider mesh snapshot against the current Source checkout',
+      target: 'Approval gate command emits a passing provider mesh snapshot against the current Source checkout',
       details: [error instanceof Error ? error.message : String(error), ...compactDetails(result.stderr, result.stdout)],
     };
   }

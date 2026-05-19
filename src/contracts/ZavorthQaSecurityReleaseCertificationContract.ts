@@ -1,4 +1,4 @@
-export const ZAVORTH_QA_SECURITY_RELEASE_CERTIFICATION_CONTRACT_VERSION = '2026-05-05.phase-7' as const;
+export const ZAVORTH_QA_SECURITY_RELEASE_CERTIFICATION_CONTRACT_VERSION = '2026-05-05.checkpoint-7' as const;
 
 export type ZavorthQaSecurityReleaseFamilyId =
   | 'qa-scenarios'
@@ -189,6 +189,6 @@ export type ZavorthQaSecurityReleaseCertificationSnapshot = {
     inspectJson: 'npm run zavorth-qa-security-release-certification-pack:json --silent';
     check: 'npm run zavorth-qa-security-release-certification-pack:check --silent';
     qa: 'npm run qa:zavorth-qa-security-release-certification-pack --silent';
-    nextPhase: 'Phase 8 - Skill Ecosystem Pack';
+    nextStage: 'Dashboard controls - Skill Ecosystem Pack';
   };
 };

@@ -132,14 +132,14 @@ export class ZavorthQaSecurityReleaseCertificationPackService {
         inspectJson: 'npm run zavorth-qa-security-release-certification-pack:json --silent',
         check: 'npm run zavorth-qa-security-release-certification-pack:check --silent',
         qa: 'npm run qa:zavorth-qa-security-release-certification-pack --silent',
-        nextPhase: 'Phase 8 - Skill Ecosystem Pack',
+        nextStage: 'Dashboard controls - Skill Ecosystem Pack',
       },
     };
   }
 
   public formatSnapshotText(snapshot: ZavorthQaSecurityReleaseCertificationSnapshot): string {
     const lines = [
-      'Zavorth QA Security Release Certification Pack - Phase 7',
+      'Zavorth QA Security Release Certification Pack - Surface controls',
       `Status: ${snapshot.status}`,
       `Contract: ${snapshot.contractVersion}`,
       `Families: ${snapshot.summary.families}`,
@@ -157,7 +157,7 @@ export class ZavorthQaSecurityReleaseCertificationPackService {
       `Live external IO performed: ${snapshot.summary.liveExternalIoPerformed}`,
       'Families:',
       ...snapshot.functionalParityRunner.printableLines,
-      `Next: ${snapshot.commands.nextPhase}`,
+      `Next: ${snapshot.commands.nextStage}`,
     ];
     return lines.join('\n');
   }
@@ -167,7 +167,7 @@ export class ZavorthQaSecurityReleaseCertificationPackService {
   ): ZavorthFunctionalParityCertificationRunnerSnapshot {
     const baseStatus = combineStatuses(baseFamilies.map((family) => family.status));
     const functionalReceipt: ZavorthQaSecurityReleaseReceipt = {
-      id: `zavorth.phase7.functional-parity.runner.${this.now().getTime()}.receipt`,
+      id: `zavorth.surface-controls.functional-parity.runner.${this.now().getTime()}.receipt`,
       familyId: 'functional-parity',
       checkId: 'functional-parity.runner',
       label: 'Functional parity certification runner is complete',
@@ -189,7 +189,7 @@ export class ZavorthQaSecurityReleaseCertificationPackService {
       familyId: 'functional-parity',
       label: 'Functional Parity Runner',
       receipts: [functionalReceipt],
-      notes: ['Aggregates all Phase 7 family receipts into a release-ready runner.'],
+      notes: ['Aggregates all Surface controls family receipts into a release-ready runner.'],
     });
     const families = [...baseFamilies, functionalFamily];
 

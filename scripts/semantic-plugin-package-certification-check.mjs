@@ -60,7 +60,7 @@ addCheck(
     'runtimePolicyClaims',
     'SourcePluginOsAbsorptionService',
   ].every((marker) => service.includes(marker)),
-  'service converts Phase 1 evidence into behavior-level semantic claims',
+  'service converts Intent model evidence into behavior-level semantic claims',
 );
 
 const command = read('scripts/semantic-plugin-package-certification.ts');
@@ -119,7 +119,7 @@ if (runtime.status !== 0) {
         && snapshot.summary.semanticClaims > 0
         && snapshot.summary.receiptBackedClaims === snapshot.summary.semanticClaims
         && receiptIdsValid,
-      `status=${snapshot.status}, claims=${snapshot.summary.semanticClaims}, gaps=${snapshot.summary.gaps}, receiptIdsValid=${receiptIdsValid}, next=${snapshot.commands.nextPhase}`,
+      `status=${snapshot.status}, claims=${snapshot.summary.semanticClaims}, gaps=${snapshot.summary.gaps}, receiptIdsValid=${receiptIdsValid}, next=${snapshot.commands.nextStage}`,
     );
   } catch (error) {
     addCheck('Runtime S1 semantic receipt passes', false, `invalid JSON: ${error.message}`);

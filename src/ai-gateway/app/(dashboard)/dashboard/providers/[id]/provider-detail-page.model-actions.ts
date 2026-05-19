@@ -4,7 +4,7 @@ function buildImportProgress(t: any) {
   return {
     current: 0,
     total: 0,
-    phase: "fetching" as const,
+    stage: "fetching" as const,
     status: t("fetchingModels"),
     logs: [] as string[],
     error: "",
@@ -27,7 +27,7 @@ export async function handleImportModelsAction(deps: any) {
     if (!res.ok) {
       deps.setImportProgress((prev: any) => ({
         ...prev,
-        phase: "error",
+        stage: "error",
         status: deps.t("failedFetchModels"),
         error: data.error || deps.t("failedImportModels"),
       }));
@@ -37,7 +37,7 @@ export async function handleImportModelsAction(deps: any) {
     if (fetchedModels.length === 0) {
       deps.setImportProgress((prev: any) => ({
         ...prev,
-        phase: "done",
+        stage: "done",
         status: deps.t("noModelsFound"),
         logs: [deps.t("noModelsReturnedFromEndpoint")],
       }));
@@ -55,7 +55,7 @@ export async function handleImportModelsAction(deps: any) {
     if (newModels.length === 0) {
       deps.setImportProgress((prev: any) => ({
         ...prev,
-        phase: "done",
+        stage: "done",
         status: deps.t("allModelsAlreadyImported") || "All models already imported",
         logs: [deps.t("noNewModelsToImport") || "No new models to import"],
         importedCount: 0,
@@ -67,7 +67,7 @@ export async function handleImportModelsAction(deps: any) {
 
     deps.setImportProgress((prev: any) => ({
       ...prev,
-      phase: "importing",
+      stage: "importing",
       total: newModels.length,
       current: 0,
       status: deps.t("importingModelsProgress", { current: 0, total: newModels.length }),
@@ -117,7 +117,7 @@ export async function handleImportModelsAction(deps: any) {
 
     deps.setImportProgress((prev: any) => ({
       ...prev,
-      phase: "done",
+      stage: "done",
       current: newModels.length,
       status:
         importedCount > 0
@@ -141,7 +141,7 @@ export async function handleImportModelsAction(deps: any) {
     console.log("Error importing models:", error);
     deps.setImportProgress((prev: any) => ({
       ...prev,
-      phase: "error",
+      stage: "error",
       status: deps.t("importFailed"),
       error: error instanceof Error ? error.message : deps.t("unexpectedErrorOccurred"),
     }));
@@ -164,7 +164,7 @@ export async function handleCompatibleImportWithProgressAction(
     if (compatibleModels.length === 0) {
       deps.setImportProgress((prev: any) => ({
         ...prev,
-        phase: "done",
+        stage: "done",
         status: deps.t("noModelsFound"),
         logs: [deps.t("noModelsReturnedFromEndpoint")],
       }));
@@ -173,7 +173,7 @@ export async function handleCompatibleImportWithProgressAction(
 
     deps.setImportProgress((prev: any) => ({
       ...prev,
-      phase: "importing",
+      stage: "importing",
       total: compatibleModels.length,
       status: deps.t("importingModelsProgress", {
         current: 0,
@@ -204,7 +204,7 @@ export async function handleCompatibleImportWithProgressAction(
 
     deps.setImportProgress((prev: any) => ({
       ...prev,
-      phase: "done",
+      stage: "done",
       current: compatibleModels.length,
       status:
         importedCount > 0
@@ -228,7 +228,7 @@ export async function handleCompatibleImportWithProgressAction(
     console.log("Error importing models:", error);
     deps.setImportProgress((prev: any) => ({
       ...prev,
-      phase: "error",
+      stage: "error",
       status: deps.t("importFailed"),
       error: error instanceof Error ? error.message : deps.t("unexpectedErrorOccurred"),
     }));

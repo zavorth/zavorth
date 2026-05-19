@@ -10,7 +10,7 @@ function createIdFactory() {
   return (prefix: string) => `${prefix}-cc-capability-negotiation-${++index}`;
 }
 
-describe('Command Center Capability Negotiation Wave 35', () => {
+describe('Command Center Capability Negotiation Capability Negotiation', () => {
   it('projects capabilityNegotiation metadata into the dashboard view model', () => {
     const run = new AgentRunService({
       now: () => new Date('2026-05-04T00:35:00.000Z'),
@@ -40,7 +40,7 @@ describe('Command Center Capability Negotiation Wave 35', () => {
     });
 
     expect(viewModel.capabilityNegotiation).toEqual(expect.objectContaining({
-      contractVersion: '2026-05-03.wave-35',
+      contractVersion: '2026-05-03.capability-negotiation',
       status: 'proposal',
       summary: expect.objectContaining({
         approvalRequired: true,
@@ -78,7 +78,7 @@ describe('Command Center Capability Negotiation Wave 35', () => {
     );
 
     expect(projection.capabilityNegotiation).toEqual(expect.objectContaining({
-      contractVersion: '2026-05-03.wave-35',
+      contractVersion: '2026-05-03.capability-negotiation',
       status: 'waiting-approval',
       summary: expect.objectContaining({
         approvalRequired: true,

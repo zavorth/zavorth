@@ -30,7 +30,7 @@ if (!options.text) {
   if (options.json) {
     console.log(JSON.stringify(snapshot, null, 2));
   } else {
-    console.log('[transaction-approval] Phase 3 approval ledger');
+    console.log('[transaction-approval] Approval gate approval ledger');
     console.log(`[transaction-approval] version: ${snapshot.version}`);
     console.log(`[transaction-approval] summary: ${snapshot.summary}`);
     console.log(`[transaction-approval] entry kinds: ${snapshot.ledgerEntryKinds.join(', ')}`);

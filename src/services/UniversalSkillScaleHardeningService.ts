@@ -125,7 +125,7 @@ export class UniversalSkillScaleHardeningService {
 
   public formatSnapshotText(snapshot: ZavorthUniversalSkillScaleHardeningSnapshot): string {
     const lines = [
-      'Universal Skill Scale Hardening - Phase 9',
+      'Universal Skill Scale Hardening - Certification matrix',
       '',
       `Status: ${snapshot.status}`,
       `Escala: ${snapshot.capacity.scaleBand} | candidates=${snapshot.capacity.candidateCount} | batches=${snapshot.capacity.batchCount} | batchSize=${snapshot.capacity.batchSize}`,
@@ -162,7 +162,7 @@ export class UniversalSkillScaleHardeningService {
       lines.push(`- ${action}`);
     }
 
-    lines.push('', `Next: ${snapshot.commands.nextPhase}`);
+    lines.push('', `Next: ${snapshot.commands.nextStage}`);
     return lines.join('\n');
   }
 
@@ -196,7 +196,7 @@ export class UniversalSkillScaleHardeningService {
         rawSecretsSerialized: false,
       },
       policy: {
-        phase8OnboardingIsAuthority: true,
+        dashboardControlsOnboardingIsAuthority: true,
         previewFirstForLargeLibraries: true,
         batchApplyRequiresExplicitAllowlist: true,
         canaryBeforeBulkApply: true,
@@ -210,7 +210,7 @@ export class UniversalSkillScaleHardeningService {
         run: 'npm run zavorth:universal-skill-scale-hardening -- --discover',
         runJson: 'npm run zavorth:universal-skill-scale-hardening:json -- --discover',
         check: 'npm run zavorth:universal-skill-scale-hardening:check --silent',
-        nextPhase: 'Phase 10 - Approved Dashboard Implementation and Live Scale Canary',
+        nextStage: 'Intent model0 - Approved Dashboard Implementation and Live Scale Canary',
       },
     };
   }
@@ -263,11 +263,11 @@ export class UniversalSkillScaleHardeningService {
     const hasWarningRegression = input.onboarding.regression.findings.some((finding) => finding.severity === 'warning');
     return [
       gate({
-        id: 'phase8-onboarding',
-        label: 'Fase 8 como autoridade',
+        id: 'dashboard-controls-onboarding',
+        label: 'Etapa 8 como autoridade',
         status: input.onboarding.status === 'blocked' ? 'blocked' : input.onboarding.status,
         observed: input.onboarding.status,
-        target: 'Fase 8 nao pode estar blocked',
+        target: 'Etapa 8 nao pode estar blocked',
         summary: `Onboarding real retornou ${input.onboarding.status}.`,
       }),
       gate({
@@ -319,8 +319,8 @@ export class UniversalSkillScaleHardeningService {
         label: 'Sem alteracao visual sem aprovacao',
         status: 'passed',
         observed: true,
-        target: 'nenhuma mudanca de layout/CSS nesta fase',
-        summary: 'Fase 9 produz contrato e evidencia, nao altera layout do dashboard.',
+        target: 'nenhuma mudanca de layout/CSS nesta etapa',
+        summary: 'Etapa 9 produz contrato e evidencia, nao altera layout do dashboard.',
       }),
       gate({
         id: 'no-execution',
@@ -408,7 +408,7 @@ export class UniversalSkillScaleHardeningService {
         recommendedMode: 'hold',
         nextActions: [
           'Resolver gates blocked antes de qualquer apply em escala.',
-          'Rodar novamente a Fase 9 em preview para atualizar batches e dashboard review.',
+          'Rodar novamente a Etapa 9 em preview para atualizar batches e dashboard review.',
         ],
       };
     }

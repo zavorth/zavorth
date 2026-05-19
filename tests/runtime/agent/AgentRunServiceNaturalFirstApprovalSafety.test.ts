@@ -9,7 +9,7 @@ function createIdFactory() {
   return (prefix: string) => `${prefix}-natural-approval-${++index}`;
 }
 
-describe('AgentRunService Natural First Approval Safety Phase 7', () => {
+describe('AgentRunService Natural First Approval Safety Surface controls', () => {
   it('opens a fallback approval for sensitive Natural First intent with no mapped tool', async () => {
     const executor = jest.fn<ReturnType<UniversalAgentExecutor>, Parameters<UniversalAgentExecutor>>(() => ({
       status: 'completed',
@@ -46,7 +46,7 @@ describe('AgentRunService Natural First Approval Safety Phase 7', () => {
     ]);
     expect(result.run.metadata.naturalFirstApprovalSafety).toEqual(expect.objectContaining({
       contractVersion: NATURAL_FIRST_APPROVAL_SAFETY_CONTRACT_VERSION,
-      phase: 7,
+      stage: 7,
       route: 'approval-proposal',
       status: 'approval-required',
       approvals: expect.objectContaining({
@@ -71,7 +71,7 @@ describe('AgentRunService Natural First Approval Safety Phase 7', () => {
         }),
       }),
     ]));
-    expect(result.replies[0].text).toContain('Aprovacao Natural First - Phase 7');
+    expect(result.replies[0].text).toContain('Aprovacao Natural First - Surface controls');
     expect(result.replies[0].text).toContain('Nada foi executado');
   });
 

@@ -35,7 +35,7 @@ function buildRegistrySnapshot(overrides: Record<string, any> = {}) {
     : overrides.selected;
   return {
     generatedAt: '2026-05-10T17:00:00.000Z',
-    contractVersion: '2026-05-10.phase-4',
+    contractVersion: '2026-05-10.checkpoint-4',
     query: 'research-pack',
     selectedId: selected?.skillName || null,
     mode: overrides.mode || 'dry-run',
@@ -73,13 +73,13 @@ function buildRegistrySnapshot(overrides: Record<string, any> = {}) {
       invokeDryRun: 'npm run zavorth:universal-skill-bridge-registry -- --skill <name> --invoke',
       invokeLive: 'npm run zavorth:universal-skill-bridge-registry -- --skill <name> --invoke --live --approval-id <approval-id>',
       check: 'npm run zavorth:universal-skill-bridge-registry:check --silent',
-      nextPhase: 'Phase 5 - Activation UX and Channel Command Packs',
+      nextStage: 'Credential vault - Activation UX and Channel Command Packs',
     },
     ...overrides,
   };
 }
 
-describe('UniversalSkillBridgeActivationService Phase 5', () => {
+describe('UniversalSkillBridgeActivationService Credential vault', () => {
   it('turns /skills bridge into a registry inspection without invoking the bridge', async () => {
     const buildSnapshot = jest.fn(async () => buildRegistrySnapshot());
     const service = new UniversalSkillBridgeActivationService({

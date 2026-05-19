@@ -116,18 +116,18 @@ describe('AgentRunEvidencePipeline', () => {
     expect(calls[0]).toBe('capabilityNegotiation');
     expect(run.metadata.evidenceCollectors).toEqual(expect.objectContaining({
       source: 'AgentRunEvidencePipeline',
-      phase: 3,
+      stage: 3,
       lastPhase: 'frontloaded',
       collectorCount: 6,
       receipts: expect.arrayContaining([
         expect.objectContaining({
           collectorId: 'safety',
-          phase: 'frontloaded',
+          stage: 'frontloaded',
           stepIds: expect.arrayContaining(['capabilityNegotiation', 'toolRehearsal']),
         }),
         expect.objectContaining({
           collectorId: 'release',
-          phase: 'frontloaded',
+          stage: 'frontloaded',
           stepIds: expect.arrayContaining(['blueprintCompletionGate']),
         }),
       ]),
@@ -167,7 +167,7 @@ describe('AgentRunEvidencePipeline', () => {
     expect(jobs.map((job) => job.collectorId)).toEqual(expect.arrayContaining(['product', 'release']));
     expect(run.metadata.evidenceWorkers).toEqual(expect.objectContaining({
       source: 'AgentRunEvidencePipeline',
-      phase: 9,
+      stage: 9,
       mode: 'async-heavy',
       receipts: expect.arrayContaining([
         expect.objectContaining({ collectorId: 'product', status: 'scheduled' }),
@@ -278,7 +278,7 @@ describe('AgentRunEvidencePipeline', () => {
     expect(calls).not.toContain('productizationEvidence');
     expect(jobs.map((job) => job.collectorId)).toEqual(expect.arrayContaining(['product', 'release']));
     expect(run.metadata.evidenceWorkers).toEqual(expect.objectContaining({
-      phase: 11,
+      stage: 11,
       mode: 'worker-first-heavy',
     }));
   });

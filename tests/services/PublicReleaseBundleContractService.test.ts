@@ -1,7 +1,7 @@
 import { PublicReleaseBundleContractService } from '../../src/services/PublicReleaseBundleContractService';
 
 describe('PublicReleaseBundleContractService', () => {
-  it('builds an ok Phase 51 snapshot from the release bundle fixture', () => {
+  it('builds an ok Credential vault1 snapshot from the release bundle fixture', () => {
     const service = serviceFromFixture();
     const snapshot = service.buildSnapshot();
 
@@ -10,8 +10,8 @@ describe('PublicReleaseBundleContractService', () => {
     expect(snapshot.summary.ok).toBe(true);
     expect(snapshot.status).toBe('ready');
     expect(snapshot.route).toBe('/release');
-    expect(snapshot.nextRecommendedPhase).toEqual(expect.objectContaining({
-      phase: '52',
+    expect(snapshot.nextRecommendedStage).toEqual(expect.objectContaining({
+      stage: '52',
       title: 'Feedback, Telemetry Opt-In And Product Loop',
     }));
   });
@@ -45,7 +45,7 @@ describe('PublicReleaseBundleContractService', () => {
         scripts: {
           'release-bundle': 'npx tsx scripts/release-bundle.ts',
           'qa:release-bundle': 'npx tsx scripts/release-bundle.ts --require-pass --build --screenshots',
-          'qa:phase:51': 'node scripts/phases-46-52-check.mjs --phase=51',
+          'qa:stage:51': 'node scripts/capability-suite-adoption-check.mjs --phase=51',
           'release:status:fast': 'npm run cli:fast -- release status',
           'doctor:fast': 'npm run cli:fast -- doctor',
           'release:changelog': 'npx tsx scripts/release-ux-wizard.ts --changelog',
@@ -72,7 +72,7 @@ describe('PublicReleaseBundleContractService', () => {
       'website:app/docs/page.tsx': '<section id="release-bundle">Docs</section>',
       'website:app/examples/page.tsx': '<a href="/examples">Examples</a>',
       'website:app/editions/page.tsx': '<a href="/editions">Editions</a>',
-      'website:app/changelog/page.tsx': 'Fase 51',
+      'website:app/changelog/page.tsx': 'Readiness checkpoint 1',
       'website:data/external-docs.ts': '',
     });
 
@@ -91,8 +91,8 @@ describe('PublicReleaseBundleContractService', () => {
     const service = serviceFromFixture();
     const report = service.renderReport();
 
-    expect(report).toContain('Fase 51 - Release Bundle And Installer Distribution');
-    expect(report).toContain('proxima fase recomendada: 52 - Feedback, Telemetry Opt-In And Product Loop');
+    expect(report).toContain('Readiness checkpoint 1 - Release Bundle And Installer Distribution');
+    expect(report).toContain('proximo passo recomendada: 52 - Feedback, Telemetry Opt-In And Product Loop');
   });
 });
 
@@ -113,7 +113,7 @@ function filesFixture(overrides: Record<string, string> = {}) {
       scripts: {
         'release-bundle': 'npx tsx scripts/release-bundle.ts',
         'qa:release-bundle': 'npx tsx scripts/release-bundle.ts --require-pass --build --screenshots',
-        'qa:phase:51': 'node scripts/phases-46-52-check.mjs --phase=51',
+        'qa:stage:51': 'node scripts/capability-suite-adoption-check.mjs --phase=51',
         'release:status:fast': 'npm run cli:fast -- release status',
         'doctor:fast': 'npm run cli:fast -- doctor',
         'release:changelog': 'npx tsx scripts/release-ux-wizard.ts --changelog',
@@ -135,7 +135,7 @@ function filesFixture(overrides: Record<string, string> = {}) {
     'website:app/docs/page.tsx': '<a href="/release">/release</a><a href="/docs#release-bundle">Release bundle</a> npm run release:status:fast npm run doctor:fast npm run release:changelog npm run release:rollback-preview',
     'website:app/examples/page.tsx': '<a href="/release">Release</a>',
     'website:app/editions/page.tsx': '<a href="/editions">Editions</a>',
-    'website:app/changelog/page.tsx': '<a href="/changelog">Changelog</a> Fase 51',
+    'website:app/changelog/page.tsx': '<a href="/changelog">Changelog</a> Readiness checkpoint 1',
     'website:data/external-docs.ts': '<a href="/release">Release</a>',
     ...overrides,
   };

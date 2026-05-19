@@ -214,7 +214,7 @@ export class TelegramZavorthBridgePromptWorkflowService {
 
   private formatPromptStartFailure(result: ZavorthBridgePromptStartResult): string {
     const lines = ['Nao consegui colocar esse pedido para rodar no ZavorthBridge.'];
-    lines.push(`Etapa em que parou: ${result.stage}`);
+    lines.push(`Etapa em que parou: ${result.phase}`);
     if (result.selectedModel) lines.push(`Modelo pedido: ${result.selectedModel}`);
     if (typeof result.remoteModeActive === 'boolean') lines.push(`Modo remoto: ${result.remoteModeActive ? 'ativo' : 'inativo'}`);
     if (typeof result.sessionAccessible === 'boolean') lines.push(`Sessao acessivel: ${result.sessionAccessible ? 'sim' : 'nao'}`);
@@ -249,7 +249,7 @@ export class TelegramZavorthBridgePromptWorkflowService {
     }
 
     const technicalParts: string[] = [
-      `etapa=${completion.stage}`,
+      `etapa=${completion.phase}`,
       `fonte=${completion.source}`,
       `verificado=${completion.verified ? 'sim' : 'nao'}`,
     ];

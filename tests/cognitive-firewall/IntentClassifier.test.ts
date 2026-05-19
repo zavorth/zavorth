@@ -18,7 +18,7 @@ describe('IntentClassifier contextual hints', () => {
     expect(result.downgradedBy).toContain(signal);
     expect(result.secondPass).toEqual(expect.objectContaining({
       source: 'ContextualIntentSecondPass',
-      phase: 7,
+      stage: 7,
       mode: 'local-contextual',
     }));
   });

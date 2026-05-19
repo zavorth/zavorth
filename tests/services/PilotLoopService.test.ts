@@ -12,7 +12,7 @@ import {
 } from '../../src/contracts/PilotLoopContract';
 
 describe('PilotLoopService', () => {
-  it('builds an ok Phase 57 snapshot from pilot loop artifacts', () => {
+  it('builds an ok Credential vault7 snapshot from pilot loop artifacts', () => {
     const service = serviceFromFixture({}, { requireArtifacts: true });
 
     const snapshot = service.buildSnapshot();
@@ -21,8 +21,8 @@ describe('PilotLoopService', () => {
     expect(snapshot.surface).toBe('pilot-loop');
     expect(snapshot.summary.ok).toBe(true);
     expect(snapshot.status).toBe('ready');
-    expect(snapshot.nextRecommendedPhase).toEqual(expect.objectContaining({
-      phase: '58',
+    expect(snapshot.nextRecommendedStage).toEqual(expect.objectContaining({
+      stage: '58',
       title: 'Integration Showcase And Partner Surface',
     }));
   });
@@ -104,15 +104,15 @@ describe('PilotLoopService', () => {
     ]));
   });
 
-  it('fails when docs no longer point to Phase 58', () => {
+  it('fails when docs no longer point to Credential vault8', () => {
     const service = serviceFromFixture({
-      'core:docs/76-public-adoption-architecture.md': docs76Source().replace(
-        'Fase 58 - Integration Showcase And Partner Surface',
-        'Fase futura',
+      'core:docs/product-direction.md': docs76Source().replace(
+        'Readiness checkpoint 8 - Integration Showcase And Partner Surface',
+        'Etapa futura',
       ),
-      'core:docs/11-roadmap.md': roadmapSource().replace(
-        'Fase 58 - Integration Showcase And Partner Surface',
-        'Fase futura',
+      'core:docs/product-direction.md': roadmapSource().replace(
+        'Readiness checkpoint 8 - Integration Showcase And Partner Surface',
+        'Etapa futura',
       ),
     }, { requireArtifacts: true });
 
@@ -132,8 +132,8 @@ describe('PilotLoopService', () => {
 
     const report = service.renderReport();
 
-    expect(report).toContain('Fase 57 - Feedback, Support And Pilot Loop');
-    expect(report).toContain('proxima fase recomendada: 58 - Integration Showcase And Partner Surface');
+    expect(report).toContain('Readiness checkpoint 7 - Feedback, Support And Pilot Loop');
+    expect(report).toContain('proximo passo recomendada: 58 - Integration Showcase And Partner Surface');
   });
 });
 
@@ -179,9 +179,9 @@ function filesFixture(): Record<string, string> {
     'core:src/contracts/FeedbackTelemetryContract.ts': 'Feedback opt-in feedback-preview-redacted.json',
     'core:src/services/FeedbackTelemetryContractService.ts': 'export class FeedbackTelemetryContractService {}',
     'core:scripts/feedback-loop.ts': 'feedback-preview-redacted.json product-feedback-ledger.json',
-    'core:docs/75-public-productization-architecture.md': 'Fase 52 - Feedback, Telemetry Opt-In And Product Loop',
-    'core:docs/76-public-adoption-architecture.md': docs76Source(),
-    'core:docs/11-roadmap.md': roadmapSource(),
+    'core:docs/product-direction.md': 'Readiness checkpoint 2 - Feedback, Telemetry Opt-In And Product Loop',
+    'core:docs/product-direction.md': docs76Source(),
+    'core:docs/product-direction.md': roadmapSource(),
     'website:app/feedback/page.tsx': feedbackSource(),
     'website:data/feedback-loop.ts': feedbackSource(),
     'website:app/docs/page.tsx': docsSource(),
@@ -224,7 +224,7 @@ function docsSource() {
 
 function docs76Source() {
   return [
-    'Fase 57 - Feedback, Support And Pilot Loop',
+    'Readiness checkpoint 7 - Feedback, Support And Pilot Loop',
     'feedback',
     'support',
     'pilot loop',
@@ -232,27 +232,27 @@ function docs76Source() {
     'ledger local',
     'payload sensivel',
     'qa:pilot-loop',
-    'qa:phase:57',
-    'Fase 58 - Integration Showcase And Partner Surface',
-    'qa:phase:58',
+    'qa:stage:57',
+    'Readiness checkpoint 8 - Integration Showcase And Partner Surface',
+    'qa:stage:58',
   ].join('\n');
 }
 
 function roadmapSource() {
   return [
-    'Fase 57 - Feedback, Support And Pilot Loop: implementada.',
+    'Readiness checkpoint 7 - Feedback, Support And Pilot Loop: implementada.',
     'feedback support pilot loop triagem ledger local payload sensivel',
     'qa:pilot-loop',
-    'qa:phase:57',
-    'Fase 58 - Integration Showcase And Partner Surface',
-    'qa:phase:58',
+    'qa:stage:57',
+    'Readiness checkpoint 8 - Integration Showcase And Partner Surface',
+    'qa:stage:58',
   ].join('\n');
 }
 
 function feedbackPreviewArtifact() {
   return {
     schemaVersion: '1.0.0',
-    phase: '57',
+    stage: '57',
     ok: true,
     telemetry: 'disabled-by-default',
     sendsData: false,
@@ -263,7 +263,7 @@ function feedbackPreviewArtifact() {
 function pilotLedgerArtifact() {
   return {
     schemaVersion: '1.0.0',
-    phase: '57',
+    stage: '57',
     ok: true,
     entries: PILOT_LEDGER_ENTRIES.map((entry) => ({ ...entry })),
     supportPolicy: PILOT_SUPPORT_POLICY,
@@ -274,7 +274,7 @@ function pilotLedgerArtifact() {
 function dashboardArtifact() {
   return {
     schemaVersion: '1.0.0',
-    phase: '57',
+    stage: '57',
     ok: true,
     containsPayload: false,
     metrics: PILOT_DASHBOARD_METRICS.map((metric) => ({ ...metric, value: 0 })),

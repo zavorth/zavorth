@@ -1,6 +1,6 @@
 import { ZavorthEndToEndMissionFlowPublicRuntimeCertificationService } from '../../src/services/ZavorthEndToEndMissionFlowPublicRuntimeCertificationService.js';
 
-describe('ZavorthEndToEndMissionFlowPublicRuntimeCertificationService Phase 8', () => {
+describe('ZavorthEndToEndMissionFlowPublicRuntimeCertificationService Dashboard controls', () => {
   it('certifies the public daily mission flow without execution bypass', async () => {
     const snapshot = await new ZavorthEndToEndMissionFlowPublicRuntimeCertificationService({
       now: () => new Date('2026-05-14T14:00:00.000Z'),
@@ -38,10 +38,10 @@ describe('ZavorthEndToEndMissionFlowPublicRuntimeCertificationService Phase 8', 
       },
     }).buildSnapshot({
       request: 'Review this workspace safely and produce a receipt.',
-      sessionId: 'phase-8-test-session',
+      sessionId: 'checkpoint-8-test-session',
     });
 
-    expect(snapshot.contractVersion).toBe('2026-05-14.phase-8-end-to-end-mission-flow-public-runtime-certification');
+    expect(snapshot.contractVersion).toBe('2026-05-14.checkpoint-8-end-to-end-mission-flow-public-runtime-certification');
     expect(snapshot.status).toBe('passed');
     expect(snapshot.summary.previewFirst).toBe(true);
     expect(snapshot.summary.approvalRequestVisible).toBe(true);

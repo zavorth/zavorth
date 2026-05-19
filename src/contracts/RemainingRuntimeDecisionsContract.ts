@@ -3,7 +3,7 @@ import type { MemoryArtifactParitySnapshot } from './MemoryArtifactParityContrac
 import type { ParityCertificationSnapshot } from './ParityCertificationContract.js';
 import type { SatelliteAppParitySnapshot } from './SatelliteAppParityContract.js';
 
-export const ZAVORTH_REMAINING_RUNTIME_DECISIONS_CONTRACT_VERSION = '2026-05-04.phase-13';
+export const ZAVORTH_REMAINING_RUNTIME_DECISIONS_CONTRACT_VERSION = '2026-05-04.checkpoint-13';
 
 export type RemainingRuntimeDecisionStatus = 'closed' | 'attention';
 
@@ -53,7 +53,7 @@ export type RemainingRuntimeDecisionsSnapshot = {
   commands: {
     check: string;
     certify: string;
-    nextPhase: 'Release certification profile hardening';
+    nextStage: 'Release certification profile hardening';
   };
   policy: {
     decisionsAreRuntimeScoped: true;

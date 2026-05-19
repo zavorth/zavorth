@@ -23,7 +23,7 @@ export class PdfExtractionAdapter {
     const sourceName = input.sourceName || 'document.pdf';
     const mimeType = input.mimeType || 'application/pdf';
     const extracted = extractPdfText(input.bytes);
-    const artifactId = `phase5.document.pdf.${hashId(`${sourceName}:${extracted.text}`)}`;
+    const artifactId = `credential-vault.document.pdf.${hashId(`${sourceName}:${extracted.text}`)}`;
     const receiptId = `${artifactId}.receipt`;
     const producedAt = this.now().toISOString();
     const artifact: DocumentExtractionArtifact = {

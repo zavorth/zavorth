@@ -477,7 +477,7 @@ export function buildSharedSurfaceTelegramContext(
     transport: rawText.trim().startsWith('/') ? 'slash_command' : 'text',
     inlineData,
     reply: async (text: string, options?: Record<string, unknown>) => {
-      // Phase 9: Modo Echo — resposta por voz
+      // Certification matrix: Modo Echo — resposta por voz
       const outputStage = runtime.echoOutputStage || new EchoOutputStageService({
         audioHandler: runtime.echoAudioHandler || null,
         preferenceStore: runtime.echoPreferenceStore || null,

@@ -158,8 +158,8 @@ export type ZavorthExternalContractLayerSnapshot = {
   generatedAt: string;
   contractVersion: typeof ZAVORTH_EXTERNAL_CONTRACT_LAYER_VERSION;
   status: ZavorthExternalContractLayerStatus;
-  planId: '291 - Plano Zavorth External Runtime Absorption';
-  phase: 'phase-1-contract-layer';
+  planId: 'Zavorth External Runtime Integration';
+  phase: 'contract-layer';
   previousInventoryStatus: ZavorthExternalCapabilityInventoryStatus;
   runtimeDescriptors: ZavorthExternalRuntimeExternalRuntimeDescriptor[];
   envelopeSchemas: ZavorthExternalRuntimeEnvelopeSchema[];
@@ -199,6 +199,6 @@ export type ZavorthExternalContractLayerSnapshot = {
     inspect: 'npm run zavorth:external-contract-layer';
     inspectJson: 'npm run zavorth:external-contract-layer:json';
     check: 'npm run zavorth:external-contract-layer:check --silent';
-    nextPhase: '291 Phase 2 - Native Engine Absorption';
+    nextStage: '291 Preview engine - Native Engine Absorption';
   };
 };

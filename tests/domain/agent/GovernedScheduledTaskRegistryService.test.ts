@@ -14,7 +14,7 @@ describe('ZavorthGovernedScheduledTaskRegistryService', () => {
     const snapshot = service.buildSnapshot();
 
     expect(snapshot.contractVersion).toBe(ZAVORTH_SCHEDULED_TASK_CONTRACT_VERSION);
-    expect(snapshot.phase).toBe('phase-1-governed-scheduled-task-contract');
+    expect(snapshot.phase).toBe('checkpoint-1-governed-scheduled-task-contract');
     expect(snapshot.status).toBe('needs_reapproval');
     expect(snapshot.summary.registrationReady).toBe(false);
     expect(snapshot.summary.executionPerformed).toBe(false);

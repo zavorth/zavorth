@@ -107,7 +107,7 @@ export class ZavorthDistributedRuntimeSnapshotBuilder {
         manifest: input.manifest,
       },
       narrative: {
-        headline: 'Wave 10: Runtime distribuido e superficies avancadas',
+        headline: 'Distributed runtime: Runtime distribuido e superficies avancadas',
         operatorSummary: this.buildOperatorSummary(summary, focus),
         nextAction: actions[0]?.label || 'Revisar channels, fleet, transports e surfaces do runtime distribuido.',
       },
@@ -116,7 +116,7 @@ export class ZavorthDistributedRuntimeSnapshotBuilder {
 
   public renderReport(snapshot: ZavorthDistributedRuntimeSnapshot): string {
     const lines = [
-      'Wave 10: Runtime distribuido e superficies avancadas',
+      'Distributed runtime: Runtime distribuido e superficies avancadas',
       '',
       snapshot.narrative.operatorSummary,
       `Postura: ${snapshot.summary.posture}.`,

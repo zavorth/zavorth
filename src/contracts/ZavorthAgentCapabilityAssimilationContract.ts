@@ -1,5 +1,5 @@
 export const ZAVORTH_AGENT_CAPABILITY_ASSIMILATION_CONTRACT_VERSION =
-  '2026-05-11.agent-capability-assimilation-phase-1' as const;
+  '2026-05-11.agent-capability-assimilation-checkpoint-1' as const;
 
 export type ZavorthAgentCapabilityAssimilationCategory =
   | 'planning'
@@ -80,7 +80,7 @@ export type ZavorthAgentCapabilityAssimilationSnapshot = {
   generatedAt: string;
   contractVersion: typeof ZAVORTH_AGENT_CAPABILITY_ASSIMILATION_CONTRACT_VERSION;
   source: 'ZavorthAgentCapabilityAssimilationService';
-  phase: 'phase-1-capability-assimilation-matrix';
+  phase: 'checkpoint-1-capability-assimilation-matrix';
   status: 'passed' | 'attention' | 'blocked';
   referenceProfiles: ZavorthAgentCapabilityAssimilationReferenceProfile[];
   matrix: ZavorthAgentCapabilityAssimilationMatrixItem[];
@@ -110,7 +110,7 @@ export type ZavorthAgentCapabilityAssimilationSnapshot = {
     report: 'npx tsx scripts/zavorth-agent-capability-assimilation.ts';
     json: 'npx tsx scripts/zavorth-agent-capability-assimilation.ts --json';
     check: 'node scripts/zavorth-agent-capability-assimilation-check.mjs';
-    nextPhase: 'Phase 2 - Reasoning And Action Patterns';
+    nextStage: 'Preview engine - Reasoning And Action Patterns';
   };
   narrative: {
     headline: string;

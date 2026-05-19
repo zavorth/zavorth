@@ -67,7 +67,7 @@ const SCENARIOS: ScenarioSpec[] = [
     scriptName: 'memory-artifacts-runtime-live-closure:check',
     severity: 'required',
     target: 'Memory, artifact and runtime closure can be certified locally.',
-    notes: ['This gives Phase 7 a runnable gate for artifact-first runtime behavior.'],
+    notes: ['This gives Surface controls a runnable gate for artifact-first runtime behavior.'],
   },
   {
     scenarioId: 'native-companion-device-gate',
@@ -75,7 +75,7 @@ const SCENARIOS: ScenarioSpec[] = [
     label: 'Native companion device pack gate is available',
     scriptName: 'zavorth-native-companion-device-pack:check',
     severity: 'required',
-    target: 'Phase 6 companion device behavior remains runnable from the Phase 7 pack.',
+    target: 'Runtime gateway companion device behavior remains runnable from the Surface controls pack.',
     notes: ['Native wrappers stay owner-gated while browser-first and desktop bridges are certified locally.'],
   },
   {
@@ -85,7 +85,7 @@ const SCENARIOS: ScenarioSpec[] = [
     scriptName: 'release-certification-hardening:check',
     severity: 'blocking',
     target: 'Release hardening checks can be run locally before handoff.',
-    notes: ['Phase 7 links release acceptance to an existing local release hardening gate.'],
+    notes: ['Surface controls links release acceptance to an existing local release hardening gate.'],
   },
   {
     scenarioId: 'privacy-security-gate',
@@ -135,7 +135,7 @@ export class ZavorthQaScenarioImporterService {
       : `script ${scenario.scriptName} is missing`;
 
     return {
-      id: `zavorth.phase7.qa.${scenario.scenarioId}.${this.now().getTime()}.receipt`,
+      id: `zavorth.surface-controls.qa.${scenario.scenarioId}.${this.now().getTime()}.receipt`,
       familyId: 'qa-scenarios',
       checkId: scenario.scenarioId,
       scenarioId: scenario.scenarioId,

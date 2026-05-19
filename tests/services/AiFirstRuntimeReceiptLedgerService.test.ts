@@ -121,7 +121,7 @@ function switchboardWithProbes(): AiFirstLimitedCanarySwitchboardSnapshot {
         familyId: 'conversation',
         surface: 'web',
         risk: 'safe',
-        phase3GuardrailPassed: true,
+        approvalGateGuardrailPassed: true,
         registryReceiptPresent: true,
       },
       {
@@ -129,7 +129,7 @@ function switchboardWithProbes(): AiFirstLimitedCanarySwitchboardSnapshot {
         familyId: 'conversation',
         surface: 'cli',
         risk: 'safe',
-        phase3GuardrailPassed: true,
+        approvalGateGuardrailPassed: true,
         registryReceiptPresent: true,
       },
     ],
@@ -162,10 +162,10 @@ function adapterSnapshots(): AiFirstRuntimeEntrypointAdapterSnapshot[] {
 }
 
 describe('AiFirstRuntimeReceiptLedgerService', () => {
-  it('builds a replayable ledger from Phase 7 adapter snapshots', () => {
+  it('builds a replayable ledger from Surface controls adapter snapshots', () => {
     const service = createLedgerService();
     const snapshot = service.buildLedger({
-      ledgerName: 'phase-8-ledger',
+      ledgerName: 'checkpoint-8-ledger',
       adapterSnapshots: adapterSnapshots(),
     });
 
@@ -215,7 +215,7 @@ describe('AiFirstRuntimeReceiptLedgerService', () => {
   });
 
   it('persists JSONL receipts when a controlled file path is supplied', () => {
-    const tempDir = fs.mkdtempSync(path.join(os.tmpdir(), 'zavorth-phase8-'));
+    const tempDir = fs.mkdtempSync(path.join(os.tmpdir(), 'zavorth-dashboard-controls-'));
     const filePath = path.join(tempDir, 'ledger.jsonl');
     try {
       const service = createLedgerService();

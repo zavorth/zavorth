@@ -8,7 +8,7 @@ const asJson = process.argv.includes('--json');
 const rules = [
   ruleFilesExist({
     id: 'governed-subagents-files',
-    label: 'Phase 2 files exist',
+    label: 'Preview engine files exist',
     target: 'Contract, service, CLI, tests and docs are present',
     files: [
       'src/contracts/ZavorthGovernedSubagentContract.ts',
@@ -25,7 +25,7 @@ const rules = [
     files: ['src/contracts/ZavorthGovernedSubagentContract.ts'],
     needles: [
       'ZAVORTH_GOVERNED_SUBAGENT_CONTRACT_VERSION',
-      '2026-05-10.governed-subagent-phase-2',
+      '2026-05-10.governed-subagent-checkpoint-2',
       'ZavorthGovernedSubagentProfile',
       'ZavorthGovernedSubagentPreparedRole',
       'SecurityPolicyBrokerReceipt',
@@ -66,7 +66,7 @@ const rules = [
   }),
   ruleContainsAll({
     id: 'governed-subagents-package',
-    label: 'package exposes Phase 2 commands',
+    label: 'package exposes Preview engine commands',
     target: 'Local QA can run governed subagent preview and check scripts',
     files: ['package.json'],
     needles: [
@@ -106,7 +106,7 @@ const snapshot = {
 if (asJson) {
   console.log(JSON.stringify(snapshot, null, 2));
 } else {
-  console.log('[zavorth-governed-subagents] checking Phase 2');
+  console.log('[zavorth-governed-subagents] checking Preview engine');
   for (const rule of rules) {
     const marker = rule.status === 'passed' ? 'ok' : 'fail';
     console.log(`[zavorth-governed-subagents] ${marker} ${rule.label}: ${rule.observed} | ${rule.target}`);

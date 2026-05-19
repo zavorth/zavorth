@@ -26,7 +26,7 @@ const snapshot = {
 if (asJson) {
   console.log(JSON.stringify(snapshot, null, 2));
 } else {
-  console.log('[zavorth-live-canary-apply-gate] checking Phase 9');
+  console.log('[zavorth-live-canary-apply-gate] checking Certification matrix');
   printRules(rules, '[zavorth-live-canary-apply-gate]');
 }
 if (failed.length > 0) process.exitCode = 1;
@@ -41,13 +41,13 @@ function ruleFilesExist() {
     'docs/README.md',
   ];
   const missing = files.filter((file) => !fs.existsSync(path.join(root, file)));
-  return rule('live-canary-apply-gate-files', 'Phase 9 files exist', missing.length === 0, `${files.length - missing.length}/${files.length}`, 'contract, service, CLI, check, tests and docs are present', missing);
+  return rule('live-canary-apply-gate-files', 'Certification matrix files exist', missing.length === 0, `${files.length - missing.length}/${files.length}`, 'contract, service, CLI, check, tests and docs are present', missing);
 }
 
 function ruleMarkers() {
   const checks = [
     ['src/contracts/ZavorthLiveCanaryApplyGateRollbackDrillContract.ts', ['ZAVORTH_LIVE_CANARY_APPLY_GATE_ROLLBACK_DRILL_CONTRACT_VERSION', 'APPLY ZAVORTH LIVE CANARY', 'requiresSeparateLiveInvocation', 'rollbackDrillRequiredBeforeLive']],
-    ['src/services/ZavorthLiveCanaryApplyGateRollbackDrillService.ts', ['phase-9-live-canary-apply-gate-rollback-drill', 'ZavorthLiveCanaryExecutionAdapterReviewService', 'liveActionExecutorBundled: false', 'containsSensitiveTarget']],
+    ['src/services/ZavorthLiveCanaryApplyGateRollbackDrillService.ts', ['checkpoint-9-live-canary-apply-gate-rollback-drill', 'ZavorthLiveCanaryExecutionAdapterReviewService', 'liveActionExecutorBundled: false', 'containsSensitiveTarget']],
     ['scripts/zavorth-live-canary-apply-gate.ts', ['--final-trigger', '--final-phrase', '--rollback-drill', '--default-final-phrase']],
     ['src/sdk/contracts.ts', ['ZavorthLiveCanaryApplyGateRollbackDrillContract']],
     ['src/sdk/index.ts', ['ZavorthLiveCanaryApplyGateRollbackDrillService']],
@@ -59,13 +59,13 @@ function ruleMarkers() {
       if (!text.includes(needle)) missing.push(`${file}: missing ${needle}`);
     }
   }
-  return rule('live-canary-apply-gate-markers', 'Phase 9 markers are wired', missing.length === 0, missing.length === 0 ? 'all markers' : `${missing.length} missing`, 'apply gate, SDK and CLI markers exist', missing);
+  return rule('live-canary-apply-gate-markers', 'Certification matrix markers are wired', missing.length === 0, missing.length === 0 ? 'all markers' : `${missing.length} missing`, 'apply gate, SDK and CLI markers exist', missing);
 }
 
 function runNeedsAdapterReviewFixture() {
   const result = runTs('scripts/zavorth-live-canary-apply-gate.ts', ['--json']);
   return jsonRule('live-canary-apply-needs-review', 'Apply gate requires adapter review first', result, (snapshot) =>
-    snapshot.contractVersion === '2026-05-11.live-canary-apply-gate-rollback-drill-phase-9'
+    snapshot.contractVersion === '2026-05-11.live-canary-apply-gate-rollback-drill-checkpoint-9'
     && snapshot.status === 'needs-adapter-review'
     && snapshot.mode === 'adapter-review-gate'
     && snapshot.authorizationPacket.applyGateOpen === false
@@ -108,7 +108,7 @@ function runControlledApplyFixture() {
     && snapshot.authorizationPacket.executionPerformed === false
     && snapshot.authorizationPacket.liveActionExecutorBundled === false
     && snapshot.authorizationPacket.requiresSeparateLiveInvocation === true
-    && snapshot.authorizationPacket.authorizationReceiptId === 'phase-9-authorization:phase-8-default-live-canary-adapter:trigger-123');
+    && snapshot.authorizationPacket.authorizationReceiptId === 'checkpoint-9-authorization:checkpoint-8-default-live-canary-adapter:trigger-123');
 }
 
 function runSensitiveTargetFixture() {
@@ -147,7 +147,7 @@ function canonicalEvidence() {
 function ruleWorkspaceCheck() {
   const text = read('package.json');
   const marker = 'node scripts/zavorth-live-canary-apply-gate-check.mjs';
-  return rule('workspace-check-wire', 'workspace:check includes Phase 9 gate', text.includes(marker), text.includes(marker) ? 'wired' : 'missing', marker, []);
+  return rule('workspace-check-wire', 'workspace:check includes Certification matrix gate', text.includes(marker), text.includes(marker) ? 'wired' : 'missing', marker, []);
 }
 
 function ruleNoPublicExternalNames() {
@@ -168,7 +168,7 @@ function ruleNoPublicExternalNames() {
       if (text.includes(word)) hits.push(`${file}: ${word}`);
     }
   }
-  return rule('no-public-external-names', 'Phase 9 public core remains neutral', hits.length === 0, hits.length === 0 ? 'neutral' : `${hits.length} hit(s)`, 'no external product names in public core files', hits);
+  return rule('no-public-external-names', 'Certification matrix public core remains neutral', hits.length === 0, hits.length === 0 ? 'neutral' : `${hits.length} hit(s)`, 'no external product names in public core files', hits);
 }
 
 function runTs(script, args) {
@@ -186,7 +186,7 @@ function jsonRule(id, label, result, expect) {
   try {
     const snapshot = JSON.parse(result.stdout);
     const passed = expect(snapshot);
-    return rule(id, label, passed, `status=${snapshot.status}; mode=${snapshot.mode}`, 'expected Phase 9 apply gate snapshot', passed ? [] : [JSON.stringify(snapshot, null, 2)]);
+    return rule(id, label, passed, `status=${snapshot.status}; mode=${snapshot.mode}`, 'expected Certification matrix apply gate snapshot', passed ? [] : [JSON.stringify(snapshot, null, 2)]);
   } catch (error) {
     return rule(id, label, false, 'invalid JSON', 'valid JSON fixture', [String(error), ...compact(result.stderr, result.stdout)]);
   }

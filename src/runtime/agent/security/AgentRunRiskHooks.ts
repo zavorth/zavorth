@@ -13,7 +13,7 @@ export type AgentRunRiskReviewStage =
 
 export type AgentRunRiskReview = {
   source: 'AgentRunRiskHooks';
-  stage: AgentRunRiskReviewStage;
+  phase: AgentRunRiskReviewStage;
   risk: UniversalToolRiskLevel;
   blocked: boolean;
   requiresApproval: boolean;
@@ -26,26 +26,26 @@ export type AgentRunRiskReview = {
 export class AgentRunRiskHooks {
   public review(input: {
     run: UniversalAgentRun;
-    stage: AgentRunRiskReviewStage;
+    phase: AgentRunRiskReviewStage;
   }): AgentRunRiskReview {
     const tools = input.run.toolExposure.tools || [];
     const approvalTools = tools.filter((tool) => tool.requiresApproval);
     const sensitiveTools = tools.filter((tool) =>
       tool.requiresApproval || tool.risk === 'danger' || tool.risk === 'attention');
     const risk = this.resolveRisk(sensitiveTools);
-    const blocked = input.stage === 'pre-executor' && approvalTools.length > 0;
+    const blocked = input.phase === 'pre-executor' && approvalTools.length > 0;
     const toolIds = sensitiveTools.map((tool) => tool.id);
     const approvalRequiredToolIds = approvalTools.map((tool) => tool.id);
     return {
       source: 'AgentRunRiskHooks',
-      stage: input.stage,
+      phase: input.phase,
       risk,
       blocked,
       requiresApproval: approvalTools.length > 0,
       toolIds,
       approvalRequiredToolIds,
       policyTags: this.collectPolicyTags(sensitiveTools),
-      summary: this.buildSummary(input.stage, risk, blocked, toolIds, approvalRequiredToolIds),
+      summary: this.buildSummary(input.phase, risk, blocked, toolIds, approvalRequiredToolIds),
     };
   }
 
@@ -68,18 +68,18 @@ export class AgentRunRiskHooks {
   }
 
   private buildSummary(
-    stage: AgentRunRiskReviewStage,
+    phase: AgentRunRiskReviewStage,
     risk: UniversalToolRiskLevel,
     blocked: boolean,
     toolIds: string[],
     approvalRequiredToolIds: string[],
   ): string {
     if (blocked) {
-      return `Risk review ${stage}: ${approvalRequiredToolIds.length} ferramenta(s) exigem approval antes do executor.`;
+      return `Risk review ${phase}: ${approvalRequiredToolIds.length} ferramenta(s) exigem approval antes do executor.`;
     }
     if (toolIds.length > 0) {
-      return `Risk review ${stage}: ${toolIds.length} ferramenta(s) sensiveis revisadas com risco ${risk}.`;
+      return `Risk review ${phase}: ${toolIds.length} ferramenta(s) sensiveis revisadas com risco ${risk}.`;
     }
-    return `Risk review ${stage}: nenhuma ferramenta sensivel exposta.`;
+    return `Risk review ${phase}: nenhuma ferramenta sensivel exposta.`;
   }
 }

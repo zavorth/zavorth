@@ -84,7 +84,7 @@ export class FixtureExternalExecutorSidecarClient implements QuarantinedExternal
         id: 'source-tool-exec',
         label: 'Source tool execution',
         kind: 'tool',
-        summary: 'Execution-capable source tool kept quarantined until Phase 4 policy import.',
+        summary: 'Execution-capable source tool kept quarantined until Connector registry policy import.',
         risk: 'danger',
         trustState: 'quarantined',
         toolNames: ['shell.exec'],

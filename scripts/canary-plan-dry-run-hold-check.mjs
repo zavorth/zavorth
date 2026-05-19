@@ -43,7 +43,7 @@ const rules = [
   ruleContainsAll({
     id: 'canary-plan-dry-run-hold-service',
     label: 'Service builds dry-run canary plan from pre-canary alignment',
-    target: 'Service consumes Phase 18, links rollout plan, defines cohort/flag/observation/rollback and locks launch/promotion',
+    target: 'Service consumes Intent model8, links rollout plan, defines cohort/flag/observation/rollback and locks launch/promotion',
     files: ['src/services/CanaryPlanDryRunHoldService.ts'],
     needles: [
       'CanaryPlanDryRunHoldService',
@@ -120,7 +120,7 @@ const snapshot = {
 if (asJson) {
   console.log(JSON.stringify(snapshot, null, 2));
 } else {
-  console.log('[canary-plan-dry-run-hold] checking Phase 19');
+  console.log('[canary-plan-dry-run-hold] checking Intent model9');
   for (const rule of rules) {
     const marker = rule.status === 'passed' ? 'ok' : 'fail';
     console.log(`[canary-plan-dry-run-hold] ${marker} ${rule.label}: ${rule.observed} | ${rule.target}`);

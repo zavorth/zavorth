@@ -86,7 +86,7 @@ export const WEBSITE_PUBLIC_REQUIRED_ROUTES: WebsitePublicRouteSpec[] = [
     label: 'changelog publico',
     sourcePath: 'app/changelog/page.tsx',
     outputCandidates: ['changelog.html', 'changelog/index.html'],
-    requiredPhrases: ['v0.1 Preview', 'Fase 46'],
+    requiredPhrases: ['v0.1 Preview', 'Etapa 46'],
   },
   {
     route: '/security',

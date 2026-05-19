@@ -11,7 +11,7 @@ function createIdFactory() {
   return (prefix: string) => `${prefix}-cc-personal-ops-${++index}`;
 }
 
-describe('Command Center Personal Ops Autopilot Wave 39', () => {
+describe('Command Center Personal Ops Autopilot Personal Ops Autopilot', () => {
   it('projects personalOpsAutopilot metadata into the dashboard view model', () => {
     const run = new AgentRunService({
       now: () => new Date('2026-05-04T00:39:00.000Z'),
@@ -49,7 +49,7 @@ describe('Command Center Personal Ops Autopilot Wave 39', () => {
     });
 
     expect(viewModel.personalOpsAutopilot).toEqual(expect.objectContaining({
-      contractVersion: '2026-05-03.wave-39',
+      contractVersion: '2026-05-03.personal-ops',
       status: 'waiting-approval',
       summary: expect.objectContaining({
         suggestionCount: expect.any(Number),
@@ -95,7 +95,7 @@ describe('Command Center Personal Ops Autopilot Wave 39', () => {
     );
 
     expect(projection.personalOpsAutopilot).toEqual(expect.objectContaining({
-      contractVersion: '2026-05-03.wave-39',
+      contractVersion: '2026-05-03.personal-ops',
       summary: expect.objectContaining({
         budgetIssueCount: 1,
         suggestionCount: expect.any(Number),

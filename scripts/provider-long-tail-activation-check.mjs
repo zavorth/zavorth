@@ -58,24 +58,24 @@ const rules = [
   }),
   ruleContainsAll({
     id: 'provider-long-tail-contract',
-    label: 'Contract defines Phase 5 long-tail vocabulary',
+    label: 'Contract defines Credential vault long-tail vocabulary',
     target: 'Contract captures 29 long-tail providers, statuses, gates, receipts and no-generated closure',
     files: ['src/contracts/ProviderLongTailActivationContract.ts'],
     needles: [
       'ZAVORTH_PROVIDER_LONG_TAIL_ACTIVATION_CONTRACT_VERSION',
-      '2026-05-04.live-phase-5',
+      '2026-05-04.live-checkpoint-5',
       'ProviderLongTailActivationId',
       'generatedProviderManifestsRemainingLongTail: false',
       'generatedProviderManifestsRemainingTotal: false',
       'ProviderLongTailConfiguredDoctorReceipt',
       'ProviderLongTailStagingLiveReceipt',
-      'Phase 13 - Live Parity Certification',
+      'Intent model3 - Live Parity Certification',
     ],
   }),
   ruleContainsAll({
     id: 'provider-long-tail-manifests',
     label: 'Long-tail providers use named manifests',
-    target: 'All 29 Phase 5 provider routes are represented by curated manifests',
+    target: 'All 29 Credential vault provider routes are represented by curated manifests',
     files: ['src/services/providers/catalog/manifests/longTailProviderActivationProviders.ts'],
     needles: [
       'LONG_TAIL_PROVIDER_ACTIVATION_MANIFESTS',
@@ -100,7 +100,7 @@ const rules = [
   }),
   ruleContainsAll({
     id: 'provider-long-tail-service',
-    label: 'Service closes Phase 5 provider gates',
+    label: 'Service closes Credential vault provider gates',
     target: 'Service maps 29 providers into adapter families with config schema, doctor and staging smoke commands',
     files: ['src/services/ProviderLongTailActivationService.ts'],
     needles: [
@@ -116,13 +116,13 @@ const rules = [
       'runConfiguredDoctor',
       'runStagingLiveSmoke',
       'missingRequiredEnv',
-      'Phase 13 - Live Parity Certification',
+      'Intent model3 - Live Parity Certification',
     ],
   }),
   ruleContainsAll({
     id: 'provider-long-tail-cli',
     label: 'CLI runs doctors and gated staging-live smokes',
-    target: 'Script uses Phase 5 service methods instead of only printing activation metadata',
+    target: 'Script uses Credential vault service methods instead of only printing activation metadata',
     files: ['scripts/provider-long-tail-activation.ts'],
     needles: [
       'runConfiguredDoctor',
@@ -161,11 +161,11 @@ const rules = [
   }),
   ruleContainsAll({
     id: 'provider-long-tail-tests',
-    label: 'Tests prove Phase 5 behavior',
+    label: 'Tests prove Credential vault behavior',
     target: 'Tests cover snapshot, manifest closure, factory routing, readiness promotion and live clients',
     files: ['tests/services/ProviderLongTailActivationService.test.ts'],
     needles: [
-      'closes Phase 5 long-tail activation gates',
+      'closes Credential vault long-tail activation gates',
       'removes generated provider manifests from the provider mesh',
       'resolves long-tail providers without fallback masking',
       'moves long-tail providers into partial-live readiness',
@@ -177,8 +177,8 @@ const rules = [
   }),
   ruleContainsAll({
     id: 'provider-long-tail-package',
-    label: 'Package exposes Phase 5 scripts',
-    target: 'Phase 5 can be run through package scripts',
+    label: 'Package exposes Credential vault scripts',
+    target: 'Credential vault can be run through package scripts',
     files: ['package.json'],
     needles: [
       'provider-long-tail-activation',
@@ -188,8 +188,8 @@ const rules = [
   }),
   ruleContainsAll({
     id: 'provider-long-tail-sdk',
-    label: 'SDK exposes Phase 5 contract and service',
-    target: 'Phase 5 can be imported from SDK barrels',
+    label: 'SDK exposes Credential vault contract and service',
+    target: 'Credential vault can be imported from SDK barrels',
     files: ['src/sdk/contracts.ts', 'src/sdk/index.ts'],
     needles: [
       'ProviderLongTailActivation',
@@ -197,14 +197,14 @@ const rules = [
   }),
   ruleContainsAll({
     id: 'provider-long-tail-doc',
-    label: 'Docs record Phase 5 closure',
-    target: 'Phase 5 documentation explains long-tail provider activation and staging-live flow',
+    label: 'Docs record Credential vault closure',
+    target: 'Credential vault documentation explains long-tail provider activation and staging-live flow',
     files: ['docs/README.md'],
     needles: [
-      'Phase 5',
+      'Credential vault',
       'Provider Runtime Activation Long Tail',
       'staging-live',
-      'Phase 13',
+      'Intent model3',
     ],
   }),
 ];
@@ -224,7 +224,7 @@ const snapshot = {
 if (asJson) {
   console.log(JSON.stringify(snapshot, null, 2));
 } else {
-  console.log('[provider-long-tail-activation] checking Phase 5');
+  console.log('[provider-long-tail-activation] checking Credential vault');
   for (const rule of rules) {
     const marker = rule.status === 'passed' ? 'ok' : 'fail';
     console.log(`[provider-long-tail-activation] ${marker} ${rule.label}: ${rule.observed} | ${rule.target}`);

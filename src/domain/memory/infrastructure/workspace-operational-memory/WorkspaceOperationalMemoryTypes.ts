@@ -181,7 +181,7 @@ export type RecentWorkflowRunAggregate = {
   stage_executors?: Array<{
     executor: string;
     role: string;
-    status: WorkflowRunSnapshot['stages'][number]['status'];
+    status: WorkflowRunSnapshot['phases'][number]['status'];
     attempt_count: number;
   }>;
 };

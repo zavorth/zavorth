@@ -17,7 +17,7 @@ const snapshot = { generatedAt: new Date().toISOString(), status: failed.length 
 
 if (asJson) console.log(JSON.stringify(snapshot, null, 2));
 else {
-  console.log('[zavorth-agent-skill-parity] checking Phase 9');
+  console.log('[zavorth-agent-skill-parity] checking Certification matrix');
   printRules(rules, '[zavorth-agent-skill-parity]');
 }
 if (failed.length > 0) process.exitCode = 1;
@@ -66,14 +66,14 @@ function runParityFixture() {
 
 function runPracticalityCompletionFixture() {
   const result = runTs('scripts/zavorth-agent-practicality-completion.ts', ['--json']);
-  return jsonRule('agent-practicality-phase-6', 'Agent practicality Phase 6 passes', result, (snapshot) =>
+  return jsonRule('agent-practicality-checkpoint-6', 'Agent practicality Runtime gateway passes', result, (snapshot) =>
     snapshot.status === 'passed'
-    && snapshot.contractVersion === '2026-05-11.agent-practicality-phase-6'
+    && snapshot.contractVersion === '2026-05-11.agent-practicality-checkpoint-6'
     && snapshot.surfaceProjections?.length >= 7
     && snapshot.runtimeSurface?.commands?.includes('/agents status')
     && snapshot.commandCenterProjection?.noVisualMutation === true
     && snapshot.safety?.visualChangesRequireOwnerApproval === true
-    && snapshot.nextArchitectureSuggestion?.shouldSuggestAfterPhase6 === true);
+    && snapshot.nextArchitectureSuggestion?.shouldSuggestAfterStage6 === true);
 }
 
 function createFixture() {

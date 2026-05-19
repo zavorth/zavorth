@@ -107,14 +107,14 @@ export class ZavorthCliFinalProductPolishService {
         inspect: 'npm run zavorth:cli-final-product-polish',
         inspectJson: 'npm run zavorth:cli-final-product-polish:json',
         check: 'npm run zavorth:cli-final-product-polish:check --silent',
-        nextPhase: 'Phase 13 - Live Certification Matrix',
+        nextStage: 'Intent model3 - Live Certification Matrix',
       },
     };
   }
 
   public formatSnapshotText(snapshot: ZavorthCliFinalProductPolishSnapshot): string {
     const lines = [
-      'Zavorth CLI Final Product Polish - Phase 12',
+      'Zavorth CLI Final Product Polish - Intent model2',
       '',
       `Status: ${snapshot.status}`,
       `Commands: ${snapshot.summary.requiredCommands.join(', ')}`,
@@ -130,7 +130,7 @@ export class ZavorthCliFinalProductPolishService {
       for (const blocker of entry.blockers) lines.push(`  blocker: ${blocker}`);
     }
     lines.push('', 'Safety: CLI projections are read-only; mutable execution remains owned by the governed runtime.');
-    lines.push(`Next: ${snapshot.commands.nextPhase}`);
+    lines.push(`Next: ${snapshot.commands.nextStage}`);
     return lines.join('\n');
   }
 

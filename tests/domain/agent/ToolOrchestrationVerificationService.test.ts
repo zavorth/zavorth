@@ -11,10 +11,10 @@ describe('ZavorthToolOrchestrationVerificationService', () => {
       surface: 'cli',
     });
 
-    expect(snapshot.contractVersion).toBe('2026-05-11.tool-orchestration-verification-phase-4');
+    expect(snapshot.contractVersion).toBe('2026-05-11.tool-orchestration-verification-checkpoint-4');
     expect(snapshot.status).toBe('verification-required');
     expect(snapshot.safety.noToolExecutionPerformed).toBe(true);
-    expect(snapshot.safety.policyDecisionInheritedFromPhase3).toBe(true);
+    expect(snapshot.safety.policyDecisionInheritedFromStage3).toBe(true);
     expect(snapshot.routes).toEqual(expect.arrayContaining([
       expect.objectContaining({ kind: 'subagent_team', decision: 'allow_readonly' }),
       expect.objectContaining({ kind: 'skill_context', decision: 'allow_readonly' }),

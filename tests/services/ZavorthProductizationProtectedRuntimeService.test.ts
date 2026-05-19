@@ -82,7 +82,7 @@ describe('ZavorthProductizationProtectedRuntimeService', () => {
 function readinessWithDocker(dockerReady: boolean) {
   return {
     inspect: (): SandboxHostReadinessSnapshot => ({
-      phase: '38',
+      stage: '38',
       generatedAt: '2026-05-12T12:00:00.000Z',
       platform: 'linux',
       osRelease: 'test',

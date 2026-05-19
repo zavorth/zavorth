@@ -1,12 +1,12 @@
 import { ZavorthPerceptionDeviceControlCompletionService } from '../../src/services/ZavorthPerceptionDeviceControlCompletionService.js';
 
-describe('ZavorthPerceptionDeviceControlCompletionService Phase 10', () => {
+describe('ZavorthPerceptionDeviceControlCompletionService Intent model0', () => {
   it('certifies PC, browser and Android perception/control without unsafe defaults', async () => {
     const snapshot = await new ZavorthPerceptionDeviceControlCompletionService({
       now: () => new Date('2026-05-14T14:00:00.000Z'),
     }).buildSnapshot();
 
-    expect(snapshot.contractVersion).toBe('2026-05-14.phase-10-perception-device-control-completion');
+    expect(snapshot.contractVersion).toBe('2026-05-14.checkpoint-10-perception-device-control-completion');
     expect(snapshot.status).toBe('passed');
     expect(snapshot.summary.pcScreenshotReadOnlyReady).toBe(true);
     expect(snapshot.summary.browserViewReady).toBe(true);

@@ -1,7 +1,7 @@
 import { queryUniversalAgentRuns } from './RunObservatory.js';
 import type { UniversalAgentRun } from './UniversalAgentRuntimeTypes.js';
 
-export const PERSONAL_OPS_AUTOPILOT_CONTRACT_VERSION = '2026-05-03.wave-39' as const;
+export const PERSONAL_OPS_AUTOPILOT_CONTRACT_VERSION = '2026-05-03.personal-ops' as const;
 
 export type PersonalOpsAutopilotStatus = 'idle' | 'suggesting' | 'waiting-approval' | 'blocked';
 

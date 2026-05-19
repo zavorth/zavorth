@@ -29,7 +29,7 @@ describe('CapabilityAutopilotReleaseDecisionService', () => {
         defaultEnabled: false,
       },
       metadata: {
-        phase: 'capability-autopilot-phase-66',
+        stage: 'capability-autopilot-checkpoint-66',
         baseline: 'v1.0.0',
       },
     });

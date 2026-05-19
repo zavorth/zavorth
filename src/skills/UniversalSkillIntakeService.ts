@@ -261,14 +261,14 @@ export class UniversalSkillIntakeService {
         inspect: 'npm run zavorth:universal-skill-intake -- --source <path>',
         inspectJson: 'npm run zavorth:universal-skill-intake:json -- --source <path>',
         check: 'npm run zavorth:universal-skill-intake:check --silent',
-        nextPhase: 'Phase 2 - Trust-Governed Import Pipeline',
+        nextStage: 'Preview engine - Trust-Governed Import Pipeline',
       },
     };
   }
 
   public formatPreviewText(preview: ZavorthUniversalSkillIntakePreview): string {
     const lines = [
-      'Zavorth Universal Skill Intake - Phase 1',
+      'Zavorth Universal Skill Intake - Intent model',
       `Status: ${preview.status}`,
       `Source: ${preview.source.label} (${preview.source.kind})`,
       `Path: ${preview.source.path}`,
@@ -305,7 +305,7 @@ export class UniversalSkillIntakeService {
       }
     }
 
-    lines.push('', `Next: ${preview.commands.nextPhase}`);
+    lines.push('', `Next: ${preview.commands.nextStage}`);
     return lines.join('\n');
   }
 
@@ -784,7 +784,7 @@ export class UniversalSkillIntakeService {
         supportFileCount: supportFiles.length,
       },
       notes: [
-        'Phase 1 preview only: no import, no execution, no upstream trust.',
+        'Intent model preview only: no import, no execution, no upstream trust.',
         `Profile: ${seed.sourceProfileId}.`,
       ],
     };

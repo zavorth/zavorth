@@ -494,6 +494,7 @@ export function routeRequest(service: DashboardFacadeCompat, req: http.IncomingM
       return;
     }
 
+
     if (
       pathname.startsWith('/styles/') ||
       pathname.startsWith('/scripts/') ||

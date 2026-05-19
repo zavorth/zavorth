@@ -1,12 +1,12 @@
 import { PreCanaryGoNoGoAlignmentService } from '../../src/services/PreCanaryGoNoGoAlignmentService.js';
 
-describe('PreCanaryGoNoGoAlignmentService Phase 18', () => {
+describe('PreCanaryGoNoGoAlignmentService Intent model8', () => {
   it('aligns pre-canary go/no-go from the rehearsed release candidate', () => {
     const snapshot = new PreCanaryGoNoGoAlignmentService({
       now: () => new Date('2026-05-05T02:10:00.000Z'),
     }).buildSnapshot();
 
-    expect(snapshot.contractVersion).toBe('2026-05-04.phase-18');
+    expect(snapshot.contractVersion).toBe('2026-05-04.checkpoint-18');
     expect(snapshot.status).toBe('aligned');
     expect(snapshot.releaseCandidate).toEqual(
       expect.objectContaining({
@@ -110,7 +110,7 @@ describe('PreCanaryGoNoGoAlignmentService Phase 18', () => {
         releaseCandidatePreCanary: 'npm run release-candidate-pre-canary:check --silent',
         publicAdoptionPilot: 'npm run public-adoption-pilot-loop:check --silent',
         rollbackPreview: 'npm run release:rollback-preview',
-        nextPhase: 'Canary plan dry-run and hold',
+        nextStage: 'Canary plan dry-run and hold',
       }),
     );
     expect(snapshot.policy).toEqual(

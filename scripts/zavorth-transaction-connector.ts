@@ -34,7 +34,7 @@ if (!options.text) {
   if (options.json) {
     console.log(JSON.stringify(snapshot, null, 2));
   } else {
-    console.log('[transaction-connector] Phase 4 typed connector dry-run');
+    console.log('[transaction-connector] Connector registry typed connector dry-run');
     console.log(`[transaction-connector] version: ${snapshot.version}`);
     console.log(`[transaction-connector] summary: ${snapshot.summary}`);
     console.log(`[transaction-connector] supported modes: ${snapshot.supportedModes.join(', ')}`);
@@ -58,7 +58,7 @@ const approvalEntry = options.approve
       preview,
       decision: 'approved',
       actor: 'owner',
-      reason: 'Phase 4 typed connector dry-run approval.',
+      reason: 'Connector registry typed connector dry-run approval.',
     });
   })()
   : null;

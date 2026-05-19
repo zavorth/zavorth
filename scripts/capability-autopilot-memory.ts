@@ -18,7 +18,7 @@ type CapabilityAutopilotMemoryCheck = {
 };
 
 type CapabilityAutopilotMemorySnapshot = {
-  phase: '64';
+  stage: '64';
   surface: 'capability-autopilot-memory';
   generatedAt: string;
   capabilityId: string;
@@ -33,8 +33,8 @@ type CapabilityAutopilotMemorySnapshot = {
   replay: CapabilityReplayFrame;
   aggregate: ReturnType<CapabilityAutopilotMemoryReplayService['summarizeRecords']>;
   checks: CapabilityAutopilotMemoryCheck[];
-  nextRecommendedPhase: {
-    phase: '65';
+  nextRecommendedStage: {
+    stage: '65';
     title: string;
     reason: string;
   };
@@ -46,8 +46,8 @@ const requirePass = argv.includes('--require-pass') || argv.includes('--gate');
 const capabilityId = readArg('--capability=') || 'executor-gemini-cli';
 const surface = (readArg('--surface=') || 'cli') as CapabilityAutopilotSurface;
 const audience = (asJson ? 'technical_operator' : 'everyday_user') as CapabilityAutopilotAudience;
-const rawIntentProbe = 'PHASE64-RAW-INTENT-MUST-NOT-BE-STORED';
-const rawWorkspaceProbe = 'C:/private/PHASE64-RAW-WORKSPACE-MUST-NOT-BE-STORED';
+const rawIntentProbe = 'STAGE64-RAW-INTENT-MUST-NOT-BE-STORED';
+const rawWorkspaceProbe = 'C:/private/STAGE64-RAW-WORKSPACE-MUST-NOT-BE-STORED';
 
 main().catch((error) => {
   process.stderr.write(`[capability-autopilot-memory] falha: ${error instanceof Error ? error.message : String(error)}\n`);
@@ -91,13 +91,13 @@ function readArg(prefix: string): string | null {
 
 function buildFixtureIntent(): OriginalIntentEnvelope {
   return {
-    intentId: 'phase-64-fixture-intent',
+    intentId: 'checkpoint-64-fixture-intent',
     createdAt: new Date().toISOString(),
     surface,
     audience,
-    userId: 'phase-64-gate',
-    sessionId: 'phase-64-session',
-    taskId: 'phase-64-task',
+    userId: 'checkpoint-64-gate',
+    sessionId: 'checkpoint-64-session',
+    taskId: 'checkpoint-64-task',
     rawText: rawIntentProbe,
     normalizedText: 'phase 64 redacted memory probe',
     requestedCapabilityId: capabilityId,
@@ -105,7 +105,7 @@ function buildFixtureIntent(): OriginalIntentEnvelope {
     workspace: rawWorkspaceProbe,
     metadata: {
       fixture: true,
-      phase: 'capability-autopilot-phase-64',
+      stage: 'capability-autopilot-checkpoint-64',
     },
   };
 }
@@ -121,7 +121,7 @@ function buildSnapshot(
   const passed = checks.filter((check) => check.status === 'pass').length;
 
   return {
-    phase: '64',
+    stage: '64',
     surface: 'capability-autopilot-memory',
     generatedAt: new Date().toISOString(),
     capabilityId: memory.capabilityId,
@@ -136,8 +136,8 @@ function buildSnapshot(
     replay,
     aggregate,
     checks,
-    nextRecommendedPhase: {
-      phase: '65',
+    nextRecommendedStage: {
+      stage: '65',
       title: 'Provider And Integration Expansion',
       reason:
         'Depois de criar memoria redigida e replay seguro, o proximo passo e ampliar provedores/adapters sem perder degradacao segura.',
@@ -238,7 +238,7 @@ function check(
 
 function renderReport(snapshot: CapabilityAutopilotMemorySnapshot): string {
   const lines: string[] = [];
-  lines.push('[capability-autopilot-memory] Fase 64 - Capability Memory And Replay Learning');
+  lines.push('[capability-autopilot-memory] Etapa 64 - Capability Memory And Replay Learning');
   lines.push(`status: ${snapshot.status}`);
   lines.push(`ok: ${snapshot.summary.ok ? 'yes' : 'no'} | pass=${snapshot.summary.passed} warn=${snapshot.summary.warnings} fail=${snapshot.summary.failed}`);
   lines.push(`capability: ${snapshot.capabilityId}`);
@@ -253,7 +253,7 @@ function renderReport(snapshot: CapabilityAutopilotMemorySnapshot): string {
     }
   }
   lines.push('');
-  lines.push(`proxima fase recomendada: ${snapshot.nextRecommendedPhase.phase} - ${snapshot.nextRecommendedPhase.title}`);
-  lines.push(snapshot.nextRecommendedPhase.reason);
+  lines.push(`proximo passo recomendada: ${snapshot.nextRecommendedStage.phase} - ${snapshot.nextRecommendedStage.title}`);
+  lines.push(snapshot.nextRecommendedStage.reason);
   return lines.join('\n');
 }

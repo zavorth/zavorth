@@ -16,8 +16,8 @@ import type {
   ExternalAgentHealthSnapshot,
 } from './contracts.js';
 
-export const EXTERNAL_AGENT_WAVE1_SIDECAR_READ_ONLY_FIXTURE_NOW = '2026-04-28T12:00:00.000Z' as const;
-export const EXTERNAL_AGENT_WAVE1_SIDECAR_READ_ONLY_RUNTIME_ID = 'external-wave1-sidecar-read-only-runtime' as const;
+export const EXTERNAL_AGENT_CANONICAL_SIDECAR_READ_ONLY_FIXTURE_NOW = '2026-04-28T12:00:00.000Z' as const;
+export const EXTERNAL_AGENT_CANONICAL_SIDECAR_READ_ONLY_RUNTIME_ID = 'external-wave1-sidecar-read-only-runtime' as const;
 
 export type ExternalAgentSidecarReadOnlyTransport =
   | 'disabled'
@@ -658,7 +658,7 @@ function buildObservability(
   };
 }
 
-export function createWave1SidecarReadOnlyExecutionGate(): ExternalAgentSidecarReadOnlyExecutionGate {
+export function createCanonicalSidecarReadOnlyExecutionGate(): ExternalAgentSidecarReadOnlyExecutionGate {
   return {
     sidecarOptional: true,
     zavorthRunsWithoutSidecar: true,
@@ -683,7 +683,7 @@ export function createWave1SidecarReadOnlyExecutionGate(): ExternalAgentSidecarR
   };
 }
 
-export function createWave1SidecarReadOnlyBoundaryPackFixtureSource(): ExternalAgentSidecarReadOnlyBoundaryPackSource {
+export function createCanonicalSidecarReadOnlyBoundaryPackFixtureSource(): ExternalAgentSidecarReadOnlyBoundaryPackSource {
   return {
     sourceRuntimeName: 'ExternalExecutor',
     sourceRuntimeVersion: 'fixture-only',
@@ -733,7 +733,7 @@ export function createWave1SidecarReadOnlyBoundaryPackFixtureSource(): ExternalA
         publicEventIdSeed: 'inbound-status-event',
         sessionId: 'source-session-1',
         channel: 'api',
-        occurredAt: EXTERNAL_AGENT_WAVE1_SIDECAR_READ_ONLY_FIXTURE_NOW,
+        occurredAt: EXTERNAL_AGENT_CANONICAL_SIDECAR_READ_ONLY_FIXTURE_NOW,
         text: 'Status event observed through read-only fixture boundary.',
         requestedTools: ['sidecar.status.read'],
       },
@@ -818,12 +818,12 @@ export function normalizeExternalAgentSidecarReadOnlyBoundaryPack<TRuntimeId ext
   };
 }
 
-export function normalizeWave1SidecarReadOnlyBoundaryPackFixture(): ExternalAgentSidecarReadOnlyBoundaryPackNormalization<typeof EXTERNAL_AGENT_WAVE1_SIDECAR_READ_ONLY_RUNTIME_ID> {
+export function normalizeCanonicalSidecarReadOnlyBoundaryPackFixture(): ExternalAgentSidecarReadOnlyBoundaryPackNormalization<typeof EXTERNAL_AGENT_CANONICAL_SIDECAR_READ_ONLY_RUNTIME_ID> {
   return normalizeExternalAgentSidecarReadOnlyBoundaryPack({
-    source: createWave1SidecarReadOnlyBoundaryPackFixtureSource(),
-    generatedAt: EXTERNAL_AGENT_WAVE1_SIDECAR_READ_ONLY_FIXTURE_NOW,
-    runtimeId: EXTERNAL_AGENT_WAVE1_SIDECAR_READ_ONLY_RUNTIME_ID,
+    source: createCanonicalSidecarReadOnlyBoundaryPackFixtureSource(),
+    generatedAt: EXTERNAL_AGENT_CANONICAL_SIDECAR_READ_ONLY_FIXTURE_NOW,
+    runtimeId: EXTERNAL_AGENT_CANONICAL_SIDECAR_READ_ONLY_RUNTIME_ID,
     idPrefix: 'zavorth-sidecar-read-only',
-    executionGate: createWave1SidecarReadOnlyExecutionGate(),
+    executionGate: createCanonicalSidecarReadOnlyExecutionGate(),
   });
 }

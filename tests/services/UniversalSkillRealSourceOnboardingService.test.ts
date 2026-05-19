@@ -25,7 +25,7 @@ function writeSkill(root: string, input: {
   fs.writeFileSync(path.join(dir, 'references', 'notes.md'), '# Notes\n', 'utf8');
 }
 
-describe('UniversalSkillRealSourceOnboardingService Phase 8', () => {
+describe('UniversalSkillRealSourceOnboardingService Dashboard controls', () => {
   let root: string;
   let skillLibrary: string;
   let cleanSource: string;
@@ -117,7 +117,7 @@ describe('UniversalSkillRealSourceOnboardingService Phase 8', () => {
     const historyPath = path.join(root, '.zavorth', 'reports', 'history.json');
     fs.mkdirSync(path.dirname(historyPath), { recursive: true });
     fs.writeFileSync(historyPath, JSON.stringify({
-      contractVersion: '2026-05-10.phase-8',
+      contractVersion: '2026-05-10.checkpoint-8',
       updatedAt: '2026-05-10T19:00:00.000Z',
       entries: [{
         runId: 'previous',

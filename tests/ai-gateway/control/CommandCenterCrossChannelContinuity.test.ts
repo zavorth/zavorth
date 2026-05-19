@@ -11,7 +11,7 @@ function createIdFactory() {
   return (prefix: string) => `${prefix}-cc-cross-channel-${++index}`;
 }
 
-describe('Command Center Cross-Channel Continuity Wave 41', () => {
+describe('Command Center Cross-Channel Continuity Channel mesh1', () => {
   it('projects crossChannelContinuity metadata into the dashboard view model', () => {
     const run = new AgentRunService({
       now: () => new Date('2026-05-04T00:41:00.000Z'),
@@ -56,7 +56,7 @@ describe('Command Center Cross-Channel Continuity Wave 41', () => {
     });
 
     expect(viewModel.crossChannelContinuity).toEqual(expect.objectContaining({
-      contractVersion: '2026-05-03.wave-41',
+      contractVersion: '2026-05-03.cross-channel',
       status: 'handoff-ready',
       summary: expect.objectContaining({
         channelCount: expect.any(Number),
@@ -111,7 +111,7 @@ describe('Command Center Cross-Channel Continuity Wave 41', () => {
     );
 
     expect(projection.crossChannelContinuity).toEqual(expect.objectContaining({
-      contractVersion: '2026-05-03.wave-41',
+      contractVersion: '2026-05-03.cross-channel',
       summary: expect.objectContaining({
         channelCount: expect.any(Number),
         handoffCount: expect.any(Number),

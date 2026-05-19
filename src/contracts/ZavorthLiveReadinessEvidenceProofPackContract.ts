@@ -3,7 +3,7 @@ import type { ProviderChannelSmokeProofSnapshot } from './ProviderChannelSmokePr
 import type { ZavorthProviderReadinessMatrixSnapshot } from './ZavorthProviderReadinessMatrixContract.js';
 
 export const ZAVORTH_LIVE_READINESS_EVIDENCE_PROOF_PACK_CONTRACT_VERSION =
-  '2026-05-14.phase-9-live-readiness-evidence-proof-pack' as const;
+  '2026-05-14.checkpoint-9-live-readiness-evidence-proof-pack' as const;
 
 export type ZavorthLiveReadinessEvidenceStatus = 'passed' | 'attention' | 'blocked';
 
@@ -64,6 +64,6 @@ export type ZavorthLiveReadinessEvidenceProofPackSnapshot = {
     providerMatrix: 'npm run zavorth:provider-live-matrix --silent';
     channelMesh: 'npm run channels:mesh --silent';
     smokeProof: 'npm run provider-channel-smoke-proof:check --silent';
-    nextPhase: 'Phase 10 - Final Daily Runtime Closure and Release Gate';
+    nextStage: 'Intent model0 - Final Daily Runtime Closure and Release Gate';
   };
 };

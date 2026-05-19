@@ -108,13 +108,13 @@ export class ZavorthTransactionCertificationService {
       gates,
       scenarios,
       safety: SAFETY,
-      nextPhase: 'Phase 10 - Owner-Gated Live Candidate Envelope',
+      nextStage: 'Intent model0 - Owner-Gated Live Candidate Envelope',
     };
   }
 
   public renderReport(report: ZavorthTransactionCertificationReport): string {
     return [
-      '[transaction-certification] Phase 9 transaction certification',
+      '[transaction-certification] Certification matrix transaction certification',
       `[transaction-certification] status: ${report.status}`,
       `[transaction-certification] scenarios: ${report.passedScenarioCount}/${report.scenarioCount}`,
       `[transaction-certification] gates: ${report.gates.filter((gate) => gate.passed).length}/${report.gates.length}`,
@@ -123,13 +123,13 @@ export class ZavorthTransactionCertificationService {
       `[transaction-certification] live-action-applied: ${report.safety.liveActionApplied}`,
       ...report.gates.map((gate) => `[transaction-certification] gate: ${gate.kind} passed=${gate.passed} summary=${gate.summary}`),
       ...report.scenarios.map((scenario) => `[transaction-certification] scenario: ${scenario.id} status=${scenario.status} observed=${scenario.observedStatus}/${scenario.observedTone}`),
-      `[transaction-certification] next: ${report.nextPhase}`,
+      `[transaction-certification] next: ${report.nextStage}`,
     ].join('\n');
   }
 
   private registerPaperCredentialRef(): string | null {
     const result = this.credentialRefs.register({
-      label: 'Phase 9 exchange paper ref',
+      label: 'Certification matrix exchange paper ref',
       connectorKind: 'exchange',
       environment: 'paper',
       allowedActions: ['trade-order'],

@@ -83,8 +83,8 @@ export class ZavorthSessionMemoryContinuationService {
       generatedAt: this.now().toISOString(),
       contractVersion: ZAVORTH_SESSION_MEMORY_CONTINUATION_CONTRACT_VERSION,
       status,
-      planId: '291 - Plano Zavorth External Runtime Absorption',
-      phase: 'phase-6-sessions-memory-continuation',
+      planId: 'Zavorth External Runtime Integration',
+      phase: 'sessions-memory-continuation',
       previousChannelMessagingStatus,
       historyBridgeReceipt,
       privacyFilteringReceipt,
@@ -121,7 +121,7 @@ export class ZavorthSessionMemoryContinuationService {
         inspect: 'npm run zavorth:session-memory-continuation',
         inspectJson: 'npm run zavorth:session-memory-continuation:json',
         check: 'npm run zavorth:session-memory-continuation:check --silent',
-        nextPhase: '291 Phase 7 - Delegated Workers',
+        nextStage: '291 Surface controls - Delegated Workers',
       },
     };
   }
@@ -313,7 +313,7 @@ export class ZavorthSessionMemoryContinuationService {
         card('signals', 'Memory Signals', String(input.memorySignalMappingReceipt.signals.length), 'Imported signals are advisory and provenance-backed'),
         card('replay', 'Replay Handoff', input.replayHandoffSnapshot.status, 'Replay snapshot contains no raw transcript'),
         card('continuation', 'Continuation', input.continuationRequest.gatewayEntrypoint, 'Continuation returns through ZavorthAgentGateway'),
-        card('memory-write', 'Memory Writes', '0', 'Phase 6 maps signals but writes no memory'),
+        card('memory-write', 'Memory Writes', '0', 'Runtime gateway maps signals but writes no memory'),
       ],
       policyPills: [
         'privacy filtered',
@@ -324,14 +324,14 @@ export class ZavorthSessionMemoryContinuationService {
         'ZavorthAgentGateway continuation',
       ],
       nextSafeAction: input.status === 'session-memory-continuation-ready'
-        ? 'Proceed to 291 Phase 7 - Delegated Workers.'
+        ? 'Proceed to 291 Surface controls - Delegated Workers.'
         : 'Fix failed session memory gates before worker delegation.',
     };
   }
 
   public formatSnapshotText(snapshot: ZavorthSessionMemoryContinuationSnapshot): string {
     const lines = [
-      'Zavorth Session Memory Continuation - Phase 6',
+      'Zavorth Session Memory Continuation - Runtime gateway',
       '',
       `Status: ${snapshot.status}`,
       `Previous channel messaging: ${snapshot.previousChannelMessagingStatus}`,
@@ -350,7 +350,7 @@ export class ZavorthSessionMemoryContinuationService {
       'Acceptance:',
       ...snapshot.acceptanceMatrix.map((entry) => `- ${entry.status} ${entry.requirementId}: ${entry.evidence}`),
       '',
-      `Next: ${snapshot.commands.nextPhase}`,
+      `Next: ${snapshot.commands.nextStage}`,
     ];
     return lines.join('\n');
   }
@@ -380,7 +380,7 @@ function buildAcceptanceMatrix(
   const signalsWithProvenance = memorySignalMappingReceipt.signals
     .filter((entry) => entry.provenance.sourceEventIds.length > 0 && entry.provenance.provenanceRefs.length > 0);
   return [
-    acceptance('phase-5-channels-and-messaging-ready', previousChannelMessagingStatus === 'channel-messaging-bridge-ready', `previousChannelMessagingStatus=${previousChannelMessagingStatus}`),
+    acceptance('checkpoint-5-channels-and-messaging-ready', previousChannelMessagingStatus === 'channel-messaging-bridge-ready', `previousChannelMessagingStatus=${previousChannelMessagingStatus}`),
     acceptance('session-history-bridge-ready', historyBridgeReceipt.status === 'bridged'
       && historyBridgeReceipt.canonicalOwner === 'Zavorth'
       && historyBridgeReceipt.safety.sourceSessionNotCanonical, `${historyBridgeReceipt.receivedItems} source item(s)`),

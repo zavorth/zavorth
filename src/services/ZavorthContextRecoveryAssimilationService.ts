@@ -69,7 +69,7 @@ export class ZavorthContextRecoveryAssimilationService {
       generatedAt,
       contractVersion: ZAVORTH_CONTEXT_RECOVERY_ASSIMILATION_CONTRACT_VERSION,
       source: 'ZavorthContextRecoveryAssimilationService',
-      phase: 'phase-3-context-memory-error-recovery',
+      phase: 'checkpoint-3-context-memory-error-recovery',
       status,
       request: {
         surface: normalizeText(input.surface, 'conversation'),
@@ -91,14 +91,14 @@ export class ZavorthContextRecoveryAssimilationService {
         ledgerBeatsRecall: true,
         lowConfidenceMemoryNeedsVerification: true,
         noRawChainOfThought: true,
-        policyDecisionInheritedFromPhase2: true,
+        policyDecisionInheritedFromStage2: true,
       },
       summary,
       commands: {
         report: 'npx tsx scripts/zavorth-context-recovery-assimilation.ts --text "<request>"',
         json: 'npx tsx scripts/zavorth-context-recovery-assimilation.ts --json --text "<request>"',
         check: 'node scripts/zavorth-context-recovery-assimilation-check.mjs',
-        nextPhase: 'Phase 4 - Tool Orchestration And Verification Assimilation',
+        nextStage: 'Connector registry - Tool Orchestration And Verification Assimilation',
       },
       narrative: buildNarrative(status, failure, recovery),
     };
@@ -106,7 +106,7 @@ export class ZavorthContextRecoveryAssimilationService {
 
   public formatSnapshotText(snapshot: ZavorthContextRecoverySnapshot): string {
     const lines = [
-      'Zavorth Context Memory And Error Recovery - Phase 3',
+      'Zavorth Context Memory And Error Recovery - Approval gate',
       '',
       `Status: ${snapshot.status}`,
       `Failure: ${snapshot.failure.kind} | retryable=${snapshot.failure.retryable} | attempt=${snapshot.failure.attempt}`,
@@ -124,7 +124,7 @@ export class ZavorthContextRecoveryAssimilationService {
       'Receipts:',
       ...snapshot.receipts.map((receipt) => `- ${receipt.kind}: ${receipt.status} | ${receipt.summary}`),
       '',
-      `Next: ${snapshot.commands.nextPhase}`,
+      `Next: ${snapshot.commands.nextStage}`,
     ];
     return lines.join('\n');
   }
@@ -261,8 +261,8 @@ function classifyFailure(
       repeatedFailure: false,
       failedToolId: null,
       attempt: 0,
-      summary: 'No failure provided; continue with the Phase 2 action pattern.',
-      evidence: ['phase-2-action-pattern'],
+      summary: 'No failure provided; continue with the Preview engine action pattern.',
+      evidence: ['checkpoint-2-action-pattern'],
     };
   }
 
@@ -282,25 +282,25 @@ function classifyFailure(
     evidence: [
       failure.code ? `code:${redact(String(failure.code))}` : 'code:none',
       `attempt:${attempt}`,
-      `phase2:${actionPattern.status}`,
+      `preview-engine:${actionPattern.status}`,
     ],
   };
 }
 
 function classifyFromActionPattern(actionPattern: ZavorthReasoningActionPatternSnapshot): ZavorthContextRecoveryFailureClassification {
   if (actionPattern.status === 'blocked') {
-    return phase2Failure('policy_block', 'Phase 2 blocked the unsafe action.', 'blocker', false, actionPattern.status);
+    return previewEngineFailure('policy_block', 'Preview engine blocked the unsafe action.', 'blocker', false, actionPattern.status);
   }
   if (actionPattern.status === 'approval-required') {
-    return phase2Failure('approval_missing', 'Phase 2 requires approval before impact.', 'warning', false, actionPattern.status);
+    return previewEngineFailure('approval_missing', 'Preview engine requires approval before impact.', 'warning', false, actionPattern.status);
   }
   if (actionPattern.status === 'needs-setup') {
-    return phase2Failure('missing_setup', 'A required local capability is not configured yet.', 'warning', false, actionPattern.status);
+    return previewEngineFailure('missing_setup', 'A required local capability is not configured yet.', 'warning', false, actionPattern.status);
   }
-  return phase2Failure('none', 'No failure inferred from Phase 2.', 'none', false, actionPattern.status);
+  return previewEngineFailure('none', 'No failure inferred from Preview engine.', 'none', false, actionPattern.status);
 }
 
-function phase2Failure(
+function previewEngineFailure(
   kind: ZavorthContextRecoveryFailureKind,
   summary: string,
   severity: ZavorthContextRecoveryFailureClassification['severity'],
@@ -315,7 +315,7 @@ function phase2Failure(
     failedToolId: null,
     attempt: 0,
     summary,
-    evidence: [`phase2:${status}`],
+    evidence: [`preview-engine:${status}`],
   };
 }
 
@@ -386,7 +386,7 @@ function recoverySteps(
     'Summarize what happened before taking another action.',
     'Carry forward only compact context entries with source and confidence.',
   ];
-  if (nextAction === 'proceed') return [...common, 'Proceed with the Phase 2 allowed actions.'];
+  if (nextAction === 'proceed') return [...common, 'Proceed with the Preview engine allowed actions.'];
   if (nextAction === 'request_approval') return [...common, 'Show the approval boundary and wait for owner confirmation before impact.'];
   if (nextAction === 'run_setup') return [...common, 'Run the relevant doctor/setup preset before retrying.'];
   if (nextAction === 'ask_user') return [...common, 'Ask one concise clarification question and pause execution.'];
@@ -429,8 +429,8 @@ function buildReceipts(
 ): ZavorthContextRecoveryReceipt[] {
   const receipts: ZavorthContextRecoveryReceipt[] = [
     {
-      id: 'receipt-phase-3-context-pack',
-      kind: 'phase-3-context-pack',
+      id: 'receipt-checkpoint-3-context-pack',
+      kind: 'checkpoint-3-context-pack',
       status: 'recorded',
       summary: `Context pack built with ${contextPack.hot.length} hot, ${contextPack.warm.length} warm and ${contextPack.cold.length} cold entries.`,
     },
@@ -458,7 +458,7 @@ function buildReceipts(
       id: 'receipt-approval-boundary',
       kind: 'approval-boundary',
       status: 'requires-approval',
-      summary: 'Phase 3 inherited the approval boundary from Phase 2 or failure recovery.',
+      summary: 'Approval gate inherited the approval boundary from Preview engine or failure recovery.',
     });
   }
   if (status === 'blocked' || !recovery.retryAllowed) {
@@ -514,7 +514,7 @@ function buildNarrative(
   }
   return {
     headline: 'Context pack ready',
-    operatorSummary: 'No failure was detected; use compact context and Phase 2 action patterns.',
+    operatorSummary: 'No failure was detected; use compact context and Preview engine action patterns.',
     nextAction: 'Proceed with allowed actions and targeted verification.',
   };
 }

@@ -1200,7 +1200,7 @@ describe('SharedSurfaceCommandService', () => {
     };
     const plan = jest.fn(async (input: any) => ({
       generatedAt: '2026-05-10T14:10:00.000Z',
-      contractVersion: '2026-05-10.natural-invocation-phase-5',
+      contractVersion: '2026-05-10.natural-invocation-checkpoint-5',
       source: 'ZavorthNaturalInvocationRouter',
       status: 'ready',
       channel: input.channel,
@@ -1239,7 +1239,7 @@ describe('SharedSurfaceCommandService', () => {
         invoke: 'npm run zavorth:natural-invocation -- --text "<request>"',
         invokeJson: 'npm run zavorth:natural-invocation:json -- --text "<request>"',
         check: 'npm run zavorth:natural-invocation:check --silent',
-        nextPhase: 'Phase 6 - Absorption Materialization And Bridge Handoff',
+        nextStage: 'Runtime gateway - Absorption Materialization And Bridge Handoff',
       },
     }));
     const surfaceTaskDispatcher = {

@@ -16,7 +16,7 @@ describe('ZavorthHandoffEnvelopeService', () => {
       modifiedPaths: ['src/services/ZavorthHandoffEnvelopeService.ts'],
       securityApprovals: ['No break-glass permission granted.'],
       remainingTodos: ['Implement wiki baseline.'],
-      simulatedStatePreview: ['Phase 2 ready, phase 3 pending.'],
+      simulatedStatePreview: ['Preview engine ready, phase 3 pending.'],
       nextPrescribedAction: 'Start phase 3.',
       messages: [
         { role: 'user', content: 'Preserve this directive verbatim.' },

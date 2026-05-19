@@ -1,7 +1,7 @@
 import type { ZavorthUniversalSkillExpansionSnapshot } from './ZavorthUniversalSkillExpansionContract.js';
 
 export const ZAVORTH_UNIVERSAL_SKILL_EXPANSION_QA_CONTRACT_VERSION =
-  '2026-05-10.phase-7' as const;
+  '2026-05-10.checkpoint-7' as const;
 
 export type ZavorthUniversalSkillExpansionQaStatus =
   | 'passed'
@@ -57,7 +57,7 @@ export type ZavorthUniversalSkillExpansionQaSnapshot = {
   rollout: {
     readyForOperatorUse: boolean;
     recommendedMode: 'preview-only' | 'limited-apply' | 'dry-run-rollout' | 'hold';
-    stages: ZavorthUniversalSkillExpansionQaRolloutStage[];
+    phases: ZavorthUniversalSkillExpansionQaRolloutStage[];
     nextActions: string[];
   };
   certification: {
@@ -91,6 +91,6 @@ export type ZavorthUniversalSkillExpansionQaSnapshot = {
     run: 'npm run zavorth:universal-skill-expansion-qa -- --source <path>';
     runJson: 'npm run zavorth:universal-skill-expansion-qa:json -- --source <path>';
     check: 'npm run zavorth:universal-skill-expansion-qa:check --silent';
-    nextPhase: 'Phase 8 - Real Source Onboarding and Continuous Regression';
+    nextStage: 'Dashboard controls - Real Source Onboarding and Continuous Regression';
   };
 };

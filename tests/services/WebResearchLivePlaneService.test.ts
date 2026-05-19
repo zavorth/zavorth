@@ -28,7 +28,7 @@ const htmlResponse = (html: string) =>
     },
   });
 
-describe('WebResearchLivePlaneService Phase 8', () => {
+describe('WebResearchLivePlaneService Dashboard controls', () => {
   let artifactDir: string;
 
   beforeEach(async () => {
@@ -40,13 +40,13 @@ describe('WebResearchLivePlaneService Phase 8', () => {
     jest.restoreAllMocks();
   });
 
-  it('closes Phase 8 research, web extraction and browser gates without live IO', () => {
+  it('closes Dashboard controls research, web extraction and browser gates without live IO', () => {
     const snapshot = new WebResearchLivePlaneService({
       now: () => new Date('2026-05-04T23:45:00.000Z'),
     }).buildSnapshot();
 
-    expect(snapshot.contractVersion).toBe('2026-05-04.live-phase-8');
-    expect(snapshot.phase).toBe('Phase 8 - Research, Web Extraction And Browser Live Plane');
+    expect(snapshot.contractVersion).toBe('2026-05-04.live-checkpoint-8');
+    expect(snapshot.phase).toBe('Dashboard controls - Research, Web Extraction And Browser Live Plane');
     expect(snapshot.status).toBe('closed');
     expect(snapshot.summary).toEqual(
       expect.objectContaining({
@@ -64,13 +64,13 @@ describe('WebResearchLivePlaneService Phase 8', () => {
         redactedReceipts: 7,
         blocked: 0,
         browserExtractionMarkedLiveByNoNetworkPlan: false,
-        liveIoRequiredByPhase8Check: false,
+        liveIoRequiredByStage8Check: false,
         secretValuesSerialized: false,
       }),
     );
     expect(snapshot.policy).toEqual(
       expect.objectContaining({
-        noLiveIoDuringPhase8Check: true,
+        noLiveIoDuringStage8Check: true,
         searchProviderChoiceRequired: true,
         citationArtifactsRequired: true,
         extractionArtifactsRequired: true,
@@ -176,7 +176,7 @@ describe('WebResearchLivePlaneService Phase 8', () => {
   });
 
   it('stores readability extraction as a web artifact', async () => {
-    const html = '<html><head><title>Phase 8 Article</title></head><body><article><p>Hello Zavorth research.</p><a href="/next">next</a></article></body></html>';
+    const html = '<html><head><title>Dashboard controls Article</title></head><body><article><p>Hello Zavorth research.</p><a href="/next">next</a></article></body></html>';
     const adapter = new ReadabilityWebExtractLiveAdapter({
       adapterId: 'web-readability',
       providerId: 'web-readability',
@@ -200,7 +200,7 @@ describe('WebResearchLivePlaneService Phase 8', () => {
     const stored = JSON.parse(await fs.promises.readFile(result.artifact!.storageRef, 'utf8'));
     expect(stored).toEqual(
       expect.objectContaining({
-        title: 'Phase 8 Article',
+        title: 'Dashboard controls Article',
         text: expect.stringContaining('Hello Zavorth research.'),
         secretValuesSerialized: false,
       }),

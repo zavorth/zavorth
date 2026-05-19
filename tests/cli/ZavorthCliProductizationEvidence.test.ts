@@ -20,7 +20,7 @@ function createFlags(json: boolean) {
   };
 }
 
-describe('Zavorth CLI productization evidence Wave 46', () => {
+describe('Zavorth CLI productization evidence Channel mesh6', () => {
   it('parses release readiness text after aliases', () => {
     expect(resolveProductizationEvidenceCliText('release-readiness "auditar produto"')).toBe('auditar produto');
     expect(resolveProductizationEvidenceCliText('productization-evidence latest')).toBe('');
@@ -47,7 +47,7 @@ describe('Zavorth CLI productization evidence Wave 46', () => {
     }));
     const payload = JSON.parse(writes[0] || '{}');
     expect(payload).toEqual(expect.objectContaining({
-      contractVersion: '2026-05-04.wave-46',
+      contractVersion: '2026-05-04.product-evidence',
       source: 'ProductizationEvidenceService',
       summary: expect.objectContaining({
         productizationContractLinked: true,
@@ -77,7 +77,7 @@ describe('Zavorth CLI productization evidence Wave 46', () => {
 
     const text = formatProductizationEvidenceSnapshot(snapshot);
 
-    expect(text).toContain('Productization Evidence & Release Readiness - Wave 46');
+    expect(text).toContain('Productization Evidence & Release Readiness - Channel mesh6');
     expect(text).toContain('noReleasePublished');
     expect(text).toContain('stable requer release real');
     expect(text).toContain('Command Center: /control?runId=');

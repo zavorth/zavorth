@@ -3,7 +3,7 @@ import {
 } from '../../src/contracts/ZavorthGovernedSubagentContract.js';
 import { ZavorthGovernedSubagentService } from '../../src/services/ZavorthGovernedSubagentService.js';
 
-describe('ZavorthGovernedSubagentService Phase 2', () => {
+describe('ZavorthGovernedSubagentService Preview engine', () => {
   it('prepares governed subagents from native skills without launching anything', () => {
     const snapshot = new ZavorthGovernedSubagentService({
       now: () => new Date('2026-05-10T12:00:00.000Z'),

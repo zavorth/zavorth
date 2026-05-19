@@ -129,7 +129,7 @@ export class ReleaseTrainService {
 
   public renderReport(snapshot: ReleaseTrainSnapshot = this.buildSnapshot()): string {
     const lines: string[] = [];
-    lines.push('[release-train] Fase 59 - v1.x Release Train And LTS Policy');
+    lines.push('[release-train] Readiness checkpoint 9 - v1.x Release Train And LTS Policy');
     lines.push(`status: ${snapshot.status}`);
     lines.push(`ok: ${snapshot.summary.ok ? 'yes' : 'no'} | pass=${snapshot.summary.passed} warn=${snapshot.summary.warnings} fail=${snapshot.summary.failed}`);
     lines.push(`baseline: ${snapshot.baseline.version} (${snapshot.baseline.channel}) | package=${snapshot.baseline.packageVersion}`);
@@ -200,8 +200,8 @@ export class ReleaseTrainService {
       issues.push(`package version esperada no release train v1.x, atual ${packageVersion || '<ausente>'}`);
     }
     const source = [
-      this.readCoreText('docs/76-public-adoption-architecture.md') || '',
-      this.readCoreText('docs/11-roadmap.md') || '',
+      this.readCoreText('docs/product-direction.md') || '',
+      this.readCoreText('docs/product-direction.md') || '',
       this.websiteReleaseSource(),
     ].join('\n');
     for (const term of ['v1.0.0', 'baseline', 'stable']) {
@@ -340,10 +340,10 @@ export class ReleaseTrainService {
       .filter((scriptName) => !String(scripts[scriptName] || '').trim());
     return this.check(
       'release-train:previous-phase-gates',
-      'gates das fases 53-58 preservados',
+      'gates das etapas 53-58 preservados',
       missing.length === 0 ? 'pass' : 'fail',
       missing.length === 0
-        ? 'release train parte de fases 53-58 fechadas e ainda executaveis.'
+        ? 'release train parte de etapas 53-58 fechadas e ainda executaveis.'
         : 'algum gate anterior do ciclo 53-59 esta ausente.',
       'package.json',
       missing,
@@ -368,8 +368,8 @@ export class ReleaseTrainService {
   private checkForbiddenClaims(): ReleaseTrainCheck {
     const source = [
       this.websiteReleaseSource(),
-      this.readCoreText('docs/76-public-adoption-architecture.md') || '',
-      this.readCoreText('docs/11-roadmap.md') || '',
+      this.readCoreText('docs/product-direction.md') || '',
+      this.readCoreText('docs/product-direction.md') || '',
     ].join('\n');
     const forbiddenMatches = RELEASE_TRAIN_FORBIDDEN_CLAIMS
       .filter((claim) => source.toLowerCase().includes(String(claim).toLowerCase()));
@@ -470,11 +470,11 @@ export class ReleaseTrainService {
 
   private checkDocsRunbook(): ReleaseTrainCheck {
     const source = [
-      this.readCoreText('docs/76-public-adoption-architecture.md') || '',
-      this.readCoreText('docs/11-roadmap.md') || '',
+      this.readCoreText('docs/product-direction.md') || '',
+      this.readCoreText('docs/product-direction.md') || '',
     ].join('\n').toLowerCase();
     const required = [
-      'fase 59',
+      'etapa 59',
       'release train',
       'lts',
       'v1.0.0',
@@ -490,31 +490,31 @@ export class ReleaseTrainService {
     const missing = required.filter((term) => !source.includes(term));
     return this.check(
       'release-train:docs-runbook',
-      'documentacao e runbook da Fase 59',
+      'documentacao e runbook da Readiness checkpoint 9',
       missing.length === 0 ? 'pass' : 'fail',
       missing.length === 0
-        ? 'docs explicam release train, LTS, patch, minor, RC, hotfix, rollback e gates da Fase 59.'
+        ? 'docs explicam release train, LTS, patch, minor, RC, hotfix, rollback e gates da Readiness checkpoint 9.'
         : 'docs precisam explicar como fechar e operar o release train v1.x.',
-      'docs/76-public-adoption-architecture.md',
+      'docs/product-direction.md',
       missing.map((term) => `faltando: ${term}`),
     );
   }
 
   private checkCycleClosure(): ReleaseTrainCheck {
     const source = [
-      this.readCoreText('docs/76-public-adoption-architecture.md') || '',
-      this.readCoreText('docs/11-roadmap.md') || '',
+      this.readCoreText('docs/product-direction.md') || '',
+      this.readCoreText('docs/product-direction.md') || '',
     ].join('\n').toLowerCase();
     const required = ['ciclo 53-59', 'fechado', 'nao objetivos', 'v1.1.0'];
     const missing = required.filter((term) => !source.includes(term));
     return this.check(
       'release-train:cycle-closure',
-      'ciclo 53-59 pronto para operacao faseada',
+      'ciclo 53-59 pronto para operacao etapaada',
       missing.length === 0 ? 'pass' : 'fail',
       missing.length === 0
         ? 'documentacao marca o ciclo 53-59 como fechado e direciona novas mudancas para v1.0.x/v1.1.0.'
         : 'ciclo 53-59 ainda nao esta claramente fechado na documentacao.',
-      'docs/11-roadmap.md',
+      'docs/product-direction.md',
       missing,
     );
   }

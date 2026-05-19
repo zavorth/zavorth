@@ -80,7 +80,7 @@ export function formatCrossChannelContinuitySnapshot(
   snapshot: CrossChannelContinuitySnapshot,
 ): string {
   const lines = [
-    'Cross-Channel Continuity - Wave 41',
+    'Cross-Channel Continuity - Channel mesh1',
     `- contrato: ${snapshot.contractVersion}`,
     `- run: ${snapshot.identifiers.runId}`,
     `- sessao: ${snapshot.identifiers.sessionId}`,

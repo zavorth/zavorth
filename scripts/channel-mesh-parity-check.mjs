@@ -96,7 +96,7 @@ const snapshot = {
 if (asJson) {
   console.log(JSON.stringify(snapshot, null, 2));
 } else {
-  console.log('[channel-mesh-parity] checking Phase 5');
+  console.log('[channel-mesh-parity] checking Credential vault');
   for (const rule of rules) {
     const marker = rule.status === 'passed' ? 'ok' : 'fail';
     console.log(`[channel-mesh-parity] ${marker} ${rule.label}: ${rule.observed} | ${rule.target}`);

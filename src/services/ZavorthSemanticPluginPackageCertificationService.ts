@@ -102,7 +102,7 @@ export class ZavorthSemanticPluginPackageCertificationService {
         inspectJson: 'npm run semantic-plugin-package-certification:json --silent',
         check: 'npm run semantic-plugin-package-certification:check --silent',
         qa: 'npm run qa:semantic-plugin-package-certification --silent',
-        nextPhase: 'S2 - Agent Runtime Semantics',
+        nextStage: 'S2 - Agent Runtime Semantics',
       },
     };
   }
@@ -123,7 +123,7 @@ export class ZavorthSemanticPluginPackageCertificationService {
       ...snapshot.claims.map((claim) => (
         `- ${claim.status} ${claim.priority} ${claim.id}: ${claim.expectedBehavior} -> ${claim.zavorthEquivalent}`
       )),
-      `Next: ${snapshot.commands.nextPhase}`,
+      `Next: ${snapshot.commands.nextStage}`,
     ];
     return lines.join('\n');
   }
@@ -417,7 +417,7 @@ function equivalentForExportFamily(
 
 function notesForExportFamily(family: SourcePluginPackageExportFamily): string[] {
   if (family === 'memory') {
-    return ['Memory package behavior is certified as a cross-phase semantic claim with Phase 5 runtime support.'];
+    return ['Memory package behavior is certified as a cross-phase semantic claim with Credential vault runtime support.'];
   }
   if (family === 'security' || family === 'secret') {
     return ['Sensitive behavior is certified through policy and receipts, never by live secret access.'];

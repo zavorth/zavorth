@@ -1,7 +1,7 @@
 import type { ZavorthReasoningActionPatternSnapshot } from './ZavorthReasoningActionPatternContract.js';
 
 export const ZAVORTH_CONTEXT_RECOVERY_ASSIMILATION_CONTRACT_VERSION =
-  '2026-05-11.context-memory-error-recovery-phase-3' as const;
+  '2026-05-11.context-memory-error-recovery-checkpoint-3' as const;
 
 export type ZavorthContextRecoveryStatus =
   | 'ready'
@@ -115,7 +115,7 @@ export type ZavorthContextRecoveryPlan = {
 export type ZavorthContextRecoveryReceipt = {
   id: string;
   kind:
-    | 'phase-3-context-pack'
+    | 'checkpoint-3-context-pack'
     | 'memory-safety'
     | 'failure-classification'
     | 'recovery-plan'
@@ -129,7 +129,7 @@ export type ZavorthContextRecoverySnapshot = {
   generatedAt: string;
   contractVersion: typeof ZAVORTH_CONTEXT_RECOVERY_ASSIMILATION_CONTRACT_VERSION;
   source: 'ZavorthContextRecoveryAssimilationService';
-  phase: 'phase-3-context-memory-error-recovery';
+  phase: 'checkpoint-3-context-memory-error-recovery';
   status: ZavorthContextRecoveryStatus;
   request: {
     surface: string;
@@ -151,7 +151,7 @@ export type ZavorthContextRecoverySnapshot = {
     ledgerBeatsRecall: true;
     lowConfidenceMemoryNeedsVerification: true;
     noRawChainOfThought: true;
-    policyDecisionInheritedFromPhase2: true;
+    policyDecisionInheritedFromStage2: true;
   };
   summary: {
     hot: number;
@@ -165,7 +165,7 @@ export type ZavorthContextRecoverySnapshot = {
     report: 'npx tsx scripts/zavorth-context-recovery-assimilation.ts --text "<request>"';
     json: 'npx tsx scripts/zavorth-context-recovery-assimilation.ts --json --text "<request>"';
     check: 'node scripts/zavorth-context-recovery-assimilation-check.mjs';
-    nextPhase: 'Phase 4 - Tool Orchestration And Verification Assimilation';
+    nextStage: 'Connector registry - Tool Orchestration And Verification Assimilation';
   };
   narrative: {
     headline: string;

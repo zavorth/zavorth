@@ -20,7 +20,7 @@ describe('RuntimeOfficialRemoteAccessService', () => {
           readyForPlanB: true,
           summary: 'Plano B local com Cloudflare e Gemini/Gemma pronto para rollout.',
           helpers: {
-            guide: 'C:/repo/docs/35-windows-cloudflare-gemma.md',
+            guide: 'C:/repo/docs/runtime-readiness.md',
           },
           steps: [
             { id: 'launcher', title: 'Launcher', status: 'done', detail: 'ok', command: 'cmd-a' },
@@ -76,7 +76,7 @@ describe('RuntimeOfficialRemoteAccessService', () => {
           readyForPlanB: false,
           summary: 'Plano B local pendente.',
           helpers: {
-            guide: 'C:/repo/docs/35-windows-cloudflare-gemma.md',
+            guide: 'C:/repo/docs/runtime-readiness.md',
           },
           steps: [],
         }),
@@ -125,7 +125,7 @@ describe('RuntimeOfficialRemoteAccessService', () => {
           readyForPlanB: true,
           summary: 'Plano B local com Cloudflare e Gemini/Gemma pronto para rollout.',
           helpers: {
-            guide: 'C:/repo/docs/35-windows-cloudflare-gemma.md',
+            guide: 'C:/repo/docs/runtime-readiness.md',
           },
           steps: [
             { id: 'launcher', title: 'Launcher', status: 'done', detail: 'ok', command: 'cmd-a' },
@@ -187,7 +187,7 @@ describe('RuntimeOfficialRemoteAccessService', () => {
           readyForPlanB: true,
           summary: 'Plano B local com Cloudflare e Gemini/Gemma pronto para rollout.',
           helpers: {
-            guide: 'C:/repo/docs/35-windows-cloudflare-gemma.md',
+            guide: 'C:/repo/docs/runtime-readiness.md',
           },
           steps: [
             { id: 'launcher', title: 'Launcher', status: 'done', detail: 'ok', command: 'cmd-a' },
@@ -252,7 +252,7 @@ describe('RuntimeOfficialRemoteAccessService', () => {
           readyForPlanB: false,
           summary: 'Plano B local pendente.',
           helpers: {
-            guide: 'C:/repo/docs/35-windows-cloudflare-gemma.md',
+            guide: 'C:/repo/docs/runtime-readiness.md',
           },
           steps: [],
         }),

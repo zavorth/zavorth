@@ -16,8 +16,8 @@ describe('ProductQualityContractService', () => {
       'zavorth status',
       'zavorth doctor',
     ]);
-    expect(snapshot.nextRecommendedPhase).toEqual(expect.objectContaining({
-      phase: '41',
+    expect(snapshot.nextRecommendedStage).toEqual(expect.objectContaining({
+      stage: '41',
       title: 'QA Deterministico',
     }));
   });
@@ -82,8 +82,8 @@ describe('ProductQualityContractService', () => {
 
     const report = service.renderReport();
 
-    expect(report).toContain('Fase 39 - Product Quality Contract');
-    expect(report).toContain('proxima fase recomendada: 41 - QA Deterministico');
+    expect(report).toContain('Etapa 39 - Product Quality Contract');
+    expect(report).toContain('proximo passo recomendada: 41 - QA Deterministico');
   });
 });
 
@@ -106,7 +106,7 @@ function packageJsonFixture(overrides: Record<string, string> = {}) {
     'qa:product-experience': 'node scripts/product-experience-readiness.mjs',
     'qa:flows': 'jest tests/integration/EndToEndFlowHarness.test.ts --runInBand',
     'qa:product-quality': 'npx tsx scripts/product-quality-contract.ts --require-pass',
-    'qa:phase:39': 'node scripts/phases-39-45-check.mjs --phase=39',
+    'qa:stage:39': 'node scripts/capability-suite-market-check.mjs --phase=39',
     ...overrides,
   };
 
@@ -154,7 +154,7 @@ function filesFixture(overrides: Record<string, string> = {}) {
     'zavorth onboard',
     'zavorth go',
     'zavorth chat',
-    'Checklist de aceitacao da fase CLI',
+    'Checklist de aceitacao da etapa CLI',
   ].join('\n');
   const visual = [
     'FORBIDDEN_FIRST_LAYER_PATTERNS',
@@ -166,9 +166,9 @@ function filesFixture(overrides: Record<string, string> = {}) {
 
   return {
     'README.md': readme,
-    'docs/02-quickstart.md': quickstart,
-    'docs/34-zavorth-cli.md': cli,
-    'docs/69-cli-ux-diagnosis.md': diagnosis,
+    'docs/quickstart.md': quickstart,
+    'docs/zavorth-cli.md': cli,
+    'docs/product-direction.md': diagnosis,
     'tests/cli/ZavorthCliVisualContract.test.ts': visual,
     ...overrides,
   };

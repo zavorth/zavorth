@@ -28,6 +28,6 @@ through Zavorth policy.
 
 ## Related
 
-- [Capabilities](/docs/08-capabilities-plugins.md)
-- [Security](/docs/05-security.md)
-- [Roadmap](/docs/11-roadmap.md)
+- [Capabilities](/docs/capabilities-and-plugins.md)
+- [Security](/docs/security.md)
+- [Roadmap](/docs/product-direction.md)

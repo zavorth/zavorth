@@ -5,7 +5,7 @@ import type {
 } from '../domain/surface/application/surface-response/SurfaceResponseContract.js';
 
 export const CHANNEL_CAPABILITY_CONTRACT_VERSION =
-  '2026-05-12.channel-capability-awareness-phase-7' as const;
+  '2026-05-12.channel-capability-awareness-checkpoint-7' as const;
 
 export type ChannelCapabilityChannel =
   | 'telegram'
@@ -103,7 +103,7 @@ export type ChannelCapabilitySnapshot = {
   generatedAt: string;
   contractVersion: typeof CHANNEL_CAPABILITY_CONTRACT_VERSION;
   source: 'ZavorthChannelCapabilityAwarenessService';
-  phase: 'phase-7-channel-capability-awareness';
+  phase: 'checkpoint-7-channel-capability-awareness';
   status: 'ready' | 'attention' | 'blocked';
   profiles: ChannelCapabilityProfile[];
   adaptedExamples: ChannelCapabilityAdaptedResponse[];

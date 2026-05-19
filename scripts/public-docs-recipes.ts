@@ -86,7 +86,7 @@ function buildFixtureSmokeArtifact() {
 
   return {
     schemaVersion: '1.0.0',
-    phase: '56',
+    stage: '56',
     generatedAt: new Date().toISOString(),
     mode: 'fixture',
     ok: results.every((result) => result.status === 'pass' && !result.requiresSecrets && !result.mutatesHost),

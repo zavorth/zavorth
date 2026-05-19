@@ -137,7 +137,7 @@ describe('TaskManager', () => {
 
     expect(task.metadata.lifecycle).toEqual(expect.objectContaining({
       current_status: 'delivery_pending',
-      phase: 'delivery',
+      stage: 'delivery',
       can_resume: true,
       can_retry: false,
     }));

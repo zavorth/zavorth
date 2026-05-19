@@ -14,7 +14,7 @@ describe('ZavorthLiveCanaryExecutionAdapterReviewService', () => {
     const snapshot = service.buildSnapshot();
 
     expect(snapshot.contractVersion).toBe(ZAVORTH_LIVE_CANARY_EXECUTION_ADAPTER_REVIEW_CONTRACT_VERSION);
-    expect(snapshot.phase).toBe('phase-8-live-canary-execution-adapter-review');
+    expect(snapshot.phase).toBe('checkpoint-8-live-canary-execution-adapter-review');
     expect(snapshot.status).toBe('needs-evidence');
     expect(snapshot.mode).toBe('evidence-gate');
     expect(snapshot.executionEnvelope.executionEnabled).toBe(false);

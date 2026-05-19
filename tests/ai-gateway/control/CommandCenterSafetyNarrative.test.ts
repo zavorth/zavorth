@@ -7,7 +7,7 @@ function createIdFactory() {
   return (prefix: string) => `${prefix}-cc-safety-${++index}`;
 }
 
-describe('Command Center Safety Narrative Wave 31', () => {
+describe('Command Center Safety Narrative Safety Narrative', () => {
   it('projects safety narrative metadata into the dashboard view model', () => {
     const viewModel = buildDashboardCommandCenterViewModel({
       runtime: {
@@ -19,7 +19,7 @@ describe('Command Center Safety Narrative Wave 31', () => {
         status: 'waiting_approval',
         metadata: {
           safetyNarrative: {
-            contractVersion: '2026-05-03.wave-31',
+            contractVersion: '2026-05-03.safety-narrative',
             generatedAt: '2026-05-03T22:30:00.000Z',
             status: 'waiting-approval',
             highRiskBlockPresent: true,
@@ -68,7 +68,7 @@ describe('Command Center Safety Narrative Wave 31', () => {
     });
 
     expect(viewModel.safetyNarrative).toEqual(expect.objectContaining({
-      contractVersion: '2026-05-03.wave-31',
+      contractVersion: '2026-05-03.safety-narrative',
       status: 'waiting-approval',
       highRiskBlockPresent: true,
       reasons: [
@@ -107,7 +107,7 @@ describe('Command Center Safety Narrative Wave 31', () => {
     );
 
     expect(projection.safetyNarrative).toEqual(expect.objectContaining({
-      contractVersion: '2026-05-03.wave-31',
+      contractVersion: '2026-05-03.safety-narrative',
       status: 'waiting-approval',
       highRiskBlockPresent: true,
       reasons: expect.arrayContaining([

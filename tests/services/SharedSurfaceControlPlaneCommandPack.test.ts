@@ -4,7 +4,7 @@ describe('SharedSurfaceControlPlaneCommandPack', () => {
   it('routes /qa through the internal control-plane boundary', async () => {
     const qaControlPlaneService = {
       buildSnapshot: jest.fn(() => ({ summary: { posture: 'healthy' } })),
-      renderReport: jest.fn(() => 'Wave 6: QA, budgets e release gates'),
+      renderReport: jest.fn(() => 'QA release: QA, budgets e release gates'),
     };
     const pack = new SharedSurfaceControlPlaneCommandPack({
       evalControlPlaneService: { buildSnapshot: jest.fn() } as any,
@@ -31,7 +31,7 @@ describe('SharedSurfaceControlPlaneCommandPack', () => {
 
     expect(handled).toBe(true);
     expect(qaControlPlaneService.renderReport).toHaveBeenCalledWith({ profile: 'beta' });
-    expect(ctx.reply).toHaveBeenCalledWith(expect.stringContaining('Wave 6: QA, budgets e release gates'));
+    expect(ctx.reply).toHaveBeenCalledWith(expect.stringContaining('QA release: QA, budgets e release gates'));
     expect(ctx.reply).toHaveBeenCalledWith(expect.stringContaining('policy: shared-control-plane'));
   });
 
@@ -87,7 +87,7 @@ describe('SharedSurfaceControlPlaneCommandPack', () => {
     const handled = await pack.maybeHandle(ctx as any, '/evals', 'surface telegram');
 
     expect(handled).toBe(true);
-    expect(ctx.reply).toHaveBeenCalledWith(expect.stringContaining('Wave D: Eval + Observability'));
+    expect(ctx.reply).toHaveBeenCalledWith(expect.stringContaining('Eval observability: Eval + Observability'));
     expect(ctx.reply).toHaveBeenCalledWith(expect.stringContaining('Maior regressao: Gateway smoke'));
   });
 });

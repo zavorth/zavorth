@@ -11,11 +11,11 @@ describe('ZavorthLiveCanaryApplyGateRollbackDrillService', () => {
     now: () => new Date('2026-05-11T12:00:00.000Z'),
   });
 
-  it('requires Phase 8 adapter review before opening the apply gate', () => {
+  it('requires Dashboard controls adapter review before opening the apply gate', () => {
     const snapshot = service.buildSnapshot();
 
     expect(snapshot.contractVersion).toBe(ZAVORTH_LIVE_CANARY_APPLY_GATE_ROLLBACK_DRILL_CONTRACT_VERSION);
-    expect(snapshot.phase).toBe('phase-9-live-canary-apply-gate-rollback-drill');
+    expect(snapshot.phase).toBe('checkpoint-9-live-canary-apply-gate-rollback-drill');
     expect(snapshot.status).toBe('needs-adapter-review');
     expect(snapshot.mode).toBe('adapter-review-gate');
     expect(snapshot.authorizationPacket.applyGateOpen).toBe(false);
@@ -95,7 +95,7 @@ describe('ZavorthLiveCanaryApplyGateRollbackDrillService', () => {
     expect(snapshot.authorizationPacket.executionPerformed).toBe(false);
     expect(snapshot.authorizationPacket.liveActionExecutorBundled).toBe(false);
     expect(snapshot.authorizationPacket.requiresSeparateLiveInvocation).toBe(true);
-    expect(snapshot.authorizationPacket.authorizationReceiptId).toBe('phase-9-authorization:phase-8-default-live-canary-adapter:trigger-123');
+    expect(snapshot.authorizationPacket.authorizationReceiptId).toBe('checkpoint-9-authorization:checkpoint-8-default-live-canary-adapter:trigger-123');
     expect(snapshot.authorizationPacket.expiresAt).toBe('2026-05-11T12:15:00.000Z');
   });
 

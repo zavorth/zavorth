@@ -352,7 +352,7 @@ export class CompanionControlService {
       return {
         ok: true,
         summary: 'WSL revisado sem mutacao.',
-        reason: 'Nesta fase o modo leve do WSL apenas recomenda hibernacao/retomada supervisionada.',
+        reason: 'Nesta etapa o modo leve do WSL apenas recomenda hibernacao/retomada supervisionada.',
         payload: {
           status: 'review-only',
           runningDistros: input.companion.runningDistros,
@@ -475,7 +475,7 @@ export class CompanionControlService {
       return {
         ok: true,
         summary: 'ZavorthBridge revisado em modo leve.',
-        reason: 'Nesta fase o trim do ZavorthBridge entrega leitura guiada, nao kill cego.',
+        reason: 'Nesta etapa o trim do ZavorthBridge entrega leitura guiada, nao kill cego.',
         payload: result as any,
       };
     }
@@ -501,7 +501,7 @@ export class CompanionControlService {
       return {
         ok: true,
         summary: 'Codex revisado em modo leve.',
-        reason: 'Nesta fase o trim do Codex orienta reduzir sessoes e processos ociosos sem encerrar nada a seco.',
+        reason: 'Nesta etapa o trim do Codex orienta reduzir sessoes e processos ociosos sem encerrar nada a seco.',
         payload: {
           status: 'review-only',
           processCount: input.companion.processCount,

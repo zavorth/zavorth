@@ -5,7 +5,7 @@ import type {
 import type { CapabilitySourceMapping } from './CapabilityNormalizationContract.js';
 import type { ZavorthPluginManifest } from './PluginManifestContract.js';
 
-export const ZAVORTH_CHANNEL_MESH_PARITY_CONTRACT_VERSION = '2026-05-04.phase-5';
+export const ZAVORTH_CHANNEL_MESH_PARITY_CONTRACT_VERSION = '2026-05-04.checkpoint-5';
 
 export type ChannelMeshParityStatus =
   | 'native'

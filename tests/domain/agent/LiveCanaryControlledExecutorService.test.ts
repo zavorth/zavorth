@@ -13,15 +13,15 @@ describe('ZavorthLiveCanaryControlledExecutorService', () => {
     now: () => new Date('2026-05-11T12:00:00.000Z'),
   });
 
-  it('requires the Phase 9 apply gate before execution', async () => {
+  it('requires the Certification matrix apply gate before execution', async () => {
     const snapshot = await service.buildSnapshot();
 
     expect(snapshot.contractVersion).toBe(ZAVORTH_LIVE_CANARY_CONTROLLED_EXECUTOR_CONTRACT_VERSION);
-    expect(snapshot.phase).toBe('phase-10-live-canary-controlled-executor');
+    expect(snapshot.phase).toBe('checkpoint-10-live-canary-controlled-executor');
     expect(snapshot.status).toBe('needs-apply-gate');
     expect(snapshot.executionResult.status).toBe('not-run');
     expect(snapshot.safety).toMatchObject({
-      executesOnlyWithPhase9Authorization: true,
+      executesOnlyWithStage9Authorization: true,
       explicitOperatorExecuteRequired: true,
       noImplicitExecutionFromChecks: true,
       idempotencyKeyRequiredForExecution: true,
@@ -64,8 +64,8 @@ describe('ZavorthLiveCanaryControlledExecutorService', () => {
     expect(snapshot.mode).toBe('controlled-live-execution');
     expect(snapshot.summary.executionPerformed).toBe(true);
     expect(snapshot.summary.externalIoPerformed).toBe(false);
-    expect(snapshot.executionResult.executionReceiptId).toBe('phase-10-execution:phase-8-default-live-canary-adapter:idem-123');
-    expect(snapshot.executionResult.rollbackReceiptId).toBe('phase-10-rollback:phase-8-default-live-canary-adapter:idem-123');
+    expect(snapshot.executionResult.executionReceiptId).toBe('checkpoint-10-execution:checkpoint-8-default-live-canary-adapter:idem-123');
+    expect(snapshot.executionResult.rollbackReceiptId).toBe('checkpoint-10-rollback:checkpoint-8-default-live-canary-adapter:idem-123');
   });
 
   it('blocks execution when idempotency key is missing', async () => {

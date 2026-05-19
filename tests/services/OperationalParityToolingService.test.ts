@@ -1,12 +1,12 @@
 import { OperationalParityToolingService } from '../../src/services/OperationalParityToolingService.js';
 
-describe('OperationalParityToolingService Phase 8', () => {
+describe('OperationalParityToolingService Dashboard controls', () => {
   it('aggregates phases 1-8 into one operational parity snapshot', () => {
     const snapshot = new OperationalParityToolingService({
       now: () => new Date('2026-05-04T18:00:00.000Z'),
     }).buildSnapshot();
 
-    expect(snapshot.contractVersion).toBe('2026-05-04.phase-8');
+    expect(snapshot.contractVersion).toBe('2026-05-04.checkpoint-8');
     expect(snapshot.status).toBe('passed');
     expect(snapshot.summary).toEqual(
       expect.objectContaining({
@@ -36,13 +36,13 @@ describe('OperationalParityToolingService Phase 8', () => {
     );
     expect(snapshot.phases).toEqual(
       expect.arrayContaining([
-        expect.objectContaining({ id: 'phase-2-plugin-os', status: 'passed', gapCount: 0 }),
-        expect.objectContaining({ id: 'phase-3-capability-normalization', status: 'passed', gapCount: 0 }),
-        expect.objectContaining({ id: 'phase-4-provider-mesh', status: 'passed', gapCount: 0 }),
-        expect.objectContaining({ id: 'phase-5-channel-mesh', status: 'passed', gapCount: 0 }),
-        expect.objectContaining({ id: 'phase-6-satellite-apps', status: 'passed', gapCount: 0 }),
-        expect.objectContaining({ id: 'phase-7-memory-artifacts', status: 'passed', gapCount: 0 }),
-        expect.objectContaining({ id: 'phase-8-operational-tooling', status: 'passed', gapCount: 0 }),
+        expect.objectContaining({ id: 'checkpoint-2-plugin-os', status: 'passed', gapCount: 0 }),
+        expect.objectContaining({ id: 'checkpoint-3-capability-normalization', status: 'passed', gapCount: 0 }),
+        expect.objectContaining({ id: 'checkpoint-4-provider-mesh', status: 'passed', gapCount: 0 }),
+        expect.objectContaining({ id: 'checkpoint-5-channel-mesh', status: 'passed', gapCount: 0 }),
+        expect.objectContaining({ id: 'checkpoint-6-satellite-apps', status: 'passed', gapCount: 0 }),
+        expect.objectContaining({ id: 'checkpoint-7-memory-artifacts', status: 'passed', gapCount: 0 }),
+        expect.objectContaining({ id: 'checkpoint-8-operational-tooling', status: 'passed', gapCount: 0 }),
       ]),
     );
     expect(snapshot.certification).toEqual(
@@ -119,6 +119,6 @@ describe('OperationalParityToolingService Phase 8', () => {
     expect(report).toContain('Status: passed');
     expect(report).toContain('Plugin OS manifests: 72 / capabilities 98');
     expect(report).toContain('Open gaps: 0 (P0 0, P1 0, P2 0)');
-    expect(report).toContain('Next: Fase 9 - Certification');
+    expect(report).toContain('Next: Etapa 9 - Certification');
   });
 });

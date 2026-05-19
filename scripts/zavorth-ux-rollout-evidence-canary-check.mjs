@@ -26,7 +26,7 @@ const snapshot = {
 if (asJson) {
   console.log(JSON.stringify(snapshot, null, 2));
 } else {
-  console.log('[zavorth-ux-rollout-evidence-canary] checking Phase 7');
+  console.log('[zavorth-ux-rollout-evidence-canary] checking Surface controls');
   printRules(rules, '[zavorth-ux-rollout-evidence-canary]');
 }
 if (failed.length > 0) process.exitCode = 1;
@@ -41,13 +41,13 @@ function ruleFilesExist() {
     'docs/README.md',
   ];
   const missing = files.filter((file) => !fs.existsSync(path.join(root, file)));
-  return rule('ux-rollout-files', 'Phase 7 files exist', missing.length === 0, `${files.length - missing.length}/${files.length}`, 'contract, service, CLI, check, tests and docs are present', missing);
+  return rule('ux-rollout-files', 'Surface controls files exist', missing.length === 0, `${files.length - missing.length}/${files.length}`, 'contract, service, CLI, check, tests and docs are present', missing);
 }
 
 function ruleMarkers() {
   const checks = [
     ['src/contracts/ZavorthUxRolloutEvidenceCanaryContract.ts', ['ZAVORTH_UX_ROLLOUT_EVIDENCE_CANARY_CONTRACT_VERSION', 'liveCanaryRequiresOwnerApproval', 'evidenceNotPersistedByDefault', 'evidenceMustBeRedacted']],
-    ['src/services/ZavorthUxRolloutEvidenceCanaryService.ts', ['phase-7-ux-rollout-evidence-canary', 'ZavorthOperationalRolloutEvalService', 'redactText', 'liveApprovalRequired']],
+    ['src/services/ZavorthUxRolloutEvidenceCanaryService.ts', ['checkpoint-7-ux-rollout-evidence-canary', 'ZavorthOperationalRolloutEvalService', 'redactText', 'liveApprovalRequired']],
     ['scripts/zavorth-ux-rollout-evidence-canary.ts', ['--evidence', '--live', '--approval', '--require-all-surfaces']],
     ['src/sdk/contracts.ts', ['ZavorthUxRolloutEvidenceCanaryContract']],
     ['src/sdk/index.ts', ['ZavorthUxRolloutEvidenceCanaryService']],
@@ -59,13 +59,13 @@ function ruleMarkers() {
       if (!text.includes(needle)) missing.push(`${file}: missing ${needle}`);
     }
   }
-  return rule('ux-rollout-markers', 'Phase 7 markers are wired', missing.length === 0, missing.length === 0 ? 'all markers' : `${missing.length} missing`, 'UX evidence, SDK and CLI markers exist', missing);
+  return rule('ux-rollout-markers', 'Surface controls markers are wired', missing.length === 0, missing.length === 0 ? 'all markers' : `${missing.length} missing`, 'UX evidence, SDK and CLI markers exist', missing);
 }
 
 function runNeedsEvidenceFixture() {
   const result = runTs('scripts/zavorth-ux-rollout-evidence-canary.ts', ['--json']);
   return jsonRule('ux-rollout-needs-evidence', 'Default review needs UX evidence', result, (snapshot) =>
-    snapshot.contractVersion === '2026-05-11.ux-rollout-evidence-canary-phase-7'
+    snapshot.contractVersion === '2026-05-11.ux-rollout-evidence-canary-checkpoint-7'
     && snapshot.status === 'needs-evidence'
     && snapshot.summary.evidenceItems === 0
     && snapshot.canaryPlan.dryRunReady === false
@@ -126,7 +126,7 @@ function runBlockedLowerEvalFixture() {
 function ruleWorkspaceCheck() {
   const text = read('package.json');
   const marker = 'node scripts/zavorth-ux-rollout-evidence-canary-check.mjs';
-  return rule('workspace-check-wire', 'workspace:check includes Phase 7 gate', text.includes(marker), text.includes(marker) ? 'wired' : 'missing', marker, []);
+  return rule('workspace-check-wire', 'workspace:check includes Surface controls gate', text.includes(marker), text.includes(marker) ? 'wired' : 'missing', marker, []);
 }
 
 function ruleNoPublicExternalNames() {
@@ -147,7 +147,7 @@ function ruleNoPublicExternalNames() {
       if (text.includes(word)) hits.push(`${file}: ${word}`);
     }
   }
-  return rule('no-public-external-names', 'Phase 7 public core remains neutral', hits.length === 0, hits.length === 0 ? 'neutral' : `${hits.length} hit(s)`, 'no external product names in public core files', hits);
+  return rule('no-public-external-names', 'Surface controls public core remains neutral', hits.length === 0, hits.length === 0 ? 'neutral' : `${hits.length} hit(s)`, 'no external product names in public core files', hits);
 }
 
 function canonicalEvidence() {
@@ -175,7 +175,7 @@ function jsonRule(id, label, result, expect) {
   try {
     const snapshot = JSON.parse(result.stdout);
     const passed = expect(snapshot);
-    return rule(id, label, passed, `status=${snapshot.status}; canary=${snapshot.canaryPlan?.mode ?? 'n/a'}`, 'expected Phase 7 canary snapshot', passed ? [] : [JSON.stringify(snapshot, null, 2)]);
+    return rule(id, label, passed, `status=${snapshot.status}; canary=${snapshot.canaryPlan?.mode ?? 'n/a'}`, 'expected Surface controls canary snapshot', passed ? [] : [JSON.stringify(snapshot, null, 2)]);
   } catch (error) {
     return rule(id, label, false, 'invalid JSON', 'valid JSON fixture', [String(error), ...compact(result.stderr, result.stdout)]);
   }

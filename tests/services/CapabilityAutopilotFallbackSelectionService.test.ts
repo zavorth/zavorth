@@ -111,7 +111,7 @@ describe('CapabilityAutopilotFallbackSelectionService', () => {
       capabilityId: 'executor-gemini-cli',
       repairPlanId: 'repair-fallback',
       metadata: {
-        phase: 'capability-autopilot-phase-65',
+        stage: 'capability-autopilot-checkpoint-65',
         explicitSelectionRequired: true,
         autoFallbackExecuted: false,
       },

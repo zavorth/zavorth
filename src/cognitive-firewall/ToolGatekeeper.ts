@@ -1,5 +1,5 @@
 /**
- * ToolGatekeeper — Cognitive Firewall, Phase 2: Just-In-Time Tool Loading
+ * ToolGatekeeper — Cognitive Firewall, Preview engine: Just-In-Time Tool Loading
  *
  * Este módulo recebe a classificação de intenção do IntentClassifier e filtra
  * as ToolDefinitions a serem injetadas no prompt do LLM. Em vez de enviar

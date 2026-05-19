@@ -9,7 +9,7 @@ import { ZavorthTransactionPreviewService } from '../../src/services/ZavorthTran
 import { ZavorthTransactionRuntimeOrchestratorService } from '../../src/services/ZavorthTransactionRuntimeOrchestratorService.js';
 
 const now = new Date('2026-05-11T12:00:00.000Z');
-const signingKey = 'phase6-test-signing-key-000000000000000000000000000000';
+const signingKey = 'runtime-gateway-test-signing-key-000000000000000000000000000000';
 
 describe('ZavorthTransactionRuntimeOrchestratorService', () => {
   let tempDir: string;

@@ -8,7 +8,7 @@ describe('C10 natural language and security acceptance', () => {
 
     expect(snapshot).toEqual(expect.objectContaining({
       schemaVersion: 1,
-      phase: 'C10',
+      stage: 'C10',
       status: 'passed',
     }));
     expect(snapshot.summary).toEqual({

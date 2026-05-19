@@ -32,7 +32,7 @@ export class SourceChannelSimulatorService {
     const root = this.send(channelId, messages, receipts, {
       senderId: 'operator',
       recipientId: 'channel-alpha',
-      text: 'Phase 4 simulator root message',
+      text: 'Connector registry simulator root message',
     });
     this.receive(channelId, messages, receipts, {
       senderId: 'user-a',

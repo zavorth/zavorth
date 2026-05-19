@@ -8,7 +8,7 @@ const asJson = process.argv.includes('--json');
 const rules = [
   ruleFilesExist({
     id: 'ask-before-assumption-files',
-    label: 'Wave 42 files exist',
+    label: 'Channel mesh2 files exist',
     target: 'Runtime, CLI, Command Center, tests and docs are present',
     files: [
       'src/runtime/agent/AskBeforeAssumptionPolicyService.ts',
@@ -27,7 +27,7 @@ const rules = [
     files: ['src/runtime/agent/AskBeforeAssumptionPolicyService.ts'],
     needles: [
       'ASK_BEFORE_ASSUMPTION_POLICY_CONTRACT_VERSION',
-      '2026-05-03.wave-42',
+      '2026-05-03.track-42',
       'AskBeforeAssumption',
       'AskBeforeAssumptionQuestion',
       'noAssumptionActedOn',
@@ -63,7 +63,7 @@ const rules = [
     ],
     needles: [
       'assumptions',
-      'Ask Before Assumption Policy - Wave 42',
+      'Ask Before Assumption Policy - Channel mesh2',
       'resolveAskBeforeAssumptionPolicyCliText',
       'formatAskBeforeAssumptionPolicySnapshot',
       'zavorth assumptions',
@@ -92,7 +92,7 @@ const rules = [
   }),
   ruleContainsAll({
     id: 'package-exposes-ask-before-assumption-gate',
-    label: 'package exposes Wave 42 gate',
+    label: 'package exposes Channel mesh2 gate',
     target: 'local QA can run ask-before-assumption:check and qa:ask-before-assumption',
     files: ['package.json'],
     needles: [
@@ -118,7 +118,7 @@ const snapshot = {
 if (asJson) {
   console.log(JSON.stringify(snapshot, null, 2));
 } else {
-  console.log('[ask-before-assumption] checking Wave 42');
+  console.log('[ask-before-assumption] checking Channel mesh2');
   for (const rule of rules) {
     const marker = rule.status === 'passed' ? 'ok' : 'fail';
     console.log(`[ask-before-assumption] ${marker} ${rule.label}: ${rule.observed} | ${rule.target}`);

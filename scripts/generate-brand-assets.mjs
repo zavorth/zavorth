@@ -4,7 +4,7 @@ import { chromium } from 'playwright';
 
 const root = process.cwd();
 const outDir = path.join(root, 'assets', 'brand');
-const logoPath = path.join(root, 'assets', 'command-center', 'assets', 'fox-semfundo.png');
+const logoPath = path.join(root, 'assets', 'command-center', 'assets', 'zavorth-icon.svg');
 
 fs.mkdirSync(outDir, { recursive: true });
 

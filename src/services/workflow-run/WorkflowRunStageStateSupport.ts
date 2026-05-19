@@ -20,7 +20,7 @@ export class WorkflowRunStageStateSupport {
     run.actionable_stages = this.resolveActionableStages(run);
     run.resume_prompt = run.resume_stage ? this.buildResumePrompt(run, run.resume_stage) : null;
 
-    if (run.stages.length > 0 && run.stages.every((entry) => entry.status === 'completed')) {
+    if (run.phases.length > 0 && run.phases.every((entry) => entry.status === 'completed')) {
       run.status = 'completed';
       run.resume_stage = null;
       run.resume_prompt = null;
@@ -44,27 +44,27 @@ export class WorkflowRunStageStateSupport {
   }
 
   public static resolveResumeStage(run: WorkflowRunSnapshot): WorkflowRunResumeStageSnapshot | null {
-    const stage = run.stages.find((entry) => {
+    const phase = run.phases.find((entry) => {
       const status = String(entry?.status || '').trim();
       return status === 'approval_pending' || status === 'blocked' || status === 'failed';
     });
-    if (!stage) {
+    if (!phase) {
       return null;
     }
 
     return {
-      id: stage.id,
-      label: stage.label,
-      executor: stage.executor,
-      strategy_note: stage.strategy_note || null,
-      status: stage.status as WorkflowRunResumeStageSnapshot['status'],
-      index: Number.isFinite(stage.index) ? Number(stage.index) : 0,
-      attempt_count: Math.max(0, Number(stage.attempt_count || 0)),
-      task_id: stage.task_id || null,
-      objective: stage.objective || null,
-      handoff_summary: stage.handoff_summary || null,
-      result_summary: stage.result_summary || null,
-      reason: this.describeResumeStageReason(stage.status as WorkflowRunResumeStageSnapshot['status']),
+      id: phase.id,
+      label: phase.label,
+      executor: phase.executor,
+      strategy_note: phase.strategy_note || null,
+      status: phase.status as WorkflowRunResumeStageSnapshot['status'],
+      index: Number.isFinite(phase.index) ? Number(phase.index) : 0,
+      attempt_count: Math.max(0, Number(phase.attempt_count || 0)),
+      task_id: phase.task_id || null,
+      objective: phase.objective || null,
+      handoff_summary: phase.handoff_summary || null,
+      result_summary: phase.result_summary || null,
+      reason: this.describeResumeStageReason(phase.status as WorkflowRunResumeStageSnapshot['status']),
     };
   }
 
@@ -74,10 +74,10 @@ export class WorkflowRunStageStateSupport {
       stageId?: string | null;
       taskId?: string | null;
     },
-  ): WorkflowRunSnapshot['stages'][number] | null {
+  ): WorkflowRunSnapshot['phases'][number] | null {
     const stageId = String(input.stageId || '').trim();
     if (stageId) {
-      const byStageId = run.stages.find((stage) => stage.id === stageId);
+      const byStageId = run.phases.find((phase) => phase.id === stageId);
       if (byStageId) {
         return byStageId;
       }
@@ -85,14 +85,14 @@ export class WorkflowRunStageStateSupport {
 
     const taskId = String(input.taskId || '').trim();
     if (taskId) {
-      const byTaskId = run.stages.find((stage) => String(stage.task_id || '').trim() === taskId);
+      const byTaskId = run.phases.find((phase) => String(phase.task_id || '').trim() === taskId);
       if (byTaskId) {
         return byTaskId;
       }
     }
 
     if (run.resume_stage?.id) {
-      return run.stages.find((stage) => stage.id === run.resume_stage?.id) || null;
+      return run.phases.find((phase) => phase.id === run.resume_stage?.id) || null;
     }
 
     return null;
@@ -109,42 +109,42 @@ export class WorkflowRunStageStateSupport {
   }
 
   public static resolveActionableStages(run: WorkflowRunSnapshot): WorkflowRunActionableStageSnapshot[] {
-    return run.stages
-      .filter((stage) => {
-        const status = String(stage?.status || '').trim();
+    return run.phases
+      .filter((phase) => {
+        const status = String(phase?.status || '').trim();
         return status === 'approval_pending'
           || status === 'blocked'
           || status === 'failed'
           || status === 'completed';
       })
       .sort((left, right) => Number(left.index || 0) - Number(right.index || 0))
-      .map((stage) => ({
-        id: stage.id,
-        label: stage.label,
-        executor: stage.executor,
-        status: stage.status as WorkflowRunActionableStageSnapshot['status'],
-        index: Number.isFinite(stage.index) ? Number(stage.index) : 0,
-        task_id: stage.task_id || null,
-        objective: stage.objective || null,
-        handoff_summary: stage.handoff_summary || null,
-        result_summary: stage.result_summary || null,
-        reason: this.describeActionableStageReason(stage),
-        action: this.describeActionableStageAction(stage.status as WorkflowRunActionableStageSnapshot['status']),
+      .map((phase) => ({
+        id: phase.id,
+        label: phase.label,
+        executor: phase.executor,
+        status: phase.status as WorkflowRunActionableStageSnapshot['status'],
+        index: Number.isFinite(phase.index) ? Number(phase.index) : 0,
+        task_id: phase.task_id || null,
+        objective: phase.objective || null,
+        handoff_summary: phase.handoff_summary || null,
+        result_summary: phase.result_summary || null,
+        reason: this.describeActionableStageReason(phase),
+        action: this.describeActionableStageAction(phase.status as WorkflowRunActionableStageSnapshot['status']),
       }));
   }
 
   public static describeActionableStageReason(
-    stage: WorkflowRunSnapshot['stages'][number],
+    phase: WorkflowRunSnapshot['phases'][number],
   ): string {
-    const summary = String(stage?.result_summary || stage?.handoff_summary || stage?.objective || '').trim();
+    const summary = String(phase?.result_summary || phase?.handoff_summary || phase?.objective || '').trim();
     if (summary) {
       return summary;
     }
-    if (stage.status === 'completed') {
+    if (phase.status === 'completed') {
       return 'etapa concluida e pronta para reexecutao';
     }
     return this.describeResumeStageReason(
-      stage.status as WorkflowRunResumeStageSnapshot['status'],
+      phase.status as WorkflowRunResumeStageSnapshot['status'],
     );
   }
 
@@ -165,14 +165,14 @@ export class WorkflowRunStageStateSupport {
 
   public static buildResumePrompt(
     run: WorkflowRunSnapshot,
-    stage: WorkflowRunResumeStageSnapshot,
+    phase: WorkflowRunResumeStageSnapshot,
   ): string {
     const parts = [
-      `Retome o workflow ${run.workflow_name} no run ${run.workflow_run_id} pela etapa ${stage.label}.`,
-      stage.objective ? `Objetivo: ${stage.objective}.` : '',
-      stage.strategy_note ? `Estrategia original: ${stage.strategy_note}.` : '',
-      stage.handoff_summary ? `Contexto anterior: ${stage.handoff_summary}.` : '',
-      stage.result_summary ? `Estado atual: ${stage.result_summary}.` : '',
+      `Retome o workflow ${run.workflow_name} no run ${run.workflow_run_id} pela etapa ${phase.label}.`,
+      phase.objective ? `Objetivo: ${phase.objective}.` : '',
+      phase.strategy_note ? `Estrategia original: ${phase.strategy_note}.` : '',
+      phase.handoff_summary ? `Contexto anterior: ${phase.handoff_summary}.` : '',
+      phase.result_summary ? `Estado atual: ${phase.result_summary}.` : '',
     ].filter(Boolean);
     return parts.join(' ');
   }

@@ -115,7 +115,7 @@ function providerSnapshot(input: {
   missingAuth?: number;
 }) {
   return {
-    contractVersion: '2026-05-14.phase-3-live-completion',
+    contractVersion: '2026-05-14.checkpoint-3-live-completion',
     schemaVersion: 1,
     surface: 'provider-readiness-matrix',
     generatedAt: '2026-05-16T12:00:00.000Z',

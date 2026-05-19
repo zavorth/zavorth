@@ -93,7 +93,7 @@ export class SpeechVoiceLivePlaneService {
     return {
       generatedAt: this.now().toISOString(),
       contractVersion: ZAVORTH_SPEECH_VOICE_LIVE_PLANE_CONTRACT_VERSION,
-      phase: 'Phase 7 - Speech, TTS And Voice Live Plane',
+      phase: 'Surface controls - Speech, TTS And Voice Live Plane',
       status: blocked > 0 ? 'blocked' : 'closed',
       summary: {
         targets: 10,
@@ -110,13 +110,13 @@ export class SpeechVoiceLivePlaneService {
         stagingLiveSmokeCommands: entries.filter((entry) => this.hasGate(entry, 'staging-live-smoke')).length,
         redactedReceipts: receipts.filter((receipt) => receipt.secretValuesSerialized === false).length,
         blocked,
-        liveIoRequiredByPhase7Check: false,
+        liveIoRequiredByStage7Check: false,
         secretValuesSerialized: false,
       },
       entries,
       receipts,
       policy: {
-        noLiveIoDuringPhase7Check: true,
+        noLiveIoDuringStage7Check: true,
         artifactFirstTranscriptsRequired: true,
         artifactFirstAudioRequired: true,
         recordingConsentRequiredForLiveCalls: true,
@@ -130,7 +130,7 @@ export class SpeechVoiceLivePlaneService {
         stagingLiveSmoke: 'npm run speech-voice-live-plane -- --profile staging-live --target <target> --confirm-live-io',
         focusedTests: ['npx jest tests/services/SpeechVoiceLivePlaneService.test.ts --runInBand'],
         typecheck: 'npm run runtime:check --silent',
-        nextPhase: 'Phase 8 - Research, Web Extraction And Browser Live Plane',
+        nextStage: 'Dashboard controls - Research, Web Extraction And Browser Live Plane',
       },
     };
   }
@@ -243,7 +243,7 @@ export class SpeechVoiceLivePlaneService {
         return 'src/services/VoiceSessionService.ts#runPushToTalk';
       }
       if (family === 'meeting-bridge-decision') {
-        return 'docs/390-zavorth-speech-tts-voice-live-plane-private.md#meeting-bridge-decision';
+        return 'docs/product-direction.md';
       }
       return 'src/adapters/speech/SpeechVoiceLiveAdapters.ts';
     });

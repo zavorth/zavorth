@@ -11,7 +11,7 @@ function createIdFactory() {
   return (prefix: string) => `${prefix}-cc-productization-evidence-${++index}`;
 }
 
-describe('Command Center productization evidence Wave 46', () => {
+describe('Command Center productization evidence Channel mesh6', () => {
   it('projects productizationEvidence metadata into the dashboard view model', () => {
     const run = new AgentRunService({
       now: () => new Date('2026-05-04T01:46:00.000Z'),
@@ -26,7 +26,7 @@ describe('Command Center productization evidence Wave 46', () => {
       metadata: {
         productizationContract: {
           source: 'ZavorthProductizationContractService',
-          phase: 'C9',
+          stage: 'C9',
           status: 'ready',
           control: { ready: true },
           cli: { ready: true },
@@ -59,7 +59,7 @@ describe('Command Center productization evidence Wave 46', () => {
     });
 
     expect(viewModel.productizationEvidence).toEqual(expect.objectContaining({
-      contractVersion: '2026-05-04.wave-46',
+      contractVersion: '2026-05-04.product-evidence',
       status: expect.stringMatching(/ready|partial/),
       summary: expect.objectContaining({
         productizationContractLinked: true,
@@ -109,7 +109,7 @@ describe('Command Center productization evidence Wave 46', () => {
       metadata: {
         productizationContract: {
           source: 'ZavorthProductizationContractService',
-          phase: 'C9',
+          stage: 'C9',
           status: 'ready',
           control: { ready: true },
           cli: { ready: true },
@@ -129,7 +129,7 @@ describe('Command Center productization evidence Wave 46', () => {
     );
 
     expect(projection.productizationEvidence).toEqual(expect.objectContaining({
-      contractVersion: '2026-05-04.wave-46',
+      contractVersion: '2026-05-04.product-evidence',
       summary: expect.objectContaining({
         productizationContractLinked: true,
         replayLinked: true,

@@ -1199,7 +1199,7 @@
     "toolsAndScopes": "Værktøjer og scopes",
     "tableTool": "Værktøj",
     "tableScopes": "Omfang",
-    "tablePhase": "Fase",
+    "tablePhase": "Etapa",
     "tableAudit": "Revision",
     "auditLog": "Revisionslog",
     "auditSummary": "Opkald: {total} | side {page} af {totalPages}",

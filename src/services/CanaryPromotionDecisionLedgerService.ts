@@ -136,7 +136,7 @@ export class CanaryPromotionDecisionLedgerService {
           'npm run canary-promotion-decision-ledger --silent -- --require-ledger-ready',
         ],
         typecheck: 'npm run runtime:check --silent',
-        nextPhase: 'Final canary release closure',
+        nextStage: 'Final canary release closure',
       },
       policy: {
         promotionDecisionLedgerOnly: true,
@@ -206,7 +206,7 @@ export class CanaryPromotionDecisionLedgerService {
         `- ${gate.status.toUpperCase()} ${gate.id}: ${gate.observed} / ${gate.threshold} - ${gate.nextAction}`,
       ),
       '',
-      `Next: ${snapshot.commands.nextPhase}`,
+      `Next: ${snapshot.commands.nextStage}`,
     ].join('\n');
   }
 
@@ -363,7 +363,7 @@ export class CanaryPromotionDecisionLedgerService {
         observed: input.monitoringRollbackGateReady,
         threshold: true,
         receipt: 'canary-promotion-decision.monitoring-rollback-gate-ready.receipt',
-        nextAction: 'finish Phase 22 before promotion decision ledger',
+        nextAction: 'finish Preview engine2 before promotion decision ledger',
       }),
       gate({
         id: 'held-release-execution-gate-linked',

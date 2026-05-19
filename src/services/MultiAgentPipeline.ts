@@ -76,7 +76,7 @@ export class MultiAgentPipeline {
     }
 
     const workOrder = this.sddOrchestrator.inspect(featureId);
-    const stage = this.workflowPlanner.buildSddWorkflowStage(workOrder, workspaceContext);
+    const phase = this.workflowPlanner.buildSddWorkflowStage(workOrder, workspaceContext);
     const objective = `Executar o loop SDD da feature ${workOrder.featureId}.`;
 
     await this.runWorkflow(
@@ -94,7 +94,7 @@ export class MultiAgentPipeline {
           feature_id: workOrder.featureId,
         },
       },
-      [stage],
+      [phase],
     );
   }
 
@@ -108,10 +108,10 @@ export class MultiAgentPipeline {
     stageOverrides?: WorkflowStage[],
   ): Promise<void> {
     try {
-      const stages = stageOverrides || this.workflowPlanner.buildWorkflowStages(workflow, workspaceContext);
-      const run = this.workflowRuns.createRun(workflow, objective, workspace, stages, workspaceContext, options);
-      await ctx.reply(this.presentation.formatWorkflowIntro(workflow, objective, workspace, stages, run, workspaceContext));
-      await this.runner.continueWorkflow(ctx, run, stages, 0, [], workspaceContext);
+      const phases = stageOverrides || this.workflowPlanner.buildWorkflowStages(workflow, workspaceContext);
+      const run = this.workflowRuns.createRun(workflow, objective, workspace, phases, workspaceContext, options);
+      await ctx.reply(this.presentation.formatWorkflowIntro(workflow, objective, workspace, phases, run, workspaceContext));
+      await this.runner.continueWorkflow(ctx, run, phases, 0, [], workspaceContext);
     } catch (e: any) {
       await ctx.reply(`Workflow interrompido.\n\nMotivo: ${e.message}`);
     }
@@ -132,7 +132,7 @@ export class MultiAgentPipeline {
     }
 
     const workspaceContext = options.workspaceContext ?? run.workspace_context ?? null;
-    const stages = this.workflowPlanner.buildResumeStages(run, workspaceContext);
+    const phases = this.workflowPlanner.buildResumeStages(run, workspaceContext);
     const resumeIndex = this.runner.resolveResumeStageIndex(run, options.stageId);
     if (resumeIndex < 0) {
       await ctx.reply(
@@ -143,8 +143,8 @@ export class MultiAgentPipeline {
       return;
     }
 
-    const stage = stages[resumeIndex];
-    const persistedStage = run.stages.find((entry) => entry.id === stage.id) || null;
+    const phase = phases[resumeIndex];
+    const persistedStage = run.phases.find((entry) => entry.id === phase.id) || null;
     const stageVerb = String(persistedStage?.status || '').trim().toLowerCase() === 'completed'
       ? 'Reexecutando'
       : 'Retomando';
@@ -152,12 +152,12 @@ export class MultiAgentPipeline {
       [
         `${stageVerb} workflow ${run.workflow_run_id}.`,
         `Fluxo: ${this.presentation.describeWorkflow(run.workflow_name)}`,
-        `Etapa: ${stage.label}`,
+        `Etapa: ${phase.label}`,
       ].join('\n'),
     );
 
     const previousResults = this.runner.buildHistoricalResults(run, resumeIndex);
-    await this.runner.continueWorkflow(ctx, run, stages, resumeIndex, previousResults, workspaceContext);
+    await this.runner.continueWorkflow(ctx, run, phases, resumeIndex, previousResults, workspaceContext);
   }
 
   public async closeWorkflowRun(

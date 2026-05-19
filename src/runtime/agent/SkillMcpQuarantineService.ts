@@ -6,7 +6,7 @@ import type {
 } from './security/index.js';
 import type { UniversalAgentRun } from './UniversalAgentRuntimeTypes.js';
 
-export const SKILL_MCP_QUARANTINE_CONTRACT_VERSION = '2026-05-03.wave-33' as const;
+export const SKILL_MCP_QUARANTINE_CONTRACT_VERSION = '2026-05-03.skill-mcp-quarantine' as const;
 
 export type SkillMcpQuarantineEntry = {
   id: string;

@@ -8,7 +8,7 @@ const asJson = process.argv.includes('--json');
 const rules = [
   ruleFilesExist({
     id: 'natural-setup-files',
-    label: 'Natural Setup Assistant Phase 2 files exist',
+    label: 'Natural Setup Assistant Preview engine files exist',
     target: 'contract, service, API facade, CLI, tests and docs are present',
     files: [
       'src/contracts/NaturalSetupAssistantContract.ts',
@@ -106,7 +106,7 @@ const snapshot = {
 if (asJson) {
   console.log(JSON.stringify(snapshot, null, 2));
 } else {
-  console.log('[natural-setup] checking Phase 2');
+  console.log('[natural-setup] checking Preview engine');
   for (const rule of rules) {
     const marker = rule.status === 'passed' ? 'ok' : 'fail';
     console.log(`[natural-setup] ${marker} ${rule.label}: ${rule.observed} | ${rule.target}`);

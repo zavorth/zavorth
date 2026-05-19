@@ -16,7 +16,7 @@ describe('ZavorthUnifiedOnboardingService', () => {
       detailMode: 'simple',
     });
 
-    expect(snapshot.contractVersion).toBe('2026-05-13.phase-2');
+    expect(snapshot.contractVersion).toBe('2026-05-13.checkpoint-2');
     expect(snapshot.status).toBe('ready');
     expect(snapshot.steps.map((step) => step.id)).toEqual([
       'mode',

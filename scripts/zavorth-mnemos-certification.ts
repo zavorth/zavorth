@@ -65,7 +65,7 @@ const REQUIRED_FILES = [
   'src/services/ZavorthMnemosProceduralMemoryService.ts',
   'src/services/ZavorthMnemosMemoryUxService.ts',
   'src/telegram/controllers/TelegramMnemosMemoryUxController.ts',
-  'docs/42-mnemos-memory-os.md',
+  'docs/mnemos-memory-os.md',
 ];
 
 const FORBIDDEN_IDENTITY_PATTERNS = [

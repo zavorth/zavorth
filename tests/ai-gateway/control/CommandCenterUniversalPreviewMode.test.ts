@@ -7,7 +7,7 @@ function createIdFactory() {
   return (prefix: string) => `${prefix}-cc-preview-${++index}`;
 }
 
-describe('Command Center Universal Preview Mode Wave 30', () => {
+describe('Command Center Universal Preview Mode Universal Preview', () => {
   it('projects preview metadata into the dashboard view model', () => {
     const viewModel = buildDashboardCommandCenterViewModel({
       runtime: {
@@ -19,7 +19,7 @@ describe('Command Center Universal Preview Mode Wave 30', () => {
         status: 'completed',
         metadata: {
           universalPreviewMode: {
-            contractVersion: '2026-05-03.wave-30',
+            contractVersion: '2026-05-03.universal-preview',
             generatedAt: '2026-05-03T21:30:00.000Z',
             mode: 'preview-only',
             planSteps: [
@@ -64,7 +64,7 @@ describe('Command Center Universal Preview Mode Wave 30', () => {
     });
 
     expect(viewModel.universalPreviewMode).toEqual(expect.objectContaining({
-      contractVersion: '2026-05-03.wave-30',
+      contractVersion: '2026-05-03.universal-preview',
       mode: 'preview-only',
       risk: expect.objectContaining({
         highestRisk: 'danger',
@@ -113,7 +113,7 @@ describe('Command Center Universal Preview Mode Wave 30', () => {
     );
 
     expect(projection.universalPreviewMode).toEqual(expect.objectContaining({
-      contractVersion: '2026-05-03.wave-30',
+      contractVersion: '2026-05-03.universal-preview',
       mode: 'preview-only',
       risk: expect.objectContaining({
         requiresApproval: true,

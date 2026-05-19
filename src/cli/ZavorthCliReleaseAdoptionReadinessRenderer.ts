@@ -55,7 +55,7 @@ export function formatReleaseAdoptionReadinessSnapshot(
   snapshot: ReleaseAdoptionReadinessSnapshot,
 ): string {
   const lines = [
-    'Release & Adoption Readiness - Wave 53',
+    'Release & Adoption Readiness - Release Adoption Readiness',
     `- contrato: ${snapshot.contractVersion}`,
     `- run: ${snapshot.identifiers.runId}`,
     `- sessao: ${snapshot.identifiers.sessionId}`,
@@ -116,7 +116,7 @@ export function formatReleaseAdoptionReadinessSnapshot(
 
 function buildFeedbackReadySnapshot() {
   return {
-    contractVersion: '2026-05-04.wave-50',
+    contractVersion: '2026-05-04.feedback-telemetry',
     source: 'FeedbackTelemetryProductLoopService',
     status: 'opt-in-ready',
     policy: {
@@ -130,7 +130,7 @@ function buildFeedbackReadySnapshot() {
 
 function buildPilotReadySnapshot(run: UniversalAgentRun) {
   return {
-    contractVersion: '2026-05-04.wave-51',
+    contractVersion: '2026-05-04.adoption-pilot',
     source: 'PublicAdoptionPilotLoopService',
     generatedAt: '2026-05-04T06:53:00.000Z',
     identifiers: {
@@ -162,7 +162,7 @@ function buildPilotReadySnapshot(run: UniversalAgentRun) {
 
 function buildShowcaseReadySnapshot(run: UniversalAgentRun) {
   return {
-    contractVersion: '2026-05-04.wave-52',
+    contractVersion: '2026-05-04.integration-showcase',
     source: 'IntegrationShowcasePartnerSurfaceService',
     generatedAt: '2026-05-04T06:53:00.000Z',
     identifiers: {
@@ -184,7 +184,7 @@ function buildShowcaseReadySnapshot(run: UniversalAgentRun) {
 
 function buildReleaseTrainSnapshot() {
   return {
-    phase: '59',
+    stage: '59',
     surface: 'release-train',
     generatedAt: '2026-05-04T06:53:00.000Z',
     status: 'ready',
@@ -239,7 +239,7 @@ function buildReleaseTrainSnapshot() {
 
 function buildPublicAdoptionSnapshot() {
   return {
-    phase: '53',
+    stage: '53',
     surface: 'public-adoption-readiness',
     generatedAt: '2026-05-04T06:53:00.000Z',
     status: 'ready',
@@ -256,10 +256,10 @@ function buildPublicAdoptionSnapshot() {
       release: 'v1.0.0',
       packageName: 'zavorth',
       packageVersion: '1.1.0',
-      roadmapPath: 'docs/11-roadmap.md',
-      planningPath: 'docs/76-public-adoption-architecture.md',
+      roadmapPath: 'docs/product-direction.md',
+      planningPath: 'docs/product-direction.md',
     },
-    requiredScripts: ['public-adoption', 'qa:public-adoption', 'qa:phase:53'],
+    requiredScripts: ['public-adoption', 'qa:public-adoption', 'qa:stage:53'],
     launchChecklist: [],
     claims: [
       { id: 'local-first-governed-runtime' },
@@ -283,8 +283,8 @@ function buildPublicAdoptionSnapshot() {
       { minute: '9-10', route: '/feedback' },
     ],
     checks: [],
-    nextRecommendedPhase: {
-      phase: '54',
+    nextRecommendedStage: {
+      stage: '54',
       title: 'Hosted Website And Demo Operations',
       reason: 'preview e deploy governados',
     },

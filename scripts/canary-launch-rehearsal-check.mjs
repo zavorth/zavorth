@@ -41,7 +41,7 @@ const rules = [
   ruleContainsAll({
     id: 'canary-launch-rehearsal-service',
     label: 'Service builds canary launch rehearsal from approval ledger',
-    target: 'Service consumes Phase 20, rehearses launch command/rollback/observation, and keeps launch/publish/promotion locked',
+    target: 'Service consumes Preview engine0, rehearses launch command/rollback/observation, and keeps launch/publish/promotion locked',
     files: ['src/services/CanaryLaunchRehearsalService.ts'],
     needles: [
       'CanaryLaunchRehearsalService',
@@ -118,7 +118,7 @@ const snapshot = {
 if (asJson) {
   console.log(JSON.stringify(snapshot, null, 2));
 } else {
-  console.log('[canary-launch-rehearsal] checking Phase 21');
+  console.log('[canary-launch-rehearsal] checking Preview engine1');
   for (const rule of rules) {
     const marker = rule.status === 'passed' ? 'ok' : 'fail';
     console.log(`[canary-launch-rehearsal] ${marker} ${rule.label}: ${rule.observed} | ${rule.target}`);

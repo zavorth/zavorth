@@ -28,7 +28,7 @@ const snapshot = service.buildEnvelope({
       role: 'tool',
       toolName: 'shell',
       status: 'error',
-      content: 'A previous test timed out while checking docs/42-mnemos-memory-os.md',
+      content: 'A previous test timed out while checking docs/mnemos-memory-os.md',
     },
     {
       role: 'assistant',

@@ -1,7 +1,7 @@
 import type { ParityCertificationGateStatus } from './ParityCertificationContract.js';
 import type { CanaryMonitoringRollbackGateSnapshot } from './CanaryMonitoringRollbackGateContract.js';
 
-export const ZAVORTH_CANARY_PROMOTION_DECISION_LEDGER_CONTRACT_VERSION = '2026-05-04.phase-23';
+export const ZAVORTH_CANARY_PROMOTION_DECISION_LEDGER_CONTRACT_VERSION = '2026-05-04.checkpoint-23';
 
 export type CanaryPromotionDecisionLedgerStatus =
   | 'decision-ledger-ready'
@@ -192,7 +192,7 @@ export type CanaryPromotionDecisionLedgerSnapshot = {
     rollbackDecisionDryRun: string;
     focusedTests: string[];
     typecheck: string;
-    nextPhase: 'Final canary release closure';
+    nextStage: 'Final canary release closure';
   };
   policy: {
     promotionDecisionLedgerOnly: true;

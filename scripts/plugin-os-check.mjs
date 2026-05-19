@@ -106,7 +106,7 @@ const snapshot = {
 if (asJson) {
   console.log(JSON.stringify(snapshot, null, 2));
 } else {
-  console.log('[plugin-os] checking Phase 2');
+  console.log('[plugin-os] checking Preview engine');
   for (const rule of rules) {
     const marker = rule.status === 'passed' ? 'ok' : 'fail';
     console.log(`[plugin-os] ${marker} ${rule.label}: ${rule.observed} | ${rule.target}`);

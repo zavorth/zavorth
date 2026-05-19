@@ -1,12 +1,12 @@
 import { FinalCanaryReleaseClosureService } from '../../src/services/FinalCanaryReleaseClosureService.js';
 
-describe('FinalCanaryReleaseClosureService Phase 24', () => {
+describe('FinalCanaryReleaseClosureService Preview engine4', () => {
   it('builds final closure from the canary promotion decision ledger', () => {
     const snapshot = new FinalCanaryReleaseClosureService({
       now: () => new Date('2026-05-05T05:30:00.000Z'),
     }).buildSnapshot();
 
-    expect(snapshot.contractVersion).toBe('2026-05-04.phase-24');
+    expect(snapshot.contractVersion).toBe('2026-05-04.checkpoint-24');
     expect(snapshot.status).toBe('closure-ready');
     expect(snapshot.releaseCandidate).toEqual(
       expect.objectContaining({
@@ -21,7 +21,7 @@ describe('FinalCanaryReleaseClosureService Phase 24', () => {
     expect(snapshot.closure).toEqual(
       expect.objectContaining({
         state: 'closure-ready',
-        phaseRange: '20-24',
+        stageRange: '20-24',
         effectiveDecision: 'hold',
         finalSequenceDecision: 'closed-dry-run',
         canaryDryRunSequenceComplete: true,
@@ -32,8 +32,8 @@ describe('FinalCanaryReleaseClosureService Phase 24', () => {
         observationWindowHours: 48,
         selectedPromotionDecision: 'hold',
         recommendedPromotionDecision: 'await-live-evidence',
-        noFurtherAutomatedPhase: true,
-        sequenceClosesAtPhase24: true,
+        noFurtherAutomatedStage: true,
+        sequenceClosesAtStage24: true,
       }),
     );
     expect(snapshot.summary).toEqual(
@@ -52,11 +52,11 @@ describe('FinalCanaryReleaseClosureService Phase 24', () => {
         promotionDecisionLedgerStatus: 'decision-ledger-ready',
         promotionDecisionLedgerReady: true,
         heldReleaseExecutionGateLinked: true,
-        phase20Linked: true,
-        phase21Linked: true,
-        phase22Linked: true,
-        phase23Linked: true,
-        phaseChainComplete: true,
+        previewEngine0Linked: true,
+        previewEngine1Linked: true,
+        previewEngine2Linked: true,
+        previewEngine3Linked: true,
+        stageChainComplete: true,
         closureEvidenceComplete: true,
         manualHandoffsReady: true,
         finalCanaryReleaseClosureReady: true,
@@ -127,7 +127,7 @@ describe('FinalCanaryReleaseClosureService Phase 24', () => {
         releaseExecutionHeld: 'npm run capability-autopilot:release-execution --silent -- --no-execution-approval --no-tag-approval --no-publish-approval --no-canary-launch-approval',
         chainValidation: 'dry-run:validate-canary-chain --phases 20-24 --no-execute',
         manualReleaseDecisionHandoff: 'manual:open-release-decision-outside-dry-run-chain --requires-signed-evidence',
-        completion: 'Canary dry-run sequence complete at Phase 24',
+        completion: 'Canary dry-run sequence complete at Preview engine4',
       }),
     );
     expect(snapshot.policy).toEqual(
@@ -135,8 +135,8 @@ describe('FinalCanaryReleaseClosureService Phase 24', () => {
         finalClosureOnly: true,
         consumesCanaryPromotionDecisionLedger: true,
         closesCanaryDryRunSequence: true,
-        sequenceClosesAtPhase24: true,
-        noFurtherAutomatedPhase: true,
+        sequenceClosesAtStage24: true,
+        noFurtherAutomatedStage: true,
         noManualReleaseDecisionRecordedByDefault: true,
         noReleaseExecuted: true,
         noCanaryStarted: true,
@@ -179,8 +179,8 @@ describe('FinalCanaryReleaseClosureService Phase 24', () => {
     expect(report).toContain('Canary dry-run sequence complete: true');
     expect(report).toContain('Ready for separate manual release decision: true');
     expect(report).toContain('Manual release decision recorded: false');
-    expect(report).toContain('No further automated phase: true');
-    expect(report).toContain('Sequence closes at Phase 24: true');
+    expect(report).toContain('No further automated stage: true');
+    expect(report).toContain('Sequence closes at Preview engine4: true');
     expect(report).toContain('Items: 2 linked, 8 closure-ready, 3 operator-ready, 3 locked, 0 blocked');
     expect(report).toContain('Promotion decision ledger ready: true');
     expect(report).toContain('Phase chain complete: true');
@@ -190,6 +190,6 @@ describe('FinalCanaryReleaseClosureService Phase 24', () => {
     expect(report).toContain('Canary expanded: false');
     expect(report).toContain('Rollback executed: false');
     expect(report).toContain('Remote state mutated: false');
-    expect(report).toContain('Completion: Canary dry-run sequence complete at Phase 24');
+    expect(report).toContain('Completion: Canary dry-run sequence complete at Preview engine4');
   });
 });

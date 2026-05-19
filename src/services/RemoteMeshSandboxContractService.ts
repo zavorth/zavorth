@@ -133,7 +133,7 @@ export class RemoteMeshSandboxContractService {
         check: 'npm run remote-mesh:sandbox:contracts --silent',
         focusedTests: 'npx jest tests/services/RemoteMeshSandboxContractService.test.ts --runInBand',
         typecheck: 'npm run runtime:check --silent',
-        nextPhase: 'R2 - Remote Policy Engine and Tool Allowlist',
+        nextStage: 'R2 - Remote Policy Engine and Tool Allowlist',
       },
     };
   }

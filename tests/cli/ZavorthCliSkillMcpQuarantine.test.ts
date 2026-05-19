@@ -46,7 +46,7 @@ describe('Zavorth CLI Skill/MCP Quarantine', () => {
     }));
     const payload = JSON.parse(writes[0] || '{}');
     expect(payload).toEqual(expect.objectContaining({
-      contractVersion: '2026-05-03.wave-33',
+      contractVersion: '2026-05-03.skill-mcp-quarantine',
       summary: expect.objectContaining({
         total: 2,
         quarantined: 1,
@@ -68,7 +68,7 @@ describe('Zavorth CLI Skill/MCP Quarantine', () => {
 
     const text = formatSkillMcpQuarantineSnapshot(snapshot);
 
-    expect(text).toContain('Skill/MCP Quarantine - Wave 33');
+    expect(text).toContain('Skill/MCP Quarantine - Skill MCP Quarantine');
     expect(text).toContain('Capabilities importadas');
     expect(text).toContain('promover: zavorth quarantine promote');
     expect(text).toContain('Command Center: /control?sector=skills');
