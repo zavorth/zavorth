@@ -194,8 +194,9 @@ async function smokeHtmlShell(baseUrl: string): Promise<SmokeResult> {
       {
         label: 'dashboard gateway',
         markers: [
-          'Hello, Operator',
-          'Start with Inbox, Tasks, Approvals, Receipts or Connectors.',
+          'Local gateway ready',
+          'Ask normally. Zavorth will answer, preview risky work, and ask before acting.',
+          'Review this workspace safely',
           'Inbox',
           'Tasks',
           'Connectors',

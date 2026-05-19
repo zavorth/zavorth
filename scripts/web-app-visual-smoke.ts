@@ -326,7 +326,7 @@ async function smokeVisual(baseUrl: string, waitMs: number): Promise<VisualResul
     results.push(
       makeResult(
         'Shell visual',
-        shell.hasRoot && shell.heading.includes('Hello, Operator')
+        shell.hasRoot && shell.heading.includes('Inbox')
           ? 'PASSOU'
           : 'FALHOU',
         shell.hasRoot

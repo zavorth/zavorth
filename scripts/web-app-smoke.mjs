@@ -515,8 +515,9 @@ async function smokeHtmlShell(baseUrl) {
     }
 
     const requiredMarkers = [
-      'Hello, Operator',
-      'Start with Inbox, Tasks, Approvals, Receipts or Connectors.',
+      'Local gateway ready',
+      'Ask normally. Zavorth will answer, preview risky work, and ask before acting.',
+      'Review this workspace safely',
       'Inbox',
       'Tasks',
       'Connectors',

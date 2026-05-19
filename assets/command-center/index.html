@@ -84,87 +84,54 @@
             <div class="terminal-view is-empty" id="terminal-view">
               <!-- Hero empty state -->
               <div class="terminal-hero" id="terminal-hero">
-                <div class="terminal-hero__mascot-wrapper">
-                  <img src="./assets/fox-semfundo.png" alt="Zavorth fox mascot" class="terminal-hero__mascot">
+                <div class="terminal-hero__status">
+                  <span class="terminal-hero__status-dot"></span>
+                  <span>Local gateway ready</span>
                 </div>
                 <div class="terminal-hero__greeting">
-                  <span class="terminal-hero__hello">Hello, Operator</span>
-                  <span class="terminal-hero__question">Start with Inbox, Tasks, Approvals, Receipts or Connectors.</span>
+                  <span class="terminal-hero__hello">Inbox</span>
+                  <span class="terminal-hero__question">Ask normally. Zavorth will answer, preview risky work, and ask before acting.</span>
                 </div>
-                <div class="home-profile-grid" aria-label="Primeiros passos">
+                <div class="home-command-panel" aria-label="Inbox overview">
+                  <div class="home-command-panel__main">
+                    <span class="home-command-panel__label">Best first request</span>
+                    <strong>Review this workspace safely</strong>
+                    <p>Starts read-only, lists risks, and keeps changes behind approval.</p>
+                  </div>
+                  <button class="home-command-panel__button suggestion-chip" type="button" data-prompt="Review this workspace safely. Read first, list risks, and do not change files.">
+                    Start review
+                  </button>
+                </div>
+                <div class="home-profile-grid home-profile-grid--compact" aria-label="Common starts">
                   <button class="home-profile-card suggestion-chip" type="button" data-profile="personal" data-prompt="Use Personal mode. Help me get one safe useful result first, with simple wording and a receipt." aria-pressed="false">
                     <span class="home-profile-card__title">Personal</span>
-                    <span class="home-profile-card__text">Simple daily help, safe defaults and low-friction approvals.</span>
+                    <span class="home-profile-card__text">Daily help with safe defaults.</span>
                   </button>
                   <button class="home-profile-card suggestion-chip" type="button" data-profile="developer" data-prompt="Use Developer mode. Review this workspace read-only before suggesting any change." aria-pressed="false">
                     <span class="home-profile-card__title">Developer</span>
-                    <span class="home-profile-card__text">Repo review, patch preview and proof before changes.</span>
+                    <span class="home-profile-card__text">Review, patch preview and proof.</span>
                   </button>
                   <button class="home-profile-card suggestion-chip" type="button" data-profile="business" data-prompt="Use Business mode. Show policy, approval channel, scope, TTL, blocked actions and evidence." aria-pressed="false">
                     <span class="home-profile-card__title">Business</span>
-                    <span class="home-profile-card__text">Governed audit, approvals, limits and receipts.</span>
-                  </button>
-                  <button class="home-profile-card suggestion-chip" type="button" data-profile="setup" data-prompt="Preview setup before writing any local profile files." aria-pressed="false">
-                    <span class="home-profile-card__title">Setup preview</span>
-                    <span class="home-profile-card__text">Check setup safely before anything is changed.</span>
+                    <span class="home-profile-card__text">Approvals, limits and receipts.</span>
                   </button>
                 </div>
-                <div class="home-profile-grid" aria-label="Zavorth Home areas">
+                <div class="home-readiness-strip home-readiness-strip--compact" aria-label="Useful destinations">
                   <button class="home-profile-card suggestion-chip" type="button" data-profile="inbox" data-prompt="Open my Inbox and show what needs attention." aria-pressed="false">
                     <span class="home-profile-card__title">Inbox</span>
-                    <span class="home-profile-card__text">Requests, messages and waiting items.</span>
+                    <span class="home-profile-card__text">Messages and waiting items.</span>
                   </button>
                   <button class="home-profile-card suggestion-chip" type="button" data-profile="tasks" data-prompt="Show my tasks and safe next steps." aria-pressed="false">
                     <span class="home-profile-card__title">Tasks</span>
-                    <span class="home-profile-card__text">Guided missions and active work.</span>
+                    <span class="home-profile-card__text">Missions and next steps.</span>
                   </button>
                   <button class="home-profile-card suggestion-chip" type="button" data-profile="approvals" data-prompt="Do I have pending approvals?" aria-pressed="false">
                     <span class="home-profile-card__title">Approvals</span>
-                    <span class="home-profile-card__text">Scoped decisions before sensitive actions.</span>
+                    <span class="home-profile-card__text">Decisions before actions.</span>
                   </button>
                   <button class="home-profile-card suggestion-chip" type="button" data-profile="receipts" data-prompt="Show recent receipts and blocked actions." aria-pressed="false">
                     <span class="home-profile-card__title">Receipts</span>
-                    <span class="home-profile-card__text">Proof of what happened and why.</span>
-                  </button>
-                  <button class="home-profile-card suggestion-chip" type="button" data-profile="connectors" data-prompt="Show connector readiness without exposing secrets." aria-pressed="false">
-                    <span class="home-profile-card__title">Connectors</span>
-                    <span class="home-profile-card__text">Providers, GitHub and channels.</span>
-                  </button>
-                </div>
-                <div class="home-readiness-strip" aria-label="Basic runtime state">
-                  <button class="home-readiness-card suggestion-chip" type="button" data-prompt="Which providers are ready?">
-                    <span>Provider</span>
-                    <strong>Ask readiness</strong>
-                  </button>
-                  <button class="home-readiness-card suggestion-chip" type="button" data-prompt="Is the sandbox ready for safe mutations?">
-                    <span>Sandbox</span>
-                    <strong>Preview first</strong>
-                  </button>
-                  <button class="home-readiness-card suggestion-chip" type="button" data-prompt="Which channels can I use now?">
-                    <span>Channels</span>
-                    <strong>Web + CLI</strong>
-                  </button>
-                  <button class="home-readiness-card suggestion-chip" type="button" data-prompt="Do I have pending approvals?">
-                    <span>Approvals</span>
-                    <strong>0 pending</strong>
-                  </button>
-                </div>
-                <div class="home-readiness-strip" aria-label="Permissoes, auto-aprovacoes, modo extremo, revogar e receipts">
-                  <button class="home-readiness-card suggestion-chip" type="button" data-prompt="Mostre minhas permissoes pendentes, aprovadas, recusadas e expiradas.">
-                    <span>Permissoes</span>
-                    <strong>Review</strong>
-                  </button>
-                  <button class="home-readiness-card suggestion-chip" type="button" data-prompt="Mostre minhas auto-aprovacoes persistentes com escopo, prazo e recibos.">
-                    <span>Auto-aprovacoes</span>
-                    <strong>Limited</strong>
-                  </button>
-                  <button class="home-readiness-card suggestion-chip" type="button" data-prompt="Explique o modo extremo, riscos, confirmacoes e limites antes de qualquer ativacao.">
-                    <span>Modo extremo</span>
-                    <strong>Guarded</strong>
-                  </button>
-                  <button class="home-readiness-card suggestion-chip" type="button" data-prompt="Revogar permissoes persistentes e mostrar receipts recentes.">
-                    <span>Revogar / Receipts</span>
-                    <strong>Audit</strong>
+                    <span class="home-profile-card__text">Proof and audit trail.</span>
                   </button>
                 </div>
               </div>
