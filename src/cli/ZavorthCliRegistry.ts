@@ -1129,6 +1129,7 @@ function formatCommandCenterAccessCli(
     `- Painel: ${snapshot.publicUrl}`,
     '- Acesso: desbloqueado automaticamente nesta abertura.',
     '',
+    'Se a pagina nao carregar, rode `npm run go` para iniciar o runtime local e tente de novo.',
     snapshot.opened
       ? 'Se o navegador nao apareceu, rode `zavorth dashboard url` e cole o link.'
       : 'Rode `zavorth dashboard url` e cole o link no navegador.',
