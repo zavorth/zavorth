@@ -30,9 +30,6 @@
       "createIfMissing": true,
       "ownership": "workspace",
       "registrySource": "zavorth:local-workspace",
-      "allowedExternalSupportPaths": [
-        "../SUPER AGENTE UNIVERSITARIO"
-      ],
       "notes": [
         "Fonte principal de skills autoradas dentro do workspace do Zavorth.",
         "Pode referenciar material auxiliar externo apenas por roots explicitamente declaradas."

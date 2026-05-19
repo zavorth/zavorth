@@ -1,7 +1,7 @@
 import { SkillSourceRegistryService } from '../../src/services/SkillSourceRegistryService.js';
 
 describe('SkillSourceRegistryService', () => {
-  it('resolves enabled sources with absolute paths and external support roots', () => {
+  it('resolves enabled sources with absolute paths', () => {
     const service = new SkillSourceRegistryService({
       projectRoot: 'C:/workspace/zavorth',
       configFile: 'C:/workspace/zavorth/config/skill-sources.json',
@@ -19,7 +19,6 @@ describe('SkillSourceRegistryService', () => {
               ingestionMode: 'local-scan',
               path: '.agents/skills',
               createIfMissing: true,
-              allowedExternalSupportPaths: ['../SUPER AGENTE UNIVERSITARIO'],
             },
             {
               id: 'disabled-source',
@@ -40,7 +39,7 @@ describe('SkillSourceRegistryService', () => {
       expect.objectContaining({
         id: 'workspace-agents',
         absolutePath: 'C:\\workspace\\zavorth\\.agents\\skills',
-        absoluteAllowedExternalSupportPaths: ['C:\\workspace\\SUPER AGENTE UNIVERSITARIO'],
+        absoluteAllowedExternalSupportPaths: [],
         createIfMissing: true,
       }),
     );

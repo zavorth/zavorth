@@ -70,7 +70,7 @@ const REQUIRED_FILES = [
 
 const FORBIDDEN_IDENTITY_PATTERNS = [
   /temp_[a-z0-9_-]*analysis/i,
-  /local-reference-skill-library/i,
+  /non-native-skill-source/i,
   /third[_\s-]?party\s+source/i,
   /external\s+reference\s+library/i,
   /borrowed\s+from/i,

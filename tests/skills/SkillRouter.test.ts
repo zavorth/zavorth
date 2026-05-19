@@ -23,7 +23,6 @@ const skills = [
   skill('requirements-analysis'),
   skill('system-design'),
   skill('discover-research'),
-  skill('super-agente-universitario'),
 ];
 
 describe('SkillRouter hardening', () => {

@@ -21,7 +21,6 @@ interface HeuristicSelection extends SkillSelection {
 
 const EXPLICIT_SKILL_ALIASES: Record<string, string[]> = {
   'zavorth-maestro': ['zavorth maestro', 'modo maestro', 'maestro'],
-  'super-agente-universitario': ['super agente universitario', 'agente universitario'],
   'discover-research': ['discover research'],
   'requirements-analysis': ['requirements analysis'],
   'system-design': ['system design'],
@@ -80,6 +79,10 @@ const HEURISTIC_RULES: KeywordRule[] = [
       'escopo',
       'criterio de aceite',
       'criterios de aceite',
+      'atividade',
+      'prova',
+      'simulado',
+      'questoes de prova',
       'user story',
       'user stories',
       'historia de usuario',
@@ -129,6 +132,7 @@ const HEURISTIC_RULES: KeywordRule[] = [
       'bibliografia',
       'fontes academicas',
       'artigos cientificos',
+      'artigo academico',
       'paper',
       'papers',
       'metodologia',
@@ -137,27 +141,15 @@ const HEURISTIC_RULES: KeywordRule[] = [
       'sintese academica',
       'mapa de literatura',
       'literatura cientifica',
-    ],
-  },
-  {
-    skillName: 'super-agente-universitario',
-    weight: 2,
-    patterns: [
       'universidade',
-      'universitario',
       'faculdade',
       'disciplina',
       'professor',
-      'atividade',
       'tcc',
-      'prova',
-      'simulado',
       'aula',
-      'seminario',
-      'artigo academico',
       'estudar',
-      'questoes de prova',
       'plano de estudo',
+      'seminario',
     ],
   },
 ];
@@ -171,18 +163,6 @@ const STUDY_FOCUS_PATTERNS = [
   'questoes de prova',
   'explicar a materia',
   'resumo para estudar',
-];
-
-const RESEARCH_FOCUS_PATTERNS = [
-  'pesquisa',
-  'revisao de literatura',
-  'referencial teorico',
-  'metodologia',
-  'estado da arte',
-  'bibliografia',
-  'artigos cientificos',
-  'paper',
-  'papers',
 ];
 
 /**
@@ -233,7 +213,7 @@ export class SkillRouter {
       .map((skill) => `- "${skill.name}": ${skill.description}`)
       .join('\n');
 
-    const routerPrompt = `Voce e um roteador de intencoes. Sua UNICA funcao e analisar a mensagem do usuario e decidir qual habilidade principal deve liderar a resposta e se uma skill de apoio adicional melhoraria o resultado.\n\nSkills disponiveis:\n${skillsList}\n\nREGRAS:\n1. Responda APENAS com um JSON valido no formato: {"primarySkillName": "nome-da-skill-ou-null", "supportSkillName": "nome-da-skill-ou-null"}\n2. Escolha no maximo uma skill principal e uma skill de apoio.\n3. Use a skill de apoio APENAS quando ela melhorar materialmente a qualidade da resposta.\n4. Nunca repita a mesma skill nos dois campos.\n5. Se a mensagem for uma conversa casual que nenhuma skill cobre, retorne ambos os campos como null.\n6. Se o usuario pedir explicitamente um modo ou skill, honre isso quando fizer sentido.\n7. Dica de prioridade: bugs e erros tendem a usar debugging; pedidos de requisitos tendem a usar requirements-analysis; arquitetura tende a usar system-design; pesquisa academica tende a usar discover-research; demandas universitarias tendem a usar super-agente-universitario; orquestracao multi-etapas tende a usar zavorth-maestro.\n8. Nao adicione texto antes ou depois do JSON.`;
+    const routerPrompt = `Voce e um roteador de intencoes. Sua UNICA funcao e analisar a mensagem do usuario e decidir qual habilidade principal deve liderar a resposta e se uma skill de apoio adicional melhoraria o resultado.\n\nSkills disponiveis:\n${skillsList}\n\nREGRAS:\n1. Responda APENAS com um JSON valido no formato: {"primarySkillName": "nome-da-skill-ou-null", "supportSkillName": "nome-da-skill-ou-null"}\n2. Escolha no maximo uma skill principal e uma skill de apoio.\n3. Use a skill de apoio APENAS quando ela melhorar materialmente a qualidade da resposta.\n4. Nunca repita a mesma skill nos dois campos.\n5. Se a mensagem for uma conversa casual que nenhuma skill cobre, retorne ambos os campos como null.\n6. Se o usuario pedir explicitamente um modo ou skill, honre isso quando fizer sentido.\n7. Dica de prioridade: bugs e erros tendem a usar debugging; pedidos de requisitos, entregas, provas e atividades tendem a usar requirements-analysis; arquitetura tende a usar system-design; pesquisa, estudo, artigos e literatura academica tendem a usar discover-research; orquestracao multi-etapas tende a usar zavorth-maestro.\n8. Nao adicione texto antes ou depois do JSON.`;
 
     const messages: ChatMessage[] = [
       { role: 'system', content: routerPrompt },
@@ -405,7 +385,6 @@ export class SkillRouter {
     const requirementsScore = this.getScore(scores, 'requirements-analysis');
     const designScore = this.getScore(scores, 'system-design');
     const researchScore = this.getScore(scores, 'discover-research');
-    const universityScore = this.getScore(scores, 'super-agente-universitario');
 
     if (orchestrationScore >= 4 && this.getTopDomainScore(scores, 'zavorth-maestro') >= 2) {
       return 'zavorth-maestro';
@@ -419,9 +398,9 @@ export class SkillRouter {
       return requirementsScore >= designScore ? 'requirements-analysis' : 'system-design';
     }
 
-    if (researchScore >= 3 && universityScore >= 3) {
+    if (researchScore >= 3 && requirementsScore >= 3) {
       return this.hasAnyPattern(normalizedMessage, STUDY_FOCUS_PATTERNS)
-        ? 'super-agente-universitario'
+        ? 'requirements-analysis'
         : 'discover-research';
     }
 
@@ -448,7 +427,6 @@ export class SkillRouter {
           'requirements-analysis',
           'debugging',
           'system-design',
-          'super-agente-universitario',
         ]);
       case 'debugging':
         return this.getScore(scores, 'system-design') >= 2 ? 'system-design' : null;
@@ -456,26 +434,17 @@ export class SkillRouter {
         if (this.getScore(scores, 'system-design') >= 2) {
           return 'system-design';
         }
-        return this.getScore(scores, 'super-agente-universitario') >= 2
-          ? 'super-agente-universitario'
-          : null;
+        return this.getScore(scores, 'discover-research') >= 2 ? 'discover-research' : null;
       case 'system-design':
         if (this.getScore(scores, 'requirements-analysis') >= 2) {
           return 'requirements-analysis';
         }
         return this.getScore(scores, 'debugging') >= 2 ? 'debugging' : null;
       case 'discover-research':
-        return this.getScore(scores, 'super-agente-universitario') >= 2
-          ? 'super-agente-universitario'
-          : null;
-      case 'super-agente-universitario':
-        if (this.hasAnyPattern(normalizedMessage, RESEARCH_FOCUS_PATTERNS) && this.getScore(scores, 'discover-research') >= 2) {
-          return 'discover-research';
-        }
         if (this.getScore(scores, 'requirements-analysis') >= 2) {
           return 'requirements-analysis';
         }
-        return this.getScore(scores, 'system-design') >= 2 ? 'system-design' : null;
+        return null;
       default:
         return null;
     }

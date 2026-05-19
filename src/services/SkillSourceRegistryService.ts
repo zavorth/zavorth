@@ -81,7 +81,6 @@ const DEFAULT_SOURCE_REGISTRY: SkillSourceRegistryRawDocument = {
       createIfMissing: true,
       ownership: 'workspace',
       registrySource: 'zavorth:local-workspace',
-      allowedExternalSupportPaths: ['../SUPER AGENTE UNIVERSITARIO'],
     },
     {
       id: 'workspace-library',

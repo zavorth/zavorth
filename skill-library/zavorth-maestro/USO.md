@@ -6,7 +6,7 @@
 - "Quero que o Zavorth Maestro organize este projeto em fases e depois execute a primeira."
 - "Use zavorth-maestro para transformar esta ideia em requisitos claros e uma arquitetura inicial."
 - "Coordene debugging e system-design para entender este erro recorrente e sugerir um redesenho seguro."
-- "Use zavorth-maestro com apoio do super-agente-universitario para revisar esta atividade e depois criar um mini simulado."
+- "Use zavorth-maestro com apoio de requirements-analysis e discover-research para revisar esta atividade e depois criar um mini simulado."
 
 ## Boas praticas
 
