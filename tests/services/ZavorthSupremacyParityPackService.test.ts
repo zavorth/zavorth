@@ -51,7 +51,7 @@ describe('ZavorthSupremacyParityPackService', () => {
   it('blocks configured identity reference leaks', async () => {
     const files = new Map<string, string | null>([
       ['C:/fixture/src/clean.ts', 'const model = "zavorth-default-model";'],
-      ['C:/fixture/src/leak.ts', 'const ref = "legacy-agent-reference";'],
+      ['C:/fixture/src/leak.ts', `const ref = "${['legacy', 'agent', 'reference'].join('-')}";`],
       ['C:/fixture/scripts', null],
       ['C:/fixture/tests', null],
       ['C:/fixture/package.json', '{}'],

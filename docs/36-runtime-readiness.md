@@ -36,9 +36,8 @@ skills or performs transactions. Use `zavorth ready --offline` to use only
 stored evidence.
 
 `zavorth stay-online` is the companion watchdog for after Ready To Go. It reads
-the same launch guard plus the supervised keepalive snapshot, writes
-`data/runtime/zavorth-stay-online.json`, and reports either "continua tudo ok"
-or the first concrete alert. `--watch` repeats the check. `--notify-telegram`
+the same launch guard plus the supervised keepalive snapshot and reports either
+"continua tudo ok" or the first concrete alert. `--watch` repeats the check. `--notify-telegram`
 uses `TELEGRAM_BOT_TOKEN` plus `ZAVORTH_STAY_ONLINE_NOTIFY_CHAT_IDS` or
 `TELEGRAM_ALLOWED_USER_IDS` to send status changes and active alerts without
 serializing the bot token.
@@ -83,10 +82,10 @@ card into a safe next step for CLI, Dashboard or Telegram. If a fix needs a
 real provider probe, it is shown as an explicit operator command:
 `zavorth readiness fix provider --live-proof --provider <id>`.
 
-Provider live proof is stored as sanitized health evidence in
-`data/runtime/provider-live-proof.json`. It stores provider id, target, status,
-timestamps and evidence hash, never raw API keys. Normal readiness can then
-trust fresh proof without running hidden network calls on every render.
+Provider live proof is stored as sanitized local health evidence. It stores
+provider id, target, status, timestamps and evidence hash, never raw API keys.
+Normal readiness can then trust fresh proof without running hidden network calls
+on every render.
 
 ## Operator Surfaces
 

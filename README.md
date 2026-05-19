@@ -129,7 +129,7 @@ Zavorth is designed to be proactive without becoming reckless.
 | `scripts/` | Operator commands, readiness checks, certification packs, and local tooling. |
 | `tests/` | Unit, runtime, security, gateway, provider, dashboard, and skill checks. |
 | `docs/` | Product docs, architecture notes, security posture, operations, and roadmap. |
-| `skill-library/` | Native skills, generated drafts, curation inputs, and approved skill packs. |
+| `skill-library/` | Native skills, governed curation inputs, and approved skill surfaces. |
 | `assets/` | Brand, dashboard, social, and repository presentation assets. |
 | `agent/` | Runtime-side agent support and voice/media helpers. |
 | `apps/` | Application surfaces and companion app code. |

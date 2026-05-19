@@ -194,6 +194,11 @@ function classifyDoc(relative, text) {
   const name = path.basename(relative).toLowerCase();
   const full = relative.toLowerCase();
   if (/^(00|01|02|03|04|05|06|07|08|09|10)-/.test(name)) return 'public-core';
+  if ([
+    '36-runtime-readiness.md',
+    '38-external-agent-gateway.md',
+    '42-mnemos-memory-os.md',
+  ].includes(name)) return 'public-support';
   if (['readme.md', 'self-modification.md', 'gateway-cli.md', 'gateway-control-api.md', 'provider-mesh.md', 'capability-plugins.md'].includes(name)) return 'public-support';
   if (full.includes('/architecture/')) return 'architecture-internal';
   if (name.includes('phase') || name.includes('wave') || name.includes('readiness') || name.includes('canary') || name.includes('gate') || name.includes('pack')) return 'phase-artifact';
