@@ -1369,14 +1369,26 @@ ${current}` : prompt;
     return 'runtime';
   }
 
+  function buildEchoQuickActions(role) {
+    if (role !== 'core') return '';
+    return `
+      <div class="echo-action-row" aria-label="Response actions">
+        <button type="button" data-prompt="Show the trace for the latest response in simple language.">Trace</button>
+        <button type="button" data-prompt="Show pending approvals with approve and reject actions.">Approvals</button>
+        <button type="button" data-prompt="Show the latest receipt or explain why none exists yet.">Receipt</button>
+      </div>
+    `;
+  }
+
   function appendEcho(role, text, logicCells) {
     const group = document.createElement('div');
     group.className = `echo-group ${role}`;
 
     const avatarClass = role === 'operator' ? 'operator' : 'core';
-    const avatarLabel = role === 'operator' ? 'U' : 'ðŸ';
+    const avatarLabel = role === 'operator' ? 'You' : 'Z';
     const modelLabel = escapeHtml(getCurrentModelLabel());
     const routeLabel = escapeHtml(getCurrentModelRouteLabel());
+    const actionRow = buildEchoQuickActions(role);
 
     group.innerHTML = `
       <div class="echo-avatar ${avatarClass}">${avatarLabel}</div>
@@ -1390,6 +1402,7 @@ ${current}` : prompt;
           ${renderMarkdown(text)}
         </div>
         ${logicCells ? logicCells : ''}
+        ${actionRow}
       </div>
     `;
 
@@ -1586,11 +1599,20 @@ ${current}` : prompt;
     indicator.className = 'echo-group core';
     indicator.id = 'thinking-state';
     indicator.innerHTML = `
-      <div class="echo-avatar core"><svg viewBox="0 0 40 40" width="16" height="16"><path d="M20 34 C12 34 6 28 6 20 C6 12 12 6 20 6 C28 6 34 12 34 20 C34 28 28 34 20 34Z" fill="white"/><path d="M10 10 L6 2 L16 8 Z" fill="#00e88f"/><path d="M30 10 L34 2 L24 8 Z" fill="#00e88f"/><path d="M14 18 Q16 16 18 18" stroke="#060809" stroke-width="2.5" fill="none" stroke-linecap="round"/><path d="M26 18 Q24 16 22 18" stroke="#060809" stroke-width="2.5" fill="none" stroke-linecap="round"/><circle cx="20" cy="23" r="1.5" fill="#060809"/></svg></div>
+      <div class="echo-avatar core">Z</div>
       <div class="echo-group__messages">
+        <div class="echo-group__header">
+          <span class="echo-sender">Zavorth</span>
+          <span class="echo-timestamp">${currentTimestamp()}</span>
+          <span class="echo-meta"><span class="echo-meta__model">${escapeHtml(getCurrentModelLabel())}</span><span class="echo-meta__cost">working</span></span>
+        </div>
         <div class="thinking-indicator">
           <div class="thinking-indicator__dots">
             <span></span><span></span><span></span>
+          </div>
+          <div class="thinking-indicator__copy">
+            <strong>Planning the next safe step</strong>
+            <small>Preview, approval and receipt stay visible here.</small>
           </div>
         </div>
       </div>
@@ -1787,7 +1809,7 @@ ${current}` : prompt;
     group.id = 'zavorth-approvals-group';
     group.className = 'echo-group core b-fade-in';
     group.innerHTML = `
-      <div class="echo-avatar core">B</div>
+      <div class="echo-avatar core">Z</div>
       <div class="echo-group__messages">
         <div class="echo-group__header">
           <span class="echo-sender">Zavorth</span>
@@ -2516,6 +2538,18 @@ ${current}` : prompt;
   }
 
   neuralFeed.addEventListener('click', (e) => {
+    const echoActionButton = e.target.closest('.echo-action-row [data-prompt]');
+    if (echoActionButton) {
+      e.preventDefault();
+      e.stopPropagation();
+      if (composeInput) {
+        composeInput.value = echoActionButton.getAttribute('data-prompt') || '';
+        composeInput.dispatchEvent(new Event('input'));
+        composeInput.focus();
+      }
+      return;
+    }
+
     const developerFlowButton = e.target.closest('[data-developer-flow-action]');
     if (developerFlowButton) {
       e.preventDefault();
