@@ -143,6 +143,12 @@ For maintainers, the equivalent CI gates verify:
 - Discord connector setup fixture
 - exact connector doctor output
 
+Before publishing a build or refreshing the public repository presentation, run:
+
+```bash
+npm run release:check
+```
+
 ## Everyday Commands
 
 ```bash

@@ -11,11 +11,9 @@ live in issues, private project management, or scoped design docs.
   subagents, skills and perception/device capabilities.
 - Keep approvals scoped, receipts readable and secrets represented as
   `SecretRef` metadata.
-- Keep public docs small, current and free of implementation diary content.
+- Keep public docs small, current and free of obsolete build-history content.
 
 ## Before Public Presentation
 
-- Run `npm run runtime:check`.
-- Run `npm run security:secrets`.
-- Run `node scripts/docs-public-repo-audit.mjs`.
+- Run `npm run release:check`.
 - Confirm screenshots and README assets match the current `/dashboard`.

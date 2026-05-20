@@ -39,6 +39,7 @@ tsc-*.out
 
 # === Temp Files ===
 tmp/
+.tmp/
 .tmp_visual/
 *.tmp
 tmp_*.ts

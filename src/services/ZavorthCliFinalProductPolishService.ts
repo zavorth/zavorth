@@ -22,16 +22,18 @@ const FILES = {
 } as const;
 
 const REQUIRED_COMMANDS = [
-  'zavorth onboard',
-  'zavorth go',
+  'zavorth setup',
+  'zavorth start',
+  'zavorth open',
+  'zavorth ready',
+  'zavorth status',
+  'zavorth chat',
   'zavorth doctor',
   'zavorth providers',
   'zavorth channels',
-  'zavorth missions',
-  'zavorth receipts',
-  'zavorth schedule',
   'zavorth skills',
-  'zavorth agents',
+  'zavorth review',
+  'zavorth trust',
 ] as const;
 
 export class ZavorthCliFinalProductPolishService {
@@ -168,7 +170,7 @@ export class ZavorthCliFinalProductPolishService {
         kind: 'command',
         passed: REQUIRED_COMMANDS.every((command) => files.helpers.includes(command))
           && files.helpers.includes('/dashboard')
-          && (files.helpers.includes('Open Home at /dashboard') || files.helpers.includes('Open the main gateway at /dashboard.')),
+          && files.helpers.includes('Abre o dashboard.'),
         userVisible: true,
         evidence: [...REQUIRED_COMMANDS, '/dashboard'],
       }),

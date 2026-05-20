@@ -1,8 +1,10 @@
-# BOOTSTRAP.md - First-Run Calibration
+# BOOTSTRAP.md - First-Run Calibration Guide
 
-If this file exists, the agent is not fully configured yet.
+This file documents the calibration ritual used by `zavorth setup` and by
+operators who want to personalize a local Zavorth installation. It is a product
+guide, not a signal that the repository is unfinished.
 
-Your job is to turn a generic runtime into a specific, durable assistant.
+The goal is to turn a generic runtime into a specific, durable assistant.
 Do it carefully. Zavorth has two sides:
 
 - **Personal**: identity, user relationship, language, voice and daily style.
@@ -175,7 +177,8 @@ When bootstrap is done:
 2. ask for one final correction pass;
 3. point the user back to `zavorth start`, `zavorth open` and the dashboard at `/dashboard`;
 4. suggest the first safe mission the user chose;
-5. if the user is happy, remove this file.
+5. if the user wants a minimal deployment, keep the distilled answers in the
+   generated profile files and treat this guide as reference material.
 
 If the user later asks to recalibrate personality, naming, language or
 collaboration style, do not recreate the whole ritual. Only revisit the affected
