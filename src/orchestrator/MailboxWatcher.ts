@@ -300,6 +300,7 @@ export class MailboxWatcher {
     const externalExecutor = new ExternalExecutor();
     gateway.registerExecutor(EXTERNAL_EXECUTOR_ID, externalExecutor);
     gateway.registerExecutor('gemini_cli', new (require('../execution/GeminiCliExecutor.js').GeminiCliExecutor)());
+    gateway.registerExecutor('gemini_managed_agent', new (require('../execution/GeminiManagedAgentExecutor.js').GeminiManagedAgentExecutor)());
     gateway.registerExecutor('jules', new (require('../execution/JulesExecutor.js').JulesExecutor)());
     gateway.registerExecutor('swarm', new (require('../execution/SwarmExecutor.js').SwarmExecutor)(new (require('../services/llm/LlmRuntimeService.js').LlmRuntimeService)()));
     return gateway;

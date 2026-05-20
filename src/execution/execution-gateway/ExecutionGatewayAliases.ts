@@ -11,6 +11,10 @@ export function resolveExecutionGatewayExecutorName(name: string): string {
     case 'gemini':
     case 'gemini-cli':
       return 'gemini_cli';
+    case 'gemini-managed-agent':
+    case 'gemini_managed_agent':
+    case 'managed-agent':
+      return 'gemini_managed_agent';
     case 'aistudio':
     case 'ai_studio':
     case 'google_ai_studio':

@@ -114,6 +114,15 @@ export function buildProviderConfig(projectRoot?: string) {
     ),
     geminiApiVersion: String(process.env.GEMINI_API_VERSION || '').trim(),
     geminiApiClient: String(process.env.GEMINI_API_CLIENT || 'zavorth').trim(),
+    geminiInteractionsEnabled: parseBooleanFlag(process.env.ZAVORTH_GEMINI_INTERACTIONS_ENABLED, false),
+    geminiInteractionsApiKey: process.env.GEMINI_INTERACTIONS_API_KEY || process.env.GEMINI_API_KEY || '',
+    geminiInteractionsBaseUrl: normalizeUrl(process.env.GEMINI_INTERACTIONS_BASE_URL || 'https://generativelanguage.googleapis.com/v1beta'),
+    geminiInteractionsModel: process.env.GEMINI_INTERACTIONS_MODEL || 'gemini-3.5-flash',
+    geminiManagedAgentsEnabled: parseBooleanFlag(process.env.ZAVORTH_GEMINI_MANAGED_AGENTS_ENABLED, false),
+    geminiManagedAgentsBaseUrl: normalizeUrl(process.env.GEMINI_MANAGED_AGENTS_BASE_URL || process.env.GEMINI_INTERACTIONS_BASE_URL || 'https://generativelanguage.googleapis.com/v1beta'),
+    geminiManagedAgentsModel: process.env.GEMINI_MANAGED_AGENTS_MODEL || process.env.GEMINI_INTERACTIONS_MODEL || 'gemini-3.5-flash',
+    geminiManagedAgentsAgent: process.env.GEMINI_MANAGED_AGENTS_AGENT || 'antigravity',
+    geminiManagedAgentsStore: parseBooleanFlag(process.env.GEMINI_MANAGED_AGENTS_STORE, false),
     geminiCustomHeaders: (() => {
       const headers = parseStringMap(process.env.GEMINI_CUSTOM_HEADERS_JSON || '');
       const cloudflareToken = normalizeBearerToken(process.env.CLOUDFLARE_AI_GATEWAY_TOKEN || '');
@@ -158,9 +167,9 @@ export function buildProviderConfig(projectRoot?: string) {
     modelSelectionFamilyId: String(process.env.ZAVORTH_MODEL_FAMILY_ID || process.env.ZAVORTH_MODEL_FAMILY || persistedPreference?.familyId || '').trim(),
     modelSelectionRouteId: String(process.env.ZAVORTH_MODEL_ROUTE_ID || process.env.ZAVORTH_MODEL_ROUTE || persistedPreference?.routeId || '').trim(),
     modelSelectionModelId: selectedModel,
-    geminiDefaultModel: process.env.GEMINI_MODEL || 'gemini-2.5-flash',
+    geminiDefaultModel: process.env.GEMINI_MODEL || 'gemini-3.5-flash',
     gemmaModel: process.env.GEMMA_MODEL || 'gemma-4-31b-it',
-    geminiModel: process.env.GEMINI_MODEL || 'gemini-2.5-flash',
+    geminiModel: process.env.GEMINI_MODEL || 'gemini-3.5-flash',
     aiStudioModel: process.env.AISTUDIO_MODEL || process.env.GEMINI_MODEL || 'gemini-2.5-flash',
     geminiVideoModel: process.env.GEMINI_VIDEO_MODEL || 'gemini-2.5-flash',
     geminiTranscriptionModel: process.env.GEMINI_TRANSCRIPTION_MODEL || process.env.GEMINI_VIDEO_MODEL || 'gemini-2.5-flash',

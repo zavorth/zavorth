@@ -12,6 +12,7 @@ import { AnthropicDirectProviderAdapter } from '../adapters/providers/AnthropicD
 import { AnthropicVertexProviderAdapter } from '../adapters/providers/AnthropicVertexProviderAdapter.js';
 import { BedrockClaudeProviderAdapter } from '../adapters/providers/BedrockClaudeProviderAdapter.js';
 import { GoogleGenAiProviderAdapter } from '../adapters/providers/GoogleGenAiProviderAdapter.js';
+import { GeminiInteractionsProviderAdapter } from './GeminiInteractionsProviderAdapter.js';
 import { config } from '../config/index.js';
 import { wrapLlmProviderWithEgressGuard } from '../security/LlmEgressGuard.js';
 import type { SelectedModelProfile } from '../contracts/ModelPickerContract.js';
@@ -129,6 +130,9 @@ export class ProviderFactory {
     if (normalized === 'genai' || normalized === 'google_genai' || normalized === 'google-ai') {
       return 'google-genai';
     }
+    if (normalized === 'gemini-interactions' || normalized === 'google-interactions-api' || normalized === 'interactions-api') {
+      return 'gemini-interactions';
+    }
     if (normalized === 'lm-studio' || normalized === 'lm_studio') {
       return 'lmstudio';
     }
@@ -233,6 +237,12 @@ export class ProviderFactory {
     } else if (providerName === 'google-genai') {
       provider = new GoogleGenAiProviderAdapter({
         apiKey: target.apiKey,
+        modelName: target.modelName,
+      });
+    } else if (providerName === 'gemini-interactions') {
+      provider = new GeminiInteractionsProviderAdapter({
+        apiKey: target.apiKey,
+        baseUrl: target.baseUrl,
         modelName: target.modelName,
       });
     } else if (target.adapterKind === 'openai_compatible') {
@@ -373,6 +383,19 @@ export class ProviderFactory {
         explanation: [
           'google-genai usa o SDK @google/genai como rota explicita do Provider Mesh.',
           'O provider Gemini legado continua disponivel separadamente.',
+        ],
+      });
+    }
+    if (normalized === 'gemini-interactions') {
+      return this.buildProviderMeshExpansionTarget({
+        providerName: normalized,
+        adapterKind: 'bespoke',
+        modelName: String(input?.modelName || process.env.GEMINI_INTERACTIONS_MODEL || process.env.GEMINI_MODEL || 'gemini-3.5-flash').trim(),
+        baseUrl: String(input?.baseUrl || input?.baseURL || process.env.GEMINI_INTERACTIONS_BASE_URL || 'https://generativelanguage.googleapis.com/v1beta').trim(),
+        apiKey: String(input?.apiKey || process.env.GEMINI_INTERACTIONS_API_KEY || process.env.GEMINI_API_KEY || '').trim() || null,
+        explanation: [
+          'gemini-interactions usa a Interactions API beta para steps observaveis e estado server-side opcional.',
+          'A rota fica opt-in e nao substitui o Gemini generateContent estavel.',
         ],
       });
     }
