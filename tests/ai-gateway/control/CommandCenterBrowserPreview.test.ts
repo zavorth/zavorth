@@ -146,6 +146,10 @@ describe('CommandCenterBrowserPreview', () => {
     expect(runtimeBridge).toContain('/api/web/command-center');
     expect(runtimeBridge).toContain('ZavorthRuntimeBridge');
     expect(runtimeBridge).toContain('Non-invasive data bridge');
+    expect(runtimeBridge).toContain('updatePremiumMetric');
+    expect(runtimeBridge).toContain('updatePremiumStatus');
+    expect(runtimeBridge).toContain('channelReadinessLabel');
+    expect(runtimeBridge).toContain('platform-action-list');
     expect(runtimeBridge).not.toContain('document.body.innerHTML');
     expect(appScript).toContain('runtimeBridge.sendChat');
     expect(appScript).toContain('compose-attachments');

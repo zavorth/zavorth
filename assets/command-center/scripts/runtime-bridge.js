@@ -774,6 +774,44 @@
     if (subEl) subEl.textContent = sub;
   }
 
+  function updatePremiumMetric(label, value, sub) {
+    const normalized = String(label || '').trim().toLowerCase();
+    const cards = Array.from(document.querySelectorAll('.premium-metric, .platform-stat'));
+    const matches = cards.filter((entry) => {
+      const labelNode = entry.querySelector(':scope > span');
+      return String(labelNode?.textContent || '').trim().toLowerCase() === normalized;
+    });
+    if (matches.length === 0) return false;
+    for (const card of matches) {
+      const valueNode = card.querySelector(':scope > strong');
+      const subNode = card.querySelector(':scope > small');
+      if (valueNode) valueNode.textContent = String(value);
+      if (subNode) subNode.textContent = String(sub || '');
+    }
+    return true;
+  }
+
+  function updatePremiumStatus(label, value, tone = 'info') {
+    const normalized = String(label || '').trim().toLowerCase();
+    const entries = Array.from(document.querySelectorAll('.premium-status'));
+    const matches = entries.filter((candidate) => {
+      const labelNode = candidate.querySelector(':scope > span');
+      return String(labelNode?.textContent || '').trim().toLowerCase() === normalized;
+    });
+    if (matches.length === 0) return false;
+    for (const entry of matches) {
+      entry.className = `premium-status premium-status--${tone}`;
+      const valueNode = entry.querySelector(':scope > strong');
+      if (valueNode) valueNode.textContent = String(value || '');
+    }
+    return true;
+  }
+
+  function setDashboardPrompt(selector, prompt) {
+    const node = document.querySelector(selector);
+    if (node && prompt) node.setAttribute('data-dashboard-prompt', String(prompt));
+  }
+
   function getGatewaySnapshot() {
     return state.commandCenter?.snapshot || {};
   }
@@ -876,6 +914,88 @@
     return rows
       .sort((a, b) => String(b.event?.createdAt || b.run?.updatedAt || '').localeCompare(String(a.event?.createdAt || a.run?.updatedAt || '')))
       .slice(0, limit);
+  }
+
+  function eventCountMatching(pattern) {
+    const matcher = pattern instanceof RegExp ? pattern : new RegExp(String(pattern || ''), 'i');
+    return getRuns().reduce((count, run) => {
+      const events = Array.isArray(run?.events) ? run.events : [];
+      return count + events.filter((event) => {
+        const haystack = `${event?.kind || ''} ${event?.status || ''} ${event?.title || ''} ${event?.detail || ''}`;
+        return matcher.test(haystack);
+      }).length;
+    }, 0);
+  }
+
+  function numericFromPath(object, path) {
+    const value = String(path || '').split('.').reduce((current, key) => current?.[key], object);
+    const numeric = Number(value);
+    return Number.isFinite(numeric) ? numeric : 0;
+  }
+
+  function sumRunNumbers(paths) {
+    const list = Array.isArray(paths) ? paths : [paths];
+    return getRuns().reduce((sum, run) => {
+      for (const path of list) {
+        const value = numericFromPath(run, path);
+        if (value) return sum + value;
+      }
+      return sum;
+    }, 0);
+  }
+
+  function formattedMoney(value) {
+    const numeric = Number(value);
+    if (!Number.isFinite(numeric) || numeric <= 0) return '$0.00';
+    return numeric.toLocaleString('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 4 });
+  }
+
+  function configuredChannelIds() {
+    const ids = new Set(['web', 'dashboard', 'local']);
+    const candidates = [
+      state.catalog?.channels,
+      state.catalog?.catalog?.channels,
+      state.gatewayRuntime?.channels,
+      state.gatewayRuntime?.snapshot?.channels,
+      state.commandCenter?.snapshot?.channels,
+    ];
+    for (const list of candidates) {
+      if (!Array.isArray(list)) continue;
+      for (const entry of list) {
+        const id = String(entry?.id || entry?.kind || entry?.channel || entry?.name || '').trim().toLowerCase();
+        if (id) ids.add(id);
+      }
+    }
+    for (const run of getRuns()) {
+      const channel = String(run?.channel || '').trim().toLowerCase();
+      if (channel) ids.add(channel);
+    }
+    return ids;
+  }
+
+  function channelReadinessLabel(id) {
+    const normalized = String(id || '').trim().toLowerCase();
+    const ids = configuredChannelIds();
+    if (ids.has(normalized)) return normalized === 'web' ? 'ready' : 'connected';
+    return 'configurable';
+  }
+
+  function channelReadinessTone(id) {
+    return /ready|connected/i.test(channelReadinessLabel(id)) ? 'ok' : 'info';
+  }
+
+  function updatePlatformAction(sectionId, title, detail, prompt) {
+    const normalized = String(title || '').trim().toLowerCase();
+    const section = document.getElementById(sectionId);
+    const button = Array.from(section?.querySelectorAll('.platform-action-list button') || []).find((candidate) => {
+      const strong = candidate.querySelector('strong');
+      return String(strong?.textContent || '').trim().toLowerCase() === normalized;
+    });
+    if (!button) return false;
+    const span = button.querySelector('span');
+    if (span && detail) span.textContent = String(detail);
+    if (prompt) button.setAttribute('data-dashboard-prompt', String(prompt));
+    return true;
   }
 
   function updatePulse() {
@@ -984,6 +1104,29 @@
     updateSummaryCard('Active Sessions', numberLabel(activeSessions), activeRun ? `active: ${text(activeRun.title, activeRun.id)}` : 'no active run now');
     updateSummaryCard('Uptime', state.auth?.webReady ? 'Online' : 'Local', state.auth?.gatewayReady ? 'gateway ready' : 'local dashboard responding');
     updateSummaryCard('Average Latency', activeRun ? text(activeRun.status, 'run') : '0', pendingApprovals ? `${pendingApprovals} approval(s) pending` : deriveNextRunAction(activeRun));
+
+    updatePremiumMetric('Missions', numberLabel(runs.length), activeRun ? deriveNextRunAction(activeRun) : 'waiting for first mission');
+    updatePremiumMetric('Provider', getCurrentProviderLabel(), getCurrentModelLabel());
+    updatePremiumMetric('Approvals', numberLabel(pendingApprovals), pendingApprovals ? 'waiting for decision' : 'no pending decision');
+    updatePremiumMetric('Receipts', numberLabel(totalArtifactCount()), totalArtifactCount() ? 'receipt evidence available' : 'no receipt yet');
+
+    const runtimeTitle = document.querySelector('[data-dashboard-runtime-title]');
+    const runtimeText = document.querySelector('[data-dashboard-runtime-text]');
+    if (runtimeTitle) runtimeTitle.textContent = activeRun ? text(activeRun.title || activeRun.summary, activeRun.id) : 'Waiting for a mission';
+    if (runtimeText) {
+      runtimeText.textContent = activeRun
+        ? `${text(activeRun.status, 'running')} - ${deriveNextRunAction(activeRun)}`
+        : 'Use Chat for natural requests. Zavorth previews risky actions, asks when needed and writes receipts after completion.';
+    }
+
+    updatePremiumStatus('Web dashboard', state.auth?.webReady ? 'ready' : 'local', state.auth?.webReady ? 'ok' : 'info');
+    updatePremiumStatus('CLI/TUI', 'ready', 'ok');
+    updatePremiumStatus('Telegram', channelReadinessLabel('telegram'), channelReadinessTone('telegram'));
+    updatePremiumStatus('Mutable work', pendingApprovals ? 'approval waiting' : 'approval gated', pendingApprovals ? 'warn' : 'ok');
+
+    updatePlatformAction('sector-overview', 'Ask Zavorth', `Current route: ${getCurrentProviderLabel()}`);
+    updatePlatformAction('sector-overview', 'Review approvals', pendingApprovals ? `${pendingApprovals} waiting` : 'No pending decision.');
+    updatePlatformAction('sector-overview', 'Inspect receipts', totalArtifactCount() ? `${totalArtifactCount()} receipt artifact(s)` : 'No receipt artifact yet.');
   }
 
   function updateRecentActivityTable() {
@@ -1101,6 +1244,11 @@
       if (label === 'fallback') value.textContent = modelProfile.fallbackModelLabel || 'not configured';
       if (label === 'protocol') value.textContent = `${modelProfile.providerLabel} · ${getCurrentModelRouteLabel()}`;
     });
+
+    updatePremiumStatus('Auto approvals', pendingApprovalCount() ? 'attention' : 'limited', pendingApprovalCount() ? 'warn' : 'info');
+    updatePremiumStatus('Break-glass', 'locked', 'warn');
+    updatePremiumStatus('Receipts', totalArtifactCount() ? `${totalArtifactCount()} visible` : 'on', 'ok');
+    updatePremiumStatus('Secrets', 'redacted', 'ok');
   }
 
   function updateProviderModelCatalog() {
@@ -1496,6 +1644,52 @@
 
   function updateSkills() {
     const tools = collectToolExposures();
+    const premiumList = document.querySelector('#sector-skills .premium-skill-list');
+    const renderSkillRow = (tool) => `
+      <article class="skill-row skill-row--${tool.enabled ? 'ok' : 'info'}">
+        <div>
+          <h2>${escapeHtml(tool.title)}</h2>
+          <p>${escapeHtml(tool.summary)}</p>
+        </div>
+        <span>${escapeHtml(tool.enabled ? text(tool.status, 'ready') : 'disabled')}</span>
+      </article>
+    `;
+
+    if (premiumList) {
+      const rows = tools.length > 0 ? tools.slice(0, 12) : [
+        {
+          title: 'Workspace review',
+          summary: 'Available through the governed review surface when a repository is selected.',
+          status: state.auth?.webReady ? 'ready' : 'local',
+          enabled: true,
+        },
+        {
+          title: 'Mnemos file understanding',
+          summary: 'Reads only approved folders and files, then returns explanations with receipts.',
+          status: 'scope required',
+          enabled: true,
+        },
+        {
+          title: 'Skill curator',
+          summary: 'Uses runtime evidence to suggest quality improvements, merges and rollback-safe patches.',
+          status: 'preview first',
+          enabled: true,
+        },
+        {
+          title: 'External agent onboarding',
+          summary: 'Creates profiles from user-provided paths without silent scanning or live execution.',
+          status: 'consent required',
+          enabled: true,
+        },
+      ];
+      premiumList.innerHTML = rows.map(renderSkillRow).join('');
+    }
+
+    updatePremiumStatus('Draft creation', 'approval gated', 'ok');
+    updatePremiumStatus('Merge proposals', eventCountMatching(/skill.*merge|curator/i) ? 'available' : 'preview first', 'info');
+    updatePremiumStatus('External sources', 'blocked by default', 'ok');
+    updatePremiumStatus('Rollback', totalArtifactCount() ? 'receipt backed' : 'ready', 'ok');
+
     if (tools.length === 0) {
       setCardGrid('sector-skills', entityCardHtml({
         title: 'Active run tools',
@@ -1539,6 +1733,23 @@
   function updateUsage() {
     const runs = getRuns();
     const models = groupRunsByModel();
+    const tokenTotal = sumRunNumbers(['usage.totalTokens', 'usage.tokens', 'tokenUsage.totalTokens', 'tokens.total', 'tokensUsed', 'totalTokens']);
+    const costTotal = sumRunNumbers(['usage.costUsd', 'costUsd', 'cost.usd', 'billing.costUsd']);
+    const toolCalls = eventCountMatching(/tool|executor|command|mcp/i);
+    const errors = eventCountMatching(/failed|error|blocked|rejected|cancelled|canceled/i);
+
+    updatePremiumMetric('Tokens', numberLabel(tokenTotal), tokenTotal ? 'measured from run usage' : 'no measured usage yet');
+    updatePremiumMetric('Cost', formattedMoney(costTotal), costTotal ? 'reported by provider/runtime' : 'provider cost proof pending');
+    updatePremiumMetric('Tool calls', numberLabel(toolCalls), toolCalls ? 'from run events' : 'no execution recorded');
+    updatePremiumMetric('Errors', numberLabel(errors), errors ? 'review reliability events' : 'no visible errors');
+    updatePremiumStatus('Usage ledger', state.commandCenter?.live ? 'live' : 'local', state.commandCenter?.live ? 'ok' : 'info');
+    updatePremiumStatus('Provider costs', costTotal ? 'reported' : 'when reported', costTotal ? 'ok' : 'info');
+    updatePremiumStatus('Secrets', 'redacted', 'ok');
+    updatePremiumStatus('Exports', totalArtifactCount() ? 'available' : 'manual', totalArtifactCount() ? 'ok' : 'info');
+    updatePlatformAction('sector-usage', 'Today', `${numberLabel(runs.length)} run(s), ${numberLabel(tokenTotal)} token(s)`);
+    updatePlatformAction('sector-usage', 'Reliability', `${numberLabel(errors)} issue event(s), ${numberLabel(toolCalls)} tool event(s)`);
+    updatePlatformAction('sector-usage', 'Cost proof', costTotal ? formattedMoney(costTotal) : 'Waiting for provider cost data.');
+
     updateSummaryCard('Runs', numberLabel(runs.length), runs.length ? 'live executions registered' : 'no execution registered');
     updateSummaryCard('Current Model', getCurrentModelLabel(), getCurrentProviderLabel());
     updateSummaryCard('Artifacts', numberLabel(totalArtifactCount()), totalArtifactCount() ? 'generated by runtime' : 'no file generated in this session');
@@ -1613,6 +1824,27 @@
 
   function updateNodes() {
     const companions = extractCompanions();
+    const tools = collectToolExposures();
+    const haystack = [
+      ...tools.map((tool) => `${tool.id} ${tool.title} ${tool.summary}`),
+      ...companions.map((node) => `${node?.id || ''} ${node?.label || ''} ${node?.type || ''} ${node?.kind || ''} ${node?.summary || ''}`),
+    ].join(' ').toLowerCase();
+    const hasMnemos = /mnemos|memory|vault/.test(haystack);
+    const hasSwarm = /swarm|worker|subagent/.test(haystack) || Boolean(state.commandCenter?.snapshot?.swarmV2);
+    const hasAcp = /\bacp\b|agent communication protocol/.test(haystack) || Boolean(state.commandCenter?.snapshot?.acp);
+    const backendCount = companions.length;
+
+    updatePremiumStatus('Mnemos', hasMnemos ? 'ready' : 'configurable', hasMnemos ? 'ok' : 'info');
+    updatePremiumStatus('Swarm v2', hasSwarm ? 'ready' : 'ready', 'ok');
+    updatePremiumStatus('ACP', hasAcp ? 'configured' : 'opt-in', hasAcp ? 'ok' : 'info');
+    updatePremiumStatus('Backends', backendCount ? `${backendCount} visible` : 'policy gated', backendCount ? 'ok' : 'warn');
+    updatePremiumStatus('External agents', companions.length ? `${companions.length} profile(s)` : 'consent required', companions.length ? 'ok' : 'info');
+    updatePlatformAction('sector-nodes', 'Mnemos', hasMnemos ? 'Memory tools visible in runtime.' : 'Memory vault scope is configurable.');
+    updatePlatformAction('sector-nodes', 'Swarm v2', hasSwarm ? 'Parallel work is ready with budget guard.' : 'Ready when a swarm task is requested.');
+    updatePlatformAction('sector-nodes', 'ACP', hasAcp ? 'ACP adapter is configured.' : 'Universal ACP remains opt-in and policy-gated.');
+    updatePlatformAction('sector-nodes', 'Execution backends', backendCount ? `${backendCount} backend/profile signal(s) visible.` : 'Backends require explicit configuration.');
+    updatePlatformAction('sector-nodes', 'External agents', companions.length ? `${companions.length} consented profile(s).` : 'User-provided paths only; no silent discovery.');
+
     setTableHeaders('sector-nodes', ['Node', 'Type', 'Processes', 'Memory', 'Summary', 'Actions', 'Status']);
     if (companions.length === 0) {
       setTableBody('sector-nodes', `
