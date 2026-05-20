@@ -920,11 +920,24 @@
     background: color-mix(in srgb, var(--b-glass) 36%, transparent);
   }
 
+  .platform-page--operator {
+    gap: 16px;
+  }
+
+  .platform-hero--operator {
+    padding-bottom: 16px;
+  }
+
+  .platform-summary--compact {
+    border-radius: 14px;
+    background: color-mix(in srgb, var(--b-glass) 24%, transparent);
+  }
+
   .platform-stat {
     display: grid;
     gap: 5px;
-    min-height: 86px;
-    padding: 16px 18px;
+    min-height: 76px;
+    padding: 14px 16px;
     border-right: 1px solid color-mix(in srgb, var(--b-shell) 54%, transparent);
   }
 
@@ -943,7 +956,7 @@
   .platform-stat strong {
     color: var(--b-signal-strong);
     font-family: var(--b-font-display);
-    font-size: 24px;
+    font-size: 22px;
     line-height: 1.05;
   }
 
@@ -957,6 +970,11 @@
     grid-template-columns: minmax(0, 1.65fr) minmax(280px, 0.85fr);
     gap: 32px;
     align-items: start;
+  }
+
+  .platform-workspace--operator {
+    grid-template-columns: minmax(0, 1.42fr) minmax(260px, 0.74fr);
+    gap: 28px;
   }
 
   .platform-main,
@@ -981,6 +999,10 @@
     color: var(--b-signal);
     text-align: left;
     cursor: pointer;
+  }
+
+  .platform-command-row--primary {
+    min-height: 72px;
   }
 
   .platform-command-row:hover strong,
@@ -1027,6 +1049,11 @@
     background: color-mix(in srgb, var(--b-glass) 28%, transparent);
   }
 
+  .platform-process--quiet {
+    margin-top: 2px;
+    background: transparent;
+  }
+
   .platform-process div,
   .premium-flow div {
     display: grid;
@@ -1043,6 +1070,44 @@
     border-right: 1px solid color-mix(in srgb, var(--b-shell) 48%, transparent);
     border-radius: 0;
     background: transparent;
+  }
+
+  .platform-action-list {
+    display: grid;
+    gap: 0;
+    margin-top: 8px;
+    border-top: 1px solid color-mix(in srgb, var(--b-shell) 54%, transparent);
+  }
+
+  .platform-action-list button {
+    display: grid;
+    grid-template-columns: minmax(0, 0.48fr) minmax(0, 1fr);
+    align-items: center;
+    gap: 16px;
+    min-height: 54px;
+    padding: 0;
+    border: 0;
+    border-bottom: 1px solid color-mix(in srgb, var(--b-shell) 46%, transparent);
+    background: transparent;
+    color: var(--b-signal);
+    text-align: left;
+    cursor: pointer;
+  }
+
+  .platform-action-list button:hover strong {
+    color: var(--b-pulse);
+  }
+
+  .platform-action-list strong {
+    color: color-mix(in srgb, var(--b-signal-strong) 92%, #ffffff 8%);
+    font-family: var(--b-font-display);
+    font-size: 14px;
+    transition: color var(--b-duration-fast) ease;
+  }
+
+  .platform-action-list span {
+    color: color-mix(in srgb, var(--b-signal-muted) 82%, #ffffff 18%);
+    font-size: 12px;
   }
 
   .platform-process div:last-child,
@@ -1195,7 +1260,7 @@
 }
 
 [data-theme="light"] .sector {
-  background: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%);
+  background: linear-gradient(180deg, #ffffff 0%, #f9fbfb 100%);
 }
 
 [data-theme="light"] .premium-page--platform,
@@ -1206,18 +1271,37 @@
 
 [data-theme="light"] .platform-summary,
 [data-theme="light"] .platform-process,
+[data-theme="light"] .platform-summary--compact,
 [data-theme="light"] .premium-status-list,
 [data-theme="light"] .usage-filter-bar,
 [data-theme="light"] .premium-skill-list {
-  background: rgba(255, 255, 255, 0.76);
-  border-color: rgba(15, 23, 42, 0.1);
+  background: rgba(255, 255, 255, 0.88);
+  border-color: rgba(15, 23, 42, 0.12);
 }
 
 [data-theme="light"] .platform-command-row,
+[data-theme="light"] .platform-action-list,
+[data-theme="light"] .platform-action-list button,
 [data-theme="light"] .premium-panel,
 [data-theme="light"] .premium-card,
 [data-theme="light"] .platform-activity {
   border-color: rgba(15, 23, 42, 0.1);
+}
+
+[data-theme="light"] .premium-title,
+[data-theme="light"] .platform-command-row strong,
+[data-theme="light"] .platform-stat strong,
+[data-theme="light"] .premium-panel__header h2,
+[data-theme="light"] .premium-card h2,
+[data-theme="light"] .platform-action-list strong {
+  color: #0f172a;
+}
+
+[data-theme="light"] .premium-subtitle,
+[data-theme="light"] .platform-command-row small,
+[data-theme="light"] .platform-stat small,
+[data-theme="light"] .platform-action-list span {
+  color: #475569;
 }
 
 [data-theme="light"] .premium-status,
