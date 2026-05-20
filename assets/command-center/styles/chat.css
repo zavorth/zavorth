@@ -2480,23 +2480,29 @@
   box-shadow: var(--b-shadow-lg);
   color: var(--b-signal-strong);
 }
-.voice-overlay__levels {
+.voice-overlay__levels,
+.voice-overlay__wave {
   display: inline-flex;
   align-items: center;
   gap: 5px;
   height: 32px;
 }
-.voice-overlay__levels span {
+.voice-overlay__levels span,
+.voice-overlay__wave span {
   width: 4px;
   height: 12px;
   border-radius: var(--b-radius-full);
   background: var(--b-pulse);
   animation: b-voice-levels 900ms ease-in-out infinite;
 }
-.voice-overlay__levels span:nth-child(2) { animation-delay: 100ms; }
-.voice-overlay__levels span:nth-child(3) { animation-delay: 200ms; }
-.voice-overlay__levels span:nth-child(4) { animation-delay: 300ms; }
-.voice-overlay__levels span:nth-child(5) { animation-delay: 400ms; }
+.voice-overlay__levels span:nth-child(2),
+.voice-overlay__wave span:nth-child(2) { animation-delay: 100ms; }
+.voice-overlay__levels span:nth-child(3),
+.voice-overlay__wave span:nth-child(3) { animation-delay: 200ms; }
+.voice-overlay__levels span:nth-child(4),
+.voice-overlay__wave span:nth-child(4) { animation-delay: 300ms; }
+.voice-overlay__levels span:nth-child(5),
+.voice-overlay__wave span:nth-child(5) { animation-delay: 400ms; }
 .voice-overlay__text {
   max-width: 360px;
   text-align: center;
@@ -2624,18 +2630,18 @@
   }
 
   .chat-console-bar {
-    width: min(1040px, calc(100% - 96px));
-    margin: 26px auto 10px;
-    min-height: 42px;
-    padding: 0 12px;
+    width: min(980px, calc(100% - 112px));
+    margin: 20px auto 8px;
+    min-height: 38px;
+    padding: 0 10px;
     border-radius: 16px;
     background: color-mix(in srgb, var(--b-glass-strong) 54%, transparent);
     box-shadow: none;
   }
 
   .chat-console-select {
-    min-height: 34px;
-    min-width: 126px;
+    min-height: 32px;
+    min-width: 116px;
     border-radius: 12px;
   }
 
@@ -2643,8 +2649,8 @@
   .chat-console-select strong { font-size: 12px; }
 
   .chat-console-icon {
-    width: 34px;
-    height: 34px;
+    width: 32px;
+    height: 32px;
     border-radius: 12px;
   }
 
@@ -2725,29 +2731,29 @@
 
   .terminal-view.is-empty .compose-dock {
     position: sticky;
-    bottom: 18px;
-    margin: 8px auto 0;
+    bottom: 20px;
+    margin: 20px auto 0;
     z-index: 20;
   }
 
   .compose-dock::before {
-    height: 94px;
-    opacity: 0.56;
+    height: 80px;
+    opacity: 0.42;
   }
 
   .compose-dock__input-frame {
-    border-radius: 22px;
-    background: color-mix(in srgb, #061612 90%, transparent);
-    box-shadow: 0 16px 48px color-mix(in srgb, #000 24%, transparent);
+    border-radius: 20px;
+    background: color-mix(in srgb, #061612 92%, transparent);
+    box-shadow: 0 12px 34px color-mix(in srgb, #000 20%, transparent);
   }
 
   .compose-dock__input-frame > textarea {
-    min-height: 44px;
-    padding: 15px 18px 0;
+    min-height: 52px;
+    padding: 17px 18px 0;
     font-size: 0.98rem;
   }
 
-  .compose-dock__controls { padding: 5px 10px 10px; }
+  .compose-dock__controls { padding: 4px 10px 9px; }
 
   .compose-dock__btn {
     width: 30px;
@@ -2761,7 +2767,7 @@
 }
 
 [data-theme="light"] .terminal-main {
-  background: linear-gradient(180deg, #ffffff 0%, #f7faf9 100%);
+  background: linear-gradient(180deg, #ffffff 0%, #f7faf9 64%, #f8fafc 100%);
 }
 
 [data-theme="light"] .chat-console-bar {
@@ -2778,19 +2784,28 @@
   border-color: rgba(15, 23, 42, 0.1);
 }
 
+[data-theme="light"] .suggestion-chip {
+  color: #334155;
+  box-shadow: 0 10px 24px rgba(15, 23, 42, 0.08);
+}
+
+[data-theme="light"] .suggestion-chip svg {
+  stroke: #059669;
+}
+
 [data-theme="light"] .terminal-hero__question {
   color: #334155;
 }
 
 [data-theme="light"] .compose-dock::before {
-  opacity: 0.38;
-  background: linear-gradient(180deg, transparent, rgba(255, 255, 255, 0.94) 54%, #ffffff 100%);
+  opacity: 0.24;
+  background: linear-gradient(180deg, transparent, rgba(255, 255, 255, 0.88) 54%, #ffffff 100%);
 }
 
 [data-theme="light"] .compose-dock__input-frame {
   background: #ffffff;
-  border-color: rgba(15, 23, 42, 0.14);
-  box-shadow: 0 18px 48px rgba(15, 23, 42, 0.14);
+  border-color: rgba(15, 23, 42, 0.16);
+  box-shadow: 0 14px 34px rgba(15, 23, 42, 0.12);
 }
 
 [data-theme="light"] .compose-dock__input-frame > textarea {
@@ -2799,4 +2814,11 @@
 
 [data-theme="light"] .compose-dock__input-frame > textarea::placeholder {
   color: #64748b;
+}
+
+[data-theme="light"] .terminal-hero__hello,
+[data-theme="light"] .terminal-hero__status,
+[data-theme="light"] .home-command-panel strong,
+[data-theme="light"] .suggestion-chip {
+  text-shadow: none;
 }

@@ -6,12 +6,12 @@
   'use strict';
 
   populate('sector-overview', `
-    <div class="premium-page premium-page--platform" data-zavorth-premium-dashboard-v2>
-      <section class="premium-hero premium-hero--platform" aria-label="Operations overview">
+    <div class="premium-page premium-page--platform platform-page--operator dashboard-glass" data-zavorth-premium-dashboard-v2>
+      <section class="premium-hero premium-hero--platform platform-hero--operator" aria-label="Operations overview">
         <div>
           <span class="dashboard-eyebrow"><span class="dashboard-live-dot"></span>Overview</span>
-          <h1 class="premium-title">Operate Zavorth from one clean surface.</h1>
-          <p class="premium-subtitle">Ask, approve, inspect receipts and check readiness without hunting through logs.</p>
+          <h1 class="premium-title">Today in Zavorth.</h1>
+          <p class="premium-subtitle">A simple operator view: what is ready, what needs approval, and the safest next action.</p>
         </div>
         <div class="premium-hero__actions">
           <button class="operator-primary-action" type="button" data-dashboard-prompt="Run Zavorth Ready To Go and summarize the result in simple language.">Ready check</button>
@@ -19,28 +19,33 @@
         </div>
       </section>
 
-      <section class="platform-summary" aria-label="Core status">
-        ${platformStat('Gateway', 'Ready', 'Local dashboard connected', 'ok')}
+      <section class="platform-summary platform-summary--compact" aria-label="Core status">
+        ${platformStat('Missions', '<span data-dashboard-metric="runs">0</span>', '<span data-dashboard-meta="runs">waiting for first mission</span>', 'ok')}
         ${platformStat('Provider', 'Auto', 'Uses configured route', 'info')}
         ${platformStat('Approvals', '<span data-dashboard-metric="approvals">0</span>', '<span data-dashboard-meta="approvals">No pending decision</span>', 'warn')}
         ${platformStat('Receipts', '<span data-dashboard-metric="artifacts">0</span>', '<span data-dashboard-meta="artifacts">No receipt yet</span>', 'info')}
       </section>
 
-      <section class="platform-workspace">
+      <section class="platform-workspace platform-workspace--operator">
         <div class="platform-main">
-          <div class="platform-section-title">Current work</div>
-          <button class="platform-command-row" type="button" data-dashboard-sector="terminal">
+          <div class="platform-section-title">Next best action</div>
+          <button class="platform-command-row platform-command-row--primary" type="button" data-dashboard-sector="terminal">
             <span>
               <strong data-dashboard-runtime-title>Waiting for a mission</strong>
               <small data-dashboard-runtime-text>Use Chat for natural requests. Zavorth previews risky actions, asks when needed and writes receipts after completion.</small>
             </span>
             <em>Open chat</em>
           </button>
-          <div class="platform-process" aria-label="Governed flow">
+          <div class="platform-process platform-process--quiet" aria-label="Governed flow">
             ${premiumStep('1', 'Ask', 'plain language')}
             ${premiumStep('2', 'Preview', 'risk and tools')}
             ${premiumStep('3', 'Approve', 'scope and TTL')}
             ${premiumStep('4', 'Receipt', 'proof and replay')}
+          </div>
+          <div class="platform-action-list" aria-label="Common actions">
+            <button type="button" data-dashboard-sector="terminal"><strong>Ask Zavorth</strong><span>Start with a normal request.</span></button>
+            <button type="button" data-dashboard-sector="sales-os"><strong>Review approvals</strong><span>Accept, reject or scope permissions.</span></button>
+            <button type="button" data-dashboard-sector="instances"><strong>Inspect receipts</strong><span>See what happened and why.</span></button>
           </div>
         </div>
 
@@ -54,9 +59,6 @@
           </div>
           <button class="operator-secondary-action" type="button" data-dashboard-sector="channels">Open channels</button>
         </aside>
-      </section>
-
-      <section class="platform-activity" aria-label="Recent activity" data-dashboard-timeline hidden>
       </section>
     </div>
   `);
