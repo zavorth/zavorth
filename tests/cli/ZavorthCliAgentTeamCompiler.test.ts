@@ -65,7 +65,7 @@ describe('Zavorth CLI Agent Team Compiler', () => {
 
   it('formats a compact human summary', () => {
     const snapshot = buildAgentTeamCompilerCliSnapshot({
-      text: 'compile equipe para wave',
+      text: 'compile equipe para entrega',
       userId: 'grey',
       sessionId: 'session-cli-agent-team-human',
     });

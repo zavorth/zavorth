@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updatedAt": "2026-05-19T22:37:37.850Z",
+  "updatedAt": "2026-05-20T05:54:26.847Z",
   "snapshot": {
     "controls": [
       {
@@ -192,7 +192,7 @@
       {
         "id": "scripts/security-ci-check.mjs",
         "relativePath": "scripts/security-ci-check.mjs",
-        "sha256": "fd3085fc4212ebeb56f0ad69779e6f58b64f2992298baf3ec855cedb18403491",
+        "sha256": "d6204947b51fd8ce76aae675d99c20ec13036ecdd0a104e783fe4a8ccdff3dd3",
         "present": true
       },
       {

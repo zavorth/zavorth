@@ -392,7 +392,7 @@ export class ZavorthTelemetryLedgerService {
       return 'JSONL local ativo; configure OTEL/Langfuse apenas se quiser exportacao externa opcional.';
     }
     if (input.traceCount < 3) {
-      return 'A baseline de traces ainda esta curta; gere mais execucoes comparaveis para consolidar a wave.';
+      return 'A baseline de traces ainda esta curta; gere mais execucoes comparaveis para consolidar a entrega.';
     }
     return 'Telemetria operacional ativa e pronta para comparacao por fluxo.';
   }

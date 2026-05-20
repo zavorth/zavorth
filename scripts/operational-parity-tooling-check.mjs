@@ -44,7 +44,7 @@ const rules = [
   }),
   ruleContainsAll({
     id: 'operational-parity-tooling-service',
-    label: 'Service aggregates prior parity waves',
+    label: 'Service aggregates prior parity cycles',
     target: 'Service builds one snapshot from capability normalization, provider, channel, satellite, memory and Plugin OS registry',
     files: ['src/services/OperationalParityToolingService.ts'],
     needles: [

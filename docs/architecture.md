@@ -27,11 +27,8 @@ state. Web, CLI and channel adapters should render `GatewaySpineSnapshot`
 instead of keeping separate copies of sessions, approvals, receipts or
 artifacts.
 
-Use:
-
-- `npm run zavorth:gateway-spine` for a compact operator view.
-- `npm run zavorth:gateway-spine:json` for the API/projection payload.
-- `npm run zavorth:gateway-spine:check` to verify the Gateway Spine contract.
+Use `zavorth gateway` for a compact operator view, or `zavorth gateway --json`
+for the API/projection payload.
 
 ### Policy Plane
 
@@ -51,10 +48,9 @@ Sensitive work follows one path:
 7. emit a visual receipt;
 8. prepare rollback evidence before mutation.
 
-Use `zavorth chat "edit src/index.ts"` for the normal CLI entry or
-`npm run zavorth:sensitive-action-flow -- --request "edit src/index.ts"` to
-inspect the projection. Dashboard can render this as an action card, but it
-does not execute actions by itself.
+Use `zavorth chat "edit src/index.ts"` for the normal CLI entry. Dashboard can
+render sensitive work as an action card, but it does not execute actions by
+itself.
 
 ### Execution Plane
 
@@ -76,7 +72,8 @@ Zavorth's normal governance path, but adds a stronger team runtime:
   separation and docker/wsl/external-sandbox profiles for stronger hosts;
 - deterministic final synthesis when no LLM synthesis provider is attached.
 
-Use `npm run swarm-v2:check` to verify the official Swarm v2 contract.
+Use `zavorth swarm` or the Dashboard swarm surface when validating multi-agent
+work interactively. Maintainer CI verifies the official Swarm v2 contract.
 
 ### Memory And Artifact Plane
 

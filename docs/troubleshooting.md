@@ -6,17 +6,9 @@ changing configuration.
 ## Start Here
 
 ```bash
-npm run status
-npm run doctor
-npm run security:secrets
-npm run runtime:check
-```
-
-Installed CLI users can use:
-
-```bash
 zavorth status
 zavorth doctor
+zavorth ready
 ```
 
 ## Common Problems
@@ -40,8 +32,8 @@ Look for:
 
 ### Provider Is Not Ready
 
-Run the provider live canary check and confirm the required SecretRef exists.
-Do not paste provider keys into chat.
+Run `zavorth providers test <provider>` and confirm the required SecretRef or
+local environment value exists. Do not paste provider keys into chat.
 
 ### Channel Is Not Sending
 
@@ -66,11 +58,11 @@ unsupported file types and writes outside allowed workspace policy.
 ## Useful Focused Checks
 
 ```bash
-npm run zavorth:provider-live-canary:check
-npm run zavorth:subagents:check
-npm run zavorth:universal-skill-intake:check
-node scripts/zavorth-channel-capability-awareness-check.mjs
-node scripts/zavorth-perception-certification-check.mjs
+zavorth providers test <provider>
+zavorth connectors doctor <channel>
+zavorth skills
+zavorth review
+zavorth doctor --advanced
 ```
 
 ## Related

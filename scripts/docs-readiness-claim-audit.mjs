@@ -92,7 +92,7 @@ function collectReadinessSignals(text) {
     planned: ['planned', 'future', 'futuro', 'planejado'],
     notImplemented: ['not implemented', 'nao implementado', 'não implementado', 'fixture-parity-covered'],
     todo: ['todo', 'pendente', 'pending', 'tbd'],
-    stage: ['phase', 'etapa', 'wave'],
+    stage: ['stage', 'etapa', 'legacy-cycle'],
     gate: ['gate', 'readiness', 'canary', 'certification', 'certificacao', 'certificação'],
   };
   const lower = text.toLowerCase();
@@ -151,7 +151,7 @@ function classifyStatus(input) {
   if (input.readinessSignals.notImplemented > 0 && (implementationRatio < 0.55 || checkRatio < 0.55)) {
     return 'likely-not-implemented';
   }
-  if ((name.includes('phase') || name.includes('wave') || name.includes('pack') || name.includes('private')) && implementationRatio >= 0.7 && (checks === 0 || checkRatio >= 0.7)) {
+  if ((name.includes('stage') || name.includes('legacy-cycle') || name.includes('pack') || name.includes('private')) && implementationRatio >= 0.7 && (checks === 0 || checkRatio >= 0.7)) {
     return 'historical-implemented';
   }
   if (refs + checks === 0 && input.readinessSignals.total > 8) {

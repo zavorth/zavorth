@@ -19,7 +19,7 @@ export function buildArtifactMemoryCliSnapshot(input: {
   userId: string;
   sessionId: string;
 }): ArtifactMemorySnapshot {
-  const text = input.text || 'indexe artifacts importantes da wave atual para reuso com origem';
+  const text = input.text || 'indexe artifacts importantes da sessao atual para reuso com origem';
   const service = new AgentRunService({
     now: () => new Date('2026-05-04T00:38:00.000Z'),
   });
@@ -31,32 +31,32 @@ export function buildArtifactMemoryCliSnapshot(input: {
     workspace: 'C:\\TESTES DEV\\zavorth-core\\Zavorth',
     requestedTools: ['workspace.read', 'memory.read', 'artifacts.read'],
     metadata: {
-      taskId: 'track-38-artifact-memory',
+      taskId: 'artifact-memory-index',
       artifactSummaries: {
-        'artifact-plan-track-38': {
-          summary: 'Plano da Track 38 para transformar artifacts em memoria pesquisavel com receipts.',
+        'artifact-memory-plan': {
+          summary: 'Plano para transformar artifacts em memoria pesquisavel com receipts.',
         },
-        'artifact-report-track-38': {
-          summary: 'Relatorio de validacao da Track 38 com gates e testes focados.',
+        'artifact-memory-report': {
+          summary: 'Relatorio de validacao de Artifact Memory com gates e testes focados.',
         },
-        'artifact-diff-track-38': {
+        'artifact-memory-diff': {
           summary: 'Diff de implementacao conectando runtime, CLI e Command Center.',
         },
       },
     },
   });
-  run.summary = 'Track 38 preparou Artifact Memory para pesquisa e reuso citavel.';
+  run.summary = 'Artifact Memory preparou artifacts para pesquisa e reuso citavel.';
   run.artifacts = [
     {
-      id: 'artifact-plan-track-38',
-      title: 'Plano Track 38 Artifact Memory',
+      id: 'artifact-memory-plan',
+      title: 'Plano Artifact Memory',
       kind: 'plan',
       createdAt: run.updatedAt,
       sessionId: input.sessionId,
       status: 'ready',
     },
     {
-      id: 'artifact-report-track-38',
+      id: 'artifact-memory-report',
       title: 'Relatorio de validacao Artifact Memory',
       kind: 'report',
       createdAt: run.updatedAt,
@@ -64,7 +64,7 @@ export function buildArtifactMemoryCliSnapshot(input: {
       status: 'ready',
     },
     {
-      id: 'artifact-diff-track-38',
+      id: 'artifact-memory-diff',
       title: 'Diff de implementacao Artifact Memory',
       kind: 'diff',
       createdAt: run.updatedAt,
@@ -77,12 +77,12 @@ export function buildArtifactMemoryCliSnapshot(input: {
     memoryWithReceipts: {
       receipts: [
         {
-          id: 'memory-receipt-artifact-plan-track-38',
+          id: 'memory-receipt-artifact-memory-plan',
           source: 'ArtifactMemoryService',
           origin: {
             kind: 'artifact',
-            artifactId: 'artifact-plan-track-38',
-            ref: 'artifact-plan-track-38',
+            artifactId: 'artifact-memory-plan',
+            ref: 'artifact-memory-plan',
           },
           confidence: 0.91,
         },
@@ -105,7 +105,7 @@ export function formatArtifactMemorySnapshot(
   snapshot: ArtifactMemorySnapshot,
 ): string {
   const lines = [
-    'Artifact Memory - Track 38',
+    'Artifact Memory',
     `- contrato: ${snapshot.contractVersion}`,
     `- run: ${snapshot.identifiers.runId}`,
     `- status: ${snapshot.status}`,

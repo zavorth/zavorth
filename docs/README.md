@@ -75,11 +75,9 @@ small: daily-use guides, stable architecture notes and integration contracts.
 - Local links should resolve before docs are committed.
 - No external action, install, deploy, secret access, or shell execution is implied by documentation, certification gates, or preview-only operational cycles.
 
-Before publishing documentation changes, run the public documentation audit from
+Before publishing documentation changes, run the public documentation gate from
 the repository root:
 
 ```bash
-node scripts/docs-public-repo-audit.mjs
+npm run daily:certify
 ```
-
-Use `--write` only when you want to save the report under `.tmp/repo-audit`.

@@ -34,7 +34,7 @@ export type ZavorthGatewayAgentHandoffAdapterInput = {
 type GatewayHandoffSnapshot = ZavorthGatewaySnapshot | ZavorthGatewayShellSnapshot | null;
 
 const DEFAULT_GUARDRAILS = [
-  'Do not fuse ingress, reply, or context ownership into the new agent loop in this wave.',
+  'Do not fuse ingress, reply, or context ownership into the new agent loop in this entrega.',
   'Do not replace ZavorthGatewayRuntimeService ownership while the larger agent loop refactor is pending.',
   'Keep legacy compatibility bounded to existing compat adapters; do not make it the new canonical surface.',
   'Preserve useful provider, storage, proxy, SSE, and session capabilities during convergence.',
@@ -43,7 +43,7 @@ const DEFAULT_GUARDRAILS = [
 
 const DEFAULT_NEXT_INTEGRATION_STEPS = [
   'Wire ZavorthAgentGateway against this handoff snapshot during the larger agent loop refactor.',
-  'Map agent-loop ingress and reply contracts to GatewayContract without changing the gateway transport surface in this wave.',
+  'Map agent-loop ingress and reply contracts to GatewayContract without changing the gateway transport surface in this entrega.',
   'Use CoreOrchestrator -> SurfaceTaskDispatchService as the current legacy pass-through equivalent; migrate only one guarded entrypoint into the existing ZavorthAgentGateway.',
   'Decide final ownership for session context, tool replies, and runtime health in the agent loop architecture patch train.',
   'Replace temporary handoff adapter usage after ZavorthAgentGateway becomes the canonical runtime integration point.',
@@ -344,7 +344,7 @@ export class ZavorthGatewayAgentHandoffAdapterService {
           'Control websocket event stream',
         ],
         integrationContract: 'ZavorthGatewayRuntimeSnapshot.sessionBus + GatewayCanonicalStatePayload',
-        compatibilityBoundary: 'Do not move ingress/reply/context ownership in Track 5.',
+        compatibilityBoundary: 'Do not move ingress/reply/context ownership in Gateway Boundary.',
         nextIntegrationSteps: [
           'During the agent loop refactor, map session ownership to ZavorthAgentGateway before moving reply routing.',
         ],
@@ -451,7 +451,7 @@ export class ZavorthGatewayAgentHandoffAdapterService {
         owner: 'agent-loop',
         description: 'Deep ZavorthAgentGateway fusion is intentionally deferred to the larger agent loop architecture plan.',
         evidence: [
-          'zavorth_native-hygiene_plan.md Track 5 forbids refactoring ingress/reply/context in this wave.',
+          'gateway boundary forbids refactoring ingress/reply/context in this entrega.',
         ],
       },
       {

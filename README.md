@@ -54,20 +54,23 @@ For a local checkout:
 
 ```bash
 npm install
-npm run zavorth:operator-check
-npm run zavorth:ready-to-go
-npm run go
-npm run dashboard
+npx zavorth setup
+npx zavorth start
+npx zavorth open
 ```
 
-The primary user surface is `/dashboard`: start the local runtime with
-`npm run go`, then open it with `npm run dashboard` for readiness, providers,
-approvals, receipts, skills, review, memory, and daily operator work.
+The primary user surface is `/dashboard`: configure with `zavorth setup`, start
+the local runtime with `zavorth start`, then open it with `zavorth open` for
+readiness, providers, approvals, receipts, skills, review, memory, and daily
+operator work.
 
 For terminal-first use:
 
 ```bash
-npx zavorth tui
+npx zavorth chat
+npx zavorth providers
+npx zavorth providers add
+npx zavorth channels telegram
 npx zavorth status
 npx zavorth ready
 npx zavorth trust
@@ -111,18 +114,20 @@ Review this repository and tell me what is risky.
 
 | Command | Purpose |
 | --- | --- |
-| `npm run zavorth:operator-check` | One command operator check for daily readiness. |
-| `npm run zavorth:ready-to-go` | Launch guard for remote use and provider readiness. |
-| `npm run go` | Start the local operator runtime and make `/dashboard` available. |
-| `npm run dashboard` | Open the local dashboard with the current access token. |
-| `npm run zavorth:provider-model-catalog` | Show provider and model catalog status. |
-| `npm run zavorth:provider-parity` | Validate nominal provider coverage and safe readiness. |
-| `npm run zavorth:skill-ecosystem` | Inspect native skill ecosystem coverage. |
-| `npm run zavorth:skill-curator-live-loop` | Preview skill quality, merge, and evolution proposals. |
-| `npm run zavorth:agent-review` | Run governed agent review. |
-| `npm run zavorth:trust-approval-ux-final` | Inspect approval posture, persistent permissions, and break-glass controls. |
-| `npm run zavorth:supremacy-parity:check` | Full parity and hardening certification check. |
-| `npm run security:ci` | Security, identity, secret, and hardening checks. |
+| `zavorth setup` | Guided Setup Studio for provider, model, channels, Mnemos, and safety. |
+| `zavorth start` | Start or resume the local runtime and make `/dashboard` available. |
+| `zavorth open` | Open the local dashboard with the current access token. |
+| `zavorth ready` | One command operator readiness check. |
+| `zavorth status` | Show current health. |
+| `zavorth providers` | Show provider and model readiness. |
+| `zavorth providers add` | Guided provider/API key/model wizard with redacted secrets. |
+| `zavorth providers switch` | Change the default provider/model through the same safe wizard. |
+| `zavorth channels telegram` | Guided channel wizard for Telegram token, allowlist and readiness. |
+| `zavorth channels discord` | Guided channel wizard for Discord token, guild/channel policy and readiness. |
+| `zavorth skills` | Inspect native skill coverage and curator hints. |
+| `zavorth review` | Run governed agent review. |
+| `zavorth trust` | Inspect approval posture, persistent permissions, and break-glass controls. |
+| `zavorth doctor` | Diagnose setup/runtime issues and show the next safe action. |
 
 ## Trust Model
 

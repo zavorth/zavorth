@@ -26,21 +26,18 @@ The installer prepares local runtime state, `.zavorth` helpers and the operator 
 ## 2. Readiness
 
 ```bash
-npm run setup
-npm run status -- --json
-npm run doctor -- --json
+zavorth setup
+zavorth ready
+zavorth status --json
+zavorth doctor --json
 ```
 
-## 3. Node And Companion Checks
+## 3. Channels And Providers
 
 ```bash
-npm run test:nodes:smoke
-```
-
-If a local companion launcher exists, it is usually available at:
-
-```text
-.zavorth/companion-start.ps1
+zavorth providers
+zavorth providers add
+zavorth channels telegram
 ```
 
 ## 4. Operate

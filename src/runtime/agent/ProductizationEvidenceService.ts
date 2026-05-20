@@ -383,7 +383,7 @@ export class ProductizationEvidenceService {
         label: 'Docs',
         status: 'ready',
         path: 'docs/product-direction.md',
-        evidence: 'Channel mesh6 documenta preview-only, gates e proxima wave.',
+        evidence: 'Channel mesh6 documenta preview-only, gates e proxima entrega.',
       },
       {
         id: 'website',

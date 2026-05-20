@@ -6,7 +6,7 @@ function main(): void {
   const decision = service.resolveDecision({
     executor: 'local',
     instructions: ['npm test'],
-    metadata: { sourceChannel: 'wave7-smoke' },
+    metadata: { sourceChannel: 'runtime-cycle-smoke' },
   } as any, {
     aggressiveOptIn: true,
   });

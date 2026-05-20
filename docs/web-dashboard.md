@@ -17,13 +17,13 @@ The dashboard is the operator gateway for:
 From an installed CLI:
 
 ```bash
-zavorth go
+zavorth open
 ```
 
 From a cloned repo:
 
 ```bash
-npm run go
+npx zavorth open
 ```
 
 Use the URL printed by the command. Local access and tokens should be handled by

@@ -83,7 +83,7 @@ export const CORE_PROVIDER_INTEGRATION_MANIFESTS: ProviderIntegrationManifest[] 
         familyIds: ['gemini'],
         routeKind: 'official',
         mode: 'cloud',
-        aliases: ['gemini-managed-agents', 'google-managed-agent', 'antigravity-managed-agent'],
+        aliases: ['gemini-managed-agents', 'google-managed-agent', 'zavorth-managed-agent'],
         authKind: 'api_key',
         credentialRefs: ['GEMINI_INTERACTIONS_API_KEY', 'GEMINI_API_KEY'],
         capabilities: ['coding', 'reasoning', 'research', 'tool_use', 'agentic', 'background'],

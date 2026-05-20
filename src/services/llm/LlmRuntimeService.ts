@@ -207,7 +207,7 @@ export class LlmRuntimeService {
           providerName,
           modelName,
           response,
-          metadata: this.mergeMetadata(undefined, egressGuardMetadata),
+          metadata: this.mergeMetadata((response as unknown as { metadata?: Record<string, unknown> }).metadata, egressGuardMetadata),
           route: this.buildRouteReceipt({
             messages: safeMessages,
             tools: safeTools,
@@ -317,6 +317,11 @@ export class LlmRuntimeService {
         return this.isAIGatewayAvailable();
       case 'gemini':
         return Boolean(config.geminiApiKey || config.geminiApiKeys.length > 0);
+      case 'gemini-interactions':
+        return Boolean(
+          ((config as any).geminiInteractionsEnabled || process.env.ZAVORTH_GEMINI_INTERACTIONS_ENABLED === 'true')
+          && ((config as any).geminiInteractionsApiKey || config.geminiApiKey || process.env.GEMINI_API_KEY)
+        );
       case 'deepseek':
         return Boolean(config.deepseekApiKey);
       case 'openai':
@@ -448,6 +453,8 @@ export class LlmRuntimeService {
         return config.AIGatewayModel;
       case 'gemini':
         return config.geminiModel;
+      case 'gemini-interactions':
+        return (config as any).geminiInteractionsModel || process.env.GEMINI_INTERACTIONS_MODEL || config.geminiModel;
       case 'deepseek':
         return config.deepseekModel;
       case 'openai':

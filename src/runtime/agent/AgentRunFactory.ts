@@ -4,6 +4,7 @@ import { decideNaturalFirstRuntimeEntrypoint } from '../../contracts/NaturalFirs
 import { AgentRunCanonicalContextService } from './AgentRunCanonicalContextService.js';
 import { NaturalCapabilityDiscoveryService } from './NaturalCapabilityDiscoveryService.js';
 import { NaturalFirstRunClassifier } from './NaturalFirstRunClassifier.js';
+import { AgenticRouteClassifier } from './AgenticRouteClassifier.js';
 import { ZavorthSubagentAutoInvocationPolicyService } from '../../services/ZavorthSubagentAutoInvocationPolicyService.js';
 import { ToolExposurePolicy, type ToolExposurePolicyHintProfile } from './ToolExposurePolicy.js';
 import { UniversalPreviewModeService } from './UniversalPreviewModeService.js';
@@ -272,6 +273,7 @@ export class AgentRunFactory {
   private readonly modelPickerContractService: AgentRunModelPickerContractService | null;
   private readonly naturalCapabilityDiscovery: NaturalCapabilityDiscoveryService;
   private readonly naturalFirstRunClassifier: NaturalFirstRunClassifier;
+  private readonly agenticRouteClassifier: AgenticRouteClassifier;
   private readonly subagentAutoInvocationPolicy: Pick<ZavorthSubagentAutoInvocationPolicyService, 'decide'>;
   private readonly universalPreviewMode: UniversalPreviewModeService;
 
@@ -287,6 +289,7 @@ export class AgentRunFactory {
       now: this.now,
     });
     this.naturalFirstRunClassifier = new NaturalFirstRunClassifier();
+    this.agenticRouteClassifier = new AgenticRouteClassifier();
     this.subagentAutoInvocationPolicy = runtime.subagentAutoInvocationPolicy || new ZavorthSubagentAutoInvocationPolicyService();
     this.universalPreviewMode = runtime.universalPreviewMode || new UniversalPreviewModeService({
       now: this.now,
@@ -314,6 +317,10 @@ export class AgentRunFactory {
       workspace: input.workspace,
       requestedTools: input.requestedTools,
       metadata: input.metadata,
+    });
+    const agenticRoute = this.agenticRouteClassifier.decide({
+      request: input,
+      naturalFirst: naturalFirstRoute,
     });
     const naturalFirstEntrypoint = decideNaturalFirstRuntimeEntrypoint(text);
     const canonicalContextResult = this.canonicalContextService.buildMetadata(input, {
@@ -432,6 +439,16 @@ export class AgentRunFactory {
           id: this.idFactory('agent-event'),
           runId,
           kind: 'planning',
+          title: 'Roteamento agentic',
+          detail: `${agenticRoute.userFacingLabel}: ${agenticRoute.explanation}`,
+          status: agenticRoute.requiresApproval ? 'pending' : 'done',
+          createdAt: now,
+          metadata: agenticRoute,
+        },
+        {
+          id: this.idFactory('agent-event'),
+          runId,
+          kind: 'planning',
           title: 'Plano inicial preparado',
           detail: 'O pedido entrou pelo gateway universal e esta pronto para roteamento.',
           status: 'done',
@@ -449,6 +466,7 @@ export class AgentRunFactory {
         ...metadataForPolicy,
         naturalFirstEntrypoint,
         naturalFirstRoute,
+        agenticRoute,
         ...(toolExposureHint ? { toolExposureHint } : {}),
         naturalCapabilityDiscovery,
         ...(subagentAutoInvocation ? { subagentAutoInvocation } : {}),

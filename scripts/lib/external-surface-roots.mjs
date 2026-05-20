@@ -15,13 +15,13 @@ export function resolveExternalSurfaceRoots() {
   const workspaceRoot = path.resolve(projectRoot, '..');
   const publicWorkspaceRoot = path.resolve(projectRoot, '..', '..');
   const docsRoot = normalizeOverride(process.env.ZAVORTH_DOCS_REPO_ROOT)
-    || path.join(workspaceRoot, 'zavorth-docs');
+    || path.join(workspaceRoot, 'docs-client');
   const webRoot = normalizeOverride(process.env.ZAVORTH_WEB_REPO_ROOT)
     || path.join(workspaceRoot, 'zavorth-web');
   const websiteRoot = normalizeOverride(process.env.ZAVORTH_WEBSITE_REPO_ROOT)
     || path.join(publicWorkspaceRoot, 'zavorth-website');
   const uiSandboxRoot = normalizeOverride(process.env.ZAVORTH_UI_SANDBOX_REPO_ROOT)
-    || path.join(workspaceRoot, 'zavorth-ui-sandbox');
+    || path.join(workspaceRoot, 'ui-sandbox');
 
   return {
     projectRoot,
@@ -64,12 +64,12 @@ export function ensureExternalSurfaceRoot(kind) {
   if (!exists) {
     throw new Error(
       kind === 'docs'
-        ? `Repositorio externo de docs nao encontrado em ${roots.docsRoot}. Configure ZAVORTH_DOCS_REPO_ROOT ou restaure o repo irmao zavorth-docs.`
+        ? `Repositorio externo de docs nao encontrado em ${roots.docsRoot}. Configure ZAVORTH_DOCS_REPO_ROOT.`
         : kind === 'web'
           ? `Repositorio externo web nao encontrado em ${roots.webRoot}. Configure ZAVORTH_WEB_REPO_ROOT ou restaure o repo irmao zavorth-web.`
           : kind === 'website'
             ? `Repositorio do site publico nao encontrado em ${roots.websiteRoot}. Configure ZAVORTH_WEBSITE_REPO_ROOT ou restaure o repo irmao zavorth-website.`
-            : `Repositorio externo do sandbox UI nao encontrado em ${roots.uiSandboxRoot}. Configure ZAVORTH_UI_SANDBOX_REPO_ROOT ou restaure o repo irmao zavorth-ui-sandbox.`,
+            : `Repositorio externo do sandbox UI nao encontrado em ${roots.uiSandboxRoot}. Configure ZAVORTH_UI_SANDBOX_REPO_ROOT.`,
     );
   }
   return targetRoot;

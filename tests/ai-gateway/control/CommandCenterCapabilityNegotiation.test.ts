@@ -66,7 +66,7 @@ describe('Command Center Capability Negotiation Capability Negotiation', () => {
       userId: 'grey',
       channel: 'web',
       sessionId: 'session-cc-capability-negotiation-live',
-      text: 'corrija a wave 35 e rode testes',
+      text: 'corrija a capability cycle e rode testes',
       workspace: 'C:\\TESTES DEV\\zavorth-core\\Zavorth',
       requestedTools: ['workspace.read', 'write_file', 'shell.exec'],
       metadata: {

@@ -325,6 +325,11 @@ export class AgentRunLlmRuntimeExecutor {
   }
 
   private resolveProviderName(run: UniversalAgentRun, request: UniversalAgentRequest): string | undefined {
+    const agenticRoute = recordOrNull(run.metadata.agenticRoute);
+    if (normalizeText(agenticRoute?.selectedRoute) === 'llm-interactions') {
+      return normalizeText(agenticRoute?.providerRoute, 'gemini-interactions');
+    }
+
     const metadataProvider = normalizeText(request.metadata?.providerName);
     if (metadataProvider) {
       return metadataProvider;
@@ -345,6 +350,12 @@ export class AgentRunLlmRuntimeExecutor {
   }
 
   private resolveModelName(run: UniversalAgentRun, request: UniversalAgentRequest): string | undefined {
+    const agenticRoute = recordOrNull(run.metadata.agenticRoute);
+    if (normalizeText(agenticRoute?.selectedRoute) === 'llm-interactions') {
+      const metadataModel = normalizeText(request.metadata?.agenticModelName || request.metadata?.modelName);
+      return metadataModel || undefined;
+    }
+
     const metadataModel = normalizeText(request.metadata?.modelName);
     if (metadataModel) {
       return metadataModel;

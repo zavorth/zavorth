@@ -42,7 +42,7 @@ export function buildRuntimeShellHtmlPart3(): string {
       </section>
 
       <section id="hub-control-plane-card" class="handoff-card">
-        <p class="profile-tag">Track 5</p>
+        <p class="profile-tag">Gateway Boundary</p>
         <h2>Hub + MCP product plane</h2>
         <p class="muted-copy section-note">
           Esta leitura junta Integration Hub, plugin plane, platform plane, skill plane e MCP num cockpit unico para discovery, trust, sync e doctor.

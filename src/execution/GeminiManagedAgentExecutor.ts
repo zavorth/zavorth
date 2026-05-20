@@ -29,7 +29,7 @@ export class GeminiManagedAgentExecutor implements IExecutor {
       .trim()
       .replace(/\/+$/, '');
     this.model = String(options.model || (config as any).geminiManagedAgentsModel || 'gemini-3.5-flash').trim();
-    this.agent = String(options.agent || (config as any).geminiManagedAgentsAgent || 'antigravity').trim();
+    this.agent = String(options.agent || (config as any).geminiManagedAgentsAgent || 'zavorth-managed-agent').trim();
     this.fetchImpl = options.fetchImpl;
   }
 

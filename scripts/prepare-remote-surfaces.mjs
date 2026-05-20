@@ -109,7 +109,7 @@ function writeManifest(targetDir) {
     remoteSafe: [
       {
         id: 'docs',
-        source: 'zavorth-docs',
+        source: 'docs-client',
         artifactPath: 'docs',
         deployTargets: ['vercel-static', 'cloudflare-pages', 'github-pages'],
       },

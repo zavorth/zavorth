@@ -15,29 +15,27 @@ From the published package:
 
 ```bash
 npm install -g zavorth@latest
+zavorth setup
 zavorth start
-zavorth go
-zavorth connectors doctor
-zavorth demo browser
+zavorth open
+zavorth ready
 ```
 
 From this repository:
 
 ```bash
 npm install
-npm run zavorth:start
-npm run go
-npm run zavorth:connectors
-npm run zavorth:demo:check
+npx zavorth setup
+npx zavorth start
+npx zavorth open
 ```
 
 Expected flow:
 
-1. `start` shows the single product path: setup preview, Home, optional visual demo and connector doctor.
-2. `go` opens or prints the local Home route at `/dashboard`.
-3. `connectors doctor` tells you exactly what is missing for GitHub, Telegram and Discord.
-4. `demo browser` opens the local visual demo without requiring live secrets.
-5. The smoke check verifies the demo without requiring GitHub, Telegram or Discord tokens.
+1. `setup` opens the Setup Studio for provider, model, channels, Mnemos and approvals.
+2. `start` starts or resumes the local runtime.
+3. `open` opens or prints the local dashboard route at `/dashboard`.
+4. `ready` tells you whether provider, channels, approvals and runtime are usable.
 
 ## Product Home
 
@@ -52,17 +50,16 @@ The first screen is Home, not an internal control plane:
 Open it with:
 
 ```bash
-zavorth go
+zavorth open
 ```
 
-`zavorth onboard` is a friendly alias for the same first-run setup path.
-Use `zavorth onboard journey` only when you want the older read-only onboarding
-overview.
+`zavorth setup` is the first-run Studio. `zavorth onboard` remains a compatibility
+alias for existing operators.
 
 Use a dry run when you only want to inspect the launch path:
 
 ```bash
-zavorth go --dry-run
+zavorth start --dry-run
 ```
 
 ## GitHub checklist
@@ -91,9 +88,9 @@ Rules:
 Telegram is a channel over the same governed runtime, not a separate brain.
 
 ```bash
+zavorth channels telegram
 zavorth connectors doctor telegram
-zavorth connectors setup telegram
-zavorth connectors setup telegram --apply --allowed-user=<your-telegram-user-id>
+zavorth channels telegram --apply --allowed-users=<your-telegram-user-id>
 ```
 
 Minimum live setup signals:
@@ -116,9 +113,9 @@ The first message should wait for approval. The second should resume execution a
 Discord starts with a minimal native bot scaffold: bot token, guild allowlist and optional channel/owner policy. The setup command writes placeholders and allowlist values only; it does not paste or invent the bot token.
 
 ```bash
+zavorth channels discord
 zavorth connectors doctor discord
-zavorth connectors setup discord
-zavorth connectors setup discord --apply --guild=<guild-id> --channel=<channel-id> --owner=<owner-user-id>
+zavorth channels discord --apply --allowed-guilds=<guild-id> --allowed-channels=<channel-id> --owners=<owner-user-id>
 ```
 
 Minimum live setup signals:
@@ -130,13 +127,14 @@ Minimum live setup signals:
 
 ## Smoke
 
-The deterministic demo smoke does not need secrets or live network access:
+The daily readiness check does not need users to know internal scripts:
 
 ```bash
-npm run zavorth:demo:check
+zavorth ready
+zavorth doctor
 ```
 
-It verifies:
+For maintainers, the equivalent CI gates verify:
 
 - the 10-minute quickstart contract
 - Home at `/dashboard`
@@ -148,17 +146,18 @@ It verifies:
 ## Everyday Commands
 
 ```bash
+zavorth setup
 zavorth start
-zavorth demo
-zavorth demo browser
-zavorth connectors doctor
-zavorth go
+zavorth open
+zavorth ready
 zavorth chat
 zavorth run "review this repo"
 zavorth doctor --simple
 zavorth receipts
 zavorth connectors
 zavorth providers
+zavorth providers add
+zavorth channels telegram
 ```
 
 ## Safety
@@ -167,7 +166,7 @@ zavorth providers
 - Credentials should be represented as `SecretRef` metadata or local environment configuration.
 - Sensitive actions require policy, approval and receipts.
 - Demo and smoke commands never pretend unconfigured connectors are live.
-- Connector setup writes only scaffold/allowlists with `--apply`; raw secrets stay local or in SecretRefs.
+- Provider and channel wizards write only with explicit `--apply`; raw secrets are captured by secret prompts or env references and never printed.
 
 ## Next
 

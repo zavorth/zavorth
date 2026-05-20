@@ -28,7 +28,7 @@ import {
 } from './ExternalAgentProviderWebSearchFetchBoundary.js';
 
 export const EXTERNAL_AGENT_CANONICAL_PROVIDER_FIXTURE_NOW = '2026-04-27T20:00:00.000Z';
-export const EXTERNAL_AGENT_CANONICAL_PROVIDER_RUNTIME_ID = 'external-wave1-provider-fixture-runtime';
+export const EXTERNAL_AGENT_CANONICAL_PROVIDER_RUNTIME_ID = 'external-external-agent-v1-provider-fixture-runtime';
 export const EXTERNAL_AGENT_CANONICAL_PROVIDER_SOURCE_RUNTIME_NAME = 'ExternalExecutor';
 
 export type ExternalAgentCanonicalProviderSourceEvidence = {
@@ -510,7 +510,7 @@ export function normalizeCanonicalProviderIdentityCatalog(
     records: fixtures,
     generatedAt: EXTERNAL_AGENT_CANONICAL_PROVIDER_FIXTURE_NOW,
     runtimeId: EXTERNAL_AGENT_CANONICAL_PROVIDER_RUNTIME_ID,
-    publicProviderIdPrefix: 'zavorth-provider:wave1',
+    publicProviderIdPrefix: 'zavorth-provider:external-agent-v1',
     createExecutionGate: createCanonicalProviderExecutionGate,
   });
 }
@@ -519,7 +519,7 @@ export function createCanonicalProviderSecretRefFixtures(): ExternalAgentCanonic
   return [
     {
       fixtureCase: 'secretref-env-mapping',
-      publicProviderId: 'zavorth-provider:wave1-secret-mapped',
+      publicProviderId: 'zavorth-provider:external-agent-v1-secret-mapped',
       purposes: ['api-key', 'organization'],
       secretStatus: 'mapped',
       sourceCredentialPath: '~/.external-executor/providers.json',
@@ -535,7 +535,7 @@ export function createCanonicalProviderSecretRefFixtures(): ExternalAgentCanonic
     },
     {
       fixtureCase: 'secretref-missing-secret',
-      publicProviderId: 'zavorth-provider:wave1-secret-missing',
+      publicProviderId: 'zavorth-provider:external-agent-v1-secret-missing',
       purposes: ['api-key'],
       secretStatus: 'missing',
       sourceCredentialPath: '~/.external-executor/missing-media-provider.json',
@@ -565,7 +565,7 @@ export function createCanonicalProviderEmbeddingFixtures(): ExternalAgentCanonic
   return [
     {
       fixtureCase: 'embedding-model-metadata',
-      publicProviderId: 'zavorth-provider:wave1-embedding',
+      publicProviderId: 'zavorth-provider:external-agent-v1-embedding',
       modelFamily: 'embedding',
       dimensions: 1536,
       batchingHint: {
@@ -584,7 +584,7 @@ export function createCanonicalProviderEmbeddingFixtures(): ExternalAgentCanonic
     },
     {
       fixtureCase: 'embedding-sdk-load-blocked',
-      publicProviderId: 'zavorth-provider:wave1-embedding',
+      publicProviderId: 'zavorth-provider:external-agent-v1-embedding',
       modelFamily: 'embedding',
       sdkPackage: '@external-executor/provider-embedding',
       sourceEvidence: sourceEvidence({
@@ -614,7 +614,7 @@ export function createCanonicalProviderSpeechTranscriptionFixtures(): ExternalAg
   return [
     {
       fixtureCase: 'speech-transcription-audio-metadata',
-      publicProviderId: 'zavorth-provider:wave1-speech',
+      publicProviderId: 'zavorth-provider:external-agent-v1-speech',
       modes: ['speech-to-text', 'translation'],
       audioFormats: ['audio/wav', 'audio/mpeg'],
       voiceModels: ['zavorth-voice-model:transcribe-1'],
@@ -630,7 +630,7 @@ export function createCanonicalProviderSpeechTranscriptionFixtures(): ExternalAg
     },
     {
       fixtureCase: 'speech-generated-artifact-policy',
-      publicProviderId: 'zavorth-provider:wave1-speech',
+      publicProviderId: 'zavorth-provider:external-agent-v1-speech',
       modes: ['text-to-speech'],
       audioFormats: ['audio/wav'],
       voiceModels: ['zavorth-voice-model:narration-1'],
@@ -661,7 +661,7 @@ export function createCanonicalProviderRealtimeVoiceFixtures(): ExternalAgentCan
   return [
     {
       fixtureCase: 'realtime-voice-session-metadata',
-      publicProviderId: 'zavorth-provider:wave1-realtime',
+      publicProviderId: 'zavorth-provider:external-agent-v1-realtime',
       voiceModes: ['duplex-audio', 'realtime-transcription'],
       modelOptions: ['zavorth-realtime-model:voice-low-latency'],
       channelHints: ['api', 'voice'],
@@ -678,7 +678,7 @@ export function createCanonicalProviderRealtimeVoiceFixtures(): ExternalAgentCan
     },
     {
       fixtureCase: 'realtime-live-socket-blocked',
-      publicProviderId: 'zavorth-provider:wave1-realtime',
+      publicProviderId: 'zavorth-provider:external-agent-v1-realtime',
       voiceModes: ['duplex-audio'],
       modelOptions: ['zavorth-realtime-model:voice-low-latency'],
       channelHints: ['voice'],
@@ -710,7 +710,7 @@ export function createCanonicalProviderMediaUnderstandingFixtures(): ExternalAge
   return [
     {
       fixtureCase: 'media-understanding-input-metadata',
-      publicProviderId: 'zavorth-provider:wave1-media-understanding',
+      publicProviderId: 'zavorth-provider:external-agent-v1-media-understanding',
       modalities: ['image', 'audio', 'video'],
       acceptedContentTypes: ['image/png', 'image/jpeg', 'audio/wav', 'video/mp4'],
       contextWindowHint: 128000,
@@ -726,7 +726,7 @@ export function createCanonicalProviderMediaUnderstandingFixtures(): ExternalAge
     },
     {
       fixtureCase: 'media-understanding-file-handler-blocked',
-      publicProviderId: 'zavorth-provider:wave1-media-understanding',
+      publicProviderId: 'zavorth-provider:external-agent-v1-media-understanding',
       modalities: ['image', 'video'],
       acceptedContentTypes: ['image/png', 'video/mp4'],
       contextWindowHint: 64000,
@@ -756,7 +756,7 @@ export function createCanonicalProviderGenerationFixtures(): ExternalAgentCanoni
   return [
     {
       fixtureCase: 'generation-output-artifact-metadata',
-      publicProviderId: 'zavorth-provider:wave1-generation',
+      publicProviderId: 'zavorth-provider:external-agent-v1-generation',
       modalities: ['image', 'video', 'music'],
       modelOptions: [
         'zavorth-generation-model:image-safe',
@@ -777,7 +777,7 @@ export function createCanonicalProviderGenerationFixtures(): ExternalAgentCanoni
     },
     {
       fixtureCase: 'generation-live-client-blocked',
-      publicProviderId: 'zavorth-provider:wave1-generation',
+      publicProviderId: 'zavorth-provider:external-agent-v1-generation',
       modalities: ['image'],
       modelOptions: ['zavorth-generation-model:image-safe'],
       outputHints: ['png'],
@@ -809,7 +809,7 @@ export function createCanonicalProviderWebSearchFetchFixtures(): ExternalAgentCa
   return [
     {
       fixtureCase: 'web-search-fetch-policy-metadata',
-      publicProviderId: 'zavorth-provider:wave1-web',
+      publicProviderId: 'zavorth-provider:external-agent-v1-web',
       modes: ['search', 'fetch'],
       allowedDomains: ['docs.example.invalid', 'support.example.invalid'],
       resultShapes: ['summary', 'document', 'citation'],
@@ -825,7 +825,7 @@ export function createCanonicalProviderWebSearchFetchFixtures(): ExternalAgentCa
     },
     {
       fixtureCase: 'web-search-fetch-live-network-blocked',
-      publicProviderId: 'zavorth-provider:wave1-web',
+      publicProviderId: 'zavorth-provider:external-agent-v1-web',
       modes: ['fetch'],
       allowedDomains: [],
       resultShapes: ['document'],

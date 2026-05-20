@@ -28,7 +28,7 @@ describe('AgentRunService Capability Negotiation Capability Negotiation', () => 
       userId: 'grey',
       channel: 'cli',
       sessionId: 'session-agent-capability-negotiation',
-      text: 'corrija a wave 35 e rode os testes',
+      text: 'corrija a capability cycle e rode os testes',
       workspace: 'C:\\TESTES DEV\\zavorth-core\\Zavorth',
       requestedTools: ['workspace.read', 'write_file', 'shell.exec'],
       metadata: {

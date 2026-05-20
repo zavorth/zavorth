@@ -92,7 +92,7 @@ function auditDoc(file) {
     'todo',
     'phase',
     'etapa',
-    'wave',
+    'legacy-cycle',
     'implementation pack',
     'readiness plan',
     'checklist',
@@ -201,7 +201,7 @@ function classifyDoc(relative, text) {
   ].includes(name)) return 'public-support';
   if (['readme.md', 'self-modification.md', 'gateway-cli.md', 'gateway-control-api.md', 'provider-mesh.md', 'capability-plugins.md'].includes(name)) return 'public-support';
   if (full.includes('/architecture/')) return 'architecture-internal';
-  if (name.includes('phase') || name.includes('wave') || name.includes('readiness') || name.includes('canary') || name.includes('gate') || name.includes('pack')) return 'phase-artifact';
+  if (name.includes('stage') || name.includes('legacy-cycle') || name.includes('readiness') || name.includes('canary') || name.includes('gate') || name.includes('pack')) return 'stage-artifact';
   if (name.includes('todo') || name.includes('backlog') || name.includes('investigate')) return 'internal-worklog';
   if (text.includes('## Objetivo') || text.includes('## Entregas') || text.includes('Critério')) return 'implementation-plan';
   return 'uncategorized';

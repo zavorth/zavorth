@@ -49,9 +49,9 @@ const SAFETY_VALUES: ZavorthFirstRunSafetyPosture[] = ['preview-first', 'approva
 const PROVIDER_STATUS_VALUES: ZavorthFirstRunProviderStatus[] = ['deferred', 'configured-placeholder'];
 
 const DEFAULT_NEXT_COMMANDS = [
-  'zavorth doctor',
-  'zavorth go --dry-run',
-  'zavorth chat',
+  'zavorth ready',
+  'zavorth start',
+  'zavorth open',
 ] as const;
 
 const RAW_SECRET_VALUE_PATTERN =

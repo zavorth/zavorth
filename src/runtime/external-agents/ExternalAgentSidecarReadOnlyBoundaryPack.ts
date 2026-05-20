@@ -17,7 +17,7 @@ import type {
 } from './contracts.js';
 
 export const EXTERNAL_AGENT_CANONICAL_SIDECAR_READ_ONLY_FIXTURE_NOW = '2026-04-28T12:00:00.000Z' as const;
-export const EXTERNAL_AGENT_CANONICAL_SIDECAR_READ_ONLY_RUNTIME_ID = 'external-wave1-sidecar-read-only-runtime' as const;
+export const EXTERNAL_AGENT_CANONICAL_SIDECAR_READ_ONLY_RUNTIME_ID = 'external-external-agent-v1-sidecar-read-only-runtime' as const;
 
 export type ExternalAgentSidecarReadOnlyTransport =
   | 'disabled'

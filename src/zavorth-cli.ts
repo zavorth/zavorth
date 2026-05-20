@@ -11,13 +11,25 @@ const projectRoot = runningFromDist ? path.resolve(entryDir, '..') : path.resolv
 const PUBLIC_COMMAND_ALIASES: Record<string, string> = {
   ajuda: 'help',
   configurar: 'setup',
+  configuracao: 'setup',
   demonstracao: 'demo',
   comecar: 'start',
   começar: 'start',
   inicio: 'start',
+  ligar: 'start',
   conectores: 'connectors',
-  iniciar: 'go',
-  abrir: 'go',
+  iniciar: 'start',
+  abrir: 'open',
+  painel: 'open',
+  pronto: 'ready',
+  saude: 'status',
+  provedores: 'providers',
+  modelos: 'providers',
+  canal: 'channels',
+  canais: 'channels',
+  habilidades: 'skills',
+  revisao: 'review',
+  seguranca: 'trust',
   estado: 'status',
   diagnostico: 'doctor',
   diagnóstico: 'doctor',
@@ -871,6 +883,10 @@ async function runProviderParity(rawArgs: string[] = []): Promise<number> {
   return npmInherited(['exec', 'tsx', '--', 'scripts/zavorth-provider-parity.ts', ...rawArgs], projectRoot);
 }
 
+async function runProviderChannelWizard(rawArgs: string[] = []): Promise<number> {
+  return npmInherited(['exec', 'tsx', '--', 'scripts/zavorth-provider-channel-wizard.ts', ...rawArgs], projectRoot);
+}
+
 async function runGatewayMatrix(rawArgs: string[] = []): Promise<number> {
   return npmInherited(['exec', 'tsx', '--', 'scripts/zavorth-gateway-matrix.ts', ...rawArgs], projectRoot);
 }
@@ -1382,7 +1398,7 @@ async function runBuiltinLauncher(rawArgs: string[]): Promise<number | null> {
   const command = String(rawArgs[0] || '').trim().toLowerCase();
   const restArgs = rawArgs.slice(1);
   if (!command) {
-    return null;
+    return runCliExperienceParity([]);
   }
 
   if (command === '--help' || command === '-h' || command === 'help') {
@@ -1430,8 +1446,18 @@ async function runBuiltinLauncher(rawArgs: string[]): Promise<number | null> {
     return runPromotedScript('ops-go', restArgs);
   }
 
+  if (command === 'open' || command === 'dashboard') {
+    if (restArgs.includes('--help') || restArgs.includes('-h')) {
+      return printBuiltinHelp('dashboard');
+    }
+    return runPromotedScript('ops-go', restArgs);
+  }
+
   if (command === 'start' || command === 'quickstart') {
-    return npmInherited(['exec', 'tsx', '--', 'scripts/zavorth-product-demo.ts', 'start', ...restArgs], projectRoot);
+    if (restArgs.includes('--help') || restArgs.includes('-h')) {
+      return printBuiltinHelp('go');
+    }
+    return runPromotedScript('ops-go', restArgs);
   }
 
   if (command === 'demo') {
@@ -1446,6 +1472,27 @@ async function runBuiltinLauncher(rawArgs: string[]): Promise<number | null> {
       return printBuiltinHelp('connectors');
     }
     return npmInherited(['exec', 'tsx', '--', 'scripts/zavorth-connectors.ts', ...restArgs], projectRoot);
+  }
+
+  if (command === 'channels' || command === 'channel') {
+    const channelAction = String(restArgs[0] || '').trim().toLowerCase();
+    if (restArgs.includes('--help') || restArgs.includes('-h')) {
+      return runProviderChannelWizard(['channels', ...restArgs]);
+    }
+    if ([
+      'add',
+      'setup',
+      'configure',
+      'telegram',
+      'discord',
+      'slack',
+      'whatsapp',
+      'signal',
+      'email',
+    ].includes(channelAction)) {
+      return runProviderChannelWizard(['channels', ...restArgs]);
+    }
+    return runGatewayMatrix(restArgs);
   }
 
   if (command === 'templates') {
@@ -1733,8 +1780,12 @@ async function runBuiltinLauncher(rawArgs: string[]): Promise<number | null> {
   }
 
   if (command === 'providers' || command === 'models') {
-    if (String(restArgs[0] || '').trim().toLowerCase() === 'parity') {
+    const providerAction = String(restArgs[0] || '').trim().toLowerCase();
+    if (providerAction === 'parity') {
       return runProviderParity(restArgs.slice(1));
+    }
+    if (['add', 'setup', 'configure', 'switch'].includes(providerAction)) {
+      return runProviderChannelWizard(['providers', ...restArgs]);
     }
     return runProviderReadiness(restArgs);
   }

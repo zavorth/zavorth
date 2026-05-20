@@ -8,7 +8,7 @@ const asJson = process.argv.includes('--json');
 const rules = [
   ruleFilesExist({
     id: 'artifact-memory-files',
-    label: 'Track 38 files exist',
+    label: 'Artifact Memory files exist',
     target: 'Runtime, CLI, Command Center, tests and docs are present',
     files: [
       'src/runtime/agent/ArtifactMemoryService.ts',
@@ -27,7 +27,7 @@ const rules = [
     files: ['src/runtime/agent/ArtifactMemoryService.ts'],
     needles: [
       'ARTIFACT_MEMORY_CONTRACT_VERSION',
-      '2026-05-03.track-38',
+      '2026-05-03.artifact-memory',
       'ArtifactMemoryEntry',
       'ArtifactMemoryReceipt',
       'noArtifactContentInvented',
@@ -63,7 +63,7 @@ const rules = [
     ],
     needles: [
       'artifact-memory',
-      'Artifact Memory - Track 38',
+      'Artifact Memory',
       'resolveArtifactMemoryCliText',
       'formatArtifactMemorySnapshot',
       'zavorth artifact-memory',
@@ -92,7 +92,7 @@ const rules = [
   }),
   ruleContainsAll({
     id: 'package-exposes-artifact-memory-gate',
-    label: 'package exposes Track 38 gate',
+    label: 'package exposes Artifact Memory gate',
     target: 'local QA can run artifact-memory:check and qa:artifact-memory',
     files: ['package.json'],
     needles: [
@@ -118,7 +118,7 @@ const snapshot = {
 if (asJson) {
   console.log(JSON.stringify(snapshot, null, 2));
 } else {
-  console.log('[artifact-memory] checking Track 38');
+  console.log('[artifact-memory] checking Artifact Memory');
   for (const rule of rules) {
     const marker = rule.status === 'passed' ? 'ok' : 'fail';
     console.log(`[artifact-memory] ${marker} ${rule.label}: ${rule.observed} | ${rule.target}`);

@@ -19,11 +19,6 @@ zavorth readiness fixes
 zavorth readiness fix provider --live-proof --provider <id>
 zavorth readiness --json
 zavorth readiness --technical
-npm run zavorth:runtime-readiness
-npm run zavorth:ready-to-go
-npm run zavorth:stay-online
-npm run zavorth:runtime-guided-fixes
-npm run zavorth:runtime-readiness:check
 ```
 
 `zavorth ready` is the Zavorth Ready To Go launch guard. It is the one command
@@ -74,7 +69,7 @@ Runtime Readiness is read-only. It does not start live provider probes, approve 
 The command only reports readiness and the next safe action.
 
 Stay Online is also observation-first. Its self-heal path only proposes safe
-commands such as `zavorth readiness fixes` or `npm run ops:remote:keepalive`;
+commands such as `zavorth readiness fixes` or `zavorth ready`;
 it does not run target actions, bypass approvals or execute live transactions.
 
 Guided Fixes are also projection-first. They turn each `Atencao` or `Bloqueado`

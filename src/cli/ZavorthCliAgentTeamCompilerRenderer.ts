@@ -19,7 +19,7 @@ export function buildAgentTeamCompilerCliSnapshot(input: {
   userId: string;
   sessionId: string;
 }): AgentTeamCompilerSnapshot {
-  const text = input.text || 'compile uma equipe de agentes para implementar e validar esta wave';
+  const text = input.text || 'compile uma equipe de agentes para implementar e validar esta entrega';
   const service = new AgentRunService({
     now: () => new Date('2026-05-04T00:40:00.000Z'),
   });

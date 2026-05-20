@@ -34,15 +34,15 @@ function createRun(overrides: Partial<UniversalAgentRun> = {}): UniversalAgentRu
     approvals: [],
     artifacts: [
       {
-        id: 'artifact-plan-track-38',
-        title: 'Plano Track 38 Artifact Memory',
+        id: 'artifact-memory-plan',
+        title: 'Plano Artifact Memory Artifact Memory',
         kind: 'plan',
         createdAt: '2026-05-04T00:38:00.000Z',
         sessionId: 'session-artifact-memory-1',
         status: 'ready',
       },
       {
-        id: 'artifact-report-track-38',
+        id: 'artifact-memory-report',
         title: 'Relatorio Artifact Memory',
         kind: 'report',
         createdAt: '2026-05-04T00:38:00.000Z',
@@ -50,7 +50,7 @@ function createRun(overrides: Partial<UniversalAgentRun> = {}): UniversalAgentRu
         status: 'ready',
       },
       {
-        id: 'artifact-diff-track-38',
+        id: 'artifact-memory-diff',
         title: 'Diff Artifact Memory',
         kind: 'diff',
         createdAt: '2026-05-04T00:38:00.000Z',
@@ -60,9 +60,9 @@ function createRun(overrides: Partial<UniversalAgentRun> = {}): UniversalAgentRu
     ],
     memorySignals: [],
     metadata: {
-      taskId: 'track-38',
+      taskId: 'artifact-memory',
       artifactSummaries: {
-        'artifact-plan-track-38': {
+        'artifact-memory-plan': {
           summary: 'Plano para pesquisa e reuso de artifacts com origem.',
         },
       },
@@ -72,8 +72,8 @@ function createRun(overrides: Partial<UniversalAgentRun> = {}): UniversalAgentRu
             id: 'receipt-artifact-plan',
             origin: {
               kind: 'artifact',
-              artifactId: 'artifact-plan-track-38',
-              ref: 'artifact-plan-track-38',
+              artifactId: 'artifact-memory-plan',
+              ref: 'artifact-memory-plan',
             },
           },
         ],
@@ -83,7 +83,7 @@ function createRun(overrides: Partial<UniversalAgentRun> = {}): UniversalAgentRu
   };
 }
 
-describe('ArtifactMemoryService Track 38', () => {
+describe('ArtifactMemoryService Artifact Memory', () => {
   it('builds a read-only searchable memory index for artifacts with receipts', () => {
     const snapshot = new ArtifactMemoryService({
       now: () => new Date('2026-05-04T00:39:00.000Z'),
@@ -121,12 +121,12 @@ describe('ArtifactMemoryService Track 38', () => {
     ]));
     expect(snapshot.entries).toEqual(expect.arrayContaining([
       expect.objectContaining({
-        artifactId: 'artifact-plan-track-38',
+        artifactId: 'artifact-memory-plan',
         receipt: expect.objectContaining({
           memoryReceiptId: 'receipt-artifact-plan',
         }),
         actions: expect.objectContaining({
-          citeCommand: 'zavorth artifact-memory cite artifact-plan-track-38',
+          citeCommand: 'zavorth artifact-memory cite artifact-memory-plan',
         }),
       }),
     ]));
