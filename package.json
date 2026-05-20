@@ -793,6 +793,8 @@
     "zavorth:dashboard-final-product-polish:json": "npx tsx scripts/zavorth-dashboard-final-product-polish.ts --json",
     "zavorth:dashboard-final-product-polish:check": "node scripts/zavorth-dashboard-final-product-polish-check.mjs",
     "qa:zavorth-dashboard-final-product-polish": "node scripts/zavorth-dashboard-final-product-polish-check.mjs",
+    "zavorth:command-center-design-system:check": "node scripts/zavorth-command-center-design-system-check.mjs",
+    "qa:zavorth-command-center-design-system": "node scripts/zavorth-command-center-design-system-check.mjs",
     "zavorth:cli-final-product-polish": "npx tsx scripts/zavorth-cli-final-product-polish.ts",
     "zavorth:cli-final-product-polish:json": "npx tsx scripts/zavorth-cli-final-product-polish.ts --json",
     "zavorth:cli-final-product-polish:check": "node scripts/zavorth-cli-final-product-polish-check.mjs",

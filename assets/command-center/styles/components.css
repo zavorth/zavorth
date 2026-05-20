@@ -236,3 +236,222 @@
   border-color: var(--b-pulse);
   box-shadow: 0 0 0 2px var(--b-focus);
 }
+
+/* ═══ Zavorth UI Contract (zv-*) ═══
+ * Use these classes for new dashboard surfaces. Legacy classes below are
+ * aligned to the same tokens so older sectors keep the same visual language.
+ */
+.zv-surface,
+.zv-section,
+.zv-card {
+  border: 1px solid var(--b-component-border);
+  background: var(--b-component-bg);
+  border-radius: var(--b-radius-lg);
+  box-shadow: var(--b-glass-shadow-soft);
+  backdrop-filter: blur(calc(var(--b-glass-blur) * 0.56)) saturate(var(--b-glass-saturate));
+  -webkit-backdrop-filter: blur(calc(var(--b-glass-blur) * 0.56)) saturate(var(--b-glass-saturate));
+}
+
+.zv-section {
+  display: grid;
+  gap: var(--b-space-4);
+  padding: var(--b-card-pad-lg);
+}
+
+.zv-card {
+  display: grid;
+  gap: var(--b-space-3);
+  padding: var(--b-card-pad-md);
+}
+
+.zv-section-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--b-space-4);
+  min-width: 0;
+}
+
+.zv-title {
+  margin: 0;
+  color: var(--b-signal-strong);
+  font-family: var(--b-font-display);
+  font-size: 18px;
+  font-weight: 740;
+  letter-spacing: 0;
+  line-height: 1.15;
+}
+
+.zv-subtitle {
+  margin: 0;
+  color: var(--b-signal-muted);
+  font-size: var(--b-body-md);
+  line-height: 1.55;
+}
+
+.zv-label {
+  color: var(--b-signal-muted);
+  font-family: var(--b-mono);
+  font-size: var(--b-label-size);
+  font-weight: 760;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+.zv-action,
+.zv-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--b-space-2);
+  min-height: var(--b-control-md);
+  padding: 0 14px;
+  border: 1px solid var(--b-component-border);
+  border-radius: var(--b-radius-full);
+  background: var(--b-component-bg-soft);
+  color: var(--b-signal);
+  font-size: var(--b-body-md);
+  font-weight: 680;
+  cursor: pointer;
+  transition:
+    border-color var(--b-duration-fast) var(--b-ease-out),
+    background var(--b-duration-fast) var(--b-ease-out),
+    color var(--b-duration-fast) var(--b-ease-out),
+    transform var(--b-duration-fast) var(--b-ease-out);
+}
+
+.zv-action:hover,
+.zv-button:hover {
+  border-color: var(--b-component-hover-border);
+  background: color-mix(in srgb, var(--b-glass-highlight) 42%, var(--b-glass));
+  color: var(--b-signal-strong);
+  transform: translateY(-1px);
+}
+
+.zv-action:focus-visible,
+.zv-button:focus-visible,
+.zv-chip:focus-visible {
+  outline: none;
+  box-shadow: var(--b-focus-ring);
+}
+
+.zv-action--primary,
+.zv-button--primary {
+  border-color: var(--b-pulse);
+  background: var(--b-pulse);
+  color: var(--b-pulse-fg);
+}
+
+.zv-action--danger,
+.zv-button--danger {
+  border-color: color-mix(in srgb, var(--b-danger) 34%, transparent);
+  background: var(--b-danger-subtle);
+  color: var(--b-danger);
+}
+
+.zv-chip,
+.zv-status {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  width: fit-content;
+  min-height: 24px;
+  padding: 3px 9px;
+  border: 1px solid var(--b-component-border);
+  border-radius: var(--b-radius-full);
+  background: color-mix(in srgb, var(--b-glass-highlight) 38%, transparent);
+  color: var(--b-signal-muted);
+  font-family: var(--b-mono);
+  font-size: 10px;
+  font-weight: 740;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.zv-chip::before,
+.zv-status::before {
+  content: "";
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: currentColor;
+}
+
+.zv-chip--ok,
+.zv-status--ok { color: var(--b-ok); background: var(--b-ok-subtle); border-color: color-mix(in srgb, var(--b-ok) 24%, transparent); }
+.zv-chip--warn,
+.zv-status--warn { color: var(--b-warn); background: var(--b-warn-subtle); border-color: color-mix(in srgb, var(--b-warn) 24%, transparent); }
+.zv-chip--danger,
+.zv-status--danger { color: var(--b-danger); background: var(--b-danger-subtle); border-color: color-mix(in srgb, var(--b-danger) 24%, transparent); }
+.zv-chip--info,
+.zv-status--info { color: var(--b-info); background: color-mix(in srgb, var(--b-info) 10%, transparent); border-color: color-mix(in srgb, var(--b-info) 24%, transparent); }
+
+.zv-list {
+  display: grid;
+  gap: 0;
+  border: 1px solid var(--b-component-border);
+  border-radius: var(--b-radius-lg);
+  overflow: hidden;
+  background: var(--b-component-bg-soft);
+}
+
+.zv-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--b-space-4);
+  min-height: var(--b-row-min);
+  padding: 12px 16px;
+  border-bottom: 1px solid color-mix(in srgb, var(--b-component-border) 72%, transparent);
+}
+
+.zv-row:last-child { border-bottom: 0; }
+
+.zv-data-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: var(--b-body-md);
+}
+
+.zv-data-table th,
+.zv-data-table td {
+  padding: 12px 14px;
+  border-bottom: 1px solid color-mix(in srgb, var(--b-shell) 50%, transparent);
+}
+
+.zv-data-table th {
+  color: var(--b-signal-muted);
+  font-family: var(--b-mono);
+  font-size: var(--b-label-size);
+  font-weight: 760;
+  letter-spacing: 0.05em;
+  text-align: left;
+  text-transform: uppercase;
+  background: color-mix(in srgb, var(--b-glass-strong) 72%, transparent);
+}
+
+.zv-empty {
+  display: grid;
+  place-items: center;
+  gap: var(--b-space-3);
+  min-height: 220px;
+  padding: var(--b-card-pad-lg);
+  color: var(--b-signal-muted);
+  text-align: center;
+}
+
+.zv-toolbar {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: var(--b-space-2);
+}
+
+:where(.core-card, .summary-card, .entity-card, .data-table-wrap, .config-layout, .config-form-section, .chart-placeholder, .callout, .info-row, .dashboard-hero, .dashboard-card, .dashboard-primary, .dashboard-strip, .dashboard-inbox, .dashboard-advanced, .logic-cell) {
+  border-color: var(--b-component-border);
+}
+
+:where(.core-btn, .bcc-trace-link, .config-tab, .zavorth-permission-card__btn, .echo-action-row button, .suggestion-chip, .home-command-panel__button) {
+  min-height: var(--b-control-sm);
+}
