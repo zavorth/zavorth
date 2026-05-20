@@ -24,6 +24,7 @@ async function main(): Promise<void> {
       '  --offline             Do not refresh provider live proof.',
       '  --refresh-providers   Refresh provider live proof explicitly.',
       '  --notify-telegram     Send changes and alerts to Telegram.',
+      '                        Uses learned chat ids; TELEGRAM_ALLOWED_USER_IDS only authorizes inbound users.',
       '  --notify-terminal     Print only relevant notification changes in watch mode.',
       '  --notify-ok-every=N   Send a periodic OK every N checks.',
       '  --notify-start-ok     Also notify when the first check is healthy.',
@@ -270,7 +271,7 @@ async function publishNotification(message: string, channels: NotifyChannel[]): 
 
 async function publishTelegram(message: string): Promise<void> {
   const token = String(process.env.TELEGRAM_BOT_TOKEN || '').trim();
-  const chatIds = parseList(process.env.ZAVORTH_STAY_ONLINE_NOTIFY_CHAT_IDS || process.env.TELEGRAM_ALLOWED_USER_IDS || '');
+  const chatIds = resolveTelegramNotificationChatIds();
   if (!token || chatIds.length === 0 || typeof globalThis.fetch !== 'function') {
     process.stdout.write('[stay-online] Telegram notification skipped: bot token or chat ids missing.\n');
     return;
@@ -294,6 +295,32 @@ async function publishTelegram(message: string): Promise<void> {
       process.stdout.write(`[stay-online] Telegram notification failed for chat ${maskChatId(chatId)}: ${error instanceof Error ? error.message : String(error)}\n`);
     }
   }));
+}
+
+function resolveTelegramNotificationChatIds(): string[] {
+  const explicit = parseList(process.env.ZAVORTH_STAY_ONLINE_NOTIFY_CHAT_IDS || '');
+  if (explicit.length > 0) {
+    return explicit;
+  }
+
+  const registry = readAuthorizedTelegramChatIds();
+  if (registry.length > 0) {
+    return registry;
+  }
+
+  return parseList(process.env.TELEGRAM_ALLOWED_CHAT_IDS || process.env.TELEGRAM_CHAT_ID || '');
+}
+
+function readAuthorizedTelegramChatIds(): string[] {
+  try {
+    const registryPath = path.join(process.cwd(), 'data', 'runtime', 'telegram-authorized-chats.json');
+    const parsed = JSON.parse(fs.readFileSync(registryPath, 'utf8')) as { chats?: Array<{ chatId?: unknown }> };
+    return Array.from(new Set((parsed.chats || [])
+      .map((chat) => String(chat.chatId || '').trim())
+      .filter((chatId) => /^-?\d+$/.test(chatId))));
+  } catch {
+    return [];
+  }
 }
 
 function parseList(value: string): string[] {

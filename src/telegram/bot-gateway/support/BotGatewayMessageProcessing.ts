@@ -9,6 +9,7 @@ import { SurfaceOperationalIntentService } from '../../../services/SurfaceOperat
 import { WorkspaceResolver } from '../../../security/WorkspaceResolver.js';
 import { parseTelegramCommand } from '../../BotGatewayHelpers.js';
 import { TelegramChannelContractService } from '../../TelegramChannelContractService.js';
+import { TelegramAuthorizedChatRegistry } from '../../TelegramAuthorizedChatRegistry.js';
 import type { ParsedCommand } from '../../CommandParser.js';
 import { EchoOutputStageService } from '../../../services/EchoOutputStageService.js';
 import type { BotGatewaySupportRuntime } from '../BotGatewaySupportTypes.js';
@@ -44,6 +45,7 @@ export async function processTextMessage(
   const telegramContract = channelContractService.buildContract(ctx);
   const chatId = telegramContract.chatId || ctx.chat?.id.toString() || '';
   const userId = ctx.from?.id.toString() || '';
+  new TelegramAuthorizedChatRegistry().recordAuthorizedContext(ctx);
 
   runtime.surfaceIdentityService.linkIdentity({
     source: 'telegram',
