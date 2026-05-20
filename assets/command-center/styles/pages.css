@@ -1230,6 +1230,26 @@
     box-shadow: none;
   }
 
+  .usage-filter-bar--quiet {
+    margin: 0;
+    padding: 8px;
+  }
+
+  .usage-filter-bar--quiet button,
+  .usage-filter-bar--quiet select,
+  .skill-toolbar--quiet button,
+  .skill-toolbar--quiet input {
+    min-height: 34px;
+    box-shadow: none;
+  }
+
+  .skill-toolbar--quiet {
+    margin: 0;
+    border-radius: 14px;
+    background: color-mix(in srgb, var(--b-glass) 24%, transparent);
+    box-shadow: none;
+  }
+
   .skill-row {
     min-height: 64px;
     border-radius: 0;
@@ -1244,6 +1264,64 @@
     border-radius: 16px;
     overflow: hidden;
     background: color-mix(in srgb, var(--b-glass) 24%, transparent);
+  }
+
+  .premium-skill-list--quiet {
+    margin: 0;
+  }
+
+  .info-grid--quiet {
+    gap: 0;
+    margin-bottom: 14px;
+    border: 1px solid color-mix(in srgb, var(--b-shell) 54%, transparent);
+    border-radius: 14px;
+    overflow: hidden;
+    background: color-mix(in srgb, var(--b-glass) 24%, transparent);
+  }
+
+  .info-grid--quiet .info-row {
+    min-height: 48px;
+    padding: 0 14px;
+    border: 0;
+    border-bottom: 1px solid color-mix(in srgb, var(--b-shell) 44%, transparent);
+    border-radius: 0;
+    background: transparent;
+    box-shadow: none;
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+  }
+
+  .info-grid--quiet .info-row:last-child {
+    border-bottom: 0;
+  }
+
+  .card-grid--quiet {
+    grid-template-columns: 1fr;
+    gap: 0;
+    margin: 0 0 18px;
+    border: 1px solid color-mix(in srgb, var(--b-shell) 54%, transparent);
+    border-radius: 14px;
+    overflow: hidden;
+    background: color-mix(in srgb, var(--b-glass) 20%, transparent);
+  }
+
+  .card-grid--quiet:empty {
+    display: none;
+  }
+
+  .card-grid--quiet .entity-card {
+    border: 0;
+    border-bottom: 1px solid color-mix(in srgb, var(--b-shell) 44%, transparent);
+    border-radius: 0;
+    background: transparent;
+    box-shadow: none;
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+    padding: 14px;
+  }
+
+  .card-grid--quiet .entity-card:last-child {
+    border-bottom: 0;
   }
 
   .platform-activity[hidden] { display: none; }
@@ -1274,7 +1352,10 @@
 [data-theme="light"] .platform-summary--compact,
 [data-theme="light"] .premium-status-list,
 [data-theme="light"] .usage-filter-bar,
-[data-theme="light"] .premium-skill-list {
+[data-theme="light"] .premium-skill-list,
+[data-theme="light"] .info-grid--quiet,
+[data-theme="light"] .card-grid--quiet,
+[data-theme="light"] .skill-toolbar--quiet {
   background: rgba(255, 255, 255, 0.88);
   border-color: rgba(15, 23, 42, 0.12);
 }
@@ -1284,7 +1365,9 @@
 [data-theme="light"] .platform-action-list button,
 [data-theme="light"] .premium-panel,
 [data-theme="light"] .premium-card,
-[data-theme="light"] .platform-activity {
+[data-theme="light"] .platform-activity,
+[data-theme="light"] .info-grid--quiet .info-row,
+[data-theme="light"] .card-grid--quiet .entity-card {
   border-color: rgba(15, 23, 42, 0.1);
 }
 

@@ -151,25 +151,44 @@
   `);
 
   populate('sector-usage', `
-    <div class="premium-page">
-      <section class="premium-hero premium-hero--compact">
+    <div class="premium-page platform-page--operator">
+      <section class="premium-hero premium-hero--compact platform-hero--operator">
         <div>
           <span class="dashboard-eyebrow"><span class="dashboard-live-dot"></span>Usage</span>
-          <h1 class="premium-title">Cost and tokens without guesswork.</h1>
-          <p class="premium-subtitle">Filter by day, provider, model, channel and tool when runtime usage data is available.</p>
+          <h1 class="premium-title">Usage at a glance.</h1>
+          <p class="premium-subtitle">Track tokens, cost, tools and errors without turning the dashboard into a billing spreadsheet.</p>
         </div>
         <button class="operator-primary-action" type="button" data-dashboard-prompt="Show provider, model, token and cost usage. Explain gaps honestly.">Analyze usage</button>
       </section>
-      <section class="usage-filter-bar" aria-label="Usage filters">
-        <button>Today</button><button>7d</button><button>30d</button><button>All</button>
-        <select aria-label="Provider filter"><option>All providers</option><option>Gemini</option><option>OpenRouter</option><option>Groq</option></select>
-        <select aria-label="Channel filter"><option>All channels</option><option>Web</option><option>CLI</option><option>Telegram</option></select>
-      </section>
-      <section class="premium-metrics">
+      <section class="platform-summary platform-summary--compact" aria-label="Usage summary">
         ${premiumMetric('Tokens', '0', 'no measured usage yet', 'info')}
         ${premiumMetric('Cost', '$0.00', 'provider cost proof pending', 'info')}
         ${premiumMetric('Tool calls', '0', 'no execution recorded', 'info')}
         ${premiumMetric('Errors', '0', 'no visible errors', 'ok')}
+      </section>
+      <section class="platform-workspace platform-workspace--operator">
+        <div class="platform-main">
+          <div class="platform-section-title">Filters</div>
+          <div class="usage-filter-bar usage-filter-bar--quiet" aria-label="Usage filters">
+            <button>Today</button><button>7d</button><button>30d</button><button>All</button>
+            <select aria-label="Provider filter"><option>All providers</option><option>Gemini</option><option>OpenRouter</option><option>Groq</option></select>
+            <select aria-label="Channel filter"><option>All channels</option><option>Web</option><option>CLI</option><option>Telegram</option></select>
+          </div>
+          <div class="platform-action-list" aria-label="Usage actions">
+            <button type="button" data-dashboard-prompt="Show token and cost usage for today."><strong>Today</strong><span>Summarize recent model usage.</span></button>
+            <button type="button" data-dashboard-prompt="Show tool calls, errors and retries."><strong>Reliability</strong><span>Find costly failures or repeated retries.</span></button>
+            <button type="button" data-dashboard-prompt="Show provider cost gaps and missing proof."><strong>Cost proof</strong><span>Explain what is measured and what is not.</span></button>
+          </div>
+        </div>
+        <aside class="platform-side">
+          <div class="platform-section-title">Signals</div>
+          <div class="premium-status-list">
+            ${premiumStatus('Usage ledger', 'ready', 'ok')}
+            ${premiumStatus('Provider costs', 'when reported', 'info')}
+            ${premiumStatus('Secrets', 'redacted', 'ok')}
+            ${premiumStatus('Exports', 'manual', 'info')}
+          </div>
+        </aside>
       </section>
     </div>
   `);
@@ -193,45 +212,74 @@
   `);
 
   populate('sector-skills', `
-    <div class="premium-page">
-      <section class="premium-hero premium-hero--compact">
+    <div class="premium-page platform-page--operator">
+      <section class="premium-hero premium-hero--compact platform-hero--operator">
         <div>
           <span class="dashboard-eyebrow"><span class="dashboard-live-dot"></span>Skills</span>
-          <h1 class="premium-title">Capabilities you can actually trust.</h1>
-          <p class="premium-subtitle">Search, enable, validate and evolve Zavorth-native skills with setup status and safe previews.</p>
+          <h1 class="premium-title">Skills, curated safely.</h1>
+          <p class="premium-subtitle">Enable, inspect and evolve capabilities without hidden imports, unsafe writes or surprise execution.</p>
         </div>
         <button class="operator-primary-action" type="button" data-dashboard-prompt="Show skill curator proposals and only safe metadata updates first.">Open curator</button>
       </section>
-      <section class="skill-toolbar">
+      <section class="skill-toolbar skill-toolbar--quiet">
         <input type="search" placeholder="Search skills, tools or categories" aria-label="Search skills">
         <button>Ready</button><button>Needs setup</button><button>Drafts</button><button>Evolution</button>
       </section>
-      <section class="premium-skill-list">
-        ${skillRow('Workspace review', 'Ready', 'Read-only repo analysis, risks and next steps.', 'ok')}
-        ${skillRow('Mnemos file understanding', 'Needs scope', 'Reads approved folders and explains documents with receipts.', 'info')}
-        ${skillRow('Skill curator', 'Preview first', 'Suggests merge, quality score and metadata fixes before approval.', 'info')}
-        ${skillRow('Transaction plane', 'Simulation', 'Previews and audits transactions; live money remains strongly gated.', 'warn')}
-        ${skillRow('External agent onboarding', 'Consent required', 'Detects user-provided agent folders and creates profiles safely.', 'info')}
+      <section class="platform-workspace platform-workspace--operator">
+        <div class="platform-main">
+          <div class="platform-section-title">Capability library</div>
+          <section class="premium-skill-list premium-skill-list--quiet">
+            ${skillRow('Workspace review', 'Ready', 'Read-only repo analysis, risks and next steps.', 'ok')}
+            ${skillRow('Mnemos file understanding', 'Needs scope', 'Reads approved folders and explains documents with receipts.', 'info')}
+            ${skillRow('Skill curator', 'Preview first', 'Suggests merge, quality score and metadata fixes before approval.', 'info')}
+            ${skillRow('Transaction plane', 'Simulation', 'Previews and audits transactions; live money remains strongly gated.', 'warn')}
+            ${skillRow('External agent onboarding', 'Consent required', 'Detects user-provided agent folders and creates profiles safely.', 'info')}
+          </section>
+        </div>
+        <aside class="platform-side">
+          <div class="platform-section-title">Curator</div>
+          <div class="premium-status-list">
+            ${premiumStatus('Draft creation', 'approval gated', 'ok')}
+            ${premiumStatus('Merge proposals', 'preview first', 'info')}
+            ${premiumStatus('External sources', 'blocked by default', 'ok')}
+            ${premiumStatus('Rollback', 'receipt backed', 'ok')}
+          </div>
+        </aside>
       </section>
     </div>
   `);
 
   populate('sector-nodes', `
-    <div class="premium-page">
-      <section class="premium-hero premium-hero--compact">
+    <div class="premium-page platform-page--operator">
+      <section class="premium-hero premium-hero--compact platform-hero--operator">
         <div>
           <span class="dashboard-eyebrow"><span class="dashboard-live-dot"></span>Nexus</span>
-          <h1 class="premium-title">Connected runtimes stay scoped.</h1>
-          <p class="premium-subtitle">Web, CLI, Telegram, Mnemos, Swarm, external agents, ACP and sandbox backends show readiness clearly.</p>
+          <h1 class="premium-title">Runtime mesh, under control.</h1>
+          <p class="premium-subtitle">Connected surfaces and optional agents stay visible, scoped and off by default when they need consent.</p>
         </div>
         <button class="operator-primary-action" type="button" data-dashboard-prompt="Show connected surfaces, external agents and sandbox backend readiness.">Inspect Nexus</button>
       </section>
-      <section class="premium-grid">
-        ${surfaceCard('Mnemos', 'Configurable', 'info', 'Memory vault scopes require explicit user consent.')}
-        ${surfaceCard('Swarm v2', 'Ready', 'ok', 'Parallel work with budget guard and receipts.')}
-        ${surfaceCard('ACP', 'Opt-in', 'info', 'Universal support, provider-agnostic and policy-gated.')}
-        ${surfaceCard('Docker / WSL / SSH / Remote sandbox', 'Policy gated', 'warn', 'Execution backends require configuration and approval for risky work.')}
-        ${surfaceCard('External agents', 'Consent required', 'info', 'Profiles are created from user-provided paths, never silent scanning.')}
+      <section class="platform-workspace platform-workspace--operator">
+        <div class="platform-main">
+          <div class="platform-section-title">Connected capabilities</div>
+          <div class="platform-action-list" aria-label="Nexus capabilities">
+            <button type="button" data-dashboard-prompt="Show Mnemos vault scopes and readiness."><strong>Mnemos</strong><span>Memory vault scopes require explicit consent.</span></button>
+            <button type="button" data-dashboard-prompt="Show Swarm v2 readiness and token budget."><strong>Swarm v2</strong><span>Parallel work with budget guard and receipts.</span></button>
+            <button type="button" data-dashboard-prompt="Show ACP status and configured adapters."><strong>ACP</strong><span>Universal support, provider-agnostic and policy-gated.</span></button>
+            <button type="button" data-dashboard-prompt="Show sandbox backend readiness."><strong>Execution backends</strong><span>Docker, WSL, SSH and remote sandboxes stay policy-gated.</span></button>
+            <button type="button" data-dashboard-prompt="Show external agent onboarding profiles."><strong>External agents</strong><span>User-provided paths only; no silent scanning.</span></button>
+          </div>
+        </div>
+        <aside class="platform-side">
+          <div class="platform-section-title">Readiness</div>
+          <div class="premium-status-list">
+            ${premiumStatus('Mnemos', 'configurable', 'info')}
+            ${premiumStatus('Swarm v2', 'ready', 'ok')}
+            ${premiumStatus('ACP', 'opt-in', 'info')}
+            ${premiumStatus('Backends', 'policy gated', 'warn')}
+            ${premiumStatus('External agents', 'consent required', 'info')}
+          </div>
+        </aside>
       </section>
     </div>
   `);
@@ -255,44 +303,43 @@
   `);
 
   populate('sector-config', `
-    <div class="premium-page">
-      <section class="premium-hero premium-hero--compact">
+    <div class="premium-page platform-page--operator">
+      <section class="premium-hero premium-hero--compact platform-hero--operator">
         <div>
           <span class="dashboard-eyebrow"><span class="dashboard-live-dot"></span>Config</span>
-          <h1 class="premium-title">Settings without secret leaks.</h1>
-          <p class="premium-subtitle">Providers, models, approvals, memory scopes, channel setup and dashboard preferences stay readable and redacted.</p>
+          <h1 class="premium-title">Configuration, redacted.</h1>
+          <p class="premium-subtitle">Providers, models, approvals, memory scopes and channel setup stay readable without exposing raw secrets.</p>
         </div>
         <button class="operator-primary-action" type="button" data-dashboard-prompt="Open settings health and tell me what should be configured next.">Settings health</button>
       </section>
-      <section class="premium-layout premium-layout--wide-left">
-        <article class="premium-panel">
-          <div class="premium-panel__header"><div><span>Provider catalog</span><h2>Model routes</h2></div><span class="dashboard-pill">redacted</span></div>
-          <div class="info-grid" data-provider-model-catalog-summary>
+      <section class="platform-workspace platform-workspace--operator">
+        <div class="platform-main">
+          <div class="platform-section-title">Provider catalog</div>
+          <div class="info-grid info-grid--quiet" data-provider-model-catalog-summary>
             <div class="info-row"><span class="info-row__label">Routes</span><span class="info-row__value mono">loading</span></div>
             <div class="info-row"><span class="info-row__label">Live</span><span class="info-row__value mono">loading</span></div>
             <div class="info-row"><span class="info-row__label">Models</span><span class="info-row__value mono">loading</span></div>
             <div class="info-row"><span class="info-row__label">Media</span><span class="info-row__value mono">loading</span></div>
           </div>
-          <div class="card-grid" data-provider-model-catalog-list style="margin-top:12px"></div>
-        </article>
-        <article class="premium-panel">
-          <div class="premium-panel__header"><div><span>Activation</span><h2>Live proofs</h2></div><span class="dashboard-pill">safe</span></div>
-          <div class="info-grid" data-provider-activation-summary>
+          <div class="card-grid card-grid--quiet" data-provider-model-catalog-list></div>
+          <div class="platform-section-title">Activation</div>
+          <div class="info-grid info-grid--quiet" data-provider-activation-summary>
             <div class="info-row"><span class="info-row__label">Execution</span><span class="info-row__value mono">loading</span></div>
             <div class="info-row"><span class="info-row__label">Proof</span><span class="info-row__value mono">loading</span></div>
             <div class="info-row"><span class="info-row__label">Adapters</span><span class="info-row__value mono">loading</span></div>
             <div class="info-row"><span class="info-row__label">Connectors</span><span class="info-row__value mono">loading</span></div>
           </div>
-          <div class="card-grid" data-provider-activation-list style="margin-top:12px"></div>
-        </article>
-        <article class="premium-panel">
-          <div class="premium-panel__header"><div><span>Permissions</span><h2>Trust plane</h2></div><span class="dashboard-pill dashboard-pill--warm">scoped</span></div>
+          <div class="card-grid card-grid--quiet" data-provider-activation-list></div>
+        </div>
+        <aside class="platform-side">
+          <div class="platform-section-title">Trust plane</div>
           <div class="premium-status-list">
             ${premiumStatus('Auto approvals', 'limited', 'info')}
             ${premiumStatus('Break-glass', 'locked', 'warn')}
             ${premiumStatus('Receipts', 'on', 'ok')}
+            ${premiumStatus('Secrets', 'redacted', 'ok')}
           </div>
-        </article>
+        </aside>
       </section>
     </div>
   `);
