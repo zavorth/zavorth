@@ -16,7 +16,6 @@ data/**/*.db*
 data/.lock-hash
 data/runtime/
 data/agent-bridge/
-data/antigravity-prompt/
 data/config-gitops/
 data/**/logs/
 data/secrets_honey.txt
@@ -44,7 +43,6 @@ tmp/
 *.tmp
 tmp_*.ts
 tmp_ag_*.ts
-tmp-antigravity*.png
 memory/*.md
 !memory/README.md
 cross-surface-*.md

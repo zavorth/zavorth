@@ -31,7 +31,22 @@ describe('ZavorthCliTuiPolishService', () => {
       'receipts',
       'dashboard',
     ]);
+    expect(snapshot.operator).toEqual(expect.objectContaining({
+      activeProvider: 'gemini',
+      activeModel: 'gemini-test',
+      dashboardUrl: '/dashboard',
+      remoteReady: true,
+    }));
     expect(snapshot.providers.map((provider) => provider.id)).toEqual(['gemini', 'openrouter']);
+    expect(snapshot.channels.map((channel) => channel.id)).toEqual(['dashboard', 'telegram', 'approvals']);
+    expect(snapshot.shortcuts.map((shortcut) => shortcut.key)).toEqual([
+      '/model',
+      '/ready',
+      '/review',
+      '/trust',
+      '/skills',
+      '/doctor',
+    ]);
     expect(snapshot.safety).toEqual(expect.objectContaining({
       noPromptExecution: true,
       noToolExecution: true,
@@ -42,9 +57,13 @@ describe('ZavorthCliTuiPolishService', () => {
     }));
     expect(text).toContain('Zavorth');
     expect(text).toContain('Status');
+    expect(text).toContain('Operator');
+    expect(text).toContain('Channels');
     expect(text).toContain('Providers');
+    expect(text).toContain('Smart commands');
     expect(text).toContain('Approvals');
     expect(text).toContain('Receipts');
+    expect(text).toContain('zavorth open');
     expect(text).toContain('zavorth ready --offline');
     expect(text).toContain('Modo leitura');
   });

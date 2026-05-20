@@ -89,7 +89,7 @@ describe('Command Center Tool Rehearsal Tool Rehearsal', () => {
       userId: 'grey',
       channel: 'web',
       sessionId: 'session-cc-tool-rehearsal-live',
-      text: 'corrija a wave 36 e rode testes',
+      text: 'corrija a runtime cycle e rode testes',
       workspace: 'C:\\TESTES DEV\\zavorth-core\\Zavorth',
       requestedTools: ['workspace.read', 'write_file', 'shell.exec'],
       metadata: {

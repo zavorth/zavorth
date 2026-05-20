@@ -332,7 +332,7 @@ function isPublicLike(file) {
 }
 
 function isHistoricalLike(file) {
-  return /(?:phase|wave|pack|private|audit|readiness|certification|checklist|plan|roadmap|todo)/i.test(path.basename(file));
+  return /(?:stage|legacy|pack|private|audit|readiness|certification|checklist|plan|roadmap|todo)/i.test(path.basename(file));
 }
 
 function escapeRegExp(value) {

@@ -2,13 +2,15 @@ import { formatZavorthGoReport } from '../../src/cli/ZavorthCliGoRenderer';
 import { formatCliHelp } from '../../src/cli/ZavorthCliSurfaceHelpers';
 
 describe('Zavorth onboarding standardization', () => {
-  it('documents onboard as the friendly setup alias and keeps journey available', () => {
+  it('documents setup as the Setup Studio entrypoint', () => {
     const help = formatCliHelp('onboard');
 
     expect(help).toContain('zavorth setup');
-    expect(help).toContain('alias amigavel');
+    expect(help).toContain('Setup Studio');
     expect(help).toContain('zavorth onboard --dry-run');
-    expect(help).toContain('zavorth onboard journey');
+    expect(help).toContain('zavorth ready');
+    expect(help).toContain('zavorth start');
+    expect(help).toContain('zavorth open');
   });
 
   it('points first-time go users to setup before daily use', () => {

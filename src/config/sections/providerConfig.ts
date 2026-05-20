@@ -121,7 +121,7 @@ export function buildProviderConfig(projectRoot?: string) {
     geminiManagedAgentsEnabled: parseBooleanFlag(process.env.ZAVORTH_GEMINI_MANAGED_AGENTS_ENABLED, false),
     geminiManagedAgentsBaseUrl: normalizeUrl(process.env.GEMINI_MANAGED_AGENTS_BASE_URL || process.env.GEMINI_INTERACTIONS_BASE_URL || 'https://generativelanguage.googleapis.com/v1beta'),
     geminiManagedAgentsModel: process.env.GEMINI_MANAGED_AGENTS_MODEL || process.env.GEMINI_INTERACTIONS_MODEL || 'gemini-3.5-flash',
-    geminiManagedAgentsAgent: process.env.GEMINI_MANAGED_AGENTS_AGENT || 'antigravity',
+    geminiManagedAgentsAgent: process.env.GEMINI_MANAGED_AGENTS_AGENT || 'zavorth-managed-agent',
     geminiManagedAgentsStore: parseBooleanFlag(process.env.GEMINI_MANAGED_AGENTS_STORE, false),
     geminiCustomHeaders: (() => {
       const headers = parseStringMap(process.env.GEMINI_CUSTOM_HEADERS_JSON || '');

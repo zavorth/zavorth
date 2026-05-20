@@ -6,22 +6,12 @@ read clear readiness states and approve sensitive work deliberately.
 ## Daily Operator Loop
 
 ```bash
-npm run setup
-npm run go
-npm run status
-npm run doctor
-npm run zavorth:productization-protected-runtime
-```
-
-For installed CLI users:
-
-```bash
-zavorth onboard
-zavorth go
+zavorth setup
+zavorth start
+zavorth open
+zavorth ready
 zavorth status
-zavorth doctor --simple
-zavorth templates
-zavorth missions
+zavorth doctor
 zavorth receipts
 ```
 
@@ -29,23 +19,22 @@ zavorth receipts
 
 ```bash
 npm run runtime:check
-npm run security:secrets
-npm run zavorth:productization-protected-runtime:check
-npm run workspace:check
+npm run security:ci
+npm run build --silent
 ```
 
-Use `workspace:check` before publishing or after broad runtime changes. It is
-intentionally larger than the daily loop.
+Use these before publishing or after broad runtime changes. They are maintainer
+checks, not first-run user commands.
 
 ## Capability Checks
 
 These checks are useful when validating specific areas:
 
 ```bash
-npm run zavorth:live-host:check
-npm run zavorth:provider-live-canary:check
-npm run zavorth:subagents:check
-npm run zavorth:universal-skill-intake:check
+zavorth providers test <provider>
+zavorth connectors doctor <channel>
+zavorth skills
+zavorth review
 ```
 
 They separate contract readiness from live host readiness. A capability can be
@@ -68,8 +57,7 @@ Daily work should be visible as a mission: request, risk, approvals, artifacts,
 timeline and final receipt. CLI and Dashboard consume the same projection.
 
 ```bash
-zavorth templates
-zavorth missions --template=dev-repo-review
+zavorth review
 zavorth receipts
 ```
 
@@ -93,9 +81,7 @@ Zavorth treats sandbox readiness as a daily-use safety gate:
 Use:
 
 ```bash
-npm run sandbox:doctor
-npm run sandbox:doctor:json
-npm run sandbox:doctor:smoke
+zavorth execution-backends
 zavorth doctor --advanced
 ```
 
@@ -119,27 +105,25 @@ secret value.
 Start small:
 
 ```bash
-npm run status
-npm run doctor
-npm run security:secrets
-npm run runtime:check
+zavorth status
+zavorth doctor
+zavorth ready
 ```
 
 Then validate the specific area:
 
-- channels: run the channel capability awareness check script;
-- providers: `npm run zavorth:provider-live-canary:check`;
-- subagents: `npm run zavorth:subagents:check`;
-- skills: `npm run zavorth:universal-skill-intake:check`;
-- perception/device: run the perception certification check script.
+- providers: `zavorth providers test <provider>`;
+- channels: `zavorth connectors doctor <channel>`;
+- skills: `zavorth skills`;
+- review/runtime: `zavorth review` and `zavorth doctor`.
 
 ## Publishing Hygiene
 
 Before presenting the repo publicly:
 
 ```bash
-npm run security:secrets
 npm run runtime:check
+npm run security:ci
 ```
 
 Public docs should describe the current product, not old implementation notes.

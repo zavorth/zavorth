@@ -32,7 +32,7 @@ export function buildRunArtifactReceiptReplayCliSnapshot(input: {
     metadata: {
       artifactMemory: {
         source: 'ArtifactMemoryService',
-        contractVersion: '2026-05-03.track-38',
+        contractVersion: '2026-05-03.artifact-memory',
         status: 'ready',
         entries: [],
         receipts: [

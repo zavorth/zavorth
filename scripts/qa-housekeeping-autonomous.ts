@@ -16,10 +16,10 @@ async function main(): Promise<void> {
         },
         actions: [
           {
-            id: 'wave7-followup',
+            id: 'runtime-cycle-followup',
             label: 'Preparar pequeno refactor supervisionado',
             severity: 'warn',
-            reason: 'A wave 7 segue experimental e precisa de preview supervisionada.',
+            reason: 'A runtime cycle segue experimental e precisa de preview supervisionada.',
             command: 'npm run qa:architecture',
           },
         ],
@@ -47,8 +47,8 @@ async function main(): Promise<void> {
     selfModificationCommandService: {
       createGoalPreview: async (goal: string) => ({
         success: true,
-        previewId: 'wave7-housekeeping-preview',
-        artifactId: 'wave7-housekeeping-preview',
+        previewId: 'runtime-cycle-housekeeping-preview',
+        artifactId: 'runtime-cycle-housekeeping-preview',
         summary: `Preview pronta para: ${goal}`,
         reason: 'ok',
       }),
@@ -56,7 +56,7 @@ async function main(): Promise<void> {
   });
 
   const snapshot = await service.runCycle({
-    requestedBy: 'qa-wave7',
+    requestedBy: 'qa-runtime-cycle',
     triggerMaintenance: true,
     prepareRefactorPreview: true,
   });

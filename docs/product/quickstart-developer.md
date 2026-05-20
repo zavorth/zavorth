@@ -12,26 +12,23 @@ Or use the standard local path:
 
 ```bash
 npm install
-npm run setup
+npx zavorth setup
 ```
 
 ## 2. Validate Runtime
 
 ```bash
-npm run status -- --json
-npm run doctor -- --json
+npx zavorth status --json
+npx zavorth doctor --json
 npm test
 ```
 
 ## 3. Run The Core QA Path
 
 ```bash
-npm run test:web:smoke
-npm run test:nodes:smoke
-npm run test:channels:smoke
-npm run test:transports:smoke
 npm run runtime:check
-npm run security:secrets
+npm run security:ci
+npm run build --silent
 ```
 
 ## 4. Open The Dashboard
@@ -46,4 +43,4 @@ Use the dashboard to inspect runtime, sessions, approvals, nodes, transports and
 
 - `status` and `doctor` are the fastest readiness checks.
 - Web, node, channel and transport smokes cover the main operational surfaces.
-- `runtime:check` and `security:secrets` are required before publishing changes.
+- `runtime:check`, `security:ci` and `build` are required before publishing changes.

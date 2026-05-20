@@ -37,8 +37,8 @@ Zavorth should respond with:
 ## Canonical Surfaces
 
 ```bash
-npm run test:channels:smoke
-npm run natural-setup -- --intent "Connect Zavorth to Discord"
+zavorth channels discord
+zavorth connectors doctor discord
 ```
 
 Protected runtime surfaces:

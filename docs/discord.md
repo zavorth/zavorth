@@ -7,13 +7,13 @@ Discord is a daily assistant channel over the same governed runtime as Home, CLI
 Preview first:
 
 ```bash
-zavorth connectors setup discord
+zavorth channels discord
 ```
 
 Apply the minimal scaffold and allowlist:
 
 ```bash
-zavorth connectors setup discord --apply --guild=<guild-id> --channel=<channel-id> --owner=<owner-user-id>
+zavorth channels discord --apply --allowed-guilds=<guild-id> --allowed-channels=<channel-id> --owners=<owner-user-id>
 ```
 
 Then add the bot token locally or through your SecretRef workflow:
@@ -31,7 +31,6 @@ Check readiness:
 
 ```bash
 zavorth connectors doctor discord
-npm run test:channels:smoke
 ```
 
 ## Safety

@@ -33,7 +33,7 @@ describe('AgentRunService Agent Team Compiler Channel mesh0', () => {
       userId: 'grey',
       channel: 'cli',
       sessionId: 'session-agent-team',
-      text: 'compile uma equipe de agentes para implementar, revisar e validar esta wave',
+      text: 'compile uma equipe de agentes para implementar, revisar e validar esta entrega',
       workspace: 'C:\\TESTES DEV\\zavorth-core\\Zavorth',
       requestedTools: ['workspace.read'],
       metadata: {

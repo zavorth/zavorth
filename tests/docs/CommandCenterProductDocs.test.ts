@@ -9,36 +9,37 @@ describe('Command Center product docs', () => {
   it('keeps the README focused on promise and first journey instead of command inventory', () => {
     const readme = readWorkspaceFile('README.md');
 
-    expect(readme).toContain('Primeiro Uso Em 60 Segundos');
-    expect(readme).toContain('Command Center');
-    expect(readme).toContain('/control');
+    expect(readme).toContain('Start Fast');
+    expect(readme).toContain('/dashboard');
     expect(readme).toContain('zavorth setup');
-    expect(readme).toContain('zavorth go');
+    expect(readme).toContain('zavorth start');
+    expect(readme).toContain('zavorth open');
     expect(readme).toContain('zavorth chat');
-    expect(readme).toContain('artifacts');
+    expect(readme).toContain('receipts');
     expect(readme).toContain('approvals');
-    expect(readme).toContain('memoria');
+    expect(readme).toContain('memory');
     expect(readme).toContain('docs/zavorth-cli.md');
-    expect(readme).toContain('docs/self-modification.md');
-    expect(readme).not.toContain('## Comandos Principais');
-    expect(readme.split(/\r?\n/u).length).toBeLessThan(140);
+    expect(readme).not.toContain('npm run zavorth:operator-check');
+    expect(readme).not.toContain('/control');
+    expect(readme.split(/\r?\n/u).length).toBeLessThan(220);
   });
 
-  it('points quickstart and web docs to Command Center as the official entry', () => {
+  it('points quickstart and web docs to dashboard as the official entry', () => {
     const quickstart = readWorkspaceFile('docs/quickstart.md');
     const web = readWorkspaceFile('docs/web-dashboard.md');
     const walkthrough = readWorkspaceFile('docs/product-direction.md');
 
-    expect(quickstart).toContain('zavorth go');
-    expect(quickstart).toContain('Command Center');
-    expect(quickstart).toContain('/control');
+    expect(quickstart).toContain('zavorth setup');
+    expect(quickstart).toContain('zavorth start');
+    expect(quickstart).toContain('zavorth open');
+    expect(quickstart).toContain('/dashboard');
     expect(quickstart).toContain('zavorth chat');
-    expect(web).toContain('Web / Command Center');
-    expect(web).toContain('Legado E Fallback');
-    expect(web).toContain('/app');
-    expect(web).toContain('/classic');
-    expect(walkthrough).toContain('approval quando houver risco');
-    expect(walkthrough).toContain('artifact ou proximo passo');
+    expect(web).toContain('Web Dashboard');
+    expect(web).toContain('zavorth open');
+    expect(web).toContain('/dashboard');
+    expect(walkthrough).toContain('approvals');
+    expect(walkthrough).toContain('provider readiness');
+    expect(walkthrough).toContain('tests or certification evidence');
   });
 
   it('keeps identity docs as versioned direction rather than mutable runtime config', () => {
@@ -51,7 +52,8 @@ describe('Command Center product docs', () => {
     expect(identity).toContain('not mutable runtime configuration');
     expect(soul).toContain('not a live policy engine');
     expect(soul).toContain('versioned');
-    expect(bootstrap).toContain('Command Center');
-    expect(bootstrap).toContain('/control');
+    expect(bootstrap).toContain('zavorth start');
+    expect(bootstrap).toContain('zavorth open');
+    expect(bootstrap).toContain('/dashboard');
   });
 });

@@ -27,10 +27,9 @@ This sweep certifies the current Zavorth runtime surface after the natural-first
 - Telegram channel tests passed: 6 suites, 44 tests.
 - Command Center/dashboard tests passed: 5 suites, 11 tests.
 - Transaction plane tests passed: 9 suites, 36 tests.
-- `npm run qa:zavorth-transaction-live-executor-gate --silent` passed.
-- `npm run zavorth:natural-invocation:check --silent` passed.
-- `npm run security:secrets --silent` passed with no versioned secret detected.
-- `npm run security:supply-chain --silent` passed with no supply-chain risk detected.
+- Transaction live executor gate passed.
+- Natural invocation check passed.
+- Secret and supply-chain guards passed.
 - Skills security scan passed with 0 imported skills, 0 review required, 0 blocked risk.
 - Legacy external-source residue scan found no matches for the removed repository/source names.
 - `git diff --check` passed.

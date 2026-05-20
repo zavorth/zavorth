@@ -22,7 +22,7 @@ function createFlags(json: boolean) {
 
 describe('Zavorth CLI Artifact Memory', () => {
   it('parses artifact-memory text after subcommands', () => {
-    expect(resolveArtifactMemoryCliText('search "wave 38 artifacts"')).toBe('wave 38 artifacts');
+    expect(resolveArtifactMemoryCliText('search "artifact memory artifacts"')).toBe('artifact memory artifacts');
   });
 
   it('renders artifact-memory JSON through the registry command', async () => {
@@ -33,7 +33,7 @@ describe('Zavorth CLI Artifact Memory', () => {
       effectiveFlags: createFlags(true),
       commandName: 'artifact-memory',
       normalized: 'artifact-memory',
-      args: 'search "wave 38 artifacts"',
+      args: 'search "artifact memory artifacts"',
       writer: {
         line: (text) => writes.push(text),
         error: (text) => writes.push(text),
@@ -46,7 +46,7 @@ describe('Zavorth CLI Artifact Memory', () => {
     }));
     const payload = JSON.parse(writes[0] || '{}');
     expect(payload).toEqual(expect.objectContaining({
-      contractVersion: '2026-05-03.track-38',
+      contractVersion: '2026-05-03.artifact-memory',
       source: 'ArtifactMemoryService',
       summary: expect.objectContaining({
         artifactCount: 3,
@@ -65,14 +65,14 @@ describe('Zavorth CLI Artifact Memory', () => {
 
   it('formats a compact human summary', () => {
     const snapshot = buildArtifactMemoryCliSnapshot({
-      text: 'artifacts da wave',
+      text: 'artifacts da entrega',
       userId: 'grey',
       sessionId: 'session-cli-artifact-memory-human',
     });
 
     const text = formatArtifactMemorySnapshot(snapshot);
 
-    expect(text).toContain('Artifact Memory - Track 38');
+    expect(text).toContain('Artifact Memory');
     expect(text).toContain('Artifacts indexados');
     expect(text).toContain('nao le conteudo de arquivo');
     expect(text).toContain('Command Center: /control?sector=dreams');

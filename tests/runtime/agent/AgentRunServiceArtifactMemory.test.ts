@@ -8,7 +8,7 @@ function createIdFactory() {
   return (prefix: string) => `${prefix}-agent-artifact-memory-${++index}`;
 }
 
-describe('AgentRunService Artifact Memory Track 38', () => {
+describe('AgentRunService Artifact Memory Artifact Memory', () => {
   it('publishes run.metadata.artifactMemory during the agent run lifecycle', async () => {
     const service = new AgentRunService({
       now: () => new Date('2026-05-04T00:38:00.000Z'),
@@ -34,7 +34,7 @@ describe('AgentRunService Artifact Memory Track 38', () => {
           },
         ],
         metadata: {
-          taskId: 'agent-run-track-38',
+          taskId: 'agent-run-artifact-memory',
           artifactSummaries: {
             'artifact-agent-plan': {
               summary: 'Plano criado pelo executor e indexado sem ler arquivo.',

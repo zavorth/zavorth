@@ -7,7 +7,7 @@ import type {
   UniversalArtifactSummary,
 } from './UniversalAgentRuntimeTypes.js';
 
-export const ARTIFACT_MEMORY_CONTRACT_VERSION = '2026-05-03.track-38' as const;
+export const ARTIFACT_MEMORY_CONTRACT_VERSION = '2026-05-03.artifact-memory' as const;
 
 export type ArtifactMemoryStatus = 'ready' | 'needs-index' | 'empty' | 'blocked';
 

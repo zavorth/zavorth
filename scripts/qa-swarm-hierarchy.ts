@@ -23,19 +23,19 @@ function main(): void {
     swarmLauncher: { launchSwarm } as any,
   });
   const result = service.launchHierarchy({
-    hierarchyId: 'wave7-hierarchy-smoke',
-    objective: 'Fechar a wave 7 com swarm de hierarquia dinamica, sandbox profundo e housekeeping autonomo.',
+    hierarchyId: 'runtime-cycle-hierarchy-smoke',
+    objective: 'Fechar a runtime cycle com swarm de hierarquia dinamica, sandbox profundo e housekeeping autonomo.',
     complexity: 'high',
     maxDepth: 2,
     maxLeafRoles: 6,
-    requestedBy: 'qa-wave7',
+    requestedBy: 'qa-runtime-cycle',
   });
 
-  assert.equal(result.plan.hierarchyId, 'wave7-hierarchy-smoke');
+  assert.equal(result.plan.hierarchyId, 'runtime-cycle-hierarchy-smoke');
   assert.equal(result.plan.complexity, 'high');
   assert.ok(result.plan.totalNodes > 3);
   assert.ok(result.plan.leafRoles.length > 3);
-  assert.equal(result.snapshot.swarmId, 'wave7-hierarchy-smoke');
+  assert.equal(result.snapshot.swarmId, 'runtime-cycle-hierarchy-smoke');
 
   console.log(JSON.stringify({
     ok: true,

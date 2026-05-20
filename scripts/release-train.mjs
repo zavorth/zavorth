@@ -41,4 +41,4 @@ if (!skipScan) {
   runStep('release scan', npmCmd, ['run', 'release:scan']);
 }
 
-runStep('wave 6 qa gate', npmCmd, ['run', 'ops:qa', '--', '--profile', releaseProfile, '--require-pass']);
+runStep('entrega 6 qa gate', npmCmd, ['run', 'ops:qa', '--', '--profile', releaseProfile, '--require-pass']);

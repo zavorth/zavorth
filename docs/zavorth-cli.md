@@ -14,7 +14,8 @@ For a cloned repository:
 
 ```bash
 npm install
-npm run zavorth:start
+npx zavorth setup
+npx zavorth start
 ```
 
 ## Happy Path
@@ -22,64 +23,40 @@ npm run zavorth:start
 Installed CLI:
 
 ```bash
+zavorth setup
 zavorth start
-zavorth go
-zavorth connectors doctor
-zavorth demo browser
+zavorth open
+zavorth ready
 ```
 
-Local repo:
-
-```bash
-npm run zavorth:start
-npm run go
-npm run zavorth:connectors
-npm run zavorth:demo:check
-```
-
-`go` opens or prints the Dashboard URL at `/dashboard`.
-`start` is the single product entrypoint: it shows setup preview, Home,
-connector doctor and optional visual demo.
-`connectors doctor` checks GitHub, Telegram and Discord with real per-channel setup commands.
-`onboard` is a friendly alias for `setup`; `onboard journey` keeps the older
-read-only onboarding overview available when you need it.
+`setup` opens the guided Setup Studio. `start` starts or resumes the local
+runtime. `open` opens the Dashboard. `ready` tells you if the machine is usable
+for daily work.
 
 ## Common Commands
 
 ```bash
-zavorth onboard
-zavorth onboard doctor
-zavorth onboard templates
-zavorth onboard first-mission
 zavorth setup
 zavorth start
-zavorth go
-zavorth demo
-zavorth demo browser
-zavorth connectors doctor
-zavorth connectors setup telegram --apply --allowed-user=<id>
-zavorth connectors setup discord --apply --guild=<id> --channel=<id> --owner=<id>
+zavorth open
 zavorth ready
-zavorth stay-online
-zavorth readiness
 zavorth status
 zavorth doctor
-zavorth templates
-zavorth missions
-zavorth receipts
 zavorth providers
+zavorth providers add
+zavorth providers switch
 zavorth providers test openai
+zavorth channels telegram
+zavorth channels discord
+zavorth skills
+zavorth review
+zavorth trust
+zavorth receipts
 zavorth run "review this repo"
 ```
 
-If a command is not available in the installed package yet, use the local
-script shown by `package.json` or run the equivalent package script from the
-repository.
-
-`zavorth onboard` is the unified, read-only first-run journey. It brings
-setup, go, doctor, templates, sandbox readiness, provider readiness and the
-first safe mission into one view. Use `zavorth onboard apply` or
-`zavorth setup` when you deliberately want the setup flow.
+Compatibility aliases such as `go` and `onboard` may still work, but the public
+surface should prefer the commands above.
 
 ## JSON Output
 
@@ -88,15 +65,10 @@ Use JSON for automation:
 ```bash
 zavorth status --json
 zavorth connectors doctor --json
-zavorth demo --json
-zavorth onboard --json
-zavorth onboard doctor --json
 zavorth doctor --json
-zavorth templates --json
-zavorth missions --json
 zavorth receipts --json
 zavorth providers --json
-zavorth readiness --json
+zavorth channels telegram --json
 ```
 
 ## Daily Product Commands
@@ -104,9 +76,6 @@ zavorth readiness --json
 ```bash
 zavorth ready
 zavorth stay-online
-zavorth readiness
-zavorth templates
-zavorth missions --template=dev-repo-review
 zavorth receipts --advanced
 zavorth doctor --simple
 zavorth doctor --advanced
@@ -128,8 +97,6 @@ zavorth stay-online --watch --notify-telegram
 zavorth readiness
 zavorth readiness --json
 zavorth readiness --technical
-npm run zavorth:runtime-readiness
-npm run zavorth:runtime-readiness:check
 ```
 
 `ready` is Zavorth Ready To Go: the launch guard before leaving the PC. It is
@@ -154,6 +121,8 @@ alerts while away from the PC.
 
 ```bash
 zavorth providers
+zavorth providers add
+zavorth providers switch --provider gemini --model gemini-2.5-flash
 zavorth providers test openai
 zavorth providers test openai --live
 zavorth providers live --provider openai
@@ -166,6 +135,24 @@ missing a base URL, waiting for an explicit probe, degraded, unsupported or
 blocked. Test commands produce an explicit probe packet; they do not make hidden
 network calls or print raw secrets unless the operator explicitly passes
 `--live`.
+
+`providers add` and `providers switch` open the Provider Wizard. It captures API
+keys only through a secret prompt or `--secret-env`, writes `.env` only with
+`--apply`, and prints redacted previews by default.
+
+## Channel Wizards
+
+```bash
+zavorth channels telegram
+zavorth channels telegram --apply --allowed-users <telegram-user-id>
+zavorth channels discord
+zavorth channels discord --apply --allowed-guilds <guild-id> --allowed-channels <channel-id> --owners <owner-id>
+```
+
+`channels` is the human wizard surface for Telegram, Discord, Slack, WhatsApp,
+Signal and Email. It prepares tokens, allowlists and channel policy without
+starting a bot, sending messages, or printing raw secrets. Use `connectors
+doctor` after the wizard when you want the technical channel health report.
 
 `--live` runs a real provider probe using a safe models/readiness endpoint and
 returns only sanitized evidence: target without query strings, HTTP status,
@@ -185,22 +172,20 @@ For local repo checks:
 
 ```bash
 npm run runtime:check
-npm run security:secrets
-npm run workspace:check
+npm run security:ci
+npm run build --silent
 ```
 
-## Capability Checks
+## Maintainer Checks
 
 ```bash
-npm run zavorth:subagents:check
-npm run zavorth:universal-skill-intake:check
-npm run zavorth:provider-live-canary:check
-node scripts/zavorth-channel-capability-awareness-check.mjs
-node scripts/zavorth-perception-certification-check.mjs
+npm run runtime:check
+npm run security:ci
+npm run daily:certify
 ```
 
-These checks are intentionally explicit: they make it clear whether a feature is
-live on this host, dry-run only, blocked by policy, or waiting for credentials.
+These commands are for maintainers and CI. Normal users should not need them
+for first-run setup, provider configuration, channel setup, or daily operation.
 
 ## Dashboard
 
@@ -214,7 +199,7 @@ zavorth doctor
 or, in the repo:
 
 ```bash
-npm run doctor
+zavorth doctor
 ```
 
 ## Security Posture

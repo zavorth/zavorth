@@ -38,7 +38,7 @@ import {
 
 export const EXTERNAL_AGENT_CANONICAL_FIXTURE_NOW = '2026-04-27T19:00:00.000Z';
 export const EXTERNAL_AGENT_CANONICAL_SOURCE_RUNTIME_NAME = 'ExternalExecutor';
-export const EXTERNAL_AGENT_CANONICAL_RUNTIME_ID = 'external-wave1-fixture-runtime';
+export const EXTERNAL_AGENT_CANONICAL_RUNTIME_ID = 'external-external-agent-v1-fixture-runtime';
 
 export type ExternalAgentCanonicalSourceEvidence = {
   sourceRuntimeName: typeof EXTERNAL_AGENT_CANONICAL_SOURCE_RUNTIME_NAME;
@@ -91,11 +91,11 @@ const CANONICAL_SOURCE_EVIDENCE: ExternalAgentCanonicalSourceEvidence = {
 };
 
 const CANONICAL_SESSION: ExternalAgentSessionDescriptor = {
-  id: 'wave1-source-session',
-  userId: 'wave1-source-user',
+  id: 'external-agent-v1-source-session',
+  userId: 'external-agent-v1-source-user',
   channel: 'api',
   title: 'Track 1 source session evidence',
-  workspace: 'C:/workspace/zavorth-wave1',
+  workspace: 'C:/workspace/zavorth-external-agent-v1',
   lastEventAt: EXTERNAL_AGENT_CANONICAL_FIXTURE_NOW,
 };
 
@@ -110,7 +110,7 @@ function createCanonicalFixtureAdapter(input: {
       adapterKind: 'sidecar',
       runtimeKind: 'external-agent-runtime',
       transport: 'fixture',
-      version: 'wave1-fixture',
+      version: 'external-agent-v1-fixture',
       diagnostics: {
         sourceRuntimeName: EXTERNAL_AGENT_CANONICAL_SOURCE_RUNTIME_NAME,
         sourceRuntimeVersion: 'frozen-baseline-310d2db',
@@ -139,11 +139,11 @@ export function createCanonicalGatewayProtocolFrameFixtures(): ExternalAgentCano
     {
       fixtureCase: 'valid-frame-message',
       frameKind: 'request',
-      id: 'wave1-frame-request-1',
+      id: 'external-agent-v1-frame-request-1',
       sessionId: CANONICAL_SESSION.id,
       method: 'chat.send',
       sequence: 1,
-      idempotencyKey: 'wave1-frame-request-1',
+      idempotencyKey: 'external-agent-v1-frame-request-1',
       actor: {
         id: CANONICAL_SESSION.userId,
         role: 'user',
@@ -159,11 +159,11 @@ export function createCanonicalGatewayProtocolFrameFixtures(): ExternalAgentCano
     {
       fixtureCase: 'valid-event-message',
       frameKind: 'event',
-      id: 'wave1-frame-event-1',
+      id: 'external-agent-v1-frame-event-1',
       sessionId: CANONICAL_SESSION.id,
       event: 'session.message',
       sequence: 2,
-      idempotencyKey: 'wave1-frame-event-1',
+      idempotencyKey: 'external-agent-v1-frame-event-1',
       actor: {
         id: CANONICAL_SESSION.userId,
         role: 'user',
@@ -178,7 +178,7 @@ export function createCanonicalGatewayProtocolFrameFixtures(): ExternalAgentCano
     {
       fixtureCase: 'valid-response-diagnostic',
       frameKind: 'response',
-      id: 'wave1-frame-response-1',
+      id: 'external-agent-v1-frame-response-1',
       sessionId: CANONICAL_SESSION.id,
       method: 'gateway.health',
       status: 'ok',
@@ -190,7 +190,7 @@ export function createCanonicalGatewayProtocolFrameFixtures(): ExternalAgentCano
     {
       fixtureCase: 'valid-error-frame',
       frameKind: 'error',
-      id: 'wave1-frame-error-1',
+      id: 'external-agent-v1-frame-error-1',
       sessionId: CANONICAL_SESSION.id,
       status: 'error',
       payload: {
@@ -202,7 +202,7 @@ export function createCanonicalGatewayProtocolFrameFixtures(): ExternalAgentCano
     {
       fixtureCase: 'invalid-frame-schema',
       frameKind: 'unknown',
-      id: 'wave1-frame-invalid-1',
+      id: 'external-agent-v1-frame-invalid-1',
       sourceEvidence: CANONICAL_SOURCE_EVIDENCE,
     },
   ];
@@ -224,7 +224,7 @@ export function createCanonicalHandshakeFixtures(): ExternalAgentCanonicalHandsh
   return [
     {
       fixtureCase: 'connect-owner-with-token',
-      clientId: 'wave1-owner-client',
+      clientId: 'external-agent-v1-owner-client',
       sourceRole: 'owner',
       sourceScopes: ['gateway:read', 'sessions:read'],
       sourceToken: 'source-secret-token-never-authoritative',
@@ -236,7 +236,7 @@ export function createCanonicalHandshakeFixtures(): ExternalAgentCanonicalHandsh
     },
     {
       fixtureCase: 'connect-scope-downgrade',
-      clientId: 'wave1-over-scoped-client',
+      clientId: 'external-agent-v1-over-scoped-client',
       sourceRole: 'node',
       sourceScopes: ['gateway:read', 'tools:execute', 'files:write', 'workers:launch'],
       sourceToken: 'source-over-scoped-token-never-authoritative',
@@ -253,7 +253,7 @@ export function normalizeCanonicalGatewayHandshake(
   fixture: ExternalAgentCanonicalHandshakeFixture,
 ): ExternalAgentCanonicalHandshakeNormalization {
   return normalizeExternalAgentGatewayHandshake(fixture, {
-    descriptorIdPrefix: 'external-wave1-handshake',
+    descriptorIdPrefix: 'external-external-agent-v1-handshake',
     label: 'External gateway handshake evidence',
     transport: 'fixture',
     observedAt: EXTERNAL_AGENT_CANONICAL_FIXTURE_NOW,
@@ -270,8 +270,8 @@ export function createCanonicalGatewayEventStreamFixtures(): ExternalAgentCanoni
   return [
     {
       fixtureCase: 'ordered-event-stream',
-      id: 'wave1-stream-event-2',
-      idempotencyKey: 'wave1-stream-key-2',
+      id: 'external-agent-v1-stream-event-2',
+      idempotencyKey: 'external-agent-v1-stream-key-2',
       sequence: 2,
       sessionId: CANONICAL_SESSION.id,
       type: 'session.message',
@@ -280,8 +280,8 @@ export function createCanonicalGatewayEventStreamFixtures(): ExternalAgentCanoni
     },
     {
       fixtureCase: 'ordered-event-stream',
-      id: 'wave1-stream-event-1',
-      idempotencyKey: 'wave1-stream-key-1',
+      id: 'external-agent-v1-stream-event-1',
+      idempotencyKey: 'external-agent-v1-stream-key-1',
       sequence: 1,
       sessionId: CANONICAL_SESSION.id,
       type: 'runtime.update',
@@ -290,8 +290,8 @@ export function createCanonicalGatewayEventStreamFixtures(): ExternalAgentCanoni
     },
     {
       fixtureCase: 'duplicate-event-stream',
-      id: 'wave1-stream-event-2-duplicate',
-      idempotencyKey: 'wave1-stream-key-2',
+      id: 'external-agent-v1-stream-event-2-duplicate',
+      idempotencyKey: 'external-agent-v1-stream-key-2',
       sequence: 3,
       sessionId: CANONICAL_SESSION.id,
       type: 'session.message',
@@ -307,7 +307,7 @@ export function normalizeCanonicalGatewayEventStream(
   return normalizeExternalAgentGatewayEventStream(events, {
     runtimeId: EXTERNAL_AGENT_CANONICAL_RUNTIME_ID,
     observedAt: EXTERNAL_AGENT_CANONICAL_FIXTURE_NOW,
-    defaultActorId: 'wave1-source-system',
+    defaultActorId: 'external-agent-v1-source-system',
     defaultChannel: 'api',
     sourceRuntimeVersion: 'frozen-baseline-310d2db',
   });

@@ -728,7 +728,7 @@ export class ReleaseCandidatePreCanaryGateService {
         label: 'Pre-canary fechado',
         routeOrCommand: 'v1.1.0 pre-canary planning',
         status: input.canOpenPreCanary ? 'ready' : 'needs-action',
-        detail: 'Quando pronto, o proximo ciclo pode planejar canary real em wave separada.',
+        detail: 'Quando pronto, o proximo ciclo pode planejar canary real em entrega separada.',
       },
     ];
   }

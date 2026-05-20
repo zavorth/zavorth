@@ -1048,7 +1048,7 @@ ${current}` : prompt;
       voiceOverlay.innerHTML = `
         <div class="voice-overlay__backdrop"></div>
         <div class="voice-overlay__content">
-          <div class="voice-overlay__wave">
+          <div class="voice-overlay__levels">
             <span></span><span></span><span></span><span></span><span></span>
           </div>
           <div class="voice-overlay__text">Estou ouvindo... Fale agora.</div>

@@ -1,4 +1,5 @@
 import { ReplyPipeline } from '../reply/ReplyPipeline.js';
+import { GeminiManagedAgentExecutor } from '../../execution/GeminiManagedAgentExecutor.js';
 import { resolveZavorthArtifactPolicyFromMetadata, shouldPersistZavorthArtifacts } from '../../contracts/ZavorthResponseDecisionContract.js';
 import {
   DynamicHierarchySwarmService,
@@ -728,6 +729,11 @@ export class AgentRunService {
 
       this.applyNaturalFirstApprovalSafety(run, input);
 
+      const managedAgentPreview = this.createAgenticManagedAgentPreviewIfNeeded(run);
+      if (managedAgentPreview) {
+        return managedAgentPreview;
+      }
+
       const swarmProposal = this.createSwarmEscalationProposalIfNeeded(run, input);
       if (swarmProposal) {
         return swarmProposal;
@@ -897,6 +903,78 @@ export class AgentRunService {
     });
   }
 
+  private createAgenticManagedAgentPreviewIfNeeded(
+    run: UniversalAgentRun,
+  ): UniversalAgentRunResult | null {
+    const agenticRoute = recordOrNull(run.metadata.agenticRoute);
+    if (normalizeText(agenticRoute?.selectedRoute) !== 'remote-agent-preview') {
+      return null;
+    }
+    const existingApprovalId = normalizeText(agenticRoute?.approvalId);
+    const existingApproval = existingApprovalId
+      ? run.approvals.find((approval) => approval.id === existingApprovalId)
+      : null;
+    if (existingApproval?.status === 'approved') {
+      return null;
+    }
+
+    const now = this.now().toISOString();
+    const approval: UniversalApprovalRequest = existingApproval || {
+      id: this.idFactory('agent-approval'),
+      runId: run.id,
+      title: 'Aprovar execucao isolada',
+      reason: normalizeText(
+        agenticRoute?.explanation,
+        'O pedido parece exigir analise/execucao isolada; o Zavorth precisa de approval antes de chamar um agente remoto.',
+      ),
+      risk: 'danger',
+      status: 'pending',
+      createdAt: now,
+    };
+    if (!existingApproval) {
+      run.approvals.push(approval);
+    }
+    run.status = 'waiting_approval';
+    run.summary = 'Execucao isolada preparada. Nenhum agente remoto foi chamado sem aprovacao.';
+    run.updatedAt = now;
+    run.metadata = {
+      ...run.metadata,
+      agenticRoute: {
+        ...agenticRoute,
+        approvalId: approval.id,
+        previewStatus: 'waiting-approval',
+      },
+    };
+    run.events.push({
+      id: this.idFactory('agent-event'),
+      runId: run.id,
+      kind: 'approval',
+      title: 'Preview de execucao isolada',
+      detail: 'Zavorth preparou uma chamada remota governada, mas bloqueou a execucao ate approval explicito.',
+      status: 'pending',
+      createdAt: now,
+      metadata: {
+        approvalId: approval.id,
+        providerRoute: normalizeText(agenticRoute?.providerRoute, 'gemini-managed-agent'),
+        noRemoteCallPerformed: true,
+        store: false,
+      },
+    });
+
+    return this.replyPipeline.buildResult({
+      run,
+      text: [
+        'Posso usar uma execucao isolada para esse pedido, mas preciso da sua aprovacao antes.',
+        '',
+        'O que aconteceria:',
+        '- chamada governada para agente remoto/sandbox;',
+        '- historico server-side desligado por padrao;',
+        '- timeline e receipt registrados no Zavorth;',
+        '- execucao auditavel dentro do escopo aprovado.',
+      ].join('\n'),
+    });
+  }
+
   public async resumeApprovedRun(
     run: UniversalAgentRun,
     request: UniversalAgentRequest,
@@ -945,6 +1023,11 @@ export class AgentRunService {
     const toolRehearsalProposal = this.createToolRehearsalProposalIfNeeded(run, request);
     if (toolRehearsalProposal) {
       return toolRehearsalProposal;
+    }
+
+    const agenticManagedAgentResult = await this.executeApprovedAgenticManagedAgentIfNeeded(run, request);
+    if (agenticManagedAgentResult) {
+      return agenticManagedAgentResult;
     }
 
     let executorResult: UniversalAgentExecutorResult;
@@ -1014,6 +1097,92 @@ export class AgentRunService {
         narrative.userMessage,
       ].join('\n'),
     });
+  }
+
+  private async executeApprovedAgenticManagedAgentIfNeeded(
+    run: UniversalAgentRun,
+    request: UniversalAgentRequest,
+  ): Promise<UniversalAgentRunResult | null> {
+    const agenticRoute = recordOrNull(run.metadata.agenticRoute);
+    if (normalizeText(agenticRoute?.selectedRoute) !== 'remote-agent-preview') {
+      return null;
+    }
+    const approvalId = normalizeText(agenticRoute?.approvalId);
+    const approval = run.approvals.find((entry) => entry.id === approvalId && entry.status === 'approved');
+    if (!approval) {
+      return null;
+    }
+
+    const executor = new GeminiManagedAgentExecutor();
+    const execution = await executor.execute({
+      execution_id: this.idFactory('execution'),
+      task_id: run.id,
+      executor: 'gemini_managed_agent',
+      workspace: normalizeText(request.workspace || run.workspace, 'workspace-not-declared'),
+      objective: request.text,
+      instructions: [
+        'Execute somente a analise solicitada dentro da fronteira governada.',
+        'Nao tente persistir segredos, credenciais ou historico server-side.',
+        'Retorne conclusao, evidencias e proximos passos seguros.',
+      ],
+      allowed_paths: [],
+      blocked_paths: [],
+      allowed_commands: [],
+      blocked_commands: [],
+      timeout_seconds: 120,
+      dry_run: false,
+      requires_backup: false,
+      metadata: {
+        approval_id: approval.id,
+        approved: true,
+        store: false,
+        source_run_id: run.id,
+        trace_id: run.traceId,
+      },
+    });
+    const now = this.now().toISOString();
+    const success = execution.success === true;
+    const replyText = normalizeText(
+      execution.stdout,
+      success
+        ? 'Agente remoto concluiu a execucao governada.'
+        : normalizeText(execution.error_message, 'Agente remoto nao concluiu a execucao.'),
+    );
+    const executorResult: UniversalAgentExecutorResult = {
+      status: success ? 'completed' : 'failed',
+      summary: success
+        ? 'Execucao isolada concluida pelo agente remoto governado.'
+        : 'Execucao isolada falhou ou foi recusada pela policy do agente remoto.',
+      replyText,
+      events: [
+        {
+          kind: success ? 'reply' : 'error',
+          title: success ? 'Execucao isolada concluida' : 'Execucao isolada indisponivel',
+          detail: replyText,
+          status: success ? 'done' : 'failed',
+          createdAt: now,
+          metadata: {
+            executor: execution.executor,
+            executionId: execution.execution_id,
+            errorCode: execution.error_code,
+            actions: execution.actions_executed,
+          },
+        },
+      ],
+      metadata: {
+        agenticManagedAgentExecution: {
+          source: 'AgentRunService',
+          providerRoute: normalizeText(agenticRoute?.providerRoute, 'gemini-managed-agent'),
+          executionId: execution.execution_id,
+          success,
+          errorCode: execution.error_code,
+          metadata: execution.metadata,
+        },
+      },
+    };
+    this.applyExecutorResult(run, executorResult);
+    this.applyCapabilityLoopGovernance(run, request);
+    return this.replyPipeline.buildResult({ run, text: replyText });
   }
 
   private applyUniversalIntentTrustEnforcement(

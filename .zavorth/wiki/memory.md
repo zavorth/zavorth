@@ -46,5 +46,4 @@ Define the semantic memory baseline for Mnemos Memory OS.
 
 ## Maintenance Notes
 
-- Update after phases 4, 5, 6, and 7 add ingest, query, lint, and procedural
-  memory.
+- Update whenever ingest, query, lint, or procedural memory behavior changes.

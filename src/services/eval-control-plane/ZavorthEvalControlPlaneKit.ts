@@ -448,7 +448,7 @@ export function buildEvalCoverage(
     observability.learning.routes.topSuccessful.length > 0
       ? 'As scorecards saem das rotas mais bem sucedidas, mais caras e com maior friccao.'
       : 'Ainda nao ha rotas suficientes para scorecards profundas neste recorte.',
-    'Esta wave usa a telemetria operacional nativa do Zavorth; sinks externos podem ser adicionados depois sem quebrar o contrato.',
+    'Esta entrega usa a telemetria operacional nativa do Zavorth; sinks externos podem ser adicionados depois sem quebrar o contrato.',
   ];
 
   return {

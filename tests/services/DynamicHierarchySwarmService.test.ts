@@ -5,7 +5,7 @@ describe('DynamicHierarchySwarmService', () => {
     const launchSwarm = jest.fn(() => ({
       swarmId: 'hierarchy-1',
       status: 'running',
-      objective: 'Close wave 7',
+      objective: 'Close runtime cycle',
       roles: [],
       startedAt: '2026-04-18T10:00:00.000Z',
       finishedAt: null,
@@ -18,7 +18,7 @@ describe('DynamicHierarchySwarmService', () => {
 
     const result = service.launchHierarchy({
       hierarchyId: 'hierarchy-1',
-      objective: 'Fechar a wave 7 com refactor, sandbox profundo, cross-surface QA e housekeeping supervisionado.',
+      objective: 'Fechar a runtime cycle com refactor, sandbox profundo, cross-surface QA e housekeeping supervisionado.',
       roles: [
         {
           id: 'planner',
@@ -91,7 +91,7 @@ describe('DynamicHierarchySwarmService', () => {
     const waitForSwarm = jest.fn((swarmId: string) => Promise.resolve({
       swarmId,
       status: 'completed',
-      objective: 'Close wave 7',
+      objective: 'Close runtime cycle',
       roles: [],
       startedAt: '2026-04-18T10:00:00.000Z',
       finishedAt: '2026-04-18T10:00:02.000Z',
@@ -107,7 +107,7 @@ describe('DynamicHierarchySwarmService', () => {
 
     const result = await service.launchHierarchyAndWait({
       hierarchyId: 'hierarchy-2',
-      objective: 'Fechar a wave 7 com revisao final.',
+      objective: 'Fechar a runtime cycle com revisao final.',
       requestedBy: 'tester',
     });
 

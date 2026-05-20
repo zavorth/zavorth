@@ -173,7 +173,7 @@ When bootstrap is done:
 
 1. summarize the resulting calibration in 5-8 bullets;
 2. ask for one final correction pass;
-3. point the user back to `zavorth go` and the dashboard at `/dashboard`;
+3. point the user back to `zavorth start`, `zavorth open` and the dashboard at `/dashboard`;
 4. suggest the first safe mission the user chose;
 5. if the user is happy, remove this file.
 

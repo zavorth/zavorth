@@ -5,7 +5,7 @@ import { AutonomousHousekeepingAgentService } from '../../src/domain/ops/applica
 
 describe('AutonomousHousekeepingAgentService', () => {
   it('runs housekeeping operations and prepares a supervised refactor preview', async () => {
-    const tempDir = fs.mkdtempSync(path.join(os.tmpdir(), 'zavorth-housekeeping-wave7-'));
+    const tempDir = fs.mkdtempSync(path.join(os.tmpdir(), 'zavorth-housekeeping-runtime-cycle-'));
     const runtimeDir = path.join(tempDir, 'runtime');
     const smokeDir = path.join(runtimeDir, 'visual-smoke', 'profile-1');
     fs.mkdirSync(smokeDir, { recursive: true });
@@ -63,8 +63,8 @@ describe('AutonomousHousekeepingAgentService', () => {
       selfModificationCommandService: {
         createGoalPreview: jest.fn(async (goal: string) => ({
           success: true,
-          previewId: 'preview-wave7',
-          artifactId: 'preview-wave7',
+          previewId: 'preview-runtime-cycle',
+          artifactId: 'preview-runtime-cycle',
           summary: `Preview pronta para: ${goal}`,
           reason: 'ok',
         })),
@@ -73,7 +73,7 @@ describe('AutonomousHousekeepingAgentService', () => {
     });
 
     const snapshot = await service.runCycle({
-      requestedBy: 'wave7-smoke',
+      requestedBy: 'runtime-cycle-smoke',
       triggerMaintenance: true,
       prepareRefactorPreview: true,
     });
@@ -90,7 +90,7 @@ describe('AutonomousHousekeepingAgentService', () => {
       }),
       expect.objectContaining({
         id: 'refactor-preview',
-        artifactId: 'preview-wave7',
+        artifactId: 'preview-runtime-cycle',
       }),
     ]));
     expect(snapshot.execution_lifecycle).toEqual(expect.arrayContaining([

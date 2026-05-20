@@ -72,7 +72,7 @@ describe('AgentRunService Memory With Receipts Memory Receipts', () => {
       sessionId: 'session-create-memory-receipts',
       text: 'continue de onde paramos',
       metadata: {
-        memoryPrompt: 'A ultima wave terminou no Safety Narrative.',
+        memoryPrompt: 'A ultima entrega terminou no Safety Narrative.',
       },
     });
 

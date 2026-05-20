@@ -36,9 +36,9 @@ If the installer created a helper, use:
 Use CLI when you need automation, JSON output or quick diagnostics:
 
 ```bash
-npm run status
-npm run doctor
-npm run command:list
+zavorth status
+zavorth doctor
+zavorth help
 ```
 
 ## Product Rule

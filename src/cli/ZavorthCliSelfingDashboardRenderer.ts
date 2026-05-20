@@ -31,7 +31,7 @@ export function buildSelfingDashboardCliSnapshot(input: {
     workspace: 'C:\\TESTES DEV\\zavorth-core\\Zavorth',
     requestedTools: ['workspace.read', 'memory.read'],
     metadata: {
-      memoryPrompt: 'Usuario prefere resumo direto em portugues e waves pequenas.',
+      memoryPrompt: 'Usuario prefere resumo direto em portugues e entregas pequenas.',
       contextInput: {
         warm: {
           workspacePrompt: 'Workspace Zavorth Core',
@@ -62,7 +62,7 @@ export function buildSelfingDashboardCliSnapshot(input: {
           ],
         },
         cold: {
-          memoryPrompt: 'Usuario prefere resumo direto em portugues e waves pequenas.',
+          memoryPrompt: 'Usuario prefere resumo direto em portugues e entregas pequenas.',
         },
       },
     },
@@ -72,7 +72,7 @@ export function buildSelfingDashboardCliSnapshot(input: {
       id: 'cli-selfing-memory',
       title: 'Preferencia operacional',
       layer: 'semantic',
-      summary: 'Usuario quer implementar as waves em sequencia.',
+      summary: 'Usuario quer implementar as entregas em sequencia.',
       confidence: 0.82,
     },
   ];

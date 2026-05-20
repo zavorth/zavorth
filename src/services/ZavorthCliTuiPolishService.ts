@@ -31,6 +31,21 @@ export type ZavorthCliTuiPolishProvider = {
   summary: string;
 };
 
+export type ZavorthCliTuiPolishChannel = {
+  id: 'dashboard' | 'telegram' | 'approvals';
+  label: string;
+  status: ZavorthCliTuiPolishStatus;
+  value: string;
+  command: string;
+};
+
+export type ZavorthCliTuiPolishShortcut = {
+  key: string;
+  label: string;
+  command: string;
+  detail: string;
+};
+
 export type ZavorthCliTuiPolishSnapshot = {
   contractVersion: typeof ZAVORTH_CLI_TUI_POLISH_CONTRACT_VERSION;
   schemaVersion: 1;
@@ -39,8 +54,17 @@ export type ZavorthCliTuiPolishSnapshot = {
   status: ZavorthCliTuiPolishStatus;
   headline: string;
   mode: 'offline' | 'refreshed';
+  operator: {
+    activeProvider: string | null;
+    activeModel: string | null;
+    dashboardUrl: string;
+    remoteReady: boolean;
+    localReady: boolean;
+  };
   cards: ZavorthCliTuiPolishCard[];
   providers: ZavorthCliTuiPolishProvider[];
+  channels: ZavorthCliTuiPolishChannel[];
+  shortcuts: ZavorthCliTuiPolishShortcut[];
   guidedFixes: ZavorthRuntimeGuidedFix[];
   commands: {
     ready: 'zavorth ready';
@@ -48,8 +72,11 @@ export type ZavorthCliTuiPolishSnapshot = {
     providers: 'zavorth providers';
     approvals: 'zavorth gateway approvals';
     receipts: 'zavorth receipts';
-    dashboard: 'zavorth go';
+    dashboard: 'zavorth open';
     fixes: 'zavorth readiness fixes';
+    setup: 'zavorth setup';
+    chat: 'zavorth chat';
+    trust: 'zavorth trust';
   };
   safety: {
     noPromptExecution: true;
@@ -117,6 +144,13 @@ export class ZavorthCliTuiPolishService {
       status,
       headline: headlineFor(status, ready),
       mode: refreshProviders ? 'refreshed' : 'offline',
+      operator: {
+        activeProvider: ready.provider.activeProvider || null,
+        activeModel: ready.provider.activeModel || null,
+        dashboardUrl: ready.actions.dashboard || '/dashboard',
+        remoteReady: ready.remoteReady,
+        localReady: ready.localReady,
+      },
       cards: buildCards(ready, readiness),
       providers: ready.provider.lanes.slice(0, 8).map((lane) => ({
         id: lane.id,
@@ -125,6 +159,8 @@ export class ZavorthCliTuiPolishService {
         model: lane.model,
         summary: lane.summary,
       })),
+      channels: buildChannels(ready),
+      shortcuts: buildShortcuts(),
       guidedFixes: fixes.slice(0, 6),
       commands: {
         ready: 'zavorth ready',
@@ -132,8 +168,11 @@ export class ZavorthCliTuiPolishService {
         providers: 'zavorth providers',
         approvals: 'zavorth gateway approvals',
         receipts: 'zavorth receipts',
-        dashboard: 'zavorth go',
+        dashboard: 'zavorth open',
         fixes: 'zavorth readiness fixes',
+        setup: 'zavorth setup',
+        chat: 'zavorth chat',
+        trust: 'zavorth trust',
       },
       safety: {
         noPromptExecution: true,
@@ -150,8 +189,11 @@ export class ZavorthCliTuiPolishService {
     const width = 78;
     return [
       renderHero(snapshot),
+      renderTopLine(snapshot),
       renderCards(snapshot.cards, width),
+      renderChannels(snapshot.channels, width),
       renderProviders(snapshot.providers, width),
+      renderShortcuts(snapshot.shortcuts, width),
       renderFixes(snapshot.guidedFixes),
       renderCommandDock(snapshot),
       paintCliTone(
@@ -233,8 +275,45 @@ function buildCards(
       status: ready.channels.dashboard,
       value: ready.channels.dashboard,
       detail: 'Superficie visual sem autoridade direta de execucao.',
-      command: 'zavorth go',
+      command: 'zavorth open',
     },
+  ];
+}
+
+function buildChannels(ready: ZavorthReadyToGoSnapshot): ZavorthCliTuiPolishChannel[] {
+  return [
+    {
+      id: 'dashboard',
+      label: 'Dashboard',
+      status: ready.channels.dashboard,
+      value: ready.actions.dashboard || '/dashboard',
+      command: 'zavorth open',
+    },
+    {
+      id: 'telegram',
+      label: 'Telegram',
+      status: ready.channels.telegram,
+      value: ready.channels.telegram,
+      command: 'zavorth connectors doctor telegram',
+    },
+    {
+      id: 'approvals',
+      label: 'Approvals',
+      status: ready.channels.approvals === 'blocked' ? 'blocked' : ready.channels.approvals,
+      value: ready.channels.approvals,
+      command: 'zavorth trust',
+    },
+  ];
+}
+
+function buildShortcuts(): ZavorthCliTuiPolishShortcut[] {
+  return [
+    { key: '/model', label: 'trocar modelo', command: 'zavorth providers select', detail: 'Escolha provider/modelo sem editar .env.' },
+    { key: '/ready', label: 'prontidao', command: 'zavorth ready', detail: 'Check unico antes de sair do PC.' },
+    { key: '/review', label: 'agent review', command: 'zavorth review', detail: 'Revisao read-only por padrao.' },
+    { key: '/trust', label: 'permissoes', command: 'zavorth trust', detail: 'Approvals, auto-aprovacoes e break-glass.' },
+    { key: '/skills', label: 'skills', command: 'zavorth skills', detail: 'Catalogo e curadoria.' },
+    { key: '/doctor', label: 'diagnostico', command: 'zavorth doctor', detail: 'Proximo passo quando algo falha.' },
   ];
 }
 
@@ -246,6 +325,22 @@ function renderHero(snapshot: ZavorthCliTuiPolishSnapshot): string {
     `${paintCliBadge(snapshot.status, badgeTone)} ${snapshot.headline}`,
     paintCliTone(`generated ${snapshot.generatedAt} | ${snapshot.mode}`, 'muted'),
     paintCliDivider(78, 'muted'),
+  ].join('\n');
+}
+
+function renderTopLine(snapshot: ZavorthCliTuiPolishSnapshot): string {
+  const provider = snapshot.operator.activeProvider || 'auto';
+  const model = snapshot.operator.activeModel || 'model-auto';
+  const scope = snapshot.operator.remoteReady
+    ? 'remote ready'
+    : snapshot.operator.localReady
+      ? 'local ready'
+      : 'setup needed';
+  return [
+    paintCliTone('Operator', 'info'),
+    `${paintCliBadge(scope, toneForStatus(snapshot.status))} provider ${provider} | model ${model}`,
+    `${paintCliBadge('dashboard', 'brand')} ${snapshot.operator.dashboardUrl}`,
+    '',
   ].join('\n');
 }
 
@@ -278,11 +373,35 @@ function renderProviders(providers: ZavorthCliTuiPolishProvider[], width: number
   ].join('\n');
 }
 
+function renderChannels(channels: ZavorthCliTuiPolishChannel[], width: number): string {
+  const rows = channels.map((channel) => {
+    const label = `${statusIcon(channel.status)} ${channel.label}`;
+    return `${pad(label, 18)} ${pad(channel.value, 18)} ${truncate(channel.command, width - 38)}`;
+  });
+  return [
+    paintCliTone('Channels', 'info'),
+    ...rows,
+    '',
+  ].join('\n');
+}
+
+function renderShortcuts(shortcuts: ZavorthCliTuiPolishShortcut[], width: number): string {
+  const rows = shortcuts.map((shortcut) => {
+    const left = `${pad(shortcut.key, 10)} ${pad(shortcut.label, 18)}`;
+    return `${left} ${truncate(`${shortcut.command} - ${shortcut.detail}`, width - stripCliAnsi(left).length - 1)}`;
+  });
+  return [
+    paintCliTone('Smart commands', 'info'),
+    ...rows,
+    '',
+  ].join('\n');
+}
+
 function renderFixes(fixes: ZavorthRuntimeGuidedFix[]): string {
   if (fixes.length === 0) {
     return [
       paintCliTone('Next', 'info'),
-      'Tudo limpo. Para abrir o ambiente: zavorth go',
+      'Tudo limpo. Para abrir o ambiente: zavorth open',
       '',
     ].join('\n');
   }
@@ -296,7 +415,8 @@ function renderFixes(fixes: ZavorthRuntimeGuidedFix[]): string {
 function renderCommandDock(snapshot: ZavorthCliTuiPolishSnapshot): string {
   return [
     paintCliTone('Commands', 'info'),
-    `${snapshot.commands.dashboard}     ${snapshot.commands.readyOffline}     ${snapshot.commands.providers}`,
+    `${snapshot.commands.setup}     ${snapshot.commands.dashboard}     ${snapshot.commands.chat}`,
+    `${snapshot.commands.readyOffline}     ${snapshot.commands.providers}     ${snapshot.commands.trust}`,
     `${snapshot.commands.approvals}     ${snapshot.commands.receipts}     ${snapshot.commands.fixes}`,
     '',
   ].join('\n');

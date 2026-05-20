@@ -48,7 +48,7 @@ const requiredSecurityTests = [
 const auditWorkspaces = [
   { label: "zavorth", cwd: root, required: true },
   { label: "zavorth-agent", cwd: resolve(root, "agent"), required: true },
-  { label: "zavorth-docs", cwd: resolve(root, "..", "zavorth-docs"), required: false },
+  { label: "docs-client", cwd: resolve(root, "..", "docs-client"), required: false },
 ];
 
 function run(label, command, args, options = {}) {

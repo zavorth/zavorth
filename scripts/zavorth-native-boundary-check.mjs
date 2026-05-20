@@ -20,7 +20,6 @@ const requiredFreezeSnippets = [
   'Status: active',
   'Contribution Rules',
   'Operational Inventory',
-  'Track 0 Guardrails',
   'Compatibility Boundary Register',
   'fallback-only',
   'scripts/zavorth-native-boundary-check.mjs',
@@ -75,14 +74,14 @@ if (failures.length > 0) {
   process.exit(1);
 }
 
-console.log('[native-boundary] ok: ai-gateway freeze, boundary register, dead residual guard, and legacy residue scan passed.');
+console.log('[native-boundary] ok: ai-gateway boundary, compatibility register, dead residual guard, and legacy residue scan passed.');
 for (const note of notes) {
   console.log(`[native-boundary] ${note}`);
 }
 
 function checkFreezeDoc() {
   if (!fs.existsSync(freezeDocPath)) {
-    failures.push('src/ai-gateway/NATIVE_BOUNDARY.md: missing active freeze document');
+    failures.push('src/ai-gateway/NATIVE_BOUNDARY.md: missing active boundary document');
     return;
   }
 

@@ -57,5 +57,5 @@ export function resolveReleaseCandidateNextSafeAction(status: ReleaseCandidatePr
   if (status === 'blocked') {
     return 'Remover no-go, bloqueios de RC ou qualquer global rollout/auto-promote antes de continuar.';
   }
-  return 'Pre-canary gate pronto; planejar canary real em wave separada sem acionar rollout automaticamente.';
+  return 'Pre-canary gate pronto; planejar canary real em entrega separada sem acionar rollout automaticamente.';
 }

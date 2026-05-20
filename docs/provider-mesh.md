@@ -38,13 +38,8 @@ projection groups providers by intent:
 - Local and private: Ollama, LM Studio, vLLM, AIGateway and custom OpenAI-compatible endpoints.
 - OpenAI-compatible: custom endpoints, AIGateway, OpenRouter, Azure OpenAI, Vercel AI Gateway and LiteLLM.
 
-The daily model-choice projection is produced by
-`ModelProviderExperienceService` and can be checked with:
-
-```bash
-npm run zavorth:model-provider-experience
-npm run zavorth:model-provider-experience:check
-```
+Use `zavorth providers`, `zavorth providers add` and `zavorth providers switch`
+for the product-facing model choice flow.
 
 This layer keeps broad provider coverage while preserving Zavorth's advantage:
 provider choice, credentials, fallback and external effects remain policy-governed and receipt-backed.
@@ -61,12 +56,6 @@ zavorth providers test openai --live
 zavorth providers live --provider openai
 zavorth providers cockpit --provider openai
 zavorth providers visual-approval --provider openai
-npm run zavorth:provider-readiness
-npm run zavorth:provider-live-matrix -- --provider openai
-npm run zavorth:provider-cockpit
-npm run zavorth:command-center-visual-approval
-npm run zavorth:provider-cockpit-visual:check
-npm run zavorth:provider-readiness:check
 ```
 
 Normal rendering does not make hidden network calls or serialize provider

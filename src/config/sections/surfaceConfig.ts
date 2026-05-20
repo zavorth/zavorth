@@ -53,12 +53,12 @@ export function buildSurfaceConfig(projectRoot: string, publicTunnelStateFileFal
     zavorthExternalDocsUrl: normalizeUrl(process.env.ZAVORTH_EXTERNAL_DOCS_URL || ''),
     zavorthDocsRepoRoot:
       process.env.ZAVORTH_DOCS_REPO_ROOT ||
-      path.resolve(projectRoot, '..', 'zavorth-docs'),
+      path.resolve(projectRoot, '..', 'docs-client'),
     zavorthWebRepoRoot:
       process.env.ZAVORTH_WEB_REPO_ROOT ||
       path.resolve(projectRoot, '..', 'zavorth-web'),
     zavorthUiSandboxRepoRoot:
       process.env.ZAVORTH_UI_SANDBOX_REPO_ROOT ||
-      path.resolve(projectRoot, '..', 'zavorth-ui-sandbox'),
+      path.resolve(projectRoot, '..', 'ui-sandbox'),
   };
 }
