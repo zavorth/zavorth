@@ -85,6 +85,33 @@
   --b-glass-shadow: 0 18px 44px rgba(0, 0, 0, 0.24);
   --b-glass-shadow-soft: 0 10px 28px rgba(0, 0, 0, 0.16);
 
+  /* Component contract */
+  --b-space-1: 4px;
+  --b-space-2: 8px;
+  --b-space-3: 12px;
+  --b-space-4: 16px;
+  --b-space-5: 20px;
+  --b-space-6: 24px;
+  --b-space-8: 32px;
+  --b-control-sm: 30px;
+  --b-control-md: 38px;
+  --b-control-lg: 46px;
+  --b-card-pad-sm: 14px;
+  --b-card-pad-md: 18px;
+  --b-card-pad-lg: 24px;
+  --b-row-min: 48px;
+  --b-component-border: var(--b-glass-border);
+  --b-component-bg:
+    linear-gradient(155deg, color-mix(in srgb, var(--b-glass-highlight) 26%, transparent), transparent 58%),
+    color-mix(in srgb, var(--b-glass) 88%, transparent);
+  --b-component-bg-soft: color-mix(in srgb, var(--b-glass) 72%, transparent);
+  --b-component-bg-strong: color-mix(in srgb, var(--b-glass-strong) 90%, transparent);
+  --b-component-hover-border: color-mix(in srgb, var(--b-pulse) 28%, var(--b-glass-border));
+  --b-label-size: 11px;
+  --b-body-sm: 12px;
+  --b-body-md: 13px;
+  --b-body-lg: 14px;
+
   /* ═══ Radii ═══ */
   --b-radius-sm: 6px;
   --b-radius-md: 10px;
