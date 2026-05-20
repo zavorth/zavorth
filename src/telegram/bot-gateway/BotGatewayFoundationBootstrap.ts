@@ -13,6 +13,7 @@ import {
 } from '../../execution/ExternalExecutor.js';
 import { StitchExecutor } from '../../execution/StitchExecutor.js';
 import { AiStudioExecutor } from '../../execution/AiStudioExecutor.js';
+import { GeminiManagedAgentExecutor } from '../../execution/GeminiManagedAgentExecutor.js';
 import { AuditLogger } from '../../monitoring/AuditLogger.js';
 import { ZavorthBridgePreferenceStore } from '../../agents/ZavorthBridgePreferenceStore.js';
 import { RemoteModeManager } from '../../services/RemoteModeManager.js';
@@ -97,6 +98,7 @@ export function initializeBotGatewayFoundation(
     new (require('../../execution/GeminiCliExecutor.js').GeminiCliExecutor)(),
   );
   gateway.executionGateway.registerExecutor('aistudio', new AiStudioExecutor());
+  gateway.executionGateway.registerExecutor('gemini_managed_agent', new GeminiManagedAgentExecutor());
   gateway.executionGateway.registerExecutor(
     'jules',
     new (require('../../execution/JulesExecutor.js').JulesExecutor)(),

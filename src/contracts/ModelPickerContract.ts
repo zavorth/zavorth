@@ -45,7 +45,9 @@ export type ModelCapabilityKind =
   | 'long_context'
   | 'local'
   | 'budget'
-  | 'multimodal';
+  | 'multimodal'
+  | 'agentic'
+  | 'background';
 
 export type ProviderMeshIdentity = {
   familyId: string;
