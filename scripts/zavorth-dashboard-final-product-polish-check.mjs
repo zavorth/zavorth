@@ -67,11 +67,11 @@ function ruleContainsMarkers() {
     ['assets/command-center/scripts/pages.js', [
       'data-zavorth-premium-dashboard-v2',
       'premium-page',
-      'Operate Zavorth from one clean surface.',
+      'Today in Zavorth.',
       'Every channel uses the same rules.',
-      'Capabilities you can actually trust.',
+      'Skills, curated safely.',
       'Background mode, kept quiet.',
-      'Settings without secret leaks.',
+      'Configuration, redacted.',
     ]],
     ['assets/command-center/styles/pages.css', [
       '.premium-page',

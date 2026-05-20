@@ -1018,7 +1018,7 @@ export function buildCliHelpSnapshot(target?: string | null): CliHelpSnapshot {
           { command: 'zavorth skills', summary: 'Mostra skills e curadoria.' },
           { command: 'zavorth review', summary: 'Roda Agent Review governado.' },
           { command: 'zavorth trust', summary: 'Mostra approvals, permissoes e modo extremo.' },
-          { command: 'zavorth connectors', summary: 'Configura canais como Telegram/Discord.' },
+          { command: 'zavorth channels', summary: 'Configura canais como Telegram/Discord.' },
         ],
       },
       {

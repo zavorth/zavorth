@@ -42,6 +42,9 @@
             ${premiumStep('3', 'Approve', 'scope and TTL')}
             ${premiumStep('4', 'Receipt', 'proof and replay')}
           </div>
+          <div class="platform-timeline platform-timeline--quiet" data-dashboard-timeline hidden>
+            <div class="platform-section-title">Recent activity</div>
+          </div>
           <div class="platform-action-list" aria-label="Common actions">
             <button type="button" data-dashboard-sector="terminal"><strong>Ask Zavorth</strong><span>Start with a normal request.</span></button>
             <button type="button" data-dashboard-sector="sales-os"><strong>Review approvals</strong><span>Accept, reject or scope permissions.</span></button>

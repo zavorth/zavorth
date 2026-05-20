@@ -75,9 +75,9 @@ small: daily-use guides, stable architecture notes and integration contracts.
 - Local links should resolve before docs are committed.
 - No external action, install, deploy, secret access, or shell execution is implied by documentation, certification gates, or preview-only operational cycles.
 
-Before publishing documentation changes, run the public documentation gate from
-the repository root:
+Before publishing documentation changes, run the product release gate from the
+repository root:
 
 ```bash
-npm run daily:certify
+npm run release:check
 ```

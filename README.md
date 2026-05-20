@@ -23,6 +23,7 @@
   <p>
     <a href="#start-fast">Start Fast</a> |
     <a href="#what-zavorth-does">What It Does</a> |
+    <a href="#product-surface">Product Surface</a> |
     <a href="#daily-operator-flow">Daily Flow</a> |
     <a href="#command-map">Commands</a> |
     <a href="#trust-model">Trust Model</a> |
@@ -83,6 +84,16 @@ readiness report, then send one normal request:
 Review this repository and tell me what is risky.
 ```
 
+## Product Surface
+
+The dashboard is the main operating surface. It is designed around one daily
+loop: ask naturally, preview risky work, approve only what needs approval, then
+keep the receipt.
+
+<p align="center">
+  <img src="assets/brand/zavorth-dashboard-preview.png" alt="Zavorth dashboard preview" width="100%" />
+</p>
+
 ## What Zavorth Does
 
 | Surface | What it gives you |
@@ -128,6 +139,12 @@ Review this repository and tell me what is risky.
 | `zavorth review` | Run governed agent review. |
 | `zavorth trust` | Inspect approval posture, persistent permissions, and break-glass controls. |
 | `zavorth doctor` | Diagnose setup/runtime issues and show the next safe action. |
+
+Maintainers can run the full product gate before publishing:
+
+```bash
+npm run release:check
+```
 
 ## Trust Model
 

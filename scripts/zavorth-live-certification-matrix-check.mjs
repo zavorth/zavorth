@@ -170,7 +170,7 @@ function ruleSnapshot() {
     && data.summary?.workspaceMutationPerformed === false
     && data.summary?.externalIoPerformed === false
     && statuses.has('dry_run_passed')
-    && statuses.has('needs_setup');
+    && (statuses.has('needs_setup') || statuses.has('live_passed'));
   return rule(
     'snapshot',
     'Live certification matrix runs',

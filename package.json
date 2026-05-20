@@ -811,6 +811,8 @@
     "zavorth:documentation-repo-final": "npx tsx scripts/zavorth-documentation-repo-final.ts",
     "zavorth:documentation-repo-final:json": "npx tsx scripts/zavorth-documentation-repo-final.ts --json",
     "zavorth:documentation-repo-final:check": "node scripts/zavorth-documentation-repo-final-check.mjs",
+    "release:check": "node scripts/zavorth-release-check.mjs",
+    "release:check:json": "node scripts/zavorth-release-check.mjs --json",
     "daily:certify": "npm run zavorth:documentation-repo-final:check --silent",
     "zavorth:provider-parity": "npx tsx scripts/zavorth-provider-parity.ts",
     "zavorth:provider-parity:json": "npx tsx scripts/zavorth-provider-parity.ts --json",

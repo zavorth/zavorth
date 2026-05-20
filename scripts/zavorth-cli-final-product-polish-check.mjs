@@ -80,14 +80,19 @@ function ruleContainsMarkers() {
       'canExecuteMutations: false',
     ]],
     ['src/cli/ZavorthCliSurfaceHelpers.ts', [
-      'zavorth onboard',
+      'zavorth setup',
+      'zavorth start',
+      'zavorth open',
+      'zavorth ready',
+      'zavorth status',
+      'zavorth chat',
       'zavorth providers',
       'zavorth channels',
-      'zavorth schedule',
       'zavorth skills',
-      'zavorth agents',
+      'zavorth review',
+      'zavorth trust',
       '/dashboard',
-      'Open Home at /dashboard',
+      'Abre o dashboard.',
     ]],
   ];
   const missing = [];

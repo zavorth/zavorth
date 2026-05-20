@@ -19,16 +19,18 @@ describe('ZavorthCliFinalProductPolishService', () => {
     expect(snapshot.summary.cliCanExecuteMutations).toBe(false);
     expect(snapshot.summary.rawSecretsSerialized).toBe(false);
     expect(snapshot.summary.requiredCommands).toEqual(expect.arrayContaining([
-      'zavorth onboard',
-      'zavorth go',
+      'zavorth setup',
+      'zavorth start',
+      'zavorth open',
+      'zavorth ready',
+      'zavorth status',
+      'zavorth chat',
       'zavorth doctor',
       'zavorth providers',
       'zavorth channels',
-      'zavorth missions',
-      'zavorth receipts',
-      'zavorth schedule',
       'zavorth skills',
-      'zavorth agents',
+      'zavorth review',
+      'zavorth trust',
     ]));
   });
 });

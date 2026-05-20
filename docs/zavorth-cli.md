@@ -181,7 +181,7 @@ npm run build --silent
 ```bash
 npm run runtime:check
 npm run security:ci
-npm run daily:certify
+npm run release:check
 ```
 
 These commands are for maintainers and CI. Normal users should not need them
