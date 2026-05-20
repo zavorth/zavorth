@@ -690,6 +690,13 @@
     setDashboardText('[data-dashboard-strip-detail="budget"]', snapshot.errorEvents > 0 ? `${snapshot.errorEvents} trace error(s)` : 'local trace in real time');
     setDashboardText('[data-dashboard-strip="security"]', snapshot.activeApprovals > 0 ? 'approval' : 'active');
     setDashboardText('[data-dashboard-strip-detail="security"]', snapshot.activeApprovals > 0 ? 'pending decision' : 'policy, preview and receipt');
+    setDashboardText('[data-inbox-metric="approvals"]', String(snapshot.activeApprovals || 0));
+    setDashboardText('[data-inbox-metric="receipts"]', String(snapshot.receiptEvents || 0));
+    setDashboardText('[data-sales-os-metric="approvals"]', String(snapshot.activeApprovals || 0));
+    setDashboardText('[data-sales-os-meta="approvals"]', snapshot.activeApprovals > 0 ? 'waiting for your decision' : 'no pending approval');
+    setDashboardText('[data-provider-picker="active"]', getCurrentModelRouteLabel());
+    setDashboardText('[data-provider-picker="fallbacks"]', snapshot.modelLabel || 'configured');
+    setDashboardText('[data-provider-picker="proof"]', snapshot.errorEvents > 0 ? 'needs review' : 'redacted proof');
 
     updateDashboardTimeline(latestTraceEvents(3));
   }

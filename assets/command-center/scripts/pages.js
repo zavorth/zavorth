@@ -50,6 +50,12 @@
             <button type="button" data-dashboard-sector="sales-os"><strong>Review approvals</strong><span>Accept, reject or scope permissions.</span></button>
             <button type="button" data-dashboard-sector="instances"><strong>Inspect receipts</strong><span>See what happened and why.</span></button>
           </div>
+          <div class="operator-checklist" aria-label="Setup checklist">
+            ${setupStep('Provider', 'ready', 'Choose model and fallback before deep work.')}
+            ${setupStep('Inbox', 'ready', 'Ask naturally; risky actions become previews.')}
+            ${setupStep('Approvals', 'gated', 'Human decisions stay scoped and reversible.')}
+            ${setupStep('Receipts', 'on', 'Every completed action leaves proof.')}
+          </div>
         </div>
 
         <aside class="platform-side">
@@ -103,10 +109,15 @@
         ${premiumMetric('Extreme mode', 'Locked', 'requires maximum confirmation', 'warn')}
         ${premiumMetric('Receipts', 'On', 'every decision leaves proof', 'ok')}
       </section>
+      <section class="decision-board" aria-label="Approval decision board">
+        ${decisionCard('Next decision', 'No pending approvals', 'When one appears, this card shows action, risk, scope, TTL and approve/reject controls.', 'ok', 'Open Inbox')}
+        ${decisionCard('Allow always', 'Available with limits', 'Persistent permission must still name scope, risk ceiling, expiration and rollback notes.', 'info', 'Manage scopes')}
+        ${decisionCard('Break-glass', 'Locked', 'Critical mode asks multiple confirmations, explains risks and keeps hard stops for obvious catastrophes.', 'warn', 'Inspect')}
+      </section>
       <section class="premium-layout">
-        ${plainPanel('Pending decisions', 'No pending approvals. Risky work appears here with clear approve and reject actions.')}
-        ${plainPanel('Allowed scopes', 'Persistent permissions stay limited by action, folder, channel, TTL and risk ceiling.')}
-        ${plainPanel('Break-glass', 'Extreme mode stays off by default and requires repeated confirmation plus an audit receipt.')}
+        ${plainPanel('Plain-language approval', 'A user can type “approve”, click a button, or approve in Telegram; the same resolver verifies scope and receipt.')}
+        ${plainPanel('Revocation', 'Every persistent permission can be revoked from dashboard, CLI or remote channel.')}
+        ${plainPanel('Audit trail', 'Approval cards link back to the request, policy reason, TTL and final receipt.')}
       </section>
     </div>
   `);
@@ -125,6 +136,12 @@
         <article class="premium-panel">
           <div class="premium-panel__header"><div><span>Recent receipts</span><h2>No receipt yet</h2></div><span class="dashboard-pill">evidence</span></div>
           <p>After a mission, this area shows files touched, tools used, approvals, blocked risks, cost and rollback notes.</p>
+          <div class="receipt-story-grid">
+            ${receiptStory('What changed', 'No mutation recorded yet.')}
+            ${receiptStory('Why', 'The reason will cite the original user request and policy route.')}
+            ${receiptStory('Review', 'Receipts can be searched, replayed or attached to handoff.')}
+            ${receiptStory('Undo', 'Rollback guidance appears when the action supports it.')}
+          </div>
         </article>
         <article class="premium-panel premium-panel--table">
           <div class="data-table-wrap"><table class="data-table"><thead><tr><th>Surface</th><th>Mode</th><th>Status</th><th>Next step</th></tr></thead><tbody>
@@ -317,7 +334,24 @@
       </section>
       <section class="platform-workspace platform-workspace--operator">
         <div class="platform-main">
+          <div class="setup-studio-strip" aria-label="Setup flow">
+            ${setupStep('1. Provider', 'choose', 'Pick API route and model.')}
+            ${setupStep('2. Test', 'optional', 'Run a live probe only when asked.')}
+            ${setupStep('3. Channels', 'remote', 'Telegram and others remain opt-in.')}
+            ${setupStep('4. Ready', 'verify', 'Run release/ready checks before daily use.')}
+          </div>
           <div class="platform-section-title">Provider catalog</div>
+          <div class="provider-picker-premium" aria-label="Provider picker">
+            <button type="button" class="provider-picker-card is-active" data-dashboard-prompt="Show Gemini provider models, live proof and recommended default model.">
+              <span>Active route</span><strong>Auto / Gemini</strong><small data-provider-picker="active">Uses configured route</small>
+            </button>
+            <button type="button" class="provider-picker-card" data-dashboard-prompt="Show fallback providers and which ones are live validated.">
+              <span>Fallbacks</span><strong data-provider-picker="fallbacks">Live routes</strong><small>Only proven routes become defaults.</small>
+            </button>
+            <button type="button" class="provider-picker-card" data-dashboard-prompt="Test the selected provider with a sanitized proof.">
+              <span>Proof</span><strong data-provider-picker="proof">Sanitized</strong><small>Keys never appear in output.</small>
+            </button>
+          </div>
           <div class="info-grid info-grid--quiet" data-provider-model-catalog-summary>
             <div class="info-row"><span class="info-row__label">Routes</span><span class="info-row__value mono">loading</span></div>
             <div class="info-row"><span class="info-row__label">Live</span><span class="info-row__value mono">loading</span></div>
@@ -437,6 +471,18 @@
 
   function plainPanel(title, detail) {
     return `<article class="premium-panel"><div class="premium-panel__header"><div><span>Control</span><h2>${title}</h2></div><span class="dashboard-pill">ready</span></div><p>${detail}</p></article>`;
+  }
+
+  function setupStep(title, state, detail) {
+    return `<article class="setup-step"><span>${title}</span><strong>${state}</strong><small>${detail}</small></article>`;
+  }
+
+  function decisionCard(title, state, detail, tone, action) {
+    return `<article class="decision-card decision-card--${tone}"><div><span>${title}</span><strong>${state}</strong><p>${detail}</p></div><button type="button" data-dashboard-sector="terminal">${action}</button></article>`;
+  }
+
+  function receiptStory(label, value) {
+    return `<div class="receipt-story"><span>${label}</span><strong>${value}</strong></div>`;
   }
 
   function skillRow(name, status, detail, tone) {
