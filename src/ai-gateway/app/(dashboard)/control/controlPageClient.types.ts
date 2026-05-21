@@ -73,6 +73,22 @@ export type DeveloperWorkspaceResponse = {
   error?: string | null;
 };
 
+export type ExperienceSnapshotResponse = Record<string, any> & {
+  contractVersion?: "ExperienceSnapshot/v1";
+  generatedAt?: string;
+  agent?: Record<string, any> | null;
+  journey?: Record<string, any> | null;
+  chat?: Record<string, any> | null;
+  approvals?: Record<string, any>[];
+  timeline?: Record<string, any>[];
+  receipts?: Record<string, any>[];
+  memory?: Record<string, any> | null;
+  learning?: Record<string, any> | null;
+  trust?: Record<string, any> | null;
+  nextActions?: Record<string, any>[];
+  health?: Record<string, any> | null;
+};
+
 export type DeveloperWorkspaceActionResult = {
   ok?: boolean;
   httpStatus?: number;
@@ -108,6 +124,8 @@ export type ControlPageClientModel = {
   runtime: Record<string, any> | null;
   gatewayControl: GatewayControlResponse | null;
   gatewayControlError: string | null;
+  experience: ExperienceSnapshotResponse | null;
+  experienceError: string | null;
   developerWorkspace: DeveloperWorkspaceResponse | null;
   developerWorkspaceError: string | null;
   developerWorkspaceActionResult: DeveloperWorkspaceActionResult | null;
@@ -155,6 +173,7 @@ export type ControlPageClientModel = {
   timelineItems: TimelineItem[];
   loadControlState: (preferredSessionId?: string | null) => Promise<void>;
   reloadGatewayControl: () => Promise<GatewayControlResponse | null>;
+  reloadExperience: () => Promise<ExperienceSnapshotResponse | null>;
   reloadDeveloperWorkspace: () => Promise<DeveloperWorkspaceResponse | null>;
   handleDeveloperWorkspaceAction: (
     action: "start" | "stop" | "restart",

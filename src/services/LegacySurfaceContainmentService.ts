@@ -33,20 +33,20 @@ export class LegacySurfaceContainmentService {
 
     return {
       contractVersion: LEGACY_SURFACE_CONTAINMENT_VERSION,
-      canonicalEntry: '/dashboard',
+      canonicalEntry: '/control',
       frozenSurfaces: ['/app', '/classic'],
       generatedAt,
-      summary: 'Use /dashboard como entrada principal do Zavorth web. Runtime API, Gateway Contract e dashboard oficial recebem produto novo; /app e /classic permanecem apenas como legado operacional e fallback.',
+      summary: 'Use /control como entrada principal do Zavorth web. /dashboard segue compativel, enquanto Runtime API, Gateway Contract e dashboard oficial recebem produto novo; /app e /classic permanecem apenas como legado operacional e fallback.',
       consolidation: {
         phase: 'P3-003',
         canonicalDocs: [
           'docs/web-dashboard.md',
           'docs/product-direction.md',
         ],
-        rule: 'Produto novo e regras de negocio novas entram em /dashboard, Runtime API, Gateway Contract ou control plane; /app e /classic recebem apenas manutencao, seguranca, bugfix e compatibilidade.',
+        rule: 'Produto novo e regras de negocio novas entram em /control, Runtime API, Gateway Contract ou control plane; /app e /classic recebem apenas manutencao, seguranca, bugfix e compatibilidade.',
       },
       surfaces: [
-        this.surface('dashboard', 'canonical', '/dashboard', 'Dashboard', 'primary',
+        this.surface('dashboard', 'canonical', '/control', 'Control UI', 'primary',
           'Face principal para chat natural, approvals, receipts, providers, channels e status essencial do gateway.',
           [
             'produto novo',
@@ -86,9 +86,11 @@ export class LegacySurfaceContainmentService {
         fallbackPreserved: true,
       },
       links: {
+        localControlUrl: `${localBaseUrl}/control`,
         localDashboardUrl: `${localBaseUrl}/dashboard`,
         localLegacyAppUrl: `${localBaseUrl}/app`,
         localClassicUrl: `${localBaseUrl}/classic`,
+        remoteControlUrl: remoteBaseUrl ? `${remoteBaseUrl}/control` : null,
         remoteDashboardUrl: remoteBaseUrl ? `${remoteBaseUrl}/dashboard` : null,
         remoteLegacyAppUrl: remoteBaseUrl ? `${remoteBaseUrl}/app` : null,
         remoteClassicUrl: remoteBaseUrl ? `${remoteBaseUrl}/classic` : null,
@@ -125,7 +127,7 @@ export class LegacySurfaceContainmentService {
         requestedPath,
         surface,
         allowed: false,
-        reason: `${surface.path} esta funcionalmente congelada; novas features e regras de negocio devem ir para /dashboard.`,
+        reason: `${surface.path} esta funcionalmente congelada; novas features e regras de negocio devem ir para /control.`,
         requiredDestination: snapshot.policy.productFeaturesMustLandIn,
       };
     }
@@ -137,7 +139,7 @@ export class LegacySurfaceContainmentService {
       surface,
       allowed: true,
       reason: surface.status === 'primary'
-        ? '/dashboard e a surface oficial para produto novo.'
+        ? '/control e a surface oficial para produto novo.'
         : `${surface.path} permite apenas manutencao, seguranca, bugfix, compatibilidade ou observabilidade.`,
       requiredDestination: surface.status === 'primary'
         ? snapshot.policy.productFeaturesMustLandIn

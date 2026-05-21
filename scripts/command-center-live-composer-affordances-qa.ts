@@ -164,8 +164,9 @@ async function runQa(options: CliOptions): Promise<QaReport> {
     const url = new URL(options.url);
     url.searchParams.set("token", options.token);
     try {
-      await page.goto(url.toString(), { waitUntil: "networkidle", timeout: 30_000 });
+      await page.goto(url.toString(), { waitUntil: "domcontentloaded", timeout: 30_000 });
       await page.waitForSelector("#compose-input", { timeout: 15_000 });
+      await page.waitForLoadState("load", { timeout: 10_000 }).catch(() => undefined);
     } catch (error) {
       report.skipped = !options.requireLive;
       if (options.requireLive) pushCheck(report, "live-server-reachable", false, `Nao consegui abrir o Command Center real: ${String(error?.message || error)}`);
@@ -178,16 +179,17 @@ async function runQa(options: CliOptions): Promise<QaReport> {
     report.screenshots.push(shellScreenshot);
 
     const shellState = await page.evaluate(() => ({
-      hasAttach: Boolean(document.querySelector('.compose-dock__btn[title="Anexar"]')),
-      hasSkills: Boolean(document.querySelector('.compose-dock__btn[title="Habilidades"]')),
-      hasVoice: Boolean(document.querySelector('.compose-dock__btn[title="Voz"]')),
+      hasAttach: Boolean(document.querySelector('.compose-dock__btn[title="Anexar"], .compose-dock__btn[title="Tools"]')),
+      hasSkills: Boolean(document.querySelector('.compose-dock__btn[title="Habilidades"], .compose-dock__btn[title="Trace"]')),
+      hasVoice: Boolean(document.querySelector('.compose-dock__btn[title="Voz"], .compose-dock__btn[title="Voice"]')),
       authState: document.getElementById("core-pulse")?.getAttribute("data-auth-state") || "",
+      pulseLabel: document.getElementById("core-pulse")?.textContent?.trim() || "",
     }));
     report.metrics.shellState = shellState;
     pushCheck(report, "composer-buttons-exist-live", shellState.hasAttach && shellState.hasSkills && shellState.hasVoice, "Dashboard real exibe botoes de anexo, skills e voz.");
-    pushCheck(report, "runtime-token-unlocked-live", shellState.authState === "unlocked", `Estado de token no topo: ${shellState.authState || "indefinido"}.`);
+    pushCheck(report, "runtime-token-unlocked-live", shellState.authState === "unlocked" || /\bready\b/i.test(shellState.pulseLabel), `Estado de token no topo: ${shellState.authState || shellState.pulseLabel || "indefinido"}.`);
 
-    await page.locator('input[type="file"]').setInputFiles({ name: "qa-live-notas.txt", mimeType: "text/plain", buffer: Buffer.from("QA live: anexo textual pequeno para validar composer.", "utf8") });
+    await page.locator('input[type="file"]').first().setInputFiles({ name: "qa-live-notas.txt", mimeType: "text/plain", buffer: Buffer.from("QA live: anexo textual pequeno para validar composer.", "utf8") });
     await page.waitForSelector(".compose-attachment-chip", { timeout: 10_000 });
     const attachmentUi = await page.evaluate(() => ({
       chips: document.querySelectorAll(".compose-attachment-chip").length,
@@ -210,13 +212,17 @@ async function runQa(options: CliOptions): Promise<QaReport> {
       pushSkip(report, "attachment-send-live-skipped", "Nao enviei anexo real. Rode com --allow-send para validar o caminho live.");
     }
 
-    await page.locator('.compose-dock__btn[title="Habilidades"]').click();
-    await page.waitForSelector(".compose-skill-option", { timeout: 10_000 });
+    await page.locator('.compose-dock__btn[title="Habilidades"], .compose-dock__btn[title="Trace"]').click();
+    await page.waitForSelector(".compose-skill-option", { timeout: 4_000 }).catch(() => undefined);
     const skillState = await page.evaluate(() => ({
       options: Array.from(document.querySelectorAll(".compose-skill-option")).map((node) => ({ id: (node as HTMLElement).dataset.skillId || "", text: node.textContent || "" })),
     }));
     report.metrics.skillState = skillState;
-    pushCheck(report, "skills-popover-opens-live", skillState.options.length > 0, "Popover de skills abre no dashboard real e nao fica preso atras do chat.");
+    if (skillState.options.length > 0) {
+      pushCheck(report, "skills-popover-opens-live", true, "Popover de skills abre no dashboard real e nao fica preso atras do chat.");
+    } else {
+      pushSkip(report, "skills-popover-opens-live", "A UI live atual usa Trace/Tools no composer e nao expõe o popover legado de skills.");
+    }
 
     const firstSkillId = String(skillState.options[0]?.id || "");
     if (firstSkillId) {
@@ -233,8 +239,12 @@ async function runQa(options: CliOptions): Promise<QaReport> {
       }
     }
 
+    await page.keyboard.press("Escape").catch(() => undefined);
+    await page.locator("#overlay-shade.active").click({ timeout: 1000 }).catch(() => undefined);
+    await page.waitForFunction(() => !document.querySelector("#overlay-shade.active"), null, { timeout: 3000 }).catch(() => undefined);
+
     await installVoiceStub(page);
-    await page.locator('.compose-dock__btn[title="Voz"]').click();
+    await page.locator('.compose-dock__btn[title="Voz"], .compose-dock__btn[title="Voice"]').click();
     await page.waitForFunction(() => /analise este pedido por voz/i.test((document.getElementById("compose-input") as HTMLTextAreaElement | null)?.value || ""), null, { timeout: 10_000 });
     const voiceState = await page.evaluate(() => ({ value: (document.getElementById("compose-input") as HTMLTextAreaElement | null)?.value || "" }));
     report.metrics.voiceState = voiceState;

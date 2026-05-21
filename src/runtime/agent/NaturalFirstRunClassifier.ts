@@ -135,7 +135,9 @@ const OPERATIONAL_PATTERNS = [
 ];
 
 const TOOL_PATTERNS = [
-  /\b(rode|rodar|executa|execute|testa|teste|instala|install|npm|pnpm|yarn|git|docker|powershell|terminal|shell|comando)\b/,
+  /\b(shell|powershell|pwsh|terminal|comando(?:\s+de\s+terminal)?|linha\s+de\s+comando)\b/,
+  /\b(npm|pnpm|yarn|npx|node|python|pytest|jest|git|docker|cargo|go|bash|sh|cmd)\s+[\w:./-]+\b/,
+  /\b(rode|rodar|executa|execute|executar|run|dispare|inicie)\b[\s\S]{0,80}\b(npm|pnpm|yarn|npx|node|python|pytest|jest|git|docker|cargo|go|bash|sh|cmd|powershell|pwsh|build|testes?|scripts?)\b/,
   /\b(crie arquivo|edite|altere|aplique patch|publique|pesquise|busque|web|browser|abra o site)\b/,
   /\b(faca|rode|execute|dispare|inicie)\s+(?:o\s+)?deploy\b/,
 ];

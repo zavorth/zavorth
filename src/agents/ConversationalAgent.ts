@@ -28,6 +28,7 @@ import { EvidenceSearchRouter } from './EvidenceSearchRouter.js';
 import {
   buildUntrustedContentFirewallInstruction,
   containsUntrustedContentMarker,
+  wrapUntrustedContent,
   withUntrustedInputMetadata,
 } from '../security/UntrustedContent.js';
 import { wrapToolOutputForLlm } from '../security/ToolOutputTrust.js';
@@ -266,6 +267,7 @@ export class ConversationalAgent {
             tool_call_id: toolCall.id,
           }),
           toolCallId: toolCall.id,
+          toolName: toolCall.name,
         });
       }
 
@@ -710,7 +712,10 @@ export class ConversationalAgent {
         'Use these sourced and ranked results for current, unstable, high-stakes, scientific, legal, medical, financial, or link-requested facts. Cite source/date when useful. Do not infer office holders, institutional roles, prices, discoveries, papers, cases, releases, scores, or breaking facts from model memory. Do not expose internal search windows or implementation limits as user-facing capability limits. If results include QUALITY_GATE or an error, state the limitation naturally and answer only what is supported.',
         buildUntrustedContentFirewallInstruction(),
         this.evidenceSearchRouter.buildContextGuidance(webSearchNeed),
-        searchResult,
+        wrapUntrustedContent('untrusted_web_evidence', searchResult, {
+          source: 'automatic_web_search',
+          query,
+        }),
       ].filter(Boolean).join('\n\n');
     } catch (error: unknown) {
       const message = error instanceof Error ? error.message : String(error);

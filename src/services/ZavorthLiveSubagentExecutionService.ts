@@ -256,6 +256,7 @@ class LlmRuntimeSubagentBackend implements ZavorthLiveSubagentBackend {
           toolMessages.push({
             role: 'tool',
             toolCallId: toolCall.id,
+            toolName: toolCall.name,
             content: wrapToolOutputForLlm(toolCall.name, `Denied by Policy Broker: ${toolDecision.reasons.join(' ')}`, {
               source: 'subagent_readonly_tool_result',
               policy_receipt_id: toolDecision.receipt.receiptId,
@@ -274,6 +275,7 @@ class LlmRuntimeSubagentBackend implements ZavorthLiveSubagentBackend {
         toolMessages.push({
           role: 'tool',
           toolCallId: toolCall.id,
+          toolName: toolCall.name,
           content: wrapToolOutputForLlm(toolCall.name, clampText(toolResult, 6000), {
             source: 'subagent_readonly_tool_result',
             policy_receipt_id: toolDecision.receipt.receiptId,
@@ -378,10 +380,7 @@ class LlmRuntimeSubagentBackend implements ZavorthLiveSubagentBackend {
         if (tool.name === 'web_search') {
           return /\b(web|internet|noticia|noticias|news|fonte|fontes|link|links|pesquis|busc|research|atual|current)\b/.test(task);
         }
-        if (tool.name === 'get_datetime') {
-          return /\b(hoje|agora|data|hora|atual|current|today|now)\b/.test(task);
-        }
-        return /\b(workspace|arquivo|arquivos|diretorio|diretorios|pasta|codigo|code|repo|projeto|zavorth|readme|src|tests?)\b/.test(task);
+        return true;
       })
       .slice(0, 6);
   }

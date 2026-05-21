@@ -9,6 +9,7 @@ export const NATURAL_FIRST_LLM_RUNTIME_CONTRACT_VERSION = 'natural-first-llm-run
 export type NaturalFirstLlmRuntimeSnapshot = {
   contractVersion: typeof NATURAL_FIRST_LLM_RUNTIME_CONTRACT_VERSION;
   source: 'NaturalFirstLlmRuntime';
+  stage: 5;
   phase: 5;
   route: 'llm-reply';
   providerConfigured: boolean;
@@ -55,6 +56,7 @@ export function buildNaturalFirstLlmRuntimeSnapshot(input: {
   return {
     contractVersion: NATURAL_FIRST_LLM_RUNTIME_CONTRACT_VERSION,
     source: 'NaturalFirstLlmRuntime',
+    stage: 5,
     phase: 5,
     route: 'llm-reply',
     providerConfigured: input.providerConfigured,

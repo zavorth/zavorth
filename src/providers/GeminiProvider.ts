@@ -251,15 +251,19 @@ export class GeminiProvider implements ILlmProvider {
 
   private convertMessages(messages: ChatMessage[]): Content[] {
     const contents: Content[] = [];
+    const toolCallNames = new Map<string, string>();
 
     for (const message of messages) {
       if (message.role === 'tool') {
+        const toolName = message.toolName
+          || (message.toolCallId ? toolCallNames.get(message.toolCallId) : '')
+          || 'unknown_tool';
         contents.push({
           role: 'function',
           parts: [
             {
               functionResponse: {
-                name: message.toolCallId || 'unknown_tool',
+                name: toolName,
                 response: { result: message.content },
               },
             },
@@ -305,6 +309,7 @@ export class GeminiProvider implements ILlmProvider {
 
       if (message.toolCalls && message.toolCalls.length > 0) {
         for (const toolCall of message.toolCalls) {
+          toolCallNames.set(toolCall.id, toolCall.name);
           parts.push({
             functionCall: {
               name: toolCall.name,

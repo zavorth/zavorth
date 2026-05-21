@@ -1,4 +1,4 @@
-import type { ChatMessage } from '../../providers/ILlmProvider.js';
+import type { ChatMessage, ToolDefinition } from '../../providers/ILlmProvider.js';
 import type {
   LlmRunOptions,
   LlmRuntimeProviderAttempt,
@@ -119,7 +119,7 @@ const CLAUDE_TOOL_ZAVORTH_ALIASES: Record<string, string[]> = {
   read: ['Read', 'read', 'read_file', 'workspace.read'],
   glob: ['Glob', 'glob', 'workspace.read'],
   grep: ['Grep', 'grep', 'workspace.read'],
-  ls: ['LS', 'ls', 'workspace.read'],
+  ls: ['LS', 'ls', 'list_directory', 'workspace.list', 'workspace.read'],
   write: ['Write', 'write', 'write_file', 'filesystem.write'],
   edit: ['Edit', 'edit', 'write_file', 'filesystem.write'],
   multiedit: ['MultiEdit', 'multiedit', 'write_file', 'filesystem.write'],
@@ -300,7 +300,7 @@ export class ClaudeAgentSdkRuntimeAdapter {
 
   public async chatDetailed(
     messages: ChatMessage[],
-    tools?: never[],
+    tools?: ToolDefinition[],
     options?: LlmRunOptions,
   ): Promise<LlmRuntimeResult> {
     const modelName = normalizeText(options?.modelName, this.model);
@@ -328,7 +328,7 @@ export class ClaudeAgentSdkRuntimeAdapter {
       let messageCount = 0;
       let sessionId: string | null = null;
       const permissionDecisions: Array<Record<string, unknown>> = [];
-      const effectiveAllowedTools = this.resolveEffectiveAllowedTools(options?.toolPolicy);
+      const effectiveAllowedTools = this.resolveEffectiveAllowedTools(options?.toolPolicy, tools);
 
       for await (const message of query({
         prompt: buildPrompt(messages),
@@ -418,12 +418,18 @@ export class ClaudeAgentSdkRuntimeAdapter {
     return normalizeStringList(rawAllowedTools);
   }
 
-  private resolveEffectiveAllowedTools(toolPolicy?: LlmRunOptions['toolPolicy']): string[] {
+  private resolveEffectiveAllowedTools(
+    toolPolicy?: LlmRunOptions['toolPolicy'],
+    tools?: ToolDefinition[],
+  ): string[] {
     if (this.toolPolicyMode !== 'configured') {
       return this.allowedTools;
     }
+    const configuredTools = this.allowedTools.length > 0
+      ? this.allowedTools
+      : this.mapZavorthToolsToClaudeTools(tools || []);
     if (!this.requireApprovalForConfiguredTools) {
-      return this.allowedTools;
+      return configuredTools;
     }
     const approved = new Set(normalizeStringList(toolPolicy?.approvedToolIds).map((tool) => tool.toLowerCase()));
     const exposedSafe = new Set(
@@ -431,10 +437,29 @@ export class ClaudeAgentSdkRuntimeAdapter {
         .filter((tool) => tool.requiresApproval !== true && tool.risk === 'safe')
         .map((tool) => tool.id.toLowerCase()),
     );
-    return this.allowedTools.filter((tool) => {
+    return configuredTools.filter((tool) => {
       const aliases = this.resolveToolAliases(tool).map((alias) => alias.toLowerCase());
       return aliases.some((alias) => approved.has(alias) || exposedSafe.has(alias));
     });
+  }
+
+  private mapZavorthToolsToClaudeTools(tools: ToolDefinition[]): string[] {
+    const names = new Set(tools.map((tool) => normalizeText(tool.name).toLowerCase()).filter(Boolean));
+    const mapped: string[] = [];
+    const add = (tool: string) => {
+      if (!mapped.includes(tool)) {
+        mapped.push(tool);
+      }
+    };
+    if (names.has('read_file') || names.has('workspace.read')) {
+      add('Read');
+      add('Grep');
+      add('Glob');
+    }
+    if (names.has('list_directory') || names.has('workspace.list')) {
+      add('LS');
+    }
+    return mapped;
   }
 
   private resolvePermissionMode(effectiveAllowedTools: string[]): 'plan' | 'dontAsk' {

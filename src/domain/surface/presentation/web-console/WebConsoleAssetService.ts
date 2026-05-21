@@ -37,19 +37,14 @@ export class WebConsoleAssetService {
     const isControlPath = pathname === '/control' || pathname === '/control/';
     const isAppPath = pathname === '/app' || pathname === '/app/';
 
-    if (isDashboardPath) {
+    if (isDashboardPath || isControlPath) {
       this.writeInline(res, this.readCommandCenterShellHtml(), 'text/html; charset=utf-8');
-      return true;
-    }
-
-    if (isControlPath) {
-      this.redirectToDashboard(res);
       return true;
     }
 
     if (isAppPath) {
       if (!this.shouldServeLegacySurfaceRoute()) {
-        this.redirectToDashboard(res);
+        this.redirectToControl(res);
         return true;
       }
       this.writeInline(res, buildRuntimeShellHtml(pathname), 'text/html; charset=utf-8');
@@ -58,7 +53,7 @@ export class WebConsoleAssetService {
 
     if (pathname === '/dashboard/review' || pathname === '/dashboard/review/') {
       if (!this.shouldServeCommandCenterReviewRoute()) {
-        this.redirectToDashboard(res);
+        this.redirectToControl(res);
         return true;
       }
       this.writeInline(res, this.readCommandCenterReviewHtml(), 'text/html; charset=utf-8');
@@ -66,7 +61,7 @@ export class WebConsoleAssetService {
     }
 
     if (pathname === '/classic' || pathname === '/classic/') {
-      this.redirectToDashboard(res);
+      this.redirectToControl(res);
       return true;
     }
 
@@ -242,9 +237,9 @@ export class WebConsoleAssetService {
     res.end(content);
   }
 
-  private redirectToDashboard(res: http.ServerResponse): void {
+  private redirectToControl(res: http.ServerResponse): void {
     res.writeHead(302, {
-      Location: '/dashboard',
+      Location: '/control',
       'Cache-Control': 'no-store',
     });
     res.end();

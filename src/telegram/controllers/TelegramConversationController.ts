@@ -27,6 +27,7 @@ import { TelegramConversationDecisionService } from './TelegramConversationDecis
 import { TelegramConversationContextService } from './TelegramConversationContextService.js';
 import { TelegramConversationDirectReplyService } from './TelegramConversationDirectReplyService.js';
 import { TelegramConversationStateService } from './TelegramConversationStateService.js';
+import { wrapUntrustedContent } from '../../security/UntrustedContent.js';
 
 type InlineData = Array<{ mimeType: string; data: string }>;
 type TelegramAgentGateway = Pick<ZavorthAgentGateway, 'handle'>;
@@ -186,7 +187,9 @@ export class TelegramConversationController {
         .map((value) => String(value || '').trim())
         .filter(Boolean);
       const contextualMessage = contextSections.length
-        ? `${contextSections.join('\n\n')}\n\nMENSAGEM ATUAL DO USUARIO:\n${effectiveMessageText}`
+        ? `${wrapUntrustedContent('untrusted_telegram_content', contextSections.join('\n\n'), {
+            source: 'telegram_conversation_context_bundle',
+          })}\n\nMENSAGEM ATUAL DO USUARIO:\n${effectiveMessageText}`
         : effectiveMessageText;
       const preLlmAutonomyDecision = this.decisionService.decideAutonomousExecution(
         task,

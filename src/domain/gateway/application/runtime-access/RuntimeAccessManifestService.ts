@@ -161,13 +161,17 @@ export class RuntimeAccessManifestService {
     const discordRepair = this.discordGatewayRepairFlowService.inspect(readiness.runtime.discordBridge);
     const healthRenewal = this.gatewayHealthRenewalService.inspect(readiness);
     const productMode = buildZavorthProductModeSnapshot(config.zavorthProductMode, config.zavorthProfile);
+    const localControlUrl = this.buildSurfaceUrl(readiness.local.baseUrl, '/control');
+    const remoteControlUrl = readiness.remote.baseUrl
+      ? this.buildSurfaceUrl(readiness.remote.baseUrl, '/control')
+      : null;
     const channelExperience = this.productChannelExperienceService.buildSnapshot({
       productMode,
-      controlEntry: readiness.local.dashboardUrl || readiness.local.appUrl,
+      controlEntry: localControlUrl,
       controlReady: readiness.local.ready,
       telegramReady: Boolean(readiness.runtime.telegramWorker?.alive),
       discordReady: Boolean(readiness.runtime.discordBridge.enabled && readiness.runtime.discordBridge.started),
-      classicEntry: `${readiness.local.baseUrl}/classic`,
+      classicEntry: this.buildSurfaceUrl(readiness.local.baseUrl, '/classic'),
       classicReady: false,
       cliEntry: 'zavorth status',
       cliReady: true,
@@ -191,7 +195,7 @@ export class RuntimeAccessManifestService {
           ? 'Acesso remoto oficial pronto.'
           : 'Acesso remoto oficial ainda pede rollout guiado.'),
       ).trim(),
-      appUrl: officialRemote?.remote?.appUrl || readiness.remote.appUrl || null,
+      appUrl: officialRemote?.remote?.appUrl || remoteControlUrl,
       command: officialRemoteCommand,
       nextSteps: Array.isArray(officialRemote?.nextSteps) ? officialRemote.nextSteps : [],
     });
@@ -202,19 +206,19 @@ export class RuntimeAccessManifestService {
       local: {
         ready: readiness.local.ready,
         baseUrl: readiness.local.baseUrl,
-        appUrl: readiness.local.appUrl,
-        dashboardUrl: readiness.local.dashboardUrl,
+        appUrl: localControlUrl,
+        dashboardUrl: localControlUrl,
         apiBaseUrl: `${readiness.local.baseUrl}/api/web`,
-        controlUrl: legacyContainment.links.localDashboardUrl,
+        controlUrl: localControlUrl,
         legacyAppUrl: legacyContainment.links.localLegacyAppUrl,
         classicUrl: legacyContainment.links.localClassicUrl,
       },
       remote: {
         ready: readiness.remote.ready,
         baseUrl: readiness.remote.baseUrl,
-        appUrl: readiness.remote.appUrl,
+        appUrl: remoteControlUrl,
         requiresHttps: remoteRequiresHttps,
-        controlUrl: legacyContainment.links.remoteDashboardUrl,
+        controlUrl: remoteControlUrl,
         legacyAppUrl: legacyContainment.links.remoteLegacyAppUrl,
         classicUrl: legacyContainment.links.remoteClassicUrl,
       },
@@ -234,7 +238,7 @@ export class RuntimeAccessManifestService {
         ).trim(),
         recommendedProvider: officialRemote?.rollout?.recommendedId || null,
         recommendedAction: officialRemote?.actions?.recommendedAction || null,
-        appUrl: officialRemote?.remote?.appUrl || readiness.remote.appUrl || null,
+        appUrl: officialRemote?.remote?.appUrl || remoteControlUrl,
         baseUrl: officialRemote?.remote?.baseUrl || readiness.remote.baseUrl || null,
         issues: Array.isArray(officialRemote?.remote?.issues) ? officialRemote.remote.issues : [],
         nextSteps: Array.isArray(officialRemote?.nextSteps) ? officialRemote.nextSteps : [],
@@ -270,8 +274,8 @@ export class RuntimeAccessManifestService {
           kind: recommendedPlan.primaryCommand ? 'command' : 'url',
           value: recommendedPlan.primaryCommand
             || recommendedPlan.openTarget
-            || readiness.local.appUrl
-            || readiness.remote.appUrl
+            || localControlUrl
+            || remoteControlUrl
             || 'zavorth go',
           ready: !recommendedPlan.primaryCommand && Boolean(recommendedPlan.openTarget),
           primary: true,
@@ -281,18 +285,18 @@ export class RuntimeAccessManifestService {
           label: 'Dashboard',
           description: 'Abre o dashboard/gateway principal servido pelo runtime local.',
           kind: 'url',
-          value: readiness.local.appUrl,
+          value: localControlUrl,
           ready: readiness.local.ready,
           primary: false,
         },
         {
           id: 'remote-control',
-          label: 'Dashboard remoto',
+          label: 'Control UI remota',
           description: readiness.remote.ready
             ? 'Abre o dashboard remoto ja validado para este runtime.'
             : 'Feche primeiro o rollout remoto oficial para abrir o dashboard remoto.',
-          kind: readiness.remote.appUrl ? 'url' : 'command',
-          value: readiness.remote.appUrl || productGoCommand,
+          kind: remoteControlUrl ? 'url' : 'command',
+          value: remoteControlUrl || productGoCommand,
           ready: readiness.remote.ready,
           primary: false,
         },
@@ -331,7 +335,7 @@ export class RuntimeAccessManifestService {
           id: 'go',
           title: 'Atalho oficial em um comando',
           description: readiness.local.ready
-            ? `O atalho oficial ja deixaria o dashboard pronto em ${readiness.local.appUrl}.`
+            ? `O atalho oficial ja deixaria o dashboard pronto em ${localControlUrl}.`
             : 'Use um unico comando para instalar, confiar no host, abrir a melhor superficie e validar o runtime.',
           command: readiness.local.ready ? null : 'zavorth go',
           status: readiness.local.ready ? 'ready' : 'action',
@@ -347,8 +351,8 @@ export class RuntimeAccessManifestService {
           id: 'start',
           title: 'Subir o runtime supervisionado',
           description: readiness.local.ready
-            ? `Runtime local pronto em ${readiness.local.appUrl}.`
-            : 'Abre a melhor superficie oficial e espera o /dashboard responder de verdade.',
+            ? `Runtime local pronto em ${localControlUrl}.`
+            : 'Abre a melhor superficie oficial e espera o /control responder de verdade.',
           command: readiness.local.ready ? null : productGoCommand,
           status: readiness.local.ready ? 'ready' : 'action',
         },
@@ -365,7 +369,7 @@ export class RuntimeAccessManifestService {
           id: 'remote',
           title: 'Conectar uma superficie remota',
           description: readiness.remote.ready
-            ? `Dashboard remoto pronto para usar ${readiness.remote.appUrl || 'a URL publica atual'}.`
+            ? `Dashboard remoto pronto para usar ${remoteControlUrl || 'a URL publica atual'}.`
             : 'Rode o atalho oficial em um comando para validar o remoto e abrir o melhor dashboard disponivel.',
           command: readiness.remote.ready ? null : productGoCommand,
           status: readiness.remote.ready ? 'ready' : 'optional',
@@ -375,7 +379,7 @@ export class RuntimeAccessManifestService {
           title: 'Fechar a jornada web+telegram',
           description: channelExperience.recommendedJourney === 'web+telegram'
             ? 'Dashboard e Telegram ja cobrem a jornada principal deste runtime. Os outros canais seguem sob demanda.'
-            : 'Comece pelo web-only no /dashboard. Quando quiser um canal externo, conecte Telegram antes dos demais.',
+            : 'Comece pelo web-only no /control. Quando quiser um canal externo, conecte Telegram antes dos demais.',
           command: 'npm run setup:channels',
           status: 'optional',
         },
@@ -383,12 +387,12 @@ export class RuntimeAccessManifestService {
       surfaces: [
         {
           id: 'control',
-          label: 'Dashboard',
+          label: 'Control UI',
           surface: 'web',
           primary: true,
           ready: readiness.local.ready,
-          entry: readiness.local.appUrl,
-          remoteEntry: readiness.remote.appUrl,
+          entry: localControlUrl,
+          remoteEntry: remoteControlUrl,
           description: 'Surface principal para chat, approvals, artifacts, diffs e runtime.',
         },
         {
@@ -428,12 +432,12 @@ export class RuntimeAccessManifestService {
         local: [
           'Use zavorth go como caminho oficial mais curto para instalar, subir e abrir o Zavorth.',
           'Use npm run ops:journey para revisar a jornada oficial de instalacao e acesso.',
-          'Comece pela jornada web-only no /dashboard e trate Telegram como o primeiro canal externo recomendado.',
-          'Use /app e /classic apenas com flag legada de manutencao; produto novo deve entrar no dashboard e na Runtime API.',
+          'Comece pela jornada web-only no /control e trate Telegram como o primeiro canal externo recomendado.',
+          'Use /app e /classic apenas como legado operacional com flag de manutencao; produto novo deve entrar no /control e na Runtime API.',
           'Use npm run setup:channels para fechar a jornada web+Telegram antes de pensar em Discord, Slack ou WhatsApp.',
           'Use npm run channels:install -- --json quando quiser inspecionar o panorama atual e os modos recomendados de cada canal.',
           'Se quiser o caminho completo com launcher, trust local e abertura automatica, use zavorth go.',
-          `Use zavorth go para subir o runtime e abrir ${readiness.local.appUrl}.`,
+          `Use zavorth go para subir o runtime e abrir ${localControlUrl}.`,
           'No Windows, o Startup oficial e opcional e segue bloqueado por padrao; so habilite conscientemente se quiser login automatico.',
           'Use o dashboard como superficie principal para conversar, aprovar e operar o Zavorth.',
           'Use o terminal Zavorth como superficie rapida para diagnostico, automacao e fallback local.',
@@ -511,6 +515,10 @@ export class RuntimeAccessManifestService {
     const launcherCommand = 'npm run launcher:startup:install';
     const launcherSummary =
       'Startup oficial do Windows e opcional e bloqueado por padrao. So habilite conscientemente se voce realmente quiser login automatico.';
+    const localControlUrl = this.buildSurfaceUrl(readiness.local.baseUrl, '/control');
+    const remoteControlUrl = readiness.remote.baseUrl
+      ? this.buildSurfaceUrl(readiness.remote.baseUrl, '/control')
+      : null;
     const remoteRecommendation = {
       ready: officialRemote.ready,
       command: officialRemote.command,
@@ -525,7 +533,7 @@ export class RuntimeAccessManifestService {
         primaryLabel: 'Atalho oficial em um comando',
         primarySummary: 'Use o caminho oficial mais curto para instalar, subir o runtime e abrir a melhor superficie pronta.',
         primaryCommand: 'zavorth go',
-        openTarget: readiness.local.appUrl,
+        openTarget: localControlUrl,
         launcherRecommendation: {
           command: launcherCommand,
           summary: launcherSummary,
@@ -540,7 +548,7 @@ export class RuntimeAccessManifestService {
         primaryLabel: 'Liberar este host',
         primarySummary: 'Autorize este host antes de executar acoes mutaveis, escrita local ou entregas persistidas.',
         primaryCommand: '/hostauth trust',
-        openTarget: readiness.local.appUrl,
+        openTarget: localControlUrl,
         launcherRecommendation: {
           command: launcherCommand,
           summary: launcherSummary,
@@ -555,7 +563,7 @@ export class RuntimeAccessManifestService {
         primaryLabel: 'Fechar acesso remoto oficial',
         primarySummary: officialRemote.summary,
         primaryCommand: officialRemote.command,
-        openTarget: officialRemote.appUrl || readiness.remote.appUrl || readiness.remote.baseUrl || null,
+        openTarget: officialRemote.appUrl || remoteControlUrl || readiness.remote.baseUrl || null,
         launcherRecommendation: {
           command: launcherCommand,
           summary: launcherSummary,
@@ -566,15 +574,21 @@ export class RuntimeAccessManifestService {
 
     return {
       primaryAction: 'open-local',
-      primaryLabel: 'Abrir dashboard',
-      primarySummary: `Dashboard pronto em ${readiness.local.appUrl}.`,
+      primaryLabel: 'Abrir Control UI',
+      primarySummary: `Dashboard pronto em ${localControlUrl}.`,
       primaryCommand: null,
-      openTarget: readiness.local.appUrl,
+      openTarget: localControlUrl,
       launcherRecommendation: {
         command: launcherCommand,
         summary: launcherSummary,
       },
       remoteRecommendation,
     };
+  }
+
+  private buildSurfaceUrl(baseUrl: string, pathname: string): string {
+    const normalizedBase = String(baseUrl || '').trim().replace(/\/+$/u, '');
+    const normalizedPath = String(pathname || '/').trim().replace(/^\/?/u, '/');
+    return `${normalizedBase}${normalizedPath}`;
   }
 }

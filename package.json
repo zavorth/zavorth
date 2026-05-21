@@ -141,6 +141,7 @@
     "docs/quickstart.md",
     "docs/security.md",
     "docs/web-dashboard.md",
+    "docs/experience-core.md",
     "docs/operations.md",
     "docs/self-modification.md",
     "docs/troubleshooting.md",
@@ -907,6 +908,7 @@
   },
   "overrides": {
     "express-rate-limit": "^8.5.1",
+    "google-auth-library": "^10.6.2",
     "hono": "^4.12.18",
     "ip-address": "^10.2.0"
   }

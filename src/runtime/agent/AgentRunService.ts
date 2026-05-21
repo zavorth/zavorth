@@ -355,6 +355,7 @@ export class AgentRunService {
     this.executor = runtime.executor || null;
     this.llmRuntimeExecutor = new AgentRunLlmRuntimeExecutor({
       llmRuntime: runtime.llmRuntime,
+      toolRuntime: runtime.toolRuntime,
     });
     this.swarmHierarchyService = runtime.swarmHierarchyService || null;
     this.selfModificationService = runtime.selfModificationService || null;
@@ -1516,6 +1517,7 @@ export class AgentRunService {
       ...run.metadata,
       runtimeEventBus: {
         source: 'AgentRunService',
+        stage: 2,
         phase: 2,
         configured: Boolean(this.runtimeEventBus),
         snapshot: this.readRuntimeEventBusSnapshot(),

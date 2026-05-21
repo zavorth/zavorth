@@ -34,10 +34,11 @@ export async function runZavorthCliRepl(params: {
   readlineFactory: CliReadlineFactory;
   writer: CliWriter;
   runOnce: (rawInput: string, flags: ZavorthCliFlags) => Promise<CliExecutionResult>;
+  welcomeText?: string | null;
 }): Promise<number> {
   const { flags, readlineFactory, writer, runOnce } = params;
   const rl = readlineFactory();
-  writer.line(formatCliChatWelcome());
+  writer.line(params.welcomeText || formatCliChatWelcome());
 
   if ('history' in rl && Array.isArray((rl as any).history)) {
     (rl as any).history = loadCliReplHistory();

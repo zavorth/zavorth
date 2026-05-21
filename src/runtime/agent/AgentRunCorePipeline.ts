@@ -127,11 +127,13 @@ export class AgentRunCorePipeline<TBaseline> {
       ...run.metadata,
       corePipeline: {
         source: 'AgentRunCorePipeline',
+        stage: 12,
         phase: 12,
         lastStage: phase,
         receipts: [
           ...receipts,
           {
+            stage: phase,
             phase,
             status: run.status,
           },

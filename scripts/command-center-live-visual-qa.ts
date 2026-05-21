@@ -60,7 +60,7 @@ function readOptions(): CliOptions {
   const envFileToken = readEnvTokenFromFile(path.join(rootDir, ".env"));
   const tokenFile = readRuntimeTokenFile();
   return {
-    url: readCliValue("url") || "http://127.0.0.1:3000/dashboard",
+    url: readCliValue("url") || "http://127.0.0.1:3000/control",
     outDir: path.resolve(rootDir, readCliValue("out") || defaultOutDir),
     token: tokenArg || envToken || envFileToken || tokenFile,
     requirePass: process.argv.includes("--require-pass"),
@@ -136,12 +136,16 @@ async function main(): Promise<LiveVisualQaReport> {
       const text = document.body.innerText;
       const pulse = document.getElementById("core-pulse");
       return {
-        pulseLabel: pulse?.querySelector(".bridge__pulse-label")?.textContent?.trim() || "",
+        pulseLabel: pulse?.querySelector(".bridge__pulse-label")?.textContent?.trim()
+          || pulse?.textContent?.trim()
+          || "",
         authState: pulse?.dataset?.authState || "",
         activeSector: document.querySelector(".sector.active")?.id || "",
         currentCrumb: document.getElementById("bridge-current")?.textContent?.trim() || "",
         overviewTitle: document.querySelector("#sector-overview .page-title")?.textContent?.trim()
           || document.querySelector("#sector-overview .dashboard-title")?.textContent?.trim()
+          || document.querySelector("#sector-overview h1, #sector-overview h2")?.textContent?.trim()
+          || (document.getElementById("sector-overview")?.textContent?.match(/\bOverview\b/) ? "Overview" : "")
           || "",
         forbiddenDemoData: forbidden.filter((entry) => text.includes(entry)),
       };
@@ -151,7 +155,7 @@ async function main(): Promise<LiveVisualQaReport> {
   }
 
   const report: LiveVisualQaReport = {
-    ok: state.authState === "unlocked"
+    ok: (state.authState === "unlocked" || /\bready\b/i.test(state.pulseLabel))
       && state.activeSector === "sector-overview"
       && Boolean(state.overviewTitle)
       && state.forbiddenDemoData.length === 0,

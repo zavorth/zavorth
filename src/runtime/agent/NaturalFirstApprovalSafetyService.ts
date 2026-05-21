@@ -17,6 +17,7 @@ export type NaturalFirstApprovalSafetyStatus =
 export type NaturalFirstApprovalSafetySnapshot = {
   contractVersion: typeof NATURAL_FIRST_APPROVAL_SAFETY_CONTRACT_VERSION;
   source: 'NaturalFirstApprovalSafetyService';
+  stage: 7;
   phase: 7;
   generatedAt: string;
   route: string;
@@ -183,6 +184,7 @@ export class NaturalFirstApprovalSafetyService {
     return {
       contractVersion: NATURAL_FIRST_APPROVAL_SAFETY_CONTRACT_VERSION,
       source: 'NaturalFirstApprovalSafetyService',
+      stage: 7,
       phase: 7,
       generatedAt: input.generatedAt,
       route,

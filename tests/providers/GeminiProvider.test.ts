@@ -229,4 +229,56 @@ describe('GeminiProvider', () => {
       expect.anything(),
     );
   });
+
+  it('uses the original tool name in Gemini functionResponse messages', async () => {
+    (config as any).geminiApiKey = 'gemini-key';
+    (config as any).geminiApiKeys = ['gemini-key'];
+
+    const provider = new GeminiProvider();
+    await provider.chat([
+      { role: 'user', content: 'Leia o README.' },
+      {
+        role: 'assistant',
+        content: '',
+        toolCalls: [{
+          id: 'call-read',
+          name: 'read_file',
+          arguments: { filePath: 'README.md' },
+        }],
+      },
+      {
+        role: 'tool',
+        toolCallId: 'call-read',
+        content: 'README content',
+      },
+    ], [
+      {
+        name: 'read_file',
+        description: 'Le arquivo',
+        parameters: {
+          type: 'object',
+          properties: {
+            filePath: { type: 'string', description: 'Caminho' },
+          },
+          required: ['filePath'],
+        },
+      },
+    ]);
+
+    const generateContent = mockedModule.__mock.getGenerativeModel.mock.results[0]?.value?.generateContent as jest.Mock;
+    const payload = generateContent.mock.calls[0][0];
+    expect(payload.contents).toEqual(expect.arrayContaining([
+      expect.objectContaining({
+        role: 'function',
+        parts: [
+          expect.objectContaining({
+            functionResponse: expect.objectContaining({
+              name: 'read_file',
+              response: { result: 'README content' },
+            }),
+          }),
+        ],
+      }),
+    ]));
+  });
 });

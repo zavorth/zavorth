@@ -16,6 +16,7 @@ export type NaturalFirstMemoryContinuityStatus =
 export type NaturalFirstMemoryContinuitySnapshot = {
   contractVersion: typeof NATURAL_FIRST_MEMORY_CONTINUITY_CONTRACT_VERSION;
   source: 'NaturalFirstMemoryContinuityService';
+  stage: 6;
   phase: 6;
   route: 'memory-recall';
   generatedAt: string;
@@ -113,6 +114,7 @@ export class NaturalFirstMemoryContinuityService {
     return {
       contractVersion: NATURAL_FIRST_MEMORY_CONTINUITY_CONTRACT_VERSION,
       source: 'NaturalFirstMemoryContinuityService',
+      stage: 6,
       phase: 6,
       route: 'memory-recall',
       generatedAt: input.generatedAt,

@@ -11,6 +11,8 @@ import { Mem0Tool } from '../src/tools/Mem0Tool.js';
 import { DesktopAutomationTool } from '../src/tools/DesktopAutomationTool.js';
 import { ZavorthMcpServer } from '../src/mcp/ZavorthMcpServer.js';
 import { McpToolPolicy } from '../src/mcp/McpToolPolicy.js';
+import { ToolExecutor } from '../src/execution/ToolExecutor.js';
+import { LogRepository } from '../src/storage/LogRepository.js';
 
 function redirectConsoleToStderrForMcpStdio() {
   console.log = (...args: unknown[]) => console.error(...args);
@@ -39,8 +41,11 @@ async function bootstrapMcpServer() {
   // Instantiate and run the MCP Server over Stdio
   const toolPolicy = McpToolPolicy.fromEnv();
   console.error(`[BOOT] MCP security profile: ${toolPolicy.profile}`);
+  const logRepository = new LogRepository();
+  await logRepository.init();
+  const toolExecutor = new ToolExecutor(toolRegistry, logRepository);
 
-  const server = new ZavorthMcpServer(toolRegistry, { toolPolicy });
+  const server = new ZavorthMcpServer(toolRegistry, { toolPolicy, toolExecutor });
   
   await server.start();
   

@@ -13,6 +13,7 @@ export type AgentRunRiskReviewStage =
 
 export type AgentRunRiskReview = {
   source: 'AgentRunRiskHooks';
+  stage: AgentRunRiskReviewStage;
   phase: AgentRunRiskReviewStage;
   risk: UniversalToolRiskLevel;
   blocked: boolean;
@@ -38,6 +39,7 @@ export class AgentRunRiskHooks {
     const approvalRequiredToolIds = approvalTools.map((tool) => tool.id);
     return {
       source: 'AgentRunRiskHooks',
+      stage: input.phase,
       phase: input.phase,
       risk,
       blocked,

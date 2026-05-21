@@ -3,9 +3,11 @@ import type {
   UniversalAgentRequest,
   UniversalAgentRun,
 } from './UniversalAgentRuntimeTypes.js';
+import type { ToolDefinition } from '../../providers/ILlmProvider.js';
 
 export type UniversalAgentToolRuntime = {
   executeTool(toolName: string, args: unknown): Promise<string>;
+  getToolDefinitions?: () => ToolDefinition[];
   hasTool?: (toolName: string) => boolean;
   isAvailable?: () => boolean;
 };

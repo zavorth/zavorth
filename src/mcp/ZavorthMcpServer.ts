@@ -4,15 +4,18 @@ import { CallToolRequestSchema, ListToolsRequestSchema } from '@modelcontextprot
 import { AutomaticBrowserTool } from './tools/AutomaticBrowserTool.js';
 import type { ToolRegistry } from '../tools/ToolRegistry.js';
 import { McpToolPolicy } from './McpToolPolicy.js';
+import type { ToolExecutor } from '../execution/ToolExecutor.js';
 
 type ZavorthMcpServerOptions = {
   toolPolicy?: McpToolPolicy;
+  toolExecutor?: Pick<ToolExecutor, 'executeTool'> | null;
 };
 
 export class ZavorthMcpServer {
   private server: Server;
   private browserTool: AutomaticBrowserTool;
   private toolPolicy: McpToolPolicy;
+  private toolExecutor: Pick<ToolExecutor, 'executeTool'> | null;
 
   constructor(private readonly toolRegistry?: ToolRegistry, options: ZavorthMcpServerOptions = {}) {
     this.server = new Server(
@@ -28,6 +31,7 @@ export class ZavorthMcpServer {
     );
     this.browserTool = new AutomaticBrowserTool();
     this.toolPolicy = options.toolPolicy || McpToolPolicy.fromEnv();
+    this.toolExecutor = options.toolExecutor || null;
   }
 
   public async start() {
@@ -80,8 +84,19 @@ export class ZavorthMcpServer {
 
         const externalTool = this.toolRegistry?.getTool(name);
         if (externalTool) {
+          if (!this.toolExecutor) {
+            return {
+              content: [
+                {
+                  type: 'text',
+                  text: `Tool ${name} requires the central ToolExecutor, but no executor is configured for this MCP server.`,
+                },
+              ],
+              isError: true,
+            };
+          }
           try {
-            const result = await externalTool.execute(args);
+            const result = await this.toolExecutor.executeTool(name, args);
             return {
               content: [
                 {

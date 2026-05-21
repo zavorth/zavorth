@@ -88,6 +88,12 @@ export type LearningPlaneActionExecution = {
   snapshot: LearningPlaneSnapshot;
 };
 
+export type LearningPlaneStateExport = {
+  generatedAt: string;
+  state: LearningStateFile;
+  snapshot: LearningPlaneSnapshot;
+};
+
 type LearningStateEntry = {
   reviewState: LearningCandidateReviewState;
   lifecycle: LearningCandidateLifecycle;
@@ -308,6 +314,24 @@ export class ZavorthLearningPlaneService {
       details,
       snapshot: this.buildSnapshot(),
     };
+  }
+
+  public exportState(): LearningPlaneStateExport {
+    return {
+      generatedAt: this.now().toISOString(),
+      state: this.readState(),
+      snapshot: this.buildSnapshot(),
+    };
+  }
+
+  public resetState(): LearningPlaneSnapshot {
+    const now = this.now().toISOString();
+    this.writeState({
+      version: 1,
+      updatedAt: now,
+      entries: {},
+    });
+    return this.buildSnapshot();
   }
 
   private toCandidate(

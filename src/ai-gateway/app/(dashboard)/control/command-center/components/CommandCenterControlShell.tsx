@@ -27,6 +27,7 @@ import {
   resolveCommandCenterSalesPackBusinessIdentity,
 } from "./CommandCenterControlShellAuxiliary";
 import { CommandCenterDeveloperWorkspace } from "./CommandCenterDeveloperWorkspace";
+import { CommandCenterExperienceHome } from "./CommandCenterExperienceHome";
 import { CommandCenterGatewayConsole } from "./CommandCenterGatewayConsole";
 import { CommandCenterOnboardingPanel } from "./CommandCenterOnboardingPanel";
 import {
@@ -255,6 +256,12 @@ export function CommandCenterControlShell({ model }: CommandCenterControlShellPr
       <CommandCenterMissionBrief
         viewModel={viewModel}
         onAction={handleAction}
+      />
+
+      <CommandCenterExperienceHome
+        model={model}
+        onDraftCommand={handleDraftCommand}
+        onNavigate={setActiveSectorId}
       />
 
       <div className="bcc-control-grid">

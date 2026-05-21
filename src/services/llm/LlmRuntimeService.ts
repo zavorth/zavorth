@@ -150,7 +150,7 @@ export class LlmRuntimeService {
       try {
         if (this.isClaudeAgentSdkProvider(providerName)) {
           const adapter = createClaudeAgentSdkRuntimeFromEnv();
-          const result = await adapter.chatDetailed(safeMessages, [], {
+          const result = await adapter.chatDetailed(safeMessages, safeTools, {
             providerName,
             ...(modelName ? { modelName } : {}),
             allowFallback: false,

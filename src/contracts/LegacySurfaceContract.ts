@@ -35,7 +35,7 @@ export type LegacySurfaceFeatureDecision = {
 
 export type LegacySurfaceContainmentSnapshot = {
   contractVersion: typeof LEGACY_SURFACE_CONTAINMENT_VERSION;
-  canonicalEntry: '/dashboard';
+  canonicalEntry: '/control';
   frozenSurfaces: ['/app', '/classic'];
   generatedAt: string;
   summary: string;
@@ -52,9 +52,11 @@ export type LegacySurfaceContainmentSnapshot = {
     fallbackPreserved: boolean;
   };
   links: {
+    localControlUrl: string;
     localDashboardUrl: string;
     localLegacyAppUrl: string;
     localClassicUrl: string;
+    remoteControlUrl: string | null;
     remoteDashboardUrl: string | null;
     remoteLegacyAppUrl: string | null;
     remoteClassicUrl: string | null;

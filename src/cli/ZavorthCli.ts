@@ -14,6 +14,7 @@ import type {
 } from './ZavorthCliContract.js';
 import { defaultWriter, isCliIo, withCliConsoleSuppressedAsync } from './ZavorthCliFlowHelpers.js';
 import { formatCliHelp } from './ZavorthCliSurfaceHelpers.js';
+import { formatExperienceHome } from './ZavorthCliExperienceRenderer.js';
 import {
   buildCliRuntimeFromOverrides as buildCliRuntimeFromOverridesImpl,
   parseZavorthCliArgs as parseZavorthCliArgsImpl,
@@ -97,11 +98,20 @@ export class ZavorthCli {
   }
 
   public async runRepl(flags: ZavorthCliFlags): Promise<number> {
+    const runtime = await this.getRuntime();
+    const welcomeText = runtime.experienceCoreService
+      ? formatExperienceHome(runtime.experienceCoreService.buildHome({
+        surface: flags.platform,
+        sessionId: flags.sessionId,
+        workspace: flags.workspaceHint || null,
+      }))
+      : null;
     return runZavorthCliRepl({
       flags,
       readlineFactory: this.readlineFactory,
       writer: this.writer,
       runOnce: (rawInput: string, runFlags: ZavorthCliFlags) => this.runOnce(rawInput, runFlags),
+      welcomeText,
     });
   }
 

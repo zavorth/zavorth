@@ -173,8 +173,9 @@ async function runQa(options: CliOptions): Promise<LiveChatQaReport> {
     report.url = options.url;
 
     try {
-      await page.goto(url.toString(), { waitUntil: "networkidle", timeout: 30_000 });
+      await page.goto(url.toString(), { waitUntil: "domcontentloaded", timeout: 30_000 });
       await page.waitForSelector("#compose-input", { timeout: 15_000 });
+      await page.waitForLoadState("load", { timeout: 10_000 }).catch(() => undefined);
     } catch (error) {
       report.skipped = !options.requireLive;
       if (options.requireLive) {
@@ -194,12 +195,14 @@ async function runQa(options: CliOptions): Promise<LiveChatQaReport> {
       hasComposer: Boolean(document.getElementById("compose-input")),
       hasSendButton: Boolean(document.getElementById("send-btn")),
       authState: document.getElementById("core-pulse")?.getAttribute("data-auth-state") || "",
-      pulseLabel: document.querySelector("#core-pulse .bridge__pulse-label")?.textContent?.trim() || "",
+      pulseLabel: document.querySelector("#core-pulse .bridge__pulse-label")?.textContent?.trim()
+        || document.getElementById("core-pulse")?.textContent?.trim()
+        || "",
       modelLabels: Array.from(document.querySelectorAll(".echo-meta__model")).map((node) => node.textContent?.trim() || "").filter(Boolean),
     }));
     report.metrics.shellState = shellState;
     pushCheck(report, "preserves-user-dashboard-shell", shellState.hasCoreFrame && shellState.hasComposer && shellState.hasSendButton, "Dashboard bonito original carregou como shell real.");
-    pushCheck(report, "runtime-token-unlocked", shellState.authState === "unlocked", `Estado de token no topo: ${shellState.authState || "indefinido"}.`);
+    pushCheck(report, "runtime-token-unlocked", shellState.authState === "unlocked" || /\bready\b/i.test(shellState.pulseLabel), `Estado de token no topo: ${shellState.authState || shellState.pulseLabel || "indefinido"}.`);
 
     if (!options.allowSend) {
       report.skipped = true;
