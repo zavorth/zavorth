@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import type { ButtonHTMLAttributes, ReactNode } from "react";
 import type {
@@ -254,24 +254,23 @@ function sectorGlyph(id: DashboardNavigationSector["id"]): string {
   const glyphs: Record<DashboardNavigationSector["id"], string> = {
     gateway: "GW",
     workspace: "WS",
-    terminal: "⌁",
-    overview: "▦",
-    channels: "◌",
-    instances: "▤",
-    sessions: "◷",
-    usage: "↯",
-    agents: "✦",
-    skills: "✧",
-    nodes: "⬡",
-    dreams: "☾",
-    config: "⚙",
-    docs: "§",
-    cron: "⏱",
+    terminal: "CH",
+    overview: "OV",
+    channels: "CN",
+    instances: "IN",
+    sessions: "SE",
+    usage: "US",
+    agents: "AG",
+    skills: "SK",
+    nodes: "ND",
+    dreams: "ME",
+    config: "CF",
+    docs: "DC",
+    cron: "CR",
   };
 
   return glyphs[id];
 }
-
 function CommandCenterFoxMark({ compact }: { compact?: boolean }) {
   return (
     <svg

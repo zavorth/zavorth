@@ -4,7 +4,6 @@ import type { FormEvent } from "react";
 import type { DashboardCommandCenterViewModel } from "../contracts";
 import {
   CommandCenterButton,
-  CommandCenterHero,
   CommandCenterLogicCell,
 } from "./CommandCenterPrimitives";
 import {
@@ -18,6 +17,8 @@ type CommandCenterChatSurfaceProps = {
   sending: boolean;
   onDraftChange: (value: string) => void;
   onSend: () => void | Promise<void>;
+  onResolveApproval?: (approvalId: string, decision: "approve" | "reject") => void | Promise<void>;
+  resolvingApprovalId?: string | null;
 };
 
 export function CommandCenterChatSurface({
@@ -26,37 +27,38 @@ export function CommandCenterChatSurface({
   sending,
   onDraftChange,
   onSend,
+  onResolveApproval,
+  resolvingApprovalId,
 }: CommandCenterChatSurfaceProps) {
   const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     void onSend();
   };
+  const pendingApprovals = viewModel.approvals.filter((approval) => approval.status === "pending");
+  const latestReceipts = viewModel.runObservatory.receipts?.slice(0, 3) ?? [];
 
   return (
     <>
+      <header className="bcc-inbox-header">
+        <div>
+          <span className="bcc-inbox-header__eyebrow">Inbox</span>
+          <h1>Conversa principal</h1>
+          <p>Fale normalmente. O Zavorth responde, prepara previews e para quando precisar da sua decisao.</p>
+        </div>
+        <div className="bcc-inbox-header__status" aria-label="Estado atual do runtime">
+          <span data-tone={viewModel.runtime.status}>{humanRuntimeStatusLabel(viewModel.runtime.status)}</span>
+          <span>{viewModel.modelProfile.modelLabel}</span>
+          <span>{viewModel.replyPorts.find((port) => port.primary)?.label ?? "Web"}</span>
+        </div>
+      </header>
+
       <div className="bcc-chat-feed">
         {viewModel.messages.length === 0 && shouldShowRunState(viewModel) ? (
           <CommandCenterActiveRunState viewModel={viewModel} />
         ) : viewModel.messages.length === 0 ? (
-          <CommandCenterHero
-            eyebrow={`Ola, ${viewModel.runtime.operatorLabel}`}
-            title={viewModel.emptyState.title}
-            subtitle={viewModel.emptyState.subtitle}
-            actions={(
-              <div className="bcc-suggestion-chips">
-                {viewModel.emptyState.suggestions.map((suggestion) => (
-                  <CommandCenterButton
-                    key={suggestion}
-                    type="button"
-                    className="bcc-suggestion-chip"
-                    onClick={() => onDraftChange(suggestion)}
-                  >
-                    <span aria-hidden="true">{suggestionGlyph(suggestion)}</span>
-                    {suggestion}
-                  </CommandCenterButton>
-                ))}
-              </div>
-            )}
+          <CommandCenterInboxWelcome
+            viewModel={viewModel}
+            onDraftChange={onDraftChange}
           />
         ) : (
           viewModel.messages.map((message) => (
@@ -72,13 +74,19 @@ export function CommandCenterChatSurface({
                 </div>
                 <div className="bcc-message__body whitespace-pre-wrap">{message.text}</div>
                 {message.trace?.length ? (
-                  <CommandCenterTraceBlock
-                    label="Trace desta mensagem"
-                    events={message.trace}
-                  />
+                  <details className="bcc-message-details">
+                    <summary>
+                      <span>Como o Zavorth chegou nisso</span>
+                      <small>{message.trace.length} passo(s)</small>
+                    </summary>
+                    <CommandCenterTraceBlock
+                      label="Trace desta mensagem"
+                      events={message.trace}
+                    />
+                  </details>
                 ) : null}
                 {message.events?.length ? (
-                  <div className="bcc-message__events">
+                  <div className="bcc-message__events" aria-label="Resumo de eventos da mensagem">
                     {message.events.map((event) => (
                       <CommandCenterLogicCell
                         key={event.id}
@@ -94,28 +102,42 @@ export function CommandCenterChatSurface({
           ))
         )}
 
-        {sending ? (
-          <CommandCenterTraceBlock
-            label="Thinking"
-            events={[{
-              id: "compose-thinking",
-              kind: "thinking.started",
-              title: "Thought started",
-              summary: "Enviando pedido ao gateway e aguardando eventos seguros do runtime.",
-              status: "pending",
-              createdAt: "agora",
-              safeForUser: true,
-              chipLabel: "thinking",
-            }]}
+        {pendingApprovals.length > 0 ? (
+          <CommandCenterInlineApprovalStack
+            approvals={pendingApprovals}
+            resolvingApprovalId={resolvingApprovalId}
+            onResolveApproval={onResolveApproval}
           />
         ) : null}
 
+        {sending ? (
+          <CommandCenterThinkingCard />
+        ) : null}
+
         {viewModel.trace?.events.length ? (
-          <CommandCenterTraceBlock
-            label="Agent trace"
-            events={viewModel.trace.events.slice(0, 10)}
-            summary={`${viewModel.trace.summary.eventCount} eventos seguros - ${viewModel.trace.summary.toolCount} tool(s) - ${viewModel.trace.summary.approvalCount} approval(s)`}
-          />
+          <details className="bcc-message-details bcc-session-trace">
+            <summary>
+              <span>Atividade segura da sessao</span>
+              <small>{viewModel.trace.summary.eventCount} evento(s)</small>
+            </summary>
+            <CommandCenterTraceBlock
+              label="Agent trace"
+              events={viewModel.trace.events.slice(0, 10)}
+              summary={`${viewModel.trace.summary.toolCount} tool(s) - ${viewModel.trace.summary.approvalCount} approval(s)`}
+            />
+          </details>
+        ) : null}
+
+        {latestReceipts.length > 0 ? (
+          <section className="bcc-receipt-strip" aria-label="Receipts recentes">
+            <span className="bcc-receipt-strip__label">Receipts recentes</span>
+            {latestReceipts.map((receipt) => (
+              <div key={receipt.id} className="bcc-receipt-strip__item">
+                <span>{receipt.title}</span>
+                <small>{receipt.status} - {receipt.source}</small>
+              </div>
+            ))}
+          </section>
         ) : null}
 
         {viewModel.events.length > 0 ? (
@@ -137,15 +159,26 @@ export function CommandCenterChatSurface({
 
       <form className="bcc-compose" onSubmit={handleSubmit}>
         <div className="bcc-compose__input-frame">
+          <div className="bcc-compose__toolbar" aria-label="Acoes rapidas">
+            {["Revisar workspace", "Ver pendencias", "Resumir documento"].map((prompt) => (
+              <button
+                key={prompt}
+                type="button"
+                onClick={() => onDraftChange(prompt)}
+              >
+                {prompt}
+              </button>
+            ))}
+          </div>
           <textarea
             value={draft}
             onChange={(event) => onDraftChange(event.target.value)}
-            placeholder="Peca ao Zavorth"
+            placeholder="Pergunte ou peca algo ao Zavorth"
             aria-label="Mensagem para o Zavorth"
           />
           <div className="bcc-compose__footer">
             <span className="bcc-empty-note">
-              {sending ? "Enviando..." : `${draft.trim().length} caracteres - texto livre vira pedido.`}
+              {sending ? "Enviando..." : `${draft.trim().length} caracteres - linguagem natural entra no gateway.`}
             </span>
             <CommandCenterButton
               type="submit"
@@ -153,13 +186,117 @@ export function CommandCenterChatSurface({
               className="bcc-compose__send"
               disabled={sending || !draft.trim()}
             >
-              <span aria-hidden="true">go</span>
+              <span aria-hidden="true">send</span>
               Enviar
             </CommandCenterButton>
           </div>
         </div>
       </form>
     </>
+  );
+}
+
+function CommandCenterInboxWelcome({
+  viewModel,
+  onDraftChange,
+}: {
+  viewModel: DashboardCommandCenterViewModel;
+  onDraftChange: (value: string) => void;
+}) {
+  return (
+    <section className="bcc-inbox-welcome">
+      <div className="bcc-inbox-welcome__copy">
+        <span>Pronto para conversar</span>
+        <h2>{viewModel.emptyState.title}</h2>
+        <p>{viewModel.emptyState.subtitle}</p>
+      </div>
+      <div className="bcc-suggestion-chips">
+        {viewModel.emptyState.suggestions.map((suggestion) => (
+          <CommandCenterButton
+            key={suggestion}
+            type="button"
+            className="bcc-suggestion-chip"
+            onClick={() => onDraftChange(suggestion)}
+          >
+            <span aria-hidden="true">{suggestionGlyph(suggestion)}</span>
+            {suggestion}
+          </CommandCenterButton>
+        ))}
+      </div>
+    </section>
+  );
+}
+
+function CommandCenterInlineApprovalStack({
+  approvals,
+  resolvingApprovalId,
+  onResolveApproval,
+}: {
+  approvals: DashboardCommandCenterViewModel["approvals"];
+  resolvingApprovalId?: string | null;
+  onResolveApproval?: (approvalId: string, decision: "approve" | "reject") => void | Promise<void>;
+}) {
+  return (
+    <section className="bcc-inline-approvals" aria-label="Aprovacoes pendentes">
+      <div className="bcc-inline-approvals__header">
+        <span>Precisa da sua decisao</span>
+        <small>{approvals.length} pendente(s)</small>
+      </div>
+      {approvals.slice(0, 3).map((approval) => {
+        const busy = resolvingApprovalId === approval.id;
+        return (
+          <article key={approval.id} className="bcc-inline-approval" data-risk={approval.risk}>
+            <div>
+              <strong>{approval.title}</strong>
+              <p>{approval.reason}</p>
+              <div className="bcc-inline-approval__meta">
+                <span>{approval.id}</span>
+                {approval.scope ? <span>{approval.scope}</span> : null}
+                <span>{approval.createdAt}</span>
+              </div>
+            </div>
+            <div className="bcc-inline-approval__actions">
+              <CommandCenterButton
+                type="button"
+                variant="primary"
+                disabled={!onResolveApproval || busy}
+                onClick={() => {
+                  void onResolveApproval?.(approval.id, "approve");
+                }}
+              >
+                {busy ? "Aplicando..." : "Aprovar"}
+              </CommandCenterButton>
+              <CommandCenterButton
+                type="button"
+                disabled={!onResolveApproval || busy}
+                onClick={() => {
+                  void onResolveApproval?.(approval.id, "reject");
+                }}
+              >
+                Rejeitar
+              </CommandCenterButton>
+            </div>
+          </article>
+        );
+      })}
+    </section>
+  );
+}
+
+function CommandCenterThinkingCard() {
+  return (
+    <section className="bcc-thinking-card" aria-live="polite">
+      <span className="bcc-thinking-card__pulse" aria-hidden="true" />
+      <div>
+        <strong>Zavorth esta pensando</strong>
+        <p>Classificando o pedido, escolhendo a rota e mantendo a seguranca em segundo plano.</p>
+      </div>
+      <div className="bcc-thinking-card__dots" aria-hidden="true">
+        <span />
+        <span />
+        <span />
+      </div>
+    </section>
   );
 }
 
@@ -347,6 +484,19 @@ function formatRoleLabel(role: DashboardCommandCenterViewModel["messages"][numbe
     return "Ferramenta";
   }
   return "Sistema";
+}
+
+function humanRuntimeStatusLabel(status: DashboardCommandCenterViewModel["runtime"]["status"]): string {
+  if (status === "ready") {
+    return "Pronto";
+  }
+  if (status === "degraded") {
+    return "Atencao";
+  }
+  if (status === "blocked") {
+    return "Bloqueado";
+  }
+  return "Offline";
 }
 
 function CommandCenterChatContextStrip({

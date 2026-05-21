@@ -37,6 +37,13 @@ export type ZavorthResponseDecisionDiagnostics = {
   surface?: string;
   shouldExecute: boolean;
   semantic: boolean;
+  uxIntent?: {
+    kind: string;
+    confidence: string;
+    shouldUseTools: boolean;
+    shouldAskApproval: boolean;
+    reason: string;
+  } | null;
   universalIntent?: {
     intent: string;
     risk: string;

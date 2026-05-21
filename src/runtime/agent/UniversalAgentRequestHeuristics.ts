@@ -10,6 +10,30 @@ function addIfMatches(tools: Set<string>, text: string, pattern: RegExp, toolId:
   }
 }
 
+function hasUrl(text: string): boolean {
+  return /https?:\/\/|www\./i.test(text);
+}
+
+function asksForWebOperation(text: string): boolean {
+  if (/\b(pesquise|pesquisar|buscar|busque|procure|internet|web)\b/i.test(text)) {
+    return true;
+  }
+  if (/\b(acesse|acessar|abra|abrir|navegue|fetch|baixe|download)\b/i.test(text)) {
+    return true;
+  }
+  if (
+    hasUrl(text)
+    && /\b(leia|ler|resuma|resumir|analise|analisar|explique|explicar|extraia|extrair|verifique|verificar)\b/i.test(text)
+  ) {
+    return true;
+  }
+  if (/\b(link|url|site|pagina|page|website)\b/i.test(text)
+    && /\b(leia|ler|resuma|resumir|analise|analisar|abra|abrir|acesse|acessar|verifique|verificar)\b/i.test(text)) {
+    return true;
+  }
+  return false;
+}
+
 export function inferUniversalAgentRequestedTools(input: UniversalAgentToolInferenceInput): string[] {
   const rawText = String(input.text || '');
   const normalizedText = rawText
@@ -39,12 +63,9 @@ export function inferUniversalAgentRequestedTools(input: UniversalAgentToolInfer
     /\b(rode|rodar|execute|executar|comando|shell|powershell|terminal|npm|pnpm|yarn|git|build|teste|testes|jest)\b/i,
     'shell.exec',
   );
-  addIfMatches(
-    tools,
-    normalizedText,
-    /\b(pesquise|pesquisar|buscar|busque|artigos?|recentes?|internet|web|site|url)\b/i,
-    'network_fetch',
-  );
+  if (asksForWebOperation(normalizedText)) {
+    tools.add('network_fetch');
+  }
   addIfMatches(
     tools,
     normalizedText,

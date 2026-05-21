@@ -335,14 +335,14 @@ async function runQa(options: CliOptions): Promise<QaReport> {
       hasComposer: Boolean(document.getElementById("compose-input")),
       hasAttach: Boolean(document.querySelector("#tool-sheet-trigger, .compose-dock__btn[title=\"Anexar\"]")),
       hasSkills: Boolean(document.querySelector('[data-tool-sheet-action="skills"], .compose-dock__btn[title="Habilidades"]')),
-      hasVoice: Boolean(document.querySelector('.compose-dock__btn[title="Voz"]')),
+      hasVoice: Boolean(document.querySelector("#voice-trigger, .compose-dock__btn[title=\"Voz\"], .compose-dock__btn[title=\"Voice\"]")),
       authState: document.getElementById("core-pulse")?.getAttribute("data-auth-state") || "",
     }));
     report.metrics.shellState = shellState;
     pushCheck(report, "composer-buttons-exist", shellState.hasComposer && shellState.hasAttach && shellState.hasSkills && shellState.hasVoice, "Composer preserva botoes de anexo, skills e voz.");
     pushCheck(report, "runtime-unlocked-for-composer-qa", shellState.authState === "unlocked", "Runtime mockado esta desbloqueado para testar payload real.");
 
-    const fileInput = page.locator('input[type="file"]');
+    const fileInput = page.locator('input[type="file"]:not([webkitdirectory]):not([directory])');
     await fileInput.setInputFiles({ name: "notas.txt", mimeType: "text/plain", buffer: Buffer.from("linha 1: Zavorth deve ler este anexo textual.\nlinha 2: nao criar artefato falso.", "utf8") });
     await page.waitForSelector(".compose-attachment-chip", { timeout: 10_000 });
     const attachmentChipState = await page.evaluate(() => ({
@@ -434,7 +434,7 @@ async function runQa(options: CliOptions): Promise<QaReport> {
         })();
       `,
     });
-    await page.locator('.compose-dock__btn[title="Voz"]').click();
+    await page.locator('#voice-trigger, .compose-dock__btn[title="Voz"], .compose-dock__btn[title="Voice"]').click();
     await page.waitForFunction(() => {
       const input = document.getElementById("compose-input") as HTMLTextAreaElement | null;
       return /analise este pedido por voz/i.test(input?.value || "");
@@ -455,7 +455,7 @@ async function runQa(options: CliOptions): Promise<QaReport> {
     const binaryPage = await browser.newPage({ viewport: { width: 1440, height: 980 }, deviceScaleFactor: 1 });
     await binaryPage.goto(url, { waitUntil: "networkidle", timeout: 30_000 });
     await binaryPage.waitForSelector("#compose-input", { timeout: 15_000 });
-    await binaryPage.locator('input[type="file"]').setInputFiles({ name: "foto.png", mimeType: "image/png", buffer: Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x00, 0x00, 0x00, 0x00]) });
+    await binaryPage.locator('input[type="file"]:not([webkitdirectory]):not([directory])').setInputFiles({ name: "foto.png", mimeType: "image/png", buffer: Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x00, 0x00, 0x00, 0x00]) });
     await binaryPage.waitForSelector(".compose-attachment-chip", { timeout: 10_000 });
     await binaryPage.evaluate(() => {
       const input = document.getElementById("compose-input") as HTMLTextAreaElement | null;
@@ -487,9 +487,9 @@ async function runQa(options: CliOptions): Promise<QaReport> {
       const feed = document.getElementById("signal-feed");
       if (feed) feed.innerHTML = "";
     });
-    await noVoicePage.locator('.compose-dock__btn[title="Voz"]').click();
-    await noVoicePage.waitForFunction(() => /Voz ainda|digite|texto transcrito/i.test(document.body.innerText), null, { timeout: 10_000 });
-    const noVoiceState = await noVoicePage.evaluate(() => ({ hasNotice: /Voz ainda|digite|texto transcrito/i.test(document.body.innerText), artifactCards: document.querySelectorAll(".zavorth-artifact-card").length, approvalCards: document.querySelectorAll(".zavorth-approval-card").length }));
+    await noVoicePage.locator('#voice-trigger, .compose-dock__btn[title="Voz"], .compose-dock__btn[title="Voice"]').click();
+    await noVoicePage.waitForFunction(() => /Voz ainda|Voice is not available|digite|type or paste|texto transcrito|transcribed text/i.test(document.body.innerText), null, { timeout: 10_000 });
+    const noVoiceState = await noVoicePage.evaluate(() => ({ hasNotice: /Voz ainda|Voice is not available|digite|type or paste|texto transcrito|transcribed text/i.test(document.body.innerText), artifactCards: document.querySelectorAll(".zavorth-artifact-card").length, approvalCards: document.querySelectorAll(".zavorth-approval-card").length }));
     report.metrics.noVoiceState = noVoiceState;
     pushCheck(report, "voice-unsupported-shows-honest-notice", noVoiceState.hasNotice && noVoiceState.artifactCards === 0 && noVoiceState.approvalCards === 0, "Sem SpeechRecognition, botao de voz mostra aviso honesto e nao finge funcionamento.");
 

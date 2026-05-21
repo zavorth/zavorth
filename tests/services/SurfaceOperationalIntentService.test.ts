@@ -277,6 +277,108 @@ describe('SurfaceOperationalIntentService', () => {
     expect(decision.shouldShowArtifactInChat).toBe(false);
   });
 
+  it('keeps passive link sharing on the LLM conversation path', async () => {
+    const semanticClassifier = {
+      isProviderAvailable: jest.fn(() => true),
+      getPreferredProviderName: jest.fn(() => 'test'),
+      chat: jest.fn(),
+    };
+    const service = new SurfaceOperationalIntentService({
+      semanticClassifier: semanticClassifier as any,
+      semanticTimeoutMs: 250,
+    });
+
+    const decision = await service.decideResponse({
+      surface: 'telegram',
+      text: 'olha isso aqui https://example.com/artigo',
+    });
+
+    expect(semanticClassifier.chat).not.toHaveBeenCalled();
+    expect(decision).toEqual(expect.objectContaining({
+      mode: 'conversation',
+      responsePath: 'fast-chat',
+      requestedTools: [],
+      target: { type: 'none', value: null },
+      diagnostics: expect.objectContaining({
+        uxIntent: expect.objectContaining({
+          kind: 'answer',
+          shouldUseTools: false,
+        }),
+      }),
+    }));
+  });
+
+  it('keeps conceptual analysis requests as conversation instead of over-triggering tools', async () => {
+    const service = new SurfaceOperationalIntentService({
+      semanticClassifier: null,
+    });
+
+    const decision = await service.decideResponse({
+      surface: 'web',
+      text: 'analise essa ideia e me diga o que acha',
+    });
+
+    expect(decision).toEqual(expect.objectContaining({
+      mode: 'conversation',
+      responsePath: 'fast-chat',
+      requestedTools: [],
+      diagnostics: expect.objectContaining({
+        uxIntent: expect.objectContaining({
+          kind: 'explain',
+          shouldUseTools: false,
+        }),
+      }),
+    }));
+  });
+
+  it('uses network fetch only when the user explicitly asks to inspect the link', async () => {
+    const service = new SurfaceOperationalIntentService({
+      semanticClassifier: null,
+    });
+
+    const decision = await service.decideResponse({
+      surface: 'telegram',
+      text: 'resuma este link https://example.com/artigo',
+    });
+
+    expect(decision).toEqual(expect.objectContaining({
+      mode: 'operation',
+      responsePath: 'agent-runtime',
+      requestedTools: expect.arrayContaining(['network_fetch']),
+      target: { type: 'web', value: null },
+      diagnostics: expect.objectContaining({
+        uxIntent: expect.objectContaining({
+          kind: 'preview',
+          shouldUseTools: true,
+        }),
+      }),
+    }));
+  });
+
+  it('routes concrete sensitive work behind operational approval posture', async () => {
+    const service = new SurfaceOperationalIntentService({
+      semanticClassifier: null,
+    });
+
+    const decision = await service.decideResponse({
+      surface: 'cli',
+      text: 'apague a pasta dist e rode npm test',
+    });
+
+    expect(decision).toEqual(expect.objectContaining({
+      mode: 'operation',
+      responsePath: 'agent-runtime',
+      requestedTools: expect.arrayContaining(['shell.exec']),
+      diagnostics: expect.objectContaining({
+        uxIntent: expect.objectContaining({
+          kind: 'execute',
+          shouldUseTools: true,
+          shouldAskApproval: true,
+        }),
+      }),
+    }));
+  });
+
   it('maps concrete folder inspection to the local inspector envelope', async () => {
     const service = new SurfaceOperationalIntentService({
       semanticClassifier: null,

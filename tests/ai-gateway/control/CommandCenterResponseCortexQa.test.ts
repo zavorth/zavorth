@@ -318,11 +318,12 @@ describe('Command Center response cortex QA gate', () => {
     }));
     expect(realtime.recordAssistantMessage).toHaveBeenCalledWith(
       'qa-shell-approval',
-      expect.stringContaining('Capability Negotiation'),
+      expect.stringContaining('Preciso da sua confirmacao'),
       null,
       'universal-agent-runtime',
     );
-    expect(realtime.recordAssistantMessage.mock.calls[0]?.[1]).toContain('Approval requerido: true');
+    expect(realtime.recordAssistantMessage.mock.calls[0]?.[1]).toContain('approval-qa-10');
+    expect(realtime.recordAssistantMessage.mock.calls[0]?.[1]).not.toContain('Capability Negotiation');
   });
 
   it('allows user-facing artifact cards only for explicit deliverable artifact requests', async () => {

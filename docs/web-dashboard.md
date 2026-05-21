@@ -1,10 +1,10 @@
-# Web Dashboard
+# Command Center
 
-The official web surface is the gateway dashboard at `/dashboard`.
+The official web surface is the Command Center at `/control`.
 
 ## What It Is For
 
-The dashboard is the operator gateway for:
+The Command Center is the operator gateway for:
 
 - chatting with the runtime;
 - seeing sessions, approvals and artifacts;
@@ -40,18 +40,18 @@ manually.
 - blocked actions and the reason;
 - artifacts and receipts.
 
-## Legacy Surfaces
+## Compatibility
 
-Older web shells may exist for maintenance or fallback. New user-facing product
-work should target `/dashboard` or the Runtime API. Maintenance shells are not
-final-user product surfaces and should not appear in normal onboarding. In
-short, maintenance shells are not final-user surfaces.
+`/dashboard` is kept as a compatibility redirect for older bookmarks. New
+user-facing product work should target `/control` or the Runtime API.
+Maintenance shells are not final-user product surfaces and should not appear in
+normal onboarding. Maintenance shells are not final-user surfaces.
 
 ## Mobile Companion
 
 `/satellite` is the optional mobile/PWA companion surface. It should stay thin:
 show chat, approval cards, receipts and safe runtime status from the same
-contracts used by `/dashboard`. It must not become a separate agent or bypass
+contracts used by `/control`. It must not become a separate agent or bypass
 the Policy Broker.
 
 Use `zavorth satellite-approvals` to inspect the projection that powers the

@@ -167,6 +167,13 @@ function normalizeText(value: unknown, fallback = ''): string {
   return text || fallback;
 }
 
+function normalizeSearchText(value: unknown): string {
+  return normalizeText(value)
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .toLowerCase();
+}
+
 function recordOrNull(value: unknown): LooseRecord | null {
   return value && typeof value === 'object' && !Array.isArray(value)
     ? value as LooseRecord
@@ -304,11 +311,12 @@ export class UniversalIntentTrustEnforcementService {
     const trustSlider = recordOrNull(metadata.trustSlider) || recordOrNull(metadata.trust);
     const universalIntent = recordOrNull(metadata.universalIntent);
     const riskHints = recordOrNull(metadata.riskHints);
+    const passiveLinkConversation = this.isPassiveLinkConversation(run, request, metadata);
     const requestedTools = Array.from(new Set([
       ...(request?.requestedTools || []),
       ...listStrings(metadata.requestedTools),
-      ...listStrings(universalIntent?.capabilityRequired),
-      ...run.toolExposure.tools.map((tool) => tool.id),
+      ...(passiveLinkConversation ? [] : listStrings(universalIntent?.capabilityRequired)),
+      ...(passiveLinkConversation ? [] : run.toolExposure.tools.map((tool) => tool.id)),
     ]));
     const userRole = this.resolveUserRole(request, run, metadata, trustSlider);
     const workspaceRoot = normalizeText(
@@ -326,7 +334,9 @@ export class UniversalIntentTrustEnforcementService {
 
     return {
       surface: this.resolveSurface(request?.channel || run.channel),
-      text: normalizeText(request?.text, run.input),
+      text: passiveLinkConversation
+        ? this.stripUrls(normalizeText(request?.text, run.input))
+        : normalizeText(request?.text, run.input),
       requestedTools,
       capabilityIds: listStrings(metadata.capabilityIds),
       userRole,
@@ -369,6 +379,36 @@ export class UniversalIntentTrustEnforcementService {
       },
       riskHints: this.resolveRiskHints(metadata, riskHints),
     };
+  }
+
+  private isPassiveLinkConversation(
+    run: UniversalAgentRun,
+    request: UniversalAgentRequest | null | undefined,
+    metadata: Record<string, unknown>,
+  ): boolean {
+    const text = normalizeText(request?.text, run.input);
+    if (!/https?:\/\/|www\./i.test(text)) {
+      return false;
+    }
+    if ((request?.requestedTools || []).length > 0) {
+      return false;
+    }
+    const route = recordOrNull(metadata.naturalFirstRoute);
+    const responseDecision = recordOrNull(metadata.responseDecision);
+    const responseTools = listStrings(responseDecision?.requestedTools);
+    if (responseTools.length > 0) {
+      return false;
+    }
+    const isConversationRoute = normalizeText(route?.route) === 'llm-reply'
+      || normalizeText(responseDecision?.responsePath) === 'fast-chat';
+    if (!isConversationRoute) {
+      return false;
+    }
+    return !/\b(pesquise|pesquisar|buscar|busque|procure|acesse|acessar|abra|abrir|navegue|fetch|baixe|download|leia|ler|resuma|resumir|analise|analisar|explique|explicar|extraia|extrair|verifique|verificar)\b/i.test(normalizeSearchText(text));
+  }
+
+  private stripUrls(text: string): string {
+    return text.replace(/https?:\/\/\S+|www\.\S+/gi, '[link compartilhado]').trim();
   }
 
   private resolveSurface(channel: UniversalAgentChannel): UniversalIntentInput['surface'] {

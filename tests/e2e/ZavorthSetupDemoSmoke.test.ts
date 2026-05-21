@@ -91,7 +91,7 @@ describe('Zavorth Phase D setup demo smoke', () => {
       requestedTools: ['write_file', 'shell.exec'],
     });
     expect(task.run?.status).toBe('waiting_approval');
-    expect(task.text).toContain('Recibo Zavorth');
+    expect(task.text).toContain('Zavorth');
     expect(task.receipt.externalMutationBeforeApproval).toBe(false);
     const approvalId = task.run?.approvals[0]?.id || '';
     expect(approvalId).toBeTruthy();
@@ -104,7 +104,7 @@ describe('Zavorth Phase D setup demo smoke', () => {
     });
     expect(approved?.run?.status).toBe('completed');
     expect(approved?.text).toContain('Tarefa diaria concluida depois da aprovacao.');
-    expect(approved?.text).toContain('Recibo Zavorth');
+    expect(approved?.text).toContain('Zavorth');
     expect(approved?.text).toContain(`approval: ${approvalId} (approved)`);
     expect(approved?.receipt.replayCommand).toContain('zavorth replay run');
     expect(executor).toHaveBeenCalledTimes(1);

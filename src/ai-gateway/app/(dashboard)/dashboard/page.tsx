@@ -1,9 +1,7 @@
-import { getMachineId } from "@/shared/utils/machine";
-import HomePageClient from "./HomePageClient";
+import { redirect } from "next/navigation";
 
 export const dynamic = "force-dynamic";
 
-export default async function DashboardPage() {
-  const machineId = await getMachineId();
-  return <HomePageClient machineId={machineId} />;
+export default function DashboardPage() {
+  redirect("/control");
 }

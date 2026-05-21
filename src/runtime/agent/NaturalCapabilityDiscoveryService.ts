@@ -202,6 +202,30 @@ function normalizeSearchText(value: unknown): string {
     .toLowerCase();
 }
 
+function hasUrl(text: string): boolean {
+  return /https?:\/\/|www\./i.test(text);
+}
+
+function asksForWebOperation(text: string): boolean {
+  if (/\b(pesquise|pesquisar|buscar|busque|procure|internet|web)\b/i.test(text)) {
+    return true;
+  }
+  if (/\b(acesse|acessar|abra|abrir|navegue|fetch|baixe|download)\b/i.test(text)) {
+    return true;
+  }
+  if (
+    hasUrl(text)
+    && /\b(leia|ler|resuma|resumir|analise|analisar|explique|explicar|extraia|extrair|verifique|verificar)\b/i.test(text)
+  ) {
+    return true;
+  }
+  if (/\b(link|url|site|pagina|page|website|artigo|noticia)\b/i.test(text)
+    && /\b(leia|ler|resuma|resumir|analise|analisar|abra|abrir|acesse|acessar|verifique|verificar|pesquise|buscar|busque)\b/i.test(text)) {
+    return true;
+  }
+  return false;
+}
+
 function normalizeList(value: unknown): string[] {
   if (!Array.isArray(value)) {
     return [];
@@ -387,6 +411,9 @@ export class NaturalCapabilityDiscoveryService {
       if (!pattern.pattern.test(normalized)) {
         continue;
       }
+      if (pattern.category === 'web-research' && !asksForWebOperation(text)) {
+        continue;
+      }
       if (pattern.category === 'workspace-mutation' && NEGATIVE_WORKSPACE_MUTATION_PATTERNS.test(normalized)) {
         continue;
       }
@@ -539,7 +566,12 @@ export class NaturalCapabilityDiscoveryService {
     recommendations: NaturalCapabilityDiscoveryRecommendation[],
   ): NaturalCapabilityDiscoveryIntentCategory {
     const normalized = normalizeSearchText(text);
-    const matchedPattern = CATEGORY_PATTERNS.find((entry) => entry.pattern.test(normalized));
+    const matchedPattern = CATEGORY_PATTERNS.find((entry) => {
+      if (!entry.pattern.test(normalized)) {
+        return false;
+      }
+      return entry.category !== 'web-research' || asksForWebOperation(text);
+    });
     if (matchedPattern) {
       return matchedPattern.category;
     }

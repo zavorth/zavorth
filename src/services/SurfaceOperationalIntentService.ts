@@ -15,6 +15,10 @@ import {
 import { AiFirstOwnerControlledDefaultActivationService } from './AiFirstOwnerControlledDefaultActivationService.js';
 import { LlmRuntimeService } from './llm/LlmRuntimeService.js';
 import type { ChatMessage } from '../providers/ILlmProvider.js';
+import {
+  UserExperienceIntentRouter,
+  type UserExperienceIntentDecision,
+} from './UserExperienceIntentRouter.js';
 
 export type SurfaceOperationalIntent = {
   surface: 'web' | 'cli' | 'telegram' | 'discord' | string;
@@ -29,7 +33,11 @@ export type SurfaceOperationalIntent = {
 export type SurfaceOperationalIntentDecision = {
   shouldExecute: boolean;
   requestedTools: string[];
+  uxIntent?: UserExperienceIntentDecision | null;
   reason:
+    | 'ux-conversation-first'
+    | 'ux-tool-intent'
+    | 'ux-approval-intent'
     | 'explicit-execution'
     | 'contextual-mentions-owned-by-composer'
     | 'attachment-present'
@@ -52,6 +60,7 @@ export type SurfaceOperationalIntentServiceOptions = {
   semanticTimeoutMs?: number;
   universalIntentService?: Pick<UniversalIntentService, 'decide'> | null;
   ownerControlledDefaultActivationService?: Pick<AiFirstOwnerControlledDefaultActivationService, 'status'> | null;
+  uxIntentRouter?: Pick<UserExperienceIntentRouter, 'decide'> | null;
 };
 
 export class SurfaceOperationalIntentService {
@@ -59,6 +68,7 @@ export class SurfaceOperationalIntentService {
   private readonly semanticTimeoutMs: number;
   private readonly universalIntentService: Pick<UniversalIntentService, 'decide'> | null;
   private readonly ownerControlledDefaultActivationService: Pick<AiFirstOwnerControlledDefaultActivationService, 'status'> | null;
+  private readonly uxIntentRouter: Pick<UserExperienceIntentRouter, 'decide'> | null;
 
   constructor(options: SurfaceOperationalIntentServiceOptions = {}) {
     this.semanticClassifier = options.semanticClassifier === undefined
@@ -71,6 +81,9 @@ export class SurfaceOperationalIntentService {
     this.ownerControlledDefaultActivationService = options.ownerControlledDefaultActivationService === undefined
       ? new AiFirstOwnerControlledDefaultActivationService()
       : options.ownerControlledDefaultActivationService;
+    this.uxIntentRouter = options.uxIntentRouter === undefined
+      ? new UserExperienceIntentRouter()
+      : options.uxIntentRouter;
   }
 
   public classify(input: SurfaceOperationalIntent): SurfaceOperationalIntentDecision {
@@ -81,12 +94,35 @@ export class SurfaceOperationalIntentService {
       capabilityIds: resourceCapabilityIds,
       fallbackTool: null,
     });
+    const uxIntent = this.uxIntentRouter?.decide({
+      text,
+      explicitExecution: input.explicitExecution,
+      hasAttachments: input.hasAttachments,
+      hasContextualMentions: input.hasContextualMentions,
+    }) || null;
 
     if (input.hasContextualMentions) {
       return {
         shouldExecute: false,
         requestedTools,
+        uxIntent,
         reason: 'contextual-mentions-owned-by-composer',
+      };
+    }
+
+    if (
+      uxIntent
+      && uxIntent.confidence === 'high'
+      && !uxIntent.shouldUseTools
+      && requestedTools.length === 0
+      && !input.explicitExecution
+      && !input.hasAttachments
+    ) {
+      return {
+        shouldExecute: false,
+        requestedTools: [],
+        uxIntent,
+        reason: 'conversation-only',
       };
     }
 
@@ -94,6 +130,7 @@ export class SurfaceOperationalIntentService {
       return {
         shouldExecute: true,
         requestedTools: requestedTools.length > 0 ? requestedTools : ['memory.read'],
+        uxIntent,
         reason: 'explicit-execution',
       };
     }
@@ -102,6 +139,7 @@ export class SurfaceOperationalIntentService {
       return {
         shouldExecute: true,
         requestedTools: requestedTools.length > 0 ? requestedTools : ['media.inspect'],
+        uxIntent,
         reason: 'attachment-present',
       };
     }
@@ -110,6 +148,7 @@ export class SurfaceOperationalIntentService {
       return {
         shouldExecute: true,
         requestedTools,
+        uxIntent,
         reason: 'tool-affordance-detected',
       };
     }
@@ -118,13 +157,28 @@ export class SurfaceOperationalIntentService {
       return {
         shouldExecute: true,
         requestedTools,
+        uxIntent,
         reason: 'resource-impact-detected',
+      };
+    }
+
+    if (uxIntent?.shouldUseTools && uxIntent.explicitAction && uxIntent.explicitTarget) {
+      return {
+        shouldExecute: true,
+        requestedTools: uxIntent.kind === 'diagnose'
+          ? ['status.inspect']
+          : uxIntent.kind === 'configure'
+            ? ['configuration.preview']
+            : ['workflow.preview'],
+        uxIntent,
+        reason: uxIntent.shouldAskApproval ? 'ux-approval-intent' : 'ux-tool-intent',
       };
     }
 
     return {
       shouldExecute: false,
       requestedTools,
+      uxIntent,
       reason: 'conversation-only',
     };
   }
@@ -132,6 +186,12 @@ export class SurfaceOperationalIntentService {
 
   public async classifyWithSemantic(input: SurfaceOperationalIntent): Promise<SurfaceOperationalIntentDecision> {
     const structural = this.classify(input);
+    if (!structural.shouldExecute && this.looksLikePassiveLinkShare(input.text)) {
+      return {
+        ...structural,
+        reason: 'conversation-only',
+      };
+    }
     if (this.shouldUseOwnerControlledAiFirstDefault(input)) {
       const semantic = await this.classifyAmbiguousIntent(input).catch(() => null);
       if (semantic) {
@@ -139,11 +199,13 @@ export class SurfaceOperationalIntentService {
           ? {
               shouldExecute: true,
               requestedTools: semantic.requestedTools.length > 0 ? semantic.requestedTools : structural.requestedTools,
+              uxIntent: structural.uxIntent,
               reason: 'semantic-operational',
             }
           : {
               shouldExecute: false,
               requestedTools: structural.requestedTools,
+              uxIntent: structural.uxIntent,
               reason: 'semantic-conversation',
             };
       }
@@ -162,6 +224,7 @@ export class SurfaceOperationalIntentService {
       return {
         shouldExecute: true,
         requestedTools: semantic.requestedTools.length > 0 ? semantic.requestedTools : structural.requestedTools,
+        uxIntent: structural.uxIntent,
         reason: 'semantic-operational',
       };
     }
@@ -169,6 +232,7 @@ export class SurfaceOperationalIntentService {
     return {
       shouldExecute: false,
       requestedTools: structural.requestedTools,
+      uxIntent: structural.uxIntent,
       reason: 'semantic-conversation',
     };
   }
@@ -208,6 +272,15 @@ export class SurfaceOperationalIntentService {
         semantic: intentDecision.reason === 'semantic-operational'
           || intentDecision.reason === 'semantic-conversation'
           || intentDecision.reason === 'semantic-unavailable',
+        uxIntent: intentDecision.uxIntent
+          ? {
+            kind: intentDecision.uxIntent.kind,
+            confidence: intentDecision.uxIntent.confidence,
+            shouldUseTools: intentDecision.uxIntent.shouldUseTools,
+            shouldAskApproval: intentDecision.uxIntent.shouldAskApproval,
+            reason: intentDecision.uxIntent.reason,
+          }
+          : null,
         universalIntent: universalIntent
           ? {
             intent: universalIntent.intent,
@@ -388,6 +461,11 @@ export class SurfaceOperationalIntentService {
     if (intentDecision.reason === 'semantic-unavailable') {
       return 'low';
     }
+    if (intentDecision.reason === 'ux-conversation-first'
+      || intentDecision.reason === 'ux-tool-intent'
+      || intentDecision.reason === 'ux-approval-intent') {
+      return intentDecision.uxIntent?.confidence || 'high';
+    }
     if (intentDecision.reason === 'semantic-operational' || intentDecision.reason === 'semantic-conversation') {
       return 'medium';
     }
@@ -437,6 +515,15 @@ export class SurfaceOperationalIntentService {
       .toLowerCase();
   }
 
+  private looksLikePassiveLinkShare(text: string): boolean {
+    const raw = String(text || '');
+    if (!/https?:\/\/|www\./i.test(raw)) {
+      return false;
+    }
+    const normalized = this.normalizeText(raw);
+    return !/\b(pesquise|pesquisar|buscar|busque|procure|acesse|acessar|abra|abrir|navegue|fetch|baixe|download|leia|ler|resuma|resumir|analise|analisar|explique|explicar|extraia|extrair|verifique|verificar)\b/i.test(normalized);
+  }
+
 
   private shouldAskSemanticClassifier(
     input: SurfaceOperationalIntent,
@@ -450,6 +537,9 @@ export class SurfaceOperationalIntentService {
     }
     const text = String(input.text || '').trim();
     if (text.length === 0 || text.length > 2000) {
+      return false;
+    }
+    if (this.looksLikePassiveLinkShare(text)) {
       return false;
     }
     const preferred = this.semanticClassifier.getPreferredProviderName?.() || '';
@@ -502,6 +592,7 @@ export class SurfaceOperationalIntentService {
           '- Saudacoes casuais ("oi", "bom dia", "tudo bem?").',
           '- Perguntas conceituais, teoricas ou pedidos de explicacao ("o que e um transformer?", "como funciona o react?").',
           '- Frases que usam verbos de acao, mas SEM objeto de sistema ("analise minha ideia", "pense numa solucao", "compare duas coisas que vou te falar").',
+          '- Link solto, ou "olha isso: https://...", e conversa direta; so vira execucao se o usuario pedir para abrir, buscar, ler, resumir ou verificar o link.',
           '- Pedidos de brainstorm, ajuda mental ou feedback textual sem tocar em disco.',
           '',
           'IMPORTANTE: A presenca de palavras como "analise", "pense", "ajude" NAO significa execucao pesada. So execute se houver um objeto tangivel (arquivo, pasta, comando shell, web).',

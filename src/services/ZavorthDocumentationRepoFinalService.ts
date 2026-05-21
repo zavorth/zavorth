@@ -105,7 +105,7 @@ export class ZavorthDocumentationRepoFinalService {
       for (const detail of check.details.slice(0, 8)) lines.push(`  - ${detail}`);
     }
     lines.push('', 'Guarantees:');
-    lines.push('- /dashboard is the final user web surface.');
+    lines.push('- /control is the final user web surface.');
     lines.push('- /satellite and CLI remain valid user surfaces.');
     lines.push('- retired visual surfaces are not promoted to normal users.');
     lines.push('- public docs and repo identity are Zavorth-native and proprietary.');
@@ -192,7 +192,7 @@ export class ZavorthDocumentationRepoFinalService {
     }
     const readme = this.read('README.md') || '';
     if (!readme.includes('assets/brand/zavorth-readme-banner.png')) issues.push('README.md: missing official banner');
-    if (!readme.includes('/dashboard')) issues.push('README.md: missing /dashboard as primary surface');
+    if (!readme.includes('/control')) issues.push('README.md: missing /control as primary surface');
     if (!readme.includes('npm install -g zavorth@latest')) issues.push('README.md: missing latest install path');
     if (!/proprietary/i.test(readme)) issues.push('README.md: missing proprietary positioning');
 
@@ -210,7 +210,7 @@ export class ZavorthDocumentationRepoFinalService {
     const webDoc = this.read('docs/web-dashboard.md') || '';
     const apiDoc = this.read('docs/protocol/runtime-api-v1.md') || '';
     const issues = [];
-    if (!/\/dashboard/.test(webDoc)) issues.push('docs/web-dashboard.md: dashboard is not named as final user surface');
+    if (!/\/control/.test(webDoc)) issues.push('docs/web-dashboard.md: /control is not named as final user surface');
     if (!/\/satellite/.test(webDoc)) issues.push('docs/web-dashboard.md: satellite is not named as companion surface');
     if (!/not final-user surfaces/i.test(webDoc)) issues.push('docs/web-dashboard.md: maintenance shell posture is unclear');
     if (!/does not execute actions by itself/i.test(apiDoc)) issues.push('runtime-api-v1.md: dashboard display-only posture is unclear');
@@ -220,8 +220,8 @@ export class ZavorthDocumentationRepoFinalService {
       'surface-posture',
       'Surface posture is unambiguous',
       issues.length === 0 ? 'passed' : 'failed',
-      issues.length === 0 ? 'dashboard/satellite/CLI clear' : `${issues.length} issues`,
-      '/dashboard primary, /satellite companion, CLI power user, maintenance shells internal',
+      issues.length === 0 ? 'command-center/satellite/CLI clear' : `${issues.length} issues`,
+      '/control primary, /satellite companion, CLI power user, maintenance shells internal',
       issues,
     );
   }

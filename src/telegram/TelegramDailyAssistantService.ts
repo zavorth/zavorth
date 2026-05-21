@@ -8,6 +8,7 @@ import {
   type UniversalApprovalIntentDecisionResult,
   type ZavorthAgentGateway,
 } from '../runtime/agent/index.js';
+import { ZavorthUserResponseRendererService } from '../services/ZavorthUserResponseRendererService.js';
 
 type AgentGatewayLike = Pick<ZavorthAgentGateway, 'handle' | 'buildSnapshot' | 'resolveApprovalIntent'>;
 
@@ -59,16 +60,19 @@ export type TelegramDailyAssistantApprovalInput = {
 export class TelegramDailyAssistantService {
   private readonly now: () => Date;
   private readonly receiptReplay: RunArtifactReceiptReplayService;
+  private readonly responseRenderer: ZavorthUserResponseRendererService;
 
   public constructor(private readonly runtime: {
     agentGateway: AgentGatewayLike;
     now?: () => Date;
     receiptReplay?: RunArtifactReceiptReplayService;
+    responseRenderer?: ZavorthUserResponseRendererService | null;
   }) {
     this.now = runtime.now || (() => new Date());
     this.receiptReplay = runtime.receiptReplay || new RunArtifactReceiptReplayService({
       now: this.now,
     });
+    this.responseRenderer = runtime.responseRenderer || new ZavorthUserResponseRendererService();
   }
 
   public async handleApprovalIntent(
@@ -205,21 +209,15 @@ export class TelegramDailyAssistantService {
   }
 
   private decorateWithReceipt(text: string, receipt: TelegramDailyAssistantReceipt): string {
-    const lines = [
-      normalizeReply(text),
-      '',
-      'Recibo Zavorth',
-      `- id: ${receipt.id}`,
-      `- run: ${receipt.runId || 'nao criada'}`,
-      `- status: ${receipt.status}`,
-      receipt.approvalId
-        ? `- approval: ${receipt.approvalId} (${receipt.approvalStatus || 'unknown'})`
-        : '- approval: nao requerido',
-      `- eventos: ${receipt.eventCount}; artifacts: ${receipt.artifactCount}; memory: ${receipt.memorySignalCount}`,
-      `- replay: ${receipt.replayCommand || 'indisponivel'}`,
-      '- policy: sem mutacao externa antes de approval; recibo retornado no Telegram',
-    ];
-    return lines.join('\n');
+    return this.responseRenderer.render({
+      text: normalizeReply(text),
+      channel: 'telegram',
+      audience: 'normal-user',
+      approvalId: receipt.approvalId,
+      approvalStatus: receipt.approvalStatus,
+      replayCommand: receipt.replayCommand,
+      includeTechnicalFooter: receipt.action === 'approval-decision' || Boolean(receipt.approvalId) || receipt.status === 'failed',
+    }).text;
   }
 }
 

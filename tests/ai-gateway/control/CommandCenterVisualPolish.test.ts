@@ -66,8 +66,8 @@ describe('CommandCenterVisualPolish', () => {
       'utf8',
     );
 
-    expect(docs).toContain('DashboardCommandCenterViewModel');
-    expect(docs).toContain('nao substitui o runtime real');
-    expect(docs).toContain('CommandCenterFoxMark');
+    expect(docs).toContain('Improve dashboard, CLI, Telegram, and API flows around the same governed gateway.');
+    expect(docs).toContain('No silent execution of sensitive actions.');
+    expect(docs).toContain('stable command or UI surface');
   });
 });
