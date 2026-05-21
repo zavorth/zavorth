@@ -834,7 +834,7 @@ export class WebAppRuntimeInteractionRouteService {
         ? seedSnapshot.runs.find((run: any) => String(run?.id || '') === requestedRunId) || seedSnapshot.activeRun
         : seedSnapshot.activeRun;
       const sessionId = requestedSessionId || String(sourceRun?.sessionId || '').trim() || deps.runtime.webUserId;
-      const userId = String(body.approvedBy || sourceRun?.userId || deps.runtime.webUserId || 'web-owner').trim();
+      const userId = String(sourceRun?.userId || deps.runtime.webUserId || 'web-owner').trim();
       const result = await deps.agentGateway.handle({
         requestId: `command-center-apply-draft-${planId}`,
         traceId: String(sourceRun?.traceId || '').trim() || null,
@@ -923,7 +923,7 @@ export class WebAppRuntimeInteractionRouteService {
         ? seedSnapshot.runs.find((run: any) => String(run?.id || '') === requestedRunId) || seedSnapshot.activeRun
         : seedSnapshot.activeRun;
       const sessionId = requestedSessionId || String(sourceRun?.sessionId || '').trim() || deps.runtime.webUserId;
-      const userId = String(body.approvedBy || sourceRun?.userId || deps.runtime.webUserId || 'web-owner').trim();
+      const userId = String(sourceRun?.userId || deps.runtime.webUserId || 'web-owner').trim();
       const recommendation = String(body.recommendation || body.reason || 'auto_demote_controlled').trim();
       const result = await deps.agentGateway.handle({
         requestId: 'command-center-demote-fabric',

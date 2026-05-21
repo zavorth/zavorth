@@ -1,3 +1,4 @@
+import fs from 'fs';
 import path from 'path';
 import { WorkspaceResolver } from '../../security/WorkspaceResolver.js';
 
@@ -19,6 +20,19 @@ export type WorkspaceFsResolvedPath = {
 
 function normalizePath(target: string): string {
   return path.resolve(target).replace(/\\/g, '/');
+}
+
+function normalizeForComparison(target: string): string {
+  const normalized = path.normalize(path.resolve(target));
+  return process.platform === 'win32' ? normalized.toLowerCase() : normalized;
+}
+
+function isPathContained(baseDir: string, targetPath: string): boolean {
+  const normalizedBase = normalizeForComparison(baseDir);
+  const normalizedTarget = normalizeForComparison(targetPath);
+  const relative = path.relative(normalizedBase, normalizedTarget);
+
+  return relative === '' || (!relative.startsWith('..') && !path.isAbsolute(relative));
 }
 
 export class WorkspaceFsPolicy {
@@ -75,15 +89,17 @@ export class WorkspaceFsPolicy {
     root: string;
     targetPath: string;
   }): WorkspaceFsResolvedPath {
+    const workspaceRoot = this.getWorkspaceRoot();
     const root = normalizePath(input.root);
     const absolutePath = WorkspaceResolver.ensurePathInsideWorkspace(root, input.targetPath);
+    assertNoSymlinkEscape(workspaceRoot, root, absolutePath, input.access);
     if (input.access === 'read') {
       assertReadablePathIsNotSensitive(root, absolutePath);
     }
     return {
       access: input.access,
       scope: input.scope,
-      workspaceRoot: this.getWorkspaceRoot(),
+      workspaceRoot,
       root,
       absolutePath,
     };
@@ -125,4 +141,90 @@ function assertReadablePathIsNotSensitive(root: string, absolutePath: string): v
   ) {
     throw new Error('Leitura bloqueada: o arquivo parece conter credenciais ou material sensivel.');
   }
+}
+
+function assertNoSymlinkEscape(
+  workspaceRoot: string,
+  root: string,
+  absolutePath: string,
+  access: WorkspaceFsAccess,
+): void {
+  const realWorkspaceRoot = realpathIfExists(workspaceRoot) || normalizePath(workspaceRoot);
+  const realRoot = realpathIfExists(root);
+  const existingTarget = realpathIfExists(absolutePath);
+
+  if ((access === 'read' || access === 'list') && existingTarget) {
+    const readRoot = realRoot || realWorkspaceRoot;
+    assertContainedAfterRealpath(readRoot, existingTarget, access);
+    assertContainedAfterRealpath(realWorkspaceRoot, existingTarget, access);
+    if (access === 'read') {
+      assertReadablePathIsNotSensitive(readRoot, existingTarget);
+    }
+    return;
+  }
+
+  if (access === 'read' || access === 'list') {
+    const existingParent = findNearestExistingAncestor(path.dirname(absolutePath));
+    const realParent = realpathIfExists(existingParent);
+    if (!realParent) {
+      throw new Error('Filesystem policy error: nenhum ancestral existente foi encontrado para validar leitura.');
+    }
+    assertContainedAfterRealpath(realRoot || realWorkspaceRoot, realParent, access);
+    assertContainedAfterRealpath(realWorkspaceRoot, realParent, access);
+    return;
+  }
+
+  if (realRoot) {
+    assertContainedAfterRealpath(realWorkspaceRoot, realRoot, access);
+  }
+
+  if (access === 'write' || access === 'edit' || access === 'apply_patch') {
+    const containmentRoot = realRoot || realWorkspaceRoot;
+    if (existingTarget) {
+      assertContainedAfterRealpath(containmentRoot, existingTarget, access);
+      assertContainedAfterRealpath(realWorkspaceRoot, existingTarget, access);
+      return;
+    }
+
+    const existingParent = findNearestExistingAncestor(path.dirname(absolutePath));
+    const realParent = realpathIfExists(existingParent);
+    if (!realParent) {
+      throw new Error('Filesystem policy error: nenhum ancestral existente foi encontrado para validar escrita.');
+    }
+    assertContainedAfterRealpath(containmentRoot, realParent, access);
+    assertContainedAfterRealpath(realWorkspaceRoot, realParent, access);
+  }
+}
+
+function assertContainedAfterRealpath(realRoot: string, realTarget: string, access: WorkspaceFsAccess): void {
+  if (!isPathContained(realRoot, realTarget)) {
+    throw new Error(
+      `[SECURITY] Symlink escape bloqueado. O caminho real de ${access} sairia do workspace permitido.`,
+    );
+  }
+}
+
+function realpathIfExists(target: string): string | null {
+  try {
+    if (!fs.existsSync(target)) {
+      return null;
+    }
+    return normalizePath(fs.realpathSync.native(target));
+  } catch {
+    return null;
+  }
+}
+
+function findNearestExistingAncestor(startDir: string): string {
+  let current = normalizePath(startDir);
+
+  while (!fs.existsSync(current)) {
+    const parent = normalizePath(path.dirname(current));
+    if (parent === current) {
+      return current;
+    }
+    current = parent;
+  }
+
+  return current;
 }

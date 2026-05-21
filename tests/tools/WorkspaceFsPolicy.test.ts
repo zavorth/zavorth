@@ -55,4 +55,43 @@ describe('WorkspaceFsPolicy', () => {
     expect(() => policy.resolveReadPath('.env')).toThrow(/credenciais|sensivel/i);
     expect(() => policy.resolveReadPath('.env.example')).not.toThrow();
   });
+
+  it('blocks read paths whose realpath escapes through a directory symlink', () => {
+    const outsideDir = fs.mkdtempSync(path.join(os.tmpdir(), 'zavorth-outside-read-'));
+    try {
+      fs.writeFileSync(path.join(outsideDir, 'notes.txt'), 'outside workspace', 'utf8');
+      const linkPath = path.join(tempDir, 'src', 'outside-link');
+      try {
+        fs.symlinkSync(outsideDir, linkPath, process.platform === 'win32' ? 'junction' : 'dir');
+      } catch {
+        return;
+      }
+
+      const policy = new WorkspaceFsPolicy({ workspaceRoot: tempDir });
+
+      expect(() => policy.resolveReadPath('src/outside-link/notes.txt')).toThrow(/Symlink escape/i);
+    } finally {
+      fs.rmSync(outsideDir, { recursive: true, force: true });
+    }
+  });
+
+  it('blocks write paths whose existing parent resolves outside the output scope', () => {
+    const outsideDir = fs.mkdtempSync(path.join(os.tmpdir(), 'zavorth-outside-write-'));
+    try {
+      const outputDir = path.join(tempDir, 'output');
+      fs.mkdirSync(outputDir, { recursive: true });
+      const linkPath = path.join(outputDir, 'outside-link');
+      try {
+        fs.symlinkSync(outsideDir, linkPath, process.platform === 'win32' ? 'junction' : 'dir');
+      } catch {
+        return;
+      }
+
+      const policy = new WorkspaceFsPolicy({ workspaceRoot: tempDir });
+
+      expect(() => policy.resolveWritePath('outside-link/pwned.txt')).toThrow(/Symlink escape/i);
+    } finally {
+      fs.rmSync(outsideDir, { recursive: true, force: true });
+    }
+  });
 });

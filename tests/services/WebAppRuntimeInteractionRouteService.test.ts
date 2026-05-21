@@ -356,6 +356,7 @@ describe('WebAppRuntimeInteractionRouteService', () => {
         planId: 'plan-risk3-1',
         runId: sourceRun.id,
         sessionId: sourceRun.sessionId,
+        approvedBy: 'spoofed-browser-owner',
         confirmOwnerControlledApply: true,
       })),
       writeJson,
@@ -460,6 +461,7 @@ describe('WebAppRuntimeInteractionRouteService', () => {
       readJsonBody: jest.fn(async () => ({
         runId: sourceRun.id,
         sessionId: sourceRun.sessionId,
+        approvedBy: 'spoofed-browser-owner',
         status: 'degraded',
         recommendation: 'auto_demote_controlled',
         rollbackInstruction: 'Set intelligenceFabricMode=default after health recovers.',
@@ -523,4 +525,3 @@ describe('WebAppRuntimeInteractionRouteService', () => {
     );
   });
 });
-
