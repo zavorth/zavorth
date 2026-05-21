@@ -1,0 +1,54 @@
+import { ZavorthUserResponseRendererService } from '../../src/services/ZavorthUserResponseRendererService';
+
+describe('ZavorthUserResponseRendererService', () => {
+  it('hides technical footers for normal completed chat', () => {
+    const service = new ZavorthUserResponseRendererService();
+
+    const result = service.render({
+      channel: 'telegram',
+      audience: 'normal-user',
+      text: 'Aqui esta a resposta.',
+    });
+
+    expect(result.text).toBe('Aqui esta a resposta.');
+    expect(result.footerIncluded).toBe(false);
+  });
+
+  it('turns capability negotiation jargon into a plain confirmation request', () => {
+    const service = new ZavorthUserResponseRendererService();
+
+    const result = service.render({
+      channel: 'telegram',
+      audience: 'normal-user',
+      text: 'Capability Negotiation aguardando aprovacao de escopo.',
+      approvalId: 'approval-123',
+      approvalStatus: 'pending',
+    });
+
+    expect(result.text).toContain('Preciso da sua confirmacao para continuar com seguranca.');
+    expect(result.text).toContain('Nada foi executado ainda.');
+    expect(result.text).toContain('approval: approval-123 (pending)');
+    expect(result.text).toContain('responda "Aprovo"');
+    expect(result.text).not.toContain('Capability Negotiation');
+  });
+
+  it('keeps operator details available when the audience needs them', () => {
+    const service = new ZavorthUserResponseRendererService();
+
+    const result = service.render({
+      channel: 'cli',
+      audience: 'operator',
+      text: 'Pedido processado pelo runtime universal.',
+      run: {
+        id: 'run-1',
+        status: 'completed',
+        approvals: [],
+      } as any,
+      replayCommand: 'zavorth replay run run-1 --json',
+    });
+
+    expect(result.text).toContain('Recebi. O Zavorth registrou a solicitacao');
+    expect(result.text).toContain('run: run-1');
+    expect(result.text).toContain('replay: zavorth replay run run-1 --json');
+  });
+});

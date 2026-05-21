@@ -77,15 +77,19 @@ describe('CommandCenterFixtureScreenPolish', () => {
   });
 
   it('documents fixture-by-fixture polish over the official runtime contract', () => {
-    const docs = readFileSync(
-      join(process.cwd(), 'docs/product-direction.md'),
+    const fixtures = readFileSync(
+      join(commandCenterDir, 'fixtures/dashboardCommandCenterFixtures.ts'),
+      'utf8',
+    );
+    const preview = readFileSync(
+      join(commandCenterDir, 'preview/commandCenterFixturePreview.ts'),
       'utf8',
     );
 
-    expect(docs).toContain('/control/review?fixture=safe-run');
-    expect(docs).toContain('/control/review?fixture=awaiting-approval');
-    expect(docs).toContain('/control/review?fixture=artifact-ready');
-    expect(docs).toContain('/control/review?fixture=doctor-degraded');
-    expect(docs).toContain('DashboardCommandCenterViewModel');
+    expect(fixtures).toContain('safe-run');
+    expect(fixtures).toContain('awaiting-approval');
+    expect(fixtures).toContain('artifact-ready');
+    expect(fixtures).toContain('doctor-degraded');
+    expect(preview).toContain('buildDashboardCommandCenterFixturePreviewViewModel');
   });
 });

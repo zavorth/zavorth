@@ -286,17 +286,17 @@ export class ZavorthDailyUseScenarioTestService {
       workspace: this.projectRoot,
     });
     const text = result.text;
-    const hasReceipt = text.includes('Recibo Zavorth') && result.receipt.receiptReturnedToTelegram;
-    const hasPolicy = text.includes('sem mutacao externa antes de approval');
+    const hasReceipt = Boolean(result.receipt.runId && result.receipt.receiptReturnedToTelegram);
+    const hasPolicy = result.receipt.externalMutationBeforeApproval === false;
     const confusionSignals = [
-      ...(!hasReceipt ? ['Resposta remota nao retornou recibo claro.'] : []),
-      ...(!hasPolicy ? ['Resposta remota nao explicou a fronteira de approval.'] : []),
+      ...(!hasReceipt ? ['Resposta remota nao registrou recibo auditavel.'] : []),
+      ...(!hasPolicy ? ['Resposta remota nao preservou a fronteira de approval.'] : []),
     ];
     return {
       id: 'telegram-remoto',
       title: 'Telegram remoto',
       userSays: 'Estou fora do PC. Continue por aqui e me avise se precisar aprovar algo.',
-      expectedUserExperience: 'Telegram recebe resposta curta, recibo, replay e confirma que nada muta antes de approval.',
+      expectedUserExperience: 'Telegram recebe resposta curta, com recibo auditavel salvo fora do texto comum e replay quando necessario.',
       status: hasReceipt && hasPolicy ? 'passed' : 'attention',
       confusionSignals,
       evidence: [

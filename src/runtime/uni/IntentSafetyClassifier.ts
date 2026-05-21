@@ -57,7 +57,7 @@ export class IntentSafetyClassifier {
       || this.matches(text, /\b(shell|powershell|terminal|comando|execute|executar|rode|rodar|npm|pnpm|yarn|git|build|teste|testes|jest)\b/);
     const network = Boolean(input.riskHints?.network)
       || this.hasAnyTool(requestedTools, ['network_fetch', 'web.search', 'browser.open'])
-      || this.matches(text, /\b(web|internet|url|site|pesquise|pesquisar|busque|buscar)\b/);
+      || this.asksForWebOperation(rawText);
     const externalSideEffect = Boolean(input.riskHints?.externalSideEffect)
       || this.hasAnyTool(requestedTools, ['email.send', 'report.send', 'slack.send', 'telegram.send', 'publish'])
       || this.matches(text, /\b(envie|enviar|mande|mandar|publique|publicar|poste|postar|slack|email|telegram)\b/);
@@ -215,6 +215,29 @@ export class IntentSafetyClassifier {
 
   private looksLikeConcreteTarget(text: string): boolean {
     return this.matches(text, /\b(src\/|\.ts\b|\.tsx\b|\.js\b|\.json\b|package\.json|pasta|folder|downloads?|workspace|repositorio|repo|arquivo|file|diretorio|directory)\b/);
+  }
+
+  private asksForWebOperation(rawText: string): boolean {
+    const text = this.normalizeText(rawText);
+    if (this.matches(text, /\b(pesquise|pesquisar|buscar|busque|procure|internet|web)\b/)) {
+      return true;
+    }
+    if (this.matches(text, /\b(acesse|acessar|abra|abrir|navegue|fetch|baixe|download)\b/)) {
+      return true;
+    }
+    if (
+      /https?:\/\/|www\./i.test(rawText)
+      && this.matches(text, /\b(leia|ler|resuma|resumir|analise|analisar|explique|explicar|extraia|extrair|verifique|verificar)\b/)
+    ) {
+      return true;
+    }
+    if (
+      this.matches(text, /\b(link|url|site|pagina|page|website)\b/)
+      && this.matches(text, /\b(leia|ler|resuma|resumir|analise|analisar|abra|abrir|acesse|acessar|verifique|verificar)\b/)
+    ) {
+      return true;
+    }
+    return false;
   }
 
   private pushSignal(signals: string[], signal: string, enabled: boolean): void {

@@ -300,7 +300,7 @@ describe('CommandCenterRuntimeProjection', () => {
         sessionId: 'session-subagent-auto-projection',
         selectedSessionId: 'session-subagent-auto-projection',
         selectedRunId: result.run.id,
-        runtimeStatus: 'completed',
+        runtimeStatus: 'waiting_approval',
         workerResults: expect.any(Number),
       }),
       actions: expect.arrayContaining([

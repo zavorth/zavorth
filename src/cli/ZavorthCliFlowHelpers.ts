@@ -22,6 +22,7 @@ import type { ZavorthResponseDecision } from '../contracts/ZavorthResponseDecisi
 import { SurfaceOperationalIntentService } from '../services/SurfaceOperationalIntentService.js';
 import { resolveCliUniversalModelProfile } from './ZavorthCliModelPickerHelpers.js';
 import { createDefaultSessionId } from './ZavorthCliReplHistoryHelpers.js';
+import { ZavorthUserResponseRendererService } from '../services/ZavorthUserResponseRendererService.js';
 export { buildCliReplCompleter, createDefaultSessionId, loadCliReplHistory, persistCliReplHistory } from './ZavorthCliReplHistoryHelpers.js';
 import {
   formatCliChatAssistantMessage,
@@ -1192,9 +1193,20 @@ export async function executeCliUniversalAgentRuntime(
       },
     }, executorOptions);
 
-    const primaryReply = String(result.replies[0]?.text || '').trim()
+    const rawPrimaryReply = String(result.replies[0]?.text || '').trim()
       || result.run.summary
       || 'Pedido processado pelo runtime universal.';
+    const approval = result.run.approvals.find((entry) => entry.status === 'pending') || null;
+    const primaryReply = new ZavorthUserResponseRendererService().render({
+      text: rawPrimaryReply,
+      channel: 'cli',
+      audience: 'developer',
+      run: result.run,
+      approvalId: approval?.id || null,
+      approvalStatus: approval?.status || null,
+      replayCommand: `zavorth replay run ${result.run.id} --json`,
+      includeTechnicalFooter: false,
+    }).text;
 
     if (flags.json) {
       const body = JSON.stringify(
@@ -1218,14 +1230,10 @@ export async function executeCliUniversalAgentRuntime(
       return { ok: result.ok, handled: true, output: [body], error: result.ok ? null : result.run.summary };
     }
 
-    const approval = result.run.approvals.find((entry) => entry.status === 'pending');
     const body = approval
       ? formatCliApprovalRequiredEventCard({
         body: [
           primaryReply,
-          `Run: ${result.run.id}`,
-          `Aprovacao: ${approval.id}`,
-          `Motivo: ${approval.reason}`,
         ],
         command: `approve ${approval.id}`,
         hints: [
@@ -1336,7 +1344,15 @@ export async function executeCliUniversalApprovalDecision(
     return { ok: false, handled: true, output: [body], error: result.error || result.run.summary };
   }
 
-  const replyText = String(result.replies[0]?.text || '').trim() || result.run.summary;
+  const rawReplyText = String(result.replies[0]?.text || '').trim() || result.run.summary;
+  const replyText = new ZavorthUserResponseRendererService().render({
+    text: rawReplyText,
+    channel: 'cli',
+    audience: 'developer',
+    run: result.run,
+    replayCommand: `zavorth replay run ${result.run.id} --json`,
+    includeTechnicalFooter: false,
+  }).text;
   const body = decision === 'reject'
     ? formatCliSuccessEventCard({
       title: 'Cancelado',

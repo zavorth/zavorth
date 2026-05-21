@@ -49,9 +49,20 @@ export interface SidebarSectionDefinition {
 
 const PRIMARY_SIDEBAR_ITEMS: readonly SidebarItemDefinition[] = [
   { id: "home", href: "/control", i18nKey: "home", icon: "home", exact: true },
+  { id: "providers", href: "/dashboard/providers", i18nKey: "providers", icon: "dns" },
+  { id: "skills", href: "/dashboard/skills", i18nKey: "skills", icon: "auto_fix_high" },
+  { id: "memory", href: "/dashboard/memory", i18nKey: "memory", icon: "psychology" },
+];
+
+const CLI_SIDEBAR_ITEMS: readonly SidebarItemDefinition[] = [
+  { id: "cli-tools", href: "/dashboard/cli-tools", i18nKey: "cliToolsShort", icon: "terminal" },
+  { id: "agents", href: "/dashboard/agents", i18nKey: "agents", icon: "smart_toy" },
+  { id: "expressive" as any, href: "/dashboard/expressive", i18nKey: "expressive", icon: "blur_on" },
+];
+
+const DEBUG_SIDEBAR_ITEMS: readonly SidebarItemDefinition[] = [
   { id: "endpoints", href: "/dashboard/endpoint", i18nKey: "endpoints", icon: "api" },
   { id: "api-manager", href: "/dashboard/api-manager", i18nKey: "apiManager", icon: "vpn_key" },
-  { id: "providers", href: "/dashboard/providers", i18nKey: "providers", icon: "dns" },
   { id: "combos", href: "/dashboard/combos", i18nKey: "combos", icon: "layers" },
   { id: "auto-combo", href: "/dashboard/auto-combo", i18nKey: "autoCombo", icon: "auto_awesome" },
   { id: "costs", href: "/dashboard/costs", i18nKey: "costs", icon: "account_balance_wallet" },
@@ -59,17 +70,6 @@ const PRIMARY_SIDEBAR_ITEMS: readonly SidebarItemDefinition[] = [
   { id: "cache", href: "/dashboard/cache", i18nKey: "cache", icon: "cached" },
   { id: "limits", href: "/dashboard/limits", i18nKey: "limits", icon: "tune" },
   { id: "media", href: "/dashboard/cache/media", i18nKey: "media", icon: "perm_media" },
-];
-
-const CLI_SIDEBAR_ITEMS: readonly SidebarItemDefinition[] = [
-  { id: "cli-tools", href: "/dashboard/cli-tools", i18nKey: "cliToolsShort", icon: "terminal" },
-  { id: "agents", href: "/dashboard/agents", i18nKey: "agents", icon: "smart_toy" },
-  { id: "memory", href: "/dashboard/memory", i18nKey: "memory", icon: "psychology" },
-  { id: "skills", href: "/dashboard/skills", i18nKey: "skills", icon: "auto_fix_high" },
-  { id: "expressive" as any, href: "/dashboard/expressive", i18nKey: "expressive", icon: "blur_on" },
-];
-
-const DEBUG_SIDEBAR_ITEMS: readonly SidebarItemDefinition[] = [
   { id: "translator", href: "/dashboard/translator", i18nKey: "translator", icon: "translate" },
   { id: "playground", href: "/dashboard/playground", i18nKey: "playground", icon: "science" },
   {

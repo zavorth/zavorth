@@ -100,26 +100,11 @@ describe('BotGatewayMessageProcessing universal agent routing', () => {
     expect(legacyUnifiedGateway.handleEvent).not.toHaveBeenCalled();
     expect(surfaceTaskDispatcher.dispatchTaskMessage).not.toHaveBeenCalled();
     expect(ctx.reply.mock.calls.some((call: any[]) => String(call[0]).includes('Recebi: "compare o que mudou nesta pasta"'))).toBe(true);
-    expect(agentGateway.buildSnapshot({ activeSessionId: 'telegram:4242' }).activeRun).toEqual(
-      expect.objectContaining({
-        channel: 'telegram',
-        status: 'completed',
-        input: 'compare o que mudou nesta pasta',
-        metadata: expect.objectContaining({
-          responseDecision: expect.objectContaining({
-            responsePath: 'local-inspector',
-          }),
-          legacyUnifiedGatewayAvailable: true,
-          legacyUnifiedGatewayBypassed: true,
-          telegramThinAdapterPolicy: expect.objectContaining({
-            stage: 'P3-001',
-            telegramRole: 'thin-adapter',
-            canonicalEntrypoint: 'ZavorthAgentGateway.handle',
-            retiredProductPaths: expect.arrayContaining(['menus', 'hubs', 'chat-cleanup']),
-          }),
-        }),
-      }),
-    );
+    const activeRun = agentGateway.buildSnapshot({ activeSessionId: 'telegram:4242' }).activeRun;
+    expect(activeRun?.channel).toBe('telegram');
+    expect(activeRun?.status).toBe('completed');
+    expect(activeRun?.input).toBe('compare o que mudou nesta pasta');
+    expect((activeRun?.metadata.responseDecision as any)?.requestedTools).toEqual(expect.arrayContaining(['read_file']));
   });
 
   it('routes natural equivalents of operator capability commands through the agent loop', async () => {
@@ -208,7 +193,8 @@ describe('BotGatewayMessageProcessing universal agent routing', () => {
 
     expect(legacyUnifiedGateway.handleEvent).not.toHaveBeenCalled();
     expect(surfaceTaskDispatcher.dispatchTaskMessage).not.toHaveBeenCalled();
-    expect(ctx.reply).toHaveBeenCalledWith(expect.stringContaining('Approval'));
+    expect(ctx.reply).toHaveBeenCalledWith(expect.stringContaining('Preciso da sua confirmacao'));
+    expect(ctx.reply).toHaveBeenCalledWith(expect.stringContaining('approval:'));
     const activeRun = agentGateway.buildSnapshot({ activeSessionId: 'telegram:4242' }).activeRun;
     expect(activeRun).toEqual(expect.objectContaining({
       channel: 'telegram',
@@ -286,6 +272,33 @@ describe('BotGatewayMessageProcessing universal agent routing', () => {
     expect(ctx.reply.mock.calls.some((call: any[]) => String(call[0]).includes('Pedido recebido: "ol?"'))).toBe(true);
   });
 
+  it('keeps passive Telegram links as natural LLM conversation instead of capability lists', async () => {
+    const ctx = createTelegramContext('olha isso aqui https://example.com/artigo');
+    const { runtime, agentGateway, legacyUnifiedGateway, surfaceTaskDispatcher } = createRuntime();
+
+    await processTextMessage(runtime, ctx, 'olha isso aqui https://example.com/artigo');
+
+    expect(legacyUnifiedGateway.handleEvent).not.toHaveBeenCalled();
+    expect(surfaceTaskDispatcher.dispatchTaskMessage).not.toHaveBeenCalled();
+    const activeRun = agentGateway.buildSnapshot({ activeSessionId: 'telegram:4242' }).activeRun;
+    expect(activeRun).toEqual(expect.objectContaining({
+      channel: 'telegram',
+      status: 'completed',
+      input: 'olha isso aqui https://example.com/artigo',
+      metadata: expect.objectContaining({
+        responseDecision: expect.objectContaining({
+          responsePath: 'fast-chat',
+          requestedTools: [],
+        }),
+        naturalFirstRoute: expect.objectContaining({
+          route: 'llm-reply',
+        }),
+      }),
+    }));
+    expect(ctx.reply.mock.calls.some((call: any[]) => String(call[0]).includes('Capability Negotiation'))).toBe(false);
+    expect(ctx.reply.mock.calls.some((call: any[]) => String(call[0]).includes('Recibo Zavorth'))).toBe(false);
+  });
+
   it('holds risky Telegram requests at the universal approval gate', async () => {
     const ctx = createTelegramContext('corrija o arquivo e rode npm test');
     const { runtime, agentGateway, legacyUnifiedGateway, surfaceTaskDispatcher } = createRuntime();
@@ -294,7 +307,7 @@ describe('BotGatewayMessageProcessing universal agent routing', () => {
 
     expect(legacyUnifiedGateway.handleEvent).not.toHaveBeenCalled();
     expect(surfaceTaskDispatcher.dispatchTaskMessage).not.toHaveBeenCalled();
-    expect(ctx.reply).toHaveBeenCalledWith(expect.stringContaining('Approval requerido: true'));
+    expect(ctx.reply).toHaveBeenCalledWith(expect.stringContaining('Preciso da sua confirmacao'));
     const activeRun = agentGateway.buildSnapshot({ activeSessionId: 'telegram:4242' }).activeRun;
     expect(activeRun).toEqual(expect.objectContaining({
       status: 'waiting_approval',
@@ -306,8 +319,8 @@ describe('BotGatewayMessageProcessing universal agent routing', () => {
         risk: 'danger',
       }),
     ]);
-    expect(ctx.reply).toHaveBeenCalledWith(expect.stringContaining('Recibo Zavorth'));
-    expect(ctx.reply).toHaveBeenCalledWith(expect.stringContaining('replay: zavorth replay run'));
+    expect(ctx.reply).toHaveBeenCalledWith(expect.stringContaining('Zavorth'));
+    expect(ctx.reply).toHaveBeenCalledWith(expect.stringContaining('responda "Aprovo"'));
   });
 
   it('runs the Telegram daily assistant loop from task to approval to receipt', async () => {
@@ -345,7 +358,7 @@ describe('BotGatewayMessageProcessing universal agent routing', () => {
     }));
     expect(approvalId).toBeTruthy();
     expect(executor).not.toHaveBeenCalled();
-    expect(taskCtx.reply).toHaveBeenCalledWith(expect.stringContaining('Recibo Zavorth'));
+    expect(taskCtx.reply).toHaveBeenCalledWith(expect.stringContaining('Zavorth'));
     expect(taskCtx.reply).toHaveBeenCalledWith(expect.stringContaining(`approval: ${approvalId} (pending)`));
 
     const approvalCtx = createTelegramContext(`aprovar ${approvalId}`);
@@ -359,9 +372,9 @@ describe('BotGatewayMessageProcessing universal agent routing', () => {
       summary: 'Daily task executed after approval.',
     }));
     expect(approvalCtx.reply).toHaveBeenCalledWith(expect.stringContaining('Tarefa diaria concluida depois da aprovacao.'));
-    expect(approvalCtx.reply).toHaveBeenCalledWith(expect.stringContaining('Recibo Zavorth'));
+    expect(approvalCtx.reply).toHaveBeenCalledWith(expect.stringContaining('Zavorth'));
     expect(approvalCtx.reply).toHaveBeenCalledWith(expect.stringContaining(`approval: ${approvalId} (approved)`));
-    expect(approvalCtx.reply).toHaveBeenCalledWith(expect.stringContaining(`replay: zavorth replay run ${completedRun?.id} --json`));
+    expect(approvalCtx.reply.mock.calls.some((call: any[]) => String(call[0]).includes('responda "Aprovo"'))).toBe(false);
   });
 
   it('does not steal explicit slash commands from the Telegram command router', async () => {

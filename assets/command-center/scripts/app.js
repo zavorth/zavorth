@@ -989,8 +989,41 @@
       </div>
       <div class="compose-skill-popover__footer">Choose a skill to prepare the request. Nothing runs by itself.</div>
     `;
+    skillPopover.querySelectorAll('.compose-skill-option').forEach((option) => {
+      option.addEventListener('click', (event) => {
+        event.preventDefault();
+        event.stopPropagation();
+        applySelectedSkill(option);
+      });
+    });
     skillPopover.classList.remove('hidden');
     if (skillsBtn) skillsBtn.classList.add('is-active');
+  }
+
+  function applySelectedSkill(option) {
+    if (!option || !composeInput) return;
+    const skillId = option.getAttribute('data-skill-id') || '';
+    const skillTitle = option.getAttribute('data-skill-title') || skillId;
+    const skillStatus = option.getAttribute('data-skill-status') || '';
+    const prompt = option.getAttribute('data-skill-prompt') || '';
+    if (skillId && !pendingSelectedSkills.some((skill) => skill.id === skillId)) {
+      pendingSelectedSkills.push({
+        id: skillId,
+        title: skillTitle,
+        status: skillStatus,
+        prompt,
+      });
+    }
+    const skillPrompt = prompt
+      ? `Use ${skillTitle}: ${prompt}`
+      : `Use ${skillTitle} para este pedido.`;
+    const current = composeInput.value.trim();
+    composeInput.value = current ? `${skillPrompt}
+
+${current}` : skillPrompt;
+    composeInput.dispatchEvent(new Event('input'));
+    composeInput.focus();
+    closeSkillPopover();
   }
 
   if (skillsBtn) {
@@ -1009,26 +1042,8 @@
         return;
       }
       const option = event.target.closest('[data-skill-prompt]');
-      if (!option || !composeInput) return;
-      const skillId = option.getAttribute('data-skill-id') || '';
-      const skillTitle = option.getAttribute('data-skill-title') || skillId;
-      const skillStatus = option.getAttribute('data-skill-status') || '';
-      const prompt = option.getAttribute('data-skill-prompt') || '';
-      if (skillId && !pendingSelectedSkills.some((skill) => skill.id === skillId)) {
-        pendingSelectedSkills.push({
-          id: skillId,
-          title: skillTitle,
-          status: skillStatus,
-          prompt,
-        });
-      }
-      const current = composeInput.value.trim();
-      composeInput.value = current ? `${prompt}
-
-${current}` : prompt;
-      composeInput.dispatchEvent(new Event('input'));
-      composeInput.focus();
-      closeSkillPopover();
+      if (!option) return;
+      applySelectedSkill(option);
     });
   }
 

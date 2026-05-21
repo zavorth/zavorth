@@ -66,7 +66,7 @@ export function CommandCenterOnboardingPanel({
       });
       const payload = await response.json().catch(() => ({}));
       if (!response.ok || payload?.ok === false) {
-        const recovery = asText(payload?.recovery?.primaryCommand, "zavorth dashboard");
+        const recovery = asText(payload?.recovery?.primaryCommand, "zavorth open");
         throw new Error(`${asText(payload?.error, "Token invalido ou antigo.")} Abra uma nova aba com ${recovery}.`);
       }
       window.sessionStorage.setItem(AUTH_STORAGE_KEY, normalizedToken);
@@ -106,10 +106,10 @@ export function CommandCenterOnboardingPanel({
               {unlocking ? "Validando" : "Desbloquear"}
             </CommandCenterButton>
           </form>
-          <div className="bcc-access-commands" aria-label="Comandos de recuperacao do dashboard">
-            <code>zavorth dashboard</code>
-            <code>zavorth dashboard repair</code>
-            <code>zavorth dashboard token</code>
+          <div className="bcc-access-commands" aria-label="Comandos de recuperacao do Command Center">
+            <code>zavorth open</code>
+            <code>zavorth doctor</code>
+            <code>zavorth ready</code>
           </div>
           {unlockMessage ? (
             <p className="bcc-access-card__feedback" data-tone={unlockMessage.includes("desbloqueado") ? "ok" : "warn"}>

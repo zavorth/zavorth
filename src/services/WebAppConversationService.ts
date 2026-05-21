@@ -31,6 +31,7 @@ import { config } from '../config/index.js';
 import { SurfaceOperationalIntentService } from './SurfaceOperationalIntentService.js';
 import { FileInspectionService } from './FileInspectionService.js';
 import { AttachmentIntelligenceService, type AttachmentTextProfile } from './AttachmentIntelligenceService.js';
+import { ZavorthUserResponseRendererService } from './ZavorthUserResponseRendererService.js';
 
 type RuntimeRecord = Record<string, unknown>;
 type ComposerCatalogOptions = NonNullable<ConstructorParameters<typeof ComposerCatalogService>[0]>;
@@ -55,6 +56,7 @@ export class WebAppConversationService {
   private readonly fileInspectionService = new FileInspectionService();
   private readonly attachmentIntelligence = new AttachmentIntelligenceService();
   private readonly surfaceOperationalIntentService: Pick<SurfaceOperationalIntentService, 'decideResponse'>;
+  private readonly responseRenderer = new ZavorthUserResponseRendererService();
 
   constructor(private readonly deps: WebAppConversationDeps) {
     this.surfaceOperationalIntentService = deps.surfaceOperationalIntentService || new SurfaceOperationalIntentService();
@@ -697,7 +699,16 @@ export class WebAppConversationService {
 
     const primaryReply = result.replies[0]?.text;
     if (primaryReply) {
-      await this.deliverWebOutput(input.sessionId, primaryReply, 'universal-agent-runtime', text);
+      const approval = result.run.approvals.find((entry) => entry.status === 'pending') || null;
+      const rendered = this.responseRenderer.render({
+        text: primaryReply,
+        channel: 'web',
+        audience: 'normal-user',
+        run: result.run,
+        approvalId: approval?.id || null,
+        approvalStatus: approval?.status || null,
+      }).text;
+      await this.deliverWebOutput(input.sessionId, rendered, 'universal-agent-runtime', text);
     }
     return result;
   }
@@ -745,9 +756,16 @@ export class WebAppConversationService {
 
     const primaryReply = result.replies[0]?.text;
     if (primaryReply) {
+      const rendered = this.responseRenderer.render({
+        text: primaryReply,
+        channel: 'web',
+        audience: 'normal-user',
+        run: result.run,
+        includeTechnicalFooter: false,
+      }).text;
       await this.deliverWebOutput(
         input.sessionId,
-        primaryReply,
+        rendered,
         input.kind || 'universal-agent-runtime',
         input.userVisibleText || text,
       );
