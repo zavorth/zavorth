@@ -21,6 +21,7 @@ export type AgentRunEvidenceSerializedRecord = AgentRunEvidenceSnapshotRef & {
 
 export type AgentRunEvidenceStoreSnapshot = {
   source: 'AgentRunEvidenceStore';
+  stage: 4;
   phase: 4;
   refs: AgentRunEvidenceSnapshotRef[];
   records?: AgentRunEvidenceSerializedRecord[];
@@ -176,6 +177,7 @@ export class AgentRunEvidenceStore {
     const serializedRecords = this.readSerializedRecords(run);
     return {
       source: 'AgentRunEvidenceStore',
+      stage: 4,
       phase: 4,
       refs,
       ...(serializedRecords.length > 0 ? { records: serializedRecords } : {}),

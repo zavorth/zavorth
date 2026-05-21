@@ -23,19 +23,33 @@ npx zavorth start
 Installed CLI:
 
 ```bash
+zavorth
+zavorth ask "por que o runtime esta bloqueado?"
+zavorth run "revise esse repo"
+zavorth learn
 zavorth setup
 zavorth start
 zavorth open
 zavorth ready
 ```
 
-`setup` opens the guided Setup Studio. `start` starts or resumes the local
-runtime. `open` opens the Command Center. `ready` tells you if the machine is usable
-for daily work.
+`zavorth` opens the natural-first terminal home. `ask` and `run` use the
+Experience Core to create a governed plan, timeline and receipts. `learn`
+reviews learning candidates before they affect future behavior. `setup` opens
+the guided Setup Studio. `start` starts or resumes the local runtime. `open`
+opens the Command Center. `ready` tells you if the machine is usable for daily
+work.
 
 ## Common Commands
 
 ```bash
+zavorth
+zavorth ask "what should I do next?"
+zavorth run "review this repo"
+zavorth approve <approval-id>
+zavorth learn
+zavorth learn approve <candidate-id>
+zavorth learn reject <candidate-id>
 zavorth setup
 zavorth start
 zavorth open

@@ -2,6 +2,7 @@ import type { DashboardClassicAccessDeps } from './DashboardClassicAccessService
 import type { DashboardCoreRouteDeps } from './DashboardCoreRouteService.js';
 import type { DashboardHttpCorsDeps } from './DashboardHttpSupportService.js';
 import type { DashboardLegacyRouteDeps } from './DashboardLegacyRouteService.js';
+import { ExperienceCoreService } from '../../../../services/experience/index.js';
 
 export type DashboardPresentationDepsBridgeInput = {
   host: string;
@@ -31,6 +32,11 @@ export type DashboardPresentationDepsBridgeSource = {
   instagramIngressGateway: DashboardCoreRouteDeps['instagramIngressGateway'];
   a2ui: DashboardCoreRouteDeps['a2ui'];
   proactivePermissions: DashboardCoreRouteDeps['proactivePermissions'];
+  experienceCoreService?: DashboardCoreRouteDeps['experienceCore'];
+  agentGateway?: any;
+  memoryPlane?: any;
+  learningPlane?: any;
+  runtimeAccessReadiness?: any;
   echoService: DashboardCoreRouteDeps['echo'];
   getPublicBaseUrl: DashboardLegacyRouteDeps['getPublicBaseUrl'];
   getClassicDashboardHtml: DashboardLegacyRouteDeps['getClassicDashboardHtml'];
@@ -87,6 +93,12 @@ export class DashboardPresentationDepsBridgeService {
       instagramIngressGateway: source.instagramIngressGateway,
       a2ui: source.a2ui,
       proactivePermissions: source.proactivePermissions,
+      experienceCore: source.experienceCoreService || new ExperienceCoreService({
+        agentGateway: source.agentGateway || null,
+        memoryPlane: source.memoryPlane || null,
+        learningPlane: source.learningPlane || null,
+        runtimeAccessReadiness: source.runtimeAccessReadiness || null,
+      }),
       echo: source.echoService,
     };
   }
@@ -128,4 +140,3 @@ export class DashboardPresentationDepsBridgeService {
     };
   }
 }
-

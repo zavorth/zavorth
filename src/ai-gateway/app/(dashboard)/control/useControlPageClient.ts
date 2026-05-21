@@ -8,6 +8,7 @@ import type {
   DeveloperWorkspaceActionResult,
   DeveloperWorkspaceResponse,
   DiffPreviewState,
+  ExperienceSnapshotResponse,
   GatewayControlResponse,
   GatewayRuntimeResponse,
   PendingRequest,
@@ -48,6 +49,8 @@ export function useControlPageClient(): ControlPageClientModel {
   const [runtime, setRuntime] = useState<Record<string, any> | null>(null);
   const [gatewayControl, setGatewayControl] = useState<GatewayControlResponse | null>(null);
   const [gatewayControlError, setGatewayControlError] = useState<string | null>(null);
+  const [experience, setExperience] = useState<ExperienceSnapshotResponse | null>(null);
+  const [experienceError, setExperienceError] = useState<string | null>(null);
   const [developerWorkspace, setDeveloperWorkspace] = useState<DeveloperWorkspaceResponse | null>(null);
   const [developerWorkspaceError, setDeveloperWorkspaceError] = useState<string | null>(null);
   const [developerWorkspaceActionResult, setDeveloperWorkspaceActionResult] =
@@ -128,6 +131,21 @@ export function useControlPageClient(): ControlPageClientModel {
     }
   };
 
+  const loadExperienceSnapshot = async (): Promise<ExperienceSnapshotResponse | null> => {
+    try {
+      const query = buildControlStateQuery();
+      const payload = await fetchJson<ExperienceSnapshotResponse>(`/api/experience/home${query}`);
+      setExperience(payload);
+      setExperienceError(null);
+      return payload;
+    } catch (experienceLoadError: any) {
+      const message = experienceLoadError?.message || "Falha ao carregar a Experience Core API.";
+      setExperience(null);
+      setExperienceError(message);
+      return null;
+    }
+  };
+
   const loadDeveloperWorkspaceSnapshot = async (): Promise<DeveloperWorkspaceResponse | null> => {
     try {
       const payload = await fetchJson<DeveloperWorkspaceResponse>("/api/developer-workspace");
@@ -159,6 +177,7 @@ export function useControlPageClient(): ControlPageClientModel {
         fetchJson<Record<string, any>>(`/api/web/command-center${query}`),
         fetchJson<Record<string, any>>(`/api/web/command-center/events-v1${query}`),
         loadGatewayControlSnapshot(),
+        loadExperienceSnapshot(),
         loadDeveloperWorkspaceSnapshot(),
       ]);
 
@@ -345,18 +364,24 @@ export function useControlPageClient(): ControlPageClientModel {
     setError(null);
 
     try {
-      const payload = await fetchJson<Record<string, any>>(`/api/web/command-center/chat-v1`, {
+      const experiencePayload = await fetchJson<Record<string, any>>(`/api/experience/ask`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
           sessionId: getSessionIdFromState(state) || activeSessionId || null,
+          text: message,
           message,
+          intent: "ask",
+          surface: "web",
           live: options.live === true,
           requestedBy: "control-ui",
         }),
       });
+      if (experiencePayload.snapshot) {
+        setExperience(experiencePayload.snapshot as ExperienceSnapshotResponse);
+      }
       setState((current) => {
         const currentState = (current || {}) as ControlStateResponse;
         const currentRuntimeApiV1 = currentState.runtimeApiV1 || {};
@@ -364,7 +389,8 @@ export function useControlPageClient(): ControlPageClientModel {
           ...currentState,
           runtimeApiV1: {
             ...currentRuntimeApiV1,
-            chat: payload.chat || payload.data || payload,
+            chat: experiencePayload.chat || experiencePayload.data || experiencePayload,
+            experience: experiencePayload,
             safety: {
               ...(currentRuntimeApiV1.safety || {}),
               commandCenterCanExecute: false,
@@ -377,6 +403,8 @@ export function useControlPageClient(): ControlPageClientModel {
       setDiffPreview(null);
       if (options.live === true) {
         await loadControlState(getSessionIdFromState(state) || activeSessionId || null);
+      } else {
+        await loadExperienceSnapshot();
       }
     } catch (sendError: any) {
       setError(sendError?.message || "Failed to submit the mission.");
@@ -453,6 +481,23 @@ export function useControlPageClient(): ControlPageClientModel {
     setError(null);
 
     try {
+      const experienceDecision = await fetchJson<Record<string, any>>(
+        `/api/experience/approvals/${encodeURIComponent(normalizedApprovalId)}/decision`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            decision,
+            requestedBy: "control-ui",
+            sessionId: getSessionIdFromState(state) || activeSessionId || null,
+          }),
+        },
+      );
+      if (experienceDecision.snapshot) {
+        setExperience(experienceDecision.snapshot as ExperienceSnapshotResponse);
+      }
       await fetchJson<Record<string, any>>("/api/web/command-center/actions", {
         method: "POST",
         headers: {
@@ -663,6 +708,8 @@ export function useControlPageClient(): ControlPageClientModel {
     runtime,
     gatewayControl,
     gatewayControlError,
+    experience,
+    experienceError,
     developerWorkspace,
     developerWorkspaceError,
     developerWorkspaceActionResult,
@@ -710,6 +757,7 @@ export function useControlPageClient(): ControlPageClientModel {
     timelineItems,
     loadControlState,
     reloadGatewayControl: loadGatewayControlSnapshot,
+    reloadExperience: loadExperienceSnapshot,
     reloadDeveloperWorkspace: loadDeveloperWorkspaceSnapshot,
     handleDeveloperWorkspaceAction,
     handleSend,

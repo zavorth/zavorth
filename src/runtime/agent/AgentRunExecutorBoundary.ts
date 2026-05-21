@@ -101,6 +101,7 @@ export class AgentRunExecutorBoundary {
         ...(result.metadata || {}),
         executorBoundary: {
           source: 'AgentRunExecutorBoundary',
+          stage: 8,
           phase: 8,
           selected,
         },

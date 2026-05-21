@@ -280,6 +280,7 @@ export class AgentRunEvidencePipeline {
     const scheduledStepIds = new Set<AgentRunEvidenceStepId>();
     const collectorReceipts: Array<{
       collectorId: AgentRunEvidenceCollectorId;
+      stage: AgentRunEvidencePhase;
       phase: AgentRunEvidencePhase;
       stepIds: AgentRunEvidenceStepId[];
       executionMode: AgentRunEvidenceCollectorExecutionMode;
@@ -295,6 +296,7 @@ export class AgentRunEvidencePipeline {
       }
       collectorReceipts.push({
         collectorId: collector.id,
+        stage: phase,
         phase,
         stepIds: selectedStepIds,
         executionMode: scheduleAttempt.executionMode,
@@ -439,6 +441,7 @@ export class AgentRunEvidencePipeline {
     phase: AgentRunEvidencePhase,
     collectors: Array<{
       collectorId: AgentRunEvidenceCollectorId;
+      stage: AgentRunEvidencePhase;
       phase: AgentRunEvidencePhase;
       stepIds: AgentRunEvidenceStepId[];
       executionMode: AgentRunEvidenceCollectorExecutionMode;
@@ -455,6 +458,7 @@ export class AgentRunEvidencePipeline {
       ...context.run.metadata,
       evidenceCollectors: {
         source: 'AgentRunEvidencePipeline',
+        stage: 3,
         phase: 3,
         lastPhase: phase,
         collectorCount: this.collectors.length,
@@ -471,6 +475,7 @@ export class AgentRunEvidencePipeline {
     context: AgentRunEvidencePipelineContext,
     receipt: {
       jobId: string;
+      stage?: AgentRunEvidencePhase;
       phase: AgentRunEvidencePhase;
       collectorId: AgentRunEvidenceCollectorId;
       status: AgentRunEvidenceWorkerReceiptStatus;
@@ -488,11 +493,15 @@ export class AgentRunEvidencePipeline {
       ...context.run.metadata,
       evidenceWorkers: {
         source: 'AgentRunEvidencePipeline',
+        stage: this.workerMode === 'worker-first-heavy' ? 11 : 9,
         phase: this.workerMode === 'worker-first-heavy' ? 11 : 9,
         mode: this.workerMode,
         receipts: [
           ...receipts,
-          receipt,
+          {
+            stage: receipt.stage || receipt.phase,
+            ...receipt,
+          },
         ],
       },
     };

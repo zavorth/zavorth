@@ -250,6 +250,7 @@ export class EchoExecutionLoop {
         const toolResultMessage: ChatMessage = {
           role: 'tool',
           toolCallId: llmResponse.toolCalls[index]?.id,
+          toolName: trace.toolCall.toolName,
           content: wrapToolOutputForLlm(trace.toolCall.toolName, trace.toolCall.result, {
             source: 'echo_tool_result',
             tool_call_id: llmResponse.toolCalls[index]?.id,

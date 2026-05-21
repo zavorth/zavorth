@@ -997,26 +997,28 @@ export function buildCliHelpSnapshot(target?: string | null): CliHelpSnapshot {
     surface: 'zavorth-cli',
     topic: 'root',
     title: ZAVORTH_CLI_BRAND_NAME,
-    summary: 'Zavorth em comandos curtos: configurar, ligar, abrir, verificar, conversar e revisar com approvals e receipts.',
+    summary: 'Zavorth natural-first: fale em linguagem normal, acompanhe timeline, aprove o que importa e revise aprendizados.',
     sections: [
       {
         title: 'Comandos essenciais',
         entries: [
+          { command: 'zavorth', summary: 'Abre a home conversacional premium no terminal.' },
+          { command: 'zavorth ask "pergunta"', summary: 'Roteia linguagem natural pelo Experience Core.' },
+          { command: 'zavorth run "tarefa"', summary: 'Cria plano, executa com governanca e emite receipts.' },
+          { command: 'zavorth approve', summary: 'Mostra ou resolve approvals pendentes.' },
+          { command: 'zavorth learn', summary: 'Revisa aprendizados antes de promover comportamento futuro.' },
           { command: 'zavorth setup', summary: 'Abre o Setup Studio guiado.' },
-          { command: 'zavorth start', summary: 'Liga ou retoma o runtime local.' },
           { command: 'zavorth open', summary: 'Abre o dashboard.' },
-          { command: 'zavorth ready', summary: 'Diz se esta pronto para uso remoto/local.' },
-          { command: 'zavorth status', summary: 'Mostra saude atual em uma tela curta.' },
           { command: 'zavorth doctor', summary: 'Diagnostica e sugere correcao.' },
         ],
       },
       {
-        title: 'Trabalho diario',
+        title: 'Atalhos de operador',
         entries: [
-          { command: 'zavorth chat', summary: 'Conversa no terminal.' },
+          { command: 'zavorth start', summary: 'Liga ou retoma o runtime local.' },
+          { command: 'zavorth ready', summary: 'Diz se esta pronto para uso remoto/local.' },
+          { command: 'zavorth status', summary: 'Mostra saude atual em uma tela curta.' },
           { command: 'zavorth providers', summary: 'Mostra providers/modelos e readiness.' },
-          { command: 'zavorth skills', summary: 'Mostra skills e curadoria.' },
-          { command: 'zavorth review', summary: 'Roda Agent Review governado.' },
           { command: 'zavorth trust', summary: 'Mostra approvals, permissoes e modo extremo.' },
           { command: 'zavorth channels', summary: 'Configura canais como Telegram/Discord.' },
         ],
@@ -1041,7 +1043,7 @@ export function buildCliHelpSnapshot(target?: string | null): CliHelpSnapshot {
     notesTitle: 'Next',
     notes: [
       'Primeira vez? Rode: zavorth setup',
-      'Uso diario? Rode: zavorth start',
+      'Uso diario? Rode: zavorth e fale normalmente.',
     ],
   };
 }

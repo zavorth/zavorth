@@ -46,6 +46,7 @@ import type { ZavorthWorkspaceMemoryOsService } from '../services/ZavorthWorkspa
 import type { ZavorthSelfHealControlPlaneService } from '../services/ZavorthSelfHealControlPlaneService.js';
 import type { ZavorthReleasePresenceControlPlaneService } from '../services/ZavorthReleasePresenceControlPlaneService.js';
 import type { ZavorthAgentGateway } from '../runtime/agent/index.js';
+import type { ExperienceCoreService } from '../services/experience/index.js';
 
 export type ZavorthCliFlags = {
   command: string | null;
@@ -89,7 +90,11 @@ export type ZavorthCliRuntime = {
   autoRepairService?: Pick<AutoRepairService, 'run' | 'readLastReport' | 'summarizeLastRun'>;
   memoryPlaneService?: Pick<ZavorthMemoryPlaneService, 'buildSnapshot'>;
   layeredMemoryService?: Pick<ZavorthLayeredMemoryService, 'buildStatus' | 'search' | 'readProcedures' | 'readMetrics'>;
-  learningPlaneService?: Pick<ZavorthLearningPlaneService, 'buildSnapshot' | 'executeAction' | 'readMetrics'>;
+  learningPlaneService?: Pick<
+    ZavorthLearningPlaneService,
+    'buildSnapshot' | 'executeAction' | 'readMetrics' | 'resetState' | 'exportState'
+  >;
+  experienceCoreService?: Pick<ExperienceCoreService, 'buildHome' | 'executeCommand' | 'buildTimelineForRun'>;
   platformRegistryService?: Pick<
     ZavorthPlatformRegistryService,
     'buildSnapshot' | 'buildSummarySnapshot' | 'buildStatusSummarySnapshot'
@@ -158,7 +163,11 @@ export type ZavorthCliServiceOverrides = {
   autoRepair?: Pick<AutoRepairService, 'run' | 'readLastReport' | 'summarizeLastRun'>;
   memoryPlane?: Pick<ZavorthMemoryPlaneService, 'buildSnapshot'>;
   layeredMemory?: Pick<ZavorthLayeredMemoryService, 'buildStatus' | 'search' | 'readProcedures' | 'readMetrics'>;
-  learningPlane?: Pick<ZavorthLearningPlaneService, 'buildSnapshot' | 'executeAction' | 'readMetrics'>;
+  learningPlane?: Pick<
+    ZavorthLearningPlaneService,
+    'buildSnapshot' | 'executeAction' | 'readMetrics' | 'resetState' | 'exportState'
+  >;
+  experienceCore?: Pick<ExperienceCoreService, 'buildHome' | 'executeCommand' | 'buildTimelineForRun'>;
   platformRegistry?: Pick<
     ZavorthPlatformRegistryService,
     'buildSnapshot' | 'buildSummarySnapshot' | 'buildStatusSummarySnapshot'

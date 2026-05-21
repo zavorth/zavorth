@@ -251,7 +251,7 @@ export class ComposerActionService {
     }
 
     try {
-      await this.workflowController.handleWorkflow(webContext, `restart-phase ${workflowRunId} ${resumeStageId}`);
+      await this.workflowController.handleWorkflow(webContext, `restart-stage ${workflowRunId} ${resumeStageId}`);
       await this.realtime.captureBaseline(sessionId);
       return {
         handled: true,

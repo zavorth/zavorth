@@ -14,6 +14,9 @@ import { DashboardHttpSupportService } from '../DashboardHttpSupportService.js';
 import { DashboardClassicAccessService } from '../DashboardClassicAccessService.js';
 import { DashboardClassicAssetService } from '../DashboardClassicAssetService.js';
 import { DashboardResponseWriterService } from '../DashboardResponseWriterService.js';
+import { buildRuntimeShellHtml } from '../../web-console/WebConsoleRuntimeShellHtml.js';
+import { buildRuntimeShellScript } from '../../web-console/WebConsoleRuntimeShellScript.js';
+import { buildRuntimeShellStyles } from '../../web-console/WebConsoleRuntimeShellStyles.js';
 import { ZavorthChannelActionService } from './DashboardServiceDependencies.js';
 import { ZavorthChannelMeshService } from './DashboardServiceDependencies.js';
 import { ZavorthGatewayService } from './DashboardServiceDependencies.js';
@@ -456,21 +459,13 @@ export function routeRequest(service: DashboardFacadeCompat, req: http.IncomingM
     res,
     service.presentationDepsBridge.buildHttpCorsDeps(presentationInput),
   );
-  if (service.httpSupport.handlePreflight(req, res)) {
-    return Promise.resolve();
-  }
+    if (service.httpSupport.handlePreflight(req, res)) {
+      return Promise.resolve();
+    }
 
   return (async () => {
     if (isRetiredControlSurfacePath(pathname)) {
-      service.responseWriter.writeJson(
-        res,
-        {
-          ok: false,
-          error: 'The /control surface has been retired. Use /dashboard.',
-          dashboardUrl: '/dashboard',
-        },
-        404,
-      );
+      service.responseWriter.writeRedirect(res, '/control');
       return;
     }
 
@@ -479,16 +474,26 @@ export function routeRequest(service: DashboardFacadeCompat, req: http.IncomingM
         res,
         {
           ok: false,
-          error: 'This legacy web surface is internal. Use /dashboard.',
-          dashboardUrl: '/dashboard',
-          visibleSurfaces: ['/dashboard', '/satellite', 'cli'],
+          error: 'This legacy web surface is internal. Use /control.',
+          dashboardUrl: '/control',
+          visibleSurfaces: ['/control', '/dashboard', '/satellite', 'cli'],
         },
         404,
       );
       return;
     }
 
-    if (pathname === '/dashboard' || pathname === '/dashboard/') {
+    if (isLegacyRuntimeShellPath(pathname)) {
+      serveLegacyRuntimeShell(res, pathname);
+      return;
+    }
+
+    if (
+      pathname === '/control'
+      || pathname === '/control/'
+      || pathname === '/dashboard'
+      || pathname === '/dashboard/'
+    ) {
       if (serveCommandCenterAsset(res, 'index.html')) return;
       service.responseWriter.writeText(res, 'Dashboard not found', 404);
       return;
@@ -604,9 +609,7 @@ function serveCommandCenterAsset(res: http.ServerResponse, relativePath: string)
 }
 
 function isRetiredControlSurfacePath(pathname: string): boolean {
-  return pathname === '/control'
-    || pathname === '/control/'
-    || pathname === '/control/review'
+  return pathname === '/control/review'
     || pathname === '/control/review/';
 }
 
@@ -619,6 +622,28 @@ function isLegacyWebSurfacePath(pathname: string): boolean {
     || pathname === '/classic/';
 }
 
+function isLegacyRuntimeShellPath(pathname: string): boolean {
+  return pathname === '/app'
+    || pathname === '/app/'
+    || pathname === '/app.js'
+    || pathname === '/styles.css';
+}
+
+function serveLegacyRuntimeShell(res: http.ServerResponse, pathname: string): void {
+  if (pathname === '/app' || pathname === '/app/') {
+    res.writeHead(200, { 'Content-Type': 'text/html; charset=utf-8' });
+    res.end(buildRuntimeShellHtml(pathname));
+    return;
+  }
+  if (pathname === '/app.js') {
+    res.writeHead(200, { 'Content-Type': 'application/javascript; charset=utf-8' });
+    res.end(buildRuntimeShellScript());
+    return;
+  }
+  res.writeHead(200, { 'Content-Type': 'text/css; charset=utf-8' });
+  res.end(buildRuntimeShellStyles());
+}
+
 function shouldServeLegacyWebSurfaces(): boolean {
   const nodeEnv = String(process.env.NODE_ENV || '').trim().toLowerCase();
   const zavorthEnv = String(process.env.ZAVORTH_ENV || '').trim().toLowerCase();
@@ -627,7 +652,7 @@ function shouldServeLegacyWebSurfaces(): boolean {
     || nodeEnv === 'test'
     || zavorthEnv === 'development'
     || zavorthEnv === 'test';
-  return enabled && devOrTest;
+  return devOrTest || enabled;
 }
 
 function isTruthyFlag(value: unknown): boolean {
@@ -680,5 +705,3 @@ export function getClassicDashboardHtml(service: DashboardFacadeCompat): string 
     auditReplaySummary,
   });
 }
-
-

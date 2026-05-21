@@ -1,10 +1,17 @@
 import * as fs from 'fs';
+import * as os from 'os';
+import * as path from 'path';
 import { TokenCounter } from '../../monitoring/TokenCounter.js';
 import type {
   ChatMessage,
   LlmResponse,
   ToolDefinition,
 } from '../../providers/ILlmProvider.js';
+import {
+  containsUntrustedContentMarker,
+  withUntrustedInputMetadata,
+} from '../../security/UntrustedContent.js';
+import { wrapToolOutputForLlm } from '../../security/ToolOutputTrust.js';
 
 export type SupervisorGraphStatus = 'approved' | 'max_iterations' | 'failed';
 
@@ -157,7 +164,13 @@ async function runGeneratorStep(
     workingMessages.push(assistantMessage);
 
     for (const toolCall of response.toolCalls) {
-      const toolResult = await executeToolCall(toolCall.name, toolCall.arguments, toolCall.id, dependencies);
+      const toolResult = await executeToolCall(
+        toolCall.name,
+        toolCall.arguments,
+        toolCall.id,
+        dependencies,
+        containsUntrustedContentMarker(workingMessages) || containsUntrustedContentMarker(toolCall.arguments),
+      );
       emittedMessages.push(toolResult);
       workingMessages.push(toolResult);
     }
@@ -270,6 +283,7 @@ export function extractVisionPayload(
 
   try {
     if (!fs.existsSync(rawPath)) return null;
+    if (!isAllowedVisionPath(rawPath)) return null;
 
     const stats = fs.statSync(rawPath);
     if (stats.size === 0 || stats.size > VISION_MAX_BYTES) return null;
@@ -286,22 +300,34 @@ async function executeToolCall(
   args: unknown,
   toolCallId: string,
   dependencies: SupervisorGraphDependencies,
+  influencedByUntrustedContent = false,
 ): Promise<ChatMessage> {
   if (!dependencies.toolRuntime) {
     return {
       role: 'tool',
-      content: 'Tool runtime indisponivel nesta execucao.',
+      content: wrapToolOutputForLlm(toolName, 'Tool runtime indisponivel nesta execucao.', {
+        source: 'supervisor_graph_tool_result',
+        tool_call_id: toolCallId,
+      }),
       toolCallId,
+      toolName,
     };
   }
 
   try {
-    const result = await dependencies.toolRuntime.executeTool(toolName, args);
+    const toolArgs = influencedByUntrustedContent
+      ? withUntrustedInputMetadata(args, 'supervisor-graph-contained-untrusted-tool-output')
+      : args;
+    const result = await dependencies.toolRuntime.executeTool(toolName, toolArgs);
     const contentStr = String(result ?? '');
     const chatMsg: ChatMessage = {
       role: 'tool',
-      content: contentStr,
+      content: wrapToolOutputForLlm(toolName, contentStr, {
+        source: 'supervisor_graph_tool_result',
+        tool_call_id: toolCallId,
+      }),
       toolCallId,
+      toolName,
     };
 
     // Dashboard controls: Injeção de visão computacional
@@ -314,8 +340,12 @@ async function executeToolCall(
   } catch (error: any) {
     return {
       role: 'tool',
-      content: `TOOL EXECUTION ERROR: ${error?.message || error}`,
+      content: wrapToolOutputForLlm(toolName, `TOOL EXECUTION ERROR: ${error?.message || error}`, {
+        source: 'supervisor_graph_tool_result',
+        tool_call_id: toolCallId,
+      }),
       toolCallId,
+      toolName,
     };
   }
 }
@@ -354,6 +384,38 @@ function trimMessagesForContext(messages: ChatMessage[]): ChatMessage[] {
   }
 
   return trimmed;
+}
+
+function resolveAllowedVisionRoots(): string[] {
+  const envRoots = String(process.env.ZAVORTH_GRAPH_VISION_ALLOWED_ROOTS || '')
+    .split(path.delimiter)
+    .map((entry) => entry.trim())
+    .filter(Boolean);
+  return Array.from(new Set([
+    process.cwd(),
+    os.tmpdir(),
+    ...envRoots,
+  ])).flatMap((root) => {
+    try {
+      return [fs.realpathSync(root)];
+    } catch {
+      return [path.resolve(root)];
+    }
+  });
+}
+
+function isAllowedVisionPath(candidatePath: string): boolean {
+  let resolvedCandidate = '';
+  try {
+    resolvedCandidate = fs.realpathSync(candidatePath);
+  } catch {
+    resolvedCandidate = path.resolve(candidatePath);
+  }
+
+  return resolveAllowedVisionRoots().some((root) => {
+    const relative = path.relative(root, resolvedCandidate);
+    return relative === '' || (Boolean(relative) && !relative.startsWith('..') && !path.isAbsolute(relative));
+  });
 }
 
 function buildGeneratorPrompt(taskGoal: string, directives: string[] = []): string {

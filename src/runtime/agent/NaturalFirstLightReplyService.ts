@@ -16,6 +16,7 @@ export type NaturalFirstLightReplyKind =
 export type NaturalFirstLightReplySnapshot = {
   contractVersion: typeof NATURAL_FIRST_LIGHT_REPLY_CONTRACT_VERSION;
   source: 'NaturalFirstLightReplyService';
+  stage: 4;
   phase: 4;
   route: 'light-chat';
   kind: NaturalFirstLightReplyKind;
@@ -114,6 +115,7 @@ export class NaturalFirstLightReplyService {
     return {
       contractVersion: NATURAL_FIRST_LIGHT_REPLY_CONTRACT_VERSION,
       source: 'NaturalFirstLightReplyService',
+      stage: 4,
       phase: 4,
       route: 'light-chat',
       kind,

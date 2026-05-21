@@ -56,6 +56,14 @@ describe('WorkspaceFsPolicy', () => {
     expect(() => policy.resolveReadPath('.env.example')).not.toThrow();
   });
 
+  it('blocks listing local secret-bearing directories inside the workspace', () => {
+    fs.mkdirSync(path.join(tempDir, '.ssh'), { recursive: true });
+    fs.writeFileSync(path.join(tempDir, '.ssh', 'config'), 'Host *', 'utf8');
+    const policy = new WorkspaceFsPolicy({ workspaceRoot: tempDir });
+
+    expect(() => policy.resolveListPath('.ssh')).toThrow(/credenciais|sensivel/i);
+  });
+
   it('blocks read paths whose realpath escapes through a directory symlink', () => {
     const outsideDir = fs.mkdtempSync(path.join(os.tmpdir(), 'zavorth-outside-read-'));
     try {

@@ -14,6 +14,8 @@ import type {
   SalesPackInboundMessageInput,
 } from '../contracts/SalesPackContract.js';
 import type { SalesPackChannelIoEnvelope } from '../contracts/SalesPackChannelIoContract.js';
+import type { ExperienceCommand, ExperienceSurface } from './experience/index.js';
+import { ExperienceCoreService } from './experience/index.js';
 
 type WriteJson = (res: http.ServerResponse, body: unknown, statusCode?: number) => void;
 type WriteText = (res: http.ServerResponse, body: string, statusCode?: number) => void;
@@ -88,6 +90,7 @@ export type DashboardCoreRouteDeps = {
   writeRedirect: WriteRedirect;
   a2ui: any;
   proactivePermissions: any;
+  experienceCore?: Pick<ExperienceCoreService, 'buildHome' | 'executeCommand' | 'buildTimelineForRun'> | null;
   authService?: Pick<DashboardAuthService, 'validate' | 'resolveAuthenticatedIdentity'>;
   echo?: {
     getPendingPermissions: () => unknown[];
@@ -135,8 +138,12 @@ export class DashboardCoreRouteService {
     deps: DashboardCoreRouteDeps,
   ): Promise<boolean> {
     if (pathname === '/') {
-      deps.writeRedirect(res, '/dashboard');
+      deps.writeRedirect(res, '/control');
       return true;
+    }
+
+    if (pathname.startsWith('/api/experience')) {
+      return this.handleExperienceRequest(req, res, url, pathname, deps);
     }
 
     if (pathname === '/api/v2/maturity/snapshot' && req.method === 'GET') {
@@ -552,6 +559,123 @@ export class DashboardCoreRouteService {
     }
 
     return false;
+  }
+
+  private async handleExperienceRequest(
+    req: http.IncomingMessage,
+    res: http.ServerResponse,
+    url: URL,
+    pathname: string,
+    deps: DashboardCoreRouteDeps,
+  ): Promise<boolean> {
+    const service = deps.experienceCore;
+    if (!service) {
+      deps.writeJson(res, { ok: false, error: 'Experience Core is not attached to this runtime.' }, 503);
+      return true;
+    }
+
+    const homeInput = {
+      surface: this.readExperienceSurface(url.searchParams.get('surface')),
+      sessionId: this.readOptionalString(url.searchParams.get('sessionId')),
+      workspace: this.readOptionalString(url.searchParams.get('workspace')),
+      activeRunId: this.readOptionalString(url.searchParams.get('activeRunId')),
+      activeTraceId: this.readOptionalString(url.searchParams.get('activeTraceId')),
+    };
+
+    if (pathname === '/api/experience/home' && req.method === 'GET') {
+      deps.writeJson(res, service.buildHome(homeInput));
+      return true;
+    }
+
+    if (pathname === '/api/experience/ask' && req.method === 'POST') {
+      const body = await deps.readJsonBody(req);
+      const text = this.readOptionalString(body.text) || this.readOptionalString(body.message);
+      if (!text) {
+        deps.writeJson(res, { ok: false, error: 'Campo "text" precisa ser uma string nao vazia.' }, 400);
+        return true;
+      }
+      const command: Partial<ExperienceCommand> & { text: string } = {
+        text,
+        intent: (this.readOptionalString(body.intent) as ExperienceCommand['intent']) || 'ask',
+        surface: this.readExperienceSurface(body.surface),
+        userId: this.readOptionalString(body.userId) || 'web-user',
+        sessionId: this.readOptionalString(body.sessionId),
+        workspace: this.readOptionalString(body.workspace),
+        trustMode: (this.readOptionalString(body.trustMode) as ExperienceCommand['trustMode']) || 'protected',
+        metadata: this.readRecord(body.metadata) || { source: 'runtime-api' },
+      };
+      deps.writeJson(res, await service.executeCommand(command));
+      return true;
+    }
+
+    if (pathname === '/api/experience/approvals' && req.method === 'GET') {
+      deps.writeJson(res, { approvals: service.buildHome(homeInput).approvals });
+      return true;
+    }
+
+    const approvalDecision = pathname.match(/^\/api\/experience\/approvals\/([^/]+)\/decision$/);
+    if (approvalDecision && req.method === 'POST') {
+      const body = await deps.readJsonBody(req);
+      const decision = this.readOptionalString(body.decision) === 'reject' ? 'reject' : 'approve';
+      const approvalId = decodeURIComponent(approvalDecision[1] || '');
+      deps.writeJson(res, await service.executeCommand({
+        text: `${decision} approval ${approvalId}`,
+        intent: 'approve',
+        surface: this.readExperienceSurface(body.surface),
+        userId: this.readOptionalString(body.userId) || 'web-user',
+        sessionId: this.readOptionalString(body.sessionId),
+        workspace: this.readOptionalString(body.workspace),
+        approval: { id: approvalId, decision },
+        metadata: this.readRecord(body.metadata) || { source: 'runtime-api' },
+      }));
+      return true;
+    }
+
+    if (pathname === '/api/experience/learning' && req.method === 'GET') {
+      deps.writeJson(res, service.buildHome(homeInput).learning);
+      return true;
+    }
+
+    const learningDecision = pathname.match(/^\/api\/experience\/learning\/([^/]+)\/decision$/);
+    if (learningDecision && req.method === 'POST') {
+      const body = await deps.readJsonBody(req);
+      const rawDecision = this.readOptionalString(body.decision);
+      const decision = rawDecision === 'approve' || rawDecision === 'promote'
+        ? 'approve'
+        : 'reject';
+      const candidateId = decodeURIComponent(learningDecision[1] || '');
+      deps.writeJson(res, await service.executeCommand({
+        text: `${decision} learning ${candidateId}`,
+        intent: 'learn',
+        surface: this.readExperienceSurface(body.surface),
+        userId: this.readOptionalString(body.userId) || 'web-user',
+        sessionId: this.readOptionalString(body.sessionId),
+        workspace: this.readOptionalString(body.workspace),
+        learning: { candidateId, decision },
+        metadata: this.readRecord(body.metadata) || { source: 'runtime-api' },
+      }));
+      return true;
+    }
+
+    const timeline = pathname.match(/^\/api\/experience\/runs\/([^/]+)\/timeline$/);
+    if (timeline && req.method === 'GET') {
+      const runId = decodeURIComponent(timeline[1] || '');
+      deps.writeJson(res, {
+        runId,
+        timeline: service.buildTimelineForRun({ ...homeInput, runId }),
+      });
+      return true;
+    }
+
+    deps.writeJson(res, { ok: false, error: 'Experience route not found.' }, 404);
+    return true;
+  }
+
+  private readExperienceSurface(value: unknown): ExperienceSurface {
+    const surface = String(value || '').trim();
+    return surface === 'cli' || surface === 'api' || surface === 'telegram' || surface === 'discord' || surface === 'web'
+      ? surface
+      : 'web';
   }
 
   private parseBoolean(value: unknown): boolean | null {

@@ -138,4 +138,46 @@ describe('ZavorthMcpServer', () => {
 
     server.shutdown();
   });
+
+  it('delegates registry tools through the central ToolExecutor instead of raw tool.execute', async () => {
+    const rawExecute = jest.fn(async () => 'raw result');
+    const executor = {
+      executeTool: jest.fn(async () => 'governed datetime'),
+    };
+    const registry = {
+      getToolDefinitions: () => [
+        {
+          name: 'get_datetime',
+          description: 'Get time',
+          parameters: { type: 'object', properties: {} },
+        },
+      ],
+      getTool: (name: string) => name === 'get_datetime'
+        ? { execute: rawExecute }
+        : undefined,
+    };
+    const server = new ZavorthMcpServer(registry as any, {
+      toolPolicy: new McpToolPolicy({ profile: 'safe' }),
+      toolExecutor: executor,
+    });
+
+    await server.start();
+
+    const callHandler = registeredHandlers.get('CALL_TOOL_SCHEMA');
+    const callResult = await callHandler({
+      params: {
+        name: 'get_datetime',
+        arguments: { timezone: 'UTC' },
+      },
+    });
+
+    expect(rawExecute).not.toHaveBeenCalled();
+    expect(executor.executeTool).toHaveBeenCalledWith('get_datetime', { timezone: 'UTC' });
+    expect(callResult).toEqual({
+      content: [{ type: 'text', text: 'governed datetime' }],
+      isError: false,
+    });
+
+    server.shutdown();
+  });
 });

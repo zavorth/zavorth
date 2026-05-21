@@ -50,6 +50,7 @@ import { SharedSurfaceCommandService } from '../services/SharedSurfaceCommandSer
 import { LlmRuntimeService } from '../services/llm/LlmRuntimeService.js';
 import { InternalSurfaceApiService } from '../api/internal/InternalSurfaceApiService.js';
 import { ZavorthPackagePublisher } from '../platform/publish/ZavorthPackagePublisher.js';
+import { ExperienceCoreService } from '../services/experience/index.js';
 import { createBootstrapToolRuntime } from '../bootstrap/bootstrapToolRuntime.js';
 import { createContextEngineRuntime, wireLegacyUnifiedGatewayAgentCallback } from '../bootstrap/bootstrapContextEngine.js';
 import {
@@ -714,6 +715,12 @@ async function buildDefaultCliRuntime(options: {
     runStore: createDefaultAgentRunStore(),
     workflowQueueStore: createDefaultAgentWorkflowQueueStore(),
   });
+  const experienceCoreService = new ExperienceCoreService({
+    agentGateway,
+    memoryPlane: memoryPlaneService,
+    learningPlane: learningPlaneService,
+    runtimeAccessReadiness: runtimeAccessReadinessService,
+  });
   let legacyUnifiedGateway: ZavorthCliRuntime['legacyUnifiedGateway'] = null;
 
   if (includeLegacyUnifiedGateway) {
@@ -734,6 +741,7 @@ async function buildDefaultCliRuntime(options: {
     legacyUnifiedGateway,
     memoryPlaneService,
     learningPlaneService,
+    experienceCoreService,
     layeredMemoryService,
     platformRegistryService,
     platformCatalogSyncService,
@@ -791,6 +799,19 @@ async function buildCliRuntimeFromOverrides(
     ?? new ZavorthReleasePresenceControlPlaneService({
       operationsHealthService,
     });
+  const resolvedAgentGateway = preferLegacyConversationCompatibility
+    ? null
+    : (services.agentGateway ?? runtime.agentGateway);
+  const resolvedMemoryPlaneService = services.memoryPlane ?? runtime.memoryPlaneService;
+  const resolvedLearningPlaneService = services.learningPlane ?? runtime.learningPlaneService;
+  const resolvedRuntimeAccessReadinessService =
+    services.runtimeAccessReadiness ?? runtime.runtimeAccessReadinessService;
+  const experienceCoreService = services.experienceCore ?? new ExperienceCoreService({
+    agentGateway: resolvedAgentGateway || null,
+    memoryPlane: resolvedMemoryPlaneService,
+    learningPlane: resolvedLearningPlaneService,
+    runtimeAccessReadiness: resolvedRuntimeAccessReadinessService,
+  });
   return {
     ...runtime,
     commandService: services.commandService || runtime.commandService,
@@ -802,13 +823,14 @@ async function buildCliRuntimeFromOverrides(
         : runtime.legacyUnifiedGateway || null),
     surfaceTaskDispatcher: services.surfaceTaskDispatcher ?? runtime.surfaceTaskDispatcher,
     supervisedRuntimeService: services.supervisedRuntime ?? runtime.supervisedRuntimeService,
-    runtimeAccessReadinessService: services.runtimeAccessReadiness ?? runtime.runtimeAccessReadinessService,
+    runtimeAccessReadinessService: resolvedRuntimeAccessReadinessService,
     runtimeBootstrapService: services.runtimeBootstrap ?? runtime.runtimeBootstrapService,
     runtimeBootstrapRepairService: services.runtimeBootstrapRepair ?? runtime.runtimeBootstrapRepairService,
     autoRepairService,
-    memoryPlaneService: services.memoryPlane ?? runtime.memoryPlaneService,
+    memoryPlaneService: resolvedMemoryPlaneService,
     layeredMemoryService: services.layeredMemory ?? runtime.layeredMemoryService,
-    learningPlaneService: services.learningPlane ?? runtime.learningPlaneService,
+    learningPlaneService: resolvedLearningPlaneService,
+    experienceCoreService,
     platformRegistryService: services.platformRegistry ?? runtime.platformRegistryService,
     platformCatalogSyncService: services.platformCatalogSync ?? runtime.platformCatalogSyncService,
     platformActionService: services.platformAction ?? runtime.platformActionService,
@@ -836,9 +858,7 @@ async function buildCliRuntimeFromOverrides(
     workspaceMemoryOsService: services.workspaceMemoryOs ?? runtime.workspaceMemoryOsService,
     selfHealControlPlaneService,
     releasePresenceControlPlaneService,
-    agentGateway: preferLegacyConversationCompatibility
-      ? null
-      : (services.agentGateway ?? runtime.agentGateway),
+    agentGateway: resolvedAgentGateway,
   };
 }
 
@@ -851,4 +871,3 @@ export {
   resolvePlatformIntent,
   resolveSessionTargetRef,
 };
-

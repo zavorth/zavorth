@@ -12,6 +12,7 @@ export interface ChatMessage {
   content: string | null;
   inlineData?: InlineData[];
   toolCallId?: string;
+  toolName?: string;
   toolCalls?: ToolCall[];
 }
 

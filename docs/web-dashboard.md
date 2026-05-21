@@ -2,12 +2,20 @@
 
 The official web surface is the Command Center at `/control`.
 
+`/control` should consume `ExperienceSnapshot/v1` from the Experience Core
+when available. That snapshot is the shared truth for chat-first state,
+approvals, Trust Lens, timeline, receipts, memory and learning candidates.
+
 ## What It Is For
 
 The Command Center is the operator gateway for:
 
 - chatting with the runtime;
+- asking natural-language commands through the same Experience Core used by
+  the CLI;
 - seeing sessions, approvals and artifacts;
+- reviewing Trust Lens risk, sandbox posture and approval choices;
+- reviewing learning candidates before they change future behavior;
 - checking channel and provider readiness;
 - reviewing blocked or pending actions;
 - continuing work without losing context.
@@ -62,5 +70,6 @@ to the runtime; the browser never executes the target action directly.
 
 - [Quickstart](/docs/quickstart.md)
 - [CLI](/docs/zavorth-cli.md)
+- [Experience Core](/docs/experience-core.md)
 - [Security](/docs/security.md)
 - [Roadmap](/docs/product-direction.md)

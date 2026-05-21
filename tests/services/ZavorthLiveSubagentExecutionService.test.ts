@@ -173,6 +173,65 @@ describe('ZavorthLiveSubagentExecutionService governed tools', () => {
     expect(result.workerResults[0]?.metadata.toolCallsDenied).toBe(1);
     expect(result.output).toContain('Tool policy: requested=2, approved=1, executed=1, denied=1.');
   });
+
+  it('exposes safe workspace read tools even when the task does not contain file keywords', async () => {
+    const llmRuntime = {
+      getPreferredProviderName: jest.fn(() => 'gemini'),
+      chatDetailed: jest.fn()
+        .mockResolvedValueOnce({
+          providerName: 'gemini',
+          modelName: 'test-model',
+          route: route(),
+          response: {
+            content: '',
+            toolCalls: [{
+              id: 'tool-1',
+              name: 'read_file',
+              arguments: { filePath: 'src/perf.ts' },
+            }],
+          },
+        })
+        .mockResolvedValueOnce({
+          providerName: 'gemini',
+          modelName: 'test-model',
+          route: route(),
+          response: {
+            content: 'Findings: performance bottleneck inspected.',
+            toolCalls: [],
+          },
+        }),
+    };
+    const toolRuntime = {
+      getToolDefinitions: jest.fn(() => [readFileTool(), dateTimeTool()]),
+      executeTool: jest.fn().mockResolvedValue('perf source'),
+    };
+    const service = new ZavorthLiveSubagentExecutionService({
+      now: fixedNow,
+      llmRuntime: llmRuntime as any,
+      toolRuntime,
+    });
+
+    const result = await service.executeTeam({
+      executionMode: 'live-llm',
+      runId: 'run-1',
+      sessionId: 'session-1',
+      task: 'Encontre gargalos de performance',
+      mode: 'oneshot',
+      channel: 'cli',
+      actorId: 'user-1',
+      profiles: [profile('planner')],
+      maxWorkers: 1,
+      maxOutputChars: 8000,
+      maxToolCalls: 2,
+    });
+
+    expect(llmRuntime.chatDetailed.mock.calls[0][1].map((tool: ToolDefinition) => tool.name)).toEqual([
+      'read_file',
+      'get_datetime',
+    ]);
+    expect(toolRuntime.executeTool).toHaveBeenCalledWith('read_file', { filePath: 'src/perf.ts' });
+    expect(result.workerResults[0]?.metadata.toolCallsExecuted).toBe(1);
+  });
 });
 
 function fixedNow(): Date {
@@ -266,6 +325,18 @@ function webSearchTool(): ToolDefinition {
         },
       },
       required: ['query'],
+    },
+  };
+}
+
+function dateTimeTool(): ToolDefinition {
+  return {
+    name: 'get_datetime',
+    description: 'Get current datetime',
+    parameters: {
+      type: 'object',
+      properties: {},
+      required: [],
     },
   };
 }

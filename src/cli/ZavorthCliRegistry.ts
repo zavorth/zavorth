@@ -258,6 +258,11 @@ import {
 import { formatLayeredMemoryMetrics } from './ZavorthCliRenderers.js';
 import { formatCliChatAssistantMessage } from './ZavorthCliChatRenderers.js';
 import {
+  formatExperienceCommandResult,
+  formatExperienceHome,
+  formatExperienceLearning,
+} from './ZavorthCliExperienceRenderer.js';
+import {
   CommandCenterAccessService,
   parseCommandCenterAccessAction,
   type CommandCenterAccessDoctorSnapshot,
@@ -353,6 +358,82 @@ export async function executeZavorthCliCommand(params: {
       : formatCliHelp(helpTopic);
     writer.line(body);
     return { ok: true, handled: true, output: [body], error: null };
+  }
+
+  if (commandName === 'home' || commandName === 'experience') {
+    const runtime = await resolveRuntime();
+    const snapshot = runtime.experienceCoreService?.buildHome({
+      surface: effectiveFlags.platform,
+      sessionId: effectiveFlags.sessionId,
+      workspace: effectiveFlags.workspaceHint || null,
+    });
+    const body = effectiveFlags.json
+      ? JSON.stringify(snapshot || { ok: false, error: 'Experience Core indisponivel.' }, null, 2)
+      : snapshot
+        ? formatExperienceHome(snapshot)
+        : 'Experience Core indisponivel neste runtime.';
+    writer.line(body);
+    return { ok: Boolean(snapshot), handled: true, output: [body], error: snapshot ? null : 'Experience Core unavailable.' };
+  }
+
+  if (commandName === 'ask' || commandName === 'run') {
+    const runtime = await resolveRuntime();
+    if (runtime.experienceCoreService) {
+      const requestText = args || (commandName === 'run' ? normalized : '');
+      const result = await runtime.experienceCoreService.executeCommand({
+        contractVersion: 'ExperienceCommand/v1',
+        text: requestText,
+        intent: commandName === 'run' ? 'run' : 'ask',
+        surface: effectiveFlags.platform,
+        userId: effectiveFlags.userId,
+        sessionId: effectiveFlags.sessionId,
+        workspace: effectiveFlags.workspaceHint || null,
+        trustMode: 'protected',
+        metadata: {
+          cliCommandName: commandName,
+          repl: effectiveFlags.repl,
+        },
+      });
+      const body = effectiveFlags.json
+        ? JSON.stringify(result, null, 2)
+        : formatExperienceCommandResult(result);
+      writer.line(body);
+      return { ok: result.ok, handled: true, output: [body], error: result.error };
+    }
+  }
+
+  if (commandName === 'learn' || commandName === 'learning') {
+    const runtime = await resolveRuntime();
+    if (runtime.experienceCoreService) {
+      const learning = parseExperienceLearningCliArgs(args);
+      if (!learning) {
+        const snapshot = runtime.experienceCoreService.buildHome({
+          surface: effectiveFlags.platform,
+          sessionId: effectiveFlags.sessionId,
+          workspace: effectiveFlags.workspaceHint || null,
+        });
+        const body = effectiveFlags.json
+          ? JSON.stringify(snapshot.learning, null, 2)
+          : formatExperienceLearning(snapshot);
+        writer.line(body);
+        return { ok: true, handled: true, output: [body], error: null };
+      }
+      const result = await runtime.experienceCoreService.executeCommand({
+        contractVersion: 'ExperienceCommand/v1',
+        text: `learn ${args}`.trim(),
+        intent: 'learn',
+        surface: effectiveFlags.platform,
+        userId: effectiveFlags.userId,
+        sessionId: effectiveFlags.sessionId,
+        workspace: effectiveFlags.workspaceHint || null,
+        learning,
+      });
+      const body = effectiveFlags.json
+        ? JSON.stringify(result, null, 2)
+        : formatExperienceCommandResult(result);
+      writer.line(body);
+      return { ok: result.ok, handled: true, output: [body], error: result.error };
+    }
   }
 
   const smartCommandSurface = new ZavorthSmartCommandSurfaceService();
@@ -581,6 +662,33 @@ export async function executeZavorthCliCommand(params: {
     : null;
 
   if (!result || result.status === 'not_handled') {
+    if (runtime.experienceCoreService && (commandName === 'task' || !normalized.startsWith('/'))) {
+      const experienceResult = await runtime.experienceCoreService.executeCommand({
+        contractVersion: 'ExperienceCommand/v1',
+        text: commandName === 'task' ? args : normalized,
+        intent: commandName === 'task' ? 'run' : 'ask',
+        surface: effectiveFlags.platform,
+        userId: effectiveFlags.userId,
+        sessionId: effectiveFlags.sessionId,
+        workspace: effectiveFlags.workspaceHint || null,
+        trustMode: 'protected',
+        metadata: {
+          cliCommandName: commandName,
+          repl: effectiveFlags.repl,
+          fallback: 'natural-command-router',
+        },
+      });
+      const body = effectiveFlags.json
+        ? JSON.stringify(experienceResult, null, 2)
+        : formatExperienceCommandResult(experienceResult);
+      writer.line(body);
+      return {
+        ok: experienceResult.ok,
+        handled: true,
+        output: [body],
+        error: experienceResult.error,
+      };
+    }
     if (runtime.agentGateway && (commandName === 'task' || !normalized.startsWith('/'))) {
       return executeCliUniversalAgentRuntime(runtime, normalized, effectiveFlags, writer);
     }
@@ -691,6 +799,29 @@ export async function executeZavorthCliCommand(params: {
     output: renderedReplies,
     error: null,
   };
+}
+
+function parseExperienceLearningCliArgs(args: string): {
+  candidateId?: string | null;
+  decision: 'approve' | 'reject' | 'promote' | 'revoke' | 'reset' | 'export';
+} | null {
+  const tokens = String(args || '').trim().split(/\s+/).filter(Boolean);
+  const action = String(tokens[0] || '').trim().toLowerCase();
+  if (!action) return null;
+  if (action === 'list' || action === 'status' || action === 'review') return null;
+  if (action === 'approve' || action === 'reject' || action === 'promote' || action === 'revoke') {
+    return {
+      decision: action,
+      candidateId: tokens[1] || null,
+    };
+  }
+  if (action === 'reset' || action === 'export') {
+    return {
+      decision: action,
+      candidateId: null,
+    };
+  }
+  return null;
 }
 
 function formatCommandCenterAccessJson(

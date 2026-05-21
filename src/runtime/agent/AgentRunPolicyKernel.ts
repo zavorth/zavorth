@@ -103,11 +103,13 @@ export class AgentRunPolicyKernel {
       ...run.metadata,
       policyKernel: {
         source: 'AgentRunPolicyKernel',
+        stage: 6,
         phase: 6,
         lastStage: phase,
         receipts: [
           ...receipts,
           {
+            stage: phase,
             phase,
             decision,
             emittedAt: this.now().toISOString(),

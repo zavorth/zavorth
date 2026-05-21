@@ -72,6 +72,7 @@ export type ProductizationEvidenceSnapshot = {
   productization: {
     contractService: 'ZavorthProductizationContractService';
     c9Linked: boolean;
+    stage: string | null;
     phase: string | null;
     status: string | null;
     controlReady: boolean;
@@ -339,10 +340,12 @@ export class ProductizationEvidenceService {
     const website = recordOrNull(record?.website) || {};
     const sdk = recordOrNull(record?.sdk) || recordOrNull(record?.contracts) || {};
     const status = statusText(record?.status);
+    const phase = statusText(record?.phase || record?.stage);
     return {
       contractService: 'ZavorthProductizationContractService',
       c9Linked: Boolean(record),
-      phase: statusText(record?.phase),
+      stage: phase,
+      phase,
       status,
       controlReady: booleanFlag(control.ready, control.ok, control.available, record?.controlReady),
       cliReady: booleanFlag(cli.ready, cli.ok, cli.available, record?.cliReady),

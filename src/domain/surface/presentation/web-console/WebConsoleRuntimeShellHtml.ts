@@ -13,11 +13,11 @@ export function buildRuntimeShellHtml(pathname: string = '/dashboard'): string {
     ? `<section id="legacy-surface-banner" class="legacy-containment-banner" role="status">
         <strong>Legacy surface</strong>
         <span>${escapeHtml(legacyBanner)}</span>
-        <a href="/dashboard">Open dashboard</a>
+        <a href="/control">Open dashboard</a>
       </section>`
     : `<section id="canonical-surface-banner" class="canonical-containment-banner" role="status">
         <strong>Canonical dashboard</strong>
-        <span>/dashboard is the main web entry. This shell only exists as an internal fallback when legacy surfaces are explicitly enabled.</span>
+        <span>/control is the main web entry. /dashboard remains compatible. This shell only exists as an internal fallback when legacy surfaces are explicitly enabled.</span>
       </section>`;
 
   return [

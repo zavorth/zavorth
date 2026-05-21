@@ -132,7 +132,7 @@ const CATEGORY_PATTERNS: Array<{
   },
   {
     category: 'shell-execution',
-    pattern: /\b(rode|rodar|execute|executar|terminal|shell|powershell|npm|pnpm|yarn|jest|testes?|build|git)\b/i,
+    pattern: /\b(shell|powershell|pwsh|terminal|comando(?:\s+de\s+terminal)?|linha\s+de\s+comando)\b|\b(npm|pnpm|yarn|npx|node|python|pytest|jest|git|docker|cargo|go|bash|sh|cmd)\s+[\w:./-]+\b|\b(rode|rodar|execute|executar|executa|run|dispare|inicie)\b[\s\S]{0,80}\b(npm|pnpm|yarn|npx|node|python|pytest|jest|git|docker|cargo|go|bash|sh|cmd|powershell|pwsh|build|testes?|scripts?)\b/i,
     tools: ['shell.exec'],
     groups: ['local_control'],
     reason: 'Pedido pede execucao de comando ou testes.',

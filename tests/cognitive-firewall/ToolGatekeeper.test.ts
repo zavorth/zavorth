@@ -94,4 +94,22 @@ describe('ToolGatekeeper dynamic skill map', () => {
     expect(chatDecision.tools).toEqual([]);
     expect(chatDecision.toolHintProfile.toolExposureGatedByCognitiveFirewall).toBe(false);
   });
+
+  it('maps execution and memory hints to registered modern tool names', () => {
+    const gatekeeper = new ToolGatekeeper();
+    const tools: ToolDefinition[] = [
+      { name: 'run_sandbox_code', description: 'Executa codigo em sandbox', parameters: { type: 'object', properties: {} } },
+      { name: 'sandbox_execution', description: 'Nome legado inexistente', parameters: { type: 'object', properties: {} } },
+      { name: 'semantic_memory', description: 'Consulta memoria semantica', parameters: { type: 'object', properties: {} } },
+      { name: 'mem0_memory', description: 'Nome legado inexistente', parameters: { type: 'object', properties: {} } },
+      { name: 'get_datetime', description: 'Data atual', parameters: { type: 'object', properties: {} } },
+    ];
+
+    expect(gatekeeper.filterTools(tools, 'execution').map((tool) => tool.name)).toContain('run_sandbox_code');
+    expect(gatekeeper.filterTools(tools, 'execution').map((tool) => tool.name)).not.toContain('sandbox_execution');
+    expect(gatekeeper.filterTools(tools, 'memory').map((tool) => tool.name)).toEqual([
+      'semantic_memory',
+      'get_datetime',
+    ]);
+  });
 });

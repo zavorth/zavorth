@@ -87,4 +87,16 @@ describe('extractVisionPayload (Dashboard controls - Vision In The Loop)', () =>
     expect(result).not.toBeNull();
     expect(result!.mimeType).toBe('image/png');
   });
+
+  it('nao le imagens fora das raizes locais permitidas para payload visual', () => {
+    const outsideDir = path.join(path.dirname(process.cwd()), 'vision-outside-test');
+    const outsidePng = path.join(outsideDir, 'capture.png');
+    fs.mkdirSync(outsideDir, { recursive: true });
+    fs.writeFileSync(outsidePng, fs.readFileSync(testPng));
+    try {
+      expect(extractVisionPayload(`Screenshot: ${outsidePng}`)).toBeNull();
+    } finally {
+      fs.rmSync(outsideDir, { recursive: true, force: true });
+    }
+  });
 });

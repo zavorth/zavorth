@@ -93,7 +93,7 @@ export class WorkspaceFsPolicy {
     const root = normalizePath(input.root);
     const absolutePath = WorkspaceResolver.ensurePathInsideWorkspace(root, input.targetPath);
     assertNoSymlinkEscape(workspaceRoot, root, absolutePath, input.access);
-    if (input.access === 'read') {
+    if (input.access === 'read' || input.access === 'list') {
       assertReadablePathIsNotSensitive(root, absolutePath);
     }
     return {
@@ -132,6 +132,10 @@ function assertReadablePathIsNotSensitive(root: string, absolutePath: string): v
     || basename === 'credentials.json'
     || basename === 'secrets.json'
     || basename === 'secrets_honey.txt'
+    || basename === '.ssh'
+    || basename === '.aws'
+    || basename === '.azure'
+    || basename === '.gcp'
     || relativeLower.includes('/.ssh/')
     || relativeLower.includes('/.aws/')
     || relativeLower.includes('/.azure/')
@@ -157,7 +161,7 @@ function assertNoSymlinkEscape(
     const readRoot = realRoot || realWorkspaceRoot;
     assertContainedAfterRealpath(readRoot, existingTarget, access);
     assertContainedAfterRealpath(realWorkspaceRoot, existingTarget, access);
-    if (access === 'read') {
+    if (access === 'read' || access === 'list') {
       assertReadablePathIsNotSensitive(readRoot, existingTarget);
     }
     return;

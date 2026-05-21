@@ -112,7 +112,6 @@ export class TelegramConversationAutonomousService {
       );
       const fallbackResponse = await convAgent.chat(contextualMessage, inlineData, {
         mode: 'direct',
-        requireContextEngine: true,
         styleHints: directStyleHints,
         taskKind: autonomyDecision.taskKind,
         taskSubtype: autonomyDecision.taskSubtype,

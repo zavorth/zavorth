@@ -18,7 +18,11 @@ function asksForWebOperation(text: string): boolean {
   if (/\b(pesquise|pesquisar|buscar|busque|procure|internet|web)\b/i.test(text)) {
     return true;
   }
-  if (/\b(acesse|acessar|abra|abrir|navegue|fetch|baixe|download)\b/i.test(text)) {
+  if (/\b(fetch|baixe|download)\b/i.test(text)) {
+    return true;
+  }
+  if (/\b(acesse|acessar|abra|abrir|navegue)\b/i.test(text)
+    && (hasUrl(text) || /\b(link|url|site|pagina|page|website|artigo|noticia)\b/i.test(text))) {
     return true;
   }
   if (
@@ -32,6 +36,28 @@ function asksForWebOperation(text: string): boolean {
     return true;
   }
   return false;
+}
+
+function asksForShellExecution(text: string): boolean {
+  if (/\b(shell|powershell|pwsh|terminal|comando(?:\s+de\s+terminal)?|linha\s+de\s+comando)\b/i.test(text)) {
+    return true;
+  }
+
+  if (/\b(npm|pnpm|yarn|npx|node|python|pytest|jest|git|docker|cargo|go|bash|sh|cmd)\s+[\w:./-]+/i.test(text)) {
+    return true;
+  }
+
+  const activeExecutionVerb = /\b(rode|rodar|execute|executar|executa|run|runs?|dispare|inicie)\b/i.test(text);
+  const concreteCommandTarget = /\b(npm|pnpm|yarn|npx|node|python|pytest|jest|git|docker|cargo|go|bash|sh|cmd|powershell|pwsh|build|testes?|scripts?)\b/i.test(text);
+  return activeExecutionVerb && concreteCommandTarget;
+}
+
+function asksForPdfOrExternalReport(text: string): boolean {
+  if (/\b(pdf|anexo)\b/i.test(text)) {
+    return true;
+  }
+  return /\b(envie|enviar|mande|mandar)\b/i.test(text)
+    && /\b(email|relatorio|report|anexo|arquivo)\b/i.test(text);
 }
 
 export function inferUniversalAgentRequestedTools(input: UniversalAgentToolInferenceInput): string[] {
@@ -60,18 +86,18 @@ export function inferUniversalAgentRequestedTools(input: UniversalAgentToolInfer
   addIfMatches(
     tools,
     normalizedText,
-    /\b(rode|rodar|execute|executar|comando|shell|powershell|terminal|npm|pnpm|yarn|git|build|teste|testes|jest)\b/i,
+    /\b(shell|powershell|pwsh|terminal|comando(?:\s+de\s+terminal)?|linha\s+de\s+comando)\b/i,
     'shell.exec',
   );
+  if (asksForShellExecution(normalizedText)) {
+    tools.add('shell.exec');
+  }
   if (asksForWebOperation(normalizedText)) {
     tools.add('network_fetch');
   }
-  addIfMatches(
-    tools,
-    normalizedText,
-    /\b(pdf|envie|enviar|email|anexo)\b/i,
-    'pdf.generate',
-  );
+  if (asksForPdfOrExternalReport(normalizedText)) {
+    tools.add('pdf.generate');
+  }
   addIfMatches(
     tools,
     normalizedText,
