@@ -64,6 +64,10 @@ export function finalizeBotGatewayBootstrap(
     handleSurfaceCommandCallback: async (ctx, commandText) => {
       await processTextMessage(gateway, ctx, commandText);
     },
+    handleExperienceActionCardCallback: async (ctx, data) => {
+      await ctx.answerCallbackQuery({ text: 'Action card recebido.' });
+      await processTextMessage(gateway, ctx, data === 'xcard:diff-summary' ? 'ver diff' : 'status');
+    },
     logError: (message) =>
       logRepo.log('error', 'BotGateway', `Callback error: ${message}`),
   });

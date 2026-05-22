@@ -85,6 +85,13 @@ export type ExperienceSnapshotResponse = Record<string, any> & {
   memory?: Record<string, any> | null;
   learning?: Record<string, any> | null;
   trust?: Record<string, any> | null;
+  daily?: Record<string, any> | null;
+  actionCards?: Record<string, any>[];
+  diffReviews?: Record<string, any>[];
+  executionGraph?: Record<string, any> | null;
+  autoHealing?: Record<string, any> | null;
+  contextRecovery?: Record<string, any> | null;
+  reasoningSummary?: Record<string, any> | null;
   nextActions?: Record<string, any>[];
   health?: Record<string, any> | null;
 };

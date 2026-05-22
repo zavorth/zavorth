@@ -1,6 +1,9 @@
 import {
+  ContextRecoveryService,
+  DiffReviewService,
   ExperienceCoreService,
   NaturalCommandRouterService,
+  ReasoningSummaryService,
   LearningOSService,
   TrustLensService,
   JourneyEngineService,
@@ -217,6 +220,108 @@ describe('Experience Core Layer', () => {
     expect(snapshot.trust.approvalCount).toBe(1);
     expect(snapshot.memory.signals[0].title).toBe('Preferencia de validacao');
     expect(snapshot.learning.pending).toBe(1);
+    expect(snapshot.daily?.pendingApprovals).toBe(1);
+    expect(snapshot.actionCards?.map((card) => card.source)).toContain('approval');
+    expect(snapshot.executionGraph?.nodes.length).toBeGreaterThan(0);
+    expect(snapshot.reasoningSummary?.approvalReason).toContain('Executa comando local');
+  });
+
+  it('projects action cards, auto-healing and diff reviews without applying host changes', () => {
+    const diff = [
+      'diff --git a/src/app.ts b/src/app.ts',
+      '--- a/src/app.ts',
+      '+++ b/src/app.ts',
+      '@@ -1,2 +1,3 @@',
+      ' export const ok = true;',
+      '+export const next = true;',
+    ].join('\n');
+    const run = makeRun({
+      metadata: {
+        sandboxIsolation: 'copy-sandbox',
+        diff,
+        autoHealing: {
+          status: 'running',
+          attempt: 2,
+          maxAttempts: 3,
+          lastErrorSummary: 'TS2307 no arquivo src/app.ts.',
+          validationCommand: 'npm run runtime:check',
+        },
+      },
+    });
+    const diffReviews = new DiffReviewService().build({ activeRun: run });
+    const autoHealing = new ExperienceCoreService({
+      now,
+      agentGateway: {
+        buildSnapshot: jest.fn(() => ({
+          generatedAt: now().toISOString(),
+          source: { kind: 'universal-agent-runtime', label: 'Zavorth Agent Gateway' },
+          activeRun: run,
+          runs: [run],
+          runObservatory: {} as any,
+          capabilityLoopGovernance: null,
+          runtimePromotionGovernance: {} as any,
+          workflowJobs: [],
+          workflowQueue: {} as any,
+        })),
+        handle: jest.fn(),
+        approve: jest.fn(),
+        reject: jest.fn(),
+      },
+    }).buildHome({ surface: 'cli' });
+
+    expect(diffReviews[0].files[0]).toEqual(expect.objectContaining({
+      path: 'src/app.ts',
+      addedLines: 1,
+      removedLines: 0,
+    }));
+    expect(autoHealing.diffReviews?.[0].summary).toContain('+1/-0');
+    expect(autoHealing.autoHealing).toEqual(expect.objectContaining({
+      status: 'running',
+      attempt: 2,
+      validationCommand: 'npm run runtime:check',
+    }));
+    expect(autoHealing.actionCards?.some((card) => card.source === 'sandbox')).toBe(true);
+  });
+
+  it('asks for context recovery before acting on ambiguous targets', () => {
+    const approvals = makeRun().approvals;
+    const recovery = new ContextRecoveryService().build({
+      text: 'aprova aquilo',
+      approvals: [
+        ...approvals,
+        { ...approvals[0], id: 'approval-2', title: 'Rodar build' },
+      ],
+    });
+
+    expect(recovery.status).toBe('needs-selection');
+    expect(recovery.options).toHaveLength(2);
+  });
+
+  it('keeps reasoning summaries explainable without raw chain of thought', () => {
+    const run = makeRun({
+      summary: 'Aguardando aprovacao governada.',
+      events: [
+        ...makeRun().events,
+        {
+          id: 'event-tool',
+          runId: 'run-1',
+          kind: 'tool',
+          title: 'workspace.read',
+          detail: 'Leu arquivos permitidos.',
+          status: 'done',
+          createdAt: '2026-05-21T11:59:10.000Z',
+        },
+      ],
+    });
+    const summary = new ReasoningSummaryService().build({
+      activeRun: run,
+      timeline: [],
+      trust: new TrustLensService().build({ activeRun: run }),
+    });
+
+    expect(summary.understood).toContain('revise este repo');
+    expect(summary.tools).not.toContain('chain-of-thought');
+    expect(summary.approvalReason).toContain('Executa comando local');
   });
 
   it('executes agent work through the governed gateway for natural run requests', async () => {

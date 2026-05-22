@@ -1,0 +1,157 @@
+import { TelegramExperienceActionCardFormatter } from '../../src/telegram/TelegramExperienceActionCardFormatter.js';
+import type { ExperienceSnapshot } from '../../src/services/experience/index.js';
+
+function makeSnapshot(): ExperienceSnapshot {
+  return {
+    contractVersion: 'ExperienceSnapshot/v1',
+    generatedAt: '2026-05-21T12:00:00.000Z',
+    surface: 'telegram',
+    sessionId: 'session-1',
+    workspace: 'C:/repo',
+    agent: {
+      status: 'attention',
+      label: 'Zavorth',
+      summary: 'Aguardando aprovacao.',
+      activeRunId: 'run-1',
+      activeRunStatus: 'waiting_approval',
+      modelLabel: 'model',
+      providerLabel: 'provider',
+    },
+    journey: {
+      id: 'journey-1',
+      kind: 'code-task',
+      title: 'Corrigir bug',
+      summary: 'Aguardando decisao.',
+      status: 'waiting_approval',
+      steps: [],
+    },
+    chat: { messages: [], suggestions: [] },
+    approvals: [{
+      id: 'approval-secret-id',
+      runId: 'run-1',
+      title: 'Rodar validacao',
+      reason: 'Executa comando local.',
+      risk: 'attention',
+      status: 'pending',
+      createdAt: '2026-05-21T12:00:00.000Z',
+      actions: [],
+    }],
+    timeline: [],
+    receipts: [],
+    memory: { signals: [], summary: 'Memoria pronta.' },
+    learning: { candidates: [], summary: 'Sem candidatos.', pending: 0 },
+    trust: {
+      status: 'attention',
+      title: 'Aprovacao pendente',
+      summary: '1 acao aguardando.',
+      risk: 'attention',
+      approvalCount: 1,
+      sandbox: { mode: 'copy-sandbox', available: true, detail: 'Sandbox local.' },
+      preferences: [],
+      actions: [],
+    },
+    daily: {
+      summary: '1 aprovacao pendente.',
+      activeTask: 'Corrigir bug',
+      health: 'attention',
+      nextSteps: ['Revisar aprovacao'],
+      pendingApprovals: 1,
+      pendingLearning: 0,
+    },
+    actionCards: [{
+      contractVersion: 'ExperienceActionCard/v1',
+      id: 'card:approval:approval-secret-id',
+      source: 'approval',
+      title: 'Rodar validacao',
+      summary: 'Executa comando local.',
+      risk: 'attention',
+      status: 'pending',
+      scope: 'C:/repo',
+      sandbox: 'copy-sandbox',
+      affectedFiles: ['src/app.ts'],
+      affectedCommands: ['npm run runtime:check'],
+      ttlSeconds: 120,
+      receiptHint: 'Receipt de decisao.',
+      createdAt: '2026-05-21T12:00:00.000Z',
+      actions: [{
+        id: 'approve:approval-secret-id',
+        label: 'Aprovar',
+        kind: 'approval',
+        command: 'zavorth approve approval-secret-id',
+        route: null,
+        risk: 'attention',
+        requiresApproval: false,
+        reason: 'Autoriza.',
+      }],
+    }],
+    diffReviews: [{
+      contractVersion: 'ExperienceDiffReview/v1',
+      id: 'diff-review:run-1:1',
+      runId: 'run-1',
+      title: 'Diff governado',
+      summary: '1 arquivo, 1 hunk, +1/-0.',
+      status: 'pending',
+      risk: 'safe',
+      files: [{
+        id: 'file-1',
+        path: 'src/app.ts',
+        status: 'pending',
+        addedLines: 1,
+        removedLines: 0,
+        hunks: [],
+      }],
+      actions: [],
+    }],
+    executionGraph: { contractVersion: 'ExperienceExecutionGraph/v1', nodes: [], edges: [] },
+    autoHealing: {
+      contractVersion: 'ExperienceAutoHealing/v1',
+      status: 'idle',
+      attempt: 0,
+      maxAttempts: 3,
+      lastErrorSummary: null,
+      proposedCorrection: null,
+      validationCommand: null,
+    },
+    contextRecovery: {
+      contractVersion: 'ExperienceContextRecovery/v1',
+      id: 'context-1',
+      status: 'idle',
+      question: 'ok',
+      options: [],
+    },
+    reasoningSummary: {
+      understood: 'Corrigir bug',
+      risk: 'attention',
+      tools: [],
+      approvalReason: 'Executa comando local.',
+      result: 'Aguardando aprovacao.',
+      nextAction: 'Decida approval-secret-id.',
+    },
+    nextActions: [],
+    health: { status: 'attention', summary: '1 aprovacao pendente.', warnings: [] },
+  };
+}
+
+describe('TelegramExperienceActionCardFormatter', () => {
+  it('renders compact action cards with opaque callback data', () => {
+    const formatter = new TelegramExperienceActionCardFormatter();
+    const rendered = formatter.formatSnapshot(makeSnapshot());
+    const keyboard = (rendered.replyOptions?.reply_markup as any).inline_keyboard.flat();
+    const callbackData = keyboard.map((button: any) => String(button.callback_data || '')).filter(Boolean);
+
+    expect(rendered.text).toContain('Zavorth Daily Control');
+    expect(rendered.text).toContain('Rodar validacao');
+    expect(callbackData.some((value: string) => value.startsWith('xcard:'))).toBe(true);
+    expect(callbackData.join('\n')).not.toContain('approval-secret-id');
+    expect(callbackData.join('\n')).not.toContain('npm run runtime:check');
+  });
+
+  it('summarizes diffs without sending a full patch into Telegram', () => {
+    const formatter = new TelegramExperienceActionCardFormatter();
+    const rendered = formatter.formatDiffSummary(makeSnapshot());
+
+    expect(rendered.text).toContain('Diff governado');
+    expect(rendered.text).toContain('src/app.ts');
+    expect(rendered.text).not.toContain('diff --git');
+  });
+});

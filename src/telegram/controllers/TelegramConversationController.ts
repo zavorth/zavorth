@@ -27,12 +27,16 @@ import { TelegramConversationDecisionService } from './TelegramConversationDecis
 import { TelegramConversationContextService } from './TelegramConversationContextService.js';
 import { TelegramConversationDirectReplyService } from './TelegramConversationDirectReplyService.js';
 import { TelegramConversationStateService } from './TelegramConversationStateService.js';
+import { TelegramExperienceActionCardFormatter } from '../TelegramExperienceActionCardFormatter.js';
 import { wrapUntrustedContent } from '../../security/UntrustedContent.js';
+import type { ExperienceCoreService } from '../../services/experience/index.js';
 
 type InlineData = Array<{ mimeType: string; data: string }>;
 type TelegramAgentGateway = Pick<ZavorthAgentGateway, 'handle'>;
+type TelegramExperienceCore = Pick<ExperienceCoreService, 'buildHome' | 'executeCommand'>;
 type TelegramConversationControllerRuntime = {
   agentGateway?: TelegramAgentGateway | null;
+  experienceCoreService?: TelegramExperienceCore | null;
   executionEscalationPolicy?: ExecutionEscalationPolicy | null;
   sessionReadModelService?: GatewaySessionReadModelService | null;
   sessionLedgerService?: GatewaySessionLedgerService | null;
@@ -62,6 +66,8 @@ export class TelegramConversationController {
   private readonly contextService: TelegramConversationContextService;
   private readonly decisionService: TelegramConversationDecisionService;
   private readonly directReplyService: TelegramConversationDirectReplyService;
+  private readonly experienceCoreService: TelegramExperienceCore | null;
+  private readonly experienceFormatter: TelegramExperienceActionCardFormatter;
   private readonly executionEscalationPolicy: ExecutionEscalationPolicy;
   private readonly sessionLedger: GatewaySessionLedgerService;
   private readonly sessionReadModel: GatewaySessionReadModelService;
@@ -76,6 +82,8 @@ export class TelegramConversationController {
   ) {
     this.recentTaskResolver = this.taskManager ? new RecentTaskResolver(this.taskManager) : null;
     this.agentGateway = runtime.agentGateway || this.createAgentGateway(graphRuntime || null);
+    this.experienceCoreService = runtime.experienceCoreService || null;
+    this.experienceFormatter = new TelegramExperienceActionCardFormatter();
     this.executionEscalationPolicy = runtime.executionEscalationPolicy || new ExecutionEscalationPolicy();
     this.toolRuntime = runtime.toolRuntime || null;
     this.sessionLedger = runtime.sessionLedgerService || new GatewaySessionLedgerService();
@@ -158,6 +166,16 @@ export class TelegramConversationController {
           kind: 'recent-task-reply',
           surface: 'telegram',
         });
+        return;
+      }
+
+      const experienceShortcutHandled = await this.handleExperienceCoreShortcut({
+        ctx,
+        task,
+        messageText,
+        canonicalTarget,
+      });
+      if (experienceShortcutHandled) {
         return;
       }
 
@@ -380,6 +398,46 @@ export class TelegramConversationController {
       kind: String(kind || '').trim() || 'reply',
       surface: 'telegram',
     });
+  }
+
+  private async handleExperienceCoreShortcut(input: {
+    ctx: Context;
+    task: Task;
+    messageText: string;
+    canonicalTarget: ReturnType<TelegramConversationController['resolveCanonicalTarget']>;
+  }): Promise<boolean> {
+    if (!this.experienceCoreService) return false;
+    const normalized = String(input.messageText || '')
+      .trim()
+      .toLowerCase()
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '');
+    const isShortcut = /^(status|ver diff|o que esta bloqueado\??|o que voce aprendeu\??|o que aprendeu\??|rode validacao)$/i.test(normalized);
+    if (!isShortcut) return false;
+
+    const workspace = String(input.task.metadata?.workspace || input.task.metadata?.workspacePath || '').trim() || null;
+    const snapshot = this.experienceCoreService.buildHome({
+      surface: 'telegram',
+      sessionId: input.task.task_id || null,
+      workspace,
+    });
+    const rendered = normalized.includes('diff')
+      ? this.experienceFormatter.formatDiffSummary(snapshot)
+      : normalized.includes('aprendeu')
+        ? this.experienceFormatter.formatLearningSummary(snapshot)
+        : this.experienceFormatter.formatSnapshot(snapshot);
+
+    await input.ctx.reply(rendered.text, rendered.replyOptions as any);
+    this.recordLedgerMessage(input.canonicalTarget, {
+      id: randomUUID(),
+      role: 'assistant',
+      content: rendered.text,
+      createdAt: new Date().toISOString(),
+      taskId: input.task.task_id || null,
+      kind: 'experience-core-shortcut',
+      surface: 'telegram',
+    });
+    return true;
   }
 
   private recordLedgerMessage(

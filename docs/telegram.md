@@ -8,6 +8,9 @@ Use Telegram for:
 
 - quick requests from mobile;
 - approval prompts;
+- action cards;
+- short diff summaries;
+- learning review prompts;
 - status checks;
 - continuing existing sessions;
 - channel and runtime notifications.
@@ -42,6 +45,24 @@ When the request touches a channel, Zavorth opens the Channel Mesh. When it touc
 
 Commands are intentionally secondary. The expected daily path is natural language plus guided buttons where Telegram supports them.
 
+## Experience Core Cards
+
+When Telegram is connected to the Experience Core, these natural messages can
+return the same state shown in CLI and `/control`:
+
+```text
+status
+o que esta bloqueado?
+ver diff
+o que voce aprendeu?
+rode validacao
+```
+
+Cards stay compact: state, risk, recommended action, receipt id/link when
+available and safe inline buttons. Callback payloads are opaque and short; they
+must not contain full diffs, shell commands, secrets, raw paths with sensitive
+tokens, or logs.
+
 ## Safety
 
 Telegram updates are normalized before reaching runtime controllers. The Gateway should preserve:
@@ -71,6 +92,7 @@ Telegram should feel first-class without becoming privileged:
 - concise responses;
 - inline buttons when safe;
 - fallback text for unsupported actions;
+- no full diffs or long logs in chat;
 - no raw secrets in chat;
 - approval scopes shown before sensitive work;
 - links back to `/dashboard` for dense review.

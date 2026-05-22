@@ -55,6 +55,15 @@ export async function readJsonBody(request: Request): Promise<Record<string, unk
 }
 
 export function buildExperienceCommand(body: Record<string, unknown>): Partial<ExperienceCommand> & { text: string } {
+  const actionCardDecision = body.actionCardDecision && typeof body.actionCardDecision === "object" && !Array.isArray(body.actionCardDecision)
+    ? body.actionCardDecision as ExperienceCommand["actionCardDecision"]
+    : null;
+  const diffDecision = body.diffDecision && typeof body.diffDecision === "object" && !Array.isArray(body.diffDecision)
+    ? body.diffDecision as ExperienceCommand["diffDecision"]
+    : null;
+  const contextRecoveryDecision = body.contextRecoveryDecision && typeof body.contextRecoveryDecision === "object" && !Array.isArray(body.contextRecoveryDecision)
+    ? body.contextRecoveryDecision as ExperienceCommand["contextRecoveryDecision"]
+    : null;
   return {
     contractVersion: "ExperienceCommand/v1",
     text: String(body.text || body.message || body.prompt || "").trim(),
@@ -66,6 +75,12 @@ export function buildExperienceCommand(body: Record<string, unknown>): Partial<E
     sessionId: typeof body.sessionId === "string" ? body.sessionId : null,
     workspace: typeof body.workspace === "string" ? body.workspace : null,
     trustMode: typeof body.trustMode === "string" ? body.trustMode as ExperienceCommand["trustMode"] : "protected",
+    autonomyMode: body.autonomyMode === "manual" || body.autonomyMode === "speculative" || body.autonomyMode === "governed"
+      ? body.autonomyMode
+      : "governed",
+    actionCardDecision,
+    diffDecision,
+    contextRecoveryDecision,
     metadata: {
       requestedBy: body.requestedBy || "control-ui",
       source: "api/experience",

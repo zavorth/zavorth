@@ -12,9 +12,15 @@ import {
   type ExperienceSurface,
   type ExperienceTimelineItem,
 } from './ExperienceContracts.js';
+import { ActionCardService } from './ActionCardService.js';
+import { AutoHealingProjectionService } from './AutoHealingProjectionService.js';
+import { ContextRecoveryService } from './ContextRecoveryService.js';
+import { DiffReviewService } from './DiffReviewService.js';
+import { ExecutionGraphService } from './ExecutionGraphService.js';
 import { JourneyEngineService } from './JourneyEngineService.js';
 import { LearningOSService } from './LearningOSService.js';
 import { NaturalCommandRouterService } from './NaturalCommandRouterService.js';
+import { ReasoningSummaryService } from './ReasoningSummaryService.js';
 import { TrustLensService } from './TrustLensService.js';
 import type {
   UniversalAgentRun,
@@ -46,6 +52,12 @@ export type ExperienceCoreRuntime = {
   learningOs?: LearningOSService;
   journeyEngine?: JourneyEngineService;
   trustLens?: TrustLensService;
+  actionCards?: ActionCardService;
+  diffReview?: DiffReviewService;
+  executionGraph?: ExecutionGraphService;
+  contextRecovery?: ContextRecoveryService;
+  autoHealing?: AutoHealingProjectionService;
+  reasoningSummary?: ReasoningSummaryService;
 };
 
 export type ExperienceHomeInput = {
@@ -98,6 +110,12 @@ export class ExperienceCoreService {
   private readonly learningOs: LearningOSService;
   private readonly journeyEngine: JourneyEngineService;
   private readonly trustLens: TrustLensService;
+  private readonly actionCards: ActionCardService;
+  private readonly diffReview: DiffReviewService;
+  private readonly executionGraph: ExecutionGraphService;
+  private readonly contextRecovery: ContextRecoveryService;
+  private readonly autoHealing: AutoHealingProjectionService;
+  private readonly reasoningSummary: ReasoningSummaryService;
 
   constructor(runtime: ExperienceCoreRuntime = {}) {
     this.now = runtime.now || (() => new Date());
@@ -111,6 +129,12 @@ export class ExperienceCoreService {
     });
     this.journeyEngine = runtime.journeyEngine || new JourneyEngineService();
     this.trustLens = runtime.trustLens || new TrustLensService();
+    this.actionCards = runtime.actionCards || new ActionCardService();
+    this.diffReview = runtime.diffReview || new DiffReviewService();
+    this.executionGraph = runtime.executionGraph || new ExecutionGraphService();
+    this.contextRecovery = runtime.contextRecovery || new ContextRecoveryService();
+    this.autoHealing = runtime.autoHealing || new AutoHealingProjectionService();
+    this.reasoningSummary = runtime.reasoningSummary || new ReasoningSummaryService();
   }
 
   public buildHome(input: ExperienceHomeInput = {}): ExperienceSnapshot {
@@ -136,10 +160,41 @@ export class ExperienceCoreService {
       sandboxMode: normalizeText(activeRun?.metadata?.sandboxIsolation, 'governed-local'),
     });
     const health = this.buildHealth(agentSnapshot, learningSummary.pending, approvals);
+    const generatedAt = this.now().toISOString();
+    const diffReviews = this.diffReview.build({ activeRun, runs });
+    const autoHealing = this.autoHealing.build({ activeRun });
+    const executionGraph = this.executionGraph.build({ activeRun, runs, timeline, generatedAt });
+    const reasoningSummary = this.reasoningSummary.build({ activeRun, timeline, trust });
+    const draftActionCards = this.actionCards.build({
+      activeRun,
+      approvals,
+      learningCandidates,
+      diffReviews,
+      autoHealing,
+      now: this.now(),
+    });
+    const contextRecovery = this.contextRecovery.build({
+      text: activeRun?.input || '',
+      activeRun,
+      runs,
+      approvals,
+      actionCards: draftActionCards,
+    });
+    const actionCards = this.actionCards.build({
+      activeRun,
+      approvals,
+      learningCandidates,
+      diffReviews,
+      contextRecovery,
+      autoHealing,
+      now: this.now(),
+    });
+    const nextActions = this.buildNextActions(health.status, approvals.length, learningSummary.pending);
+    const pendingApprovals = approvals.filter((approval) => approval.status === 'pending').length;
 
     return {
       contractVersion: EXPERIENCE_SNAPSHOT_CONTRACT_VERSION,
-      generatedAt: this.now().toISOString(),
+      generatedAt,
       surface,
       sessionId: sessionId || activeRun?.sessionId || null,
       workspace: workspace || activeRun?.workspace || null,
@@ -177,7 +232,21 @@ export class ExperienceCoreService {
         pending: learningSummary.pending,
       },
       trust,
-      nextActions: this.buildNextActions(health.status, approvals.length, learningSummary.pending),
+      daily: {
+        summary: health.summary,
+        activeTask: activeRun?.title || activeRun?.input || null,
+        health: health.status,
+        nextSteps: nextActions.map((item) => item.label).slice(0, 5),
+        pendingApprovals,
+        pendingLearning: learningSummary.pending,
+      },
+      actionCards,
+      diffReviews,
+      executionGraph,
+      autoHealing,
+      contextRecovery,
+      reasoningSummary,
+      nextActions,
       health,
       raw: {
         agentGateway: agentSnapshot
@@ -202,7 +271,11 @@ export class ExperienceCoreService {
       sessionId: input.sessionId || null,
       workspace: input.workspace || null,
       trustMode: input.trustMode || 'protected',
+      autonomyMode: input.autonomyMode || 'governed',
       approval: input.approval || null,
+      actionCardDecision: input.actionCardDecision || null,
+      diffDecision: input.diffDecision || null,
+      contextRecoveryDecision: input.contextRecoveryDecision || null,
       learning: input.learning || null,
       metadata: input.metadata || {},
     };
@@ -251,6 +324,47 @@ export class ExperienceCoreService {
         };
       }
 
+      if (command.actionCardDecision?.cardId && command.actionCardDecision.actionId) {
+        const cardResult = await this.handleActionCardDecision(command, plan);
+        if (cardResult) return cardResult;
+      }
+
+      if (command.diffDecision?.reviewId) {
+        const snapshot = this.buildHome(command);
+        const reply = this.replyFromText(
+          `Decisao de diff registrada para ${command.diffDecision.targetId}. A aplicacao parcial ainda exige novo mutation plan governado antes do host.`,
+          command,
+          snapshot.agent.activeRunId,
+        );
+        return {
+          ok: true,
+          handled: true,
+          plan,
+          snapshot,
+          replies: [reply],
+          receipts: snapshot.receipts,
+          error: null,
+        };
+      }
+
+      if (command.contextRecoveryDecision?.recoveryId) {
+        const snapshot = this.buildHome(command);
+        const reply = this.replyFromText(
+          `Contexto selecionado: ${command.contextRecoveryDecision.optionId}. Vou continuar usando esse alvo antes de executar qualquer acao sensivel.`,
+          command,
+          snapshot.agent.activeRunId,
+        );
+        return {
+          ok: true,
+          handled: true,
+          plan,
+          snapshot,
+          replies: [reply],
+          receipts: snapshot.receipts,
+          error: null,
+        };
+      }
+
       if (plan.kind === 'dashboard' || plan.kind === 'diagnostics' || plan.kind === 'learning' || plan.kind === 'memory') {
         const snapshot = this.buildHome(command);
         const reply = this.replyFromText(plan.nextSafeAction, command, snapshot.agent.activeRunId);
@@ -280,6 +394,7 @@ export class ExperienceCoreService {
               kind: plan.kind,
               risk: plan.risk,
               requiresApproval: plan.requiresApproval,
+              autonomyMode: command.autonomyMode,
             },
           },
         });
@@ -556,6 +671,72 @@ export class ExperienceCoreService {
       }));
     }
     return actions;
+  }
+
+  private async handleActionCardDecision(
+    command: ExperienceCommand,
+    plan: ReturnType<NaturalCommandRouterService['route']>,
+  ): Promise<ExperienceCommandResult | null> {
+    const actionId = command.actionCardDecision?.actionId || '';
+    const approvalMatch = /^(approve|reject):(.+)$/.exec(actionId);
+    if (approvalMatch) {
+      const decision = approvalMatch[1] as 'approve' | 'reject';
+      const approvalId = approvalMatch[2];
+      const result = decision === 'approve'
+        ? await this.agentGateway?.approve(approvalId)
+        : await this.agentGateway?.reject(approvalId);
+      const snapshot = this.buildHome(command);
+      const reply = this.replyFromText(
+        result
+          ? `Action card resolvido: ${decision === 'approve' ? 'aprovado' : 'rejeitado'} ${approvalId}.`
+          : `Nao encontrei aprovacao pendente para ${approvalId}.`,
+        command,
+        result?.run?.id || snapshot.agent.activeRunId,
+      );
+      return {
+        ok: Boolean(result),
+        handled: true,
+        plan,
+        snapshot,
+        replies: [reply],
+        receipts: snapshot.receipts,
+        error: result ? null : 'Approval not found.',
+      };
+    }
+
+    const learningMatch = /^learn:(approve|reject):(.+)$/.exec(actionId);
+    if (learningMatch) {
+      const learning = this.learningOs.decide({
+        candidateId: learningMatch[2],
+        decision: learningMatch[1] === 'approve' ? 'approve' : 'reject',
+        workspace: command.workspace || null,
+      });
+      const snapshot = this.buildHome(command);
+      return {
+        ok: learning.ok,
+        handled: true,
+        plan,
+        snapshot,
+        replies: [this.replyFromText(learning.summary, command, snapshot.agent.activeRunId)],
+        receipts: snapshot.receipts,
+        error: learning.ok ? null : learning.summary,
+      };
+    }
+
+    const snapshot = this.buildHome(command);
+    return {
+      ok: true,
+      handled: true,
+      plan,
+      snapshot,
+      replies: [this.replyFromText(
+        `Action card ${command.actionCardDecision?.cardId} selecionado. Acao ${actionId} exige a superficie apropriada ou novo plano governado.`,
+        command,
+        snapshot.agent.activeRunId,
+      )],
+      receipts: snapshot.receipts,
+      error: null,
+    };
   }
 
   private replyFromText(text: string, command: ExperienceCommand, runId: string | null) {
