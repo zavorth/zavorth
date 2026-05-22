@@ -181,7 +181,7 @@ const TOOL_ATTENTION_PATTERNS = [
 
 const TOOL_SAFE_PATTERNS = [
   /(?:^|[._:-])(read|list|history|status|inspect|describe)(?:$|[._:-])/,
-  /\b(read_file|workspace\.read|memory\.read|sessions\.history|sessions\.list)\b/,
+  /\b(read_file|workspace\.read|memory\.read|sessions\.history|sessions\.list|get_datetime|datetime|time\.now)\b/,
 ];
 
 function normalizeText(value: unknown): string {
