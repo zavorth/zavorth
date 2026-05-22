@@ -35,13 +35,18 @@ export function readExperienceQuery(request: Request): {
   workspace: string | null;
   activeRunId: string | null;
   activeTraceId: string | null;
+  responseProfile: ExperienceCommand["responseProfile"];
 } {
   const url = new URL(request.url);
+  const responseProfile = url.searchParams.get("responseProfile");
   return {
     sessionId: url.searchParams.get("sessionId"),
     workspace: url.searchParams.get("workspace"),
     activeRunId: url.searchParams.get("runId"),
     activeTraceId: url.searchParams.get("traceId"),
+    responseProfile: responseProfile === "short" || responseProfile === "dev" || responseProfile === "executive" || responseProfile === "mentor"
+      ? responseProfile
+      : null,
   };
 }
 
@@ -54,7 +59,23 @@ export async function readJsonBody(request: Request): Promise<Record<string, unk
   }
 }
 
+function parseResponseProfileText(value: unknown): ExperienceCommand["responseProfile"] {
+  const text = String(value || "").normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
+  if (/\b(estilo|perfil|resposta)\s+(curto|objetivo|short)\b/.test(text) || /\b(use|usar)\s+(curto|objetivo|short)\b/.test(text)) return "short";
+  if (/\b(estilo|perfil|resposta)\s+(dev|developer|tecnico|technical)\b/.test(text) || /\b(include|inclua).*(arquivos|testes|evidencias)\b/.test(text)) return "dev";
+  if (/\b(estilo|perfil|resposta)\s+(executivo|executive|manager)\b/.test(text) || /\b(resuma|resumo).*(impacto|decisao)\b/.test(text)) return "executive";
+  if (/\b(estilo|perfil|resposta)\s+(mentor|didatico|teacher)\b/.test(text) || /\b(explique|ensine).*(enquanto|passo)\b/.test(text)) return "mentor";
+  return null;
+}
+
 export function buildExperienceCommand(body: Record<string, unknown>): Partial<ExperienceCommand> & { text: string } {
+  const text = String(body.text || body.message || body.prompt || "").trim();
+  const responseProfile = body.responseProfile === "short"
+    || body.responseProfile === "dev"
+    || body.responseProfile === "executive"
+    || body.responseProfile === "mentor"
+    ? body.responseProfile
+    : parseResponseProfileText(text);
   const actionCardDecision = body.actionCardDecision && typeof body.actionCardDecision === "object" && !Array.isArray(body.actionCardDecision)
     ? body.actionCardDecision as ExperienceCommand["actionCardDecision"]
     : null;
@@ -66,7 +87,7 @@ export function buildExperienceCommand(body: Record<string, unknown>): Partial<E
     : null;
   return {
     contractVersion: "ExperienceCommand/v1",
-    text: String(body.text || body.message || body.prompt || "").trim(),
+    text,
     intent: typeof body.intent === "string" ? body.intent as ExperienceCommand["intent"] : "ask",
     surface: body.surface === "cli" || body.surface === "telegram" || body.surface === "discord" || body.surface === "api"
       ? body.surface
@@ -81,9 +102,11 @@ export function buildExperienceCommand(body: Record<string, unknown>): Partial<E
     actionCardDecision,
     diffDecision,
     contextRecoveryDecision,
+    responseProfile,
     metadata: {
       requestedBy: body.requestedBy || "control-ui",
       source: "api/experience",
+      responseProfile: responseProfile || undefined,
     },
   };
 }

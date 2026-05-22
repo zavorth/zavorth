@@ -11,6 +11,8 @@ It contains:
 
 - agent state;
 - daily HUD summary;
+- daily brief with best next action, pending decisions, highlights and risks;
+- response profile (`short`, `dev`, `executive`, `mentor`);
 - active journey;
 - chat messages and suggestions;
 - approvals;
@@ -40,11 +42,30 @@ Experience commands can also carry governed decisions:
 - `actionCardDecision` for a cross-channel action card;
 - `diffDecision` for a plan/file/hunk selection;
 - `contextRecoveryDecision` for an ambiguous target choice;
+- `responseProfile` to request concise, developer, executive or mentor-style
+  replies across CLI, Dashboard and Telegram;
 - `autonomyMode` as `manual`, `governed` or `speculative`.
 
 These decisions do not bypass policy. Diff selections recompose a mutation
 plan and sensitive work still requires approval and receipts before host
 changes.
+
+## Daily Brief And Response Profiles
+
+`ExperienceDailyBrief/v1` is the small "what matters now" projection. It
+contains the headline, best next action, pending approvals/learning/receipts,
+operational highlights, risks, recent receipts and the active response profile.
+Surfaces should render this instead of inventing separate daily summaries.
+
+`ExperienceResponseProfile/v1` keeps answer style consistent:
+
+- `short`: direct answer and next step;
+- `dev`: files, commands, tests and evidence;
+- `executive`: impact, decision, risk and evidence;
+- `mentor`: guided explanation without exposing raw chain-of-thought.
+
+Profiles change tone and structure only. They do not modify Trust Lens,
+approval policy, sandbox rules or security gates.
 
 ## Hardening Rules
 

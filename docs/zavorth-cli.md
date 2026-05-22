@@ -65,6 +65,20 @@ The HUD also prints daily shortcut intents:
 These shortcuts are rendered as explicit commands so terminals without a full
 TUI still remain predictable and automation-friendly.
 
+The home and HUD now include a Daily Brief: headline, best next action,
+pending approvals, pending learning, recent receipts, risks and highlights.
+They also show the active response profile. You can ask for a style naturally:
+
+```bash
+zavorth ask "use estilo curto"
+zavorth ask "use estilo dev"
+zavorth ask "use estilo executivo"
+zavorth ask "use estilo mentor"
+```
+
+Profiles affect presentation only. They never relax approvals, sandboxing or
+security policy.
+
 ## Common Commands
 
 ```bash

@@ -70,6 +70,34 @@ function renderReasoning(snapshot: ExperienceSnapshot): string[] {
   ];
 }
 
+function renderDailyBrief(snapshot: ExperienceSnapshot): string[] {
+  const brief = snapshot.daily?.brief;
+  if (!brief) {
+    return [sanitizeHumanCliText(snapshot.daily?.summary || snapshot.health.summary)];
+  }
+  return [
+    sanitizeHumanCliText(brief.headline),
+    sanitizeHumanCliText(brief.summary),
+    `Melhor proxima acao: ${sanitizeHumanCliText(brief.bestNextAction.label)}${brief.bestNextAction.command ? ` -> ${brief.bestNextAction.command}` : ''}`,
+    `Pendencias: approvals ${brief.pending.approvals} | learning ${brief.pending.learning} | receipts ${brief.pending.receipts}`,
+    ...brief.highlights.slice(0, 3).map((item) => `+ ${sanitizeHumanCliText(item)}`),
+    ...brief.risks.slice(0, 3).map((item) => `! ${sanitizeHumanCliText(item)}`),
+  ];
+}
+
+function renderResponseProfile(snapshot: ExperienceSnapshot): string[] {
+  const profile = snapshot.responseProfile || snapshot.daily?.responseProfile || snapshot.daily?.brief?.profile;
+  if (!profile) {
+    return ['Perfil padrao: Dev. Use zavorth ask "use estilo curto/dev/executivo/mentor" para ajustar.'];
+  }
+  return [
+    `${profile.label} (${profile.id}) | detalhe ${profile.defaultDetail}`,
+    sanitizeHumanCliText(profile.summary),
+    `Estrutura: ${profile.structure.join(' -> ')}`,
+    ...profile.commands.slice(0, 2).map((command) => `Comando: ${command}`),
+  ];
+}
+
 function renderHudShortcuts(snapshot: ExperienceSnapshot): string[] {
   const firstCard = (snapshot.actionCards || [])[0];
   const approveAction = firstCard?.actions.find((action) => /approve|aprovar/i.test(action.id) && action.command);
@@ -99,12 +127,12 @@ export function formatExperienceHome(snapshot: ExperienceSnapshot): string {
     {
       title: 'Agora',
       tone: 'brand',
-      lines: [
-        snapshot.daily?.summary ? sanitizeHumanCliText(snapshot.daily.summary) : sanitizeHumanCliText(snapshot.journey.title),
-        sanitizeHumanCliText(snapshot.journey.summary),
-        `Approvals: ${formatCount(snapshot.approvals.filter((approval) => approval.status === 'pending').length, 'approval')}`,
-        `Learning pendente: ${formatCount(snapshot.learning.pending, 'candidato')}`,
-      ],
+      lines: renderDailyBrief(snapshot),
+    },
+    {
+      title: 'Estilo de resposta',
+      tone: 'neutral',
+      lines: renderResponseProfile(snapshot),
     },
     {
       title: 'Proximas acoes',
@@ -143,11 +171,15 @@ export function formatExperienceHud(snapshot: ExperienceSnapshot): string {
       title: 'Daily HUD',
       tone: snapshot.daily?.health === 'ready' ? 'success' : 'warning',
       lines: [
-        sanitizeHumanCliText(snapshot.daily?.summary || snapshot.health.summary),
-        `Tarefa ativa: ${sanitizeHumanCliText(snapshot.daily?.activeTask || 'nenhuma')}`,
+        ...renderDailyBrief(snapshot),
         `Workspace: ${formatCliValue(snapshot.workspace || 'padrao')}`,
         `Autonomia: ${snapshot.trust.sandbox.mode}`,
       ],
+    },
+    {
+      title: 'Perfil',
+      tone: 'neutral',
+      lines: renderResponseProfile(snapshot),
     },
     {
       title: 'Cards',
@@ -262,6 +294,11 @@ export function formatExperienceCommandResult(result: ExperienceCommandResult): 
       title: 'Resposta',
       tone: result.ok ? 'success' : 'danger',
       lines: [replyText || (result.ok ? 'Pedido processado.' : result.error || 'Falha no Experience Core.')],
+    },
+    {
+      title: 'Estilo aplicado',
+      tone: 'neutral',
+      lines: renderResponseProfile(result.snapshot),
     },
     {
       title: 'Receipts',

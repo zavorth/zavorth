@@ -221,9 +221,52 @@ describe('Experience Core Layer', () => {
     expect(snapshot.memory.signals[0].title).toBe('Preferencia de validacao');
     expect(snapshot.learning.pending).toBe(1);
     expect(snapshot.daily?.pendingApprovals).toBe(1);
+    expect(snapshot.daily?.brief?.contractVersion).toBe('ExperienceDailyBrief/v1');
+    expect(snapshot.daily?.brief?.bestNextAction.command).toContain('zavorth approve');
+    expect(snapshot.responseProfile?.id).toBe('dev');
     expect(snapshot.actionCards?.map((card) => card.source)).toContain('approval');
     expect(snapshot.executionGraph?.nodes.length).toBeGreaterThan(0);
     expect(snapshot.reasoningSummary?.approvalReason).toContain('Executa comando local');
+  });
+
+  it('supports explicit response profiles across shared snapshots', () => {
+    const run = makeRun({
+      metadata: {
+        responseProfile: 'mentor',
+        sandboxIsolation: 'docker',
+      },
+    });
+    const service = new ExperienceCoreService({
+      now,
+      agentGateway: {
+        buildSnapshot: jest.fn(() => ({
+          generatedAt: now().toISOString(),
+          source: { kind: 'universal-agent-runtime', label: 'Zavorth Agent Gateway' },
+          activeRun: run,
+          runs: [run],
+          runObservatory: {} as any,
+          capabilityLoopGovernance: null,
+          runtimePromotionGovernance: {} as any,
+          workflowJobs: [],
+          workflowQueue: {} as any,
+        })),
+        handle: jest.fn(),
+        approve: jest.fn(),
+        reject: jest.fn(),
+      },
+      learningPlane: makeLearningPlane(),
+    });
+
+    const snapshot = service.buildHome({
+      surface: 'cli',
+      sessionId: 'session-1',
+      responseProfile: 'executive',
+    });
+
+    expect(snapshot.responseProfile?.contractVersion).toBe('ExperienceResponseProfile/v1');
+    expect(snapshot.responseProfile?.id).toBe('executive');
+    expect(snapshot.daily?.brief?.profile.id).toBe('executive');
+    expect(snapshot.daily?.brief?.summary).toContain('perfil Executivo');
   });
 
   it('projects action cards, auto-healing and diff reviews without applying host changes', () => {

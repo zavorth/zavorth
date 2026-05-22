@@ -59,6 +59,8 @@ export function CommandCenterExperienceHome({
   const learning = asRecord(snapshot?.learning);
   const memory = asRecord(snapshot?.memory);
   const daily = asRecord(snapshot?.daily);
+  const dailyBrief = asRecord(daily.brief);
+  const responseProfile = asRecord(snapshot?.responseProfile || daily.responseProfile || dailyBrief.profile);
   const autoHealing = asRecord(snapshot?.autoHealing);
   const contextRecovery = asRecord(snapshot?.contextRecovery);
   const reasoningSummary = asRecord(snapshot?.reasoningSummary);
@@ -97,6 +99,8 @@ export function CommandCenterExperienceHome({
           reasoningSummary={reasoningSummary}
           onNavigate={() => onNavigate("terminal")}
         />
+        <DailyBriefPanel brief={dailyBrief} fallbackSummary={asText(daily.summary || health.summary)} onDraftCommand={onDraftCommand} />
+        <ResponseProfilePanel profile={responseProfile} onDraftCommand={onDraftCommand} />
         <ActionCardsPanel
           cards={actionCards}
           onDraftCommand={onDraftCommand}
@@ -129,6 +133,88 @@ export function CommandCenterExperienceHome({
         />
       </div>
     </section>
+  );
+}
+
+function DailyBriefPanel({
+  brief,
+  fallbackSummary,
+  onDraftCommand,
+}: {
+  brief: Record<string, any>;
+  fallbackSummary: string;
+  onDraftCommand: (command: string) => void;
+}) {
+  const bestNextAction = asRecord(brief.bestNextAction);
+  const pending = asRecord(brief.pending);
+  const highlights = asTextArray(brief.highlights);
+  const risks = asTextArray(brief.risks);
+  return (
+    <article className="bcc-experience-card bcc-daily-brief">
+      <header>
+        <span>Daily Brief</span>
+        <button
+          type="button"
+          onClick={() => onDraftCommand(asText(bestNextAction.command, asText(bestNextAction.label, "o que devo fazer agora?")))}
+        >
+          Proximo
+        </button>
+      </header>
+      <div className="bcc-experience-list">
+        <div className="bcc-experience-list__item" data-tone={risks.length ? "warn" : "ok"}>
+          <strong>{asText(brief.headline, fallbackSummary || "Zavorth pronto para o proximo pedido.")}</strong>
+          <small>{asText(brief.summary, fallbackSummary)}</small>
+          <small>Approvals {Number(pending.approvals || 0)} | Learning {Number(pending.learning || 0)} | Receipts {Number(pending.receipts || 0)}</small>
+        </div>
+        {highlights.slice(0, 3).map((item) => (
+          <small key={item} className="bcc-daily-brief__line">+ {item}</small>
+        ))}
+        {risks.slice(0, 3).map((item) => (
+          <small key={item} className="bcc-daily-brief__line bcc-daily-brief__line--risk">! {item}</small>
+        ))}
+      </div>
+    </article>
+  );
+}
+
+function ResponseProfilePanel({
+  profile,
+  onDraftCommand,
+}: {
+  profile: Record<string, any>;
+  onDraftCommand: (command: string) => void;
+}) {
+  const structure = asTextArray(profile.structure);
+  const active = asText(profile.id, "dev");
+  const profiles = [
+    { id: "short", label: "Curto" },
+    { id: "dev", label: "Dev" },
+    { id: "executive", label: "Executivo" },
+    { id: "mentor", label: "Mentor" },
+  ];
+  return (
+    <article className="bcc-experience-card bcc-response-profile">
+      <header>
+        <span>Estilo de resposta</span>
+        <button type="button" disabled>{asText(profile.label, "Dev")}</button>
+      </header>
+      <div className="bcc-trust-lens" data-risk="safe">
+        <strong>{asText(profile.summary, "Respostas tecnicas com plano, evidencias e validacao.")}</strong>
+        <small>{structure.length ? structure.join(" -> ") : "plano -> mudancas -> validacao"}</small>
+        <div className="bcc-action-card-actions" aria-label="Selecionar perfil de resposta">
+          {profiles.map((item) => (
+            <button
+              key={item.id}
+              type="button"
+              data-active={active === item.id ? "true" : "false"}
+              onClick={() => onDraftCommand(`use estilo ${item.id}`)}
+            >
+              {item.label}
+            </button>
+          ))}
+        </div>
+      </div>
+    </article>
   );
 }
 

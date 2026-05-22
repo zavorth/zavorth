@@ -91,6 +91,8 @@ export const COMMAND_CENTER_REQUIRED_CLASSES = [
   "bcc-active-run-state",
   "bcc-experience-home",
   "bcc-agent-pulse",
+  "bcc-daily-brief",
+  "bcc-response-profile",
   "bcc-live-action-graph",
   "bcc-reasoning-details",
   "bcc-diff-file",

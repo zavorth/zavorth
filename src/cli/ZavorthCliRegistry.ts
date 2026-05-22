@@ -391,6 +391,7 @@ export async function executeZavorthCliCommand(params: {
       surface: effectiveFlags.platform,
       sessionId: effectiveFlags.sessionId,
       workspace: effectiveFlags.workspaceHint || null,
+      responseProfile: parseExperienceResponseProfile(args || normalized),
     });
     const body = effectiveFlags.json
       ? JSON.stringify(snapshot || { ok: false, error: 'Experience Core indisponivel.' }, null, 2)
@@ -439,6 +440,7 @@ export async function executeZavorthCliCommand(params: {
     const runtime = await resolveRuntime();
     if (runtime.experienceCoreService) {
       const requestText = args || (commandName === 'run' ? normalized : '');
+      const responseProfile = parseExperienceResponseProfile(requestText);
       const result = await runtime.experienceCoreService.executeCommand({
         contractVersion: 'ExperienceCommand/v1',
         text: requestText,
@@ -448,9 +450,11 @@ export async function executeZavorthCliCommand(params: {
         sessionId: effectiveFlags.sessionId,
         workspace: effectiveFlags.workspaceHint || null,
         trustMode: 'protected',
+        responseProfile,
         metadata: {
           cliCommandName: commandName,
           repl: effectiveFlags.repl,
+          responseProfile: responseProfile || undefined,
         },
       });
       const body = effectiveFlags.json
@@ -879,6 +883,23 @@ function parseExperienceLearningCliArgs(args: string): {
       decision: action,
       candidateId: null,
     };
+  }
+  return null;
+}
+
+function parseExperienceResponseProfile(args: string): 'short' | 'dev' | 'executive' | 'mentor' | null {
+  const text = String(args || '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase();
+  if (/\b(estilo|perfil|resposta)\s+(curto|objetivo|short)\b/.test(text) || /\b(use|usar)\s+(curto|objetivo|short)\b/.test(text)) {
+    return 'short';
+  }
+  if (/\b(estilo|perfil|resposta)\s+(dev|developer|tecnico|technical)\b/.test(text) || /\b(include|inclua).*(arquivos|testes|evidencias)\b/.test(text)) {
+    return 'dev';
+  }
+  if (/\b(estilo|perfil|resposta)\s+(executivo|executive|manager)\b/.test(text) || /\b(resuma|resumo).*(impacto|decisao)\b/.test(text)) {
+    return 'executive';
+  }
+  if (/\b(estilo|perfil|resposta)\s+(mentor|didatico|teacher)\b/.test(text) || /\b(explique|ensine).*(enquanto|passo)\b/.test(text)) {
+    return 'mentor';
   }
   return null;
 }
