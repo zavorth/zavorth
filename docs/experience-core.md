@@ -105,6 +105,7 @@ The natural-first entry points are:
 
 ```bash
 zavorth
+zavorth pulse
 zavorth hud
 zavorth ask "por que o runtime esta bloqueado?"
 zavorth run "revise esse repo"

@@ -92,6 +92,8 @@ export const COMMAND_CENTER_REQUIRED_CLASSES = [
   "bcc-experience-home",
   "bcc-agent-pulse",
   "bcc-zavorth-pulse",
+  "bcc-zavorth-pulse__orb",
+  "bcc-zavorth-pulse__metrics",
   "bcc-response-profile",
   "bcc-live-action-graph",
   "bcc-reasoning-details",

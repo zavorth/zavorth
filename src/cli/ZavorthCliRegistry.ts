@@ -263,6 +263,7 @@ import {
   formatExperienceHome,
   formatExperienceHud,
   formatExperienceLearning,
+  formatExperiencePulse,
 } from './ZavorthCliExperienceRenderer.js';
 import {
   CommandCenterAccessService,
@@ -339,6 +340,7 @@ export async function executeZavorthCliCommand(params: {
     const runtime = await resolveRuntime();
     const snapshot = runtime.experienceCoreService?.buildHome({
       surface: effectiveFlags.platform,
+      userId: effectiveFlags.userId,
       sessionId: effectiveFlags.sessionId,
       workspace: effectiveFlags.workspaceHint || null,
     });
@@ -373,6 +375,7 @@ export async function executeZavorthCliCommand(params: {
     const runtime = await resolveRuntime();
     const snapshot = runtime.experienceCoreService?.buildHome({
       surface: effectiveFlags.platform,
+      userId: effectiveFlags.userId,
       sessionId: effectiveFlags.sessionId,
       workspace: effectiveFlags.workspaceHint || null,
     });
@@ -385,10 +388,42 @@ export async function executeZavorthCliCommand(params: {
     return { ok: Boolean(snapshot), handled: true, output: [body], error: snapshot ? null : 'Experience Core unavailable.' };
   }
 
+  if (commandName === 'pulse') {
+    const runtime = await resolveRuntime();
+    const responseProfile = parseExperienceResponseProfile(args || normalized);
+    if (responseProfile && runtime.experienceCoreService) {
+      await runtime.experienceCoreService.executeCommand({
+        contractVersion: 'ExperienceCommand/v1',
+        text: `use estilo ${responseProfile}`,
+        intent: 'ask',
+        surface: effectiveFlags.platform,
+        userId: effectiveFlags.userId,
+        sessionId: effectiveFlags.sessionId,
+        workspace: effectiveFlags.workspaceHint || null,
+        responseProfile,
+      });
+    }
+    const snapshot = runtime.experienceCoreService?.buildHome({
+      surface: effectiveFlags.platform,
+      userId: effectiveFlags.userId,
+      sessionId: effectiveFlags.sessionId,
+      workspace: effectiveFlags.workspaceHint || null,
+      responseProfile,
+    });
+    const body = effectiveFlags.json
+      ? JSON.stringify(snapshot?.daily?.pulse || { ok: false, error: 'Zavorth Pulse indisponivel.' }, null, 2)
+      : snapshot
+        ? formatExperiencePulse(snapshot)
+        : 'Zavorth Pulse indisponivel neste runtime.';
+    writer.line(body);
+    return { ok: Boolean(snapshot), handled: true, output: [body], error: snapshot ? null : 'Zavorth Pulse unavailable.' };
+  }
+
   if (commandName === 'hud') {
     const runtime = await resolveRuntime();
     const snapshot = runtime.experienceCoreService?.buildHome({
       surface: effectiveFlags.platform,
+      userId: effectiveFlags.userId,
       sessionId: effectiveFlags.sessionId,
       workspace: effectiveFlags.workspaceHint || null,
       responseProfile: parseExperienceResponseProfile(args || normalized),
@@ -425,6 +460,7 @@ export async function executeZavorthCliCommand(params: {
       }
       const snapshot = runtime.experienceCoreService.buildHome({
         surface: effectiveFlags.platform,
+        userId: effectiveFlags.userId,
         sessionId: effectiveFlags.sessionId,
         workspace: effectiveFlags.workspaceHint || null,
       });
@@ -472,6 +508,7 @@ export async function executeZavorthCliCommand(params: {
       if (!learning) {
         const snapshot = runtime.experienceCoreService.buildHome({
           surface: effectiveFlags.platform,
+          userId: effectiveFlags.userId,
           sessionId: effectiveFlags.sessionId,
           workspace: effectiveFlags.workspaceHint || null,
         });

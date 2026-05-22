@@ -102,6 +102,7 @@ export class ZavorthCli {
     const welcomeText = runtime.experienceCoreService
       ? formatExperienceHome(runtime.experienceCoreService.buildHome({
         surface: flags.platform,
+        userId: flags.userId,
         sessionId: flags.sessionId,
         workspace: flags.workspaceHint || null,
       }))

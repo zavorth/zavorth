@@ -594,6 +594,31 @@ export function useControlPageClient(): ControlPageClientModel {
     }
   };
 
+  const handleResponseProfile = async (profile: "short" | "dev" | "executive" | "mentor") => {
+    setError(null);
+    try {
+      const payload = await fetchJson<Record<string, any>>("/api/experience/ask", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          text: `use estilo ${profile}`,
+          surface: "web",
+          requestedBy: "control-ui",
+          sessionId: getSessionIdFromState(state) || activeSessionId || null,
+          responseProfile: profile,
+        }),
+      });
+      if (payload.snapshot) {
+        setExperience(payload.snapshot as ExperienceSnapshotResponse);
+      }
+      await loadExperienceSnapshot();
+    } catch (profileError: any) {
+      setError(profileError?.message || "Falha ao salvar estilo de resposta.");
+    }
+  };
+
   const handleMissionCancel = async (missionId: string) => {
     const normalizedMissionId = asText(missionId);
     if (!normalizedMissionId) {
@@ -838,6 +863,7 @@ export function useControlPageClient(): ControlPageClientModel {
     handleApproval,
     handleExperienceActionCard,
     handleExperienceDiffDecision,
+    handleResponseProfile,
     handleMissionCancel,
     handleProviderTest,
     handleChannelAction,

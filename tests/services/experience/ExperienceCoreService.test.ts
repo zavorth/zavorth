@@ -4,6 +4,7 @@ import {
   ExperienceCoreService,
   NaturalCommandRouterService,
   ReasoningSummaryService,
+  ResponseProfilePreferenceService,
   LearningOSService,
   TrustLensService,
   JourneyEngineService,
@@ -267,6 +268,37 @@ describe('Experience Core Layer', () => {
     expect(snapshot.responseProfile?.id).toBe('executive');
     expect(snapshot.daily?.pulse?.profile.id).toBe('executive');
     expect(snapshot.daily?.pulse?.summary).toContain('perfil Executivo');
+  });
+
+  it('persists response profiles per user and surface', async () => {
+    const storePath = 'C:/tmp/zavorth-response-profile-test.json';
+    const responseProfiles = new ResponseProfilePreferenceService({ now, storePath });
+    responseProfiles.reset({ surface: 'cli', userId: 'user-1' });
+    const service = new ExperienceCoreService({
+      now,
+      responseProfiles,
+    });
+
+    const result = await service.executeCommand({
+      contractVersion: 'ExperienceCommand/v1',
+      text: 'use estilo mentor',
+      intent: 'ask',
+      surface: 'cli',
+      userId: 'user-1',
+      responseProfile: 'mentor',
+    });
+    const nextSnapshot = service.buildHome({
+      surface: 'cli',
+      userId: 'user-1',
+    });
+    const otherSurface = service.buildHome({
+      surface: 'telegram',
+      userId: 'user-1',
+    });
+
+    expect(result.snapshot.responseProfile?.id).toBe('mentor');
+    expect(nextSnapshot.responseProfile?.id).toBe('mentor');
+    expect(otherSurface.responseProfile?.id).toBe('short');
   });
 
   it('projects action cards, auto-healing and diff reviews without applying host changes', () => {
