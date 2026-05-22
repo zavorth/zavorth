@@ -303,6 +303,9 @@ function InteractiveDiffReview({
 
 function AutoHealingProgress({ autoHealing }: { autoHealing: Record<string, any> }) {
   const status = asText(autoHealing.status, "idle");
+  const budget = asRecord(autoHealing.budget);
+  const elapsed = Math.round(Number(budget.elapsedMs || 0) / 1000);
+  const maxElapsed = Math.round(Number(budget.maxElapsedMs || 120000) / 1000);
   return (
     <article className="bcc-experience-card">
       <header>
@@ -313,6 +316,8 @@ function AutoHealingProgress({ autoHealing }: { autoHealing: Record<string, any>
         <strong>Tentativa {Number(autoHealing.attempt || 0)}/{Number(autoHealing.maxAttempts || 3)}</strong>
         <p>{asText(autoHealing.lastErrorSummary || autoHealing.proposedCorrection, "Sem autocorrecao especulativa ativa.")}</p>
         <small>{asText(autoHealing.validationCommand, "Validacao ainda nao detectada.")}</small>
+        <small>Budget: {elapsed}s/{maxElapsed}s | tokens {asText(budget.tokensUsed, "n/a")}/{asText(budget.tokenBudget, "n/a")}</small>
+        {budget.cancellable ? <small>{asText(budget.cancelCommand, "parar auto-healing")}</small> : null}
       </div>
     </article>
   );
@@ -326,6 +331,7 @@ function ContextRecoveryPanel({
   onDraftCommand: (command: string) => void;
 }) {
   const options = asArray(recovery.options);
+  const overflow = asRecord(recovery.overflow);
   return (
     <article className="bcc-experience-card">
       <header>
@@ -341,6 +347,9 @@ function ContextRecoveryPanel({
                 {asText(option.label, "Opcao")}
               </button>
             ))}
+            {overflow.hasOverflow ? (
+              <small>Mostrando {Number(overflow.shownOptions || options.length)} de {Number(overflow.totalOptions || options.length)} alvos. Abra o Dashboard completo para todos.</small>
+            ) : null}
           </>
         ) : (
           <p>Sem ambiguidade pendente. O Zavorth vai perguntar antes de agir quando houver mais de um alvo provavel.</p>

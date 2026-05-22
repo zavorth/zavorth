@@ -1,6 +1,7 @@
 import { TaskManager } from '../../orchestrator/TaskManager.js';
 import { LogRepository } from '../../storage/LogRepository.js';
 import { TelegramCallbackController } from '../controllers/TelegramCallbackController.js';
+import { defaultTelegramExperienceActionCardRegistry } from '../TelegramExperienceActionCardRegistry.js';
 import { TelegramMnemosController } from '../controllers/TelegramMnemosController.js';
 import { TelegramMnemosMemoryUxController } from '../controllers/TelegramMnemosMemoryUxController.js';
 import { TelegramCommandRoutingService } from '../TelegramCommandRoutingService.js';
@@ -65,8 +66,21 @@ export function finalizeBotGatewayBootstrap(
       await processTextMessage(gateway, ctx, commandText);
     },
     handleExperienceActionCardCallback: async (ctx, data) => {
+      const resolved = defaultTelegramExperienceActionCardRegistry.resolve(data, {
+        userId: String(ctx.from?.id || '').trim() || null,
+        chatId: String(ctx.chat?.id || '').trim() || null,
+      });
+      if (!resolved.ok) {
+        const reason = resolved.reason === 'forbidden'
+          ? 'Action card nao pertence a este usuario/chat.'
+          : resolved.reason === 'expired'
+            ? 'Action card expirou. Peca status novamente.'
+            : 'Action card invalido ou nao encontrado.';
+        await ctx.answerCallbackQuery({ text: reason });
+        return;
+      }
       await ctx.answerCallbackQuery({ text: 'Action card recebido.' });
-      await processTextMessage(gateway, ctx, data === 'xcard:diff-summary' ? 'ver diff' : 'status');
+      await processTextMessage(gateway, ctx, resolved.entry.commandText);
     },
     logError: (message) =>
       logRepo.log('error', 'BotGateway', `Callback error: ${message}`),

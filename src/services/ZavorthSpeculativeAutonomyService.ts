@@ -164,6 +164,17 @@ export type ZavorthSpeculativeCorrectionProvider = (
   input: ZavorthSpeculativeCorrectionInput,
 ) => Promise<ZavorthSpeculativeCorrection | null>;
 
+export type ZavorthSpeculativeCancellationCheckInput = {
+  runId: string;
+  sourceRunId: string | null;
+  round: number;
+  elapsedMs: number;
+};
+
+export type ZavorthSpeculativeCancellationCheck = (
+  input: ZavorthSpeculativeCancellationCheckInput,
+) => boolean | Promise<boolean>;
+
 export type PrepareZavorthSpeculativeAutonomyInput = {
   workspaceRoot: string;
   task: string;
@@ -178,8 +189,30 @@ export type PrepareZavorthSpeculativeAutonomyInput = {
   createMutationPlan?: boolean;
   approvalRequired?: boolean;
   maxCorrectionRounds?: number;
+  timeBudgetMs?: number | null;
+  tokenBudget?: number | null;
+  shouldCancel?: ZavorthSpeculativeCancellationCheck | null;
   sandboxIsolation?: ZavorthSpeculativeSandboxIsolation | null;
   correctionProvider?: ZavorthSpeculativeCorrectionProvider | null;
+};
+
+export type ZavorthSpeculativeAutoHealingReceipt = {
+  status: 'idle' | 'running' | 'passed' | 'failed' | 'blocked';
+  attempt: number;
+  maxAttempts: number;
+  lastErrorSummary: string | null;
+  proposedCorrection: string | null;
+  validationCommand: string | null;
+  startedAt: string;
+  completedAt: string;
+  elapsedMs: number;
+  maxElapsedMs: number;
+  tokenBudget: number | null;
+  tokensUsed: number | null;
+  estimatedCostUsd: number | null;
+  cancellable: boolean;
+  cancelRequested: boolean;
+  timedOut: boolean;
 };
 
 export type ZavorthSpeculativeAutonomyResult = {
@@ -193,7 +226,38 @@ export type ZavorthSpeculativeAutonomyResult = {
   mutationPlan: ZavorthMutationPlan | null;
   validationCommands: string[];
   receipts: string[];
+  autoHealing: ZavorthSpeculativeAutoHealingReceipt;
 };
+
+export class ZavorthSpeculativeAutonomyCancellationRegistry {
+  private readonly cancelled = new Map<string, { requestedAt: string; reason: string }>();
+
+  public requestCancel(runId: string | null | undefined, reason = 'user-requested'): void {
+    const normalized = normalizeText(runId);
+    if (!normalized) return;
+    this.cancelled.set(normalized, {
+      requestedAt: new Date().toISOString(),
+      reason: normalizeText(reason, 'user-requested'),
+    });
+  }
+
+  public isCancelled(runId: string | null | undefined): boolean {
+    const normalized = normalizeText(runId);
+    return Boolean(normalized && this.cancelled.has(normalized));
+  }
+
+  public clear(runId?: string | null): void {
+    const normalized = normalizeText(runId);
+    if (normalized) {
+      this.cancelled.delete(normalized);
+      return;
+    }
+    this.cancelled.clear();
+  }
+}
+
+export const defaultZavorthSpeculativeAutonomyCancellationRegistry =
+  new ZavorthSpeculativeAutonomyCancellationRegistry();
 
 type SpeculativeAutonomyRuntime = {
   runRoot?: string;
@@ -206,6 +270,7 @@ type SpeculativeAutonomyRuntime = {
   maxCopyFiles?: number;
   maxCopyBytes?: number;
   validationTimeoutMs?: number;
+  cancellationRegistry?: Pick<ZavorthSpeculativeAutonomyCancellationRegistry, 'isCancelled'> | null;
 };
 
 type WorkspaceCopyStats = {
@@ -228,6 +293,7 @@ type EditCandidate = {
 const DEFAULT_MAX_COPY_FILES = 4500;
 const DEFAULT_MAX_COPY_BYTES = 180 * 1024 * 1024;
 const DEFAULT_VALIDATION_TIMEOUT_MS = 120000;
+const DEFAULT_AUTO_HEALING_TIME_BUDGET_MS = 2 * 60 * 1000;
 const MAX_VALIDATION_COMMANDS = 3;
 const MAX_AST_FILES = 80;
 const MAX_DIFF_CHARS = 100000;
@@ -335,6 +401,7 @@ export class ZavorthSpeculativeAutonomyService {
   private readonly maxCopyFiles: number;
   private readonly maxCopyBytes: number;
   private readonly validationTimeoutMs: number;
+  private readonly cancellationRegistry: Pick<ZavorthSpeculativeAutonomyCancellationRegistry, 'isCancelled'> | null;
 
   constructor(runtime: SpeculativeAutonomyRuntime = {}) {
     this.runRoot = runtime.runRoot || path.resolve(config.projectRoot, 'data', 'runtime', 'speculative-runs');
@@ -356,6 +423,9 @@ export class ZavorthSpeculativeAutonomyService {
     this.maxCopyFiles = Math.max(50, runtime.maxCopyFiles || DEFAULT_MAX_COPY_FILES);
     this.maxCopyBytes = Math.max(1024 * 1024, runtime.maxCopyBytes || DEFAULT_MAX_COPY_BYTES);
     this.validationTimeoutMs = Math.max(1000, runtime.validationTimeoutMs || DEFAULT_VALIDATION_TIMEOUT_MS);
+    this.cancellationRegistry = runtime.cancellationRegistry === null
+      ? null
+      : runtime.cancellationRegistry || defaultZavorthSpeculativeAutonomyCancellationRegistry;
   }
 
   public async prepare(input: PrepareZavorthSpeculativeAutonomyInput): Promise<ZavorthSpeculativeAutonomyResult> {
@@ -369,6 +439,14 @@ export class ZavorthSpeculativeAutonomyService {
     const validationCommands = this.resolveValidationCommands(workspaceRoot, input);
     const attempts: ZavorthSpeculativeAttempt[] = [];
     const maxCorrectionRounds = Math.max(0, Math.min(input.maxCorrectionRounds ?? 1, 3));
+    const startedAt = this.now();
+    const controlState = {
+      startedAt,
+      maxElapsedMs: this.resolveAutoHealingTimeBudget(input.timeBudgetMs),
+      tokenBudget: this.resolveNullableBudget(input.tokenBudget),
+      cancelRequested: false,
+      timedOut: false,
+    };
     let candidate = initialCandidate;
 
     let workspaceStat: ReturnType<typeof fs.lstatSync> | null = null;
@@ -390,6 +468,7 @@ export class ZavorthSpeculativeAutonomyService {
         validationCommands,
         attempts: [attempt],
         input,
+        controlState,
       });
     }
 
@@ -406,25 +485,59 @@ export class ZavorthSpeculativeAutonomyService {
         validationCommands,
         attempts: [attempt],
         input,
+        controlState,
       });
     }
 
     for (let round = 0; round <= maxCorrectionRounds; round += 1) {
+      const stopReason = await this.resolveAutoHealingStopReason({
+        id,
+        sourceRunId: input.runId || null,
+        round,
+        input,
+        controlState,
+      });
+      if (stopReason) {
+        attempts.push(this.blockedAttempt({
+          id,
+          workspaceRoot,
+          round,
+          reason: stopReason,
+        }));
+        break;
+      }
       const attempt = await this.runAttempt({
         id,
         workspaceRoot,
         task: input.task,
         round,
         candidate,
-      validationCommands,
-      validationMode: input.validationMode || 'auto',
-      sandboxIsolation: this.normalizeSandboxIsolation(input.sandboxIsolation || this.sandboxIsolation),
-    });
+        validationCommands,
+        validationMode: input.validationMode || 'auto',
+        sandboxIsolation: this.normalizeSandboxIsolation(input.sandboxIsolation || this.sandboxIsolation),
+      });
       attempts.push(attempt);
       if (attempt.status === 'approved' || attempt.status === 'blocked') {
         break;
       }
       if (!input.correctionProvider || round >= maxCorrectionRounds) {
+        break;
+      }
+
+      const correctionStopReason = await this.resolveAutoHealingStopReason({
+        id,
+        sourceRunId: input.runId || null,
+        round: round + 1,
+        input,
+        controlState,
+      });
+      if (correctionStopReason) {
+        attempts.push(this.blockedAttempt({
+          id,
+          workspaceRoot,
+          round: round + 1,
+          reason: correctionStopReason,
+        }));
         break;
       }
 
@@ -450,6 +563,7 @@ export class ZavorthSpeculativeAutonomyService {
       validationCommands,
       attempts,
       input,
+      controlState,
     });
   }
 
@@ -676,12 +790,119 @@ export class ZavorthSpeculativeAutonomyService {
     };
   }
 
+  private resolveAutoHealingTimeBudget(value: number | null | undefined): number {
+    const numeric = Number(value);
+    if (!Number.isFinite(numeric) || numeric <= 0) {
+      return DEFAULT_AUTO_HEALING_TIME_BUDGET_MS;
+    }
+    return Math.max(1_000, Math.min(Math.floor(numeric), 10 * 60 * 1000));
+  }
+
+  private resolveNullableBudget(value: number | null | undefined): number | null {
+    const numeric = Number(value);
+    return Number.isFinite(numeric) && numeric > 0 ? Math.floor(numeric) : null;
+  }
+
+  private async resolveAutoHealingStopReason(input: {
+    id: string;
+    sourceRunId: string | null;
+    round: number;
+    input: PrepareZavorthSpeculativeAutonomyInput;
+    controlState: {
+      startedAt: Date;
+      maxElapsedMs: number;
+      tokenBudget: number | null;
+      cancelRequested: boolean;
+      timedOut: boolean;
+    };
+  }): Promise<string | null> {
+    const elapsedMs = Math.max(0, this.now().getTime() - input.controlState.startedAt.getTime());
+    if (elapsedMs > input.controlState.maxElapsedMs) {
+      input.controlState.timedOut = true;
+      return `Auto-healing interrompido: budget de tempo excedido (${elapsedMs}ms de ${input.controlState.maxElapsedMs}ms).`;
+    }
+
+    const registryCancelled = Boolean(
+      this.cancellationRegistry?.isCancelled(input.id)
+      || this.cancellationRegistry?.isCancelled(input.sourceRunId),
+    );
+    const callbackCancelled = input.input.shouldCancel
+      ? await input.input.shouldCancel({
+        runId: input.id,
+        sourceRunId: input.sourceRunId,
+        round: input.round,
+        elapsedMs,
+      })
+      : false;
+    if (registryCancelled || callbackCancelled) {
+      input.controlState.cancelRequested = true;
+      return 'Auto-healing cancelado pelo usuario antes de consumir mais budget.';
+    }
+    return null;
+  }
+
+  private buildAutoHealingReceipt(input: {
+    status: ZavorthSpeculativeAutonomyResult['status'];
+    finalAttempt: ZavorthSpeculativeAttempt | null;
+    attempts: ZavorthSpeculativeAttempt[];
+    validationCommands: string[];
+    controlState: {
+      startedAt: Date;
+      maxElapsedMs: number;
+      tokenBudget: number | null;
+      cancelRequested: boolean;
+      timedOut: boolean;
+    };
+  }): ZavorthSpeculativeAutoHealingReceipt {
+    const completedAt = this.now();
+    const elapsedMs = Math.max(0, completedAt.getTime() - input.controlState.startedAt.getTime());
+    const failedValidation = input.finalAttempt?.validationResults.find((result) =>
+      result.status === 'failed' || result.status === 'blocked');
+    const status: ZavorthSpeculativeAutoHealingReceipt['status'] =
+      input.status === 'approved'
+        ? 'passed'
+        : input.status === 'blocked'
+          ? 'blocked'
+          : input.status === 'needs_correction'
+            ? 'failed'
+            : 'failed';
+    return {
+      status,
+      attempt: Math.max(0, input.attempts.length),
+      maxAttempts: Math.max(1, input.attempts.length),
+      lastErrorSummary: failedValidation
+        ? redactSensitiveText(failedValidation.stderr || failedValidation.stdout || failedValidation.command, 800)
+        : input.finalAttempt?.summary || null,
+      proposedCorrection: input.status === 'needs_correction'
+        ? 'Auto-healing esgotou as tentativas disponiveis sem validar o diff final.'
+        : null,
+      validationCommand: input.validationCommands[0] || input.finalAttempt?.validationResults[0]?.command || null,
+      startedAt: input.controlState.startedAt.toISOString(),
+      completedAt: completedAt.toISOString(),
+      elapsedMs,
+      maxElapsedMs: input.controlState.maxElapsedMs,
+      tokenBudget: input.controlState.tokenBudget,
+      tokensUsed: null,
+      estimatedCostUsd: null,
+      cancellable: false,
+      cancelRequested: input.controlState.cancelRequested,
+      timedOut: input.controlState.timedOut,
+    };
+  }
+
   private resultFromAttempts(input: {
     id: string;
     workspaceRoot: string;
     validationCommands: string[];
     attempts: ZavorthSpeculativeAttempt[];
     input: PrepareZavorthSpeculativeAutonomyInput;
+    controlState: {
+      startedAt: Date;
+      maxElapsedMs: number;
+      tokenBudget: number | null;
+      cancelRequested: boolean;
+      timedOut: boolean;
+    };
   }): ZavorthSpeculativeAutonomyResult {
     const finalAttempt = input.attempts[input.attempts.length - 1] || null;
     const status = finalAttempt?.status || 'failed';
@@ -704,6 +925,13 @@ export class ZavorthSpeculativeAutonomyService {
       finalAttempt,
       mutationPlan,
       validationCommands: input.validationCommands,
+      autoHealing: this.buildAutoHealingReceipt({
+        status,
+        finalAttempt,
+        attempts: input.attempts,
+        validationCommands: input.validationCommands,
+        controlState: input.controlState,
+      }),
       receipts: [
         'super-zavorth-speculative-sandbox',
         finalAttempt?.sandboxBackend.validationExecution === 'container'
@@ -712,6 +940,9 @@ export class ZavorthSpeculativeAutonomyService {
         'ast-context-graph',
         'mandatory-validation-stage',
         'executor-critic-gate',
+        'auto-healing-budget-guard',
+        ...(input.controlState.cancelRequested ? ['auto-healing-cancelled'] : []),
+        ...(input.controlState.timedOut ? ['auto-healing-budget-exhausted'] : []),
         ...(mutationPlan ? ['governed-mutation-plan-created'] : ['host-workspace-not-mutated']),
       ],
     };
@@ -1922,6 +2153,7 @@ export function buildSpeculativeAutonomyReceipt(input: ZavorthSpeculativeAutonom
     status: input.status,
     summary: input.summary,
     mutationPlanId: input.mutationPlan?.id || null,
+    autoHealing: input.autoHealing,
     finalAttempt: input.finalAttempt
       ? {
         id: input.finalAttempt.id,

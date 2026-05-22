@@ -222,14 +222,27 @@ export class ActionCardService {
       ttlSeconds: 30 * 60,
       receiptHint: `Receipt de contexto para ${recovery.id}.`,
       createdAt: now,
-      actions: recovery.options.slice(0, 4).map((option) => makeAction({
-        id: `context:${recovery.id}:${option.id}`,
-        label: option.label,
-        kind: 'context',
-        command: option.command,
-        risk: 'safe',
-        reason: option.detail,
-      })),
+      actions: [
+        ...recovery.options.slice(0, 4).map((option) => makeAction({
+          id: `context:${recovery.id}:${option.id}`,
+          label: option.label,
+          kind: 'context',
+          command: option.command,
+          risk: 'safe',
+          reason: option.detail,
+        })),
+        ...(recovery.overflow?.hasOverflow ? [
+          makeAction({
+            id: `context:${recovery.id}:dashboard`,
+            label: 'Ver todos no Dashboard',
+            kind: 'navigation' as const,
+            command: recovery.overflow.dashboardCommand,
+            route: '/control',
+            risk: 'safe' as const,
+            reason: 'Canais curtos mostram apenas os alvos mais relevantes.',
+          }),
+        ] : []),
+      ],
     }];
   }
 
@@ -244,7 +257,7 @@ export class ActionCardService {
       id: `card:healing:${activeRun?.id || 'current'}`,
       source: 'sandbox',
       title: healing.status === 'running' ? 'Auto-healing em andamento' : 'Resultado do auto-healing',
-      summary: healing.lastErrorSummary || healing.proposedCorrection || 'Validacao especulativa registrada.',
+      summary: this.autoHealingSummary(healing),
       risk: healing.status === 'blocked' || healing.status === 'failed' ? 'attention' : 'safe',
       status: healing.status === 'passed' ? 'ready' : healing.status === 'failed' ? 'blocked' : 'pending',
       scope: activeRun?.workspace || 'sandbox governado',
@@ -264,8 +277,30 @@ export class ActionCardService {
           requiresApproval: true,
           reason: 'Validacoes com comandos locais continuam governadas por policy.',
         }),
+        ...(healing.budget?.cancellable ? [
+          makeAction({
+            id: `healing:cancel:${activeRun?.id || 'current'}`,
+            label: 'Parar e exibir erro',
+            kind: 'healing' as const,
+            command: healing.budget.cancelCommand || 'zavorth ask "parar auto-healing e mostrar erro"',
+            risk: 'safe' as const,
+            reason: 'Interrompe o loop especulativo antes de consumir mais tempo/tokens.',
+          }),
+        ] : []),
       ],
     }];
+  }
+
+  private autoHealingSummary(healing: ExperienceAutoHealing): string {
+    const base = healing.lastErrorSummary || healing.proposedCorrection || 'Validacao especulativa registrada.';
+    const budget = healing.budget;
+    if (!budget) return base;
+    const elapsedSeconds = Math.round(budget.elapsedMs / 1000);
+    const maxSeconds = Math.round(budget.maxElapsedMs / 1000);
+    const tokenText = budget.tokensUsed === null || budget.tokenBudget === null
+      ? 'tokens nao estimados'
+      : `${budget.tokensUsed}/${budget.tokenBudget} tokens`;
+    return `${base} Tempo: ${elapsedSeconds}s/${maxSeconds}s; ${tokenText}.`;
   }
 
   private metadataStrings(run: UniversalAgentRun | null | undefined, keys: string[]): string[] {

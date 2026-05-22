@@ -48,6 +48,12 @@ snapshot used by `/control` and Telegram. `diff` renders sandbox diffs by file
 and hunk; approving or rejecting a hunk records a governed decision and never
 applies directly to the host.
 
+When auto-healing is active, the HUD shows elapsed time, configured time
+budget, token budget when available and the cancel command. Cancellation is
+checked by the speculative loop between validation and correction rounds, so it
+stops future LLM/tool work without pretending to kill a command that is already
+inside its own validation timeout.
+
 ## Common Commands
 
 ```bash
@@ -58,6 +64,7 @@ zavorth hud
 zavorth diff
 zavorth diff approve <review-id>
 zavorth diff reject-hunk <review-id> <hunk-id>
+zavorth ask "parar auto-healing e mostrar erro"
 zavorth approve <approval-id>
 zavorth learn
 zavorth learn approve <candidate-id>

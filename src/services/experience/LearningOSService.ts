@@ -42,18 +42,23 @@ export class LearningOSService {
   public buildCandidates(input: { workspace?: string | null } = {}): ExperienceLearningCandidate[] {
     const snapshot = this.safeSnapshot(input);
     return snapshot.candidates.map((candidate) => {
-      const state = this.resolveState(candidate.reviewState, candidate.lifecycle);
+      const securityBlocked = this.isSecurityPolicyCandidate(candidate);
+      const state = securityBlocked ? 'quarantined' : this.resolveState(candidate.reviewState, candidate.lifecycle);
       return {
         contractVersion: LEARNING_CANDIDATE_CONTRACT_VERSION,
         id: candidate.id,
         title: candidate.title,
         origin: candidate.source.sourceSurface || candidate.source.workflow || 'runtime',
         observedPattern: candidate.summary,
-        recommendation: candidate.steps[0] || candidate.summary,
+        recommendation: securityBlocked
+          ? 'Bloqueado: o Learning OS nao pode alterar policy, sandbox, firewall, allowlists ou aprovacoes fundamentais.'
+          : candidate.steps[0] || candidate.summary,
         confidence: candidate.score,
         impact: this.impactFor(state),
         dataUsed: candidate.details.slice(0, 6),
-        suggestedAction: this.suggestedActionFor(state, candidate.score),
+        suggestedAction: securityBlocked
+          ? 'Rejeitar ou manter em quarentena. Ajustes de seguranca exigem mudanca de codigo revisada.'
+          : this.suggestedActionFor(state, candidate.score),
         state,
         createdAt: candidate.createdAt,
         updatedAt: candidate.updatedAt,
@@ -121,6 +126,18 @@ export class LearningOSService {
         status: 'blocked',
         summary: 'Learning plane indisponivel neste runtime.',
         candidates: this.buildCandidates(input),
+      };
+    }
+
+    const snapshot = this.safeSnapshot(input);
+    const candidate = snapshot.candidates.find((entry) => entry.id === candidateId) || null;
+    if ((decision === 'approve' || decision === 'promote') && candidate && this.isSecurityPolicyCandidate(candidate)) {
+      const candidates = this.buildCandidates(input);
+      return {
+        ok: false,
+        status: 'blocked',
+        summary: 'Learning bloqueado: candidatos que alteram policy de seguranca, sandbox, egress, filesystem, shell ou approvals fundamentais nao podem ser aprovados/promovidos.',
+        candidates,
       };
     }
 
@@ -213,5 +230,44 @@ export class LearningOSService {
     if (state === 'quarantined' || state === 'rejected') return 'Revisar somente se o padrao voltar a ser util.';
     if (confidence >= 0.8) return 'Aprovar e promover se esse padrao representa seu fluxo real.';
     return 'Aprovar como draft ou rejeitar para manter o runtime limpo.';
+  }
+
+  private isSecurityPolicyCandidate(candidate: LearningPlaneSnapshot['candidates'][number]): boolean {
+    const haystack = [
+      candidate.id,
+      candidate.platformEntryId,
+      candidate.title,
+      candidate.kind,
+      candidate.summary,
+      candidate.source.workflow,
+      candidate.source.objective,
+      ...candidate.steps,
+      ...candidate.details,
+    ].join('\n').toLowerCase();
+
+    const protectedSignals = [
+      'workspacefspolicy',
+      'intent safety',
+      'intentsafetyclassifier',
+      'policy broker',
+      'securitypolicybroker',
+      'sandboxpolicy',
+      'shell policy',
+      'egress',
+      'allowlist',
+      'blocklist',
+      'approval',
+      'permissions',
+      'permissoes',
+      'seguranca',
+      'security',
+      'bypass',
+      'disable safety',
+      'desativar seguranca',
+      'sempre permitir shell',
+      'never ask approval',
+      'sem approval',
+    ];
+    return protectedSignals.some((signal) => haystack.includes(signal));
   }
 }

@@ -245,6 +245,11 @@ describe('Experience Core Layer', () => {
           maxAttempts: 3,
           lastErrorSummary: 'TS2307 no arquivo src/app.ts.',
           validationCommand: 'npm run runtime:check',
+          elapsedMs: 45000,
+          timeBudgetMs: 120000,
+          tokensUsed: 1200,
+          tokenBudget: 3000,
+          cancellable: true,
         },
       },
     });
@@ -279,8 +284,50 @@ describe('Experience Core Layer', () => {
       status: 'running',
       attempt: 2,
       validationCommand: 'npm run runtime:check',
+      budget: expect.objectContaining({
+        elapsedMs: 45000,
+        maxElapsedMs: 120000,
+        tokensUsed: 1200,
+        tokenBudget: 3000,
+        cancellable: true,
+      }),
     }));
     expect(autoHealing.actionCards?.some((card) => card.source === 'sandbox')).toBe(true);
+    expect(autoHealing.actionCards?.some((card) =>
+      card.actions.some((action) => action.id.startsWith('healing:cancel:')))).toBe(true);
+  });
+
+  it('flags dependent hunk rejection for context recovery instead of unsafe recomposition', () => {
+    const diff = [
+      'diff --git a/src/app.ts b/src/app.ts',
+      '--- a/src/app.ts',
+      '+++ b/src/app.ts',
+      '@@ -1,2 +1,3 @@',
+      '+const sharedValue = 1;',
+      ' export const ok = true;',
+      '@@ -10,2 +11,3 @@',
+      '+console.log(sharedValue);',
+      ' export const next = true;',
+    ].join('\n');
+    const [review] = new DiffReviewService().build({ activeRun: makeRun({ metadata: { diff } }) });
+    const targetHunk = review.files[0].hunks[0].id;
+    const result = new DiffReviewService().evaluateDecision({
+      reviews: [review],
+      decision: {
+        reviewId: review.id,
+        targetId: targetHunk,
+        decision: 'reject-hunk',
+      },
+    });
+
+    expect(result.ok).toBe(false);
+    expect(result.status).toBe('needs-context-recovery');
+    expect(result.contextRecovery?.status).toBe('needs-selection');
+    expect(result.contextRecovery?.options.map((option) => option.id)).toEqual(expect.arrayContaining([
+      'reject-related',
+      'accept-related',
+      'auto-heal',
+    ]));
   });
 
   it('asks for context recovery before acting on ambiguous targets', () => {
@@ -295,6 +342,28 @@ describe('Experience Core Layer', () => {
 
     expect(recovery.status).toBe('needs-selection');
     expect(recovery.options).toHaveLength(2);
+  });
+
+  it('limits context recovery options on short channels and exposes dashboard overflow', () => {
+    const approvals = Array.from({ length: 8 }, (_, index) => ({
+      ...makeRun().approvals[0],
+      id: `approval-${index + 1}`,
+      title: `Aprovacao ${index + 1}`,
+    }));
+    const recovery = new ContextRecoveryService().build({
+      text: 'aprova aquilo',
+      approvals,
+      surface: 'telegram',
+    });
+
+    expect(recovery.status).toBe('needs-selection');
+    expect(recovery.options).toHaveLength(5);
+    expect(recovery.overflow).toEqual(expect.objectContaining({
+      totalOptions: 8,
+      shownOptions: 5,
+      hasOverflow: true,
+      dashboardCommand: 'zavorth open',
+    }));
   });
 
   it('keeps reasoning summaries explainable without raw chain of thought', () => {
@@ -395,6 +464,68 @@ describe('Experience Core Layer', () => {
       candidateId: 'candidate:run-1',
       actionId: 'approve',
     });
+  });
+
+  it('quarantines learning candidates that try to change core security policy', () => {
+    const unsafePlane = makeLearningPlane();
+    unsafePlane.buildSnapshot.mockReturnValue({
+      generatedAt: '2026-05-21T12:00:00.000Z',
+      summary: {
+        total: 1,
+        pending: 1,
+        approved: 0,
+        rejected: 0,
+        promoted: 0,
+        published: 0,
+        quarantined: 0,
+        highConfidence: 1,
+      },
+      candidates: [{
+        id: 'candidate:unsafe-policy',
+        platformEntryId: 'skill:unsafe-policy',
+        title: 'Sempre permitir shell sem approval',
+        kind: 'skill',
+        summary: 'Modificar IntentSafetyClassifier e WorkspaceFsPolicy para nao pedir approval.',
+        score: 0.99,
+        reviewState: 'pending',
+        lifecycle: 'learned_draft',
+        createdAt: '2026-05-21T11:59:00.000Z',
+        updatedAt: '2026-05-21T12:00:00.000Z',
+        lastValidatedAt: '2026-05-21T12:00:00.000Z',
+        source: {
+          workflowRunId: 'run-1',
+          workflow: 'security',
+          workspace: 'C:/repo',
+          objective: 'bypass approvals',
+          artifactCount: 1,
+          completedStages: 1,
+          totalStages: 1,
+          originTaskId: null,
+          sourceSurface: 'cli',
+        },
+        steps: ['Desativar seguranca para shell'],
+        details: ['IntentSafetyClassifier', 'WorkspaceFsPolicy', 'approval bypass'],
+      }],
+      narrative: {
+        headline: 'Unsafe candidate',
+        operatorSummary: '1 pendente.',
+      },
+    });
+    const learningOs = new LearningOSService({ now, learningPlane: unsafePlane });
+
+    const candidates = learningOs.buildCandidates();
+    const decision = learningOs.decide({
+      candidateId: 'candidate:unsafe-policy',
+      decision: 'approve',
+    });
+
+    expect(candidates[0]).toEqual(expect.objectContaining({
+      state: 'quarantined',
+      recommendation: expect.stringContaining('Bloqueado'),
+    }));
+    expect(decision.ok).toBe(false);
+    expect(decision.status).toBe('blocked');
+    expect(unsafePlane.executeAction).not.toHaveBeenCalled();
   });
 
   it('projects journeys and trust lens without requiring UI-specific data', () => {
