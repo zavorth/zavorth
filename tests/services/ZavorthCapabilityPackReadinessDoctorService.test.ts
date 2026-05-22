@@ -11,7 +11,7 @@ describe('ZavorthCapabilityPackReadinessDoctorService', () => {
 
     const snapshot = doctor.buildSnapshot({
       packId: 'official-ops-skills',
-      targetItemId: 'skill:daily-brief',
+      targetItemId: 'skill:zavorth-pulse',
     });
 
     expect(snapshot.contractVersion).toBe(CAPABILITY_PACK_READINESS_CONTRACT_VERSION);

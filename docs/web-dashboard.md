@@ -26,7 +26,7 @@ The first `/control` screen should stay chat-first, but it now also renders the
 daily control plane around the chat:
 
 - `AgentPulse` for live agent, model, provider and health state;
-- `DailyBrief` for the headline, best next action, pending decisions,
+- `ZavorthPulse` for the headline, best next action, pending decisions,
   highlights and risks;
 - `ResponseProfile` for `short`, `dev`, `executive` and `mentor` answer
   styles;

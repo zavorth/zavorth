@@ -16,7 +16,7 @@ import {
 import { ActionCardService } from './ActionCardService.js';
 import { AutoHealingProjectionService } from './AutoHealingProjectionService.js';
 import { ContextRecoveryService } from './ContextRecoveryService.js';
-import { DailyBriefService } from './DailyBriefService.js';
+import { PulseBriefService } from './PulseBriefService.js';
 import { DiffReviewService } from './DiffReviewService.js';
 import { ExecutionGraphService } from './ExecutionGraphService.js';
 import { JourneyEngineService } from './JourneyEngineService.js';
@@ -61,7 +61,7 @@ export type ExperienceCoreRuntime = {
   contextRecovery?: ContextRecoveryService;
   autoHealing?: AutoHealingProjectionService;
   reasoningSummary?: ReasoningSummaryService;
-  dailyBrief?: DailyBriefService;
+  pulseBrief?: PulseBriefService;
 };
 
 export type ExperienceHomeInput = {
@@ -121,7 +121,7 @@ export class ExperienceCoreService {
   private readonly contextRecovery: ContextRecoveryService;
   private readonly autoHealing: AutoHealingProjectionService;
   private readonly reasoningSummary: ReasoningSummaryService;
-  private readonly dailyBrief: DailyBriefService;
+  private readonly pulseBrief: PulseBriefService;
 
   constructor(runtime: ExperienceCoreRuntime = {}) {
     this.now = runtime.now || (() => new Date());
@@ -141,7 +141,7 @@ export class ExperienceCoreService {
     this.contextRecovery = runtime.contextRecovery || new ContextRecoveryService();
     this.autoHealing = runtime.autoHealing || new AutoHealingProjectionService();
     this.reasoningSummary = runtime.reasoningSummary || new ReasoningSummaryService();
-    this.dailyBrief = runtime.dailyBrief || new DailyBriefService();
+    this.pulseBrief = runtime.pulseBrief || new PulseBriefService();
   }
 
   public buildHome(input: ExperienceHomeInput = {}): ExperienceSnapshot {
@@ -199,7 +199,7 @@ export class ExperienceCoreService {
     });
     const nextActions = this.buildNextActions(health.status, approvals.length, learningSummary.pending);
     const pendingApprovals = approvals.filter((approval) => approval.status === 'pending').length;
-    const brief = this.dailyBrief.build({
+    const pulse = this.pulseBrief.build({
       surface,
       generatedAt,
       workspace: workspace || activeRun?.workspace || null,
@@ -264,10 +264,10 @@ export class ExperienceCoreService {
         nextSteps: nextActions.map((item) => item.label).slice(0, 5),
         pendingApprovals,
         pendingLearning: learningSummary.pending,
-        brief,
-        responseProfile: brief.profile,
+        pulse,
+        responseProfile: pulse.profile,
       },
-      responseProfile: brief.profile,
+      responseProfile: pulse.profile,
       actionCards,
       diffReviews,
       executionGraph,

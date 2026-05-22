@@ -13,7 +13,7 @@ export const EXPERIENCE_DIFF_REVIEW_CONTRACT_VERSION = 'ExperienceDiffReview/v1'
 export const EXPERIENCE_EXECUTION_GRAPH_CONTRACT_VERSION = 'ExperienceExecutionGraph/v1' as const;
 export const EXPERIENCE_CONTEXT_RECOVERY_CONTRACT_VERSION = 'ExperienceContextRecovery/v1' as const;
 export const EXPERIENCE_AUTO_HEALING_CONTRACT_VERSION = 'ExperienceAutoHealing/v1' as const;
-export const EXPERIENCE_DAILY_BRIEF_CONTRACT_VERSION = 'ExperienceDailyBrief/v1' as const;
+export const EXPERIENCE_PULSE_BRIEF_CONTRACT_VERSION = 'ExperiencePulseBrief/v1' as const;
 export const EXPERIENCE_RESPONSE_PROFILE_CONTRACT_VERSION = 'ExperienceResponseProfile/v1' as const;
 
 export type ExperienceSurface = UniversalAgentChannel;
@@ -211,7 +211,7 @@ export type ExperienceDailySnapshot = {
   nextSteps: string[];
   pendingApprovals: number;
   pendingLearning: number;
-  brief?: ExperienceDailyBrief;
+  pulse?: ExperiencePulseBrief;
   responseProfile?: ExperienceResponseProfile;
 };
 
@@ -228,8 +228,8 @@ export type ExperienceResponseProfile = {
   canChange: boolean;
 };
 
-export type ExperienceDailyBrief = {
-  contractVersion: typeof EXPERIENCE_DAILY_BRIEF_CONTRACT_VERSION;
+export type ExperiencePulseBrief = {
+  contractVersion: typeof EXPERIENCE_PULSE_BRIEF_CONTRACT_VERSION;
   headline: string;
   summary: string;
   lastActivity: string | null;

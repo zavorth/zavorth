@@ -21,8 +21,8 @@ describe('ZavorthCapabilitySetupQueueService', () => {
     const service = createService();
     const ticket = service.createTicket({
       packId: 'official-ops-skills',
-      targetItemId: 'skill:daily-brief',
-      text: 'configure daily brief with token sk-test-secret-value-1234567890',
+      targetItemId: 'skill:zavorth-pulse',
+      text: 'configure zavorth pulse with token sk-test-secret-value-1234567890',
       audience: 'everyday',
       actorLabel: 'owner',
     });

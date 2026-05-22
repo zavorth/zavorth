@@ -47,7 +47,7 @@ describe('ZavorthCapabilityPackCatalogService', () => {
     expect(importSnapshot.summary.receivedItems).toBe(4);
     expect(importSnapshot.summary.normalizedItems).toBe(4);
     expect(importSnapshot.summary.rejectedItems).toBe(0);
-    expect(importSnapshot.items.some((item) => item.id === 'skill:daily-brief')).toBe(true);
+    expect(importSnapshot.items.some((item) => item.id === 'skill:zavorth-pulse')).toBe(true);
   });
 
   it('feeds official packs into the activation flow by packId', () => {
@@ -57,12 +57,12 @@ describe('ZavorthCapabilityPackCatalogService', () => {
 
     const snapshot = flow.buildSnapshot({
       packId: 'official-ops-skills',
-      targetItemId: 'skill:daily-brief',
-      text: 'ative daily brief',
+      targetItemId: 'skill:zavorth-pulse',
+      text: 'ative zavorth pulse',
     });
 
     expect(snapshot.importSnapshot.summary.normalizedItems).toBe(4);
-    expect(snapshot.target?.id).toBe('skill:daily-brief');
+    expect(snapshot.target?.id).toBe('skill:zavorth-pulse');
     expect(snapshot.status).toBe('waiting_secret_input');
     expect(snapshot.setupSnapshot?.secretPlan.missingRefs).toEqual([
       'calendar.oauth',

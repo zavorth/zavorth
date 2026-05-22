@@ -75,7 +75,7 @@ describe('ZavorthSemanticSkillEcosystemCertificationService S8', () => {
   it('keeps manifests, permission denials and SecretRefs explicit by semantic status', () => {
     const snapshot = buildFixtureService().buildSnapshot();
 
-    expect(manifestClaim(snapshot, 'skill.personal-daily-brief')).toEqual(expect.objectContaining({
+    expect(manifestClaim(snapshot, 'skill.zavorth-pulse')).toEqual(expect.objectContaining({
       status: 'covered',
       priority: 'P0',
     }));

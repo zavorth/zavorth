@@ -27,7 +27,7 @@ describe('ZavorthCapabilityImportService', () => {
       rejectedItems: 0,
     });
     expect(snapshot.items.map((item) => item.id)).toEqual([
-      'skill:daily-brief',
+      'skill:zavorth-pulse',
       'integration:calendar-sync',
     ]);
     expect(snapshot.items.every((item) => item.source === 'imported')).toBe(true);
@@ -66,12 +66,12 @@ describe('ZavorthCapabilityImportService', () => {
       capabilityImportService: importer,
     });
 
-    const imported = hub.list({ search: 'daily brief' });
-    const inspected = hub.inspect('skill:daily-brief');
+    const imported = hub.list({ search: 'zavorth pulse' });
+    const inspected = hub.inspect('skill:zavorth-pulse');
 
     expect(imported).toHaveLength(1);
     expect(imported[0]).toMatchObject({
-      id: 'skill:daily-brief',
+      id: 'skill:zavorth-pulse',
       kind: 'skill',
       source: 'imported',
     });
@@ -91,10 +91,10 @@ function buildManifest(): CapabilityImportManifest {
     },
     items: [
       {
-        id: 'daily-brief',
+        id: 'zavorth-pulse',
         kind: 'skill',
-        label: 'Daily Brief',
-        summary: 'Prepare a governed daily brief.',
+        label: 'Zavorth Pulse',
+        summary: 'Prepare a governed operational pulse.',
         description: 'Collects inputs and produces an artifact-first daily summary.',
         tags: ['ops', 'briefing'],
         requirements: {

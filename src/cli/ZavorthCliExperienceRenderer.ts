@@ -70,23 +70,23 @@ function renderReasoning(snapshot: ExperienceSnapshot): string[] {
   ];
 }
 
-function renderDailyBrief(snapshot: ExperienceSnapshot): string[] {
-  const brief = snapshot.daily?.brief;
-  if (!brief) {
+function renderZavorthPulse(snapshot: ExperienceSnapshot): string[] {
+  const pulse = snapshot.daily?.pulse;
+  if (!pulse) {
     return [sanitizeHumanCliText(snapshot.daily?.summary || snapshot.health.summary)];
   }
   return [
-    sanitizeHumanCliText(brief.headline),
-    sanitizeHumanCliText(brief.summary),
-    `Melhor proxima acao: ${sanitizeHumanCliText(brief.bestNextAction.label)}${brief.bestNextAction.command ? ` -> ${brief.bestNextAction.command}` : ''}`,
-    `Pendencias: approvals ${brief.pending.approvals} | learning ${brief.pending.learning} | receipts ${brief.pending.receipts}`,
-    ...brief.highlights.slice(0, 3).map((item) => `+ ${sanitizeHumanCliText(item)}`),
-    ...brief.risks.slice(0, 3).map((item) => `! ${sanitizeHumanCliText(item)}`),
+    sanitizeHumanCliText(pulse.headline),
+    sanitizeHumanCliText(pulse.summary),
+    `Melhor proxima acao: ${sanitizeHumanCliText(pulse.bestNextAction.label)}${pulse.bestNextAction.command ? ` -> ${pulse.bestNextAction.command}` : ''}`,
+    `Pendencias: approvals ${pulse.pending.approvals} | learning ${pulse.pending.learning} | receipts ${pulse.pending.receipts}`,
+    ...pulse.highlights.slice(0, 3).map((item) => `+ ${sanitizeHumanCliText(item)}`),
+    ...pulse.risks.slice(0, 3).map((item) => `! ${sanitizeHumanCliText(item)}`),
   ];
 }
 
 function renderResponseProfile(snapshot: ExperienceSnapshot): string[] {
-  const profile = snapshot.responseProfile || snapshot.daily?.responseProfile || snapshot.daily?.brief?.profile;
+  const profile = snapshot.responseProfile || snapshot.daily?.responseProfile || snapshot.daily?.pulse?.profile;
   if (!profile) {
     return ['Perfil padrao: Dev. Use zavorth ask "use estilo curto/dev/executivo/mentor" para ajustar.'];
   }
@@ -125,9 +125,9 @@ export function formatExperienceHome(snapshot: ExperienceSnapshot): string {
       ],
     },
     {
-      title: 'Agora',
+      title: 'Zavorth Pulse',
       tone: 'brand',
-      lines: renderDailyBrief(snapshot),
+      lines: renderZavorthPulse(snapshot),
     },
     {
       title: 'Estilo de resposta',
@@ -171,7 +171,7 @@ export function formatExperienceHud(snapshot: ExperienceSnapshot): string {
       title: 'Daily HUD',
       tone: snapshot.daily?.health === 'ready' ? 'success' : 'warning',
       lines: [
-        ...renderDailyBrief(snapshot),
+        ...renderZavorthPulse(snapshot),
         `Workspace: ${formatCliValue(snapshot.workspace || 'padrao')}`,
         `Autonomia: ${snapshot.trust.sandbox.mode}`,
       ],

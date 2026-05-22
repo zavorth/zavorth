@@ -380,26 +380,26 @@
 .bcc-experience-list__item small,
 .bcc-memory-bloom small,
 .bcc-trust-lens small,
-.bcc-daily-brief__line,
+.bcc-zavorth-pulse__line,
 .bcc-experience-card p {
   color: var(--b-signal-muted);
   font-size: 12px;
   line-height: 1.45;
 }
 
-.bcc-daily-brief {
+.bcc-zavorth-pulse {
   background:
     radial-gradient(circle at 16% 0%, rgba(0, 232, 143, 0.11), transparent 34%),
     linear-gradient(160deg, rgba(255, 255, 255, 0.056), rgba(255, 255, 255, 0.022)),
     rgba(255, 255, 255, 0.02);
 }
 
-.bcc-daily-brief__line {
+.bcc-zavorth-pulse__line {
   display: block;
   overflow-wrap: anywhere;
 }
 
-.bcc-daily-brief__line--risk {
+.bcc-zavorth-pulse__line--risk {
   color: color-mix(in srgb, var(--b-warn) 72%, white 28%);
 }
 

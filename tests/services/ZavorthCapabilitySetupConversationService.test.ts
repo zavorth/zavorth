@@ -10,8 +10,8 @@ describe('ZavorthCapabilitySetupConversationService', () => {
 
     const snapshot = service.buildSnapshot({
       packId: 'official-ops-skills',
-      targetItemId: 'skill:daily-brief',
-      text: 'quero ativar daily brief com token sk-test-secret-value-1234567890',
+      targetItemId: 'skill:zavorth-pulse',
+      text: 'quero ativar zavorth pulse com token sk-test-secret-value-1234567890',
       audience: 'everyday',
     });
 
@@ -21,7 +21,7 @@ describe('ZavorthCapabilitySetupConversationService', () => {
     expect(JSON.stringify(snapshot)).not.toContain('sk-test-secret-value-1234567890');
     expect(snapshot.secureRequests.map((request) => request.inputMode)).toContain('secure-secret-entry');
     expect(snapshot.secureRequests.every((request) => request.rawValueAcceptedInChat === false)).toBe(true);
-    expect(snapshot.reply.headline).toContain('Daily Brief');
+    expect(snapshot.reply.headline).toContain('Zavorth Pulse');
     expect(snapshot.reply.body).toContain('entrada segura');
     expect(snapshot.safety).toMatchObject({
       noJargonByDefault: true,
@@ -37,8 +37,8 @@ describe('ZavorthCapabilitySetupConversationService', () => {
 
     const snapshot = service.buildSnapshot({
       packId: 'official-ops-skills',
-      targetItemId: 'skill:daily-brief',
-      text: 'configure daily brief',
+      targetItemId: 'skill:zavorth-pulse',
+      text: 'configure zavorth pulse',
       audience: 'everyday',
       providedSecrets: {
         'calendar.oauth': 'calendar-secret-value-that-must-not-leak',
@@ -83,8 +83,8 @@ describe('ZavorthCapabilitySetupConversationService', () => {
 
     const reply = api.renderReply({
       packId: 'official-ops-skills',
-      targetItemId: 'skill:daily-brief',
-      text: 'configure daily brief',
+      targetItemId: 'skill:zavorth-pulse',
+      text: 'configure zavorth pulse',
       audience: 'everyday',
     });
 

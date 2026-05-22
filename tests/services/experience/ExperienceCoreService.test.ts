@@ -221,8 +221,8 @@ describe('Experience Core Layer', () => {
     expect(snapshot.memory.signals[0].title).toBe('Preferencia de validacao');
     expect(snapshot.learning.pending).toBe(1);
     expect(snapshot.daily?.pendingApprovals).toBe(1);
-    expect(snapshot.daily?.brief?.contractVersion).toBe('ExperienceDailyBrief/v1');
-    expect(snapshot.daily?.brief?.bestNextAction.command).toContain('zavorth approve');
+    expect(snapshot.daily?.pulse?.contractVersion).toBe('ExperiencePulseBrief/v1');
+    expect(snapshot.daily?.pulse?.bestNextAction.command).toContain('zavorth approve');
     expect(snapshot.responseProfile?.id).toBe('dev');
     expect(snapshot.actionCards?.map((card) => card.source)).toContain('approval');
     expect(snapshot.executionGraph?.nodes.length).toBeGreaterThan(0);
@@ -265,8 +265,8 @@ describe('Experience Core Layer', () => {
 
     expect(snapshot.responseProfile?.contractVersion).toBe('ExperienceResponseProfile/v1');
     expect(snapshot.responseProfile?.id).toBe('executive');
-    expect(snapshot.daily?.brief?.profile.id).toBe('executive');
-    expect(snapshot.daily?.brief?.summary).toContain('perfil Executivo');
+    expect(snapshot.daily?.pulse?.profile.id).toBe('executive');
+    expect(snapshot.daily?.pulse?.summary).toContain('perfil Executivo');
   });
 
   it('projects action cards, auto-healing and diff reviews without applying host changes', () => {

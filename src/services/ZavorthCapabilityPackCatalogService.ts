@@ -120,7 +120,7 @@ const OFFICIAL_CAPABILITY_PACKS: CapabilityPackDefinition[] = [
         externalRuntimeDependency: false,
       },
       items: [
-        skill('daily-brief', 'Daily Brief', 'Prepare a daily operational brief with citations and receipts.', ['calendar.oauth', 'mail.oauth']),
+        skill('zavorth-pulse', 'Zavorth Pulse', 'Prepare an operational pulse with citations and receipts.', ['calendar.oauth', 'mail.oauth']),
         skill('issue-triage', 'Issue Triage', 'Triage issue trackers into a governed action queue.', ['issues.token']),
         skill('release-readiness', 'Release Readiness', 'Check release gates, rollback notes and adoption readiness.', []),
         skill('workspace-maintenance', 'Workspace Maintenance', 'Plan safe maintenance actions with owner approval before writes.', []),
