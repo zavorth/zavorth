@@ -9,6 +9,10 @@ import type {
 import { renderCliScreen, type CliVisualPanel } from './ZavorthCliVisualSystem.js';
 import { formatCliValue, formatCount, sanitizeHumanCliText } from './ZavorthCliText.js';
 
+function formatBudgetNumber(value: number | null | undefined): string {
+  return formatCliValue(typeof value === 'number' && Number.isFinite(value) ? String(value) : 'n/a');
+}
+
 function renderTimeline(items: ExperienceTimelineItem[]): string[] {
   if (!items.length) {
     return ['Sem timeline ativa. Envie um pedido natural para iniciar uma jornada.'];
@@ -144,6 +148,10 @@ export function formatExperienceHud(snapshot: ExperienceSnapshot): string {
         `Status: ${snapshot.autoHealing?.status || 'idle'}`,
         `Tentativa: ${snapshot.autoHealing?.attempt || 0}/${snapshot.autoHealing?.maxAttempts || 3}`,
         `Validacao: ${formatCliValue(snapshot.autoHealing?.validationCommand || 'nao detectada')}`,
+        `Budget: ${Math.round((snapshot.autoHealing?.budget?.elapsedMs || 0) / 1000)}s/${Math.round((snapshot.autoHealing?.budget?.maxElapsedMs || 120000) / 1000)}s | tokens ${formatBudgetNumber(snapshot.autoHealing?.budget?.tokensUsed)}/${formatBudgetNumber(snapshot.autoHealing?.budget?.tokenBudget)}`,
+        snapshot.autoHealing?.budget?.cancellable
+          ? `Cancelar: ${snapshot.autoHealing.budget.cancelCommand || 'acao indisponivel'}`
+          : 'Cancelar: indisponivel',
         sanitizeHumanCliText(snapshot.autoHealing?.lastErrorSummary || snapshot.autoHealing?.proposedCorrection || 'Sem autocorrecao ativa.'),
       ],
     },

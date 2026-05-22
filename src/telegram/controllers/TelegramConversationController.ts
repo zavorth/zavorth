@@ -416,16 +416,22 @@ export class TelegramConversationController {
     if (!isShortcut) return false;
 
     const workspace = String(input.task.metadata?.workspace || input.task.metadata?.workspacePath || '').trim() || null;
+    const renderOptions = {
+      scope: {
+        userId: String(input.ctx.from?.id || input.task.user_id || '').trim() || null,
+        chatId: String(input.ctx.chat?.id || input.task.chat_id || '').trim() || null,
+      },
+    };
     const snapshot = this.experienceCoreService.buildHome({
       surface: 'telegram',
       sessionId: input.task.task_id || null,
       workspace,
     });
     const rendered = normalized.includes('diff')
-      ? this.experienceFormatter.formatDiffSummary(snapshot)
+      ? this.experienceFormatter.formatDiffSummary(snapshot, renderOptions)
       : normalized.includes('aprendeu')
-        ? this.experienceFormatter.formatLearningSummary(snapshot)
-        : this.experienceFormatter.formatSnapshot(snapshot);
+        ? this.experienceFormatter.formatLearningSummary(snapshot, renderOptions)
+        : this.experienceFormatter.formatSnapshot(snapshot, renderOptions);
 
     await input.ctx.reply(rendered.text, rendered.replyOptions as any);
     this.recordLedgerMessage(input.canonicalTarget, {

@@ -32,6 +32,7 @@ import type {
   ZavorthAgentGatewaySnapshot,
   ZavorthAgentGatewaySnapshotOptions,
 } from '../../runtime/agent/ZavorthAgentGateway.js';
+import { defaultZavorthSpeculativeAutonomyCancellationRegistry } from '../ZavorthSpeculativeAutonomyService.js';
 import type { ZavorthMemoryPlaneService } from '../ZavorthMemoryPlaneService.js';
 import type { ZavorthLearningPlaneService } from '../ZavorthLearningPlaneService.js';
 import type { RuntimeAccessReadinessService } from '../../runtime/access/RuntimeAccessReadinessService.js';
@@ -179,6 +180,7 @@ export class ExperienceCoreService {
       runs,
       approvals,
       actionCards: draftActionCards,
+      surface,
     });
     const actionCards = this.actionCards.build({
       activeRun,
@@ -331,19 +333,26 @@ export class ExperienceCoreService {
 
       if (command.diffDecision?.reviewId) {
         const snapshot = this.buildHome(command);
+        const diffResult = this.diffReview.evaluateDecision({
+          reviews: snapshot.diffReviews || [],
+          decision: command.diffDecision,
+        });
+        if (diffResult.contextRecovery) {
+          snapshot.contextRecovery = diffResult.contextRecovery;
+        }
         const reply = this.replyFromText(
-          `Decisao de diff registrada para ${command.diffDecision.targetId}. A aplicacao parcial ainda exige novo mutation plan governado antes do host.`,
+          diffResult.summary,
           command,
           snapshot.agent.activeRunId,
         );
         return {
-          ok: true,
+          ok: diffResult.ok,
           handled: true,
           plan,
           snapshot,
           replies: [reply],
           receipts: snapshot.receipts,
-          error: null,
+          error: diffResult.ok ? null : diffResult.summary,
         };
       }
 
@@ -720,6 +729,26 @@ export class ExperienceCoreService {
         replies: [this.replyFromText(learning.summary, command, snapshot.agent.activeRunId)],
         receipts: snapshot.receipts,
         error: learning.ok ? null : learning.summary,
+      };
+    }
+
+    const healingCancelMatch = /^healing:cancel:(.+)$/.exec(actionId);
+    if (healingCancelMatch) {
+      const targetRunId = healingCancelMatch[1] || command.actionCardDecision?.cardId || null;
+      defaultZavorthSpeculativeAutonomyCancellationRegistry.requestCancel(targetRunId, 'experience-action-card');
+      const snapshot = this.buildHome(command);
+      return {
+        ok: true,
+        handled: true,
+        plan,
+        snapshot,
+        replies: [this.replyFromText(
+          'Pedido de cancelamento do auto-healing registrado. O loop especulativo deve parar e exibir o ultimo erro em vez de consumir mais budget.',
+          command,
+          snapshot.agent.activeRunId,
+        )],
+        receipts: snapshot.receipts,
+        error: null,
       };
     }
 

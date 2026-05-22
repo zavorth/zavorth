@@ -1,4 +1,5 @@
 import { TelegramExperienceActionCardFormatter } from '../../src/telegram/TelegramExperienceActionCardFormatter.js';
+import { TelegramExperienceActionCardRegistry } from '../../src/telegram/TelegramExperienceActionCardRegistry.js';
 import type { ExperienceSnapshot } from '../../src/services/experience/index.js';
 
 function makeSnapshot(): ExperienceSnapshot {
@@ -111,6 +112,16 @@ function makeSnapshot(): ExperienceSnapshot {
       lastErrorSummary: null,
       proposedCorrection: null,
       validationCommand: null,
+      budget: {
+        elapsedMs: 0,
+        maxElapsedMs: 120000,
+        tokenBudget: null,
+        tokensUsed: null,
+        estimatedCostUsd: null,
+        cancellable: false,
+        cancelCommand: null,
+      },
+      cancelRequested: false,
     },
     contextRecovery: {
       contractVersion: 'ExperienceContextRecovery/v1',
@@ -118,6 +129,12 @@ function makeSnapshot(): ExperienceSnapshot {
       status: 'idle',
       question: 'ok',
       options: [],
+      overflow: {
+        totalOptions: 0,
+        shownOptions: 0,
+        hasOverflow: false,
+        dashboardCommand: 'zavorth open',
+      },
     },
     reasoningSummary: {
       understood: 'Corrigir bug',
@@ -134,16 +151,49 @@ function makeSnapshot(): ExperienceSnapshot {
 
 describe('TelegramExperienceActionCardFormatter', () => {
   it('renders compact action cards with opaque callback data', () => {
-    const formatter = new TelegramExperienceActionCardFormatter();
-    const rendered = formatter.formatSnapshot(makeSnapshot());
+    const registry = new TelegramExperienceActionCardRegistry();
+    const formatter = new TelegramExperienceActionCardFormatter(registry);
+    const rendered = formatter.formatSnapshot(makeSnapshot(), {
+      scope: { userId: 'user-1', chatId: 'chat-1' },
+    });
     const keyboard = (rendered.replyOptions?.reply_markup as any).inline_keyboard.flat();
     const callbackData = keyboard.map((button: any) => String(button.callback_data || '')).filter(Boolean);
 
     expect(rendered.text).toContain('Zavorth Daily Control');
     expect(rendered.text).toContain('Rodar validacao');
     expect(callbackData.some((value: string) => value.startsWith('xcard:'))).toBe(true);
+    expect(callbackData.every((value: string) => Buffer.byteLength(value, 'utf8') <= 64)).toBe(true);
     expect(callbackData.join('\n')).not.toContain('approval-secret-id');
     expect(callbackData.join('\n')).not.toContain('npm run runtime:check');
+  });
+
+  it('resolves Telegram callbacks only for the bound user/chat and before TTL', () => {
+    let clock = 1_000;
+    const registry = new TelegramExperienceActionCardRegistry({
+      now: () => clock,
+      ttlMs: 100,
+    });
+    const formatter = new TelegramExperienceActionCardFormatter(registry);
+    const rendered = formatter.formatSnapshot(makeSnapshot(), {
+      scope: { userId: 'user-1', chatId: 'chat-1' },
+    });
+    const keyboard = (rendered.replyOptions?.reply_markup as any).inline_keyboard.flat();
+    const callback = keyboard
+      .map((button: any) => String(button.callback_data || ''))
+      .find((value: string) => value.startsWith('xcard:')) || '';
+
+    expect(registry.resolve(callback, { userId: 'user-1', chatId: 'chat-1' })).toEqual(expect.objectContaining({
+      ok: true,
+    }));
+    expect(registry.resolve(callback, { userId: 'user-2', chatId: 'chat-1' })).toEqual({
+      ok: false,
+      reason: 'forbidden',
+    });
+    clock = 2_100;
+    expect(registry.resolve(callback, { userId: 'user-1', chatId: 'chat-1' })).toEqual({
+      ok: false,
+      reason: 'expired',
+    });
   });
 
   it('summarizes diffs without sending a full patch into Telegram', () => {

@@ -63,6 +63,14 @@ available and safe inline buttons. Callback payloads are opaque and short; they
 must not contain full diffs, shell commands, secrets, raw paths with sensitive
 tokens, or logs.
 
+Telegram callback buttons are backed by a server-side registry:
+
+- `callback_data` stays under Telegram's 64-byte limit;
+- callback ids expire by TTL;
+- the originating user, chat and session are validated before any decision;
+- expired or forbidden callbacks fail closed and ask the user to refresh status;
+- long diffs and logs are summarized in chat and reviewed in `/control` or CLI.
+
 ## Safety
 
 Telegram updates are normalized before reaching runtime controllers. The Gateway should preserve:
@@ -95,4 +103,5 @@ Telegram should feel first-class without becoming privileged:
 - no full diffs or long logs in chat;
 - no raw secrets in chat;
 - approval scopes shown before sensitive work;
+- no privileged learning or safety-policy changes from chat buttons;
 - links back to `/dashboard` for dense review.

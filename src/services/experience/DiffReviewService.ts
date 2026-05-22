@@ -1,6 +1,9 @@
 import {
+  EXPERIENCE_CONTEXT_RECOVERY_CONTRACT_VERSION,
   EXPERIENCE_DIFF_REVIEW_CONTRACT_VERSION,
   type ExperienceAction,
+  type ExperienceCommand,
+  type ExperienceContextRecovery,
   type ExperienceDiffFile,
   type ExperienceDiffHunk,
   type ExperienceDiffReview,
@@ -13,6 +16,13 @@ import type {
 export type DiffReviewBuildInput = {
   activeRun?: UniversalAgentRun | null;
   runs?: UniversalAgentRun[];
+};
+
+export type DiffReviewDecisionResult = {
+  ok: boolean;
+  status: 'recorded' | 'needs-context-recovery' | 'not-found';
+  summary: string;
+  contextRecovery?: ExperienceContextRecovery | null;
 };
 
 type DiffSource = {
@@ -62,6 +72,75 @@ export class DiffReviewService {
   public build(input: DiffReviewBuildInput = {}): ExperienceDiffReview[] {
     const sources = this.findSources(input);
     return sources.map((source, index) => this.parseSource(source, index));
+  }
+
+  public evaluateDecision(input: {
+    reviews: ExperienceDiffReview[];
+    decision: NonNullable<ExperienceCommand['diffDecision']>;
+  }): DiffReviewDecisionResult {
+    const review = input.reviews.find((candidate) => candidate.id === input.decision.reviewId)
+      || (input.reviews.length === 1 ? input.reviews[0] : null);
+    if (!review) {
+      return {
+        ok: false,
+        status: 'not-found',
+        summary: `Nao encontrei o diff review ${input.decision.reviewId}.`,
+        contextRecovery: null,
+      };
+    }
+
+    if (input.decision.decision === 'reject-hunk' || input.decision.decision === 'retry-without-hunk') {
+      const conflict = this.findHunkDependencyConflict(review, input.decision.targetId);
+      if (conflict) {
+        return {
+          ok: false,
+          status: 'needs-context-recovery',
+          summary: conflict.summary,
+          contextRecovery: {
+            contractVersion: EXPERIENCE_CONTEXT_RECOVERY_CONTRACT_VERSION,
+            id: `context-recovery:diff:${this.stableId(`${review.id}:${input.decision.targetId}`)}`,
+            status: 'needs-selection',
+            question: conflict.summary,
+            options: [
+              {
+                id: 'reject-related',
+                label: 'Rejeitar hunks relacionados',
+                detail: 'Remove o hunk selecionado e os hunks que parecem depender dele.',
+                command: `zavorth diff retry ${review.id} ${input.decision.targetId}`,
+                confidence: 0.82,
+              },
+              {
+                id: 'accept-related',
+                label: 'Aceitar hunks relacionados',
+                detail: 'Mantem os hunks dependentes juntos e exige policy antes do host.',
+                command: `zavorth diff approve ${review.id}`,
+                confidence: 0.76,
+              },
+              {
+                id: 'auto-heal',
+                label: 'Auto-healing em sandbox',
+                detail: 'Permite que o sandbox tente recompor a selecao parcial antes de nova aprovacao.',
+                command: `zavorth run "recomponha ${review.id} em sandbox sem aplicar no host"`,
+                confidence: 0.7,
+              },
+            ],
+            overflow: {
+              totalOptions: 3,
+              shownOptions: 3,
+              hasOverflow: false,
+              dashboardCommand: 'zavorth open',
+            },
+          },
+        };
+      }
+    }
+
+    return {
+      ok: true,
+      status: 'recorded',
+      summary: `Decisao de diff registrada para ${input.decision.targetId}. A selecao parcial precisa recompor um mutation plan em sandbox e passar por policy antes do host.`,
+      contextRecovery: null,
+    };
   }
 
   private findSources(input: DiffReviewBuildInput): DiffSource[] {
@@ -148,6 +227,15 @@ export class DiffReviewService {
           reason: 'Reabre o sandbox com escopo reduzido.',
         }),
       ],
+      recomposition: {
+        status: files.length > 0 ? 'needs-sandbox' : 'ready',
+        selectedHunks: files.flatMap((file) => file.hunks.map((hunk) => hunk.id)),
+        rejectedHunks: [],
+        summary: files.length > 0
+          ? 'Qualquer selecao parcial deve recompor um mutation plan em sandbox antes do host.'
+          : 'Sem hunks para recompor.',
+        requiresSandbox: files.length > 0,
+      },
     };
   }
 
@@ -252,5 +340,57 @@ export class DiffReviewService {
     if (/(package-lock\.json|pnpm-lock\.yaml|yarn\.lock|package\.json)$/.test(lowerPath)) return 'attention';
     if (hunk.addedLines + hunk.removedLines > 80) return 'attention';
     return 'safe';
+  }
+
+  private findHunkDependencyConflict(review: ExperienceDiffReview, targetId: string): { summary: string } | null {
+    const hunks = review.files.flatMap((file) => file.hunks.map((hunk) => ({ file, hunk })));
+    const target = hunks.find((entry) => entry.hunk.id === targetId)
+      || hunks.find((entry) => entry.hunk.id.endsWith(targetId));
+    if (!target) return null;
+
+    const identifiers = this.extractDefinedIdentifiers(target.hunk.preview);
+    if (identifiers.length === 0) return null;
+    const related = hunks.filter((entry) => entry.hunk.id !== target.hunk.id && this.usesAnyIdentifier(entry.hunk.preview, identifiers));
+    if (related.length === 0) return null;
+
+    const names = identifiers.slice(0, 4).join(', ');
+    const relatedLabels = related.slice(0, 3).map((entry) => `${entry.file.path}:${entry.hunk.id.split(':').pop()}`).join(', ');
+    return {
+      summary: `A rejeicao de ${target.hunk.id} pode quebrar hunks relacionados (${relatedLabels}) que usam ${names}. Escolha como recompor em sandbox.`,
+    };
+  }
+
+  private extractDefinedIdentifiers(preview: string[]): string[] {
+    const identifiers = new Set<string>();
+    for (const line of preview) {
+      if (!line.startsWith('+')) continue;
+      const patterns = [
+        /\b(?:const|let|var)\s+([A-Za-z_$][\w$]*)/g,
+        /\bfunction\s+([A-Za-z_$][\w$]*)/g,
+        /\bclass\s+([A-Za-z_$][\w$]*)/g,
+        /\binterface\s+([A-Za-z_$][\w$]*)/g,
+        /\btype\s+([A-Za-z_$][\w$]*)/g,
+      ];
+      for (const pattern of patterns) {
+        let match: RegExpExecArray | null;
+        while ((match = pattern.exec(line)) !== null) {
+          identifiers.add(match[1]);
+        }
+      }
+    }
+    return Array.from(identifiers).slice(0, 12);
+  }
+
+  private usesAnyIdentifier(preview: string[], identifiers: string[]): boolean {
+    const text = preview.join('\n');
+    return identifiers.some((identifier) => new RegExp(`\\b${identifier.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\b`).test(text));
+  }
+
+  private stableId(value: string): string {
+    let hash = 0;
+    for (let index = 0; index < value.length; index += 1) {
+      hash = ((hash << 5) - hash + value.charCodeAt(index)) | 0;
+    }
+    return Math.abs(hash).toString(36);
   }
 }

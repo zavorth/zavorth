@@ -255,6 +255,13 @@ export type ExperienceDiffReview = {
   risk: UniversalToolRiskLevel;
   files: ExperienceDiffFile[];
   actions: ExperienceAction[];
+  recomposition?: {
+    status: 'ready' | 'needs-sandbox' | 'conflict' | 'blocked';
+    selectedHunks: string[];
+    rejectedHunks: string[];
+    summary: string;
+    requiresSandbox: boolean;
+  };
 };
 
 export type ExperienceExecutionGraphNode = {
@@ -286,6 +293,12 @@ export type ExperienceContextRecovery = {
   status: 'idle' | 'needs-selection' | 'resolved';
   question: string;
   options: ExperienceContextRecoveryOption[];
+  overflow?: {
+    totalOptions: number;
+    shownOptions: number;
+    hasOverflow: boolean;
+    dashboardCommand: string;
+  };
 };
 
 export type ExperienceAutoHealing = {
@@ -296,6 +309,16 @@ export type ExperienceAutoHealing = {
   lastErrorSummary: string | null;
   proposedCorrection: string | null;
   validationCommand: string | null;
+  budget?: {
+    elapsedMs: number;
+    maxElapsedMs: number;
+    tokenBudget: number | null;
+    tokensUsed: number | null;
+    estimatedCostUsd: number | null;
+    cancellable: boolean;
+    cancelCommand: string | null;
+  };
+  cancelRequested?: boolean;
 };
 
 export type ExperienceReasoningSummary = {

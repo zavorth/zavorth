@@ -3,12 +3,22 @@ import type {
   ExperienceActionCard,
   ExperienceSnapshot,
 } from '../services/experience/index.js';
+import {
+  defaultTelegramExperienceActionCardRegistry,
+  type TelegramExperienceActionCardRegistry,
+  type TelegramExperienceCallbackScope,
+} from './TelegramExperienceActionCardRegistry.js';
 
 export type TelegramExperienceCardMessage = {
   text: string;
   replyOptions?: {
     reply_markup: InlineKeyboard;
   };
+};
+
+export type TelegramExperienceRenderOptions = {
+  scope?: TelegramExperienceCallbackScope;
+  ttlMs?: number;
 };
 
 function asText(value: unknown, fallback = ''): string {
@@ -21,16 +31,12 @@ function clip(value: unknown, limit = 220): string {
   return text.length > limit ? `${text.slice(0, limit - 3)}...` : text;
 }
 
-function stableId(value: string): string {
-  let hash = 0;
-  for (let index = 0; index < value.length; index += 1) {
-    hash = ((hash << 5) - hash + value.charCodeAt(index)) | 0;
-  }
-  return Math.abs(hash).toString(36);
-}
-
 export class TelegramExperienceActionCardFormatter {
-  public formatSnapshot(snapshot: ExperienceSnapshot): TelegramExperienceCardMessage {
+  constructor(
+    private readonly registry: TelegramExperienceActionCardRegistry = defaultTelegramExperienceActionCardRegistry,
+  ) {}
+
+  public formatSnapshot(snapshot: ExperienceSnapshot, options: TelegramExperienceRenderOptions = {}): TelegramExperienceCardMessage {
     const cards = (snapshot.actionCards || []).filter((card) => card.status === 'pending');
     const pendingApprovals = snapshot.daily?.pendingApprovals ?? snapshot.approvals.filter((approval) => approval.status === 'pending').length;
     const pendingLearning = snapshot.daily?.pendingLearning ?? snapshot.learning.pending;
@@ -55,11 +61,14 @@ export class TelegramExperienceActionCardFormatter {
 
     return {
       text: lines.join('\n'),
-      replyOptions: this.keyboardForCards(cards, snapshot),
+      replyOptions: this.keyboardForCards(cards, snapshot, options),
     };
   }
 
-  public formatDiffSummary(snapshot: ExperienceSnapshot): TelegramExperienceCardMessage {
+  public formatDiffSummary(
+    snapshot: ExperienceSnapshot,
+    options: TelegramExperienceRenderOptions = {},
+  ): TelegramExperienceCardMessage {
     const reviews = snapshot.diffReviews || [];
     const lines = ['Zavorth Diff Review', ''];
     if (!reviews.length) {
@@ -74,10 +83,13 @@ export class TelegramExperienceActionCardFormatter {
       }
       lines.push('', 'Detalhe completo: use o Dashboard ou `zavorth diff`.');
     }
-    return { text: lines.join('\n'), replyOptions: this.keyboardForUtility() };
+    return { text: lines.join('\n'), replyOptions: this.keyboardForUtility(options) };
   }
 
-  public formatLearningSummary(snapshot: ExperienceSnapshot): TelegramExperienceCardMessage {
+  public formatLearningSummary(
+    snapshot: ExperienceSnapshot,
+    options: TelegramExperienceRenderOptions = {},
+  ): TelegramExperienceCardMessage {
     const candidates = snapshot.learning.candidates || [];
     const lines = ['Zavorth Learning OS', '', clip(snapshot.learning.summary, 180)];
     if (candidates.length > 0) {
@@ -89,37 +101,63 @@ export class TelegramExperienceActionCardFormatter {
     } else {
       lines.push('', 'Nenhum candidato pendente.');
     }
-    return { text: lines.join('\n'), replyOptions: this.keyboardForUtility() };
+    return { text: lines.join('\n'), replyOptions: this.keyboardForUtility(options) };
   }
 
-  public callbackDataFor(card: ExperienceActionCard, actionId: string): string {
-    const opaque = stableId(`${card.id}:${actionId}`);
-    return `xcard:${opaque}`;
+  public callbackDataFor(
+    card: ExperienceActionCard,
+    actionId: string,
+    options: TelegramExperienceRenderOptions = {},
+  ): string {
+    const action = card.actions.find((candidate) => candidate.id === actionId);
+    return this.registry.register({
+      cardId: card.id,
+      actionId,
+      commandText: action?.command || action?.label || actionId,
+      scope: options.scope || null,
+      ttlMs: options.ttlMs,
+    });
   }
 
   private keyboardForCards(
     cards: ExperienceActionCard[],
     snapshot: ExperienceSnapshot,
+    options: TelegramExperienceRenderOptions,
   ): TelegramExperienceCardMessage['replyOptions'] {
     const keyboard = new InlineKeyboard();
     for (const card of cards.slice(0, 2)) {
       const primaryActions = card.actions.slice(0, 2);
       for (const action of primaryActions) {
-        keyboard.text(clip(action.label, 24), this.callbackDataFor(card, action.id));
+        keyboard.text(clip(action.label, 24), this.callbackDataFor(card, action.id, options));
       }
       keyboard.row();
     }
     keyboard.text('Status', '/status').text('Dashboard', '/dashboard');
     if ((snapshot.diffReviews || []).length > 0) {
-      keyboard.row().text('Ver diff', 'xcard:diff-summary');
+      const callbackData = this.registry.register({
+        cardId: 'utility:diff-summary',
+        actionId: 'view-diff-summary',
+        commandText: 'ver diff',
+        scope: options.scope || null,
+        ttlMs: options.ttlMs,
+      });
+      keyboard.row().text('Ver diff', callbackData);
     }
     return { reply_markup: keyboard };
   }
 
-  private keyboardForUtility(): TelegramExperienceCardMessage['replyOptions'] {
+  private keyboardForUtility(options: TelegramExperienceRenderOptions): TelegramExperienceCardMessage['replyOptions'] {
     const keyboard = new InlineKeyboard()
       .text('Status', '/status')
       .text('Dashboard', '/dashboard');
+    const diffCallback = this.registry.register({
+      cardId: 'utility:diff-summary',
+      actionId: 'view-diff-summary',
+      commandText: 'ver diff',
+      scope: options.scope || null,
+      ttlMs: options.ttlMs,
+    });
+    keyboard.row().text('Ver diff', diffCallback);
     return { reply_markup: keyboard };
   }
 }

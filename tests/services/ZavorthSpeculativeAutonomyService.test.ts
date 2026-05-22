@@ -4,6 +4,7 @@ import path from 'path';
 import {
   buildSpeculativeDockerValidationArgs,
   parseSpeculativeValidationCommand,
+  ZavorthSpeculativeAutonomyCancellationRegistry,
   ZavorthSpeculativeAutonomyService,
   type ZavorthSpeculativeDockerValidationRunner,
   type ZavorthSpeculativeCommandRunner,
@@ -357,6 +358,101 @@ describe('ZavorthSpeculativeAutonomyService', () => {
     expect(result.finalAttempt?.validationResults[0]).toEqual(expect.objectContaining({ status: 'passed' }));
     expect(result.finalAttempt?.diffText).toContain('+export const value = "good";');
     expect(fs.readFileSync(path.join(root, 'src/a.ts'), 'utf8')).toContain('"old"');
+  });
+
+  it('stops auto-healing correction when the run is cancelled', async () => {
+    const root = makeWorkspace({
+      'package.json': JSON.stringify({ scripts: { 'runtime:check': 'tsc --noEmit' } }, null, 2),
+      'src/a.ts': 'export const value = "old";\n',
+    });
+    const cancellationRegistry = new ZavorthSpeculativeAutonomyCancellationRegistry();
+    const commandRunner: ZavorthSpeculativeCommandRunner = jest.fn(async (input) => {
+      cancellationRegistry.requestCancel('run-cancel', 'test-cancel');
+      return {
+        command: input.command,
+        status: 'failed',
+        exitCode: 1,
+        stdout: '',
+        stderr: 'validation failed',
+        durationMs: 3,
+      };
+    });
+    const correctionProvider = jest.fn(async () => ({
+      writes: [{ path: 'src/a.ts', content: 'export const value = "good";\n' }],
+      summary: 'should not run',
+    }));
+    const service = new ZavorthSpeculativeAutonomyService({
+      runRoot: path.join(root, '..', 'runs'),
+      mutationPlane: null,
+      commandRunner,
+      cancellationRegistry,
+      now: () => new Date('2026-05-21T00:00:00.000Z'),
+    });
+
+    const result = await service.prepare({
+      workspaceRoot: root,
+      task: 'Atualize com autocorrecao cancelavel',
+      runId: 'run-cancel',
+      writes: [{ path: 'src/a.ts', content: 'export const value = "bad";\n' }],
+      validationCommands: ['npm run runtime:check -- --pretty false'],
+      validationMode: 'provided',
+      maxCorrectionRounds: 1,
+      correctionProvider,
+    });
+
+    expect(result.status).toBe('blocked');
+    expect(result.autoHealing.cancelRequested).toBe(true);
+    expect(result.receipts).toContain('auto-healing-cancelled');
+    expect(result.finalAttempt?.summary).toContain('cancelado');
+    expect(correctionProvider).not.toHaveBeenCalled();
+  });
+
+  it('stops auto-healing correction when the time budget is exhausted', async () => {
+    const root = makeWorkspace({
+      'package.json': JSON.stringify({ scripts: { 'runtime:check': 'tsc --noEmit' } }, null, 2),
+      'src/a.ts': 'export const value = "old";\n',
+    });
+    let nowMs = Date.parse('2026-05-21T00:00:00.000Z');
+    const commandRunner: ZavorthSpeculativeCommandRunner = jest.fn(async (input) => {
+      nowMs += 2_000;
+      return {
+        command: input.command,
+        status: 'failed',
+        exitCode: 1,
+        stdout: '',
+        stderr: 'validation failed',
+        durationMs: 2000,
+      };
+    });
+    const correctionProvider = jest.fn(async () => ({
+      writes: [{ path: 'src/a.ts', content: 'export const value = "good";\n' }],
+      summary: 'should not run',
+    }));
+    const service = new ZavorthSpeculativeAutonomyService({
+      runRoot: path.join(root, '..', 'runs'),
+      mutationPlane: null,
+      commandRunner,
+      now: () => new Date(nowMs),
+    });
+
+    const result = await service.prepare({
+      workspaceRoot: root,
+      task: 'Atualize com budget curto',
+      runId: 'run-budget',
+      writes: [{ path: 'src/a.ts', content: 'export const value = "bad";\n' }],
+      validationCommands: ['npm run runtime:check -- --pretty false'],
+      validationMode: 'provided',
+      maxCorrectionRounds: 1,
+      timeBudgetMs: 1_000,
+      correctionProvider,
+    });
+
+    expect(result.status).toBe('blocked');
+    expect(result.autoHealing.timedOut).toBe(true);
+    expect(result.autoHealing.elapsedMs).toBeGreaterThanOrEqual(2_000);
+    expect(result.receipts).toContain('auto-healing-budget-exhausted');
+    expect(result.finalAttempt?.summary).toContain('budget de tempo excedido');
+    expect(correctionProvider).not.toHaveBeenCalled();
   });
 
   it('does not follow symlinks while copying or diffing the speculative workspace', async () => {

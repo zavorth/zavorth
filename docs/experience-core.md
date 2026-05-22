@@ -46,6 +46,25 @@ These decisions do not bypass policy. Diff selections recompose a mutation
 plan and sensitive work still requires approval and receipts before host
 changes.
 
+## Hardening Rules
+
+- Telegram action-card callbacks use opaque ids with TTL, user/chat/session
+  validation and a 64-byte payload ceiling. The real command, diff, path and
+  approval data stay server-side in the Experience callback registry.
+- Partial diff decisions are treated as a new governed mutation plan. If a
+  rejected hunk appears to define symbols used by another approved hunk,
+  Experience Core opens Context Recovery instead of applying a broken partial
+  merge.
+- Auto-healing exposes elapsed time, budget, token budget when known and a
+  cancel command. Cancel requests are recorded in the speculative autonomy
+  cancellation registry and checked between validation/correction rounds.
+- Context Recovery limits short-channel choices, especially Telegram/Discord,
+  and exposes overflow metadata so dense review moves to `/control`.
+- Learning candidates that touch core security policy, sandbox, allowlists,
+  firewall behavior or approval rules are quarantined. Learning OS may improve
+  style, routing and workflow preferences, but it must not rewrite safety
+  fundamentals.
+
 ## Public Routes
 
 - `GET /api/experience/home`
