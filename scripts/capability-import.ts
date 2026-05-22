@@ -17,11 +17,11 @@ if (sample) {
     summary: 'Example imported capability pack normalized by Zavorth.',
     items: [
       {
-        id: 'daily-brief',
+        id: 'zavorth-pulse',
         kind: 'skill',
-        label: 'Daily Brief',
-        summary: 'Prepare a governed daily operational brief.',
-        tags: ['ops', 'briefing'],
+        label: 'Zavorth Pulse',
+        summary: 'Prepare a governed operational pulse.',
+        tags: ['ops', 'pulse'],
         governance: {
           risk: 'medium',
           requiresApproval: true,

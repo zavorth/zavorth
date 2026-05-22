@@ -11,7 +11,7 @@ It contains:
 
 - agent state;
 - daily HUD summary;
-- daily brief with best next action, pending decisions, highlights and risks;
+- Zavorth Pulse with best next action, pending decisions, highlights and risks;
 - response profile (`short`, `dev`, `executive`, `mentor`);
 - active journey;
 - chat messages and suggestions;
@@ -50,9 +50,9 @@ These decisions do not bypass policy. Diff selections recompose a mutation
 plan and sensitive work still requires approval and receipts before host
 changes.
 
-## Daily Brief And Response Profiles
+## Zavorth Pulse And Response Profiles
 
-`ExperienceDailyBrief/v1` is the small "what matters now" projection. It
+`ExperiencePulseBrief/v1` is the small "what matters now" projection. It
 contains the headline, best next action, pending approvals/learning/receipts,
 operational highlights, risks, recent receipts and the active response profile.
 Surfaces should render this instead of inventing separate daily summaries.

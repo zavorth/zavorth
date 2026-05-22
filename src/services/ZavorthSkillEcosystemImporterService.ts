@@ -31,9 +31,9 @@ type ManifestSpec = {
 
 const CURATED_MANIFESTS: ManifestSpec[] = [
   {
-    id: 'skill.personal-daily-brief',
-    name: 'Personal Daily Brief',
-    description: 'Builds a local daily brief from workspace notes, tasks and recent receipts.',
+    id: 'skill.zavorth-pulse',
+    name: 'Zavorth Pulse',
+    description: 'Builds a local operational pulse from workspace notes, tasks and recent receipts.',
     sourceKind: 'zavorth-curated',
     capabilityTags: ['personal-productivity', 'workflow'],
     permissionProfileId: 'local-readonly',

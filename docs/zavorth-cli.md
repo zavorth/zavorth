@@ -65,7 +65,7 @@ The HUD also prints daily shortcut intents:
 These shortcuts are rendered as explicit commands so terminals without a full
 TUI still remain predictable and automation-friendly.
 
-The home and HUD now include a Daily Brief: headline, best next action,
+The home and HUD now include Zavorth Pulse: headline, best next action,
 pending approvals, pending learning, recent receipts, risks and highlights.
 They also show the active response profile. You can ask for a style naturally:
 

@@ -63,7 +63,7 @@ available and safe inline buttons. Callback payloads are opaque and short; they
 must not contain full diffs, shell commands, secrets, raw paths with sensitive
 tokens, or logs.
 
-Status cards include the shared Daily Brief and active response profile. On
+Status cards include the shared Zavorth Pulse and active response profile. On
 short channels the default profile is concise, but the user can still ask for
 `estilo dev`, `estilo executivo` or `estilo mentor`; this changes formatting,
 not security policy.

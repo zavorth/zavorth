@@ -303,8 +303,8 @@ export class ZavorthCapabilityNaturalOperatorService {
       }
     }
     if (packId === 'official-ops-skills') {
-      if (value.includes('daily-brief') || value.includes('daily brief')) {
-        return 'skill:daily-brief';
+      if (value.includes('zavorth-pulse') || value.includes('zavorth pulse') || value.includes('pulse')) {
+        return 'skill:zavorth-pulse';
       }
       if (value.includes('issue-triage') || value.includes('issue triage')) {
         return 'skill:issue-triage';

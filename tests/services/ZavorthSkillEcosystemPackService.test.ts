@@ -67,7 +67,7 @@ describe('ZavorthSkillEcosystemPackService Dashboard controls', () => {
     expect(permissions.liveSkillsMissingSecretRefs).toBe(2);
     expect(permissions.evaluations).toEqual(expect.arrayContaining([
       expect.objectContaining({
-        manifestId: 'skill.personal-daily-brief',
+        manifestId: 'skill.zavorth-pulse',
         status: 'pass',
         enableAllowed: true,
         executeAllowed: true,

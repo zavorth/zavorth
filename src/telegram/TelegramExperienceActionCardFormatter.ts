@@ -40,17 +40,17 @@ export class TelegramExperienceActionCardFormatter {
     const cards = (snapshot.actionCards || []).filter((card) => card.status === 'pending');
     const pendingApprovals = snapshot.daily?.pendingApprovals ?? snapshot.approvals.filter((approval) => approval.status === 'pending').length;
     const pendingLearning = snapshot.daily?.pendingLearning ?? snapshot.learning.pending;
-    const brief = snapshot.daily?.brief;
-    const profile = snapshot.responseProfile || snapshot.daily?.responseProfile || brief?.profile;
+    const pulse = snapshot.daily?.pulse;
+    const profile = snapshot.responseProfile || snapshot.daily?.responseProfile || pulse?.profile;
     const lines = [
       'Zavorth Daily Control',
       '',
       `Estado: ${snapshot.agent.status}`,
-      `Brief: ${clip(brief?.headline || snapshot.daily?.summary || snapshot.health.summary, 140)}`,
-      `Tarefa: ${clip(snapshot.daily?.activeTask || brief?.activeTask || snapshot.agent.summary || 'nenhuma ativa', 120)}`,
+      `Pulse: ${clip(pulse?.headline || snapshot.daily?.summary || snapshot.health.summary, 140)}`,
+      `Tarefa: ${clip(snapshot.daily?.activeTask || pulse?.activeTask || snapshot.agent.summary || 'nenhuma ativa', 120)}`,
       `Approvals: ${pendingApprovals} | Learning: ${pendingLearning}`,
       `Perfil: ${clip(profile?.label || 'padrao', 40)}`,
-      `Proximo: ${clip(brief?.bestNextAction?.label || 'enviar um pedido natural', 120)}`,
+      `Proximo: ${clip(pulse?.bestNextAction?.label || 'enviar um pedido natural', 120)}`,
     ];
 
     if (cards.length > 0) {

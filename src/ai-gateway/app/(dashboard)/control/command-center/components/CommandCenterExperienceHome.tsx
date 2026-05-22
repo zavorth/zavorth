@@ -59,8 +59,8 @@ export function CommandCenterExperienceHome({
   const learning = asRecord(snapshot?.learning);
   const memory = asRecord(snapshot?.memory);
   const daily = asRecord(snapshot?.daily);
-  const dailyBrief = asRecord(daily.brief);
-  const responseProfile = asRecord(snapshot?.responseProfile || daily.responseProfile || dailyBrief.profile);
+  const pulse = asRecord(daily.pulse);
+  const responseProfile = asRecord(snapshot?.responseProfile || daily.responseProfile || pulse.profile);
   const autoHealing = asRecord(snapshot?.autoHealing);
   const contextRecovery = asRecord(snapshot?.contextRecovery);
   const reasoningSummary = asRecord(snapshot?.reasoningSummary);
@@ -99,7 +99,7 @@ export function CommandCenterExperienceHome({
           reasoningSummary={reasoningSummary}
           onNavigate={() => onNavigate("terminal")}
         />
-        <DailyBriefPanel brief={dailyBrief} fallbackSummary={asText(daily.summary || health.summary)} onDraftCommand={onDraftCommand} />
+        <ZavorthPulsePanel pulse={pulse} fallbackSummary={asText(daily.summary || health.summary)} onDraftCommand={onDraftCommand} />
         <ResponseProfilePanel profile={responseProfile} onDraftCommand={onDraftCommand} />
         <ActionCardsPanel
           cards={actionCards}
@@ -136,23 +136,23 @@ export function CommandCenterExperienceHome({
   );
 }
 
-function DailyBriefPanel({
-  brief,
+function ZavorthPulsePanel({
+  pulse,
   fallbackSummary,
   onDraftCommand,
 }: {
-  brief: Record<string, any>;
+  pulse: Record<string, any>;
   fallbackSummary: string;
   onDraftCommand: (command: string) => void;
 }) {
-  const bestNextAction = asRecord(brief.bestNextAction);
-  const pending = asRecord(brief.pending);
-  const highlights = asTextArray(brief.highlights);
-  const risks = asTextArray(brief.risks);
+  const bestNextAction = asRecord(pulse.bestNextAction);
+  const pending = asRecord(pulse.pending);
+  const highlights = asTextArray(pulse.highlights);
+  const risks = asTextArray(pulse.risks);
   return (
-    <article className="bcc-experience-card bcc-daily-brief">
+    <article className="bcc-experience-card bcc-zavorth-pulse">
       <header>
-        <span>Daily Brief</span>
+        <span>Zavorth Pulse</span>
         <button
           type="button"
           onClick={() => onDraftCommand(asText(bestNextAction.command, asText(bestNextAction.label, "o que devo fazer agora?")))}
@@ -162,15 +162,15 @@ function DailyBriefPanel({
       </header>
       <div className="bcc-experience-list">
         <div className="bcc-experience-list__item" data-tone={risks.length ? "warn" : "ok"}>
-          <strong>{asText(brief.headline, fallbackSummary || "Zavorth pronto para o proximo pedido.")}</strong>
-          <small>{asText(brief.summary, fallbackSummary)}</small>
+          <strong>{asText(pulse.headline, fallbackSummary || "Zavorth pronto para o proximo pedido.")}</strong>
+          <small>{asText(pulse.summary, fallbackSummary)}</small>
           <small>Approvals {Number(pending.approvals || 0)} | Learning {Number(pending.learning || 0)} | Receipts {Number(pending.receipts || 0)}</small>
         </div>
         {highlights.slice(0, 3).map((item) => (
-          <small key={item} className="bcc-daily-brief__line">+ {item}</small>
+          <small key={item} className="bcc-zavorth-pulse__line">+ {item}</small>
         ))}
         {risks.slice(0, 3).map((item) => (
-          <small key={item} className="bcc-daily-brief__line bcc-daily-brief__line--risk">! {item}</small>
+          <small key={item} className="bcc-zavorth-pulse__line bcc-zavorth-pulse__line--risk">! {item}</small>
         ))}
       </div>
     </article>

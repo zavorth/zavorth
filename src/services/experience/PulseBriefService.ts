@@ -1,9 +1,9 @@
 import {
-  EXPERIENCE_DAILY_BRIEF_CONTRACT_VERSION,
+  EXPERIENCE_PULSE_BRIEF_CONTRACT_VERSION,
   EXPERIENCE_RESPONSE_PROFILE_CONTRACT_VERSION,
   type ExperienceAction,
   type ExperienceActionCard,
-  type ExperienceDailyBrief,
+  type ExperiencePulseBrief,
   type ExperienceHealthStatus,
   type ExperienceLearningCandidate,
   type ExperienceReceipt,
@@ -17,7 +17,7 @@ import type {
   UniversalApprovalRequest,
 } from '../../runtime/agent/UniversalAgentRuntimeTypes.js';
 
-export type DailyBriefBuildInput = {
+export type PulseBriefBuildInput = {
   surface: ExperienceSurface;
   generatedAt: string;
   workspace: string | null;
@@ -48,8 +48,8 @@ function compactList(items: string[], limit: number): string[] {
   return items.map((item) => clean(item)).filter(Boolean).slice(0, limit);
 }
 
-export class DailyBriefService {
-  public build(input: DailyBriefBuildInput): ExperienceDailyBrief {
+export class PulseBriefService {
+  public build(input: PulseBriefBuildInput): ExperiencePulseBrief {
     const profile = this.resolveProfile({
       surface: input.surface,
       activeRun: input.activeRun,
@@ -74,7 +74,7 @@ export class DailyBriefService {
     ], 5);
 
     return {
-      contractVersion: EXPERIENCE_DAILY_BRIEF_CONTRACT_VERSION,
+      contractVersion: EXPERIENCE_PULSE_BRIEF_CONTRACT_VERSION,
       headline: this.headline(input.health.status, pendingApprovals, input.learningPending, activeTask),
       summary: this.summary(input, pendingApprovals, profile),
       lastActivity: lastRun?.updatedAt || lastRun?.createdAt || null,
@@ -178,7 +178,7 @@ export class DailyBriefService {
     return null;
   }
 
-  private pickBestNextAction(input: DailyBriefBuildInput, pendingApprovals: number): ExperienceAction {
+  private pickBestNextAction(input: PulseBriefBuildInput, pendingApprovals: number): ExperienceAction {
     const pendingCard = input.actionCards.find((card) => card.status === 'pending');
     const cardAction = pendingCard?.actions.find((action) => action.command);
     if (cardAction) return cardAction;
@@ -232,7 +232,7 @@ export class DailyBriefService {
     return 'Zavorth precisa de atencao antes do proximo fluxo.';
   }
 
-  private summary(input: DailyBriefBuildInput, pendingApprovals: number, profile: ExperienceResponseProfile): string {
+  private summary(input: PulseBriefBuildInput, pendingApprovals: number, profile: ExperienceResponseProfile): string {
     const parts = [
       input.health.summary,
       pendingApprovals > 0 ? 'ha aprovacoes pendentes' : 'sem aprovacoes pendentes',

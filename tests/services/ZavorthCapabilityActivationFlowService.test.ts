@@ -11,14 +11,14 @@ describe('ZavorthCapabilityActivationFlowService', () => {
 
     const snapshot = service.buildSnapshot({
       manifest: buildManifest(),
-      text: 'ative daily brief',
+      text: 'ative zavorth pulse',
     });
 
     expect(snapshot.contractVersion).toBe(CAPABILITY_ACTIVATION_FLOW_CONTRACT_VERSION);
     expect(snapshot.status).toBe('waiting_secret_input');
-    expect(snapshot.target?.id).toBe('skill:daily-brief');
+    expect(snapshot.target?.id).toBe('skill:zavorth-pulse');
     expect(snapshot.importSnapshot.summary.normalizedItems).toBe(1);
-    expect(snapshot.setupSnapshot?.selectedCapability?.id).toBe('skill:daily-brief');
+    expect(snapshot.setupSnapshot?.selectedCapability?.id).toBe('skill:zavorth-pulse');
     expect(snapshot.setupSnapshot?.governancePlan?.recipeId).toBe('governed-skill-run');
     expect(snapshot.setupSnapshot?.secretPlan.missingRefs).toEqual(['calendar.oauth']);
     expect(snapshot.activation).toMatchObject({
@@ -40,7 +40,7 @@ describe('ZavorthCapabilityActivationFlowService', () => {
 
     const snapshot = service.buildSnapshot({
       manifest: buildManifest(),
-      text: 'ative daily brief',
+      text: 'ative zavorth pulse',
       providedSecrets: {
         'calendar.oauth': 'calendar-token-value-that-must-not-leak',
       },
@@ -60,7 +60,7 @@ describe('ZavorthCapabilityActivationFlowService', () => {
 
     const snapshot = api.buildSnapshot({
       manifest: buildManifest(),
-      text: 'ative daily brief',
+      text: 'ative zavorth pulse',
       approvalId: 'approval-123',
       providedSecrets: {
         'calendar.oauth': 'calendar-token-value-that-must-not-leak',
@@ -87,7 +87,7 @@ describe('ZavorthCapabilityActivationFlowService', () => {
         ...buildManifest(),
         summary: 'bad sk-test-secret-value-1234567890',
       },
-      text: 'ative daily brief',
+      text: 'ative zavorth pulse',
     });
 
     expect(snapshot.status).toBe('blocked');
@@ -108,10 +108,10 @@ function buildManifest(): CapabilityImportManifest {
     },
     items: [
       {
-        id: 'daily-brief',
+        id: 'zavorth-pulse',
         kind: 'skill',
-        label: 'Daily Brief',
-        summary: 'Prepare a governed daily brief.',
+        label: 'Zavorth Pulse',
+        summary: 'Prepare a governed operational pulse.',
         description: 'Collects inputs and produces an artifact-first daily summary.',
         tags: ['ops', 'briefing'],
         requirements: {

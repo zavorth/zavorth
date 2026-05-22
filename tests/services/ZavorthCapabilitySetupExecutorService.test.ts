@@ -23,8 +23,8 @@ describe('ZavorthCapabilitySetupExecutorService', () => {
     const queue = createQueue();
     const ticket = queue.createTicket({
       packId: 'official-ops-skills',
-      targetItemId: 'skill:daily-brief',
-      text: 'configure daily brief',
+      targetItemId: 'skill:zavorth-pulse',
+      text: 'configure zavorth pulse',
       audience: 'everyday',
     });
     const executor = createExecutor();
