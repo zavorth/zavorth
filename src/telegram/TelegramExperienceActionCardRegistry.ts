@@ -1,4 +1,6 @@
 import { randomBytes } from 'crypto';
+import fs from 'fs';
+import path from 'path';
 
 export type TelegramExperienceCallbackScope = {
   userId?: string | null;
@@ -28,6 +30,7 @@ export type TelegramExperienceCallbackResolveResult =
 export type TelegramExperienceActionCardRegistryRuntime = {
   now?: () => number;
   ttlMs?: number;
+  storePath?: string | null;
 };
 
 const CALLBACK_PREFIX = 'xcard:';
@@ -46,11 +49,14 @@ function byteLength(value: string): number {
 export class TelegramExperienceActionCardRegistry {
   private readonly now: () => number;
   private readonly ttlMs: number;
+  private readonly storePath: string | null;
   private readonly entries = new Map<string, TelegramExperienceCallbackEntry>();
 
   constructor(runtime: TelegramExperienceActionCardRegistryRuntime = {}) {
     this.now = runtime.now || (() => Date.now());
     this.ttlMs = runtime.ttlMs || DEFAULT_TTL_MS;
+    this.storePath = normalizeId(runtime.storePath ?? process.env.ZAVORTH_TELEGRAM_EXPERIENCE_CALLBACK_STORE);
+    this.loadStore();
   }
 
   public register(input: {
@@ -84,6 +90,7 @@ export class TelegramExperienceActionCardRegistry {
       createdAt: now,
       expiresAt: now + ttlMs,
     });
+    this.saveStore();
     return callbackData;
   }
 
@@ -102,6 +109,7 @@ export class TelegramExperienceActionCardRegistry {
     }
     if (entry.expiresAt <= this.now()) {
       this.entries.delete(data);
+      this.saveStore();
       return { ok: false, reason: 'expired' };
     }
 
@@ -126,6 +134,7 @@ export class TelegramExperienceActionCardRegistry {
 
   public clear(): void {
     this.entries.clear();
+    this.saveStore();
   }
 
   private isValidCallbackData(data: string): boolean {
@@ -136,11 +145,55 @@ export class TelegramExperienceActionCardRegistry {
 
   private prune(): void {
     const now = this.now();
+    let changed = false;
     for (const [key, entry] of this.entries.entries()) {
       if (entry.expiresAt <= now) {
         this.entries.delete(key);
+        changed = true;
       }
     }
+    if (changed) {
+      this.saveStore();
+    }
+  }
+
+  private loadStore(): void {
+    if (!this.storePath) return;
+    try {
+      if (!fs.existsSync(this.storePath)) return;
+      const parsed = JSON.parse(fs.readFileSync(this.storePath, 'utf8')) as { entries?: TelegramExperienceCallbackEntry[] };
+      const now = this.now();
+      for (const entry of Array.isArray(parsed.entries) ? parsed.entries : []) {
+        if (!this.isValidCallbackData(entry?.id) || entry.expiresAt <= now) {
+          continue;
+        }
+        this.entries.set(entry.id, {
+          id: entry.id,
+          cardId: normalizeId(entry.cardId) || 'unknown-card',
+          actionId: normalizeId(entry.actionId) || 'unknown-action',
+          commandText: normalizeId(entry.commandText) || '',
+          userId: normalizeId(entry.userId),
+          chatId: normalizeId(entry.chatId),
+          sessionId: normalizeId(entry.sessionId),
+          createdAt: Number.isFinite(Number(entry.createdAt)) ? Number(entry.createdAt) : now,
+          expiresAt: Number(entry.expiresAt),
+        });
+      }
+    } catch {
+      this.entries.clear();
+    }
+  }
+
+  private saveStore(): void {
+    if (!this.storePath) return;
+    const entries = Array.from(this.entries.values()).filter((entry) => entry.expiresAt > this.now());
+    const payload = {
+      version: 'telegram-experience-action-card-callbacks/v1',
+      updatedAt: new Date(this.now()).toISOString(),
+      entries,
+    };
+    fs.mkdirSync(path.dirname(this.storePath), { recursive: true });
+    fs.writeFileSync(this.storePath, `${JSON.stringify(payload, null, 2)}\n`, { encoding: 'utf8', mode: 0o600 });
   }
 }
 

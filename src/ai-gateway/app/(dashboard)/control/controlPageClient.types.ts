@@ -189,6 +189,12 @@ export type ControlPageClientModel = {
   handleSend: (options?: { live?: boolean }) => Promise<void>;
   handleSessionChange: (sessionId: string) => Promise<void>;
   handleApproval: (approvalId: string, decision: "approve" | "reject") => Promise<void>;
+  handleExperienceActionCard: (cardId: string, actionId: string) => Promise<void>;
+  handleExperienceDiffDecision: (
+    reviewId: string,
+    targetId: string,
+    decision: "approve-plan" | "approve-file" | "approve-hunk" | "reject-hunk" | "retry-without-hunk",
+  ) => Promise<void>;
   handleMissionCancel: (missionId: string) => Promise<void>;
   handleProviderTest: (providerId: string, options?: { live?: boolean; approved?: boolean }) => Promise<void>;
   handleChannelAction: (channelId: string, actionId: string, options?: { approved?: boolean }) => Promise<void>;

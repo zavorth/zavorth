@@ -54,6 +54,17 @@ checked by the speculative loop between validation and correction rounds, so it
 stops future LLM/tool work without pretending to kill a command that is already
 inside its own validation timeout.
 
+The HUD also prints daily shortcut intents:
+
+- `Y` maps to the first safe approve command when an action card exposes one;
+- `N` maps to the first reject command when available;
+- `D` opens the current diff review;
+- `L` opens Learning OS;
+- `O` opens the web Command Center.
+
+These shortcuts are rendered as explicit commands so terminals without a full
+TUI still remain predictable and automation-friendly.
+
 ## Common Commands
 
 ```bash
