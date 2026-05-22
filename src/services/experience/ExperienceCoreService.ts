@@ -8,6 +8,7 @@ import {
   type ExperienceHealthStatus,
   type ExperienceMemorySignal,
   type ExperienceReceipt,
+  type ExperienceResponseProfileId,
   type ExperienceSnapshot,
   type ExperienceSurface,
   type ExperienceTimelineItem,
@@ -15,6 +16,7 @@ import {
 import { ActionCardService } from './ActionCardService.js';
 import { AutoHealingProjectionService } from './AutoHealingProjectionService.js';
 import { ContextRecoveryService } from './ContextRecoveryService.js';
+import { DailyBriefService } from './DailyBriefService.js';
 import { DiffReviewService } from './DiffReviewService.js';
 import { ExecutionGraphService } from './ExecutionGraphService.js';
 import { JourneyEngineService } from './JourneyEngineService.js';
@@ -59,6 +61,7 @@ export type ExperienceCoreRuntime = {
   contextRecovery?: ContextRecoveryService;
   autoHealing?: AutoHealingProjectionService;
   reasoningSummary?: ReasoningSummaryService;
+  dailyBrief?: DailyBriefService;
 };
 
 export type ExperienceHomeInput = {
@@ -67,6 +70,7 @@ export type ExperienceHomeInput = {
   workspace?: string | null;
   activeRunId?: string | null;
   activeTraceId?: string | null;
+  responseProfile?: ExperienceResponseProfileId | null;
 };
 
 function normalizeText(value: unknown, fallback = ''): string {
@@ -117,6 +121,7 @@ export class ExperienceCoreService {
   private readonly contextRecovery: ContextRecoveryService;
   private readonly autoHealing: AutoHealingProjectionService;
   private readonly reasoningSummary: ReasoningSummaryService;
+  private readonly dailyBrief: DailyBriefService;
 
   constructor(runtime: ExperienceCoreRuntime = {}) {
     this.now = runtime.now || (() => new Date());
@@ -136,6 +141,7 @@ export class ExperienceCoreService {
     this.contextRecovery = runtime.contextRecovery || new ContextRecoveryService();
     this.autoHealing = runtime.autoHealing || new AutoHealingProjectionService();
     this.reasoningSummary = runtime.reasoningSummary || new ReasoningSummaryService();
+    this.dailyBrief = runtime.dailyBrief || new DailyBriefService();
   }
 
   public buildHome(input: ExperienceHomeInput = {}): ExperienceSnapshot {
@@ -193,6 +199,23 @@ export class ExperienceCoreService {
     });
     const nextActions = this.buildNextActions(health.status, approvals.length, learningSummary.pending);
     const pendingApprovals = approvals.filter((approval) => approval.status === 'pending').length;
+    const brief = this.dailyBrief.build({
+      surface,
+      generatedAt,
+      workspace: workspace || activeRun?.workspace || null,
+      activeRun,
+      runs,
+      approvals,
+      learningCandidates,
+      learningPending: learningSummary.pending,
+      learningSummary: learningSummary.summary,
+      receipts,
+      nextActions,
+      actionCards,
+      health,
+      trust,
+      requestedProfile: input.responseProfile || null,
+    });
 
     return {
       contractVersion: EXPERIENCE_SNAPSHOT_CONTRACT_VERSION,
@@ -241,7 +264,10 @@ export class ExperienceCoreService {
         nextSteps: nextActions.map((item) => item.label).slice(0, 5),
         pendingApprovals,
         pendingLearning: learningSummary.pending,
+        brief,
+        responseProfile: brief.profile,
       },
+      responseProfile: brief.profile,
       actionCards,
       diffReviews,
       executionGraph,
@@ -278,6 +304,7 @@ export class ExperienceCoreService {
       actionCardDecision: input.actionCardDecision || null,
       diffDecision: input.diffDecision || null,
       contextRecoveryDecision: input.contextRecoveryDecision || null,
+      responseProfile: input.responseProfile || null,
       learning: input.learning || null,
       metadata: input.metadata || {},
     };
@@ -398,6 +425,7 @@ export class ExperienceCoreService {
           workspace: command.workspace || null,
           metadata: {
             ...(command.metadata || {}),
+            responseProfile: command.responseProfile || undefined,
             experiencePlan: {
               id: plan.id,
               kind: plan.kind,
@@ -414,6 +442,7 @@ export class ExperienceCoreService {
         sessionId: runResult?.run?.sessionId || command.sessionId || null,
         workspace: command.workspace || runResult?.run?.workspace || null,
         activeRunId: runResult?.run?.id || null,
+        responseProfile: command.responseProfile || null,
       });
       const replies = runResult?.replies?.length
         ? runResult.replies.map((reply) => ({

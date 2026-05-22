@@ -2,6 +2,7 @@ export * from './ExperienceContracts.js';
 export * from './ActionCardService.js';
 export * from './AutoHealingProjectionService.js';
 export * from './ContextRecoveryService.js';
+export * from './DailyBriefService.js';
 export * from './ExperienceCoreService.js';
 export * from './DiffReviewService.js';
 export * from './ExecutionGraphService.js';

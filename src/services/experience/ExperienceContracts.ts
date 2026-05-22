@@ -13,6 +13,8 @@ export const EXPERIENCE_DIFF_REVIEW_CONTRACT_VERSION = 'ExperienceDiffReview/v1'
 export const EXPERIENCE_EXECUTION_GRAPH_CONTRACT_VERSION = 'ExperienceExecutionGraph/v1' as const;
 export const EXPERIENCE_CONTEXT_RECOVERY_CONTRACT_VERSION = 'ExperienceContextRecovery/v1' as const;
 export const EXPERIENCE_AUTO_HEALING_CONTRACT_VERSION = 'ExperienceAutoHealing/v1' as const;
+export const EXPERIENCE_DAILY_BRIEF_CONTRACT_VERSION = 'ExperienceDailyBrief/v1' as const;
+export const EXPERIENCE_RESPONSE_PROFILE_CONTRACT_VERSION = 'ExperienceResponseProfile/v1' as const;
 
 export type ExperienceSurface = UniversalAgentChannel;
 
@@ -47,6 +49,8 @@ export type ExperienceLearningDecision = 'approve' | 'reject' | 'promote' | 'rev
 export type ExperienceApprovalDecision = 'approve' | 'reject';
 
 export type ExperienceAutonomyMode = 'manual' | 'governed' | 'speculative';
+
+export type ExperienceResponseProfileId = 'short' | 'dev' | 'executive' | 'mentor';
 
 export type ExperienceCommandIntent =
   | 'ask'
@@ -87,6 +91,7 @@ export type ExperienceCommand = {
     recoveryId: string;
     optionId: string;
   } | null;
+  responseProfile?: ExperienceResponseProfileId | null;
   learning?: {
     candidateId?: string | null;
     decision: ExperienceLearningDecision;
@@ -206,6 +211,44 @@ export type ExperienceDailySnapshot = {
   nextSteps: string[];
   pendingApprovals: number;
   pendingLearning: number;
+  brief?: ExperienceDailyBrief;
+  responseProfile?: ExperienceResponseProfile;
+};
+
+export type ExperienceResponseProfile = {
+  contractVersion: typeof EXPERIENCE_RESPONSE_PROFILE_CONTRACT_VERSION;
+  id: ExperienceResponseProfileId;
+  label: string;
+  summary: string;
+  tone: string;
+  structure: string[];
+  defaultDetail: 'compact' | 'balanced' | 'deep';
+  appliesTo: ExperienceSurface[];
+  commands: string[];
+  canChange: boolean;
+};
+
+export type ExperienceDailyBrief = {
+  contractVersion: typeof EXPERIENCE_DAILY_BRIEF_CONTRACT_VERSION;
+  headline: string;
+  summary: string;
+  lastActivity: string | null;
+  activeTask: string | null;
+  bestNextAction: ExperienceAction;
+  pending: {
+    approvals: number;
+    learning: number;
+    receipts: number;
+  };
+  highlights: string[];
+  risks: string[];
+  learning: {
+    summary: string;
+    pending: number;
+  };
+  receipts: string[];
+  profile: ExperienceResponseProfile;
+  generatedAt: string;
 };
 
 export type ExperienceActionCard = {
@@ -385,6 +428,7 @@ export type ExperienceSnapshot = {
   };
   trust: ExperienceTrustLens;
   daily?: ExperienceDailySnapshot;
+  responseProfile?: ExperienceResponseProfile;
   actionCards?: ExperienceActionCard[];
   diffReviews?: ExperienceDiffReview[];
   executionGraph?: ExperienceExecutionGraph;

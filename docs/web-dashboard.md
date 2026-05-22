@@ -26,6 +26,10 @@ The first `/control` screen should stay chat-first, but it now also renders the
 daily control plane around the chat:
 
 - `AgentPulse` for live agent, model, provider and health state;
+- `DailyBrief` for the headline, best next action, pending decisions,
+  highlights and risks;
+- `ResponseProfile` for `short`, `dev`, `executive` and `mentor` answer
+  styles;
 - `LiveActionGraph` for the prompt -> router -> sandbox -> receipt path;
 - `InteractiveDiffReview` for file and hunk decisions without applying
   partial changes directly to the host. Hunk buttons call the governed
@@ -35,6 +39,10 @@ daily control plane around the chat:
 - `AutoHealingProgress` for validation attempts, budget and cancellation;
 - `ReasoningSummaryTimeline` for safe explainability. Raw chain-of-thought
   remains private; the UI shows only the operational reasoning summary.
+
+The response profile selector drafts a natural command instead of creating a
+separate UI-only preference. The request flows through Experience Core so CLI,
+Dashboard and Telegram see the same profile projection.
 
 ## How To Open It
 
