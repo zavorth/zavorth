@@ -164,7 +164,7 @@
   background:
     linear-gradient(135deg, rgba(15, 19, 24, 0.9), rgba(6, 8, 9, 0.74)),
     linear-gradient(90deg, rgba(0, 232, 143, 0.08), rgba(124, 199, 255, 0.05));
-  box-shadow: 0 24px 80px rgba(0, 0, 0, 0.34);
+  box-shadow: 0 24px 80px rgba(0, 0, 0, 0.34), inset 0 1px 0 rgba(255, 255, 255, 0.055);
   padding: 16px;
 }
 
@@ -180,6 +180,13 @@
   grid-template-columns: 10px minmax(0, 1fr);
   gap: 14px;
   min-width: 0;
+  border: 1px solid rgba(255, 255, 255, 0.075);
+  border-radius: var(--b-radius-lg);
+  background:
+    radial-gradient(circle at 18% 0%, rgba(0, 232, 143, 0.12), transparent 34%),
+    radial-gradient(circle at 90% 12%, rgba(43, 116, 255, 0.14), transparent 38%),
+    rgba(255, 255, 255, 0.032);
+  padding: 14px;
 }
 
 .bcc-agent-pulse__signal {
@@ -188,6 +195,7 @@
   border-radius: 999px;
   background: var(--b-info);
   box-shadow: 0 0 24px rgba(124, 199, 255, 0.3);
+  animation: bcc-agent-pulse 2.6s ease-in-out infinite;
 }
 
 .bcc-agent-pulse[data-status="ok"] .bcc-agent-pulse__signal {
@@ -293,8 +301,15 @@
   min-width: 0;
   border: 1px solid rgba(255, 255, 255, 0.08);
   border-radius: var(--b-radius-lg);
-  background: rgba(255, 255, 255, 0.035);
+  background:
+    linear-gradient(160deg, rgba(255, 255, 255, 0.052), rgba(255, 255, 255, 0.024)),
+    rgba(255, 255, 255, 0.02);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.042);
   padding: 13px;
+}
+
+.bcc-experience-card--wide {
+  grid-column: span 2;
 }
 
 .bcc-experience-card header {
@@ -306,13 +321,19 @@
 
 .bcc-experience-card header button,
 .bcc-experience-list button,
-.bcc-experience-actions button {
+.bcc-experience-actions button,
+.bcc-trust-lens button,
+.bcc-diff-hunk__actions button,
+.bcc-action-card-actions button {
   cursor: pointer;
 }
 
 .bcc-experience-card header button:hover,
 .bcc-experience-list button:hover,
-.bcc-experience-actions button:hover {
+.bcc-experience-actions button:hover,
+.bcc-trust-lens button:hover,
+.bcc-diff-hunk__actions button:hover,
+.bcc-action-card-actions button:hover {
   color: var(--b-signal-strong);
   border-color: rgba(0, 232, 143, 0.36);
 }
@@ -379,6 +400,201 @@
   display: flex;
   flex-wrap: wrap;
   gap: 8px;
+}
+
+.bcc-action-card-actions,
+.bcc-diff-hunk__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 7px;
+  margin-top: 5px;
+}
+
+.bcc-action-card-actions button,
+.bcc-diff-hunk__actions button,
+.bcc-trust-lens button {
+  border: 1px solid rgba(124, 199, 255, 0.18);
+  border-radius: 999px;
+  color: var(--b-signal);
+  background: rgba(255, 255, 255, 0.045);
+  padding: 7px 10px;
+  font-family: var(--b-mono);
+  font-size: 12px;
+}
+
+.bcc-reasoning-details {
+  border: 1px solid rgba(124, 199, 255, 0.13);
+  border-radius: var(--b-radius-md);
+  background: rgba(6, 8, 9, 0.36);
+  padding: 10px;
+}
+
+.bcc-reasoning-details summary {
+  cursor: pointer;
+  color: var(--b-signal-strong);
+  font-family: var(--b-mono);
+  font-size: 12px;
+}
+
+.bcc-reasoning-details dl {
+  display: grid;
+  gap: 8px;
+  margin: 10px 0 0;
+}
+
+.bcc-reasoning-details dl div {
+  display: grid;
+  grid-template-columns: 96px minmax(0, 1fr);
+  gap: 10px;
+}
+
+.bcc-reasoning-details dt {
+  color: var(--b-pulse);
+  font-family: var(--b-mono);
+  font-size: 11px;
+}
+
+.bcc-reasoning-details dd {
+  min-width: 0;
+  margin: 0;
+  color: var(--b-signal-muted);
+  font-size: 12px;
+  line-height: 1.45;
+}
+
+.bcc-live-action-graph {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.bcc-live-action-graph__node {
+  position: relative;
+  display: grid;
+  gap: 5px;
+  min-width: 0;
+  border: 1px solid rgba(124, 199, 255, 0.14);
+  border-radius: var(--b-radius-md);
+  background:
+    linear-gradient(180deg, rgba(124, 199, 255, 0.08), transparent),
+    rgba(6, 8, 9, 0.38);
+  padding: 12px;
+}
+
+.bcc-live-action-graph__node:not(:last-child)::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  right: -10px;
+  width: 10px;
+  height: 1px;
+  background: rgba(124, 199, 255, 0.32);
+}
+
+.bcc-live-action-graph__node[data-tone="ok"] {
+  border-color: rgba(0, 232, 143, 0.28);
+}
+
+.bcc-live-action-graph__node[data-tone="warn"] {
+  border-color: rgba(255, 191, 102, 0.34);
+}
+
+.bcc-live-action-graph__node[data-tone="danger"] {
+  border-color: rgba(255, 91, 129, 0.34);
+}
+
+.bcc-live-action-graph__index {
+  display: inline-flex;
+  width: 24px;
+  height: 24px;
+  align-items: center;
+  justify-content: center;
+  border-radius: 999px;
+  color: var(--b-void);
+  background: var(--b-pulse);
+  font-family: var(--b-mono);
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.bcc-live-action-graph__node strong,
+.bcc-diff-file__head span,
+.bcc-diff-hunk strong {
+  min-width: 0;
+  color: var(--b-signal-strong);
+  font-size: 12px;
+}
+
+.bcc-live-action-graph__node small,
+.bcc-live-action-graph__node p,
+.bcc-diff-file__head small {
+  margin: 0;
+  color: var(--b-signal-muted);
+  font-size: 11px;
+  line-height: 1.4;
+}
+
+.bcc-diff-file {
+  display: grid;
+  gap: 8px;
+  margin-top: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.075);
+  border-radius: var(--b-radius-md);
+  background: rgba(6, 8, 9, 0.34);
+  padding: 9px;
+}
+
+.bcc-diff-file__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.bcc-diff-hunk {
+  display: grid;
+  gap: 7px;
+  border-left: 3px solid var(--b-ok);
+  padding-left: 9px;
+}
+
+.bcc-diff-hunk[data-risk="warn"] {
+  border-left-color: var(--b-warn);
+}
+
+.bcc-diff-hunk[data-risk="danger"] {
+  border-left-color: var(--b-danger);
+}
+
+.bcc-diff-hunk pre {
+  max-height: 150px;
+  overflow: auto;
+  border-radius: var(--b-radius-md);
+  color: var(--b-signal);
+  background: rgba(0, 0, 0, 0.26);
+  padding: 9px;
+  font-family: var(--b-mono);
+  font-size: 11px;
+  line-height: 1.42;
+  white-space: pre-wrap;
+}
+
+@keyframes bcc-agent-pulse {
+  0%,
+  100% {
+    opacity: 0.72;
+    transform: scaleY(0.96);
+  }
+  50% {
+    opacity: 1;
+    transform: scaleY(1);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .bcc-agent-pulse__signal {
+    animation: none;
+  }
 }
 
 .bcc-fixture-preview {
@@ -3376,8 +3592,22 @@
 
   .bcc-experience-home__hero,
   .bcc-experience-home__grid,
+  .bcc-live-action-graph,
   .bcc-natural-command-bar__row {
     grid-template-columns: minmax(0, 1fr);
+  }
+
+  .bcc-experience-card--wide {
+    grid-column: auto;
+  }
+
+  .bcc-live-action-graph__node:not(:last-child)::after {
+    top: auto;
+    right: auto;
+    bottom: -10px;
+    left: 24px;
+    width: 1px;
+    height: 10px;
   }
 
   .bcc-agent-pulse h2 {
@@ -3449,6 +3679,10 @@
   }
 
   .bcc-experience-home__grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .bcc-live-action-graph {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 

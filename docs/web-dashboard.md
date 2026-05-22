@@ -20,6 +20,22 @@ The Command Center is the operator gateway for:
 - reviewing blocked or pending actions;
 - continuing work without losing context.
 
+## Premium Command Center Blocks
+
+The first `/control` screen should stay chat-first, but it now also renders the
+daily control plane around the chat:
+
+- `AgentPulse` for live agent, model, provider and health state;
+- `LiveActionGraph` for the prompt -> router -> sandbox -> receipt path;
+- `InteractiveDiffReview` for file and hunk decisions without applying
+  partial changes directly to the host. Hunk buttons call the governed
+  `/api/experience/ask` decision path directly, then refresh the shared
+  Experience Snapshot;
+- `TrustLens` and action cards for risk, sandbox posture and approvals;
+- `AutoHealingProgress` for validation attempts, budget and cancellation;
+- `ReasoningSummaryTimeline` for safe explainability. Raw chain-of-thought
+  remains private; the UI shows only the operational reasoning summary.
+
 ## How To Open It
 
 From an installed CLI:

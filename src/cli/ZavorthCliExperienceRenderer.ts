@@ -33,9 +33,13 @@ function renderActionCards(cards: ExperienceActionCard[] = []): string[] {
   if (!cards.length) {
     return ['Nenhuma acao pendente. Quando algo importar, aparece aqui com risco, escopo e comando.'];
   }
-  return cards.slice(0, 6).map((card) => {
-    const command = card.actions.find((item) => item.command)?.command || 'sem comando direto';
-    return `${card.status} | ${card.risk} | ${sanitizeHumanCliText(card.title)} -> ${command}`;
+  return cards.slice(0, 6).flatMap((card, index) => {
+    const actions = card.actions.filter((item) => item.command).slice(0, 3);
+    return [
+      `[${index + 1}] ${card.status} | ${card.risk} | ${sanitizeHumanCliText(card.title)}`,
+      `    escopo: ${sanitizeHumanCliText(card.scope || 'workspace')} | sandbox: ${sanitizeHumanCliText(card.sandbox || 'governed')}`,
+      ...actions.map((action) => `    ${sanitizeHumanCliText(action.label)} -> ${action.command}`),
+    ];
   });
 }
 
@@ -45,8 +49,12 @@ function renderDiffReviews(reviews: ExperienceDiffReview[] = []): string[] {
   }
   return reviews.slice(0, 4).flatMap((review) => [
     `${review.status} | ${review.risk} | ${sanitizeHumanCliText(review.summary)} (${review.id})`,
+    review.recomposition?.summary ? `  recomposicao: ${sanitizeHumanCliText(review.recomposition.summary)}` : '',
     ...review.files.slice(0, 5).map((file) =>
       `  ${file.path} | +${file.addedLines}/-${file.removedLines} | ${formatCount(file.hunks.length, 'hunk')}`),
+    ...review.files.slice(0, 2).flatMap((file) =>
+      file.hunks.slice(0, 3).map((hunk) =>
+        `    ${hunk.id} | ${hunk.risk} | ${sanitizeHumanCliText(hunk.header)} -> approve-hunk/reject-hunk`)),
   ]);
 }
 
@@ -59,6 +67,20 @@ function renderReasoning(snapshot: ExperienceSnapshot): string[] {
     `Ferramentas: ${summary.tools.length ? summary.tools.join(', ') : 'nenhuma ferramenta anunciada'}`,
     summary.approvalReason ? `Approval: ${sanitizeHumanCliText(summary.approvalReason)}` : 'Approval: nao necessario agora',
     `Proximo: ${sanitizeHumanCliText(summary.nextAction)}`,
+  ];
+}
+
+function renderHudShortcuts(snapshot: ExperienceSnapshot): string[] {
+  const firstCard = (snapshot.actionCards || [])[0];
+  const approveAction = firstCard?.actions.find((action) => /approve|aprovar/i.test(action.id) && action.command);
+  const rejectAction = firstCard?.actions.find((action) => /reject|rejeitar/i.test(action.id) && action.command);
+  const firstReview = (snapshot.diffReviews || [])[0];
+  return [
+    approveAction ? `Y aprovar primeiro card -> ${approveAction.command}` : 'Y aprovar primeiro card -> sem action card pendente',
+    rejectAction ? `N rejeitar primeiro card -> ${rejectAction.command}` : 'N rejeitar primeiro card -> sem action card pendente',
+    firstReview ? `D abrir diff -> zavorth diff ${firstReview.id}` : 'D abrir diff -> nenhum diff pendente',
+    'L revisar learning -> zavorth learn',
+    'O abrir dashboard -> zavorth open',
   ];
 }
 
@@ -133,6 +155,11 @@ export function formatExperienceHud(snapshot: ExperienceSnapshot): string {
       lines: renderActionCards(snapshot.actionCards),
     },
     {
+      title: 'Atalhos de uso diario',
+      tone: 'brand',
+      lines: renderHudShortcuts(snapshot),
+    },
+    {
       title: 'Diff review',
       tone: (snapshot.diffReviews || []).some((review) => review.status !== 'empty') ? 'brand' : 'muted',
       lines: renderDiffReviews(snapshot.diffReviews),
@@ -167,9 +194,12 @@ export function formatExperienceHud(snapshot: ExperienceSnapshot): string {
         : ['Sem ambiguidade pendente.'],
     },
     {
-      title: 'Resumo seguro',
+      title: 'Raciocinio seguro',
       tone: 'neutral',
-      lines: renderReasoning(snapshot),
+      lines: [
+        ...renderReasoning(snapshot),
+        'Obs: o raciocinio bruto do modelo permanece privado; este resumo mostra decisoes, riscos e evidencias operacionais.',
+      ],
     },
   ];
 
@@ -208,7 +238,7 @@ export function formatExperienceDiffs(snapshot: ExperienceSnapshot): string {
   return renderCliScreen({
     eyebrow: 'Diff Review',
     title: 'Revisao parcial governada',
-    summary: 'Nenhum hunk e aplicado direto no host: selecoes recompõem um mutation plan e passam por policy.',
+    summary: 'Nenhum hunk e aplicado direto no host: selecoes recompoem um mutation plan e passam por policy.',
     panels,
     showWordmark: false,
   });
@@ -246,9 +276,12 @@ export function formatExperienceCommandResult(result: ExperienceCommandResult): 
       lines: renderActionCards(result.snapshot.actionCards),
     },
     {
-      title: 'Resumo seguro',
+      title: 'Raciocinio seguro',
       tone: 'neutral',
-      lines: renderReasoning(result.snapshot),
+      lines: [
+        ...renderReasoning(result.snapshot),
+        'O raciocinio bruto permanece privado; este resumo e a trilha segura para auditoria e confianca.',
+      ],
     },
   ];
 

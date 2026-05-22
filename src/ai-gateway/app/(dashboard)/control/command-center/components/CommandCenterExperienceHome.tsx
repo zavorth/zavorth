@@ -17,16 +17,33 @@ function asArray(value: unknown): Record<string, any>[] {
   return Array.isArray(value) ? value.filter((entry) => entry && typeof entry === "object") as Record<string, any>[] : [];
 }
 
+function asTextArray(value: unknown): string[] {
+  return Array.isArray(value)
+    ? value.map((entry) => asText(entry)).filter(Boolean)
+    : [];
+}
+
 function asText(value: unknown, fallback = ""): string {
   const text = String(value ?? "").trim();
   return text || fallback;
 }
 
 function toneForStatus(status: string): "ok" | "warn" | "danger" | "info" {
-  if (status === "ready" || status === "completed") return "ok";
-  if (status === "blocked" || status === "failed") return "danger";
-  if (status === "attention" || status === "waiting_approval") return "warn";
+  if (status === "ready" || status === "completed" || status === "passed" || status === "success" || status === "safe") return "ok";
+  if (status === "blocked" || status === "failed" || status === "danger" || status === "critical") return "danger";
+  if (status === "attention" || status === "waiting_approval" || status === "pending" || status === "running" || status === "warn") return "warn";
   return "info";
+}
+
+function compactCommand(value: unknown): string {
+  const command = asText(value);
+  return command.length > 54 ? `${command.slice(0, 51)}...` : command;
+}
+
+function commandForDiffDecision(reviewId: string, decision: string, targetId?: string): string {
+  return targetId
+    ? `zavorth diff ${decision} ${reviewId} ${targetId}`
+    : `zavorth diff ${decision} ${reviewId}`;
 }
 
 export function CommandCenterExperienceHome({
@@ -80,14 +97,22 @@ export function CommandCenterExperienceHome({
           reasoningSummary={reasoningSummary}
           onNavigate={() => onNavigate("terminal")}
         />
-        <ActionCardsPanel cards={actionCards} onDraftCommand={onDraftCommand} />
+        <ActionCardsPanel
+          cards={actionCards}
+          onDraftCommand={onDraftCommand}
+          onActionCardDecision={model.handleExperienceActionCard}
+        />
         <TrustLens
           trust={trust}
           approvalCount={approvals.length}
           onReview={() => onNavigate("overview")}
         />
         <LiveActionGraph nodes={graphNodes} />
-        <InteractiveDiffReview reviews={diffReviews} onDraftCommand={onDraftCommand} />
+        <InteractiveDiffReview
+          reviews={diffReviews}
+          onDraftCommand={onDraftCommand}
+          onDiffDecision={model.handleExperienceDiffDecision}
+        />
         <AutoHealingProgress autoHealing={autoHealing} />
         <ContextRecoveryPanel recovery={contextRecovery} onDraftCommand={onDraftCommand} />
         <MemoryBloom
@@ -182,7 +207,7 @@ function ReasoningSummaryTimeline({
   onNavigate: () => void;
 }) {
   return (
-    <article className="bcc-experience-card">
+    <article className="bcc-experience-card bcc-experience-card--wide">
       <header>
         <span>Reasoning Summary</span>
         <button type="button" onClick={onNavigate}>Abrir chat</button>
@@ -192,6 +217,27 @@ function ReasoningSummaryTimeline({
           <strong>{asText(reasoningSummary.understood, "Aguardando pedido natural")}</strong>
           <small>{asText(reasoningSummary.nextAction, "Envie um comando ou revise o Trust Lens.")}</small>
         </div>
+        <details className="bcc-reasoning-details">
+          <summary>Mostrar raciocinio seguro</summary>
+          <dl>
+            <div>
+              <dt>Risco</dt>
+              <dd>{asText(reasoningSummary.risk, "safe")}</dd>
+            </div>
+            <div>
+              <dt>Ferramentas</dt>
+              <dd>{asTextArray(reasoningSummary.tools).length ? asTextArray(reasoningSummary.tools).join(", ") : asText(reasoningSummary.tools, "nenhuma anunciada")}</dd>
+            </div>
+            <div>
+              <dt>Aprovacao</dt>
+              <dd>{asText(reasoningSummary.approvalReason, "nao necessaria agora")}</dd>
+            </div>
+            <div>
+              <dt>Resultado</dt>
+              <dd>{asText(reasoningSummary.result, "ainda em progresso")}</dd>
+            </div>
+          </dl>
+        </details>
         {timeline.length ? timeline.slice(-4).map((item) => (
           <div key={asText(item.id, asText(item.title))} className="bcc-experience-list__item" data-tone={toneForStatus(asText(item.status))}>
             <strong>{asText(item.title, "Evento")}</strong>
@@ -208,9 +254,11 @@ function ReasoningSummaryTimeline({
 function ActionCardsPanel({
   cards,
   onDraftCommand,
+  onActionCardDecision,
 }: {
   cards: Record<string, any>[];
   onDraftCommand: (command: string) => void;
+  onActionCardDecision: ControlPageClientModel["handleExperienceActionCard"];
 }) {
   return (
     <article className="bcc-experience-card">
@@ -221,17 +269,23 @@ function ActionCardsPanel({
       <div className="bcc-experience-list">
         {cards.length ? cards.slice(0, 4).map((card) => {
           const actions = asArray(card.actions);
-          const primary = actions.find((action) => asText(action.command));
           return (
             <div key={asText(card.id, asText(card.title))} className="bcc-experience-list__item" data-tone={toneForStatus(asText(card.status))}>
               <strong>{asText(card.title, "Acao pendente")}</strong>
               <small>{asText(card.summary, "Revise risco e escopo antes de decidir.")}</small>
               <small>{asText(card.risk, "safe")} | {asText(card.scope, "workspace")} | {asText(card.sandbox, "governed-local")}</small>
-              {primary ? (
-                <button type="button" onClick={() => onDraftCommand(asText(primary.command))}>
-                  {asText(primary.label, "Executar")}
-                </button>
-              ) : null}
+              <div className="bcc-action-card-actions">
+                {actions.slice(0, 4).map((action) => asText(action.command) ? (
+                  <button
+                    key={asText(action.id, asText(action.label))}
+                    type="button"
+                    onClick={() => void onActionCardDecision(asText(card.id), asText(action.id))}
+                    title={compactCommand(action.command)}
+                  >
+                    {asText(action.label, "Executar")}
+                  </button>
+                ) : null)}
+              </div>
             </div>
           );
         }) : (
@@ -243,21 +297,27 @@ function ActionCardsPanel({
 }
 
 function LiveActionGraph({ nodes }: { nodes: Record<string, any>[] }) {
+  const visibleNodes = nodes.length ? nodes.slice(0, 8) : [
+    { id: "prompt", label: "Prompt", kind: "entrada", status: "ready", detail: "Aguardando comando natural" },
+    { id: "router", label: "Router", kind: "planejamento", status: "pending", detail: "Classifica intencao e risco" },
+    { id: "sandbox", label: "Sandbox", kind: "governanca", status: "pending", detail: "Valida antes do host" },
+    { id: "receipt", label: "Receipt", kind: "evidencia", status: "pending", detail: "Registra decisao" },
+  ];
   return (
-    <article className="bcc-experience-card">
+    <article className="bcc-experience-card bcc-experience-card--wide">
       <header>
         <span>Live Action Graph</span>
-        <button type="button" disabled>{nodes.length} nos</button>
+        <button type="button" disabled>{visibleNodes.length} nos</button>
       </header>
-      <div className="bcc-experience-list">
-        {nodes.length ? nodes.slice(0, 6).map((node) => (
-          <div key={asText(node.id, asText(node.label))} className="bcc-experience-list__item" data-tone={toneForStatus(asText(node.status))}>
+      <div className="bcc-live-action-graph" aria-label="Fluxo de execucao do agente">
+        {visibleNodes.map((node, index) => (
+          <div key={asText(node.id, asText(node.label))} className="bcc-live-action-graph__node" data-tone={toneForStatus(asText(node.status))}>
+            <span className="bcc-live-action-graph__index">{index + 1}</span>
             <strong>{asText(node.label, "No")}</strong>
-            <small>{asText(node.kind, "runtime")} - {asText(node.detail, "sem detalhe")}</small>
+            <small>{asText(node.kind, "runtime")}</small>
+            <p>{asText(node.detail, "sem detalhe")}</p>
           </div>
-        )) : (
-          <p>O grafo aparece quando uma jornada cria eventos explicaveis.</p>
-        )}
+        ))}
       </div>
     </article>
   );
@@ -266,12 +326,14 @@ function LiveActionGraph({ nodes }: { nodes: Record<string, any>[] }) {
 function InteractiveDiffReview({
   reviews,
   onDraftCommand,
+  onDiffDecision,
 }: {
   reviews: Record<string, any>[];
   onDraftCommand: (command: string) => void;
+  onDiffDecision: ControlPageClientModel["handleExperienceDiffDecision"];
 }) {
   return (
-    <article className="bcc-experience-card">
+    <article className="bcc-experience-card bcc-experience-card--wide">
       <header>
         <span>Interactive Diff Review</span>
         <button type="button" onClick={() => onDraftCommand("zavorth diff")}>Abrir diff</button>
@@ -283,14 +345,55 @@ function InteractiveDiffReview({
             <div key={asText(review.id, asText(review.title))} className="bcc-experience-list__item" data-tone={toneForStatus(asText(review.status))}>
               <strong>{asText(review.title, "Diff governado")}</strong>
               <small>{asText(review.summary, "Alteracoes em sandbox aguardam revisao.")}</small>
+              {asRecord(review.recomposition).summary ? (
+                <small>{asText(asRecord(review.recomposition).summary)}</small>
+              ) : null}
               {files.slice(0, 3).map((file) => (
-                <small key={asText(file.id, asText(file.path))}>
-                  {asText(file.path, "arquivo")} | +{Number(file.addedLines || 0)}/-{Number(file.removedLines || 0)}
-                </small>
+                <div key={asText(file.id, asText(file.path))} className="bcc-diff-file">
+                  <div className="bcc-diff-file__head">
+                    <span>{asText(file.path, "arquivo")}</span>
+                    <small>+{Number(file.addedLines || 0)}/-{Number(file.removedLines || 0)}</small>
+                  </div>
+                  {asArray(file.hunks).slice(0, 3).map((hunk) => (
+                    <div key={asText(hunk.id, asText(hunk.header))} className="bcc-diff-hunk" data-risk={toneForStatus(asText(hunk.risk, "safe"))}>
+                      <strong>{asText(hunk.header, "hunk")}</strong>
+                      <pre>{asArray(hunk.preview).map((line) => asText(line)).slice(0, 6).join("\n")}</pre>
+                      <div className="bcc-diff-hunk__actions">
+                        <button
+                          type="button"
+                          onClick={() => void onDiffDecision(asText(review.id), asText(hunk.id), "approve-hunk")}
+                          title={commandForDiffDecision(asText(review.id), "approve-hunk", asText(hunk.id))}
+                        >
+                          Aprovar hunk
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => void onDiffDecision(asText(review.id), asText(hunk.id), "reject-hunk")}
+                          title={commandForDiffDecision(asText(review.id), "reject-hunk", asText(hunk.id))}
+                        >
+                          Rejeitar hunk
+                        </button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
               ))}
-              <button type="button" onClick={() => onDraftCommand(`zavorth diff ${asText(review.id)}`)}>
-                Revisar hunks
-              </button>
+              <div className="bcc-action-card-actions">
+                <button
+                  type="button"
+                  onClick={() => void onDiffDecision(asText(review.id), asText(review.id), "approve-plan")}
+                  title={commandForDiffDecision(asText(review.id), "approve")}
+                >
+                  Aprovar plano
+                </button>
+                <button
+                  type="button"
+                  onClick={() => onDraftCommand(commandForDiffDecision(asText(review.id), "retry"))}
+                  title={commandForDiffDecision(asText(review.id), "retry")}
+                >
+                  Nova tentativa
+                </button>
+              </div>
             </div>
           );
         }) : (
@@ -317,7 +420,11 @@ function AutoHealingProgress({ autoHealing }: { autoHealing: Record<string, any>
         <p>{asText(autoHealing.lastErrorSummary || autoHealing.proposedCorrection, "Sem autocorrecao especulativa ativa.")}</p>
         <small>{asText(autoHealing.validationCommand, "Validacao ainda nao detectada.")}</small>
         <small>Budget: {elapsed}s/{maxElapsed}s | tokens {asText(budget.tokensUsed, "n/a")}/{asText(budget.tokenBudget, "n/a")}</small>
-        {budget.cancellable ? <small>{asText(budget.cancelCommand, "parar auto-healing")}</small> : null}
+        {budget.cancellable ? (
+          <button type="button" onClick={() => navigator.clipboard?.writeText(asText(budget.cancelCommand, "zavorth ask \"parar auto-healing e mostrar erro\""))}>
+            Copiar comando de parada
+          </button>
+        ) : null}
       </div>
     </article>
   );

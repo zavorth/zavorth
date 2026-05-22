@@ -521,6 +521,79 @@ export function useControlPageClient(): ControlPageClientModel {
     }
   };
 
+  const handleExperienceActionCard = async (cardId: string, actionId: string) => {
+    const normalizedCardId = asText(cardId);
+    const normalizedActionId = asText(actionId);
+    if (!normalizedCardId || !normalizedActionId) {
+      return;
+    }
+
+    setError(null);
+    try {
+      const payload = await fetchJson<Record<string, any>>("/api/experience/ask", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          text: `action-card ${normalizedActionId}`,
+          surface: "web",
+          requestedBy: "control-ui",
+          sessionId: getSessionIdFromState(state) || activeSessionId || null,
+          actionCardDecision: {
+            cardId: normalizedCardId,
+            actionId: normalizedActionId,
+          },
+        }),
+      });
+      if (payload.snapshot) {
+        setExperience(payload.snapshot as ExperienceSnapshotResponse);
+      }
+      await loadExperienceSnapshot();
+    } catch (actionError: any) {
+      setError(actionError?.message || "Falha ao executar action card.");
+    }
+  };
+
+  const handleExperienceDiffDecision = async (
+    reviewId: string,
+    targetId: string,
+    decision: "approve-plan" | "approve-file" | "approve-hunk" | "reject-hunk" | "retry-without-hunk",
+  ) => {
+    const normalizedReviewId = asText(reviewId);
+    const normalizedTargetId = asText(targetId, normalizedReviewId);
+    if (!normalizedReviewId || !normalizedTargetId) {
+      return;
+    }
+
+    setError(null);
+    try {
+      const payload = await fetchJson<Record<string, any>>("/api/experience/ask", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          text: `diff ${decision} ${normalizedReviewId} ${normalizedTargetId}`,
+          surface: "web",
+          requestedBy: "control-ui",
+          sessionId: getSessionIdFromState(state) || activeSessionId || null,
+          diffDecision: {
+            reviewId: normalizedReviewId,
+            targetId: normalizedTargetId,
+            decision,
+          },
+        }),
+      });
+      if (payload.snapshot) {
+        setExperience(payload.snapshot as ExperienceSnapshotResponse);
+      }
+      await loadExperienceSnapshot();
+    } catch (diffError: any) {
+      setError(diffError?.message || "Falha ao resolver diff governado.");
+    }
+  };
+
   const handleMissionCancel = async (missionId: string) => {
     const normalizedMissionId = asText(missionId);
     if (!normalizedMissionId) {
@@ -763,6 +836,8 @@ export function useControlPageClient(): ControlPageClientModel {
     handleSend,
     handleSessionChange,
     handleApproval,
+    handleExperienceActionCard,
+    handleExperienceDiffDecision,
     handleMissionCancel,
     handleProviderTest,
     handleChannelAction,

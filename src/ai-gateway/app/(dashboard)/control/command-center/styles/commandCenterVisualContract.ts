@@ -89,6 +89,12 @@ export const COMMAND_CENTER_REQUIRED_CLASSES = [
   "bcc-release-strip",
   "bcc-run-card",
   "bcc-active-run-state",
+  "bcc-experience-home",
+  "bcc-agent-pulse",
+  "bcc-live-action-graph",
+  "bcc-reasoning-details",
+  "bcc-diff-file",
+  "bcc-diff-hunk",
 ] as const;
 
 export const COMMAND_CENTER_PRODUCT_RULES = [

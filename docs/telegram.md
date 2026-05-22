@@ -68,6 +68,9 @@ Telegram callback buttons are backed by a server-side registry:
 - `callback_data` stays under Telegram's 64-byte limit;
 - callback ids expire by TTL;
 - the originating user, chat and session are validated before any decision;
+- deployments can set `ZAVORTH_TELEGRAM_EXPERIENCE_CALLBACK_STORE` to keep
+  callback ids across local process restarts without putting secrets or diffs
+  into Telegram payloads;
 - expired or forbidden callbacks fail closed and ask the user to refresh status;
 - long diffs and logs are summarized in chat and reviewed in `/control` or CLI.
 

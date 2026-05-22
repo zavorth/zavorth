@@ -1,6 +1,9 @@
 import { TelegramExperienceActionCardFormatter } from '../../src/telegram/TelegramExperienceActionCardFormatter.js';
 import { TelegramExperienceActionCardRegistry } from '../../src/telegram/TelegramExperienceActionCardRegistry.js';
 import type { ExperienceSnapshot } from '../../src/services/experience/index.js';
+import fs from 'fs';
+import os from 'os';
+import path from 'path';
 
 function makeSnapshot(): ExperienceSnapshot {
   return {
@@ -191,6 +194,38 @@ describe('TelegramExperienceActionCardFormatter', () => {
     });
     clock = 2_100;
     expect(registry.resolve(callback, { userId: 'user-1', chatId: 'chat-1' })).toEqual({
+      ok: false,
+      reason: 'expired',
+    });
+  });
+
+  it('can restore opaque callback entries from a configured local store', () => {
+    let clock = 1_000;
+    const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'zavorth-telegram-callbacks-'));
+    const storePath = path.join(dir, 'callbacks.json');
+    const firstRegistry = new TelegramExperienceActionCardRegistry({
+      now: () => clock,
+      storePath,
+    });
+    const formatter = new TelegramExperienceActionCardFormatter(firstRegistry);
+    const rendered = formatter.formatSnapshot(makeSnapshot(), {
+      scope: { userId: 'user-1', chatId: 'chat-1' },
+    });
+    const keyboard = (rendered.replyOptions?.reply_markup as any).inline_keyboard.flat();
+    const callback = keyboard
+      .map((button: any) => String(button.callback_data || ''))
+      .find((value: string) => value.startsWith('xcard:')) || '';
+
+    const secondRegistry = new TelegramExperienceActionCardRegistry({
+      now: () => clock,
+      storePath,
+    });
+    expect(secondRegistry.resolve(callback, { userId: 'user-1', chatId: 'chat-1' })).toEqual(expect.objectContaining({
+      ok: true,
+    }));
+
+    clock = 60 * 60 * 1000 + 2_000;
+    expect(secondRegistry.resolve(callback, { userId: 'user-1', chatId: 'chat-1' })).toEqual({
       ok: false,
       reason: 'expired',
     });
