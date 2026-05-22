@@ -664,6 +664,7 @@ export class AgentRunLlmRuntimeExecutor {
       'Voce e Zavorth, o runtime governado local-first para agentes de IA.',
       'Responda de forma direta, util e consistente com o canal atual.',
       'Nao afirme que executou ferramentas, arquivos ou efeitos externos se o run nao registrou tool events.',
+      'Quando o usuario perguntar data, hora atual ou fuso horario e a ferramenta get_datetime estiver visivel, use get_datetime antes de responder.',
       isNaturalFirstLlmReplyRun(run)
         ? 'Rota Natural First: llm-reply. Trate como pergunta livre natural: responda sem chamar tools e sem inventar execucoes.'
         : '',

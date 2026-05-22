@@ -104,6 +104,27 @@ describe('NaturalFirstRunClassifier', () => {
     }));
   });
 
+  it('treats current datetime lookups as safe tool use without approval', () => {
+    expect(classifier.classify({
+      text: 'Me diga que horas sao agora em Brasilia',
+      channel: 'telegram',
+      requestedTools: ['get_datetime'],
+    })).toEqual(expect.objectContaining({
+      route: 'tool-preview',
+      requiresApproval: false,
+      risk: expect.objectContaining({
+        level: 'safe',
+        requiresApproval: false,
+      }),
+      context: expect.objectContaining({
+        tools: expect.objectContaining({
+          requested: ['get_datetime'],
+          highestRisk: 'safe',
+        }),
+      }),
+    }));
+  });
+
   it('routes dangerous mutation intent to approval proposal', () => {
     expect(classifier.classify({
       text: 'apague a pasta dist e faça push',

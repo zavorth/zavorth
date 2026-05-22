@@ -60,6 +60,14 @@ function asksForPdfOrExternalReport(text: string): boolean {
     && /\b(email|relatorio|report|anexo|arquivo)\b/i.test(text);
 }
 
+function asksForCurrentDateTime(text: string): boolean {
+  const temporalTarget = /\b(horas?|hora\s+atual|que\s+dia|dia\s+de\s+hoje|data\s+atual|agora|today|now|current\s+(?:time|date)|what\s+time|date\s+today)\b/i.test(text);
+  const temporalQuestion = /\b(que|qual|quais|me\s+diga|diga|informe|sabe|saber|what|tell\s+me)\b[\s\S]{0,80}\b(horas?|data|dia|time|date)\b/i.test(text)
+    || /\b(horas?|data|dia|time|date)\b[\s\S]{0,80}\b(agora|atual|hoje|today|now|current)\b/i.test(text);
+  const timezoneHint = /\b(brasilia|brasília|sao\s+paulo|são\s+paulo|brazil|utc|gmt|timezone|fuso)\b/i.test(text);
+  return temporalQuestion || (temporalTarget && timezoneHint);
+}
+
 export function inferUniversalAgentRequestedTools(input: UniversalAgentToolInferenceInput): string[] {
   const rawText = String(input.text || '');
   const normalizedText = rawText
@@ -97,6 +105,9 @@ export function inferUniversalAgentRequestedTools(input: UniversalAgentToolInfer
   }
   if (asksForPdfOrExternalReport(normalizedText)) {
     tools.add('pdf.generate');
+  }
+  if (asksForCurrentDateTime(normalizedText)) {
+    tools.add('get_datetime');
   }
   addIfMatches(
     tools,
