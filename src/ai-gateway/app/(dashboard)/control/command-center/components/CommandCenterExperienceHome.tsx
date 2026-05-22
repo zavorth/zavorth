@@ -41,9 +41,17 @@ export function CommandCenterExperienceHome({
   const health = asRecord(snapshot?.health);
   const learning = asRecord(snapshot?.learning);
   const memory = asRecord(snapshot?.memory);
+  const daily = asRecord(snapshot?.daily);
+  const autoHealing = asRecord(snapshot?.autoHealing);
+  const contextRecovery = asRecord(snapshot?.contextRecovery);
+  const reasoningSummary = asRecord(snapshot?.reasoningSummary);
+  const executionGraph = asRecord(snapshot?.executionGraph);
   const timeline = asArray(snapshot?.timeline);
   const receipts = asArray(snapshot?.receipts);
   const approvals = asArray(snapshot?.approvals).filter((approval) => approval.status === "pending");
+  const actionCards = asArray(snapshot?.actionCards);
+  const diffReviews = asArray(snapshot?.diffReviews);
+  const graphNodes = asArray(executionGraph.nodes);
   const nextActions = asArray(snapshot?.nextActions);
   const agentStatus = asText(agent.status, model.runtimeStatus === "ready" ? "ready" : "attention");
   const learningPending = Number(learning.pending || 0);
@@ -54,7 +62,7 @@ export function CommandCenterExperienceHome({
         <AgentPulse
           status={agentStatus}
           title={asText(journey.title, "Zavorth Natural-First")}
-          summary={asText(agent.summary || health.summary, "Fale normalmente. O Zavorth planeja, executa, pede aprovacao e aprende com consentimento.")}
+          summary={asText(daily.summary || agent.summary || health.summary, "Fale normalmente. O Zavorth planeja, executa, pede aprovacao e aprende com consentimento.")}
           modelLabel={asText(agent.modelLabel, model.productModeLabel)}
           providerLabel={asText(agent.providerLabel, "runtime atual")}
         />
@@ -67,17 +75,27 @@ export function CommandCenterExperienceHome({
       </div>
 
       <div className="bcc-experience-home__grid">
-        <ReasoningTimeline timeline={timeline} onNavigate={() => onNavigate("terminal")} />
+        <ReasoningSummaryTimeline
+          timeline={timeline}
+          reasoningSummary={reasoningSummary}
+          onNavigate={() => onNavigate("terminal")}
+        />
+        <ActionCardsPanel cards={actionCards} onDraftCommand={onDraftCommand} />
         <TrustLens
           trust={trust}
           approvalCount={approvals.length}
           onReview={() => onNavigate("overview")}
         />
+        <LiveActionGraph nodes={graphNodes} />
+        <InteractiveDiffReview reviews={diffReviews} onDraftCommand={onDraftCommand} />
+        <AutoHealingProgress autoHealing={autoHealing} />
+        <ContextRecoveryPanel recovery={contextRecovery} onDraftCommand={onDraftCommand} />
         <MemoryBloom
           memory={memory}
           learningPending={learningPending}
           onReviewLearning={() => onDraftCommand("Mostre aprendizados pendentes")}
         />
+        <LearningReviewPanel learning={learning} onDraftCommand={onDraftCommand} />
         <ActionReceiptStack
           receipts={receipts}
           actions={nextActions}
@@ -154,20 +172,26 @@ function NaturalCommandBar({
   );
 }
 
-function ReasoningTimeline({
+function ReasoningSummaryTimeline({
   timeline,
+  reasoningSummary,
   onNavigate,
 }: {
   timeline: Record<string, any>[];
+  reasoningSummary: Record<string, any>;
   onNavigate: () => void;
 }) {
   return (
     <article className="bcc-experience-card">
       <header>
-        <span>Reasoning Timeline</span>
+        <span>Reasoning Summary</span>
         <button type="button" onClick={onNavigate}>Abrir chat</button>
       </header>
       <div className="bcc-experience-list">
+        <div className="bcc-experience-list__item" data-tone={toneForStatus(asText(reasoningSummary.risk, "safe"))}>
+          <strong>{asText(reasoningSummary.understood, "Aguardando pedido natural")}</strong>
+          <small>{asText(reasoningSummary.nextAction, "Envie um comando ou revise o Trust Lens.")}</small>
+        </div>
         {timeline.length ? timeline.slice(-4).map((item) => (
           <div key={asText(item.id, asText(item.title))} className="bcc-experience-list__item" data-tone={toneForStatus(asText(item.status))}>
             <strong>{asText(item.title, "Evento")}</strong>
@@ -175,6 +199,151 @@ function ReasoningTimeline({
           </div>
         )) : (
           <p>Sem timeline ativa. Envie um pedido para iniciar uma jornada viva.</p>
+        )}
+      </div>
+    </article>
+  );
+}
+
+function ActionCardsPanel({
+  cards,
+  onDraftCommand,
+}: {
+  cards: Record<string, any>[];
+  onDraftCommand: (command: string) => void;
+}) {
+  return (
+    <article className="bcc-experience-card">
+      <header>
+        <span>Action Cards</span>
+        <button type="button" onClick={() => onDraftCommand("o que esta bloqueado?")}>Bloqueios</button>
+      </header>
+      <div className="bcc-experience-list">
+        {cards.length ? cards.slice(0, 4).map((card) => {
+          const actions = asArray(card.actions);
+          const primary = actions.find((action) => asText(action.command));
+          return (
+            <div key={asText(card.id, asText(card.title))} className="bcc-experience-list__item" data-tone={toneForStatus(asText(card.status))}>
+              <strong>{asText(card.title, "Acao pendente")}</strong>
+              <small>{asText(card.summary, "Revise risco e escopo antes de decidir.")}</small>
+              <small>{asText(card.risk, "safe")} | {asText(card.scope, "workspace")} | {asText(card.sandbox, "governed-local")}</small>
+              {primary ? (
+                <button type="button" onClick={() => onDraftCommand(asText(primary.command))}>
+                  {asText(primary.label, "Executar")}
+                </button>
+              ) : null}
+            </div>
+          );
+        }) : (
+          <p>Nenhuma acao pendente. Quando algo importar, o card aparece aqui e nos outros canais.</p>
+        )}
+      </div>
+    </article>
+  );
+}
+
+function LiveActionGraph({ nodes }: { nodes: Record<string, any>[] }) {
+  return (
+    <article className="bcc-experience-card">
+      <header>
+        <span>Live Action Graph</span>
+        <button type="button" disabled>{nodes.length} nos</button>
+      </header>
+      <div className="bcc-experience-list">
+        {nodes.length ? nodes.slice(0, 6).map((node) => (
+          <div key={asText(node.id, asText(node.label))} className="bcc-experience-list__item" data-tone={toneForStatus(asText(node.status))}>
+            <strong>{asText(node.label, "No")}</strong>
+            <small>{asText(node.kind, "runtime")} - {asText(node.detail, "sem detalhe")}</small>
+          </div>
+        )) : (
+          <p>O grafo aparece quando uma jornada cria eventos explicaveis.</p>
+        )}
+      </div>
+    </article>
+  );
+}
+
+function InteractiveDiffReview({
+  reviews,
+  onDraftCommand,
+}: {
+  reviews: Record<string, any>[];
+  onDraftCommand: (command: string) => void;
+}) {
+  return (
+    <article className="bcc-experience-card">
+      <header>
+        <span>Interactive Diff Review</span>
+        <button type="button" onClick={() => onDraftCommand("zavorth diff")}>Abrir diff</button>
+      </header>
+      <div className="bcc-experience-list">
+        {reviews.length ? reviews.slice(0, 3).map((review) => {
+          const files = asArray(review.files);
+          return (
+            <div key={asText(review.id, asText(review.title))} className="bcc-experience-list__item" data-tone={toneForStatus(asText(review.status))}>
+              <strong>{asText(review.title, "Diff governado")}</strong>
+              <small>{asText(review.summary, "Alteracoes em sandbox aguardam revisao.")}</small>
+              {files.slice(0, 3).map((file) => (
+                <small key={asText(file.id, asText(file.path))}>
+                  {asText(file.path, "arquivo")} | +{Number(file.addedLines || 0)}/-{Number(file.removedLines || 0)}
+                </small>
+              ))}
+              <button type="button" onClick={() => onDraftCommand(`zavorth diff ${asText(review.id)}`)}>
+                Revisar hunks
+              </button>
+            </div>
+          );
+        }) : (
+          <p>Nenhum diff revisavel. Mutacoes futuras aparecem por arquivo e hunk.</p>
+        )}
+      </div>
+    </article>
+  );
+}
+
+function AutoHealingProgress({ autoHealing }: { autoHealing: Record<string, any> }) {
+  const status = asText(autoHealing.status, "idle");
+  return (
+    <article className="bcc-experience-card">
+      <header>
+        <span>Auto-Healing</span>
+        <button type="button" disabled>{status}</button>
+      </header>
+      <div className="bcc-trust-lens" data-risk={status === "failed" || status === "blocked" ? "attention" : "safe"}>
+        <strong>Tentativa {Number(autoHealing.attempt || 0)}/{Number(autoHealing.maxAttempts || 3)}</strong>
+        <p>{asText(autoHealing.lastErrorSummary || autoHealing.proposedCorrection, "Sem autocorrecao especulativa ativa.")}</p>
+        <small>{asText(autoHealing.validationCommand, "Validacao ainda nao detectada.")}</small>
+      </div>
+    </article>
+  );
+}
+
+function ContextRecoveryPanel({
+  recovery,
+  onDraftCommand,
+}: {
+  recovery: Record<string, any>;
+  onDraftCommand: (command: string) => void;
+}) {
+  const options = asArray(recovery.options);
+  return (
+    <article className="bcc-experience-card">
+      <header>
+        <span>Context Recovery</span>
+        <button type="button" disabled>{asText(recovery.status, "idle")}</button>
+      </header>
+      <div className="bcc-experience-list">
+        {asText(recovery.status) === "needs-selection" ? (
+          <>
+            <p>{asText(recovery.question, "Escolha o alvo correto.")}</p>
+            {options.map((option) => (
+              <button key={asText(option.id, asText(option.label))} type="button" onClick={() => onDraftCommand(asText(option.command))}>
+                {asText(option.label, "Opcao")}
+              </button>
+            ))}
+          </>
+        ) : (
+          <p>Sem ambiguidade pendente. O Zavorth vai perguntar antes de agir quando houver mais de um alvo provavel.</p>
         )}
       </div>
     </article>
@@ -271,6 +440,35 @@ function ActionReceiptStack({
             </button>
           ))}
         </div>
+      </div>
+    </article>
+  );
+}
+
+function LearningReviewPanel({
+  learning,
+  onDraftCommand,
+}: {
+  learning: Record<string, any>;
+  onDraftCommand: (command: string) => void;
+}) {
+  const candidates = asArray(learning.candidates);
+  return (
+    <article className="bcc-experience-card">
+      <header>
+        <span>Learning Review</span>
+        <button type="button" onClick={() => onDraftCommand("zavorth learn")}>Revisar</button>
+      </header>
+      <div className="bcc-experience-list">
+        {candidates.length ? candidates.slice(0, 3).map((candidate) => (
+          <div key={asText(candidate.id, asText(candidate.title))} className="bcc-experience-list__item" data-tone={asText(candidate.state) === "pending" ? "warn" : "ok"}>
+            <strong>{asText(candidate.title, "Aprendizado")}</strong>
+            <small>{asText(candidate.recommendation, asText(candidate.observedPattern, "Candidato aguardando revisao."))}</small>
+            <small>{Math.round(Number(candidate.confidence || 0) * 100)}% | {asText(candidate.state, "pending")}</small>
+          </div>
+        )) : (
+          <p>Nenhum candidato pendente. Aprendizados so mudam comportamento com consentimento.</p>
+        )}
       </div>
     </article>
   );

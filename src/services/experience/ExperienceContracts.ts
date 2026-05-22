@@ -8,6 +8,11 @@ export const EXPERIENCE_SNAPSHOT_CONTRACT_VERSION = 'ExperienceSnapshot/v1' as c
 export const EXPERIENCE_COMMAND_CONTRACT_VERSION = 'ExperienceCommand/v1' as const;
 export const EXPERIENCE_PLAN_CONTRACT_VERSION = 'ExperiencePlan/v1' as const;
 export const LEARNING_CANDIDATE_CONTRACT_VERSION = 'LearningCandidate/v1' as const;
+export const EXPERIENCE_ACTION_CARD_CONTRACT_VERSION = 'ExperienceActionCard/v1' as const;
+export const EXPERIENCE_DIFF_REVIEW_CONTRACT_VERSION = 'ExperienceDiffReview/v1' as const;
+export const EXPERIENCE_EXECUTION_GRAPH_CONTRACT_VERSION = 'ExperienceExecutionGraph/v1' as const;
+export const EXPERIENCE_CONTEXT_RECOVERY_CONTRACT_VERSION = 'ExperienceContextRecovery/v1' as const;
+export const EXPERIENCE_AUTO_HEALING_CONTRACT_VERSION = 'ExperienceAutoHealing/v1' as const;
 
 export type ExperienceSurface = UniversalAgentChannel;
 
@@ -41,6 +46,8 @@ export type ExperienceLearningDecision = 'approve' | 'reject' | 'promote' | 'rev
 
 export type ExperienceApprovalDecision = 'approve' | 'reject';
 
+export type ExperienceAutonomyMode = 'manual' | 'governed' | 'speculative';
+
 export type ExperienceCommandIntent =
   | 'ask'
   | 'run'
@@ -62,9 +69,23 @@ export type ExperienceCommand = {
   sessionId?: string | null;
   workspace?: string | null;
   trustMode?: 'protected' | 'collaborator' | 'autonomous' | 'unknown';
+  autonomyMode?: ExperienceAutonomyMode;
   approval?: {
     id: string;
     decision: ExperienceApprovalDecision;
+  } | null;
+  actionCardDecision?: {
+    cardId: string;
+    actionId: string;
+  } | null;
+  diffDecision?: {
+    reviewId: string;
+    targetId: string;
+    decision: 'approve-plan' | 'approve-file' | 'approve-hunk' | 'reject-hunk' | 'retry-without-hunk';
+  } | null;
+  contextRecoveryDecision?: {
+    recoveryId: string;
+    optionId: string;
   } | null;
   learning?: {
     candidateId?: string | null;
@@ -76,7 +97,7 @@ export type ExperienceCommand = {
 export type ExperienceAction = {
   id: string;
   label: string;
-  kind: 'natural' | 'navigation' | 'approval' | 'learning' | 'diagnostic' | 'safety' | 'execution';
+  kind: 'natural' | 'navigation' | 'approval' | 'learning' | 'diagnostic' | 'safety' | 'execution' | 'diff' | 'context' | 'healing';
   command?: string | null;
   route?: string | null;
   risk: UniversalToolRiskLevel;
@@ -178,6 +199,114 @@ export type ExperienceLearningCandidate = {
   updatedAt: string;
 };
 
+export type ExperienceDailySnapshot = {
+  summary: string;
+  activeTask: string | null;
+  health: ExperienceHealthStatus;
+  nextSteps: string[];
+  pendingApprovals: number;
+  pendingLearning: number;
+};
+
+export type ExperienceActionCard = {
+  contractVersion: typeof EXPERIENCE_ACTION_CARD_CONTRACT_VERSION;
+  id: string;
+  source: 'approval' | 'mutation' | 'sandbox' | 'learning' | 'context-recovery' | 'system';
+  title: string;
+  summary: string;
+  risk: UniversalToolRiskLevel;
+  status: 'pending' | 'approved' | 'rejected' | 'blocked' | 'ready';
+  scope: string;
+  sandbox: string;
+  affectedFiles: string[];
+  affectedCommands: string[];
+  ttlSeconds: number | null;
+  receiptHint: string;
+  actions: ExperienceAction[];
+  createdAt: string;
+};
+
+export type ExperienceDiffHunk = {
+  id: string;
+  header: string;
+  status: 'pending' | 'approved' | 'rejected';
+  addedLines: number;
+  removedLines: number;
+  preview: string[];
+  risk: UniversalToolRiskLevel;
+};
+
+export type ExperienceDiffFile = {
+  id: string;
+  path: string;
+  status: 'pending' | 'approved' | 'rejected';
+  addedLines: number;
+  removedLines: number;
+  hunks: ExperienceDiffHunk[];
+};
+
+export type ExperienceDiffReview = {
+  contractVersion: typeof EXPERIENCE_DIFF_REVIEW_CONTRACT_VERSION;
+  id: string;
+  runId: string | null;
+  title: string;
+  summary: string;
+  status: 'empty' | 'pending' | 'partially-approved' | 'approved' | 'rejected';
+  risk: UniversalToolRiskLevel;
+  files: ExperienceDiffFile[];
+  actions: ExperienceAction[];
+};
+
+export type ExperienceExecutionGraphNode = {
+  id: string;
+  label: string;
+  kind: 'prompt' | 'safety' | 'router' | 'llm' | 'tool' | 'sandbox' | 'critic' | 'receipt' | 'approval';
+  status: 'pending' | 'running' | 'done' | 'blocked' | 'failed';
+  detail: string;
+  createdAt: string;
+};
+
+export type ExperienceExecutionGraph = {
+  contractVersion: typeof EXPERIENCE_EXECUTION_GRAPH_CONTRACT_VERSION;
+  nodes: ExperienceExecutionGraphNode[];
+  edges: Array<{ from: string; to: string; label: string }>;
+};
+
+export type ExperienceContextRecoveryOption = {
+  id: string;
+  label: string;
+  detail: string;
+  command: string;
+  confidence: number;
+};
+
+export type ExperienceContextRecovery = {
+  contractVersion: typeof EXPERIENCE_CONTEXT_RECOVERY_CONTRACT_VERSION;
+  id: string;
+  status: 'idle' | 'needs-selection' | 'resolved';
+  question: string;
+  options: ExperienceContextRecoveryOption[];
+};
+
+export type ExperienceAutoHealing = {
+  contractVersion: typeof EXPERIENCE_AUTO_HEALING_CONTRACT_VERSION;
+  status: 'idle' | 'running' | 'passed' | 'failed' | 'blocked';
+  attempt: number;
+  maxAttempts: number;
+  lastErrorSummary: string | null;
+  proposedCorrection: string | null;
+  validationCommand: string | null;
+};
+
+export type ExperienceReasoningSummary = {
+  understood: string;
+  risk: UniversalToolRiskLevel;
+  tools: string[];
+  approvalReason: string | null;
+  result: string;
+  nextAction: string;
+};
+
 export type ExperienceTrustLens = {
   status: ExperienceHealthStatus;
   title: string;
@@ -232,6 +361,13 @@ export type ExperienceSnapshot = {
     pending: number;
   };
   trust: ExperienceTrustLens;
+  daily?: ExperienceDailySnapshot;
+  actionCards?: ExperienceActionCard[];
+  diffReviews?: ExperienceDiffReview[];
+  executionGraph?: ExperienceExecutionGraph;
+  autoHealing?: ExperienceAutoHealing;
+  contextRecovery?: ExperienceContextRecovery;
+  reasoningSummary?: ExperienceReasoningSummary;
   nextActions: ExperienceAction[];
   health: {
     status: ExperienceHealthStatus;

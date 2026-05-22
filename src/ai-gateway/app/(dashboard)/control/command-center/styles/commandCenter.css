@@ -235,6 +235,7 @@
 }
 
 .bcc-agent-pulse__chips span,
+.bcc-experience-list button,
 .bcc-experience-actions button,
 .bcc-experience-card header button {
   border: 1px solid var(--b-shell);
@@ -304,14 +305,22 @@
 }
 
 .bcc-experience-card header button,
+.bcc-experience-list button,
 .bcc-experience-actions button {
   cursor: pointer;
 }
 
 .bcc-experience-card header button:hover,
+.bcc-experience-list button:hover,
 .bcc-experience-actions button:hover {
   color: var(--b-signal-strong);
   border-color: rgba(0, 232, 143, 0.36);
+}
+
+.bcc-experience-card header button:disabled,
+.bcc-experience-list button:disabled {
+  cursor: default;
+  opacity: 0.68;
 }
 
 .bcc-experience-list,

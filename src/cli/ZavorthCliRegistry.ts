@@ -259,7 +259,9 @@ import { formatLayeredMemoryMetrics } from './ZavorthCliRenderers.js';
 import { formatCliChatAssistantMessage } from './ZavorthCliChatRenderers.js';
 import {
   formatExperienceCommandResult,
+  formatExperienceDiffs,
   formatExperienceHome,
+  formatExperienceHud,
   formatExperienceLearning,
 } from './ZavorthCliExperienceRenderer.js';
 import {
@@ -334,12 +336,19 @@ export async function executeZavorthCliCommand(params: {
   const args = resolvedInput.args;
 
   if (!normalized) {
-    return {
-      ok: false,
-      handled: false,
-      output: [],
-      error: 'Empty command.',
-    };
+    const runtime = await resolveRuntime();
+    const snapshot = runtime.experienceCoreService?.buildHome({
+      surface: effectiveFlags.platform,
+      sessionId: effectiveFlags.sessionId,
+      workspace: effectiveFlags.workspaceHint || null,
+    });
+    const body = effectiveFlags.json
+      ? JSON.stringify(snapshot || { ok: false, error: 'Experience Core indisponivel.' }, null, 2)
+      : snapshot
+        ? formatExperienceHome(snapshot)
+        : 'Experience Core indisponivel neste runtime.';
+    writer.line(body);
+    return { ok: Boolean(snapshot), handled: true, output: [body], error: snapshot ? null : 'Experience Core unavailable.' };
   }
 
   if (commandName === 'context') {
@@ -374,6 +383,56 @@ export async function executeZavorthCliCommand(params: {
         : 'Experience Core indisponivel neste runtime.';
     writer.line(body);
     return { ok: Boolean(snapshot), handled: true, output: [body], error: snapshot ? null : 'Experience Core unavailable.' };
+  }
+
+  if (commandName === 'hud') {
+    const runtime = await resolveRuntime();
+    const snapshot = runtime.experienceCoreService?.buildHome({
+      surface: effectiveFlags.platform,
+      sessionId: effectiveFlags.sessionId,
+      workspace: effectiveFlags.workspaceHint || null,
+    });
+    const body = effectiveFlags.json
+      ? JSON.stringify(snapshot || { ok: false, error: 'Experience Core indisponivel.' }, null, 2)
+      : snapshot
+        ? formatExperienceHud(snapshot)
+        : 'Experience Core indisponivel neste runtime.';
+    writer.line(body);
+    return { ok: Boolean(snapshot), handled: true, output: [body], error: snapshot ? null : 'Experience Core unavailable.' };
+  }
+
+  if (commandName === 'diff') {
+    const runtime = await resolveRuntime();
+    if (runtime.experienceCoreService) {
+      const diffDecision = parseExperienceDiffCliArgs(args);
+      if (diffDecision) {
+        const result = await runtime.experienceCoreService.executeCommand({
+          contractVersion: 'ExperienceCommand/v1',
+          text: `diff ${args}`.trim(),
+          intent: 'run',
+          surface: effectiveFlags.platform,
+          userId: effectiveFlags.userId,
+          sessionId: effectiveFlags.sessionId,
+          workspace: effectiveFlags.workspaceHint || null,
+          diffDecision,
+        });
+        const body = effectiveFlags.json
+          ? JSON.stringify(result, null, 2)
+          : formatExperienceCommandResult(result);
+        writer.line(body);
+        return { ok: result.ok, handled: true, output: [body], error: result.error };
+      }
+      const snapshot = runtime.experienceCoreService.buildHome({
+        surface: effectiveFlags.platform,
+        sessionId: effectiveFlags.sessionId,
+        workspace: effectiveFlags.workspaceHint || null,
+      });
+      const body = effectiveFlags.json
+        ? JSON.stringify(snapshot.diffReviews || [], null, 2)
+        : formatExperienceDiffs(snapshot);
+      writer.line(body);
+      return { ok: true, handled: true, output: [body], error: null };
+    }
   }
 
   if (commandName === 'ask' || commandName === 'run') {
@@ -820,6 +879,34 @@ function parseExperienceLearningCliArgs(args: string): {
       decision: action,
       candidateId: null,
     };
+  }
+  return null;
+}
+
+function parseExperienceDiffCliArgs(args: string): {
+  reviewId: string;
+  targetId: string;
+  decision: 'approve-plan' | 'approve-file' | 'approve-hunk' | 'reject-hunk' | 'retry-without-hunk';
+} | null {
+  const tokens = String(args || '').trim().split(/\s+/).filter(Boolean);
+  const action = String(tokens[0] || '').trim().toLowerCase();
+  if (!action || action === 'list' || action === 'status' || action === 'review' || action === 'show') return null;
+  const firstId = tokens[1] || 'current';
+  const secondId = tokens[2] || firstId;
+  if (action === 'approve' || action === 'approve-plan') {
+    return { reviewId: firstId, targetId: firstId, decision: 'approve-plan' };
+  }
+  if (action === 'approve-file') {
+    return { reviewId: firstId, targetId: secondId, decision: 'approve-file' };
+  }
+  if (action === 'approve-hunk') {
+    return { reviewId: firstId, targetId: secondId, decision: 'approve-hunk' };
+  }
+  if (action === 'reject-hunk' || action === 'reject') {
+    return { reviewId: firstId, targetId: secondId, decision: 'reject-hunk' };
+  }
+  if (action === 'retry' || action === 'retry-without-hunk') {
+    return { reviewId: firstId, targetId: secondId, decision: 'retry-without-hunk' };
   }
   return null;
 }

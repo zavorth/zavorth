@@ -1,5 +1,7 @@
 import type {
+  ExperienceActionCard,
   ExperienceCommandResult,
+  ExperienceDiffReview,
   ExperienceLearningCandidate,
   ExperienceSnapshot,
   ExperienceTimelineItem,
@@ -23,6 +25,39 @@ function renderLearning(candidates: ExperienceLearningCandidate[]): string[] {
     `${candidate.state} | ${candidate.id} | ${sanitizeHumanCliText(candidate.title)} (${Math.round(candidate.confidence * 100)}%)`);
 }
 
+function renderActionCards(cards: ExperienceActionCard[] = []): string[] {
+  if (!cards.length) {
+    return ['Nenhuma acao pendente. Quando algo importar, aparece aqui com risco, escopo e comando.'];
+  }
+  return cards.slice(0, 6).map((card) => {
+    const command = card.actions.find((item) => item.command)?.command || 'sem comando direto';
+    return `${card.status} | ${card.risk} | ${sanitizeHumanCliText(card.title)} -> ${command}`;
+  });
+}
+
+function renderDiffReviews(reviews: ExperienceDiffReview[] = []): string[] {
+  if (!reviews.length) {
+    return ['Nenhum diff de sandbox disponivel para revisao.'];
+  }
+  return reviews.slice(0, 4).flatMap((review) => [
+    `${review.status} | ${review.risk} | ${sanitizeHumanCliText(review.summary)} (${review.id})`,
+    ...review.files.slice(0, 5).map((file) =>
+      `  ${file.path} | +${file.addedLines}/-${file.removedLines} | ${formatCount(file.hunks.length, 'hunk')}`),
+  ]);
+}
+
+function renderReasoning(snapshot: ExperienceSnapshot): string[] {
+  const summary = snapshot.reasoningSummary;
+  if (!summary) return ['Resumo seguro indisponivel nesta versao do snapshot.'];
+  return [
+    `Entendi: ${sanitizeHumanCliText(summary.understood)}`,
+    `Risco: ${summary.risk}`,
+    `Ferramentas: ${summary.tools.length ? summary.tools.join(', ') : 'nenhuma ferramenta anunciada'}`,
+    summary.approvalReason ? `Approval: ${sanitizeHumanCliText(summary.approvalReason)}` : 'Approval: nao necessario agora',
+    `Proximo: ${sanitizeHumanCliText(summary.nextAction)}`,
+  ];
+}
+
 export function formatExperienceHome(snapshot: ExperienceSnapshot): string {
   const panels: CliVisualPanel[] = [
     {
@@ -39,7 +74,7 @@ export function formatExperienceHome(snapshot: ExperienceSnapshot): string {
       title: 'Agora',
       tone: 'brand',
       lines: [
-        sanitizeHumanCliText(snapshot.journey.title),
+        snapshot.daily?.summary ? sanitizeHumanCliText(snapshot.daily.summary) : sanitizeHumanCliText(snapshot.journey.title),
         sanitizeHumanCliText(snapshot.journey.summary),
         `Approvals: ${formatCount(snapshot.approvals.filter((approval) => approval.status === 'pending').length, 'approval')}`,
         `Learning pendente: ${formatCount(snapshot.learning.pending, 'candidato')}`,
@@ -50,6 +85,11 @@ export function formatExperienceHome(snapshot: ExperienceSnapshot): string {
       tone: 'neutral',
       lines: snapshot.nextActions.slice(0, 5).map((action) =>
         `${sanitizeHumanCliText(action.label)}${action.command ? ` -> ${action.command}` : ''}`),
+    },
+    {
+      title: 'Action cards',
+      tone: (snapshot.actionCards || []).length > 0 ? 'warning' : 'success',
+      lines: renderActionCards(snapshot.actionCards),
     },
     {
       title: 'Timeline',
@@ -68,6 +108,101 @@ export function formatExperienceHome(snapshot: ExperienceSnapshot): string {
     title: 'Zavorth Natural-First',
     summary: 'Fale normalmente. O Zavorth planeja, executa com governanca, mostra receipts e aprende com consentimento.',
     panels,
+  });
+}
+
+export function formatExperienceHud(snapshot: ExperienceSnapshot): string {
+  const panels: CliVisualPanel[] = [
+    {
+      title: 'Daily HUD',
+      tone: snapshot.daily?.health === 'ready' ? 'success' : 'warning',
+      lines: [
+        sanitizeHumanCliText(snapshot.daily?.summary || snapshot.health.summary),
+        `Tarefa ativa: ${sanitizeHumanCliText(snapshot.daily?.activeTask || 'nenhuma')}`,
+        `Workspace: ${formatCliValue(snapshot.workspace || 'padrao')}`,
+        `Autonomia: ${snapshot.trust.sandbox.mode}`,
+      ],
+    },
+    {
+      title: 'Cards',
+      tone: (snapshot.actionCards || []).length > 0 ? 'warning' : 'success',
+      lines: renderActionCards(snapshot.actionCards),
+    },
+    {
+      title: 'Diff review',
+      tone: (snapshot.diffReviews || []).some((review) => review.status !== 'empty') ? 'brand' : 'muted',
+      lines: renderDiffReviews(snapshot.diffReviews),
+    },
+    {
+      title: 'Auto-healing',
+      tone: snapshot.autoHealing?.status === 'failed' || snapshot.autoHealing?.status === 'blocked'
+        ? 'danger'
+        : snapshot.autoHealing?.status === 'running'
+          ? 'warning'
+          : 'success',
+      lines: [
+        `Status: ${snapshot.autoHealing?.status || 'idle'}`,
+        `Tentativa: ${snapshot.autoHealing?.attempt || 0}/${snapshot.autoHealing?.maxAttempts || 3}`,
+        `Validacao: ${formatCliValue(snapshot.autoHealing?.validationCommand || 'nao detectada')}`,
+        sanitizeHumanCliText(snapshot.autoHealing?.lastErrorSummary || snapshot.autoHealing?.proposedCorrection || 'Sem autocorrecao ativa.'),
+      ],
+    },
+    {
+      title: 'Contexto',
+      tone: snapshot.contextRecovery?.status === 'needs-selection' ? 'warning' : 'muted',
+      lines: snapshot.contextRecovery?.status === 'needs-selection'
+        ? [
+            sanitizeHumanCliText(snapshot.contextRecovery.question),
+            ...snapshot.contextRecovery.options.slice(0, 5).map((option, index) =>
+              `${index + 1}. ${sanitizeHumanCliText(option.label)} -> ${option.command}`),
+          ]
+        : ['Sem ambiguidade pendente.'],
+    },
+    {
+      title: 'Resumo seguro',
+      tone: 'neutral',
+      lines: renderReasoning(snapshot),
+    },
+  ];
+
+  return renderCliScreen({
+    eyebrow: 'Daily Experience Control Plane',
+    title: 'Zavorth HUD',
+    summary: 'Mesmo estado do /control e dos canais: timeline, approvals, diff, sandbox, receipts e learning.',
+    panels,
+  });
+}
+
+export function formatExperienceDiffs(snapshot: ExperienceSnapshot): string {
+  const reviews = snapshot.diffReviews || [];
+  const panels: CliVisualPanel[] = reviews.length
+    ? reviews.map((review) => ({
+        title: review.title,
+        tone: review.risk === 'danger' ? 'danger' : review.risk === 'attention' ? 'warning' : 'brand',
+        lines: [
+          `${review.id} | ${review.status} | ${review.summary}`,
+          ...review.files.flatMap((file) => [
+            `${file.path} | +${file.addedLines}/-${file.removedLines} | ${formatCount(file.hunks.length, 'hunk')}`,
+            ...file.hunks.slice(0, 4).flatMap((hunk) => [
+              `  ${hunk.id} | ${hunk.risk} | ${hunk.header}`,
+              ...hunk.preview.slice(0, 5).map((line) => `    ${line}`),
+            ]),
+          ]),
+          'Acoes: zavorth diff approve <reviewId> | zavorth diff reject-hunk <hunkId> | zavorth diff retry <reviewId>',
+        ],
+      }))
+    : [{
+        title: 'Diff review',
+        tone: 'muted',
+        lines: ['Nenhum diff governado foi encontrado no snapshot atual.'],
+      }];
+
+  return renderCliScreen({
+    eyebrow: 'Diff Review',
+    title: 'Revisao parcial governada',
+    summary: 'Nenhum hunk e aplicado direto no host: selecoes recompõem um mutation plan e passam por policy.',
+    panels,
+    showWordmark: false,
   });
 }
 
@@ -96,6 +231,16 @@ export function formatExperienceCommandResult(result: ExperienceCommandResult): 
       lines: result.receipts.length
         ? result.receipts.slice(0, 5).map((receipt) => `${receipt.status} | ${sanitizeHumanCliText(receipt.title)}`)
         : ['Nenhum receipt emitido ainda.'],
+    },
+    {
+      title: 'Cards',
+      tone: (result.snapshot.actionCards || []).length > 0 ? 'warning' : 'success',
+      lines: renderActionCards(result.snapshot.actionCards),
+    },
+    {
+      title: 'Resumo seguro',
+      tone: 'neutral',
+      lines: renderReasoning(result.snapshot),
     },
   ];
 

@@ -6,6 +6,7 @@ export type GatewayCallbackRouterDeps = {
   handlePermissionCallback: (ctx: Context, data: string) => Promise<void>;
   handleEchoApprovalCallback?: (ctx: Context, data: string) => Promise<void>;
   handleMnemosCallback?: (ctx: Context, data: string) => Promise<void>;
+  handleExperienceActionCardCallback?: (ctx: Context, data: string) => Promise<void>;
   handleStatusAction: (ctx: Context) => Promise<void>;
   handleHelpAction: (ctx: Context) => Promise<void>;
   handleAuditAction: (ctx: Context) => Promise<void>;
@@ -50,6 +51,19 @@ export class GatewayCallbackRouter {
 
       if (data.startsWith('mnemos:') && this.deps.handleMnemosCallback) {
         await this.deps.handleMnemosCallback(ctx, data);
+        return;
+      }
+
+      if (data.startsWith('xcard:')) {
+        if (!/^xcard:[a-z0-9:-]{1,80}$/i.test(data)) {
+          await ctx.answerCallbackQuery({ text: 'Action card invalido.' });
+          return;
+        }
+        if (this.deps.handleExperienceActionCardCallback) {
+          await this.deps.handleExperienceActionCardCallback(ctx, data);
+          return;
+        }
+        await ctx.answerCallbackQuery({ text: 'Action card recebido. Abra /dashboard ou use a CLI para decidir.' });
         return;
       }
 

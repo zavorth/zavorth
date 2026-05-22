@@ -10,9 +10,16 @@ The canonical read model is `ExperienceSnapshot/v1`.
 It contains:
 
 - agent state;
+- daily HUD summary;
 - active journey;
 - chat messages and suggestions;
 - approvals;
+- cross-channel action cards;
+- diff reviews with files and hunks;
+- execution graph nodes;
+- context recovery choices;
+- auto-healing progress;
+- safe reasoning summary;
 - reasoning timeline;
 - receipts;
 - memory signals;
@@ -27,6 +34,17 @@ It accepts natural language plus surface/session/workspace metadata. The
 Natural Command Router turns it into an `ExperiencePlan/v1`, then the
 Experience Core either resolves a deterministic command or hands the task to
 the governed agent runtime.
+
+Experience commands can also carry governed decisions:
+
+- `actionCardDecision` for a cross-channel action card;
+- `diffDecision` for a plan/file/hunk selection;
+- `contextRecoveryDecision` for an ambiguous target choice;
+- `autonomyMode` as `manual`, `governed` or `speculative`.
+
+These decisions do not bypass policy. Diff selections recompose a mutation
+plan and sensitive work still requires approval and receipts before host
+changes.
 
 ## Public Routes
 
@@ -47,9 +65,13 @@ The natural-first entry points are:
 
 ```bash
 zavorth
+zavorth hud
 zavorth ask "por que o runtime esta bloqueado?"
 zavorth run "revise esse repo"
 zavorth approve <approval-id>
+zavorth diff
+zavorth diff approve <review-id>
+zavorth diff reject-hunk <review-id> <hunk-id>
 zavorth learn
 zavorth learn approve <candidate-id>
 zavorth learn reject <candidate-id>
@@ -66,3 +88,10 @@ the Experience Core first.
 Sensitive work must surface through Trust Lens: risk, sandbox posture,
 approval options and receipts. Learning candidates are never promoted into
 future behavior until explicitly approved or promoted by the user.
+
+## Telegram And Channels
+
+Telegram consumes the same Experience Snapshot when wired into the runtime. It
+renders compact action cards with opaque callback ids and short summaries for
+status, blocked work, diff review and learning. It must not serialize full
+diffs, logs or secrets into callback payloads.
