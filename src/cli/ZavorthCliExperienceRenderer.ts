@@ -243,6 +243,51 @@ export function formatExperienceHud(snapshot: ExperienceSnapshot): string {
   });
 }
 
+export function formatExperiencePulse(snapshot: ExperienceSnapshot): string {
+  const pulse = snapshot.daily?.pulse;
+  return renderCliScreen({
+    eyebrow: 'Zavorth Pulse',
+    title: pulse?.headline || 'Zavorth pronto para o proximo pedido',
+    summary: pulse?.summary || snapshot.health.summary,
+    panels: [
+      {
+        title: 'Proxima acao',
+        tone: pulse?.risks.length ? 'warning' : 'brand',
+        lines: pulse
+          ? [
+              `${sanitizeHumanCliText(pulse.bestNextAction.label)}${pulse.bestNextAction.command ? ` -> ${pulse.bestNextAction.command}` : ''}`,
+              pulse.bestNextAction.reason,
+            ]
+          : ['zavorth ask "<pedido>"'],
+      },
+      {
+        title: 'Sinais',
+        tone: 'neutral',
+        lines: pulse
+          ? [
+              `Approvals: ${pulse.pending.approvals}`,
+              `Learning: ${pulse.pending.learning}`,
+              `Receipts: ${pulse.pending.receipts}`,
+              `Perfil: ${pulse.profile.label}`,
+            ]
+          : ['Sem pulse disponivel.'],
+      },
+      {
+        title: 'Highlights',
+        tone: 'success',
+        lines: pulse?.highlights.length ? pulse.highlights.map(sanitizeHumanCliText) : ['Nenhum destaque operacional agora.'],
+      },
+      {
+        title: 'Riscos',
+        tone: pulse?.risks.length ? 'warning' : 'success',
+        lines: pulse?.risks.length ? pulse.risks.map(sanitizeHumanCliText) : ['Sem riscos pendentes no Pulse.'],
+      },
+    ],
+    mode: 'compact',
+    showWordmark: false,
+  });
+}
+
 export function formatExperienceDiffs(snapshot: ExperienceSnapshot): string {
   const reviews = snapshot.diffReviews || [];
   const panels: CliVisualPanel[] = reviews.length

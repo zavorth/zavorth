@@ -26,6 +26,7 @@ Installed CLI:
 zavorth
 zavorth ask "por que o runtime esta bloqueado?"
 zavorth run "revise esse repo"
+zavorth pulse
 zavorth hud
 zavorth diff
 zavorth learn
@@ -42,7 +43,9 @@ the guided Setup Studio. `start` starts or resumes the local runtime. `open`
 opens the Command Center. `ready` tells you if the machine is usable for daily
 work.
 
-`hud` is the daily terminal command center: it shows action cards, timeline,
+`pulse` is the fastest daily readout: best next action, risks, receipts,
+learning and active response profile. `hud` is the full terminal command center:
+it shows action cards, timeline,
 diff review, Trust Lens, auto-healing and context recovery from the same
 snapshot used by `/control` and Telegram. `diff` renders sandbox diffs by file
 and hunk; approving or rejecting a hunk records a governed decision and never
@@ -85,6 +88,7 @@ security policy.
 zavorth
 zavorth ask "what should I do next?"
 zavorth run "review this repo"
+zavorth pulse
 zavorth hud
 zavorth diff
 zavorth diff approve <review-id>

@@ -10,4 +10,5 @@ export * from './JourneyEngineService.js';
 export * from './LearningOSService.js';
 export * from './NaturalCommandRouterService.js';
 export * from './ReasoningSummaryService.js';
+export * from './ResponseProfilePreferenceService.js';
 export * from './TrustLensService.js';

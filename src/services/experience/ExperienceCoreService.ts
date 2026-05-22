@@ -23,6 +23,7 @@ import { JourneyEngineService } from './JourneyEngineService.js';
 import { LearningOSService } from './LearningOSService.js';
 import { NaturalCommandRouterService } from './NaturalCommandRouterService.js';
 import { ReasoningSummaryService } from './ReasoningSummaryService.js';
+import { ResponseProfilePreferenceService } from './ResponseProfilePreferenceService.js';
 import { TrustLensService } from './TrustLensService.js';
 import type {
   UniversalAgentRun,
@@ -62,6 +63,7 @@ export type ExperienceCoreRuntime = {
   autoHealing?: AutoHealingProjectionService;
   reasoningSummary?: ReasoningSummaryService;
   pulseBrief?: PulseBriefService;
+  responseProfiles?: ResponseProfilePreferenceService;
 };
 
 export type ExperienceHomeInput = {
@@ -70,6 +72,7 @@ export type ExperienceHomeInput = {
   workspace?: string | null;
   activeRunId?: string | null;
   activeTraceId?: string | null;
+  userId?: string | null;
   responseProfile?: ExperienceResponseProfileId | null;
 };
 
@@ -122,6 +125,7 @@ export class ExperienceCoreService {
   private readonly autoHealing: AutoHealingProjectionService;
   private readonly reasoningSummary: ReasoningSummaryService;
   private readonly pulseBrief: PulseBriefService;
+  private readonly responseProfiles: ResponseProfilePreferenceService;
 
   constructor(runtime: ExperienceCoreRuntime = {}) {
     this.now = runtime.now || (() => new Date());
@@ -142,12 +146,15 @@ export class ExperienceCoreService {
     this.autoHealing = runtime.autoHealing || new AutoHealingProjectionService();
     this.reasoningSummary = runtime.reasoningSummary || new ReasoningSummaryService();
     this.pulseBrief = runtime.pulseBrief || new PulseBriefService();
+    this.responseProfiles = runtime.responseProfiles || new ResponseProfilePreferenceService({ now: this.now });
   }
 
   public buildHome(input: ExperienceHomeInput = {}): ExperienceSnapshot {
     const surface = input.surface || 'web';
     const sessionId = input.sessionId || null;
     const workspace = input.workspace || null;
+    const userId = normalizeText(input.userId, 'local-user');
+    const persistedProfile = this.responseProfiles.get({ surface, userId });
     const agentSnapshot = this.safeAgentSnapshot({
       activeRunId: input.activeRunId || null,
       activeTraceId: input.activeTraceId || null,
@@ -214,7 +221,7 @@ export class ExperienceCoreService {
       actionCards,
       health,
       trust,
-      requestedProfile: input.responseProfile || null,
+      requestedProfile: input.responseProfile || persistedProfile || null,
     });
 
     return {
@@ -308,6 +315,14 @@ export class ExperienceCoreService {
       learning: input.learning || null,
       metadata: input.metadata || {},
     };
+    if (command.responseProfile) {
+      this.responseProfiles.set({
+        surface: command.surface,
+        userId: command.userId,
+        profile: command.responseProfile,
+        source: `command:${command.intent || 'ask'}`,
+      });
+    }
     const plan = this.router.route(command);
 
     try {
@@ -439,6 +454,7 @@ export class ExperienceCoreService {
 
       const snapshot = this.buildHome({
         surface: command.surface,
+        userId: command.userId,
         sessionId: runResult?.run?.sessionId || command.sessionId || null,
         workspace: command.workspace || runResult?.run?.workspace || null,
         activeRunId: runResult?.run?.id || null,

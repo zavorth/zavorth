@@ -100,7 +100,7 @@ export function CommandCenterExperienceHome({
           onNavigate={() => onNavigate("terminal")}
         />
         <ZavorthPulsePanel pulse={pulse} fallbackSummary={asText(daily.summary || health.summary)} onDraftCommand={onDraftCommand} />
-        <ResponseProfilePanel profile={responseProfile} onDraftCommand={onDraftCommand} />
+        <ResponseProfilePanel profile={responseProfile} onSelectProfile={model.handleResponseProfile} />
         <ActionCardsPanel
           cards={actionCards}
           onDraftCommand={onDraftCommand}
@@ -149,6 +149,7 @@ function ZavorthPulsePanel({
   const pending = asRecord(pulse.pending);
   const highlights = asTextArray(pulse.highlights);
   const risks = asTextArray(pulse.risks);
+  const totalSignals = Number(pending.approvals || 0) + Number(pending.learning || 0) + Number(pending.receipts || 0);
   return (
     <article className="bcc-experience-card bcc-zavorth-pulse">
       <header>
@@ -160,11 +161,18 @@ function ZavorthPulsePanel({
           Proximo
         </button>
       </header>
+      <div className="bcc-zavorth-pulse__orb" data-tone={risks.length ? "warn" : "ok"} aria-hidden="true">
+        <span>{totalSignals}</span>
+      </div>
       <div className="bcc-experience-list">
         <div className="bcc-experience-list__item" data-tone={risks.length ? "warn" : "ok"}>
           <strong>{asText(pulse.headline, fallbackSummary || "Zavorth pronto para o proximo pedido.")}</strong>
           <small>{asText(pulse.summary, fallbackSummary)}</small>
-          <small>Approvals {Number(pending.approvals || 0)} | Learning {Number(pending.learning || 0)} | Receipts {Number(pending.receipts || 0)}</small>
+          <div className="bcc-zavorth-pulse__metrics" aria-label="Sinais do Zavorth Pulse">
+            <span>Approvals <strong>{Number(pending.approvals || 0)}</strong></span>
+            <span>Learning <strong>{Number(pending.learning || 0)}</strong></span>
+            <span>Receipts <strong>{Number(pending.receipts || 0)}</strong></span>
+          </div>
         </div>
         {highlights.slice(0, 3).map((item) => (
           <small key={item} className="bcc-zavorth-pulse__line">+ {item}</small>
@@ -179,10 +187,10 @@ function ZavorthPulsePanel({
 
 function ResponseProfilePanel({
   profile,
-  onDraftCommand,
+  onSelectProfile,
 }: {
   profile: Record<string, any>;
-  onDraftCommand: (command: string) => void;
+  onSelectProfile: ControlPageClientModel["handleResponseProfile"];
 }) {
   const structure = asTextArray(profile.structure);
   const active = asText(profile.id, "dev");
@@ -207,7 +215,7 @@ function ResponseProfilePanel({
               key={item.id}
               type="button"
               data-active={active === item.id ? "true" : "false"}
-              onClick={() => onDraftCommand(`use estilo ${item.id}`)}
+              onClick={() => void onSelectProfile(item.id as "short" | "dev" | "executive" | "mentor")}
             >
               {item.label}
             </button>

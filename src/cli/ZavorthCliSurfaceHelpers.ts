@@ -1005,6 +1005,7 @@ export function buildCliHelpSnapshot(target?: string | null): CliHelpSnapshot {
           { command: 'zavorth', summary: 'Abre a home conversacional premium no terminal.' },
           { command: 'zavorth ask "pergunta"', summary: 'Roteia linguagem natural pelo Experience Core.' },
           { command: 'zavorth run "tarefa"', summary: 'Cria plano, executa com governanca e emite receipts.' },
+          { command: 'zavorth pulse', summary: 'Mostra proxima acao, riscos, receipts, learning e perfil ativo em uma tela curta.' },
           { command: 'zavorth hud', summary: 'Mostra timeline, action cards, diff, auto-healing e health em uma tela.' },
           { command: 'zavorth approve', summary: 'Mostra ou resolve approvals pendentes.' },
           { command: 'zavorth diff', summary: 'Revisa diffs de sandbox sem aplicar direto no host.' },

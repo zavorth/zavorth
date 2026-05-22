@@ -35,6 +35,7 @@ export function readExperienceQuery(request: Request): {
   workspace: string | null;
   activeRunId: string | null;
   activeTraceId: string | null;
+  userId: string | null;
   responseProfile: ExperienceCommand["responseProfile"];
 } {
   const url = new URL(request.url);
@@ -44,6 +45,7 @@ export function readExperienceQuery(request: Request): {
     workspace: url.searchParams.get("workspace"),
     activeRunId: url.searchParams.get("runId"),
     activeTraceId: url.searchParams.get("traceId"),
+    userId: url.searchParams.get("userId") || "control-ui",
     responseProfile: responseProfile === "short" || responseProfile === "dev" || responseProfile === "executive" || responseProfile === "mentor"
       ? responseProfile
       : null,
