@@ -9,6 +9,7 @@ import type {
 } from '../contracts/ZavorthMutationPlaneContract.js';
 import { CapabilityLifecycleService } from './CapabilityLifecycleService.js';
 import { PermissionService } from './PermissionService.js';
+import { ApprovalDecisionCacheService } from './ApprovalDecisionCacheService.js';
 import { RuntimeProfileService } from './RuntimeProfileService.js';
 
 export type TrustDecision = {
@@ -46,6 +47,7 @@ type TrustDecisionRuntime = {
     'shouldBootCapability' | 'describeCapability' | 'registerCapabilityDemand'
   >;
   permissionService?: Pick<PermissionService, 'createRequest' | 'findApprovedRequest'>;
+  approvalDecisionCacheService?: Pick<ApprovalDecisionCacheService, 'find' | 'remember'>;
 };
 
 const SAFE_DIRECT_ACTIONS = new Set([
@@ -79,6 +81,7 @@ export class TrustDecisionService {
     'shouldBootCapability' | 'describeCapability' | 'registerCapabilityDemand'
   >;
   private readonly permissionService: Pick<PermissionService, 'createRequest' | 'findApprovedRequest'>;
+  private readonly approvalDecisionCache: Pick<ApprovalDecisionCacheService, 'find' | 'remember'>;
 
   constructor(runtime: TrustDecisionRuntime = {}) {
     this.now = runtime.now || (() => new Date());
@@ -86,6 +89,7 @@ export class TrustDecisionService {
     this.runtimeProfile = runtime.runtimeProfileService || new RuntimeProfileService();
     this.capabilityLifecycle = runtime.capabilityLifecycleService || new CapabilityLifecycleService();
     this.permissionService = runtime.permissionService || new PermissionService();
+    this.approvalDecisionCache = runtime.approvalDecisionCacheService || new ApprovalDecisionCacheService();
   }
 
   public async evaluate(input: TrustDecisionInput): Promise<TrustDecision> {
@@ -149,6 +153,20 @@ export class TrustDecisionService {
     reason: string,
     scope: ZavorthApprovalScope,
   ): Promise<TrustDecision> {
+    const cached = this.approvalDecisionCache.find({
+      domain: input.domain,
+      actionId: input.actionId,
+      workspace: config.projectRoot,
+      requestedBy: input.requestedBy,
+      sourceSurface: input.sourceSurface,
+      riskLevel: input.riskLevel || null,
+      approvalScope: scope,
+      payload: input.payload || {},
+    });
+    if (cached) {
+      return this.allowed(input, `Approval cache hit for ${cached.actionId}; expires ${cached.expiresAt}.`, null);
+    }
+
     const existing = await this.permissionService.findApprovedRequest(
       'zavorth-mutation',
       this.permissionKind(input),
@@ -156,6 +174,16 @@ export class TrustDecisionService {
       this.metadataMatch(input, scope),
     );
     if (existing) {
+      this.approvalDecisionCache.remember({
+        domain: input.domain,
+        actionId: input.actionId,
+        workspace: config.projectRoot,
+        requestedBy: input.requestedBy,
+        sourceSurface: input.sourceSurface,
+        riskLevel: input.riskLevel || null,
+        approvalScope: scope,
+        payload: input.payload || {},
+      }, existing, 'Approved permission promoted to bounded approval cache.');
       return this.allowed(input, 'Approval persistente/session encontrado para esta mutacao.', existing);
     }
 

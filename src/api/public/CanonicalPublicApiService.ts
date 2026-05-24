@@ -69,6 +69,9 @@ import { ZavorthApprovalReceiptTrustUxService } from '../../services/ZavorthAppr
 import { ZavorthSubagentSkillLiveCompletionService } from '../../services/ZavorthSubagentSkillLiveCompletionService.js';
 import { PublicRuntimeEventService } from '../../services/PublicRuntimeEventService.js';
 import type { PublicRuntimeEvent } from '../../contracts/public/events/sse.js';
+import { RuntimeMetricsRegistryService } from '../../services/RuntimeMetricsRegistryService.js';
+import { MnemosMemoryLifecycleService } from '../../services/MnemosMemoryLifecycleService.js';
+import { PersonalizationConfigSchemaService } from '../../services/PersonalizationConfigSchemaService.js';
 
 export class CanonicalPublicApiService {
   private readonly version: string;
@@ -88,6 +91,9 @@ export class CanonicalPublicApiService {
   private readonly approvalReceiptTrustUx = new ZavorthApprovalReceiptTrustUxService();
   private readonly subagentSkillCompletion = new ZavorthSubagentSkillLiveCompletionService();
   private readonly publicEvents = new PublicRuntimeEventService();
+  private readonly runtimeMetrics = new RuntimeMetricsRegistryService();
+  private readonly mnemosLifecycle = new MnemosMemoryLifecycleService();
+  private readonly personalizationSchema = new PersonalizationConfigSchemaService();
 
   constructor(private readonly runtime: CanonicalPublicApiRuntime) {
     this.support = new CanonicalPublicApiSharedSupport(runtime);
@@ -146,6 +152,33 @@ export class CanonicalPublicApiService {
         publicApiCanBypassPolicy: false,
       },
     };
+  }
+
+  public async readPrometheusMetrics(): Promise<string> {
+    const approvals = await this.getPermissionService().listRequests('all', 500);
+    return this.runtimeMetrics.renderPrometheus({
+      runs: {
+        success: 0,
+        failure: 0,
+        denied: approvals.filter((entry) => entry.status === 'rejected').length,
+      },
+      approvals: approvals.reduce<Record<string, number>>((acc, entry) => {
+        acc[entry.status] = (acc[entry.status] || 0) + 1;
+        return acc;
+      }, {}),
+      sessions: {
+        active: this.runtime.getRuntime() ? 1 : 0,
+        durationSeconds: [],
+      },
+    });
+  }
+
+  public readMemoryLifecycle(input: { apply?: boolean } = {}) {
+    return this.mnemosLifecycle.buildSnapshot({ apply: input.apply === true });
+  }
+
+  public readPersonalizationValidation(input: { migrate?: boolean } = {}) {
+    return input.migrate ? this.personalizationSchema.migrate() : this.personalizationSchema.validate();
   }
 
   public readProviders(input: {
