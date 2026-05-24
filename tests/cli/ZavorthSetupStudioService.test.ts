@@ -36,6 +36,7 @@ describe('Zavorth Setup Studio service', () => {
     ]));
     expect(rendered).not.toContain('sk-test-secret-value-123456789');
     expect(rendered).not.toContain('telegram-secret-token');
+    expect(rendered).toContain('Mnemos Memory: local-summary / custom');
     expect(plan.safety.rawSecretsInPlan).toBe(false);
     expect(plan.safety.providerExecutionPerformed).toBe(false);
     expect(plan.safety.runtimePersistentStartPerformed).toBe(false);

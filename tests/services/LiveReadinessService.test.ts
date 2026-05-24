@@ -13,7 +13,7 @@ describe('LiveReadinessService Intent model', () => {
     expect(snapshot.contractVersion).toBe('2026-05-04.live-checkpoint-1');
     expect(snapshot.profile).toBe('dry-audit');
     expect(snapshot.status).toBe('attention');
-    expect(snapshot.summary.sourceModules).toBe(125);
+    expect(snapshot.summary.sourceModules).toBe(126);
     expect(snapshot.summary.liveReady).toBeGreaterThan(0);
     expect(snapshot.summary.partialLive).toBeGreaterThan(0);
     expect(snapshot.summary.configuredOnly).toBeGreaterThanOrEqual(0);
@@ -61,6 +61,7 @@ describe('LiveReadinessService Intent model', () => {
     expect(entries.get('signal')?.status).toBe('partial-live');
     expect(entries.get('msteams')?.status).toBe('partial-live');
     expect(entries.get('bluebubbles')?.status).toBe('partial-live');
+    expect(entries.get('clickclack')?.status).toBe('partial-live');
     expect(entries.get('imessage')?.status).toBe('partial-live');
     expect(entries.get('feishu')?.status).toBe('partial-live');
     expect(entries.get('googlechat')?.status).toBe('partial-live');

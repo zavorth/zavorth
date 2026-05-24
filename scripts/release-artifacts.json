@@ -1,0 +1,73 @@
+{
+  "schemaVersion": "zavorth-release-artifacts/1",
+  "generatedAt": "2026-05-23T08:26:21.091Z",
+  "packageName": "zavorth",
+  "version": "1.1.0",
+  "nativeBinaryStatus": "not-built",
+  "minimumNode": "18.0.0",
+  "artifacts": [
+    {
+      "name": "zavorth.cjs",
+      "platform": "any",
+      "kind": "node-launcher",
+      "nativeBinary": false,
+      "path": "dist-standalone\\zavorth.cjs",
+      "bytes": 1127,
+      "sha256": "d002f667504689b09a28a5b366ee5c41d1f11d8a39ce87cc62d343e5d9df25c2"
+    },
+    {
+      "name": "zavorth-linux-x64",
+      "platform": "linux-x64",
+      "kind": "shell-wrapper",
+      "nativeBinary": false,
+      "path": "dist-standalone\\zavorth-linux-x64",
+      "bytes": 117,
+      "sha256": "7a07a290c6719454fab37de3ff80b31cf5c6dc2b44494d9eede6e8f1c1d895bf"
+    },
+    {
+      "name": "zavorth-linux-arm64",
+      "platform": "linux-arm64",
+      "kind": "shell-wrapper",
+      "nativeBinary": false,
+      "path": "dist-standalone\\zavorth-linux-arm64",
+      "bytes": 117,
+      "sha256": "7a07a290c6719454fab37de3ff80b31cf5c6dc2b44494d9eede6e8f1c1d895bf"
+    },
+    {
+      "name": "zavorth-macos-x64",
+      "platform": "macos-x64",
+      "kind": "shell-wrapper",
+      "nativeBinary": false,
+      "path": "dist-standalone\\zavorth-macos-x64",
+      "bytes": 117,
+      "sha256": "7a07a290c6719454fab37de3ff80b31cf5c6dc2b44494d9eede6e8f1c1d895bf"
+    },
+    {
+      "name": "zavorth-macos-arm64",
+      "platform": "macos-arm64",
+      "kind": "shell-wrapper",
+      "nativeBinary": false,
+      "path": "dist-standalone\\zavorth-macos-arm64",
+      "bytes": 117,
+      "sha256": "7a07a290c6719454fab37de3ff80b31cf5c6dc2b44494d9eede6e8f1c1d895bf"
+    },
+    {
+      "name": "zavorth-win-x64.cmd",
+      "platform": "win-x64",
+      "kind": "cmd-wrapper",
+      "nativeBinary": false,
+      "path": "dist-standalone\\zavorth-win-x64.cmd",
+      "bytes": 68,
+      "sha256": "aac6aaf3f6ae3ab36135a03edf0fc37696ab145dfdd7cf1bd6704339b4bdab6d"
+    },
+    {
+      "name": "zavorth-win-arm64.cmd",
+      "platform": "win-arm64",
+      "kind": "cmd-wrapper",
+      "nativeBinary": false,
+      "path": "dist-standalone\\zavorth-win-arm64.cmd",
+      "bytes": 68,
+      "sha256": "aac6aaf3f6ae3ab36135a03edf0fc37696ab145dfdd7cf1bd6704339b4bdab6d"
+    }
+  ]
+}

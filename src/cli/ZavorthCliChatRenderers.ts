@@ -1,5 +1,6 @@
 import { sanitizeHumanCliText } from './ZavorthCliText.js';
 import { paintCliTone } from './ZavorthCliVisualTheme.js';
+import { TerminalMarkdown } from './presentation/TerminalMarkdown.js';
 
 export type CliChatAssistantMessageOptions = {
   title?: string;
@@ -22,14 +23,20 @@ function normalizeCliChatLines(value: string | string[] | null | undefined): str
 
 export function formatCliChatAssistantMessage(options: CliChatAssistantMessageOptions): string {
   const title = normalizeCliChatLine(options.title || 'Zavorth') || 'Zavorth';
-  const bodyLines = normalizeCliChatLines(options.body || null);
+  const rawBody = Array.isArray(options.body) ? options.body.join('\n') : (options.body || '');
+  const isTTY = process.stdout.isTTY && !process.argv.includes('--json');
+
+  const renderedBody = isTTY && rawBody.trim()
+    ? TerminalMarkdown.render(rawBody)
+    : normalizeCliChatLines(rawBody).join('\n');
+
   const hints = (options.hints || [])
     .map((hint) => normalizeCliChatLine(hint))
     .filter(Boolean);
 
   return [
     `${paintCliTone('*', 'brand')} ${paintCliTone(title, 'brand')}`,
-    bodyLines.length > 0 ? bodyLines.join('\n') : null,
+    renderedBody || null,
     hints.length > 0 ? ['', ...hints.map((hint) => `${paintCliTone('->', 'muted')} ${hint}`)].join('\n') : null,
   ].filter(Boolean).join('\n');
 }

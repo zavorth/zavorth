@@ -218,6 +218,40 @@ export class ZavorthMutationPlaneService {
     return updated;
   }
 
+  public rejectPlan(planId: string, reason: string, rejectedBy?: string | null): ZavorthMutationPlan {
+    const plan = this.requirePlan(planId);
+    if (plan.status === 'expired' || plan.status === 'applied') {
+      return plan;
+    }
+    const updated = this.appendAudit({
+      ...plan,
+      status: 'blocked',
+      approval: {
+        ...plan.approval,
+        status: plan.approval.required ? 'rejected' : plan.approval.status,
+        reason: this.cleanText(reason, plan.approval.reason),
+      },
+    }, 'plan.rejected', `Plano rejeitado${rejectedBy ? ` por ${this.cleanText(rejectedBy)}` : ''}.`, {
+      reason: this.cleanText(reason, 'Rejeitado pelo operador.'),
+    });
+    this.writePlan(updated);
+    return updated;
+  }
+
+  public deferPlan(planId: string, reason: string, deferredBy?: string | null): ZavorthMutationPlan {
+    const plan = this.requirePlan(planId);
+    if (plan.status === 'expired' || plan.status === 'applied' || plan.status === 'blocked') {
+      return plan;
+    }
+    const updated = this.appendAudit({
+      ...plan,
+    }, 'plan.deferred', `Plano adiado${deferredBy ? ` por ${this.cleanText(deferredBy)}` : ''}.`, {
+      reason: this.cleanText(reason, 'Adiado pelo operador.'),
+    });
+    this.writePlan(updated);
+    return updated;
+  }
+
   public pruneExpired(nowMs = this.now().getTime()): number {
     this.ensurePlansDir();
     let removed = 0;

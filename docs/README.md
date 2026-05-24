@@ -18,6 +18,7 @@ small: daily-use guides, stable architecture notes and integration contracts.
 | Doc | Use it for |
 | --- | --- |
 | [Architecture](/docs/architecture.md) | Runtime shape and major planes |
+| [Effect Boundary](/docs/effect-boundary.md) | LLM freedom with governed real effects |
 | [Executors](/docs/execution.md) | Execution providers and supervised work |
 | [Security](/docs/security.md) | Policy, approvals, egress and receipts |
 | [Provider Mesh](/docs/provider-mesh.md) | Provider selection and live readiness |
@@ -61,6 +62,10 @@ small: daily-use guides, stable architecture notes and integration contracts.
 ## Certification Notes
 
 - Provider, channel, speech and media checks are explicit readiness gates.
+- Long Tail channel activation is guarded by an Approval gate: catalog and
+  configured-doctor commands can inspect setup safely, while staging-live sends
+  require an explicit operator command, credentials, recipient allowlists and
+  redacted receipts.
 - Live I/O requires configured credentials, provider capability, owner approval
   and a receipt.
 - Preview-only and certification commands must not perform external sends,

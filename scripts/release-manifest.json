@@ -1,0 +1,34 @@
+{
+  "schemaVersion": "zavorth-release-channels/1",
+  "packageName": "zavorth",
+  "channels": [
+    {
+      "id": "stable",
+      "npmTag": "latest",
+      "risk": "low",
+      "checksum": "1368180796e8994eb51d22ced8f56717960599fdeea0834475f159b64ac3f097"
+    },
+    {
+      "id": "beta",
+      "npmTag": "beta",
+      "risk": "medium",
+      "checksum": "1c7f81deb8361fcd6c8d754b60e6bc563e565f70beea9a1f9ba393ea8af8c1a8"
+    },
+    {
+      "id": "nightly",
+      "npmTag": "nightly",
+      "risk": "high",
+      "checksum": "b481d06972ec4024406a74c93d7231f663f025ab6522fe04bf098598d3dfbfc1"
+    },
+    {
+      "id": "dev",
+      "npmTag": "dev",
+      "risk": "high",
+      "checksum": "8ecf96499e4770552980c0510c3df33749573c340723cfb59b87f3c91d01e1b7"
+    }
+  ],
+  "installer": {
+    "unix": "ZAVORTH_CHANNEL=beta curl -fsSL https://raw.githubusercontent.com/zavorth/zavorth-core/main/Zavorth/scripts/install.sh | bash",
+    "windows": "$env:ZAVORTH_CHANNEL=\"beta\"; irm https://raw.githubusercontent.com/zavorth/zavorth-core/main/Zavorth/scripts/install.ps1 | iex"
+  }
+}

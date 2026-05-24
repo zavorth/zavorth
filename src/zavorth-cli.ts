@@ -1,8 +1,48 @@
 #!/usr/bin/env node
 import { spawn } from 'child_process';
-import { existsSync } from 'fs';
+import { existsSync, readFileSync } from 'fs';
 import path from 'path';
 import { formatCliHelp, resolveCliHelpTopic } from './cli/ZavorthCliSurfaceHelpers.js';
+import {
+  renderZavorthQaGuide,
+  resolveZavorthSimpleCommand,
+  type ZavorthSimpleCommandPlan,
+} from './cli/SimpleCommandRouter.js';
+import {
+  formatZavorthParityHelp,
+  formatZavorthParityPreparedNotice,
+  isZavorthParityStubCommand,
+} from './cli/ZavorthCliParityCommands.js';
+import {
+  isZavorthLiveNamespaceCommand,
+  runZavorthLiveNamespaceCommand,
+} from './cli/ZavorthCliLiveNamespaces.js';
+
+async function logCliError(message: string, title = 'Zavorth Error'): Promise<void> {
+  const isTTY = process.stderr.isTTY && !process.argv.includes('--json');
+  if (isTTY) {
+    const { TerminalPanel } = await import('./cli/presentation/TerminalPanel.js');
+    TerminalPanel.error(message, title);
+  } else {
+    process.stderr.write(`${title}: ${message}\n`);
+  }
+}
+
+async function printCliPanel(title: string, lines: string[], type: 'default' | 'info' | 'success' | 'warning' | 'error' = 'default'): Promise<number> {
+  const content = lines.join('\n');
+  if (process.stdout.isTTY && !process.argv.includes('--json')) {
+    const { TerminalPanel } = await import('./cli/presentation/TerminalPanel.js');
+    process.stdout.write(`${TerminalPanel.render(content, {
+      title,
+      type,
+      padding: 1,
+      width: Math.max(58, Math.min(88, Number(process.stdout.columns || 90) - 4)),
+    })}\n`);
+  } else {
+    process.stdout.write([title, '', content, ''].join('\n'));
+  }
+  return 0;
+}
 
 const entryDir = path.dirname(path.resolve(process.argv[1] || process.cwd()));
 const runningFromDist = path.basename(entryDir).toLowerCase() === 'dist';
@@ -37,6 +77,29 @@ const PUBLIC_COMMAND_ALIASES: Record<string, string> = {
   terminal: 'chat',
 };
 
+const PUBLIC_COMMANDS = [
+  'chat',
+  'channels',
+  'setup',
+  'home',
+  'ask',
+  'approve',
+  'doctor',
+  'status',
+  'open',
+  'providers',
+  'models',
+  'hud',
+  'help',
+  'onboard',
+  'quickstart',
+  'start',
+  'native',
+  'diff',
+  'learn',
+  'inspect',
+];
+
 function normalizePublicCommandAliases(rawArgs: string[]): string[] {
   const first = String(rawArgs[0] || '').trim().toLowerCase();
   const alias = PUBLIC_COMMAND_ALIASES[first];
@@ -46,7 +109,8 @@ function normalizePublicCommandAliases(rawArgs: string[]): string[] {
   return [alias, ...rawArgs.slice(1)];
 }
 
-const args = normalizePublicCommandAliases(process.argv.slice(2));
+const simpleCommandPlan = resolveZavorthSimpleCommand(normalizePublicCommandAliases(process.argv.slice(2)));
+const args = simpleCommandPlan.kind === 'passthrough' ? simpleCommandPlan.args : process.argv.slice(2);
 
 function spawnInherited(command: string, commandArgs: string[], cwd: string): Promise<number> {
   return new Promise((resolve, reject) => {
@@ -66,6 +130,27 @@ function npmInherited(commandArgs: string[], cwd: string): Promise<number> {
     return spawnInherited(process.execPath, [npmCli, ...commandArgs], cwd);
   }
   return spawnInherited('npm', commandArgs, cwd);
+}
+
+async function runSimpleCommandPlan(plan: ZavorthSimpleCommandPlan): Promise<number | null> {
+  if (plan.kind === 'passthrough') {
+    return null;
+  }
+  if (plan.kind === 'qa-guide') {
+    process.stdout.write(`${renderZavorthQaGuide(plan.topic)}\n`);
+    return 0;
+  }
+  process.stdout.write(`${plan.label}\n`);
+  for (const script of plan.scripts) {
+    process.stdout.write(`\n> zavorth test: ${script}\n`);
+    const exitCode = await npmInherited(['run', script, '--silent'], projectRoot);
+    if (exitCode !== 0) {
+      await logCliError(`Zavorth test stopped at ${script}.`, 'Test Failed');
+      return exitCode;
+    }
+  }
+  process.stdout.write('\nZavorth tests passed.\n');
+  return 0;
 }
 
 function resolveNpmCli(): string | null {
@@ -148,14 +233,14 @@ async function runRuntimeResourceDoctor(rawArgs: string[], strict: boolean): Pro
     process.stdout.write(`${JSON.stringify(report, null, 2)}\n`);
   } else {
     const failedChecks = report.checks.filter((check) => !check.ok);
-    process.stdout.write([
-      '[zavorth-ops] runtime resource doctor',
-      `[zavorth-ops] perfil: ${report.profile} | budget: ${report.ok ? 'ok' : 'violado'}`,
-      `[zavorth-ops] memoria: rss ${report.snapshot.runtime.rssMb}/${report.thresholds.rssMb} MB | heap ${report.snapshot.runtime.heapUsedMb}/${report.thresholds.heapUsedMb} MB`,
-      `[zavorth-ops] runtime: handles ${report.snapshot.runtime.activeHandles}/${report.thresholds.activeHandles} | requests ${report.snapshot.runtime.activeRequests}/${report.thresholds.activeRequests} | cjs modules ${report.snapshot.runtime.loadedCommonJsModules}/${report.thresholds.loadedCommonJsModules}`,
-      failedChecks.length > 0 ? `[zavorth-ops] checks violados: ${failedChecks.map((check) => check.id).join(', ')}` : null,
-      report.recommendations.length > 0 ? `[zavorth-ops] recomendacoes: ${report.recommendations.join(' ')}` : null,
-    ].filter(Boolean).join('\n') + '\n');
+    await printCliPanel('Runtime resource doctor', [
+      `profile: ${report.profile}`,
+      `budget: ${report.ok ? 'ok' : 'violated'}`,
+      `memory: rss ${report.snapshot.runtime.rssMb}/${report.thresholds.rssMb} MB | heap ${report.snapshot.runtime.heapUsedMb}/${report.thresholds.heapUsedMb} MB`,
+      `runtime: handles ${report.snapshot.runtime.activeHandles}/${report.thresholds.activeHandles} | requests ${report.snapshot.runtime.activeRequests}/${report.thresholds.activeRequests} | cjs modules ${report.snapshot.runtime.loadedCommonJsModules}/${report.thresholds.loadedCommonJsModules}`,
+      failedChecks.length > 0 ? `violated checks: ${failedChecks.map((check) => check.id).join(', ')}` : null,
+      report.recommendations.length > 0 ? `recommendations: ${report.recommendations.join(' ')}` : null,
+    ].filter((line): line is string => Boolean(line)), report.ok ? 'success' : 'warning');
   }
 
   return strict && !report.ok ? 1 : 0;
@@ -182,6 +267,133 @@ async function runOperationalSecurityDoctor(rawArgs: string[]): Promise<number> 
   return report.ok ? 0 : 1;
 }
 
+async function runPremiumDoctor(rawArgs: string[]): Promise<number> {
+  const { runZavorthDoctorPremium } = await import('./cli/doctor/index.js');
+  const result = runZavorthDoctorPremium({
+    projectRoot,
+    json: rawArgs.includes('--json'),
+    strict: rawArgs.includes('--strict') || rawArgs.includes('--require-pass'),
+  });
+  process.stdout.write(result.output);
+  return result.exitCode;
+}
+
+async function runPremiumHome(rawArgs: string[]): Promise<number> {
+  const { runZavorthCliHome } = await import('./cli/home/index.js');
+  const result = runZavorthCliHome({
+    projectRoot,
+    json: rawArgs.includes('--json'),
+  });
+  process.stdout.write(result.output);
+  return result.exitCode;
+}
+
+async function runPremiumHatch(rawArgs: string[]): Promise<number> {
+  if (rawArgs.includes('--start')) {
+    return runPromotedScript('ops-go', rawArgs.filter((arg) => arg !== '--start'));
+  }
+  const { runZavorthCliHatch } = await import('./cli/hatch/index.js');
+  const result = runZavorthCliHatch({
+    projectRoot,
+    json: rawArgs.includes('--json'),
+  });
+  process.stdout.write(result.output);
+  return result.exitCode;
+}
+
+async function runPremiumQuickStart(rawArgs: string[]): Promise<number> {
+  const { runZavorthCliQuickStart } = await import('./cli/quickstart/index.js');
+  const result = runZavorthCliQuickStart({
+    projectRoot,
+    json: rawArgs.includes('--json'),
+  });
+  process.stdout.write(result.output);
+  return result.exitCode;
+}
+
+async function runPremiumApprovalDiff(view: 'approvals' | 'diff', rawArgs: string[]): Promise<number> {
+  const { runZavorthCliApprovalDiff } = await import('./cli/approval-diff/index.js');
+  const result = runZavorthCliApprovalDiff({
+    projectRoot,
+    view,
+    args: rawArgs,
+    json: rawArgs.includes('--json'),
+  });
+
+  const isInteractive = !rawArgs.includes('--json') && !rawArgs.includes('--yes') && process.stdout.isTTY;
+  if (view === 'approvals' && isInteractive) {
+    const targetPlanId = result.snapshot.targetPlanId;
+    if (targetPlanId) {
+      const targetCard = result.snapshot.cards.find(c => c.id === targetPlanId);
+      if (targetCard && (targetCard.status === 'waiting_approval' || targetCard.approvalStatus === 'pending')) {
+        // Render current preview first
+        process.stdout.write(result.output);
+
+        const { TerminalPanel } = await import('./cli/presentation/TerminalPanel.js');
+        const { TerminalPrompt } = await import('./cli/presentation/TerminalPrompt.js');
+
+        const riskTitle = `RISCO DETECTADO: Nível ${targetCard.riskLevel.toUpperCase()}`;
+        const riskDetails = [
+          `Ação Solicitada: ${targetCard.actionId} (Domínio: ${targetCard.domain})`,
+          `Motivo da Aprovação: ${targetCard.approvalReason}`,
+          `Arquivos Afetados: ${targetCard.files.join(', ') || 'Nenhum'}`,
+          `Comandos a Executar: ${targetCard.commands.join(', ') || 'Nenhum'}`,
+          `Impacto de Rede/Externo: ${targetCard.resourceImpact.externalExposure}`,
+        ].join('\n');
+
+        const panelType = (targetCard.riskLevel === 'critical' || targetCard.riskLevel === 'high') ? 'error' : 'warning';
+        TerminalPanel.print(riskDetails, {
+          title: riskTitle,
+          type: panelType,
+        });
+
+        const confirmed = await TerminalPrompt.confirm(`Deseja realmente aprovar o plano '${targetCard.id}'?`, false);
+        if (confirmed) {
+          const approvedArgs = [...rawArgs, '--yes'];
+          const approvedResult = runZavorthCliApprovalDiff({
+            projectRoot,
+            view,
+            args: approvedArgs,
+            json: false,
+          });
+          process.stdout.write(approvedResult.output);
+          return approvedResult.exitCode;
+        } else {
+          TerminalPanel.error('Aprovação cancelada pelo operador.', 'Cancelado');
+          return 1;
+        }
+      }
+    }
+  }
+
+  process.stdout.write(result.output);
+  return result.exitCode;
+}
+
+async function runPremiumHud(rawArgs: string[]): Promise<number> {
+  const { runZavorthCliHudInteractive } = await import('./cli/hud/index.js');
+  const result = await runZavorthCliHudInteractive({
+    projectRoot,
+    args: rawArgs,
+    json: rawArgs.includes('--json'),
+  });
+  if (result.snapshot.mode !== 'interactive') {
+    process.stdout.write(result.output);
+  }
+  return result.exitCode;
+}
+
+async function runPremiumSetupStudio(rawArgs: string[]): Promise<number> {
+  const { runZavorthSetupStudioCommand } = await import('./cli/setup-studio/index.js');
+  const result = await runZavorthSetupStudioCommand({
+    projectRoot,
+    args: rawArgs,
+    json: rawArgs.includes('--json'),
+  });
+  process.stdout.write(result.output);
+  return result.exitCode;
+}
+
 async function runContinuousSecurityMonitor(rawArgs: string[]): Promise<number> {
   const {
     buildContinuousSecurityMonitorReport,
@@ -202,8 +414,10 @@ async function runContinuousSecurityMonitor(rawArgs: string[]): Promise<number> 
     if (rawArgs.includes('--json')) {
       process.stdout.write(`${JSON.stringify({ ok: true, baseline }, null, 2)}\n`);
     } else {
-      process.stdout.write('[zavorth-security] baseline de seguranca continua atualizada\n');
-      process.stdout.write(`[zavorth-security] updatedAt: ${baseline.updatedAt}\n`);
+      await printCliPanel('Security baseline', [
+        'Baseline updated.',
+        `updated at: ${baseline.updatedAt}`,
+      ], 'success');
     }
     return 0;
   }
@@ -259,7 +473,7 @@ async function runSecurityOperationalPreset(rawArgs: string[]): Promise<number> 
 
   const preset = getSecurityOperationalPreset(action);
   if (!preset) {
-    process.stderr.write(`Preset de seguranca desconhecido: ${action}.\n`);
+    await logCliError(`Preset de seguranca desconhecido: ${action}.`, 'Security Preset Error');
     return 1;
   }
 
@@ -267,14 +481,15 @@ async function runSecurityOperationalPreset(rawArgs: string[]): Promise<number> 
     if (asJson) {
       process.stdout.write(`${JSON.stringify({ preset }, null, 2)}\n`);
     } else {
-      process.stdout.write([
-        '[zavorth-security] preset preview',
-        `[zavorth-security] ${preset.id}: ${preset.label}`,
-        `[zavorth-security] perfil: ${preset.securityProfile} | MCP: ${preset.mcpPolicy.profile} | skills: ${preset.skillPolicy.defaultPolicy}`,
-        `[zavorth-security] ${preset.summary}`,
+      await printCliPanel('Security preset preview', [
+        `${preset.id}: ${preset.label}`,
+        `profile: ${preset.securityProfile}`,
+        `MCP: ${preset.mcpPolicy.profile}`,
+        `skills: ${preset.skillPolicy.defaultPolicy}`,
+        preset.summary,
         '',
-        `Aplicar: zavorth security preset ${preset.id} --apply`,
-      ].join('\n') + '\n');
+        `Apply: zavorth security preset ${preset.id} --apply`,
+      ], 'warning');
     }
     return 0;
   }
@@ -303,16 +518,17 @@ async function runMinimalKernel(rawArgs: string[]): Promise<number> {
   if (asJson) {
     process.stdout.write(`${JSON.stringify(snapshot, null, 2)}\n`);
   } else {
-    process.stdout.write([
-      '[zavorth-core] minimal runtime kernel',
-      `[zavorth-core] status: ${snapshot.status} | profile: ${snapshot.profile}`,
-      `[zavorth-core] budget: ${snapshot.budget.ok ? 'ok' : 'violado'} | rss ${snapshot.budget.snapshot.runtime.rssMb}/${snapshot.budget.thresholds.rssMb} MB | heap ${snapshot.budget.snapshot.runtime.heapUsedMb}/${snapshot.budget.thresholds.heapUsedMb} MB`,
-      `[zavorth-core] runtime profile: ${snapshot.runtimeProfile.label} | polling ${snapshot.runtimeProfile.pollingMode} | sidecars ${snapshot.runtimeProfile.maxActiveSidecars}`,
-      `[zavorth-core] registry: total ${snapshot.capabilityRegistry.total} | boot ${snapshot.capabilityRegistry.activeOnBoot} | on-demand ${snapshot.capabilityRegistry.onDemand} | sidecars ${snapshot.capabilityRegistry.sidecars}`,
-      `[zavorth-core] sidecars: total ${snapshot.sidecarManager.total} | launchable ${snapshot.sidecarManager.launchable} | running ${snapshot.sidecarManager.running}`,
-      `[zavorth-core] scheduler: tasks ${snapshot.scheduler.taskCount} | event-first ${snapshot.scheduler.eventFirstTasks} | adaptive ${snapshot.scheduler.adaptiveTasks} | active timers ${snapshot.scheduler.activeTimers}`,
-      `[zavorth-core] capabilities: ${snapshot.capabilities.map((capability) => capability.id).join(', ')}`,
-    ].join('\n') + '\n');
+    await printCliPanel('Minimal runtime kernel', [
+      `status: ${snapshot.status}`,
+      `profile: ${snapshot.profile}`,
+      `budget: ${snapshot.budget.ok ? 'ok' : 'violated'}`,
+      `memory: rss ${snapshot.budget.snapshot.runtime.rssMb}/${snapshot.budget.thresholds.rssMb} MB | heap ${snapshot.budget.snapshot.runtime.heapUsedMb}/${snapshot.budget.thresholds.heapUsedMb} MB`,
+      `runtime profile: ${snapshot.runtimeProfile.label} | polling ${snapshot.runtimeProfile.pollingMode} | sidecars ${snapshot.runtimeProfile.maxActiveSidecars}`,
+      `registry: total ${snapshot.capabilityRegistry.total} | boot ${snapshot.capabilityRegistry.activeOnBoot} | on-demand ${snapshot.capabilityRegistry.onDemand} | sidecars ${snapshot.capabilityRegistry.sidecars}`,
+      `sidecars: total ${snapshot.sidecarManager.total} | launchable ${snapshot.sidecarManager.launchable} | running ${snapshot.sidecarManager.running}`,
+      `scheduler: tasks ${snapshot.scheduler.taskCount} | event-first ${snapshot.scheduler.eventFirstTasks} | adaptive ${snapshot.scheduler.adaptiveTasks} | active timers ${snapshot.scheduler.activeTimers}`,
+      `capabilities: ${snapshot.capabilities.map((capability) => capability.id).join(', ')}`,
+    ], snapshot.budget.ok ? 'success' : 'warning');
   }
 
   if (once) {
@@ -370,7 +586,7 @@ async function runAiFirstOwnerControlledDefault(rawArgs: string[]): Promise<numb
   } else if (action === 'status') {
     result = service.status(readNumberFlag(rawArgs, 'limit') || 20);
   } else {
-    process.stderr.write('Use: zavorth ai-first plan|activate|status|rollback\n');
+    await logCliError('Use: zavorth ai-first plan|activate|status|rollback', 'Usage Error');
     return 1;
   }
 
@@ -883,8 +1099,21 @@ async function runProviderParity(rawArgs: string[] = []): Promise<number> {
   return npmInherited(['exec', 'tsx', '--', 'scripts/zavorth-provider-parity.ts', ...rawArgs], projectRoot);
 }
 
+async function runProviderCapabilityCatalog(rawArgs: string[] = []): Promise<number> {
+  return npmInherited(['exec', 'tsx', '--', 'scripts/zavorth-provider-capability-catalog.ts', ...rawArgs], projectRoot);
+}
+
+async function runNativeIntegrations(rawArgs: string[] = []): Promise<number> {
+  return npmInherited(['exec', 'tsx', '--', 'scripts/zavorth-native-integrations.ts', ...rawArgs], projectRoot);
+}
+
 async function runProviderChannelWizard(rawArgs: string[] = []): Promise<number> {
   return npmInherited(['exec', 'tsx', '--', 'scripts/zavorth-provider-channel-wizard.ts', ...rawArgs], projectRoot);
+}
+
+async function runChannelCapabilityCatalog(rawArgs: string[] = []): Promise<number> {
+  const forwarded = rawArgs.includes('--json') ? ['--json'] : [];
+  return npmInherited(['exec', 'tsx', '--', 'scripts/channel-long-tail-activation.ts', ...forwarded], projectRoot);
 }
 
 async function runGatewayMatrix(rawArgs: string[] = []): Promise<number> {
@@ -963,7 +1192,7 @@ async function runRuntimeReadinessFix(rawArgs: string[] = []): Promise<number> {
   if (target === 'provider') {
     return runRuntimeReadinessFixProvider(rawArgs.slice(1));
   }
-  process.stderr.write('Fix desconhecido. Use: zavorth readiness fix provider --live-proof --provider <id>\n');
+  await logCliError('Fix desconhecido. Use: zavorth readiness fix provider --live-proof --provider <id>', 'Usage Error');
   return 1;
 }
 
@@ -1008,8 +1237,7 @@ async function runRuntimeReadinessFixProvider(rawArgs: string[] = []): Promise<n
     }, null, 2)}\n`);
   } else {
     const passed = selected?.probe.status === 'passed';
-    process.stdout.write([
-      '[zavorth-readiness-fix] provider live proof',
+    await printCliPanel('Provider live proof', [
       `provider=${selected?.id || providerId}`,
       `probe=${selected?.probe.status || 'not_found'}`,
       `default_route=${selected?.defaultRouteAllowed ? 'allowed' : 'blocked'}`,
@@ -1019,8 +1247,7 @@ async function runRuntimeReadinessFixProvider(rawArgs: string[] = []): Promise<n
       passed
         ? 'Provider validado com prova live persistida. Rode zavorth readiness para conferir o estado diario.'
         : selected?.probe.summary || 'Probe live nao conseguiu validar o provider.',
-      '',
-    ].join('\n'));
+    ], passed ? 'success' : 'warning');
   }
 
   return selected?.defaultRouteAllowed ? 0 : 1;
@@ -1123,29 +1350,39 @@ async function runGatewaySpine(rawArgs: string[] = []): Promise<number> {
   }
 
   if (view === 'sessions') {
-    process.stdout.write(`[gateway sessions]\ntotal=${snapshot.sessions.total} active=${snapshot.sessions.active} source=${snapshot.sessions.source}\n`);
-    return 0;
+    return printCliPanel('Gateway sessions', [
+      `total: ${snapshot.sessions.total}`,
+      `active: ${snapshot.sessions.active}`,
+      `source: ${snapshot.sessions.source}`,
+    ], 'info');
   }
   if (view === 'channels') {
-    process.stdout.write([
-      '[gateway channels]',
-      `total=${snapshot.channels.summary.total} ready=${snapshot.channels.summary.ready} partial=${snapshot.channels.summary.partial}`,
-      ...snapshot.channels.entries.map((entry) => `- ${entry.id}: ${entry.readiness} | ${entry.transport}`),
+    return printCliPanel('Gateway channels', [
+      `total: ${snapshot.channels.summary.total}`,
+      `ready: ${snapshot.channels.summary.ready}`,
+      `partial: ${snapshot.channels.summary.partial}`,
       '',
-    ].join('\n'));
-    return 0;
+      ...snapshot.channels.entries.map((entry) => `- ${entry.id}: ${entry.readiness} | ${entry.transport}`),
+    ], 'info');
   }
   if (view === 'approvals') {
-    process.stdout.write(`[gateway approvals]\npending=${snapshot.approvals.pending} total=${snapshot.approvals.total} source=${snapshot.approvals.source}\n`);
-    return 0;
+    return printCliPanel('Gateway approvals', [
+      `pending: ${snapshot.approvals.pending}`,
+      `total: ${snapshot.approvals.total}`,
+      `source: ${snapshot.approvals.source}`,
+    ], snapshot.approvals.pending > 0 ? 'warning' : 'success');
   }
   if (view === 'receipts') {
-    process.stdout.write(`[gateway receipts]\ntotal=${snapshot.receipts.total} source=${snapshot.receipts.source}\n`);
-    return 0;
+    return printCliPanel('Gateway receipts', [
+      `total: ${snapshot.receipts.total}`,
+      `source: ${snapshot.receipts.source}`,
+    ], 'info');
   }
   if (view === 'artifacts') {
-    process.stdout.write(`[gateway artifacts]\ntotal=${snapshot.artifacts.total} source=${snapshot.artifacts.source}\n`);
-    return 0;
+    return printCliPanel('Gateway artifacts', [
+      `total: ${snapshot.artifacts.total}`,
+      `source: ${snapshot.artifacts.source}`,
+    ], 'info');
   }
 
   process.stdout.write(service.renderText(snapshot));
@@ -1183,34 +1420,29 @@ async function runUnifiedOnboarding(rawArgs: string[] = []): Promise<number> {
   }
 
   if (view === 'templates') {
-    process.stdout.write([
-      '[zavorth-onboarding templates]',
+    return printCliPanel('Onboarding templates', [
       ...snapshot.templates.map((template) =>
         `- ${template.id}: ${template.label} | risk=${template.defaultRisk} | mutate=${template.requiresMutation ? 'yes' : 'no'}`,
       ),
-      '',
-    ].join('\n'));
-    return 0;
+    ], 'info');
   }
   if (view === 'doctor') {
-    process.stdout.write([
-      '[zavorth-onboarding doctor]',
-      `status=${snapshot.status}`,
-      `provider=${snapshot.provider.status} ready=${snapshot.provider.ready} missing_auth=${snapshot.provider.missingAuth} needs_probe=${snapshot.provider.needsProbe}`,
-      `sandbox=${snapshot.sandbox.status} mutation=${snapshot.sandbox.mutationMode}`,
-      `next=${snapshot.nextAction}`,
-      '',
-    ].join('\n'));
-    return 0;
+    return printCliPanel('Onboarding doctor', [
+      `status: ${snapshot.status}`,
+      `provider: ${snapshot.provider.status}`,
+      `provider ready: ${snapshot.provider.ready}`,
+      `missing auth: ${snapshot.provider.missingAuth}`,
+      `needs probe: ${snapshot.provider.needsProbe}`,
+      `sandbox: ${snapshot.sandbox.status}`,
+      `mutation mode: ${snapshot.sandbox.mutationMode}`,
+      `next: ${snapshot.nextAction}`,
+    ], snapshot.status === 'ready' ? 'success' : 'warning');
   }
   if (view === 'first-mission') {
-    process.stdout.write([
-      '[zavorth-onboarding first mission]',
+    return printCliPanel('Onboarding first mission', [
       snapshot.safeDemo.command,
       snapshot.safeDemo.summary,
-      '',
-    ].join('\n'));
-    return 0;
+    ], 'info');
   }
 
   process.stdout.write(service.renderText(snapshot));
@@ -1319,13 +1551,11 @@ async function runProviderReadiness(rawArgs: string[] = []): Promise<number> {
         },
       }, null, 2)}\n`);
     } else {
-      process.stdout.write([
-        '[provider-preference]',
-        `provider=${preference?.providerId || 'none'}`,
-        `model=${preference?.modelId || 'none'}`,
-        `receipt=${preference?.receiptId || 'none'}`,
-        '',
-      ].join('\n'));
+      await printCliPanel('Provider preference', [
+        `provider: ${preference?.providerId || 'none'}`,
+        `model: ${preference?.modelId || 'none'}`,
+        `receipt: ${preference?.receiptId || 'none'}`,
+      ], preference ? 'success' : 'info');
     }
     return 0;
   }
@@ -1398,7 +1628,12 @@ async function runBuiltinLauncher(rawArgs: string[]): Promise<number | null> {
   const command = String(rawArgs[0] || '').trim().toLowerCase();
   const restArgs = rawArgs.slice(1);
   if (!command) {
-    return runCliExperienceParity([]);
+    return null;
+  }
+
+  if (command === '--version' || command === '-v' || command === 'version') {
+    process.stdout.write(`Zavorth ${readPackageVersion()}\n`);
+    return 0;
   }
 
   if (command === '--help' || command === '-h' || command === 'help') {
@@ -1413,7 +1648,116 @@ async function runBuiltinLauncher(rawArgs: string[]): Promise<number | null> {
     return printBuiltinHelp(command);
   }
 
-  if (command === 'onboard') {
+  if (command === 'advanced') {
+    if (restArgs.length === 0 || restArgs.includes('--help') || restArgs.includes('-h')) {
+      return printBuiltinHelp('advanced');
+    }
+    return runBuiltinLauncher(restArgs);
+  }
+
+  if (command === 'ops') {
+    if (restArgs.length === 0 || restArgs.includes('--help') || restArgs.includes('-h')) {
+      return printBuiltinHelp('ops');
+    }
+    return runBuiltinLauncher(restArgs);
+  }
+
+  if (command === 'dev') {
+    if (restArgs.length === 0 || restArgs.includes('--help') || restArgs.includes('-h')) {
+      return printCliPanel('Zavorth dev', [
+        'Usage: zavorth dev [command]',
+        '',
+        'Developer and local QA helpers for maintainers.',
+        '',
+        'Commands:',
+        '  test              Run the default CLI/runtime checks',
+        '  test cli          Run CLI checks',
+        '  test runtime      Run TypeScript runtime checks',
+        '  build             Build the local package',
+        '  install           Install local dependencies',
+        '',
+        'Examples:',
+        '  zavorth dev test',
+        '  zavorth dev build',
+      ], 'info');
+    }
+    return runBuiltinLauncher(restArgs);
+  }
+
+  if (isZavorthLiveNamespaceCommand(command)) {
+    const result = await runZavorthLiveNamespaceCommand({ projectRoot, command, args: restArgs });
+    process.stdout.write(result.output);
+    return result.exitCode;
+  }
+
+  if (isZavorthParityStubCommand(command)) {
+    const help = formatZavorthParityHelp(command);
+    if (restArgs.length === 0 || restArgs.includes('--help') || restArgs.includes('-h')) {
+      process.stdout.write(help || '');
+      return 0;
+    }
+    const notice = formatZavorthParityPreparedNotice(command, restArgs);
+    process.stdout.write(notice || help || '');
+    return 0;
+  }
+
+  if (command === 'home') {
+    return runPremiumHome(restArgs);
+  }
+
+  if (command === 'hud' || command === 'cockpit') {
+    return runPremiumHud(restArgs);
+  }
+
+  if (command === 'hatch') {
+    return runPremiumHatch(restArgs);
+  }
+
+  if (command === 'quickstart' || command === 'configure') {
+    return runPremiumQuickStart(restArgs);
+  }
+
+  if (command === 'approve' || command === 'approval' || command === 'approvals') {
+    if (restArgs.includes('--help') || restArgs.includes('-h')) {
+      return printCliPanel('Zavorth approvals', [
+        'Usage: zavorth approve [options] [approvalId]',
+        '',
+        'Review and decide governed actions. Approval never applies host changes by itself.',
+        '',
+        'Options:',
+        '  -h, --help       Display help for command',
+        '  --json           Output JSON when supported',
+        '  --yes            Confirm the approval/rejection action',
+        '',
+        'Commands:',
+        '  list             Show pending approvals',
+        '  approve          Approve a plan only',
+        '  reject           Reject a plan',
+        '  diff             Inspect associated sandbox diff',
+        '',
+        'Examples:',
+        '  zavorth approve',
+        '    Show pending approvals.',
+        '  zavorth approve <id> --yes',
+        '    Approve a plan only; host application still follows policy.',
+        '  zavorth diff <id>',
+        '    Inspect the diff before deciding.',
+        '',
+        'Docs: zavorth help reference',
+      ], 'warning');
+    }
+    const firstApprovalArg = String(restArgs[0] || '').trim().toLowerCase();
+    if (command === 'approvals' && ['always', 'auto', 'policy', 'permito-sempre', 'break-glass'].includes(firstApprovalArg)) {
+      return runPersistentApprovals(restArgs.slice(1));
+    }
+    return runPremiumApprovalDiff('approvals', restArgs);
+  }
+
+  if (command === 'diff' || command === 'diffs') {
+    return runPremiumApprovalDiff('diff', restArgs);
+  }
+
+  if (command === 'onboard' || command === 'onboarding') {
     if (restArgs.includes('--help') || restArgs.includes('-h')) {
       return printBuiltinHelp('onboard');
     }
@@ -1427,16 +1771,19 @@ async function runBuiltinLauncher(rawArgs: string[]): Promise<number | null> {
       return runUnifiedOnboarding(forwarded);
     }
     if (['apply', 'run', 'setup'].includes(String(restArgs[0] || '').trim().toLowerCase())) {
-      return runPromotedScript('setup-v3', restArgs.slice(1));
+      return runPremiumSetupStudio(restArgs.slice(1));
     }
-    return runPromotedScript('setup-v3', restArgs);
+    return runPremiumSetupStudio(restArgs);
   }
 
   if (command === 'setup' || command === 'init') {
     if (restArgs.includes('--help') || restArgs.includes('-h')) {
       return printBuiltinHelp('onboard');
     }
-    return runPromotedScript('setup-v3', restArgs);
+    if (String(restArgs[0] || '').trim().toLowerCase() === 'legacy') {
+      return runPromotedScript('setup-v3', restArgs.slice(1));
+    }
+    return runPremiumSetupStudio(restArgs);
   }
 
   if (command === 'go') {
@@ -1477,7 +1824,10 @@ async function runBuiltinLauncher(rawArgs: string[]): Promise<number | null> {
   if (command === 'channels' || command === 'channel') {
     const channelAction = String(restArgs[0] || '').trim().toLowerCase();
     if (restArgs.includes('--help') || restArgs.includes('-h')) {
-      return runProviderChannelWizard(['channels', ...restArgs]);
+      return printBuiltinHelp('channels');
+    }
+    if (['catalog', 'list', 'all', 'inventory'].includes(channelAction)) {
+      return runChannelCapabilityCatalog(restArgs.slice(1));
     }
     if ([
       'add',
@@ -1578,7 +1928,10 @@ async function runBuiltinLauncher(rawArgs: string[]): Promise<number | null> {
     return runDashboardExperienceHome(restArgs);
   }
 
-  if (command === 'ready' || command === 'ready-to-go') {
+  if (command === 'status' || command === 'ready' || command === 'ready-to-go') {
+    if (restArgs.includes('--help') || restArgs.includes('-h')) {
+      return printBuiltinHelp('status');
+    }
     return runReadyToGo(restArgs);
   }
 
@@ -1609,7 +1962,6 @@ async function runBuiltinLauncher(rawArgs: string[]): Promise<number | null> {
     'new',
     'reset',
     'model',
-    'models',
     'personality',
     'persona',
     'retry',
@@ -1755,9 +2107,7 @@ async function runBuiltinLauncher(rawArgs: string[]): Promise<number | null> {
       return runGatewayMatrix(restArgs.slice(1));
     }
     if (restArgs.includes('--help') || restArgs.includes('-h')) {
-      process.stdout.write([
-        'Zavorth Gateway',
-        '',
+      return printCliPanel('Zavorth Gateway', [
         'Usage:',
         '  zavorth gateway status',
         '  zavorth gateway sessions',
@@ -1768,9 +2118,7 @@ async function runBuiltinLauncher(rawArgs: string[]): Promise<number | null> {
         '',
         'Options:',
         '  --json    Print the same Gateway Spine projection as JSON.',
-        '',
-      ].join('\n'));
-      return 0;
+      ], 'info');
     }
     return runGatewaySpine(restArgs);
   }
@@ -1781,13 +2129,107 @@ async function runBuiltinLauncher(rawArgs: string[]): Promise<number | null> {
 
   if (command === 'providers' || command === 'models') {
     const providerAction = String(restArgs[0] || '').trim().toLowerCase();
+    if (restArgs.includes('--help') || restArgs.includes('-h')) {
+      return printCliPanel('Zavorth models', [
+        'Usage: zavorth models [options] [command]',
+        '',
+        'Model/provider discovery, readiness and configuration',
+        '',
+        'Options:',
+        '  -h, --help       Display help for command',
+        '  --json           Output JSON when supported',
+        '',
+        'Commands:',
+        '  status           Show configured provider readiness',
+        '  catalog          Show provider catalog and capabilities',
+        '  add              Configure a provider',
+        '  setup            Guided provider setup',
+        '  switch           Change active provider/model',
+        '  parity           Show provider parity inventory',
+        '',
+        'Examples:',
+        '  zavorth models status',
+        '  zavorth models catalog',
+        '  zavorth models add --provider openai --model gpt-4.1',
+      ], 'info');
+    }
     if (providerAction === 'parity') {
       return runProviderParity(restArgs.slice(1));
+    }
+    if (['catalog', 'capabilities', 'capability-catalog', 'all', 'inventory'].includes(providerAction)) {
+      return runProviderCapabilityCatalog(restArgs.slice(1));
     }
     if (['add', 'setup', 'configure', 'switch'].includes(providerAction)) {
       return runProviderChannelWizard(['providers', ...restArgs]);
     }
     return runProviderReadiness(restArgs);
+  }
+
+  if (command === 'native' || command === 'integrations') {
+    if (restArgs.includes('--help') || restArgs.includes('-h')) {
+      return printCliPanel('Zavorth native', [
+        'Usage: zavorth native [options] [command]',
+        '',
+        'Inspect native provider, channel and capability inventory.',
+        '',
+        'Options:',
+        '  -h, --help       Display help for command',
+        '  --json           Output JSON when supported',
+        '',
+        'Commands:',
+        '  catalog          Show native-ready providers, channels and capabilities',
+        '  list             Alias for catalog',
+        '  ready            Show readiness-oriented inventory',
+        '',
+        'Examples:',
+        '  zavorth native catalog',
+        '    Inspect native adapters.',
+        '  zavorth native catalog --json',
+        '    Print machine-readable inventory.',
+        '',
+        'Docs: zavorth help reference',
+      ], 'info');
+    }
+    const action = String(restArgs[0] || 'catalog').trim().toLowerCase();
+    if (['catalog', 'list', 'inventory', 'ready'].includes(action)) {
+      return runNativeIntegrations(restArgs.slice(1));
+    }
+  }
+
+  if (command === 'doctor') {
+    const firstDoctorArg = String(restArgs.find((arg) => !arg.startsWith('--')) || '').trim().toLowerCase();
+    const specializedDoctorTopics = new Set([
+      'runtime',
+      'security',
+      'seguranca',
+      'capabilities',
+      'capability-registry',
+      'profiles',
+      'runtime-profiles',
+      'contracts',
+      'runtime-contracts',
+      'activation',
+      'capability-activation',
+      'activation-ledger',
+      'activation-receipts',
+      'receipts',
+      'activation-replay',
+      'activation-rollback',
+      'replay',
+      'retention',
+      'runtime-retention',
+      'mode',
+      'runtime-mode',
+      'mode-governor',
+      'sidecars',
+      'sidecar-manager',
+    ]);
+    if (!firstDoctorArg || firstDoctorArg === 'premium') {
+      return runPremiumDoctor(firstDoctorArg === 'premium' ? restArgs.slice(1) : restArgs);
+    }
+    if (!specializedDoctorTopics.has(firstDoctorArg) && !restArgs.includes('--simple') && !restArgs.includes('--advanced')) {
+      return runPremiumDoctor(restArgs);
+    }
   }
 
   if (
@@ -1864,12 +2306,18 @@ async function runBuiltinLauncher(rawArgs: string[]): Promise<number | null> {
     if (restArgs.includes('--json')) {
       process.stdout.write(`${JSON.stringify(snapshot, null, 2)}\n`);
     } else {
-      process.stdout.write([
-        '[zavorth-core] capability registry doctor',
-        `[zavorth-core] profile: ${profileSnapshot.selectedProfile.id} | budget: ${profileSnapshot.selectedProfile.budgetProfile}`,
-        `[zavorth-core] total: ${snapshot.total} | boot: ${snapshot.activeOnBoot} | on-demand: ${snapshot.onDemand} | sidecars: ${snapshot.sidecars} | disabled: ${snapshot.disabled} | invalid: ${snapshot.invalid}`,
-        `[zavorth-core] capabilities: ${snapshot.capabilities.map((capability) => `${capability.id}:${capability.boot}`).join(', ')}`,
-      ].join('\n') + '\n');
+      await printCliPanel('Capability registry doctor', [
+        `profile: ${profileSnapshot.selectedProfile.id}`,
+        `budget: ${profileSnapshot.selectedProfile.budgetProfile}`,
+        `total: ${snapshot.total}`,
+        `boot: ${snapshot.activeOnBoot}`,
+        `on-demand: ${snapshot.onDemand}`,
+        `sidecars: ${snapshot.sidecars}`,
+        `disabled: ${snapshot.disabled}`,
+        `invalid: ${snapshot.invalid}`,
+        '',
+        `capabilities: ${snapshot.capabilities.map((capability) => `${capability.id}:${capability.boot}`).join(', ')}`,
+      ], snapshot.invalid > 0 ? 'warning' : 'success');
     }
     return snapshot.invalid > 0 ? 1 : 0;
   }
@@ -1887,12 +2335,16 @@ async function runBuiltinLauncher(rawArgs: string[]): Promise<number | null> {
       process.stdout.write(`${JSON.stringify(snapshot, null, 2)}\n`);
     } else {
       const selected = snapshot.selectedProfile;
-      process.stdout.write([
-        '[zavorth-core] runtime profile doctor',
-        `[zavorth-core] selected: ${selected.id} | budget: ${selected.budgetProfile} | posture: ${selected.resourcePosture}`,
-        `[zavorth-core] polling: ${selected.pollingMode} | maintenance: ${selected.maintenanceMode} | sidecars: ${selected.maxActiveSidecars}`,
-        `[zavorth-core] overrides: ${Object.entries(selected.capabilityBootOverrides).map(([id, boot]) => `${id}:${boot}`).join(', ')}`,
-      ].join('\n') + '\n');
+      await printCliPanel('Runtime profile doctor', [
+        `selected: ${selected.id}`,
+        `budget: ${selected.budgetProfile}`,
+        `posture: ${selected.resourcePosture}`,
+        `polling: ${selected.pollingMode}`,
+        `maintenance: ${selected.maintenanceMode}`,
+        `sidecars: ${selected.maxActiveSidecars}`,
+        '',
+        `overrides: ${Object.entries(selected.capabilityBootOverrides).map(([id, boot]) => `${id}:${boot}`).join(', ')}`,
+      ], snapshot.invalid > 0 ? 'warning' : 'success');
     }
     return snapshot.invalid > 0 ? 1 : 0;
   }
@@ -1915,13 +2367,14 @@ async function runBuiltinLauncher(rawArgs: string[]): Promise<number | null> {
     if (restArgs.includes('--json')) {
       process.stdout.write(`${JSON.stringify(report, null, 2)}\n`);
     } else {
-      process.stdout.write([
-        '[zavorth-core] runtime contract doctor',
-        `[zavorth-core] status: ${report.status} | selected profile: ${report.selectedProfileId}`,
-        `[zavorth-core] capabilities: declared ${report.capabilitySummary.declared} | manifest ${report.capabilitySummary.manifest} | boot ${report.capabilitySummary.activeOnBoot} | sidecars ${report.capabilitySummary.sidecars}`,
-        `[zavorth-core] profiles: total ${report.profileSummary.total} | invalid ${report.profileSummary.invalid}`,
+      await printCliPanel('Runtime contract doctor', [
+        `status: ${report.status}`,
+        `selected profile: ${report.selectedProfileId}`,
+        `capabilities: declared ${report.capabilitySummary.declared} | manifest ${report.capabilitySummary.manifest} | boot ${report.capabilitySummary.activeOnBoot} | sidecars ${report.capabilitySummary.sidecars}`,
+        `profiles: total ${report.profileSummary.total} | invalid ${report.profileSummary.invalid}`,
+        '',
         ...report.issues.slice(0, 12).map((issue) => `! ${issue.severity} ${issue.id} ${issue.subject}: ${issue.message}`),
-      ].join('\n') + '\n');
+      ], report.status === 'failed' ? 'error' : report.status === 'warning' ? 'warning' : 'success');
     }
     return report.status === 'failed' || (restArgs.includes('--strict') && report.status === 'warning') ? 1 : 0;
   }
@@ -1952,12 +2405,14 @@ async function runBuiltinLauncher(rawArgs: string[]): Promise<number | null> {
       if (restArgs.includes('--json')) {
         process.stdout.write(`${JSON.stringify(result, null, 2)}\n`);
       } else {
-        process.stdout.write([
-          '[zavorth-core] capability activation doctor',
-          `[zavorth-core] profile: ${result.plan.profileId} | capability: ${result.plan.capabilityId} | status: ${result.plan.status} | mode: ${result.plan.mode}`,
-          `[zavorth-core] action: ${result.plan.action}`,
-          `[zavorth-core] result: ${result.message}`,
-        ].join('\n') + '\n');
+        await printCliPanel('Capability activation doctor', [
+          `profile: ${result.plan.profileId}`,
+          `capability: ${result.plan.capabilityId}`,
+          `status: ${result.plan.status}`,
+          `mode: ${result.plan.mode}`,
+          `action: ${result.plan.action}`,
+          `result: ${result.message}`,
+        ], ['blocked', 'missing'].includes(result.plan.status) ? 'warning' : 'success');
       }
       return restArgs.includes('--strict') && ['blocked', 'missing'].includes(result.plan.status) ? 1 : 0;
     }
@@ -1965,11 +2420,12 @@ async function runBuiltinLauncher(rawArgs: string[]): Promise<number | null> {
     if (restArgs.includes('--json')) {
       process.stdout.write(`${JSON.stringify(report, null, 2)}\n`);
     } else {
-      process.stdout.write([
-        '[zavorth-core] capability activation doctor',
-        `[zavorth-core] status: ${report.status} | profile: ${report.profileId} | contract: ${report.contractStatus}`,
-        `[zavorth-core] plans: total ${report.total} | active ${report.active} | ready ${report.ready} | manual ${report.manual} | disabled ${report.disabled} | invalidEnabled ${report.invalidEnabled}`,
-      ].join('\n') + '\n');
+      await printCliPanel('Capability activation doctor', [
+        `status: ${report.status}`,
+        `profile: ${report.profileId}`,
+        `contract: ${report.contractStatus}`,
+        `plans: total ${report.total} | active ${report.active} | ready ${report.ready} | manual ${report.manual} | disabled ${report.disabled} | invalid enabled ${report.invalidEnabled}`,
+      ], report.status === 'failed' ? 'error' : report.invalidEnabled > 0 ? 'warning' : 'success');
     }
     return report.status === 'failed' || (restArgs.includes('--strict') && report.invalidEnabled > 0) ? 1 : 0;
   }
@@ -1989,14 +2445,18 @@ async function runBuiltinLauncher(rawArgs: string[]): Promise<number | null> {
     if (restArgs.includes('--json')) {
       process.stdout.write(`${JSON.stringify(snapshot, null, 2)}\n`);
     } else {
-      process.stdout.write([
-        '[zavorth-core] capability activation ledger doctor',
-        `[zavorth-core] status: ${snapshot.status} | exists: ${snapshot.exists} | total ${snapshot.total} | returned ${snapshot.returned} | invalidLines ${snapshot.invalidLines}`,
-        `[zavorth-core] counts: plan ${snapshot.counts.plan} | activate ${snapshot.counts.activate} | dry-run ${snapshot.counts.dryRun} | applied ${snapshot.counts.applied}`,
+      await printCliPanel('Capability activation ledger', [
+        `status: ${snapshot.status}`,
+        `exists: ${snapshot.exists}`,
+        `total: ${snapshot.total}`,
+        `returned: ${snapshot.returned}`,
+        `invalid lines: ${snapshot.invalidLines}`,
+        `counts: plan ${snapshot.counts.plan} | activate ${snapshot.counts.activate} | dry-run ${snapshot.counts.dryRun} | applied ${snapshot.counts.applied}`,
+        '',
         ...snapshot.receipts.slice(0, 10).map((receipt) =>
           `- ${receipt.createdAt} ${receipt.operation}/${receipt.profileId}/${receipt.capabilityId}: ${receipt.status}/${receipt.mode}`,
         ),
-      ].join('\n') + '\n');
+      ], snapshot.invalidLines > 0 ? 'warning' : 'success');
     }
     return restArgs.includes('--strict') && snapshot.invalidLines > 0 ? 1 : 0;
   }
@@ -2028,12 +2488,14 @@ async function runBuiltinLauncher(rawArgs: string[]): Promise<number | null> {
       if (restArgs.includes('--json')) {
         process.stdout.write(`${JSON.stringify(result, null, 2)}\n`);
       } else {
-        process.stdout.write([
-          '[zavorth-core] capability activation replay doctor',
-          `[zavorth-core] action: ${result.action} | apply: ${result.apply} | status: ${result.plan.status} | executable: ${result.plan.executable}`,
-          `[zavorth-core] command: ${result.plan.command}`,
-          `[zavorth-core] result: ${result.message}`,
-        ].join('\n') + '\n');
+        await printCliPanel('Capability activation replay', [
+          `action: ${result.action}`,
+          `apply: ${result.apply}`,
+          `status: ${result.plan.status}`,
+          `executable: ${result.plan.executable}`,
+          `command: ${result.plan.command}`,
+          `result: ${result.message}`,
+        ], ['blocked', 'missing'].includes(result.plan.status) ? 'warning' : 'success');
       }
       return restArgs.includes('--strict') && ['blocked', 'missing'].includes(result.plan.status) ? 1 : 0;
     }
@@ -2046,11 +2508,16 @@ async function runBuiltinLauncher(rawArgs: string[]): Promise<number | null> {
     if (restArgs.includes('--json')) {
       process.stdout.write(`${JSON.stringify(report, null, 2)}\n`);
     } else {
-      process.stdout.write([
-        '[zavorth-core] capability activation replay doctor',
-        `[zavorth-core] action: ${report.action} | status: ${report.status} | total ${report.total} | ready ${report.ready} | noop ${report.noop} | manual ${report.manual}`,
+      await printCliPanel('Capability activation replay', [
+        `action: ${report.action}`,
+        `status: ${report.status}`,
+        `total: ${report.total}`,
+        `ready: ${report.ready}`,
+        `noop: ${report.noop}`,
+        `manual: ${report.manual}`,
+        '',
         ...report.plans.slice(0, 10).map((plan) => `- ${plan.profileId}/${plan.capabilityId}: ${plan.status} | ${plan.message}`),
-      ].join('\n') + '\n');
+      ], report.status === 'failed' || report.blocked > 0 ? 'warning' : 'success');
     }
     return report.status === 'failed' || (restArgs.includes('--strict') && report.blocked > 0) ? 1 : 0;
   }
@@ -2074,13 +2541,16 @@ async function runBuiltinLauncher(rawArgs: string[]): Promise<number | null> {
     if (restArgs.includes('--json')) {
       process.stdout.write(`${JSON.stringify(report, null, 2)}\n`);
     } else {
-      process.stdout.write([
-        '[zavorth-core] runtime retention doctor',
-        `[zavorth-core] status: ${report.status} | applied: ${report.applied} | files ${report.totals.files} | bytes ${report.totals.bytes}`,
-        `[zavorth-core] actions: planned ${report.totals.planned} | manual ${report.totals.manual} | applied ${report.totals.applied} | skipped ${report.totals.skipped} | errors ${report.totals.errors}`,
+      await printCliPanel('Runtime retention doctor', [
+        `status: ${report.status}`,
+        `applied: ${report.applied}`,
+        `files: ${report.totals.files}`,
+        `bytes: ${report.totals.bytes}`,
+        `actions: planned ${report.totals.planned} | manual ${report.totals.manual} | applied ${report.totals.applied} | skipped ${report.totals.skipped} | errors ${report.totals.errors}`,
+        '',
         ...report.actions.filter((action) => action.status !== 'kept').slice(0, 12)
           .map((action) => `- ${action.status} ${path.basename(action.filePath)}: ${action.message}`),
-      ].join('\n') + '\n');
+      ], report.status === 'failed' || report.totals.errors > 0 ? 'warning' : 'success');
     }
     return report.status === 'failed' || (restArgs.includes('--strict') && report.totals.errors > 0) ? 1 : 0;
   }
@@ -2100,11 +2570,15 @@ async function runBuiltinLauncher(rawArgs: string[]): Promise<number | null> {
       if (restArgs.includes('--json')) {
         process.stdout.write(`${JSON.stringify(snapshot, null, 2)}\n`);
       } else {
-        process.stdout.write([
-          '[zavorth-core] runtime mode ledger',
-          `[zavorth-core] status: ${snapshot.status} | total ${snapshot.total} | active ${snapshot.active} | released ${snapshot.released} | dry-run ${snapshot.dryRun}`,
+        await printCliPanel('Runtime mode ledger', [
+          `status: ${snapshot.status}`,
+          `total: ${snapshot.total}`,
+          `active: ${snapshot.active}`,
+          `released: ${snapshot.released}`,
+          `dry-run: ${snapshot.dryRun}`,
+          '',
           ...snapshot.leases.slice(0, 10).map((lease) => `- ${lease.id}: ${lease.status} ${lease.fromProfile}->${lease.toProfile} ${lease.capabilityId} expires=${lease.expiresAt}`),
-        ].join('\n') + '\n');
+        ], snapshot.status === 'failed' ? 'error' : 'success');
       }
       return snapshot.status === 'failed' ? 1 : 0;
     }
@@ -2118,12 +2592,16 @@ async function runBuiltinLauncher(rawArgs: string[]): Promise<number | null> {
     if (restArgs.includes('--json')) {
       process.stdout.write(`${JSON.stringify(plan, null, 2)}\n`);
     } else {
-      process.stdout.write([
-        '[zavorth-core] runtime mode governor',
-        `[zavorth-core] status: ${plan.status} | action: ${plan.action} | ${plan.fromProfile}->${plan.toProfile} | capability: ${plan.capabilityId}`,
-        `[zavorth-core] ttl: ${plan.ttlMs}ms | expires: ${plan.expiresAt} | budget: ${plan.budgetOk ? 'ok' : 'blocked'}`,
-        `[zavorth-core] result: ${plan.message}`,
-      ].join('\n') + '\n');
+      await printCliPanel('Runtime mode governor', [
+        `status: ${plan.status}`,
+        `action: ${plan.action}`,
+        `profile: ${plan.fromProfile} -> ${plan.toProfile}`,
+        `capability: ${plan.capabilityId}`,
+        `ttl: ${plan.ttlMs}ms`,
+        `expires: ${plan.expiresAt}`,
+        `budget: ${plan.budgetOk ? 'ok' : 'blocked'}`,
+        `result: ${plan.message}`,
+      ], ['blocked', 'missing'].includes(plan.status) ? 'warning' : 'success');
     }
     return ['blocked', 'missing'].includes(plan.status) ? 1 : 0;
   }
@@ -2149,12 +2627,14 @@ async function runBuiltinLauncher(rawArgs: string[]): Promise<number | null> {
       if (restArgs.includes('--json')) {
         process.stdout.write(`${JSON.stringify(result, null, 2)}\n`);
       } else {
-        process.stdout.write([
-          '[zavorth-core] capability replay',
-          `[zavorth-core] action: ${result.action} | profile: ${result.plan.profileId} | capability: ${result.plan.capabilityId} | status: ${result.plan.status}`,
-          `[zavorth-core] command: ${result.plan.command}`,
-          `[zavorth-core] result: ${result.message}`,
-        ].join('\n') + '\n');
+        await printCliPanel('Capability replay', [
+          `action: ${result.action}`,
+          `profile: ${result.plan.profileId}`,
+          `capability: ${result.plan.capabilityId}`,
+          `status: ${result.plan.status}`,
+          `command: ${result.plan.command}`,
+          `result: ${result.message}`,
+        ], ['blocked', 'missing'].includes(result.plan.status) ? 'warning' : 'success');
       }
       return ['blocked', 'missing'].includes(result.plan.status) ? 1 : 0;
     }
@@ -2162,7 +2642,7 @@ async function runBuiltinLauncher(rawArgs: string[]): Promise<number | null> {
     const action = String(restArgs[0] || '').trim().toLowerCase();
     const capabilityId = String(restArgs[1] || '').trim();
     if (!capabilityId) {
-      process.stderr.write('Informe o id da capability.\n');
+      await logCliError('Informe o id da capability.', 'Usage Error');
       return 1;
     }
     const profileArg = restArgs.find((arg) => arg.startsWith('--profile='))?.split('=').slice(1).join('=')
@@ -2189,12 +2669,14 @@ async function runBuiltinLauncher(rawArgs: string[]): Promise<number | null> {
     if (restArgs.includes('--json')) {
       process.stdout.write(`${JSON.stringify(result, null, 2)}\n`);
     } else {
-      process.stdout.write([
-        '[zavorth-core] capability activation',
-        `[zavorth-core] profile: ${result.plan.profileId} | capability: ${result.plan.capabilityId} | status: ${result.plan.status} | mode: ${result.plan.mode}`,
-        `[zavorth-core] action: ${result.plan.action}`,
-        `[zavorth-core] result: ${result.message}`,
-      ].join('\n') + '\n');
+      await printCliPanel('Capability activation', [
+        `profile: ${result.plan.profileId}`,
+        `capability: ${result.plan.capabilityId}`,
+        `status: ${result.plan.status}`,
+        `mode: ${result.plan.mode}`,
+        `action: ${result.plan.action}`,
+        `result: ${result.message}`,
+      ], ['blocked', 'missing'].includes(result.plan.status) ? 'warning' : 'success');
     }
     return ['blocked', 'missing'].includes(result.plan.status) ? 1 : 0;
   }
@@ -2219,11 +2701,13 @@ async function runBuiltinLauncher(rawArgs: string[]): Promise<number | null> {
       if (restArgs.includes('--json')) {
         process.stdout.write(`${JSON.stringify(plan, null, 2)}\n`);
       } else {
-        process.stdout.write([
-          '[zavorth-core] runtime mode plan',
-          `[zavorth-core] status: ${plan.status} | action: ${plan.action} | ${plan.fromProfile}->${plan.toProfile} | capability: ${plan.capabilityId}`,
-          `[zavorth-core] result: ${plan.message}`,
-        ].join('\n') + '\n');
+        await printCliPanel('Runtime mode plan', [
+          `status: ${plan.status}`,
+          `action: ${plan.action}`,
+          `profile: ${plan.fromProfile} -> ${plan.toProfile}`,
+          `capability: ${plan.capabilityId}`,
+          `result: ${plan.message}`,
+        ], ['blocked', 'missing'].includes(plan.status) ? 'warning' : 'success');
       }
       return ['blocked', 'missing'].includes(plan.status) ? 1 : 0;
     }
@@ -2243,12 +2727,16 @@ async function runBuiltinLauncher(rawArgs: string[]): Promise<number | null> {
     if (restArgs.includes('--json')) {
       process.stdout.write(`${JSON.stringify(result, null, 2)}\n`);
     } else {
-      process.stdout.write([
-        '[zavorth-core] runtime mode',
-        `[zavorth-core] applied: ${result.applied} | dryRun: ${result.dryRun} | status: ${result.plan.status} | action: ${result.plan.action}`,
-        `[zavorth-core] lease: ${result.lease?.id || 'none'} | ${result.plan.fromProfile}->${result.plan.toProfile} | return ${result.plan.returnProfile}`,
-        `[zavorth-core] result: ${result.message}`,
-      ].join('\n') + '\n');
+      await printCliPanel('Runtime mode', [
+        `applied: ${result.applied}`,
+        `dry-run: ${result.dryRun}`,
+        `status: ${result.plan.status}`,
+        `action: ${result.plan.action}`,
+        `lease: ${result.lease?.id || 'none'}`,
+        `profile: ${result.plan.fromProfile} -> ${result.plan.toProfile}`,
+        `return profile: ${result.plan.returnProfile}`,
+        `result: ${result.message}`,
+      ], ['blocked', 'missing'].includes(result.plan.status) ? 'warning' : 'success');
     }
     return ['blocked', 'missing'].includes(result.plan.status) ? 1 : 0;
   }
@@ -2278,11 +2766,15 @@ async function runBuiltinLauncher(rawArgs: string[]): Promise<number | null> {
     if (restArgs.includes('--json')) {
       process.stdout.write(`${JSON.stringify(snapshot, null, 2)}\n`);
     } else {
-      process.stdout.write([
-        '[zavorth-core] sidecar manager doctor',
-        `[zavorth-core] profile: ${snapshot.profileId} | total ${snapshot.total} | launchable ${snapshot.launchable} | running ${snapshot.running} | ready ${snapshot.ready}`,
+      await printCliPanel('Sidecar manager doctor', [
+        `profile: ${snapshot.profileId}`,
+        `total: ${snapshot.total}`,
+        `launchable: ${snapshot.launchable}`,
+        `running: ${snapshot.running}`,
+        `ready: ${snapshot.ready}`,
+        '',
         ...snapshot.sidecars.map((sidecar) => `- ${sidecar.id}: ${sidecar.state} | launchable=${sidecar.launchable} | ${sidecar.message}`),
-      ].join('\n') + '\n');
+      ], snapshot.ready === snapshot.total ? 'success' : 'warning');
     }
     return 0;
   }
@@ -2294,7 +2786,7 @@ async function runBuiltinLauncher(rawArgs: string[]): Promise<number | null> {
     const action = String(restArgs[0] || '').trim().toLowerCase();
     const sidecarId = String(restArgs[1] || '').trim();
     if (!sidecarId) {
-      process.stderr.write('Informe o id do sidecar.\n');
+      await logCliError('Informe o id do sidecar.', 'Usage Error');
       return 1;
     }
     const profileArg = restArgs.find((arg) => arg.startsWith('--profile='))?.split('=').slice(1).join('=')
@@ -2343,7 +2835,7 @@ async function runBuiltinLauncher(rawArgs: string[]): Promise<number | null> {
     } else if (action === 'navigate') {
       const url = restArgs[1] || restArgs.find((arg) => arg.startsWith('--url='))?.split('=').slice(1).join('=');
       if (!url) {
-        process.stderr.write('Informe a URL para navegar.\n');
+        await logCliError('Informe a URL para navegar.', 'Browser Sidecar Error');
         return 1;
       }
       result = await client.navigate(url, {
@@ -2363,7 +2855,7 @@ async function runBuiltinLauncher(rawArgs: string[]): Promise<number | null> {
     } else if (action === 'click') {
       const selector = restArgs[1] || restArgs.find((arg) => arg.startsWith('--selector='))?.split('=').slice(1).join('=');
       if (!selector) {
-        process.stderr.write('Informe o selector para clicar.\n');
+        await logCliError('Informe o selector para clicar.', 'Browser Sidecar Error');
         return 1;
       }
       result = await client.click(selector, { timeoutMs });
@@ -2371,7 +2863,7 @@ async function runBuiltinLauncher(rawArgs: string[]): Promise<number | null> {
       const selector = restArgs[1] || restArgs.find((arg) => arg.startsWith('--selector='))?.split('=').slice(1).join('=');
       const text = restArgs[2] || restArgs.find((arg) => arg.startsWith('--text='))?.split('=').slice(1).join('=') || '';
       if (!selector) {
-        process.stderr.write('Informe o selector para digitar.\n');
+        await logCliError('Informe o selector para digitar.', 'Browser Sidecar Error');
         return 1;
       }
       result = await client.type(selector, text, { timeoutMs });
@@ -2399,10 +2891,90 @@ async function runBuiltinLauncher(rawArgs: string[]): Promise<number | null> {
     return spawnInherited(process.execPath, [path.join(projectRoot, 'scripts', 'start-echo-stack.mjs')], projectRoot);
   }
 
+  const suggestion = resolveCommandSuggestion(command);
+  if (suggestion) {
+    return printCommandSuggestion(command, suggestion);
+  }
+
   return null;
 }
 
-void runBuiltinLauncher(args)
+function readPackageVersion(): string {
+  try {
+    const parsed = JSON.parse(readFileSync(path.join(projectRoot, 'package.json'), 'utf8')) as { version?: string };
+    return String(parsed.version || 'local');
+  } catch {
+    return 'local';
+  }
+}
+
+function resolveCommandSuggestion(command: string): string[] | null {
+  const normalized = String(command || '').trim().toLowerCase();
+  if (normalized.length < 2 || normalized.includes(' ') || normalized.startsWith('-')) {
+    return null;
+  }
+  if (PUBLIC_COMMANDS.includes(normalized)) {
+    return null;
+  }
+  const prefixMatches = PUBLIC_COMMANDS
+    .filter((item) => item.startsWith(normalized))
+    .slice(0, 5);
+  if (prefixMatches.length > 0) {
+    return prefixMatches;
+  }
+  const nearMatches = PUBLIC_COMMANDS
+    .map((item) => ({ item, distance: levenshtein(normalized, item) }))
+    .filter((entry) => entry.distance <= 2)
+    .sort((a, b) => a.distance - b.distance || a.item.localeCompare(b.item))
+    .slice(0, 4)
+    .map((entry) => entry.item);
+  return nearMatches.length > 0 ? nearMatches : null;
+}
+
+async function printCommandSuggestion(command: string, suggestions: string[]): Promise<number> {
+  const lines = [
+    `Unknown command: ${command}`,
+    '',
+    'Did you mean?',
+    ...suggestions.map((item) => `  zavorth ${item}`),
+    '',
+    `To send "${command}" as a message, use:`,
+    `  zavorth ask "${command}"`,
+  ].join('\n');
+  if (process.stdout.isTTY && !process.argv.includes('--json')) {
+    const { TerminalPanel } = await import('./cli/presentation/TerminalPanel.js');
+    process.stdout.write(`${TerminalPanel.render(lines, {
+      title: 'Command hint',
+      type: 'warning',
+      padding: 1,
+      width: Math.max(56, Math.min(84, Number(process.stdout.columns || 86) - 4)),
+    })}\n`);
+  } else {
+    process.stdout.write(`${lines}\n`);
+  }
+  return 1;
+}
+
+function levenshtein(a: string, b: string): number {
+  const previous = Array.from({ length: b.length + 1 }, (_, index) => index);
+  for (let i = 1; i <= a.length; i += 1) {
+    let diagonal = previous[0];
+    previous[0] = i;
+    for (let j = 1; j <= b.length; j += 1) {
+      const temp = previous[j];
+      previous[j] = Math.min(
+        previous[j] + 1,
+        previous[j - 1] + 1,
+        diagonal + (a[i - 1] === b[j - 1] ? 0 : 1),
+      );
+      diagonal = temp;
+    }
+  }
+  return previous[b.length] ?? Math.max(a.length, b.length);
+}
+
+void runSimpleCommandPlan(simpleCommandPlan)
+  .then((simpleExitCode) => simpleExitCode !== null ? simpleExitCode : runBuiltinLauncher(args))
   .then(async (handledExitCode) => {
     if (handledExitCode !== null) {
       return handledExitCode;
@@ -2413,15 +2985,39 @@ void runBuiltinLauncher(args)
   .then((exitCode) => {
     process.exit(exitCode);
   })
-  .catch((error) => {
+  .catch(async (error) => {
     const message = error instanceof Error ? error.message : String(error);
-    console.error([
-      'Zavorth could not finish this command.',
-      `Cause: ${message}`,
-      'Next: run zavorth doctor',
-      process.env.ZAVORTH_DEBUG === '1' && error instanceof Error && error.stack
-        ? `Debug:\n${error.stack}`
-        : null,
-    ].filter(Boolean).join('\n'));
+    const isTTY = process.stderr.isTTY && !process.argv.includes('--json');
+    const isDebug = process.env.ZAVORTH_DEBUG === '1' || process.argv.includes('--debug') || process.argv.includes('--verbose');
+
+    if (isTTY) {
+      try {
+        const { TerminalPanel } = await import('./cli/presentation/TerminalPanel.js');
+        const panelContent = [
+          `Cause: ${message}`,
+          'Next: run zavorth doctor',
+        ].join('\n');
+        TerminalPanel.error(panelContent, 'Zavorth Command Failure');
+        if (isDebug && error instanceof Error && error.stack) {
+          process.stderr.write(`\nDebug Stack Trace:\n${error.stack}\n`);
+        }
+      } catch (e) {
+        console.error([
+          'Zavorth could not finish this command.',
+          `Cause: ${message}`,
+          'Next: run zavorth doctor',
+          isDebug && error instanceof Error && error.stack ? `Debug:\n${error.stack}` : null,
+        ].filter(Boolean).join('\n'));
+      }
+    } else {
+      console.error([
+        'Zavorth could not finish this command.',
+        `Cause: ${message}`,
+        'Next: run zavorth doctor',
+        isDebug && error instanceof Error && error.stack
+          ? `Debug:\n${error.stack}`
+          : null,
+      ].filter(Boolean).join('\n'));
+    }
     process.exit(1);
   });

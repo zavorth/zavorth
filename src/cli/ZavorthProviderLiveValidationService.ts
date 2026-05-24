@@ -6,6 +6,7 @@ import {
   resolveSetupStudioProvider,
   type ZavorthSetupStudioProviderId,
 } from './ZavorthSetupStudioService.js';
+import { ProviderIntegrationRegistry } from '../services/providers/catalog/ProviderIntegrationRegistry.js';
 
 export type ZavorthProviderLiveValidationStatus =
   | 'not-requested'
@@ -67,6 +68,8 @@ const CHAT_PROVIDER_IDS = new Set<ZavorthSetupStudioProviderId>([
   'local',
 ]);
 
+const PROVIDER_REGISTRY = new ProviderIntegrationRegistry();
+
 export async function validateZavorthProviderLive(
   input: ZavorthProviderLiveValidationInput,
   deps: ZavorthProviderLiveValidationDeps = {},
@@ -89,13 +92,13 @@ export async function validateZavorthProviderLive(
     });
   }
 
-  if (!CHAT_PROVIDER_IDS.has(provider.id)) {
+  if (!isChatCapableSetupProvider(provider.id)) {
     return result({
       input,
       checkedAt,
       proofPath,
       status: 'unsupported',
-      message: `${provider.label} is cataloged, but this wizard only validates chat-capable providers.`,
+      message: `${provider.label} is cataloged, but this live ping only validates chat-capable providers. Media/search/speech providers remain configurable through setup and provider-specific tests.`,
       networkCallPerformed: false,
       environmentRestored: true,
     });
@@ -131,7 +134,7 @@ export async function validateZavorthProviderLive(
       checkedAt,
       proofPath,
       status: 'passed',
-      message: 'Provider respondeu ao ping live com sucesso.',
+      message: 'Provider answered the live ping successfully.',
       networkCallPerformed: true,
       environmentRestored: true,
       responsePreview: responsePreview || 'ok',
@@ -151,6 +154,14 @@ export async function validateZavorthProviderLive(
     restoreEnv(envSnapshot);
     clearProviderCache();
   }
+}
+
+function isChatCapableSetupProvider(providerId: string): boolean {
+  if (CHAT_PROVIDER_IDS.has(providerId)) {
+    return true;
+  }
+  const resolved = PROVIDER_REGISTRY.resolveProvider(providerId);
+  return Boolean(resolved?.primaryRoute?.capabilities?.includes('chat'));
 }
 
 export function writeZavorthProviderLiveValidationProof(

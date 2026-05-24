@@ -535,7 +535,7 @@ export const GROUPS: SourceGroup[] = [
     'xiaomi', 'zai',
   ]),
   group('channel', 'channel.message', 'channel', [
-    'bluebubbles', 'discord', 'feishu', 'googlechat', 'imessage', 'irc', 'line', 'matrix',
+    'bluebubbles', 'clickclack', 'discord', 'feishu', 'googlechat', 'imessage', 'irc', 'line', 'matrix',
     'mattermost', 'msteams', 'nextcloud-talk', 'nostr', 'qqbot', 'signal', 'slack',
     'synology-chat', 'telegram', 'tlon', 'twitch', 'webhooks', 'whatsapp', 'zalo', 'zalouser',
   ]),

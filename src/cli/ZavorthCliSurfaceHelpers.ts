@@ -21,11 +21,19 @@ import {
   formatZavorthMascotBlock,
 } from './ZavorthCliMascot.js';
 import { padCliVisualText, paintCliTone, stripCliAnsi } from './ZavorthCliVisualTheme.js';
+import {
+  formatZavorthParityHelp,
+  getZavorthPublicCommandRows,
+} from './ZavorthCliParityCommands.js';
 
 export type CliHelpSnapshot = {
   surface: 'zavorth-cli';
   topic:
     | 'root'
+    | 'home'
+    | 'hud'
+    | 'hatch'
+    | 'quickstart'
     | 'start'
     | 'demo'
     | 'connectors'
@@ -169,8 +177,19 @@ const CLI_HELP_TOPIC_ALIASES: Record<string, CliHelpTopic> = {
   onboard: 'onboard',
   setup: 'onboard',
   init: 'onboard',
+  home: 'home',
+  inicio: 'home',
+  'start-here': 'home',
+  hud: 'hud',
+  cockpit: 'hud',
+  tui: 'hud',
+  hatch: 'hatch',
+  acordar: 'hatch',
+  despertar: 'hatch',
+  quickstart: 'quickstart',
+  configure: 'quickstart',
+  configurar: 'quickstart',
   start: 'start',
-  quickstart: 'start',
   comecar: 'start',
   demo: 'demo',
   demonstracao: 'demo',
@@ -205,7 +224,6 @@ const CLI_HELP_TOPIC_ALIASES: Record<string, CliHelpTopic> = {
   supervisor: 'advanced',
   graph: 'advanced',
   ops: 'ops',
-  cockpit: 'ops',
   operations: 'ops',
   heal: 'ops',
   selfheal: 'ops',
@@ -231,6 +249,155 @@ const CLI_HELP_TOPIC_ALIASES: Record<string, CliHelpTopic> = {
 };
 
 const CLI_COMMAND_HELP_PAGES: Record<Exclude<CliHelpTopic, 'root'>, CliHelpPage> = {
+  home: {
+    topic: 'home',
+    title: 'zavorth',
+    summary: 'Abre a Home premium do terminal: status, provider, canais, approvals, safety e proximo passo.',
+    sections: [
+      {
+        title: 'Use quando',
+        entries: [
+          { summary: 'Voce acabou de abrir o terminal e quer saber o que fazer agora.' },
+          { summary: 'Voce quer ver a mesma verdade local sem iniciar runtime, tools ou mutacoes.' },
+        ],
+      },
+      {
+        title: 'Comandos',
+        entries: [
+          { command: 'zavorth', summary: 'Mostra a Home premium.' },
+          { command: 'zavorth home', summary: 'Mesmo painel, de forma explicita.' },
+          { command: 'zavorth home --json', summary: 'Exporta o snapshot estavel para automacao.' },
+        ],
+      },
+      {
+        title: 'Depois',
+        entries: [
+          { command: 'zavorth hatch', summary: 'Prepara a primeira sessao do agente.' },
+          { command: 'zavorth quickstart', summary: 'Configura provider/canais em modo preview-first.' },
+          { command: 'zavorth approve', summary: 'Resolve approvals pendentes antes de continuar.' },
+        ],
+      },
+    ],
+    notesTitle: 'Seguro',
+    notes: [
+      'A Home observa estado local e redige secrets. Ela nao executa tools nem escreve arquivos.',
+    ],
+  },
+  hud: {
+    topic: 'hud',
+    title: 'zavorth hud',
+    summary: 'Abre o cockpit de terminal com atalhos para home, diff, approvals e Command Center.',
+    sections: [
+      {
+        title: 'Use quando',
+        entries: [
+          { summary: 'Voce quer uma tela operacional viva sem abrir o dashboard.' },
+          { summary: 'Voce quer revisar approvals e diff por atalhos seguros no terminal.' },
+        ],
+      },
+      {
+        title: 'Comandos',
+        entries: [
+          { command: 'zavorth hud', summary: 'Abre o HUD interativo quando o terminal suporta TTY.' },
+          { command: 'zavorth hud --once', summary: 'Mostra o mesmo cockpit em modo texto e sai.' },
+          { command: 'zavorth hud review', summary: 'Modo focado em revisar fila, diff e decisao.' },
+          { command: 'zavorth hud guide', summary: 'Fluxo guiado: selecionar, inspecionar, revisar diff, decidir e ver receipt.' },
+          { command: 'zavorth hud --json', summary: 'Exporta contrato estavel para automacao.' },
+          { command: 'zavorth hud --select 2', summary: 'Seleciona um plano pendente pelo indice.' },
+          { command: 'zavorth hud --action diff', summary: 'Seleciona o diff do primeiro approval pendente.' },
+          { command: 'zavorth hud --action approve --yes', summary: 'Aprova somente o plano; nao aplica no host.' },
+          { command: 'zavorth hud --action reject --yes', summary: 'Rejeita e bloqueia o plano com auditoria.' },
+          { command: 'zavorth hud --action defer --yes', summary: 'Adia o plano e registra receipt local.' },
+        ],
+      },
+      {
+        title: 'Atalhos',
+        entries: [
+          { command: 'h', summary: 'Home.' },
+          { command: 'd', summary: 'Diff do plano selecionado.' },
+          { command: 'y y', summary: 'Aprovar em duas etapas; approval only.' },
+          { command: 'x x', summary: 'Rejeitar em duas etapas.' },
+          { command: 's s', summary: 'Adiar em duas etapas.' },
+          { command: '1-9', summary: 'Selecionar plano por indice.' },
+          { command: 'o', summary: 'Abrir Command Center.' },
+          { command: 'q', summary: 'Sair.' },
+        ],
+      },
+    ],
+    notesTitle: 'Seguro',
+    notes: [
+      'O HUD nunca aplica alteracoes no host. Ele apenas mostra, arma ou aprova planos governados.',
+    ],
+  },
+  hatch: {
+    topic: 'hatch',
+    title: 'zavorth hatch',
+    summary: 'Mostra o cockpit de primeira execucao e recomenda o jeito mais seguro de acordar o agente.',
+    sections: [
+      {
+        title: 'Use quando',
+        entries: [
+          { summary: 'Voce quer iniciar uma sessao real sem decorar start, setup, approvals ou dashboard.' },
+          { summary: 'Voce quer saber se deve aprovar algo, configurar provider ou abrir o Command Center.' },
+        ],
+      },
+      {
+        title: 'Comandos',
+        entries: [
+          { command: 'zavorth hatch', summary: 'Checklist premium de primeira execucao.' },
+          { command: 'zavorth hatch --json', summary: 'Mesmo cockpit em contrato estavel.' },
+          { command: 'zavorth hatch --start', summary: 'Delega para o start/go existente quando voce escolher iniciar.' },
+        ],
+      },
+      {
+        title: 'Quando estiver pronto',
+        entries: [
+          { command: 'zavorth ask "acorde e revise este workspace"', summary: 'Primeiro prompt natural sugerido.' },
+          { command: 'zavorth open', summary: 'Abre o Command Center visual.' },
+          { command: 'zavorth start', summary: 'Liga ou retoma o runtime local.' },
+        ],
+      },
+    ],
+    notesTitle: 'Seguro',
+    notes: [
+      'Hatch nao aplica mutacoes no host. Acoes sensiveis seguem policy, preview, approval e receipt.',
+    ],
+  },
+  quickstart: {
+    topic: 'quickstart',
+    title: 'zavorth quickstart',
+    summary: 'Configura provider e canais com UX curta, preview-first e secrets redigidos.',
+    sections: [
+      {
+        title: 'Use quando',
+        entries: [
+          { summary: 'Voce quer conectar um provider/modelo sem passar pelo setup completo.' },
+          { summary: 'Voce quer preparar Telegram ou Discord com allowlist e sem vazar tokens.' },
+        ],
+      },
+      {
+        title: 'Provider',
+        entries: [
+          { command: 'zavorth providers add --provider openai --model gpt-4.1', summary: 'Preview de provider; nao grava sem --apply.' },
+          { command: 'zavorth providers add --provider openai --model gpt-4.1 --apply', summary: 'Grava .env local com saida redigida.' },
+          { command: 'zavorth providers add --provider openai --secret-env OPENAI_API_KEY', summary: 'Le segredo de variavel local sem imprimir valor.' },
+        ],
+      },
+      {
+        title: 'Canais',
+        entries: [
+          { command: 'zavorth channels telegram', summary: 'Wizard de Telegram com token secreto e allowlist.' },
+          { command: 'zavorth channels telegram --allowed-users <id> --apply', summary: 'Grava allowlist local para ChatOps seguro.' },
+          { command: 'zavorth channels discord', summary: 'Wizard de Discord com guild/channel/owners.' },
+        ],
+      },
+    ],
+    notesTitle: 'Seguro',
+    notes: [
+      'QuickStart nao inicia runtime e nao faz live probe sem consentimento explicito.',
+      'Use "zavorth setup" quando quiser configurar perfil, memoria e preferencias completas.',
+    ],
+  },
   start: {
     topic: 'start',
     title: 'zavorth start',
@@ -329,38 +496,39 @@ const CLI_COMMAND_HELP_PAGES: Record<Exclude<CliHelpTopic, 'root'>, CliHelpPage>
   },
   onboard: {
     topic: 'onboard',
-    title: 'zavorth setup',
-    summary: 'Setup Studio: configura workspace, provider, modelo, canais, Mnemos e seguranca em um fluxo guiado.',
+    title: 'zavorth onboarding',
+    summary: 'Setup Studio: prepares workspace, provider, model, channels, Mnemos and trust in a guided flow.',
     sections: [
       {
-        title: 'Primeiro uso',
+        title: 'First run',
         entries: [
-          { summary: 'Pergunta como chamar voce, nome do agente, tom e workspace principal.' },
-          { summary: 'Permite escolher provider/modelo e inserir chave em campo secreto.' },
-          { summary: 'Configura Telegram, Mnemos/cofre e postura de approvals sem iniciar runtime persistente.' },
+          { summary: 'Asks your operator name, agent name, preferred tone and primary workspace.' },
+          { summary: 'Lets you choose provider/model and enter keys through secret fields.' },
+          { summary: 'Configures Telegram, Mnemos/vault and approval posture without starting persistent runtime.' },
         ],
       },
       {
         title: 'Preview',
         entries: [
-          { command: 'zavorth setup --dry-run', summary: 'Mostra o plano sem gravar arquivos.' },
-          { command: 'zavorth onboard --dry-run', summary: 'Alias amigavel para o mesmo preview de setup.' },
-          { command: 'zavorth setup --json --dry-run', summary: 'Mostra snapshot redigido para automacao segura.' },
+          { command: 'zavorth setup --dry-run', summary: 'Shows the plan without writing files.' },
+          { command: 'zavorth onboarding --dry-run', summary: 'Friendly alias for the same setup preview.' },
+          { command: 'zavorth onboard --dry-run', summary: 'Short alias for users who prefer the old command.' },
+          { command: 'zavorth setup --json --dry-run', summary: 'Prints a redacted snapshot for safe automation.' },
         ],
       },
       {
-        title: 'Depois',
+        title: 'After setup',
         entries: [
-          { command: 'zavorth ready', summary: 'Confere se o setup esta pronto para uso diario.' },
-          { command: 'zavorth start', summary: 'Liga o runtime local.' },
-          { command: 'zavorth open', summary: 'Abre o dashboard.' },
-          { command: 'zavorth chat', summary: 'Conversa pelo terminal quando preferir nao abrir o painel.' },
+          { command: 'zavorth ready', summary: 'Checks whether setup is ready for daily use.' },
+          { command: 'zavorth start', summary: 'Starts or resumes the local runtime.' },
+          { command: 'zavorth open', summary: 'Opens the visual dashboard.' },
+          { command: 'zavorth chat', summary: 'Chats in the terminal when you do not want the panel.' },
         ],
       },
     ],
-    notesTitle: 'Seguro',
+    notesTitle: 'Safety',
     notes: [
-      'Setup deve ser idempotente: repetir o comando revisa o ambiente em vez de executar algo perigoso.',
+      'Setup is idempotent: running it again reviews the environment instead of doing anything dangerous.',
     ],
   },
   go: {
@@ -997,95 +1165,367 @@ export function buildCliHelpSnapshot(target?: string | null): CliHelpSnapshot {
     surface: 'zavorth-cli',
     topic: 'root',
     title: ZAVORTH_CLI_BRAND_NAME,
-    summary: 'Zavorth natural-first: fale em linguagem normal, acompanhe timeline, aprove o que importa e revise aprendizados.',
+    summary: 'Natural language in front. Governed tools behind it. Evidence when it matters.',
     sections: [
       {
-        title: 'Comandos essenciais',
+        title: 'Start here',
         entries: [
-          { command: 'zavorth', summary: 'Abre a home conversacional premium no terminal.' },
-          { command: 'zavorth ask "pergunta"', summary: 'Roteia linguagem natural pelo Experience Core.' },
-          { command: 'zavorth run "tarefa"', summary: 'Cria plano, executa com governanca e emite receipts.' },
-          { command: 'zavorth pulse', summary: 'Mostra proxima acao, riscos, receipts, learning e perfil ativo em uma tela curta.' },
-          { command: 'zavorth hud', summary: 'Mostra timeline, action cards, diff, auto-healing e health em uma tela.' },
-          { command: 'zavorth approve', summary: 'Mostra ou resolve approvals pendentes.' },
-          { command: 'zavorth diff', summary: 'Revisa diffs de sandbox sem aplicar direto no host.' },
-          { command: 'zavorth learn', summary: 'Revisa aprendizados antes de promover comportamento futuro.' },
-          { command: 'zavorth setup', summary: 'Abre o Setup Studio guiado.' },
-          { command: 'zavorth open', summary: 'Abre o dashboard.' },
-          { command: 'zavorth doctor', summary: 'Diagnostica e sugere correcao.' },
+          { command: 'zavorth', summary: 'Open the interactive terminal agent session.' },
+          { command: 'zavorth home', summary: 'Show status, approvals and next steps.' },
+          { command: 'zavorth setup', summary: 'Guided setup for provider, channels, Mnemos and trust.' },
+          { command: 'zavorth inspect', summary: 'Provider, workspace, channels, hooks, MCP and receipts.' },
+          { command: 'zavorth open', summary: 'Open the visual Command Center.' },
         ],
       },
       {
-        title: 'Atalhos de operador',
+        title: 'Daily work',
         entries: [
-          { command: 'zavorth start', summary: 'Liga ou retoma o runtime local.' },
-          { command: 'zavorth ready', summary: 'Diz se esta pronto para uso remoto/local.' },
-          { command: 'zavorth status', summary: 'Mostra saude atual em uma tela curta.' },
-          { command: 'zavorth providers', summary: 'Mostra providers/modelos e readiness.' },
-          { command: 'zavorth trust', summary: 'Mostra approvals, permissoes e modo extremo.' },
-          { command: 'zavorth channels', summary: 'Configura canais como Telegram/Discord.' },
+          { command: 'zavorth -p "explain this repo"', summary: 'One-shot prompt with governed tools.' },
+          { command: 'zavorth ask "question"', summary: 'Natural language through the LLM-first agent.' },
+          { command: 'zavorth run "task"', summary: 'Governed task with timeline and receipts.' },
+          { command: 'zavorth approve', summary: 'Review pending approvals.' },
+          { command: 'zavorth diff', summary: 'Inspect sandbox diffs before host changes.' },
+          { command: 'zavorth learn', summary: 'Review learning before future behavior changes.' },
         ],
       },
       {
-        title: 'Avancado sem poluir o inicio',
+        title: 'Setup and maintenance',
         entries: [
-          { command: 'zavorth help <comando>', summary: 'Ajuda focada.' },
-          { command: 'zavorth help advanced', summary: 'Mostra comandos de operador.' },
-          { command: 'zavorth help reference', summary: 'Referencia completa para engenharia.' },
+          { command: 'zavorth install', summary: 'Install dependencies with a clean panel.' },
+          { command: 'zavorth build', summary: 'Build with progress and next actions.' },
+          { command: 'zavorth check', summary: 'Run premium CLI/distribution QA.' },
+          { command: 'zavorth doctor', summary: 'Diagnose setup and suggest safe fixes.' },
+          { command: 'zavorth version', summary: 'Show version and release channels.' },
+          { command: 'zavorth update --channel beta', summary: 'Preview a channel update.' },
+        ],
+      },
+      {
+        title: 'Advanced without clutter',
+        entries: [
+          { command: 'zavorth completions powershell', summary: 'Generate shell completions.' },
+          { command: 'zavorth managed-config', summary: 'Preview managed config with checksum protection.' },
+          { command: 'zavorth help advanced', summary: 'Show operator commands.' },
+          { command: 'zavorth help reference', summary: 'Open the full engineering reference.' },
         ],
       },
       {
         title: 'Safety',
         entries: [
-          { command: 'zavorth start --dry-run', summary: 'Preview sem iniciar nada persistente.' },
-          { command: 'zavorth doctor --json', summary: 'Diagnostico para automacoes.' },
-          { summary: 'Acoes sensiveis continuam atras de policy, preview, approval e receipt.' },
+          { command: 'zavorth doctor --json', summary: 'Machine-readable diagnostics for automation.' },
+          { command: 'zavorth managed-config apply', summary: 'Apply only after checksum verification.' },
+          { summary: 'Sensitive actions stay behind policy, preview, approval and receipt.' },
         ],
       },
     ],
     notesTitle: 'Next',
     notes: [
-      'Primeira vez? Rode: zavorth setup',
-      'Uso diario? Rode: zavorth e fale normalmente.',
+      'First time? Run: zavorth setup',
+      'Testing a local clone? Run: zavorth install, then zavorth build',
+      'Daily use? Run: zavorth and follow the next action.',
     ],
   };
 }
 
 function formatCliHelpEntry(entry: { command?: string; summary: string }): string {
   if (entry.command && entry.summary) {
-    return `- ${entry.command}: ${entry.summary}`;
+    const command = paintCliTone(entry.command, 'brand');
+    return `${padCliVisualText(command, 32)} ${entry.summary}`;
   }
   if (entry.command) {
-    return `- ${entry.command}`;
+    return entry.command;
   }
-  return `- ${entry.summary}`;
+  return entry.summary;
 }
 
 export function formatCliHelp(target?: string | null): string {
+  const publicCommandHelp = formatPublicCommandHelp(target);
+  if (publicCommandHelp) {
+    return applyZavorthPublicBranding(publicCommandHelp);
+  }
   const snapshot = buildCliHelpSnapshot(target);
+  if (snapshot.topic === 'root') {
+    return applyZavorthPublicBranding(formatPublicRootHelp());
+  }
   const panels: CliVisualPanel[] = snapshot.sections.map((section) => ({
     title: section.title,
     lines: section.entries.map((entry) => formatCliHelpEntry(entry)),
-    tone: snapshot.topic === 'root' ? 'neutral' : 'info',
+    tone: 'info',
   }));
 
   if (snapshot.notes.length > 0) {
     panels.push({
-      title: snapshot.notesTitle || 'Dicas rapidas',
+      title: snapshot.notesTitle || 'Quick tips',
       lines: snapshot.notes.map((note) => `- ${note}`),
       tone: 'muted',
     });
   }
 
   return applyZavorthPublicBranding(renderCliScreen({
-    eyebrow: snapshot.topic === 'root' ? 'Zavorth CLI' : `Ajuda ${snapshot.topic}`,
-    eyebrowTone: snapshot.topic === 'root' ? 'brand' : 'info',
+    eyebrow: `Help ${snapshot.topic}`,
+    eyebrowTone: 'info',
     title: snapshot.title,
     summary: snapshot.summary,
     panels,
-    mode: snapshot.topic === 'root' ? 'hero' : 'compact',
-    showWordmark: snapshot.topic === 'root',
+    mode: 'compact',
+    showWordmark: false,
   }));
+}
+
+function formatPublicCommandHelp(target?: string | null): string | null {
+  const topic = String(target || '').trim().toLowerCase().split(/\s+/u)[0] || '';
+  const localGuidedPages = new Set(['home', 'hatch', 'quickstart']);
+  if (!localGuidedPages.has(topic)) {
+    const parityHelp = formatZavorthParityHelp(topic);
+    if (parityHelp) {
+      return parityHelp;
+    }
+  }
+  const pages: Record<string, {
+    title: string;
+    usage: string;
+    description: string;
+    options?: string[];
+    commands: Array<[string, string]>;
+    examples: Array<[string, string]>;
+    docs?: string;
+  }> = {
+    channels: {
+      title: 'Zavorth channels',
+      usage: 'zavorth channels [options] [command]',
+      description: 'Manage connected chat channels and accounts.',
+      options: ['--json           Output JSON when supported'],
+      commands: [
+        ['add', 'Add or update a channel account.'],
+        ['status', 'Show channel readiness and proof state.'],
+        ['list', 'List configured and available channels.'],
+        ['telegram', 'Configure Telegram ChatOps.'],
+        ['discord', 'Configure Discord.'],
+        ['slack', 'Configure Slack.'],
+        ['email', 'Configure email delivery.'],
+      ],
+      examples: [
+        ['zavorth channels add', 'Open guided channel setup.'],
+        ['zavorth channels telegram', 'Configure Telegram token and allowlist.'],
+        ['zavorth channels list', 'Show the channel catalog.'],
+      ],
+      docs: 'zavorth help connectors',
+    },
+    connector: {
+      title: 'Zavorth channels',
+      usage: 'zavorth channels [options] [command]',
+      description: 'Manage connected chat channels and accounts.',
+      commands: [],
+      examples: [],
+      docs: 'zavorth help connectors',
+    },
+    connectors: {
+      title: 'Zavorth channels',
+      usage: 'zavorth channels [options] [command]',
+      description: 'Manage connected chat channels and accounts.',
+      options: ['--json           Output JSON when supported'],
+      commands: [
+        ['doctor', 'Show missing configuration for public connectors.'],
+        ['status', 'Show channel readiness.'],
+        ['add', 'Open guided setup.'],
+        ['list', 'List supported connectors.'],
+      ],
+      examples: [
+        ['zavorth connectors doctor', 'Diagnose all public connectors.'],
+        ['zavorth channels telegram', 'Configure Telegram safely.'],
+      ],
+      docs: 'zavorth help reference',
+    },
+    status: {
+      title: 'Zavorth status',
+      usage: 'zavorth status [options]',
+      description: 'Show runtime, provider, channel and approval readiness.',
+      options: ['--json           Output JSON when supported', '--strict         Exit non-zero when readiness is not clean'],
+      commands: [],
+      examples: [
+        ['zavorth status', 'Show a short readiness report.'],
+        ['zavorth ready --json', 'Print the same readiness projection as JSON.'],
+      ],
+      docs: 'zavorth doctor',
+    },
+    ready: {
+      title: 'Zavorth status',
+      usage: 'zavorth status [options]',
+      description: 'Show runtime, provider, channel and approval readiness.',
+      options: ['--json           Output JSON when supported', '--strict         Exit non-zero when readiness is not clean'],
+      commands: [],
+      examples: [
+        ['zavorth status', 'Show a short readiness report.'],
+        ['zavorth ready --json', 'Print the same readiness projection as JSON.'],
+      ],
+      docs: 'zavorth doctor',
+    },
+    doctor: {
+      title: 'Zavorth doctor',
+      usage: 'zavorth doctor [options] [scope]',
+      description: 'Diagnose setup, runtime, provider, channel and security problems.',
+      options: ['--json           Output JSON when supported', '--fix            Apply safe repairs when available', '--strict         Exit non-zero on warnings'],
+      commands: [
+        ['provider', 'Diagnose provider/model configuration.'],
+        ['channels', 'Diagnose channel setup.'],
+        ['security', 'Run operational security checks.'],
+        ['runtime', 'Check runtime resource budget.'],
+      ],
+      examples: [
+        ['zavorth doctor', 'Run the normal diagnostic path.'],
+        ['zavorth doctor provider', 'Focus model/provider issues.'],
+        ['zavorth doctor --json', 'Machine-readable diagnostic output.'],
+      ],
+      docs: 'zavorth status',
+    },
+    advanced: {
+      title: 'Zavorth advanced',
+      usage: 'zavorth advanced [command]',
+      description: 'Operator commands hidden from the normal daily path.',
+      commands: [
+        ['sessions', 'Inspect sessions, history and resumable workflows.'],
+        ['nodes', 'Manage companion devices and node mesh.'],
+        ['memory', 'Inspect memory, learning and retention.'],
+        ['gateway', 'Inspect gateway projections.'],
+        ['workspace', 'Operate workspace manifests and processes.'],
+      ],
+      examples: [
+        ['zavorth advanced sessions', 'Open session-oriented commands.'],
+        ['zavorth advanced gateway status', 'Route to gateway status.'],
+        ['zavorth help reference', 'Show the full engineering reference.'],
+      ],
+      docs: 'zavorth help reference',
+    },
+    ops: {
+      title: 'Zavorth ops',
+      usage: 'zavorth ops [command]',
+      description: 'Runtime, gateway and maintenance operations.',
+      commands: [
+        ['start', 'Start or resume local runtime.'],
+        ['gateway', 'Inspect gateway state.'],
+        ['logs', 'Inspect runtime logs when available.'],
+        ['release', 'Inspect release/update status.'],
+        ['heal', 'Preview self-healing actions.'],
+      ],
+      examples: [
+        ['zavorth ops start', 'Start the local runtime path.'],
+        ['zavorth ops gateway status', 'Show gateway status.'],
+        ['zavorth ops heal --preview', 'Preview repair actions.'],
+      ],
+      docs: 'zavorth doctor',
+    },
+  };
+  const page = pages[topic];
+  if (!page) return null;
+  return formatPublicHelpPage(page);
+}
+
+function formatPublicHelpPage(page: {
+  title: string;
+  usage: string;
+  description: string;
+  options?: string[];
+  commands: Array<[string, string]>;
+  examples: Array<[string, string]>;
+  docs?: string;
+}): string {
+  const panels: CliVisualPanel[] = [
+    {
+      title: page.title,
+      tone: 'brand',
+      lines: [page.description],
+    },
+    {
+      title: 'Usage',
+      tone: 'muted',
+      lines: [page.usage],
+    },
+    {
+      title: 'Options',
+      tone: 'info',
+      lines: ['-h, --help       Display help for command', ...(page.options || [])],
+    },
+    ...(page.commands.length
+      ? [{
+          title: 'Commands',
+          tone: 'brand' as const,
+          lines: page.commands.map(([command, description]) => formatCliHelpEntry({ command, summary: description })),
+        }]
+      : []),
+    {
+      title: 'Examples',
+      tone: 'success',
+      lines: page.examples.flatMap(([command, description]) => [command, `  ${description}`]),
+    },
+    {
+      title: 'Docs',
+      tone: 'muted',
+      lines: [page.docs || 'zavorth help reference'],
+    },
+  ];
+
+  return renderCliScreen({
+    eyebrow: 'Zavorth CLI',
+    title: page.title,
+    summary: page.description,
+    panels,
+    mode: 'compact',
+    showWordmark: false,
+  });
+}
+
+function formatPublicRootHelp(): string {
+  const panels: CliVisualPanel[] = [
+    {
+      title: 'Usage',
+      tone: 'muted',
+      lines: [
+        'Usage: zavorth [options] [command]',
+        'Commands:',
+      ],
+    },
+    {
+      title: 'Daily commands',
+      tone: 'brand',
+      lines: [
+        formatCliHelpEntry({ command: 'zavorth', summary: 'Open the terminal agent session.' }),
+        formatCliHelpEntry({ command: 'zavorth chat', summary: 'Alias for the terminal agent session.' }),
+        formatCliHelpEntry({ command: 'zavorth ask "review this repo"', summary: 'Run one governed request.' }),
+        formatCliHelpEntry({ command: 'zavorth setup', summary: 'Configure provider, channels, Mnemos and trust.' }),
+        formatCliHelpEntry({ command: 'zavorth approve', summary: 'Review sensitive actions.' }),
+        formatCliHelpEntry({ command: 'zavorth open', summary: 'Open Command Center.' }),
+      ],
+    },
+    {
+      title: 'When needed',
+      tone: 'info',
+      lines: [
+        formatCliHelpEntry({ command: 'zavorth home', summary: 'Short status and next step.' }),
+        formatCliHelpEntry({ command: 'zavorth status', summary: 'Runtime readiness.' }),
+        formatCliHelpEntry({ command: 'zavorth doctor', summary: 'Diagnose setup and suggest fixes.' }),
+        formatCliHelpEntry({ command: 'zavorth diff', summary: 'Inspect sandbox changes before approval.' }),
+        formatCliHelpEntry({ command: 'zavorth inspect', summary: 'Provider, workspace, channels and receipts.' }),
+      ],
+    },
+    {
+      title: 'Advanced groups',
+      tone: 'muted',
+      lines: [
+        formatCliHelpEntry({ command: 'zavorth help advanced', summary: 'Operator namespaces.' }),
+        formatCliHelpEntry({ command: 'zavorth help reference', summary: 'Full engineering reference.' }),
+        formatCliHelpEntry({ command: 'zavorth native catalog', summary: 'Provider/channel/capability inventory.' }),
+        formatCliHelpEntry({ command: 'zavorth completions powershell', summary: 'Shell completion setup.' }),
+      ],
+    },
+  ];
+
+  return renderCliScreen({
+    eyebrow: 'Zavorth CLI',
+    title: 'ZAVORTH',
+    summary: 'Speak naturally. Approve sensitive work. Keep receipts.',
+    panels,
+    mode: 'hero',
+    showWordmark: false,
+  });
 }
 
 export function buildCliChatWelcomeSnapshot(): CliChatWelcomeSnapshot {

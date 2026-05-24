@@ -38,6 +38,7 @@ type LongTailDescriptor = {
 };
 
 const LONG_TAIL_CHANNELS: LongTailDescriptor[] = [
+  botHttp('clickclack', 'ClickClack Bot API', ['CLICKCLACK_BOT_TOKEN', 'CLICKCLACK_TARGET_IDS']),
   webhook('feishu', 'Feishu incoming webhook', ['FEISHU_WEBHOOK_URL'], ['FEISHU_WEBHOOK_SECRET']),
   webhook('googlechat', 'Google Chat incoming webhook', ['GOOGLECHAT_WEBHOOK_URL'], []),
   webhook('mattermost', 'Mattermost incoming webhook', ['MATTERMOST_WEBHOOK_URL'], ['MATTERMOST_WEBHOOK_TOKEN']),
@@ -86,7 +87,7 @@ export class ChannelLongTailActivationService {
       phase: 'Approval gate - Channel Live Activation Long Tail',
       status: blocked > 0 ? 'blocked' : 'closed',
       summary: {
-        channels: 17,
+        channels: entries.length,
         partialLive: entries.filter((entry) => entry.status === 'partial-live').length,
         configuredOnly: entries.filter((entry) => entry.status === 'configured-only').length,
         blocked,

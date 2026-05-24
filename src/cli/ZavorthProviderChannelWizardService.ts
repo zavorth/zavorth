@@ -10,6 +10,11 @@ import {
   renderZavorthProviderLiveValidationResult,
   writeZavorthProviderLiveValidationProof,
 } from './ZavorthProviderLiveValidationService.js';
+import {
+  renderPremiumKeyValueTable,
+  renderZavorthPremiumCliScreen,
+  type ZavorthPremiumCliPanel,
+} from './premium/index.js';
 
 export type ZavorthProviderWizardInput = {
   projectRoot: string;
@@ -87,8 +92,15 @@ export class ZavorthProviderChannelWizardService {
         contractVersion: 'zavorth-setup-studio/1' as const,
         envFile,
         provider: { id: 'deferred' as const, modelId: 'deferred', secretStored: false, secretEnvKey: null },
-        channels: { telegram: channelId === 'telegram' ? 'configured-secret' as const : 'skip' as const },
+        channels: {
+          telegram: channelId === 'telegram' ? 'configured-secret' as const : 'skip' as const,
+          discord: channelId === 'discord' ? 'configured-secret' as const : 'skip' as const,
+          slack: channelId === 'slack' ? 'configured-secret' as const : 'skip' as const,
+          email: 'skip' as const,
+        },
+        webSearch: { provider: 'skip' as const, secretStored: false, secretEnvKey: null },
         memory: { mode: 'local-metadata' as const, vaultScope: 'skip' as const, scanDirs: [] },
+        hooks: { enabled: false, templates: [] },
         envUpdates: updates,
         safety: {
           rawSecretsInPlan: false as const,
@@ -110,28 +122,65 @@ export class ZavorthProviderChannelWizardService {
   }
 
   public render(result: ZavorthWizardResult): string {
-    return [
-      result.kind === 'provider' ? 'Zavorth Provider Wizard' : 'Zavorth Channel Wizard',
-      `status: ${result.status}`,
-      `env: ${result.envFile}`,
-      '',
-      'Updates',
-      ...(result.updates.length > 0
-        ? result.updates.map((entry) => `- ${entry.key}=${entry.redactedValue} (${entry.reason})`)
-        : ['- none']),
-      '',
-      'Safety',
-      '- secrets are redacted in output',
-      result.liveValidation
-        ? '- provider live probe was run only after explicit confirmation'
-        : '- no provider live probe was run',
-      ...(result.liveValidation ? [renderZavorthProviderLiveValidationResult(result.liveValidation)] : []),
-      '- no runtime was started',
-      '',
-      'Next',
-      ...result.nextCommands.map((command) => `- ${command}`),
-      '',
-    ].join('\n');
+    const panels: ZavorthPremiumCliPanel[] = [
+      {
+        title: 'Planned .env updates',
+        accent: result.status === 'applied' ? 'emerald' : 'amber',
+        lines: result.updates.length > 0
+          ? result.updates.map((entry) => `${entry.key}=${entry.redactedValue} (${entry.reason})`)
+          : ['none'],
+      },
+      {
+        title: 'Safety',
+        accent: 'emerald',
+        lines: [
+          '- secrets are redacted in output',
+          result.liveValidation
+            ? '- provider live probe was run only after explicit confirmation'
+            : '- no provider live probe was run',
+          '- no runtime was started',
+          '- writes require --apply',
+        ],
+      },
+    ];
+    if (result.liveValidation) {
+      panels.push({
+        title: 'Live validation',
+        accent: result.liveValidation.status === 'passed' ? 'emerald' : result.liveValidation.status === 'failed' ? 'rose' : 'amber',
+        lines: renderZavorthProviderLiveValidationResult(result.liveValidation).split('\n'),
+      });
+    }
+    return renderZavorthPremiumCliScreen({
+      title: result.kind === 'provider' ? 'Provider Wizard' : 'Channel Wizard',
+      subtitle: result.status === 'applied' ? 'Configuration written to local .env.' : 'Preview only. Add --apply to write local .env.',
+      mode: 'compact',
+      statusRows: [
+        { label: 'Wizard', value: result.kind, status: 'ready' },
+        { label: 'Status', value: result.status, status: result.status === 'applied' ? 'ready' : 'warning' },
+        { label: 'Updates', value: `${result.updates.length}`, status: result.updates.length > 0 ? 'waiting' : 'ready' },
+        { label: 'Runtime', value: 'not started', status: 'ready' },
+      ],
+      panels: [
+        {
+          title: 'Target',
+          accent: 'cyan',
+          lines: renderPremiumKeyValueTable([
+            { key: 'env file', value: result.envFile },
+            { key: 'output', value: 'redacted', accent: 'emerald' },
+          ]).split('\n'),
+        },
+        ...panels,
+      ],
+      actions: result.nextCommands.map((command) => ({
+        label: command,
+        command,
+        accent: 'cyan',
+      })),
+      notice: {
+        title: 'Governed setup',
+        body: 'Provider/channel setup changes configuration only when --apply is explicit. Secrets never appear in JSON or terminal output.',
+      },
+    });
   }
 
   public mergeEnvForTest(current: string, updates: ZavorthSetupStudioEnvUpdate[]): string {

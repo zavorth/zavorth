@@ -28,6 +28,18 @@ import {
   type ZavorthSpeculativeAutonomyResult,
   ZavorthSpeculativeAutonomyService,
 } from '../../services/ZavorthSpeculativeAutonomyService.js';
+import {
+  ZavorthMutationPlaneService,
+  type CreateZavorthMutationPlanInput,
+} from '../../services/ZavorthMutationPlaneService.js';
+import type { ZavorthMutationPlan } from '../../contracts/ZavorthMutationPlaneContract.js';
+import {
+  isSafeObservationTool,
+  mapToolCallToEffectDecision,
+  ToolEffectRegistry,
+  type ToolEffectMapping,
+} from '../../tools/governance/index.js';
+import { buildEffectRehearsalEnvelope } from '../rehearsal/index.js';
 
 export type UniversalAgentLlmRuntime = {
   chatDetailed(
@@ -43,6 +55,7 @@ export type AgentRunLlmRuntimeExecutorRuntime = {
   toolRuntime?: UniversalAgentToolRuntime | null;
   hallucinationMitigationService?: Pick<ZavorthHallucinationMitigationService, 'reviewResponse' | 'buildInstruction'>;
   speculativeAutonomyService?: Pick<ZavorthSpeculativeAutonomyService, 'prepare'> | null;
+  mutationPlaneService?: Pick<ZavorthMutationPlaneService, 'createPlan'> | null;
 };
 
 type NativeToolLoopStats = {
@@ -51,6 +64,9 @@ type NativeToolLoopStats = {
   denied: number;
   failed: number;
   rounds: number;
+  safeObservations: number;
+  effectBoundaryDenied: number;
+  sideEffectsDeferred: number;
 };
 
 type NativeToolLoopResult = {
@@ -76,6 +92,7 @@ const ALWAYS_SAFE_NATIVE_TOOLS = new Set([
   'workspace.list',
   'get_datetime',
 ]);
+const TOOL_EFFECT_REGISTRY = new ToolEffectRegistry();
 
 function normalizeText(value: unknown, fallback = ''): string {
   const text = String(value ?? '').trim();
@@ -116,6 +133,7 @@ export class AgentRunLlmRuntimeExecutor {
   private readonly toolRuntime: UniversalAgentToolRuntime | null;
   private readonly hallucinationMitigation: Pick<ZavorthHallucinationMitigationService, 'reviewResponse' | 'buildInstruction'>;
   private readonly speculativeAutonomy: Pick<ZavorthSpeculativeAutonomyService, 'prepare'> | null;
+  private readonly mutationPlane: Pick<ZavorthMutationPlaneService, 'createPlan'> | null;
 
   constructor(runtime: AgentRunLlmRuntimeExecutorRuntime = {}) {
     this.llmRuntime = runtime.llmRuntime || null;
@@ -124,6 +142,9 @@ export class AgentRunLlmRuntimeExecutor {
     this.speculativeAutonomy = runtime.speculativeAutonomyService === null
       ? null
       : runtime.speculativeAutonomyService || new ZavorthSpeculativeAutonomyService();
+    this.mutationPlane = runtime.mutationPlaneService === null
+      ? null
+      : runtime.mutationPlaneService || new ZavorthMutationPlaneService();
   }
 
   public isAvailable(): boolean {
@@ -475,6 +496,9 @@ export class AgentRunLlmRuntimeExecutor {
       denied: 0,
       failed: 0,
       rounds: 0,
+      safeObservations: 0,
+      effectBoundaryDenied: 0,
+      sideEffectsDeferred: 0,
     };
     const evidenceTexts: string[] = [];
     const events: NativeToolLoopResult['events'] = [];
@@ -520,6 +544,61 @@ export class AgentRunLlmRuntimeExecutor {
 
         const influencedByUntrustedContent = containsUntrustedContentMarker(input.messages)
           || containsUntrustedContentMarker(toolCall.arguments);
+        const sourceTrust = influencedByUntrustedContent ? 'untrusted-content' : 'trusted-user';
+        const effectMapping = mapToolCallToEffectDecision({
+          toolCall,
+          registry: TOOL_EFFECT_REGISTRY,
+          sourceTrust,
+          policyContext: {
+            surface: 'agent-native-tool-loop',
+            workspace: input.run.workspace || null,
+            sandboxAvailable: true,
+          },
+        });
+        const safeObservation = effectMapping.decision.action === 'allow'
+          && effectMapping.analysis.readOnly
+          && isSafeObservationTool(toolCall.name, TOOL_EFFECT_REGISTRY);
+        if (safeObservation) {
+          stats.safeObservations += 1;
+        } else if (effectMapping.decision.action === 'deny') {
+          stats.denied += 1;
+          stats.effectBoundaryDenied += 1;
+          const denied = `Tool ${toolCall.name} bloqueada pela effect boundary: ${effectMapping.decision.reasons.join(' ')}`;
+          toolMessages.push(this.buildToolMessage(toolCall.name, toolCall.id, denied));
+          events.push(this.buildToolEvent(input.run, toolCall.name, denied, 'failed', {
+            reason: 'effect-boundary-deny',
+            toolCallId: toolCall.id,
+            sourceTrust,
+            effectBoundary: this.buildToolEffectBoundaryMetadata(effectMapping),
+          }));
+          continue;
+        } else {
+          stats.denied += 1;
+          stats.sideEffectsDeferred += 1;
+          const rehearsalEnvelope = buildEffectRehearsalEnvelope({
+            id: `${input.run.id}:${toolCall.id}:effect-boundary`,
+            mapping: effectMapping,
+          });
+          const mutationPlan = this.createMutationPlanForDeferredEffect({
+            run: input.run,
+            toolName: toolCall.name,
+            mapping: effectMapping,
+            rehearsalEnvelope,
+          });
+          const deferred = this.buildDeferredToolEffectMessage(toolCall.name, effectMapping);
+          toolMessages.push(this.buildToolMessage(toolCall.name, toolCall.id, deferred));
+          events.push(this.buildToolEvent(input.run, toolCall.name, deferred, 'failed', {
+            reason: 'effect-boundary-deferred',
+            toolCallId: toolCall.id,
+            sourceTrust,
+            effectBoundary: this.buildToolEffectBoundaryMetadata(effectMapping),
+            effectRehearsal: rehearsalEnvelope,
+            ...(mutationPlan ? {
+              mutationPlan: this.buildMutationPlanMetadata(mutationPlan),
+            } : {}),
+          }));
+          continue;
+        }
         const toolArgs = influencedByUntrustedContent
           ? withUntrustedInputMetadata(toolCall.arguments, 'agent-run-llm-native-loop-contained-untrusted-evidence')
           : toolCall.arguments;
@@ -530,7 +609,8 @@ export class AgentRunLlmRuntimeExecutor {
           toolMessages.push(this.buildToolMessage(toolCall.name, toolCall.id, toolResult));
           events.push(this.buildToolEvent(input.run, toolCall.name, toolResult, 'done', {
             toolCallId: toolCall.id,
-            sourceTrust: influencedByUntrustedContent ? 'untrusted-content' : 'trusted-user',
+            sourceTrust,
+            effectBoundary: this.buildToolEffectBoundaryMetadata(effectMapping),
           }));
         } catch (error: unknown) {
           stats.failed += 1;
@@ -539,7 +619,8 @@ export class AgentRunLlmRuntimeExecutor {
           toolMessages.push(this.buildToolMessage(toolCall.name, toolCall.id, message));
           events.push(this.buildToolEvent(input.run, toolCall.name, message, 'failed', {
             toolCallId: toolCall.id,
-            sourceTrust: influencedByUntrustedContent ? 'untrusted-content' : 'trusted-user',
+            sourceTrust,
+            effectBoundary: this.buildToolEffectBoundaryMetadata(effectMapping),
           }));
         }
       }
@@ -595,6 +676,201 @@ export class AgentRunLlmRuntimeExecutor {
     };
   }
 
+  private buildToolEffectBoundaryMetadata(mapping: ToolEffectMapping): Record<string, unknown> {
+    return {
+      version: 'effect-boundary-tool-call/1',
+      action: mapping.decision.action,
+      allowed: mapping.decision.allowed,
+      rule: mapping.decision.rule,
+      risk: mapping.decision.risk,
+      readOnly: mapping.analysis.readOnly,
+      hasRealSideEffect: mapping.analysis.hasRealSideEffect,
+      safeObservation: mapping.decision.action === 'allow' && mapping.analysis.readOnly,
+      effectSummary: mapping.analysis.summary,
+      reasons: mapping.decision.reasons,
+    };
+  }
+
+  private buildDeferredToolEffectMessage(toolName: string, mapping: ToolEffectMapping): string {
+    const action = mapping.decision.action;
+    if (action === 'sandbox_only') {
+      return [
+        `Tool ${toolName} nao foi executada diretamente.`,
+        'A effect boundary classificou a chamada como side effect governado e exige ensaio em sandbox antes de commit.',
+        `Resumo: ${mapping.analysis.summary}`,
+      ].join(' ');
+    }
+    if (action === 'require_user_confirmation') {
+      return [
+        `Tool ${toolName} nao foi executada diretamente.`,
+        'A effect boundary exige confirmacao do usuario antes desse efeito.',
+        `Resumo: ${mapping.analysis.summary}`,
+      ].join(' ');
+    }
+    if (action === 'require_admin_policy') {
+      return [
+        `Tool ${toolName} nao foi executada diretamente.`,
+        'A effect boundary exige policy administrativa antes desse efeito.',
+        `Resumo: ${mapping.analysis.summary}`,
+      ].join(' ');
+    }
+    return [
+      `Tool ${toolName} nao foi executada diretamente.`,
+      'A effect boundary permite execucao direta somente para observacoes seguras reconhecidas.',
+      `Decisao: ${action}. Resumo: ${mapping.analysis.summary}`,
+    ].join(' ');
+  }
+
+  private createMutationPlanForDeferredEffect(input: {
+    run: UniversalAgentRun;
+    toolName: string;
+    mapping: ToolEffectMapping;
+    rehearsalEnvelope: ReturnType<typeof buildEffectRehearsalEnvelope>;
+  }): ZavorthMutationPlan | null {
+    if (!this.mutationPlane) {
+      return null;
+    }
+    if (!input.mapping.analysis.hasRealSideEffect) {
+      return null;
+    }
+
+    const args = input.mapping.actionIntent.args || {};
+    const workspaceWrites = this.extractWorkspaceWritesFromToolArgs(args);
+    const commands = this.extractCommandsFromToolArgs(args);
+    const effect = input.mapping.analysis.effect;
+    const hasProcessEffect = effect.processSpawn.length > 0
+      || effect.deletes.some((resource) => resource.kind === 'process')
+      || commands.length > 0;
+    const rollbackSteps = input.rehearsalEnvelope.rehearsal.rollbackPlan.steps
+      .map((step) => step.summary)
+      .filter(Boolean);
+    const payload: Record<string, unknown> = {
+      source: 'effect-boundary',
+      toolName: input.toolName,
+      actionIntent: input.mapping.actionIntent,
+      effectBoundary: this.buildToolEffectBoundaryMetadata(input.mapping),
+      effectRehearsal: input.rehearsalEnvelope,
+      workspaceWrites,
+      commands,
+      affectedResources: {
+        reads: effect.reads,
+        writes: effect.writes,
+        deletes: effect.deletes,
+        networkEgress: effect.networkEgress,
+        processSpawn: effect.processSpawn,
+        persistence: effect.persistence,
+        humanVisibleSend: effect.humanVisibleSend,
+      },
+    };
+    const planInput: CreateZavorthMutationPlanInput = {
+      domain: this.resolveMutationDomain(input.mapping),
+      actionId: `effect-boundary:${input.run.id}:${input.mapping.toolCallId}`,
+      title: `Effect Boundary: ${input.toolName}`,
+      summary: `Side effect deferred by Effect Boundary for ${input.toolName}. Review sandbox/rehearsal before applying.`,
+      requestedBy: input.run.userId,
+      sourceSurface: `agent-run:${input.run.channel}`,
+      riskLevel: input.mapping.decision.risk === 'danger' ? 'high' : 'medium',
+      approvalRequired: true,
+      approvalReason: 'Effect Boundary deferred this side effect until sandbox/rehearsal approval.',
+      resourceImpact: {
+        diskMb: Math.max(1, workspaceWrites.length),
+        processCount: hasProcessEffect ? 1 : 0,
+        externalExposure: effect.humanVisibleSend.length > 0
+          ? 'public'
+          : effect.networkEgress.length > 0
+            ? 'network'
+            : hasProcessEffect
+              ? 'local'
+              : 'none',
+        recurring: false,
+        notes: [
+          'Created from deferred LLM native tool side effect.',
+          `Effect policy rule: ${input.mapping.decision.rule}`,
+        ],
+      },
+      readinessGates: [{
+        id: `${input.rehearsalEnvelope.id}:readiness`,
+        status: input.mapping.decision.action === 'require_admin_policy'
+          ? 'blocked'
+          : input.rehearsalEnvelope.rehearsal.status === 'prepared'
+            ? 'warning'
+            : 'blocked',
+        canProceed: input.mapping.decision.action !== 'require_admin_policy'
+          && input.rehearsalEnvelope.rehearsal.status === 'prepared',
+        scope: 'effect-boundary-rehearsal',
+        reasons: input.mapping.decision.reasons,
+        warnings: ['Mutation plan requires sandbox/rehearsal validation before apply.'],
+        blockers: input.rehearsalEnvelope.rehearsal.blockers,
+        checkedAt: new Date().toISOString(),
+        nextActions: ['Review mutation plan', 'Run sandbox validation', 'Approve only after preview matches intent'],
+      }],
+      validationPlan: ['Run sandbox validation before applying this mutation plan.'],
+      rollbackPlan: rollbackSteps.length > 0 ? rollbackSteps : ['Review rollback evidence before commit.'],
+      payload,
+    };
+
+    return this.mutationPlane.createPlan(planInput);
+  }
+
+  private resolveMutationDomain(mapping: ToolEffectMapping): CreateZavorthMutationPlanInput['domain'] {
+    const effect = mapping.analysis.effect;
+    if (
+      effect.processSpawn.length > 0
+      || effect.deletes.some((resource) => resource.kind === 'process')
+      || effect.networkEgress.length > 0
+    ) {
+      return 'sandbox';
+    }
+    if (effect.secretAccess.length > 0) {
+      return 'capability';
+    }
+    return 'selfmod';
+  }
+
+  private extractWorkspaceWritesFromToolArgs(args: Record<string, unknown>): Array<{ path: string; content: string }> {
+    const pathValue = normalizeText(args.path || args.filePath || args.target_file || args.target || args.workspacePath);
+    const contentValue = typeof args.content === 'string'
+      ? args.content
+      : typeof args.code_content === 'string'
+        ? args.code_content
+        : typeof args.text === 'string'
+          ? args.text
+          : '';
+    if (!pathValue) {
+      return [];
+    }
+    return [{
+      path: pathValue,
+      content: contentValue,
+    }];
+  }
+
+  private extractCommandsFromToolArgs(args: Record<string, unknown>): string[] {
+    const candidates = [
+      args.command,
+      args.cmd,
+      args.script,
+      args.shell,
+    ];
+    return candidates
+      .flatMap((candidate) => Array.isArray(candidate) ? candidate : [candidate])
+      .map((candidate) => normalizeText(candidate))
+      .filter(Boolean);
+  }
+
+  private buildMutationPlanMetadata(plan: ZavorthMutationPlan): Record<string, unknown> {
+    return {
+      id: plan.id,
+      status: plan.status,
+      domain: plan.domain,
+      actionId: plan.actionId,
+      approvalRequired: plan.approval.required,
+      approvalStatus: plan.approval.status,
+      riskLevel: plan.riskLevel,
+      payloadHash: plan.payloadHash,
+    };
+  }
+
   private resolveNativeTools(run: UniversalAgentRun, request: UniversalAgentRequest): ToolDefinition[] {
     if (!this.toolRuntime?.getToolDefinitions) {
       return [];
@@ -614,7 +890,7 @@ export class AgentRunLlmRuntimeExecutor {
         return false;
       }
       const aliases = this.resolveToolAliases(tool.name);
-      if (aliases.some((alias) => ALWAYS_SAFE_NATIVE_TOOLS.has(alias))) {
+      if (aliases.some((alias) => ALWAYS_SAFE_NATIVE_TOOLS.has(alias) || isSafeObservationTool(alias, TOOL_EFFECT_REGISTRY))) {
         return true;
       }
       if (aliases.includes('web_search')) {

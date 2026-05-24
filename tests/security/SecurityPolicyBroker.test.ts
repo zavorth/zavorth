@@ -1,4 +1,12 @@
-import { decideSecurityPolicy } from '../../src/security/SecurityPolicyBroker.js';
+import {
+  actionIntentToDraftEffect,
+  createActionIntent,
+  createResourceRef,
+} from '../../src/runtime/effects/index.js';
+import {
+  decideSecurityPolicy,
+  decideSecurityPolicyForEffect,
+} from '../../src/security/SecurityPolicyBroker.js';
 
 describe('SecurityPolicyBroker', () => {
   const now = () => new Date('2026-05-09T12:00:00.000Z');
@@ -89,5 +97,32 @@ describe('SecurityPolicyBroker', () => {
     expect(decision.allowed).toBe(false);
     expect(decision.receipt.riskBlocked).toBe(true);
     expect(decision.receipt.reasons).toContain('Private metadata endpoint blocked.');
+  });
+
+  it('adapts effect policy decisions into broker receipts', () => {
+    const effect = actionIntentToDraftEffect(createActionIntent({
+      id: 'intent-untrusted-write',
+      kind: 'workspace_mutation',
+      operation: 'apply patch',
+      summary: 'Patch from untrusted content.',
+      sourceTrust: 'untrusted-content',
+      targetScope: [createResourceRef({ kind: 'workspace', uri: 'src/index.ts' })],
+      createdAt: '2026-05-22T12:00:00.000Z',
+    }));
+
+    const decision = decideSecurityPolicyForEffect(effect, {
+      surface: 'effect-boundary',
+      workspace: 'C:/repo',
+    }, { now });
+
+    expect(decision.action).toBe('deny');
+    expect(decision.allowed).toBe(false);
+    expect(decision.receipt).toEqual(expect.objectContaining({
+      surface: 'workspace',
+      operation: 'effect_boundary',
+      target: 'intent-untrusted-write',
+      rule: 'effect/deny-untrusted-side-effect',
+      sourceTrust: 'untrusted-content',
+    }));
   });
 });

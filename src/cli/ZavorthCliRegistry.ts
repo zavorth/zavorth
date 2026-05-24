@@ -1,5 +1,6 @@
 import * as fs from 'fs';
 import * as path from 'path';
+import { globalSpinner } from './presentation/TerminalSpinner.js';
 import readline from 'readline/promises';
 import type { Interface as ReadlineInterface } from 'readline/promises';
 import { stdin as input, stdout as output } from 'process';
@@ -299,6 +300,11 @@ import { handleZavorthCliRegistrySupervisorCommand } from './ZavorthCliRegistryS
 import { handleZavorthCliRegistryHealCommand } from './ZavorthCliRegistryHeal.js';
 import { handleZavorthCliRegistryReleaseCommand } from './ZavorthCliRegistryRelease.js';
 import { handleZavorthCliRegistryWorkspaceCommand } from './ZavorthCliRegistryWorkspace.js';
+import { handleZavorthUpdateCommand } from './update/ZavorthUpdateCommand.js';
+import { handleZavorthCompletionsCommand } from './completions/ZavorthCompletionsCommand.js';
+import { handleZavorthInspectCommand } from './inspect/ZavorthInspectCommand.js';
+import { handleZavorthManagedConfigCommand } from './managed-config/ZavorthManagedConfigCommand.js';
+import { handleZavorthLocalTaskCommand } from './local-task/ZavorthLocalTaskCommand.js';
 import type {
   ZavorthCliFlags,
   ZavorthCliRuntime,
@@ -323,6 +329,88 @@ export const parseZavorthCliArgs = parseZavorthCliArgsImpl;
 export const buildCliRuntimeFromOverrides = buildCliRuntimeFromOverridesImpl;
 
 export async function executeZavorthCliCommand(params: {
+  rawInput: string;
+  flags: ZavorthCliFlags;
+  resolveRuntime: () => Promise<ZavorthCliRuntime>;
+  writer: CliWriter;
+}): Promise<CliExecutionResult> {
+  const { rawInput, flags, writer } = params;
+  const inline = applyInlineCliFlags(rawInput, flags);
+  const effectiveFlags = inline.flags;
+  const resolvedInput = resolveCliExecutionInput(inline.input);
+  const commandName = String(resolvedInput.commandName || '').trim().toLowerCase() || null;
+
+  const isSlow = commandName && (
+    commandName === 'status' ||
+    commandName === 'doctor' ||
+    commandName === 'inspect' ||
+    commandName === 'setup' ||
+    commandName === 'run' ||
+    commandName === 'task' ||
+    commandName === 'workflows' ||
+    commandName === 'discover' ||
+    commandName === 'quarantine' ||
+    commandName === 'arena' ||
+    commandName === 'negotiate' ||
+    commandName === 'rehearse' ||
+    commandName === 'selfing' ||
+    commandName === 'artifact-memory' ||
+    commandName === 'personal-ops' ||
+    commandName === 'agent-team-compiler' ||
+    commandName === 'blueprint-completion' ||
+    commandName === 'pre-canary' ||
+    commandName === 'release' ||
+    commandName === 'site-docs-demo' ||
+    commandName === 'feedback-product-loop' ||
+    commandName === 'pilot-loop' ||
+    commandName === 'integration-showcase'
+  );
+
+  const showSpinner = isSlow && !effectiveFlags.json && process.stdout.isTTY;
+  let spinnerActive = false;
+
+  if (showSpinner) {
+    globalSpinner.start(`Running '${commandName}'...`);
+    spinnerActive = true;
+  }
+
+  const wrappedWriter: CliWriter = {
+    line: (text: string) => {
+      if (spinnerActive) {
+        globalSpinner.stop();
+        spinnerActive = false;
+      }
+      writer.line(text);
+    },
+    error: (text: string) => {
+      if (spinnerActive) {
+        globalSpinner.stop();
+        spinnerActive = false;
+      }
+      writer.error(text);
+    },
+  };
+
+  try {
+    const result = await executeZavorthCliCommandInner({
+      ...params,
+      writer: wrappedWriter,
+    });
+    if (spinnerActive) {
+      globalSpinner.succeed(`Finished '${commandName}'`);
+      spinnerActive = false;
+    }
+    return result;
+  } catch (error: any) {
+    if (spinnerActive) {
+      globalSpinner.fail(`Failed to run '${commandName}'`);
+      spinnerActive = false;
+    }
+    throw error;
+  }
+}
+
+async function executeZavorthCliCommandInner(params: {
   rawInput: string;
   flags: ZavorthCliFlags;
   resolveRuntime: () => Promise<ZavorthCliRuntime>;
@@ -490,6 +578,8 @@ export async function executeZavorthCliCommand(params: {
         metadata: {
           cliCommandName: commandName,
           repl: effectiveFlags.repl,
+          headless: effectiveFlags.headless,
+          approvalMode: effectiveFlags.approvalMode || undefined,
           responseProfile: responseProfile || undefined,
         },
       });
@@ -642,6 +732,57 @@ export async function executeZavorthCliCommand(params: {
       : dailyUseProjection.text;
     writer.line(body);
     return { ok: true, handled: true, output: [body], error: null };
+  }
+
+  const updateResult = await handleZavorthUpdateCommand({
+    commandName,
+    args,
+    flags: effectiveFlags,
+    writer,
+  });
+  if (updateResult) {
+    return updateResult;
+  }
+
+  const completionsResult = await handleZavorthCompletionsCommand({
+    commandName,
+    args,
+    flags: effectiveFlags,
+    writer,
+  });
+  if (completionsResult) {
+    return completionsResult;
+  }
+
+  const inspectResult = await handleZavorthInspectCommand({
+    commandName,
+    args,
+    flags: effectiveFlags,
+    writer,
+    resolveRuntime,
+  });
+  if (inspectResult) {
+    return inspectResult;
+  }
+
+  const managedConfigResult = await handleZavorthManagedConfigCommand({
+    commandName,
+    args,
+    flags: effectiveFlags,
+    writer,
+  });
+  if (managedConfigResult) {
+    return managedConfigResult;
+  }
+
+  const localTaskResult = await handleZavorthLocalTaskCommand({
+    commandName,
+    args,
+    flags: effectiveFlags,
+    writer,
+  });
+  if (localTaskResult) {
+    return localTaskResult;
   }
 
   if (normalized === 'quit' || normalized === 'exit') {

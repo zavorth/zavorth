@@ -13,7 +13,6 @@ import {
   ZAVORTH_SETUP_STUDIO_PROVIDER_OPTIONS,
   applyZavorthSetupStudioEnvPlan,
   buildZavorthSetupStudioPlan,
-  renderZavorthSetupStudioPlan,
   resolveSetupStudioProvider,
 } from '../src/cli/ZavorthSetupStudioService.js';
 import {
@@ -25,6 +24,11 @@ import {
 import {
   FirstRunWorkspaceBootstrapProfileService,
 } from '../src/services/FirstRunWorkspaceBootstrapProfileService.js';
+import {
+  buildZavorthSetupStudioDryRunScreen,
+  buildZavorthSetupStudioSnapshot,
+  renderZavorthSetupStudioSnapshot,
+} from '../src/cli/setup-studio/index.js';
 import type {
   ZavorthFirstRunBootstrapAnswers,
   ZavorthFirstRunMemoryMode,
@@ -139,7 +143,22 @@ class ZavorthFirstRunSetupWizard {
       vaultScope: answers.vaultScope,
       scanDirs: answers.scanDirs,
     });
-    p.note(`${renderPlanSummary(plan)}\n\n${renderZavorthSetupStudioPlan(studioPlan)}`, 'Resumo antes de gravar');
+    p.note([
+      renderPlanSummary(plan),
+      '',
+      renderZavorthSetupStudioSnapshot(buildZavorthSetupStudioSnapshot({
+        projectRoot: STORAGE_ROOT,
+        providerId: String(answers.providerId || 'deferred'),
+        modelId: answers.modelId,
+        providerSecret: answers.providerSecret,
+        telegramBotToken: answers.telegramBotToken,
+        telegramAllowedUserIds: answers.telegramAllowedUserIds,
+        memoryMode: answers.memoryMode as ZavorthFirstRunMemoryMode,
+        vaultScope: answers.vaultScope,
+        scanDirs: answers.scanDirs,
+        dryRun: false,
+      })),
+    ].join('\n'), 'Resumo antes de gravar');
 
     const confirmed = await p.confirm({
       message: 'Gravar este profile canonico agora?',
@@ -452,12 +471,17 @@ class ZavorthFirstRunSetupWizard {
       dryRun: true,
       nonInteractive: !this.interactive,
     });
-    console.log(formatZavorthOnboardBanner({ currentModel: plan.profile.provider.modelId }));
+    console.log(buildZavorthSetupStudioDryRunScreen({
+      projectRoot: STORAGE_ROOT,
+      providerId: plan.profile.provider.providerId,
+      modelId: plan.profile.provider.modelId,
+      memoryMode: plan.profile.memoryMode,
+      vaultScope: 'skip',
+      scanDirs: [],
+      dryRun: true,
+    }));
     console.log('');
-    console.log('Dry-run: nenhuma mudanca sera gravada.');
     console.log(renderPlanSummary(plan));
-    console.log('');
-    console.log('Para aplicar em terminal interativo: zavorth setup');
   }
 
   private printJsonPlan(): void {

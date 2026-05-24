@@ -1,17 +1,21 @@
 import fs from 'fs';
 import path from 'path';
+import { ProviderIntegrationRegistry } from '../services/providers/catalog/ProviderIntegrationRegistry.js';
+import type { ProviderIntegrationRouteManifest } from '../services/providers/catalog/ProviderIntegrationManifest.js';
 
-export type ZavorthSetupStudioProviderId =
-  | 'deferred'
-  | 'gemini'
-  | 'openai'
-  | 'openrouter'
-  | 'groq'
-  | 'deepseek'
-  | 'anthropic'
-  | 'huggingface'
-  | 'elevenlabs'
-  | 'local';
+export type ZavorthSetupStudioProviderId = string;
+export type ZavorthSetupStudioSearchProvider =
+  | 'skip'
+  | 'local'
+  | 'ollama-web'
+  | 'brave'
+  | 'google'
+  | 'grok'
+  | 'kimi'
+  | 'minimax'
+  | 'perplexity'
+  | 'tavily'
+  | 'firecrawl';
 
 export type ZavorthSetupStudioProviderOption = {
   id: ZavorthSetupStudioProviderId;
@@ -40,11 +44,27 @@ export type ZavorthSetupStudioPlan = {
   };
   channels: {
     telegram: 'skip' | 'configured-placeholder' | 'configured-secret';
+    discord: 'skip' | 'configured-secret';
+    slack: 'skip' | 'configured-secret';
+    email: 'skip' | 'configured-secret';
+  };
+  webSearch: {
+    provider: ZavorthSetupStudioSearchProvider;
+    secretStored: boolean;
+    secretEnvKey: string | null;
   };
   memory: {
     mode: 'off' | 'local-metadata' | 'local-summary';
     vaultScope: 'skip' | 'documents' | 'downloads' | 'custom' | 'whole-pc';
     scanDirs: string[];
+  };
+  hooks: {
+    enabled: boolean;
+    templates: Array<{
+      path: string;
+      redactedPath: string;
+      reason: string;
+    }>;
   };
   envUpdates: ZavorthSetupStudioEnvUpdate[];
   safety: {
@@ -65,15 +85,21 @@ export type BuildZavorthSetupStudioPlanInput = {
   providerSecret?: string | null;
   telegramBotToken?: string | null;
   telegramAllowedUserIds?: string | null;
+  discordBotToken?: string | null;
+  slackBotToken?: string | null;
+  emailSmtpUrl?: string | null;
+  searchProvider?: string | null;
+  searchSecret?: string | null;
+  enableHooks?: boolean;
   memoryMode: 'off' | 'local-metadata' | 'local-summary';
   vaultScope: 'skip' | 'documents' | 'downloads' | 'custom' | 'whole-pc';
   scanDirs?: string[] | null;
 };
 
-export const ZAVORTH_SETUP_STUDIO_PROVIDER_OPTIONS: ZavorthSetupStudioProviderOption[] = [
+const CORE_SETUP_STUDIO_PROVIDER_OPTIONS: ZavorthSetupStudioProviderOption[] = [
   {
     id: 'deferred',
-    label: 'Configurar depois',
+    label: 'Configure later',
     defaultModel: 'deferred',
     modelEnvKey: null,
     secretEnvKeys: [],
@@ -153,6 +179,8 @@ export const ZAVORTH_SETUP_STUDIO_PROVIDER_OPTIONS: ZavorthSetupStudioProviderOp
   },
 ];
 
+export const ZAVORTH_SETUP_STUDIO_PROVIDER_OPTIONS: ZavorthSetupStudioProviderOption[] = buildSetupStudioProviderOptions();
+
 export function resolveSetupStudioProvider(rawProviderId: string): ZavorthSetupStudioProviderOption {
   const normalized = String(rawProviderId || '').trim().toLowerCase();
   return ZAVORTH_SETUP_STUDIO_PROVIDER_OPTIONS.find((provider) => provider.id === normalized)
@@ -170,7 +198,7 @@ export function buildZavorthSetupStudioPlan(input: BuildZavorthSetupStudioPlanIn
       key: 'ZAVORTH_DEFAULT_PROVIDER',
       value: provider.id,
       redactedValue: provider.id,
-      reason: 'provider padrao escolhido no setup',
+      reason: 'default provider selected during setup',
     });
   }
   if (provider.modelEnvKey && modelId && modelId !== 'deferred') {
@@ -178,7 +206,7 @@ export function buildZavorthSetupStudioPlan(input: BuildZavorthSetupStudioPlanIn
       key: provider.modelEnvKey,
       value: modelId,
       redactedValue: modelId,
-      reason: 'modelo padrao escolhido no setup',
+      reason: 'default model selected during setup',
     });
   }
 
@@ -189,7 +217,7 @@ export function buildZavorthSetupStudioPlan(input: BuildZavorthSetupStudioPlanIn
       key: providerSecretEnvKey,
       value: providerSecret,
       redactedValue: redactSecret(providerSecret),
-      reason: 'credencial do provider capturada por campo secreto',
+      reason: 'provider credential captured through a secret field',
     });
   }
 
@@ -199,7 +227,7 @@ export function buildZavorthSetupStudioPlan(input: BuildZavorthSetupStudioPlanIn
       key: 'TELEGRAM_BOT_TOKEN',
       value: telegramBotToken,
       redactedValue: redactSecret(telegramBotToken),
-      reason: 'bot token do Telegram capturado por campo secreto',
+      reason: 'Telegram bot token captured through a secret field',
     });
   }
   const telegramAllowedUserIds = String(input.telegramAllowedUserIds || '').trim();
@@ -208,7 +236,54 @@ export function buildZavorthSetupStudioPlan(input: BuildZavorthSetupStudioPlanIn
       key: 'TELEGRAM_ALLOWED_USER_IDS',
       value: telegramAllowedUserIds,
       redactedValue: telegramAllowedUserIds,
-      reason: 'allowlist de usuario Telegram',
+      reason: 'Telegram user allowlist',
+    });
+  }
+  const discordBotToken = String(input.discordBotToken || '').trim();
+  if (discordBotToken) {
+    envUpdates.push({
+      key: 'DISCORD_BOT_TOKEN',
+      value: discordBotToken,
+      redactedValue: redactSecret(discordBotToken),
+      reason: 'Discord bot token captured through a secret field',
+    });
+  }
+  const slackBotToken = String(input.slackBotToken || '').trim();
+  if (slackBotToken) {
+    envUpdates.push({
+      key: 'SLACK_BOT_TOKEN',
+      value: slackBotToken,
+      redactedValue: redactSecret(slackBotToken),
+      reason: 'Slack bot token captured through a secret field',
+    });
+  }
+  const emailSmtpUrl = String(input.emailSmtpUrl || '').trim();
+  if (emailSmtpUrl) {
+    envUpdates.push({
+      key: 'EMAIL_SMTP_URL',
+      value: emailSmtpUrl,
+      redactedValue: redactConnectionUrl(emailSmtpUrl),
+      reason: 'SMTP URL captured through a secret field',
+    });
+  }
+
+  const searchProvider = normalizeSearchProvider(input.searchProvider);
+  const searchSecret = String(input.searchSecret || '').trim();
+  const searchSecretEnvKey = searchSecretEnvKeyForProvider(searchProvider);
+  if (searchProvider !== 'skip') {
+    envUpdates.push({
+      key: 'ZAVORTH_SEARCH_PROVIDER',
+      value: searchProvider,
+      redactedValue: searchProvider,
+      reason: 'web/search provider selected during setup',
+    });
+  }
+  if (searchSecretEnvKey && searchSecret) {
+    envUpdates.push({
+      key: searchSecretEnvKey,
+      value: searchSecret,
+      redactedValue: redactSecret(searchSecret),
+      reason: 'web/search credential captured through a secret field',
     });
   }
 
@@ -218,7 +293,7 @@ export function buildZavorthSetupStudioPlan(input: BuildZavorthSetupStudioPlanIn
       key: 'MNEMOS_SCAN_DIRS',
       value: scanDirs.join(path.delimiter),
       redactedValue: scanDirs.map((entry) => redactHome(entry)).join(path.delimiter),
-      reason: 'cofre/escopo local do Mnemos',
+      reason: 'Mnemos local vault scope',
     });
   }
 
@@ -233,11 +308,23 @@ export function buildZavorthSetupStudioPlan(input: BuildZavorthSetupStudioPlanIn
     },
     channels: {
       telegram: telegramBotToken ? 'configured-secret' : telegramAllowedUserIds ? 'configured-placeholder' : 'skip',
+      discord: discordBotToken ? 'configured-secret' : 'skip',
+      slack: slackBotToken ? 'configured-secret' : 'skip',
+      email: emailSmtpUrl ? 'configured-secret' : 'skip',
+    },
+    webSearch: {
+      provider: searchProvider,
+      secretStored: Boolean(searchSecretEnvKey && searchSecret),
+      secretEnvKey: searchSecretEnvKey && searchSecret ? searchSecretEnvKey : null,
     },
     memory: {
       mode: input.memoryMode,
       vaultScope: input.vaultScope,
       scanDirs,
+    },
+    hooks: {
+      enabled: input.enableHooks === true,
+      templates: input.enableHooks === true ? buildHookTemplates(input.projectRoot) : [],
     },
     envUpdates,
     safety: {
@@ -247,8 +334,9 @@ export function buildZavorthSetupStudioPlan(input: BuildZavorthSetupStudioPlanIn
       providerExecutionPerformed: false,
       runtimePersistentStartPerformed: false,
       warnings: [
-        ...(provider.needsSecret && !providerSecret ? [`${provider.label} foi escolhido sem chave; ficara configuravel, nao live.`] : []),
-        ...(input.vaultScope === 'whole-pc' ? ['Mnemos em PC inteiro pode expor arquivos sensiveis; use somente se voce confirmou esse risco.'] : []),
+        ...(provider.needsSecret && !providerSecret ? [`${provider.label} was selected without a key; it will be configurable, not live.`] : []),
+        ...(searchSecretEnvKey && !searchSecret ? [`${searchProvider} search was selected without a key; it will be configurable, not live.`] : []),
+        ...(input.vaultScope === 'whole-pc' ? ['Whole-PC Mnemos scanning can expose sensitive files; use it only after confirming that risk.'] : []),
       ],
     },
     nextCommands: [
@@ -260,16 +348,25 @@ export function buildZavorthSetupStudioPlan(input: BuildZavorthSetupStudioPlanIn
 }
 
 export function applyZavorthSetupStudioEnvPlan(plan: ZavorthSetupStudioPlan): { written: boolean; envFile: string; keys: string[] } {
-  if (plan.envUpdates.length === 0) {
-    return { written: false, envFile: plan.envFile, keys: [] };
+  const writtenKeys: string[] = [];
+  if (plan.envUpdates.length > 0) {
+    const current = fs.existsSync(plan.envFile) ? fs.readFileSync(plan.envFile, 'utf8') : '';
+    const next = mergeEnvContent(current, plan.envUpdates);
+    fs.writeFileSync(plan.envFile, next, 'utf8');
+    writtenKeys.push(...plan.envUpdates.map((entry) => entry.key));
   }
-  const current = fs.existsSync(plan.envFile) ? fs.readFileSync(plan.envFile, 'utf8') : '';
-  const next = mergeEnvContent(current, plan.envUpdates);
-  fs.writeFileSync(plan.envFile, next, 'utf8');
+  if (plan.hooks.enabled) {
+    for (const hook of plan.hooks.templates) {
+      fs.mkdirSync(path.dirname(hook.path), { recursive: true });
+      if (!fs.existsSync(hook.path) || shouldReplaceLegacyHookTemplate(hook.path)) {
+        fs.writeFileSync(hook.path, renderHookTemplate(hook.path), 'utf8');
+      }
+    }
+  }
   return {
-    written: true,
+    written: writtenKeys.length > 0 || plan.hooks.enabled,
     envFile: plan.envFile,
-    keys: plan.envUpdates.map((entry) => entry.key),
+    keys: writtenKeys,
   };
 }
 
@@ -302,25 +399,30 @@ export function mergeEnvContent(current: string, updates: ZavorthSetupStudioEnvU
 
 export function renderZavorthSetupStudioPlan(plan: ZavorthSetupStudioPlan): string {
   return [
-    'Setup Studio vai preparar:',
+    'Setup Studio will prepare:',
     `- Provider: ${plan.provider.id}/${plan.provider.modelId}`,
-    `- Credencial: ${plan.provider.secretStored ? `${plan.provider.secretEnvKey} (${redactSecret('configured-secret')})` : 'nao gravada'}`,
+    `- Credential: ${plan.provider.secretStored ? `${plan.provider.secretEnvKey} (${redactSecret('configured-secret')})` : 'not stored'}`,
     `- Telegram: ${plan.channels.telegram}`,
-    `- Mnemos: ${plan.memory.mode} / ${plan.memory.vaultScope}`,
-    plan.memory.scanDirs.length > 0 ? `- Cofres: ${plan.memory.scanDirs.map((entry) => redactHome(entry)).join(', ')}` : '- Cofres: nao configurados',
+    `- Discord: ${plan.channels.discord}`,
+    `- Slack: ${plan.channels.slack}`,
+    `- Email: ${plan.channels.email}`,
+    `- Web/search: ${plan.webSearch.provider}${plan.webSearch.secretStored ? ` (${plan.webSearch.secretEnvKey} configured)` : ''}`,
+    `- Mnemos Memory: ${plan.memory.mode} / ${plan.memory.vaultScope}`,
+    plan.memory.scanDirs.length > 0 ? `- Vaults: ${plan.memory.scanDirs.map((entry) => redactHome(entry)).join(', ')}` : '- Vaults: not configured',
+    `- Automation templates: ${plan.hooks.enabled ? `${plan.hooks.templates.length} prepared, disabled by default` : 'skip'}`,
     '',
-    'Atualizacoes em .env:',
+    '.env updates:',
     ...(plan.envUpdates.length > 0
       ? plan.envUpdates.map((entry) => `- ${entry.key}=${entry.redactedValue} (${entry.reason})`)
-      : ['- nenhuma']),
+      : ['- none']),
     '',
-    'Garantias:',
-    '- nao imprime chave em tela',
-    '- teste live do provider so roda com confirmacao explicita',
-    '- nao inicia runtime persistente durante setup',
-    ...(plan.safety.warnings.length > 0 ? ['', 'Atencao:', ...plan.safety.warnings.map((warning) => `- ${warning}`)] : []),
+    'Guarantees:',
+    '- never prints keys on screen',
+    '- live provider tests only run after explicit confirmation',
+    '- does not start persistent runtime services during setup',
+    ...(plan.safety.warnings.length > 0 ? ['', 'Attention:', ...plan.safety.warnings.map((warning) => `- ${warning}`)] : []),
     '',
-    'Depois:',
+    'After setup:',
     ...plan.nextCommands.map((command) => `- ${command}`),
   ].join('\n');
 }
@@ -330,6 +432,214 @@ function normalizeScanDirs(scanDirs: string[] | null | undefined): string[] {
     .map((entry) => String(entry || '').trim())
     .filter(Boolean)
     .map((entry) => path.resolve(entry))));
+}
+
+function normalizeSearchProvider(
+  value: string | null | undefined,
+): ZavorthSetupStudioSearchProvider {
+  const normalized = String(value || '').trim().toLowerCase();
+  return normalized === 'brave'
+    || normalized === 'ollama-web'
+    || normalized === 'google'
+    || normalized === 'grok'
+    || normalized === 'kimi'
+    || normalized === 'minimax'
+    || normalized === 'perplexity'
+    || normalized === 'tavily'
+    || normalized === 'firecrawl'
+    || normalized === 'skip'
+    ? normalized
+    : 'local';
+}
+
+function searchSecretEnvKeyForProvider(provider: string): string | null {
+  switch (provider) {
+    case 'brave':
+      return 'BRAVE_SEARCH_API_KEY';
+    case 'google':
+      return 'GEMINI_API_KEY';
+    case 'grok':
+      return 'XAI_API_KEY';
+    case 'kimi':
+      return 'KIMI_API_KEY';
+    case 'minimax':
+      return 'MINIMAX_API_KEY';
+    case 'perplexity':
+      return 'PERPLEXITY_API_KEY';
+    case 'tavily':
+      return 'TAVILY_API_KEY';
+    case 'firecrawl':
+      return 'FIRECRAWL_API_KEY';
+    default:
+      return null;
+  }
+}
+
+function buildSetupStudioProviderOptions(): ZavorthSetupStudioProviderOption[] {
+  const registry = new ProviderIntegrationRegistry();
+  const catalogOptions = registry.listRoutes().map(routeToSetupProviderOption);
+  const byId = new Map<string, ZavorthSetupStudioProviderOption>();
+  for (const option of [...CORE_SETUP_STUDIO_PROVIDER_OPTIONS, ...catalogOptions]) {
+    if (!byId.has(option.id)) {
+      byId.set(option.id, option);
+    }
+  }
+  return Array.from(byId.values()).sort((left, right) => {
+    if (left.id === 'deferred') return -1;
+    if (right.id === 'deferred') return 1;
+    if (left.id === 'local') return -1;
+    if (right.id === 'local') return 1;
+    return left.label.localeCompare(right.label);
+  });
+}
+
+function routeToSetupProviderOption(route: ProviderIntegrationRouteManifest): ZavorthSetupStudioProviderOption {
+  const providerId = normalizeProviderId(route.providerId || route.routeId);
+  const credentialRefs = normalizeCredentialRefs(route.credentialRefs, providerId);
+  const primaryModel = route.models?.find((model) => model.primary)?.modelId
+    || route.models?.[0]?.modelId
+    || (route.passthroughModels ? 'provider/default' : 'configured-later');
+  const modalitySuffix = route.modalities.length > 0 ? ` (${route.modalities.join('/')})` : '';
+  return {
+    id: providerId,
+    label: `${route.label}${modalitySuffix}`,
+    defaultModel: primaryModel,
+    modelEnvKey: `${envPrefix(providerId)}_MODEL`,
+    secretEnvKeys: credentialRefs,
+    needsSecret: route.mode !== 'local' && route.authKind !== 'none' && credentialRefs.length > 0,
+  };
+}
+
+function normalizeCredentialRefs(refs: string[] | undefined, providerId: string): string[] {
+  const normalized = Array.from(new Set((refs || [])
+    .map((ref) => envKey(ref))
+    .filter((ref) => /(?:API_KEY|TOKEN|SECRET|KEY)$/.test(ref))));
+  if (normalized.length > 0) {
+    return normalized;
+  }
+  return providerId === 'local' || providerId === 'deferred' ? [] : [`${envPrefix(providerId)}_API_KEY`];
+}
+
+function normalizeProviderId(value: unknown): string {
+  return String(value || '').trim().toLowerCase() || 'deferred';
+}
+
+function envPrefix(value: string): string {
+  return envKey(value).replace(/_+$/g, '');
+}
+
+function envKey(value: unknown): string {
+  return String(value || '').trim().toUpperCase().replace(/[^A-Z0-9]+/g, '_').replace(/^_+|_+$/g, '');
+}
+
+function buildHookTemplates(projectRoot: string): ZavorthSetupStudioPlan['hooks']['templates'] {
+  const hooksRoot = path.join(projectRoot, '.zavorth', 'hooks');
+  return [
+    {
+      path: path.join(hooksRoot, 'after-run-summary.json'),
+      redactedPath: redactHome(path.join(hooksRoot, 'after-run-summary.json')),
+      reason: 'stores a local summary after completed runs for approved learning',
+    },
+    {
+      path: path.join(hooksRoot, 'approval-expiry-notice.json'),
+      redactedPath: redactHome(path.join(hooksRoot, 'approval-expiry-notice.json')),
+      reason: 'prepares approval-expiry notifications for authorized channels',
+    },
+  ];
+}
+
+function renderHookTemplate(filePath: string): string {
+  const name = path.basename(filePath, '.json');
+  const templates: Record<string, Record<string, unknown>> = {
+    'after-run-summary': {
+      contractVersion: 'zavorth-automation-hook/1',
+      id: 'after-run-summary',
+      title: 'Summarize completed runtime work',
+      description: 'When a governed runtime action completes, stage a local Mnemos summary and an automation receipt.',
+      enabled: false,
+      event: 'runtime.after_execute',
+      safety: {
+        noSecrets: true,
+        requiresPolicy: true,
+        canSendExternalData: false,
+      },
+      actions: [
+        {
+          type: 'mnemos.write_summary',
+          summaryTemplate: 'Runtime action completed through {{toolName}}. Result length: {{resultLength}}.',
+        },
+        {
+          type: 'receipt.create',
+          title: 'Runtime automation summary',
+          summary: 'A local automation summary was staged after {{toolName}} completed.',
+        },
+      ],
+    },
+    'approval-expiry-notice': {
+      contractVersion: 'zavorth-automation-hook/1',
+      id: 'approval-expiry-notice',
+      title: 'Stage approval reminders',
+      description: 'When an approval is created, stage a local reminder card. Remote delivery remains approval-gated.',
+      enabled: false,
+      event: 'before-approval-request',
+      aliases: ['approval.pending'],
+      safety: {
+        noSecrets: true,
+        requiresPolicy: true,
+        canSendExternalData: false,
+      },
+      actions: [
+        {
+          type: 'notification.create',
+          channel: 'local',
+          title: 'Approval pending',
+          message: 'A governed action is waiting for review. Open zavorth approve or the Command Center.',
+          requiresApproval: false,
+        },
+        {
+          type: 'receipt.create',
+          title: 'Approval reminder staged',
+          summary: 'A local approval reminder was staged without sending external data.',
+        },
+      ],
+    },
+  };
+  const template = templates[name] || {
+    contractVersion: 'zavorth-automation-hook/1',
+    id: name,
+    title: name,
+    description: 'Governed automation hook prepared by Zavorth setup.',
+    enabled: false,
+    event: 'runtime.after_execute',
+    safety: {
+      noSecrets: true,
+      requiresPolicy: true,
+      canSendExternalData: false,
+    },
+    actions: [
+      {
+        type: 'receipt.create',
+        title: 'Automation hook receipt',
+        summary: 'This hook can create a local receipt after you review and enable it.',
+      },
+    ],
+  };
+  return `${JSON.stringify({
+    ...template,
+    createdBy: 'zavorth setup',
+  }, null, 2)}\n`;
+}
+
+function shouldReplaceLegacyHookTemplate(filePath: string): boolean {
+  try {
+    const parsed = JSON.parse(fs.readFileSync(filePath, 'utf8'));
+    return parsed?.contractVersion === 'zavorth-hook-template/1'
+      && parsed?.enabled !== true
+      && Array.isArray(parsed?.actions)
+      && parsed.actions.length === 0;
+  } catch {
+    return false;
+  }
 }
 
 function quoteEnvValue(value: string): string {
@@ -348,6 +658,21 @@ function redactSecret(value: string): string {
     return '[redacted]';
   }
   return raw.length <= 8 ? '[redacted]' : `${raw.slice(0, 3)}...${raw.slice(-3)}`;
+}
+
+function redactConnectionUrl(value: string): string {
+  try {
+    const url = new URL(value);
+    if (url.username) {
+      url.username = '[redacted]';
+    }
+    if (url.password) {
+      url.password = '[redacted]';
+    }
+    return url.toString();
+  } catch {
+    return redactSecret(value);
+  }
 }
 
 function redactHome(value: string): string {
