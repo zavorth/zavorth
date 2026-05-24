@@ -1035,8 +1035,10 @@ export async function handleZavorthCliRegistryOpsCommand(params: RegistryCommand
       const body = effectiveFlags.json
         ? JSON.stringify({ ok: true, baseline }, null, 2)
         : [
-            '[zavorth-security] baseline de seguranca continua atualizada',
-            `[zavorth-security] updatedAt: ${baseline.updatedAt}`,
+            'Security baseline',
+            '',
+            'Baseline updated.',
+            `updated at: ${baseline.updatedAt}`,
           ].join('\n');
       writer.line(body);
       return { ok: true, handled: true, output: [body], error: null };
@@ -1088,12 +1090,15 @@ export async function handleZavorthCliRegistryOpsCommand(params: RegistryCommand
       const body = effectiveFlags.json
         ? JSON.stringify({ preset }, null, 2)
         : [
-            '[zavorth-security] preset preview',
-            `[zavorth-security] ${preset.id}: ${preset.label}`,
-            `[zavorth-security] perfil: ${preset.securityProfile} | MCP: ${preset.mcpPolicy.profile} | skills: ${preset.skillPolicy.defaultPolicy}`,
-            `[zavorth-security] ${preset.summary}`,
+            'Security preset preview',
             '',
-            `Aplicar: zavorth security preset ${preset.id} --apply`,
+            `${preset.id}: ${preset.label}`,
+            `profile: ${preset.securityProfile}`,
+            `MCP: ${preset.mcpPolicy.profile}`,
+            `skills: ${preset.skillPolicy.defaultPolicy}`,
+            preset.summary,
+            '',
+            `Apply: zavorth security preset ${preset.id} --apply`,
           ].join('\n');
       writer.line(body);
       return { ok: true, handled: true, output: [body], error: null };

@@ -43,6 +43,7 @@ type LiveClassification = {
 const CHANNEL_LIVE_READY = new Set(['telegram']);
 const CHANNEL_PARTIAL_LIVE = new Set([
   'bluebubbles',
+  'clickclack',
   'discord',
   'feishu',
   'googlechat',

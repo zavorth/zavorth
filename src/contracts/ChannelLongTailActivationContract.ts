@@ -8,6 +8,7 @@ export const ZAVORTH_CHANNEL_LONG_TAIL_ACTIVATION_CONTRACT_VERSION = '2026-05-04
 
 export type ChannelLongTailActivationId =
   | 'bluebubbles'
+  | 'clickclack'
   | 'feishu'
   | 'googlechat'
   | 'imessage'
@@ -125,7 +126,7 @@ export type ChannelLongTailActivationSnapshot = {
   phase: 'Approval gate - Channel Live Activation Long Tail';
   status: 'closed' | 'attention' | 'blocked';
   summary: {
-    channels: 17;
+    channels: number;
     partialLive: number;
     configuredOnly: number;
     blocked: number;

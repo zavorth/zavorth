@@ -1,5 +1,6 @@
 import { sanitizeHumanCliText } from './ZavorthCliText.js';
 import { paintCliTone, type CliVisualTone } from './ZavorthCliVisualTheme.js';
+import { TerminalMarkdown } from './presentation/TerminalMarkdown.js';
 
 export type CliEventCardTone = 'success' | 'warning' | 'danger' | 'info';
 
@@ -43,7 +44,13 @@ function normalizeEventCardCommand(value: string | null | undefined): string {
 export function formatCliEventCard(options: CliEventCardOptions): string {
   const meta = EVENT_TONE_META[options.tone] || EVENT_TONE_META.info;
   const title = normalizeEventCardLine(options.title) || 'Zavorth';
-  const bodyLines = normalizeEventCardLines(options.body || null);
+  const rawBody = Array.isArray(options.body) ? options.body.join('\n') : (options.body || '');
+  const isTTY = process.stdout.isTTY && !process.argv.includes('--json');
+
+  const renderedBody = isTTY && rawBody.trim()
+    ? TerminalMarkdown.render(rawBody)
+    : normalizeEventCardLines(rawBody).join('\n');
+
   const actions = (options.actions || [])
     .map((action) => ({
       label: normalizeEventCardLine(action.label),
@@ -56,7 +63,7 @@ export function formatCliEventCard(options: CliEventCardOptions): string {
 
   return [
     `${paintCliTone(meta.symbol, meta.visualTone)} ${paintCliTone(title, meta.visualTone)}`,
-    bodyLines.length > 0 ? bodyLines.join('\n') : null,
+    renderedBody || null,
     actions.length > 0
       ? ['', ...actions.map((action) => `${action.label}:\n  ${action.command}`)].join('\n')
       : null,

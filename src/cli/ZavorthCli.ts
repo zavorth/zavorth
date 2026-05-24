@@ -2,6 +2,7 @@ import readline from 'readline/promises';
 import { stdin as input, stdout as output } from 'process';
 import { executeZavorthCliCommand } from './ZavorthCliRegistry.js';
 import { runZavorthCliRepl } from './ZavorthCliReplLifecycle.js';
+import { globalSpinner } from './presentation/TerminalSpinner.js';
 import type {
   ZavorthCliDeps,
   ZavorthCliFlags,
@@ -14,7 +15,7 @@ import type {
 } from './ZavorthCliContract.js';
 import { defaultWriter, isCliIo, withCliConsoleSuppressedAsync } from './ZavorthCliFlowHelpers.js';
 import { formatCliHelp } from './ZavorthCliSurfaceHelpers.js';
-import { formatExperienceHome } from './ZavorthCliExperienceRenderer.js';
+import { formatExperienceAgentSession } from './ZavorthCliExperienceRenderer.js';
 import {
   buildCliRuntimeFromOverrides as buildCliRuntimeFromOverridesImpl,
   parseZavorthCliArgs as parseZavorthCliArgsImpl,
@@ -72,6 +73,10 @@ export class ZavorthCli {
 
   public async run(argv: string[]): Promise<number> {
     const flags = parseZavorthCliFlags(argv);
+    if (flags.headless && !String(flags.commandText || '').replace(/^ask\b/i, '').trim()) {
+      this.writer.error('Headless mode requires a prompt. Usage: zavorth -p "explain this repo"');
+      return 1;
+    }
     if (flags.commandText) {
       const result = await this.runOnce(flags.commandText, flags);
       return result.ok ? 0 : 1;
@@ -100,7 +105,7 @@ export class ZavorthCli {
   public async runRepl(flags: ZavorthCliFlags): Promise<number> {
     const runtime = await this.getRuntime();
     const welcomeText = runtime.experienceCoreService
-      ? formatExperienceHome(runtime.experienceCoreService.buildHome({
+      ? formatExperienceAgentSession(runtime.experienceCoreService.buildHome({
         surface: flags.platform,
         userId: flags.userId,
         sessionId: flags.sessionId,
@@ -122,7 +127,27 @@ export class ZavorthCli {
     }
 
     if (!this.runtimePromise) {
-      this.runtimePromise = buildCliRuntimeFromOverrides();
+      const showSpinner = !process.argv.includes('--json') && process.stdout.isTTY;
+      if (showSpinner) {
+        globalSpinner.start('Connecting to the Zavorth runtime...');
+      }
+      const buildRuntime = () => buildCliRuntimeFromOverrides();
+      const runtimeLoader = String(process.env.ZAVORTH_DEBUG_BOOT || '').trim()
+        ? buildRuntime()
+        : withCliConsoleSuppressedAsync(buildRuntime);
+      this.runtimePromise = runtimeLoader
+        .then((rt) => {
+          if (showSpinner) {
+            globalSpinner.succeed('Runtime connected');
+          }
+          return rt;
+        })
+        .catch((err) => {
+          if (showSpinner) {
+            globalSpinner.fail('Failed to connect to the Zavorth runtime');
+          }
+          throw err;
+        });
     }
 
     return this.runtimePromise;

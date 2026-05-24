@@ -25,21 +25,21 @@ describe('ChannelLongTailActivationService Approval gate', () => {
     expect(snapshot.status).toBe('closed');
     expect(snapshot.summary).toEqual(
       expect.objectContaining({
-        channels: 17,
-        partialLive: 17,
+        channels: 18,
+        partialLive: 18,
         configuredOnly: 0,
         blocked: 0,
         templateOnlyRemaining: false,
         plannedRemaining: false,
         webhookFamily: 6,
-        botHttpFamily: 5,
+        botHttpFamily: 6,
         relayHttpFamily: 3,
         localBridgeFamily: 1,
         appleBridgeFamily: 2,
-        configSchemas: 17,
-        configuredDoctors: 17,
-        stagingLiveSmokeCommands: 17,
-        redactedReceipts: 17,
+        configSchemas: 18,
+        configuredDoctors: 18,
+        stagingLiveSmokeCommands: 18,
+        redactedReceipts: 18,
         liveIoRequiredByStage3Check: false,
         secretValuesSerialized: false,
       }),
@@ -59,6 +59,7 @@ describe('ChannelLongTailActivationService Approval gate', () => {
     const snapshot = new ChannelLongTailActivationService().buildSnapshot();
     const expected = [
       'bluebubbles',
+      'clickclack',
       'feishu',
       'googlechat',
       'imessage',

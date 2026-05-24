@@ -1,9 +1,13 @@
 import { createHash } from 'node:crypto';
+import type { Effect } from '../runtime/effects/Effect.js';
 import type {
   AgentInputTrust,
   AgentPolicyDecision,
   AgentRiskLevel,
 } from './AgentSecurityPolicyEngine.js';
+import type { EffectPolicyContext } from './EffectPolicyContext.js';
+import { decideEffectPolicy } from './EffectPolicyKernel.js';
+import { effectPolicyDecisionToBrokerRequest } from './EffectPolicyReceiptAdapter.js';
 import {
   resolveSecurityProfile,
   type SecurityProfileId,
@@ -165,6 +169,19 @@ export function decideSecurityPolicy(
     requiresAdminPolicy: action === 'require_admin_policy',
     receipt,
   };
+}
+
+export function decideSecurityPolicyForEffect(
+  effect: Effect,
+  context: EffectPolicyContext = {},
+  runtime: BrokerRuntime = {},
+): SecurityPolicyBrokerDecision {
+  const effectDecision = decideEffectPolicy(effect, context);
+  return decideSecurityPolicy(effectPolicyDecisionToBrokerRequest({
+    effect,
+    decision: effectDecision,
+    context,
+  }), runtime);
 }
 
 export function formatSecurityPolicyReceipt(receipt: SecurityPolicyBrokerReceipt): string {

@@ -1,4 +1,7 @@
 import { stdout as output } from 'process';
+import { globalSpinner } from './presentation/TerminalSpinner.js';
+import { TerminalPanel } from './presentation/TerminalPanel.js';
+import { paintCliTone } from './ZavorthCliVisualTheme.js';
 import type {
   ZavorthCliFlags,
   ZavorthCliIo,
@@ -41,7 +44,11 @@ export function defaultWriter(): CliWriter {
       output.write(`${String(text || '')}\n`);
     },
     error: (text: string) => {
-      process.stderr.write(`${String(text || '')}\n`);
+      if (process.stderr.isTTY && !process.argv.includes('--json')) {
+        TerminalPanel.error(text, 'Zavorth Error');
+      } else {
+        process.stderr.write(`${String(text || '')}\n`);
+      }
     },
   };
 }
@@ -401,7 +408,7 @@ export function formatCliHistoryHint(sessionId: string | null | undefined): stri
 
 export function formatCliReplPrompt(flags: Pick<ZavorthCliFlags, 'sessionId' | 'chatId'>): string {
   void flags;
-  return '> ';
+  return `${paintCliTone('❯', 'brand')} `;
 }
 
 export function formatCliTaskDispatchOutput(
@@ -646,6 +653,11 @@ export async function executeCliTaskDispatch(
       ? `/task ${trimmed.slice('task '.length).trim()}`
       : trimmed;
 
+  const showSpinner = !flags.json && process.stdout.isTTY;
+  if (showSpinner) {
+    globalSpinner.start('Dispatching task...');
+  }
+
   try {
     const result = await dispatcher.dispatchTaskMessage({
       ctx,
@@ -663,6 +675,10 @@ export async function executeCliTaskDispatch(
         transport: dispatchText.startsWith('/') ? 'slash_command' : 'text',
       },
     });
+
+    if (showSpinner) {
+      globalSpinner.succeed('Task dispatched');
+    }
 
     if (flags.json) {
       const body = JSON.stringify(
@@ -693,7 +709,10 @@ export async function executeCliTaskDispatch(
     writer.line(body);
     return { ok: true, handled: true, output: [body], error: null };
   } catch (error: any) {
-    const message = `Nao consegui despachar essa tarefa pela CLI: ${error.message}`;
+    if (showSpinner) {
+      globalSpinner.fail('Failed to dispatch the task');
+    }
+    const message = `I could not dispatch this task through the CLI: ${error.message}`;
     if (flags.repl) {
       const body = formatCliRecoverableErrorEventCard({
         body: message,
@@ -1173,6 +1192,11 @@ export async function executeCliUniversalAgentRuntime(
     routingPolicy: resolveCliLegacyUnifiedGateway(runtime) ? 'gateway' : 'fallback',
   });
 
+  const showSpinner = !flags.json && process.stdout.isTTY;
+  if (showSpinner) {
+    globalSpinner.start('Zavorth is thinking...');
+  }
+
   try {
     const result = await agentGateway.handle({
       userId: flags.userId || 'cli-operator',
@@ -1192,6 +1216,10 @@ export async function executeCliUniversalAgentRuntime(
         legacyUnifiedGatewayBypassed: legacyUnifiedGatewayAvailable,
       },
     }, executorOptions);
+
+    if (showSpinner) {
+      globalSpinner.succeed('Zavorth finished reasoning');
+    }
 
     const rawPrimaryReply = String(result.replies[0]?.text || '').trim()
       || result.run.summary
@@ -1259,7 +1287,10 @@ export async function executeCliUniversalAgentRuntime(
       error: result.ok ? null : result.run.summary,
     };
   } catch (error: any) {
-    const message = `Nao consegui processar essa conversa pelo runtime universal: ${error.message}`;
+    if (showSpinner) {
+      globalSpinner.fail('Runtime command failed');
+    }
+    const message = `I could not process this request through the universal runtime: ${error.message}`;
     if (flags.repl) {
       const body = formatCliRecoverableErrorEventCard({
         body: message,

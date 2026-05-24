@@ -26,13 +26,14 @@ const rules = [
   ruleContainsAll({
     id: 'channel-long-tail-contract',
     label: 'Contract defines Approval gate long-tail vocabulary',
-    target: 'Contract captures 17 channels, adapter families, gates, receipts and no-template closure',
+    target: 'Contract captures native long-tail channels, adapter families, gates, receipts and no-template closure',
     files: ['src/contracts/ChannelLongTailActivationContract.ts'],
     needles: [
       'ZAVORTH_CHANNEL_LONG_TAIL_ACTIVATION_CONTRACT_VERSION',
       '2026-05-04.live-checkpoint-3',
       'ChannelLongTailActivationId',
       'bluebubbles',
+      'clickclack',
       'feishu',
       'imessage',
       'templateOnlyRemaining: false',
@@ -59,11 +60,12 @@ const rules = [
   ruleContainsAll({
     id: 'channel-long-tail-service',
     label: 'Service closes all long-tail channel activation gates',
-    target: 'Service maps 17 channels into family adapters with config schema, doctor and staging smoke commands',
+    target: 'Service maps all long-tail channels into family adapters with config schema, doctor and staging smoke commands',
     files: ['src/services/ChannelLongTailActivationService.ts'],
     needles: [
       'ChannelLongTailActivationService',
       'LONG_TAIL_CHANNELS',
+      'ClickClack Bot API',
       'Feishu incoming webhook',
       'Google Chat incoming webhook',
       'Matrix homeserver client API',
@@ -97,6 +99,7 @@ const rules = [
     files: ['src/services/LiveReadinessService.ts'],
     needles: [
       'bluebubbles',
+      'clickclack',
       'feishu',
       'googlechat',
       'imessage',

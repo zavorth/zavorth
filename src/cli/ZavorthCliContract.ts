@@ -47,6 +47,7 @@ import type { ZavorthSelfHealControlPlaneService } from '../services/ZavorthSelf
 import type { ZavorthReleasePresenceControlPlaneService } from '../services/ZavorthReleasePresenceControlPlaneService.js';
 import type { ZavorthAgentGateway } from '../runtime/agent/index.js';
 import type { ExperienceCoreService } from '../services/experience/index.js';
+import type { ZavorthHeadlessApprovalMode } from './headless/ZavorthHeadlessCommand.js';
 
 export type ZavorthCliFlags = {
   command: string | null;
@@ -59,6 +60,8 @@ export type ZavorthCliFlags = {
   sessionId: string;
   workspaceHint: string | null;
   commandText: string | null;
+  headless: boolean;
+  approvalMode: ZavorthHeadlessApprovalMode | null;
 };
 
 export type CliWriter = {

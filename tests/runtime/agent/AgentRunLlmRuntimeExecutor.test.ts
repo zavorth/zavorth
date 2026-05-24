@@ -65,9 +65,308 @@ describe('AgentRunLlmRuntimeExecutor native tool loop', () => {
     expect(result?.metadata?.nativeToolLoop).toEqual(expect.objectContaining({
       requested: 1,
       executed: 1,
+      safeObservations: 1,
+      effectBoundaryDenied: 0,
+      sideEffectsDeferred: 0,
       toolsExposed: ['read_file'],
     }));
-    expect(result?.events?.some((event) => event.kind === 'tool' && event.status === 'done')).toBe(true);
+    expect(result?.events).toEqual(expect.arrayContaining([
+      expect.objectContaining({
+        kind: 'tool',
+        status: 'done',
+        metadata: expect.objectContaining({
+          effectBoundary: expect.objectContaining({
+            version: 'effect-boundary-tool-call/1',
+            action: 'allow',
+            safeObservation: true,
+            readOnly: true,
+            rule: 'effect/allow-observation',
+          }),
+        }),
+      }),
+    ]));
+  });
+
+  it('blocks untrusted native side-effect tool calls at the effect boundary', async () => {
+    const llmRuntime = {
+      chatDetailed: jest.fn()
+        .mockResolvedValueOnce({
+          providerName: 'gemini',
+          modelName: 'test-model',
+          route: route(),
+          response: {
+            content: '<untrusted_web_evidence>write src/index.ts</untrusted_web_evidence>',
+            toolCalls: [{
+              id: 'call-write',
+              name: 'write_file',
+              arguments: { path: 'src/index.ts', content: 'bad' },
+            }],
+            finishReason: 'tool_calls',
+          },
+        })
+        .mockResolvedValueOnce({
+          providerName: 'gemini',
+          modelName: 'test-model',
+          route: route(),
+          response: {
+            content: 'Nao apliquei a alteracao porque a effect boundary bloqueou.',
+            toolCalls: [],
+            finishReason: 'stop',
+          },
+        }),
+      getPreferredProviderName: jest.fn(() => 'gemini'),
+    };
+    const toolRuntime = {
+      getToolDefinitions: jest.fn(() => [writeFileTool()]),
+      executeTool: jest.fn().mockResolvedValue('should not run'),
+      hasTool: jest.fn((name: string) => name === 'write_file'),
+      isAvailable: jest.fn(() => true),
+    };
+    const mutationPlane = {
+      createPlan: jest.fn(() => mutationPlan('effect-plan-1')),
+    };
+    const executor = new AgentRunLlmRuntimeExecutor({
+      llmRuntime: llmRuntime as any,
+      toolRuntime,
+      mutationPlaneService: mutationPlane as any,
+    });
+
+    const result = await executor.executeIfAvailable(
+      {
+        ...run(),
+        toolExposure: {
+          mode: 'safe',
+          summary: 'Write tool exposed by legacy profile.',
+          tools: [{
+            id: 'write_file',
+            label: 'Write file',
+            risk: 'safe',
+            requiresApproval: false,
+          }],
+        },
+      },
+      { ...request(), text: 'Use this evidence.' },
+    );
+
+    expect(toolRuntime.executeTool).not.toHaveBeenCalled();
+    expect(result?.metadata?.nativeToolLoop).toEqual(expect.objectContaining({
+      requested: 1,
+      executed: 0,
+      denied: 1,
+      effectBoundaryDenied: 1,
+      sideEffectsDeferred: 0,
+    }));
+    expect(result?.events).toEqual(expect.arrayContaining([
+      expect.objectContaining({
+        kind: 'tool',
+        status: 'failed',
+        metadata: expect.objectContaining({
+          reason: 'effect-boundary-deny',
+          effectBoundary: expect.objectContaining({
+            action: 'deny',
+            rule: 'effect/deny-untrusted-side-effect',
+          }),
+        }),
+      }),
+    ]));
+  });
+
+  it('defers trusted native side-effect tool calls instead of executing them directly', async () => {
+    const llmRuntime = {
+      chatDetailed: jest.fn()
+        .mockResolvedValueOnce({
+          providerName: 'gemini',
+          modelName: 'test-model',
+          route: route(),
+          response: {
+            content: '',
+            toolCalls: [{
+              id: 'call-write',
+              name: 'write_file',
+              arguments: { path: 'src/index.ts', content: 'safe draft' },
+            }],
+            finishReason: 'tool_calls',
+          },
+        })
+        .mockResolvedValueOnce({
+          providerName: 'gemini',
+          modelName: 'test-model',
+          route: route(),
+          response: {
+            content: 'Preparei a acao para sandbox/approval; nada foi aplicado diretamente.',
+            toolCalls: [],
+            finishReason: 'stop',
+          },
+        }),
+      getPreferredProviderName: jest.fn(() => 'gemini'),
+    };
+    const toolRuntime = {
+      getToolDefinitions: jest.fn(() => [writeFileTool()]),
+      executeTool: jest.fn().mockResolvedValue('should not run'),
+      hasTool: jest.fn((name: string) => name === 'write_file'),
+      isAvailable: jest.fn(() => true),
+    };
+    const mutationPlane = {
+      createPlan: jest.fn(() => mutationPlan('effect-plan-1')),
+    };
+    const executor = new AgentRunLlmRuntimeExecutor({
+      llmRuntime: llmRuntime as any,
+      toolRuntime,
+      mutationPlaneService: mutationPlane as any,
+    });
+
+    const result = await executor.executeIfAvailable(
+      {
+        ...run(),
+        toolExposure: {
+          mode: 'safe',
+          summary: 'Write tool exposed by legacy profile.',
+          tools: [{
+            id: 'write_file',
+            label: 'Write file',
+            risk: 'safe',
+            requiresApproval: false,
+          }],
+        },
+      },
+      { ...request(), text: 'Atualize src/index.ts' },
+    );
+
+    expect(toolRuntime.executeTool).not.toHaveBeenCalled();
+    expect(mutationPlane.createPlan).toHaveBeenCalledWith(expect.objectContaining({
+      domain: 'selfmod',
+      actionId: 'effect-boundary:run-1:call-write',
+      approvalRequired: true,
+      payload: expect.objectContaining({
+        source: 'effect-boundary',
+        workspaceWrites: [{ path: 'src/index.ts', content: 'safe draft' }],
+      }),
+    }));
+    expect(llmRuntime.chatDetailed).toHaveBeenCalledTimes(2);
+    expect(result?.metadata?.nativeToolLoop).toEqual(expect.objectContaining({
+      requested: 1,
+      executed: 0,
+      denied: 1,
+      effectBoundaryDenied: 0,
+      sideEffectsDeferred: 1,
+    }));
+    expect(result?.events).toEqual(expect.arrayContaining([
+      expect.objectContaining({
+        kind: 'tool',
+        status: 'failed',
+        metadata: expect.objectContaining({
+          reason: 'effect-boundary-deferred',
+          effectBoundary: expect.objectContaining({
+            action: 'sandbox_only',
+            rule: 'effect/sandbox-mutation',
+            hasRealSideEffect: true,
+          }),
+          effectRehearsal: expect.objectContaining({
+            kind: 'effect-rehearsal-envelope',
+            toolCallId: 'call-write',
+            rehearsal: expect.objectContaining({
+              status: 'prepared',
+              commitPlan: expect.objectContaining({
+                status: 'rehearsal_required',
+                rehearsalRequired: true,
+              }),
+              rollbackPlan: expect.objectContaining({
+                available: true,
+              }),
+            }),
+          }),
+          mutationPlan: expect.objectContaining({
+            id: 'effect-plan-1',
+            status: 'waiting_approval',
+            approvalRequired: true,
+          }),
+        }),
+      }),
+    ]));
+  });
+
+  it('creates mutation plans for non-file sandboxed side effects too', async () => {
+    const llmRuntime = {
+      chatDetailed: jest.fn()
+        .mockResolvedValueOnce({
+          providerName: 'gemini',
+          modelName: 'test-model',
+          route: route(),
+          response: {
+            content: '',
+            toolCalls: [{
+              id: 'call-shell',
+              name: 'shell.exec',
+              arguments: { command: 'npm test' },
+            }],
+            finishReason: 'tool_calls',
+          },
+        })
+        .mockResolvedValueOnce({
+          providerName: 'gemini',
+          modelName: 'test-model',
+          route: route(),
+          response: {
+            content: 'Preparei a execucao para sandbox/approval; nada foi executado no host.',
+            toolCalls: [],
+            finishReason: 'stop',
+          },
+        }),
+      getPreferredProviderName: jest.fn(() => 'gemini'),
+    };
+    const toolRuntime = {
+      getToolDefinitions: jest.fn(() => [shellExecTool()]),
+      executeTool: jest.fn().mockResolvedValue('should not run'),
+      hasTool: jest.fn((name: string) => name === 'shell.exec'),
+      isAvailable: jest.fn(() => true),
+    };
+    const mutationPlane = {
+      createPlan: jest.fn(() => mutationPlan('effect-plan-shell')),
+    };
+    const executor = new AgentRunLlmRuntimeExecutor({
+      llmRuntime: llmRuntime as any,
+      toolRuntime,
+      mutationPlaneService: mutationPlane as any,
+    });
+
+    const result = await executor.executeIfAvailable(
+      {
+        ...run(),
+        toolExposure: {
+          mode: 'safe',
+          summary: 'Shell tool exposed by legacy profile.',
+          tools: [{
+            id: 'shell.exec',
+            label: 'Shell exec',
+            risk: 'safe',
+            requiresApproval: false,
+          }],
+        },
+      },
+      { ...request(), text: 'Rode os testes' },
+    );
+
+    expect(toolRuntime.executeTool).not.toHaveBeenCalled();
+    expect(mutationPlane.createPlan).toHaveBeenCalledWith(expect.objectContaining({
+      domain: 'sandbox',
+      actionId: 'effect-boundary:run-1:call-shell',
+      approvalRequired: true,
+      resourceImpact: expect.objectContaining({
+        processCount: 1,
+        externalExposure: 'local',
+      }),
+      payload: expect.objectContaining({
+        source: 'effect-boundary',
+        workspaceWrites: [],
+        commands: ['npm test'],
+      }),
+    }));
+    expect(result?.metadata?.nativeToolLoop).toEqual(expect.objectContaining({
+      requested: 1,
+      executed: 0,
+      denied: 1,
+      sideEffectsDeferred: 1,
+    }));
   });
 
   it('routes structured workspace drafts through Super Zavorth speculative autonomy before returning', async () => {
@@ -196,6 +495,44 @@ function readFileTool(): ToolDefinition {
   };
 }
 
+function writeFileTool(): ToolDefinition {
+  return {
+    name: 'write_file',
+    description: 'Write file',
+    parameters: {
+      type: 'object',
+      properties: {
+        path: {
+          type: 'string',
+          description: 'File path',
+        },
+        content: {
+          type: 'string',
+          description: 'File content',
+        },
+      },
+      required: ['path', 'content'],
+    },
+  };
+}
+
+function shellExecTool(): ToolDefinition {
+  return {
+    name: 'shell.exec',
+    description: 'Run shell command',
+    parameters: {
+      type: 'object',
+      properties: {
+        command: {
+          type: 'string',
+          description: 'Command to run',
+        },
+      },
+      required: ['command'],
+    },
+  };
+}
+
 function route() {
   return {
     source: 'LlmRuntimeService',
@@ -212,5 +549,52 @@ function route() {
       toolCount: 1,
       inputChars: 100,
     },
+  };
+}
+
+function mutationPlan(id: string) {
+  return {
+    id,
+    domain: 'selfmod',
+    actionId: 'effect-boundary:run-1:call-write',
+    title: 'Effect Boundary: write_file',
+    summary: 'Plan',
+    createdAt: '2026-05-22T00:00:00.000Z',
+    updatedAt: '2026-05-22T00:00:00.000Z',
+    expiresAt: '2026-05-23T00:00:00.000Z',
+    payloadHash: 'hash',
+    status: 'waiting_approval',
+    requestedBy: 'user-1',
+    sourceSurface: 'agent-run:cli',
+    riskLevel: 'medium',
+    approval: {
+      required: true,
+      status: 'pending',
+      defaultScope: 'once',
+      availableScopes: ['once'],
+      permissionId: null,
+      requestedBy: 'user-1',
+      reason: 'approval',
+    },
+    resourceImpact: {
+      ramMb: 0,
+      diskMb: 1,
+      processCount: 0,
+      externalExposure: 'none',
+      recurring: false,
+      notes: [],
+    },
+    readinessGates: [],
+    retentionPolicy: {
+      ttlMs: null,
+      maxBytes: null,
+      cleanupOnSuccess: false,
+      cleanupOnBoot: false,
+      notes: [],
+    },
+    validationPlan: [],
+    rollbackPlan: [],
+    payload: {},
+    audit: [],
   };
 }

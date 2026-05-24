@@ -1,5 +1,6 @@
 import { WorkspaceHookService } from './WorkspaceHookService.js';
 import type { WorkspaceProfile } from './WorkspaceProfileService.js';
+import { ZavorthAutomationHookService } from './ZavorthAutomationHookService.js';
 
 type HookListener = (payload: {
   event: string;
@@ -10,6 +11,7 @@ type HookListener = (payload: {
 type ToolHookPipelineRuntime = {
   now?: () => Date;
   workspaceHookService?: WorkspaceHookService;
+  automationHookService?: Pick<ZavorthAutomationHookService, 'runEvent'>;
 };
 
 export type ToolHookPipelineSnapshot = {
@@ -26,6 +28,9 @@ export type ToolHookPipelineResult = {
   workspace: string | null;
   listenerCount: number;
   workspaceHookCount: number;
+  automationHookCount?: number;
+  automationActionCount?: number;
+  automationBlockedActionCount?: number;
   ok: boolean;
 };
 
@@ -52,11 +57,13 @@ const BUILTIN_EVENTS = [
 export class ToolHookPipelineService {
   private readonly now: () => Date;
   private readonly workspaceHooks: WorkspaceHookService;
+  private readonly automationHooks: Pick<ZavorthAutomationHookService, 'runEvent'>;
   private readonly listeners = new Map<string, Set<HookListener>>();
 
   constructor(runtime: ToolHookPipelineRuntime = {}) {
     this.now = runtime.now || (() => new Date());
     this.workspaceHooks = runtime.workspaceHookService || new WorkspaceHookService();
+    this.automationHooks = runtime.automationHookService || new ZavorthAutomationHookService({ now: this.now });
   }
 
   public buildSnapshot(): ToolHookPipelineSnapshot {
@@ -98,6 +105,9 @@ export class ToolHookPipelineService {
     }
 
     let workspaceHookCount = 0;
+    let automationHookCount = 0;
+    let automationActionCount = 0;
+    let automationBlockedActionCount = 0;
     let ok = true;
     if (workspace) {
       const execution = await this.workspaceHooks.runHooksForEvent({
@@ -108,6 +118,17 @@ export class ToolHookPipelineService {
       });
       workspaceHookCount = execution.hooks.length;
       ok = execution.ok;
+
+      const automation = await this.automationHooks.runEvent({
+        workspace,
+        event,
+        context,
+        dryRun: input.dryRun === true,
+      });
+      automationHookCount = automation.matchedHooks;
+      automationActionCount = automation.executedActions;
+      automationBlockedActionCount = automation.blockedActions;
+      ok = ok && automation.ok;
     }
 
     return {
@@ -115,6 +136,9 @@ export class ToolHookPipelineService {
       workspace,
       listenerCount: listeners.length,
       workspaceHookCount,
+      automationHookCount,
+      automationActionCount,
+      automationBlockedActionCount,
       ok,
     };
   }

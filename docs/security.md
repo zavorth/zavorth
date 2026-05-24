@@ -18,6 +18,14 @@ what approval is required and what evidence must be recorded.
 Central decision point for tools, providers, workspace access, web fetches,
 desktop/device automation, skills, plugins, MCPs and writes.
 
+### Effect Boundary
+
+LLM cognition is separate from host effects. The model can reason, choose tools
+and draft actions, but real writes, shell, network egress, secrets, persistence
+and external sends are converted into typed effects before policy, rehearsal,
+approval and receipts. Safe observations such as current time and allowed
+workspace reads stay low-friction and auditable.
+
 ### Approval Envelopes
 
 Approval is bound to a specific action and arguments. A later action with a
@@ -43,6 +51,7 @@ approved, blocked, expired or rolled back.
 ```bash
 npm run security:secrets
 npm run runtime:check
+npm run effect-boundary:check
 ```
 
 Use the broader workspace check before release or after wide runtime changes.
@@ -50,5 +59,6 @@ Use the broader workspace check before release or after wide runtime changes.
 ## Related
 
 - [Operations](/docs/operations.md)
+- [Effect Boundary](/docs/effect-boundary.md)
 - [Self-Modification](/docs/self-modification.md)
 - [Roadmap](/docs/product-direction.md)

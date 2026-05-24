@@ -60,6 +60,7 @@ import {
   normalizeCliCommandName,
   normalizeCliInput,
 } from './ZavorthCliFlowHelpers.js';
+import { normalizeZavorthHeadlessArgs } from './headless/ZavorthHeadlessCommand.js';
 import type { ZavorthCliFlags, ZavorthCliRuntime, ZavorthCliServiceOverrides } from './ZavorthCliContract.js';
 
 function buildSessionPlaneInput(
@@ -465,6 +466,8 @@ function resolveCliExecutionInput(rawInput: string): CliResolvedExecutionInput {
 }
 
 export function parseZavorthCliFlags(argv: string[]): ZavorthCliFlags {
+  const headless = normalizeZavorthHeadlessArgs(argv);
+  const effectiveArgv = headless.argv;
   const defaultUserId = config.allowedUserIds[0] || process.env.USERNAME || process.env.USER || 'cli-operator';
   const flags: ZavorthCliFlags = {
     command: null,
@@ -477,11 +480,13 @@ export function parseZavorthCliFlags(argv: string[]): ZavorthCliFlags {
     sessionId: createDefaultSessionId(),
     workspaceHint: null,
     commandText: null,
+    headless: headless.enabled,
+    approvalMode: headless.approvalMode,
   };
   const commandParts: string[] = [];
 
-  for (let index = 0; index < argv.length; index += 1) {
-    const token = String(argv[index] || '').trim();
+  for (let index = 0; index < effectiveArgv.length; index += 1) {
+    const token = String(effectiveArgv[index] || '').trim();
     if (!token) {
       continue;
     }
@@ -501,14 +506,14 @@ export function parseZavorthCliFlags(argv: string[]): ZavorthCliFlags {
       continue;
     }
 
-    if (token === '--user' && argv[index + 1]) {
-      flags.userId = String(argv[index + 1]).trim() || flags.userId;
+    if (token === '--user' && effectiveArgv[index + 1]) {
+      flags.userId = String(effectiveArgv[index + 1]).trim() || flags.userId;
       index += 1;
       continue;
     }
 
-    if (token === '--platform' && argv[index + 1]) {
-      const platform = String(argv[index + 1]).trim().toLowerCase();
+    if (token === '--platform' && effectiveArgv[index + 1]) {
+      const platform = String(effectiveArgv[index + 1]).trim().toLowerCase();
       if (platform === 'telegram' || platform === 'discord' || platform === 'web') {
         flags.platform = platform;
       }
@@ -516,32 +521,32 @@ export function parseZavorthCliFlags(argv: string[]): ZavorthCliFlags {
       continue;
     }
 
-    if (token === '--chat' && argv[index + 1]) {
-      flags.chatId = String(argv[index + 1]).trim() || flags.chatId;
+    if (token === '--chat' && effectiveArgv[index + 1]) {
+      flags.chatId = String(effectiveArgv[index + 1]).trim() || flags.chatId;
       index += 1;
       continue;
     }
 
-    if (token === '--chat-id' && argv[index + 1]) {
-      flags.chatId = String(argv[index + 1]).trim() || flags.chatId;
+    if (token === '--chat-id' && effectiveArgv[index + 1]) {
+      flags.chatId = String(effectiveArgv[index + 1]).trim() || flags.chatId;
       index += 1;
       continue;
     }
 
-    if (token === '--session' && argv[index + 1]) {
-      flags.sessionId = String(argv[index + 1]).trim() || flags.sessionId;
+    if (token === '--session' && effectiveArgv[index + 1]) {
+      flags.sessionId = String(effectiveArgv[index + 1]).trim() || flags.sessionId;
       index += 1;
       continue;
     }
 
-    if (token === '--session-id' && argv[index + 1]) {
-      flags.sessionId = String(argv[index + 1]).trim() || flags.sessionId;
+    if (token === '--session-id' && effectiveArgv[index + 1]) {
+      flags.sessionId = String(effectiveArgv[index + 1]).trim() || flags.sessionId;
       index += 1;
       continue;
     }
 
-    if (token === '--workspace' && argv[index + 1]) {
-      flags.workspaceHint = String(argv[index + 1]).trim() || null;
+    if (token === '--workspace' && effectiveArgv[index + 1]) {
+      flags.workspaceHint = String(effectiveArgv[index + 1]).trim() || null;
       index += 1;
       continue;
     }

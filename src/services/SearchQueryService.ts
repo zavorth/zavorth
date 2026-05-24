@@ -56,6 +56,9 @@ import {
   GeminiGroundingSearchAdapter,
   GroundingAdapterError,
 } from '../adapters/search/GeminiGroundingSearchAdapter.js';
+import {
+  SearchProviderLiveAdapter,
+} from '../adapters/web/WebResearchLiveAdapters.js';
 import { safeFetch } from '../security/SafeFetchService.js';
 import { wrapUntrustedContent } from '../security/UntrustedContent.js';
 
@@ -75,10 +78,7 @@ export class SearchQueryService {
   constructor(options?: { adapters?: ISearchQueryAdapter[] }) {
     this.adapters = new Map();
 
-    const adapterList = options?.adapters || [
-      new DuckDuckGoSearchAdapter(),
-      new GeminiGroundingSearchAdapter(),
-    ];
+    const adapterList = options?.adapters || createDefaultSearchAdapters();
 
     for (const adapter of adapterList) {
       this.adapters.set(adapter.adapterId, adapter);
@@ -221,6 +221,13 @@ export class SearchQueryService {
     mode: SearchQueryMode,
   ): Promise<AdapterSearchOutput> {
     const requestedProvider = this.requestedProviderId(request);
+    if (requestedProvider === 'google' || requestedProvider === 'gemini') {
+      const groundingAdapter = this.findAdapterForMode('grounded', 'gemini-grounding')
+        || this.findAdapterForMode('grounded');
+      if (groundingAdapter) {
+        return groundingAdapter.search(request);
+      }
+    }
     // Para modo 'grounded', tenta grounding primeiro, fallback para DDG.
     if (mode === 'grounded') {
       const groundingAdapter = this.findAdapterForMode('grounded', requestedProvider);
@@ -272,9 +279,17 @@ export class SearchQueryService {
 
   private requestedProviderId(request: SearchQueryRequest): string | null {
     const hints = request.providerHints || {};
-    const value = hints.providerId || hints.searchProvider || hints.preferredProvider;
+    const value = hints.providerId
+      || hints.searchProvider
+      || hints.preferredProvider
+      || process.env.ZAVORTH_SEARCH_PROVIDER;
     const normalized = String(value || '').trim();
-    return normalized || null;
+    return normalized
+      && normalized !== 'local'
+      && normalized !== 'skip'
+      && normalized !== 'ollama-web'
+      ? normalized
+      : null;
   }
 
   // -------------------------------------------------------------------------
@@ -556,4 +571,266 @@ export class SearchQueryService {
       processedAt,
     };
   }
+}
+
+function createDefaultSearchAdapters(): ISearchQueryAdapter[] {
+  const adapters: ISearchQueryAdapter[] = [
+    new DuckDuckGoSearchAdapter(),
+    new GeminiGroundingSearchAdapter(),
+  ];
+
+  const braveKey = envValue('BRAVE_SEARCH_API_KEY');
+  if (braveKey) {
+    adapters.push(new SearchProviderLiveAdapter({
+      adapterId: 'brave',
+      providerId: 'brave',
+      searchUrl: envValue('BRAVE_SEARCH_URL') || 'https://api.search.brave.com/res/v1/web/search',
+      apiKey: braveKey,
+      requestStyle: 'brave',
+      authHeaderName: 'X-Subscription-Token',
+      authScheme: null,
+    }));
+  }
+
+  const exaKey = envValue('EXA_API_KEY');
+  if (exaKey) {
+    adapters.push(new SearchProviderLiveAdapter({
+      adapterId: 'exa',
+      providerId: 'exa',
+      searchUrl: envValue('EXA_SEARCH_URL') || 'https://api.exa.ai/search',
+      apiKey: exaKey,
+      requestStyle: 'exa',
+    }));
+  }
+
+  const searxngUrl = envValue('SEARXNG_BASE_URL');
+  if (searxngUrl) {
+    adapters.push(new SearchProviderLiveAdapter({
+      adapterId: 'searxng',
+      providerId: 'searxng',
+      searchUrl: searxngUrl,
+      apiKey: envValue('SEARXNG_API_KEY'),
+      requestStyle: 'searxng',
+      authScheme: envValue('SEARXNG_API_KEY') ? 'Bearer' : null,
+    }));
+  }
+
+  const tavilyKey = envValue('TAVILY_API_KEY');
+  if (tavilyKey) {
+    adapters.push(new SearchProviderLiveAdapter({
+      adapterId: 'tavily',
+      providerId: 'tavily',
+      searchUrl: envValue('TAVILY_SEARCH_URL') || 'https://api.tavily.com/search',
+      apiKey: tavilyKey,
+      requestStyle: 'tavily',
+    }));
+  }
+
+  const perplexityKey = envValue('PERPLEXITY_API_KEY');
+  if (perplexityKey) {
+    adapters.push(new ChatCompletionsSearchAdapter({
+      adapterId: 'perplexity',
+      providerId: 'perplexity',
+      apiKey: perplexityKey,
+      url: envValue('PERPLEXITY_SEARCH_URL') || 'https://api.perplexity.ai/chat/completions',
+      model: envValue('PERPLEXITY_SEARCH_MODEL') || 'sonar',
+    }));
+  }
+
+  const xaiKey = envValue('XAI_API_KEY');
+  if (xaiKey) {
+    adapters.push(new ChatCompletionsSearchAdapter({
+      adapterId: 'grok',
+      providerId: 'grok',
+      apiKey: xaiKey,
+      url: envValue('XAI_SEARCH_URL') || 'https://api.x.ai/v1/chat/completions',
+      model: envValue('XAI_SEARCH_MODEL') || 'grok-4-1-fast',
+      extraBody: {
+        search_parameters: { mode: 'auto' },
+      },
+    }));
+  }
+
+  const kimiKey = envValue('KIMI_API_KEY') || envValue('MOONSHOT_API_KEY');
+  if (kimiKey) {
+    adapters.push(new ChatCompletionsSearchAdapter({
+      adapterId: 'kimi',
+      providerId: 'kimi',
+      apiKey: kimiKey,
+      url: envValue('KIMI_SEARCH_URL') || envValue('MOONSHOT_SEARCH_URL') || 'https://api.moonshot.ai/v1/chat/completions',
+      model: envValue('KIMI_SEARCH_MODEL') || 'kimi-k2.5',
+      extraBody: {
+        tools: [{
+          type: 'builtin_function',
+          function: { name: '$web_search' },
+        }],
+      },
+    }));
+  }
+
+  const minimaxKey = envValue('MINIMAX_CODE_PLAN_KEY')
+    || envValue('MINIMAX_CODING_API_KEY')
+    || envValue('MINIMAX_API_KEY');
+  if (minimaxKey) {
+    const baseUrl = envValue('MINIMAX_BASE_URL');
+    adapters.push(new ChatCompletionsSearchAdapter({
+      adapterId: 'minimax',
+      providerId: 'minimax',
+      apiKey: minimaxKey,
+      url: envValue('MINIMAX_SEARCH_URL') || (baseUrl ? `${baseUrl.replace(/\/$/, '')}/chat/completions` : 'https://api.minimax.io/v1/chat/completions'),
+      model: envValue('MINIMAX_SEARCH_MODEL') || envValue('MINIMAX_MODEL') || 'MiniMax-M2.7',
+    }));
+  }
+
+  return adapters;
+}
+
+type ChatCompletionsSearchAdapterConfig = {
+  adapterId: string;
+  providerId: string;
+  apiKey: string;
+  url: string;
+  model: string;
+  extraBody?: Record<string, unknown>;
+};
+
+class ChatCompletionsSearchAdapter implements ISearchQueryAdapter {
+  public readonly supportedModes: SearchQueryMode[] = ['quick', 'deep'];
+  public readonly adapterId: string;
+  private readonly config: ChatCompletionsSearchAdapterConfig;
+
+  constructor(config: ChatCompletionsSearchAdapterConfig) {
+    this.adapterId = config.adapterId;
+    this.config = config;
+  }
+
+  public async search(request: SearchQueryRequest): Promise<AdapterSearchOutput> {
+    const response = await fetch(this.config.url, {
+      method: 'POST',
+      headers: {
+        Accept: 'application/json',
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${this.config.apiKey}`,
+      },
+      body: JSON.stringify({
+        model: this.config.model,
+        messages: [
+          {
+            role: 'system',
+            content: 'Return a concise web search answer with source URLs. Do not invent citations.',
+          },
+          {
+            role: 'user',
+            content: request.query,
+          },
+        ],
+        temperature: 0,
+        ...this.config.extraBody,
+      }),
+    });
+    const payload = await response.json().catch(() => null);
+    if (!response.ok) {
+      throw new Error(`${this.adapterId} search failed: ${readProviderError(payload, response.status)}`);
+    }
+    const text = String(readPath(payload, 'choices.0.message.content') || '').trim();
+    const citations = collectCitationUrls(payload, text).slice(0, Math.min(request.limit || 5, 10));
+    if (citations.length === 0) {
+      throw new Error(`${this.adapterId} did not return verifiable web citations.`);
+    }
+    return {
+      providerId: this.config.providerId,
+      groundedSynthesis: {
+        synthesizedText: text || `Search completed by ${this.config.providerId}.`,
+        citations: citations.map((url) => ({
+          title: titleFromUrl(url),
+          url,
+        })),
+        modelId: this.config.model,
+      },
+      items: citations.map((url, index) => ({
+        title: titleFromUrl(url),
+        url,
+        description: text.slice(0, 300) || `${this.config.providerId} citation ${index + 1}`,
+        originalRank: index + 1,
+        sourceQuery: request.query,
+        metadata: {
+          providerId: this.config.providerId,
+          model: this.config.model,
+        },
+      })),
+    };
+  }
+}
+
+function envValue(name: string): string {
+  return String(process.env[name] || '').trim();
+}
+
+function collectCitationUrls(payload: unknown, text: string): string[] {
+  const urls = new Set<string>();
+  for (const value of [
+    readPath(payload, 'citations'),
+    readPath(payload, 'search_results'),
+    readPath(payload, 'choices.0.message.citations'),
+    readPath(payload, 'choices.0.message.search_results'),
+    readPath(payload, 'choices.0.message.context.search_results'),
+  ]) {
+    for (const url of extractUrls(value)) {
+      urls.add(url);
+    }
+  }
+  for (const match of text.matchAll(/https?:\/\/[^\s)\]}>"']+/g)) {
+    urls.add(match[0]);
+  }
+  return Array.from(urls);
+}
+
+function extractUrls(value: unknown): string[] {
+  if (!value) {
+    return [];
+  }
+  if (typeof value === 'string') {
+    return Array.from(value.matchAll(/https?:\/\/[^\s)\]}>"']+/g)).map((match) => match[0]);
+  }
+  if (Array.isArray(value)) {
+    return value.flatMap(extractUrls);
+  }
+  if (typeof value === 'object') {
+    const record = value as Record<string, unknown>;
+    return [
+      ...extractUrls(record.url),
+      ...extractUrls(record.link),
+      ...extractUrls(record.href),
+      ...extractUrls(record.source_url),
+    ];
+  }
+  return [];
+}
+
+function titleFromUrl(url: string): string {
+  try {
+    const parsed = new URL(url);
+    return parsed.hostname.replace(/^www\./, '');
+  } catch {
+    return url;
+  }
+}
+
+function readProviderError(payload: unknown, status: number): string {
+  return String(readPath(payload, 'error.message') || readPath(payload, 'message') || `HTTP ${status}`);
+}
+
+function readPath(payload: unknown, pathExpression: string): unknown {
+  return pathExpression.split('.').reduce((current: unknown, key) => {
+    if (current === null || current === undefined) {
+      return undefined;
+    }
+    if (Array.isArray(current) && /^\d+$/.test(key)) {
+      return current[Number(key)];
+    }
+    if (typeof current === 'object') {
+      return (current as Record<string, unknown>)[key];
+    }
+    return undefined;
+  }, payload);
 }
