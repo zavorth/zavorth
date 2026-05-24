@@ -101,6 +101,12 @@ export function configureCanonicalPublicApi(
     sendEnvelope(res, service.readRuntimeHealth(readBoolean(url, 'live') ? 'live' : 'fast'));
   }, { access: 'public' });
 
+  router.register('GET', /^\/metrics$/, async (_req, res) => {
+    const body = await service.readPrometheusMetrics();
+    res.writeHead(200, { 'Content-Type': 'text/plain; version=0.0.4; charset=utf-8' });
+    res.end(body);
+  }, { access: 'public' });
+
   router.register('GET', /^\/api\/v1\/providers$/, async (req, res) => {
     const url = resolveUrl(req);
     PublicApiRouter.requireAuth(req);
@@ -309,6 +315,14 @@ export function configureCanonicalPublicApi(
     PublicApiRouter.sendJson(res, 200, service.readPlatformStatus());
   }, { access: 'public' });
 
+  router.register('GET', /^\/api\/v1\/config\/personalization\/validate$/, async (req, res) => {
+    const url = resolveUrl(req);
+    PublicApiRouter.requireAuth(req);
+    PublicApiRouter.sendJson(res, 200, service.readPersonalizationValidation({
+      migrate: readBoolean(url, 'migrate'),
+    }));
+  });
+
   router.register('GET', /^\/api\/v1\/platform\/catalog$/, async (req, res) => {
     const url = resolveUrl(req);
     PublicApiRouter.sendJson(res, 200, service.readPlatformCatalog({
@@ -410,6 +424,14 @@ export function configureCanonicalPublicApi(
       sessionId: url.searchParams.get('sessionId'),
       chatId: url.searchParams.get('chatId'),
       workspaceHint: url.searchParams.get('workspace'),
+    }));
+  });
+
+  router.register('GET', /^\/api\/v1\/memory\/lifecycle$/, async (req, res) => {
+    const url = resolveUrl(req);
+    PublicApiRouter.requireAuth(req);
+    PublicApiRouter.sendJson(res, 200, service.readMemoryLifecycle({
+      apply: readBoolean(url, 'apply'),
     }));
   });
 

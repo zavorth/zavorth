@@ -2,7 +2,7 @@
   "name": "zavorth",
   "version": "1.1.0",
   "description": "Zavorth - local-first governed AI agent runtime with onboarding, CLI, API and supervised execution",
-  "license": "UNLICENSED",
+  "license": "SEE LICENSE IN LICENSE",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "exports": {
@@ -14,97 +14,53 @@
       "types": "./dist/sdk/index.d.ts",
       "default": "./dist/sdk/index.js"
     },
-    "./sdk/module": {
-      "types": "./dist/sdk/module/index.d.ts",
-      "default": "./dist/sdk/module/index.js"
-    },
-    "./sdk/contracts": {
-      "types": "./dist/sdk/contracts.d.ts",
-      "default": "./dist/sdk/contracts.js"
-    },
     "./sdk/agent-runtime-bridge": {
       "types": "./dist/sdk/agent-runtime-bridge.d.ts",
       "default": "./dist/sdk/agent-runtime-bridge.js"
+    },
+    "./sdk/capabilities": {
+      "types": "./dist/sdk/capabilities.d.ts",
+      "default": "./dist/sdk/capabilities.js"
     },
     "./sdk/channel-mesh-expansion": {
       "types": "./dist/sdk/channel-mesh-expansion.d.ts",
       "default": "./dist/sdk/channel-mesh-expansion.js"
     },
-    "./sdk/memory-document-terminal-pack": {
-      "types": "./dist/sdk/memory-document-terminal-pack.d.ts",
-      "default": "./dist/sdk/memory-document-terminal-pack.js"
-    },
-    "./sdk/native-companion-device-pack": {
-      "types": "./dist/sdk/native-companion-device-pack.d.ts",
-      "default": "./dist/sdk/native-companion-device-pack.js"
-    },
-    "./sdk/qa-security-release-certification-pack": {
-      "types": "./dist/sdk/qa-security-release-certification-pack.d.ts",
-      "default": "./dist/sdk/qa-security-release-certification-pack.js"
-    },
-    "./sdk/skill-ecosystem-pack": {
-      "types": "./dist/sdk/skill-ecosystem-pack.d.ts",
-      "default": "./dist/sdk/skill-ecosystem-pack.js"
+    "./sdk/contracts": {
+      "types": "./dist/sdk/contracts.d.ts",
+      "default": "./dist/sdk/contracts.js"
     },
     "./sdk/functional-closure": {
       "types": "./dist/sdk/functional-closure.d.ts",
       "default": "./dist/sdk/functional-closure.js"
     },
-    "./sdk/semantic-plugin-package-certification": {
-      "types": "./dist/sdk/semantic-plugin-package-certification.d.ts",
-      "default": "./dist/sdk/semantic-plugin-package-certification.js"
+    "./sdk/memory-document-terminal-pack": {
+      "types": "./dist/sdk/memory-document-terminal-pack.d.ts",
+      "default": "./dist/sdk/memory-document-terminal-pack.js"
     },
-    "./sdk/semantic-agent-runtime-certification": {
-      "types": "./dist/sdk/semantic-agent-runtime-certification.d.ts",
-      "default": "./dist/sdk/semantic-agent-runtime-certification.js"
+    "./sdk/module": {
+      "types": "./dist/sdk/module/index.d.ts",
+      "default": "./dist/sdk/module/index.js"
     },
-    "./sdk/semantic-provider-mesh-certification": {
-      "types": "./dist/sdk/semantic-provider-mesh-certification.d.ts",
-      "default": "./dist/sdk/semantic-provider-mesh-certification.js"
-    },
-    "./sdk/semantic-channel-mesh-certification": {
-      "types": "./dist/sdk/semantic-channel-mesh-certification.d.ts",
-      "default": "./dist/sdk/semantic-channel-mesh-certification.js"
-    },
-    "./sdk/semantic-memory-document-terminal-certification": {
-      "types": "./dist/sdk/semantic-memory-document-terminal-certification.d.ts",
-      "default": "./dist/sdk/semantic-memory-document-terminal-certification.js"
-    },
-    "./sdk/semantic-native-companion-device-capability-certification": {
-      "types": "./dist/sdk/semantic-native-companion-device-capability-certification.d.ts",
-      "default": "./dist/sdk/semantic-native-companion-device-capability-certification.js"
-    },
-    "./sdk/semantic-qa-security-release-certification": {
-      "types": "./dist/sdk/semantic-qa-security-release-certification.d.ts",
-      "default": "./dist/sdk/semantic-qa-security-release-certification.js"
-    },
-    "./sdk/semantic-skill-ecosystem-certification": {
-      "types": "./dist/sdk/semantic-skill-ecosystem-certification.d.ts",
-      "default": "./dist/sdk/semantic-skill-ecosystem-certification.js"
-    },
-    "./sdk/semantic-functional-closure-certification": {
-      "types": "./dist/sdk/semantic-functional-closure-certification.d.ts",
-      "default": "./dist/sdk/semantic-functional-closure-certification.js"
-    },
-    "./sdk/semantic-closure-consolidation": {
-      "types": "./dist/sdk/semantic-closure-consolidation.d.ts",
-      "default": "./dist/sdk/semantic-closure-consolidation.js"
+    "./sdk/native-companion-device-pack": {
+      "types": "./dist/sdk/native-companion-device-pack.d.ts",
+      "default": "./dist/sdk/native-companion-device-pack.js"
     },
     "./sdk/owner-gated-live-activation": {
       "types": "./dist/sdk/owner-gated-live-activation.d.ts",
       "default": "./dist/sdk/owner-gated-live-activation.js"
     },
-    "./sdk/provider-mesh-expansion": {
-      "types": "./dist/sdk/provider-mesh-expansion.d.ts",
-      "default": "./dist/sdk/provider-mesh-expansion.js"
-    },
     "./sdk/plugin-os": {
       "types": "./dist/sdk/plugin-os.d.ts",
       "default": "./dist/sdk/plugin-os.js"
     },
-    "./sdk/capabilities": {
-      "types": "./dist/sdk/capabilities.d.ts",
-      "default": "./dist/sdk/capabilities.js"
+    "./sdk/provider-mesh-expansion": {
+      "types": "./dist/sdk/provider-mesh-expansion.d.ts",
+      "default": "./dist/sdk/provider-mesh-expansion.js"
+    },
+    "./sdk/qa-security-release-certification-pack": {
+      "types": "./dist/sdk/qa-security-release-certification-pack.d.ts",
+      "default": "./dist/sdk/qa-security-release-certification-pack.js"
     },
     "./sdk/runtime/codex": {
       "types": "./dist/sdk/runtime-codex.d.ts",
@@ -117,6 +73,50 @@
     "./sdk/sales-pack": {
       "types": "./dist/sdk/sales-pack.d.ts",
       "default": "./dist/sdk/sales-pack.js"
+    },
+    "./sdk/semantic-agent-runtime-certification": {
+      "types": "./dist/sdk/semantic-agent-runtime-certification.d.ts",
+      "default": "./dist/sdk/semantic-agent-runtime-certification.js"
+    },
+    "./sdk/semantic-channel-mesh-certification": {
+      "types": "./dist/sdk/semantic-channel-mesh-certification.d.ts",
+      "default": "./dist/sdk/semantic-channel-mesh-certification.js"
+    },
+    "./sdk/semantic-closure-consolidation": {
+      "types": "./dist/sdk/semantic-closure-consolidation.d.ts",
+      "default": "./dist/sdk/semantic-closure-consolidation.js"
+    },
+    "./sdk/semantic-functional-closure-certification": {
+      "types": "./dist/sdk/semantic-functional-closure-certification.d.ts",
+      "default": "./dist/sdk/semantic-functional-closure-certification.js"
+    },
+    "./sdk/semantic-memory-document-terminal-certification": {
+      "types": "./dist/sdk/semantic-memory-document-terminal-certification.d.ts",
+      "default": "./dist/sdk/semantic-memory-document-terminal-certification.js"
+    },
+    "./sdk/semantic-native-companion-device-capability-certification": {
+      "types": "./dist/sdk/semantic-native-companion-device-capability-certification.d.ts",
+      "default": "./dist/sdk/semantic-native-companion-device-capability-certification.js"
+    },
+    "./sdk/semantic-plugin-package-certification": {
+      "types": "./dist/sdk/semantic-plugin-package-certification.d.ts",
+      "default": "./dist/sdk/semantic-plugin-package-certification.js"
+    },
+    "./sdk/semantic-provider-mesh-certification": {
+      "types": "./dist/sdk/semantic-provider-mesh-certification.d.ts",
+      "default": "./dist/sdk/semantic-provider-mesh-certification.js"
+    },
+    "./sdk/semantic-qa-security-release-certification": {
+      "types": "./dist/sdk/semantic-qa-security-release-certification.d.ts",
+      "default": "./dist/sdk/semantic-qa-security-release-certification.js"
+    },
+    "./sdk/semantic-skill-ecosystem-certification": {
+      "types": "./dist/sdk/semantic-skill-ecosystem-certification.d.ts",
+      "default": "./dist/sdk/semantic-skill-ecosystem-certification.js"
+    },
+    "./sdk/skill-ecosystem-pack": {
+      "types": "./dist/sdk/skill-ecosystem-pack.d.ts",
+      "default": "./dist/sdk/skill-ecosystem-pack.js"
     },
     "./sdk/version": {
       "types": "./dist/sdk/version.d.ts",
@@ -152,7 +152,9 @@
   ],
   "scripts": {
     "dev": "npx nodemon --watch src --ext ts --exec \"npx tsx src/index.ts\"",
-    "prepack": "npm run build --silent",
+    "prepack": "npm run sdk:exports:check --silent && npm run build --silent",
+    "sdk:exports": "node scripts/generate-package-exports.mjs --write",
+    "sdk:exports:check": "node scripts/generate-package-exports.mjs --check",
     "cli": "npm run build --silent && node bin/zavorth.js",
     "cli:ink-preview": "npm --prefix src/cli/ink-test-env run dev",
     "zavorth:premium-cli-foundation:check": "npx jest tests/cli/premium/ZavorthPremiumCliRenderer.test.ts --runInBand",

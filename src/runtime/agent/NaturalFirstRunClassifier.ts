@@ -1,4 +1,5 @@
 import type { UniversalAgentChannel } from './UniversalAgentRuntimeTypes.js';
+import { IntentExampleSimilarityService } from '../../services/IntentExampleSimilarityService.js';
 
 export type NaturalFirstRoute =
   | 'slash-command'
@@ -375,6 +376,8 @@ function buildCost(
 }
 
 export class NaturalFirstRunClassifier {
+  private readonly intentExamples = new IntentExampleSimilarityService();
+
   public classify(input: NaturalFirstRunClassificationInput): NaturalFirstRunClassification {
     const rawText = normalizeText(input.text);
     const text = normalizeSearchText(rawText);
@@ -461,7 +464,10 @@ export class NaturalFirstRunClassifier {
       requestedTools,
       approvalRequiredTools,
     });
-    const decision = this.decideRoute({
+    const exampleMatch = !textDanger && approvalRequiredTools.length === 0
+      ? this.intentExamples.match(rawText)
+      : null;
+    const decision = this.refineDecisionWithExample(this.decideRoute({
       rawText,
       lowSignalChat,
       memoryIntent,
@@ -473,7 +479,7 @@ export class NaturalFirstRunClassifier {
       textDanger,
       highestRisk,
       approvalRequiredTools,
-    });
+    }), exampleMatch);
     const risk = this.buildRisk({
       highestRisk,
       textDanger,
@@ -487,6 +493,8 @@ export class NaturalFirstRunClassifier {
     });
     const signals = unique([
       ...decision.signals,
+      ...(exampleMatch ? [`intent-example:${exampleMatch.intent}`, `intent-example-score:${exampleMatch.score}`] : []),
+      ...(exampleMatch?.signals || []),
       ...candidates.map((candidate) => `candidate:${candidate}`),
       ...(context.session.present ? ['session-context'] : []),
       ...(context.user.present ? ['user-context'] : []),
@@ -513,6 +521,31 @@ export class NaturalFirstRunClassifier {
       intent,
       signals,
     });
+  }
+
+  private refineDecisionWithExample(
+    decision: RouteDecisionInput,
+    match: ReturnType<IntentExampleSimilarityService['match']>,
+  ): RouteDecisionInput {
+    if (!match) {
+      return decision;
+    }
+    if (decision.route === 'approval-proposal' || decision.intent === 'sensitive-action') {
+      return decision;
+    }
+    return {
+      ...decision,
+      route: match.route,
+      intent: match.intent,
+      reason: `${decision.reason} Intent example similarity matched "${match.text}" (${match.score}).`,
+      signals: unique([
+        ...decision.signals,
+        'intent-example-similarity',
+        ...(match.signals || []),
+      ]),
+      usesLlm: match.route === 'light-chat' ? decision.usesLlm : 'preferred',
+      effort: match.route === 'governed-execution' ? 'heavy' : decision.effort,
+    };
   }
 
   private buildCandidates(input: {

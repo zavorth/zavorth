@@ -1,0 +1,40 @@
+{
+  "schemaVersion": 1,
+  "examples": [
+    {
+      "text": "what time is it in Brasilia?",
+      "intent": "tool-use",
+      "route": "tool-preview",
+      "risk": "safe",
+      "signals": ["example:datetime", "example:safe-observation"]
+    },
+    {
+      "text": "review this repository and tell me the main risks",
+      "intent": "operational-work",
+      "route": "governed-execution",
+      "risk": "safe",
+      "signals": ["example:workspace-review"]
+    },
+    {
+      "text": "remember that I prefer concise answers",
+      "intent": "memory-recall",
+      "route": "memory-recall",
+      "risk": "safe",
+      "signals": ["example:memory"]
+    },
+    {
+      "text": "delete the build folder and push the fix",
+      "intent": "sensitive-action",
+      "route": "approval-proposal",
+      "risk": "danger",
+      "signals": ["example:sensitive-mutation"]
+    },
+    {
+      "text": "configure Telegram and Discord channels",
+      "intent": "capability-discovery",
+      "route": "capability-discovery",
+      "risk": "attention",
+      "signals": ["example:capability-setup"]
+    }
+  ]
+}
