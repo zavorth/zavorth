@@ -2,7 +2,7 @@
   "name": "zavorth",
   "version": "1.1.0",
   "description": "Zavorth - local-first governed AI agent runtime with onboarding, CLI, API and supervised execution",
-  "license": "SEE LICENSE IN LICENSE",
+  "license": "UNLICENSED",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "exports": {
@@ -898,7 +898,11 @@
     "zavorth:operator-check": "npx tsx scripts/zavorth-one-command-operator-check.ts",
     "zavorth:operator-check:json": "npx tsx scripts/zavorth-one-command-operator-check.ts --json",
     "zavorth:operator-check:check": "node scripts/zavorth-one-command-operator-check-check.mjs",
-    "qa:zavorth-operator-check": "node scripts/zavorth-one-command-operator-check-check.mjs"
+    "qa:zavorth-operator-check": "node scripts/zavorth-one-command-operator-check-check.mjs",
+    "zavorth:product-readiness": "node scripts/zavorth-product-readiness-gate.mjs",
+    "zavorth:product-readiness:json": "node scripts/zavorth-product-readiness-gate.mjs --json",
+    "zavorth:product-readiness:check": "node scripts/zavorth-product-readiness-gate.mjs",
+    "qa:zavorth-product-readiness": "node scripts/zavorth-product-readiness-gate.mjs"
   },
   "dependencies": {
     "@agentclientprotocol/sdk": "^0.21.1",

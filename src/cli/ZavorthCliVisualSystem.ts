@@ -25,6 +25,31 @@ export type CliVisualScreen = {
 
 const HELP_PANEL_WIDTH = 92;
 
+export function renderCliScreen(screen: CliVisualScreen): string {
+  const mode = screen.mode || 'hero';
+  const parts: string[] = [];
+
+  if (screen.eyebrow && mode !== 'hero') {
+    parts.push(paintCliTone(screen.eyebrow, screen.eyebrowTone || 'muted'));
+  }
+
+  if (mode === 'hero') {
+    parts.push(renderHeroHeader(screen));
+  } else {
+    parts.push(paintCliTone(screen.title, 'brand'));
+    parts.push(paintCliDivider(Math.max(stripCliAnsi(screen.title).length, 12)));
+    if (screen.summary) {
+      parts.push(screen.summary);
+    }
+  }
+
+  const panels = screen.panels
+    .filter((panel) => panel.lines.length > 0)
+    .map((panel) => renderCliPanel(panel, mode));
+
+  return [...parts, ...panels].filter(Boolean).join('\n\n');
+}
+
 function renderCliPanel(panel: CliVisualPanel, mode: 'hero' | 'compact'): string {
   const title = String(panel.title || '').trim() || 'Block';
   const lines = panel.lines.map((line) => String(line || '')).filter(Boolean);
@@ -37,39 +62,6 @@ function renderCliPanel(panel: CliVisualPanel, mode: 'hero' | 'compact'): string
   }
 
   return renderBox(title, lines, tone);
-}
-
-export function renderCliScreen(screen: CliVisualScreen): string {
-  const mode = screen.mode || 'hero';
-  const decorated = isCliColorEnabled();
-  const parts: string[] = [];
-
-  if (screen.eyebrow && mode !== 'hero') {
-    const eyebrow = decorated ? paintCliTone(screen.eyebrow, 'muted') : screen.eyebrow;
-    if (eyebrow) {
-      parts.push(eyebrow);
-    }
-  }
-
-  if (mode === 'hero') {
-    parts.push(renderHeroHeader(screen));
-  } else {
-    parts.push(screen.title);
-    parts.push(paintCliDivider(Math.max(stripCliAnsi(screen.title).length, 12)));
-    if (screen.summary) {
-      parts.push(screen.summary);
-    }
-  }
-
-  const panelBlocks = screen.panels
-    .filter((panel) => panel.lines.length > 0)
-    .map((panel) => renderCliPanel(panel, mode));
-
-  if (panelBlocks.length > 0) {
-    parts.push(...panelBlocks);
-  }
-
-  return parts.filter(Boolean).join('\n\n');
 }
 
 function renderHeroHeader(screen: CliVisualScreen): string {

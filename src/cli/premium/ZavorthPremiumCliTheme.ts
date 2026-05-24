@@ -64,13 +64,13 @@ export function createZavorthPremiumCliTheme(input: {
     minWidth: DEFAULT_MIN_WIDTH,
     colorEnabled: input.colorEnabled ?? isCliColorEnabled(),
     symbols: {
-      pass: 'o',
-      warn: '!',
-      fail: 'x',
-      wait: '*',
-      arrow: '>',
-      bullet: '-',
-      rail: '|',
+      pass: '●',
+      warn: '▲',
+      fail: '×',
+      wait: '◆',
+      arrow: '›',
+      bullet: '–',
+      rail: '│',
     },
   };
 }

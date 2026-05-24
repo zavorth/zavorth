@@ -32,18 +32,18 @@ export function buildZavorthCliHatchSnapshot(
     },
     launch: {
       recommended: nextActions[0]?.command || 'zavorth setup',
-      terminal: 'zavorth ask "acorde e revise este workspace"',
+      terminal: 'zavorth ask "wake up and review this workspace"',
       dashboard: 'zavorth open',
       setup: 'zavorth setup',
       approve: approveCommand,
     },
-    firstPrompt: 'acorde, revise este workspace e me diga o proximo passo seguro',
+    firstPrompt: 'wake up, review this workspace and tell me the next safe step',
     checklist: buildChecklist(home),
     guardrails: [
-      'Hatch nao aplica mutacoes no host por conta propria.',
-      'Acoes sensiveis continuam passando por policy, preview, approval e receipt.',
-      'Secrets e tokens sao exibidos apenas como presentes ou ausentes.',
-      'Use --start somente quando quiser delegar ao start/go existente do Zavorth.',
+      'Hatch never applies host mutations on its own.',
+      'Sensitive actions still pass through policy, preview, approval and receipts.',
+      'Secrets and tokens are shown only as present or missing.',
+      'Use --start only when you want to delegate to the existing start/go flow.',
     ],
     nextActions,
   };
@@ -138,7 +138,7 @@ function buildNextActions(
     ];
   }
   return [
-    { label: 'Hatch in terminal', command: 'zavorth ask "acorde e revise este workspace"', detail: 'natural LLM-first flow' },
+    { label: 'Hatch in terminal', command: 'zavorth ask "wake up and review this workspace"', detail: 'natural LLM-first flow' },
     { label: 'Open Command Center', command: 'zavorth open', detail: 'visual control plane' },
     { label: 'Start runtime', command: 'zavorth start', detail: 'delegates to existing start/go flow' },
   ];

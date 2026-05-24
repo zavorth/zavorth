@@ -1501,6 +1501,7 @@ function formatPublicRootHelp(): string {
       lines: [
         formatCliHelpEntry({ command: 'zavorth home', summary: 'Short status and next step.' }),
         formatCliHelpEntry({ command: 'zavorth status', summary: 'Runtime readiness.' }),
+        formatCliHelpEntry({ command: 'zavorth trust', summary: 'Review trust boundaries and permission memory.' }),
         formatCliHelpEntry({ command: 'zavorth doctor', summary: 'Diagnose setup and suggest fixes.' }),
         formatCliHelpEntry({ command: 'zavorth diff', summary: 'Inspect sandbox changes before approval.' }),
         formatCliHelpEntry({ command: 'zavorth inspect', summary: 'Provider, workspace, channels and receipts.' }),
@@ -1532,30 +1533,30 @@ export function buildCliChatWelcomeSnapshot(): CliChatWelcomeSnapshot {
   return {
     surface: 'zavorth-cli',
     title: 'Zavorth',
-    summary: 'Oi. Eu estou pronto para ajudar. Escreva um pedido simples, do seu jeito.',
+    summary: 'Hi. I am ready to help. Write a simple request in your own words.',
     sections: [
       {
-        title: 'Sugestoes para comecar',
+        title: 'Try this first',
         entries: [
-          { command: 'revisar este modulo', summary: 'Analiso o codigo atual e digo o que merece atencao.' },
-          { command: 'retome o que estavamos fazendo', summary: 'Continuo a linha de trabalho aberta.' },
-          { command: 'compare o que mudou nesta pasta', summary: 'Resumo as mudancas recentes sem voce procurar arquivo por arquivo.' },
+          { command: 'review this module', summary: 'Inspect the current code and call out what deserves attention.' },
+          { command: 'resume what we were doing', summary: 'Continue the active line of work.' },
+          { command: 'compare what changed in this folder', summary: 'Summarize recent changes without making you hunt through files.' },
         ],
       },
       {
-        title: 'Atalhos',
+        title: 'Shortcuts',
         entries: [
-          { command: 'status', summary: 'Ver se esta tudo certo.' },
-          { command: 'doctor', summary: 'Encontrar e corrigir algo que travou.' },
-          { command: 'history', summary: 'Ver conversas recentes.' },
-          { command: 'new', summary: 'Comecar uma conversa nova.' },
-          { command: 'quit', summary: 'Sair do chat.' },
+          { command: 'status', summary: 'Check whether everything is ready.' },
+          { command: 'doctor', summary: 'Find and fix setup problems.' },
+          { command: 'history', summary: 'Show recent conversations.' },
+          { command: 'new', summary: 'Start a fresh conversation.' },
+          { command: 'quit', summary: 'Leave the chat.' },
         ],
       },
     ],
-    notesTitle: 'Dica',
+    notesTitle: 'Tip',
     notes: [
-      'Nao precisa decorar comando. Texto livre vira pedido automaticamente.',
+      'You do not need to memorize commands. Free text becomes an agent request automatically.',
     ],
   };
 }

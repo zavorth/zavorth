@@ -162,6 +162,7 @@ function extractNpmScripts(text) {
 function looksLikePath(value) {
   if (value.includes('://')) return false;
   if (value.startsWith('npm ')) return false;
+  if (/^Node\.js$/i.test(value)) return false;
   return /^(src|docs|scripts|tests|config|skill-library|assets|packages|apps|bin|\.github|\.githooks)\//.test(value)
     || /\.(?:ts|tsx|js|mjs|json|md|yml|yaml|bat|ps1|sh)$/.test(value);
 }
