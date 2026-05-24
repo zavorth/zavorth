@@ -40,14 +40,15 @@ export function renderPremiumPanel(
   const innerWidth = width - 4;
   const title = ` ${String(panel.title || 'Zavorth').trim()} `;
   const accent = panel.accent || 'neural';
-  const top = `${paintPremiumAccent('+', accent, theme)}${paintPremiumAccent('=', accent, theme).repeat(Math.max(2, width - 2))}${paintPremiumAccent('+', accent, theme)}`;
-  const titleLine = `${paintPremiumAccent('|', accent, theme)} ${padPremiumText(paintPremiumAccent(title, accent, theme), innerWidth)} ${paintPremiumAccent('|', accent, theme)}`;
-  const separator = `${paintPremiumAccent('|', accent, theme)} ${paintPremiumAccent('-'.repeat(innerWidth), 'muted', theme)} ${paintPremiumAccent('|', accent, theme)}`;
+  const top = `${paintPremiumAccent('╭', accent, theme)}${paintPremiumAccent('─', accent, theme).repeat(Math.max(2, width - 2))}${paintPremiumAccent('╮', accent, theme)}`;
+  const vertical = paintPremiumAccent('│', accent, theme);
+  const titleLine = `${vertical} ${padPremiumText(paintPremiumAccent(title, accent, theme), innerWidth)} ${vertical}`;
+  const separator = `${vertical} ${paintPremiumAccent('─'.repeat(innerWidth), 'muted', theme)} ${vertical}`;
   const body = normalizePanelLines(panel.lines || [''])
     .flatMap((line) => wrapPremiumLine(line, innerWidth))
-    .map((line) => `${paintPremiumAccent('|', accent, theme)} ${padPremiumText(line, innerWidth)} ${paintPremiumAccent('|', accent, theme)}`);
-  const bottom = top;
-  const blank = `${paintPremiumAccent('|', accent, theme)} ${padPremiumText('', innerWidth)} ${paintPremiumAccent('|', accent, theme)}`;
+    .map((line) => `${vertical} ${padPremiumText(line, innerWidth)} ${vertical}`);
+  const bottom = `${paintPremiumAccent('╰', accent, theme)}${paintPremiumAccent('─', accent, theme).repeat(Math.max(2, width - 2))}${paintPremiumAccent('╯', accent, theme)}`;
+  const blank = `${vertical} ${padPremiumText('', innerWidth)} ${vertical}`;
   return panel.dense
     ? [top, titleLine, separator, ...body, bottom].join('\n')
     : [top, titleLine, separator, blank, ...body, blank, bottom].join('\n');

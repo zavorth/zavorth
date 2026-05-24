@@ -92,7 +92,7 @@ function ruleContainsMarkers() {
       'zavorth review',
       'zavorth trust',
       '/dashboard',
-      'Abre o dashboard.',
+      'Open Command Center.',
     ]],
   ];
   const missing = [];

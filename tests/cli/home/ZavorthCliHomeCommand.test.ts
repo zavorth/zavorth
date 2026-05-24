@@ -86,8 +86,8 @@ describe('Zavorth CLI home', () => {
     expect(result.exitCode).toBe(0);
     expect(result.snapshot.status).toBe('ready');
     expect(result.output).toContain('ZAVORTH');
-    expect(result.output).toContain('Start');
-    expect(result.output).toContain('More when needed');
+    expect(result.output).toContain('Daily path');
+    expect(result.output).toContain('Next actions');
     expect(result.output).toContain('zavorth ask');
     expect(result.output).not.toContain('sk-secret-value');
     expect(result.output).not.toContain('local-token');

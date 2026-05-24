@@ -170,7 +170,7 @@ export class ZavorthCliFinalProductPolishService {
         kind: 'command',
         passed: REQUIRED_COMMANDS.every((command) => files.helpers.includes(command))
           && files.helpers.includes('/dashboard')
-          && files.helpers.includes('Abre o dashboard.'),
+          && files.helpers.includes('Open Command Center.'),
         userVisible: true,
         evidence: [...REQUIRED_COMMANDS, '/dashboard'],
       }),

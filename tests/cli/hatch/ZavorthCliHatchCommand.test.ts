@@ -135,6 +135,6 @@ describe('Zavorth CLI hatch', () => {
     const parsed = JSON.parse(result.output);
     expect(parsed.contractVersion).toBe('zavorth-cli-hatch/1');
     expect(parsed.generatedAt).toBe('2026-05-22T12:00:00.000Z');
-    expect(parsed.guardrails).toContain('Secrets e tokens sao exibidos apenas como presentes ou ausentes.');
+    expect(parsed.guardrails).toContain('Secrets and tokens are shown only as present or missing.');
   });
 });
