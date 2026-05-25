@@ -836,7 +836,7 @@ export class WebAppRuntimeInteractionRouteService {
       const sessionId = requestedSessionId || String(sourceRun?.sessionId || '').trim() || deps.runtime.webUserId;
       const userId = String(sourceRun?.userId || deps.runtime.webUserId || 'web-owner').trim();
       const result = await deps.agentGateway.handle({
-        requestId: `command-center-apply-draft-${planId}`,
+        requestId: `dashboard-apply-draft-${planId}`,
         traceId: String(sourceRun?.traceId || '').trim() || null,
         userId,
         sessionId,
@@ -844,8 +844,8 @@ export class WebAppRuntimeInteractionRouteService {
         text: `aplicar rascunho ${planId}`,
         workspace: String(body.workspace || sourceRun?.workspace || '').trim() || null,
         replyPort: {
-          id: 'command-center',
-          label: 'Command Center',
+          id: 'dashboard',
+          label: 'Dashboard',
           kind: 'web',
           status: 'available',
           primary: true,
@@ -856,10 +856,10 @@ export class WebAppRuntimeInteractionRouteService {
           intelligenceFabricApplyDraftPlanId: planId,
           intelligenceFabricApplyDraftGuidance: true,
           intelligenceFabricApproveDraftPlan: true,
-          intelligenceFabricApprovalId: String(body.approvalId || `command-center:${planId}`).trim(),
+          intelligenceFabricApprovalId: String(body.approvalId || `dashboard:${planId}`).trim(),
           approvedBy: userId,
-          commandCenterApplyDraft: {
-            source: 'CommandCenter',
+          dashboardApplyDraft: {
+            source: 'Dashboard',
             runId: requestedRunId || null,
             sessionId,
             confirmOwnerControlledApply: true,
@@ -926,7 +926,7 @@ export class WebAppRuntimeInteractionRouteService {
       const userId = String(sourceRun?.userId || deps.runtime.webUserId || 'web-owner').trim();
       const recommendation = String(body.recommendation || body.reason || 'auto_demote_controlled').trim();
       const result = await deps.agentGateway.handle({
-        requestId: 'command-center-demote-fabric',
+        requestId: 'dashboard-demote-fabric',
         traceId: String(sourceRun?.traceId || '').trim() || null,
         userId,
         sessionId,
@@ -934,8 +934,8 @@ export class WebAppRuntimeInteractionRouteService {
         text: 'desativar Intelligence Fabric por health degradado',
         workspace: String(body.workspace || sourceRun?.workspace || '').trim() || null,
         replyPort: {
-          id: 'command-center',
-          label: 'Command Center',
+          id: 'dashboard',
+          label: 'Dashboard',
           kind: 'web',
           status: 'available',
           primary: true,
@@ -946,8 +946,8 @@ export class WebAppRuntimeInteractionRouteService {
           intelligenceFabricMode: 'disabled',
           intelligenceFabricDemoteControlled: true,
           approvedBy: userId,
-          commandCenterDemoteFabric: {
-            source: 'CommandCenter',
+          dashboardDemoteFabric: {
+            source: 'Dashboard',
             runId: requestedRunId || null,
             sessionId,
             status: String(body.status || '').trim() || null,

@@ -95,7 +95,7 @@ export function formatToolRehearsalSnapshot(
   lines.push('- execucao real fica limitada ao escopo ensaiado');
 
   lines.push('', 'Superficies');
-  lines.push(`- Command Center: ${snapshot.surface.commandCenterPath}`);
+  lines.push(`- Dashboard: ${snapshot.surface.dashboardPath}`);
   lines.push(`- CLI: ${snapshot.surface.cliCommand}`);
   lines.push(`- Hint: ${snapshot.surface.approvalHint}`);
 

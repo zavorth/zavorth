@@ -145,6 +145,6 @@ describe('Zavorth CLI Run Observatory', () => {
     expect(text).toContain('Previas de alteracao:');
     expect(text).toContain('aplicar rascunho plan-cli-diff-preview');
     expect(text).toContain('Replay: disponivel');
-    expect(text).toContain('Command Center: /control');
+    expect(text).toContain('Dashboard: /dashboard');
   });
 });

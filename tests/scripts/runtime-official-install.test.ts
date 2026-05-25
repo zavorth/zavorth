@@ -18,7 +18,7 @@ describe('runtime-official-install presentation', () => {
       readiness: {},
       local: {
         ready: false,
-        appUrl: 'http://127.0.0.1:33333/control',
+        appUrl: 'http://127.0.0.1:33333/dashboard',
         trust: {
           attempted: false,
           applied: false,

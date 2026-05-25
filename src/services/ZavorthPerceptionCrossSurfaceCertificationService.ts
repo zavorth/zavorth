@@ -1,8 +1,8 @@
 import {
   ZAVORTH_PERCEPTION_CROSS_SURFACE_CERTIFICATION_VERSION,
   type ZavorthPerceptionCertificationMatrixRow,
-  type ZavorthPerceptionCommandCenterProjection,
-  type ZavorthPerceptionCommandCenterTarget,
+  type ZavorthPerceptionDashboardProjection,
+  type ZavorthPerceptionDashboardTarget,
   type ZavorthPerceptionCrossSurfaceCertificationSnapshot,
   type ZavorthPerceptionCrossSurfaceName,
   type ZavorthPerceptionCrossSurfaceStatus,
@@ -105,14 +105,14 @@ export class ZavorthPerceptionCrossSurfaceCertificationService {
     const surfaceResponse = this.router.buildSurfaceResponse(naturalPlan);
     const phaseSnapshots = await this.buildPhaseSnapshots();
     const certificationMatrix = buildCertificationMatrix(phaseSnapshots);
-    const commandCenterProjection = buildCommandCenterProjection(this.now().toISOString(), phaseSnapshots, certificationMatrix);
+    const dashboardProjection = buildDashboardProjection(this.now().toISOString(), phaseSnapshots, certificationMatrix);
     const surfaceProjections = PHASE_6_SURFACES.map((surface) =>
-      buildSurfaceProjection(surface, surfaceResponse, commandCenterProjection),
+      buildSurfaceProjection(surface, surfaceResponse, dashboardProjection),
     );
     const status = summarizeStatus([
       ...certificationMatrix,
       ...surfaceProjections,
-      commandCenterProjection,
+      dashboardProjection,
     ]);
 
     return {
@@ -123,8 +123,8 @@ export class ZavorthPerceptionCrossSurfaceCertificationService {
       naturalPlan,
       surfaceResponse,
       surfaceProjections,
-      commandCenterProjection: {
-        ...commandCenterProjection,
+      dashboardProjection: {
+        ...dashboardProjection,
         status,
       },
       certificationMatrix,
@@ -155,10 +155,10 @@ export class ZavorthPerceptionCrossSurfaceCertificationService {
       '',
       `Status: ${snapshot.status}`,
       `Surfaces: ${snapshot.surfaceProjections.filter((surface) => surface.status === 'passed').length}/${snapshot.surfaceProjections.length}`,
-      `Targets: ${snapshot.commandCenterProjection.targets.length}`,
-      `Pending plans: ${snapshot.commandCenterProjection.pendingPlans.length}`,
-      `Approvals: ${snapshot.commandCenterProjection.approvals.length}`,
-      `Artifacts: ${snapshot.commandCenterProjection.artifacts.length}`,
+      `Targets: ${snapshot.dashboardProjection.targets.length}`,
+      `Pending plans: ${snapshot.dashboardProjection.pendingPlans.length}`,
+      `Approvals: ${snapshot.dashboardProjection.approvals.length}`,
+      `Artifacts: ${snapshot.dashboardProjection.artifacts.length}`,
       '',
       `${pad('Scenario', 35)} ${pad('Status', 10)} Evidence`,
       ...rows,
@@ -166,8 +166,8 @@ export class ZavorthPerceptionCrossSurfaceCertificationService {
       'Commands:',
       ...REQUIRED_COMMANDS.map((command) => `- ${command}`),
       '',
-      `Command Center projection: ${snapshot.commandCenterProjection.surface.commandCenterPath}`,
-      `API projection: ${snapshot.commandCenterProjection.surface.apiPath}`,
+      `Dashboard projection: ${snapshot.dashboardProjection.surface.dashboardPath}`,
+      `API projection: ${snapshot.dashboardProjection.surface.apiPath}`,
       `Next: ${snapshot.nextSafeAction}`,
     ].join('\n');
   }
@@ -250,12 +250,12 @@ function buildCertificationMatrix(s: PhaseSnapshots): ZavorthPerceptionCertifica
   ];
 }
 
-function buildCommandCenterProjection(
+function buildDashboardProjection(
   generatedAt: string,
   s: PhaseSnapshots,
   matrix: ZavorthPerceptionCertificationMatrixRow[],
-): ZavorthPerceptionCommandCenterProjection {
-  const targets: ZavorthPerceptionCommandCenterTarget[] = [
+): ZavorthPerceptionDashboardProjection {
+  const targets: ZavorthPerceptionDashboardTarget[] = [
     target('pc', 'pc', 'PC screenshot', s.pc.status === 'blocked' ? 'blocked' : 'passed', true, false, false, s.pc.artifacts.length, s.pc.artifacts[0]?.id || null, '/vision inspect'),
     target('browser', 'browser', 'Browser DOM/screenshot', s.browserDom.status === 'blocked' ? 'blocked' : 'passed', true, s.browserDom.plan.approvalRequired, s.browserDom.plan.approvalRequired, s.browserDom.vision.artifacts.length + s.browserScreenshot.vision.artifacts.length, null, '/vision browser inspect'),
     target('android', 'android', 'Android ADB', s.adbScreenshot.status === 'blocked' ? 'blocked' : 'passed', true, s.adbScreenshot.plan.approvalRequired, s.adbScreenshot.plan.approvalRequired, [s.adbScreenshot.evidence.screenshot, s.adbUiDump.evidence.uiDump].filter(Boolean).length, s.adbScreenshot.evidence.screenshot?.id || null, '/device inspect'),
@@ -289,7 +289,7 @@ function buildCommandCenterProjection(
     activeObservation: {
       route: 'vision/browser/android',
       targetKind: 'cross-surface',
-      summary: 'Command Center projection carries read-only targets, pending plans, approvals and redacted artifacts.',
+      summary: 'Dashboard projection carries read-only targets, pending plans, approvals and redacted artifacts.',
       readOnly: true,
     },
     pendingPlans,
@@ -303,8 +303,8 @@ function buildCommandCenterProjection(
       noVisualMutationWithoutOwnerApproval: true,
     },
     surface: {
-      apiPath: '/api/command-center/perception-control',
-      commandCenterPath: '/control?sector=perception',
+      apiPath: '/api/dashboard/perception-control',
+      dashboardPath: '/dashboard?sector=perception',
       channelCommand: '/vision status',
       cliCommand: 'node scripts/zavorth-perception-certification.ts',
       visualMutationApplied: false,
@@ -322,7 +322,7 @@ function buildCommandCenterProjection(
 function buildSurfaceProjection(
   surface: ZavorthPerceptionCrossSurfaceName,
   response: SurfaceResponse,
-  projection: ZavorthPerceptionCommandCenterProjection,
+  projection: ZavorthPerceptionDashboardProjection,
 ): ZavorthPerceptionSurfaceProjection {
   const interactive = surface === 'telegram' || surface === 'discord' || surface === 'web';
   const commands = Array.from(new Set([
@@ -361,7 +361,7 @@ function row(
 
 function target(
   id: string,
-  kind: ZavorthPerceptionCommandCenterTarget['kind'],
+  kind: ZavorthPerceptionDashboardTarget['kind'],
   label: string,
   status: ZavorthPerceptionCrossSurfaceStatus,
   activeObservation: boolean,
@@ -370,7 +370,7 @@ function target(
   artifactCount: number,
   lastScreenshotRef: string | null,
   commandHint: string,
-): ZavorthPerceptionCommandCenterTarget {
+): ZavorthPerceptionDashboardTarget {
   return { id, kind, label, status, activeObservation, pendingPlan, approvalRequired, artifactCount, lastScreenshotRef, commandHint };
 }
 
@@ -380,7 +380,7 @@ function pending(
   status: string,
   approvalRequired: boolean,
   commandHint: string,
-): ZavorthPerceptionCommandCenterProjection['pendingPlans'][number] {
+): ZavorthPerceptionDashboardProjection['pendingPlans'][number] {
   const mapped = status === 'blocked' ? 'blocked' : approvalRequired ? 'approval-required' : 'planned';
   return { id, targetId, status: mapped, approvalRequired, commandHint };
 }
@@ -388,10 +388,10 @@ function pending(
 function artifact(
   id: string,
   targetId: string,
-  kind: ZavorthPerceptionCommandCenterProjection['artifacts'][number]['kind'],
+  kind: ZavorthPerceptionDashboardProjection['artifacts'][number]['kind'],
   retentionTtlMs: number,
   commandHint: string,
-): ZavorthPerceptionCommandCenterProjection['artifacts'][number] {
+): ZavorthPerceptionDashboardProjection['artifacts'][number] {
   return { id, targetId, kind, redacted: true, rawContentStored: false, retentionTtlMs, commandHint };
 }
 

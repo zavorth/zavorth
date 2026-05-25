@@ -46,7 +46,7 @@ export type ZavorthOperationalRolloutEvalFinding = {
     | 'required-action'
     | 'fallback-coverage'
     | 'api-projection'
-    | 'command-center-boundary'
+    | 'dashboard-boundary'
     | 'no-live-action'
     | 'telegram-not-privileged'
     | 'scenario-contract';
@@ -75,7 +75,7 @@ export type ZavorthOperationalRolloutScenarioEval = {
     actionCount: number;
     fallbackSurfaces: number;
     buttonSurfaces: number;
-    commandCenterVisualMutation: false;
+    dashboardVisualMutation: false;
     noLiveActionExecuted: true;
   };
 };
@@ -127,7 +127,7 @@ export type ZavorthOperationalRolloutEvalSnapshot = {
     scenarioId: string;
     projection: Pick<
       ZavorthCrossSurfaceRuntimeProjectionSnapshot,
-      'status' | 'summary' | 'safety' | 'commandCenterProjection' | 'narrative'
+      'status' | 'summary' | 'safety' | 'dashboardProjection' | 'narrative'
     >;
   }>;
   receipts: ZavorthOperationalRolloutReceipt[];

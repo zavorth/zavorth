@@ -12,6 +12,7 @@ import { NodeCapabilityService } from './NodeCapabilityService.js';
 import { NodeInvocationStoreService } from './NodeInvocationStoreService.js';
 import { NodeRegistryService } from './NodeRegistryService.js';
 import { CanonicalExecutionPipelineService } from './CanonicalExecutionPipelineService.js';
+import { globalLiveNodeRegistry, LiveNodeRegistryService } from './LiveNodeRegistryService.js';
 
 type NodeInvokeDevicePolicy = Pick<DeviceCapabilityPolicy, 'readPolicy'>;
 
@@ -22,6 +23,7 @@ type NodeInvokeRuntime = {
   invocationStoreService?: NodeInvocationStoreService;
   canonicalExecutionPipeline?: CanonicalExecutionPipelineService;
   deviceCapabilityPolicy?: NodeInvokeDevicePolicy | null;
+  liveNodeRegistry?: LiveNodeRegistryService;
 };
 
 export class NodeInvokeService {
@@ -31,6 +33,7 @@ export class NodeInvokeService {
   private readonly invocationStoreService: NodeInvocationStoreService;
   private readonly canonicalExecution: CanonicalExecutionPipelineService;
   private readonly deviceCapabilityPolicy: NodeInvokeDevicePolicy | null;
+  private readonly liveNodeRegistry: LiveNodeRegistryService;
 
   constructor(runtime: NodeInvokeRuntime = {}) {
     this.now = runtime.now || (() => new Date());
@@ -43,6 +46,7 @@ export class NodeInvokeService {
     this.deviceCapabilityPolicy = runtime.deviceCapabilityPolicy === null
       ? null
       : runtime.deviceCapabilityPolicy || new DeviceCapabilityPolicy();
+    this.liveNodeRegistry = runtime.liveNodeRegistry || globalLiveNodeRegistry;
   }
 
   public preview(request: NodeInvocationRequest): NodeInvocationResult {
@@ -172,7 +176,7 @@ export class NodeInvokeService {
         })
       : null;
 
-    return this.withResultLifecycle({
+    const result = this.withResultLifecycle({
       ok: true,
       status: 'queued',
       nodeId: node.id,
@@ -195,6 +199,16 @@ export class NodeInvokeService {
       invocationId: record?.id || null,
       policyDecision,
     }, request, record);
+    if (persist) {
+      this.liveNodeRegistry.recordInvocationQueued({
+        nodeId: result.nodeId,
+        invocationId: result.invocationId,
+        capabilityId: result.capabilityId,
+        action: result.action,
+        status: result.status,
+      });
+    }
+    return result;
   }
 
   private resolvePolicyDecision(

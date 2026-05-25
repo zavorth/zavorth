@@ -465,7 +465,7 @@ export function routeRequest(service: DashboardFacadeCompat, req: http.IncomingM
 
   return (async () => {
     if (isRetiredControlSurfacePath(pathname)) {
-      service.responseWriter.writeRedirect(res, '/control');
+      service.responseWriter.writeRedirect(res, '/dashboard');
       return;
     }
 
@@ -474,9 +474,9 @@ export function routeRequest(service: DashboardFacadeCompat, req: http.IncomingM
         res,
         {
           ok: false,
-          error: 'This legacy web surface is internal. Use /control.',
-          dashboardUrl: '/control',
-          visibleSurfaces: ['/control', '/dashboard', '/satellite', 'cli'],
+          error: 'This legacy web surface is internal. Use /dashboard.',
+          dashboardUrl: '/dashboard',
+          visibleSurfaces: ['/dashboard', '/dashboard', '/satellite', 'cli'],
         },
         404,
       );
@@ -489,12 +489,12 @@ export function routeRequest(service: DashboardFacadeCompat, req: http.IncomingM
     }
 
     if (
-      pathname === '/control'
-      || pathname === '/control/'
+      pathname === '/dashboard'
+      || pathname === '/dashboard/'
       || pathname === '/dashboard'
       || pathname === '/dashboard/'
     ) {
-      if (serveCommandCenterAsset(res, 'index.html')) return;
+      if (serveDashboardAsset(res, 'index.html')) return;
       service.responseWriter.writeText(res, 'Dashboard not found', 404);
       return;
     }
@@ -505,7 +505,7 @@ export function routeRequest(service: DashboardFacadeCompat, req: http.IncomingM
       pathname.startsWith('/scripts/') ||
       pathname.startsWith('/assets/')
     ) {
-      if (serveCommandCenterAsset(res, pathname.slice(1))) return;
+      if (serveDashboardAsset(res, pathname.slice(1))) return;
       service.responseWriter.writeText(res, 'Asset not found', 404);
       return;
     }
@@ -591,8 +591,8 @@ export function routeRequest(service: DashboardFacadeCompat, req: http.IncomingM
   })();
 }
 
-function serveCommandCenterAsset(res: http.ServerResponse, relativePath: string): boolean {
-  const root = path.resolve(process.cwd(), 'assets', 'command-center');
+function serveDashboardAsset(res: http.ServerResponse, relativePath: string): boolean {
+  const root = path.resolve(process.cwd(), 'assets', 'dashboard');
   const target = path.resolve(root, relativePath);
   if (target !== root && !target.startsWith(`${root}${path.sep}`)) {
     res.writeHead(403, { 'Content-Type': 'text/plain; charset=utf-8' });
@@ -609,8 +609,8 @@ function serveCommandCenterAsset(res: http.ServerResponse, relativePath: string)
 }
 
 function isRetiredControlSurfacePath(pathname: string): boolean {
-  return pathname === '/control/review'
-    || pathname === '/control/review/';
+  return pathname === '/dashboard/review'
+    || pathname === '/dashboard/review/';
 }
 
 function isLegacyWebSurfacePath(pathname: string): boolean {

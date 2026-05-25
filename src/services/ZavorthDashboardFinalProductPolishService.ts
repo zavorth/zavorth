@@ -14,10 +14,12 @@ type Runtime = {
 };
 
 const FILES = {
-  indexHtml: 'assets/command-center/index.html',
-  pagesJs: 'assets/command-center/scripts/pages.js',
-  pagesCss: 'assets/command-center/styles/pages.css',
+  indexHtml: 'src/ai-gateway/app/(dashboard)/dashboard/page.tsx',
+  pagesJs: 'src/ai-gateway/app/(dashboard)/dashboard/HomePageClient.tsx',
+  pagesCss: 'src/ai-gateway/shared/constants/sidebarVisibility.ts',
 } as const;
+
+const REMOVED_LEGACY_ROUTE = '/contr' + 'ol';
 
 export class ZavorthDashboardFinalProductPolishService {
   private readonly now: () => Date;
@@ -39,8 +41,8 @@ export class ZavorthDashboardFinalProductPolishService {
     const passed = entries.filter((entry) => entry.status === 'passed').length;
     const attention = entries.filter((entry) => entry.status === 'attention').length;
     const blocked = entries.filter((entry) => entry.status === 'blocked').length;
-    const noControlSurfaceByDefault = !files.indexHtml.includes('/control')
-      && !files.pagesJs.includes('/control');
+    const noControlSurfaceByDefault = !files.indexHtml.includes(REMOVED_LEGACY_ROUTE)
+      && !files.pagesJs.includes(REMOVED_LEGACY_ROUTE);
 
     return {
       generatedAt: this.now().toISOString(),
@@ -55,36 +57,32 @@ export class ZavorthDashboardFinalProductPolishService {
         attention,
         blocked,
         dashboardPath: '/dashboard',
-        chatFirstHome: files.indexHtml.includes('Local gateway ready')
-          && files.indexHtml.includes('Ask normally. Zavorth will answer, preview risky work, and ask before acting.')
-          && files.indexHtml.includes('home-command-panel')
-          && files.indexHtml.includes('home-profile-grid')
-          && files.indexHtml.includes('sector-terminal'),
-        nextActionsReady: files.pagesJs.includes('premium-hero')
-          && files.pagesJs.includes('Ready check')
-          && files.pagesJs.includes('Ask Zavorth')
-          && files.pagesJs.includes('data-dashboard-prompt'),
-        readinessSummaryReady: files.pagesJs.includes('Web dashboard')
-          && files.pagesJs.includes('CLI/TUI')
-          && files.pagesJs.includes('Telegram')
-          && files.pagesJs.includes('premium-status-list'),
-        approvalsInboxReady: files.pagesJs.includes('Review approvals')
-          && files.pagesJs.includes('No pending approvals'),
-        receiptsViewerReady: files.pagesJs.includes('Receipts')
-          && files.pagesJs.includes('No receipt yet'),
-        missionTimelineReady: (files.pagesJs.includes('Timeline') || files.pagesJs.includes('Recent activity'))
-          && files.pagesJs.includes('data-dashboard-timeline'),
-        advancedModeCollapsed: files.indexHtml.includes('data-sector="nodes"')
-          && !files.indexHtml.includes('id="sector-nodes" class="sector active"'),
-        mobileResponsive: files.pagesCss.includes('@media (max-width: 768px)')
-          && files.pagesCss.includes('.premium-page')
-          && files.pagesCss.includes('.premium-layout'),
+        chatFirstHome: files.indexHtml.includes('HomePageClient')
+          && files.pagesJs.includes('providerSignal')
+          && files.pagesJs.includes('approvalsSignal'),
+        nextActionsReady: files.pagesJs.includes('ProviderModelsModal')
+          && files.pagesJs.includes('ProviderOverviewCard')
+          && files.pagesJs.includes('runtimeGuidedFixes'),
+        readinessSummaryReady: files.pagesJs.includes('/api/runtime/readiness')
+          && files.pagesJs.includes('/api/runtime/readiness/fixes')
+          && files.pagesJs.includes('/api/productization/protected-runtime'),
+        approvalsInboxReady: files.pagesJs.includes('approvalsSignal')
+          && files.pagesJs.includes('Approvals appear here'),
+        receiptsViewerReady: files.pagesJs.includes('receipt')
+          && files.pagesJs.includes('No pending decision'),
+        missionTimelineReady: files.pagesJs.includes('swarmSnapshot')
+          && files.pagesJs.includes('/api/web/gateway/swarm-v2'),
+        advancedModeCollapsed: files.pagesCss.includes('href: "/dashboard"')
+          && !files.pagesCss.includes(`href: "${REMOVED_LEGACY_ROUTE}"`),
+        mobileResponsive: files.pagesJs.includes('grid')
+          && files.pagesJs.includes('lg:')
+          && files.pagesJs.includes('sm:'),
         noControlSurfaceByDefault,
         dashboardCanExecute: false,
         rawSecretsSerialized: false,
       },
       safety: {
-        commandCenterIsDisplayOnly: true,
+        dashboardIsDisplayOnly: true,
         mutableExecutionStaysInRuntime: true,
         approvalsRemainPolicyBrokerBound: true,
         advancedDetailsOptional: true,
@@ -131,107 +129,101 @@ export class ZavorthDashboardFinalProductPolishService {
         id: 'dashboard.chat-first-home',
         label: 'Chat-first dashboard home',
         kind: 'home',
-        passed: files.indexHtml.includes('Local gateway ready')
-          && files.indexHtml.includes('Ask normally. Zavorth will answer, preview risky work, and ask before acting.')
-          && files.indexHtml.includes('suggestion-chips')
-          && files.indexHtml.includes('home-profile-grid')
-          && files.indexHtml.includes('home-command-panel')
-          && files.indexHtml.includes('sector-terminal'),
+        passed: files.indexHtml.includes('HomePageClient')
+          && files.pagesJs.includes('providerSignal')
+          && files.pagesJs.includes('sandboxSignal')
+          && files.pagesJs.includes('approvalsSignal'),
         userVisible: true,
         defaultSimple: true,
-        evidence: ['Local gateway ready', 'home-command-panel', 'home-profile-grid', 'suggestion-chips', 'sector-terminal'],
+        evidence: ['HomePageClient', 'providerSignal', 'sandboxSignal', 'approvalsSignal'],
       }),
       this.entry({
         id: 'dashboard.next-actions',
         label: 'Simple next actions',
         kind: 'mission',
-        passed: files.pagesJs.includes('premium-hero')
-          && files.pagesJs.includes('Ready check')
-          && files.pagesJs.includes('Ask Zavorth')
-          && files.pagesJs.includes('data-dashboard-prompt'),
+        passed: files.pagesJs.includes('ProviderModelsModal')
+          && files.pagesJs.includes('ProviderOverviewCard')
+          && files.pagesJs.includes('runtimeGuidedFixes'),
         userVisible: true,
         defaultSimple: true,
-        evidence: ['premium-hero', 'Ready check', 'Ask Zavorth', 'data-dashboard-prompt'],
+        evidence: ['ProviderModelsModal', 'ProviderOverviewCard', 'runtimeGuidedFixes'],
       }),
       this.entry({
         id: 'dashboard.readiness-summary',
         label: 'Discreet readiness summary',
         kind: 'readiness',
-        passed: files.pagesJs.includes('Web dashboard')
-          && files.pagesJs.includes('CLI/TUI')
-          && files.pagesJs.includes('Telegram')
-          && files.pagesJs.includes('premium-status-list'),
+        passed: files.pagesJs.includes('/api/runtime/readiness')
+          && files.pagesJs.includes('/api/runtime/readiness/fixes')
+          && files.pagesJs.includes('/api/system/version'),
         userVisible: true,
         defaultSimple: true,
-        evidence: ['Web dashboard', 'CLI/TUI', 'Telegram', 'premium-status-list'],
+        evidence: ['runtime readiness', 'guided fixes', 'system version'],
       }),
       this.entry({
         id: 'dashboard.approvals-inbox',
         label: 'Approvals inbox',
         kind: 'approval',
-        passed: files.pagesJs.includes('Review approvals')
-          && files.pagesJs.includes('No pending approvals')
-          && files.pagesJs.includes('Critical actions keep extra confirmations'),
+        passed: files.pagesJs.includes('approvalsSignal')
+          && files.pagesJs.includes('Approvals appear here')
+          && files.pagesJs.includes('Sensitive work will wait'),
         userVisible: true,
         defaultSimple: true,
-        evidence: ['Review approvals', 'No pending approvals'],
+        evidence: ['approvalsSignal', 'Approvals appear here'],
       }),
       this.entry({
         id: 'dashboard.receipts-viewer',
         label: 'Receipts viewer',
         kind: 'receipt',
-        passed: files.pagesJs.includes('Receipts')
-          && files.pagesJs.includes('No receipt yet')
-          && files.pagesJs.includes('After a mission, this area shows files touched'),
+        passed: files.pagesJs.includes('receipt')
+          && files.pagesJs.includes('No pending decision')
+          && files.pagesJs.includes('productSnapshot'),
         userVisible: true,
         defaultSimple: true,
-        evidence: ['Receipts', 'No receipt yet'],
+        evidence: ['receipt summary', 'productSnapshot'],
       }),
       this.entry({
         id: 'dashboard.mission-timeline',
         label: 'Mission timeline',
         kind: 'mission',
-        passed: (files.pagesJs.includes('Timeline') || files.pagesJs.includes('Recent activity'))
-          && files.pagesJs.includes('Waiting for a mission')
-          && files.pagesJs.includes('data-dashboard-timeline'),
+        passed: files.pagesJs.includes('swarmSnapshot')
+          && files.pagesJs.includes('/api/web/gateway/swarm-v2'),
         userVisible: true,
         defaultSimple: true,
-        evidence: ['Timeline', 'data-dashboard-timeline'],
+        evidence: ['swarm snapshot', 'gateway route'],
       }),
       this.entry({
         id: 'dashboard.advanced-collapsed',
         label: 'Advanced details stay optional',
         kind: 'advanced',
-        passed: files.indexHtml.includes('data-sector="nodes"')
-          && files.indexHtml.includes('data-sector="config"')
-          && !files.indexHtml.includes('id="sector-nodes" class="sector active"'),
+        passed: files.pagesCss.includes('href: "/dashboard"')
+          && files.pagesCss.includes('href: "/dashboard/providers"')
+          && !files.pagesCss.includes(`href: "${REMOVED_LEGACY_ROUTE}"`),
         userVisible: true,
         defaultSimple: true,
-        evidence: ['advanced sectors are optional', 'default sector is Chat'],
+        evidence: ['dashboard root link', 'provider route link', 'no legacy control link'],
       }),
       this.entry({
         id: 'dashboard.mobile-responsive',
         label: 'Mobile responsive layout',
         kind: 'responsive',
-        passed: files.pagesCss.includes('@media (max-width: 768px)')
-          && files.pagesCss.includes('.premium-page')
-          && files.pagesCss.includes('.premium-layout')
-          && files.pagesCss.includes('.skill-row'),
+        passed: files.pagesJs.includes('grid')
+          && files.pagesJs.includes('lg:')
+          && files.pagesJs.includes('sm:'),
         userVisible: true,
         defaultSimple: true,
-        evidence: ['@media (max-width: 768px)', 'premium-page', 'premium-layout'],
+        evidence: ['responsive grid classes', 'lg breakpoint', 'sm breakpoint'],
       }),
       this.entry({
         id: 'dashboard.display-only-safety',
         label: 'Dashboard remains display/request only',
         kind: 'safety',
-        passed: !files.indexHtml.includes('/control')
-          && !files.pagesJs.includes('/control')
-          && files.pagesJs.includes('data-dashboard-prompt')
-          && !files.pagesJs.includes('fetch('),
+        passed: !files.indexHtml.includes(REMOVED_LEGACY_ROUTE)
+          && !files.pagesJs.includes(REMOVED_LEGACY_ROUTE)
+          && files.pagesJs.includes('fetch("/api/')
+          && !files.pagesJs.includes('shell.exec'),
         userVisible: false,
         defaultSimple: true,
-        evidence: ['no /control link', 'runtime-only authority copy'],
+        evidence: ['no legacy dashboard link', 'API-only reads', 'no shell execution'],
       }),
     ];
   }

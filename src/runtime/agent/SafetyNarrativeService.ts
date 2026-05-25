@@ -82,7 +82,7 @@ export type SafetyNarrativeSnapshot = {
   }>;
   surface: {
     cliCommand: string;
-    commandCenterPath: string;
+    dashboardPath: string;
   };
   nextSafeAction: string;
 };
@@ -275,7 +275,7 @@ export class SafetyNarrativeService {
       }),
       surface: {
         cliCommand: 'zavorth safety "<pedido>" --json',
-        commandCenterPath: '/control?sector=overview',
+        dashboardPath: '/dashboard?sector=overview',
       },
       nextSafeAction,
     };

@@ -42,7 +42,7 @@ function getLabel(segment) {
 
 export default function Breadcrumbs() {
   const pathname = usePathname();
-  if (!pathname || pathname === "/dashboard" || pathname === "/control") return null;
+  if (!pathname || pathname === "/dashboard" || pathname === "/dashboard") return null;
 
   const segments = pathname.split("/").filter(Boolean);
   const crumbs = segments.map((seg, idx) => ({

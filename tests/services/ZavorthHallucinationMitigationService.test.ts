@@ -15,8 +15,8 @@ describe('ZavorthHallucinationMitigationService', () => {
     expect(review.status).toBe('mitigated');
     expect(review.groundedness).toBe('unsupported');
     expect(review.currentOrUnstable).toBe(true);
-    expect(review.outputText).toContain('Nota de confiabilidade');
-    expect(review.outputText).toContain('Preciso verificar antes de tratar como fato');
+    expect(review.outputText).toContain('Reliability note');
+    expect(review.outputText).toContain('I need to verify before treating it as fact');
   });
 
   it('mitigates execution claims without receipts', () => {
@@ -30,7 +30,7 @@ describe('ZavorthHallucinationMitigationService', () => {
 
     expect(review.status).toBe('mitigated');
     expect(review.executionClaimWithoutReceipt).toBe(true);
-    expect(review.outputText).toContain('nao tenho recibo de execucao');
+    expect(review.outputText).toContain('I do not have an execution receipt');
   });
 
   it('allows grounded evidence-sensitive answers', () => {

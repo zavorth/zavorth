@@ -124,7 +124,7 @@ export type ArtifactMemorySnapshot = {
   };
   surface: {
     cliCommand: string;
-    commandCenterPath: string;
+    dashboardPath: string;
     searchHint: string;
     reuseHint: string;
   };
@@ -357,7 +357,7 @@ export class ArtifactMemoryService {
       },
       surface: {
         cliCommand: `zavorth artifact-memory run ${run.id} --json`,
-        commandCenterPath: '/control?sector=dreams',
+        dashboardPath: '/dashboard?sector=dreams',
         searchHint: 'Procure por tarefa, projeto, categoria, data ou runId antes de reutilizar um artifact.',
         reuseHint: 'Ao reutilizar artifact em resposta, cite artifactId, runId e receipt de origem.',
       },
@@ -702,8 +702,8 @@ export class ArtifactMemoryService {
     receipts.push({
       id: 'artifact-memory:receipt:surface',
       kind: 'surface',
-      source: '/control',
-      detail: 'Artifact Memory projetado em /control?sector=dreams e CLI.',
+      source: '/dashboard',
+      detail: 'Artifact Memory projetado em /dashboard?sector=dreams e CLI.',
       status: 'ready',
     });
     return receipts;

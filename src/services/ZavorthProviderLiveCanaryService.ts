@@ -6,6 +6,8 @@ import {
   type ZavorthProviderLiveCanaryStatus,
 } from '../contracts/ZavorthProviderLiveCanaryContract.js';
 import { LlmRuntimeService } from './llm/LlmRuntimeService.js';
+import { ProviderFactory } from '../providers/ProviderFactory.js';
+import { ZavorthProviderReadinessMatrixService } from './ZavorthProviderReadinessMatrixService.js';
 import { ZavorthSubagentRuntimeService } from './ZavorthSubagentRuntimeService.js';
 
 type LlmRuntimeLike = Pick<LlmRuntimeService, 'isProviderAvailable' | 'getPreferredProviderName'>;
@@ -14,6 +16,7 @@ type SubagentRuntimeLike = Pick<ZavorthSubagentRuntimeService, 'execute'>;
 type Runtime = {
   now?: () => Date;
   llmRuntime?: LlmRuntimeLike;
+  readinessMatrix?: Pick<ZavorthProviderReadinessMatrixService, 'buildLiveSnapshot'>;
   subagentRuntime?: SubagentRuntimeLike;
 };
 
@@ -29,11 +32,13 @@ const CANARY_MARKER = 'ZAVORTH_LIVE_SUBAGENT_CANARY_OK';
 export class ZavorthProviderLiveCanaryService {
   private readonly now: () => Date;
   private readonly llmRuntime: LlmRuntimeLike;
+  private readonly readinessMatrix: Pick<ZavorthProviderReadinessMatrixService, 'buildLiveSnapshot'>;
   private readonly subagentRuntime: SubagentRuntimeLike;
 
   public constructor(runtime: Runtime = {}) {
     this.now = runtime.now || (() => new Date());
     this.llmRuntime = runtime.llmRuntime || new LlmRuntimeService();
+    this.readinessMatrix = runtime.readinessMatrix || new ZavorthProviderReadinessMatrixService();
     this.subagentRuntime = runtime.subagentRuntime || new ZavorthSubagentRuntimeService();
   }
 
@@ -87,6 +92,45 @@ export class ZavorthProviderLiveCanaryService {
         live: emptyLive(false, null),
         narrative: this.narrative('attention', false, false, 'Dry-run only. Add --run-live to perform a real provider canary.'),
       };
+    }
+
+    const requestedProvider = normalizeNullable(input.providerName);
+    if (requestedProvider) {
+      const requestedProviderKey = requestedProvider.toLowerCase();
+      const providerProbe = await this.readinessMatrix.buildLiveSnapshot({
+        providerId: requestedProvider,
+        probe: true,
+        live: true,
+      });
+      const probeEntry = providerProbe.entries.find((entry) => routeEntryKeys(entry).includes(requestedProviderKey));
+      if (!probeEntry || probeEntry.probe.status !== 'passed') {
+        const reason = probeEntry?.probe.summary || `No live probe entry was found for ${requestedProvider}.`;
+        return {
+          ...base,
+          status: 'blocked',
+          live: emptyLive(true, reason),
+          narrative: this.narrative(
+            'blocked',
+            true,
+            false,
+            `Provider live probe failed before subagent canary: ${redact(reason)}`,
+          ),
+        };
+      }
+      const directProviderProbe = await this.runDirectProviderChatProbe(requestedProvider, modelName, timeoutMs);
+      if (directProviderProbe.status !== 'passed') {
+        return {
+          ...base,
+          status: 'blocked',
+          live: emptyLive(true, directProviderProbe.error || 'Direct provider chat probe failed.'),
+          narrative: this.narrative(
+            'blocked',
+            true,
+            false,
+            `Provider chat probe failed before subagent canary: ${redact(directProviderProbe.error || 'unknown error')}`,
+          ),
+        };
+      }
     }
 
     try {
@@ -174,6 +218,35 @@ export class ZavorthProviderLiveCanaryService {
     ].join('\n');
   }
 
+  private async runDirectProviderChatProbe(
+    providerName: string,
+    modelName: string | null,
+    timeoutMs: number,
+  ): Promise<{ status: 'passed' | 'failed'; error: string | null }> {
+    try {
+      ProviderFactory.clearCache();
+      const provider = ProviderFactory.create(providerName);
+      const response = await withTimeout(provider.chat([
+        {
+          role: 'user',
+          content: `Reply with exactly this marker and nothing else: ${CANARY_MARKER}`,
+        },
+      ], [], modelName ? { modelName } : undefined), timeoutMs);
+      const content = String(response.content || '');
+      if (!content.includes(CANARY_MARKER)) {
+        return { status: 'failed', error: 'Provider answered, but the exact canary marker was not observed.' };
+      }
+      return { status: 'passed', error: null };
+    } catch (error: unknown) {
+      return {
+        status: 'failed',
+        error: error instanceof Error ? error.message : String(error),
+      };
+    } finally {
+      ProviderFactory.clearCache();
+    }
+  }
+
   private buildProviderEntries(requestedProviderName?: string | null): ZavorthProviderLiveCanaryProviderEntry[] {
     const requested = normalizeNullable(requestedProviderName);
     const preferred = normalizeNullable(this.llmRuntime.getPreferredProviderName?.()) || normalizeNullable(config.llmProvider) || 'gemini';
@@ -185,6 +258,7 @@ export class ZavorthProviderLiveCanaryService {
       'openai',
       'openrouter',
       'deepseek',
+      'groq',
       'minimax',
       'qwen',
       'opencode',
@@ -275,6 +349,15 @@ function normalizeNullable(value: unknown): string | null {
 
 function unique(values: string[]): string[] {
   return Array.from(new Set(values.map((value) => value.trim()).filter(Boolean)));
+}
+
+function routeEntryKeys(entry: { id?: string | null; providerName?: string | null; providerId?: string | null; familyIds?: string[] | null }): string[] {
+  return unique([
+    normalizeNullable(entry.id),
+    normalizeNullable(entry.providerName),
+    normalizeNullable(entry.providerId),
+    ...(entry.familyIds || []).map(normalizeNullable),
+  ].filter(Boolean) as string[]).map((value) => value.toLowerCase());
 }
 
 function redact(value: string): string {

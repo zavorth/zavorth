@@ -12,8 +12,8 @@ for (const file of [
   'scripts/zavorth-dashboard-experience-home.ts',
   'tests/services/ZavorthDashboardExperienceHomeService.test.ts',
   'src/ai-gateway/app/(dashboard)/dashboard/HomePageClient.tsx',
-  'assets/command-center/index.html',
-  'assets/command-center/styles/chat.css',
+  'assets/dashboard/index.html',
+  'assets/dashboard/styles/chat.css',
 ]) {
   if (!existsSync(path.join(root, file))) {
     throw new Error(`missing ${file}`);
@@ -70,8 +70,8 @@ for (const area of ['inbox', 'tasks', 'approvals', 'receipts', 'connectors']) {
 
 const home = [
   readFileSync(path.join(root, 'src/ai-gateway/app/(dashboard)/dashboard/HomePageClient.tsx'), 'utf8'),
-  readFileSync(path.join(root, 'assets/command-center/index.html'), 'utf8'),
-  readFileSync(path.join(root, 'assets/command-center/styles/chat.css'), 'utf8'),
+  readFileSync(path.join(root, 'assets/dashboard/index.html'), 'utf8'),
+  readFileSync(path.join(root, 'assets/dashboard/styles/chat.css'), 'utf8'),
 ].join('\n');
 for (const marker of [
   'chat-console-bar',

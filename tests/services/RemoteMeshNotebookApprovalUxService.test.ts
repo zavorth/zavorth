@@ -1,4 +1,4 @@
-import { buildCommandCenterRemoteMeshApprovalUxProjection } from '../../src/ai-gateway/app/(dashboard)/control/command-center/projections/remoteMeshApprovalUxProjection.js';
+import { buildDashboardRemoteMeshApprovalUxProjection } from '../../src/ai-gateway/app/(dashboard)/dashboard/dashboard/projections/remoteMeshApprovalUxProjection.js';
 import type {
   RemoteMeshNotebookDockerControlPreviewPayload,
   RemoteMeshNotebookProjectFileReadPreviewPayload,
@@ -72,7 +72,7 @@ describe('RemoteMeshNotebookApprovalUxService R11', () => {
   it('turns Docker previews into mobile approval cards without raw JSON', () => {
     const card = new RemoteMeshNotebookApprovalUxService({ now }).buildCard(dockerPreview, 'mobile');
 
-    expect(card.contractVersion).toBe('2026-05-05.remote-mesh-r11-mobile-command-center-approval-ux');
+    expect(card.contractVersion).toBe('2026-05-05.remote-mesh-r11-mobile-dashboard-approval-ux');
     expect(card.phase).toBe('R11');
     expect(card.surface).toBe('mobile');
     expect(card.state).toBe('approval-required');
@@ -90,21 +90,21 @@ describe('RemoteMeshNotebookApprovalUxService R11', () => {
     expect(card.safety.noRawJsonCopyRequired).toBe(true);
   });
 
-  it('turns project file previews into Command Center approval cards', () => {
-    const projection = buildCommandCenterRemoteMeshApprovalUxProjection(projectPreview);
+  it('turns project file previews into Dashboard approval cards', () => {
+    const projection = buildDashboardRemoteMeshApprovalUxProjection(projectPreview);
 
-    expect(projection.projectionVersion).toBe('command-center-remote-mesh-approval-ux/v1');
-    expect(projection.commandCenterReady).toBe(true);
+    expect(projection.projectionVersion).toBe('dashboard-remote-mesh-approval-ux/v1');
+    expect(projection.dashboardReady).toBe(true);
     expect(projection.rawJsonRequiredFromUser).toBe(false);
     expect(projection.commandActuallyExecuted).toBe(false);
     expect(projection.toolActuallyExecuted).toBe(false);
-    expect(projection.card.commandCenter.queue).toBe('approvals');
+    expect(projection.card.dashboard.queue).toBe('approvals');
     expect(projection.card.approval?.applyToolName).toBe('notebook.project_files.apply_read');
     expect(projection.card.targetLabel).toBe('zavorth/README.md');
   });
 
   it('turns receipts into timeline cards with content preview limits', () => {
-    const card = new RemoteMeshNotebookApprovalUxService({ now }).buildCard(projectReceipt, 'command-center');
+    const card = new RemoteMeshNotebookApprovalUxService({ now }).buildCard(projectReceipt, 'dashboard');
 
     expect(card.state).toBe('receipt');
     expect(card.approval).toBeNull();
@@ -115,16 +115,16 @@ describe('RemoteMeshNotebookApprovalUxService R11', () => {
       }),
     );
     expect(card.receipt?.contentPreview).toContain('# Zavorth');
-    expect(card.commandCenter.queue).toBe('timeline');
+    expect(card.dashboard.queue).toBe('timeline');
     expect(card.safety.noProjectFileWrite).toBe(true);
   });
 
-  it('builds an R11 snapshot for both mobile and Command Center', () => {
+  it('builds an R11 snapshot for both mobile and Dashboard', () => {
     const snapshot = new RemoteMeshNotebookApprovalUxService({ now }).buildSnapshot({
       fixtures: [
         { source: dockerPreview, surface: 'mobile' },
-        { source: projectPreview, surface: 'command-center' },
-        { source: projectReceipt, surface: 'command-center' },
+        { source: projectPreview, surface: 'dashboard' },
+        { source: projectReceipt, surface: 'dashboard' },
       ],
     });
 
@@ -133,7 +133,7 @@ describe('RemoteMeshNotebookApprovalUxService R11', () => {
     expect(snapshot.summary.approvalCards).toBe(2);
     expect(snapshot.summary.receiptCards).toBe(1);
     expect(snapshot.summary.mobileReady).toBe(true);
-    expect(snapshot.summary.commandCenterReady).toBe(true);
+    expect(snapshot.summary.dashboardReady).toBe(true);
     expect(snapshot.summary.rawJsonRequiredFromUser).toBe(false);
     expect(snapshot.summary.rawCommandSerialized).toBe(false);
     expect(snapshot.summary.secretValuesSerialized).toBe(false);

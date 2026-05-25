@@ -7,8 +7,8 @@ import {
   normalizeZavorthNativeDashboardViewModelRegistryFixture,
 } from './ZavorthNativeDashboardViewModelRegistry.js';
 import {
-  normalizeExternalAgentCommandCenterLiveAssimilationFixture,
-} from './ExternalAgentCommandCenterLiveAssimilation.js';
+  normalizeExternalAgentDashboardLiveAssimilationFixture,
+} from './ExternalAgentDashboardLiveAssimilation.js';
 import {
   normalizeMessageTransportCapabilityDiscoveryFixture,
 } from './ExternalAgentRealMessageTransportCapabilityDiscovery.js';
@@ -37,9 +37,9 @@ import type {
   ZavorthNativeDashboardViewModelRegistryNormalization,
 } from './ZavorthNativeDashboardViewModelRegistry.js';
 import type {
-  ExternalAgentCommandCenterLiveAssimilationNormalization,
-  ExternalAgentCommandCenterOperationalStatus,
-} from './ExternalAgentCommandCenterLiveAssimilation.js';
+  ExternalAgentDashboardLiveAssimilationNormalization,
+  ExternalAgentDashboardOperationalStatus,
+} from './ExternalAgentDashboardLiveAssimilation.js';
 import type {
   ExternalExecutorLiveObservabilityProjectionNormalization,
 } from './ExternalAgentExternalExecutorLiveObservabilityProjection.js';
@@ -185,12 +185,12 @@ export type ZavorthNativeIntegrationDashboardProjection = {
   integrationId: string;
   integrationKind: ZavorthNativeIntegrationKind;
   label: string;
-  status: ExternalAgentCommandCenterOperationalStatus;
+  status: ExternalAgentDashboardOperationalStatus;
   classification: ZavorthNativeIntegrationClassification;
   secretRefCount: number;
   supportsSend: boolean;
   sendPolicy: ZavorthNativeIntegrationRecord['sendPolicy'];
-  commandCenterConsumable: true;
+  dashboardConsumable: true;
   sourceIdentityPublic: false;
   executionAuthority: false;
 };
@@ -213,7 +213,7 @@ export type ZavorthNativeIntegrationRegistrySnapshot = {
     observabilityProjection: 'docs/external-executor-live-observability-projection.md';
     eventStreamAdapter: 'docs/external-executor-read-only-event-stream-adapter.md';
     sessionHistoryBridge: 'docs/external-executor-session-history-read-only-bridge.md';
-    commandCenterAssimilation: 'docs/command-center-live-assimilation.md';
+    dashboardAssimilation: 'docs/dashboard-live-assimilation.md';
     transportDiscovery: 'docs/real-message-transport-capability-discovery.md';
     nativeCapabilityRegistry: 'docs/first-native-capability-registry-replacement-slice.md';
     dashboardViewModelRegistry: 'docs/dashboard-view-model-registry-native-slice.md';
@@ -261,7 +261,7 @@ export type ZavorthNativeIntegrationRegistrySource = {
   observabilityProjection: ExternalExecutorLiveObservabilityProjectionNormalization;
   eventStreamAdapter: ExternalExecutorReadOnlyEventStreamAdapterNormalization;
   sessionHistoryBridge: ExternalExecutorSessionHistoryReadOnlyBridgeNormalization;
-  commandCenterAssimilation: ExternalAgentCommandCenterLiveAssimilationNormalization;
+  dashboardAssimilation: ExternalAgentDashboardLiveAssimilationNormalization;
   transportDiscovery: ZavorthMessageTransportCapabilityDiscoveryNormalization;
   nativeCapabilityRegistry: ZavorthNativeCapabilityRegistryReplacementNormalization;
   capabilityRegistry: ZavorthNativeCapabilityRegistry;
@@ -284,7 +284,7 @@ export type ZavorthNativeIntegrationRegistryNormalization = {
     observabilityProjection: ExternalExecutorLiveObservabilityProjectionNormalization['decision'];
     eventStreamAdapter: ExternalExecutorReadOnlyEventStreamAdapterNormalization['decision'];
     sessionHistoryBridge: ExternalExecutorSessionHistoryReadOnlyBridgeNormalization['decision'];
-    commandCenterAssimilation: ExternalAgentCommandCenterLiveAssimilationNormalization['decision'];
+    dashboardAssimilation: ExternalAgentDashboardLiveAssimilationNormalization['decision'];
     transportDiscovery: ZavorthMessageTransportCapabilityDiscoveryNormalization['decision'];
     nativeCapabilityRegistry: ZavorthNativeCapabilityRegistryReplacementNormalization['decision'];
     dashboardViewModelRegistry: ZavorthNativeDashboardViewModelRegistryNormalization['decision'];
@@ -626,7 +626,7 @@ function byClassificationIndex(
   return index;
 }
 
-function operationalStatus(status: ZavorthNativeIntegrationStatus): ExternalAgentCommandCenterOperationalStatus {
+function operationalStatus(status: ZavorthNativeIntegrationStatus): ExternalAgentDashboardOperationalStatus {
   if (status === 'ready') {
     return 'ready';
   }
@@ -671,7 +671,7 @@ function buildSnapshot(
       observabilityProjection: 'docs/external-executor-live-observability-projection.md',
       eventStreamAdapter: 'docs/external-executor-read-only-event-stream-adapter.md',
       sessionHistoryBridge: 'docs/external-executor-session-history-read-only-bridge.md',
-      commandCenterAssimilation: 'docs/command-center-live-assimilation.md',
+      dashboardAssimilation: 'docs/dashboard-live-assimilation.md',
       transportDiscovery: 'docs/real-message-transport-capability-discovery.md',
       nativeCapabilityRegistry: 'docs/first-native-capability-registry-replacement-slice.md',
       dashboardViewModelRegistry: 'docs/dashboard-view-model-registry-native-slice.md',
@@ -693,7 +693,7 @@ function sourceReady(source: ZavorthNativeIntegrationRegistrySource): boolean {
     source.observabilityProjection.decision === 'external-executor-live-observability-projection-ready' &&
     source.eventStreamAdapter.decision === 'external-executor-read-only-event-stream-adapter-ready' &&
     source.sessionHistoryBridge.decision === 'external-executor-session-history-read-only-bridge-ready' &&
-    source.commandCenterAssimilation.decision === 'command-center-live-assimilation-ready' &&
+    source.dashboardAssimilation.decision === 'dashboard-live-assimilation-ready' &&
     source.transportDiscovery.decision === 'real-message-transport-capability-discovery-ready' &&
     source.nativeCapabilityRegistry.decision === 'native-capability-registry-replacement-ready' &&
     source.dashboardViewModelRegistry.decision === 'native-dashboard-view-model-registry-ready' &&
@@ -745,7 +745,7 @@ function dashboardProjection(records: ZavorthNativeIntegrationRecord[]): Zavorth
     secretRefCount: record.requiredSecretRefs.length,
     supportsSend: record.supportsSend,
     sendPolicy: record.sendPolicy,
-    commandCenterConsumable: true,
+    dashboardConsumable: true,
     sourceIdentityPublic: false,
     executionAuthority: false,
   }));
@@ -814,7 +814,7 @@ export function createZavorthNativeIntegrationRegistryFixtureSource(): ZavorthNa
     observabilityProjection: normalizeExternalExecutorLiveObservabilityProjectionFixture(),
     eventStreamAdapter: normalizeExternalExecutorReadOnlyEventStreamAdapterFixture(),
     sessionHistoryBridge: normalizeExternalExecutorSessionHistoryReadOnlyBridgeFixture(),
-    commandCenterAssimilation: normalizeExternalAgentCommandCenterLiveAssimilationFixture(),
+    dashboardAssimilation: normalizeExternalAgentDashboardLiveAssimilationFixture(),
     transportDiscovery: normalizeMessageTransportCapabilityDiscoveryFixture(),
     nativeCapabilityRegistry: normalizeZavorthNativeCapabilityRegistryReplacementFixture(),
     capabilityRegistry: createZavorthNativeCapabilityRegistryFixture(),
@@ -854,7 +854,7 @@ export function normalizeZavorthNativeIntegrationRegistry<TRuntimeId extends str
       observabilityProjection: options.source.observabilityProjection.decision,
       eventStreamAdapter: options.source.eventStreamAdapter.decision,
       sessionHistoryBridge: options.source.sessionHistoryBridge.decision,
-      commandCenterAssimilation: options.source.commandCenterAssimilation.decision,
+      dashboardAssimilation: options.source.dashboardAssimilation.decision,
       transportDiscovery: options.source.transportDiscovery.decision,
       nativeCapabilityRegistry: options.source.nativeCapabilityRegistry.decision,
       dashboardViewModelRegistry: options.source.dashboardViewModelRegistry.decision,

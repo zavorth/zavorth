@@ -186,10 +186,10 @@ describe('ZavorthNativeReplacementDecommissionService Dashboard controls', () =>
     }));
   });
 
-  it('projects native replacement closure for Command Center', () => {
+  it('projects native replacement closure for Dashboard', () => {
     const snapshot = createService().buildSnapshot();
 
-    expect(snapshot.commandCenterProjection).toEqual(expect.objectContaining({
+    expect(snapshot.dashboardProjection).toEqual(expect.objectContaining({
       title: 'Native Replacement And Decommission',
       status: 'native-replacement-decommission-ready',
       tone: 'ready',
@@ -203,7 +203,7 @@ describe('ZavorthNativeReplacementDecommissionService Dashboard controls', () =>
       ]),
       nextSafeAction: 'Plan 291 is complete; proceed only with a new live activation or hardening plan.',
     }));
-    expect(snapshot.commandCenterProjection.cards.map((entry) => entry.id)).toEqual(expect.arrayContaining([
+    expect(snapshot.dashboardProjection.cards.map((entry) => entry.id)).toEqual(expect.arrayContaining([
       'registry',
       'promoted',
       'parity',

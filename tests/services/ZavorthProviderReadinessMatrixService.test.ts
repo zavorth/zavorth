@@ -31,7 +31,7 @@ describe('ZavorthProviderReadinessMatrixService', () => {
     expect(snapshot.summary.needsProbe).toBe(1);
     expect(snapshot.summary.degraded).toBe(1);
     expect(snapshot.summary.unsupported).toBe(1);
-    expect(snapshot.commandCenterProjection.executionAuthority).toBe(false);
+    expect(snapshot.dashboardProjection.executionAuthority).toBe(false);
     expect(snapshot.liveCompletion).toEqual(expect.objectContaining({
       providerSelectionRequiresLiveProof: true,
       catalogSupportIsNotLiveProof: true,

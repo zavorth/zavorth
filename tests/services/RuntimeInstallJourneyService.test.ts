@@ -110,13 +110,13 @@ function buildRepairReport(overrides: Partial<RuntimeBootstrapRepairReport> = {}
           local: {
             baseUrl: 'http://127.0.0.1:33333',
             dashboardUrl: 'http://127.0.0.1:33333/',
-            appUrl: 'http://127.0.0.1:33333/control',
+            appUrl: 'http://127.0.0.1:33333/dashboard',
             ready: true,
             issues: [],
           },
           remote: {
             baseUrl: 'https://zavorth.example.com',
-            appUrl: 'https://zavorth.example.com/control',
+            appUrl: 'https://zavorth.example.com/dashboard',
             ready: true,
             issues: [],
           },
@@ -232,13 +232,13 @@ function buildRepairReport(overrides: Partial<RuntimeBootstrapRepairReport> = {}
           local: {
             baseUrl: 'http://127.0.0.1:33333',
             dashboardUrl: 'http://127.0.0.1:33333/',
-            appUrl: 'http://127.0.0.1:33333/control',
+            appUrl: 'http://127.0.0.1:33333/dashboard',
             ready: true,
             issues: [],
           },
           remote: {
             baseUrl: 'https://zavorth.example.com',
-            appUrl: 'https://zavorth.example.com/control',
+            appUrl: 'https://zavorth.example.com/dashboard',
             ready: true,
             issues: [],
           },
@@ -268,14 +268,14 @@ function buildStartupResult(overrides: Partial<RuntimeStartupResult> = {}): Runt
       local: {
         ready: true,
         baseUrl: 'http://127.0.0.1:33333',
-        appUrl: 'http://127.0.0.1:33333/control',
+        appUrl: 'http://127.0.0.1:33333/dashboard',
         dashboardUrl: 'http://127.0.0.1:33333/',
         apiBaseUrl: 'http://127.0.0.1:33333/api/web',
       },
       remote: {
         ready: true,
         baseUrl: 'https://zavorth.example.com',
-        appUrl: 'https://zavorth.example.com/control',
+        appUrl: 'https://zavorth.example.com/dashboard',
         requiresHttps: false,
       },
       auth: {
@@ -289,7 +289,7 @@ function buildStartupResult(overrides: Partial<RuntimeStartupResult> = {}): Runt
         summary: 'Acesso remoto oficial pronto e validado.',
         recommendedProvider: null,
         recommendedAction: null,
-        appUrl: 'https://zavorth.example.com/control',
+        appUrl: 'https://zavorth.example.com/dashboard',
         baseUrl: 'https://zavorth.example.com',
         issues: [],
         nextSteps: [],
@@ -321,9 +321,9 @@ function buildStartupResult(overrides: Partial<RuntimeStartupResult> = {}): Runt
       recommendedPlan: {
         primaryAction: 'open-local',
           primaryLabel: 'Abrir shell web do runtime',
-          primarySummary: 'Control UI pronto em http://127.0.0.1:33333/control.',
+          primarySummary: 'Dashboard pronto em http://127.0.0.1:33333/dashboard.',
         primaryCommand: null,
-        openTarget: 'http://127.0.0.1:33333/control',
+        openTarget: 'http://127.0.0.1:33333/dashboard',
         launcherRecommendation: {
           command: 'npm run launcher:startup:install',
           summary: 'Startup oficial do Windows e opcional e bloqueado por padrao. So habilite conscientemente se voce realmente quiser login automatico.',
@@ -331,7 +331,7 @@ function buildStartupResult(overrides: Partial<RuntimeStartupResult> = {}): Runt
         remoteRecommendation: {
           ready: true,
           command: 'npm run ops:remote:go',
-          appUrl: 'https://zavorth.example.com/control',
+          appUrl: 'https://zavorth.example.com/dashboard',
           summary: 'Acesso remoto oficial pronto e validado.',
           nextSteps: [],
         },
@@ -367,7 +367,7 @@ describe('RuntimeInstallJourneyService', () => {
       requireMutableAccess: false,
     });
     expect(report.summary).toBe('Zavorth pronto para uso local e remoto.');
-    expect(report.manifest.local.appUrl).toBe('http://127.0.0.1:33333/control');
+    expect(report.manifest.local.appUrl).toBe('http://127.0.0.1:33333/dashboard');
     expect(report.phases).toEqual(
       expect.arrayContaining([
         expect.objectContaining({ id: 'go', status: 'ready', command: null }),
@@ -417,7 +417,7 @@ describe('RuntimeInstallJourneyService', () => {
             recommendedAction: 'go',
             appUrl: null,
             baseUrl: null,
-            issues: ['Ainda falta validar o /control remoto oficial.'],
+            issues: ['Ainda falta validar o /dashboard remoto oficial.'],
             nextSteps: ['Feche o remoto oficial em um comando com npm run ops:remote:go.'],
             command: 'npm run ops:remote:go',
           },
@@ -432,9 +432,9 @@ describe('RuntimeInstallJourneyService', () => {
           recommendedPlan: {
             primaryAction: 'open-local',
           primaryLabel: 'Abrir shell web do runtime',
-          primarySummary: 'Control UI pronto em http://127.0.0.1:33333/control.',
+          primarySummary: 'Dashboard pronto em http://127.0.0.1:33333/dashboard.',
             primaryCommand: null,
-            openTarget: 'http://127.0.0.1:33333/control',
+            openTarget: 'http://127.0.0.1:33333/dashboard',
         launcherRecommendation: {
           command: 'npm run launcher:startup:install',
           summary: 'Startup oficial do Windows e opcional e bloqueado por padrao. So habilite conscientemente se voce realmente quiser login automatico.',
@@ -522,16 +522,16 @@ describe('RuntimeInstallJourneyService', () => {
             recommendedAction: 'go',
             appUrl: null,
             baseUrl: null,
-            issues: ['Ainda falta validar o /control remoto oficial.'],
+            issues: ['Ainda falta validar o /dashboard remoto oficial.'],
             nextSteps: ['Feche o remoto oficial em um comando com npm run ops:remote:go.'],
             command: 'npm run ops:remote:go',
           },
           recommendedPlan: {
             primaryAction: 'open-local',
           primaryLabel: 'Abrir shell web do runtime',
-          primarySummary: 'Control UI pronto em http://127.0.0.1:33333/control.',
+          primarySummary: 'Dashboard pronto em http://127.0.0.1:33333/dashboard.',
             primaryCommand: null,
-            openTarget: 'http://127.0.0.1:33333/control',
+            openTarget: 'http://127.0.0.1:33333/dashboard',
             launcherRecommendation: {
               command: 'npm run launcher:startup:install',
               summary: 'Startup oficial do Windows e opcional e bloqueado por padrao. So habilite conscientemente se voce realmente quiser login automatico.',
@@ -608,7 +608,7 @@ describe('RuntimeInstallJourneyService', () => {
             primaryLabel: 'Liberar este host',
             primarySummary: 'Autorize este host antes de executar acoes mutaveis, escrita local ou entregas persistidas.',
             primaryCommand: '/hostauth trust',
-            openTarget: 'http://127.0.0.1:33333/control',
+            openTarget: 'http://127.0.0.1:33333/dashboard',
             launcherRecommendation: {
               command: 'npm run launcher:startup:install',
               summary: 'Startup oficial do Windows e opcional e bloqueado por padrao. So habilite conscientemente se voce realmente quiser login automatico.',
@@ -616,7 +616,7 @@ describe('RuntimeInstallJourneyService', () => {
             remoteRecommendation: {
               ready: true,
               command: 'npm run ops:remote:go',
-              appUrl: 'https://zavorth.example.com/control',
+              appUrl: 'https://zavorth.example.com/dashboard',
               summary: 'Acesso remoto oficial pronto e validado.',
               nextSteps: [],
             },

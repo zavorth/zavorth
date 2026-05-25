@@ -141,7 +141,7 @@ export class WebAppRuntimeCanonicalStateService {
     });
     const productMode = buildWebAppRuntimeProductMode(deps);
     const uiSurfaceHints = buildWebAppRuntimeUiSurfaceHints(productMode, {
-      localControlEntry: '/control',
+      localControlEntry: '/dashboard',
       localControlReady: true,
       telegramReady: readWebAppRuntimeChannelReadiness(companionPlane, resourcePlane, 'telegram'),
       discordReady: readWebAppRuntimeChannelReadiness(companionPlane, resourcePlane, 'discord'),

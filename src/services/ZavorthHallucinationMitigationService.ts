@@ -71,8 +71,11 @@ export class ZavorthHallucinationMitigationService {
     const responseText = String(input.responseText || '');
     const evidenceTexts = (input.evidenceTexts || []).map((entry) => String(entry || '')).filter(Boolean);
     const toolReceiptCount = Math.max(0, Number(input.toolReceiptCount || 0));
-    const highStakes = this.matchesAny(`${requestText}\n${responseText}`, HIGH_STAKES_PATTERNS);
-    const currentOrUnstable = this.matchesAny(`${requestText}\n${responseText}`, CURRENT_OR_UNSTABLE_PATTERNS);
+    const selfStatusRequest = this.isSelfStatusRequest(requestText);
+    const highStakes = this.matchesAny(`${requestText}\n${responseText}`, HIGH_STAKES_PATTERNS)
+      && !selfStatusRequest;
+    const currentOrUnstable = this.matchesAny(`${requestText}\n${responseText}`, CURRENT_OR_UNSTABLE_PATTERNS)
+      && !selfStatusRequest;
     const sourceRequested = this.matchesAny(requestText, SOURCE_REQUEST_PATTERNS);
     const evidenceSensitive = highStakes || currentOrUnstable || sourceRequested;
     const evidenceCount = evidenceTexts.filter((entry) => this.looksLikeEvidence(entry)).length;
@@ -185,17 +188,17 @@ export class ZavorthHallucinationMitigationService {
   ): string {
     const notes: string[] = [];
     if (input.executionClaimWithoutReceipt) {
-      notes.push('Nota de confiabilidade: nao tenho recibo de execucao neste run; trate qualquer alegacao de acao aplicada abaixo como proposta ou rascunho, nao como algo ja executado.');
+      notes.push('Reliability note: I do not have an execution receipt for this run; treat any claim of an applied action below as a proposal or draft, not as something already executed.');
     }
     if (input.unsupportedEvidenceSensitive) {
       const reason = input.highStakes
-        ? 'o tema e sensivel'
+        ? 'the topic is sensitive'
         : input.currentOrUnstable
-          ? 'a informacao parece atual ou instavel'
+          ? 'the information may be current or unstable'
           : input.sourceRequested
-            ? 'voce pediu fontes/verificacao'
-            : 'a resposta exige evidencia';
-      notes.push(`Nota de confiabilidade: ${reason}, mas nao ha fonte ou evidencia anexada nesta resposta. Preciso verificar antes de tratar como fato.`);
+            ? 'you asked for sources or verification'
+            : 'the answer needs evidence';
+      notes.push(`Reliability note: ${reason}, but no source or attached evidence is available in this response. I need to verify before treating it as fact.`);
     }
     if (notes.length === 0) {
       return responseText;
@@ -205,6 +208,12 @@ export class ZavorthHallucinationMitigationService {
 
   private looksLikeEvidence(text: string): boolean {
     return this.matchesAny(text, EVIDENCE_MARKERS);
+  }
+
+  private isSelfStatusRequest(text: string): boolean {
+    const normalized = String(text || '').toLowerCase();
+    return /\b(current state|your state|status|ready|health|what are you|who are you)\b/.test(normalized)
+      && /\b(zavorth|you|your)\b/.test(normalized);
   }
 
   private matchesAny(text: string, patterns: RegExp[]): boolean {

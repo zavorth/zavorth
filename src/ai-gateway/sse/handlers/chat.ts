@@ -61,6 +61,13 @@ import { generateRequestId } from "../../shared/utils/requestId";
 import { logAuditEvent } from "../../lib/compliance/index";
 import { enforceApiKeyPolicy } from "../../shared/utils/apiKeyPolicy";
 import { cloneLogPayload } from "@/lib/logPayloads";
+import {
+  generateSignature,
+  getCachedResponse,
+  isCacheable,
+  setCachedResponse,
+} from "@/lib/semanticCache";
+import { applyZavorthContextCompression } from "@/lib/zavorthContextCompression";
 // Register Codex quota fetcher at module load (once per server start).
 // This hooks into the quotaPreflight + quotaMonitor systems so that combos
 // can proactively switch accounts before the 5h or 7d quota is exhausted.
@@ -173,6 +180,15 @@ export async function handleChat(request: any, clientRawRequest: any = null) {
     return errorResponse(HTTP_STATUS.BAD_REQUEST, "Missing model");
   }
 
+  const compression = applyZavorthContextCompression(body);
+  if (compression.applied) {
+    body = compression.body;
+    log.info(
+      "CONTEXT",
+      `Zavorth compression applied (${compression.originalBytes} -> ${compression.compressedBytes} bytes, ratio=${compression.ratio.toFixed(2)})`
+    );
+  }
+
   // T04: client-provided external session header has priority over generated fingerprint.
   const externalSessionId = extractExternalSessionId(request.headers);
   const sessionId = externalSessionId || generateStableSessionId(body);
@@ -231,6 +247,32 @@ export async function handleChat(request: any, clientRawRequest: any = null) {
     }
     taskRouteInfo = { taskType: tr.taskType, wasRouted: tr.wasRouted };
     telemetry.endPhase();
+  }
+
+  const cacheSignature = isCacheable(body, request.headers)
+    ? generateSignature(
+        resolvedModelStr,
+        body.messages || body.input || [],
+        body.temperature ?? 0,
+        body.top_p ?? 1
+      )
+    : null;
+  if (cacheSignature) {
+    telemetry.startPhase("semantic-cache");
+    const cached = getCachedResponse(cacheSignature);
+    telemetry.endPhase();
+    if (cached) {
+      log.info("CACHE", `Semantic cache hit for ${resolvedModelStr}`);
+      const cachedResponse = Response.json(cached, {
+        headers: {
+          "x-zavorth-cache": "hit",
+          "x-zavorth-cache-signature": cacheSignature,
+        },
+      });
+      recordTelemetry(telemetry);
+      return withSessionHeader(cachedResponse, sessionId);
+    }
+    log.debug("CACHE", `Semantic cache miss for ${resolvedModelStr}`);
   }
 
   // Check if model is a combo (has multiple models with fallback)
@@ -367,6 +409,7 @@ export async function handleChat(request: any, clientRawRequest: any = null) {
           true
         );
         if (fallbackResponse.ok) {
+          await cacheChatResponseIfEligible(cacheSignature, fallbackModel, fallbackResponse);
           log.info("GLOBAL_FALLBACK", `Global fallback ${fallbackModel} succeeded`);
           recordTelemetry(telemetry);
           return withSessionHeader(fallbackResponse, sessionId);
@@ -382,6 +425,7 @@ export async function handleChat(request: any, clientRawRequest: any = null) {
     // ─────────────────────────────────────────────────────────────────────────
 
     // Record telemetry
+    await cacheChatResponseIfEligible(cacheSignature, resolvedModelStr, response);
     recordTelemetry(telemetry);
     return withSessionHeader(response, sessionId);
   }
@@ -400,8 +444,29 @@ export async function handleChat(request: any, clientRawRequest: any = null) {
     null,
     false
   );
+  await cacheChatResponseIfEligible(cacheSignature, resolvedModelStr, response);
   recordTelemetry(telemetry);
   return withSessionHeader(response, sessionId);
+}
+
+async function cacheChatResponseIfEligible(
+  signature: string | null,
+  model: string,
+  response: Response
+) {
+  if (!signature || !response.ok) return;
+  const contentType = response.headers.get("content-type") || "";
+  if (!contentType.includes("application/json")) return;
+  try {
+    const payload = await response.clone().json();
+    const usage = payload && typeof payload === "object" ? (payload as any).usage : null;
+    const tokensSaved =
+      Number(usage?.total_tokens || 0) ||
+      Math.ceil(Buffer.byteLength(JSON.stringify(payload), "utf8") / 4);
+    setCachedResponse(signature, model, payload, tokensSaved);
+  } catch {
+    // Non-JSON or already consumed responses are simply not cached.
+  }
 }
 
 export function buildClientRawRequest(request: Request, body: unknown) {

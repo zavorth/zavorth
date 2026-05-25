@@ -120,7 +120,7 @@ export type IntegrationShowcasePartnerSurfaceSnapshot = {
   };
   surface: {
     cliCommand: string;
-    commandCenterPath: string;
+    dashboardPath: string;
     integrationsRoute: '/integrations';
     docsAnchor: '/docs#integration-showcase';
     integrationShowcaseCommand: 'npm run integration-showcase';
@@ -363,7 +363,7 @@ export class IntegrationShowcasePartnerSurfaceService {
       },
       surface: {
         cliCommand: `zavorth integration-showcase-partner-surface run ${run.id} --json`,
-        commandCenterPath: `/control?runId=${encodeURIComponent(run.id)}&sector=config`,
+        dashboardPath: `/dashboard?runId=${encodeURIComponent(run.id)}&sector=config`,
         integrationsRoute: '/integrations',
         docsAnchor: '/docs#integration-showcase',
         integrationShowcaseCommand: 'npm run integration-showcase',
@@ -525,8 +525,8 @@ export class IntegrationShowcasePartnerSurfaceService {
       },
       {
         id: 'control',
-        label: 'Command Center',
-        routeOrCommand: '/control?sector=config',
+        label: 'Dashboard',
+        routeOrCommand: '/dashboard?sector=config',
         status: 'ready',
         detail: 'Config mostra vendors, matrix, smoke e partner policy.',
       },

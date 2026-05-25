@@ -105,12 +105,11 @@ describe('Zavorth CLI visual anti-regression contract', () => {
       const parsed = JSON.parse(jsonOutput);
       const profilePath = path.join(tempRoot, 'data', 'runtime', 'first-run', 'profile.json');
 
-      expect(dryRun).toContain('Dry-run: nenhuma mudanca sera gravada.');
-      expect(dryRun).toContain('data');
-      expect(dryRun).toContain('runtime');
-      expect(dryRun).toContain('first-run');
-      expect(dryRun).toContain('profile.json');
-      expect(dryRun).toContain('tokens ou API keys');
+      expect(dryRun).toContain('Preview only. No files will be changed.');
+      expect(dryRun).toContain('First Light');
+      expect(dryRun).toContain('Current config');
+      expect(dryRun).toContain('Readiness');
+      expect(dryRun).toContain('secrets redacted');
       expect(parsed.dryRun).toBe(true);
       expect(parsed.safety.rawSecretSerialized).toBe(false);
       expect(parsed.safety.runtimePersistentStartPerformed).toBe(false);
@@ -128,13 +127,13 @@ describe('Zavorth CLI visual anti-regression contract', () => {
 
     expect(output).toContain('Zavorth');
     expect(output).toContain('Zavorth');
-    expect(output).toContain('conversa natural');
-    expect(output).toMatch(/[a-z0-9][a-z0-9._:/-]+ - conversa natural/i);
-    expect(output).not.toContain('Gemini - conversa natural');
+    expect(output).toContain('natural chat');
+    expect(output).toMatch(/[a-z0-9][a-z0-9._:/-]+ - natural chat/i);
+    expect(output).not.toContain('Gemini - natural chat');
     expect(output).not.toContain('Zavorth Chat v');
     expect(output).not.toContain('v1.0.0');
-    expect(output).toContain('Oi. Eu estou pronto para ajudar. Escreva um pedido simples, do seu jeito.');
-    expect(output).toContain('? atalhos: status | doctor | history | new | quit');
+    expect(output).toContain('Hi. I am ready to help. Write a simple request in your own words.');
+    expect(output).toContain('? shortcuts: status | doctor | history | new | quit');
     expectNoFirstLayerNoise(output);
   });
 
@@ -179,7 +178,7 @@ describe('Zavorth CLI visual anti-regression contract', () => {
       expect(output).toContain('Zavorth');
       expect(output).not.toContain('voce>');
       expect(output).not.toContain('zavorth>');
-      expect(output).not.toContain('visual-contract-session');
+      expect(output).toContain('visual-contract-session');
       expect(output).not.toContain('web:visual-contract');
       expectNoFirstLayerNoise(output);
     } finally {
@@ -194,10 +193,13 @@ describe('Zavorth CLI visual anti-regression contract', () => {
   it('keeps in-chat help short and contextual', () => {
     const output = formatCliChatHelp();
 
-    expect(output).toContain('? Atalhos do chat');
-    expect(output).toContain('status   ver se esta tudo certo');
-    expect(output).toContain('doctor   corrigir algo que travou');
-    expect(output).toContain('quit     sair');
+    expect(output).toContain('Shortcuts');
+    expect(output).toContain('status');
+    expect(output).toContain('check runtime readiness');
+    expect(output).toContain('doctor');
+    expect(output).toContain('diagnose setup or provider issues');
+    expect(output).toContain('quit');
+    expect(output).toContain('leave the terminal session');
     expect(output).not.toContain('Referencia completa da CLI do Zavorth');
     expect(output).not.toContain('nodes invoke');
     expect(output).not.toContain('ops run');
@@ -209,19 +211,19 @@ describe('Zavorth CLI visual anti-regression contract', () => {
       body: 'Oi. Vamos resolver isso em passos pequenos.',
     });
     const approval = formatCliApprovalRequiredEventCard({
-      body: 'Preciso da sua confirmacao antes de editar arquivos.',
+      body: 'I need your confirmation before editing files.',
       command: 'approve task-123 pin=654321',
     });
     const recoverable = formatCliRecoverableErrorEventCard({
-      body: 'Nao consegui continuar agora.',
+      body: 'I could not continue right now.',
       command: 'doctor',
     });
     const output = [assistant, approval, recoverable].join('\n\n');
 
     expect(output).toContain('* Zavorth');
-    expect(output).toContain('! Preciso da sua aprovacao');
+    expect(output).toContain('! Approval needed');
     expect(output).toContain('approve task-123 pin=654321');
-    expect(output).toContain('! Algo travou');
+    expect(output).toContain('! Recoverable issue');
     expect(output).toContain('doctor');
     expectNoFirstLayerNoise(output);
   });
@@ -273,7 +275,7 @@ describe('Zavorth CLI visual anti-regression contract', () => {
 
     expect(ready).toContain('Zavorth pronto');
     expect(ready).toContain('Home');
-    expect(ready).toContain('Zavorth Home: http://127.0.0.1:3000/dashboard');
+    expect(ready).toContain('Zavorth Dashboard: http://127.0.0.1:3000/dashboard');
     expect(ready).toContain('Inbox | Tasks | Approvals | Receipts | Connectors');
     expect(ready).toContain('Comece pelo terminal se preferir');
     expect(ready).toContain('> zavorth chat');

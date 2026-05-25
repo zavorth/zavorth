@@ -6,7 +6,7 @@ const files = {
   service: 'src/services/ZavorthActiveMissionUxService.ts',
   script: 'scripts/zavorth-active-mission-ux.ts',
   route: 'src/domain/surface/presentation/web-app/WebAppRuntimeStateRouteService.ts',
-  panel: 'src/ai-gateway/app/(dashboard)/control/command-center/components/CommandCenterOperationsPanel.tsx',
+  panel: 'src/ai-gateway/app/(dashboard)/dashboard/dashboard/components/DashboardOperationsPanel.tsx',
   test: 'tests/services/ZavorthActiveMissionUxService.test.ts',
 };
 
@@ -32,12 +32,12 @@ rules.push(
   },
   {
     id: 'panel:timeline',
-    status: panel.includes('CommandCenterActiveMissionPanel') && panel.includes('activeMissionUx') && !panel.includes('fetch(') ? 'passed' : 'failed',
-    summary: 'Command Center renders active mission timeline without direct fetch/execution.',
+    status: panel.includes('DashboardActiveMissionPanel') && panel.includes('activeMissionUx') && !panel.includes('fetch(') ? 'passed' : 'failed',
+    summary: 'Dashboard renders active mission timeline without direct fetch/execution.',
   },
   {
     id: 'contract:safety',
-    status: contract.includes('commandCenterCanExecute: false') && contract.includes('rawSecretsSerialized: false') ? 'passed' : 'failed',
+    status: contract.includes('dashboardCanExecute: false') && contract.includes('rawSecretsSerialized: false') ? 'passed' : 'failed',
     summary: 'Contract keeps mission timeline projection-only and secret-safe.',
   },
   {
@@ -66,8 +66,8 @@ rules.push(
   },
   {
     id: 'smoke:no-execution-authority',
-    status: smoke?.safety?.commandCenterCanExecute === false && smoke?.commandCenterProjection?.executionAuthority === false ? 'passed' : 'failed',
-    summary: 'Command Center has no active mission execution authority.',
+    status: smoke?.safety?.dashboardCanExecute === false && smoke?.dashboardProjection?.executionAuthority === false ? 'passed' : 'failed',
+    summary: 'Dashboard has no active mission execution authority.',
   },
   {
     id: 'smoke:no-raw-secret',

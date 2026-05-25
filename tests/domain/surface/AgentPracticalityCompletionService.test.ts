@@ -24,13 +24,13 @@ describe('ZavorthAgentPracticalityCompletionService Runtime gateway', () => {
       'imessage',
     ]));
     expect(snapshot.surfaceProjections.every((surface) => surface.fallbackTextAvailable)).toBe(true);
-    expect(snapshot.commandCenterProjection).toEqual(expect.objectContaining({
+    expect(snapshot.dashboardProjection).toEqual(expect.objectContaining({
       available: true,
       timelineRequired: true,
       receiptsRequired: true,
       noVisualMutation: true,
     }));
-    expect(snapshot.commandCenterProjection.operationalFieldsRequired).toEqual(expect.arrayContaining([
+    expect(snapshot.dashboardProjection.operationalFieldsRequired).toEqual(expect.arrayContaining([
       'operational.selectedSessionId',
       'actions',
       'timeline',

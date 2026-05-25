@@ -77,7 +77,7 @@ describe('Public contracts compatibility', () => {
         options: ['allow_once', 'deny', 'view_preview', 'view_rollback'],
       },
       safety: {
-        commandCenterCanExecute: false,
+        dashboardCanExecute: false,
         policyBrokerRequiredForMutableActions: true,
         rawSecretsSerialized: false,
       },
@@ -85,7 +85,7 @@ describe('Public contracts compatibility', () => {
 
     expect(event.type).toBe('approval.request');
     expect(event.data.options).toContain('allow_once');
-    expect(event.safety.commandCenterCanExecute).toBe(false);
+    expect(event.safety.dashboardCanExecute).toBe(false);
   });
 
   it('keeps gateway domain list typing stable for the public contract', () => {

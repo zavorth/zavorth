@@ -2,7 +2,7 @@ import fs from 'fs';
 import path from 'path';
 import { config } from '../../config/index.js';
 import type { SystemLog } from '../../storage/LogRepository.js';
-import { isWeakCommandCenterToken } from '../CommandCenterTokenService.js';
+import { isWeakDashboardToken } from '../DashboardTokenService.js';
 
 type OperationsHealthOpsSnapshotSupportOptions = {
   now: () => Date;
@@ -117,7 +117,7 @@ export class OperationsHealthOpsSnapshotSupport {
 
     const dashboardAuthSource =
       String(config.zavorthWebAuthToken || '').trim() &&
-      !isWeakCommandCenterToken(config.zavorthWebAuthToken)
+      !isWeakDashboardToken(config.zavorthWebAuthToken)
         ? ('env' as const)
         : (this.existsSync(config.zavorthWebAuthTokenFile) ? ('runtime-file' as const) : ('missing' as const));
     const mailboxSource =

@@ -23,7 +23,7 @@ describe('Prompt injection phase 2 hardening', () => {
   it('wires the same firewall helper into agent loops that create system prompts', () => {
     expect(source('src/agents/ConversationalAgent.ts')).toContain('buildUntrustedContentFirewallInstruction');
     expect(source('src/services/EchoExecutionLoop.ts')).toContain('buildUntrustedContentFirewallInstruction');
-    expect(source('src/runtime/agent/AgentRunLlmRuntimeExecutor.ts')).toContain('buildUntrustedContentFirewallInstruction');
+    expect(source('src/runtime/agent/AgentRunLlmRequestBuilder.ts')).toContain('buildUntrustedContentFirewallInstruction');
   });
 
   it('keeps retrieved memory and imported skill summaries inside explicit trust boundaries', () => {

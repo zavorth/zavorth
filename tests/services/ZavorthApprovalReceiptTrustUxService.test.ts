@@ -32,7 +32,7 @@ describe('ZavorthApprovalReceiptTrustUxService', () => {
       targetActionRequiresRuntimeGate: true,
     }));
     expect(snapshot.safety).toEqual(expect.objectContaining({
-      commandCenterCanExecuteTargetAction: false,
+      dashboardCanExecuteTargetAction: false,
       dashboardCanResolveApprovalOnlyThroughGateway: true,
       approvalScopedToExactAction: true,
       rawSecretsSerialized: false,

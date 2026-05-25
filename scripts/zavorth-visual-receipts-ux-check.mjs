@@ -9,7 +9,7 @@ const files = {
   contract: 'src/contracts/ZavorthVisualReceiptUxContract.ts',
   service: 'src/services/ZavorthVisualReceiptUxService.ts',
   webStateRoute: 'src/domain/surface/presentation/web-app/WebAppRuntimeStateRouteService.ts',
-  operationsPanel: 'src/ai-gateway/app/(dashboard)/control/command-center/components/CommandCenterOperationsPanel.tsx',
+  operationsPanel: 'src/ai-gateway/app/(dashboard)/dashboard/dashboard/components/DashboardOperationsPanel.tsx',
   script: 'scripts/zavorth-visual-receipts-ux.ts',
   test: 'tests/services/ZavorthVisualReceiptUxService.test.ts',
   packageJson: 'package.json',
@@ -19,11 +19,11 @@ const checks = [
   [files.contract, "surface: 'visual-receipt-ux'"],
   [files.contract, 'dashboardCanExecute: false'],
   [files.service, 'rawSecretsSerialized: false'],
-  [files.service, 'commandCenterCanExecute: false'],
+  [files.service, 'dashboardCanExecute: false'],
   [files.service, 'sanitizeReceiptText'],
   [files.webStateRoute, 'buildVisualReceiptsProjection'],
   [files.webStateRoute, 'visualReceipts'],
-  [files.operationsPanel, 'CommandCenterVisualReceiptsPanel'],
+  [files.operationsPanel, 'DashboardVisualReceiptsPanel'],
   [files.operationsPanel, 'projection-only'],
   [files.operationsPanel, 'onDraftCommand(asText(action.command'],
   [files.script, 'ZavorthVisualReceiptUxService'],
@@ -55,7 +55,7 @@ const parsed = JSON.parse(output);
 if (parsed.surface !== 'visual-receipt-ux') {
   throw new Error('visual receipts script did not return the expected surface');
 }
-if (parsed.commandCenterProjection?.executionAuthority !== false || parsed.summary?.rawSecretsSerialized !== false) {
+if (parsed.dashboardProjection?.executionAuthority !== false || parsed.summary?.rawSecretsSerialized !== false) {
   throw new Error('visual receipts safety invariants failed');
 }
 if (/\bsk-[A-Za-z0-9_-]{12,}\b/.test(output)) {

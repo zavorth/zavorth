@@ -18,7 +18,7 @@ describe('ZavorthTransactionLiveCandidateContract', () => {
     ]);
     expect(snapshot.gateKinds).toEqual([
       'certification-matrix-certification',
-      'command-center-simulated',
+      'dashboard-simulated',
       'approval-ledger-approved',
       'credential-ref-ready',
       'typed-connector-simulated',

@@ -20,7 +20,7 @@ describe('ReleaseUxWizardService', () => {
   it('builds preview-first wizard, human diff, rollback preview and changelog', async () => {
     const service = new ReleaseUxWizardService({
       packageJson: packageJsonFixture(),
-      html: buildRuntimeShellHtml('/control'),
+      html: buildRuntimeShellHtml('/dashboard'),
       releasePresenceSnapshot: releasePresenceFixture(),
       now: () => new Date('2026-04-24T17:10:00.000Z'),
     });
@@ -43,7 +43,7 @@ describe('ReleaseUxWizardService', () => {
         'release:wizard': '',
         'qa:release-ux': '',
       }),
-      html: buildRuntimeShellHtml('/control'),
+      html: buildRuntimeShellHtml('/dashboard'),
       releasePresenceSnapshot: releasePresenceFixture(),
     });
 
@@ -56,7 +56,7 @@ describe('ReleaseUxWizardService', () => {
     ]));
   });
 
-  it('fails when the Control UI release wizard card disappears', async () => {
+  it('fails when the Dashboard release wizard card disappears', async () => {
     const service = new ReleaseUxWizardService({
       packageJson: packageJsonFixture(),
       html: '<section id="qa-control-plane-card"></section>',
@@ -74,7 +74,7 @@ describe('ReleaseUxWizardService', () => {
   it('fails when rollback preview becomes executable or lacks confirmation', async () => {
     const service = new ReleaseUxWizardService({
       packageJson: packageJsonFixture(),
-      html: buildRuntimeShellHtml('/control'),
+      html: buildRuntimeShellHtml('/dashboard'),
       releasePresenceSnapshot: releasePresenceFixture({
         rollback: {
           ...releasePresenceFixture().rollback,
@@ -100,7 +100,7 @@ describe('ReleaseUxWizardService', () => {
   it('fails when operational changelog exposes unsafe payload language', async () => {
     const service = new ReleaseUxWizardService({
       packageJson: packageJsonFixture(),
-      html: buildRuntimeShellHtml('/control'),
+      html: buildRuntimeShellHtml('/dashboard'),
       releasePresenceSnapshot: releasePresenceFixture({
         changelog: {
           generatedFrom: 'publish-history+telemetry-ledger',
@@ -120,7 +120,7 @@ describe('ReleaseUxWizardService', () => {
   it('renders a human report with the next phase recommendation', async () => {
     const service = new ReleaseUxWizardService({
       packageJson: packageJsonFixture(),
-      html: buildRuntimeShellHtml('/control'),
+      html: buildRuntimeShellHtml('/dashboard'),
       releasePresenceSnapshot: releasePresenceFixture(),
     });
 

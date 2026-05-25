@@ -161,9 +161,9 @@ export class RuntimeAccessManifestService {
     const discordRepair = this.discordGatewayRepairFlowService.inspect(readiness.runtime.discordBridge);
     const healthRenewal = this.gatewayHealthRenewalService.inspect(readiness);
     const productMode = buildZavorthProductModeSnapshot(config.zavorthProductMode, config.zavorthProfile);
-    const localControlUrl = this.buildSurfaceUrl(readiness.local.baseUrl, '/control');
+    const localControlUrl = this.buildSurfaceUrl(readiness.local.baseUrl, '/dashboard');
     const remoteControlUrl = readiness.remote.baseUrl
-      ? this.buildSurfaceUrl(readiness.remote.baseUrl, '/control')
+      ? this.buildSurfaceUrl(readiness.remote.baseUrl, '/dashboard')
       : null;
     const channelExperience = this.productChannelExperienceService.buildSnapshot({
       productMode,
@@ -291,7 +291,7 @@ export class RuntimeAccessManifestService {
         },
         {
           id: 'remote-control',
-          label: 'Control UI remota',
+          label: 'Dashboard remota',
           description: readiness.remote.ready
             ? 'Abre o dashboard remoto ja validado para este runtime.'
             : 'Feche primeiro o rollout remoto oficial para abrir o dashboard remoto.',
@@ -352,7 +352,7 @@ export class RuntimeAccessManifestService {
           title: 'Subir o runtime supervisionado',
           description: readiness.local.ready
             ? `Runtime local pronto em ${localControlUrl}.`
-            : 'Abre a melhor superficie oficial e espera o /control responder de verdade.',
+            : 'Abre a melhor superficie oficial e espera o /dashboard responder de verdade.',
           command: readiness.local.ready ? null : productGoCommand,
           status: readiness.local.ready ? 'ready' : 'action',
         },
@@ -379,7 +379,7 @@ export class RuntimeAccessManifestService {
           title: 'Fechar a jornada web+telegram',
           description: channelExperience.recommendedJourney === 'web+telegram'
             ? 'Dashboard e Telegram ja cobrem a jornada principal deste runtime. Os outros canais seguem sob demanda.'
-            : 'Comece pelo web-only no /control. Quando quiser um canal externo, conecte Telegram antes dos demais.',
+            : 'Comece pelo web-only no /dashboard. Quando quiser um canal externo, conecte Telegram antes dos demais.',
           command: 'npm run setup:channels',
           status: 'optional',
         },
@@ -387,7 +387,7 @@ export class RuntimeAccessManifestService {
       surfaces: [
         {
           id: 'control',
-          label: 'Control UI',
+          label: 'Dashboard',
           surface: 'web',
           primary: true,
           ready: readiness.local.ready,
@@ -432,8 +432,8 @@ export class RuntimeAccessManifestService {
         local: [
           'Use zavorth go como caminho oficial mais curto para instalar, subir e abrir o Zavorth.',
           'Use npm run ops:journey para revisar a jornada oficial de instalacao e acesso.',
-          'Comece pela jornada web-only no /control e trate Telegram como o primeiro canal externo recomendado.',
-          'Use /app e /classic apenas como legado operacional com flag de manutencao; produto novo deve entrar no /control e na Runtime API.',
+          'Comece pela jornada web-only no /dashboard e trate Telegram como o primeiro canal externo recomendado.',
+          'Use /app e /classic apenas como legado operacional com flag de manutencao; produto novo deve entrar no /dashboard e na Runtime API.',
           'Use npm run setup:channels para fechar a jornada web+Telegram antes de pensar em Discord, Slack ou WhatsApp.',
           'Use npm run channels:install -- --json quando quiser inspecionar o panorama atual e os modos recomendados de cada canal.',
           'Se quiser o caminho completo com launcher, trust local e abertura automatica, use zavorth go.',
@@ -515,9 +515,9 @@ export class RuntimeAccessManifestService {
     const launcherCommand = 'npm run launcher:startup:install';
     const launcherSummary =
       'Startup oficial do Windows e opcional e bloqueado por padrao. So habilite conscientemente se voce realmente quiser login automatico.';
-    const localControlUrl = this.buildSurfaceUrl(readiness.local.baseUrl, '/control');
+    const localControlUrl = this.buildSurfaceUrl(readiness.local.baseUrl, '/dashboard');
     const remoteControlUrl = readiness.remote.baseUrl
-      ? this.buildSurfaceUrl(readiness.remote.baseUrl, '/control')
+      ? this.buildSurfaceUrl(readiness.remote.baseUrl, '/dashboard')
       : null;
     const remoteRecommendation = {
       ready: officialRemote.ready,
@@ -574,7 +574,7 @@ export class RuntimeAccessManifestService {
 
     return {
       primaryAction: 'open-local',
-      primaryLabel: 'Abrir Control UI',
+      primaryLabel: 'Abrir Dashboard',
       primarySummary: `Dashboard pronto em ${localControlUrl}.`,
       primaryCommand: null,
       openTarget: localControlUrl,

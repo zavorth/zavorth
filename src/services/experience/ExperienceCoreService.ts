@@ -87,6 +87,50 @@ function recordOrNull(value: unknown): Record<string, unknown> | null {
     : null;
 }
 
+function inferRequestedTimeZone(text: string): string {
+  const normalized = text
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .toLowerCase();
+  if (/\b(brasilia|sao\s+paulo|brazil|brasil)\b/.test(normalized)) return 'America/Sao_Paulo';
+  if (/\b(utc|gmt)\b/.test(normalized)) return 'UTC';
+  if (/\b(new\s+york|nyc|eastern)\b/.test(normalized)) return 'America/New_York';
+  if (/\b(london|londres)\b/.test(normalized)) return 'Europe/London';
+  if (/\b(tokyo|toquio)\b/.test(normalized)) return 'Asia/Tokyo';
+  return Intl.DateTimeFormat().resolvedOptions().timeZone || 'UTC';
+}
+
+function isSimpleDateTimeQuestion(text: string): boolean {
+  const normalized = text
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .toLowerCase();
+  const asksTime = /\b(que\s+horas|hora\s+atual|horas\s+sao|what\s+time|current\s+time|tell\s+me\s+the\s+time)\b/.test(normalized);
+  const asksDate = /\b(que\s+dia|data\s+atual|dia\s+de\s+hoje|what\s+date|today'?s\s+date|current\s+date)\b/.test(normalized);
+  return asksTime || asksDate;
+}
+
+function buildLocalDateTimeAnswer(text: string, now: Date): string | null {
+  if (!isSimpleDateTimeQuestion(text)) return null;
+  const timeZone = inferRequestedTimeZone(text);
+  try {
+    const formatted = new Intl.DateTimeFormat('pt-BR', {
+      timeZone,
+      weekday: 'long',
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit',
+      second: '2-digit',
+      timeZoneName: 'short',
+    }).format(now);
+    return `Agora em ${timeZone} é ${formatted}.`;
+  } catch {
+    return `Agora são ${now.toLocaleString('pt-BR')} no fuso local do sistema.`;
+  }
+}
+
 function action(input: {
   id: string;
   label: string;
@@ -430,6 +474,20 @@ export class ExperienceCoreService {
         };
       }
 
+      const localDateTimeAnswer = buildLocalDateTimeAnswer(command.text, this.now());
+      if (localDateTimeAnswer) {
+        const snapshot = this.buildHome(command);
+        return {
+          ok: true,
+          handled: true,
+          plan,
+          snapshot,
+          replies: [this.replyFromText(localDateTimeAnswer, command, snapshot.agent.activeRunId)],
+          receipts: snapshot.receipts,
+          error: null,
+        };
+      }
+
       let runResult: UniversalAgentRunResult | null = null;
       if (plan.shouldExecuteAgent && this.agentGateway) {
         runResult = await this.agentGateway.handle({
@@ -698,10 +756,10 @@ export class ExperienceCoreService {
       }),
       action({
         id: 'dashboard.open',
-        label: 'Abrir Command Center',
+        label: 'Abrir Dashboard',
         kind: 'navigation',
         command: 'zavorth open',
-        route: '/control',
+        route: '/dashboard',
         reason: 'Superficie visual oficial.',
       }),
     ];

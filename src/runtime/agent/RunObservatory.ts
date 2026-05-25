@@ -167,7 +167,7 @@ export type UniversalAgentRunObservatoryDiffPreview = {
     rollbackLabel: string;
     rollbackInstruction: string;
     rollbackArtifactPath: string | null;
-    commandCenterPath: string;
+    dashboardPath: string;
   };
 };
 
@@ -181,7 +181,7 @@ export type UniversalAgentRunObservatoryHealth = {
 };
 
 export type UniversalAgentRunObservatorySurface = {
-  commandCenterPath: string;
+  dashboardPath: string;
   cliCommand: string;
   filterHints: string[];
 };
@@ -590,7 +590,7 @@ function buildDiffPreviews(receipts: UniversalAgentRunObservatoryReceipt[]): Uni
             ? `Rollback artifact: ${rollbackArtifactPath}`
             : 'Depois do apply, o receipt vai apontar o artifact de rollback reversivel.',
           rollbackArtifactPath,
-          commandCenterPath: `/control?runId=${encodeURIComponent(receipt.runId)}`,
+          dashboardPath: `/dashboard?runId=${encodeURIComponent(receipt.runId)}`,
         },
       };
     })
@@ -697,7 +697,7 @@ function buildHealth(
       ? 'attention'
       : 'ready';
   const nextSafeAction = summary.failedRunCount > 0
-    ? 'Abrir /control?status=failed ou rodar zavorth observatory status failed --json.'
+    ? 'Abrir /dashboard?status=failed ou rodar zavorth observatory status failed --json.'
     : summary.pendingApprovalCount > 0
       ? 'Revisar approvals pendentes antes de retomar qualquer execucao.'
       : runs.length === 0
@@ -733,7 +733,7 @@ function buildSurface(query: UniversalAgentRunObservatoryQuery): UniversalAgentR
     params.set('status', statuses.join(','));
   }
   return {
-    commandCenterPath: `/control${params.toString() ? `?${params.toString()}` : ''}`,
+    dashboardPath: `/dashboard${params.toString() ? `?${params.toString()}` : ''}`,
     cliCommand: 'zavorth observatory --json',
     filterHints: [
       'runId',

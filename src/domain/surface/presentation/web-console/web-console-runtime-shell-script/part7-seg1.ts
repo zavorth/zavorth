@@ -317,7 +317,7 @@ export const runtimeShellScriptPart7Seg1: string = [
     "          title: 'Valide malha, acesso e providers',",
     "          summary: 'Host e remoto oficial estao prontos. Primeiro use a malha operacional do shell para revisar nodes, transportes e extensoes; depois feche a checagem completa.',",
     "          steps: [",
-    "            '<strong>Malha operacional:</strong> use os cards compactos de nodes, transportes e extensoes na Control UI.',",
+    "            '<strong>Malha operacional:</strong> use os cards compactos de nodes, transportes e extensoes na Dashboard.',",
     "            '<code>' + normalizeText(commands.ready || 'npm run ops:ready -- --trust-local') + '</code>',",
     "            '<code>npm run nodes:doctor -- --json</code>',",
     "            '<code>npm run test:nodes:smoke</code>',",

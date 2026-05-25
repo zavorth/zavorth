@@ -43,7 +43,7 @@ export class ZavorthSensitiveActionFlowUxService {
           : 'ready',
       card,
       source,
-      commandCenterProjection: {
+      dashboardProjection: {
         route: '/dashboard',
         renderMode: 'action-card',
         executionAuthority: false,
@@ -115,7 +115,7 @@ function buildCard(source: ZavorthSensitiveActionFlowSnapshot): ZavorthSensitive
     steps: buildSteps(source),
     actions: buildActions(source),
     safety: {
-      commandCenterCanExecute: false,
+      dashboardCanExecute: false,
       policyBrokerRequired: true,
       previewBeforeApply: true,
       receiptAlwaysGenerated: true,

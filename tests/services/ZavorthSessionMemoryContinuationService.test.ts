@@ -158,10 +158,10 @@ describe('ZavorthSessionMemoryContinuationService Runtime gateway', () => {
     }));
   });
 
-  it('projects session memory continuation state for Command Center', () => {
+  it('projects session memory continuation state for Dashboard', () => {
     const snapshot = createService().buildSnapshot();
 
-    expect(snapshot.commandCenterProjection).toEqual(expect.objectContaining({
+    expect(snapshot.dashboardProjection).toEqual(expect.objectContaining({
       title: 'Session Memory Continuation',
       status: 'session-memory-continuation-ready',
       tone: 'ready',
@@ -175,7 +175,7 @@ describe('ZavorthSessionMemoryContinuationService Runtime gateway', () => {
       ]),
       nextSafeAction: 'Proceed to 291 Surface controls - Delegated Workers.',
     }));
-    expect(snapshot.commandCenterProjection.cards.map((entry) => entry.id)).toEqual(expect.arrayContaining([
+    expect(snapshot.dashboardProjection.cards.map((entry) => entry.id)).toEqual(expect.arrayContaining([
       'history',
       'filtered',
       'context',

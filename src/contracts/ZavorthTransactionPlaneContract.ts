@@ -163,7 +163,7 @@ export const ZAVORTH_TRANSACTION_PLANE_INVARIANTS: readonly ZavorthTransactionPl
   {
     id: 'preview-before-effect',
     summary: 'The user must see amount, destination, fees, connector, risk and reversibility before any live effect.',
-    enforcedBy: ['preview engine', 'Command Center', 'Telegram approval'],
+    enforcedBy: ['preview engine', 'Dashboard', 'Telegram approval'],
   },
   {
     id: 'no-raw-secrets',

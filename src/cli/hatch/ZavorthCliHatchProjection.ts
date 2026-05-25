@@ -95,7 +95,7 @@ function buildChecklist(home: ReturnType<typeof buildZavorthCliHomeSnapshot>): Z
     },
     {
       id: 'dashboard',
-      title: 'Command Center',
+      title: 'Dashboard',
       status: home.runtime.dashboard === 'available' ? 'ready' : 'warning',
       detail: home.runtime.dashboard === 'available' ? 'available' : 'dashboard source missing',
     },
@@ -133,13 +133,13 @@ function buildNextActions(
   if (status === 'needs_approval' && approveCommand) {
     return [
       { label: 'Review approvals', command: approveCommand, detail: 'clear governed queue first' },
-      { label: 'Open Command Center', command: 'zavorth open', detail: 'visual approval flow' },
+      { label: 'Open Dashboard', command: 'zavorth open', detail: 'visual approval flow' },
       { label: 'Hatch after approval', command: 'zavorth hatch', detail: 'recheck session readiness' },
     ];
   }
   return [
     { label: 'Hatch in terminal', command: 'zavorth ask "wake up and review this workspace"', detail: 'natural LLM-first flow' },
-    { label: 'Open Command Center', command: 'zavorth open', detail: 'visual control plane' },
+    { label: 'Open Dashboard', command: 'zavorth open', detail: 'visual home' },
     { label: 'Start runtime', command: 'zavorth start', detail: 'delegates to existing start/go flow' },
   ];
 }

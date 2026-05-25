@@ -18,7 +18,6 @@ import { formatAdditionalCount, formatCliValue, formatCount, sanitizeHumanCliTex
 import { renderCliScreen, type CliVisualPanel } from './ZavorthCliVisualSystem.js';
 import {
   ZAVORTH_CLI_BRAND_NAME,
-  formatZavorthMascotBlock,
 } from './ZavorthCliMascot.js';
 import { padCliVisualText, paintCliTone, stripCliAnsi } from './ZavorthCliVisualTheme.js';
 import {
@@ -203,7 +202,6 @@ const CLI_HELP_TOPIC_ALIASES: Record<string, CliHelpTopic> = {
   go: 'go',
   dashboard: 'dashboard',
   control: 'dashboard',
-  'command-center': 'dashboard',
   commandcenter: 'dashboard',
   chat: 'chat',
   run: 'run',
@@ -285,48 +283,45 @@ const CLI_COMMAND_HELP_PAGES: Record<Exclude<CliHelpTopic, 'root'>, CliHelpPage>
   },
   hud: {
     topic: 'hud',
-    title: 'zavorth hud',
-    summary: 'Abre o cockpit de terminal com atalhos para home, diff, approvals e Command Center.',
+    title: 'zavorth tui / zavorth hud',
+    summary: 'Opens the daily terminal TUI with chat, timeline, approvals, diff, runtime, channels and logs.',
     sections: [
       {
-        title: 'Use quando',
+        title: 'Use when',
         entries: [
-          { summary: 'Voce quer uma tela operacional viva sem abrir o dashboard.' },
-          { summary: 'Voce quer revisar approvals e diff por atalhos seguros no terminal.' },
+          { summary: 'You want the daily operating surface without opening the dashboard.' },
+          { summary: 'You want one clean terminal view for chat state, approvals, diff, runtime health and channels.' },
         ],
       },
       {
-        title: 'Comandos',
+        title: 'Commands',
         entries: [
-          { command: 'zavorth hud', summary: 'Abre o HUD interativo quando o terminal suporta TTY.' },
-          { command: 'zavorth hud --once', summary: 'Mostra o mesmo cockpit em modo texto e sai.' },
-          { command: 'zavorth hud review', summary: 'Modo focado em revisar fila, diff e decisao.' },
-          { command: 'zavorth hud guide', summary: 'Fluxo guiado: selecionar, inspecionar, revisar diff, decidir e ver receipt.' },
-          { command: 'zavorth hud --json', summary: 'Exporta contrato estavel para automacao.' },
-          { command: 'zavorth hud --select 2', summary: 'Seleciona um plano pendente pelo indice.' },
-          { command: 'zavorth hud --action diff', summary: 'Seleciona o diff do primeiro approval pendente.' },
-          { command: 'zavorth hud --action approve --yes', summary: 'Aprova somente o plano; nao aplica no host.' },
-          { command: 'zavorth hud --action reject --yes', summary: 'Rejeita e bloqueia o plano com auditoria.' },
-          { command: 'zavorth hud --action defer --yes', summary: 'Adia o plano e registra receipt local.' },
+          { command: 'zavorth tui', summary: 'Open the daily operational terminal view.' },
+          { command: 'zavorth hud', summary: 'Alias for the same daily TUI.' },
+          { command: 'zavorth tui --json', summary: 'Export the stable runtime TUI contract.' },
+          { command: 'zavorth hud review', summary: 'Focused approval queue and decision mode.' },
+          { command: 'zavorth hud guide', summary: 'Guided approval flow: select, inspect, diff, decide, receipt.' },
+          { command: 'zavorth hud --action approve --yes', summary: 'Approve a plan only; never applies host changes.' },
+          { command: 'zavorth hud --action reject --yes', summary: 'Reject and block a plan with audit.' },
+          { command: 'zavorth hud --action defer --yes', summary: 'Defer a plan and keep a receipt.' },
         ],
       },
       {
-        title: 'Atalhos',
+        title: 'Daily keys',
         entries: [
-          { command: 'h', summary: 'Home.' },
-          { command: 'd', summary: 'Diff do plano selecionado.' },
-          { command: 'y y', summary: 'Aprovar em duas etapas; approval only.' },
-          { command: 'x x', summary: 'Rejeitar em duas etapas.' },
-          { command: 's s', summary: 'Adiar em duas etapas.' },
-          { command: '1-9', summary: 'Selecionar plano por indice.' },
-          { command: 'o', summary: 'Abrir Command Center.' },
-          { command: 'q', summary: 'Sair.' },
+          { command: 'p', summary: 'Open terminal chat.' },
+          { command: 'a', summary: 'Review approvals.' },
+          { command: 'd', summary: 'Open diff previews.' },
+          { command: 'c', summary: 'Check channel readiness.' },
+          { command: 'o', summary: 'Open Dashboard.' },
+          { command: 'r', summary: 'Refresh the TUI.' },
+          { command: 'q', summary: 'Quit.' },
         ],
       },
     ],
-    notesTitle: 'Seguro',
+    notesTitle: 'Safety',
     notes: [
-      'O HUD nunca aplica alteracoes no host. Ele apenas mostra, arma ou aprova planos governados.',
+      'The daily TUI routes actions. Sensitive work still requires preview, approval and receipts.',
     ],
   },
   hatch: {
@@ -338,7 +333,7 @@ const CLI_COMMAND_HELP_PAGES: Record<Exclude<CliHelpTopic, 'root'>, CliHelpPage>
         title: 'Use quando',
         entries: [
           { summary: 'Voce quer iniciar uma sessao real sem decorar start, setup, approvals ou dashboard.' },
-          { summary: 'Voce quer saber se deve aprovar algo, configurar provider ou abrir o Command Center.' },
+          { summary: 'Voce quer saber se deve aprovar algo, configurar provider ou abrir o Dashboard.' },
         ],
       },
       {
@@ -353,7 +348,7 @@ const CLI_COMMAND_HELP_PAGES: Record<Exclude<CliHelpTopic, 'root'>, CliHelpPage>
         title: 'Quando estiver pronto',
         entries: [
           { command: 'zavorth ask "acorde e revise este workspace"', summary: 'Primeiro prompt natural sugerido.' },
-          { command: 'zavorth open', summary: 'Abre o Command Center visual.' },
+          { command: 'zavorth open', summary: 'Abre o Dashboard visual.' },
           { command: 'zavorth start', summary: 'Liga ou retoma o runtime local.' },
         ],
       },
@@ -1174,7 +1169,7 @@ export function buildCliHelpSnapshot(target?: string | null): CliHelpSnapshot {
           { command: 'zavorth home', summary: 'Show status, approvals and next steps.' },
           { command: 'zavorth setup', summary: 'Guided setup for provider, channels, Mnemos and trust.' },
           { command: 'zavorth inspect', summary: 'Provider, workspace, channels, hooks, MCP and receipts.' },
-          { command: 'zavorth open', summary: 'Open the visual Command Center.' },
+          { command: 'zavorth open', summary: 'Open the visual Dashboard.' },
         ],
       },
       {
@@ -1273,7 +1268,7 @@ export function formatCliHelp(target?: string | null): string {
 
 function formatPublicCommandHelp(target?: string | null): string | null {
   const topic = String(target || '').trim().toLowerCase().split(/\s+/u)[0] || '';
-  const localGuidedPages = new Set(['home', 'hatch', 'quickstart']);
+  const localGuidedPages = new Set(['home', 'hatch', 'quickstart', 'setup', 'onboard', 'onboarding']);
   if (!localGuidedPages.has(topic)) {
     const parityHelp = formatZavorthParityHelp(topic);
     if (parityHelp) {
@@ -1491,8 +1486,10 @@ function formatPublicRootHelp(): string {
         formatCliHelpEntry({ command: 'zavorth chat', summary: 'Alias for the terminal agent session.' }),
         formatCliHelpEntry({ command: 'zavorth ask "review this repo"', summary: 'Run one governed request.' }),
         formatCliHelpEntry({ command: 'zavorth setup', summary: 'Configure provider, channels, Mnemos and trust.' }),
+        formatCliHelpEntry({ command: 'zavorth start', summary: 'Start or resume the local runtime.' }),
+        formatCliHelpEntry({ command: 'zavorth providers', summary: 'Inspect or configure model providers.' }),
         formatCliHelpEntry({ command: 'zavorth approve', summary: 'Review sensitive actions.' }),
-        formatCliHelpEntry({ command: 'zavorth open', summary: 'Open Command Center.' }),
+        formatCliHelpEntry({ command: 'zavorth open', summary: 'Open Dashboard.' }),
       ],
     },
     {
@@ -1561,22 +1558,12 @@ export function buildCliChatWelcomeSnapshot(): CliChatWelcomeSnapshot {
   };
 }
 
-const CLI_CHAT_FRAME_WIDTH = 66;
-
 function clipCliChatText(value: string, maxWidth: number): string {
   const normalized = stripCliAnsi(sanitizeHumanCliText(value)).replace(/\s+/g, ' ').trim();
   if (normalized.length <= maxWidth) {
     return normalized;
   }
   return `${normalized.slice(0, Math.max(0, maxWidth - 3)).trimEnd()}...`;
-}
-
-function clipCliChatVisualLine(value: string, maxWidth: number): string {
-  const visible = stripCliAnsi(value);
-  if (visible.length <= maxWidth) {
-    return value;
-  }
-  return clipCliChatText(value, maxWidth);
 }
 
 function formatCliChatWorkspaceLabel(): string {
@@ -1612,19 +1599,7 @@ function resolveCliChatCurrentModel(): string {
 }
 
 function formatCliChatRuntimeLabel(): string {
-  return `${resolveCliChatCurrentModel()} - conversa natural`;
-}
-
-function renderCliChatFrame(lines: string[]): string {
-  const border = '-'.repeat(CLI_CHAT_FRAME_WIDTH + 2);
-  return [
-    paintCliTone(`+${border}+`, 'muted'),
-    ...lines.map((line) => {
-      const clipped = clipCliChatVisualLine(line, CLI_CHAT_FRAME_WIDTH);
-      return `${paintCliTone('|', 'muted')} ${padCliVisualText(clipped, CLI_CHAT_FRAME_WIDTH)} ${paintCliTone('|', 'muted')}`;
-    }),
-    paintCliTone(`+${border}+`, 'muted'),
-  ].join('\n');
+  return `${resolveCliChatCurrentModel()} - natural chat`;
 }
 
 function formatCliChatCommand(entry: { command?: string; summary: string }): string {
@@ -1648,8 +1623,8 @@ function formatCliChatFooter(shortcuts: Array<{ command?: string; summary: strin
     : 'status | doctor | history | quit';
   return [
     paintCliTone('--------------------------------------------------------', 'muted'),
-    `${paintCliTone('?', 'muted')} atalhos: ${shortcutLine}`,
-    `${paintCliTone('seguro', 'success')}: acoes sensiveis pedem aprovacao antes de agir`,
+    `${paintCliTone('?', 'muted')} shortcuts: ${shortcutLine}`,
+    `${paintCliTone('safe', 'success')}: sensitive actions ask before they run`,
   ].join('\n');
 }
 
@@ -1657,21 +1632,21 @@ export function formatCliChatWelcome(): string {
   const snapshot = buildCliChatWelcomeSnapshot();
   const examples = snapshot.sections[0]?.entries || [];
   const shortcuts = snapshot.sections[1]?.entries || [];
-  const note = snapshot.notes[0] || 'Escreva seu pedido quando quiser.';
+  const note = snapshot.notes[0] || 'Type a request in your own words.';
   const workspaceLabel = formatCliChatWorkspaceLabel();
   const runtimeLabel = formatCliChatRuntimeLabel();
-  const header = renderCliChatFrame(formatZavorthMascotBlock([
-    paintCliTone(snapshot.title, 'brand'),
-    paintCliTone(runtimeLabel, 'muted'),
-    `${paintCliTone('Pasta', 'muted')} - ${clipCliChatText(workspaceLabel, 47)}`,
-  ]));
 
   return [
-    header,
-    `${paintCliTone('*', 'brand')} ${sanitizeHumanCliText(snapshot.summary)}`,
-    `${paintCliTone('Sugestoes', 'muted')}`,
+    paintCliTone('* Runtime connected', 'success'),
+    `${paintCliTone('zavorth', 'brand')} ${paintCliTone('agent', 'muted')} - ${paintCliTone(runtimeLabel, 'muted')}`,
+    '',
+    `${paintCliTone('workspace', 'muted')} ${clipCliChatText(workspaceLabel, 70)}`,
+    '',
+    `${paintCliTone("Hi, I'm Zavorth.", 'brand')} ${paintCliTone(sanitizeHumanCliText(snapshot.summary), 'muted')}`,
+    '',
+    `${paintCliTone('suggestions', 'muted')}`,
     examples.map((entry) => formatCliChatCommand(entry)).join('\n\n'),
-    `${paintCliTone('Dica', 'muted')}  ${sanitizeHumanCliText(note)}`,
+    `${paintCliTone('tip', 'muted')}  ${sanitizeHumanCliText(note)}`,
     formatCliChatFooter(shortcuts),
   ].filter(Boolean).join('\n\n');
 }

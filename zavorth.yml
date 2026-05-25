@@ -3,17 +3,17 @@ version: 1
 project:
   name: zavorth-core
   root: .
-  description: Local-first Zavorth runtime and Command Center workspace.
+  description: Local-first Zavorth runtime and Dashboard workspace.
 
 processes:
-  - id: command-center
-    name: Command Center Runtime
+  - id: dashboard
+    name: Dashboard Runtime
     command: npm run dev:supervised
     cwd: .
     restart: on-failure
     health:
       type: http
-      url: http://127.0.0.1:3000/control
+      url: http://127.0.0.1:3000/dashboard
 
   - id: runtime-check
     name: Runtime Typecheck
@@ -34,7 +34,7 @@ agents:
   - id: maintainer
     role: project-maintainer
     watches:
-      - command-center
+      - dashboard
       - runtime-check
       - gateway-check
     mode: suggest

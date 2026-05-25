@@ -52,7 +52,7 @@ describe('ZavorthEndToEndMissionFlowPublicRuntimeCertificationService Dashboard 
     expect(snapshot.summary.subagentSkillReady).toBe(true);
     expect(snapshot.summary.schedulerPerceptionDeviceReady).toBe(true);
     expect(snapshot.summary.publicRuntimeCanBypassPolicy).toBe(false);
-    expect(snapshot.summary.commandCenterCanExecute).toBe(false);
+    expect(snapshot.summary.dashboardCanExecute).toBe(false);
     expect(snapshot.summary.rawSecretsSerialized).toBe(false);
     expect(snapshot.summary.workspaceMutationPerformed).toBe(false);
     expect(snapshot.summary.externalIoPerformed).toBe(false);

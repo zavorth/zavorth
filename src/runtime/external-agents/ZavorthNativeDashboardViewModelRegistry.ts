@@ -3,8 +3,8 @@ import {
   normalizeZavorthNativeCapabilityRegistryReplacementFixture,
 } from './ZavorthNativeCapabilityRegistry.js';
 import {
-  normalizeExternalAgentCommandCenterLiveAssimilationFixture,
-} from './ExternalAgentCommandCenterLiveAssimilation.js';
+  normalizeExternalAgentDashboardLiveAssimilationFixture,
+} from './ExternalAgentDashboardLiveAssimilation.js';
 import {
   normalizeMessageTransportCapabilityDiscoveryFixture,
 } from './ExternalAgentRealMessageTransportCapabilityDiscovery.js';
@@ -25,20 +25,20 @@ import {
 } from './ExternalAgentExternalExecutorSessionHistoryReadOnlyBridge.js';
 import type {
   ZavorthNativeCapabilityRegistry,
-  ZavorthNativeCapabilityRegistryCommandCenterView,
+  ZavorthNativeCapabilityRegistryDashboardView,
   ZavorthNativeCapabilityRegistryReplacementNormalization,
 } from './ZavorthNativeCapabilityRegistry.js';
 import type {
-  ZavorthCommandCenterEventView,
-  ZavorthCommandCenterHealthStatusView,
-  ZavorthCommandCenterLiveAssimilationViewModel,
-  ZavorthCommandCenterMessageMetadataView,
-  ZavorthCommandCenterRuntimeView,
-  ZavorthCommandCenterSessionView,
-  ZavorthCommandCenterSurfaceView,
-  ExternalAgentCommandCenterLiveAssimilationNormalization,
-  ExternalAgentCommandCenterOperationalStatus,
-} from './ExternalAgentCommandCenterLiveAssimilation.js';
+  ZavorthDashboardEventView,
+  ZavorthDashboardHealthStatusView,
+  ZavorthDashboardLiveAssimilationViewModel,
+  ZavorthDashboardMessageMetadataView,
+  ZavorthDashboardRuntimeView,
+  ZavorthDashboardSessionView,
+  ZavorthDashboardSurfaceView,
+  ExternalAgentDashboardLiveAssimilationNormalization,
+  ExternalAgentDashboardOperationalStatus,
+} from './ExternalAgentDashboardLiveAssimilation.js';
 import type {
   ExternalExecutorLiveObservabilityProjectionNormalization,
 } from './ExternalAgentExternalExecutorLiveObservabilityProjection.js';
@@ -78,7 +78,7 @@ export type ZavorthNativeDashboardViewModelType =
   | 'transport-metadata';
 
 export type ZavorthNativeDashboardViewModelProvenanceKind =
-  | 'command-center-assimilation'
+  | 'dashboard-assimilation'
   | 'event-stream-adapter'
   | 'live-observability-projection'
   | 'live-read-only-bridge'
@@ -104,12 +104,12 @@ export type ZavorthNativeDashboardViewModelRecord = {
   viewType: ZavorthNativeDashboardViewModelType;
   label: string;
   summary: string;
-  status: ExternalAgentCommandCenterOperationalStatus;
+  status: ExternalAgentDashboardOperationalStatus;
   capabilityRegistryEntryId?: string;
   sourceViewContract: string;
   provenance: ZavorthNativeDashboardViewModelProvenance;
   readOnly: true;
-  commandCenterConsumable: true;
+  dashboardConsumable: true;
   runtimeExternalExecutorRequiredForDashboardViewLookup: false;
   runtimeExternalExecutorRequiredForDashboardRender: false;
   runtimeExternalExecutorRequiredForCapabilityLookup: false;
@@ -130,7 +130,7 @@ export type ZavorthNativeDashboardRenderedViewModel = {
   viewType: ZavorthNativeDashboardViewModelType;
   label: string;
   summary: string;
-  status: ExternalAgentCommandCenterOperationalStatus;
+  status: ExternalAgentDashboardOperationalStatus;
   capabilityRegistryEntryId?: string;
   hasInternalProvenance: true;
   sourceIdentityPublic: false;
@@ -153,7 +153,7 @@ export type ZavorthNativeDashboardRenderResult = {
 
 export type ZavorthNativeDashboardViewModelRegistryFilter = {
   viewType?: ZavorthNativeDashboardViewModelType;
-  status?: ExternalAgentCommandCenterOperationalStatus;
+  status?: ExternalAgentDashboardOperationalStatus;
   degradedOrUnavailable?: boolean;
   provenanceSourceKind?: ZavorthNativeDashboardViewModelProvenanceKind;
 };
@@ -175,7 +175,7 @@ export type ZavorthNativeDashboardViewModelRegistrySnapshot = {
   records: ZavorthNativeDashboardViewModelRecord[];
   indexes: {
     byType: Record<ZavorthNativeDashboardViewModelType, number>;
-    byStatus: Record<ExternalAgentCommandCenterOperationalStatus, number>;
+    byStatus: Record<ExternalAgentDashboardOperationalStatus, number>;
     degradedOrUnavailableIds: string[];
   };
   sourceArtifactsConsumed: {
@@ -184,7 +184,7 @@ export type ZavorthNativeDashboardViewModelRegistrySnapshot = {
     observabilityProjection: 'docs/external-executor-live-observability-projection.md';
     eventStreamAdapter: 'docs/external-executor-read-only-event-stream-adapter.md';
     sessionHistoryBridge: 'docs/external-executor-session-history-read-only-bridge.md';
-    commandCenterAssimilation: 'docs/command-center-live-assimilation.md';
+    dashboardAssimilation: 'docs/dashboard-live-assimilation.md';
     transportDiscovery: 'docs/real-message-transport-capability-discovery.md';
     nativeCapabilityRegistry: 'docs/first-native-capability-registry-replacement-slice.md';
   };
@@ -216,8 +216,8 @@ export type ZavorthNativeDashboardViewModelRegistryExecutionGate = {
 
 export type ZavorthNativeDashboardViewModelRegistryIntegration = {
   nativeContract: 'ZavorthNativeDashboardViewModelRegistryIntegration/v1';
-  commandCenterAdapterPrepared: true;
-  commandCenterConsumesNativeRegistry: true;
+  dashboardAdapterPrepared: true;
+  dashboardConsumesNativeRegistry: true;
   capabilityCardsFromNativeCapabilityRegistry: true;
   transportMetadataFromNativeCapabilityRegistry: true;
   liveExternalExecutorOptionalForRefreshOnly: true;
@@ -231,7 +231,7 @@ export type ZavorthNativeDashboardViewModelRegistrySource = {
   observabilityProjection: ExternalExecutorLiveObservabilityProjectionNormalization;
   eventStreamAdapter: ExternalExecutorReadOnlyEventStreamAdapterNormalization;
   sessionHistoryBridge: ExternalExecutorSessionHistoryReadOnlyBridgeNormalization;
-  commandCenterAssimilation: ExternalAgentCommandCenterLiveAssimilationNormalization;
+  dashboardAssimilation: ExternalAgentDashboardLiveAssimilationNormalization;
   transportDiscovery: ZavorthMessageTransportCapabilityDiscoveryNormalization;
   nativeCapabilityRegistry: ZavorthNativeCapabilityRegistryReplacementNormalization;
   capabilityRegistry: ZavorthNativeCapabilityRegistry;
@@ -252,7 +252,7 @@ export type ZavorthNativeDashboardViewModelRegistryNormalization = {
     observabilityProjection: ExternalExecutorLiveObservabilityProjectionNormalization['decision'];
     eventStreamAdapter: ExternalExecutorReadOnlyEventStreamAdapterNormalization['decision'];
     sessionHistoryBridge: ExternalExecutorSessionHistoryReadOnlyBridgeNormalization['decision'];
-    commandCenterAssimilation: ExternalAgentCommandCenterLiveAssimilationNormalization['decision'];
+    dashboardAssimilation: ExternalAgentDashboardLiveAssimilationNormalization['decision'];
     transportDiscovery: ZavorthMessageTransportCapabilityDiscoveryNormalization['decision'];
     nativeCapabilityRegistry: ZavorthNativeCapabilityRegistryReplacementNormalization['decision'];
   };
@@ -299,7 +299,7 @@ function emptyTypeIndex(): Record<ZavorthNativeDashboardViewModelType, number> {
   };
 }
 
-function emptyStatusIndex(): Record<ExternalAgentCommandCenterOperationalStatus, number> {
+function emptyStatusIndex(): Record<ExternalAgentDashboardOperationalStatus, number> {
   return {
     blocked: 0,
     degraded: 0,
@@ -331,7 +331,7 @@ function record(
   viewType: ZavorthNativeDashboardViewModelType,
   label: string,
   summary: string,
-  status: ExternalAgentCommandCenterOperationalStatus,
+  status: ExternalAgentDashboardOperationalStatus,
   sourceViewContract: string,
   provenanceKind: ZavorthNativeDashboardViewModelProvenanceKind,
   sourceEvidenceIds: string[],
@@ -348,7 +348,7 @@ function record(
     sourceViewContract,
     provenance: provenance(provenanceKind, sourceEvidenceIds),
     readOnly: true,
-    commandCenterConsumable: true,
+    dashboardConsumable: true,
     runtimeExternalExecutorRequiredForDashboardViewLookup: false,
     runtimeExternalExecutorRequiredForDashboardRender: false,
     runtimeExternalExecutorRequiredForCapabilityLookup: false,
@@ -364,7 +364,7 @@ function record(
   };
 }
 
-function viewTypeForCapability(view: ZavorthNativeCapabilityRegistryCommandCenterView): ZavorthNativeDashboardViewModelType {
+function viewTypeForCapability(view: ZavorthNativeCapabilityRegistryDashboardView): ZavorthNativeDashboardViewModelType {
   if (view.kind === 'plugin') {
     return 'plugin';
   }
@@ -386,7 +386,7 @@ function viewTypeForCapability(view: ZavorthNativeCapabilityRegistryCommandCente
   return 'capability';
 }
 
-function capabilitySummary(view: ZavorthNativeCapabilityRegistryCommandCenterView): string {
+function capabilitySummary(view: ZavorthNativeCapabilityRegistryDashboardView): string {
   return `Native capability registry card; ${view.authorityDisposition} authority disposition.`;
 }
 
@@ -395,7 +395,7 @@ function recordsFromCapabilityRegistry(
   startIndex: number,
   capabilityRegistry: ZavorthNativeCapabilityRegistry,
 ): ZavorthNativeDashboardViewModelRecord[] {
-  return capabilityRegistry.toCommandCenterViews().map((view, index) => (
+  return capabilityRegistry.toDashboardViews().map((view, index) => (
     record(
       idPrefix,
       startIndex + index,
@@ -414,8 +414,8 @@ function recordsFromCapabilityRegistry(
 function recordsFromHealth(
   idPrefix: string,
   startIndex: number,
-  runtime: ZavorthCommandCenterRuntimeView,
-  health: ZavorthCommandCenterHealthStatusView,
+  runtime: ZavorthDashboardRuntimeView,
+  health: ZavorthDashboardHealthStatusView,
 ): ZavorthNativeDashboardViewModelRecord[] {
   return [
     record(
@@ -426,8 +426,8 @@ function recordsFromHealth(
       'Runtime status projected from authenticated read-only evidence.',
       runtime.status,
       runtime.nativeContract,
-      'command-center-assimilation',
-      [runtime.id, 'docs/command-center-live-assimilation.md'],
+      'dashboard-assimilation',
+      [runtime.id, 'docs/dashboard-live-assimilation.md'],
     ),
     record(
       idPrefix,
@@ -446,7 +446,7 @@ function recordsFromHealth(
 function recordsFromEvents(
   idPrefix: string,
   startIndex: number,
-  events: ZavorthCommandCenterEventView[],
+  events: ZavorthDashboardEventView[],
 ): ZavorthNativeDashboardViewModelRecord[] {
   return events.map((event, index) => (
     record(
@@ -466,7 +466,7 @@ function recordsFromEvents(
 function recordsFromSessions(
   idPrefix: string,
   startIndex: number,
-  sessions: ZavorthCommandCenterSessionView[],
+  sessions: ZavorthDashboardSessionView[],
 ): ZavorthNativeDashboardViewModelRecord[] {
   return sessions.map((session, index) => (
     record(
@@ -486,7 +486,7 @@ function recordsFromSessions(
 function recordsFromMessages(
   idPrefix: string,
   startIndex: number,
-  messages: ZavorthCommandCenterMessageMetadataView[],
+  messages: ZavorthDashboardMessageMetadataView[],
 ): ZavorthNativeDashboardViewModelRecord[] {
   return messages.map((message, index) => (
     record(
@@ -507,7 +507,7 @@ function recordsFromSurfaces(
   idPrefix: string,
   startIndex: number,
   viewType: ZavorthNativeDashboardViewModelType,
-  surfaces: ZavorthCommandCenterSurfaceView[],
+  surfaces: ZavorthDashboardSurfaceView[],
   provenanceKind: ZavorthNativeDashboardViewModelProvenanceKind,
 ): ZavorthNativeDashboardViewModelRecord[] {
   return surfaces.map((surface, index) => (
@@ -520,7 +520,7 @@ function recordsFromSurfaces(
       surface.status,
       surface.nativeContract,
       provenanceKind,
-      [surface.id, 'docs/command-center-live-assimilation.md'],
+      [surface.id, 'docs/dashboard-live-assimilation.md'],
     )
   ));
 }
@@ -529,16 +529,16 @@ function buildRecords(
   idPrefix: string,
   source: ZavorthNativeDashboardViewModelRegistrySource,
 ): ZavorthNativeDashboardViewModelRecord[] {
-  const viewModel: ZavorthCommandCenterLiveAssimilationViewModel = source.commandCenterAssimilation.viewModel;
+  const viewModel: ZavorthDashboardLiveAssimilationViewModel = source.dashboardAssimilation.viewModel;
   const groups = [
     recordsFromCapabilityRegistry(idPrefix, 0, source.capabilityRegistry),
     recordsFromHealth(idPrefix, 1000, viewModel.runtime, viewModel.health),
     recordsFromEvents(idPrefix, 2000, viewModel.events),
     recordsFromSessions(idPrefix, 3000, viewModel.sessions),
     recordsFromMessages(idPrefix, 4000, viewModel.messages),
-    recordsFromSurfaces(idPrefix, 5000, 'channel', viewModel.channels, 'command-center-assimilation'),
-    recordsFromSurfaces(idPrefix, 6000, 'plugin', viewModel.plugins, 'command-center-assimilation'),
-    recordsFromSurfaces(idPrefix, 7000, 'provider', viewModel.providers, 'command-center-assimilation'),
+    recordsFromSurfaces(idPrefix, 5000, 'channel', viewModel.channels, 'dashboard-assimilation'),
+    recordsFromSurfaces(idPrefix, 6000, 'plugin', viewModel.plugins, 'dashboard-assimilation'),
+    recordsFromSurfaces(idPrefix, 7000, 'provider', viewModel.providers, 'dashboard-assimilation'),
     recordsFromSurfaces(idPrefix, 8000, 'gateway-lifecycle', viewModel.gatewayLifecycle, 'live-read-only-bridge'),
   ];
 
@@ -553,7 +553,7 @@ function byTypeIndex(records: ZavorthNativeDashboardViewModelRecord[]): Record<Z
   return index;
 }
 
-function byStatusIndex(records: ZavorthNativeDashboardViewModelRecord[]): Record<ExternalAgentCommandCenterOperationalStatus, number> {
+function byStatusIndex(records: ZavorthNativeDashboardViewModelRecord[]): Record<ExternalAgentDashboardOperationalStatus, number> {
   const index = emptyStatusIndex();
   records.forEach((entry) => {
     index[entry.status] += 1;
@@ -574,7 +574,7 @@ function sourceReady(source: ZavorthNativeDashboardViewModelRegistrySource): boo
     source.observabilityProjection.decision === 'external-executor-live-observability-projection-ready' &&
     source.eventStreamAdapter.decision === 'external-executor-read-only-event-stream-adapter-ready' &&
     source.sessionHistoryBridge.decision === 'external-executor-session-history-read-only-bridge-ready' &&
-    source.commandCenterAssimilation.decision === 'command-center-live-assimilation-ready' &&
+    source.dashboardAssimilation.decision === 'dashboard-live-assimilation-ready' &&
     source.transportDiscovery.decision === 'real-message-transport-capability-discovery-ready' &&
     source.nativeCapabilityRegistry.decision === 'native-capability-registry-replacement-ready' &&
     !source.mutableLiveLookupAttempted &&
@@ -604,7 +604,7 @@ function buildSnapshot(
       observabilityProjection: 'docs/external-executor-live-observability-projection.md',
       eventStreamAdapter: 'docs/external-executor-read-only-event-stream-adapter.md',
       sessionHistoryBridge: 'docs/external-executor-session-history-read-only-bridge.md',
-      commandCenterAssimilation: 'docs/command-center-live-assimilation.md',
+      dashboardAssimilation: 'docs/dashboard-live-assimilation.md',
       transportDiscovery: 'docs/real-message-transport-capability-discovery.md',
       nativeCapabilityRegistry: 'docs/first-native-capability-registry-replacement-slice.md',
     },
@@ -720,7 +720,7 @@ export function createZavorthNativeDashboardViewModelRegistryFixtureSource(): Za
     observabilityProjection: normalizeExternalExecutorLiveObservabilityProjectionFixture(),
     eventStreamAdapter: normalizeExternalExecutorReadOnlyEventStreamAdapterFixture(),
     sessionHistoryBridge: normalizeExternalExecutorSessionHistoryReadOnlyBridgeFixture(),
-    commandCenterAssimilation: normalizeExternalAgentCommandCenterLiveAssimilationFixture(),
+    dashboardAssimilation: normalizeExternalAgentDashboardLiveAssimilationFixture(),
     transportDiscovery: normalizeMessageTransportCapabilityDiscoveryFixture(),
     nativeCapabilityRegistry: normalizeZavorthNativeCapabilityRegistryReplacementFixture(),
     capabilityRegistry: createZavorthNativeCapabilityRegistryFixture(),
@@ -757,15 +757,15 @@ export function normalizeZavorthNativeDashboardViewModelRegistry<TRuntimeId exte
       observabilityProjection: options.source.observabilityProjection.decision,
       eventStreamAdapter: options.source.eventStreamAdapter.decision,
       sessionHistoryBridge: options.source.sessionHistoryBridge.decision,
-      commandCenterAssimilation: options.source.commandCenterAssimilation.decision,
+      dashboardAssimilation: options.source.dashboardAssimilation.decision,
       transportDiscovery: options.source.transportDiscovery.decision,
       nativeCapabilityRegistry: options.source.nativeCapabilityRegistry.decision,
     },
     registry,
     integration: {
       nativeContract: 'ZavorthNativeDashboardViewModelRegistryIntegration/v1',
-      commandCenterAdapterPrepared: true,
-      commandCenterConsumesNativeRegistry: true,
+      dashboardAdapterPrepared: true,
+      dashboardConsumesNativeRegistry: true,
       capabilityCardsFromNativeCapabilityRegistry: true,
       transportMetadataFromNativeCapabilityRegistry: true,
       liveExternalExecutorOptionalForRefreshOnly: true,

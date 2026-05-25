@@ -74,7 +74,7 @@ export type ZavorthExternalRuntimeCandidate = {
   zavorthOwner: {
     contract: string;
     service: string;
-    commandCenterProjection: string;
+    dashboardProjection: string;
   };
   safety: {
     dryRunFirst: true;
@@ -115,7 +115,7 @@ export type ZavorthExternalRuntimeBridgeSnapshot = {
     noDefaultExternalRuntimeBranding: true;
     compatibilityFixturesAreOptional: true;
     noSourceRuntimeCanonicalFields: true;
-    commandCenterMayShowAdapterDetailsOnly: true;
+    dashboardMayShowAdapterDetailsOnly: true;
   };
   summary: {
     candidateCount: number;
@@ -150,7 +150,7 @@ export type ZavorthExternalRuntimeBridgeSnapshot = {
     importedMemoryRequiresProvenance: true;
     importedSkillMutationRequiresApproval: true;
     readOnlyProbeBeforeLiveSidecar: true;
-    commandCenterProjectionRequired: true;
+    dashboardProjectionRequired: true;
     noImplementationPerformedByBridge: true;
   };
   commands: {

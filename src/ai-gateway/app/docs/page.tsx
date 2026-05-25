@@ -185,7 +185,7 @@ export default function DocsPage() {
             </div>
             <div className="flex flex-wrap gap-2">
               <Link
-                href="/control"
+                href="/dashboard"
                 className="px-3 py-2 rounded-lg border border-border text-sm hover:bg-bg transition-colors"
               >
                 {t("openDashboard")}

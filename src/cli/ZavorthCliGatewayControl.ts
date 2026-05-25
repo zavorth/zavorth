@@ -109,6 +109,8 @@ export function buildGatewayControlCliPayload(
         currentProvider: snapshot.providers.currentProvider,
         currentModel: snapshot.providers.currentModel,
       },
+      routing: snapshot.routing,
+      usage: snapshot.usage,
       cache: {
         status: snapshot.cache.status,
         sourceRoutes: snapshot.cache.sourceRoutes,
@@ -138,13 +140,20 @@ export function buildGatewayControlCliPayload(
   return {
     ...base,
     health: snapshot.health,
-    providers: {
-      summary: snapshot.providers.summary,
-      currentProvider: snapshot.providers.currentProvider,
-      currentModel: snapshot.providers.currentModel,
-    },
-    operations: snapshot.operations,
-  };
+      providers: {
+        summary: snapshot.providers.summary,
+        currentProvider: snapshot.providers.currentProvider,
+        currentModel: snapshot.providers.currentModel,
+      },
+      routing: snapshot.routing,
+      usage: snapshot.usage,
+      cache: {
+        status: snapshot.cache.status,
+        sourceRoutes: snapshot.cache.sourceRoutes,
+        warnings: snapshot.cache.warnings,
+      },
+      operations: snapshot.operations,
+    };
 }
 
 export function formatGatewayControlCliPayload(
@@ -188,23 +197,32 @@ export function formatGatewayControlCliPayload(
 
 export function formatGatewayControlStatusLine(payload: Record<string, unknown>): string {
   const ok = payload.ok === true;
-  return `- estado: ${ok ? 'ready' : 'attention'} | contrato: ${String(payload.contractVersion || 'unknown')}`;
+  return `- status: ${ok ? 'ready' : 'attention'} | contract: ${String(payload.contractVersion || 'unknown')}`;
 }
 
 export function formatGatewayControlStatus(payload: Record<string, unknown>): string[] {
   const health = asCliRecord(payload.health);
   const providers = asCliRecord(payload.providers);
   const providerSummary = asCliRecord(providers.summary);
+  const routing = asCliRecord(payload.routing);
+  const usage = asCliRecord(payload.usage);
+  const latency = asCliRecord(usage.latency);
+  const cost = asCliRecord(usage.cost);
+  const fallback = Array.isArray(routing.fallback) ? routing.fallback : [];
   const operations = Array.isArray(payload.operations) ? payload.operations : [];
 
   return [
-    `- saude: ${String(health.status || 'unknown')}`,
-    `- provider atual: ${String(providers.currentProvider || 'nao configurado')}`,
-    `- modelo atual: ${String(providers.currentModel || 'nao configurado')}`,
-    `- providers prontos: ${String(providerSummary.ready || 0)}/${String(providerSummary.total || 0)}`,
-    `- operacoes publicadas: ${String(operations.length)}`,
+    `- health: ${String(health.status || 'unknown')}`,
+    `- active route: ${String(routing.activeRouteId || providers.currentProvider || 'not configured')}`,
+    `- active provider: ${String(routing.activeProvider || providers.currentProvider || 'not configured')}`,
+    `- active model: ${String(routing.activeModel || providers.currentModel || 'not configured')}`,
+    `- fallback routes: ${String(fallback.length)}`,
+    `- providers ready: ${String(providerSummary.ready || 0)}/${String(providerSummary.total || 0)}`,
+    `- cache: ${String(asCliRecord(payload.cache).status || 'unknown')}`,
+    `- latency: ${latency.p50Ms == null ? 'pending' : `${String(latency.p50Ms)}ms`} | cost: ${cost.windowCostUsd == null ? 'pending' : `$${String(cost.windowCostUsd)}`}`,
+    `- published operations: ${String(operations.length)}`,
     '',
-    'Faca agora',
+    'Useful commands',
     '- zavorth gateway providers --json',
     '- zavorth gateway models --json',
     '- zavorth gateway combos --json',
@@ -370,6 +388,10 @@ export function formatGatewayControlDoctor(payload: Record<string, unknown>): st
   const health = asCliRecord(payload.health);
   const providers = asCliRecord(payload.providers);
   const providerSummary = asCliRecord(providers.summary);
+  const routing = asCliRecord(payload.routing);
+  const usage = asCliRecord(payload.usage);
+  const latency = asCliRecord(usage.latency);
+  const cost = asCliRecord(usage.cost);
   const aiGateway = asCliRecord(health.AIGateway);
   const cache = asCliRecord(payload.cache);
   const combos = asCliRecord(payload.combos);
@@ -378,16 +400,19 @@ export function formatGatewayControlDoctor(payload: Record<string, unknown>): st
   const operations = Array.isArray(payload.operations) ? payload.operations : [];
 
   return [
-    `- saude: ${String(health.status || 'unknown')}`,
-    `- provider control plane: ${health.providerControlPlaneAttached ? 'anexado' : 'ausente'}`,
+    `- health: ${String(health.status || 'unknown')}`,
+    `- provider control plane: ${health.providerControlPlaneAttached ? 'attached' : 'missing'}`,
     `- AIGateway: ${aiGateway.ready ? 'ready' : 'attention'} | running=${String(aiGateway.running === true)}`,
-    `- ultimo provider saudavel: ${String(health.lastHealthyProvider || 'nenhum')}`,
-    `- providers prontos: ${String(providerSummary.ready || 0)}/${String(providerSummary.total || 0)}`,
+    `- active route: ${String(routing.activeRouteId || 'not configured')}`,
+    `- active provider/model: ${String(routing.activeProvider || providers.currentProvider || 'not configured')} / ${String(routing.activeModel || providers.currentModel || 'not configured')}`,
+    `- last healthy provider: ${String(health.lastHealthyProvider || 'none')}`,
+    `- providers ready: ${String(providerSummary.ready || 0)}/${String(providerSummary.total || 0)}`,
     `- combos: ${String(combos.status || 'unknown')}`,
     `- cache: ${String(cache.status || 'unknown')}`,
+    `- latency: ${latency.p50Ms == null ? 'pending' : `${String(latency.p50Ms)}ms`} | cost: ${cost.windowCostUsd == null ? 'pending' : `$${String(cost.windowCostUsd)}`}`,
     `- rate limits: ${String(rateLimits.status || 'unknown')}`,
-    `- operacoes read-only: ${formatGatewayControlOperationList(operations)}`,
-    `- issues: ${issues.length > 0 ? issues.join('; ') : 'nenhum'}`,
+    `- read-only operations: ${formatGatewayControlOperationList(operations)}`,
+    `- issues: ${issues.length > 0 ? issues.join('; ') : 'none'}`,
   ];
 }
 

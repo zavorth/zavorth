@@ -14,18 +14,18 @@ type WriteJsonResponse = (res: http.ServerResponse, body: unknown, statusCode?: 
 
 export class WebConsoleAssetService {
   private readonly previewFiles: WebConsolePreviewFileService;
-  private readonly commandCenterReviewHtmlPath: string;
-  private readonly commandCenterShellDir: string;
+  private readonly dashboardReviewHtmlPath: string;
+  private readonly dashboardShellDir: string;
 
   constructor(workspaceRoot: string = process.cwd()) {
     this.previewFiles = new WebConsolePreviewFileService(workspaceRoot);
-    this.commandCenterReviewHtmlPath = path.resolve(
+    this.dashboardReviewHtmlPath = path.resolve(
       workspaceRoot,
       '.tmp',
-      'command-center-browser-preview',
+      'dashboard-browser-preview',
       'index.html',
     );
-    this.commandCenterShellDir = path.resolve(workspaceRoot, 'assets', 'command-center');
+    this.dashboardShellDir = path.resolve(workspaceRoot, 'assets', 'dashboard');
   }
 
   public handleStaticRoute(
@@ -34,11 +34,11 @@ export class WebConsoleAssetService {
     writeJson: WriteJsonResponse,
   ): boolean {
     const isDashboardPath = pathname === '/' || pathname === '/dashboard' || pathname === '/dashboard/';
-    const isControlPath = pathname === '/control' || pathname === '/control/';
+    const isControlPath = pathname === '/dashboard' || pathname === '/dashboard/';
     const isAppPath = pathname === '/app' || pathname === '/app/';
 
     if (isDashboardPath || isControlPath) {
-      this.writeInline(res, this.readCommandCenterShellHtml(), 'text/html; charset=utf-8');
+      this.writeInline(res, this.readDashboardShellHtml(), 'text/html; charset=utf-8');
       return true;
     }
 
@@ -52,11 +52,11 @@ export class WebConsoleAssetService {
     }
 
     if (pathname === '/dashboard/review' || pathname === '/dashboard/review/') {
-      if (!this.shouldServeCommandCenterReviewRoute()) {
+      if (!this.shouldServeDashboardReviewRoute()) {
         this.redirectToControl(res);
         return true;
       }
-      this.writeInline(res, this.readCommandCenterReviewHtml(), 'text/html; charset=utf-8');
+      this.writeInline(res, this.readDashboardReviewHtml(), 'text/html; charset=utf-8');
       return true;
     }
 
@@ -88,7 +88,7 @@ export class WebConsoleAssetService {
       || pathname.startsWith('/scripts/')
       || pathname.startsWith('/assets/')
     ) {
-      const staticAsset = this.readCommandCenterAsset(pathname);
+      const staticAsset = this.readDashboardAsset(pathname);
       if (staticAsset) {
         this.writeInline(res, staticAsset.content, staticAsset.contentType);
         return true;
@@ -116,7 +116,7 @@ export class WebConsoleAssetService {
     return this.previewFiles.readPreviewAsset(targetPath);
   }
 
-  private shouldServeCommandCenterReviewRoute(): boolean {
+  private shouldServeDashboardReviewRoute(): boolean {
     return this.isDevelopmentOrTestRuntime()
       && this.isTruthyFlag(process.env.ZAVORTH_COMMAND_CENTER_REVIEW_ENABLED);
   }
@@ -140,11 +140,11 @@ export class WebConsoleAssetService {
     return normalized === '1' || normalized === 'true' || normalized === 'yes' || normalized === 'on';
   }
 
-  private readCommandCenterReviewHtml(): string {
+  private readDashboardReviewHtml(): string {
     const explicitPath = String(process.env.ZAVORTH_COMMAND_CENTER_REVIEW_HTML || '').trim();
     const candidates = [
       explicitPath ? path.resolve(explicitPath) : null,
-      this.commandCenterReviewHtmlPath,
+      this.dashboardReviewHtmlPath,
     ].filter((candidate): candidate is string => Boolean(candidate));
 
     for (const candidate of candidates) {
@@ -153,23 +153,23 @@ export class WebConsoleAssetService {
       }
     }
 
-    return this.buildCommandCenterReviewFallbackHtml();
+    return this.buildDashboardReviewFallbackHtml();
   }
 
-  private readCommandCenterShellHtml(): string {
-    const shellPath = path.join(this.commandCenterShellDir, 'index.html');
+  private readDashboardShellHtml(): string {
+    const shellPath = path.join(this.dashboardShellDir, 'index.html');
     if (fs.existsSync(shellPath)) {
       return fs.readFileSync(shellPath, 'utf8');
     }
-    return this.readCommandCenterReviewHtml();
+    return this.readDashboardReviewHtml();
   }
 
-  private readCommandCenterAsset(
+  private readDashboardAsset(
     pathname: string,
   ): { content: string | Buffer; contentType: string } | null {
     const normalizedPath = pathname.replace(/^\/+/, '').replace(/\//g, path.sep);
-    const candidate = path.resolve(this.commandCenterShellDir, normalizedPath);
-    if (!candidate.startsWith(this.commandCenterShellDir + path.sep) || !fs.existsSync(candidate)) {
+    const candidate = path.resolve(this.dashboardShellDir, normalizedPath);
+    if (!candidate.startsWith(this.dashboardShellDir + path.sep) || !fs.existsSync(candidate)) {
       return null;
     }
     const stat = fs.statSync(candidate);
@@ -178,11 +178,11 @@ export class WebConsoleAssetService {
     }
     return {
       content: fs.readFileSync(candidate),
-      contentType: this.resolveCommandCenterAssetContentType(candidate),
+      contentType: this.resolveDashboardAssetContentType(candidate),
     };
   }
 
-  private resolveCommandCenterAssetContentType(filePath: string): string {
+  private resolveDashboardAssetContentType(filePath: string): string {
     const ext = path.extname(filePath).toLowerCase();
     if (ext === '.css') return 'text/css; charset=utf-8';
     if (ext === '.js') return 'application/javascript; charset=utf-8';
@@ -193,7 +193,7 @@ export class WebConsoleAssetService {
     return 'application/octet-stream';
   }
 
-  private buildCommandCenterReviewFallbackHtml(): string {
+  private buildDashboardReviewFallbackHtml(): string {
     return `<!doctype html>
 <html lang="en-US">
   <head>
@@ -214,7 +214,7 @@ export class WebConsoleAssetService {
       <span class="tag">Dashboard Review</span>
       <h1>The visual review bench has not been generated yet.</h1>
       <p>This route is internal and only reads HTML generated by the official fixture bench.</p>
-      <p>Run <code>npm run command-center:preview -- --fixture=safe-run</code> and reload <code>/dashboard/review?fixture=awaiting-approval</code>.</p>
+      <p>Run <code>npm run dashboard:preview -- --fixture=safe-run</code> and reload <code>/dashboard/review?fixture=awaiting-approval</code>.</p>
     </main>
   </body>
 </html>`;
@@ -239,7 +239,7 @@ export class WebConsoleAssetService {
 
   private redirectToControl(res: http.ServerResponse): void {
     res.writeHead(302, {
-      Location: '/control',
+      Location: '/dashboard',
       'Cache-Control': 'no-store',
     });
     res.end();

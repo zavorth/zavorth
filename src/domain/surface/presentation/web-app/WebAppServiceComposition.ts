@@ -110,7 +110,7 @@ async function handleSatelliteChatSend(
   });
   return {
     text: extractLatestAssistantText(result.snapshot)
-      || 'Pedido recebido pelo runtime. Abra o Command Center para acompanhar a execucao.',
+      || 'Pedido recebido pelo runtime. Abra o Dashboard para acompanhar a execucao.',
     streaming: false,
     artifacts: null,
   };

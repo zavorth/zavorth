@@ -173,8 +173,8 @@ function readinessPlane(routes: AccessRouteCatalogEntry[]) {
           openAiCompatible: [],
         },
         commands: [],
-        commandCenterProjection: {
-          route: '/control',
+        dashboardProjection: {
+          route: '/dashboard',
           endpoint: '/api/providers/readiness',
           executionAuthority: false,
           canRenderTestButtons: true,

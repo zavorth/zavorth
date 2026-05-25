@@ -20,7 +20,7 @@ describe('ZavorthDashboardFinalProductPolishService Intent model1', () => {
     expect(snapshot.summary.noControlSurfaceByDefault).toBe(true);
     expect(snapshot.summary.dashboardCanExecute).toBe(false);
     expect(snapshot.summary.rawSecretsSerialized).toBe(false);
-    expect(snapshot.safety.commandCenterIsDisplayOnly).toBe(true);
+    expect(snapshot.safety.dashboardIsDisplayOnly).toBe(true);
     expect(snapshot.safety.mutableExecutionStaysInRuntime).toBe(true);
     expect(snapshot.safety.approvalsRemainPolicyBrokerBound).toBe(true);
     expect(snapshot.entries.map((entry) => entry.label)).toEqual(expect.arrayContaining([

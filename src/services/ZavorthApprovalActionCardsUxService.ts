@@ -70,7 +70,7 @@ export class ZavorthApprovalActionCardsUxService {
         rawSecretsSerialized: false as const,
       },
       cards,
-      commandCenterProjection: {
+      dashboardProjection: {
         route: '/dashboard' as const,
         renderMode: 'interactive-action-cards' as const,
         executionAuthority: false as const,

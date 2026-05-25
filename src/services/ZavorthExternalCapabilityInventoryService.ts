@@ -103,7 +103,7 @@ const INVENTORY_ITEMS: InventoryItemDefinition[] = [
     stateConfigDependencies: ['provider error payloads', 'terminal stderr/stdout', 'retry budget', 'operator approval policy'],
     approvalRequiredForLive: false,
     provenanceRequired: true,
-    zavorthEquivalent: owner('ZavorthErrorClassifierContract', 'ZavorthErrorClassifierService', 'CommandCenterErrorRecoveryStrategy'),
+    zavorthEquivalent: owner('ZavorthErrorClassifierContract', 'ZavorthErrorClassifierService', 'DashboardErrorRecoveryStrategy'),
     acceptanceGate: 'Classifies representative provider/terminal/context failures and emits a Zavorth recovery receipt without retrying by itself.',
   }),
   item({
@@ -126,7 +126,7 @@ const INVENTORY_ITEMS: InventoryItemDefinition[] = [
     stateConfigDependencies: ['tool schema catalog', 'raw model tool-call payload', 'approval context', 'repair receipt store'],
     approvalRequiredForLive: false,
     provenanceRequired: true,
-    zavorthEquivalent: owner('ZavorthToolCallRepairContract', 'ZavorthToolCallRepairService', 'CommandCenterToolCallRepairReceipt'),
+    zavorthEquivalent: owner('ZavorthToolCallRepairContract', 'ZavorthToolCallRepairService', 'DashboardToolCallRepairReceipt'),
     acceptanceGate: 'Repair is parser/AST-first, cannot add authority, and dangerous repaired calls remain approval-gated.',
   }),
   item({
@@ -149,7 +149,7 @@ const INVENTORY_ITEMS: InventoryItemDefinition[] = [
     stateConfigDependencies: ['tool resource declarations', 'workspace path policy', 'write intent detector', 'run budget'],
     approvalRequiredForLive: false,
     provenanceRequired: true,
-    zavorthEquivalent: owner('ZavorthSafeToolParallelismContract', 'ZavorthSafeToolParallelismService', 'CommandCenterSafeParallelismPlan'),
+    zavorthEquivalent: owner('ZavorthSafeToolParallelismContract', 'ZavorthSafeToolParallelismService', 'DashboardSafeParallelismPlan'),
     acceptanceGate: 'Same-file writes and unknown resources serialize; parallel execution emits conflict receipts.',
   }),
   item({
@@ -172,7 +172,7 @@ const INVENTORY_ITEMS: InventoryItemDefinition[] = [
     stateConfigDependencies: ['skill library index', 'usage/failure receipts', 'diff snapshot store', 'rollback artifact store', 'approval envelope'],
     approvalRequiredForLive: true,
     provenanceRequired: true,
-    zavorthEquivalent: owner('ZavorthSkillCuratorContract', 'ZavorthSkillCuratorService', 'CommandCenterSkillCurationPlan'),
+    zavorthEquivalent: owner('ZavorthSkillCuratorContract', 'ZavorthSkillCuratorService', 'DashboardSkillCurationPlan'),
     acceptanceGate: 'Produces a dry-run diff and rollback snapshot; no skill write occurs without Zavorth approval.',
   }),
   item({
@@ -195,7 +195,7 @@ const INVENTORY_ITEMS: InventoryItemDefinition[] = [
     stateConfigDependencies: ['run observatory receipts', 'memory receipts', 'redaction policy', 'forget/correct commands'],
     approvalRequiredForLive: false,
     provenanceRequired: true,
-    zavorthEquivalent: owner('ZavorthProceduralMemoryContract', 'ZavorthProceduralMemoryService', 'CommandCenterProceduralMemoryReceipts'),
+    zavorthEquivalent: owner('ZavorthProceduralMemoryContract', 'ZavorthProceduralMemoryService', 'DashboardProceduralMemoryReceipts'),
     acceptanceGate: 'Every procedural memory has provenance and can be cited, corrected, or forgotten.',
   }),
   item({
@@ -218,7 +218,7 @@ const INVENTORY_ITEMS: InventoryItemDefinition[] = [
     stateConfigDependencies: ['extension manifests', 'skill manifests', 'plugin package metadata', 'source trust policy'],
     approvalRequiredForLive: false,
     provenanceRequired: true,
-    zavorthEquivalent: owner('ZavorthExternalCapabilityInventoryContract', 'ZavorthExternalCapabilityInventoryService', 'CommandCenterExternalCapabilityInventory'),
+    zavorthEquivalent: owner('ZavorthExternalCapabilityInventoryContract', 'ZavorthExternalCapabilityInventoryService', 'DashboardExternalCapabilityInventory'),
     acceptanceGate: 'Each external capability receives a Zavorth decision, source path, risk, equivalent, and proof gate before exposure.',
   }),
   item({
@@ -243,7 +243,7 @@ const INVENTORY_ITEMS: InventoryItemDefinition[] = [
     stateConfigDependencies: ['channel credentials', 'session mapping', 'reply ports', 'trust policy', 'rate limits'],
     approvalRequiredForLive: true,
     provenanceRequired: true,
-    zavorthEquivalent: owner('ZavorthExternalChannelGatewayContract', 'ZavorthExternalChannelGatewayService', 'CommandCenterExternalChannelGateway'),
+    zavorthEquivalent: owner('ZavorthExternalChannelGatewayContract', 'ZavorthExternalChannelGatewayService', 'DashboardExternalChannelGateway'),
     acceptanceGate: 'One inbound event enters ZavorthAgentGateway; outbound dry-run is evaluated by Zavorth policy and real send requires approval.',
   }),
   item({
@@ -269,7 +269,7 @@ const INVENTORY_ITEMS: InventoryItemDefinition[] = [
     stateConfigDependencies: ['credential refs', 'provider catalog', 'model metadata', 'billing/rate-limit policy', 'egress guard'],
     approvalRequiredForLive: true,
     provenanceRequired: true,
-    zavorthEquivalent: owner('ZavorthProviderMeshExpansionContract', 'ZavorthProviderMeshExpansionService', 'CommandCenterProviderMesh'),
+    zavorthEquivalent: owner('ZavorthProviderMeshExpansionContract', 'ZavorthProviderMeshExpansionService', 'DashboardProviderMesh'),
     acceptanceGate: 'Provider metadata imports as catalog evidence only; live provider calls require existing Zavorth provider policy.',
   }),
   item({
@@ -292,7 +292,7 @@ const INVENTORY_ITEMS: InventoryItemDefinition[] = [
     stateConfigDependencies: ['plugin manifest schema', 'source trust registry', 'package provenance', 'content scan', 'owner approval'],
     approvalRequiredForLive: true,
     provenanceRequired: true,
-    zavorthEquivalent: owner('ZavorthPluginOsContract', 'ZavorthPluginOsService', 'CommandCenterPluginOs'),
+    zavorthEquivalent: owner('ZavorthPluginOsContract', 'ZavorthPluginOsService', 'DashboardPluginOs'),
     acceptanceGate: 'Imported plugins remain quarantined until manifest, provenance, license, prompt-injection, and approval gates pass.',
   }),
   item({
@@ -316,7 +316,7 @@ const INVENTORY_ITEMS: InventoryItemDefinition[] = [
     stateConfigDependencies: ['memory backend', 'embedding provider', 'privacy filtering', 'retention policy', 'receipt ledger'],
     approvalRequiredForLive: false,
     provenanceRequired: true,
-    zavorthEquivalent: owner('ZavorthMemoryDocumentTerminalContract', 'MemoryWithReceiptsService', 'CommandCenterMemoryWithReceipts'),
+    zavorthEquivalent: owner('ZavorthMemoryDocumentTerminalContract', 'MemoryWithReceiptsService', 'DashboardMemoryWithReceipts'),
     acceptanceGate: 'Imported memories are advisory until normalized with receipt provenance and forget/correct affordances.',
   }),
   item({
@@ -340,7 +340,7 @@ const INVENTORY_ITEMS: InventoryItemDefinition[] = [
     stateConfigDependencies: ['task envelope', 'worker descriptor', 'timeout/cancellation policy', 'artifact mapping', 'approval envelope'],
     approvalRequiredForLive: true,
     provenanceRequired: true,
-    zavorthEquivalent: owner('ZavorthDelegatedWorkerBridgeContract', 'ZavorthDelegatedWorkerBridgeService', 'CommandCenterDelegatedWorkerBridge'),
+    zavorthEquivalent: owner('ZavorthDelegatedWorkerBridgeContract', 'ZavorthDelegatedWorkerBridgeService', 'DashboardDelegatedWorkerBridge'),
     acceptanceGate: 'Worker dispatch is dry-run first, launch is approval-gated, and results return only as Zavorth artifacts/events/status.',
   }),
   item({
@@ -364,7 +364,7 @@ const INVENTORY_ITEMS: InventoryItemDefinition[] = [
     stateConfigDependencies: ['platform signing', 'native build chain', 'device pairing', 'release feed', 'owner product decision'],
     approvalRequiredForLive: true,
     provenanceRequired: true,
-    zavorthEquivalent: owner('ZavorthNativeCompanionDeviceContract', 'ZavorthNativeCompanionDeviceService', 'CommandCenterNativeCompanion'),
+    zavorthEquivalent: owner('ZavorthNativeCompanionDeviceContract', 'ZavorthNativeCompanionDeviceService', 'DashboardNativeCompanion'),
     acceptanceGate: 'Owner chooses native wrappers or certifies PWA/companion replacement before any native app work starts.',
   }),
   item({
@@ -388,7 +388,7 @@ const INVENTORY_ITEMS: InventoryItemDefinition[] = [
     stateConfigDependencies: ['local QA runner', 'security rule metadata', 'release channel policy', 'CI parity decision'],
     approvalRequiredForLive: false,
     provenanceRequired: true,
-    zavorthEquivalent: owner('ZavorthQaSecurityReleaseCertificationContract', 'ZavorthQaSecurityReleaseCertificationService', 'CommandCenterReleaseReadiness'),
+    zavorthEquivalent: owner('ZavorthQaSecurityReleaseCertificationContract', 'ZavorthQaSecurityReleaseCertificationService', 'DashboardReleaseReadiness'),
     acceptanceGate: 'Convert only valuable scenarios into Zavorth-native checks; do not copy workflow YAML blindly.',
   }),
   item({
@@ -408,10 +408,10 @@ const INVENTORY_ITEMS: InventoryItemDefinition[] = [
     ],
     evidenceDocs: ACP_COMPATIBILITY_DOCS,
     observedBehavior: 'Public docs, i18n tooling, and separate control UI are useful comparison material but not a direct Zavorth runtime target.',
-    stateConfigDependencies: ['docs product decision', 'i18n roadmap', 'Command Center UX comparison'],
+    stateConfigDependencies: ['docs product decision', 'i18n roadmap', 'Dashboard UX comparison'],
     approvalRequiredForLive: false,
     provenanceRequired: false,
-    zavorthEquivalent: owner('ZavorthPublicSiteDocsDemoSyncContract', 'PublicSiteDocsDemoSyncService', 'CommandCenterPublicDocsSync'),
+    zavorthEquivalent: owner('ZavorthPublicSiteDocsDemoSyncContract', 'PublicSiteDocsDemoSyncService', 'DashboardPublicDocsSync'),
     acceptanceGate: 'Use as checklist input only; no source UI/docs copy unless a separate product decision approves it.',
   }),
 ];
@@ -689,12 +689,12 @@ function compatibilitySidecarPath(relativePath: string, role: string): Inventory
 function owner(
   contract: string,
   service: string,
-  commandCenterProjection: string,
+  dashboardProjection: string,
 ): ZavorthExternalCapabilityInventoryItem['zavorthEquivalent'] {
   return {
     contract,
     service,
-    commandCenterProjection,
+    dashboardProjection,
     publicName: 'Zavorth',
   };
 }

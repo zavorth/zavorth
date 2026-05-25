@@ -6,7 +6,7 @@
 
 - [ ] Runtime
 - [ ] Security
-- [ ] Command Center / UI
+- [ ] Dashboard / UI
 - [ ] CLI
 - [ ] Channel Mesh
 - [ ] Provider / integration

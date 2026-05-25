@@ -98,7 +98,7 @@ export class ZavorthDoItWithMeService {
         capability: useCapability ? capability : null,
         mission: useCapability ? null : mission,
         dashboardRoute: '/dashboard',
-        commandCenterCanExecute: false,
+        dashboardCanExecute: false,
       },
       safety: {
         projectionOnly: true,

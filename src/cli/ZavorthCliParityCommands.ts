@@ -29,7 +29,7 @@ const COMMANDS: ZavorthCliParityCommand[] = [
   { name: 'configure', summary: 'Interactive configuration.', usage: 'zavorth configure', description: 'Friendly alias for guided provider/channel/trust setup.', status: 'ready', examples: [['zavorth configure', 'Open QuickStart setup.']] },
   { name: 'cron', summary: 'Schedule and inspect background jobs.', usage: 'zavorth cron [command]', description: 'Prepare scheduled task inspection and background job management.', status: 'prepared', commands: [['list', 'List scheduled jobs.'], ['run', 'Run a scheduled job.'], ['doctor', 'Diagnose scheduling.']], examples: [['zavorth cron list', 'Show scheduled jobs when configured.']] },
   { name: 'daemon', summary: 'Manage the local runtime service.', usage: 'zavorth daemon [command]', description: 'Service-oriented alias for runtime start/status/log operations.', status: 'prepared', commands: [['start', 'Start local runtime service.'], ['stop', 'Stop local runtime service.'], ['status', 'Show service status.']], examples: [['zavorth daemon status', 'Inspect service state.']] },
-  { name: 'dashboard', summary: 'Open the visual Command Center.', usage: 'zavorth dashboard', description: 'Open the local visual control plane.', status: 'ready', examples: [['zavorth dashboard', 'Open Command Center.']] },
+  { name: 'dashboard', summary: 'Open the visual Dashboard.', usage: 'zavorth dashboard', description: 'Open the local visual control plane.', status: 'ready', examples: [['zavorth dashboard', 'Open Dashboard.']] },
   { name: 'devices', summary: 'Device pairing and token management.', usage: 'zavorth devices [command]', description: 'Prepare paired-device flows for mobile and remote operators.', status: 'prepared', commands: [['pair', 'Pair a device.'], ['list', 'List paired devices.'], ['revoke', 'Revoke a device.']], examples: [['zavorth devices list', 'Inspect paired devices.']] },
   { name: 'directory', summary: 'Lookup contact, peer and group IDs.', usage: 'zavorth directory [command]', description: 'Channel directory lookup for supported messaging surfaces.', status: 'prepared', commands: [['self', 'Show current channel identity.'], ['peers', 'List peers.'], ['groups', 'List groups.']], examples: [['zavorth directory self --channel telegram', 'Show current Telegram identity.']] },
   { name: 'dns', summary: 'DNS and discovery helpers.', usage: 'zavorth dns [command]', description: 'Discovery helper namespace for remote nodes and local network setup.', status: 'prepared', commands: [['status', 'Show DNS/discovery status.'], ['doctor', 'Diagnose discovery.']], examples: [['zavorth dns status', 'Inspect discovery status.']] },
@@ -163,11 +163,25 @@ function renderPremiumCommandHelp(input: {
 
 function premiumBox(title: string, lines: string[]): string {
   const cleanTitle = String(title || 'Zavorth').trim();
+  const columns = Number(process.stdout?.columns || 0);
+  const availableWidth = columns > 0 ? Math.max(48, Math.min(BORDER_WIDTH, columns - 4)) : BORDER_WIDTH;
+  const panelWidth = Math.min(availableWidth, Math.max(44, cleanTitle.length + 8, ...lines.map((line) => visibleWidth(line) + 4)));
+  return renderParityBox(cleanTitle, lines, panelWidth);
   const width = Math.min(BORDER_WIDTH, Math.max(44, cleanTitle.length + 8, ...lines.map((line) => visibleWidth(line) + 4)));
   const inner = width - 4;
   const titleText = ` ${cleanTitle} `;
   const top = `╭─${titleText}${'─'.repeat(Math.max(0, width - titleText.length - 3))}╮`;
   const body = lines.flatMap((line) => wrapLine(line, width - 4))
+    .map((line) => `│ ${line.padEnd(inner)} │`);
+  const bottom = `╰${'─'.repeat(width - 2)}╯`;
+  return [top, ...body, bottom].join('\n');
+}
+
+function renderParityBox(title: string, lines: string[], width: number): string {
+  const inner = width - 4;
+  const titleText = ` ${title} `;
+  const top = `╭${titleText}${'─'.repeat(Math.max(0, width - visibleWidth(titleText) - 2))}╮`;
+  const body = lines.flatMap((line) => wrapLine(line, inner))
     .map((line) => `│ ${line.padEnd(inner)} │`);
   const bottom = `╰${'─'.repeat(width - 2)}╯`;
   return [top, ...body, bottom].join('\n');

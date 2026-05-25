@@ -96,7 +96,7 @@ export type ZavorthCrossSurfaceApiProjection = {
   };
 };
 
-export type ZavorthCommandCenterRuntimeProjection = {
+export type ZavorthDashboardRuntimeProjection = {
   projectionId: string;
   title: string;
   statusPill: ZavorthToolOrchestrationVerificationStatus;
@@ -113,7 +113,7 @@ export type ZavorthCrossSurfaceProjectionReceipt = {
     | 'surface-card'
     | 'channel-fallback'
     | 'api-projection'
-    | 'command-center-view-model'
+    | 'dashboard-view-model'
     | 'visual-change-boundary';
   surface: ZavorthCrossSurfaceProjectionSurface | 'all';
   status: 'recorded' | 'requires-verification' | 'requires-approval' | 'blocked';
@@ -122,7 +122,7 @@ export type ZavorthCrossSurfaceProjectionReceipt = {
 
 export type ZavorthCrossSurfaceProjectionSafety = {
   noDashboardVisualMutation: true;
-  commandCenterIsViewModelOnly: true;
+  dashboardIsViewModelOnly: true;
   noLiveActionExecuted: true;
   sameSemanticsAcrossSurfaces: true;
   telegramNotPrivileged: true;
@@ -145,7 +145,7 @@ export type ZavorthCrossSurfaceRuntimeProjectionSnapshot = {
   toolOrchestration: ZavorthToolOrchestrationVerificationSnapshot;
   surfaceCards: ZavorthCrossSurfaceProjectionCard[];
   apiProjection: ZavorthCrossSurfaceApiProjection;
-  commandCenterProjection: ZavorthCommandCenterRuntimeProjection;
+  dashboardProjection: ZavorthDashboardRuntimeProjection;
   channelFallbacks: Record<ZavorthCrossSurfaceProjectionSurface, string>;
   receipts: ZavorthCrossSurfaceProjectionReceipt[];
   safety: ZavorthCrossSurfaceProjectionSafety;
@@ -156,7 +156,7 @@ export type ZavorthCrossSurfaceRuntimeProjectionSnapshot = {
     actionCount: number;
     approvalActions: number;
     disabledActions: number;
-    commandCenterVisualMutation: false;
+    dashboardVisualMutation: false;
   };
   commands: {
     report: 'npx tsx scripts/zavorth-cross-surface-runtime-projection.ts --text "<request>"';

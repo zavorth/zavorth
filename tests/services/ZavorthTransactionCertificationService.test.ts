@@ -36,7 +36,7 @@ describe('ZavorthTransactionCertificationService', () => {
         expect.objectContaining({ kind: 'approval-gate', passed: true }),
         expect.objectContaining({ kind: 'credential-ref-gate', passed: true }),
         expect.objectContaining({ kind: 'typed-connector-simulation', passed: true }),
-        expect.objectContaining({ kind: 'command-center-projection', passed: true }),
+        expect.objectContaining({ kind: 'dashboard-projection', passed: true }),
         expect.objectContaining({ kind: 'secret-redaction', passed: true }),
         expect.objectContaining({ kind: 'no-live-execution', passed: true }),
       ]),

@@ -1,4 +1,3 @@
-import { renderZavorthSetupStudioPlan } from '../ZavorthSetupStudioService.js';
 import type { ZavorthSetupStudioSnapshot } from './ZavorthSetupStudioSchema.js';
 import {
   buildZavorthSetupStudioSnapshot,
@@ -15,74 +14,64 @@ export function buildZavorthSetupStudioDryRunScreen(
 
 export function renderZavorthSetupStudioSnapshot(snapshot: ZavorthSetupStudioSnapshot): string {
   const existingConfig = [
-    `profile   ${snapshot.existingConfig.profileExists ? 'detected' : 'not found'}`,
-    `.env      ${snapshot.existingConfig.envExists ? 'detected' : 'not found'}`,
-    `provider  ${snapshot.existingConfig.configuredProvider || 'not configured'}`,
-    `model     ${snapshot.existingConfig.configuredModel || 'not configured'}`,
-    `channels  ${snapshot.existingConfig.configuredChannels.join(', ') || 'none'}`,
+    `profile: ${snapshot.existingConfig.profileExists ? 'detected' : 'not found'}`,
+    `.env: ${snapshot.existingConfig.envExists ? 'detected' : 'not found'}`,
+    `provider: ${snapshot.existingConfig.configuredProvider || 'not configured'}`,
+    `model: ${snapshot.existingConfig.configuredModel || 'not configured'}`,
+    `channels: ${snapshot.existingConfig.configuredChannels.join(', ') || 'none'}`,
   ];
-  const channelLines = snapshot.channelGuide.map((channel) => {
-    const status = channel.status === 'ready'
-      ? 'ready'
-      : channel.status === 'recommended'
-        ? 'recommended'
-        : channel.status === 'missing-config'
-          ? 'needs config'
-          : 'available';
-    return `- ${channel.label}: ${status} (${channel.setupCommand})`;
-  });
-  const skillLines = [
-    `eligible              ${snapshot.skills.eligible}`,
-    `missing requirements  ${snapshot.skills.missingRequirements}`,
-    `unsupported on OS     ${snapshot.skills.unsupportedOnThisOs}`,
-    `blocked by policy     ${snapshot.skills.blockedByPolicy}`,
-    '',
-    ...snapshot.skills.highlights.map((item) => `- ${item}`),
+  const selectedChannels = [
+    snapshot.plan.channels.telegram !== 'skip' ? `Telegram: ${snapshot.plan.channels.telegram}` : null,
+    snapshot.plan.channels.discord !== 'skip' ? `Discord: ${snapshot.plan.channels.discord}` : null,
+    snapshot.plan.channels.slack !== 'skip' ? `Slack: ${snapshot.plan.channels.slack}` : null,
+    snapshot.plan.channels.email !== 'skip' ? `Email: ${snapshot.plan.channels.email}` : null,
+  ].filter(Boolean) as string[];
+  const channelSummary = selectedChannels.length > 0
+    ? selectedChannels
+    : ['No remote channel selected. Terminal and Dashboard remain available.'];
+  const readinessLines = [
+    `skills: ${snapshot.skills.eligible} eligible, ${snapshot.skills.missingRequirements} missing requirement(s)`,
+    `gateway: ${snapshot.gateway.installed ? 'detected' : 'needs build'} (${snapshot.gateway.recommendedRuntime})`,
+    `dashboard: ${snapshot.controlUi.url}`,
+    `token: ${snapshot.controlUi.tokenStatus}`,
   ];
-  const gatewayLines = [
-    `runtime  ${snapshot.gateway.recommendedRuntime}`,
-    `gateway  ${snapshot.gateway.installed ? 'detected' : 'needs build'}`,
-    `start    ${snapshot.gateway.startCommand}`,
-    `control  ${snapshot.controlUi.url}`,
-    `token    ${snapshot.controlUi.tokenStatus}`,
-    '',
-    snapshot.gateway.detail,
-  ];
+  const providerLine = snapshot.plan.provider.id === 'deferred'
+    ? 'Provider: configure later'
+    : `Provider: ${snapshot.plan.provider.id} / ${snapshot.plan.provider.modelId}`;
+  const envLine = snapshot.plan.envUpdates.length === 0
+    ? '.env updates: none'
+    : `.env updates: ${snapshot.plan.envUpdates.length} key(s), secrets redacted`;
+  const automationLine = snapshot.plan.hooks.enabled
+    ? `Automation: ${snapshot.plan.hooks.templates.length} template(s), disabled until reviewed`
+    : 'Automation: skip';
   const sections = [
-    onboardingSection('Security', setupSecurityNoticeLines()),
-    onboardingSection('Setup Studio', [
-      snapshot.safety.dryRun ? 'Dry-run preview. No files will be changed.' : 'Guided setup for provider, channels, Mnemos and trust.',
+    onboardingSection('Security', setupSecurityNoticeLines({ compact: true })),
+    onboardingSection('First Light', [
+      snapshot.safety.dryRun ? 'Preview only. No files will be changed.' : 'Guided setup for provider, channels, Mnemos and trust.',
       `Workspace: ${snapshot.projectRoot}`,
       `Mode: ${snapshot.mode}`,
       `Config handling: ${snapshot.configHandling}`,
       'Safety: preview + approval + receipts',
     ]),
-    onboardingSection('Existing config', existingConfig),
-    onboardingSection('Setup plan', renderZavorthSetupStudioPlan(snapshot.plan).split('\n')),
-    onboardingSection('Channels', channelLines),
-    onboardingSection('Web search', [
-      `provider  ${snapshot.webSearch.provider}`,
-      `status    ${snapshot.webSearch.status}`,
+    onboardingSection('Current config', existingConfig),
+    onboardingSection('Plan', [
+      providerLine,
+      `Web/search: ${snapshot.webSearch.provider}`,
+      `Mnemos: ${snapshot.plan.memory.mode} / ${snapshot.plan.memory.vaultScope}`,
+      automationLine,
+      envLine,
       '',
-      ...snapshot.webSearch.options.map((option) => `- ${option.label}: ${option.detail}${option.requiresSecret ? ' [key]' : ''}`),
+      ...channelSummary,
     ]),
-    onboardingSection('Skills status', skillLines),
-    onboardingSection('Automation templates', [
-      snapshot.hooks.configured ? 'Automation templates prepared.' : 'No automation templates prepared yet.',
-      'Optional templates for reminders, receipts and Mnemos summaries.',
-      'They stay disabled until you review and enable them.',
-      `Setup: ${snapshot.hooks.setupCommand}`,
+    onboardingSection('Readiness', readinessLines),
+    onboardingSection('What happens next', [
+      'Setup will not start persistent services automatically.',
+      'Sensitive actions still require policy, approval and receipts.',
+      'Detailed catalogs stay available through inspect, channels, skills and doctor.',
       '',
-      ...snapshot.hooks.examples.map((example) => `- ${example}`),
+      ...snapshot.hatch.commands.slice(0, 2).map((command) => `- ${command}`),
     ]),
-    onboardingSection('Gateway service runtime', gatewayLines),
-    onboardingSection('Hatch your agent', [
-      `mode: ${snapshot.hatch.recommendedMode}`,
-      `prompt: ${snapshot.hatch.bootstrapPrompt}`,
-      '',
-      ...snapshot.hatch.commands.map((command) => `- ${command}`),
-    ]),
-    onboardingSection('Next actions', snapshot.nextActions
+    onboardingSection('Next actions', snapshot.nextActions.slice(0, 4)
       .map((action) => `> ${action.label}\n  ${action.command}${action.detail ? `\n  ${action.detail}` : ''}`)
       .flatMap((line) => line.split('\n'))),
   ];
@@ -97,7 +86,7 @@ export function renderZavorthSetupStudioSnapshot(snapshot: ZavorthSetupStudioSna
     renderZavorthOnboardingBrandLine(),
     '',
     '',
-    'o  Zavorth first light',
+    `o  ${orange('First Light')}`,
     '|',
     ...sections.flat(),
   ].join('\n');
@@ -122,10 +111,10 @@ export function renderZavorthSetupStudioFinalReview(snapshot: ZavorthSetupStudio
     `Automation: ${snapshot.plan.hooks.enabled ? `${snapshot.plan.hooks.templates.length} templates prepared disabled` : 'skip'}`,
     `.env updates: ${updates === 0 ? 'none' : `${updates} key(s), secrets redacted`}`,
     '',
-    'No runtime service will be started.',
+    'No persistent runtime service will be started.',
     'Sensitive actions still require policy, approval and receipts.',
   ];
-  return compactSection('Setup review', lines);
+  return compactSection('First Light review', lines);
 }
 
 export function renderZavorthSetupAppliedSummary(snapshot: ZavorthSetupStudioSnapshot, result: {
@@ -144,7 +133,7 @@ export function renderZavorthSetupAppliedSummary(snapshot: ZavorthSetupStudioSna
     'Next commands:',
     ...snapshot.plan.nextCommands.map((command) => `- ${command}`),
   ];
-  return compactSection('Setup complete', lines);
+  return compactSection('First Light complete', lines);
 }
 
 export function renderZavorthOnboardingWordmark(): string {
@@ -176,7 +165,25 @@ export function renderZavorthSetupSecurityNotice(): string {
   }).join('\n');
 }
 
-function setupSecurityNoticeLines(): string[] {
+function setupSecurityNoticeLines(options: { compact?: boolean } = {}): string[] {
+  if (options.compact) {
+    return [
+      'Security warning - please read.',
+      '',
+      'Zavorth can route natural language into providers, channels and local tools.',
+      'Remote channels should be paired or allowlisted before they can reach tools.',
+      'Sensitive work stays behind preview, policy, approval, sandbox and receipts.',
+      '',
+      'Baseline:',
+      '- Keep secrets out of prompts, logs, screenshots and reachable files.',
+      '- Use allowlists for shared or remote channels.',
+      '- Use sandbox and least-privilege tools for mutations.',
+      '',
+      'Run regularly:',
+      'zavorth security audit',
+      'zavorth certify',
+    ];
+  }
   return [
     'Security warning - please read.',
     '',

@@ -79,7 +79,7 @@ export type NaturalCapabilityDiscoverySnapshot = {
   }>;
   surface: {
     cliCommand: string;
-    commandCenterPath: string;
+    dashboardPath: string;
   };
   nextSafeAction: string;
 };
@@ -393,7 +393,7 @@ export class NaturalCapabilityDiscoveryService {
       receipts: this.buildReceipts(recommendations, quarantine),
       surface: {
         cliCommand: `zavorth discover "${text || '<pedido>'}" --json`,
-        commandCenterPath: '/control?sector=skills',
+        dashboardPath: '/dashboard?sector=skills',
       },
       nextSafeAction: this.nextSafeAction(recommendations, quarantine),
     };

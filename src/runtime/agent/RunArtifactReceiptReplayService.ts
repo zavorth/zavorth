@@ -186,7 +186,7 @@ export type RunArtifactReceiptReplaySnapshot = {
   };
   surface: {
     cliCommand: string;
-    commandCenterPath: string;
+    dashboardPath: string;
     replayHint: string;
     receiptHint: string;
   };
@@ -392,7 +392,7 @@ export class RunArtifactReceiptReplayService {
       },
       surface: {
         cliCommand: `zavorth replay run ${run.id} --json`,
-        commandCenterPath: `/control?runId=${encodeURIComponent(run.id)}`,
+        dashboardPath: `/dashboard?runId=${encodeURIComponent(run.id)}`,
         replayHint: 'Replay usa eventos, artifacts e receipts; nao reexecuta ferramentas.',
         receiptHint: 'Receipts citam origem de feature, artifact e observatory antes de reutilizar.',
       },

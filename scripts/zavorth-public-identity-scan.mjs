@@ -148,9 +148,9 @@ function resolvePublicIdentityPaths(manifest) {
     'scripts/setup-v3.ts',
     'scripts/install-zavorth.ps1',
     'scripts/install-zavorth.sh',
-    'src/ai-gateway/app/(dashboard)/control/page.tsx',
-    'src/ai-gateway/app/(dashboard)/control/controlPageClient.header.tsx',
-    'src/ai-gateway/app/(dashboard)/control/command-center/projections/zavorthAgentGatewayRuntimeProjection.ts',
+    'src/ai-gateway/app/(dashboard)/dashboard/page.tsx',
+    'src/ai-gateway/app/(dashboard)/dashboard/dashboardPageClient.header.tsx',
+    'src/ai-gateway/app/(dashboard)/dashboard/dashboard/projections/zavorthAgentGatewayRuntimeProjection.ts',
   ]);
 
   for (const entry of manifest.files || []) {

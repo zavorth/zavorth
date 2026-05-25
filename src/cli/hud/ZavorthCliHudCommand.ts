@@ -30,7 +30,7 @@ export type RunZavorthCliHudResult = {
 export function runZavorthCliHud(input: RunZavorthCliHudInput): RunZavorthCliHudResult {
   const args = input.args || [];
   const mutationPlane = input.mutationPlane || new ZavorthMutationPlaneService();
-  const runtimeMode = args.includes('--runtime') || args[0] === 'runtime' || args.includes('--tui') || args[0] === 'tui';
+  const runtimeMode = shouldRenderRuntimeTui(args, input.inputKeys || []);
   if (runtimeMode) {
     const snapshot = buildZavorthCliRuntimeTuiSnapshot({
       projectRoot: input.projectRoot,
@@ -165,7 +165,7 @@ function executeHudAction(input: {
     return { attempted: true, key: 'h', status: 'shown', command: 'zavorth', message: 'Home shortcut selected.' };
   }
   if (action === 'open') {
-    return { attempted: true, key: 'o', status: 'opened', command: 'zavorth open', message: 'Command Center shortcut selected.' };
+    return { attempted: true, key: 'o', status: 'opened', command: 'zavorth open', message: 'Dashboard shortcut selected.' };
   }
   if (action === 'diff') {
     const planId = resolvePlanId(input.mutationPlane, input.targetPlanId, input.selectedIndex);
@@ -434,6 +434,25 @@ function readFlag(args: string[], name: string): string | null {
   }
   const index = args.indexOf(`--${name}`);
   return index >= 0 && args[index + 1] && !args[index + 1].startsWith('--') ? args[index + 1] : null;
+}
+
+function shouldRenderRuntimeTui(args: string[], inputKeys: string[]): boolean {
+  const first = String(args[0] || '').trim().toLowerCase();
+  if (args.includes('--runtime') || first === 'runtime' || args.includes('--tui') || first === 'tui') {
+    return true;
+  }
+  if (inputKeys.length > 0) {
+    return false;
+  }
+  const hasApprovalAction = args.includes('--action')
+    || args.some((arg) => arg.startsWith('--action='))
+    || args.includes('--plan')
+    || args.some((arg) => arg.startsWith('--plan='))
+    || args.includes('--select')
+    || args.some((arg) => arg.startsWith('--select='))
+    || first === 'review'
+    || first === 'guide';
+  return !hasApprovalAction;
 }
 
 function readIntegerFlag(args: string[], name: string): number | null {

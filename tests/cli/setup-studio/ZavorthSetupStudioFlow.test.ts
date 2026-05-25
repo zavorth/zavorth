@@ -64,16 +64,14 @@ describe('Zavorth Setup Studio premium flow', () => {
       dryRun: true,
     });
 
-    expect(output).toContain('Setup Studio');
+    expect(output).toContain('First Light');
     expect(output).toContain('Security warning');
-    expect(output).toContain('Web search');
-    expect(output).toContain('Skills status');
-    expect(output).toContain('Gateway service runtime');
-    expect(output).toContain('Automation templates');
-    expect(output).toContain('Hatch your agent');
+    expect(output).toContain('Web/search: google');
+    expect(output).toContain('Readiness');
+    expect(output).toContain('Automation: 2 template(s), disabled until reviewed');
+    expect(output).toContain('What happens next');
     expect(output).toContain('zavorth setup');
-    expect(output).toContain('OPENAI_API_KEY=sk-...lue');
-    expect(output).toContain('GEMINI_API_KEY=goo...lue');
+    expect(output).toContain('secrets redacted');
     expect(output).not.toContain('sk-very-secret-value');
     expect(output).not.toContain('telegram-secret-token');
     expect(output).not.toContain('discord-secret-token');

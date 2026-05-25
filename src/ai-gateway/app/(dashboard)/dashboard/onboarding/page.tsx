@@ -88,7 +88,7 @@ export default function OnboardingWizard() {
           const settings = await res.json();
           resolveApiEndpoint(settings?.apiPort);
           if (settings.setupComplete) {
-            router.replace("/control");
+            router.replace("/dashboard");
             return;
           }
         }
@@ -337,7 +337,7 @@ export default function OnboardingWizard() {
     } catch {
       // Non-critical
     }
-    router.push("/control");
+    router.push("/dashboard");
   };
 
   if (loading) {

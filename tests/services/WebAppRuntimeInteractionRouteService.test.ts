@@ -374,7 +374,7 @@ describe('WebAppRuntimeInteractionRouteService', () => {
     expect(handled).toBe(true);
     expect(handle).toHaveBeenCalledWith(
       expect.objectContaining({
-        requestId: 'command-center-apply-draft-plan-risk3-1',
+        requestId: 'dashboard-apply-draft-plan-risk3-1',
         traceId: 'trace-draft-1',
         userId: 'ana',
         sessionId: 'session-web-1',
@@ -385,9 +385,9 @@ describe('WebAppRuntimeInteractionRouteService', () => {
           intelligenceFabricApplyDraftPlanId: 'plan-risk3-1',
           intelligenceFabricApplyDraftGuidance: true,
           intelligenceFabricApproveDraftPlan: true,
-          intelligenceFabricApprovalId: 'command-center:plan-risk3-1',
-          commandCenterApplyDraft: expect.objectContaining({
-            source: 'CommandCenter',
+          intelligenceFabricApprovalId: 'dashboard:plan-risk3-1',
+          dashboardApplyDraft: expect.objectContaining({
+            source: 'Dashboard',
             runId: sourceRun.id,
             sessionId: sourceRun.sessionId,
             confirmOwnerControlledApply: true,
@@ -413,7 +413,7 @@ describe('WebAppRuntimeInteractionRouteService', () => {
     );
   });
 
-  it('demotes Intelligence Fabric from Command Center with explicit owner confirmation', async () => {
+  it('demotes Intelligence Fabric from Dashboard with explicit owner confirmation', async () => {
     const service = new WebAppRuntimeInteractionRouteService();
     const writeJson = jest.fn();
     const sourceRun = {
@@ -482,7 +482,7 @@ describe('WebAppRuntimeInteractionRouteService', () => {
     expect(handled).toBe(true);
     expect(handle).toHaveBeenCalledWith(
       expect.objectContaining({
-        requestId: 'command-center-demote-fabric',
+        requestId: 'dashboard-demote-fabric',
         traceId: 'trace-fabric-1',
         userId: 'ana',
         sessionId: 'session-web-1',
@@ -492,8 +492,8 @@ describe('WebAppRuntimeInteractionRouteService', () => {
         metadata: expect.objectContaining({
           intelligenceFabricMode: 'disabled',
           intelligenceFabricDemoteControlled: true,
-          commandCenterDemoteFabric: expect.objectContaining({
-            source: 'CommandCenter',
+          dashboardDemoteFabric: expect.objectContaining({
+            source: 'Dashboard',
             runId: sourceRun.id,
             sessionId: sourceRun.sessionId,
             status: 'degraded',

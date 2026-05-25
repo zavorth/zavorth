@@ -78,7 +78,7 @@ export type ExternalAgentPluginCommandDescriptorBoundaryNormalization<TRuntimeId
   generatedAt: string;
   runtimeId: TRuntimeId;
   descriptors: ExternalAgentZavorthCommandDescriptor[];
-  commandCenter: {
+  dashboard: {
     catalogRows: ExternalAgentCommandDescriptorCatalogRow[];
   };
   toolExposurePolicyInput: ToolExposurePolicyInput;
@@ -102,7 +102,7 @@ function commandLabel(index: number, fixtureCase: ExternalAgentPluginCommandDesc
   return `Command descriptor ${index + 1}`;
 }
 
-function commandCenterStatus(risk: UniversalToolRiskLevel): ExternalAgentCommandDescriptorCatalogRow['status'] {
+function dashboardStatus(risk: UniversalToolRiskLevel): ExternalAgentCommandDescriptorCatalogRow['status'] {
   return risk === 'danger' ? 'blocked' : 'available';
 }
 
@@ -140,12 +140,12 @@ export function normalizeExternalAgentPluginCommandDescriptors<TRuntimeId extend
     generatedAt: options.generatedAt,
     runtimeId: options.runtimeId,
     descriptors,
-    commandCenter: {
+    dashboard: {
       catalogRows: descriptors.map((descriptor) => ({
         id: `${descriptor.id}:catalog-row`,
         commandId: descriptor.id,
         label: descriptor.label,
-        status: commandCenterStatus(descriptor.risk),
+        status: dashboardStatus(descriptor.risk),
         policy: descriptor.risk === 'danger' ? 'blocked' : 'metadata-only',
       })),
     },

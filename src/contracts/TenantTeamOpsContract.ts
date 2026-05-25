@@ -135,5 +135,5 @@ export const TENANT_TEAM_OPS_CONTRACTS = [
   'Permissoes segmentadas devem mostrar owners, guilds, channels e acoes guiadas por tenant.',
   'Relatorios por projeto usam workspaceRoot e source snapshots de governance sem publicar dados sensiveis.',
   'Memoria e artifacts ficam representados por escopos de tenant/contexto, sem misturar payloads entre clientes ou ambientes.',
-  'A Control UI deve expor identidade, policy, permissoes e isolamento com comandos copiaveis.',
+  'A Dashboard deve expor identidade, policy, permissoes e isolamento com comandos copiaveis.',
 ];

@@ -54,7 +54,7 @@ async function clickVisible(page, selector) {
 }
 
 async function runDesktopAndMobileFlowQa() {
-  const htmlUrl = pathToFileURL(path.join(root, 'assets/command-center/index.html')).href;
+  const htmlUrl = pathToFileURL(path.join(root, 'assets/dashboard/index.html')).href;
   const viewports = [
     { name: 'desktop', width: 1366, height: 900 },
     { name: 'mobile', width: 390, height: 844 },
@@ -89,18 +89,18 @@ async function runDesktopAndMobileFlowQa() {
 
 function runStaticProductQa() {
   [
-    'assets/command-center/index.html',
-    'assets/command-center/scripts/app.js',
-    'assets/command-center/styles/chat.css',
+    'assets/dashboard/index.html',
+    'assets/dashboard/scripts/app.js',
+    'assets/dashboard/styles/chat.css',
     'src/zavorth-cli.ts',
     'scripts/zavorth-personal-flow-check.mjs',
     'scripts/zavorth-developer-flow-check.mjs',
     'scripts/zavorth-business-flow-check.mjs',
   ].forEach(assertFile);
 
-  const html = read('assets/command-center/index.html');
-  const app = read('assets/command-center/scripts/app.js');
-  const css = read('assets/command-center/styles/chat.css');
+  const html = read('assets/dashboard/index.html');
+  const app = read('assets/dashboard/scripts/app.js');
+  const css = read('assets/dashboard/styles/chat.css');
   const cli = read('src/zavorth-cli.ts');
 
   [

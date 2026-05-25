@@ -130,7 +130,7 @@ function buildHudShortcuts(selectedPlanId: string | null, pendingApprovals: numb
       command: 'zavorth open',
       requiresConfirmation: false,
       enabled: true,
-      detail: 'open Command Center',
+      detail: 'open Dashboard',
     },
     {
       key: 'r',

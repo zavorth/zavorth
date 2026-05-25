@@ -81,6 +81,6 @@ describe('Zavorth CLI Public Adoption Pilot Loop Public Adoption Pilot', () => {
     expect(text).toContain('coleta implicita nao foi ligada');
     expect(text).toContain('payload de workspace nao foi armazenado');
     expect(text).toContain('dashboard usa apenas agregados');
-    expect(text).toContain('Command Center: /control?runId=');
+    expect(text).toContain('Dashboard: /dashboard?runId=');
   });
 });

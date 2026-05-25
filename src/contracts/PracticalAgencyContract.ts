@@ -14,7 +14,7 @@ export type ConversationalAgencyMessage = {
   body: string;
   nextAction: string;
   detailsHiddenByDefault: true;
-  commandCenterDetailsAvailable: true;
+  dashboardDetailsAvailable: true;
   internalTermsSuppressed: string[];
 };
 

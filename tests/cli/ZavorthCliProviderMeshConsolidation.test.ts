@@ -77,6 +77,6 @@ describe('Zavorth CLI Provider Mesh Consolidation', () => {
     expect(text).toContain('Provider Mesh / Model Picker Consolidation - Channel mesh3');
     expect(text).toContain('P0-extra');
     expect(text).toContain('nenhum provider foi executado');
-    expect(text).toContain('Command Center: /control?sector=config');
+    expect(text).toContain('Dashboard: /dashboard?sector=config');
   });
 });

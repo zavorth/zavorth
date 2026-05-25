@@ -156,7 +156,7 @@ export type ReleaseCandidatePreCanaryGateSnapshot = {
   };
   surface: {
     cliCommand: string;
-    commandCenterPath: string;
+    dashboardPath: string;
     evidencePackCommand: 'npm run qa:release-train';
     integrationCommand: 'npm run qa:integration-showcase';
     autopilotCommand: 'npm run qa:capability-autopilot-release-candidate';
@@ -332,7 +332,7 @@ export class ReleaseCandidatePreCanaryGateService {
       },
       surface: {
         cliCommand: `zavorth release-candidate-pre-canary run ${run.id} --json`,
-        commandCenterPath: `/control?runId=${encodeURIComponent(run.id)}&sector=config`,
+        dashboardPath: `/dashboard?runId=${encodeURIComponent(run.id)}&sector=config`,
         evidencePackCommand: 'npm run qa:release-train',
         integrationCommand: 'npm run qa:integration-showcase',
         autopilotCommand: 'npm run qa:capability-autopilot-release-candidate',
@@ -683,8 +683,8 @@ export class ReleaseCandidatePreCanaryGateService {
       },
       {
         id: 'control',
-        label: 'Command Center',
-        routeOrCommand: '/control?sector=config',
+        label: 'Dashboard',
+        routeOrCommand: '/dashboard?sector=config',
         status: 'ready',
         detail: 'Config mostra evidence pack, ecossistema, Autopilot e go/no-go.',
       },

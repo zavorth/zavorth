@@ -23,7 +23,7 @@ describe('Session ownership registry', () => {
       runId: 'run-1',
       taskId: 'task-1',
       metadata: {
-        route: 'command-center',
+        route: 'dashboard',
       },
     });
 
@@ -39,7 +39,7 @@ describe('Session ownership registry', () => {
       createdAt: '2026-04-27T15:00:00.000Z',
       lastSeenAt: '2026-04-27T15:00:00.000Z',
       metadata: {
-        route: 'command-center',
+        route: 'dashboard',
       },
     }));
   });

@@ -26,7 +26,7 @@ describe('ZavorthVisualReceiptUxService', () => {
       approvalsPending: 1,
       rawSecretsSerialized: false,
     }));
-    expect(snapshot.commandCenterProjection).toEqual(expect.objectContaining({
+    expect(snapshot.dashboardProjection).toEqual(expect.objectContaining({
       route: '/dashboard',
       executionAuthority: false,
       renderMode: 'projection-only',
@@ -34,7 +34,7 @@ describe('ZavorthVisualReceiptUxService', () => {
     expect(snapshot.cards[0]).toEqual(expect.objectContaining({
       safety: expect.objectContaining({
         rawSecretsSerialized: false,
-        commandCenterCanExecute: false,
+        dashboardCanExecute: false,
         projectionOnly: true,
       }),
       advanced: expect.objectContaining({
@@ -102,7 +102,7 @@ function receipt(overrides: Partial<{
     advanced: {
       policyBroker: 'required',
       trustPlane: 'active',
-      commandCenterCanExecute: false,
+      dashboardCanExecute: false,
       sandboxMutationMode: 'dry-run',
       approvalOptions: ['view_preview'],
       artifacts: ['artifact-1'],

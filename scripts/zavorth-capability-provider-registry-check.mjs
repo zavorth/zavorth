@@ -70,7 +70,7 @@ function ruleContainsMarkers() {
       'normalizeCapability',
       'importSkillManifest',
       'classifyToolRisk',
-      'buildCommandCenterProjection',
+      'buildDashboardProjection',
       'dangerous-capabilities-require-approval',
       'quarantined-capabilities-cannot-expose-tools',
       'unavailable-capabilities-fail-honestly',

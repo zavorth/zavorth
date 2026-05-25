@@ -261,8 +261,8 @@ describe('DashboardEchoRouteService', () => {
         id: 'perm-1',
         approved: false,
         sessionId: 'command-session',
-        surface: 'command-center',
-        requestedBy: 'command-center',
+        surface: 'dashboard',
+        requestedBy: 'dashboard',
       }),
       createRes(),
       new URL('http://localhost/api/v2/nexus/permissions/resolve'),
@@ -273,8 +273,8 @@ describe('DashboardEchoRouteService', () => {
     expect(handled).toBe(true);
     expect(echo.resolvePermission).toHaveBeenCalledWith('perm-1', false, {
       sessionId: 'command-session',
-      surface: 'command-center',
-      requestedBy: 'command-center',
+      surface: 'dashboard',
+      requestedBy: 'dashboard',
       channel: undefined,
       chatId: undefined,
       threadId: undefined,

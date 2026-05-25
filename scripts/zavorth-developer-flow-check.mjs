@@ -4,18 +4,18 @@ import path from 'node:path';
 const root = process.cwd();
 
 for (const file of [
-  'assets/command-center/index.html',
-  'assets/command-center/scripts/app.js',
-  'assets/command-center/styles/chat.css',
+  'assets/dashboard/index.html',
+  'assets/dashboard/scripts/app.js',
+  'assets/dashboard/styles/chat.css',
 ]) {
   if (!existsSync(path.join(root, file))) {
     throw new Error(`missing ${file}`);
   }
 }
 
-const html = readFileSync(path.join(root, 'assets/command-center/index.html'), 'utf8');
-const app = readFileSync(path.join(root, 'assets/command-center/scripts/app.js'), 'utf8');
-const css = readFileSync(path.join(root, 'assets/command-center/styles/chat.css'), 'utf8');
+const html = readFileSync(path.join(root, 'assets/dashboard/index.html'), 'utf8');
+const app = readFileSync(path.join(root, 'assets/dashboard/scripts/app.js'), 'utf8');
+const css = readFileSync(path.join(root, 'assets/dashboard/styles/chat.css'), 'utf8');
 
 for (const marker of [
   'data-profile="developer"',

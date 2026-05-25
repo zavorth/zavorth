@@ -71,7 +71,7 @@ function runPracticalityCompletionFixture() {
     && snapshot.contractVersion === '2026-05-11.agent-practicality-checkpoint-6'
     && snapshot.surfaceProjections?.length >= 7
     && snapshot.runtimeSurface?.commands?.includes('/agents status')
-    && snapshot.commandCenterProjection?.noVisualMutation === true
+    && snapshot.dashboardProjection?.noVisualMutation === true
     && snapshot.safety?.visualChangesRequireOwnerApproval === true
     && snapshot.nextArchitectureSuggestion?.shouldSuggestAfterStage6 === true);
 }

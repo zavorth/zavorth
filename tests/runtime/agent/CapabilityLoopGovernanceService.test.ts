@@ -49,7 +49,7 @@ function createRun(overrides: Partial<UniversalAgentRun> = {}): UniversalAgentRu
     replyPorts: [
       {
         id: 'web:primary',
-        label: 'Command Center',
+        label: 'Dashboard',
         kind: 'web',
         status: 'available',
         primary: true,
@@ -118,7 +118,7 @@ describe('CapabilityLoopGovernanceService', () => {
         honest: true,
       }),
       controlSurface: expect.objectContaining({
-        statusPath: '/control/runs/agent-run-c5#tools',
+        statusPath: '/dashboard/runs/agent-run-c5#tools',
       }),
     }));
     expect(echo?.receipts).toEqual(expect.arrayContaining([

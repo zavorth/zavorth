@@ -57,7 +57,7 @@ export function formatUniversalPreviewModeSnapshot(
   }
 
   lines.push('', 'Superficies');
-  lines.push(`- Command Center: ${snapshot.surface.commandCenterPath}`);
+  lines.push(`- Dashboard: ${snapshot.surface.dashboardPath}`);
   lines.push(`- CLI: ${snapshot.surface.cliCommand}`);
 
   return lines.join('\n');

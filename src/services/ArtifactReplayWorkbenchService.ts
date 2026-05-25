@@ -306,15 +306,15 @@ export class ArtifactReplayWorkbenchService {
   }
 
   private checkWebMarkers(): ArtifactReplayWorkbenchCheck {
-    const html = this.html !== null ? this.html : buildRuntimeShellHtml('/control');
+    const html = this.html !== null ? this.html : buildRuntimeShellHtml('/dashboard');
     const missing = ARTIFACT_REPLAY_WORKBENCH_WEB_MARKERS.filter((marker) => !html.includes(marker));
     return this.check(
       'web:artifact-workbench-card',
-      'card da bancada no /control',
+      'card da bancada no /dashboard',
       missing.length === 0 ? 'pass' : 'fail',
       missing.length === 0
-        ? 'Control UI expoe indice, comparacao, redaction, learning e export controlado.'
-        : 'Control UI perdeu marcadores da bancada de artifacts/replay.',
+        ? 'Dashboard expoe indice, comparacao, redaction, learning e export controlado.'
+        : 'Dashboard perdeu marcadores da bancada de artifacts/replay.',
       'web',
       missing.map((marker) => `faltando: ${marker}`),
     );

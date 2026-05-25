@@ -1,6 +1,8 @@
 import fs from 'fs';
 import http from 'http';
 import path from 'path';
+import type { Duplex } from 'stream';
+import { WebSocketServer, type RawData, type WebSocket } from 'ws';
 import { config } from '../config/index.js';
 import { safeFetch } from '../security/SafeFetchService.js';
 
@@ -25,6 +27,7 @@ type GatewayOverlay = {
 
 export class ZavorthGatewayService {
   private static server: http.Server | null = null;
+  private static wss: WebSocketServer | null = null;
   private static startedAt: string | null = null;
   private server: http.Server | null = null;
 
@@ -44,6 +47,11 @@ export class ZavorthGatewayService {
 
     const server = http.createServer((req, res) => {
       void this.handleRequest(req, res);
+    });
+    server.on('upgrade', (req, socket, head) => {
+      if (!this.handleWebSocketUpgrade(req, socket, head)) {
+        socket.destroy();
+      }
     });
     this.server = server;
 
@@ -87,6 +95,13 @@ export class ZavorthGatewayService {
 
     this.server = null;
     ZavorthGatewayService.server = null;
+    ZavorthGatewayService.wss?.clients.forEach((client) => {
+      try {
+        client.close();
+      } catch {}
+    });
+    ZavorthGatewayService.wss?.close();
+    ZavorthGatewayService.wss = null;
     ZavorthGatewayService.startedAt = null;
     const status = this.buildStatus(false, false, 'Gateway proprio do AIGateway encerrado.');
     this.writeStatus(status);
@@ -188,6 +203,97 @@ export class ZavorthGatewayService {
     }
   }
 
+  private handleWebSocketUpgrade(req: http.IncomingMessage, socket: Duplex, head: Buffer): boolean {
+    const origin = req.headers.host || `${config.zavorthAIGatewayGatewayHost}:${config.zavorthAIGatewayGatewayPort}`;
+    const url = new URL(req.url || '/', `ws://${origin}`);
+    if (url.pathname !== '/v1/ws') {
+      return false;
+    }
+    if (String(config.zavorthAIGatewayGatewayHost || '').trim() !== '0.0.0.0' && !isLoopbackHost(req.socket.remoteAddress)) {
+      socket.write('HTTP/1.1 403 Forbidden\r\nConnection: close\r\n\r\n');
+      socket.destroy();
+      return true;
+    }
+    if (!ZavorthGatewayService.wss) {
+      ZavorthGatewayService.wss = new WebSocketServer({ noServer: true });
+    }
+    ZavorthGatewayService.wss.handleUpgrade(req, socket, head, (ws) => {
+      this.initializeGatewayWebSocket(ws, url);
+    });
+    return true;
+  }
+
+  private initializeGatewayWebSocket(ws: WebSocket, url: URL): void {
+    this.sendWebSocketJson(ws, {
+      type: 'zavorth.gateway.ready',
+      gateway: 'zavorth-native',
+      path: url.pathname,
+      upstreamBaseUrl: config.AIGatewayUpstreamBaseUrl,
+      createdAt: new Date().toISOString(),
+    });
+    ws.on('message', (raw) => {
+      void this.handleGatewayWebSocketMessage(ws, raw);
+    });
+  }
+
+  private async handleGatewayWebSocketMessage(ws: WebSocket, raw: RawData): Promise<void> {
+    let message: any;
+    try {
+      message = JSON.parse(Buffer.isBuffer(raw) ? raw.toString('utf8') : raw.toString());
+    } catch {
+      this.sendWebSocketJson(ws, { type: 'error', error: 'Expected JSON message.' });
+      return;
+    }
+    const id = typeof message?.id === 'string' ? message.id : null;
+    const type = String(message?.type || '').trim();
+    if (type === 'ping') {
+      this.sendWebSocketJson(ws, { id, type: 'pong', at: new Date().toISOString() });
+      return;
+    }
+    if (type === 'status') {
+      this.sendWebSocketJson(ws, { id, type: 'status', status: this.readPersistedStatus() });
+      return;
+    }
+    if (type !== 'chat.completions') {
+      this.sendWebSocketJson(ws, { id, type: 'error', error: `Unsupported WebSocket message type: ${type || 'missing'}` });
+      return;
+    }
+    try {
+      const response = await safeFetch(this.joinUrl(config.AIGatewayUpstreamBaseUrl, 'chat/completions'), {
+        method: 'POST',
+        headers: {
+          'content-type': 'application/json',
+          'x-zavorth-AIGateway': 'gateway-ws',
+        },
+        body: JSON.stringify(message.body || {}),
+      }, {
+        serviceName: 'Zavorth AI Gateway WebSocket chat completions',
+        allowLoopback: true,
+      });
+      const body = await response.json().catch(async () => ({ text: await response.text().catch(() => '') }));
+      this.sendWebSocketJson(ws, {
+        id,
+        type: 'chat.completions.result',
+        status: response.status,
+        ok: response.ok,
+        body,
+      });
+    } catch (error: unknown) {
+      this.sendWebSocketJson(ws, {
+        id,
+        type: 'chat.completions.error',
+        error: error instanceof Error ? error.message : String(error),
+      });
+    }
+  }
+
+  private sendWebSocketJson(ws: WebSocket, payload: unknown): void {
+    if (ws.readyState !== 1) {
+      return;
+    }
+    ws.send(JSON.stringify(payload));
+  }
+
   private async readLiveStatus(message: string): Promise<ZavorthGatewayStatus> {
     const ready = await this.isGatewayHealthy();
     return this.buildStatus(true, ready, ready ? message : 'Gateway proprio do AIGateway subiu, mas ainda nao passou no health.');
@@ -284,4 +390,9 @@ export class ZavorthGatewayService {
     const normalized = baseUrl.endsWith('/') ? baseUrl : `${baseUrl}/`;
     return new URL(segment.replace(/^\/+/, ''), normalized).toString();
   }
+}
+
+function isLoopbackHost(address: string | undefined): boolean {
+  const value = String(address || '').trim();
+  return !value || value === '127.0.0.1' || value === '::1' || value === '::ffff:127.0.0.1';
 }

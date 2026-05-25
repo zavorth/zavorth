@@ -158,6 +158,40 @@ export type ZavorthGatewayControlApiSnapshot = {
     }>;
   };
   modelPicker?: ModelPickerContract | null;
+  routing?: {
+    source: 'model-picker' | 'provider-control-plane';
+    strategy: 'selected-route-first' | 'provider-control-plane-current';
+    activeProvider: string | null;
+    activeModel: string | null;
+    activeRouteId: string | null;
+    activeFamilyId: string | null;
+    readyRouteCount: number;
+    totalRouteCount: number;
+    fallback: Array<{
+      routeId: string;
+      providerId: string;
+      providerLabel: string;
+      model: string | null;
+      readiness: string;
+      ready: boolean;
+    }>;
+    warnings: string[];
+  };
+  usage?: {
+    latency: {
+      status: 'not_enough_data';
+      requests: number;
+      p50Ms: number | null;
+      p95Ms: number | null;
+      source: string;
+    };
+    cost: {
+      status: 'not_configured';
+      currentRequestEstimateUsd: number | null;
+      windowCostUsd: number | null;
+      source: string;
+    };
+  };
   profiles: ProviderProfile[];
   combos: {
     status: GatewayControlApiOperationStatus;
@@ -348,7 +382,7 @@ export class ZavorthGatewayRuntimeService {
       gatewaySource,
       issues,
       summary: issues.length === 0
-        ? 'Gateway canÃ´nico pronto para servir a Control UI do Zavorth.'
+        ? 'Gateway canÃ´nico pronto para servir a Dashboard do Zavorth.'
         : issues.join(' '),
     };
   }
@@ -477,6 +511,11 @@ export class ZavorthGatewayRuntimeService {
       : providerControlPlane || aiGateway
         ? 'partial'
         : 'degraded';
+    const routing = this.buildGatewayControlRoutingSnapshot({
+      modelPicker,
+      providers,
+      providerControlPlane,
+    });
 
     return {
       ok: status !== 'degraded',
@@ -524,6 +563,8 @@ export class ZavorthGatewayRuntimeService {
           .filter((entry) => entry.model.length > 0),
       },
       modelPicker,
+      routing,
+      usage: this.buildGatewayControlUsageSnapshot(),
       profiles,
       combos: {
         status: 'delegated',
@@ -546,6 +587,96 @@ export class ZavorthGatewayRuntimeService {
       operations: this.buildGatewayControlApiOperations(),
       warnings: issues,
     };
+  }
+
+  private buildGatewayControlRoutingSnapshot(input: {
+    modelPicker: unknown;
+    providers: ProviderCatalogEntry[];
+    providerControlPlane: ProviderControlPlaneService | null;
+  }): ZavorthGatewayControlApiSnapshot['routing'] {
+    const modelPicker = this.asGatewayControlRecord(input.modelPicker);
+    const selected = this.asGatewayControlRecord(modelPicker.selected);
+    const routesEnvelope = this.asGatewayControlRecord(modelPicker.routes);
+    const routes = Array.isArray(routesEnvelope.routes)
+      ? routesEnvelope.routes.map((route) => this.asGatewayControlRecord(route))
+      : [];
+    const activeRouteId = this.asGatewayControlText(selected.routeId || selected.id);
+    const fallbackIds = new Set(
+      Array.isArray(selected.fallbackRouteIds)
+        ? selected.fallbackRouteIds.map((id) => this.asGatewayControlText(id)).filter(Boolean)
+        : [],
+    );
+    const selectedFallbackRoutes = routes.filter((route) =>
+      fallbackIds.has(this.asGatewayControlText(route.id || route.routeId)),
+    );
+    const implicitFallbackRoutes = routes.filter((route) =>
+      this.asGatewayControlText(route.id || route.routeId) !== activeRouteId
+      && route.ready === true,
+    );
+    const fallbackRoutes = (selectedFallbackRoutes.length > 0 ? selectedFallbackRoutes : implicitFallbackRoutes)
+      .slice(0, 5);
+    const activeProvider = this.asGatewayControlText(
+      selected.providerId
+        || selected.providerName
+        || selected.provider
+        || input.providerControlPlane?.getCurrentConversationalProvider(),
+    );
+    const activeModel = this.asGatewayControlText(
+      selected.model
+        || selected.modelName
+        || selected.modelLabel
+        || input.providerControlPlane?.getCurrentConversationalModel(),
+    );
+
+    return {
+      source: routes.length > 0 || Object.keys(selected).length > 0 ? 'model-picker' : 'provider-control-plane',
+      strategy: routes.length > 0 ? 'selected-route-first' : 'provider-control-plane-current',
+      activeProvider: activeProvider || null,
+      activeModel: activeModel || null,
+      activeRouteId: activeRouteId || null,
+      activeFamilyId: this.asGatewayControlText(selected.familyId) || null,
+      readyRouteCount: routes.filter((route) => route.ready === true).length,
+      totalRouteCount: routes.length,
+      fallback: fallbackRoutes.map((route) => ({
+        routeId: this.asGatewayControlText(route.id || route.routeId) || 'route',
+        providerId: this.asGatewayControlText(route.providerId || route.providerName || route.provider) || 'provider',
+        providerLabel: this.asGatewayControlText(route.providerLabel || route.providerName || route.providerId) || 'Provider',
+        model: this.asGatewayControlText(route.model || route.modelName || route.modelLabel) || null,
+        readiness: this.asGatewayControlText(route.readinessCode || route.readiness || route.status) || 'unknown',
+        ready: route.ready === true,
+      })),
+      warnings: routes.length > 0
+        ? []
+        : ['Model Picker routes were not published; using current provider/model as the active route.'],
+    };
+  }
+
+  private buildGatewayControlUsageSnapshot(): ZavorthGatewayControlApiSnapshot['usage'] {
+    return {
+      latency: {
+        status: 'not_enough_data',
+        requests: 0,
+        p50Ms: null,
+        p95Ms: null,
+        source: 'Provider latency is recorded by live canaries and request telemetry when traffic is available.',
+      },
+      cost: {
+        status: 'not_configured',
+        currentRequestEstimateUsd: null,
+        windowCostUsd: null,
+        source: 'Cost projection requires provider price tables plus observed token usage.',
+      },
+    };
+  }
+
+  private asGatewayControlRecord(value: unknown): Record<string, any> {
+    return value && typeof value === 'object' && !Array.isArray(value)
+      ? value as Record<string, any>
+      : {};
+  }
+
+  private asGatewayControlText(value: unknown): string {
+    return String(value ?? '').trim();
   }
 
   private syncRuntimeChannelAdapters(): void {
@@ -831,4 +962,3 @@ export class ZavorthGatewayRuntimeService {
       .test(key);
   }
 }
-

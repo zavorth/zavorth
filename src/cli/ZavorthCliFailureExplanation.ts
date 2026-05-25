@@ -65,7 +65,7 @@ const FAILURE_DEFAULTS: Record<ZavorthFailureKind, FailureDefaults> = {
   'runtime-not-running': {
     severity: 'recoverable',
     whatHappened: 'The local runtime is not available right now.',
-    likelyCause: 'The host process, Command Center, or local listener has not started yet.',
+    likelyCause: 'The host process, Dashboard, or local listener has not started yet.',
     nextStep: 'Run a safe launch preview, then use doctor if the runtime still does not answer.',
     tryCommand: 'zavorth go --dry-run',
   },
@@ -172,7 +172,7 @@ export function classifyZavorthFailureKind(error: unknown): ZavorthFailureKind {
   if (/\b(provider|model|api key|apikey|credential|secret)\b/u.test(message)) {
     return 'provider-not-configured';
   }
-  if (/\b(runtime|listener|port|econnrefused|connection refused|not running|command center|host)\b/u.test(message)) {
+  if (/\b(runtime|listener|port|econnrefused|connection refused|not running|dashboard|host)\b/u.test(message)) {
     return 'runtime-not-running';
   }
   if (/\b(workspace|project root|invalid cwd|outside root|enoent)\b/u.test(message)) {

@@ -343,7 +343,7 @@ export class ZavorthMaturityService {
       ],
       commands: [
         'npm run channel-experience-certification',
-        'npm run qa:command-center-browser-preview',
+        'npm run qa:dashboard-browser-preview',
         'npm run zavorth:dashboard-visual-qa -- --capture',
       ],
       nextAction: contractReady

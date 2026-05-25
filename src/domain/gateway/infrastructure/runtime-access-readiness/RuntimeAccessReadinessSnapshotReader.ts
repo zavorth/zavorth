@@ -13,7 +13,7 @@ import {
 } from "./RuntimeAccessReadinessDataSnapshotBuilders.js";
 import type { RuntimeAccessReadinessSnapshotReaderOptions } from "./RuntimeAccessReadinessSnapshotReaderTypes.js";
 import { RuntimeAccessReadinessSmokeSnapshotReader } from "./RuntimeAccessReadinessSmokeSnapshotReader.js";
-import { isWeakCommandCenterToken } from "../../../../services/CommandCenterTokenService.js";
+import { isWeakDashboardToken } from "../../../../services/DashboardTokenService.js";
 import type {
   RuntimeAccessAuthStatus,
   RuntimeAccessChannelProviderDoctorSnapshot,
@@ -135,7 +135,7 @@ export class RuntimeAccessReadinessSnapshotReader {
   public readAuthStatus(): RuntimeAccessAuthStatus {
     if (
       this.options.webAuthToken &&
-      !isWeakCommandCenterToken(this.options.webAuthToken)
+      !isWeakDashboardToken(this.options.webAuthToken)
     ) {
       return {
         enabled: true,

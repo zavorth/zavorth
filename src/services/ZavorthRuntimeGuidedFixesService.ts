@@ -180,7 +180,7 @@ export class ZavorthRuntimeGuidedFixesService {
       return fix({
         check,
         id: 'fix-dashboard',
-        label: 'Reabrir Command Center',
+        label: 'Reabrir Dashboard',
         kind: 'run-command',
         risk: 'read_only',
         summary: 'Sobe a superficie local diaria para confirmar que o painel responde.',
@@ -316,7 +316,7 @@ function readyFix(readiness: ZavorthRuntimeReadinessSnapshot): ZavorthRuntimeGui
     status: readiness.status,
     kind: 'open-route',
     risk: 'read_only',
-    summary: 'Zavorth esta pronto; abrir o Command Center e usar normalmente.',
+    summary: 'Zavorth esta pronto; abrir o Dashboard e usar normalmente.',
     command: 'zavorth go',
     route: '/dashboard',
     telegramCommand: '/dashboard',

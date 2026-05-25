@@ -122,7 +122,7 @@ export class ZavorthSensitiveActionFlowService {
           summary: 'Visual receipt generated with redaction and rollback evidence.',
         },
       ],
-      commandCenterProjection: {
+      dashboardProjection: {
         route: '/dashboard',
         endpoint: '/api/sensitive-action-flow',
         executionAuthority: false,
@@ -150,9 +150,9 @@ export class ZavorthSensitiveActionFlowService {
           detail: 'Rollback metadata is prepared before applying mutable work.',
         },
         {
-          id: 'command-center-no-authority',
+          id: 'dashboard-no-authority',
           status: 'passed',
-          detail: 'Command Center can render action cards but cannot execute actions by itself.',
+          detail: 'Dashboard can render action cards but cannot execute actions by itself.',
         },
       ],
       nextAction: buildNextAction({ status, approval, execution }),
@@ -314,7 +314,7 @@ export class ZavorthSensitiveActionFlowService {
     if (!input.policy.allowed && !input.policy.requiresUserConfirmation) {
       return {
         mode: 'blocked',
-        commandCenterCanExecute: false,
+        dashboardCanExecute: false,
         policyBrokerRequired: true,
         approvalRequiredForMutation: mutating,
         executed: false,
@@ -324,7 +324,7 @@ export class ZavorthSensitiveActionFlowService {
     if (input.approval.status === 'denied') {
       return {
         mode: 'blocked',
-        commandCenterCanExecute: false,
+        dashboardCanExecute: false,
         policyBrokerRequired: true,
         approvalRequiredForMutation: mutating,
         executed: false,
@@ -334,7 +334,7 @@ export class ZavorthSensitiveActionFlowService {
     if (!mutating) {
       return {
         mode: 'read_only',
-        commandCenterCanExecute: false,
+        dashboardCanExecute: false,
         policyBrokerRequired: true,
         approvalRequiredForMutation: false,
         executed: false,
@@ -344,7 +344,7 @@ export class ZavorthSensitiveActionFlowService {
     if (input.approval.status !== 'approved') {
       return {
         mode: 'dry_run',
-        commandCenterCanExecute: false,
+        dashboardCanExecute: false,
         policyBrokerRequired: true,
         approvalRequiredForMutation: true,
         executed: false,
@@ -354,7 +354,7 @@ export class ZavorthSensitiveActionFlowService {
     if (!input.sandboxReady) {
       return {
         mode: 'dry_run',
-        commandCenterCanExecute: false,
+        dashboardCanExecute: false,
         policyBrokerRequired: true,
         approvalRequiredForMutation: true,
         executed: false,
@@ -363,7 +363,7 @@ export class ZavorthSensitiveActionFlowService {
     }
     return {
       mode: 'sandbox_after_approval',
-      commandCenterCanExecute: false,
+      dashboardCanExecute: false,
       policyBrokerRequired: true,
       approvalRequiredForMutation: true,
       executed: false,
@@ -424,7 +424,7 @@ export class ZavorthSensitiveActionFlowService {
       advanced: {
         policyBroker: 'required',
         trustPlane: 'active',
-        commandCenterCanExecute: false,
+        dashboardCanExecute: false,
         sandboxMutationMode: input.execution.mode === 'sandbox_after_approval' ? 'sandbox' : input.execution.mode === 'blocked' ? 'blocked' : 'dry-run',
         approvalOptions: input.approval.options,
         artifacts: [

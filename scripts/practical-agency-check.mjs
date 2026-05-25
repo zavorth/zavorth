@@ -28,7 +28,7 @@ const rules = [
   ]),
   containsAll('conversational-agency-presenter', ['src/services/ConversationalAgencyPresenter.ts'], [
     'detailsHiddenByDefault: true',
-    'commandCenterDetailsAvailable: true',
+    'dashboardDetailsAvailable: true',
     'previa de alteracao',
     'preciso da sua confirmacao',
     'modo inteligente em observacao',

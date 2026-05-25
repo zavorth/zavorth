@@ -44,7 +44,7 @@ export type ZavorthVisualReceiptUxCard = {
   safety: {
     rawSecretsSerialized: false;
     secretPolicy: ZavorthVisualReceiptContract['redaction']['policy'];
-    commandCenterCanExecute: false;
+    dashboardCanExecute: false;
     projectionOnly: true;
   };
 };
@@ -63,7 +63,7 @@ export type ZavorthVisualReceiptUxSnapshot = {
     rawSecretsSerialized: false;
   };
   cards: ZavorthVisualReceiptUxCard[];
-  commandCenterProjection: {
+  dashboardProjection: {
     route: '/dashboard';
     renderMode: 'projection-only';
     executionAuthority: false;

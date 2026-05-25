@@ -30,7 +30,7 @@ if (mutation) {
   assertRule('mutation:needs-approval', mutation.status === 'needs_approval', 'Mutation preview requires approval');
   assertRule('mutation:receipt', mutation.receipt?.redaction?.rawSecretsPresent === false, 'Mutation flow emits redacted receipt');
   assertRule('mutation:rollback', mutation.rollback?.requiredBeforeApply === true, 'Mutation flow requires rollback before apply');
-  assertRule('mutation:no-command-center-authority', mutation.commandCenterProjection?.executionAuthority === false, 'Command Center has no execution authority');
+  assertRule('mutation:no-dashboard-authority', mutation.dashboardProjection?.executionAuthority === false, 'Dashboard has no execution authority');
 }
 if (approved) {
   assertRule('approved:sandbox-ready', approved.status === 'approved_ready', 'Approved mutation with sandbox becomes ready for governed executor');

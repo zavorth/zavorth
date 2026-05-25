@@ -63,17 +63,17 @@ describe('RuntimeAccessManifestService', () => {
       local: {
         baseUrl: 'http://127.0.0.1:33333',
         dashboardUrl: 'http://127.0.0.1:33333/',
-        appUrl: 'http://127.0.0.1:33333/control',
+        appUrl: 'http://127.0.0.1:33333/dashboard',
         ready: true,
         issues: [],
       },
       remote: {
         baseUrl: 'https://zavorth.example.com',
-        appUrl: 'https://zavorth.example.com/control',
+        appUrl: 'https://zavorth.example.com/dashboard',
         ready: true,
         issues: [],
       },
-      recommendations: ['Use o /control local como superficie principal para operar e aprovar o Zavorth.'],
+      recommendations: ['Use o /dashboard local como superficie principal para operar e aprovar o Zavorth.'],
       nextSteps: [
         {
           id: 'connect-remote-frontend',
@@ -93,7 +93,7 @@ describe('RuntimeAccessManifestService', () => {
         remote: {
           ready: true,
           baseUrl: 'https://zavorth.example.com',
-          appUrl: 'https://zavorth.example.com/control',
+          appUrl: 'https://zavorth.example.com/dashboard',
           issues: [],
         },
         rollout: {
@@ -118,18 +118,18 @@ describe('RuntimeAccessManifestService', () => {
         local: expect.objectContaining({
           ready: true,
           baseUrl: 'http://127.0.0.1:33333',
-          appUrl: 'http://127.0.0.1:33333/control',
+          appUrl: 'http://127.0.0.1:33333/dashboard',
           apiBaseUrl: 'http://127.0.0.1:33333/api/web',
-          controlUrl: 'http://127.0.0.1:33333/control',
+          controlUrl: 'http://127.0.0.1:33333/dashboard',
           legacyAppUrl: 'http://127.0.0.1:33333/app',
           classicUrl: 'http://127.0.0.1:33333/classic',
         }),
         remote: expect.objectContaining({
           ready: true,
           baseUrl: 'https://zavorth.example.com',
-          appUrl: 'https://zavorth.example.com/control',
+          appUrl: 'https://zavorth.example.com/dashboard',
           requiresHttps: false,
-          controlUrl: 'https://zavorth.example.com/control',
+          controlUrl: 'https://zavorth.example.com/dashboard',
           legacyAppUrl: 'https://zavorth.example.com/app',
           classicUrl: 'https://zavorth.example.com/classic',
         }),
@@ -144,7 +144,7 @@ describe('RuntimeAccessManifestService', () => {
           summary: 'Rollout remoto oficial pronto e validado.',
           recommendedProvider: null,
           recommendedAction: null,
-          appUrl: 'https://zavorth.example.com/control',
+          appUrl: 'https://zavorth.example.com/dashboard',
           baseUrl: 'https://zavorth.example.com',
           issues: [],
           nextSteps: ['Abra o app remoto oficial.'],
@@ -152,16 +152,16 @@ describe('RuntimeAccessManifestService', () => {
         }),
         recommendedPlan: expect.objectContaining({
           primaryAction: 'open-local',
-          primaryLabel: 'Abrir Control UI',
+          primaryLabel: 'Abrir Dashboard',
           primaryCommand: null,
-          openTarget: 'http://127.0.0.1:33333/control',
+          openTarget: 'http://127.0.0.1:33333/dashboard',
           launcherRecommendation: expect.objectContaining({
             command: 'npm run launcher:startup:install',
           }),
           remoteRecommendation: expect.objectContaining({
             ready: true,
             command: 'zavorth go',
-            appUrl: 'https://zavorth.example.com/control',
+            appUrl: 'https://zavorth.example.com/dashboard',
           }),
         }),
         commands: expect.objectContaining({
@@ -182,17 +182,17 @@ describe('RuntimeAccessManifestService', () => {
         launchers: expect.arrayContaining([
           expect.objectContaining({
             id: 'best',
-            label: 'Abrir Control UI',
+            label: 'Abrir Dashboard',
             kind: 'url',
-            value: 'http://127.0.0.1:33333/control',
+            value: 'http://127.0.0.1:33333/dashboard',
             ready: true,
             primary: true,
           }),
           expect.objectContaining({
             id: 'remote-control',
-            label: 'Control UI remota',
+            label: 'Dashboard remota',
             kind: 'url',
-            value: 'https://zavorth.example.com/control',
+            value: 'https://zavorth.example.com/dashboard',
             ready: true,
           }),
           expect.objectContaining({
@@ -230,9 +230,9 @@ describe('RuntimeAccessManifestService', () => {
         surfaces: expect.arrayContaining([
           expect.objectContaining({
             id: 'control',
-            label: 'Control UI',
-            entry: 'http://127.0.0.1:33333/control',
-            remoteEntry: 'https://zavorth.example.com/control',
+            label: 'Dashboard',
+            entry: 'http://127.0.0.1:33333/dashboard',
+            remoteEntry: 'https://zavorth.example.com/dashboard',
             ready: true,
           }),
           expect.objectContaining({
@@ -249,7 +249,7 @@ describe('RuntimeAccessManifestService', () => {
           }),
         ]),
         legacyContainment: expect.objectContaining({
-          canonicalEntry: '/control',
+          canonicalEntry: '/dashboard',
           frozenSurfaces: ['/app', '/classic'],
           policy: expect.objectContaining({
             legacyFeatureFreeze: true,
@@ -257,9 +257,9 @@ describe('RuntimeAccessManifestService', () => {
             fallbackPreserved: true,
           }),
           links: expect.objectContaining({
-            localControlUrl: 'http://127.0.0.1:33333/control',
+            localControlUrl: 'http://127.0.0.1:33333/dashboard',
             localLegacyAppUrl: 'http://127.0.0.1:33333/app',
-            remoteControlUrl: 'https://zavorth.example.com/control',
+            remoteControlUrl: 'https://zavorth.example.com/dashboard',
             remoteLegacyAppUrl: 'https://zavorth.example.com/app',
           }),
         }),
@@ -274,7 +274,7 @@ describe('RuntimeAccessManifestService', () => {
     expect(manifest.guides.local[4]).toContain('Telegram');
     expect(manifest.guides.local[5]).toContain('npm run channels:install -- --json');
     expect(manifest.guides.local[6]).toContain('zavorth go');
-    expect(manifest.guides.local[7]).toContain('http://127.0.0.1:33333/control');
+    expect(manifest.guides.local[7]).toContain('http://127.0.0.1:33333/dashboard');
     expect(manifest.guides.local.some((entry) => entry.includes('Startup oficial e opcional'))).toBe(true);
     expect(manifest.guides.local.some((entry) => entry.includes('/status'))).toBe(true);
     expect(manifest.guides.remote.some((entry) => entry.includes('npm run ops:journey'))).toBe(true);
@@ -331,13 +331,13 @@ describe('RuntimeAccessManifestService', () => {
       local: {
         baseUrl: 'http://127.0.0.1:33333',
         dashboardUrl: 'http://127.0.0.1:33333/',
-        appUrl: 'http://127.0.0.1:33333/control',
+        appUrl: 'http://127.0.0.1:33333/dashboard',
         ready: true,
         issues: [],
       },
       remote: {
         baseUrl: 'https://zavorth.example.com',
-        appUrl: 'https://zavorth.example.com/control',
+        appUrl: 'https://zavorth.example.com/dashboard',
         ready: true,
         issues: [],
       },
@@ -353,14 +353,14 @@ describe('RuntimeAccessManifestService', () => {
       expect.objectContaining({
         ready: true,
         summary: 'Acesso remoto oficial pronto.',
-        appUrl: 'https://zavorth.example.com/control',
+        appUrl: 'https://zavorth.example.com/dashboard',
       }),
     );
     expect(manifest.recommendedPlan).toEqual(
       expect.objectContaining({
         primaryAction: 'open-local',
         primaryCommand: null,
-        openTarget: 'http://127.0.0.1:33333/control',
+        openTarget: 'http://127.0.0.1:33333/dashboard',
         remoteRecommendation: expect.objectContaining({
           ready: true,
         }),
@@ -414,13 +414,13 @@ describe('RuntimeAccessManifestService', () => {
       local: {
         baseUrl: 'http://127.0.0.1:33333',
         dashboardUrl: 'http://127.0.0.1:33333/',
-        appUrl: 'http://127.0.0.1:33333/control',
+        appUrl: 'http://127.0.0.1:33333/dashboard',
         ready: false,
-        issues: ['A superficie web do Zavorth nao respondeu em http://127.0.0.1:33333/control.'],
+        issues: ['A superficie web do Zavorth nao respondeu em http://127.0.0.1:33333/dashboard.'],
       },
       remote: {
         baseUrl: 'https://zavorth.example.com',
-        appUrl: 'https://zavorth.example.com/control',
+        appUrl: 'https://zavorth.example.com/dashboard',
         ready: false,
         issues: ['A URL publica ainda nao foi validada.'],
       },
@@ -516,13 +516,13 @@ describe('RuntimeAccessManifestService', () => {
       local: {
         baseUrl: 'http://127.0.0.1:33333',
         dashboardUrl: 'http://127.0.0.1:33333/',
-        appUrl: 'http://127.0.0.1:33333/control',
+        appUrl: 'http://127.0.0.1:33333/dashboard',
         ready: true,
         issues: [],
       },
       remote: {
         baseUrl: 'https://zavorth.example.com',
-        appUrl: 'https://zavorth.example.com/control',
+        appUrl: 'https://zavorth.example.com/dashboard',
         ready: true,
         issues: [],
       },

@@ -157,7 +157,7 @@ function buildMatrix(input: {
     item('dashboard', 'Dashboard gateway', 'surface', input.dashboard.status === 'passed' ? 'dry_run_passed' : 'blocked', true, true, [
       `path=${input.dashboard.summary.dashboardPath}`,
       `chatFirst=${input.dashboard.summary.chatFirstHome}`,
-      `displayOnly=${input.dashboard.safety.commandCenterIsDisplayOnly}`,
+      `displayOnly=${input.dashboard.safety.dashboardIsDisplayOnly}`,
     ], null),
     item('cli', 'CLI daily-use surface', 'surface', input.cli.status === 'passed' ? 'dry_run_passed' : 'blocked', true, true, [
       `commands=${input.cli.summary.requiredCommands.length}`,

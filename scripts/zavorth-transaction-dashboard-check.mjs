@@ -4,7 +4,7 @@ import { join } from 'node:path';
 import { tmpdir } from 'node:os';
 
 const root = process.cwd();
-const tempDir = mkdtempSync(join(tmpdir(), 'zavorth-transaction-command-center-'));
+const tempDir = mkdtempSync(join(tmpdir(), 'zavorth-transaction-dashboard-'));
 const ledgerFile = join(tempDir, 'approval-ledger.jsonl');
 const credentialStoreFile = join(tempDir, 'credential-refs.jsonl');
 const env = {
@@ -13,19 +13,19 @@ const env = {
 };
 
 const requiredFiles = [
-  'src/contracts/ZavorthTransactionCommandCenterContract.ts',
-  'src/services/ZavorthTransactionCommandCenterProjectionService.ts',
-  'scripts/zavorth-transaction-command-center.ts',
+  'src/contracts/ZavorthTransactionDashboardContract.ts',
+  'src/services/ZavorthTransactionDashboardProjectionService.ts',
+  'scripts/zavorth-transaction-dashboard.ts',
   'docs/README.md',
-  'tests/contracts/ZavorthTransactionCommandCenterContract.test.ts',
-  'tests/services/ZavorthTransactionCommandCenterProjectionService.test.ts',
+  'tests/contracts/ZavorthTransactionDashboardContract.test.ts',
+  'tests/services/ZavorthTransactionDashboardProjectionService.test.ts',
 ];
 
 const requiredPackageScripts = [
-  'zavorth:transaction-command-center',
-  'zavorth:transaction-command-center:json',
-  'zavorth:transaction-command-center:check',
-  'qa:zavorth-transaction-command-center',
+  'zavorth:transaction-dashboard',
+  'zavorth:transaction-dashboard:json',
+  'zavorth:transaction-dashboard:check',
+  'qa:zavorth-transaction-dashboard',
 ];
 
 const failures = [];
@@ -46,15 +46,15 @@ try {
     }
   }
 
-  const contractText = readFileSync(join(root, 'src/contracts/ZavorthTransactionCommandCenterContract.ts'), 'utf8');
-  const serviceText = readFileSync(join(root, 'src/services/ZavorthTransactionCommandCenterProjectionService.ts'), 'utf8');
+  const contractText = readFileSync(join(root, 'src/contracts/ZavorthTransactionDashboardContract.ts'), 'utf8');
+  const serviceText = readFileSync(join(root, 'src/services/ZavorthTransactionDashboardProjectionService.ts'), 'utf8');
   const docsText = readFileSync(join(root, 'docs/README.md'), 'utf8');
   for (const marker of [
-    'zavorth-transaction-command-center/checkpoint-8',
+    'zavorth-transaction-dashboard/checkpoint-8',
     'noLiveExecution',
     'operatorActions',
     'reject-preview',
-    'Command Center projection',
+    'Dashboard projection',
   ]) {
     if (!contractText.includes(marker) && !serviceText.includes(marker) && !docsText.includes(marker)) {
       failures.push(`missing marker: ${marker}`);
@@ -78,7 +78,7 @@ try {
   ]);
   const ref = credential.record?.ref;
 
-  const approvalProjection = runCommandCenter([
+  const approvalProjection = runDashboard([
     '--json',
     '--surface',
     'web',
@@ -104,7 +104,7 @@ try {
     failures.push('approval projection lacks reject-preview danger action');
   }
 
-  const simulated = runCommandCenter([
+  const simulated = runDashboard([
     '--json',
     '--surface',
     'api',
@@ -127,10 +127,10 @@ try {
     failures.push('simulated projection lacks simulated connector lane');
   }
   if (simulated.safety.noLiveExecution !== true || simulated.safety.liveActionApplied !== false || simulated.safety.externalSideEffects !== false) {
-    failures.push('Command Center safety must remain live-disabled');
+    failures.push('Dashboard safety must remain live-disabled');
   }
 
-  const monitor = runCommandCenter([
+  const monitor = runDashboard([
     '--json',
     '--surface',
     'telegram',
@@ -150,7 +150,7 @@ try {
     failures.push('monitor projection should skip approval timeline');
   }
 
-  const rawSecret = runCommandCenterExpectFailure([
+  const rawSecret = runDashboardExpectFailure([
     '--json',
     '--surface',
     'web',
@@ -165,23 +165,23 @@ try {
     'paper',
   ]);
   if (JSON.stringify(rawSecret).includes('sk-super-secret-value-123456')) {
-    failures.push('Command Center projection leaked raw secret');
+    failures.push('Dashboard projection leaked raw secret');
   }
   if (rawSecret.status !== 'blocked' || rawSecret.safety.noRawSecretSerialized !== true) {
     failures.push(`raw secret projection should be blocked and redacted, got ${rawSecret.status}`);
   }
 
   if (failures.length > 0) {
-    console.error('[transaction-command-center-dashboard-controls-check] failed');
+    console.error('[transaction-dashboard-dashboard-controls-check] failed');
     for (const failure of failures) {
       console.error(`- ${failure}`);
     }
     process.exit(1);
   }
 
-  console.log('[transaction-command-center-dashboard-controls-check] ok');
+  console.log('[transaction-dashboard-dashboard-controls-check] ok');
   console.log('- contract, service, CLI, docs and tests are present');
-  console.log('- Command Center lanes, tiles, timeline and operator actions project Surface controls truth');
+  console.log('- Dashboard lanes, tiles, timeline and operator actions project Surface controls truth');
   console.log('- approval, credential, connector and safety states are visible without live execution');
   console.log('- raw secrets remain redacted and blocked');
 } finally {
@@ -196,22 +196,22 @@ function runCredential(args) {
   ));
 }
 
-function runCommandCenter(args) {
+function runDashboard(args) {
   return JSON.parse(execFileSync(
     process.execPath,
-    ['node_modules/tsx/dist/cli.mjs', 'scripts/zavorth-transaction-command-center.ts', ...args],
+    ['node_modules/tsx/dist/cli.mjs', 'scripts/zavorth-transaction-dashboard.ts', ...args],
     { cwd: root, encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'], env },
   ));
 }
 
-function runCommandCenterExpectFailure(args) {
+function runDashboardExpectFailure(args) {
   const result = spawnSync(
     process.execPath,
-    ['node_modules/tsx/dist/cli.mjs', 'scripts/zavorth-transaction-command-center.ts', ...args],
+    ['node_modules/tsx/dist/cli.mjs', 'scripts/zavorth-transaction-dashboard.ts', ...args],
     { cwd: root, encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'], env },
   );
   if (result.status === 0) {
-    failures.push(`expected Command Center command failure for args: ${args.join(' ')}`);
+    failures.push(`expected Dashboard command failure for args: ${args.join(' ')}`);
   }
   return JSON.parse(result.stdout);
 }

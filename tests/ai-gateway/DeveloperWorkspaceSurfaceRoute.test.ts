@@ -13,14 +13,14 @@ import {
 describe('Developer Workspace surface route', () => {
   const routeRoot = path.join(process.cwd(), 'src', 'ai-gateway', 'app', 'api', 'developer-workspace');
 
-  it('ships the official read/write route without importing Command Center internals', () => {
+  it('ships the official read/write route without importing Dashboard internals', () => {
     const routeSource = fs.readFileSync(path.join(routeRoot, 'route.ts'), 'utf8');
     const supportSource = fs.readFileSync(path.join(routeRoot, 'developerWorkspaceRouteSupport.ts'), 'utf8');
 
     expect(routeSource).toContain('export async function GET');
     expect(routeSource).toContain('export async function POST');
     expect(supportSource).toContain('DeveloperWorkspaceSurfaceService');
-    expect(supportSource).not.toContain('command-center');
+    expect(supportSource).not.toContain('dashboard');
   });
 
   it('parses cwd and manifestPath for local project inspection', () => {

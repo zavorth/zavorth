@@ -134,7 +134,7 @@ export type ReleaseAdoptionReadinessSnapshot = {
   };
   surface: {
     cliCommand: string;
-    commandCenterPath: string;
+    dashboardPath: string;
     releaseRoute: '/release';
     feedbackRoute: '/feedback';
     docsRoute: '/docs';
@@ -392,7 +392,7 @@ export class ReleaseAdoptionReadinessService {
       },
       surface: {
         cliCommand: `zavorth release-adoption-readiness run ${run.id} --json`,
-        commandCenterPath: `/control?runId=${encodeURIComponent(run.id)}&sector=config`,
+        dashboardPath: `/dashboard?runId=${encodeURIComponent(run.id)}&sector=config`,
         releaseRoute: '/release',
         feedbackRoute: '/feedback',
         docsRoute: '/docs',
@@ -566,8 +566,8 @@ export class ReleaseAdoptionReadinessService {
       },
       {
         id: 'control',
-        label: 'Command Center',
-        routeOrCommand: '/control?sector=config',
+        label: 'Dashboard',
+        routeOrCommand: '/dashboard?sector=config',
         status: 'ready',
         detail: 'Config mostra release train, adoption readiness e suporte.',
       },

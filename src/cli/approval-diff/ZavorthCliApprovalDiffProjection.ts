@@ -23,7 +23,9 @@ export function buildZavorthCliApprovalDiffSnapshot(
   const targetPlanId = normalizeOptional(input.targetPlanId);
   const allPlans = targetPlanId
     ? [input.mutationPlane.readPlan(targetPlanId)].filter((plan): plan is ZavorthMutationPlan => Boolean(plan))
-    : input.mutationPlane.listPlans({ limit: 50, includeExpired: false });
+    : input.mutationPlane
+      .listPlans({ limit: 50, includeExpired: false })
+      .filter((plan) => plan.status === 'waiting_approval' || plan.status === 'draft' || plan.approval.status === 'pending');
   let decision: ZavorthCliApprovalDiffSnapshot['decision'] = {
     attempted: false,
     status: 'none',
@@ -228,7 +230,7 @@ function buildNextActions(
   if (decision.status === 'approved') {
     return [
       { label: 'Review approved plan', command: `zavorth diff ${decision.planId}`, detail: 'preview only' },
-      { label: 'Open Command Center', command: 'zavorth open', detail: 'visual approval flow' },
+      { label: 'Open Dashboard', command: 'zavorth open', detail: 'visual approval flow' },
     ];
   }
   const pending = cards.find((card) => card.status === 'waiting_approval' || card.approvalStatus === 'pending');
@@ -236,13 +238,13 @@ function buildNextActions(
     return [
       { label: 'Inspect diff', command: `zavorth diff ${pending.id}`, detail: `${pending.diffCount} preview entries` },
       { label: 'Approve plan only', command: `zavorth approve ${pending.id} --yes`, detail: 'does not apply to host' },
-      { label: 'Open Command Center', command: 'zavorth open', detail: 'visual review' },
+      { label: 'Open Dashboard', command: 'zavorth open', detail: 'visual review' },
     ];
   }
   if (view === 'diff' && diffs.length === 0) {
     return [
       { label: 'List approvals', command: 'zavorth approve', detail: 'find pending plans' },
-      { label: 'Open Command Center', command: 'zavorth open', detail: 'visual review' },
+      { label: 'Open Dashboard', command: 'zavorth open', detail: 'visual review' },
     ];
   }
   return [

@@ -83,6 +83,6 @@ describe('Zavorth CLI Feedback Telemetry Product Loop Feedback Telemetry', () =>
     expect(text).toContain('telemetry nao foi ligada');
     expect(text).toContain('feedback nao foi enviado');
     expect(text).toContain('payload bruto nao foi serializado');
-    expect(text).toContain('Command Center: /control?runId=');
+    expect(text).toContain('Dashboard: /dashboard?runId=');
   });
 });

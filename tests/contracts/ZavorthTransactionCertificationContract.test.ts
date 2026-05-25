@@ -20,7 +20,7 @@ describe('ZavorthTransactionCertificationContract', () => {
       'approval-gate',
       'credential-ref-gate',
       'typed-connector-simulation',
-      'command-center-projection',
+      'dashboard-projection',
       'cross-surface-parity',
       'secret-redaction',
       'no-live-execution',

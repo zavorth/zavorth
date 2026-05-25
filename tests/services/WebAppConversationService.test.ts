@@ -322,7 +322,7 @@ describe('WebAppConversationService natural-first routing', () => {
     });
 
     const result = await service.processChatSend({
-      sessionId: 'session-command-center-chat-only',
+      sessionId: 'session-dashboard-chat-only',
       message: 'ol?',
     });
 
@@ -334,9 +334,9 @@ describe('WebAppConversationService natural-first routing', () => {
       responsePath: 'fast-chat',
       shouldShowArtifactInChat: false,
     }));
-    expect(agentGateway.buildSnapshot({ activeSessionId: 'session-command-center-chat-only' }).activeRun).toEqual(expect.objectContaining({
+    expect(agentGateway.buildSnapshot({ activeSessionId: 'session-dashboard-chat-only' }).activeRun).toEqual(expect.objectContaining({
       channel: 'web',
-      sessionId: 'session-command-center-chat-only',
+      sessionId: 'session-dashboard-chat-only',
       input: 'ol?',
       metadata: expect.objectContaining({
         responseDecision: expect.objectContaining({
@@ -347,7 +347,7 @@ describe('WebAppConversationService natural-first routing', () => {
       }),
     }));
     expect(realtime.recordAssistantMessage).toHaveBeenCalledWith(
-      'session-command-center-chat-only',
+      'session-dashboard-chat-only',
       expect.stringContaining('Pedido recebido: "ol?"'),
       null,
       'universal-agent-runtime',
@@ -370,7 +370,7 @@ describe('WebAppConversationService natural-first routing', () => {
     });
 
     const result = await service.processChatSend({
-      sessionId: 'session-command-center-downloads',
+      sessionId: 'session-dashboard-downloads',
       message: 'analise o que tem dentro da minha pasta downloads',
     });
 
@@ -382,9 +382,9 @@ describe('WebAppConversationService natural-first routing', () => {
       shouldShowArtifactInChat: false,
       target: expect.objectContaining({ type: 'folder' }),
     }));
-    expect(agentGateway.buildSnapshot({ activeSessionId: 'session-command-center-downloads' }).activeRun).toBeNull();
+    expect(agentGateway.buildSnapshot({ activeSessionId: 'session-dashboard-downloads' }).activeRun).toBeNull();
     expect(realtime.recordAssistantMessage).toHaveBeenCalledWith(
-      'session-command-center-downloads',
+      'session-dashboard-downloads',
       expect.any(String),
       null,
       expect.stringMatching(/^file-inspection/),
@@ -407,7 +407,7 @@ describe('WebAppConversationService natural-first routing', () => {
     });
 
     const result = await service.processChatSend({
-      sessionId: 'session-command-center-skill',
+      sessionId: 'session-dashboard-skill',
       message: 'use a skill selecionada para este tema',
       selectedSkills: [
         {
@@ -424,7 +424,7 @@ describe('WebAppConversationService natural-first routing', () => {
       requestedTools: expect.arrayContaining(['network_fetch']),
     }));
     expect(sendToSession).not.toHaveBeenCalled();
-    const snapshot = agentGateway.buildSnapshot({ activeSessionId: 'session-command-center-skill' });
+    const snapshot = agentGateway.buildSnapshot({ activeSessionId: 'session-dashboard-skill' });
     expect(snapshot.activeRun).toEqual(expect.objectContaining({
       status: 'waiting_approval',
       summary: 'Capability Negotiation aguardando aprovacao de escopo.',
@@ -446,7 +446,7 @@ describe('WebAppConversationService natural-first routing', () => {
       }),
     }));
     expect(realtime.recordAssistantMessage).toHaveBeenCalledWith(
-      'session-command-center-skill',
+      'session-dashboard-skill',
       expect.stringContaining('Preciso da sua confirmacao'),
       null,
       'universal-agent-runtime',
@@ -487,7 +487,7 @@ describe('WebAppConversationService natural-first routing', () => {
     });
 
     const result = await service.processChatSend({
-      sessionId: 'session-command-center-text-attachment',
+      sessionId: 'session-dashboard-text-attachment',
       message: 'me diga o que tem nesse arquivo',
       attachments: [
         {
@@ -503,7 +503,7 @@ describe('WebAppConversationService natural-first routing', () => {
     expect(result.taskId).toBeNull();
     expect(result.responseDecision).toBeNull();
     expect(sendToSession).not.toHaveBeenCalled();
-    expect(agentGateway.buildSnapshot({ activeSessionId: 'session-command-center-text-attachment' }).activeRun).toEqual(expect.objectContaining({
+    expect(agentGateway.buildSnapshot({ activeSessionId: 'session-dashboard-text-attachment' }).activeRun).toEqual(expect.objectContaining({
       channel: 'web',
       input: expect.stringContaining('O usuario enviou anexos textuais'),
       metadata: expect.objectContaining({
@@ -520,13 +520,13 @@ describe('WebAppConversationService natural-first routing', () => {
     }));
     expect(legacyUnifiedGateway.handleEvent).not.toHaveBeenCalled();
     expect(realtime.recordUserMessage).toHaveBeenCalledWith(
-      'session-command-center-text-attachment',
+      'session-dashboard-text-attachment',
       'me diga o que tem nesse arquivo',
       null,
       [],
     );
     expect(realtime.recordAssistantMessage).toHaveBeenCalledWith(
-      'session-command-center-text-attachment',
+      'session-dashboard-text-attachment',
       expect.any(String),
       null,
       'attachment-conversation',
@@ -545,7 +545,7 @@ describe('WebAppConversationService natural-first routing', () => {
     const encodedText = 'QvSxjZLRMQHD%2Bo2UQfv05oFK6Ev%2BsA%2B%2BKRbIMbVDbc8T6EJfayYIqAiXvvmlMJ03q%2FLxhcFz%2F6'.repeat(4);
 
     await service.processChatSend({
-      sessionId: 'session-command-center-text-attachment-fallback',
+      sessionId: 'session-dashboard-text-attachment-fallback',
       message: 'me diga o que tem nesse arquivo',
       attachments: [
         {
@@ -559,7 +559,7 @@ describe('WebAppConversationService natural-first routing', () => {
 
     expect(sendToSession).not.toHaveBeenCalled();
     expect(realtime.recordAssistantMessage).toHaveBeenCalledWith(
-      'session-command-center-text-attachment-fallback',
+      'session-dashboard-text-attachment-fallback',
       expect.stringContaining('texto com cara de token/codigo codificado'),
       null,
       'attachment-conversation',
@@ -586,7 +586,7 @@ describe('WebAppConversationService natural-first routing', () => {
     });
 
     const result = await service.processChatSend({
-      sessionId: 'session-command-center-binary',
+      sessionId: 'session-dashboard-binary',
       message: 'analise esse anexo',
       attachments: [
         {
@@ -601,16 +601,16 @@ describe('WebAppConversationService natural-first routing', () => {
     expect(result.taskId).toBeNull();
     expect(result.responseDecision).toBeNull();
     expect(sendToSession).not.toHaveBeenCalled();
-    expect(agentGateway.buildSnapshot({ activeSessionId: 'session-command-center-binary' }).activeRun).toBeNull();
+    expect(agentGateway.buildSnapshot({ activeSessionId: 'session-dashboard-binary' }).activeRun).toBeNull();
     expect(realtime.recordAssistantMessage).toHaveBeenCalledWith(
-      'session-command-center-binary',
+      'session-dashboard-binary',
       expect.stringContaining('chegou apenas como metadados'),
       null,
       'attachment-unsupported',
     );
   });
 
-  it('routes Command Center natural web research through governed capability negotiation', async () => {
+  it('routes Dashboard natural web research through governed capability negotiation', async () => {
     const realtime = createRealtimeMock();
     const sendToSession = jest.fn(async () => ({ taskId: 'task-universal-web' }));
     const sharedSurface = {
@@ -635,7 +635,7 @@ describe('WebAppConversationService natural-first routing', () => {
     });
 
     const result = await service.processChatSend({
-      sessionId: 'session-command-center',
+      sessionId: 'session-dashboard',
       message: 'pesquise artigos recentes sobre agentes autonomos',
     });
 
@@ -648,14 +648,14 @@ describe('WebAppConversationService natural-first routing', () => {
       shouldShowArtifactInChat: false,
     }));
     expect(realtime.recordAssistantMessage).toHaveBeenCalledWith(
-      'session-command-center',
+      'session-dashboard',
       expect.stringContaining('Preciso da sua confirmacao'),
       null,
       'universal-agent-runtime',
     );
-    const snapshot = agentGateway.buildSnapshot({ activeSessionId: 'session-command-center' });
+    const snapshot = agentGateway.buildSnapshot({ activeSessionId: 'session-dashboard' });
     expect(snapshot.activeRun).toEqual(expect.objectContaining({
-      sessionId: 'session-command-center',
+      sessionId: 'session-dashboard',
       channel: 'web',
       status: 'waiting_approval',
       summary: 'Capability Negotiation aguardando aprovacao de escopo.',
@@ -683,7 +683,7 @@ describe('WebAppConversationService natural-first routing', () => {
     }));
   });
 
-  it('stops risky Command Center requests at the Universal Agent approval gate', async () => {
+  it('stops risky Dashboard requests at the Universal Agent approval gate', async () => {
     const realtime = createRealtimeMock();
     const sendToSession = jest.fn(async () => ({ taskId: 'should-not-run' }));
     const agentGateway = new ZavorthAgentGateway({
@@ -705,19 +705,19 @@ describe('WebAppConversationService natural-first routing', () => {
     });
 
     const result = await service.processChatSend({
-      sessionId: 'session-command-center-risk',
+      sessionId: 'session-dashboard-risk',
       message: 'rode um comando no terminal para corrigir tudo',
     });
 
     expect(sendToSession).not.toHaveBeenCalled();
     expect(result.taskId).toBeNull();
     expect(realtime.recordAssistantMessage).toHaveBeenCalledWith(
-      'session-command-center-risk',
+      'session-dashboard-risk',
       expect.stringContaining('Preciso da sua confirmacao'),
       null,
       'universal-agent-runtime',
     );
-    expect(agentGateway.buildSnapshot({ activeSessionId: 'session-command-center-risk' }).activeRun).toEqual(expect.objectContaining({
+    expect(agentGateway.buildSnapshot({ activeSessionId: 'session-dashboard-risk' }).activeRun).toEqual(expect.objectContaining({
       status: 'waiting_approval',
       approvals: [
         expect.objectContaining({

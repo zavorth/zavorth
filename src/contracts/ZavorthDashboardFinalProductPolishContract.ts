@@ -54,7 +54,7 @@ export type ZavorthDashboardFinalProductPolishSnapshot = {
     rawSecretsSerialized: false;
   };
   safety: {
-    commandCenterIsDisplayOnly: true;
+    dashboardIsDisplayOnly: true;
     mutableExecutionStaysInRuntime: true;
     approvalsRemainPolicyBrokerBound: true;
     advancedDetailsOptional: true;

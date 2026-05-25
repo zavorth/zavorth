@@ -105,7 +105,7 @@ export type CapabilityNegotiationSnapshot = {
   };
   surface: {
     cliCommand: string;
-    commandCenterPath: string;
+    dashboardPath: string;
     approvalHint: string;
   };
   nextSafeAction: string;
@@ -397,7 +397,7 @@ export class CapabilityNegotiationService {
       },
       surface: {
         cliCommand: 'zavorth negotiate --json',
-        commandCenterPath: '/control?sector=skills',
+        dashboardPath: '/dashboard?sector=skills',
         approvalHint: 'Aprove apenas se tools, paths e superficies estiverem corretos.',
       },
       nextSafeAction: this.buildNextSafeAction(status, approvalRequired, previewRequired, blockedToolIds.length),

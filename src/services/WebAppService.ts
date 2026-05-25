@@ -348,13 +348,13 @@ export class WebAppService {
       || (pathname === '/api/web/nodes/heartbeat' && req.method === 'POST');
 
     if (
-      pathname === '/api/web/command-center'
+      pathname === '/api/web/dashboard'
       && req.method === 'GET'
       && !this.isAuthorized(req, url)
     ) {
       this.composition.runtimeContextBridge.writeJson(
         res,
-        this.buildPublicCommandCenterFallbackSnapshot(),
+        this.buildPublicDashboardFallbackSnapshot(),
         200,
       );
       return true;
@@ -458,7 +458,7 @@ export class WebAppService {
     return false;
   }
 
-  private buildPublicCommandCenterFallbackSnapshot(): Record<string, any> {
+  private buildPublicDashboardFallbackSnapshot(): Record<string, any> {
     const generatedAt = new Date().toISOString();
     return {
       ok: true,
@@ -476,7 +476,7 @@ export class WebAppService {
         workflowJobs: [],
         workflowQueue: {
           kind: 'memory',
-          label: 'Command Center safe public fallback',
+          label: 'Dashboard safe public fallback',
           version: 'agent-workflow-queue-store/v1',
           capabilities: {
             durable: false,

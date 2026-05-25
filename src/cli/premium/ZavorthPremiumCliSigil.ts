@@ -37,7 +37,7 @@ export const ZAVORTH_ASCII_SIGIL = [
 
 export const ZAVORTH_COMPACT_SIGIL = [
   '⟡ ZAVORTH ⟡',
-  'Event-horizon agent command center',
+  'Event-horizon agent dashboard',
 ];
 
 export const ZAVORTH_WORDMARK = [

@@ -65,9 +65,9 @@ export class ZavorthVisualReceiptsV2Service {
       sourceProjection: {
         surface: source.surface,
         contractVersion: source.contractVersion,
-        commandCenterProjection: source.commandCenterProjection,
+        dashboardProjection: source.dashboardProjection,
       },
-      commandCenterProjection: {
+      dashboardProjection: {
         route: '/dashboard',
         renderMode: 'product-cards',
         executionAuthority: false,

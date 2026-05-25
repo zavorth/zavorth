@@ -78,7 +78,7 @@ export type UniversalPreviewModeSnapshot = {
   }>;
   surface: {
     cliCommand: string;
-    commandCenterPath: string;
+    dashboardPath: string;
   };
   nextSafeAction: string;
 };
@@ -351,7 +351,7 @@ export class UniversalPreviewModeService {
       }),
       surface: {
         cliCommand: `zavorth preview "${text || '<pedido>'}" --json`,
-        commandCenterPath: '/control?sector=overview',
+        dashboardPath: '/dashboard?sector=overview',
       },
       nextSafeAction: this.nextSafeAction({
         previewOnly,

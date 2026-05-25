@@ -151,7 +151,7 @@ export class ZavorthProviderReadinessMatrixService {
           liveNetworkUsedByDefault: true,
         },
       ],
-      commandCenterProjection: {
+      dashboardProjection: {
         route: '/dashboard',
         endpoint: '/api/providers/readiness',
         executionAuthority: false,
@@ -174,9 +174,9 @@ export class ZavorthProviderReadinessMatrixService {
           detail: 'Connection testing is represented as an explicit operator action and is not hidden in normal rendering.',
         },
         {
-          id: 'command-center-no-authority',
+          id: 'dashboard-no-authority',
           status: 'passed',
-          detail: 'Command Center may render readiness and test buttons but cannot execute provider calls by itself.',
+          detail: 'Dashboard may render readiness and test buttons but cannot execute provider calls by itself.',
         },
       ],
       nextAction: buildNextAction(summary, entries),
@@ -612,6 +612,7 @@ function resolveOpenAiCompatibleProbe(keys: Set<string>): ProviderProbeConfig | 
     keyRef: string;
     authHeader?: string;
     authPrefix?: string;
+    extraHeaders?: Record<string, string>;
   }> = [
     { ids: ['openai'], url: 'https://api.openai.com/v1/models', keyRef: 'OPENAI_API_KEY', authPrefix: 'Bearer ' },
     { ids: ['openrouter'], url: 'https://openrouter.ai/api/v1/models', keyRef: 'OPENROUTER_API_KEY', authPrefix: 'Bearer ' },
@@ -622,14 +623,34 @@ function resolveOpenAiCompatibleProbe(keys: Set<string>): ProviderProbeConfig | 
     { ids: ['mistral'], url: 'https://api.mistral.ai/v1/models', keyRef: 'MISTRAL_API_KEY', authPrefix: 'Bearer ' },
     { ids: ['together'], url: 'https://api.together.xyz/v1/models', keyRef: 'TOGETHER_API_KEY', authPrefix: 'Bearer ' },
     { ids: ['cerebras'], url: 'https://api.cerebras.ai/v1/models', keyRef: 'CEREBRAS_API_KEY', authPrefix: 'Bearer ' },
+    {
+      ids: ['github-models', 'github-models-api'],
+      url: 'https://models.github.ai/catalog/models',
+      keyRef: 'GITHUB_MODELS_TOKEN',
+      authPrefix: 'Bearer ',
+      extraHeaders: {
+        Accept: 'application/vnd.github+json',
+        'X-GitHub-Api-Version': '2026-03-10',
+      },
+    },
+    { ids: ['cohere'], url: 'https://api.cohere.ai/compatibility/v1/models', keyRef: 'COHERE_API_KEY', authPrefix: 'Bearer ' },
+    { ids: ['cohere-co'], url: 'https://api.cohere.ai/compatibility/v1/models', keyRef: 'CO_API_KEY', authPrefix: 'Bearer ' },
+    { ids: ['sambanova'], url: 'https://api.sambanova.ai/v1/models', keyRef: 'SAMBANOVA_API_KEY', authPrefix: 'Bearer ' },
+    { ids: ['falcon'], url: 'https://router.huggingface.co/v1/models', keyRef: 'FALCON_API_KEY', authPrefix: 'Bearer ' },
+    { ids: ['jais'], url: 'https://router.huggingface.co/v1/models', keyRef: 'JAIS_API_KEY', authPrefix: 'Bearer ' },
     { ids: ['minimax'], url: 'https://api.minimax.io/v1/models', keyRef: 'MINIMAX_API_KEY', authPrefix: 'Bearer ' },
     { ids: ['qwen', 'puter'], url: 'https://dashscope-intl.aliyuncs.com/compatible-mode/v1/models', keyRef: 'PUTER_AUTH_TOKEN', authPrefix: 'Bearer ' },
   ];
   const spec = specs.find((candidate) => candidate.ids.some((id) => keys.has(id)));
   if (spec) {
-    const key = resolveSecretRef(spec.keyRef);
+    const key = resolveSecretRef(spec.keyRef)
+      || (keys.has('cohere') ? resolveSecretRef('CO_API_KEY') : '')
+      || (keys.has('github-models') ? resolveSecretRef('GITHUB_TOKEN') : '')
+      || (keys.has('falcon') ? resolveSecretRef('HUGGINGFACE_API_KEY') || resolveSecretRef('HF_TOKEN') : '')
+      || (keys.has('jais') ? resolveSecretRef('CORE42_API_KEY') || resolveSecretRef('HUGGINGFACE_API_KEY') || resolveSecretRef('HF_TOKEN') : '');
     if (!key) return null;
     return probeConfig(spec.url, 'GET', {
+      ...(spec.extraHeaders || {}),
       [spec.authHeader || 'Authorization']: `${spec.authPrefix || ''}${key}`,
     }, countAnyModelArray);
   }
@@ -689,6 +710,7 @@ function countAnyModelArray(data: unknown): number | null {
     const value = record[field];
     if (Array.isArray(value)) return value.length;
   }
+  if (Array.isArray(data)) return data.length;
   return null;
 }
 

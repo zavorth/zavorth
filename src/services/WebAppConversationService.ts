@@ -486,7 +486,7 @@ export class WebAppConversationService {
     )).join('\n\n---\n\n');
 
     return [
-      'O usuario enviou anexos textuais pelo Command Center.',
+      'O usuario enviou anexos textuais pelo Dashboard.',
       'Voce e o analista de arquivos do Zavorth. Responda com qualidade de produto: identifique formato, sinais estruturais, riscos e limites honestos.',
       'Responda ao pedido usando o conteudo e o perfil automatico dos anexos, em linguagem natural.',
       'Se o arquivo parecer token, chave, hash, Base64, Base64URL ou URL-encoded, diga isso claramente e cite os sinais observaveis.',
@@ -548,7 +548,7 @@ export class WebAppConversationService {
 
     const lines = [
       unsupported.length === attachments.length
-        ? 'Recebi o anexo, mas nesta versao do Command Center ele chegou apenas como metadados.'
+        ? 'Recebi o anexo, mas nesta versao do Dashboard ele chegou apenas como metadados.'
         : 'Recebi os anexos. Alguns chegaram apenas como metadados e nao serao analisados agora.',
       '',
       ...unsupported.slice(0, 5).map((attachment) => `- ${attachment.name} (${attachment.type || 'tipo desconhecido'}, ${attachment.size || 0} bytes)`),

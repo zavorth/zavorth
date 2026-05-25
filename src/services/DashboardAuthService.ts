@@ -2,7 +2,7 @@ import crypto from 'crypto';
 import fs from 'fs';
 import path from 'path';
 import { config } from '../config/index.js';
-import { generateCommandCenterToken, isWeakCommandCenterToken } from './CommandCenterTokenService.js';
+import { generateDashboardToken, isWeakDashboardToken } from './DashboardTokenService.js';
 
 type AuthStatus = {
   enabled: boolean;
@@ -69,7 +69,7 @@ export class DashboardAuthService {
 
   private resolveToken(): { token: string; status: AuthStatus } {
     const envToken = String(config.zavorthWebAuthToken || '').trim();
-    if (envToken && !isWeakCommandCenterToken(envToken)) {
+    if (envToken && !isWeakDashboardToken(envToken)) {
       return {
         token: envToken,
         status: {
@@ -95,7 +95,7 @@ export class DashboardAuthService {
       };
     }
 
-    const generated = generateCommandCenterToken();
+    const generated = generateDashboardToken();
     fs.mkdirSync(path.dirname(tokenFile), { recursive: true });
     fs.writeFileSync(tokenFile, generated, 'utf8');
     return {

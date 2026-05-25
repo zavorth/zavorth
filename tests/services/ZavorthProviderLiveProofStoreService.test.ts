@@ -112,7 +112,7 @@ function matrixSnapshot(status: 'passed' | 'failed') {
     simpleCatalog: {} as any,
     liveCompletion: {} as any,
     commands: [],
-    commandCenterProjection: {} as any,
+    dashboardProjection: {} as any,
     invariants: [],
     nextAction: 'done',
   } as any;

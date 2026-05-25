@@ -491,9 +491,13 @@ export class ProviderFactory {
       deepinfra: 'https://api.deepinfra.com/v1/openai',
       alibaba: 'https://dashscope.aliyuncs.com/compatible-mode/v1',
       cerebras: 'https://api.cerebras.ai/v1',
+      cohere: 'https://api.cohere.ai/compatibility/v1',
       fireworks: 'https://api.fireworks.ai/inference/v1',
+      falcon: 'https://router.huggingface.co/v1',
+      'github-models': 'https://models.github.ai/inference',
       groq: 'https://api.groq.com/openai/v1',
       huggingface: 'https://router.huggingface.co/v1',
+      jais: 'https://router.huggingface.co/v1',
       'kimi-coding': 'https://api.moonshot.ai/v1',
       moonshot: 'https://api.moonshot.ai/v1',
       mistral: 'https://api.mistral.ai/v1',
@@ -501,6 +505,7 @@ export class ProviderFactory {
       opencode: 'https://opencode.ai/zen/v1',
       perplexity: 'https://api.perplexity.ai',
       qianfan: 'https://qianfan.baidubce.com/v2',
+      sambanova: 'https://api.sambanova.ai/v1',
       sglang: 'http://localhost:30000/v1',
       lmstudio: 'http://localhost:1234/v1',
       vllm: 'http://localhost:8000/v1',
@@ -522,6 +527,25 @@ export class ProviderFactory {
   }): string | null {
     const explicit = String(input.input?.apiKey || '').trim();
     if (explicit) return explicit;
+    const providerName = this.normalizeProviderName(String(input.input?.providerName || input.input?.providerId || input.input?.routeId || '').trim());
+    if (providerName === 'cohere') {
+      return readEnv(input.input?.apiKeyRef, input.input?.credentialRef, 'COHERE_API_KEY', 'CO_API_KEY');
+    }
+    if (providerName === 'cerebras') {
+      return readEnv(input.input?.apiKeyRef, input.input?.credentialRef, 'CEREBRAS_API_KEY');
+    }
+    if (providerName === 'github-models') {
+      return readEnv(input.input?.apiKeyRef, input.input?.credentialRef, 'GITHUB_MODELS_TOKEN', 'GITHUB_TOKEN');
+    }
+    if (providerName === 'sambanova') {
+      return readEnv(input.input?.apiKeyRef, input.input?.credentialRef, 'SAMBANOVA_API_KEY');
+    }
+    if (providerName === 'falcon') {
+      return readEnv(input.input?.apiKeyRef, input.input?.credentialRef, 'FALCON_API_KEY', 'HUGGINGFACE_API_KEY', 'HF_TOKEN');
+    }
+    if (providerName === 'jais') {
+      return readEnv(input.input?.apiKeyRef, input.input?.credentialRef, 'JAIS_API_KEY', 'CORE42_API_KEY', 'HUGGINGFACE_API_KEY', 'HF_TOKEN');
+    }
     return readEnv(
       input.input?.apiKeyRef,
       input.input?.credentialRef,

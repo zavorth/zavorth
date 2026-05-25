@@ -56,7 +56,7 @@ describe('ZavorthTransactionLiveCandidateEnvelopeService', () => {
     expect(result.gates).toEqual(
       expect.arrayContaining([
         expect.objectContaining({ kind: 'certification-matrix-certification', passed: true }),
-        expect.objectContaining({ kind: 'command-center-simulated', passed: true }),
+        expect.objectContaining({ kind: 'dashboard-simulated', passed: true }),
         expect.objectContaining({ kind: 'approval-ledger-approved', passed: true }),
         expect.objectContaining({ kind: 'credential-ref-ready', passed: true }),
         expect.objectContaining({ kind: 'owner-confirmation', passed: false }),
@@ -125,7 +125,7 @@ describe('ZavorthTransactionLiveCandidateEnvelopeService', () => {
 
     expect(result.status).toBe('runtime-blocked');
     expect(result.blockers).toEqual(expect.arrayContaining([
-      'command-center-simulated',
+      'dashboard-simulated',
       'credential-ref-ready',
       'typed-connector-simulated',
     ]));

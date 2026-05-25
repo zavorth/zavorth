@@ -70,13 +70,12 @@ export function buildZavorthCliRuntimeTuiSnapshot(input: BuildZavorthCliRuntimeT
     channels,
     sessions,
     shortcuts: [
+      { key: 'p', label: 'Prompt', command: 'zavorth chat', detail: 'open the terminal agent session' },
       { key: 'a', label: 'Approvals', command: 'zavorth approve', detail: 'review governed actions' },
       { key: 'd', label: 'Diff', command: 'zavorth diff', detail: 'open mutation previews' },
-      { key: 'l', label: 'Logs', command: 'zavorth logs', detail: 'inspect runtime logs' },
-      { key: 'c', label: 'Channels', command: 'zavorth message status', detail: 'channel readiness' },
-      { key: 's', label: 'Sessions', command: 'zavorth sessions', detail: 'active/local sessions' },
-      { key: 'o', label: 'Open', command: 'zavorth open', detail: 'Command Center' },
-      { key: 'r', label: 'Refresh', command: 'zavorth hud runtime', detail: 'reload this TUI' },
+      { key: 'c', label: 'Channels', command: 'zavorth channels status', detail: 'channel readiness' },
+      { key: 'o', label: 'Open', command: 'zavorth open', detail: 'Dashboard' },
+      { key: 'r', label: 'Refresh', command: 'zavorth tui', detail: 'reload this daily TUI' },
       { key: 'q', label: 'Quit', command: 'quit', detail: 'leave runtime TUI' },
     ],
     safety: {
@@ -94,7 +93,7 @@ function buildConnection(projectRoot: string, home: ReturnType<typeof buildZavor
   return {
     gateway: row('gateway', 'Gateway', String(gateway.status || (home.runtime.gatewayToken === 'present' ? 'token-ready' : 'not-started')), gateway.status === 'running' || home.runtime.gatewayToken === 'present' ? 'ready' : 'warning', gateway.pid ? `pid ${String(gateway.pid)}` : 'local gateway state'),
     daemon: row('daemon', 'Daemon', String(daemon.status || 'not-installed'), daemon.status === 'running' ? 'ready' : daemon.installed ? 'warning' : 'warning', daemon.pid ? `pid ${String(daemon.pid)}` : 'service supervisor'),
-    dashboard: row('dashboard', 'Dashboard', home.runtime.dashboard, home.runtime.dashboard === 'available' ? 'ready' : 'blocked', 'visual Command Center'),
+    dashboard: row('dashboard', 'Dashboard', home.runtime.dashboard, home.runtime.dashboard === 'available' ? 'ready' : 'blocked', 'visual Dashboard'),
   };
 }
 

@@ -91,7 +91,7 @@ export type ExternalAgentPluginCliCommandSurfaceBoundaryNormalization<TRuntimeId
   generatedAt: string;
   runtimeId: TRuntimeId;
   cliCommands: ExternalAgentZavorthCliCommandSurface[];
-  commandCenter: {
+  dashboard: {
     catalogRows: ExternalAgentCliCommandCatalogRow[];
   };
   toolExposurePolicyInput: ToolExposurePolicyInput;
@@ -115,7 +115,7 @@ function cliCommandLabel(index: number, fixtureCase: ExternalAgentPluginCliComma
   return `CLI command surface ${index + 1}`;
 }
 
-function commandCenterStatus(risk: UniversalToolRiskLevel): ExternalAgentCliCommandCatalogRow['status'] {
+function dashboardStatus(risk: UniversalToolRiskLevel): ExternalAgentCliCommandCatalogRow['status'] {
   return risk === 'danger' ? 'blocked' : 'available';
 }
 
@@ -159,12 +159,12 @@ export function normalizeExternalAgentPluginCliCommandSurfaces<TRuntimeId extend
     generatedAt: options.generatedAt,
     runtimeId: options.runtimeId,
     cliCommands,
-    commandCenter: {
+    dashboard: {
       catalogRows: cliCommands.map((command) => ({
         id: `${command.id}:catalog-row`,
         commandId: command.id,
         label: command.label,
-        status: commandCenterStatus(command.risk),
+        status: dashboardStatus(command.risk),
         policy: command.risk === 'danger' ? 'blocked' : 'metadata-only',
       })),
     },

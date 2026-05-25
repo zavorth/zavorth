@@ -30,7 +30,7 @@ async function logCliError(message: string, title = 'Zavorth Error'): Promise<vo
 
 async function printCliPanel(title: string, lines: string[], type: 'default' | 'info' | 'success' | 'warning' | 'error' = 'default'): Promise<number> {
   const content = lines.join('\n');
-  if (process.stdout.isTTY && !process.argv.includes('--json')) {
+  if (!process.argv.includes('--json')) {
     const { TerminalPanel } = await import('./cli/presentation/TerminalPanel.js');
     process.stdout.write(`${TerminalPanel.render(content, {
       title,
@@ -90,6 +90,7 @@ const PUBLIC_COMMANDS = [
   'providers',
   'models',
   'hud',
+  'tui',
   'help',
   'onboard',
   'quickstart',
@@ -381,6 +382,26 @@ async function runPremiumHud(rawArgs: string[]): Promise<number> {
     process.stdout.write(result.output);
   }
   return result.exitCode;
+}
+
+function resolveDailyHudArgs(rawArgs: string[]): string[] {
+  const first = String(rawArgs[0] || '').trim().toLowerCase();
+  const hasApprovalAction = rawArgs.includes('--action')
+    || rawArgs.some((arg) => arg.startsWith('--action='))
+    || rawArgs.includes('--plan')
+    || rawArgs.some((arg) => arg.startsWith('--plan='))
+    || rawArgs.includes('--select')
+    || rawArgs.some((arg) => arg.startsWith('--select='))
+    || first === 'review'
+    || first === 'guide';
+  const explicitRuntime = first === 'runtime'
+    || first === 'tui'
+    || rawArgs.includes('--runtime')
+    || rawArgs.includes('--tui');
+  if (hasApprovalAction || explicitRuntime) {
+    return rawArgs;
+  }
+  return ['runtime', ...rawArgs];
 }
 
 async function runPremiumSetupStudio(rawArgs: string[]): Promise<number> {
@@ -1116,6 +1137,14 @@ async function runChannelCapabilityCatalog(rawArgs: string[] = []): Promise<numb
   return npmInherited(['exec', 'tsx', '--', 'scripts/channel-long-tail-activation.ts', ...forwarded], projectRoot);
 }
 
+async function runChannelDeepening(rawArgs: string[] = []): Promise<number> {
+  return npmInherited(['exec', 'tsx', '--', 'scripts/zavorth-channel-deepening.ts', ...rawArgs], projectRoot);
+}
+
+async function runNativeLearningLoop(rawArgs: string[] = []): Promise<number> {
+  return npmInherited(['exec', 'tsx', '--', 'scripts/zavorth-native-learning-loop.ts', ...rawArgs], projectRoot);
+}
+
 async function runGatewayMatrix(rawArgs: string[] = []): Promise<number> {
   return npmInherited(['exec', 'tsx', '--', 'scripts/zavorth-gateway-matrix.ts', ...rawArgs], projectRoot);
 }
@@ -1474,9 +1503,9 @@ async function runSensitiveActionFlow(rawArgs: string[] = []): Promise<number> {
 
 async function runProviderReadiness(rawArgs: string[] = []): Promise<number> {
   const action = String(rawArgs[0] || 'matrix').trim().toLowerCase();
-  if (action === 'cockpit' || action === 'command-center') {
-    const { ZavorthCommandCenterProviderCockpitService } = await import('./services/ZavorthCommandCenterProviderCockpitService.js');
-    const service = new ZavorthCommandCenterProviderCockpitService();
+  if (action === 'cockpit' || action === 'dashboard') {
+    const { ZavorthDashboardProviderCockpitService } = await import('./services/ZavorthDashboardProviderCockpitService.js');
+    const service = new ZavorthDashboardProviderCockpitService();
     const projection = await service.buildProjection({
       includeAdvanced: rawArgs.includes('--advanced'),
       providerId: readFlexibleStringFlag(rawArgs, 'provider') || rawArgs[1],
@@ -1576,8 +1605,8 @@ async function runProviderReadiness(rawArgs: string[] = []): Promise<number> {
     return snapshot.status === 'denied' ? 2 : 0;
   }
   if (action === 'visual-approval' || action === 'visual-pack' || action === 'approval-pack') {
-    const { ZavorthCommandCenterVisualApprovalPackService } = await import('./services/ZavorthCommandCenterVisualApprovalPackService.js');
-    const service = new ZavorthCommandCenterVisualApprovalPackService();
+    const { ZavorthDashboardVisualApprovalPackService } = await import('./services/ZavorthDashboardVisualApprovalPackService.js');
+    const service = new ZavorthDashboardVisualApprovalPackService();
     const pack = await service.buildPack({
       includeAdvanced: rawArgs.includes('--advanced'),
       providerId: readFlexibleStringFlag(rawArgs, 'provider') || rawArgs[1],
@@ -1684,6 +1713,25 @@ async function runBuiltinLauncher(rawArgs: string[]): Promise<number | null> {
     return runBuiltinLauncher(restArgs);
   }
 
+  if (command === 'gateway') {
+    const gatewayControlSubcommand = String(restArgs[0] || 'status').trim().toLowerCase();
+    if ([
+      'status',
+      'providers',
+      'models',
+      'combos',
+      'combo',
+      'cache',
+      'rate-limits',
+      'rate-limit',
+      'ratelimits',
+      'doctor',
+    ].includes(gatewayControlSubcommand)) {
+      const { runZavorthCli } = await import('./cli/ZavorthCli.js');
+      return runZavorthCli(['gateway', ...restArgs]);
+    }
+  }
+
   if (isZavorthLiveNamespaceCommand(command)) {
     const result = await runZavorthLiveNamespaceCommand({ projectRoot, command, args: restArgs });
     process.stdout.write(result.output);
@@ -1705,8 +1753,17 @@ async function runBuiltinLauncher(rawArgs: string[]): Promise<number | null> {
     return runPremiumHome(restArgs);
   }
 
+  if (command === 'chat' || command === 'session') {
+    const { runZavorthCli } = await import('./cli/ZavorthCli.js');
+    return runZavorthCli(restArgs);
+  }
+
+  if (command === 'tui') {
+    return runPremiumHud(['runtime', ...restArgs]);
+  }
+
   if (command === 'hud' || command === 'cockpit') {
-    return runPremiumHud(restArgs);
+    return runPremiumHud(resolveDailyHudArgs(restArgs));
   }
 
   if (command === 'hatch') {
@@ -1823,11 +1880,69 @@ async function runBuiltinLauncher(rawArgs: string[]): Promise<number | null> {
 
   if (command === 'channels' || command === 'channel') {
     const channelAction = String(restArgs[0] || '').trim().toLowerCase();
+    const channelSubAction = String(restArgs[1] || '').trim().toLowerCase();
+    const phase2Channels = new Set([
+      'api',
+      'bluebubbles',
+      'cli',
+      'clickclack',
+      'discord',
+      'email',
+      'feishu',
+      'googlechat',
+      'home-assistant',
+      'imessage',
+      'instagram',
+      'irc',
+      'lark',
+      'line',
+      'matrix',
+      'mattermost',
+      'msteams',
+      'nextcloud-talk',
+      'nostr',
+      'qqbot',
+      'signal',
+      'slack',
+      'sms',
+      'synology-chat',
+      'telegram',
+      'tlon',
+      'twitch',
+      'web',
+      'webhooks',
+      'wecom',
+      'weixin',
+      'whatsapp',
+      'whatsapp-baileys',
+      'whatsapp-cloud',
+      'yuanbao',
+      'zalo',
+      'zalouser',
+    ]);
+    const phase2Actions = new Set([
+      'doctor',
+      'health',
+      'inspect',
+      'outbox',
+      'pair',
+      'pairing',
+      'proof',
+      'read',
+      'send',
+      'send-test',
+      'setup',
+      'status',
+      'test',
+    ]);
     if (restArgs.includes('--help') || restArgs.includes('-h')) {
       return printBuiltinHelp('channels');
     }
-    if (['catalog', 'list', 'all', 'inventory'].includes(channelAction)) {
-      return runChannelCapabilityCatalog(restArgs.slice(1));
+    if (['catalog', 'list', 'all', 'inventory', 'status', 'coverage', 'deepening'].includes(channelAction)) {
+      return runChannelDeepening(restArgs);
+    }
+    if (phase2Channels.has(channelAction) && (channelSubAction === '' || phase2Actions.has(channelSubAction))) {
+      return runChannelDeepening(restArgs);
     }
     if ([
       'add',
@@ -1878,6 +1993,12 @@ async function runBuiltinLauncher(rawArgs: string[]): Promise<number | null> {
 
   if (command === 'experience' || command === 'profile' || command === 'profiles') {
     return runExperienceProfiles(restArgs);
+  }
+
+  if (command === 'learn' || command === 'learning' || command === 'mnemos-learning' || command === 'native-learning-loop') {
+    const first = String(restArgs[0] || '').trim().toLowerCase();
+    const forwarded = first === 'loop' || first === 'status' || first === 'native' ? restArgs.slice(1) : restArgs;
+    return runNativeLearningLoop(forwarded);
   }
 
   if (command === 'conversation' || command === 'conversational-setup' || command === 'calibrate') {
@@ -2094,7 +2215,7 @@ async function runBuiltinLauncher(rawArgs: string[]): Promise<number | null> {
     return runRuntimeReadiness(restArgs);
   }
 
-  if (command === 'daily' || command === 'cli-home' || command === 'start-here' || command === 'tui' || command === 'home') {
+  if (command === 'daily' || command === 'cli-home' || command === 'start-here' || command === 'home') {
     return runCliExperienceParity(restArgs);
   }
 
@@ -2103,21 +2224,48 @@ async function runBuiltinLauncher(rawArgs: string[]): Promise<number | null> {
   }
 
   if (command === 'gateway') {
+    const gatewayControlSubcommand = String(restArgs[0] || 'status').trim().toLowerCase();
+    if ([
+      'status',
+      'providers',
+      'models',
+      'combos',
+      'combo',
+      'cache',
+      'rate-limits',
+      'rate-limit',
+      'ratelimits',
+      'doctor',
+    ].includes(gatewayControlSubcommand)) {
+      const { runZavorthCli } = await import('./cli/ZavorthCli.js');
+      return runZavorthCli(['gateway', ...restArgs]);
+    }
     if (String(restArgs[0] || '').trim().toLowerCase() === 'matrix') {
       return runGatewayMatrix(restArgs.slice(1));
     }
     if (restArgs.includes('--help') || restArgs.includes('-h')) {
-      return printCliPanel('Zavorth Gateway', [
+      return printCliPanel('Zavorth AI Gateway', [
         'Usage:',
         '  zavorth gateway status',
+        '  zavorth gateway providers',
+        '  zavorth gateway models',
+        '  zavorth gateway combos',
+        '  zavorth gateway cache stats',
+        '  zavorth gateway rate-limits',
+        '  zavorth gateway doctor',
+        '  zavorth gateway matrix',
+        '',
+        'Legacy runtime projections:',
         '  zavorth gateway sessions',
         '  zavorth gateway channels',
         '  zavorth gateway approvals',
         '  zavorth gateway receipts',
         '  zavorth gateway artifacts',
         '',
+        'Shows provider readiness, active route, fallback, cache, cost, latency and health.',
+        '',
         'Options:',
-        '  --json    Print the same Gateway Spine projection as JSON.',
+        '  --json    Print the same AI Gateway projection as JSON.',
       ], 'info');
     }
     return runGatewaySpine(restArgs);

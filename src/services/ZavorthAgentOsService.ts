@@ -1,6 +1,6 @@
 import {
   AGENT_OS_CONTRACT_VERSION,
-  type AgentOsCommandCenterSnapshot,
+  type AgentOsDashboardSnapshot,
   type AgentOsSnapshot,
   type AgentOsWorkspaceWrite,
 } from '../contracts/AgentOsContract.js';
@@ -105,7 +105,7 @@ export class ZavorthAgentOsService {
         'Rollback ou approval explicito e exigido quando houver impacto real.',
       ],
     });
-    const commandCenter = this.commandCenter({
+    const dashboard = this.dashboard({
       transactionStatus: transaction.status,
       twinFiles: projectTwin.fileSummary.totalIndexed,
       immuneStatus: immuneSystem.status,
@@ -126,7 +126,7 @@ export class ZavorthAgentOsService {
       immuneSystem,
       reputation,
       architectureDecision,
-      commandCenter,
+      dashboard,
       safety: {
         thinkingBlocked: false,
         simulationHasSideEffects: false,
@@ -155,16 +155,16 @@ export class ZavorthAgentOsService {
     }];
   }
 
-  private commandCenter(input: {
+  private dashboard(input: {
     transactionStatus: string;
     twinFiles: number;
     immuneStatus: string;
     reputationScores: number;
     rollbackPrepared: boolean;
-  }): AgentOsCommandCenterSnapshot {
+  }): AgentOsDashboardSnapshot {
     const blocked = input.transactionStatus === 'blocked' || input.immuneStatus === 'blocked';
     return {
-      source: 'AgentOsCommandCenterProjection',
+      source: 'AgentOsDashboardProjection',
       title: 'Agent OS',
       status: blocked ? 'blocked' : input.immuneStatus === 'warning' ? 'warning' : 'passed',
       cards: [

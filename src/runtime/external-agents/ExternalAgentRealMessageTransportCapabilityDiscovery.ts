@@ -1,6 +1,6 @@
 import {
-  normalizeExternalAgentCommandCenterLiveAssimilationFixture,
-} from './ExternalAgentCommandCenterLiveAssimilation.js';
+  normalizeExternalAgentDashboardLiveAssimilationFixture,
+} from './ExternalAgentDashboardLiveAssimilation.js';
 import {
   normalizeMessageSendLiveRehearsalTransportBlockedFixture,
 } from './ExternalAgentMessageSendLiveRehearsalTransportBlocked.js';
@@ -17,8 +17,8 @@ import {
   normalizeExternalExecutorSessionHistoryReadOnlyBridgeFixture,
 } from './ExternalAgentExternalExecutorSessionHistoryReadOnlyBridge.js';
 import type {
-  ExternalAgentCommandCenterLiveAssimilationNormalization,
-} from './ExternalAgentCommandCenterLiveAssimilation.js';
+  ExternalAgentDashboardLiveAssimilationNormalization,
+} from './ExternalAgentDashboardLiveAssimilation.js';
 import type {
   ZavorthMessageSendLiveRehearsalTransportBlockedNormalization,
 } from './ExternalAgentMessageSendLiveRehearsalTransportBlocked.js';
@@ -202,7 +202,7 @@ export type ZavorthMessageTransportCapabilityDiscoveryNormalization = {
     bridge: ExternalExecutorLiveReadOnlyBridgeBoundaryNormalization['decision'];
     observability: ExternalExecutorLiveObservabilityProjectionNormalization['decision'];
     sessionHistory: ExternalExecutorSessionHistoryReadOnlyBridgeNormalization['decision'];
-    commandCenter: ExternalAgentCommandCenterLiveAssimilationNormalization['decision'];
+    dashboard: ExternalAgentDashboardLiveAssimilationNormalization['decision'];
     messageSendRehearsal: ZavorthMessageSendLiveRehearsalTransportBlockedNormalization['decision'];
   };
   discoveryEvidence: ZavorthMessageTransportLiveDiscoveryEvidence;
@@ -484,7 +484,7 @@ export function normalizeMessageTransportCapabilityDiscoveryFixture(): ZavorthMe
       bridge: normalizeExternalExecutorLiveReadOnlyBridgeBoundaryFixture().decision,
       observability: normalizeExternalExecutorLiveObservabilityProjectionFixture().decision,
       sessionHistory: normalizeExternalExecutorSessionHistoryReadOnlyBridgeFixture().decision,
-      commandCenter: normalizeExternalAgentCommandCenterLiveAssimilationFixture().decision,
+      dashboard: normalizeExternalAgentDashboardLiveAssimilationFixture().decision,
       messageSendRehearsal: normalizeMessageSendLiveRehearsalTransportBlockedFixture().decision,
     },
     discoveryEvidence: createMessageTransportLiveDiscoveryEvidence(),

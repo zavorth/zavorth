@@ -60,23 +60,24 @@ export class AgentRunLlmRequestBuilder {
   }
 
   private buildMessages(run: UniversalAgentRun, request: UniversalAgentRequest): ChatMessage[] {
-    const exposedTools = run.toolExposure.tools.map((tool) => tool.id).join(', ') || 'nenhuma';
+    const exposedTools = run.toolExposure.tools.map((tool) => tool.id).join(', ') || 'none';
     const contextPrompt = [
       this.buildContextPrompt(run.metadata),
       this.buildIntelligenceFabricContextPrompt(run.metadata),
       this.buildIntelligenceFabricDraftGuidancePrompt(run.metadata),
     ].filter(Boolean).join('\n');
     const systemPrompt = [
-      'Voce e Zavorth, o runtime governado local-first para agentes de IA.',
-      'Responda de forma direta, util e consistente com o canal atual.',
-      'Nao afirme que executou ferramentas, arquivos ou efeitos externos se o run nao registrou tool events.',
-      'Quando o usuario perguntar data, hora atual ou fuso horario e a ferramenta get_datetime estiver visivel, use get_datetime antes de responder.',
+      'You are Zavorth, a local-first governed runtime for AI agents.',
+      'Reply in the same language the user used. If the user explicitly asks for another language, follow that request.',
+      'Respond directly, usefully and consistently with the current channel.',
+      'Do not claim that you executed tools, edited files or performed external effects unless this run recorded tool events.',
+      'When the user asks about the current date, time or timezone and the get_datetime tool is visible, use get_datetime before answering.',
       isNaturalFirstLlmReplyRun(run)
-        ? 'Rota Natural First: llm-reply. Trate como pergunta livre natural: responda sem chamar tools e sem inventar execucoes.'
+        ? 'Natural First route: llm-reply. Treat this as a natural free-form question: answer without calling tools and without inventing executions.'
         : '',
       buildUntrustedContentFirewallInstruction(),
       this.runtime.hallucinationInstruction(),
-      `Canal: ${request.channel}. Sessao: ${run.sessionId}. Tools visiveis nesta etapa: ${exposedTools}.`,
+      `Channel: ${request.channel}. Session: ${run.sessionId}. Visible tools for this step: ${exposedTools}.`,
       contextPrompt,
     ].filter(Boolean).join('\n');
 

@@ -7,7 +7,7 @@ describe('ZavorthDashboardVisualQaService', () => {
     const service = new ZavorthDashboardVisualQaService({
       now: () => NOW,
       projectRoot: 'C:/fixture/zavorth',
-      existsSync: (targetPath: string) => targetPath.replace(/\\/g, '/').endsWith('.tmp/command-center-browser-preview/index.html'),
+      existsSync: (targetPath: string) => targetPath.replace(/\\/g, '/').endsWith('.tmp/dashboard-browser-preview/index.html'),
     });
 
     const snapshot = service.buildSnapshot();

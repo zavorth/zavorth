@@ -17,7 +17,7 @@ describe('ZavorthVisualReceiptsV2Service', () => {
     expect(snapshot.status).toBe('ready');
     expect(snapshot.summary.rawSecretsSerialized).toBe(false);
     expect(snapshot.safety.dashboardCanExecute).toBe(false);
-    expect(snapshot.commandCenterProjection.executionAuthority).toBe(false);
+    expect(snapshot.dashboardProjection.executionAuthority).toBe(false);
     expect(snapshot.cards[0]?.confidence).toBe('clear');
     expect(snapshot.cards[0]?.safeActions.every((action) => action.dashboardCanExecute === false)).toBe(true);
     expect(JSON.stringify(snapshot)).not.toContain('sk-secretshouldvanish');
@@ -93,7 +93,7 @@ function receipt(overrides: Partial<{
     advanced: {
       policyBroker: 'required',
       trustPlane: 'active',
-      commandCenterCanExecute: false,
+      dashboardCanExecute: false,
       sandboxMutationMode: 'dry-run',
       approvalOptions: ['view_preview', 'deny'],
       artifacts: ['artifact-v2'],

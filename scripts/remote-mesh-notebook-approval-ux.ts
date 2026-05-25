@@ -20,9 +20,9 @@ function main(): void {
   const snapshot = new RemoteMeshNotebookApprovalUxService().buildSnapshot({
     fixtures: [
       { source: dockerPreviewFixture(), surface: 'mobile' },
-      { source: dockerReceiptFixture(), surface: 'command-center' },
+      { source: dockerReceiptFixture(), surface: 'dashboard' },
       { source: projectFilePreviewFixture(), surface: 'mobile' },
-      { source: projectFileReceiptFixture(), surface: 'command-center' },
+      { source: projectFileReceiptFixture(), surface: 'dashboard' },
     ],
   });
   const failures = validate(snapshot);
@@ -43,8 +43,8 @@ function validate(snapshot: RemoteMeshNotebookApprovalUxSnapshot): string[] {
   if (snapshot.status !== 'ready') {
     failures.push('R11 approval UX snapshot is not ready');
   }
-  if (!snapshot.summary.mobileReady || !snapshot.summary.commandCenterReady) {
-    failures.push('R11 must produce both mobile and Command Center projections');
+  if (!snapshot.summary.mobileReady || !snapshot.summary.dashboardReady) {
+    failures.push('R11 must produce both mobile and Dashboard projections');
   }
   if (snapshot.summary.rawJsonRequiredFromUser !== false) {
     failures.push('R11 must not require raw JSON from the user');
@@ -65,7 +65,7 @@ function render(snapshot: RemoteMeshNotebookApprovalUxSnapshot, failures: string
   const lines = [
     `Zavorth Remote Mesh R11 Approval UX: ${snapshot.status}`,
     `cards=${snapshot.summary.cards} approvals=${snapshot.summary.approvalCards} receipts=${snapshot.summary.receiptCards}`,
-    `mobile=${snapshot.summary.mobileReady} commandCenter=${snapshot.summary.commandCenterReady}`,
+    `mobile=${snapshot.summary.mobileReady} dashboard=${snapshot.summary.dashboardReady}`,
     '',
   ];
   for (const card of snapshot.cards) {

@@ -325,11 +325,13 @@ export class LlmRuntimeService {
       case 'deepseek':
         return Boolean(config.deepseekApiKey);
       case 'openai':
-        return Boolean(config.openaiApiKey);
+        return Boolean(config.openaiApiKey || (config as any).openaiApiKeys?.length > 0);
       case 'minimax':
         return Boolean(config.minimaxApiKey);
       case 'openrouter':
         return Boolean(config.openRouterApiKey);
+      case 'groq':
+        return Boolean(config.groqApiKey || process.env.GROQ_API_KEY);
       case 'qwen':
       case 'puter':
         return Boolean(config.puterAuthToken);

@@ -10,7 +10,7 @@ import {
   type ZavorthSessionHistoryBridgeInput,
   type ZavorthSessionHistoryBridgeReceipt,
   type ZavorthSessionHistoryItemInput,
-  type ZavorthSessionMemoryCommandCenterProjection,
+  type ZavorthSessionMemoryDashboardProjection,
   type ZavorthSessionMemoryContinuationSnapshot,
   type ZavorthSessionMemoryContinuationStatus,
 } from '../contracts/ZavorthSessionMemoryContinuationContract.js';
@@ -70,7 +70,7 @@ export class ZavorthSessionMemoryContinuationService {
       continuationRequest,
     );
     const status = resolveStatus(previousChannelMessagingStatus, acceptanceMatrix);
-    const commandCenterProjection = this.buildCommandCenterProjection({
+    const dashboardProjection = this.buildDashboardProjection({
       status,
       historyBridgeReceipt,
       privacyFilteringReceipt,
@@ -91,7 +91,7 @@ export class ZavorthSessionMemoryContinuationService {
       memorySignalMappingReceipt,
       replayHandoffSnapshot,
       continuationRequest,
-      commandCenterProjection,
+      dashboardProjection,
       acceptanceMatrix,
       summary: {
         transcriptItemsReceived: historyBridgeReceipt.receivedItems,
@@ -294,14 +294,14 @@ export class ZavorthSessionMemoryContinuationService {
     };
   }
 
-  public buildCommandCenterProjection(input: {
+  public buildDashboardProjection(input: {
     status: ZavorthSessionMemoryContinuationStatus;
     historyBridgeReceipt: ZavorthSessionHistoryBridgeReceipt;
     privacyFilteringReceipt: ZavorthPrivacyFilteringReceipt;
     memorySignalMappingReceipt: ZavorthMemorySignalMappingReceipt;
     replayHandoffSnapshot: ZavorthReplayHandoffSnapshot;
     continuationRequest: ZavorthContinuationRequest;
-  }): ZavorthSessionMemoryCommandCenterProjection {
+  }): ZavorthSessionMemoryDashboardProjection {
     return {
       title: 'Session Memory Continuation',
       status: input.status,
@@ -344,8 +344,8 @@ export class ZavorthSessionMemoryContinuationService {
       `Memory writes performed: ${snapshot.summary.memoryWritesPerformed}`,
       `Hidden memory authority created: ${snapshot.summary.hiddenMemoryAuthorityCreated}`,
       '',
-      'Command Center:',
-      ...snapshot.commandCenterProjection.cards.map((entry) => `- ${entry.label}: ${entry.value} (${entry.detail})`),
+      'Dashboard:',
+      ...snapshot.dashboardProjection.cards.map((entry) => `- ${entry.label}: ${entry.value} (${entry.detail})`),
       '',
       'Acceptance:',
       ...snapshot.acceptanceMatrix.map((entry) => `- ${entry.status} ${entry.requirementId}: ${entry.evidence}`),
@@ -466,6 +466,6 @@ function card(
   label: string,
   value: string,
   detail: string,
-): ZavorthSessionMemoryCommandCenterProjection['cards'][number] {
+): ZavorthSessionMemoryDashboardProjection['cards'][number] {
   return { id, label, value, detail };
 }

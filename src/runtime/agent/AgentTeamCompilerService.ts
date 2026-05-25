@@ -130,7 +130,7 @@ export type AgentTeamCompilerSnapshot = {
   };
   surface: {
     cliCommand: string;
-    commandCenterPath: string;
+    dashboardPath: string;
     previewHint: string;
     approvalHint: string;
   };
@@ -372,7 +372,7 @@ export class AgentTeamCompilerService {
       },
       surface: {
         cliCommand: `zavorth agent-team "${redactText(run.input, 'pedido', 80)}"`,
-        commandCenterPath: '/control?sector=agents',
+        dashboardPath: '/dashboard?sector=agents',
         previewHint: 'Use o plano compilado para revisar roles, scopes, provider e receipts antes de aprovar.',
         approvalHint: 'Lancar subagentes exige approval explicito do Swarm/AgentRunService.',
       },
@@ -699,8 +699,8 @@ export class AgentTeamCompilerService {
       {
         id: `agent-team-receipt:${run.id}:surface`,
         kind: 'surface',
-        source: 'CLI/CommandCenter',
-        detail: 'Plano exposto por CLI read-only e Command Center.',
+        source: 'CLI/Dashboard',
+        detail: 'Plano exposto por CLI read-only e Dashboard.',
         status: 'ready',
       },
     ];

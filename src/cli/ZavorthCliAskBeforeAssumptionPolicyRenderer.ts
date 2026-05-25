@@ -113,7 +113,7 @@ export function formatAskBeforeAssumptionPolicySnapshot(
   lines.push('- preview vem antes de acao arriscada');
 
   lines.push('', 'Superficies');
-  lines.push(`- Command Center: ${snapshot.surface.commandCenterPath}`);
+  lines.push(`- Dashboard: ${snapshot.surface.dashboardPath}`);
   lines.push(`- CLI: ${snapshot.surface.cliCommand}`);
   lines.push(`- Hint: ${snapshot.surface.askHint}`);
 

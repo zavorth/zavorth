@@ -8,7 +8,7 @@ describe('ZavorthCrossSurfaceRuntimeProjectionService', () => {
     now: () => new Date('2026-05-11T12:00:00.000Z'),
   });
 
-  it('projects verification-required runtime semantics to channels, CLI, API and Command Center', () => {
+  it('projects verification-required runtime semantics to channels, CLI, API and Dashboard', () => {
     const snapshot = service.buildSnapshot({
       text: 'use subagentes e audite uma biblioteca grande de skills',
       surface: 'telegram',
@@ -20,14 +20,14 @@ describe('ZavorthCrossSurfaceRuntimeProjectionService', () => {
     expect(snapshot.status).toBe('verification-required');
     expect(snapshot.safety).toMatchObject({
       noDashboardVisualMutation: true,
-      commandCenterIsViewModelOnly: true,
+      dashboardIsViewModelOnly: true,
       noLiveActionExecuted: true,
       sameSemanticsAcrossSurfaces: true,
       telegramNotPrivileged: true,
     });
     expect(snapshot.summary.surfaces).toBe(9);
-    expect(snapshot.commandCenterProjection.visualMutationApplied).toBe(false);
-    expect(snapshot.commandCenterProjection.requiresOwnerApprovalForVisualChange).toBe(true);
+    expect(snapshot.dashboardProjection.visualMutationApplied).toBe(false);
+    expect(snapshot.dashboardProjection.requiresOwnerApprovalForVisualChange).toBe(true);
     expect(snapshot.surfaceCards.every((card) => card.status === snapshot.status)).toBe(true);
     expect(snapshot.surfaceCards.every((card) => card.sameSemanticStatusAsRuntime)).toBe(true);
     expect(snapshot.surfaceCards.find((card) => card.surface === 'telegram')?.modes).toContain('buttons');

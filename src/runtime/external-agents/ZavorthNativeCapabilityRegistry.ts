@@ -1,6 +1,6 @@
 import {
-  normalizeExternalAgentCommandCenterLiveAssimilationFixture,
-} from './ExternalAgentCommandCenterLiveAssimilation.js';
+  normalizeExternalAgentDashboardLiveAssimilationFixture,
+} from './ExternalAgentDashboardLiveAssimilation.js';
 import {
   planZavorthExternalDryRunActionsFixture,
 } from './ExternalAgentControlledDryRunActionPlanner.js';
@@ -20,10 +20,10 @@ import {
   normalizeExternalExecutorRealCapabilitySnapshotReadOnlyFixture,
 } from './ExternalAgentExternalExecutorRealCapabilitySnapshotReadOnly.js';
 import type {
-  ExternalAgentCommandCenterAuthorityDisposition,
-  ExternalAgentCommandCenterLiveAssimilationNormalization,
-  ExternalAgentCommandCenterOperationalStatus,
-} from './ExternalAgentCommandCenterLiveAssimilation.js';
+  ExternalAgentDashboardAuthorityDisposition,
+  ExternalAgentDashboardLiveAssimilationNormalization,
+  ExternalAgentDashboardOperationalStatus,
+} from './ExternalAgentDashboardLiveAssimilation.js';
 import type {
   ZavorthExternalDryRunActionPlannerNormalization,
 } from './ExternalAgentControlledDryRunActionPlanner.js';
@@ -79,7 +79,7 @@ export type ZavorthNativeCapabilityRegistryClassification =
   | 'unsupported';
 
 export type ZavorthNativeCapabilityRegistrySourceKind =
-  | 'command-center-assimilation'
+  | 'dashboard-assimilation'
   | 'dry-run-planner'
   | 'event-stream-adapter'
   | 'live-observability-projection'
@@ -108,7 +108,7 @@ export type ZavorthNativeCapabilityRegistryEntry = {
   classification: ZavorthNativeCapabilityRegistryClassification;
   availability: 'available' | 'blocked' | 'degraded' | 'unavailable' | 'unknown';
   policyDisposition: 'approval-required' | 'blocked' | 'read-only';
-  commandCenterVisible: boolean;
+  dashboardVisible: boolean;
   plannerConsumable: boolean;
   plannerDisposition: 'approval-required' | 'blocked' | 'dry-run-only' | 'read-only' | 'unsupported';
   toolNames: string[];
@@ -138,8 +138,8 @@ export type ZavorthNativeCapabilityRegistrySnapshot = {
     liveReadOnlyBridge: 'docs/external-executor-live-read-only-bridge-boundary.md';
     observabilityProjection: 'docs/external-executor-live-observability-projection.md';
     eventStreamAdapter: 'docs/external-executor-read-only-event-stream-adapter.md';
-    commandCenterAssimilation: 'docs/command-center-live-assimilation.md';
-    dryRunPlanner: 'docs/controlled-dry-run-action-planner.md';
+    dashboardAssimilation: 'docs/dashboard-live-assimilation.md';
+    dryRunPlanner: 'docs/dashboardled-dry-run-action-planner.md';
     transportDiscovery: 'docs/real-message-transport-capability-discovery.md';
   };
   runtimeExternalExecutorRequiredForRegistryLookup: false;
@@ -158,15 +158,15 @@ export type ZavorthNativeCapabilityRegistryLookupResult = {
   sourceRuntimeAuthority: false;
 };
 
-export type ZavorthNativeCapabilityRegistryCommandCenterView = {
-  nativeContract: 'ZavorthNativeCapabilityRegistryCommandCenterView/v1';
+export type ZavorthNativeCapabilityRegistryDashboardView = {
+  nativeContract: 'ZavorthNativeCapabilityRegistryDashboardView/v1';
   id: string;
   registryEntryId: string;
   label: string;
   category: ZavorthNativeCapabilityRegistryEntry['category'];
   kind: ZavorthNativeCapabilityRegistryEntryKind;
-  status: ExternalAgentCommandCenterOperationalStatus;
-  authorityDisposition: ExternalAgentCommandCenterAuthorityDisposition;
+  status: ExternalAgentDashboardOperationalStatus;
+  authorityDisposition: ExternalAgentDashboardAuthorityDisposition;
   sourceIdentityPublic: false;
   sourceStructuresPublic: false;
   sourceIdsEvidenceOnly: true;
@@ -189,9 +189,9 @@ export type ZavorthNativeCapabilityRegistryPlannerInput = {
 
 export type ZavorthNativeCapabilityRegistryIntegration = {
   nativeContract: 'ZavorthNativeCapabilityRegistryIntegration/v1';
-  commandCenterViews: ZavorthNativeCapabilityRegistryCommandCenterView[];
+  dashboardViews: ZavorthNativeCapabilityRegistryDashboardView[];
   plannerInputs: ZavorthNativeCapabilityRegistryPlannerInput[];
-  commandCenterUsesZavorthNativeViewModels: true;
+  dashboardUsesZavorthNativeViewModels: true;
   plannerUsesRegistryInputOnly: true;
   liveExternalExecutorOptionalForRefreshOnly: true;
   runtimeExternalExecutorRequiredForLookup: false;
@@ -216,7 +216,7 @@ export type ZavorthNativeCapabilityRegistrySource = {
   liveReadOnlyBridge: ExternalExecutorLiveReadOnlyBridgeBoundaryNormalization;
   observabilityProjection: ExternalExecutorLiveObservabilityProjectionNormalization;
   eventStreamAdapter: ExternalExecutorReadOnlyEventStreamAdapterNormalization;
-  commandCenterAssimilation: ExternalAgentCommandCenterLiveAssimilationNormalization;
+  dashboardAssimilation: ExternalAgentDashboardLiveAssimilationNormalization;
   dryRunPlanner: ZavorthExternalDryRunActionPlannerNormalization;
   transportDiscovery: ZavorthMessageTransportCapabilityDiscoveryNormalization;
   requestedSlice: 'capability-plugin-registry';
@@ -224,7 +224,7 @@ export type ZavorthNativeCapabilityRegistrySource = {
     originallySelectedTarget: 'dashboard-view-models';
     promotedTargetFor185: 'capability-plugin-registry';
     explicitOperatorRequest: true;
-    commandCenterRemainsConsumer: true;
+    dashboardRemainsConsumer: true;
   };
 };
 
@@ -240,7 +240,7 @@ export type ZavorthNativeCapabilityRegistryReplacementNormalization = {
     liveReadOnlyBridge: ExternalExecutorLiveReadOnlyBridgeBoundaryNormalization['decision'];
     observabilityProjection: ExternalExecutorLiveObservabilityProjectionNormalization['decision'];
     eventStreamAdapter: ExternalExecutorReadOnlyEventStreamAdapterNormalization['decision'];
-    commandCenterAssimilation: ExternalAgentCommandCenterLiveAssimilationNormalization['decision'];
+    dashboardAssimilation: ExternalAgentDashboardLiveAssimilationNormalization['decision'];
     dryRunPlanner: ZavorthExternalDryRunActionPlannerNormalization['decision'];
     transportDiscovery: ZavorthMessageTransportCapabilityDiscoveryNormalization['decision'];
   };
@@ -250,7 +250,7 @@ export type ZavorthNativeCapabilityRegistryReplacementNormalization = {
     lookupWorksWithoutLiveExternalExecutor: true;
     listWorksWithoutLiveExternalExecutor: true;
     classifyWorksWithoutLiveExternalExecutor: true;
-    commandCenterConsumerUsesRegistry: true;
+    dashboardConsumerUsesRegistry: true;
     plannerConsumerUsesRegistry: true;
     liveExternalExecutorOptionalForRefreshOnly: true;
   };
@@ -433,9 +433,9 @@ function plannerDispositionForClassification(
   return 'read-only';
 }
 
-function commandCenterStatusForClassification(
+function dashboardStatusForClassification(
   classification: ZavorthNativeCapabilityRegistryClassification,
-): ExternalAgentCommandCenterOperationalStatus {
+): ExternalAgentDashboardOperationalStatus {
   if (classification === 'blocked' || classification === 'send-capable-but-blocked' || classification === 'approval-required') {
     return 'blocked';
   }
@@ -482,7 +482,7 @@ function snapshotEntry(
     classification,
     availability: availabilityForClassification(classification),
     policyDisposition: policyDispositionForClassification(classification),
-    commandCenterVisible: true,
+    dashboardVisible: true,
     plannerConsumable: true,
     plannerDisposition: plannerDispositionForClassification(classification),
     toolNames: row.toolNames,
@@ -540,7 +540,7 @@ function transportEntry(
     classification,
     availability: availabilityForClassification(classification),
     policyDisposition: policyDispositionForClassification(classification),
-    commandCenterVisible: true,
+    dashboardVisible: true,
     plannerConsumable: true,
     plannerDisposition: plannerDispositionForClassification(classification),
     toolNames: capability.supportsSend ? ['external.channel.message.send'] : ['external.gateway.status.read'],
@@ -621,8 +621,8 @@ function buildRegistrySnapshot(
       liveReadOnlyBridge: 'docs/external-executor-live-read-only-bridge-boundary.md',
       observabilityProjection: 'docs/external-executor-live-observability-projection.md',
       eventStreamAdapter: 'docs/external-executor-read-only-event-stream-adapter.md',
-      commandCenterAssimilation: 'docs/command-center-live-assimilation.md',
-      dryRunPlanner: 'docs/controlled-dry-run-action-planner.md',
+      dashboardAssimilation: 'docs/dashboard-live-assimilation.md',
+      dryRunPlanner: 'docs/dashboardled-dry-run-action-planner.md',
       transportDiscovery: 'docs/real-message-transport-capability-discovery.md',
     },
     runtimeExternalExecutorRequiredForRegistryLookup: false,
@@ -633,15 +633,15 @@ function buildRegistrySnapshot(
   };
 }
 
-function commandCenterViewForEntry(entry: ZavorthNativeCapabilityRegistryEntry): ZavorthNativeCapabilityRegistryCommandCenterView {
+function dashboardViewForEntry(entry: ZavorthNativeCapabilityRegistryEntry): ZavorthNativeCapabilityRegistryDashboardView {
   return {
-    nativeContract: 'ZavorthNativeCapabilityRegistryCommandCenterView/v1',
-    id: `${entry.id}:command-center-view`,
+    nativeContract: 'ZavorthNativeCapabilityRegistryDashboardView/v1',
+    id: `${entry.id}:dashboard-view`,
     registryEntryId: entry.id,
     label: entry.publicLabel,
     category: entry.category,
     kind: entry.kind,
-    status: commandCenterStatusForClassification(entry.classification),
+    status: dashboardStatusForClassification(entry.classification),
     authorityDisposition: entry.policyDisposition,
     sourceIdentityPublic: false,
     sourceStructuresPublic: false,
@@ -671,13 +671,13 @@ function buildIntegration(
 ): ZavorthNativeCapabilityRegistryIntegration {
   return {
     nativeContract: 'ZavorthNativeCapabilityRegistryIntegration/v1',
-    commandCenterViews: registry.entries
-      .filter((entry) => entry.commandCenterVisible)
-      .map(commandCenterViewForEntry),
+    dashboardViews: registry.entries
+      .filter((entry) => entry.dashboardVisible)
+      .map(dashboardViewForEntry),
     plannerInputs: registry.entries
       .filter((entry) => entry.plannerConsumable)
       .map(plannerInputForEntry),
-    commandCenterUsesZavorthNativeViewModels: true,
+    dashboardUsesZavorthNativeViewModels: true,
     plannerUsesRegistryInputOnly: true,
     liveExternalExecutorOptionalForRefreshOnly: true,
     runtimeExternalExecutorRequiredForLookup: false,
@@ -691,7 +691,7 @@ function sourceReady(source: ZavorthNativeCapabilityRegistrySource): boolean {
     source.liveReadOnlyBridge.decision === 'external-executor-live-read-only-bridge-boundary-ready' &&
     source.observabilityProjection.decision === 'external-executor-live-observability-projection-ready' &&
     source.eventStreamAdapter.decision === 'external-executor-read-only-event-stream-adapter-ready' &&
-    source.commandCenterAssimilation.decision === 'command-center-live-assimilation-ready' &&
+    source.dashboardAssimilation.decision === 'dashboard-live-assimilation-ready' &&
     source.dryRunPlanner.decision === 'controlled-dry-run-action-planner-ready' &&
     source.transportDiscovery.decision === 'real-message-transport-capability-discovery-ready' &&
     source.requestedSlice === 'capability-plugin-registry'
@@ -746,10 +746,10 @@ export class ZavorthNativeCapabilityRegistry {
     return this.entriesById.get(id)?.classification ?? 'missing';
   }
 
-  public toCommandCenterViews(): ZavorthNativeCapabilityRegistryCommandCenterView[] {
+  public toDashboardViews(): ZavorthNativeCapabilityRegistryDashboardView[] {
     return this.snapshot.entries
-      .filter((entry) => entry.commandCenterVisible)
-      .map(commandCenterViewForEntry);
+      .filter((entry) => entry.dashboardVisible)
+      .map(dashboardViewForEntry);
   }
 
   public toPlannerInputs(): ZavorthNativeCapabilityRegistryPlannerInput[] {
@@ -765,7 +765,7 @@ export function createZavorthNativeCapabilityRegistryFixtureSource(): ZavorthNat
     liveReadOnlyBridge: normalizeExternalExecutorLiveReadOnlyBridgeBoundaryFixture(),
     observabilityProjection: normalizeExternalExecutorLiveObservabilityProjectionFixture(),
     eventStreamAdapter: normalizeExternalExecutorReadOnlyEventStreamAdapterFixture(),
-    commandCenterAssimilation: normalizeExternalAgentCommandCenterLiveAssimilationFixture(),
+    dashboardAssimilation: normalizeExternalAgentDashboardLiveAssimilationFixture(),
     dryRunPlanner: planZavorthExternalDryRunActionsFixture(),
     transportDiscovery: normalizeMessageTransportCapabilityDiscoveryFixture(),
     requestedSlice: 'capability-plugin-registry',
@@ -773,7 +773,7 @@ export function createZavorthNativeCapabilityRegistryFixtureSource(): ZavorthNat
       originallySelectedTarget: 'dashboard-view-models',
       promotedTargetFor185: 'capability-plugin-registry',
       explicitOperatorRequest: true,
-      commandCenterRemainsConsumer: true,
+      dashboardRemainsConsumer: true,
     },
   };
 }
@@ -788,7 +788,7 @@ export function normalizeZavorthNativeCapabilityRegistryReplacement<TRuntimeId e
     registry.entries.length > 0 &&
     registry.indexes.byKind.plugin > 0 &&
     registry.indexes.byKind['message-transport'] > 0 &&
-    integration.commandCenterViews.length === registry.entries.length &&
+    integration.dashboardViews.length === registry.entries.length &&
     integration.plannerInputs.length === registry.entries.length;
 
   return {
@@ -803,7 +803,7 @@ export function normalizeZavorthNativeCapabilityRegistryReplacement<TRuntimeId e
       liveReadOnlyBridge: options.source.liveReadOnlyBridge.decision,
       observabilityProjection: options.source.observabilityProjection.decision,
       eventStreamAdapter: options.source.eventStreamAdapter.decision,
-      commandCenterAssimilation: options.source.commandCenterAssimilation.decision,
+      dashboardAssimilation: options.source.dashboardAssimilation.decision,
       dryRunPlanner: options.source.dryRunPlanner.decision,
       transportDiscovery: options.source.transportDiscovery.decision,
     },
@@ -813,7 +813,7 @@ export function normalizeZavorthNativeCapabilityRegistryReplacement<TRuntimeId e
       lookupWorksWithoutLiveExternalExecutor: true,
       listWorksWithoutLiveExternalExecutor: true,
       classifyWorksWithoutLiveExternalExecutor: true,
-      commandCenterConsumerUsesRegistry: true,
+      dashboardConsumerUsesRegistry: true,
       plannerConsumerUsesRegistry: true,
       liveExternalExecutorOptionalForRefreshOnly: true,
     },
@@ -847,7 +847,7 @@ export function createZavorthNativeCapabilityRegistryFixture(): ZavorthNativeCap
 export function summarizeZavorthNativeCapabilityRegistryEventKinds(
   eventStream: ExternalExecutorReadOnlyEventStreamAdapterNormalization,
 ): ExternalExecutorReadOnlySourceEventKind[] {
-  return Array.from(new Set(eventStream.commandCenterEvents.map((event) => event.kind)));
+  return Array.from(new Set(eventStream.dashboardEvents.map((event) => event.kind)));
 }
 
 export function summarizeZavorthNativeCapabilityRegistryBridgeSurfaceKinds(

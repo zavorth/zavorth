@@ -154,7 +154,7 @@ export class ZavorthLocalProfilePreferenceService {
       value: input.value,
       valueType: valueType(input.value),
       updatedAt,
-      updatedBy: this.clean(input.updatedBy) || 'command-center',
+      updatedBy: this.clean(input.updatedBy) || 'dashboard',
     };
     scopeState.updatedAt = updatedAt;
     state.scopes[scope.profileKey] = scopeState;

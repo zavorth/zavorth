@@ -79,11 +79,17 @@ function readPersistedProviderPreference(projectRoot?: string): PersistedProvide
 
 export function buildProviderConfig(projectRoot?: string) {
   const persistedPreference = readPersistedProviderPreference(projectRoot);
-  const selectedProvider = String(process.env.LLM_PROVIDER || persistedPreference?.providerId || 'gemini').trim();
+  const directProviderDebug = parseBooleanFlag(process.env.ZAVORTH_DIRECT_PROVIDER_DEBUG, false);
+  const selectedProvider = String(
+    directProviderDebug
+      ? (process.env.LLM_PROVIDER || persistedPreference?.providerId || 'gemini')
+      : 'aigateway',
+  ).trim();
   const selectedModel = String(process.env.ZAVORTH_MODEL_ID || process.env.ZAVORTH_MODEL || persistedPreference?.modelId || '').trim();
   return {
     // LLM Provider
     llmProvider: selectedProvider,
+    directProviderDebug,
     echoLlmFallbackOrder: parseEchoLlmFallbackOrder(
       process.env.ZAVORTH_ECHO_LLM_FALLBACK_ORDER || process.env.ZAVORTH_ECHO_FALLBACK_ORDER,
     ),
@@ -150,6 +156,13 @@ export function buildProviderConfig(projectRoot?: string) {
 
     deepseekApiKey: process.env.DEEPSEEK_API_KEY || '',
     openaiApiKey: process.env.OPENAI_API_KEY || '',
+    openaiApiKeys: [
+      process.env.OPENAI_API_KEY,
+      process.env.OPENAI_API_KEY_2,
+      process.env.OPENAI_API_KEY_3,
+      process.env.OPENAI_API_KEY_4,
+      process.env.OPENAI_API_KEY_5,
+    ].filter(Boolean) as string[],
     minimaxApiKey: process.env.MINIMAX_API_KEY || '',
     AIGatewayApiKey: process.env.AIGateway_API_KEY || '',
     puterAuthToken: process.env.PUTER_AUTH_TOKEN || process.env.QWEN_PUTER_AUTH_TOKEN || '',
@@ -183,14 +196,14 @@ export function buildProviderConfig(projectRoot?: string) {
     openaiModel: process.env.OPENAI_MODEL || 'gpt-4o',
     minimaxModel: process.env.MINIMAX_MODEL || 'MiniMax-M2.7',
     minimaxBaseUrl: normalizeUrl(process.env.MINIMAX_BASE_URL || 'https://api.minimax.io/v1'),
-    AIGatewayModel: process.env.AIGateway_MODEL || process.env.OPENAI_MODEL || 'gpt-4o',
+    AIGatewayModel: process.env.AIGateway_MODEL || process.env.ZAVORTH_MODEL_ID || process.env.ZAVORTH_MODEL || 'auto',
     AIGatewayUpstreamBaseUrl: normalizeUrl(
       process.env.AIGateway_UPSTREAM_BASE_URL
       || process.env.AIGateway_BASE_URL
       || 'http://127.0.0.1:20128/v1',
     ),
     zavorthAIGatewayGatewayEnabled: (() => {
-      const defaultEnabled = (process.env.LLM_PROVIDER || 'gemini').trim().toLowerCase() === 'aigateway';
+      const defaultEnabled = selectedProvider.trim().toLowerCase() === 'aigateway';
       const raw = process.env.ZAVORTH_AIGateway_GATEWAY_ENABLED;
       const resolved = typeof raw === 'string' && raw.length > 0
         ? raw
@@ -225,7 +238,7 @@ export function buildProviderConfig(projectRoot?: string) {
     AIGatewaySidecarEnabled:
       (
         process.env.AIGateway_SIDECAR_ENABLED ||
-        ((process.env.LLM_PROVIDER || 'gemini').trim().toLowerCase() === 'aigateway' ? 'true' : 'false')
+        (selectedProvider.trim().toLowerCase() === 'aigateway' ? 'true' : 'false')
       ).toLowerCase() === 'true',
     AIGatewaySidecarInstallOnBoot:
       (process.env.AIGateway_SIDECAR_INSTALL_ON_BOOT || 'true').toLowerCase() !== 'false',

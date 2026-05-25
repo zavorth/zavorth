@@ -176,10 +176,10 @@ describe('ZavorthCapabilityProviderRegistryService Connector registry', () => {
     }));
   });
 
-  it('projects capability provider state for Command Center', () => {
+  it('projects capability provider state for Dashboard', () => {
     const snapshot = createService().buildSnapshot();
 
-    expect(snapshot.commandCenterProjection).toEqual(expect.objectContaining({
+    expect(snapshot.dashboardProjection).toEqual(expect.objectContaining({
       title: 'Capability Provider Registry',
       status: 'capability-provider-registry-ready',
       tone: 'ready',
@@ -193,7 +193,7 @@ describe('ZavorthCapabilityProviderRegistryService Connector registry', () => {
       ]),
       nextSafeAction: 'Proceed to 291 Credential vault - Channels And Messaging.',
     }));
-    expect(snapshot.commandCenterProjection.cards.map((entry) => entry.id)).toEqual(expect.arrayContaining([
+    expect(snapshot.dashboardProjection.cards.map((entry) => entry.id)).toEqual(expect.arrayContaining([
       'capabilities',
       'manifests',
       'tools',

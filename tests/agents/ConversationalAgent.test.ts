@@ -61,8 +61,8 @@ describe('ConversationalAgent', () => {
       mode: 'direct',
     });
 
-    expect(response.text).toContain('Nota de confiabilidade');
-    expect(response.text).toContain('Preciso verificar antes de tratar como fato');
+    expect(response.text).toContain('Reliability note');
+    expect(response.text).toContain('I need to verify before treating it as fact');
     expect(response.text).toContain('O CEO atual da Example Corp e Ana Silva.');
   });
 

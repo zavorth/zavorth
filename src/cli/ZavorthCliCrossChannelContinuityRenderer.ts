@@ -19,7 +19,7 @@ export function buildCrossChannelContinuityCliSnapshot(input: {
   userId: string;
   sessionId: string;
 }): CrossChannelContinuitySnapshot {
-  const text = input.text || 'continue esta sessao entre command center e telegram';
+  const text = input.text || 'continue esta sessao entre dashboard e telegram';
   const service = new AgentRunService({
     now: () => new Date('2026-05-04T00:41:00.000Z'),
   });
@@ -121,7 +121,7 @@ export function formatCrossChannelContinuitySnapshot(
   lines.push('- canal original preservado');
 
   lines.push('', 'Superficies');
-  lines.push(`- Command Center: ${snapshot.surface.commandCenterPath}`);
+  lines.push(`- Dashboard: ${snapshot.surface.dashboardPath}`);
   lines.push(`- CLI: ${snapshot.surface.cliCommand}`);
   lines.push(`- Approval: ${snapshot.surface.approvalHint}`);
 

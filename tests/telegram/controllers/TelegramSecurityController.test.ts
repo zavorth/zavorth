@@ -68,7 +68,7 @@ describe('TelegramSecurityController', () => {
         summary: 'Zavorth pronto para uso local.',
         local: {
           ready: true,
-          appUrl: 'http://127.0.0.1:33333/control',
+          appUrl: 'http://127.0.0.1:33333/dashboard',
         },
         remote: {
           ready: false,
@@ -78,7 +78,7 @@ describe('TelegramSecurityController', () => {
           authorizedHost: false,
         },
         surfaces: [
-          { id: 'control', label: 'Control UI', entry: 'http://127.0.0.1:33333/control' },
+          { id: 'control', label: 'Dashboard', entry: 'http://127.0.0.1:33333/dashboard' },
           { id: 'telegram', label: 'Telegram', entry: '/start' },
         ],
         nextSteps: [
@@ -108,7 +108,7 @@ describe('TelegramSecurityController', () => {
     await controller.handleHostAuth(ctx, 'status');
 
     expect(ctx.reply).toHaveBeenCalledWith(expect.stringContaining('Estado de acesso do host:'));
-    expect(ctx.reply).toHaveBeenCalledWith(expect.stringContaining('Control UI: http://127.0.0.1:33333/control'));
+    expect(ctx.reply).toHaveBeenCalledWith(expect.stringContaining('Dashboard: http://127.0.0.1:33333/dashboard'));
     expect(ctx.reply).toHaveBeenCalledWith(expect.stringContaining('Confiar host: Rode /hostauth trust.'));
   });
 
@@ -129,17 +129,17 @@ describe('TelegramSecurityController', () => {
         summary: 'Zavorth pronto para uso local e remoto.',
         local: {
           ready: true,
-          appUrl: 'http://127.0.0.1:33333/control',
+          appUrl: 'http://127.0.0.1:33333/dashboard',
         },
         remote: {
           ready: true,
-          appUrl: 'https://zavorth.example.com/control',
+          appUrl: 'https://zavorth.example.com/dashboard',
         },
         auth: {
           authorizedHost: true,
         },
         surfaces: [
-          { id: 'control', label: 'Control UI', entry: 'http://127.0.0.1:33333/control' },
+          { id: 'control', label: 'Dashboard', entry: 'http://127.0.0.1:33333/dashboard' },
           { id: 'telegram', label: 'Telegram', entry: '/start' },
         ],
         nextSteps: [],

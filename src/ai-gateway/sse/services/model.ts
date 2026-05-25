@@ -1,5 +1,12 @@
 // Zavorth model plane with localDb integration.
-import { getModelAliases, getComboByName, getProviderNodes, getCustomModels } from "@/lib/localDb";
+import {
+  getModelAliases,
+  getComboByName,
+  getProviderNodes,
+  getCustomModels,
+  getProviderConnections,
+  getPricing,
+} from "@/lib/localDb";
 import { getSettings } from "@/lib/localDb";
 import {
   parseModel,
@@ -122,22 +129,89 @@ export async function getCombo(modelStr) {
  * 3. null (no combo — single-model request)
  */
 export async function getComboForModel(modelStr) {
+  const normalized = String(modelStr || "").trim().toLowerCase();
+  if (["auto", "zavorth-auto", "zavorth/auto", "auto-combo"].includes(normalized)) {
+    const autoCombo = await buildZavorthAutoCombo(normalized || "auto");
+    if (autoCombo) return autoCombo;
+  }
+
   // 1. Existing behavior — exact combo name match
   const combo = await getCombo(modelStr);
-  if (combo) return combo;
+  if (combo) return normalizeZavorthComboStrategy(combo);
 
   // 2. NEW — check model-combo mappings table (pattern match)
   try {
     const { resolveComboForModel } = await import("@/lib/localDb");
     const mapped = await resolveComboForModel(modelStr);
     if (mapped && (mapped as any).models?.length > 0) {
-      return mapped;
+      return normalizeZavorthComboStrategy(mapped);
     }
   } catch {
     // If the mappings table doesn't exist yet (pre-migration), continue gracefully
   }
 
   return null;
+}
+
+async function buildZavorthAutoCombo(name: string) {
+  try {
+    const [connections, pricing] = await Promise.all([
+      getProviderConnections({ isActive: true }).catch(() => []),
+      getPricing().catch(() => ({})),
+    ]);
+    const models = connections
+      .filter((connection: any) => connection?.isActive !== false && connection?.provider)
+      .map((connection: any) => {
+        const provider = String(connection.provider || "").trim();
+        const model = String(connection.defaultModel || connection.model || "").trim();
+        if (!provider || !model) return null;
+        const price = Number(
+          (pricing as any)?.[provider]?.[model]?.inputCostPer1M ||
+          (pricing as any)?.[provider]?.[model]?.input ||
+          0
+        );
+        return {
+          model: `${provider}/${model}`,
+          weight: 1,
+          priority: Number.isFinite(price) && price > 0 ? Math.ceil(price * 1000) : 100,
+          costHint: Number.isFinite(price) ? price : null,
+        };
+      })
+      .filter(Boolean)
+      .sort((a: any, b: any) => (a.priority || 100) - (b.priority || 100))
+      .slice(0, 12);
+    if (models.length === 0) return null;
+    return {
+      id: "zavorth-native-auto-combo",
+      name,
+      models,
+      strategy: "cost-optimized",
+      config: {
+        source: "zavorth-native-auto",
+        considers: ["active-provider-connections", "pricing", "availability-gates", "quota-preflight"],
+      },
+      isHidden: false,
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+    };
+  } catch {
+    return null;
+  }
+}
+
+function normalizeZavorthComboStrategy(combo: any) {
+  const strategy = String(combo?.strategy || "priority");
+  if (strategy !== "reset-aware") return combo;
+  return {
+    ...combo,
+    strategy: "fill-first",
+    config: {
+      ...(combo.config || {}),
+      zavorthNativeStrategy: "reset-aware",
+      resetAware: true,
+      execution: "cooldown-and-quota-aware-fill-first",
+    },
+  };
 }
 
 /**

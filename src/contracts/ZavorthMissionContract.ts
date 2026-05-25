@@ -48,7 +48,7 @@ export type ZavorthMissionContract = {
   execution: {
     readOnly: boolean;
     mutationMode: ZavorthSandboxMutationMode;
-    commandCenterCanExecute: false;
+    dashboardCanExecute: false;
     policyBrokerRequired: true;
   };
   timeline: ZavorthMissionTimelineEvent[];

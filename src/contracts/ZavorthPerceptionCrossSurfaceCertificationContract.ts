@@ -44,7 +44,7 @@ export type ZavorthPerceptionSurfaceProjection = {
   evidence: string;
 };
 
-export type ZavorthPerceptionCommandCenterTarget = {
+export type ZavorthPerceptionDashboardTarget = {
   id: string;
   kind: ZavorthPerceptionProjectionTargetKind;
   label: string;
@@ -57,12 +57,12 @@ export type ZavorthPerceptionCommandCenterTarget = {
   commandHint: string;
 };
 
-export type ZavorthPerceptionCommandCenterProjection = {
+export type ZavorthPerceptionDashboardProjection = {
   contractVersion: typeof ZAVORTH_PERCEPTION_CROSS_SURFACE_CERTIFICATION_VERSION;
   generatedAt: string;
   source: 'ZavorthPerceptionCrossSurfaceCertificationService';
   status: ZavorthPerceptionCrossSurfaceStatus;
-  targets: ZavorthPerceptionCommandCenterTarget[];
+  targets: ZavorthPerceptionDashboardTarget[];
   activeObservation: {
     route: string;
     targetKind: string;
@@ -99,8 +99,8 @@ export type ZavorthPerceptionCommandCenterProjection = {
     noVisualMutationWithoutOwnerApproval: true;
   };
   surface: {
-    apiPath: '/api/command-center/perception-control';
-    commandCenterPath: '/control?sector=perception';
+    apiPath: '/api/dashboard/perception-control';
+    dashboardPath: '/dashboard?sector=perception';
     channelCommand: '/vision status';
     cliCommand: 'node scripts/zavorth-perception-certification.ts';
     visualMutationApplied: false;
@@ -130,7 +130,7 @@ export type ZavorthPerceptionCrossSurfaceCertificationSnapshot = {
   naturalPlan: ZavorthPerceptionInvocationPlan;
   surfaceResponse: SurfaceResponse;
   surfaceProjections: ZavorthPerceptionSurfaceProjection[];
-  commandCenterProjection: ZavorthPerceptionCommandCenterProjection;
+  dashboardProjection: ZavorthPerceptionDashboardProjection;
   certificationMatrix: ZavorthPerceptionCertificationMatrixRow[];
   liveCanary: {
     enabled: false;

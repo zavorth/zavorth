@@ -35,7 +35,7 @@ describe('ZavorthUnifiedOnboardingService', () => {
       'zavorth gateway status',
     ]));
     expect(snapshot.safeDemo.readOnly).toBe(true);
-    expect(snapshot.commandCenterProjection.executionAuthority).toBe(false);
+    expect(snapshot.dashboardProjection.executionAuthority).toBe(false);
   });
 
   it('marks provider setup as needed when no provider is ready', () => {
@@ -143,7 +143,7 @@ function productizationStub(sandboxStatus: 'ready' | 'fallback') {
         templates,
         mission: {} as any,
         receipt: {} as any,
-        commandCenterProjection: {
+        dashboardProjection: {
           route: '/dashboard',
           executionAuthority: false,
           approvalRequiredForMutableActions: true,

@@ -1,14 +1,14 @@
-import { paintCliTone } from './ZavorthCliVisualTheme.js';
+import { renderCliScreen } from './ZavorthCliVisualSystem.js';
 
 const CLI_CHAT_HELP_ENTRIES = [
-  { command: 'status', summary: 'ver se esta tudo certo' },
-  { command: 'doctor', summary: 'corrigir algo que travou' },
-  { command: 'history', summary: 'ver conversas recentes' },
-  { command: '/new ou /reset', summary: 'comecar conversa nova' },
-  { command: '/model', summary: 'ver ou trocar provider/modelo com readiness' },
-  { command: '/skills', summary: 'buscar habilidades e acionar o mesh' },
-  { command: '/usage', summary: 'ver uso leve, providers e skills conhecidas' },
-  { command: 'quit', summary: 'sair' },
+  { command: 'status', summary: 'check runtime readiness' },
+  { command: 'doctor', summary: 'diagnose setup or provider issues' },
+  { command: 'history', summary: 'show recent conversations' },
+  { command: '/new', summary: 'start a clean conversation' },
+  { command: '/model', summary: 'inspect or switch provider/model' },
+  { command: '/skills', summary: 'search skills and capabilities' },
+  { command: '/usage', summary: 'show lightweight usage and readiness' },
+  { command: 'quit', summary: 'leave the terminal session' },
 ] as const;
 
 export function isCliChatHelpCommand(raw: string): boolean {
@@ -17,12 +17,17 @@ export function isCliChatHelpCommand(raw: string): boolean {
 }
 
 export function formatCliChatHelp(): string {
-  return [
-    `${paintCliTone('?', 'info')} ${paintCliTone('Atalhos do chat', 'info')}`,
-    '',
-    ...CLI_CHAT_HELP_ENTRIES.map((entry) =>
-      `${paintCliTone(entry.command.padEnd(8, ' '), 'brand')} ${entry.summary}`),
-    '',
-    `${paintCliTone('Dica:', 'muted')} voce tambem pode escrever qualquer pedido em texto livre.`,
-  ].join('\n');
+  return renderCliScreen({
+    eyebrow: 'Chat',
+    title: 'Shortcuts',
+    summary: 'You can also type any natural request directly.',
+    mode: 'compact',
+    panels: [
+      {
+        title: 'Inside chat',
+        tone: 'brand',
+        lines: CLI_CHAT_HELP_ENTRIES.map((entry) => `${entry.command.padEnd(9)} ${entry.summary}`),
+      },
+    ],
+  });
 }

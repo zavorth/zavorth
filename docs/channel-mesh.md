@@ -2,6 +2,8 @@
 
 Channel Mesh is the canonical channel layer for Zavorth. It gives every channel the same operational contract while allowing each surface to render actions in its own native way.
 
+Phase 2 channel deepening is tracked in the dedicated channel deepening document. That map covers every known surface with setup, doctor, pairing, live proof and safe outbox semantics; it does not treat catalog support as live proof.
+
 ## Goal
 
 Telegram, web, CLI, Discord, WhatsApp, Slack, Signal, iMessage, Teams and email should not become separate products. They should be thin surfaces over the same runtime:

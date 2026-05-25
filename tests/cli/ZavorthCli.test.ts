@@ -4784,13 +4784,13 @@ describe('ZavorthCli', () => {
         local: {
           ...report.local,
           ready: false,
-          appUrl: 'http://127.0.0.1:33333/control',
+          appUrl: 'http://127.0.0.1:33333/dashboard',
           issues: ['O host supervisor nao esta ativo.'],
         },
         remote: {
           ...report.remote,
           ready: false,
-          appUrl: 'https://zavorth.example.com/control',
+          appUrl: 'https://zavorth.example.com/dashboard',
           issues: ['O host atual ainda nao foi autorizado para execucoes mutaveis.'],
         },
         nextSteps: [

@@ -46,7 +46,7 @@ const snapshot = {
     { id: 2, status: 'done', summary: 'Trust mode policy defaults local owners without weakening remote/API surfaces.' },
     { id: 3, status: 'done', summary: 'Risk 0-2 model/context orientation includes fallback reason and latency metrics.' },
     { id: 4, status: 'done', summary: 'Risk 3 draft guidance exposes Mutation Plane observability before apply.' },
-    { id: 5, status: 'done', summary: 'Command Center/Run Observatory show draft plan, approval reason and no-live-impact state.' },
+    { id: 5, status: 'done', summary: 'Dashboard/Run Observatory show draft plan, approval reason and no-live-impact state.' },
     { id: 6, status: 'done', summary: 'Promotion gate validates Risk 0-5, surfaces, trust modes and no live execution for risky impact.' },
     { id: 7, status: failed.length > 0 ? 'blocked' : 'done', summary: 'Release snapshot and rollback runbook are materialized.' },
   ],

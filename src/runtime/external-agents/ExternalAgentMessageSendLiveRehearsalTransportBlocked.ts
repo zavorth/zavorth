@@ -5,8 +5,8 @@ import {
   normalizeApprovalGrantContractFixture,
 } from './ExternalAgentApprovalGrantContract.js';
 import {
-  normalizeExternalAgentCommandCenterLiveAssimilationFixture,
-} from './ExternalAgentCommandCenterLiveAssimilation.js';
+  normalizeExternalAgentDashboardLiveAssimilationFixture,
+} from './ExternalAgentDashboardLiveAssimilation.js';
 import {
   normalizeFirstLiveMutationMicroSliceFixture,
 } from './ExternalAgentFirstLiveMutationMicroSlice.js';
@@ -23,8 +23,8 @@ import type {
   ZavorthApprovalGrantContractNormalization,
 } from './ExternalAgentApprovalGrantContract.js';
 import type {
-  ExternalAgentCommandCenterLiveAssimilationNormalization,
-} from './ExternalAgentCommandCenterLiveAssimilation.js';
+  ExternalAgentDashboardLiveAssimilationNormalization,
+} from './ExternalAgentDashboardLiveAssimilation.js';
 import type {
   ZavorthFirstLiveMutationMicroSliceNormalization,
 } from './ExternalAgentFirstLiveMutationMicroSlice.js';
@@ -82,7 +82,7 @@ export type ZavorthExternalMessageSendTarget = {
   nativeContract: 'ZavorthExternalMessageSendTarget/v1';
   sessionViewId: string;
   stableSessionId: string;
-  commandCenterSessionViewId: string;
+  dashboardSessionViewId: string;
   channel: UniversalAgentChannel;
   stableThreadId: string;
   targetStatus: 'degraded' | 'ready' | 'unavailable' | 'unknown';
@@ -240,7 +240,7 @@ export type ZavorthMessageSendLiveRehearsalTransportBlockedNormalization = {
   decision: ZavorthMessageSendLiveRehearsalTransportBlockedDecision;
   sourceReadiness: {
     sessionHistoryReady: ExternalExecutorSessionHistoryReadOnlyBridgeNormalization['decision'];
-    commandCenterReady: ExternalAgentCommandCenterLiveAssimilationNormalization['decision'];
+    dashboardReady: ExternalAgentDashboardLiveAssimilationNormalization['decision'];
     approvalGrantReady: ZavorthApprovalGrantContractNormalization['decision'];
     executionHarnessReady: ZavorthApprovedMutationExecutionHarnessNormalization['decision'];
     firstLiveMutationDecision: ZavorthFirstLiveMutationMicroSliceNormalization['decision'];
@@ -267,7 +267,7 @@ export type ZavorthMessageSendLiveRehearsalTransportBlockedOptions<TRuntimeId ex
   idPrefix: string;
   runtimeId: TRuntimeId;
   sessionHistory: ExternalExecutorSessionHistoryReadOnlyBridgeNormalization;
-  commandCenter: ExternalAgentCommandCenterLiveAssimilationNormalization;
+  dashboard: ExternalAgentDashboardLiveAssimilationNormalization;
   approvalGrant: ZavorthApprovalGrantContractNormalization;
   executionHarness: ZavorthApprovedMutationExecutionHarnessNormalization;
   firstLiveMutation: ZavorthFirstLiveMutationMicroSliceNormalization;
@@ -317,19 +317,19 @@ function fallbackSessionView(sessionHistory: ExternalExecutorSessionHistoryReadO
 
 function buildTarget(
   sessionHistory: ExternalExecutorSessionHistoryReadOnlyBridgeNormalization,
-  commandCenter: ExternalAgentCommandCenterLiveAssimilationNormalization,
+  dashboard: ExternalAgentDashboardLiveAssimilationNormalization,
   record: ZavorthMessageSendSourceRecord,
 ): ZavorthExternalMessageSendTarget {
   const session = sessionHistory.sessionViews[record.sessionIndex] ?? fallbackSessionView(sessionHistory);
-  const commandCenterSession = commandCenter.viewModel.sessions.find((candidate) => (
+  const dashboardSession = dashboard.viewModel.sessions.find((candidate) => (
     candidate.channel === session.channel && candidate.status === session.status
-  )) ?? commandCenter.viewModel.sessions[0];
+  )) ?? dashboard.viewModel.sessions[0];
 
   return {
     nativeContract: 'ZavorthExternalMessageSendTarget/v1',
     sessionViewId: session.id,
     stableSessionId: session.stableSessionId,
-    commandCenterSessionViewId: commandCenterSession?.id ?? 'zavorth-command-center-session:unavailable',
+    dashboardSessionViewId: dashboardSession?.id ?? 'zavorth-dashboard-session:unavailable',
     channel: session.channel,
     stableThreadId: session.threadLinkage.stableThreadId,
     targetStatus: session.status,
@@ -627,7 +627,7 @@ export function normalizeMessageSendLiveRehearsalTransportBlocked<TRuntimeId ext
   const rows: ZavorthMessageSendLiveRehearsalTransportBlockedRow[] = [];
 
   options.records.forEach((record, index) => {
-    const target = buildTarget(options.sessionHistory, options.commandCenter, record);
+    const target = buildTarget(options.sessionHistory, options.dashboard, record);
     const duplicate = seenIdempotency.has(record.idempotencyKey);
     const planState = planStateFor(record, target);
     const status = receiptStatusFor(record, target, planState, duplicate);
@@ -668,7 +668,7 @@ export function normalizeMessageSendLiveRehearsalTransportBlocked<TRuntimeId ext
     decision: 'message-send-live-rehearsal-transport-blocked-ready',
     sourceReadiness: {
       sessionHistoryReady: options.sessionHistory.decision,
-      commandCenterReady: options.commandCenter.decision,
+      dashboardReady: options.dashboard.decision,
       approvalGrantReady: options.approvalGrant.decision,
       executionHarnessReady: options.executionHarness.decision,
       firstLiveMutationDecision: options.firstLiveMutation.decision,
@@ -712,7 +712,7 @@ export function normalizeMessageSendLiveRehearsalTransportBlockedFixture(): Zavo
     runtimeId: EXTERNAL_AGENT_MESSAGE_SEND_LIVE_REHEARSAL_TRANSPORT_BLOCKED_RUNTIME_ID,
     idPrefix: 'external-agent-message-send-live-rehearsal-transport-blocked',
     sessionHistory: normalizeExternalExecutorSessionHistoryReadOnlyBridgeFixture(),
-    commandCenter: normalizeExternalAgentCommandCenterLiveAssimilationFixture(),
+    dashboard: normalizeExternalAgentDashboardLiveAssimilationFixture(),
     approvalGrant: normalizeApprovalGrantContractFixture(),
     executionHarness: normalizeApprovedMutationExecutionHarnessFixture(),
     firstLiveMutation: normalizeFirstLiveMutationMicroSliceFixture(),

@@ -89,7 +89,7 @@ describe('ZavorthOperationalRolloutEvalService', () => {
     expect(snapshot.projectionSamples.every((sample) =>
       sample.projection.safety.noLiveActionExecuted
       && sample.projection.safety.noDashboardVisualMutation
-      && sample.projection.commandCenterProjection.visualMutationApplied === false,
+      && sample.projection.dashboardProjection.visualMutationApplied === false,
     )).toBe(true);
   });
 });

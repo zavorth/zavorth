@@ -84,14 +84,14 @@ export class ZavorthActiveMissionUxService {
       counts,
       timeline,
       actions,
-      commandCenterProjection: {
+      dashboardProjection: {
         route: '/dashboard',
         renderMode: 'mission-timeline',
         executionAuthority: false,
       },
       safety: {
         projectionOnly: true,
-        commandCenterCanExecute: false,
+        dashboardCanExecute: false,
         rawSecretsSerialized: false,
         approvalsStillRequired: true,
       },
@@ -153,7 +153,7 @@ function buildTimeline(input: {
     events.push({
       id: 'system:idle',
       label: 'Ready',
-      summary: 'No live run selected; Command Center is waiting for a mission.',
+      summary: 'No live run selected; Dashboard is waiting for a mission.',
       status: 'pending',
       tone: 'info',
       source: 'system',

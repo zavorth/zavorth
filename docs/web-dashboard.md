@@ -1,14 +1,14 @@
-# Command Center
+# Dashboard
 
-The official web surface is the Command Center at `/control`.
+The official web surface is the Dashboard at `/dashboard`.
 
-`/control` should consume `ExperienceSnapshot/v1` from the Experience Core
+`/dashboard` should consume `ExperienceSnapshot/v1` from the Experience Core
 when available. That snapshot is the shared truth for chat-first state,
 approvals, Trust Lens, timeline, receipts, memory and learning candidates.
 
 ## What It Is For
 
-The Command Center is the operator gateway for:
+The Dashboard is the operator gateway for:
 
 - chatting with the runtime;
 - asking natural-language commands through the same Experience Core used by
@@ -20,9 +20,9 @@ The Command Center is the operator gateway for:
 - reviewing blocked or pending actions;
 - continuing work without losing context.
 
-## Premium Command Center Blocks
+## Premium Dashboard Blocks
 
-The first `/control` screen should stay chat-first, but it now also renders the
+The first `/dashboard` screen should stay chat-first, but it now also renders the
 daily control plane around the chat:
 
 - `AgentPulse` for live agent, model, provider and health state;
@@ -75,7 +75,7 @@ manually.
 ## Compatibility
 
 `/dashboard` is kept as a compatibility redirect for older bookmarks. New
-user-facing product work should target `/control` or the Runtime API.
+user-facing product work should target `/dashboard` or the Runtime API.
 Maintenance shells are not final-user product surfaces and should not appear in
 normal onboarding. Maintenance shells are not final-user surfaces.
 
@@ -83,7 +83,7 @@ normal onboarding. Maintenance shells are not final-user surfaces.
 
 `/satellite` is the optional mobile/PWA companion surface. It should stay thin:
 show chat, approval cards, receipts and safe runtime status from the same
-contracts used by `/control`. It must not become a separate agent or bypass
+contracts used by `/dashboard`. It must not become a separate agent or bypass
 the Policy Broker.
 
 Use `zavorth satellite-approvals` to inspect the projection that powers the

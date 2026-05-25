@@ -161,7 +161,7 @@ export type ZavorthContinuationRequest = {
   };
 };
 
-export type ZavorthSessionMemoryCommandCenterProjection = {
+export type ZavorthSessionMemoryDashboardProjection = {
   title: 'Session Memory Continuation';
   status: ZavorthSessionMemoryContinuationStatus;
   tone: 'ready' | 'attention' | 'blocked';
@@ -187,7 +187,7 @@ export type ZavorthSessionMemoryContinuationSnapshot = {
   memorySignalMappingReceipt: ZavorthMemorySignalMappingReceipt;
   replayHandoffSnapshot: ZavorthReplayHandoffSnapshot;
   continuationRequest: ZavorthContinuationRequest;
-  commandCenterProjection: ZavorthSessionMemoryCommandCenterProjection;
+  dashboardProjection: ZavorthSessionMemoryDashboardProjection;
   acceptanceMatrix: Array<{
     requirementId: string;
     status: 'passed' | 'failed';

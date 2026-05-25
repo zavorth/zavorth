@@ -72,7 +72,7 @@ function ruleContainsMarkers() {
       'buildReadOnlyProbe',
       'normalizeInboundEvent',
       'evaluateOutboundDryRun',
-      'buildCommandCenterProjection',
+      'buildDashboardProjection',
       'risky-outbound-blocks-without-approval',
     ]],
     ['docs/README.md', [

@@ -13,7 +13,7 @@ export type ExternalAgentNativeReplacementArea =
   | 'channel-bridge'
   | 'session-memory'
   | 'worker-delegation'
-  | 'command-center';
+  | 'dashboard';
 
 export type ExternalAgentNativeReplacementContract =
   | 'NormalizedInboundMessage'
@@ -22,7 +22,7 @@ export type ExternalAgentNativeReplacementContract =
   | 'UniversalReplyPacket'
   | 'CanonicalSessionContextSnapshot'
   | 'UniversalAgentExecutorResult'
-  | 'ZavorthCommandCenterAssimilationSnapshot';
+  | 'ZavorthDashboardAssimilationSnapshot';
 
 export type ExternalAgentNativeReplacementParityCase = {
   id: string;

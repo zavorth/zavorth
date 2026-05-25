@@ -6,6 +6,7 @@ import {
 import { ProviderFactory } from '../../src/providers/ProviderFactory.js';
 import { LiveReadinessService } from '../../src/services/LiveReadinessService.js';
 import { ProviderRuntimeActivationService } from '../../src/services/ProviderRuntimeActivationService.js';
+import { ZavorthProviderReadinessMatrixService } from '../../src/services/ZavorthProviderReadinessMatrixService.js';
 
 const response = (payload: Record<string, unknown>, init: { status?: number } = {}) =>
   new Response(JSON.stringify(payload), {
@@ -26,17 +27,17 @@ describe('ProviderRuntimeActivationService Connector registry', () => {
     expect(snapshot.status).toBe('closed');
     expect(snapshot.summary).toEqual(
       expect.objectContaining({
-        providers: 18,
+        providers: 24,
         firstClassLive: 6,
-        compatibleLive: 9,
+        compatibleLive: 15,
         localLive: 2,
         gatewayLive: 1,
         blocked: 0,
         generatedProviderManifestsRemainingP0: false,
-        configSchemas: 18,
-        providerFactoryRoutes: 18,
-        chatSmokeCommands: 18,
-        redactedReceipts: 18,
+        configSchemas: 24,
+        providerFactoryRoutes: 24,
+        chatSmokeCommands: 24,
+        redactedReceipts: 24,
         liveIoRequiredByStage4Check: false,
         secretValuesSerialized: false,
       }),
@@ -55,12 +56,17 @@ describe('ProviderRuntimeActivationService Connector registry', () => {
     const snapshot = new ProviderRuntimeActivationService().buildSnapshot();
     const expected = [
       'anthropic',
+      'cerebras',
+      'cohere',
       'deepinfra',
       'deepseek',
+      'falcon',
       'fireworks',
+      'github-models',
       'google',
       'groq',
       'huggingface',
+      'jais',
       'lmstudio',
       'mistral',
       'ollama',
@@ -68,6 +74,7 @@ describe('ProviderRuntimeActivationService Connector registry', () => {
       'openrouter',
       'perplexity',
       'qwen',
+      'sambanova',
       'together',
       'vercel-ai-gateway',
       'vllm',
@@ -111,6 +118,45 @@ describe('ProviderRuntimeActivationService Connector registry', () => {
     );
     expect(mistral.baseUrl).toBe('https://api.mistral.ai/v1');
 
+    const cohere = ProviderFactory.resolveRuntimeTarget('cohere');
+    expect(cohere).toEqual(
+      expect.objectContaining({
+        providerName: 'cohere',
+        adapterKind: 'openai_compatible',
+        runtimeSupported: true,
+      }),
+    );
+    expect(cohere.baseUrl).toBe('https://api.cohere.ai/compatibility/v1');
+
+    const sambanova = ProviderFactory.resolveRuntimeTarget('sambanova');
+    expect(sambanova).toEqual(
+      expect.objectContaining({
+        providerName: 'sambanova',
+        adapterKind: 'openai_compatible',
+        runtimeSupported: true,
+      }),
+    );
+    expect(sambanova.baseUrl).toBe('https://api.sambanova.ai/v1');
+
+    const cerebras = ProviderFactory.resolveRuntimeTarget('cerebras');
+    expect(cerebras.baseUrl).toBe('https://api.cerebras.ai/v1');
+
+    const githubModels = ProviderFactory.resolveRuntimeTarget('github-models');
+    expect(githubModels).toEqual(
+      expect.objectContaining({
+        providerName: 'github-models',
+        adapterKind: 'openai_compatible',
+        runtimeSupported: true,
+      }),
+    );
+    expect(githubModels.baseUrl).toBe('https://models.github.ai/inference');
+
+    const falcon = ProviderFactory.resolveRuntimeTarget('falcon');
+    expect(falcon.baseUrl).toBe('https://router.huggingface.co/v1');
+
+    const jais = ProviderFactory.resolveRuntimeTarget('jais');
+    expect(jais.baseUrl).toBe('https://router.huggingface.co/v1');
+
     const google = ProviderFactory.resolveRuntimeTarget('google');
     expect(google).toEqual(
       expect.objectContaining({
@@ -138,6 +184,49 @@ describe('ProviderRuntimeActivationService Connector registry', () => {
       }),
     );
     expect(vercel.baseUrl).toBe('https://ai-gateway.vercel.sh/v1');
+  });
+
+  it('treats curated compatible provider defaults as native routes, not missing base URLs', () => {
+    const originalEnv = {
+      COHERE_API_KEY: process.env.COHERE_API_KEY,
+      SAMBANOVA_API_KEY: process.env.SAMBANOVA_API_KEY,
+      CEREBRAS_API_KEY: process.env.CEREBRAS_API_KEY,
+      GITHUB_MODELS_TOKEN: process.env.GITHUB_MODELS_TOKEN,
+      FALCON_API_KEY: process.env.FALCON_API_KEY,
+      JAIS_API_KEY: process.env.JAIS_API_KEY,
+    };
+    process.env.COHERE_API_KEY = 'test-cohere';
+    process.env.SAMBANOVA_API_KEY = 'test-sambanova';
+    process.env.CEREBRAS_API_KEY = 'test-cerebras';
+    process.env.GITHUB_MODELS_TOKEN = 'test-github-models';
+    process.env.FALCON_API_KEY = 'test-falcon';
+    process.env.JAIS_API_KEY = 'test-jais';
+
+    try {
+      const service = new ZavorthProviderReadinessMatrixService({
+        now: () => new Date('2026-05-04T21:00:00.000Z'),
+      });
+      for (const provider of ['cohere', 'sambanova', 'cerebras', 'github-models', 'falcon', 'jais']) {
+        const snapshot = service.buildSnapshot({ providerId: provider, probe: true });
+        const entry = snapshot.entries[0];
+        expect(entry).toEqual(
+          expect.objectContaining({
+            id: provider,
+            status: 'ready',
+            baseUrlConfigured: true,
+            authConfigured: true,
+          }),
+        );
+      }
+    } finally {
+      for (const [key, value] of Object.entries(originalEnv)) {
+        if (typeof value === 'string') {
+          process.env[key] = value;
+        } else {
+          delete process.env[key];
+        }
+      }
+    }
   });
 
   it('moves P0 providers into partial-live readiness', () => {

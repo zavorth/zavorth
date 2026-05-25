@@ -26,7 +26,7 @@ describe('Zavorth CLI agent session', () => {
     expect(output).toContain("Hi, I'm Zavorth.");
     expect(output).toContain('Choose a model to unlock the full LLM agent loop.');
     expect(output).toContain('quick actions');
-    expect(output).toContain('agent zavorth | session main | tokens ?');
+    expect(output).toContain('local ready | session main | tokens ?');
     expect(output).not.toContain('Start Here');
     expect(output).not.toContain('Native Power');
   });

@@ -70,7 +70,7 @@ export type ExternalAgentCapabilityInventoryItem = {
   nativeContract: 'ExternalAgentCapabilityInventoryItem/v1';
 };
 
-export type ExternalAgentCapabilityCommandCenterVisibility = {
+export type ExternalAgentCapabilityDashboardVisibility = {
   adapterSource: {
     kind: 'universal-agent-runtime';
     label: string;
@@ -113,7 +113,7 @@ export type ExternalAgentCapabilityInventorySnapshot = {
   failures: ExternalAgentCapabilityFailure[];
   toolExposurePolicyInput: ToolExposurePolicyInput;
   toolExposureProfile: UniversalToolExposureProfile;
-  commandCenter: ExternalAgentCapabilityCommandCenterVisibility;
+  dashboard: ExternalAgentCapabilityDashboardVisibility;
 };
 
 export type ExternalAgentCapabilityProviderOptions = {
@@ -277,7 +277,7 @@ export class ExternalAgentCapabilityProvider {
       failures,
       toolExposurePolicyInput,
       toolExposureProfile,
-      commandCenter: this.buildCommandCenterVisibility(
+      dashboard: this.buildDashboardVisibility(
         this.adapter.descriptor,
         items,
         toolExposureProfile,
@@ -288,10 +288,10 @@ export class ExternalAgentCapabilityProvider {
     return snapshot;
   }
 
-  public buildCommandCenterAdapterInput(
+  public buildDashboardAdapterInput(
     snapshot: ExternalAgentCapabilityInventorySnapshot,
-  ): ExternalAgentCapabilityCommandCenterVisibility {
-    return snapshot.commandCenter;
+  ): ExternalAgentCapabilityDashboardVisibility {
+    return snapshot.dashboard;
   }
 
   private classifyCapability(capability: ExternalAgentCapabilityDescriptor): ExternalAgentCapabilityDescriptor {
@@ -386,12 +386,12 @@ export class ExternalAgentCapabilityProvider {
     });
   }
 
-  private buildCommandCenterVisibility(
+  private buildDashboardVisibility(
     runtime: ExternalAgentRuntimeDescriptor,
     items: ExternalAgentCapabilityInventoryItem[],
     toolExposureProfile: UniversalToolExposureProfile,
     failures: ExternalAgentCapabilityFailure[],
-  ): ExternalAgentCapabilityCommandCenterVisibility {
+  ): ExternalAgentCapabilityDashboardVisibility {
     return {
       adapterSource: {
         kind: 'universal-agent-runtime',

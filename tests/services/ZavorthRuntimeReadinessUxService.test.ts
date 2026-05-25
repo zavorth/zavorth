@@ -107,7 +107,7 @@ function providerSnapshot(input: {
       },
     },
     commands: [],
-    commandCenterProjection: {
+    dashboardProjection: {
       route: '/dashboard',
       endpoint: '/api/providers/readiness',
       executionAuthority: false,

@@ -27,10 +27,10 @@ main().catch((error) => {
 
 async function main(): Promise<void> {
   const health = buildDegradedHealth();
-  const routeResult = await runCommandCenterDemoteRoute(health);
+  const routeResult = await runDashboardDemoteRoute(health);
   const checks = [
     checkHealthDemotionReadiness(health),
-    checkCommandCenterDemoteRequest(routeResult),
+    checkDashboardDemoteRequest(routeResult),
     checkRollbackPath(routeResult),
   ];
   const failed = checks.filter((check) => check.status === 'failed');
@@ -87,7 +87,7 @@ function buildDegradedHealth(): IntelligenceFabricPostDefaultHealthSnapshot {
   ]);
 }
 
-async function runCommandCenterDemoteRoute(health: IntelligenceFabricPostDefaultHealthSnapshot): Promise<{
+async function runDashboardDemoteRoute(health: IntelligenceFabricPostDefaultHealthSnapshot): Promise<{
   response: Record<string, any> | null;
   statusCode: number | null;
   gatewayRequest: Record<string, any> | null;
@@ -174,7 +174,7 @@ function checkHealthDemotionReadiness(health: IntelligenceFabricPostDefaultHealt
   return result('degraded-health-recommends-controlled-demote', details);
 }
 
-function checkCommandCenterDemoteRequest(routeResult: {
+function checkDashboardDemoteRequest(routeResult: {
   response: Record<string, any> | null;
   statusCode: number | null;
   gatewayRequest: Record<string, any> | null;
@@ -182,14 +182,14 @@ function checkCommandCenterDemoteRequest(routeResult: {
   const details: string[] = [];
   const request = routeResult.gatewayRequest || {};
   const metadata = record(request.metadata);
-  const demote = record(metadata.commandCenterDemoteFabric);
+  const demote = record(metadata.dashboardDemoteFabric);
   expect(details, routeResult.statusCode === 200, `expected HTTP 200, got ${String(routeResult.statusCode)}`);
-  expect(details, request.requestId === 'command-center-demote-fabric', 'demote must re-enter the canonical agent gateway');
+  expect(details, request.requestId === 'dashboard-demote-fabric', 'demote must re-enter the canonical agent gateway');
   expect(details, metadata.intelligenceFabricMode === 'disabled', 'demote request must set request-level disabled mode');
   expect(details, metadata.intelligenceFabricDemoteControlled === true, 'demote request must carry controlled receipt marker');
   expect(details, demote.confirmOwnerControlledDemote === true, 'demote must require explicit owner confirmation');
   expect(details, demote.recommendation === 'auto_demote_controlled', 'demote metadata must preserve health recommendation');
-  return result('command-center-demote-route-is-owner-confirmed', details);
+  return result('dashboard-demote-route-is-owner-confirmed', details);
 }
 
 function checkRollbackPath(routeResult: {

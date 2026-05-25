@@ -198,24 +198,19 @@ export function formatExperienceAgentSession(snapshot: ExperienceSnapshot): stri
   const providerDisplay = configured ? provider : 'missing';
   const modelDisplay = model !== 'not configured' ? model : 'missing';
   const statusLine = [
-    renderAgentPill('run', health, statusTone),
+    renderAgentPill('runtime', health, statusTone),
     renderAgentPill('provider', providerDisplay, providerTone),
     renderAgentPill('model', modelDisplay, modelTone),
-    renderAgentPill('approvals', String(pendingApprovals), approvalTone),
-  ].join('  ');
-  const header = renderAgentSessionFrame('ZAVORTH agent', [
-    `${paintCliTone('session', 'muted')} ${sessionId}`,
-    `${paintCliTone('workspace', 'muted')} ${workspace}`,
-    statusLine,
-  ]);
+    renderAgentPill('approvals', pendingApprovals > 0 ? `${pendingApprovals} pending` : 'clear', approvalTone),
+  ].join(paintCliTone('  |  ', 'muted'));
   const guidance = configured
     ? [
-      `${paintCliTone('ready', 'success')} Native tools are available when they help.`,
+      `${paintCliTone('ready:', 'success')} Native tools are available when they help.`,
       'Sensitive actions stay behind policy, approval, sandbox and receipts.',
       'Try: review this repo, explain the gateway, fix failing tests.',
     ]
     : [
-      `${paintCliTone('setup needed', 'warning')} Provider and model are not configured yet.`,
+      `${paintCliTone('setup needed:', 'warning')} Provider and model are not configured yet.`,
       'I can still help with setup, status, approvals and local diagnostics.',
       `${paintCliTone('next', 'brand')} zavorth setup    ${paintCliTone('or', 'muted')}    zavorth providers`,
     ];
@@ -223,7 +218,7 @@ export function formatExperienceAgentSession(snapshot: ExperienceSnapshot): stri
     ? [
       renderAgentShortcut('ask', 'send a natural request'),
       renderAgentShortcut('approve', pendingApprovals > 0 ? 'review pending governed work' : 'review governed work'),
-      renderAgentShortcut('open', 'Command Center'),
+      renderAgentShortcut('open', 'Dashboard'),
       renderAgentShortcut('status', 'runtime health'),
     ]
     : [
@@ -233,7 +228,11 @@ export function formatExperienceAgentSession(snapshot: ExperienceSnapshot): stri
       renderAgentShortcut('doctor', 'diagnose local setup'),
     ];
   return [
-    header,
+    paintCliTone('* Runtime connected', 'success'),
+    `${paintCliTone('zavorth', 'brand')} ${paintCliTone('agent', 'muted')} - ${paintCliTone('session', 'muted')} ${sessionId}`,
+    '',
+    `${paintCliTone('workspace', 'muted')} ${workspace}`,
+    statusLine,
     '',
     `${paintCliTone("Hi, I'm Zavorth.", 'brand')} ${paintCliTone('Local-first governed agent OS.', 'muted')}`,
     '',
@@ -243,27 +242,9 @@ export function formatExperienceAgentSession(snapshot: ExperienceSnapshot): stri
     '',
     renderAgentShortcutPanel(shortcuts),
     '',
-    paintCliTone(`agent zavorth | session ${sessionId} | tokens ? | help: /help`, 'muted'),
+    paintCliTone(`local ready | session ${sessionId} | tokens ? | help /help`, 'muted'),
     paintCliDivider(getAgentSessionWidth()),
   ].join('\n');
-}
-
-function renderAgentSessionFrame(title: string, lines: string[]): string {
-  const width = getAgentSessionWidth();
-  const innerWidth = width - 4;
-  const titleText = ` ${title} `;
-  const border = {
-    topLeft: '\u256d',
-    topRight: '\u256e',
-    bottomLeft: '\u2570',
-    bottomRight: '\u256f',
-    horizontal: '\u2500',
-    vertical: '\u2502',
-  };
-  const top = `${border.topLeft}${border.horizontal}${paintCliTone(titleText, 'brand')}${border.horizontal.repeat(Math.max(0, width - titleText.length - 3))}${border.topRight}`;
-  const body = lines.map((line) => `${border.vertical} ${line}${' '.repeat(Math.max(0, innerWidth - visibleCliLength(line)))} ${border.vertical}`);
-  const bottom = `${border.bottomLeft}${border.horizontal.repeat(width - 2)}${border.bottomRight}`;
-  return [top, ...body, bottom].join('\n');
 }
 
 function getAgentSessionWidth(): number {
@@ -376,7 +357,7 @@ export function formatExperienceHud(snapshot: ExperienceSnapshot): string {
   return renderCliScreen({
     eyebrow: 'Daily Experience Control Plane',
     title: 'Zavorth HUD',
-    summary: 'Same state as /control and channels: timeline, approvals, diff, sandbox, receipts and learning.',
+    summary: 'Same state as /dashboard and channels: timeline, approvals, diff, sandbox, receipts and learning.',
     panels,
   });
 }

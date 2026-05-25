@@ -16,6 +16,7 @@ import type {
 import type { SalesPackChannelIoEnvelope } from '../contracts/SalesPackChannelIoContract.js';
 import type { ExperienceCommand, ExperienceSurface } from './experience/index.js';
 import { ExperienceCoreService } from './experience/index.js';
+import { globalLiveNodeRegistry } from './LiveNodeRegistryService.js';
 
 type WriteJson = (res: http.ServerResponse, body: unknown, statusCode?: number) => void;
 type WriteText = (res: http.ServerResponse, body: string, statusCode?: number) => void;
@@ -138,7 +139,7 @@ export class DashboardCoreRouteService {
     deps: DashboardCoreRouteDeps,
   ): Promise<boolean> {
     if (pathname === '/') {
-      deps.writeRedirect(res, '/control');
+      deps.writeRedirect(res, '/dashboard');
       return true;
     }
 
@@ -196,7 +197,7 @@ export class DashboardCoreRouteService {
           userId: identity.userId,
           profileId: identity.profileId,
           enabled,
-          updatedBy: this.readOptionalString(body.updatedBy) || 'command-center',
+          updatedBy: this.readOptionalString(body.updatedBy) || 'dashboard',
         }),
       });
       return true;
@@ -294,6 +295,45 @@ export class DashboardCoreRouteService {
         nodeMesh: deps.nodeMesh,
       });
       deps.writeJson(res, result.body, result.statusCode);
+      return true;
+    }
+
+    if (pathname === '/api/node-mesh/live/snapshot' && req.method === 'GET') {
+      if (!this.isNodeMeshLiveAuthorized(req, url, deps)) {
+        deps.writeJson(res, { ok: false, error: 'Unauthorized' }, 401);
+        return true;
+      }
+      deps.writeJson(res, {
+        ok: true,
+        live: globalLiveNodeRegistry.buildSnapshot(),
+        nodeMesh: deps.nodeMesh?.buildSnapshot({}) || null,
+      });
+      return true;
+    }
+
+    if (pathname === '/api/node-mesh/live/events' && req.method === 'GET') {
+      if (!this.isNodeMeshLiveAuthorized(req, url, deps)) {
+        deps.writeJson(res, { ok: false, error: 'Unauthorized' }, 401);
+        return true;
+      }
+      this.handleNodeMeshLiveEvents(req, res);
+      return true;
+    }
+
+    if (pathname === '/api/node-mesh/live/disconnect' && req.method === 'POST') {
+      const body = await deps.readJsonBody(req);
+      if (!this.isNodeMeshLiveAuthorized(req, url, deps, body)) {
+        deps.writeJson(res, { ok: false, error: 'Unauthorized' }, 401);
+        return true;
+      }
+      globalLiveNodeRegistry.markDisconnected(
+        String(body.nodeId || '').trim(),
+        String(body.reason || 'Disconnected through dashboard live endpoint.').trim(),
+      );
+      deps.writeJson(res, {
+        ok: true,
+        live: globalLiveNodeRegistry.buildSnapshot(),
+      });
       return true;
     }
 
@@ -559,6 +599,39 @@ export class DashboardCoreRouteService {
     }
 
     return false;
+  }
+
+  private handleNodeMeshLiveEvents(req: http.IncomingMessage, res: http.ServerResponse): void {
+    res.writeHead(200, {
+      'Content-Type': 'text/event-stream; charset=utf-8',
+      'Cache-Control': 'no-cache, no-transform',
+      Connection: 'keep-alive',
+      'X-Accel-Buffering': 'no',
+    });
+    const writeEvent = (event: string, data: unknown) => {
+      res.write(`event: ${event}\n`);
+      res.write(`data: ${JSON.stringify(data)}\n\n`);
+    };
+    writeEvent('snapshot', globalLiveNodeRegistry.buildSnapshot());
+    const unsubscribe = globalLiveNodeRegistry.subscribe((event) => writeEvent(event.type, event));
+    req.on('close', unsubscribe);
+  }
+
+  private isNodeMeshLiveAuthorized(
+    req: http.IncomingMessage,
+    url: URL,
+    deps: DashboardCoreRouteDeps,
+    body: Record<string, any> = {},
+  ): boolean {
+    const authService = deps.authService;
+    if (!authService) {
+      return false;
+    }
+    if (authService.resolveAuthenticatedIdentity(req)) {
+      return true;
+    }
+    const eventSourceToken = String(url.searchParams.get('token') || body.token || '').trim();
+    return authService.validate(eventSourceToken);
   }
 
   private async handleExperienceRequest(

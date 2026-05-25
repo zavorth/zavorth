@@ -293,7 +293,7 @@ export const DEFAULT_RUNTIME_ARTIFACT_RETENTION_RULES: MinimalRuntimeArtifactRet
     kind: 'json-state',
     strategy: 'state-size-gate',
     maxBytes: 262_144,
-    description: 'Unified local profile preferences for Command Center, capabilities, voice, autonomy, and product modes.',
+    description: 'Unified local profile preferences for Dashboard, capabilities, voice, autonomy, and product modes.',
   },
   {
     fileName: 'sales-pack-business-mode-state.json',

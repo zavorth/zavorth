@@ -96,7 +96,7 @@ export class SalesPackBusinessModeService {
       namespace: BUSINESS_MODE_NAMESPACE,
       key: BUSINESS_MODE_KEY,
       value: input.enabled,
-      updatedBy: this.clean(input.updatedBy) || 'command-center',
+      updatedBy: this.clean(input.updatedBy) || 'dashboard',
     });
     return {
       profileKey: preference.profileKey,

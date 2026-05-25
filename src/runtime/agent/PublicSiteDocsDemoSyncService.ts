@@ -133,7 +133,7 @@ export type PublicSiteDocsDemoSyncSnapshot = {
   };
   surface: {
     cliCommand: string;
-    commandCenterPath: string;
+    dashboardPath: string;
     websiteRoute: '/';
     docsRoute: '/docs';
     examplesRoute: '/examples';
@@ -371,7 +371,7 @@ export class PublicSiteDocsDemoSyncService {
       },
       surface: {
         cliCommand: `zavorth public-sync run ${run.id} --json`,
-        commandCenterPath: `/control?runId=${encodeURIComponent(run.id)}&sector=config`,
+        dashboardPath: `/dashboard?runId=${encodeURIComponent(run.id)}&sector=config`,
         websiteRoute: '/',
         docsRoute: '/docs',
         examplesRoute: '/examples',
@@ -562,8 +562,8 @@ export class PublicSiteDocsDemoSyncService {
       },
       {
         id: 'control',
-        label: 'Command Center',
-        routeOrCommand: '/control?sector=config',
+        label: 'Dashboard',
+        routeOrCommand: '/dashboard?sector=config',
         status: 'ready',
         detail: 'Config mostra site/docs/demo/release sync.',
       },

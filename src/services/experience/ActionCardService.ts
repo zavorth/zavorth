@@ -237,7 +237,7 @@ export class ActionCardService {
             label: 'Ver todos no Dashboard',
             kind: 'navigation' as const,
             command: recovery.overflow.dashboardCommand,
-            route: '/control',
+            route: '/dashboard',
             risk: 'safe' as const,
             reason: 'Canais curtos mostram apenas os alvos mais relevantes.',
           }),

@@ -31,13 +31,13 @@ npm run security:ci
 npm run build --silent
 ```
 
-## 4. Open The Command Center
+## 4. Open The Dashboard
 
 ```text
-http://127.0.0.1:33333/control
+http://127.0.0.1:33333/dashboard
 ```
 
-Use the Command Center to inspect runtime, sessions, approvals, nodes, transports and integrations without relying on hidden local state.
+Use the Dashboard to inspect runtime, sessions, approvals, nodes, transports and integrations without relying on hidden local state.
 
 ## Notes
 

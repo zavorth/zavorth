@@ -57,7 +57,7 @@ describe('ProductizationEvidenceService Channel mesh6', () => {
         releasePreviewReady: true,
         stableReleaseAllowed: false,
         replayLinked: true,
-        commandCenterLinked: true,
+        dashboardLinked: true,
       }),
       productization: expect.objectContaining({
         contractService: 'ZavorthProductizationContractService',

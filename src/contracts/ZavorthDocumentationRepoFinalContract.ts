@@ -40,7 +40,7 @@ export type ZavorthDocumentationRepoFinalSnapshot = {
     publicIdentityIsZavorthNative: true;
     proprietaryDistributionIsExplicit: true;
     liveCertificationRemainsWired: true;
-    commandCenterCanExecute: false;
+    dashboardCanExecute: false;
   };
   commands: {
     inspect: 'npm run zavorth:documentation-repo-final';

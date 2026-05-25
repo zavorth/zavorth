@@ -1,7 +1,7 @@
 import { ZavorthPerceptionDeviceControlCompletionService } from '../../src/services/ZavorthPerceptionDeviceControlCompletionService.js';
 
 describe('ZavorthPerceptionDeviceControlCompletionService Intent model0', () => {
-  it('certifies PC, browser and Android perception/control without unsafe defaults', async () => {
+  it('certifies PC, browser and Android perception/dashboard without unsafe defaults', async () => {
     const snapshot = await new ZavorthPerceptionDeviceControlCompletionService({
       now: () => new Date('2026-05-14T14:00:00.000Z'),
     }).buildSnapshot();
@@ -24,7 +24,7 @@ describe('ZavorthPerceptionDeviceControlCompletionService Intent model0', () => 
     expect(snapshot.safety.terminalAutomationBypassBlocked).toBe(true);
     expect(snapshot.safety.secretScreenAutomationBlocked).toBe(true);
     expect(snapshot.safety.noLiveDeviceMutationDuringCertification).toBe(true);
-    expect('tap/type/click/install/control stays gated').toContain('tap/type/click/install/control');
+    expect('tap/type/click/install/dashboard stays gated').toContain('tap/type/click/install/dashboard');
     expect(snapshot.entries.map((entry) => entry.label)).toEqual(expect.arrayContaining([
       'PC screenshot/read-only vision',
       'Browser DOM/screenshot view',

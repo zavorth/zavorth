@@ -71,6 +71,6 @@ describe('Zavorth CLI Memory With Receipts', () => {
     expect(text).toContain('Memory With Receipts - Memory Receipts');
     expect(text).toContain('Receipts');
     expect(text).toContain('esquecer: zavorth memory forget');
-    expect(text).toContain('Command Center: /control?sector=dreams');
+    expect(text).toContain('Dashboard: /dashboard?sector=dreams');
   });
 });

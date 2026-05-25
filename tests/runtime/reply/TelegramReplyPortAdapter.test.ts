@@ -88,7 +88,7 @@ describe('TelegramReplyPortAdapter', () => {
         replyPorts: [
           {
             id: 'web-primary',
-            label: 'Command Center',
+            label: 'Dashboard',
             kind: 'web',
             status: 'available',
             primary: true,

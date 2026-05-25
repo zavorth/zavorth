@@ -56,7 +56,7 @@ Write-Step ("Perfil: " + $Profile)
 Write-Step ("Base URL: " + $BaseUrl)
 
 $normalizedProfile = $Profile.ToLowerInvariant()
-$shellUrl = ($BaseUrl.TrimEnd('/')) + '/control'
+$shellUrl = ($BaseUrl.TrimEnd('/')) + '/dashboard'
 $legacyShellUrl = ($BaseUrl.TrimEnd('/')) + '/app'
 
 if (-not (Test-Path (Join-Path $repoRoot "package.json"))) {
@@ -98,7 +98,7 @@ $guideLines = @(
     "Workspace: <repo-root>",
     "Profile: $Profile",
     "Base URL: $BaseUrl",
-    "Control UI URL: $shellUrl",
+    "Dashboard URL: $shellUrl",
     "Legacy shell URL: $legacyShellUrl",
     "",
     "Comando guiado:",
@@ -112,7 +112,7 @@ if ($Profile -eq "Dev") {
         "  2. npm run test:smoke",
         "  3. npm run qa:bench:boot",
         "  4. npm run qa:regression",
-        "  5. Abra $BaseUrl/control"
+        "  5. Abra $BaseUrl/dashboard"
     )
 } else {
     $guideLines += @(
@@ -147,7 +147,7 @@ Write-Section "Perfil"
 if ($Profile -eq "Dev") {
     Write-Step "CLI rapida pronta: npm run cli:fast -- status --json"
     Write-Step "Smoke principal: npm run test:smoke"
-    Write-Step "Control UI: npm run ops:start"
+    Write-Step "Dashboard: npm run ops:start"
 } else {
     Write-Step "Daemon supervisionado: npm run launcher:supervised"
     Write-Step "Health operacional: npm run ops:ready"
@@ -211,7 +211,7 @@ Write-Section "Resumo"
 Write-Step ("Resumo salvo em: " + $summaryFile)
 Write-Step ("Guia salvo em: " + $guideFile)
 Write-Step ("Atalho onboarding: " + $onboardingScriptPath)
-Write-Step ("Atalho Control UI: " + $openShellScriptPath)
+Write-Step ("Atalho Dashboard: " + $openShellScriptPath)
 Write-Host ""
 Write-Host "Instalacao concluida." -ForegroundColor Green
 Write-Host "Proximo passo sugerido:" -ForegroundColor White
@@ -222,5 +222,5 @@ if ($Profile -eq "Dev") {
 }
 Write-Host "Guia interativo:" -ForegroundColor White
 Write-Host ("  npm run onboarding:start -- --profile " + $normalizedProfile + " --base-url " + $BaseUrl) -ForegroundColor White
-Write-Host "Abrir Control UI:" -ForegroundColor White
+Write-Host "Abrir Dashboard:" -ForegroundColor White
 Write-Host ("  " + $shellUrl) -ForegroundColor White

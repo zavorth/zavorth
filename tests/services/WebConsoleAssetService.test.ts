@@ -37,7 +37,7 @@ describe('WebConsoleAssetService', () => {
     }
   });
 
-  it('redirects /control to the final-user dashboard surface', () => {
+  it('redirects /dashboard to the final-user dashboard surface', () => {
     const root = fs.mkdtempSync(path.join(os.tmpdir(), 'zavorth-web-control-removed-'));
     tempDirs.push(root);
 
@@ -48,7 +48,7 @@ describe('WebConsoleAssetService', () => {
     };
     const writeJson = jest.fn();
 
-    expect(service.handleStaticRoute('/control', response as any, writeJson)).toBe(true);
+    expect(service.handleStaticRoute('/dashboard', response as any, writeJson)).toBe(true);
     expect(response.writeHead).toHaveBeenCalledWith(302, {
       Location: '/dashboard',
       'Cache-Control': 'no-store',
@@ -56,7 +56,7 @@ describe('WebConsoleAssetService', () => {
     expect(response.end).toHaveBeenCalled();
     expect(writeJson).not.toHaveBeenCalled();
   });
-  it('keeps Command Center fixture review behind a dev/test flag', () => {
+  it('keeps Dashboard fixture review behind a dev/test flag', () => {
     const root = fs.mkdtempSync(path.join(os.tmpdir(), 'zavorth-web-review-gate-'));
     tempDirs.push(root);
     const previousNodeEnv = process.env.NODE_ENV;

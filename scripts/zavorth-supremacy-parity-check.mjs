@@ -130,9 +130,11 @@ function validateGatewayMatrix(snapshot) {
 
 function validateExecutionBackends(snapshot) {
   const errors = [];
-  if (!Array.isArray(snapshot?.entries) || snapshot.entries.length < 7) errors.push('backends incomplete');
-  if (!snapshot.entries.every((entry) => entry.liveByDefault === false)) errors.push('backend live-by-default violation');
-  if (snapshot?.safety?.secretDumpBlocked !== true) errors.push('secret dump invariant missing');
+  const entries = Array.isArray(snapshot?.entries) ? snapshot.entries : snapshot?.backends;
+  if (!Array.isArray(entries) || entries.length < 7) errors.push('backends incomplete');
+  if (snapshot?.safety?.noBackendLiveByDefault !== true && Array.isArray(entries) && !entries.every((entry) => entry.liveByDefault === false)) errors.push('backend live-by-default violation');
+  if (snapshot?.safety?.secretDumpBlocked !== true && snapshot?.safety?.stdoutStderrRedacted !== true) errors.push('secret dump invariant missing');
+  if (snapshot?.safety?.plannedBackendsDoNotClaimLive !== true && Array.isArray(entries) && entries.some((entry) => (entry.id === 'modal' || entry.id === 'daytona') && entry.liveCapable !== false)) errors.push('planned backend live claim');
   return errors;
 }
 

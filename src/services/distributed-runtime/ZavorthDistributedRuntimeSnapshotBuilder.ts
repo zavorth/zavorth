@@ -186,11 +186,11 @@ export class ZavorthDistributedRuntimeSnapshotBuilder {
       surfaces: [
         {
           id: 'control',
-          label: 'Control UI',
+          label: 'Dashboard',
           surface: 'web',
           primary: true,
           ready: false,
-          entry: 'http://127.0.0.1:33333/control',
+          entry: 'http://127.0.0.1:33333/dashboard',
           remoteEntry: null,
           description: 'Manifesto indisponivel; superficie padrao ainda nao foi confirmada.',
         },

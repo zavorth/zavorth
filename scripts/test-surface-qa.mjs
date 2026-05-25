@@ -37,13 +37,13 @@ function listBaseUrls() {
 async function resolveControlUrl() {
   const baseUrls = listBaseUrls();
   for (const baseUrl of baseUrls) {
-    if (await probeApp(`${baseUrl.replace(/\/+$/, '')}/control`)) {
-      return `${baseUrl.replace(/\/+$/, '')}/control`;
+    if (await probeApp(`${baseUrl.replace(/\/+$/, '')}/dashboard`)) {
+      return `${baseUrl.replace(/\/+$/, '')}/dashboard`;
     }
   }
 
   const fallbackBaseUrl = baseUrls[0] || 'http://127.0.0.1:33333';
-  return `${fallbackBaseUrl.replace(/\/+$/, '')}/control`;
+  return `${fallbackBaseUrl.replace(/\/+$/, '')}/dashboard`;
 }
 
 function runCommand(args, label) {
@@ -92,7 +92,7 @@ async function waitForApp(appUrl, timeoutMs) {
 async function ensureHostReady() {
   let appUrl = await resolveControlUrl();
   if (await waitForApp(appUrl, 3000)) {
-    console.log('[surface-qa] host ja estava disponivel em /control');
+    console.log('[surface-qa] host ja estava disponivel em /dashboard');
     return;
   }
 
@@ -119,8 +119,8 @@ async function main() {
   runCommand(['run', 'ops:bootstrap', '--', '--repair'], 'bootstrap seguro');
   await ensureHostReady();
   runCommand(['run', 'test:cross-surface'], 'E2E cross-surface');
-  runCommand(['run', 'test:web:qa'], 'QA da Control UI e legado');
-  runCommand(['run', 'test:web:smoke'], 'smoke da Control UI e legado');
+  runCommand(['run', 'test:web:qa'], 'QA da Dashboard e legado');
+  runCommand(['run', 'test:web:smoke'], 'smoke da Dashboard e legado');
 }
 
 main().catch((error) => {

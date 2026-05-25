@@ -100,7 +100,7 @@ export type PersonalOpsAutopilotSnapshot = {
   };
   surface: {
     cliCommand: string;
-    commandCenterPath: string;
+    dashboardPath: string;
     previewHint: string;
     approvalHint: string;
   };
@@ -244,7 +244,7 @@ export class PersonalOpsAutopilotService {
       },
       surface: {
         cliCommand: `zavorth personal-ops run ${run.id} --json`,
-        commandCenterPath: '/control?sector=overview',
+        dashboardPath: '/dashboard?sector=overview',
         previewHint: 'Use preview antes de qualquer autorepair, reconnect, provider switch ou channel repair.',
         approvalHint: 'Acoes mutaveis exigem approval explicito do operador.',
       },
@@ -663,8 +663,8 @@ export class PersonalOpsAutopilotService {
       {
         id: 'personal-ops:receipt:surface',
         kind: 'surface',
-        source: '/control',
-        detail: 'Personal Ops Autopilot projetado em /control e CLI.',
+        source: '/dashboard',
+        detail: 'Personal Ops Autopilot projetado em /dashboard e CLI.',
         status: 'ready',
       },
     ];

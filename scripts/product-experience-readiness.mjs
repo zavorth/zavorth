@@ -29,10 +29,10 @@ const readinessChecks = [
   },
   {
     id: 'control-ui',
-    label: 'Control UI principal',
+    label: 'Dashboard principal',
     suite: 'control-ui',
     covers: [
-      '/control como entrada principal',
+      '/dashboard como entrada principal',
       'sessao via gateway WS/API',
       'mode, memory, approvals, tool cards e legacy banners',
     ],
@@ -104,7 +104,7 @@ results.push({
   suite: 'legacy-compat',
   covers: [
     '/app e /classic preservados como legado',
-    'links principais apontando para /control',
+    'links principais apontando para /dashboard',
     'docs e launchers alinhados',
   ],
 });
@@ -157,7 +157,7 @@ function finish(results, startedAt) {
   if (json) {
     process.stdout.write(`${JSON.stringify(payload, null, 2)}\n`);
   } else if (payload.ok) {
-    console.log('\n[product-experience] pronto: modos, escalation, Control UI, Telegram/web, memoria hibrida e legado passaram.');
+    console.log('\n[product-experience] pronto: modos, escalation, Dashboard, Telegram/web, memoria hibrida e legado passaram.');
   } else {
     console.error('\n[product-experience] bloqueado: algum gate da etapa 7 falhou.');
   }

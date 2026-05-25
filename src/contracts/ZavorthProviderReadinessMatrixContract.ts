@@ -137,7 +137,7 @@ export type ZavorthProviderReadinessMatrixSnapshot = {
     summary: string;
     liveNetworkUsedByDefault: boolean;
   }>;
-  commandCenterProjection: {
+  dashboardProjection: {
     route: '/dashboard';
     endpoint: '/api/providers/readiness';
     executionAuthority: false;

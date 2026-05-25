@@ -1,6 +1,6 @@
 import type {
-  ZavorthTransactionCommandCenterTone,
-} from './ZavorthTransactionCommandCenterContract.js';
+  ZavorthTransactionDashboardTone,
+} from './ZavorthTransactionDashboardContract.js';
 import type {
   ZavorthTransactionSurfaceKind,
 } from './ZavorthTransactionSurfaceContract.js';
@@ -24,7 +24,7 @@ export type ZavorthTransactionCertificationGateKind =
   | 'approval-gate'
   | 'credential-ref-gate'
   | 'typed-connector-simulation'
-  | 'command-center-projection'
+  | 'dashboard-projection'
   | 'cross-surface-parity'
   | 'secret-redaction'
   | 'no-live-execution';
@@ -44,8 +44,8 @@ export type ZavorthTransactionCertificationScenario = {
   status: ZavorthTransactionCertificationStatus;
   expectedStatus: ZavorthTransactionRuntimeStatus;
   observedStatus: ZavorthTransactionRuntimeStatus;
-  expectedTone: ZavorthTransactionCommandCenterTone;
-  observedTone: ZavorthTransactionCommandCenterTone;
+  expectedTone: ZavorthTransactionDashboardTone;
+  observedTone: ZavorthTransactionDashboardTone;
   projectionId: string;
   sourceProjectionId: string;
   naturalFirstRoute: string;
@@ -111,7 +111,7 @@ export function buildZavorthTransactionCertificationContractSnapshot(): ZavorthT
       'approval-gate',
       'credential-ref-gate',
       'typed-connector-simulation',
-      'command-center-projection',
+      'dashboard-projection',
       'cross-surface-parity',
       'secret-redaction',
       'no-live-execution',

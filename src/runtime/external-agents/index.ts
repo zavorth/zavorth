@@ -4,7 +4,7 @@ export * from './ExternalAgentApprovalRequiredMutationRehearsal.js';
 export * from './ExternalAgentApprovedMutationExecutionHarness.js';
 export * from './ExternalAgentCapabilityProvider.js';
 export * from './ExternalAgentChannelBridge.js';
-export * from './ExternalAgentCommandCenterLiveAssimilation.js';
+export * from './ExternalAgentDashboardLiveAssimilation.js';
 export * from './ExternalAgentCommandHttpInvocationEnvelopeBoundary.js';
 export * from './ExternalAgentCommandHttpObservabilityProjectionBoundary.js';
 export * from './ExternalAgentCommandHttpPolicyPreflightBoundary.js';

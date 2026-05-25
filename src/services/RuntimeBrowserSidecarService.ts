@@ -4,7 +4,11 @@ export type RuntimeBrowserSidecarAction =
   | 'browser_navigate'
   | 'browser_search'
   | 'inspect_dom_element'
-  | 'evaluate_js';
+  | 'evaluate_js'
+  | 'browser_screenshot'
+  | 'browser_click'
+  | 'browser_type'
+  | 'browser_extract';
 
 export type RuntimeBrowserSidecarRequest = {
   action: RuntimeBrowserSidecarAction;

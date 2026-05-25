@@ -73,6 +73,6 @@ describe('Zavorth CLI Capability Negotiation', () => {
     expect(text).toContain('Capability Negotiation - Capability Negotiation');
     expect(text).toContain('Escopo');
     expect(text).toContain('negotiation nao executa tools');
-    expect(text).toContain('Command Center: /control?sector=skills');
+    expect(text).toContain('Dashboard: /dashboard?sector=skills');
   });
 });

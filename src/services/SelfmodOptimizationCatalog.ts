@@ -71,7 +71,7 @@ export class SelfmodOptimizationCatalog {
       opportunities.push({
         id: 'control-ui-polish',
         category: 'ui',
-        title: 'Validar clareza da Control UI',
+        title: 'Validar clareza da Dashboard',
         summary: 'Mudancas em UI/web pedem revisao se os cards, approvals e diffs continuam honestos e legiveis.',
         recommendedCommand: '/doctor desktop',
         appliesBecause: ['Changeset toca a surface web ou narrativa visual do Zavorth.'],

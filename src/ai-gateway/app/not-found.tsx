@@ -23,11 +23,11 @@ export default function NotFound() {
       </p>
       <div className="flex flex-col sm:flex-row items-center gap-3">
         <Link
-          href="/control"
+          href="/dashboard"
           className="px-8 py-3 rounded-xl text-white text-sm font-medium no-underline transition-all duration-200 motion-reduce:transition-none shadow-warm hover:-translate-y-0.5 bg-gradient-to-br from-primary to-primary-hover hover:shadow-elevated focus:outline-2 focus:outline-offset-2 focus:outline-primary"
           aria-label="Return to dashboard"
         >
-          Go to Control UI
+          Go to Dashboard
         </Link>
         <Link
           href="/status"

@@ -58,7 +58,7 @@ describe('ZavorthAgentOsService', () => {
       expect(snapshot.safety.thinkingBlocked).toBe(false);
       expect(snapshot.reputation.liveActivationAllowed).toBe(false);
       expect(snapshot.architectureDecision.filesWritten).toBe(false);
-      expect(snapshot.commandCenter.cards.map((card) => card.id)).toContain('project-twin');
+      expect(snapshot.dashboard.cards.map((card) => card.id)).toContain('project-twin');
     } finally {
       fs.rmSync(workspaceRoot, { recursive: true, force: true });
     }

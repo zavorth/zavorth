@@ -3,7 +3,7 @@ import fs from 'fs';
 import * as http from 'http';
 import { config } from '../../config/index.js';
 import { ApiResponse, ForbiddenError, NotFoundError, UnauthorizedError } from '../../contracts/public/errors';
-import { isWeakCommandCenterToken } from '../../services/CommandCenterTokenService.js';
+import { isWeakDashboardToken } from '../../services/DashboardTokenService.js';
 
 export type RequestHandler = (req: http.IncomingMessage, res: http.ServerResponse) => Promise<void>;
 export type PublicApiAccess = 'public' | 'authenticated' | 'admin';
@@ -145,17 +145,17 @@ export class PublicApiRouter {
 
   private resolveAuthToken(): string {
     const explicit = String(this.options.authToken || '').trim();
-    if (explicit && !isWeakCommandCenterToken(explicit)) {
+    if (explicit && !isWeakDashboardToken(explicit)) {
       return explicit;
     }
 
     const provided = String(this.options.authTokenProvider?.() || '').trim();
-    if (provided && !isWeakCommandCenterToken(provided)) {
+    if (provided && !isWeakDashboardToken(provided)) {
       return provided;
     }
 
     const envToken = String(config.zavorthWebAuthToken || '').trim();
-    if (envToken && !isWeakCommandCenterToken(envToken)) {
+    if (envToken && !isWeakDashboardToken(envToken)) {
       return envToken;
     }
 
@@ -176,7 +176,7 @@ export class PublicApiRouter {
         return '';
       }
       const token = fs.readFileSync(filePath, 'utf8').trim();
-      return isWeakCommandCenterToken(token) ? '' : token;
+      return isWeakDashboardToken(token) ? '' : token;
     } catch {
       return '';
     }

@@ -448,7 +448,7 @@ function sanitizeOfficialNarrative(value: string): string {
   return String(value || '')
     .replace(/runtime/gi, 'Zavorth')
     .replace(/superficie/gi, 'entrada')
-    .replace(/Control UI/gi, 'interface principal')
+    .replace(/Dashboard/gi, 'interface principal')
     .replace(/host supervisor/gi, 'servico principal')
     .replace(/\s+/g, ' ')
     .trim();

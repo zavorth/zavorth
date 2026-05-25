@@ -89,7 +89,7 @@ export function buildZavorthSetupStudioSnapshot(
       { label: 'Preview setup', command: 'zavorth setup --dry-run', detail: 'safe no-write preview' },
       { label: 'Apply setup', command: 'zavorth setup', detail: 'interactive guided flow' },
       { label: 'Check readiness', command: 'zavorth ready' },
-      { label: 'Open Command Center', command: 'zavorth open' },
+      { label: 'Open Dashboard', command: 'zavorth open' },
     ],
     safety: {
       dryRun,
@@ -120,11 +120,11 @@ function buildChannelGuide(
       detail: 'primary local channel, ready for chat and approvals',
     },
     {
-      id: 'control',
-      label: 'Command Center',
+      id: 'dashboard',
+      label: 'Dashboard',
       status: 'recommended',
       setupCommand: 'zavorth open',
-      detail: 'visual dashboard for timeline, diffs, receipts and learning',
+      detail: 'visual home for timeline, diffs, receipts and learning',
     },
     {
       id: 'telegram',
@@ -342,10 +342,10 @@ function buildControlUiReadiness(projectRoot: string): ZavorthSetupStudioControl
   const env = readEnv(path.join(projectRoot, '.env'));
   const port = env.PORT || env.ZAVORTH_PORT || '3000';
   return {
-    url: `http://127.0.0.1:${port}/control`,
+    url: `http://127.0.0.1:${port}/dashboard`,
     tokenStatus: env.ZAVORTH_CONTROL_TOKEN ? 'configured' : 'generated-at-runtime',
     openCommand: 'zavorth open',
-    docsCommand: 'zavorth help control',
+    docsCommand: 'zavorth help dashboard',
   };
 }
 

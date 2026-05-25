@@ -9,7 +9,7 @@ describe('ProductChannelExperienceService', () => {
 
     const snapshot = service.buildSnapshot({
       productMode: buildZavorthProductModeSnapshot('chat', 'core'),
-      controlEntry: 'http://127.0.0.1:33333/control',
+      controlEntry: 'http://127.0.0.1:33333/dashboard',
       controlReady: true,
       telegramReady: false,
       discordReady: false,
@@ -36,7 +36,7 @@ describe('ProductChannelExperienceService', () => {
 
     const snapshot = service.buildSnapshot({
       productMode: buildZavorthProductModeSnapshot('operator', 'ops'),
-      controlEntry: 'http://127.0.0.1:33333/control',
+      controlEntry: 'http://127.0.0.1:33333/dashboard',
       controlReady: true,
       telegramReady: true,
       discordReady: true,

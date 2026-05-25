@@ -515,11 +515,15 @@ describe('AgentRunService', () => {
       expect.arrayContaining([
         expect.objectContaining({
           role: 'system',
-          content: expect.stringContaining('Voce e Zavorth'),
+          content: expect.stringContaining('You are Zavorth'),
         }),
         expect.objectContaining({
           role: 'system',
-          content: expect.stringContaining('Rota Natural First: llm-reply'),
+          content: expect.stringContaining('Reply in the same language the user used'),
+        }),
+        expect.objectContaining({
+          role: 'system',
+          content: expect.stringContaining('Natural First route: llm-reply'),
         }),
         expect.objectContaining({
           role: 'user',

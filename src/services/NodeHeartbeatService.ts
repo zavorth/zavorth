@@ -9,12 +9,16 @@ import type {
 import { NodeInvokeService } from './NodeInvokeService.js';
 import { NodePairingService } from './NodePairingService.js';
 import { NodeRegistryService } from './NodeRegistryService.js';
+import { globalLiveNodeRegistry, LiveNodeRegistryService } from './LiveNodeRegistryService.js';
+import { NodeCapabilityReapprovalService } from './NodeCapabilityReapprovalService.js';
 
 type NodeHeartbeatRuntime = {
   now?: () => Date;
   registryService?: NodeRegistryService;
   pairingService?: NodePairingService;
   invokeService?: NodeInvokeService;
+  liveNodeRegistry?: LiveNodeRegistryService;
+  capabilityReapprovalService?: NodeCapabilityReapprovalService;
   heartbeatIntervalMs?: number;
 };
 
@@ -23,6 +27,8 @@ export class NodeHeartbeatService {
   private readonly registryService: NodeRegistryService;
   private readonly pairingService: NodePairingService;
   private readonly invokeService: NodeInvokeService;
+  private readonly liveNodeRegistry: LiveNodeRegistryService;
+  private readonly capabilityReapprovalService: NodeCapabilityReapprovalService;
   private readonly heartbeatIntervalMs: number;
 
   constructor(runtime: NodeHeartbeatRuntime = {}) {
@@ -33,6 +39,11 @@ export class NodeHeartbeatService {
       registryService: this.registryService,
     });
     this.invokeService = runtime.invokeService || new NodeInvokeService({
+      now: this.now,
+      registryService: this.registryService,
+    });
+    this.liveNodeRegistry = runtime.liveNodeRegistry || globalLiveNodeRegistry;
+    this.capabilityReapprovalService = runtime.capabilityReapprovalService || new NodeCapabilityReapprovalService({
       now: this.now,
       registryService: this.registryService,
     });
@@ -69,11 +80,17 @@ export class NodeHeartbeatService {
     if (!node) {
       return null;
     }
+    const assignments = this.invokeService.claimPendingForNode(node.id);
+    this.liveNodeRegistry.recordClaim({
+      node,
+      assignmentsPending: assignments.length,
+      transport: 'heartbeat',
+    });
 
     return {
       ...claim,
       node,
-      assignments: this.invokeService.claimPendingForNode(node.id),
+      assignments,
       operatorSummary: node.operatorSummary || claim.operatorSummary,
       actionHint: 'Node host pareado e online. Continue publicando heartbeat para consumir a fila.',
     };
@@ -91,11 +108,37 @@ export class NodeHeartbeatService {
       return null;
     }
 
+    const reapproval = this.capabilityReapprovalService.reconcileHeartbeat({
+      nodeId: input.nodeId,
+      declaredCapabilityIds: input.capabilityIds || null,
+    });
+    if (reapproval && !reapproval.allowed) {
+      this.liveNodeRegistry.recordReapprovalRequired({
+        node: reapproval.node,
+        delta: reapproval.delta,
+        reason: reapproval.reason,
+      });
+      return {
+        receivedAt: this.now().toISOString(),
+        node: reapproval.node,
+        heartbeatIntervalMs: this.heartbeatIntervalMs,
+        operatorSummary: `${reapproval.reason} ${reapproval.commandHint}`,
+        acceptedResults: 0,
+        assignments: [],
+      };
+    }
+
     let acceptedResults = 0;
     for (const result of input.results || []) {
       const completed = this.invokeService.completeInvocation(input.nodeId, result);
       if (completed) {
         acceptedResults += 1;
+        this.liveNodeRegistry.recordInvocationCompleted({
+          nodeId: completed.nodeId,
+          invocationId: completed.id,
+          ok: completed.ok,
+          resultSummary: completed.resultSummary,
+        });
       }
     }
 
@@ -109,6 +152,12 @@ export class NodeHeartbeatService {
     }
 
     const assignments = this.invokeService.claimPendingForNode(node.id);
+    this.liveNodeRegistry.recordHeartbeat({
+      node,
+      acceptedResults,
+      assignmentsPending: assignments.length,
+      transport: 'heartbeat',
+    });
     return {
       receivedAt: this.now().toISOString(),
       node,

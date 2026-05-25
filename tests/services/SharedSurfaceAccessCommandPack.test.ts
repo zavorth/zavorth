@@ -18,7 +18,7 @@ function buildManifest() {
     local: {
       ready: true,
       appUrl: 'http://localhost:3000/app',
-      dashboardUrl: 'http://localhost:3000/control',
+      dashboardUrl: 'http://localhost:3000/dashboard',
       apiBaseUrl: 'http://localhost:3000/api',
     },
     remote: {

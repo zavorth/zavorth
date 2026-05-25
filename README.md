@@ -60,7 +60,7 @@ npx zavorth start
 npx zavorth open
 ```
 
-The primary user surface is `/control`: configure with `zavorth setup`, start
+The primary user surface is `/dashboard`: configure with `zavorth setup`, start
 the local runtime with `zavorth start`, then open it with `zavorth open` for
 readiness, providers, approvals, receipts, skills, review, memory, and daily
 operator work.
@@ -77,7 +77,7 @@ npx zavorth ready
 npx zavorth trust
 ```
 
-For the safest first run, open the Command Center, connect a provider, review the
+For the safest first run, open the Dashboard, connect a provider, review the
 readiness report, then send one normal request:
 
 ```text
@@ -86,7 +86,7 @@ Review this repository and tell me what is risky.
 
 ## Product Surface
 
-The Command Center is the main operating surface. It is designed around one daily
+The Dashboard is the main operating surface. It is designed around one daily
 loop: ask naturally, preview risky work, approve only what needs approval, then
 keep the receipt.
 
@@ -99,7 +99,7 @@ keep the receipt.
 | Surface | What it gives you |
 | --- | --- |
 | Natural First Runtime | Free text enters the agent gateway instead of dying in a shallow command path. |
-| Command Center | Operator home for readiness, approvals, providers, receipts, tasks, skills, and review. |
+| Dashboard | Operator home for readiness, approvals, providers, receipts, tasks, skills, and review. |
 | CLI/TUI | A terminal surface for status, smart commands, provider state, approvals, and daily checks. |
 | Telegram and channels | Remote operation with governed approvals, receipts, and channel-aware responses. |
 | Provider Catalog | A large provider and model catalog with readiness, live proof, fallbacks, and safe status. |
@@ -113,7 +113,7 @@ keep the receipt.
 
 ## Daily Operator Flow
 
-1. Ask naturally in the Command Center, CLI, Telegram, or API.
+1. Ask naturally in the Dashboard, CLI, Telegram, or API.
 2. Zavorth classifies the request as chat, memory, review, skill, tool, provider, approval, or execution.
 3. Low-risk work responds quickly. Sensitive work becomes a preview.
 4. You approve, reject, defer, or grant a scoped permission.
@@ -126,8 +126,8 @@ keep the receipt.
 | Command | Purpose |
 | --- | --- |
 | `zavorth setup` | Guided Setup Studio for provider, model, channels, Mnemos, and safety. |
-| `zavorth start` | Start or resume the local runtime and make `/control` available. |
-| `zavorth open` | Open the local Command Center with the current access token. |
+| `zavorth start` | Start or resume the local runtime and make `/dashboard` available. |
+| `zavorth open` | Open the local Dashboard with the current access token. |
 | `zavorth ready` | One command operator readiness check. |
 | `zavorth status` | Show current health. |
 | `zavorth providers` | Show provider and model readiness. |
@@ -189,7 +189,7 @@ false readiness, and prevents accidental execution with missing credentials.
 - [Architecture](docs/architecture.md)
 - [Security](docs/security.md)
 - [Telegram](docs/telegram.md)
-- [Command Center](docs/web-dashboard.md)
+- [Dashboard](docs/web-dashboard.md)
 - [CLI guide](docs/zavorth-cli.md)
 - [Runtime readiness](docs/runtime-readiness.md)
 - [External agent onboarding](docs/external-agent-onboarding.md)

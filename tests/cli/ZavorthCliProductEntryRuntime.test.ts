@@ -81,6 +81,6 @@ describe('Zavorth CLI Product Entry Runtime Channel mesh7', () => {
     expect(text).toContain('Product Entry Runtime / First Run - Channel mesh7');
     expect(text).toContain('snapshot nao grava profile');
     expect(text).toContain('first-run e estado compartilhado');
-    expect(text).toContain('Command Center: /control?runId=');
+    expect(text).toContain('Dashboard: /dashboard?runId=');
   });
 });

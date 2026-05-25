@@ -169,6 +169,63 @@ describe('Dashboard node mesh transport routes', () => {
     expect(nodeInvokeService.invoke).toHaveBeenCalledTimes(2);
   });
 
+  it('protects live node mesh snapshot behind dashboard auth', async () => {
+    config.zavorthWebAuthToken = 'web-secret';
+    const nodeMeshService = {
+      buildSnapshot: jest.fn(() => ({
+        generatedAt: '2026-04-02T21:02:00.000Z',
+        summary: {
+          total: 0,
+          paired: 0,
+          pending: 0,
+          online: 0,
+          offline: 0,
+          invokable: 0,
+          capabilities: 0,
+          queued: 0,
+          completedRecently: 0,
+        },
+        entries: [],
+        selected: null,
+        capabilityCatalog: [],
+        suggestedActions: [],
+        narrative: {
+          headline: 'Node Mesh vazio.',
+          operatorSummary: 'Sem nodes.',
+        },
+      })),
+    };
+    const service = new DashboardService(logRepo, {
+      nodeMeshService: nodeMeshService as any,
+    });
+
+    await service.start();
+    const baseUrl = service.getUrl();
+    const unauthenticated = await fetchJson(`${baseUrl}/api/node-mesh/live/snapshot`);
+    const authenticated = await fetchDashboardJson(baseUrl, '/api/node-mesh/live/snapshot', {
+      token: 'web-secret',
+    });
+    await service.stopAsync();
+
+    expect(unauthenticated.status).toBe(401);
+    expect(authenticated.status).toBe(200);
+    expect(authenticated.payload).toEqual(
+      expect.objectContaining({
+        ok: true,
+        live: expect.objectContaining({
+          safety: expect.objectContaining({
+            rawSecretsSerialized: false,
+          }),
+        }),
+        nodeMesh: expect.objectContaining({
+          narrative: expect.objectContaining({
+            headline: 'Node Mesh vazio.',
+          }),
+        }),
+      }),
+    );
+  });
+
   it('accepts profile-aware pairing drafts through the dashboard operations surface', async () => {
     config.zavorthWebAuthToken = 'web-secret';
     const nodePairingService = {

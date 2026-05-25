@@ -584,7 +584,7 @@ export class CoreOrchestrator implements IMessageBroker {
       case 'email':
         return 'Email';
       case 'web':
-        return 'Command Center';
+        return 'Dashboard';
       case 'cli':
         return 'Terminal';
       default:

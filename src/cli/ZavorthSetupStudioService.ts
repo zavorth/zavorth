@@ -593,7 +593,7 @@ function renderHookTemplate(filePath: string): string {
           type: 'notification.create',
           channel: 'local',
           title: 'Approval pending',
-          message: 'A governed action is waiting for review. Open zavorth approve or the Command Center.',
+          message: 'A governed action is waiting for review. Open zavorth approve or the Dashboard.',
           requiresApproval: false,
         },
         {

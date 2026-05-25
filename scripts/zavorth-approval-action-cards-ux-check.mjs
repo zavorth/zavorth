@@ -6,7 +6,7 @@ const files = {
   service: 'src/services/ZavorthApprovalActionCardsUxService.ts',
   script: 'scripts/zavorth-approval-action-cards-ux.ts',
   route: 'src/domain/surface/presentation/web-app/WebAppRuntimeStateRouteService.ts',
-  panel: 'src/ai-gateway/app/(dashboard)/control/command-center/components/CommandCenterOperationsPanel.tsx',
+  panel: 'src/ai-gateway/app/(dashboard)/dashboard/dashboard/components/DashboardOperationsPanel.tsx',
   test: 'tests/services/ZavorthApprovalActionCardsUxService.test.ts',
 };
 
@@ -29,7 +29,7 @@ rules.push(
   {
     id: 'panel:cards',
     status: panel.includes('approvalActionCardsUx') && panel.includes('Allow once') && !panel.includes('fetch(') ? 'passed' : 'failed',
-    summary: 'Command Center renders approval cards without direct fetch or arbitrary execution.',
+    summary: 'Dashboard renders approval cards without direct fetch or arbitrary execution.',
   },
   {
     id: 'contract:target-action-blocked',

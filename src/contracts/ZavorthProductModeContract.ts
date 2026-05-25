@@ -94,7 +94,7 @@ export function buildZavorthProductModeContract(input: {
     invariants: [
       'Product mode changes presentation and approval friction, not execution authority.',
       'Every sensitive action still flows through policy, approval and receipts.',
-      'Command Center projections are read-only and never become an execution authority.',
+      'Dashboard projections are read-only and never become an execution authority.',
     ],
   };
 }
