@@ -1,5 +1,6 @@
 import { IBM_Plex_Sans } from "next/font/google";
 import "./globals.css";
+import "./(dashboard)/control/command-center/styles/commandCenter.css";
 import { ThemeProvider } from "@/shared/components/ThemeProvider";
 import "@/lib/initCloudSync";
 import { NextIntlClientProvider } from "next-intl";

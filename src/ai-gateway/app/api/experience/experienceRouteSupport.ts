@@ -1,14 +1,14 @@
-import { ExperienceCoreService, type ExperienceCommand } from "../../../../services/experience/index.js";
+import { ExperienceCoreService, type ExperienceCommand } from "../../../../services/experience";
 import {
   ZavorthAgentGateway,
   createDefaultAgentRunStore,
   createDefaultAgentWorkflowQueueStore,
-} from "../../../../runtime/agent/index.js";
-import { RuntimeAccessReadinessService } from "../../../../runtime/access/RuntimeAccessReadinessService.js";
-import { ZavorthLearningPlaneService } from "../../../../services/ZavorthLearningPlaneService.js";
-import { ZavorthMemoryPlaneService } from "../../../../services/ZavorthMemoryPlaneService.js";
-import { LlmRuntimeService } from "../../../../services/llm/LlmRuntimeService.js";
-import { config } from "../../../../config/index.js";
+} from "../../../../runtime/agent";
+import { RuntimeAccessReadinessService } from "../../../../runtime/access/RuntimeAccessReadinessService";
+import { ZavorthLearningPlaneService } from "../../../../services/ZavorthLearningPlaneService";
+import { ZavorthMemoryPlaneService } from "../../../../services/ZavorthMemoryPlaneService";
+import { LlmRuntimeService } from "../../../../services/llm/LlmRuntimeService";
+import { config } from "../../../../config";
 
 let experienceCore: ExperienceCoreService | null = null;
 

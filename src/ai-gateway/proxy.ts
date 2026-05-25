@@ -10,6 +10,15 @@ import { isModelSyncInternalRequest } from "./shared/services/modelSyncScheduler
 const SECRET = new TextEncoder().encode(process.env.JWT_SECRET || "");
 const AUTH_SESSION_TTL_SECONDS = 30 * 24 * 60 * 60;
 
+function isLocalDashboardRequest(request: any): boolean {
+  try {
+    const hostname = new URL(request.url).hostname.toLowerCase();
+    return hostname === "localhost" || hostname === "127.0.0.1" || hostname === "::1";
+  } catch {
+    return false;
+  }
+}
+
 export async function proxy(request: any) {
   const { pathname } = request.nextUrl;
 
@@ -76,6 +85,10 @@ export async function proxy(request: any) {
   }
 
   if (pathname.startsWith("/dashboard")) {
+    if (isLoopbackRequest(request) || isLocalDashboardRequest(request)) {
+      return response;
+    }
+
     // Always allow onboarding — it has its own setupComplete guard
     if (pathname.startsWith("/dashboard/onboarding")) {
       return response;
