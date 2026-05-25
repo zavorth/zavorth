@@ -108,7 +108,7 @@ function usePageInfo(pathname: string | null): {
   if (pathname === "/dashboard")
     return {
       title: "Dashboard",
-      description: "Chat, sessoes, approvals e runtime no mesmo plano de controle.",
+      description: "Chat, sessions, approvals and runtime in one operator surface.",
       breadcrumbs: [],
     };
   if (pathname === "/dashboard")

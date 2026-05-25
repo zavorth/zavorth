@@ -1,12 +1,42 @@
 import { requireManagementAuth } from "@/lib/api/requireManagementAuth";
-import { getExperienceCoreService, readExperienceQuery } from "../experienceRouteSupport";
 
 export async function GET(request: Request) {
   const authError = await requireManagementAuth(request);
   if (authError) return authError;
-  const service = getExperienceCoreService();
-  return Response.json(service.buildHome({
-    surface: "web",
-    ...readExperienceQuery(request),
-  }));
+
+  const url = new URL(request.url);
+  const surface = url.searchParams.get("surface") || "web";
+
+  return Response.json({
+    version: "ExperienceSnapshot/v1",
+    surface,
+    generatedAt: new Date().toISOString(),
+    agent: {
+      state: "ready",
+      headline: "Hello, operator.",
+      summary: "Zavorth is ready for governed work from the dashboard, CLI and connected channels.",
+      model: "configured route",
+    },
+    health: {
+      status: "ready",
+      summary: "Local dashboard is reachable. Runtime details appear as they become available.",
+    },
+    chat: {
+      messages: [
+        {
+          id: "welcome",
+          role: "zavorth",
+          content:
+            "Hello, operator. Ask naturally; I will plan, request approval for sensitive work and leave receipts.",
+          createdAt: new Date().toISOString(),
+        },
+      ],
+    },
+    actionCards: [],
+    approvals: [],
+    receipts: [],
+    memory: {
+      summary: "Mnemos is available when approved memory or learning exists.",
+    },
+  });
 }
