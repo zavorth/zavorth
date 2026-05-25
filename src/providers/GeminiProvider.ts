@@ -58,10 +58,7 @@ export class GeminiProvider implements ILlmProvider {
       try {
         const model = currentClient.getGenerativeModel({
           model: modelName,
-          tools:
-            tools && tools.length > 0
-              ? [{ functionDeclarations: tools.map((tool) => this.convertTool(tool)) }]
-              : undefined,
+          tools: this.buildGeminiTools(tools, options),
         }, this.requestOptions);
 
         result = await model.generateContent({
@@ -119,6 +116,7 @@ export class GeminiProvider implements ILlmProvider {
       content: textContent || null,
       toolCalls,
       finishReason: candidate.finishReason || 'stop',
+      metadata: this.buildProviderNativeMetadata(candidate, options),
     };
   }
 
@@ -161,6 +159,10 @@ export class GeminiProvider implements ILlmProvider {
 
     if (tools && tools.length > 0) {
       payload.tools = [{ function_declarations: tools.map((tool) => this.convertTool(tool)) }];
+    }
+    const providerNativeTools = this.buildGeminiRestNativeTools(tools, undefined);
+    if (providerNativeTools.length > 0) {
+      payload.tools = providerNativeTools;
     }
 
     let lastError: unknown = null;
@@ -214,7 +216,7 @@ export class GeminiProvider implements ILlmProvider {
     throw lastError || new Error('Falha desconhecida no Cloudflare AI Gateway para Gemini');
   }
 
-  private parseGatewayResponse(responseBody: any): LlmResponse {
+  private parseGatewayResponse(responseBody: any, options?: ProviderChatOptions): LlmResponse {
     const candidate = responseBody?.candidates?.[0];
 
     if (!candidate) {
@@ -246,7 +248,90 @@ export class GeminiProvider implements ILlmProvider {
       content: textContent || null,
       toolCalls,
       finishReason: candidate.finishReason || 'stop',
+      metadata: this.buildProviderNativeMetadata(candidate, options),
     };
+  }
+
+  private buildGeminiTools(tools?: ToolDefinition[], options?: ProviderChatOptions): any[] | undefined {
+    const output: any[] = [];
+    if (tools && tools.length > 0) {
+      output.push({ functionDeclarations: tools.map((tool) => this.convertTool(tool)) });
+    }
+    if (this.shouldEnableGoogleSearch(options)) {
+      output.push({ googleSearch: {} });
+    }
+    if (this.shouldEnableCodeExecution(options)) {
+      output.push({ codeExecution: {} });
+    }
+    return output.length > 0 ? output : undefined;
+  }
+
+  private buildGeminiRestNativeTools(tools?: ToolDefinition[], options?: ProviderChatOptions): any[] {
+    const output: any[] = [];
+    if (tools && tools.length > 0) {
+      output.push({ function_declarations: tools.map((tool) => this.convertTool(tool)) });
+    }
+    if (this.shouldEnableGoogleSearch(options)) {
+      output.push({ google_search: {} });
+    }
+    if (this.shouldEnableCodeExecution(options)) {
+      output.push({ code_execution: {} });
+    }
+    return output;
+  }
+
+  private shouldEnableGoogleSearch(options?: ProviderChatOptions): boolean {
+    return Boolean(options?.providerNativeTools?.some((tool) => tool.name === 'google_search'));
+  }
+
+  private shouldEnableCodeExecution(options?: ProviderChatOptions): boolean {
+    return Boolean(options?.providerNativeTools?.some((tool) => tool.name === 'code_execution' || tool.name === 'provider_code_execution'));
+  }
+
+  private buildProviderNativeMetadata(candidate: any, options?: ProviderChatOptions): Record<string, unknown> | undefined {
+    const requested = options?.providerNativeTools || [];
+    const activated = requested
+      .filter((tool) => {
+        if (tool.name === 'google_search') return this.shouldEnableGoogleSearch(options);
+        if (tool.name === 'code_execution' || tool.name === 'provider_code_execution') return this.shouldEnableCodeExecution(options);
+        return false;
+      })
+      .map((tool) => tool.name);
+    const groundingMetadata = candidate?.groundingMetadata;
+    if (!groundingMetadata && requested.length === 0) {
+      return undefined;
+    }
+    const citations = groundingMetadata ? this.extractCitations(groundingMetadata) : [];
+    return {
+      providerNativeTools: {
+        requested: requested.map((tool) => ({
+          name: tool.name,
+          reason: tool.reason,
+          requiredEvidence: tool.requiredEvidence || 'none',
+        })),
+        activated,
+        unsupported: requested
+          .filter((tool) => !activated.includes(tool.name))
+          .map((tool) => tool.name),
+        googleSearch: {
+          used: citations.length > 0 || Boolean(groundingMetadata),
+          citationCount: citations.length,
+          citations,
+        },
+      },
+      ...(groundingMetadata ? { groundingMetadata } : {}),
+    };
+  }
+
+  private extractCitations(metadata: any): Array<{ title: string; url: string }> {
+    const chunks = Array.isArray(metadata?.groundingChunks) ? metadata.groundingChunks : [];
+    return chunks
+      .map((chunk: any) => chunk?.web)
+      .filter((web: any) => web?.uri)
+      .map((web: any) => ({
+        title: String(web.title || web.uri),
+        url: String(web.uri),
+      }));
   }
 
   private convertMessages(messages: ChatMessage[]): Content[] {

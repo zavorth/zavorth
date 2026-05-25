@@ -6,6 +6,8 @@ import type {
   ExperienceSnapshot,
   ExperienceTimelineItem,
 } from '../services/experience/index.js';
+import { ZavorthSelfHealingUxService } from '../services/ZavorthSelfHealingUxService.js';
+import { formatZavorthSelfHealingProjection } from './ZavorthCliSelfHealingRenderer.js';
 import { renderCliScreen, type CliVisualPanel } from './ZavorthCliVisualSystem.js';
 import { formatCliValue, formatCount, sanitizeHumanCliText } from './ZavorthCliText.js';
 import { paintCliDivider, paintCliTone } from './ZavorthCliVisualTheme.js';
@@ -68,6 +70,36 @@ function renderReasoning(snapshot: ExperienceSnapshot): string[] {
     `Tools: ${summary.tools.length ? summary.tools.join(', ') : 'no tools announced'}`,
     summary.approvalReason ? `Approval: ${sanitizeHumanCliText(summary.approvalReason)}` : 'Approval: not required right now',
     `Next: ${sanitizeHumanCliText(summary.nextAction)}`,
+  ];
+}
+
+function renderLlmBrain(snapshot: ExperienceSnapshot): string[] {
+  const brain = snapshot.llmBrain;
+  if (!brain) {
+    return ['No LLM brain snapshot yet. Start a governed LLM run to populate this view.'];
+  }
+  return [
+    `${brain.status} | ${brain.brainMode}`,
+    `Session: ${brain.session.sessionId} | events ${brain.session.serializedEvents} | stream ${brain.streaming.visualStreamingReady ? 'ready' : 'pending'}`,
+    `Tools: exposed ${brain.toolAgency.toolsExposed.length} | requested ${brain.toolAgency.requested} | executed ${brain.toolAgency.executed} | deferred ${brain.toolAgency.sideEffectsDeferred}`,
+    `Provider tools: ${brain.providerNativeCapabilities.summary}`,
+    `Harness: ${brain.harnessRuntime.mode} | sandbox runs ${brain.harnessRuntime.speculativeSandboxRuns} | backend plans ${brain.harnessRuntime.terminalBackendPlans}`,
+    `Skill evolution: ${brain.skillEvolution.status} / ${brain.skillEvolution.candidateKind}`,
+    `Adapters: ${brain.adapterCoverage.longTailFamilies.length} families proof-gated | live QA ${brain.qa.requiresHumanLiveQa ? 'needed' : 'clear'}`,
+  ];
+}
+
+function renderAgentMaturity(snapshot: ExperienceSnapshot): string[] {
+  const maturity = snapshot.agentMaturity;
+  if (!maturity) {
+    return ['Agent maturity snapshot is not available yet.'];
+  }
+  return [
+    `Session: ${maturity.session.mode} | continuity ${maturity.session.continuity}`,
+    `Gateway: ${maturity.gateway.policy} | provider tools ${maturity.gateway.providerNativeTools}`,
+    `Execution: ${maturity.execution.strategy} | ${maturity.execution.preferredBackends.slice(0, 3).join(', ')}`,
+    `Learning: ${maturity.learning.mode} | consent ${maturity.learning.userConsentRequired ? 'required' : 'not required'}`,
+    `Subagents: ${maturity.subagents.mode} | isolated ${maturity.subagents.isolationRequired ? 'yes' : 'no'}`,
   ];
 }
 
@@ -135,10 +167,10 @@ export function formatExperienceHome(snapshot: ExperienceSnapshot): string {
       : 'warning';
   const firstActionCard = pendingActions[0] || null;
   const attentionLines = [
-    provider === 'not configured' ? 'Provider is not configured -> zavorth setup' : '',
-    pendingApprovals > 0 ? `${pendingApprovals} approval(s) pending -> zavorth approve` : '',
+    provider === 'not configured' ? 'Provider is not configured. Ask me to connect Gemini, OpenRouter, Ollama or another provider.' : '',
+    pendingApprovals > 0 ? `${pendingApprovals} approval(s) pending. I can show risk, scope and receipt preview before you decide.` : '',
     pendingLearning > 0 ? `${pendingLearning} learning item(s) waiting -> zavorth learn` : '',
-    snapshot.health.status === 'blocked' ? 'Runtime is blocked -> zavorth doctor' : '',
+    snapshot.health.status === 'blocked' ? 'Runtime is blocked. I can inspect the failure and propose a narrow repair.' : '',
     firstActionCard ? `Latest: ${sanitizeHumanCliText(firstActionCard.title)} (${firstActionCard.risk})` : '',
   ].filter(Boolean);
   const panels: CliVisualPanel[] = [
@@ -168,6 +200,11 @@ export function formatExperienceHome(snapshot: ExperienceSnapshot): string {
         `Style: ${formatHomeProfileLabel(snapshot.responseProfile?.label)} | Details: zavorth inspect`,
         'Full help: zavorth --help',
       ],
+    },
+    {
+      title: 'Agent loop',
+      tone: 'neutral',
+      lines: renderAgentMaturity(snapshot).slice(0, 4),
     },
   ];
 
@@ -205,14 +242,14 @@ export function formatExperienceAgentSession(snapshot: ExperienceSnapshot): stri
   ].join(paintCliTone('  |  ', 'muted'));
   const guidance = configured
     ? [
-      `${paintCliTone('ready:', 'success')} Native tools are available when they help.`,
+      `${paintCliTone('ready:', 'success')} Native tools are available when useful.`,
       'Sensitive actions stay behind policy, approval, sandbox and receipts.',
       'Try: review this repo, explain the gateway, fix failing tests.',
     ]
     : [
       `${paintCliTone('setup needed:', 'warning')} Provider and model are not configured yet.`,
-      'I can still help with setup, status, approvals and local diagnostics.',
-      `${paintCliTone('next', 'brand')} zavorth setup    ${paintCliTone('or', 'muted')}    zavorth providers`,
+      'Tell me which provider to use, choose a local provider, or paste a key only when I ask for it.',
+      'I will keep secrets redacted, test explicitly, and leave a setup receipt.',
     ];
   const shortcuts = configured
     ? [
@@ -222,27 +259,36 @@ export function formatExperienceAgentSession(snapshot: ExperienceSnapshot): stri
       renderAgentShortcut('status', 'runtime health'),
     ]
     : [
-      renderAgentShortcut('setup', 'choose provider and model'),
-      renderAgentShortcut('providers', 'inspect model routes'),
+      renderAgentShortcut('setup', 'guided provider setup'),
+      renderAgentShortcut('providers', 'model routes and fallbacks'),
       renderAgentShortcut('approve', pendingApprovals > 0 ? 'review pending governed work' : 'review governed work'),
       renderAgentShortcut('doctor', 'diagnose local setup'),
     ];
   return [
-    paintCliTone('* Runtime connected', 'success'),
+    `${paintCliTone('o', 'success')} ${paintCliTone('Runtime connected', 'success')}`,
     `${paintCliTone('zavorth', 'brand')} ${paintCliTone('agent', 'muted')} - ${paintCliTone('session', 'muted')} ${sessionId}`,
     '',
     `${paintCliTone('workspace', 'muted')} ${workspace}`,
     statusLine,
     '',
-    `${paintCliTone("Hi, I'm Zavorth.", 'brand')} ${paintCliTone('Local-first governed agent OS.', 'muted')}`,
+    `${paintCliTone("Hi, I'm Zavorth.", 'brand')} ${paintCliTone('Tell me what to do, and I will show risk before sensitive work.', 'muted')}`,
     '',
     guidance.map((line) => `${paintCliTone('>', 'brand')} ${line}`).join('\n'),
     '',
     setupHint,
     '',
     renderAgentShortcutPanel(shortcuts),
+    snapshot.agentMaturity
+      ? [
+        '',
+        paintCliTone('agent loop', 'muted'),
+        `  ${paintCliTone('gateway', 'brand')} ${paintCliTone(snapshot.agentMaturity.gateway.policy, 'muted')}`,
+        `  ${paintCliTone('execution', 'brand')} ${paintCliTone(snapshot.agentMaturity.execution.strategy, 'muted')}`,
+        `  ${paintCliTone('learning', 'brand')} ${paintCliTone('reversible candidates after successful runs', 'muted')}`,
+      ].join('\n')
+      : '',
     '',
-    paintCliTone(`local ready | session ${sessionId} | tokens ? | help /help`, 'muted'),
+    paintCliTone(`local ready | session ${sessionId} | help /help`, 'muted'),
     paintCliDivider(getAgentSessionWidth()),
   ].join('\n');
 }
@@ -311,6 +357,20 @@ export function formatExperienceHud(snapshot: ExperienceSnapshot): string {
       lines: renderHudShortcuts(snapshot),
     },
     {
+      title: 'LLM brain',
+      tone: snapshot.llmBrain?.status === 'blocked'
+        ? 'danger'
+        : snapshot.llmBrain?.status === 'attention'
+          ? 'warning'
+          : 'success',
+      lines: renderLlmBrain(snapshot),
+    },
+    {
+      title: 'Agent maturity',
+      tone: 'neutral',
+      lines: renderAgentMaturity(snapshot),
+    },
+    {
       title: 'Diff review',
       tone: (snapshot.diffReviews || []).some((review) => review.status !== 'empty') ? 'brand' : 'muted',
       lines: renderDiffReviews(snapshot.diffReviews),
@@ -377,10 +437,10 @@ export function formatExperiencePulse(snapshot: ExperienceSnapshot): string {
               `${sanitizeHumanCliText(pulse.bestNextAction.label)}${pulse.bestNextAction.command ? ` -> ${pulse.bestNextAction.command}` : ''}`,
               pulse.bestNextAction.reason,
             ]
-          : ['zavorth ask "<pedido>"'],
+          : ['zavorth ask "<request>"'],
       },
       {
-        title: 'Sinais',
+        title: 'Signals',
         tone: 'neutral',
         lines: pulse
           ? [
@@ -442,10 +502,14 @@ export function formatExperienceDiffs(snapshot: ExperienceSnapshot): string {
 
 export function formatExperienceCommandResult(result: ExperienceCommandResult): string {
   const replyText = result.replies.map((reply) => sanitizeHumanCliText(reply.text)).filter(Boolean).join('\n\n');
-  const needsAttention = result.plan.requiresApproval || (result.snapshot.actionCards || []).length > 0;
+  const actionCards = result.snapshot.actionCards || [];
+  const hasActionCards = actionCards.length > 0;
+  const needsAttention = result.plan.requiresApproval || hasActionCards;
   const showDiagnostics = process.argv.includes('--debug') || process.argv.includes('--verbose') || process.env.ZAVORTH_DEBUG === '1';
   const nextAction = result.plan.requiresApproval
     ? sanitizeHumanCliText(result.plan.nextSafeAction)
+    : hasActionCards
+      ? 'Review the suggested recovery or setup action, then continue in natural language.'
     : 'You can continue with another request.';
   const panels: CliVisualPanel[] = [
     {
@@ -454,11 +518,15 @@ export function formatExperienceCommandResult(result: ExperienceCommandResult): 
       lines: [replyText || (result.ok ? 'Done.' : result.error || 'The request could not be completed.')],
     },
     {
-      title: needsAttention ? 'Needs approval' : 'Next step',
+      title: result.plan.requiresApproval ? 'Needs approval' : needsAttention ? 'Needs attention' : 'Next step',
       tone: result.plan.risk === 'danger' ? 'danger' : result.plan.requiresApproval ? 'warning' : 'brand',
       lines: [
         nextAction,
-        result.plan.requiresApproval ? 'Review the action before anything sensitive continues.' : 'No approval needed.',
+        result.plan.requiresApproval
+          ? 'Review the action before anything sensitive continues.'
+          : hasActionCards
+            ? 'No approval was bypassed; this is guidance or a safe setup step.'
+            : 'No approval needed.',
         result.plan.risk !== 'safe' || result.plan.requiresApproval ? `Risk: ${result.plan.risk}` : '',
       ].filter(Boolean),
     },
@@ -478,11 +546,23 @@ export function formatExperienceCommandResult(result: ExperienceCommandResult): 
     });
   }
 
-  if ((result.snapshot.actionCards || []).length > 0) {
+  if (actionCards.length > 0) {
     panels.push({
-      title: 'Approvals',
+      title: actionCards.some((card) => card.source !== 'approval') ? 'Action cards' : 'Approvals',
       tone: 'warning',
-      lines: renderActionCards(result.snapshot.actionCards),
+      lines: renderActionCards(actionCards),
+    });
+  }
+
+  if (result.snapshot.llmBrain && (showDiagnostics || result.snapshot.llmBrain.status !== 'passed')) {
+    panels.push({
+      title: 'LLM brain',
+      tone: result.snapshot.llmBrain.status === 'blocked'
+        ? 'danger'
+        : result.snapshot.llmBrain.status === 'attention'
+          ? 'warning'
+          : 'neutral',
+      lines: renderLlmBrain(result.snapshot),
     });
   }
 
@@ -504,7 +584,7 @@ export function formatExperienceCommandResult(result: ExperienceCommandResult): 
     );
   }
 
-  return renderCliScreen({
+  const rendered = renderCliScreen({
     eyebrow: 'Zavorth',
     title: result.ok ? 'Done' : 'Blocked',
     summary: result.error || 'Request processed with the governed runtime.',
@@ -512,6 +592,17 @@ export function formatExperienceCommandResult(result: ExperienceCommandResult): 
     mode: 'hero',
     showWordmark: false,
   });
+  const healing = new ZavorthSelfHealingUxService().buildProjection({
+    attempted: result.plan.title,
+    commandText: result.plan.summary,
+    result,
+    snapshot: result.snapshot,
+    debug: showDiagnostics,
+  });
+  if (!healing.shouldRender || (healing.issue === 'none' && result.ok)) {
+    return rendered;
+  }
+  return `${rendered}\n\n${formatZavorthSelfHealingProjection(healing)}`;
 }
 
 export function formatExperienceLearning(snapshot: ExperienceSnapshot): string {
@@ -526,7 +617,7 @@ export function formatExperienceLearning(snapshot: ExperienceSnapshot): string {
         lines: renderLearning(snapshot.learning.candidates),
       },
       {
-        title: 'Comandos',
+        title: 'Commands',
         lines: [
           'zavorth learn approve <id>',
           'zavorth learn reject <id>',

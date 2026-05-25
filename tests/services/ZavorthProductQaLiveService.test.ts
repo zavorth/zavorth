@@ -3,7 +3,7 @@ import { ZavorthProductQaLiveService } from '../../src/services/ZavorthProductQa
 describe('ZavorthProductQaLiveService', () => {
   const now = () => new Date('2026-05-24T12:00:00.000Z');
 
-  it('builds the final nine-row live QA matrix without claiming live provider or Telegram by default', () => {
+  it('builds the final live QA matrix without claiming live provider or Telegram by default', () => {
     const service = new ZavorthProductQaLiveService({
       now,
       cwd: 'C:/workspace',
@@ -23,10 +23,12 @@ describe('ZavorthProductQaLiveService', () => {
       'receipt',
       'dashboard',
       'cli',
+      'llm-brain-session',
       'learning-candidate',
+      'long-tail-adapters',
       'rollback-sandbox',
     ]);
-    expect(snapshot.summary.total).toBe(9);
+    expect(snapshot.summary.total).toBe(11);
     expect(snapshot.summary.needsLiveCredentials).toBe(2);
     expect(snapshot.policy.dryRunDoesNotClaimLiveProvider).toBe(true);
     expect(snapshot.policy.dryRunDoesNotClaimLiveTelegram).toBe(true);
@@ -118,6 +120,12 @@ function existingFiles() {
     'scripts/zavorth-live-readiness-evidence-proof-pack-check.mjs',
     'scripts/zavorth-native-learning-loop.ts',
     'scripts/zavorth-native-learning-loop-check.mjs',
+    'src/contracts/ZavorthLlmBrainContract.ts',
+    'src/services/ZavorthLlmBrainService.ts',
+    'src/runtime/agent/AgentRunNativeToolLoopService.ts',
+    'src/runtime/agent/AgentRunService.ts',
+    'src/adapters/channels/ChannelLongTailLiveClients.ts',
+    'src/adapters/providers/ProviderLongTailLiveClients.ts',
     'src/ai-gateway/app/api/experience/approvals/[id]/decision/route.ts',
     'src/services/experience/ActionCardService.ts',
   ]);

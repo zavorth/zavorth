@@ -34,10 +34,12 @@ export function formatCliChatAssistantMessage(options: CliChatAssistantMessageOp
     .map((hint) => normalizeCliChatLine(hint))
     .filter(Boolean);
 
+  const header = `${paintCliTone('Zavorth', 'brand')}${title.toLowerCase() === 'zavorth' ? '' : ` ${paintCliTone('/', 'muted')} ${paintCliTone(title, 'muted')}`}`;
+
   return [
-    `${paintCliTone('*', 'brand')} ${paintCliTone(title, 'brand')}`,
+    header,
     renderedBody || null,
-    hints.length > 0 ? ['', ...hints.map((hint) => `${paintCliTone('->', 'muted')} ${hint}`)].join('\n') : null,
+    hints.length > 0 ? ['', ...hints.map((hint) => `${paintCliTone('>', 'brand')} ${paintCliTone(hint, 'muted')}`)].join('\n') : null,
   ].filter(Boolean).join('\n');
 }
 

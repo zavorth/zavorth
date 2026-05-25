@@ -9,6 +9,7 @@ import {
   ToolCall,
   ToolDefinition,
 } from './ILlmProvider.js';
+import { buildOpenAiCompatibleNativeToolPayload } from './ProviderNativeToolPayload.js';
 
 export class OpenRouterProvider implements ILlmProvider {
   public readonly name = 'openrouter';
@@ -39,6 +40,11 @@ export class OpenRouterProvider implements ILlmProvider {
 
     try {
       console.log(`[OpenRouter] Chamando modelo: ${modelName}`);
+      const nativeToolPayload = buildOpenAiCompatibleNativeToolPayload({
+        providerName: this.name,
+        tools,
+        options,
+      });
       const response = await this.client.chat.completions.create({
         model: modelName,
         messages: messages.map((message) => ({
@@ -55,18 +61,9 @@ export class OpenRouterProvider implements ILlmProvider {
           })),
         })),
         max_tokens: config.maxTokens,
-        tools:
-          tools && tools.length > 0
-            ? tools.map((tool) => ({
-                type: 'function',
-                function: {
-                  name: tool.name,
-                  description: tool.description,
-                  parameters: tool.parameters,
-                },
-              }))
-            : undefined,
-      });
+        tools: nativeToolPayload.tools,
+        ...nativeToolPayload.extraBody,
+      } as any);
 
       const choice = response.choices[0];
       const toolCalls: ToolCall[] = extractFunctionToolCalls(choice.message.tool_calls);
@@ -75,6 +72,7 @@ export class OpenRouterProvider implements ILlmProvider {
         content: choice.message.content,
         toolCalls,
         finishReason: choice.finish_reason as any,
+        metadata: nativeToolPayload.metadata,
       };
     } catch (error: any) {
       console.error('[OpenRouter] Erro na requisicao:', error?.message || error);

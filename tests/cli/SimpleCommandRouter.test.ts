@@ -1,7 +1,4 @@
-import {
-  renderZavorthQaGuide,
-  resolveZavorthSimpleCommand,
-} from '../../src/cli/SimpleCommandRouter.js';
+import { resolveZavorthSimpleCommand } from '../../src/cli/SimpleCommandRouter.js';
 
 describe('SimpleCommandRouter', () => {
   it('maps friendly aliases without removing advanced commands', () => {
@@ -46,11 +43,10 @@ describe('SimpleCommandRouter', () => {
     }
   });
 
-  it('renders a concise QA guide', () => {
-    const guide = renderZavorthQaGuide('daily');
-
-    expect(guide).toContain('ZAVORTH QA GUIDE');
-    expect(guide).toContain('zavorth ready');
-    expect(guide).toContain('zavorth test runtime');
+  it('does not expose qa as a daily user command', () => {
+    expect(resolveZavorthSimpleCommand(['qa'])).toEqual({
+      kind: 'passthrough',
+      args: ['qa'],
+    });
   });
 });

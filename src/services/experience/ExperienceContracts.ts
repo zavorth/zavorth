@@ -3,6 +3,8 @@ import type {
   UniversalAgentRunStatus,
   UniversalToolRiskLevel,
 } from '../../runtime/agent/UniversalAgentRuntimeTypes.js';
+import type { ZavorthLlmBrainSnapshot } from '../../contracts/ZavorthLlmBrainContract.js';
+import type { ZavorthAgentMaturitySnapshot } from '../ZavorthAgentMaturityService.js';
 
 export const EXPERIENCE_SNAPSHOT_CONTRACT_VERSION = 'ExperienceSnapshot/v1' as const;
 export const EXPERIENCE_COMMAND_CONTRACT_VERSION = 'ExperienceCommand/v1' as const;
@@ -176,7 +178,7 @@ export type ExperienceReceipt = {
   title: string;
   detail: string;
   status: 'ready' | 'pending' | 'blocked' | 'failed';
-  source: 'run' | 'approval' | 'learning' | 'safety' | 'system';
+  source: 'run' | 'approval' | 'learning' | 'safety' | 'system' | 'self-healing';
   createdAt: string;
 };
 
@@ -254,7 +256,7 @@ export type ExperiencePulseBrief = {
 export type ExperienceActionCard = {
   contractVersion: typeof EXPERIENCE_ACTION_CARD_CONTRACT_VERSION;
   id: string;
-  source: 'approval' | 'mutation' | 'sandbox' | 'learning' | 'context-recovery' | 'system';
+  source: 'approval' | 'mutation' | 'sandbox' | 'learning' | 'context-recovery' | 'system' | 'self-healing';
   title: string;
   summary: string;
   risk: UniversalToolRiskLevel;
@@ -435,6 +437,8 @@ export type ExperienceSnapshot = {
   autoHealing?: ExperienceAutoHealing;
   contextRecovery?: ExperienceContextRecovery;
   reasoningSummary?: ExperienceReasoningSummary;
+  llmBrain?: ZavorthLlmBrainSnapshot | null;
+  agentMaturity?: ZavorthAgentMaturitySnapshot | null;
   nextActions: ExperienceAction[];
   health: {
     status: ExperienceHealthStatus;

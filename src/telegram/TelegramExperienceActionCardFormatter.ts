@@ -43,24 +43,24 @@ export class TelegramExperienceActionCardFormatter {
     const pulse = snapshot.daily?.pulse;
     const profile = snapshot.responseProfile || snapshot.daily?.responseProfile || pulse?.profile;
     const lines = [
-      'Zavorth Daily Control',
+      'Zavorth Control',
       '',
-      `Estado: ${snapshot.agent.status}`,
+      `State: ${snapshot.agent.status}`,
       `Pulse: ${clip(pulse?.headline || snapshot.daily?.summary || snapshot.health.summary, 140)}`,
-      `Tarefa: ${clip(snapshot.daily?.activeTask || pulse?.activeTask || snapshot.agent.summary || 'nenhuma ativa', 120)}`,
+      `Task: ${clip(snapshot.daily?.activeTask || pulse?.activeTask || snapshot.agent.summary || 'none active', 120)}`,
       `Approvals: ${pendingApprovals} | Learning: ${pendingLearning}`,
-      `Perfil: ${clip(profile?.label || 'padrao', 40)}`,
-      `Proximo: ${clip(pulse?.bestNextAction?.label || 'enviar um pedido natural', 120)}`,
+      `Profile: ${clip(profile?.label || 'default', 40)}`,
+      `Next: ${clip(pulse?.bestNextAction?.label || 'send a natural request', 120)}`,
     ];
 
     if (cards.length > 0) {
-      lines.push('', 'Acoes pendentes');
+      lines.push('', 'Pending actions');
       for (const card of cards.slice(0, 3)) {
         lines.push(`- ${card.title} [${card.risk}]`);
         lines.push(`  ${clip(card.summary, 120)}`);
       }
     } else {
-      lines.push('', 'Sem action cards pendentes agora.');
+      lines.push('', 'No pending action cards right now.');
     }
 
     return {
@@ -76,7 +76,7 @@ export class TelegramExperienceActionCardFormatter {
     const reviews = snapshot.diffReviews || [];
     const lines = ['Zavorth Diff Review', ''];
     if (!reviews.length) {
-      lines.push('Nenhum diff de sandbox disponivel para revisao.');
+      lines.push('No sandbox diff is available for review.');
     } else {
       for (const review of reviews.slice(0, 3)) {
         lines.push(`- ${review.title} [${review.risk}]`);
@@ -85,7 +85,7 @@ export class TelegramExperienceActionCardFormatter {
           lines.push(`  ${file.path}: +${file.addedLines}/-${file.removedLines}`);
         }
       }
-      lines.push('', 'Detalhe completo: use o Dashboard ou `zavorth diff`.');
+      lines.push('', 'Full details: use the Dashboard or `zavorth diff`.');
     }
     return { text: lines.join('\n'), replyOptions: this.keyboardForUtility(options) };
   }
@@ -97,13 +97,13 @@ export class TelegramExperienceActionCardFormatter {
     const candidates = snapshot.learning.candidates || [];
     const lines = ['Zavorth Learning OS', '', clip(snapshot.learning.summary, 180)];
     if (candidates.length > 0) {
-      lines.push('', 'Candidatos');
+      lines.push('', 'Candidates');
       for (const candidate of candidates.slice(0, 4)) {
         lines.push(`- ${candidate.title} (${Math.round(candidate.confidence * 100)}%, ${candidate.state})`);
         lines.push(`  ${clip(candidate.recommendation, 120)}`);
       }
     } else {
-      lines.push('', 'Nenhum candidato pendente.');
+      lines.push('', 'No pending candidates.');
     }
     return { text: lines.join('\n'), replyOptions: this.keyboardForUtility(options) };
   }
@@ -145,7 +145,7 @@ export class TelegramExperienceActionCardFormatter {
         scope: options.scope || null,
         ttlMs: options.ttlMs,
       });
-      keyboard.row().text('Ver diff', callbackData);
+      keyboard.row().text('View diff', callbackData);
     }
     return { reply_markup: keyboard };
   }
@@ -161,7 +161,7 @@ export class TelegramExperienceActionCardFormatter {
       scope: options.scope || null,
       ttlMs: options.ttlMs,
     });
-    keyboard.row().text('Ver diff', diffCallback);
+    keyboard.row().text('View diff', diffCallback);
     return { reply_markup: keyboard };
   }
 }

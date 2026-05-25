@@ -266,6 +266,8 @@ import {
   formatExperienceLearning,
   formatExperiencePulse,
 } from './ZavorthCliExperienceRenderer.js';
+import { formatZavorthSelfHealingProjection } from './ZavorthCliSelfHealingRenderer.js';
+import { ZavorthSelfHealingUxService } from '../services/ZavorthSelfHealingUxService.js';
 import {
   DashboardAccessService,
   parseDashboardAccessAction,
@@ -406,7 +408,23 @@ export async function executeZavorthCliCommand(params: {
       globalSpinner.fail(`Failed to run '${commandName}'`);
       spinnerActive = false;
     }
-    throw error;
+    const projection = new ZavorthSelfHealingUxService().buildProjection({
+      attempted: commandName ? `Run '${commandName}'` : 'Run Zavorth',
+      commandName,
+      commandText: rawInput,
+      error,
+      debug: effectiveFlags.json || process.argv.includes('--debug') || process.argv.includes('--verbose') || process.env.ZAVORTH_DEBUG === '1',
+    });
+    const body = effectiveFlags.json
+      ? JSON.stringify(projection, null, 2)
+      : formatZavorthSelfHealingProjection(projection);
+    wrappedWriter.line(body);
+    return {
+      ok: false,
+      handled: true,
+      output: [body],
+      error: error?.message || 'Zavorth command failed.',
+    };
   }
 }
 
@@ -940,50 +958,43 @@ async function executeZavorthCliCommandInner(params: {
     if (runtime.surfaceTaskDispatcher && (commandName === 'task' || !normalized.startsWith('/'))) {
       return executeCliTaskDispatch(runtime.surfaceTaskDispatcher, normalized, effectiveFlags, writer);
     }
-    const error = 'Unsupported CLI command. Use help, gateway or a known slash command.';
-    if (effectiveFlags.repl) {
-      const body = formatCliRecoverableErrorEventCard({
-        body: 'I did not understand that as a chat command.',
-        command: 'help',
-        hints: ['You can also write your request in plain language.'],
-      });
-      writer.line(body);
-      return {
-        ok: false,
-        handled: false,
-        output: [body],
-        error,
-      };
-    }
-    writer.error(error);
+    const error = 'Unsupported CLI command.';
+    const projection = new ZavorthSelfHealingUxService().buildProjection({
+      attempted: commandName ? `Understand '${commandName}'` : 'Understand command',
+      commandName,
+      commandText: normalized,
+      error: new Error(`${error} If this was a message, I can treat it as natural language instead.`),
+      debug: effectiveFlags.json || process.argv.includes('--debug') || process.argv.includes('--verbose') || process.env.ZAVORTH_DEBUG === '1',
+    });
+    const body = effectiveFlags.json
+      ? JSON.stringify(projection, null, 2)
+      : formatZavorthSelfHealingProjection(projection);
+    writer.line(body);
     return {
       ok: false,
-      handled: false,
-      output: [],
+      handled: true,
+      output: [body],
       error,
     };
   }
 
   if (!result.ok) {
-    const error = result.summary || result.error?.message || 'Falha ao executar comando pela Surface API.';
-    if (effectiveFlags.repl) {
-      const body = formatCliRecoverableErrorEventCard({
-        body: error,
-        command: 'doctor',
-      });
-      writer.line(body);
-      return {
-        ok: false,
-        handled: true,
-        output: [body],
-        error,
-      };
-    }
-    writer.error(error);
+    const error = result.summary || result.error?.message || 'Surface command failed.';
+    const projection = new ZavorthSelfHealingUxService().buildProjection({
+      attempted: commandName ? `Run '${commandName}'` : 'Run surface command',
+      commandName,
+      commandText: normalized,
+      error,
+      debug: effectiveFlags.json || process.argv.includes('--debug') || process.argv.includes('--verbose') || process.env.ZAVORTH_DEBUG === '1',
+    });
+    const body = effectiveFlags.json
+      ? JSON.stringify(projection, null, 2)
+      : formatZavorthSelfHealingProjection(projection);
+    writer.line(body);
     return {
       ok: false,
       handled: true,
-      output: result.messages.length > 0 ? result.messages : [error],
+      output: [body],
       error,
     };
   }

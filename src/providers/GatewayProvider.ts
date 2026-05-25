@@ -3,6 +3,7 @@ import { config } from '../config/index.js';
 import { extractFunctionToolCalls } from './openaiToolCalls.js';
 import { convertChatMessagesToOpenAI } from './openaiMessageConversion.js';
 import { ILlmProvider, ChatMessage, ToolDefinition, LlmResponse, ToolCall, ProviderChatOptions } from './ILlmProvider.js';
+import { buildOpenAiCompatibleNativeToolPayload } from './ProviderNativeToolPayload.js';
 
 export type GatewayProviderOptions = {
   name?: string;
@@ -33,20 +34,17 @@ export class GatewayProvider implements ILlmProvider {
 
   public async chat(messages: ChatMessage[], tools?: ToolDefinition[], options?: ProviderChatOptions): Promise<LlmResponse> {
     try {
+      const nativeToolPayload = buildOpenAiCompatibleNativeToolPayload({
+        providerName: this.name,
+        tools,
+        options,
+      });
       const response = await this.client.chat.completions.create({
         model: options?.modelName || this.defaultModelName,
         messages: convertChatMessagesToOpenAI(messages),
-        tools: tools && tools.length > 0
-          ? tools.map((tool) => ({
-              type: 'function' as const,
-              function: {
-                name: tool.name,
-                description: tool.description,
-                parameters: tool.parameters,
-              },
-            }))
-          : undefined,
-      });
+        tools: nativeToolPayload.tools,
+        ...nativeToolPayload.extraBody,
+      } as any);
 
       const choice = response.choices[0];
       const toolCalls: ToolCall[] = extractFunctionToolCalls(choice.message.tool_calls);
@@ -55,6 +53,7 @@ export class GatewayProvider implements ILlmProvider {
         content: choice.message.content,
         toolCalls,
         finishReason: choice.finish_reason as any,
+        metadata: nativeToolPayload.metadata,
       };
     } catch (error: any) {
       console.error('❌ [AIGateway] Erro na requisição:', error?.message || error);

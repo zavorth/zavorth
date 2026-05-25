@@ -70,6 +70,10 @@ import { MemoryWithReceiptsService } from './MemoryWithReceiptsService.js';
 import { ProviderArenaService } from './ProviderArenaService.js';
 import { SelfingDashboardService } from './SelfingDashboardService.js';
 import { ArtifactMemoryService } from './ArtifactMemoryService.js';
+import {
+  ZavorthLlmBrainService,
+} from '../../services/ZavorthLlmBrainService.js';
+import type { ZavorthLlmBrainSnapshot } from '../../contracts/ZavorthLlmBrainContract.js';
 import { PersonalOpsAutopilotService } from './PersonalOpsAutopilotService.js';
 import { AgentTeamCompilerService } from './AgentTeamCompilerService.js';
 import { CrossChannelContinuityService } from './CrossChannelContinuityService.js';
@@ -170,6 +174,7 @@ export type AgentRunServiceRuntime = {
   blueprintCompletionGate?: BlueprintCompletionGateService | null;
   providerArena?: ProviderArenaService | null;
   skillMcpQuarantine?: SkillMcpQuarantineService | null;
+  llmBrain?: Pick<ZavorthLlmBrainService, 'buildRunSnapshot'> | null;
   defaultProviderLabel?: string;
   defaultModelLabel?: string;
   intelligenceFabric?: Pick<ZavorthIntelligenceFabricService, 'buildShadowSnapshot'> | null;
@@ -185,7 +190,12 @@ export type AgentRunRuntimeEventType =
   | 'agent.execution.started'
   | 'agent.execution.completed'
   | 'agent.execution.failed'
-  | 'agent.run.completed';
+  | 'agent.run.completed'
+  | 'agent.stream.lifecycle'
+  | 'agent.stream.tool'
+  | 'agent.stream.assistant'
+  | 'agent.skill.evolution.candidate'
+  | 'agent.adapter.proof.required';
 
 export type AgentRunRuntimeEventBus = {
   emit: (type: AgentRunRuntimeEventType, payload?: Record<string, unknown>) => void | Promise<void>;
@@ -338,6 +348,7 @@ export class AgentRunService {
   private readonly blueprintCompletionGate: BlueprintCompletionGateService;
   private readonly providerArena: ProviderArenaService;
   private readonly skillMcpQuarantine: SkillMcpQuarantineService;
+  private readonly llmBrain: Pick<ZavorthLlmBrainService, 'buildRunSnapshot'>;
   private readonly modelPickerContractService: AgentRunModelPickerContractService | null;
   private readonly naturalFirstLightReply: NaturalFirstLightReplyService;
   private readonly naturalFirstApprovalSafety: NaturalFirstApprovalSafetyService;
@@ -454,6 +465,9 @@ export class AgentRunService {
       now: this.now,
     });
     this.skillMcpQuarantine = runtime.skillMcpQuarantine || new SkillMcpQuarantineService({
+      now: this.now,
+    });
+    this.llmBrain = runtime.llmBrain || new ZavorthLlmBrainService({
       now: this.now,
     });
     this.modelPickerContractService = runtime.modelPickerContractService || null;
@@ -816,6 +830,8 @@ export class AgentRunService {
       return this.buildFailureResult(run, error, 'executor');
     }
     this.applyExecutorResult(run, executorResult);
+    const llmBrain = this.applyLlmBrainMaturity(run, input, executorResult);
+    await this.publishLlmBrainRuntimeEvents(run, llmBrain);
     await this.publishRuntimeEvent(run, 'agent.execution.completed', {
       status: run.status,
       eventCount: run.events.length,
@@ -1703,6 +1719,82 @@ export class AgentRunService {
       request: null,
       generatedAt: now,
     });
+  }
+
+  private applyLlmBrainMaturity(
+    run: UniversalAgentRun,
+    request: UniversalAgentRequest,
+    executorResult: UniversalAgentExecutorResult,
+  ): ZavorthLlmBrainSnapshot {
+    const snapshot = this.llmBrain.buildRunSnapshot({
+      run,
+      request,
+      executorResult,
+    });
+    run.metadata = {
+      ...run.metadata,
+      zavorthLlmBrain: snapshot,
+    };
+    run.events.push({
+      id: this.idFactory('agent-event'),
+      runId: run.id,
+      kind: 'status',
+      title: 'LLM brain maturity',
+      detail: snapshot.summary,
+      status: snapshot.status === 'blocked' ? 'failed' : 'done',
+      createdAt: snapshot.generatedAt,
+      metadata: {
+        contractVersion: snapshot.contractVersion,
+        brainMode: snapshot.brainMode,
+        visualStreamingReady: snapshot.streaming.visualStreamingReady,
+        nativeToolLoopEnabled: snapshot.toolAgency.nativeToolLoopEnabled,
+        llmRequestedTools: snapshot.toolAgency.llmRequestedTools,
+        skillEvolutionStatus: snapshot.skillEvolution.status,
+        requiresHumanLiveQa: snapshot.qa.requiresHumanLiveQa,
+      },
+    });
+    return snapshot;
+  }
+
+  private async publishLlmBrainRuntimeEvents(
+    run: UniversalAgentRun,
+    snapshot: ZavorthLlmBrainSnapshot,
+  ): Promise<void> {
+    await this.publishRuntimeEvent(run, 'agent.stream.lifecycle', {
+      brainMode: snapshot.brainMode,
+      streamEvents: snapshot.streaming.events.length,
+      visualStreamingReady: snapshot.streaming.visualStreamingReady,
+      status: snapshot.status,
+    });
+    if (snapshot.toolAgency.requested > 0) {
+      await this.publishRuntimeEvent(run, 'agent.stream.tool', {
+        requested: snapshot.toolAgency.requested,
+        executed: snapshot.toolAgency.executed,
+        denied: snapshot.toolAgency.denied,
+        deferred: snapshot.toolAgency.sideEffectsDeferred,
+      });
+    }
+    if (snapshot.streaming.events.some((event) => event.kind === 'assistant')) {
+      await this.publishRuntimeEvent(run, 'agent.stream.assistant', {
+        replyEvents: snapshot.streaming.events.filter((event) => event.kind === 'assistant').length,
+        rawChainOfThoughtExposed: false,
+      });
+    }
+    if (snapshot.skillEvolution.status === 'candidate-ready') {
+      await this.publishRuntimeEvent(run, 'agent.skill.evolution.candidate', {
+        candidateKind: snapshot.skillEvolution.candidateKind,
+        approvalRequired: snapshot.skillEvolution.approvalRequired,
+        suggestedCommand: snapshot.skillEvolution.suggestedCommand,
+      });
+    }
+    if (snapshot.qa.requiresHumanLiveQa) {
+      await this.publishRuntimeEvent(run, 'agent.adapter.proof.required', {
+        channel: snapshot.adapterCoverage.channel,
+        provider: snapshot.adapterCoverage.provider,
+        route: snapshot.adapterCoverage.route,
+        longTailFamilies: snapshot.adapterCoverage.longTailFamilies,
+      });
+    }
   }
 
   private defenseReviewMetadataKey(phase: AgentRunRiskReviewStage): string {

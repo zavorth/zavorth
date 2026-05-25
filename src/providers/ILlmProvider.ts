@@ -45,11 +45,28 @@ export interface LlmResponse {
   content: string | null;
   toolCalls: ToolCall[];
   finishReason: string;
+  metadata?: Record<string, unknown>;
 }
 
 export interface ProviderChatOptions {
   modelName?: string;
+  providerNativeTools?: ProviderNativeToolRequest[];
 }
+
+export type ProviderNativeToolName =
+  | 'google_search'
+  | 'provider_web_search'
+  | 'provider_code_execution'
+  | 'code_execution'
+  | 'provider_vision'
+  | 'provider_audio'
+  | 'provider_media_generation';
+
+export type ProviderNativeToolRequest = {
+  name: ProviderNativeToolName;
+  reason: string;
+  requiredEvidence?: 'citations' | 'grounding_metadata' | 'none';
+};
 
 /**
  * ILlmProvider — Interface para provedores de LLM.

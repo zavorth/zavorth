@@ -10,6 +10,7 @@ import {
   ToolCall,
   ToolDefinition,
 } from './ILlmProvider.js';
+import { buildOpenAiCompatibleNativeToolPayload } from './ProviderNativeToolPayload.js';
 
 export class OpenAIProvider implements ILlmProvider {
   public readonly name = 'openai';
@@ -39,21 +40,17 @@ export class OpenAIProvider implements ILlmProvider {
       const clientIndex = (this.currentClientIndex + attempt) % this.clients.length;
       const client = this.clients[clientIndex];
       try {
+        const nativeToolPayload = buildOpenAiCompatibleNativeToolPayload({
+          providerName: this.name,
+          tools,
+          options,
+        });
         const response = await client.chat.completions.create({
           model: options?.modelName || config.openaiModel,
           messages: convertChatMessagesToOpenAI(messages),
-          tools:
-            tools && tools.length > 0
-              ? tools.map((tool) => ({
-                  type: 'function' as const,
-                  function: {
-                    name: tool.name,
-                    description: tool.description,
-                    parameters: tool.parameters,
-                  },
-                }))
-              : undefined,
-        });
+          tools: nativeToolPayload.tools,
+          ...nativeToolPayload.extraBody,
+        } as any);
 
         if (attempt > 0) {
           console.log(`[OpenAI Failover] Request succeeded using secondary key (${clientIndex + 1}/${this.clients.length}).`);
@@ -66,6 +63,7 @@ export class OpenAIProvider implements ILlmProvider {
           content: choice.message.content,
           toolCalls,
           finishReason: choice.finish_reason as any,
+          metadata: nativeToolPayload.metadata,
         };
       } catch (error: any) {
         lastError = error;

@@ -369,6 +369,301 @@ describe('AgentRunLlmRuntimeExecutor native tool loop', () => {
     }));
   });
 
+  it('routes native write tool effects through speculative sandbox before approval when a workspace is known', async () => {
+    const llmRuntime = {
+      chatDetailed: jest.fn()
+        .mockResolvedValueOnce({
+          providerName: 'gemini',
+          modelName: 'test-model',
+          route: route(),
+          response: {
+            content: '',
+            toolCalls: [{
+              id: 'call-write',
+              name: 'write_file',
+              arguments: { path: 'src/index.ts', content: 'sandbox draft' },
+            }],
+            finishReason: 'tool_calls',
+          },
+        })
+        .mockResolvedValueOnce({
+          providerName: 'gemini',
+          modelName: 'test-model',
+          route: route(),
+          response: {
+            content: 'Preparei em sandbox antes de approval.',
+            toolCalls: [],
+            finishReason: 'stop',
+          },
+        }),
+      getPreferredProviderName: jest.fn(() => 'gemini'),
+    };
+    const toolRuntime = {
+      getToolDefinitions: jest.fn(() => [writeFileTool()]),
+      executeTool: jest.fn().mockResolvedValue('should not run'),
+      hasTool: jest.fn((name: string) => name === 'write_file'),
+      isAvailable: jest.fn(() => true),
+    };
+    const speculativeAutonomyService = {
+      prepare: jest.fn().mockResolvedValue({
+        id: 'native-spec-1',
+        status: 'approved',
+        summary: 'Sandbox write validated.',
+        workspaceRoot: 'C:/repo',
+        runRoot: 'C:/repo/data/runtime/speculative-runs/native-spec-1',
+        attempts: [],
+        finalAttempt: null,
+        mutationPlan: mutationPlan('spec-plan-1'),
+        validationCommands: [],
+        receipts: ['native-tool-sandbox'],
+        autoHealing: {
+          status: 'passed',
+          attempt: 1,
+          maxAttempts: 2,
+          lastErrorSummary: null,
+          proposedCorrection: null,
+          validationCommand: null,
+          startedAt: '2026-05-22T00:00:00.000Z',
+          completedAt: '2026-05-22T00:00:00.000Z',
+          elapsedMs: 1,
+          maxElapsedMs: 120000,
+          tokenBudget: null,
+          tokensUsed: null,
+          estimatedCostUsd: null,
+          cancellable: true,
+          cancelRequested: false,
+          timedOut: false,
+        },
+      }),
+    };
+    const mutationPlane = {
+      createPlan: jest.fn(() => mutationPlan('fallback-plan')),
+    };
+    const executor = new AgentRunLlmRuntimeExecutor({
+      llmRuntime: llmRuntime as any,
+      toolRuntime,
+      speculativeAutonomyService: speculativeAutonomyService as any,
+      mutationPlaneService: mutationPlane as any,
+    });
+
+    const result = await executor.executeIfAvailable(
+      {
+        ...run(),
+        workspace: 'C:/repo',
+        toolExposure: {
+          mode: 'safe',
+          summary: 'Write tool exposed by legacy profile.',
+          tools: [{
+            id: 'write_file',
+            label: 'Write file',
+            risk: 'safe',
+            requiresApproval: false,
+          }],
+        },
+      },
+      { ...request(), text: 'Atualize src/index.ts', workspace: 'C:/repo' },
+    );
+
+    expect(toolRuntime.executeTool).not.toHaveBeenCalled();
+    expect(speculativeAutonomyService.prepare).toHaveBeenCalledWith(expect.objectContaining({
+      workspaceRoot: 'C:/repo',
+      writes: [{ path: 'src/index.ts', content: 'sandbox draft' }],
+      createMutationPlan: true,
+      approvalRequired: true,
+    }));
+    expect(mutationPlane.createPlan).not.toHaveBeenCalled();
+    expect(result?.events).toEqual(expect.arrayContaining([
+      expect.objectContaining({
+        kind: 'tool',
+        metadata: expect.objectContaining({
+          reason: 'effect-boundary-deferred',
+          mutationPlan: expect.objectContaining({ id: 'spec-plan-1' }),
+          superZavorthSpeculativeAutonomy: expect.objectContaining({
+            id: 'native-spec-1',
+            mutationPlanId: 'spec-plan-1',
+          }),
+        }),
+      }),
+    ]));
+  });
+
+  it('lets the LLM use public web search for current external knowledge without manual approval', async () => {
+    const llmRuntime = {
+      chatDetailed: jest.fn()
+        .mockResolvedValueOnce({
+          providerName: 'gemini',
+          modelName: 'test-model',
+          route: route(),
+          response: {
+            content: '',
+            toolCalls: [{
+              id: 'call-search',
+              name: 'web_search',
+              arguments: { query: 'latest technology news today', mode: 'grounded' },
+            }],
+            finishReason: 'tool_calls',
+          },
+        })
+        .mockResolvedValueOnce({
+          providerName: 'gemini',
+          modelName: 'test-model',
+          route: route(),
+          response: {
+            content: 'Here is the sourced summary.',
+            toolCalls: [],
+            finishReason: 'stop',
+          },
+        }),
+      getPreferredProviderName: jest.fn(() => 'gemini'),
+    };
+    const toolRuntime = {
+      getToolDefinitions: jest.fn(() => [webSearchTool()]),
+      executeTool: jest.fn().mockResolvedValue('QUALITY_GATE: pass\n1. Source\nURL: https://example.com/news'),
+      hasTool: jest.fn((name: string) => name === 'web_search'),
+      isAvailable: jest.fn(() => true),
+    };
+    const executor = new AgentRunLlmRuntimeExecutor({
+      llmRuntime: llmRuntime as any,
+      toolRuntime,
+    });
+
+    const result = await executor.executeIfAvailable(
+      run(),
+      { ...request(), text: 'What are the latest technology news today?' },
+    );
+
+    expect(llmRuntime.chatDetailed.mock.calls[0][1]).toEqual([
+      expect.objectContaining({ name: 'web_search' }),
+    ]);
+    expect(llmRuntime.chatDetailed.mock.calls[0][2]).toEqual(expect.objectContaining({
+      providerNativeTools: [expect.objectContaining({
+        name: 'google_search',
+        requiredEvidence: 'grounding_metadata',
+      })],
+    }));
+    expect(toolRuntime.executeTool).toHaveBeenCalledWith('web_search', {
+      query: 'latest technology news today',
+      mode: 'grounded',
+      providerHints: {
+        providerId: 'gemini',
+        modelName: 'test-model',
+        source: 'agent-native-tool-loop',
+      },
+    });
+    expect(result?.metadata?.nativeToolLoop).toEqual(expect.objectContaining({
+      requested: 1,
+      executed: 1,
+      denied: 0,
+      safeObservations: 1,
+      effectBoundaryDenied: 0,
+      sideEffectsDeferred: 0,
+    }));
+    expect(result?.events).toEqual(expect.arrayContaining([
+      expect.objectContaining({
+        kind: 'tool',
+        status: 'done',
+        metadata: expect.objectContaining({
+          effectBoundary: expect.objectContaining({
+            action: 'allow',
+            safeObservation: true,
+            readOnly: true,
+          }),
+        }),
+      }),
+    ]));
+  });
+
+  it('falls back to governed web_search when provider-native search returns no verifiable citation', async () => {
+    const llmRuntime = {
+      chatDetailed: jest.fn()
+        .mockResolvedValueOnce({
+          providerName: 'gemini',
+          modelName: 'test-model',
+          route: route(),
+          response: {
+            content: 'I searched and found recent information, but no source metadata is attached.',
+            toolCalls: [],
+            finishReason: 'stop',
+          },
+          metadata: {
+            providerNativeTools: {
+              requested: [{ name: 'google_search', requiredEvidence: 'grounding_metadata' }],
+              activated: ['google_search'],
+              googleSearch: {
+                used: true,
+                citationCount: 0,
+                citations: [],
+              },
+            },
+            providerNativeCapabilityMatrix: {
+              fallbackRecommended: true,
+              assessments: [{
+                capability: 'native_search',
+                providerToolName: 'google_search',
+                fallbackToolName: 'web_search',
+                fallbackRecommended: true,
+                evidenceSatisfied: false,
+                citationCount: 0,
+              }],
+            },
+          },
+        })
+        .mockResolvedValueOnce({
+          providerName: 'gemini',
+          modelName: 'test-model',
+          route: route(),
+          response: {
+            content: 'Final answer grounded by Zavorth web_search fallback.',
+            toolCalls: [],
+            finishReason: 'stop',
+          },
+        }),
+      getPreferredProviderName: jest.fn(() => 'gemini'),
+    };
+    const toolRuntime = {
+      getToolDefinitions: jest.fn(() => [webSearchTool()]),
+      executeTool: jest.fn().mockResolvedValue('QUALITY_GATE: pass\nURL: https://example.com/source'),
+      hasTool: jest.fn((name: string) => name === 'web_search'),
+      isAvailable: jest.fn(() => true),
+    };
+    const executor = new AgentRunLlmRuntimeExecutor({
+      llmRuntime: llmRuntime as any,
+      toolRuntime,
+    });
+
+    const result = await executor.executeIfAvailable(
+      run(),
+      { ...request(), text: 'What is the latest AI infrastructure news today?' },
+    );
+
+    expect(toolRuntime.executeTool).toHaveBeenCalledWith('web_search', expect.objectContaining({
+      query: 'What is the latest AI infrastructure news today?',
+      mode: 'verify',
+      providerNativeFallback: expect.objectContaining({
+        version: 'provider-native-fallback/1',
+        fromProvider: 'gemini',
+        providerToolName: 'google_search',
+      }),
+      providerHints: expect.objectContaining({
+        providerId: 'gemini',
+        modelName: 'test-model',
+      }),
+    }));
+    expect(llmRuntime.chatDetailed).toHaveBeenCalledTimes(2);
+    expect(result?.replyText).toBe('Final answer grounded by Zavorth web_search fallback.');
+    expect(result?.events).toEqual(expect.arrayContaining([
+      expect.objectContaining({
+        kind: 'tool',
+        status: 'done',
+        metadata: expect.objectContaining({
+          providerNativeFallback: expect.objectContaining({
+            providerToolName: 'google_search',
+          }),
+        }),
+      }),
+    ]));
+  });
+
   it('routes structured workspace drafts through Super Zavorth speculative autonomy before returning', async () => {
     const llmRuntime = {
       chatDetailed: jest.fn().mockResolvedValueOnce({
@@ -529,6 +824,27 @@ function shellExecTool(): ToolDefinition {
         },
       },
       required: ['command'],
+    },
+  };
+}
+
+function webSearchTool(): ToolDefinition {
+  return {
+    name: 'web_search',
+    description: 'Search public web evidence',
+    parameters: {
+      type: 'object',
+      properties: {
+        query: {
+          type: 'string',
+          description: 'Search query',
+        },
+        mode: {
+          type: 'string',
+          description: 'Search mode',
+        },
+      },
+      required: ['query'],
     },
   };
 }

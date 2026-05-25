@@ -65,10 +65,10 @@ export function formatCliEventCard(options: CliEventCardOptions): string {
     `${paintCliTone(meta.symbol, meta.visualTone)} ${paintCliTone(title, meta.visualTone)}`,
     renderedBody || null,
     actions.length > 0
-      ? ['', ...actions.map((action) => `${action.label}:\n  ${action.command}`)].join('\n')
+      ? ['', ...actions.map((action) => `${paintCliTone('>', 'brand')} ${action.label}: ${paintCliTone(`zavorth ${action.command}`, 'neutral')}`)].join('\n')
       : null,
     hints.length > 0
-      ? ['', ...hints.map((hint) => `${paintCliTone('->', 'muted')} ${hint}`)].join('\n')
+      ? ['', ...hints.map((hint) => `${paintCliTone('>', 'muted')} ${hint}`)].join('\n')
       : null,
   ].filter(Boolean).join('\n');
 }
@@ -143,7 +143,7 @@ export function formatCliChatReplyEventCard(reply: string): string | null {
 
   if (/^(aprovacao enviada|rejeicao enviada|retomada de workflow|reinicio de etapa|encerramento de workflow)/i.test(normalized)) {
     return formatCliSuccessEventCard({
-      title: 'Pronto',
+      title: 'Done',
       body: normalized,
     });
   }

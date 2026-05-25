@@ -9,6 +9,7 @@ import {
   ToolCall,
   ToolDefinition,
 } from './ILlmProvider.js';
+import { buildOpenAiCompatibleNativeToolPayload } from './ProviderNativeToolPayload.js';
 
 export class DeepSeekProvider implements ILlmProvider {
   public readonly name = 'deepseek';
@@ -31,15 +32,20 @@ export class DeepSeekProvider implements ILlmProvider {
     options?: ProviderChatOptions,
   ): Promise<LlmResponse> {
     const openaiMessages = this.convertMessages(messages);
-    const openaiTools =
-      tools && tools.length > 0 ? tools.map((tool) => this.convertTool(tool)) : undefined;
+    const nativeToolPayload = buildOpenAiCompatibleNativeToolPayload({
+      providerName: this.name,
+      tools,
+      options,
+    });
+    const openaiTools = nativeToolPayload.tools;
 
     const response = await this.client.chat.completions.create({
       model: options?.modelName || config.deepseekModel,
       messages: openaiMessages,
       tools: openaiTools,
       tool_choice: openaiTools ? 'auto' : undefined,
-    });
+      ...nativeToolPayload.extraBody,
+    } as any);
 
     const choice = response.choices[0];
 
@@ -53,6 +59,7 @@ export class DeepSeekProvider implements ILlmProvider {
       content: choice.message.content || null,
       toolCalls,
       finishReason: choice.finish_reason || 'stop',
+      metadata: nativeToolPayload.metadata,
     };
   }
 

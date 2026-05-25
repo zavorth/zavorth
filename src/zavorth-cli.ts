@@ -4,7 +4,6 @@ import { existsSync, readFileSync } from 'fs';
 import path from 'path';
 import { formatCliHelp, resolveCliHelpTopic } from './cli/ZavorthCliSurfaceHelpers.js';
 import {
-  renderZavorthQaGuide,
   resolveZavorthSimpleCommand,
   type ZavorthSimpleCommandPlan,
 } from './cli/SimpleCommandRouter.js';
@@ -54,7 +53,7 @@ const PUBLIC_COMMAND_ALIASES: Record<string, string> = {
   configuracao: 'setup',
   demonstracao: 'demo',
   comecar: 'start',
-  começar: 'start',
+  ['comeÃ§ar']: 'start',
   inicio: 'start',
   ligar: 'start',
   conectores: 'connectors',
@@ -72,7 +71,7 @@ const PUBLIC_COMMAND_ALIASES: Record<string, string> = {
   seguranca: 'trust',
   estado: 'status',
   diagnostico: 'doctor',
-  diagnóstico: 'doctor',
+  ['diagnÃ³stico']: 'doctor',
   conversar: 'chat',
   terminal: 'chat',
 };
@@ -136,10 +135,6 @@ function npmInherited(commandArgs: string[], cwd: string): Promise<number> {
 async function runSimpleCommandPlan(plan: ZavorthSimpleCommandPlan): Promise<number | null> {
   if (plan.kind === 'passthrough') {
     return null;
-  }
-  if (plan.kind === 'qa-guide') {
-    process.stdout.write(`${renderZavorthQaGuide(plan.topic)}\n`);
-    return 0;
   }
   process.stdout.write(`${plan.label}\n`);
   for (const script of plan.scripts) {
@@ -333,13 +328,13 @@ async function runPremiumApprovalDiff(view: 'approvals' | 'diff', rawArgs: strin
         const { TerminalPanel } = await import('./cli/presentation/TerminalPanel.js');
         const { TerminalPrompt } = await import('./cli/presentation/TerminalPrompt.js');
 
-        const riskTitle = `RISCO DETECTADO: Nível ${targetCard.riskLevel.toUpperCase()}`;
+        const riskTitle = `Risk detected: level ${targetCard.riskLevel.toUpperCase()}`;
         const riskDetails = [
-          `Ação Solicitada: ${targetCard.actionId} (Domínio: ${targetCard.domain})`,
-          `Motivo da Aprovação: ${targetCard.approvalReason}`,
-          `Arquivos Afetados: ${targetCard.files.join(', ') || 'Nenhum'}`,
-          `Comandos a Executar: ${targetCard.commands.join(', ') || 'Nenhum'}`,
-          `Impacto de Rede/Externo: ${targetCard.resourceImpact.externalExposure}`,
+          `Requested action: ${targetCard.actionId} (domain: ${targetCard.domain})`,
+          `Approval reason: ${targetCard.approvalReason}`,
+          `Affected files: ${targetCard.files.join(' ') || 'none'}`,
+          `Commands to run: ${targetCard.commands.join(' ') || 'none'}`,
+          `Network/external impact: ${targetCard.resourceImpact.externalExposure}`,
         ].join('\n');
 
         const panelType = (targetCard.riskLevel === 'critical' || targetCard.riskLevel === 'high') ? 'error' : 'warning';
@@ -348,7 +343,7 @@ async function runPremiumApprovalDiff(view: 'approvals' | 'diff', rawArgs: strin
           type: panelType,
         });
 
-        const confirmed = await TerminalPrompt.confirm(`Deseja realmente aprovar o plano '${targetCard.id}'?`, false);
+        const confirmed = await TerminalPrompt.confirm(`Approve plan '${targetCard.id}'?`, false);
         if (confirmed) {
           const approvedArgs = [...rawArgs, '--yes'];
           const approvedResult = runZavorthCliApprovalDiff({
@@ -360,7 +355,7 @@ async function runPremiumApprovalDiff(view: 'approvals' | 'diff', rawArgs: strin
           process.stdout.write(approvedResult.output);
           return approvedResult.exitCode;
         } else {
-          TerminalPanel.error('Aprovação cancelada pelo operador.', 'Cancelado');
+          TerminalPanel.error('Approval cancelled by the operator.', 'Cancelled');
           return 1;
         }
       }
@@ -2393,7 +2388,7 @@ async function runBuiltinLauncher(rawArgs: string[]): Promise<number | null> {
 
   if (
     command === 'doctor'
-    && ['security', 'seguranca', 'segurança'].includes(String(restArgs[0] || '').trim().toLowerCase())
+    && ['security', 'seguranca', 'seguranÃ§a'].includes(String(restArgs[0] || '').trim().toLowerCase())
   ) {
     return runOperationalSecurityDoctor(restArgs.slice(1));
   }
@@ -3140,12 +3135,16 @@ void runSimpleCommandPlan(simpleCommandPlan)
 
     if (isTTY) {
       try {
-        const { TerminalPanel } = await import('./cli/presentation/TerminalPanel.js');
-        const panelContent = [
-          `Cause: ${message}`,
-          'Next: run zavorth doctor',
-        ].join('\n');
-        TerminalPanel.error(panelContent, 'Zavorth Command Failure');
+        const { ZavorthSelfHealingUxService } = await import('./services/ZavorthSelfHealingUxService.js');
+        const { formatZavorthSelfHealingProjection } = await import('./cli/ZavorthCliSelfHealingRenderer.js');
+        const projection = new ZavorthSelfHealingUxService().buildProjection({
+          attempted: `Run ${args.join(' ') || 'zavorth'}`,
+          commandName: args[0] || null,
+          commandText: args.join(' '),
+          error,
+          debug: isDebug,
+        });
+        process.stderr.write(`${formatZavorthSelfHealingProjection(projection)}\n`);
         if (isDebug && error instanceof Error && error.stack) {
           process.stderr.write(`\nDebug Stack Trace:\n${error.stack}\n`);
         }
@@ -3153,7 +3152,7 @@ void runSimpleCommandPlan(simpleCommandPlan)
         console.error([
           'Zavorth could not finish this command.',
           `Cause: ${message}`,
-          'Next: run zavorth doctor',
+          'Zavorth can inspect the failure and propose a narrow repair before applying anything.',
           isDebug && error instanceof Error && error.stack ? `Debug:\n${error.stack}` : null,
         ].filter(Boolean).join('\n'));
       }
@@ -3161,7 +3160,7 @@ void runSimpleCommandPlan(simpleCommandPlan)
       console.error([
         'Zavorth could not finish this command.',
         `Cause: ${message}`,
-        'Next: run zavorth doctor',
+        'Zavorth can inspect the failure and propose a narrow repair before applying anything.',
         isDebug && error instanceof Error && error.stack
           ? `Debug:\n${error.stack}`
           : null,
