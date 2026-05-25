@@ -94,11 +94,11 @@ export function buildZavorthCliGuidedReviewSnapshot(
     },
     {
       id: 'receipt',
-      title: 'Receipt',
+      title: 'Evidence',
       status: hasDecision ? 'done' : 'waiting',
       summary: hud.decision.receiptId
-        ? `Receipt ${hud.decision.receiptId}`
-        : 'A receipt appears after approve/reject/defer.',
+        ? `Evidence ${hud.decision.receiptId}`
+        : 'Evidence appears after approve/reject/defer.',
       command: hud.decision.receiptId ? 'zavorth receipts' : null,
     },
   ];
@@ -141,7 +141,7 @@ export function renderZavorthCliGuidedReview(snapshot: ZavorthCliGuidedReviewSna
       step.command ? `  ${step.command}` : null,
     ].filter(Boolean).join('\n')),
     '',
-    'Decision receipt',
+    'Decision evidence',
     `  status: ${snapshot.receipt.status}`,
     `  id: ${snapshot.receipt.id || 'pending'}`,
     `  ${snapshot.receipt.summary}`,
@@ -171,7 +171,7 @@ function buildNextCommands(
   if (['approved', 'rejected', 'deferred'].includes(hud.decision.status)) {
     return [
       { label: 'Refresh review', command: 'zavorth hud guide', detail: 'continue queue' },
-      { label: 'Open dashboard', command: 'zavorth open', detail: 'inspect receipt' },
+      { label: 'Open dashboard', command: 'zavorth open', detail: 'inspect evidence' },
     ];
   }
   return [

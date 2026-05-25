@@ -101,6 +101,18 @@ function sanitizeHumanCliText(value: string | null | undefined): string {
   }
 
   return output
+    .replace(/\bruntime universal\b/gi, 'agent runtime')
+    .replace(/\bruntime natural-first\b/gi, 'natural request flow')
+    .replace(/\bruntime natural\b/gi, 'natural request flow')
+    .replace(/\bprovider runtime\b/gi, 'model connection')
+    .replace(/\bprovider LLM\b/gi, 'model provider')
+    .replace(/\bLLM provider\b/gi, 'model provider')
+    .replace(/\bcapabilities\b/gi, 'abilities')
+    .replace(/\bcapability\b/gi, 'ability')
+    .replace(/\baction cards\b/gi, 'pending actions')
+    .replace(/\bAction cards\b/g, 'Pending actions')
+    .replace(/\breceipts\b/gi, 'evidence')
+    .replace(/\bReceipts\b/g, 'Evidence')
     .replace(/\bnpm run ops:maintain\b/gi, 'zavorth ops run recover-sidecars')
     .replace(/\bnpm run security:preflight\b/gi, 'zavorth ops run security-preflight')
     .replace(/\bnpm run remote:publish\b/gi, 'zavorth ops run remote-publish')

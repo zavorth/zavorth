@@ -30,9 +30,37 @@ export function renderZavorthSetupStudioSnapshot(snapshot: ZavorthSetupStudioSna
     ? selectedChannels
     : ['No remote channel selected. Terminal and Dashboard remain available.'];
   const readinessLines = [
-    `Skills: ${snapshot.skills.eligible} eligible, ${snapshot.skills.missingRequirements} missing requirement(s)`,
-    `Gateway: ${snapshot.gateway.installed ? 'detected' : 'needs build'} (${snapshot.gateway.recommendedRuntime})`,
+    `Tools: ${snapshot.skills.eligible} available, ${snapshot.skills.missingRequirements} need setup`,
+    `Unsupported here: ${snapshot.skills.unsupportedOnThisOs}`,
+    `Blocked by policy: ${snapshot.skills.blockedByPolicy}`,
+  ];
+  const modelCheckLines = snapshot.plan.provider.id === 'deferred'
+    ? [
+      'No model is selected yet.',
+      'You can finish setup, but live agent replies need a provider or a local model.',
+      'Next: choose a provider here, use Ollama locally, or keep configuration for later.',
+    ]
+    : [
+      `Selected: ${snapshot.plan.provider.id} / ${snapshot.plan.provider.modelId}`,
+      snapshot.plan.provider.secretEnvKey
+        ? 'Credential will be captured as a secret and never printed.'
+        : 'No API key is required for this choice.',
+      'Live validation runs only after explicit confirmation.',
+    ];
+  const surfacesLines = [
+    'Terminal and Dashboard are local control surfaces.',
+    'Remote surfaces require pairing or allowlists before messages can reach tools.',
+    'Unknown senders stay outside the tool boundary until you approve them.',
+    '',
+    ...channelSummary,
+  ];
+  const gatewayLines = [
+    `Runtime: ${snapshot.gateway.recommendedRuntime}`,
+    `Gateway: ${snapshot.gateway.installed ? 'detected' : 'not installed yet'}`,
     `Dashboard: ${snapshot.controlUi.url}`,
+    snapshot.gateway.installed
+      ? 'Setup will not restart persistent services automatically.'
+      : 'Setup can finish now; start the runtime later when you are ready.',
   ];
   const providerLine = snapshot.plan.provider.id === 'deferred'
     ? 'Provider: configure later'
@@ -58,13 +86,14 @@ export function renderZavorthSetupStudioSnapshot(snapshot: ZavorthSetupStudioSna
       `Mnemos: ${snapshot.plan.memory.mode} / ${snapshot.plan.memory.vaultScope}`,
       automationLine,
       envLine,
-      '',
-      ...channelSummary,
     ]),
+    onboardingSection('Model check', modelCheckLines),
+    onboardingSection('Surfaces', surfacesLines),
     onboardingSection('Readiness', readinessLines),
+    onboardingSection('Gateway runtime', gatewayLines),
     onboardingSection('What happens next', [
       'Setup does not start persistent services automatically.',
-      'Sensitive work still uses policy, approval and receipts.',
+      'Sensitive work still uses policy, approval and evidence.',
       '',
       ...snapshot.hatch.commands.slice(0, 2).map((command) => `- ${command}`),
       '',
@@ -110,7 +139,7 @@ export function renderZavorthSetupStudioFinalReview(snapshot: ZavorthSetupStudio
     `.env updates: ${updates === 0 ? 'none' : `${updates} key(s), secrets redacted`}`,
     '',
     'No persistent runtime service will be started.',
-    'Sensitive actions still require policy, approval and receipts.',
+    'Sensitive actions still require policy, approval and evidence.',
   ];
   return compactSection('First Light review', lines);
 }
@@ -168,8 +197,8 @@ function setupSecurityNoticeLines(options: { compact?: boolean } = {}): string[]
     return [
       'Security warning - please read.',
       '',
-      'Zavorth can route natural language into providers, channels and local tools.',
-      'Sensitive work stays behind preview, policy, approval, sandbox and receipts.',
+      'Zavorth can route natural language into models, channels and local tools.',
+      'Sensitive work stays behind preview, policy, approval, sandbox and evidence.',
       'Remote channels should be paired or allowlisted before they can reach tools.',
       '',
       'Baseline:',
@@ -184,9 +213,9 @@ function setupSecurityNoticeLines(options: { compact?: boolean } = {}): string[]
     'By default, Zavorth is a personal operator boundary: one trusted user, one local workspace, governed tools.',
     'If channels or shared inboxes are enabled, unknown senders should be paired or allowlisted before they can reach tools.',
     '',
-    'Zavorth can read files, call providers, route channel messages and prepare local actions when capabilities are enabled.',
-    'Sensitive work stays behind preview, policy, approval, sandbox and receipts.',
-    'A bad prompt or misconfigured channel can still attempt unsafe actions if you enable broad capabilities.',
+    'Zavorth can read files, call models, route channel messages and prepare local actions when abilities are enabled.',
+    'Sensitive work stays behind preview, policy, approval, sandbox and evidence.',
+    'A bad prompt or misconfigured channel can still attempt unsafe actions if you enable broad abilities.',
     '',
     'Recommended baseline:',
     '- Pairing/allowlists for every remote channel.',

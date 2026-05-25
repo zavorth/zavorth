@@ -404,13 +404,13 @@ export class AgentRunFactory {
       status: 'running',
       createdAt: now,
       updatedAt: now,
-      summary: 'Execucao recebida pelo runtime universal.',
+      summary: 'Request received by Zavorth.',
       events: [
         {
           id: this.idFactory('agent-event'),
           runId,
           kind: 'input',
-          title: 'Pedido recebido',
+          title: 'Request received',
           detail: text,
           status: 'done',
           createdAt: now,

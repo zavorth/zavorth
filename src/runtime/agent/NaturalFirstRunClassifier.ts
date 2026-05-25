@@ -114,13 +114,6 @@ type RouteDecisionInput = {
 
 const OPERATOR_COMMAND_PATTERN = /^\s*(?:zavorth|npm|pnpm|yarn|git|docker|node|npx|tsx|powershell|pwsh|wsl)\b/i;
 
-const LIGHT_CHAT_PATTERNS = [
-  /^(oi|ola|hey|hello|bom dia|boa tarde|boa noite|tudo bem)[!.?\s]*$/,
-  /^(valeu|obrigado|obrigada|thanks|ok|beleza|show|perfeito)[!.?\s]*$/,
-  /^(sim|nao|claro|certo|pode ser)[!.?\s]*$/,
-  /^(explica melhor|me explica melhor|diga mais|pode detalhar|continua|continue)[!.?\s]*$/,
-];
-
 const MEMORY_PATTERNS = [
   /\b(memoria|lembr|recorda|como resolvemos|o que combinamos|o que funcionou|ultima vez|de onde paramos|continue de onde|faca igual|igual da ultima)\b/,
   /\b(memory|recall|remember)\b/,
@@ -420,7 +413,7 @@ export class NaturalFirstRunClassifier {
       || OPERATOR_COMMAND_PATTERN.test(rawText)
       || includesAny(text, TOOL_PATTERNS);
     const operationalIntent = includesAny(text, OPERATIONAL_PATTERNS);
-    const lowSignalChat = !rawText || includesAny(text, LIGHT_CHAT_PATTERNS);
+    const lowSignalChat = false;
     const attachmentsCount = resolveAttachmentCount(metadata);
     const context: NaturalFirstRuntimeContext = {
       channel: input.channel,

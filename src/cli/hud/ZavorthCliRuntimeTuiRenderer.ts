@@ -27,16 +27,16 @@ export function renderZavorthCliRuntimeTui(snapshot: ZavorthCliRuntimeTuiSnapsho
       dense: true,
       lines: [
         snapshot.chat.total > 0
-          ? `${snapshot.chat.total} chat/event record(s) available.`
+          ? `${snapshot.chat.total} chat record(s) available.`
           : 'Start with: zavorth chat',
         snapshot.approvals.pending > 0
           ? `${snapshot.approvals.pending} governed action(s) need review.`
           : 'No governed action is waiting right now.',
         snapshot.status === 'ready'
-          ? 'Runtime looks ready for daily work.'
+          ? 'Zavorth looks ready for daily work.'
           : snapshot.status === 'blocked'
-            ? 'Runtime needs attention before normal work.'
-            : 'Runtime is usable, with a few setup items to review.',
+            ? 'Zavorth needs attention before normal work.'
+            : 'Zavorth is usable, with a few setup items to review.',
       ],
     },
     {
@@ -58,7 +58,7 @@ export function renderZavorthCliRuntimeTui(snapshot: ZavorthCliRuntimeTuiSnapsho
       ],
     },
     {
-      title: 'Runtime',
+      title: 'Connection',
       accent: 'violet',
       dense: true,
       lines: renderPremiumKeyValueTable([
@@ -83,22 +83,22 @@ export function renderZavorthCliRuntimeTui(snapshot: ZavorthCliRuntimeTuiSnapsho
       ],
     },
     {
-      title: 'Sessions & Logs',
+      title: 'Sessions',
       accent: 'amber',
       lines: sessionLogItems.length ? renderItems(sessionLogItems) : ['No local sessions or logs recorded yet.'],
     },
   ];
 
   return renderZavorthPremiumCliScreen({
-    title: 'Daily TUI',
-    subtitle: 'Chat, timeline, approvals, diff, runtime, channels and logs in one governed terminal view.',
+    title: 'Daily terminal',
+    subtitle: 'Chat, timeline, approvals, diff, channels and logs in one keyboard view.',
     mode: 'compact',
     statusRows: buildStatusRows(snapshot),
     panels,
     actions: buildActions(snapshot),
     notice: {
-      title: 'TUI safety',
-      body: 'This daily TUI is a governed control surface. It shows live state and routes actions; sensitive work still goes through preview, approval and receipts.',
+      title: 'Safety',
+      body: 'Sensitive work still goes through preview, approval and evidence before anything important changes.',
     },
   });
 }

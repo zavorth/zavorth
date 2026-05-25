@@ -5,18 +5,18 @@ import {
 describe('NaturalFirstRunClassifier', () => {
   const classifier = new NaturalFirstRunClassifier();
 
-  it('routes low-signal chat through the gateway as light chat', () => {
+  it('routes short greetings as normal LLM-facing text instead of a light-chat shortcut', () => {
     expect(classifier.classify({
       text: 'oi',
       channel: 'web',
     })).toEqual(expect.objectContaining({
       shouldEnterGateway: true,
       contractVersion: 'natural-first-classifier/3',
-      route: 'light-chat',
+      route: 'llm-reply',
       effort: 'light',
       requiresApproval: false,
       intent: expect.objectContaining({
-        primary: 'low-signal-chat',
+        primary: 'free-text-question',
         confidence: expect.any(Number),
       }),
       cost: expect.objectContaining({
@@ -28,15 +28,15 @@ describe('NaturalFirstRunClassifier', () => {
     }));
   });
 
-  it('routes lightweight follow-up language as light chat', () => {
+  it('routes lightweight follow-up language as normal LLM-facing text', () => {
     expect(classifier.classify({
       text: 'explica melhor',
       channel: 'web',
       sessionId: 'session-follow-up',
     })).toEqual(expect.objectContaining({
-      route: 'light-chat',
+      route: 'llm-reply',
       intent: expect.objectContaining({
-        primary: 'low-signal-chat',
+        primary: 'free-text-question',
       }),
       context: expect.objectContaining({
         session: expect.objectContaining({

@@ -74,7 +74,7 @@ export class ZavorthHallucinationMitigationService {
     const selfStatusRequest = this.isSelfStatusRequest(requestText);
     const highStakes = this.matchesAny(`${requestText}\n${responseText}`, HIGH_STAKES_PATTERNS)
       && !selfStatusRequest;
-    const currentOrUnstable = this.matchesAny(`${requestText}\n${responseText}`, CURRENT_OR_UNSTABLE_PATTERNS)
+    const currentOrUnstable = this.matchesAny(requestText, CURRENT_OR_UNSTABLE_PATTERNS)
       && !selfStatusRequest;
     const sourceRequested = this.matchesAny(requestText, SOURCE_REQUEST_PATTERNS);
     const evidenceSensitive = highStakes || currentOrUnstable || sourceRequested;

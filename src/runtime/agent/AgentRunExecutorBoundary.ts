@@ -68,13 +68,13 @@ export class AgentRunExecutorBoundary {
 
     return this.withBoundaryReceipt({
       status: 'completed',
-      summary: 'Pedido registrado pelo runtime universal sem executor governado ou provider runtime anexado.',
-      replyText: `Recebi: "${input.run.input}". O runtime universal centralizou o pedido, mas esta superficie ainda nao anexou executor governado ou provider runtime para resposta de modelo.`,
+      summary: 'Request received, but no model or task runner is connected yet.',
+      replyText: `Received: "${input.run.input}". I need a configured model or a specific governed task before I can continue.`,
       events: [
         {
           kind: 'status',
-          title: 'Executor ausente',
-          detail: 'Nenhum executor governado ou LlmRuntimeService foi anexado a esta execucao.',
+          title: 'Model setup needed',
+          detail: 'No model or task runner is connected for this request.',
           status: 'done',
           metadata: {
             executorResolution: 'missing-governed-executor',

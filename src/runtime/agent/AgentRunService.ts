@@ -13,7 +13,6 @@ import type {
 import { AgentRunCanonicalContextService } from './AgentRunCanonicalContextService.js';
 import { AgentRunFactory, type AgentRunModelPickerContractService } from './AgentRunFactory.js';
 import type { NaturalCapabilityDiscoveryService } from './NaturalCapabilityDiscoveryService.js';
-import { NaturalFirstLightReplyService } from './NaturalFirstLightReplyService.js';
 import { NaturalFirstApprovalSafetyService } from './NaturalFirstApprovalSafetyService.js';
 import { SafetyNarrativeService } from './SafetyNarrativeService.js';
 import { NaturalFirstMemoryContinuityService } from './NaturalFirstMemoryContinuityService.js';
@@ -145,7 +144,6 @@ export type AgentRunServiceRuntime = {
   capabilityLoopGovernance?: CapabilityLoopGovernanceService | null;
   modelPickerContractService?: AgentRunModelPickerContractService | null;
   naturalCapabilityDiscovery?: NaturalCapabilityDiscoveryService | null;
-  naturalFirstLightReply?: NaturalFirstLightReplyService | null;
   naturalFirstApprovalSafety?: NaturalFirstApprovalSafetyService | null;
   naturalFirstMemoryContinuity?: NaturalFirstMemoryContinuityService | null;
   universalPreviewMode?: UniversalPreviewModeService | null;
@@ -350,7 +348,6 @@ export class AgentRunService {
   private readonly skillMcpQuarantine: SkillMcpQuarantineService;
   private readonly llmBrain: Pick<ZavorthLlmBrainService, 'buildRunSnapshot'>;
   private readonly modelPickerContractService: AgentRunModelPickerContractService | null;
-  private readonly naturalFirstLightReply: NaturalFirstLightReplyService;
   private readonly naturalFirstApprovalSafety: NaturalFirstApprovalSafetyService;
   private readonly naturalFirstMemoryContinuity: NaturalFirstMemoryContinuityService;
   private readonly metadataEvidenceHelpers = new AgentRunMetadataEvidenceHelpers();
@@ -471,7 +468,6 @@ export class AgentRunService {
       now: this.now,
     });
     this.modelPickerContractService = runtime.modelPickerContractService || null;
-    this.naturalFirstLightReply = runtime.naturalFirstLightReply || new NaturalFirstLightReplyService();
     this.naturalFirstApprovalSafety = runtime.naturalFirstApprovalSafety || new NaturalFirstApprovalSafetyService();
     this.naturalFirstMemoryContinuity = runtime.naturalFirstMemoryContinuity || new NaturalFirstMemoryContinuityService();
     this.trustSliderPolicy = runtime.trustSliderPolicy || new TrustSliderPolicyService({
@@ -732,11 +728,6 @@ export class AgentRunService {
         return universalPreview;
       }
 
-      const lightReply = this.createNaturalFirstLightReplyIfNeeded(run, input);
-      if (lightReply) {
-        return lightReply;
-      }
-
       const memoryContinuity = this.createNaturalFirstMemoryContinuityIfNeeded(run, input);
       if (memoryContinuity) {
         return memoryContinuity;
@@ -843,7 +834,7 @@ export class AgentRunService {
       executorResult.replyText,
       run.status === 'completed'
         ? run.summary
-        : 'A execucao foi registrada no runtime universal.',
+        : 'The request was recorded safely.',
     );
 
       return this.replyPipeline.buildResult({
@@ -855,20 +846,6 @@ export class AgentRunService {
         await this.corePipeline.finalize(run, baseline);
       }
     }
-  }
-
-  private createNaturalFirstLightReplyIfNeeded(
-    run: UniversalAgentRun,
-    request: UniversalAgentRequest,
-  ): UniversalAgentRunResult | null {
-    if (!this.naturalFirstLightReply.shouldHandle(run, request)) {
-      return null;
-    }
-    return this.naturalFirstLightReply.apply({
-      run,
-      request,
-      generatedAt: this.now().toISOString(),
-    });
   }
 
   private createNaturalFirstMemoryContinuityIfNeeded(
@@ -939,10 +916,10 @@ export class AgentRunService {
     const approval: UniversalApprovalRequest = existingApproval || {
       id: this.idFactory('agent-approval'),
       runId: run.id,
-      title: 'Aprovar execucao isolada',
+      title: 'Approve isolated execution',
       reason: normalizeText(
         agenticRoute?.explanation,
-        'O pedido parece exigir analise/execucao isolada; o Zavorth precisa de approval antes de chamar um agente remoto.',
+        'This request may need isolated analysis or execution; Zavorth needs approval before calling a remote agent.',
       ),
       risk: 'danger',
       status: 'pending',
@@ -952,7 +929,7 @@ export class AgentRunService {
       run.approvals.push(approval);
     }
     run.status = 'waiting_approval';
-    run.summary = 'Execucao isolada preparada. Nenhum agente remoto foi chamado sem aprovacao.';
+    run.summary = 'Isolated execution is prepared. No remote agent was called without approval.';
     run.updatedAt = now;
     run.metadata = {
       ...run.metadata,
@@ -966,8 +943,8 @@ export class AgentRunService {
       id: this.idFactory('agent-event'),
       runId: run.id,
       kind: 'approval',
-      title: 'Preview de execucao isolada',
-      detail: 'Zavorth preparou uma chamada remota governada, mas bloqueou a execucao ate approval explicito.',
+      title: 'Isolated execution preview',
+      detail: 'Zavorth prepared a governed remote call and paused until explicit approval.',
       status: 'pending',
       createdAt: now,
       metadata: {
@@ -981,13 +958,13 @@ export class AgentRunService {
     return this.replyPipeline.buildResult({
       run,
       text: [
-        'Posso usar uma execucao isolada para esse pedido, mas preciso da sua aprovacao antes.',
+        'I can use an isolated execution path for this request, but I need your approval first.',
         '',
-        'O que aconteceria:',
-        '- chamada governada para agente remoto/sandbox;',
-        '- historico server-side desligado por padrao;',
-        '- timeline e receipt registrados no Zavorth;',
-        '- execucao auditavel dentro do escopo aprovado.',
+        'What would happen:',
+        '- governed call to a remote agent or sandbox;',
+        '- server-side history stays off by default;',
+        '- timeline and evidence are recorded in Zavorth;',
+        '- execution stays auditable inside the approved scope.',
       ].join('\n'),
     });
   }
@@ -998,14 +975,14 @@ export class AgentRunService {
     options: AgentRunExecutionOptions = {},
   ): Promise<UniversalAgentRunResult> {
     run.status = 'running';
-    run.summary = 'Aprovacao recebida. Execucao retomada pelo runtime universal.';
+    run.summary = 'Approval received. Execution resumed safely.';
     run.updatedAt = this.now().toISOString();
     run.events.push({
       id: this.idFactory('agent-event'),
       runId: run.id,
       kind: 'status',
-      title: 'Execucao retomada',
-      detail: 'Approval gate liberou a execucao para o executor real.',
+      title: 'Execution resumed',
+      detail: 'The approval gate released the scoped execution path.',
       status: 'done',
       createdAt: run.updatedAt,
     });
@@ -1057,7 +1034,7 @@ export class AgentRunService {
     this.applyCapabilityLoopGovernance(run, request);
     const replyText = normalizeText(
       executorResult.replyText,
-      run.summary || 'A execucao foi retomada pelo runtime universal.',
+      run.summary || 'Execution resumed safely.',
     );
 
     return this.replyPipeline.buildResult({
@@ -1739,7 +1716,7 @@ export class AgentRunService {
       id: this.idFactory('agent-event'),
       runId: run.id,
       kind: 'status',
-      title: 'LLM brain maturity',
+      title: 'Model loop readiness',
       detail: snapshot.summary,
       status: snapshot.status === 'blocked' ? 'failed' : 'done',
       createdAt: snapshot.generatedAt,

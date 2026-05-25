@@ -58,10 +58,6 @@ export {
   NaturalFirstRunClassifier,
 } from './NaturalFirstRunClassifier.js';
 export {
-  NATURAL_FIRST_LIGHT_REPLY_CONTRACT_VERSION,
-  NaturalFirstLightReplyService,
-} from './NaturalFirstLightReplyService.js';
-export {
   NATURAL_FIRST_APPROVAL_SAFETY_CONTRACT_VERSION,
   NaturalFirstApprovalSafetyService,
 } from './NaturalFirstApprovalSafetyService.js';
@@ -87,10 +83,6 @@ export type {
   NaturalFirstRunRisk,
   NaturalFirstRuntimeContext,
 } from './NaturalFirstRunClassifier.js';
-export type {
-  NaturalFirstLightReplyKind,
-  NaturalFirstLightReplySnapshot,
-} from './NaturalFirstLightReplyService.js';
 export type {
   NaturalFirstApprovalSafetySnapshot,
   NaturalFirstApprovalSafetyStatus,

@@ -62,7 +62,7 @@ const PAGE_TITLES: Record<SetupPage, string> = {
   overview: 'Command Path',
   provider: 'Model Core',
   channels: 'Channel Bridge',
-  skills: 'Capability Scan',
+  skills: 'Ability scan',
   hatch: 'First Wake',
 };
 
@@ -590,7 +590,7 @@ function Header({ Box, Text, snapshot, page, pageIndex, motionFrame }: any) {
       ...charElements
     ),
     createElement(Text, { color: COLORS.muted, dimColor: true }, 'Natural language in. Governed action out.'),
-    createElement(Text, { color: '#565f73', dimColor: true }, 'Local-first agent OS · receipts · approvals · native integrations'),
+    createElement(Text, { color: '#565f73', dimColor: true }, 'Local-first agent OS · evidence · approvals · native integrations'),
     createElement(Box, { marginY: 1 }, createElement(Text, { color: '#313540' }, '────────────────────────────────────────────────────────────')),
     createElement(
       Box,

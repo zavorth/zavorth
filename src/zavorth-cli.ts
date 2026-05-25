@@ -269,6 +269,7 @@ async function runPremiumDoctor(rawArgs: string[]): Promise<number> {
     projectRoot,
     json: rawArgs.includes('--json'),
     strict: rawArgs.includes('--strict') || rawArgs.includes('--require-pass'),
+    verbose: rawArgs.includes('--verbose') || rawArgs.includes('--debug') || rawArgs.includes('--all'),
   });
   process.stdout.write(result.output);
   return result.exitCode;
@@ -1806,6 +1807,21 @@ async function runBuiltinLauncher(rawArgs: string[]): Promise<number | null> {
   }
 
   if (command === 'diff' || command === 'diffs') {
+    if (restArgs.includes('--help') || restArgs.includes('-h')) {
+      return printCliPanel('Zavorth diff', [
+        'Usage: zavorth diff [approvalId]',
+        '',
+        'Inspect sandbox changes before approving sensitive work.',
+        '',
+        'Examples:',
+        '  zavorth diff',
+        '    Show available governed diff previews.',
+        '  zavorth diff <id>',
+        '    Inspect one pending plan before deciding.',
+        '  zavorth approve <id> --yes',
+        '    Approve the plan after review.',
+      ], 'info');
+    }
     return runPremiumApprovalDiff('diff', restArgs);
   }
 

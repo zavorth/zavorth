@@ -555,7 +555,7 @@ function renderHookTemplate(filePath: string): string {
       contractVersion: 'zavorth-automation-hook/1',
       id: 'after-run-summary',
       title: 'Summarize completed runtime work',
-      description: 'When a governed runtime action completes, stage a local Mnemos summary and an automation receipt.',
+      description: 'When a governed action completes, stage a local Mnemos summary and automation evidence.',
       enabled: false,
       event: 'runtime.after_execute',
       safety: {
@@ -619,8 +619,8 @@ function renderHookTemplate(filePath: string): string {
     actions: [
       {
         type: 'receipt.create',
-        title: 'Automation hook receipt',
-        summary: 'This hook can create a local receipt after you review and enable it.',
+        title: 'Automation hook evidence',
+        summary: 'This hook can create local evidence after you review and enable it.',
       },
     ],
   };

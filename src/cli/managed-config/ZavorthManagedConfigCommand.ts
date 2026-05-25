@@ -93,7 +93,7 @@ function renderManagedConfigPlan(plan: ZavorthManagedConfigPlan): string {
       lines: [
         `managed config: ${plan.managedConfigPath}`,
         `requirements: ${plan.requirementsPath}`,
-        `receipt: ${plan.receiptPath}`,
+        `evidence: ${plan.receiptPath}`,
       ],
     },
     {
@@ -105,7 +105,7 @@ function renderManagedConfigPlan(plan: ZavorthManagedConfigPlan): string {
   return renderCliScreen({
     eyebrow: 'Zavorth CLI',
     title: plan.applied ? 'Managed Config Applied' : 'Managed Config Preview',
-    summary: 'Transparent managed configuration with preview, checksum and receipt.',
+    summary: 'Transparent managed configuration with preview, checksum and evidence.',
     panels,
     mode: 'compact',
   });

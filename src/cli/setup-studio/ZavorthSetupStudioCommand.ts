@@ -604,9 +604,9 @@ async function collectInteractiveAnswers(projectRoot: string): Promise<SetupStud
     searchSecret: String(searchSecret || ''),
     dryRun: true,
   });
-  p.note(renderSkillsStatusPanel(skillsSnapshot), orange('Capability readiness'));
+  p.note(renderSkillsStatusPanel(skillsSnapshot), orange('Ability readiness'));
   const configureSkills = await p.confirm({
-    message: 'Review optional capability helpers now?',
+    message: 'Review optional tool helpers now?',
     initialValue: true,
   });
   if (p.isCancel(configureSkills)) {
@@ -615,7 +615,7 @@ async function collectInteractiveAnswers(projectRoot: string): Promise<SetupStud
   }
   if (configureSkills === true) {
     const skillChoices = await p.multiselect({
-      message: 'Prepare optional capability helpers',
+      message: 'Prepare optional tool helpers',
       options: [
         { value: 'skip', label: 'Skip for now', hint: 'continue without installing dependencies' },
         { value: 'onepassword', label: '1password' },
@@ -776,7 +776,7 @@ function renderModelCheckPanel(providerId: string, needsSecret: boolean, secretK
 function renderHowChannelsWorkPanel(): string {
   return [
     'Inbound channel safety defaults to pairing: unknown senders should get paired or allowlisted first.',
-    'Remote channels can trigger tools only through policy, scope and receipts.',
+    'Remote channels can trigger tools only through policy, scope and evidence.',
     'For shared or public inboxes, keep trust boundaries separate.',
     '',
     'Common surfaces:',
@@ -784,7 +784,7 @@ function renderHowChannelsWorkPanel(): string {
     'Discord: bot token and approved guild/channel scope.',
     'Slack: bot/socket token with channel allowlist.',
     'Signal/WhatsApp/iMessage/Matrix/LINE/Zalo/Teams/Google Chat: bridge or API credentials plus pairing.',
-    'Dashboard: local visual control plane for approvals, diffs and receipts.',
+    'Dashboard: local visual control plane for approvals, diffs and evidence.',
   ].join('\n');
 }
 
@@ -834,7 +834,7 @@ function renderAutomationHooksPanel(enabled: boolean): string {
       ? 'Automation templates will be prepared in .zavorth/hooks.'
       : 'No automation templates will be prepared now.',
     'Templates stay disabled until you review and enable them.',
-    'They can create local Mnemos summaries, receipts and governed notification outbox entries.',
+    'They can create local Mnemos summaries, evidence and governed notification outbox entries.',
     'They never run shell commands directly.',
     'Setup later: zavorth hooks',
   ].join('\n');

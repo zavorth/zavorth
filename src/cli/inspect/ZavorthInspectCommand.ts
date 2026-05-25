@@ -105,13 +105,13 @@ function renderInspectSnapshot(snapshot: ZavorthInspectSnapshot, options: { live
       ],
     },
     {
-      title: 'Mnemos / Trust / Receipts',
+      title: 'Mnemos / Trust / Evidence',
       tone: 'info',
       lines: [
       statusRow(snapshot.mnemos.label, snapshot.mnemos.status, snapshot.mnemos.detail),
       ...snapshot.trust.map((entry) => statusRow(entry.label, entry.status, entry.detail)),
       row('Pending approvals', `${snapshot.pendingApprovals.count}${snapshot.pendingApprovals.ids.length ? ` (${snapshot.pendingApprovals.ids.join(', ')})` : ''}`),
-      row('Recent receipts', `${snapshot.receipts.known}${snapshot.receipts.recentIds.length ? ` (${snapshot.receipts.recentIds.join(', ')})` : ''}`),
+      row('Recent evidence', `${snapshot.receipts.known}${snapshot.receipts.recentIds.length ? ` (${snapshot.receipts.recentIds.join(', ')})` : ''}`),
       ],
     },
     {

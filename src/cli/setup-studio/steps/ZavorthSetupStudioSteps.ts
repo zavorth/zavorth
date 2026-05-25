@@ -25,7 +25,7 @@ export function buildZavorthSetupStudioSteps(input: {
       id: 'security',
       title: 'Security disclaimer',
       status: 'ready',
-      detail: 'preview, approval and receipts stay enabled',
+      detail: 'preview, approval and evidence stay enabled',
     },
     {
       id: 'existing-config',
