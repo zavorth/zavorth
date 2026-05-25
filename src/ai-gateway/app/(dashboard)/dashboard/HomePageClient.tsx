@@ -27,6 +27,7 @@ export default function HomePageClient({ machineId }) {
   const [runtimeReadiness, setRuntimeReadiness] = useState<any>(null);
   const [runtimeGuidedFixes, setRuntimeGuidedFixes] = useState<any>(null);
   const [swarmSnapshot, setSwarmSnapshot] = useState<any>(null);
+  const [experienceSnapshot, setExperienceSnapshot] = useState<any>(null);
 
   const [versionInfo, setVersionInfo] = useState<any>(null);
   const [updating, setUpdating] = useState(false);
@@ -41,7 +42,7 @@ export default function HomePageClient({ machineId }) {
 
   const fetchData = useCallback(async () => {
     try {
-      const [provRes, modelsRes, metricsRes, versionRes, readinessRes, guidedFixesRes, swarmRes] = await Promise.all([
+      const [provRes, modelsRes, metricsRes, versionRes, readinessRes, guidedFixesRes, swarmRes, experienceRes] = await Promise.all([
         fetch("/api/providers"),
         fetch("/api/models"),
         fetch("/api/provider-metrics"),
@@ -49,6 +50,7 @@ export default function HomePageClient({ machineId }) {
         fetch("/api/runtime/readiness"),
         fetch("/api/runtime/readiness/fixes"),
         fetch("/api/web/gateway/swarm-v2"),
+        fetch("/api/experience/home?surface=web"),
       ]);
       const productRes = await fetch("/api/productization/protected-runtime?mode=personal&detail=simple");
       if (provRes.ok) {
@@ -84,6 +86,10 @@ export default function HomePageClient({ machineId }) {
         setSwarmSnapshot(swarmData);
       } else {
         setSwarmSnapshot({ ok: false, swarms: [] });
+      }
+      if (experienceRes.ok) {
+        const experienceData = await experienceRes.json();
+        setExperienceSnapshot(experienceData);
       }
     } catch (e) {
       console.log("Error fetching data:", e);
@@ -261,6 +267,12 @@ export default function HomePageClient({ machineId }) {
   const swarmBatchProgress = latestSwarmMetrics
     ? `${latestSwarmMetrics.completedBatchCount}/${latestSwarmMetrics.batchCount} batches`
     : "queue ready";
+  const selfHealingCards = (experienceSnapshot?.actionCards || [])
+    .filter((card) => card?.source === "self-healing")
+    .slice(0, 3);
+  const selfHealingReceipts = (experienceSnapshot?.receipts || [])
+    .filter((receipt) => receipt?.source === "self-healing")
+    .slice(0, 3);
 
   const basicStatus = [
     { icon: "psychology", label: "Provider", ...providerSignal, href: "/dashboard/providers" },
@@ -951,6 +963,64 @@ export default function HomePageClient({ machineId }) {
                 <span className="material-symbols-outlined text-[14px]">arrow_forward</span>
               </Link>
             </div>
+
+            {(selfHealingCards.length > 0 || selfHealingReceipts.length > 0) && (
+              <div className="mt-5 rounded-lg border border-amber-500/20 bg-amber-500/[0.06] p-4">
+                <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
+                  <div className="min-w-0">
+                    <div className="flex flex-wrap items-center gap-2">
+                      <div className="flex size-8 shrink-0 items-center justify-center rounded-lg bg-amber-500/10 text-amber-500">
+                        <span className="material-symbols-outlined text-[17px]">auto_fix_high</span>
+                      </div>
+                      <p className="text-sm font-semibold text-text-main">Recovery</p>
+                      <span className="rounded-full border border-amber-500/20 bg-surface px-2.5 py-1 text-[11px] font-semibold uppercase tracking-[0.12em] text-amber-600 dark:text-amber-300">
+                        self-healing
+                      </span>
+                    </div>
+                    <p className="mt-2 max-w-2xl text-xs leading-5 text-text-muted">
+                      When something fails, Zavorth records what it tried, why it failed and the next safe repair instead of leaving you with a raw error.
+                    </p>
+                  </div>
+                  <div className="grid w-full gap-2 lg:max-w-xl">
+                    {selfHealingCards.map((card) => (
+                      <div
+                        key={card.id}
+                        className="rounded-md border border-border bg-surface px-3 py-2"
+                      >
+                        <div className="flex items-center justify-between gap-3">
+                          <p className="truncate text-xs font-semibold text-text-main">{card.title}</p>
+                          <span className="shrink-0 rounded-full bg-bg-subtle px-2 py-0.5 text-[10px] font-semibold uppercase text-text-muted">
+                            {card.risk}
+                          </span>
+                        </div>
+                        <p className="mt-1 line-clamp-2 text-[11px] leading-4 text-text-muted">{card.summary}</p>
+                        {card.actions?.length > 0 && (
+                          <div className="mt-2 flex flex-wrap gap-1.5">
+                            {card.actions.slice(0, 2).map((action) => (
+                              <span
+                                key={action.id}
+                                className="rounded border border-border bg-bg-subtle px-2 py-1 text-[10px] font-medium text-text-muted"
+                              >
+                                {action.label}
+                              </span>
+                            ))}
+                          </div>
+                        )}
+                      </div>
+                    ))}
+                    {selfHealingCards.length === 0 && selfHealingReceipts.map((receipt) => (
+                      <div
+                        key={receipt.id}
+                        className="rounded-md border border-border bg-surface px-3 py-2"
+                      >
+                        <p className="text-xs font-semibold text-text-main">{receipt.title}</p>
+                        <p className="mt-1 line-clamp-2 text-[11px] leading-4 text-text-muted">{receipt.detail}</p>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            )}
 
             <div className="mt-5 rounded-lg border border-border bg-bg-subtle/60 p-4">
               <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">

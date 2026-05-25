@@ -250,35 +250,35 @@ const CLI_COMMAND_HELP_PAGES: Record<Exclude<CliHelpTopic, 'root'>, CliHelpPage>
   home: {
     topic: 'home',
     title: 'zavorth',
-    summary: 'Abre a Home premium do terminal: status, provider, canais, approvals, safety e proximo passo.',
+    summary: 'Opens the premium terminal home: status, provider, channels, approvals, safety and next step.',
     sections: [
       {
-        title: 'Use quando',
+        title: 'Use when',
         entries: [
-          { summary: 'Voce acabou de abrir o terminal e quer saber o que fazer agora.' },
-          { summary: 'Voce quer ver a mesma verdade local sem iniciar runtime, tools ou mutacoes.' },
+          { summary: 'You just opened the terminal and want to know what to do next.' },
+          { summary: 'You want the same local truth without starting tools or mutations.' },
         ],
       },
       {
-        title: 'Comandos',
+        title: 'Commands',
         entries: [
-          { command: 'zavorth', summary: 'Mostra a Home premium.' },
-          { command: 'zavorth home', summary: 'Mesmo painel, de forma explicita.' },
-          { command: 'zavorth home --json', summary: 'Exporta o snapshot estavel para automacao.' },
+          { command: 'zavorth', summary: 'Open the premium home.' },
+          { command: 'zavorth home', summary: 'Open the same panel explicitly.' },
+          { command: 'zavorth home --json', summary: 'Export the stable snapshot for automation.' },
         ],
       },
       {
-        title: 'Depois',
+        title: 'After that',
         entries: [
-          { command: 'zavorth hatch', summary: 'Prepara a primeira sessao do agente.' },
-          { command: 'zavorth quickstart', summary: 'Configura provider/canais em modo preview-first.' },
-          { command: 'zavorth approve', summary: 'Resolve approvals pendentes antes de continuar.' },
+          { command: 'zavorth hatch', summary: 'Prepare the first agent session.' },
+          { command: 'zavorth quickstart', summary: 'Configure provider/channels in preview-first mode.' },
+          { command: 'zavorth approve', summary: 'Review pending approvals before continuing.' },
         ],
       },
     ],
-    notesTitle: 'Seguro',
+    notesTitle: 'Safety',
     notes: [
-      'A Home observa estado local e redige secrets. Ela nao executa tools nem escreve arquivos.',
+      'Home reads local state and redacts secrets. It does not run tools or write files.',
     ],
   },
   hud: {
@@ -327,166 +327,166 @@ const CLI_COMMAND_HELP_PAGES: Record<Exclude<CliHelpTopic, 'root'>, CliHelpPage>
   hatch: {
     topic: 'hatch',
     title: 'zavorth hatch',
-    summary: 'Mostra o cockpit de primeira execucao e recomenda o jeito mais seguro de acordar o agente.',
+    summary: 'Shows the first-run cockpit and recommends the safest way to wake the agent.',
     sections: [
       {
-        title: 'Use quando',
+        title: 'Use when',
         entries: [
-          { summary: 'Voce quer iniciar uma sessao real sem decorar start, setup, approvals ou dashboard.' },
-          { summary: 'Voce quer saber se deve aprovar algo, configurar provider ou abrir o Dashboard.' },
+          { summary: 'You want to start a real session without memorizing start, setup, approvals or dashboard commands.' },
+          { summary: 'You want to know whether to approve something, configure a provider or open the dashboard.' },
         ],
       },
       {
-        title: 'Comandos',
+        title: 'Commands',
         entries: [
-          { command: 'zavorth hatch', summary: 'Checklist premium de primeira execucao.' },
-          { command: 'zavorth hatch --json', summary: 'Mesmo cockpit em contrato estavel.' },
-          { command: 'zavorth hatch --start', summary: 'Delega para o start/go existente quando voce escolher iniciar.' },
+          { command: 'zavorth hatch', summary: 'Premium first-run checklist.' },
+          { command: 'zavorth hatch --json', summary: 'The same cockpit as a stable contract.' },
+          { command: 'zavorth hatch --start', summary: 'Delegate to the existing start/go path when you choose to start.' },
         ],
       },
       {
-        title: 'Quando estiver pronto',
+        title: 'When ready',
         entries: [
-          { command: 'zavorth ask "acorde e revise este workspace"', summary: 'Primeiro prompt natural sugerido.' },
-          { command: 'zavorth open', summary: 'Abre o Dashboard visual.' },
-          { command: 'zavorth start', summary: 'Liga ou retoma o runtime local.' },
+          { command: 'zavorth ask "wake up and review this workspace"', summary: 'Suggested first natural request.' },
+          { command: 'zavorth open', summary: 'Open the visual dashboard.' },
+          { command: 'zavorth start', summary: 'Start or resume the local runtime.' },
         ],
       },
     ],
-    notesTitle: 'Seguro',
+    notesTitle: 'Safety',
     notes: [
-      'Hatch nao aplica mutacoes no host. Acoes sensiveis seguem policy, preview, approval e receipt.',
+      'Hatch does not apply host mutations. Sensitive actions still use policy, preview, approval and receipts.',
     ],
   },
   quickstart: {
     topic: 'quickstart',
     title: 'zavorth quickstart',
-    summary: 'Configura provider e canais com UX curta, preview-first e secrets redigidos.',
+    summary: 'Configure provider and channels with a short, preview-first, secret-redacted flow.',
     sections: [
       {
-        title: 'Use quando',
+        title: 'Use when',
         entries: [
-          { summary: 'Voce quer conectar um provider/modelo sem passar pelo setup completo.' },
-          { summary: 'Voce quer preparar Telegram ou Discord com allowlist e sem vazar tokens.' },
+          { summary: 'You want to connect a provider/model without the full setup flow.' },
+          { summary: 'You want to prepare Telegram or Discord with allowlists and no token leakage.' },
         ],
       },
       {
         title: 'Provider',
         entries: [
-          { command: 'zavorth providers add --provider openai --model gpt-4.1', summary: 'Preview de provider; nao grava sem --apply.' },
-          { command: 'zavorth providers add --provider openai --model gpt-4.1 --apply', summary: 'Grava .env local com saida redigida.' },
-          { command: 'zavorth providers add --provider openai --secret-env OPENAI_API_KEY', summary: 'Le segredo de variavel local sem imprimir valor.' },
+          { command: 'zavorth providers add --provider openai --model gpt-4.1', summary: 'Provider preview; does not write without --apply.' },
+          { command: 'zavorth providers add --provider openai --model gpt-4.1 --apply', summary: 'Writes local .env with redacted output.' },
+          { command: 'zavorth providers add --provider openai --secret-env OPENAI_API_KEY', summary: 'Reads a local secret variable without printing it.' },
         ],
       },
       {
-        title: 'Canais',
+        title: 'Channels',
         entries: [
-          { command: 'zavorth channels telegram', summary: 'Wizard de Telegram com token secreto e allowlist.' },
-          { command: 'zavorth channels telegram --allowed-users <id> --apply', summary: 'Grava allowlist local para ChatOps seguro.' },
-          { command: 'zavorth channels discord', summary: 'Wizard de Discord com guild/channel/owners.' },
+          { command: 'zavorth channels telegram', summary: 'Telegram wizard with secret token and allowlist.' },
+          { command: 'zavorth channels telegram --allowed-users <id> --apply', summary: 'Writes a local allowlist for safe ChatOps.' },
+          { command: 'zavorth channels discord', summary: 'Discord wizard with guild/channel/owners.' },
         ],
       },
     ],
-    notesTitle: 'Seguro',
+    notesTitle: 'Safety',
     notes: [
-      'QuickStart nao inicia runtime e nao faz live probe sem consentimento explicito.',
-      'Use "zavorth setup" quando quiser configurar perfil, memoria e preferencias completas.',
+      'QuickStart does not start runtime or run a live probe without explicit consent.',
+      'Use "zavorth setup" when you want full profile, memory and preference setup.',
     ],
   },
   start: {
     topic: 'start',
     title: 'zavorth start',
-    summary: 'Liga ou retoma o runtime local e abre a superficie principal do Zavorth.',
+    summary: 'Start or resume the local runtime and open the main Zavorth surface.',
     sections: [
       {
-        title: 'Use quando',
+        title: 'Use when',
         entries: [
-          { summary: 'Voce quer ligar o Zavorth sem decorar scripts internos.' },
-          { summary: 'Voce quer abrir o dashboard local e continuar o trabalho diario.' },
+          { summary: 'You want to start Zavorth without memorizing internal scripts.' },
+          { summary: 'You want to open the local dashboard and continue daily work.' },
         ],
       },
       {
-        title: 'Comandos',
+        title: 'Commands',
         entries: [
-          { command: 'zavorth start', summary: 'Liga ou retoma o runtime local e abre o dashboard.' },
-          { command: 'zavorth open', summary: 'Abre o dashboard local sem reler documentacao.' },
-          { command: 'zavorth ready', summary: 'Confere provider, canais, approvals e readiness.' },
-          { command: 'zavorth setup', summary: 'Roda o Setup Studio quando ainda faltar configuracao.' },
+          { command: 'zavorth start', summary: 'Start or resume the local runtime and open the dashboard.' },
+          { command: 'zavorth open', summary: 'Open the local dashboard without rereading docs.' },
+          { command: 'zavorth ready', summary: 'Check provider, channels, approvals and readiness.' },
+          { command: 'zavorth setup', summary: 'Run Setup Studio when configuration is missing.' },
         ],
       },
     ],
-    notesTitle: 'Seguro',
+    notesTitle: 'Safety',
     notes: [
-      'O start nao remove approvals nem publica em canal externo.',
-      'Acoes sensiveis continuam preview/approval/receipt.',
+      'Start does not remove approvals or publish to external channels.',
+      'Sensitive actions still use preview, approval and receipt.',
     ],
   },
   demo: {
     topic: 'demo',
     title: 'zavorth demo',
-    summary: 'Mostra o caminho de produto, a demo visual local e o checklist honesto dos conectores.',
+    summary: 'Shows the product path, local visual demo and honest connector checklist.',
     sections: [
       {
-        title: 'Use quando',
+        title: 'Use when',
         entries: [
-          { summary: 'Voce quer provar o Zavorth como produto antes de decorar comandos internos.' },
-          { summary: 'Voce quer abrir o Home, ver o roteiro e entender se GitHub ou Telegram ainda precisam setup.' },
+          { summary: 'You want to try Zavorth as a product before memorizing internal commands.' },
+          { summary: 'You want to open Home, see the path and understand whether GitHub or Telegram still need setup.' },
         ],
       },
       {
-        title: 'Comandos',
+        title: 'Commands',
         entries: [
-          { command: 'zavorth demo', summary: 'Mostra o roteiro de produto, Home, checklists e smoke.' },
-          { command: 'zavorth demo browser', summary: 'Abre a demo visual local no browser.' },
-          { command: 'zavorth demo doctor', summary: 'Mostra somente o que falta para GitHub, Telegram e demo local.' },
-          { command: 'zavorth demo --json', summary: 'Exporta a mesma verdade para automacao.' },
-          { command: 'zavorth go', summary: 'Abre o Home visual em /dashboard.' },
+          { command: 'zavorth demo', summary: 'Show product path, Home, checklists and smoke.' },
+          { command: 'zavorth demo browser', summary: 'Open the local visual demo in the browser.' },
+          { command: 'zavorth demo doctor', summary: 'Show only what GitHub, Telegram and local demo still need.' },
+          { command: 'zavorth demo --json', summary: 'Export the same truth for automation.' },
+          { command: 'zavorth go', summary: 'Open the visual Home at /dashboard.' },
         ],
       },
       {
-        title: 'Seguro',
+        title: 'Safety',
         entries: [
-          { summary: 'A demo nao cola secrets, nao finge conectores live e nao posta em PR sem approval.' },
-          { summary: 'O smoke usa fixtures deterministicas; uso real de GitHub/Telegram continua approval-aware.' },
+          { summary: 'Demo does not paste secrets, fake live connectors or post to PRs without approval.' },
+          { summary: 'Smoke uses deterministic fixtures; real GitHub/Telegram use stays approval-aware.' },
         ],
       },
     ],
-    notesTitle: 'Depois',
+    notesTitle: 'Next',
     notes: [
-      'Rode: zavorth go',
-      'Conectores: zavorth connectors doctor',
-      'Depois: zavorth review github --pr=<number> --repo=<owner/repo>',
-      'Para Telegram: zavorth connectors setup telegram --apply --allowed-user=<id>',
+      'Run: zavorth go',
+      'Connectors: zavorth connectors doctor',
+      'Then: zavorth review github --pr=<number> --repo=<owner/repo>',
+      'For Telegram: zavorth connectors setup telegram --apply --allowed-user=<id>',
     ],
   },
   connectors: {
     topic: 'connectors',
     title: 'zavorth connectors',
-    summary: 'Wizards e doctors para canais como Telegram, Discord, Slack, WhatsApp, Signal e Email sem aceitar secrets crus no prompt.',
+    summary: 'Wizards and doctors for channels like Telegram, Discord, Slack, WhatsApp, Signal and Email without raw secrets in prompts.',
     sections: [
       {
         title: 'Doctor',
         entries: [
-          { command: 'zavorth connectors doctor', summary: 'Mostra todos os conectores publicos e exatamente o que falta.' },
-          { command: 'zavorth connectors doctor telegram', summary: 'Foca Telegram e roda doctor de provider quando disponivel.' },
-          { command: 'zavorth connectors doctor discord', summary: 'Foca Discord e mostra setup minimo para bot/guild/canais.' },
-          { command: 'zavorth connectors doctor --json', summary: 'Exporta o mesmo diagnostico para automacao.' },
+          { command: 'zavorth connectors doctor', summary: 'Show every public connector and exactly what is missing.' },
+          { command: 'zavorth connectors doctor telegram', summary: 'Focus Telegram and run provider doctor when available.' },
+          { command: 'zavorth connectors doctor discord', summary: 'Focus Discord and show minimum bot/guild/channel setup.' },
+          { command: 'zavorth connectors doctor --json', summary: 'Export the same diagnostics for automation.' },
         ],
       },
       {
         title: 'Setup',
         entries: [
-          { command: 'zavorth channels telegram', summary: 'Wizard bonito para token, allowlist e policy do Telegram.' },
-          { command: 'zavorth channels discord', summary: 'Wizard bonito para token, guild/canal e owners do Discord.' },
-          { command: 'zavorth channels slack|whatsapp|signal|email', summary: 'Prepara canais configuraveis sem declarar live antes da prova.' },
-          { command: 'zavorth channels telegram --apply --allowed-users=<id>', summary: 'Escreve .env local com valores redigidos na tela.' },
+          { command: 'zavorth channels telegram', summary: 'Guided token, allowlist and Telegram policy setup.' },
+          { command: 'zavorth channels discord', summary: 'Guided token, guild/channel and owner setup for Discord.' },
+          { command: 'zavorth channels slack|whatsapp|signal|email', summary: 'Prepare configurable channels without claiming live status before proof.' },
+          { command: 'zavorth channels telegram --apply --allowed-users=<id>', summary: 'Write local .env values with redacted screen output.' },
         ],
       },
     ],
-    notesTitle: 'Seguro',
+    notesTitle: 'Safety',
     notes: [
-      'GitHub usa gh auth login; Zavorth nao grava credenciais GitHub por voce.',
-      'Wizards de canais preservam secrets existentes, nao postam mensagens reais e so gravam com --apply.',
+      'GitHub uses gh auth login; Zavorth does not store GitHub credentials for you.',
+      'Channel wizards preserve existing secrets, do not post real messages and only write with --apply.',
     ],
   },
   onboard: {
@@ -529,231 +529,231 @@ const CLI_COMMAND_HELP_PAGES: Record<Exclude<CliHelpTopic, 'root'>, CliHelpPage>
   go: {
     topic: 'go',
     title: 'zavorth go',
-    summary: 'Abre o Zavorth Home em /dashboard ou explica exatamente o bloqueio.',
+    summary: 'Open Zavorth Home at /dashboard or explain the exact blocker.',
     sections: [
       {
-        title: 'Use quando',
+        title: 'Use when',
         entries: [
           { summary: 'You want the simple Home: Inbox, Tasks, Approvals, Receipts and Connectors.' },
-          { summary: 'Quiser retomar o Zavorth depois do setup sem decorar nomes internos.' },
+          { summary: 'You want to resume Zavorth after setup without memorizing internal names.' },
         ],
       },
       {
-        title: 'Modo seguro',
+        title: 'Safe mode',
         entries: [
-          { command: 'zavorth go --dry-run', summary: 'Mostra URL, bloqueio e proximo comando sem iniciar runtime persistente.' },
-          { command: 'zavorth doctor', summary: 'Aprofunda o diagnostico quando o dry-run apontar bloqueio.' },
+          { command: 'zavorth go --dry-run', summary: 'Show URL, blocker and next command without starting persistent runtime.' },
+          { command: 'zavorth doctor', summary: 'Go deeper when dry-run reports a blocker.' },
         ],
       },
       {
-        title: 'Depois',
+        title: 'After that',
         entries: [
-          { command: 'zavorth chat', summary: 'Conversa pelo terminal.' },
-          { command: 'zavorth receipts', summary: 'Ve recibos do que aconteceu ou foi bloqueado.' },
-          { command: 'zavorth status', summary: 'Confirma se o runtime ficou pronto.' },
+          { command: 'zavorth chat', summary: 'Talk in the terminal.' },
+          { command: 'zavorth receipts', summary: 'See receipts for what happened or was blocked.' },
+          { command: 'zavorth status', summary: 'Confirm runtime readiness.' },
         ],
       },
     ],
-    notesTitle: 'Saida esperada',
+    notesTitle: 'Expected output',
     notes: [
-      'Quando nao conseguir abrir, o comando deve mostrar causa provavel e proximo passo, nao stack trace.',
+      'When it cannot open, the command should show the likely cause and next step, not a stack trace.',
     ],
   },
   dashboard: {
     topic: 'dashboard',
     title: 'zavorth dashboard',
-    summary: 'Abre o Zavorth Home de um jeito humano, ja com acesso local quando possivel.',
+    summary: 'Open Zavorth Home with local access applied when possible.',
     sections: [
       {
-        title: 'Use quando',
+        title: 'Use when',
         entries: [
           { summary: 'You want to open the visual gateway without hunting for a token in .env.' },
           { summary: 'You want to copy a local unlocked link into the browser.' },
         ],
       },
       {
-        title: 'Comandos',
+        title: 'Commands',
         entries: [
-          { command: 'zavorth dashboard', summary: 'Abre o Home ja com o token local aplicado.' },
-          { command: 'zavorth dashboard url', summary: 'Mostra um link local com token para copiar e colar.' },
-          { command: 'zavorth dashboard token', summary: 'Mostra o token local quando voce realmente precisar copiar manualmente.' },
-          { command: 'zavorth dashboard status', summary: 'Mostra de onde vem o acesso local sem revelar o token.' },
-          { command: 'zavorth dashboard doctor', summary: 'Diagnostica token ausente, antigo ou arquivo local quebrado.' },
-          { command: 'zavorth dashboard repair', summary: 'Cria/corrige o token local quando ele vem do arquivo de runtime.' },
-          { command: 'zavorth dashboard generate-token', summary: 'Gera um novo token local quando ZAVORTH_WEB_AUTH_TOKEN nao esta fixo.' },
+          { command: 'zavorth dashboard', summary: 'Open Home with the local token applied.' },
+          { command: 'zavorth dashboard url', summary: 'Show a local link you can paste into the browser.' },
+          { command: 'zavorth dashboard token', summary: 'Show the local token only when you truly need to copy it manually.' },
+          { command: 'zavorth dashboard status', summary: 'Show where local access comes from without revealing the token.' },
+          { command: 'zavorth dashboard doctor', summary: 'Diagnose a missing, stale or broken local token.' },
+          { command: 'zavorth dashboard repair', summary: 'Create or repair the local token when it comes from the runtime file.' },
+          { command: 'zavorth dashboard generate-token', summary: 'Generate a new local token when ZAVORTH_WEB_AUTH_TOKEN is not fixed.' },
         ],
       },
     ],
-    notesTitle: 'Seguranca',
+    notesTitle: 'Security',
     notes: [
-      'O link/token e local desta instalacao. Nao compartilhe em chat, print ou issue publica.',
-      'O dashboard salva o token apenas na aba atual do navegador.',
-      'Se uma aba antiga disser token invalido, abra uma nova com "zavorth dashboard".',
+      'The link/token is local to this install. Do not share it in chat, screenshots or public issues.',
+      'The dashboard stores the token only in the current browser tab.',
+      'If an old tab says the token is invalid, open a new one with "zavorth dashboard".',
     ],
   },
   chat: {
     topic: 'chat',
     title: 'zavorth chat',
-    summary: 'Abre a conversa principal do Zavorth no terminal.',
+    summary: 'Open the main Zavorth conversation in the terminal.',
     sections: [
       {
-        title: 'Use quando',
+        title: 'Use when',
         entries: [
-          { summary: 'Quiser conversar normalmente com o Zavorth, sem decorar comandos.' },
+          { summary: 'You want to talk normally with Zavorth without memorizing commands.' },
         ],
       },
       {
-        title: 'Exemplos',
+        title: 'Examples',
         entries: [
-          { command: 'revisar este modulo', summary: 'Pede uma analise rapida do codigo atual.' },
-          { command: 'retome o que estavamos fazendo', summary: 'Continua o trabalho atual dentro do chat.' },
-          { command: 'compare o que mudou nesta pasta', summary: 'Resume mudancas desta pasta.' },
+          { command: 'review this module', summary: 'Ask for a quick code review.' },
+          { command: 'resume what we were doing', summary: 'Continue the current work inside chat.' },
+          { command: 'compare what changed in this folder', summary: 'Summarize changes in this folder.' },
         ],
       },
       {
-        title: 'Atalhos uteis',
+        title: 'Useful shortcuts',
         entries: [
-          { command: 'status', summary: 'Mostra se o Zavorth esta pronto para uso.' },
-          { command: 'doctor', summary: 'Diagnostica problemas e sugere o proximo passo.' },
-          { command: 'history', summary: 'Mostra sessoes recentes ou o replay de uma sessao.' },
-          { command: 'quit', summary: 'Encerra o chat atual.' },
+          { command: 'status', summary: 'Show whether Zavorth is ready.' },
+          { command: 'doctor', summary: 'Diagnose issues and suggest the next step.' },
+          { command: 'history', summary: 'Show recent sessions or replay one session.' },
+          { command: 'quit', summary: 'Close the current chat.' },
         ],
       },
     ],
-    notesTitle: 'Dica rapida',
+    notesTitle: 'Quick tip',
     notes: [
-      'No chat, qualquer texto livre vira um pedido automaticamente.',
+      'In chat, any free text automatically becomes a request.',
     ],
   },
   run: {
     topic: 'run',
-    title: 'zavorth run "<pedido>"',
-    summary: 'Envia um pedido em linguagem natural sem abrir o chat interativo.',
+    title: 'zavorth run "<request>"',
+    summary: 'Send a natural-language request without opening interactive chat.',
     sections: [
       {
-        title: 'Use quando',
+        title: 'Use when',
         entries: [
-          { summary: 'Quiser fazer um pedido direto e voltar para o terminal normal.' },
+          { summary: 'You want one direct request and then return to the normal terminal.' },
         ],
       },
       {
-        title: 'Exemplos',
+        title: 'Examples',
         entries: [
-          { command: 'zavorth run "revisar este modulo"', summary: 'Envia um pedido unico para analise.' },
-          { command: 'zavorth run "compare o que mudou nesta pasta"', summary: 'Pede uma leitura rapida do workspace.' },
+          { command: 'zavorth run "review this module"', summary: 'Send one request for analysis.' },
+          { command: 'zavorth run "compare what changed in this folder"', summary: 'Ask for a quick workspace read.' },
         ],
       },
       {
-        title: 'Se quiser continuar depois',
+        title: 'If you want to continue',
         entries: [
-          { command: 'zavorth continue', summary: 'Retoma o mesmo trabalho sem precisar lembrar comandos especiais.' },
-          { command: 'zavorth chat', summary: 'Abre uma conversa completa no terminal.' },
+          { command: 'zavorth continue', summary: 'Resume the same work without special commands.' },
+          { command: 'zavorth chat', summary: 'Open a full terminal conversation.' },
         ],
       },
     ],
-    notesTitle: 'Dica rapida',
+    notesTitle: 'Quick tip',
     notes: [
-      'Se preferir conversar em varias mensagens, use zavorth chat.',
+      'If you prefer multiple messages, use zavorth chat.',
     ],
   },
   continue: {
     topic: 'continue',
     title: 'zavorth continue',
-    summary: 'Retoma o trabalho atual em linguagem natural sem precisar lembrar comandos especiais.',
+    summary: 'Resume the current work in natural language without memorizing special commands.',
     sections: [
       {
-        title: 'Use quando',
+        title: 'Use when',
         entries: [
-          { summary: 'Quiser pedir para o Zavorth continuar de onde parou.' },
+          { summary: 'You want Zavorth to continue where it stopped.' },
         ],
       },
       {
-        title: 'Exemplos',
+        title: 'Examples',
         entries: [
-          { command: 'zavorth continue', summary: 'Retoma o trabalho atual sem contexto extra.' },
-          { command: 'zavorth continue "agora foque na documentacao"', summary: 'Retoma e muda o foco do trabalho.' },
+          { command: 'zavorth continue', summary: 'Resume the current work with no extra context.' },
+          { command: 'zavorth continue "now focus on docs"', summary: 'Resume and change the work focus.' },
         ],
       },
       {
-        title: 'Se quiser mais contexto',
+        title: 'If you need more context',
         entries: [
-          { command: 'zavorth history', summary: 'Mostra sessoes recentes ou o replay de uma sessao.' },
-          { command: 'zavorth status', summary: 'Resume se o Zavorth esta pronto para continuar.' },
+          { command: 'zavorth history', summary: 'Show recent sessions or replay one session.' },
+          { command: 'zavorth status', summary: 'Summarize whether Zavorth is ready to continue.' },
         ],
       },
     ],
-    notesTitle: 'Dica rapida',
+    notesTitle: 'Quick tip',
     notes: [
-      'Se ainda nao existe uma linha de trabalho aberta, use zavorth run ou zavorth chat primeiro.',
+      'If there is no open work thread yet, use zavorth run or zavorth chat first.',
     ],
   },
   status: {
     topic: 'status',
     title: 'zavorth status',
-    summary: 'Mostra um retrato curto do runtime local antes de voce agir.',
+    summary: 'Show a short local runtime snapshot before you act.',
     sections: [
       {
-        title: 'O que checa',
+        title: 'What it checks',
         entries: [
-          { summary: 'Prontidao local, sessoes, gateway, memoria e sinais operacionais principais.' },
-          { summary: 'Um proximo comando quando algo pede atencao.' },
+          { summary: 'Local readiness, sessions, gateway, memory and key operational signals.' },
+          { summary: 'A next command when something needs attention.' },
         ],
       },
       {
-        title: 'Use quando',
+        title: 'Use when',
         entries: [
-          { summary: 'Quiser uma leitura rapida antes de comecar.' },
-          { summary: 'Quiser confirmar se o Zavorth ficou pronto depois do onboard ou do go.' },
+          { summary: 'You want a quick read before starting.' },
+          { summary: 'You want to confirm Zavorth is ready after onboard or go.' },
         ],
       },
       {
-        title: 'Comandos relacionados',
+        title: 'Related commands',
         entries: [
-          { command: 'zavorth doctor', summary: 'Aprofunda o diagnostico quando algo nao parecer certo.' },
-          { command: 'zavorth go', summary: 'Liga ou retoma a entrada principal do Zavorth.' },
+          { command: 'zavorth doctor', summary: 'Go deeper when something looks wrong.' },
+          { command: 'zavorth go', summary: 'Start or resume the main Zavorth entry point.' },
         ],
       },
     ],
-    notesTitle: 'Dica rapida',
+    notesTitle: 'Quick tip',
     notes: [
-      'Use --json quando outra ferramenta precisar ler a resposta.',
+      'Use --json when another tool needs to read the response.',
     ],
   },
   doctor: {
     topic: 'doctor',
     title: 'zavorth doctor',
-    summary: 'Diagnostica o ambiente local e transforma bloqueios em proximos passos.',
+    summary: 'Diagnose the local environment and turn blockers into next steps.',
     sections: [
       {
-        title: 'Use quando',
+        title: 'Use when',
         entries: [
-          { summary: 'Algo nao estiver funcionando como esperado.' },
-          { summary: 'Quiser o proximo passo recomendado sem procurar manualmente.' },
+          { summary: 'Something is not working as expected.' },
+          { summary: 'You want the recommended next step without searching manually.' },
         ],
       },
       {
-        title: 'O que checa',
+        title: 'What it checks',
         entries: [
-          { summary: 'Node/npm/build/env, provider/modelo, SecretRefs, portas, Home e sessoes.' },
-          { summary: 'Separa bloqueio atual de passos opcionais sempre que possivel.' },
+          { summary: 'Node/npm/build/env, provider/model, SecretRefs, ports, Home and sessions.' },
+          { summary: 'Separates the current blocker from optional steps when possible.' },
         ],
       },
       {
-        title: 'Comandos relacionados',
+        title: 'Related commands',
         entries: [
-          { command: 'zavorth status', summary: 'Mostra um resumo rapido antes do diagnostico completo.' },
-          { command: 'zavorth doctor security', summary: 'Checa perfil, approvals, overrides perigosos e drift dos controles de seguranca.' },
-          { command: 'zavorth security presets', summary: 'Lista presets reais para uso pessoal, profissional ou corporativo.' },
-          { command: 'zavorth security preset professional --apply', summary: 'Aplica o preset diario recomendado sem exigir variaveis de ambiente manuais.' },
-          { command: 'zavorth security continuous', summary: 'Confere doctor, baseline, hooks, CI e comandos de seguranca continua.' },
-          { command: 'zavorth go', summary: 'Liga a entrada principal depois de ajustar o ambiente.' },
-          { command: 'zavorth setup', summary: 'Revisa a configuracao base quando o problema comeca no setup.' },
+          { command: 'zavorth status', summary: 'Show a quick snapshot before full diagnostics.' },
+          { command: 'zavorth doctor security', summary: 'Check profile, approvals, dangerous overrides and security-control drift.' },
+          { command: 'zavorth security presets', summary: 'List real presets for personal, professional or enterprise use.' },
+          { command: 'zavorth security preset professional --apply', summary: 'Apply the recommended daily preset without manual env variables.' },
+          { command: 'zavorth security continuous', summary: 'Check doctor, baseline, hooks, CI and continuous-security commands.' },
+          { command: 'zavorth go', summary: 'Start the main entry point after fixing the environment.' },
+          { command: 'zavorth setup', summary: 'Review base configuration when the issue starts in setup.' },
         ],
       },
     ],
-    notesTitle: 'Dica rapida',
+    notesTitle: 'Quick tip',
     notes: [
-      'Use --json quando for integrar a resposta com automacoes ou scripts.',
+      'Use --json when automation or scripts need to read the response.',
     ],
   },
   templates: {
@@ -836,293 +836,293 @@ const CLI_COMMAND_HELP_PAGES: Record<Exclude<CliHelpTopic, 'root'>, CliHelpPage>
   },
   advanced: {
     topic: 'advanced',
-    title: 'Ajuda avancada do Zavorth',
-    summary: 'Quando voce ja domina a trilha principal e quer operar sessoes, nodes, runtime e superficies tecnicas com mais controle.',
+    title: 'Zavorth advanced help',
+    summary: 'For operators who already know the main path and need runtime, sessions, nodes and technical surfaces.',
     sections: [
       {
-        title: 'Operacao do runtime',
+        title: 'Runtime operations',
         entries: [
-          { command: 'zavorth help ops', summary: 'Mostra o cockpit, as acoes seguras e o bootstrap operacional.' },
-          { command: 'zavorth cockpit', summary: 'Abre o cockpit operacional unificado.' },
-          { command: 'zavorth ops', summary: 'Alias do cockpit para operadores.' },
-          { command: 'zavorth brief', summary: 'Resume o estado do operador em linguagem mais narrativa.' },
+          { command: 'zavorth help ops', summary: 'Show the cockpit, safe actions and operational bootstrap.' },
+          { command: 'zavorth cockpit', summary: 'Open the unified operational cockpit.' },
+          { command: 'zavorth ops', summary: 'Short alias for the cockpit.' },
+          { command: 'zavorth brief', summary: 'Summarize operator state in a narrative format.' },
         ],
       },
       {
-        title: 'Sessoes e retomadas',
+        title: 'Sessions and resumes',
         entries: [
-          { command: 'zavorth help sessions', summary: 'Agrupa replay, envio entre sessoes e workflows.' },
-          { command: 'zavorth history [sessionId]', summary: 'Mostra sessoes recentes ou o replay de uma sessao.' },
-          { command: 'zavorth tasks [taskId] [--json]', summary: 'Mostra o Task OS com estados formais, resume, retry e permissoes.' },
-          { command: 'zavorth artifacts task <taskId|latest>', summary: 'Lista artefatos estruturados de uma task.' },
-          { command: 'zavorth supervisor plan "<pedido>" [--json]', summary: 'Monta a DAG supervisionada com planner, critic, sandbox, budget e ledger.' },
-          { command: 'zavorth workflows status|process [limit] [--json]', summary: 'Inspeciona ou roda a fila duravel de approvals retomaveis.' },
-            { command: 'zavorth memory review [--json]', summary: 'Mostra perfil do workspace, preferencias, retencao e acoes de apagar/corrigir.' },
-            { command: 'zavorth heal --preview [--json]', summary: 'Mostra o plano de self-heal sem executar recuperacoes.' },
-            { command: 'zavorth release status [--json]', summary: 'Mostra canal, versao, risco, rollback e presenca remota da Etapa 31.' },
-            { command: 'zavorth sessions spawn [web]', summary: 'Abre uma sessao derivada rastreavel.' },
+          { command: 'zavorth help sessions', summary: 'Group replay, cross-session messages and workflows.' },
+          { command: 'zavorth history [sessionId]', summary: 'Show recent sessions or replay one session.' },
+          { command: 'zavorth tasks [taskId] [--json]', summary: 'Show Task OS state, resume, retry and permissions.' },
+          { command: 'zavorth artifacts task <taskId|latest>', summary: 'List structured artifacts for a task.' },
+          { command: 'zavorth supervisor plan "<request>" [--json]', summary: 'Build a supervised DAG with planner, critic, sandbox, budget and ledger.' },
+          { command: 'zavorth workflows status|process [limit] [--json]', summary: 'Inspect or process the durable approval queue.' },
+          { command: 'zavorth memory review [--json]', summary: 'Review workspace profile, preferences, retention and correction actions.' },
+          { command: 'zavorth heal --preview [--json]', summary: 'Preview the self-heal plan without applying recovery actions.' },
+          { command: 'zavorth release status [--json]', summary: 'Show channel, version, risk, rollback and remote presence.' },
+          { command: 'zavorth sessions spawn [web]', summary: 'Open a traceable derived session.' },
         ],
       },
       {
-        title: 'Nodes e devices',
+        title: 'Nodes and devices',
         entries: [
-          { command: 'zavorth help nodes', summary: 'Mostra pairing, fila, capacidades e diagnostico da Node Mesh.' },
-          { command: 'zavorth nodes list', summary: 'Lista companions e devices conectados.' },
-          { command: 'zavorth nodes doctor', summary: 'Aprofunda o diagnostico de um node ou da malha.' },
+          { command: 'zavorth help nodes', summary: 'Show pairing, queue, capabilities and Node Mesh diagnostics.' },
+          { command: 'zavorth nodes list', summary: 'List connected companions and devices.' },
+          { command: 'zavorth nodes doctor', summary: 'Diagnose one node or the mesh.' },
         ],
       },
       {
-        title: 'Planos e catalogos',
+        title: 'Plans and catalogs',
         entries: [
-          { command: 'zavorth memory status', summary: 'Mostra a layered memory e seus budgets.' },
-          { command: 'zavorth capabilities list', summary: 'Lista capabilities, riscos, permissoes, fallbacks e MCP allowlist.' },
-          { command: 'zavorth discover "<pedido>" [--json]', summary: 'Descobre capabilities e tools sugeridas por linguagem natural sem executar nada.' },
-          { command: 'zavorth preview "<pedido>" [--json]', summary: 'Mostra plano, riscos, approvals e impacto sem executar ferramentas.' },
-          { command: 'zavorth safety "<pedido>" [--json]', summary: 'Explica bloqueios high-risk e alternativas seguras sem vazar segredo ou path sensivel.' },
-          { command: 'zavorth plugins list', summary: 'Lista integracoes, skills, MCPs e colecoes.' },
-          { command: 'zavorth gateway', summary: 'Mostra o snapshot hidratado do gateway de canais.' },
-          { command: 'zavorth gateway status|providers|models|combos|combo test <id>|cache stats|rate-limits|doctor [--json]', summary: 'Le a Gateway Control API publica sem dashboard.' },
-          { command: 'zavorth workspace init|doctor|status|up|stop|restart [--json]', summary: 'Opera o Developer Workspace por manifesto, processos e hooks governados.' },
-          { command: 'zavorth learning status', summary: 'Mostra candidatos, gates e metricas do learning plane.' },
+          { command: 'zavorth memory status', summary: 'Show layered memory and budgets.' },
+          { command: 'zavorth capabilities list', summary: 'List capabilities, risk, permissions, fallbacks and MCP allowlist.' },
+          { command: 'zavorth discover "<request>" [--json]', summary: 'Discover suggested capabilities and tools without executing anything.' },
+          { command: 'zavorth preview "<request>" [--json]', summary: 'Preview plan, risk, approvals and impact without running tools.' },
+          { command: 'zavorth safety "<request>" [--json]', summary: 'Explain high-risk blocks and safe alternatives without leaking secrets or sensitive paths.' },
+          { command: 'zavorth plugins list', summary: 'List integrations, skills, MCPs and collections.' },
+          { command: 'zavorth gateway', summary: 'Show the channel gateway snapshot.' },
+          { command: 'zavorth gateway status|providers|models|combos|combo test <id>|cache stats|rate-limits|doctor [--json]', summary: 'Read the Gateway Control API without opening the UI.' },
+          { command: 'zavorth workspace init|doctor|status|up|stop|restart [--json]', summary: 'Operate Developer Workspace manifests, processes and governed hooks.' },
+          { command: 'zavorth learning status', summary: 'Show candidates, gates and learning-plane metrics.' },
         ],
       },
     ],
-    notesTitle: 'Dicas importantes',
+    notesTitle: 'Important notes',
     notes: [
-      'Se voce so quer iniciar, conversar ou diagnosticar, volte para "zavorth help".',
-      'Esta camada existe para operador, power user e manutencao do runtime.',
-      'Se voce quiser um indice quase completo, use "zavorth help reference".',
+      'If you only want to start, chat or diagnose, use "zavorth help".',
+      'This layer exists for operators, power users and runtime maintenance.',
+      'For a broad command index, use "zavorth help reference".',
     ],
   },
   ops: {
     topic: 'ops',
-    title: 'Ajuda avancada: operacao do runtime',
-    summary: 'Agrupa o cockpit operacional, as acoes oficiais, o bootstrap e o autorepair supervisionado.',
+    title: 'Advanced help: runtime operations',
+    summary: 'Groups the operational cockpit, official actions, bootstrap and supervised autorepair.',
     sections: [
       {
-        title: 'Leituras rapidas',
+        title: 'Quick reads',
         entries: [
-          { command: 'zavorth cockpit', summary: 'Abre o cockpit operacional unificado.' },
-          { command: 'zavorth ops', summary: 'Alias curto para o mesmo cockpit.' },
-          { command: 'zavorth brief', summary: 'Mostra um briefing narrativo do operador.' },
-          { command: 'zavorth ops quality [--json] [--live]', summary: 'Resume score operacional, budgets e gates.' },
+          { command: 'zavorth cockpit', summary: 'Open the unified operational cockpit.' },
+          { command: 'zavorth ops', summary: 'Short alias for the same cockpit.' },
+          { command: 'zavorth brief', summary: 'Show a narrative operator briefing.' },
+          { command: 'zavorth ops quality [--json] [--live]', summary: 'Summarize operational score, budgets and gates.' },
         ],
       },
       {
-        title: 'Diagnostico e acesso',
+        title: 'Diagnostics and access',
         entries: [
-          { command: 'zavorth ops doctor [--json]', summary: 'Roda o doctor agregado dentro da surface operacional.' },
-          { command: 'zavorth ops access [--json]', summary: 'Mostra readiness local e remoto.' },
-          { command: 'zavorth release status [--json]', summary: 'Mostra canal, versao, risco, rollback e presenca remota.' },
-          { command: 'zavorth ops bootstrap [--json]', summary: 'Mostra o bootstrap operacional atual.' },
+          { command: 'zavorth ops doctor [--json]', summary: 'Run aggregated doctor inside the operational surface.' },
+          { command: 'zavorth ops access [--json]', summary: 'Show local and remote access readiness.' },
+          { command: 'zavorth release status [--json]', summary: 'Show channel, version, risk, rollback and remote presence.' },
+          { command: 'zavorth ops bootstrap [--json]', summary: 'Show the current operational bootstrap.' },
         ],
       },
       {
-        title: 'Acoes supervisionadas',
+        title: 'Supervised actions',
         entries: [
-          { command: 'zavorth ops actions', summary: 'Lista as acoes operacionais whitelistadas.' },
-          { command: 'zavorth ops run <actionId>', summary: 'Dispara uma acao oficial em background.' },
-          { command: 'zavorth ops reload [force] [--json]', summary: 'Solicita recycle supervisionado do runtime.' },
-          { command: 'zavorth ops autorepair status|dryrun|improve|force [--json]', summary: 'Consulta ou executa o autorepair supervisionado.' },
+          { command: 'zavorth ops actions', summary: 'List allowlisted operational actions.' },
+          { command: 'zavorth ops run <actionId>', summary: 'Start an official background action.' },
+          { command: 'zavorth ops reload [force] [--json]', summary: 'Request a supervised runtime recycle.' },
+          { command: 'zavorth ops autorepair status|dryrun|improve|force [--json]', summary: 'Inspect or run supervised autorepair.' },
         ],
       },
     ],
-    notesTitle: 'Dica rapida',
+    notesTitle: 'Quick tip',
     notes: [
-      'Comece lendo o estado atual; execute run, reload ou autorepair so quando souber o efeito esperado.',
+      'Start by reading current state; run, reload or autorepair only when you understand the expected effect.',
     ],
   },
   sessions: {
     topic: 'sessions',
-    title: 'Ajuda avancada: sessoes e retomadas',
-    summary: 'Controla historico, replay, envio entre sessoes e workflows rastreaveis.',
+    title: 'Advanced help: sessions and resumes',
+    summary: 'Controls history, replay, cross-session messaging and traceable workflows.',
     sections: [
       {
-        title: 'Ver e retomar',
+        title: 'View and resume',
         entries: [
-          { command: 'zavorth history [sessionId]', summary: 'Mostra sessoes recentes ou o replay de uma sessao.' },
-          { command: 'zavorth sessions list [--json]', summary: 'Lista sessoes e conversas recentes.' },
-          { command: 'zavorth sessions history <id>', summary: 'Replay consolidado de uma sessao especifica.' },
+          { command: 'zavorth history [sessionId]', summary: 'Show recent sessions or replay one session.' },
+          { command: 'zavorth sessions list [--json]', summary: 'List recent sessions and conversations.' },
+          { command: 'zavorth sessions history <id>', summary: 'Consolidated replay for a specific session.' },
         ],
       },
       {
-        title: 'Enviar e derivar',
+        title: 'Send and derive',
         entries: [
-          { command: 'zavorth sessions send <id> -- <mensagem>', summary: 'Envia uma mensagem para outra sessao.' },
-          { command: 'zavorth sessions spawn [web]', summary: 'Abre uma sessao derivada rastreavel.' },
+          { command: 'zavorth sessions send <id> -- <message>', summary: 'Send a message to another session.' },
+          { command: 'zavorth sessions spawn [web]', summary: 'Open a traceable derived session.' },
         ],
       },
       {
-        title: 'Workflows e aprovacoes',
+        title: 'Workflows and approvals',
         entries: [
-          { command: 'zavorth approve <taskId> [pin=...]', summary: 'Aprova uma tarefa pendente.' },
-          { command: 'zavorth reject <taskId>', summary: 'Rejeita uma tarefa pendente.' },
-          { command: 'zavorth workflows status [--json]', summary: 'Mostra a fila duravel do runtime universal.' },
-          { command: 'zavorth workflows process [limit] [--json]', summary: 'Processa jobs aprovados que ficaram na fila apos restart.' },
-          { command: 'zavorth resume <runId> [stage]', summary: 'Retoma um workflow existente.' },
-          { command: 'zavorth restart-stage <runId> <stage>', summary: 'Reexecuta uma etapa especifica.' },
-          { command: 'zavorth close-workflow <runId>', summary: 'Encerra um workflow bloqueado.' },
+          { command: 'zavorth approve <taskId> [pin=...]', summary: 'Approve a pending task.' },
+          { command: 'zavorth reject <taskId>', summary: 'Reject a pending task.' },
+          { command: 'zavorth workflows status [--json]', summary: 'Show the durable universal-runtime queue.' },
+          { command: 'zavorth workflows process [limit] [--json]', summary: 'Process approved jobs left queued after restart.' },
+          { command: 'zavorth resume <runId> [stage]', summary: 'Resume an existing workflow.' },
+          { command: 'zavorth restart-stage <runId> <stage>', summary: 'Run a specific stage again.' },
+          { command: 'zavorth close-workflow <runId>', summary: 'Close a blocked workflow.' },
         ],
       },
     ],
-    notesTitle: 'Dica rapida',
+    notesTitle: 'Quick tip',
     notes: [
-      'Para um fluxo simples, use "zavorth continue" e so desca para sessions quando precisar de controle fino.',
+      'For a simple flow, use "zavorth continue" and use sessions only when you need finer control.',
     ],
   },
   nodes: {
     topic: 'nodes',
-    title: 'Ajuda avancada: nodes e devices',
-    summary: 'Mostra companions, pairing, fila, historico e invocacao oficial da Node Mesh.',
+    title: 'Advanced help: nodes and devices',
+    summary: 'Shows companions, pairing, queue, history and official Node Mesh invocation.',
     sections: [
       {
-        title: 'Visao geral',
+        title: 'Overview',
         entries: [
-          { command: 'zavorth nodes list [--json]', summary: 'Lista companions e devices conectados.' },
-          { command: 'zavorth nodes profiles [--json]', summary: 'Mostra perfis de devices suportados.' },
-          { command: 'zavorth nodes capabilities [--json]', summary: 'Mostra capacidades disponiveis por node.' },
+          { command: 'zavorth nodes list [--json]', summary: 'List connected companions and devices.' },
+          { command: 'zavorth nodes profiles [--json]', summary: 'Show supported device profiles.' },
+          { command: 'zavorth nodes capabilities [--json]', summary: 'Show available capabilities by node.' },
         ],
       },
       {
-        title: 'Diagnostico',
+        title: 'Diagnostics',
         entries: [
-          { command: 'zavorth nodes doctor [--json]', summary: 'Resume estado, fila e sinais de problema.' },
-          { command: 'zavorth nodes queue [id] [--json]', summary: 'Mostra fila local ou de um node especifico.' },
-          { command: 'zavorth nodes history [id] [--json]', summary: 'Mostra o historico recente de atividade.' },
+          { command: 'zavorth nodes doctor [--json]', summary: 'Summarize state, queue and problem signals.' },
+          { command: 'zavorth nodes queue [id] [--json]', summary: 'Show the local queue or one specific node queue.' },
+          { command: 'zavorth nodes history [id] [--json]', summary: 'Show recent activity history.' },
         ],
       },
       {
-        title: 'Operacao',
+        title: 'Operation',
         entries: [
-          { command: 'zavorth nodes pair [headless|desktop|mobile|browser] [label] [--json]', summary: 'Cria um pairing draft para bootstrap do companion.' },
-          { command: 'zavorth nodes invoke <nodeId> <capabilityId> [action] [payload-json] [--json]', summary: 'Enfileira uma invocacao oficial do Node Mesh.' },
+          { command: 'zavorth nodes pair [headless|desktop|mobile|browser] [label] [--json]', summary: 'Create a pairing draft for companion bootstrap.' },
+          { command: 'zavorth nodes invoke <nodeId> <capabilityId> [action] [payload-json] [--json]', summary: 'Queue an official Node Mesh invocation.' },
         ],
       },
     ],
-    notesTitle: 'Dica rapida',
+    notesTitle: 'Quick tip',
     notes: [
-      'Se voce so quer conversar no terminal, nao precisa usar nodes.',
+      'If you only want to chat in the terminal, you do not need nodes.',
     ],
   },
   reference: {
     topic: 'reference',
-    title: 'Referencia completa da CLI do Zavorth',
-    summary: 'Indice mais abrangente da CLI para quem precisa localizar comandos, aliases e superficies tecnicas de forma direta.',
+    title: 'Zavorth CLI reference',
+    summary: 'Broad command index for operators who need commands, aliases and technical surfaces directly.',
     sections: [
       {
-        title: 'Trilha principal',
+        title: 'Main path',
         entries: [
-          { command: 'zavorth setup', summary: 'Setup oficial do Zavorth.' },
-          { command: 'zavorth go', summary: 'Sobe o runtime supervisionado e abre a superficie principal.' },
-          { command: 'zavorth dashboard', summary: 'Abre o Home ja com acesso local aplicado.' },
-          { command: 'zavorth chat', summary: 'Abre o shell conversacional no terminal.' },
-          { command: 'zavorth run "<pedido>"', summary: 'Envia um pedido em linguagem natural.' },
-          { command: 'zavorth continue [contexto]', summary: 'Retoma o trabalho atual sem slash commands.' },
-          { command: 'zavorth history [sessionId]', summary: 'Mostra sessoes recentes ou replay de uma sessao.' },
-          { command: 'zavorth context', summary: 'Mostra o contexto atual da CLI.' },
-          { command: 'zavorth status [--json] [--live]', summary: 'Resumo de saude, acesso, sessoes e capacidades principais.' },
+          { command: 'zavorth setup', summary: 'Official Zavorth setup.' },
+          { command: 'zavorth go', summary: 'Start the supervised runtime and open the main surface.' },
+          { command: 'zavorth dashboard', summary: 'Open Home with local access applied.' },
+          { command: 'zavorth chat', summary: 'Open the conversational terminal shell.' },
+          { command: 'zavorth run "<request>"', summary: 'Send a natural-language request.' },
+          { command: 'zavorth continue [context]', summary: 'Resume current work without slash commands.' },
+          { command: 'zavorth history [sessionId]', summary: 'Show recent sessions or replay one session.' },
+          { command: 'zavorth context', summary: 'Show the current CLI context.' },
+          { command: 'zavorth status [--json] [--live]', summary: 'Summarize health, access, sessions and core capabilities.' },
           { command: 'zavorth productization [--json]', summary: 'Shows the productization contract shared by dashboard, CLI, onboarding, docs and website.' },
-          { command: 'zavorth observatory [run|trace|session|status] [--json]', summary: 'Mostra runs, receipts, timeline e replay do Run Observatory.' },
-          { command: 'zavorth cockpit [--json] [--live]', summary: 'Cockpit unificado de status, doctor, brief, operacao e entregas.' },
-          { command: 'zavorth capabilities [list|route "<pedido>"] [--json]', summary: 'Mostra o Capability OS e explica decisoes de roteamento.' },
-          { command: 'zavorth supervisor plan "<pedido>" [--json]', summary: 'Mostra quando usar grafo supervisor, reflexion, sandbox e budget.' },
-          { command: 'zavorth release status [--json]', summary: 'Mostra release, rollback e presenca remota sem executar mudancas.' },
-          { command: 'zavorth doctor [--json]', summary: 'Diagnostico agregado do runtime, canais e acesso remoto.' },
+          { command: 'zavorth observatory [run|trace|session|status] [--json]', summary: 'Show runs, receipts, timeline and Run Observatory replay.' },
+          { command: 'zavorth cockpit [--json] [--live]', summary: 'Unified cockpit for status, doctor, brief, operations and deliveries.' },
+          { command: 'zavorth capabilities [list|route "<request>"] [--json]', summary: 'Show Capability OS and explain routing decisions.' },
+          { command: 'zavorth supervisor plan "<request>" [--json]', summary: 'Show when to use supervisor graph, reflexion, sandbox and budget.' },
+          { command: 'zavorth release status [--json]', summary: 'Show release, rollback and remote presence without making changes.' },
+          { command: 'zavorth doctor [--json]', summary: 'Aggregated diagnostics for runtime, channels and remote access.' },
         ],
       },
       {
-        title: 'Operacao do runtime',
+        title: 'Runtime operations',
         entries: [
-          { command: 'zavorth brief [--json] [--live]', summary: 'Briefing narrativo do operador.' },
-          { command: 'zavorth ops [--json] [--live]', summary: 'Alias do cockpit operacional unificado.' },
-          { command: 'zavorth ops doctor [--json]', summary: 'Doctor agregado dentro da surface operacional.' },
-          { command: 'zavorth ops actions', summary: 'Lista acoes operacionais oficiais.' },
-          { command: 'zavorth ops quality [--json] [--live]', summary: 'Resume score operacional, budgets e gates.' },
-            { command: 'zavorth ops access [--json]', summary: 'Readiness de acesso local e remoto.' },
-            { command: 'zavorth heal --preview|--apply|report [--json]', summary: 'Self-Heal da Etapa 30 com probes, outbox, budgets e relatorio diario.' },
-            { command: 'zavorth release status|diff|rollback|presence [--json]', summary: 'Etapa 31: release channels, changelog, diff, rollback preview e remote presence.' },
-            { command: 'zavorth ops bootstrap [--json]', summary: 'Mostra o bootstrap operacional do runtime.' },
-          { command: 'zavorth ops bootstrap repair [dryrun] [--json]', summary: 'Executa ou simula correcoes seguras do bootstrap.' },
-          { command: 'zavorth ops changes [--json]', summary: 'Resume mudancas locais e estado supervisionado.' },
-          { command: 'zavorth ops reload [force] [--json]', summary: 'Solicita recycle supervisionado do runtime.' },
-          { command: 'zavorth ops autorepair status|dryrun|improve|force [--json]', summary: 'Consulta ou executa o autorepair supervisionado.' },
+          { command: 'zavorth brief [--json] [--live]', summary: 'Narrative operator briefing.' },
+          { command: 'zavorth ops [--json] [--live]', summary: 'Alias for the unified operational cockpit.' },
+          { command: 'zavorth ops doctor [--json]', summary: 'Aggregated doctor inside the operational surface.' },
+          { command: 'zavorth ops actions', summary: 'List official operational actions.' },
+          { command: 'zavorth ops quality [--json] [--live]', summary: 'Summarize operational score, budgets and gates.' },
+            { command: 'zavorth ops access [--json]', summary: 'Local and remote access readiness.' },
+            { command: 'zavorth heal --preview|--apply|report [--json]', summary: 'Self-Heal with probes, outbox, budgets and daily report.' },
+            { command: 'zavorth release status|diff|rollback|presence [--json]', summary: 'Release channels, changelog, diff, rollback preview and remote presence.' },
+            { command: 'zavorth ops bootstrap [--json]', summary: 'Show runtime operational bootstrap.' },
+          { command: 'zavorth ops bootstrap repair [dryrun] [--json]', summary: 'Run or simulate safe bootstrap repairs.' },
+          { command: 'zavorth ops changes [--json]', summary: 'Summarize local changes and supervised state.' },
+          { command: 'zavorth ops reload [force] [--json]', summary: 'Request a supervised runtime recycle.' },
+          { command: 'zavorth ops autorepair status|dryrun|improve|force [--json]', summary: 'Inspect or run supervised autorepair.' },
         ],
       },
       {
-        title: 'Sessoes e workflows',
+        title: 'Sessions and workflows',
         entries: [
-          { command: 'zavorth sessions list [--json]', summary: 'Lista sessoes e conversas recentes.' },
-          { command: 'zavorth sessions history <id>', summary: 'Replay ou handoff consolidado de uma sessao.' },
-          { command: 'zavorth tasks [list|resume|retry] [taskId] [--json]', summary: 'Opera o Task OS com estados formais e continuacao previsivel.' },
-          { command: 'zavorth artifacts task <taskId|latest> [--json]', summary: 'Lista artefatos persistidos por task.' },
-          { command: 'zavorth supervisor plan "<pedido>" [--simulate-test-failure] [--max-cost N] [--json]', summary: 'Planeja workflows compostos com DAG, reflexion limitado, pausa por budget e ledger redigido.' },
-          { command: 'zavorth memory review|resolve|forget|correct [--json]', summary: 'Revisa memorias aprendidas e resolve follow-ups como continua, me manda de novo e mesma pasta.' },
-          { command: 'zavorth heal --preview [--json]', summary: 'Prepara recuperacao supervisionada sem executar.' },
-          { command: 'zavorth heal report [--json]', summary: 'Mostra top falhas, pendencias e acoes propostas do relatorio diario.' },
-          { command: 'zavorth release diff previous latest [--json]', summary: 'Compara snapshots/publishes registrados no ledger de release.' },
-          { command: 'zavorth release rollback --preview [--json]', summary: 'Monta preflight e evidencia de rollback sem executar troca de release.' },
-          { command: 'zavorth release presence [--json]', summary: 'Mostra presenca remota degradavel sem exigir transporte sempre online.' },
-          { command: 'zavorth sessions send <id> -- <mensagem>', summary: 'Envia uma mensagem para outra sessao.' },
-          { command: 'zavorth sessions spawn [web]', summary: 'Abre uma sessao derivada rastreavel.' },
-          { command: 'zavorth approve <taskId> [pin=...]', summary: 'Aprova uma tarefa pendente.' },
-          { command: 'zavorth reject <taskId>', summary: 'Rejeita uma tarefa pendente.' },
-          { command: 'zavorth workflows status|process [limit] [--json]', summary: 'Verifica ou roda a fila duravel do runtime universal.' },
-          { command: 'zavorth resume <runId> [stage]', summary: 'Retoma um workflow existente.' },
-          { command: 'zavorth restart-stage <runId> <stage>', summary: 'Reexecuta uma etapa especifica de workflow.' },
-          { command: 'zavorth close-workflow <runId>', summary: 'Encerra um workflow bloqueado.' },
+          { command: 'zavorth sessions list [--json]', summary: 'List recent sessions and conversations.' },
+          { command: 'zavorth sessions history <id>', summary: 'Consolidated replay or handoff for a session.' },
+          { command: 'zavorth tasks [list|resume|retry] [taskId] [--json]', summary: 'Operate Task OS with formal states and predictable continuation.' },
+          { command: 'zavorth artifacts task <taskId|latest> [--json]', summary: 'List artifacts persisted for a task.' },
+          { command: 'zavorth supervisor plan "<request>" [--simulate-test-failure] [--max-cost N] [--json]', summary: 'Plan compound workflows with DAG, limited reflexion, budget pauses and redacted ledger.' },
+          { command: 'zavorth memory review|resolve|forget|correct [--json]', summary: 'Review learned memories and resolve follow-ups to the right task, artifact or workspace.' },
+          { command: 'zavorth heal --preview [--json]', summary: 'Prepare supervised recovery without executing.' },
+          { command: 'zavorth heal report [--json]', summary: 'Show top failures, pending items and proposed daily-report actions.' },
+          { command: 'zavorth release diff previous latest [--json]', summary: 'Compare snapshots/publishes recorded in the release ledger.' },
+          { command: 'zavorth release rollback --preview [--json]', summary: 'Build rollback preflight and evidence without switching releases.' },
+          { command: 'zavorth release presence [--json]', summary: 'Show degradable remote presence without requiring always-online transport.' },
+          { command: 'zavorth sessions send <id> -- <message>', summary: 'Send a message to another session.' },
+          { command: 'zavorth sessions spawn [web]', summary: 'Open a traceable derived session.' },
+          { command: 'zavorth approve <taskId> [pin=...]', summary: 'Approve a pending task.' },
+          { command: 'zavorth reject <taskId>', summary: 'Reject a pending task.' },
+          { command: 'zavorth workflows status|process [limit] [--json]', summary: 'Check or process the durable universal-runtime queue.' },
+          { command: 'zavorth resume <runId> [stage]', summary: 'Resume an existing workflow.' },
+          { command: 'zavorth restart-stage <runId> <stage>', summary: 'Run a specific workflow stage again.' },
+          { command: 'zavorth close-workflow <runId>', summary: 'Close a blocked workflow.' },
         ],
       },
       {
-        title: 'Nodes e devices',
+        title: 'Nodes and devices',
         entries: [
-          { command: 'zavorth nodes list|profiles|capabilities|queue [id]|history [id]|doctor [--json]', summary: 'Visao, fila, historico e diagnostico da Node Mesh.' },
-          { command: 'zavorth nodes pair [headless|desktop|mobile|browser] [label] [--json]', summary: 'Cria um pairing draft de node.' },
-          { command: 'zavorth nodes invoke <nodeId> <capabilityId> [action] [payload-json] [--json]', summary: 'Enfileira uma invocacao oficial do Node Mesh.' },
+          { command: 'zavorth nodes list|profiles|capabilities|queue [id]|history [id]|doctor [--json]', summary: 'View, queue, history and Node Mesh diagnostics.' },
+          { command: 'zavorth nodes pair [headless|desktop|mobile|browser] [label] [--json]', summary: 'Create a node pairing draft.' },
+          { command: 'zavorth nodes invoke <nodeId> <capabilityId> [action] [payload-json] [--json]', summary: 'Queue an official Node Mesh invocation.' },
         ],
       },
       {
-        title: 'Memoria, learning e catalogos',
+        title: 'Memory, learning and catalogs',
         entries: [
-          { command: 'zavorth memory status|metrics [--json]', summary: 'Mostra a layered memory e seus budgets.' },
-          { command: 'zavorth memory search <consulta> [--json]', summary: 'Busca fatos, episodios e procedimentos.' },
-          { command: 'zavorth memory procedures [--json]', summary: 'Lista procedimentos validados.' },
-          { command: 'zavorth memory review [--json]', summary: 'Mostra o Workspace Memory OS da Etapa 29 com retencao e redacao.' },
-          { command: 'zavorth memory resolve "continua" [--json]', summary: 'Resolve follow-ups para task, artefato ou workspace correto.' },
-          { command: 'zavorth memoryplane [--json]', summary: 'Retomada, historico recente e artefatos.' },
-          { command: 'zavorth learning status|candidates|metrics [--json]', summary: 'Mostra estado, candidatos e metricas do learning plane.' },
-          { command: 'zavorth learning approve|reject|promote <candidateId> [--json]', summary: 'Revisa ou promove um candidato aprendido.' },
-          { command: 'zavorth gateway', summary: 'Snapshot hidratado do gateway de canais.' },
+          { command: 'zavorth memory status|metrics [--json]', summary: 'Show layered memory and budgets.' },
+          { command: 'zavorth memory search <query> [--json]', summary: 'Search facts, episodes and procedures.' },
+          { command: 'zavorth memory procedures [--json]', summary: 'List validated procedures.' },
+          { command: 'zavorth memory review [--json]', summary: 'Show Workspace Memory OS with retention and redaction.' },
+          { command: 'zavorth memory resolve "continue" [--json]', summary: 'Resolve follow-ups to the correct task, artifact or workspace.' },
+          { command: 'zavorth memoryplane [--json]', summary: 'Resume state, recent history and artifacts.' },
+          { command: 'zavorth learning status|candidates|metrics [--json]', summary: 'Show state, candidates and learning-plane metrics.' },
+          { command: 'zavorth learning approve|reject|promote <candidateId> [--json]', summary: 'Review or promote a learned candidate.' },
+          { command: 'zavorth gateway', summary: 'Hydrated channel gateway snapshot.' },
           { command: 'zavorth productization [--json]', summary: 'Audits productization in text/JSON with the same public runtime contract.' },
-          { command: 'zavorth observatory status failed [--json]', summary: 'Filtra runs observaveis por status, trace, sessao ou run sem executar tools.' },
-          { command: 'zavorth gateway status|providers|models|combos|combo test <id>|cache stats|rate-limits|doctor [--json]', summary: 'Status, providers, modelos, combos, cache, limites e doctor pela Gateway Control API publica.' },
-          { command: 'zavorth workspace init|doctor|status|up|stop|restart [--json]', summary: 'Cria manifesto, valida recipes e opera processos do Developer Workspace com approvals.' },
-          { command: 'zavorth domains [full] [--json]', summary: 'Mostra o domain plane consolidado.' },
-          { command: 'zavorth tools [--json]', summary: 'Lista familias de ferramentas e atalhos.' },
-          { command: 'zavorth skills [filtro|recipe <id>|recommend <objetivo>|mcp] [--json]', summary: 'Mostra o catalogo curado de skills e recipes.' },
-          { command: 'zavorth hooks [--json]', summary: 'Mostra hooks e automacoes internas.' },
-          { command: 'zavorth capabilities route "<pedido>" [--json]', summary: 'Explica executor escolhido, risco, aprovacao, ledger e fallback.' },
-          { command: 'zavorth plugins list [id] [--json]', summary: 'Lista integracoes, skills, MCPs, colecoes e recipes ativos.' },
-          { command: 'zavorth plugins sync', summary: 'Sincroniza o catalogo remoto do plugin plane.' },
-          { command: 'zavorth plugins <acao> <id>', summary: 'Executa inspect/open/doctor/install/trust/review/remove no plugin plane.' },
-          { command: 'zavorth AIGateway [status|route|start|doctor|sync|promote|rollback] [--json]', summary: 'Opera a rota propria do AIGateway.' },
+          { command: 'zavorth observatory status failed [--json]', summary: 'Filter observable runs by status, trace, session or run without executing tools.' },
+          { command: 'zavorth gateway status|providers|models|combos|combo test <id>|cache stats|rate-limits|doctor [--json]', summary: 'Status, providers, models, combos, cache, limits and doctor through Gateway Control API.' },
+          { command: 'zavorth workspace init|doctor|status|up|stop|restart [--json]', summary: 'Create manifests, validate recipes and operate Developer Workspace processes with approvals.' },
+          { command: 'zavorth domains [full] [--json]', summary: 'Show the consolidated domain plane.' },
+          { command: 'zavorth tools [--json]', summary: 'List tool families and shortcuts.' },
+          { command: 'zavorth skills [filter|recipe <id>|recommend <goal>|mcp] [--json]', summary: 'Show the curated skills and recipes catalog.' },
+          { command: 'zavorth hooks [--json]', summary: 'Show hooks and internal automations.' },
+          { command: 'zavorth capabilities route "<request>" [--json]', summary: 'Explain selected executor, risk, approval, ledger and fallback.' },
+          { command: 'zavorth plugins list [id] [--json]', summary: 'List active integrations, skills, MCPs, collections and recipes.' },
+          { command: 'zavorth plugins sync', summary: 'Sync the plugin-plane remote catalog.' },
+          { command: 'zavorth plugins <action> <id>', summary: 'Run inspect/open/doctor/install/trust/review/remove on the plugin plane.' },
+          { command: 'zavorth AIGateway [status|route|start|doctor|sync|promote|rollback] [--json]', summary: 'Operate Zavorth AI Gateway routing.' },
         ],
       },
       {
-        title: 'Compatibilidade e legado',
+        title: 'Compatibility and legacy',
         entries: [
-          { command: 'zavorth help advanced|ops|sessions|nodes', summary: 'Ajuda em camadas para operador e power user.' },
-          { command: 'zavorth help reference', summary: 'Abre esta referencia completa.' },
-          { command: 'zavorth help all', summary: 'Alias curto para a mesma referencia completa.' },
-          { command: 'transports|channels|runtime|agmobile', summary: 'Comandos avancados ainda acessiveis pela CLI oficial.' },
-          { command: '/comando', summary: 'Mantem compatibilidade com a surface completa de comandos do runtime.' },
-          { command: 'sessionhistory|sessionsend|sessionspawn|nodepair|nodeinvoke|platform', summary: 'Aliases legados continuam aceitos.' },
+          { command: 'zavorth help advanced|ops|sessions|nodes', summary: 'Layered help for operators and power users.' },
+          { command: 'zavorth help reference', summary: 'Open this full reference.' },
+          { command: 'zavorth help all', summary: 'Short alias for the same full reference.' },
+          { command: 'transports|channels|runtime|agmobile', summary: 'Advanced commands still available through the official CLI.' },
+          { command: '/command', summary: 'Keeps compatibility with the full runtime command surface.' },
+          { command: 'sessionhistory|sessionsend|sessionspawn|nodepair|nodeinvoke|platform', summary: 'Legacy aliases are still accepted.' },
         ],
       },
     ],
-    notesTitle: 'Dicas de uso',
+    notesTitle: 'Usage tips',
     notes: [
-      'Use "zavorth help" para a entrada humana curta e "zavorth help advanced" para a camada intermediaria.',
-      'Use "--json" quando quiser ler a resposta com outra ferramenta.',
+      'Use "zavorth help" for the short human entry point and "zavorth help advanced" for the middle layer.',
+      'Use "--json" when another tool should read the response.',
     ],
   },
 };
@@ -1665,50 +1665,50 @@ export function buildCliContextSnapshot(
     workspaceHint: flags.workspaceHint,
     historyFile,
     notes: [
-      'Leituras nativas rodam direto no terminal oficial.',
-      'Pedidos livres e aliases curtos usam o mesmo runtime do Zavorth.',
+      'Native reads run directly through the official terminal.',
+      'Free-form requests and short aliases use the same Zavorth runtime.',
     ],
   };
 }
 
 export function formatCliContextSnapshot(snapshot: CliContextSnapshot): string {
   return [
-    'Contexto do terminal Zavorth',
+    'Zavorth terminal context',
     '',
-    'Agora',
-    `- usuario: ${snapshot.userId}`,
-    `- plataforma: ${snapshot.platform}`,
+    'Now',
+    `- user: ${snapshot.userId}`,
+    `- platform: ${snapshot.platform}`,
     `- chat: ${snapshot.chatId}`,
-    `- sessao: ${snapshot.sessionId}`,
+    `- session: ${snapshot.sessionId}`,
     '',
-    'Arquivos uteis',
+    'Useful files',
     `- workspace: ${snapshot.workspace}`,
-    `- workspace hint: ${snapshot.workspaceHint || 'nenhum; usando workspace padrao'}`,
+    `- workspace hint: ${snapshot.workspaceHint || 'none; using default workspace'}`,
     `- history: ${snapshot.historyFile}`,
     '',
-    'Notas',
+    'Notes',
     ...snapshot.notes.map((note) => `- ${note}`),
   ].join('\n');
 }
 
 export function formatGatewaySnapshot(snapshot: ZavorthGatewaySnapshot): string {
   return [
-    'Gateway do Zavorth',
+    'Zavorth gateway',
     sanitizeHumanCliText(snapshot.narrative.headline),
     '',
-    'Agora',
-    `- canais prontos: ${snapshot.summary.channelsReady}/${snapshot.summary.channelsTotal}`,
-    `- modos de runtime: ${snapshot.summary.runtimeModesReady}`,
-    `- seguranca: ${snapshot.summary.securityPosture}`,
+    'Now',
+    `- ready channels: ${snapshot.summary.channelsReady}/${snapshot.summary.channelsTotal}`,
+    `- runtime modes: ${snapshot.summary.runtimeModesReady}`,
+    `- security: ${snapshot.summary.securityPosture}`,
     '',
-    'Capacidade',
-    `- memoria e artefatos: ${snapshot.summary.memoryArtifacts}`,
-    `- times: ${snapshot.summary.teams} | sessoes: ${snapshot.summary.sessionTargets}`,
-    `- ferramentas: ${snapshot.summary.toolFamilies} familias | plugins: ${snapshot.summary.plugins}`,
+    'Capacity',
+    `- memory and artifacts: ${snapshot.summary.memoryArtifacts}`,
+    `- teams: ${snapshot.summary.teams} | sessions: ${snapshot.summary.sessionTargets}`,
+    `- tools: ${snapshot.summary.toolFamilies} families | plugins: ${snapshot.summary.plugins}`,
     '',
-    'Malha',
+    'Mesh',
     `- companions pareados: ${snapshot.summary.nodesPaired}`,
-    `- resumo: ${sanitizeHumanCliText(snapshot.narrative.operatorSummary)}`,
+    `- summary: ${sanitizeHumanCliText(snapshot.narrative.operatorSummary)}`,
   ].join('\n');
 }
 
@@ -1721,7 +1721,7 @@ function formatSurfaceSection(title: string, lines: Array<string | null | undefi
 
 function formatUsagePercent(value: number | null | undefined): string {
   if (typeof value !== 'number' || Number.isNaN(value)) {
-    return 'nao informado';
+    return 'not reported';
   }
   return `${Math.round(value * 100)}%`;
 }
@@ -1754,13 +1754,13 @@ function formatPlatformOverflow(total: number, shown: number, singular: string, 
 function formatPlatformOverviewCollection(
   collection: ZavorthPlatformRegistrySnapshot['collections'][number],
 ): string {
-  return `- ${collection.label}: ${formatCount(collection.itemCount, 'item', 'itens')} | ${formatCount(collection.readyCount, 'pronto', 'prontos')} | ${formatCount(collection.adoptedCount, 'adotado', 'adotados')}`;
+  return `- ${collection.label}: ${formatCount(collection.itemCount, 'item', 'items')} | ${formatCount(collection.readyCount, 'ready', 'ready')} | ${formatCount(collection.adoptedCount, 'adopted', 'adopted')}`;
 }
 
 function formatPlatformOverviewRecipe(
   recipe: ZavorthPlatformRegistrySnapshot['recipes'][number],
 ): string {
-  return `- ${recipe.label}: ${formatCount(recipe.itemCount, 'alvo', 'alvos')} | ${formatCount(recipe.readyCount, 'pronto', 'prontos')} | ${formatCount(recipe.adoptedCount, 'adotado', 'adotados')}`;
+  return `- ${recipe.label}: ${formatCount(recipe.itemCount, 'target', 'targets')} | ${formatCount(recipe.readyCount, 'ready', 'ready')} | ${formatCount(recipe.adoptedCount, 'adopted', 'adopted')}`;
 }
 
 function formatPlatformOverviewEntry(
@@ -1776,15 +1776,15 @@ export function formatMemoryPlaneSnapshot(
   const suggested = snapshot.suggestedActions[0];
 
   return [
-    'Retomada e entregas do Zavorth',
+    'Zavorth resume and deliveries',
     `- ${sanitizeHumanCliText(snapshot.narrative.headline)}`,
     `- ${sanitizeHumanCliText(snapshot.narrative.operatorSummary)}`,
-    `- memorias persistidas: ${snapshot.summary.persistedMemories}`,
-    `- memorias relevantes: ${snapshot.summary.relevantMemories}`,
-    `- tarefas no replay: ${snapshot.summary.replayTasks}`,
-    `- artefatos: ${snapshot.summary.artifacts}`,
-    recentArtifact ? `- artefato recente: ${recentArtifact.label}` : '- artefato recente: nenhum',
-    suggested ? `- proximo passo: ${suggested.label} (${suggested.command})` : '- proximo passo: nenhum',
+    `- persisted memories: ${snapshot.summary.persistedMemories}`,
+    `- relevant memories: ${snapshot.summary.relevantMemories}`,
+    `- replay tasks: ${snapshot.summary.replayTasks}`,
+    `- artifacts: ${snapshot.summary.artifacts}`,
+    recentArtifact ? `- recent artifact: ${recentArtifact.label}` : '- recent artifact: none',
+    suggested ? `- next step: ${suggested.label} (${suggested.command})` : '- next step: none',
   ].join('\n');
 }
 
@@ -1794,28 +1794,28 @@ export function formatLearningSnapshot(
 ): string {
   const featuredCandidate = snapshot.candidates[0] || null;
   const lines = [
-    'Learning do Zavorth',
+    'Zavorth learning',
     sanitizeHumanCliText(snapshot.narrative.headline),
-    ...formatSurfaceSection('Agora', [
-      `- candidatos: ${formatCount(snapshot.summary.total, 'total', 'total')} | ${formatCount(snapshot.summary.pending, 'pendente', 'pendentes')} | ${formatCount(snapshot.summary.highConfidence, 'alta confianca', 'alta confianca')}`,
-      `- revisao: ${formatCount(snapshot.summary.approved, 'aprovado', 'aprovados')} | ${formatCount(snapshot.summary.rejected, 'rejeitado', 'rejeitados')} | ${snapshot.summary.quarantined} em quarentena`,
-      `- rollout: ${formatCount(snapshot.summary.promoted, 'promovido', 'promovidos')} | ${formatCount(snapshot.summary.published, 'publicado', 'publicados')}`,
-      `- resumo: ${sanitizeHumanCliText(snapshot.narrative.operatorSummary)}`,
+    ...formatSurfaceSection('Now', [
+      `- candidates: ${formatCount(snapshot.summary.total, 'total', 'total')} | ${formatCount(snapshot.summary.pending, 'pending', 'pending')} | ${formatCount(snapshot.summary.highConfidence, 'high confidence', 'high confidence')}`,
+      `- review: ${formatCount(snapshot.summary.approved, 'approved', 'approved')} | ${formatCount(snapshot.summary.rejected, 'rejected', 'rejected')} | ${snapshot.summary.quarantined} quarantined`,
+      `- rollout: ${formatCount(snapshot.summary.promoted, 'promoted', 'promoted')} | ${formatCount(snapshot.summary.published, 'published', 'published')}`,
+      `- summary: ${sanitizeHumanCliText(snapshot.narrative.operatorSummary)}`,
     ]),
   ];
 
   if (mode === 'candidates' && snapshot.candidates.length > 0) {
-    lines.push('', 'Candidatos em foco');
+    lines.push('', 'Focused candidates');
     for (const candidate of snapshot.candidates.slice(0, 5)) {
       lines.push(
         `- ${candidate.title} [${candidate.kind}]`,
-        `  score ${candidate.score.toFixed(2)} | revisao ${candidate.reviewState} | estado ${candidate.lifecycle}`,
+        `  score ${candidate.score.toFixed(2)} | review ${candidate.reviewState} | state ${candidate.lifecycle}`,
       );
       lines.push(`  ${candidate.summary}`);
     }
   }
 
-  lines.push(...formatSurfaceSection('Faca agora', [
+  lines.push(...formatSurfaceSection('Do now', [
     mode === 'candidates' && featuredCandidate
       ? `- zavorth learning approve ${featuredCandidate.id}`
       : '- zavorth learning candidates',
@@ -1829,19 +1829,19 @@ export function formatLearningMetricsSnapshot(
   metrics: ReturnType<ZavorthLearningPlaneService['readMetrics']>,
 ): string {
   return [
-    'Metricas do learning',
-    'Panorama de qualidade e throughput do plano de aprendizado.',
-    ...formatSurfaceSection('Agora', [
-      `- candidatos: ${formatCount(metrics.summary.totalCandidates, 'candidato', 'candidatos')}`,
-      `- score medio: ${metrics.summary.averageScore}`,
-      `- fila: ${formatCount(metrics.counts.pending, 'pendente', 'pendentes')} | ${metrics.counts.quarantined} em quarentena | ${formatCount(metrics.counts.highConfidence, 'alta confianca', 'alta confianca')}`,
+    'Learning metrics',
+    'Quality and throughput snapshot for the learning plane.',
+    ...formatSurfaceSection('Now', [
+      `- candidates: ${formatCount(metrics.summary.totalCandidates, 'candidate', 'candidates')}`,
+      `- average score: ${metrics.summary.averageScore}`,
+      `- queue: ${formatCount(metrics.counts.pending, 'pending', 'pending')} | ${metrics.counts.quarantined} quarantined | ${formatCount(metrics.counts.highConfidence, 'high confidence', 'high confidence')}`,
     ]),
-    ...formatSurfaceSection('Qualidade', [
-      `- aceitos: ${metrics.summary.acceptedRate}`,
-      `- rejeitados: ${metrics.summary.rejectedRate}`,
-      `- promovidos: ${metrics.summary.promotedRate}`,
+    ...formatSurfaceSection('Quality', [
+      `- accepted: ${metrics.summary.acceptedRate}`,
+      `- rejected: ${metrics.summary.rejectedRate}`,
+      `- promoted: ${metrics.summary.promotedRate}`,
     ]),
-    ...formatSurfaceSection('Faca agora', [
+    ...formatSurfaceSection('Do now', [
       '- zavorth learning candidates',
     ]),
   ].join('\n');
@@ -1849,15 +1849,15 @@ export function formatLearningMetricsSnapshot(
 
 export function formatLearningActionExecution(result: LearningPlaneActionExecution): string {
   return [
-    'Learning atualizado',
+    'Learning updated',
     result.summary,
-    ...formatSurfaceSection('Agora', [
-      `- candidato: ${result.candidateId}`,
-      `- acao: ${result.actionId}`,
+    ...formatSurfaceSection('Now', [
+      `- candidate: ${result.candidateId}`,
+      `- action: ${result.actionId}`,
       `- status: ${result.status}`,
     ]),
-    ...formatSurfaceSection('Detalhes', result.details.slice(0, 4).map((detail) => `- ${detail}`)),
-    ...formatSurfaceSection('Faca agora', [
+    ...formatSurfaceSection('Details', result.details.slice(0, 4).map((detail) => `- ${detail}`)),
+    ...formatSurfaceSection('Do now', [
       '- zavorth learning candidates',
       '- zavorth learning metrics',
     ]),
@@ -1868,21 +1868,21 @@ export function formatLayeredMemoryStatus(
   snapshot: Awaited<ReturnType<ZavorthLayeredMemoryService['buildStatus']>>,
 ): string {
   return [
-    'Memoria do Zavorth',
+    'Zavorth memory',
     sanitizeHumanCliText(snapshot.narrative.headline),
-    ...formatSurfaceSection('Agora', [
-      `- entradas: ${formatCount(snapshot.summary.total, 'entrada', 'entradas')}`,
-      `- camadas: episodica ${snapshot.summary.episodic} | semantica ${snapshot.summary.semantic} | procedural ${snapshot.summary.procedural}`,
-      `- resumo: ${sanitizeHumanCliText(snapshot.narrative.operatorSummary)}`,
+    ...formatSurfaceSection('Now', [
+      `- entries: ${formatCount(snapshot.summary.total, 'entry', 'entries')}`,
+      `- layers: episodic ${snapshot.summary.episodic} | semantic ${snapshot.summary.semantic} | procedural ${snapshot.summary.procedural}`,
+      `- summary: ${sanitizeHumanCliText(snapshot.narrative.operatorSummary)}`,
     ]),
-    ...formatSurfaceSection('Uso', [
-      `- budget por camada: ${snapshot.budgets.perLayer}`,
-      `- episodica: ${formatUsagePercent(snapshot.budgets.episodicUsage)}`,
-      `- semantica: ${formatUsagePercent(snapshot.budgets.semanticUsage)}`,
+    ...formatSurfaceSection('Usage', [
+      `- budget per layer: ${snapshot.budgets.perLayer}`,
+      `- episodic: ${formatUsagePercent(snapshot.budgets.episodicUsage)}`,
+      `- semantic: ${formatUsagePercent(snapshot.budgets.semanticUsage)}`,
       `- procedural: ${formatUsagePercent(snapshot.budgets.proceduralUsage)}`,
     ]),
-    ...formatSurfaceSection('Faca agora', [
-      '- zavorth memory search <tema>',
+    ...formatSurfaceSection('Do now', [
+      '- zavorth memory search <topic>',
       '- zavorth memory procedures',
     ]),
   ].join('\n');
@@ -1892,33 +1892,33 @@ export function formatLayeredMemorySearch(
   snapshot: Awaited<ReturnType<ZavorthLayeredMemoryService['search']>>,
 ): string {
   const lines = [
-    'Busca na memoria do Zavorth',
-    `Consulta: ${snapshot.query}`,
-    ...formatSurfaceSection('Agora', [
-      `- resultados: ${formatCount(snapshot.total, 'resultado', 'resultados')}`,
+    'Zavorth memory search',
+    `Query: ${snapshot.query}`,
+    ...formatSurfaceSection('Now', [
+      `- results: ${formatCount(snapshot.total, 'result', 'results')}`,
     ]),
   ];
 
   if (snapshot.data.length === 0) {
-    lines.push(...formatSurfaceSection('Resultados', [
-      '- nenhum resultado relevante encontrado',
+    lines.push(...formatSurfaceSection('Results', [
+      '- no relevant result found',
     ]));
-    lines.push(...formatSurfaceSection('Faca agora', [
+    lines.push(...formatSurfaceSection('Do now', [
       '- zavorth memory procedures',
     ]));
     return lines.join('\n');
   }
 
-  lines.push('', 'Resultados em foco');
+  lines.push('', 'Focused results');
   for (const entry of snapshot.data.slice(0, 6)) {
     lines.push(
       `- ${entry.label} [${entry.memoryLayer}]`,
-      `  confianca ${entry.confidence.toFixed(2)} | origem ${entry.source}`,
+      `  confidence ${entry.confidence.toFixed(2)} | source ${entry.source}`,
     );
     lines.push(`  ${entry.summary}`);
   }
 
-  lines.push(...formatSurfaceSection('Faca agora', [
+  lines.push(...formatSurfaceSection('Do now', [
     '- zavorth memory procedures',
   ]));
 
@@ -1929,34 +1929,34 @@ export function formatLayeredMemoryProcedures(
   snapshot: Awaited<ReturnType<ZavorthLayeredMemoryService['readProcedures']>>,
 ): string {
   const lines = [
-    'Procedimentos do Zavorth',
+    'Zavorth procedures',
     snapshot.total > 0
-      ? `Ha ${formatCount(snapshot.total, 'procedimento validado', 'procedimentos validados')} para reaproveitar.`
-      : 'Ainda nao existe procedimento validado para reaproveitar.',
+      ? `There are ${formatCount(snapshot.total, 'validated procedure', 'validated procedures')} to reuse.`
+      : 'There is no validated procedure to reuse yet.',
   ];
 
   if (snapshot.data.length === 0) {
-    lines.push(...formatSurfaceSection('Agora', [
-      '- nenhum procedimento validado disponivel',
+    lines.push(...formatSurfaceSection('Now', [
+      '- no validated procedure available',
     ]));
     return lines.join('\n');
   }
 
-  lines.push(...formatSurfaceSection('Agora', [
-    `- procedimentos validados: ${formatCount(snapshot.total, 'procedimento', 'procedimentos')}`,
+  lines.push(...formatSurfaceSection('Now', [
+    `- validated procedures: ${formatCount(snapshot.total, 'procedure', 'procedures')}`,
   ]));
-  lines.push('', 'Procedimentos em foco');
+  lines.push('', 'Focused procedures');
   for (const procedure of snapshot.data.slice(0, 5)) {
     lines.push(`- ${procedure.label}`);
-    lines.push(`  confianca ${procedure.confidence.toFixed(2)} | origem ${procedure.source}`);
+    lines.push(`  confidence ${procedure.confidence.toFixed(2)} | source ${procedure.source}`);
     lines.push(`  ${procedure.summary}`);
     for (const step of procedure.steps.slice(0, 3)) {
       lines.push(`  -> ${step}`);
     }
   }
 
-  lines.push(...formatSurfaceSection('Faca agora', [
-    '- zavorth memory search <tema>',
+  lines.push(...formatSurfaceSection('Do now', [
+    '- zavorth memory search <topic>',
   ]));
 
   return lines.join('\n');
@@ -1975,24 +1975,24 @@ export function formatPlatformSnapshot(
   const recipes = Array.isArray(snapshot.recipes) ? snapshot.recipes.slice(0, 2) : [];
 
   const lines = [
-    'Platform do Zavorth',
+    'Zavorth platform',
     sanitizeHumanCliText(snapshot.narrative.headline),
-    ...formatSurfaceSection('Agora', [
+    ...formatSurfaceSection('Now', [
       `- plugins: ${snapshot.summary.plugins} | skills: ${snapshot.summary.skills} | MCPs: ${snapshot.summary.mcps}`,
-      `- colecoes: ${String(snapshot.summary.collections || 0)} | recipes: ${String(snapshot.summary.recipes || 0)}`,
+      `- collections: ${String(snapshot.summary.collections || 0)} | recipes: ${String(snapshot.summary.recipes || 0)}`,
       `- sync: ${formatCliValue(snapshot.catalogSync?.summary)}`,
-      `- resumo: ${sanitizeHumanCliText(snapshot.narrative.operatorSummary)}`,
+      `- summary: ${sanitizeHumanCliText(snapshot.narrative.operatorSummary)}`,
     ]),
   ];
 
   if (selectedCollection) {
-    lines.push(...formatSurfaceSection('Colecao em foco', [
+    lines.push(...formatSurfaceSection('Focused collection', [
       `- ${selectedCollection.label}`,
-      `- itens: ${formatCount(selectedCollection.itemCount, 'item', 'itens')} | ${formatCount(selectedCollection.readyCount, 'pronto', 'prontos')} | ${formatCount(selectedCollection.adoptedCount, 'adotado', 'adotados')}`,
-      `- proximo passo: ${normalizePlatformActionHint(selectedCollection.actionHint) || formatCliValue(selectedCollection.actionHint)}`,
+      `- items: ${formatCount(selectedCollection.itemCount, 'item', 'items')} | ${formatCount(selectedCollection.readyCount, 'ready', 'ready')} | ${formatCount(selectedCollection.adoptedCount, 'adopted', 'adopted')}`,
+      `- next step: ${normalizePlatformActionHint(selectedCollection.actionHint) || formatCliValue(selectedCollection.actionHint)}`,
     ]));
     if (selectedCollection.items.length > 0) {
-      lines.push('', 'Itens em foco');
+      lines.push('', 'Focused items');
       lines.push(...selectedCollection.items.slice(0, 4).map((item) =>
         `- ${item.label} [${item.kind}] ${item.readiness}/${item.installState}`));
     }
@@ -2000,67 +2000,67 @@ export function formatPlatformSnapshot(
   }
 
   if (selectedRecipe) {
-    lines.push(...formatSurfaceSection('Recipe em foco', [
+    lines.push(...formatSurfaceSection('Focused recipe', [
       `- ${selectedRecipe.label}`,
-      `- alvos: ${formatCount(selectedRecipe.itemCount, 'alvo', 'alvos')} | ${formatCount(selectedRecipe.readyCount, 'pronto', 'prontos')} | ${formatCount(selectedRecipe.adoptedCount, 'adotado', 'adotados')}`,
-      `- proximo passo: ${normalizePlatformActionHint(selectedRecipe.actionHint) || formatCliValue(selectedRecipe.actionHint)}`,
+      `- targets: ${formatCount(selectedRecipe.itemCount, 'target', 'targets')} | ${formatCount(selectedRecipe.readyCount, 'ready', 'ready')} | ${formatCount(selectedRecipe.adoptedCount, 'adopted', 'adopted')}`,
+      `- next step: ${normalizePlatformActionHint(selectedRecipe.actionHint) || formatCliValue(selectedRecipe.actionHint)}`,
     ]));
     if (selectedRecipe.steps.length > 0) {
-      lines.push('', 'Passos em foco');
+      lines.push('', 'Focused steps');
       lines.push(...selectedRecipe.steps.slice(0, 3).map((step) => `- ${step}`));
     }
     return lines.join('\n');
   }
 
   if (selected) {
-    lines.push(...formatSurfaceSection('Item em foco', [
+    lines.push(...formatSurfaceSection('Focused item', [
       `- ${selected.label}`,
-      `- tipo: ${selected.kind}`,
-      `- estado: ${selected.readiness} | trust: ${formatCliValue(selected.trust)} | install: ${selected.installState}`,
-      `- proximo passo: ${normalizePlatformActionHint(selected.actionHint) || formatCliValue(selected.actionHint)}`,
-      `- resumo: ${sanitizeHumanCliText(selected.summary)}`,
+      `- type: ${selected.kind}`,
+      `- state: ${selected.readiness} | trust: ${formatCliValue(selected.trust)} | install: ${selected.installState}`,
+      `- next step: ${normalizePlatformActionHint(selected.actionHint) || formatCliValue(selected.actionHint)}`,
+      `- summary: ${sanitizeHumanCliText(selected.summary)}`,
     ]));
     if (selected.details.length > 0) {
-      lines.push('', 'Detalhes');
+      lines.push('', 'Details');
       lines.push(...selected.details.slice(0, 3).map((detail) => `- ${detail}`));
     }
     return lines.join('\n');
   }
 
   if (collections.length > 0) {
-    lines.push('', 'Colecoes em foco');
+    lines.push('', 'Focused collections');
     for (const collection of collections) {
       lines.push(formatPlatformOverviewCollection(collection));
     }
-    const overflow = formatPlatformOverflow(snapshot.collections.length, collections.length, 'outra colecao no catalogo', 'outras colecoes no catalogo');
+    const overflow = formatPlatformOverflow(snapshot.collections.length, collections.length, 'other collection in catalog', 'other collections in catalog');
     if (overflow) {
       lines.push(overflow);
     }
   }
 
   if (recipes.length > 0) {
-    lines.push('', 'Recipes em foco');
+    lines.push('', 'Focused recipes');
     for (const recipe of recipes) {
       lines.push(formatPlatformOverviewRecipe(recipe));
     }
-    const overflow = formatPlatformOverflow(snapshot.recipes.length, recipes.length, 'outra recipe no catalogo', 'outras recipes no catalogo');
+    const overflow = formatPlatformOverflow(snapshot.recipes.length, recipes.length, 'other recipe in catalog', 'other recipes in catalog');
     if (overflow) {
       lines.push(overflow);
     }
   }
 
   if (highlighted.length > 0) {
-    lines.push('', 'Itens em foco');
+    lines.push('', 'Focused items');
     for (const entry of highlighted) {
       lines.push(formatPlatformOverviewEntry(entry));
     }
-    const overflow = formatPlatformOverflow(snapshot.entries.length, highlighted.length, 'outro item no catalogo', 'outros itens no catalogo');
+    const overflow = formatPlatformOverflow(snapshot.entries.length, highlighted.length, 'other item in catalog', 'other items in catalog');
     if (overflow) {
       lines.push(overflow);
     }
   }
 
-  lines.push(...formatSurfaceSection('Faca agora', [
+  lines.push(...formatSurfaceSection('Do now', [
     collections[0] ? `- zavorth platform ${collections[0].id}` : '- zavorth plugins list',
   ]));
 
@@ -2069,15 +2069,15 @@ export function formatPlatformSnapshot(
 
 export function formatPlatformSyncResult(result: Awaited<ReturnType<ZavorthPlatformCatalogSyncService['sync']>>): string {
   return [
-    'Catalogo de plugins sincronizado',
+    'Plugin catalog synced',
     sanitizeHumanCliText(result.summary),
-    ...formatSurfaceSection('Agora', [
+    ...formatSurfaceSection('Now', [
       `- status: ${result.status}`,
-      `- itens: ${formatCount(result.entryCount, 'item', 'itens')} | colecoes: ${formatCount(result.collectionCount, 'colecao', 'colecoes')} | recipes: ${formatCount(result.recipeCount, 'recipe', 'recipes')}`,
+      `- items: ${formatCount(result.entryCount, 'item', 'items')} | collections: ${formatCount(result.collectionCount, 'collection', 'collections')} | recipes: ${formatCount(result.recipeCount, 'recipe', 'recipes')}`,
       `- cache: ${formatCliValue(result.cacheFile)}`,
-      result.error ? `- erro: ${result.error}` : null,
+      result.error ? `- error: ${result.error}` : null,
     ]),
-    ...formatSurfaceSection('Faca agora', [
+    ...formatSurfaceSection('Do now', [
       '- zavorth plugins list',
     ]),
   ]
@@ -2089,14 +2089,14 @@ export function formatLayeredMemoryMetrics(
   metrics: Awaited<ReturnType<ZavorthLayeredMemoryService['readMetrics']>>,
 ): string {
   return [
-    'Metricas da memoria',
-    'Panorama de pressao e distribuicao da layered memory.',
-    ...formatSurfaceSection('Agora', [
-      `- entradas: ${formatCount(metrics.summary.totalEntries, 'entrada', 'entradas')} | episodica ${metrics.summary.episodic} | semantica ${metrics.summary.semantic} | procedural ${metrics.summary.procedural}`,
-      `- uso medio do budget: ${metrics.summary.averageBudgetUsage} | pressao: ${metrics.summary.pressure}`,
-      `- procedimentos: ${formatCount(metrics.procedures.total, 'total', 'total')} | ${metrics.procedures.trustedLocal} trusted local | ${metrics.procedures.learnedDraft} draft`,
+    'Memory metrics',
+    'Pressure and distribution snapshot for layered memory.',
+    ...formatSurfaceSection('Now', [
+      `- entries: ${formatCount(metrics.summary.totalEntries, 'entry', 'entries')} | episodic ${metrics.summary.episodic} | semantic ${metrics.summary.semantic} | procedural ${metrics.summary.procedural}`,
+      `- average budget usage: ${metrics.summary.averageBudgetUsage} | pressure: ${metrics.summary.pressure}`,
+      `- procedures: ${formatCount(metrics.procedures.total, 'total', 'total')} | ${metrics.procedures.trustedLocal} trusted local | ${metrics.procedures.learnedDraft} draft`,
     ]),
-    ...formatSurfaceSection('Faca agora', [
+    ...formatSurfaceSection('Do now', [
       '- zavorth memory status',
       '- zavorth memory procedures',
     ]),

@@ -39,7 +39,7 @@ describe('Zavorth premium CLI help', () => {
     expect(home.topic).toBe('home');
     expect(home.title).toBe('zavorth');
     expect(hatch).toContain('zavorth hatch --start');
-    expect(hatch).toContain('Hatch nao aplica mutacoes');
+    expect(hatch).toContain('Hatch does not apply host mutations');
     expect(quickstart).toContain('zavorth providers add --provider openai --model gpt-4.1');
     expect(quickstart).toContain('zavorth channels telegram --allowed-users <id> --apply');
     expect(quickstart).toContain('preview-first');

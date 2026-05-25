@@ -144,8 +144,7 @@ function wrapPremiumLine(value: string, width: number): string[] {
   const lines: string[] = [];
   let current = indent;
   for (const word of words) {
-    const base = current.trim() ? `${current} ${word}` : `${current}${word}`;
-    const next = base;
+    const next = current.trim() ? `${current} ${word}` : `${current}${word}`;
     if (visiblePremiumWidth(next) <= width) {
       current = next;
       continue;

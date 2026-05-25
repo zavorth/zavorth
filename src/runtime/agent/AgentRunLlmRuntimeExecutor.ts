@@ -107,6 +107,7 @@ export class AgentRunLlmRuntimeExecutor {
       toolRuntime: this.toolRuntime,
       requestBuilder: this.requestBuilder,
       mutationPlaneService: this.mutationPlane,
+      speculativeAutonomyService: this.speculativeAutonomy,
     });
   }
 
@@ -139,6 +140,7 @@ export class AgentRunLlmRuntimeExecutor {
       tools: nativeTools,
       options,
       run,
+      request,
     });
     pipeline.complete('tool-loop', `executed=${toolLoop.stats.executed} denied=${toolLoop.stats.denied}`);
     const result = toolLoop.result;

@@ -30,10 +30,9 @@ export function renderZavorthSetupStudioSnapshot(snapshot: ZavorthSetupStudioSna
     ? selectedChannels
     : ['No remote channel selected. Terminal and Dashboard remain available.'];
   const readinessLines = [
-    `skills: ${snapshot.skills.eligible} eligible, ${snapshot.skills.missingRequirements} missing requirement(s)`,
-    `gateway: ${snapshot.gateway.installed ? 'detected' : 'needs build'} (${snapshot.gateway.recommendedRuntime})`,
-    `dashboard: ${snapshot.controlUi.url}`,
-    `token: ${snapshot.controlUi.tokenStatus}`,
+    `Skills: ${snapshot.skills.eligible} eligible, ${snapshot.skills.missingRequirements} missing requirement(s)`,
+    `Gateway: ${snapshot.gateway.installed ? 'detected' : 'needs build'} (${snapshot.gateway.recommendedRuntime})`,
+    `Dashboard: ${snapshot.controlUi.url}`,
   ];
   const providerLine = snapshot.plan.provider.id === 'deferred'
     ? 'Provider: configure later'
@@ -46,14 +45,13 @@ export function renderZavorthSetupStudioSnapshot(snapshot: ZavorthSetupStudioSna
     : 'Automation: skip';
   const sections = [
     onboardingSection('Security', setupSecurityNoticeLines({ compact: true })),
-    onboardingSection('First Light', [
+    onboardingSection('Workspace', [
       snapshot.safety.dryRun ? 'Preview only. No files will be changed.' : 'Guided setup for provider, channels, Mnemos and trust.',
-      `Workspace: ${snapshot.projectRoot}`,
+      `Path: ${snapshot.projectRoot}`,
       `Mode: ${snapshot.mode}`,
-      `Config handling: ${snapshot.configHandling}`,
-      'Safety: preview + approval + receipts',
+      `Config: ${snapshot.configHandling}`,
+      ...existingConfig,
     ]),
-    onboardingSection('Current config', existingConfig),
     onboardingSection('Plan', [
       providerLine,
       `Web/search: ${snapshot.webSearch.provider}`,
@@ -65,15 +63,15 @@ export function renderZavorthSetupStudioSnapshot(snapshot: ZavorthSetupStudioSna
     ]),
     onboardingSection('Readiness', readinessLines),
     onboardingSection('What happens next', [
-      'Setup will not start persistent services automatically.',
-      'Sensitive actions still require policy, approval and receipts.',
-      'Detailed catalogs stay available through inspect, channels, skills and doctor.',
+      'Setup does not start persistent services automatically.',
+      'Sensitive work still uses policy, approval and receipts.',
       '',
       ...snapshot.hatch.commands.slice(0, 2).map((command) => `- ${command}`),
-    ]),
-    onboardingSection('Next actions', snapshot.nextActions.slice(0, 4)
+      '',
+      ...snapshot.nextActions.slice(0, 3)
       .map((action) => `> ${action.label}\n  ${action.command}${action.detail ? `\n  ${action.detail}` : ''}`)
-      .flatMap((line) => line.split('\n'))),
+      .flatMap((line) => line.split('\n')),
+    ]),
   ];
   if (snapshot.existingConfig.warnings.length > 0) {
     sections.push(onboardingSection('Attention', snapshot.existingConfig.warnings));
@@ -171,17 +169,12 @@ function setupSecurityNoticeLines(options: { compact?: boolean } = {}): string[]
       'Security warning - please read.',
       '',
       'Zavorth can route natural language into providers, channels and local tools.',
-      'Remote channels should be paired or allowlisted before they can reach tools.',
       'Sensitive work stays behind preview, policy, approval, sandbox and receipts.',
+      'Remote channels should be paired or allowlisted before they can reach tools.',
       '',
       'Baseline:',
       '- Keep secrets out of prompts, logs, screenshots and reachable files.',
-      '- Use allowlists for shared or remote channels.',
       '- Use sandbox and least-privilege tools for mutations.',
-      '',
-      'Run regularly:',
-      'zavorth security audit',
-      'zavorth certify',
     ];
   }
   return [

@@ -28,6 +28,7 @@ logs/
 .codex-run/
 .zavorth/logs/
 .zavorth/gateway.json
+.zavorth/receipts/
 *.log
 actual-findings.txt
 error_dump.txt

@@ -16,12 +16,14 @@ import {
   sanitizeLlmEgressPayload,
 } from '../../security/LlmEgressGuard.js';
 import { redactSensitiveText } from '../../security/SensitiveDataGuard.js';
+import { ProviderNativeCapabilityMatrixService } from './ProviderNativeCapabilityMatrixService.js';
 
 export type LlmRunOptions = {
   providerName?: string;
   modelName?: string;
   allowFallback?: boolean;
   fallbackOrder?: string[];
+  providerNativeTools?: ProviderChatOptions['providerNativeTools'];
   toolPolicy?: LlmRuntimeToolPolicyContext;
   telemetry?: {
     runId?: string | null;
@@ -94,6 +96,8 @@ const DEFAULT_FALLBACK_ORDER = [
   'openai',
   'opencode',
 ];
+
+const PROVIDER_NATIVE_CAPABILITY_MATRIX = new ProviderNativeCapabilityMatrixService();
 
 export class LlmRuntimeService {
   constructor(private readonly preferredProviderName?: string) {}
@@ -170,7 +174,16 @@ export class LlmRuntimeService {
           });
           return {
             ...result,
-            metadata: this.mergeMetadata(result.metadata, egressGuardMetadata),
+            metadata: this.mergeMetadata(
+              result.metadata,
+              egressGuardMetadata,
+              this.buildProviderNativeCapabilityMetadata({
+                providerName,
+                modelName,
+                metadata: result.metadata,
+                content: result.response.content,
+              }),
+            ),
             route: this.buildRouteReceipt({
               messages: safeMessages,
               tools: safeTools,
@@ -207,7 +220,16 @@ export class LlmRuntimeService {
           providerName,
           modelName,
           response,
-          metadata: this.mergeMetadata((response as unknown as { metadata?: Record<string, unknown> }).metadata, egressGuardMetadata),
+          metadata: this.mergeMetadata(
+            (response as unknown as { metadata?: Record<string, unknown> }).metadata,
+            egressGuardMetadata,
+            this.buildProviderNativeCapabilityMetadata({
+              providerName,
+              modelName,
+              metadata: (response as unknown as { metadata?: Record<string, unknown> }).metadata,
+              content: response.content,
+            }),
+          ),
           route: this.buildRouteReceipt({
             messages: safeMessages,
             tools: safeTools,
@@ -403,15 +425,28 @@ export class LlmRuntimeService {
   }
 
   private mergeMetadata(
-    existing?: Record<string, unknown>,
-    security?: Record<string, unknown>,
+    ...items: Array<Record<string, unknown> | undefined>
   ): Record<string, unknown> | undefined {
-    if (!existing && !security) {
+    const present = items.filter((item): item is Record<string, unknown> => Boolean(item));
+    if (present.length === 0) {
+      return undefined;
+    }
+    return Object.assign({}, ...present);
+  }
+
+  private buildProviderNativeCapabilityMetadata(input: {
+    providerName: string;
+    modelName: string | null;
+    metadata?: Record<string, unknown>;
+    content?: string | null;
+  }): Record<string, unknown> | undefined {
+    const summary = PROVIDER_NATIVE_CAPABILITY_MATRIX.summarizeMetadata(input);
+    const assessments = Array.isArray(summary.assessments) ? summary.assessments : [];
+    if (assessments.length === 0) {
       return undefined;
     }
     return {
-      ...(existing || {}),
-      ...(security || {}),
+      providerNativeCapabilityMatrix: summary,
     };
   }
 
@@ -446,6 +481,7 @@ export class LlmRuntimeService {
 
     return {
       modelName,
+      ...(options?.providerNativeTools?.length ? { providerNativeTools: options.providerNativeTools } : {}),
     };
   }
 

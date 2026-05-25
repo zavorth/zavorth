@@ -103,12 +103,35 @@ export class UnifiedSearchTool extends BaseTool {
       mode: effectiveMode,
       limit: typeof args.limit === 'number' ? args.limit : 5,
       evidenceDomain: (args.evidence_domain || args.evidenceDomain || args.domainProfile || args.domain_profile || 'auto') as any,
+      providerHints: this.buildProviderHints(args),
       extractPages: typeof args.extract_pages === 'boolean'
         ? args.extract_pages
         : typeof args.extractPages === 'boolean'
           ? args.extractPages
           : undefined,
     };
+  }
+
+  private buildProviderHints(args: Record<string, unknown>): Record<string, unknown> | null {
+    const existing = args.providerHints && typeof args.providerHints === 'object' && !Array.isArray(args.providerHints)
+      ? args.providerHints as Record<string, unknown>
+      : {};
+    const providerId = String(
+      existing.providerId
+      || existing.preferredProvider
+      || args.provider
+      || args.providerId
+      || args.search_provider
+      || args.searchProvider
+      || '',
+    ).trim();
+    const modelName = String(existing.modelName || args.model || args.modelName || '').trim();
+    const output = {
+      ...existing,
+      ...(providerId ? { providerId } : {}),
+      ...(modelName ? { modelName } : {}),
+    };
+    return Object.keys(output).length > 0 ? output : null;
   }
 
   // -------------------------------------------------------------------------

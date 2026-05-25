@@ -6,6 +6,8 @@ import {
 } from '../../security/UntrustedContent.js';
 import { sanitizeTrustPlaneText } from './security/index.js';
 import { isNaturalFirstLlmReplyRun } from './NaturalFirstLlmFallbackService.js';
+import { planProviderNativeTools } from '../../services/llm/ProviderNativeToolPlanner.js';
+import { ZavorthAgentMaturityService } from '../../services/ZavorthAgentMaturityService.js';
 
 export type AgentRunLlmRequestBuilderRuntime = {
   hallucinationInstruction: () => string;
@@ -19,6 +21,8 @@ export type AgentRunPreparedLlmRequest = {
 };
 
 export class AgentRunLlmRequestBuilder {
+  private readonly maturity = new ZavorthAgentMaturityService();
+
   constructor(private readonly runtime: AgentRunLlmRequestBuilderRuntime) {}
 
   public prepare(run: UniversalAgentRun, request: UniversalAgentRequest): AgentRunPreparedLlmRequest {
@@ -62,6 +66,7 @@ export class AgentRunLlmRequestBuilder {
   private buildMessages(run: UniversalAgentRun, request: UniversalAgentRequest): ChatMessage[] {
     const exposedTools = run.toolExposure.tools.map((tool) => tool.id).join(', ') || 'none';
     const contextPrompt = [
+      this.maturity.buildSnapshot({ run, request }).prompt,
       this.buildContextPrompt(run.metadata),
       this.buildIntelligenceFabricContextPrompt(run.metadata),
       this.buildIntelligenceFabricDraftGuidancePrompt(run.metadata),
@@ -72,6 +77,8 @@ export class AgentRunLlmRequestBuilder {
       'Respond directly, usefully and consistently with the current channel.',
       'Do not claim that you executed tools, edited files or performed external effects unless this run recorded tool events.',
       'When the user asks about the current date, time or timezone and the get_datetime tool is visible, use get_datetime before answering.',
+      'Use visible tools when they materially improve correctness: web_search for current/public/external facts, get_datetime for time, workspace tools for local code or files, media/image/node tools for their matching modalities.',
+      'If a needed capability is not visible or a tool fails, explain what you tried, why it failed, and the next safe repair or configuration step.',
       isNaturalFirstLlmReplyRun(run)
         ? 'Natural First route: llm-reply. Treat this as a natural free-form question: answer without calling tools and without inventing executions.'
         : '',
@@ -175,11 +182,23 @@ export class AgentRunLlmRequestBuilder {
   private buildOptions(run: UniversalAgentRun, request: UniversalAgentRequest): LlmRunOptions {
     const providerName = this.resolveProviderName(run, request);
     const modelName = this.resolveModelName(run, request);
+    const effectiveProviderName = providerName || normalizeText(run.modelProfile?.providerLabel);
+    const effectiveModelName = modelName || normalizeText(run.modelProfile?.modelLabel);
     const fallbackOrder = this.resolveFallbackOrder(run);
+    const providerNativeTools = planProviderNativeTools({
+      providerName: effectiveProviderName,
+      modelName: effectiveModelName,
+      text: request.text,
+      metadata: {
+        ...run.metadata,
+        ...(request.metadata || {}),
+      },
+    });
     return {
       ...(providerName ? { providerName } : {}),
       ...(modelName ? { modelName } : {}),
       ...(fallbackOrder.length > 0 ? { fallbackOrder } : {}),
+      ...(providerNativeTools.length > 0 ? { providerNativeTools } : {}),
       allowFallback: true,
       toolPolicy: this.buildToolPolicyContext(run, request),
     };

@@ -10,6 +10,7 @@ import {
   ToolCall,
   ToolDefinition,
 } from './ILlmProvider.js';
+import { buildOpenAiCompatibleNativeToolPayload } from './ProviderNativeToolPayload.js';
 
 export class MiniMaxProvider implements ILlmProvider {
   public readonly name = 'minimax';
@@ -35,22 +36,18 @@ export class MiniMaxProvider implements ILlmProvider {
     options?: ProviderChatOptions,
   ): Promise<LlmResponse> {
     try {
+      const nativeToolPayload = buildOpenAiCompatibleNativeToolPayload({
+        providerName: this.name,
+        tools,
+        options,
+      });
       const response = await this.client.chat.completions.create({
         model: options?.modelName || config.minimaxModel,
         messages: convertChatMessagesToOpenAI(messages),
         max_tokens: config.maxTokens,
-        tools:
-          tools && tools.length > 0
-            ? tools.map((tool) => ({
-                type: 'function' as const,
-                function: {
-                  name: tool.name,
-                  description: tool.description,
-                  parameters: tool.parameters,
-                },
-              }))
-            : undefined,
-      });
+        tools: nativeToolPayload.tools,
+        ...nativeToolPayload.extraBody,
+      } as any);
 
       const choice = response.choices[0];
       const toolCalls: ToolCall[] = extractFunctionToolCalls(choice.message.tool_calls);
@@ -59,6 +56,7 @@ export class MiniMaxProvider implements ILlmProvider {
         content: choice.message.content,
         toolCalls,
         finishReason: choice.finish_reason as any,
+        metadata: nativeToolPayload.metadata,
       };
     } catch (error: any) {
       console.error('[MiniMax] Erro na requisicao:', error?.message || error);

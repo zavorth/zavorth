@@ -9,6 +9,9 @@ import {
   TrustLensService,
   JourneyEngineService,
 } from '../../../src/services/experience/index.js';
+import { ZavorthSelfHealingReceiptService } from '../../../src/services/ZavorthSelfHealingReceiptService.js';
+import os from 'os';
+import path from 'path';
 import type {
   UniversalAgentRun,
   UniversalAgentRunResult,
@@ -517,6 +520,128 @@ describe('Experience Core Layer', () => {
       channel: 'cli',
     }));
     expect(result.replies[0].text).toBe('Review concluido.');
+  });
+
+  it('retries provider failures through a ready fallback and records a self-healing receipt', async () => {
+    const failedRun = makeRun({
+      id: 'run-failed',
+      status: 'failed',
+      approvals: [],
+      summary: 'OpenAI insufficient_quota',
+      modelProfile: {
+        providerLabel: 'openai',
+        modelLabel: 'gpt-test',
+        routingPolicy: 'direct',
+      },
+    });
+    const recoveredRun = makeRun({
+      id: 'run-recovered',
+      status: 'completed',
+      approvals: [],
+      summary: 'Recovered with fallback.',
+      modelProfile: {
+        providerLabel: 'gemini',
+        modelLabel: 'gemini-test',
+        routingPolicy: 'fallback',
+      },
+    });
+    const handle = jest.fn()
+      .mockResolvedValueOnce({
+        ok: false,
+        run: failedRun,
+        replies: [],
+      })
+      .mockResolvedValueOnce({
+        ok: true,
+        run: recoveredRun,
+        replies: [{
+          id: 'reply-fallback',
+          runId: recoveredRun.id,
+          port: { id: 'cli', label: 'CLI', kind: 'cli', status: 'available' },
+          text: 'Recovered with fallback.',
+          createdAt: '2026-05-21T12:00:00.000Z',
+        }],
+      });
+    const receiptStore = new ZavorthSelfHealingReceiptService({
+      now,
+      storePath: path.join(os.tmpdir(), `zavorth-self-healing-receipts-${Date.now()}.jsonl`),
+    });
+    const service = new ExperienceCoreService({
+      now,
+      selfHealingReceipts: receiptStore,
+      providerReadinessMatrix: {
+        buildSnapshot: jest.fn(() => ({
+          entries: [
+            { id: 'gemini', status: 'ready', defaultRouteAllowed: true },
+            { id: 'openai', status: 'ready', defaultRouteAllowed: true },
+          ],
+        } as any)),
+      },
+      agentGateway: {
+        buildSnapshot: jest.fn((input: any) => {
+          const activeRun = input.activeRunId === 'run-recovered' ? recoveredRun : failedRun;
+          return {
+            generatedAt: now().toISOString(),
+            source: { kind: 'universal-agent-runtime', label: 'Zavorth Agent Gateway' },
+            activeRun,
+            runs: [failedRun, recoveredRun],
+            runObservatory: {} as any,
+            capabilityLoopGovernance: null,
+            runtimePromotionGovernance: {} as any,
+            workflowJobs: [],
+            workflowQueue: {} as any,
+          };
+        }),
+        handle,
+        approve: jest.fn(),
+        reject: jest.fn(),
+      },
+    });
+
+    const result = await service.executeCommand({
+      contractVersion: 'ExperienceCommand/v1',
+      text: 'review this repo',
+      intent: 'run',
+      surface: 'cli',
+      userId: 'user-1',
+    });
+
+    expect(result.ok).toBe(true);
+    expect(result.replies[0].text).toBe('Recovered with fallback.');
+    expect(handle).toHaveBeenCalledTimes(2);
+    expect(handle.mock.calls[1][0].metadata).toEqual(expect.objectContaining({
+      providerName: 'gemini',
+    }));
+    expect(result.receipts.map((receipt) => receipt.source)).toContain('self-healing');
+  });
+
+  it('turns contextual provider setup into a shared self-healing action card', async () => {
+    const service = new ExperienceCoreService({
+      now,
+      selfHealingReceipts: new ZavorthSelfHealingReceiptService({
+        now,
+        storePath: path.join(os.tmpdir(), `zavorth-self-healing-setup-${Date.now()}.jsonl`),
+      }),
+      agentGateway: {
+        buildSnapshot: jest.fn(() => null),
+        handle: jest.fn(),
+        approve: jest.fn(),
+        reject: jest.fn(),
+      },
+    });
+
+    const result = await service.executeCommand({
+      contractVersion: 'ExperienceCommand/v1',
+      text: 'connect Gemini',
+      intent: 'setup',
+      surface: 'cli',
+      userId: 'user-1',
+    });
+
+    expect(result.ok).toBe(true);
+    expect(result.replies[0].text).toContain('connect a model provider');
+    expect(result.snapshot.actionCards?.map((card) => card.source)).toContain('self-healing');
+    expect(result.snapshot.raw?.selfHealing).toBeTruthy();
   });
 
   it('keeps learning decisions explicit and reviewable', () => {

@@ -133,6 +133,9 @@ export class ZavorthProductQaLiveService {
       sandboxCovered: this.hasAll(['scripts/zavorth-sandbox-lifecycle.ts', 'scripts/zavorth-sandbox-lifecycle-check.mjs']),
       receiptsCovered: this.hasAll(['scripts/zavorth-live-readiness-evidence-proof-pack.ts', 'scripts/zavorth-live-readiness-evidence-proof-pack-check.mjs']),
       learningCovered: this.hasAll(['scripts/zavorth-native-learning-loop.ts', 'scripts/zavorth-native-learning-loop-check.mjs']),
+      llmBrainCovered: this.hasAll(['src/contracts/ZavorthLlmBrainContract.ts', 'src/services/ZavorthLlmBrainService.ts']),
+      sessionStreamingCovered: this.hasAll(['src/runtime/agent/AgentRunNativeToolLoopService.ts', 'src/runtime/agent/AgentRunService.ts']),
+      longTailAdaptersCovered: this.hasAll(['src/adapters/channels/ChannelLongTailLiveClients.ts', 'src/adapters/providers/ProviderLongTailLiveClients.ts']),
     };
   }
 
@@ -276,6 +279,22 @@ export class ZavorthProductQaLiveService {
         nextSafeAction: 'Run the CLI in a clean terminal and verify the chat-first daily path.',
       }),
       row({
+        id: 'llm-brain-session',
+        label: 'LLM-first session, stream and tool loop',
+        status: readiness.llmBrainCovered && readiness.sessionStreamingCovered ? 'dry-run-certified' : 'blocked',
+        mode: 'hybrid',
+        liveProof: 'optional',
+        evidence: [
+          evidence(readiness.llmBrainCovered, 'LLM Brain maturity projection present'),
+          evidence(readiness.sessionStreamingCovered, 'Native tool loop and run service stream hooks present'),
+        ],
+        commands: [
+          'zavorth chat',
+          'zavorth ask "read the README and summarize what you observed"',
+        ],
+        nextSafeAction: 'Run a long interactive chat and verify lifecycle, assistant, tool, approval and receipt events.',
+      }),
+      row({
         id: 'learning-candidate',
         label: 'Mnemos learning candidate',
         status: readiness.learningCovered ? 'dry-run-certified' : 'blocked',
@@ -289,6 +308,23 @@ export class ZavorthProductQaLiveService {
           'zavorth learn',
         ],
         nextSafeAction: 'Complete a real successful run, then review the generated learning candidate.',
+      }),
+      row({
+        id: 'long-tail-adapters',
+        label: 'Long-tail provider and channel adapters',
+        status: readiness.longTailAdaptersCovered ? 'dry-run-certified' : 'blocked',
+        mode: 'hybrid',
+        liveProof: 'required',
+        evidence: [
+          evidence(readiness.longTailAdaptersCovered, 'Long-tail channel and provider live adapter families present'),
+          'Adapters remain proof-gated: configured credentials and receipts are required before live claims.',
+        ],
+        commands: [
+          'zavorth native catalog',
+          'zavorth channels doctor',
+          'zavorth providers doctor',
+        ],
+        nextSafeAction: 'Configure one long-tail provider/channel and capture a real send/read or model-call receipt.',
       }),
       row({
         id: 'rollback-sandbox',

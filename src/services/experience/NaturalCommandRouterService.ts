@@ -94,6 +94,8 @@ export class NaturalCommandRouterService {
     if (/\b(provider|modelo|model|openai|gemini|anthropic|openrouter|ollama)\b/.test(normalized)) return 'provider-setup';
     if (/\b(telegram|discord|slack|email|canal|channel|whatsapp|signal)\b/.test(normalized)) return 'channel-setup';
     if (/\b(seguranca|security|audit|auditar|vulnerabilidade|owasp|secrets?)\b/.test(normalized)) return 'security-audit';
+    if (/\b(subagent|subagente|delegate|delegar|worker|parallel|paralelo|multiagent|multi-agent)\b/.test(normalized)) return 'code-task';
+    if (/\b(skill|skills|habilidade|capability|capabilities|ferramenta|tooling)\b/.test(normalized)) return 'learning';
     if (/\b(release|ship|deploy|publicar|lancar)\b/.test(normalized)) return 'release';
     if (/\b(automatizar|automacao|schedule|scheduler|cron|rotina)\b/.test(normalized)) return 'automation';
     if (/\b(revisar|review|corrigir|fix|bug|feature|implementar|codigo|code|repo|workspace|testar|teste)\b/.test(normalized)) {
@@ -134,40 +136,44 @@ export class NaturalCommandRouterService {
 
   private titleFor(kind: ExperienceJourneyKind): string {
     const titles: Record<ExperienceJourneyKind, string> = {
-      conversation: 'Conversa natural',
-      'first-run': 'Primeiro uso guiado',
-      'provider-setup': 'Configurar provider',
-      'channel-setup': 'Conectar canal',
-      'workspace-review': 'Revisar workspace',
-      'code-task': 'Executar tarefa de codigo',
-      'security-audit': 'Auditoria de seguranca',
-      'explain-block': 'Explicar bloqueio',
-      approval: 'Resolver aprovacao',
-      memory: 'Consultar memoria',
-      learning: 'Revisar aprendizado',
-      dashboard: 'Abrir Dashboard',
-      diagnostics: 'Diagnosticar runtime',
-      release: 'Preparar release',
-      automation: 'Automatizar rotina',
+      conversation: 'Natural conversation',
+      'first-run': 'Guided first run',
+      'provider-setup': 'Configure provider',
+      'channel-setup': 'Connect channel',
+      'workspace-review': 'Review workspace',
+      'code-task': 'Run code task',
+      'security-audit': 'Security audit',
+      'explain-block': 'Explain blocker',
+      approval: 'Resolve approval',
+      memory: 'Query memory',
+      learning: 'Review learning',
+      dashboard: 'Open Dashboard',
+      diagnostics: 'Diagnose runtime',
+      release: 'Prepare release',
+      automation: 'Automate routine',
     };
     return titles[kind];
   }
 
   private summaryFor(kind: ExperienceJourneyKind, text: string): string {
     const request = String(text || '').trim();
-    if (kind === 'dashboard') return 'Abrir a superficie visual principal do Zavorth.';
-    if (kind === 'diagnostics') return 'Ler sinais de readiness, runtime e proximas acoes seguras.';
-    if (kind === 'learning') return 'Mostrar, aprovar, rejeitar ou exportar aprendizados governados.';
-    if (kind === 'memory') return 'Consultar sinais de memoria e continuidade do workspace.';
-    return request ? `Plano natural-first para: ${request}` : 'Plano natural-first pronto para receber o pedido.';
+    if (kind === 'dashboard') return 'Open the main visual surface for Zavorth.';
+    if (kind === 'diagnostics') return 'Read readiness, runtime and next safe-action signals.';
+    if (kind === 'learning') return 'Show, approve, reject or export governed learning.';
+    if (kind === 'memory') return 'Query memory signals and workspace continuity.';
+    return request ? `Natural-first plan for: ${request}` : 'Natural-first plan ready for the request.';
   }
 
   private nextSafeActionFor(kind: ExperienceJourneyKind, requiresApproval: boolean): string {
-    if (requiresApproval) return 'Revisar o Trust Lens antes de executar qualquer efeito sensivel.';
-    if (kind === 'dashboard') return 'Abrir /dashboard.';
-    if (kind === 'learning') return 'Revisar candidatos antes de promover comportamento futuro.';
-    if (kind === 'diagnostics') return 'Ler o diagnostico e escolher a correcao guiada.';
-    return 'Executar em modo governado e publicar timeline/receipt.';
+    if (requiresApproval) return 'Review Trust Lens before any sensitive effect runs.';
+    if (kind === 'dashboard') return 'Open /dashboard.';
+    if (kind === 'provider-setup') return 'Open contextual provider setup and test the route before using it.';
+    if (kind === 'channel-setup') return 'Open contextual channel setup, pair/allowlist the sender, and verify a proof receipt.';
+    if (kind === 'automation') return 'Prepare a governed event hook or scheduled task with preview, receipt and rollback.';
+    if (kind === 'code-task') return 'Use the LLM-first loop with safe tools, sandbox-first mutations and receipts.';
+    if (kind === 'learning') return 'Review candidates before promoting future behavior.';
+    if (kind === 'diagnostics') return 'Read the diagnosis and choose a guided repair.';
+    return 'Run in governed mode and publish timeline/receipt.';
   }
 
   private stepsFor(
@@ -176,18 +182,24 @@ export class NaturalCommandRouterService {
     shouldExecuteAgent: boolean,
   ): ExperiencePlanStep[] {
     const steps = [
-      step('intent', 'Entender intencao', `Rota selecionada: ${kind}.`, 'done'),
-      step('context', 'Carregar contexto', 'Unificar runtime, memoria, approvals e receipts.'),
+      step('intent', 'Understand intent', `Selected route: ${kind}.`, 'done'),
+      step('context', 'Load context', 'Unify runtime, memory, approvals and receipts.'),
     ];
     if (requiresApproval) {
-      steps.push(step('approval', 'Preparar aprovacao', 'Mostrar risco, escopo e alternativa em sandbox.', 'blocked'));
+      steps.push(step('approval', 'Prepare approval', 'Show risk, scope and sandbox alternative.', 'blocked'));
     }
     if (shouldExecuteAgent) {
-      steps.push(step('execute', 'Executar agente', 'Usar loop LLM/tool governado quando necessario.'));
-      steps.push(step('receipt', 'Emitir receipt', 'Registrar evidencias, resultados e aprendizado candidato.'));
+      steps.push(step('execute', 'Run agent', 'Use the governed LLM/tool loop when useful.'));
+      steps.push(step('receipt', 'Emit receipt', 'Record evidence, results and learning candidates.'));
     }
     if (kind === 'learning') {
-      steps.push(step('learning', 'Revisar aprendizado', 'Promover apenas candidatos aprovados pelo usuario.'));
+      steps.push(step('learning', 'Review learning', 'Promote only user-approved candidates.'));
+    }
+    if (kind === 'code-task') {
+      steps.push(step('sandbox', 'Validate safely', 'Use sandbox/rehearsal before any host mutation.'));
+    }
+    if (kind === 'automation') {
+      steps.push(step('policy', 'Bind policy', 'Attach trigger, action, receipt and rollback before enabling automation.'));
     }
     return steps;
   }
@@ -197,47 +209,91 @@ export class NaturalCommandRouterService {
     const actions: ExperienceAction[] = [
       makeAction({
         id: 'experience.ask',
-        label: 'Continuar por linguagem natural',
+        label: 'Continue in natural language',
         kind: 'natural',
         command: requestText ? `zavorth ask "${requestText.replace(/"/g, '\\"')}"` : 'zavorth ask "<pedido>"',
-        reason: 'Mantem CLI e Dashboard na mesma rota de experiencia.',
+        reason: 'Keeps CLI and Dashboard on the same experience route.',
       }),
     ];
     if (kind === 'dashboard') {
       actions.push(makeAction({
         id: 'dashboard.open',
-        label: 'Abrir Dashboard',
+        label: 'Open Dashboard',
         kind: 'navigation',
         command: 'zavorth open',
         route: '/dashboard',
-        reason: 'O Dashboard e a superficie visual oficial.',
+        reason: 'Dashboard is the official visual surface.',
       }));
     }
     if (kind === 'diagnostics' || kind === 'explain-block') {
       actions.push(makeAction({
         id: 'runtime.doctor',
-        label: 'Rodar diagnostico',
+        label: 'Run diagnosis',
         kind: 'diagnostic',
         command: 'zavorth doctor',
-        reason: 'Mostra readiness e proxima acao segura.',
+        reason: 'Shows readiness and the next safe action.',
       }));
     }
     if (kind === 'learning') {
       actions.push(makeAction({
         id: 'learning.review',
-        label: 'Revisar aprendizados',
+        label: 'Review learning',
         kind: 'learning',
         command: 'zavorth learn',
-        reason: 'Aprendizados so mudam comportamento apos revisao.',
+        reason: 'Learning only changes future behavior after review.',
+      }));
+    }
+    if (kind === 'provider-setup') {
+      actions.push(makeAction({
+        id: 'provider.contextual-setup',
+        label: 'Configure provider',
+        kind: 'diagnostic',
+        command: 'zavorth setup',
+        reason: 'Connects model, key reference, route test and fallback without exposing secrets in chat.',
+      }));
+      actions.push(makeAction({
+        id: 'provider.routes',
+        label: 'Inspect model routes',
+        kind: 'diagnostic',
+        command: 'zavorth providers',
+        reason: 'Shows configured providers, gateway fallback and readiness.',
+      }));
+    }
+    if (kind === 'channel-setup') {
+      actions.push(makeAction({
+        id: 'channel.contextual-setup',
+        label: 'Connect channel',
+        kind: 'diagnostic',
+        command: 'zavorth channels',
+        reason: 'Pairs/allowlists remote surfaces before they can reach tools.',
+      }));
+    }
+    if (kind === 'code-task') {
+      actions.push(makeAction({
+        id: 'code.sandbox-first',
+        label: 'Use sandbox-first execution',
+        kind: 'natural',
+        command: requestText ? `zavorth ask "${requestText.replace(/"/g, '\\"')}"` : 'zavorth ask "review this workspace"',
+        reason: 'Lets the LLM plan, use safe tools, rehearse mutations and request approval only when needed.',
+      }));
+    }
+    if (kind === 'automation') {
+      actions.push(makeAction({
+        id: 'automation.hooks',
+        label: 'Prepare governed automation',
+        kind: 'diagnostic',
+        command: 'zavorth hooks',
+        reason: 'Automation is event-driven and policy-bound before it can affect the workspace or channels.',
+        risk: 'attention',
       }));
     }
     if (kind === 'approval' && command.approval?.id) {
       actions.push(makeAction({
         id: `approval.${command.approval.decision}`,
-        label: command.approval.decision === 'approve' ? 'Aprovar acao' : 'Rejeitar acao',
+        label: command.approval.decision === 'approve' ? 'Approve action' : 'Reject action',
         kind: 'approval',
         command: `zavorth ${command.approval.decision} ${command.approval.id}`,
-        reason: 'Resolve a aprovacao governada pelo runtime.',
+        reason: 'Resolves the runtime-governed approval.',
         risk: 'attention',
       }));
     }

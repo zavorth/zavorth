@@ -7,13 +7,7 @@ export type ZavorthSimpleCommandPlan =
     kind: 'npm-script';
     scripts: string[];
     label: string;
-  }
-  | {
-    kind: 'qa-guide';
-    topic: 'all' | 'setup' | 'daily';
   };
-
-import { renderCliScreen } from './ZavorthCliVisualSystem.js';
 
 const SIMPLE_COMMAND_ALIASES: Record<string, string[]> = {
   cha: ['chat'],
@@ -100,14 +94,6 @@ export function resolveZavorthSimpleCommand(rawArgs: string[]): ZavorthSimpleCom
     };
   }
 
-  if (command === 'qa') {
-    const topic = String(rest[0] || 'all').trim().toLowerCase();
-    return {
-      kind: 'qa-guide',
-      topic: topic === 'setup' || topic === 'daily' ? topic : 'all',
-    };
-  }
-
   const alias = SIMPLE_COMMAND_ALIASES[command];
   if (alias) {
     return {
@@ -117,41 +103,4 @@ export function resolveZavorthSimpleCommand(rawArgs: string[]): ZavorthSimpleCom
   }
 
   return { kind: 'passthrough', args: rawArgs };
-}
-
-export function renderZavorthQaGuide(topic: 'all' | 'setup' | 'daily' = 'all'): string {
-  const setupLines = [
-    '1. Run: zavorth setup',
-    '2. Confirm the orange wordmark and first-light journey feel consistent.',
-    '3. Pick a provider, edit the model, capture a key, then run the live provider test if you have credentials.',
-    '4. Configure Telegram or another surface, then run the channel live test if you have credentials.',
-    '5. Apply setup only after the preview is clear.',
-  ];
-  const dailyLines = [
-    '1. Run: zavorth',
-    '2. Run: zavorth ready',
-    '3. Run: zavorth ask "what is your current state?"',
-    '4. Run: zavorth open',
-    '5. Run: zavorth doctor',
-  ];
-  const testLines = [
-    'zavorth test',
-    'zavorth test setup',
-    'zavorth test cli',
-    'zavorth test runtime',
-    'zavorth test security',
-  ];
-
-  const panels = [
-    ...(topic === 'daily' ? [] : [{ title: 'Setup QA', tone: 'brand' as const, lines: setupLines }]),
-    ...(topic === 'setup' ? [] : [{ title: 'Daily-use QA', tone: 'success' as const, lines: dailyLines }]),
-    { title: 'Simple test commands', tone: 'muted' as const, lines: testLines },
-  ];
-
-  return renderCliScreen({
-    eyebrow: 'QA',
-    title: 'Zavorth QA Guide',
-    summary: 'Simple commands first. Maintainer scripts stay available behind the scenes.',
-    panels,
-  });
 }

@@ -348,10 +348,10 @@ export function createCliReplSwitchConversationFlags(flags: ZavorthCliFlags, tar
 export function formatCliNewConversationMessage(flags: ZavorthCliFlags): string {
   const historyHint = formatCliHistoryHint(flags.sessionId);
   return formatCliChatAssistantMessage({
-    title: 'Nova conversa pronta',
-    body: 'Voce continua no mesmo terminal. Escreva seu pedido quando quiser.',
+    title: 'New conversation ready',
+    body: 'You are still in the same terminal. Send a request whenever you are ready.',
     hints: [
-      formatCliChatCommandHint('Para revisar depois', historyHint),
+      formatCliChatCommandHint('Review later', historyHint),
     ].filter(Boolean) as string[],
   });
 }
@@ -359,10 +359,10 @@ export function formatCliNewConversationMessage(flags: ZavorthCliFlags): string 
 export function formatCliSwitchedConversationMessage(flags: ZavorthCliFlags): string {
   const historyHint = formatCliHistoryHint(flags.sessionId);
   return formatCliChatAssistantMessage({
-    title: 'Conversa retomada',
-    body: 'Voce continua no mesmo terminal. Escreva continue ou mande um novo pedido.',
+    title: 'Conversation resumed',
+    body: 'You are still in the same terminal. Send "continue" or start a new request.',
     hints: [
-      formatCliChatCommandHint('Para revisar depois', historyHint),
+      formatCliChatCommandHint('Review later', historyHint),
     ].filter(Boolean) as string[],
   });
 }
@@ -377,7 +377,7 @@ export function extractCliMeaningfulReplies(replies: string[], placeholderPatter
 export function formatCliConversationLabel(normalized: string): string {
   const trimmed = String(normalized || '').trim();
   if (!trimmed) {
-    return '(vazio)';
+    return '(empty)';
   }
   if (trimmed.startsWith('/task ')) {
     return trimmed.slice('/task '.length).trim() || '/task';
@@ -408,7 +408,7 @@ export function formatCliHistoryHint(sessionId: string | null | undefined): stri
 
 export function formatCliReplPrompt(flags: Pick<ZavorthCliFlags, 'sessionId' | 'chatId'>): string {
   void flags;
-  return `${paintCliTone('>', 'brand')} `;
+  return `${paintCliTone('zavorth', 'muted')} ${paintCliTone('>', 'brand')} `;
 }
 
 export function formatCliTaskDispatchOutput(
@@ -439,8 +439,8 @@ export function formatCliTaskDispatchOutput(
 
   if (compactMode) {
     const openingLine = isContinue
-      ? 'Vou retomar isso agora.'
-      : 'Recebi seu pedido e ja comecei a trabalhar.';
+      ? 'I am resuming that now.'
+      : 'I have the request and started working.';
     const eventReply = meaningfulReplies
       .map((reply) => formatCliChatReplyEventCard(reply))
       .find(Boolean);
@@ -451,37 +451,37 @@ export function formatCliTaskDispatchOutput(
       ? [openingLine, '', ...meaningfulReplies]
       : [openingLine];
     return formatCliSuccessEventCard({
-      title: 'Pronto',
+      title: 'Started',
       body: bodyLines,
       hints: [
-        formatCliChatCommandHint('Para revisar depois', historyHint),
+        formatCliChatCommandHint('Review later', historyHint),
       ].filter(Boolean) as string[],
     });
   }
 
   const lines = [
-    echoInput ? `Pedido: ${conversationLabel}` : null,
-    `Zavorth: ${isContinue ? 'Vou retomar isso agora.' : 'Recebi esse pedido e ja comecei a trabalhar.'}`,
+    echoInput ? `Request: ${conversationLabel}` : null,
+    `Zavorth: ${isContinue ? 'I am resuming that now.' : 'I have the request and started working.'}`,
     `- task: ${taskId}`,
-    `- comando: ${commandType}`,
-    `- operador: ${result.runtimeUserId}`,
-    trimmedSessionId ? `- sessao: ${trimmedSessionId}` : null,
+    `- command: ${commandType}`,
+    `- operator: ${result.runtimeUserId}`,
+    trimmedSessionId ? `- session: ${trimmedSessionId}` : null,
   ];
   const baseLines = lines.filter(Boolean) as string[];
 
   if (meaningfulReplies.length === 0) {
     baseLines.push(
       isContinue
-        ? '- status: Zavorth ja comecou a retomar esse trabalho.'
-        : '- status: Zavorth ja comecou a trabalhar nesse pedido.',
+        ? '- status: Zavorth started resuming this work.'
+        : '- status: Zavorth started working on this request.',
     );
     baseLines.push(
       trimmedSessionId
-        ? `- proximo passo: acompanhe por \`history ${trimmedSessionId}\` ou siga conversando no terminal.`
-        : '- proximo passo: acompanhe por `history` ou siga conversando no terminal.',
+        ? `- next: review with \`history ${trimmedSessionId}\` or keep talking here.`
+        : '- next: review with `history` or keep talking here.',
     );
     if (continueHint) {
-      baseLines.push(`- continue daqui: ${continueHint}`);
+      baseLines.push(`- continue: ${continueHint}`);
     }
     return baseLines.join('\n');
   }
@@ -489,9 +489,9 @@ export function formatCliTaskDispatchOutput(
   return [
     ...baseLines,
     '',
-    'Resposta imediata do runtime:',
+    'Runtime reply:',
     ...meaningfulReplies.map((reply) => `- ${reply}`),
-    ...(continueHint ? [`- continue daqui: ${continueHint}`] : []),
+    ...(continueHint ? [`- continue: ${continueHint}`] : []),
   ].join('\n');
 }
 
@@ -502,32 +502,32 @@ export function describeCliSharedSurfaceProductCommand(normalized: string): {
   const trimmed = String(normalized || '').trim().toLowerCase();
   if (trimmed.startsWith('/approve ')) {
     return {
-      title: 'Aprovacao enviada ao Zavorth',
-      status: 'o runtime recebeu a aprovacao desta tarefa.',
+      title: 'Approval sent to Zavorth',
+      status: 'the runtime received the approval for this task.',
     };
   }
   if (trimmed.startsWith('/reject ')) {
     return {
-      title: 'Rejeicao enviada ao Zavorth',
-      status: 'o runtime recebeu a rejeicao desta tarefa.',
+      title: 'Rejection sent to Zavorth',
+      status: 'the runtime received the rejection for this task.',
     };
   }
   if (trimmed.startsWith('/workflow resume ')) {
     return {
-      title: 'Retomada de workflow enviada',
-      status: 'o runtime recebeu a retomada do workflow.',
+      title: 'Workflow resume sent',
+      status: 'the runtime received the workflow resume request.',
     };
   }
   if (trimmed.startsWith('/workflow restart-stage ')) {
     return {
-      title: 'Reinicio de etapa enviado',
-      status: 'o runtime recebeu o pedido para reexecutar a etapa.',
+      title: 'Stage restart sent',
+      status: 'the runtime received the stage restart request.',
     };
   }
   if (trimmed.startsWith('/workflow close ')) {
     return {
-      title: 'Encerramento de workflow enviado',
-      status: 'o runtime recebeu o pedido para encerrar esse workflow.',
+      title: 'Workflow close sent',
+      status: 'the runtime received the request to close this workflow.',
     };
   }
   return null;
@@ -555,7 +555,7 @@ export function formatCliSharedSurfaceProductOutput(
     }
 
     return formatCliSuccessEventCard({
-      title: 'Pronto',
+      title: 'Done',
       body: meaningfulReplies.length > 0
         ? [descriptor.title, ...meaningfulReplies]
         : descriptor.title,
@@ -566,21 +566,21 @@ export function formatCliSharedSurfaceProductOutput(
   }
 
   const lines = [
-    echoInput ? `Pedido: ${conversationLabel}` : null,
+    echoInput ? `Request: ${conversationLabel}` : null,
     `Zavorth: ${descriptor.title}`,
-    `- comando: ${normalized}`,
+    `- command: ${normalized}`,
   ].filter(Boolean) as string[];
 
   if (meaningfulReplies.length === 0) {
     lines.push(`- status: ${descriptor.status}`);
-    lines.push('- proximo passo: acompanhe a resposta no terminal ou pelo historico da sessao.');
+    lines.push('- next: keep watching this terminal or review the session history.');
     return lines.join('\n');
   }
 
   return [
     ...lines,
     '',
-    'Resposta imediata do runtime:',
+    'Runtime reply:',
     ...meaningfulReplies.map((reply) => `- ${reply}`),
   ].join('\n');
 }
@@ -595,9 +595,9 @@ export function formatCliSessionPlaneOutput(
   const continueHint = formatCliContinueHint(trimmedArgs);
   if (mode === 'history') {
     return [
-      'Historico da conversa',
-      trimmedArgs ? `- sessao: ${trimmedArgs}` : null,
-      continueHint ? `- proximo passo: ${continueHint}` : '- proximo passo: use continue ou run para retomar a partir daqui.',
+      'Conversation history',
+      trimmedArgs ? `- session: ${trimmedArgs}` : null,
+      continueHint ? `- next: ${continueHint}` : '- next: use continue or run to resume from here.',
       trimmedArgs ? `- replay: history ${trimmedArgs}` : null,
       '',
       String(rawBody || '').trim(),
@@ -605,11 +605,11 @@ export function formatCliSessionPlaneOutput(
   }
 
   return [
-    'Conversas do Zavorth',
-    '- proximo passo: use history <sessionId> para abrir uma conversa especifica.',
-    currentSessionId ? `- conversa atual: ${currentSessionId}` : null,
-    currentSessionId ? `- abrir replay: history ${currentSessionId}` : null,
-    currentSessionId ? `- trocar no chat: use ${currentSessionId} ou switch ${currentSessionId}` : null,
+    'Zavorth conversations',
+    '- next: use history <sessionId> to open a specific conversation.',
+    currentSessionId ? `- current session: ${currentSessionId}` : null,
+    currentSessionId ? `- open replay: history ${currentSessionId}` : null,
+    currentSessionId ? `- switch in chat: use ${currentSessionId} or switch ${currentSessionId}` : null,
     '',
     String(rawBody || '').trim(),
   ].filter(Boolean).join('\n');
@@ -640,7 +640,7 @@ export async function executeCliTaskDispatch(
       sendChatAction: async () => undefined,
     },
     reply: async (text: string) => {
-      replies.push(String(text || '').trim() || '(mensagem vazia)');
+      replies.push(String(text || '').trim() || '(empty message)');
       return {};
     },
     editMessage: async () => undefined,
@@ -759,7 +759,7 @@ async function executeCliUniversalFallback(input: {
       text: trimmed,
       isGroup: false,
       reply: async (text: string) => {
-        replies.push(String(text || '').trim() || '(mensagem vazia)');
+        replies.push(String(text || '').trim() || '(empty message)');
       },
       metadata: {
         channel: sourceChannel || 'cli',
@@ -775,10 +775,10 @@ async function executeCliUniversalFallback(input: {
         .map((entry) => String(entry || '').trim())
         .filter(Boolean),
     ));
-    const replyText = outputReplies.join('\n\n') || 'Pedido processado pelo runtime universal.';
+    const replyText = outputReplies.join('\n\n') || 'Request processed by the universal runtime.';
     return {
       replyText,
-      summary: 'Pedido encaminhado pelo runtime universal para o gateway conversacional.',
+      summary: 'Request routed through the universal runtime to the conversation gateway.',
       metadata: {
         delegatedTo: 'legacy_unified_gateway_adapter',
         surface: result.surface,
@@ -811,7 +811,7 @@ async function executeCliUniversalFallback(input: {
         sendChatAction: async () => undefined,
       },
       reply: async (text: string) => {
-        replies.push(String(text || '').trim() || '(mensagem vazia)');
+        replies.push(String(text || '').trim() || '(empty message)');
         return {};
       },
       editMessage: async () => undefined,
@@ -836,13 +836,13 @@ async function executeCliUniversalFallback(input: {
     const taskId = String(result.task?.task_id || '').trim();
     const replyText = extractCliMeaningfulReplies(replies, /^task dispatched\b/i).join('\n\n')
       || (taskId
-        ? 'Recebi esse pedido e ja comecei a trabalhar.'
-        : 'Pedido encaminhado pelo runtime universal.');
+        ? 'I have the request and started working.'
+        : 'Request routed through the universal runtime.');
     return {
       replyText,
       summary: taskId
-        ? 'Pedido encaminhado pelo runtime universal para execucao supervisionada.'
-        : 'Pedido processado pelo runtime universal.',
+        ? 'Request routed through the universal runtime for supervised execution.'
+        : 'Request processed by the universal runtime.',
       metadata: {
         delegatedTo: 'surface_task_dispatcher',
         taskId: taskId || null,
@@ -852,8 +852,8 @@ async function executeCliUniversalFallback(input: {
   }
 
   return {
-    replyText: 'Recebi o pedido. O runtime universal registrou a conversa, mas nenhum executor real esta conectado nesta superficie.',
-    summary: 'Pedido registrado no runtime universal sem executor conectado.',
+    replyText: 'I received the request. The universal runtime recorded the conversation, but no live executor is connected on this surface.',
+    summary: 'Request recorded by the universal runtime without a connected executor.',
     metadata: {
       delegatedTo: 'none',
     },
@@ -1223,7 +1223,7 @@ export async function executeCliUniversalAgentRuntime(
 
     const rawPrimaryReply = String(result.replies[0]?.text || '').trim()
       || result.run.summary
-      || 'Pedido processado pelo runtime universal.';
+      || 'Request processed by the universal runtime.';
     const approval = result.run.approvals.find((entry) => entry.status === 'pending') || null;
     const primaryReply = new ZavorthUserResponseRendererService().render({
       text: rawPrimaryReply,
@@ -1423,7 +1423,7 @@ export async function executeCliLegacyUnifiedConversation(
       text: trimmed,
       isGroup: false,
       reply: async (text: string) => {
-        replies.push(String(text || '').trim() || '(mensagem vazia)');
+        replies.push(String(text || '').trim() || '(empty message)');
       },
       metadata: {
         channel: 'cli',
@@ -1462,7 +1462,7 @@ export async function executeCliLegacyUnifiedConversation(
     }
 
     const conversationLabel = formatCliConversationLabel(trimmed);
-    const responseText = outputReplies.join('\n\n') || 'Comando tratado sem resposta textual.';
+    const responseText = outputReplies.join('\n\n') || 'Command handled without a text response.';
     const eventReply = outputReplies
       .map((reply) => formatCliChatReplyEventCard(reply))
       .find(Boolean);
@@ -1472,7 +1472,7 @@ export async function executeCliLegacyUnifiedConversation(
         body: responseText,
       })
       : [
-        `Pedido: ${conversationLabel}`,
+        `Request: ${conversationLabel}`,
         `Zavorth: ${responseText}`,
       ].join('\n');
 

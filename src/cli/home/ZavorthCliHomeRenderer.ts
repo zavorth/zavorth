@@ -64,16 +64,16 @@ export function renderZavorthCliHome(snapshot: ZavorthCliHomeSnapshot): string {
 function buildAttentionLines(snapshot: ZavorthCliHomeSnapshot): string[] {
   const lines: string[] = [];
   if (!snapshot.provider.configured) {
-    lines.push('Provider is not configured -> zavorth setup');
+    lines.push('Provider is not configured. Ask me to connect one, or open guided setup.');
   }
   if (snapshot.approvals.pending > 0) {
-    lines.push(`${snapshot.approvals.pending} approval(s) pending -> zavorth approve`);
+    lines.push(`${snapshot.approvals.pending} approval(s) pending. Review risk, scope and receipt before deciding.`);
   }
   if (snapshot.safety.effectBoundary !== 'ready') {
-    lines.push('Safety boundary needs repair -> zavorth doctor');
+    lines.push('Safety boundary needs repair. I can inspect the failure and propose a narrow fix.');
   }
   if (snapshot.status === 'offline') {
-    lines.push('Runtime looks offline -> zavorth start');
+    lines.push('Runtime looks offline. I can start or diagnose it before continuing.');
   }
   if (snapshot.approvals.latest.length > 0) {
     const latest = snapshot.approvals.latest[0];

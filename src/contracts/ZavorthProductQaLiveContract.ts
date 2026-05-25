@@ -21,7 +21,9 @@ export type ZavorthProductQaLiveRowId =
   | 'receipt'
   | 'dashboard'
   | 'cli'
+  | 'llm-brain-session'
   | 'learning-candidate'
+  | 'long-tail-adapters'
   | 'rollback-sandbox';
 
 export type ZavorthProductQaLiveRowStatus =
@@ -74,6 +76,9 @@ export type ZavorthProductQaLiveReadiness = {
   sandboxCovered: boolean;
   receiptsCovered: boolean;
   learningCovered: boolean;
+  llmBrainCovered: boolean;
+  sessionStreamingCovered: boolean;
+  longTailAdaptersCovered: boolean;
 };
 
 export type ZavorthProductQaLivePolicy = {

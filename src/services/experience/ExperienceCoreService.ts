@@ -1,11 +1,15 @@
 import {
   EXPERIENCE_COMMAND_CONTRACT_VERSION,
+  EXPERIENCE_ACTION_CARD_CONTRACT_VERSION,
   EXPERIENCE_SNAPSHOT_CONTRACT_VERSION,
+  LEARNING_CANDIDATE_CONTRACT_VERSION,
   type ExperienceAction,
+  type ExperienceActionCard,
   type ExperienceApproval,
   type ExperienceCommand,
   type ExperienceCommandResult,
   type ExperienceHealthStatus,
+  type ExperienceLearningCandidate,
   type ExperienceMemorySignal,
   type ExperienceReceipt,
   type ExperienceResponseProfileId,
@@ -36,9 +40,24 @@ import type {
   ZavorthAgentGatewaySnapshotOptions,
 } from '../../runtime/agent/ZavorthAgentGateway.js';
 import { defaultZavorthSpeculativeAutonomyCancellationRegistry } from '../ZavorthSpeculativeAutonomyService.js';
+import { ZavorthProviderReadinessMatrixService } from '../ZavorthProviderReadinessMatrixService.js';
+import { ZavorthSelfHealingUxService } from '../ZavorthSelfHealingUxService.js';
+import {
+  ZavorthSelfHealingReceiptService,
+  type ZavorthSelfHealingReceipt,
+} from '../ZavorthSelfHealingReceiptService.js';
 import type { ZavorthMemoryPlaneService } from '../ZavorthMemoryPlaneService.js';
 import type { ZavorthLearningPlaneService } from '../ZavorthLearningPlaneService.js';
 import type { RuntimeAccessReadinessService } from '../../runtime/access/RuntimeAccessReadinessService.js';
+import type {
+  ZavorthSelfHealingAction,
+  ZavorthSelfHealingProjection,
+} from '../../contracts/ZavorthSelfHealingUxContract.js';
+import type { ZavorthLlmBrainSnapshot } from '../../contracts/ZavorthLlmBrainContract.js';
+import {
+  ZavorthAgentMaturityService,
+  type ZavorthAgentMaturitySnapshot,
+} from '../ZavorthAgentMaturityService.js';
 
 type AgentGatewayLike = Pick<
   ZavorthAgentGateway,
@@ -64,6 +83,10 @@ export type ExperienceCoreRuntime = {
   reasoningSummary?: ReasoningSummaryService;
   pulseBrief?: PulseBriefService;
   responseProfiles?: ResponseProfilePreferenceService;
+  selfHealingUx?: ZavorthSelfHealingUxService;
+  selfHealingReceipts?: ZavorthSelfHealingReceiptService;
+  providerReadinessMatrix?: Pick<ZavorthProviderReadinessMatrixService, 'buildSnapshot'>;
+  agentMaturity?: Pick<ZavorthAgentMaturityService, 'buildSnapshot'>;
 };
 
 export type ExperienceHomeInput = {
@@ -170,6 +193,10 @@ export class ExperienceCoreService {
   private readonly reasoningSummary: ReasoningSummaryService;
   private readonly pulseBrief: PulseBriefService;
   private readonly responseProfiles: ResponseProfilePreferenceService;
+  private readonly selfHealingUx: ZavorthSelfHealingUxService;
+  private readonly selfHealingReceipts: ZavorthSelfHealingReceiptService;
+  private readonly providerReadinessMatrix: Pick<ZavorthProviderReadinessMatrixService, 'buildSnapshot'>;
+  private readonly agentMaturity: Pick<ZavorthAgentMaturityService, 'buildSnapshot'>;
 
   constructor(runtime: ExperienceCoreRuntime = {}) {
     this.now = runtime.now || (() => new Date());
@@ -191,6 +218,10 @@ export class ExperienceCoreService {
     this.reasoningSummary = runtime.reasoningSummary || new ReasoningSummaryService();
     this.pulseBrief = runtime.pulseBrief || new PulseBriefService();
     this.responseProfiles = runtime.responseProfiles || new ResponseProfilePreferenceService({ now: this.now });
+    this.selfHealingUx = runtime.selfHealingUx || new ZavorthSelfHealingUxService();
+    this.selfHealingReceipts = runtime.selfHealingReceipts || new ZavorthSelfHealingReceiptService({ now: this.now });
+    this.providerReadinessMatrix = runtime.providerReadinessMatrix || new ZavorthProviderReadinessMatrixService({ now: this.now });
+    this.agentMaturity = runtime.agentMaturity || new ZavorthAgentMaturityService();
   }
 
   public buildHome(input: ExperienceHomeInput = {}): ExperienceSnapshot {
@@ -208,16 +239,37 @@ export class ExperienceCoreService {
     const runs = agentSnapshot?.runs || [];
     const approvals = this.collectApprovals(runs);
     const timeline = this.buildTimeline(activeRun, runs);
-    const receipts = this.buildReceipts(activeRun, runs, approvals);
+    const receipts = this.mergeExperienceReceipts(
+      this.selfHealingReceipts.toExperienceReceipts(6),
+      this.buildReceipts(activeRun, runs, approvals),
+    );
     const memorySignals = this.buildMemorySignals(activeRun, workspace);
-    const learningCandidates = this.learningOs.buildCandidates({ workspace });
+    const llmBrain = recordOrNull(activeRun?.metadata?.zavorthLlmBrain) as ZavorthLlmBrainSnapshot | null;
+    const agentMaturity = this.agentMaturity.buildSnapshot({
+      run: activeRun,
+      request: activeRun
+        ? {
+          userId,
+          channel: activeRun.channel,
+          text: activeRun.input || activeRun.title || '',
+          workspace: workspace || activeRun.workspace || undefined,
+          requestedTools: [],
+        } as any
+        : null,
+      now: this.now(),
+    }) as ZavorthAgentMaturitySnapshot;
+    const learningCandidates = this.mergeLearningCandidates(
+      this.learningOs.buildCandidates({ workspace }),
+      this.buildLlmBrainLearningCandidates(activeRun, llmBrain),
+    );
     const learningSummary = this.learningOs.buildSummary({ workspace });
+    const pendingLearningCount = learningCandidates.filter((candidate) => candidate.state === 'pending').length;
     const trust = this.trustLens.build({
       activeRun,
       approvals,
       sandboxMode: normalizeText(activeRun?.metadata?.sandboxIsolation, 'governed-local'),
     });
-    const health = this.buildHealth(agentSnapshot, learningSummary.pending, approvals);
+    const health = this.buildHealth(agentSnapshot, pendingLearningCount, approvals);
     const generatedAt = this.now().toISOString();
     const diffReviews = this.diffReview.build({ activeRun, runs });
     const autoHealing = this.autoHealing.build({ activeRun });
@@ -239,7 +291,7 @@ export class ExperienceCoreService {
       actionCards: draftActionCards,
       surface,
     });
-    const actionCards = this.actionCards.build({
+    const baseActionCards = this.actionCards.build({
       activeRun,
       approvals,
       learningCandidates,
@@ -248,7 +300,11 @@ export class ExperienceCoreService {
       autoHealing,
       now: this.now(),
     });
-    const nextActions = this.buildNextActions(health.status, approvals.length, learningSummary.pending);
+    const actionCards = this.mergeActionCards(
+      baseActionCards,
+      this.buildSelfHealingCardsFromReceipts(this.selfHealingReceipts.list(4)),
+    );
+    const nextActions = this.buildNextActions(health.status, approvals.length, pendingLearningCount);
     const pendingApprovals = approvals.filter((approval) => approval.status === 'pending').length;
     const pulse = this.pulseBrief.build({
       surface,
@@ -258,7 +314,7 @@ export class ExperienceCoreService {
       runs,
       approvals,
       learningCandidates,
-      learningPending: learningSummary.pending,
+      learningPending: pendingLearningCount,
       learningSummary: learningSummary.summary,
       receipts,
       nextActions,
@@ -305,7 +361,7 @@ export class ExperienceCoreService {
       learning: {
         candidates: learningCandidates,
         summary: learningSummary.summary,
-        pending: learningSummary.pending,
+        pending: pendingLearningCount,
       },
       trust,
       daily: {
@@ -314,7 +370,7 @@ export class ExperienceCoreService {
         health: health.status,
         nextSteps: nextActions.map((item) => item.label).slice(0, 5),
         pendingApprovals,
-        pendingLearning: learningSummary.pending,
+        pendingLearning: pendingLearningCount,
         pulse,
         responseProfile: pulse.profile,
       },
@@ -325,6 +381,8 @@ export class ExperienceCoreService {
       autoHealing,
       contextRecovery,
       reasoningSummary,
+      llmBrain,
+      agentMaturity,
       nextActions,
       health,
       raw: {
@@ -377,12 +435,12 @@ export class ExperienceCoreService {
         const snapshot = this.buildHome(command);
         const reply = this.replyFromText(
           result
-            ? `Aprovacao ${command.approval.decision === 'approve' ? 'aprovada' : 'rejeitada'}: ${command.approval.id}.`
-            : `Nao encontrei aprovacao pendente para ${command.approval.id}.`,
+            ? `Approval ${command.approval.decision === 'approve' ? 'approved' : 'rejected'}: ${command.approval.id}.`
+            : `I could not find a pending approval for ${command.approval.id}.`,
           command,
           result?.run?.id || null,
         );
-        return {
+        return this.finalizeCommandResult(command, {
           ok: Boolean(result),
           handled: true,
           plan,
@@ -390,7 +448,7 @@ export class ExperienceCoreService {
           replies: [reply],
           receipts: snapshot.receipts,
           error: result ? null : 'Approval not found.',
-        };
+        });
       }
 
       if (command.learning?.decision) {
@@ -401,7 +459,7 @@ export class ExperienceCoreService {
         });
         const snapshot = this.buildHome(command);
         const reply = this.replyFromText(learning.summary, command, null);
-        return {
+        return this.finalizeCommandResult(command, {
           ok: learning.ok,
           handled: true,
           plan,
@@ -409,7 +467,7 @@ export class ExperienceCoreService {
           replies: [reply],
           receipts: snapshot.receipts,
           error: learning.ok ? null : learning.summary,
-        };
+        });
       }
 
       if (command.actionCardDecision?.cardId && command.actionCardDecision.actionId) {
@@ -431,25 +489,25 @@ export class ExperienceCoreService {
           command,
           snapshot.agent.activeRunId,
         );
-        return {
-          ok: diffResult.ok,
-          handled: true,
-          plan,
-          snapshot,
-          replies: [reply],
-          receipts: snapshot.receipts,
-          error: diffResult.ok ? null : diffResult.summary,
-        };
+          return this.finalizeCommandResult(command, {
+            ok: diffResult.ok,
+            handled: true,
+            plan,
+            snapshot,
+            replies: [reply],
+            receipts: snapshot.receipts,
+            error: diffResult.ok ? null : diffResult.summary,
+          });
       }
 
       if (command.contextRecoveryDecision?.recoveryId) {
         const snapshot = this.buildHome(command);
         const reply = this.replyFromText(
-          `Contexto selecionado: ${command.contextRecoveryDecision.optionId}. Vou continuar usando esse alvo antes de executar qualquer acao sensivel.`,
+          `Context selected: ${command.contextRecoveryDecision.optionId}. I will keep using that target before any sensitive action runs.`,
           command,
           snapshot.agent.activeRunId,
         );
-        return {
+        return this.finalizeCommandResult(command, {
           ok: true,
           handled: true,
           plan,
@@ -457,13 +515,13 @@ export class ExperienceCoreService {
           replies: [reply],
           receipts: snapshot.receipts,
           error: null,
-        };
+        });
       }
 
       if (plan.kind === 'dashboard' || plan.kind === 'diagnostics' || plan.kind === 'learning' || plan.kind === 'memory') {
         const snapshot = this.buildHome(command);
         const reply = this.replyFromText(plan.nextSafeAction, command, snapshot.agent.activeRunId);
-        return {
+        return this.finalizeCommandResult(command, {
           ok: true,
           handled: true,
           plan,
@@ -471,13 +529,21 @@ export class ExperienceCoreService {
           replies: [reply],
           receipts: snapshot.receipts,
           error: null,
-        };
+        });
+      }
+
+      const contextualSetupKind = this.contextualSetupKind(command, plan);
+      if (contextualSetupKind) {
+        return this.finalizeCommandResult(command, this.buildContextualSetupResult(command, {
+          ...plan,
+          kind: contextualSetupKind,
+        }));
       }
 
       const localDateTimeAnswer = buildLocalDateTimeAnswer(command.text, this.now());
       if (localDateTimeAnswer) {
         const snapshot = this.buildHome(command);
-        return {
+        return this.finalizeCommandResult(command, {
           ok: true,
           handled: true,
           plan,
@@ -485,12 +551,12 @@ export class ExperienceCoreService {
           replies: [this.replyFromText(localDateTimeAnswer, command, snapshot.agent.activeRunId)],
           receipts: snapshot.receipts,
           error: null,
-        };
+        });
       }
 
       let runResult: UniversalAgentRunResult | null = null;
       if (plan.shouldExecuteAgent && this.agentGateway) {
-        runResult = await this.agentGateway.handle({
+        const handledRun = await this.agentGateway.handle({
           userId: command.userId,
           sessionId: command.sessionId,
           channel: command.surface,
@@ -508,6 +574,10 @@ export class ExperienceCoreService {
             },
           },
         });
+        runResult = handledRun || null;
+        if (runResult) {
+          runResult = await this.maybeRetryProviderFallback(command, plan, runResult);
+        }
       }
 
       const snapshot = this.buildHome({
@@ -527,7 +597,7 @@ export class ExperienceCoreService {
           runId: reply.runId,
         }))
         : [this.replyFromText(plan.summary, command, snapshot.agent.activeRunId)];
-      return {
+      return this.finalizeCommandResult(command, {
         ok: runResult?.ok ?? true,
         handled: true,
         plan,
@@ -535,11 +605,11 @@ export class ExperienceCoreService {
         replies,
         receipts: snapshot.receipts,
         error: runResult?.ok === false ? snapshot.agent.summary : null,
-      };
+      });
     } catch (error: any) {
       const snapshot = this.buildHome(command);
-      const message = `Falha na Experience Core: ${error?.message || 'erro desconhecido'}.`;
-      return {
+      const message = `Experience Core failed: ${error?.message || 'unknown error'}.`;
+      return this.finalizeCommandResult(command, {
         ok: false,
         handled: true,
         plan,
@@ -547,7 +617,7 @@ export class ExperienceCoreService {
         replies: [this.replyFromText(message, command, snapshot.agent.activeRunId)],
         receipts: snapshot.receipts,
         error: message,
-      };
+      });
     }
   }
 
@@ -664,6 +734,55 @@ export class ExperienceCoreService {
       // Keep the experience surface available even if memory is offline.
     }
     return [];
+  }
+
+  private buildLlmBrainLearningCandidates(
+    activeRun: UniversalAgentRun | null,
+    llmBrain: ZavorthLlmBrainSnapshot | null,
+  ): ExperienceLearningCandidate[] {
+    if (!activeRun || !llmBrain) return [];
+    const signal = llmBrain.skillEvolution;
+    if (signal.status === 'needs-more-signal') return [];
+    const quarantined = signal.status === 'quarantined';
+    return [{
+      contractVersion: LEARNING_CANDIDATE_CONTRACT_VERSION,
+      id: `llm-brain:${activeRun.id}`,
+      title: signal.candidateKind === 'skill-improvement'
+        ? 'Skill improvement signal'
+        : signal.candidateKind === 'auto-skill'
+          ? 'Reusable skill signal'
+          : 'Procedure learning signal',
+      origin: 'llm-brain',
+      observedPattern: signal.summary,
+      recommendation: quarantined
+        ? 'Keep quarantined. Learning cannot alter security policy, approvals, sandbox, effect boundary or allowlists.'
+        : 'Review this run as a possible reusable skill, Mnemos procedure or nudge before promoting behavior.',
+      confidence: quarantined ? 0.2 : 0.82,
+      impact: quarantined
+        ? 'Does not alter behavior.'
+        : 'Can improve future routing, procedures or skill suggestions only after approval.',
+      dataUsed: [
+        llmBrain.summary,
+        `tools requested=${llmBrain.toolAgency.requested} executed=${llmBrain.toolAgency.executed}`,
+        `session=${llmBrain.session.sessionId}`,
+      ],
+      suggestedAction: signal.suggestedCommand || 'zavorth learn',
+      state: quarantined ? 'quarantined' : 'pending',
+      createdAt: llmBrain.generatedAt,
+      updatedAt: llmBrain.generatedAt,
+    }];
+  }
+
+  private mergeLearningCandidates(
+    primary: ExperienceLearningCandidate[],
+    secondary: ExperienceLearningCandidate[],
+  ): ExperienceLearningCandidate[] {
+    const seen = new Set<string>();
+    return [...secondary, ...primary].filter((candidate) => {
+      if (seen.has(candidate.id)) return false;
+      seen.add(candidate.id);
+      return true;
+    });
   }
 
   private buildChat(activeRun: UniversalAgentRun | null, runs: UniversalAgentRun[]) {
@@ -835,6 +954,43 @@ export class ExperienceCoreService {
       };
     }
 
+    const selfHealingMatch = /^self-healing:([^:]+):(.+)$/.exec(actionId);
+    if (selfHealingMatch) {
+      const healingAction = selfHealingMatch[2] || '';
+      if (healingAction.includes('configure-provider')) {
+        return this.finalizeCommandResult(command, this.buildContextualSetupResult(command, {
+          ...plan,
+          kind: 'provider-setup',
+          title: 'Provider setup',
+          summary: 'Connect a model provider inside the conversation.',
+          nextSafeAction: 'Tell me the provider to connect, then provide the credential only when asked.',
+        }));
+      }
+      if (healingAction.includes('configure-channel')) {
+        return this.finalizeCommandResult(command, this.buildContextualSetupResult(command, {
+          ...plan,
+          kind: 'channel-setup',
+          title: 'Channel setup',
+          summary: 'Connect a communication surface inside the conversation.',
+          nextSafeAction: 'Tell me the surface to connect, then provide token, webhook or pairing details only when asked.',
+        }));
+      }
+      const snapshot = this.buildHome(command);
+      return this.finalizeCommandResult(command, {
+        ok: true,
+        handled: true,
+        plan,
+        snapshot,
+        replies: [this.replyFromText(
+          'I have the recovery action. Send the original request again and I will retry with the prepared fallback or ask only for the missing input.',
+          command,
+          snapshot.agent.activeRunId,
+        )],
+        receipts: snapshot.receipts,
+        error: null,
+      });
+    }
+
     const healingCancelMatch = /^healing:cancel:(.+)$/.exec(actionId);
     if (healingCancelMatch) {
       const targetRunId = healingCancelMatch[1] || command.actionCardDecision?.cardId || null;
@@ -871,6 +1027,393 @@ export class ExperienceCoreService {
     };
   }
 
+  private buildContextualSetupResult(
+    command: ExperienceCommand,
+    plan: ReturnType<NaturalCommandRouterService['route']>,
+  ): ExperienceCommandResult {
+    const snapshot = this.buildHome(command);
+    const target = plan.kind === 'provider-setup' ? 'provider' : 'channel';
+    const replyText = target === 'provider'
+      ? [
+        'I can connect a model provider from here without exposing secrets.',
+        '',
+        'Tell me one of these:',
+        '- "use Gemini"',
+        '- "use OpenRouter"',
+        '- "use Ollama local"',
+        '- "connect Groq"',
+        '',
+        'When a key is needed, I will ask for it explicitly, store only a redacted SecretRef path, run an explicit live proof, and create a receipt.',
+      ].join('\n')
+      : [
+        'I can connect a communication surface from here.',
+        '',
+        'Tell me the surface you want, for example Telegram, Discord, Slack, Signal, WhatsApp, Matrix or Email.',
+        'I will ask only for the exact token, webhook, pairing code or allowlisted user id needed by that surface.',
+        '',
+        'Remote surfaces stay least-privilege until pairing, allowlist and proof receipts exist.',
+      ].join('\n');
+    return {
+      ok: true,
+      handled: true,
+      plan,
+      snapshot,
+      replies: [this.replyFromText(replyText, command, snapshot.agent.activeRunId)],
+      receipts: snapshot.receipts,
+      error: null,
+    };
+  }
+
+  private contextualSetupKind(
+    command: ExperienceCommand,
+    plan: ReturnType<NaturalCommandRouterService['route']>,
+  ): 'provider-setup' | 'channel-setup' | null {
+    if (plan.kind === 'provider-setup' || plan.kind === 'channel-setup') return plan.kind;
+    const text = normalizeKey(command.text);
+    const explicitSetup = command.intent === 'setup' || /\b(connect|configure|setup|pair|use)\b/.test(command.text.toLowerCase());
+    if (!explicitSetup) return null;
+    if (/\b(openai|gemini|google|anthropic|claude|openrouter|ollama|lmstudio|groq|mistral|deepseek|provider|model|api-key|key)\b/.test(text)) {
+      return 'provider-setup';
+    }
+    if (/\b(telegram|discord|slack|signal|whatsapp|matrix|email|teams|line|irc|twitch|nostr|channel|surface|webhook|pair)\b/.test(text)) {
+      return 'channel-setup';
+    }
+    return null;
+  }
+
+  private async maybeRetryProviderFallback(
+    command: ExperienceCommand,
+    plan: ReturnType<NaturalCommandRouterService['route']>,
+    firstResult: UniversalAgentRunResult,
+  ): Promise<UniversalAgentRunResult> {
+    if (firstResult.ok !== false || !this.agentGateway) return firstResult;
+
+    const firstSnapshot = this.buildHome({
+      surface: command.surface,
+      userId: command.userId,
+      sessionId: firstResult.run.sessionId || command.sessionId || null,
+      workspace: command.workspace || firstResult.run.workspace || null,
+      activeRunId: firstResult.run.id,
+      responseProfile: command.responseProfile || null,
+    });
+    const matrix = this.safeProviderReadinessMatrix();
+    const projection = this.selfHealingUx.buildProjection({
+      attempted: plan.title,
+      commandText: command.text,
+      snapshot: firstSnapshot,
+      error: firstResult.run.summary || firstResult.replies.map((reply) => reply.text).join('\n'),
+      providerMatrix: matrix,
+    });
+    const fallbackProvider = this.selectFallbackProvider(projection, firstResult.run.modelProfile.providerLabel);
+    if (!fallbackProvider || !isProviderHealingIssue(projection.issue)) {
+      return firstResult;
+    }
+
+    try {
+      const retryResult = await this.agentGateway.handle({
+        userId: command.userId,
+        sessionId: command.sessionId,
+        channel: command.surface,
+        text: command.text,
+        workspace: command.workspace || null,
+        metadata: {
+          ...(command.metadata || {}),
+          providerName: fallbackProvider,
+          responseProfile: command.responseProfile || undefined,
+          selfHealingProviderFallback: {
+            fromProvider: firstResult.run.modelProfile.providerLabel || null,
+            selectedProvider: fallbackProvider,
+            issue: projection.issue,
+            previousRunId: firstResult.run.id,
+          },
+          experiencePlan: {
+            id: plan.id,
+            kind: plan.kind,
+            risk: plan.risk,
+            requiresApproval: plan.requiresApproval,
+            autonomyMode: command.autonomyMode,
+          },
+        },
+      });
+      this.selfHealingReceipts.append({
+        projection,
+        action: projection.actions.find((candidate) => candidate.kind === 'retry_fallback') || projection.actions[0] || null,
+        status: retryResult.ok ? 'applied' : 'failed',
+        applied: true,
+        fallbackProvider,
+        summary: retryResult.ok
+          ? `Provider fallback retried through ${fallbackProvider} after ${projection.issue}.`
+          : `Provider fallback through ${fallbackProvider} was attempted but still failed.`,
+      });
+      return retryResult.ok ? retryResult : firstResult;
+    } catch (error) {
+      this.selfHealingReceipts.append({
+        projection,
+        action: projection.actions.find((candidate) => candidate.kind === 'retry_fallback') || projection.actions[0] || null,
+        status: 'failed',
+        applied: true,
+        fallbackProvider,
+        summary: `Provider fallback through ${fallbackProvider} failed: ${error instanceof Error ? error.message : String(error || 'unknown error')}.`,
+      });
+      return firstResult;
+    }
+  }
+
+  private finalizeCommandResult(
+    command: ExperienceCommand,
+    result: ExperienceCommandResult,
+  ): ExperienceCommandResult {
+    const projection = this.selfHealingUx.buildProjection({
+      attempted: result.plan.title,
+      commandText: command.text,
+      result,
+      snapshot: result.snapshot,
+    });
+    if (!projection.shouldRender) return result;
+
+    const primaryAction = projection.actions[0] || null;
+    const status = projection.needsUserInput
+      ? 'needs_user'
+      : projection.canZavorthRepair
+        ? 'proposed'
+        : 'blocked';
+    const receipt = this.selfHealingReceipts.append({
+      projection,
+      action: primaryAction,
+      status,
+      applied: false,
+      summary: projection.problem,
+    });
+    const selfHealingCards = this.buildSelfHealingActionCards(projection, receipt);
+    const snapshot: ExperienceSnapshot = {
+      ...result.snapshot,
+      actionCards: this.mergeActionCards(selfHealingCards, result.snapshot.actionCards || []),
+      receipts: this.mergeExperienceReceipts(
+        [this.selfHealingReceiptToExperienceReceipt(receipt)],
+        result.snapshot.receipts,
+      ),
+      raw: {
+        ...(result.snapshot.raw || {}),
+        selfHealing: projection,
+        selfHealingReceipt: receipt,
+      },
+    };
+    return {
+      ...result,
+      snapshot,
+      receipts: snapshot.receipts,
+    };
+  }
+
+  private buildSelfHealingActionCards(
+    projection: ZavorthSelfHealingProjection,
+    receipt: ZavorthSelfHealingReceipt,
+  ): ExperienceActionCard[] {
+    if (projection.issue === 'none') return [];
+    return [{
+      contractVersion: EXPERIENCE_ACTION_CARD_CONTRACT_VERSION,
+      id: `self-healing:${projection.issue}:${receipt.id.split(':').pop()}`,
+      source: 'self-healing',
+      title: this.selfHealingCardTitle(projection),
+      summary: projection.nextSafeAction,
+      risk: this.selfHealingRisk(projection),
+      status: projection.needsUserInput || projection.canZavorthRepair ? 'pending' : 'ready',
+      scope: projection.setup?.target || 'current request',
+      sandbox: projection.setup?.target === 'sandbox' ? 'required' : 'not required',
+      affectedFiles: [],
+      affectedCommands: projection.actions.map((candidate) => candidate.command).filter((entry): entry is string => Boolean(entry)),
+      ttlSeconds: 3600,
+      receiptHint: receipt.id,
+      actions: projection.actions.slice(0, 4).map((candidate) => this.selfHealingActionToExperienceAction(projection, candidate)),
+      createdAt: receipt.createdAt,
+    }];
+  }
+
+  private buildSelfHealingCardsFromReceipts(receipts: ZavorthSelfHealingReceipt[]): ExperienceActionCard[] {
+    return receipts
+      .filter((receipt) => receipt.status === 'proposed' || receipt.status === 'needs_user' || receipt.status === 'failed')
+      .slice(0, 3)
+      .map((receipt) => {
+        const target = receipt.issue.startsWith('channel_')
+          ? 'channel'
+          : receipt.issue.startsWith('provider_')
+            ? 'provider'
+            : receipt.issue === 'sandbox_unavailable'
+              ? 'sandbox'
+              : receipt.issue === 'runtime_unavailable'
+                ? 'runtime'
+                : 'request';
+        return {
+          contractVersion: EXPERIENCE_ACTION_CARD_CONTRACT_VERSION,
+          id: `self-healing:receipt:${receipt.id.split(':').pop()}`,
+          source: 'self-healing' as const,
+          title: receipt.applied ? `Recovered ${target}` : `Recover ${target}`,
+          summary: receipt.nextSafeAction,
+          risk: receipt.approvalRequired ? 'attention' as const : 'safe' as const,
+          status: receipt.status === 'failed' ? 'blocked' as const : 'pending' as const,
+          scope: target,
+          sandbox: target === 'sandbox' ? 'required' : 'not required',
+          affectedFiles: [],
+          affectedCommands: [],
+          ttlSeconds: 3600,
+          receiptHint: receipt.id,
+          actions: this.actionsForSelfHealingReceipt(receipt),
+          createdAt: receipt.createdAt,
+        };
+      });
+  }
+
+  private actionsForSelfHealingReceipt(receipt: ZavorthSelfHealingReceipt): ExperienceAction[] {
+    if (receipt.issue.startsWith('provider_')) {
+      return [
+        action({
+          id: `self-healing:${receipt.issue}:configure-provider`,
+          label: 'Configure provider',
+          kind: 'healing',
+          command: 'connect a provider',
+          risk: 'safe',
+          reason: 'Continue provider setup inside the conversation without exposing secrets.',
+        }),
+        action({
+          id: `self-healing:${receipt.issue}:retry-fallback`,
+          label: 'Retry fallback',
+          kind: 'healing',
+          command: receipt.fallbackProvider ? `retry with ${receipt.fallbackProvider}` : 'retry with fallback',
+          risk: 'safe',
+          reason: 'Use an allowed gateway fallback route when one is ready.',
+        }),
+      ];
+    }
+    if (receipt.issue.startsWith('channel_')) {
+      return [action({
+        id: `self-healing:${receipt.issue}:configure-channel`,
+        label: 'Connect surface',
+        kind: 'healing',
+        command: 'connect a channel',
+        risk: 'safe',
+        reason: 'Collect only the missing token, webhook or pairing detail.',
+      })];
+    }
+    if (receipt.issue === 'approval_required') {
+      return [action({
+        id: `self-healing:${receipt.issue}:review-approval`,
+        label: 'Review approval',
+        kind: 'approval',
+        command: 'review pending approval',
+        risk: 'attention',
+        requiresApproval: false,
+        reason: 'Show scope, risk and receipt preview before deciding.',
+      })];
+    }
+    return [action({
+      id: `self-healing:${receipt.issue}:inspect`,
+      label: 'Inspect recovery',
+      kind: 'healing',
+      risk: 'attention',
+      reason: receipt.summary,
+    })];
+  }
+
+  private selfHealingActionToExperienceAction(
+    projection: ZavorthSelfHealingProjection,
+    healingAction: ZavorthSelfHealingAction,
+  ): ExperienceAction {
+    return action({
+      id: `self-healing:${projection.issue}:${healingAction.id}`,
+      label: healingAction.label,
+      kind: 'healing',
+      command: healingAction.command || healingAction.prompt || null,
+      risk: this.selfHealingRisk(projection),
+      requiresApproval: healingAction.approvalRequired,
+      reason: healingAction.detail,
+    });
+  }
+
+  private selfHealingReceiptToExperienceReceipt(receipt: ZavorthSelfHealingReceipt): ExperienceReceipt {
+    return {
+      id: receipt.id,
+      title: receipt.applied ? `Self-healing applied: ${receipt.issue}` : `Self-healing prepared: ${receipt.issue}`,
+      detail: receipt.summary,
+      status: receipt.status === 'applied' || receipt.status === 'skipped'
+        ? 'ready'
+        : receipt.status === 'failed'
+          ? 'failed'
+          : receipt.status === 'blocked'
+            ? 'blocked'
+            : 'pending',
+      source: 'self-healing',
+      createdAt: receipt.createdAt,
+    };
+  }
+
+  private selfHealingCardTitle(projection: ZavorthSelfHealingProjection): string {
+    if (projection.issue.startsWith('provider_')) return 'Provider recovery';
+    if (projection.issue.startsWith('channel_')) return 'Channel setup';
+    if (projection.issue === 'approval_required') return 'Approval needed';
+    if (projection.issue === 'sandbox_unavailable') return 'Sandbox recovery';
+    if (projection.issue === 'runtime_unavailable') return 'Runtime recovery';
+    return 'Recovery plan';
+  }
+
+  private selfHealingRisk(projection: ZavorthSelfHealingProjection): ExperienceAction['risk'] {
+    if (projection.issue === 'approval_required' || projection.issue === 'sandbox_unavailable') return 'attention';
+    if (projection.issue === 'runtime_unavailable') return 'attention';
+    if (projection.issue === 'unknown_failure') return 'attention';
+    return 'safe';
+  }
+
+  private mergeExperienceReceipts(
+    primary: ExperienceReceipt[],
+    secondary: ExperienceReceipt[],
+  ): ExperienceReceipt[] {
+    const seen = new Set<string>();
+    return [...primary, ...secondary]
+      .filter((receipt) => {
+        if (seen.has(receipt.id)) return false;
+        seen.add(receipt.id);
+        return true;
+      })
+      .sort((left, right) => right.createdAt.localeCompare(left.createdAt))
+      .slice(0, 12);
+  }
+
+  private mergeActionCards(
+    primary: ExperienceActionCard[],
+    secondary: ExperienceActionCard[],
+  ): ExperienceActionCard[] {
+    const seen = new Set<string>();
+    return [...primary, ...secondary]
+      .filter((card) => {
+        if (seen.has(card.id)) return false;
+        seen.add(card.id);
+        return true;
+      })
+      .slice(0, 12);
+  }
+
+  private safeProviderReadinessMatrix() {
+    try {
+      return this.providerReadinessMatrix.buildSnapshot({
+        includeAdvanced: false,
+        probe: false,
+        live: false,
+      });
+    } catch {
+      return null;
+    }
+  }
+
+  private selectFallbackProvider(
+    projection: ZavorthSelfHealingProjection,
+    attemptedProvider: string | null | undefined,
+  ): string | null {
+    const attempted = normalizeKey(attemptedProvider);
+    for (const candidate of projection.fallback?.candidates || []) {
+      if (normalizeKey(candidate) && normalizeKey(candidate) !== attempted) return candidate;
+    }
+    return null;
+  }
+
   private replyFromText(text: string, command: ExperienceCommand, runId: string | null) {
     return {
       id: `experience-reply:${Date.now().toString(36)}`,
@@ -880,4 +1423,20 @@ export class ExperienceCoreService {
       runId,
     };
   }
+}
+
+function normalizeKey(value: unknown): string {
+  return String(value || '')
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-+|-+$/g, '');
+}
+
+function isProviderHealingIssue(issue: string): boolean {
+  return issue === 'provider_auth'
+    || issue === 'provider_quota'
+    || issue === 'provider_timeout'
+    || issue === 'provider_unavailable';
 }
