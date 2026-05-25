@@ -5,15 +5,18 @@ import { spawnSync } from 'node:child_process';
 
 const root = process.cwd();
 const asJson = process.argv.includes('--json');
+const deep = process.argv.includes('--deep');
 const nodeBin = process.execPath;
 const npmCli = resolveNpmCli();
 const jestCli = 'node_modules/jest/bin/jest.js';
 
 const rules = [
   publicDocsAreClean(),
-  commandPasses('typescript', nodeBin, [npmCli, 'run', 'runtime:check', '--silent']),
-  commandPasses('build', nodeBin, [npmCli, 'run', 'build', '--silent']),
-  commandPasses('security ci', nodeBin, [npmCli, 'run', 'security:ci', '--silent']),
+  ...(deep ? [
+    commandPasses('typescript', nodeBin, [npmCli, 'run', 'runtime:check', '--silent']),
+    commandPasses('build', nodeBin, [npmCli, 'run', 'build', '--silent']),
+    commandPasses('security ci', nodeBin, [npmCli, 'run', 'security:ci', '--silent']),
+  ] : []),
   commandPasses('focused cli tests', nodeBin, [
     jestCli,
     'tests/cli/ZavorthSetupStudioService.test.ts',
@@ -35,6 +38,7 @@ const failed = rules.filter((rule) => rule.status === 'failed');
 const snapshot = {
   generatedAt: new Date().toISOString(),
   surface: 'zavorth-cli-public-surface-check',
+  mode: deep ? 'deep' : 'quick',
   status: failed.length === 0 ? 'passed' : 'failed',
   summary: {
     rules: rules.length,

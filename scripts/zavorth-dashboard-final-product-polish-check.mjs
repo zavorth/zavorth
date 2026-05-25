@@ -56,30 +56,22 @@ function ruleFilesExist() {
 
 function ruleContainsMarkers() {
   const checks = [
-    ['assets/dashboard/index.html', [
-      'Local gateway ready',
-      'Ask normally. Zavorth will answer, preview risky work, and ask before acting.',
-      'home-command-panel',
-      'suggestion-chips',
-      'sector-terminal',
-      'sector-overview',
+    ['src/ai-gateway/app/(dashboard)/dashboard/page.tsx', [
+      'HomePageClient',
     ]],
-    ['assets/dashboard/scripts/pages.js', [
-      'data-zavorth-premium-dashboard-v2',
-      'premium-page',
-      'Today in Zavorth.',
-      'Every channel uses the same rules.',
-      'Skills, curated safely.',
-      'Background mode, kept quiet.',
-      'Configuration, redacted.',
+    ['src/ai-gateway/app/(dashboard)/dashboard/HomePageClient.tsx', [
+      'providerSignal',
+      'approvalsSignal',
+      'runtimeGuidedFixes',
+      '/api/runtime/readiness',
+      '/api/system/version',
+      'Approvals appear here',
+      'swarmSnapshot',
     ]],
-    ['assets/dashboard/styles/pages.css', [
-      '.premium-page',
-      '.premium-hero',
-      '.premium-layout',
-      '.premium-skill-list',
-      '.usage-filter-bar',
-      '@media (max-width: 768px)',
+    ['src/ai-gateway/shared/constants/sidebarVisibility.ts', [
+      'href: "/dashboard"',
+      'href: "/dashboard/providers"',
+      'href: "/dashboard/skills"',
     ]],
     ['src/contracts/ZavorthDashboardFinalProductPolishContract.ts', [
       'ZAVORTH_DASHBOARD_FINAL_PRODUCT_POLISH_CONTRACT_VERSION',

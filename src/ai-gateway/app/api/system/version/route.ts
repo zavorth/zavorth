@@ -33,11 +33,7 @@ async function getLatestNpmVersion(): Promise<string | null> {
 }
 
 function getCurrentVersion(): string {
-  try {
-    return require("../../../../../package.json").version as string;
-  } catch {
-    return "unknown";
-  }
+  return process.env.npm_package_version || "1.1.0";
 }
 
 function isNewer(a: string | null, b: string): boolean {

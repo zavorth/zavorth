@@ -27,6 +27,7 @@ logs/
 !src/ai-gateway/app/api/logs/**
 .codex-run/
 .zavorth/logs/
+.zavorth/gateway.json
 *.log
 actual-findings.txt
 error_dump.txt
@@ -62,6 +63,8 @@ desktop.ini
 *.swo
 
 # === Build Artifacts ===
+.next/
+src/ai-gateway/.next/
 *.js.map
 coverage/
 output/

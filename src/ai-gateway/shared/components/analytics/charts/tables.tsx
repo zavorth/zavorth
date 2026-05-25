@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useMemo, useState } from "react";
-import Card from "../Card";
+import Card from "../../Card";
 import { getModelColor } from "@/shared/constants/colors";
 import { fmtCompact as fmt, fmtFull, fmtCost, formatApiKeyLabel as maskApiKeyLabel } from "@/shared/utils/formatting";
 import { SortIndicator, PROVIDER_COLORS } from "./shared";

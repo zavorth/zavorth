@@ -1,6 +1,6 @@
 "use client";
 
-import Card from "../Card";
+import Card from "../../Card";
 
 export type CompactStatSection = {
   title: string;

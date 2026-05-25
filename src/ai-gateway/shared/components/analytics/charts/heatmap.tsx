@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo } from "react";
-import Card from "../Card";
+import Card from "../../Card";
 import { fmtCompact as fmt, fmtFull } from "@/shared/utils/formatting";
 import { MONTH_NAMES, buildDateKey } from "./shared";
 

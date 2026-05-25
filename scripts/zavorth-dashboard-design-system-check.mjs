@@ -5,73 +5,59 @@ import path from 'node:path';
 const root = process.cwd();
 const read = (file) => fs.readFileSync(path.join(root, file), 'utf8');
 
-const base = read('assets/dashboard/styles/base.css');
-const components = read('assets/dashboard/styles/components.css');
-const pages = read('assets/dashboard/styles/pages.css');
-const chat = read('assets/dashboard/styles/chat.css');
-const html = read('assets/dashboard/index.html');
+const globals = read('src/ai-gateway/app/globals.css');
+const home = read('src/ai-gateway/app/(dashboard)/dashboard/HomePageClient.tsx');
+const sidebar = read('src/ai-gateway/shared/constants/sidebarVisibility.ts');
 
 const requiredTokens = [
-  '--b-space-1',
-  '--b-control-md',
-  '--b-card-pad-md',
-  '--b-row-min',
-  '--b-component-border',
-  '--b-component-bg',
-  '--b-component-hover-border',
-  '--b-label-size',
+  '--color-primary',
+  '--color-accent',
+  '--color-bg',
+  '--color-surface',
+  '--color-border',
+  '--color-text-main',
+  '--shadow-soft',
+  '--shadow-elevated',
 ];
 
-const requiredClasses = [
-  '.zv-surface',
-  '.zv-section',
-  '.zv-card',
-  '.zv-action',
-  '.zv-chip',
-  '.zv-status',
-  '.zv-list',
-  '.zv-row',
-  '.zv-data-table',
-  '.zv-empty',
-  '.zv-toolbar',
+const requiredHomeMarkers = [
+  'HomePageClient',
+  'providerSignal',
+  'approvalsSignal',
+  'runtimeGuidedFixes',
+  '/api/runtime/readiness',
+  '/api/system/version',
+  'lg:',
+  'sm:',
 ];
 
-const requiredLegacyAlignment = [
-  '.summary-card',
-  '.entity-card',
-  '.data-table',
-  '.badge',
-  '.dashboard-card',
-  '.dashboard-strip',
-  '.echo-action-row',
-  '.inbox-flow-strip',
+const requiredSidebarMarkers = [
+  'href: "/dashboard"',
+  'href: "/dashboard/providers"',
+  'href: "/dashboard/skills"',
+  'href: "/dashboard/memory"',
 ];
 
 const failures = [];
 
 for (const token of requiredTokens) {
-  if (!base.includes(token)) failures.push(`missing token ${token}`);
+  if (!globals.includes(token)) failures.push(`missing token ${token}`);
 }
 
-for (const className of requiredClasses) {
-  if (!components.includes(className)) failures.push(`missing canonical class ${className}`);
+for (const marker of requiredHomeMarkers) {
+  if (!home.includes(marker)) failures.push(`missing dashboard marker ${marker}`);
 }
 
-for (const selector of requiredLegacyAlignment) {
-  const haystack = selector.includes('echo') || selector.includes('inbox') ? chat : pages + chat + html;
-  if (!haystack.includes(selector)) failures.push(`missing aligned selector ${selector}`);
+for (const marker of requiredSidebarMarkers) {
+  if (!sidebar.includes(marker)) failures.push(`missing sidebar marker ${marker}`);
 }
 
-if (!components.includes(':where(.core-card, .summary-card, .entity-card')) {
-  failures.push('legacy card selectors are not aligned to the component contract');
+if (sidebar.includes('/control')) {
+  failures.push('legacy /control route is still exposed in dashboard navigation');
 }
 
-if (!pages.includes('var(--b-component-bg)') || !pages.includes('var(--b-component-border)')) {
-  failures.push('sector pages are not using component contract tokens');
-}
-
-if (!chat.includes('var(--b-control-sm)') && !components.includes('.echo-action-row button')) {
-  failures.push('chat action controls are not covered by the component contract');
+if (!globals.includes('@source "../app/(dashboard)"')) {
+  failures.push('Tailwind source does not include dashboard route group');
 }
 
 if (failures.length) {
@@ -81,4 +67,4 @@ if (failures.length) {
 }
 
 console.log('[dashboard-design-system] passed');
-console.log(`tokens=${requiredTokens.length} canonicalClasses=${requiredClasses.length} legacySelectors=${requiredLegacyAlignment.length}`);
+console.log(`tokens=${requiredTokens.length} homeMarkers=${requiredHomeMarkers.length} sidebarMarkers=${requiredSidebarMarkers.length}`);

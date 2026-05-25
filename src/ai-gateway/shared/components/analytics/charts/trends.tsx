@@ -2,7 +2,7 @@
 
 import { useMemo } from "react";
 import { useLocale } from "next-intl";
-import Card from "../Card";
+import Card from "../../Card";
 import { getModelColor } from "@/shared/constants/colors";
 import { fmtCompact as fmt, fmtFull } from "@/shared/utils/formatting";
 import {

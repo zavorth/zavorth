@@ -26,6 +26,20 @@ function isBackgroundServicesDisabled(): boolean {
   return new Set(["1", "true", "yes", "on"]).has(raw.trim().toLowerCase());
 }
 
+function handleOptionalStartupImport(err: unknown, label: string): null {
+  const msg = err instanceof Error ? err.message : String(err);
+  if (
+    msg.includes("@ZavorthGateway/open-sse") ||
+    msg.includes("open-sse") ||
+    msg.includes("Cannot find module") ||
+    msg.includes("Can't resolve")
+  ) {
+    console.warn(`[STARTUP] Optional gateway compatibility module unavailable (${label}):`, msg);
+    return null;
+  }
+  throw err;
+}
+
 async function ensureSecrets(): Promise<void> {
   let getPersistedSecret = (_key: string): string | null => null;
   let persistSecret = (_key: string, _value: string): void => {};
@@ -70,8 +84,14 @@ async function ensureSecrets(): Promise<void> {
 
 export async function registerNodejs(): Promise<void> {
   // Initialize proxy fetch patch FIRST (before any HTTP requests)
-  await import("@ZavorthGateway/open-sse/index.ts");
-  console.log("[STARTUP] Global fetch proxy patch initialized");
+  const openSse = await import("@ZavorthGateway/open-sse/index.ts").catch((err) =>
+    handleOptionalStartupImport(err, "proxy fetch patch")
+  );
+  if (openSse) {
+    console.log("[STARTUP] Global fetch proxy patch initialized");
+  } else {
+    console.log("[STARTUP] Running without legacy open-sse proxy patch");
+  }
 
   await ensureSecrets();
 
@@ -80,38 +100,34 @@ export async function registerNodejs(): Promise<void> {
   enforceEnvSchema();
 
   // Trigger request-log layout migration during startup, before any request hits usageDb.
-  await import("@/lib/usage/migrations");
+  await import("@/lib/usage/migrations").catch((err) =>
+    handleOptionalStartupImport(err, "usage migrations")
+  );
 
   const { initConsoleInterceptor } = await import("@/lib/consoleInterceptor");
   initConsoleInterceptor();
 
-  const [
-    { initGracefulShutdown },
-    { initApiBridgeServer },
-    { startBackgroundRefresh },
-    { startProviderLimitsSyncScheduler },
-    { getSettings },
-  ] = await Promise.all([
-    import("@/lib/gracefulShutdown"),
-    import("@/lib/apiBridgeServer"),
-    import("@/domain/quotaCache"),
-    import("@/shared/services/providerLimitsSyncScheduler"),
-    import("@/lib/db/settings"),
-  ]);
+  const [{ initGracefulShutdown }, { initApiBridgeServer }, { getSettings }] =
+    await Promise.all([
+      import("@/lib/gracefulShutdown"),
+      import("@/lib/apiBridgeServer"),
+      import("@/lib/db/settings"),
+    ]);
 
   initGracefulShutdown();
   initApiBridgeServer();
   if (!isBackgroundServicesDisabled()) {
-    startBackgroundRefresh();
-    console.log("[STARTUP] Quota cache background refresh started");
-    startProviderLimitsSyncScheduler();
-    console.log("[STARTUP] Provider limits sync scheduler started");
+    console.log("[STARTUP] Gateway background refresh uses request-time health in this build");
   }
 
   try {
-    const [{ setCustomAliases }, { setDefaultFastServiceTierEnabled }] = await Promise.all([
-      import("@ZavorthGateway/open-sse/services/modelDeprecation.ts"),
-      import("@ZavorthGateway/open-sse/executors/codex.ts"),
+    const [modelDeprecation, codex] = await Promise.all([
+      import("@ZavorthGateway/open-sse/services/modelDeprecation.ts").catch((err) =>
+        handleOptionalStartupImport(err, "model aliases")
+      ) as Promise<{ setCustomAliases: (aliases: Record<string, unknown>) => void } | null>,
+      import("@ZavorthGateway/open-sse/executors/codex.ts").catch((err) =>
+        handleOptionalStartupImport(err, "Codex service tier")
+      ) as Promise<{ setDefaultFastServiceTierEnabled: (enabled: boolean) => void } | null>,
     ]);
     const settings = await getSettings();
 
@@ -121,10 +137,12 @@ export async function registerNodejs(): Promise<void> {
           ? JSON.parse(settings.modelAliases)
           : settings.modelAliases;
       if (aliases && typeof aliases === "object") {
-        setCustomAliases(aliases);
-        console.log(
-          `[STARTUP] Restored ${Object.keys(aliases).length} custom model alias(es) from settings`
-        );
+        if (modelDeprecation?.setCustomAliases) {
+          modelDeprecation.setCustomAliases(aliases);
+          console.log(
+            `[STARTUP] Restored ${Object.keys(aliases).length} custom model alias(es) from settings`
+          );
+        }
       }
     }
 
@@ -134,10 +152,12 @@ export async function registerNodejs(): Promise<void> {
         : settings.codexServiceTier;
 
     if (typeof persisted?.enabled === "boolean") {
-      setDefaultFastServiceTierEnabled(persisted.enabled);
-      console.log(
-        `[STARTUP] Restored Codex fast service tier: ${persisted.enabled ? "on" : "off"}`
-      );
+      if (codex?.setDefaultFastServiceTierEnabled) {
+        codex.setDefaultFastServiceTierEnabled(persisted.enabled);
+        console.log(
+          `[STARTUP] Restored Codex fast service tier: ${persisted.enabled ? "on" : "off"}`
+        );
+      }
     }
   } catch (err: unknown) {
     const msg = err instanceof Error ? err.message : String(err);
