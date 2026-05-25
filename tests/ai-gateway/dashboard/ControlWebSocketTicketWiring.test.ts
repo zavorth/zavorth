@@ -1,20 +1,36 @@
-import { readFileSync } from 'fs';
+import { readdirSync, readFileSync, statSync } from 'fs';
 import { join } from 'path';
 
-const controlDir = join(
+const dashboardDir = join(
   process.cwd(),
   'src/ai-gateway/app/(dashboard)/dashboard',
 );
 
-describe('Control WebSocket ticket wiring', () => {
-  it('requests a one-time ticket before opening the browser WebSocket', () => {
-    const hook = readFileSync(join(controlDir, 'useControlPageClient.ts'), 'utf8');
-    const utils = readFileSync(join(controlDir, 'controlPageClient.utils.ts'), 'utf8');
+function readDashboardSources(dir: string): string {
+  return readdirSync(dir)
+    .filter((entry) => !entry.startsWith('__'))
+    .map((entry) => join(dir, entry))
+    .map((entryPath) => {
+      if (statSync(entryPath).isDirectory()) {
+        return readDashboardSources(entryPath);
+      }
 
-    expect(hook).toContain('/api/auth/ticket');
-    expect(hook).toContain('method: "POST"');
-    expect(hook).toContain('buildGatewayWsUrl(sessionId, ticket)');
-    expect(utils).toContain('url.searchParams.set("ticket", ticket)');
-    expect(utils).not.toContain('url.searchParams.set("token"');
+      if (!/\.(ts|tsx)$/.test(entryPath)) {
+        return '';
+      }
+
+      return readFileSync(entryPath, 'utf8');
+    })
+    .join('\n');
+}
+
+describe('Dashboard browser transport security', () => {
+  it('does not expose gateway tokens or open browser WebSocket sessions from the Dashboard app', () => {
+    const sources = readDashboardSources(dashboardDir);
+
+    expect(sources).not.toContain('new WebSocket');
+    expect(sources).not.toContain('/api/auth/ticket');
+    expect(sources).not.toContain('url.searchParams.set("token"');
+    expect(sources).not.toContain('url.searchParams.set("ticket"');
   });
 });
