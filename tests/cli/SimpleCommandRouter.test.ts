@@ -7,11 +7,11 @@ describe('SimpleCommandRouter', () => {
   it('maps friendly aliases without removing advanced commands', () => {
     expect(resolveZavorthSimpleCommand(['chat'])).toEqual({
       kind: 'passthrough',
-      args: ['hatch'],
+      args: ['chat'],
     });
-    expect(resolveZavorthSimpleCommand(['status', '--json'])).toEqual({
+    expect(resolveZavorthSimpleCommand(['stats', '--json'])).toEqual({
       kind: 'passthrough',
-      args: ['ready', '--json'],
+      args: ['status', '--json'],
     });
     expect(resolveZavorthSimpleCommand(['providers', 'list'])).toEqual({
       kind: 'passthrough',
@@ -49,7 +49,7 @@ describe('SimpleCommandRouter', () => {
   it('renders a concise QA guide', () => {
     const guide = renderZavorthQaGuide('daily');
 
-    expect(guide).toContain('Zavorth QA Guide');
+    expect(guide).toContain('ZAVORTH QA GUIDE');
     expect(guide).toContain('zavorth ready');
     expect(guide).toContain('zavorth test runtime');
   });

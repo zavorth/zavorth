@@ -48,7 +48,7 @@ export interface SidebarSectionDefinition {
 }
 
 const PRIMARY_SIDEBAR_ITEMS: readonly SidebarItemDefinition[] = [
-  { id: "home", href: "/control", i18nKey: "home", icon: "home", exact: true },
+  { id: "home", href: "/dashboard", i18nKey: "home", icon: "home", exact: true },
   { id: "providers", href: "/dashboard/providers", i18nKey: "providers", icon: "dns" },
   { id: "skills", href: "/dashboard/skills", i18nKey: "skills", icon: "auto_fix_high" },
   { id: "memory", href: "/dashboard/memory", i18nKey: "memory", icon: "psychology" },

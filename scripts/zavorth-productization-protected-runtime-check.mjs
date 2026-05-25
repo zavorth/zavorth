@@ -65,7 +65,7 @@ if (snapshot) {
     'Fallback mode does not allow live mutations',
   );
   assertRule('sandbox:doctor-clear', typeof snapshot.sandbox?.doctor?.summary === 'string' && snapshot.sandbox.doctor.summary.length > 20, 'Sandbox doctor exposes a human-readable summary');
-  assertRule('command-center:no-authority', snapshot.commandCenterProjection?.executionAuthority === false, 'Command Center projection has no execution authority');
+  assertRule('dashboard:no-authority', snapshot.dashboardProjection?.executionAuthority === false, 'Dashboard projection has no execution authority');
   assertRule('distribution:private', snapshot.distribution?.privateExecutableFirst === true && snapshot.distribution?.proprietaryLicenseRequired === true, 'Private executable/proprietary posture is explicit');
 }
 

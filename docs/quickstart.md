@@ -34,7 +34,7 @@ Expected flow:
 
 1. `setup` opens the Setup Studio for provider, model, channels, Mnemos and approvals.
 2. `start` starts or resumes the local runtime.
-3. `open` opens or prints the local Command Center route at `/control`.
+3. `open` opens or prints the local Dashboard route at `/dashboard`.
 4. `ready` tells you whether provider, channels, approvals and runtime are usable.
 
 ## Product Home
@@ -137,7 +137,7 @@ zavorth doctor
 For maintainers, the equivalent CI gates verify:
 
 - the 10-minute quickstart contract
-- Command Center at `/control`
+- Dashboard at `/dashboard`
 - GitHub Governed Review fixture
 - Telegram approval loop fixture
 - Discord connector setup fixture
@@ -177,7 +177,7 @@ zavorth channels telegram
 ## Next
 
 - [CLI](/docs/zavorth-cli.md)
-- [Command Center](/docs/web-dashboard.md)
+- [Dashboard](/docs/web-dashboard.md)
 - [Telegram](/docs/telegram.md)
 - [Discord](/docs/discord.md)
 - [Channel Mesh](/docs/channel-mesh.md)

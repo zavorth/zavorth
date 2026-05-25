@@ -23,28 +23,28 @@ const SCENARIOS: ZavorthDashboardVisualQaScenario[] = [
   {
     id: 'channel-status-and-actions',
     label: 'Channel status/actions',
-    route: '/control/review?fixture=all',
+    route: '/dashboard/review?fixture=all',
     fixture: 'all',
     requiredEvidence: ['channel cards', 'actions', 'status rows', 'empty/error states'],
   },
   {
     id: 'qr-and-auth-states',
     label: 'QR/login and protected states',
-    route: '/control/review?fixture=awaiting-approval',
+    route: '/dashboard/review?fixture=awaiting-approval',
     fixture: 'awaiting-approval',
     requiredEvidence: ['QR/login placeholder', 'auth unlock', 'operator actions'],
   },
   {
     id: 'runtime-live-shell',
     label: 'Live shell without false claims',
-    route: '/control/review?fixture=live',
+    route: '/dashboard/review?fixture=live',
     fixture: 'live',
     requiredEvidence: ['token prompt', 'runtime bridge', 'no fake metrics'],
   },
   {
     id: 'auto-subagent-telemetry',
     label: 'Automatic subagent telemetry',
-    route: '/control/review?fixture=auto-subagents',
+    route: '/dashboard/review?fixture=auto-subagents',
     fixture: 'auto-subagents',
     requiredEvidence: ['Auto Subagents card', 'roles', 'triggers', 'policy row', 'next safe action'],
   },
@@ -86,7 +86,7 @@ export class ZavorthDashboardVisualQaService {
         report: 'npm run zavorth:dashboard-visual-qa',
         json: 'npm run zavorth:dashboard-visual-qa:json',
         check: 'npm run zavorth:dashboard-visual-qa:check',
-        preview: 'npm run qa:command-center-browser-preview',
+        preview: 'npm run qa:dashboard-browser-preview',
         capture: 'npm run zavorth:dashboard-visual-qa -- --capture',
         nextStep: evidenceReady
           ? 'Attach screenshots to the review cycle before approving a new visual change.'
@@ -120,7 +120,7 @@ export class ZavorthDashboardVisualQaService {
 
   private buildArtifacts(): ZavorthDashboardVisualQaArtifact[] {
     const artifacts = [
-      this.artifact('preview-html', '.tmp/command-center-browser-preview/index.html', 'html'),
+      this.artifact('preview-html', '.tmp/dashboard-browser-preview/index.html', 'html'),
       this.artifact('manifest', '.tmp/zavorth-dashboard-visual-qa/manifest.json', 'json'),
       this.artifact('desktop-screenshot', '.tmp/zavorth-dashboard-visual-qa/desktop.png', 'png'),
       this.artifact('mobile-screenshot', '.tmp/zavorth-dashboard-visual-qa/mobile.png', 'png'),

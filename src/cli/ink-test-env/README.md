@@ -40,6 +40,6 @@ npm run once
 - `/skills`: show skill memory and governed skills
 - `/receipts`: show receipt preview
 - `/doctor`: show local readiness summary
-- `/control`: show Command Center hint
+- `/dashboard`: show Dashboard hint
 - `/clear`: clear once and reprint the banner
 - `/exit`: exit preview

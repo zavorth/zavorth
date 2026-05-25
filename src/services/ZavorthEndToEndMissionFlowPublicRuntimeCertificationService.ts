@@ -121,7 +121,7 @@ export class ZavorthEndToEndMissionFlowPublicRuntimeCertificationService {
         subagentSkillReady: subagentSkillCompletion.status !== 'blocked',
         schedulerPerceptionDeviceReady: schedulerPerceptionDeviceCompletion.status !== 'blocked',
         publicRuntimeCanBypassPolicy: false,
-        commandCenterCanExecute: false,
+        dashboardCanExecute: false,
         rawSecretsSerialized: false,
         workspaceMutationPerformed: false,
         externalIoPerformed: false,
@@ -222,11 +222,11 @@ function buildEntries(input: {
       surface: 'approval',
       passed: chat.flow.eventTypes.includes('approval.request')
         && input.runtime.approvals.safety.approvalDoesNotExecuteTargetAction === true
-        && input.runtime.approvals.safety.commandCenterCanExecute === false,
+        && input.runtime.approvals.safety.dashboardCanExecute === false,
       evidence: [
         `approvalGate=${chat.flow.approvalGate.status}`,
         `approvalCards=${input.runtime.approvals.approvalCards.cards.length}`,
-        'commandCenterCanExecute=false',
+        'dashboardCanExecute=false',
       ],
       nextAction: 'approve once, deny, view preview or view rollback from governed surfaces only',
     }),
@@ -277,13 +277,13 @@ function buildEntries(input: {
       id: 'events.public-runtime',
       label: 'Public runtime events expose mission, approval and receipt lifecycle',
       surface: 'events',
-      passed: events.safety.commandCenterCanExecute === false
+      passed: events.safety.dashboardCanExecute === false
         && events.streaming.canonicalEventTypes.includes('approval.request')
         && events.streaming.canonicalEventTypes.includes('receipt.ready'),
       evidence: [
         `events=${events.data.length}`,
         `sse=${events.streaming.ssePath}`,
-        'commandCenterCanExecute=false',
+        'dashboardCanExecute=false',
       ],
       nextAction: null,
     }),
@@ -318,11 +318,11 @@ function buildEntries(input: {
       id: 'public-surfaces.no-bypass',
       label: 'Public surfaces cannot bypass Policy Broker',
       surface: 'safety',
-      passed: chat.safety.commandCenterCanExecute === false
+      passed: chat.safety.dashboardCanExecute === false
         && chat.safety.policyBrokerRequiredForTools === true
         && input.runtime.health.safety.publicApiCanBypassPolicy === false,
       evidence: [
-        'commandCenterCanExecute=false',
+        'dashboardCanExecute=false',
         'policyBrokerRequiredForTools=true',
         'publicApiCanBypassPolicy=false',
       ],
@@ -346,7 +346,7 @@ function entry(input: {
     surface: input.surface,
     evidence: input.evidence,
     userVisible: true,
-    commandCenterCanExecute: false,
+    dashboardCanExecute: false,
     nextAction: input.nextAction,
   };
 }

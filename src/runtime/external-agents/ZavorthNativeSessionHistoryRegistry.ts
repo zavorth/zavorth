@@ -11,8 +11,8 @@ import {
   normalizeZavorthNativeIntegrationRegistryFixture,
 } from './ZavorthNativeIntegrationRegistry.js';
 import {
-  normalizeExternalAgentCommandCenterLiveAssimilationFixture,
-} from './ExternalAgentCommandCenterLiveAssimilation.js';
+  normalizeExternalAgentDashboardLiveAssimilationFixture,
+} from './ExternalAgentDashboardLiveAssimilation.js';
 import {
   normalizeExternalExecutorSessionHistoryReadOnlyBridgeFixture,
 } from './ExternalAgentExternalExecutorSessionHistoryReadOnlyBridge.js';
@@ -29,9 +29,9 @@ import type {
   ZavorthNativeIntegrationRegistryNormalization,
 } from './ZavorthNativeIntegrationRegistry.js';
 import type {
-  ExternalAgentCommandCenterLiveAssimilationNormalization,
-  ExternalAgentCommandCenterOperationalStatus,
-} from './ExternalAgentCommandCenterLiveAssimilation.js';
+  ExternalAgentDashboardLiveAssimilationNormalization,
+  ExternalAgentDashboardOperationalStatus,
+} from './ExternalAgentDashboardLiveAssimilation.js';
 import type {
   ZavorthExternalMessageMetadataView,
   ZavorthExternalSessionView,
@@ -50,7 +50,7 @@ export type ZavorthNativeSessionHistoryRegistryDecision =
   | 'native-session-history-registry-ready';
 
 export type ZavorthNativeSessionHistoryProvenanceKind =
-  | 'command-center-assimilation'
+  | 'dashboard-assimilation'
   | 'dashboard-view-model-registry'
   | 'integration-registry'
   | 'native-capability-registry'
@@ -173,13 +173,13 @@ export type ZavorthNativeSessionHistoryDashboardProjection = {
   id: string;
   sessionRecordId: string;
   title: string;
-  status: ExternalAgentCommandCenterOperationalStatus;
+  status: ExternalAgentDashboardOperationalStatus;
   channel: UniversalAgentChannel;
   messageCount: number;
   threadCount: number;
   redactedMessageCount: number;
   dashboardViewModelIds: string[];
-  commandCenterConsumable: true;
+  dashboardConsumable: true;
   sourceIdentityPublic: false;
   messageContentRawStored: false;
   executionAuthority: false;
@@ -202,7 +202,7 @@ export type ZavorthNativeSessionHistoryRegistrySnapshot = {
   sourceArtifactsConsumed: {
     sqliteSessionStoreDryRunDesign: 'docs/sqlite-session-store-dry-run-design.md';
     sessionHistoryReadOnlyBridge: 'docs/external-executor-session-history-read-only-bridge.md';
-    commandCenterAssimilation: 'docs/command-center-live-assimilation.md';
+    dashboardAssimilation: 'docs/dashboard-live-assimilation.md';
     nativeCapabilityRegistry: 'docs/first-native-capability-registry-replacement-slice.md';
     dashboardViewModelRegistry: 'docs/dashboard-view-model-registry-native-slice.md';
     integrationRegistry: 'docs/provider-channel-transport-native-registry.md';
@@ -279,7 +279,7 @@ export type ZavorthNativeSessionHistoryRegistryIntegration = {
 
 export type ZavorthNativeSessionHistoryRegistrySource = {
   sessionHistoryBridge: ExternalExecutorSessionHistoryReadOnlyBridgeNormalization;
-  commandCenterAssimilation: ExternalAgentCommandCenterLiveAssimilationNormalization;
+  dashboardAssimilation: ExternalAgentDashboardLiveAssimilationNormalization;
   nativeCapabilityRegistry: ZavorthNativeCapabilityRegistryReplacementNormalization;
   capabilityRegistry: ZavorthNativeCapabilityRegistry;
   dashboardViewModelRegistry: ZavorthNativeDashboardViewModelRegistryNormalization;
@@ -310,7 +310,7 @@ export type ZavorthNativeSessionHistoryRegistryNormalization = {
   status: 'blocked' | 'native-session-history-registry-ready';
   sourceReadiness: {
     sessionHistoryReadOnlyBridge: ExternalExecutorSessionHistoryReadOnlyBridgeNormalization['decision'];
-    commandCenterAssimilation: ExternalAgentCommandCenterLiveAssimilationNormalization['decision'];
+    dashboardAssimilation: ExternalAgentDashboardLiveAssimilationNormalization['decision'];
     nativeCapabilityRegistry: ZavorthNativeCapabilityRegistryReplacementNormalization['decision'];
     dashboardViewModelRegistry: ZavorthNativeDashboardViewModelRegistryNormalization['decision'];
     nativeIntegrationRegistry: ZavorthNativeIntegrationRegistryNormalization['decision'];
@@ -390,7 +390,7 @@ function provenance(
   };
 }
 
-function commandCenterStatus(status: ZavorthExternalSessionViewStatus): ExternalAgentCommandCenterOperationalStatus {
+function dashboardStatus(status: ZavorthExternalSessionViewStatus): ExternalAgentDashboardOperationalStatus {
   if (status === 'ready') {
     return 'ready';
   }
@@ -426,7 +426,7 @@ function sessionCapabilityEntryIds(source: ZavorthNativeSessionHistoryRegistrySo
 function sessionDashboardViewModelIds(source: ZavorthNativeSessionHistoryRegistrySource, status: ZavorthExternalSessionViewStatus): string[] {
   return source.dashboardRegistry
     .list({ viewType: 'session' })
-    .filter((view) => view.status === commandCenterStatus(status))
+    .filter((view) => view.status === dashboardStatus(status))
     .map((view) => view.id);
 }
 
@@ -652,7 +652,7 @@ function buildSnapshot(
     sourceArtifactsConsumed: {
       sqliteSessionStoreDryRunDesign: 'docs/sqlite-session-store-dry-run-design.md',
       sessionHistoryReadOnlyBridge: 'docs/external-executor-session-history-read-only-bridge.md',
-      commandCenterAssimilation: 'docs/command-center-live-assimilation.md',
+      dashboardAssimilation: 'docs/dashboard-live-assimilation.md',
       nativeCapabilityRegistry: 'docs/first-native-capability-registry-replacement-slice.md',
       dashboardViewModelRegistry: 'docs/dashboard-view-model-registry-native-slice.md',
       integrationRegistry: 'docs/provider-channel-transport-native-registry.md',
@@ -691,13 +691,13 @@ function dashboardProjection(
       id: `${session.id}:dashboard-projection`,
       sessionRecordId: session.id,
       title: session.title,
-      status: commandCenterStatus(session.status),
+      status: dashboardStatus(session.status),
       channel: session.channel,
       messageCount: session.messageCount,
       threadCount: session.threadRecordIds.length,
       redactedMessageCount,
       dashboardViewModelIds: session.dashboardViewModelIds,
-      commandCenterConsumable: true,
+      dashboardConsumable: true,
       sourceIdentityPublic: false,
       messageContentRawStored: false,
       executionAuthority: false,
@@ -708,7 +708,7 @@ function dashboardProjection(
 function sourceReady(source: ZavorthNativeSessionHistoryRegistrySource): boolean {
   return (
     source.sessionHistoryBridge.decision === 'external-executor-session-history-read-only-bridge-ready' &&
-    source.commandCenterAssimilation.decision === 'command-center-live-assimilation-ready' &&
+    source.dashboardAssimilation.decision === 'dashboard-live-assimilation-ready' &&
     source.nativeCapabilityRegistry.decision === 'native-capability-registry-replacement-ready' &&
     source.dashboardViewModelRegistry.decision === 'native-dashboard-view-model-registry-ready' &&
     source.nativeIntegrationRegistry.decision === 'native-integration-registry-ready' &&
@@ -960,7 +960,7 @@ export class ZavorthNativeSessionHistoryRegistry {
 export function createZavorthNativeSessionHistoryRegistryFixtureSource(): ZavorthNativeSessionHistoryRegistrySource {
   return {
     sessionHistoryBridge: normalizeExternalExecutorSessionHistoryReadOnlyBridgeFixture(),
-    commandCenterAssimilation: normalizeExternalAgentCommandCenterLiveAssimilationFixture(),
+    dashboardAssimilation: normalizeExternalAgentDashboardLiveAssimilationFixture(),
     nativeCapabilityRegistry: normalizeZavorthNativeCapabilityRegistryReplacementFixture(),
     capabilityRegistry: createZavorthNativeCapabilityRegistryFixture(),
     dashboardViewModelRegistry: normalizeZavorthNativeDashboardViewModelRegistryFixture(),
@@ -1008,7 +1008,7 @@ export function normalizeZavorthNativeSessionHistoryRegistry<TRuntimeId extends 
     status: ready ? 'native-session-history-registry-ready' : 'blocked',
     sourceReadiness: {
       sessionHistoryReadOnlyBridge: options.source.sessionHistoryBridge.decision,
-      commandCenterAssimilation: options.source.commandCenterAssimilation.decision,
+      dashboardAssimilation: options.source.dashboardAssimilation.decision,
       nativeCapabilityRegistry: options.source.nativeCapabilityRegistry.decision,
       dashboardViewModelRegistry: options.source.dashboardViewModelRegistry.decision,
       nativeIntegrationRegistry: options.source.nativeIntegrationRegistry.decision,

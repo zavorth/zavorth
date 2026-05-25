@@ -1,0 +1,344 @@
+import fs from 'fs';
+import path from 'path';
+import { config } from '../config/index.js';
+import { spawnNativeCommand } from '../core/CommandSpawn.js';
+import { generateDashboardToken, isWeakDashboardToken } from './DashboardTokenService.js';
+
+export type DashboardAccessAction =
+  | 'open'
+  | 'url'
+  | 'token'
+  | 'status'
+  | 'doctor'
+  | 'repair'
+  | 'generate-token';
+
+export type DashboardAccessTokenSource = 'env' | 'runtime-file' | 'generated-runtime-file';
+
+export type DashboardAccessSnapshot = {
+  url: string;
+  publicUrl: string;
+  token: string;
+  tokenSource: DashboardAccessTokenSource;
+  tokenFile: string;
+  opened: boolean;
+  action: DashboardAccessAction;
+};
+
+export type DashboardAccessDoctorSnapshot = {
+  ok: boolean;
+  action: 'doctor' | 'repair' | 'generate-token';
+  status: 'ready' | 'repaired' | 'repairable' | 'env-locked';
+  publicUrl: string;
+  tokenSource: DashboardAccessTokenSource | 'missing';
+  tokenFile: string;
+  tokenPresent: boolean;
+  tokenFileExists: boolean;
+  tokenFileReadable: boolean;
+  repaired: boolean;
+  generated: boolean;
+  problems: string[];
+  recoveryCommands: string[];
+  notes: string[];
+};
+
+type DashboardAccessConfig = {
+  host: string;
+  port: number;
+  token: string;
+  tokenFile: string;
+  projectRoot: string;
+};
+
+type DashboardAccessServiceOptions = {
+  config?: Partial<DashboardAccessConfig>;
+  env?: NodeJS.ProcessEnv;
+  spawn?: typeof spawnNativeCommand;
+};
+
+function normalizeHostForBrowser(host: string): string {
+  const normalized = String(host || '').trim();
+  if (!normalized || normalized === '0.0.0.0' || normalized === '::') {
+    return '127.0.0.1';
+  }
+  return normalized;
+}
+
+function normalizeAction(raw: string | null | undefined): DashboardAccessAction {
+  const normalized = String(raw || '').trim().toLowerCase();
+  if (!normalized || normalized === 'open' || normalized === 'abrir') {
+    return 'open';
+  }
+  if (normalized === 'url' || normalized === 'link' || normalized === 'copy' || normalized === 'copiar') {
+    return 'url';
+  }
+  if (normalized === 'token' || normalized === 'senha' || normalized === 'access') {
+    return 'token';
+  }
+  if (normalized === 'status' || normalized === 'check') {
+    return 'status';
+  }
+  if (normalized === 'doctor' || normalized === 'diagnostico' || normalized === 'diagnóstico') {
+    return 'doctor';
+  }
+  if (normalized === 'repair' || normalized === 'fix' || normalized === 'corrigir' || normalized === 'reparar') {
+    return 'repair';
+  }
+  if (
+    normalized === 'generate-token'
+    || normalized === 'generate'
+    || normalized === 'regen'
+    || normalized === 'rotate'
+    || normalized === 'novo-token'
+  ) {
+    return 'generate-token';
+  }
+  return 'open';
+}
+
+export function parseDashboardAccessAction(args: string): DashboardAccessAction {
+  return normalizeAction(String(args || '').trim().split(/\s+/u)[0] || '');
+}
+
+export class DashboardAccessService {
+  private readonly optionsConfig: Partial<DashboardAccessConfig>;
+  private readonly env: NodeJS.ProcessEnv;
+  private readonly spawnImpl: typeof spawnNativeCommand;
+
+  constructor(options: DashboardAccessServiceOptions = {}) {
+    this.optionsConfig = options.config || {};
+    this.env = options.env || process.env;
+    this.spawnImpl = options.spawn || spawnNativeCommand;
+  }
+
+  public async run(action: DashboardAccessAction): Promise<DashboardAccessSnapshot> {
+    if (action === 'doctor' || action === 'repair' || action === 'generate-token') {
+      action = 'status';
+    }
+    const resolved = this.resolveToken();
+    const publicUrl = this.buildPublicUrl();
+    const url = `${publicUrl}#token=${encodeURIComponent(resolved.token)}`;
+    const snapshot: DashboardAccessSnapshot = {
+      url,
+      publicUrl,
+      token: resolved.token,
+      tokenSource: resolved.source,
+      tokenFile: this.resolveConfig().tokenFile,
+      opened: false,
+      action,
+    };
+
+    if (action === 'open') {
+      snapshot.opened = this.openUrl(url);
+    }
+
+    return snapshot;
+  }
+
+  public doctor(): DashboardAccessDoctorSnapshot {
+    return this.buildDoctorSnapshot('doctor', false, false);
+  }
+
+  public repair(): DashboardAccessDoctorSnapshot {
+    const inspection = this.inspectToken();
+    if (inspection.source === 'env') {
+      return this.buildDoctorSnapshot('repair', false, false, [
+        'O acesso ja vem de ZAVORTH_WEB_AUTH_TOKEN. Como variavel de ambiente vence arquivo local, nao rotacionei nada.',
+      ]);
+    }
+
+    const generated = !inspection.token;
+    if (generated) {
+      this.writeGeneratedToken();
+    }
+
+    return this.buildDoctorSnapshot(
+      'repair',
+      generated,
+      generated,
+      generated
+        ? ['Gerei um token local novo no arquivo de runtime. Abra com `zavorth dashboard`.']
+        : ['O token local ja existe. Use `zavorth dashboard` para abrir uma aba nova desbloqueada.'],
+    );
+  }
+
+  public generateToken(): DashboardAccessDoctorSnapshot {
+    const inspection = this.inspectToken();
+    if (inspection.source === 'env') {
+      return this.buildDoctorSnapshot('generate-token', false, false, [
+        'ZAVORTH_WEB_AUTH_TOKEN esta definido. Esse token vence qualquer arquivo local; para trocar, edite a variavel no ambiente/.env.',
+      ]);
+    }
+
+    this.writeGeneratedToken();
+    return this.buildDoctorSnapshot('generate-token', true, true, [
+      'Gerei um novo token local no arquivo de runtime. Abra uma nova aba com `zavorth dashboard`.',
+    ]);
+  }
+
+  private resolveConfig(): DashboardAccessConfig {
+    return {
+      host: this.optionsConfig.host || config.zavorthWebHost,
+      port: this.optionsConfig.port || config.zavorthWebPort,
+      token: this.optionsConfig.token ?? config.zavorthWebAuthToken,
+      tokenFile: this.optionsConfig.tokenFile || config.zavorthWebAuthTokenFile,
+      projectRoot: this.optionsConfig.projectRoot || config.projectRoot,
+    };
+  }
+
+  private buildPublicUrl(): string {
+    const resolved = this.resolveConfig();
+    const host = normalizeHostForBrowser(resolved.host);
+    return `http://${host}:${resolved.port}/dashboard`;
+  }
+
+  private resolveToken(): { token: string; source: DashboardAccessTokenSource } {
+    const inspected = this.inspectToken();
+    if (inspected.token) {
+      return { token: inspected.token, source: inspected.source as DashboardAccessTokenSource };
+    }
+
+    const generated = this.writeGeneratedToken();
+    return { token: generated, source: 'generated-runtime-file' };
+  }
+
+  private inspectToken(): {
+    token: string | null;
+    source: DashboardAccessTokenSource | 'missing';
+    tokenFileExists: boolean;
+    tokenFileReadable: boolean;
+  } {
+    const resolved = this.resolveConfig();
+    const envToken = String(this.env.ZAVORTH_WEB_AUTH_TOKEN || resolved.token || '').trim();
+    if (envToken && !isWeakDashboardToken(envToken)) {
+      return {
+        token: envToken,
+        source: 'env',
+        tokenFileExists: fs.existsSync(resolved.tokenFile),
+        tokenFileReadable: this.readTokenFile(resolved.tokenFile) !== null,
+      };
+    }
+
+    const tokenFileExists = fs.existsSync(resolved.tokenFile);
+    const fileToken = this.readTokenFile(resolved.tokenFile);
+    if (fileToken) {
+      return {
+        token: fileToken,
+        source: 'runtime-file',
+        tokenFileExists,
+        tokenFileReadable: true,
+      };
+    }
+
+    return {
+      token: null,
+      source: 'missing',
+      tokenFileExists,
+      tokenFileReadable: false,
+    };
+  }
+
+  private writeGeneratedToken(): string {
+    const tokenFile = this.resolveConfig().tokenFile;
+    const generated = generateDashboardToken();
+    fs.mkdirSync(path.dirname(tokenFile), { recursive: true });
+    fs.writeFileSync(tokenFile, generated, 'utf8');
+    return generated;
+  }
+
+  private buildDoctorSnapshot(
+    action: 'doctor' | 'repair' | 'generate-token',
+    repaired: boolean,
+    generated: boolean,
+    extraNotes: string[] = [],
+  ): DashboardAccessDoctorSnapshot {
+    const inspected = this.inspectToken();
+    const resolved = this.resolveConfig();
+    const rawEnvToken = String(this.env.ZAVORTH_WEB_AUTH_TOKEN || resolved.token || '').trim();
+    const weakEnvTokenIgnored = Boolean(rawEnvToken && isWeakDashboardToken(rawEnvToken));
+    const problems: string[] = [];
+    if (!inspected.token) {
+      problems.push('Token local ausente.');
+    }
+    if (inspected.source !== 'env' && inspected.tokenFileExists && !inspected.tokenFileReadable) {
+      problems.push('Arquivo de token existe, mas esta vazio ou ilegivel.');
+    }
+
+    const status = inspected.source === 'env'
+      ? 'env-locked'
+      : repaired
+        ? 'repaired'
+        : problems.length > 0
+          ? 'repairable'
+          : 'ready';
+
+    return {
+      ok: problems.length === 0 || repaired || inspected.source === 'env',
+      action,
+      status,
+      publicUrl: this.buildPublicUrl(),
+      tokenSource: inspected.source,
+      tokenFile: resolved.tokenFile,
+      tokenPresent: Boolean(inspected.token),
+      tokenFileExists: inspected.tokenFileExists,
+      tokenFileReadable: inspected.tokenFileReadable,
+      repaired,
+      generated,
+      problems,
+      recoveryCommands: [
+        'zavorth dashboard',
+        'zavorth dashboard url',
+        'zavorth dashboard repair',
+        'zavorth dashboard generate-token',
+        'zavorth dashboard token',
+      ],
+      notes: [
+        weakEnvTokenIgnored
+          ? 'ZAVORTH_WEB_AUTH_TOKEN parece ser um placeholder inseguro e foi ignorado; use `zavorth dashboard generate-token` para rotacionar.'
+          : null,
+        inspected.source === 'env'
+          ? 'ZAVORTH_WEB_AUTH_TOKEN esta ativo e tem prioridade sobre arquivo local.'
+          : 'O token local fica no arquivo de runtime e e aplicado por #token ao abrir o painel.',
+        'Se uma aba antiga disser token invalido, abra uma nova aba com `zavorth dashboard`.',
+        ...extraNotes,
+      ].filter(Boolean) as string[],
+    };
+  }
+
+  private readTokenFile(filePath: string): string | null {
+    try {
+      if (!fs.existsSync(filePath)) {
+        return null;
+      }
+      const token = fs.readFileSync(filePath, 'utf8').trim();
+      return token || null;
+    } catch {
+      return null;
+    }
+  }
+
+  private openUrl(url: string): boolean {
+    try {
+      const child = this.spawnImpl(...this.buildOpenCommand(url));
+      child.unref?.();
+      return true;
+    } catch {
+      return false;
+    }
+  }
+
+  private buildOpenCommand(url: string): Parameters<typeof spawnNativeCommand> {
+    const options = {
+      cwd: this.resolveConfig().projectRoot,
+      detached: true,
+      stdio: 'ignore' as const,
+    };
+    if (process.platform === 'win32') {
+      return ['rundll32.exe', ['url.dll,FileProtocolHandler', url], options];
+    }
+    if (process.platform === 'darwin') {
+      return ['open', [url], options];
+    }
+    return ['xdg-open', [url], options];
+  }
+}

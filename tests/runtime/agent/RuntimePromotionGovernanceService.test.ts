@@ -53,7 +53,7 @@ function capabilityLoopSnapshot(): StrongCapabilityLoopSnapshot {
           summary: 'fallback',
         },
         controlSurface: {
-          statusPath: '/control/runs/run#session',
+          statusPath: '/dashboard/runs/run#session',
           command: 'zavorth status --run run',
         },
       },
@@ -95,7 +95,7 @@ function capabilityLoopSnapshot(): StrongCapabilityLoopSnapshot {
           summary: 'fallback',
         },
         controlSurface: {
-          statusPath: '/control/runs/run#swarm',
+          statusPath: '/dashboard/runs/run#swarm',
           command: 'zavorth status --run run',
         },
       },
@@ -137,7 +137,7 @@ function capabilityLoopSnapshot(): StrongCapabilityLoopSnapshot {
           summary: 'fallback',
         },
         controlSurface: {
-          statusPath: '/control/runs/run#memory',
+          statusPath: '/dashboard/runs/run#memory',
           command: 'zavorth status --run run',
         },
       },
@@ -179,7 +179,7 @@ function capabilityLoopSnapshot(): StrongCapabilityLoopSnapshot {
           summary: 'fallback',
         },
         controlSurface: {
-          statusPath: '/control/runs/run#watch-mode',
+          statusPath: '/dashboard/runs/run#watch-mode',
           command: 'zavorth status --run run',
         },
       },

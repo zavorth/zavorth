@@ -13,6 +13,7 @@ export interface Settings {
     | "random"
     | "least-used"
     | "cost-optimized"
+    | "reset-aware"
     | "strict-random";
   stickyRoundRobinLimit: number;
   jwtSecret?: string;

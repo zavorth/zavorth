@@ -365,7 +365,9 @@ export function isCacheable(body, headers) {
   if (isZavorthCacheBypassRequested(headers)) {
     return false;
   }
-  if (body.stream !== false) return false;
+  if (body.stream === true) return false;
+  if (Array.isArray(body.tools) && body.tools.length > 0) return false;
+  if (Array.isArray(body.functions) && body.functions.length > 0) return false;
   if ((body.temperature ?? 0) !== 0) return false;
   return true;
 }

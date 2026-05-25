@@ -17,8 +17,8 @@ const rules = [
   }),
   ruleContainsAll({
     id: 'control-contract-items',
-    label: '/control required C9 items are modeled',
-    target: '/control can show mode, trust, permissions, approvals, receipts, sandbox, provider route and capabilities',
+    label: '/dashboard required C9 items are modeled',
+    target: '/dashboard can show mode, trust, permissions, approvals, receipts, sandbox, provider route and capabilities',
     files: ['src/services/ZavorthProductizationContractService.ts'],
     needles: [
       'experience-mode',
@@ -62,9 +62,9 @@ const rules = [
   }),
   ruleContainsAll({
     id: 'control-renders-c9-contract',
-    label: '/control renders C9 contract',
-    target: 'Command Center shows the productization snapshot instead of hiding C9 in runtime JSON',
-    files: ['src/ai-gateway/app/(dashboard)/control/command-center/components/CommandCenterGatewayConsole.tsx'],
+    label: '/dashboard renders C9 contract',
+    target: 'Dashboard shows the productization snapshot instead of hiding C9 in runtime JSON',
+    files: ['src/ai-gateway/app/(dashboard)/dashboard/dashboard/components/DashboardGatewayConsole.tsx'],
     needles: [
       'Productization C9',
       'model.runtime?.productization',

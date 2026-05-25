@@ -24,7 +24,7 @@ describe('Zavorth Setup Studio command', () => {
 
     expect(output).toContain('Setup cancelled.');
     expect(output).toContain('Nothing was changed.');
-    expect(output).toContain('zavorth onboarding');
+    expect(output).toContain('zavorth setup');
     expect(output).not.toContain('Setup Studio will prepare');
     expect(output).not.toContain('Skills status');
     expect(output).not.toContain('Gateway service runtime');
@@ -55,15 +55,13 @@ describe('Zavorth Setup Studio command', () => {
     expect(result.exitCode).toBe(0);
     expect(result.applied).toBe(false);
     expect(fs.existsSync(path.join(root, '.env'))).toBe(false);
-    expect(result.output).toContain('Setup Studio');
-    expect(result.output).toContain('Dry-run preview');
-    expect(result.output).toContain('OPENAI_API_KEY=sk-...est');
-    expect(result.output).toContain('BRAVE_SEARCH_API_KEY=bra...lue');
+    expect(result.output).toContain('First Light');
+    expect(result.output).toContain('Preview only');
+    expect(result.output).toContain('secrets redacted');
     expect(result.output).toContain('Discord: configured-secret');
     expect(result.output).toContain('Slack: configured-secret');
     expect(result.output).toContain('Email: configured-secret');
-    expect(result.output).toContain('Automation templates: 2 prepared, disabled by default');
-    expect(result.output).toContain('Setup Studio will prepare');
+    expect(result.output).toContain('Automation: 2 template(s), disabled until reviewed');
     expect(result.output).not.toContain('sk-secret-value-for-test');
     expect(result.output).not.toContain('telegram-secret-token');
     expect(result.output).not.toContain('discord-secret-token');
@@ -116,7 +114,7 @@ describe('Zavorth Setup Studio command', () => {
     });
 
     expect(result.exitCode).toBe(0);
-    expect(result.output).toContain('Setup complete');
+    expect(result.output).toContain('First Light complete');
     expect(result.output).toContain('Next commands');
     expect(result.output).not.toContain('Security warning - please read');
     expect(result.output).not.toContain('Hatch your agent');
@@ -271,8 +269,8 @@ describe('Zavorth Setup Studio command', () => {
       });
 
       expect(result.exitCode).toBe(0);
-      expect(result.output).toContain('Setup Studio');
-      expect(result.output).toContain('Dry-run preview');
+      expect(result.output).toContain('First Light');
+      expect(result.output).toContain('Preview only');
     } finally {
       if (previous === undefined) {
         delete process.env.ZAVORTH_DISABLE_INK;

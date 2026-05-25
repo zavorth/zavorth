@@ -66,7 +66,7 @@ describe('ZavorthDistributedRuntimeControlPlaneService', () => {
           commands: { go: 'npm run ops:go', remoteGo: 'npm run ops:remote:go' },
           warnings: [],
           surfaces: [
-            { id: 'control', label: 'Shell web', surface: 'web', primary: true, ready: true, entry: 'http://127.0.0.1:33333/control', remoteEntry: 'https://zavorth.app/app', description: 'Cockpit web.' },
+            { id: 'control', label: 'Shell web', surface: 'web', primary: true, ready: true, entry: 'http://127.0.0.1:33333/dashboard', remoteEntry: 'https://zavorth.app/app', description: 'Cockpit web.' },
             { id: 'cli', label: 'CLI', surface: 'cli', primary: false, ready: true, entry: 'npm run cli -- status', remoteEntry: null, description: 'CLI oficial.' },
             { id: 'telegram', label: 'Telegram', surface: 'telegram', primary: false, ready: true, entry: '/start', remoteEntry: null, description: 'Superficie Telegram.' },
           ],
@@ -171,7 +171,7 @@ describe('ZavorthDistributedRuntimeControlPlaneService', () => {
           commands: { go: 'npm run ops:go', remoteGo: 'npm run ops:remote:go' },
           warnings: ['Remote pendente.'],
           surfaces: [
-            { id: 'control', label: 'Shell web', surface: 'web', primary: true, ready: true, entry: 'http://127.0.0.1:33333/control', remoteEntry: null, description: 'Cockpit web.' },
+            { id: 'control', label: 'Shell web', surface: 'web', primary: true, ready: true, entry: 'http://127.0.0.1:33333/dashboard', remoteEntry: null, description: 'Cockpit web.' },
             { id: 'discord', label: 'Discord', surface: 'discord', primary: false, ready: false, entry: '/status', remoteEntry: null, description: 'Discord ainda pendente.' },
           ],
         })),

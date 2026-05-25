@@ -590,15 +590,15 @@ function Header({ Box, Text, snapshot, page, pageIndex, motionFrame }: any) {
       ...charElements
     ),
     createElement(Text, { color: COLORS.muted, dimColor: true }, 'Natural language in. Governed action out.'),
-    createElement(Text, { color: '#565f73', dimColor: true }, 'Local-first agent OS Â· receipts Â· approvals Â· native integrations'),
-    createElement(Box, { marginY: 1 }, createElement(Text, { color: '#313540' }, 'â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€')),
+    createElement(Text, { color: '#565f73', dimColor: true }, 'Local-first agent OS · receipts · approvals · native integrations'),
+    createElement(Box, { marginY: 1 }, createElement(Text, { color: '#313540' }, '────────────────────────────────────────────────────────────')),
     createElement(
       Box,
       { flexDirection: 'row', justifyContent: 'space-between', width: 62 },
       createElement(
         Text,
         { color: COLORS.cyan },
-        `${PAGE_TITLES[page as SetupPage] || page} â€” ${PAGE_INTENTS[page as SetupPage] || 'Prepare Zavorth safely.'}`
+        `${PAGE_TITLES[page as SetupPage] || page} - ${PAGE_INTENTS[page as SetupPage] || 'Prepare Zavorth safely.'}`
       ),
       createElement(
         Text,

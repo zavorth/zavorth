@@ -81,7 +81,7 @@ export class RemoteMeshNotebookMcpProxyService {
         },
         body: JSON.stringify({
           jsonrpc: '2.0',
-          id: `command-center-remote-mesh-${Date.now()}`,
+          id: `dashboard-remote-mesh-${Date.now()}`,
           method: 'tools/call',
           params: {
             name: toolName,
@@ -116,7 +116,7 @@ export class RemoteMeshNotebookMcpProxyService {
 
   private validateApplyRequest(input: RemoteMeshNotebookMcpProxyApplyRequest): string | null {
     if (!isApplyToolName(input.toolName)) {
-      return 'Only approved Remote Mesh apply tools can be called from Command Center.';
+      return 'Only approved Remote Mesh apply tools can be called from Dashboard.';
     }
     const args = input.arguments;
     if (!args || typeof args !== 'object' || Array.isArray(args)) {

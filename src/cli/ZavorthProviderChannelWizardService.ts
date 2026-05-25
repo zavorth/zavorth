@@ -68,7 +68,7 @@ export class ZavorthProviderChannelWizardService {
       scanDirs: [],
     });
     const selectedKeys = new Set(['ZAVORTH_DEFAULT_PROVIDER', plan.provider.secretEnvKey, ...plan.envUpdates
-      .filter((entry) => entry.reason.includes('modelo'))
+      .filter((entry) => /\bmodel\b|modelo/i.test(entry.reason))
       .map((entry) => entry.key)].filter(Boolean) as string[]);
     const updates = plan.envUpdates.filter((entry) => selectedKeys.has(entry.key));
     const narrowedPlan = { ...plan, envUpdates: updates };

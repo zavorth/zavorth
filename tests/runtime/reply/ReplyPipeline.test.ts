@@ -30,7 +30,7 @@ function createRun(input: Partial<UniversalAgentRun> = {}): UniversalAgentRun {
     replyPorts: [
       {
         id: 'web-primary',
-        label: 'Command Center',
+        label: 'Dashboard',
         kind: 'web',
         status: 'available',
         primary: true,
@@ -106,7 +106,7 @@ describe('Reply runtime primitives', () => {
         replyPorts: [
           {
             id: 'web-primary',
-            label: 'Command Center',
+            label: 'Dashboard',
             kind: 'web',
             status: 'degraded',
             primary: true,

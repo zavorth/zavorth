@@ -82,7 +82,7 @@ export function buildCapabilityManifests(): CapabilityManifest[] {
     {
       id: 'zavorth-bridge-remote',
       label: 'ZavorthBridge Remote',
-      description: 'Sidecar remoto do ZavorthBridge para shell/control UI auxiliar e integracoes visuais.',
+      description: 'Sidecar remoto do ZavorthBridge para shell/dashboard UI auxiliar e integracoes visuais.',
       availability: 'optional',
       activationMode: 'sidecar',
       approvalRequired: true,

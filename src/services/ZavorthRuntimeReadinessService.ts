@@ -337,7 +337,7 @@ export class ZavorthRuntimeReadinessService {
       const snapshot = this.approvalCards.buildSnapshot({
         approvals: input.pendingApprovals || [],
       }) as ZavorthApprovalActionCardsUxSnapshot;
-      const projection = snapshot.commandCenterProjection;
+      const projection = snapshot.dashboardProjection;
       const ok = snapshot.summary.rawSecretsSerialized === false
         && projection.executionAuthority === false
         && projection.approvalResolutionAuthority === 'gateway-mediated';

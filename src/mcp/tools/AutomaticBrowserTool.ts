@@ -18,10 +18,14 @@ type PlaywrightPageLike = {
   goto(url: string, options?: Record<string, unknown>): Promise<unknown>;
   title(): Promise<string>;
   url(): string;
+  screenshot?(options?: Record<string, unknown>): Promise<Buffer | Uint8Array | string>;
   locator(selector: string): {
     count(): Promise<number>;
     first(): {
-      evaluate<T>(fn: (element: Element) => T | Promise<T>): Promise<T>;
+      evaluate<T>(fn: (element: Element, arg?: unknown) => T | Promise<T>, arg?: unknown): Promise<T>;
+      click?(options?: Record<string, unknown>): Promise<void>;
+      fill?(value: string, options?: Record<string, unknown>): Promise<void>;
+      type?(value: string, options?: Record<string, unknown>): Promise<void>;
     };
   };
   evaluate<T>(fn: (args: Record<string, unknown>) => T | Promise<T>, args: Record<string, unknown>): Promise<T>;
@@ -127,6 +131,49 @@ export class AutomaticBrowserTool {
           required: ['script'],
         },
       },
+      {
+        name: 'browser_screenshot',
+        description: 'Captures a screenshot from the current browser page after policy allows visual evidence.',
+        inputSchema: {
+          type: 'object',
+          properties: {
+            fullPage: { type: 'boolean', description: 'Whether to capture the full page.' },
+          },
+          required: [],
+        },
+      },
+      {
+        name: 'browser_click',
+        description: 'Clicks a CSS selector in the isolated browser after approval policy allows mutation.',
+        inputSchema: {
+          type: 'object',
+          properties: {
+            selector: { type: 'string', description: 'CSS selector to click.' },
+          },
+          required: ['selector'],
+        },
+      },
+      {
+        name: 'browser_type',
+        description: 'Types text into a CSS selector in the isolated browser after approval policy allows mutation.',
+        inputSchema: {
+          type: 'object',
+          properties: {
+            selector: { type: 'string', description: 'CSS selector to type into.' },
+            text: { type: 'string', description: 'Text to type.' },
+          },
+          required: ['selector', 'text'],
+        },
+      },
+      {
+        name: 'browser_extract',
+        description: 'Extracts visible page text, title and URL from the current browser page.',
+        inputSchema: {
+          type: 'object',
+          properties: {},
+          required: [],
+        },
+      },
     ];
   }
 
@@ -141,6 +188,14 @@ export class AutomaticBrowserTool {
           return await this.handleInspectDom(args);
         case 'evaluate_js':
           return await this.handleEvaluateJs(args);
+        case 'browser_screenshot':
+          return await this.handleScreenshot(args);
+        case 'browser_click':
+          return await this.handleClick(args);
+        case 'browser_type':
+          return await this.handleType(args);
+        case 'browser_extract':
+          return await this.handleExtract(args);
         default:
           return this.errorResponse(`Tool ${name} not supported by AutomaticBrowserTool.`);
       }
@@ -380,6 +435,147 @@ export class AutomaticBrowserTool {
     });
   }
 
+  private async handleScreenshot(args: Record<string, unknown>): Promise<McpToolCallResponse> {
+    const sidecar = await this.tryHandleBrowserSidecar('browser_screenshot', args);
+    if (sidecar) {
+      return sidecar;
+    }
+
+    const page = this.getActivePage();
+    if (typeof page.screenshot !== 'function') {
+      throw new Error('browser_screenshot requer uma pagina Playwright com screenshot disponivel.');
+    }
+    const bytes = await page.screenshot({
+      fullPage: args.fullPage === true,
+      type: 'png',
+    });
+    const buffer = typeof bytes === 'string' ? Buffer.from(bytes) : Buffer.from(bytes);
+    return this.jsonResponse({
+      ok: true,
+      action: 'browser_screenshot',
+      url: page.url(),
+      title: await page.title(),
+      mimeType: 'image/png',
+      bytes: buffer.byteLength,
+      imageBase64: buffer.toString('base64'),
+      visualReceipt: {
+        kind: 'screenshot',
+        rawSecretSerialized: false,
+        screenshotCaptured: true,
+      },
+    });
+  }
+
+  private async handleClick(args: Record<string, unknown>): Promise<McpToolCallResponse> {
+    this.requireMutationApproval(args, 'browser_click');
+    const sidecar = await this.tryHandleBrowserSidecar('browser_click', args);
+    if (sidecar) {
+      return sidecar;
+    }
+
+    const selector = this.normalizeSelector(args.selector, 'browser_click');
+    const page = this.getActivePage();
+    const locator = page.locator(selector);
+    const count = await locator.count();
+    if (count === 0) {
+      throw new Error(`Nenhum elemento encontrado para click no seletor "${selector}".`);
+    }
+    const target = locator.first();
+    if (typeof target.click === 'function') {
+      await target.click();
+    } else {
+      await target.evaluate((element) => {
+        (element as HTMLElement).click();
+      });
+    }
+    return this.jsonResponse({
+      ok: true,
+      action: 'browser_click',
+      selector,
+      count,
+      url: page.url(),
+      visualReceipt: {
+        kind: 'click',
+        approvalId: String(args.approvalId || ''),
+        rawSecretSerialized: false,
+      },
+    });
+  }
+
+  private async handleType(args: Record<string, unknown>): Promise<McpToolCallResponse> {
+    this.requireMutationApproval(args, 'browser_type');
+    const sidecar = await this.tryHandleBrowserSidecar('browser_type', args);
+    if (sidecar) {
+      return sidecar;
+    }
+
+    const selector = this.normalizeSelector(args.selector, 'browser_type');
+    const text = String(args.text || '').slice(0, 10_000);
+    const page = this.getActivePage();
+    const locator = page.locator(selector);
+    const count = await locator.count();
+    if (count === 0) {
+      throw new Error(`Nenhum elemento encontrado para type no seletor "${selector}".`);
+    }
+    const target = locator.first();
+    if (typeof target.fill === 'function') {
+      await target.fill(text);
+    } else if (typeof target.type === 'function') {
+      await target.type(text);
+    } else {
+      await target.evaluate((element, value) => {
+        const next = String(value || '');
+        if ('value' in element) {
+          (element as HTMLInputElement | HTMLTextAreaElement).value = next;
+          element.dispatchEvent(new Event('input', { bubbles: true }));
+          element.dispatchEvent(new Event('change', { bubbles: true }));
+        } else {
+          element.textContent = next;
+        }
+      }, text);
+    }
+    return this.jsonResponse({
+      ok: true,
+      action: 'browser_type',
+      selector,
+      count,
+      url: page.url(),
+      textPreview: text.length > 80 ? `${text.slice(0, 80)}...` : text,
+      visualReceipt: {
+        kind: 'type',
+        approvalId: String(args.approvalId || ''),
+        rawSecretSerialized: false,
+      },
+    });
+  }
+
+  private async handleExtract(args: Record<string, unknown>): Promise<McpToolCallResponse> {
+    const sidecar = await this.tryHandleBrowserSidecar('browser_extract', args);
+    if (sidecar) {
+      return sidecar;
+    }
+
+    const page = this.getActivePage();
+    const extracted = await page.evaluate(() => ({
+      title: document.title,
+      url: location.href,
+      text: (document.body?.innerText || document.body?.textContent || '').slice(0, 20_000),
+      links: Array.from(document.querySelectorAll('a[href]')).slice(0, 40).map((link) => ({
+        text: (link.textContent || '').trim().slice(0, 120),
+        href: (link as HTMLAnchorElement).href,
+      })),
+    }), {});
+    return this.jsonResponse({
+      ok: true,
+      action: 'browser_extract',
+      ...extracted,
+      visualReceipt: {
+        kind: 'extract',
+        rawSecretSerialized: false,
+      },
+    });
+  }
+
   private resolveSafeEvaluationRecipe(script: string): 'title' | 'href' | 'bodyText' | 'bodyTextContent' | 'outerHtml' | null {
     const normalized = script.trim().replace(/;$/u, '');
     if (normalized === 'document.title') return 'title';
@@ -533,6 +729,22 @@ export class AutomaticBrowserTool {
     } catch {
       throw new Error(`URL invalida para browser_navigate: "${url}".`);
     }
+  }
+
+  private normalizeSelector(value: unknown, action: string): string {
+    const selector = String(value || '').trim();
+    if (!selector) {
+      throw new Error(`${action} requer um seletor CSS valido.`);
+    }
+    return selector;
+  }
+
+  private requireMutationApproval(args: Record<string, unknown>, action: string): void {
+    const approvalId = String(args.approvalId || '').trim();
+    if (args.approved === true || approvalId.length > 0) {
+      return;
+    }
+    throw new Error(`${action} exige approvalId ou approved=true antes de click/type no browser.`);
   }
 
   private buildSearchUrl(engine: string, query: string): string {

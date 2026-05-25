@@ -65,9 +65,9 @@ export type ZavorthVisualReceiptsV2Snapshot = {
   };
   sourceProjection: Pick<
     ZavorthVisualReceiptUxSnapshot,
-    'surface' | 'contractVersion' | 'commandCenterProjection'
+    'surface' | 'contractVersion' | 'dashboardProjection'
   >;
-  commandCenterProjection: {
+  dashboardProjection: {
     route: '/dashboard';
     renderMode: 'product-cards';
     executionAuthority: false;

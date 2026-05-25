@@ -296,7 +296,7 @@ export class RemoteMeshSandboxAuditTimelineService {
           ? 'The first low-risk remote probe path is demonstrably callable.'
           : 'The remote probe path needs transport or target repair.',
         safeNextAction: snapshot.execution.result.status === 'success'
-          ? 'Promote the evidence into the Command Center audit view.'
+          ? 'Promote the evidence into the Dashboard audit view.'
           : 'Inspect transport evidence and rerun R5 after repair.',
         retryable: snapshot.execution.result.status !== 'success',
         risk: candidate?.risk || null,
@@ -492,7 +492,7 @@ export class RemoteMeshSandboxAuditTimelineService {
 
   private nextActionEvidence(snapshot: RemoteMeshSandboxLiveProbeSnapshot): string {
     if (snapshot.status === 'executed') {
-      return 'Review the R5 receipt and wire this timeline into the Command Center before widening the transport catalog.';
+      return 'Review the R5 receipt and wire this timeline into the Dashboard before widening the transport catalog.';
     }
     if (snapshot.status === 'failed') {
       return 'Repair the scoped transport and rerun R5 with the same R4 evidence.';

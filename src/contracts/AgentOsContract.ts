@@ -169,8 +169,8 @@ export type AgentOsTransactionalCommitResult = {
   blockedReasons: string[];
 };
 
-export type AgentOsCommandCenterSnapshot = {
-  source: 'AgentOsCommandCenterProjection';
+export type AgentOsDashboardSnapshot = {
+  source: 'AgentOsDashboardProjection';
   title: string;
   status: AgentOsStatus;
   cards: Array<{ id: string; label: string; value: string; tone: 'ok' | 'warn' | 'danger' | 'info' }>;
@@ -187,7 +187,7 @@ export type AgentOsSnapshot = {
   immuneSystem: AgentOsImmuneSnapshot;
   reputation: AgentOsReputationSnapshot;
   architectureDecision: AgentOsArchitectureDecisionDraft;
-  commandCenter: AgentOsCommandCenterSnapshot;
+  dashboard: AgentOsDashboardSnapshot;
   safety: {
     thinkingBlocked: false;
     simulationHasSideEffects: false;

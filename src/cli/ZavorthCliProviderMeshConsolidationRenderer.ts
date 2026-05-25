@@ -112,7 +112,7 @@ export function formatProviderMeshConsolidationSnapshot(
   lines.push('- secrets nao foram serializados');
 
   lines.push('', 'Superficies');
-  lines.push(`- Command Center: ${snapshot.surface.commandCenterPath}`);
+  lines.push(`- Dashboard: ${snapshot.surface.dashboardPath}`);
   lines.push(`- CLI: ${snapshot.surface.cliCommand}`);
   lines.push(`- Picker: ${snapshot.surface.pickerHint}`);
 

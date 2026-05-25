@@ -3,6 +3,8 @@ import { ZavorthProviderReadinessMatrixService } from './ZavorthProviderReadines
 import { ZavorthRuntimeGuidedFixesService, type ZavorthRuntimeGuidedFix } from './ZavorthRuntimeGuidedFixesService.js';
 import { ZavorthRuntimeReadinessService, type ZavorthRuntimeReadinessSnapshot, type ZavorthRuntimeReadinessStatus } from './ZavorthRuntimeReadinessService.js';
 import type { ZavorthProviderReadinessEntry, ZavorthProviderReadinessMatrixSnapshot } from '../contracts/ZavorthProviderReadinessMatrixContract.js';
+import { renderCliScreen, type CliVisualPanel } from '../cli/ZavorthCliVisualSystem.js';
+import { paintCliTone } from '../cli/ZavorthCliVisualTheme.js';
 
 export const ZAVORTH_READY_TO_GO_CONTRACT_VERSION = 'zavorth-ready-to-go/1' as const;
 
@@ -191,10 +193,10 @@ export class ZavorthReadyToGoService {
       },
       actions: {
         primary: status === 'ready'
-          ? 'Pode usar remoto agora.'
+          ? 'Remote use is ready now.'
           : status === 'attention'
-            ? 'Pode usar localmente; revise os avisos antes de sair do PC.'
-            : 'Nao saia ainda; resolva os bloqueios primeiro.',
+            ? 'Local use is ready; review warnings before relying on remote use.'
+            : 'Do not rely on remote use yet; resolve blockers first.',
         dashboard: '/dashboard',
         telegram: '/readiness',
         fixes: 'zavorth readiness fixes',
@@ -219,35 +221,55 @@ export class ZavorthReadyToGoService {
 
   public renderCli(snapshot: ZavorthReadyToGoSnapshot): string {
     const providerLines = snapshot.provider.lanes.slice(0, 8).map((lane) =>
-      `- ${lane.role === 'active' ? 'Principal' : 'Fallback'} ${lane.id}: ${labelForLane(lane)}${lane.model ? ` (${lane.model})` : ''}`,
+      `${lane.role === 'active' ? 'Primary' : 'Fallback'} ${lane.id}: ${labelForLane(lane)}${lane.model ? ` (${lane.model})` : ''}`,
     );
     const issueLines = [
       ...snapshot.provider.failed.map((lane) => `- Provider ${lane.id}: ${lane.summary}`),
       ...snapshot.guidedFixes.slice(0, 4).map((fix) => `- ${fix.label}: ${fix.command || fix.route || fix.summary}`),
     ];
-    return [
-      'Zavorth Ready To Go',
-      snapshot.headline,
-      '',
-      `Uso remoto: ${snapshot.remoteReady ? 'pronto' : 'com atencao'}`,
-      `Uso local: ${snapshot.localReady ? 'pronto' : 'bloqueado'}`,
-      `Provider: ${snapshot.summary.providerDefaultRoutes} rota(s) live pronta(s)`,
-      `Telegram: ${snapshot.channels.telegram}`,
-      `Dashboard: ${snapshot.channels.dashboard}`,
-      `Approvals: ${snapshot.channels.approvals}`,
-      '',
-      'Providers',
-      ...(providerLines.length > 0 ? providerLines : ['- Nenhum provider pronto encontrado.']),
-      issueLines.length > 0 ? '' : null,
-      issueLines.length > 0 ? 'Avisos' : null,
-      ...issueLines,
-      '',
-      `Veredito: ${snapshot.actions.primary}`,
+    const panels: CliVisualPanel[] = [
+      {
+        title: 'Readiness',
+        tone: snapshot.status === 'ready' ? 'success' : snapshot.status === 'blocked' ? 'danger' : 'warning',
+        lines: [
+          `remote: ${snapshot.remoteReady ? 'ready' : 'needs attention'}`,
+          `local: ${snapshot.localReady ? 'ready' : 'blocked'}`,
+          `provider routes: ${snapshot.summary.providerDefaultRoutes} live-ready`,
+          `telegram: ${snapshot.channels.telegram}`,
+          `dashboard: ${snapshot.channels.dashboard}`,
+          `approvals: ${snapshot.channels.approvals}`,
+        ],
+      },
+      {
+        title: 'Providers',
+        tone: 'info',
+        lines: providerLines.length > 0 ? providerLines : ['No ready provider found.'],
+      },
+      ...(issueLines.length > 0
+        ? [{
+            title: 'Warnings',
+            tone: 'warning' as const,
+            lines: issueLines,
+          }]
+        : []),
+      {
+        title: 'Next',
+        tone: 'brand',
+        lines: [
+          `${paintCliTone('>', 'brand')} ${snapshot.actions.primary}`,
       snapshot.provider.refreshRequested
-        ? 'Provider probes foram executados como acao explicita deste comando; nenhum prompt, tool ou transacao foi executado.'
-        : 'Modo offline: nenhuma chamada live de provider foi executada.',
-      '',
-    ].filter(Boolean).join('\n');
+            ? 'Provider probes were explicit operator checks; no prompt, tool or transaction was executed.'
+            : 'Offline mode: no live provider call was executed.',
+        ],
+      },
+    ];
+    return renderCliScreen({
+      eyebrow: 'Zavorth CLI',
+      title: 'Zavorth Ready',
+      summary: snapshot.headline,
+      panels,
+      mode: 'compact',
+    });
   }
 
   public renderTelegram(snapshot: ZavorthReadyToGoSnapshot): string {
@@ -312,13 +334,13 @@ function normalizeId(value: unknown): string {
 }
 
 function headlineFor(status: ZavorthReadyToGoStatus, remoteReady: boolean, localReady: boolean): string {
-  if (status === 'ready' && remoteReady) return 'Pode sair do PC: Zavorth esta pronto para uso remoto.';
-  if (localReady) return 'Zavorth esta pronto localmente, mas ainda tem aviso para uso remoto.';
-  return 'Zavorth ainda nao esta pronto para voce depender dele fora do PC.';
+  if (status === 'ready' && remoteReady) return 'Zavorth is ready for remote and local use.';
+  if (localReady) return 'Zavorth is ready locally, with attention still needed for remote use.';
+  return 'Zavorth is not ready to rely on away from this PC yet.';
 }
 
 function labelForLane(lane: ZavorthReadyToGoProviderLane): string {
   if (lane.status === 'ready') return 'ok';
-  if (lane.status === 'blocked') return 'falhou';
-  return 'precisa de prova live';
+  if (lane.status === 'blocked') return 'failed';
+  return 'needs live proof';
 }

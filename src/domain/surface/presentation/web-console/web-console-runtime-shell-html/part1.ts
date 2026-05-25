@@ -19,7 +19,7 @@ export function buildRuntimeShellHtmlPart1(input: { externalWebClientUrl: string
         <h1>Runtime, terminal and API live here.</h1>
         <p class="hero-copy">
           This official repo is the home of the Zavorth runtime, CLI and API.
-          The main entry is now <code>/control</code>; <code>/dashboard</code> remains compatible.
+          The main entry is now <code>/dashboard</code>; <code>/dashboard</code> remains compatible.
           This shell is an internal maintenance fallback: it summarizes runtime, sessions, approvals
           and the operational mesh only when legacy surfaces are explicitly enabled.
         </p>
@@ -48,7 +48,7 @@ export function buildRuntimeShellHtmlPart1(input: { externalWebClientUrl: string
         <div class="action-row hero-actions">
           <button type="button" class="action-button" data-copy="npm run ops:go">Copy npm run ops:go</button>
           <button type="button" class="action-button secondary" data-copy="npm run cli -- status">Copy CLI status</button>
-          <a id="open-dashboard" class="action-button secondary" href="/control">Open dashboard</a>
+          <a id="open-dashboard" class="action-button secondary" href="/dashboard">Open dashboard</a>
           <a id="open-classic-dashboard" class="action-button secondary" href="/classic">Abrir painel legado</a>
         </div>
         <p class="muted-copy hero-note">

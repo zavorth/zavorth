@@ -61,11 +61,11 @@ API v1:
 
 | Method | Path | Purpose |
 | --- | --- | --- |
-| `GET` | `/api/web/command-center/contracts-v1` | Reads the canonical Runtime API v1 projection for the current dashboard context. |
-| `GET` | `/api/web/command-center/events-v1` | Reads canonical Runtime API v1 events for the active session. |
-| `GET` | `/api/web/command-center/gui-certification-v1` | Runs daily-use GUI readiness checks for future visual clients. |
-| `POST` | `/api/web/command-center/chat-v1` | Delegates mission preview and explicit live chat submission to Runtime API v1. |
-| `POST` | `/api/web/command-center/actions` | Delegates approval, mission, provider and channel actions to Runtime API v1. |
+| `GET` | `/api/web/dashboard/contracts-v1` | Reads the canonical Runtime API v1 projection for the current dashboard context. |
+| `GET` | `/api/web/dashboard/events-v1` | Reads canonical Runtime API v1 events for the active session. |
+| `GET` | `/api/web/dashboard/gui-certification-v1` | Runs daily-use GUI readiness checks for future visual clients. |
+| `POST` | `/api/web/dashboard/chat-v1` | Delegates mission preview and explicit live chat submission to Runtime API v1. |
+| `POST` | `/api/web/dashboard/actions` | Delegates approval, mission, provider and channel actions to Runtime API v1. |
 
 These routes exist so browser UI code does not need direct access to internals
 or raw API tokens. They do not execute work themselves. They delegate to
@@ -80,10 +80,10 @@ execution checks.
 
 The Dashboard mission composer is preview-first:
 
-- `Preview mission` sends `{ "live": false }` to `/api/web/command-center/chat-v1`.
+- `Preview mission` sends `{ "live": false }` to `/api/web/dashboard/chat-v1`.
 - `Submit live` sends `{ "live": true }` explicitly, but the response may still be `approval_required`, `dry_run_only` or `blocked`.
 - Mission rows are read from Runtime API v1 contracts before legacy task snapshots.
-- Mission cancellation uses `/api/web/command-center/actions` with `action: "mission.cancel"`.
+- Mission cancellation uses `/api/web/dashboard/actions` with `action: "mission.cancel"`.
 
 The chat response includes the mission, visual receipt and a `flow` block. The
 flow block tells clients whether preview-first was enforced, whether an
@@ -140,8 +140,8 @@ Dashboard provider and channel panels should prefer Runtime API v1 contracts:
 - provider rows from `/api/v1/providers`;
 - provider live-readiness matrix from `/api/v1/providers.data.readinessMatrix`;
 - channel rows from `/api/v1/channels`;
-- provider tests delegated through `/api/web/command-center/actions` with `action: "provider.test"`;
-- channel actions delegated through `/api/web/command-center/actions` with `action: "channel.action"`.
+- provider tests delegated through `/api/web/dashboard/actions` with `action: "provider.test"`;
+- channel actions delegated through `/api/web/dashboard/actions` with `action: "channel.action"`.
 
 The panels must render readiness honestly. A listed provider or channel is not
 ready unless the contract says it is ready. Catalog support is not live proof.

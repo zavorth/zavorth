@@ -22,7 +22,7 @@ const requiredSecurityTests = [
   "tests/services/SecureStorageService.test.ts",
   "tests/services/WebAppSecurityService.test.ts",
   "tests/ai-gateway/api/AuthBoundary.security.test.ts",
-  "tests/ai-gateway/control/ControlWebSocketTicketWiring.test.ts",
+  "tests/ai-gateway/dashboard/ControlWebSocketTicketWiring.test.ts",
   "tests/tools/RemoteShellTool.test.ts",
   "tests/tools/ToolRegistrySecurityCatalog.test.ts",
   "tests/execution/LocalExecutor.test.ts",

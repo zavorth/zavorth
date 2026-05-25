@@ -42,11 +42,11 @@ function ruleFilesExist() {
 
 function ruleMarkers() {
   const checks = [
-    ['src/contracts/ZavorthPerceptionCrossSurfaceCertificationContract.ts', ['pc-screenshot', 'browser-dom', 'adb-ui-dump', 'ZavorthPerceptionCommandCenterProjection', 'visualMutationApplied: false']],
-    ['src/services/ZavorthPerceptionCrossSurfaceCertificationService.ts', ['ZavorthPerceptionCrossSurfaceCertificationService', 'Command Center projection carries read-only targets', 'live canary exige flag', 'REQUIRED_COMMANDS']],
+    ['src/contracts/ZavorthPerceptionCrossSurfaceCertificationContract.ts', ['pc-screenshot', 'browser-dom', 'adb-ui-dump', 'ZavorthPerceptionDashboardProjection', 'visualMutationApplied: false']],
+    ['src/services/ZavorthPerceptionCrossSurfaceCertificationService.ts', ['ZavorthPerceptionCrossSurfaceCertificationService', 'Dashboard projection carries read-only targets', 'live canary exige flag', 'REQUIRED_COMMANDS']],
     ['scripts/zavorth-perception-certification.ts', ['--json', 'formatSnapshotText']],
-    ['src/ai-gateway/app/(dashboard)/control/command-center/projections/commandCenterRuntimeProjection.ts', ['perceptionControl']],
-    ['src/ai-gateway/app/(dashboard)/control/command-center/projections/zavorthAgentGatewayRuntimeProjection.ts', ['mapPerceptionControlProjection', 'perceptionControl']],
+    ['src/ai-gateway/app/(dashboard)/dashboard/dashboard/projections/dashboardRuntimeProjection.ts', ['perceptionControl']],
+    ['src/ai-gateway/app/(dashboard)/dashboard/dashboard/projections/zavorthAgentGatewayRuntimeProjection.ts', ['mapPerceptionControlProjection', 'perceptionControl']],
     ['package.json', ['node scripts/zavorth-perception-certification-check.mjs']],
   ];
   const missing = [];
@@ -80,13 +80,13 @@ function runCertificationFixture() {
 
 function runProjectionFixture() {
   const result = runTs('scripts/zavorth-perception-certification.ts', ['--json']);
-  return jsonRule('perception-command-center-projection-fixture', 'Command Center/API projection exposes targets, approvals and redacted artifacts', result, (snapshot) =>
-    snapshot.commandCenterProjection?.surface?.visualMutationApplied === false
-    && snapshot.commandCenterProjection.targets.length >= 4
-    && snapshot.commandCenterProjection.pendingPlans.some((plan) => plan.status === 'approval-required')
-    && snapshot.commandCenterProjection.approvals.length >= 1
-    && snapshot.commandCenterProjection.artifacts.every((artifact) => artifact.redacted === true && artifact.rawContentStored === false)
-    && snapshot.commandCenterProjection.liveSafetyStatus.explicitApprovalRequired === true
+  return jsonRule('perception-dashboard-projection-fixture', 'Dashboard/API projection exposes targets, approvals and redacted artifacts', result, (snapshot) =>
+    snapshot.dashboardProjection?.surface?.visualMutationApplied === false
+    && snapshot.dashboardProjection.targets.length >= 4
+    && snapshot.dashboardProjection.pendingPlans.some((plan) => plan.status === 'approval-required')
+    && snapshot.dashboardProjection.approvals.length >= 1
+    && snapshot.dashboardProjection.artifacts.every((artifact) => artifact.redacted === true && artifact.rawContentStored === false)
+    && snapshot.dashboardProjection.liveSafetyStatus.explicitApprovalRequired === true
     && snapshot.liveCanary.enabled === false);
 }
 

@@ -108,7 +108,7 @@ export function formatReleaseAdoptionReadinessSnapshot(
   lines.push(`- Pilot loop: ${snapshot.surface.pilotLoopCommand}`);
   lines.push(`- Feedback preview: ${snapshot.surface.feedbackPreviewCommand}`);
   lines.push(`- Phase gate: ${snapshot.surface.phaseGateCommand}`);
-  lines.push(`- Command Center: ${snapshot.surface.commandCenterPath}`);
+  lines.push(`- Dashboard: ${snapshot.surface.dashboardPath}`);
   lines.push(`- CLI: ${snapshot.surface.cliCommand}`);
 
   return lines.join('\n');

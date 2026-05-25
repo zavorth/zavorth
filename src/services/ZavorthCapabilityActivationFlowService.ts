@@ -331,7 +331,7 @@ export class ZavorthCapabilityActivationFlowService {
     return {
       headline: `${target.label} esta pronto para pedido de ativacao controlada.`,
       operatorSummary: 'Todos os passos de import, setup, secrets e governance chegaram ao estado esperado.',
-      nextAction: 'Enviar o request de ativacao para o owner/control plane; este fluxo nao aplica live sozinho.',
+      nextAction: 'Enviar o request de ativacao para o owner/dashboard plane; este fluxo nao aplica live sozinho.',
     };
   }
 

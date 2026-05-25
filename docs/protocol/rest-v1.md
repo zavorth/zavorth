@@ -105,10 +105,10 @@ Sensitive channel actions and live provider probes can return `status: "needs_ap
 The web Dashboard has a stable contract adapter at:
 
 ```text
-GET /api/web/command-center/contracts-v1
+GET /api/web/dashboard/contracts-v1
 ```
 
-The same contract is also embedded in `GET /api/web/command-center` as `contractsV1`. It mirrors runtime, health, providers, channels, approvals, receipts and missions from the canonical `/api/v1/*` projections. The adapter is projection-only and has no execution authority; action buttons must call the governed action APIs above.
+The same contract is also embedded in `GET /api/web/dashboard` as `contractsV1`. It mirrors runtime, health, providers, channels, approvals, receipts and missions from the canonical `/api/v1/*` projections. The adapter is projection-only and has no execution authority; action buttons must call the governed action APIs above.
 
 ## Error Shape
 

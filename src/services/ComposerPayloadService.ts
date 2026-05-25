@@ -142,7 +142,7 @@ export class ComposerPayloadService {
     const size = Math.max(0, Number(attachment.size || 0) || 0);
     const id = String(attachment.id || '').trim() || `attachment:${index + 1}:${name}`;
     const text = String(attachment.text || '').trim();
-    const source = String(attachment.source || '').trim() || 'command-center';
+    const source = String(attachment.source || '').trim() || 'dashboard';
 
     return {
       id,

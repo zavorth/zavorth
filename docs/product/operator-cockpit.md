@@ -1,6 +1,6 @@
-# Command Center
+# Dashboard
 
-`/control` is the official web gateway for Zavorth.
+`/dashboard` is the official web gateway for Zavorth.
 
 ## What You See First
 
@@ -19,7 +19,7 @@ Primary blocks:
 
 ## One-Minute Flow
 
-1. Open `http://127.0.0.1:33333/control`.
+1. Open `http://127.0.0.1:33333/dashboard`.
 2. Validate local access.
 3. Read the next safe action.
 4. Review runtime status and pending approvals.
@@ -43,4 +43,4 @@ zavorth help
 
 ## Product Rule
 
-If an operator can understand readiness and act safely without opening legacy surfaces, the Command Center is doing its job.
+If an operator can understand readiness and act safely without opening legacy surfaces, the Dashboard is doing its job.

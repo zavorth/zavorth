@@ -8,7 +8,7 @@ describe('ZavorthTrustPanelService', () => {
     });
 
     expect(snapshot.surface).toBe('trust-panel');
-    expect(snapshot.advanced.commandCenterCanExecute).toBe(false);
+    expect(snapshot.advanced.dashboardCanExecute).toBe(false);
     expect(snapshot.safety.projectionOnly).toBe(true);
     expect(snapshot.buckets.find((bucket) => bucket.id === 'can_do_alone')?.rules.length).toBeGreaterThan(0);
     expect(snapshot.buckets.find((bucket) => bucket.id === 'asks_first')?.rules.some((rule) => rule.id === 'workspace-mutation')).toBe(true);

@@ -72,7 +72,7 @@ export type ZavorthCapabilityStoreContract = {
   source: {
     hubContractVersion: string;
     hubItemsUsed: number;
-    commandCenterRoute: '/dashboard';
+    dashboardRoute: '/dashboard';
     executionAuthority: false;
   };
   safety: {

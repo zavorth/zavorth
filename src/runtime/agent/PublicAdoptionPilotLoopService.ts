@@ -123,7 +123,7 @@ export type PublicAdoptionPilotLoopSnapshot = {
   };
   surface: {
     cliCommand: string;
-    commandCenterPath: string;
+    dashboardPath: string;
     feedbackRoute: '/feedback';
     docsAnchor: '/docs#pilot-loop';
     pilotLoopCommand: 'npm run pilot-loop';
@@ -351,7 +351,7 @@ export class PublicAdoptionPilotLoopService {
       },
       surface: {
         cliCommand: `zavorth public-adoption-pilot-loop run ${run.id} --json`,
-        commandCenterPath: `/control?runId=${encodeURIComponent(run.id)}&sector=config`,
+        dashboardPath: `/dashboard?runId=${encodeURIComponent(run.id)}&sector=config`,
         feedbackRoute: '/feedback',
         docsAnchor: '/docs#pilot-loop',
         pilotLoopCommand: 'npm run pilot-loop',
@@ -504,8 +504,8 @@ export class PublicAdoptionPilotLoopService {
       },
       {
         id: 'control',
-        label: 'Command Center',
-        routeOrCommand: '/control?sector=config',
+        label: 'Dashboard',
+        routeOrCommand: '/dashboard?sector=config',
         status: 'ready',
         detail: 'Config mostra readiness, ledger e dashboard do piloto.',
       },

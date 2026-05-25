@@ -21,7 +21,7 @@ const rules = [
     'tests/cli/ZavorthProviderLiveValidationService.test.ts',
     'tests/cli/ZavorthCliOnboardingStandardization.test.ts',
     'tests/services/ZavorthCliTuiPolishService.test.ts',
-    'tests/docs/CommandCenterProductDocs.test.ts',
+    'tests/docs/DashboardProductDocs.test.ts',
     '--runInBand',
   ]),
   cliJsonPasses('provider wizard preview', ['bin/zavorth.js', 'providers', 'add', '--provider', 'gemini', '--model', 'gemini-2.5-flash', '--json'], validateProviderWizard),
@@ -88,6 +88,16 @@ function publicDocsAreClean() {
     'docs/product/quickstart-developer.md',
     'docs/product/troubleshooting-guiado.md',
     'docs/README.md',
+    'docs/apps-satellite-nodes.md',
+    'docs/capability-absorption.md',
+    'docs/channel-deepening.md',
+    'docs/dashboard-hermes-class.md',
+    'docs/extension-plugin-sdk.md',
+    'docs/native-browser-computer-use.md',
+    'docs/native-learning-loop.md',
+    'docs/node-mesh-live-native.md',
+    'docs/product-qa-live.md',
+    'docs/terminal-backends.md',
   ]);
   const allowedMaintainerPatterns = [
     /npm run runtime:check/,
@@ -99,8 +109,9 @@ function publicDocsAreClean() {
   for (const file of files) {
     const text = fs.readFileSync(file, 'utf8');
     for (const [index, line] of text.split(/\r?\n/).entries()) {
-      const isMaintainerLine = allowedMaintainer.has(file.replace(/\\/g, '/'))
-        && allowedMaintainerPatterns.some((pattern) => pattern.test(line));
+      const normalizedFile = file.replace(/\\/g, '/');
+      const isMaintainerLine = allowedMaintainer.has(normalizedFile)
+        && (allowedMaintainerPatterns.some((pattern) => pattern.test(line)) || /npm run zavorth:/i.test(line));
       if (isMaintainerLine) continue;
       for (const pattern of forbidden) {
         if (pattern.test(line)) violations.push(`${file}:${index + 1}: ${line.trim()}`);

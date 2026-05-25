@@ -84,10 +84,10 @@ const rules = [
   }),
   ruleContainsAll({
     id: 'control-model-picker-consumer',
-    label: '/control consumes model picker snapshot',
+    label: '/dashboard consumes model picker snapshot',
     target: 'Gateway Console renders snapshot.modelPicker without rebuilding selection rules',
     files: [
-      'src/ai-gateway/app/(dashboard)/control/command-center/components/CommandCenterGatewayConsole.tsx',
+      'src/ai-gateway/app/(dashboard)/dashboard/dashboard/components/DashboardGatewayConsole.tsx',
     ],
     needles: [
       'snapshot?.modelPicker',
@@ -270,7 +270,7 @@ function providerDetailWarning() {
     label: 'provider detail model panels are follow-up convergence work',
     status: 'warning',
     observed: `${missingMarkers.length} provider detail file(s) without direct picker marker`,
-    target: 'provider detail can be migrated after the canonical API/CLI/control/runtime path stays green',
+    target: 'provider detail can be migrated after the canonical API/CLI/dashboard/runtime path stays green',
     details: missingMarkers,
   };
 }

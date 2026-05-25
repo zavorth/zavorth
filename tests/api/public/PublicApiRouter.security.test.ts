@@ -41,7 +41,7 @@ describe('PublicApiRouter security', () => {
     config.zavorthWebAuthToken = originalWebAuthToken;
   });
 
-  it('rejects weak command-center placeholder tokens for public API auth', async () => {
+  it('rejects weak dashboard placeholder tokens for public API auth', async () => {
     const router = new PublicApiRouter({ authToken: 'dev-token' });
     router.register('GET', /^\/secure$/, async (_req, res) => {
       PublicApiRouter.sendJson(res, 200, { ok: true });

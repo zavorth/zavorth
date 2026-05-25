@@ -13,6 +13,12 @@ export type ProviderRuntimeActivationP0Id =
   | 'mistral'
   | 'groq'
   | 'together'
+  | 'cerebras'
+  | 'github-models'
+  | 'cohere'
+  | 'sambanova'
+  | 'falcon'
+  | 'jais'
   | 'perplexity'
   | 'xai'
   | 'huggingface'
@@ -103,7 +109,7 @@ export type ProviderRuntimeActivationSnapshot = {
   phase: 'Connector registry - Provider Runtime Activation P0';
   status: 'closed' | 'attention' | 'blocked';
   summary: {
-    providers: 18;
+    providers: 24;
     firstClassLive: number;
     compatibleLive: number;
     localLive: number;

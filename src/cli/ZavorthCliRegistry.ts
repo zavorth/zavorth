@@ -267,11 +267,11 @@ import {
   formatExperiencePulse,
 } from './ZavorthCliExperienceRenderer.js';
 import {
-  CommandCenterAccessService,
-  parseCommandCenterAccessAction,
-  type CommandCenterAccessDoctorSnapshot,
-  type CommandCenterAccessSnapshot,
-} from '../services/CommandCenterAccessService.js';
+  DashboardAccessService,
+  parseDashboardAccessAction,
+  type DashboardAccessDoctorSnapshot,
+  type DashboardAccessSnapshot,
+} from '../services/DashboardAccessService.js';
 import { ZavorthProductDemoService } from '../services/ZavorthProductDemoService.js';
 import { ZavorthConnectorExperienceService } from '../services/ZavorthConnectorExperienceService.js';
 import { ZavorthSmartCommandSurfaceService } from '../services/ZavorthSmartCommandSurfaceService.js';
@@ -647,9 +647,9 @@ async function executeZavorthCliCommandInner(params: {
     };
   }
 
-  if (commandName === 'dashboard' || commandName === 'control' || commandName === 'command-center') {
-    const access = new CommandCenterAccessService();
-    const action = parseCommandCenterAccessAction(args);
+  if (commandName === 'dashboard' || commandName === 'control' || commandName === 'dashboard') {
+    const access = new DashboardAccessService();
+    const action = parseDashboardAccessAction(args);
     const snapshot = action === 'doctor'
       ? access.doctor()
       : action === 'repair'
@@ -658,8 +658,8 @@ async function executeZavorthCliCommandInner(params: {
           ? access.generateToken()
           : await access.run(action);
     const body = effectiveFlags.json
-      ? JSON.stringify(formatCommandCenterAccessJson(snapshot), null, 2)
-      : formatCommandCenterAccessCli(snapshot);
+      ? JSON.stringify(formatDashboardAccessJson(snapshot), null, 2)
+      : formatDashboardAccessCli(snapshot);
     writer.line(body);
     return { ok: true, handled: true, output: [body], error: null };
   }
@@ -940,10 +940,10 @@ async function executeZavorthCliCommandInner(params: {
     if (runtime.surfaceTaskDispatcher && (commandName === 'task' || !normalized.startsWith('/'))) {
       return executeCliTaskDispatch(runtime.surfaceTaskDispatcher, normalized, effectiveFlags, writer);
     }
-    const error = 'Comando nao suportado neste CLI. Use help, gateway ou um slash command conhecido.';
+    const error = 'Unsupported CLI command. Use help, gateway or a known slash command.';
     if (effectiveFlags.repl) {
       const body = formatCliRecoverableErrorEventCard({
-        body: 'Nao entendi esse comando no chat.',
+        body: 'I did not understand that as a chat command.',
         command: 'help',
         hints: ['You can also write your request in plain language.'],
       });
@@ -1110,10 +1110,10 @@ function parseExperienceDiffCliArgs(args: string): {
   return null;
 }
 
-function formatCommandCenterAccessJson(
-  snapshot: CommandCenterAccessSnapshot | CommandCenterAccessDoctorSnapshot,
+function formatDashboardAccessJson(
+  snapshot: DashboardAccessSnapshot | DashboardAccessDoctorSnapshot,
 ): Record<string, unknown> {
-  if (isCommandCenterDoctorSnapshot(snapshot)) {
+  if (isDashboardDoctorSnapshot(snapshot)) {
     return snapshot;
   }
 
@@ -1472,10 +1472,10 @@ function formatDailyUseCliTable(
   return lines.join('\n');
 }
 
-function formatCommandCenterAccessCli(
-  snapshot: CommandCenterAccessSnapshot | CommandCenterAccessDoctorSnapshot,
+function formatDashboardAccessCli(
+  snapshot: DashboardAccessSnapshot | DashboardAccessDoctorSnapshot,
 ): string {
-  if (isCommandCenterDoctorSnapshot(snapshot)) {
+  if (isDashboardDoctorSnapshot(snapshot)) {
     const source = snapshot.tokenSource === 'env'
       ? 'ZAVORTH_WEB_AUTH_TOKEN'
       : snapshot.tokenSource === 'runtime-file'
@@ -1488,10 +1488,10 @@ function formatCommandCenterAccessCli(
       : '- Nenhum problema de token local detectado.';
     return [
       snapshot.action === 'doctor'
-        ? 'Doctor do Command Center'
+        ? 'Dashboard doctor'
         : snapshot.action === 'repair'
-          ? 'Repair do Command Center'
-          : 'Novo token do Command Center',
+          ? 'Dashboard repair'
+          : 'New Dashboard token',
       `- Estado: ${snapshot.status}`,
       `- Painel: ${snapshot.publicUrl}`,
       `- Origem do token: ${source}`,
@@ -1517,15 +1517,15 @@ function formatCommandCenterAccessCli(
       `- Token: ${snapshot.token}`,
       `- Origem: ${snapshot.tokenSource === 'env' ? '.env' : snapshot.tokenFile}`,
       '',
-      'Dica: se voce so quer abrir o painel, use `zavorth dashboard`.',
+      'Tip: if you only want to open the panel, use `zavorth dashboard`.',
     ].join('\n');
   }
 
   if (snapshot.action === 'url') {
     return [
-      'Link local do Command Center',
-      '- Este link ja vai desbloquear o painel nesta aba.',
-      '- Nao compartilhe este link: ele contem o token local.',
+      'Local Dashboard link',
+      '- This link unlocks the panel in this tab.',
+      '- Do not share this link: it contains the local token.',
       '',
       snapshot.url,
     ].join('\n');
@@ -1533,29 +1533,29 @@ function formatCommandCenterAccessCli(
 
   if (snapshot.action === 'status') {
     return [
-      'Command Center',
-      `- Painel: ${snapshot.publicUrl}`,
-      `- Acesso: protegido por token local (${snapshot.tokenSource === 'env' ? '.env' : 'arquivo de runtime'})`,
-      '- Para abrir ja desbloqueado: zavorth dashboard',
-      '- Para copiar o link: zavorth dashboard url',
+      'Dashboard',
+      `- Panel: ${snapshot.publicUrl}`,
+      `- Access: protected by local token (${snapshot.tokenSource === 'env' ? '.env' : 'runtime file'})`,
+      '- Open already unlocked: zavorth dashboard',
+      '- Copy the link: zavorth dashboard url',
     ].join('\n');
   }
 
   return [
-    snapshot.opened ? 'Command Center aberto.' : 'Nao consegui abrir o navegador automaticamente.',
-    `- Painel: ${snapshot.publicUrl}`,
-    '- Acesso: desbloqueado automaticamente nesta abertura.',
+    snapshot.opened ? 'Dashboard opened.' : 'Could not open the browser automatically.',
+    `- Panel: ${snapshot.publicUrl}`,
+    '- Access: unlocked automatically for this launch.',
     '',
-    'Se a pagina nao carregar, rode `npm run go` para iniciar o runtime local e tente de novo.',
+    'If the page does not load, run `zavorth start` to start the local runtime and try again.',
     snapshot.opened
-      ? 'Se o navegador nao apareceu, rode `zavorth dashboard url` e cole o link.'
-      : 'Rode `zavorth dashboard url` e cole o link no navegador.',
+      ? 'If the browser did not appear, run `zavorth dashboard url` and paste the link.'
+      : 'Run `zavorth dashboard url` and paste the link in the browser.',
   ].join('\n');
 }
 
-function isCommandCenterDoctorSnapshot(
-  snapshot: CommandCenterAccessSnapshot | CommandCenterAccessDoctorSnapshot,
-): snapshot is CommandCenterAccessDoctorSnapshot {
+function isDashboardDoctorSnapshot(
+  snapshot: DashboardAccessSnapshot | DashboardAccessDoctorSnapshot,
+): snapshot is DashboardAccessDoctorSnapshot {
   return snapshot.action === 'doctor'
     || snapshot.action === 'repair'
     || snapshot.action === 'generate-token';

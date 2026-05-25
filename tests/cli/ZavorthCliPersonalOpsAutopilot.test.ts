@@ -74,6 +74,6 @@ describe('Zavorth CLI Personal Ops Autopilot', () => {
     expect(text).toContain('Personal Ops Autopilot - Personal Ops Autopilot');
     expect(text).toContain('Sugestoes');
     expect(text).toContain('nenhuma acao mutavel foi executada');
-    expect(text).toContain('Command Center: /control?sector=overview');
+    expect(text).toContain('Dashboard: /dashboard?sector=overview');
   });
 });

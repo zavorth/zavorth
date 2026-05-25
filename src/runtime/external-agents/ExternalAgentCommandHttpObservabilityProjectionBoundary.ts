@@ -60,7 +60,7 @@ export type ExternalAgentCommandHttpObservabilityProjectionRow = {
   intentKind: ExternalAgentCommandHttpInvocationIntentKind;
   status: ExternalAgentCommandHttpObservabilityProjectionStatus;
   requestedTools: string[];
-  commandCenter: {
+  dashboard: {
     rowKind: ExternalAgentCommandHttpObservabilityProjectionStatus;
     readOnly: true;
     executableControlExposed: false;
@@ -116,7 +116,7 @@ export type ExternalAgentCommandHttpObservabilityProjectionBoundaryNormalization
   approvalRequiredRows: string[];
   blockedRows: string[];
   unavailableSourceRuntimeRows: string[];
-  commandCenter: {
+  dashboard: {
     readOnly: true;
     rows: ExternalAgentCommandHttpObservabilityProjectionRow[];
     executableActionsExposed: false;
@@ -197,7 +197,7 @@ export function normalizeExternalAgentCommandHttpObservabilityProjection<TRuntim
       intentKind: record.intentKind,
       status,
       requestedTools: record.requestedTools,
-      commandCenter: {
+      dashboard: {
         rowKind: status,
         readOnly: true,
         executableControlExposed: false,
@@ -248,7 +248,7 @@ export function normalizeExternalAgentCommandHttpObservabilityProjection<TRuntim
     unavailableSourceRuntimeRows: rows
       .filter((row) => row.status === 'unavailable-source-runtime')
       .map((row) => row.id),
-    commandCenter: {
+    dashboard: {
       readOnly: true,
       rows,
       executableActionsExposed: false,

@@ -10,7 +10,7 @@ describe('ZavorthDoItWithMeService', () => {
 
     expect(snapshot.surface).toBe('do-it-with-me');
     expect(snapshot.mode).toBe('setup_capability');
-    expect(snapshot.projections.commandCenterCanExecute).toBe(false);
+    expect(snapshot.projections.dashboardCanExecute).toBe(false);
     expect(snapshot.safety.rawSecretsSerialized).toBe(false);
     expect(snapshot.steps.some((step) => step.kind === 'secretref')).toBe(true);
     expect(snapshot.steps.some((step) => step.kind === 'approval')).toBe(true);

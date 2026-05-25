@@ -73,13 +73,13 @@ export class ZavorthPerceptionDeviceControlCompletionService {
     const blocked = entries.filter((entry) => entry.status === 'blocked').length;
     const pcScreenshotReadOnlyReady = hasPassed(perception, 'pc-screenshot');
     const browserViewReady = hasPassed(perception, 'browser-dom') && hasPassed(perception, 'browser-screenshot');
-    const browserControlPolicyGated = perception.commandCenterProjection.liveSafetyStatus.explicitApprovalRequired
-      && perception.commandCenterProjection.liveSafetyStatus.mutationRequiresApproval;
+    const browserControlPolicyGated = perception.dashboardProjection.liveSafetyStatus.explicitApprovalRequired
+      && perception.dashboardProjection.liveSafetyStatus.mutationRequiresApproval;
     const androidObserveReady = hasPassed(perception, 'adb-screenshot') && hasPassed(perception, 'adb-ui-dump');
     const androidControlPolicyGated = hasPassed(perception, 'approval-required-tap-type-click')
       && device.policy.biometricOrDeviceConfirmRequiresTrust;
-    const visualArtifactsInReceipts = perception.commandCenterProjection.artifacts.length >= 5
-      && perception.commandCenterProjection.artifacts.every((artifact) =>
+    const visualArtifactsInReceipts = perception.dashboardProjection.artifacts.length >= 5
+      && perception.dashboardProjection.artifacts.every((artifact) =>
         artifact.redacted === true && artifact.rawContentStored === false);
 
     return {
@@ -153,7 +153,7 @@ export class ZavorthPerceptionDeviceControlCompletionService {
     for (const command of snapshot.naturalCommands) {
       lines.push(`- "${command.utterance}" -> ${command.route} (${command.defaultMode}) via ${command.commandHint}`);
     }
-    lines.push('', 'Safety: read-only vision may route naturally; tap/type/click/install/control always stays policy/approval-gated.');
+    lines.push('', 'Safety: read-only vision may route naturally; tap/type/click/install/dashboard always stays policy/approval-gated.');
     lines.push(`Next: ${snapshot.commands.nextStage}`);
     return lines.join('\n');
   }
@@ -177,7 +177,7 @@ function buildEntries(input: {
       requiresApprovalForMutation: false,
       evidence: [
         matrixEvidence(perception, 'pc-screenshot'),
-        `artifacts=${perception.commandCenterProjection.artifacts.filter((artifact) => artifact.targetId === 'pc').length}`,
+        `artifacts=${perception.dashboardProjection.artifacts.filter((artifact) => artifact.targetId === 'pc').length}`,
       ],
       blockers: [],
     }),
@@ -196,15 +196,15 @@ function buildEntries(input: {
       id: 'browser.control-gated',
       label: 'Browser control remains policy-gated',
       kind: 'browser',
-      passed: perception.commandCenterProjection.liveSafetyStatus.explicitApprovalRequired
-        && perception.commandCenterProjection.liveSafetyStatus.mutationRequiresApproval
-        && perception.commandCenterProjection.liveSafetyStatus.noVisualMutationWithoutOwnerApproval,
+      passed: perception.dashboardProjection.liveSafetyStatus.explicitApprovalRequired
+        && perception.dashboardProjection.liveSafetyStatus.mutationRequiresApproval
+        && perception.dashboardProjection.liveSafetyStatus.noVisualMutationWithoutOwnerApproval,
       readyForDailyUse: true,
       liveReadyWhenHostConfigured: true,
       requiresApprovalForMutation: true,
       evidence: [
-        `explicitApprovalRequired=${perception.commandCenterProjection.liveSafetyStatus.explicitApprovalRequired}`,
-        `mutationRequiresApproval=${perception.commandCenterProjection.liveSafetyStatus.mutationRequiresApproval}`,
+        `explicitApprovalRequired=${perception.dashboardProjection.liveSafetyStatus.explicitApprovalRequired}`,
+        `mutationRequiresApproval=${perception.dashboardProjection.liveSafetyStatus.mutationRequiresApproval}`,
       ],
       blockers: [],
     }),
@@ -252,16 +252,16 @@ function buildEntries(input: {
       id: 'visual.artifact-receipts',
       label: 'Visual artifacts are receipt-safe',
       kind: 'artifact',
-      passed: perception.commandCenterProjection.artifacts.length >= 5
-        && perception.commandCenterProjection.artifacts.every((artifact) =>
+      passed: perception.dashboardProjection.artifacts.length >= 5
+        && perception.dashboardProjection.artifacts.every((artifact) =>
           artifact.redacted === true && artifact.rawContentStored === false)
-        && perception.commandCenterProjection.receipts.every((receipt) => receipt.rawSecretSerialized === false),
+        && perception.dashboardProjection.receipts.every((receipt) => receipt.rawSecretSerialized === false),
       readyForDailyUse: true,
       liveReadyWhenHostConfigured: true,
       requiresApprovalForMutation: false,
       evidence: [
-        `artifacts=${perception.commandCenterProjection.artifacts.length}`,
-        `receipts=${perception.commandCenterProjection.receipts.length}`,
+        `artifacts=${perception.dashboardProjection.artifacts.length}`,
+        `receipts=${perception.dashboardProjection.receipts.length}`,
       ],
       blockers: [],
     }),

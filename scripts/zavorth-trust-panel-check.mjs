@@ -27,7 +27,7 @@ const snapshot = JSON.parse(output);
 if (snapshot.surface !== 'trust-panel') {
   throw new Error(`unexpected surface ${snapshot.surface}`);
 }
-if (snapshot.advanced.commandCenterCanExecute !== false) {
+if (snapshot.advanced.dashboardCanExecute !== false) {
   throw new Error('trust panel must not execute actions');
 }
 if (snapshot.safety.projectionOnly !== true || snapshot.safety.liveActionsRequirePolicyBroker !== true) {

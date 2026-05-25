@@ -105,9 +105,9 @@ function usePageInfo(pathname: string | null): {
     };
   if (pathname.includes("/cli-tools"))
     return { title: t("cliTools"), description: t("cliToolsDescription"), breadcrumbs: [] };
-  if (pathname === "/control")
+  if (pathname === "/dashboard")
     return {
-      title: "Control UI",
+      title: "Dashboard",
       description: "Chat, sessoes, approvals e runtime no mesmo plano de controle.",
       breadcrumbs: [],
     };

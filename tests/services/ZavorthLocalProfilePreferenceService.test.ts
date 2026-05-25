@@ -17,7 +17,7 @@ describe('ZavorthLocalProfilePreferenceService', () => {
     const result = service.readBoolean({
       userId: 'local-owner',
       profileId: 'default',
-      namespace: 'command-center',
+      namespace: 'dashboard',
       key: 'business-mode.enabled',
       defaultValue: false,
     });
@@ -46,7 +46,7 @@ describe('ZavorthLocalProfilePreferenceService', () => {
       namespace: 'sales-pack',
       key: 'business-mode.enabled',
       value: true,
-      updatedBy: 'command-center',
+      updatedBy: 'dashboard',
     });
 
     const second = new ZavorthLocalProfilePreferenceService({
@@ -64,7 +64,7 @@ describe('ZavorthLocalProfilePreferenceService', () => {
       value: true,
       exists: true,
       updatedAt: '2026-05-09T10:00:00.000Z',
-      updatedBy: 'command-center',
+      updatedBy: 'dashboard',
     });
     expect(second.readBoolean({
       userId: 'local-owner',

@@ -211,7 +211,7 @@ export class RuntimeBootstrapService {
         id: 'prepare-operator-channels',
         title: 'Preparar canais opcionais',
         command: 'npm run setup:channels',
-        reason: 'Depois do /control e da CLI, voce pode ligar os canais que quiser no mesmo runtime: Telegram, Discord, Slack e WhatsApp.',
+        reason: 'Depois do /dashboard e da CLI, voce pode ligar os canais que quiser no mesmo runtime: Telegram, Discord, Slack e WhatsApp.',
         blocking: false,
         autoFixCommand: null,
       });
@@ -407,6 +407,7 @@ export class RuntimeBootstrapService {
       || config.aiStudioApiKey
       || config.deepseekApiKey
       || config.openaiApiKey
+      || ((config as any).openaiApiKeys?.length > 0)
       || config.AIGatewayApiKey
       || config.groqApiKey
       || config.openRouterApiKey

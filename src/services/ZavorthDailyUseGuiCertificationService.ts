@@ -70,7 +70,7 @@ export class ZavorthDailyUseGuiCertificationService {
         return ready('health', 'Runtime health', [
           `surface=${health.surface}`,
           `healthy=${health.healthy}`,
-          `commandCenterCanExecute=${health.safety.commandCenterCanExecute}`,
+          `dashboardCanExecute=${health.safety.dashboardCanExecute}`,
         ]);
       }),
       this.guard('providers', 'Provider matrix', async () => {
@@ -149,7 +149,7 @@ export class ZavorthDailyUseGuiCertificationService {
       },
       checks,
       safety: {
-        commandCenterCanExecute: false,
+        dashboardCanExecute: false,
         desktopCanBypassRuntime: false,
         policyBrokerRequiredForMutableActions: true,
         previewFirstChat: true,

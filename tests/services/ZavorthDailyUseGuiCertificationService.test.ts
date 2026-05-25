@@ -10,7 +10,7 @@ function buildPublicApi(overrides: Record<string, any> = {}) {
     readRuntimeHealth: jest.fn(() => ({
       surface: 'runtime-health-v1',
       healthy: true,
-      safety: { commandCenterCanExecute: false },
+      safety: { dashboardCanExecute: false },
     })),
     readProviders: jest.fn(() => ({
       surface: 'provider-mesh-v1',
@@ -76,7 +76,7 @@ describe('ZavorthDailyUseGuiCertificationService', () => {
         total: 10,
       }),
       safety: expect.objectContaining({
-        commandCenterCanExecute: false,
+        dashboardCanExecute: false,
         desktopCanBypassRuntime: false,
         policyBrokerRequiredForMutableActions: true,
         previewFirstChat: true,

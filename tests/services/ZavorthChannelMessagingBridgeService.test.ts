@@ -214,10 +214,10 @@ describe('ZavorthChannelMessagingBridgeService Credential vault', () => {
     }));
   });
 
-  it('projects channel messaging state for Command Center', () => {
+  it('projects channel messaging state for Dashboard', () => {
     const snapshot = createService().buildSnapshot();
 
-    expect(snapshot.commandCenterProjection).toEqual(expect.objectContaining({
+    expect(snapshot.dashboardProjection).toEqual(expect.objectContaining({
       title: 'Channel Messaging Bridge',
       status: 'channel-messaging-bridge-ready',
       tone: 'ready',
@@ -231,7 +231,7 @@ describe('ZavorthChannelMessagingBridgeService Credential vault', () => {
       ]),
       nextSafeAction: 'Proceed to 291 Runtime gateway - Sessions, Memory, And Continuation.',
     }));
-    expect(snapshot.commandCenterProjection.cards.map((entry) => entry.id)).toEqual(expect.arrayContaining([
+    expect(snapshot.dashboardProjection.cards.map((entry) => entry.id)).toEqual(expect.arrayContaining([
       'channels',
       'inbound',
       'reply-pipeline',

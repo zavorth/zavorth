@@ -345,7 +345,7 @@ export const runtimeShellScriptPart3Seg1: string = [
     "  setText(",
     "    operatorCockpitStatus,",
     "    protectedShellUnlocked",
-    "      ? 'Use o action rail para atualizar o cockpit, copiar status/doctor ou saltar para sessions, resources, companions e health sem sair da Control UI.'",
+    "      ? 'Use o action rail para atualizar o cockpit, copiar status/doctor ou saltar para sessions, resources, companions e health sem sair da Dashboard.'",
     "      : 'Valide o token para transformar este resumo em cockpit operacional completo.',",
     "  );",
     "}",

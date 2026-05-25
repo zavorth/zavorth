@@ -13,16 +13,20 @@ import {
 
 export class OpenAIProvider implements ILlmProvider {
   public readonly name = 'openai';
-  private client: OpenAI;
+  private clients: OpenAI[];
+  private currentClientIndex = 0;
 
   constructor() {
-    if (!config.openaiApiKey) {
+    const keys =
+      Array.isArray((config as any).openaiApiKeys) && (config as any).openaiApiKeys.length > 0
+        ? (config as any).openaiApiKeys
+        : [config.openaiApiKey].filter(Boolean);
+
+    if (keys.length === 0) {
       throw new Error('OPENAI_API_KEY nao configurada no .env');
     }
 
-    this.client = new OpenAI({
-      apiKey: config.openaiApiKey,
-    });
+    this.clients = keys.map((apiKey: string) => new OpenAI({ apiKey }));
   }
 
   public async chat(
@@ -30,35 +34,46 @@ export class OpenAIProvider implements ILlmProvider {
     tools?: ToolDefinition[],
     options?: ProviderChatOptions,
   ): Promise<LlmResponse> {
-    try {
-      const response = await this.client.chat.completions.create({
-        model: options?.modelName || config.openaiModel,
-        messages: convertChatMessagesToOpenAI(messages),
-        tools:
-          tools && tools.length > 0
-            ? tools.map((tool) => ({
-                type: 'function' as const,
-                function: {
-                  name: tool.name,
-                  description: tool.description,
-                  parameters: tool.parameters,
-                },
-              }))
-            : undefined,
-      });
+    let lastError: any;
+    for (let attempt = 0; attempt < this.clients.length; attempt += 1) {
+      const clientIndex = (this.currentClientIndex + attempt) % this.clients.length;
+      const client = this.clients[clientIndex];
+      try {
+        const response = await client.chat.completions.create({
+          model: options?.modelName || config.openaiModel,
+          messages: convertChatMessagesToOpenAI(messages),
+          tools:
+            tools && tools.length > 0
+              ? tools.map((tool) => ({
+                  type: 'function' as const,
+                  function: {
+                    name: tool.name,
+                    description: tool.description,
+                    parameters: tool.parameters,
+                  },
+                }))
+              : undefined,
+        });
 
-      const choice = response.choices[0];
-      const toolCalls: ToolCall[] = extractFunctionToolCalls(choice.message.tool_calls);
+        if (attempt > 0) {
+          console.log(`[OpenAI Failover] Request succeeded using secondary key (${clientIndex + 1}/${this.clients.length}).`);
+        }
+        this.currentClientIndex = clientIndex;
+        const choice = response.choices[0];
+        const toolCalls: ToolCall[] = extractFunctionToolCalls(choice.message.tool_calls);
 
-      return {
-        content: choice.message.content,
-        toolCalls,
-        finishReason: choice.finish_reason as any,
-      };
-    } catch (error: any) {
-      console.error('[OpenAI] Erro na requisicao:', error?.message || error);
-      throw error;
+        return {
+          content: choice.message.content,
+          toolCalls,
+          finishReason: choice.finish_reason as any,
+        };
+      } catch (error: any) {
+        lastError = error;
+        console.warn(`[OpenAI] Request failed with key ${clientIndex + 1}: ${error?.message || error}`);
+      }
     }
+
+    throw lastError || new Error('Falha desconhecida no OpenAI');
   }
 
   private convertMessages(messages: ChatMessage[]): OpenAI.ChatCompletionMessageParam[] {

@@ -82,7 +82,7 @@ describe('Universal agent contract facade', () => {
 
     const replyPort: AgentReplyPort = {
       id: 'web-primary',
-      label: 'Command Center',
+      label: 'Dashboard',
       kind: 'web',
       status: 'available',
       primary: true,

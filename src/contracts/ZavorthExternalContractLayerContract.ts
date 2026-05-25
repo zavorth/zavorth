@@ -73,7 +73,7 @@ export type ZavorthExternalRuntimeEnvelopeSchema = {
   kind: ZavorthExternalRuntimeContractEnvelopeKind;
   contractName: string;
   zavorthOwnerService: string;
-  commandCenterProjection: string;
+  dashboardProjection: string;
   requiredFields: string[];
   naturalFirstRoute: ZavorthExternalRuntimeNaturalFirstRoute;
   risk: ZavorthExternalRuntimeContractRisk;
@@ -168,7 +168,7 @@ export type ZavorthExternalContractLayerSnapshot = {
     publicAgentName: 'Zavorth';
     externalNamesDiagnosticsOnly: true;
     noSourceNameAsCanonicalField: true;
-    commandCenterMayShowAdapterDetailsOnly: true;
+    dashboardMayShowAdapterDetailsOnly: true;
     replyPipelineMayNotUseSourceIdentity: true;
   };
   acceptanceMatrix: Array<{

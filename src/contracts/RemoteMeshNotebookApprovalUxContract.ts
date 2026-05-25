@@ -8,11 +8,11 @@ import type {
 import type { RemoteMeshJson } from './RemoteMeshSandboxContract.js';
 
 export const ZAVORTH_REMOTE_MESH_R11_APPROVAL_UX_VERSION =
-  '2026-05-05.remote-mesh-r11-mobile-command-center-approval-ux' as const;
+  '2026-05-05.remote-mesh-r11-mobile-dashboard-approval-ux' as const;
 
 export type RemoteMeshNotebookApprovalUxSurface =
   | 'mobile'
-  | 'command-center';
+  | 'dashboard';
 
 export type RemoteMeshNotebookApprovalUxSource =
   | RemoteMeshNotebookDockerControlPreviewPayload
@@ -59,7 +59,7 @@ export type RemoteMeshNotebookApprovalUxCard = {
     timeline: string[];
     contentPreview: string | null;
   } | null;
-  commandCenter: {
+  dashboard: {
     queue: 'approvals' | 'timeline';
     badge: 'Needs approval' | 'Receipt';
     primaryActionLabel: string | null;
@@ -96,7 +96,7 @@ export type RemoteMeshNotebookApprovalUxSnapshot = {
     approvalCards: number;
     receiptCards: number;
     mobileReady: boolean;
-    commandCenterReady: boolean;
+    dashboardReady: boolean;
     rawJsonRequiredFromUser: false;
     rawCommandSerialized: false;
     secretValuesSerialized: false;
@@ -113,7 +113,7 @@ export type RemoteMeshNotebookApprovalUxSnapshot = {
     json: 'npm run remote-mesh:notebook:approval-ux:json --silent';
     focusedTests: 'npx jest tests/services/RemoteMeshNotebookApprovalUxService.test.ts --runInBand';
     typecheck: 'npm run runtime:check --silent';
-    nextStage: 'Real Mobile Command Center Wiring';
+    nextStage: 'Real Mobile Dashboard Wiring';
   };
 };
 
@@ -129,7 +129,7 @@ export function buildRemoteMeshNotebookApprovalUxCard(input: {
   surface?: RemoteMeshNotebookApprovalUxSurface;
   generatedAt: string;
 }): RemoteMeshNotebookApprovalUxCard {
-  const surface = input.surface || 'command-center';
+  const surface = input.surface || 'dashboard';
   if (input.source.toolName === 'notebook.docker.preview_control') {
     return buildDockerPreviewCard(input.source, surface, input.generatedAt);
   }
@@ -170,7 +170,7 @@ function buildDockerPreviewCard(
       rawJsonRequiredFromUser: false,
     },
     receipt: null,
-    commandCenter: approvalCommandCenter('Docker lifecycle approval', 'Approve Docker action'),
+    dashboard: approvalDashboard('Docker lifecycle approval', 'Approve Docker action'),
     mobile: approvalMobile(
       `Docker ${source.action}`,
       `Zavorth wants to ${source.action} ${source.container}.`,
@@ -210,11 +210,11 @@ function buildDockerReceiptCard(
       timeline: [
         `Approval ${source.approvalId} accepted.`,
         `Docker ${source.action} executed.`,
-        'Receipt recorded for Command Center timeline.',
+        'Receipt recorded for Dashboard timeline.',
       ],
       contentPreview: null,
     },
-    commandCenter: receiptCommandCenter('Docker lifecycle receipt'),
+    dashboard: receiptDashboard('Docker lifecycle receipt'),
     mobile: receiptMobile('Docker done', summary),
     safety: {
       ...baseSafety(),
@@ -255,7 +255,7 @@ function buildProjectFilePreviewCard(
       rawJsonRequiredFromUser: false,
     },
     receipt: null,
-    commandCenter: approvalCommandCenter('Project file read approval', 'Approve file read'),
+    dashboard: approvalDashboard('Project file read approval', 'Approve file read'),
     mobile: approvalMobile(
       'Read project file',
       `Zavorth wants to read ${targetLabel}.`,
@@ -296,11 +296,11 @@ function buildProjectFileReceiptCard(
       timeline: [
         `Approval ${source.approvalId} accepted.`,
         'File content returned after approval.',
-        'Receipt recorded for Command Center timeline.',
+        'Receipt recorded for Dashboard timeline.',
       ],
       contentPreview: source.content.slice(0, 240),
     },
-    commandCenter: receiptCommandCenter('Project file read receipt'),
+    dashboard: receiptDashboard('Project file read receipt'),
     mobile: receiptMobile('File read complete', summary),
     safety: {
       ...baseSafety(),
@@ -327,7 +327,7 @@ function baseCard(
   };
 }
 
-function approvalCommandCenter(timelineLabel: string, primaryActionLabel: string) {
+function approvalDashboard(timelineLabel: string, primaryActionLabel: string) {
   return {
     queue: 'approvals' as const,
     badge: 'Needs approval' as const,
@@ -337,7 +337,7 @@ function approvalCommandCenter(timelineLabel: string, primaryActionLabel: string
   };
 }
 
-function receiptCommandCenter(timelineLabel: string) {
+function receiptDashboard(timelineLabel: string) {
   return {
     queue: 'timeline' as const,
     badge: 'Receipt' as const,

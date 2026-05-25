@@ -39,7 +39,7 @@ describe('SalesPackBusinessModeService', () => {
       userId: 'maria',
       profileId: 'home',
       enabled: true,
-      updatedBy: 'command-center',
+      updatedBy: 'dashboard',
     });
     expect(enabled.enabled).toBe(true);
 
@@ -53,7 +53,7 @@ describe('SalesPackBusinessModeService', () => {
       profileKey: 'maria::home',
       enabled: true,
       updatedAt: '2026-05-08T12:00:00.000Z',
-      updatedBy: 'command-center',
+      updatedBy: 'dashboard',
     });
   });
 

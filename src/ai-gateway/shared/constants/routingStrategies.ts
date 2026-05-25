@@ -10,6 +10,7 @@ export type RoutingStrategyValue =
   | "cost-optimized"
   | "strict-random"
   | "auto"
+  | "reset-aware"
   | "context-optimized"
   | "lkgp";
 
@@ -100,6 +101,13 @@ export const ROUTING_STRATEGIES: RoutingStrategyOption[] = [
     icon: "auto_awesome",
   },
   {
+    value: "reset-aware",
+    labelKey: "resetAware",
+    combosDescKey: "resetAwareDesc",
+    settingsDescKey: "resetAwareDesc",
+    icon: "restore",
+  },
+  {
     value: "lkgp",
     labelKey: "lkgp",
     combosDescKey: "lkgpDesc",
@@ -126,6 +134,7 @@ export const SETTINGS_FALLBACK_STRATEGY_VALUES: RoutingStrategyValue[] = [
   "cost-optimized",
   "strict-random",
   "auto",
+  "reset-aware",
   "context-optimized",
   "lkgp",
 ];

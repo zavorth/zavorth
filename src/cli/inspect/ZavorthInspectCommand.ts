@@ -1,7 +1,7 @@
-import { TerminalPanel } from '../presentation/TerminalPanel.js';
-import { TerminalTheme } from '../presentation/TerminalTheme.js';
 import { ZavorthInspectService, type ZavorthInspectRuntimeOverlay, type ZavorthInspectSnapshot } from '../../services/ZavorthInspectService.js';
 import type { CliExecutionResult, CliWriter, ZavorthCliFlags, ZavorthCliRuntime } from '../ZavorthCliContract.js';
+import { renderCliScreen, type CliVisualPanel } from '../ZavorthCliVisualSystem.js';
+import { paintCliTone } from '../ZavorthCliVisualTheme.js';
 
 export async function handleZavorthInspectCommand(input: {
   commandName: string | null;
@@ -57,66 +57,88 @@ async function buildRuntimeOverlay(resolveRuntime?: () => Promise<ZavorthCliRunt
 }
 
 function renderInspectSnapshot(snapshot: ZavorthInspectSnapshot, options: { live: boolean }): string {
-  const lines = [
-    TerminalTheme.colors.primary(TerminalTheme.format.bold('Zavorth Inspect')),
-    TerminalTheme.colors.muted(`generated: ${snapshot.generatedAt}`),
-    TerminalTheme.colors.muted(`mode: ${options.live ? 'live runtime enriched' : 'static workspace scan'}`),
-    '',
-    section('Provider', [
+  const panels: CliVisualPanel[] = [
+    {
+      title: 'Provider',
+      tone: snapshot.provider.configured ? 'success' : 'warning',
+      lines: [
       row('Provider', snapshot.provider.id),
       row('Model', snapshot.provider.model),
       row('Configured', snapshot.provider.configured ? 'yes' : 'no'),
       row('Route', snapshot.provider.routeId || 'default'),
       row('Family', snapshot.provider.familyId || 'default'),
       ...snapshot.provider.credentialRefs.map((entry) => statusRow(entry.label, entry.status, entry.detail)),
-    ]),
-    section('Workspace', [
+      ],
+    },
+    {
+      title: 'Workspace',
+      tone: 'info',
+      lines: [
       row('Root', snapshot.workspace.root),
       row('Package', `${snapshot.workspace.packageName}@${snapshot.workspace.packageVersion}`),
       statusRow(snapshot.workspace.git.label, snapshot.workspace.git.status, snapshot.workspace.git.detail),
       row('Package scripts', String(snapshot.skills.packageScripts)),
       row('Skill dirs', snapshot.skills.localSkillDirectories.join(', ') || 'none found'),
-    ]),
-    section('Instructions', snapshot.instructions.length
+      ],
+    },
+    {
+      title: 'Instructions',
+      tone: snapshot.instructions.length ? 'success' : 'warning',
+      lines: snapshot.instructions.length
       ? snapshot.instructions.map((entry) => statusRow(entry.label, entry.status, entry.detail))
-      : [statusRow('Instructions', 'attention', 'No README/AGENTS-style instruction file detected.')]),
-    section('Surfaces', [
+      : [statusRow('Instructions', 'attention', 'No README/AGENTS-style instruction file detected.')],
+    },
+    {
+      title: 'Surfaces',
+      tone: 'brand',
+      lines: [
       ...snapshot.channels.map((entry) => statusRow(entry.label, entry.status, entry.detail)),
-    ]),
-    section('Plugins / MCP / Hooks', [
+      ],
+    },
+    {
+      title: 'Plugins / MCP / Hooks',
+      tone: 'muted',
+      lines: [
       ...snapshot.plugins.map((entry) => statusRow(entry.label, entry.status, entry.detail)),
       ...snapshot.mcp.map((entry) => statusRow(entry.label, entry.status, entry.detail)),
       ...snapshot.hooks.map((entry) => statusRow(entry.label, entry.status, entry.detail)),
-    ]),
-    section('Mnemos / Trust / Receipts', [
+      ],
+    },
+    {
+      title: 'Mnemos / Trust / Receipts',
+      tone: 'info',
+      lines: [
       statusRow(snapshot.mnemos.label, snapshot.mnemos.status, snapshot.mnemos.detail),
       ...snapshot.trust.map((entry) => statusRow(entry.label, entry.status, entry.detail)),
       row('Pending approvals', `${snapshot.pendingApprovals.count}${snapshot.pendingApprovals.ids.length ? ` (${snapshot.pendingApprovals.ids.join(', ')})` : ''}`),
       row('Recent receipts', `${snapshot.receipts.known}${snapshot.receipts.recentIds.length ? ` (${snapshot.receipts.recentIds.join(', ')})` : ''}`),
-    ]),
-    section('Next Actions', snapshot.nextActions.map((action) => `${TerminalTheme.colors.primary('>')} ${action}`)),
+      ],
+    },
+    {
+      title: 'Next actions',
+      tone: 'brand',
+      lines: snapshot.nextActions.map((action) => `${paintCliTone('>', 'brand')} ${action}`),
+    },
   ];
 
-  return TerminalPanel.render(lines.join('\n'), { title: 'Zavorth Inspect', type: snapshot.provider.configured ? 'info' : 'warning' });
-}
-
-function section(title: string, rows: string[]): string {
-  return [
-    TerminalTheme.colors.primary(TerminalTheme.format.bold(title)),
-    ...rows,
-    '',
-  ].join('\n');
+  return renderCliScreen({
+    eyebrow: 'Zavorth CLI',
+    title: 'Zavorth inspect',
+    summary: `generated: ${snapshot.generatedAt} | mode: ${options.live ? 'live runtime enriched' : 'static workspace scan'}`,
+    panels,
+    mode: 'compact',
+  });
 }
 
 function row(label: string, value: string): string {
-  return `${TerminalTheme.colors.muted(label.padEnd(18))} ${value}`;
+  return `${paintCliTone(label.padEnd(18), 'muted')} ${value}`;
 }
 
 function statusRow(label: string, status: 'ready' | 'attention' | 'offline', detail: string): string {
-  const color = status === 'ready'
-    ? TerminalTheme.colors.success
+  const tone = status === 'ready'
+    ? 'success'
     : status === 'offline'
-      ? TerminalTheme.colors.error
-      : TerminalTheme.colors.warning;
-  return `${TerminalTheme.colors.muted(label.padEnd(18))} ${color(status.padEnd(9))}  ${detail}`;
+      ? 'danger'
+      : 'warning';
+  return `${paintCliTone(label.padEnd(18), 'muted')} ${paintCliTone(status.padEnd(9), tone)}  ${detail}`;
 }

@@ -35,7 +35,7 @@ if (matrix) {
   assertRule('summary:live-ready', Number.isInteger(matrix.summary?.liveReady) && Number.isInteger(matrix.summary?.catalogReadyButNotLive) && Number.isInteger(matrix.summary?.defaultRouteAllowed), 'Live-ready and default-routing counters are exposed');
   assertRule('live-completion:policy', matrix.liveCompletion?.providerSelectionRequiresLiveProof === true && matrix.liveCompletion?.catalogSupportIsNotLiveProof === true, 'Live completion policy separates catalog support from live proof');
   assertRule('entries:default-gate', matrix.entries?.every((entry) => typeof entry.liveReady === 'boolean' && typeof entry.defaultRouteAllowed === 'boolean' && typeof entry.readinessProof === 'string'), 'Provider entries expose live-ready/default route gate fields');
-  assertRule('projection:no-authority', matrix.commandCenterProjection?.executionAuthority === false, 'Command Center has no provider execution authority');
+  assertRule('projection:no-authority', matrix.dashboardProjection?.executionAuthority === false, 'Dashboard has no provider execution authority');
   assertRule('secrets:none', !JSON.stringify(matrix).match(/sk-[A-Za-z0-9_-]{20,}|AIza[A-Za-z0-9_-]{20,}/), 'Matrix does not serialize raw provider secrets');
 }
 

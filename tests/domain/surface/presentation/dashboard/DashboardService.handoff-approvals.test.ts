@@ -28,14 +28,14 @@ function createInstallJourneyFixture() {
     local: {
       ready: true,
       baseUrl: 'http://127.0.0.1:33333',
-      appUrl: 'http://127.0.0.1:33333/control',
+      appUrl: 'http://127.0.0.1:33333/dashboard',
       issues: [],
     },
     remote: {
       configured: true,
       ready: true,
       baseUrl: 'https://zavorth.example.com',
-      appUrl: 'https://zavorth.example.com/control',
+      appUrl: 'https://zavorth.example.com/dashboard',
       issues: [],
     },
     runtime: {
@@ -89,14 +89,14 @@ function createInstallJourneyFixture() {
       local: {
         ready: true,
         baseUrl: 'http://127.0.0.1:33333',
-        appUrl: 'http://127.0.0.1:33333/control',
+        appUrl: 'http://127.0.0.1:33333/dashboard',
         dashboardUrl: 'http://127.0.0.1:33333/classic',
       },
       remote: {
         ready: true,
         requiresHttps: true,
         baseUrl: 'https://zavorth.example.com',
-        appUrl: 'https://zavorth.example.com/control',
+        appUrl: 'https://zavorth.example.com/dashboard',
       },
       auth: {
         webTokenConfigured: true,
@@ -120,7 +120,7 @@ function createInstallJourneyFixture() {
       ],
       nextSteps: [],
       surfaces: [
-        { id: 'control', label: 'Control UI', url: 'http://127.0.0.1:33333/control' },
+        { id: 'control', label: 'Dashboard', url: 'http://127.0.0.1:33333/dashboard' },
         { id: 'telegram', label: 'Telegram', url: 'telegram://zavorth' },
       ],
     },
@@ -152,7 +152,7 @@ function createOfficialRemoteAccessFixture() {
       readiness: {} as any,
       local: {
         ready: true,
-        appUrl: 'http://127.0.0.1:33333/control',
+        appUrl: 'http://127.0.0.1:33333/dashboard',
         trust: {
           attempted: false,
           applied: true,
@@ -162,7 +162,7 @@ function createOfficialRemoteAccessFixture() {
       },
       remote: {
         configured: true,
-        appUrl: 'https://zavorth.example.com/control',
+        appUrl: 'https://zavorth.example.com/dashboard',
         appProbe: null,
         authProbe: null,
         issues: [],
@@ -185,8 +185,8 @@ function createOfficialRemoteAccessFixture() {
     remote: {
       configured: true,
       baseUrl: 'https://zavorth.example.com',
-      appUrl: 'https://zavorth.example.com/control',
-      shareUrl: 'https://zavorth.example.com/control',
+      appUrl: 'https://zavorth.example.com/dashboard',
+      shareUrl: 'https://zavorth.example.com/dashboard',
       ready: true,
       issues: [],
     },
@@ -201,7 +201,7 @@ function createOfficialRemoteAccessFixture() {
       lastAction: 'verify',
       lastActionAt: now,
       lastVerifiedAt: now,
-      appUrl: 'https://zavorth.example.com/control',
+      appUrl: 'https://zavorth.example.com/dashboard',
       baseUrl: 'https://zavorth.example.com',
       issues: [],
       summary: 'Acesso remoto oficial validado.',

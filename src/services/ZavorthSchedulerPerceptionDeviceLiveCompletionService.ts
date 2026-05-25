@@ -84,10 +84,10 @@ export class ZavorthSchedulerPerceptionDeviceLiveCompletionService {
         policyBrokerRequired: true,
         noDirectSchedulerDispatch: scheduler.safety.noDirectDispatcherBypass,
         noUnapprovedComputerMutation: perception.safety.mutationStillRequiresApproval,
-        noSecretScreenAutomation: perception.commandCenterProjection.liveSafetyStatus.hardBlocksPreserved,
+        noSecretScreenAutomation: perception.dashboardProjection.liveSafetyStatus.hardBlocksPreserved,
         noTerminalAutomationBypass: perception.certificationMatrix.some((entry) =>
           entry.id === 'blocked-terminal-automation' && entry.status === 'passed'),
-        visualArtifactsRedacted: perception.commandCenterProjection.artifacts.every((artifact) =>
+        visualArtifactsRedacted: perception.dashboardProjection.artifacts.every((artifact) =>
           artifact.redacted === true && artifact.rawContentStored === false),
         deviceActionsOwnerGated: device.summary.enabledByDefault === false,
         rawSecretsSerialized: false,
@@ -171,7 +171,7 @@ function buildEntries(input: {
       evidence: [
         `perceptionStatus=${input.perception.status}`,
         `matrix=${input.perception.certificationMatrix.length}`,
-        `targets=${input.perception.commandCenterProjection.targets.length}`,
+        `targets=${input.perception.dashboardProjection.targets.length}`,
       ],
     }),
     entry({
@@ -179,7 +179,7 @@ function buildEntries(input: {
       label: 'Computer and device mutation gates',
       kind: 'safety',
       passed: input.perception.safety.mutationStillRequiresApproval
-        && input.perception.commandCenterProjection.liveSafetyStatus.hardBlocksPreserved,
+        && input.perception.dashboardProjection.liveSafetyStatus.hardBlocksPreserved,
       dailyUseReady: true,
       liveReady: true,
       defaultRouteAllowed: false,
@@ -187,7 +187,7 @@ function buildEntries(input: {
       defaultBlockReason: 'Tap, type, click, install, uninstall and external control stay blocked until explicit approval.',
       evidence: [
         `mutationStillRequiresApproval=${input.perception.safety.mutationStillRequiresApproval}`,
-        `hardBlocksPreserved=${input.perception.commandCenterProjection.liveSafetyStatus.hardBlocksPreserved}`,
+        `hardBlocksPreserved=${input.perception.dashboardProjection.liveSafetyStatus.hardBlocksPreserved}`,
       ],
     }),
     entry({

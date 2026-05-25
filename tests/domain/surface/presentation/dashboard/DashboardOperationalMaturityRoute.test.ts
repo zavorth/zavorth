@@ -5,7 +5,7 @@ import {
 } from '../../../../helpers/dashboardWebTestUtils.js';
 
 describe('Dashboard operational maturity route', () => {
-  it('exposes the canonical maturity snapshot for Command Center surfaces', async () => {
+  it('exposes the canonical maturity snapshot for Dashboard surfaces', async () => {
     const service = new DashboardService(createTestLogRepo());
 
     try {

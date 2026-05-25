@@ -52,11 +52,11 @@ export default function Error({ error, reset }: ErrorProps) {
           Try Again
         </button>
         <a
-          href="/control"
+          href="/dashboard"
           className="px-6 py-2.5 rounded-lg text-[var(--color-text-main)] text-sm font-semibold cursor-pointer transition-all duration-200 motion-reduce:transition-none border border-[var(--color-border)] hover:bg-[var(--color-bg-alt)] no-underline focus:outline-2 focus:outline-offset-2 focus:outline-[var(--color-accent)]"
           aria-label="Return to dashboard"
         >
-          Go to Control UI
+          Go to Dashboard
         </a>
         <a
           href="/status"

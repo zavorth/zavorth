@@ -126,8 +126,8 @@ export type ZavorthExternalSessionView = {
   nativeReplacementAuthorized: false;
 };
 
-export type ExternalExecutorSessionHistoryCommandCenterView = {
-  nativeContract: 'ZavorthExternalSessionCommandCenterView/v1';
+export type ExternalExecutorSessionHistoryDashboardView = {
+  nativeContract: 'ZavorthExternalSessionDashboardView/v1';
   id: string;
   sessionViewId: string;
   label: string;
@@ -135,7 +135,7 @@ export type ExternalExecutorSessionHistoryCommandCenterView = {
   channel: UniversalAgentChannel;
   messageCount: number;
   readOnly: true;
-  commandCenterConsumable: true;
+  dashboardConsumable: true;
   importAuthority: false;
   migrationAllowed: false;
   writeBackAllowed: false;
@@ -175,7 +175,7 @@ export type ExternalExecutorSessionHistoryReadOnlyBridgeNormalization = {
   sqliteDryRunDesignDoc: ExternalExecutorSessionHistoryReadOnlyBridgeSource['sqliteDryRunDesignDoc'];
   readOnly: true;
   sessionViews: ZavorthExternalSessionView[];
-  commandCenterViews: ExternalExecutorSessionHistoryCommandCenterView[];
+  dashboardViews: ExternalExecutorSessionHistoryDashboardView[];
   failures: ExternalExecutorSessionHistoryReadOnlyFailure[];
   executionGate: ExternalExecutorSessionHistoryReadOnlyExecutionGate;
   redaction: {
@@ -184,7 +184,7 @@ export type ExternalExecutorSessionHistoryReadOnlyBridgeNormalization = {
     rawSourceIdsSerialized: false;
     serializedOutputContainsSensitiveFixture: false;
   };
-  nextGateRecommended: 'future-read-only-session-schema-fingerprint-or-command-center-session-panel';
+  nextGateRecommended: 'future-read-only-session-schema-fingerprint-or-dashboard-session-panel';
 };
 
 export type ExternalExecutorSessionHistoryReadOnlyBridgeOptions<TRuntimeId extends string = string> = {
@@ -307,17 +307,17 @@ function buildSessionView(
   };
 }
 
-function buildCommandCenterView(view: ZavorthExternalSessionView): ExternalExecutorSessionHistoryCommandCenterView {
+function buildDashboardView(view: ZavorthExternalSessionView): ExternalExecutorSessionHistoryDashboardView {
   return {
-    nativeContract: 'ZavorthExternalSessionCommandCenterView/v1',
-    id: `${view.id}:command-center`,
+    nativeContract: 'ZavorthExternalSessionDashboardView/v1',
+    id: `${view.id}:dashboard`,
     sessionViewId: view.id,
     label: view.title,
     status: view.status,
     channel: view.channel,
     messageCount: view.messageCount,
     readOnly: true,
-    commandCenterConsumable: true,
+    dashboardConsumable: true,
     importAuthority: false,
     migrationAllowed: false,
     writeBackAllowed: false,
@@ -461,7 +461,7 @@ export function normalizeExternalExecutorSessionHistoryReadOnlyBridge<TRuntimeId
     sqliteDryRunDesignDoc: options.source.sqliteDryRunDesignDoc,
     readOnly: true,
     sessionViews: views,
-    commandCenterViews: views.map(buildCommandCenterView),
+    dashboardViews: views.map(buildDashboardView),
     failures: buildFailures(views),
     executionGate: {
       importAuthority: false,
@@ -484,7 +484,7 @@ export function normalizeExternalExecutorSessionHistoryReadOnlyBridge<TRuntimeId
       rawSourceIdsSerialized: false,
       serializedOutputContainsSensitiveFixture: false,
     },
-    nextGateRecommended: 'future-read-only-session-schema-fingerprint-or-command-center-session-panel',
+    nextGateRecommended: 'future-read-only-session-schema-fingerprint-or-dashboard-session-panel',
   };
 }
 

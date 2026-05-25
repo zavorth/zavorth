@@ -56,7 +56,7 @@ export type ExternalAgentProviderIdentityCatalogNormalization<RuntimeId extends 
   generatedAt: string;
   runtimeId: RuntimeId;
   providers: ExternalAgentProviderCatalogRecord[];
-  commandCenter: {
+  dashboard: {
     capabilities: Array<{
       id: string;
       providerId: string;
@@ -142,7 +142,7 @@ export function normalizeExternalAgentProviderIdentityCatalog<RuntimeId extends 
     generatedAt: options.generatedAt,
     runtimeId: options.runtimeId,
     providers,
-    commandCenter: {
+    dashboard: {
       capabilities: providers.map((provider) => ({
         id: `${provider.id}:catalog`,
         providerId: provider.id,

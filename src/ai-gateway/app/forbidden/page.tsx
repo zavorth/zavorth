@@ -32,7 +32,7 @@ export default function ForbiddenPage() {
         {t("accessDeniedDescription")}
       </p>
       <Link
-        href="/control"
+        href="/dashboard"
         className="px-8 py-3 rounded-[10px] text-white text-sm font-semibold no-underline transition-all duration-200 shadow-[0_4px_16px_rgba(99,102,241,0.3)] hover:-translate-y-0.5"
         style={{
           background: "linear-gradient(135deg, #6366f1, #8b5cf6)",

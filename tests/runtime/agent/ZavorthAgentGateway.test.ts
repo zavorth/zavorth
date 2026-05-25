@@ -24,7 +24,7 @@ describe('ZavorthAgentGateway', () => {
     const executor: UniversalAgentExecutor = ({ run }) => ({
       status: 'completed',
       summary: 'Comparei o workspace e preparei um resumo.',
-      replyText: 'Resumo pronto no Command Center.',
+      replyText: 'Resumo pronto no Dashboard.',
       events: [
         {
           kind: 'tool',
@@ -100,10 +100,10 @@ describe('ZavorthAgentGateway', () => {
     expect(result.replies).toEqual([
       expect.objectContaining({
         runId: result.run.id,
-        text: 'Resumo pronto no Command Center.',
+        text: 'Resumo pronto no Dashboard.',
         port: expect.objectContaining({
           kind: 'web',
-          label: 'Command Center',
+          label: 'Dashboard',
           primary: true,
         }),
       }),
@@ -241,7 +241,7 @@ describe('ZavorthAgentGateway', () => {
 
     const result = await gateway.handle({
       requestId: 'request-identity',
-      traceId: 'trace-command-center',
+      traceId: 'trace-dashboard',
       userId: 'grey',
       channel: 'web',
       sessionId: 'session-identity',
@@ -257,11 +257,11 @@ describe('ZavorthAgentGateway', () => {
     expect(result.run).toEqual(expect.objectContaining({
       id: expect.stringMatching(/^agent-run-/),
       requestId: 'request-identity',
-      traceId: 'trace-command-center',
+      traceId: 'trace-dashboard',
       sessionId: 'session-identity',
     }));
     expect(result.run.metadata).toEqual(expect.objectContaining({
-      traceId: 'trace-command-center',
+      traceId: 'trace-dashboard',
       adapterSource: 'universal-agent-runtime',
     }));
     expect(deliveries).toEqual([
@@ -269,7 +269,7 @@ describe('ZavorthAgentGateway', () => {
         runId: result.run.id,
         deliveredAt: '2026-04-26T12:04:00.000Z',
         metadata: expect.objectContaining({
-          traceId: 'trace-command-center',
+          traceId: 'trace-dashboard',
           sessionId: 'session-identity',
         }),
       }),

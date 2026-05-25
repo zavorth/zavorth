@@ -211,7 +211,7 @@ export class ZavorthTrustPanelService {
       advanced: {
         policyBrokerAuthority: true,
         dashboardRoute: '/dashboard',
-        commandCenterCanExecute: false,
+        dashboardCanExecute: false,
         rawSecretsSerialized: false,
         approvalScope: ['action', 'arguments', 'user', 'surface', 'ttl', 'workspace', 'risk'],
         receiptEvents: ['preview.created', 'approval.requested', 'approval.decided', 'execution.blocked', 'execution.completed', 'rollback.available'],

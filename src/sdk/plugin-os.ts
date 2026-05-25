@@ -6,3 +6,5 @@ export * from '../services/SourcePluginRuntimeDoctorService.js';
 export * from '../services/SourcePluginSdkCompatibilityMatrixService.js';
 export * from '../services/PluginRegistryService.js';
 export * from '../services/PluginSandboxPolicyService.js';
+export * from '../contracts/ZavorthExtensionPluginSdkContract.js';
+export * from '../services/ZavorthExtensionPluginSdkService.js';

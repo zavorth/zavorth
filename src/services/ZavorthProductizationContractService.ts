@@ -72,6 +72,7 @@ export type ZavorthProductizationContractAcceptance = {
 export type ZavorthProductizationContractSnapshot = {
   schemaVersion: 1;
   phase: 'C9';
+  stage: 'C9';
   generatedAt: string;
   status: ZavorthProductizationStatus;
   activeRunId: string | null;
@@ -164,7 +165,7 @@ const DEFAULT_DOC_PATHS = [
 ];
 
 const DEFAULT_DOC_TOPICS = [
-  '/control mostra experiencia, trust, approvals, receipts, sandbox, provider e capabilities',
+  '/dashboard mostra experiencia, trust, approvals, receipts, sandbox, provider e capabilities',
   'CLI renderiza o mesmo ZavorthProductizationContractSnapshot',
   'onboarding configura host, providers, channels, workspace e safety posture',
   'website promete apenas feature estavel ou preview',
@@ -293,6 +294,7 @@ export class ZavorthProductizationContractService {
     return {
       schemaVersion: 1,
       phase: 'C9',
+      stage: 'C9',
       generatedAt,
       status,
       activeRunId: activeRun?.id || null,
@@ -317,7 +319,7 @@ export class ZavorthProductizationContractService {
       blockers,
       explanation: [
         'C9 transforma o runtime em produto auditavel por um unico contrato.',
-        '/control, CLI, onboarding, docs e website leem o mesmo snapshot em vez de contar historias paralelas.',
+        '/dashboard, CLI, onboarding, docs e website leem o mesmo snapshot em vez de contar historias paralelas.',
         'A promessa publica fica limitada ao que esta estavel ou explicitamente marcado como preview.',
       ],
     };
@@ -681,9 +683,9 @@ export class ZavorthProductizationContractService {
       renderer: 'formatZavorthProductizationContractSnapshot',
       mirrorsControlItemIds: [...CONTROL_ITEM_IDS],
       evidence: sameContract
-        ? ['CLI usa ZavorthProductizationContractSnapshot e espelha todos os itens de /control.']
+        ? ['CLI usa ZavorthProductizationContractSnapshot e espelha todos os itens de /dashboard.']
         : [],
-      blockers: sameContract ? [] : ['CLI nao espelha todos os itens obrigatorios do /control.'],
+      blockers: sameContract ? [] : ['CLI nao espelha todos os itens obrigatorios do /dashboard.'],
     };
   }
 

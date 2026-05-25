@@ -64,7 +64,7 @@ export interface PublicRuntimeEventEnvelope<TType extends PublicRuntimeEventType
   sessionId: string | null;
   data: TData;
   safety: {
-    commandCenterCanExecute: false;
+    dashboardCanExecute: false;
     policyBrokerRequiredForMutableActions: true;
     rawSecretsSerialized: false;
   };

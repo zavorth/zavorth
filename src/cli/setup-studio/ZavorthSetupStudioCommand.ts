@@ -72,7 +72,7 @@ export function renderZavorthSetupCancelledMessage(): string {
   return [
     'Setup cancelled.',
     'Nothing was changed.',
-    'Resume anytime: zavorth onboarding',
+    'Resume anytime: zavorth setup',
   ].join('\n');
 }
 
@@ -135,7 +135,7 @@ export async function runZavorthSetupStudioCommand(
     const p = await import('@clack/prompts');
     p.note(renderZavorthSetupStudioFinalReview(snapshot), 'Review');
     const confirmed = await p.confirm({
-      message: 'Apply setup?',
+      message: 'Apply this First Light setup now?',
       initialValue: false,
     });
     if (p.isCancel(confirmed) || confirmed !== true) {
@@ -444,7 +444,7 @@ async function collectInteractiveAnswers(projectRoot: string): Promise<SetupStud
 
   console.clear();
   console.log(await renderSetupStudioHero());
-  p.intro(`${orange('ZAVORTH')} first light`);
+  p.intro(`${orange('ZAVORTH')} First Light`);
   p.note(renderZavorthSetupSecurityNotice(), orange('Security'));
 
   const accepted = await p.confirm({
@@ -461,7 +461,7 @@ async function collectInteractiveAnswers(projectRoot: string): Promise<SetupStud
     ...defaultAnswers(),
     dryRun: true,
   });
-  p.note(renderExistingConfigPanel(baselineSnapshot), orange('Existing config detected'));
+  p.note(renderExistingConfigPanel(baselineSnapshot), orange('Current config'));
 
   const setupMode = await p.select({
     message: 'Setup mode',
@@ -479,7 +479,7 @@ async function collectInteractiveAnswers(projectRoot: string): Promise<SetupStud
   void setupMode;
 
   const configHandling = await p.select({
-    message: 'Config handling',
+    message: 'How should First Light handle existing config?',
     options: [
       { value: 'keep', label: 'Keep current values', hint: 'recommended' },
       { value: 'review', label: 'Review and update' },
@@ -532,7 +532,7 @@ async function collectInteractiveAnswers(projectRoot: string): Promise<SetupStud
   }
   p.note(renderModelCheckPanel(provider.id, provider.needsSecret, provider.secretEnvKeys[0] || null, Boolean(providerSecret)), orange('Model check'));
 
-  p.note(renderHowChannelsWorkPanel(), orange('How channels work'));
+  p.note(renderHowChannelsWorkPanel(), orange('Communication surfaces'));
 
   const selectedRemoteChannels = await selectSetupChannels(p, projectRoot);
   if (p.isCancel(selectedRemoteChannels)) {
@@ -604,9 +604,9 @@ async function collectInteractiveAnswers(projectRoot: string): Promise<SetupStud
     searchSecret: String(searchSecret || ''),
     dryRun: true,
   });
-  p.note(renderSkillsStatusPanel(skillsSnapshot), orange('Skills status'));
+  p.note(renderSkillsStatusPanel(skillsSnapshot), orange('Capability readiness'));
   const configureSkills = await p.confirm({
-    message: 'Configure capabilities now? (recommended)',
+    message: 'Review optional capability helpers now?',
     initialValue: true,
   });
   if (p.isCancel(configureSkills)) {
@@ -615,7 +615,7 @@ async function collectInteractiveAnswers(projectRoot: string): Promise<SetupStud
   }
   if (configureSkills === true) {
     const skillChoices = await p.multiselect({
-      message: 'Install missing capability helpers',
+      message: 'Prepare optional capability helpers',
       options: [
         { value: 'skip', label: 'Skip for now', hint: 'continue without installing dependencies' },
         { value: 'onepassword', label: '1password' },
@@ -690,10 +690,10 @@ async function collectInteractiveAnswers(projectRoot: string): Promise<SetupStud
     p.cancel('Setup cancelled. Nothing was changed.');
     throw new SetupStudioCancelled();
   }
-  p.note(renderAutomationHooksPanel(enableHooks === true), orange(enableHooks === true ? 'Automation templates' : 'No automation templates enabled'));
-  p.note(renderGatewayPanel(baselineSnapshot), orange('Gateway service runtime'));
+  p.note(renderAutomationHooksPanel(enableHooks === true), orange(enableHooks === true ? 'Automation templates' : 'Automation templates skipped'));
+  p.note(renderGatewayPanel(baselineSnapshot), orange('Runtime service'));
   const gatewayAction = await p.select({
-    message: baselineSnapshot.gateway.installed ? 'Gateway service already installed' : 'Gateway service runtime',
+    message: baselineSnapshot.gateway.installed ? 'Runtime service already installed' : 'Runtime service',
     options: [
       { value: 'restart', label: baselineSnapshot.gateway.installed ? 'Show restart command' : 'Show start command', hint: 'setup will not start persistent processes' },
       { value: 'install', label: baselineSnapshot.gateway.installed ? 'Show reinstall command' : 'Show service preparation command' },
@@ -706,13 +706,13 @@ async function collectInteractiveAnswers(projectRoot: string): Promise<SetupStud
     throw new SetupStudioCancelled();
   }
   void gatewayAction;
-  p.note(renderControlUiPanel(baselineSnapshot), orange('Control UI'));
-  p.note(renderHatchPanel(baselineSnapshot), orange('Hatch your agent'));
+  p.note(renderControlUiPanel(baselineSnapshot), orange('Dashboard'));
+  p.note(renderHatchPanel(baselineSnapshot), orange('Start the agent'));
   const hatchMode = await p.select({
-    message: 'How do you want to hatch your agent?',
+    message: 'How do you want to start your agent after setup?',
     options: [
       { value: 'terminal', label: 'Hatch in Terminal', hint: 'recommended' },
-      { value: 'browser', label: 'Hatch in Command Center' },
+      { value: 'browser', label: 'Hatch in Dashboard' },
       { value: 'later', label: 'Hatch later' },
     ],
     initialValue: 'terminal',
@@ -784,7 +784,7 @@ function renderHowChannelsWorkPanel(): string {
     'Discord: bot token and approved guild/channel scope.',
     'Slack: bot/socket token with channel allowlist.',
     'Signal/WhatsApp/iMessage/Matrix/LINE/Zalo/Teams/Google Chat: bridge or API credentials plus pairing.',
-    'Command Center: local visual control plane for approvals, diffs and receipts.',
+    'Dashboard: local visual control plane for approvals, diffs and receipts.',
   ].join('\n');
 }
 

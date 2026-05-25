@@ -345,7 +345,7 @@ export function buildWebGatewaySurfaceDescriptor(): GatewaySurfaceDescriptor {
   return {
     contractVersion: GATEWAY_SURFACE_CONTRACT_VERSION,
     id: 'web-control',
-    label: 'Web Control UI Gateway',
+    label: 'Web Dashboard Gateway',
     channel: 'web',
     readiness: 'ready',
     implementationState: 'full',
@@ -437,7 +437,7 @@ export function buildWebGatewaySurfaceDescriptor(): GatewaySurfaceDescriptor {
       sourceFiles: [
         'src/services/WebAppConversationService.ts',
         'src/domain/surface/presentation/web-app/WebAppRuntimeInteractionRouteService.ts',
-        'assets/command-center/scripts/runtime-bridge.js',
+        'assets/dashboard/scripts/runtime-bridge.js',
       ],
     },
     degradedMode: {

@@ -8,7 +8,7 @@ const checks = [
     file: 'src/contracts/LegacySurfaceContract.ts',
     includes: [
       'LEGACY_SURFACE_CONTAINMENT_VERSION',
-      "canonicalEntry: '/control'",
+      "canonicalEntry: '/dashboard'",
       "frozenSurfaces: ['/app', '/classic']",
     ],
   },
@@ -18,8 +18,8 @@ const checks = [
       'legacyFeatureFreeze: true',
       'P3-003',
       'decideFeatureDestination',
-      'Use /control como entrada principal',
-      'Gateway Contract, Control Plane e Control UI',
+      'Use /dashboard como entrada principal',
+      'Gateway Contract, Control Plane e Dashboard',
     ],
   },
   {
@@ -33,7 +33,7 @@ const checks = [
       'controlUrl',
       'legacyAppUrl',
       'classicUrl',
-      'Abrir Control UI',
+      'Abrir Dashboard',
     ],
   },
   {
@@ -45,7 +45,7 @@ const checks = [
     includes: [
       'legacy-surface-banner',
       'canonical-surface-banner',
-      'Control UI canonica',
+      'Dashboard canonica',
       'Surface legada',
     ],
   },
@@ -56,54 +56,54 @@ const checks = [
     ],
     includes: [
       'classic-legacy-banner',
-      '/control',
+      '/dashboard',
       '/app',
     ],
   },
   {
     file: 'install/install.ps1',
     includes: [
-      '/control',
+      '/dashboard',
       '/app',
       'Legacy shell URL',
     ],
   },
   {
     file: 'scripts/launch-zavorth-supervised.ps1',
-    includes: ['/control'],
+    includes: ['/dashboard'],
   },
   {
     file: 'scripts/test-surface-qa.mjs',
     includes: [
-      '/control',
-      'Control UI e legado',
+      '/dashboard',
+      'Dashboard e legado',
     ],
   },
   {
     file: 'scripts/web-app-smoke.mjs',
     includes: [
-      '/control',
-      'Control UI shell',
+      '/dashboard',
+      'Dashboard shell',
     ],
   },
   {
     file: 'scripts/web-app-smoke.ts',
     includes: [
-      '/control',
-      'Control UI shell',
+      '/dashboard',
+      'Dashboard shell',
     ],
   },
   {
     file: 'scripts/web-app-visual-smoke.ts',
-    includes: ['/control'],
+    includes: ['/dashboard'],
   },
   {
     file: 'src/host.ts',
-    includes: ['/control'],
+    includes: ['/dashboard'],
   },
   {
     file: 'src/services/IntegrationProbeService.ts',
-    includes: ['/control'],
+    includes: ['/dashboard'],
   },
   {
     file: 'src/telegram/bot-gateway/support/BotGatewayMessageProcessing.ts',
@@ -149,21 +149,21 @@ const checks = [
   {
     file: 'README.md',
     includes: [
-      '/control',
+      '/dashboard',
       'Shell operacional legado',
     ],
   },
   {
     file: 'docs/quickstart.md',
     includes: [
-      '/control',
+      '/dashboard',
       'Shell operacional legado',
     ],
   },
   {
     file: 'docs/web-dashboard.md',
     includes: [
-      '/control',
+      '/dashboard',
       'funcionalmente congeladas',
       'Gateway Contract',
     ],
@@ -171,14 +171,14 @@ const checks = [
   {
     file: 'docs/operations.md',
     includes: [
-      '/control',
+      '/dashboard',
       'shell operacional legado',
     ],
   },
   {
     file: 'docs/product-direction.md',
     includes: [
-      '/control',
+      '/dashboard',
       '/app',
       'qa:legacy-compat',
       'P3-003',
@@ -262,7 +262,7 @@ if (failures.length > 0) {
   process.exit(1);
 }
 
-console.log('[legacy-containment] ok: /control canonico, /app e /classic preservados como legado congelado.');
+console.log('[legacy-containment] ok: /dashboard canonico, /app e /classic preservados como legado congelado.');
 
 function collectSourceFiles(directories) {
   const files = [];

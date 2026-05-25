@@ -217,7 +217,7 @@ export class DeepSearchService {
       case 'opencode':
         return !!config.openCodeApiKey;
       case 'openai':
-        return !!config.openaiApiKey;
+        return !!(config.openaiApiKey || (config as any).openaiApiKeys?.length > 0);
       default:
         return false;
     }

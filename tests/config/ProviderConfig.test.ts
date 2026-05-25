@@ -10,8 +10,11 @@ describe('buildProviderConfig', () => {
   const originalEchoOrder = process.env.ZAVORTH_ECHO_LLM_FALLBACK_ORDER;
   const originalLegacyEchoOrder = process.env.ZAVORTH_ECHO_FALLBACK_ORDER;
   const originalProvider = process.env.LLM_PROVIDER;
+  const originalDirectProviderDebug = process.env.ZAVORTH_DIRECT_PROVIDER_DEBUG;
   const originalModel = process.env.ZAVORTH_MODEL;
   const originalModelId = process.env.ZAVORTH_MODEL_ID;
+  const originalOpenAiKey = process.env.OPENAI_API_KEY;
+  const originalOpenAiKey2 = process.env.OPENAI_API_KEY_2;
 
   afterEach(() => {
     if (originalEchoOrder === undefined) {
@@ -29,6 +32,11 @@ describe('buildProviderConfig', () => {
     } else {
       process.env.LLM_PROVIDER = originalProvider;
     }
+    if (originalDirectProviderDebug === undefined) {
+      delete process.env.ZAVORTH_DIRECT_PROVIDER_DEBUG;
+    } else {
+      process.env.ZAVORTH_DIRECT_PROVIDER_DEBUG = originalDirectProviderDebug;
+    }
     if (originalModel === undefined) {
       delete process.env.ZAVORTH_MODEL;
     } else {
@@ -38,6 +46,16 @@ describe('buildProviderConfig', () => {
       delete process.env.ZAVORTH_MODEL_ID;
     } else {
       process.env.ZAVORTH_MODEL_ID = originalModelId;
+    }
+    if (originalOpenAiKey === undefined) {
+      delete process.env.OPENAI_API_KEY;
+    } else {
+      process.env.OPENAI_API_KEY = originalOpenAiKey;
+    }
+    if (originalOpenAiKey2 === undefined) {
+      delete process.env.OPENAI_API_KEY_2;
+    } else {
+      process.env.OPENAI_API_KEY_2 = originalOpenAiKey2;
     }
   });
 
@@ -64,6 +82,7 @@ describe('buildProviderConfig', () => {
 
   it('uses governed provider preference when environment does not override it', () => {
     delete process.env.LLM_PROVIDER;
+    process.env.ZAVORTH_DIRECT_PROVIDER_DEBUG = 'true';
     delete process.env.ZAVORTH_MODEL;
     delete process.env.ZAVORTH_MODEL_ID;
     const root = fs.mkdtempSync(path.join(os.tmpdir(), 'zavorth-provider-config-pref-'));
@@ -81,5 +100,25 @@ describe('buildProviderConfig', () => {
     expect(config.llmProvider).toBe('openai');
     expect(config.modelSelectionModelId).toBe('gpt-test');
     expect(config.modelSelectionRouteId).toBe('openai');
+  });
+
+  it('routes LLM calls through the native gateway by default', () => {
+    delete process.env.LLM_PROVIDER;
+    delete process.env.ZAVORTH_DIRECT_PROVIDER_DEBUG;
+
+    const config = buildProviderConfig();
+
+    expect(config.llmProvider).toBe('aigateway');
+    expect(config.AIGatewaySidecarEnabled).toBe(true);
+  });
+
+  it('collects secondary OpenAI keys for provider failover', () => {
+    process.env.OPENAI_API_KEY = 'primary-openai-key';
+    process.env.OPENAI_API_KEY_2 = 'secondary-openai-key';
+
+    const config = buildProviderConfig();
+
+    expect(config.openaiApiKey).toBe('primary-openai-key');
+    expect((config as any).openaiApiKeys).toEqual(['primary-openai-key', 'secondary-openai-key']);
   });
 });

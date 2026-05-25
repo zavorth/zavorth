@@ -40,14 +40,14 @@ zavorth ready
 Experience Core to create a governed plan, timeline and receipts. `learn`
 reviews learning candidates before they affect future behavior. `setup` opens
 the guided Setup Studio. `start` starts or resumes the local runtime. `open`
-opens the Command Center. `ready` tells you if the machine is usable for daily
+opens the Dashboard. `ready` tells you if the machine is usable for daily
 work.
 
 `pulse` is the fastest daily readout: best next action, risks, receipts,
 learning and active response profile. `hud` is the full terminal command center:
 it shows action cards, timeline,
 diff review, Trust Lens, auto-healing and context recovery from the same
-snapshot used by `/control` and Telegram. `diff` renders sandbox diffs by file
+snapshot used by `/dashboard` and Telegram. `diff` renders sandbox diffs by file
 and hunk; approving or rejecting a hunk records a governed decision and never
 applies directly to the host.
 
@@ -63,7 +63,7 @@ The HUD also prints daily shortcut intents:
 - `N` maps to the first reject command when available;
 - `D` opens the current diff review;
 - `L` opens Learning OS;
-- `O` opens the web Command Center.
+- `O` opens the web Dashboard.
 
 These shortcuts are rendered as explicit commands so terminals without a full
 TUI still remain predictable and automation-friendly.
@@ -143,9 +143,9 @@ zavorth doctor --simple
 zavorth doctor --advanced
 ```
 
-These commands expose the same protected runtime projection that the Command Center
+These commands expose the same protected runtime projection that the Dashboard
 can consume: product mode, first-run journey, mission status, sandbox fallback,
-approval posture and visual receipts. They do not execute Command Center actions
+approval posture and visual receipts. They do not execute Dashboard actions
 by themselves.
 
 ## Runtime Readiness
@@ -167,7 +167,7 @@ returns one verdict for remote use. By default it may run explicit safe provider
 probes; `--offline` uses stored evidence only.
 
 `readiness` is the daily operator gate. It checks the natural-first runtime,
-provider mesh, Command Center, Telegram, approvals, transaction plane, skill imports
+provider mesh, Dashboard, Telegram, approvals, transaction plane, skill imports
 and memory continuity in one read-only report. `attention` means Zavorth can be
 usable with a setup gap; `blocked` means a required safety contract failed.
 The default view is human-first (`Pronto`, `Atencao`, `Bloqueado`) with a next
@@ -221,13 +221,13 @@ returns only sanitized evidence: target without query strings, HTTP status,
 duration, model count and evidence hash. It must never print the API key or
 provider token.
 
-`providers cockpit` projects the same provider data for the Command Center. It
+`providers cockpit` projects the same provider data for the Dashboard. It
 creates provider cards/actions/receipts as JSON or text, but it does not mutate
-the Command Center and it cannot execute provider calls from the web surface.
+the Dashboard and it cannot execute provider calls from the web surface.
 
 `providers visual-approval` creates the owner-review package for future
-Command Center UI work. It lists proposed blocks, placements, data bindings,
-acceptance criteria and rollback plan while keeping the actual Command Center
+Dashboard UI work. It lists proposed blocks, placements, data bindings,
+acceptance criteria and rollback plan while keeping the actual Dashboard
 unchanged.
 
 For local repo checks:
@@ -249,9 +249,9 @@ npm run release:check
 These commands are for maintainers and CI. Normal users should not need them
 for first-run setup, provider configuration, channel setup, or daily operation.
 
-## Command Center
+## Dashboard
 
-The CLI should guide users to `/control` instead of asking them to find tokens or
+The CLI should guide users to `/dashboard` instead of asking them to find tokens or
 runtime files manually. When access fails, start with:
 
 ```bash
@@ -276,5 +276,5 @@ zavorth doctor
 
 - [Quickstart](/docs/quickstart.md)
 - [Operations](/docs/operations.md)
-- [Command Center](/docs/web-dashboard.md)
+- [Dashboard](/docs/web-dashboard.md)
 - [Roadmap](/docs/product-direction.md)

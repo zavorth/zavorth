@@ -20,7 +20,7 @@ export function renderLegacySurfaceBanner(pathname: string): string | null {
   const reason = role === 'legacy-operational'
     ? 'old operational cockpit'
     : 'classic observability dashboard';
-  return `The ${label} surface is frozen as ${reason}. Use /control as the main entry; /dashboard remains compatible, and new product work must land in the Runtime API, Gateway Contract and official dashboard.`;
+  return `The ${label} surface is frozen as ${reason}. Use /dashboard as the main entry; /dashboard remains compatible, and new product work must land in the Runtime API, Gateway Contract and official dashboard.`;
 }
 
 function normalizePath(value: string): string {

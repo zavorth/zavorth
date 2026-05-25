@@ -21,6 +21,7 @@ const comboStrategySchema = z.enum([
   "fill-first",
   "p2c",
   "auto",
+  "reset-aware",
   "lkgp",
   "context-optimized",
 ]);

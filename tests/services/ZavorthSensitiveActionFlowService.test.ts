@@ -18,7 +18,7 @@ describe('ZavorthSensitiveActionFlowService', () => {
     expect(snapshot.execution.mode).toBe('dry_run');
     expect(snapshot.rollback.available).toBe(true);
     expect(snapshot.receipt.redaction.rawSecretsPresent).toBe(false);
-    expect(snapshot.commandCenterProjection.executionAuthority).toBe(false);
+    expect(snapshot.dashboardProjection.executionAuthority).toBe(false);
   });
 
   it('keeps read-only requests approval-free', () => {

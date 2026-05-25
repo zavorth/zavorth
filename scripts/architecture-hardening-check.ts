@@ -57,7 +57,7 @@ const LEGACY_LARGE_TEST_ALLOWLIST = new Set([
 
 const LEGACY_LARGE_SOURCE_ALLOWLIST = new Set([
   'src/ai-gateway/app/(dashboard)/dashboard/HomePageClient.tsx',
-  'src/ai-gateway/app/(dashboard)/control/command-center/projections/zavorthAgentGatewayRuntimeProjection.ts',
+  'src/ai-gateway/app/(dashboard)/dashboard/dashboard/projections/zavorthAgentGatewayRuntimeProjection.ts',
   'src/cli/ZavorthCliSurfaceHelpers.ts',
   'src/domain/surface/presentation/web-app/WebAppRuntimeStateRouteService.ts',
   'src/runtime/agent/AgentRunService.ts',

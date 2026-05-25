@@ -36,7 +36,7 @@ export default function LoginPage() {
           if (data.nodeVersion) setNodeVersion(data.nodeVersion);
           if (data.nodeCompatible === false) setNodeCompatible(false);
           if (data.requireLogin === false) {
-            router.push("/control");
+            router.push("/dashboard");
             router.refresh();
             return;
           }
@@ -69,7 +69,7 @@ export default function LoginPage() {
 
       if (res.ok) {
         sessionStorage.setItem("ZavorthGateway_login_time", String(Date.now()));
-        router.push("/control");
+        router.push("/dashboard");
         router.refresh();
       } else {
         const data = await res.json();

@@ -41,7 +41,7 @@ function createRun(replyPorts: UniversalReplyPort[]): UniversalAgentRun {
 describe('ReplyPipeline surface conformance', () => {
   it('emits traceable reply packets for web, Telegram, API and CLI ports', () => {
     const ports: UniversalReplyPort[] = [
-      { id: 'web-control', label: 'Command Center', kind: 'web', status: 'available', primary: true },
+      { id: 'web-control', label: 'Dashboard', kind: 'web', status: 'available', primary: true },
       { id: 'telegram-main', label: 'Telegram', kind: 'telegram', status: 'available' },
       { id: 'api-client', label: 'API client', kind: 'api', status: 'available' },
       { id: 'cli-terminal', label: 'Terminal', kind: 'cli', status: 'available' },

@@ -158,7 +158,7 @@ function ruleSnapshot() {
     && data.summary?.workspaceMutationPerformed === false
     && data.summary?.externalIoPerformed === false
     && data.guarantees?.dashboardIsPrimarySurface === true
-    && data.guarantees?.commandCenterCanExecute === false;
+    && data.guarantees?.dashboardCanExecute === false;
   return rule(
     'snapshot',
     'Documentation repo final snapshot runs',

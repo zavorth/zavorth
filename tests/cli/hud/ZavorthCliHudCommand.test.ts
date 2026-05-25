@@ -45,7 +45,7 @@ function createPendingPlan(mutationPlane: ZavorthMutationPlaneService, title = '
 }
 
 describe('Zavorth CLI HUD', () => {
-  test('renders a stable HUD snapshot with shortcuts', () => {
+  test('renders the daily TUI by default with runtime shortcuts', () => {
     const { root, mutationPlane } = createMutationPlane();
     const plan = createPendingPlan(mutationPlane);
 
@@ -60,12 +60,13 @@ describe('Zavorth CLI HUD', () => {
     expect(result.exitCode).toBe(0);
     expect(result.snapshot.contractVersion).toBe('zavorth-cli-hud/1');
     expect(result.snapshot.selectedPlanId).toBe(plan.id);
-    expect(result.snapshot.shortcuts.some((shortcut) => shortcut.key === 'y' && shortcut.requiresConfirmation)).toBe(true);
-    expect(result.output).toContain('HUD');
-    expect(result.output).toContain('Shortcut safety');
+    expect(result.output).toContain('Daily TUI');
+    expect(result.output).toContain('Today');
+    expect(result.output).toContain('Approvals & Diff');
+    expect(result.output).toContain('zavorth chat');
   });
 
-  test('exports json without requiring a TTY', () => {
+  test('exports daily TUI json without requiring a TTY', () => {
     const { root, mutationPlane } = createMutationPlane();
     createPendingPlan(mutationPlane);
 
@@ -79,8 +80,8 @@ describe('Zavorth CLI HUD', () => {
     });
 
     const parsed = JSON.parse(result.output);
-    expect(parsed.contractVersion).toBe('zavorth-cli-hud/1');
-    expect(parsed.safety.approvalRequiresDoubleConfirm).toBe(true);
+    expect(parsed.contractVersion).toBe('zavorth-cli-runtime-tui/1');
+    expect(parsed.safety.readOnlySnapshot).toBe(true);
     expect(parsed.safety.noHostApply).toBe(true);
   });
 
@@ -264,16 +265,13 @@ describe('Zavorth CLI HUD', () => {
     });
 
     expect(result.exitCode).toBe(0);
-    expect(result.output).toContain('Runtime TUI');
-    expect(result.output).toContain('Runtime Connection');
-    expect(result.output).toContain('Chat');
-    expect(result.output).toContain('Timeline');
-    expect(result.output).toContain('Tools');
-    expect(result.output).toContain('Approvals');
-    expect(result.output).toContain('Diff Preview');
-    expect(result.output).toContain('Channels');
-    expect(result.output).toContain('Sessions');
-    expect(result.output).toContain('Logs');
+    expect(result.output).toContain('Daily TUI');
+    expect(result.output).toContain('Runtime');
+    expect(result.output).toContain('Today');
+    expect(result.output).toContain('Chat & Timeline');
+    expect(result.output).toContain('Approvals & Diff');
+    expect(result.output).toContain('Integrations');
+    expect(result.output).toContain('Sessions & Logs');
   });
 
   test('exports unified runtime TUI json contract', () => {

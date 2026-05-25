@@ -208,7 +208,7 @@ function evaluateScenario(
   findings.push(...requiredActionFindings(scenarioId, projection, expected));
   findings.push(...surfaceFallbackFindings(scenarioId, projection));
   findings.push(...apiFindings(scenarioId, projection, expected));
-  findings.push(...commandCenterFindings(scenarioId, projection));
+  findings.push(...dashboardFindings(scenarioId, projection));
   findings.push(...safetyFindings(scenarioId, projection));
   findings.push(telegramParityFinding(scenarioId, projection));
 
@@ -242,7 +242,7 @@ function evaluateScenario(
       actionCount: projection.summary.actionCount,
       fallbackSurfaces: projection.summary.fallbackSurfaces,
       buttonSurfaces: projection.summary.buttonSurfaces,
-      commandCenterVisualMutation: projection.summary.commandCenterVisualMutation,
+      dashboardVisualMutation: projection.summary.dashboardVisualMutation,
       noLiveActionExecuted: projection.safety.noLiveActionExecuted,
     },
   };
@@ -346,25 +346,25 @@ function apiFindings(
   ];
 }
 
-function commandCenterFindings(
+function dashboardFindings(
   scenarioId: string,
   projection: ZavorthCrossSurfaceRuntimeProjectionSnapshot,
 ): ZavorthOperationalRolloutEvalFinding[] {
-  const commandCenter = projection.commandCenterProjection;
+  const dashboard = projection.dashboardProjection;
   return [
     finding(
       scenarioId,
       'command_center',
-      !commandCenter.visualMutationApplied && commandCenter.safeViewModelOnly ? 'pass' : 'fail',
-      'command-center-boundary',
-      'Command Center remains view-model only.',
+      !dashboard.visualMutationApplied && dashboard.safeViewModelOnly ? 'pass' : 'fail',
+      'dashboard-boundary',
+      'Dashboard remains view-model only.',
       null,
     ),
     finding(
       scenarioId,
       'command_center',
-      commandCenter.requiresOwnerApprovalForVisualChange ? 'pass' : 'fail',
-      'command-center-boundary',
+      dashboard.requiresOwnerApprovalForVisualChange ? 'pass' : 'fail',
+      'dashboard-boundary',
       'Visual change requires owner approval.',
       null,
     ),
@@ -388,7 +388,7 @@ function safetyFindings(
       scenarioId,
       'all',
       projection.safety.noDashboardVisualMutation ? 'pass' : 'fail',
-      'command-center-boundary',
+      'dashboard-boundary',
       'Projection did not mutate dashboard visuals.',
       null,
     ),
@@ -552,18 +552,18 @@ function scenarioEvalToSample(
       actionCount: scenarioEval.projectionDigest.actionCount,
       approvalActions: 0,
       disabledActions: 0,
-      commandCenterVisualMutation: false,
+      dashboardVisualMutation: false,
     },
     safety: {
       noDashboardVisualMutation: true,
-      commandCenterIsViewModelOnly: true,
+      dashboardIsViewModelOnly: true,
       noLiveActionExecuted: true,
       sameSemanticsAcrossSurfaces: true,
       telegramNotPrivileged: true,
       channelFallbacksRequired: true,
       rawSecretsSerialized: false,
     },
-    commandCenterProjection: {
+    dashboardProjection: {
       projectionId: 'checkpoint-6-sample',
       title: 'Runtime projection sample',
       statusPill: scenarioEval.observedStatus,

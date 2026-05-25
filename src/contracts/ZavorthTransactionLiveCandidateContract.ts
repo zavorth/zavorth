@@ -2,8 +2,8 @@ import type {
   ZavorthTransactionCertificationReport,
 } from './ZavorthTransactionCertificationContract.js';
 import type {
-  ZavorthTransactionCommandCenterProjection,
-} from './ZavorthTransactionCommandCenterContract.js';
+  ZavorthTransactionDashboardProjection,
+} from './ZavorthTransactionDashboardContract.js';
 import type {
   ZavorthTransactionConnectorPayload,
 } from './ZavorthTransactionConnectorContract.js';
@@ -29,7 +29,7 @@ export type ZavorthTransactionLiveCandidateStatus =
 
 export type ZavorthTransactionLiveCandidateGateKind =
   | 'certification-matrix-certification'
-  | 'command-center-simulated'
+  | 'dashboard-simulated'
   | 'approval-ledger-approved'
   | 'credential-ref-ready'
   | 'typed-connector-simulated'
@@ -56,7 +56,7 @@ export type ZavorthTransactionLiveCandidateOwnerGate = {
 export type ZavorthTransactionLiveCandidateEnvelope = {
   id: string;
   createdAt: string;
-  sourceCommandCenterProjectionId: string;
+  sourceDashboardProjectionId: string;
   sourceSurfaceProjectionId: string;
   surface: ZavorthTransactionSurfaceKind;
   actionKind: ZavorthTransactionActionKind;
@@ -99,7 +99,7 @@ export type ZavorthTransactionLiveCandidateResult = {
   ownerGate: ZavorthTransactionLiveCandidateOwnerGate;
   gates: ZavorthTransactionLiveCandidateGate[];
   envelope?: ZavorthTransactionLiveCandidateEnvelope;
-  commandCenterProjection: ZavorthTransactionCommandCenterProjection;
+  dashboardProjection: ZavorthTransactionDashboardProjection;
   certificationReport: ZavorthTransactionCertificationReport;
   blockers: string[];
   nextSteps: string[];
@@ -141,7 +141,7 @@ export function buildZavorthTransactionLiveCandidateContractSnapshot(): ZavorthT
     ],
     gateKinds: [
       'certification-matrix-certification',
-      'command-center-simulated',
+      'dashboard-simulated',
       'approval-ledger-approved',
       'credential-ref-ready',
       'typed-connector-simulated',

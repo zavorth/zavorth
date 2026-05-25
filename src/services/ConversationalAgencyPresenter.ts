@@ -13,7 +13,7 @@ const TERM_MAP = [
 export class ConversationalAgencyPresenter {
   public present(input: {
     fabric: IntelligenceFabricSnapshot;
-    context?: 'chat' | 'command-center' | 'receipt';
+    context?: 'chat' | 'dashboard' | 'receipt';
   }): ConversationalAgencyMessage {
     const { fabric } = input;
     const capability = fabric.capabilityBuilder;
@@ -55,7 +55,7 @@ export class ConversationalAgencyPresenter {
       return this.message(
         'Vou deixar uma previa de alteracao pronta.',
         'A mudanca fica reversivel e visivel antes de ser aplicada.',
-        'Voce aprova pelo chat ou pelo Command Center quando quiser aplicar.',
+        'Voce aprova pelo chat ou pelo Dashboard quando quiser aplicar.',
       );
     }
 
@@ -79,7 +79,7 @@ export class ConversationalAgencyPresenter {
       body: this.humanize(body),
       nextAction: this.humanize(nextAction),
       detailsHiddenByDefault: true,
-      commandCenterDetailsAvailable: true,
+      dashboardDetailsAvailable: true,
       internalTermsSuppressed: TERM_MAP.map((entry) => entry.internal),
     };
   }

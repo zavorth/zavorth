@@ -402,7 +402,7 @@ function feature(
     acceptanceGate,
     observability: {
       emitsReceipt: true,
-      commandCenterProjection: `CommandCenter${receiptKind}`,
+      dashboardProjection: `Dashboard${receiptKind}`,
       noSourceRuntimeDependency: true,
     },
   };

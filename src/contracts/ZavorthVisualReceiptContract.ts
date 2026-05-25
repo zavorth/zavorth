@@ -26,7 +26,7 @@ export type ZavorthVisualReceiptContract = {
   advanced: {
     policyBroker: 'required';
     trustPlane: 'active';
-    commandCenterCanExecute: false;
+    dashboardCanExecute: false;
     sandboxMutationMode: ZavorthMissionContract['execution']['mutationMode'];
     approvalOptions: string[];
     artifacts: string[];

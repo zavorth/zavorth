@@ -186,7 +186,7 @@ const CRITICAL_FLOWS = [
   },
   {
     id: 'web-control-runtime',
-    label: 'Surfaces web /control e runtime',
+    label: 'Surfaces web /dashboard e runtime',
     command: 'npm run test:web:smoke',
     notes: 'Control plane e runtime web continuam sendo fluxos operatoriais criticos.',
   },
@@ -834,7 +834,7 @@ export class ArchitectureRefactorScorecardService {
         id: 'publish-architecture-onboarding-docs',
         label: 'Publicar onboarding arquitetural oficial',
         severity: 'warn',
-        reason: 'Novos contribuidores precisam de mapa oficial de dominios, regra de placement e guias de use case/control plane/surface action.',
+        reason: 'Novos contribuidores precisam de mapa oficial de dominios, regra de placement e guias de use case/dashboard plane/surface action.',
         command: 'npm run ops:architecture:report',
       });
     }

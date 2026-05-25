@@ -2,7 +2,7 @@ import {
   ZAVORTH_NATIVE_REPLACEMENT_DECOMMISSION_CONTRACT_VERSION,
   type ZavorthAdapterDependencyReductionReceipt,
   type ZavorthCompatibilityBoundaryReceipt,
-  type ZavorthNativeReplacementCommandCenterProjection,
+  type ZavorthNativeReplacementDashboardProjection,
   type ZavorthNativeReplacementDecommissionSnapshot,
   type ZavorthNativeReplacementDecommissionStatus,
   type ZavorthNativeReplacementInput,
@@ -101,7 +101,7 @@ export class ZavorthNativeReplacementDecommissionService {
       compatibilityBoundaryReceipt,
     );
     const status = resolveStatus(previousDelegatedWorkerStatus, acceptanceMatrix);
-    const commandCenterProjection = this.buildCommandCenterProjection({
+    const dashboardProjection = this.buildDashboardProjection({
       status,
       registryEntries,
       parityHarnessReceipts,
@@ -123,7 +123,7 @@ export class ZavorthNativeReplacementDecommissionService {
       adapterDependencyReductionReceipts,
       sourceAssumptionDecommissionReceipts,
       compatibilityBoundaryReceipt,
-      commandCenterProjection,
+      dashboardProjection,
       acceptanceMatrix,
       summary: {
         nativeReplacementRegistryEntries: registryEntries.length,
@@ -286,14 +286,14 @@ export class ZavorthNativeReplacementDecommissionService {
     };
   }
 
-  public buildCommandCenterProjection(input: {
+  public buildDashboardProjection(input: {
     status: ZavorthNativeReplacementDecommissionStatus;
     registryEntries: ZavorthNativeReplacementRegistryEntry[];
     parityHarnessReceipts: ZavorthParityTestHarnessReceipt[];
     adapterDependencyReductionReceipts: ZavorthAdapterDependencyReductionReceipt[];
     sourceAssumptionDecommissionReceipts: ZavorthSourceAssumptionDecommissionReceipt[];
     compatibilityBoundaryReceipt: ZavorthCompatibilityBoundaryReceipt;
-  }): ZavorthNativeReplacementCommandCenterProjection {
+  }): ZavorthNativeReplacementDashboardProjection {
     const promoted = input.registryEntries.filter((entry) => entry.replacementDecision === 'promote-native').length;
     return {
       title: 'Native Replacement And Decommission',
@@ -337,8 +337,8 @@ export class ZavorthNativeReplacementDecommissionService {
       `Source runtime required for promoted capabilities: ${snapshot.summary.sourceRuntimeRequiredForPromotedCapabilities}`,
       `Hard adapter dependencies for promoted capabilities: ${snapshot.summary.hardAdapterDependenciesForPromotedCapabilities}`,
       '',
-      'Command Center:',
-      ...snapshot.commandCenterProjection.cards.map((entry) => `- ${entry.label}: ${entry.value} (${entry.detail})`),
+      'Dashboard:',
+      ...snapshot.dashboardProjection.cards.map((entry) => `- ${entry.label}: ${entry.value} (${entry.detail})`),
       '',
       'Acceptance:',
       ...snapshot.acceptanceMatrix.map((entry) => `- ${entry.status} ${entry.requirementId}: ${entry.evidence}`),
@@ -431,6 +431,6 @@ function card(
   label: string,
   value: string,
   detail: string,
-): ZavorthNativeReplacementCommandCenterProjection['cards'][number] {
+): ZavorthNativeReplacementDashboardProjection['cards'][number] {
   return { id, label, value, detail };
 }

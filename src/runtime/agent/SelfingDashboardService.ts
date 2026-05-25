@@ -111,7 +111,7 @@ export type SelfingDashboardSnapshot = {
   };
   surface: {
     cliCommand: string;
-    commandCenterPath: string;
+    dashboardPath: string;
     previewHint: string;
     versioningHint: string;
   };
@@ -232,7 +232,7 @@ export class SelfingDashboardService {
       },
       surface: {
         cliCommand: `zavorth selfing run ${run.id} --json`,
-        commandCenterPath: '/control?sector=dreams',
+        dashboardPath: '/dashboard?sector=dreams',
         previewHint: 'Edicoes de identidade, tom, usuario ou memoria devem virar preview antes de gravar.',
         versioningHint: 'Mudancas passam por ConfigVersioningService ou contrato equivalente antes de substituir fontes vivas.',
       },
@@ -700,8 +700,8 @@ export class SelfingDashboardService {
     receipts.push({
       id: 'selfing:receipt:surface',
       kind: 'surface',
-      source: '/control',
-      detail: 'Selfing Dashboard projetado em /control?sector=dreams e CLI.',
+      source: '/dashboard',
+      detail: 'Selfing Dashboard projetado em /dashboard?sector=dreams e CLI.',
       status: 'ready',
     });
     return receipts;

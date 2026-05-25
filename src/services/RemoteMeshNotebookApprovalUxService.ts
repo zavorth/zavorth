@@ -29,7 +29,7 @@ export class RemoteMeshNotebookApprovalUxService {
 
   public buildCard(
     source: RemoteMeshNotebookApprovalUxSource,
-    surface: RemoteMeshNotebookApprovalUxSurface = 'command-center',
+    surface: RemoteMeshNotebookApprovalUxSurface = 'dashboard',
   ): RemoteMeshNotebookApprovalUxCard {
     return buildRemoteMeshNotebookApprovalUxCard({
       source,
@@ -41,7 +41,7 @@ export class RemoteMeshNotebookApprovalUxService {
   public buildSnapshot(input: {
     fixtures: RemoteMeshNotebookApprovalUxFixture[];
   }): RemoteMeshNotebookApprovalUxSnapshot {
-    const cards = input.fixtures.map((fixture) => this.buildCard(fixture.source, fixture.surface || 'command-center'));
+    const cards = input.fixtures.map((fixture) => this.buildCard(fixture.source, fixture.surface || 'dashboard'));
     return {
       generatedAt: this.now().toISOString(),
       contractVersion: ZAVORTH_REMOTE_MESH_R11_APPROVAL_UX_VERSION,
@@ -52,7 +52,7 @@ export class RemoteMeshNotebookApprovalUxService {
         approvalCards: cards.filter((card) => card.state === 'approval-required').length,
         receiptCards: cards.filter((card) => card.state === 'receipt').length,
         mobileReady: cards.some((card) => card.surface === 'mobile'),
-        commandCenterReady: cards.some((card) => card.surface === 'command-center'),
+        dashboardReady: cards.some((card) => card.surface === 'dashboard'),
         rawJsonRequiredFromUser: false,
         rawCommandSerialized: false,
         secretValuesSerialized: false,
@@ -69,7 +69,7 @@ export class RemoteMeshNotebookApprovalUxService {
         json: 'npm run remote-mesh:notebook:approval-ux:json --silent',
         focusedTests: 'npx jest tests/services/RemoteMeshNotebookApprovalUxService.test.ts --runInBand',
         typecheck: 'npm run runtime:check --silent',
-        nextStage: 'Real Mobile Command Center Wiring',
+        nextStage: 'Real Mobile Dashboard Wiring',
       },
     };
   }
@@ -101,7 +101,7 @@ export class RemoteMeshNotebookApprovalUxService {
         rawJsonRequiredFromUser: false,
       },
       receipt: null,
-      commandCenter: approvalCommandCenter('Docker lifecycle approval', 'Approve Docker action'),
+      dashboard: approvalDashboard('Docker lifecycle approval', 'Approve Docker action'),
       mobile: approvalMobile(
         `Docker ${source.action}`,
         `Zavorth wants to ${source.action} ${source.container}.`,
@@ -140,11 +140,11 @@ export class RemoteMeshNotebookApprovalUxService {
         timeline: [
           `Approval ${source.approvalId} accepted.`,
           `Docker ${source.action} executed.`,
-          'Receipt recorded for Command Center timeline.',
+          'Receipt recorded for Dashboard timeline.',
         ],
         contentPreview: null,
       },
-      commandCenter: receiptCommandCenter('Docker lifecycle receipt'),
+      dashboard: receiptDashboard('Docker lifecycle receipt'),
       mobile: receiptMobile('Docker done', summary),
       safety: {
         ...baseSafety(),
@@ -184,7 +184,7 @@ export class RemoteMeshNotebookApprovalUxService {
         rawJsonRequiredFromUser: false,
       },
       receipt: null,
-      commandCenter: approvalCommandCenter('Project file read approval', 'Approve file read'),
+      dashboard: approvalDashboard('Project file read approval', 'Approve file read'),
       mobile: approvalMobile(
         'Read project file',
         `Zavorth wants to read ${targetLabel}.`,
@@ -224,11 +224,11 @@ export class RemoteMeshNotebookApprovalUxService {
         timeline: [
           `Approval ${source.approvalId} accepted.`,
           'File content returned after approval.',
-          'Receipt recorded for Command Center timeline.',
+          'Receipt recorded for Dashboard timeline.',
         ],
         contentPreview: source.content.slice(0, 240),
       },
-      commandCenter: receiptCommandCenter('Project file read receipt'),
+      dashboard: receiptDashboard('Project file read receipt'),
       mobile: receiptMobile('File read complete', summary),
       safety: {
         ...baseSafety(),
@@ -252,7 +252,7 @@ export class RemoteMeshNotebookApprovalUxService {
   }
 }
 
-function approvalCommandCenter(timelineLabel: string, primaryActionLabel: string) {
+function approvalDashboard(timelineLabel: string, primaryActionLabel: string) {
   return {
     queue: 'approvals' as const,
     badge: 'Needs approval' as const,
@@ -262,7 +262,7 @@ function approvalCommandCenter(timelineLabel: string, primaryActionLabel: string
   };
 }
 
-function receiptCommandCenter(timelineLabel: string) {
+function receiptDashboard(timelineLabel: string) {
   return {
     queue: 'timeline' as const,
     badge: 'Receipt' as const,

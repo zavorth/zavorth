@@ -1,7 +1,7 @@
 import {
   ZAVORTH_CAPABILITY_PROVIDER_REGISTRY_CONTRACT_VERSION,
   type ZavorthCapabilityProviderAvailability,
-  type ZavorthCapabilityProviderCommandCenterProjection,
+  type ZavorthCapabilityProviderDashboardProjection,
   type ZavorthCapabilityProviderManifestImportReceipt,
   type ZavorthCapabilityProviderNormalizedCapability,
   type ZavorthCapabilityProviderPolicyDecision,
@@ -77,7 +77,7 @@ export class ZavorthCapabilityProviderRegistryService {
       unavailableReceipts,
     );
     const status = resolveStatus(previousSidecarAdapterStatus, acceptanceMatrix);
-    const commandCenterProjection = this.buildCommandCenterProjection({
+    const dashboardProjection = this.buildDashboardProjection({
       status,
       normalizedCapabilities,
       manifestImportReceipts,
@@ -96,7 +96,7 @@ export class ZavorthCapabilityProviderRegistryService {
       manifestImportReceipts,
       toolRiskReceipts,
       unavailableReceipts,
-      commandCenterProjection,
+      dashboardProjection,
       acceptanceMatrix,
       summary: {
         providers: new Set(normalizedCapabilities.map((entry) => entry.sourceRuntimeId)).size,
@@ -275,13 +275,13 @@ export class ZavorthCapabilityProviderRegistryService {
     };
   }
 
-  public buildCommandCenterProjection(input: {
+  public buildDashboardProjection(input: {
     status: ZavorthCapabilityProviderRegistryStatus;
     normalizedCapabilities: ZavorthCapabilityProviderNormalizedCapability[];
     manifestImportReceipts: ZavorthCapabilityProviderManifestImportReceipt[];
     toolRiskReceipts: ZavorthCapabilityProviderToolRiskReceipt[];
     unavailableReceipts: ZavorthCapabilityProviderUnavailableReceipt[];
-  }): ZavorthCapabilityProviderCommandCenterProjection {
+  }): ZavorthCapabilityProviderDashboardProjection {
     const quarantined = input.normalizedCapabilities.filter((entry) => entry.availability === 'quarantined').length;
     const approvalRequired = input.normalizedCapabilities.filter((entry) => entry.policy.approvalRequired).length;
     return {
@@ -327,8 +327,8 @@ export class ZavorthCapabilityProviderRegistryService {
       `Tool execution performed: ${snapshot.safety.noToolExecutionPerformed === true ? 'false' : 'true'}`,
       `Skill mutation performed: ${snapshot.safety.noSkillMutationPerformed === true ? 'false' : 'true'}`,
       '',
-      'Command Center:',
-      ...snapshot.commandCenterProjection.cards.map((entry) => `- ${entry.label}: ${entry.value} (${entry.detail})`),
+      'Dashboard:',
+      ...snapshot.dashboardProjection.cards.map((entry) => `- ${entry.label}: ${entry.value} (${entry.detail})`),
       '',
       'Acceptance:',
       ...snapshot.acceptanceMatrix.map((entry) => `- ${entry.status} ${entry.requirementId}: ${entry.evidence}`),
@@ -536,6 +536,6 @@ function card(
   label: string,
   value: string,
   detail: string,
-): ZavorthCapabilityProviderCommandCenterProjection['cards'][number] {
+): ZavorthCapabilityProviderDashboardProjection['cards'][number] {
   return { id, label, value, detail };
 }

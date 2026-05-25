@@ -32,6 +32,7 @@ export function createBootstrapToolRuntime(logRepo: LogRepository) {
   const { AutoSkillCreatorTool } = require('../tools/AutoSkillCreatorTool.js');
   const { ImageGenerationTool } = require('../tools/ImageGenerationTool.js');
   const { MediaAnalysisTool } = require('../tools/MediaAnalysisTool.js');
+  const { NodeMeshTool } = require('../tools/NodeMeshTool.js');
 
   const toolRegistry = new ToolRegistry();
   toolRegistry.register(new UnifiedSearchTool());
@@ -56,6 +57,7 @@ export function createBootstrapToolRuntime(logRepo: LogRepository) {
   toolRegistry.register(new AutoSkillCreatorTool());
   toolRegistry.register(new ImageGenerationTool());
   toolRegistry.register(new MediaAnalysisTool());
+  toolRegistry.register(new NodeMeshTool());
   toolRegistry.assertNoFallbackSecurityDefinitions();
 
   console.log('[BOOT] tools-ready');

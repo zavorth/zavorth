@@ -145,7 +145,7 @@ export const DETERMINISTIC_QA_GATES: DeterministicQaGateSpec[] = [
     requiresNetwork: false,
     startsPersistentProcess: false,
     producesJson: true,
-    reason: 'valida modos, escalonamento, Control UI, paridade e memoria',
+    reason: 'valida modos, escalonamento, Dashboard, paridade e memoria',
   },
   {
     id: 'architecture-gate',

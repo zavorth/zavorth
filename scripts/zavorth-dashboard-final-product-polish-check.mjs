@@ -56,7 +56,7 @@ function ruleFilesExist() {
 
 function ruleContainsMarkers() {
   const checks = [
-    ['assets/command-center/index.html', [
+    ['assets/dashboard/index.html', [
       'Local gateway ready',
       'Ask normally. Zavorth will answer, preview risky work, and ask before acting.',
       'home-command-panel',
@@ -64,7 +64,7 @@ function ruleContainsMarkers() {
       'sector-terminal',
       'sector-overview',
     ]],
-    ['assets/command-center/scripts/pages.js', [
+    ['assets/dashboard/scripts/pages.js', [
       'data-zavorth-premium-dashboard-v2',
       'premium-page',
       'Today in Zavorth.',
@@ -73,7 +73,7 @@ function ruleContainsMarkers() {
       'Background mode, kept quiet.',
       'Configuration, redacted.',
     ]],
-    ['assets/command-center/styles/pages.css', [
+    ['assets/dashboard/styles/pages.css', [
       '.premium-page',
       '.premium-hero',
       '.premium-layout',

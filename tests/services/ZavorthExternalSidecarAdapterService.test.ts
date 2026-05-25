@@ -133,10 +133,10 @@ describe('ZavorthExternalSidecarAdapterService Approval gate', () => {
     }));
   });
 
-  it('projects adapter state for Command Center as Zavorth concepts', () => {
+  it('projects adapter state for Dashboard as Zavorth concepts', () => {
     const snapshot = createService().buildSnapshot();
 
-    expect(snapshot.commandCenterProjection).toEqual(expect.objectContaining({
+    expect(snapshot.dashboardProjection).toEqual(expect.objectContaining({
       title: 'External Sidecar Adapter',
       status: 'sidecar-adapter-ready',
       tone: 'ready',
@@ -149,7 +149,7 @@ describe('ZavorthExternalSidecarAdapterService Approval gate', () => {
       ]),
       nextSafeAction: 'Proceed to 291 Connector registry - Capability Providers.',
     }));
-    expect(snapshot.commandCenterProjection.cards.map((entry) => entry.id)).toEqual(expect.arrayContaining([
+    expect(snapshot.dashboardProjection.cards.map((entry) => entry.id)).toEqual(expect.arrayContaining([
       'health',
       'channels',
       'capabilities',

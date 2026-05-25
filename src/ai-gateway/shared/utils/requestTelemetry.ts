@@ -162,7 +162,7 @@ export function getTelemetrySummary(windowMs = 300000) {
   const phaseBreakdown = {};
   for (const phase of STAGES) {
     const durations = recent
-      .flatMap((h) => h.phases.filter((p) => p.phase === phase).map((p) => p.durationMs))
+      .flatMap((h) => h.phases.filter((p) => p.stage === phase).map((p) => p.durationMs))
       .sort((a, b) => a - b);
 
     if (durations.length > 0) {

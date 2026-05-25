@@ -525,7 +525,7 @@ function narrativeForStatus(
     return {
       headline: 'Governed scheduled task persisted.',
       operatorSummary: 'The approved recurring scope is now stored in SchedulerService with budget and guardrail metadata.',
-      nextAction: 'Connector registry should expose the governed schedule lifecycle cleanly across Telegram, CLI, web and Command Center projections.',
+      nextAction: 'Connector registry should expose the governed schedule lifecycle cleanly across Telegram, CLI, web and Dashboard projections.',
     };
   }
   if (status === 'preview_ready') {

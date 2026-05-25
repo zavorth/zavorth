@@ -11,10 +11,10 @@ import {
   type ZavorthTransactionCertificationStatus,
 } from '../contracts/ZavorthTransactionCertificationContract.js';
 import type {
-  ZavorthTransactionCommandCenterProjectInput,
-  ZavorthTransactionCommandCenterProjection,
-  ZavorthTransactionCommandCenterTone,
-} from '../contracts/ZavorthTransactionCommandCenterContract.js';
+  ZavorthTransactionDashboardProjectInput,
+  ZavorthTransactionDashboardProjection,
+  ZavorthTransactionDashboardTone,
+} from '../contracts/ZavorthTransactionDashboardContract.js';
 import type {
   ZavorthTransactionSurfaceKind,
 } from '../contracts/ZavorthTransactionSurfaceContract.js';
@@ -22,7 +22,7 @@ import type {
   ZavorthTransactionRuntimeStatus,
 } from '../contracts/ZavorthTransactionRuntimeContract.js';
 import { ZavorthTransactionApprovalLedgerService } from './ZavorthTransactionApprovalLedgerService.js';
-import { ZavorthTransactionCommandCenterProjectionService } from './ZavorthTransactionCommandCenterProjectionService.js';
+import { ZavorthTransactionDashboardProjectionService } from './ZavorthTransactionDashboardProjectionService.js';
 import { ZavorthTransactionConnectorRegistryService } from './ZavorthTransactionConnectorRegistryService.js';
 import { ZavorthTransactionCredentialRefService } from './ZavorthTransactionCredentialRefService.js';
 import { ZavorthTransactionPreviewService } from './ZavorthTransactionPreviewService.js';
@@ -31,7 +31,7 @@ import { ZavorthTransactionSurfaceGatewayService } from './ZavorthTransactionSur
 
 type CertificationDeps = {
   now?: () => Date;
-  commandCenter?: ZavorthTransactionCommandCenterProjectionService;
+  dashboard?: ZavorthTransactionDashboardProjectionService;
   credentialRefs?: ZavorthTransactionCredentialRefService;
   ledgerFile?: string;
   credentialStoreFile?: string;
@@ -41,9 +41,9 @@ type CertificationScenarioSpec = {
   id: ZavorthTransactionCertificationScenarioId;
   label: string;
   surface: ZavorthTransactionSurfaceKind;
-  input: (credentialRef: string | null) => ZavorthTransactionCommandCenterProjectInput;
+  input: (credentialRef: string | null) => ZavorthTransactionDashboardProjectInput;
   expectedStatus: ZavorthTransactionRuntimeStatus;
-  expectedTone: ZavorthTransactionCommandCenterTone;
+  expectedTone: ZavorthTransactionDashboardTone;
   expectedRoute?: string;
   expectedEnabledAction?: string;
   expectedLane?: string;
@@ -65,7 +65,7 @@ const SAFETY = {
 
 export class ZavorthTransactionCertificationService {
   private readonly now: () => Date;
-  private readonly commandCenter: ZavorthTransactionCommandCenterProjectionService;
+  private readonly dashboard: ZavorthTransactionDashboardProjectionService;
   private readonly credentialRefs: ZavorthTransactionCredentialRefService;
 
   public constructor(deps: CertificationDeps = {}) {
@@ -74,7 +74,7 @@ export class ZavorthTransactionCertificationService {
       storeFile: deps.credentialStoreFile,
       now: this.now,
     });
-    this.commandCenter = deps.commandCenter ?? createCommandCenter({
+    this.dashboard = deps.dashboard ?? createDashboard({
       now: this.now,
       credentialRefs: this.credentialRefs,
       ledgerFile: deps.ledgerFile,
@@ -143,7 +143,7 @@ export class ZavorthTransactionCertificationService {
     spec: CertificationScenarioSpec,
     credentialRef: string | null,
   ): ZavorthTransactionCertificationScenario {
-    const projection = this.commandCenter.project(spec.input(credentialRef));
+    const projection = this.dashboard.project(spec.input(credentialRef));
     const enabledActions = projection.operatorActions
       .filter((action) => action.enabled)
       .map((action) => action.sourceActionId);
@@ -173,13 +173,13 @@ export class ZavorthTransactionCertificationService {
   }
 }
 
-function createCommandCenter(input: {
+function createDashboard(input: {
   now: () => Date;
   credentialRefs: ZavorthTransactionCredentialRefService;
   ledgerFile?: string;
-}): ZavorthTransactionCommandCenterProjectionService {
+}): ZavorthTransactionDashboardProjectionService {
   const previewService = new ZavorthTransactionPreviewService();
-  return new ZavorthTransactionCommandCenterProjectionService({
+  return new ZavorthTransactionDashboardProjectionService({
     now: input.now,
     surfaceGateway: new ZavorthTransactionSurfaceGatewayService({
       now: input.now,
@@ -308,7 +308,7 @@ function buildScenarioSpecs(): CertificationScenarioSpec[] {
 
 function buildScenarioChecks(
   spec: CertificationScenarioSpec,
-  projection: ZavorthTransactionCommandCenterProjection,
+  projection: ZavorthTransactionDashboardProjection,
   enabledActions: string[],
   laneKinds: string[],
   timelineStatuses: Record<string, string>,
@@ -321,7 +321,7 @@ function buildScenarioChecks(
     check('lane', 'expected cockpit lane', spec.expectedLane ?? 'any', spec.expectedLane && laneKinds.includes(spec.expectedLane) ? spec.expectedLane : 'missing'),
     check('no-live-execution', 'live execution disabled', 'true/false/false', `${projection.safety.noLiveExecution}/${projection.safety.liveActionApplied}/${projection.safety.externalSideEffects}`),
     check('redaction', 'raw secret not serialized', 'absent', serialized.includes(RAW_SECRET_SENTINEL) ? 'present' : 'absent'),
-    check('command-center-shape', 'lanes and operator actions present', '>=8/>=6', `${projection.lanes.length}/${projection.operatorActions.length}`),
+    check('dashboard-shape', 'lanes and operator actions present', '>=8/>=6', `${projection.lanes.length}/${projection.operatorActions.length}`),
   ];
 
   if (spec.expectedEnabledAction) {
@@ -345,7 +345,7 @@ function buildScenarioChecks(
   }
 
   return checks.map((item) => {
-    if (item.id === 'command-center-shape') {
+    if (item.id === 'dashboard-shape') {
       return {
         ...item,
         passed: projection.lanes.length >= 8 && projection.operatorActions.length >= 6,
@@ -418,8 +418,8 @@ function buildGates(scenarios: ZavorthTransactionCertificationScenario[]): Zavor
       ],
     },
     {
-      kind: 'command-center-projection',
-      passed: scenarios.every((scenario) => scenario.laneKinds.includes('safety') && scenario.checks.some((item) => item.id === 'command-center-shape' && item.passed)),
+      kind: 'dashboard-projection',
+      passed: scenarios.every((scenario) => scenario.laneKinds.includes('safety') && scenario.checks.some((item) => item.id === 'dashboard-shape' && item.passed)),
       summary: 'Every scenario renders cockpit lanes, timeline and operator actions.',
       evidence: scenarios.map((scenario) => `${scenario.id}:lanes=${scenario.laneKinds.length}:actions=${scenario.enabledActions.join('|') || 'none'}`),
     },

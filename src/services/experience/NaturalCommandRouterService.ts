@@ -87,7 +87,7 @@ export class NaturalCommandRouterService {
     if (/\b(aprendi|aprendizado|learning|learn|memoria|memory|preferencia|preference)\b/.test(normalized)) {
       return /\b(memoria|memory|recall|lembr)\b/.test(normalized) ? 'memory' : 'learning';
     }
-    if (/\b(abrir|open|dashboard|painel|control|command center)\b/.test(normalized)) return 'dashboard';
+    if (/\b(abrir|open|dashboard|painel|control|dashboard)\b/.test(normalized)) return 'dashboard';
     if (/\b(doctor|diagnostico|diagnose|status|bloqueado|blocked|erro|falha|health|ready)\b/.test(normalized)) {
       return /\b(bloqueado|blocked|por que|porque|why)\b/.test(normalized) ? 'explain-block' : 'diagnostics';
     }
@@ -145,7 +145,7 @@ export class NaturalCommandRouterService {
       approval: 'Resolver aprovacao',
       memory: 'Consultar memoria',
       learning: 'Revisar aprendizado',
-      dashboard: 'Abrir Command Center',
+      dashboard: 'Abrir Dashboard',
       diagnostics: 'Diagnosticar runtime',
       release: 'Preparar release',
       automation: 'Automatizar rotina',
@@ -164,7 +164,7 @@ export class NaturalCommandRouterService {
 
   private nextSafeActionFor(kind: ExperienceJourneyKind, requiresApproval: boolean): string {
     if (requiresApproval) return 'Revisar o Trust Lens antes de executar qualquer efeito sensivel.';
-    if (kind === 'dashboard') return 'Abrir /control.';
+    if (kind === 'dashboard') return 'Abrir /dashboard.';
     if (kind === 'learning') return 'Revisar candidatos antes de promover comportamento futuro.';
     if (kind === 'diagnostics') return 'Ler o diagnostico e escolher a correcao guiada.';
     return 'Executar em modo governado e publicar timeline/receipt.';
@@ -206,11 +206,11 @@ export class NaturalCommandRouterService {
     if (kind === 'dashboard') {
       actions.push(makeAction({
         id: 'dashboard.open',
-        label: 'Abrir Command Center',
+        label: 'Abrir Dashboard',
         kind: 'navigation',
         command: 'zavorth open',
-        route: '/control',
-        reason: 'O Command Center e a superficie visual oficial.',
+        route: '/dashboard',
+        reason: 'O Dashboard e a superficie visual oficial.',
       }));
     }
     if (kind === 'diagnostics' || kind === 'explain-block') {

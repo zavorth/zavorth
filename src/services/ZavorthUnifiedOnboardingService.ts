@@ -134,7 +134,7 @@ export class ZavorthUnifiedOnboardingService {
         writesOnlyWithConfirmation: true,
       },
       safeDemo,
-      commandCenterProjection: {
+      dashboardProjection: {
         route: '/dashboard',
         executionAuthority: false,
         visualBlocksRequireOwnerApproval: true,
@@ -157,9 +157,9 @@ export class ZavorthUnifiedOnboardingService {
           detail: 'The first suggested mission is read-only and does not mutate the workspace.',
         },
         {
-          id: 'command-center-read-only',
+          id: 'dashboard-read-only',
           status: 'passed',
-          detail: 'Command Center consumes the projection without becoming an execution authority.',
+          detail: 'Dashboard consumes the projection without becoming an execution authority.',
         },
         {
           id: 'conversational-setup-preview-first',

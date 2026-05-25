@@ -9,7 +9,7 @@ small: daily-use guides, stable architecture notes and integration contracts.
 | --- | --- |
 | [Overview](/docs/overview.md) | Product and runtime summary |
 | [Quickstart](/docs/quickstart.md) | First local setup |
-| [Command Center](/docs/web-dashboard.md) | Using `/control` |
+| [Dashboard](/docs/web-dashboard.md) | Using `/dashboard` |
 | [CLI](/docs/zavorth-cli.md) | Terminal operation and JSON output |
 | [Troubleshooting](/docs/troubleshooting.md) | Fixing common runtime issues |
 

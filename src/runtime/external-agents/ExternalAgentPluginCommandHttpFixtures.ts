@@ -101,7 +101,7 @@ export type ExternalAgentCanonicalZavorthCommandDescriptor = {
   nativeContract: 'ZavorthCommandDescriptor/v1';
 };
 
-export type ExternalAgentCanonicalCommandCenterCommandCatalogRow = {
+export type ExternalAgentCanonicalDashboardCommandCatalogRow = {
   id: string;
   commandId: string;
   label: string;
@@ -114,8 +114,8 @@ export type ExternalAgentCanonicalPluginCommandDescriptorNormalization = {
   generatedAt: string;
   runtimeId: typeof EXTERNAL_AGENT_CANONICAL_COMMAND_HTTP_RUNTIME_ID;
   descriptors: ExternalAgentCanonicalZavorthCommandDescriptor[];
-  commandCenter: {
-    catalogRows: ExternalAgentCanonicalCommandCenterCommandCatalogRow[];
+  dashboard: {
+    catalogRows: ExternalAgentCanonicalDashboardCommandCatalogRow[];
   };
   toolExposurePolicyInput: ToolExposurePolicyInput;
   sourceCommandNamesStoredAsEvidenceOnly: true;
@@ -183,8 +183,8 @@ export type ExternalAgentCanonicalPluginCliCommandSurfaceNormalization = {
   generatedAt: string;
   runtimeId: typeof EXTERNAL_AGENT_CANONICAL_COMMAND_HTTP_RUNTIME_ID;
   cliCommands: ExternalAgentCanonicalZavorthCliCommandSurface[];
-  commandCenter: {
-    catalogRows: ExternalAgentCanonicalCommandCenterCommandCatalogRow[];
+  dashboard: {
+    catalogRows: ExternalAgentCanonicalDashboardCommandCatalogRow[];
   };
   toolExposurePolicyInput: ToolExposurePolicyInput;
   sourceCliBinariesStoredAsEvidenceOnly: true;
@@ -484,7 +484,7 @@ export type ExternalAgentCanonicalPluginToolExposurePolicyNormalization = {
   generatedAt: string;
   runtimeId: typeof EXTERNAL_AGENT_CANONICAL_COMMAND_HTTP_RUNTIME_ID;
   policies: ExternalAgentCanonicalZavorthToolExposurePolicySurface[];
-  commandCenter: {
+  dashboard: {
     capabilityRows: ExternalAgentCanonicalToolExposureCapabilityRow[];
   };
   toolExposurePolicyInput: ToolExposurePolicyInput;

@@ -4,7 +4,7 @@ import {
   type ZavorthDelegatedTaskEnvelopeInput,
   type ZavorthDelegatedWorkerBridgeSnapshot,
   type ZavorthDelegatedWorkerBridgeStatus,
-  type ZavorthDelegatedWorkerCommandCenterProjection,
+  type ZavorthDelegatedWorkerDashboardProjection,
   type ZavorthExecutorResultInput,
   type ZavorthExecutorResultMappingReceipt,
   type ZavorthSourceWorkerLaunchGateReceipt,
@@ -93,7 +93,7 @@ export class ZavorthDelegatedWorkerBridgeService {
       executorResultMappingReceipt,
     );
     const status = resolveStatus(previousSessionMemoryStatus, acceptanceMatrix);
-    const commandCenterProjection = this.buildCommandCenterProjection({
+    const dashboardProjection = this.buildDashboardProjection({
       status,
       workerDescriptors,
       delegatedTaskEnvelope,
@@ -116,7 +116,7 @@ export class ZavorthDelegatedWorkerBridgeService {
       sourceWorkerLaunchGateReceipt,
       lifecycleDryRunReceipt,
       executorResultMappingReceipt,
-      commandCenterProjection,
+      dashboardProjection,
       acceptanceMatrix,
       summary: {
         workerDescriptors: workerDescriptors.length,
@@ -295,7 +295,7 @@ export class ZavorthDelegatedWorkerBridgeService {
     };
   }
 
-  public buildCommandCenterProjection(input: {
+  public buildDashboardProjection(input: {
     status: ZavorthDelegatedWorkerBridgeStatus;
     workerDescriptors: ZavorthWorkerDescriptor[];
     delegatedTaskEnvelope: ZavorthDelegatedTaskEnvelope;
@@ -303,7 +303,7 @@ export class ZavorthDelegatedWorkerBridgeService {
     sourceWorkerLaunchGateReceipt: ZavorthSourceWorkerLaunchGateReceipt;
     lifecycleDryRunReceipt: ZavorthWorkerLifecycleDryRunReceipt;
     executorResultMappingReceipt: ZavorthExecutorResultMappingReceipt;
-  }): ZavorthDelegatedWorkerCommandCenterProjection {
+  }): ZavorthDelegatedWorkerDashboardProjection {
     return {
       title: 'Delegated Worker Bridge',
       status: input.status,
@@ -347,8 +347,8 @@ export class ZavorthDelegatedWorkerBridgeService {
       `Artifact events returned: ${snapshot.summary.artifactEventsReturned}`,
       `Live workers started: ${snapshot.summary.liveWorkersStarted}`,
       '',
-      'Command Center:',
-      ...snapshot.commandCenterProjection.cards.map((entry) => `- ${entry.label}: ${entry.value} (${entry.detail})`),
+      'Dashboard:',
+      ...snapshot.dashboardProjection.cards.map((entry) => `- ${entry.label}: ${entry.value} (${entry.detail})`),
       '',
       'Acceptance:',
       ...snapshot.acceptanceMatrix.map((entry) => `- ${entry.status} ${entry.requirementId}: ${entry.evidence}`),
@@ -433,6 +433,6 @@ function card(
   label: string,
   value: string,
   detail: string,
-): ZavorthDelegatedWorkerCommandCenterProjection['cards'][number] {
+): ZavorthDelegatedWorkerDashboardProjection['cards'][number] {
   return { id, label, value, detail };
 }

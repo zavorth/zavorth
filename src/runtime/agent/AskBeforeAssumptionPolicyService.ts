@@ -93,7 +93,7 @@ export type AskBeforeAssumptionPolicySnapshot = {
   };
   surface: {
     cliCommand: string;
-    commandCenterPath: string;
+    dashboardPath: string;
     askHint: string;
     previewHint: string;
   };
@@ -237,7 +237,7 @@ export class AskBeforeAssumptionPolicyService {
       },
       surface: {
         cliCommand: `zavorth assumptions "${redactText(run.input, 'pedido', 80)}"`,
-        commandCenterPath: '/control?sector=config',
+        dashboardPath: '/dashboard?sector=config',
         askHint: 'Pergunte antes de assumir alvo, escopo, permissao ou canal.',
         previewHint: 'Use preview quando a resposta puder gerar mutacao ou handoff.',
       },
@@ -595,8 +595,8 @@ export class AskBeforeAssumptionPolicyService {
       {
         id: `ask-policy-receipt:${run.id}:surface`,
         kind: 'surface',
-        source: 'CLI/CommandCenter',
-        detail: 'Perguntas expostas por CLI read-only e Command Center.',
+        source: 'CLI/Dashboard',
+        detail: 'Perguntas expostas por CLI read-only e Dashboard.',
         status: 'ready',
       },
     ];

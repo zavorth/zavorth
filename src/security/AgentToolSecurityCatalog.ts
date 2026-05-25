@@ -182,6 +182,14 @@ export const NATIVE_AGENT_TOOL_SECURITY_DEFINITIONS: AgentToolSecurityDefinition
     requiresConfirmation: true,
     description: 'Creates local declarative skill manifests.',
   },
+  {
+    toolName: 'nodes',
+    surface: 'native-tool',
+    capabilities: ['desktop', 'filesystem', 'shell', 'network', 'external-send'],
+    defaultRisk: 'review',
+    requiresConfirmation: true,
+    description: 'Lists, previews and queues governed Node Mesh companion invocations.',
+  },
 ];
 
 export const BOOTSTRAP_NATIVE_TOOL_SECURITY_MANIFEST = [
@@ -207,6 +215,7 @@ export const BOOTSTRAP_NATIVE_TOOL_SECURITY_MANIFEST = [
   { className: 'AutoSkillCreatorTool', toolName: 'auto_skill_creator' },
   { className: 'ImageGenerationTool', toolName: 'generate_image' },
   { className: 'MediaAnalysisTool', toolName: 'analyze_media' },
+  { className: 'NodeMeshTool', toolName: 'nodes' },
 ] as const;
 
 const NATIVE_DEFINITIONS_BY_NAME = new Map(

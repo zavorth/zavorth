@@ -230,10 +230,10 @@ describe('ZavorthDelegatedWorkerBridgeService Surface controls', () => {
     }));
   });
 
-  it('projects delegated worker state for Command Center', () => {
+  it('projects delegated worker state for Dashboard', () => {
     const snapshot = createService().buildSnapshot();
 
-    expect(snapshot.commandCenterProjection).toEqual(expect.objectContaining({
+    expect(snapshot.dashboardProjection).toEqual(expect.objectContaining({
       title: 'Delegated Worker Bridge',
       status: 'delegated-worker-bridge-ready',
       tone: 'ready',
@@ -247,7 +247,7 @@ describe('ZavorthDelegatedWorkerBridgeService Surface controls', () => {
       ]),
       nextSafeAction: 'Proceed to 291 Dashboard controls - Native Replacement And Decommission.',
     }));
-    expect(snapshot.commandCenterProjection.cards.map((entry) => entry.id)).toEqual(expect.arrayContaining([
+    expect(snapshot.dashboardProjection.cards.map((entry) => entry.id)).toEqual(expect.arrayContaining([
       'workers',
       'task',
       'timeout',

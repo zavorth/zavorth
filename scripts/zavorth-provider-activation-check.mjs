@@ -10,8 +10,8 @@ const requiredFiles = [
   'src/services/ZavorthProviderActivationService.ts',
   'scripts/zavorth-provider-activation.ts',
   'tests/services/ZavorthProviderActivationService.test.ts',
-  'assets/command-center/scripts/pages.js',
-  'assets/command-center/scripts/runtime-bridge.js',
+  'assets/dashboard/scripts/pages.js',
+  'assets/dashboard/scripts/runtime-bridge.js',
 ];
 
 for (const file of requiredFiles) {
@@ -34,8 +34,8 @@ if (snapshot) {
   assertRule('safety:no-secrets', !JSON.stringify(snapshot).match(/sk-[A-Za-z0-9_-]{20,}|AIza[A-Za-z0-9_-]{20,}|Bearer\s+[A-Za-z0-9._-]{20,}/), 'Provider activation does not serialize raw provider secrets');
 }
 
-const pageSource = read('assets/command-center/scripts/pages.js');
-const runtimeSource = read('assets/command-center/scripts/runtime-bridge.js');
+const pageSource = read('assets/dashboard/scripts/pages.js');
+const runtimeSource = read('assets/dashboard/scripts/runtime-bridge.js');
 assertRule('dashboard:markup', pageSource.includes('data-provider-activation-summary') && pageSource.includes('data-provider-activation-list'), 'Dashboard includes provider activation markup');
 assertRule('dashboard:runtime', runtimeSource.includes('/api/providers/activation') && runtimeSource.includes('updateProviderActivation'), 'Dashboard runtime fetches and renders provider activation');
 

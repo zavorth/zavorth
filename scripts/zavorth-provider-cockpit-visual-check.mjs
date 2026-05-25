@@ -5,18 +5,18 @@ const root = process.cwd();
 const read = (path) => readFileSync(join(root, path), 'utf8');
 
 const files = {
-  contracts: 'src/ai-gateway/app/(dashboard)/control/command-center/contracts/dashboardCommandCenterObservabilityContracts.ts',
-  adapter: 'src/ai-gateway/app/(dashboard)/control/command-center/adapters/dashboardCommandCenterAdapter.ts',
-  providerSnapshots: 'src/ai-gateway/app/(dashboard)/control/command-center/adapters/dashboardCommandCenterAdapterProviderSnapshots.ts',
-  runtimeProjection: 'src/ai-gateway/app/(dashboard)/control/command-center/projections/commandCenterRuntimeProjection.ts',
-  gatewayProjection: 'src/ai-gateway/app/(dashboard)/control/command-center/projections/zavorthAgentGatewayRuntimeProjection.ts',
-  metadata: 'src/ai-gateway/app/(dashboard)/control/command-center/components/CommandCenterControlShellMetadata.ts',
-  operationsPanel: 'src/ai-gateway/app/(dashboard)/control/command-center/components/CommandCenterOperationsPanel.tsx',
-  browserPreview: 'scripts/command-center-browser-preview.ts',
-  visualQa: 'scripts/command-center-provider-cockpit-visual-qa.ts',
-  liveSmoke: 'scripts/command-center-provider-cockpit-live-smoke.ts',
+  contracts: 'src/ai-gateway/app/(dashboard)/dashboard/dashboard/contracts/dashboardDashboardObservabilityContracts.ts',
+  adapter: 'src/ai-gateway/app/(dashboard)/dashboard/dashboard/adapters/dashboardDashboardAdapter.ts',
+  providerSnapshots: 'src/ai-gateway/app/(dashboard)/dashboard/dashboard/adapters/dashboardDashboardAdapterProviderSnapshots.ts',
+  runtimeProjection: 'src/ai-gateway/app/(dashboard)/dashboard/dashboard/projections/dashboardRuntimeProjection.ts',
+  gatewayProjection: 'src/ai-gateway/app/(dashboard)/dashboard/dashboard/projections/zavorthAgentGatewayRuntimeProjection.ts',
+  metadata: 'src/ai-gateway/app/(dashboard)/dashboard/dashboard/components/DashboardControlShellMetadata.ts',
+  operationsPanel: 'src/ai-gateway/app/(dashboard)/dashboard/dashboard/components/DashboardOperationsPanel.tsx',
+  browserPreview: 'scripts/dashboard-browser-preview.ts',
+  visualQa: 'scripts/dashboard-provider-cockpit-visual-qa.ts',
+  liveSmoke: 'scripts/dashboard-provider-cockpit-live-smoke.ts',
   webStateRoute: 'src/domain/surface/presentation/web-app/WebAppRuntimeStateRouteService.ts',
-  test: 'tests/ai-gateway/control/CommandCenterProviderCockpitVisualImplementation.test.ts',
+  test: 'tests/ai-gateway/dashboard/DashboardProviderCockpitVisualImplementation.test.ts',
 };
 
 const checks = [
@@ -26,7 +26,7 @@ const checks = [
   [files.runtimeProjection, 'providerCockpit?: DashboardProviderCockpitSnapshot | null'],
   [files.gatewayProjection, 'mapProviderCockpit(activeRun, snapshot)'],
   [files.metadata, 'providerCockpit: metadata?.providerCockpit'],
-  [files.operationsPanel, 'CommandCenterProviderCockpitPanel'],
+  [files.operationsPanel, 'DashboardProviderCockpitPanel'],
   [files.operationsPanel, 'onDraftCommand(liveAction.command)'],
   [files.browserPreview, 'renderProviderCockpitPanel'],
   [files.browserPreview, 'data-zavorth-provider-cockpit="ready"'],
@@ -36,7 +36,7 @@ const checks = [
   [files.liveSmoke, '/api/providers/readiness'],
   [files.webStateRoute, "pathname === '/api/providers/readiness'"],
   [files.webStateRoute, 'provider_live_probe_requires_explicit_operator_cli_or_approved_api'],
-  [files.test, 'commandCenterCannotExecuteProviderCalls'],
+  [files.test, 'dashboardCannotExecuteProviderCalls'],
 ];
 
 const failures = checks.filter(([file, needle]) => !read(file).includes(needle));

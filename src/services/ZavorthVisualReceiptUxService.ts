@@ -52,7 +52,7 @@ export class ZavorthVisualReceiptUxService {
         rawSecretsSerialized: false,
       },
       cards,
-      commandCenterProjection: {
+      dashboardProjection: {
         route: '/dashboard',
         renderMode: 'projection-only',
         executionAuthority: false,
@@ -107,7 +107,7 @@ export class ZavorthVisualReceiptUxService {
       safety: {
         rawSecretsSerialized: false,
         secretPolicy: receipt.redaction.policy,
-        commandCenterCanExecute: false,
+        dashboardCanExecute: false,
         projectionOnly: true,
       },
     };

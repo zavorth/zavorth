@@ -175,7 +175,7 @@ export type ZavorthNativeConfigStateDashboardProjection = {
   risk: ZavorthNativeConfigStateRisk;
   migrationEligibility: ZavorthNativeConfigStateMigrationEligibility;
   secretRefCount: number;
-  commandCenterConsumable: true;
+  dashboardConsumable: true;
   sourceIdentityPublic: false;
   secretRawValueSerialized: false;
   executionAuthority: false;
@@ -939,7 +939,7 @@ function dashboardProjection(records: ZavorthNativeConfigStateRecord[]): Zavorth
     risk: record.risk,
     migrationEligibility: record.migrationEligibility,
     secretRefCount: record.secretRefs.length,
-    commandCenterConsumable: true,
+    dashboardConsumable: true,
     sourceIdentityPublic: false,
     secretRawValueSerialized: false,
     executionAuthority: false,

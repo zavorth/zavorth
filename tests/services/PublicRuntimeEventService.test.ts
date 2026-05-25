@@ -36,7 +36,7 @@ describe('PublicRuntimeEventService', () => {
         }),
       }),
       safety: expect.objectContaining({
-        commandCenterCanExecute: false,
+        dashboardCanExecute: false,
         rawSecretsSerialized: false,
       }),
     }));

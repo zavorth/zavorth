@@ -17,7 +17,7 @@ describe('ZavorthPracticalAgencyService', () => {
     });
 
     expect(snapshot.conversation.detailsHiddenByDefault).toBe(true);
-    expect(snapshot.conversation.commandCenterDetailsAvailable).toBe(true);
+    expect(snapshot.conversation.dashboardDetailsAvailable).toBe(true);
     expect(snapshot.conversation.body).not.toMatch(/Risk Gate|Mutation Plane|Capability Hub ticket/i);
     expect(snapshot.toolIntent.liveActionApplied).toBe(false);
     expect(snapshot.safety.thinkingBlocked).toBe(false);

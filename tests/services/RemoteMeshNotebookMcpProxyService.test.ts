@@ -1,7 +1,7 @@
 import { RemoteMeshNotebookMcpProxyService } from '../../src/services/RemoteMeshNotebookMcpProxyService.js';
 
 const now = () => new Date('2026-05-05T20:00:00.000Z');
-const token = 'zavorth-command-center-proxy-token';
+const token = 'zavorth-dashboard-proxy-token';
 
 describe('RemoteMeshNotebookMcpProxyService', () => {
   it('blocks apply clicks before network when endpoint or token are missing', async () => {

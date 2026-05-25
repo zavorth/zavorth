@@ -50,8 +50,8 @@ export type ExternalExecutorLiveObservabilityRuntimeProjection = {
   executionAuthority: false;
 };
 
-export type ExternalExecutorLiveObservabilityCommandCenterRow = {
-  nativeContract: 'ZavorthExternalExecutorCommandCenterObservabilityRow/v1';
+export type ExternalExecutorLiveObservabilityDashboardRow = {
+  nativeContract: 'ZavorthExternalExecutorDashboardObservabilityRow/v1';
   id: string;
   surfaceKind: ExternalExecutorLiveReadOnlyBridgeSurfaceKind | 'runtime';
   label: string;
@@ -69,13 +69,13 @@ export type ExternalExecutorLiveObservabilityCommandCenterRow = {
   nativeReplacementAuthorized: false;
 };
 
-export type ExternalExecutorLiveObservabilityCommandCenterProjection = {
-  nativeContract: 'ZavorthExternalExecutorCommandCenterObservabilityProjection/v1';
+export type ExternalExecutorLiveObservabilityDashboardProjection = {
+  nativeContract: 'ZavorthExternalExecutorDashboardObservabilityProjection/v1';
   id: string;
   runtimeStatus: 'ready' | 'degraded';
   usesZavorthTerms: true;
   readOnly: true;
-  rows: ExternalExecutorLiveObservabilityCommandCenterRow[];
+  rows: ExternalExecutorLiveObservabilityDashboardRow[];
   executableControlsExposed: false;
   actionDispatchControlsExposed: false;
   messageSendControlsExposed: false;
@@ -125,7 +125,7 @@ export type ExternalExecutorLiveObservabilityProjectionNormalization = {
   sourceSnapshotDoc: ExternalExecutorLiveObservabilityProjectionInput['sourceSnapshotDoc'];
   readOnly: true;
   runtimeObservability: ExternalExecutorLiveObservabilityRuntimeProjection;
-  commandCenterProjection: ExternalExecutorLiveObservabilityCommandCenterProjection;
+  dashboardProjection: ExternalExecutorLiveObservabilityDashboardProjection;
   failureProjection: ExternalExecutorLiveObservabilityFailureProjection;
   executionGate: ExternalExecutorLiveObservabilityExecutionGate;
   nextGateRecommended: 'future-read-only-event-diff-or-controlled-event-bridge-design';
@@ -196,14 +196,14 @@ function buildRuntimeProjection(
   };
 }
 
-function buildCommandCenterProjection(
+function buildDashboardProjection(
   idPrefix: string,
   runtimeProjection: ExternalExecutorLiveObservabilityRuntimeProjection,
   bridge: ExternalExecutorLiveReadOnlyBridgeBoundaryNormalization,
-): ExternalExecutorLiveObservabilityCommandCenterProjection {
-  const runtimeRow: ExternalExecutorLiveObservabilityCommandCenterRow = {
-    nativeContract: 'ZavorthExternalExecutorCommandCenterObservabilityRow/v1',
-    id: `${idPrefix}:command-center-runtime`,
+): ExternalExecutorLiveObservabilityDashboardProjection {
+  const runtimeRow: ExternalExecutorLiveObservabilityDashboardRow = {
+    nativeContract: 'ZavorthExternalExecutorDashboardObservabilityRow/v1',
+    id: `${idPrefix}:dashboard-runtime`,
     surfaceKind: 'runtime',
     label: 'ExternalExecutor live read-only runtime observability',
     status: runtimeProjection.status,
@@ -221,16 +221,16 @@ function buildCommandCenterProjection(
   };
 
   return {
-    nativeContract: 'ZavorthExternalExecutorCommandCenterObservabilityProjection/v1',
-    id: `${idPrefix}:command-center-observability`,
+    nativeContract: 'ZavorthExternalExecutorDashboardObservabilityProjection/v1',
+    id: `${idPrefix}:dashboard-observability`,
     runtimeStatus: runtimeProjection.status,
     usesZavorthTerms: true,
     readOnly: true,
     rows: [
       runtimeRow,
-      ...bridge.surfaces.map((surface, index): ExternalExecutorLiveObservabilityCommandCenterRow => ({
-        nativeContract: 'ZavorthExternalExecutorCommandCenterObservabilityRow/v1',
-        id: `${idPrefix}:command-center-${index + 1}-${surface.surfaceKind}`,
+      ...bridge.surfaces.map((surface, index): ExternalExecutorLiveObservabilityDashboardRow => ({
+        nativeContract: 'ZavorthExternalExecutorDashboardObservabilityRow/v1',
+        id: `${idPrefix}:dashboard-${index + 1}-${surface.surfaceKind}`,
         surfaceKind: surface.surfaceKind,
         label: surface.label,
         status: statusForSurface(surface),
@@ -322,7 +322,7 @@ export function normalizeExternalExecutorLiveObservabilityProjection<TRuntimeId 
     sourceSnapshotDoc: options.source.sourceSnapshotDoc,
     readOnly: true,
     runtimeObservability,
-    commandCenterProjection: buildCommandCenterProjection(options.idPrefix, runtimeObservability, bridge),
+    dashboardProjection: buildDashboardProjection(options.idPrefix, runtimeObservability, bridge),
     failureProjection: buildFailureProjection(bridge),
     executionGate: {
       executionAuthority: false,

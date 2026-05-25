@@ -75,8 +75,7 @@ export async function proxy(request: any) {
     }
   }
 
-  // ──────────────── Protect Dashboard Routes ────────────────
-  if (pathname.startsWith("/dashboard") || pathname.startsWith("/control")) {
+  if (pathname.startsWith("/dashboard")) {
     // Always allow onboarding — it has its own setupComplete guard
     if (pathname.startsWith("/dashboard/onboarding")) {
       return response;
@@ -166,14 +165,14 @@ export async function proxy(request: any) {
     return NextResponse.redirect(new URL("/login", request.url));
   }
 
-  // Redirect / to /control if logged in, or /control if it's the root
+  // Redirect / to the single official dashboard surface.
   if (pathname === "/") {
-    return NextResponse.redirect(new URL("/control", request.url));
+    return NextResponse.redirect(new URL("/dashboard", request.url));
   }
 
   return response;
 }
 
 export const config = {
-  matcher: ["/", "/control/:path*", "/dashboard/:path*", "/api/:path*"],
+  matcher: ["/", "/dashboard/:path*", "/api/:path*"],
 };

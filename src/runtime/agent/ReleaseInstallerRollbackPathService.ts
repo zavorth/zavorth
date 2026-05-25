@@ -107,7 +107,7 @@ export type ReleaseInstallerRollbackPathSnapshot = {
   };
   surface: {
     cliCommand: string;
-    commandCenterPath: string;
+    dashboardPath: string;
     publicReleaseRoute: '/release';
     dryRunCommand: 'zavorth release install --dry-run';
     rollbackCommand: 'zavorth release rollback --dry-run';
@@ -293,7 +293,7 @@ export class ReleaseInstallerRollbackPathService {
       },
       surface: {
         cliCommand: `zavorth release-path run ${run.id} --json`,
-        commandCenterPath: `/control?runId=${encodeURIComponent(run.id)}&sector=config`,
+        dashboardPath: `/dashboard?runId=${encodeURIComponent(run.id)}&sector=config`,
         publicReleaseRoute: '/release',
         dryRunCommand: 'zavorth release install --dry-run',
         rollbackCommand: 'zavorth release rollback --dry-run',
@@ -464,8 +464,8 @@ export class ReleaseInstallerRollbackPathService {
       },
       {
         id: 'control',
-        label: 'Command Center',
-        commandOrPath: `/control?runId=${encodeURIComponent(runId)}&sector=config`,
+        label: 'Dashboard',
+        commandOrPath: `/dashboard?runId=${encodeURIComponent(runId)}&sector=config`,
         status: 'ready',
         detail: 'Config sector renderiza release, installer e rollback.',
       },

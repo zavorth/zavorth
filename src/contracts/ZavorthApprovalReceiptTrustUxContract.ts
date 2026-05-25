@@ -40,7 +40,7 @@ export type ZavorthApprovalReceiptTrustUxSnapshot = {
   cards: ZavorthApprovalActionCardsUxSnapshot['cards'];
   receipts: ZavorthVisualReceiptUxSnapshot['cards'];
   safety: {
-    commandCenterCanExecuteTargetAction: false;
+    dashboardCanExecuteTargetAction: false;
     dashboardCanResolveApprovalOnlyThroughGateway: true;
     approvalScopedToExactAction: true;
     rawSecretsSerialized: false;

@@ -1,8 +1,6 @@
-import { TerminalPanel } from '../presentation/TerminalPanel.js';
-import { TerminalTheme } from '../presentation/TerminalTheme.js';
-import { TerminalTimeline } from '../presentation/TerminalTimeline.js';
-import { globalSpinner } from '../presentation/TerminalSpinner.js';
 import type { CliExecutionResult, CliWriter, ZavorthCliFlags } from '../ZavorthCliContract.js';
+import { renderCliScreen, type CliVisualPanel } from '../ZavorthCliVisualSystem.js';
+import { paintCliTone } from '../ZavorthCliVisualTheme.js';
 import {
   defaultRunner,
   runLocalTask,
@@ -26,14 +24,8 @@ export async function handleZavorthLocalTaskCommand(input: {
 
   const raw = /\b--raw\b/.test(input.args);
   const task = ZAVORTH_LOCAL_TASKS[taskId];
-  const showSpinner = !input.flags.json && !raw && process.stdout.isTTY;
-  if (showSpinner) {
-    globalSpinner.start(task.title);
-  }
   const result = runLocalTask(taskId, input.runner || defaultRunner);
-  if (showSpinner) {
-    result.ok ? globalSpinner.succeed(task.summary) : globalSpinner.fail(`${task.title} failed`);
-  }
+  void task;
 
   const body = input.flags.json
     ? JSON.stringify(result, null, 2)
@@ -43,29 +35,35 @@ export async function handleZavorthLocalTaskCommand(input: {
 }
 
 function renderLocalTask(result: ZavorthLocalTaskResult): string {
-  const timeline = TerminalTimeline.render([
-    { title: 'Resolve command', detail: result.command, status: 'success' },
-    { title: 'Run task', detail: `${(result.durationMs / 1000).toFixed(1)}s`, status: result.ok ? 'success' : 'error' },
-    { title: 'Next step', detail: result.nextActions[0] || 'Done', status: result.ok ? 'pending' : 'error' },
-  ]);
-  const body = [
-    `${TerminalTheme.format.bold(result.summary)}`,
-    '',
-    timeline,
-    '',
+  const panels: CliVisualPanel[] = [
+    {
+      title: 'Timeline',
+      tone: result.ok ? 'success' : 'danger',
+      lines: [
+        `✓ Resolve command: ${result.command}`,
+        `${result.ok ? '✓' : '!'} Run task: ${(result.durationMs / 1000).toFixed(1)}s`,
+        `› Next step: ${result.nextActions[0] || 'Done'}`,
+      ],
+    },
     ...(result.outputTail.length
-      ? [
-          TerminalTheme.colors.primary(TerminalTheme.format.bold('Output tail')),
-          result.outputTail.map((line) => `  ${line}`).join('\n'),
-          '',
-        ]
+      ? [{
+          title: 'Output tail',
+          tone: 'muted' as const,
+          lines: result.outputTail.map((line) => `  ${line}`),
+        }]
       : []),
-    TerminalTheme.colors.primary(TerminalTheme.format.bold('Next actions')),
-    ...result.nextActions.map((action) => `${TerminalTheme.colors.primary('>')} ${action}`),
-  ].join('\n');
-  return TerminalPanel.render(body, {
+    {
+      title: 'Next actions',
+      tone: 'brand',
+      lines: result.nextActions.map((action) => `${paintCliTone('>', 'brand')} ${action}`),
+    },
+  ];
+  return renderCliScreen({
+    eyebrow: 'Zavorth CLI',
     title: result.ok ? `Zavorth ${result.task}` : `Zavorth ${result.task} failed`,
-    type: result.ok ? 'success' : 'error',
+    summary: result.summary,
+    panels,
+    mode: 'compact',
   });
 }
 

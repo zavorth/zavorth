@@ -86,7 +86,7 @@ export type ZavorthUnifiedOnboardingSnapshot = {
     readOnly: true;
     summary: string;
   };
-  commandCenterProjection: {
+  dashboardProjection: {
     route: '/dashboard';
     executionAuthority: false;
     visualBlocksRequireOwnerApproval: true;

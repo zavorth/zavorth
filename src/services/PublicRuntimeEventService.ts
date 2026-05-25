@@ -200,7 +200,7 @@ export class PublicRuntimeEventService {
       sessionId: this.resolveSessionId(event.payload),
       data,
       safety: {
-        commandCenterCanExecute: false,
+        dashboardCanExecute: false,
         policyBrokerRequiredForMutableActions: true,
         rawSecretsSerialized: false,
       },

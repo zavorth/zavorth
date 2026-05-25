@@ -12,7 +12,7 @@ This sweep certifies the current Zavorth runtime surface after the natural-first
 - natural-first gateway behavior
 - approvals and universal approval intent
 - Telegram approval/channel behavior
-- Command Center dashboard behavior
+- Dashboard dashboard behavior
 - transaction plane and live executor gate
 - skill import security
 - secret and supply-chain guards
@@ -25,7 +25,7 @@ This sweep certifies the current Zavorth runtime surface after the natural-first
 - Skill import/source hardening tests passed: 6 suites, 16 tests.
 - Approval runtime tests passed: 6 suites, 22 tests.
 - Telegram channel tests passed: 6 suites, 44 tests.
-- Command Center/dashboard tests passed: 5 suites, 11 tests.
+- Dashboard/dashboard tests passed: 5 suites, 11 tests.
 - Transaction plane tests passed: 9 suites, 36 tests.
 - Transaction live executor gate passed.
 - Natural invocation check passed.
@@ -39,12 +39,12 @@ This sweep certifies the current Zavorth runtime surface after the natural-first
 - Restored the public external-agent approval grant contract export path in `src/runtime/external-agents/index.ts`.
 - Approval grant behavior is covered by the current security, trust, and runtime certification gates.
 - Restored Telegram Echo approval inline buttons by making the approval/reject callbacks renderable in Telegram.
-- Updated the Command Center visual approval pack test to the current product route, `/dashboard`.
+- Updated the Dashboard visual approval pack test to the current product route, `/dashboard`.
 
 ## Yellow
 
 - The entire repository test suite was not run as a single `npm test` sweep in this pass. Critical blocks were run directly and are green.
-- Product route language is still mixed in older files between `/control` internals and `/dashboard` daily-use surface. The certified path here is `/dashboard` for user-facing Command Center/dashboard flows, while internal control modules still exist.
+- Product route language is still mixed in older files between `/dashboard` internals and `/dashboard` daily-use surface. The certified path here is `/dashboard` for user-facing Dashboard/dashboard flows, while internal control modules still exist.
 
 ## Red
 

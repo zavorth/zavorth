@@ -11,7 +11,7 @@ import type { WebAppRuntimeRouteDeps } from './WebAppRuntimeRouteService.js';
 import { defaultLlmRuntimeTelemetryService } from '../../../../services/llm/LlmRuntimeTelemetryService.js';
 import { ZavorthActiveMissionUxService } from '../../../../services/ZavorthActiveMissionUxService.js';
 import { ZavorthApprovalActionCardsUxService } from '../../../../services/ZavorthApprovalActionCardsUxService.js';
-import { ZavorthCommandCenterProviderCockpitService } from '../../../../services/ZavorthCommandCenterProviderCockpitService.js';
+import { ZavorthDashboardProviderCockpitService } from '../../../../services/ZavorthDashboardProviderCockpitService.js';
 import { ZavorthProviderActivationService } from '../../../../services/ZavorthProviderActivationService.js';
 import { ZavorthProviderModelCatalogService } from '../../../../services/ZavorthProviderModelCatalogService.js';
 import { ZavorthProviderPreferencePersistenceService } from '../../../../services/ZavorthProviderPreferencePersistenceService.js';
@@ -26,7 +26,7 @@ import { ZavorthExternalAgentOnboardingService } from '../../../../services/Zavo
 import { ZavorthExternalAgentGatewayService } from '../../../../services/ZavorthExternalAgentGatewayService.js';
 import { ZavorthCapabilityMeshService } from '../../../../services/ZavorthCapabilityMeshService.js';
 import { ZavorthVisualReceiptUxService } from '../../../../services/ZavorthVisualReceiptUxService.js';
-import { CommandCenterContractAdapterService } from '../../../../services/CommandCenterContractAdapterService.js';
+import { DashboardContractAdapterService } from '../../../../services/DashboardContractAdapterService.js';
 import { ZavorthDailyUseGuiCertificationService } from '../../../../services/ZavorthDailyUseGuiCertificationService.js';
 import type { ZavorthSensitiveActionFlowDecision } from '../../../../contracts/ZavorthSensitiveActionFlowContract.js';
 
@@ -108,11 +108,11 @@ export class WebAppRuntimeStateRouteService {
       return true;
     }
 
-    if (pathname === '/api/web/command-center' && req.method === 'GET') {
+    if (pathname === '/api/web/dashboard' && req.method === 'GET') {
       const activeSessionId = String(url.searchParams.get('sessionId') || '').trim() || null;
       const agentRunQuery = this.buildAgentRunQuery(url);
       const generatedAt = new Date().toISOString();
-      const contractAdapter = await this.buildCommandCenterContractAdapterProjection(url, deps);
+      const contractAdapter = await this.buildDashboardContractAdapterProjection(url, deps);
       const snapshot = deps.agentGateway?.buildSnapshot(
         this.buildAgentRunSnapshotOptions(activeSessionId, agentRunQuery),
       ) || this.buildUnavailableAgentGatewaySnapshot(
@@ -157,30 +157,30 @@ export class WebAppRuntimeStateRouteService {
         ),
         providerCockpit,
       );
-      const commandCenterSnapshot = this.attachCommandCenterContractAdapter(enrichedSnapshot, contractAdapter);
+      const dashboardSnapshot = this.attachDashboardContractAdapter(enrichedSnapshot, contractAdapter);
       deps.writeJson(
         res,
         {
           ok: true,
           live: Boolean(deps.agentGateway),
-          generatedAt: commandCenterSnapshot.generatedAt,
-          snapshot: commandCenterSnapshot,
+          generatedAt: dashboardSnapshot.generatedAt,
+          snapshot: dashboardSnapshot,
           contractAdapter,
           contractsV1: contractAdapter,
-          modelProfile: this.buildCurrentModelProfile(commandCenterSnapshot),
+          modelProfile: this.buildCurrentModelProfile(dashboardSnapshot),
         },
         200,
       );
       return true;
     }
 
-    if (pathname === '/api/web/command-center/contracts-v1' && req.method === 'GET') {
-      const contractAdapter = await this.buildCommandCenterContractAdapterProjection(url, deps);
+    if (pathname === '/api/web/dashboard/contracts-v1' && req.method === 'GET') {
+      const contractAdapter = await this.buildDashboardContractAdapterProjection(url, deps);
       if (!contractAdapter) {
         deps.writeJson(res, {
           ok: false,
           error: 'canonical_public_api_unavailable',
-          detail: 'Command Center contract adapter requires the runtime API v1 service.',
+          detail: 'Dashboard contract adapter requires the runtime API v1 service.',
         }, 503);
         return true;
       }
@@ -193,12 +193,12 @@ export class WebAppRuntimeStateRouteService {
       return true;
     }
 
-    if (pathname === '/api/web/command-center/events-v1' && req.method === 'GET') {
+    if (pathname === '/api/web/dashboard/events-v1' && req.method === 'GET') {
       if (!deps.publicApi) {
         deps.writeJson(res, {
           ok: false,
           error: 'canonical_public_api_unavailable',
-          detail: 'Command Center event wiring requires the runtime API v1 service.',
+          detail: 'Dashboard event wiring requires the runtime API v1 service.',
         }, 503);
         return true;
       }
@@ -209,7 +209,7 @@ export class WebAppRuntimeStateRouteService {
         eventsV1: await deps.publicApi.readRuntimeEvents({ sessionId }),
         safety: {
           projectionOnly: true,
-          commandCenterCanExecute: false,
+          dashboardCanExecute: false,
           policyBrokerRequiredForMutableActions: true,
           rawSecretsSerialized: false,
         },
@@ -217,7 +217,7 @@ export class WebAppRuntimeStateRouteService {
       return true;
     }
 
-    if (pathname === '/api/web/command-center/gui-certification-v1' && req.method === 'GET') {
+    if (pathname === '/api/web/dashboard/gui-certification-v1' && req.method === 'GET') {
       if (!deps.publicApi) {
         deps.writeJson(res, {
           ok: false,
@@ -238,7 +238,7 @@ export class WebAppRuntimeStateRouteService {
         }),
         safety: {
           projectionOnly: true,
-          commandCenterCanExecute: false,
+          dashboardCanExecute: false,
           desktopCanBypassRuntime: false,
           policyBrokerRequiredForMutableActions: true,
           rawSecretsSerialized: false,
@@ -247,13 +247,13 @@ export class WebAppRuntimeStateRouteService {
       return true;
     }
 
-    if (pathname === '/api/web/command-center/actions' && req.method === 'POST') {
-      await this.handleCommandCenterActionRequest(req, res, deps);
+    if (pathname === '/api/web/dashboard/actions' && req.method === 'POST') {
+      await this.handleDashboardActionRequest(req, res, deps);
       return true;
     }
 
-    if (pathname === '/api/web/command-center/chat-v1' && req.method === 'POST') {
-      await this.handleCommandCenterChatRequest(req, res, deps);
+    if (pathname === '/api/web/dashboard/chat-v1' && req.method === 'POST') {
+      await this.handleDashboardChatRequest(req, res, deps);
       return true;
     }
 
@@ -280,7 +280,7 @@ export class WebAppRuntimeStateRouteService {
           live: false,
           generatedAt: approvalActionCardsUx.generatedAt,
           approvalActionCardsUx,
-          safety: approvalActionCardsUx.commandCenterProjection,
+          safety: approvalActionCardsUx.dashboardProjection,
         },
         200,
       );
@@ -323,7 +323,7 @@ export class WebAppRuntimeStateRouteService {
           generatedAt: sensitiveActionFlowUx.generatedAt,
           sensitiveActionFlowUx,
           safety: asRecord(asRecord(sensitiveActionFlowUx.card)?.safety) || {
-            commandCenterCanExecute: false,
+            dashboardCanExecute: false,
             rawSecretsSerialized: false,
           },
         },
@@ -606,7 +606,7 @@ export class WebAppRuntimeStateRouteService {
           {
             ok: false,
             error: 'provider_live_probe_requires_explicit_operator_cli_or_approved_api',
-            detail: 'O Command Center expõe readiness/projection only. Probe live de provider não roda por render normal do dashboard.',
+            detail: 'O Dashboard expõe readiness/projection only. Probe live de provider não roda por render normal do dashboard.',
           },
           403,
         );
@@ -1096,7 +1096,7 @@ export class WebAppRuntimeStateRouteService {
           retry: false,
         },
         notes: [
-          'O Command Center carregou, mas o Zavorth Agent Gateway ainda nao foi acoplado a este processo.',
+          'O Dashboard carregou, mas o Zavorth Agent Gateway ainda nao foi acoplado a este processo.',
         ],
       },
     };
@@ -1116,7 +1116,7 @@ export class WebAppRuntimeStateRouteService {
   }
 
   private async buildProviderCockpitProjection(url: URL): Promise<RuntimeRecord> {
-    const service = new ZavorthCommandCenterProviderCockpitService();
+    const service = new ZavorthDashboardProviderCockpitService();
     return service.buildProjection({
       includeAdvanced: this.readBooleanParam(url, 'advanced'),
       providerId: String(url.searchParams.get('provider') || url.searchParams.get('providerId') || '').trim() || null,
@@ -1147,14 +1147,14 @@ export class WebAppRuntimeStateRouteService {
     }) as Promise<RuntimeRecord>;
   }
 
-  private async buildCommandCenterContractAdapterProjection(
+  private async buildDashboardContractAdapterProjection(
     url: URL,
     deps: WebAppRuntimeRouteDeps,
   ): Promise<RuntimeRecord | null> {
     if (!deps.publicApi) {
       return null;
     }
-    const service = new CommandCenterContractAdapterService(deps.publicApi);
+    const service = new DashboardContractAdapterService(deps.publicApi);
     return service.buildSnapshot({
       includeAdvanced: this.readBooleanParam(url, 'advanced'),
       providerId: String(url.searchParams.get('provider') || url.searchParams.get('providerId') || '').trim() || null,
@@ -1329,7 +1329,7 @@ export class WebAppRuntimeStateRouteService {
     };
   }
 
-  private attachCommandCenterContractAdapter(
+  private attachDashboardContractAdapter(
     snapshot: RuntimeRecord,
     contractAdapter: RuntimeRecord | null,
   ): RuntimeRecord {
@@ -1357,7 +1357,7 @@ export class WebAppRuntimeStateRouteService {
     };
   }
 
-  private async handleCommandCenterActionRequest(
+  private async handleDashboardActionRequest(
     req: http.IncomingMessage,
     res: http.ServerResponse,
     deps: WebAppRuntimeRouteDeps,
@@ -1366,7 +1366,7 @@ export class WebAppRuntimeStateRouteService {
       deps.writeJson(res, {
         ok: false,
         error: 'canonical_public_api_unavailable',
-        detail: 'Command Center action wiring requires the runtime API v1 service.',
+        detail: 'Dashboard action wiring requires the runtime API v1 service.',
       }, 503);
       return;
     }
@@ -1426,7 +1426,7 @@ export class WebAppRuntimeStateRouteService {
           detail: 'Use approval.approve, approval.deny, mission.cancel, provider.test or channel.action.',
           safety: {
             controllerMutatedDirectly: false,
-            commandCenterCanExecute: false,
+            dashboardCanExecute: false,
             policyBrokerRequiredForMutableActions: true,
           },
         }, 400);
@@ -1441,14 +1441,14 @@ export class WebAppRuntimeStateRouteService {
       safety: {
         controllerMutatedDirectly: false,
         delegatedToRuntimeApiV1: true,
-        commandCenterCanExecute: false,
+        dashboardCanExecute: false,
         policyBrokerRequiredForMutableActions: true,
         rawSecretsSerialized: false,
       },
     }, 200);
   }
 
-  private async handleCommandCenterChatRequest(
+  private async handleDashboardChatRequest(
     req: http.IncomingMessage,
     res: http.ServerResponse,
     deps: WebAppRuntimeRouteDeps,
@@ -1457,7 +1457,7 @@ export class WebAppRuntimeStateRouteService {
       deps.writeJson(res, {
         ok: false,
         error: 'canonical_public_api_unavailable',
-        detail: 'Command Center chat wiring requires the runtime API v1 service.',
+        detail: 'Dashboard chat wiring requires the runtime API v1 service.',
       }, 503);
       return;
     }
@@ -1477,7 +1477,7 @@ export class WebAppRuntimeStateRouteService {
       mission: result.mission,
       safety: {
         delegatedToRuntimeApiV1: true,
-        commandCenterCanExecute: false,
+        dashboardCanExecute: false,
         dryRunByDefault: true,
         liveRequiresExplicitFlag: true,
         policyBrokerRequiredForTools: true,
@@ -1712,7 +1712,7 @@ export class WebAppRuntimeStateRouteService {
           String(url.searchParams.get('sessionId') || '').trim() || 'state-bootstrap',
         ) || null,
         uiSurfaceHints: helpers.buildUiSurfaceHints(productMode, {
-          localControlEntry: '/control',
+          localControlEntry: '/dashboard',
           localControlReady: true,
           telegramReady: true,
           discordReady: false,

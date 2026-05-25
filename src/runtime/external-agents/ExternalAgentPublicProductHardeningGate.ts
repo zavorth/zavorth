@@ -5,7 +5,7 @@ export const EXTERNAL_AGENT_PUBLIC_PRODUCT_HARDENING_RULES = {
   rejectedCapabilitiesRequireReason: true,
   releaseChecklistMustPass: true,
   securityReviewMustPass: true,
-  commandCenterMustBePrimaryZavorthSurface: true,
+  dashboardMustBePrimaryZavorthSurface: true,
 } as const;
 
 export type ExternalAgentPublicSurfaceKind =
@@ -56,7 +56,7 @@ export type ExternalAgentPublicCapabilityMatrixItem = {
 export type ExternalAgentProductHardeningChecklistCategory =
   | 'docs'
   | 'env-config'
-  | 'command-center'
+  | 'dashboard'
   | 'release'
   | 'security'
   | 'capability-matrix';
@@ -69,7 +69,7 @@ export type ExternalAgentProductHardeningChecklistItem = {
   evidence: string[];
 };
 
-export type ExternalAgentCommandCenterProductGate = {
+export type ExternalAgentDashboardProductGate = {
   primarySurface: boolean;
   workflowIds: string[];
   sourceIdentityLeakScanPassed: boolean;
@@ -107,7 +107,7 @@ export type ExternalAgentPublicProductHardeningReport = {
     blocked: number;
     missingCategories: ExternalAgentProductHardeningChecklistCategory[];
   };
-  commandCenter: {
+  dashboard: {
     primarySurface: boolean;
     workflowCoveragePassed: boolean;
     identityLeakScanPassed: boolean;
@@ -118,14 +118,14 @@ export type ExternalAgentPublicProductHardeningReport = {
     everyAdoptedCapabilityHasCoverage: boolean;
     releaseChecklistComplete: boolean;
     securityReviewComplete: boolean;
-    commandCenterIsPrimaryProductSurface: boolean;
+    dashboardIsPrimaryProductSurface: boolean;
   };
 };
 
 const REQUIRED_CHECKLIST_CATEGORIES: ExternalAgentProductHardeningChecklistCategory[] = [
   'docs',
   'env-config',
-  'command-center',
+  'dashboard',
   'release',
   'security',
   'capability-matrix',
@@ -238,7 +238,7 @@ function missingChecklistCategories(
   return REQUIRED_CHECKLIST_CATEGORIES.filter((category) => !passingCategories.has(category));
 }
 
-function commandCenterWorkflowCoveragePassed(gate: ExternalAgentCommandCenterProductGate): boolean {
+function dashboardWorkflowCoveragePassed(gate: ExternalAgentDashboardProductGate): boolean {
   const workflows = new Set(gate.workflowIds);
   return REQUIRED_COMMAND_CENTER_WORKFLOWS.every((workflowId) => workflows.has(workflowId));
 }
@@ -247,7 +247,7 @@ export function evaluateExternalAgentPublicProductHardeningGate(input: {
   surfaces: ExternalAgentPublicSurface[];
   capabilityMatrix: ExternalAgentPublicCapabilityMatrixItem[];
   checklist: ExternalAgentProductHardeningChecklistItem[];
-  commandCenter: ExternalAgentCommandCenterProductGate;
+  dashboard: ExternalAgentDashboardProductGate;
 }, options: ExternalAgentPublicProductHardeningOptions = {}): ExternalAgentPublicProductHardeningReport {
   const forbiddenTerms = options.forbiddenSourceTerms || [];
   const allMentions = input.surfaces.flatMap((surface) => findSurfaceIdentityMentions(surface, forbiddenTerms));
@@ -256,20 +256,20 @@ export function evaluateExternalAgentPublicProductHardeningGate(input: {
   const capabilityFindings = evaluateCapabilityMatrix(input.capabilityMatrix);
   const missingCategories = missingChecklistCategories(input.checklist);
   const blockedChecklistItems = input.checklist.filter((item) => item.status === 'blocked').length;
-  const workflowCoveragePassed = commandCenterWorkflowCoveragePassed(input.commandCenter);
+  const workflowCoveragePassed = dashboardWorkflowCoveragePassed(input.dashboard);
   const releaseChecklistComplete = missingCategories.length === 0 && blockedChecklistItems === 0;
   const securityReviewComplete = input.checklist.some((item) => item.category === 'security' && item.status === 'pass')
     && blockedChecklistItems === 0;
-  const commandCenterIsPrimaryProductSurface = input.commandCenter.primarySurface
-    && input.commandCenter.sourceIdentityLeakScanPassed
+  const dashboardIsPrimaryProductSurface = input.dashboard.primarySurface
+    && input.dashboard.sourceIdentityLeakScanPassed
     && workflowCoveragePassed
-    && input.commandCenter.cloneIndicators.length === 0;
+    && input.dashboard.cloneIndicators.length === 0;
   const guarantee = {
     publicCanonicalSurfacesZavorthNative: canonicalLeaks.length === 0,
     everyAdoptedCapabilityHasCoverage: capabilityFindings.length === 0,
     releaseChecklistComplete,
     securityReviewComplete,
-    commandCenterIsPrimaryProductSurface,
+    dashboardIsPrimaryProductSurface,
   };
   const status = Object.values(guarantee).every(Boolean) ? 'pass' : 'blocked';
 
@@ -293,11 +293,11 @@ export function evaluateExternalAgentPublicProductHardeningGate(input: {
       blocked: blockedChecklistItems,
       missingCategories,
     },
-    commandCenter: {
-      primarySurface: input.commandCenter.primarySurface,
+    dashboard: {
+      primarySurface: input.dashboard.primarySurface,
       workflowCoveragePassed,
-      identityLeakScanPassed: input.commandCenter.sourceIdentityLeakScanPassed,
-      cloneIndicators: input.commandCenter.cloneIndicators,
+      identityLeakScanPassed: input.dashboard.sourceIdentityLeakScanPassed,
+      cloneIndicators: input.dashboard.cloneIndicators,
     },
     guarantee,
   };

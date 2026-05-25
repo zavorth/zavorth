@@ -56,7 +56,7 @@ export type ZavorthSensitiveActionApproval = {
 
 export type ZavorthSensitiveActionExecution = {
   mode: 'read_only' | 'dry_run' | 'sandbox_after_approval' | 'blocked';
-  commandCenterCanExecute: false;
+  dashboardCanExecute: false;
   policyBrokerRequired: true;
   approvalRequiredForMutation: boolean;
   executed: false;
@@ -96,7 +96,7 @@ export type ZavorthSensitiveActionFlowSnapshot = {
     status: 'done' | 'pending' | 'blocked';
     summary: string;
   }>;
-  commandCenterProjection: {
+  dashboardProjection: {
     route: '/dashboard';
     endpoint: '/api/sensitive-action-flow';
     executionAuthority: false;

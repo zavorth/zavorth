@@ -128,7 +128,7 @@ export function formatSelfingDashboardSnapshot(
   lines.push('- mudancas sensiveis exigem preview, approval e versionamento');
 
   lines.push('', 'Superficies');
-  lines.push(`- Command Center: ${snapshot.surface.commandCenterPath}`);
+  lines.push(`- Dashboard: ${snapshot.surface.dashboardPath}`);
   lines.push(`- CLI: ${snapshot.surface.cliCommand}`);
   lines.push(`- Preview: ${snapshot.surface.previewHint}`);
 

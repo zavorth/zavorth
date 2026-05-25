@@ -1,6 +1,6 @@
 # Experience Core
 
-Experience Core is the shared product layer for Zavorth CLI, Command Center and
+Experience Core is the shared product layer for Zavorth CLI, Dashboard and
 future companion surfaces.
 
 ## Contract
@@ -80,7 +80,7 @@ approval policy, sandbox rules or security gates.
   cancel command. Cancel requests are recorded in the speculative autonomy
   cancellation registry and checked between validation/correction rounds.
 - Context Recovery limits short-channel choices, especially Telegram/Discord,
-  and exposes overflow metadata so dense review moves to `/control`.
+  and exposes overflow metadata so dense review moves to `/dashboard`.
 - Learning candidates that touch core security policy, sandbox, allowlists,
   firewall behavior or approval rules are quarantined. Learning OS may improve
   style, routing and workflow preferences, but it must not rewrite safety

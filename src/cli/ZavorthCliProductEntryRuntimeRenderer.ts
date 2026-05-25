@@ -192,7 +192,7 @@ export function formatProductEntryRuntimeSnapshot(
   lines.push('- secrets nao foram serializados');
 
   lines.push('', 'Superficies de consumo');
-  lines.push(`- Command Center: ${snapshot.surface.commandCenterPath}`);
+  lines.push(`- Dashboard: ${snapshot.surface.dashboardPath}`);
   lines.push(`- CLI: ${snapshot.surface.cliCommand}`);
   lines.push(`- Public start: ${snapshot.surface.publicStartRoute}`);
   lines.push(`- Go: ${snapshot.surface.goCommand}`);

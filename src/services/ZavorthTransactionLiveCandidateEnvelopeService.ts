@@ -15,11 +15,11 @@ import {
   type ZavorthTransactionLiveCandidateStatus,
 } from '../contracts/ZavorthTransactionLiveCandidateContract.js';
 import type {
-  ZavorthTransactionCommandCenterProjection,
-} from '../contracts/ZavorthTransactionCommandCenterContract.js';
+  ZavorthTransactionDashboardProjection,
+} from '../contracts/ZavorthTransactionDashboardContract.js';
 import { ZavorthTransactionApprovalLedgerService } from './ZavorthTransactionApprovalLedgerService.js';
 import { ZavorthTransactionCertificationService } from './ZavorthTransactionCertificationService.js';
-import { ZavorthTransactionCommandCenterProjectionService } from './ZavorthTransactionCommandCenterProjectionService.js';
+import { ZavorthTransactionDashboardProjectionService } from './ZavorthTransactionDashboardProjectionService.js';
 import { ZavorthTransactionConnectorRegistryService } from './ZavorthTransactionConnectorRegistryService.js';
 import { ZavorthTransactionCredentialRefService } from './ZavorthTransactionCredentialRefService.js';
 import { ZavorthTransactionPreviewService } from './ZavorthTransactionPreviewService.js';
@@ -28,7 +28,7 @@ import { ZavorthTransactionSurfaceGatewayService } from './ZavorthTransactionSur
 
 type LiveCandidateDeps = {
   now?: () => Date;
-  commandCenter?: ZavorthTransactionCommandCenterProjectionService;
+  dashboard?: ZavorthTransactionDashboardProjectionService;
   certification?: ZavorthTransactionCertificationService;
   credentialRefs?: ZavorthTransactionCredentialRefService;
   ledgerFile?: string;
@@ -49,7 +49,7 @@ const SAFETY: ZavorthTransactionLiveCandidateSafety = {
 
 export class ZavorthTransactionLiveCandidateEnvelopeService {
   private readonly now: () => Date;
-  private readonly commandCenter: ZavorthTransactionCommandCenterProjectionService;
+  private readonly dashboard: ZavorthTransactionDashboardProjectionService;
   private readonly certification: ZavorthTransactionCertificationService;
 
   public constructor(deps: LiveCandidateDeps = {}) {
@@ -58,7 +58,7 @@ export class ZavorthTransactionLiveCandidateEnvelopeService {
       storeFile: deps.credentialStoreFile,
       now: this.now,
     });
-    this.commandCenter = deps.commandCenter ?? createCommandCenter({
+    this.dashboard = deps.dashboard ?? createDashboard({
       now: this.now,
       credentialRefs,
       ledgerFile: deps.ledgerFile,
@@ -76,7 +76,7 @@ export class ZavorthTransactionLiveCandidateEnvelopeService {
 
   public propose(input: ZavorthTransactionLiveCandidateInput): ZavorthTransactionLiveCandidateResult {
     const createdAt = this.now();
-    const commandCenterProjection = this.commandCenter.project({
+    const dashboardProjection = this.dashboard.project({
       text: input.text,
       surface: input.surface ?? 'api',
       mode: input.mode ?? 'paper',
@@ -88,10 +88,10 @@ export class ZavorthTransactionLiveCandidateEnvelopeService {
     });
     const certificationReport = this.certification.certify();
     const ownerGate = buildOwnerGate(input, createdAt);
-    const envelope = buildEnvelope(commandCenterProjection, createdAt);
+    const envelope = buildEnvelope(dashboardProjection, createdAt);
     const gates = buildGates({
       input,
-      commandCenterProjection,
+      dashboardProjection,
       certificationStatus: certificationReport.status,
       ownerGate,
       envelope,
@@ -110,7 +110,7 @@ export class ZavorthTransactionLiveCandidateEnvelopeService {
       ownerGate,
       gates,
       ...(status === 'candidate-ready' && envelope ? { envelope } : {}),
-      commandCenterProjection,
+      dashboardProjection,
       certificationReport,
       blockers,
       nextSteps: nextStepsForStatus(status, blockers),
@@ -127,7 +127,7 @@ export class ZavorthTransactionLiveCandidateEnvelopeService {
       `[transaction-live-candidate] owner-phrase-accepted: ${result.ownerGate.phraseAccepted}`,
       `[transaction-live-candidate] envelope: ${result.envelope?.id ?? 'none'}`,
       `[transaction-live-candidate] certification: ${result.certificationReport.status}`,
-      `[transaction-live-candidate] command-center-status: ${result.commandCenterProjection.status}`,
+      `[transaction-live-candidate] dashboard-status: ${result.dashboardProjection.status}`,
       `[transaction-live-candidate] no-live-execution: ${result.safety.noLiveExecution}`,
       `[transaction-live-candidate] live-execution-authorized: ${result.safety.liveExecutionAuthorized}`,
       `[transaction-live-candidate] executable-now: ${result.safety.executableNow}`,
@@ -150,13 +150,13 @@ function certificationCredentialStoreFile(storeFile: string | undefined): string
     : path.join(process.cwd(), 'data', 'runtime', 'zavorth-transaction-live-candidate-certification-matrix-certification-credential-refs.jsonl');
 }
 
-function createCommandCenter(input: {
+function createDashboard(input: {
   now: () => Date;
   credentialRefs: ZavorthTransactionCredentialRefService;
   ledgerFile?: string;
-}): ZavorthTransactionCommandCenterProjectionService {
+}): ZavorthTransactionDashboardProjectionService {
   const previewService = new ZavorthTransactionPreviewService();
-  return new ZavorthTransactionCommandCenterProjectionService({
+  return new ZavorthTransactionDashboardProjectionService({
     now: input.now,
     surfaceGateway: new ZavorthTransactionSurfaceGatewayService({
       now: input.now,
@@ -200,7 +200,7 @@ function buildOwnerGate(
 }
 
 function buildEnvelope(
-  projection: ZavorthTransactionCommandCenterProjection,
+  projection: ZavorthTransactionDashboardProjection,
   now: Date,
 ): ZavorthTransactionLiveCandidateEnvelope | undefined {
   const runtime = projection.surfaceProjection.runtime;
@@ -217,7 +217,7 @@ function buildEnvelope(
   return {
     id: buildEnvelopeId(projection.id, payload.idempotencyKey, now),
     createdAt: now.toISOString(),
-    sourceCommandCenterProjectionId: projection.id,
+    sourceDashboardProjectionId: projection.id,
     sourceSurfaceProjectionId: projection.sourceProjectionId,
     surface: projection.surface,
     actionKind: runtime.preview.intent.actionKind,
@@ -242,12 +242,12 @@ function buildEnvelope(
 
 function buildGates(input: {
   input: ZavorthTransactionLiveCandidateInput;
-  commandCenterProjection: ZavorthTransactionCommandCenterProjection;
+  dashboardProjection: ZavorthTransactionDashboardProjection;
   certificationStatus: string;
   ownerGate: ZavorthTransactionLiveCandidateOwnerGate;
   envelope: ZavorthTransactionLiveCandidateEnvelope | undefined;
 }): ZavorthTransactionLiveCandidateGate[] {
-  const projection = input.commandCenterProjection;
+  const projection = input.dashboardProjection;
   const runtime = projection.surfaceProjection.runtime;
   const serialized = JSON.stringify({
     projection,
@@ -263,9 +263,9 @@ function buildGates(input: {
       [`certification=${input.certificationStatus}`],
     ),
     gate(
-      'command-center-simulated',
+      'dashboard-simulated',
       projection.status === 'simulated',
-      'Command Center projection must represent a completed paper/sandbox simulation.',
+      'Dashboard projection must represent a completed paper/sandbox simulation.',
       [`status=${projection.status}`, `tone=${projection.tone}`],
     ),
     gate(
@@ -332,7 +332,7 @@ function resolveStatus(gates: ZavorthTransactionLiveCandidateGate[]): ZavorthTra
     return 'certification-required';
   }
   const runtimeGates = [
-    'command-center-simulated',
+    'dashboard-simulated',
     'approval-ledger-approved',
     'credential-ref-ready',
     'typed-connector-simulated',

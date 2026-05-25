@@ -152,7 +152,7 @@ export function formatPublicAdoptionPilotLoopSnapshot(
   lines.push(`- Phase gate: ${snapshot.surface.phaseGateCommand}`);
   lines.push(`- Ledger: ${snapshot.surface.ledgerArtifact}`);
   lines.push(`- Dashboard: ${snapshot.surface.dashboardArtifact}`);
-  lines.push(`- Command Center: ${snapshot.surface.commandCenterPath}`);
+  lines.push(`- Dashboard: ${snapshot.surface.dashboardPath}`);
   lines.push(`- CLI: ${snapshot.surface.cliCommand}`);
 
   return lines.join('\n');

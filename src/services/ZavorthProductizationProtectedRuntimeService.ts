@@ -61,7 +61,7 @@ export type ZavorthProductizationProtectedRuntimeSnapshot = {
   templates: ZavorthGuidedMissionTemplate[];
   mission: ZavorthMissionContract;
   receipt: ZavorthVisualReceiptContract;
-  commandCenterProjection: {
+  dashboardProjection: {
     route: '/dashboard';
     executionAuthority: false;
     approvalRequiredForMutableActions: true;
@@ -159,7 +159,7 @@ export class ZavorthProductizationProtectedRuntimeService {
       templates,
       mission,
       receipt,
-      commandCenterProjection: {
+      dashboardProjection: {
         route: '/dashboard',
         executionAuthority: false,
         approvalRequiredForMutableActions: true,
@@ -210,7 +210,7 @@ export class ZavorthProductizationProtectedRuntimeService {
           {
             id: 'mission-projection',
             status: 'passed',
-            summary: 'CLI and Command Center consume a mission projection with timeline, risk and artifacts.',
+            summary: 'CLI and Dashboard consume a mission projection with timeline, risk and artifacts.',
           },
           {
             id: 'visual-receipt',
@@ -499,7 +499,7 @@ export class ZavorthProductizationProtectedRuntimeService {
       execution: {
         readOnly,
         mutationMode: input.template.requiresMutation ? input.sandbox.mutationMode : 'dry-run',
-        commandCenterCanExecute: false,
+        dashboardCanExecute: false,
         policyBrokerRequired: true,
       },
       timeline,
@@ -543,7 +543,7 @@ export class ZavorthProductizationProtectedRuntimeService {
       advanced: {
         policyBroker: 'required',
         trustPlane: 'active',
-        commandCenterCanExecute: false,
+        dashboardCanExecute: false,
         sandboxMutationMode: input.mission.execution.mutationMode,
         approvalOptions,
         artifacts: input.mission.artifacts.map((artifact) => artifact.id),

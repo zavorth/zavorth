@@ -193,6 +193,6 @@ describe('Run Observatory Run Observatory', () => {
         matchedBy: ['status'],
       }),
     ]);
-    expect(failedOnly.surface.commandCenterPath).toContain('status=failed');
+    expect(failedOnly.surface.dashboardPath).toContain('status=failed');
   });
 });

@@ -4,7 +4,7 @@ import {
   type ZavorthExternalSidecarAdapterStatus,
   type ZavorthExternalSidecarCapabilityRecord,
   type ZavorthExternalSidecarChannelRecord,
-  type ZavorthExternalSidecarCommandCenterProjection,
+  type ZavorthExternalSidecarDashboardProjection,
   type ZavorthExternalSidecarEventRecord,
   type ZavorthExternalSidecarHealthRecord,
   type ZavorthExternalSidecarInboundEventInput,
@@ -84,7 +84,7 @@ export class ZavorthExternalSidecarAdapterService {
       riskyOutboundDryRunReceipt,
     );
     const status = resolveStatus(previousNativeEngineStatus, acceptanceMatrix);
-    const commandCenterProjection = this.buildCommandCenterProjection({
+    const dashboardProjection = this.buildDashboardProjection({
       status,
       readOnlyProbe,
       inboundGatewayReceipt,
@@ -103,7 +103,7 @@ export class ZavorthExternalSidecarAdapterService {
       inboundGatewayReceipt,
       outboundDryRunReceipt,
       riskyOutboundDryRunReceipt,
-      commandCenterProjection,
+      dashboardProjection,
       acceptanceMatrix,
       summary: {
         sourceChannelsListed: readOnlyProbe.channels.length,
@@ -389,13 +389,13 @@ export class ZavorthExternalSidecarAdapterService {
     };
   }
 
-  public buildCommandCenterProjection(input: {
+  public buildDashboardProjection(input: {
     status: ZavorthExternalSidecarAdapterStatus;
     readOnlyProbe: ZavorthExternalSidecarReadOnlyProbeSnapshot;
     inboundGatewayReceipt: ZavorthExternalSidecarInboundGatewayReceipt;
     outboundDryRunReceipt: ZavorthExternalSidecarOutboundDryRunReceipt;
     riskyOutboundDryRunReceipt: ZavorthExternalSidecarOutboundDryRunReceipt;
-  }): ZavorthExternalSidecarCommandCenterProjection {
+  }): ZavorthExternalSidecarDashboardProjection {
     return {
       title: 'External Sidecar Adapter',
       status: input.status,
@@ -441,8 +441,8 @@ export class ZavorthExternalSidecarAdapterService {
       `Sidecars started: ${snapshot.safety.sidecarsStarted}`,
       `Live IO performed: ${snapshot.safety.outboundIoPerformed}`,
       '',
-      'Command Center:',
-      ...snapshot.commandCenterProjection.cards.map((entry) => `- ${entry.label}: ${entry.value} (${entry.detail})`),
+      'Dashboard:',
+      ...snapshot.dashboardProjection.cards.map((entry) => `- ${entry.label}: ${entry.value} (${entry.detail})`),
       '',
       'Acceptance:',
       ...snapshot.acceptanceMatrix.map((entry) => `- ${entry.status} ${entry.requirementId}: ${entry.evidence}`),
@@ -554,6 +554,6 @@ function card(
   label: string,
   value: string,
   detail: string,
-): ZavorthExternalSidecarCommandCenterProjection['cards'][number] {
+): ZavorthExternalSidecarDashboardProjection['cards'][number] {
   return { id, label, value, detail };
 }

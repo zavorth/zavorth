@@ -79,7 +79,7 @@ export function buildZavorthSetupStudioSteps(input: {
     },
     {
       id: 'control-ui',
-      title: 'Control UI',
+      title: 'Dashboard',
       status: controlUi?.tokenStatus === 'missing' ? 'warning' : 'ready',
       detail: controlUi?.url || 'not inspected',
     },

@@ -85,7 +85,7 @@ function reasonFor(input: {
   if (!input.command) return 'Command is empty.';
   if (!input.cwdAllowed) return 'Command cwd is outside the configured roots.';
   if (input.dangerous) return 'Command contains a dangerous shell pattern and is blocked until explicit owner approval changes policy.';
-  if (input.attention) return 'Command contains mutation/control operators and requires explicit approval.';
+  if (input.attention) return 'Command contains mutation/dashboard operators and requires explicit approval.';
   if (input.approvalRequired) return 'Command requires approval.';
   return 'Command is classified as safe within the configured cwd roots.';
 }

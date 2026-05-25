@@ -44,7 +44,7 @@ type HttpProbeInput = {
 };
 
 export class IntegrationProbeService {
-  private readonly controlUiEntryPath = '/control';
+  private readonly controlUiEntryPath = '/dashboard';
   private readonly now: () => Date;
   private readonly fetchImpl: ProbeFetch;
   private readonly registryService: IntegrationRegistryService;

@@ -71,6 +71,6 @@ describe('Zavorth CLI Skill/MCP Quarantine', () => {
     expect(text).toContain('Skill/MCP Quarantine - Skill MCP Quarantine');
     expect(text).toContain('Capabilities importadas');
     expect(text).toContain('promover: zavorth quarantine promote');
-    expect(text).toContain('Command Center: /control?sector=skills');
+    expect(text).toContain('Dashboard: /dashboard?sector=skills');
   });
 });

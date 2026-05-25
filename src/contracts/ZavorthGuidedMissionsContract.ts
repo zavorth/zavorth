@@ -76,7 +76,7 @@ export type ZavorthGuidedMissionsContract = {
     previewOnlyByDefault: true;
     dashboardRoute: '/dashboard';
     policyBrokerRequired: true;
-    commandCenterCanExecute: false;
+    dashboardCanExecute: false;
   };
   safety: {
     guidedDoesNotBypassPolicy: true;

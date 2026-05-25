@@ -710,7 +710,7 @@ function Test-WebSurfaceReady {
     }
   }
 
-  $uri = "http://127.0.0.1:$port/control"
+  $uri = "http://127.0.0.1:$port/dashboard"
   try {
     $response = Invoke-WebRequest -UseBasicParsing -Uri $uri -TimeoutSec $TimeoutSec -ErrorAction Stop
     return @{

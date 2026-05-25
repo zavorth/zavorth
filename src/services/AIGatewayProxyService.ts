@@ -1,6 +1,8 @@
 import fs from 'fs';
 import http from 'http';
 import path from 'path';
+import type { Duplex } from 'stream';
+import { WebSocketServer, type RawData, type WebSocket } from 'ws';
 import { config } from '../config/index.js';
 import { safeFetch } from '../security/SafeFetchService.js';
 
@@ -34,6 +36,7 @@ type GoogleStudioContent = {
 
 export class AIGatewayProxyService {
   private static server: http.Server | null = null;
+  private static wss: WebSocketServer | null = null;
   private static startedAt: string | null = null;
   private server: http.Server | null = null;
 
@@ -53,6 +56,11 @@ export class AIGatewayProxyService {
 
     const server = http.createServer((req, res) => {
       void this.handleRequest(req, res);
+    });
+    server.on('upgrade', (req, socket, head) => {
+      if (!this.handleWebSocketUpgrade(req, socket, head)) {
+        socket.destroy();
+      }
     });
     this.server = server;
 
@@ -96,6 +104,13 @@ export class AIGatewayProxyService {
 
     this.server = null;
     AIGatewayProxyService.server = null;
+    AIGatewayProxyService.wss?.clients.forEach((client) => {
+      try {
+        client.close();
+      } catch {}
+    });
+    AIGatewayProxyService.wss?.close();
+    AIGatewayProxyService.wss = null;
     AIGatewayProxyService.startedAt = null;
     const status = this.buildStatus(false, false, 'Gateway proprio do AIGateway encerrado.');
     this.writeStatus(status);
@@ -205,6 +220,97 @@ export class AIGatewayProxyService {
     }
   }
 
+  private handleWebSocketUpgrade(req: http.IncomingMessage, socket: Duplex, head: Buffer): boolean {
+    const origin = req.headers.host || `${config.zavorthAIGatewayGatewayHost}:${config.zavorthAIGatewayGatewayPort}`;
+    const url = new URL(req.url || '/', `ws://${origin}`);
+    if (url.pathname !== '/v1/ws') {
+      return false;
+    }
+    if (String(config.zavorthAIGatewayGatewayHost || '').trim() !== '0.0.0.0' && !isLoopbackHost(req.socket.remoteAddress)) {
+      socket.write('HTTP/1.1 403 Forbidden\r\nConnection: close\r\n\r\n');
+      socket.destroy();
+      return true;
+    }
+    if (!AIGatewayProxyService.wss) {
+      AIGatewayProxyService.wss = new WebSocketServer({ noServer: true });
+    }
+    AIGatewayProxyService.wss.handleUpgrade(req, socket, head, (ws) => {
+      this.initializeGatewayWebSocket(ws, url);
+    });
+    return true;
+  }
+
+  private initializeGatewayWebSocket(ws: WebSocket, url: URL): void {
+    this.sendWebSocketJson(ws, {
+      type: 'zavorth.gateway.ready',
+      gateway: 'zavorth-native',
+      path: url.pathname,
+      upstreamBaseUrl: config.AIGatewayUpstreamBaseUrl,
+      createdAt: new Date().toISOString(),
+    });
+    ws.on('message', (raw) => {
+      void this.handleGatewayWebSocketMessage(ws, raw);
+    });
+  }
+
+  private async handleGatewayWebSocketMessage(ws: WebSocket, raw: RawData): Promise<void> {
+    let message: any;
+    try {
+      message = JSON.parse(Buffer.isBuffer(raw) ? raw.toString('utf8') : raw.toString());
+    } catch {
+      this.sendWebSocketJson(ws, { type: 'error', error: 'Expected JSON message.' });
+      return;
+    }
+    const id = typeof message?.id === 'string' ? message.id : null;
+    const type = String(message?.type || '').trim();
+    if (type === 'ping') {
+      this.sendWebSocketJson(ws, { id, type: 'pong', at: new Date().toISOString() });
+      return;
+    }
+    if (type === 'status') {
+      this.sendWebSocketJson(ws, { id, type: 'status', status: this.readPersistedStatus() });
+      return;
+    }
+    if (type !== 'chat.completions') {
+      this.sendWebSocketJson(ws, { id, type: 'error', error: `Unsupported WebSocket message type: ${type || 'missing'}` });
+      return;
+    }
+    try {
+      const response = await safeFetch(this.joinUrl(config.zavorthAIGatewayGatewayBaseUrl, 'chat/completions'), {
+        method: 'POST',
+        headers: {
+          'content-type': 'application/json',
+          'x-zavorth-AIGateway': 'gateway-ws',
+        },
+        body: JSON.stringify(message.body || {}),
+      }, {
+        serviceName: 'Zavorth AI Gateway WebSocket chat completions',
+        allowLoopback: true,
+      });
+      const body = await response.json().catch(async () => ({ text: await response.text().catch(() => '') }));
+      this.sendWebSocketJson(ws, {
+        id,
+        type: 'chat.completions.result',
+        status: response.status,
+        ok: response.ok,
+        body,
+      });
+    } catch (error: unknown) {
+      this.sendWebSocketJson(ws, {
+        id,
+        type: 'chat.completions.error',
+        error: error instanceof Error ? error.message : String(error),
+      });
+    }
+  }
+
+  private sendWebSocketJson(ws: WebSocket, payload: unknown): void {
+    if (ws.readyState !== 1) {
+      return;
+    }
+    ws.send(JSON.stringify(payload));
+  }
+
   private async readLiveStatus(message: string): Promise<AIGatewayProxyStatus> {
     const ready = await this.isGatewayHealthy();
     return this.buildStatus(true, ready, ready ? message : 'Gateway proprio do AIGateway subiu, mas ainda nao passou no health.');
@@ -291,21 +397,41 @@ export class AIGatewayProxyService {
     );
     const headers = new Headers();
     headers.set('content-type', 'application/json');
-    this.applyUpstreamHeaders(headers);
-
-    const response = await safeFetch(upstreamUrl, {
-      method: 'POST',
-      headers,
-      body: JSON.stringify(this.toGoogleAiStudioGenerateContentPayload(payload)),
-    }, {
-      serviceName: 'AI Gateway Google AI Studio chat completions',
-      allowLoopback: true,
-    });
-    const body = await response.json().catch(() => null) as Record<string, any> | null;
+    const requestPayload = JSON.stringify(this.toGoogleAiStudioGenerateContentPayload(payload));
+    const keyCandidates = this.resolveGoogleAiStudioApiKeys();
+    let response: Response | null = null;
+    let body: Record<string, any> | null = null;
+    let lastStatus = 0;
+    let lastMessage = '';
+    for (let attempt = 0; attempt < keyCandidates.length; attempt += 1) {
+      const attemptHeaders = new Headers(headers);
+      this.applyUpstreamHeaders(attemptHeaders, keyCandidates[attempt]);
+      response = await safeFetch(upstreamUrl, {
+        method: 'POST',
+        headers: attemptHeaders,
+        body: requestPayload,
+      }, {
+        serviceName: 'AI Gateway Google AI Studio chat completions',
+        allowLoopback: true,
+      });
+      body = await response.json().catch(() => null) as Record<string, any> | null;
+      if (response.ok) {
+        break;
+      }
+      lastStatus = response.status;
+      lastMessage = body?.error?.message || body?.message || `Upstream returned HTTP ${response.status}`;
+      if (!isRetryableGoogleAiStudioStatus(response.status) || attempt === keyCandidates.length - 1) {
+        break;
+      }
+    }
+    if (!response) {
+      this.writeJson(res, { error: { message: 'No Google AI Studio request was attempted.', type: 'upstream_error' } }, 502);
+      return;
+    }
     if (!response.ok) {
       this.writeJson(res, {
         error: {
-          message: body?.error?.message || body?.message || `Upstream returned HTTP ${response.status}`,
+          message: lastMessage || body?.error?.message || body?.message || `Upstream returned HTTP ${lastStatus || response.status}`,
           type: 'upstream_error',
         },
       }, response.status);
@@ -418,16 +544,24 @@ export class AIGatewayProxyService {
     return this.joinUrl(config.AIGatewayUpstreamBaseUrl, 'models');
   }
 
-  private applyUpstreamHeaders(headers: Headers): void {
+  private applyUpstreamHeaders(headers: Headers, googleAiStudioApiKey?: string | null): void {
     const overlay = this.readOverlay();
     if (overlay.headers) {
       for (const [key, value] of Object.entries(overlay.headers)) {
         headers.set(key, value);
       }
     }
-    if (this.isGoogleAiStudioUpstream() && config.geminiApiKey) {
-      headers.set('x-goog-api-key', config.geminiApiKey);
+    const apiKey = String(googleAiStudioApiKey || config.geminiApiKey || '').trim();
+    if (this.isGoogleAiStudioUpstream() && apiKey) {
+      headers.set('x-goog-api-key', apiKey);
     }
+  }
+
+  private resolveGoogleAiStudioApiKeys(): string[] {
+    const keys = Array.isArray(config.geminiApiKeys) && config.geminiApiKeys.length > 0
+      ? config.geminiApiKeys
+      : [config.geminiApiKey].filter(Boolean);
+    return Array.from(new Set(keys.map((key) => String(key || '').trim()).filter(Boolean)));
   }
 
   private isGoogleAiStudioUpstream(): boolean {
@@ -491,4 +625,13 @@ export class AIGatewayProxyService {
     const normalized = baseUrl.endsWith('/') ? baseUrl : `${baseUrl}/`;
     return new URL(segment.replace(/^\/+/, ''), normalized).toString();
   }
+}
+
+function isLoopbackHost(address: string | undefined): boolean {
+  const value = String(address || '').trim();
+  return !value || value === '127.0.0.1' || value === '::1' || value === '::ffff:127.0.0.1';
+}
+
+function isRetryableGoogleAiStudioStatus(status: number): boolean {
+  return status === 408 || status === 409 || status === 425 || status === 429 || status >= 500;
 }

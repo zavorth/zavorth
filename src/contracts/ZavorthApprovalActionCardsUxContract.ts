@@ -66,7 +66,7 @@ export type ZavorthApprovalActionCardsUxSnapshot = {
     rawSecretsSerialized: false;
   };
   cards: ZavorthApprovalActionCard[];
-  commandCenterProjection: {
+  dashboardProjection: {
     route: '/dashboard';
     renderMode: 'interactive-action-cards';
     executionAuthority: false;

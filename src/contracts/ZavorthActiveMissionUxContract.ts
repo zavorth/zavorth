@@ -59,14 +59,14 @@ export type ZavorthActiveMissionUxSnapshot = {
   };
   timeline: ZavorthActiveMissionUxTimelineEvent[];
   actions: ZavorthActiveMissionUxAction[];
-  commandCenterProjection: {
+  dashboardProjection: {
     route: '/dashboard';
     renderMode: 'mission-timeline';
     executionAuthority: false;
   };
   safety: {
     projectionOnly: true;
-    commandCenterCanExecute: false;
+    dashboardCanExecute: false;
     rawSecretsSerialized: false;
     approvalsStillRequired: true;
   };

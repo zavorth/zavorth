@@ -136,11 +136,11 @@ function checkGateway(projectRoot: string, env: Record<string, string>): Zavorth
 }
 
 function checkDashboard(projectRoot: string): ZavorthDoctorPremiumCheck {
-  const hasDashboard = fileExists(projectRoot, 'src/ai-gateway/app/(dashboard)/control')
+  const hasDashboard = fileExists(projectRoot, 'src/ai-gateway/app/(dashboard)/dashboard')
     || fileExists(projectRoot, 'src/ai-gateway/app/(dashboard)/dashboard');
   return {
     id: 'dashboard',
-    title: 'Command Center',
+    title: 'Dashboard',
     status: hasDashboard ? 'pass' : 'warn',
     summary: hasDashboard ? 'Dashboard source is present.' : 'Dashboard source was not found in the expected app path.',
     impact: hasDashboard ? 'zavorth open can route the operator to the visual control plane.' : 'The CLI can work, but visual control may be unavailable.',
@@ -217,6 +217,6 @@ function buildNextActions(checks: ZavorthDoctorPremiumCheck[]): ZavorthDoctorPre
     failing ? { label: `Fix ${failing.title}`, command: failing.fixCommand as string, detail: failing.impact } : null,
     warning ? { label: `Review ${warning.title}`, command: warning.fixCommand as string, detail: warning.impact } : null,
     { label: 'Run setup', command: 'zavorth setup', detail: 'guided provider/channel/trust setup' },
-    { label: 'Open Command Center', command: 'zavorth open' },
+    { label: 'Open Dashboard', command: 'zavorth open' },
   ].filter(Boolean) as ZavorthDoctorPremiumSnapshot['nextActions'];
 }

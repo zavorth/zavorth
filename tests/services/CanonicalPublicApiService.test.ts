@@ -132,7 +132,7 @@ describe('CanonicalPublicApiService', () => {
         }),
       }),
       safety: expect.objectContaining({
-        commandCenterCanExecute: false,
+        dashboardCanExecute: false,
         approvalDoesNotExecuteTargetAction: true,
         receiptsRequiredForTrustDecisions: true,
       }),
@@ -143,7 +143,7 @@ describe('CanonicalPublicApiService', () => {
       trustUx: expect.objectContaining({
         surface: 'approval-receipt-trust-ux',
         safety: expect.objectContaining({
-          commandCenterCanExecuteTargetAction: false,
+          dashboardCanExecuteTargetAction: false,
         }),
       }),
     }));
@@ -181,7 +181,7 @@ describe('CanonicalPublicApiService', () => {
         canonicalEventTypes: expect.arrayContaining(['approval.request', 'runtime.status', 'receipt.ready']),
       }),
       safety: expect.objectContaining({
-        commandCenterCanExecute: false,
+        dashboardCanExecute: false,
       }),
     }));
   });

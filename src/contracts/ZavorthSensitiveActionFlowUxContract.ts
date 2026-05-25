@@ -66,7 +66,7 @@ export type ZavorthSensitiveActionFlowUxCard = {
   steps: ZavorthSensitiveActionFlowUxStep[];
   actions: ZavorthSensitiveActionFlowUxAction[];
   safety: {
-    commandCenterCanExecute: false;
+    dashboardCanExecute: false;
     policyBrokerRequired: true;
     previewBeforeApply: true;
     receiptAlwaysGenerated: true;
@@ -82,7 +82,7 @@ export type ZavorthSensitiveActionFlowUxSnapshot = {
   status: 'ready' | 'attention' | 'blocked';
   card: ZavorthSensitiveActionFlowUxCard;
   source: ZavorthSensitiveActionFlowSnapshot;
-  commandCenterProjection: {
+  dashboardProjection: {
     route: '/dashboard';
     renderMode: 'action-card';
     executionAuthority: false;

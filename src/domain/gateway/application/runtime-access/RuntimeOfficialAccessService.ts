@@ -12,7 +12,7 @@ import {
   RuntimeInstallJourneyService,
   type RuntimeInstallJourneyReport,
 } from './RuntimeInstallJourneyService.js';
-import { isWeakCommandCenterToken } from '../../../../services/CommandCenterTokenService.js';
+import { isWeakDashboardToken } from '../../../../services/DashboardTokenService.js';
 
 type AccessProbe = {
   ok: boolean;
@@ -174,7 +174,7 @@ export class RuntimeOfficialAccessService {
     source: 'env' | 'file' | 'missing';
     value: string;
   } {
-    if (this.webAuthToken && !isWeakCommandCenterToken(this.webAuthToken)) {
+    if (this.webAuthToken && !isWeakDashboardToken(this.webAuthToken)) {
       return {
         source: 'env',
         value: this.webAuthToken,
@@ -309,11 +309,11 @@ export class RuntimeOfficialAccessService {
     }
 
     if (manifest.remote.baseUrl && manifest.remote.requiresHttps) {
-      issues.push('A URL publica precisa usar HTTPS para a Control UI remota.');
+      issues.push('A URL publica precisa usar HTTPS para a Dashboard remota.');
     }
 
     if (tokenSource === 'missing') {
-      issues.push('ZAVORTH_WEB_AUTH_TOKEN ainda nao foi configurado para a Control UI remota.');
+      issues.push('ZAVORTH_WEB_AUTH_TOKEN ainda nao foi configurado para a Dashboard remota.');
     }
 
     if (manifest.remote.baseUrl && !manifest.remote.appUrl) {

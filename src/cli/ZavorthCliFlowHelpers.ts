@@ -408,7 +408,7 @@ export function formatCliHistoryHint(sessionId: string | null | undefined): stri
 
 export function formatCliReplPrompt(flags: Pick<ZavorthCliFlags, 'sessionId' | 'chatId'>): string {
   void flags;
-  return `${paintCliTone('❯', 'brand')} `;
+  return `${paintCliTone('>', 'brand')} `;
 }
 
 export function formatCliTaskDispatchOutput(

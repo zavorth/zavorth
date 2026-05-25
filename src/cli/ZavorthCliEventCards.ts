@@ -77,7 +77,7 @@ export function formatCliSuccessEventCard(options: Omit<CliEventCardOptions, 'to
   return formatCliEventCard({
     ...options,
     tone: 'success',
-    title: options.title || 'Pronto',
+    title: options.title || 'Done',
   });
 }
 
@@ -88,10 +88,10 @@ export function formatCliApprovalRequiredEventCard(options: {
 }): string {
   return formatCliEventCard({
     tone: 'warning',
-    title: 'Preciso da sua aprovacao',
-    body: options.body || 'O Zavorth precisa da sua autorizacao antes de continuar.',
+    title: 'Approval needed',
+    body: options.body || 'Zavorth needs your approval before continuing.',
     actions: options.command
-      ? [{ label: 'Aprovar', command: options.command }]
+      ? [{ label: 'Approve', command: options.command }]
       : [],
     hints: options.hints,
   });
@@ -104,10 +104,10 @@ export function formatCliRecoverableErrorEventCard(options: {
 }): string {
   return formatCliEventCard({
     tone: 'warning',
-    title: 'Algo travou',
-    body: options.body || 'Nao consegui concluir isso agora.',
+    title: 'Recoverable issue',
+    body: options.body || 'Zavorth could not finish this right now.',
     actions: options.command
-      ? [{ label: 'Tente isto', command: options.command }]
+      ? [{ label: 'Try this', command: options.command }]
       : [],
     hints: options.hints,
   });

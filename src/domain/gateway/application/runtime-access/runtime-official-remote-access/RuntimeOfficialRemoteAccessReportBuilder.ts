@@ -160,7 +160,7 @@ export class RuntimeOfficialRemoteAccessReportBuilder {
         command: official.manifest?.commands?.remote || 'npm run ops:remote',
         appUrl: official.remote.appUrl || official.manifest?.remote?.appUrl || null,
         label: 'Verificar agora',
-        description: 'Valida novamente a URL publica, o /control remoto e a auth web.',
+        description: 'Valida novamente a URL publica, o /dashboard remoto e a auth web.',
       },
       rollback: {
         id: 'rollback',
@@ -199,7 +199,7 @@ export class RuntimeOfficialRemoteAccessReportBuilder {
     const officialSteps: RuntimeOfficialRemoteAccessReport['paths'][number]['steps'] = [
       {
         id: 'probe-app',
-        title: 'Validar a Control UI remota',
+        title: 'Validar a Dashboard remota',
         status: official.remote.appProbe?.ok ? 'done' : 'pending',
         detail: official.remote.appProbe?.ok
           ? `GET ${official.remote.appProbe.targetUrl} respondeu ${official.remote.appProbe.statusCode}.`
@@ -214,7 +214,7 @@ export class RuntimeOfficialRemoteAccessReportBuilder {
         status: official.remote.authProbe?.ok ? 'done' : 'pending',
         detail: official.remote.authProbe?.ok
           ? `POST ${official.remote.authProbe.targetUrl} respondeu ${official.remote.authProbe.statusCode}.`
-          : 'Confira ZAVORTH_WEB_AUTH_TOKEN e a exposicao publica antes de abrir a Control UI remota.',
+          : 'Confira ZAVORTH_WEB_AUTH_TOKEN e a exposicao publica antes de abrir a Dashboard remota.',
         command: official.remote.ready
           ? (official.manifest?.commands?.remote || 'npm run ops:remote')
           : (official.manifest?.commands?.remoteGo || 'npm run ops:remote:go'),
@@ -224,10 +224,10 @@ export class RuntimeOfficialRemoteAccessReportBuilder {
     return [
       {
         id: 'official',
-        label: 'Caminho oficial da Control UI remota',
+        label: 'Caminho oficial da Dashboard remota',
         status: official.remote.ready ? ('ready' as const) : ('pending' as const),
         summary: official.remote.ready
-          ? `Control UI remota validada em ${official.remote.appUrl || official.manifest?.remote?.appUrl || official.manifest?.remote?.baseUrl || 'URL publica atual'}.`
+          ? `Dashboard remota validada em ${official.remote.appUrl || official.manifest?.remote?.appUrl || official.manifest?.remote?.baseUrl || 'URL publica atual'}.`
           : this.buildOfficialPendingSummary(official),
         command: official.remote.ready
           ? (official.manifest?.commands?.remote || 'npm run ops:remote')
@@ -258,7 +258,7 @@ export class RuntimeOfficialRemoteAccessReportBuilder {
     state: RuntimeOfficialRemoteRolloutState,
   ): string {
     if (official.remote.ready) {
-      return 'Acesso remoto oficial pronto; a Control UI remota ja consegue usar o runtime Zavorth.';
+      return 'Acesso remoto oficial pronto; a Dashboard remota ja consegue usar o runtime Zavorth.';
     }
 
     if (state.provider) {
@@ -285,7 +285,7 @@ export class RuntimeOfficialRemoteAccessReportBuilder {
     }
 
     if (official.remote.configured) {
-      return 'A URL publica oficial ja foi configurada, mas ainda falta validar o /control remoto e a autenticacao web.';
+      return 'A URL publica oficial ja foi configurada, mas ainda falta validar o /dashboard remoto e a autenticacao web.';
     }
 
     return 'A URL publica oficial ainda precisa ser configurada e validada.';

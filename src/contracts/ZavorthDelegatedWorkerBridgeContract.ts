@@ -180,7 +180,7 @@ export type ZavorthExecutorResultMappingReceipt = {
   };
 };
 
-export type ZavorthDelegatedWorkerCommandCenterProjection = {
+export type ZavorthDelegatedWorkerDashboardProjection = {
   title: 'Delegated Worker Bridge';
   status: ZavorthDelegatedWorkerBridgeStatus;
   tone: 'ready' | 'attention' | 'blocked';
@@ -207,7 +207,7 @@ export type ZavorthDelegatedWorkerBridgeSnapshot = {
   sourceWorkerLaunchGateReceipt: ZavorthSourceWorkerLaunchGateReceipt;
   lifecycleDryRunReceipt: ZavorthWorkerLifecycleDryRunReceipt;
   executorResultMappingReceipt: ZavorthExecutorResultMappingReceipt;
-  commandCenterProjection: ZavorthDelegatedWorkerCommandCenterProjection;
+  dashboardProjection: ZavorthDelegatedWorkerDashboardProjection;
   acceptanceMatrix: Array<{
     requirementId: string;
     status: 'passed' | 'failed';

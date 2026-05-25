@@ -72,7 +72,7 @@ export * from '../services/ZavorthTransactionConnectorRegistryService.js';
 export * from '../services/ZavorthTransactionCredentialRefService.js';
 export * from '../services/ZavorthTransactionRuntimeOrchestratorService.js';
 export * from '../services/ZavorthTransactionSurfaceGatewayService.js';
-export * from '../services/ZavorthTransactionCommandCenterProjectionService.js';
+export * from '../services/ZavorthTransactionDashboardProjectionService.js';
 export * from '../services/ZavorthTransactionCertificationService.js';
 export * from '../services/ZavorthTransactionLiveCandidateEnvelopeService.js';
 export * from '../services/ZavorthTransactionLiveActivationReviewService.js';

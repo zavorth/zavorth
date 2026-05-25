@@ -24,7 +24,7 @@ export type ZavorthEndToEndMissionFlowCertificationEntry = {
   surface: 'runtime-api' | 'mission' | 'approval' | 'receipt' | 'provider' | 'channel' | 'subagent-skill' | 'scheduler-perception-device' | 'events' | 'safety';
   evidence: string[];
   userVisible: boolean;
-  commandCenterCanExecute: false;
+  dashboardCanExecute: false;
   nextAction: string | null;
 };
 
@@ -54,7 +54,7 @@ export type ZavorthEndToEndMissionFlowPublicRuntimeCertificationSnapshot = {
         canonicalEventTypes: PublicRuntimeEvent['type'][];
       };
       safety: {
-        commandCenterCanExecute: false;
+        dashboardCanExecute: false;
         policyBrokerRequiredForMutableActions: true;
         rawSecretsSerialized: false;
       };
@@ -77,7 +77,7 @@ export type ZavorthEndToEndMissionFlowPublicRuntimeCertificationSnapshot = {
     subagentSkillReady: boolean;
     schedulerPerceptionDeviceReady: boolean;
     publicRuntimeCanBypassPolicy: false;
-    commandCenterCanExecute: false;
+    dashboardCanExecute: false;
     rawSecretsSerialized: false;
     workspaceMutationPerformed: false;
     externalIoPerformed: false;

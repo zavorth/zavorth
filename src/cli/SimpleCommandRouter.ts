@@ -13,10 +13,12 @@ export type ZavorthSimpleCommandPlan =
     topic: 'all' | 'setup' | 'daily';
   };
 
+import { renderCliScreen } from './ZavorthCliVisualSystem.js';
+
 const SIMPLE_COMMAND_ALIASES: Record<string, string[]> = {
-  chat: ['hatch'],
-  talk: ['hatch'],
-  converse: ['hatch'],
+  cha: ['chat'],
+  talk: ['chat'],
+  converse: ['chat'],
   setu: ['setup'],
   setuo: ['setup'],
   setups: ['setup'],
@@ -119,15 +121,13 @@ export function resolveZavorthSimpleCommand(rawArgs: string[]): ZavorthSimpleCom
 
 export function renderZavorthQaGuide(topic: 'all' | 'setup' | 'daily' = 'all'): string {
   const setupLines = [
-    'Setup QA',
     '1. Run: zavorth setup',
-    '2. Confirm the orange wordmark and vortex mark are visible.',
-    '3. Pick a provider, edit the model, capture a key, then run the live provider test.',
-    '4. Configure Telegram or another channel, then run the channel live test.',
-    '5. Apply setup only after the preview looks right.',
+    '2. Confirm the orange wordmark and first-light journey feel consistent.',
+    '3. Pick a provider, edit the model, capture a key, then run the live provider test if you have credentials.',
+    '4. Configure Telegram or another surface, then run the channel live test if you have credentials.',
+    '5. Apply setup only after the preview is clear.',
   ];
   const dailyLines = [
-    'Daily-use QA',
     '1. Run: zavorth',
     '2. Run: zavorth ready',
     '3. Run: zavorth ask "what is your current state?"',
@@ -135,24 +135,23 @@ export function renderZavorthQaGuide(topic: 'all' | 'setup' | 'daily' = 'all'): 
     '5. Run: zavorth doctor',
   ];
   const testLines = [
-    'Simple test commands',
-    '- zavorth test',
-    '- zavorth test setup',
-    '- zavorth test cli',
-    '- zavorth test runtime',
-    '- zavorth test security',
+    'zavorth test',
+    'zavorth test setup',
+    'zavorth test cli',
+    'zavorth test runtime',
+    'zavorth test security',
   ];
 
-  const sections = topic === 'setup'
-    ? [setupLines, testLines]
-    : topic === 'daily'
-      ? [dailyLines, testLines]
-      : [setupLines, dailyLines, testLines];
+  const panels = [
+    ...(topic === 'daily' ? [] : [{ title: 'Setup QA', tone: 'brand' as const, lines: setupLines }]),
+    ...(topic === 'setup' ? [] : [{ title: 'Daily-use QA', tone: 'success' as const, lines: dailyLines }]),
+    { title: 'Simple test commands', tone: 'muted' as const, lines: testLines },
+  ];
 
-  return [
-    'Zavorth QA Guide',
-    'Simple commands first. Advanced npm scripts stay available for maintainers.',
-    '',
-    ...sections.flatMap((section) => [...section, '']),
-  ].join('\n');
+  return renderCliScreen({
+    eyebrow: 'QA',
+    title: 'Zavorth QA Guide',
+    summary: 'Simple commands first. Maintainer scripts stay available behind the scenes.',
+    panels,
+  });
 }

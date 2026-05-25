@@ -49,6 +49,7 @@ export type AIGatewayNativeConvergenceAcceptance = {
 export type AIGatewayNativeConvergenceSnapshot = {
   schemaVersion: 1;
   phase: 'C8';
+  stage: 'C8';
   generatedAt: string;
   status: AIGatewayNativeConvergenceStatus;
   activeRunId: string | null;
@@ -122,6 +123,7 @@ export class AIGatewayNativeConvergenceService {
     return {
       schemaVersion: 1,
       phase: 'C8',
+      stage: 'C8',
       generatedAt: this.now().toISOString(),
       status,
       activeRunId: activeRun?.id || null,

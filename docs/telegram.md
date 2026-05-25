@@ -48,7 +48,7 @@ Commands are intentionally secondary. The expected daily path is natural languag
 ## Experience Core Cards
 
 When Telegram is connected to the Experience Core, these natural messages can
-return the same state shown in CLI and `/control`:
+return the same state shown in CLI and `/dashboard`:
 
 ```text
 status
@@ -77,7 +77,7 @@ Telegram callback buttons are backed by a server-side registry:
   callback ids across local process restarts without putting secrets or diffs
   into Telegram payloads;
 - expired or forbidden callbacks fail closed and ask the user to refresh status;
-- long diffs and logs are summarized in chat and reviewed in `/control` or CLI.
+- long diffs and logs are summarized in chat and reviewed in `/dashboard` or CLI.
 
 ## Safety
 

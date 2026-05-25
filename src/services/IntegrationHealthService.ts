@@ -439,7 +439,7 @@ export class IntegrationHealthService {
       case 'gemini':
         return Boolean(config.geminiApiKey || config.aiStudioApiKey);
       case 'openai':
-        return Boolean(config.openaiApiKey);
+        return Boolean(config.openaiApiKey || (config as any).openaiApiKeys?.length > 0);
       case 'minimax':
         return Boolean(config.minimaxApiKey);
       case 'openrouter':

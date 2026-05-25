@@ -158,7 +158,7 @@ export function formatIntegrationShowcasePartnerSurfaceSnapshot(
   lines.push(`- Smoke: ${snapshot.surface.smokeArtifact}`);
   lines.push(`- Matrix: ${snapshot.surface.matrixArtifact}`);
   lines.push(`- Partner surface: ${snapshot.surface.partnerSurfaceArtifact}`);
-  lines.push(`- Command Center: ${snapshot.surface.commandCenterPath}`);
+  lines.push(`- Dashboard: ${snapshot.surface.dashboardPath}`);
   lines.push(`- CLI: ${snapshot.surface.cliCommand}`);
 
   return lines.join('\n');

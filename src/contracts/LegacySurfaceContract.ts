@@ -35,7 +35,7 @@ export type LegacySurfaceFeatureDecision = {
 
 export type LegacySurfaceContainmentSnapshot = {
   contractVersion: typeof LEGACY_SURFACE_CONTAINMENT_VERSION;
-  canonicalEntry: '/control';
+  canonicalEntry: '/dashboard';
   frozenSurfaces: ['/app', '/classic'];
   generatedAt: string;
   summary: string;

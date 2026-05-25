@@ -1,9 +1,9 @@
 import { ZavorthPerceptionCrossSurfaceCertificationService } from '../../../src/services/ZavorthPerceptionCrossSurfaceCertificationService';
 import { ZavorthAgentGateway } from '../../../src/runtime/agent';
 import {
-  buildDashboardAdapterInputFromCommandCenterRuntimeProjection,
-  buildCommandCenterRuntimeProjectionFromZavorthAgentGatewaySnapshot,
-} from '../../../src/ai-gateway/app/(dashboard)/control/command-center/projections';
+  buildDashboardAdapterInputFromDashboardRuntimeProjection,
+  buildDashboardRuntimeProjectionFromZavorthAgentGatewaySnapshot,
+} from '../../../src/ai-gateway/app/(dashboard)/dashboard/dashboard/projections';
 
 function createIdFactory() {
   let index = 0;
@@ -11,7 +11,7 @@ function createIdFactory() {
 }
 
 describe('ZavorthPerceptionCrossSurfaceCertificationService', () => {
-  it('certifies perception/control surfaces with mock-safe fixtures', async () => {
+  it('certifies perception/dashboard surfaces with mock-safe fixtures', async () => {
     const service = new ZavorthPerceptionCrossSurfaceCertificationService({
       now: () => new Date('2026-05-11T12:00:00.000Z'),
     });
@@ -34,11 +34,11 @@ describe('ZavorthPerceptionCrossSurfaceCertificationService', () => {
     ]));
     expect(snapshot.surfaceProjections).toHaveLength(7);
     expect(snapshot.surfaceProjections.every((surface) => surface.fallbackTextAvailable)).toBe(true);
-    expect(snapshot.commandCenterProjection.surface.visualMutationApplied).toBe(false);
-    expect(snapshot.commandCenterProjection.pendingPlans).toEqual(expect.arrayContaining([
+    expect(snapshot.dashboardProjection.surface.visualMutationApplied).toBe(false);
+    expect(snapshot.dashboardProjection.pendingPlans).toEqual(expect.arrayContaining([
       expect.objectContaining({ status: 'approval-required', approvalRequired: true }),
     ]));
-    expect(snapshot.commandCenterProjection.artifacts.every((artifact) =>
+    expect(snapshot.dashboardProjection.artifacts.every((artifact) =>
       artifact.redacted === true && artifact.rawContentStored === false,
     )).toBe(true);
     expect(snapshot.liveCanary).toEqual(expect.objectContaining({
@@ -48,7 +48,7 @@ describe('ZavorthPerceptionCrossSurfaceCertificationService', () => {
     }));
   });
 
-  it('projects perception control into Command Center runtime projection without visual mutation', async () => {
+  it('projects perception control into Dashboard runtime projection without visual mutation', async () => {
     const service = new ZavorthPerceptionCrossSurfaceCertificationService({
       now: () => new Date('2026-05-11T12:05:00.000Z'),
     });
@@ -65,14 +65,14 @@ describe('ZavorthPerceptionCrossSurfaceCertificationService', () => {
       text: 'mostre a projecao de percepcao',
       requestedTools: [],
       metadata: {
-        perceptionControl: certification.commandCenterProjection,
+        perceptionControl: certification.dashboardProjection,
       },
     });
 
-    const projection = buildCommandCenterRuntimeProjectionFromZavorthAgentGatewaySnapshot(
+    const projection = buildDashboardRuntimeProjectionFromZavorthAgentGatewaySnapshot(
       gateway.buildSnapshot({ activeRunId: result.run.id }),
     );
-    const adapterInput = buildDashboardAdapterInputFromCommandCenterRuntimeProjection(projection);
+    const adapterInput = buildDashboardAdapterInputFromDashboardRuntimeProjection(projection);
 
     expect(projection.perceptionControl).toEqual(expect.objectContaining({
       source: 'ZavorthPerceptionCrossSurfaceCertificationService',

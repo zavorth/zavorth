@@ -103,7 +103,7 @@ function channelSnapshot(): GatewayChannelRegistrySnapshot {
     channels: [
       {
         id: 'web',
-        label: 'Command Center',
+        label: 'Dashboard',
         readiness: 'ready',
         configured: true,
         transport: 'http',

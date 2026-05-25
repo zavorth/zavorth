@@ -29,16 +29,16 @@ const rules = [
   }),
   ruleContainsAcross({
     id: 'agent-gateway-real-snapshot-consumer',
-    label: 'Command Center consumes Agent Gateway snapshot',
-    target: '/control can render ZavorthAgentGatewaySnapshot instead of rebuilding a parallel runtime',
+    label: 'Dashboard consumes Agent Gateway snapshot',
+    target: '/dashboard can render ZavorthAgentGatewaySnapshot instead of rebuilding a parallel runtime',
     files: [
-      'src/ai-gateway/app/(dashboard)/control/command-center/adapters/zavorthAgentGatewayCommandCenterAdapter.ts',
-      'src/ai-gateway/app/(dashboard)/control/command-center/projections/zavorthAgentGatewayRuntimeProjection.ts',
+      'src/ai-gateway/app/(dashboard)/dashboard/dashboard/adapters/zavorthAgentGatewayDashboardAdapter.ts',
+      'src/ai-gateway/app/(dashboard)/dashboard/dashboard/projections/zavorthAgentGatewayRuntimeProjection.ts',
     ],
     needles: [
       'ZavorthAgentGatewaySnapshot',
       'runObservatory',
-      'buildCommandCenterRuntimeProjectionFromZavorthAgentGatewaySnapshot',
+      'buildDashboardRuntimeProjectionFromZavorthAgentGatewaySnapshot',
     ],
   }),
   ruleContainsAcross({
@@ -58,15 +58,15 @@ const rules = [
   ruleContainsAcross({
     id: 'budget-route-observability-correlation',
     label: 'budget, route and observability are correlated',
-    target: 'agent runs carry budget/route correlation and Command Center reads it',
+    target: 'agent runs carry budget/route correlation and Dashboard reads it',
     files: [
       'src/runtime/agent/AgentRunLlmRouteReceipt.ts',
-      'src/ai-gateway/app/(dashboard)/control/command-center/adapters/dashboardCommandCenterRunObservability.ts',
+      'src/ai-gateway/app/(dashboard)/dashboard/dashboard/adapters/dashboardDashboardRunObservability.ts',
     ],
     needles: [
       'providerRouteBudgetCorrelation',
       'runBudget',
-      'resolveCommandCenterProviderRouteBudgetCorrelation',
+      'resolveDashboardProviderRouteBudgetCorrelation',
     ],
   }),
   ruleContainsAcross({

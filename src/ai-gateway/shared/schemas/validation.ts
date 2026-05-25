@@ -47,6 +47,7 @@ export const comboSchema = z.object({
       "random",
       "least-used",
       "cost-optimized",
+      "reset-aware",
     ])
     .default("priority"),
   nodes: z.array(comboNodeSchema).min(1, "At least one node is required"),

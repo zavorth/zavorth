@@ -181,7 +181,7 @@ export type ZavorthReplyPipelinePacket = {
   };
 };
 
-export type ZavorthChannelMessagingCommandCenterProjection = {
+export type ZavorthChannelMessagingDashboardProjection = {
   title: 'Channel Messaging Bridge';
   status: ZavorthChannelMessagingBridgeStatus;
   tone: 'ready' | 'attention' | 'blocked';
@@ -209,7 +209,7 @@ export type ZavorthChannelMessagingBridgeSnapshot = {
   blockedOutboundReplyPacket: ZavorthReplyPipelinePacket;
   credentialIsolationReceipts: ZavorthChannelCredentialIsolationReceipt[];
   pairingTrustReceipts: ZavorthChannelPairingTrustReceipt[];
-  commandCenterProjection: ZavorthChannelMessagingCommandCenterProjection;
+  dashboardProjection: ZavorthChannelMessagingDashboardProjection;
   acceptanceMatrix: Array<{
     requirementId: string;
     status: 'passed' | 'failed';

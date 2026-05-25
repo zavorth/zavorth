@@ -10,7 +10,7 @@ const capture = args.includes('--capture');
 const requireEvidence = args.includes('--require-evidence');
 const rootDir = path.resolve(process.cwd());
 const outDir = path.resolve(rootDir, '.tmp', 'zavorth-dashboard-visual-qa');
-const previewDir = path.resolve(rootDir, '.tmp', 'command-center-browser-preview');
+const previewDir = path.resolve(rootDir, '.tmp', 'dashboard-browser-preview');
 const previewHtml = path.resolve(previewDir, 'index.html');
 
 main().catch((error) => {
@@ -79,9 +79,9 @@ function ensurePreviewHtml(): void {
     process.execPath,
     [
       './node_modules/tsx/dist/cli.mjs',
-      'scripts/command-center-browser-preview.ts',
+      'scripts/dashboard-browser-preview.ts',
       '--fixture=all',
-      '--out=.tmp/command-center-browser-preview',
+      '--out=.tmp/dashboard-browser-preview',
     ],
     {
       cwd: rootDir,
@@ -90,6 +90,6 @@ function ensurePreviewHtml(): void {
     },
   );
   if (result.status !== 0 || !fs.existsSync(previewHtml)) {
-    throw new Error('Could not generate .tmp/command-center-browser-preview/index.html.');
+    throw new Error('Could not generate .tmp/dashboard-browser-preview/index.html.');
   }
 }

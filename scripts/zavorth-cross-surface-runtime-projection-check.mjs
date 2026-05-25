@@ -46,7 +46,7 @@ function ruleFilesExist() {
 
 function ruleMarkers() {
   const checks = [
-    ['src/contracts/ZavorthCrossSurfaceRuntimeProjectionContract.ts', ['ZAVORTH_CROSS_SURFACE_RUNTIME_PROJECTION_CONTRACT_VERSION', 'noDashboardVisualMutation', 'telegramNotPrivileged', 'commandCenterIsViewModelOnly']],
+    ['src/contracts/ZavorthCrossSurfaceRuntimeProjectionContract.ts', ['ZAVORTH_CROSS_SURFACE_RUNTIME_PROJECTION_CONTRACT_VERSION', 'noDashboardVisualMutation', 'telegramNotPrivileged', 'dashboardIsViewModelOnly']],
     ['src/services/ZavorthCrossSurfaceRuntimeProjectionService.ts', ['checkpoint-5-cross-surface-runtime-projection', 'ZavorthToolOrchestrationVerificationService', 'visualMutationApplied: false', 'BUTTON_SURFACES']],
     ['scripts/zavorth-cross-surface-runtime-projection.ts', ['--project', '--surfaces', '--evidence', '--json']],
     ['src/sdk/contracts.ts', ['ZavorthCrossSurfaceRuntimeProjectionContract']],
@@ -75,7 +75,7 @@ function runVerificationRequiredFixture() {
     && snapshot.safety.telegramNotPrivileged === true
     && snapshot.surfaceCards.some((card) => card.surface === 'telegram' && card.modes.includes('buttons') && card.actions.length > 0)
     && snapshot.surfaceCards.some((card) => card.surface === 'whatsapp' && card.modes.length === 1 && card.fallbackText.includes('/verify'))
-    && snapshot.commandCenterProjection.visualMutationApplied === false
+    && snapshot.dashboardProjection.visualMutationApplied === false
     && snapshot.surfaceCards.every((card) => card.status === snapshot.status && card.sameSemanticStatusAsRuntime === true));
 }
 

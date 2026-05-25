@@ -139,14 +139,14 @@ export class LocalCloudflareRolloutService {
         status: this.resolvePublicHostname() ? 'done' : 'pending',
         detail: this.resolvePublicHostname()
           ? `URL publica prevista: ${this.publicBaseUrl || `https://${this.cloudflareTunnelPublicHostname}`}.`
-          : 'Falta um hostname publico valido; o caminho mais curto e subir um quick tunnel local para o /control.',
+          : 'Falta um hostname publico valido; o caminho mais curto e subir um quick tunnel local para o /dashboard.',
         command: 'npm run ops:public:tunnel',
       },
       {
         id: 'validate-runtime',
         title: 'Validar plano B',
         status: 'pending',
-        detail: 'Depois de configurar Tunnel e Gateway, valide o runtime supervisionado local, a Control UI em /control e o profile recomendado para este host.',
+        detail: 'Depois de configurar Tunnel e Gateway, valide o runtime supervisionado local, a Dashboard em /dashboard e o profile recomendado para este host.',
         command: 'npm run build && npm run ops:access && npm run profile:status && npm run ops:local-cloudflare',
       },
     ];

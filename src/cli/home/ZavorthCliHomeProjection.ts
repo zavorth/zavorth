@@ -177,7 +177,7 @@ function buildNextActions(input: {
       ? { label: 'Review approvals', command: 'zavorth approve', detail: `${input.pendingPlans.length} pending` }
       : null,
     input.dashboard === 'available'
-      ? { label: 'Open Command Center', command: 'zavorth open', detail: 'visual control plane' }
+      ? { label: 'Open Dashboard', command: 'zavorth open', detail: 'visual control plane' }
       : { label: 'Check dashboard', command: 'zavorth doctor', detail: 'dashboard source missing' },
     input.telegram !== 'ready'
       ? { label: 'Configure Telegram', command: 'zavorth channels telegram', detail: input.telegram === 'needs-allowlist' ? 'add user allowlist' : 'optional remote ChatOps' }

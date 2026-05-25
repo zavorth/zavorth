@@ -44,7 +44,7 @@ export * from '../contracts/ZavorthTransactionConnectorContract.js';
 export * from '../contracts/ZavorthTransactionCredentialContract.js';
 export * from '../contracts/ZavorthTransactionRuntimeContract.js';
 export * from '../contracts/ZavorthTransactionSurfaceContract.js';
-export * from '../contracts/ZavorthTransactionCommandCenterContract.js';
+export * from '../contracts/ZavorthTransactionDashboardContract.js';
 export * from '../contracts/ZavorthTransactionCertificationContract.js';
 export * from '../contracts/ZavorthTransactionLiveCandidateContract.js';
 export * from '../contracts/ZavorthTransactionLiveActivationReviewContract.js';

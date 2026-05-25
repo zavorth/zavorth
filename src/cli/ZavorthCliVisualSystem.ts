@@ -1,7 +1,5 @@
 import {
-  isCliColorEnabled,
   padCliVisualText,
-  paintCliDivider,
   paintCliTone,
   stripCliAnsi,
   type CliVisualTone,
@@ -37,9 +35,8 @@ export function renderCliScreen(screen: CliVisualScreen): string {
     parts.push(renderHeroHeader(screen));
   } else {
     parts.push(paintCliTone(screen.title, 'brand'));
-    parts.push(paintCliDivider(Math.max(stripCliAnsi(screen.title).length, 12)));
     if (screen.summary) {
-      parts.push(screen.summary);
+      parts.push(paintCliTone(screen.summary, 'muted'));
     }
   }
 
@@ -53,15 +50,7 @@ export function renderCliScreen(screen: CliVisualScreen): string {
 function renderCliPanel(panel: CliVisualPanel, mode: 'hero' | 'compact'): string {
   const title = String(panel.title || '').trim() || 'Block';
   const lines = panel.lines.map((line) => String(line || '')).filter(Boolean);
-  const tone = panel.tone || 'neutral';
-  if (mode === 'compact') {
-    return [
-      paintCliTone(title, tone),
-      ...lines,
-    ].join('\n');
-  }
-
-  return renderBox(title, lines, tone);
+  return renderBox(title, lines, panel.tone || 'neutral', mode);
 }
 
 function renderHeroHeader(screen: CliVisualScreen): string {
@@ -73,20 +62,23 @@ function renderHeroHeader(screen: CliVisualScreen): string {
     subtitle,
     paintCliTone(commandLine, 'muted'),
   ].filter(Boolean);
-  return renderBox('Zavorth CLI', lines, 'brand');
+  return renderBox('Zavorth CLI', lines, 'brand', 'hero');
 }
 
-function renderBox(title: string, lines: string[], tone: CliVisualTone): string {
-  const width = HELP_PANEL_WIDTH;
-  const innerWidth = width - 4;
+function renderBox(title: string, lines: string[], tone: CliVisualTone, mode: 'hero' | 'compact'): string {
+  const columns = Number(process.stdout?.columns || 0);
+  const maxWidth = columns > 0 ? Math.max(48, Math.min(HELP_PANEL_WIDTH, columns - 4)) : HELP_PANEL_WIDTH;
+  const naturalWidth = Math.max(44, stripCliAnsi(title).length + 8, ...lines.map((line) => stripCliAnsi(line).length + 4));
+  const width = mode === 'compact' ? Math.min(maxWidth, naturalWidth) : maxWidth;
+  const inner = width - 4;
   const titleText = ` ${stripCliAnsi(title)} `;
-  const titleVisible = titleText.length;
-  const horizontal = '─';
-  const top = `╭─${paintCliTone(titleText, tone)}${horizontal.repeat(Math.max(0, width - titleVisible - 3))}╮`;
-  const bottom = `╰${horizontal.repeat(width - 2)}╯`;
-  const body = lines.flatMap((line) => wrapVisualLine(line, innerWidth))
-    .map((line) => `│ ${padCliVisualText(line, innerWidth)} │`);
-  return [top, ...body, bottom].join('\n');
+  const titleWidth = Math.min(stripCliAnsi(titleText).length, inner);
+  const top = `╭${paintCliTone(titleText.slice(0, titleWidth), tone)}${'─'.repeat(Math.max(0, width - titleWidth - 2))}╮`;
+  const body = lines.flatMap((line) => wrapVisualLine(line, inner))
+    .map((line) => `│ ${padCliVisualText(line, inner)} │`);
+  const bottom = `╰${'─'.repeat(width - 2)}╯`;
+  const paddedBody = mode === 'hero' ? ['', ...body, ''] : body;
+  return [top, ...paddedBody, bottom].join('\n');
 }
 
 function wrapVisualLine(line: string, width: number): string[] {

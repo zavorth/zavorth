@@ -83,7 +83,7 @@ export type ZavorthExternalCapabilityInventoryItem = {
   zavorthEquivalent: {
     contract: string;
     service: string;
-    commandCenterProjection: string;
+    dashboardProjection: string;
     publicName: string;
   };
   acceptanceGate: string;

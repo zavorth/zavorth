@@ -192,7 +192,7 @@ export type ZavorthNativeEngineFeatureSpec = {
   acceptanceGate: string;
   observability: {
     emitsReceipt: true;
-    commandCenterProjection: string;
+    dashboardProjection: string;
     noSourceRuntimeDependency: true;
   };
 };

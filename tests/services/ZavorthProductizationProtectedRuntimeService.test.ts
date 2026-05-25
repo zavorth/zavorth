@@ -21,7 +21,7 @@ describe('ZavorthProductizationProtectedRuntimeService', () => {
     expect(snapshot.templates).toHaveLength(5);
     expect(snapshot.firstRun.primaryCommands.onboard).toBe('zavorth onboard');
     expect(snapshot.mission.execution.policyBrokerRequired).toBe(true);
-    expect(snapshot.commandCenterProjection.executionAuthority).toBe(false);
+    expect(snapshot.dashboardProjection.executionAuthority).toBe(false);
     expect(snapshot.receipt.redaction.rawSecretsPresent).toBe(false);
     expect(JSON.stringify(snapshot)).not.toContain('sk-test-secret-should-not-leak');
   });

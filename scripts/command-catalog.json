@@ -75,10 +75,10 @@
       "command": "node scripts/zavorth-command.mjs",
       "description": "Comando canonico: command"
     },
-    "command-center:preview": {
+    "dashboard:preview": {
       "status": "canonical",
-      "command": "npx tsx scripts/command-center-browser-preview.ts",
-      "description": "Comando canonico: command-center:preview"
+      "command": "npx tsx scripts/dashboard-browser-preview.ts",
+      "description": "Comando canonico: dashboard:preview"
     },
     "command:list": {
       "status": "canonical",
@@ -157,58 +157,58 @@
     },
     "qa:ci:core": {
       "status": "canonical",
-      "command": "npm run build --silent && npm run qa:command-center --silent && npm run qa:architecture && npm run architecture:hardening && npm run ops:qa -- --require-pass",
+      "command": "npm run build --silent && npm run qa:dashboard --silent && npm run qa:architecture && npm run architecture:hardening && npm run ops:qa -- --require-pass",
       "description": "Comando canonico: qa:ci:core"
     },
-    "qa:command-center": {
+    "qa:dashboard": {
       "status": "canonical",
-      "command": "npm run qa:command-center-cockpit --silent && npm run qa:command-center-browser-preview --silent && npm run qa:command-center-real --silent && npm run qa:command-center-chat-visual --silent && npm run qa:command-center-composer-affordances --silent && npm run qa:command-center-response-cortex --silent && npm run ai-gateway:check --silent",
-      "description": "Comando canonico: qa:command-center"
+      "command": "npm run qa:dashboard-cockpit --silent && npm run qa:dashboard-browser-preview --silent && npm run qa:dashboard-real --silent && npm run qa:dashboard-chat-visual --silent && npm run qa:dashboard-composer-affordances --silent && npm run qa:dashboard-response-cortex --silent && npm run ai-gateway:check --silent",
+      "description": "Comando canonico: qa:dashboard"
     },
-    "qa:command-center-browser-preview": {
+    "qa:dashboard-browser-preview": {
       "status": "canonical",
-      "command": "npx tsx scripts/command-center-browser-preview.ts --fixture=all --out=.tmp/command-center-browser-preview && npx jest tests/ai-gateway/control/CommandCenterBrowserPreview.test.ts --runInBand",
-      "description": "Comando canonico: qa:command-center-browser-preview"
+      "command": "npx tsx scripts/dashboard-browser-preview.ts --fixture=all --out=.tmp/dashboard-browser-preview && npx jest tests/ai-gateway/dashboard/DashboardBrowserPreview.test.ts --runInBand",
+      "description": "Comando canonico: qa:dashboard-browser-preview"
     },
-    "qa:command-center-chat-visual": {
+    "qa:dashboard-chat-visual": {
       "status": "canonical",
-      "command": "npx tsx scripts/command-center-chat-visual-qa.ts --require-pass",
-      "description": "Comando canonico: qa:command-center-chat-visual"
+      "command": "npx tsx scripts/dashboard-chat-visual-qa.ts --require-pass",
+      "description": "Comando canonico: qa:dashboard-chat-visual"
     },
-    "qa:command-center-cockpit": {
+    "qa:dashboard-cockpit": {
       "status": "canonical",
-      "command": "npx jest tests/ai-gateway/control/CommandCenterCockpitQaGate.test.ts tests/ai-gateway/control/CommandCenterRuntimeFixtures.test.ts tests/ai-gateway/control/CommandCenterRuntimeProjection.test.ts tests/ai-gateway/control/CommandCenterFixturePreview.test.ts tests/ai-gateway/control/CommandCenterVisualPolish.test.ts tests/ai-gateway/control/CommandCenterFixtureScreenPolish.test.ts --runInBand",
-      "description": "Comando canonico: qa:command-center-cockpit"
+      "command": "npx jest tests/ai-gateway/dashboard/DashboardCockpitQaGate.test.ts tests/ai-gateway/dashboard/DashboardRuntimeFixtures.test.ts tests/ai-gateway/dashboard/DashboardRuntimeProjection.test.ts tests/ai-gateway/dashboard/DashboardFixturePreview.test.ts tests/ai-gateway/dashboard/DashboardVisualPolish.test.ts tests/ai-gateway/dashboard/DashboardFixtureScreenPolish.test.ts --runInBand",
+      "description": "Comando canonico: qa:dashboard-cockpit"
     },
-    "qa:command-center-composer-affordances": {
+    "qa:dashboard-composer-affordances": {
       "status": "canonical",
-      "command": "npx tsx scripts/command-center-composer-affordances-qa.ts --require-pass",
-      "description": "Comando canonico: qa:command-center-composer-affordances"
+      "command": "npx tsx scripts/dashboard-composer-affordances-qa.ts --require-pass",
+      "description": "Comando canonico: qa:dashboard-composer-affordances"
     },
-    "qa:command-center-live-chat": {
+    "qa:dashboard-live-chat": {
       "status": "canonical",
-      "command": "npx tsx scripts/command-center-live-chat-qa.ts --allow-send --require-live --require-pass",
-      "description": "Comando canonico: qa:command-center-live-chat"
+      "command": "npx tsx scripts/dashboard-live-chat-qa.ts --allow-send --require-live --require-pass",
+      "description": "Comando canonico: qa:dashboard-live-chat"
     },
-    "qa:command-center-live-composer": {
+    "qa:dashboard-live-composer": {
       "status": "canonical",
-      "command": "npx tsx scripts/command-center-live-composer-affordances-qa.ts --allow-send --require-live --require-pass",
-      "description": "Comando canonico: qa:command-center-live-composer"
+      "command": "npx tsx scripts/dashboard-live-composer-affordances-qa.ts --allow-send --require-live --require-pass",
+      "description": "Comando canonico: qa:dashboard-live-composer"
     },
-    "qa:command-center-live-visual": {
+    "qa:dashboard-live-visual": {
       "status": "canonical",
-      "command": "npx tsx scripts/command-center-live-visual-qa.ts --require-pass",
-      "description": "Comando canonico: qa:command-center-live-visual"
+      "command": "npx tsx scripts/dashboard-live-visual-qa.ts --require-pass",
+      "description": "Comando canonico: qa:dashboard-live-visual"
     },
-    "qa:command-center-real": {
+    "qa:dashboard-real": {
       "status": "canonical",
-      "command": "npx tsx scripts/command-center-real-flow-qa.ts --require-pass && npx jest tests/ai-gateway/control/CommandCenterVisualRealQa.test.ts --runInBand",
-      "description": "Comando canonico: qa:command-center-real"
+      "command": "npx tsx scripts/dashboard-real-flow-qa.ts --require-pass && npx jest tests/ai-gateway/dashboard/DashboardVisualRealQa.test.ts --runInBand",
+      "description": "Comando canonico: qa:dashboard-real"
     },
-    "qa:command-center-response-cortex": {
+    "qa:dashboard-response-cortex": {
       "status": "canonical",
-      "command": "npx jest tests/ai-gateway/control/CommandCenterResponseCortexQa.test.ts --runInBand",
-      "description": "Comando canonico: qa:command-center-response-cortex"
+      "command": "npx jest tests/ai-gateway/dashboard/DashboardResponseCortexQa.test.ts --runInBand",
+      "description": "Comando canonico: qa:dashboard-response-cortex"
     },
     "qa:productization": {
       "status": "canonical",
