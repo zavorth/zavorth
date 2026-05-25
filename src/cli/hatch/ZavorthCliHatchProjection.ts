@@ -126,7 +126,7 @@ function buildNextActions(
   }
   if (status === 'needs_setup') {
     return [
-      { label: 'Run Setup Studio', command: 'zavorth setup', detail: 'provider, model and trust mode' },
+      { label: 'Run First Light', command: 'zavorth setup', detail: 'provider, model and trust mode' },
       { label: 'Recheck readiness', command: 'zavorth hatch', detail: 'after setup' },
     ];
   }

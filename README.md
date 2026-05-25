@@ -125,7 +125,7 @@ keep the receipt.
 
 | Command | Purpose |
 | --- | --- |
-| `zavorth setup` | Guided Setup Studio for provider, model, channels, Mnemos, and safety. |
+| `zavorth setup` | Guided First Light flow for provider, model, channels, Mnemos, and safety. |
 | `zavorth start` | Start or resume the local runtime and make `/dashboard` available. |
 | `zavorth open` | Open the local Dashboard with the current access token. |
 | `zavorth ready` | One command operator readiness check. |

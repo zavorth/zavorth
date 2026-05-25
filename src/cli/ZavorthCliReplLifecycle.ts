@@ -39,6 +39,17 @@ export async function runZavorthCliRepl(params: {
 }): Promise<number> {
   const { flags, readlineFactory, writer, runOnce } = params;
   const rl = readlineFactory();
+  let interrupted = false;
+  if (typeof (rl as any).on === 'function') {
+    (rl as any).on('SIGINT', () => {
+      interrupted = true;
+      try {
+        rl.close();
+      } catch {
+        // readline may already be closing after Ctrl+C.
+      }
+    });
+  }
   writer.line(params.welcomeText || formatCliChatWelcome());
 
   if ('history' in rl && Array.isArray((rl as any).history)) {
@@ -50,6 +61,9 @@ export async function runZavorthCliRepl(params: {
     while (true) {
       const line = await readCliReplQuestion(rl, formatCliReplPrompt(currentFlags));
       if (line === null) {
+        if (interrupted) {
+          writer.line('\nSession closed. Nothing was changed.');
+        }
         return 0;
       }
       const normalized = normalizeCliInput(line);
@@ -97,6 +111,7 @@ export async function runZavorthCliRepl(params: {
         throw error;
       }
       if ((normalized === 'quit' || normalized === 'exit') && result.ok) {
+        writer.line('Session closed. Nothing was changed.');
         return 0;
       }
     }

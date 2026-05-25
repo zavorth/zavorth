@@ -2,11 +2,11 @@ import { formatZavorthGoReport } from '../../src/cli/ZavorthCliGoRenderer';
 import { formatCliHelp } from '../../src/cli/ZavorthCliSurfaceHelpers';
 
 describe('Zavorth onboarding standardization', () => {
-  it('documents setup as the Setup Studio entrypoint', () => {
+  it('documents setup as the First Light entrypoint', () => {
     const help = formatCliHelp('onboard');
 
     expect(help).toContain('zavorth setup');
-    expect(help).toContain('Setup Studio');
+    expect(help).toContain('First Light');
     expect(help).toContain('zavorth onboard --dry-run');
     expect(help).toContain('zavorth ready');
     expect(help).toContain('zavorth start');

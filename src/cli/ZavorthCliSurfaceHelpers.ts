@@ -411,7 +411,7 @@ const CLI_COMMAND_HELP_PAGES: Record<Exclude<CliHelpTopic, 'root'>, CliHelpPage>
           { command: 'zavorth start', summary: 'Start or resume the local runtime and open the dashboard.' },
           { command: 'zavorth open', summary: 'Open the local dashboard without rereading docs.' },
           { command: 'zavorth ready', summary: 'Check provider, channels, approvals and readiness.' },
-          { command: 'zavorth setup', summary: 'Run Setup Studio when configuration is missing.' },
+          { command: 'zavorth setup', summary: 'Run First Light when configuration is missing.' },
         ],
       },
     ],
@@ -491,8 +491,8 @@ const CLI_COMMAND_HELP_PAGES: Record<Exclude<CliHelpTopic, 'root'>, CliHelpPage>
   },
   onboard: {
     topic: 'onboard',
-    title: 'zavorth onboarding',
-    summary: 'Setup Studio: prepares workspace, provider, model, channels, Mnemos and trust in a guided flow.',
+    title: 'zavorth first light',
+    summary: 'First Light prepares workspace, provider, model, channels, Mnemos and trust in one guided flow.',
     sections: [
       {
         title: 'First run',

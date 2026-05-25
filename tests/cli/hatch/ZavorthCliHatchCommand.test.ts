@@ -89,7 +89,7 @@ describe('Zavorth CLI hatch', () => {
     expect(result.output).not.toContain('sk-secret-value');
   });
 
-  test('routes missing provider to Setup Studio', () => {
+  test('routes missing provider to First Light', () => {
     const root = createWorkspace();
 
     const result = runZavorthCliHatch({
