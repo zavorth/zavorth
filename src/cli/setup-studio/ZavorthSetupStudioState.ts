@@ -124,14 +124,14 @@ function buildChannelGuide(
       label: 'Dashboard',
       status: 'recommended',
       setupCommand: 'zavorth open',
-      detail: 'visual home for timeline, diffs, receipts and learning',
+      detail: 'visual home for timeline, diffs, evidence and learning',
     },
     {
       id: 'telegram',
       label: 'Telegram',
       status: configured.has('telegram') || plannedChannels.telegram !== 'skip' ? 'ready' : 'missing-config',
       setupCommand: 'zavorth setup --telegram-token <token> --telegram-users <id>',
-      detail: 'remote ChatOps with allowlist, approvals and short receipts',
+      detail: 'remote ChatOps with allowlist, approvals and short evidence',
     },
     {
       id: 'discord',
@@ -303,7 +303,7 @@ function buildSkillReadiness(projectRoot: string): ZavorthSetupStudioSkillReadin
     highlights: [
       'Effect Boundary governs tools before real effects',
       'Experience Core synchronizes CLI, dashboard and channels',
-      'Receipts and approvals remain the audit trail',
+      'Evidence and approvals remain the audit trail',
     ],
   };
 }

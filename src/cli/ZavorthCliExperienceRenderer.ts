@@ -1,4 +1,4 @@
-import type {
+﻿import type {
   ExperienceActionCard,
   ExperienceCommandResult,
   ExperienceDiffReview,
@@ -41,9 +41,18 @@ function renderActionCards(cards: ExperienceActionCard[] = []): string[] {
     return [
       `[${index + 1}] ${card.status} | ${card.risk} | ${sanitizeHumanCliText(card.title)}`,
       `    scope: ${sanitizeHumanCliText(card.scope || 'workspace')} | sandbox: ${sanitizeHumanCliText(card.sandbox || 'governed')}`,
-      ...actions.map((action) => `    ${sanitizeHumanCliText(action.label)} -> ${action.command}`),
+      ...actions.map((action) => `    ${normalizeActionLabel(action.label)} -> ${action.command}`),
     ];
   });
+}
+
+function normalizeActionLabel(label: string): string {
+  const normalized = sanitizeHumanCliText(label);
+  return normalized
+    .replace(/^Aprovar aprendizado$/i, 'Approve learning')
+    .replace(/^Rejeitar$/i, 'Reject')
+    .replace(/^Aprovar$/i, 'Approve')
+    .replace(/^Revisar$/i, 'Review');
 }
 
 function renderDiffReviews(reviews: ExperienceDiffReview[] = []): string[] {
@@ -76,7 +85,7 @@ function renderReasoning(snapshot: ExperienceSnapshot): string[] {
 function renderLlmBrain(snapshot: ExperienceSnapshot): string[] {
   const brain = snapshot.llmBrain;
   if (!brain) {
-    return ['No LLM brain snapshot yet. Start a governed LLM run to populate this view.'];
+    return ['No model loop snapshot yet. Start a model-backed run to populate this view.'];
   }
   return [
     `${brain.status} | ${brain.brainMode}`,
@@ -112,7 +121,7 @@ function renderZavorthPulse(snapshot: ExperienceSnapshot): string[] {
     sanitizeHumanCliText(pulse.headline),
     sanitizeHumanCliText(pulse.summary),
     `Best next action: ${sanitizeHumanCliText(pulse.bestNextAction.label)}${pulse.bestNextAction.command ? ` -> ${pulse.bestNextAction.command}` : ''}`,
-    `Pending: approvals ${pulse.pending.approvals} | learning ${pulse.pending.learning} | receipts ${pulse.pending.receipts}`,
+    `Pending: approvals ${pulse.pending.approvals} | learning ${pulse.pending.learning} | evidence ${pulse.pending.receipts}`,
     ...pulse.highlights.slice(0, 3).map((item) => `+ ${sanitizeHumanCliText(item)}`),
     ...pulse.risks.slice(0, 3).map((item) => `! ${sanitizeHumanCliText(item)}`),
   ];
@@ -168,7 +177,7 @@ export function formatExperienceHome(snapshot: ExperienceSnapshot): string {
   const firstActionCard = pendingActions[0] || null;
   const attentionLines = [
     provider === 'not configured' ? 'Provider is not configured. Ask me to connect Gemini, OpenRouter, Ollama or another provider.' : '',
-    pendingApprovals > 0 ? `${pendingApprovals} approval(s) pending. I can show risk, scope and receipt preview before you decide.` : '',
+    pendingApprovals > 0 ? `${pendingApprovals} approval(s) pending. I can show risk, scope and evidence preview before you decide.` : '',
     pendingLearning > 0 ? `${pendingLearning} learning item(s) waiting -> zavorth learn` : '',
     snapshot.health.status === 'blocked' ? 'Runtime is blocked. I can inspect the failure and propose a narrow repair.' : '',
     firstActionCard ? `Latest: ${sanitizeHumanCliText(firstActionCard.title)} (${firstActionCard.risk})` : '',
@@ -196,7 +205,7 @@ export function formatExperienceHome(snapshot: ExperienceSnapshot): string {
       tone: 'muted',
       lines: [
         `Status: zavorth ready | Provider: ${formatCliValue(provider)} | Model: ${formatCliValue(model)}`,
-        `Approvals: zavorth approve | Receipts: ${snapshot.receipts.length}`,
+        `Approvals: zavorth approve | Evidence: ${snapshot.receipts.length}`,
         `Style: ${formatHomeProfileLabel(snapshot.responseProfile?.label)} | Details: zavorth inspect`,
         'Full help: zavorth --help',
       ],
@@ -226,7 +235,7 @@ export function formatExperienceAgentSession(snapshot: ExperienceSnapshot): stri
   const sessionId = sanitizeHumanCliText(snapshot.sessionId || 'main');
   const configured = provider !== 'not configured';
   const setupHint = provider === 'not configured'
-    ? 'Choose a model to unlock the full LLM agent loop.'
+    ? 'I can start by helping you choose a model.'
     : 'Tell me what you want to inspect, change, explain or automate.';
   const statusTone = health === 'ready' ? 'success' : health === 'blocked' ? 'danger' : 'warning';
   const providerTone = configured ? 'success' : 'warning';
@@ -243,13 +252,13 @@ export function formatExperienceAgentSession(snapshot: ExperienceSnapshot): stri
   const guidance = configured
     ? [
       `${paintCliTone('ready:', 'success')} Native tools are available when useful.`,
-      'Sensitive actions stay behind policy, approval, sandbox and receipts.',
+      'Sensitive actions stay behind policy, approval, sandbox and evidence.',
       'Try: review this repo, explain the gateway, fix failing tests.',
     ]
     : [
       `${paintCliTone('setup needed:', 'warning')} Provider and model are not configured yet.`,
       'Tell me which provider to use, choose a local provider, or paste a key only when I ask for it.',
-      'I will keep secrets redacted, test explicitly, and leave a setup receipt.',
+      'I will keep secrets redacted, test explicitly, and leave setup evidence.',
     ];
   const shortcuts = configured
     ? [
@@ -264,33 +273,42 @@ export function formatExperienceAgentSession(snapshot: ExperienceSnapshot): stri
       renderAgentShortcut('approve', pendingApprovals > 0 ? 'review pending governed work' : 'review governed work'),
       renderAgentShortcut('doctor', 'diagnose local setup'),
     ];
-  return [
-    `${paintCliTone('o', 'success')} ${paintCliTone('Runtime connected', 'success')}`,
-    `${paintCliTone('zavorth', 'brand')} ${paintCliTone('agent', 'muted')} - ${paintCliTone('session', 'muted')} ${sessionId}`,
-    '',
+  const header = [
+    `${paintCliTone('Zavorth', 'brand')} ${paintCliTone('agent', 'muted')} ${paintCliTone('-', 'muted')} ${paintCliTone('session', 'muted')} ${sessionId}`,
     `${paintCliTone('workspace', 'muted')} ${workspace}`,
     statusLine,
+  ].join('\n');
+  const intro = [
+    `${paintCliTone("Hi, I'm Zavorth.", 'brand')} ${paintCliTone('Say what you want done; I will keep sensitive work behind approval.', 'muted')}`,
+    setupHint,
+  ].join('\n');
+  const brainLines = snapshot.agentMaturity
+    ? [
+      `gateway ${snapshot.agentMaturity.gateway.policy}`,
+      `execution ${snapshot.agentMaturity.execution.strategy}`,
+      'learning reversible after successful runs',
+    ]
+    : [];
+
+  return [
+    header,
     '',
-    `${paintCliTone("Hi, I'm Zavorth.", 'brand')} ${paintCliTone('Tell me what to do, and I will show risk before sensitive work.', 'muted')}`,
+    intro,
     '',
     guidance.map((line) => `${paintCliTone('>', 'brand')} ${line}`).join('\n'),
     '',
-    setupHint,
-    '',
     renderAgentShortcutPanel(shortcuts),
-    snapshot.agentMaturity
+    brainLines.length
       ? [
         '',
-        paintCliTone('agent loop', 'muted'),
-        `  ${paintCliTone('gateway', 'brand')} ${paintCliTone(snapshot.agentMaturity.gateway.policy, 'muted')}`,
-        `  ${paintCliTone('execution', 'brand')} ${paintCliTone(snapshot.agentMaturity.execution.strategy, 'muted')}`,
-        `  ${paintCliTone('learning', 'brand')} ${paintCliTone('reversible candidates after successful runs', 'muted')}`,
+        paintCliTone('loop', 'muted'),
+        ...brainLines.map((line) => `  ${paintCliTone(line, 'muted')}`),
       ].join('\n')
       : '',
     '',
-    paintCliTone(`local ready | session ${sessionId} | help /help`, 'muted'),
+    paintCliTone(`ready | help /help | quit /exit`, 'muted'),
     paintCliDivider(getAgentSessionWidth()),
-  ].join('\n');
+  ].filter(Boolean).join('\n');
 }
 
 function getAgentSessionWidth(): number {
@@ -316,19 +334,6 @@ function renderAgentShortcutPanel(lines: string[]): string {
   ].join('\n');
 }
 
-function renderAgentShellBox(title: string, lines: string[]): string {
-  const width = 74;
-  const innerWidth = width - 4;
-  const titleText = ` ${title} `;
-  const top = `╭─${paintCliTone(titleText, 'brand')}${'─'.repeat(Math.max(0, width - titleText.length - 3))}╮`;
-  const body = lines.map((line) => `│ ${line}${' '.repeat(Math.max(0, innerWidth - visibleCliLength(line)))} │`);
-  const bottom = `╰${'─'.repeat(width - 2)}╯`;
-  return [top, ...body, bottom].join('\n');
-}
-
-function visibleCliLength(value: string): number {
-  return String(value || '').replace(/\x1b\[[0-9;]*m/gu, '').length;
-}
 
 export function formatExperienceHud(snapshot: ExperienceSnapshot): string {
   const panels: CliVisualPanel[] = [
@@ -347,7 +352,7 @@ export function formatExperienceHud(snapshot: ExperienceSnapshot): string {
       lines: renderResponseProfile(snapshot),
     },
     {
-      title: 'Cards',
+      title: 'Pending actions',
       tone: (snapshot.actionCards || []).length > 0 ? 'warning' : 'success',
       lines: renderActionCards(snapshot.actionCards),
     },
@@ -357,7 +362,7 @@ export function formatExperienceHud(snapshot: ExperienceSnapshot): string {
       lines: renderHudShortcuts(snapshot),
     },
     {
-      title: 'LLM brain',
+      title: 'Model loop',
       tone: snapshot.llmBrain?.status === 'blocked'
         ? 'danger'
         : snapshot.llmBrain?.status === 'attention'
@@ -409,15 +414,15 @@ export function formatExperienceHud(snapshot: ExperienceSnapshot): string {
       tone: 'neutral',
       lines: [
         ...renderReasoning(snapshot),
-        'Note: raw model reasoning stays private; this summary shows decisions, risks and operational evidence.',
+        'Raw model reasoning stays private; this summary shows decisions, risks and evidence.',
       ],
     },
   ];
 
   return renderCliScreen({
-    eyebrow: 'Daily Experience Control Plane',
+    eyebrow: 'Daily terminal',
     title: 'Zavorth HUD',
-    summary: 'Same state as /dashboard and channels: timeline, approvals, diff, sandbox, receipts and learning.',
+    summary: 'Chat, approvals, diff, sandbox, evidence and learning in one keyboard view.',
     panels,
   });
 }
@@ -446,7 +451,7 @@ export function formatExperiencePulse(snapshot: ExperienceSnapshot): string {
           ? [
               `Approvals: ${pulse.pending.approvals}`,
               `Learning: ${pulse.pending.learning}`,
-              `Receipts: ${pulse.pending.receipts}`,
+              `Evidence: ${pulse.pending.receipts}`,
               `Profile: ${pulse.profile.label}`,
             ]
           : ['No Pulse available.'],
@@ -503,9 +508,15 @@ export function formatExperienceDiffs(snapshot: ExperienceSnapshot): string {
 export function formatExperienceCommandResult(result: ExperienceCommandResult): string {
   const replyText = result.replies.map((reply) => sanitizeHumanCliText(reply.text)).filter(Boolean).join('\n\n');
   const actionCards = result.snapshot.actionCards || [];
-  const hasActionCards = actionCards.length > 0;
-  const needsAttention = result.plan.requiresApproval || hasActionCards;
   const showDiagnostics = process.argv.includes('--debug') || process.argv.includes('--verbose') || process.env.ZAVORTH_DEBUG === '1';
+  const visibleActionCards = showDiagnostics || result.plan.requiresApproval || !result.ok
+    ? actionCards
+    : actionCards.filter((card) =>
+      card.source === 'approval'
+      || card.risk === 'danger'
+      || card.status === 'blocked');
+  const hasActionCards = visibleActionCards.length > 0;
+  const needsAttention = result.plan.requiresApproval || hasActionCards;
   const nextAction = result.plan.requiresApproval
     ? sanitizeHumanCliText(result.plan.nextSafeAction)
     : hasActionCards
@@ -534,7 +545,7 @@ export function formatExperienceCommandResult(result: ExperienceCommandResult): 
 
   if (showDiagnostics && result.receipts.length > 0) {
     panels.push({
-      title: 'Receipts',
+      title: 'Evidence',
       tone: 'muted',
       lines: result.receipts.slice(0, 3).map((receipt) => `${receipt.status} | ${sanitizeHumanCliText(receipt.title)}`),
     });
@@ -542,21 +553,21 @@ export function formatExperienceCommandResult(result: ExperienceCommandResult): 
     panels.push({
       title: 'Evidence',
       tone: 'muted',
-      lines: ['Receipt saved. Use --debug to show receipt details.'],
+      lines: ['Evidence saved. Use --debug to show details.'],
     });
   }
 
-  if (actionCards.length > 0) {
+  if (visibleActionCards.length > 0) {
     panels.push({
-      title: actionCards.some((card) => card.source !== 'approval') ? 'Action cards' : 'Approvals',
+      title: visibleActionCards.some((card) => card.source !== 'approval') ? 'Pending actions' : 'Approvals',
       tone: 'warning',
-      lines: renderActionCards(actionCards),
+      lines: renderActionCards(visibleActionCards),
     });
   }
 
   if (result.snapshot.llmBrain && (showDiagnostics || result.snapshot.llmBrain.status !== 'passed')) {
     panels.push({
-      title: 'LLM brain',
+      title: 'Model loop',
       tone: result.snapshot.llmBrain.status === 'blocked'
         ? 'danger'
         : result.snapshot.llmBrain.status === 'attention'
@@ -587,7 +598,7 @@ export function formatExperienceCommandResult(result: ExperienceCommandResult): 
   const rendered = renderCliScreen({
     eyebrow: 'Zavorth',
     title: result.ok ? 'Done' : 'Blocked',
-    summary: result.error || 'Request processed with the governed runtime.',
+    summary: result.error || 'Request processed safely.',
     panels,
     mode: 'hero',
     showWordmark: false,
@@ -629,3 +640,4 @@ export function formatExperienceLearning(snapshot: ExperienceSnapshot): string {
     ],
   });
 }
+

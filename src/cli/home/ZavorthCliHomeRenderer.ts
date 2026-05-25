@@ -67,7 +67,7 @@ function buildAttentionLines(snapshot: ZavorthCliHomeSnapshot): string[] {
     lines.push('Provider is not configured. Ask me to connect one, or open guided setup.');
   }
   if (snapshot.approvals.pending > 0) {
-    lines.push(`${snapshot.approvals.pending} approval(s) pending. Review risk, scope and receipt before deciding.`);
+    lines.push(`${snapshot.approvals.pending} approval(s) pending. Review risk, scope and evidence before deciding.`);
   }
   if (snapshot.safety.effectBoundary !== 'ready') {
     lines.push('Safety boundary needs repair. I can inspect the failure and propose a narrow fix.');

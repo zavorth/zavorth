@@ -13,7 +13,7 @@ export function renderZavorthCliHud(snapshot: ZavorthCliHudSnapshot): string {
 
   if (snapshot.mode !== 'review') {
     panels.push({
-      title: 'Zavorth Live Cockpit',
+      title: 'Zavorth live',
       accent: snapshot.home.status === 'blocked' ? 'rose' : snapshot.home.status === 'warning' ? 'amber' : 'cyan',
       lines: [
         snapshot.home.headline,
@@ -22,19 +22,19 @@ export function renderZavorthCliHud(snapshot: ZavorthCliHudSnapshot): string {
           { key: 'provider', value: snapshot.home.provider.configured ? `${snapshot.home.provider.id || 'configured'} ${snapshot.home.provider.model || ''}`.trim() : 'missing', accent: snapshot.home.provider.configured ? 'emerald' : 'amber' },
           { key: 'dashboard', value: snapshot.home.runtime.dashboard },
           { key: 'telegram', value: snapshot.home.channels.telegram },
-          { key: 'effect boundary', value: snapshot.home.safety.effectBoundary, accent: snapshot.home.safety.effectBoundary === 'ready' ? 'emerald' : 'rose' },
+          { key: 'safety', value: snapshot.home.safety.effectBoundary, accent: snapshot.home.safety.effectBoundary === 'ready' ? 'emerald' : 'rose' },
           { key: 'fallback mode', value: snapshot.safety.fallbackTextMode ? 'text' : 'interactive-ready' },
           { key: 'visual mode', value: snapshot.tty ? 'keyboard cockpit' : 'read-only terminal' },
         ]).split('\n'),
         '',
-        'Daily flow: ask -> preview -> approve -> receipt.',
+        'Daily flow: ask -> preview -> approve -> evidence.',
       ],
     });
   }
 
   if (snapshot.planQueue.length > 0) {
     panels.push({
-      title: 'Plan Queue',
+      title: 'Pending work',
       accent: 'cyan',
       lines: snapshot.planQueue.slice(0, 9).flatMap((plan) => [
         `${snapshot.selectedIndex === plan.index ? '>' : ' '} [${plan.index}] ${plan.title} (${plan.riskLevel})`,
@@ -63,7 +63,7 @@ export function renderZavorthCliHud(snapshot: ZavorthCliHudSnapshot): string {
   }
 
   panels.push({
-    title: snapshot.mode === 'review' ? 'Review Keys' : 'Command Deck',
+      title: snapshot.mode === 'review' ? 'Review keys' : 'Keys',
     accent: 'violet',
     lines: snapshot.shortcuts.flatMap((shortcut) => [
       `[${shortcut.key}] ${shortcut.label} - ${shortcut.requiresConfirmation ? 'double-confirm' : 'direct'}`,
@@ -81,7 +81,7 @@ export function renderZavorthCliHud(snapshot: ZavorthCliHudSnapshot): string {
     actions: buildActions(snapshot),
     notice: {
       title: 'Shortcut safety',
-      body: 'The HUD can approve, reject or defer a plan only after explicit double confirmation. It never applies changes to the host.',
+      body: 'The HUD can approve, reject or defer work only after explicit double confirmation. It never applies host changes by itself.',
     },
   });
 }

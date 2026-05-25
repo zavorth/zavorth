@@ -300,10 +300,10 @@ const CLI_COMMAND_HELP_PAGES: Record<Exclude<CliHelpTopic, 'root'>, CliHelpPage>
           { command: 'zavorth hud', summary: 'Alias for the same daily TUI.' },
           { command: 'zavorth tui --json', summary: 'Export the stable runtime TUI contract.' },
           { command: 'zavorth hud review', summary: 'Focused approval queue and decision mode.' },
-          { command: 'zavorth hud guide', summary: 'Guided approval flow: select, inspect, diff, decide, receipt.' },
+          { command: 'zavorth hud guide', summary: 'Guided approval flow: select, inspect, diff, decide, evidence.' },
           { command: 'zavorth hud --action approve --yes', summary: 'Approve a plan only; never applies host changes.' },
           { command: 'zavorth hud --action reject --yes', summary: 'Reject and block a plan with audit.' },
-          { command: 'zavorth hud --action defer --yes', summary: 'Defer a plan and keep a receipt.' },
+          { command: 'zavorth hud --action defer --yes', summary: 'Defer a plan and keep evidence.' },
         ],
       },
       {
@@ -321,7 +321,7 @@ const CLI_COMMAND_HELP_PAGES: Record<Exclude<CliHelpTopic, 'root'>, CliHelpPage>
     ],
     notesTitle: 'Safety',
     notes: [
-      'The daily TUI routes actions. Sensitive work still requires preview, approval and receipts.',
+      'The daily TUI routes actions. Sensitive work still requires preview, approval and evidence.',
     ],
   },
   hatch: {
@@ -355,7 +355,7 @@ const CLI_COMMAND_HELP_PAGES: Record<Exclude<CliHelpTopic, 'root'>, CliHelpPage>
     ],
     notesTitle: 'Safety',
     notes: [
-      'Hatch does not apply host mutations. Sensitive actions still use policy, preview, approval and receipts.',
+      'Hatch does not apply host mutations. Sensitive actions still use policy, preview, approval and evidence.',
     ],
   },
   quickstart: {
@@ -418,7 +418,7 @@ const CLI_COMMAND_HELP_PAGES: Record<Exclude<CliHelpTopic, 'root'>, CliHelpPage>
     notesTitle: 'Safety',
     notes: [
       'Start does not remove approvals or publish to external channels.',
-      'Sensitive actions still use preview, approval and receipt.',
+      'Sensitive actions still use preview, approval and evidence.',
     ],
   },
   demo: {
@@ -534,7 +534,7 @@ const CLI_COMMAND_HELP_PAGES: Record<Exclude<CliHelpTopic, 'root'>, CliHelpPage>
       {
         title: 'Use when',
         entries: [
-          { summary: 'You want the simple Home: Inbox, Tasks, Approvals, Receipts and Connectors.' },
+          { summary: 'You want the simple Home: Inbox, Tasks, Approvals, Evidence and Connectors.' },
           { summary: 'You want to resume Zavorth after setup without memorizing internal names.' },
         ],
       },
@@ -549,7 +549,7 @@ const CLI_COMMAND_HELP_PAGES: Record<Exclude<CliHelpTopic, 'root'>, CliHelpPage>
         title: 'After that',
         entries: [
           { command: 'zavorth chat', summary: 'Talk in the terminal.' },
-          { command: 'zavorth receipts', summary: 'See receipts for what happened or was blocked.' },
+          { command: 'zavorth receipts', summary: 'See evidence for what happened or was blocked.' },
           { command: 'zavorth status', summary: 'Confirm runtime readiness.' },
         ],
       },
@@ -811,7 +811,7 @@ const CLI_COMMAND_HELP_PAGES: Record<Exclude<CliHelpTopic, 'root'>, CliHelpPage>
   receipts: {
     topic: 'receipts',
     title: 'zavorth receipts',
-    summary: 'Shows a human visual receipt plus advanced trust details for the current mission.',
+    summary: 'Shows human-readable evidence plus advanced trust details for the current mission.',
     sections: [
       {
         title: 'Use when',
@@ -823,15 +823,15 @@ const CLI_COMMAND_HELP_PAGES: Record<Exclude<CliHelpTopic, 'root'>, CliHelpPage>
       {
         title: 'Commands',
         entries: [
-          { command: 'zavorth receipts', summary: 'Show the current receipt projection.' },
-          { command: 'zavorth receipts --advanced', summary: 'Show advanced trust-plane receipt details.' },
-          { command: 'zavorth receipts --json', summary: 'Return the visual receipt contract as JSON.' },
+          { command: 'zavorth receipts', summary: 'Show the current evidence projection.' },
+          { command: 'zavorth receipts --advanced', summary: 'Show advanced trust details.' },
+          { command: 'zavorth receipts --json', summary: 'Return the evidence contract as JSON.' },
         ],
       },
     ],
     notesTitle: 'Redaction',
     notes: [
-      'Receipts must keep raw secrets out and represent credentials through SecretRef-style metadata.',
+      'Evidence must keep raw secrets out and represent credentials through SecretRef-style metadata.',
     ],
   },
   advanced: {
@@ -866,7 +866,7 @@ const CLI_COMMAND_HELP_PAGES: Record<Exclude<CliHelpTopic, 'root'>, CliHelpPage>
       {
         title: 'Nodes and devices',
         entries: [
-          { command: 'zavorth help nodes', summary: 'Show pairing, queue, capabilities and Node Mesh diagnostics.' },
+          { command: 'zavorth help nodes', summary: 'Show pairing, queue, abilities and Node Mesh diagnostics.' },
           { command: 'zavorth nodes list', summary: 'List connected companions and devices.' },
           { command: 'zavorth nodes doctor', summary: 'Diagnose one node or the mesh.' },
         ],
@@ -875,8 +875,8 @@ const CLI_COMMAND_HELP_PAGES: Record<Exclude<CliHelpTopic, 'root'>, CliHelpPage>
         title: 'Plans and catalogs',
         entries: [
           { command: 'zavorth memory status', summary: 'Show layered memory and budgets.' },
-          { command: 'zavorth capabilities list', summary: 'List capabilities, risk, permissions, fallbacks and MCP allowlist.' },
-          { command: 'zavorth discover "<request>" [--json]', summary: 'Discover suggested capabilities and tools without executing anything.' },
+          { command: 'zavorth capabilities list', summary: 'List abilities, risk, permissions, fallbacks and MCP allowlist.' },
+          { command: 'zavorth discover "<request>" [--json]', summary: 'Discover suggested abilities and tools without executing anything.' },
           { command: 'zavorth preview "<request>" [--json]', summary: 'Preview plan, risk, approvals and impact without running tools.' },
           { command: 'zavorth safety "<request>" [--json]', summary: 'Explain high-risk blocks and safe alternatives without leaking secrets or sensitive paths.' },
           { command: 'zavorth plugins list', summary: 'List integrations, skills, MCPs and collections.' },
@@ -980,7 +980,7 @@ const CLI_COMMAND_HELP_PAGES: Record<Exclude<CliHelpTopic, 'root'>, CliHelpPage>
         entries: [
           { command: 'zavorth nodes list [--json]', summary: 'List connected companions and devices.' },
           { command: 'zavorth nodes profiles [--json]', summary: 'Show supported device profiles.' },
-          { command: 'zavorth nodes capabilities [--json]', summary: 'Show available capabilities by node.' },
+          { command: 'zavorth nodes capabilities [--json]', summary: 'Show available abilities by node.' },
         ],
       },
       {
@@ -1020,11 +1020,11 @@ const CLI_COMMAND_HELP_PAGES: Record<Exclude<CliHelpTopic, 'root'>, CliHelpPage>
           { command: 'zavorth continue [context]', summary: 'Resume current work without slash commands.' },
           { command: 'zavorth history [sessionId]', summary: 'Show recent sessions or replay one session.' },
           { command: 'zavorth context', summary: 'Show the current CLI context.' },
-          { command: 'zavorth status [--json] [--live]', summary: 'Summarize health, access, sessions and core capabilities.' },
+          { command: 'zavorth status [--json] [--live]', summary: 'Summarize health, access, sessions and core abilities.' },
           { command: 'zavorth productization [--json]', summary: 'Shows the productization contract shared by dashboard, CLI, onboarding, docs and website.' },
-          { command: 'zavorth observatory [run|trace|session|status] [--json]', summary: 'Show runs, receipts, timeline and Run Observatory replay.' },
+          { command: 'zavorth observatory [run|trace|session|status] [--json]', summary: 'Show runs, evidence, timeline and Run Observatory replay.' },
           { command: 'zavorth cockpit [--json] [--live]', summary: 'Unified cockpit for status, doctor, brief, operations and deliveries.' },
-          { command: 'zavorth capabilities [list|route "<request>"] [--json]', summary: 'Show Capability OS and explain routing decisions.' },
+          { command: 'zavorth capabilities [list|route "<request>"] [--json]', summary: 'Show ability routing and explain routing decisions.' },
           { command: 'zavorth supervisor plan "<request>" [--json]', summary: 'Show when to use supervisor graph, reflexion, sandbox and budget.' },
           { command: 'zavorth release status [--json]', summary: 'Show release, rollback and remote presence without making changes.' },
           { command: 'zavorth doctor [--json]', summary: 'Aggregated diagnostics for runtime, channels and remote access.' },
@@ -1075,7 +1075,7 @@ const CLI_COMMAND_HELP_PAGES: Record<Exclude<CliHelpTopic, 'root'>, CliHelpPage>
       {
         title: 'Nodes and devices',
         entries: [
-          { command: 'zavorth nodes list|profiles|capabilities|queue [id]|history [id]|doctor [--json]', summary: 'View, queue, history and Node Mesh diagnostics.' },
+          { command: 'zavorth nodes list|profiles|capabilities|queue [id]|history [id]|doctor [--json]', summary: 'View nodes, queue, history and diagnostics.' },
           { command: 'zavorth nodes pair [headless|desktop|mobile|browser] [label] [--json]', summary: 'Create a node pairing draft.' },
           { command: 'zavorth nodes invoke <nodeId> <capabilityId> [action] [payload-json] [--json]', summary: 'Queue an official Node Mesh invocation.' },
         ],
@@ -1168,7 +1168,7 @@ export function buildCliHelpSnapshot(target?: string | null): CliHelpSnapshot {
           { command: 'zavorth', summary: 'Open the interactive terminal agent session.' },
           { command: 'zavorth home', summary: 'Show status, approvals and next steps.' },
           { command: 'zavorth setup', summary: 'Guided setup for provider, channels, Mnemos and trust.' },
-          { command: 'zavorth inspect', summary: 'Provider, workspace, channels, hooks, MCP and receipts.' },
+          { command: 'zavorth inspect', summary: 'Provider, workspace, channels, hooks, MCP and evidence.' },
           { command: 'zavorth open', summary: 'Open the visual Dashboard.' },
         ],
       },
@@ -1177,7 +1177,7 @@ export function buildCliHelpSnapshot(target?: string | null): CliHelpSnapshot {
         entries: [
           { command: 'zavorth -p "explain this repo"', summary: 'One-shot prompt with governed tools.' },
           { command: 'zavorth ask "question"', summary: 'Natural language through the LLM-first agent.' },
-          { command: 'zavorth run "task"', summary: 'Governed task with timeline and receipts.' },
+          { command: 'zavorth run "task"', summary: 'Governed task with timeline and evidence.' },
           { command: 'zavorth approve', summary: 'Review pending approvals.' },
           { command: 'zavorth diff', summary: 'Inspect sandbox diffs before host changes.' },
           { command: 'zavorth learn', summary: 'Review learning before future behavior changes.' },
@@ -1208,7 +1208,7 @@ export function buildCliHelpSnapshot(target?: string | null): CliHelpSnapshot {
         entries: [
           { command: 'zavorth doctor --json', summary: 'Machine-readable diagnostics for automation.' },
           { command: 'zavorth managed-config apply', summary: 'Apply only after checksum verification.' },
-          { summary: 'Sensitive actions stay behind policy, preview, approval and receipt.' },
+          { summary: 'Sensitive actions stay behind policy, preview, approval and evidence.' },
         ],
       },
     ],
@@ -1501,7 +1501,7 @@ function formatPublicRootHelp(): string {
         formatCliHelpEntry({ command: 'zavorth trust', summary: 'Review trust boundaries and permission memory.' }),
         formatCliHelpEntry({ command: 'zavorth doctor', summary: 'Diagnose setup and suggest fixes.' }),
         formatCliHelpEntry({ command: 'zavorth diff', summary: 'Inspect sandbox changes before approval.' }),
-        formatCliHelpEntry({ command: 'zavorth inspect', summary: 'Provider, workspace, channels and receipts.' }),
+        formatCliHelpEntry({ command: 'zavorth inspect', summary: 'Provider, workspace, channels and evidence.' }),
       ],
     },
     {
@@ -1510,7 +1510,7 @@ function formatPublicRootHelp(): string {
       lines: [
         formatCliHelpEntry({ command: 'zavorth help advanced', summary: 'Operator namespaces.' }),
         formatCliHelpEntry({ command: 'zavorth help reference', summary: 'Full engineering reference.' }),
-        formatCliHelpEntry({ command: 'zavorth native catalog', summary: 'Provider/channel/capability inventory.' }),
+        formatCliHelpEntry({ command: 'zavorth native catalog', summary: 'Provider/channel/ability inventory.' }),
         formatCliHelpEntry({ command: 'zavorth completions powershell', summary: 'Shell completion setup.' }),
       ],
     },
@@ -1519,7 +1519,7 @@ function formatPublicRootHelp(): string {
   return renderCliScreen({
     eyebrow: 'Zavorth CLI',
     title: 'ZAVORTH',
-    summary: 'Speak naturally. Approve sensitive work. Keep receipts.',
+    summary: 'Speak naturally. Approve sensitive work. Keep evidence.',
     panels,
     mode: 'hero',
     showWordmark: false,
@@ -1530,7 +1530,7 @@ export function buildCliChatWelcomeSnapshot(): CliChatWelcomeSnapshot {
   return {
     surface: 'zavorth-cli',
     title: 'Zavorth',
-    summary: 'Hi. I am ready to help. Write a simple request in your own words.',
+    summary: 'I am ready. Write naturally; I will explain, plan, use tools when useful, and ask before sensitive work.',
     sections: [
       {
         title: 'Try this first',

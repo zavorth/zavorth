@@ -55,7 +55,7 @@ export function renderPremiumBrand(
     title,
     divider,
     `  \u001b[38;2;125;133;151mNatural language in. Governed action out.${ANSI_RESET}`,
-    `  \u001b[38;2;90;100;115mLocal-first agent OS with receipts, approvals and native integrations.${ANSI_RESET}`,
+    `  \u001b[38;2;90;100;115mLocal-first agent OS with evidence, approvals and native integrations.${ANSI_RESET}`,
     '',
   ].join('\n');
 }

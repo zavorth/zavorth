@@ -415,7 +415,7 @@ export class ArtifactMemoryService {
     memoryReceipts: LooseRecord[],
   ): ArtifactMemoryEntry[] {
     const summary = redactText(run.summary);
-    if (!summary || summary === 'Execucao recebida pelo runtime universal.') {
+    if (!summary || summary === 'Execucao recebida pelo runtime universal.' || summary === 'Request received by Zavorth.') {
       return [];
     }
     const artifactId = `run-summary:${run.id}`;

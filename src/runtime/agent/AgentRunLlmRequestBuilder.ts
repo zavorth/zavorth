@@ -65,6 +65,7 @@ export class AgentRunLlmRequestBuilder {
 
   private buildMessages(run: UniversalAgentRun, request: UniversalAgentRequest): ChatMessage[] {
     const exposedTools = run.toolExposure.tools.map((tool) => tool.id).join(', ') || 'none';
+    const userLanguageInstruction = buildUserLanguageInstruction(request.text);
     const contextPrompt = [
       this.maturity.buildSnapshot({ run, request }).prompt,
       this.buildContextPrompt(run.metadata),
@@ -74,6 +75,8 @@ export class AgentRunLlmRequestBuilder {
     const systemPrompt = [
       'You are Zavorth, a local-first governed runtime for AI agents.',
       'Reply in the same language the user used. If the user explicitly asks for another language, follow that request.',
+      userLanguageInstruction,
+      'Do not let UI labels, profile names, memory summaries or internal Portuguese context override the user message language.',
       'Respond directly, usefully and consistently with the current channel.',
       'Do not claim that you executed tools, edited files or performed external effects unless this run recorded tool events.',
       'When the user asks about the current date, time or timezone and the get_datetime tool is visible, use get_datetime before answering.',
@@ -269,6 +272,51 @@ export class AgentRunLlmRequestBuilder {
 function normalizeText(value: unknown, fallback = ''): string {
   const text = String(value ?? '').trim();
   return text || fallback;
+}
+
+function buildUserLanguageInstruction(text: unknown): string {
+  const language = inferLikelyUserLanguage(text);
+  if (language === 'spanish') {
+    return 'Detected user language: Spanish. Answer in Spanish unless the user explicitly asks for another language.';
+  }
+  if (language === 'english') {
+    return 'Detected user language: English. Answer in English unless the user explicitly asks for another language.';
+  }
+  if (language === 'portuguese') {
+    return 'Detected user language: Portuguese. Answer in Portuguese unless the user explicitly asks for another language.';
+  }
+  return 'Detected user language: unknown or mixed. Mirror the dominant language of the user message.';
+}
+
+function inferLikelyUserLanguage(text: unknown): 'spanish' | 'english' | 'portuguese' | 'unknown' {
+  const normalized = normalizeText(text).toLowerCase();
+  if (!normalized) return 'unknown';
+
+  const score = (patterns: RegExp[]): number =>
+    patterns.reduce((total, pattern) => total + (pattern.test(normalized) ? 1 : 0), 0);
+
+  const spanish = score([
+    /\b(hola|gracias|puedes|puedo|quiero|necesito|frase|explicar|ayuda|dime|haz|arregla)\b/u,
+    /[¿¡]/u,
+    /\b(el|la|los|las|un|una|de|que|en|para|con|sin)\b/u,
+  ]);
+  const portuguese = score([
+    /\b(ol[aá]|obrigad[ao]|pode|posso|quero|preciso|frase|explicar|ajuda|me diga|fa[çc]a|arrume)\b/u,
+    /\b(voc[eê]|n[aã]o|est[aá]|estou|isso|aquilo)\b/u,
+    /\b(o|a|os|as|um|uma|de|que|em|para|com|sem)\b/u,
+  ]);
+  const english = score([
+    /\b(hello|hi|thanks|can|could|would|want|need|state|sentence|explain|help|why|tell|fix|make|review)\b/u,
+    /\b(the|a|an|of|that|in|for|with|without)\b/u,
+  ]);
+
+  if (spanish >= 2 && spanish > portuguese && spanish >= english) return 'spanish';
+  if (english >= 2 && english > portuguese && english > spanish) return 'english';
+  if (portuguese >= 2 && portuguese >= spanish && portuguese >= english) return 'portuguese';
+  if (spanish > portuguese && spanish > english) return 'spanish';
+  if (english > portuguese && english > spanish) return 'english';
+  if (portuguese > 0) return 'portuguese';
+  return 'unknown';
 }
 
 function recordOrNull(value: unknown): Record<string, unknown> | null {

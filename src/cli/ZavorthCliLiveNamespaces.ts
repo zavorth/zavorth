@@ -990,7 +990,7 @@ async function runInfer(root: string, args: string[]) {
   const drafts = await readArray(file);
   drafts.push(draft);
   await writeJson(file, drafts);
-  return render(args, 'Zavorth infer', [`Drafted governed ${action} capability request.`, 'Configure provider credentials before live execution.'], { draft });
+  return render(args, 'Zavorth infer', [`Drafted governed ${action} ability request.`, 'Configure provider credentials before live execution.'], { draft });
 }
 
 async function runLogs(root: string, args: string[]) {
@@ -1307,7 +1307,7 @@ async function runMessage(root: string, args: string[]) {
     const id = args[1] || readFlag(args, 'id') || '';
     const receipts = await readArray(path.join(stateDir(root), 'receipts', 'messages.json'));
     const selected = id ? receipts.filter((entry) => String((entry as JsonObject).messageId) === id || String((entry as JsonObject).id) === id) : receipts;
-    return render(args, 'Zavorth message receipts', selected.length ? selected.slice(-20).map(formatMessageReceipt) : ['No message receipts recorded yet.'], { receipts: selected });
+    return render(args, 'Zavorth message evidence', selected.length ? selected.slice(-20).map(formatMessageReceipt) : ['No message evidence recorded yet.'], { receipts: selected });
   }
   if (action === 'manage') {
     const pending = messages.filter((entry) => ['delivery-failed', 'draft', 'delivery-requested'].includes(String((entry as JsonObject).status)));
@@ -1669,7 +1669,7 @@ async function scaffoldPlugin(root: string, targetDir: string, id: string): Prom
     `zavorth plugins enable ${id} --yes`,
     '```',
     '',
-    'Sensitive capabilities remain behind policy, sandbox, approval and receipts.',
+    'Sensitive abilities remain behind policy, sandbox, approval and evidence.',
     '',
   ].join('\n');
   const files = [
@@ -1698,7 +1698,7 @@ function pluginPermissionLines(plugin: JsonObject): string[] {
   return [
     `Permissions: ${permissions.join(', ') || 'none'}`,
     `Sandbox: network=${String(sandbox.network ?? false)} write=${String(sandbox.workspaceWrite ?? false)} shell=${String(sandbox.shell ?? false)}`,
-    'All sensitive plugin capabilities remain policy/approval gated.',
+    'All sensitive plugin abilities remain policy/approval gated.',
   ];
 }
 
@@ -1908,7 +1908,7 @@ async function loadSkillCatalog(root: string): Promise<JsonObject[]> {
     { id: 'requirements-analysis', name: 'Requirements Analysis', summary: 'Turn ambiguous requests into clear acceptance criteria.', requirements: [], dependencies: [], allowByDefault: true },
     { id: 'system-design', name: 'System Design', summary: 'Architecture planning with tradeoffs and contracts.', requirements: [], dependencies: [], allowByDefault: true },
     { id: 'security-review', name: 'Security Review', summary: 'Risk review with policy and mitigation focus.', requirements: [{ kind: 'env', name: 'ZAVORTH_SECURITY_MODE', required: false }], dependencies: [], allowByDefault: false },
-    { id: 'web-research', name: 'Web Research', summary: 'Current-information research with source receipts.', requirements: [{ kind: 'env', name: 'WEB_SEARCH_PROVIDER', required: false }], dependencies: [], allowByDefault: false },
+    { id: 'web-research', name: 'Web Research', summary: 'Current-information research with source evidence.', requirements: [{ kind: 'env', name: 'WEB_SEARCH_PROVIDER', required: false }], dependencies: [], allowByDefault: false },
   ];
   const localFiles = [path.join(root, 'skills.json'), path.join(root, 'skills', 'catalog.json'), path.join(stateDir(root), 'skill-marketplace.json')];
   const local = (await Promise.all(localFiles.map(async (file) => {
@@ -2062,7 +2062,7 @@ async function runStatusLike(root: string, command: string, args: string[], acti
   return render(args, `Zavorth ${command}`, [
     `state dir: ${stateDir(root)}`,
     `supported actions: ${actions.join(', ')}`,
-    'live service control requires a configured backend receipt.',
+    'live service control requires configured backend evidence.',
   ], { command, actions, stateDir: stateDir(root) });
 }
 
@@ -2634,7 +2634,7 @@ async function runPairing(root: string, args: string[]) {
     selected.receipt = idWithTime('pairing-receipt');
     await writeJson(file, pairings);
     await appendJsonArray(path.join(stateDir(root), 'receipts', 'pairings.json'), { id: selected.receipt, kind: 'pairing-approved', pairingId: selected.id, channel: selected.channel, createdAt: selected.approvedAt });
-    return render(args, 'Zavorth pairing', [`Approved pairing: ${id}`, `Receipt: ${String(selected.receipt)}`], { pairing: redactPairingRecord(selected) });
+    return render(args, 'Zavorth pairing', [`Approved pairing: ${id}`, `Evidence: ${String(selected.receipt)}`], { pairing: redactPairingRecord(selected) });
   }
   if (['revoke', 'reject', 'cancel'].includes(action)) {
     const id = args[1] || readFlag(args, 'id') || '';

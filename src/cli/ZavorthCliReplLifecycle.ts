@@ -13,6 +13,7 @@ import {
 } from './ZavorthCliFlowHelpers.js';
 import { formatCliChatHelp, isCliChatHelpCommand } from './ZavorthCliChatHelp.js';
 import { formatCliChatWelcome } from './ZavorthCliSurfaceHelpers.js';
+import { globalSpinner } from './presentation/TerminalSpinner.js';
 
 async function readCliReplQuestion(
   rl: ReturnType<CliReadlineFactory>,
@@ -76,10 +77,25 @@ export async function runZavorthCliRepl(params: {
         continue;
       }
 
-      const result = await runOnce(normalized, {
-        ...currentFlags,
-        repl: true,
-      });
+      const showSpinner = Boolean(process.stdout?.isTTY && !currentFlags.json);
+      if (showSpinner) {
+        globalSpinner.start('Zavorth is thinking...');
+      }
+      let result: CliExecutionResult;
+      try {
+        result = await runOnce(normalized, {
+          ...currentFlags,
+          repl: true,
+        });
+        if (showSpinner) {
+          globalSpinner.succeed(result.ok ? 'Done' : 'Needs attention');
+        }
+      } catch (error) {
+        if (showSpinner) {
+          globalSpinner.fail('Could not finish');
+        }
+        throw error;
+      }
       if ((normalized === 'quit' || normalized === 'exit') && result.ok) {
         return 0;
       }

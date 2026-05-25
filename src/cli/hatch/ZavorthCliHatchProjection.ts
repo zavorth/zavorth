@@ -41,7 +41,7 @@ export function buildZavorthCliHatchSnapshot(
     checklist: buildChecklist(home),
     guardrails: [
       'Hatch never applies host mutations on its own.',
-      'Sensitive actions still pass through policy, preview, approval and receipts.',
+      'Sensitive actions still pass through policy, preview, approval and evidence.',
       'Secrets and tokens are shown only as present or missing.',
       'Use --start only when you want to delegate to the existing start/go flow.',
     ],

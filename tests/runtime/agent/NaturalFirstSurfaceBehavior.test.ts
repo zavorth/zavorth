@@ -18,11 +18,11 @@ const PHASE_9_SURFACES: UniversalAgentChannel[] = ['web', 'cli', 'telegram', 'ap
 
 const PHASE_9_CASES: Stage9SurfaceCase[] = [
   {
-    label: 'light greeting',
+    label: 'short greeting',
     text: 'oi',
-    expectedRoute: 'light-chat',
+    expectedRoute: 'llm-reply',
     executorMode: 'none',
-    expectedMetadataKey: 'naturalFirstLightReply',
+    expectedMetadataKey: 'naturalFirstLlmRuntime',
   },
   {
     label: 'natural explanation',

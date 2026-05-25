@@ -17,7 +17,7 @@ function createFlags(command: string | null = null): any {
 }
 
 describe('CLI operational intent routing', () => {
-  it('routes low-signal CLI chat through the universal agent run path before legacy fallback', async () => {
+  it('routes low-signal CLI chat through the universal agent run path without a canned greeting shortcut', async () => {
     const agentGateway = new ZavorthAgentGateway({
       now: () => new Date('2026-04-26T18:00:00.000Z'),
       idFactory: (prefix) => `${prefix}-cli-intent`,
@@ -59,7 +59,9 @@ describe('CLI operational intent routing', () => {
         legacyUnifiedGatewayBypassed: true,
       }),
     }));
-    expect(output.join('\n')).toContain('Oi. Estou aqui, pronto para continuar pelo Zavorth.');
+    const rendered = output.join('\n');
+    expect(rendered).toContain('Received: "ola"');
+    expect(rendered).not.toContain('Oi. Estou aqui, pronto para continuar pelo Zavorth.');
   });
 
   it('honors explicit CLI task execution', async () => {
@@ -97,5 +99,40 @@ describe('CLI operational intent routing', () => {
         }),
       }),
     }));
+  });
+
+  it('routes English light greetings through the same agent path instead of a canned hello', async () => {
+    const agentGateway = new ZavorthAgentGateway({
+      now: () => new Date('2026-04-26T18:05:00.000Z'),
+      idFactory: (prefix) => `${prefix}-cli-english-greeting`,
+    });
+    const legacyUnifiedGateway = {
+      handleEvent: jest.fn(async (event: any) => {
+        await event.reply('Legacy hello.');
+        return {
+          responseText: 'Legacy hello.',
+          surface: event.surface,
+          intentCategory: 'conversation',
+        };
+      }),
+    };
+    const output: string[] = [];
+    const writer = {
+      line: jest.fn((text: string) => output.push(text)),
+      error: jest.fn(),
+    };
+
+    const result = await executeCliUniversalAgentRuntime(
+      { agentGateway, legacyUnifiedGateway } as any,
+      'hello',
+      createFlags(null),
+      writer,
+    );
+
+    expect(result.ok).toBe(true);
+    expect(legacyUnifiedGateway.handleEvent).not.toHaveBeenCalled();
+    const rendered = output.join('\n');
+    expect(rendered).toContain('Received: "hello"');
+    expect(rendered).not.toContain('Hi. I am here and ready to continue with Zavorth.');
   });
 });

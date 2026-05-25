@@ -18,6 +18,7 @@ export type RunZavorthDoctorPremiumInput = {
   projectRoot: string;
   json?: boolean;
   strict?: boolean;
+  verbose?: boolean;
 };
 
 export function runZavorthDoctorPremium(input: RunZavorthDoctorPremiumInput): {
@@ -26,12 +27,20 @@ export function runZavorthDoctorPremium(input: RunZavorthDoctorPremiumInput): {
   snapshot: ZavorthDoctorPremiumSnapshot;
 } {
   const snapshot = buildZavorthDoctorPremiumSnapshot({ projectRoot: input.projectRoot });
-  const output = input.json ? `${JSON.stringify(snapshot, null, 2)}\n` : `${renderZavorthDoctorPremium(snapshot)}\n`;
+  const output = input.json ? `${JSON.stringify(snapshot, null, 2)}\n` : `${renderZavorthDoctorPremium(snapshot, {
+    verbose: input.verbose,
+  })}\n`;
   const exitCode = input.strict && snapshot.status !== 'pass' ? 1 : 0;
   return { exitCode, output, snapshot };
 }
 
-export function renderZavorthDoctorPremium(snapshot: ZavorthDoctorPremiumSnapshot): string {
+export function renderZavorthDoctorPremium(snapshot: ZavorthDoctorPremiumSnapshot, options: {
+  verbose?: boolean;
+} = {}): string {
+  const attentionChecks = snapshot.checks.filter((check) => check.status !== 'pass');
+  const visibleChecks = options.verbose
+    ? snapshot.checks
+    : attentionChecks.slice(0, 4);
   const panels: ZavorthPremiumCliPanel[] = [
     {
       title: 'Summary',
@@ -44,14 +53,23 @@ export function renderZavorthDoctorPremium(snapshot: ZavorthDoctorPremiumSnapsho
         { key: 'fail', value: `${snapshot.summary.fail}`, accent: snapshot.summary.fail > 0 ? 'rose' : 'muted' },
       ]).split('\n'),
     },
-    ...snapshot.checks.map(checkToPanel),
+    ...(visibleChecks.length > 0
+      ? visibleChecks.map((check) => checkToPanel(check, { verbose: Boolean(options.verbose) }))
+      : [{
+          title: 'Everything looks ready',
+          accent: 'emerald' as const,
+          lines: [
+            'No blocking issue found in the public doctor path.',
+            'Use --verbose when you want evidence for every check.',
+          ],
+        }]),
   ];
 
   return renderZavorthPremiumCliScreen({
     title: 'Doctor',
     subtitle: 'Local setup, provider, gateway, channels and safety readiness.',
     mode: 'compact',
-    statusRows: snapshot.checks.map((check) => ({
+    statusRows: (attentionChecks.length > 0 ? attentionChecks : snapshot.checks.slice(0, 4)).map((check) => ({
       label: check.title,
       value: check.summary,
       status: statusToPremium(check.status),
@@ -66,12 +84,17 @@ export function renderZavorthDoctorPremium(snapshot: ZavorthDoctorPremiumSnapsho
     })),
     notice: {
       title: 'Doctor safety',
-      body: 'This diagnostic redacts secrets, does not start persistent runtime services, and only suggests fixes unless an explicit fix command is used.',
+      body: options.verbose
+        ? 'Verbose mode shows local evidence with secrets redacted. It still does not start persistent services.'
+        : 'Compact by default. Secrets are redacted; use --verbose for full evidence.',
     },
   });
 }
 
-function checkToPanel(check: ZavorthDoctorPremiumCheck): ZavorthPremiumCliPanel {
+function checkToPanel(check: ZavorthDoctorPremiumCheck, options: { verbose: boolean }): ZavorthPremiumCliPanel {
+  const evidence = check.evidence ?? [];
+  const visibleEvidence = options.verbose ? evidence : evidence.slice(0, 3);
+  const hiddenEvidenceCount = Math.max(0, evidence.length - visibleEvidence.length);
   return {
     title: check.title,
     accent: accentForDoctorStatus(check.status),
@@ -80,7 +103,14 @@ function checkToPanel(check: ZavorthDoctorPremiumCheck): ZavorthPremiumCliPanel 
       `What happened: ${check.summary}`,
       `Impact: ${check.impact}`,
       check.fixCommand ? `Try: ${check.fixCommand}` : 'Try: no action needed',
-      ...(check.evidence && check.evidence.length > 0 ? ['', 'Evidence:', ...check.evidence.map((entry) => `- ${entry}`)] : []),
+      ...(visibleEvidence.length > 0
+        ? [
+            '',
+            options.verbose ? 'Evidence:' : 'Evidence sample:',
+            ...visibleEvidence.map((entry) => `- ${entry}`),
+            ...(hiddenEvidenceCount > 0 ? [`- ${hiddenEvidenceCount} more hidden in compact mode. Use --verbose.`] : []),
+          ]
+        : []),
     ],
   };
 }

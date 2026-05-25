@@ -5,15 +5,15 @@ export function formatLayeredMemoryMetrics(
   metrics: Awaited<ReturnType<ZavorthLayeredMemoryService['readMetrics']>>,
 ): string {
   return [
-    'Metricas da memoria',
-    'Panorama de pressao e distribuicao da layered memory.',
+    'Memory metrics',
+    'Pressure and distribution snapshot for layered memory.',
     '',
-    'Agora',
-    `- entradas: ${formatCount(metrics.summary.totalEntries, 'entrada', 'entradas')} | episodica ${metrics.summary.episodic} | semantica ${metrics.summary.semantic} | procedural ${metrics.summary.procedural}`,
-    `- uso medio do budget: ${metrics.summary.averageBudgetUsage} | pressao: ${metrics.summary.pressure}`,
-    `- procedimentos: ${formatCount(metrics.procedures.total, 'total', 'total')} | ${metrics.procedures.trustedLocal} trusted local | ${metrics.procedures.learnedDraft} draft`,
+    'Now',
+    `- entries: ${formatCount(metrics.summary.totalEntries, 'entry', 'entries')} | episodic ${metrics.summary.episodic} | semantic ${metrics.summary.semantic} | procedural ${metrics.summary.procedural}`,
+    `- average budget usage: ${metrics.summary.averageBudgetUsage} | pressure: ${metrics.summary.pressure}`,
+    `- procedures: ${formatCount(metrics.procedures.total, 'total', 'total')} | ${metrics.procedures.trustedLocal} trusted local | ${metrics.procedures.learnedDraft} draft`,
     '',
-    'Faca agora',
+    'Do now',
     '- zavorth memory status',
     '- zavorth memory procedures',
   ].join('\n');

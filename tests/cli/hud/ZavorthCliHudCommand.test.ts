@@ -60,7 +60,7 @@ describe('Zavorth CLI HUD', () => {
     expect(result.exitCode).toBe(0);
     expect(result.snapshot.contractVersion).toBe('zavorth-cli-hud/1');
     expect(result.snapshot.selectedPlanId).toBe(plan.id);
-    expect(result.output).toContain('Daily TUI');
+    expect(result.output).toContain('Daily terminal');
     expect(result.output).toContain('Today');
     expect(result.output).toContain('Approvals & Diff');
     expect(result.output).toContain('zavorth chat');
@@ -136,7 +136,7 @@ describe('Zavorth CLI HUD', () => {
     expect(result.exitCode).toBe(0);
     expect(result.snapshot.selectedIndex).toBe(2);
     expect(result.snapshot.selectedPlanId).toBe(result.snapshot.planQueue[1]?.id);
-    expect(result.output).toContain('Plan Queue');
+    expect(result.output).toContain('Pending work');
   });
 
   test('rejects a selected plan only with explicit confirmation', () => {
@@ -200,8 +200,8 @@ describe('Zavorth CLI HUD', () => {
     expect(result.exitCode).toBe(0);
     expect(result.snapshot.mode).toBe('review');
     expect(result.output).toContain('Review Mode');
-    expect(result.output).toContain('Plan Queue');
-    expect(result.output).toContain('Review Keys');
+    expect(result.output).toContain('Pending work');
+    expect(result.output).toContain('Review keys');
     expect(result.output).not.toContain('Live HUD');
   });
 
@@ -221,7 +221,7 @@ describe('Zavorth CLI HUD', () => {
     expect(result.output).toContain('Guided review flow');
     expect(result.output).toContain('Select plan');
     expect(result.output).toContain('Review diff');
-    expect(result.output).toContain('Decision receipt');
+    expect(result.output).toContain('Decision evidence');
     expect(result.output).toContain('no host apply: true');
   });
 
@@ -265,13 +265,13 @@ describe('Zavorth CLI HUD', () => {
     });
 
     expect(result.exitCode).toBe(0);
-    expect(result.output).toContain('Daily TUI');
-    expect(result.output).toContain('Runtime');
+    expect(result.output).toContain('Daily terminal');
+    expect(result.output).toContain('Connection');
     expect(result.output).toContain('Today');
     expect(result.output).toContain('Chat & Timeline');
     expect(result.output).toContain('Approvals & Diff');
     expect(result.output).toContain('Integrations');
-    expect(result.output).toContain('Sessions & Logs');
+    expect(result.output).toContain('Sessions');
   });
 
   test('exports unified runtime TUI json contract', () => {

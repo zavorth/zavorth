@@ -59,7 +59,7 @@ export function createZavorthPremiumCliTheme(input: {
   return {
     brand: 'ZAVORTH',
     tagline: 'Natural language in. Governed action out.',
-    subtagline: 'Local-first agent OS with receipts, approvals and native integrations.',
+    subtagline: 'Local-first agent OS with evidence, approvals and native integrations.',
     maxWidth: Math.max(DEFAULT_MIN_WIDTH, Math.min(columns, DEFAULT_MAX_WIDTH)),
     minWidth: DEFAULT_MIN_WIDTH,
     colorEnabled: input.colorEnabled ?? isCliColorEnabled(),

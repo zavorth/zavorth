@@ -60,7 +60,7 @@ export function renderZavorthCliApprovalDiff(snapshot: ZavorthCliApprovalDiffSna
       accent: action.command.includes('--yes') ? 'amber' : 'cyan',
     })),
     notice: {
-      title: 'Approval is not apply',
+      title: 'Approval is preview-only',
       body: 'This surface can approve a mutation plan only when --yes is explicit. It never applies changes to the host by itself.',
     },
   });
