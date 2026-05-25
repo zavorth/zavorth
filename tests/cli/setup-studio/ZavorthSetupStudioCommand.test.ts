@@ -22,7 +22,7 @@ describe('Zavorth Setup Studio command', () => {
   it('keeps cancellation output concise instead of replaying the full setup preview', () => {
     const output = renderZavorthSetupCancelledMessage();
 
-    expect(output).toContain('Setup cancelled.');
+    expect(output).toContain('First Light cancelled.');
     expect(output).toContain('Nothing was changed.');
     expect(output).toContain('zavorth setup');
     expect(output).not.toContain('Setup Studio will prepare');

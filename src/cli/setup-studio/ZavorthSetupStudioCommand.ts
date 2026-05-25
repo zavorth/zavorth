@@ -64,13 +64,13 @@ type SetupStudioCliAnswers = {
 
 class SetupStudioCancelled extends Error {
   constructor() {
-    super('Setup cancelled. Nothing was changed.');
+    super('First Light cancelled. Nothing was changed.');
   }
 }
 
 export function renderZavorthSetupCancelledMessage(): string {
   return [
-    'Setup cancelled.',
+    'First Light cancelled.',
     'Nothing was changed.',
     'Resume anytime: zavorth setup',
   ].join('\n');
@@ -139,7 +139,7 @@ export async function runZavorthSetupStudioCommand(
       initialValue: false,
     });
     if (p.isCancel(confirmed) || confirmed !== true) {
-      p.cancel('Setup cancelled. Nothing was changed.');
+      p.cancel('First Light cancelled. Nothing was changed.');
       return { exitCode: 0, output: '', snapshot, applied: false, writtenKeys: [] };
     }
     return applySnapshot(snapshot, json);
@@ -452,7 +452,7 @@ async function collectInteractiveAnswers(projectRoot: string): Promise<SetupStud
     initialValue: true,
   });
   if (p.isCancel(accepted) || accepted !== true) {
-    p.cancel('Setup cancelled. Nothing was changed.');
+    p.cancel('First Light cancelled. Nothing was changed.');
     throw new SetupStudioCancelled();
   }
 
@@ -473,7 +473,7 @@ async function collectInteractiveAnswers(projectRoot: string): Promise<SetupStud
     initialValue: 'quickstart',
   });
   if (p.isCancel(setupMode)) {
-    p.cancel('Setup cancelled. Nothing was changed.');
+    p.cancel('First Light cancelled. Nothing was changed.');
     throw new SetupStudioCancelled();
   }
   void setupMode;
@@ -488,14 +488,14 @@ async function collectInteractiveAnswers(projectRoot: string): Promise<SetupStud
     initialValue: baselineSnapshot.configHandling,
   });
   if (p.isCancel(configHandling)) {
-    p.cancel('Setup cancelled. Nothing was changed.');
+    p.cancel('First Light cancelled. Nothing was changed.');
     throw new SetupStudioCancelled();
   }
   void configHandling;
 
   const providerId = await selectSetupProvider(p);
   if (p.isCancel(providerId)) {
-    p.cancel('Setup cancelled. Nothing was changed.');
+    p.cancel('First Light cancelled. Nothing was changed.');
     throw new SetupStudioCancelled();
   }
   const provider = resolveSetupStudioProvider(providerId);
@@ -508,7 +508,7 @@ async function collectInteractiveAnswers(projectRoot: string): Promise<SetupStud
     initialValue: '__current__',
   });
   if (p.isCancel(modelChoice)) {
-    p.cancel('Setup cancelled. Nothing was changed.');
+    p.cancel('First Light cancelled. Nothing was changed.');
     throw new SetupStudioCancelled();
   }
   const modelId = modelChoice === '__manual__'
@@ -518,7 +518,7 @@ async function collectInteractiveAnswers(projectRoot: string): Promise<SetupStud
     })
     : provider.defaultModel;
   if (p.isCancel(modelId)) {
-    p.cancel('Setup cancelled. Nothing was changed.');
+    p.cancel('First Light cancelled. Nothing was changed.');
     throw new SetupStudioCancelled();
   }
   const providerSecret = provider.needsSecret
@@ -527,7 +527,7 @@ async function collectInteractiveAnswers(projectRoot: string): Promise<SetupStud
     })
     : '';
   if (p.isCancel(providerSecret)) {
-    p.cancel('Setup cancelled. Nothing was changed.');
+    p.cancel('First Light cancelled. Nothing was changed.');
     throw new SetupStudioCancelled();
   }
   p.note(renderModelCheckPanel(provider.id, provider.needsSecret, provider.secretEnvKeys[0] || null, Boolean(providerSecret)), orange('Model check'));
@@ -536,7 +536,7 @@ async function collectInteractiveAnswers(projectRoot: string): Promise<SetupStud
 
   const selectedRemoteChannels = await selectSetupChannels(p, projectRoot);
   if (p.isCancel(selectedRemoteChannels)) {
-    p.cancel('Setup cancelled. Nothing was changed.');
+    p.cancel('First Light cancelled. Nothing was changed.');
     throw new SetupStudioCancelled();
   }
   const selectedChannelSet = new Set((selectedRemoteChannels as string[]).map((channel) => channel.toLowerCase()));
@@ -544,42 +544,42 @@ async function collectInteractiveAnswers(projectRoot: string): Promise<SetupStud
     ? await p.password({ message: 'Telegram bot token' })
     : '';
   if (p.isCancel(telegramBotToken)) {
-    p.cancel('Setup cancelled. Nothing was changed.');
+    p.cancel('First Light cancelled. Nothing was changed.');
     throw new SetupStudioCancelled();
   }
   const telegramAllowedUserIds = selectedChannelSet.has('telegram')
     ? await p.text({ message: 'Telegram allowed user IDs, comma-separated', initialValue: '' })
     : '';
   if (p.isCancel(telegramAllowedUserIds)) {
-    p.cancel('Setup cancelled. Nothing was changed.');
+    p.cancel('First Light cancelled. Nothing was changed.');
     throw new SetupStudioCancelled();
   }
   const discordBotToken = selectedChannelSet.has('discord')
     ? await p.password({ message: 'Discord bot token, or leave empty to configure later' })
     : '';
   if (p.isCancel(discordBotToken)) {
-    p.cancel('Setup cancelled. Nothing was changed.');
+    p.cancel('First Light cancelled. Nothing was changed.');
     throw new SetupStudioCancelled();
   }
   const slackBotToken = selectedChannelSet.has('slack')
     ? await p.password({ message: 'Slack bot token, or leave empty to configure later' })
     : '';
   if (p.isCancel(slackBotToken)) {
-    p.cancel('Setup cancelled. Nothing was changed.');
+    p.cancel('First Light cancelled. Nothing was changed.');
     throw new SetupStudioCancelled();
   }
   const emailSmtpUrl = selectedChannelSet.has('email')
     ? await p.password({ message: 'Email SMTP URL, or leave empty to configure later' })
     : '';
   if (p.isCancel(emailSmtpUrl)) {
-    p.cancel('Setup cancelled. Nothing was changed.');
+    p.cancel('First Light cancelled. Nothing was changed.');
     throw new SetupStudioCancelled();
   }
 
   p.note(renderWebSearchIntroPanel(), orange('Web search'));
   const searchProvider = await selectSetupSearchProvider(p);
   if (p.isCancel(searchProvider)) {
-    p.cancel('Setup cancelled. Nothing was changed.');
+    p.cancel('First Light cancelled. Nothing was changed.');
     throw new SetupStudioCancelled();
   }
   const normalizedSearchProvider = normalizeSearchProvider(String(searchProvider));
@@ -590,7 +590,7 @@ async function collectInteractiveAnswers(projectRoot: string): Promise<SetupStud
     })
     : '';
   if (p.isCancel(searchSecret)) {
-    p.cancel('Setup cancelled. Nothing was changed.');
+    p.cancel('First Light cancelled. Nothing was changed.');
     throw new SetupStudioCancelled();
   }
   p.note(renderWebSearchProviderPanel(normalizedSearchProvider, Boolean(searchSecret)), orange('Web search'));
@@ -610,7 +610,7 @@ async function collectInteractiveAnswers(projectRoot: string): Promise<SetupStud
     initialValue: true,
   });
   if (p.isCancel(configureSkills)) {
-    p.cancel('Setup cancelled. Nothing was changed.');
+    p.cancel('First Light cancelled. Nothing was changed.');
     throw new SetupStudioCancelled();
   }
   if (configureSkills === true) {
@@ -630,7 +630,7 @@ async function collectInteractiveAnswers(projectRoot: string): Promise<SetupStud
       required: false,
     });
     if (p.isCancel(skillChoices)) {
-      p.cancel('Setup cancelled. Nothing was changed.');
+      p.cancel('First Light cancelled. Nothing was changed.');
       throw new SetupStudioCancelled();
     }
     for (const prompt of [
@@ -640,7 +640,7 @@ async function collectInteractiveAnswers(projectRoot: string): Promise<SetupStud
     ]) {
       const answer = await p.confirm({ message: prompt, initialValue: false });
       if (p.isCancel(answer)) {
-        p.cancel('Setup cancelled. Nothing was changed.');
+        p.cancel('First Light cancelled. Nothing was changed.');
         throw new SetupStudioCancelled();
       }
     }
@@ -656,7 +656,7 @@ async function collectInteractiveAnswers(projectRoot: string): Promise<SetupStud
     initialValue: 'local-metadata',
   });
   if (p.isCancel(memoryMode)) {
-    p.cancel('Setup cancelled. Nothing was changed.');
+    p.cancel('First Light cancelled. Nothing was changed.');
     throw new SetupStudioCancelled();
   }
 
@@ -672,14 +672,14 @@ async function collectInteractiveAnswers(projectRoot: string): Promise<SetupStud
     initialValue: 'skip',
   });
   if (p.isCancel(vaultScope)) {
-    p.cancel('Setup cancelled. Nothing was changed.');
+    p.cancel('First Light cancelled. Nothing was changed.');
     throw new SetupStudioCancelled();
   }
   const customScanDir = vaultScope === 'custom'
     ? await p.text({ message: 'Custom scan path', initialValue: projectRoot })
     : '';
   if (p.isCancel(customScanDir)) {
-    p.cancel('Setup cancelled. Nothing was changed.');
+    p.cancel('First Light cancelled. Nothing was changed.');
     throw new SetupStudioCancelled();
   }
   const enableHooks = await p.confirm({
@@ -687,7 +687,7 @@ async function collectInteractiveAnswers(projectRoot: string): Promise<SetupStud
     initialValue: false,
   });
   if (p.isCancel(enableHooks)) {
-    p.cancel('Setup cancelled. Nothing was changed.');
+    p.cancel('First Light cancelled. Nothing was changed.');
     throw new SetupStudioCancelled();
   }
   p.note(renderAutomationHooksPanel(enableHooks === true), orange(enableHooks === true ? 'Automation templates' : 'Automation templates skipped'));
@@ -702,7 +702,7 @@ async function collectInteractiveAnswers(projectRoot: string): Promise<SetupStud
     initialValue: baselineSnapshot.gateway.installed ? 'restart' : 'skip',
   });
   if (p.isCancel(gatewayAction)) {
-    p.cancel('Setup cancelled. Nothing was changed.');
+    p.cancel('First Light cancelled. Nothing was changed.');
     throw new SetupStudioCancelled();
   }
   void gatewayAction;
@@ -718,7 +718,7 @@ async function collectInteractiveAnswers(projectRoot: string): Promise<SetupStud
     initialValue: 'terminal',
   });
   if (p.isCancel(hatchMode)) {
-    p.cancel('Setup cancelled. Nothing was changed.');
+    p.cancel('First Light cancelled. Nothing was changed.');
     throw new SetupStudioCancelled();
   }
   void hatchMode;

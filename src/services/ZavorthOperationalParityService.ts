@@ -144,10 +144,10 @@ export class ZavorthOperationalParityService {
         id: 'onboarding',
         title: 'Cohesive onboarding',
         pass: existsSync(setupStudio) && this.fileContains(commandsFile, ['runDirectory', 'runPairing', 'runPlugins', 'runSkills']),
-        summary: 'Setup Studio, quickstart, home, hatch and advanced namespaces share the same governed CLI surface.',
+        summary: 'First Light, quickstart, home, hatch and advanced namespaces share the same governed CLI surface.',
         evidence: [
           'The public CLI exposes a small entrypoint and hides heavy systems behind namespaces.',
-          'Setup Studio state/progress files exist.',
+          'First Light state/progress files exist.',
           'Provider/channel wizard and live validation services exist.',
         ],
         nextActions: [

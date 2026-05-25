@@ -1,4 +1,5 @@
 import { ZavorthCli, parseZavorthCliFlags, runZavorthCli } from '../../src/cli/ZavorthCli';
+import { resolveZavorthSimpleCommand } from '../../src/cli/SimpleCommandRouter';
 
 describe('ZavorthCli public surface', () => {
   it('parses chat as the official terminal entrypoint', () => {
@@ -9,6 +10,13 @@ describe('ZavorthCli public surface', () => {
       command: null,
       commandText: null,
     }));
+  });
+
+  it('routes common partial chat input to the terminal session instead of natural fallback', () => {
+    expect(resolveZavorthSimpleCommand(['cha'])).toEqual({
+      kind: 'passthrough',
+      args: ['chat'],
+    });
   });
 
   it('normalizes the core daily aliases without exposing internal commands', () => {

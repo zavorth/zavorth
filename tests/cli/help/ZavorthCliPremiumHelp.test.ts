@@ -45,11 +45,11 @@ describe('Zavorth premium CLI help', () => {
     expect(quickstart).toContain('preview-first');
   });
 
-  test('keeps setup help compatible with existing onboarding expectations', () => {
+  test('keeps setup help compatible with First Light onboarding expectations', () => {
     const setup = formatCliHelp('setup');
 
     expect(setup).toContain('zavorth setup');
-    expect(setup).toContain('Setup Studio');
+    expect(setup).toContain('First Light');
     expect(setup).toContain('zavorth onboard --dry-run');
     expect(setup).toContain('zavorth ready');
     expect(setup).toContain('zavorth start');

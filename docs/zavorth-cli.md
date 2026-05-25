@@ -39,7 +39,7 @@ zavorth ready
 `zavorth` opens the natural-first terminal home. `ask` and `run` use the
 Experience Core to create a governed plan, timeline and receipts. `learn`
 reviews learning candidates before they affect future behavior. `setup` opens
-the guided Setup Studio. `start` starts or resumes the local runtime. `open`
+the guided First Light flow. `start` starts or resumes the local runtime. `open`
 opens the Dashboard. `ready` tells you if the machine is usable for daily
 work.
 

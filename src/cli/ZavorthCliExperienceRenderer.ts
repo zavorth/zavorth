@@ -228,6 +228,8 @@ export function formatExperienceHome(snapshot: ExperienceSnapshot): string {
 
 export function formatExperienceAgentSession(snapshot: ExperienceSnapshot): string {
   const pendingApprovals = snapshot.daily?.pendingApprovals ?? snapshot.approvals.filter((approval) => approval.status === 'pending').length;
+  const firstAction = (snapshot.actionCards || [])[0] || null;
+  const firstDiff = (snapshot.diffReviews || [])[0] || null;
   const provider = sanitizeHumanCliText(snapshot.agent.providerLabel || 'not configured');
   const model = sanitizeHumanCliText(snapshot.agent.modelLabel || 'not configured');
   const health = sanitizeHumanCliText(snapshot.health.status || 'unknown');
@@ -273,6 +275,23 @@ export function formatExperienceAgentSession(snapshot: ExperienceSnapshot): stri
       renderAgentShortcut('approve', pendingApprovals > 0 ? 'review pending governed work' : 'review governed work'),
       renderAgentShortcut('doctor', 'diagnose local setup'),
     ];
+  const timeline = snapshot.timeline || [];
+  const activityLines = [
+    timeline.length > 0
+      ? `timeline ${timeline.slice(-1)[0]?.status || 'active'} - ${sanitizeHumanCliText(timeline.slice(-1)[0]?.title || 'latest event')}`
+      : 'timeline idle',
+    firstAction
+      ? `approval ${sanitizeHumanCliText(firstAction.title)} (${firstAction.risk}) -> zavorth approve`
+      : pendingApprovals > 0
+        ? `approvals ${pendingApprovals} pending -> zavorth approve`
+        : 'approvals clear',
+    firstDiff
+      ? `diff ${sanitizeHumanCliText(firstDiff.summary)} -> zavorth diff ${firstDiff.id}`
+      : 'diff none',
+    snapshot.llmBrain?.streaming?.visualStreamingReady
+      ? 'streaming ready; tool calls collapse into progress lines'
+      : 'streaming quiet until a model-backed run starts',
+  ];
   const header = [
     `${paintCliTone('Zavorth', 'brand')} ${paintCliTone('agent', 'muted')} ${paintCliTone('-', 'muted')} ${paintCliTone('session', 'muted')} ${sessionId}`,
     `${paintCliTone('workspace', 'muted')} ${workspace}`,
@@ -298,6 +317,8 @@ export function formatExperienceAgentSession(snapshot: ExperienceSnapshot): stri
     guidance.map((line) => `${paintCliTone('>', 'brand')} ${line}`).join('\n'),
     '',
     renderAgentShortcutPanel(shortcuts),
+    '',
+    renderAgentActivityPanel(activityLines),
     brainLines.length
       ? [
         '',
@@ -331,6 +352,13 @@ function renderAgentShortcutPanel(lines: string[]): string {
   return [
     paintCliTone('quick actions', 'muted'),
     ...lines.map((line) => `  ${line}`),
+  ].join('\n');
+}
+
+function renderAgentActivityPanel(lines: string[]): string {
+  return [
+    paintCliTone('live state', 'muted'),
+    ...lines.map((line) => `  ${paintCliTone('-', 'muted')} ${sanitizeHumanCliText(line)}`),
   ].join('\n');
 }
 
