@@ -1,10 +1,8 @@
-import pkg from "../../../package.json" with { type: "json" };
-
 // App configuration
 export const APP_CONFIG = {
   name: "Zavorth",
   description: "Operator control plane for multi-provider AI runtime management",
-  version: pkg.version,
+  version: process.env.npm_package_version || "1.1.0",
 };
 
 // Theme configuration

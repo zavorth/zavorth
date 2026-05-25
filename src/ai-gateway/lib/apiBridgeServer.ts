@@ -106,8 +106,8 @@ export function initApiBridgeServer(): void {
 
   server.on("error", (error: NodeJS.ErrnoException) => {
     if (error?.code === "EADDRINUSE") {
-      console.warn(
-        `[API Bridge] Port ${apiPort} is already in use. API bridge disabled. (dashboard: ${dashboardPort})`
+      console.log(
+        `[API Bridge] Port ${apiPort} is already in use; using the existing runtime. (dashboard: ${dashboardPort})`
       );
       return;
     }

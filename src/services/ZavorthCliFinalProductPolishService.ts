@@ -62,8 +62,8 @@ export class ZavorthCliFinalProductPolishService {
       && files.inkIndex.includes('AutoExit')
       && !files.inkIndex.includes('setTimeout(() =>')
       && !files.inkIndex.includes('setInterval(');
-    const noControlSurfaceByDefault = !files.inkIndex.includes('/dashboard')
-      && !files.helpers.includes('Open the Dashboard at /dashboard.')
+    const noControlSurfaceByDefault = !files.inkIndex.includes('/control')
+      && !files.helpers.includes('/control')
       && !files.registry.includes('zavorth control');
     const englishDefaultCriticalPath = !/(Comando vazio|Fechando|Voce|Dica rapida|Seguranca|Painel)/u.test([
       files.inkIndex,
@@ -202,9 +202,9 @@ export class ZavorthCliFinalProductPolishService {
         kind: 'surface',
         passed: files.inkIndex.includes('/dashboard')
           && files.helpers.includes('/dashboard')
-          && !files.inkIndex.includes('/dashboard'),
+          && !files.inkIndex.includes('/control'),
         userVisible: true,
-        evidence: ['/dashboard', 'no /dashboard in Ink preview'],
+        evidence: ['/dashboard', 'no /control in Ink preview'],
       }),
       this.entry({
         id: 'cli.english-critical-path',

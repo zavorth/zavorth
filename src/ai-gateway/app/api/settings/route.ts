@@ -6,7 +6,7 @@ import { timingSafeEqual } from "crypto";
 import { getRuntimePorts } from "@/lib/runtime/ports";
 import { updateSettingsSchema } from "@/shared/validation/settingsSchemas";
 import { isValidationFailure, validateBody } from "@/shared/validation/helpers";
-import { setCliCompatProviders } from "../../../../open-sse/config/cliFingerprints";
+import { setCliCompatProviders } from "../../../open-sse/config/cliFingerprints";
 import { getConsistentMachineId } from "@/shared/utils/machineId";
 import { validateProxyUrl, upsertUpstreamProxyConfig } from "@/lib/db/upstreamProxy";
 import { requireManagementAuth } from "@/lib/api/requireManagementAuth";

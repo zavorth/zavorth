@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo } from "react";
-import Card from "../Card";
+import Card from "../../Card";
 import { getModelColor } from "@/shared/constants/colors";
 import { fmtCompact as fmt, formatApiKeyLabel as maskApiKeyLabel, fmtCost } from "@/shared/utils/formatting";
 import { ResponsiveContainer, Cell, PieChart, Pie, Tooltip } from "recharts";

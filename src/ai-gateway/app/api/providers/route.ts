@@ -16,11 +16,23 @@ import { syncToCloud } from "@/lib/cloudSync";
 import { requireManagementAuth } from "@/lib/api/requireManagementAuth";
 import { createProviderSchema } from "@/shared/validation/schemas";
 import { isValidationFailure, validateBody } from "@/shared/validation/helpers";
-import { normalizeQoderPatProviderData } from "@ZavorthGateway/open-sse/services/qoderCli";
-import {
-  AccessRouteResolutionService,
-  type AccessRouteConnectionInput,
-} from "../../../../services/providers/catalog/AccessRouteResolutionService.js";
+import { normalizeQoderPatProviderData } from "@ZavorthGateway/open-sse/services/qoderCli.ts";
+
+type AccessRouteConnectionInput = {
+  id: string | null;
+  provider: string | null;
+  providerName: string | null;
+  authType: string | null;
+  isActive: boolean;
+  apiKey: string | null;
+  accessToken: string | null;
+  refreshToken: string | null;
+  providerSpecificData: Record<string, unknown> | null;
+  defaultModel: string | null;
+  testStatus: string | null;
+  lastError: string | null;
+  lastTested: string | null;
+};
 
 function toAccessRouteConnectionInput(connection: any): AccessRouteConnectionInput {
   const providerSpecificData =
@@ -44,6 +56,20 @@ function toAccessRouteConnectionInput(connection: any): AccessRouteConnectionInp
   };
 }
 
+function resolveDashboardAccessRoutes(connections: AccessRouteConnectionInput[]) {
+  return connections.map((connection) => ({
+    id: connection.id || connection.provider || "provider",
+    provider: connection.provider,
+    providerName: connection.providerName || connection.provider,
+    authType: connection.authType,
+    defaultModel: connection.defaultModel,
+    status: connection.testStatus || (connection.isActive ? "ready" : "disabled"),
+    isActive: connection.isActive,
+    lastError: connection.lastError,
+    lastTested: connection.lastTested,
+  }));
+}
+
 // GET /api/providers - List all connections
 export async function GET(request: Request) {
   const authError = await requireManagementAuth(request);
@@ -61,10 +87,7 @@ export async function GET(request: Request) {
       idToken: undefined,
     }));
 
-    const accessRoutes = new AccessRouteResolutionService().resolveRoutes({
-      includeAdvanced: true,
-      connections: connections.map(toAccessRouteConnectionInput),
-    });
+    const accessRoutes = resolveDashboardAccessRoutes(connections.map(toAccessRouteConnectionInput));
 
     return NextResponse.json({ connections: safeConnections, accessRoutes });
   } catch (error) {

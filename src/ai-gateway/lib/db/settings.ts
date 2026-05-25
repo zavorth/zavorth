@@ -161,8 +161,17 @@ export async function getPricingForModel(provider: string, model: string) {
   const pricing = await getPricing();
   if (pricing[provider]?.[model]) return pricing[provider][model];
 
-  const { PROVIDER_ID_TO_ALIAS } = await import("@ZavorthGateway/open-sse/config/providerModels");
-  const alias = PROVIDER_ID_TO_ALIAS[provider];
+  let alias: string | undefined;
+  try {
+    const { PROVIDER_ID_TO_ALIAS } = await import("@ZavorthGateway/open-sse/config/providerModels");
+    alias = PROVIDER_ID_TO_ALIAS[provider];
+  } catch {
+    alias = {
+      anthropic: "claude",
+      google: "gemini",
+      openai: "openai",
+    }[provider];
+  }
   if (alias && pricing[alias]) return pricing[alias][model] || null;
 
   const np = provider?.replace(/-cn$/, "");
