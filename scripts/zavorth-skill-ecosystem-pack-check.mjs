@@ -9,7 +9,7 @@ const asJson = process.argv.includes('--json');
 const rules = [
   ruleFilesExist({
     id: 'zavorth-skill-ecosystem-checkpoint-8-files',
-    label: 'Dashboard controls files exist',
+    label: 'ZavorthControl controls files exist',
     target: 'contract, importer, permission profile, smoke runner, receipt emitter, pack service, command, SDK export and tests are present',
     files: [
       'src/contracts/ZavorthSkillEcosystemPackContract.ts',
@@ -80,7 +80,7 @@ const rules = [
   }),
   ruleContainsAll({
     id: 'package-exposes-zavorth-skill-ecosystem-pack',
-    label: 'package exposes Dashboard controls gates',
+    label: 'package exposes ZavorthControl controls gates',
     target: 'operators can inspect, inspect JSON, run check and QA from package scripts',
     files: ['package.json'],
     needles: [
@@ -110,7 +110,7 @@ const snapshot = {
 if (asJson) {
   console.log(JSON.stringify(snapshot, null, 2));
 } else {
-  console.log('[zavorth-skill-ecosystem-pack] checking Dashboard controls');
+  console.log('[zavorth-skill-ecosystem-pack] checking ZavorthControl controls');
   for (const rule of rules) {
     const marker = rule.status === 'passed' ? 'ok' : 'fail';
     console.log(`[zavorth-skill-ecosystem-pack] ${marker} ${rule.label}: ${rule.observed} | ${rule.target}`);
@@ -139,10 +139,10 @@ function runRuntimeRule() {
   if (result.status !== 0) {
     return {
       id: 'zavorth-skill-ecosystem-runtime-receipt',
-      label: 'Runtime Dashboard controls receipt passes',
+      label: 'Runtime ZavorthControl controls receipt passes',
       status: 'failed',
       observed: `exit ${result.status ?? 'unknown'}`,
-      target: 'Dashboard controls command emits a passing skill ecosystem snapshot',
+      target: 'ZavorthControl controls command emits a passing skill ecosystem snapshot',
       details: compactDetails(result.error instanceof Error ? result.error.message : '', result.stderr, result.stdout),
     };
   }
@@ -162,10 +162,10 @@ function runRuntimeRule() {
       && receipt.summary?.secretValuesSerialized === false;
     return {
       id: 'zavorth-skill-ecosystem-runtime-receipt',
-      label: 'Runtime Dashboard controls receipt passes',
+      label: 'Runtime ZavorthControl controls receipt passes',
       status: pass ? 'passed' : 'failed',
       observed: `status=${receipt.status}, manifests=${receipt.summary?.manifests}, connectorConcepts=${receipt.summary?.connectorConcepts}`,
-      target: 'Dashboard controls command emits a passing skill ecosystem snapshot',
+      target: 'ZavorthControl controls command emits a passing skill ecosystem snapshot',
       details: [
         `permissionProfiles=${receipt.summary?.permissionProfiles}`,
         `smokeTests=${receipt.summary?.smokeTests}`,
@@ -180,10 +180,10 @@ function runRuntimeRule() {
   } catch (error) {
     return {
       id: 'zavorth-skill-ecosystem-runtime-receipt',
-      label: 'Runtime Dashboard controls receipt passes',
+      label: 'Runtime ZavorthControl controls receipt passes',
       status: 'failed',
       observed: 'invalid JSON receipt',
-      target: 'Dashboard controls command emits a passing skill ecosystem snapshot',
+      target: 'ZavorthControl controls command emits a passing skill ecosystem snapshot',
       details: [error instanceof Error ? error.message : String(error), ...compactDetails(result.stderr, result.stdout)],
     };
   }
@@ -207,7 +207,7 @@ function ruleContainsNoForbiddenNames() {
     label: 'No forbidden source branding outside reports',
     status: details.length > 0 ? 'failed' : 'passed',
     observed: details.length > 0 ? `${details.length} file(s) with forbidden source branding` : 'no forbidden source branding in code/scripts/tests/package',
-    target: 'new Dashboard controls code and public surfaces use Zavorth-owned names only',
+    target: 'new ZavorthControl controls code and public surfaces use Zavorth-owned names only',
     details,
   };
 }

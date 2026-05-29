@@ -1,0 +1,59 @@
+/* Zavorth Control stylesheet */
+.bsk-zavorthControl,
+.bsk-zavorthControl * {
+    box-sizing: border-box;
+}
+
+.bsk-zavorthControl {
+    max-width: 100vw;
+    overflow-x: hidden;
+}
+
+.bcc-control-grid {
+    grid-template-columns: minmax(0, 1fr);
+}
+
+.bcc-control-grid--chat {
+    display: grid;
+}
+
+.bcc-dock {
+    position: relative;
+}
+
+.bcc-dock__rail {
+    width: 100%;
+    overflow-x: auto;
+}
+
+.bcc-chat-feed {
+    overflow-x: hidden;
+}
+
+.bcc-message {
+    max-width: 100%;
+}
+
+.bcc-advanced-interaction {
+    display: flex;
+}
+
+.bcc-context-meter {
+    position: relative;
+}
+
+.bcc-mermaid-render {
+    font-family: monospace;
+}
+
+@media (max-width: 860px) {
+    .bcc-control-grid {
+        grid-template-columns: minmax(0, 1fr);
+    }
+}
+
+@media (max-width: 700px) {
+    .bcc-dock {
+        width: 100%;
+    }
+}

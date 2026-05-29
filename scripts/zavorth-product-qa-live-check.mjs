@@ -90,8 +90,8 @@ function statusFixture() {
   return jsonRule('status-fixture', result, (snapshot) =>
     snapshot.contractVersion === '2026-05-24.product-qa-live-phase-9'
     && snapshot.status === 'passed'
-    && snapshot.matrix?.length === 9
-    && snapshot.summary?.total === 9
+    && snapshot.matrix?.length === 11
+    && snapshot.summary?.total === 11
     && snapshot.summary?.liveRequired >= 2
     && snapshot.policy?.secretsNeverSerialized === true
     && snapshot.matrix?.every((row) => row.receiptsRequired === true && row.secretValuesSerialized === false));

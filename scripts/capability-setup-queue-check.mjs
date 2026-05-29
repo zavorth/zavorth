@@ -8,7 +8,7 @@ const asJson = process.argv.includes('--json');
 const rules = [
   ruleFilesExist({
     id: 'capability-setup-queue-files',
-    label: 'Capability Setup Queue Dashboard controls files exist',
+    label: 'Capability Setup Queue ZavorthControl controls files exist',
     target: 'contract, service, API facade, CLI, tests and docs are present',
     files: [
       'src/contracts/CapabilitySetupQueueContract.ts',
@@ -95,7 +95,7 @@ const snapshot = {
 if (asJson) {
   console.log(JSON.stringify(snapshot, null, 2));
 } else {
-  console.log('[capability-setup-queue] checking Dashboard controls');
+  console.log('[capability-setup-queue] checking ZavorthControl controls');
   for (const rule of rules) {
     const marker = rule.status === 'passed' ? 'ok' : 'fail';
     console.log(`[capability-setup-queue] ${marker} ${rule.label}: ${rule.observed} | ${rule.target}`);

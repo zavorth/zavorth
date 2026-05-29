@@ -1,6 +1,7 @@
 import readline from 'node:readline';
 import { Box, Text, render, useApp } from 'ink';
 import { useEffect } from 'react';
+// /zavorthControl
 
 type Tone = 'primary' | 'muted' | 'accent' | 'success' | 'warning' | 'danger';
 

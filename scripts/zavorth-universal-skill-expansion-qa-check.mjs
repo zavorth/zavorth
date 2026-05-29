@@ -70,7 +70,7 @@ function ruleContainsMarkers() {
     ['src/contracts/ZavorthUniversalSkillExpansionQaContract.ts', [
       'ZAVORTH_UNIVERSAL_SKILL_EXPANSION_QA_CONTRACT_VERSION',
       'telemetryIsAggregateOnly',
-      'Dashboard controls - Real Source Onboarding and Continuous Regression',
+      'ZavorthControl controls - Real Source Onboarding and Continuous Regression',
     ]],
     ['src/services/UniversalSkillExpansionQaService.ts', [
       'buildMatrix',

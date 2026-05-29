@@ -5,7 +5,7 @@ live in issues, private project management, or scoped design docs.
 
 ## Current Product Priorities
 
-- Keep `/dashboard` as the main user-facing web surface.
+- Keep `/zavorthControl` as the main user-facing web surface.
 - Keep CLI, Satellite and channels as thin projections over the governed runtime.
 - Preserve honest readiness for providers, channels, sandbox, scheduler,
   subagents, skills and perception/device capabilities.
@@ -16,4 +16,4 @@ live in issues, private project management, or scoped design docs.
 ## Before Public Presentation
 
 - Run `npm run release:check`.
-- Confirm screenshots and README assets match the current `/dashboard`.
+- Confirm screenshots and README assets match the current `/zavorthControl`.

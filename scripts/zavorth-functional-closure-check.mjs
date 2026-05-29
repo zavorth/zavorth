@@ -10,10 +10,10 @@ const rules = [
   ruleFilesExist({
     id: 'zavorth-functional-closure-checkpoint-9-files',
     label: 'Certification matrix files exist',
-    target: 'contract, dashboard, ledger updater, release gate, closure service, command, SDK export and tests are present',
+    target: 'contract, zavorthControl, ledger updater, release gate, closure service, command, SDK export and tests are present',
     files: [
       'src/contracts/ZavorthFunctionalClosureContract.ts',
-      'src/services/ZavorthFunctionalClosureDashboardService.ts',
+      'src/services/ZavorthFunctionalClosureZavorthControlService.ts',
       'src/services/ZavorthLedgerDecisionUpdaterService.ts',
       'src/services/ZavorthFunctionalReleaseGateService.ts',
       'src/services/ZavorthFunctionalClosureService.ts',
@@ -26,11 +26,11 @@ const rules = [
   ruleContainsAll({
     id: 'zavorth-functional-closure-contract',
     label: 'Contract captures full functional closure model',
-    target: 'contract includes dashboard, decision updater, release gate, priorities and machine-readable receipts',
+    target: 'contract includes zavorthControl, decision updater, release gate, priorities and machine-readable receipts',
     files: ['src/contracts/ZavorthFunctionalClosureContract.ts'],
     needles: [
       'ZAVORTH_FUNCTIONAL_CLOSURE_CONTRACT_VERSION',
-      'ZavorthFunctionalClosureDashboardSnapshot',
+      'ZavorthFunctionalClosureZavorthControlSnapshot',
       'ZavorthLedgerDecisionUpdaterSnapshot',
       'ZavorthFunctionalReleaseGateSnapshot',
       'machineReadable: true',
@@ -42,15 +42,15 @@ const rules = [
   ruleContainsAcross({
     id: 'zavorth-functional-closure-services',
     label: 'Closure services aggregate evidence and gates',
-    target: 'services build dashboard rows, preview ledger updates only with receipts and block release regressions',
+    target: 'services build zavorthControl rows, preview ledger updates only with receipts and block release regressions',
     files: [
-      'src/services/ZavorthFunctionalClosureDashboardService.ts',
+      'src/services/ZavorthFunctionalClosureZavorthControlService.ts',
       'src/services/ZavorthLedgerDecisionUpdaterService.ts',
       'src/services/ZavorthFunctionalReleaseGateService.ts',
       'src/services/ZavorthFunctionalClosureService.ts',
     ],
     needles: [
-      'Zavorth Functional Closure Dashboard',
+      'Zavorth Functional Closure ZavorthControl',
       'neverUpdateWithoutReceipt',
       'p0MustBeReceiptBacked',
       'releaseAllowed',

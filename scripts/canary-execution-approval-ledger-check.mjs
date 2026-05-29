@@ -35,7 +35,7 @@ const rules = [
       'rollbackCheckpointRequired: true',
       'auditSinkRequired: true',
       'supportBridgeRequired: true',
-      'observabilityDashboardRequired: true',
+      'observabilityZavorthControlRequired: true',
       'noAutomaticExecution: true',
       'secretsSerialized: false',
     ],

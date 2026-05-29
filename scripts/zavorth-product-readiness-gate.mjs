@@ -15,10 +15,10 @@ const checks = [
     required: true,
     docs: ['docs/zavorth-cli.md'],
   }),
-  check('dashboard-control', 'Dashboard /dashboard visual and product QA', ['npm', ['run', 'zavorth:dashboard-final-product-polish:check', '--silent']], {
-    category: 'dashboard',
+  check('zavorthControl-control', 'ZavorthControl /control visual and product QA', ['npm', ['run', 'zavorth:zavorthControl-final-product-polish:check', '--silent']], {
+    category: 'zavorthControl',
     required: true,
-    docs: ['docs/web-dashboard.md', 'docs/dashboard-visual-qa.md'],
+    docs: ['docs/web-zavorthControl.md', 'docs/control-visual-qa.md'],
   }),
   check('live-certification', 'Live certification matrix and long-tail adapter honesty', ['npm', ['run', 'zavorth:live-certification-matrix:check', '--silent']], {
     category: 'live-adapters',
@@ -42,7 +42,7 @@ const checks = [
     required: true,
     docs: ['docs/install.md', 'docs/quickstart.md', 'docs/README.md'],
   }),
-  check('capability-absorption', 'OpenClaw/Hermes/Zavorth-native absorption map', ['npm', ['run', 'zavorth:capability-absorption:check', '--silent']], {
+  check('capability-absorption', 'OpenClaw/Zavorth-native/Zavorth-native absorption map', ['npm', ['run', 'zavorth:capability-absorption:check', '--silent']], {
     category: 'product-strategy',
     required: true,
     docs: ['docs/capability-absorption.md'],
@@ -57,10 +57,10 @@ const checks = [
     required: true,
     docs: ['docs/native-learning-loop.md', 'docs/mnemos-memory-os.md'],
   }),
-  check('dashboard-hermes-class', 'Hermes-class Dashboard tool cards, subagents, queue and reconnect', ['npm', ['run', 'zavorth:dashboard-hermes-class:check', '--silent']], {
-    category: 'dashboard',
+  check('zavorth-control-advanced-interaction', 'Zavorth-native advanced ZavorthControl tool cards, subagents, queue and reconnect', ['npm', ['run', 'zavorth:zavorth-control-advanced-interaction:check', '--silent']], {
+    category: 'zavorthControl',
     required: true,
-    docs: ['docs/web-dashboard.md', 'docs/dashboard-hermes-class.md'],
+    docs: ['docs/web-zavorthControl.md', 'docs/zavorth-control-advanced-interaction.md'],
   }),
   check('native-browser-computer-use', 'Native browser and computer-use governed sidecar capability', ['npm', ['run', 'zavorth:native-browser-computer-use:check', '--silent']], {
     category: 'perception',
@@ -78,7 +78,7 @@ const checks = [
     category: 'apps-satellite',
     required: true,
     liveCapable: true,
-    docs: ['docs/apps-satellite-nodes.md', 'docs/web-dashboard.md'],
+    docs: ['docs/apps-satellite-nodes.md', 'docs/web-zavorthControl.md'],
   }),
   check('extension-plugin-sdk', 'Extension and plugin SDK manifest, permissions, lifecycle, marketplace and hot reload', ['npm', ['run', 'zavorth:extension-plugin-sdk:check', '--silent']], {
     category: 'plugins',
@@ -86,7 +86,7 @@ const checks = [
     liveCapable: true,
     docs: ['docs/extension-plugin-sdk.md', 'docs/capability-plugins.md'],
   }),
-  check('product-qa-live', 'Final live product QA matrix for install, provider, Telegram, mutation, receipt, dashboard, CLI, learning and rollback/sandbox', ['npm', ['run', 'zavorth:product-qa-live:check', '--silent']], {
+  check('product-qa-live', 'Final live product QA matrix for install, provider, Telegram, mutation, receipt, zavorthControl, CLI, learning and rollback/sandbox', ['npm', ['run', 'zavorth:product-qa-live:check', '--silent']], {
     category: 'product-live-qa',
     required: true,
     liveCapable: true,
@@ -130,7 +130,7 @@ const snapshot = {
     noWorkspaceMutationBeyondChecks: true,
     liveAdaptersNotFaked: true,
     credentialsRequiredForLiveProof: true,
-    dashboardControlCovered: true,
+    zavorthControlControlCovered: true,
     cliTerminalCovered: true,
     installDocsCovered: true,
     executorContractsCovered: true,

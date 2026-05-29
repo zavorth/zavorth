@@ -124,7 +124,7 @@ const snapshot = {
 if (asJson) {
   console.log(JSON.stringify(snapshot, null, 2));
 } else {
-  console.log('[operational-parity-tooling] checking Dashboard controls');
+  console.log('[operational-parity-tooling] checking ZavorthControl controls');
   for (const rule of rules) {
     const marker = rule.status === 'passed' ? 'ok' : 'fail';
     console.log(`[operational-parity-tooling] ${marker} ${rule.label}: ${rule.observed} | ${rule.target}`);

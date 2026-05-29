@@ -7,7 +7,7 @@ import {
   type ZavorthLiveCertificationMatrixSnapshot,
 } from '../contracts/ZavorthLiveCertificationMatrixContract.js';
 import { ZavorthCliFinalProductPolishService } from './ZavorthCliFinalProductPolishService.js';
-import { ZavorthDashboardFinalProductPolishService } from './ZavorthDashboardFinalProductPolishService.js';
+import { ZavorthControlFinalProductPolishService } from './ZavorthControlFinalProductPolishService.js';
 import { ZavorthEndToEndMissionFlowPublicRuntimeCertificationService } from './ZavorthEndToEndMissionFlowPublicRuntimeCertificationService.js';
 import { ZavorthLiveReadinessEvidenceProofPackService } from './ZavorthLiveReadinessEvidenceProofPackService.js';
 import { ZavorthSandboxControlPlaneService } from './ZavorthSandboxControlPlaneService.js';
@@ -16,7 +16,7 @@ import { ZavorthSubagentSkillLiveCompletionService } from './ZavorthSubagentSkil
 
 type Runtime = {
   now?: () => Date;
-  dashboard?: Pick<ZavorthDashboardFinalProductPolishService, 'buildSnapshot'>;
+  dashboard?: Pick<ZavorthControlFinalProductPolishService, 'buildSnapshot'>;
   cli?: Pick<ZavorthCliFinalProductPolishService, 'buildSnapshot'>;
   missionFlow?: Pick<ZavorthEndToEndMissionFlowPublicRuntimeCertificationService, 'buildSnapshot'>;
   liveReadiness?: Pick<ZavorthLiveReadinessEvidenceProofPackService, 'buildSnapshot'>;
@@ -27,7 +27,7 @@ type Runtime = {
 
 export class ZavorthLiveCertificationMatrixService {
   private readonly now: () => Date;
-  private readonly dashboard: Pick<ZavorthDashboardFinalProductPolishService, 'buildSnapshot'>;
+  private readonly dashboard: Pick<ZavorthControlFinalProductPolishService, 'buildSnapshot'>;
   private readonly cli: Pick<ZavorthCliFinalProductPolishService, 'buildSnapshot'>;
   private readonly missionFlow: Pick<ZavorthEndToEndMissionFlowPublicRuntimeCertificationService, 'buildSnapshot'>;
   private readonly liveReadiness: Pick<ZavorthLiveReadinessEvidenceProofPackService, 'buildSnapshot'>;
@@ -37,7 +37,7 @@ export class ZavorthLiveCertificationMatrixService {
 
   public constructor(runtime: Runtime = {}) {
     this.now = runtime.now || (() => new Date());
-    this.dashboard = runtime.dashboard || new ZavorthDashboardFinalProductPolishService({ now: this.now });
+    this.dashboard = runtime.dashboard || new ZavorthControlFinalProductPolishService({ now: this.now });
     this.cli = runtime.cli || new ZavorthCliFinalProductPolishService({ now: this.now });
     this.missionFlow = runtime.missionFlow || new ZavorthEndToEndMissionFlowPublicRuntimeCertificationService({ now: this.now });
     this.liveReadiness = runtime.liveReadiness || new ZavorthLiveReadinessEvidenceProofPackService({ now: this.now });
@@ -134,7 +134,7 @@ export class ZavorthLiveCertificationMatrixService {
 }
 
 function buildMatrix(input: {
-  dashboard: Awaited<ReturnType<ZavorthDashboardFinalProductPolishService['buildSnapshot']>>;
+  dashboard: Awaited<ReturnType<ZavorthControlFinalProductPolishService['buildSnapshot']>>;
   cli: Awaited<ReturnType<ZavorthCliFinalProductPolishService['buildSnapshot']>>;
   missionFlow: Awaited<ReturnType<ZavorthEndToEndMissionFlowPublicRuntimeCertificationService['buildSnapshot']>>;
   liveReadiness: Awaited<ReturnType<ZavorthLiveReadinessEvidenceProofPackService['buildSnapshot']>>;
@@ -155,9 +155,9 @@ function buildMatrix(input: {
 
   return [
     item('dashboard', 'Dashboard gateway', 'surface', input.dashboard.status === 'passed' ? 'dry_run_passed' : 'blocked', true, true, [
-      `path=${input.dashboard.summary.dashboardPath}`,
+      `path=${input.dashboard.summary.zavorthControlPath}`,
       `chatFirst=${input.dashboard.summary.chatFirstHome}`,
-      `displayOnly=${input.dashboard.safety.dashboardIsDisplayOnly}`,
+      `displayOnly=${input.dashboard.safety.zavorthControlIsDisplayOnly}`,
     ], null),
     item('cli', 'CLI daily-use surface', 'surface', input.cli.status === 'passed' ? 'dry_run_passed' : 'blocked', true, true, [
       `commands=${input.cli.summary.requiredCommands.length}`,

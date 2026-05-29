@@ -27,11 +27,11 @@ const snapshot = JSON.parse(output);
 if (snapshot.surface !== 'visual-receipts-v2') {
   throw new Error(`unexpected surface ${snapshot.surface}`);
 }
-if (snapshot.safety.dashboardCanExecute !== false || snapshot.safety.rawSecretsSerialized !== false) {
+if (snapshot.safety.zavorthControlCanExecute !== false || snapshot.safety.rawSecretsSerialized !== false) {
   throw new Error('visual receipts v2 safety invariant missing');
 }
-if (!snapshot.cards.every((card) => card.safeActions.every((action) => action.dashboardCanExecute === false))) {
-  throw new Error('receipt actions must not execute from dashboard');
+if (!snapshot.cards.every((card) => card.safeActions.every((action) => action.zavorthControlCanExecute === false))) {
+  throw new Error('receipt actions must not execute from zavorthControl');
 }
 if (/\bsk-[A-Za-z0-9_-]{12,}\b/.test(output)) {
   throw new Error('raw secret leaked in visual receipts v2 output');

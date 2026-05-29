@@ -77,7 +77,7 @@ function ruleContainsMarkers() {
     ['tests/services/ZavorthPerceptionDeviceControlCompletionService.test.ts', [
       'PC screenshot/read-only vision',
       'Android ADB observe/read-only evidence',
-      'tap/type/click/install/dashboard',
+      'tap/type/click/install/zavorthControl',
     ]],
   ];
   const missing = [];

@@ -61,7 +61,7 @@ async function main(): Promise<void> {
       'Safety:',
       '  Read-only by default.',
       '  PR comments, patches and live review agents require --approval=<id>.',
-      '  Without approval, the command only surfaces findings, dashboard lanes and receipts.',
+      '  Without approval, the command only surfaces findings, zavorthControl lanes and receipts.',
       '',
     ].join('\n'));
     return;

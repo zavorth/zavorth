@@ -121,7 +121,7 @@ export class GeminiManagedAgentExecutor implements IExecutor {
       },
     };
 
-    const response = await this.fetch(`${this.baseUrl}/interactions`, {
+      const response = await this.requestSafe(`${this.baseUrl}/interactions`, {
       method: 'POST',
       headers: {
         'content-type': 'application/json',
@@ -137,7 +137,7 @@ export class GeminiManagedAgentExecutor implements IExecutor {
     return body;
   }
 
-  private async fetch(url: string, init: RequestInit): Promise<Response> {
+  private async requestSafe(url: string, init: RequestInit): Promise<Response> {
     if (this.fetchImpl) {
       return this.fetchImpl(url, init);
     }

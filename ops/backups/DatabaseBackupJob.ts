@@ -80,7 +80,7 @@ export function buildDefaultBackupRuntimeConfig(): DefaultBackupRuntimeConfig {
     securityAuditTrailDir: config.securityAuditTrailDir,
     runtimeStateFiles: dedupePaths([
       config.zavorthWebAuthTokenFile,
-      config.dashboardRuntimeStateFile,
+      config.zavorthControlRuntimeStateFile,
       config.mcpRuntimeStateFile,
       config.nodeMeshStateFile,
       config.nodeMeshSecretsFile,

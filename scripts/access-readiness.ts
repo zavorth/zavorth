@@ -11,7 +11,7 @@ async function main() {
     report.local.ready
     || (
       report.runtime.telegramWorker.alive
-      && (report.runtime.hostSupervisor.alive || report.runtime.dashboard?.active === true)
+      && (report.runtime.hostSupervisor.alive || report.runtime.zavorthControl?.active === true)
     );
 
   if (asJson) {
@@ -28,7 +28,7 @@ async function main() {
     `[zavorth-access] remoto: ${report.remote.ready ? 'pronto' : 'pendente'} | ${report.remote.baseUrl || 'nao configurado'}`,
   );
   console.log(
-    `[zavorth-access] host: ${report.runtime.hostSupervisor.alive || report.runtime.dashboard?.active ? 'online' : 'offline'} | worker: ${report.runtime.telegramWorker.alive ? 'online' : 'offline'}`,
+    `[zavorth-access] host: ${report.runtime.hostSupervisor.alive || report.runtime.zavorthControl?.active ? 'online' : 'offline'} | worker: ${report.runtime.telegramWorker.alive ? 'online' : 'offline'}`,
   );
   console.log(
     `[zavorth-access] ${

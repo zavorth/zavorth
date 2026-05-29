@@ -21,13 +21,13 @@ const GROUPS = [
   },
   {
     id: 'ai-gateway',
-    label: 'AI gateway and dashboard app contracts',
+    label: 'AI gateway and zavorthControl app contracts',
     paths: ['tests/ai-gateway', 'tests/apps'],
   },
   {
-    id: 'domain-dashboard',
-    label: 'Domain dashboard surface',
-    paths: ['tests/domain/surface/presentation/dashboard'],
+    id: 'domain-zavorthControl',
+    label: 'Domain zavorthControl surface',
+    paths: ['tests/domain/surface/presentation/zavorthControl'],
   },
   {
     id: 'domain-web',

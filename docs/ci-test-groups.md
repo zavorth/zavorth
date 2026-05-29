@@ -9,7 +9,7 @@ npm run test:ci:list
 npm run test:ci:security
 npm run test:ci:api
 npm run test:ci:ai-gateway
-npm run test:ci:domain-dashboard
+npm run test:ci:domain-zavorthControl
 npm run test:ci:domain-web
 npm run test:ci:domain-shared
 npm run test:ci:telegram

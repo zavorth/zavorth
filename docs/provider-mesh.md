@@ -77,27 +77,27 @@ Catalog support is intentionally not live proof. A provider can be configured an
 still be blocked from default routing until it has either healthy runtime
 evidence or a fresh explicit live probe.
 
-The Dashboard provider cockpit is a projection contract, not a visual
+The ZavorthControl provider cockpit is a projection contract, not a visual
 change by itself. It exposes cards, actions, health checks and receipts for
-`/dashboard`, but keeps `executionAuthority=false` and
-`visualMutationApplied=false` until a concrete dashboard block is approved.
+`/control`, but keeps `executionAuthority=false` and
+`visualMutationApplied=false` until a concrete zavorthControl block is approved.
 
 The visual approval pack turns that projection into a reviewable proposal:
 target placement, data bindings, interaction model, acceptance criteria and
 rollback plan. It still keeps `approved=false`, `userVisible=false` and does
-not touch the dashboard layout.
+not touch the zavorthControl layout.
 
-## Dashboard Provider Cockpit
+## ZavorthControl Provider Cockpit
 
-The approved dashboard block is implemented as a narrow right-panel card in
-`/dashboard`. It renders only the `providerCockpit` projection published by the
+The approved zavorthControl block is implemented as a narrow right-panel card in
+`/control`. It renders only the `providerCockpit` projection published by the
 runtime:
 
 - ready/total provider counts;
 - live pass/fail/blocked counters;
 - top provider cards with readiness, live state and sanitized evidence;
 - read/probe command preparation through the chat draft;
-- no dashboard-side provider fetches, no raw secrets and no hidden execution.
+- no zavorthControl-side provider fetches, no raw secrets and no hidden execution.
 
-Live probes remain explicit operator actions. The Dashboard can prepare
+Live probes remain explicit operator actions. The ZavorthControl can prepare
 the command, but it does not execute provider calls from the browser.

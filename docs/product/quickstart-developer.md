@@ -31,13 +31,13 @@ npm run security:ci
 npm run build --silent
 ```
 
-## 4. Open The Dashboard
+## 4. Open The ZavorthControl
 
 ```text
-http://127.0.0.1:33333/dashboard
+http://127.0.0.1:33333/control
 ```
 
-Use the Dashboard to inspect runtime, sessions, approvals, nodes, transports and integrations without relying on hidden local state.
+Use the ZavorthControl to inspect runtime, sessions, approvals, nodes, transports and integrations without relying on hidden local state.
 
 ## Notes
 

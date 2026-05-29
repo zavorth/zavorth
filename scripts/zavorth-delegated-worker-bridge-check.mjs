@@ -78,7 +78,7 @@ function ruleContainsMarkers() {
     ]],
     ['docs/README.md', [
       'delegated-workers-ready',
-      '291 Dashboard controls - Native Replacement And Decommission',
+      '291 ZavorthControl controls - Native Replacement And Decommission',
       'Zavorth Delegated Worker Bridge',
     ]],
     ['docs/README.md', [
@@ -87,7 +87,7 @@ function ruleContainsMarkers() {
       'zavorth-gateway-delegated-only',
       'dry-run',
       'artifact/event/status',
-      '291 Dashboard controls - Native Replacement And Decommission',
+      '291 ZavorthControl controls - Native Replacement And Decommission',
     ]],
     ['package.json', [
       'zavorth:delegated-worker-bridge',

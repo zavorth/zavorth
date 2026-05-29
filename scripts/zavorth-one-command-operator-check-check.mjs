@@ -33,14 +33,14 @@ if (snapshot.contractVersion !== 'zavorth-one-command-operator-check/1') failure
 if (snapshot.surface !== 'one-command-operator-check') failures.push('surface mismatch');
 if (!['ready', 'attention', 'blocked'].includes(snapshot.status)) failures.push('invalid status');
 if (snapshot.summary?.areas !== 5) failures.push('expected exactly five operator areas');
-for (const id of ['ready-to-go', 'daily-use', 'dashboard-permissions', 'trust-approvals', 'operator-safety']) {
+for (const id of ['ready-to-go', 'daily-use', 'zavorthControl-permissions', 'trust-approvals', 'operator-safety']) {
   if (!snapshot.areas?.some((area) => area.id === id)) failures.push(`missing area ${id}`);
 }
 if (snapshot.safety?.noPromptExecution !== true) failures.push('prompt execution safety missing');
 if (snapshot.safety?.noToolExecution !== true) failures.push('tool execution safety missing');
 if (snapshot.safety?.noLiveTransactionExecution !== true) failures.push('transaction safety missing');
-if (snapshot.safety?.dashboardCanExecuteTargetAction !== false) failures.push('dashboard execution boundary missing');
-if (snapshot.source?.dashboard?.permissionPanel?.items?.length !== 5) failures.push('dashboard permission panel not linked');
+if (snapshot.safety?.zavorthControlCanExecuteTargetAction !== false) failures.push('zavorthControl execution boundary missing');
+if (snapshot.source?.zavorthControl?.permissionPanel?.items?.length !== 5) failures.push('zavorthControl permission panel not linked');
 if (snapshot.summary?.liveProviderProbeRequested !== false) failures.push('default check must not run live provider probe');
 
 run([JEST_CLI, 'tests/services/ZavorthOneCommandOperatorCheckService.test.ts', '--runInBand']);

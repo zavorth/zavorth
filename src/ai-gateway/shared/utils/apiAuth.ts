@@ -156,6 +156,9 @@ export function isPublicRoute(pathname: string): boolean {
 function normalizeRequestHostname(value: string | null | undefined): string {
   const raw = String(value || "").trim().toLowerCase();
   if (!raw) return "";
+  if (raw.startsWith("::ffff:")) {
+    return raw.slice("::ffff:".length);
+  }
 
   try {
     return new URL(raw.includes("://") ? raw : `http://${raw}`)
@@ -168,7 +171,8 @@ function normalizeRequestHostname(value: string | null | undefined): string {
 }
 
 function isLoopbackHostname(hostname: string): boolean {
-  const normalized = normalizeRequestHostname(hostname);
+  const normalized = normalizeRequestHostname(hostname)
+    .replace(/^::ffff:/, "");
   return (
     normalized === "localhost" ||
     normalized === "127.0.0.1" ||
@@ -197,7 +201,9 @@ export function isLoopbackRequest(request: Request): boolean {
     })(),
     getHeader(request, "host"),
     getHeader(request, "x-forwarded-host"),
-  ].filter(Boolean);
+  ]
+    .flatMap((value) => String(value || "").split(",").map((entry) => entry.trim()))
+    .filter(Boolean);
 
   if (hostCandidates.length === 0 || !hostCandidates.every((host) => isLoopbackHostname(host))) {
     return false;

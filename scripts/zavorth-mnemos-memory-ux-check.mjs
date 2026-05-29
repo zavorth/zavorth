@@ -6,7 +6,7 @@ const requiredFiles = [
   'src/services/ZavorthMnemosMemoryUxService.ts',
   'scripts/zavorth-mnemos-memory-ux.ts',
   'tests/services/ZavorthMnemosMemoryUxService.test.ts',
-  'src/ai-gateway/app/(dashboard)/dashboard/HomePageClient.tsx',
+  'src/ai-gateway/app/(zavorthControl)/zavorthControl/HomePageClient.tsx',
   'src/telegram/TelegramCommandRoutingService.ts',
   'src/telegram/controllers/TelegramMnemosMemoryUxController.ts',
 ];
@@ -18,11 +18,11 @@ for (const file of requiredFiles) {
 
 const service = fs.existsSync(requiredFiles[1]) ? fs.readFileSync(requiredFiles[1], 'utf8') : '';
 const packageJson = fs.existsSync('package.json') ? fs.readFileSync('package.json', 'utf8') : '';
-const dashboard = fs.existsSync(requiredFiles[4]) ? fs.readFileSync(requiredFiles[4], 'utf8') : '';
+const zavorthControl = fs.existsSync(requiredFiles[4]) ? fs.readFileSync(requiredFiles[4], 'utf8') : '';
 const telegram = fs.existsSync(requiredFiles[5]) ? fs.readFileSync(requiredFiles[5], 'utf8') : '';
 
 for (const marker of [
-  'dashboardCanWriteMemory: false',
+  'zavorthControlCanWriteMemory: false',
   'cliWriteRequiresApproval: true',
   'telegramWriteRequiresApproval: true',
   'rawJsonHiddenByDefault: true',
@@ -39,7 +39,7 @@ for (const marker of ['mnemos:ux', 'mnemos:ux:check']) {
 }
 
 for (const marker of ['Mnemos Memory', 'Memory Health', 'Procedural Rules', 'Wiki Query']) {
-  if (!dashboard.includes(marker)) failures.push(`dashboard marker missing: ${marker}`);
+  if (!zavorthControl.includes(marker)) failures.push(`zavorthControl marker missing: ${marker}`);
 }
 
 if (!telegram.includes("case '/mnemos'")) failures.push('telegram /mnemos route missing');
@@ -50,7 +50,7 @@ if (!failures.length) {
     : ['tsx', 'scripts/zavorth-mnemos-memory-ux.ts', '--json'], { encoding: 'utf8' });
   const snapshot = JSON.parse(output);
   if (snapshot.version !== 'zavorth-mnemos-memory-ux-v1') failures.push('unexpected memory ux version');
-  if (snapshot.safety.dashboardCanWriteMemory !== false) failures.push('dashboard must remain read-only');
+  if (snapshot.safety.zavorthControlCanWriteMemory !== false) failures.push('zavorthControl must remain read-only');
 }
 
 if (!failures.length) {

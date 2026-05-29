@@ -51,6 +51,8 @@ export type ZavorthUniversalSkillDashboardReviewItem = {
   ownerApprovalRequired: true;
 };
 
+export type ZavorthUniversalSkillZavorthControlReviewItem = ZavorthUniversalSkillDashboardReviewItem;
+
 export type ZavorthUniversalSkillScaleHardeningSnapshot = {
   generatedAt: string;
   contractVersion: typeof ZAVORTH_UNIVERSAL_SKILL_SCALE_HARDENING_CONTRACT_VERSION;
@@ -74,6 +76,13 @@ export type ZavorthUniversalSkillScaleHardeningSnapshot = {
     approvedVisualChangesApplied: false;
     layoutMutationPerformed: false;
     items: ZavorthUniversalSkillDashboardReviewItem[];
+    recommendedDataEndpoint: '/api/skills/scale-hardening';
+  };
+  zavorthControlReview?: {
+    contractOnly: true;
+    approvedVisualChangesApplied: false;
+    layoutMutationPerformed: false;
+    items: ZavorthUniversalSkillZavorthControlReviewItem[];
     recommendedDataEndpoint: '/api/skills/scale-hardening';
   };
   rollout: {

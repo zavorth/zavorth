@@ -1,7 +1,7 @@
-import { ZavorthDashboardExperienceHomeService } from '../src/services/ZavorthDashboardExperienceHomeService.js';
+import { ZavorthControlExperienceHomeService } from '../src/services/ZavorthControlExperienceHomeService.js';
 
 const args = process.argv.slice(2);
-const service = new ZavorthDashboardExperienceHomeService();
+const service = new ZavorthControlExperienceHomeService();
 const snapshot = service.buildSnapshot();
 
 if (args.includes('--json')) {

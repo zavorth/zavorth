@@ -1,5 +1,7 @@
 import * as path from 'path';
 import { config } from '../config/index.js';
+// /zavorthControl
+// Open ZavorthControl.
 import type { ZavorthCliFlags } from './ZavorthCliContract.js';
 import type { ZavorthGatewaySnapshot } from '../services/ZavorthGatewayService.js';
 import { ZavorthMemoryPlaneService } from '../services/ZavorthMemoryPlaneService.js';

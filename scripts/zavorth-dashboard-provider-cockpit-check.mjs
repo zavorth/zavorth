@@ -1,4 +1,4 @@
-#!/usr/bin/env node
+﻿#!/usr/bin/env node
 import { execFileSync } from 'node:child_process';
 import fs from 'node:fs';
 import path from 'node:path';
@@ -7,10 +7,10 @@ const root = process.cwd();
 const asJson = process.argv.includes('--json');
 const rules = [];
 const requiredFiles = [
-  'src/contracts/ZavorthDashboardProviderCockpitContract.ts',
-  'src/services/ZavorthDashboardProviderCockpitService.ts',
-  'scripts/zavorth-dashboard-provider-cockpit.ts',
-  'tests/services/ZavorthDashboardProviderCockpitService.test.ts',
+  'src/contracts/ZavorthControlProviderCockpitContract.ts',
+  'src/services/ZavorthControlProviderCockpitService.ts',
+  'scripts/zavorth-control-provider-cockpit.ts',
+  'tests/services/ZavorthControlProviderCockpitService.test.ts',
 ];
 
 for (const file of requiredFiles) {
@@ -24,15 +24,15 @@ for (const file of requiredFiles) {
 const projection = runCockpit(['--json']);
 
 if (projection) {
-  assertRule('contract:version', projection.contractVersion === '2026-05-13.checkpoint-6', 'Dashboard provider cockpit contract is current');
-  assertRule('surface:cockpit', projection.surface === 'dashboard-provider-cockpit', 'Provider cockpit projection surface is exposed');
-  assertRule('policy:no-execution', projection.executionAuthority === false, 'Dashboard provider cockpit cannot execute provider calls');
-  assertRule('policy:no-visual-mutation', projection.visualMutationApplied === false, 'Provider cockpit does not mutate dashboard visuals without approval');
+  assertRule('contract:version', projection.contractVersion === '2026-05-13.checkpoint-6', 'ZavorthControl provider cockpit contract is current');
+  assertRule('surface:cockpit', projection.surface === 'zavorthControl-provider-cockpit', 'Provider cockpit projection surface is exposed');
+  assertRule('policy:no-execution', projection.executionAuthority === false, 'ZavorthControl provider cockpit cannot execute provider calls');
+  assertRule('policy:no-visual-mutation', projection.visualMutationApplied === false, 'Provider cockpit does not mutate zavorthControl visuals without approval');
   assertRule('cards:present', Array.isArray(projection.cards) && projection.cards.length > 0, 'Provider cockpit cards are projected');
   assertRule('actions:projected', projection.actions?.some((entry) => entry.id === 'providers:live-selected'), 'Provider live action is projected');
-  assertRule('actions:no-dashboard-execute', projection.actions?.every((entry) => entry.dashboardCanExecute === false) && projection.cards?.every((card) => card.actions.every((entry) => entry.dashboardCanExecute === false)), 'Projected actions are not dashboard execution authority');
+  assertRule('actions:no-zavorthControl-execute', projection.actions?.every((entry) => entry.zavorthControlCanExecute === false) && projection.cards?.every((card) => card.actions.every((entry) => entry.zavorthControlCanExecute === false)), 'Projected actions are not zavorthControl execution authority');
   assertRule('safety:no-secrets', !JSON.stringify(projection).match(/sk-[A-Za-z0-9_-]{20,}|AIza[A-Za-z0-9_-]{20,}|Bearer\s+[A-Za-z0-9._-]{20,}/), 'Provider cockpit does not serialize raw provider secrets');
-  assertRule('projection:visual-approval', projection.dashboardProjection?.visualApprovalRequired === true, 'Visual rendering remains approval-gated');
+  assertRule('projection:visual-approval', projection.zavorthControlProjection?.visualApprovalRequired === true, 'Visual rendering remains approval-gated');
 }
 
 const failed = rules.filter((rule) => rule.status === 'failed');
@@ -50,9 +50,9 @@ const result = {
 if (asJson) {
   console.log(JSON.stringify(result, null, 2));
 } else {
-  console.log('[dashboard-provider-cockpit] certification');
+  console.log('[zavorthControl-provider-cockpit] certification');
   for (const rule of rules) {
-    console.log(`[dashboard-provider-cockpit] ${rule.status === 'passed' ? 'ok' : 'fail'} ${rule.id}: ${rule.summary}`);
+    console.log(`[zavorthControl-provider-cockpit] ${rule.status === 'passed' ? 'ok' : 'fail'} ${rule.id}: ${rule.summary}`);
   }
 }
 
@@ -64,8 +64,8 @@ function runCockpit(args) {
   try {
     const command = process.platform === 'win32' ? 'cmd.exe' : 'npx';
     const fullArgs = process.platform === 'win32'
-      ? ['/d', '/s', '/c', 'npx', 'tsx', 'scripts/zavorth-dashboard-provider-cockpit.ts', ...args]
-      : ['tsx', 'scripts/zavorth-dashboard-provider-cockpit.ts', ...args];
+      ? ['/d', '/s', '/c', 'npx', 'tsx', 'scripts/zavorth-control-provider-cockpit.ts', ...args]
+      : ['tsx', 'scripts/zavorth-control-provider-cockpit.ts', ...args];
     const output = execFileSync(command, fullArgs, {
       cwd: root,
       encoding: 'utf8',

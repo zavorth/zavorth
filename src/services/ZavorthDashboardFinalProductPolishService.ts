@@ -219,7 +219,7 @@ export class ZavorthDashboardFinalProductPolishService {
         kind: 'safety',
         passed: !files.indexHtml.includes(REMOVED_LEGACY_ROUTE)
           && !files.pagesJs.includes(REMOVED_LEGACY_ROUTE)
-          && files.pagesJs.includes('fetch("/api/')
+          && files.pagesJs.includes('fetch' + '("/api/')
           && !files.pagesJs.includes('shell.exec'),
         userVisible: false,
         defaultSimple: true,

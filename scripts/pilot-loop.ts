@@ -3,7 +3,7 @@ import fs from 'fs';
 import path from 'path';
 import { PilotLoopService } from '../src/services/PilotLoopService.js';
 import {
-  PILOT_DASHBOARD_METRICS,
+  PILOT_ZAVORTH_CONTROL_METRICS,
   PILOT_FEEDBACK_TEMPLATES,
   PILOT_LEDGER_ENTRIES,
   PILOT_SUPPORT_POLICY,
@@ -15,13 +15,13 @@ const asJson = argv.includes('--json');
 const requirePass = argv.includes('--require-pass') || argv.includes('--gate');
 const shouldWritePreview = argv.includes('--preview') || requirePass;
 const shouldWriteLedger = argv.includes('--ledger') || requirePass;
-const shouldWriteDashboard = argv.includes('--dashboard') || requirePass;
+const shouldWriteZavorthControl = argv.includes('--zavorthControl') || requirePass;
 const projectRoot = process.cwd();
 const websiteRoot = resolveWebsiteRoot();
 const artifactDir = resolveArtifactDir();
 const feedbackPreviewPath = path.join(artifactDir, 'feedback-preview-redacted.json');
 const pilotLedgerPath = path.join(artifactDir, 'pilot-ledger.json');
-const dashboardPath = path.join(artifactDir, 'support-dashboard.json');
+const zavorthControlPath = path.join(artifactDir, 'support-zavorthControl.json');
 
 async function main(): Promise<void> {
   fs.mkdirSync(artifactDir, { recursive: true });
@@ -32,8 +32,8 @@ async function main(): Promise<void> {
   if (shouldWriteLedger) {
     writeJson(pilotLedgerPath, buildPilotLedger());
   }
-  if (shouldWriteDashboard) {
-    writeJson(dashboardPath, buildDashboard());
+  if (shouldWriteZavorthControl) {
+    writeJson(zavorthControlPath, buildZavorthControl());
   }
 
   const service = new PilotLoopService({
@@ -42,8 +42,8 @@ async function main(): Promise<void> {
     artifactDir,
     feedbackPreviewPath,
     pilotLedgerPath,
-    dashboardPath,
-    requireArtifacts: requirePass || shouldWritePreview || shouldWriteLedger || shouldWriteDashboard,
+    zavorthControlPath,
+    requireArtifacts: requirePass || shouldWritePreview || shouldWriteLedger || shouldWriteZavorthControl,
   });
   const snapshot = service.buildSnapshot();
 
@@ -109,8 +109,8 @@ function buildPilotLedger() {
   };
 }
 
-function buildDashboard() {
-  const metricValues = PILOT_DASHBOARD_METRICS.map((metric) => ({
+function buildZavorthControl() {
+  const metricValues = PILOT_ZAVORTH_CONTROL_METRICS.map((metric) => ({
     ...metric,
     value: metric.id === 'pilot-status' ? { planned: PILOT_LEDGER_ENTRIES.length, active: 0, complete: 0 } : 0,
   }));
@@ -123,7 +123,7 @@ function buildDashboard() {
     metrics: metricValues,
     aggregationOnly: true,
     notes: [
-      'Dashboard agrega area, severidade, status e follow-ups.',
+      'ZavorthControl agrega area, severidade, status e follow-ups.',
       'Nenhum payload bruto, token, secret ou path pessoal entra no artifact.',
     ],
   };

@@ -5,8 +5,8 @@ import path from 'path';
 import { pathToFileURL } from 'url';
 
 let config = null;
-let dashboardServiceModule = null;
-let dashboardRuntimeConfig = null;
+let zavorthControlServiceModule = null;
+let zavorthControlRuntimeConfig = null;
 
 async function loadConfig() {
   if (config) {
@@ -28,39 +28,39 @@ async function loadConfig() {
   return config;
 }
 
-async function loadDashboardServiceModule() {
-  if (dashboardServiceModule) {
+async function loadZavorthControlServiceModule() {
+  if (zavorthControlServiceModule) {
     return {
-      module: dashboardServiceModule,
-      runtimeConfig: dashboardRuntimeConfig,
+      module: zavorthControlServiceModule,
+      runtimeConfig: zavorthControlRuntimeConfig,
     };
   }
 
   const rootDir = process.cwd();
   const candidates = [
     {
-      servicePath: path.resolve(rootDir, 'dist', 'services', 'DashboardService.js'),
+      servicePath: path.resolve(rootDir, 'dist', 'services', 'ZavorthControlService.js'),
       configPath: path.resolve(rootDir, 'dist', 'config', 'index.js'),
     },
     {
-      servicePath: path.resolve(rootDir, 'src', 'services', 'DashboardService.js'),
+      servicePath: path.resolve(rootDir, 'src', 'services', 'ZavorthControlService.js'),
       configPath: path.resolve(rootDir, 'src', 'config', 'index.js'),
     },
     {
-      servicePath: path.resolve(rootDir, 'src', 'services', 'DashboardService.ts'),
+      servicePath: path.resolve(rootDir, 'src', 'services', 'ZavorthControlService.ts'),
       configPath: path.resolve(rootDir, 'src', 'config', 'index.ts'),
     },
   ];
   const selected = candidates.find((candidate) => fs.existsSync(candidate.servicePath) && fs.existsSync(candidate.configPath));
   if (!selected) {
-    throw new Error('Nao foi possivel localizar DashboardService para o smoke web.');
+    throw new Error('Nao foi possivel localizar ZavorthControlService para o smoke web.');
   }
-  dashboardServiceModule = await import(pathToFileURL(selected.servicePath).href);
+  zavorthControlServiceModule = await import(pathToFileURL(selected.servicePath).href);
   const configModule = await import(pathToFileURL(selected.configPath).href);
-  dashboardRuntimeConfig = configModule.config;
+  zavorthControlRuntimeConfig = configModule.config;
   return {
-    module: dashboardServiceModule,
-    runtimeConfig: dashboardRuntimeConfig,
+    module: zavorthControlServiceModule,
+    runtimeConfig: zavorthControlRuntimeConfig,
   };
 }
 
@@ -235,11 +235,11 @@ async function inspectCandidateBaseUrl(baseUrl) {
       };
     }
   } catch {
-    // keep probing /dashboard below
+    // keep probing /zavorthControl below
   }
 
   try {
-    const shell = await fetchWithTimeout(`${candidate}/dashboard`, {}, 4000);
+    const shell = await fetchWithTimeout(`${candidate}/zavorthControl`, {}, 4000);
     if (shell.ok) {
       return {
         baseUrl: candidate,
@@ -281,7 +281,7 @@ function listBaseUrlCandidates(explicitBaseUrl = '') {
     return [explicit];
   }
 
-  const runtimeStateUrl = readRuntimeStateBaseUrl(config.dashboardRuntimeStateFile);
+  const runtimeStateUrl = readRuntimeStateBaseUrl(config.zavorthControlRuntimeStateFile);
   const fallbackUrl = normalizeLocalBaseUrl(`http://${config.zavorthWebHost}:${config.zavorthWebPort}`);
   return Array.from(new Set([runtimeStateUrl, fallbackUrl].filter(Boolean)));
 }
@@ -339,7 +339,7 @@ async function waitForAppShell(baseUrl, waitMs = 20_000) {
   const deadline = Date.now() + waitMs;
   while (Date.now() < deadline) {
     try {
-      const response = await fetchWithTimeout(`${baseUrl}/dashboard`, {}, 4000);
+      const response = await fetchWithTimeout(`${baseUrl}/zavorthControl`, {}, 4000);
       if (response.ok) {
         return true;
       }
@@ -359,12 +359,12 @@ function authHeaders(token, extra = {}) {
   return headers;
 }
 
-function snapshotDashboardConfig(targetConfig) {
+function snapshotZavorthControlConfig(targetConfig) {
   return {
     zavorthWebHost: targetConfig.zavorthWebHost,
     zavorthWebPort: targetConfig.zavorthWebPort,
     zavorthWebAuthToken: targetConfig.zavorthWebAuthToken,
-    dashboardRuntimeStateFile: targetConfig.dashboardRuntimeStateFile,
+    zavorthControlRuntimeStateFile: targetConfig.zavorthControlRuntimeStateFile,
   };
 }
 
@@ -463,11 +463,11 @@ function createTemporaryWebRuntimeDeps() {
   };
 }
 
-async function startTemporaryDashboardService() {
-  const { module, runtimeConfig } = await loadDashboardServiceModule();
-  const { DashboardService } = module;
+async function startTemporaryZavorthControlService() {
+  const { module, runtimeConfig } = await loadZavorthControlServiceModule();
+  const { ZavorthControlService } = module;
   const runtimeRoot = fs.mkdtempSync(path.join(os.tmpdir(), 'zavorth-web-smoke-'));
-  const previousConfig = snapshotDashboardConfig(runtimeConfig);
+  const previousConfig = snapshotZavorthControlConfig(runtimeConfig);
   const port = await reserveFreePort();
   const logRepo = {
     log: () => undefined,
@@ -478,9 +478,9 @@ async function startTemporaryDashboardService() {
   runtimeConfig.zavorthWebHost = '127.0.0.1';
   runtimeConfig.zavorthWebPort = port;
   runtimeConfig.zavorthWebAuthToken = 'web-smoke-temporary-token';
-  runtimeConfig.dashboardRuntimeStateFile = path.join(runtimeRoot, 'dashboard-runtime.json');
+  runtimeConfig.zavorthControlRuntimeStateFile = path.join(runtimeRoot, 'zavorthControl-runtime.json');
 
-  const service = new DashboardService(logRepo, createTemporaryWebRuntimeDeps());
+  const service = new ZavorthControlService(logRepo, createTemporaryWebRuntimeDeps());
   const baseUrl = await service.start();
   const token = await resolveWorkingToken(baseUrl, runtimeConfig.zavorthWebAuthToken);
 
@@ -493,7 +493,7 @@ async function startTemporaryDashboardService() {
         runtimeConfig.zavorthWebHost = previousConfig.zavorthWebHost;
         runtimeConfig.zavorthWebPort = previousConfig.zavorthWebPort;
         runtimeConfig.zavorthWebAuthToken = previousConfig.zavorthWebAuthToken;
-        runtimeConfig.dashboardRuntimeStateFile = previousConfig.dashboardRuntimeStateFile;
+        runtimeConfig.zavorthControlRuntimeStateFile = previousConfig.zavorthControlRuntimeStateFile;
         fs.rmSync(runtimeRoot, { recursive: true, force: true });
       } finally {
         restoreConsole();
@@ -508,7 +508,7 @@ function makeResult(name, status, detail, required = true) {
 
 async function smokeHtmlShell(baseUrl) {
   try {
-    const response = await fetchWithTimeout(`${baseUrl}/dashboard`, {}, 8000);
+    const response = await fetchWithTimeout(`${baseUrl}/zavorthControl`, {}, 8000);
     const html = await response.text();
     if (!response.ok) {
       throw new Error(`status ${response.status}`);
@@ -528,9 +528,9 @@ async function smokeHtmlShell(baseUrl) {
       throw new Error(`HTML sem elementos esperados: ${missing.join(', ')}`);
     }
 
-    return makeResult('Dashboard shell', 'PASSOU', 'HTML principal do /dashboard carregou com o gateway oficial.');
+    return makeResult('ZavorthControl shell', 'PASSOU', 'HTML principal do /zavorthControl carregou com o gateway oficial.');
   } catch (error) {
-    return makeResult('Dashboard shell', 'FALHOU', error?.message || String(error));
+    return makeResult('ZavorthControl shell', 'FALHOU', error?.message || String(error));
   }
 }
 
@@ -863,7 +863,7 @@ async function run() {
 
   let ready = await waitForAppShell(baseUrl, waitMs);
   if (!ready) {
-    console.log(`Host nao respondeu em ${baseUrl}/dashboard dentro de ${waitMs}ms; seguindo para o fallback deterministico.\n`);
+    console.log(`Host nao respondeu em ${baseUrl}/zavorthControl dentro de ${waitMs}ms; seguindo para o fallback deterministico.\n`);
   }
 
   const authorized = await resolveAuthorizedBaseUrl(args.baseUrl || '', args.token || '');
@@ -892,14 +892,14 @@ async function run() {
 
   const blockingFailures = finalResults.filter((entry) => entry.required && entry.status === 'FALHOU');
   if (blockingFailures.length > 0) {
-    console.log('\nHost real nao respondeu ao smoke leve; iniciando dashboard temporario para validacao deterministica.\n');
-    const temporaryDashboard = await startTemporaryDashboardService();
+    console.log('\nHost real nao respondeu ao smoke leve; iniciando zavorthControl temporario para validacao deterministica.\n');
+    const temporaryZavorthControl = await startTemporaryZavorthControlService();
     try {
-      await waitForAppShell(temporaryDashboard.baseUrl, Math.max(waitMs, 30_000));
-      finalBaseUrl = temporaryDashboard.baseUrl;
-      finalResults = await runFallbackSmokeAttempt(temporaryDashboard.baseUrl, temporaryDashboard.token);
+      await waitForAppShell(temporaryZavorthControl.baseUrl, Math.max(waitMs, 30_000));
+      finalBaseUrl = temporaryZavorthControl.baseUrl;
+      finalResults = await runFallbackSmokeAttempt(temporaryZavorthControl.baseUrl, temporaryZavorthControl.token);
     } finally {
-      await temporaryDashboard.cleanup();
+      await temporaryZavorthControl.cleanup();
     }
   }
 

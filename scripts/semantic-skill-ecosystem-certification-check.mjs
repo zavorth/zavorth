@@ -55,7 +55,7 @@ addCheck(
 
 const service = read('src/services/ZavorthSemanticSkillEcosystemCertificationService.ts');
 addCheck(
-  'Service certifies guarded Dashboard controls skill semantics',
+  'Service certifies guarded ZavorthControl controls skill semantics',
   [
     'ZavorthSkillEcosystemPackService',
     'manifestClaim',
@@ -67,7 +67,7 @@ addCheck(
     'lifecycleReceiptClaim',
     'unsafeSkillClaims',
   ].every((marker) => service.includes(marker)),
-  'service converts Dashboard controls skill ecosystem evidence into behavior-level semantic claims',
+  'service converts ZavorthControl controls skill ecosystem evidence into behavior-level semantic claims',
 );
 
 const command = read('scripts/semantic-skill-ecosystem-certification.ts');

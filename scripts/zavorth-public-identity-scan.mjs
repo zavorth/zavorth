@@ -38,7 +38,7 @@ const LAUNCH_FACING_RETIRED_EXECUTOR_FILES = [
   'src/execution/execution-gateway/ExecutionGatewayAliases.ts',
   'src/ai-gateway/shared/constants/cliTools.ts',
   'src/ai-gateway/shared/services/cli-runtime/cliRuntimeTools.ts',
-  'src/ai-gateway/app/(dashboard)/dashboard/cli-tools/components/managed-cli-tool-card/managedCliToolProfiles.ts',
+  'src/ai-gateway/app/(zavorthControl)/zavorthControl/cli-tools/components/managed-cli-tool-card/managedCliToolProfiles.ts',
   'src/ai-gateway/app/api/cli-tools/_shared/externalExecutorSettingsRoute.ts',
   'src/ai-gateway/lib/acp/registry.ts',
   'src/domain/platform-ecosystem/infrastructure/integration-registry/catalog-local.ts',
@@ -148,9 +148,9 @@ function resolvePublicIdentityPaths(manifest) {
     'scripts/setup-v3.ts',
     'scripts/install-zavorth.ps1',
     'scripts/install-zavorth.sh',
-    'src/ai-gateway/app/(dashboard)/dashboard/page.tsx',
-    'src/ai-gateway/app/(dashboard)/dashboard/dashboardPageClient.header.tsx',
-    'src/ai-gateway/app/(dashboard)/dashboard/dashboard/projections/zavorthAgentGatewayRuntimeProjection.ts',
+    'src/ai-gateway/app/(zavorthControl)/zavorthControl/page.tsx',
+    'src/ai-gateway/app/(zavorthControl)/zavorthControl/zavorthControlPageClient.header.tsx',
+    'src/ai-gateway/app/(zavorthControl)/zavorthControl/zavorthControl/projections/zavorthAgentGatewayRuntimeProjection.ts',
   ]);
 
   for (const entry of manifest.files || []) {

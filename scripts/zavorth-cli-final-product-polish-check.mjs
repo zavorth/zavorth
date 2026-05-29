@@ -62,7 +62,7 @@ function ruleContainsMarkers() {
       'Zavorth Agent OS / Command Runtime',
       'AutoExit',
       'waitUntilExit()',
-      '/dashboard',
+      '/zavorthControl',
       '/exit',
       'Subagent Deck',
       'Receipt Preview',
@@ -91,8 +91,8 @@ function ruleContainsMarkers() {
       'zavorth skills',
       'zavorth review',
       'zavorth trust',
-      '/dashboard',
-      'Open Dashboard.',
+      '/zavorthControl',
+      'Open ZavorthControl.',
     ]],
   ];
   const missing = [];
@@ -111,7 +111,7 @@ function ruleContainsMarkers() {
     'CLI polish markers are wired',
     missing.length === 0,
     missing.length === 0 ? 'all markers' : `${missing.length} missing`,
-    'daily commands, stable Ink, /dashboard, receipts and safety markers exist',
+    'daily commands, stable Ink, /zavorthControl, receipts and safety markers exist',
     missing,
   );
 }
@@ -198,7 +198,7 @@ function ruleSnapshot() {
   const pass = data
     && data.contractVersion === '2026-05-14.checkpoint-12-cli-final-product-polish'
     && data.status === 'passed'
-    && data.summary?.dashboardPath === '/dashboard'
+    && data.summary?.zavorthControlPath === '/control'
     && data.summary?.inkPreviewRendersOnce === true
     && data.summary?.inkInteractiveMode === true
     && data.summary?.noInfiniteRenderLoop === true
@@ -209,7 +209,7 @@ function ruleSnapshot() {
     'CLI polish snapshot runs',
     pass,
     data ? `status=${data.status}; entries=${data.summary?.entries}` : 'invalid json',
-    'CLI is stable, readable, dashboard-aligned and safe by design',
+    'CLI is stable, readable, zavorthControl-aligned and safe by design',
     pass ? [] : [result.stdout],
   );
 }

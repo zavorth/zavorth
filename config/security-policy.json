@@ -22,6 +22,7 @@
     "**/.env.*",
     "**/credentials*",
     "**/secrets*",
+    "**/secrets_*.txt",
     "**/*.pem",
     "**/*.key",
     "**/id_rsa*",
@@ -64,7 +65,8 @@
 
   "allowed_workspaces": [
     "C:/workspace/projeto-exemplo",
-    "C:/workspace/zavorth-release"
+    "C:/workspace/zavorth-release",
+    "C:/TESTES DEV"
   ],
 
   "sensitive_directories": [

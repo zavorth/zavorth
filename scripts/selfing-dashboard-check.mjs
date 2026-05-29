@@ -7,30 +7,30 @@ const asJson = process.argv.includes('--json');
 
 const rules = [
   ruleFilesExist({
-    id: 'selfing-dashboard-files',
-    label: 'Selfing Dashboard files exist',
-    target: 'Runtime, CLI, Dashboard, tests and docs are present',
+    id: 'selfing-zavorthControl-files',
+    label: 'Selfing ZavorthControl files exist',
+    target: 'Runtime, CLI, ZavorthControl, tests and docs are present',
     files: [
-      'src/runtime/agent/SelfingDashboardService.ts',
-      'src/cli/ZavorthCliSelfingDashboardRenderer.ts',
-      'tests/runtime/agent/SelfingDashboardService.test.ts',
-      'tests/runtime/agent/AgentRunServiceSelfingDashboard.test.ts',
-      'tests/cli/ZavorthCliSelfingDashboard.test.ts',
-      'tests/ai-gateway/dashboard/DashboardSelfingDashboard.test.ts',
+      'src/runtime/agent/SelfingZavorthControlService.ts',
+      'src/cli/ZavorthCliSelfingZavorthControlRenderer.ts',
+      'tests/runtime/agent/SelfingZavorthControlService.test.ts',
+      'tests/runtime/agent/AgentRunServiceSelfingZavorthControl.test.ts',
+      'tests/cli/ZavorthCliSelfingZavorthControl.test.ts',
+      'tests/ai-gateway/zavorthControl/ZavorthControlSelfingZavorthControl.test.ts',
       'docs/README.md',
     ],
   }),
   ruleContainsAll({
-    id: 'selfing-dashboard-contract',
-    label: 'Selfing Dashboard contract explains identity and memory',
-    target: 'SelfingDashboardSnapshot includes cards, suggestions, receipts, policy and no-mutation guarantees',
-    files: ['src/runtime/agent/SelfingDashboardService.ts'],
+    id: 'selfing-zavorthControl-contract',
+    label: 'Selfing ZavorthControl contract explains identity and memory',
+    target: 'SelfingZavorthControlSnapshot includes cards, suggestions, receipts, policy and no-mutation guarantees',
+    files: ['src/runtime/agent/SelfingZavorthControlService.ts'],
     needles: [
-      'SELFING_DASHBOARD_CONTRACT_VERSION',
-      '2026-05-03.selfing-dashboard',
-      'SelfingDashboardCard',
-      'SelfingDashboardSuggestion',
-      'SelfingDashboardReceipt',
+      'SELFING_ZAVORTH_CONTROL_CONTRACT_VERSION',
+      '2026-05-03.selfing-zavorthControl',
+      'SelfingZavorthControlCard',
+      'SelfingZavorthControlSuggestion',
+      'SelfingZavorthControlReceipt',
       'readOnlySnapshot',
       'noIdentityChanged',
       'changesRequirePreview',
@@ -39,68 +39,68 @@ const rules = [
     ],
   }),
   ruleContainsAcross({
-    id: 'agent-run-uses-selfing-dashboard',
-    label: 'Agent run publishes Selfing Dashboard',
-    target: 'AgentRunService writes run.metadata.selfingDashboard and exports the contract',
+    id: 'agent-run-uses-selfing-zavorthControl',
+    label: 'Agent run publishes Selfing ZavorthControl',
+    target: 'AgentRunService writes run.metadata.selfingZavorthControl and exports the contract',
     files: [
       'src/runtime/agent/AgentRunService.ts',
       'src/runtime/agent/index.ts',
-      'tests/runtime/agent/AgentRunServiceSelfingDashboard.test.ts',
+      'tests/runtime/agent/AgentRunServiceSelfingZavorthControl.test.ts',
     ],
     needles: [
-      'SelfingDashboardService',
-      'selfingDashboard',
-      'applySelfingDashboard',
-      'SELFING_DASHBOARD_CONTRACT_VERSION',
+      'SelfingZavorthControlService',
+      'selfingZavorthControl',
+      'applySelfingZavorthControl',
+      'SELFING_ZAVORTH_CONTROL_CONTRACT_VERSION',
     ],
   }),
   ruleContainsAcross({
-    id: 'cli-exposes-selfing-dashboard',
-    label: 'CLI exposes Selfing Dashboard',
+    id: 'cli-exposes-selfing-zavorthControl',
+    label: 'CLI exposes Selfing ZavorthControl',
     target: 'zavorth selfing renders identity/memory cards in text or JSON',
     files: [
       'src/cli/ZavorthCliRegistryOps.ts',
-      'src/cli/ZavorthCliSelfingDashboardRenderer.ts',
-      'tests/cli/ZavorthCliSelfingDashboard.test.ts',
+      'src/cli/ZavorthCliSelfingZavorthControlRenderer.ts',
+      'tests/cli/ZavorthCliSelfingZavorthControl.test.ts',
     ],
     needles: [
       'selfing',
-      'Selfing Dashboard - Selfing Dashboard',
-      'resolveSelfingDashboardCliText',
-      'formatSelfingDashboardSnapshot',
+      'Selfing ZavorthControl - Selfing ZavorthControl',
+      'resolveSelfingZavorthControlCliText',
+      'formatSelfingZavorthControlSnapshot',
       'zavorth selfing',
     ],
   }),
   ruleContainsAcross({
-    id: 'dashboard-projects-selfing-dashboard',
-    label: 'Dashboard projects Selfing Dashboard',
-    target: '/dashboard reads selfingDashboard from run metadata and renders it in dreams sector',
+    id: 'zavorthControl-projects-selfing-zavorthControl',
+    label: 'ZavorthControl projects Selfing ZavorthControl',
+    target: '/zavorthControl reads selfingZavorthControl from run metadata and renders it in dreams sector',
     files: [
-      'src/ai-gateway/app/(dashboard)/dashboard/dashboard/contracts/dashboardDashboardContracts.ts',
-      'src/ai-gateway/app/(dashboard)/dashboard/dashboard/adapters/dashboardDashboardAdapter.ts',
-      'src/ai-gateway/app/(dashboard)/dashboard/dashboard/projections/dashboardRuntimeProjection.ts',
-      'src/ai-gateway/app/(dashboard)/dashboard/dashboard/projections/zavorthAgentGatewayRuntimeProjection.ts',
-      'src/ai-gateway/app/(dashboard)/dashboard/dashboard/components/DashboardControlShell.tsx',
-      'tests/ai-gateway/dashboard/DashboardSelfingDashboard.test.ts',
+      'src/ai-gateway/app/(zavorthControl)/zavorthControl/zavorthControl/contracts/zavorthControlZavorthControlContracts.ts',
+      'src/ai-gateway/app/(zavorthControl)/zavorthControl/zavorthControl/adapters/zavorthControlZavorthControlAdapter.ts',
+      'src/ai-gateway/app/(zavorthControl)/zavorthControl/zavorthControl/projections/zavorthControlRuntimeProjection.ts',
+      'src/ai-gateway/app/(zavorthControl)/zavorthControl/zavorthControl/projections/zavorthAgentGatewayRuntimeProjection.ts',
+      'src/ai-gateway/app/(zavorthControl)/zavorthControl/zavorthControl/components/ZavorthControlControlShell.tsx',
+      'tests/ai-gateway/zavorthControl/ZavorthControlSelfingZavorthControl.test.ts',
     ],
     needles: [
-      'DashboardSelfingDashboardSnapshot',
-      'selfingDashboard',
-      'buildSelfingDashboard',
-      'mapSelfingDashboard',
+      'ZavorthControlSelfingZavorthControlSnapshot',
+      'selfingZavorthControl',
+      'buildSelfingZavorthControl',
+      'mapSelfingZavorthControl',
       'Selfing',
       'summary.cardCount',
     ],
   }),
   ruleContainsAll({
-    id: 'package-exposes-selfing-dashboard-gate',
-    label: 'package exposes Selfing Dashboard gate',
-    target: 'local QA can run selfing-dashboard:check and qa:selfing-dashboard',
+    id: 'package-exposes-selfing-zavorthControl-gate',
+    label: 'package exposes Selfing ZavorthControl gate',
+    target: 'local QA can run selfing-zavorthControl:check and qa:selfing-zavorthControl',
     files: ['package.json'],
     needles: [
-      'selfing-dashboard:check',
-      'qa:selfing-dashboard',
-      'scripts/selfing-dashboard-check.mjs',
+      'selfing-zavorthControl:check',
+      'qa:selfing-zavorthControl',
+      'scripts/selfing-zavorthControl-check.mjs',
     ],
   }),
 ];
@@ -120,10 +120,10 @@ const snapshot = {
 if (asJson) {
   console.log(JSON.stringify(snapshot, null, 2));
 } else {
-  console.log('[selfing-dashboard] checking Selfing Dashboard');
+  console.log('[selfing-zavorthControl] checking Selfing ZavorthControl');
   for (const rule of rules) {
     const marker = rule.status === 'passed' ? 'ok' : 'fail';
-    console.log(`[selfing-dashboard] ${marker} ${rule.label}: ${rule.observed} | ${rule.target}`);
+    console.log(`[selfing-zavorthControl] ${marker} ${rule.label}: ${rule.observed} | ${rule.target}`);
     for (const detail of rule.details.slice(0, 8)) {
       console.log(`  - ${detail}`);
     }

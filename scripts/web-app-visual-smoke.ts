@@ -198,7 +198,7 @@ async function launchBrowserRuntime(baseUrl: string, waitMs: number): Promise<Br
     '--no-default-browser-check',
     `--remote-debugging-port=${debugPort}`,
     `--user-data-dir=${userDataDir}`,
-    `${baseUrl}/dashboard`,
+    `${baseUrl}/zavorthControl`,
   ], {
     stdio: 'ignore',
     windowsHide: true,
@@ -256,13 +256,13 @@ async function launchBrowserRuntime(baseUrl: string, waitMs: number): Promise<Br
     });
   }
 
-  const target = await send('Target.createTarget', { url: `${baseUrl}/dashboard` });
+  const target = await send('Target.createTarget', { url: `${baseUrl}/zavorthControl` });
   const targetId = String(target.targetId || '');
   const attached = await send('Target.attachToTarget', { targetId, flatten: true });
   currentSessionId = String(attached.sessionId || '');
   await sessionSend('Page.enable');
   await sessionSend('Runtime.enable');
-  await sessionSend('Page.navigate', { url: `${baseUrl}/dashboard` });
+  await sessionSend('Page.navigate', { url: `${baseUrl}/zavorthControl` });
   await sleep(2000);
 
   return {

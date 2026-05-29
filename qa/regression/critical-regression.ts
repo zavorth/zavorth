@@ -5,7 +5,7 @@ import { RemoteTransportDoctorService } from '../../src/services/RemoteTransport
 import { extractJsonPayloadFromText, fetchJsonWithTimeout } from '../QaSupport.js';
 import {
   reserveFreePort,
-  startTemporaryDashboardService,
+  startTemporaryZavorthControlService,
   waitForWebShell,
 } from '../WebShellSupport.js';
 import { RegressionHarness } from './CriticalHarness.js';
@@ -199,19 +199,19 @@ async function runRegression() {
         });
       } catch {
         const tempPort = await reserveFreePort();
-        const tempDashboard = await startTemporaryDashboardService(tempPort);
+        const tempZavorthControl = await startTemporaryZavorthControlService(tempPort);
         try {
-          const ready = await waitForWebShell(tempDashboard.baseUrl, 90_000);
+          const ready = await waitForWebShell(tempZavorthControl.baseUrl, 90_000);
           authStatus = ready.authStatus;
           appStatus = ready.appStatus;
           return {
-            baseUrl: tempDashboard.baseUrl,
+            baseUrl: tempZavorthControl.baseUrl,
             authStatus,
             appStatus,
             bootedTemporarily: true,
           };
         } finally {
-          await tempDashboard.cleanup();
+          await tempZavorthControl.cleanup();
         }
       }
       const appResponse = await fetch(`${baseUrl}/app`);

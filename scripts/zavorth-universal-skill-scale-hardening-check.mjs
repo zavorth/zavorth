@@ -71,13 +71,13 @@ function ruleContainsMarkers() {
     ['src/contracts/ZavorthUniversalSkillScaleHardeningContract.ts', [
       'ZAVORTH_UNIVERSAL_SKILL_SCALE_HARDENING_CONTRACT_VERSION',
       'noVisualChangeWithoutOwnerApproval',
-      'Intent model0 - Approved Dashboard Implementation and Live Scale Canary',
+      'Intent model0 - Approved ZavorthControl Implementation and Live Scale Canary',
     ]],
     ['src/services/UniversalSkillScaleHardeningService.ts', [
-      'dashboardControlsOnboardingIsAuthority',
-      'buildDashboardReviewItems',
+      'zavorthControlControlsOnboardingIsAuthority',
+      'buildZavorthControlReviewItems',
       'canaryBeforeBulkApply',
-      'dashboardReviewDoesNotChangeVisuals',
+      'zavorthControlReviewDoesNotChangeVisuals',
       'buildBatches',
     ]],
     ['scripts/zavorth-universal-skill-scale-hardening.ts', [
@@ -109,7 +109,7 @@ function ruleContainsMarkers() {
     label: 'Certification matrix markers are present',
     status: missing.length === 0 ? 'passed' : 'failed',
     observed: missing.length === 0 ? 'all markers present' : `${missing.length} missing marker(s)`,
-    target: 'scale hardening has batch, canary, dashboard review and no-visual-mutation markers',
+    target: 'scale hardening has batch, canary, zavorthControl review and no-visual-mutation markers',
     details: missing,
   };
 }
@@ -120,7 +120,7 @@ function runBatchPlanFixture() {
     return runScaleRule({
       id: 'universal-skill-scale-hardening-batch-plan',
       label: 'Builds batch plan for larger libraries',
-      target: '7 candidates with batch-size 3 produce 3 approval-gated batches and dashboard contract',
+      target: '7 candidates with batch-size 3 produce 3 approval-gated batches and zavorthControl contract',
       args: [
         '--project-root', fixture.root,
         '--source', fixture.source,
@@ -133,7 +133,7 @@ function runBatchPlanFixture() {
         && snapshot.capacity.scaleBand === 'large'
         && snapshot.capacity.batchCount === 3
         && snapshot.batches.every((batch) => batch.approvalRequired === true)
-        && snapshot.dashboardReview.contractOnly === true,
+        && snapshot.zavorthControlReview.contractOnly === true,
     });
   } finally {
     fs.rmSync(fixture.root, { recursive: true, force: true });
@@ -155,7 +155,7 @@ function runScaleGateFixture() {
         '--json',
       ],
       expect: (snapshot) => snapshot.status === 'blocked'
-        && snapshot.gates.some((gate) => gate.id === 'dashboard-controls-onboarding' && gate.status === 'blocked')
+        && snapshot.gates.some((gate) => gate.id === 'zavorthControl-controls-onboarding' && gate.status === 'blocked')
         && snapshot.rollout.recommendedMode === 'hold',
     });
   } finally {
@@ -194,18 +194,18 @@ function runNoVisualMutationFixture() {
   try {
     return runScaleRule({
       id: 'universal-skill-scale-hardening-no-visual-mutation',
-      label: 'Dashboard review does not mutate visuals',
-      target: 'review emits dashboard items while preserving owner approval requirement',
+      label: 'ZavorthControl review does not mutate visuals',
+      target: 'review emits zavorthControl items while preserving owner approval requirement',
       args: [
         '--project-root', fixture.root,
         '--source', fixture.source,
         '--no-discover',
         '--json',
       ],
-      expect: (snapshot) => snapshot.dashboardReview.approvedVisualChangesApplied === false
-        && snapshot.dashboardReview.layoutMutationPerformed === false
-        && snapshot.dashboardReview.items.length >= 5
-        && snapshot.dashboardReview.items.every((item) => item.ownerApprovalRequired === true)
+      expect: (snapshot) => snapshot.zavorthControlReview.approvedVisualChangesApplied === false
+        && snapshot.zavorthControlReview.layoutMutationPerformed === false
+        && snapshot.zavorthControlReview.items.length >= 5
+        && snapshot.zavorthControlReview.items.every((item) => item.ownerApprovalRequired === true)
         && snapshot.policy.noVisualChangeWithoutOwnerApproval === true,
     });
   } finally {
@@ -242,7 +242,7 @@ function runScaleRule(input) {
       id: input.id,
       label: input.label,
       status: pass ? 'passed' : 'failed',
-      observed: `status=${snapshot.status}, band=${snapshot.capacity?.scaleBand}, batches=${snapshot.capacity?.batchCount}, dashboard=${snapshot.dashboardReview?.items?.length}`,
+      observed: `status=${snapshot.status}, band=${snapshot.capacity?.scaleBand}, batches=${snapshot.capacity?.batchCount}, zavorthControl=${snapshot.zavorthControlReview?.items?.length}`,
       target: input.target,
       details: pass ? [] : [JSON.stringify(snapshot, null, 2)],
     };

@@ -6,7 +6,7 @@ import { fileURLToPath } from "node:url";
 import { chromium } from "playwright";
 
 const rootDir = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
-const defaultOutDir = path.join(rootDir, ".tmp", "dashboard-live-chat-qa");
+const defaultOutDir = path.join(rootDir, ".tmp", "zavorthControl-live-chat-qa");
 
 type CliOptions = {
   url: string;
@@ -66,7 +66,7 @@ function readOptions(): CliOptions {
   const tokenFile = readRuntimeTokenFile();
   const allowOperationalSend = process.argv.includes("--allow-operational-send");
   return {
-    url: readCliValue("url") || "http://127.0.0.1:3000/dashboard",
+    url: readCliValue("url") || "http://127.0.0.1:3000/zavorthControl",
     outDir: path.resolve(rootDir, readCliValue("out") || defaultOutDir),
     token: tokenArg || envToken || envFileToken || tokenFile,
     requirePass: process.argv.includes("--require-pass"),
@@ -93,7 +93,7 @@ function writeReport(report: LiveChatQaReport): void {
   fs.writeFileSync(
     path.join(report.outDir, "summary.md"),
     [
-      "# Dashboard Live Chat QA",
+      "# ZavorthControl Live Chat QA",
       "",
       `Status: ${report.ok ? "PASS" : "FAIL"}${report.skipped ? " (skipped)" : ""}`,
       `URL: ${report.url}`,
@@ -157,7 +157,7 @@ async function runQa(options: CliOptions): Promise<LiveChatQaReport> {
 
   if (!options.token) {
     report.skipped = true;
-    pushSkip(report, "token-required", "Nenhum token local encontrado. Use zavorth dashboard token ou passe --token=...");
+    pushSkip(report, "token-required", "Nenhum token local encontrado. Use zavorth zavorthControl token ou passe --token=...");
     return report;
   }
 
@@ -179,7 +179,7 @@ async function runQa(options: CliOptions): Promise<LiveChatQaReport> {
     } catch (error) {
       report.skipped = !options.requireLive;
       if (options.requireLive) {
-        pushCheck(report, "live-server-reachable", false, `Nao consegui abrir o Dashboard real: ${String(error?.message || error)}`);
+        pushCheck(report, "live-server-reachable", false, `Nao consegui abrir o ZavorthControl real: ${String(error?.message || error)}`);
       } else {
         pushSkip(report, "live-server-reachable", "Servidor local nao respondeu. Inicie com npm run start:ai-gateway ou npm run go.");
       }
@@ -201,7 +201,7 @@ async function runQa(options: CliOptions): Promise<LiveChatQaReport> {
       modelLabels: Array.from(document.querySelectorAll(".echo-meta__model")).map((node) => node.textContent?.trim() || "").filter(Boolean),
     }));
     report.metrics.shellState = shellState;
-    pushCheck(report, "preserves-user-dashboard-shell", shellState.hasCoreFrame && shellState.hasComposer && shellState.hasSendButton, "Dashboard bonito original carregou como shell real.");
+    pushCheck(report, "preserves-user-zavorthControl-shell", shellState.hasCoreFrame && shellState.hasComposer && shellState.hasSendButton, "ZavorthControl bonito original carregou como shell real.");
     pushCheck(report, "runtime-token-unlocked", shellState.authState === "unlocked" || /\bready\b/i.test(shellState.pulseLabel), `Estado de token no topo: ${shellState.authState || shellState.pulseLabel || "indefinido"}.`);
 
     if (!options.allowSend) {
@@ -273,7 +273,7 @@ async function runQa(options: CliOptions): Promise<LiveChatQaReport> {
     report.metrics.beforeSimple = beforeSimple;
     report.metrics.simpleState = simpleState;
     pushCheck(report, "simple-oi-gets-core-reply", gotCoreReply, "Um 'oi' real recebe resposta do Zavorth.");
-    pushCheck(report, "simple-chat-has-no-artifact-card", simpleState.artifactCards === 0, "Saudacao nao mostra card de artefato no dashboard real.");
+    pushCheck(report, "simple-chat-has-no-artifact-card", simpleState.artifactCards === 0, "Saudacao nao mostra card de artefato no zavorthControl real.");
     pushCheck(report, "simple-chat-has-no-approval-card", simpleState.approvalCards === 0, "Saudacao nao pede aprovacao nem acorda ferramenta perigosa.");
     pushCheck(report, "no-message-sent-toast", !simpleState.toasts.some((toast: string) => /mensagem enviada/i.test(toast)), "Enviar mensagem nao cria popup 'mensagem enviada'.");
     pushCheck(
@@ -344,7 +344,7 @@ runQa(options)
     report.ok = false;
     pushCheck(report, "unexpected-error", false, String(error?.stack || error?.message || error));
     writeReport(report);
-    console.error(`[dashboard-live-chat-qa] FAIL ${error?.message || error}`);
+    console.error(`[zavorthControl-live-chat-qa] FAIL ${error?.message || error}`);
     if (options.requirePass) {
       process.exitCode = 1;
     }

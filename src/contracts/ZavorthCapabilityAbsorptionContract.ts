@@ -12,7 +12,7 @@ export type ZavorthCapabilityAbsorptionStatus =
 export type ZavorthCapabilityAbsorptionSource =
   | 'zavorth'
   | 'openclaw'
-  | 'hermes'
+  | 'native'
   | 'cross-agent';
 
 export type ZavorthCapabilityAbsorptionCategory =
@@ -72,7 +72,7 @@ export type ZavorthCapabilityAbsorptionSnapshot = {
     requiresCredentials: number;
     requiresApp: number;
     openclawInspired: number;
-    hermesInspired: number;
+    nativeInspired: number;
     crossAgent: number;
     nextPhases: Record<ZavorthCapabilityAbsorptionItem['nextPhase'], number>;
     liveProofStillRequired: number;

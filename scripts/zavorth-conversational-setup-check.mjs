@@ -35,7 +35,7 @@ const json = execFileSync(
     '--intent',
     'quero modo empresa com auditoria',
     '--approval-channel',
-    'dashboard',
+    'zavorthControl',
     '--first-mission',
     'safe audit',
     '--json',

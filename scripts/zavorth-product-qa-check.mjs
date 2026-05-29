@@ -54,7 +54,7 @@ async function clickVisible(page, selector) {
 }
 
 async function runDesktopAndMobileFlowQa() {
-  const htmlUrl = pathToFileURL(path.join(root, 'assets/dashboard/index.html')).href;
+  const htmlUrl = pathToFileURL(path.join(root, 'assets/zavorthControl/index.html')).href;
   const viewports = [
     { name: 'desktop', width: 1366, height: 900 },
     { name: 'mobile', width: 390, height: 844 },
@@ -89,18 +89,18 @@ async function runDesktopAndMobileFlowQa() {
 
 function runStaticProductQa() {
   [
-    'assets/dashboard/index.html',
-    'assets/dashboard/scripts/app.js',
-    'assets/dashboard/styles/chat.css',
+    'assets/zavorthControl/index.html',
+    'assets/zavorthControl/scripts/app.js',
+    'assets/zavorthControl/styles/chat.css',
     'src/zavorth-cli.ts',
     'scripts/zavorth-personal-flow-check.mjs',
     'scripts/zavorth-developer-flow-check.mjs',
     'scripts/zavorth-business-flow-check.mjs',
   ].forEach(assertFile);
 
-  const html = read('assets/dashboard/index.html');
-  const app = read('assets/dashboard/scripts/app.js');
-  const css = read('assets/dashboard/styles/chat.css');
+  const html = read('assets/zavorthControl/index.html');
+  const app = read('assets/zavorthControl/scripts/app.js');
+  const css = read('assets/zavorthControl/styles/chat.css');
   const cli = read('src/zavorth-cli.ts');
 
   [
@@ -110,26 +110,26 @@ function runStaticProductQa() {
     'data-mission="organize-day"',
     'data-mission="review-workspace"',
     'data-mission="business-audit"',
-  ].forEach((needle) => assertIncludes(html, needle, 'dashboard home'));
+  ].forEach((needle) => assertIncludes(html, needle, 'zavorthControl home'));
 
   [
     'renderPersonalDayFlow',
     'renderDeveloperReviewFlow',
     'renderBusinessAuditFlow',
-  ].forEach((needle) => assertIncludes(app, needle, 'dashboard flow runtime'));
+  ].forEach((needle) => assertIncludes(app, needle, 'zavorthControl flow runtime'));
 
   [
     '.personal-flow-grid',
     '.developer-flow-grid',
     '.business-flow-grid',
-  ].forEach((needle) => assertIncludes(css, needle, 'dashboard flow styles'));
+  ].forEach((needle) => assertIncludes(css, needle, 'zavorthControl flow styles'));
 
   [
     "command === 'missions'",
     "command === 'receipts'",
     "command === 'experience'",
     "command === 'guided-missions'",
-    "command === 'dashboard-home'",
+    "command === 'zavorthControl-home'",
     "command === 'providers'",
     '[gateway channels]',
     "command === 'doctor'",
@@ -150,11 +150,11 @@ function runStaticProductQa() {
     /\bfake\s+ready\b/i,
   ];
   falseReadyPatterns.forEach((pattern) => {
-    assert(!pattern.test(html), `dashboard contains misleading readiness pattern: ${pattern}`);
+    assert(!pattern.test(html), `zavorthControl contains misleading readiness pattern: ${pattern}`);
   });
 
   [
-    'Nothing outside this dashboard',
+    'Nothing outside this zavorthControl',
     'Read first',
     'no policy was changed, no channel was modified',
     'live execution must go through runtime safety approval',

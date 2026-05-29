@@ -191,9 +191,9 @@ function main() {
     issues.push('OperationalMaturityService precisa expor buildSnapshot e renderConsole');
   }
 
-  const coreRouteSource = fs.readFileSync(path.join(root, 'src', 'services', 'DashboardCoreRouteService.ts'), 'utf8');
+  const coreRouteSource = fs.readFileSync(path.join(root, 'src', 'services', 'ZavorthControlCoreRouteService.ts'), 'utf8');
   if (!coreRouteSource.includes('/api/v2/maturity/snapshot')) {
-    issues.push('DashboardCoreRouteService precisa expor /api/v2/maturity/snapshot');
+    issues.push('ZavorthControlCoreRouteService precisa expor /api/v2/maturity/snapshot');
   }
 
   const counts = statusCounts(matrix.capabilities || []);

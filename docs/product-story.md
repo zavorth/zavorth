@@ -5,7 +5,7 @@ Zavorth is a local-first governed agent runtime for people who want AI to do rea
 Most agent tools optimize for speed or integrations. Zavorth optimizes for **daily trusted operation**:
 
 - natural requests instead of command memorization;
-- a Dashboard for status, approvals and artifacts;
+- a ZavorthControl for status, approvals and artifacts;
 - policy before sensitive execution;
 - receipts for what happened and why;
 - skills, subagents, providers and channels under one trust plane.
@@ -18,7 +18,7 @@ Zavorth turns natural-language requests into governed, auditable work across loc
 
 Zavorth is not a loose bot connected to a pile of scripts. It is an operating layer:
 
-- **Dashboard first**: users see readiness, blockers, approvals and results.
+- **ZavorthControl first**: users see readiness, blockers, approvals and results.
 - **Policy Broker first**: risky actions are evaluated before execution.
 - **Local-first**: the host remains the center of gravity.
 - **Channel Mesh**: Telegram, web, CLI and other channels route into the same runtime.

@@ -78,7 +78,7 @@ export class GeminiInteractionsProviderAdapter implements ILlmProvider {
       store: options?.store ?? false,
     });
 
-    const response = await this.fetch(`${this.baseUrl}/interactions`, {
+    const response = await this.requestSafe(`${this.baseUrl}/interactions`, {
       method: 'POST',
       headers: {
         'content-type': 'application/json',
@@ -146,7 +146,7 @@ export class GeminiInteractionsProviderAdapter implements ILlmProvider {
     };
   }
 
-  private async fetch(url: string, init: RequestInit): Promise<Response> {
+  private async requestSafe(url: string, init: RequestInit): Promise<Response> {
     if (this.fetchImpl) {
       return this.fetchImpl(url, init);
     }

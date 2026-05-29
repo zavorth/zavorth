@@ -12,7 +12,7 @@ describe('ZavorthChannelMessagingBridgeService Credential vault', () => {
       contractVersion: ZAVORTH_CHANNEL_MESSAGING_BRIDGE_CONTRACT_VERSION,
       status: 'channel-messaging-bridge-ready',
       planId: 'Zavorth External Runtime Integration',
-      stage: 'checkpoint-5-channels-and-messaging',
+      phase: 'checkpoint-5-channels-and-messaging',
       previousCapabilityProviderStatus: 'capability-provider-registry-ready',
     }));
     expect(snapshot.summary).toEqual(expect.objectContaining({
@@ -210,7 +210,7 @@ describe('ZavorthChannelMessagingBridgeService Credential vault', () => {
       directChannelSendAllowed: false,
       liveSendPerformed: false,
       sourceRuntimeSendBypassAllowed: false,
-      reason: expect.stringContaining('blocked'),
+      reason: expect.stringContaining('held'),
     }));
   });
 
@@ -222,14 +222,14 @@ describe('ZavorthChannelMessagingBridgeService Credential vault', () => {
       status: 'channel-messaging-bridge-ready',
       tone: 'ready',
       policyPills: expect.arrayContaining([
-        'NormalizedInboundMessage',
-        'ZavorthAgentGateway inbound',
-        'ReplyPipeline outbound',
+        'conversational by default',
+        'approval only on risk',
+        'shared reply pipeline',
         'credential isolation',
         'ZavorthTrustPlane',
-        'no direct channel send',
+        'no channel bypass',
       ]),
-      nextSafeAction: 'Proceed to 291 Runtime gateway - Sessions, Memory, And Continuation.',
+      nextSafeAction: 'Use channels naturally; Zavorth only interrupts for sensitive outbound actions.',
     }));
     expect(snapshot.dashboardProjection.cards.map((entry) => entry.id)).toEqual(expect.arrayContaining([
       'channels',
@@ -256,7 +256,7 @@ describe('ZavorthChannelMessagingBridgeService Credential vault', () => {
     const service = createService();
     const text = service.formatSnapshotText(service.buildSnapshot());
 
-    expect(text).toContain('Zavorth Channel Messaging Bridge - Credential vault');
+    expect(text).toContain('Zavorth Channel Messaging Bridge - Conversational guardrails');
     expect(text).toContain('Status: channel-messaging-bridge-ready');
     expect(text).toContain('Reply packets built: 1');
     expect(text).toContain('Raw credentials stored: 0');

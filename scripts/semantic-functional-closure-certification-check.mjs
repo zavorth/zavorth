@@ -49,7 +49,7 @@ addCheck(
     'unsafe-closure-policy',
     'gapsBlockRelease',
   ].every((marker) => contract.includes(marker)),
-  'contract includes item, receipt, priority, decision, dashboard, ledger, release gate and unsafe policy vocabulary',
+  'contract includes item, receipt, priority, decision, zavorthControl, ledger, release gate and unsafe policy vocabulary',
 );
 
 const service = read('src/services/ZavorthSemanticFunctionalClosureCertificationService.ts');
@@ -61,7 +61,7 @@ addCheck(
     'receiptClaim',
     'priorityPolicyClaims',
     'decisionPolicyClaims',
-    'dashboardClaim',
+    'zavorthControlClaim',
     'ledgerUpdateClaim',
     'releaseGateClaim',
     'unsafeClosureClaims',

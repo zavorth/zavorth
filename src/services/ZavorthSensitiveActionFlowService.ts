@@ -128,6 +128,12 @@ export class ZavorthSensitiveActionFlowService {
         executionAuthority: false,
         renderAsActionCard: true,
       },
+      zavorthControlProjection: {
+        route: '/control',
+        endpoint: '/api/sensitive-action-flow',
+        executionAuthority: false,
+        renderAsActionCard: true,
+      },
       invariants: [
         {
           id: 'preview-before-apply',

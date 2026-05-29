@@ -208,7 +208,7 @@ function parseSurface(value: string): ZavorthUxRolloutEvidenceInput['surface'] {
 }
 
 function parseEvidenceKind(value: string): ZavorthUxEvidenceKind {
-  const allowed = new Set(['operator_note', 'screenshot', 'channel_transcript', 'cli_output', 'api_payload', 'dashboard_snapshot']);
+  const allowed = new Set(['operator_note', 'screenshot', 'channel_transcript', 'cli_output', 'api_payload', 'zavorthControl_snapshot']);
   return allowed.has(value) ? value as ZavorthUxEvidenceKind : 'operator_note';
 }
 

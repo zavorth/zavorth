@@ -1,4 +1,4 @@
-#!/usr/bin/env tsx
+﻿#!/usr/bin/env tsx
 import { execFileSync, spawnSync } from 'node:child_process';
 import fs from 'node:fs';
 import path from 'node:path';
@@ -48,7 +48,7 @@ const CHECK_COMMANDS = [
   ['lint', 'node', ['scripts/zavorth-mnemos-lint-check.mjs']],
   ['procedural', 'node', ['scripts/zavorth-mnemos-procedural-memory-check.mjs']],
   ['memory-ux', 'node', ['scripts/zavorth-mnemos-memory-ux-check.mjs']],
-  ['dashboard-home', 'node', ['scripts/zavorth-dashboard-experience-home-check.mjs']],
+  ['zavorthControl-home', 'node', ['scripts/zavorth-control-experience-home-check.mjs']],
   ['secrets', process.platform === 'win32' ? 'cmd.exe' : 'npm', process.platform === 'win32' ? ['/d', '/s', '/c', 'npm run security:secrets --silent'] : ['run', 'security:secrets', '--silent']],
 ] as const;
 
@@ -166,10 +166,10 @@ function runtimeSnapshotCheck(): CertificationCheck[] {
   ));
   const ux = new ZavorthMnemosMemoryUxService().buildSnapshot();
   checks.push(check(
-    ux.status === 'ready' && ux.safety.dashboardCanWriteMemory === false ? 'passed' : 'failed',
+    ux.status === 'ready' && ux.safety.zavorthControlCanWriteMemory === false ? 'passed' : 'failed',
     'ux-runtime',
     'Mnemos UX runtime snapshot is governed',
-    `${ux.status}, dashboardCanWriteMemory=${String(ux.safety.dashboardCanWriteMemory)}`,
+    `${ux.status}, zavorthControlCanWriteMemory=${String(ux.safety.zavorthControlCanWriteMemory)}`,
   ));
   return checks;
 }

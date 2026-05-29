@@ -77,7 +77,7 @@ if (snapshot.command?.connectors !== 'zavorth connectors doctor') {
 if (snapshot.quickstart?.estimatedMinutes > 10) {
   throw new Error('Phase E quickstart must stay inside ten minutes');
 }
-if (snapshot.visualHome?.route !== '/dashboard' || snapshot.visualHome?.openCommand !== 'zavorth go') {
+if (snapshot.visualHome?.route !== '/control' || snapshot.visualHome?.openCommand !== 'zavorth go') {
   throw new Error('Phase F must point the visual demo at Home through zavorth go');
 }
 if (snapshot.visualHome?.browserDemoCommand !== 'zavorth demo browser') {

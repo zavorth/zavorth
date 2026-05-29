@@ -65,8 +65,8 @@ function ruleContainsMarkers() {
     ]],
     ['src/services/ZavorthCapabilityAbsorptionService.ts', [
       'OpenClaw-style long-tail channels',
-      'Hermes-style learning loop',
-      'Hermes-class Dashboard',
+      'Zavorth-native-style learning loop',
+      'Zavorth-native advanced ZavorthControl',
       'Native browser automation',
       'Multi-backend execution',
       'catalog support is not live proof',
@@ -94,7 +94,7 @@ function ruleContainsMarkers() {
     'Capability absorption markers are wired',
     missing.length === 0,
     missing.length === 0 ? 'all markers' : `${missing.length} missing`,
-    'OpenClaw/Hermes/Zavorth-native map, statuses and policy language exist',
+    'OpenClaw/Zavorth-native/Zavorth-native map, statuses and policy language exist',
     missing,
   );
 }

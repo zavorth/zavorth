@@ -1,6 +1,6 @@
 # Experience Core
 
-Experience Core is the shared product layer for Zavorth CLI, Dashboard and
+Experience Core is the shared product layer for Zavorth CLI, ZavorthControl and
 future companion surfaces.
 
 ## Contract
@@ -43,7 +43,7 @@ Experience commands can also carry governed decisions:
 - `diffDecision` for a plan/file/hunk selection;
 - `contextRecoveryDecision` for an ambiguous target choice;
 - `responseProfile` to request concise, developer, executive or mentor-style
-  replies across CLI, Dashboard and Telegram;
+  replies across CLI, ZavorthControl and Telegram;
 - `autonomyMode` as `manual`, `governed` or `speculative`.
 
 These decisions do not bypass policy. Diff selections recompose a mutation
@@ -80,7 +80,7 @@ approval policy, sandbox rules or security gates.
   cancel command. Cancel requests are recorded in the speculative autonomy
   cancellation registry and checked between validation/correction rounds.
 - Context Recovery limits short-channel choices, especially Telegram/Discord,
-  and exposes overflow metadata so dense review moves to `/dashboard`.
+  and exposes overflow metadata so dense review moves to `/control`.
 - Learning candidates that touch core security policy, sandbox, allowlists,
   firewall behavior or approval rules are quarantined. Learning OS may improve
   style, routing and workflow preferences, but it must not rewrite safety

@@ -174,6 +174,9 @@ export type ZavorthNativeCapabilityRegistryDashboardView = {
   executionAuthority: false;
 };
 
+// Alias for consumers that reference the ZavorthControl naming convention.
+export type ZavorthNativeCapabilityRegistryZavorthControlView = ZavorthNativeCapabilityRegistryDashboardView;
+
 export type ZavorthNativeCapabilityRegistryPlannerInput = {
   nativeContract: 'ZavorthNativeCapabilityRegistryPlannerInput/v1';
   id: string;
@@ -750,6 +753,11 @@ export class ZavorthNativeCapabilityRegistry {
     return this.snapshot.entries
       .filter((entry) => entry.dashboardVisible)
       .map(dashboardViewForEntry);
+  }
+
+  /** Alias for toDashboardViews — ZavorthControl naming convention. */
+  public toZavorthControlViews(): ZavorthNativeCapabilityRegistryDashboardView[] {
+    return this.toDashboardViews();
   }
 
   public toPlannerInputs(): ZavorthNativeCapabilityRegistryPlannerInput[] {

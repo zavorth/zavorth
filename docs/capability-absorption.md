@@ -1,7 +1,7 @@
 # Zavorth Capability Absorption Map
 
 This document is the Phase 1 bridge between the comparative analysis of Zavorth,
-OpenClaw and Hermes Agent and the Zavorth-native implementation plan.
+OpenClaw and Zavorth-native Agent and the Zavorth-native implementation plan.
 
 The goal is not to copy another agent blindly. The goal is to absorb useful
 capabilities into Zavorth's own surface: Effect Boundary, Policy Broker,
@@ -47,9 +47,9 @@ Strengthen Mnemos into a governed learning loop:
 Learning cannot modify security policy, sandbox rules, allowlists or approval
 rules.
 
-### Phase 4 - Dashboard
+### Phase 4 - ZavorthControl
 
-Upgrade `/dashboard` with Hermes-class interaction patterns:
+Upgrade `/control` with Zavorth-native advanced interaction patterns:
 
 - tool call cards;
 - subagent cards;
@@ -107,7 +107,7 @@ Run a real fresh-user proof:
 - connect one real channel;
 - run one prompt;
 - approve one mutation;
-- view dashboard;
+- view zavorthControl;
 - inspect receipt;
 - produce a live proof pack.
 

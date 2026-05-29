@@ -41,7 +41,7 @@ const rules = [
   }),
   ruleContainsAll({
     id: 'parity-certification-service',
-    label: 'Service certifies the Dashboard controls doctor snapshot',
+    label: 'Service certifies the ZavorthControl controls doctor snapshot',
     target: 'Service consumes OperationalParityToolingService, builds gates, receipts, blockers, waivers and profile decisions',
     files: ['src/services/ParityCertificationService.ts'],
     needles: [

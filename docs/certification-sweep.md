@@ -12,7 +12,7 @@ This sweep certifies the current Zavorth runtime surface after the natural-first
 - natural-first gateway behavior
 - approvals and universal approval intent
 - Telegram approval/channel behavior
-- Dashboard dashboard behavior
+- ZavorthControl zavorthControl behavior
 - transaction plane and live executor gate
 - skill import security
 - secret and supply-chain guards
@@ -25,7 +25,7 @@ This sweep certifies the current Zavorth runtime surface after the natural-first
 - Skill import/source hardening tests passed: 6 suites, 16 tests.
 - Approval runtime tests passed: 6 suites, 22 tests.
 - Telegram channel tests passed: 6 suites, 44 tests.
-- Dashboard/dashboard tests passed: 5 suites, 11 tests.
+- ZavorthControl/zavorthControl tests passed: 5 suites, 11 tests.
 - Transaction plane tests passed: 9 suites, 36 tests.
 - Transaction live executor gate passed.
 - Natural invocation check passed.
@@ -39,12 +39,12 @@ This sweep certifies the current Zavorth runtime surface after the natural-first
 - Restored the public external-agent approval grant contract export path in `src/runtime/external-agents/index.ts`.
 - Approval grant behavior is covered by the current security, trust, and runtime certification gates.
 - Restored Telegram Echo approval inline buttons by making the approval/reject callbacks renderable in Telegram.
-- Updated the Dashboard visual approval pack test to the current product route, `/dashboard`.
+- Updated the Zavorth Control visual approval pack test to the current product route, `/control`.
 
 ## Yellow
 
 - The entire repository test suite was not run as a single `npm test` sweep in this pass. Critical blocks were run directly and are green.
-- Product route language is still mixed in older files between `/dashboard` internals and `/dashboard` daily-use surface. The certified path here is `/dashboard` for user-facing Dashboard/dashboard flows, while internal control modules still exist.
+- Product route language is still mixed in older files between zavorthControl internals and the `/control` daily-use surface. The certified path here is `/control` for user-facing Zavorth Control flows, while internal control modules still exist.
 
 ## Red
 
@@ -57,11 +57,11 @@ Zavorth remains fail-closed for risky execution:
 - external skill imports require explicit source selection
 - external/pinned-source rules stay locked
 - transaction live execution remains gated by dedicated live operator phrase and runtime checks
-- Telegram, dashboard and approval surfaces route through explicit approval controls
+- Telegram, zavorthControl and approval surfaces route through explicit approval controls
 - no removed external-source identifiers were found in the scanned runtime/docs/tests outside ignored build/data directories
 
 ## Next Operational Step
 
 Start Runtime Readiness next.
 
-The goal should be to make the green sweep operationally usable every day: one command to verify readiness, one clear startup path, health checks for provider/channel/dashboard/Telegram, and a short operator status that says whether Zavorth is ready for real use.
+The goal should be to make the green sweep operationally usable every day: one command to verify readiness, one clear startup path, health checks for provider/channel/zavorthControl/Telegram, and a short operator status that says whether Zavorth is ready for real use.

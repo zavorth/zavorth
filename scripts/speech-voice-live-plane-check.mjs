@@ -36,7 +36,7 @@ const rules = [
       'elevenlabs',
       'voice.session',
       'meetingBridgesLiveOrExcluded: true',
-      'Dashboard controls - Research, Web Extraction And Browser Live Plane',
+      'ZavorthControl controls - Research, Web Extraction And Browser Live Plane',
     ],
   }),
   ruleContainsAll({

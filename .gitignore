@@ -26,6 +26,8 @@ logs/
 !src/ai-gateway/app/api/logs/
 !src/ai-gateway/app/api/logs/**
 .codex-run/
+.codex-*.png
+.codex-attachment-fixtures/
 .zavorth/logs/
 .zavorth/gateway.json
 .zavorth/receipts/
@@ -38,6 +40,8 @@ SECURITY_AUDIT_REPORT*.md
 security-audit*.json
 tracking.json
 tsc-*.out
+openclaw_screenshots/
+capture_openclaw.js
 
 # === Temp Files ===
 tmp/

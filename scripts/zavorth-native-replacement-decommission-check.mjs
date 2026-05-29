@@ -25,7 +25,7 @@ const snapshot = {
 if (asJson) {
   console.log(JSON.stringify(snapshot, null, 2));
 } else {
-  console.log('[zavorth-native-replacement-decommission] checking Dashboard controls');
+  console.log('[zavorth-native-replacement-decommission] checking ZavorthControl controls');
   for (const rule of rules) {
     const marker = rule.status === 'passed' ? 'ok' : 'fail';
     console.log(`[zavorth-native-replacement-decommission] ${marker} ${rule.label}: ${rule.observed} | ${rule.target}`);
@@ -49,7 +49,7 @@ function ruleFilesExist() {
   const missing = files.filter((file) => !fs.existsSync(path.join(root, file)));
   return {
     id: 'checkpoint-8-files',
-    label: 'Dashboard controls native replacement files exist',
+    label: 'ZavorthControl controls native replacement files exist',
     status: missing.length === 0 ? 'passed' : 'failed',
     observed: `${files.length - missing.length}/${files.length} file(s) present`,
     target: 'contract, service, CLI, check, tests, docs and package scripts are present',
@@ -111,7 +111,7 @@ function ruleContainsMarkers() {
   }
   return {
     id: 'checkpoint-8-markers',
-    label: 'Dashboard controls native replacement markers are present',
+    label: 'ZavorthControl controls native replacement markers are present',
     status: missing.length === 0 ? 'passed' : 'failed',
     observed: missing.length === 0 ? 'all markers present' : `${missing.length} missing marker(s)`,
     target: 'registry, parity, adapter reduction, decommission and plan completion markers are present',
@@ -184,7 +184,7 @@ function runNativeReplacementBlockedFixture() {
     label: 'Native replacement blocks without Surface controls readiness',
     status: ok ? 'passed' : 'failed',
     observed: ok ? `${snapshot.status}, delegatedWorker=${snapshot.previousDelegatedWorkerStatus}` : `exit ${result.status}`,
-    target: 'Dashboard controls cannot close while Surface controls delegated workers are blocked',
+    target: 'ZavorthControl controls cannot close while Surface controls delegated workers are blocked',
     details: ok ? [] : [result.error?.message || result.stderr || result.stdout || 'no output'],
   };
 }

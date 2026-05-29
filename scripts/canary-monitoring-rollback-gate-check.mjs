@@ -48,7 +48,7 @@ const rules = [
       'CanaryLaunchRehearsalService',
       'launch-rehearsal-input',
       'observation-window-monitor',
-      'telemetry-dashboard-monitor',
+      'telemetry-zavorthControl-monitor',
       'error-rate-threshold-monitor',
       'rollback-trigger-control',
       'rollback-command-rehearsal',

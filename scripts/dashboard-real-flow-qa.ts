@@ -8,11 +8,11 @@ import {
   type UniversalAgentExecutor,
 } from "../src/runtime/agent/index";
 import {
-  buildDashboardViewModelFromZavorthAgentGatewaySnapshot,
-} from "../src/ai-gateway/app/(dashboard)/dashboard/dashboard/adapters/zavorthAgentGatewayDashboardAdapter";
+  buildZavorthControlViewModelFromZavorthAgentGatewaySnapshot,
+} from "../src/ai-gateway/app/(zavorthControl)/zavorthControl/zavorthControl/adapters/zavorthAgentGatewayZavorthControlAdapter";
 
 const rootDir = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
-const defaultOutDir = path.join(rootDir, ".tmp", "dashboard-real-flow-qa");
+const defaultOutDir = path.join(rootDir, ".tmp", "zavorthControl-real-flow-qa");
 
 type QaStep = {
   id: string;
@@ -85,7 +85,7 @@ function writeReport(report: QaReport): void {
   fs.writeFileSync(
     checklistPath,
     [
-      "# Dashboard Visual Real QA",
+      "# ZavorthControl Visual Real QA",
       "",
       `Gerado em: ${report.generatedAt}`,
       `Status: ${report.ok ? "PASS" : "FAIL"}`,
@@ -110,7 +110,7 @@ async function runQa(options: CliOptions): Promise<QaReport> {
   const report: QaReport = {
     ok: true,
     generatedAt: new Date().toISOString(),
-    scenario: "dashboard-real-approval-artifact-history",
+    scenario: "zavorthControl-real-approval-artifact-history",
     outDir: options.outDir,
     artifactIds: [],
     steps: [],
@@ -158,7 +158,7 @@ async function runQa(options: CliOptions): Promise<QaReport> {
       {
         kind: "reply",
         title: "Resposta enviada",
-        detail: "Dashboard recebeu a conclusão da run.",
+        detail: "ZavorthControl recebeu a conclusão da run.",
         status: "done",
       },
     ],
@@ -175,7 +175,7 @@ async function runQa(options: CliOptions): Promise<QaReport> {
     memorySignals: [
       {
         id: "qa-visual-real-memory",
-        title: "Dashboard validado",
+        title: "ZavorthControl validado",
         layer: "episodic",
         summary: "Approval, artifact, replay e histórico passaram no fluxo real do gateway.",
         confidence: 0.99,
@@ -193,7 +193,7 @@ async function runQa(options: CliOptions): Promise<QaReport> {
   const pending = await gateway.handle({
     userId: "grey",
     channel: "web",
-    sessionId: "session-dashboard-real-qa",
+    sessionId: "session-zavorthControl-real-qa",
     text: "gere um relatório em PDF e rode um comando local para validar o painel",
     requestedTools: ["shell.exec", "pdf.generate"],
     modelProfile: {
@@ -208,7 +208,7 @@ async function runQa(options: CliOptions): Promise<QaReport> {
   report.runId = pending.run.id;
   report.approvalId = pending.run.approvals[0]?.id;
 
-  const pendingViewModel = buildDashboardViewModelFromZavorthAgentGatewaySnapshot(
+  const pendingViewModel = buildZavorthControlViewModelFromZavorthAgentGatewaySnapshot(
     gateway.buildSnapshot({ activeRunId: pending.run.id }),
   );
 
@@ -234,7 +234,7 @@ async function runQa(options: CliOptions): Promise<QaReport> {
 
   report.artifactIds = completedRun?.artifacts.map((artifact) => artifact.id) || [];
 
-  const completedViewModel = buildDashboardViewModelFromZavorthAgentGatewaySnapshot(
+  const completedViewModel = buildZavorthControlViewModelFromZavorthAgentGatewaySnapshot(
     gateway.buildSnapshot({ activeRunId: completedRun?.id }),
   );
 
@@ -248,12 +248,12 @@ async function runQa(options: CliOptions): Promise<QaReport> {
     report,
     "artifact-generated",
     completedViewModel.artifacts.some((artifact) => artifact.id === "qa-visual-real-report" && artifact.status === "ready"),
-    "Artifact real fica disponível no ViewModel do Dashboard.",
+    "Artifact real fica disponível no ViewModel do ZavorthControl.",
   );
   pushStep(
     report,
     "history-and-replay-visible",
-    completedViewModel.sessions.some((session) => session.id === "session-dashboard-real-qa")
+    completedViewModel.sessions.some((session) => session.id === "session-zavorthControl-real-qa")
       && completedViewModel.replay.status === "available"
       && completedViewModel.messages.length >= 2,
     "Histórico, replay e transcript ficam representáveis depois da conclusão.",
@@ -275,7 +275,7 @@ runQa(options)
   .then((report) => {
     writeReport(report);
     const status = report.ok ? "PASS" : "FAIL";
-    console.log(`[dashboard-real-flow-qa] ${status} ${path.join(report.outDir, "visual-checklist.md")}`);
+    console.log(`[zavorthControl-real-flow-qa] ${status} ${path.join(report.outDir, "visual-checklist.md")}`);
     if (!report.ok && options.requirePass) {
       process.exitCode = 1;
     }
@@ -284,7 +284,7 @@ runQa(options)
     const report: QaReport = {
       ok: false,
       generatedAt: new Date().toISOString(),
-      scenario: "dashboard-real-approval-artifact-history",
+      scenario: "zavorthControl-real-approval-artifact-history",
       outDir: options.outDir,
       artifactIds: [],
       steps: [
@@ -297,7 +297,7 @@ runQa(options)
       visualChecklist: [],
     };
     writeReport(report);
-    console.error(`[dashboard-real-flow-qa] FAIL ${error?.message || error}`);
+    console.error(`[zavorthControl-real-flow-qa] FAIL ${error?.message || error}`);
     if (options.requirePass) {
       process.exitCode = 1;
     }

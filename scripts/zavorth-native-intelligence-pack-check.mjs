@@ -123,7 +123,7 @@ function ruleNativeSkillAssets() {
     'web-research-governed',
     'provider-doctor',
     'channel-response-design',
-    'dashboard-ops',
+    'zavorthControl-ops',
     'memory-curator',
     'incident-triage',
     'user-onboarding',

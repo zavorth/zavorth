@@ -70,7 +70,7 @@ print("ops quality:", quality["score"])
 ## Contratos publicos de ecossistema
 
 Este SDK fala com o REST v1. Ele nao e um SDK de runtime e nao exporta
-controllers internos, Telegram, dashboard ou servicos do agent loop.
+controllers internos, Telegram, zavorthControl ou servicos do agent loop.
 
 Para contratos de adapters, tools, skills e surfaces dentro do repo, use o
 manifesto publico do runtime:

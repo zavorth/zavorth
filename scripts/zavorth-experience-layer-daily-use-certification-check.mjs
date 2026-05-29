@@ -39,8 +39,8 @@ if (snapshot.safety.hiddenExecutionAuthority !== false) {
 if (!snapshot.phases.some((phase) => phase.command === 'zavorth daily')) {
   throw new Error('CLI daily-use entrypoint is not certified');
 }
-if (!snapshot.phases.some((phase) => phase.command === 'zavorth dashboard-home')) {
-  throw new Error('Dashboard Home is not certified');
+if (!snapshot.phases.some((phase) => phase.command === 'zavorth zavorthControl-home')) {
+  throw new Error('ZavorthControl Home is not certified');
 }
 
 execFileSync(

@@ -75,10 +75,10 @@
       "command": "node scripts/zavorth-command.mjs",
       "description": "Comando canonico: command"
     },
-    "dashboard:preview": {
+    "zavorthControl:preview": {
       "status": "canonical",
-      "command": "npx tsx scripts/dashboard-browser-preview.ts",
-      "description": "Comando canonico: dashboard:preview"
+      "command": "npx tsx scripts/zavorthControl-browser-preview.ts",
+      "description": "Comando canonico: zavorthControl:preview"
     },
     "command:list": {
       "status": "canonical",
@@ -157,58 +157,58 @@
     },
     "qa:ci:core": {
       "status": "canonical",
-      "command": "npm run build --silent && npm run qa:dashboard --silent && npm run qa:architecture && npm run architecture:hardening && npm run ops:qa -- --require-pass",
+      "command": "npm run build --silent && npm run qa:zavorthControl --silent && npm run qa:architecture && npm run architecture:hardening && npm run ops:qa -- --require-pass",
       "description": "Comando canonico: qa:ci:core"
     },
-    "qa:dashboard": {
+    "qa:zavorthControl": {
       "status": "canonical",
-      "command": "npm run qa:dashboard-cockpit --silent && npm run qa:dashboard-browser-preview --silent && npm run qa:dashboard-real --silent && npm run qa:dashboard-chat-visual --silent && npm run qa:dashboard-composer-affordances --silent && npm run qa:dashboard-response-cortex --silent && npm run ai-gateway:check --silent",
-      "description": "Comando canonico: qa:dashboard"
+      "command": "npm run qa:zavorthControl-cockpit --silent && npm run qa:zavorthControl-browser-preview --silent && npm run qa:zavorthControl-real --silent && npm run qa:zavorthControl-chat-visual --silent && npm run qa:zavorthControl-composer-affordances --silent && npm run qa:zavorthControl-response-cortex --silent && npm run ai-gateway:check --silent",
+      "description": "Comando canonico: qa:zavorthControl"
     },
-    "qa:dashboard-browser-preview": {
+    "qa:zavorthControl-browser-preview": {
       "status": "canonical",
-      "command": "npx tsx scripts/dashboard-browser-preview.ts --fixture=all --out=.tmp/dashboard-browser-preview && npx jest tests/ai-gateway/dashboard/DashboardBrowserPreview.test.ts --runInBand",
-      "description": "Comando canonico: qa:dashboard-browser-preview"
+      "command": "npx tsx scripts/zavorthControl-browser-preview.ts --fixture=all --out=.tmp/zavorthControl-browser-preview && npx jest tests/ai-gateway/zavorthControl/ZavorthControlBrowserPreview.test.ts --runInBand",
+      "description": "Comando canonico: qa:zavorthControl-browser-preview"
     },
-    "qa:dashboard-chat-visual": {
+    "qa:zavorthControl-chat-visual": {
       "status": "canonical",
-      "command": "npx tsx scripts/dashboard-chat-visual-qa.ts --require-pass",
-      "description": "Comando canonico: qa:dashboard-chat-visual"
+      "command": "npx tsx scripts/zavorthControl-chat-visual-qa.ts --require-pass",
+      "description": "Comando canonico: qa:zavorthControl-chat-visual"
     },
-    "qa:dashboard-cockpit": {
+    "qa:zavorthControl-cockpit": {
       "status": "canonical",
-      "command": "npx jest tests/ai-gateway/dashboard/DashboardCockpitQaGate.test.ts tests/ai-gateway/dashboard/DashboardRuntimeFixtures.test.ts tests/ai-gateway/dashboard/DashboardRuntimeProjection.test.ts tests/ai-gateway/dashboard/DashboardFixturePreview.test.ts tests/ai-gateway/dashboard/DashboardVisualPolish.test.ts tests/ai-gateway/dashboard/DashboardFixtureScreenPolish.test.ts --runInBand",
-      "description": "Comando canonico: qa:dashboard-cockpit"
+      "command": "npx jest tests/ai-gateway/zavorthControl/ZavorthControlCockpitQaGate.test.ts tests/ai-gateway/zavorthControl/ZavorthControlRuntimeFixtures.test.ts tests/ai-gateway/zavorthControl/ZavorthControlRuntimeProjection.test.ts tests/ai-gateway/zavorthControl/ZavorthControlFixturePreview.test.ts tests/ai-gateway/zavorthControl/ZavorthControlVisualPolish.test.ts tests/ai-gateway/zavorthControl/ZavorthControlFixtureScreenPolish.test.ts --runInBand",
+      "description": "Comando canonico: qa:zavorthControl-cockpit"
     },
-    "qa:dashboard-composer-affordances": {
+    "qa:zavorthControl-composer-affordances": {
       "status": "canonical",
-      "command": "npx tsx scripts/dashboard-composer-affordances-qa.ts --require-pass",
-      "description": "Comando canonico: qa:dashboard-composer-affordances"
+      "command": "npx tsx scripts/zavorthControl-composer-affordances-qa.ts --require-pass",
+      "description": "Comando canonico: qa:zavorthControl-composer-affordances"
     },
-    "qa:dashboard-live-chat": {
+    "qa:zavorthControl-live-chat": {
       "status": "canonical",
-      "command": "npx tsx scripts/dashboard-live-chat-qa.ts --allow-send --require-live --require-pass",
-      "description": "Comando canonico: qa:dashboard-live-chat"
+      "command": "npx tsx scripts/zavorthControl-live-chat-qa.ts --allow-send --require-live --require-pass",
+      "description": "Comando canonico: qa:zavorthControl-live-chat"
     },
-    "qa:dashboard-live-composer": {
+    "qa:zavorthControl-live-composer": {
       "status": "canonical",
-      "command": "npx tsx scripts/dashboard-live-composer-affordances-qa.ts --allow-send --require-live --require-pass",
-      "description": "Comando canonico: qa:dashboard-live-composer"
+      "command": "npx tsx scripts/zavorthControl-live-composer-affordances-qa.ts --allow-send --require-live --require-pass",
+      "description": "Comando canonico: qa:zavorthControl-live-composer"
     },
-    "qa:dashboard-live-visual": {
+    "qa:zavorthControl-live-visual": {
       "status": "canonical",
-      "command": "npx tsx scripts/dashboard-live-visual-qa.ts --require-pass",
-      "description": "Comando canonico: qa:dashboard-live-visual"
+      "command": "npx tsx scripts/zavorthControl-live-visual-qa.ts --require-pass",
+      "description": "Comando canonico: qa:zavorthControl-live-visual"
     },
-    "qa:dashboard-real": {
+    "qa:zavorthControl-real": {
       "status": "canonical",
-      "command": "npx tsx scripts/dashboard-real-flow-qa.ts --require-pass && npx jest tests/ai-gateway/dashboard/DashboardVisualRealQa.test.ts --runInBand",
-      "description": "Comando canonico: qa:dashboard-real"
+      "command": "npx tsx scripts/zavorthControl-real-flow-qa.ts --require-pass && npx jest tests/ai-gateway/zavorthControl/ZavorthControlVisualRealQa.test.ts --runInBand",
+      "description": "Comando canonico: qa:zavorthControl-real"
     },
-    "qa:dashboard-response-cortex": {
+    "qa:zavorthControl-response-cortex": {
       "status": "canonical",
-      "command": "npx jest tests/ai-gateway/dashboard/DashboardResponseCortexQa.test.ts --runInBand",
-      "description": "Comando canonico: qa:dashboard-response-cortex"
+      "command": "npx jest tests/ai-gateway/zavorthControl/ZavorthControlResponseCortexQa.test.ts --runInBand",
+      "description": "Comando canonico: qa:zavorthControl-response-cortex"
     },
     "qa:productization": {
       "status": "canonical",

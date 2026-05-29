@@ -22,6 +22,12 @@ import {
   type PrepareZavorthSpeculativeAutonomyInput,
   type ZavorthSpeculativeAutonomyResult,
 } from '../../services/ZavorthSpeculativeAutonomyService.js';
+import {
+  resolveCanvasSessionServiceForRuntime,
+  syncSpeculativeAutonomyToCanvas,
+  type CanvasSpeculativeAutonomySyncService,
+  type CanvasSpeculativeAutonomySyncSnapshot,
+} from '../../services/CanvasRuntimeSyncService.js';
 import { ZavorthTerminalBackendsService } from '../../services/ZavorthTerminalBackendsService.js';
 import { ProviderNativeCapabilityMatrixService } from '../../services/llm/ProviderNativeCapabilityMatrixService.js';
 
@@ -50,6 +56,7 @@ type Runtime = {
   requestBuilder: AgentRunLlmRequestBuilder;
   mutationPlaneService?: Pick<ZavorthMutationPlaneService, 'createPlan'> | null;
   speculativeAutonomyService?: Pick<ZavorthSpeculativeAutonomyService, 'prepare'> | null;
+  canvasSessionService?: CanvasSpeculativeAutonomySyncService | null;
   terminalBackendsService?: Pick<ZavorthTerminalBackendsService, 'execute'> | null;
 };
 
@@ -71,6 +78,7 @@ export class AgentRunNativeToolLoopService {
   private readonly requestBuilder: AgentRunLlmRequestBuilder;
   private readonly mutationPlane: Pick<ZavorthMutationPlaneService, 'createPlan'> | null;
   private readonly speculativeAutonomy: Pick<ZavorthSpeculativeAutonomyService, 'prepare'> | null;
+  private readonly canvasSessions: CanvasSpeculativeAutonomySyncService | null;
   private readonly terminalBackends: Pick<ZavorthTerminalBackendsService, 'execute'> | null;
 
   constructor(runtime: Runtime) {
@@ -83,6 +91,9 @@ export class AgentRunNativeToolLoopService {
     this.speculativeAutonomy = runtime.speculativeAutonomyService === null
       ? null
       : runtime.speculativeAutonomyService || new ZavorthSpeculativeAutonomyService();
+    this.canvasSessions = runtime.canvasSessionService === null
+      ? null
+      : runtime.canvasSessionService || resolveCanvasSessionServiceForRuntime();
     this.terminalBackends = runtime.terminalBackendsService === null
       ? null
       : runtime.terminalBackendsService || new ZavorthTerminalBackendsService();
@@ -232,6 +243,7 @@ export class AgentRunNativeToolLoopService {
             effectRehearsal: rehearsalEnvelope,
             ...(deferredPlan.mutationPlan ? { mutationPlan: this.buildMutationPlanMetadata(deferredPlan.mutationPlan) } : {}),
             ...(deferredPlan.speculativeAutonomy ? { superZavorthSpeculativeAutonomy: buildSpeculativeAutonomyReceipt(deferredPlan.speculativeAutonomy) } : {}),
+            ...(deferredPlan.zCanvasSession ? { zCanvasSession: deferredPlan.zCanvasSession } : {}),
             ...(deferredPlan.terminalBackendPlan ? { terminalBackendPlan: deferredPlan.terminalBackendPlan } : {}),
           }));
           continue;
@@ -414,6 +426,7 @@ export class AgentRunNativeToolLoopService {
   }): Promise<{
     mutationPlan: ZavorthMutationPlan | null;
     speculativeAutonomy: ZavorthSpeculativeAutonomyResult | null;
+    zCanvasSession: CanvasSpeculativeAutonomySyncSnapshot | null;
     terminalBackendPlan: Record<string, unknown> | null;
   }> {
     const args = input.mapping.actionIntent.args || {};
@@ -425,6 +438,11 @@ export class AgentRunNativeToolLoopService {
       mapping: input.mapping,
       workspaceWrites,
     });
+    const zCanvasSession = await syncSpeculativeAutonomyToCanvas({
+      service: this.canvasSessions,
+      result: speculativeAutonomy,
+      engineId: 'shield',
+    });
     const terminalBackendPlan = this.buildTerminalBackendPlan({
       run: input.run,
       mapping: input.mapping,
@@ -434,6 +452,7 @@ export class AgentRunNativeToolLoopService {
       return {
         mutationPlan: speculativeAutonomy.mutationPlan,
         speculativeAutonomy,
+        zCanvasSession,
         terminalBackendPlan,
       };
     }
@@ -441,6 +460,7 @@ export class AgentRunNativeToolLoopService {
       return {
         mutationPlan: null,
         speculativeAutonomy,
+        zCanvasSession,
         terminalBackendPlan,
       };
     }
@@ -513,6 +533,7 @@ export class AgentRunNativeToolLoopService {
       payload: {
         ...payload,
         ...(speculativeAutonomy ? { superZavorthSpeculativeAutonomy: buildSpeculativeAutonomyReceipt(speculativeAutonomy) } : {}),
+        ...(zCanvasSession ? { zCanvasSession } : {}),
         ...(terminalBackendPlan ? { terminalBackendPlan } : {}),
       },
     };
@@ -520,6 +541,7 @@ export class AgentRunNativeToolLoopService {
     return {
       mutationPlan: this.mutationPlane.createPlan(planInput),
       speculativeAutonomy,
+      zCanvasSession,
       terminalBackendPlan,
     };
   }

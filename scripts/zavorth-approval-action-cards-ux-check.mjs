@@ -6,7 +6,7 @@ const files = {
   service: 'src/services/ZavorthApprovalActionCardsUxService.ts',
   script: 'scripts/zavorth-approval-action-cards-ux.ts',
   route: 'src/domain/surface/presentation/web-app/WebAppRuntimeStateRouteService.ts',
-  panel: 'src/ai-gateway/app/(dashboard)/dashboard/dashboard/components/DashboardOperationsPanel.tsx',
+  panel: 'src/ai-gateway/app/(zavorthControl)/zavorthControl/zavorthControl/components/ZavorthControlOperationsPanel.tsx',
   test: 'tests/services/ZavorthApprovalActionCardsUxService.test.ts',
 };
 
@@ -29,11 +29,11 @@ rules.push(
   {
     id: 'panel:cards',
     status: panel.includes('approvalActionCardsUx') && panel.includes('Allow once') && !panel.includes('fetch(') ? 'passed' : 'failed',
-    summary: 'Dashboard renders approval cards without direct fetch or arbitrary execution.',
+    summary: 'ZavorthControl renders approval cards without direct fetch or arbitrary execution.',
   },
   {
     id: 'contract:target-action-blocked',
-    status: contract.includes('dashboardCanExecuteTargetAction: false') && contract.includes('approvalResolutionAuthority') ? 'passed' : 'failed',
+    status: contract.includes('zavorthControlCanExecuteTargetAction: false') && contract.includes('approvalResolutionAuthority') ? 'passed' : 'failed',
     summary: 'Contract allows gateway-mediated approval resolution but blocks direct target action execution.',
   },
   {
@@ -60,7 +60,7 @@ rules.push(
   },
   {
     id: 'smoke:no-target-execute',
-    status: firstCard?.actions?.every((action) => action.dashboardCanExecuteTargetAction === false) ? 'passed' : 'failed',
+    status: firstCard?.actions?.every((action) => action.zavorthControlCanExecuteTargetAction === false) ? 'passed' : 'failed',
     summary: 'Approval cards cannot execute the target action directly.',
   },
   {

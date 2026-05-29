@@ -95,7 +95,7 @@ try {
     rule('immune-system-does-not-block-thinking', snapshot.immuneSystem.thinkingBlocked === false, snapshot.immuneSystem.cautionLevel),
     rule('reputation-cannot-activate-live', snapshot.reputation.liveActivationAllowed === false && snapshot.reputation.hardBlocksCanBeOverridden === false, `${snapshot.reputation.scores.length} score(s)`),
     rule('adr-is-draft-only', snapshot.architectureDecision.status === 'draft' && snapshot.architectureDecision.filesWritten === false, snapshot.architectureDecision.id),
-    rule('dashboard-projection', snapshot.dashboard.cards.length >= 4 && snapshot.dashboard.actions.length >= 3, snapshot.dashboard.title),
+    rule('zavorthControl-projection', snapshot.zavorthControl.cards.length >= 4 && snapshot.zavorthControl.actions.length >= 3, snapshot.zavorthControl.title),
     rule('governed-live-apply-needs-risk-gate', blockedCommit.status === 'blocked' && fs.readFileSync(targetFile, 'utf8').includes('value = 1'), blockedCommit.summary),
     rule('governed-live-apply-with-rollback', appliedCommit.status === 'applied' && appliedCommit.liveActionApplied === true && Boolean(appliedCommit.rollbackArtifactPath), appliedCommit.summary),
     rule('governed-live-rollback-restores-file', restored.status === 'restored' && fs.readFileSync(targetFile, 'utf8').includes('value = 1'), restored.summary),

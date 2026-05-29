@@ -361,8 +361,8 @@ export class ZavorthChannelMessagingBridgeService {
       liveSendPerformed: false,
       sourceRuntimeSendBypassAllowed: false,
       reason: blocked
-        ? 'Risky reply packet blocked until a Zavorth approval envelope is granted.'
-        : 'Reply is represented as a Zavorth reply packet for ReplyPipeline handoff only.',
+        ? 'Sensitive outbound is held until a Zavorth approval envelope is granted.'
+        : 'Conversational reply can flow through ReplyPipeline; approvals appear only if risk rises.',
       safety: {
         replyPacketOnly: true,
         noDirectChannelSend: true,
@@ -386,31 +386,31 @@ export class ZavorthChannelMessagingBridgeService {
       status: input.status,
       tone: input.status === 'channel-messaging-bridge-ready' ? 'ready' : input.status === 'attention' ? 'attention' : 'blocked',
       cards: [
-        card('channels', 'Channels', String(input.channelDescriptors.length), 'Source descriptors normalized as Zavorth channels'),
-        card('inbound', 'Inbound Message', input.sessionEventReceipt.status, 'Channel event mapped to Zavorth session and event'),
-        card('reply-pipeline', 'ReplyPipeline', input.outboundReplyPacket.status, 'User-facing output leaves as a Zavorth reply packet'),
-        card('blocked-risk', 'Risky Reply', input.blockedOutboundReplyPacket.status, 'Risky outbound reply blocked without approval'),
-        card('credentials', 'Credential Ports', String(input.credentialIsolationReceipts.filter((entry) => entry.status === 'isolated').length), 'Credentials stay behind ports or secret references'),
-        card('trust', 'Trust Mapping', String(input.pairingTrustReceipts.length), 'Pairing mapped into Zavorth trust plane'),
-        card('direct-send', 'Direct Sends', '0', 'No source runtime or channel bypass is allowed'),
+        card('channels', 'Channels', String(input.channelDescriptors.length), 'Available ways to talk to Zavorth'),
+        card('inbound', 'Inbound', input.sessionEventReceipt.status, 'Messages become normal Zavorth session events'),
+        card('reply-pipeline', 'Reply pipeline', input.outboundReplyPacket.status, 'Conversation flows through the shared reply pipeline'),
+        card('blocked-risk', 'Sensitive outbound', input.blockedOutboundReplyPacket.status, 'Only risky sends wait for approval'),
+        card('credentials', 'Credentials', String(input.credentialIsolationReceipts.filter((entry) => entry.status === 'isolated').length), 'Secrets stay behind protected references'),
+        card('trust', 'Trust', String(input.pairingTrustReceipts.length), 'Pairings map to the same trust rules'),
+        card('direct-send', 'Bypasses', '0', 'No channel can bypass Zavorth policy'),
       ],
       policyPills: [
-        'NormalizedInboundMessage',
-        'ZavorthAgentGateway inbound',
-        'ReplyPipeline outbound',
+        'conversational by default',
+        'approval only on risk',
+        'shared reply pipeline',
         'credential isolation',
         'ZavorthTrustPlane',
-        'no direct channel send',
+        'no channel bypass',
       ],
       nextSafeAction: input.status === 'channel-messaging-bridge-ready'
-        ? 'Proceed to 291 Runtime gateway - Sessions, Memory, And Continuation.'
-        : 'Fix failed channel messaging gates before session and memory continuation.',
+        ? 'Use channels naturally; Zavorth only interrupts for sensitive outbound actions.'
+        : 'Fix failed channel gates before using remote chat.',
     };
   }
 
   public formatSnapshotText(snapshot: ZavorthChannelMessagingBridgeSnapshot): string {
     const lines = [
-      'Zavorth Channel Messaging Bridge - Credential vault',
+      'Zavorth Channel Messaging Bridge - Conversational guardrails',
       '',
       `Status: ${snapshot.status}`,
       `Previous capability providers: ${snapshot.previousCapabilityProviderStatus}`,

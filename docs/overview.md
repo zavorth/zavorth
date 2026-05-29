@@ -9,7 +9,7 @@ later.
 
 - the agent runtime;
 - the official CLI entry points;
-- the Dashboard web surface at `/dashboard`;
+- the Zavorth Control web surface at `/control`;
 - channel, provider, skill, subagent, scheduler and perception contracts;
 - security policy, approvals, receipts and operational checks;
 - docs for daily use and development.
@@ -20,9 +20,9 @@ part of the public surface.
 
 ## Main Surfaces
 
-### Dashboard
+### ZavorthControl
 
-`/dashboard` is the primary web gateway. It is where users see runtime state,
+`/control` is the primary web gateway. It is where users see runtime state,
 approvals, sessions, artifacts, channel status and the next safe action.
 
 ### CLI
@@ -33,7 +33,7 @@ requests and automation-friendly JSON.
 ### Runtime API
 
 The runtime API is the integration boundary for clients and adapters. It should
-surface the same governed state as the CLI and Dashboard.
+surface the same governed state as the CLI and ZavorthControl.
 
 ### Channels
 
@@ -43,7 +43,7 @@ become separate products.
 
 ## Current Operating Model
 
-1. A request enters through CLI, Dashboard, API or a channel.
+1. A request enters through CLI, ZavorthControl, API or a channel.
 2. Zavorth builds context and classifies risk.
 3. Policy Broker evaluates tools, workspace, network, provider, channel and
    mutation boundaries.
@@ -65,7 +65,7 @@ See [Roadmap](/docs/product-direction.md).
 ## Read Next
 
 - [Quickstart](/docs/quickstart.md)
-- [Dashboard](/docs/web-dashboard.md)
+- [ZavorthControl](/docs/web-zavorthControl.md)
 - [CLI](/docs/zavorth-cli.md)
 - [Operations](/docs/operations.md)
 - [Security](/docs/security.md)

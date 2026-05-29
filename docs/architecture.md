@@ -5,7 +5,7 @@ governed runtime instead of becoming its own agent.
 
 ## Runtime Flow
 
-1. A message arrives from CLI, Dashboard, API or a channel.
+1. A message arrives from CLI, ZavorthControl, API or a channel.
 2. The runtime prepares context and classifies intent.
 3. Security policy evaluates the requested action.
 4. Approvals are requested for sensitive work.
@@ -17,7 +17,7 @@ governed runtime instead of becoming its own agent.
 
 ### Surface Plane
 
-CLI, Dashboard, API and channel adapters collect user intent and render
+CLI, ZavorthControl, API and channel adapters collect user intent and render
 responses. They should stay thin.
 
 ### Gateway Spine
@@ -48,7 +48,7 @@ Sensitive work follows one path:
 7. emit a visual receipt;
 8. prepare rollback evidence before mutation.
 
-Use `zavorth chat "edit src/index.ts"` for the normal CLI entry. Dashboard can
+Use `zavorth chat "edit src/index.ts"` for the normal CLI entry. ZavorthControl can
 render sensitive work as an action card, but it does not execute actions by
 itself.
 
@@ -72,7 +72,7 @@ Zavorth's normal governance path, but adds a stronger team runtime:
   separation and docker/wsl/external-sandbox profiles for stronger hosts;
 - deterministic final synthesis when no LLM synthesis provider is attached.
 
-Use `zavorth swarm` or the Dashboard swarm surface when validating multi-agent
+Use `zavorth swarm` or the ZavorthControl swarm surface when validating multi-agent
 work interactively. Maintainer CI verifies the official Swarm v2 contract.
 
 ### Memory And Artifact Plane

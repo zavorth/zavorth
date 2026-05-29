@@ -43,7 +43,7 @@ function ruleFilesExist() {
 
 function ruleMarkers() {
   const checks = [
-    ['src/contracts/ZavorthAgentCapabilityAssimilationContract.ts', ['ZAVORTH_AGENT_CAPABILITY_ASSIMILATION_CONTRACT_VERSION', 'noExternalSourceCodeCopied', 'noRawChainOfThoughtPolicy', 'dashboardVisualChangesRequireOwnerApproval']],
+    ['src/contracts/ZavorthAgentCapabilityAssimilationContract.ts', ['ZAVORTH_AGENT_CAPABILITY_ASSIMILATION_CONTRACT_VERSION', 'noExternalSourceCodeCopied', 'noRawChainOfThoughtPolicy', 'zavorthControlVisualChangesRequireOwnerApproval']],
     ['src/services/ZavorthAgentCapabilityAssimilationService.ts', ['Compact Governed Plan', 'Natural Tool Router', 'Governed Subagent Runtime', 'Universal Skill Intake', 'Perception Control Plane', 'Trust Plane Governance']],
     ['scripts/zavorth-agent-capability-assimilation.ts', ['--category', '--status', '--json']],
     ['src/sdk/contracts.ts', ['ZavorthAgentCapabilityAssimilationContract']],

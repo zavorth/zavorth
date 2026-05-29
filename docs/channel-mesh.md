@@ -77,7 +77,7 @@ A configured adapter, catalog entry, QR-ready pairing flow, or local stub must n
 | Channel | Expected posture |
 | --- | --- |
 | `telegram` | Live channel with policy and approvals |
-| `web` | Main Dashboard surface |
+| `web` | Main ZavorthControl surface |
 | `discord` | Native gateway when configured |
 | `whatsapp` | Cloud API or local bridge when configured |
 | `slack` | Native inbound/outbound when configured |
@@ -132,7 +132,7 @@ Telegram is treated as a first-class Channel Mesh surface. Its native menu shoul
 
 ## WhatsApp
 
-WhatsApp should clearly separate Cloud API, local bridge and QR pairing modes. QR visibility belongs in the backend/API projection and the Dashboard, with no claim of live readiness until the provider is actually connected.
+WhatsApp should clearly separate Cloud API, local bridge and QR pairing modes. QR visibility belongs in the backend/API projection and the ZavorthControl, with no claim of live readiness until the provider is actually connected.
 
 ## Signal
 

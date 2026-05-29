@@ -40,15 +40,17 @@ describe('ZavorthCliTuiPolishService', () => {
     expect(snapshot.providers.map((provider) => provider.id)).toEqual(['gemini', 'openrouter']);
     expect(snapshot.channels.map((channel) => channel.id)).toEqual(['dashboard', 'telegram', 'approvals']);
     expect(snapshot.shortcuts.map((shortcut) => shortcut.key)).toEqual([
+      '/ask',
+      '/edit',
+      '/apply',
       '/model',
       '/ready',
-      '/review',
       '/trust',
-      '/skills',
-      '/doctor',
     ]);
     expect(snapshot.safety).toEqual(expect.objectContaining({
       noPromptExecution: true,
+      noDirectPromptExecution: true,
+      promptRoutingAvailable: true,
       noToolExecution: true,
       noLiveTransactionExecution: true,
       noRawSecretsSerialized: true,
@@ -63,9 +65,10 @@ describe('ZavorthCliTuiPolishService', () => {
     expect(text).toContain('Smart commands');
     expect(text).toContain('Approvals');
     expect(text).toContain('Receipts');
-    expect(text).toContain('zavorth open');
+    expect(text).toContain('zavorth ask');
+    expect(text).toContain('zavorth edit');
     expect(text).toContain('zavorth ready --offline');
-    expect(text).toContain('Modo leitura');
+    expect(text).toContain('Action mode is available');
   });
 
   it('marks refreshed mode only when provider refresh is explicit', async () => {
