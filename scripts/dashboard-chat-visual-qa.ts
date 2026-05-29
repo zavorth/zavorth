@@ -7,8 +7,8 @@ import { fileURLToPath } from "node:url";
 import { chromium } from "playwright";
 
 const rootDir = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
-const assetDir = path.join(rootDir, "assets", "dashboard");
-const defaultOutDir = path.join(rootDir, ".tmp", "dashboard-chat-visual-qa");
+const assetDir = path.join(rootDir, "assets", "zavorthControl");
+const defaultOutDir = path.join(rootDir, ".tmp", "zavorthControl-chat-visual-qa");
 
 type CliOptions = {
   outDir: string;
@@ -60,7 +60,7 @@ function contentTypeFor(filePath: string): string {
 }
 
 function safeAssetPath(urlPath: string): string | null {
-  const normalized = urlPath === "/" || urlPath === "/dashboard"
+  const normalized = urlPath === "/" || urlPath === "/zavorthControl"
     ? "index.html"
     : urlPath.replace(/^\/+/, "");
   const absolute = path.resolve(assetDir, normalized);
@@ -133,7 +133,7 @@ function responseDecisionFor(kind: "conversation" | "approval" | "artifact") {
   };
 }
 
-function dashboardPayload(state: RuntimeState) {
+function zavorthControlPayload(state: RuntimeState) {
   return {
     live: true,
     authRequired: false,
@@ -192,7 +192,7 @@ function createQaServer(state: RuntimeState): Promise<{ server: http.Server; url
         webReady: true,
         gatewayReady: true,
         tokenRequired: false,
-        dashboardTokenConfigured: true,
+        zavorthControlTokenConfigured: true,
       });
       return;
     }
@@ -202,8 +202,8 @@ function createQaServer(state: RuntimeState): Promise<{ server: http.Server; url
       return;
     }
 
-    if (pathname === "/api/web/dashboard") {
-      json(res, dashboardPayload(state));
+    if (pathname === "/api/web/zavorthControl") {
+      json(res, zavorthControlPayload(state));
       return;
     }
 
@@ -232,11 +232,11 @@ function createQaServer(state: RuntimeState): Promise<{ server: http.Server; url
         "Cache-Control": "no-store",
         Connection: "close",
       });
-      res.end(": dashboard-chat-visual-qa\n\n");
+      res.end(": zavorthControl-chat-visual-qa\n\n");
       return;
     }
 
-    if (pathname === "/api/web/dashboard/events") {
+    if (pathname === "/api/web/zavorthControl/events") {
       const sessionId = requestUrl.searchParams.get("sessionId") || state.sessionId;
       const runId = requestUrl.searchParams.get("runId") || "";
       const traceId = requestUrl.searchParams.get("traceId") || "";
@@ -358,7 +358,7 @@ function createQaServer(state: RuntimeState): Promise<{ server: http.Server; url
             channel: "web",
             status: "waiting_approval",
             summary: "Comando aguardando aprovação visual.",
-            modelProfile: dashboardPayload(state).modelProfile,
+            modelProfile: zavorthControlPayload(state).modelProfile,
             approvals: [
               {
                 id: "approval-shell-visual-qa",
@@ -413,7 +413,7 @@ function createQaServer(state: RuntimeState): Promise<{ server: http.Server; url
             channel: "web",
             status: "completed",
             summary: "Relatório PDF pronto.",
-            modelProfile: dashboardPayload(state).modelProfile,
+            modelProfile: zavorthControlPayload(state).modelProfile,
             approvals: [],
             artifacts,
             metadata: {
@@ -475,7 +475,7 @@ function createQaServer(state: RuntimeState): Promise<{ server: http.Server; url
       }
       resolve({
         server,
-        url: `http://127.0.0.1:${address.port}/dashboard`,
+        url: `http://127.0.0.1:${address.port}/zavorthControl`,
       });
     });
   });
@@ -498,7 +498,7 @@ function writeReport(report: QaReport): void {
   fs.writeFileSync(
     path.join(report.outDir, "summary.md"),
     [
-      "# Dashboard Chat Visual QA",
+      "# ZavorthControl Chat Visual QA",
       "",
       `Status: ${report.ok ? "PASS" : "FAIL"}`,
       `URL: ${report.url}`,
@@ -529,7 +529,7 @@ async function sendComposerMessage(page: any, text: string): Promise<void> {
 
 async function runQa(options: CliOptions): Promise<QaReport> {
   const state: RuntimeState = {
-    sessionId: "qa-dashboard-session",
+    sessionId: "qa-zavorthControl-session",
     messages: [],
     runs: [],
     artifacts: [],
@@ -572,7 +572,7 @@ async function runQa(options: CliOptions): Promise<QaReport> {
       pulseLabel: document.querySelector("#core-pulse .bridge__pulse-label")?.textContent?.trim() || "",
       authState: document.getElementById("core-pulse")?.getAttribute("data-auth-state") || "",
     }));
-    pushCheck(report, "preserves-user-dashboard-shell", shellState.hasCoreFrame && !shellState.hasLargeMascot && shellState.hasComposer && shellState.hasSendButton, "Dashboard premium continua sendo o shell testado sem imagem gigante bloqueando a tela.");
+    pushCheck(report, "preserves-user-zavorthControl-shell", shellState.hasCoreFrame && !shellState.hasLargeMascot && shellState.hasComposer && shellState.hasSendButton, "ZavorthControl premium continua sendo o shell testado sem imagem gigante bloqueando a tela.");
     pushCheck(report, "runtime-unlocked-state-visible", shellState.authState === "unlocked" && /Core/.test(shellState.pulseLabel), "Topo indica runtime local desbloqueado/conectado.");
 
     await page.evaluate(() => {
@@ -603,7 +603,7 @@ async function runQa(options: CliOptions): Promise<QaReport> {
 
     await page.evaluate(() => {
       document.getElementById("terminal-view")?.classList.remove("is-empty");
-      const chat = (window as any).ZavorthDashboardChat;
+      const chat = (window as any).ZavorthControlChat;
       for (let index = 0; index < 18; index += 1) {
         chat?.appendEcho(index % 2 === 0 ? "operator" : "core", `Mensagem histórica ${index + 1} para estabilizar o scroll.`);
       }
@@ -801,7 +801,7 @@ runQa(options)
       metrics: {},
     };
     writeReport(report);
-    console.error(`[dashboard-chat-visual-qa] FAIL ${error?.message || error}`);
+    console.error(`[zavorthControl-chat-visual-qa] FAIL ${error?.message || error}`);
     if (options.requirePass) {
       process.exitCode = 1;
     }

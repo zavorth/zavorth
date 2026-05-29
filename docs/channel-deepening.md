@@ -62,7 +62,7 @@ zavorth channels telegram proof --live
 zavorth channels telegram outbox
 ```
 
-When a channel is not live-ready, outbound work must either be blocked or written to a safe outbox. This prevents the CLI, Dashboard or Telegram surface from implying that a real message was delivered when only a draft or catalog entry exists.
+When a channel is not live-ready, outbound work must either be blocked or written to a safe outbox. This prevents the CLI, ZavorthControl or Telegram surface from implying that a real message was delivered when only a draft or catalog entry exists.
 
 ## Safety Guarantees
 

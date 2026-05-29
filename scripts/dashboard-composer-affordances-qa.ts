@@ -7,8 +7,8 @@ import { fileURLToPath } from "node:url";
 import { chromium } from "playwright";
 
 const rootDir = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
-const assetDir = path.join(rootDir, "assets", "dashboard");
-const defaultOutDir = path.join(rootDir, ".tmp", "dashboard-composer-affordances-qa");
+const assetDir = path.join(rootDir, "assets", "zavorthControl");
+const defaultOutDir = path.join(rootDir, ".tmp", "zavorthControl-composer-affordances-qa");
 
 type CliOptions = {
   outDir: string;
@@ -66,7 +66,7 @@ function contentTypeFor(filePath: string): string {
 }
 
 function safeAssetPath(urlPath: string): string | null {
-  const normalized = urlPath === "/" || urlPath === "/dashboard"
+  const normalized = urlPath === "/" || urlPath === "/zavorthControl"
     ? "index.html"
     : urlPath.replace(/^\/+/, "");
   const absolute = path.resolve(assetDir, normalized);
@@ -97,7 +97,7 @@ function readBody(req: http.IncomingMessage): Promise<any> {
   });
 }
 
-function dashboardPayload(state: QaState) {
+function zavorthControlPayload(state: QaState) {
   return {
     live: true,
     authRequired: false,
@@ -129,15 +129,15 @@ function createQaServer(state: QaState): Promise<{ server: http.Server; url: str
     const pathname = requestUrl.pathname;
 
     if (pathname === "/api/auth/status") {
-      json(res, { webReady: true, gatewayReady: true, tokenRequired: false, dashboardTokenConfigured: true });
+      json(res, { webReady: true, gatewayReady: true, tokenRequired: false, zavorthControlTokenConfigured: true });
       return;
     }
     if (pathname === "/api/auth/validate") {
       json(res, { ok: true, valid: true });
       return;
     }
-    if (pathname === "/api/web/dashboard") {
-      json(res, dashboardPayload(state));
+    if (pathname === "/api/web/zavorthControl") {
+      json(res, zavorthControlPayload(state));
       return;
     }
     if (pathname === "/api/web/catalog") {
@@ -151,7 +151,7 @@ function createQaServer(state: QaState): Promise<{ server: http.Server; url: str
     }
     if (pathname === "/api/web/events") {
       res.writeHead(200, { "Content-Type": "text/event-stream; charset=utf-8", "Cache-Control": "no-store", Connection: "close" });
-      res.end(": dashboard-composer-affordances-qa\n\n");
+      res.end(": zavorthControl-composer-affordances-qa\n\n");
       return;
     }
     if (pathname === "/api/web/gateway/sessions/history") {
@@ -231,7 +231,7 @@ function createQaServer(state: QaState): Promise<{ server: http.Server; url: str
     server.listen(0, "127.0.0.1", () => {
       const address = server.address();
       if (!address || typeof address === "string") throw new Error("Nao foi possivel abrir servidor local de QA do composer.");
-      resolve({ server, url: `http://127.0.0.1:${address.port}/dashboard` });
+      resolve({ server, url: `http://127.0.0.1:${address.port}/zavorthControl` });
     });
   });
 }
@@ -247,7 +247,7 @@ function writeReport(report: QaReport): void {
   fs.writeFileSync(
     path.join(report.outDir, "summary.md"),
     [
-      "# Dashboard Composer Affordances QA",
+      "# ZavorthControl Composer Affordances QA",
       "",
       `Status: ${report.ok ? "PASS" : "FAIL"}`,
       `URL: ${report.url}`,
@@ -514,6 +514,6 @@ runQa(options)
   .catch((error) => {
     const report: QaReport = { ok: false, generatedAt: new Date().toISOString(), url: "not-started", outDir: options.outDir, screenshots: [], checks: [{ id: "unexpected-error", status: "fail", detail: String(error?.stack || error?.message || error) }], metrics: {} };
     writeReport(report);
-    console.error(`[dashboard-composer-affordances-qa] FAIL ${error?.message || error}`);
+    console.error(`[zavorthControl-composer-affordances-qa] FAIL ${error?.message || error}`);
     if (options.requirePass) process.exitCode = 1;
   });

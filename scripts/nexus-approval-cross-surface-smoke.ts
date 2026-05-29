@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import type * as http from 'node:http';
 import { PassThrough } from 'node:stream';
-import { DashboardEchoRouteService } from '../src/services/DashboardEchoRouteService.js';
+import { ZavorthControlEchoRouteService } from '../src/services/ZavorthControlEchoRouteService.js';
 
 type WriteCall = {
   body: any;
@@ -29,7 +29,7 @@ main().catch((error) => {
 });
 
 async function main(): Promise<void> {
-  const route = new DashboardEchoRouteService();
+  const route = new ZavorthControlEchoRouteService();
   const calls: WriteCall[] = [];
   const resolverContexts: ResolverContext[] = [];
   const gatewayInputs: any[] = [];

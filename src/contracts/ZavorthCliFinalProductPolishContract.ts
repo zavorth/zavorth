@@ -41,6 +41,7 @@ export type ZavorthCliFinalProductPolishSnapshot = {
     blocked: number;
     requiredCommands: string[];
     dashboardPath: '/dashboard';
+    zavorthControlPath: '/control';
     inkPreviewRendersOnce: boolean;
     inkInteractiveMode: boolean;
     zavorthNativeCommandIdentity: boolean;

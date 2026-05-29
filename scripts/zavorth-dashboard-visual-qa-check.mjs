@@ -1,4 +1,4 @@
-import { readFileSync } from 'node:fs';
+﻿import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
@@ -6,18 +6,18 @@ const root = resolve(fileURLToPath(new URL('..', import.meta.url)));
 
 const checks = [
   {
-    file: 'src/contracts/ZavorthDashboardVisualQaContract.ts',
+    file: 'src/contracts/ZavorthControlVisualQaContract.ts',
     markers: [
-      'zavorth-dashboard-visual-qa.v1',
+      'zavorth-control-visual-qa.v1',
       'evidence-ready',
       'desktop',
       'mobile',
     ],
   },
   {
-    file: 'src/services/ZavorthDashboardVisualQaService.ts',
+    file: 'src/services/ZavorthControlVisualQaService.ts',
     markers: [
-      'ZavorthDashboardVisualQaService',
+      'ZavorthControlVisualQaService',
       'channel-status-and-actions',
       'qr-and-auth-states',
       'runtime-live-shell',
@@ -25,7 +25,7 @@ const checks = [
     ],
   },
   {
-    file: 'scripts/zavorth-dashboard-visual-qa.ts',
+    file: 'scripts/zavorth-control-visual-qa.ts',
     markers: [
       '--capture',
       'playwright',
@@ -33,7 +33,7 @@ const checks = [
     ],
   },
   {
-    file: 'tests/services/ZavorthDashboardVisualQaService.test.ts',
+    file: 'tests/services/ZavorthControlVisualQaService.test.ts',
     markers: [
       'reports plan-ready when preview exists without screenshots',
       'reports evidence-ready when screenshots and manifest exist',
@@ -42,8 +42,8 @@ const checks = [
   {
     file: 'package.json',
     markers: [
-      'zavorth:dashboard-visual-qa',
-      'zavorth:dashboard-visual-qa:check',
+      'zavorth:zavorthControl-visual-qa',
+      'zavorth:zavorthControl-visual-qa:check',
     ],
   },
 ];
@@ -60,11 +60,11 @@ for (const check of checks) {
 }
 
 if (failures.length > 0) {
-  console.error('Zavorth dashboard visual QA check failed:');
+  console.error('Zavorth zavorthControl visual QA check failed:');
   for (const failure of failures) {
     console.error(`- ${failure}`);
   }
   process.exit(1);
 }
 
-console.log('Zavorth dashboard visual QA check passed.');
+console.log('Zavorth zavorthControl visual QA check passed.');

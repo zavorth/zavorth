@@ -34,7 +34,7 @@ async function main(): Promise<void> {
           sessionId: 'session_cli',
           title: request,
           status: runStatus,
-          summary: 'CLI preview mission for Dashboard UX.',
+          summary: 'CLI preview mission for ZavorthControl UX.',
           providerLabel: 'local projection',
           modelLabel: 'not executed',
           updatedAt: generatedAt,

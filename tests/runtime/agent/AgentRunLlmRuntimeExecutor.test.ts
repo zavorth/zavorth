@@ -697,9 +697,20 @@ describe('AgentRunLlmRuntimeExecutor native tool loop', () => {
         receipts: ['super-zavorth-speculative-sandbox'],
       }),
     };
+    const canvasSessionService = {
+      createFromSpeculativeAutonomyResult: jest.fn().mockResolvedValue({
+        sessionId: 'canvas-1',
+        engineId: 'shield',
+        sandboxRunId: 'spec-run-1',
+        attempts: [{ id: 'attempt-1' }],
+        activeAttemptId: 'attempt-1',
+        previewUrl: 'http://127.0.0.1:4123/session/canvas-1',
+      }),
+    };
     const executor = new AgentRunLlmRuntimeExecutor({
       llmRuntime: llmRuntime as any,
       speculativeAutonomyService: speculativeAutonomyService as any,
+      canvasSessionService: canvasSessionService as any,
     });
 
     const result = await executor.executeIfAvailable(
@@ -715,18 +726,38 @@ describe('AgentRunLlmRuntimeExecutor native tool loop', () => {
       approvalRequired: true,
     }));
     expect(result?.replyText).toContain('Super Zavorth: ensaio especulativo aprovado em sandbox');
+    expect(canvasSessionService.createFromSpeculativeAutonomyResult).toHaveBeenCalledWith(
+      expect.objectContaining({ id: 'spec-run-1' }),
+      'shield',
+    );
     expect(result?.events).toEqual(expect.arrayContaining([
       expect.objectContaining({
         kind: 'artifact',
         title: 'Super Zavorth speculative autonomy',
         status: 'done',
-        metadata: expect.objectContaining({ mutationPlanId: 'plan-1' }),
+        metadata: expect.objectContaining({
+          mutationPlanId: 'plan-1',
+          zCanvasSession: expect.objectContaining({
+            sessionId: 'canvas-1',
+            attemptCount: 1,
+          }),
+        }),
+      }),
+      expect.objectContaining({
+        kind: 'artifact',
+        title: 'Z-Canvas sandbox preview',
+        status: 'done',
       }),
     ]));
     expect(result?.metadata?.superZavorthSpeculativeAutonomy).toEqual(expect.objectContaining({
       id: 'spec-run-1',
       status: 'approved',
       mutationPlanId: 'plan-1',
+    }));
+    expect(result?.metadata?.zCanvasSession).toEqual(expect.objectContaining({
+      ok: true,
+      sessionId: 'canvas-1',
+      sandboxRunId: 'spec-run-1',
     }));
   });
 });

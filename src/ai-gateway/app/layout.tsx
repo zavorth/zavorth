@@ -1,6 +1,6 @@
-import { IBM_Plex_Sans } from "next/font/google";
+import { Inter } from "next/font/google";
 import "./globals.css";
-import "./(dashboard)/control/command-center/styles/commandCenter.css";
+import "./(zavorthControl)/control/zavorth-control/styles/zavorthControl.css";
 import { ThemeProvider } from "@/shared/components/ThemeProvider";
 import "@/lib/initCloudSync";
 import { NextIntlClientProvider } from "next-intl";
@@ -8,9 +8,9 @@ import { getMessages, getLocale } from "next-intl/server";
 import { RTL_LOCALES } from "@/i18n/config";
 import { getSettings } from "@/lib/db/settings";
 
-const ibmPlexSans = IBM_Plex_Sans({
+const inter = Inter({
   subsets: ["latin"],
-  weight: ["400", "500", "600", "700"],
+  weight: ["400", "500", "600", "700", "800"],
 });
 
 export async function generateMetadata() {
@@ -45,10 +45,8 @@ export default async function RootLayout({ children }) {
           rel="stylesheet"
         />
       </head>
-      <body className={`${ibmPlexSans.className} antialiased`} suppressHydrationWarning>
+      <body className={`${inter.className} antialiased`} suppressHydrationWarning>
         <div className="pointer-events-none fixed inset-0 overflow-hidden">
-          <div className="absolute left-1/2 top-0 h-72 w-72 -translate-x-1/2 rounded-full bg-primary/[0.12] blur-3xl dark:bg-primary/[0.18]" />
-          <div className="absolute -right-12 bottom-0 h-80 w-80 rounded-full bg-accent/[0.10] blur-3xl dark:bg-accent/[0.14]" />
           <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-primary/30 to-transparent" />
         </div>
         <a

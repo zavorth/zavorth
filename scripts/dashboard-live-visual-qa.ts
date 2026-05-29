@@ -6,7 +6,7 @@ import { fileURLToPath } from "node:url";
 import { chromium } from "playwright";
 
 const rootDir = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
-const defaultOutDir = path.join(rootDir, ".tmp", "dashboard-live-visual-qa");
+const defaultOutDir = path.join(rootDir, ".tmp", "zavorthControl-live-visual-qa");
 
 type CliOptions = {
   url: string;
@@ -60,7 +60,7 @@ function readOptions(): CliOptions {
   const envFileToken = readEnvTokenFromFile(path.join(rootDir, ".env"));
   const tokenFile = readRuntimeTokenFile();
   return {
-    url: readCliValue("url") || "http://127.0.0.1:3000/dashboard",
+    url: readCliValue("url") || "http://127.0.0.1:3000/zavorthControl",
     outDir: path.resolve(rootDir, readCliValue("out") || defaultOutDir),
     token: tokenArg || envToken || envFileToken || tokenFile,
     requirePass: process.argv.includes("--require-pass"),
@@ -77,7 +77,7 @@ function writeReport(report: LiveVisualQaReport, outDir: string): void {
   fs.writeFileSync(
     path.join(outDir, "summary.md"),
     [
-      "# Dashboard Live Visual QA",
+      "# ZavorthControl Live Visual QA",
       "",
       `Status: ${report.ok ? "PASS" : "FAIL"}`,
       `URL: ${report.url}`,
@@ -143,7 +143,7 @@ async function main(): Promise<LiveVisualQaReport> {
         activeSector: document.querySelector(".sector.active")?.id || "",
         currentCrumb: document.getElementById("bridge-current")?.textContent?.trim() || "",
         overviewTitle: document.querySelector("#sector-overview .page-title")?.textContent?.trim()
-          || document.querySelector("#sector-overview .dashboard-title")?.textContent?.trim()
+          || document.querySelector("#sector-overview .zavorthControl-title")?.textContent?.trim()
           || document.querySelector("#sector-overview h1, #sector-overview h2")?.textContent?.trim()
           || (document.getElementById("sector-overview")?.textContent?.match(/\bOverview\b/) ? "Overview" : "")
           || "",
@@ -184,7 +184,7 @@ main()
     }
   })
   .catch((error) => {
-    console.error(`[dashboard-live-visual-qa] FAIL ${error?.message || error}`);
+    console.error(`[zavorthControl-live-visual-qa] FAIL ${error?.message || error}`);
     if (readOptions().requirePass) {
       process.exitCode = 1;
     }

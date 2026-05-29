@@ -60,7 +60,7 @@ const launchFacingRetiredExecutorFiles = [
   'src/execution/execution-gateway/ExecutionGatewayAliases.ts',
   'src/ai-gateway/shared/constants/cliTools.ts',
   'src/ai-gateway/shared/services/cli-runtime/cliRuntimeTools.ts',
-  'src/ai-gateway/app/(dashboard)/dashboard/cli-tools/components/managed-cli-tool-card/managedCliToolProfiles.ts',
+  'src/ai-gateway/app/(zavorthControl)/zavorthControl/cli-tools/components/managed-cli-tool-card/managedCliToolProfiles.ts',
   'src/ai-gateway/app/api/cli-tools/_shared/externalExecutorSettingsRoute.ts',
   'src/ai-gateway/lib/acp/registry.ts',
   'src/domain/platform-ecosystem/infrastructure/integration-registry/catalog-local.ts',

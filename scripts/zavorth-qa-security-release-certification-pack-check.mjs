@@ -28,7 +28,7 @@ const rules = [
   ruleContainsAll({
     id: 'zavorth-qa-security-release-contract',
     label: 'Contract captures Surface controls certification model',
-    target: 'contract includes family ids, pass/warn/fail receipts, policies and Dashboard controls handoff',
+    target: 'contract includes family ids, pass/warn/fail receipts, policies and ZavorthControl controls handoff',
     files: ['src/contracts/ZavorthQaSecurityReleaseCertificationContract.ts'],
     needles: [
       'ZAVORTH_QA_SECURITY_RELEASE_CERTIFICATION_CONTRACT_VERSION',
@@ -41,7 +41,7 @@ const rules = [
       'ZavorthFunctionalParityCertificationRunnerSnapshot',
       'dependencyPatchesAcceptedSilently',
       'rawWorkflowYamlCopied',
-      'Dashboard controls - Skill Ecosystem Pack',
+      'ZavorthControl controls - Skill Ecosystem Pack',
     ],
   }),
   ruleContainsAcross({
@@ -78,7 +78,7 @@ const rules = [
       'noLiveProviderCalls',
       'noLiveChannelSends',
       'artifactFirstReceipts',
-      'Dashboard controls - Skill Ecosystem Pack',
+      'ZavorthControl controls - Skill Ecosystem Pack',
     ],
   }),
   ruleContainsAll({

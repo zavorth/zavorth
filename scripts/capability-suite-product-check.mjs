@@ -38,7 +38,7 @@ const phaseChecks = {
         'jest',
         'tests/telegram/VideoHandler.test.ts',
         'tests/telegram/VideoHandler.hardening.test.ts',
-        'tests/domain/surface/presentation/dashboard/DashboardService.hardening.test.ts',
+        'tests/domain/surface/presentation/zavorthControl/ZavorthControlService.hardening.test.ts',
         'tests/orchestrator/RealZavorthBridgeWatcher.test.ts',
         'tests/orchestrator/RealZavorthBridgeWatcher.hardening.test.ts',
         'tests/skills/SkillRouter.test.ts',

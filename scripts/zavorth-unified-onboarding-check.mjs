@@ -54,7 +54,7 @@ if (snapshot) {
   assertRule('steps:sandbox', hasStep(snapshot, 'sandbox'), 'Sandbox readiness is a first-run step');
   assertRule('steps:first-mission', hasStep(snapshot, 'first-mission'), 'First mission is a guided onboarding step');
   assertRule('safe-demo:readonly', snapshot.safeDemo?.readOnly === true, 'Safe demo is read-only');
-  assertRule('dashboard:no-authority', snapshot.dashboardProjection?.executionAuthority === false, 'Dashboard projection has no execution authority');
+  assertRule('zavorthControl:no-authority', snapshot.zavorthControlProjection?.executionAuthority === false, 'ZavorthControl projection has no execution authority');
   assertRule(
     'invariant:one-journey',
     snapshot.invariants?.some((entry) => entry.id === 'setup-go-doctor-one-journey' && entry.status === 'passed'),

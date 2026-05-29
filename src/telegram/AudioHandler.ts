@@ -16,6 +16,8 @@ import {
 } from '../services/OptionalCapabilityGuard.js';
 import { logEchoTrace } from './EchoTrace.js';
 import { LocalVoiceDictation } from '../voice/LocalVoiceDictation.js';
+import { AudioTranscriptionService } from '../services/AudioTranscriptionService.js';
+import type { AudioTranscriptionResult as SharedAudioTranscriptionResult } from '../services/AudioTranscriptionService.js';
 
 const TELEGRAM_TRANSCRIPTION_TITLE = 'audio do Telegram';
 const TELEGRAM_TRANSCRIPTION_INSTRUCTION = [
@@ -67,6 +69,7 @@ export interface AudioHandlerDeps {
   loadEdgeTts?: () => Promise<{ MsEdgeTTS: new () => any }>;
   voiceTelemetryService?: Pick<EchoVoiceTelemetryService, 'recordSuccess' | 'recordFailure'>;
   fetchImpl?: typeof fetch;
+  audioTranscriptionService?: Pick<AudioTranscriptionService, 'transcribe'>;
 }
 
 export class AudioHandler {
@@ -79,6 +82,7 @@ export class AudioHandler {
   private loadEdgeTts: () => Promise<{ MsEdgeTTS: new () => any }>;
   private voiceTelemetryService: Pick<EchoVoiceTelemetryService, 'recordSuccess' | 'recordFailure'>;
   private fetchImpl: typeof fetch;
+  private audioTranscriptionService: Pick<AudioTranscriptionService, 'transcribe'>;
 
   constructor(deps: AudioHandlerDeps = {}) {
     if (!fs.existsSync(config.tmpDir)) {
@@ -94,6 +98,7 @@ export class AudioHandler {
     this.loadEdgeTts = deps.loadEdgeTts || defaultEdgeTtsLoader;
     this.voiceTelemetryService = deps.voiceTelemetryService || new EchoVoiceTelemetryService();
     this.fetchImpl = deps.fetchImpl || fetch;
+    this.audioTranscriptionService = deps.audioTranscriptionService || new AudioTranscriptionService();
   }
 
   public async transcribe(filePath: string, options: TranscriptionOptions = {}): Promise<string> {
@@ -102,77 +107,30 @@ export class AudioHandler {
   }
 
   public async transcribeDetailed(filePath: string, options: TranscriptionOptions = {}): Promise<AudioTranscriptionResult> {
-    const audioConfig = this.getAudioConfig();
-    if (!audioConfig.sttEnabled) {
-      throw new Error('STT de audio esta desativado por ZAVORTH_AUDIO_STT_ENABLED=false.');
-    }
-
     const stats = fs.statSync(filePath);
-    if (stats.size > audioConfig.sttMaxBytes) {
-      throw new Error(`Audio excede o limite de STT (${stats.size} bytes > ${audioConfig.sttMaxBytes} bytes).`);
-    }
-
-    const providers = this.resolveTranscriptionProviders(audioConfig.sttProviderOrder);
-    const failures: AudioTranscriptionResult['failures'] = [];
-    const warnings: string[] = [];
     const startedAt = Date.now();
+    const mimeType = this.resolveMimeType(filePath);
     console.log(
-      `[AudioHandler] STT start file=${path.basename(filePath)} bytes=${stats.size} providers=${providers.join('>')}`,
+      `[AudioHandler] STT start file=${path.basename(filePath)} bytes=${stats.size} mime=${mimeType}`,
     );
-
-    for (const provider of providers) {
-      if (!this.isTranscriptionProviderConfigured(provider)) {
-        failures.push({ provider, error: 'provider sem credencial/configuracao local', latencyMs: 0 });
-        continue;
-      }
-
-      const providerStartedAt = Date.now();
-      try {
-        const result = await this.withTimeout(
-          this.transcribeWithProvider(provider, filePath, options),
-          audioConfig.sttTimeoutMs,
-          `STT ${provider} excedeu ${audioConfig.sttTimeoutMs}ms`,
-        );
-        const text = this.normalizeTranscriptionText(result.text);
-        if (!text) {
-          throw new Error('provider retornou transcricao vazia');
-        }
-
-        const latencyMs = Date.now() - providerStartedAt;
-        const languageCode = result.languageCode || this.detectLanguageCode(text);
-        const candidateResult: AudioTranscriptionResult = {
-          text,
-          provider,
-          model: result.model,
-          languageCode,
-          latencyMs,
-          warnings: [...warnings],
-          failures: [...failures],
-        };
-        const validation = options.validator?.(candidateResult);
-        if (validation && !validation.accepted) {
-          const reason = validation.reason || 'transcricao rejeitada por validacao';
-          failures.push({ provider, error: reason, latencyMs });
-          warnings.push(`${provider}: ${reason}`);
-          console.warn(
-            `[AudioHandler] STT rejected provider=${provider} lang=${languageCode} chars=${text.length} latencyMs=${latencyMs}: ${reason}`,
-          );
-          continue;
-        }
-        console.log(
-          `[AudioHandler] STT ok provider=${provider} model=${result.model || 'default'} lang=${languageCode} chars=${text.length} latencyMs=${latencyMs} totalMs=${Date.now() - startedAt}`,
-        );
-        return candidateResult;
-      } catch (error: unknown) {
-        const errorMessage = error instanceof Error ? error.message : String(error);
-        const latencyMs = Date.now() - providerStartedAt;
-        failures.push({ provider, error: errorMessage, latencyMs });
-        warnings.push(`${provider}: ${errorMessage}`);
-        console.warn(`[AudioHandler] STT fallback provider=${provider} failed latencyMs=${latencyMs}: ${errorMessage}`);
-      }
+    const sharedResult = await this.audioTranscriptionService.transcribe({
+      audio: fs.readFileSync(filePath),
+      mimeType,
+      fileName: path.basename(filePath),
+      prompt: options.prompt || TELEGRAM_TRANSCRIPTION_INSTRUCTION,
+      language: options.language || null,
+    });
+    const result = this.toTelegramTranscriptionResult(sharedResult, startedAt);
+    const validation = options.validator?.(result);
+    if (validation && !validation.accepted) {
+      const reason = validation.reason || 'transcription rejected by validator';
+      console.warn(`[AudioHandler] STT rejected provider=${result.provider} chars=${result.text.length}: ${reason}`);
+      throw new Error(reason);
     }
-
-    throw new Error(`Falha ao transcrever o arquivo em todos os providers: ${failures.map((failure) => `${failure.provider}: ${failure.error}`).join(' | ')}`);
+    console.log(
+      `[AudioHandler] STT ok provider=${result.provider} model=${result.model || 'default'} lang=${result.languageCode} chars=${result.text.length} latencyMs=${result.latencyMs} totalMs=${Date.now() - startedAt}`,
+    );
+    return result;
   }
 
   /**
@@ -327,6 +285,46 @@ export class AudioHandler {
       default:
         throw new Error(`Provider de STT desconhecido: ${provider}`);
     }
+  }
+
+  private toTelegramTranscriptionResult(
+    result: SharedAudioTranscriptionResult,
+    startedAt: number,
+  ): AudioTranscriptionResult {
+    const failures = result.attempts
+      .filter((attempt) => attempt.status !== 'succeeded')
+      .map((attempt) => ({
+        provider: attempt.provider,
+        error: attempt.reason || attempt.status,
+        latencyMs: attempt.latencyMs,
+      }));
+    if (!result.ok || !result.text || !result.provider) {
+      throw new Error(
+        result.error || `Failed to transcribe audio with all providers: ${
+          failures.map((failure) => `${failure.provider}: ${failure.error}`).join(' | ')
+        }`,
+      );
+    }
+    const provider = this.normalizeTranscriptionProvider(result.provider);
+    const text = this.normalizeTranscriptionText(result.text);
+    if (!text) {
+      throw new Error('Audio transcription response missing usable text.');
+    }
+    return {
+      text,
+      provider,
+      model: result.model || undefined,
+      languageCode: this.detectLanguageCode(text),
+      latencyMs: Date.now() - startedAt,
+      warnings: failures.map((failure) => `${failure.provider}: ${failure.error}`),
+      failures,
+    };
+  }
+
+  private normalizeTranscriptionProvider(provider: string): AudioTranscriptionProvider {
+    return ['gemini', 'openai', 'groq', 'deepgram', 'whisper.cpp'].includes(provider)
+      ? provider as AudioTranscriptionProvider
+      : 'whisper.cpp';
   }
 
   private async transcribeWithGemini(

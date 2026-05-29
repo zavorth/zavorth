@@ -70,7 +70,7 @@ function runDefaultEvalFixture() {
     && snapshot.summary.scenarios === 5
     && snapshot.summary.failures === 0
     && snapshot.safety.noLiveActionExecuted === true
-    && snapshot.safety.noDashboardVisualMutation === true
+    && snapshot.safety.noZavorthControlVisualMutation === true
     && snapshot.safety.continuousEvalDoesNotPersistByDefault === true
     && snapshot.scenarioEvals.every((scenario) => scenario.status === 'passed'));
 }

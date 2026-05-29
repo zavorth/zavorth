@@ -70,7 +70,7 @@ function runNeedsEvidenceFixture() {
     && snapshot.summary.evidenceItems === 0
     && snapshot.canaryPlan.dryRunReady === false
     && snapshot.safety.noLiveActionExecuted === true
-    && snapshot.safety.noDashboardVisualMutation === true
+    && snapshot.safety.noZavorthControlVisualMutation === true
     && snapshot.safety.evidenceNotPersistedByDefault === true);
 }
 

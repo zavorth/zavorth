@@ -45,10 +45,10 @@ zavorth channels telegram
 Open:
 
 ```text
-http://127.0.0.1:33333/dashboard
+http://127.0.0.1:33333/control
 ```
 
-Then use the Dashboard for sessions, approvals, nodes, transports and integrations.
+Then use the ZavorthControl for sessions, approvals, nodes, transports and integrations.
 
 ## Safety Notes
 

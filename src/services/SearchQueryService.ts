@@ -705,7 +705,7 @@ class ChatCompletionsSearchAdapter implements ISearchQueryAdapter {
   }
 
   public async search(request: SearchQueryRequest): Promise<AdapterSearchOutput> {
-    const response = await fetch(this.config.url, {
+    const response = await safeFetch(this.config.url, {
       method: 'POST',
       headers: {
         Accept: 'application/json',
@@ -727,7 +727,7 @@ class ChatCompletionsSearchAdapter implements ISearchQueryAdapter {
         temperature: 0,
         ...this.config.extraBody,
       }),
-    });
+    }, { serviceName: `${this.config.providerId} search adapter` });
     const payload = await response.json().catch(() => null);
     if (!response.ok) {
       throw new Error(`${this.adapterId} search failed: ${readProviderError(payload, response.status)}`);

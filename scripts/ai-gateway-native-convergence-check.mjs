@@ -29,16 +29,16 @@ const rules = [
   }),
   ruleContainsAcross({
     id: 'agent-gateway-real-snapshot-consumer',
-    label: 'Dashboard consumes Agent Gateway snapshot',
-    target: '/dashboard can render ZavorthAgentGatewaySnapshot instead of rebuilding a parallel runtime',
+    label: 'ZavorthControl consumes Agent Gateway snapshot',
+    target: '/zavorthControl can render ZavorthAgentGatewaySnapshot instead of rebuilding a parallel runtime',
     files: [
-      'src/ai-gateway/app/(dashboard)/dashboard/dashboard/adapters/zavorthAgentGatewayDashboardAdapter.ts',
-      'src/ai-gateway/app/(dashboard)/dashboard/dashboard/projections/zavorthAgentGatewayRuntimeProjection.ts',
+      'src/ai-gateway/app/(zavorthControl)/zavorthControl/zavorthControl/adapters/zavorthAgentGatewayZavorthControlAdapter.ts',
+      'src/ai-gateway/app/(zavorthControl)/zavorthControl/zavorthControl/projections/zavorthAgentGatewayRuntimeProjection.ts',
     ],
     needles: [
       'ZavorthAgentGatewaySnapshot',
       'runObservatory',
-      'buildDashboardRuntimeProjectionFromZavorthAgentGatewaySnapshot',
+      'buildZavorthControlRuntimeProjectionFromZavorthAgentGatewaySnapshot',
     ],
   }),
   ruleContainsAcross({
@@ -58,15 +58,15 @@ const rules = [
   ruleContainsAcross({
     id: 'budget-route-observability-correlation',
     label: 'budget, route and observability are correlated',
-    target: 'agent runs carry budget/route correlation and Dashboard reads it',
+    target: 'agent runs carry budget/route correlation and ZavorthControl reads it',
     files: [
       'src/runtime/agent/AgentRunLlmRouteReceipt.ts',
-      'src/ai-gateway/app/(dashboard)/dashboard/dashboard/adapters/dashboardDashboardRunObservability.ts',
+      'src/ai-gateway/app/(zavorthControl)/zavorthControl/zavorthControl/adapters/zavorthControlZavorthControlRunObservability.ts',
     ],
     needles: [
       'providerRouteBudgetCorrelation',
       'runBudget',
-      'resolveDashboardProviderRouteBudgetCorrelation',
+      'resolveZavorthControlProviderRouteBudgetCorrelation',
     ],
   }),
   ruleContainsAcross({

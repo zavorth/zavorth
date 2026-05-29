@@ -4,7 +4,7 @@ import { chromium } from 'playwright';
 
 const root = process.cwd();
 const outDir = path.join(root, 'assets', 'brand');
-const logoPath = path.join(root, 'assets', 'dashboard', 'assets', 'zavorth-icon.svg');
+const logoPath = path.join(root, 'assets', 'zavorthControl', 'assets', 'zavorth-icon.svg');
 
 fs.mkdirSync(outDir, { recursive: true });
 
@@ -121,7 +121,7 @@ function html({ kind }) {
       </div>
       <div class="eyebrow">Local-first agent OS</div>
       <h1>Ask naturally. Execute safely.</h1>
-      <p>Dashboard, approvals, subagents, skills, channels and receipts for daily AI work you can actually trust.</p>
+      <p>ZavorthControl, approvals, subagents, skills, channels and receipts for daily AI work you can actually trust.</p>
       <div class="chips">
         <div class="chip">Policy Broker</div>
         <div class="chip">Approvals</div>
@@ -131,7 +131,7 @@ function html({ kind }) {
     </div>
     <div class="shotWrap">
       <div class="mock">
-        <div class="mockTop"><strong>Dashboard</strong><span>/dashboard</span></div>
+        <div class="mockTop"><strong>ZavorthControl</strong><span>/zavorthControl</span></div>
         <div class="mockTitle">Runtime, terminal and API live here.</div>
         <div class="mockText">One governed surface for requests, status, approvals, sessions, artifacts and channel readiness.</div>
         <div class="cards">
@@ -140,7 +140,7 @@ function html({ kind }) {
           <div class="card"><div class="label">Channels</div><div class="value">Mapped</div></div>
           <div class="card"><div class="label">Policy</div><div class="value">Active</div></div>
         </div>
-        <div class="actions"><div class="primary">Open Dashboard</div><div class="secondary">Run doctor</div></div>
+        <div class="actions"><div class="primary">Open ZavorthControl</div><div class="secondary">Run doctor</div></div>
         <div class="panel">
           <div class="panelHead">Operational trace</div>
           <div class="rows">

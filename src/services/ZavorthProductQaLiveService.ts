@@ -128,7 +128,7 @@ export class ZavorthProductQaLiveService {
       providerConfigured: PROVIDER_ENV_GROUPS.some((group) => group.some((key) => hasEnv(this.env, key))),
       telegramTokenConfigured: TELEGRAM_TOKEN_KEYS.some((key) => hasEnv(this.env, key)),
       telegramAllowlistConfigured: TELEGRAM_ALLOWLIST_KEYS.some((key) => hasEnv(this.env, key)),
-      dashboardCovered: this.hasAll(['scripts/zavorth-dashboard-final-product-polish-check.mjs', 'src/ai-gateway/app/(dashboard)/dashboard/useControlPageClient.ts']),
+      dashboardCovered: this.hasAll(['scripts/zavorth-dashboard-final-product-polish-check.mjs', 'src/ai-gateway/app/(dashboard)/control/useControlPageClient.ts']),
       cliCovered: this.hasAll(['scripts/zavorth-cli-final-product-polish-check.mjs', 'src/zavorth-cli.ts', 'bin/zavorth.js']),
       sandboxCovered: this.hasAll(['scripts/zavorth-sandbox-lifecycle.ts', 'scripts/zavorth-sandbox-lifecycle-check.mjs']),
       receiptsCovered: this.hasAll(['scripts/zavorth-live-readiness-evidence-proof-pack.ts', 'scripts/zavorth-live-readiness-evidence-proof-pack-check.mjs']),

@@ -60,7 +60,9 @@ export class GeminiVisionAnalysisAdapter implements IMediaUnderstandingAdapter {
   // -------------------------------------------------------------------------
 
   private async analyzeWithKey(apiKey: string, input: AdapterAnalysisInput): Promise<AdapterAnalysisOutput> {
-    const modelId = config.geminiModel || 'gemini-2.0-flash';
+    const modelId = input.contentType.startsWith('audio/')
+      ? (config.geminiTranscriptionModel || config.geminiVideoModel || config.geminiModel || 'gemini-2.0-flash')
+      : (config.geminiModel || 'gemini-2.0-flash');
     const genAI = new GoogleGenerativeAI(apiKey);
     const model = genAI.getGenerativeModel({ model: modelId });
 
@@ -115,9 +117,15 @@ export class GeminiVisionAnalysisAdapter implements IMediaUnderstandingAdapter {
 
   private buildPrompt(input: AdapterAnalysisInput): string {
     const base = this.getBasePrompt(input.analysisType);
-    const userPrompt = input.prompt ? `\n\nInstrução adicional do usuário: ${input.prompt}` : '';
+    const userPrompt = input.prompt ? `\n\nInstrucao adicional do usuario: ${input.prompt}` : '';
+    const responseLanguage = typeof input.providerHints?.responseLanguage === 'string'
+      ? input.providerHints.responseLanguage.trim()
+      : '';
+    const languageInstruction = responseLanguage
+      ? `Responda em ${responseLanguage}.`
+      : 'Responda no mesmo idioma da instrucao do usuario.';
 
-    return `${base}${userPrompt}\n\nResponda em português brasileiro. Seja detalhado mas conciso.`;
+    return `${base}${userPrompt}\n\n${languageInstruction} Seja detalhado mas conciso.`;
   }
 
   private getBasePrompt(analysisType: string): string {

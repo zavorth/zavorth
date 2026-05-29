@@ -42,7 +42,7 @@ function ruleFilesExist() {
     'scripts/zavorth-agent-review-check.mjs',
     'tests/services/ZavorthAgentReviewService.test.ts',
     'src/runtime/review/GovernedReviewService.ts',
-    'src/runtime/review/GovernedReviewDashboardPresenter.ts',
+    'src/runtime/review/GovernedReviewZavorthControlPresenter.ts',
     'package.json',
     'src/zavorth-cli.ts',
   ];
@@ -61,7 +61,7 @@ function ruleContainsMarkers() {
   const checks = [
     ['src/services/ZavorthAgentReviewService.ts', [
       'zavorth-agent-review/1',
-      'buildGovernedReviewDashboardSnapshot',
+      'buildGovernedReviewZavorthControlSnapshot',
       'Read-only by default',
       'approvalRequiredFor',
       'heuristicFindingsGenerated',
@@ -146,7 +146,7 @@ function runApprovalGateFixture() {
     && snapshot?.review?.status === 'waiting_approval'
     && snapshot?.review?.execution?.status === 'approval-required'
     && snapshot?.review?.policy?.externalEgressNotPerformed === true
-    && snapshot?.dashboard?.actions?.some((action) => action.id === 'comment-on-pr' && action.requiresApproval === true);
+    && snapshot?.zavorthControl?.actions?.some((action) => action.id === 'comment-on-pr' && action.requiresApproval === true);
   return {
     id: 'approval-gate-fixture',
     label: 'Agent Review blocks PR comment without approval',

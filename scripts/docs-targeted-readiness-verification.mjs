@@ -173,7 +173,7 @@ function inferCurrentEvidence(text, file) {
     ['acp-bridge', ['ZavorthAcpBridgeContract', 'AcpxBridgeRuntimeAdapter', 'src/ai-gateway/lib/acp']],
     ['agent-run-resilience', ['AgentRunService', 'ZavorthContextRecoveryAssimilationService', 'zavorth-context-recovery-assimilation-check.mjs']],
     ['security-policy', ['SecurityPolicyBroker', 'ToolApprovalEnvelope', 'DangerousCommandBlocker']],
-    ['dashboard', ['DashboardService', 'NexusCockpitSummary', 'Dashboard']],
+    ['zavorthControl', ['ZavorthControlService', 'NexusCockpitSummary', 'ZavorthControl']],
   ];
 
   const evidence = [];

@@ -32,6 +32,15 @@ import { SurfaceOperationalIntentService } from './SurfaceOperationalIntentServi
 import { FileInspectionService } from './FileInspectionService.js';
 import { AttachmentIntelligenceService, type AttachmentTextProfile } from './AttachmentIntelligenceService.js';
 import { ZavorthUserResponseRendererService } from './ZavorthUserResponseRendererService.js';
+import { MediaUnderstandingService } from './MediaUnderstandingService.js';
+import type { WebComposerAttachment } from '../contracts/WebComposer.js';
+import type { MediaAnalysisType } from '../contracts/MediaUnderstandingContract.js';
+import { AudioTranscriptionService } from './AudioTranscriptionService.js';
+import type { ExecutionEngineDecision, ExecutionEngineId } from '../contracts/ExecutionEngineContract.js';
+import type {
+  ExecutionEngineRouteOperation,
+  ExecutionEngineRouterService,
+} from './ExecutionEngineRouterService.js';
 
 type RuntimeRecord = Record<string, unknown>;
 type ComposerCatalogOptions = NonNullable<ConstructorParameters<typeof ComposerCatalogService>[0]>;
@@ -46,6 +55,7 @@ type WebAppConversationDeps = {
   modeEscalation?: Pick<ModeEscalationService, 'evaluateChatRequest' | 'buildSnapshot'> | null;
   agentGateway?: ZavorthAgentGateway | null;
   surfaceOperationalIntentService?: Pick<SurfaceOperationalIntentService, 'decideResponse'> | null;
+  executionEngineRouter?: Pick<ExecutionEngineRouterService, 'decide'> | null;
 };
 
 export class WebAppConversationService {
@@ -55,6 +65,10 @@ export class WebAppConversationService {
   private readonly composerPayload = new ComposerPayloadService();
   private readonly fileInspectionService = new FileInspectionService();
   private readonly attachmentIntelligence = new AttachmentIntelligenceService();
+  private readonly mediaUnderstanding = new MediaUnderstandingService();
+  private readonly audioTranscription = new AudioTranscriptionService({
+    mediaUnderstanding: this.mediaUnderstanding,
+  });
   private readonly surfaceOperationalIntentService: Pick<SurfaceOperationalIntentService, 'decideResponse'>;
   private readonly responseRenderer = new ZavorthUserResponseRendererService();
 
@@ -97,6 +111,7 @@ export class WebAppConversationService {
     resourceImpact: TaskResourceImpact | null;
     modeEscalation: ModeEscalationSnapshot | null;
     responseDecision?: ZavorthResponseDecision | null;
+    executionEngineDecision?: ExecutionEngineDecision | null;
   }> {
     const normalizedComposerPayload = this.composerPayload.normalize(body);
     const message = normalizedComposerPayload.messageText;
@@ -121,6 +136,11 @@ export class WebAppConversationService {
       null,
       normalizedComposerPayload.mentions,
     );
+    const executionEngineDecision = this.decideExecutionEngine({
+      message,
+      body,
+      payload: normalizedComposerPayload,
+    });
     if (await this.maybeResolveUniversalApprovalIntent(sessionId, message)) {
       return {
         sessionId,
@@ -155,6 +175,17 @@ export class WebAppConversationService {
     }
 
     if (this.maybeHandleUnsupportedAttachmentPayload(sessionId, normalizedComposerPayload)) {
+      return {
+        sessionId,
+        taskId: null,
+        snapshot: await this.deps.realtime.getResolvedSnapshot(sessionId),
+        resourceImpact,
+        modeEscalation: this.deps.modeEscalation?.buildSnapshot(sessionId) || null,
+        responseDecision: null,
+      };
+    }
+
+    if (await this.maybeHandleMediaAttachmentConversation(sessionId, message, normalizedComposerPayload)) {
       return {
         sessionId,
         taskId: null,
@@ -246,6 +277,7 @@ export class WebAppConversationService {
           resourceImpact,
           requestedTools: responseDecision.requestedTools,
           responseDecision,
+          executionEngineDecision,
         });
     if (universalRuntimeHandled) {
       await this.deps.realtime.captureBaseline(sessionId);
@@ -275,6 +307,7 @@ export class WebAppConversationService {
           },
           resourceImpact,
           kind: 'universal-agent-runtime',
+          executionEngineDecision,
         });
     if (directConversationHandled) {
       await this.deps.realtime.captureBaseline(sessionId);
@@ -342,7 +375,79 @@ export class WebAppConversationService {
       resourceImpact,
       modeEscalation: modeEscalation?.snapshot || this.deps.modeEscalation?.buildSnapshot(sessionId) || null,
       responseDecision,
+      executionEngineDecision,
     };
+  }
+
+  private decideExecutionEngine(input: {
+    message: string;
+    body: RuntimeRecord;
+    payload: NormalizedComposerPayload;
+  }): ExecutionEngineDecision | null {
+    const router = this.deps.executionEngineRouter || null;
+    if (!router) return null;
+    const targetPath = this.resolveExecutionEngineTargetPath(input.body, input.payload);
+    const command = typeof input.body.command === 'string' ? input.body.command : null;
+    const content = typeof input.body.content === 'string'
+      ? input.body.content
+      : this.firstAttachmentText(input.payload);
+    return router.decide({
+      prompt: input.message,
+      operation: this.inferExecutionEngineOperation(input.message, input.body.operation),
+      targetPath,
+      command,
+      content,
+      requestedEngineId: this.normalizeExecutionEngineId(input.body.engineId),
+      networkTargets: Array.isArray(input.body.networkTargets)
+        ? input.body.networkTargets.filter((value): value is string => typeof value === 'string')
+        : [],
+    });
+  }
+
+  private inferExecutionEngineOperation(
+    message: string,
+    explicit: unknown,
+  ): ExecutionEngineRouteOperation {
+    if (
+      explicit === 'chat' || explicit === 'read' || explicit === 'summarize' || explicit === 'code-question'
+      || explicit === 'write' || explicit === 'delete' || explicit === 'shell' || explicit === 'network'
+      || explicit === 'deploy' || explicit === 'transaction'
+    ) {
+      return explicit;
+    }
+    if (/\b(rm\s+-rf|remove-item|del\s+\/s|git\s+reset|git\s+clean)\b/i.test(message)) return 'shell';
+    if (/\b(deploy|release|publish)\b/i.test(message)) return 'deploy';
+    if (/\b(create|edit|write|modify|patch|apply|delete|remove|rename|move|criar|editar|apagar|remover)\b/i.test(message)) return 'write';
+    if (/\b(read|summari[sz]e|resuma|summary)\b/i.test(message)) return 'summarize';
+    if (/\b(code|function|class|bug|error|stack|typescript|react|vite)\b/i.test(message)) return 'code-question';
+    return 'chat';
+  }
+
+  private resolveExecutionEngineTargetPath(
+    body: RuntimeRecord,
+    payload: NormalizedComposerPayload,
+  ): string | null {
+    if (typeof body.targetPath === 'string' && body.targetPath.trim()) return body.targetPath;
+    for (const attachment of payload.attachments) {
+      const record = attachment as unknown as RuntimeRecord;
+      const candidate = String(
+        record.localPath
+        || record.path
+        || attachment.name
+        || '',
+      ).trim();
+      if (candidate) return candidate;
+    }
+    return null;
+  }
+
+  private firstAttachmentText(payload: NormalizedComposerPayload): string | null {
+    const attachment = payload.attachments.find((item) => String(item.text || '').trim());
+    return attachment ? String(attachment.text || '') : null;
+  }
+
+  private normalizeExecutionEngineId(value: unknown): ExecutionEngineId | null {
+    return value === 'lite' || value === 'velocity' || value === 'shield' ? value : null;
   }
 
 
@@ -470,6 +575,279 @@ export class WebAppConversationService {
     return true;
   }
 
+  private async maybeHandleMediaAttachmentConversation(
+    sessionId: string,
+    message: string,
+    payload: NormalizedComposerPayload,
+  ): Promise<boolean> {
+    const mediaAttachments = this.getReadyMediaAttachments(payload.attachments);
+    if (mediaAttachments.length === 0) {
+      return false;
+    }
+    if (payload.selectedSkills.length > 0 || this.composerContext.hasContextualMentions(payload.mentions)) {
+      return false;
+    }
+
+    const prompt = this.buildMediaAttachmentPrompt(message, mediaAttachments);
+    const results = await Promise.all(mediaAttachments.slice(0, 3).map((attachment) =>
+      this.analyzeInlineMediaAttachment(sessionId, attachment, message)));
+    const successful = results.filter((result) => result.ok);
+
+    if (successful.length > 0) {
+      this.deps.realtime.recordAssistantMessage(
+        sessionId,
+        this.renderMediaUnderstandingReply(message, mediaAttachments, results),
+        null,
+        'media-understanding',
+      );
+      return true;
+    }
+
+    const handledByAgentGateway = await this.maybeHandleDirectAgentConversation({
+      sessionId,
+      message: prompt,
+      requestedTools: ['media.understand'],
+      responseDecision: null,
+      composerPayload: {
+        mentions: payload.mentions,
+        attachments: payload.attachments,
+        selectedSkills: payload.selectedSkills,
+        voice: payload.voice,
+        originalMessage: message,
+        mediaConversation: true,
+        inlineData: this.buildInlineDataFromAttachments(mediaAttachments),
+      },
+      resourceImpact: null,
+      userVisibleText: message,
+      kind: 'media-understanding',
+    });
+    if (handledByAgentGateway) {
+      return true;
+    }
+
+    const handledByGateway = await this.maybeHandleLegacyUnifiedGatewayIngress(
+      sessionId,
+      prompt,
+      null,
+      {
+        mentions: payload.mentions,
+        attachments: payload.attachments,
+        selectedSkills: payload.selectedSkills,
+        voice: payload.voice,
+        originalMessage: message,
+        mediaConversation: true,
+        inlineData: this.buildInlineDataFromAttachments(mediaAttachments),
+      },
+      {
+        userVisibleText: message,
+        kind: 'media-understanding',
+      },
+    );
+    if (handledByGateway) {
+      return true;
+    }
+
+    this.deps.realtime.recordAssistantMessage(
+      sessionId,
+      this.renderMediaUnderstandingReply(message, mediaAttachments, results),
+      null,
+      'media-understanding',
+    );
+    return true;
+  }
+
+  private async analyzeInlineMediaAttachment(
+    sessionId: string,
+    attachment: WebComposerAttachment,
+    message: string,
+  ): Promise<{
+    ok: boolean;
+    name: string;
+    type: string;
+    summary: string;
+    text: string | null;
+    error: string | null;
+    attempts?: Array<{ provider: string; model: string | null; status: string; reason: string | null; latencyMs: number }>;
+  }> {
+    const media = this.resolveReadyMediaAttachment(attachment);
+    if (!media) {
+      return {
+        ok: false,
+        name: attachment.name,
+        type: attachment.type,
+        summary: 'Media payload was not available.',
+        text: null,
+        error: 'missing-media-payload',
+      };
+    }
+
+    if (media.kind === 'audio') {
+      const audioResult = await this.audioTranscription.transcribe({
+        audio: Buffer.from(media.content, 'base64'),
+        mimeType: media.mimeType,
+        fileName: attachment.name,
+        prompt: message,
+        sessionId,
+        language: null,
+      });
+      return {
+        ok: audioResult.ok,
+        name: attachment.name,
+        type: media.mimeType,
+        summary: audioResult.ok
+          ? `Audio transcribed with ${audioResult.provider || 'configured'} speech provider.`
+          : 'Audio transcription failed.',
+        text: audioResult.text,
+        error: audioResult.error,
+        attempts: audioResult.attempts,
+      };
+    }
+
+    try {
+      const result = await this.mediaUnderstanding.analyze({
+        source: {
+          kind: 'buffer',
+          data: Buffer.from(media.content, 'base64'),
+          contentType: media.mimeType,
+          fileName: attachment.name,
+        },
+        modality: media.kind,
+        analysisType: this.resolveMediaAnalysisType(message),
+        prompt: message,
+        sessionId,
+        providerHints: {
+          surface: 'zavorth-control',
+          fileName: attachment.name,
+          responseLanguage: 'English',
+        },
+      });
+      const analysisText = result.analysis?.answer
+        || result.analysis?.extractedText
+        || result.analysis?.description
+        || result.summary;
+      return {
+        ok: result.ok,
+        name: attachment.name,
+        type: media.mimeType,
+        summary: result.summary,
+        text: String(analysisText || '').trim() || null,
+        error: result.error?.message || null,
+      };
+    } catch (error) {
+      return {
+        ok: false,
+        name: attachment.name,
+        type: media.mimeType,
+        summary: 'Media analysis could not run.',
+        text: null,
+        error: error instanceof Error ? error.message : String(error),
+      };
+    }
+  }
+
+  private renderMediaUnderstandingReply(
+    message: string,
+    attachments: WebComposerAttachment[],
+    results: Array<{ ok: boolean; name: string; type: string; summary: string; text: string | null; error: string | null }>,
+  ): string {
+    const successful = results.filter((result) => result.ok && result.text);
+    if (successful.length > 0) {
+      return [
+        successful.length === 1
+          ? `I analyzed ${successful[0].name}.`
+          : `I analyzed ${successful.length} media files.`,
+        '',
+        ...successful.map((result) => [
+          `**${result.name}**`,
+          result.text,
+        ].join('\n')),
+      ].join('\n\n');
+    }
+
+    const reasons = results
+      .map((result) => result.error || result.summary)
+      .filter(Boolean)
+      .slice(0, 3);
+    return [
+      attachments.length === 1
+        ? `I received ${attachments[0].name} as a real media payload.`
+        : `I received ${attachments.length} media files as real payloads.`,
+      '',
+      'Media understanding is wired in the backend, but no configured multimodal provider completed this analysis yet.',
+      reasons.length ? `Reason: ${reasons.join(' | ')}` : null,
+      '',
+      `Your request: ${message}`,
+    ].filter(Boolean).join('\n');
+  }
+
+  private buildMediaAttachmentPrompt(message: string, attachments: WebComposerAttachment[]): string {
+    return [
+      'The user attached media through Zavorth Control.',
+      'Analyze the inline image/audio payloads directly. For images, describe visible content and extract readable text when useful. For audio, transcribe or summarize the spoken content.',
+      'Answer naturally and do not mention internal payload IDs, gateway internals, or implementation details.',
+      '',
+      `User request: ${message}`,
+      '',
+      'Attached media:',
+      ...attachments.map((attachment) =>
+        `- ${attachment.name} (${attachment.type || 'application/octet-stream'}, ${attachment.size || 0} bytes)`),
+    ].join('\n');
+  }
+
+  private resolveMediaAnalysisType(message: string): MediaAnalysisType {
+    const normalized = String(message || '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase();
+    if (/\b(ocr|extract|extraction|transcribe|transcription|transcrev|extrai|extraia|leia|read text)\b/.test(normalized)) {
+      return 'extract';
+    }
+    if (/\b(what|who|where|when|why|how|qual|quem|onde|quando|por que|como|\?)\b/.test(normalized)) {
+      return 'qa';
+    }
+    return 'describe';
+  }
+
+  private getReadyMediaAttachments(attachments: WebComposerAttachment[]): WebComposerAttachment[] {
+    return (Array.isArray(attachments) ? attachments : [])
+      .filter((attachment) => Boolean(this.resolveReadyMediaAttachment(attachment)))
+      .slice(0, 5);
+  }
+
+  private resolveReadyMediaAttachment(attachment: WebComposerAttachment | null | undefined): {
+    kind: 'image' | 'audio' | 'video';
+    mimeType: string;
+    content: string;
+  } | null {
+    if (!attachment) {
+      return null;
+    }
+    const content = String(attachment.content || '').trim();
+    if (!content) {
+      return null;
+    }
+    const mediaKind = String(attachment.media?.kind || '').trim().toLowerCase();
+    const mimeType = String(attachment.media?.mimeType || attachment.type || '').trim();
+    const kind = mediaKind === 'image' || /^image\//i.test(mimeType)
+      ? 'image'
+      : mediaKind === 'audio' || /^audio\//i.test(mimeType)
+        ? 'audio'
+        : mediaKind === 'video' || /^video\//i.test(mimeType)
+          ? 'video'
+          : null;
+    if (!kind || !mimeType) {
+      return null;
+    }
+    return { kind, mimeType, content };
+  }
+
+  private buildInlineDataFromAttachments(attachments: WebComposerAttachment[]): Array<{ mimeType: string; data: string }> {
+    return attachments
+      .map((attachment) => this.resolveReadyMediaAttachment(attachment))
+      .filter((entry): entry is { kind: 'image' | 'audio' | 'video'; mimeType: string; content: string } => entry !== null)
+      .map((entry) => ({
+        mimeType: entry.mimeType,
+        data: entry.content,
+      }));
+  }
+
   private isExplicitAttachmentDeliverableRequest(message: string): boolean {
     return /\b(pdf|relat[oó]rio|documento|arquivo\s+final|artefato|salve|exporte|ger[eê]|crie)\b/i.test(
       String(message || '').normalize('NFD').replace(/[\u0300-\u036f]/g, ''),
@@ -533,7 +911,7 @@ export class WebAppConversationService {
   private maybeHandleUnsupportedAttachmentPayload(
     sessionId: string,
     payload: {
-      attachments?: Array<{ name: string; type: string; size: number; text?: string | null; truncated?: boolean }>;
+      attachments?: WebComposerAttachment[];
     },
   ): boolean {
     const attachments = Array.isArray(payload.attachments) ? payload.attachments : [];
@@ -541,19 +919,20 @@ export class WebAppConversationService {
       return false;
     }
 
-    const unsupported = attachments.filter((attachment) => !String(attachment.text || '').trim());
+    const unsupported = attachments.filter((attachment) =>
+      !String(attachment.text || '').trim() && !this.resolveReadyMediaAttachment(attachment));
     if (unsupported.length === 0) {
       return false;
     }
 
     const lines = [
       unsupported.length === attachments.length
-        ? 'Recebi o anexo, mas nesta versao do Dashboard ele chegou apenas como metadados.'
-        : 'Recebi os anexos. Alguns chegaram apenas como metadados e nao serao analisados agora.',
+        ? 'I received the attachment, but it arrived as metadata only.'
+        : 'I received the attachments. Some arrived as metadata only and will not be analyzed now.',
       '',
-      ...unsupported.slice(0, 5).map((attachment) => `- ${attachment.name} (${attachment.type || 'tipo desconhecido'}, ${attachment.size || 0} bytes)`),
+      ...unsupported.slice(0, 5).map((attachment) => `- ${attachment.name} (${attachment.type || 'unknown type'}, ${attachment.size || 0} bytes)`),
       '',
-      'Para eu analisar de verdade agora, envie um arquivo textual pequeno, cole o conteudo no chat ou use uma pasta/arquivo local que o Zavorth consiga acessar.',
+      'To analyze it directly, send a readable text/document file, image/audio under the media limit, or point Zavorth to a local file it can access.',
     ];
     this.deps.realtime.recordAssistantMessage(
       sessionId,
@@ -619,6 +998,7 @@ export class WebAppConversationService {
     resourceImpact: TaskResourceImpact | null;
     requestedTools: string[];
     responseDecision: ZavorthResponseDecision;
+    executionEngineDecision?: ExecutionEngineDecision | null;
   }): Promise<UniversalAgentRunResult | null> {
     const agentGateway = this.deps.agentGateway || null;
     const text = String(input.message || '').trim();
@@ -667,8 +1047,9 @@ export class WebAppConversationService {
         ],
         metadata: {
           taskId: task.taskId || null,
-          responseDecision: input.responseDecision,
-        },
+        responseDecision: input.responseDecision,
+        executionEngineDecision: input.executionEngineDecision || null,
+      },
       };
     };
 
@@ -722,6 +1103,7 @@ export class WebAppConversationService {
     resourceImpact: TaskResourceImpact | null;
     userVisibleText?: string;
     kind?: string;
+    executionEngineDecision?: ExecutionEngineDecision | null;
   }): Promise<UniversalAgentRunResult | null> {
     const agentGateway = this.deps.agentGateway || null;
     const text = String(input.message || '').trim();
@@ -749,6 +1131,7 @@ export class WebAppConversationService {
         responseDecision: input.responseDecision,
         artifactPolicy: input.responseDecision?.artifactPolicy || null,
         composerPayload: input.composerPayload || null,
+        executionEngineDecision: input.executionEngineDecision || null,
         legacyUnifiedGatewayAvailable: Boolean(this.resolveLegacyUnifiedGateway()),
         legacyUnifiedGatewayBypassed: Boolean(this.resolveLegacyUnifiedGateway()),
       },
@@ -943,6 +1326,7 @@ export class WebAppConversationService {
     if (!legacyUnifiedGateway || !text || text.startsWith('/')) {
       return false;
     }
+    const inlineData = this.extractInlineDataFromComposerPayload(composerPayload);
 
     await legacyUnifiedGateway.handleEvent({
       surface: 'web',
@@ -950,6 +1334,7 @@ export class WebAppConversationService {
       userId: this.deps.runtime.webUserId,
       text,
       isGroup: false,
+      inlineData,
       reply: async (replyText: string) => {
         await this.deliverWebOutput(
           sessionId,
@@ -964,11 +1349,35 @@ export class WebAppConversationService {
         sessionId,
         channelId: sessionId,
         threadId: sessionId,
+        isVoiceInput: inlineData.some((entry) => /^audio\//i.test(entry.mimeType)),
         responseDecision: responseDecision || null,
         composerPayload: composerPayload || null,
       },
     });
     return true;
+  }
+
+  private extractInlineDataFromComposerPayload(composerPayload?: RuntimeRecord | null): Array<{ mimeType: string; data: string }> {
+    if (!composerPayload || typeof composerPayload !== 'object') {
+      return [];
+    }
+    const explicitInlineData = (composerPayload as { inlineData?: unknown }).inlineData;
+    if (Array.isArray(explicitInlineData)) {
+      return explicitInlineData
+        .map((entry) => {
+          if (!entry || typeof entry !== 'object' || Array.isArray(entry)) return null;
+          const record = entry as Record<string, unknown>;
+          const mimeType = String(record.mimeType || '').trim();
+          const data = String(record.data || '').trim();
+          return mimeType && data ? { mimeType, data } : null;
+        })
+        .filter((entry): entry is { mimeType: string; data: string } => entry !== null)
+        .slice(0, 5);
+    }
+    const attachments = (composerPayload as { attachments?: unknown }).attachments;
+    return Array.isArray(attachments)
+      ? this.buildInlineDataFromAttachments(attachments as WebComposerAttachment[])
+      : [];
   }
 
   private resolveLegacyUnifiedGateway(): SharedSurfaceRuntime['legacyUnifiedGateway'] {

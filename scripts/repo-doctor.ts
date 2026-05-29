@@ -42,7 +42,7 @@ const rootArtifactRules: Array<{
     bucket: 'runtime-logs',
   },
   {
-    pattern: /^(cross-surface-.*\.md|dashboard-final-delivery-.*\.md)$/i,
+    pattern: /^(cross-surface-.*\.md|zavorthControl-final-delivery-.*\.md)$/i,
     bucket: 'deliveries',
   },
 ];

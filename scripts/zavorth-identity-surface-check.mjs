@@ -29,7 +29,7 @@ const requiredFiles = [
     ],
   },
   {
-    path: 'src/ai-gateway/app/(dashboard)/dashboard/BootstrapBanner.tsx',
+    path: 'src/ai-gateway/app/(zavorthControl)/zavorthControl/BootstrapBanner.tsx',
     includes: [
       'Local secrets were sealed on first launch',
       '%APPDATA%\\\\Zavorth\\\\server.env',
@@ -37,7 +37,7 @@ const requiredFiles = [
     ],
   },
   {
-    path: 'src/ai-gateway/app/(dashboard)/dashboard/HomePageClient.tsx',
+    path: 'src/ai-gateway/app/(zavorthControl)/zavorthControl/HomePageClient.tsx',
     includes: [
       'Zavorth Control Plane',
       'operator surface',

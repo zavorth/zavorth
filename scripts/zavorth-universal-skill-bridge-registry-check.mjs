@@ -53,7 +53,7 @@ function ruleFilesExist() {
     'tests/services/UniversalSkillBridgeRegistryService.test.ts',
     'src/services/SkillCatalogApiService.ts',
     'src/services/SkillLibraryPresentationService.ts',
-    'src/services/DashboardLegacyRouteService.ts',
+    'src/services/ZavorthControlLegacyRouteService.ts',
     'package.json',
   ];
   const missing = files.filter((file) => !fs.existsSync(path.join(root, file)));
@@ -90,7 +90,7 @@ function ruleContainsMarkers() {
       'Dry-run pelo bridge',
       'catalog.bridge',
     ]],
-    ['src/services/DashboardLegacyRouteService.ts', [
+    ['src/services/ZavorthControlLegacyRouteService.ts', [
       '/api/skills/bridge',
       'getSkillBridgeSnapshot',
     ]],
@@ -118,7 +118,7 @@ function ruleContainsMarkers() {
     label: 'Connector registry markers are present',
     status: missing.length === 0 ? 'passed' : 'failed',
     observed: missing.length === 0 ? 'all markers present' : `${missing.length} missing marker(s)`,
-    target: 'registry is wired to catalog, library and dashboard API markers',
+    target: 'registry is wired to catalog, library and zavorthControl API markers',
     details: missing,
   };
 }

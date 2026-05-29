@@ -3,7 +3,7 @@
 Phase 9 adds a single final product QA matrix for the everyday user journey:
 
 ```txt
-fresh install -> provider -> Telegram -> mutation approval -> receipt -> dashboard -> CLI -> learning -> rollback/sandbox
+fresh install -> provider -> Telegram -> mutation approval -> receipt -> zavorthControl -> CLI -> learning -> rollback/sandbox
 ```
 
 The matrix is intentionally honest. Local and dry-run proof can certify that the
@@ -29,7 +29,7 @@ npm run zavorth:product-readiness:check --silent
 | `real-telegram` | Telegram bot token, allowlist, pairing and delivery receipt exist. | Required |
 | `mutation-approval` | Sensitive changes create an approval/action-card flow. | Optional |
 | `receipt` | Evidence proof pack and redacted receipts are available. | Not required |
-| `dashboard` | `/dashboard` can show chat, approvals, receipts, learning and health. | Optional |
+| `control` | `/control` can show chat, approvals, receipts, learning and health. | Optional |
 | `cli` | The terminal daily path works from a clean shell. | Not required |
 | `learning-candidate` | Mnemos can propose reversible learning after successful work. | Optional |
 | `rollback-sandbox` | Sandbox lifecycle and rollback checks exist before host mutation. | Optional |
@@ -75,7 +75,7 @@ Use this after the local check passes:
 4. Configure Telegram with token and allowlist.
 5. Send a Telegram status message and verify the receipt.
 6. Ask Zavorth to prepare a tiny safe mutation.
-7. Approve or reject it in CLI and `/dashboard`.
+7. Approve or reject it in CLI and `/control`.
 8. Confirm the receipt and rollback/sandbox evidence.
 9. Complete one successful run and review the generated Mnemos learning candidate.
 

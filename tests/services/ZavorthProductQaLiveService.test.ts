@@ -110,7 +110,7 @@ function existingFiles() {
     'scripts/install-zavorth.ps1',
     'docs/install.md',
     'bin/zavorth.js',
-    'src/ai-gateway/app/(dashboard)/dashboard/useControlPageClient.ts',
+    'src/ai-gateway/app/(dashboard)/control/useControlPageClient.ts',
     'scripts/zavorth-dashboard-final-product-polish-check.mjs',
     'scripts/zavorth-cli-final-product-polish-check.mjs',
     'src/zavorth-cli.ts',

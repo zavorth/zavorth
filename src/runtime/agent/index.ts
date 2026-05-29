@@ -386,6 +386,7 @@ export type {
 export {
   SELFING_DASHBOARD_CONTRACT_VERSION,
   SelfingDashboardService,
+  SelfingDashboardService as SelfingZavorthControlService,
 } from './SelfingDashboardService.js';
 export type {
   SelfingDashboardCard,
@@ -393,6 +394,7 @@ export type {
   SelfingDashboardReceipt,
   SelfingDashboardSectionId,
   SelfingDashboardSnapshot,
+  SelfingDashboardSnapshot as SelfingZavorthControlSnapshot,
   SelfingDashboardStatus,
   SelfingDashboardSuggestion,
 } from './SelfingDashboardService.js';

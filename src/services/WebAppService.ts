@@ -18,6 +18,10 @@ import {
   type WebAppOperationsState,
   type WebAppRuntimeServiceState,
 } from '../domain/surface/presentation/web-app/WebAppServiceState.js';
+import { ExecutionEngineRegistryService } from './ExecutionEngineRegistryService.js';
+import { ExecutionEngineRouterService } from './ExecutionEngineRouterService.js';
+import { GlassBoxTraceService } from './GlassBoxTraceService.js';
+import { TrustedWorkspacePolicyService } from './TrustedWorkspacePolicyService.js';
 
 export type WebAppRuntime = SharedSurfaceRuntime;
 export type { WebAppOperationsDeps } from '../domain/surface/presentation/web-app/WebAppServiceState.js';
@@ -34,6 +38,14 @@ export class WebAppService {
   private readonly operations: WebAppOperationsState = createWebAppOperationsState();
   private readonly runtimeServices: WebAppRuntimeServiceState = createWebAppRuntimeServiceState();
   private readonly composition: WebAppServiceComposition;
+  private readonly executionEngineRegistry = new ExecutionEngineRegistryService();
+  private readonly trustedWorkspaces = new TrustedWorkspacePolicyService();
+  private readonly glassBoxTrace = new GlassBoxTraceService();
+  private readonly executionEngineRouter = new ExecutionEngineRouterService(
+    this.executionEngineRegistry,
+    this.trustedWorkspaces,
+    this.glassBoxTrace,
+  );
 
   constructor(private auth: DashboardAuthService, options: WebAppServiceOptions = {}) {
     this.composition = createWebAppServiceComposition({
@@ -101,6 +113,7 @@ export class WebAppService {
       taskResourcePlanner: this.composition.taskResourcePlanner,
       modeEscalation: this.composition.modeEscalation,
       agentGateway: this.composition.agentGateway,
+      executionEngineRouter: this.executionEngineRouter,
     });
   }
 

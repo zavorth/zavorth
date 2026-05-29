@@ -1,4 +1,4 @@
-import { ZavorthDashboardProviderCockpitService } from '../src/services/ZavorthDashboardProviderCockpitService.js';
+import { ZavorthControlProviderCockpitService } from '../src/services/ZavorthControlProviderCockpitService.js';
 
 function readFlag(argv: string[], name: string): string | null {
   const prefix = `--${name}=`;
@@ -10,7 +10,7 @@ function readFlag(argv: string[], name: string): string | null {
 
 async function main(): Promise<void> {
   const argv = process.argv.slice(2);
-  const service = new ZavorthDashboardProviderCockpitService();
+  const service = new ZavorthControlProviderCockpitService();
   const projection = await service.buildProjection({
     includeAdvanced: argv.includes('--advanced'),
     providerId: readFlag(argv, 'provider'),

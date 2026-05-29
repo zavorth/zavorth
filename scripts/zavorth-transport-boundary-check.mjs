@@ -15,7 +15,7 @@ const files = {
   chatHelpers: 'src/ai-gateway/sse/handlers/chatHelpers.ts',
   authService: 'src/ai-gateway/sse/services/auth.ts',
   semanticCache: 'src/ai-gateway/lib/semanticCache.ts',
-  cachePage: 'src/ai-gateway/app/(dashboard)/dashboard/cache/page.tsx',
+  cachePage: 'src/ai-gateway/app/(zavorthControl)/zavorthControl/cache/page.tsx',
   deletedAuthOrig: 'src/ai-gateway/sse/services/auth.ts.orig',
 };
 

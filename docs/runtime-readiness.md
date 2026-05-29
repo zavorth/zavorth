@@ -23,7 +23,7 @@ zavorth readiness --technical
 
 `zavorth ready` is the Zavorth Ready To Go launch guard. It is the one command
 to run before leaving the PC. It checks the daily runtime, active provider,
-configured provider fallbacks, Dashboard, Telegram, approvals, memory, skills
+configured provider fallbacks, ZavorthControl, Telegram, approvals, memory, skills
 and transaction safety. Because the operator is explicitly asking for a launch
 guard, the default command may run safe provider live probes against configured
 providers. It never sends prompts, executes tools, approves actions, imports
@@ -39,7 +39,7 @@ serializing the bot token.
 
 Default output is operator UX: `Pronto`, `Atencao` or `Bloqueado`, plus the
 next safe action. `--technical` keeps the old diagnostic report for debugging.
-`--json` includes the source readiness snapshot and `operatorUx` for dashboard
+`--json` includes the source readiness snapshot and `operatorUx` for zavorthControl
 or automation consumers.
 
 ## What It Verifies
@@ -47,7 +47,7 @@ or automation consumers.
 - natural-first text enters the gateway
 - risky text becomes preview/approval
 - provider mesh can report configured routes without hidden live probes
-- `/dashboard` exists as the daily-use projection-only surface
+- `/control` exists as the daily-use projection-only surface
 - Telegram remote approval is configured or clearly marked as an optional setup gap
 - approvals remain gateway-mediated and do not execute target actions
 - transaction plane is ready-held, not live-executing
@@ -73,7 +73,7 @@ commands such as `zavorth readiness fixes` or `zavorth ready`;
 it does not run target actions, bypass approvals or execute live transactions.
 
 Guided Fixes are also projection-first. They turn each `Atencao` or `Bloqueado`
-card into a safe next step for CLI, Dashboard or Telegram. If a fix needs a
+card into a safe next step for CLI, ZavorthControl or Telegram. If a fix needs a
 real provider probe, it is shown as an explicit operator command:
 `zavorth readiness fix provider --live-proof --provider <id>`.
 
@@ -85,16 +85,16 @@ on every render.
 ## Operator Surfaces
 
 - CLI: `zavorth readiness` prints the operator summary by default.
-- Dashboard: `/api/runtime/readiness` exposes `runtimeReadinessUx` for the
-  `/dashboard` readiness strip.
-- Dashboard fixes: `/api/runtime/readiness/fixes` exposes guided next steps,
+- ZavorthControl: `/api/runtime/readiness` exposes `runtimeReadinessUx` for the
+  `/control` readiness strip.
+- ZavorthControl fixes: `/api/runtime/readiness/fixes` exposes guided next steps,
   but still cannot execute target actions or hidden live probes.
-- Dashboard stay-online: `/api/runtime/stay-online` exposes the watchdog
+- ZavorthControl stay-online: `/api/runtime/stay-online` exposes the watchdog
   snapshot for status strips and external operator views.
 - Telegram: `/readiness` returns the same summary with safe callback buttons
-  for Dashboard, Status, Providers and Approvals.
+  for ZavorthControl, Status, Providers and Approvals.
 - Telegram stay-online: `/stayonline` returns the latest watchdog verdict with
-  safe buttons for Ready, Readiness, Fixes and Dashboard.
+  safe buttons for Ready, Readiness, Fixes and ZavorthControl.
 - Telegram fixes: `/fixes` returns the same guided next steps with read-only
   callbacks.
 

@@ -43,7 +43,7 @@ function ruleFilesExist() {
 
 function ruleMarkers() {
   const checks = [
-    ['src/contracts/ZavorthScheduledTaskDailyOpsReadinessContract.ts', ['ZAVORTH_SCHEDULED_TASK_DAILY_OPS_READINESS_CONTRACT_VERSION', 'dailyUseReady', 'noDashboardVisualMutation']],
+    ['src/contracts/ZavorthScheduledTaskDailyOpsReadinessContract.ts', ['ZAVORTH_SCHEDULED_TASK_DAILY_OPS_READINESS_CONTRACT_VERSION', 'dailyUseReady', 'noZavorthControlVisualMutation']],
     ['src/services/ZavorthScheduledTaskDailyOpsReadinessService.ts', ['checkpoint-7-scheduled-task-daily-ops-readiness', 'ZavorthScheduledTaskLiveTickCertificationService', 'allUserActionsGoThroughGovernedSurfaces']],
     ['scripts/zavorth-scheduled-task-daily-ops-readiness.ts', ['--task=', 'ZavorthScheduledTaskDailyOpsReadinessService']],
     ['src/sdk/contracts.ts', ['ZavorthScheduledTaskDailyOpsReadinessContract']],
@@ -67,7 +67,7 @@ function runReadinessFixture() {
     && snapshot.liveTickCertification.status === 'passed'
     && snapshot.summary.readySurfaces >= 10
     && snapshot.gates.some((gate) => gate.kind === 'host-task-readiness' && gate.status === 'warn')
-    && snapshot.safety.noDashboardVisualMutation === true
+    && snapshot.safety.noZavorthControlVisualMutation === true
     && snapshot.safety.noDirectDispatcherBypass === true);
 }
 

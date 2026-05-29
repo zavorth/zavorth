@@ -108,7 +108,7 @@ async function main(): Promise<void> {
           runId: 'previous-run',
           sessionId: 'qa-proactivity-session',
           surface: 'nexus',
-          requestedBy: 'dashboard',
+          requestedBy: 'zavorthControl',
           profile: 'IOT',
         },
         metadata: {},

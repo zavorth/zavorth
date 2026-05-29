@@ -2,6 +2,7 @@ import fs from 'fs';
 import path from 'path';
 import crypto from 'crypto';
 import { config as defaultConfig } from '../config/index.js';
+import { safeFetch } from '../security/SafeFetchService.js';
 
 export type ZavorthManagedConfigStatus = 'ready' | 'attention' | 'blocked' | 'applied';
 
@@ -203,7 +204,7 @@ export class ZavorthManagedConfigService {
     }
     if (/^https?:\/\//i.test(sourceRef)) {
       try {
-        const response = await fetch(sourceRef);
+        const response = await safeFetch(sourceRef, { method: 'GET' }, { serviceName: 'Zavorth managed config loader' });
         if (!response.ok) {
           return { ok: false, raw: null, error: `HTTP ${response.status} while reading managed config.` };
         }

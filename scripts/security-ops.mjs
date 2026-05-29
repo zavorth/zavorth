@@ -602,7 +602,7 @@ function getResolvedWebRuntime() {
 
 function addBaselineFindings(findings, context) {
   const trackedSensitiveFiles = getTrackedFiles().filter(isTrackedSensitiveFile);
-  const dashboardAuthSource = process.env.ZAVORTH_WEB_AUTH_TOKEN
+  const zavorthControlAuthSource = process.env.ZAVORTH_WEB_AUTH_TOKEN
     ? 'env'
     : process.env.ZAVORTH_HIGH_RISK_APPROVAL_PIN
       ? 'pin'
@@ -620,9 +620,9 @@ function addBaselineFindings(findings, context) {
       ? 'runtime-file'
       : 'missing';
 
-  if (dashboardAuthSource === 'pin') {
+  if (zavorthControlAuthSource === 'pin') {
     findings.push(createFinding({
-      id: 'dashboard_auth_reuses_high_risk_pin',
+      id: 'zavorthControl_auth_reuses_high_risk_pin',
       area: 'web-auth',
       severity: 'medium',
       title: 'Painel web reutiliza o PIN de alto risco como token',
@@ -638,9 +638,9 @@ function addBaselineFindings(findings, context) {
     }));
   }
 
-  if (dashboardAuthSource === 'missing') {
+  if (zavorthControlAuthSource === 'missing') {
     findings.push(createFinding({
-      id: 'dashboard_auth_missing',
+      id: 'zavorthControl_auth_missing',
       area: 'web-auth',
       severity: 'high',
       title: 'Nao existe token web dedicado materializado',
@@ -732,7 +732,7 @@ function addBaselineFindings(findings, context) {
     }));
   }
 
-  context.dashboardAuthSource = dashboardAuthSource;
+  context.zavorthControlAuthSource = zavorthControlAuthSource;
   context.mailboxSource = mailboxSource;
   context.dbSource = dbSource;
   context.trackedSensitiveFiles = trackedSensitiveFiles;
@@ -872,7 +872,7 @@ function addSurfaceHardeningFindings(findings, context) {
   }
 
   const classicEvidence = getLineMatches(
-    'src/domain/surface/presentation/dashboard/DashboardClassicAccessService.ts',
+    'src/domain/surface/presentation/zavorthControl/ZavorthControlClassicAccessService.ts',
     [/isLoopbackAddress/, /\|\| deps\.authService\.validate/],
   );
   if (classicEvidence.length > 0) {
@@ -920,7 +920,7 @@ function addRuntimeSettingsFindings(findings, context) {
       area: 'runtime-config',
       severity: 'critical',
       title: 'O runtime atual esta com requireLogin=false',
-      detail: 'No estado atual do banco, a Management API e o dashboard podem cair em postura aberta demais para superficies administrativas.',
+      detail: 'No estado atual do banco, a Management API e o zavorthControl podem cair em postura aberta demais para superficies administrativas.',
       remediation: 'Reativar requireLogin, separar o fluxo de onboarding e exigir auth local nas rotas sensiveis.',
       evidence: [
         {
@@ -959,7 +959,7 @@ function buildAuditCore(options = {}) {
     webRuntime: getResolvedWebRuntime(),
     trackedSensitiveFiles: [],
     routeStatuses: [],
-    dashboardAuthSource: 'missing',
+    zavorthControlAuthSource: 'missing',
     mailboxSource: 'missing',
     dbSource: 'missing',
   };
@@ -995,7 +995,7 @@ function buildAuditCore(options = {}) {
     runtime: {
       webHost: context.webRuntime.host,
       webPort: context.webRuntime.port,
-      dashboardAuthSource: context.dashboardAuthSource,
+      zavorthControlAuthSource: context.zavorthControlAuthSource,
       mailboxSource: context.mailboxSource,
       dbSource: context.dbSource,
       settings,

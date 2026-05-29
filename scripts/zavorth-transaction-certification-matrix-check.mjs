@@ -80,7 +80,7 @@ try {
     'approval-gate',
     'credential-ref-gate',
     'typed-connector-simulation',
-    'dashboard-projection',
+    'zavorthControl-projection',
     'cross-surface-parity',
     'secret-redaction',
     'no-live-execution',

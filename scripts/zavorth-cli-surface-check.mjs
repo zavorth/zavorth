@@ -7,8 +7,8 @@ const componentsRoot = path.join(
   'src',
   'ai-gateway',
   'app',
-  '(dashboard)',
-  'dashboard',
+  '(zavorthControl)',
+  'zavorthControl',
   'cli-tools',
   'components'
 );

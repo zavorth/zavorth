@@ -27,7 +27,7 @@ const requiredMarkers = {
     'zavorth-runtime-readiness/1',
     'natural-first-runtime',
     'provider-mesh',
-    'dashboard',
+    'zavorthControl',
     'telegram',
     'approvals',
     'transaction-plane',
@@ -46,7 +46,7 @@ const requiredMarkers = {
   'src/services/ZavorthRuntimeReadinessUxService.ts': [
     'zavorth-runtime-readiness-ux/1',
     'runtime-readiness-operator-ux',
-    'dashboardProjection',
+    'zavorthControlProjection',
     'telegramProjection',
     'showTechnicalDetailsByDefault',
     'executionAuthority: false',
@@ -109,7 +109,7 @@ const requiredMarkers = {
     'stayOnline',
     'ZavorthRuntimeReadinessUxService',
   ],
-  'src/ai-gateway/app/(dashboard)/dashboard/HomePageClient.tsx': [
+  'src/ai-gateway/app/(zavorthControl)/zavorthControl/HomePageClient.tsx': [
     '/api/runtime/readiness',
     '/api/runtime/readiness/fixes',
     'runtimeReadiness',

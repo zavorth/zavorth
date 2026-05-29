@@ -4,6 +4,7 @@
    (e.g. Next.js route groups like "(dashboard)"). Explicit @source
    directives ensure all utility classes in route groups are included. */
 @source "../app/(dashboard)";
+@source "../app/(zavorthControl)";
 @source "../../open-sse";
 @source not "../../*.sqlite*";
 @source not "../../.claude*";
@@ -117,9 +118,9 @@
   --shadow-warm: var(--shadow-warm);
   --shadow-elevated: var(--shadow-elevated);
 
-  /* Font - macOS system fonts */
+  /* Font - clean chatbot-style sans */
   --font-sans:
-    -apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro Display", system-ui, sans-serif;
+    "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
 }
 
 /* ── Focus Indicators (U-3) ── */

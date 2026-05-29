@@ -8,7 +8,7 @@ const checks = [
     file: 'src/contracts/LegacySurfaceContract.ts',
     includes: [
       'LEGACY_SURFACE_CONTAINMENT_VERSION',
-      "canonicalEntry: '/dashboard'",
+      "canonicalEntry: '/zavorthControl'",
       "frozenSurfaces: ['/app', '/classic']",
     ],
   },
@@ -18,8 +18,8 @@ const checks = [
       'legacyFeatureFreeze: true',
       'P3-003',
       'decideFeatureDestination',
-      'Use /dashboard como entrada principal',
-      'Gateway Contract, Control Plane e Dashboard',
+      'Use /zavorthControl como entrada principal',
+      'Gateway Contract, Control Plane e ZavorthControl',
     ],
   },
   {
@@ -33,7 +33,7 @@ const checks = [
       'controlUrl',
       'legacyAppUrl',
       'classicUrl',
-      'Abrir Dashboard',
+      'Abrir ZavorthControl',
     ],
   },
   {
@@ -45,65 +45,65 @@ const checks = [
     includes: [
       'legacy-surface-banner',
       'canonical-surface-banner',
-      'Dashboard canonica',
+      'ZavorthControl canonica',
       'Surface legada',
     ],
   },
   {
-    file: 'src/services/DashboardClassicAssetService.ts',
+    file: 'src/services/ZavorthControlClassicAssetService.ts',
     alternatives: [
-      'src/domain/surface/presentation/dashboard/DashboardClassicAssetService.ts',
+      'src/domain/surface/presentation/zavorthControl/ZavorthControlClassicAssetService.ts',
     ],
     includes: [
       'classic-legacy-banner',
-      '/dashboard',
+      '/zavorthControl',
       '/app',
     ],
   },
   {
     file: 'install/install.ps1',
     includes: [
-      '/dashboard',
+      '/zavorthControl',
       '/app',
       'Legacy shell URL',
     ],
   },
   {
     file: 'scripts/launch-zavorth-supervised.ps1',
-    includes: ['/dashboard'],
+    includes: ['/zavorthControl'],
   },
   {
     file: 'scripts/test-surface-qa.mjs',
     includes: [
-      '/dashboard',
-      'Dashboard e legado',
+      '/zavorthControl',
+      'ZavorthControl e legado',
     ],
   },
   {
     file: 'scripts/web-app-smoke.mjs',
     includes: [
-      '/dashboard',
-      'Dashboard shell',
+      '/zavorthControl',
+      'ZavorthControl shell',
     ],
   },
   {
     file: 'scripts/web-app-smoke.ts',
     includes: [
-      '/dashboard',
-      'Dashboard shell',
+      '/zavorthControl',
+      'ZavorthControl shell',
     ],
   },
   {
     file: 'scripts/web-app-visual-smoke.ts',
-    includes: ['/dashboard'],
+    includes: ['/zavorthControl'],
   },
   {
     file: 'src/host.ts',
-    includes: ['/dashboard'],
+    includes: ['/zavorthControl'],
   },
   {
     file: 'src/services/IntegrationProbeService.ts',
-    includes: ['/dashboard'],
+    includes: ['/zavorthControl'],
   },
   {
     file: 'src/telegram/bot-gateway/support/BotGatewayMessageProcessing.ts',
@@ -149,21 +149,21 @@ const checks = [
   {
     file: 'README.md',
     includes: [
-      '/dashboard',
+      '/zavorthControl',
       'Shell operacional legado',
     ],
   },
   {
     file: 'docs/quickstart.md',
     includes: [
-      '/dashboard',
+      '/zavorthControl',
       'Shell operacional legado',
     ],
   },
   {
-    file: 'docs/web-dashboard.md',
+    file: 'docs/web-zavorthControl.md',
     includes: [
-      '/dashboard',
+      '/zavorthControl',
       'funcionalmente congeladas',
       'Gateway Contract',
     ],
@@ -171,14 +171,14 @@ const checks = [
   {
     file: 'docs/operations.md',
     includes: [
-      '/dashboard',
+      '/zavorthControl',
       'shell operacional legado',
     ],
   },
   {
     file: 'docs/product-direction.md',
     includes: [
-      '/dashboard',
+      '/zavorthControl',
       '/app',
       'qa:legacy-compat',
       'P3-003',
@@ -262,7 +262,7 @@ if (failures.length > 0) {
   process.exit(1);
 }
 
-console.log('[legacy-containment] ok: /dashboard canonico, /app e /classic preservados como legado congelado.');
+console.log('[legacy-containment] ok: /zavorthControl canonico, /app e /classic preservados como legado congelado.');
 
 function collectSourceFiles(directories) {
   const files = [];

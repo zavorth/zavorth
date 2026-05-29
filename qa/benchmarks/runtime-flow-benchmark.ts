@@ -9,7 +9,7 @@ import { BenchmarkHarness } from './Harness.js';
 import { extractJsonPayloadFromText, runCliProbe } from '../QaSupport.js';
 import {
   reserveFreePort,
-  startTemporaryDashboardService,
+  startTemporaryZavorthControlService,
   waitForWebShell,
 } from '../WebShellSupport.js';
 
@@ -134,16 +134,16 @@ async function runRuntimeBenchmarks() {
   });
 
   const tempPort = await reserveFreePort();
-  const tempDashboard = await startTemporaryDashboardService(tempPort);
+  const tempZavorthControl = await startTemporaryZavorthControlService(tempPort);
   try {
-    const ready = await waitForWebShell(tempDashboard.baseUrl, 90_000);
+    const ready = await waitForWebShell(tempZavorthControl.baseUrl, 90_000);
     await harness.measure('Web shell /app latency', async () => {
-      const response = await fetch(`${tempDashboard.baseUrl}/app`);
+      const response = await fetch(`${tempZavorthControl.baseUrl}/app`);
       if (!response.ok) {
         throw new Error(`web app respondeu ${response.status}`);
       }
       return {
-        baseUrl: tempDashboard.baseUrl,
+        baseUrl: tempZavorthControl.baseUrl,
         authStatus: ready.authStatus.status,
         appStatus: response.status,
       };
@@ -155,7 +155,7 @@ async function runRuntimeBenchmarks() {
       }),
     });
   } finally {
-    await tempDashboard.cleanup();
+    await tempZavorthControl.cleanup();
   }
 
   const reportPath = harness.writeReport('benchmark-runtime-flow.json');

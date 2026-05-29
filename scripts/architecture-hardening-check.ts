@@ -39,7 +39,7 @@ const SKIPPED_SOURCE_DIRECTORIES = new Set([
   'node_modules',
 ]);
 const FORBIDDEN_NEW_SERVICES_TEST_PATTERNS = [
-  /DashboardService/i,
+  /ZavorthControlService/i,
   /SharedSurfaceCommandService/i,
   /WebAppRuntimeRouteService/i,
   /WebAppSurfaceRouteService/i,
@@ -56,8 +56,8 @@ const LEGACY_LARGE_TEST_ALLOWLIST = new Set([
 ]);
 
 const LEGACY_LARGE_SOURCE_ALLOWLIST = new Set([
-  'src/ai-gateway/app/(dashboard)/dashboard/HomePageClient.tsx',
-  'src/ai-gateway/app/(dashboard)/dashboard/dashboard/projections/zavorthAgentGatewayRuntimeProjection.ts',
+  'src/ai-gateway/app/(zavorthControl)/zavorthControl/HomePageClient.tsx',
+  'src/ai-gateway/app/(zavorthControl)/zavorthControl/zavorthControl/projections/zavorthAgentGatewayRuntimeProjection.ts',
   'src/cli/ZavorthCliSurfaceHelpers.ts',
   'src/domain/surface/presentation/web-app/WebAppRuntimeStateRouteService.ts',
   'src/runtime/agent/AgentRunService.ts',
@@ -226,7 +226,7 @@ function buildServicesTestBoundaryRule(files: FileSnapshot[]): RuleSnapshot {
     .filter((file) =>
       FORBIDDEN_NEW_SERVICES_TEST_PATTERNS.some((pattern) => pattern.test(path.basename(file.relativePath))),
     )
-    .map((file) => `${file.relativePath}: novo teste de surface/dashboard deve nascer em tests/domain/surface`);
+    .map((file) => `${file.relativePath}: novo teste de surface/zavorthControl deve nascer em tests/domain/surface`);
 
   violations.push(...forbiddenNewServicesTests);
 
@@ -235,7 +235,7 @@ function buildServicesTestBoundaryRule(files: FileSnapshot[]): RuleSnapshot {
     label: 'tests/services como zona de compatibilidade',
     status: violations.length > 0 ? 'failed' : 'passed',
     observed: `${forbiddenNewServicesTests.length} teste(s) novo(s) proibido(s) em tests/services`,
-    target: `${SERVICES_TEST_README} presente e novos testes de surface/dashboard fora de tests/services`,
+    target: `${SERVICES_TEST_README} presente e novos testes de surface/zavorthControl fora de tests/services`,
     violations,
   };
 }

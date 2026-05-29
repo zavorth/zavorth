@@ -25,8 +25,19 @@ export interface WebComposerAttachment {
   type: string;
   size: number;
   text?: string | null;
+  content?: string | null;
   truncated?: boolean;
   source?: string | null;
+  media?: {
+    kind?: string | null;
+    mimeType?: string | null;
+    encoding?: string | null;
+  } | null;
+  extraction?: {
+    kind?: string | null;
+    label?: string | null;
+    detail?: string | null;
+  } | null;
 }
 
 export interface WebComposerSelectedSkill {

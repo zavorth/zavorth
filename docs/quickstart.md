@@ -34,7 +34,7 @@ Expected flow:
 
 1. `setup` opens First Light for provider, model, channels, Mnemos and approvals.
 2. `start` starts or resumes the local runtime.
-3. `open` opens or prints the local Dashboard route at `/dashboard`.
+3. `open` opens or prints the local Zavorth Control route at `/control`.
 4. `ready` tells you whether provider, channels, approvals and runtime are usable.
 
 ## Product Home
@@ -137,7 +137,7 @@ zavorth doctor
 For maintainers, the equivalent CI gates verify:
 
 - the 10-minute quickstart contract
-- Dashboard at `/dashboard`
+- Zavorth Control at `/control`
 - GitHub Governed Review fixture
 - Telegram approval loop fixture
 - Discord connector setup fixture
@@ -177,7 +177,7 @@ zavorth channels telegram
 ## Next
 
 - [CLI](/docs/zavorth-cli.md)
-- [Dashboard](/docs/web-dashboard.md)
+- [ZavorthControl](/docs/web-zavorthControl.md)
 - [Telegram](/docs/telegram.md)
 - [Discord](/docs/discord.md)
 - [Channel Mesh](/docs/channel-mesh.md)

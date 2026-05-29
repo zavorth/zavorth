@@ -47,7 +47,7 @@ const client = new ZavorthClient({
 ## Contratos publicos de ecossistema
 
 Este SDK fala com o REST v1. Ele nao exporta classes internas do runtime,
-Telegram ou dashboard como API publica.
+Telegram ou zavorthControl como API publica.
 
 Para adapters, tools, skills e surfaces dentro do repo, use o manifesto em
 `src/runtime/agent/contracts/index.ts`:

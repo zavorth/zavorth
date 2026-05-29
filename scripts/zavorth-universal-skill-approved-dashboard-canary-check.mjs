@@ -10,7 +10,7 @@ const asJson = process.argv.includes('--json');
 const rules = [
   ruleFilesExist(),
   ruleContainsMarkers(),
-  runDashboardModelFixture(),
+  runZavorthControlModelFixture(),
   runDryRunCanaryFixture(),
   runLiveApprovalRequiredFixture(),
   runLivePreparedFixture(),
@@ -28,10 +28,10 @@ const snapshot = {
 if (asJson) {
   console.log(JSON.stringify(snapshot, null, 2));
 } else {
-  console.log('[zavorth-universal-skill-approved-dashboard-canary] checking Intent model0');
+  console.log('[zavorth-universal-skill-approved-zavorthControl-canary] checking Intent model0');
   for (const rule of rules) {
     const marker = rule.status === 'passed' ? 'ok' : 'fail';
-    console.log(`[zavorth-universal-skill-approved-dashboard-canary] ${marker} ${rule.label}: ${rule.observed} | ${rule.target}`);
+    console.log(`[zavorth-universal-skill-approved-zavorthControl-canary] ${marker} ${rule.label}: ${rule.observed} | ${rule.target}`);
     for (const detail of rule.details.slice(0, 16)) console.log(`  - ${detail}`);
   }
 }
@@ -40,54 +40,54 @@ if (failed.length > 0) process.exitCode = 1;
 
 function ruleFilesExist() {
   const files = [
-    'src/contracts/ZavorthUniversalSkillApprovedDashboardCanaryContract.ts',
-    'src/services/UniversalSkillApprovedDashboardCanaryService.ts',
-    'scripts/zavorth-universal-skill-approved-dashboard-canary.ts',
-    'scripts/zavorth-universal-skill-approved-dashboard-canary-check.mjs',
-    'tests/services/UniversalSkillApprovedDashboardCanaryService.test.ts',
+    'src/contracts/ZavorthUniversalSkillApprovedZavorthControlCanaryContract.ts',
+    'src/services/UniversalSkillApprovedZavorthControlCanaryService.ts',
+    'scripts/zavorth-universal-skill-approved-zavorthControl-canary.ts',
+    'scripts/zavorth-universal-skill-approved-zavorthControl-canary-check.mjs',
+    'tests/services/UniversalSkillApprovedZavorthControlCanaryService.test.ts',
     'docs/README.md',
     'src/ai-gateway/app/api/skills/scale-hardening/route.ts',
     'package.json',
   ];
   const missing = files.filter((file) => !fs.existsSync(path.join(root, file)));
   return {
-    id: 'universal-skill-approved-dashboard-canary-files',
+    id: 'universal-skill-approved-zavorthControl-canary-files',
     label: 'Intent model0 files exist',
     status: missing.length === 0 ? 'passed' : 'failed',
     observed: `${files.length - missing.length}/${files.length} file(s) present`,
-    target: 'approved dashboard canary contract, service, CLI, check, docs, endpoint and tests are present',
+    target: 'approved zavorthControl canary contract, service, CLI, check, docs, endpoint and tests are present',
     details: missing.map((file) => `missing ${file}`),
   };
 }
 
 function ruleContainsMarkers() {
   const checks = [
-    ['src/contracts/ZavorthUniversalSkillApprovedDashboardCanaryContract.ts', [
-      'ZAVORTH_UNIVERSAL_SKILL_APPROVED_DASHBOARD_CANARY_CONTRACT_VERSION',
+    ['src/contracts/ZavorthUniversalSkillApprovedZavorthControlCanaryContract.ts', [
+      'ZAVORTH_UNIVERSAL_SKILL_APPROVED_ZAVORTH_CONTROL_CANARY_CONTRACT_VERSION',
       'endpointRequiresManagementAuth',
-      'Intent model1 - Dashboard Visual Rendering Approval and Canary Monitoring',
+      'Intent model1 - ZavorthControl Visual Rendering Approval and Canary Monitoring',
     ]],
-    ['src/services/UniversalSkillApprovedDashboardCanaryService.ts', [
+    ['src/services/UniversalSkillApprovedZavorthControlCanaryService.ts', [
       'certificationMatrixScaleHardeningIsAuthority',
       'noLayoutMutationPerformed',
       'liveCanaryRequiresApprovalId',
       'canaryPreparationDoesNotExecuteSkills',
       'buildCanary',
     ]],
-    ['scripts/zavorth-universal-skill-approved-dashboard-canary.ts', [
+    ['scripts/zavorth-universal-skill-approved-zavorthControl-canary.ts', [
       '--canary',
       '--approval-id',
-      '--dashboard-items',
+      '--zavorthControl-items',
     ]],
     ['src/ai-gateway/app/api/skills/scale-hardening/route.ts', [
       'requireManagementAuth',
-      'UniversalSkillApprovedDashboardCanaryService',
+      'UniversalSkillApprovedZavorthControlCanaryService',
       'persistCanaryReport: false',
     ]],
     ['package.json', [
-      'zavorth:universal-skill-approved-dashboard-canary',
-      'zavorth:universal-skill-approved-dashboard-canary:check',
-      'qa:zavorth-universal-skill-approved-dashboard-canary',
+      'zavorth:universal-skill-approved-zavorthControl-canary',
+      'zavorth:universal-skill-approved-zavorthControl-canary:check',
+      'qa:zavorth-universal-skill-approved-zavorthControl-canary',
     ]],
   ];
   const missing = [];
@@ -102,28 +102,28 @@ function ruleContainsMarkers() {
     }
   }
   return {
-    id: 'universal-skill-approved-dashboard-canary-markers',
+    id: 'universal-skill-approved-zavorthControl-canary-markers',
     label: 'Intent model0 markers are present',
     status: missing.length === 0 ? 'passed' : 'failed',
     observed: missing.length === 0 ? 'all markers present' : `${missing.length} missing marker(s)`,
-    target: 'dashboard endpoint, approval gate, canary and no-execution markers are present',
+    target: 'zavorthControl endpoint, approval gate, canary and no-execution markers are present',
     details: missing,
   };
 }
 
-function runDashboardModelFixture() {
+function runZavorthControlModelFixture() {
   const fixture = createFixture(4);
   try {
     return runLiveCandidateRule({
-      id: 'approved-dashboard-model',
-      label: 'Builds approved dashboard view model',
-      target: 'dashboard-only returns endpoint, cards, table, filters and no visual mutation',
+      id: 'approved-zavorthControl-model',
+      label: 'Builds approved zavorthControl view model',
+      target: 'zavorthControl-only returns endpoint, cards, table, filters and no visual mutation',
       args: ['--project-root', fixture.root, '--source', fixture.source, '--no-discover', '--batch-size', '2', '--json'],
       expect: (snapshot) => snapshot.status === 'passed'
-        && snapshot.dashboardImplementation.endpoint === '/api/skills/scale-hardening'
-        && snapshot.dashboardImplementation.cards.length >= 5
-        && snapshot.dashboardImplementation.table.rows.length === 2
-        && snapshot.dashboardImplementation.visualFilesChanged === false
+        && snapshot.zavorthControlImplementation.endpoint === '/api/skills/scale-hardening'
+        && snapshot.zavorthControlImplementation.cards.length >= 5
+        && snapshot.zavorthControlImplementation.table.rows.length === 2
+        && snapshot.zavorthControlImplementation.visualFilesChanged === false
         && snapshot.policy.noLayoutMutationPerformed === true,
     });
   } finally {
@@ -193,11 +193,11 @@ function runBlockedGateFixture() {
     return runLiveCandidateRule({
       id: 'blocked-gate',
       label: 'Propagates blocked scale gate',
-      target: 'lower scale gate blocks dashboard/canary readiness',
+      target: 'lower scale gate blocks zavorthControl/canary readiness',
       args: ['--project-root', fixture.root, '--source', fixture.source, '--no-discover', '--max-candidates', '2', '--canary', 'dry-run', '--json'],
       expect: (snapshot) => snapshot.status === 'blocked'
         && snapshot.canary.status === 'blocked'
-        && snapshot.rollout.readyForDashboardUse === false,
+        && snapshot.rollout.readyForZavorthControlUse === false,
     });
   } finally {
     fs.rmSync(fixture.root, { recursive: true, force: true });
@@ -207,7 +207,7 @@ function runBlockedGateFixture() {
 function runLiveCandidateRule(input) {
   const result = spawnSync(process.execPath, [
     path.join(root, 'node_modules', 'tsx', 'dist', 'cli.mjs'),
-    'scripts/zavorth-universal-skill-approved-dashboard-canary.ts',
+    'scripts/zavorth-universal-skill-approved-zavorthControl-canary.ts',
     ...input.args,
   ], { cwd: root, encoding: 'utf8', env: process.env });
 
@@ -229,7 +229,7 @@ function runLiveCandidateRule(input) {
       id: input.id,
       label: input.label,
       status: pass ? 'passed' : 'failed',
-      observed: `status=${snapshot.status}, canary=${snapshot.canary?.status}, cards=${snapshot.dashboardImplementation?.cards?.length}, rows=${snapshot.dashboardImplementation?.table?.rows?.length}`,
+      observed: `status=${snapshot.status}, canary=${snapshot.canary?.status}, cards=${snapshot.zavorthControlImplementation?.cards?.length}, rows=${snapshot.zavorthControlImplementation?.table?.rows?.length}`,
       target: input.target,
       details: pass ? [] : [JSON.stringify(snapshot, null, 2)],
     };

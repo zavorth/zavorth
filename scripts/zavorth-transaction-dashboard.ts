@@ -1,6 +1,6 @@
 import type {
-  ZavorthTransactionDashboardProjectInput,
-} from '../src/contracts/ZavorthTransactionDashboardContract.js';
+  ZavorthTransactionZavorthControlProjectInput,
+} from '../src/contracts/ZavorthTransactionZavorthControlContract.js';
 import type {
   ZavorthTransactionSurfaceKind,
 } from '../src/contracts/ZavorthTransactionSurfaceContract.js';
@@ -8,14 +8,14 @@ import type {
   ZavorthTransactionConnectorMode,
 } from '../src/contracts/ZavorthTransactionConnectorContract.js';
 import { ZavorthTransactionApprovalLedgerService } from '../src/services/ZavorthTransactionApprovalLedgerService.js';
-import { ZavorthTransactionDashboardProjectionService } from '../src/services/ZavorthTransactionDashboardProjectionService.js';
+import { ZavorthTransactionZavorthControlProjectionService } from '../src/services/ZavorthTransactionZavorthControlProjectionService.js';
 import { ZavorthTransactionConnectorRegistryService } from '../src/services/ZavorthTransactionConnectorRegistryService.js';
 import { ZavorthTransactionCredentialRefService } from '../src/services/ZavorthTransactionCredentialRefService.js';
 import { ZavorthTransactionPreviewService } from '../src/services/ZavorthTransactionPreviewService.js';
 import { ZavorthTransactionRuntimeOrchestratorService } from '../src/services/ZavorthTransactionRuntimeOrchestratorService.js';
 import { ZavorthTransactionSurfaceGatewayService } from '../src/services/ZavorthTransactionSurfaceGatewayService.js';
 
-type CliOptions = ZavorthTransactionDashboardProjectInput & {
+type CliOptions = ZavorthTransactionZavorthControlProjectInput & {
   json: boolean;
   ledgerFile?: string;
   credentialStoreFile?: string;
@@ -23,7 +23,7 @@ type CliOptions = ZavorthTransactionDashboardProjectInput & {
 
 const options = parseArgs(process.argv.slice(2));
 const previewService = new ZavorthTransactionPreviewService();
-const service = new ZavorthTransactionDashboardProjectionService({
+const service = new ZavorthTransactionZavorthControlProjectionService({
   surfaceGateway: new ZavorthTransactionSurfaceGatewayService({
     runtime: new ZavorthTransactionRuntimeOrchestratorService({
       previewService,
@@ -44,10 +44,10 @@ if (!options.text) {
   if (options.json) {
     console.log(JSON.stringify(snapshot, null, 2));
   } else {
-    console.log('[transaction-dashboard] Dashboard controls transaction Dashboard projection');
-    console.log(`[transaction-dashboard] version: ${snapshot.version}`);
-    console.log(`[transaction-dashboard] summary: ${snapshot.summary}`);
-    console.log(`[transaction-dashboard] lanes: ${snapshot.laneKinds.join(', ')}`);
+    console.log('[transaction-zavorthControl] ZavorthControl controls transaction ZavorthControl projection');
+    console.log(`[transaction-zavorthControl] version: ${snapshot.version}`);
+    console.log(`[transaction-zavorthControl] summary: ${snapshot.summary}`);
+    console.log(`[transaction-zavorthControl] lanes: ${snapshot.laneKinds.join(', ')}`);
   }
   process.exit(0);
 }

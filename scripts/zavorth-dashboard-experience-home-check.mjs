@@ -1,4 +1,4 @@
-import { execFileSync } from 'node:child_process';
+﻿import { execFileSync } from 'node:child_process';
 import { existsSync, readFileSync } from 'node:fs';
 import path from 'node:path';
 
@@ -7,13 +7,13 @@ const runner = process.platform === 'win32' ? 'cmd.exe' : 'npx';
 const prefix = process.platform === 'win32' ? ['/d', '/s', '/c', 'npx'] : [];
 
 for (const file of [
-  'src/contracts/ZavorthDashboardExperienceHomeContract.ts',
-  'src/services/ZavorthDashboardExperienceHomeService.ts',
-  'scripts/zavorth-dashboard-experience-home.ts',
-  'tests/services/ZavorthDashboardExperienceHomeService.test.ts',
-  'src/ai-gateway/app/(dashboard)/dashboard/HomePageClient.tsx',
-  'assets/dashboard/index.html',
-  'assets/dashboard/styles/chat.css',
+  'src/contracts/ZavorthControlExperienceHomeContract.ts',
+  'src/services/ZavorthControlExperienceHomeService.ts',
+  'scripts/zavorth-control-experience-home.ts',
+  'tests/services/ZavorthControlExperienceHomeService.test.ts',
+  'src/ai-gateway/app/(zavorthControl)/zavorthControl/HomePageClient.tsx',
+  'assets/zavorthControl/index.html',
+  'assets/zavorthControl/styles/chat.css',
 ]) {
   if (!existsSync(path.join(root, file))) {
     throw new Error(`missing ${file}`);
@@ -22,40 +22,40 @@ for (const file of [
 
 const output = execFileSync(
   runner,
-  [...prefix, 'tsx', 'scripts/zavorth-dashboard-experience-home.ts', '--json'],
+  [...prefix, 'tsx', 'scripts/zavorth-control-experience-home.ts', '--json'],
   { cwd: root, encoding: 'utf8' },
 );
 const snapshot = JSON.parse(output);
 
-if (snapshot.surface !== 'dashboard-experience-home') {
+if (snapshot.surface !== 'zavorthControl-experience-home') {
   throw new Error(`unexpected surface ${snapshot.surface}`);
 }
-if (snapshot.route !== '/dashboard') {
+if (snapshot.route !== '/zavorthControl') {
   throw new Error(`unexpected route ${snapshot.route}`);
 }
-if (snapshot.safety.dashboardCanExecuteTargetAction !== false) {
-  throw new Error('dashboard home must not execute target actions');
+if (snapshot.safety.zavorthControlCanExecuteTargetAction !== false) {
+  throw new Error('zavorthControl home must not execute target actions');
 }
 if (!Array.isArray(snapshot.simpleNavigation?.areas) || snapshot.simpleNavigation.areas.length !== 5) {
-  throw new Error('dashboard home must expose the five simple product areas');
+  throw new Error('zavorthControl home must expose the five simple product areas');
 }
 if (snapshot.gettingStarted?.title !== 'Primeiros passos') {
-  throw new Error('dashboard home must expose Primeiros passos');
+  throw new Error('zavorthControl home must expose Primeiros passos');
 }
 if (!snapshot.gettingStarted.steps.some((entry) => entry.command === 'zavorth setup --dry-run')) {
-  throw new Error('dashboard home must point first-time users to setup dry-run');
+  throw new Error('zavorthControl home must point first-time users to setup dry-run');
 }
 if (!snapshot.gettingStarted.steps.some((entry) => entry.command === 'zavorth go')) {
-  throw new Error('dashboard home must keep go as the daily entrypoint');
+  throw new Error('zavorthControl home must keep go as the daily entrypoint');
 }
 if (!snapshot.gettingStarted.steps.some((entry) => entry.command === 'zavorth demo browser' && entry.optional === true)) {
-  throw new Error('dashboard home must keep demo optional');
+  throw new Error('zavorthControl home must keep demo optional');
 }
 if (!snapshot.gettingStarted.steps.some((entry) => entry.command === 'zavorth connectors doctor')) {
-  throw new Error('dashboard home must point first-time users to connector doctor');
+  throw new Error('zavorthControl home must point first-time users to connector doctor');
 }
 if (snapshot.permissionPanel?.title !== 'Permissoes') {
-  throw new Error('dashboard home must expose permission polish panel');
+  throw new Error('zavorthControl home must expose permission polish panel');
 }
 for (const item of ['permissions', 'auto-approvals', 'extreme-mode', 'revoke', 'receipts']) {
   if (!snapshot.permissionPanel.items.some((entry) => entry.id === item)) {
@@ -64,14 +64,14 @@ for (const item of ['permissions', 'auto-approvals', 'extreme-mode', 'revoke', '
 }
 for (const area of ['inbox', 'tasks', 'approvals', 'receipts', 'connectors']) {
   if (!snapshot.simpleNavigation.areas.some((entry) => entry.id === area)) {
-    throw new Error(`dashboard home area missing: ${area}`);
+    throw new Error(`zavorthControl home area missing: ${area}`);
   }
 }
 
 const home = [
-  readFileSync(path.join(root, 'src/ai-gateway/app/(dashboard)/dashboard/HomePageClient.tsx'), 'utf8'),
-  readFileSync(path.join(root, 'assets/dashboard/index.html'), 'utf8'),
-  readFileSync(path.join(root, 'assets/dashboard/styles/chat.css'), 'utf8'),
+  readFileSync(path.join(root, 'src/ai-gateway/app/(zavorthControl)/zavorthControl/HomePageClient.tsx'), 'utf8'),
+  readFileSync(path.join(root, 'assets/zavorthControl/index.html'), 'utf8'),
+  readFileSync(path.join(root, 'assets/zavorthControl/styles/chat.css'), 'utf8'),
 ].join('\n');
 for (const marker of [
   'chat-console-bar',
@@ -85,8 +85,8 @@ for (const marker of [
   'zavorth connectors doctor',
   'Receipts',
   'Connectors',
-  'Permissões',
-  'Auto-aprovações',
+  'PermissÃµes',
+  'Auto-aprovaÃ§Ãµes',
   'Modo extremo',
   'Revogar',
   'home-profile-grid',
@@ -94,14 +94,14 @@ for (const marker of [
   'Organize my day',
 ]) {
   if (!home.includes(marker)) {
-    throw new Error(`dashboard home marker missing: ${marker}`);
+    throw new Error(`zavorthControl home marker missing: ${marker}`);
   }
 }
 
 execFileSync(
   runner,
-  [...prefix, 'jest', '--runTestsByPath', 'tests/services/ZavorthDashboardExperienceHomeService.test.ts', '--runInBand'],
+  [...prefix, 'jest', '--runTestsByPath', 'tests/services/ZavorthControlExperienceHomeService.test.ts', '--runInBand'],
   { cwd: root, stdio: 'inherit' },
 );
 
-console.log('[zavorth-dashboard-experience-home-check] ok');
+console.log('[zavorth-control-experience-home-check] ok');

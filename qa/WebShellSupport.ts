@@ -3,7 +3,7 @@ import os from 'os';
 import path from 'path';
 import net from 'net';
 import { config } from '../src/config/index.js';
-import { DashboardService } from '../src/services/DashboardService.js';
+import { ZavorthControlService } from '../src/services/ZavorthControlService.js';
 import { fetchJsonWithTimeout } from './QaSupport.js';
 
 export async function reserveFreePort(): Promise<number> {
@@ -60,24 +60,24 @@ export async function waitForWebShell(
     : new Error(`Host web temporario nao respondeu em ${timeoutMs}ms.`);
 }
 
-export type TemporaryDashboardHandle = {
-  service: DashboardService;
+export type TemporaryZavorthControlHandle = {
+  service: ZavorthControlService;
   baseUrl: string;
   cleanup: () => Promise<void>;
 };
 
-function snapshotDashboardConfig() {
+function snapshotZavorthControlConfig() {
   return {
     zavorthWebHost: config.zavorthWebHost,
     zavorthWebPort: config.zavorthWebPort,
     zavorthWebAuthToken: config.zavorthWebAuthToken,
-    dashboardRuntimeStateFile: config.dashboardRuntimeStateFile,
+    zavorthControlRuntimeStateFile: config.zavorthControlRuntimeStateFile,
   };
 }
 
-export async function startTemporaryDashboardService(port: number): Promise<TemporaryDashboardHandle> {
+export async function startTemporaryZavorthControlService(port: number): Promise<TemporaryZavorthControlHandle> {
   const runtimeRoot = fs.mkdtempSync(path.join(os.tmpdir(), 'zavorth-regression-web-'));
-  const previousConfig = snapshotDashboardConfig();
+  const previousConfig = snapshotZavorthControlConfig();
   const logRepo = {
     log: () => undefined,
     getRecentLogs: () => [],
@@ -86,9 +86,9 @@ export async function startTemporaryDashboardService(port: number): Promise<Temp
   config.zavorthWebHost = '127.0.0.1';
   config.zavorthWebPort = port;
   config.zavorthWebAuthToken = 'qa-web-shell-token';
-  config.dashboardRuntimeStateFile = path.join(runtimeRoot, 'dashboard-runtime.json');
+  config.zavorthControlRuntimeStateFile = path.join(runtimeRoot, 'zavorthControl-runtime.json');
 
-  const service = new DashboardService(logRepo);
+  const service = new ZavorthControlService(logRepo);
   const baseUrl = await service.start();
 
   return {
@@ -99,7 +99,7 @@ export async function startTemporaryDashboardService(port: number): Promise<Temp
       config.zavorthWebHost = previousConfig.zavorthWebHost;
       config.zavorthWebPort = previousConfig.zavorthWebPort;
       config.zavorthWebAuthToken = previousConfig.zavorthWebAuthToken;
-      config.dashboardRuntimeStateFile = previousConfig.dashboardRuntimeStateFile;
+      config.zavorthControlRuntimeStateFile = previousConfig.zavorthControlRuntimeStateFile;
       fs.rmSync(runtimeRoot, { recursive: true, force: true });
     },
   };

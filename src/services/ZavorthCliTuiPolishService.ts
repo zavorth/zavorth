@@ -69,6 +69,9 @@ export type ZavorthCliTuiPolishSnapshot = {
   commands: {
     ready: 'zavorth ready';
     readyOffline: 'zavorth ready --offline';
+    ask: 'zavorth ask "what should I do next?"';
+    edit: 'zavorth edit "change this file" --path <folder>';
+    apply: 'zavorth apply <diff-id>';
     providers: 'zavorth providers';
     approvals: 'zavorth gateway approvals';
     receipts: 'zavorth receipts';
@@ -80,6 +83,8 @@ export type ZavorthCliTuiPolishSnapshot = {
   };
   safety: {
     noPromptExecution: true;
+    noDirectPromptExecution: true;
+    promptRoutingAvailable: true;
     noToolExecution: true;
     noLiveTransactionExecution: true;
     noRawSecretsSerialized: true;
@@ -165,6 +170,9 @@ export class ZavorthCliTuiPolishService {
       commands: {
         ready: 'zavorth ready',
         readyOffline: 'zavorth ready --offline',
+        ask: 'zavorth ask "what should I do next?"',
+        edit: 'zavorth edit "change this file" --path <folder>',
+        apply: 'zavorth apply <diff-id>',
         providers: 'zavorth providers',
         approvals: 'zavorth gateway approvals',
         receipts: 'zavorth receipts',
@@ -176,6 +184,8 @@ export class ZavorthCliTuiPolishService {
       },
       safety: {
         noPromptExecution: true,
+        noDirectPromptExecution: true,
+        promptRoutingAvailable: true,
         noToolExecution: true,
         noLiveTransactionExecution: true,
         noRawSecretsSerialized: true,
@@ -198,8 +208,8 @@ export class ZavorthCliTuiPolishService {
       renderCommandDock(snapshot),
       paintCliTone(
         snapshot.mode === 'refreshed'
-          ? 'Provider probes foram solicitados explicitamente nesta execucao.'
-          : 'Modo leitura: nenhum provider live, tool, prompt ou transacao foi executado.',
+          ? 'Provider probes were explicitly requested for this run.'
+          : 'Action mode is available: ask/chat start fast; edit/apply still follow engine policy.',
         'muted',
       ),
       '',
@@ -308,12 +318,12 @@ function buildChannels(ready: ZavorthReadyToGoSnapshot): ZavorthCliTuiPolishChan
 
 function buildShortcuts(): ZavorthCliTuiPolishShortcut[] {
   return [
-    { key: '/model', label: 'trocar modelo', command: 'zavorth providers select', detail: 'Escolha provider/modelo sem editar .env.' },
-    { key: '/ready', label: 'prontidao', command: 'zavorth ready', detail: 'Check unico antes de sair do PC.' },
-    { key: '/review', label: 'agent review', command: 'zavorth review', detail: 'Revisao read-only por padrao.' },
-    { key: '/trust', label: 'permissoes', command: 'zavorth trust', detail: 'Approvals, auto-aprovacoes e break-glass.' },
-    { key: '/skills', label: 'skills', command: 'zavorth skills', detail: 'Catalogo e curadoria.' },
-    { key: '/doctor', label: 'diagnostico', command: 'zavorth doctor', detail: 'Proximo passo quando algo falha.' },
+    { key: '/ask', label: 'quick ask', command: 'zavorth ask', detail: 'Lite/Express answer without the heavy audit surface.' },
+    { key: '/edit', label: 'quick edit', command: 'zavorth edit', detail: 'Velocity diff in trusted folders; Shield otherwise.' },
+    { key: '/apply', label: 'accept diff', command: 'zavorth apply', detail: 'Apply only after policy confirms the path.' },
+    { key: '/model', label: 'model route', command: 'zavorth providers select', detail: 'Choose provider/model without editing .env.' },
+    { key: '/ready', label: 'readiness', command: 'zavorth ready', detail: 'One check before daily use.' },
+    { key: '/trust', label: 'permissions', command: 'zavorth trust', detail: 'Approvals, reusable scopes and break-glass.' },
   ];
 }
 
@@ -401,7 +411,7 @@ function renderFixes(fixes: ZavorthRuntimeGuidedFix[]): string {
   if (fixes.length === 0) {
     return [
       paintCliTone('Next', 'info'),
-      'Tudo limpo. Para abrir o ambiente: zavorth open',
+      'All clear. Try: zavorth ask "summarize this project" or zavorth open',
       '',
     ].join('\n');
   }
@@ -415,9 +425,9 @@ function renderFixes(fixes: ZavorthRuntimeGuidedFix[]): string {
 function renderCommandDock(snapshot: ZavorthCliTuiPolishSnapshot): string {
   return [
     paintCliTone('Commands', 'info'),
-    `${snapshot.commands.setup}     ${snapshot.commands.dashboard}     ${snapshot.commands.chat}`,
+    `${snapshot.commands.ask}     ${snapshot.commands.edit}`,
+    `${snapshot.commands.apply}     ${snapshot.commands.dashboard}     ${snapshot.commands.chat}`,
     `${snapshot.commands.readyOffline}     ${snapshot.commands.providers}     ${snapshot.commands.trust}`,
-    `${snapshot.commands.approvals}     ${snapshot.commands.receipts}     ${snapshot.commands.fixes}`,
     '',
   ].join('\n');
 }

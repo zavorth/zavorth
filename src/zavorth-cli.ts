@@ -1749,6 +1749,16 @@ async function runBuiltinLauncher(rawArgs: string[]): Promise<number | null> {
     return runPremiumHome(restArgs);
   }
 
+  if (command === 'ask' || command === 'edit' || command === 'apply') {
+    const { runZavorthCliActionMode } = await import('./cli/ZavorthCliActionMode.js');
+    return runZavorthCliActionMode({ command, args: restArgs, cwd: process.cwd() });
+  }
+
+  if (command === 'chat' && restArgs.length > 0 && !restArgs.includes('--help') && !restArgs.includes('-h')) {
+    const { runZavorthCliActionMode } = await import('./cli/ZavorthCliActionMode.js');
+    return runZavorthCliActionMode({ command: 'chat', args: restArgs, cwd: process.cwd() });
+  }
+
   if (command === 'chat' || command === 'session') {
     const { runZavorthCli } = await import('./cli/ZavorthCli.js');
     return runZavorthCli(restArgs);

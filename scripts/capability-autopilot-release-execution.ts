@@ -83,7 +83,7 @@ function main(): void {
       smokeReceiptId: smokeBeforeCanaryPassed ? 'checkpoint-82-pre-canary-smoke' : null,
       rollbackCheckpointId: rollbackCheckpointReady ? 'checkpoint-82-rollback-checkpoint' : null,
       rollbackDryRunReceiptId: rollbackDryRunPassed ? 'checkpoint-82-rollback-dry-run' : null,
-      observabilityDashboardId: observabilityLive ? 'checkpoint-82-observability' : null,
+      observabilityZavorthControlId: observabilityLive ? 'checkpoint-82-observability' : null,
       incidentCommanderId: incidentCommanderAssigned ? 'checkpoint-82-incident-commander' : null,
       supportBridgeId: supportBridgeReady ? 'checkpoint-82-support-bridge' : null,
       auditReceiptId: auditSinkReady ? 'checkpoint-82-audit' : null,

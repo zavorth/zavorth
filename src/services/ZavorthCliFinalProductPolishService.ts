@@ -85,6 +85,7 @@ export class ZavorthCliFinalProductPolishService {
         blocked,
         requiredCommands: [...REQUIRED_COMMANDS],
         dashboardPath: '/dashboard',
+        zavorthControlPath: '/control',
         inkPreviewRendersOnce,
         inkInteractiveMode: files.inkIndex.includes('readline.createInterface')
           && files.inkIndex.includes('/dashboard')

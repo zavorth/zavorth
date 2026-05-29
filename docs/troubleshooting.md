@@ -13,7 +13,7 @@ zavorth ready
 
 ## Common Problems
 
-### Dashboard Does Not Open
+### ZavorthControl Does Not Open
 
 - confirm `go` printed a URL;
 - check that no other app is using the same port;

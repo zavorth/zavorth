@@ -26,7 +26,7 @@ const snapshot = {
 if (asJson) {
   console.log(JSON.stringify(snapshot, null, 2));
 } else {
-  console.log('[zavorth-live-canary-adapter-review] checking Dashboard controls');
+  console.log('[zavorth-live-canary-adapter-review] checking ZavorthControl controls');
   printRules(rules, '[zavorth-live-canary-adapter-review]');
 }
 if (failed.length > 0) process.exitCode = 1;
@@ -41,7 +41,7 @@ function ruleFilesExist() {
     'docs/README.md',
   ];
   const missing = files.filter((file) => !fs.existsSync(path.join(root, file)));
-  return rule('live-canary-adapter-files', 'Dashboard controls files exist', missing.length === 0, `${files.length - missing.length}/${files.length}`, 'contract, service, CLI, check, tests and docs are present', missing);
+  return rule('live-canary-adapter-files', 'ZavorthControl controls files exist', missing.length === 0, `${files.length - missing.length}/${files.length}`, 'contract, service, CLI, check, tests and docs are present', missing);
 }
 
 function ruleMarkers() {
@@ -59,7 +59,7 @@ function ruleMarkers() {
       if (!text.includes(needle)) missing.push(`${file}: missing ${needle}`);
     }
   }
-  return rule('live-canary-adapter-markers', 'Dashboard controls markers are wired', missing.length === 0, missing.length === 0 ? 'all markers' : `${missing.length} missing`, 'adapter review, SDK and CLI markers exist', missing);
+  return rule('live-canary-adapter-markers', 'ZavorthControl controls markers are wired', missing.length === 0, missing.length === 0 ? 'all markers' : `${missing.length} missing`, 'adapter review, SDK and CLI markers exist', missing);
 }
 
 function runNeedsEvidenceFixture() {
@@ -131,7 +131,7 @@ function runBlockedLowerEvalFixture() {
 function ruleWorkspaceCheck() {
   const text = read('package.json');
   const marker = 'node scripts/zavorth-live-canary-adapter-review-check.mjs';
-  return rule('workspace-check-wire', 'workspace:check includes Dashboard controls gate', text.includes(marker), text.includes(marker) ? 'wired' : 'missing', marker, []);
+  return rule('workspace-check-wire', 'workspace:check includes ZavorthControl controls gate', text.includes(marker), text.includes(marker) ? 'wired' : 'missing', marker, []);
 }
 
 function ruleNoPublicExternalNames() {
@@ -152,7 +152,7 @@ function ruleNoPublicExternalNames() {
       if (text.includes(word)) hits.push(`${file}: ${word}`);
     }
   }
-  return rule('no-public-external-names', 'Dashboard controls public core remains neutral', hits.length === 0, hits.length === 0 ? 'neutral' : `${hits.length} hit(s)`, 'no external product names in public core files', hits);
+  return rule('no-public-external-names', 'ZavorthControl controls public core remains neutral', hits.length === 0, hits.length === 0 ? 'neutral' : `${hits.length} hit(s)`, 'no external product names in public core files', hits);
 }
 
 function canonicalEvidence() {
@@ -180,7 +180,7 @@ function jsonRule(id, label, result, expect) {
   try {
     const snapshot = JSON.parse(result.stdout);
     const passed = expect(snapshot);
-    return rule(id, label, passed, `status=${snapshot.status}; mode=${snapshot.mode}`, 'expected Dashboard controls adapter review snapshot', passed ? [] : [JSON.stringify(snapshot, null, 2)]);
+    return rule(id, label, passed, `status=${snapshot.status}; mode=${snapshot.mode}`, 'expected ZavorthControl controls adapter review snapshot', passed ? [] : [JSON.stringify(snapshot, null, 2)]);
   } catch (error) {
     return rule(id, label, false, 'invalid JSON', 'valid JSON fixture', [String(error), ...compact(result.stderr, result.stdout)]);
   }

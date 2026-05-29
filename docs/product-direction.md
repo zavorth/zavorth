@@ -5,13 +5,13 @@ This roadmap describes current product direction, not implementation history.
 ## Current Focus
 
 - Keep the local-first runtime reliable for daily operator use.
-- Improve dashboard, CLI, Telegram, and API flows around the same governed gateway.
+- Improve zavorthControl, CLI, Telegram, and API flows around the same governed gateway.
 - Continue hardening approvals, receipts, provider readiness, and memory.
 - Keep skill evolution native, scoped, auditable, and approval-based.
 
 ## Near-Term Priorities
 
-1. Polish the operator dashboard around readiness, approvals, providers, and memory.
+1. Polish the operator zavorthControl around readiness, approvals, providers, and memory.
 2. Expand provider certification without claiming live support before a real proof exists.
 3. Improve Mnemos file understanding and the workspace wiki flow.
 4. Keep Swarm execution bounded by budget, isolation policy, and replayable evidence.

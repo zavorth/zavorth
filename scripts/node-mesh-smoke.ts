@@ -2,14 +2,14 @@ import fs from 'fs';
 import os from 'os';
 import path from 'path';
 import { config } from '../src/config/index.js';
-import { DashboardService } from '../src/services/DashboardService.js';
+import { ZavorthControlService } from '../src/services/ZavorthControlService.js';
 import { runNodeMeshHost } from './node-mesh-host.js';
 
 type ConfigSnapshot = {
   zavorthWebHost: string;
   zavorthWebPort: number;
   zavorthWebAuthToken: string;
-  dashboardRuntimeStateFile: string;
+  zavorthControlRuntimeStateFile: string;
   nodeMeshStateFile: string;
   nodeMeshSecretsFile: string;
   nodeMeshInvocationFile: string;
@@ -76,7 +76,7 @@ export async function runNodeMeshSmoke(options: NodeMeshSmokeOptions = {}): Prom
   let preservedArtifacts = keepArtifacts;
   let hostAbort: AbortController | null = null;
   let hostPromise: Promise<void> | null = null;
-  let dashboard: DashboardService | null = null;
+  let zavorthControl: ZavorthControlService | null = null;
   let nodeId: string | null = null;
   let baseUrl: string | null = null;
   let runStdout: string | null = null;
@@ -103,10 +103,10 @@ export async function runNodeMeshSmoke(options: NodeMeshSmokeOptions = {}): Prom
 
   try {
     applySmokeConfig(smokeRoot);
-    dashboard = new DashboardService(logRepo);
-    baseUrl = await dashboard.start();
+    zavorthControl = new ZavorthControlService(logRepo);
+    baseUrl = await zavorthControl.start();
 
-    console.log(`[node-mesh-smoke] dashboard online em ${baseUrl}`);
+    console.log(`[node-mesh-smoke] zavorthControl online em ${baseUrl}`);
 
     const draftResponse = await postJson(
       `${baseUrl}/api/web/nodes/pairing-draft`,
@@ -499,8 +499,8 @@ export async function runNodeMeshSmoke(options: NodeMeshSmokeOptions = {}): Prom
       } catch {}
     }
 
-    if (dashboard) {
-      await dashboard.stopAsync();
+    if (zavorthControl) {
+      await zavorthControl.stopAsync();
     }
 
     restoreConfig(previousConfig);
@@ -522,7 +522,7 @@ function snapshotConfig(): ConfigSnapshot {
     zavorthWebHost: config.zavorthWebHost,
     zavorthWebPort: config.zavorthWebPort,
     zavorthWebAuthToken: config.zavorthWebAuthToken,
-    dashboardRuntimeStateFile: config.dashboardRuntimeStateFile,
+    zavorthControlRuntimeStateFile: config.zavorthControlRuntimeStateFile,
     nodeMeshStateFile: config.nodeMeshStateFile,
     nodeMeshSecretsFile: config.nodeMeshSecretsFile,
     nodeMeshInvocationFile: config.nodeMeshInvocationFile,
@@ -537,7 +537,7 @@ function applySmokeConfig(smokeRoot: string): void {
   config.zavorthWebHost = '127.0.0.1';
   config.zavorthWebPort = 33400 + Math.floor(Math.random() * 800);
   config.zavorthWebAuthToken = SMOKE_TOKEN;
-  config.dashboardRuntimeStateFile = path.join(runtimeRoot, 'dashboard-runtime.json');
+  config.zavorthControlRuntimeStateFile = path.join(runtimeRoot, 'zavorthControl-runtime.json');
   config.nodeMeshStateFile = path.join(runtimeRoot, 'node-mesh-state.json');
   config.nodeMeshSecretsFile = path.join(runtimeRoot, 'node-mesh-secrets.json');
   config.nodeMeshInvocationFile = path.join(runtimeRoot, 'node-mesh-invocations.json');
@@ -550,7 +550,7 @@ function restoreConfig(snapshot: ConfigSnapshot): void {
   config.zavorthWebHost = snapshot.zavorthWebHost;
   config.zavorthWebPort = snapshot.zavorthWebPort;
   config.zavorthWebAuthToken = snapshot.zavorthWebAuthToken;
-  config.dashboardRuntimeStateFile = snapshot.dashboardRuntimeStateFile;
+  config.zavorthControlRuntimeStateFile = snapshot.zavorthControlRuntimeStateFile;
   config.nodeMeshStateFile = snapshot.nodeMeshStateFile;
   config.nodeMeshSecretsFile = snapshot.nodeMeshSecretsFile;
   config.nodeMeshInvocationFile = snapshot.nodeMeshInvocationFile;

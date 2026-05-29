@@ -9,7 +9,7 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const rootDir = path.resolve(__dirname, '..');
 const npmCommand = process.platform === 'win32' ? 'npm.cmd' : 'npm';
-const runtimeStateFile = path.join(rootDir, 'data', 'runtime', 'dashboard-runtime.json');
+const runtimeStateFile = path.join(rootDir, 'data', 'runtime', 'zavorthControl-runtime.json');
 
 function normalizeBaseUrl(value) {
   return String(value || '').trim().replace(/\/+$/, '');
@@ -37,13 +37,13 @@ function listBaseUrls() {
 async function resolveControlUrl() {
   const baseUrls = listBaseUrls();
   for (const baseUrl of baseUrls) {
-    if (await probeApp(`${baseUrl.replace(/\/+$/, '')}/dashboard`)) {
-      return `${baseUrl.replace(/\/+$/, '')}/dashboard`;
+    if (await probeApp(`${baseUrl.replace(/\/+$/, '')}/zavorthControl`)) {
+      return `${baseUrl.replace(/\/+$/, '')}/zavorthControl`;
     }
   }
 
   const fallbackBaseUrl = baseUrls[0] || 'http://127.0.0.1:33333';
-  return `${fallbackBaseUrl.replace(/\/+$/, '')}/dashboard`;
+  return `${fallbackBaseUrl.replace(/\/+$/, '')}/zavorthControl`;
 }
 
 function runCommand(args, label) {
@@ -92,7 +92,7 @@ async function waitForApp(appUrl, timeoutMs) {
 async function ensureHostReady() {
   let appUrl = await resolveControlUrl();
   if (await waitForApp(appUrl, 3000)) {
-    console.log('[surface-qa] host ja estava disponivel em /dashboard');
+    console.log('[surface-qa] host ja estava disponivel em /zavorthControl');
     return;
   }
 
@@ -119,8 +119,8 @@ async function main() {
   runCommand(['run', 'ops:bootstrap', '--', '--repair'], 'bootstrap seguro');
   await ensureHostReady();
   runCommand(['run', 'test:cross-surface'], 'E2E cross-surface');
-  runCommand(['run', 'test:web:qa'], 'QA da Dashboard e legado');
-  runCommand(['run', 'test:web:smoke'], 'smoke da Dashboard e legado');
+  runCommand(['run', 'test:web:qa'], 'QA da ZavorthControl e legado');
+  runCommand(['run', 'test:web:smoke'], 'smoke da ZavorthControl e legado');
 }
 
 main().catch((error) => {

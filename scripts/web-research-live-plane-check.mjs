@@ -25,7 +25,7 @@ const rules = [
   }),
   ruleContainsAll({
     id: 'web-research-live-contract',
-    label: 'Contract defines Dashboard controls vocabulary',
+    label: 'Contract defines ZavorthControl controls vocabulary',
     target: 'Contract captures targets, capabilities, gates, receipts and next phase handoff',
     files: ['src/contracts/WebResearchLivePlaneContract.ts'],
     needles: [
@@ -83,7 +83,7 @@ const rules = [
   }),
   ruleContainsAll({
     id: 'web-research-live-service',
-    label: 'Service closes Dashboard controls gates',
+    label: 'Service closes ZavorthControl controls gates',
     target: 'Service maps seven web/search targets with citation artifacts and browser truthfulness',
     files: ['src/services/WebResearchLivePlaneService.ts'],
     needles: [
@@ -99,11 +99,11 @@ const rules = [
   }),
   ruleContainsAll({
     id: 'web-research-live-tests',
-    label: 'Tests prove Dashboard controls behavior',
+    label: 'Tests prove ZavorthControl controls behavior',
     target: 'Tests cover provider choice, readability artifact, Firecrawl artifact and browser capture artifact',
     files: ['tests/services/WebResearchLivePlaneService.test.ts'],
     needles: [
-      'closes Dashboard controls research, web extraction and browser gates',
+      'closes ZavorthControl controls research, web extraction and browser gates',
       'chooses among multiple configured search providers',
       'stores readability extraction as a web artifact',
       'stores Firecrawl crawl output as a web artifact',
@@ -112,8 +112,8 @@ const rules = [
   }),
   ruleContainsAll({
     id: 'web-research-live-package',
-    label: 'Package exposes Dashboard controls scripts',
-    target: 'Dashboard controls can be run through package scripts',
+    label: 'Package exposes ZavorthControl controls scripts',
+    target: 'ZavorthControl controls can be run through package scripts',
     files: ['package.json'],
     needles: [
       'web-research-live-plane',
@@ -123,8 +123,8 @@ const rules = [
   }),
   ruleContainsAll({
     id: 'web-research-live-sdk',
-    label: 'SDK exposes Dashboard controls contract and service',
-    target: 'Dashboard controls can be imported from SDK barrels',
+    label: 'SDK exposes ZavorthControl controls contract and service',
+    target: 'ZavorthControl controls can be imported from SDK barrels',
     files: ['src/sdk/contracts.ts', 'src/sdk/index.ts'],
     needles: [
       'WebResearchLivePlane',
@@ -132,11 +132,11 @@ const rules = [
   }),
   ruleContainsAll({
     id: 'web-research-live-doc',
-    label: 'Docs record Dashboard controls closure',
-    target: 'Dashboard controls documentation explains search, extraction, browser and staging-live flow',
+    label: 'Docs record ZavorthControl controls closure',
+    target: 'ZavorthControl controls documentation explains search, extraction, browser and staging-live flow',
     files: ['docs/README.md'],
     needles: [
-      'Dashboard controls',
+      'ZavorthControl controls',
       'Research, Web Extraction And Browser Live Plane',
       'staging-live',
       'browser',
@@ -160,7 +160,7 @@ const snapshot = {
 if (asJson) {
   console.log(JSON.stringify(snapshot, null, 2));
 } else {
-  console.log('[web-research-live-plane] checking Dashboard controls');
+  console.log('[web-research-live-plane] checking ZavorthControl controls');
   for (const rule of rules) {
     const marker = rule.status === 'passed' ? 'ok' : 'fail';
     console.log(`[web-research-live-plane] ${marker} ${rule.label}: ${rule.observed} | ${rule.target}`);

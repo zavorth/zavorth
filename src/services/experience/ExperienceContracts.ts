@@ -457,3 +457,53 @@ export type ExperienceCommandResult = {
   receipts: ExperienceReceipt[];
   error: string | null;
 };
+
+export const EXPERIENCE_PROFILE_SELECTION_CONTRACT_VERSION = 'ExperienceProfileSelection/v1' as const;
+
+export type ExperienceProfileOption = {
+  id: string;
+  label: string;
+  description: string;
+  active: boolean;
+  availableOnSurface: boolean;
+  defaultSurface: string;
+  allowedSurfaces: string[];
+  trustMode: string;
+  autonomy: string;
+  memoryMode: string;
+  planningDepth: 'brief' | 'normal' | 'deep';
+  command: string;
+};
+
+export type ExperienceProfileSelection = {
+  contractVersion: typeof EXPERIENCE_PROFILE_SELECTION_CONTRACT_VERSION;
+  activeProfileId: string | null;
+  requestedProfileId: string | null;
+  persistedProfileId: string | null;
+  source: 'requested' | 'persisted' | 'default' | 'missing';
+  surface: ExperienceSurface;
+  options: ExperienceProfileOption[];
+  warnings: string[];
+  actions: ExperienceAction[];
+};
+
+export const EXPERIENCE_SURFACE_RENDERING_CONTRACT_VERSION = 'ExperienceSurfaceRendering/v1' as const;
+
+export type ExperienceSurfaceRendering = {
+  contractVersion: typeof EXPERIENCE_SURFACE_RENDERING_CONTRACT_VERSION;
+  surface: ExperienceSurface;
+  profileId: string | null;
+  layout: 'zavorthControl-tabs' | 'chatops-card' | 'api-json' | 'chat-first';
+  density: 'compact' | 'balanced' | 'rich';
+  tone: 'developer' | 'operator' | 'executive' | 'calm';
+  headline: string;
+  subhead: string;
+  promptPlaceholder: string;
+  primarySections: string[];
+  secondarySections: string[];
+  hiddenByDefault: string[];
+  navigation: Array<{ id: string; label: string; target: string; active: boolean }>;
+  limits: { maxCards: number; maxTimelineItems: number; maxSuggestions: number };
+  actions: ExperienceAction[];
+  warnings: string[];
+};

@@ -16,7 +16,7 @@ const snapshot = { generatedAt: new Date().toISOString(), status: failed.length 
 if (process.argv.includes('--json')) {
   console.log(JSON.stringify(snapshot, null, 2));
 } else {
-  console.log('[zavorth-end-to-end-mission-flow-public-runtime-certification] checking Dashboard controls');
+  console.log('[zavorth-end-to-end-mission-flow-public-runtime-certification] checking ZavorthControl controls');
   for (const item of rules) {
     console.log(`[zavorth-end-to-end-mission-flow-public-runtime-certification] ${item.status === 'passed' ? 'ok' : 'fail'} ${item.label}: ${item.observed} | ${item.target}`);
     for (const detail of item.details.slice(0, 10)) console.log(`  - ${detail}`);
@@ -33,7 +33,7 @@ function filesExist() {
     'tests/services/ZavorthEndToEndMissionFlowPublicRuntimeCertificationService.test.ts',
   ];
   const missing = files.filter((file) => !fs.existsSync(path.join(root, file)));
-  return rule('files', 'Dashboard controls files exist', missing.length === 0, `${files.length - missing.length}/${files.length}`, 'all files present', missing);
+  return rule('files', 'ZavorthControl controls files exist', missing.length === 0, `${files.length - missing.length}/${files.length}`, 'all files present', missing);
 }
 
 function packageScriptsWired() {
@@ -50,7 +50,7 @@ function packageScriptsWired() {
 function workspaceCheckWired() {
   const workspace = String(JSON.parse(read('package.json')).scripts?.['workspace:check'] || '');
   const marker = 'zavorth:end-to-end-mission-flow-public-runtime-certification:check';
-  return rule('workspace-check', 'workspace:check includes Dashboard controls gate', workspace.includes(marker), workspace.includes(marker) ? 'wired' : 'missing', marker, []);
+  return rule('workspace-check', 'workspace:check includes ZavorthControl controls gate', workspace.includes(marker), workspace.includes(marker) ? 'wired' : 'missing', marker, []);
 }
 
 function runCertificationSnapshot() {

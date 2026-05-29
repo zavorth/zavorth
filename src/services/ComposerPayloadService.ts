@@ -26,6 +26,7 @@ const ALLOWED_MENTION_TYPES = new Set<WebComposerMentionType>([
 ]);
 
 const ALLOWED_TRIGGERS = new Set<WebComposerTrigger>(['/', '@', '#']);
+const MAX_INLINE_MEDIA_CONTENT_CHARS = 28 * 1024 * 1024;
 
 export class ComposerPayloadService {
   public normalize(input: {
@@ -142,7 +143,12 @@ export class ComposerPayloadService {
     const size = Math.max(0, Number(attachment.size || 0) || 0);
     const id = String(attachment.id || '').trim() || `attachment:${index + 1}:${name}`;
     const text = String(attachment.text || '').trim();
+    const content = this.normalizeAttachmentContent(attachment.content, type);
     const source = String(attachment.source || '').trim() || 'dashboard';
+    const media = this.normalizeAttachmentMedia(attachment.media, type);
+    const extraction = attachment.extraction && typeof attachment.extraction === 'object' && !Array.isArray(attachment.extraction)
+      ? attachment.extraction as Record<string, unknown>
+      : null;
 
     return {
       id,
@@ -150,8 +156,61 @@ export class ComposerPayloadService {
       type,
       size,
       text: text || null,
+      content,
       truncated: Boolean(attachment.truncated),
       source,
+      media,
+      extraction: extraction
+        ? {
+            kind: String(extraction.kind || '').trim() || null,
+            label: String(extraction.label || '').trim() || null,
+            detail: String(extraction.detail || '').trim() || null,
+          }
+        : null,
+    };
+  }
+
+  private normalizeAttachmentContent(rawContent: unknown, type: string): string | null {
+    const content = String(rawContent || '').trim();
+    if (!content) {
+      return null;
+    }
+    if (!/^(image|audio)\//i.test(type)) {
+      return null;
+    }
+    if (content.length > MAX_INLINE_MEDIA_CONTENT_CHARS) {
+      return null;
+    }
+    if (!/^[A-Za-z0-9+/=_-]+$/.test(content)) {
+      return null;
+    }
+    return content;
+  }
+
+  private normalizeAttachmentMedia(rawMedia: unknown, fallbackType: string): WebComposerAttachment['media'] {
+    if (!rawMedia || typeof rawMedia !== 'object' || Array.isArray(rawMedia)) {
+      if (/^image\//i.test(fallbackType)) {
+        return { kind: 'image', mimeType: fallbackType, encoding: 'base64' };
+      }
+      if (/^audio\//i.test(fallbackType)) {
+        return { kind: 'audio', mimeType: fallbackType, encoding: 'base64' };
+      }
+      if (/^video\//i.test(fallbackType)) {
+        return { kind: 'video', mimeType: fallbackType, encoding: 'base64' };
+      }
+      return null;
+    }
+    const media = rawMedia as Record<string, unknown>;
+    const kind = String(media.kind || '').trim().toLowerCase();
+    if (kind !== 'image' && kind !== 'audio' && kind !== 'video') {
+      return null;
+    }
+    const mimeType = String(media.mimeType || fallbackType || '').trim() || null;
+    const encoding = String(media.encoding || '').trim().toLowerCase() || 'base64';
+    return {
+      kind,
+      mimeType,
+      encoding: encoding === 'base64' ? 'base64' : encoding,
     };
   }
 

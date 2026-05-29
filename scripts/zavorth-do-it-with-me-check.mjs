@@ -30,7 +30,7 @@ if (snapshot.surface !== 'do-it-with-me') {
 if (snapshot.mode !== 'setup_capability') {
   throw new Error(`expected setup_capability, got ${snapshot.mode}`);
 }
-if (snapshot.projections.dashboardCanExecute !== false) {
+if (snapshot.projections.zavorthControlCanExecute !== false) {
   throw new Error('do-it-with-me must not be an execution authority');
 }
 if (snapshot.safety.rawSecretsSerialized !== false || snapshot.safety.liveActionRequiresPolicyBroker !== true) {

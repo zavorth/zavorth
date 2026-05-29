@@ -185,3 +185,5 @@ export type ZavorthFunctionalClosureSnapshot = {
     nextStep: 'Functional absorption closure complete';
   };
 };
+
+export type ZavorthFunctionalClosureZavorthControlSnapshot = ZavorthFunctionalClosureDashboardSnapshot;

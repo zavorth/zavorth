@@ -95,7 +95,7 @@ liveExecutionPerformed: false
 
 ## Web/API Approval Guard
 
-The dashboard/API route can preview registrations and invocations, but a request
+The zavorthControl/API route can preview registrations and invocations, but a request
 body with `approved: true` is not enough to perform live external-agent work.
 Live approval through `/api/runtime/external-agents` requires the operator to set
 `ZAVORTH_EXTERNAL_AGENT_API_APPROVAL_TOKEN` and send the same value in the

@@ -31,7 +31,7 @@ const snapshot = {
 if (asJson) {
   console.log(JSON.stringify(snapshot, null, 2));
 } else {
-  console.log('[zavorth-universal-skill-real-source-onboarding] checking Dashboard controls');
+  console.log('[zavorth-universal-skill-real-source-onboarding] checking ZavorthControl controls');
   for (const rule of rules) {
     const marker = rule.status === 'passed' ? 'ok' : 'fail';
     console.log(`[zavorth-universal-skill-real-source-onboarding] ${marker} ${rule.label}: ${rule.observed} | ${rule.target}`);
@@ -58,7 +58,7 @@ function ruleFilesExist() {
   const missing = files.filter((file) => !fs.existsSync(path.join(root, file)));
   return {
     id: 'universal-skill-real-source-onboarding-files',
-    label: 'Dashboard controls files exist',
+    label: 'ZavorthControl controls files exist',
     status: missing.length === 0 ? 'passed' : 'failed',
     observed: `${files.length - missing.length}/${files.length} file(s) present`,
     target: 'real source onboarding contract, service, CLI, check, docs and tests are present',
@@ -71,7 +71,7 @@ function ruleContainsMarkers() {
     ['src/contracts/ZavorthUniversalSkillRealSourceOnboardingContract.ts', [
       'ZAVORTH_UNIVERSAL_SKILL_REAL_SOURCE_ONBOARDING_CONTRACT_VERSION',
       'historyContainsAggregateOnly',
-      'Certification matrix - Real Library Scale Hardening and Dashboard Review',
+      'Certification matrix - Real Library Scale Hardening and ZavorthControl Review',
     ]],
     ['src/services/UniversalSkillRealSourceOnboardingService.ts', [
       'ZAVORTH_SKILL_SOURCE_PATHS',
@@ -106,7 +106,7 @@ function ruleContainsMarkers() {
   }
   return {
     id: 'universal-skill-real-source-onboarding-markers',
-    label: 'Dashboard controls markers are present',
+    label: 'ZavorthControl controls markers are present',
     status: missing.length === 0 ? 'passed' : 'failed',
     observed: missing.length === 0 ? 'all markers present' : `${missing.length} missing marker(s)`,
     target: 'onboarding has discovery, history, regression and no-execution markers',

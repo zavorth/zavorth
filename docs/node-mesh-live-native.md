@@ -9,11 +9,11 @@ Zavorth Node Mesh lets desktop, mobile, browser and headless companions pair wit
 - `NodeCapabilityReapprovalService` blocks a paired node when it declares a new capability that was not previously approved.
 - `NodeInvokeService` queues work for paired nodes and emits live delivery events.
 - `nodes` is a native LLM tool for listing, describing, previewing and queueing governed node work.
-- Dashboard exposes live state through:
+- ZavorthControl exposes live state through:
   - `GET /api/node-mesh/live/snapshot`
   - `GET /api/node-mesh/live/events`
   - `POST /api/node-mesh/live/disconnect`
-- Live dashboard endpoints require the Dashboard token or JWT. EventSource clients may pass `?token=<dashboard-token>` because native EventSource cannot set custom headers.
+- Live zavorthControl endpoints require the ZavorthControl token or JWT. EventSource clients may pass `?token=<zavorthControl-token>` because native EventSource cannot set custom headers.
 
 ## Safety Rules
 
@@ -31,7 +31,7 @@ Start the runtime:
 zavorth start
 ```
 
-Create or inspect a pairing draft through the CLI/dashboard, then launch a local host:
+Create or inspect a pairing draft through the CLI/control, then launch a local host:
 
 ```bash
 npm run nodes:host -- --passcode "<node-id>:<pairing-code>" --base-url http://127.0.0.1:18789 --node-id "<node-id>"
@@ -90,7 +90,13 @@ Queue governed work:
 Focused tests:
 
 ```bash
-npx jest tests/services/LiveNodeRegistryService.test.ts tests/services/NodeCapabilityReapprovalService.test.ts tests/tools/NodeMeshTool.test.ts tests/services/NodeHeartbeatService.test.ts tests/services/NodeInvokeService.test.ts --runInBand
+npx jest \
+  tests/services/LiveNodeRegistryService.test.ts \
+  tests/services/NodeCapabilityReapprovalService.test.ts \
+  tests/tools/NodeMeshTool.test.ts \
+  tests/services/NodeHeartbeatService.test.ts \
+  tests/services/NodeInvokeService.test.ts \
+  --runInBand
 ```
 
 Runtime check:

@@ -18,7 +18,7 @@ const installerSmokePassed = !argv.includes('--installer-smoke-failed');
 const docsPublicationReady = !argv.includes('--docs-publication-missing');
 const supportCommsReady = !argv.includes('--no-support-comms');
 const statusPageDraftReady = !argv.includes('--no-status-page-draft');
-const telemetryDashboardsReady = !argv.includes('--no-telemetry-dashboards');
+const telemetryZavorthControlsReady = !argv.includes('--no-telemetry-zavorthControls');
 const releaseOwnerAssigned = !argv.includes('--no-release-owner');
 const releaseTrainSlotReserved = !argv.includes('--no-release-train-slot');
 const artifactRetentionReady = !argv.includes('--no-artifact-retention');
@@ -56,7 +56,7 @@ function main(): void {
       docsPublicationReady,
       supportCommsReady,
       statusPageDraftReady,
-      telemetryDashboardsReady,
+      telemetryZavorthControlsReady,
       releaseOwnerAssigned,
       releaseTrainSlotReserved,
       artifactRetentionReady,
@@ -75,7 +75,7 @@ function main(): void {
       installerSmokeReceiptId: installerSmokePassed ? 'checkpoint-81-installer-smoke' : null,
       docsPublicationId: docsPublicationReady ? 'checkpoint-81-docs-publication' : null,
       commsPlanId: supportCommsReady ? 'checkpoint-81-support-comms' : null,
-      telemetryDashboardId: telemetryDashboardsReady ? 'checkpoint-81-telemetry-dashboard' : null,
+      telemetryZavorthControlId: telemetryZavorthControlsReady ? 'checkpoint-81-telemetry-zavorthControl' : null,
       releaseOwnerId: releaseOwnerAssigned ? 'checkpoint-81-release-owner' : null,
       releaseTrainSlotId: releaseTrainSlotReserved ? 'checkpoint-81-release-train-slot' : null,
       artifactRetentionPolicyId: artifactRetentionReady ? 'checkpoint-81-artifact-retention' : null,
@@ -115,7 +115,7 @@ function readReleaseCandidateSource(): CapabilityAutopilotReleaseCandidateSnapsh
         '--docs-publication-missing',
         '--no-support-comms',
         '--no-status-page-draft',
-        '--no-telemetry-dashboards',
+        '--no-telemetry-zavorthControls',
         '--no-release-owner',
         '--no-release-train-slot',
         '--no-artifact-retention',

@@ -9,7 +9,7 @@ small: daily-use guides, stable architecture notes and integration contracts.
 | --- | --- |
 | [Overview](/docs/overview.md) | Product and runtime summary |
 | [Quickstart](/docs/quickstart.md) | First local setup |
-| [Dashboard](/docs/web-dashboard.md) | Using `/dashboard` |
+| [Zavorth Control](/docs/web-zavorthControl.md) | Using `/control` |
 | [CLI](/docs/zavorth-cli.md) | Terminal operation and JSON output |
 | [Troubleshooting](/docs/troubleshooting.md) | Fixing common runtime issues |
 
@@ -62,6 +62,11 @@ small: daily-use guides, stable architecture notes and integration contracts.
 ## Certification Notes
 
 - Provider, channel, speech and media checks are explicit readiness gates.
+- checkpoint-5-channels-and-messaging-ready: Zavorth Channel Messaging Bridge
+  keeps channels conversational by default while preserving NormalizedInboundMessage,
+  ReplyPipeline outbound flow, ZavorthTrustPlane pairing and credential isolation.
+- checkpoint-5-channels-and-messaging-complete: the next gated stage remains
+  291 Runtime gateway - Sessions, Memory, And Continuation.
 - Long Tail channel activation is guarded by an Approval gate: catalog and
   configured-doctor commands can inspect setup safely, while staging-live sends
   require an explicit operator command, credentials, recipient allowlists and

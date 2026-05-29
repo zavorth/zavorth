@@ -32,7 +32,7 @@ const phaseChecks = {
       [
         'jest',
         'tests/services/WebAppPolishContractService.test.ts',
-        'tests/domain/surface/presentation/dashboard/DashboardService.web-app.test.ts',
+        'tests/domain/surface/presentation/zavorthControl/ZavorthControlService.web-app.test.ts',
         '--runInBand',
       ],
       300_000,

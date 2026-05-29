@@ -1,20 +1,60 @@
 import { getRequestConfig } from "next-intl/server";
 import { cookies, headers } from "next/headers";
-import { LOCALES, DEFAULT_LOCALE, LOCALE_COOKIE } from "./config";
+import { LOCALES, DEFAULT_LOCALE, LOCALE_COOKIE, SYSTEM_LOCALE } from "./config";
 import type { Locale } from "./config";
 
+function normalizeLocale(value: string): string {
+  try {
+    return Intl.getCanonicalLocales(value.trim().replace(/_/g, "-"))[0] || value.trim();
+  } catch {
+    return value.trim();
+  }
+}
+
+function resolveSupportedLocale(value: string): Locale | "" {
+  const normalized = normalizeLocale(value);
+  const exact = LOCALES.find((locale) => locale.toLowerCase() === normalized.toLowerCase());
+  if (exact) return exact;
+  const language = normalized.split("-")[0]?.toLowerCase();
+  return LOCALES.find((locale) => locale.toLowerCase() === language) || "";
+}
+
+function parseAcceptLanguage(value: string): Locale | "" {
+  return value
+    .split(",")
+    .map((entry) => {
+      const [tag = "", ...params] = entry.trim().split(";");
+      const qParam = params.find((param) => param.trim().startsWith("q="));
+      const q = qParam ? Number(qParam.trim().slice(2)) : 1;
+      return { tag, q: Number.isFinite(q) ? q : 0 };
+    })
+    .sort((left, right) => right.q - left.q)
+    .map(({ tag }) => resolveSupportedLocale(tag))
+    .find(Boolean) || "";
+}
+
 export default getRequestConfig(async () => {
-  // 1. Try cookie
   const cookieStore = await cookies();
   let locale: string = cookieStore.get(LOCALE_COOKIE)?.value || "";
+  const headerStore = await headers();
 
-  // 2. Try custom header (set by middleware)
-  if (!locale) {
-    const headerStore = await headers();
-    locale = headerStore.get("x-locale") || "";
+  if (locale === SYSTEM_LOCALE) {
+    locale = "";
   }
 
-  // 3. Validate & fallback
+  if (locale) {
+    locale = resolveSupportedLocale(locale);
+  }
+
+  if (!locale) {
+    locale = headerStore.get("x-locale") || "";
+    locale = resolveSupportedLocale(locale);
+  }
+
+  if (!locale) {
+    locale = parseAcceptLanguage(headerStore.get("accept-language") || "");
+  }
+
   if (!LOCALES.includes(locale as Locale)) {
     locale = DEFAULT_LOCALE;
   }

@@ -1,4 +1,4 @@
-param(
+﻿param(
   [switch]$DryRun,
   [switch]$Headless,
   [switch]$ForceRestart,
@@ -18,7 +18,7 @@ $logFile = Join-Path $runtimeDir "supervised-launcher-$timestamp.log"
 $lastLogFile = Join-Path $runtimeDir 'supervised-launcher-last.log'
 $fallbackLastLogFile = Join-Path $runtimeDir "supervised-launcher-last-$timestamp.log"
 $activeLastLogFile = $lastLogFile
-$dashboardRuntimeStateFile = Join-Path $runtimeDir 'dashboard-runtime.json'
+$zavorthControlRuntimeStateFile = Join-Path $runtimeDir 'zavorth-control-runtime.json'
 $hostLockFile = Join-Path $runtimeDir 'host-supervisor.lock.json'
 $telegramLockFile = Join-Path $runtimeDir 'telegram-bot.lock.json'
 $codexRemoteBrokerDir = Join-Path $runtimeDir 'codex-remote-broker'
@@ -688,19 +688,19 @@ function Test-WebSurfaceReady {
     }
   }
 
-  if (Test-Path $dashboardRuntimeStateFile) {
+  if (Test-Path $zavorthControlRuntimeStateFile) {
     try {
-      $dashboardState = Get-Content -Path $dashboardRuntimeStateFile -Raw -Encoding UTF8 | ConvertFrom-Json -ErrorAction Stop
-      $dashboardPid = $null
-      if ($null -ne $dashboardState -and $dashboardState.PSObject.Properties.Name -contains 'pid') {
-        $candidateDashboardPid = [int]$dashboardState.pid
-        if ($candidateDashboardPid -gt 0) {
-          $dashboardPid = $candidateDashboardPid
+      $zavorthControlState = Get-Content -Path $zavorthControlRuntimeStateFile -Raw -Encoding UTF8 | ConvertFrom-Json -ErrorAction Stop
+      $zavorthControlPid = $null
+      if ($null -ne $zavorthControlState -and $zavorthControlState.PSObject.Properties.Name -contains 'pid') {
+        $candidateZavorthControlPid = [int]$zavorthControlState.pid
+        if ($candidateZavorthControlPid -gt 0) {
+          $zavorthControlPid = $candidateZavorthControlPid
         }
       }
-      $dashboardMatchesWorker = (-not $workerPid) -or (-not $dashboardPid) -or ($dashboardPid -eq $workerPid)
-      if ($dashboardMatchesWorker -and $null -ne $dashboardState -and $dashboardState.PSObject.Properties.Name -contains 'port') {
-        $candidatePort = [int]$dashboardState.port
+      $zavorthControlMatchesWorker = (-not $workerPid) -or (-not $zavorthControlPid) -or ($zavorthControlPid -eq $workerPid)
+      if ($zavorthControlMatchesWorker -and $null -ne $zavorthControlState -and $zavorthControlState.PSObject.Properties.Name -contains 'port') {
+        $candidatePort = [int]$zavorthControlState.port
         if ($candidatePort -gt 0) {
           $port = $candidatePort
         }
@@ -710,7 +710,7 @@ function Test-WebSurfaceReady {
     }
   }
 
-  $uri = "http://127.0.0.1:$port/dashboard"
+  $uri = "http://127.0.0.1:$port/control"
   try {
     $response = Invoke-WebRequest -UseBasicParsing -Uri $uri -TimeoutSec $TimeoutSec -ErrorAction Stop
     return @{

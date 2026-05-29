@@ -1,7 +1,7 @@
 # Gateway Control API
 
 Gateway Control API is the structured control surface for runtime state that
-should be shared by CLI, Dashboard and integrations.
+should be shared by CLI, ZavorthControl and integrations.
 
 ## Purpose
 
@@ -25,7 +25,7 @@ The API should expose readable, redacted state for:
 ## Product Direction
 
 The API should converge with the same readiness language used by Operations and
-Dashboard: ready, needs setup, needs approval, dry-run, outbox-only,
+ZavorthControl: ready, needs setup, needs approval, dry-run, outbox-only,
 blocked or unsupported.
 
 ## Related

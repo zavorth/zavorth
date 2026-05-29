@@ -1,16 +1,16 @@
 import fs from 'fs';
 import path from 'path';
 import {
-  UniversalSkillApprovedDashboardCanaryService,
-  type UniversalSkillApprovedDashboardCanaryInput,
-} from '../src/services/UniversalSkillApprovedDashboardCanaryService.js';
+  UniversalSkillApprovedZavorthControlCanaryService,
+  type UniversalSkillApprovedZavorthControlCanaryInput,
+} from '../src/services/UniversalSkillApprovedZavorthControlCanaryService.js';
 import type {
   ZavorthUniversalSkillExpansionPresetId,
   ZavorthUniversalSkillExpansionSourceInput,
 } from '../src/contracts/ZavorthUniversalSkillExpansionContract.js';
-import type { ZavorthUniversalSkillCanaryMode } from '../src/contracts/ZavorthUniversalSkillApprovedDashboardCanaryContract.js';
+import type { ZavorthUniversalSkillCanaryMode } from '../src/contracts/ZavorthUniversalSkillApprovedZavorthControlCanaryContract.js';
 
-type CliOptions = UniversalSkillApprovedDashboardCanaryInput & {
+type CliOptions = UniversalSkillApprovedZavorthControlCanaryInput & {
   json: boolean;
   requirePass: boolean;
   sourcesFile: string | null;
@@ -41,9 +41,9 @@ function parseArgs(argv: string[]): CliOptions {
     massiveLibraryThreshold: undefined,
     persistScaleReport: true,
     scaleReportPath: null,
-    approvedDashboardItemIds: null,
+    approvedZavorthControlItemIds: null,
     selectedBatchId: null,
-    canaryMode: 'dashboard-only',
+    canaryMode: 'zavorthControl-only',
     approvalId: null,
     persistCanaryReport: true,
     canaryReportPath: null,
@@ -148,8 +148,8 @@ function parseArgs(argv: string[]): CliOptions {
       index += 1;
       continue;
     }
-    if (arg === '--dashboard-items') {
-      options.approvedDashboardItemIds = splitList(argv[index + 1]);
+    if (arg === '--zavorthControl-items') {
+      options.approvedZavorthControlItemIds = splitList(argv[index + 1]);
       index += 1;
       continue;
     }
@@ -169,7 +169,7 @@ function parseArgs(argv: string[]): CliOptions {
       continue;
     }
     if (arg === '--canary-report') {
-      options.canaryReportPath = path.resolve(String(argv[index + 1] || '').trim() || 'universal-skill-approved-dashboard-canary.json');
+      options.canaryReportPath = path.resolve(String(argv[index + 1] || '').trim() || 'universal-skill-approved-zavorthControl-canary.json');
       index += 1;
       continue;
     }
@@ -235,7 +235,7 @@ async function main(): Promise<void> {
     console.warn = () => undefined;
   }
 
-  const service = new UniversalSkillApprovedDashboardCanaryService({
+  const service = new UniversalSkillApprovedZavorthControlCanaryService({
     projectRoot: options.projectRoot || undefined,
   });
   const snapshot = await service.buildSnapshot({ ...options, sources });
@@ -285,7 +285,7 @@ function normalizePreset(value: string | undefined): ZavorthUniversalSkillExpans
 }
 
 function normalizeCanaryMode(value: string | undefined): ZavorthUniversalSkillCanaryMode {
-  return value === 'dry-run' || value === 'live' || value === 'dashboard-only' ? value : 'dashboard-only';
+  return value === 'dry-run' || value === 'live' || value === 'zavorthControl-only' ? value : 'zavorthControl-only';
 }
 
 function inferPresetFromPath(sourcePath: string): ZavorthUniversalSkillExpansionPresetId {
@@ -298,6 +298,6 @@ function inferPresetFromPath(sourcePath: string): ZavorthUniversalSkillExpansion
 }
 
 main().catch((error) => {
-  console.error(`[universal-skill-approved-dashboard-canary] ${error instanceof Error ? error.message : String(error)}`);
+  console.error(`[universal-skill-approved-zavorthControl-canary] ${error instanceof Error ? error.message : String(error)}`);
   process.exitCode = 1;
 });

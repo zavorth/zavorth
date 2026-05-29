@@ -82,7 +82,7 @@ function listBaseUrlCandidates(explicitBaseUrl = ''): string[] {
     return [explicit];
   }
 
-  const runtimeStateUrl = readRuntimeStateBaseUrl(config.dashboardRuntimeStateFile);
+  const runtimeStateUrl = readRuntimeStateBaseUrl(config.zavorthControlRuntimeStateFile);
   const fallbackUrl = normalizeLocalBaseUrl(`http://${config.zavorthWebHost}:${config.zavorthWebPort}`);
   const commonLocalUrl = normalizeLocalBaseUrl('http://127.0.0.1:3000');
   return Array.from(new Set([runtimeStateUrl, fallbackUrl, commonLocalUrl].filter(Boolean)));
@@ -95,7 +95,7 @@ async function inspectCandidateBaseUrl(baseUrl: string): Promise<{ baseUrl: stri
   }
 
   try {
-    const shell = await fetchWithTimeout(`${candidate}/dashboard`, {}, 4000);
+    const shell = await fetchWithTimeout(`${candidate}/zavorthControl`, {}, 4000);
     if (shell.ok) {
       return { baseUrl: candidate, reachable: true };
     }
@@ -158,7 +158,7 @@ async function waitForAppShell(baseUrl: string, waitMs = 20_000): Promise<boolea
   const deadline = Date.now() + waitMs;
   while (Date.now() < deadline) {
     try {
-      const response = await fetchWithTimeout(`${baseUrl}/dashboard`, {}, 4000);
+      const response = await fetchWithTimeout(`${baseUrl}/zavorthControl`, {}, 4000);
       if (response.ok) {
         return true;
       }
@@ -184,7 +184,7 @@ function makeResult(name: string, status: SmokeStatus, detail: string, required 
 
 async function smokeHtmlShell(baseUrl: string): Promise<SmokeResult> {
   try {
-    const response = await fetchWithTimeout(`${baseUrl}/dashboard`, {}, 8000);
+    const response = await fetchWithTimeout(`${baseUrl}/zavorthControl`, {}, 8000);
     const html = await response.text();
     if (!response.ok) {
       throw new Error(`status ${response.status}`);
@@ -192,7 +192,7 @@ async function smokeHtmlShell(baseUrl: string): Promise<SmokeResult> {
 
     const acceptedShells = [
       {
-        label: 'dashboard gateway',
+        label: 'zavorthControl gateway',
         markers: [
           'Local gateway ready',
           'Ask normally. Zavorth will answer, preview risky work, and ask before acting.',
@@ -212,9 +212,9 @@ async function smokeHtmlShell(baseUrl: string): Promise<SmokeResult> {
       throw new Error(`HTML sem elementos esperados (${missingByShell})`);
     }
 
-    return makeResult('Dashboard shell', 'PASSOU', `HTML principal do /dashboard carregou o shell ${matchedShell.label}.`);
+    return makeResult('ZavorthControl shell', 'PASSOU', `HTML principal do /zavorthControl carregou o shell ${matchedShell.label}.`);
   } catch (error: any) {
-    return makeResult('Dashboard shell', 'FALHOU', error?.message || String(error));
+    return makeResult('ZavorthControl shell', 'FALHOU', error?.message || String(error));
   }
 }
 
@@ -425,7 +425,7 @@ async function run(): Promise<void> {
     ready = await waitForAppShell(baseUrl, Math.max(waitMs, 60_000));
   }
   if (!ready) {
-    console.log(`Host nao respondeu em ${baseUrl}/dashboard dentro de ${waitMs}ms.\n`);
+    console.log(`Host nao respondeu em ${baseUrl}/zavorthControl dentro de ${waitMs}ms.\n`);
   }
 
   const results: SmokeResult[] = [];

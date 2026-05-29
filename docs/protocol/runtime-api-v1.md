@@ -1,7 +1,7 @@
 # Runtime API v1
 
 Runtime API v1 is the stable local contract for GUI surfaces such as the Web
-Dashboard, future Desktop/Tauri clients and mobile control clients.
+ZavorthControl, future Desktop/Tauri clients and mobile control clients.
 
 The rule is simple: visual clients can observe, request and approve through
 this API, but they do not become execution runtimes. Mutations stay inside the
@@ -54,36 +54,36 @@ receipt and these safety guarantees:
 - `policyBrokerEvaluated: true`
 - `rawSecretsSerialized: false`
 
-## Dashboard Adapter
+## ZavorthControl Adapter
 
-The Web Dashboard uses internal web-safe routes as a thin adapter over Runtime
+The Web ZavorthControl uses internal web-safe routes as a thin adapter over Runtime
 API v1:
 
 | Method | Path | Purpose |
 | --- | --- | --- |
-| `GET` | `/api/web/dashboard/contracts-v1` | Reads the canonical Runtime API v1 projection for the current dashboard context. |
-| `GET` | `/api/web/dashboard/events-v1` | Reads canonical Runtime API v1 events for the active session. |
-| `GET` | `/api/web/dashboard/gui-certification-v1` | Runs daily-use GUI readiness checks for future visual clients. |
-| `POST` | `/api/web/dashboard/chat-v1` | Delegates mission preview and explicit live chat submission to Runtime API v1. |
-| `POST` | `/api/web/dashboard/actions` | Delegates approval, mission, provider and channel actions to Runtime API v1. |
+| `GET` | `/api/web/zavorthControl/contracts-v1` | Reads the canonical Runtime API v1 projection for the current zavorthControl context. |
+| `GET` | `/api/web/zavorthControl/events-v1` | Reads canonical Runtime API v1 events for the active session. |
+| `GET` | `/api/web/zavorthControl/gui-certification-v1` | Runs daily-use GUI readiness checks for future visual clients. |
+| `POST` | `/api/web/zavorthControl/chat-v1` | Delegates mission preview and explicit live chat submission to Runtime API v1. |
+| `POST` | `/api/web/zavorthControl/actions` | Delegates approval, mission, provider and channel actions to Runtime API v1. |
 
 These routes exist so browser UI code does not need direct access to internals
 or raw API tokens. They do not execute work themselves. They delegate to
 `CanonicalPublicApiService`, and mutable work still returns governed action
 receipts.
 
-The dashboard does not execute actions by itself. It only displays state,
+The zavorthControl does not execute actions by itself. It only displays state,
 submits requests and renders decisions while the governed runtime performs all
 execution checks.
 
 ## Mission And Chat
 
-The Dashboard mission composer is preview-first:
+The ZavorthControl mission composer is preview-first:
 
-- `Preview mission` sends `{ "live": false }` to `/api/web/dashboard/chat-v1`.
+- `Preview mission` sends `{ "live": false }` to `/api/web/zavorthControl/chat-v1`.
 - `Submit live` sends `{ "live": true }` explicitly, but the response may still be `approval_required`, `dry_run_only` or `blocked`.
 - Mission rows are read from Runtime API v1 contracts before legacy task snapshots.
-- Mission cancellation uses `/api/web/dashboard/actions` with `action: "mission.cancel"`.
+- Mission cancellation uses `/api/web/zavorthControl/actions` with `action: "mission.cancel"`.
 
 The chat response includes the mission, visual receipt and a `flow` block. The
 flow block tells clients whether preview-first was enforced, whether an
@@ -113,7 +113,7 @@ The intended approval flow for GUI clients is:
 
 ## Approval And Receipt UX
 
-Dashboard surfaces should render approvals as an inbox, not as raw permission
+ZavorthControl surfaces should render approvals as an inbox, not as raw permission
 rows. `GET /api/v1/approvals` returns both raw permission records and an
 `approvalCards` projection for user-facing decisions.
 
@@ -135,13 +135,13 @@ action still has to pass the runtime gate, policy and receipt flow.
 
 ## Provider And Channel Readiness
 
-Dashboard provider and channel panels should prefer Runtime API v1 contracts:
+ZavorthControl provider and channel panels should prefer Runtime API v1 contracts:
 
 - provider rows from `/api/v1/providers`;
 - provider live-readiness matrix from `/api/v1/providers.data.readinessMatrix`;
 - channel rows from `/api/v1/channels`;
-- provider tests delegated through `/api/web/dashboard/actions` with `action: "provider.test"`;
-- channel actions delegated through `/api/web/dashboard/actions` with `action: "channel.action"`.
+- provider tests delegated through `/api/web/zavorthControl/actions` with `action: "provider.test"`;
+- channel actions delegated through `/api/web/zavorthControl/actions` with `action: "channel.action"`.
 
 The panels must render readiness honestly. A listed provider or channel is not
 ready unless the contract says it is ready. Catalog support is not live proof.
@@ -164,16 +164,16 @@ Runtime API v1 exposes these capabilities as governed projections:
 - browser control, Android tap/type/install/uninstall and terminal automation remain approval-gated.
 - visual artifacts are redacted and carried by receipt-safe references.
 
-## Dashboard And CLI Surface Rules
+## ZavorthControl And CLI Surface Rules
 
-`/dashboard` is the only user-facing web surface for daily operation. It is a
+`/control` is the only user-facing web surface for daily operation. It is a
 projection and request surface, not an executor:
 
 - the first screen starts with the operator greeting and mission composer;
 - readiness is summarized, not turned into a wall of diagnostics;
 - approvals, receipts and the mission timeline appear as compact daily-use sections;
 - advanced runtime details stay collapsed by default;
-- maintenance shells are not linked from the normal dashboard flow;
+- maintenance shells are not linked from the normal zavorthControl flow;
 - mutable execution stays in the governed runtime.
 
 The CLI is the official terminal surface for onboarding, diagnostics, missions,
@@ -202,4 +202,4 @@ The checks verify:
 - policy denial for sensitive actions;
 - chat creating a traceable mission preview without live execution by default;
 - live chat being blocked until approval, sandbox and policy state allow it;
-- `/dashboard`, CLI and API projecting the same governed runtime truth.
+- `/control`, CLI and API projecting the same governed runtime truth.

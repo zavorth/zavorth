@@ -6,7 +6,7 @@ const files = {
   service: 'src/services/ZavorthSensitiveActionFlowUxService.ts',
   script: 'scripts/zavorth-sensitive-action-flow-ux.ts',
   route: 'src/domain/surface/presentation/web-app/WebAppRuntimeStateRouteService.ts',
-  panel: 'src/ai-gateway/app/(dashboard)/dashboard/dashboard/components/DashboardOperationsPanel.tsx',
+  panel: 'src/ai-gateway/app/(zavorthControl)/zavorthControl/zavorthControl/components/ZavorthControlOperationsPanel.tsx',
   test: 'tests/services/ZavorthSensitiveActionFlowUxService.test.ts',
 };
 
@@ -30,16 +30,16 @@ rules.push(
   {
     id: 'route:projection',
     status: route.includes('sensitiveActionFlowUx') && route.includes('/api/sensitive-action-flow') ? 'passed' : 'failed',
-    summary: 'Web runtime exposes sensitive action UX as projection-only API and Dashboard state.',
+    summary: 'Web runtime exposes sensitive action UX as projection-only API and ZavorthControl state.',
   },
   {
     id: 'panel:card',
-    status: panel.includes('DashboardSensitiveActionFlowPanel') && panel.includes('onDraftCommand') && !panel.includes('fetch(') ? 'passed' : 'failed',
-    summary: 'Dashboard renders the sensitive flow as action-card drafts, not direct execution.',
+    status: panel.includes('ZavorthControlSensitiveActionFlowPanel') && panel.includes('onDraftCommand') && !panel.includes('fetch(') ? 'passed' : 'failed',
+    summary: 'ZavorthControl renders the sensitive flow as action-card drafts, not direct execution.',
   },
   {
     id: 'contract:safety',
-    status: contract.includes('dashboardCanExecute: false') && contract.includes('rawSecretsSerialized: false') ? 'passed' : 'failed',
+    status: contract.includes('zavorthControlCanExecute: false') && contract.includes('rawSecretsSerialized: false') ? 'passed' : 'failed',
     summary: 'Contract preserves projection-only and no raw secret serialization invariants.',
   },
   {
@@ -71,9 +71,9 @@ rules.push(
     summary: 'Raw secret-like content is not serialized in the UX snapshot.',
   },
   {
-    id: 'smoke:no-dashboard-authority',
-    status: smoke?.card?.safety?.dashboardCanExecute === false && smoke?.dashboardProjection?.executionAuthority === false ? 'passed' : 'failed',
-    summary: 'Dashboard can render and draft commands, but has no execution authority.',
+    id: 'smoke:no-zavorthControl-authority',
+    status: smoke?.card?.safety?.zavorthControlCanExecute === false && smoke?.zavorthControlProjection?.executionAuthority === false ? 'passed' : 'failed',
+    summary: 'ZavorthControl can render and draft commands, but has no execution authority.',
   },
 );
 

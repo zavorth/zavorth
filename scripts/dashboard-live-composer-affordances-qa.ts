@@ -6,7 +6,7 @@ import { fileURLToPath } from "node:url";
 import { chromium } from "playwright";
 
 const rootDir = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
-const defaultOutDir = path.join(rootDir, ".tmp", "dashboard-live-composer-affordances-qa");
+const defaultOutDir = path.join(rootDir, ".tmp", "zavorthControl-live-composer-affordances-qa");
 
 type CliOptions = {
   url: string;
@@ -59,7 +59,7 @@ function readOptions(): CliOptions {
   const envFileToken = readEnvTokenFromFile(path.join(rootDir, ".env"));
   const tokenFile = readRuntimeTokenFile();
   return {
-    url: readCliValue("url") || "http://127.0.0.1:3000/dashboard",
+    url: readCliValue("url") || "http://127.0.0.1:3000/zavorthControl",
     outDir: path.resolve(rootDir, readCliValue("out") || defaultOutDir),
     token: tokenArg || envToken || envFileToken || tokenFile,
     requirePass: process.argv.includes("--require-pass"),
@@ -86,7 +86,7 @@ function writeReport(report: QaReport): void {
   fs.mkdirSync(report.outDir, { recursive: true });
   fs.writeFileSync(path.join(report.outDir, "report.json"), `${JSON.stringify(report, null, 2)}\n`, "utf8");
   fs.writeFileSync(path.join(report.outDir, "summary.md"), [
-    "# Dashboard Live Composer Affordances QA",
+    "# ZavorthControl Live Composer Affordances QA",
     "",
     `Status: ${report.ok ? "PASS" : "FAIL"}${report.skipped ? " (skipped)" : ""}`,
     `URL: ${report.url}`,
@@ -153,7 +153,7 @@ async function runQa(options: CliOptions): Promise<QaReport> {
 
   if (!options.token) {
     report.skipped = true;
-    pushSkip(report, "token-required", "Nenhum token local encontrado. Use zavorth dashboard token ou passe --token=...");
+    pushSkip(report, "token-required", "Nenhum token local encontrado. Use zavorth zavorthControl token ou passe --token=...");
     return report;
   }
 
@@ -169,7 +169,7 @@ async function runQa(options: CliOptions): Promise<QaReport> {
       await page.waitForLoadState("load", { timeout: 10_000 }).catch(() => undefined);
     } catch (error) {
       report.skipped = !options.requireLive;
-      if (options.requireLive) pushCheck(report, "live-server-reachable", false, `Nao consegui abrir o Dashboard real: ${String(error?.message || error)}`);
+      if (options.requireLive) pushCheck(report, "live-server-reachable", false, `Nao consegui abrir o ZavorthControl real: ${String(error?.message || error)}`);
       else pushSkip(report, "live-server-reachable", "Servidor local nao respondeu. Inicie com npm run start:ai-gateway ou npm run go.");
       return report;
     }
@@ -186,7 +186,7 @@ async function runQa(options: CliOptions): Promise<QaReport> {
       pulseLabel: document.getElementById("core-pulse")?.textContent?.trim() || "",
     }));
     report.metrics.shellState = shellState;
-    pushCheck(report, "composer-buttons-exist-live", shellState.hasAttach && shellState.hasSkills && shellState.hasVoice, "Dashboard real exibe botoes de anexo, skills e voz.");
+    pushCheck(report, "composer-buttons-exist-live", shellState.hasAttach && shellState.hasSkills && shellState.hasVoice, "ZavorthControl real exibe botoes de anexo, skills e voz.");
     pushCheck(report, "runtime-token-unlocked-live", shellState.authState === "unlocked" || /\bready\b/i.test(shellState.pulseLabel), `Estado de token no topo: ${shellState.authState || shellState.pulseLabel || "indefinido"}.`);
 
     await page.locator('input[type="file"]').first().setInputFiles({ name: "qa-live-notas.txt", mimeType: "text/plain", buffer: Buffer.from("QA live: anexo textual pequeno para validar composer.", "utf8") });
@@ -219,7 +219,7 @@ async function runQa(options: CliOptions): Promise<QaReport> {
     }));
     report.metrics.skillState = skillState;
     if (skillState.options.length > 0) {
-      pushCheck(report, "skills-popover-opens-live", true, "Popover de skills abre no dashboard real e nao fica preso atras do chat.");
+      pushCheck(report, "skills-popover-opens-live", true, "Popover de skills abre no zavorthControl real e nao fica preso atras do chat.");
     } else {
       pushSkip(report, "skills-popover-opens-live", "A UI live atual usa Trace/Tools no composer e nao expõe o popover legado de skills.");
     }
@@ -279,6 +279,6 @@ runQa(options)
     report.ok = false;
     pushCheck(report, "unexpected-error", false, String(error?.stack || error?.message || error));
     writeReport(report);
-    console.error(`[dashboard-live-composer-affordances-qa] FAIL ${error?.message || error}`);
+    console.error(`[zavorthControl-live-composer-affordances-qa] FAIL ${error?.message || error}`);
     if (options.requirePass) process.exitCode = 1;
   });

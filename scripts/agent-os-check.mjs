@@ -67,7 +67,7 @@ const rules = [
     'reputation-cannot-bypass-hard-blocks',
     'requiresTransactionRuntime: true',
     'agent-os-no-parallel-runtime',
-    'AgentOsDashboardProjection',
+    'AgentOsZavorthControlProjection',
   ]),
   containsAll('agent-os-gate-tests', [
     'scripts/agent-os-gate.ts',

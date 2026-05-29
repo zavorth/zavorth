@@ -54,7 +54,7 @@ approval before it is live on this machine.
 ## Missions And Receipts
 
 Daily work should be visible as a mission: request, risk, approvals, artifacts,
-timeline and final receipt. CLI and Dashboard consume the same projection.
+timeline and final receipt. CLI and ZavorthControl consume the same projection.
 
 ```bash
 zavorth review

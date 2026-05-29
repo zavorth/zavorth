@@ -11,7 +11,7 @@ const requiredFiles = [
   'src/services/ZavorthProviderModelCatalogService.ts',
   'scripts/zavorth-provider-model-catalog.ts',
   'tests/services/ZavorthProviderModelCatalogService.test.ts',
-  'tests/ai-gateway/dashboard/DashboardProviderModelCatalogImplementation.test.ts',
+  'tests/ai-gateway/zavorthControl/ZavorthControlProviderModelCatalogImplementation.test.ts',
 ];
 
 for (const file of requiredFiles) {
@@ -31,8 +31,8 @@ if (snapshot) {
   assertRule('summary:models', Number(snapshot.summary?.effectiveModelSurface || 0) >= Number(snapshot.summary?.staticCatalogModels || 0), 'Effective model surface includes static and live-discovered counts');
   assertRule('sections:aggregators', Array.isArray(snapshot.sections?.aggregators) && snapshot.sections.aggregators.includes('openrouter'), 'Aggregator section includes OpenRouter');
   assertRule('sections:media', Array.isArray(snapshot.sections?.mediaCapable) && snapshot.sections.mediaCapable.length > 0, 'Media-capable providers are visible');
-  assertRule('safety:no-execution', snapshot.dashboardProjection?.executionAuthority === false, 'Dashboard projection cannot execute provider calls');
-  assertRule('safety:no-hidden-live', snapshot.dashboardProjection?.normalRenderMakesNoNetworkCalls === true && snapshot.safety?.liveProbeRequiresExplicitOperatorAction === true, 'Normal catalog rendering makes no hidden live network calls');
+  assertRule('safety:no-execution', snapshot.zavorthControlProjection?.executionAuthority === false, 'ZavorthControl projection cannot execute provider calls');
+  assertRule('safety:no-hidden-live', snapshot.zavorthControlProjection?.normalRenderMakesNoNetworkCalls === true && snapshot.safety?.liveProbeRequiresExplicitOperatorAction === true, 'Normal catalog rendering makes no hidden live network calls');
   assertRule('safety:no-secrets', !JSON.stringify(snapshot).match(/sk-[A-Za-z0-9_-]{20,}|AIza[A-Za-z0-9_-]{20,}|Bearer\s+[A-Za-z0-9._-]{20,}/), 'Provider model catalog does not serialize raw provider secrets');
   assertRule('commands:live-proof', snapshot.commands?.some((entry) => entry.id === 'provider-live-proof' && entry.liveNetworkUsedByDefault === true), 'Explicit live proof command is projected');
 }

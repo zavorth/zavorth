@@ -806,3 +806,9 @@ export function createZavorthNativeDashboardViewModelRegistryFixture(): ZavorthN
     normalizeZavorthNativeDashboardViewModelRegistryFixture().registry,
   );
 }
+
+export type ZavorthNativeZavorthControlViewModelRecord = ZavorthNativeDashboardViewModelRecord;
+export type ZavorthNativeZavorthControlViewModelRegistry = ZavorthNativeDashboardViewModelRegistry;
+export {
+  createZavorthNativeDashboardViewModelRegistryFixture as createZavorthNativeZavorthControlViewModelRegistryFixture,
+};

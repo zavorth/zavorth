@@ -1,6 +1,6 @@
 # Telegram
 
-Telegram is one of Zavorth's fastest live channels, but it is not a separate brain. It routes into the same Gateway, Policy Broker, sessions and approvals used by the Dashboard and CLI.
+Telegram is one of Zavorth's fastest live channels, but it is not a separate brain. It routes into the same Gateway, Policy Broker, sessions and approvals used by the ZavorthControl and CLI.
 
 ## Role
 
@@ -15,7 +15,7 @@ Use Telegram for:
 - continuing existing sessions;
 - channel and runtime notifications.
 
-Use the Dashboard when you need denser visibility, artifacts, diffs or a full operational view.
+Use the ZavorthControl when you need denser visibility, artifacts, diffs or a full operational view.
 
 ## Natural Requests
 
@@ -41,14 +41,14 @@ When the request touches a channel, Zavorth opens the Channel Mesh. When it touc
 | `/channels` | Show channel readiness and actions |
 | `/models` | Show provider/model options when enabled |
 | `/approvals` | Show pending approvals |
-| `/dashboard` | Link to the web Dashboard |
+| `/control` | Link to Zavorth Control |
 
 Commands are intentionally secondary. The expected daily path is natural language plus guided buttons where Telegram supports them.
 
 ## Experience Core Cards
 
 When Telegram is connected to the Experience Core, these natural messages can
-return the same state shown in CLI and `/dashboard`:
+return the same state shown in CLI and `/control`:
 
 ```text
 status
@@ -77,7 +77,7 @@ Telegram callback buttons are backed by a server-side registry:
   callback ids across local process restarts without putting secrets or diffs
   into Telegram payloads;
 - expired or forbidden callbacks fail closed and ask the user to refresh status;
-- long diffs and logs are summarized in chat and reviewed in `/dashboard` or CLI.
+- long diffs and logs are summarized in chat and reviewed in `/control` or CLI.
 
 ## Safety
 
@@ -112,4 +112,4 @@ Telegram should feel first-class without becoming privileged:
 - no raw secrets in chat;
 - approval scopes shown before sensitive work;
 - no privileged learning or safety-policy changes from chat buttons;
-- links back to `/dashboard` for dense review.
+- links back to `/control` for dense review.

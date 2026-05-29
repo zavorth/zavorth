@@ -52,7 +52,7 @@ const rules = [
     label: 'onboarding consumes model picker',
     target: 'onboarding reads /api/onboarding/model-picker',
     files: [
-      'src/ai-gateway/app/(dashboard)/dashboard/onboarding/page.tsx',
+      'src/ai-gateway/app/(zavorthControl)/zavorthControl/onboarding/page.tsx',
     ],
     needles: ['/api/onboarding/model-picker'],
   }),
@@ -74,7 +74,7 @@ const rules = [
     label: 'providers page consumes model picker',
     target: 'providers page reads advanced picker and passes pickerRoute to cards',
     files: [
-      'src/ai-gateway/app/(dashboard)/dashboard/providers/page.tsx',
+      'src/ai-gateway/app/(zavorthControl)/zavorthControl/providers/page.tsx',
     ],
     needles: [
       '/api/onboarding/model-picker?includeAdvanced=true',
@@ -84,10 +84,10 @@ const rules = [
   }),
   ruleContainsAll({
     id: 'control-model-picker-consumer',
-    label: '/dashboard consumes model picker snapshot',
+    label: '/zavorthControl consumes model picker snapshot',
     target: 'Gateway Console renders snapshot.modelPicker without rebuilding selection rules',
     files: [
-      'src/ai-gateway/app/(dashboard)/dashboard/dashboard/components/DashboardGatewayConsole.tsx',
+      'src/ai-gateway/app/(zavorthControl)/zavorthControl/zavorthControl/components/ZavorthControlGatewayConsole.tsx',
     ],
     needles: [
       'snapshot?.modelPicker',
@@ -253,10 +253,10 @@ function ruleContainsAll(input) {
 
 function providerDetailWarning() {
   const files = [
-    'src/ai-gateway/app/(dashboard)/dashboard/providers/[id]/provider-detail-models-panel.tsx',
-    'src/ai-gateway/app/(dashboard)/dashboard/providers/[id]/provider-detail-page.model-actions.ts',
-    'src/ai-gateway/app/(dashboard)/dashboard/providers/[id]/provider-detail-model-sections-compatible.tsx',
-    'src/ai-gateway/app/(dashboard)/dashboard/providers/[id]/useProviderDetailPageModel.ts',
+    'src/ai-gateway/app/(zavorthControl)/zavorthControl/providers/[id]/provider-detail-models-panel.tsx',
+    'src/ai-gateway/app/(zavorthControl)/zavorthControl/providers/[id]/provider-detail-page.model-actions.ts',
+    'src/ai-gateway/app/(zavorthControl)/zavorthControl/providers/[id]/provider-detail-model-sections-compatible.tsx',
+    'src/ai-gateway/app/(zavorthControl)/zavorthControl/providers/[id]/useProviderDetailPageModel.ts',
   ];
   const missingMarkers = files
     .filter((file) => exists(file))
@@ -270,7 +270,7 @@ function providerDetailWarning() {
     label: 'provider detail model panels are follow-up convergence work',
     status: 'warning',
     observed: `${missingMarkers.length} provider detail file(s) without direct picker marker`,
-    target: 'provider detail can be migrated after the canonical API/CLI/dashboard/runtime path stays green',
+    target: 'provider detail can be migrated after the canonical API/CLI/zavorthControl/runtime path stays green',
     details: missingMarkers,
   };
 }

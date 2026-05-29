@@ -22,6 +22,12 @@ import {
   type ZavorthSpeculativeAutonomyResult,
   ZavorthSpeculativeAutonomyService,
 } from '../../services/ZavorthSpeculativeAutonomyService.js';
+import {
+  resolveCanvasSessionServiceForRuntime,
+  syncSpeculativeAutonomyToCanvas,
+  type CanvasSpeculativeAutonomySyncService,
+  type CanvasSpeculativeAutonomySyncSnapshot,
+} from '../../services/CanvasRuntimeSyncService.js';
 import { ZavorthMutationPlaneService } from '../../services/ZavorthMutationPlaneService.js';
 import { AgentRunExecutorPipeline } from './AgentRunExecutorPipeline.js';
 import { AgentRunLlmRequestBuilder } from './AgentRunLlmRequestBuilder.js';
@@ -43,6 +49,7 @@ export type AgentRunLlmRuntimeExecutorRuntime = {
   hallucinationMitigationService?: Pick<ZavorthHallucinationMitigationService, 'reviewResponse' | 'buildInstruction'>;
   speculativeAutonomyService?: Pick<ZavorthSpeculativeAutonomyService, 'prepare'> | null;
   mutationPlaneService?: Pick<ZavorthMutationPlaneService, 'createPlan'> | null;
+  canvasSessionService?: CanvasSpeculativeAutonomySyncService | null;
 };
 
 function normalizeText(value: unknown, fallback = ''): string {
@@ -85,6 +92,7 @@ export class AgentRunLlmRuntimeExecutor {
   private readonly hallucinationMitigation: Pick<ZavorthHallucinationMitigationService, 'reviewResponse' | 'buildInstruction'>;
   private readonly speculativeAutonomy: Pick<ZavorthSpeculativeAutonomyService, 'prepare'> | null;
   private readonly mutationPlane: Pick<ZavorthMutationPlaneService, 'createPlan'> | null;
+  private readonly canvasSessions: CanvasSpeculativeAutonomySyncService | null;
   private readonly requestBuilder: AgentRunLlmRequestBuilder;
   private readonly draftParser = new StructuredWorkspaceDraftParser();
   private readonly nativeToolLoop: AgentRunNativeToolLoopService;
@@ -99,6 +107,9 @@ export class AgentRunLlmRuntimeExecutor {
     this.mutationPlane = runtime.mutationPlaneService === null
       ? null
       : runtime.mutationPlaneService || new ZavorthMutationPlaneService();
+    this.canvasSessions = runtime.canvasSessionService === null
+      ? null
+      : runtime.canvasSessionService || resolveCanvasSessionServiceForRuntime();
     this.requestBuilder = new AgentRunLlmRequestBuilder({
       hallucinationInstruction: () => this.hallucinationMitigation.buildInstruction(),
     });
@@ -108,6 +119,7 @@ export class AgentRunLlmRuntimeExecutor {
       requestBuilder: this.requestBuilder,
       mutationPlaneService: this.mutationPlane,
       speculativeAutonomyService: this.speculativeAutonomy,
+      canvasSessionService: this.canvasSessions,
     });
   }
 
@@ -149,6 +161,7 @@ export class AgentRunLlmRuntimeExecutor {
     const speculativeAutonomy = structuredDraft
       ? await this.prepareSpeculativeAutonomy(run, request, structuredDraft, options)
       : null;
+    const zCanvasSync = await this.syncSpeculativeAutonomyToCanvas(run, request, speculativeAutonomy);
     const baseReplyText = this.appendSpeculativeAutonomySummary(
       content || 'The model call completed, but it returned an empty response.',
       speculativeAutonomy,
@@ -184,7 +197,7 @@ export class AgentRunLlmRuntimeExecutor {
       replyText,
       events: [
         ...toolLoop.events,
-        ...this.buildSpeculativeAutonomyEvents(speculativeAutonomy),
+        ...this.buildSpeculativeAutonomyEvents(speculativeAutonomy, zCanvasSync),
         {
           kind: 'reply',
           title: 'Model response generated',
@@ -198,6 +211,7 @@ export class AgentRunLlmRuntimeExecutor {
             finishReason: result.response.finishReason || null,
             nativeToolStats: toolLoop.stats,
             ...(speculativeAutonomy ? { superZavorthSpeculativeAutonomy: buildSpeculativeAutonomyReceipt(speculativeAutonomy) } : {}),
+            ...(zCanvasSync ? { zCanvasSession: zCanvasSync } : {}),
             ...(naturalFirstLlmRuntime ? { naturalFirstLlmRuntime } : {}),
             ...(result.metadata ? { runtimeMetadata: result.metadata } : {}),
           },
@@ -212,6 +226,7 @@ export class AgentRunLlmRuntimeExecutor {
         ...(structuredDraft?.patches.length ? { intelligenceFabricDraftWorkspacePatches: structuredDraft.patches } : {}),
         ...(structuredDraft?.patches.length ? { intelligenceFabricDraftWorkspacePatchesSource: structuredDraft.source } : {}),
         ...(speculativeAutonomy ? { superZavorthSpeculativeAutonomy: buildSpeculativeAutonomyReceipt(speculativeAutonomy) } : {}),
+        ...(zCanvasSync ? { zCanvasSession: zCanvasSync } : {}),
         nativeToolLoop: {
           toolsExposed: nativeTools.map((tool) => tool.name),
           ...toolLoop.stats,
@@ -371,6 +386,31 @@ export class AgentRunLlmRuntimeExecutor {
     return 'auto';
   }
 
+  private async syncSpeculativeAutonomyToCanvas(
+    run: UniversalAgentRun,
+    request: UniversalAgentRequest,
+    result: ZavorthSpeculativeAutonomyResult | null,
+  ): Promise<CanvasSpeculativeAutonomySyncSnapshot | null> {
+    return syncSpeculativeAutonomyToCanvas({
+      service: this.canvasSessions,
+      result,
+      engineId: this.resolveCanvasEngineId(run, request),
+    });
+  }
+
+  private resolveCanvasEngineId(
+    run: UniversalAgentRun,
+    request: UniversalAgentRequest,
+  ): 'lite' | 'velocity' | 'shield' {
+    const raw = normalizeText(
+      request.metadata?.executionEngineId
+      || request.metadata?.engineId
+      || run.metadata.executionEngineId
+      || run.metadata.engineId,
+    ).toLowerCase();
+    return raw === 'lite' || raw === 'velocity' || raw === 'shield' ? raw : 'shield';
+  }
+
   private buildSpeculativeCorrectionMessages(
     run: UniversalAgentRun,
     request: UniversalAgentRequest,
@@ -444,19 +484,35 @@ export class AgentRunLlmRuntimeExecutor {
 
   private buildSpeculativeAutonomyEvents(
     result: ZavorthSpeculativeAutonomyResult | null,
+    zCanvasSync: CanvasSpeculativeAutonomySyncSnapshot | null,
   ): Array<Omit<UniversalAgentEvent, 'runId' | 'createdAt' | 'id'> & Partial<Pick<UniversalAgentEvent, 'id' | 'createdAt'>>> {
     if (!result) {
       return [];
     }
-    return [
+    const events: Array<Omit<UniversalAgentEvent, 'runId' | 'createdAt' | 'id'> & Partial<Pick<UniversalAgentEvent, 'id' | 'createdAt'>>> = [
       {
         kind: 'artifact',
         title: 'Super Zavorth speculative autonomy',
         detail: result.summary,
         status: result.status === 'approved' ? 'done' : result.status === 'failed' ? 'failed' : 'running',
-        metadata: buildSpeculativeAutonomyReceipt(result),
+        metadata: {
+          ...buildSpeculativeAutonomyReceipt(result),
+          ...(zCanvasSync ? { zCanvasSession: zCanvasSync } : {}),
+        },
       },
     ];
+    if (zCanvasSync) {
+      events.push({
+        kind: 'artifact',
+        title: zCanvasSync.ok ? 'Z-Canvas sandbox preview' : 'Z-Canvas sync warning',
+        detail: zCanvasSync.ok
+          ? `${zCanvasSync.attemptCount} sandbox attempt${zCanvasSync.attemptCount === 1 ? '' : 's'} synced to Z-Canvas.`
+          : `Z-Canvas could not sync this sandbox run: ${zCanvasSync.error || 'unknown error'}`,
+        status: zCanvasSync.ok ? 'done' : 'failed',
+        metadata: { zCanvasSession: zCanvasSync },
+      });
+    }
+    return events;
   }
 
 }

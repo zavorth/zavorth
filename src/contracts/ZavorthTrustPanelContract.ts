@@ -74,6 +74,7 @@ export type ZavorthTrustPanelContract = {
     policyBrokerAuthority: true;
     dashboardRoute: '/dashboard';
     dashboardCanExecute: false;
+    zavorthControlCanExecute: false;
     rawSecretsSerialized: false;
     approvalScope: string[];
     receiptEvents: string[];
