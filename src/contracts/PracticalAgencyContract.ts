@@ -4,6 +4,7 @@ import type {
   IntelligenceProposedAction,
   IntelligenceRiskLevel,
 } from './IntelligenceFabricContract.js';
+import type { ProjectConstitutionImportedSourceSummary } from './ProjectConstitutionImportContract.js';
 
 export const PRACTICAL_AGENCY_CONTRACT_VERSION = 'zavorth-practical-agency/v1' as const;
 
@@ -127,6 +128,7 @@ export type ProjectConstitutionSnapshot = {
   found: boolean;
   path: string | null;
   contextHints: string[];
+  importedSources: ProjectConstitutionImportedSourceSummary[];
   policyBypassAllowed: false;
 };
 

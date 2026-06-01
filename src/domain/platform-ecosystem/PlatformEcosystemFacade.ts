@@ -1,14 +1,13 @@
-import type { ZavorthEcosystemControlPlaneService } from '../../services/ZavorthEcosystemControlPlaneService.js';
-import type { ZavorthPlatformRegistryService } from '../../services/ZavorthPlatformRegistryService.js';
 import { DomainFacadeBase, type DomainSnapshot } from '../DomainFacadeBase.js';
 import { PlatformEcosystemUseCases } from './application/PlatformEcosystemUseCases.js';
+import type { EcosystemControlPlanePort, PlatformRegistrySnapshotPort } from './domain/PlatformEcosystemDomainTypes.js';
 import { PlatformEcosystemAdapter } from './infrastructure/PlatformEcosystemAdapter.js';
 import { PlatformEcosystemDomainPresenter } from './presentation/PlatformEcosystemDomainPresenter.js';
 
 type PlatformEcosystemFacadeRuntime = {
   now?: () => Date;
-  platformRegistryService?: Pick<ZavorthPlatformRegistryService, 'buildSnapshot'>;
-  ecosystemControlPlaneService?: Pick<ZavorthEcosystemControlPlaneService, 'buildSnapshot'>;
+  platformRegistryService?: PlatformRegistrySnapshotPort;
+  ecosystemControlPlaneService?: EcosystemControlPlanePort;
   registryReady?: boolean | null;
   sdkSurfaces?: number | null;
   vendorBundles?: number | null;

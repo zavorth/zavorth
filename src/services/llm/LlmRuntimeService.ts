@@ -5,6 +5,7 @@ import type {
   ChatMessage,
   ILlmProvider,
   LlmResponse,
+  LlmStreamEvent,
   ProviderChatOptions,
   ToolDefinition,
 } from '../../providers/ILlmProvider.js';
@@ -24,6 +25,11 @@ export type LlmRunOptions = {
   allowFallback?: boolean;
   fallbackOrder?: string[];
   providerNativeTools?: ProviderChatOptions['providerNativeTools'];
+  signal?: AbortSignal;
+  stream?: {
+    mode?: 'auto' | 'off';
+    onEvent?: (event: LlmRuntimeStreamEvent) => void | Promise<void>;
+  };
   toolPolicy?: LlmRuntimeToolPolicyContext;
   telemetry?: {
     runId?: string | null;
@@ -31,6 +37,13 @@ export type LlmRunOptions = {
     sessionId?: string | null;
     surface?: string | null;
   };
+};
+
+export type LlmRuntimeStreamEvent = LlmStreamEvent & {
+  providerName: string;
+  modelName: string | null;
+  fallback: boolean;
+  native: boolean;
 };
 
 export type LlmRuntimeToolPolicyContext = {
@@ -120,6 +133,7 @@ export class LlmRuntimeService {
     tools?: ToolDefinition[],
     options?: LlmRunOptions,
   ): Promise<LlmRuntimeResult> {
+    this.throwIfAborted(options?.signal);
     const guardedPayload = sanitizeLlmEgressPayload(messages, tools);
     const safeMessages = guardedPayload.messages;
     const safeTools = guardedPayload.tools;
@@ -132,6 +146,7 @@ export class LlmRuntimeService {
     let lastError: unknown = null;
 
     for (const providerName of providerChain) {
+      this.throwIfAborted(options?.signal);
       const providerOptions = this.resolveProviderChatOptions(providerName, primaryProviderName, options);
       const modelName = providerOptions?.modelName || null;
       const attemptStartedAt = Date.now();
@@ -158,7 +173,9 @@ export class LlmRuntimeService {
             providerName,
             ...(modelName ? { modelName } : {}),
             allowFallback: false,
+            ...(options?.signal ? { signal: options.signal } : {}),
             ...(options?.toolPolicy ? { toolPolicy: options.toolPolicy } : {}),
+            ...(options?.stream ? { stream: options.stream } : {}),
           });
           this.recordAttempt(attempts, {
             providerName,
@@ -199,11 +216,16 @@ export class LlmRuntimeService {
         }
 
         const provider = this.createProvider(providerName);
-        const response = await provider.chat(
-          safeMessages,
-          safeTools,
+        const response = await this.chatProvider({
+          provider,
+          providerName,
+          modelName,
+          primaryProviderName,
+          messages: safeMessages,
+          tools: safeTools,
           providerOptions,
-        );
+          options,
+        });
         this.recordAttempt(attempts, {
           providerName,
           modelName,
@@ -244,6 +266,22 @@ export class LlmRuntimeService {
         };
       } catch (error) {
         lastError = error;
+        if (this.isAbortError(error, options?.signal)) {
+          this.recordAttempt(attempts, {
+            providerName,
+            modelName,
+            status: 'failed',
+            fallback: providerName !== primaryProviderName,
+            durationMs: Date.now() - attemptStartedAt,
+            error: 'llm_request_aborted',
+          }, {
+            options,
+            requestedProviderName,
+            primaryProviderName,
+            fallbackAllowed,
+          });
+          throw this.toAbortError(error);
+        }
         this.recordAttempt(attempts, {
           providerName,
           modelName,
@@ -334,7 +372,8 @@ export class LlmRuntimeService {
   }
 
   public isProviderAvailable(name: string): boolean {
-    switch (this.normalizeProviderName(name)) {
+    const normalized = this.normalizeProviderName(name);
+    switch (normalized) {
       case 'aigateway':
         return this.isAIGatewayAvailable();
       case 'gemini':
@@ -378,7 +417,29 @@ export class LlmRuntimeService {
         // A verificação real acontece no momento da conexão via testConnection()
         return true;
       default:
+        return this.isProviderFactoryRouteAvailable(normalized);
+    }
+  }
+
+  private isProviderFactoryRouteAvailable(providerName: string): boolean {
+    try {
+      const target = ProviderFactory.resolveRuntimeTarget(providerName);
+      if (!target.runtimeSupported) {
         return false;
+      }
+      if (target.adapterKind === 'local_openai_compatible') {
+        return Boolean(target.baseUrl);
+      }
+      if (
+        target.adapterKind === 'openai_compatible'
+        || target.adapterKind === 'anthropic_compatible'
+        || target.adapterKind === 'gateway'
+      ) {
+        return Boolean(target.baseUrl && target.apiKey);
+      }
+      return false;
+    } catch {
+      return false;
     }
   }
 
@@ -424,6 +485,103 @@ export class LlmRuntimeService {
     return ProviderFactory.create(name);
   }
 
+  private async chatProvider(input: {
+    provider: ILlmProvider;
+    providerName: string;
+    modelName: string | null;
+    primaryProviderName: string;
+    messages: ChatMessage[];
+    tools?: ToolDefinition[];
+    providerOptions?: ProviderChatOptions;
+    options?: LlmRunOptions;
+  }): Promise<LlmResponse> {
+    if (
+      input.options?.stream?.mode !== 'off'
+      && input.options?.stream?.onEvent
+      && input.provider.streamChat
+    ) {
+      return this.collectProviderStream(input);
+    }
+
+    return input.provider.chat(input.messages, input.tools, input.providerOptions);
+  }
+
+  private async collectProviderStream(input: {
+    provider: ILlmProvider;
+    providerName: string;
+    modelName: string | null;
+    primaryProviderName: string;
+    messages: ChatMessage[];
+    tools?: ToolDefinition[];
+    providerOptions?: ProviderChatOptions;
+    options?: LlmRunOptions;
+  }): Promise<LlmResponse> {
+    let finalResponse: LlmResponse | null = null;
+    let accumulated = '';
+    let chunkIndex = 0;
+    const fallback = input.providerName !== input.primaryProviderName;
+    const stream = input.provider.streamChat!(
+      input.messages,
+      input.tools,
+      input.providerOptions,
+    );
+
+    for await (const event of stream) {
+      if (typeof event.accumulated === 'string') {
+        accumulated = event.accumulated;
+      }
+      if (event.type === 'delta') {
+        chunkIndex = event.chunkIndex || chunkIndex + 1;
+      }
+      if (event.response) {
+        finalResponse = event.response;
+      }
+      await this.emitStreamEvent(input.options, {
+        ...event,
+        chunkIndex: event.chunkIndex || chunkIndex,
+        providerName: input.providerName,
+        modelName: input.modelName,
+        fallback,
+        native: true,
+        metadata: {
+          ...(event.metadata || {}),
+          providerNativeTokenStreaming: true,
+          providerNativeStreamProvider: input.providerName,
+          providerNativeStreamModel: input.modelName,
+        },
+      });
+    }
+
+    if (finalResponse) {
+      return {
+        ...finalResponse,
+        metadata: this.mergeMetadata(finalResponse.metadata, {
+          providerNativeTokenStreaming: true,
+          providerNativeStreamProvider: input.providerName,
+          providerNativeStreamModel: input.modelName,
+        }),
+      };
+    }
+
+    return {
+      content: accumulated || null,
+      toolCalls: [],
+      finishReason: 'stop',
+      metadata: {
+        providerNativeTokenStreaming: true,
+        providerNativeStreamProvider: input.providerName,
+        providerNativeStreamModel: input.modelName,
+      },
+    };
+  }
+
+  private async emitStreamEvent(
+    options: LlmRunOptions | undefined,
+    event: LlmRuntimeStreamEvent,
+  ): Promise<void> {
+    await options?.stream?.onEvent?.(event);
+  }
+
   private mergeMetadata(
     ...items: Array<Record<string, unknown> | undefined>
   ): Record<string, unknown> | undefined {
@@ -442,7 +600,8 @@ export class LlmRuntimeService {
   }): Record<string, unknown> | undefined {
     const summary = PROVIDER_NATIVE_CAPABILITY_MATRIX.summarizeMetadata(input);
     const assessments = Array.isArray(summary.assessments) ? summary.assessments : [];
-    if (assessments.length === 0) {
+    const hasNativeTokenStreaming = input.metadata?.providerNativeTokenStreaming === true;
+    if (assessments.length === 0 && !hasNativeTokenStreaming) {
       return undefined;
     }
     return {
@@ -482,11 +641,13 @@ export class LlmRuntimeService {
     return {
       modelName,
       ...(options?.providerNativeTools?.length ? { providerNativeTools: options.providerNativeTools } : {}),
+      ...(options?.signal ? { signal: options.signal } : {}),
     };
   }
 
   private getDefaultProviderModel(providerName: string): string {
-    switch (this.normalizeProviderName(providerName)) {
+    const normalized = this.normalizeProviderName(providerName);
+    switch (normalized) {
       case 'aigateway':
         return config.AIGatewayModel;
       case 'gemini':
@@ -519,7 +680,15 @@ export class LlmRuntimeService {
       case 'puter':
         return config.qwenModel;
       default:
-        return '';
+        return this.getProviderFactoryDefaultModel(normalized);
+    }
+  }
+
+  private getProviderFactoryDefaultModel(providerName: string): string {
+    try {
+      return ProviderFactory.resolveRuntimeTarget(providerName).modelName || '';
+    } catch {
+      return '';
     }
   }
 
@@ -553,6 +722,38 @@ export class LlmRuntimeService {
 
   private errorMessage(error: unknown): string {
     return redactSensitiveText(error instanceof Error ? error.message : String(error || 'erro desconhecido'));
+  }
+
+  private throwIfAborted(signal?: AbortSignal | null): void {
+    if (!signal?.aborted) {
+      return;
+    }
+    throw this.toAbortError(signal.reason);
+  }
+
+  private isAbortError(error: unknown, signal?: AbortSignal | null): boolean {
+    if (signal?.aborted) {
+      return true;
+    }
+    if (!error || typeof error !== 'object') {
+      return false;
+    }
+    const record = error as { name?: unknown; code?: unknown; message?: unknown };
+    return String(record.name || '') === 'AbortError'
+      || String(record.code || '') === 'ABORT_ERR'
+      || /\baborted\b|\baborterror\b/i.test(String(record.message || ''));
+  }
+
+  private toAbortError(error: unknown): Error {
+    if (error instanceof Error && this.isAbortError(error)) {
+      return error;
+    }
+    const abortError = new Error('LLM request aborted.');
+    abortError.name = 'AbortError';
+    if (error !== undefined) {
+      (abortError as Error & { cause?: unknown }).cause = error;
+    }
+    return abortError;
   }
 
   private normalizeUrl(url: string): string {

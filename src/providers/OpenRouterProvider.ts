@@ -5,11 +5,14 @@ import {
   ChatMessage,
   ILlmProvider,
   LlmResponse,
+  LlmStreamEvent,
   ProviderChatOptions,
   ToolCall,
   ToolDefinition,
 } from './ILlmProvider.js';
 import { buildOpenAiCompatibleNativeToolPayload } from './ProviderNativeToolPayload.js';
+import { buildProviderRequestOptions } from './ProviderAbort.js';
+import { streamOpenAICompatibleCompletion } from './OpenAICompatibleStreaming.js';
 
 export class OpenRouterProvider implements ILlmProvider {
   public readonly name = 'openrouter';
@@ -63,7 +66,7 @@ export class OpenRouterProvider implements ILlmProvider {
         max_tokens: config.maxTokens,
         tools: nativeToolPayload.tools,
         ...nativeToolPayload.extraBody,
-      } as any);
+      } as any, buildProviderRequestOptions(options) as any);
 
       const choice = response.choices[0];
       const toolCalls: ToolCall[] = extractFunctionToolCalls(choice.message.tool_calls);
@@ -76,6 +79,48 @@ export class OpenRouterProvider implements ILlmProvider {
       };
     } catch (error: any) {
       console.error('[OpenRouter] Erro na requisicao:', error?.message || error);
+      throw error;
+    }
+  }
+
+  public async *streamChat(
+    messages: ChatMessage[],
+    tools?: ToolDefinition[],
+    options?: ProviderChatOptions,
+  ): AsyncIterable<LlmStreamEvent> {
+    const modelName = options?.modelName || config.openRouterModel;
+
+    try {
+      console.log(`[OpenRouter] Streaming modelo: ${modelName}`);
+      const nativeToolPayload = buildOpenAiCompatibleNativeToolPayload({
+        providerName: this.name,
+        tools,
+        options,
+      });
+      const stream = await this.client.chat.completions.create({
+        model: modelName,
+        messages: messages.map((message) => ({
+          role: message.role as any,
+          content: message.content as string,
+          tool_call_id: message.toolCallId,
+          tool_calls: message.toolCalls?.map((toolCall) => ({
+            id: toolCall.id,
+            type: 'function',
+            function: {
+              name: toolCall.name,
+              arguments: JSON.stringify(toolCall.arguments),
+            },
+          })),
+        })),
+        max_tokens: config.maxTokens,
+        tools: nativeToolPayload.tools,
+        ...nativeToolPayload.extraBody,
+        stream: true,
+      } as any, buildProviderRequestOptions(options) as any);
+
+      yield* streamOpenAICompatibleCompletion(stream as any, nativeToolPayload.metadata);
+    } catch (error: any) {
+      console.error('[OpenRouter] Erro no streaming:', error?.message || error);
       throw error;
     }
   }

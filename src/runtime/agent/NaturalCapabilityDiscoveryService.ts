@@ -4,6 +4,7 @@ import {
 } from './CapabilityLoopGovernanceService.js';
 import type { ToolExposurePolicyHintProfile } from './ToolExposurePolicy.js';
 import { inferUniversalAgentRequestedTools } from './UniversalAgentRequestHeuristics.js';
+import { assessSwarmWorkload } from './SwarmWorkloadAssessmentService.js';
 import type {
   UniversalAgentChannel,
   UniversalToolRiskLevel,
@@ -406,6 +407,10 @@ export class NaturalCapabilityDiscoveryService {
   ): Candidate[] {
     const candidates: Candidate[] = [];
     const normalized = normalizeSearchText(text);
+    const workload = assessSwarmWorkload({
+      text,
+      requestedTools,
+    });
 
     for (const pattern of CATEGORY_PATTERNS) {
       if (!pattern.pattern.test(normalized)) {
@@ -430,6 +435,23 @@ export class NaturalCapabilityDiscoveryService {
         previewRequired: pattern.tools.some((toolId) => toolId.startsWith('selfmod.')),
         permission: permissionFromRisk(pattern.tools, risk),
         reason: pattern.reason,
+      });
+    }
+
+    if (workload.shouldUseSwarm) {
+      const scaleToolIds = workload.shouldUseScalePlane ? ['swarm.run', 'swarm.scale'] : ['swarm.run'];
+      candidates.push({
+        id: workload.shouldUseScalePlane ? 'intent:swarm-scale-workload' : 'intent:swarm-workload',
+        label: workload.shouldUseScalePlane ? 'Swarm Scale Workload' : 'Swarm Workload',
+        source: 'natural-language',
+        toolIds: scaleToolIds,
+        groups: ['general'],
+        score: Math.max(8, Math.min(12, workload.score)),
+        risk: 'attention',
+        requiresApproval: true,
+        previewRequired: false,
+        permission: 'approval',
+        reason: `Zavorth workload assessment: ${workload.reasons.join('; ')}.`,
       });
     }
 

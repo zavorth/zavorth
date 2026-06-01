@@ -1,2 +1,2 @@
-export * from '../../domain/gateway/application/runtime-access/RuntimeAccessLaunchService.js';
+export * from '../../domain/gateway/infrastructure/runtime-access/RuntimeAccessLaunchService.js';
 

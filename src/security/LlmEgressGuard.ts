@@ -2,6 +2,7 @@ import type {
   ChatMessage,
   ILlmProvider,
   LlmResponse,
+  LlmStreamEvent,
   ProviderChatOptions,
   ToolDefinition,
 } from '../providers/ILlmProvider.js';
@@ -122,6 +123,17 @@ export function wrapLlmProviderWithEgressGuard(provider: ILlmProvider): ILlmProv
       return provider.chat(guarded.messages, guarded.tools, options);
     },
   };
+
+  if (provider.streamChat) {
+    wrapped.streamChat = (
+      messages: ChatMessage[],
+      tools?: ToolDefinition[],
+      options?: ProviderChatOptions,
+    ): AsyncIterable<LlmStreamEvent> => {
+      const guarded = sanitizeLlmEgressPayload(messages, tools);
+      return provider.streamChat!(guarded.messages, guarded.tools, options);
+    };
+  }
 
   return wrapped;
 }

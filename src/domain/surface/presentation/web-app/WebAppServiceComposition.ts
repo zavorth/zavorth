@@ -8,6 +8,8 @@ import {
   ZavorthAgentGateway,
   createDefaultAgentRunStore,
   createDefaultAgentWorkflowQueueStore,
+  type AgentRunRuntimeEventBus,
+  type UniversalAgentToolRuntime,
 } from '../../../../runtime/agent/index.js';
 import { RuntimeAccessManifestService } from '../../../../runtime/access/RuntimeAccessManifestService.js';
 import { RuntimeAccessReadinessService } from '../../../../runtime/access/RuntimeAccessReadinessService.js';
@@ -54,6 +56,7 @@ import { UniversalSkillBridgeActivationService } from '../../../../services/Univ
 import { SupervisedExecutionGatewayService } from '../../../../services/SupervisedExecutionGatewayService.js';
 import { SupervisedRuntimeAdapterRegistryService } from '../../../../services/SupervisedRuntimeAdapterRegistryService.js';
 import { SwarmV2Service } from '../../../../services/SwarmV2Service.js';
+import { SwarmScalePlaneRuntimeService } from '../../../../services/SwarmScalePlaneRuntimeService.js';
 import type { SharedSurfaceRuntime } from '../../../../services/SurfaceRuntime.js';
 import { SystemOverlordControlService } from '../../../../services/SystemOverlordControlService.js';
 import { TaskResourcePlannerService } from '../../../../services/TaskResourcePlannerService.js';
@@ -87,7 +90,27 @@ type WebAppServiceCompositionOptions = {
   getSharedSurfaceFactorySource: () => WebAppSharedSurfaceFactorySource;
   isComputerUseEnabled: () => boolean;
   agentGateway?: ZavorthAgentGateway | null;
+  toolRuntime?: UniversalAgentToolRuntime | null;
 };
+
+function createWebAgentRunRuntimeEventBus(
+  getRealtime: () => WebRealtimeService | null,
+): AgentRunRuntimeEventBus {
+  return {
+    emit: async (type, payload = {}) => {
+      const sessionId = String(payload.sessionId || '').trim();
+      if (!sessionId) {
+        return;
+      }
+      getRealtime()?.recordAgentRuntimeEvent(sessionId, type, payload);
+    },
+    snapshot: () => ({
+      source: 'WebAppServiceComposition',
+      bridge: 'agent-runtime-events-to-web-realtime-sse',
+      realtime: getRealtime()?.buildBusSnapshot() || null,
+    }),
+  };
+}
 
 async function handleSatelliteChatSend(
   payload: SatelliteChatSendPayload,
@@ -242,6 +265,7 @@ export type WebAppServiceComposition = {
   systemOverlordControl: SystemOverlordControlService;
   engineeringCore: EngineeringCoreService;
   swarmV2: SwarmV2Service;
+  swarmScalePlane: SwarmScalePlaneRuntimeService;
   sessionV2Sockets: PtyWebSocketServer;
   gatewayControlSockets: ZavorthGatewayControlSocketService;
   surfaceRoutes: WebAppSurfaceRouteService;
@@ -332,13 +356,22 @@ export function createWebAppServiceComposition(
   const realtimeTransport = new WebAppRealtimeTransportService();
   const runtimeRoutes = new WebAppRuntimeRouteService();
   const selfModificationCommandService = new SelfModificationCommandService();
+  const gatewayLlmRuntime = new LlmRuntimeService();
+  const swarmScalePlane = new SwarmScalePlaneRuntimeService({
+    llmRuntime: gatewayLlmRuntime as any,
+    toolRuntime: options.toolRuntime as any || null,
+  });
   const agentGateway = options.agentGateway || new ZavorthAgentGateway({
     defaultProviderLabel: 'Zavorth Gateway',
     defaultModelLabel: 'modelo atual',
+    llmRuntime: gatewayLlmRuntime,
+    toolRuntime: options.toolRuntime || null,
     runStore: createDefaultAgentRunStore(),
     workflowQueueStore: createDefaultAgentWorkflowQueueStore(),
     selfModificationService: selfModificationCommandService,
+    swarmScalePlaneService: swarmScalePlane,
   });
+  agentGateway.attachRuntimeEventBus(createWebAgentRunRuntimeEventBus(options.getRealtime));
   const permissionAuditService = new PermissionService();
   const capabilityLifecycle = new CapabilityLifecycleService();
   const mutationPlane = new ZavorthMutationPlaneService();
@@ -495,6 +528,7 @@ export function createWebAppServiceComposition(
     workspaceOptimizer,
     sessionV2,
     swarmV2,
+    swarmScalePlane,
     computerUseAgent,
     watchMode: computerUseWatchMode,
     engineeringCore,
@@ -541,6 +575,7 @@ export function createWebAppServiceComposition(
     systemOverlordControl,
     engineeringCore,
     swarmV2,
+    swarmScalePlane,
     sessionV2Sockets,
     gatewayControlSockets,
     surfaceRoutes,

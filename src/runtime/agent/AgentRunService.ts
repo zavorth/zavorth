@@ -3,7 +3,10 @@ import { GeminiManagedAgentExecutor } from '../../execution/GeminiManagedAgentEx
 import { resolveZavorthArtifactPolicyFromMetadata, shouldPersistZavorthArtifacts } from '../../contracts/ZavorthResponseDecisionContract.js';
 import {
   DynamicHierarchySwarmService,
-} from '../../domain/execution/application/DynamicHierarchySwarmService.js';
+} from '../../domain/execution/infrastructure/DynamicHierarchySwarmService.js';
+import {
+  SwarmScalePlaneService,
+} from '../../domain/execution/infrastructure/SwarmScalePlaneService.js';
 import type {
   SelfModificationCommandService,
 } from '../../services/SelfModificationCommandService.js';
@@ -21,6 +24,10 @@ import {
   AgentRunLlmRuntimeExecutor,
   type UniversalAgentLlmRuntime,
 } from './AgentRunLlmRuntimeExecutor.js';
+import {
+  AgentRunSteeringStream,
+  type AgentRunSteeringStreamAction,
+} from './AgentRunSteeringStream.js';
 import { applyAgentRunLlmRuntimeRouteReceipt } from './AgentRunLlmRouteReceipt.js';
 import {
   AgentRunEchoHandsExecutor,
@@ -97,6 +104,9 @@ import { RunBudgetPolicy } from './RunBudgetPolicy.js';
 import { AgentRunPolicyKernel } from './AgentRunPolicyKernel.js';
 import { SkillMcpQuarantineService } from './SkillMcpQuarantineService.js';
 import { ToolExposurePolicy } from './ToolExposurePolicy.js';
+import { executionContextScope } from '../context/ExecutionContextScope.js';
+import type { ProfileRuntimeBundle } from '../../contracts/ProfileManifestContract.js';
+import type { ProfileManifestService } from '../../services/ProfileManifestService.js';
 import type { ZavorthIntelligenceFabricLearningService } from '../../services/ZavorthIntelligenceFabricLearningService.js';
 import type { ZavorthIntelligenceFabricService } from '../../services/ZavorthIntelligenceFabricService.js';
 import type { ZavorthMutationPlaneService } from '../../services/ZavorthMutationPlaneService.js';
@@ -112,6 +122,7 @@ import type {
   UniversalAgentRequest,
   UniversalAgentRun,
   UniversalAgentRunResult,
+  UniversalAgentSteeringEntry,
   UniversalApprovalRequest,
 } from './UniversalAgentRuntimeTypes.js';
 
@@ -128,6 +139,7 @@ export type AgentRunServiceRuntime = {
   executor?: UniversalAgentExecutor | null;
   llmRuntime?: UniversalAgentLlmRuntime | null;
   swarmHierarchyService?: SwarmHierarchyRuntime | null;
+  swarmScalePlaneService?: SwarmScalePlaneRuntime | null;
   selfModificationService?: SelfModificationRuntime | null;
   watchModeService?: WatchModeRuntime | null;
   toolRuntime?: UniversalAgentToolRuntime | null;
@@ -147,6 +159,7 @@ export type AgentRunServiceRuntime = {
   naturalFirstApprovalSafety?: NaturalFirstApprovalSafetyService | null;
   naturalFirstMemoryContinuity?: NaturalFirstMemoryContinuityService | null;
   universalPreviewMode?: UniversalPreviewModeService | null;
+  profileManifestService?: Pick<ProfileManifestService, 'compileProfileById'> | null;
   safetyNarrative?: SafetyNarrativeService | null;
   memoryWithReceipts?: MemoryWithReceiptsService | null;
   capabilityNegotiation?: CapabilityNegotiationService | null;
@@ -179,6 +192,8 @@ export type AgentRunServiceRuntime = {
   intelligenceFabricLearning?: Pick<ZavorthIntelligenceFabricLearningService, 'recordSnapshot'> | null;
   mutationPlaneService?: Pick<ZavorthMutationPlaneService, 'createPlan' | 'readPlan' | 'approvePlan' | 'markApplied'> | null;
   intelligenceFabricMode?: AgentRunIntelligenceFabricMode | null;
+  steeringStream?: AgentRunSteeringStream | null;
+  onRunCreated?: (run: UniversalAgentRun, request: UniversalAgentRequest) => void;
 };
 
 export type AgentRunRuntimeEventType =
@@ -205,8 +220,20 @@ export type AgentRunExecutionOptions = {
   toolRuntime?: UniversalAgentToolRuntime | null;
 };
 
+export type AgentRunSteeringInput = {
+  text: string;
+  source?: string | null;
+  sessionId?: string | null;
+  queueItemId?: string | null;
+  replaceTargetId?: string | null;
+  backoffMs?: number | null;
+  maxAttempts?: number | null;
+  metadata?: Record<string, unknown> | null;
+};
+
 type SwarmHierarchyRuntime = Pick<DynamicHierarchySwarmService, 'launchHierarchy'>
   & Partial<Pick<DynamicHierarchySwarmService, 'launchHierarchyAndWait'>>;
+type SwarmScalePlaneRuntime = Pick<SwarmScalePlaneService, 'launch' | 'resume' | 'listRuns' | 'getRun'>;
 
 export type SelfModificationRuntime = Pick<SelfModificationCommandService, 'createGoalPreview'>;
 export type WatchModeRuntime = Pick<ComputerUseWatchModeService, 'startRun'>;
@@ -290,18 +317,27 @@ export class AgentRunService {
   declare private executeApprovedSwarmProposalIfNeeded: Function;
   declare private serializeSwarmLaunchResult: Function;
   declare private buildSwarmExecutionReply: Function;
+  declare private resolveSwarmScalePlan: Function;
+  declare private shouldUseSwarmScalePlane: Function;
+  declare private executeApprovedSwarmScaleProposal: Function;
+  declare private serializeSwarmScaleSnapshot: Function;
+  declare private buildSwarmScaleProposalReply: Function;
+  declare private buildSwarmScaleExecutionReply: Function;
 
   private readonly now: () => Date;
   private readonly idFactory: (prefix: string) => string;
-  private readonly runtimeEventBus: AgentRunRuntimeEventBus | null;
+  private runtimeEventBus: AgentRunRuntimeEventBus | null;
   private readonly evidenceWorkerMode: 'inline' | 'async-heavy' | 'worker-first-heavy';
   private readonly evidenceWorker: AgentRunEvidenceWorker | null;
   private readonly asyncEvidenceCollectorIds: AgentRunEvidenceCollectorId[] | null;
   private readonly executor: UniversalAgentExecutor | null;
   private readonly llmRuntimeExecutor: AgentRunLlmRuntimeExecutor;
+  private readonly steeringStream: AgentRunSteeringStream;
+  private readonly onRunCreated: ((run: UniversalAgentRun, request: UniversalAgentRequest) => void) | null;
   private readonly corePipeline: AgentRunCorePipeline<CoreDietBaselineDraft>;
   private readonly executorBoundary: AgentRunExecutorBoundary;
   private readonly swarmHierarchyService: SwarmHierarchyRuntime | null;
+  private readonly swarmScalePlaneService: SwarmScalePlaneRuntime | null;
   private selfModificationService: SelfModificationRuntime | null;
   private watchModeService: WatchModeRuntime | null;
   private readonly toolRuntime: UniversalAgentToolRuntime | null;
@@ -361,11 +397,20 @@ export class AgentRunService {
     this.evidenceWorkerMode = runtime.evidenceWorkerMode || (this.evidenceWorker ? 'worker-first-heavy' : 'inline');
     this.asyncEvidenceCollectorIds = runtime.asyncEvidenceCollectorIds || null;
     this.executor = runtime.executor || null;
+    this.steeringStream = runtime.steeringStream || new AgentRunSteeringStream();
+    this.onRunCreated = runtime.onRunCreated || null;
     this.llmRuntimeExecutor = new AgentRunLlmRuntimeExecutor({
       llmRuntime: runtime.llmRuntime,
       toolRuntime: runtime.toolRuntime,
+      steeringStream: this.steeringStream,
+      publishRuntimeEvent: (run, type, payload) => this.publishRuntimeEvent(run, type, payload),
+      runtimeEventStreamingEnabled: true,
     });
     this.swarmHierarchyService = runtime.swarmHierarchyService || null;
+    this.swarmScalePlaneService = runtime.swarmScalePlaneService || new SwarmScalePlaneService({
+      llmRuntime: runtime.llmRuntime as any || null,
+      toolRuntime: runtime.toolRuntime as any || null,
+    });
     this.selfModificationService = runtime.selfModificationService || null;
     this.watchModeService = runtime.watchModeService || null;
     this.toolRuntime = runtime.toolRuntime || null;
@@ -500,6 +545,7 @@ export class AgentRunService {
       modelPickerContractService: runtime.modelPickerContractService,
       naturalCapabilityDiscovery: runtime.naturalCapabilityDiscovery,
       universalPreviewMode: runtime.universalPreviewMode,
+      profileManifestService: runtime.profileManifestService,
       defaultProviderLabel,
       defaultModelLabel,
     });
@@ -514,6 +560,146 @@ export class AgentRunService {
 
   public attachWatchModeService(service: WatchModeRuntime | null | undefined): void {
     this.watchModeService = service || null;
+  }
+
+  public attachRuntimeEventBus(service: AgentRunRuntimeEventBus | null | undefined): void {
+    this.runtimeEventBus = service || null;
+  }
+
+  public recordSteering(
+    run: UniversalAgentRun,
+    input: AgentRunSteeringInput,
+  ): UniversalAgentSteeringEntry {
+    const text = normalizeText(input.text);
+    if (!text) {
+      throw new Error('Steering requires text.');
+    }
+    const now = this.now().toISOString();
+    const backoffMs = Math.max(0, Number(input.backoffMs || 0));
+    const maxAttempts = Math.max(1, Number(input.maxAttempts || 1));
+    const entry: UniversalAgentSteeringEntry = {
+      id: this.idFactory('agent-steer'),
+      runId: run.id,
+      sessionId: normalizeText(input.sessionId, run.sessionId),
+      text,
+      source: normalizeText(input.source, 'operator-steering'),
+      status: 'accepted',
+      createdAt: now,
+      updatedAt: now,
+      ackId: this.idFactory('steering-ack'),
+      queueItemId: normalizeText(input.queueItemId) || null,
+      replaceTargetId: normalizeText(input.replaceTargetId) || null,
+      replacedById: null,
+      cancelledAt: null,
+      cancelReason: null,
+      attempts: 0,
+      maxAttempts,
+      backoffMs,
+      nextRetryAt: backoffMs > 0 ? new Date(Date.parse(now) + backoffMs).toISOString() : null,
+      metadata: {
+        ...(input.metadata || {}),
+        nativeAgentRunSteering: true,
+      },
+    };
+    run.steering = [...(run.steering || []), entry];
+    run.updatedAt = now;
+    run.events.push({
+      id: `${entry.id}:accepted`,
+      runId: run.id,
+      kind: 'steering',
+      title: 'Steering accepted',
+      detail: text,
+      status: 'done',
+      createdAt: now,
+      metadata: {
+        steeringId: entry.id,
+        ackId: entry.ackId,
+        queueItemId: entry.queueItemId || null,
+        replaceTargetId: entry.replaceTargetId || null,
+        backoffMs,
+        maxAttempts,
+        nativeAgentRunSteering: true,
+      },
+    });
+    this.syncRunSteeringMetadata(run);
+    this.publishSteeringFrame(run, entry, 'accepted');
+    return entry;
+  }
+
+  public cancelSteering(
+    run: UniversalAgentRun,
+    steeringId: string,
+    reason = 'Cancelled by operator.',
+    metadata: Record<string, unknown> | null = null,
+  ): UniversalAgentSteeringEntry | null {
+    const target = this.findSteeringEntry(run, steeringId);
+    if (!target || target.status === 'cancelled') {
+      return target || null;
+    }
+    const now = this.now().toISOString();
+    target.status = 'cancelled';
+    target.cancelledAt = now;
+    target.cancelReason = normalizeText(reason, 'Cancelled by operator.');
+    target.updatedAt = now;
+    target.metadata = {
+      ...(target.metadata || {}),
+      ...(metadata || {}),
+    };
+    run.updatedAt = now;
+    run.events.push({
+      id: `${target.id}:cancelled`,
+      runId: run.id,
+      kind: 'steering',
+      title: 'Steering cancelled',
+      detail: target.cancelReason,
+      status: 'done',
+      createdAt: now,
+      metadata: {
+        steeringId: target.id,
+        ackId: target.ackId,
+        nativeAgentRunSteering: true,
+      },
+    });
+    this.syncRunSteeringMetadata(run);
+    this.publishSteeringFrame(run, target, 'cancelled');
+    return target;
+  }
+
+  public replaceSteering(
+    run: UniversalAgentRun,
+    steeringId: string,
+    input: AgentRunSteeringInput,
+  ): UniversalAgentSteeringEntry | null {
+    const target = this.findSteeringEntry(run, steeringId);
+    if (!target || target.status === 'cancelled') {
+      return null;
+    }
+    const now = this.now().toISOString();
+    target.status = 'superseded';
+    target.updatedAt = now;
+    run.events.push({
+      id: `${target.id}:superseded`,
+      runId: run.id,
+      kind: 'steering',
+      title: 'Steering superseded',
+      detail: target.text,
+      status: 'done',
+      createdAt: now,
+      metadata: {
+        steeringId: target.id,
+        ackId: target.ackId,
+        nativeAgentRunSteering: true,
+      },
+    });
+    const replacement = this.recordSteering(run, {
+      ...input,
+      replaceTargetId: target.id,
+    });
+    target.replacedById = replacement.id;
+    target.updatedAt = replacement.createdAt;
+    this.syncRunSteeringMetadata(run);
+    this.publishSteeringFrame(run, target, 'superseded');
+    return replacement;
   }
 
   public recordLifecycleDefenseReview(
@@ -537,6 +723,49 @@ export class AgentRunService {
     return this.evidenceStore.snapshot(run);
   }
 
+  private findSteeringEntry(
+    run: UniversalAgentRun,
+    steeringId: string,
+  ): UniversalAgentSteeringEntry | null {
+    const id = normalizeText(steeringId);
+    if (!id) return null;
+    return (run.steering || []).find((entry) => entry.id === id || entry.id.startsWith(id)) || null;
+  }
+
+  private syncRunSteeringMetadata(run: UniversalAgentRun): void {
+    const entries = (run.steering || []).slice(-50);
+    const active = entries.filter((entry) => entry.status === 'accepted' || entry.status === 'applied');
+    run.metadata = {
+      ...run.metadata,
+      agentRunSteering: {
+        schemaVersion: 1,
+        source: 'AgentRunService',
+        total: entries.length,
+        active: active.length,
+        latestAckId: entries.at(-1)?.ackId || null,
+        entries,
+      },
+    };
+  }
+
+  private publishSteeringFrame(
+    run: UniversalAgentRun,
+    entry: UniversalAgentSteeringEntry,
+    action: AgentRunSteeringStreamAction,
+  ): void {
+    const frame = this.steeringStream.publish(run.id, entry, action);
+    run.metadata = {
+      ...run.metadata,
+      agentRunSteeringStream: {
+        schemaVersion: 1,
+        source: 'AgentRunSteeringStream',
+        lastSequence: frame.sequence,
+        lastAction: frame.action,
+        lastAckId: frame.ackId,
+      },
+    };
+  }
+
   private createPolicyKernel(): AgentRunPolicyKernel {
     return new AgentRunPolicyKernel({
       now: this.now,
@@ -557,7 +786,7 @@ export class AgentRunService {
       finishBaseline: (run, baseline) => this.finishCoreDietBaseline(run, baseline),
       applyMetadataDiet: (run) => this.applyMetadataDiet(run),
       readTrustMode: (run) => recordOrNull(run.metadata.trustPosture)?.trustMode || null,
-      resolveProfile: (run) => this.metadataEvidenceHelpers.resolveCoreDietBaselineProfile(run),
+      resolveProfile: (run) => normalizeText(run.metadata.profile, this.metadataEvidenceHelpers.resolveCoreDietBaselineProfile(run)),
     });
   }
 
@@ -686,6 +915,7 @@ export class AgentRunService {
       const prepared = await this.corePipeline.prepare(input, baseline);
       run = prepared.run;
       const activeRun = run;
+      this.onRunCreated?.(activeRun, input);
       const draftApply = this.applyIntelligenceFabricDraftGuidanceIfRequested(activeRun, input);
       if (draftApply) {
         return draftApply;
@@ -812,6 +1042,13 @@ export class AgentRunService {
         executor: options.executor ? 'override' : this.executor ? 'configured' : 'runtime-resolution',
         toolExposureMode: run.toolExposure.mode,
       });
+      await this.publishRuntimeEvent(run, 'agent.stream.lifecycle', {
+        phase: 'executor-started',
+        title: 'Generation started',
+        summary: 'The governed executor accepted the run and is preparing the assistant response.',
+        streamStatus: 'running',
+        providerNativeTokenStreaming: false,
+      });
       executorResult = await this.execute(run, input, options);
     } catch (error) {
       await this.publishRuntimeEvent(run, 'agent.execution.failed', {
@@ -821,6 +1058,27 @@ export class AgentRunService {
       return this.buildFailureResult(run, error, 'executor');
     }
     this.applyExecutorResult(run, executorResult);
+    const replyText = normalizeText(
+      executorResult.replyText,
+      run.status === 'completed'
+        ? run.summary
+        : 'The request was recorded safely.',
+    );
+    const assistantStream = recordOrNull(executorResult.metadata?.llmRuntimeStream);
+    if (assistantStream?.assistantStreamEmitted === true) {
+      await this.publishAssistantReplyStreamDone(run, replyText, {
+        source: 'executor-result-finalization',
+        providerNativeTokenStreaming: assistantStream.providerNativeTokenStreaming === true,
+        nativeStreamFinalizedByExecutorResult: true,
+        providerName: assistantStream.providerName || null,
+        modelName: assistantStream.modelName || null,
+      });
+    } else {
+      await this.publishAssistantReplyStream(run, replyText, {
+        source: 'executor-result',
+        providerNativeTokenStreaming: false,
+      });
+    }
     const llmBrain = this.applyLlmBrainMaturity(run, input, executorResult);
     await this.publishLlmBrainRuntimeEvents(run, llmBrain);
     await this.publishRuntimeEvent(run, 'agent.execution.completed', {
@@ -830,12 +1088,6 @@ export class AgentRunService {
       memorySignalCount: run.memorySignals.length,
     });
     this.applyCapabilityLoopGovernance(run, input);
-    const replyText = normalizeText(
-      executorResult.replyText,
-      run.status === 'completed'
-        ? run.summary
-        : 'The request was recorded safely.',
-    );
 
       return this.replyPipeline.buildResult({
         run,
@@ -1036,6 +1288,10 @@ export class AgentRunService {
       executorResult.replyText,
       run.summary || 'Execution resumed safely.',
     );
+    await this.publishAssistantReplyStream(run, replyText, {
+      source: 'approval-resume',
+      providerNativeTokenStreaming: false,
+    });
 
     return this.replyPipeline.buildResult({
       run,
@@ -1176,6 +1432,10 @@ export class AgentRunService {
     };
     this.applyExecutorResult(run, executorResult);
     this.applyCapabilityLoopGovernance(run, request);
+    await this.publishAssistantReplyStream(run, replyText, {
+      source: 'agentic-managed-agent',
+      providerNativeTokenStreaming: false,
+    });
     return this.replyPipeline.buildResult({ run, text: replyText });
   }
 
@@ -1503,6 +1763,100 @@ export class AgentRunService {
     }
   }
 
+  private async publishAssistantReplyStream(
+    run: UniversalAgentRun,
+    text: string,
+    metadata: Record<string, unknown> = {},
+  ): Promise<void> {
+    const replyText = normalizeText(text);
+    if (!replyText) {
+      return;
+    }
+    const chunks = this.chunkAssistantStreamText(replyText);
+    const streamId = `${run.id}:assistant`;
+    await this.publishRuntimeEvent(run, 'agent.stream.assistant', {
+      ...metadata,
+      streamId,
+      phase: 'start',
+      done: false,
+      chunkIndex: 0,
+      totalChunks: chunks.length,
+      accumulated: '',
+      delta: '',
+      rawChainOfThoughtExposed: false,
+    });
+
+    let accumulated = '';
+    for (let index = 0; index < chunks.length; index += 1) {
+      accumulated += chunks[index];
+      await this.publishRuntimeEvent(run, 'agent.stream.assistant', {
+        ...metadata,
+        streamId,
+        phase: 'delta',
+        done: false,
+        chunkIndex: index + 1,
+        totalChunks: chunks.length,
+        accumulated,
+        delta: chunks[index],
+        rawChainOfThoughtExposed: false,
+      });
+    }
+
+    await this.publishRuntimeEvent(run, 'agent.stream.assistant', {
+      ...metadata,
+      streamId,
+      phase: 'done',
+      done: true,
+      chunkIndex: chunks.length,
+      totalChunks: chunks.length,
+      accumulated,
+      delta: '',
+      rawChainOfThoughtExposed: false,
+    });
+  }
+
+  private async publishAssistantReplyStreamDone(
+    run: UniversalAgentRun,
+    text: string,
+    metadata: Record<string, unknown> = {},
+  ): Promise<void> {
+    const replyText = normalizeText(text);
+    if (!replyText) {
+      return;
+    }
+    await this.publishRuntimeEvent(run, 'agent.stream.assistant', {
+      ...metadata,
+      streamId: `${run.id}:assistant`,
+      phase: 'done',
+      done: true,
+      chunkIndex: 0,
+      totalChunks: null,
+      accumulated: replyText,
+      delta: '',
+      rawChainOfThoughtExposed: false,
+    });
+  }
+
+  private chunkAssistantStreamText(text: string): string[] {
+    const normalized = String(text || '');
+    const maxChars = 180;
+    const chunks: string[] = [];
+    let current = '';
+    for (const token of normalized.split(/(\s+)/)) {
+      if (!token) continue;
+      if (current && current.length + token.length > maxChars) {
+        chunks.push(current);
+        current = token;
+        continue;
+      }
+      current += token;
+    }
+    if (current) {
+      chunks.push(current);
+    }
+    return chunks.length > 0 ? chunks : [normalized];
+  }
+
   private appendRuntimeEventReceipt(run: UniversalAgentRun, receipt: Record<string, unknown>): void {
     const existing = recordOrNull(run.metadata.runtimeEventBus);
     const events = Array.isArray(existing?.events) ? existing.events.slice(-19) : [];
@@ -1631,12 +1985,23 @@ export class AgentRunService {
     request: UniversalAgentRequest,
     options: AgentRunExecutionOptions = {},
   ): Promise<UniversalAgentExecutorResult> {
-    return this.executorBoundary.execute({
+    const profileBundle = resolveProfileRuntimeBundleFromRun(run);
+    return executionContextScope.run({
+      traceId: run.traceId,
+      runId: run.id,
+      sessionId: run.sessionId,
+      surface: run.channel,
+      requestedBy: run.userId,
+      profile: normalizeText(run.metadata.profile, profileBundle?.id || ''),
+      workspace: run.workspace || request.workspace || null,
+      profileBundle,
+      metadata: run.metadata,
+    }, () => this.executorBoundary.execute({
       run,
       request,
       executorOverride: options.executor,
       toolRuntimeOverride: options.toolRuntime,
-    });
+    }));
   }
 
   private applyExecutorResult(
@@ -1647,6 +2012,7 @@ export class AgentRunService {
     run.status = result.status || 'completed';
     run.summary = normalizeText(result.summary, run.summary);
     run.updatedAt = now;
+    this.markAcceptedSteeringApplied(run, now);
     const mergedMetadata = {
       ...run.metadata,
       ...(result.metadata || {}),
@@ -1696,6 +2062,31 @@ export class AgentRunService {
       request: null,
       generatedAt: now,
     });
+    this.syncRunSteeringMetadata(run);
+  }
+
+  private markAcceptedSteeringApplied(run: UniversalAgentRun, now: string): void {
+    const accepted = (run.steering || []).filter((entry) => entry.status === 'accepted');
+    if (accepted.length === 0) return;
+    for (const entry of accepted) {
+      entry.status = 'applied';
+      entry.updatedAt = now;
+      run.events.push({
+        id: `${entry.id}:applied`,
+        runId: run.id,
+        kind: 'steering',
+        title: 'Steering applied',
+        detail: entry.text,
+        status: 'done',
+        createdAt: now,
+        metadata: {
+          steeringId: entry.id,
+          ackId: entry.ackId,
+          nativeAgentRunSteering: true,
+        },
+      });
+      this.publishSteeringFrame(run, entry, 'applied');
+    }
   }
 
   private applyLlmBrainMaturity(
@@ -1812,6 +2203,24 @@ export class AgentRunService {
     return this.failureResultBuilder.build(run, error, source);
   }
 
+}
+
+function resolveProfileRuntimeBundleFromRun(run: UniversalAgentRun): ProfileRuntimeBundle | null {
+  const direct = recordOrNull(run.metadata.profileBundle)
+    || recordOrNull(run.metadata.profileRuntimeBundle);
+  if (!direct) {
+    return null;
+  }
+  if (
+    typeof direct.id !== 'string'
+    || typeof direct.checksum !== 'string'
+    || !recordOrNull(direct.runtimePolicy)
+    || !recordOrNull(direct.runtimePolicyBundle)
+    || !recordOrNull(direct.cognitiveContextBundle)
+  ) {
+    return null;
+  }
+  return direct as ProfileRuntimeBundle;
 }
 
 installAgentRunSpecializedFlows(AgentRunService);

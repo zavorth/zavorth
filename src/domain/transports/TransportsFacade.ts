@@ -1,12 +1,12 @@
-import type { ZavorthRemoteTransportService } from '../../services/ZavorthRemoteTransportService.js';
 import { DomainFacadeBase, type DomainSnapshot } from '../DomainFacadeBase.js';
 import { TransportsUseCases } from './application/TransportsUseCases.js';
+import type { RemoteTransportSnapshotPort } from './domain/TransportsDomainTypes.js';
 import { RemoteTransportAdapter } from './infrastructure/RemoteTransportAdapter.js';
 import { TransportsDomainPresenter } from './presentation/TransportsDomainPresenter.js';
 
 type TransportsFacadeRuntime = {
   now?: () => Date;
-  remoteTransportService?: Pick<ZavorthRemoteTransportService, 'buildSnapshot'>;
+  remoteTransportService?: RemoteTransportSnapshotPort;
 };
 
 export type TransportsDomainSnapshot = DomainSnapshot & {

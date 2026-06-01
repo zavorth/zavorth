@@ -1,4 +1,5 @@
 import type { WebAppSupervisionRouteContext, WebAppSupervisionRouteHandler } from './types.js';
+import { buildWebOperatorApprovalSafety } from './helpers.js';
 
 export const handleSwarmV2Routes: WebAppSupervisionRouteHandler = async (ctx) => {
   const {
@@ -10,7 +11,121 @@ export const handleSwarmV2Routes: WebAppSupervisionRouteHandler = async (ctx) =>
     swarmV2Label,
     experimentalAlias,
     isSwarmV2Route,
+    isSwarmScaleRoute,
+    swarmScalePlaneService: scaleService,
   } = ctx;
+
+  if (isSwarmScaleRoute() && req.method === 'GET') {
+    if (!scaleService?.listRuns) {
+      deps.writeJson(res, { ok: false, error: 'Swarm Scale Plane indisponivel.' }, 503);
+      return true;
+    }
+    deps.writeJson(res, {
+      ok: true,
+      experimental: experimentalAlias,
+      official: !experimentalAlias,
+      surface: experimentalAlias ? 'swarm-scale-legacy-alias' : 'swarm-scale-plane',
+      runs: scaleService.listRuns(),
+    }, 200);
+    return true;
+  }
+
+  if (isSwarmScaleRoute() && req.method === 'POST') {
+    if (!scaleService?.launch) {
+      deps.writeJson(res, { ok: false, error: 'Swarm Scale Plane indisponivel.' }, 503);
+      return true;
+    }
+    const body = await deps.readJsonBody(req);
+    const objective = String(body.objective || body.text || '').trim();
+    if (!objective) {
+      deps.writeJson(res, { ok: false, error: 'objective obrigatorio.' }, 400);
+      return true;
+    }
+    const desiredAgents = Number.isFinite(Number(body.desiredAgents || body.agents))
+      ? Number(body.desiredAgents || body.agents)
+      : undefined;
+    const executionMode = String(body.executionMode || '').trim();
+    const approvalSafety = buildWebOperatorApprovalSafety(ctx, body);
+    if (executionMode === 'llm-live' && Number(desiredAgents || 0) > 20 && !approvalSafety.operatorApprovalAccepted) {
+      deps.writeJson(res, {
+        ok: false,
+        error: 'Swarm Scale Plane live com mais de 20 agentes exige approval header forte.',
+        code: 'swarm_scale_live_approval_required',
+        approval: approvalSafety,
+      }, 403);
+      return true;
+    }
+    const snapshot = await scaleService.launch({
+      runId: String(body.runId || '').trim() || undefined,
+      objective,
+      desiredAgents,
+      maxAgents: Number.isFinite(Number(body.maxAgents)) ? Number(body.maxAgents) : undefined,
+      maxSteps: Number.isFinite(Number(body.maxSteps || body.steps)) ? Number(body.maxSteps || body.steps) : undefined,
+      maxConcurrency: Number.isFinite(Number(body.maxConcurrency || body.concurrency)) ? Number(body.maxConcurrency || body.concurrency) : undefined,
+      plannerMode: String(body.plannerMode || '').trim() as any || undefined,
+      executionMode: executionMode as any || undefined,
+      stopAfterSteps: Number.isFinite(Number(body.stopAfterSteps)) ? Number(body.stopAfterSteps) : undefined,
+      persistState: body.persistState !== false,
+      approvalId: String(body.approvalId || '').trim() || undefined,
+    });
+    deps.writeJson(res, {
+      ok: true,
+      experimental: experimentalAlias,
+      official: !experimentalAlias,
+      surface: experimentalAlias ? 'swarm-scale-legacy-alias' : 'swarm-scale-plane',
+      snapshot,
+    }, 200);
+    return true;
+  }
+
+  if (isSwarmScaleRoute('/state') && req.method === 'GET') {
+    if (!scaleService?.getRun) {
+      deps.writeJson(res, { ok: false, error: 'Swarm Scale Plane indisponivel.' }, 503);
+      return true;
+    }
+    const runId = String(url.searchParams.get('runId') || '').trim();
+    if (!runId) {
+      deps.writeJson(res, { ok: false, error: 'runId obrigatorio.' }, 400);
+      return true;
+    }
+    const snapshot = scaleService.getRun(runId);
+    if (!snapshot) {
+      deps.writeJson(res, { ok: false, error: 'Swarm Scale Plane run nao encontrado.' }, 404);
+      return true;
+    }
+    deps.writeJson(res, {
+      ok: true,
+      experimental: experimentalAlias,
+      official: !experimentalAlias,
+      snapshot,
+    }, 200);
+    return true;
+  }
+
+  if (isSwarmScaleRoute('/resume') && req.method === 'POST') {
+    if (!scaleService?.resume) {
+      deps.writeJson(res, { ok: false, error: 'Swarm Scale Plane indisponivel.' }, 503);
+      return true;
+    }
+    const body = await deps.readJsonBody(req);
+    const runId = String(body.runId || '').trim();
+    if (!runId) {
+      deps.writeJson(res, { ok: false, error: 'runId obrigatorio.' }, 400);
+      return true;
+    }
+    const snapshot = await scaleService.resume({
+      runId,
+      stopAfterSteps: Number.isFinite(Number(body.stopAfterSteps)) ? Number(body.stopAfterSteps) : undefined,
+      persistState: body.persistState !== false,
+    });
+    deps.writeJson(res, {
+      ok: true,
+      experimental: experimentalAlias,
+      official: !experimentalAlias,
+      snapshot,
+    }, 200);
+    return true;
+  }
 
   if (isSwarmV2Route() && req.method === 'GET') {
     if (!service) {

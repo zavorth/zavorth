@@ -6,6 +6,100 @@ import type {
 import type { ToolDefinition } from '../../../src/providers/ILlmProvider.js';
 
 describe('AgentRunLlmRuntimeExecutor native tool loop', () => {
+  it('forwards provider-native token deltas to the runtime event stream', async () => {
+    const emitted: Array<{ type: string; payload?: Record<string, unknown> }> = [];
+    const llmRuntime = {
+      chatDetailed: jest.fn(async (_messages, _tools, options) => {
+        await options?.stream?.onEvent?.({
+          type: 'start',
+          accumulated: '',
+          providerName: 'openai',
+          modelName: 'gpt-stream',
+          fallback: false,
+          native: true,
+          metadata: { providerNativeTokenStreaming: true },
+        });
+        await options?.stream?.onEvent?.({
+          type: 'delta',
+          delta: 'Resposta',
+          accumulated: 'Resposta',
+          chunkIndex: 1,
+          providerName: 'openai',
+          modelName: 'gpt-stream',
+          fallback: false,
+          native: true,
+          metadata: { providerNativeTokenStreaming: true },
+        });
+        await options?.stream?.onEvent?.({
+          type: 'done',
+          accumulated: 'Resposta',
+          response: {
+            content: 'Resposta',
+            toolCalls: [],
+            finishReason: 'stop',
+          },
+          done: true,
+          providerName: 'openai',
+          modelName: 'gpt-stream',
+          fallback: false,
+          native: true,
+          metadata: { providerNativeTokenStreaming: true },
+        });
+        return {
+          providerName: 'openai',
+          modelName: 'gpt-stream',
+          route: route(),
+          response: {
+            content: 'Resposta',
+            toolCalls: [],
+            finishReason: 'stop',
+          },
+          metadata: {
+            providerNativeTokenStreaming: true,
+          },
+        };
+      }),
+      getPreferredProviderName: jest.fn(() => 'openai'),
+    };
+    const executor = new AgentRunLlmRuntimeExecutor({
+      llmRuntime: llmRuntime as any,
+      publishRuntimeEvent: async (_run, type, payload) => {
+        emitted.push({ type, payload });
+      },
+      runtimeEventStreamingEnabled: true,
+    });
+
+    const result = await executor.executeIfAvailable(run(), request());
+
+    expect(result?.replyText).toBe('Resposta');
+    expect(result?.metadata?.llmRuntimeStream).toEqual(expect.objectContaining({
+      assistantStreamEmitted: true,
+      providerNativeTokenStreaming: true,
+      deltaCount: 1,
+      providerName: 'openai',
+      modelName: 'gpt-stream',
+    }));
+    expect(emitted).toEqual(expect.arrayContaining([
+      expect.objectContaining({
+        type: 'agent.stream.assistant',
+        payload: expect.objectContaining({
+          phase: 'delta',
+          delta: 'Resposta',
+          accumulated: 'Resposta',
+          providerNativeTokenStreaming: true,
+        }),
+      }),
+      expect.objectContaining({
+        type: 'agent.stream.assistant',
+        payload: expect.objectContaining({
+          phase: 'done',
+          done: true,
+          providerName: 'openai',
+        }),
+      }),
+    ]));
+  });
+
   it('exposes governed read tools to the main LLM and feeds observations back before final answer', async () => {
     const llmRuntime = {
       chatDetailed: jest.fn()

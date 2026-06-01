@@ -90,7 +90,7 @@ function createInstallJourneyFixture() {
         ready: true,
         baseUrl: 'http://127.0.0.1:33333',
         appUrl: 'http://127.0.0.1:33333/zavorthControl',
-        zavorthControlUrl: 'http://127.0.0.1:33333/classic',
+        zavorthControlUrl: 'http://127.0.0.1:33333/zavorthControl',
       },
       remote: {
         ready: true,

@@ -1,12 +1,12 @@
-import type { ZavorthMemoryPlaneService } from '../../services/ZavorthMemoryPlaneService.js';
 import { DomainFacadeBase, type DomainSnapshot } from '../DomainFacadeBase.js';
 import { MemoryUseCases } from './application/MemoryUseCases.js';
+import type { MemoryPlaneSnapshotPort } from './domain/MemoryDomainTypes.js';
 import { MemoryPlaneServiceAdapter } from './infrastructure/MemoryPlaneServiceAdapter.js';
 import { MemoryDomainPresenter } from './presentation/MemoryDomainPresenter.js';
 
 type MemoryFacadeRuntime = {
   now?: () => Date;
-  memoryPlaneService?: Pick<ZavorthMemoryPlaneService, 'buildSnapshotFast'>;
+  memoryPlaneService?: MemoryPlaneSnapshotPort;
   defaultUserId?: string | null;
   defaultPlatform?: string | null;
   defaultSessionId?: string | null;

@@ -6,6 +6,7 @@ import { config } from '../config/index.js';
 import {
   ZAVORTH_EXTERNAL_AGENT_GATEWAY_CONTRACT_VERSION,
   type ZavorthExternalAgentAdapterKind,
+  type ZavorthExternalAgentGatewayDashboardSnapshot,
   type ZavorthExternalAgentGatewayReceipt,
   type ZavorthExternalAgentGatewayRegistrySnapshot,
   type ZavorthExternalAgentIsolationKind,
@@ -141,6 +142,40 @@ export class ZavorthExternalAgentGatewayService {
         localCliDeclaredNonSandboxed: true,
       },
     };
+  }
+
+  public buildDashboardSnapshot(): ZavorthExternalAgentGatewayDashboardSnapshot {
+    const registry = this.buildRegistrySnapshot();
+    const latestReceipt = this.readLatestReceipt();
+    return {
+      generatedAt: this.now().toISOString(),
+      contractVersion: ZAVORTH_EXTERNAL_AGENT_GATEWAY_CONTRACT_VERSION,
+      surface: 'external-agent-dashboard',
+      registry,
+      latestReceipt,
+      summary: {
+        profiles: registry.summary.total,
+        liveEnabled: registry.summary.liveEnabled,
+        stronglyIsolated: registry.summary.stronglyIsolated,
+        latestReceiptStatus: latestReceipt?.status || 'none',
+      },
+      safety: {
+        noAgentUsedDuringDashboardRead: true,
+        liveUseRequiresApproval: true,
+        localCliDeclaredNonSandboxed: true,
+        rawSecretsSerialized: false,
+      },
+    };
+  }
+
+  public readLatestReceipt(): ZavorthExternalAgentGatewayReceipt | null {
+    const target = this.resolveReceiptPath(null);
+    try {
+      const parsed = JSON.parse(this.readFileSyncImpl(target, 'utf8') as string) as ZavorthExternalAgentGatewayReceipt;
+      return sanitizeReceipt(parsed);
+    } catch {
+      return null;
+    }
   }
 
   public registerProfile(input: ZavorthExternalAgentRegisterInput): ZavorthExternalAgentGatewayReceipt {
@@ -767,6 +802,34 @@ function sanitizeProfile(value: unknown): ZavorthExternalAgentProfile | null {
       toolExposureByDefault: false,
       strongIsolationAvailable: true,
       localCliIsNotOsSandbox: adapter === 'cli' && isolation.kind === 'local-supervised',
+    },
+  };
+}
+
+function sanitizeReceipt(value: unknown): ZavorthExternalAgentGatewayReceipt | null {
+  if (!value || typeof value !== 'object') return null;
+  const receipt = value as ZavorthExternalAgentGatewayReceipt;
+  if (receipt.surface !== 'external-agent-gateway') return null;
+  return {
+    ...receipt,
+    profile: sanitizeProfileForReceipt(sanitizeProfile(receipt.profile)),
+    request: {
+      ...receipt.request,
+      promptPreview: receipt.request?.promptPreview ? redactSensitiveText(receipt.request.promptPreview) : null,
+    },
+    execution: {
+      ...receipt.execution,
+      args: Array.isArray(receipt.execution?.args) ? receipt.execution.args.map((arg) => redactSensitiveText(arg)) : [],
+      endpoint: receipt.execution?.endpoint ? redactSensitiveText(receipt.execution.endpoint) : null,
+    },
+    output: {
+      text: truncate(redactSensitiveText(receipt.output?.text || '')),
+      stdout: receipt.output?.stdout === null || receipt.output?.stdout === undefined
+        ? null
+        : truncate(redactSensitiveText(receipt.output.stdout)),
+      stderr: receipt.output?.stderr === null || receipt.output?.stderr === undefined
+        ? null
+        : truncate(redactSensitiveText(receipt.output.stderr)),
     },
   };
 }

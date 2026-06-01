@@ -105,6 +105,8 @@ export const LONG_TAIL_PROVIDER_ACTIVATION_MANIFESTS: ProviderIntegrationManifes
   compatible('arcee', 'Arcee AI', 'auto', 'https://www.arcee.ai'),
   compatible('cerebras', 'Cerebras Inference', 'llama-3.3-70b', 'https://cloud.cerebras.ai'),
   compatible('chutes', 'Chutes AI', 'deepseek-ai/DeepSeek-V3', 'https://chutes.ai'),
+  compatible('byteplus', 'BytePlus ModelArk', 'doubao-seed-1-6', 'https://www.byteplus.com/en/product/modelark'),
+  local('comfy', 'ComfyUI OpenAI-compatible Runtime', 'local-model', 'https://www.comfy.org'),
   managedGateway('cloudflare-ai-gateway', 'Cloudflare AI Gateway', 'gemini-2.5-flash', 'https://developers.cloudflare.com/ai-gateway'),
   managedGateway('copilot-proxy', 'Copilot Proxy', 'gpt-4o', 'https://github.com/features/copilot'),
   managedGateway('github-copilot', 'GitHub Copilot Compatible', 'gpt-4o', 'https://github.com/features/copilot'),

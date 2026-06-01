@@ -110,7 +110,8 @@ ${tools.map(t => `- ${t.name}: ${t.description}. Parâmetros esperados: ${JSON.s
             const res = await safeFetch(url, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(payload)
+                body: JSON.stringify(payload),
+                signal: options?.signal,
             }, {
                 serviceName: 'Local Llama provider',
                 allowLoopback: true,

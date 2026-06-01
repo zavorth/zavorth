@@ -5,4 +5,5 @@ export * from './application/SurfaceUseCases';
 export * from './domain/SurfaceDomainTypes';
 export * from './infrastructure/StaticSurfaceBoundaryAdapter';
 export * from './presentation/developer-workspace';
+export * from './presentation/shared-surface/factory/SharedSurfaceCommandServiceFactory';
 export * from './presentation/SurfaceDomainPresenter';

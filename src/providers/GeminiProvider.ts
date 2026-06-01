@@ -10,11 +10,13 @@ import {
   ChatMessage,
   ILlmProvider,
   LlmResponse,
+  LlmStreamEvent,
   ProviderChatOptions,
   ToolCall,
   ToolDefinition,
 } from './ILlmProvider.js';
 import { safeFetch } from '../security/SafeFetchService.js';
+import { isProviderAbortError } from './ProviderAbort.js';
 
 export class GeminiProvider implements ILlmProvider {
   public readonly name = 'gemini';
@@ -61,10 +63,13 @@ export class GeminiProvider implements ILlmProvider {
           tools: this.buildGeminiTools(tools, options),
         }, this.requestOptions);
 
-        result = await model.generateContent({
+        const request = {
           contents,
           systemInstruction: systemInstruction || undefined,
-        });
+        };
+        result = options?.signal
+          ? await model.generateContent(request, { signal: options.signal })
+          : await model.generateContent(request);
 
         if (attempt > 0) {
           console.log(
@@ -74,6 +79,9 @@ export class GeminiProvider implements ILlmProvider {
         this.currentClientIndex = clientIndex;
         break;
       } catch (error: any) {
+        if (isProviderAbortError(error, options?.signal)) {
+          throw error;
+        }
         lastError = error;
         console.warn(
           `[Gemini] Erro usando a chave ${clientIndex + 1}: ${error?.message || error}`,
@@ -118,6 +126,142 @@ export class GeminiProvider implements ILlmProvider {
       finishReason: candidate.finishReason || 'stop',
       metadata: this.buildProviderNativeMetadata(candidate, options),
     };
+  }
+
+  public async *streamChat(
+    messages: ChatMessage[],
+    tools?: ToolDefinition[],
+    options?: ProviderChatOptions,
+  ): AsyncIterable<LlmStreamEvent> {
+    const systemInstruction = messages
+      .filter((message) => message.role === 'system')
+      .map((message) => message.content)
+      .join('\n');
+    const contents = this.convertMessages(messages.filter((message) => message.role !== 'system'));
+    const modelName = options?.modelName || config.geminiModel;
+    const streamMetadata = {
+      providerNativeTokenStreaming: true,
+      providerNativeStreamSource: 'gemini-generate-content-stream',
+    };
+    let lastError: any;
+
+    for (let attempt = 0; attempt < this.clients.length; attempt += 1) {
+      const clientIndex = (this.currentClientIndex + attempt) % this.clients.length;
+      const currentClient = this.clients[clientIndex];
+
+      try {
+        const model = currentClient.getGenerativeModel({
+          model: modelName,
+          tools: this.buildGeminiTools(tools, options),
+        }, this.requestOptions);
+
+        const request = {
+          contents,
+          systemInstruction: systemInstruction || undefined,
+        };
+        const result = await (model as any).generateContentStream(
+          request,
+          options?.signal ? { signal: options.signal } : undefined,
+        );
+
+        if (attempt > 0) {
+          console.log(
+            `[Gemini Failover] Streaming bem-sucedido usando a chave secundaria (${clientIndex + 1}/${this.clients.length}).`,
+          );
+        }
+        this.currentClientIndex = clientIndex;
+
+        yield {
+          type: 'start',
+          accumulated: '',
+          done: false,
+          metadata: streamMetadata,
+        };
+
+        let accumulated = '';
+        let chunkIndex = 0;
+        let finishReason = 'stop';
+        const toolCalls: ToolCall[] = [];
+        let finalMetadata: Record<string, unknown> | undefined;
+
+        for await (const chunk of result.stream as AsyncIterable<any>) {
+          const candidate = chunk?.candidates?.[0];
+          if (candidate?.finishReason) {
+            finishReason = candidate.finishReason;
+          }
+          finalMetadata = this.buildProviderNativeMetadata(candidate, options) || finalMetadata;
+          for (const part of candidate?.content?.parts || []) {
+            if (part?.text) {
+              accumulated += part.text;
+              chunkIndex += 1;
+              yield {
+                type: 'delta',
+                delta: part.text,
+                accumulated,
+                chunkIndex,
+                done: false,
+                metadata: {
+                  ...streamMetadata,
+                  ...(finalMetadata || {}),
+                },
+              };
+            }
+            if (part?.functionCall) {
+              const toolCall: ToolCall = {
+                id: `call_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`,
+                name: part.functionCall.name,
+                arguments: (part.functionCall.args || {}) as Record<string, unknown>,
+              };
+              toolCalls.push(toolCall);
+              yield {
+                type: 'tool_call_delta',
+                toolCallDelta: {
+                  index: toolCalls.length - 1,
+                  id: toolCall.id,
+                  name: toolCall.name,
+                  arguments: JSON.stringify(toolCall.arguments),
+                },
+                accumulated,
+                done: false,
+                metadata: {
+                  ...streamMetadata,
+                  ...(finalMetadata || {}),
+                },
+              };
+            }
+          }
+        }
+
+        const finalResponse = await this.resolveGeminiStreamResponse(result, {
+          accumulated,
+          toolCalls,
+          finishReason,
+          metadata: finalMetadata,
+          options,
+        });
+        yield {
+          type: 'done',
+          accumulated: finalResponse.content || accumulated,
+          response: finalResponse,
+          done: true,
+          metadata: {
+            ...streamMetadata,
+            ...(finalResponse.metadata || {}),
+          },
+        };
+        return;
+      } catch (error: any) {
+        if (isProviderAbortError(error, options?.signal)) {
+          throw error;
+        }
+        lastError = error;
+        console.warn(
+          `[Gemini] Erro de streaming usando a chave ${clientIndex + 1}: ${error?.message || error}`,
+        );
+      }
+    }
+
+    throw lastError || new Error('Falha desconhecida no Gemini streaming');
   }
 
   private async chatViaCloudflareAiGateway(
@@ -250,6 +394,72 @@ export class GeminiProvider implements ILlmProvider {
       finishReason: candidate.finishReason || 'stop',
       metadata: this.buildProviderNativeMetadata(candidate, options),
     };
+  }
+
+  private async resolveGeminiStreamResponse(
+    result: any,
+    fallback: {
+      accumulated: string;
+      toolCalls: ToolCall[];
+      finishReason: string;
+      metadata?: Record<string, unknown>;
+      options?: ProviderChatOptions;
+    },
+  ): Promise<LlmResponse> {
+    try {
+      const response = await result.response;
+      const candidate = response?.candidates?.[0];
+      if (!candidate) {
+        return {
+          content: fallback.accumulated || null,
+          toolCalls: fallback.toolCalls,
+          finishReason: fallback.finishReason,
+          metadata: {
+            providerNativeTokenStreaming: true,
+            providerNativeStreamSource: 'gemini-generate-content-stream',
+            ...(fallback.metadata || {}),
+          },
+        };
+      }
+
+      const toolCalls: ToolCall[] = [];
+      let textContent = '';
+      for (const part of candidate.content?.parts || []) {
+        if (part?.text) {
+          textContent += part.text;
+        }
+        if (part?.functionCall) {
+          toolCalls.push({
+            id: `call_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`,
+            name: part.functionCall.name,
+            arguments: (part.functionCall.args || {}) as Record<string, unknown>,
+          });
+        }
+      }
+
+      return {
+        content: textContent || fallback.accumulated || null,
+        toolCalls: toolCalls.length > 0 ? toolCalls : fallback.toolCalls,
+        finishReason: candidate.finishReason || fallback.finishReason,
+        metadata: {
+          providerNativeTokenStreaming: true,
+          providerNativeStreamSource: 'gemini-generate-content-stream',
+          ...(fallback.metadata || {}),
+          ...(this.buildProviderNativeMetadata(candidate, fallback.options) || {}),
+        },
+      };
+    } catch {
+      return {
+        content: fallback.accumulated || null,
+        toolCalls: fallback.toolCalls,
+        finishReason: fallback.finishReason,
+        metadata: {
+          providerNativeTokenStreaming: true,
+          providerNativeStreamSource: 'gemini-generate-content-stream',
+          ...(fallback.metadata || {}),
+        },
+      };
+    }
   }
 
   private buildGeminiTools(tools?: ToolDefinition[], options?: ProviderChatOptions): any[] | undefined {

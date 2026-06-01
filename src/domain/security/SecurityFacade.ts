@@ -1,9 +1,9 @@
-import type { ZavorthSecurityMeshService } from '../../services/ZavorthSecurityMeshService.js';
 import { DomainFacadeBase, type DomainSnapshot } from '../DomainFacadeBase.js';
+import type { SecurityMeshSnapshotPort } from './domain/SecurityDomainTypes.js';
 
 type SecurityFacadeRuntime = {
   now?: () => Date;
-  securityMeshService?: Pick<ZavorthSecurityMeshService, 'buildSnapshot'>;
+  securityMeshService?: SecurityMeshSnapshotPort;
 };
 
 export type SecurityDomainSnapshot = DomainSnapshot & {
@@ -18,7 +18,7 @@ export type SecurityDomainSnapshot = DomainSnapshot & {
 };
 
 export class SecurityFacade extends DomainFacadeBase<SecurityDomainSnapshot> {
-  private readonly securityMesh: Pick<ZavorthSecurityMeshService, 'buildSnapshot'> | null;
+  private readonly securityMesh: SecurityMeshSnapshotPort | null;
 
   constructor(runtime: SecurityFacadeRuntime = {}) {
     super('security', 'Security', runtime.now);

@@ -375,6 +375,8 @@ export class ConversationalAgent {
       'Voce pode conversar, pesquisar, resumir, orientar e encaminhar tarefas para executores especializados quando isso fizer sentido.',
       'O canal de entrada nao limita suas capacidades: pedidos por audio e por texto podem usar as mesmas ferramentas disponiveis.',
       'Quando o usuario pedir para listar, trocar ou fixar provider/modelo LLM, use a ferramenta configure_llm_profile quando ela estiver disponivel.',
+      'Quando o usuario pedir para alterar configuracao, estado operacional ou governanca do Zavorth, use zavorth_action quando ela estiver disponivel: primeiro action.schema.lookup, depois action.preview, e action.apply apenas com approval/confirmacao estruturada.',
+      'Nao invente slash commands, comandos CLI ou shell para operacoes de primeira classe do Zavorth quando uma acao do Action Harness existir.',
       'Quando o pedido depender de informacao atual, instavel ou verificavel na web, use web_search quando ela estiver disponivel; nao diga que nao tem acesso em tempo real sem tentar a ferramenta.',
       'Use get_datetime quando a resposta depender da data/hora atual.',
       'Use ferramentas por necessidade real, nao por palavra-chave fixa: receita comum pode ser respondida por conhecimento geral; receita viral, preco, cargo atual, noticias, versao de software ou tendencia pedem verificacao.',
@@ -712,6 +714,7 @@ export class ConversationalAgent {
         'Use these sourced and ranked results for current, unstable, high-stakes, scientific, legal, medical, financial, or link-requested facts. Cite source/date when useful. Do not infer office holders, institutional roles, prices, discoveries, papers, cases, releases, scores, or breaking facts from model memory. Do not expose internal search windows or implementation limits as user-facing capability limits. If results include QUALITY_GATE or an error, state the limitation naturally and answer only what is supported.',
         buildUntrustedContentFirewallInstruction(),
         this.evidenceSearchRouter.buildContextGuidance(webSearchNeed),
+        this.evidenceSearchRouter.buildAnswerPolicyGuidance(webSearchNeed),
         wrapUntrustedContent('untrusted_web_evidence', searchResult, {
           source: 'automatic_web_search',
           query,

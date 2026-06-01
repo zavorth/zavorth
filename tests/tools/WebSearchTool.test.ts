@@ -601,6 +601,44 @@ describe('WebSearchTool', () => {
     expect(result).toContain('preferred:doi.org');
   });
 
+  it('runs adaptive multi-track searches for community technical troubleshooting', async () => {
+    (search as jest.Mock)
+      .mockResolvedValueOnce({ noResults: true, results: [] })
+      .mockResolvedValueOnce({
+        noResults: false,
+        results: [
+          {
+            title: 'Playwright issue with workaround',
+            url: 'https://github.com/microsoft/playwright/issues/123',
+            description: 'Users discuss a bug, workaround and affected versions.',
+          },
+        ],
+      })
+      .mockResolvedValueOnce({
+        noResults: false,
+        results: [
+          {
+            title: 'Reddit thread about Playwright bug',
+            url: 'https://www.reddit.com/r/playwright/comments/example',
+            description: 'Community discussion with practical reports.',
+          },
+        ],
+      });
+
+    const result = await new WebSearchTool().execute({
+      query: 'como resolver bug no Playwright com relatos no GitHub e Reddit',
+      domainProfile: 'technical',
+      deep: true,
+      extractPages: false,
+      limit: 2,
+    });
+
+    expect(search).toHaveBeenCalledWith(expect.stringContaining('site:github.com/issues'), expect.any(Object));
+    expect(search).toHaveBeenCalledWith(expect.stringContaining('reddit forum'), expect.any(Object));
+    expect(result).toContain('Trilha da busca: issue-tracker (primary)');
+    expect(result).toContain('Playwright issue with workaround');
+  });
+
   it('deep-ranks consumer/general decisions with host diversity and extracted page dates', async () => {
     (search as jest.Mock)
       .mockResolvedValueOnce({
@@ -647,7 +685,7 @@ describe('WebSearchTool', () => {
       limit: 3,
     });
 
-    expect(search).toHaveBeenCalledWith(expect.stringContaining('independent reviews comparison'), expect.any(Object));
+    expect(search).toHaveBeenCalledWith(expect.stringContaining('independent review benchmark comparison'), expect.any(Object));
     expect(result).toContain('EVIDENCE_PROFILE: consumer');
     expect(result).toContain('Diversidade de hosts: 2/3');
     expect(result).toContain('Air fryer benchmark comparison');

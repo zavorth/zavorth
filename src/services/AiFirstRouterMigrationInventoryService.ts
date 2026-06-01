@@ -304,7 +304,7 @@ const INVENTORY_ENTRIES: AiFirstRouterInventoryEntry[] = [
   {
     id: 'shared-surface-natural-intent-support',
     label: 'Shared surface natural intent support',
-    filePath: 'src/domain/surface/application/shared-surface/SharedSurfaceNaturalIntentSupport.ts',
+    filePath: 'src/domain/surface/presentation/shared-surface/SharedSurfaceNaturalIntentSupport.ts',
     currentRole: 'Parseia canal, memoria e learning por matchers naturais compartilhados.',
     currentDecisionStyle: 'regex-heuristic',
     migrationDecision: 'promote-ai-first',

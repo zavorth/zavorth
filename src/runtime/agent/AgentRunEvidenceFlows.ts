@@ -1,4 +1,4 @@
-import type { DynamicHierarchyLaunchResult } from '../../domain/execution/application/DynamicHierarchySwarmService.js';
+import type { DynamicHierarchyLaunchResult } from '../../domain/execution/infrastructure/DynamicHierarchySwarmService.js';
 import type { SelfModificationPreviewResult } from '../../services/SelfModificationCommandService.js';
 import type { WatchModeRunSnapshot } from '../../services/ComputerUseWatchModeService.js';
 import type { TrustSliderLevel, TrustSliderPolicyDecision, UniversalIntentUserRole } from '../uni/UniversalIntentContracts.js';

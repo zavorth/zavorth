@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 import { spawn } from 'child_process';
-import { existsSync, readFileSync } from 'fs';
+import { existsSync, readFileSync, writeFileSync } from 'fs';
 import path from 'path';
 import { formatCliHelp, resolveCliHelpTopic } from './cli/ZavorthCliSurfaceHelpers.js';
 import {
@@ -16,6 +16,7 @@ import {
   isZavorthLiveNamespaceCommand,
   runZavorthLiveNamespaceCommand,
 } from './cli/ZavorthCliLiveNamespaces.js';
+import type { DiskMutationGateRequestedOperation } from './contracts/DiskMutationGateContract.js';
 
 async function logCliError(message: string, title = 'Zavorth Error'): Promise<void> {
   const isTTY = process.stderr.isTTY && !process.argv.includes('--json');
@@ -78,6 +79,7 @@ const PUBLIC_COMMAND_ALIASES: Record<string, string> = {
 
 const PUBLIC_COMMANDS = [
   'chat',
+  'actions',
   'channels',
   'setup',
   'home',
@@ -88,6 +90,10 @@ const PUBLIC_COMMANDS = [
   'open',
   'providers',
   'models',
+  'mnemos',
+  'swarm',
+  'sandbox',
+  'satellite',
   'hud',
   'tui',
   'help',
@@ -98,6 +104,22 @@ const PUBLIC_COMMANDS = [
   'diff',
   'learn',
   'inspect',
+  'constitution',
+  'disk',
+  'disk-gate',
+  'branch',
+  'commit',
+  'pr',
+  'review',
+  'acp',
+  'tasks',
+  'curator',
+  'todo',
+  'later',
+  'work',
+  'done',
+  'retry',
+  'cancel',
 ];
 
 function normalizePublicCommandAliases(rawArgs: string[]): string[] {
@@ -194,6 +216,39 @@ function readFlexibleStringFlag(argv: string[], name: string): string | null {
   return index >= 0 && argv[index + 1] ? argv[index + 1] : null;
 }
 
+function readStringListFlag(argv: string[], name: string): string[] {
+  const inlinePrefix = `--${name}=`;
+  const values: string[] = [];
+  for (let index = 0; index < argv.length; index += 1) {
+    const arg = argv[index] || '';
+    if (arg.startsWith(inlinePrefix)) {
+      values.push(arg.slice(inlinePrefix.length));
+      continue;
+    }
+    if (arg === `--${name}` && argv[index + 1]) {
+      values.push(argv[index + 1]);
+      index += 1;
+    }
+  }
+  return values
+    .flatMap((value) => String(value || '').split(/[,\n;]/))
+    .map((value) => value.trim())
+    .filter(Boolean);
+}
+
+function readTaskPositional(argv: string[], index: number): string | null {
+  const flagValueIndexes = new Set<number>();
+  for (let cursor = 0; cursor < argv.length; cursor += 1) {
+    const arg = argv[cursor] || '';
+    if (arg.startsWith('--') && !arg.includes('=') && argv[cursor + 1] && !argv[cursor + 1].startsWith('--')) {
+      flagValueIndexes.add(cursor + 1);
+      cursor += 1;
+    }
+  }
+  const values = argv.filter((arg, cursor) => !flagValueIndexes.has(cursor) && !arg.startsWith('--'));
+  return values[index] || null;
+}
+
 function readDurationMsFlag(argv: string[], name: string): number | null {
   const raw = readStringFlag(argv, name);
   if (!raw) {
@@ -283,6 +338,233 @@ async function runPremiumHome(rawArgs: string[]): Promise<number> {
   });
   process.stdout.write(result.output);
   return result.exitCode;
+}
+
+async function runZavorthHomeCommand(rawArgs: string[]): Promise<number> {
+  const { ZavorthHomePathService } = await import('./services/ZavorthHomePathService.js');
+  const subcommand = String(rawArgs[0] || 'status').trim().toLowerCase();
+  const explicitHome = readFlexibleStringFlag(rawArgs, 'home');
+  const approvalId = readFlexibleStringFlag(rawArgs, 'approval-id');
+  const service = new ZavorthHomePathService({ projectRoot, explicitHome, env: process.env });
+  const snapshot = subcommand === 'switch'
+    ? service.previewSwitch({ home: explicitHome || process.env.ZAVORTH_HOME || '' })
+    : subcommand === 'migrate' && rawArgs.includes('--rollback')
+      ? service.rollbackMigration({ approvalId })
+      : subcommand === 'migrate' && rawArgs.includes('--apply')
+        ? service.applyMigration({ approvalId, overwrite: rawArgs.includes('--overwrite') })
+        : subcommand === 'migrate' || rawArgs.includes('--preview')
+          ? service.buildMigrationPreview()
+          : service.resolveSnapshot();
+
+  let switchResult: { written: boolean; envFile: string; key: 'ZAVORTH_HOME' } | null = null;
+  if (subcommand === 'switch' && rawArgs.includes('--apply') && snapshot.isolated && snapshot.root) {
+    switchResult = writeZavorthHomeEnvSelection(projectRoot, snapshot.root);
+    process.env.ZAVORTH_HOME = snapshot.root;
+  }
+
+  if (rawArgs.includes('--json')) {
+    process.stdout.write(`${JSON.stringify(snapshot, null, 2)}\n`);
+    return snapshot.migration.status === 'blocked' ? 1 : 0;
+  }
+
+  const lines = [
+    `root: ${snapshot.root}`,
+    `source: ${snapshot.source}`,
+    `isolated: ${snapshot.isolated ? 'yes' : 'no'}`,
+    `migration: ${snapshot.migration.status}`,
+    `data: ${snapshot.resolvedPaths.dataDir}`,
+    `runtime: ${snapshot.resolvedPaths.runtimeDir}`,
+    `receipts: ${snapshot.resolvedPaths.receiptsDir}`,
+    `status command: ${snapshot.dailyUse.statusCommand}`,
+    `switch command: ${snapshot.dailyUse.switchCommand}`,
+    snapshot.warnings.length ? `warnings: ${snapshot.warnings.join(' | ')}` : 'warnings: none',
+  ];
+  if (subcommand === 'switch') {
+    lines.push(
+      '',
+      rawArgs.includes('--apply')
+        ? `switched: ${switchResult?.written ? `ZAVORTH_HOME written to ${switchResult.envFile}` : 'no .env update was needed'}`
+        : 'switch preview only. Add --apply to write ZAVORTH_HOME into .env.',
+      'Use --home <path> for one command, or switch to persist this instance home.',
+    );
+  }
+  if (subcommand === 'migrate') {
+    lines.push(
+      '',
+      'migration preview:',
+      ...snapshot.migration.entries.map((entry) => (
+        `- ${entry.kind.padEnd(9)} ${entry.exists ? 'found' : 'missing'} ${entry.redactedSource} -> ${entry.redactedDestination} risk=${entry.risk}`
+      )),
+      '',
+      snapshot.migration.writesPerformed
+        ? `${snapshot.migration.status} with approval ${snapshot.migration.approvalId}`
+        : 'no data was written without --apply --approval-id=<id>',
+    );
+  }
+  process.stdout.write(`${lines.join('\n')}\n`);
+  return snapshot.migration.status === 'blocked' ? 1 : 0;
+}
+
+function writeZavorthHomeEnvSelection(root: string, homeRoot: string): { written: boolean; envFile: string; key: 'ZAVORTH_HOME' } {
+  const envFile = path.join(root, '.env');
+  const key = 'ZAVORTH_HOME' as const;
+  const nextLine = `${key}=${homeRoot}`;
+  let current = '';
+  try {
+    current = existsSync(envFile) ? readFileSync(envFile, 'utf8') : '';
+  } catch {
+    current = '';
+  }
+  const lines = current.split(/\r?\n/u);
+  let changed = false;
+  let seen = false;
+  const next = lines.map((line) => {
+    if (!line.trim() || line.trim().startsWith('#')) {
+      return line;
+    }
+    if (/^ZAVORTH_HOME\s*=/u.test(line)) {
+      seen = true;
+      if (line === nextLine) {
+        return line;
+      }
+      changed = true;
+      return nextLine;
+    }
+    return line;
+  });
+  if (!seen) {
+    if (next.length > 0 && next[next.length - 1] !== '') {
+      next.push('');
+    }
+    next.push(nextLine);
+    changed = true;
+  }
+  if (!changed) {
+    return { written: false, envFile, key };
+  }
+  writeFileSync(envFile, `${next.join('\n').replace(/\n+$/u, '')}\n`, 'utf8');
+  return { written: true, envFile, key };
+}
+
+async function runZavorthEchoWakeCommand(rawArgs: string[]): Promise<number> {
+  const { VoiceWakeRuntimeService } = await import('./services/VoiceWakeRuntimeService.js');
+  const { VoiceWakeDetectorSetupService } = await import('./services/VoiceWakeDetectorSetupService.js');
+  const { ZavorthHomePathService } = await import('./services/ZavorthHomePathService.js');
+  const subcommand = String(rawArgs[0] || 'status').trim().toLowerCase();
+  if (subcommand === 'setup' || subcommand === 'configure') {
+    const setup = new VoiceWakeDetectorSetupService({ projectRoot, env: process.env });
+    const snapshot = setup.buildPlan({
+      choice: rawArgs.includes('--disabled')
+        ? 'disabled'
+        : rawArgs.includes('--custom-command')
+          ? 'custom-command'
+          : 'default-local',
+      command: readFlexibleStringFlag(rawArgs, 'command') || readTaskPositional(rawArgs, 1),
+      args: readFlexibleStringFlag(rawArgs, 'args'),
+      apply: rawArgs.includes('--apply') || rawArgs.includes('--yes'),
+    });
+    if (rawArgs.includes('--json')) {
+      process.stdout.write(`${JSON.stringify(snapshot, null, 2)}\n`);
+    } else {
+      process.stdout.write(setup.renderText(snapshot));
+    }
+    return 0;
+  }
+  const explicitHome = readFlexibleStringFlag(rawArgs, 'home');
+  const home = new ZavorthHomePathService({ projectRoot, explicitHome, env: process.env }).resolveSnapshot();
+  const service = new VoiceWakeRuntimeService({
+    stateFile: path.join(home.resolvedPaths.runtimeDir, 'voice-wake-session.json'),
+    env: process.env,
+  });
+  const ttlMs = readDurationMsFlag(rawArgs, 'ttl');
+  const session = subcommand === 'arm'
+    ? service.arm(ttlMs)
+    : subcommand === 'disarm'
+      ? service.disarm()
+      : service.status();
+
+  if (rawArgs.includes('--json')) {
+    process.stdout.write(`${JSON.stringify(session, null, 2)}\n`);
+  } else {
+    process.stdout.write([
+      `wake: ${session.mode}`,
+      `armedUntil: ${session.armedUntil || 'off'}`,
+      `detector: ${session.detector.configured ? session.detector.kind : 'not configured'}`,
+      `privacy: local wake, no raw audio persistence`,
+      `receipt: ${session.lastReceipt ? `${session.lastReceipt.event} (${session.lastReceipt.id})` : 'none'}`,
+    ].join('\n') + '\n');
+  }
+  return 0;
+}
+
+async function runZavorthTasksCommand(rawArgs: string[]): Promise<number> {
+  const { TaskPlaneService } = await import('./services/TaskPlaneService.js');
+  const { ZavorthHomePathService } = await import('./services/ZavorthHomePathService.js');
+  const subcommand = String(rawArgs[0] || 'list').trim().toLowerCase();
+  const explicitHome = readFlexibleStringFlag(rawArgs, 'home');
+  const home = new ZavorthHomePathService({ projectRoot, explicitHome, env: process.env }).resolveSnapshot();
+  const service = new TaskPlaneService({
+    storePath: path.join(home.resolvedPaths.runtimeDir, 'task-plane.json'),
+  });
+
+  let result: unknown;
+  if (subcommand === 'create' || subcommand === 'add') {
+    result = service.createTask({
+      title: readFlexibleStringFlag(rawArgs, 'title') || readTaskPositional(rawArgs, 1) || 'Untitled task',
+      source: readFlexibleStringFlag(rawArgs, 'source') || 'cli',
+      approvalId: readFlexibleStringFlag(rawArgs, 'approval-id'),
+    });
+  } else if (subcommand === 'claim') {
+    result = service.claimTask(
+      readTaskPositional(rawArgs, 1) || '',
+      readFlexibleStringFlag(rawArgs, 'owner') || process.env.USERNAME || process.env.USER || 'operator',
+      readDurationMsFlag(rawArgs, 'lease'),
+    );
+  } else if (subcommand === 'cancel') {
+    result = service.cancelTask(readTaskPositional(rawArgs, 1) || '', 'cli', readFlexibleStringFlag(rawArgs, 'reason') || 'Cancelled from CLI.');
+  } else if (subcommand === 'retry') {
+    result = service.retryTask(readTaskPositional(rawArgs, 1) || '', 'cli');
+  } else {
+    result = service.snapshot();
+  }
+
+  if (rawArgs.includes('--json')) {
+    process.stdout.write(`${JSON.stringify(result, null, 2)}\n`);
+    return result ? 0 : 1;
+  }
+
+  if (!result) {
+    process.stdout.write('Task not found or not eligible for that operation.\n');
+    return 1;
+  }
+  const snapshot = service.snapshot();
+  process.stdout.write([
+    `tasks: ${snapshot.items.length}`,
+    `queued: ${snapshot.summary.queued}`,
+    `running: ${snapshot.summary.running}`,
+    `waiting_approval: ${snapshot.summary.waiting_approval}`,
+    ...snapshot.items.slice(0, 12).map((task) => `- ${task.status.padEnd(16)} ${task.id} ${task.title}`),
+  ].join('\n') + '\n');
+  return 0;
+}
+
+async function runZavorthFriendlyWorkCommand(
+  command: 'todo' | 'later' | 'work' | 'done' | 'retry' | 'cancel',
+  rawArgs: string[],
+): Promise<number> {
+  const { ZavorthFriendlyWorkCommandService } = await import('./services/ZavorthFriendlyWorkCommandService.js');
+  const service = new ZavorthFriendlyWorkCommandService({
+    projectRoot,
+    explicitHome: readFlexibleStringFlag(rawArgs, 'home'),
+    env: process.env,
+  });
+  const result = service.run(command, rawArgs);
+  if (rawArgs.includes('--json')) {
+    process.stdout.write(`${JSON.stringify(result, null, 2)}\n`);
+  } else {
+    process.stdout.write(`${result.lines.join('\n')}\n`);
+  }
+  return result.ok ? 0 : 1;
 }
 
 async function runPremiumHatch(rawArgs: string[]): Promise<number> {
@@ -409,6 +691,339 @@ async function runPremiumSetupStudio(rawArgs: string[]): Promise<number> {
   });
   process.stdout.write(result.output);
   return result.exitCode;
+}
+
+async function runProjectConstitutionCommand(rawArgs: string[]): Promise<number> {
+  const { ProjectConstitutionImportService } = await import('./services/ProjectConstitutionImportService.js');
+  const service = new ProjectConstitutionImportService();
+  const asJson = rawArgs.includes('--json');
+  const workspaceRoot = readFlexibleStringFlag(rawArgs, 'workspace') || readFlexibleStringFlag(rawArgs, 'workspaceRoot') || process.cwd();
+  const action = String(rawArgs.find((arg) => !arg.startsWith('--')) || 'import').trim().toLowerCase();
+
+  if (rawArgs.includes('--help') || rawArgs.includes('-h')) {
+    return printCliPanel('Zavorth constitution', [
+      'Usage: zavorth constitution import [--apply --yes]',
+      '',
+      'Imports local AGENTS.md and CLAUDE.md into ZAVORTH_PROJECT.md as advisory context.',
+      'No instruction is executed, secrets are redacted, and apply requires explicit approval.',
+      '',
+      'Commands:',
+      '  status                  Show import status and receipts',
+      '  import                  Create preview only',
+      '  import --apply --yes    Preview and apply with local owner approval',
+      '  apply <previewId>       Apply an existing preview with its approval phrase',
+    ], 'info');
+  }
+
+  if (action === 'status') {
+    const status = service.buildStatus({ workspaceRoot });
+    if (asJson) {
+      process.stdout.write(`${JSON.stringify(status, null, 2)}\n`);
+    } else {
+      await printCliPanel('Project constitution', [
+        `workspace: ${status.workspaceRoot}`,
+        `target: ${status.targetExists ? 'found' : 'missing'} ${status.targetPath}`,
+        `sources: ${status.candidateSources.filter((source) => source.exists).map((source) => source.fileName).join(', ') || 'none'}`,
+        `receipts: ${status.receipts.length}`,
+        status.importedSources.length
+          ? `imported: ${status.importedSources.map((source) => source.sourcePath).join(', ')}`
+          : 'imported: none',
+      ], status.targetExists ? 'success' : 'warning');
+    }
+    return 0;
+  }
+
+  if (action === 'apply') {
+    const previewId = rawArgs.find((arg, index) => index > 0 && !arg.startsWith('--')) || readFlexibleStringFlag(rawArgs, 'preview') || '';
+    const approvalPhrase = readFlexibleStringFlag(rawArgs, 'approval-phrase') || readFlexibleStringFlag(rawArgs, 'approvalPhrase') || '';
+    const result = service.applyPreview({
+      workspaceRoot,
+      previewId,
+      approvalPhrase,
+      approvedBy: readFlexibleStringFlag(rawArgs, 'by') || 'zavorth-cli',
+    });
+    if (asJson) {
+      process.stdout.write(`${JSON.stringify(result, null, 2)}\n`);
+    } else {
+      await printCliPanel('Constitution import applied', [
+        result.receipt.summary,
+        `receipt: ${result.receipt.receiptId}`,
+        `target: ${result.receipt.targetPath}`,
+      ], 'success');
+    }
+    return 0;
+  }
+
+  const sourcePaths = rawArgs
+    .filter((arg) => arg.startsWith('--source='))
+    .map((arg) => arg.slice('--source='.length).trim())
+    .filter(Boolean);
+  const preview = service.createPreview({
+    workspaceRoot,
+    sourcePaths: sourcePaths.length ? sourcePaths : null,
+  });
+  const shouldApply = rawArgs.includes('--apply');
+  if (shouldApply) {
+    if (!rawArgs.includes('--yes')) {
+      if (asJson) {
+        process.stdout.write(`${JSON.stringify({ ok: false, preview, error: 'approval_required' }, null, 2)}\n`);
+      } else {
+        await printCliPanel('Approval required', [
+          preview.summary,
+          `approval phrase: ${preview.approval.phrase}`,
+          'Re-run with --apply --yes to apply this preview, or use zavorth constitution apply <previewId> --approval-phrase "...".',
+        ], 'warning');
+      }
+      return 1;
+    }
+    const result = service.applyPreview({
+      workspaceRoot,
+      previewId: preview.previewId,
+      approvalPhrase: preview.approval.phrase,
+      approvedBy: readFlexibleStringFlag(rawArgs, 'by') || 'zavorth-cli',
+    });
+    if (asJson) {
+      process.stdout.write(`${JSON.stringify(result, null, 2)}\n`);
+    } else {
+      await printCliPanel('Constitution import applied', [
+        result.receipt.summary,
+        `receipt: ${result.receipt.receiptId}`,
+        `target: ${result.receipt.targetPath}`,
+      ], 'success');
+    }
+    return 0;
+  }
+
+  if (asJson) {
+    process.stdout.write(`${JSON.stringify(preview, null, 2)}\n`);
+  } else {
+    await printCliPanel('Constitution import preview', [
+      preview.summary,
+      `preview: ${preview.previewId}`,
+      `target: ${preview.targetPath}`,
+      `sources: ${preview.sources.map((source) => source.relativePath).join(', ') || 'none'}`,
+      `findings: ${preview.findings.length}`,
+      `approval phrase: ${preview.approval.phrase}`,
+      `apply: zavorth constitution apply ${preview.previewId} --approval-phrase "${preview.approval.phrase}"`,
+    ], preview.status === 'preview_ready' ? 'warning' : 'info');
+  }
+  return preview.status === 'preview_ready' ? 0 : 1;
+}
+
+async function runDiskMutationGateCommand(rawArgs: string[]): Promise<number> {
+  const { DiskMutationGateService } = await import('./services/DiskMutationGateService.js');
+  const service = new DiskMutationGateService();
+  const asJson = rawArgs.includes('--json');
+  const workspaceRoot = readFlexibleStringFlag(rawArgs, 'workspace') || readFlexibleStringFlag(rawArgs, 'workspaceRoot') || process.cwd();
+  const action = String(rawArgs.find((arg) => !arg.startsWith('--')) || 'preview').trim().toLowerCase();
+
+  if (rawArgs.includes('--help') || rawArgs.includes('-h')) {
+    return printCliPanel('Zavorth disk gate', [
+      'Usage: zavorth disk preview --write <path> --content "..."',
+      '',
+      'Creates a governed disk mutation preview. Apply requires the exact approval phrase and writes a receipt.',
+      '',
+      'Commands:',
+      '  status                         Show disk mutation receipts',
+      '  preview --write <path>         Preview file replacement',
+      '  preview --append <path>        Preview append',
+      '  preview --delete <path>        Preview file deletion',
+      '  preview --mkdir <path>         Preview directory creation',
+      '  preview --apply --yes          Preview and apply with local owner approval',
+      '  apply <previewId>              Apply an existing preview with its approval phrase',
+    ], 'info');
+  }
+
+  if (action === 'status') {
+    const status = service.buildStatus({
+      workspaceRoot,
+      limit: readNumberFlag(rawArgs, 'limit'),
+    });
+    if (asJson) {
+      process.stdout.write(`${JSON.stringify(status, null, 2)}\n`);
+    } else {
+      await printCliPanel('Disk mutation gate', [
+        `workspace: ${status.workspaceRoot}`,
+        `receipt: ${status.receiptPath}`,
+        `receipts: ${status.receiptCount}`,
+        status.receipts.length
+          ? `latest: ${status.receipts[0].summary}`
+          : 'latest: none',
+      ], 'info');
+    }
+    return 0;
+  }
+
+  if (action === 'apply') {
+    const previewId = rawArgs.find((arg, index) => index > 0 && !arg.startsWith('--')) || readFlexibleStringFlag(rawArgs, 'preview') || '';
+    const approvalPhrase = readFlexibleStringFlag(rawArgs, 'approval-phrase') || readFlexibleStringFlag(rawArgs, 'approvalPhrase') || '';
+    const result = service.applyPreview({
+      workspaceRoot,
+      previewId,
+      approvalPhrase,
+      approvedBy: readFlexibleStringFlag(rawArgs, 'by') || 'zavorth-cli',
+    });
+    if (asJson) {
+      process.stdout.write(`${JSON.stringify(result, null, 2)}\n`);
+    } else {
+      await printCliPanel('Disk mutation applied', [
+        result.receipt.summary,
+        `receipt: ${result.receipt.receiptId}`,
+        `operations: ${result.receipt.operations.map((operation) => `${operation.kind}:${operation.relativePath}`).join(', ') || 'none'}`,
+      ], result.status === 'applied' ? 'success' : 'info');
+    }
+    return 0;
+  }
+
+  const operation = buildDiskMutationOperation(rawArgs, action);
+  if (!operation) {
+    if (asJson) {
+      process.stdout.write(`${JSON.stringify({ ok: false, error: 'operation_required' }, null, 2)}\n`);
+    } else {
+      await printCliPanel('Disk mutation gate', [
+        'Informe uma operacao: --write, --append, --delete ou --mkdir.',
+        'Example: zavorth disk preview --write output/example.txt --content "hello"',
+      ], 'warning');
+    }
+    return 1;
+  }
+
+  const preview = service.createPreview({
+    workspaceRoot,
+    operations: [operation],
+    requestedBy: readFlexibleStringFlag(rawArgs, 'by') || 'zavorth-cli',
+    sourceSurface: 'zavorth-cli:disk',
+    reason: readFlexibleStringFlag(rawArgs, 'reason'),
+  });
+  const shouldApply = rawArgs.includes('--apply');
+  if (shouldApply) {
+    if (!rawArgs.includes('--yes')) {
+      if (asJson) {
+        process.stdout.write(`${JSON.stringify({ ok: false, preview, error: 'approval_required' }, null, 2)}\n`);
+      } else {
+        await printCliPanel('Approval required', [
+          preview.summary,
+          `approval phrase: ${preview.approval.phrase}`,
+          'Re-run with --apply --yes to apply this preview, or use zavorth disk apply <previewId> --approval-phrase "...".',
+        ], 'warning');
+      }
+      return 1;
+    }
+    const result = service.applyPreview({
+      workspaceRoot,
+      previewId: preview.previewId,
+      approvalPhrase: preview.approval.phrase,
+      approvedBy: readFlexibleStringFlag(rawArgs, 'by') || 'zavorth-cli',
+    });
+    if (asJson) {
+      process.stdout.write(`${JSON.stringify(result, null, 2)}\n`);
+    } else {
+      await printCliPanel('Disk mutation applied', [
+        result.receipt.summary,
+        `receipt: ${result.receipt.receiptId}`,
+        `operations: ${result.receipt.operations.map((entry) => `${entry.kind}:${entry.relativePath}`).join(', ') || 'none'}`,
+      ], result.status === 'applied' ? 'success' : 'info');
+    }
+    return result.status === 'applied' || result.status === 'noop' ? 0 : 1;
+  }
+
+  if (asJson) {
+    process.stdout.write(`${JSON.stringify(preview, null, 2)}\n`);
+  } else {
+    await printCliPanel('Disk mutation preview', [
+      preview.summary,
+      `preview: ${preview.previewId}`,
+      `status: ${preview.status}`,
+      `operations: ${preview.operations.map((entry) => `${entry.kind}:${entry.relativePath}`).join(', ') || 'none'}`,
+      `findings: ${preview.findings.length}`,
+      `approval phrase: ${preview.approval.phrase}`,
+      `apply: zavorth disk apply ${preview.previewId} --approval-phrase "${preview.approval.phrase}"`,
+    ], preview.status === 'preview_ready' ? 'warning' : preview.status === 'blocked' ? 'error' : 'info');
+  }
+  return preview.status === 'blocked' ? 1 : 0;
+}
+
+function buildDiskMutationOperation(
+  rawArgs: string[],
+  action: string,
+): DiskMutationGateRequestedOperation | null {
+  const writePath = readFlexibleStringFlag(rawArgs, 'write');
+  const appendPath = readFlexibleStringFlag(rawArgs, 'append');
+  const deletePath = readFlexibleStringFlag(rawArgs, 'delete') || readFlexibleStringFlag(rawArgs, 'remove');
+  const mkdirPath = readFlexibleStringFlag(rawArgs, 'mkdir') || readFlexibleStringFlag(rawArgs, 'dir');
+  const positionalPath = rawArgs.find((arg, index) => index > 0 && !arg.startsWith('--')) || '';
+  const content = readDiskMutationContent(rawArgs);
+  const reason = readFlexibleStringFlag(rawArgs, 'reason');
+
+  if (writePath || action === 'write') {
+    const targetPath = writePath || positionalPath;
+    return targetPath ? { kind: 'write_file', path: targetPath, content, reason } : null;
+  }
+  if (appendPath || action === 'append') {
+    const targetPath = appendPath || positionalPath;
+    return targetPath ? { kind: 'append_file', path: targetPath, content, reason } : null;
+  }
+  if (deletePath || action === 'delete' || action === 'remove' || action === 'rm') {
+    const targetPath = deletePath || positionalPath;
+    return targetPath ? { kind: 'delete_file', path: targetPath, reason } : null;
+  }
+  if (mkdirPath || action === 'mkdir' || action === 'dir') {
+    const targetPath = mkdirPath || positionalPath;
+    return targetPath ? { kind: 'mkdir', path: targetPath, reason } : null;
+  }
+  return null;
+}
+
+function readDiskMutationContent(rawArgs: string[]): string {
+  const contentFile = readFlexibleStringFlag(rawArgs, 'content-file');
+  if (contentFile) {
+    return readFileSync(path.resolve(contentFile), 'utf8');
+  }
+  return String(readFlexibleStringFlag(rawArgs, 'content') || '');
+}
+
+async function runGitWorkflowCommand(
+  action: 'status' | 'branch' | 'commit' | 'pr',
+  rawArgs: string[],
+): Promise<number> {
+  const { ZavorthGitWorkflowService } = await import('./services/ZavorthGitWorkflowService.js');
+  const service = new ZavorthGitWorkflowService();
+  const asJson = rawArgs.includes('--json');
+  const workspaceRoot = readFlexibleStringFlag(rawArgs, 'workspace') || readFlexibleStringFlag(rawArgs, 'workspaceRoot') || process.cwd();
+  const apply = rawArgs.includes('--apply') || rawArgs.includes('--yes');
+  const approvalId = readFlexibleStringFlag(rawArgs, 'approval-id')
+    || readFlexibleStringFlag(rawArgs, 'approval')
+    || (rawArgs.includes('--yes') ? 'cli-local-owner' : null);
+  const args = rawArgs
+    .filter((arg) => arg !== '--json' && arg !== '--apply' && arg !== '--yes')
+    .join(' ');
+  const snapshot = await service.run({
+    action,
+    workspaceRoot,
+    args,
+    apply,
+    approvalId,
+    approvedBy: readFlexibleStringFlag(rawArgs, 'by') || 'zavorth-cli',
+  });
+  if (asJson) {
+    process.stdout.write(`${JSON.stringify(snapshot, null, 2)}\n`);
+  } else {
+    await printCliPanel(`Zavorth ${action}`, [
+      snapshot.summary,
+      `status: ${snapshot.status}`,
+      `workspace: ${snapshot.workspaceRoot}`,
+      `branch: ${snapshot.branch || 'unknown'}`,
+      `dirty files: ${snapshot.dirtyFiles}`,
+      snapshot.plannedCommands.length
+        ? `plan: ${snapshot.plannedCommands.map((entry) => `${entry.command} ${entry.args.join(' ')}`).join(' && ')}`
+        : null,
+      snapshot.approval.required
+        ? `approval: ${snapshot.approval.satisfied ? snapshot.approval.approvalId : 'required for --apply'}`
+        : null,
+      snapshot.receipt ? `receipt: ${snapshot.receipt.receiptId}` : null,
+    ].filter((line): line is string => Boolean(line)), snapshot.status === 'applied' || snapshot.status === 'ready' ? 'success' : snapshot.status === 'blocked' || snapshot.status === 'failed' ? 'error' : 'warning');
+  }
+  return snapshot.status === 'blocked' || snapshot.status === 'failed' ? 1 : 0;
 }
 
 async function runContinuousSecurityMonitor(rawArgs: string[]): Promise<number> {
@@ -1141,6 +1756,44 @@ async function runNativeLearningLoop(rawArgs: string[] = []): Promise<number> {
   return npmInherited(['exec', 'tsx', '--', 'scripts/zavorth-native-learning-loop.ts', ...rawArgs], projectRoot);
 }
 
+async function runZavorthConvergenceDoctor(rawArgs: string[] = []): Promise<number> {
+  const { ZavorthNativeConvergenceService } = await import('./services/ZavorthNativeConvergenceService.js');
+  const restoreConsole = rawArgs.includes('--json') ? silenceConsoleLogToStderr() : () => undefined;
+  const service = new ZavorthNativeConvergenceService({ projectRoot });
+  const snapshot = await service.buildSnapshot();
+  restoreConsole();
+  if (rawArgs.includes('--json')) {
+    process.stdout.write(`${JSON.stringify(snapshot, null, 2)}\n`);
+  } else {
+    process.stdout.write(service.renderText(snapshot));
+  }
+  return (rawArgs.includes('--strict') || rawArgs.includes('--require-pass')) && snapshot.status !== 'ready' ? 1 : 0;
+}
+
+async function runZavorthProductHardeningDoctor(rawArgs: string[] = []): Promise<number> {
+  const { ZavorthProductHardeningService } = await import('./services/ZavorthProductHardeningService.js');
+  const restoreConsole = rawArgs.includes('--json') ? silenceConsoleLogToStderr() : () => undefined;
+  const service = new ZavorthProductHardeningService({ projectRoot });
+  const snapshot = await service.buildSnapshot();
+  restoreConsole();
+  if (rawArgs.includes('--json')) {
+    process.stdout.write(`${JSON.stringify(snapshot, null, 2)}\n`);
+  } else {
+    process.stdout.write(service.renderText(snapshot));
+  }
+  return (rawArgs.includes('--strict') || rawArgs.includes('--require-pass')) && snapshot.status !== 'ready' ? 1 : 0;
+}
+
+function silenceConsoleLogToStderr(): () => void {
+  const originalLog = console.log;
+  console.log = (...values: unknown[]) => {
+    process.stderr.write(`${values.map((value) => String(value)).join(' ')}\n`);
+  };
+  return () => {
+    console.log = originalLog;
+  };
+}
+
 async function runGatewayMatrix(rawArgs: string[] = []): Promise<number> {
   return npmInherited(['exec', 'tsx', '--', 'scripts/zavorth-gateway-matrix.ts', ...rawArgs], projectRoot);
 }
@@ -1155,6 +1808,42 @@ async function runSkillEcosystem(rawArgs: string[] = []): Promise<number> {
 
 async function runAcp(rawArgs: string[] = []): Promise<number> {
   const action = String(rawArgs[0] || 'live').trim().toLowerCase();
+  if (action === 'channel' || action === 'adapter' || action === 'generic-channel') {
+    const nextArgs = rawArgs.slice(1);
+    const channelAction = String(nextArgs[0] || 'status').trim().toLowerCase();
+    const channelArgs = ['status', 'list', 'inspect'].includes(channelAction) ? nextArgs.slice(1) : nextArgs;
+    const { AcpGenericChannelAdapterService } = await import('./services/AcpGenericChannelAdapterService.js');
+    const service = new AcpGenericChannelAdapterService();
+    if (channelAction === 'status' || channelAction === 'list' || channelAction === 'inspect') {
+      const snapshot = service.buildSnapshot();
+      if (channelArgs.includes('--json')) {
+        process.stdout.write(`${JSON.stringify(snapshot, null, 2)}\n`);
+      } else {
+        process.stdout.write(`${service.renderText(snapshot)}\n`);
+      }
+      return 0;
+    }
+
+    if (channelAction === 'ingest' || channelAction === 'receive' || channelAction === 'message') {
+      const frame = buildAcpGenericChannelFrame(channelArgs);
+      const receipt = service.ingest(frame, {
+        receiptPath: readFlexibleStringFlag(channelArgs, 'receipt-path'),
+      });
+      if (channelArgs.includes('--json')) {
+        process.stdout.write(`${JSON.stringify(receipt, null, 2)}\n`);
+      } else {
+        process.stdout.write(`${service.renderText(receipt)}\n`);
+      }
+      return receipt.status === 'blocked' || receipt.status === 'failed'
+        || ((channelArgs.includes('--strict') || channelArgs.includes('--require-pass')) && receipt.status !== 'accepted')
+        ? 1
+        : 0;
+    }
+
+    await logCliError(`Unknown ACP channel action: ${channelAction}`, 'Zavorth ACP');
+    return 1;
+  }
+
   if (action === 'session' || action === 'run') {
     const nextArgs = rawArgs.slice(1);
     const { AcpLiveSessionService } = await import('./services/AcpLiveSessionService.js');
@@ -1192,6 +1881,57 @@ async function runAcp(rawArgs: string[] = []): Promise<number> {
   return snapshot.status === 'blocked' || ((nextArgs.includes('--require-pass') || nextArgs.includes('--strict')) && snapshot.status !== 'ready')
     ? 1
     : 0;
+}
+
+function buildAcpGenericChannelFrame(rawArgs: string[]): Record<string, unknown> {
+  const frameFile = readFlexibleStringFlag(rawArgs, 'frame-file');
+  const frameJson = readFlexibleStringFlag(rawArgs, 'frame');
+  if (frameFile) {
+    return JSON.parse(readFileSync(path.resolve(projectRoot, frameFile), 'utf8')) as Record<string, unknown>;
+  }
+  if (frameJson) {
+    return JSON.parse(frameJson) as Record<string, unknown>;
+  }
+
+  const kind = readFlexibleStringFlag(rawArgs, 'kind') || 'message';
+  const requestedTools = readStringListFlag(rawArgs, 'tool');
+  const text = readFlexibleStringFlag(rawArgs, 'text')
+    || readFlexibleStringFlag(rawArgs, 'prompt')
+    || rawArgs.find((arg) => !arg.startsWith('--') && !['ingest', 'receive', 'message'].includes(arg))
+    || '';
+  return {
+    kind,
+    id: readFlexibleStringFlag(rawArgs, 'id') || undefined,
+    idempotencyKey: readFlexibleStringFlag(rawArgs, 'idempotency-key') || undefined,
+    runtimeId: readFlexibleStringFlag(rawArgs, 'runtime') || readFlexibleStringFlag(rawArgs, 'runtime-id') || 'acp-cli-runtime',
+    sessionId: readFlexibleStringFlag(rawArgs, 'session') || readFlexibleStringFlag(rawArgs, 'session-id') || 'acp-cli-session',
+    actor: {
+      id: readFlexibleStringFlag(rawArgs, 'actor') || 'operator',
+      role: readFlexibleStringFlag(rawArgs, 'role') || 'user',
+    },
+    handshake: kind === 'handshake'
+      ? {
+        clientId: readFlexibleStringFlag(rawArgs, 'client-id') || 'acp-cli-client',
+        role: readFlexibleStringFlag(rawArgs, 'client-role') || 'external-agent',
+        scopes: readStringListFlag(rawArgs, 'scope'),
+        tokenPresent: rawArgs.includes('--token-present'),
+      }
+      : undefined,
+    tool: requestedTools.length === 1
+      ? { name: requestedTools[0] }
+      : undefined,
+    payload: {
+      text,
+      channel: readFlexibleStringFlag(rawArgs, 'channel') || 'api',
+      workspace: readFlexibleStringFlag(rawArgs, 'workspace') || projectRoot,
+      requestedTools,
+    },
+    source: {
+      runtimeName: readFlexibleStringFlag(rawArgs, 'source-runtime') || 'cli-acp-compatible-agent',
+      runtimeVersion: readFlexibleStringFlag(rawArgs, 'source-version') || undefined,
+      paths: ['zavorth-cli:acp-channel'],
+    },
+  };
 }
 
 async function runRuntimeGuidedFixes(rawArgs: string[] = []): Promise<number> {
@@ -1641,6 +2381,25 @@ async function runProviderReadiness(rawArgs: string[] = []): Promise<number> {
   return 0;
 }
 
+async function runProviderLongTailActivation(rawArgs: string[] = []): Promise<number> {
+  return npmInherited(['exec', 'tsx', '--', 'scripts/provider-long-tail-activation.ts', ...rawArgs], projectRoot);
+}
+
+async function runChannelLongTailActivation(rawArgs: string[] = []): Promise<number> {
+  return npmInherited(['exec', 'tsx', '--', 'scripts/channel-long-tail-activation.ts', ...rawArgs], projectRoot);
+}
+
+function normalizeMeshActivationArgs(kind: 'provider' | 'channel', action: string, args: string[]): string[] {
+  const profile = action === 'canary' ? 'staging-live' : 'configured';
+  const forwarded = ['--profile', profile, ...args.slice(1)];
+  const hasTargetFlag = forwarded.some((arg) => arg === `--${kind}` || arg.startsWith(`--${kind}=`));
+  const positional = args.slice(1).find((arg) => !arg.startsWith('--'));
+  if (!hasTargetFlag && positional) {
+    forwarded.push(`--${kind}`, positional);
+  }
+  return forwarded;
+}
+
 function resolveProductizationView(rawArgs: string[]): 'all' | 'journey' | 'templates' | 'missions' | 'receipts' | 'sandbox' {
   const view = String(readFlexibleStringFlag(rawArgs, 'view') || rawArgs[0] || '').trim().toLowerCase();
   if (['journey', 'templates', 'missions', 'receipts', 'sandbox'].includes(view)) {
@@ -1728,6 +2487,14 @@ async function runBuiltinLauncher(rawArgs: string[]): Promise<number | null> {
     }
   }
 
+  if (['todo', 'later', 'work', 'done', 'retry', 'cancel'].includes(command)) {
+    return runZavorthFriendlyWorkCommand(command as 'todo' | 'later' | 'work' | 'done' | 'retry' | 'cancel', restArgs);
+  }
+
+  if (command === 'tasks' || command === 'task') {
+    return runZavorthTasksCommand(restArgs);
+  }
+
   if (isZavorthLiveNamespaceCommand(command)) {
     const result = await runZavorthLiveNamespaceCommand({ projectRoot, command, args: restArgs });
     process.stdout.write(result.output);
@@ -1746,6 +2513,10 @@ async function runBuiltinLauncher(rawArgs: string[]): Promise<number | null> {
   }
 
   if (command === 'home') {
+    const homeSubcommand = String(restArgs[0] || '').trim().toLowerCase();
+    if (['status', 'doctor', 'migrate', 'switch'].includes(homeSubcommand) || restArgs.includes('--home') || restArgs.some((arg) => arg.startsWith('--home='))) {
+      return runZavorthHomeCommand(restArgs);
+    }
     return runPremiumHome(restArgs);
   }
 
@@ -1778,6 +2549,30 @@ async function runBuiltinLauncher(rawArgs: string[]): Promise<number | null> {
 
   if (command === 'quickstart' || command === 'configure') {
     return runPremiumQuickStart(restArgs);
+  }
+
+  if (command === 'constitution' || command === 'project-constitution') {
+    return runProjectConstitutionCommand(restArgs);
+  }
+
+  if (command === 'disk' || command === 'disk-gate' || command === 'mutation-gate') {
+    return runDiskMutationGateCommand(restArgs);
+  }
+
+  if (command === 'git-status') {
+    return runGitWorkflowCommand('status', restArgs);
+  }
+
+  if (command === 'branch') {
+    return runGitWorkflowCommand('branch', restArgs);
+  }
+
+  if (command === 'commit') {
+    return runGitWorkflowCommand('commit', restArgs);
+  }
+
+  if (command === 'pr' || command === 'pull-request') {
+    return runGitWorkflowCommand('pr', restArgs);
   }
 
   if (command === 'approve' || command === 'approval' || command === 'approvals') {
@@ -1958,6 +2753,9 @@ async function runBuiltinLauncher(rawArgs: string[]): Promise<number | null> {
     ]);
     if (restArgs.includes('--help') || restArgs.includes('-h')) {
       return printBuiltinHelp('channels');
+    }
+    if (['doctor', 'canary', 'activate'].includes(channelAction)) {
+      return runChannelLongTailActivation(normalizeMeshActivationArgs('channel', channelAction, restArgs));
     }
     if (['catalog', 'list', 'all', 'inventory', 'status', 'coverage', 'deepening'].includes(channelAction)) {
       return runChannelDeepening(restArgs);
@@ -2298,6 +3096,9 @@ async function runBuiltinLauncher(rawArgs: string[]): Promise<number | null> {
 
   if (command === 'providers' || command === 'models') {
     const providerAction = String(restArgs[0] || '').trim().toLowerCase();
+    if (['doctor', 'canary', 'activate'].includes(providerAction)) {
+      return runProviderLongTailActivation(normalizeMeshActivationArgs('provider', providerAction, restArgs));
+    }
     if (restArgs.includes('--help') || restArgs.includes('-h')) {
       return printCliPanel('Zavorth models', [
         'Usage: zavorth models [options] [command]',
@@ -2363,6 +3164,14 @@ async function runBuiltinLauncher(rawArgs: string[]): Promise<number | null> {
     if (['catalog', 'list', 'inventory', 'ready'].includes(action)) {
       return runNativeIntegrations(restArgs.slice(1));
     }
+  }
+
+  if (command === 'doctor' && ['convergence', 'native-convergence'].includes(String(restArgs[0] || '').trim().toLowerCase())) {
+    return runZavorthConvergenceDoctor(restArgs.slice(1));
+  }
+
+  if (command === 'doctor' && ['product-hardening', 'hardening', 'maturity', 'product-maturity'].includes(String(restArgs[0] || '').trim().toLowerCase())) {
+    return runZavorthProductHardeningDoctor(restArgs.slice(1));
   }
 
   if (command === 'doctor') {
@@ -3046,6 +3855,9 @@ async function runBuiltinLauncher(rawArgs: string[]): Promise<number | null> {
   }
 
   if (command === 'echo' || command === 'voice' || command === 'voz') {
+    if (String(restArgs[0] || '').trim().toLowerCase() === 'wake') {
+      return runZavorthEchoWakeCommand(restArgs.slice(1));
+    }
     return npmInherited(['start'], path.join(projectRoot, 'agent'));
   }
 
@@ -3058,6 +3870,16 @@ async function runBuiltinLauncher(rawArgs: string[]): Promise<number | null> {
 
   if (command === 'ui') {
     return spawnInherited(process.execPath, [path.join(projectRoot, 'scripts', 'start-echo-stack.mjs')], projectRoot);
+  }
+
+  if (isZavorthLiveNamespaceCommand(command)) {
+    const result = await runZavorthLiveNamespaceCommand({
+      projectRoot,
+      command,
+      args: restArgs,
+    });
+    process.stdout.write(result.output);
+    return result.exitCode;
   }
 
   const suggestion = resolveCommandSuggestion(command);

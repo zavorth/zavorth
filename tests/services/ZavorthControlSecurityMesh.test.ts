@@ -3,12 +3,12 @@ import {
   createTestLogRepo,
   fetchZavorthControlJson,
   fetchNoKeepAlive,
-} from '../helpers/controlWebTestUtils.js';
+} from '../helpers/zavorthControlWebTestUtils.js';
 
 describe('ZavorthControl security mesh surface', () => {
   const logRepo = createTestLogRepo();
 
-  it('publishes the Runtime & Security Mesh endpoint and classic zavorthControl block', async () => {
+  it('publishes the Runtime & Security Mesh endpoint and zavorthControl block', async () => {
     const service = new ZavorthControlService(logRepo, {
       securityMeshService: {
         buildSnapshot: jest.fn(() => ({
@@ -94,7 +94,7 @@ describe('ZavorthControl security mesh surface', () => {
         }),
       }),
     );
-    expect(classicHtml).toContain('operations-security-mesh');
-    expect(classicHtml).toContain('renderOperationsSecurityMesh');
+    expect(classicResponse.status).toBe(410);
+    expect(classicHtml).toContain('/zavorthControl');
   });
 });

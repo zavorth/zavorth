@@ -17,7 +17,7 @@ export function buildRuntimeShellHtml(pathname: string = '/dashboard'): string {
       </section>`
     : `<section id="canonical-surface-banner" class="canonical-containment-banner" role="status">
         <strong>Canonical dashboard</strong>
-        <span>/dashboard is the main web entry. /dashboard remains compatible. This shell only exists as an internal fallback when legacy surfaces are explicitly enabled.</span>
+        <span>/dashboard is the main web entry. Retired web shells are not served publicly anymore.</span>
       </section>`;
 
   return [

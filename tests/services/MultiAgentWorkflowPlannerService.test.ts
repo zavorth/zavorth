@@ -1,4 +1,4 @@
-import { MultiAgentWorkflowPlannerService } from '../../src/domain/execution/application/multi-agent-pipeline/MultiAgentWorkflowPlannerService';
+import { MultiAgentWorkflowPlannerService } from '../../src/domain/execution/infrastructure/multi-agent-pipeline/MultiAgentWorkflowPlannerService';
 
 describe('MultiAgentWorkflowPlannerService', () => {
   it('builds the default ship stages with codex maker and external_executor reviewer', () => {

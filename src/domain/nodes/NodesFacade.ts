@@ -1,4 +1,3 @@
-import type { ZavorthNodeMeshService } from '../../services/ZavorthNodeMeshService.js';
 import { DomainFacadeBase, type DomainSnapshot } from '../DomainFacadeBase.js';
 import { NodeMeshUseCases } from './application/NodeMeshUseCases.js';
 import type {
@@ -11,7 +10,7 @@ import { NodesDomainPresenter } from './presentation/NodesDomainPresenter.js';
 
 type NodesFacadeRuntime = {
   now?: () => Date;
-  nodeMeshService?: Pick<ZavorthNodeMeshService, 'buildSnapshot'> | NodeMeshPort;
+  nodeMeshService?: NodeMeshPort;
   nodePairingService?: NodePairingPort | null;
   nodeInvokeService?: NodeInvocationPort | null;
   nodeCatalogService?: NodeCatalogPort | null;

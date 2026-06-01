@@ -37,6 +37,7 @@ export function runZavorthCliHud(input: RunZavorthCliHudInput): RunZavorthCliHud
       mode: args.includes('--watch') ? 'watch' : input.tty ? 'interactive' : 'snapshot',
       now: input.now,
       mutationPlane,
+      homeRoot: readFlag(args, 'home'),
     });
     const output = input.json || args.includes('--json')
       ? `${JSON.stringify(snapshot, null, 2)}\n`
@@ -103,6 +104,30 @@ export async function runZavorthCliHudInteractive(input: RunZavorthCliHudInput):
     && !args.includes('--once')
     && !readFlag(args, 'action')
     && Boolean(process.stdin?.isTTY && process.stdout?.isTTY);
+  if (shouldRenderRuntimeTui(args, input.inputKeys || [])) {
+    const result = runZavorthCliHud({ ...input, tty: shouldInteract });
+    if (!shouldInteract) {
+      return result;
+    }
+    process.stdout.write(result.output);
+    process.stdout.write('\nKeys: / commands, Tab sections, v voice arm/disarm, a approvals, d diffs, t tasks, q quit.\n');
+    const message = await waitForRuntimeTuiDecision({
+      projectRoot: input.projectRoot,
+      args,
+      now: input.now,
+    });
+    const refreshed = runZavorthCliHud({ ...input, args: ['runtime', '--once'], tty: true });
+    const output = `\n${message}\n${refreshed.output}`;
+    process.stdout.write(output);
+    return {
+      exitCode: 0,
+      output,
+      snapshot: {
+        ...refreshed.snapshot,
+        mode: 'interactive',
+      },
+    };
+  }
   if (!shouldInteract) {
     return runZavorthCliHud(input);
   }
@@ -135,6 +160,73 @@ export async function runZavorthCliHudInteractive(input: RunZavorthCliHudInput):
     output,
     snapshot,
   };
+}
+
+async function waitForRuntimeTuiDecision(input: {
+  projectRoot: string;
+  args: string[];
+  now?: () => Date;
+}): Promise<string> {
+  readline.emitKeypressEvents(process.stdin);
+  const stdin = process.stdin;
+  const previousRawMode = stdin.isRaw;
+  if (stdin.setRawMode) {
+    stdin.setRawMode(true);
+  }
+  stdin.resume();
+
+  return new Promise((resolve) => {
+    const cleanup = () => {
+      stdin.off('keypress', onKeypress);
+      if (stdin.setRawMode) {
+        stdin.setRawMode(Boolean(previousRawMode));
+      }
+      stdin.pause();
+    };
+    const onKeypress = async (_chunk: string, key: { name?: string; ctrl?: boolean; sequence?: string }) => {
+      const name = String(key.name || key.sequence || '').toLowerCase();
+      if ((key.ctrl && name === 'c') || name === 'q') {
+        cleanup();
+        resolve('Runtime TUI closed.');
+        return;
+      }
+      if (name === 'v') {
+        const { ZavorthHomePathService } = await import('../../services/ZavorthHomePathService.js');
+        const { VoiceWakeRuntimeService } = await import('../../services/VoiceWakeRuntimeService.js');
+        const home = new ZavorthHomePathService({
+          projectRoot: input.projectRoot,
+          explicitHome: readFlag(input.args, 'home'),
+          env: process.env,
+          now: input.now,
+        }).resolveSnapshot();
+        const wake = new VoiceWakeRuntimeService({
+          stateFile: `${home.resolvedPaths.runtimeDir}/voice-wake-session.json`,
+          env: process.env,
+          now: input.now,
+        });
+        const current = wake.status();
+        const next = current.mode === 'off' ? wake.arm() : wake.disarm();
+        cleanup();
+        resolve(`Voice wake is now ${next.mode}.`);
+        return;
+      }
+      if (name === 'a') {
+        cleanup();
+        resolve('Open approvals with: zavorth approve');
+        return;
+      }
+      if (name === 'd') {
+        cleanup();
+        resolve('Open diffs with: zavorth diff');
+        return;
+      }
+      if (name === 't') {
+        cleanup();
+        resolve('Open tasks with: zavorth tasks list');
+      }
+    };
+    stdin.on('keypress', onKeypress);
+  });
 }
 
 function executeHudAction(input: {

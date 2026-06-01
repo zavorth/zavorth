@@ -8,7 +8,7 @@ import {
 describe('Dashboard security mesh surface', () => {
   const logRepo = createTestLogRepo();
 
-  it('publishes the Runtime & Security Mesh endpoint and classic dashboard block', async () => {
+  it('publishes the Runtime & Security Mesh endpoint and dashboard block', async () => {
     const service = new DashboardService(logRepo, {
       securityMeshService: {
         buildSnapshot: jest.fn(() => ({
@@ -94,7 +94,7 @@ describe('Dashboard security mesh surface', () => {
         }),
       }),
     );
-    expect(classicHtml).toContain('operations-security-mesh');
-    expect(classicHtml).toContain('renderOperationsSecurityMesh');
+    expect(classicResponse.status).toBe(410);
+    expect(classicHtml).toContain('/dashboard');
   });
 });

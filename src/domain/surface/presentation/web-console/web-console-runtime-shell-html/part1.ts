@@ -19,9 +19,9 @@ export function buildRuntimeShellHtmlPart1(input: { externalWebClientUrl: string
         <h1>Runtime, terminal and API live here.</h1>
         <p class="hero-copy">
           This official repo is the home of the Zavorth runtime, CLI and API.
-          The main entry is now <code>/dashboard</code>; <code>/dashboard</code> remains compatible.
+          The main entry is <code>/dashboard</code>.
           This shell is an internal maintenance fallback: it summarizes runtime, sessions, approvals
-          and the operational mesh only when legacy surfaces are explicitly enabled.
+          and the operational mesh when the canonical dashboard assets are unavailable.
         </p>
         <div class="status-grid">
           <article class="status-pill">
@@ -49,7 +49,6 @@ export function buildRuntimeShellHtmlPart1(input: { externalWebClientUrl: string
           <button type="button" class="action-button" data-copy="npm run ops:go">Copy npm run ops:go</button>
           <button type="button" class="action-button secondary" data-copy="npm run cli -- status">Copy CLI status</button>
           <a id="open-dashboard" class="action-button secondary" href="/dashboard">Open dashboard</a>
-          <a id="open-classic-dashboard" class="action-button secondary" href="/classic">Abrir painel legado</a>
         </div>
         <p class="muted-copy hero-note">
           Main path: <code>npm run ops:go</code>. If you operate from terminal only, use
@@ -361,7 +360,7 @@ export function buildRuntimeShellHtmlPart1(input: { externalWebClientUrl: string
             <li><code>/dashboard</code> = entrada principal do Zavorth web</li>
             <li><code>/satellite</code> = superficie movel/PWA quando configurada</li>
             <li><code>/api/*</code> = contrato de runtime para CLI, web e clientes futuros</li>
-            <li><code>/app</code> e <code>/classic</code> = fallback interno somente com flag legada</li>
+            <li><code>/app</code> e <code>/classic</code> = removidos; use <code>/dashboard</code></li>
             <li><code>zavorth-web</code> = cliente externo, quando configurado</li>
             <li>Terminal e API continuam no centro do repositorio oficial</li>
           </ul>

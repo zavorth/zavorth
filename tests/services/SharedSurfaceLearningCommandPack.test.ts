@@ -1,4 +1,4 @@
-import { SharedSurfaceLearningCommandPack } from '../../src/domain/surface/application/shared-surface/SharedSurfaceLearningCommandPack';
+import { SharedSurfaceLearningCommandPack } from '../../src/domain/surface/presentation/shared-surface/SharedSurfaceLearningCommandPack';
 
 function buildCtx(rawText = '/learning') {
   return {

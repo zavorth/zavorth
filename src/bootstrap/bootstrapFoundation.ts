@@ -19,6 +19,7 @@ import { RuntimeProfileService } from '../services/RuntimeProfileService.js';
 import { TerminalSidecarService } from '../services/TerminalSidecarService.js';
 import { LlmRuntimeService } from '../services/llm/LlmRuntimeService.js';
 import { ModelPickerContractService } from '../domain/providers/index.js';
+import { SkillCuratorPlaneService } from '../skills/SkillCuratorPlaneService.js';
 import {
   ZavorthAgentGateway,
   createDefaultAgentRunStore,
@@ -110,6 +111,7 @@ export async function initializeBootstrapFoundation(
   const configVersioningService = new ConfigVersioningService();
   const operationsActionService = new OperationsActionService(logRepo);
   const maintenanceAutomation = new MaintenanceAutomationService(operationsActionService, logRepo);
+  const skillCuratorPlaneService = new SkillCuratorPlaneService();
 
   capabilityLifecycleService.markCapabilityState(
     'core-runtime',
@@ -123,6 +125,13 @@ export async function initializeBootstrapFoundation(
     runtimeArtifactMaintenanceService.cleanupVisualSmokeProfiles();
     capabilityLifecycleService.expireIdleCapabilities();
     capabilityLifecycleService.cleanupDormantCapabilityArtifacts(DORMANT_BOOT_CAPABILITIES);
+    void skillCuratorPlaneService.maybeRunCurator({
+      idleForSeconds: config.skillsCuratorMinIdleHours * 3600,
+      reason: 'runtime-maintenance',
+      triggeredBy: 'bootstrap-maintenance',
+    }).catch((error: unknown) => {
+      logRepo.log('warn', 'SkillCurator', `Falha na manutencao de skills: ${errorMessage(error)}`);
+    });
   };
 
   if (config.runtimeMaintenanceIntervalMs > 0) {
@@ -173,6 +182,7 @@ export async function initializeBootstrapFoundation(
     defaultModelLabel: config.geminiModel || config.geminiDefaultModel || config.openaiModel || 'modelo atual',
     modelPickerContractService: new ModelPickerContractService(),
     llmRuntime: new LlmRuntimeService(),
+    toolRuntime: toolRuntimeServices.toolRuntime,
     runStore: createDefaultAgentRunStore(),
     workflowQueueStore: createDefaultAgentWorkflowQueueStore(),
   });
@@ -190,6 +200,7 @@ export async function initializeBootstrapFoundation(
     capabilityLifecycleService,
     configVersioningService,
     maintenanceAutomation,
+    skillCuratorPlaneService,
     stopRuntimeMaintenance() {
       if (!runtimeMaintenanceTimer) {
         return;

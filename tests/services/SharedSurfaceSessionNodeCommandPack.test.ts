@@ -1,4 +1,4 @@
-import { SharedSurfaceSessionNodeCommandPack } from '../../src/domain/surface/application/shared-surface/SharedSurfaceSessionNodeCommandPack';
+import { SharedSurfaceSessionNodeCommandPack } from '../../src/domain/surface/presentation/shared-surface/SharedSurfaceSessionNodeCommandPack';
 
 describe('SharedSurfaceSessionNodeCommandPack', () => {
   it('routes /sessionsend through the extracted pack', async () => {

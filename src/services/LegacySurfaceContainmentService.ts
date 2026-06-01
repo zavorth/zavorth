@@ -18,9 +18,13 @@ type LegacySurfaceContainmentInput = {
   now?: Date | string | null;
 };
 
-const BLOCKED_LEGACY_FEATURE_KINDS = new Set<LegacySurfaceFeatureKind>([
+const BLOCKED_RETIRED_ROUTE_FEATURE_KINDS = new Set<LegacySurfaceFeatureKind>([
   'product-feature',
   'business-rule',
+  'security-fix',
+  'compatibility-fix',
+  'bugfix',
+  'observability-maintenance',
 ]);
 
 export class LegacySurfaceContainmentService {
@@ -34,16 +38,17 @@ export class LegacySurfaceContainmentService {
     return {
       contractVersion: LEGACY_SURFACE_CONTAINMENT_VERSION,
       canonicalEntry: '/dashboard',
-      frozenSurfaces: ['/app', '/classic'],
+      frozenSurfaces: [],
+      retiredSurfaces: ['/app', '/classic'],
       generatedAt,
-      summary: 'Use /dashboard como entrada principal do Zavorth web. /dashboard segue compativel, enquanto Runtime API, Gateway Contract e dashboard oficial recebem produto novo; /app e /classic permanecem apenas como legado operacional e fallback.',
+      summary: 'Use /dashboard como a unica entrada web do Zavorth. /app e /classic foram removidas e nao recebem mais fallback, manutencao ou produto novo.',
       consolidation: {
         phase: 'P3-003',
         canonicalDocs: [
           'docs/web-dashboard.md',
           'docs/product-direction.md',
         ],
-        rule: 'Produto novo e regras de negocio novas entram em /dashboard, Runtime API, Gateway Contract ou control plane; /app e /classic recebem apenas manutencao, seguranca, bugfix e compatibilidade.',
+        rule: 'Produto novo, manutencao, seguranca e observabilidade web entram em /dashboard, Runtime API, Gateway Contract ou control plane; /app e /classic nao sao mais surfaces publicas.',
       },
       surfaces: [
         this.surface('dashboard', 'canonical', '/dashboard', 'Dashboard', 'primary',
@@ -54,46 +59,41 @@ export class LegacySurfaceContainmentService {
             'controle de sessao via Runtime API/Gateway',
           ],
           []),
-        this.surface('app', 'legacy-operational', '/app', 'Operational shell legado', 'frozen',
-          'Cockpit antigo para operador, manutencao e fallback local. Nao recebe novas features de produto.',
+        this.surface('app', 'retired', '/app', 'Removed operational shell', 'removed',
+          'Surface removida. Nao deve ser servida, linkada, usada como fallback ou receber manutencao.',
+          [],
           [
+            'qualquer trafego web',
             'fallback operacional',
-            'manutencao local',
-            'observabilidade pesada de operador',
-          ],
-          [
-            'novas features de produto',
-            'onboarding principal',
-            'entrada padrao para usuario comum',
+            'manutencao',
+            'novas features',
           ]),
-        this.surface('classic', 'legacy-observability', '/classic', 'Classic dashboard legado', 'frozen',
-          'Dashboard classico de observabilidade e manutencao. Mantido para compatibilidade.',
+        this.surface('classic', 'retired', '/classic', 'Removed classic dashboard', 'removed',
+          'Surface removida. Observabilidade e manutencao agora devem ir para /dashboard ou APIs oficiais.',
+          [],
           [
+            'qualquer trafego web',
             'observabilidade local',
             'fallback de manutencao',
             'compatibilidade historica',
-          ],
-          [
-            'novas features de produto',
-            'fluxos principais de chat ou onboarding',
-            'entrypoint canonico',
           ]),
       ],
       policy: {
         productFeaturesMustLandIn: ['gateway contract', 'control plane', 'dashboard'],
-        legacyFeatureFreeze: true,
-        compatibilityPreserved: true,
-        fallbackPreserved: true,
+        legacyFeatureFreeze: false,
+        legacyRoutesRetired: true,
+        compatibilityPreserved: false,
+        fallbackPreserved: false,
       },
       links: {
         localControlUrl: `${localBaseUrl}/dashboard`,
         localDashboardUrl: `${localBaseUrl}/dashboard`,
-        localLegacyAppUrl: `${localBaseUrl}/app`,
-        localClassicUrl: `${localBaseUrl}/classic`,
+        localLegacyAppUrl: null,
+        localClassicUrl: null,
         remoteControlUrl: remoteBaseUrl ? `${remoteBaseUrl}/dashboard` : null,
         remoteDashboardUrl: remoteBaseUrl ? `${remoteBaseUrl}/dashboard` : null,
-        remoteLegacyAppUrl: remoteBaseUrl ? `${remoteBaseUrl}/app` : null,
-        remoteClassicUrl: remoteBaseUrl ? `${remoteBaseUrl}/classic` : null,
+        remoteLegacyAppUrl: null,
+        remoteClassicUrl: null,
       },
     };
   }
@@ -117,17 +117,17 @@ export class LegacySurfaceContainmentService {
     const snapshot = this.buildSnapshot();
     const requestedPath = this.normalizePathname(pathname);
     const surface = this.resolveSurface(snapshot, requestedPath);
-    const legacyBlocked =
-      surface.status === 'frozen'
-      && BLOCKED_LEGACY_FEATURE_KINDS.has(featureKind);
-    if (legacyBlocked) {
+    const retiredBlocked =
+      surface.status === 'removed'
+      && BLOCKED_RETIRED_ROUTE_FEATURE_KINDS.has(featureKind);
+    if (retiredBlocked) {
       return {
         phase: 'P3-003',
         featureKind,
         requestedPath,
         surface,
         allowed: false,
-        reason: `${surface.path} esta funcionalmente congelada; novas features e regras de negocio devem ir para /dashboard.`,
+        reason: `${surface.path} foi removida; use /dashboard, Runtime API, Gateway Contract ou control plane.`,
         requiredDestination: snapshot.policy.productFeaturesMustLandIn,
       };
     }
@@ -139,11 +139,9 @@ export class LegacySurfaceContainmentService {
       surface,
       allowed: true,
       reason: surface.status === 'primary'
-        ? '/dashboard e a surface oficial para produto novo.'
-        : `${surface.path} permite apenas manutencao, seguranca, bugfix, compatibilidade ou observabilidade.`,
-      requiredDestination: surface.status === 'primary'
-        ? snapshot.policy.productFeaturesMustLandIn
-        : ['legacy maintenance'],
+        ? '/dashboard e a unica surface web oficial.'
+        : `${surface.path} foi removida; use /dashboard.`,
+      requiredDestination: snapshot.policy.productFeaturesMustLandIn,
     };
   }
 
@@ -183,6 +181,10 @@ export class LegacySurfaceContainmentService {
     pathname: string,
   ): LegacySurfaceDescriptor {
     const role = this.resolveRole(pathname);
+    const exactSurface = snapshot.surfaces.find((surface) => surface.path === pathname);
+    if (exactSurface) {
+      return exactSurface;
+    }
     return snapshot.surfaces.find((surface) => surface.role === role)
       || snapshot.surfaces[0];
   }

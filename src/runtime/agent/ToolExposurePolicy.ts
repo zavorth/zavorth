@@ -38,6 +38,8 @@ const DEFAULT_SAFE_TOOLS = new Set([
   'memory.read',
   'sessions.history',
   'sessions.list',
+  'zavorth_action',
+  'swarm.run',
 ]);
 
 const DEFAULT_ATTENTION_TOOLS = new Set([
@@ -45,6 +47,9 @@ const DEFAULT_ATTENTION_TOOLS = new Set([
   'web.search',
   'pdf.generate',
   'report.send',
+  'swarm.scale',
+  'swarm.massive',
+  'swarm.scale.live',
 ]);
 
 const DEFAULT_DANGER_TOOLS = new Set([

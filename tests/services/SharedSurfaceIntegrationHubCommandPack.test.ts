@@ -1,4 +1,4 @@
-import { SharedSurfaceIntegrationHubCommandPack } from '../../src/domain/surface/application/shared-surface/SharedSurfaceIntegrationHubCommandPack';
+import { SharedSurfaceIntegrationHubCommandPack } from '../../src/domain/surface/presentation/shared-surface/SharedSurfaceIntegrationHubCommandPack';
 
 function buildCtx(rawText = '/integrations') {
   return {

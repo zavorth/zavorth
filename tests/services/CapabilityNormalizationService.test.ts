@@ -130,12 +130,12 @@ describe('CapabilityNormalizationService Approval gate', () => {
     expect(DEFAULT_PRIVATE_CAPABILITY_SOURCE_MODULES).toEqual(expect.arrayContaining(['codex', 'openshell']));
     expect(service.buildSnapshot().summary).toEqual(
       expect.objectContaining({
-        sourceModules: 125,
-        normalized: 125,
+        sourceModules: 132,
+        normalized: 132,
         needsReview: 0,
         unmapped: 0,
         primitives: 24,
-        manifestTemplates: 125,
+        manifestTemplates: 132,
       }),
     );
     expect(service.resolveSourceModule('codex')).toEqual(

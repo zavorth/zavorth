@@ -14,9 +14,6 @@ import { DashboardHttpSupportService } from '../DashboardHttpSupportService.js';
 import { DashboardClassicAccessService } from '../DashboardClassicAccessService.js';
 import { DashboardClassicAssetService } from '../DashboardClassicAssetService.js';
 import { DashboardResponseWriterService } from '../DashboardResponseWriterService.js';
-import { buildRuntimeShellHtml } from '../../web-console/WebConsoleRuntimeShellHtml.js';
-import { buildRuntimeShellScript } from '../../web-console/WebConsoleRuntimeShellScript.js';
-import { buildRuntimeShellStyles } from '../../web-console/WebConsoleRuntimeShellStyles.js';
 import { ZavorthChannelActionService } from './DashboardServiceDependencies.js';
 import { ZavorthChannelMeshService } from './DashboardServiceDependencies.js';
 import { ZavorthGatewayService } from './DashboardServiceDependencies.js';
@@ -81,6 +78,7 @@ export function buildRuntimeChannelAdapterRegistryService(service: DashboardFaca
     hasDispatcher: hasRuntimeBackbone,
     canSpawnWeb: hasRuntimeBackbone,
     runtimeAdapters: buildRuntimeChannelAdapters(service),
+    includeLongTailActivationAdapters: true,
   });
 }
 
@@ -469,22 +467,17 @@ export function routeRequest(service: DashboardFacadeCompat, req: http.IncomingM
       return;
     }
 
-    if (isLegacyWebSurfacePath(pathname) && !shouldServeLegacyWebSurfaces()) {
+    if (isLegacyWebSurfacePath(pathname)) {
       service.responseWriter.writeJson(
         res,
         {
           ok: false,
-          error: 'This legacy web surface is internal. Use /dashboard.',
+          error: 'This web surface has been removed. Use /dashboard.',
           dashboardUrl: '/dashboard',
-          visibleSurfaces: ['/dashboard', '/dashboard', '/satellite', 'cli'],
+          visibleSurfaces: ['/dashboard', '/satellite', 'cli'],
         },
-        404,
+        410,
       );
-      return;
-    }
-
-    if (isLegacyRuntimeShellPath(pathname)) {
-      serveLegacyRuntimeShell(res, pathname);
       return;
     }
 
@@ -514,12 +507,6 @@ export function routeRequest(service: DashboardFacadeCompat, req: http.IncomingM
       pathname === '/satellite' ||
       pathname === '/satellite/' ||
       pathname.startsWith('/satellite/') ||
-      (shouldServeLegacyWebSurfaces() && (
-        pathname === '/app' ||
-        pathname === '/app/' ||
-        pathname === '/app.js' ||
-        pathname === '/styles.css'
-      )) ||
       pathname === '/favicon.svg' ||
       pathname === '/icons.svg' ||
       pathname.startsWith('/api/v1') ||
@@ -592,7 +579,7 @@ export function routeRequest(service: DashboardFacadeCompat, req: http.IncomingM
 }
 
 function serveDashboardAsset(res: http.ServerResponse, relativePath: string): boolean {
-  const root = path.resolve(process.cwd(), 'assets', 'dashboard');
+  const root = path.resolve(process.cwd(), 'assets', 'zavorth-control');
   const target = path.resolve(root, relativePath);
   if (target !== root && !target.startsWith(`${root}${path.sep}`)) {
     res.writeHead(403, { 'Content-Type': 'text/plain; charset=utf-8' });
@@ -620,44 +607,6 @@ function isLegacyWebSurfacePath(pathname: string): boolean {
     || pathname === '/styles.css'
     || pathname === '/classic'
     || pathname === '/classic/';
-}
-
-function isLegacyRuntimeShellPath(pathname: string): boolean {
-  return pathname === '/app'
-    || pathname === '/app/'
-    || pathname === '/app.js'
-    || pathname === '/styles.css';
-}
-
-function serveLegacyRuntimeShell(res: http.ServerResponse, pathname: string): void {
-  if (pathname === '/app' || pathname === '/app/') {
-    res.writeHead(200, { 'Content-Type': 'text/html; charset=utf-8' });
-    res.end(buildRuntimeShellHtml(pathname));
-    return;
-  }
-  if (pathname === '/app.js') {
-    res.writeHead(200, { 'Content-Type': 'application/javascript; charset=utf-8' });
-    res.end(buildRuntimeShellScript());
-    return;
-  }
-  res.writeHead(200, { 'Content-Type': 'text/css; charset=utf-8' });
-  res.end(buildRuntimeShellStyles());
-}
-
-function shouldServeLegacyWebSurfaces(): boolean {
-  const nodeEnv = String(process.env.NODE_ENV || '').trim().toLowerCase();
-  const zavorthEnv = String(process.env.ZAVORTH_ENV || '').trim().toLowerCase();
-  const enabled = isTruthyFlag(process.env.ZAVORTH_LEGACY_SURFACES_ENABLED);
-  const devOrTest = nodeEnv === 'development'
-    || nodeEnv === 'test'
-    || zavorthEnv === 'development'
-    || zavorthEnv === 'test';
-  return devOrTest || enabled;
-}
-
-function isTruthyFlag(value: unknown): boolean {
-  const normalized = String(value || '').trim().toLowerCase();
-  return normalized === '1' || normalized === 'true' || normalized === 'yes' || normalized === 'on';
 }
 
 function contentTypeFor(filePath: string): string {

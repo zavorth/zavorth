@@ -20,6 +20,8 @@ export function renderZavorthCliRuntimeTui(snapshot: ZavorthCliRuntimeTuiSnapsho
     ...snapshot.sessions.slice(0, 4),
     ...snapshot.logs.slice(0, 4),
   ];
+  const taskItems = snapshot.tasks.items.slice(0, 5);
+  const sandboxItems = snapshot.sandbox.items.slice(0, 4);
   const panels: ZavorthPremiumCliPanel[] = [
     {
       title: 'Today',
@@ -65,7 +67,39 @@ export function renderZavorthCliRuntimeTui(snapshot: ZavorthCliRuntimeTuiSnapsho
         row(snapshot.connection.gateway.label, snapshot.connection.gateway.value, snapshot.connection.gateway.status, snapshot.connection.gateway.detail),
         row(snapshot.connection.daemon.label, snapshot.connection.daemon.value, snapshot.connection.daemon.status, snapshot.connection.daemon.detail),
         row(snapshot.connection.dashboard.label, snapshot.connection.dashboard.value, snapshot.connection.dashboard.status, snapshot.connection.dashboard.detail),
+        row('Home', snapshot.home.isolated ? 'isolated' : 'compat', snapshot.home.isolated ? 'ready' : 'warning', `${snapshot.home.source}: ${snapshot.home.migrationStatus}`),
+        row('Voice', snapshot.voice.mode, snapshot.voice.mode === 'off' ? 'warning' : 'ready', snapshot.voice.configured ? snapshot.voice.detector : 'no detector configured'),
       ]).split('\n'),
+    },
+    {
+      title: 'Tasks',
+      accent: snapshot.tasks.waitingApproval > 0 ? 'amber' : 'cyan',
+      lines: [
+        ...renderPremiumKeyValueTable([
+          { key: 'Total', value: `${snapshot.tasks.total}` },
+          { key: 'Queued', value: `${snapshot.tasks.queued}` },
+          { key: 'Running', value: `${snapshot.tasks.running}` },
+          { key: 'Waiting approval', value: `${snapshot.tasks.waitingApproval}` },
+        ]).split('\n'),
+        '',
+        ...(taskItems.length ? renderItems(taskItems) : ['No persistent tasks recorded yet.']),
+      ],
+    },
+    {
+      title: 'Voice & Sandbox',
+      accent: snapshot.voice.mode === 'off' && snapshot.sandbox.strongProfilesReady === 0 ? 'amber' : 'emerald',
+      lines: [
+        ...renderPremiumKeyValueTable([
+          { key: 'Wake mode', value: snapshot.voice.mode },
+          { key: 'Armed until', value: snapshot.voice.armedUntil || 'off' },
+          { key: 'Detector', value: snapshot.voice.configured ? snapshot.voice.detector : 'not configured' },
+          { key: 'Sandbox posture', value: snapshot.sandbox.posture },
+          { key: 'Strong profiles', value: `${snapshot.sandbox.strongProfilesReady}` },
+          { key: 'Preferred profile', value: snapshot.sandbox.preferredProfile },
+        ]).split('\n'),
+        '',
+        ...(sandboxItems.length ? renderItems(sandboxItems) : ['Sandbox is preview-only on this host.']),
+      ],
     },
     {
       title: 'Integrations',
@@ -91,7 +125,7 @@ export function renderZavorthCliRuntimeTui(snapshot: ZavorthCliRuntimeTuiSnapsho
 
   return renderZavorthPremiumCliScreen({
     title: 'Daily terminal',
-    subtitle: 'Chat, timeline, approvals, diff, channels and logs in one keyboard view.',
+    subtitle: 'Chat, approvals, tasks, voice, channels, sandbox and logs in one keyboard view.',
     mode: 'compact',
     statusRows: buildStatusRows(snapshot),
     panels,
@@ -107,6 +141,9 @@ function buildStatusRows(snapshot: ZavorthCliRuntimeTuiSnapshot): ZavorthPremium
   return [
     { label: 'Runtime', value: snapshot.status, status: toPremiumStatus(snapshot.status) },
     { label: 'Gateway', value: snapshot.connection.gateway.value, status: toPremiumStatus(snapshot.connection.gateway.status) },
+    { label: 'Home', value: snapshot.home.isolated ? 'isolated' : 'compat', status: snapshot.home.isolated ? 'ready' : 'warning' },
+    { label: 'Voice', value: snapshot.voice.mode, status: snapshot.voice.mode === 'off' ? 'warning' : 'ready' },
+    { label: 'Tasks', value: `${snapshot.tasks.total}`, status: snapshot.tasks.waitingApproval > 0 ? 'waiting' : 'ready' },
     { label: 'Approvals', value: `${snapshot.approvals.pending}`, status: snapshot.approvals.pending > 0 ? 'waiting' : 'ready' },
     { label: 'Chat', value: `${snapshot.chat.total}`, status: snapshot.chat.total > 0 ? 'ready' : 'warning' },
     { label: 'Tools', value: `${snapshot.tools.mcpTools + snapshot.tools.skills + snapshot.tools.plugins}`, status: snapshot.tools.items.length ? 'ready' : 'warning' },

@@ -60,6 +60,7 @@ const CHANNEL_ALIASES: Record<string, string> = {
   qqbot: 'qq',
   'synology-chat': 'synology-chat',
   webhooks: 'webhook',
+  wechat: 'weixin',
   zalouser: 'zalo-user',
 };
 
@@ -72,6 +73,9 @@ const BRIDGE_CHANNELS = new Set([
   'nostr',
   'tlon',
   'phone-control',
+  'weixin',
+  'wechat',
+  'yuanbao',
 ]);
 
 const WEBHOOK_CHANNELS = new Set([
@@ -81,6 +85,8 @@ const WEBHOOK_CHANNELS = new Set([
   'synology-chat',
   'teams',
   'webhooks',
+  'wecom',
+  'home-assistant',
 ]);
 
 const BOT_API_CHANNELS = new Set([
@@ -94,6 +100,7 @@ const BOT_API_CHANNELS = new Set([
   'whatsapp',
   'zalo',
   'zalouser',
+  'sms',
 ]);
 
 export class ChannelMeshParityService {

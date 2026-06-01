@@ -145,8 +145,7 @@ Use "set" para gravar a mudanca.`,
 
     if (!allowUnavailable && !providerDefinition.enabled) {
       throw new Error(
-        `Provider "${providerDefinition.provider}" nao esta pronto: falta credencial/configuracao (${providerDefinition.requirement}). ` +
-        'Se quiser apenas preparar o .env mesmo assim, confirme explicitamente com allowUnavailable=true.',
+        this.buildShortNotice(providerDefinition.provider, 'blocked', providerDefinition.requirement),
       );
     }
 
@@ -170,6 +169,12 @@ Use "set" para gravar a mudanca.`,
       provider: providerDefinition.provider,
       model: modelName,
       envFilePath,
+      provider_ready: providerDefinition.enabled,
+      provider_notice: this.buildShortNotice(
+        providerDefinition.provider,
+        providerDefinition.enabled ? 'ready' : 'prepared',
+        providerDefinition.requirement,
+      ),
       message: `Configuracao alterada permanentemente. Provedor padrao: ${providerDefinition.provider}, modelo: ${modelName}.`
     };
   }
@@ -255,7 +260,57 @@ Use "set" para gravar a mudanca.`,
           requirement: 'AIGateway_BASE_URL',
         };
       default:
-        return null;
+        return this.resolveProviderFactoryDefinition(provider);
     }
+  }
+
+  private resolveProviderFactoryDefinition(provider: string): {
+    provider: string;
+    modelEnvKey: string;
+    configModelKey: string;
+    enabled: boolean;
+    requirement: string;
+  } | null {
+    try {
+      const target = ProviderFactory.resolveRuntimeTarget(provider);
+      if (!target.runtimeSupported || target.providerName === 'gemini') {
+        return null;
+      }
+      const normalizedProvider = target.providerName;
+      const prefix = normalizedProvider.toUpperCase().replace(/[^A-Z0-9]+/g, '_').replace(/^_+|_+$/g, '');
+      const needsBaseUrl = (
+        target.adapterKind === 'openai_compatible'
+        || target.adapterKind === 'anthropic_compatible'
+        || target.adapterKind === 'gateway'
+        || target.adapterKind === 'local_openai_compatible'
+      );
+      const needsApiKey = (
+        target.adapterKind === 'openai_compatible'
+        || target.adapterKind === 'anthropic_compatible'
+        || target.adapterKind === 'gateway'
+      );
+      const missing: string[] = [];
+      if (needsApiKey && !target.apiKey) missing.push(`${prefix}_API_KEY`);
+      if (needsBaseUrl && !target.baseUrl) missing.push(`${prefix}_BASE_URL`);
+      return {
+        provider: normalizedProvider,
+        modelEnvKey: `${prefix}_MODEL`,
+        configModelKey: `${prefix.toLowerCase().replace(/_([a-z0-9])/g, (_, char) => String(char).toUpperCase())}Model`,
+        enabled: missing.length === 0,
+        requirement: missing.join(' + ') || 'ok',
+      };
+    } catch {
+      return null;
+    }
+  }
+
+  private buildShortNotice(provider: string, status: 'ready' | 'prepared' | 'blocked', requirement: string): string {
+    if (status === 'ready') {
+      return `${provider}: conectado.`;
+    }
+    if (status === 'prepared') {
+      return `${provider}: salvo, mas ainda falta ${requirement}.`;
+    }
+    return `${provider}: nao conectou; falta ${requirement}.`;
   }
 }

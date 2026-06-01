@@ -3,6 +3,14 @@ import {
   getEvidenceDomainProfile,
   inferEvidenceDomainFromText,
 } from './EvidenceDomainProfiles.js';
+import {
+  EvidenceIntentPlanner,
+  type EvidenceIntentPlan,
+} from './EvidenceIntentPlanner.js';
+import {
+  EvidenceSearchPlanBuilder,
+  type EvidenceSearchPlan,
+} from './EvidenceSearchPlan.js';
 
 export type EvidenceSearchReason = 'current' | 'research' | 'evidence' | 'high_stakes';
 export type { EvidenceSearchDomain } from './EvidenceDomainProfiles.js';
@@ -11,6 +19,8 @@ export type EvidenceSearchNeed = {
   reason: EvidenceSearchReason;
   domain: EvidenceSearchDomain;
   fresh: boolean;
+  intent?: EvidenceIntentPlan;
+  searchPlan?: EvidenceSearchPlan;
 };
 
 /**
@@ -19,6 +29,9 @@ export type EvidenceSearchNeed = {
  * keyword patches so every surface can use the same research behavior.
  */
 export class EvidenceSearchRouter {
+  private readonly intentPlanner = new EvidenceIntentPlanner();
+  private readonly searchPlanBuilder = new EvidenceSearchPlanBuilder();
+
   public detect(message: string): EvidenceSearchNeed | null {
     const normalized = this.normalize(message);
     const questionMarker =
@@ -44,49 +57,49 @@ export class EvidenceSearchRouter {
       /\b(quem\s+e|quem\s+eh|who\s+is|qual\s+e|qual\s+eh)\b/.test(normalized) && volatileMarker;
 
     if (this.isAiNewsRequest(normalized)) {
-      return { reason: 'current', domain: 'ai_news', fresh: true };
+      return this.withIntent(message, { reason: 'current', domain: 'ai_news', fresh: true });
     }
     if (publicRoleQuestion) {
-      return { reason: 'current', domain: domain === 'general' ? 'public_policy' : domain, fresh: true };
+      return this.withIntent(message, { reason: 'current', domain: domain === 'general' ? 'public_policy' : domain, fresh: true });
     }
     if (this.isHighStakesDomain(domain) && (questionMarker || currentMarker || explicitSearchIntent || evidenceMarker)) {
-      return {
+      return this.withIntent(message, {
         reason: currentMarker ? 'current' : 'high_stakes',
         domain,
         fresh: currentMarker,
-      };
+      });
     }
     if (domain === 'consumer' && (questionMarker || currentMarker || explicitSearchIntent || decisionMarker || comparisonMarker)) {
-      return {
+      return this.withIntent(message, {
         reason: currentMarker ? 'current' : 'research',
         domain,
         fresh: currentMarker || decisionMarker,
-      };
+      });
     }
     if (domain !== 'general' && (explicitSearchIntent || evidenceMarker || currentMarker)) {
-      return {
+      return this.withIntent(message, {
         reason: currentMarker ? 'current' : evidenceMarker ? 'evidence' : 'research',
         domain,
         fresh: currentMarker,
-      };
+      });
     }
     if (currentMarker && (infoMarker || explicitSearchIntent || volatileMarker || evidenceMarker)) {
-      return { reason: 'current', domain, fresh: true };
+      return this.withIntent(message, { reason: 'current', domain, fresh: true });
     }
     if (explicitSearchIntent && (infoMarker || evidenceMarker || volatileMarker || normalized.length > 20)) {
-      return { reason: evidenceMarker ? 'evidence' : 'research', domain, fresh: currentMarker };
+      return this.withIntent(message, { reason: evidenceMarker ? 'evidence' : 'research', domain, fresh: currentMarker });
     }
     if (reportMarker && normalized.length > 20) {
-      return { reason: 'evidence', domain, fresh: currentMarker };
+      return this.withIntent(message, { reason: 'evidence', domain, fresh: currentMarker });
     }
     if ((decisionMarker || comparisonMarker) && normalized.length > 20) {
-      return { reason: 'research', domain, fresh: currentMarker || decisionMarker };
+      return this.withIntent(message, { reason: 'research', domain, fresh: currentMarker || decisionMarker });
     }
     if (complexResearchMarker && normalized.length > 60) {
-      return { reason: 'research', domain, fresh: currentMarker };
+      return this.withIntent(message, { reason: 'research', domain, fresh: currentMarker });
     }
     if (evidenceMarker && normalized.length > 20) {
-      return { reason: 'evidence', domain, fresh: currentMarker };
+      return this.withIntent(message, { reason: 'evidence', domain, fresh: currentMarker });
     }
 
     return null;
@@ -114,7 +127,44 @@ export class EvidenceSearchRouter {
   }
 
   public buildContextGuidance(need: EvidenceSearchNeed): string {
-    return getEvidenceDomainProfile(need.domain).guidance;
+    return need.searchPlan?.answerPolicy.guidance || getEvidenceDomainProfile(need.domain).guidance;
+  }
+
+  public buildAnswerPolicyGuidance(need: EvidenceSearchNeed): string {
+    const policy = need.searchPlan?.answerPolicy;
+    const intent = need.intent;
+
+    if (!policy || !intent) {
+      return [
+        'EVIDENCE_ANSWER_POLICY:',
+        '- Separate sourced facts from interpretation.',
+        '- Mention uncertainty naturally when sources are weak or unavailable.',
+      ].join('\n');
+    }
+
+    const lines = [
+      'EVIDENCE_ANSWER_POLICY:',
+      `- Search mode: ${intent.mode}; answer style: ${policy.style}; risk: ${intent.risk}.`,
+      '- Separate sourced facts, interpretation, and practical judgment.',
+    ];
+
+    if (policy.separateFactsFromReports) {
+      lines.push('- If community/forum/social sources are used, label them as reports, discussion signals, or lived experience rather than verified facts.');
+    }
+
+    if (policy.requireCaveat) {
+      lines.push('- Include a concise caveat when evidence is incomplete, high-stakes, anecdotal, or conflicting.');
+    }
+
+    if (policy.style === 'official-first') {
+      lines.push('- Lead with verified or primary sources before community signals.');
+    } else if (policy.style === 'community-first') {
+      lines.push('- Lead with practical community findings, then verify them against docs, repositories, or primary sources when available.');
+    } else {
+      lines.push('- Balance official facts with community signals and call out disagreements instead of flattening them.');
+    }
+
+    return lines.join('\n');
   }
 
   private detectDomain(normalized: string): EvidenceSearchDomain {
@@ -143,6 +193,23 @@ export class EvidenceSearchRouter {
 
   private isHighStakesDomain(domain: EvidenceSearchDomain): boolean {
     return domain === 'medical' || domain === 'legal' || domain === 'finance';
+  }
+
+  private withIntent(message: string, need: Omit<EvidenceSearchNeed, 'intent' | 'searchPlan'>): EvidenceSearchNeed {
+    const intent = this.intentPlanner.plan({
+      query: message,
+      domain: need.domain,
+    });
+
+    return {
+      ...need,
+      intent,
+      searchPlan: this.searchPlanBuilder.build({
+        query: message,
+        intent,
+        domain: need.domain,
+      }),
+    };
   }
 
   private isAiNewsRequest(normalized: string): boolean {

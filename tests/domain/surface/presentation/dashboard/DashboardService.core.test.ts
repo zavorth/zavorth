@@ -90,7 +90,7 @@ function createInstallJourneyFixture() {
         ready: true,
         baseUrl: 'http://127.0.0.1:33333',
         appUrl: 'http://127.0.0.1:33333/dashboard',
-        dashboardUrl: 'http://127.0.0.1:33333/classic',
+        dashboardUrl: 'http://127.0.0.1:33333/dashboard',
       },
       remote: {
         ready: true,
@@ -308,7 +308,7 @@ describe('DashboardService', () => {
     jest.restoreAllMocks();
   });
 
-  it('redirects the root to the web app, keeps the legacy dashboard at /classic, and serves stats and healthcheck', async () => {
+  it('redirects the root to the web app, retires /classic, and serves stats and healthcheck', async () => {
     const continuityTasks = [
       {
         task_id: 'telegram-task-1',
@@ -933,18 +933,7 @@ describe('DashboardService', () => {
 
     expect(rootResponse.status).toBe(302);
     expect(rootResponse.headers.get('location')).toBe('/dashboard');
-    expect(classicResponse.status).toBe(200);
-    expect(html).toContain('Zavorth Classic Dashboard');
-    expect(html).toContain('operations-overview');
-    expect(html).toContain('operations-trust-overview');
-    expect(html).toContain('operations-product-overview');
-    expect(html).toContain('operations-nodes');
-    expect(html).toContain('operations-lifecycle');
-    expect(html).toContain('Node Mesh');
-    expect(html).toContain('renderOperationsNodes');
-    expect(html).toContain('auditTrailSummary');
-    expect(html).toContain('auditReplaySummary');
-    expect(html).toContain('/classic');
+    expect(classicResponse.status).toBe(410);
     expect(html).toContain('/dashboard');
     expect(stats).toEqual(
       expect.objectContaining({
@@ -1080,8 +1069,8 @@ describe('DashboardService', () => {
     expect(handoff).toEqual(
       expect.objectContaining({
         available: true,
-        status: 'resume-required',
-        headline: expect.stringContaining('Handoff pronto'),
+        status: 'aligned',
+        headline: expect.stringContaining('Sessao compartilhada'),
         canonicalTarget: expect.objectContaining({
           kind: 'task',
         }),

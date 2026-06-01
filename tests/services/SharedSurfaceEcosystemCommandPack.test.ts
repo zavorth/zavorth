@@ -1,4 +1,4 @@
-import { SharedSurfaceEcosystemCommandPack } from '../../src/domain/surface/application/shared-surface/SharedSurfaceEcosystemCommandPack';
+import { SharedSurfaceEcosystemCommandPack } from '../../src/domain/surface/presentation/shared-surface/SharedSurfaceEcosystemCommandPack';
 
 function buildCtx(rawText = '/platform') {
   return {

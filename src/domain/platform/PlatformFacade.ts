@@ -1,9 +1,9 @@
-import type { ZavorthPlatformRegistryService } from '../../services/ZavorthPlatformRegistryService.js';
 import { DomainFacadeBase, type DomainSnapshot } from '../DomainFacadeBase.js';
+import type { PlatformRegistryStatusPort } from './domain/PlatformDomainTypes.js';
 
 type PlatformFacadeRuntime = {
   now?: () => Date;
-  platformRegistryService?: Pick<ZavorthPlatformRegistryService, 'buildStatusSummarySnapshot'>;
+  platformRegistryService?: PlatformRegistryStatusPort;
 };
 
 export type PlatformDomainSnapshot = DomainSnapshot & {
@@ -18,7 +18,7 @@ export type PlatformDomainSnapshot = DomainSnapshot & {
 };
 
 export class PlatformFacade extends DomainFacadeBase<PlatformDomainSnapshot> {
-  private readonly platformRegistry: Pick<ZavorthPlatformRegistryService, 'buildStatusSummarySnapshot'> | null;
+  private readonly platformRegistry: PlatformRegistryStatusPort | null;
 
   constructor(runtime: PlatformFacadeRuntime = {}) {
     super('platform', 'Platform', runtime.now);

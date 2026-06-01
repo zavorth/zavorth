@@ -84,7 +84,7 @@ describe('ZavorthAgentGateway', () => {
     expect(result.run.events).toEqual(expect.arrayContaining([
       expect.objectContaining({
         kind: 'input',
-        title: 'Pedido recebido',
+        title: 'Request received',
       }),
       expect.objectContaining({
         kind: 'tool',

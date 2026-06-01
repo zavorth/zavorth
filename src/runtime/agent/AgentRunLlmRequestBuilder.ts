@@ -63,11 +63,13 @@ export class AgentRunLlmRequestBuilder {
     };
   }
 
-  private buildMessages(run: UniversalAgentRun, request: UniversalAgentRequest): ChatMessage[] {
+  public buildMessages(run: UniversalAgentRun, request: UniversalAgentRequest): ChatMessage[] {
     const exposedTools = run.toolExposure.tools.map((tool) => tool.id).join(', ') || 'none';
     const userLanguageInstruction = buildUserLanguageInstruction(request.text);
     const contextPrompt = [
       this.maturity.buildSnapshot({ run, request }).prompt,
+      this.buildSteeringPrompt(run),
+      this.buildCognitiveContextPrompt(run.metadata),
       this.buildContextPrompt(run.metadata),
       this.buildIntelligenceFabricContextPrompt(run.metadata),
       this.buildIntelligenceFabricDraftGuidancePrompt(run.metadata),
@@ -81,6 +83,8 @@ export class AgentRunLlmRequestBuilder {
       'Do not claim that you executed tools, edited files or performed external effects unless this run recorded tool events.',
       'When the user asks about the current date, time or timezone and the get_datetime tool is visible, use get_datetime before answering.',
       'Use visible tools when they materially improve correctness: web_search for current/public/external facts, get_datetime for time, workspace tools for local code or files, media/image/node tools for their matching modalities.',
+      'For Zavorth configuration, runtime state, governance and self-management requests, prefer zavorth_action when visible: use action.schema.lookup first, action.preview before mutation, and action.apply only with approval/operator confirmation.',
+      'Do not invent slash commands, CLI commands or shell commands for first-class Zavorth actions.',
       'If a needed capability is not visible or a tool fails, explain what you tried, why it failed, and the next safe repair or configuration step.',
       isNaturalFirstLlmReplyRun(run)
         ? 'Natural First route: llm-reply. Treat this as a natural free-form question: answer without calling tools and without inventing executions.'
@@ -117,6 +121,39 @@ export class AgentRunLlmRequestBuilder {
       `- camadas: ${Array.isArray(summary?.layers) ? summary.layers.join(', ') : 'hot'}`,
       ...promptParts.map((part) => `- ${safeContextText(part)}`),
       ...(mcpAvailable ? ['- snapshot MCP disponivel no metadata do run; use apenas como contexto, nao como execucao ja realizada.'] : []),
+    ].join('\n');
+  }
+
+  private buildSteeringPrompt(run: UniversalAgentRun): string {
+    const entries = (run.steering || [])
+      .filter((entry) => entry && (entry.status === 'accepted' || entry.status === 'applied'))
+      .slice(-6);
+    if (entries.length === 0) return '';
+    return [
+      'Active run steering accepted after the original request:',
+      ...entries.map((entry, index) => [
+        `- steering ${index + 1}: ${safeContextText(entry.text, 720)}`,
+        `  ack: ${safeContextText(entry.ackId, 160)}; source: ${safeContextText(entry.source, 120)}; createdAt: ${safeContextText(entry.createdAt, 80)}`,
+      ].join('\n')),
+      '- Treat steering as operator guidance for this same run. Do not claim external side effects from steering alone.',
+    ].join('\n');
+  }
+
+  private buildCognitiveContextPrompt(metadata: Record<string, unknown>): string {
+    const bundle = resolveCognitiveContextBundle(metadata);
+    if (!bundle) return '';
+
+    const providerNativeTools = normalizeStringList(bundle.providerNativeTools);
+    return [
+      'Cognitive Context Bundle (style and cognition only; never security authority):',
+      `- profile: ${safeContextText(bundle.profileId || 'unknown', 120)} / ${safeContextText(bundle.label || 'unlabeled', 160)}`,
+      `- response style: ${safeContextText(bundle.responseStyle || 'direct', 120)}`,
+      `- autonomy: ${safeContextText(bundle.autonomy || 'governed', 80)}; planning depth: ${safeContextText(bundle.planningDepth || 'normal', 80)}; language policy: ${safeContextText(bundle.languagePolicy || 'match-user', 80)}`,
+      `- memory: ${safeContextText(bundle.memoryMode || 'working', 80)}; learning: ${safeContextText(bundle.learning || 'suggest', 80)}`,
+      ...(providerNativeTools.length > 0
+        ? [`- provider-native capabilities preferred when useful: ${providerNativeTools.join(', ')}`]
+        : []),
+      '- This bundle shapes style, planning and recall. It never grants filesystem, shell, network or outbound authority.',
     ].join('\n');
   }
 
@@ -182,27 +219,29 @@ export class AgentRunLlmRequestBuilder {
     ].join('\n');
   }
 
-  private buildOptions(run: UniversalAgentRun, request: UniversalAgentRequest): LlmRunOptions {
+  public buildOptions(run: UniversalAgentRun, request: UniversalAgentRequest): LlmRunOptions {
     const providerName = this.resolveProviderName(run, request);
     const modelName = this.resolveModelName(run, request);
     const effectiveProviderName = providerName || normalizeText(run.modelProfile?.providerLabel);
     const effectiveModelName = modelName || normalizeText(run.modelProfile?.modelLabel);
     const fallbackOrder = this.resolveFallbackOrder(run);
+    const metadataForNativeTools = this.buildProviderNativeToolMetadata(run, request);
     const providerNativeTools = planProviderNativeTools({
       providerName: effectiveProviderName,
       modelName: effectiveModelName,
       text: request.text,
-      metadata: {
-        ...run.metadata,
-        ...(request.metadata || {}),
-      },
+      metadata: metadataForNativeTools,
     });
+    const allowFallback = request.metadata?.allowProviderFallback === false
+      || run.metadata?.allowProviderFallback === false
+      ? false
+      : true;
     return {
       ...(providerName ? { providerName } : {}),
       ...(modelName ? { modelName } : {}),
       ...(fallbackOrder.length > 0 ? { fallbackOrder } : {}),
       ...(providerNativeTools.length > 0 ? { providerNativeTools } : {}),
-      allowFallback: true,
+      allowFallback,
       toolPolicy: this.buildToolPolicyContext(run, request),
     };
   }
@@ -267,6 +306,26 @@ export class AgentRunLlmRequestBuilder {
     if (!Array.isArray(selected?.fallbackOrder)) return [];
     return Array.from(new Set(selected.fallbackOrder.map((entry) => normalizeText(entry)).filter(Boolean)));
   }
+
+  private buildProviderNativeToolMetadata(
+    run: UniversalAgentRun,
+    request: UniversalAgentRequest,
+  ): Record<string, unknown> {
+    const merged: Record<string, unknown> = {
+      ...run.metadata,
+      ...(request.metadata || {}),
+    };
+    const profileNativeTools = resolveProfileProviderNativeTools(run.metadata);
+    const providerNativeTools = mergeProviderNativeToolPreferences(
+      run.metadata.providerNativeTools,
+      request.metadata?.providerNativeTools,
+      profileNativeTools,
+    );
+    if (providerNativeTools !== undefined) {
+      merged.providerNativeTools = providerNativeTools;
+    }
+    return merged;
+  }
 }
 
 function normalizeText(value: unknown, fallback = ''): string {
@@ -327,4 +386,77 @@ function recordOrNull(value: unknown): Record<string, unknown> | null {
 
 function safeContextText(value: unknown, maxChars = 2000): string {
   return sanitizeTrustPlaneText(value, { maxChars });
+}
+
+function resolveCognitiveContextBundle(metadata: Record<string, unknown>): Record<string, unknown> | null {
+  const direct = recordOrNull(metadata.cognitiveContextBundle);
+  if (direct) return direct;
+  const profileBundle = recordOrNull(metadata.profileBundle) || recordOrNull(metadata.profileRuntimeBundle);
+  return recordOrNull(profileBundle?.cognitiveContextBundle);
+}
+
+function resolveProfileProviderNativeTools(metadata: Record<string, unknown>): string[] {
+  const cognitive = resolveCognitiveContextBundle(metadata);
+  const profileBundle = recordOrNull(metadata.profileBundle) || recordOrNull(metadata.profileRuntimeBundle);
+  const capabilityPolicy = recordOrNull(profileBundle?.capabilityPolicy);
+  return uniqueStrings([
+    ...normalizeStringList(cognitive?.providerNativeTools),
+    ...normalizeStringList(capabilityPolicy?.providerNativeTools),
+  ]);
+}
+
+function mergeProviderNativeToolPreferences(
+  runValue: unknown,
+  requestValue: unknown,
+  profileNativeTools: string[],
+): unknown {
+  const requested = uniqueStrings([
+    ...collectProviderNativeToolNames(runValue),
+    ...collectProviderNativeToolNames(requestValue),
+    ...profileNativeTools,
+  ]);
+  const base = recordOrNull(requestValue) || recordOrNull(runValue);
+  if (base) {
+    return {
+      ...base,
+      requested: uniqueStrings([
+        ...normalizeStringList(base.requested),
+        ...requested,
+      ]),
+    };
+  }
+  if (requested.length > 0) {
+    return { requested };
+  }
+  return requestValue !== undefined ? requestValue : runValue;
+}
+
+function collectProviderNativeToolNames(value: unknown): string[] {
+  if (Array.isArray(value)) {
+    return value
+      .flatMap((item) => {
+        if (typeof item === 'string') return [item];
+        const record = recordOrNull(item);
+        return record ? [record.name, record.id, record.capability] : [];
+      })
+      .map((item) => normalizeText(item))
+      .filter(Boolean);
+  }
+  const record = recordOrNull(value);
+  if (!record) return [];
+  return uniqueStrings([
+    ...normalizeStringList(record.requested),
+    ...normalizeStringList(record.preferred),
+    ...normalizeStringList(record.enabled),
+    ...normalizeStringList(record.activated),
+  ]);
+}
+
+function normalizeStringList(value: unknown): string[] {
+  if (!Array.isArray(value)) return [];
+  return value.map((item) => normalizeText(item)).filter(Boolean);
+}
+
+function uniqueStrings(values: string[]): string[] {
+  return Array.from(new Set(values.map((entry) => normalizeText(entry)).filter(Boolean)));
 }

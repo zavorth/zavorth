@@ -6,6 +6,7 @@ import {
 } from '../ZavorthSetupStudioService.js';
 import { INTEGRATION_CHANNEL_MANIFESTS } from '../../domain/platform-ecosystem/infrastructure/integration-registry/IntegrationRegistryCatalogChannels.js';
 import { ChannelLongTailActivationService } from '../../services/ChannelLongTailActivationService.js';
+import { ZavorthHomePathService } from '../../services/ZavorthHomePathService.js';
 import { ZavorthSetupStudioConfigStore } from './ZavorthSetupStudioConfigStore.js';
 import type {
   ZavorthSetupStudioConfigHandling,
@@ -14,6 +15,7 @@ import type {
   ZavorthSetupStudioChannelGuide,
   ZavorthSetupStudioControlUiReadiness,
   ZavorthSetupStudioGatewayReadiness,
+  ZavorthSetupStudioHomeReadiness,
   ZavorthSetupStudioHatchPlan,
   ZavorthSetupStudioHooksReadiness,
   ZavorthSetupStudioSkillReadiness,
@@ -35,6 +37,13 @@ export function buildZavorthSetupStudioSnapshot(
   const projectRoot = path.resolve(input.projectRoot || process.cwd());
   const configStore = new ZavorthSetupStudioConfigStore(projectRoot);
   const existingConfig = configStore.inspect();
+  const selectedHome = String(input.zavorthHome || '').trim();
+  const homeSnapshot = new ZavorthHomePathService({
+    projectRoot,
+    explicitHome: selectedHome || null,
+    env: process.env,
+    now: input.now,
+  }).resolveSnapshot();
   const plan = buildZavorthSetupStudioPlan({
     projectRoot,
     providerId: input.providerId || existingConfig.configuredProvider || 'deferred',
@@ -47,6 +56,11 @@ export function buildZavorthSetupStudioSnapshot(
     emailSmtpUrl: input.emailSmtpUrl || null,
     searchProvider: input.searchProvider || null,
     searchSecret: input.searchSecret || null,
+    zavorthHome: selectedHome || null,
+    skillsGovernanceMode: input.skillsGovernanceMode || process.env.ZAVORTH_SKILLS_GOVERNANCE_MODE || 'casual',
+    wakeDetectorMode: input.wakeDetectorMode || null,
+    wakeCommand: input.wakeCommand || null,
+    wakeArgs: input.wakeArgs || null,
     enableHooks: input.enableHooks === true,
     memoryMode: input.memoryMode || 'local-metadata',
     vaultScope: input.vaultScope || 'skip',
@@ -67,6 +81,7 @@ export function buildZavorthSetupStudioSnapshot(
     mode: input.mode || 'quickstart',
     configHandling: input.configHandling || (existingConfig.envExists || existingConfig.profileExists ? 'keep' : 'review'),
     existingConfig,
+    home: buildHomeReadiness(homeSnapshot),
     plan,
     channelGuide,
     webSearch,
@@ -98,6 +113,20 @@ export function buildZavorthSetupStudioSnapshot(
       noRuntimeStart: true,
       liveProviderProbeRequiresConsent: true,
     },
+  };
+}
+
+function buildHomeReadiness(snapshot: ReturnType<ZavorthHomePathService['resolveSnapshot']>): ZavorthSetupStudioHomeReadiness {
+  return {
+    root: snapshot.root,
+    source: snapshot.source,
+    isolated: snapshot.isolated,
+    statusCommand: snapshot.dailyUse.statusCommand,
+    switchCommand: snapshot.dailyUse.switchCommand,
+    migratePreviewCommand: snapshot.dailyUse.migratePreviewCommand,
+    migrateApplyCommand: snapshot.dailyUse.migrateApplyCommand,
+    rollbackCommand: snapshot.dailyUse.rollbackCommand,
+    warnings: snapshot.warnings,
   };
 }
 

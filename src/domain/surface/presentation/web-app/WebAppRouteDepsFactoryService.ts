@@ -85,6 +85,7 @@ type WebAppRouteDepsFactoryOptions = {
   workspaceOptimizer: SurfaceDependency;
   sessionV2: SurfaceDependency;
   swarmV2: SurfaceDependency;
+  swarmScalePlane: SurfaceDependency;
   computerUseAgent: SurfaceDependency;
   watchMode: SurfaceDependency;
   engineeringCore: SurfaceDependency;
@@ -295,6 +296,7 @@ export class WebAppRouteDepsFactoryService {
       workspaceOptimizer: this.options.workspaceOptimizer,
       sessionV2: this.options.sessionV2,
       swarmV2: this.options.swarmV2,
+      swarmScalePlane: this.options.swarmScalePlane,
       computerUseAgent: this.options.computerUseAgent,
       watchMode: this.options.watchMode,
       engineeringCore: this.options.engineeringCore,

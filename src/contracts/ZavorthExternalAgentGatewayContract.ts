@@ -85,6 +85,26 @@ export type ZavorthExternalAgentGatewayRegistrySnapshot = {
   };
 };
 
+export type ZavorthExternalAgentGatewayDashboardSnapshot = {
+  generatedAt: string;
+  contractVersion: typeof ZAVORTH_EXTERNAL_AGENT_GATEWAY_CONTRACT_VERSION;
+  surface: 'external-agent-dashboard';
+  registry: ZavorthExternalAgentGatewayRegistrySnapshot;
+  latestReceipt: ZavorthExternalAgentGatewayReceipt | null;
+  summary: {
+    profiles: number;
+    liveEnabled: number;
+    stronglyIsolated: number;
+    latestReceiptStatus: ZavorthExternalAgentInvocationStatus | 'none';
+  };
+  safety: {
+    noAgentUsedDuringDashboardRead: true;
+    liveUseRequiresApproval: true;
+    localCliDeclaredNonSandboxed: true;
+    rawSecretsSerialized: false;
+  };
+};
+
 export type ZavorthExternalAgentGatewayReceipt = {
   generatedAt: string;
   contractVersion: typeof ZAVORTH_EXTERNAL_AGENT_GATEWAY_CONTRACT_VERSION;

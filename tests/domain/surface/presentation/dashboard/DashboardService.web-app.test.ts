@@ -90,7 +90,7 @@ function createInstallJourneyFixture() {
         ready: true,
         baseUrl: 'http://127.0.0.1:33333',
         appUrl: 'http://127.0.0.1:33333/dashboard',
-        dashboardUrl: 'http://127.0.0.1:33333/classic',
+        dashboardUrl: 'http://127.0.0.1:33333/dashboard',
       },
       remote: {
         ready: true,

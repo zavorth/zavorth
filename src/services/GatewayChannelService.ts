@@ -41,7 +41,9 @@ export class GatewayChannelService {
 
   constructor(runtime: GatewayChannelRuntime = {}) {
     this.now = runtime.now || (() => new Date());
-    this.adapters = runtime.adapterRegistryService || new GatewayChannelAdapterRegistryService();
+    this.adapters = runtime.adapterRegistryService || new GatewayChannelAdapterRegistryService({
+      includeLongTailActivationAdapters: true,
+    });
   }
 
   public buildSnapshot(): GatewayChannelSnapshot {

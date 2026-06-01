@@ -1,16 +1,14 @@
-import type { ArchitectureRefactorScorecardService } from '../../observability/ArchitectureRefactorScorecardService.js';
-import type { IntegrationHealthService } from '../../services/IntegrationHealthService.js';
-import type { OperationsHealthService } from '../../services/OperationsHealthService.js';
 import { DomainFacadeBase, type DomainSnapshot } from '../DomainFacadeBase.js';
 import { ObservabilityUseCases } from './application/ObservabilityUseCases.js';
+import type { ArchitectureScorecardPort, IntegrationHealthPort, OperationsHealthPort } from './domain/ObservabilityDomainTypes.js';
 import { ObservabilityStackAdapter } from './infrastructure/ObservabilityStackAdapter.js';
 import { ObservabilityDomainPresenter } from './presentation/ObservabilityDomainPresenter.js';
 
 type ObservabilityFacadeRuntime = {
   now?: () => Date;
-  operationsHealthService?: Pick<OperationsHealthService, 'readSnapshot'>;
-  architectureScorecardService?: Pick<ArchitectureRefactorScorecardService, 'buildSnapshot'>;
-  integrationHealthService?: Pick<IntegrationHealthService, 'listDoctorSnapshots'>;
+  operationsHealthService?: OperationsHealthPort;
+  architectureScorecardService?: ArchitectureScorecardPort;
+  integrationHealthService?: IntegrationHealthPort;
   controlPlanes?: number | null;
   scorecards?: number | null;
   healthSignalsReady?: boolean | null;

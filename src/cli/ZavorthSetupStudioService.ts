@@ -36,6 +36,10 @@ export type ZavorthSetupStudioEnvUpdate = {
 export type ZavorthSetupStudioPlan = {
   contractVersion: 'zavorth-setup-studio/1';
   envFile: string;
+  skillGovernance: {
+    mode: 'casual' | 'governed';
+    summary: string;
+  };
   provider: {
     id: ZavorthSetupStudioProviderId;
     modelId: string;
@@ -57,6 +61,12 @@ export type ZavorthSetupStudioPlan = {
     mode: 'off' | 'local-metadata' | 'local-summary';
     vaultScope: 'skip' | 'documents' | 'downloads' | 'custom' | 'whole-pc';
     scanDirs: string[];
+  };
+  wakeDetector: {
+    mode: 'disabled' | 'default-local' | 'custom-command';
+    summary: string;
+    commandConfigured: boolean;
+    rawAudioPersisted: false;
   };
   hooks: {
     enabled: boolean;
@@ -94,6 +104,11 @@ export type BuildZavorthSetupStudioPlanInput = {
   memoryMode: 'off' | 'local-metadata' | 'local-summary';
   vaultScope: 'skip' | 'documents' | 'downloads' | 'custom' | 'whole-pc';
   scanDirs?: string[] | null;
+  zavorthHome?: string | null;
+  skillsGovernanceMode?: 'casual' | 'governed' | string | null;
+  wakeDetectorMode?: 'disabled' | 'default-local' | 'custom-command' | string | null;
+  wakeCommand?: string | null;
+  wakeArgs?: string | null;
 };
 
 const CORE_SETUP_STUDIO_PROVIDER_OPTIONS: ZavorthSetupStudioProviderOption[] = [
@@ -192,6 +207,85 @@ export function buildZavorthSetupStudioPlan(input: BuildZavorthSetupStudioPlanIn
   const modelId = String(input.modelId || provider.defaultModel).trim() || provider.defaultModel;
   const envFile = path.join(input.projectRoot, '.env');
   const envUpdates: ZavorthSetupStudioEnvUpdate[] = [];
+  const zavorthHome = String(input.zavorthHome || '').trim();
+  const skillsGovernanceMode = normalizeSkillsGovernanceMode(input.skillsGovernanceMode);
+  const wakeDetectorMode = normalizeWakeDetectorMode(input.wakeDetectorMode, input.wakeCommand);
+  const wakeCommand = String(input.wakeCommand || '').trim();
+  const wakeArgs = String(input.wakeArgs || '').trim();
+
+  if (zavorthHome) {
+    const resolvedHome = path.resolve(zavorthHome);
+    envUpdates.push({
+      key: 'ZAVORTH_HOME',
+      value: resolvedHome,
+      redactedValue: resolvedHome,
+      reason: 'isolated Zavorth instance home selected during setup',
+    });
+  }
+
+  envUpdates.push({
+    key: 'ZAVORTH_SKILLS_GOVERNANCE_MODE',
+    value: skillsGovernanceMode,
+    redactedValue: skillsGovernanceMode,
+    reason: 'skill import governance selected during setup',
+  });
+
+  envUpdates.push({
+    key: 'ZAVORTH_WAKE_TTL_SECONDS',
+    value: String(Math.max(30, Number(process.env.ZAVORTH_WAKE_TTL_SECONDS || 900))),
+    redactedValue: String(Math.max(30, Number(process.env.ZAVORTH_WAKE_TTL_SECONDS || 900))),
+    reason: 'wake detector session TTL selected during setup',
+  });
+  if (wakeDetectorMode === 'default-local') {
+    envUpdates.push(
+      {
+        key: 'ZAVORTH_WAKE_EMBEDDED',
+        value: '1',
+        redactedValue: '1',
+        reason: 'default local wake detector selected during setup',
+      },
+      {
+        key: 'ZAVORTH_WAKE_COMMAND',
+        value: '',
+        redactedValue: '',
+        reason: 'no custom wake process selected',
+      },
+      {
+        key: 'ZAVORTH_WAKE_ARGS',
+        value: '',
+        redactedValue: '',
+        reason: 'no custom wake process arguments selected',
+      },
+    );
+  } else if (wakeDetectorMode === 'custom-command') {
+    envUpdates.push(
+      {
+        key: 'ZAVORTH_WAKE_EMBEDDED',
+        value: '0',
+        redactedValue: '0',
+        reason: 'custom wake detector selected during setup',
+      },
+      {
+        key: 'ZAVORTH_WAKE_COMMAND',
+        value: wakeCommand,
+        redactedValue: redactShellToken(wakeCommand),
+        reason: 'custom wake detector command selected during setup',
+      },
+      {
+        key: 'ZAVORTH_WAKE_ARGS',
+        value: wakeArgs,
+        redactedValue: redactShellToken(wakeArgs),
+        reason: 'custom wake detector args selected during setup',
+      },
+    );
+  } else {
+    envUpdates.push({
+      key: 'ZAVORTH_WAKE_EMBEDDED',
+      value: '0',
+      redactedValue: '0',
+      reason: 'wake detector disabled during setup',
+    });
+  }
 
   if (provider.id !== 'deferred') {
     envUpdates.push({
@@ -300,6 +394,12 @@ export function buildZavorthSetupStudioPlan(input: BuildZavorthSetupStudioPlanIn
   return {
     contractVersion: 'zavorth-setup-studio/1',
     envFile,
+    skillGovernance: {
+      mode: skillsGovernanceMode,
+      summary: skillsGovernanceMode === 'casual'
+        ? 'Fast daily-use imports, while hard security and license blockers still stay active.'
+        : 'Strict enterprise-style review for skill imports, licenses, risk and audit.',
+    },
     provider: {
       id: provider.id,
       modelId,
@@ -322,6 +422,12 @@ export function buildZavorthSetupStudioPlan(input: BuildZavorthSetupStudioPlanIn
       vaultScope: input.vaultScope,
       scanDirs,
     },
+    wakeDetector: {
+      mode: wakeDetectorMode,
+      summary: wakeDetectorSummary(wakeDetectorMode),
+      commandConfigured: wakeDetectorMode === 'custom-command' && Boolean(wakeCommand),
+      rawAudioPersisted: false,
+    },
     hooks: {
       enabled: input.enableHooks === true,
       templates: input.enableHooks === true ? buildHookTemplates(input.projectRoot) : [],
@@ -341,6 +447,7 @@ export function buildZavorthSetupStudioPlan(input: BuildZavorthSetupStudioPlanIn
     },
     nextCommands: [
       'zavorth ready',
+      'zavorth home status',
       'zavorth start',
       'zavorth open',
     ],
@@ -401,6 +508,7 @@ export function renderZavorthSetupStudioPlan(plan: ZavorthSetupStudioPlan): stri
   return [
     'Setup Studio will prepare:',
     `- Provider: ${plan.provider.id}/${plan.provider.modelId}`,
+    `- Skill governance: ${plan.skillGovernance.mode} (${plan.skillGovernance.summary})`,
     `- Credential: ${plan.provider.secretStored ? `${plan.provider.secretEnvKey} (${redactSecret('configured-secret')})` : 'not stored'}`,
     `- Telegram: ${plan.channels.telegram}`,
     `- Discord: ${plan.channels.discord}`,
@@ -408,6 +516,7 @@ export function renderZavorthSetupStudioPlan(plan: ZavorthSetupStudioPlan): stri
     `- Email: ${plan.channels.email}`,
     `- Web/search: ${plan.webSearch.provider}${plan.webSearch.secretStored ? ` (${plan.webSearch.secretEnvKey} configured)` : ''}`,
     `- Mnemos Memory: ${plan.memory.mode} / ${plan.memory.vaultScope}`,
+    `- Echo wake: ${plan.wakeDetector.mode} (${plan.wakeDetector.summary})`,
     plan.memory.scanDirs.length > 0 ? `- Vaults: ${plan.memory.scanDirs.map((entry) => redactHome(entry)).join(', ')}` : '- Vaults: not configured',
     `- Automation templates: ${plan.hooks.enabled ? `${plan.hooks.templates.length} prepared, disabled by default` : 'skip'}`,
     '',
@@ -425,6 +534,30 @@ export function renderZavorthSetupStudioPlan(plan: ZavorthSetupStudioPlan): stri
     'After setup:',
     ...plan.nextCommands.map((command) => `- ${command}`),
   ].join('\n');
+}
+
+function normalizeSkillsGovernanceMode(value: unknown): 'casual' | 'governed' {
+  const normalized = String(value || '').trim().toLowerCase();
+  return normalized === 'governed' || normalized === 'strict' || normalized === 'enterprise'
+    ? 'governed'
+    : 'casual';
+}
+
+function normalizeWakeDetectorMode(value: unknown, command: unknown): 'disabled' | 'default-local' | 'custom-command' {
+  const normalized = String(value || '').trim().toLowerCase();
+  if (normalized === 'off' || normalized === 'disabled' || normalized === 'disable') return 'disabled';
+  if (normalized === 'custom' || normalized === 'custom-command' || String(command || '').trim()) return 'custom-command';
+  return 'default-local';
+}
+
+function wakeDetectorSummary(mode: 'disabled' | 'default-local' | 'custom-command'): string {
+  if (mode === 'disabled') return 'off until the operator explicitly configures it later';
+  if (mode === 'custom-command') return 'operator-provided detector, still opt-in and TTL-bound';
+  return 'default local detector path, still opt-in and TTL-bound';
+}
+
+function redactShellToken(value: string): string {
+  return String(value || '').replace(/\b(token|secret|password|api[_-]?key)=\S+/gi, '$1=[REDACTED_SECRET]');
 }
 
 function normalizeScanDirs(scanDirs: string[] | null | undefined): string[] {

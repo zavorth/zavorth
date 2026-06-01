@@ -1,10 +1,14 @@
 import * as http from 'http';
+import fs from 'fs';
+import path from 'path';
 import {
   isWebAppRuntimeCanonicalSessionSendRoute,
   isWebAppRuntimeCanonicalSessionSpawnRoute,
 } from './web-app-runtime-route/WebAppRuntimeRouteHelpers.js';
+import { config } from '../../../../config/index.js';
 import { shouldPersistZavorthArtifacts } from '../../../../contracts/ZavorthResponseDecisionContract.js';
 import { RemoteMeshNotebookMcpProxyService } from '../../../../services/RemoteMeshNotebookMcpProxyService.js';
+import { ZavorthMnemosQueryService } from '../../../../services/ZavorthMnemosQueryService.js';
 import type { WebAppRuntimeRouteDeps } from './WebAppRuntimeRouteService.js';
 
 export type WebAppRuntimeInteractionRouteHelpers = {
@@ -92,6 +96,18 @@ export class WebAppRuntimeInteractionRouteService {
 
     if (pathname === '/api/web/dashboard/events' && req.method === 'GET') {
       return this.handleDashboardEventsRequest(res, url, deps);
+    }
+
+    if (pathname === '/api/web/mnemos/recall' && req.method === 'GET') {
+      return this.handleMnemosRecallRequest(res, url, deps);
+    }
+
+    if (pathname === '/api/web/learning-dreams' && req.method === 'GET') {
+      return this.handleLearningDreamsRequest(res, url, deps);
+    }
+
+    if (pathname === '/api/web/learning-dreams/action' && req.method === 'POST') {
+      return this.handleLearningDreamsActionRequest(req, res, deps);
     }
 
     if (pathname === '/api/web/tool-runs' && req.method === 'GET') {
@@ -326,6 +342,129 @@ export class WebAppRuntimeInteractionRouteService {
     return true;
   }
 
+  private handleMnemosRecallRequest(
+    res: http.ServerResponse,
+    url: URL,
+    deps: WebAppRuntimeRouteDeps,
+  ): boolean {
+    const query = String(url.searchParams.get('query') || url.searchParams.get('q') || '').trim();
+    if (!query) {
+      deps.writeJson(res, { ok: false, error: 'query is required' }, 400);
+      return true;
+    }
+    try {
+      const topK = Math.min(20, Math.max(1, Number(url.searchParams.get('topK') || 6) || 6));
+      const snapshot = new ZavorthMnemosQueryService({
+        projectRoot: config.projectRoot || process.cwd(),
+      }).query({ query, topK });
+      deps.writeJson(res, { ok: true, recall: snapshot }, 200);
+    } catch (error: any) {
+      deps.writeJson(res, { ok: false, error: error?.message || 'Mnemos recall failed.' }, 500);
+    }
+    return true;
+  }
+
+  private async handleLearningDreamsRequest(
+    res: http.ServerResponse,
+    url: URL,
+    deps: WebAppRuntimeRouteDeps,
+  ): Promise<boolean> {
+    const sessionId = deps.resolveSessionId(url);
+    const state = this.readLearningState();
+    const snapshot = await deps.realtime.getResolvedSnapshot(sessionId);
+    const agentSnapshot = deps.agentGateway?.buildSnapshot({ activeSessionId: sessionId }) || null;
+    const runs = [
+      ...(Array.isArray(agentSnapshot?.runs) ? agentSnapshot.runs : []),
+      ...(Array.isArray((snapshot as any)?.workflowRuns) ? (snapshot as any).workflowRuns : []),
+    ];
+    const lifecycleEvents = this.readMnemosLifecycleEvents(sessionId);
+    const runCandidates = runs
+      .filter((run: any) => /completed|approval|blocked|done/i.test(String(run?.status || 'completed')))
+      .slice(-30)
+      .map((run: any) => this.buildLearningCandidateFromRun(run, state.entries));
+    const hookCandidates = lifecycleEvents
+      .filter((event) => String(event.type || '').includes('memory') || /receipt|approval|artifact|tool|workflow|message/i.test(String(event.type || '')))
+      .slice(-20)
+      .map((event) => this.buildLearningCandidateFromLifecycleEvent(event, state.entries));
+    const candidates = Array.from(new Map([...hookCandidates, ...runCandidates].map((candidate) => [candidate.id, candidate])).values())
+      .sort((left, right) => String(right.updatedAt || '').localeCompare(String(left.updatedAt || '')))
+      .slice(0, 40);
+    const summary = {
+      total: candidates.length,
+      pending: candidates.filter((candidate) => candidate.reviewState === 'pending').length,
+      approved: candidates.filter((candidate) => candidate.reviewState === 'approved').length,
+      rejected: candidates.filter((candidate) => candidate.reviewState === 'rejected').length,
+      promoted: candidates.filter((candidate) => candidate.lifecycle === 'trusted_local').length,
+      published: candidates.filter((candidate) => candidate.lifecycle === 'published').length,
+      quarantined: candidates.filter((candidate) => candidate.lifecycle === 'quarantined').length,
+      highConfidence: candidates.filter((candidate) => Number(candidate.score || 0) >= 0.8).length,
+      fromHooks: hookCandidates.length,
+    };
+    deps.writeJson(res, {
+      ok: true,
+      generatedAt: new Date().toISOString(),
+      learning: {
+        generatedAt: new Date().toISOString(),
+        summary,
+        candidates,
+      },
+      lifecycle: {
+        generatedAt: new Date().toISOString(),
+        sessionId,
+        events: lifecycleEvents.slice(-30).reverse(),
+      },
+      memory: {
+        generatedAt: new Date().toISOString(),
+        summary: {
+          total: lifecycleEvents.length + summary.approved + summary.promoted,
+          episodic: lifecycleEvents.length,
+          semantic: summary.approved + summary.promoted,
+          procedural: candidates.filter((candidate) => candidate.kind === 'playbook').length,
+        },
+      },
+    }, 200);
+    return true;
+  }
+
+  private async handleLearningDreamsActionRequest(
+    req: http.IncomingMessage,
+    res: http.ServerResponse,
+    deps: WebAppRuntimeRouteDeps,
+  ): Promise<boolean> {
+    const body = await deps.readJsonBody(req);
+    const candidateId = String(body.candidateId || '').trim();
+    const actionId = String(body.actionId || '').trim();
+    if (!candidateId || !['approve', 'reject', 'promote'].includes(actionId)) {
+      deps.writeJson(res, { ok: false, error: 'candidateId and supported actionId are required' }, 400);
+      return true;
+    }
+    const now = new Date().toISOString();
+    const state = this.readLearningState();
+    const current = state.entries[candidateId] || {
+      reviewState: 'pending',
+      lifecycle: 'learned_draft',
+      updatedAt: now,
+    };
+    state.entries[candidateId] = {
+      ...current,
+      reviewState: actionId === 'reject' ? 'rejected' : 'approved',
+      lifecycle: actionId === 'promote' ? 'trusted_local' : actionId === 'reject' ? 'quarantined' : current.lifecycle,
+      updatedAt: now,
+      promotedAt: actionId === 'promote' ? now : current.promotedAt || null,
+      rejectedAt: actionId === 'reject' ? now : current.rejectedAt || null,
+    };
+    state.updatedAt = now;
+    this.writeLearningState(state);
+    deps.writeJson(res, {
+      ok: true,
+      generatedAt: now,
+      candidateId,
+      actionId,
+      status: 'applied',
+    }, 200);
+    return true;
+  }
+
   private buildDashboardEvents(input: {
     sessionId: string;
     snapshot: any;
@@ -471,6 +610,37 @@ export class WebAppRuntimeInteractionRouteService {
       });
     }
 
+    for (const lifecycleEvent of this.readMnemosLifecycleEvents(input.sessionId)) {
+      const eventId = String(lifecycleEvent.id || '').trim();
+      if (!eventId) continue;
+      const payload = lifecycleEvent.payload && typeof lifecycleEvent.payload === 'object' ? lifecycleEvent.payload : {};
+      const trust = lifecycleEvent.trust && typeof lifecycleEvent.trust === 'object' ? lifecycleEvent.trust : {};
+      const source = lifecycleEvent.source && typeof lifecycleEvent.source === 'object' ? lifecycleEvent.source : {};
+      pushEvent({
+        id: `mnemos:${eventId}`,
+        type: 'lifecycle',
+        title: String(lifecycleEvent.type || 'Mnemos lifecycle').trim(),
+        detail: String((payload as any).objective || (payload as any).content || (payload as any).toolName || (payload as any).status || 'Session lifecycle event captured by Mnemos.').trim(),
+        meta: `mnemos - ${String((source as any).surface || 'runtime')} - ${String((trust as any).level || 'raw')}`,
+        status: String((payload as any).status || (trust as any).level || 'captured').trim(),
+        time: lifecycleEvent.timestamp || lifecycleEvent.createdAt || null,
+        runId: (payload as any).runId || (payload as any).workflowRunId || null,
+        traceId: (payload as any).traceId || null,
+        lifecycle: {
+          source,
+          trust,
+          receiptId: (trust as any).receiptId || null,
+          approvalId: (trust as any).approvalId || null,
+        },
+        replay: {
+          runId: (payload as any).runId || (payload as any).workflowRunId || eventId,
+          traceId: (payload as any).traceId || null,
+          sessionId: input.sessionId,
+          policy: 'mnemos lifecycle',
+        },
+      });
+    }
+
     const runFilter = String(input.runId || '').trim();
     const traceFilter = String(input.traceId || '').trim();
     return Array.from(new Map(events.map((event) => [event.id, event])).values())
@@ -492,6 +662,100 @@ export class WebAppRuntimeInteractionRouteService {
       approvals: byType('approval'),
       artifacts: byType('receipt'),
       errors: byType('error'),
+      lifecycle: byType('lifecycle'),
+    };
+  }
+
+  private readMnemosLifecycleEvents(sessionId = ''): Record<string, any>[] {
+    try {
+      const filePath = path.resolve(config.projectRoot || process.cwd(), '.zavorth', 'memory', 'session-events.json');
+      if (!fs.existsSync(filePath)) return [];
+      const parsed = JSON.parse(fs.readFileSync(filePath, 'utf8')) as Record<string, any>;
+      const events = Array.isArray(parsed.events) ? parsed.events : [];
+      return events
+        .map((event) => event && typeof event === 'object' && !Array.isArray(event) ? event as Record<string, any> : null)
+        .filter((event): event is Record<string, any> => Boolean(event))
+        .filter((event) => !sessionId || !event.sessionId || event.sessionId === sessionId)
+        .slice(-120);
+    } catch {
+      return [];
+    }
+  }
+
+  private readLearningState(): any {
+    try {
+      const filePath = this.learningStatePath();
+      if (!fs.existsSync(filePath)) return { version: 1, updatedAt: new Date(0).toISOString(), entries: {} };
+      const parsed = JSON.parse(fs.readFileSync(filePath, 'utf8'));
+      return parsed && typeof parsed === 'object' ? { version: 1, updatedAt: new Date(0).toISOString(), entries: {}, ...parsed } : { version: 1, updatedAt: new Date(0).toISOString(), entries: {} };
+    } catch {
+      return { version: 1, updatedAt: new Date(0).toISOString(), entries: {} };
+    }
+  }
+
+  private writeLearningState(state: any): void {
+    const filePath = this.learningStatePath();
+    fs.mkdirSync(path.dirname(filePath), { recursive: true });
+    fs.writeFileSync(filePath, JSON.stringify(state, null, 2), 'utf8');
+  }
+
+  private learningStatePath(): string {
+    return path.resolve(config.projectRoot || process.cwd(), 'data', 'runtime', 'learning-plane-state.json');
+  }
+
+  private buildLearningCandidateFromRun(run: any, entries: Record<string, any>): Record<string, any> {
+    const id = String(run?.workflow_run_id || run?.id || run?.requestId || run?.runId || '').trim() || `run-${Date.now()}`;
+    const entry = entries[id] || {};
+    const artifactCount = Array.isArray(run?.artifacts) ? run.artifacts.length : 0;
+    const completed = Array.isArray(run?.events) ? run.events.filter((event: any) => /done|completed/i.test(String(event?.status || ''))).length : 0;
+    return {
+      id,
+      title: String(run?.title || run?.objective || run?.input || 'Recent run').trim().slice(0, 96),
+      kind: artifactCount > 0 ? 'playbook' : 'recipe',
+      summary: String(run?.summary || run?.objective || run?.input || 'Reusable behavior from a recent run.').trim(),
+      score: Number(Math.max(0.42, Math.min(0.96, 0.55 + artifactCount * 0.04 + completed * 0.03)).toFixed(2)),
+      reviewState: entry.reviewState || 'pending',
+      lifecycle: entry.lifecycle || 'learned_draft',
+      createdAt: String(run?.createdAt || run?.created_at || new Date().toISOString()),
+      updatedAt: String(run?.updatedAt || run?.updated_at || run?.createdAt || run?.created_at || new Date().toISOString()),
+      source: {
+        workflow: String(run?.channel || 'runtime'),
+        workspace: String(run?.workspace || 'local'),
+        objective: String(run?.objective || run?.input || run?.title || ''),
+        sourceSurface: String(run?.channel || 'web'),
+        sourceKind: 'run',
+      },
+      steps: ['Review activity', 'Extract reusable behavior', 'Keep only with approval'],
+    };
+  }
+
+  private buildLearningCandidateFromLifecycleEvent(event: Record<string, any>, entries: Record<string, any>): Record<string, any> {
+    const id = `hook-${String(event.id || '').trim() || Date.now()}`;
+    const entry = entries[id] || {};
+    const payload = event.payload && typeof event.payload === 'object' ? event.payload as Record<string, any> : {};
+    const trust = event.trust && typeof event.trust === 'object' ? event.trust as Record<string, any> : {};
+    const source = event.source && typeof event.source === 'object' ? event.source as Record<string, any> : {};
+    return {
+      id,
+      title: String(payload.objective || payload.toolName || payload.content || event.type || 'Lifecycle signal').trim().slice(0, 96),
+      kind: String(event.type || '').includes('artifact') || String(event.type || '').includes('tool') ? 'playbook' : 'session-signal',
+      summary: `Captured from ${String(source.surface || 'runtime')} with ${String(trust.level || 'raw')} trust.`,
+      score: trust.level === 'operator-approved' ? 0.9 : trust.level === 'receipt-backed' ? 0.82 : 0.58,
+      reviewState: entry.reviewState || 'pending',
+      lifecycle: entry.lifecycle || 'learned_draft',
+      createdAt: String(event.timestamp || new Date().toISOString()),
+      updatedAt: String(event.timestamp || new Date().toISOString()),
+      source: {
+        workflow: String(event.type || 'lifecycle'),
+        workspace: 'local',
+        objective: String(payload.objective || payload.content || payload.toolName || ''),
+        sourceSurface: String(source.surface || 'runtime'),
+        sourceKind: 'lifecycle-hook',
+        trustLevel: String(trust.level || 'raw'),
+        receiptId: String(trust.receiptId || ''),
+        approvalId: String(trust.approvalId || ''),
+      },
+      steps: ['Captured by lifecycle hook', 'Review before promotion', 'Keep receipt-backed facts preferred'],
     };
   }
 

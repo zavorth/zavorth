@@ -167,6 +167,8 @@ describe('ZavorthControlBrowserPreview', () => {
     expect(appScript).toContain('ZavorthControlChat');
     expect(appScript).toContain('renderTranscript');
     expect(appScript).toContain('renderApprovals');
+    expect(appScript).toContain('ingestAgentStreamEvent');
+    expect(appScript).toContain('finalizeAgentStream');
     expect(appScript).toContain('normalizeTraceCapability');
     expect(appScript).toContain('renderTraceReceipt');
     expect(appScript).toContain('renderTraceReplay');
@@ -184,6 +186,9 @@ describe('ZavorthControlBrowserPreview', () => {
     expect(appScript).toContain('zavorth-artifact-card');
     expect(appScript).toContain('runtimeBridge.decideApproval');
     expect(runtimeBridge).toContain('/api/web/chat/send');
+    expect(runtimeBridge).toContain('live: true');
+    expect(runtimeBridge).toContain('execute: true');
+    expect(runtimeBridge).toContain('finalizeAgentStream');
     expect(runtimeBridge).toContain('composerPayload = {}');
     expect(runtimeBridge).toContain('selectedSkills');
     expect(runtimeBridge).toContain('attachments');

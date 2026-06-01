@@ -19,9 +19,9 @@ export function buildRuntimeShellHtmlPart1(input: { externalWebClientUrl: string
         <h1>Runtime, terminal e API ficam aqui.</h1>
         <p class="hero-copy">
           Este repo oficial e a casa do runtime, da CLI e da API do Zavorth.
-          A entrada principal agora e <code>/dashboard</code>.
+          A entrada principal e <code>/dashboard</code>.
           Este shell e um fallback interno de manutencao: ele resume runtime, sessions, approvals
-          e a malha operacional quando superficies legadas forem habilitadas explicitamente.
+          e a malha operacional quando os assets canonicos do dashboard nao estiverem disponiveis.
         </p>
         <div class="status-grid">
           <article class="status-pill">
@@ -48,7 +48,7 @@ export function buildRuntimeShellHtmlPart1(input: { externalWebClientUrl: string
         <div class="action-row hero-actions">
           <button type="button" class="action-button" data-copy="npm run ops:go">Copiar npm run ops:go</button>
           <button type="button" class="action-button secondary" data-copy="npm run cli -- status">Copiar status da CLI</button>
-          <a id="open-classic-dashboard" class="action-button secondary" href="/dashboard">Abrir dashboard</a>
+          <a id="open-dashboard" class="action-button secondary" href="/dashboard">Abrir dashboard</a>
         </div>
         <p class="muted-copy hero-note">
           Caminho principal: <code>npm run ops:go</code>. Se voce opera so por terminal, use
@@ -320,7 +320,7 @@ export function buildRuntimeShellHtmlPart1(input: { externalWebClientUrl: string
             <li><code>/dashboard</code> = entrada principal do Zavorth web</li>
             <li><code>/satellite</code> = superficie movel/PWA quando configurada</li>
             <li><code>/api/*</code> = contrato de runtime para CLI, web e clientes futuros</li>
-            <li><code>/app</code> e <code>/classic</code> = fallback interno somente com flag legada</li>
+            <li><code>/app</code> e <code>/classic</code> = removidos; use <code>/dashboard</code></li>
             <li><code>zavorth-web</code> = cliente externo, quando configurado</li>
             <li>Terminal e API continuam no centro do repositorio oficial</li>
           </ul>

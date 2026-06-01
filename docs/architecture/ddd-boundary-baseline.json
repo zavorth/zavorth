@@ -1,0 +1,17 @@
+{
+  "schemaVersion": 1,
+  "generatedAt": "2026-05-31T00:43:27.293Z",
+  "intent": "Legacy DDD boundary exceptions. New domain/application/facade imports into concrete runtime/services/config/api roots must not be added.",
+  "bannedRoots": [
+    "src/services",
+    "src/runtime",
+    "src/api",
+    "src/config",
+    "src/ai-gateway",
+    "src/tools",
+    "src/host",
+    "src/providers",
+    "src/observability"
+  ],
+  "exceptions": []
+}

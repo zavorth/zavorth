@@ -1,4 +1,4 @@
-import { SharedSurfaceCapabilityCommandPack } from '../../src/domain/surface/application/shared-surface/SharedSurfaceCapabilityCommandPack';
+import { SharedSurfaceCapabilityCommandPack } from '../../src/domain/surface/presentation/shared-surface/SharedSurfaceCapabilityCommandPack';
 
 function buildCtx(rawText = '/enable sandbox once') {
   return {

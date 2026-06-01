@@ -103,6 +103,7 @@ function initializeSurfaceFields(service: any, logRepo: LogRepository, deps: any
   service.agentGateway = deps.agentGateway || null;
   service.webApp = new WebAppService(service.authService, {
     agentGateway: service.agentGateway,
+    toolRuntime: deps.toolRuntime || null,
   });
   service.classicAccess = new DashboardClassicAccessService();
   service.classicAssets = new DashboardClassicAssetService();

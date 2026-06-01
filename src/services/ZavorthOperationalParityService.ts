@@ -54,7 +54,10 @@ export class ZavorthOperationalParityService {
     const setupStudio = path.join(projectRoot, 'src', 'cli', 'setup-studio');
     const gatewayFiles = [
       path.join(projectRoot, 'src', 'gateway', 'core', 'GatewayHostService.ts'),
-      path.join(projectRoot, 'src', 'domain', 'gateway', 'application', 'runtime-access'),
+      [
+        path.join(projectRoot, 'src', 'domain', 'gateway', 'application', 'runtime-access'),
+        path.join(projectRoot, 'src', 'runtime', 'access'),
+      ],
       path.join(projectRoot, 'src', 'cli', 'hud', 'ZavorthCliRuntimeTuiRenderer.ts'),
     ];
     const pluginFiles = [
@@ -94,7 +97,7 @@ export class ZavorthOperationalParityService {
       this.domain({
         id: 'gateway',
         title: 'Gateway, pairing and node host',
-        pass: gatewayFiles.every((file) => existsSync(file)) && this.fileContains(commandsFile, ['runServiceCommand', 'runNodeHost', 'runNodesCommand', 'createPairingDraft']),
+        pass: gatewayFiles.every((file) => this.pathExists(file)) && this.fileContains(commandsFile, ['runServiceCommand', 'runNodeHost', 'runNodesCommand', 'createPairingDraft']),
         summary: 'Gateway service lifecycle, node host, pairing code and QR setup are CLI-addressable.',
         evidence: [
           'daemon/gateway install/start/stop/restart/logs/status are available.',
@@ -226,6 +229,13 @@ export class ZavorthOperationalParityService {
     if (!existsSync(file)) return false;
     const raw = readFileSync(file, 'utf8');
     return needles.every((needle) => raw.includes(needle));
+  }
+
+  private pathExists(candidate: string | string[]): boolean {
+    if (Array.isArray(candidate)) {
+      return candidate.some((entry) => existsSync(entry));
+    }
+    return existsSync(candidate);
   }
 
   private box(title: string, lines: string[]): string {

@@ -18,7 +18,7 @@ export type BedrockClaudeProviderAdapterOptions = {
 };
 
 type BedrockLikeClient = {
-  send(command: unknown): Promise<Record<string, unknown>>;
+  send(command: unknown, options?: Record<string, unknown>): Promise<Record<string, unknown>>;
 };
 
 export class BedrockClaudeProviderAdapter implements ILlmProvider {
@@ -70,7 +70,10 @@ export class BedrockClaudeProviderAdapter implements ILlmProvider {
           }
         : undefined,
     };
-    const response = await this.client().send(new ConverseCommand(commandInput as never));
+    const response = await this.client().send(
+      new ConverseCommand(commandInput as never),
+      options?.signal ? { abortSignal: options.signal } : undefined,
+    );
 
     return parseBedrockResponse(response);
   }

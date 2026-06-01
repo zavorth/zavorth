@@ -3,7 +3,7 @@ import path from 'path';
 import { config } from '../config/index.js';
 import { PlatformCapabilityService } from './PlatformCapabilityService.js';
 import { applyChannelSetup } from '../domain/channels/infrastructure/setup-guide/ChannelSetupGuideApplySupport.js';
-import { buildChannelSetupCatalog } from '../domain/channels/application/setup-guide/ChannelSetupGuideCatalog.js';
+import { buildChannelSetupCatalog } from '../domain/channels/infrastructure/setup-guide/ChannelSetupGuideCatalog.js';
 import { readEnvFileMap } from '../domain/channels/infrastructure/setup-guide/ChannelSetupGuideEnvSupport.js';
 import type {
   ChannelSetupApplyInput,

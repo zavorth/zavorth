@@ -14,7 +14,7 @@ import {
   ZavorthProactivePermissionService,
   type PermissionRequest,
 } from './ZavorthProactivePermissionService.js';
-import { EchoExecutionBoundaryService } from '../domain/execution/application/EchoExecutionBoundaryService.js';
+import { EchoExecutionBoundaryService } from '../domain/execution/infrastructure/EchoExecutionBoundaryService.js';
 import { EchoExecutionLedgerService } from '../domain/execution/infrastructure/EchoExecutionLedgerService.js';
 import { EchoPendingExecutionStoreService } from '../domain/execution/infrastructure/EchoPendingExecutionStoreService.js';
 import {

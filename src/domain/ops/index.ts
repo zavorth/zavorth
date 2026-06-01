@@ -1,2 +1,2 @@
 export * from './OpsFacade';
-export * from './application/AutonomousHousekeepingAgentService';
+export * from './infrastructure/AutonomousHousekeepingAgentService';

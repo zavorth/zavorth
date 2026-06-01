@@ -21,6 +21,33 @@ export type ZavorthCliRuntimeTuiSnapshot = {
   projectRoot: string;
   mode: 'snapshot' | 'watch' | 'interactive';
   status: ZavorthCliRuntimeTuiStatus;
+  home: {
+    root: string;
+    source: string;
+    isolated: boolean;
+    migrationStatus: string;
+    paths: ZavorthCliRuntimeTuiItem[];
+  };
+  voice: {
+    mode: string;
+    armedUntil: string | null;
+    detector: string;
+    configured: boolean;
+    lastReceipt: string | null;
+  };
+  tasks: {
+    total: number;
+    queued: number;
+    running: number;
+    waitingApproval: number;
+    items: ZavorthCliRuntimeTuiItem[];
+  };
+  sandbox: {
+    posture: string;
+    strongProfilesReady: number;
+    preferredProfile: string;
+    items: ZavorthCliRuntimeTuiItem[];
+  };
   connection: {
     gateway: ZavorthCliRuntimeTuiRow;
     daemon: ZavorthCliRuntimeTuiRow;

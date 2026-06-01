@@ -15,8 +15,8 @@ import type {
 import { ChannelExperienceParityService } from './ChannelExperienceParityService.js';
 import { getSharedSurfaceCommandContract } from './SharedSurfaceCommandContract.js';
 import { createSurfaceResponse, renderSurfaceResponseForTarget } from '../domain/surface/application/surface-response/index.js';
-import { isSharedSurfaceChannelCallbackAction } from '../domain/surface/application/shared-surface/SharedSurfaceCallbackCommandPolicy.js';
-import { resolveSharedSurfaceRenderTarget } from '../domain/surface/application/shared-surface/SharedSurfaceResponseSender.js';
+import { isSharedSurfaceChannelCallbackAction } from '../domain/surface/presentation/shared-surface/SharedSurfaceCallbackCommandPolicy.js';
+import { resolveSharedSurfaceRenderTarget } from '../domain/surface/presentation/shared-surface/SharedSurfaceResponseSender.js';
 import { ZavorthChannelMeshService } from './ZavorthChannelMeshService.js';
 
 type ChannelExperienceCertificationRuntime = {

@@ -624,6 +624,7 @@ async function buildDefaultCliRuntime(options: {
   await taskRepo.init();
 
   const taskManager = new TaskManager(taskRepo, logRepo);
+  const toolRuntimeServices = createBootstrapToolRuntime(logRepo);
   const runtimeDiagnostics = new RuntimeDiagnosticsService(taskManager, logRepo);
   const sharedSurfaceCommandService = new SharedSurfaceCommandService({ runtimeDiagnostics });
   const commandService = new InternalSurfaceApiService({ commandService: sharedSurfaceCommandService });
@@ -717,6 +718,7 @@ async function buildDefaultCliRuntime(options: {
     defaultModelLabel: config.geminiModel || config.geminiDefaultModel || config.openaiModel || 'modelo atual',
     modelPickerContractService,
     llmRuntime: new LlmRuntimeService(),
+    toolRuntime: toolRuntimeServices.toolRuntime,
     runStore: createDefaultAgentRunStore(),
     workflowQueueStore: createDefaultAgentWorkflowQueueStore(),
   });
@@ -729,7 +731,6 @@ async function buildDefaultCliRuntime(options: {
   let legacyUnifiedGateway: ZavorthCliRuntime['legacyUnifiedGateway'] = null;
 
   if (includeLegacyUnifiedGateway) {
-    const toolRuntimeServices = createBootstrapToolRuntime(logRepo);
     const contextEngineRuntime = createContextEngineRuntime(logRepo, process.cwd());
     wireLegacyUnifiedGatewayAgentCallback({
       logRepo,

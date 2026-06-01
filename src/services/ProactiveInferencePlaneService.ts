@@ -4,7 +4,7 @@ import type { ToolCategory } from '../echo/types/IZavorthTool.js';
 import { ZavorthProactivePermissionService } from './ZavorthProactivePermissionService.js';
 import { HybridMemoryService } from './HybridMemoryService.js';
 import { LlmRuntimeService } from './llm/LlmRuntimeService.js';
-import { EchoExecutionBoundaryService } from '../domain/execution/application/EchoExecutionBoundaryService.js';
+import { EchoExecutionBoundaryService } from '../domain/execution/infrastructure/EchoExecutionBoundaryService.js';
 import { EchoPendingExecutionStoreService } from '../domain/execution/infrastructure/EchoPendingExecutionStoreService.js';
 
 import type { ChatMessage } from '../providers/ILlmProvider.js';

@@ -90,7 +90,7 @@ function createInstallJourneyFixture() {
         ready: true,
         baseUrl: 'http://127.0.0.1:33333',
         appUrl: 'http://127.0.0.1:33333/zavorthControl',
-        zavorthControlUrl: 'http://127.0.0.1:33333/classic',
+        zavorthControlUrl: 'http://127.0.0.1:33333/zavorthControl',
       },
       remote: {
         ready: true,
@@ -308,7 +308,7 @@ describe('ZavorthControlService', () => {
     jest.restoreAllMocks();
   });
 
-  it('redirects the root to the web app, keeps the legacy zavorthControl at /classic, and serves stats and healthcheck', async () => {
+  it('redirects the root to the web app, retires /classic, and serves stats and healthcheck', async () => {
     const continuityTasks = [
       {
         task_id: 'telegram-task-1',
@@ -932,19 +932,8 @@ describe('ZavorthControlService', () => {
     await service.stopAsync();
 
     expect(rootResponse.status).toBe(302);
-    expect(rootResponse.headers.get('location')).toBe('/zavorthControl');
-    expect(classicResponse.status).toBe(200);
-    expect(html).toContain('Zavorth Classic ZavorthControl');
-    expect(html).toContain('operations-overview');
-    expect(html).toContain('operations-trust-overview');
-    expect(html).toContain('operations-product-overview');
-    expect(html).toContain('operations-nodes');
-    expect(html).toContain('operations-lifecycle');
-    expect(html).toContain('Node Mesh');
-    expect(html).toContain('renderOperationsNodes');
-    expect(html).toContain('auditTrailSummary');
-    expect(html).toContain('auditReplaySummary');
-    expect(html).toContain('/classic');
+    expect(rootResponse.headers.get('location')).toBe('/control');
+    expect(classicResponse.status).toBe(410);
     expect(html).toContain('/zavorthControl');
     expect(stats).toEqual(
       expect.objectContaining({
@@ -1080,8 +1069,8 @@ describe('ZavorthControlService', () => {
     expect(handoff).toEqual(
       expect.objectContaining({
         available: true,
-        status: 'resume-required',
-        headline: expect.stringContaining('Handoff pronto'),
+        status: 'aligned',
+        headline: expect.stringContaining('Sessao compartilhada'),
         canonicalTarget: expect.objectContaining({
           kind: 'task',
         }),
@@ -1172,7 +1161,7 @@ describe('ZavorthControlService', () => {
       expect.objectContaining({
         summary: expect.any(String),
         local: expect.objectContaining({
-          appUrl: expect.stringContaining('/zavorthControl'),
+          appUrl: expect.stringContaining('/dashboard'),
           apiBaseUrl: expect.stringContaining('/api/web'),
         }),
         commands: expect.objectContaining({

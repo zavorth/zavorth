@@ -76,11 +76,9 @@ describe('DashboardService operations report', () => {
     const html = await pageResponse.text();
     await service.stopAsync();
 
-    expect(pageResponse.status).toBe(200);
+    expect(pageResponse.status).toBe(410);
     expect(reportStatus).toBe(200);
-    expect(html).toContain('/api/operations/report');
-    expect(html).toContain('Carregando relatorio consolidado');
-    expect(html).toContain('copyOperationsReport');
+    expect(html).toContain('/dashboard');
     expect(report).toEqual(
       expect.objectContaining({
         headline: 'Runtime estavel.',

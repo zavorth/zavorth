@@ -10,6 +10,7 @@ export type ZavorthMutationDomain =
   | 'replay-learning'
   | 'federated-mesh'
   | 'workspace-canvas'
+  | 'disk-mutation'
   | 'hardware'
   | 'autonomous-partner'
   | 'selfmod'

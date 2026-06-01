@@ -14,6 +14,7 @@ const BORDER_WIDTH = 86;
 
 const COMMANDS: ZavorthCliParityCommand[] = [
   { name: 'acp', summary: 'Run and manage ACP-backed coding agents.', usage: 'zavorth acp [command]', description: 'Bridge ACP-compatible coding agents through Zavorth governance.', status: 'ready', commands: [['status', 'Inspect ACP readiness.'], ['run', 'Run an ACP-backed task when configured.']], examples: [['zavorth acp status', 'Inspect ACP integration readiness.']] },
+  { name: 'actions', summary: 'Lookup, preview and apply first-class Zavorth actions.', usage: 'zavorth actions [lookup|preview|apply|receipts]', description: 'Natural Action Harness gateway for governed configuration and operational changes.', status: 'ready', commands: [['list', 'List registered actions.'], ['lookup', 'Find an action from natural language.'], ['preview', 'Preview a state change.'], ['apply', 'Apply with approval or trusted operator confirmation.']], examples: [['zavorth actions lookup "mude skill governance para governed"', 'Find the canonical action.'], ['zavorth actions preview --id skills.governance.set --args-json {"mode":"governed"}', 'Preview a governed change.']] },
   { name: 'agent', summary: 'Run one governed agent turn.', usage: 'zavorth agent [options]', description: 'Run a single LLM-first turn through the local harness.', status: 'ready', options: ['--json           Output JSON when supported'], commands: [['run', 'Run a task.'], ['import', 'Import/migrate an external agent profile.']], examples: [['zavorth agent run "summarize this repo"', 'Run one governed turn.']] },
   { name: 'agents', summary: 'Manage isolated agents, workspaces and routing.', usage: 'zavorth agents [command]', description: 'Inspect and manage agent profiles, imports and routing boundaries.', status: 'ready', commands: [['import', 'Import another agent profile.'], ['gateway', 'Inspect external agent gateway state.'], ['onboarding', 'Run external agent onboarding.']], examples: [['zavorth agents import', 'Start a governed migration/import flow.']] },
   { name: 'approvals', summary: 'Manage governed approvals.', usage: 'zavorth approvals [command]', description: 'Review, approve, reject or inspect governed actions.', status: 'ready', commands: [['list', 'Show pending approvals.'], ['diff', 'Inspect a related sandbox diff.'], ['policy', 'Manage persistent approval preferences.']], examples: [['zavorth approvals', 'Show pending approvals.'], ['zavorth approve <id> --yes', 'Approve a plan only.']] },
@@ -73,7 +74,7 @@ const COMMANDS: ZavorthCliParityCommand[] = [
 const COMMAND_BY_NAME = new Map(COMMANDS.map((command) => [command.name, command]));
 
 const IMPLEMENTED_COMMANDS = new Set([
-  'acp', 'agent', 'agents', 'approvals', 'capability', 'channels', 'chat', 'completion',
+  'acp', 'actions', 'agent', 'agents', 'approvals', 'capability', 'channels', 'chat', 'completion',
   'certify', 'completions', 'configure', 'dashboard', 'doctor', 'gateway', 'migrate', 'models',
   'onboard', 'onboarding', 'sandbox', 'security', 'setup', 'skills', 'status', 'terminal', 'tui', 'update',
   'backup', 'commitments', 'config', 'cron', 'daemon', 'devices', 'directory', 'dns',

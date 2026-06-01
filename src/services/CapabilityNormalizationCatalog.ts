@@ -537,7 +537,8 @@ export const GROUPS: SourceGroup[] = [
   group('channel', 'channel.message', 'channel', [
     'bluebubbles', 'clickclack', 'discord', 'feishu', 'googlechat', 'imessage', 'irc', 'line', 'matrix',
     'mattermost', 'msteams', 'nextcloud-talk', 'nostr', 'qqbot', 'signal', 'slack',
-    'synology-chat', 'telegram', 'tlon', 'twitch', 'webhooks', 'whatsapp', 'zalo', 'zalouser',
+    'synology-chat', 'telegram', 'tlon', 'twitch', 'webhooks', 'whatsapp', 'wecom', 'weixin', 'wechat',
+    'zalo', 'zalouser', 'yuanbao', 'sms', 'home-assistant',
   ]),
   group('media', 'media.generate', 'media', [
     'byteplus', 'comfy', 'fal', 'image-generation-core', 'minimax', 'runway',

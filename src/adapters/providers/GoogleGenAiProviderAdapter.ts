@@ -19,7 +19,7 @@ export type GoogleGenAiProviderAdapterOptions = {
 
 type GoogleGenAiLikeClient = {
   models: {
-    generateContent(input: Record<string, unknown>): Promise<Record<string, unknown>>;
+    generateContent(input: Record<string, unknown>, options?: Record<string, unknown>): Promise<Record<string, unknown>>;
   };
 };
 
@@ -57,7 +57,7 @@ export class GoogleGenAiProviderAdapter implements ILlmProvider {
       throw new Error('Google GenAI provider requires GOOGLE_GENAI_API_KEY/GEMINI_API_KEY or Vertex project/location.');
     }
 
-    const response = await this.client().models.generateContent({
+    const payload = {
       model: String(options?.modelName || this.defaultModelName),
       contents: toGenAiContents(messages),
       config: {
@@ -72,7 +72,11 @@ export class GoogleGenAiProviderAdapter implements ILlmProvider {
             }]
           : undefined,
       },
-    });
+    };
+    const response = await this.client().models.generateContent(
+      payload,
+      options?.signal ? { signal: options.signal } : undefined,
+    );
 
     return parseGoogleGenAiResponse(response);
   }

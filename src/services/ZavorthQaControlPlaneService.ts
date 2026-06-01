@@ -220,7 +220,7 @@ export class ZavorthQaControlPlaneService {
       stale: checks.filter((entry) => entry.stale).length,
       releaseReady:
         releaseGates.find((entry) => entry.profile === profile)?.ready === true
-        && architecture.gate.status === 'passed',
+        && architecture.gate.canProceed,
     } as const;
     const actions = this.buildActions(checks, releaseGates, profile);
     return {

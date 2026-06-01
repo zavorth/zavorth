@@ -8,6 +8,12 @@ import { AgenticRouteClassifier } from './AgenticRouteClassifier.js';
 import { ZavorthSubagentAutoInvocationPolicyService } from '../../services/ZavorthSubagentAutoInvocationPolicyService.js';
 import { ToolExposurePolicy, type ToolExposurePolicyHintProfile } from './ToolExposurePolicy.js';
 import { UniversalPreviewModeService } from './UniversalPreviewModeService.js';
+import {
+  ProfileManifestService,
+} from '../../services/ProfileManifestService.js';
+import type {
+  ProfileRuntimeBundle,
+} from '../../contracts/ProfileManifestContract.js';
 import type {
   UniversalAgentModelProfile,
   UniversalAgentRequest,
@@ -26,6 +32,7 @@ export type AgentRunFactoryRuntime = {
   naturalCapabilityDiscovery?: NaturalCapabilityDiscoveryService | null;
   subagentAutoInvocationPolicy?: Pick<ZavorthSubagentAutoInvocationPolicyService, 'decide'> | null;
   universalPreviewMode?: UniversalPreviewModeService | null;
+  profileManifestService?: Pick<ProfileManifestService, 'compileProfileById'> | null;
 };
 
 export type AgentRunModelPickerContractService = {
@@ -276,6 +283,7 @@ export class AgentRunFactory {
   private readonly agenticRouteClassifier: AgenticRouteClassifier;
   private readonly subagentAutoInvocationPolicy: Pick<ZavorthSubagentAutoInvocationPolicyService, 'decide'>;
   private readonly universalPreviewMode: UniversalPreviewModeService;
+  private readonly profileManifestService: Pick<ProfileManifestService, 'compileProfileById'>;
 
   constructor(runtime: AgentRunFactoryRuntime) {
     this.now = runtime.now;
@@ -294,6 +302,7 @@ export class AgentRunFactory {
     this.universalPreviewMode = runtime.universalPreviewMode || new UniversalPreviewModeService({
       now: this.now,
     });
+    this.profileManifestService = runtime.profileManifestService || new ProfileManifestService();
   }
 
   public createRun(input: UniversalAgentRequest): UniversalAgentRun {
@@ -327,7 +336,24 @@ export class AgentRunFactory {
       traceId,
       sessionId,
     });
-    const metadataForPolicy = canonicalContextResult.metadata;
+    const profileResolution = this.resolveProfileRuntimeBundle(input, canonicalContextResult.metadata);
+    const metadataForPolicy = {
+      ...canonicalContextResult.metadata,
+      profile: profileResolution.profileId,
+      profileSource: profileResolution.source,
+      ...(profileResolution.profileBundle ? {
+        profileBundle: profileResolution.profileBundle,
+        profileRuntimeBundle: profileResolution.profileBundle,
+        cognitiveContextBundle: profileResolution.profileBundle.cognitiveContextBundle,
+        runtimePolicyBundle: profileResolution.profileBundle.runtimePolicyBundle,
+        surfaceExperienceBundle: profileResolution.profileBundle.surfaceExperienceBundle,
+      } : {
+        profileBundleMissing: {
+          requested: profileResolution.profileId,
+          source: profileResolution.source,
+        },
+      }),
+    };
     const importedCapabilityTrust = buildImportedCapabilityTrustMetadata(metadataForPolicy);
     const discoveryMetadata = importedCapabilityTrust
       ? {
@@ -362,12 +388,22 @@ export class AgentRunFactory {
       resolveToolHintProfile(metadataForPolicy),
       naturalCapabilityDiscovery.toolHintProfile,
     );
+    const exposeProfileCapabilities = this.shouldExposeProfileCapabilities(
+      profileResolution.source,
+      input.metadata,
+    );
     const toolExposure = this.toolPolicy.buildProfile({
       requestedTools: input.requestedTools,
-      allowedTools: Array.isArray(input.metadata?.allowedTools) ? input.metadata.allowedTools.map(String) : [],
-      requireApprovalFor: Array.isArray(input.metadata?.requireApprovalFor)
-        ? input.metadata.requireApprovalFor.map(String)
-        : [],
+      allowedTools: unique([
+        ...(Array.isArray(input.metadata?.allowedTools) ? input.metadata.allowedTools.map(String) : []),
+        ...(exposeProfileCapabilities ? profileResolution.profileBundle?.capabilityPolicy.allow || [] : []),
+      ]),
+      requireApprovalFor: unique([
+        ...(Array.isArray(input.metadata?.requireApprovalFor)
+          ? input.metadata.requireApprovalFor.map(String)
+          : []),
+        ...(exposeProfileCapabilities ? profileResolution.profileBundle?.capabilityPolicy.requireApproval || [] : []),
+      ]),
       blockedTools: normalizeStringList(importedCapabilityTrust?.blockedTools),
       blockedToolReason: 'blocked-by-imported-capability-trust',
       toolHintProfile,
@@ -460,6 +496,7 @@ export class AgentRunFactory {
       replyPorts,
       modelProfile,
       approvals: [],
+      steering: [],
       artifacts: [],
       memorySignals: [],
       metadata: {
@@ -585,4 +622,115 @@ export class AgentRunFactory {
       },
     ];
   }
+
+  private resolveProfileRuntimeBundle(
+    input: UniversalAgentRequest,
+    metadata: Record<string, unknown>,
+  ): {
+    profileId: string;
+    source: 'request' | 'metadata' | 'environment' | 'default' | 'fallback';
+    profileBundle: ProfileRuntimeBundle | null;
+  } {
+    const requested = this.resolveRequestedProfileId(input, metadata);
+    const selectedId = requested.profileId || 'personal';
+    const selected = this.profileManifestService.compileProfileById(selectedId);
+    if (selected) {
+      return {
+        profileId: selected.id,
+        source: requested.source || 'default',
+        profileBundle: selected,
+      };
+    }
+
+    const fallback = this.profileManifestService.compileProfileById('personal')
+      || this.profileManifestService.compileProfileById('developer');
+    return {
+      profileId: fallback?.id || selectedId,
+      source: fallback ? 'fallback' : (requested.source || 'default'),
+      profileBundle: fallback,
+    };
+  }
+
+  private resolveRequestedProfileId(
+    input: UniversalAgentRequest,
+    metadata: Record<string, unknown>,
+  ): { profileId: string; source: 'request' | 'metadata' | 'environment' | 'default' | null } {
+    const inputMetadata = recordOrNull(input.metadata) || {};
+    const nestedInputProfile = recordOrNull(inputMetadata.profile);
+    const nestedMetadataProfile = recordOrNull(metadata.profile);
+    const requestProfile = firstNormalizedProfileId([
+      inputMetadata.profileId,
+      inputMetadata.profile,
+      inputMetadata.experienceProfile,
+      nestedInputProfile?.id,
+      nestedInputProfile?.profileId,
+    ]);
+    if (requestProfile) return { profileId: requestProfile, source: 'request' };
+
+    const metadataProfile = firstNormalizedProfileId([
+      metadata.profileId,
+      metadata.profile,
+      metadata.experienceProfile,
+      nestedMetadataProfile?.id,
+      nestedMetadataProfile?.profileId,
+    ]);
+    if (metadataProfile) return { profileId: metadataProfile, source: 'metadata' };
+
+    const environmentProfile = firstNormalizedProfileId([
+      process.env.ZAVORTH_PROFILE,
+      process.env.ZAVORTH_EXPERIENCE_PROFILE,
+    ]);
+    if (environmentProfile) return { profileId: environmentProfile, source: 'environment' };
+
+    return { profileId: '', source: 'default' };
+  }
+
+  private shouldExposeProfileCapabilities(
+    source: 'request' | 'metadata' | 'environment' | 'default' | 'fallback',
+    metadata: Record<string, unknown> | undefined,
+  ): boolean {
+    const override = normalizeBooleanFlag(
+      metadata?.profileCapabilities,
+      metadata?.profileCapabilityExposure,
+      metadata?.exposeProfileTools,
+      metadata?.exposeProfileCapabilities,
+    );
+    if (override !== null) {
+      return override;
+    }
+    return source !== 'default';
+  }
+}
+
+function firstNormalizedProfileId(values: unknown[]): string {
+  for (const value of values) {
+    if (value && typeof value === 'object') continue;
+    const normalized = normalizeProfileId(value);
+    if (normalized) return normalized;
+  }
+  return '';
+}
+
+function normalizeProfileId(value: unknown): string {
+  return normalizeText(value)
+    .toLowerCase()
+    .replace(/[^a-z0-9._-]+/g, '-')
+    .replace(/^-+|-+$/g, '');
+}
+
+function unique(values: string[]): string[] {
+  return Array.from(new Set(values.map((entry) => normalizeText(entry)).filter(Boolean)));
+}
+
+function normalizeBooleanFlag(...values: unknown[]): boolean | null {
+  for (const value of values) {
+    const normalized = normalizeText(value).toLowerCase();
+    if (['true', '1', 'yes', 'sim', 'on', 'enabled', 'expose'].includes(normalized)) {
+      return true;
+    }
+    if (['false', '0', 'no', 'nao', 'não', 'off', 'disabled', 'hide'].includes(normalized)) {
+      return false;
+    }
+  }
+  return null;
 }

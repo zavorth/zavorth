@@ -1,4 +1,4 @@
-import { DynamicHierarchySwarmService } from '../../src/domain/execution/application/DynamicHierarchySwarmService.js';
+import { DynamicHierarchySwarmService } from '../../src/domain/execution/infrastructure/DynamicHierarchySwarmService.js';
 
 describe('DynamicHierarchySwarmService', () => {
   it('expands a high-complexity swarm into leaf roles and launches through the swarm boundary', () => {

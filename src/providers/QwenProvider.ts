@@ -10,6 +10,7 @@ import {
   ToolCall,
   ToolDefinition,
 } from './ILlmProvider.js';
+import { buildProviderRequestOptions } from './ProviderAbort.js';
 
 export class QwenProvider implements ILlmProvider {
   public readonly name = 'qwen';
@@ -51,7 +52,7 @@ export class QwenProvider implements ILlmProvider {
               }))
             : undefined,
         max_tokens: config.maxTokens,
-      });
+      }, buildProviderRequestOptions(options) as any);
 
       const choice = response.choices[0];
       const toolCalls: ToolCall[] = extractFunctionToolCalls(choice?.message.tool_calls);

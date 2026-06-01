@@ -121,8 +121,8 @@ describe('RuntimeAccessManifestService', () => {
           appUrl: 'http://127.0.0.1:33333/dashboard',
           apiBaseUrl: 'http://127.0.0.1:33333/api/web',
           controlUrl: 'http://127.0.0.1:33333/dashboard',
-          legacyAppUrl: 'http://127.0.0.1:33333/app',
-          classicUrl: 'http://127.0.0.1:33333/classic',
+          legacyAppUrl: null,
+          classicUrl: null,
         }),
         remote: expect.objectContaining({
           ready: true,
@@ -130,8 +130,8 @@ describe('RuntimeAccessManifestService', () => {
           appUrl: 'https://zavorth.example.com/dashboard',
           requiresHttps: false,
           controlUrl: 'https://zavorth.example.com/dashboard',
-          legacyAppUrl: 'https://zavorth.example.com/app',
-          classicUrl: 'https://zavorth.example.com/classic',
+          legacyAppUrl: null,
+          classicUrl: null,
         }),
         auth: expect.objectContaining({
           required: true,
@@ -250,17 +250,19 @@ describe('RuntimeAccessManifestService', () => {
         ]),
         legacyContainment: expect.objectContaining({
           canonicalEntry: '/dashboard',
-          frozenSurfaces: ['/app', '/classic'],
+          frozenSurfaces: [],
+          retiredSurfaces: ['/app', '/classic'],
           policy: expect.objectContaining({
-            legacyFeatureFreeze: true,
-            compatibilityPreserved: true,
-            fallbackPreserved: true,
+            legacyFeatureFreeze: false,
+            legacyRoutesRetired: true,
+            compatibilityPreserved: false,
+            fallbackPreserved: false,
           }),
           links: expect.objectContaining({
             localControlUrl: 'http://127.0.0.1:33333/dashboard',
-            localLegacyAppUrl: 'http://127.0.0.1:33333/app',
+            localLegacyAppUrl: null,
             remoteControlUrl: 'https://zavorth.example.com/dashboard',
-            remoteLegacyAppUrl: 'https://zavorth.example.com/app',
+            remoteLegacyAppUrl: null,
           }),
         }),
         nextSteps: readiness.nextSteps,
@@ -269,7 +271,7 @@ describe('RuntimeAccessManifestService', () => {
     expect(manifest.guides.local[0]).toContain('zavorth go');
     expect(manifest.guides.local[1]).toContain('npm run ops:journey');
     expect(manifest.guides.local[2]).toContain('web-only');
-    expect(manifest.guides.local[3]).toContain('/app e /classic apenas como legado operacional');
+    expect(manifest.guides.local[3]).toContain('/app e /classic foram removidas');
     expect(manifest.guides.local[4]).toContain('npm run setup:channels');
     expect(manifest.guides.local[4]).toContain('Telegram');
     expect(manifest.guides.local[5]).toContain('npm run channels:install -- --json');

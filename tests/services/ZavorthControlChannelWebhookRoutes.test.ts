@@ -3,7 +3,7 @@ import {
   createTestLogRepo,
   fetchJson,
   fetchNoKeepAlive,
-} from '../helpers/controlWebTestUtils.js';
+} from '../helpers/zavorthControlWebTestUtils.js';
 
 describe('ZavorthControl channel webhook routes', () => {
   const logRepo = createTestLogRepo();

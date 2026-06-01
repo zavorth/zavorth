@@ -5,6 +5,68 @@ import { WebRealtimeService } from '../../src/services/WebRealtimeService';
 import { GatewaySessionLedgerService } from '../../src/services/GatewaySessionLedgerService.js';
 
 describe('WebRealtimeService', () => {
+  it('forwards agent runtime stream events to subscribed web sessions', () => {
+    const service = new WebRealtimeService(
+      {
+        getRecentTasksByChat: jest.fn(() => []),
+      } as any,
+      {
+        listRequests: jest.fn(async () => []),
+      } as any,
+      () => 'Permissao pendente',
+      'web-user-1',
+      {
+        sessionReadModelService: {
+          buildSnapshotFast: jest.fn(() => ({
+            tasks: [],
+            permissions: [],
+            continuity: null,
+            replay: null,
+            handoff: null,
+            workflowRuns: [],
+            toolRuns: [],
+          })),
+          buildSnapshot: jest.fn(async () => ({
+            tasks: [],
+            permissions: [],
+            continuity: null,
+            replay: null,
+            handoff: null,
+            workflowRuns: [],
+            toolRuns: [],
+          })),
+        } as any,
+      },
+    );
+
+    const sessionId = service.createSession();
+    const events: any[] = [];
+    service.subscribe(sessionId, (event) => {
+      events.push(event);
+    });
+    events.length = 0;
+
+    service.recordAgentRuntimeEvent(sessionId, 'agent.stream.assistant', {
+      runId: 'agent-run-1',
+      phase: 'delta',
+      delta: 'ola',
+      accumulated: 'ola',
+    });
+
+    expect(events).toEqual([
+      expect.objectContaining({
+        type: 'agent-stream',
+        payload: expect.objectContaining({
+          eventType: 'agent.stream.assistant',
+          sessionId,
+          runId: 'agent-run-1',
+          phase: 'delta',
+          accumulated: 'ola',
+        }),
+      }),
+    ]);
+  });
+
   it('emits workflow events when workflow runs change for a subscribed session', async () => {
     const snapshots = {
       fast: {

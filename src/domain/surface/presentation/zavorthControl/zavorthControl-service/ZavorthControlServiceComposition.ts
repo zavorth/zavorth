@@ -103,6 +103,7 @@ function initializeSurfaceFields(service: any, logRepo: LogRepository, deps: any
   service.agentGateway = deps.agentGateway || null;
   service.webApp = new WebAppService(service.authService, {
     agentGateway: service.agentGateway,
+    toolRuntime: deps.toolRuntime || null,
   });
   service.classicAccess = new ZavorthControlClassicAccessService();
   service.classicAssets = new ZavorthControlClassicAssetService();
@@ -388,5 +389,4 @@ function initializeRuntimeComposition(service: any, deps: any): void {
     });
   }
 }
-
 

@@ -63,8 +63,14 @@ const CHANNEL_PARTIAL_LIVE = new Set([
   'twitch',
   'webhooks',
   'whatsapp',
+  'wecom',
+  'weixin',
+  'wechat',
   'zalo',
   'zalouser',
+  'yuanbao',
+  'sms',
+  'home-assistant',
 ]);
 const CHANNEL_DRY_RUN_ONLY = new Set<string>();
 const CHANNEL_PLANNED = new Set<string>();

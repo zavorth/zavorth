@@ -25,21 +25,21 @@ describe('ChannelLongTailActivationService Approval gate', () => {
     expect(snapshot.status).toBe('closed');
     expect(snapshot.summary).toEqual(
       expect.objectContaining({
-        channels: 18,
-        partialLive: 18,
+        channels: 25,
+        partialLive: 25,
         configuredOnly: 0,
         blocked: 0,
         templateOnlyRemaining: false,
         plannedRemaining: false,
-        webhookFamily: 6,
-        botHttpFamily: 6,
-        relayHttpFamily: 3,
-        localBridgeFamily: 1,
+        webhookFamily: 8,
+        botHttpFamily: 7,
+        relayHttpFamily: 4,
+        localBridgeFamily: 4,
         appleBridgeFamily: 2,
-        configSchemas: 18,
-        configuredDoctors: 18,
-        stagingLiveSmokeCommands: 18,
-        redactedReceipts: 18,
+        configSchemas: 25,
+        configuredDoctors: 25,
+        stagingLiveSmokeCommands: 25,
+        redactedReceipts: 25,
         liveIoRequiredByStage3Check: false,
         secretValuesSerialized: false,
       }),
@@ -61,7 +61,9 @@ describe('ChannelLongTailActivationService Approval gate', () => {
       'bluebubbles',
       'clickclack',
       'feishu',
+      'google-meet',
       'googlechat',
+      'home-assistant',
       'imessage',
       'irc',
       'line',
@@ -70,10 +72,15 @@ describe('ChannelLongTailActivationService Approval gate', () => {
       'nextcloud-talk',
       'nostr',
       'qqbot',
+      'sms',
       'synology-chat',
       'tlon',
       'twitch',
+      'voice-call',
       'webhooks',
+      'wecom',
+      'weixin',
+      'yuanbao',
       'zalo',
       'zalouser',
     ];
@@ -113,6 +120,12 @@ describe('ChannelLongTailActivationService Approval gate', () => {
     expect(entries.get('googlechat')?.status).toBe('partial-live');
     expect(entries.get('matrix')?.status).toBe('partial-live');
     expect(entries.get('webhooks')?.status).toBe('partial-live');
+    expect(entries.get('wecom')?.status).toBe('partial-live');
+    expect(entries.get('weixin')?.status).toBe('partial-live');
+    expect(entries.get('wechat')?.status).toBe('partial-live');
+    expect(entries.get('yuanbao')?.status).toBe('partial-live');
+    expect(entries.get('sms')?.status).toBe('partial-live');
+    expect(entries.get('home-assistant')?.status).toBe('partial-live');
     expect(entries.get('bluebubbles')?.status).toBe('partial-live');
     expect(entries.get('imessage')?.status).toBe('partial-live');
   });

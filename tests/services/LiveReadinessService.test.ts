@@ -13,7 +13,7 @@ describe('LiveReadinessService Intent model', () => {
     expect(snapshot.contractVersion).toBe('2026-05-04.live-checkpoint-1');
     expect(snapshot.profile).toBe('dry-audit');
     expect(snapshot.status).toBe('attention');
-    expect(snapshot.summary.sourceModules).toBe(126);
+    expect(snapshot.summary.sourceModules).toBe(132);
     expect(snapshot.summary.liveReady).toBeGreaterThan(0);
     expect(snapshot.summary.partialLive).toBeGreaterThan(0);
     expect(snapshot.summary.configuredOnly).toBeGreaterThanOrEqual(0);
@@ -66,6 +66,12 @@ describe('LiveReadinessService Intent model', () => {
     expect(entries.get('feishu')?.status).toBe('partial-live');
     expect(entries.get('googlechat')?.status).toBe('partial-live');
     expect(entries.get('matrix')?.status).toBe('partial-live');
+    expect(entries.get('wecom')?.status).toBe('partial-live');
+    expect(entries.get('weixin')?.status).toBe('partial-live');
+    expect(entries.get('wechat')?.status).toBe('partial-live');
+    expect(entries.get('yuanbao')?.status).toBe('partial-live');
+    expect(entries.get('sms')?.status).toBe('partial-live');
+    expect(entries.get('home-assistant')?.status).toBe('partial-live');
   });
 
   it('classifies provider and runtime families without pretending templates are live', () => {

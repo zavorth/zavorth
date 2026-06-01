@@ -110,6 +110,9 @@ export {
   AgentRunCorePipeline,
 } from './AgentRunCorePipeline.js';
 export {
+  AgentRunSteeringStream,
+} from './AgentRunSteeringStream.js';
+export {
   AgentRunIntelligenceFabricCanary,
 } from './AgentRunIntelligenceFabricCanary.js';
 export {
@@ -151,6 +154,10 @@ export type {
   AgentRunCorePipelineOptions,
   AgentRunCorePrepareResult,
 } from './AgentRunCorePipeline.js';
+export type {
+  AgentRunSteeringStreamAction,
+  AgentRunSteeringStreamFrame,
+} from './AgentRunSteeringStream.js';
 export type {
   AgentRunIntelligenceFabricCanaryMetadata,
   AgentRunIntelligenceFabricCompactSnapshot,

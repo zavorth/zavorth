@@ -1,4 +1,4 @@
-import { SharedSurfaceGatewayToolingCommandPack } from '../../src/domain/surface/application/shared-surface/SharedSurfaceGatewayToolingCommandPack';
+import { SharedSurfaceGatewayToolingCommandPack } from '../../src/domain/surface/presentation/shared-surface/SharedSurfaceGatewayToolingCommandPack';
 
 function buildCtx(rawText = '/gateway') {
   return {

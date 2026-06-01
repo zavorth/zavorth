@@ -9,6 +9,7 @@ export type ProviderNativeCapability =
   | 'native_audio'
   | 'native_media_generation'
   | 'native_file_search'
+  | 'native_token_streaming'
   | 'native_browser'
   | 'native_connector';
 

@@ -11,6 +11,7 @@ import {
   ToolDefinition,
 } from './ILlmProvider.js';
 import { buildOpenAiCompatibleNativeToolPayload } from './ProviderNativeToolPayload.js';
+import { buildProviderRequestOptions } from './ProviderAbort.js';
 
 export class MiniMaxProvider implements ILlmProvider {
   public readonly name = 'minimax';
@@ -47,7 +48,7 @@ export class MiniMaxProvider implements ILlmProvider {
         max_tokens: config.maxTokens,
         tools: nativeToolPayload.tools,
         ...nativeToolPayload.extraBody,
-      } as any);
+      } as any, buildProviderRequestOptions(options) as any);
 
       const choice = response.choices[0];
       const toolCalls: ToolCall[] = extractFunctionToolCalls(choice.message.tool_calls);

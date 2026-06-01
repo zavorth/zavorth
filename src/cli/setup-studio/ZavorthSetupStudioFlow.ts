@@ -76,12 +76,16 @@ export function renderZavorthSetupStudioSnapshot(snapshot: ZavorthSetupStudioSna
     onboardingSection('Workspace', [
       snapshot.safety.dryRun ? 'Preview only. No files will be changed.' : 'Guided setup for provider, channels, Mnemos and trust.',
       `Path: ${snapshot.projectRoot}`,
+      `Home: ${snapshot.home.root}`,
+      `Home mode: ${snapshot.home.source}${snapshot.home.isolated ? ' / isolated' : ' / compat'}`,
+      `Skill governance: ${snapshot.plan.skillGovernance.mode}`,
       `Mode: ${snapshot.mode}`,
       `Config: ${snapshot.configHandling}`,
       ...existingConfig,
     ]),
     onboardingSection('Plan', [
       providerLine,
+      `Skill governance: ${snapshot.plan.skillGovernance.mode} (${snapshot.plan.skillGovernance.summary})`,
       `Web/search: ${snapshot.webSearch.provider}`,
       `Mnemos: ${snapshot.plan.memory.mode} / ${snapshot.plan.memory.vaultScope}`,
       automationLine,
@@ -91,6 +95,19 @@ export function renderZavorthSetupStudioSnapshot(snapshot: ZavorthSetupStudioSna
     onboardingSection('Surfaces', surfacesLines),
     onboardingSection('Readiness', readinessLines),
     onboardingSection('Gateway runtime', gatewayLines),
+    onboardingSection('Zavorth Home', [
+      `Active: ${snapshot.home.root}`,
+      `Source: ${snapshot.home.source}`,
+      `Isolated: ${snapshot.home.isolated ? 'yes' : 'no'}`,
+      `Status: ${snapshot.home.statusCommand}`,
+      `Switch: ${snapshot.home.switchCommand}`,
+      `Migrate: ${snapshot.home.migratePreviewCommand}`,
+    ]),
+    onboardingSection('Skill Governance', [
+      `Mode: ${snapshot.plan.skillGovernance.mode}`,
+      snapshot.plan.skillGovernance.summary,
+      'Switch later: zavorth skills governance governed --apply',
+    ]),
     onboardingSection('What happens next', [
       'Setup does not start persistent services automatically.',
       'Sensitive work still uses policy, approval and evidence.',
@@ -135,6 +152,7 @@ export function renderZavorthSetupStudioFinalReview(snapshot: ZavorthSetupStudio
     `Web/search: ${snapshot.plan.webSearch.provider}`,
     `Channels: ${channels}`,
     `Mnemos: ${snapshot.plan.memory.mode} / ${snapshot.plan.memory.vaultScope}`,
+    `Home: ${snapshot.home.root} (${snapshot.home.source}${snapshot.home.isolated ? ', isolated' : ', compat'})`,
     `Automation: ${snapshot.plan.hooks.enabled ? `${snapshot.plan.hooks.templates.length} templates prepared disabled` : 'skip'}`,
     `.env updates: ${updates === 0 ? 'none' : `${updates} key(s), secrets redacted`}`,
     '',
@@ -153,6 +171,7 @@ export function renderZavorthSetupAppliedSummary(snapshot: ZavorthSetupStudioSna
     result.written
       ? `Updated ${result.keys.length} key(s) in ${result.envFile}`
       : 'No .env updates were needed.',
+    `Home: ${snapshot.home.root}`,
     snapshot.plan.hooks.enabled
       ? `Automation templates prepared in .zavorth/hooks (${snapshot.plan.hooks.templates.length}).`
       : 'Automation templates skipped.',

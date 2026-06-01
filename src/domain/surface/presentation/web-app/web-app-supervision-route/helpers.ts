@@ -136,9 +136,12 @@ export function buildWebAppSupervisionRouteContext(
     || pathname.startsWith('/api/web/gateway/session-v2/recordings/');
   const isSwarmV2Route = (suffix: string = '') =>
     pathname === `/api/web/experimental/swarm-v2${suffix}` || pathname === `/api/web/gateway/swarm-v2${suffix}`;
+  const isSwarmScaleRoute = (suffix: string = '') =>
+    pathname === `/api/web/experimental/swarm-scale${suffix}` || pathname === `/api/web/gateway/swarm-scale${suffix}`;
   const experimentalAlias =
     pathname.includes('/api/web/experimental/session-v2')
-    || pathname.includes('/api/web/experimental/swarm-v2');
+    || pathname.includes('/api/web/experimental/swarm-v2')
+    || pathname.includes('/api/web/experimental/swarm-scale');
 
   return {
     req,
@@ -149,11 +152,13 @@ export function buildWebAppSupervisionRouteContext(
     experimentalAlias,
     sessionV2Service: deps.sessionV2 || deps.experimentalSessionV2 || null,
     swarmV2Service: deps.swarmV2 || deps.experimentalSwarmV2 || null,
+    swarmScalePlaneService: deps.swarmScalePlane || null,
     sessionV2Label: 'Sessao v2',
     swarmV2Label: 'Swarm v2',
     isSessionV2Route,
     isSessionV2RecordingRoute,
     isSwarmV2Route,
+    isSwarmScaleRoute,
   };
 }
 

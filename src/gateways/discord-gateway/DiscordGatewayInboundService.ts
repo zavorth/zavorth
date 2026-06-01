@@ -4,7 +4,7 @@ import type { DiscordSurfacePolicyService } from '../../services/DiscordSurfaceP
 import {
   evaluateSharedSurfaceCommandCallback,
   isSharedSurfaceOperationalCallbackCommand,
-} from '../../domain/surface/application/shared-surface/SharedSurfaceCallbackCommandPolicy.js';
+} from '../../domain/surface/presentation/shared-surface/SharedSurfaceCallbackCommandPolicy.js';
 import {
   buildDiscordChatId,
   composeDiscordInboundText,

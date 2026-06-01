@@ -1,6 +1,7 @@
 import fs from 'fs';
 import path from 'path';
 import yaml from 'js-yaml';
+import { config } from '../config/index.js';
 import {
   SkillBundleService,
 } from './SkillBundleService.js';
@@ -316,9 +317,33 @@ export class SkillLoader {
     source: SkillSourceRegistryEntry,
     provenance: SkillProvenanceMetadata,
   ): SkillProvenanceMetadata {
-    const licensePolicy = provenance.licensePolicy || this.buildFallbackLicensePolicy(provenance.license);
-    const risk = provenance.risk || this.buildFallbackRisk(source, provenance, licensePolicy);
-    const audit = provenance.audit || this.buildFallbackAudit(source, provenance);
+    let licensePolicy = provenance.licensePolicy || this.buildFallbackLicensePolicy(provenance.license);
+    let risk = provenance.risk || this.buildFallbackRisk(source, provenance, licensePolicy);
+    let audit = provenance.audit || this.buildFallbackAudit(source, provenance);
+
+    if (
+      config.skillsGovernanceMode === 'casual'
+      && (!licensePolicy || licensePolicy.allowRuntimeUse)
+      && (!risk || (risk.level !== 'blocked' && risk.level !== 'high'))
+    ) {
+      licensePolicy = licensePolicy
+        ? {
+            ...licensePolicy,
+            reviewRequired: false,
+            summary: `${licensePolicy.summary} Casual mode removes manual review only after hard blockers pass.`,
+          }
+        : licensePolicy;
+      risk = risk
+        ? {
+            ...risk,
+            reviewRequired: false,
+            reasons: [
+              ...risk.reasons,
+              'Casual mode keeps security and license blockers, but skips manual review for non-blocking skills.',
+            ],
+          }
+        : risk;
+    }
 
     return {
       ...provenance,

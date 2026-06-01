@@ -1,12 +1,9 @@
-import { ProviderControlPlaneService } from '../../services/ProviderControlPlaneService.js';
 import { DomainFacadeBase, type DomainSnapshot } from '../DomainFacadeBase.js';
+import type { ProviderControlPlanePort } from './domain/ProvidersDomainTypes.js';
 
 type ProvidersFacadeRuntime = {
   now?: () => Date;
-  providerControlPlaneService?: Pick<
-    ProviderControlPlaneService,
-    'listProviders' | 'listProfiles' | 'getCurrentConversationalProvider' | 'getCurrentConversationalModel'
-  >;
+  providerControlPlaneService?: ProviderControlPlanePort;
 };
 
 export type ProvidersDomainSnapshot = DomainSnapshot & {
@@ -20,10 +17,7 @@ export type ProvidersDomainSnapshot = DomainSnapshot & {
 };
 
 export class ProvidersFacade extends DomainFacadeBase<ProvidersDomainSnapshot> {
-  private readonly providerControlPlane: Pick<
-    ProviderControlPlaneService,
-    'listProviders' | 'listProfiles' | 'getCurrentConversationalProvider' | 'getCurrentConversationalModel'
-  > | null;
+  private readonly providerControlPlane: ProviderControlPlanePort | null;
 
   constructor(runtime: ProvidersFacadeRuntime = {}) {
     super('providers', 'Providers', runtime.now);

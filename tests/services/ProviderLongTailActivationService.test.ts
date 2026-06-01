@@ -130,8 +130,10 @@ describe('ProviderLongTailActivationService Credential vault', () => {
     const bedrock = ProviderFactory.resolveRuntimeTarget('amazon-bedrock');
     expect(bedrock).toEqual(
       expect.objectContaining({
-        providerName: 'amazon-bedrock',
-        adapterKind: 'openai_compatible',
+        providerName: 'bedrock-claude',
+        adapterKind: 'bespoke',
+        firstClassProvider: true,
+        genericCompatible: false,
         runtimeSupported: true,
       }),
     );

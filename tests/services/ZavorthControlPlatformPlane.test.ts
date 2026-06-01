@@ -3,7 +3,7 @@ import os from 'os';
 import path from 'path';
 import { config } from '../../src/config/index.js';
 import { ZavorthControlService } from '../../src/services/ZavorthControlService';
-import { createTestLogRepo, fetchZavorthControlJson } from '../helpers/controlWebTestUtils.js';
+import { createTestLogRepo, fetchZavorthControlJson } from '../helpers/zavorthControlWebTestUtils.js';
 
 function buildPlatformSnapshot(selectedId: string | null = 'plugin:openrouter') {
   return {

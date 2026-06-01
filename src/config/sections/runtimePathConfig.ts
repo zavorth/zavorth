@@ -7,8 +7,12 @@ import {
   deriveExternalExecutorAgentId,
   parseList,
 } from '../configHelpers';
+import { ZavorthHomePathService } from '../../services/ZavorthHomePathService.js';
 
 export function buildRuntimePathConfig(projectRoot: string, publicTunnelStateFileFallback: string) {
+  const homePaths = new ZavorthHomePathService({ projectRoot, env: process.env }).resolvePaths();
+  const dataPath = (...segments: string[]) => path.join(homePaths.dataDir, ...segments);
+  const runtimePath = (...segments: string[]) => path.join(homePaths.runtimeDir, ...segments);
   return {
     // Memory
     memoryWindowSize: parseInt(process.env.MEMORY_WINDOW_SIZE || '20', 10),
@@ -25,10 +29,38 @@ export function buildRuntimePathConfig(projectRoot: string, publicTunnelStateFil
     // Paths
     workspaceRoot: process.env.WORKSPACE_ROOT || path.resolve(projectRoot, '..', '..'),
     defaultWorkspace: process.env.DEFAULT_WORKSPACE || projectRoot,
-    dataDir: path.resolve(projectRoot, 'data'),
-    tmpDir: path.resolve(projectRoot, 'tmp'),
-    skillsDir: path.resolve(projectRoot, '.agents', 'skills'),
-    dbPath: path.resolve(projectRoot, 'data', 'zavorth.db'),
+    zavorthHomeRoot: homePaths.homeRoot,
+    dataDir: homePaths.dataDir,
+    tmpDir: homePaths.tmpDir,
+    runtimeDir: homePaths.runtimeDir,
+    receiptsDir: homePaths.receiptsDir,
+    credentialsDir: homePaths.credentialsDir,
+    skillsDir: path.join(homePaths.homeRoot, '.agents', 'skills'),
+    skillsGovernanceMode: process.env.ZAVORTH_SKILLS_GOVERNANCE_MODE || 'casual',
+    skillsCurationEnabled: (process.env.ZAVORTH_SKILLS_CURATION_ENABLED || 'true').toLowerCase() !== 'false',
+    skillsCurationArchiveAfterDays: parseInt(process.env.ZAVORTH_SKILLS_CURATION_ARCHIVE_AFTER_DAYS || '30', 10),
+    skillsCurationBackup: (process.env.ZAVORTH_SKILLS_CURATION_BACKUP || 'true').toLowerCase() !== 'false',
+    skillsCuratorStateFile:
+      process.env.ZAVORTH_SKILLS_CURATOR_STATE_FILE ||
+      runtimePath('skills-curator-state.json'),
+    skillsCuratorReportsDir:
+      process.env.ZAVORTH_SKILLS_CURATOR_REPORTS_DIR ||
+      dataPath('skills', 'curator', 'reports'),
+    skillsCuratorIntervalHours: parseFloat(process.env.ZAVORTH_SKILLS_CURATOR_INTERVAL_HOURS || `${24 * 7}`),
+    skillsCuratorMinIdleHours: parseFloat(process.env.ZAVORTH_SKILLS_CURATOR_MIN_IDLE_HOURS || '2'),
+    skillsCuratorStaleAfterDays: parseInt(process.env.ZAVORTH_SKILLS_CURATOR_STALE_AFTER_DAYS || '30', 10),
+    skillsCuratorArchiveAfterDays: parseInt(
+      process.env.ZAVORTH_SKILLS_CURATOR_ARCHIVE_AFTER_DAYS ||
+        process.env.ZAVORTH_SKILLS_CURATION_ARCHIVE_AFTER_DAYS ||
+        '90',
+      10,
+    ),
+    skillsCuratorLlmReviewEnabled:
+      (process.env.ZAVORTH_SKILLS_CURATOR_LLM_REVIEW_ENABLED || 'false').toLowerCase() === 'true',
+    skillsCuratorLlmProvider: process.env.ZAVORTH_SKILLS_CURATOR_LLM_PROVIDER || '',
+    skillsCuratorLlmModel: process.env.ZAVORTH_SKILLS_CURATOR_LLM_MODEL || '',
+    skillsCuratorLlmMaxProposals: parseInt(process.env.ZAVORTH_SKILLS_CURATOR_LLM_MAX_PROPOSALS || '12', 10),
+    dbPath: homePaths.dbPath,
     codexCliPath: process.env.CODEX_CLI_PATH || path.join(USERPROFILE_FALLBACK, '.codex', '.sandbox-bin', 'codex.exe'),
     codexSandbox: process.env.CODEX_SANDBOX || 'workspace-write',
     codexTimeoutSeconds: parseInt(process.env.CODEX_TIMEOUT_SECONDS || '180', 10),
@@ -55,14 +87,14 @@ export function buildRuntimePathConfig(projectRoot: string, publicTunnelStateFil
     zavorthBridgeStartNewConversationPerTask: (process.env.ZAVORTH_BRIDGE_START_NEW_CONVERSATION_PER_TASK || 'false').toLowerCase() === 'true',
     zavorthBridgeAutoCleanBeforeTask: (process.env.ZAVORTH_BRIDGE_AUTO_CLEAN_BEFORE_TASK || 'false').toLowerCase() === 'true',
     zavorthBridgePreferredModelDefault: process.env.ZAVORTH_BRIDGE_PREFERRED_MODEL || '',
-    zavorthBridgeDir: path.resolve(projectRoot, 'data', 'agent-bridge', 'zavorth-bridge'),
-    zavorthBridgePromptDir: path.resolve(projectRoot, 'data', 'agent-bridge', 'zavorth-bridge', 'handoffs'),
-    zavorthBridgePendingDir: path.resolve(projectRoot, 'data', 'agent-bridge', 'zavorth-bridge', 'pending'),
-    zavorthBridgeResponseDir: path.resolve(projectRoot, 'data', 'agent-bridge', 'zavorth-bridge', 'responses'),
-    zavorthBridgeControlRequestDir: path.resolve(projectRoot, 'data', 'agent-bridge', 'zavorth-bridge', 'control', 'requests'),
-    zavorthBridgeControlResultDir: path.resolve(projectRoot, 'data', 'agent-bridge', 'zavorth-bridge', 'control', 'results'),
-    zavorthBridgeRuntimeDir: path.resolve(projectRoot, 'data', 'agent-bridge', 'zavorth-bridge', 'runtime'),
-    zavorthBridgePreferencesFile: path.resolve(projectRoot, 'data', 'agent-bridge', 'zavorth-bridge', 'runtime', 'preferences.json'),
+    zavorthBridgeDir: dataPath('agent-bridge', 'zavorth-bridge'),
+    zavorthBridgePromptDir: dataPath('agent-bridge', 'zavorth-bridge', 'handoffs'),
+    zavorthBridgePendingDir: dataPath('agent-bridge', 'zavorth-bridge', 'pending'),
+    zavorthBridgeResponseDir: dataPath('agent-bridge', 'zavorth-bridge', 'responses'),
+    zavorthBridgeControlRequestDir: dataPath('agent-bridge', 'zavorth-bridge', 'control', 'requests'),
+    zavorthBridgeControlResultDir: dataPath('agent-bridge', 'zavorth-bridge', 'control', 'results'),
+    zavorthBridgeRuntimeDir: dataPath('agent-bridge', 'zavorth-bridge', 'runtime'),
+    zavorthBridgePreferencesFile: dataPath('agent-bridge', 'zavorth-bridge', 'runtime', 'preferences.json'),
     zavorthBridgeBrainDir:
       process.env.ZAVORTH_BRIDGE_BRAIN_DIR ||
       path.join(USERPROFILE_FALLBACK, '.gemini', 'zavorthBridge', 'brain'),
@@ -91,45 +123,45 @@ export function buildRuntimePathConfig(projectRoot: string, publicTunnelStateFil
       path.join(APPDATA_FALLBACK, 'ZavorthBridge', 'User', 'globalStorage', 'state.vscdb'),
     zavorthBridgeControlRuntimeDir: path.resolve(projectRoot, 'data', 'zavorth-bridge-control', 'runtime'),
     mailboxBridgeDir:
-      process.env.ZAVORTH_MAILBOX_DIR || path.resolve(projectRoot, 'data', 'agent-bridge', 'mailbox'),
+      process.env.ZAVORTH_MAILBOX_DIR || dataPath('agent-bridge', 'mailbox'),
     mailboxInboxDir:
       process.env.ZAVORTH_MAILBOX_INBOX_DIR ||
-      path.join(process.env.ZAVORTH_MAILBOX_DIR || path.resolve(projectRoot, 'data', 'agent-bridge', 'mailbox'), 'inbox'),
+      path.join(process.env.ZAVORTH_MAILBOX_DIR || dataPath('agent-bridge', 'mailbox'), 'inbox'),
     mailboxProcessedDir:
       process.env.ZAVORTH_MAILBOX_PROCESSED_DIR ||
-      path.join(process.env.ZAVORTH_MAILBOX_DIR || path.resolve(projectRoot, 'data', 'agent-bridge', 'mailbox'), 'processed'),
+      path.join(process.env.ZAVORTH_MAILBOX_DIR || dataPath('agent-bridge', 'mailbox'), 'processed'),
     mailboxRejectedDir:
       process.env.ZAVORTH_MAILBOX_REJECTED_DIR ||
-      path.join(process.env.ZAVORTH_MAILBOX_DIR || path.resolve(projectRoot, 'data', 'agent-bridge', 'mailbox'), 'rejected'),
+      path.join(process.env.ZAVORTH_MAILBOX_DIR || dataPath('agent-bridge', 'mailbox'), 'rejected'),
     mailboxRuntimeDir:
       process.env.ZAVORTH_MAILBOX_RUNTIME_DIR ||
-      path.join(process.env.ZAVORTH_MAILBOX_DIR || path.resolve(projectRoot, 'data', 'agent-bridge', 'mailbox'), 'runtime'),
+      path.join(process.env.ZAVORTH_MAILBOX_DIR || dataPath('agent-bridge', 'mailbox'), 'runtime'),
     mailboxSeenDir:
       process.env.ZAVORTH_MAILBOX_SEEN_DIR ||
       path.join(
         process.env.ZAVORTH_MAILBOX_RUNTIME_DIR ||
-          path.join(process.env.ZAVORTH_MAILBOX_DIR || path.resolve(projectRoot, 'data', 'agent-bridge', 'mailbox'), 'runtime'),
+          path.join(process.env.ZAVORTH_MAILBOX_DIR || dataPath('agent-bridge', 'mailbox'), 'runtime'),
         'seen',
       ),
     mailboxStatusFile:
       process.env.ZAVORTH_MAILBOX_STATUS_FILE ||
       path.join(
         process.env.ZAVORTH_MAILBOX_RUNTIME_DIR ||
-          path.join(process.env.ZAVORTH_MAILBOX_DIR || path.resolve(projectRoot, 'data', 'agent-bridge', 'mailbox'), 'runtime'),
+          path.join(process.env.ZAVORTH_MAILBOX_DIR || dataPath('agent-bridge', 'mailbox'), 'runtime'),
         'last-status.txt',
       ),
     mailboxLegacyPath:
       process.env.ZAVORTH_MAILBOX_PATH ||
-      path.resolve(projectRoot, 'data', 'agent-bridge', 'mailbox', 'legacy', 'caixa_zavorthBridge.txt'),
+      dataPath('agent-bridge', 'mailbox', 'legacy', 'caixa_zavorthBridge.txt'),
     remoteModeScriptPath: path.resolve(projectRoot, 'scripts', 'remote-mode.ps1'),
-    remoteModeStateFile: path.resolve(projectRoot, 'data', 'runtime', 'remote-mode-state.json'),
-    operatorModeStateFile: path.resolve(projectRoot, 'data', 'runtime', 'operator-mode-state.json'),
-    presentationModeStateFile: path.resolve(projectRoot, 'data', 'runtime', 'presentation-mode-state.json'),
-    demoModeStateFile: path.resolve(projectRoot, 'data', 'runtime', 'demo-mode-state.json'),
-    demoGuideStateFile: path.resolve(projectRoot, 'data', 'runtime', 'demo-guide-state.json'),
-    dailyReportStateFile: path.resolve(projectRoot, 'data', 'runtime', 'daily-report-state.json'),
-    operationalModeStateFile: path.resolve(projectRoot, 'data', 'runtime', 'operational-mode-state.json'),
-    runtimeDiagnosticsFile: path.resolve(projectRoot, 'data', 'runtime', 'runtime-diagnostics.json'),
+    remoteModeStateFile: runtimePath('remote-mode-state.json'),
+    operatorModeStateFile: runtimePath('operator-mode-state.json'),
+    presentationModeStateFile: runtimePath('presentation-mode-state.json'),
+    demoModeStateFile: runtimePath('demo-mode-state.json'),
+    demoGuideStateFile: runtimePath('demo-guide-state.json'),
+    dailyReportStateFile: runtimePath('daily-report-state.json'),
+    operationalModeStateFile: runtimePath('operational-mode-state.json'),
+    runtimeDiagnosticsFile: runtimePath('runtime-diagnostics.json'),
     integrationHubStateFile:
       process.env.ZAVORTH_INTEGRATION_HUB_STATE_FILE ||
       path.resolve(projectRoot, 'data', 'runtime', 'integration-hub-state.json'),

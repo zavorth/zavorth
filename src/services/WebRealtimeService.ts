@@ -17,6 +17,9 @@ import {
 import { GatewaySessionReadModelService } from '../runtime/sessions/GatewaySessionReadModelService.js';
 import { GatewaySessionStoreService } from '../runtime/sessions/GatewaySessionStoreService.js';
 import { GatewaySessionLedgerService } from './GatewaySessionLedgerService.js';
+import { config } from '../config/index.js';
+import { ZavorthMnemosCompilerService } from './ZavorthMnemosCompilerService.js';
+
 
 type MessageRole = 'user' | 'assistant' | 'system';
 
@@ -30,6 +33,11 @@ export type WebChatMessage = {
   mentions?: WebComposerMention[];
 };
 
+export type WebAgentStreamEventPayload = Record<string, unknown> & {
+  eventType: string;
+  sessionId: string;
+};
+
 export type WebRealtimeEvent =
   | { id: string; type: 'snapshot'; createdAt: string; payload: WebSessionSnapshot }
   | { id: string; type: 'message'; createdAt: string; payload: WebChatMessage }
@@ -37,7 +45,9 @@ export type WebRealtimeEvent =
   | { id: string; type: 'tool'; createdAt: string; payload: GatewaySessionSnapshot['toolRuns'][number] }
   | { id: string; type: 'workflow'; createdAt: string; payload: ReturnType<WebRealtimeService['serializeWorkflow']> }
   | { id: string; type: 'permission'; createdAt: string; payload: ReturnType<WebRealtimeService['serializePermission']> }
+  | { id: string; type: 'agent-stream'; createdAt: string; payload: WebAgentStreamEventPayload }
   | { id: string; type: 'ping'; createdAt: string; payload: { sessionId: string } };
+
 
 type SessionState = {
   messages: WebChatMessage[];
@@ -76,6 +86,7 @@ type WebRealtimeRuntime = {
   sessionReadModelService?: GatewaySessionReadModelService | null;
   workflowRunService?: WorkflowRunService | null;
   sessionLedgerService?: GatewaySessionLedgerService | null;
+  mnemosCompilerService?: ZavorthMnemosCompilerService | null;
 };
 
 export class WebRealtimeService {
@@ -84,6 +95,7 @@ export class WebRealtimeService {
   private readonly pollIntervalMs = 2_000;
   private readonly sessionReadModel: GatewaySessionReadModelService;
   private readonly sessionLedger: GatewaySessionLedgerService;
+  private readonly mnemosCompiler: ZavorthMnemosCompilerService;
 
   constructor(
     private taskManager: TaskManager,
@@ -106,6 +118,7 @@ export class WebRealtimeService {
         },
       );
     this.sessionLedger = runtime.sessionLedgerService || new GatewaySessionLedgerService();
+    this.mnemosCompiler = runtime.mnemosCompilerService || new ZavorthMnemosCompilerService();
   }
 
   public start(): void {
@@ -217,6 +230,29 @@ export class WebRealtimeService {
       kind || 'reply',
       mentions,
     );
+  }
+
+  public recordAgentRuntimeEvent(
+    sessionId: string,
+    eventType: string,
+    payload: Record<string, unknown> = {},
+  ): void {
+    const normalizedSessionId = String(sessionId || '').trim();
+    const normalizedEventType = String(eventType || '').trim();
+    if (!normalizedSessionId || !normalizedEventType) {
+      return;
+    }
+    this.ensureSession(normalizedSessionId);
+    this.emit(normalizedSessionId, {
+      id: randomUUID(),
+      type: 'agent-stream',
+      createdAt: new Date().toISOString(),
+      payload: {
+        ...payload,
+        eventType: normalizedEventType,
+        sessionId: normalizedSessionId,
+      },
+    });
   }
 
   public subscribe(sessionId: string, listener: (event: WebRealtimeEvent) => void): () => void {
@@ -546,6 +582,12 @@ export class WebRealtimeService {
   }
 
   private emit(sessionId: string, event: WebRealtimeEvent): void {
+    try {
+      this.mnemosCompiler.ingestEvent(config.projectRoot, sessionId, event);
+    } catch {
+      // Catch errors silently to not impact active sessions
+    }
+
     const session = this.getSession(sessionId);
     for (const listener of session.listeners) {
       listener(event);

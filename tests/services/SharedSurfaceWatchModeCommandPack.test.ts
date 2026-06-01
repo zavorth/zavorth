@@ -1,4 +1,4 @@
-import { SharedSurfaceWatchModeCommandPack } from '../../src/domain/surface/application/shared-surface/SharedSurfaceWatchModeCommandPack';
+import { SharedSurfaceWatchModeCommandPack } from '../../src/domain/surface/presentation/shared-surface/SharedSurfaceWatchModeCommandPack';
 
 function buildCtx(rawText = '/watchmode') {
   return {

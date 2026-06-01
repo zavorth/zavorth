@@ -1,6 +1,7 @@
 import fs from 'fs';
 import path from 'path';
 import type { ProjectConstitutionSnapshot } from '../contracts/PracticalAgencyContract.js';
+import { extractImportedSourceSummaries } from './ProjectConstitutionImportService.js';
 
 const MAX_CONSTITUTION_CHARS = 64_000;
 
@@ -40,6 +41,7 @@ export class ProjectConstitutionLoader {
       found,
       path: filePath,
       contextHints: extractHints(content),
+      importedSources: extractImportedSourceSummaries(content),
       policyBypassAllowed: false,
     };
   }

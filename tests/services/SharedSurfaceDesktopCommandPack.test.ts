@@ -1,4 +1,4 @@
-import { SharedSurfaceDesktopCommandPack } from '../../src/domain/surface/application/shared-surface/SharedSurfaceDesktopCommandPack';
+import { SharedSurfaceDesktopCommandPack } from '../../src/domain/surface/presentation/shared-surface/SharedSurfaceDesktopCommandPack';
 
 function buildCtx(rawText = '/doctor desktop') {
   return {

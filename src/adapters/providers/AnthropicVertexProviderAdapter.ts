@@ -17,7 +17,7 @@ export type AnthropicVertexProviderAdapterOptions = {
 
 type AnthropicVertexLikeClient = {
   messages: {
-    create(input: Record<string, unknown>): Promise<Record<string, unknown>>;
+    create(input: Record<string, unknown>, options?: Record<string, unknown>): Promise<Record<string, unknown>>;
   };
 };
 
@@ -74,7 +74,7 @@ export class AnthropicVertexProviderAdapter implements ILlmProvider {
             input_schema: tool.parameters,
           }))
         : undefined,
-    });
+    }, options?.signal ? { signal: options.signal } : undefined);
 
     return parseAnthropicResponse(response);
   }

@@ -91,6 +91,10 @@ export class ZavorthProviderChannelWizardService {
       const fsPlan = {
         contractVersion: 'zavorth-setup-studio/1' as const,
         envFile,
+        skillGovernance: {
+          mode: 'casual' as const,
+          summary: 'Fast daily-use imports, while hard security and license blockers still stay active.',
+        },
         provider: { id: 'deferred' as const, modelId: 'deferred', secretStored: false, secretEnvKey: null },
         channels: {
           telegram: channelId === 'telegram' ? 'configured-secret' as const : 'skip' as const,
@@ -100,6 +104,12 @@ export class ZavorthProviderChannelWizardService {
         },
         webSearch: { provider: 'skip' as const, secretStored: false, secretEnvKey: null },
         memory: { mode: 'local-metadata' as const, vaultScope: 'skip' as const, scanDirs: [] },
+        wakeDetector: {
+          mode: 'default-local' as const,
+          summary: 'default local detector path, still opt-in and TTL-bound',
+          commandConfigured: false,
+          rawAudioPersisted: false as const,
+        },
         hooks: { enabled: false, templates: [] },
         envUpdates: updates,
         safety: {

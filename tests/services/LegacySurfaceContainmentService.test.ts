@@ -2,7 +2,7 @@ import { LEGACY_SURFACE_CONTAINMENT_VERSION } from '../../src/contracts/LegacySu
 import { LegacySurfaceContainmentService } from '../../src/services/LegacySurfaceContainmentService.js';
 
 describe('LegacySurfaceContainmentService', () => {
-  it('freezes legacy surfaces while keeping /dashboard canonical', () => {
+  it('removes old web surfaces while keeping /dashboard canonical', () => {
     const service = new LegacySurfaceContainmentService();
     const snapshot = service.buildSnapshot({
       localBaseUrl: 'http://127.0.0.1:33333/',
@@ -14,7 +14,8 @@ describe('LegacySurfaceContainmentService', () => {
       expect.objectContaining({
         contractVersion: LEGACY_SURFACE_CONTAINMENT_VERSION,
         canonicalEntry: '/dashboard',
-        frozenSurfaces: ['/app', '/classic'],
+        frozenSurfaces: [],
+        retiredSurfaces: ['/app', '/classic'],
         generatedAt: '2026-04-14T12:00:00.000Z',
         consolidation: expect.objectContaining({
           phase: 'P3-003',
@@ -22,49 +23,50 @@ describe('LegacySurfaceContainmentService', () => {
             'docs/web-dashboard.md',
             'docs/product-direction.md',
           ]),
-          rule: expect.stringContaining('/app e /classic recebem apenas manutencao'),
+          rule: expect.stringContaining('/app e /classic nao sao mais surfaces publicas'),
         }),
         policy: expect.objectContaining({
           productFeaturesMustLandIn: ['gateway contract', 'control plane', 'dashboard'],
-          legacyFeatureFreeze: true,
-          compatibilityPreserved: true,
-          fallbackPreserved: true,
+          legacyFeatureFreeze: false,
+          legacyRoutesRetired: true,
+          compatibilityPreserved: false,
+          fallbackPreserved: false,
         }),
         links: {
           localControlUrl: 'http://127.0.0.1:33333/dashboard',
           localDashboardUrl: 'http://127.0.0.1:33333/dashboard',
-          localLegacyAppUrl: 'http://127.0.0.1:33333/app',
-          localClassicUrl: 'http://127.0.0.1:33333/classic',
+          localLegacyAppUrl: null,
+          localClassicUrl: null,
           remoteControlUrl: 'https://zavorth.example.com/dashboard',
           remoteDashboardUrl: 'https://zavorth.example.com/dashboard',
-          remoteLegacyAppUrl: 'https://zavorth.example.com/app',
-          remoteClassicUrl: 'https://zavorth.example.com/classic',
+          remoteLegacyAppUrl: null,
+          remoteClassicUrl: null,
         },
       }),
     );
     expect(snapshot.surfaces).toEqual(
       expect.arrayContaining([
         expect.objectContaining({ id: 'dashboard', role: 'canonical', path: '/dashboard', status: 'primary' }),
-        expect.objectContaining({ id: 'app', role: 'legacy-operational', status: 'frozen' }),
-        expect.objectContaining({ id: 'classic', role: 'legacy-observability', status: 'frozen' }),
+        expect.objectContaining({ id: 'app', role: 'retired', status: 'removed' }),
+        expect.objectContaining({ id: 'classic', role: 'retired', status: 'removed' }),
       ]),
     );
   });
 
-  it('renders legacy warnings only for contained legacy routes', () => {
+  it('renders removed-route warnings only for retired routes', () => {
     const service = new LegacySurfaceContainmentService();
 
     expect(service.resolveRole('/dashboard')).toBe('canonical');
-    expect(service.resolveRole('/app/')).toBe('legacy-operational');
-    expect(service.resolveRole('/classic')).toBe('legacy-observability');
+    expect(service.resolveRole('/app/')).toBe('retired');
+    expect(service.resolveRole('/classic')).toBe('retired');
     expect(service.isLegacy('/dashboard')).toBe(false);
     expect(service.isLegacy('/app')).toBe(true);
     expect(service.renderBanner('/dashboard')).toBeNull();
-    expect(service.renderBanner('/app')).toContain('Use /dashboard as the main entry');
-    expect(service.renderBanner('/classic')).toContain('frozen');
+    expect(service.renderBanner('/app')).toContain('has been removed');
+    expect(service.renderBanner('/classic')).toContain('Use /dashboard');
   });
 
-  it('routes new product work away from frozen legacy surfaces', () => {
+  it('blocks all work against removed web surfaces', () => {
     const service = new LegacySurfaceContainmentService();
 
     expect(service.decideFeatureDestination('/dashboard', 'product-feature')).toEqual(
@@ -83,18 +85,18 @@ describe('LegacySurfaceContainmentService', () => {
         allowed: false,
         featureKind: 'business-rule',
         requestedPath: '/app',
-        surface: expect.objectContaining({ id: 'app', status: 'frozen' }),
+        surface: expect.objectContaining({ id: 'app', status: 'removed' }),
         requiredDestination: ['gateway contract', 'control plane', 'dashboard'],
       }),
     );
     expect(service.decideFeatureDestination('/classic', 'observability-maintenance')).toEqual(
       expect.objectContaining({
         phase: 'P3-003',
-        allowed: true,
+        allowed: false,
         featureKind: 'observability-maintenance',
         requestedPath: '/classic',
-        surface: expect.objectContaining({ id: 'classic', status: 'frozen' }),
-        requiredDestination: ['legacy maintenance'],
+        surface: expect.objectContaining({ id: 'classic', status: 'removed' }),
+        requiredDestination: ['gateway contract', 'control plane', 'dashboard'],
       }),
     );
   });

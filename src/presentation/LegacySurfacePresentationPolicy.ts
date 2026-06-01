@@ -2,11 +2,8 @@ import type { LegacySurfaceRole } from '../contracts/LegacySurfaceContract.js';
 
 export function resolveLegacySurfaceRole(pathname: string): LegacySurfaceRole {
   const normalized = normalizePath(pathname);
-  if (normalized === '/app') {
-    return 'legacy-operational';
-  }
-  if (normalized === '/classic') {
-    return 'legacy-observability';
+  if (normalized === '/app' || normalized === '/classic') {
+    return 'retired';
   }
   return 'canonical';
 }
@@ -16,11 +13,8 @@ export function renderLegacySurfaceBanner(pathname: string): string | null {
   if (role === 'canonical') {
     return null;
   }
-  const label = role === 'legacy-operational' ? '/app' : '/classic';
-  const reason = role === 'legacy-operational'
-    ? 'old operational cockpit'
-    : 'classic observability dashboard';
-  return `The ${label} surface is frozen as ${reason}. Use /dashboard as the main entry; /dashboard remains compatible, and new product work must land in the Runtime API, Gateway Contract and official dashboard.`;
+  const label = normalizePath(pathname) === '/app' ? '/app' : '/classic';
+  return `The ${label} surface has been removed. Use /dashboard as the only web entry; product work must land in the Runtime API, Gateway Contract and official dashboard.`;
 }
 
 function normalizePath(value: string): string {

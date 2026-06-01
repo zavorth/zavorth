@@ -2,7 +2,7 @@ import { ZavorthControlService } from '../../src/services/ZavorthControlService.
 import {
   createTestLogRepo,
   fetchZavorthControlJson,
-} from '../helpers/controlWebTestUtils.js';
+} from '../helpers/zavorthControlWebTestUtils.js';
 
 function buildRemoteTransportSnapshot(selectedId: string | null = 'discord-transport') {
   return {

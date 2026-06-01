@@ -253,4 +253,177 @@ describe('AgentRunService swarm escalation', () => {
     }));
     expect(result.replies[0].text).toContain('Swarm entregou o resultado final assinado.');
   });
+
+  it('proposes a Swarm Scale Plane for explicit high-scale subagent requests', async () => {
+    const executor = jest.fn();
+    const service = new AgentRunService({
+      now: () => new Date('2026-06-01T10:00:00.000Z'),
+      idFactory: createIdFactory(),
+      executor,
+    });
+
+    const result = await service.run({
+      userId: 'operator',
+      channel: 'telegram',
+      sessionId: 'telegram:42',
+      text: 'rode uma auditoria paralela com 4000 subagentes para auditar tudo',
+      requestedTools: ['swarm.run'],
+    });
+
+    expect(executor).not.toHaveBeenCalled();
+    expect(result.run.status).toBe('waiting_approval');
+    expect(result.run.approvals[0]).toEqual(expect.objectContaining({
+      title: 'Aprovar Swarm Scale Plane',
+      risk: 'attention',
+    }));
+    expect(result.run.metadata.swarmEscalationProposal).toEqual(expect.objectContaining({
+      kind: 'scale-plane',
+      launchServiceCalled: false,
+      scalePlan: expect.objectContaining({
+        desiredAgents: 4000,
+        maxSteps: 4000,
+        maxConcurrency: 30,
+      }),
+    }));
+    expect(result.replies[0].text).toContain('Proposta de Swarm Scale Plane preparada.');
+    expect(result.replies[0].text).toContain('Agentes planejados: 4000.');
+  });
+
+  it('proposes a Swarm Scale Plane from workload complexity without magic words', async () => {
+    const executor = jest.fn();
+    const service = new AgentRunService({
+      now: () => new Date('2026-06-01T10:00:00.000Z'),
+      idFactory: createIdFactory(),
+      executor,
+    });
+
+    const result = await service.run({
+      userId: 'operator',
+      channel: 'telegram',
+      sessionId: 'telegram:42',
+      text: 'Analise todo o Zavorth, todos os modulos do dashboard, CLI, runtime, providers e canais; faca auditoria profunda de arquitetura, seguranca, DDD, testes e riscos com validacao completa.',
+      requestedTools: [],
+    });
+
+    expect(executor).not.toHaveBeenCalled();
+    expect(result.run.status).toBe('waiting_approval');
+    expect(result.run.metadata.swarmEscalationProposal).toEqual(expect.objectContaining({
+      kind: 'scale-plane',
+      scalePlan: expect.objectContaining({
+        desiredAgents: expect.any(Number),
+        assessment: expect.objectContaining({
+          shouldUseScalePlane: true,
+          band: expect.stringMatching(/large|massive/),
+          reasons: expect.arrayContaining([
+            expect.stringContaining('escopo'),
+          ]),
+        }),
+      }),
+    }));
+    expect(result.replies[0].text).toContain('Proposta de Swarm Scale Plane preparada.');
+  });
+
+  it('executes an approved Swarm Scale Plane through the AgentRun approval path', async () => {
+    const executor = jest.fn();
+    const launch = jest.fn(async (input: any) => ({
+      contractVersion: '2026-06-01.swarm-scale-plane',
+      runId: input.runId,
+      objective: input.objective,
+      status: 'completed',
+      createdAt: '2026-06-01T10:00:00.000Z',
+      updatedAt: '2026-06-01T10:00:01.000Z',
+      completedAt: '2026-06-01T10:00:01.000Z',
+      planner: {
+        mode: 'heuristic',
+        requestedAgents: input.desiredAgents,
+        plannedAgents: input.desiredAgents,
+        maxAgents: input.maxAgents,
+        rationale: 'test scale plane',
+      },
+      workerPool: {
+        mode: input.executionMode,
+        maxConcurrency: input.maxConcurrency,
+        actualMaxConcurrency: input.maxConcurrency,
+        batchesStarted: 10,
+        durable: true,
+        pauseReason: null,
+      },
+      cooperationContract: {
+        isolatedContextPerAgent: true,
+        noSharedMutableWorkspace: true,
+        structuredOutputExpected: true,
+        reducerOwnsMerge: true,
+        toolCallsGoverned: true,
+      },
+      metrics: {
+        queuedAgents: 0,
+        runningAgents: 0,
+        completedAgents: input.desiredAgents,
+        failedAgents: 0,
+        cancelledAgents: 0,
+        elapsedMs: 1000,
+        throughputAgentsPerSecond: input.desiredAgents,
+      },
+      ledger: {
+        maxSteps: input.maxSteps,
+        usedSteps: input.desiredAgents,
+        remainingSteps: input.maxSteps - input.desiredAgents,
+        steps: [],
+      },
+      agents: [
+        { agentId: 'agent-0001', lane: 'planner', status: 'completed', summary: 'ok' },
+      ],
+      reducer: {
+        status: 'ready',
+        completedAgents: input.desiredAgents,
+        failedAgents: 0,
+        conflictCount: 0,
+        conflicts: [],
+        synthesis: `Swarm Scale Plane completed ${input.desiredAgents}/${input.desiredAgents} agent(s).`,
+        confidence: 1,
+      },
+    }));
+    const service = new AgentRunService({
+      now: () => new Date('2026-06-01T10:00:00.000Z'),
+      idFactory: createIdFactory(),
+      executor,
+      swarmScalePlaneService: {
+        launch,
+        resume: jest.fn(),
+        listRuns: jest.fn(() => []),
+        getRun: jest.fn(),
+      } as any,
+    });
+    const request = {
+      userId: 'operator',
+      channel: 'telegram' as const,
+      sessionId: 'telegram:42',
+      text: 'rode uma auditoria paralela com 300 subagentes',
+      requestedTools: ['swarm.run'],
+    };
+
+    const pending = await service.run(request);
+    const result = await service.resumeApprovedRun(pending.run, request);
+
+    expect(executor).not.toHaveBeenCalled();
+    expect(launch).toHaveBeenCalledWith(expect.objectContaining({
+      runId: `agent-run:${pending.run.id}:scale`,
+      objective: request.text,
+      desiredAgents: 300,
+      maxSteps: 4000,
+      maxConcurrency: 30,
+      persistState: true,
+    }));
+    expect(result.run.status).toBe('completed');
+    expect(result.run.summary).toContain('Swarm Scale Plane aprovado e concluido');
+    expect(result.run.metadata.swarmScaleExecutionResult).toEqual(expect.objectContaining({
+      source: 'SwarmScalePlaneService',
+      status: 'completed',
+      metrics: expect.objectContaining({
+        completedAgents: 300,
+      }),
+    }));
+    expect(result.replies[0].text).toContain('Scale run:');
+    expect(result.replies[0].text).toContain('Agentes: 300/300');
+  });
 });

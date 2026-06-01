@@ -121,9 +121,17 @@ export class ProviderNativeCapabilityMatrixService {
     content?: string | null;
   }): Record<string, unknown> {
     const assessments = this.assessFallback(input);
+    const nativeTokenStreaming = record(input.metadata).providerNativeTokenStreaming === true
+      ? this.resolve({
+        providerName: input.providerName,
+        modelName: input.modelName,
+        capability: 'native_token_streaming',
+      })
+      : null;
     return {
       version: PROVIDER_NATIVE_CAPABILITY_MATRIX_VERSION,
       assessments,
+      ...(nativeTokenStreaming ? { nativeTokenStreaming } : {}),
       fallbackRecommended: assessments.some((assessment) => assessment.fallbackRecommended),
     };
   }
@@ -160,6 +168,18 @@ export class ProviderNativeCapabilityMatrixService {
   }
 
   private resolveEntry(providerFamily: string, capability: ProviderNativeCapability): ProviderNativeCapabilityEntry {
+    if (capability === 'native_token_streaming') {
+      if (['gemini', 'openai', 'openrouter', 'anthropic', 'aigateway'].includes(providerFamily)) {
+        return entry(providerFamily, capability, 'native_enabled', null, null, 'none', GOVERNED_PROVIDER_OUTPUT_POLICY, [
+          'This adapter can forward provider-native response deltas before the final model response is complete.',
+          'Streamed text remains untrusted provider output until Zavorth finalizes the governed run.',
+        ]);
+      }
+      return entry(providerFamily, capability, 'unsupported', null, null, 'none', UNSUPPORTED_POLICY, [
+        'No provider-native token streaming adapter is registered for this provider family yet.',
+      ]);
+    }
+
     if (providerFamily === 'gemini') {
       if (capability === 'native_search') {
         return entry(providerFamily, capability, 'native_enabled', 'google_search', 'web_search', 'grounding_metadata', SAFE_PUBLIC_SEARCH_POLICY, [

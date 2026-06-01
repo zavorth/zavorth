@@ -8,6 +8,11 @@ import type {
 import type { PlatformCapability } from '../contracts/PlatformContract.js';
 import { PlatformCapabilityService } from './PlatformCapabilityService.js';
 import { WebRuntimeChannelAdapter } from './GatewayRuntimeChannelAdapters.js';
+import { ChannelLongTailActivationService } from './ChannelLongTailActivationService.js';
+import type {
+  ChannelLongTailActivationEntry,
+  ChannelLongTailConfiguredDoctorReceipt,
+} from '../contracts/ChannelLongTailActivationContract.js';
 
 type GatewayChannelAdapterRegistryRuntime = {
   hasDispatcher?: boolean;
@@ -16,6 +21,8 @@ type GatewayChannelAdapterRegistryRuntime = {
   runtimeAdapters?: ChannelAdapterContract[];
   // Compatibilidade temporaria para overlays antigos; adapters explicitos sao o caminho canonico.
   runtimeDescriptors?: Array<RuntimeChannelDescriptor | RuntimeChannelDescriptorContract>;
+  includeLongTailActivationAdapters?: boolean;
+  channelLongTailActivationService?: Pick<ChannelLongTailActivationService, 'buildSnapshot' | 'runConfiguredDoctor'>;
 };
 
 class StaticChannelAdapter implements ChannelAdapterContract {
@@ -40,6 +47,8 @@ export class GatewayChannelAdapterRegistryService {
   private readonly platforms: Pick<PlatformCapabilityService, 'getCapabilities'>;
   private runtimeAdapters: ChannelAdapterContract[];
   private runtimeDescriptors: Array<RuntimeChannelDescriptor | RuntimeChannelDescriptorContract>;
+  private readonly includeLongTailActivationAdapters: boolean;
+  private readonly channelLongTailActivation: Pick<ChannelLongTailActivationService, 'buildSnapshot' | 'runConfiguredDoctor'> | null;
 
   constructor(runtime: GatewayChannelAdapterRegistryRuntime = {}) {
     this.hasDispatcher = runtime.hasDispatcher === true;
@@ -47,6 +56,10 @@ export class GatewayChannelAdapterRegistryService {
     this.platforms = runtime.platformCapabilityService || new PlatformCapabilityService();
     this.runtimeAdapters = Array.isArray(runtime.runtimeAdapters) ? runtime.runtimeAdapters : [];
     this.runtimeDescriptors = Array.isArray(runtime.runtimeDescriptors) ? runtime.runtimeDescriptors : [];
+    this.includeLongTailActivationAdapters = runtime.includeLongTailActivationAdapters === true;
+    this.channelLongTailActivation = this.includeLongTailActivationAdapters
+      ? runtime.channelLongTailActivationService || new ChannelLongTailActivationService()
+      : null;
   }
 
   public setRuntimeAdapters(runtimeAdapters: ChannelAdapterContract[]): void {
@@ -77,27 +90,32 @@ export class GatewayChannelAdapterRegistryService {
       merged.set(this.normalizeId(described.id), this.cloneStatus(described));
     }
 
-    if (this.runtimeDescriptors.length === 0) {
-      return Array.from(merged.values());
-    }
-
     const overlays = this.runtimeDescriptors
       .map((entry) => this.normalizeRuntimeDescriptor(entry))
       .filter((entry): entry is RuntimeChannelDescriptor => Boolean(entry));
-    if (overlays.length === 0) {
-      return Array.from(merged.values());
-    }
     for (const overlay of overlays) {
       const normalizedId = this.normalizeId(overlay.id);
       const current = merged.get(normalizedId) || this.buildRuntimeOnlyAdapter(overlay);
       merged.set(normalizedId, this.mergeRuntimeDescriptor(current, overlay));
     }
+
+    if (this.includeLongTailActivationAdapters) {
+      for (const status of this.buildLongTailActivationStatuses()) {
+        const normalizedId = this.normalizeId(status.id);
+        const current = merged.get(normalizedId);
+        merged.set(
+          normalizedId,
+          current ? this.mergeLongTailStatus(current, status) : this.cloneStatus(status),
+        );
+      }
+    }
+
     return Array.from(merged.values());
   }
 
   public getAdapter(id: string): ChannelAdapterStatus | null {
-    const normalizedId = String(id || '').trim().toLowerCase();
-    return this.listAdapters().find((entry) => String(entry.id || '').trim().toLowerCase() === normalizedId) || null;
+    const normalizedId = this.resolveAlias(String(id || '').trim().toLowerCase());
+    return this.listAdapters().find((entry) => this.normalizeId(entry.id) === normalizedId) || null;
   }
 
   private buildWebAdapter(): ChannelAdapterContract {
@@ -290,6 +308,185 @@ export class GatewayChannelAdapterRegistryService {
     return this.runtimeAdapters.filter((entry): entry is ChannelAdapterContract => Boolean(entry && typeof entry.describe === 'function'));
   }
 
+  private buildLongTailActivationStatuses(): ChannelAdapterStatus[] {
+    try {
+      if (!this.channelLongTailActivation) {
+        return [];
+      }
+      const channelLongTailActivation = this.channelLongTailActivation;
+      return channelLongTailActivation.buildSnapshot().entries.map((entry) => {
+        let doctor: ChannelLongTailConfiguredDoctorReceipt | null = null;
+        try {
+          doctor = channelLongTailActivation.runConfiguredDoctor({ channelId: entry.channelId });
+        } catch {
+          doctor = null;
+        }
+        return this.fromLongTailActivationEntry(entry, doctor);
+      });
+    } catch {
+      return [];
+    }
+  }
+
+  private fromLongTailActivationEntry(
+    entry: ChannelLongTailActivationEntry,
+    doctor: ChannelLongTailConfiguredDoctorReceipt | null,
+  ): ChannelAdapterStatus {
+    const id = this.normalizeId(entry.channelId);
+    const configured = doctor?.configured === true;
+    const transport = this.transportForLongTail(entry);
+    const lastHealth = configured ? 'unknown' : 'unknown';
+    const missing = doctor
+      ? doctor.missingRequiredEnv.concat(doctor.missingRuntimeConfig)
+      : entry.configSchema.requiredEnv;
+    return {
+      id,
+      label: this.labelForLongTail(id, entry.runtimeTarget),
+      readiness: 'partial',
+      implementationState: 'partial',
+      configured,
+      transport,
+      notes: [
+        `Zavorth-native long-tail channel via ${entry.family} adapter.`,
+        `Runtime target: ${entry.runtimeTarget}.`,
+        'No OpenClaw gateway or external agent bridge is required for this channel surface.',
+        configured
+          ? 'Configured doctor passed locally; run staging-live proof with explicit confirmation before default routing.'
+          : `Missing config: ${missing.join(', ') || 'channel credentials/allowlist'}.`,
+      ],
+      features: {
+        inbound: entry.capabilities.inbound,
+        outbound: entry.capabilities.outbound,
+        sessionList: true,
+        sessionHistory: true,
+        sessionSend: this.hasDispatcher && entry.capabilities.outbound && configured,
+        sessionSpawn: false,
+        attachments: entry.capabilities.attachments,
+        threads: entry.capabilities.threads,
+        groupPolicy: true,
+        identityHints: true,
+        approvals: true,
+        rateLimit: true,
+        webhook: entry.capabilities.webhookValidation,
+        localBridge: entry.capabilities.localProcess || transport === 'bridge' || transport === 'local',
+        doctor: true,
+        interactiveControls: this.hasInteractiveLongTailControls(id),
+        slashCommands: false,
+        richReplies: entry.capabilities.replies,
+        qrLogin: id === 'weixin' || id === 'zalouser' || id === 'bluebubbles',
+      },
+      riskLevel: this.riskLevelForLongTail(id),
+      setupMode: entry.family,
+      provider: entry.runtimeTarget,
+      webhookPath: entry.capabilities.webhookValidation ? `/api/webhooks/${id}` : null,
+      doctorCommand: entry.doctorCommand,
+      lastHealth,
+      lastEventAt: null,
+      operatorNextStep: configured
+        ? entry.stagingLiveSmokeCommand
+        : `Configure ${missing.join(', ') || entry.configSchema.requiredEnv.join(', ')} and run ${entry.doctorCommand}.`,
+      statusRows: [
+        { label: 'Adapter', value: entry.family, tone: 'neutral' },
+        { label: 'Doctor', value: configured ? 'configured' : 'missing-config', tone: configured ? 'success' : 'warning' },
+        { label: 'Allowlist', value: doctor?.allowlistConfigured ? 'configured' : 'required', tone: doctor?.allowlistConfigured ? 'success' : 'warning' },
+        { label: 'Live proof', value: 'requires explicit confirmation', tone: 'neutral' },
+      ],
+      interactiveSurface: {
+        statusCard: true,
+        inlineButtons: this.hasInteractiveLongTailControls(id),
+        slashCommands: false,
+        richReplies: entry.capabilities.replies,
+        modelMenus: false,
+        qrLogin: id === 'weixin' || id === 'zalouser' || id === 'bluebubbles',
+      },
+    };
+  }
+
+  private mergeLongTailStatus(current: ChannelAdapterStatus, longTail: ChannelAdapterStatus): ChannelAdapterStatus {
+    const shouldPromoteFromPlaceholder =
+      current.readiness === 'planned'
+      || current.implementationState === 'planned'
+      || current.implementationState === 'stub'
+      || current.transport === 'stub'
+      || current.transport === 'planned';
+    return {
+      ...current,
+      readiness: shouldPromoteFromPlaceholder ? longTail.readiness : current.readiness,
+      implementationState: shouldPromoteFromPlaceholder ? longTail.implementationState : current.implementationState,
+      configured: current.configured || longTail.configured,
+      transport: shouldPromoteFromPlaceholder ? longTail.transport : current.transport,
+      notes: this.mergeNotes(current.notes, longTail.notes),
+      features: this.mergeFeatureSet(longTail.features, current.features),
+      riskLevel: current.riskLevel || longTail.riskLevel,
+      setupMode: current.setupMode ?? longTail.setupMode ?? null,
+      provider: current.provider ?? longTail.provider ?? null,
+      webhookPath: current.webhookPath ?? longTail.webhookPath ?? null,
+      doctorCommand: current.doctorCommand ?? longTail.doctorCommand ?? null,
+      lastHealth: current.lastHealth ?? longTail.lastHealth ?? null,
+      lastEventAt: current.lastEventAt ?? longTail.lastEventAt ?? null,
+      operatorNextStep: current.operatorNextStep ?? longTail.operatorNextStep ?? null,
+      statusRows: current.statusRows || longTail.statusRows,
+      interactiveSurface: current.interactiveSurface || longTail.interactiveSurface,
+    };
+  }
+
+  private transportForLongTail(entry: ChannelLongTailActivationEntry): ChannelAdapterStatus['transport'] {
+    if (entry.family === 'webhook' || entry.capabilities.webhookValidation) {
+      return 'webhook';
+    }
+    if (entry.family === 'local-bridge' || entry.family === 'apple-bridge') {
+      return 'bridge';
+    }
+    if (entry.family === 'relay-http') {
+      return 'local';
+    }
+    return 'native';
+  }
+
+  private labelForLongTail(id: string, runtimeTarget: string): string {
+    const labels: Record<string, string> = {
+      bluebubbles: 'BlueBubbles',
+      clickclack: 'ClickClack',
+      feishu: 'Feishu / Lark',
+      googlechat: 'Google Chat',
+      'google-meet': 'Google Meet',
+      'home-assistant': 'Home Assistant',
+      irc: 'IRC',
+      line: 'LINE',
+      matrix: 'Matrix',
+      mattermost: 'Mattermost',
+      'nextcloud-talk': 'Nextcloud Talk',
+      nostr: 'Nostr',
+      qqbot: 'QQ Bot',
+      sms: 'SMS',
+      'synology-chat': 'Synology Chat',
+      tlon: 'Tlon',
+      twitch: 'Twitch',
+      webhooks: 'Generic Webhooks',
+      wecom: 'WeCom',
+      weixin: 'Weixin / WeChat',
+      zalo: 'Zalo',
+      zalouser: 'Zalo Personal',
+      yuanbao: 'Yuanbao',
+      'voice-call': 'Voice Call',
+    };
+    return labels[id] || runtimeTarget || id;
+  }
+
+  private hasInteractiveLongTailControls(id: string): boolean {
+    return ['feishu', 'line', 'matrix', 'mattermost', 'qqbot', 'twitch', 'wecom', 'weixin', 'zalo', 'zalouser'].includes(id);
+  }
+
+  private riskLevelForLongTail(id: string): ChannelAdapterStatus['riskLevel'] {
+    if (['weixin', 'zalouser', 'bluebubbles', 'imessage', 'voice-call', 'google-meet'].includes(id)) {
+      return 'experimental';
+    }
+    if (['sms', 'nostr', 'tlon', 'yuanbao'].includes(id)) {
+      return 'medium';
+    }
+    return 'low';
+  }
+
   private normalizeRuntimeDescriptor(
     entry: RuntimeChannelDescriptor | RuntimeChannelDescriptorContract | null | undefined,
   ): RuntimeChannelDescriptor | null {
@@ -426,5 +623,31 @@ export class GatewayChannelAdapterRegistryService {
 
   private normalizeId(value: string | null | undefined): string {
     return String(value || '').trim().toLowerCase();
+  }
+
+  private resolveAlias(value: string): string {
+    const normalized = this.normalizeId(value);
+    const aliases: Record<string, string> = {
+      lark: 'feishu',
+      gchat: 'googlechat',
+      'google-chat': 'googlechat',
+      'microsoft-teams': 'teams',
+      msteams: 'teams',
+      'nc-talk': 'nextcloud-talk',
+      nc: 'nextcloud-talk',
+      qq: 'qqbot',
+      'twitch-chat': 'twitch',
+      qywx: 'wecom',
+      wework: 'wecom',
+      'enterprise-wechat': 'wecom',
+      'openclaw-weixin': 'weixin',
+      wechat: 'weixin',
+      zl: 'zalo',
+      zlu: 'zalouser',
+      'zalo-user': 'zalouser',
+      yb: 'yuanbao',
+      'tencent-yuanbao': 'yuanbao',
+    };
+    return aliases[normalized] || normalized;
   }
 }

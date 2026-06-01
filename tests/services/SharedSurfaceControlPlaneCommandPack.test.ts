@@ -1,4 +1,4 @@
-import { SharedSurfaceControlPlaneCommandPack } from '../../src/domain/surface/application/shared-surface/SharedSurfaceControlPlaneCommandPack';
+import { SharedSurfaceControlPlaneCommandPack } from '../../src/domain/surface/presentation/shared-surface/SharedSurfaceControlPlaneCommandPack';
 
 describe('SharedSurfaceControlPlaneCommandPack', () => {
   it('routes /qa through the internal control-plane boundary', async () => {
