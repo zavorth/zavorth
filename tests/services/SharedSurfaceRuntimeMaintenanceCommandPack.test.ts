@@ -1,4 +1,4 @@
-import { SharedSurfaceRuntimeMaintenanceCommandPack } from '../../src/domain/surface/application/shared-surface/SharedSurfaceRuntimeMaintenanceCommandPack';
+import { SharedSurfaceRuntimeMaintenanceCommandPack } from '../../src/domain/surface/presentation/shared-surface/SharedSurfaceRuntimeMaintenanceCommandPack';
 
 function buildCtx(rawText = '/changes') {
   return {

@@ -303,7 +303,6 @@ export function buildWebAppRuntimeUiSurfaceHints(
     localControlReady: boolean;
     telegramReady: boolean;
     discordReady: boolean;
-    classicReady: boolean;
     cliReady: boolean;
   },
 ): GatewayCanonicalStatePayload['uiSurfaceHints'] {
@@ -313,8 +312,6 @@ export function buildWebAppRuntimeUiSurfaceHints(
     controlReady: input.localControlReady,
     telegramReady: input.telegramReady,
     discordReady: input.discordReady,
-    classicEntry: '/classic',
-    classicReady: input.classicReady,
     cliEntry: 'npm run cli -- status',
     cliReady: input.cliReady,
   });

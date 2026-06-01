@@ -3,7 +3,7 @@ import {
   createTestLogRepo,
   fetchZavorthControlJson,
   fetchNoKeepAlive,
-} from '../helpers/controlWebTestUtils.js';
+} from '../helpers/zavorthControlWebTestUtils.js';
 
 describe('ZavorthControlService operations cockpit', () => {
   const logRepo = createTestLogRepo();
@@ -160,10 +160,9 @@ describe('ZavorthControlService operations cockpit', () => {
     const html = await pageResponse.text();
     await service.stopAsync();
 
-    expect(pageResponse.status).toBe(200);
+    expect(pageResponse.status).toBe(410);
     expect(cockpitStatus).toBe(200);
-    expect(html).toContain('/api/operations/cockpit');
-    expect(html).toContain('Carregando cockpit operacional');
+    expect(html).toContain('/zavorthControl');
     expect(cockpit).toEqual(
       expect.objectContaining({
         status: 'healthy',

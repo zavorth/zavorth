@@ -105,3 +105,8 @@ export * from '../contracts/SalesPackChannelIoContract.js';
 export * from '../contracts/SalesPackContract.js';
 export * from '../contracts/SpeechVoiceLivePlaneContract.js';
 export * from '../contracts/WebResearchLivePlaneContract.js';
+export * from '../contracts/VoiceWakeContract.js';
+export * from '../contracts/ZavorthHomeContract.js';
+export * from '../contracts/TaskPlaneContract.js';
+export * from '../contracts/ChannelGovernanceContract.js';
+export * from '../contracts/SandboxExecutionReceiptContract.js';

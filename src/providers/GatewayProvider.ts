@@ -2,8 +2,10 @@ import OpenAI from 'openai';
 import { config } from '../config/index.js';
 import { extractFunctionToolCalls } from './openaiToolCalls.js';
 import { convertChatMessagesToOpenAI } from './openaiMessageConversion.js';
-import { ILlmProvider, ChatMessage, ToolDefinition, LlmResponse, ToolCall, ProviderChatOptions } from './ILlmProvider.js';
+import { ILlmProvider, ChatMessage, ToolDefinition, LlmResponse, ToolCall, ProviderChatOptions, LlmStreamEvent } from './ILlmProvider.js';
 import { buildOpenAiCompatibleNativeToolPayload } from './ProviderNativeToolPayload.js';
+import { buildProviderRequestOptions } from './ProviderAbort.js';
+import { streamOpenAICompatibleCompletion } from './OpenAICompatibleStreaming.js';
 
 export type GatewayProviderOptions = {
   name?: string;
@@ -44,7 +46,7 @@ export class GatewayProvider implements ILlmProvider {
         messages: convertChatMessagesToOpenAI(messages),
         tools: nativeToolPayload.tools,
         ...nativeToolPayload.extraBody,
-      } as any);
+      } as any, buildProviderRequestOptions(options) as any);
 
       const choice = response.choices[0];
       const toolCalls: ToolCall[] = extractFunctionToolCalls(choice.message.tool_calls);
@@ -57,6 +59,28 @@ export class GatewayProvider implements ILlmProvider {
       };
     } catch (error: any) {
       console.error('❌ [AIGateway] Erro na requisição:', error?.message || error);
+      throw error;
+    }
+  }
+
+  public async *streamChat(messages: ChatMessage[], tools?: ToolDefinition[], options?: ProviderChatOptions): AsyncIterable<LlmStreamEvent> {
+    try {
+      const nativeToolPayload = buildOpenAiCompatibleNativeToolPayload({
+        providerName: this.name,
+        tools,
+        options,
+      });
+      const stream = await this.client.chat.completions.create({
+        model: options?.modelName || this.defaultModelName,
+        messages: convertChatMessagesToOpenAI(messages),
+        tools: nativeToolPayload.tools,
+        ...nativeToolPayload.extraBody,
+        stream: true,
+      } as any, buildProviderRequestOptions(options) as any);
+
+      yield* streamOpenAICompatibleCompletion(stream as any, nativeToolPayload.metadata);
+    } catch (error: any) {
+      console.error('❌ [AIGateway] Erro no streaming:', error?.message || error);
       throw error;
     }
   }

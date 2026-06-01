@@ -1,2 +1,2 @@
-export * from '../../domain/gateway/application/runtime-access/RuntimeInstallJourneyService.js';
+export * from '../../domain/gateway/infrastructure/runtime-access/RuntimeInstallJourneyService.js';
 

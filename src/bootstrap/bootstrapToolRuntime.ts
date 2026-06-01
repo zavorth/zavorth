@@ -29,6 +29,7 @@ export function createBootstrapToolRuntime(logRepo: LogRepository) {
   const { EnableMnemosTool } = require('../tools/EnableMnemosTool.js');
   const { EchoHandsTool } = require('../tools/EchoHandsTool.js');
   const { ConfigureLlmProfileTool } = require('../tools/ConfigureLlmProfileTool.js');
+  const { ZavorthActionTool } = require('../tools/ZavorthActionTool.js');
   const { AutoSkillCreatorTool } = require('../tools/AutoSkillCreatorTool.js');
   const { ImageGenerationTool } = require('../tools/ImageGenerationTool.js');
   const { MediaAnalysisTool } = require('../tools/MediaAnalysisTool.js');
@@ -54,6 +55,7 @@ export function createBootstrapToolRuntime(logRepo: LogRepository) {
   toolRegistry.register(new EnableMnemosTool());
   toolRegistry.register(new EchoHandsTool());
   toolRegistry.register(new ConfigureLlmProfileTool());
+  toolRegistry.register(new ZavorthActionTool());
   toolRegistry.register(new AutoSkillCreatorTool());
   toolRegistry.register(new ImageGenerationTool());
   toolRegistry.register(new MediaAnalysisTool());

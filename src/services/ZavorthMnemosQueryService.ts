@@ -6,11 +6,13 @@ import {
   type ZavorthMnemosQueryRankSource,
   type ZavorthMnemosQuerySnapshot,
 } from '../contracts/ZavorthMnemosQueryContract.js';
+import { ZavorthMnemosFtsIndexService } from './ZavorthMnemosFtsIndexService.js';
 
 type ZavorthMnemosQueryRuntime = {
   now?: () => Date;
   projectRoot?: string;
   readFileSync?: typeof fs.readFileSync;
+  ftsIndexService?: Pick<ZavorthMnemosFtsIndexService, 'rebuild' | 'search'>;
 };
 
 type ZavorthMnemosQueryInput = {
@@ -60,11 +62,13 @@ export class ZavorthMnemosQueryService {
   private readonly now: () => Date;
   private readonly projectRoot: string;
   private readonly readFileSyncImpl: typeof fs.readFileSync;
+  private readonly ftsIndexService: Pick<ZavorthMnemosFtsIndexService, 'rebuild' | 'search'>;
 
   constructor(runtime: ZavorthMnemosQueryRuntime = {}) {
     this.now = runtime.now || (() => new Date());
     this.projectRoot = path.resolve(runtime.projectRoot || process.cwd());
     this.readFileSyncImpl = runtime.readFileSync || fs.readFileSync.bind(fs);
+    this.ftsIndexService = runtime.ftsIndexService || new ZavorthMnemosFtsIndexService({ projectRoot: this.projectRoot, now: this.now });
   }
 
   public query(input: ZavorthMnemosQueryInput): ZavorthMnemosQuerySnapshot {
@@ -75,10 +79,12 @@ export class ZavorthMnemosQueryService {
     const index = this.readIndex();
     const pages = index.pages.map((page) => this.readPage(page));
     const terms = this.extractTerms(query);
+    const fts = this.queryFts(query, topK);
     const keywordRanks = this.rankByKeyword(pages, terms);
     const tagRanks = this.rankByTags(pages, terms);
     const graphRanks = this.rankByGraph(index, keywordRanks, tagRanks);
     const hits = this.fuseRanks(pages, [
+      { source: 'sqlite-fts5', ranks: fts.ranks },
       { source: 'keyword', ranks: keywordRanks },
       { source: 'tag', ranks: tagRanks },
       { source: 'graph', ranks: graphRanks },
@@ -95,9 +101,10 @@ export class ZavorthMnemosQueryService {
         hits: hits.length,
         returned: hits.length,
         graphEdgesUsed: index.edges.length,
+        sqliteFtsAvailable: fts.available,
       },
       ranking: {
-        method: 'keyword-tag-graph-rrf',
+        method: 'sqlite-fts5-keyword-tag-graph-rrf',
         topK,
         rrfK: RRF_K,
       },
@@ -110,12 +117,25 @@ export class ZavorthMnemosQueryService {
         untrustedContextWrapped: true,
         topKOnly: true,
         secretsRedacted: true,
+        sqliteIndexIsDerived: true,
       },
       receipt: {
         id: `mnemos-query-${stableId(`${generatedAt}:${query}:${hits.map((hit) => hit.pageId).join('|')}`)}`,
         providerCall: false,
         durableMutation: false,
       },
+    };
+  }
+
+  private queryFts(query: string, topK: number): { available: boolean; ranks: Map<string, number> } {
+    const rebuilt = this.ftsIndexService.rebuild();
+    if (rebuilt.status !== 'indexed') {
+      return { available: false, ranks: new Map() };
+    }
+    const hits = this.ftsIndexService.search(query, topK);
+    return {
+      available: hits.available,
+      ranks: new Map(hits.hits.map((hit) => [hit.pageId, hit.rank])),
     };
   }
 

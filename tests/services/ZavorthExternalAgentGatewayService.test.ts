@@ -91,6 +91,43 @@ describe('ZavorthExternalAgentGatewayService', () => {
     expect(receipt.safety.noShellInterpolation).toBe(true);
   });
 
+  it('builds the external agent dashboard snapshot from registry and latest receipt', async () => {
+    const service = createService();
+    service.registerProfile({
+      id: 'dashboard-cli',
+      adapter: 'cli',
+      command: process.execPath,
+      args: ['-e', 'console.log("dashboard-ok")'],
+      enableLive: true,
+      approvalGranted: true,
+    });
+
+    await service.invoke({
+      profileId: 'dashboard-cli',
+      prompt: 'dashboard proof API_KEY=super-secret',
+      approvalGranted: true,
+    });
+
+    const snapshot = service.buildDashboardSnapshot();
+    expect(snapshot.surface).toBe('external-agent-dashboard');
+    expect(snapshot.summary).toEqual(expect.objectContaining({
+      profiles: 1,
+      liveEnabled: 1,
+      latestReceiptStatus: 'completed',
+    }));
+    expect(snapshot.registry.profiles[0]).toEqual(expect.objectContaining({
+      id: 'dashboard-cli',
+      liveExecutionEnabled: true,
+    }));
+    expect(snapshot.latestReceipt).toEqual(expect.objectContaining({
+      status: 'completed',
+      profile: expect.objectContaining({ id: 'dashboard-cli' }),
+    }));
+    expect(JSON.stringify(snapshot)).not.toContain('super-secret');
+    expect(snapshot.latestReceipt?.request.promptPreview).toContain('[redacted]');
+    expect(snapshot.safety.noAgentUsedDuringDashboardRead).toBe(true);
+  });
+
   it('redacts secret-looking prompt and output values before writing receipts', async () => {
     const service = createService();
     const script = 'console.log("OPENAI_API_KEY=sk-secret-value-1234567890")';

@@ -14,6 +14,8 @@ import {
   ToolEffectRegistry,
   type ToolEffectMapping,
 } from '../../tools/governance/index.js';
+import type { RuntimePolicyBundle } from '../../contracts/ProfileManifestContract.js';
+import { ProfileEnforcementReceiptService } from '../../services/ProfileEnforcementReceiptService.js';
 import { buildEffectRehearsalEnvelope } from '../rehearsal/index.js';
 import type { AgentRunLlmRequestBuilder } from './AgentRunLlmRequestBuilder.js';
 import {
@@ -37,9 +39,20 @@ export type NativeToolLoopStats = {
   denied: number;
   failed: number;
   rounds: number;
+  maxRounds: number;
   safeObservations: number;
   effectBoundaryDenied: number;
   sideEffectsDeferred: number;
+  repairedToolCalls: number;
+  unknownToolCalls: number;
+  catalogSearches: number;
+  catalogMaterializedTools: number;
+  planningCalls: number;
+  compactions: number;
+  truncatedToolMessages: number;
+  retriedToolCalls: number;
+  successfulRetries: number;
+  stopReasonRecoveries: number;
 };
 
 export type NativeToolLoopResult = {
@@ -61,16 +74,41 @@ type Runtime = {
 };
 
 const MAX_NATIVE_TOOL_ROUNDS = 5;
+const HARD_NATIVE_TOOL_ROUNDS = 12;
 const MAX_NATIVE_TOOL_CALLS_PER_ROUND = 8;
+const MAX_EXPOSED_NATIVE_TOOLS = 12;
+const MAX_CATALOG_MATERIALIZED_TOOLS = 4;
+const NATIVE_TOOL_CONTEXT_CHARS = 60_000;
+const COMPACT_TOOL_CATALOG_NAME = 'zavorth_tool_catalog';
+const TOOL_PLANNER_NAME = 'zavorth_tool_plan';
 const ALWAYS_SAFE_NATIVE_TOOLS = new Set([
   'read_file',
   'list_directory',
   'workspace.read',
   'workspace.list',
   'get_datetime',
+  'zavorth_action',
+  COMPACT_TOOL_CATALOG_NAME,
+  TOOL_PLANNER_NAME,
 ]);
 const TOOL_EFFECT_REGISTRY = new ToolEffectRegistry();
 const PROVIDER_NATIVE_CAPABILITY_MATRIX = new ProviderNativeCapabilityMatrixService();
+
+type ToolCatalogState = {
+  allTools: ToolDefinition[];
+  exposedToolNames: Set<string>;
+};
+
+type ToolCallRepair = {
+  toolCall: ToolCall;
+  repaired: boolean;
+  reason?: string;
+};
+
+type ExecuteToolAttemptResult = {
+  output: string;
+  attempts: number;
+};
 
 export class AgentRunNativeToolLoopService {
   private readonly llmRuntime: UniversalAgentLlmRuntime | null;
@@ -80,6 +118,8 @@ export class AgentRunNativeToolLoopService {
   private readonly speculativeAutonomy: Pick<ZavorthSpeculativeAutonomyService, 'prepare'> | null;
   private readonly canvasSessions: CanvasSpeculativeAutonomySyncService | null;
   private readonly terminalBackends: Pick<ZavorthTerminalBackendsService, 'execute'> | null;
+  private readonly profileReceipts = new ProfileEnforcementReceiptService();
+  private readonly toolCatalogByRun = new Map<string, ToolCatalogState>();
 
   constructor(runtime: Runtime) {
     this.llmRuntime = runtime.llmRuntime;
@@ -103,6 +143,16 @@ export class AgentRunNativeToolLoopService {
     return MAX_NATIVE_TOOL_ROUNDS;
   }
 
+  public maxRoundsFor(run: UniversalAgentRun, request?: UniversalAgentRequest): number {
+    const profileLimit = this.resolveRuntimePolicyBundle(run)?.maxToolRounds;
+    const requestedLimit = numberFromUnknown(request?.metadata?.nativeToolMaxRounds)
+      || numberFromUnknown(run.metadata.nativeToolMaxRounds)
+      || numberFromUnknown(process.env.ZAVORTH_NATIVE_TOOL_MAX_ROUNDS);
+    const raw = profileLimit || requestedLimit || this.inferAdaptiveRoundBudget(run, request);
+    const max = Math.max(MAX_NATIVE_TOOL_ROUNDS, raw || MAX_NATIVE_TOOL_ROUNDS);
+    return Math.min(HARD_NATIVE_TOOL_ROUNDS, max);
+  }
+
   public resolveNativeTools(run: UniversalAgentRun, request: UniversalAgentRequest): ToolDefinition[] {
     if (!this.toolRuntime?.getToolDefinitions) return [];
     if (this.toolRuntime.isAvailable && !this.toolRuntime.isAvailable()) return [];
@@ -112,10 +162,22 @@ export class AgentRunNativeToolLoopService {
     const approved = new Set((policyContext.approvedToolIds || []).map((tool) => tool.toLowerCase()));
     const requested = new Set((request.requestedTools || []).map((tool) => tool.toLowerCase()));
     const exposed = policyContext.exposedTools || [];
+    const runtimePolicy = this.resolveRuntimePolicyBundle(run);
 
-    return definitions.filter((tool) => {
+    const allowedTools = definitions.filter((tool) => {
       if (this.toolRuntime?.hasTool && !this.toolRuntime.hasTool(tool.name)) return false;
       const aliases = this.resolveToolAliases(tool.name);
+      const profileDecision = runtimePolicy
+        ? this.applyProfileToolPolicy({
+          run,
+          runtimePolicy,
+          toolName: tool.name,
+          aliases,
+        })
+        : 'neutral';
+      if (profileDecision === 'blocked' || profileDecision === 'requires_approval') {
+        return false;
+      }
       if (aliases.includes('web_search')) {
         return this.shouldExposeWebSearch(run, request, aliases, requested, exposed);
       }
@@ -127,7 +189,20 @@ export class AgentRunNativeToolLoopService {
         const id = entry.id.toLowerCase();
         return aliases.includes(id) && entry.requiresApproval !== true && entry.risk === 'safe';
       });
-    }).slice(0, 12);
+    });
+
+    const rankedTools = this.rankNativeTools(allowedTools, run, request);
+    const syntheticTools = this.buildSyntheticToolDefinitions(rankedTools.length);
+    const maxRealTools = Math.max(1, MAX_EXPOSED_NATIVE_TOOLS - syntheticTools.length);
+    const exposedTools = rankedTools.length > maxRealTools
+      ? [...rankedTools.slice(0, maxRealTools), ...syntheticTools]
+      : [...rankedTools, ...syntheticTools.filter((tool) => rankedTools.length > 1)];
+    const uniqueTools = uniqueToolDefinitions(exposedTools);
+    this.toolCatalogByRun.set(run.id, {
+      allTools: uniqueToolDefinitions([...rankedTools, ...syntheticTools]),
+      exposedToolNames: new Set(uniqueTools.map((tool) => tool.name)),
+    });
+    return uniqueTools;
   }
 
   public async run(input: {
@@ -144,9 +219,20 @@ export class AgentRunNativeToolLoopService {
       denied: 0,
       failed: 0,
       rounds: 0,
+      maxRounds: this.maxRoundsFor(input.run, input.request),
       safeObservations: 0,
       effectBoundaryDenied: 0,
       sideEffectsDeferred: 0,
+      repairedToolCalls: 0,
+      unknownToolCalls: 0,
+      catalogSearches: 0,
+      catalogMaterializedTools: 0,
+      planningCalls: 0,
+      compactions: 0,
+      truncatedToolMessages: 0,
+      retriedToolCalls: 0,
+      successfulRetries: 0,
+      stopReasonRecoveries: 0,
     };
     const evidenceTexts: string[] = [];
     const events: NativeToolLoopResult['events'] = [];
@@ -156,8 +242,23 @@ export class AgentRunNativeToolLoopService {
       return { result, evidenceTexts, toolReceiptCount: 0, stats, events };
     }
 
-    const knownToolNames = new Set(input.tools.map((tool) => tool.name));
-    for (let round = 0; round < MAX_NATIVE_TOOL_ROUNDS; round += 1) {
+    let knownToolNames = new Set(input.tools.map((tool) => tool.name));
+    let stopReasonRecoveryUsed = false;
+    for (let round = 0; round < stats.maxRounds; round += 1) {
+      const recovery = await this.recoverStopReasonIfNeeded({
+        input,
+        result,
+        stopReasonRecoveryUsed,
+      });
+      if (recovery.recovered) {
+        result = recovery.result;
+        stopReasonRecoveryUsed = true;
+        stats.stopReasonRecoveries += 1;
+        events.push(this.buildToolEvent(input.run, 'llm.stop_reason_recovery', 'Continuation requested after an incomplete provider stop reason.', 'done', {
+          reason: 'stop-reason-recovery',
+          finishReason: recovery.previousFinishReason,
+        }));
+      }
       const declaredToolCalls = result.response.toolCalls || [];
       const fallbackToolCalls = declaredToolCalls.length === 0
         ? this.buildProviderNativeFallbackToolCalls({
@@ -167,7 +268,10 @@ export class AgentRunNativeToolLoopService {
           knownToolNames,
         })
         : [];
-      const toolCalls = declaredToolCalls.length > 0 ? declaredToolCalls : fallbackToolCalls;
+      const rawToolCalls = declaredToolCalls.length > 0 ? declaredToolCalls : fallbackToolCalls;
+      const repairs = rawToolCalls.map((toolCall) => this.repairToolCall(toolCall, knownToolNames));
+      const toolCalls = repairs.map((repair) => repair.toolCall);
+      stats.repairedToolCalls += repairs.filter((repair) => repair.repaired).length;
       if (toolCalls.length === 0) break;
       stats.rounds += 1;
       input.messages.push({
@@ -177,15 +281,54 @@ export class AgentRunNativeToolLoopService {
       });
 
       const toolMessages: ChatMessage[] = [];
-      for (const toolCall of toolCalls.slice(0, MAX_NATIVE_TOOL_CALLS_PER_ROUND)) {
+      for (const [index, toolCall] of toolCalls.slice(0, MAX_NATIVE_TOOL_CALLS_PER_ROUND).entries()) {
         stats.requested += 1;
+        const repair = repairs[index];
+        if (toolCall.name === COMPACT_TOOL_CATALOG_NAME) {
+          const catalogResult = this.handleToolCatalogCall({
+            run: input.run,
+            request: input.request,
+            toolCall,
+            tools: input.tools,
+            knownToolNames,
+          });
+          stats.catalogSearches += 1;
+          stats.catalogMaterializedTools += catalogResult.materializedTools;
+          if (catalogResult.materializedTools > 0) {
+            knownToolNames = new Set(input.tools.map((tool) => tool.name));
+          }
+          toolMessages.push(this.buildToolMessage(toolCall.name, toolCall.id, catalogResult.output));
+          events.push(this.buildToolEvent(input.run, toolCall.name, catalogResult.output, 'done', {
+            reason: 'compact-tool-catalog',
+            toolCallId: toolCall.id,
+            materializedTools: catalogResult.materializedTools,
+          }));
+          continue;
+        }
+        if (toolCall.name === TOOL_PLANNER_NAME) {
+          const plan = this.handleToolPlanningCall({
+            run: input.run,
+            request: input.request,
+            toolCall,
+            knownToolNames,
+          });
+          stats.planningCalls += 1;
+          toolMessages.push(this.buildToolMessage(toolCall.name, toolCall.id, plan));
+          events.push(this.buildToolEvent(input.run, toolCall.name, plan, 'done', {
+            reason: 'agent-run-tool-planning',
+            toolCallId: toolCall.id,
+          }));
+          continue;
+        }
         if (!knownToolNames.has(toolCall.name)) {
           stats.denied += 1;
-          const denied = `Tool ${toolCall.name} nao esta exposta para este run.`;
+          stats.unknownToolCalls += 1;
+          const denied = `Tool ${toolCall.name} nao esta exposta para este run.${repair?.reason ? ` ${repair.reason}` : ''}`;
           toolMessages.push(this.buildToolMessage(toolCall.name, toolCall.id, denied));
           events.push(this.buildToolEvent(input.run, toolCall.name, denied, 'failed', {
             reason: 'tool-not-exposed',
             toolCallId: toolCall.id,
+            candidates: this.findToolCandidates(toolCall.name, knownToolNames).slice(0, 5),
           }));
           continue;
         }
@@ -259,13 +402,19 @@ export class AgentRunNativeToolLoopService {
           modelName: result.modelName,
         });
         try {
-          const toolResult = await this.toolRuntime.executeTool(toolCall.name, toolArgs);
+          const execution = await this.executeToolWithRetry(toolCall.name, toolArgs);
+          const toolResult = execution.output;
+          if (execution.attempts > 1) {
+            stats.retriedToolCalls += 1;
+            stats.successfulRetries += 1;
+          }
           stats.executed += 1;
           evidenceTexts.push(`${toolCall.name}:\n${clampText(toolResult, 6000)}`);
           toolMessages.push(this.buildToolMessage(toolCall.name, toolCall.id, toolResult));
           events.push(this.buildToolEvent(input.run, toolCall.name, toolResult, 'done', {
             toolCallId: toolCall.id,
             sourceTrust,
+            ...(repair?.repaired ? { toolCallRepair: repair.reason || 'normalized-tool-call' } : {}),
             effectBoundary: this.buildToolEffectBoundaryMetadata(effectMapping),
             ...(toolCall.arguments?.providerNativeFallback
               ? { providerNativeFallback: toolCall.arguments.providerNativeFallback }
@@ -273,6 +422,9 @@ export class AgentRunNativeToolLoopService {
           }));
         } catch (error: unknown) {
           stats.failed += 1;
+          if (isTransientToolError(error)) {
+            stats.retriedToolCalls += 1;
+          }
           const message = `Tool ${toolCall.name} failed: ${error instanceof Error ? error.message : String(error)}`;
           evidenceTexts.push(`${toolCall.name}:\n${message}`);
           toolMessages.push(this.buildToolMessage(toolCall.name, toolCall.id, message));
@@ -286,23 +438,451 @@ export class AgentRunNativeToolLoopService {
 
       if (toolMessages.length === 0) break;
       input.messages.push(...toolMessages);
+      const compaction = this.compactMessagesForNextTurn(input.messages, this.resolveContextBudgetChars(input.run, input.request));
+      stats.compactions += compaction.compacted ? 1 : 0;
+      stats.truncatedToolMessages += compaction.truncatedToolMessages;
       result = await this.llmRuntime.chatDetailed(input.messages, input.tools, input.options);
     }
 
     return { result, evidenceTexts, toolReceiptCount: stats.executed, stats, events };
   }
 
+  private resolveRuntimePolicyBundle(run: UniversalAgentRun): RuntimePolicyBundle | null {
+    const bundle = recordOrNull(run.metadata.profileBundle)?.runtimePolicyBundle
+      || run.metadata.runtimePolicyBundle
+      || recordOrNull(run.metadata.profileRuntimeBundle)?.runtimePolicyBundle
+      || recordOrNull(run.metadata.profile)?.runtimePolicyBundle;
+    if (!bundle || typeof bundle !== 'object' || Array.isArray(bundle)) {
+      return null;
+    }
+    const candidate = bundle as Partial<RuntimePolicyBundle>;
+    if (!candidate.profileId || !candidate.checksum) {
+      return null;
+    }
+    return candidate as RuntimePolicyBundle;
+  }
+
+  private applyProfileToolPolicy(input: {
+    run: UniversalAgentRun;
+    runtimePolicy: RuntimePolicyBundle;
+    toolName: string;
+    aliases: string[];
+  }): 'allowed' | 'blocked' | 'requires_approval' | 'neutral' {
+    const deny = input.runtimePolicy.deny || [];
+    const requireApproval = input.runtimePolicy.requireApproval || [];
+    const allow = input.runtimePolicy.allow || [];
+    if (matchesAnyAlias(input.aliases, deny)) {
+      this.emitProfileToolReceipt(input.run, input.runtimePolicy, input.toolName, input.aliases, 'hidden', 'profile-deny-list');
+      return 'blocked';
+    }
+    if (input.runtimePolicy.approvalMode === 'always' || matchesAnyAlias(input.aliases, requireApproval)) {
+      this.emitProfileToolReceipt(input.run, input.runtimePolicy, input.toolName, input.aliases, 'requires_approval', 'profile-requires-approval');
+      return 'requires_approval';
+    }
+    if (allow.length > 0) {
+      if (matchesAnyAlias(input.aliases, allow)) {
+        this.emitProfileToolReceipt(input.run, input.runtimePolicy, input.toolName, input.aliases, 'allowed', 'profile-allow-list');
+        return 'allowed';
+      }
+      this.emitProfileToolReceipt(input.run, input.runtimePolicy, input.toolName, input.aliases, 'hidden', 'not-in-profile-allow-list');
+      return 'blocked';
+    }
+    return 'neutral';
+  }
+
+  private emitProfileToolReceipt(
+    run: UniversalAgentRun,
+    runtimePolicy: RuntimePolicyBundle,
+    toolName: string,
+    aliases: string[],
+    decision: 'allowed' | 'hidden' | 'requires_approval',
+    reason: string,
+  ): void {
+    const receipt = this.profileReceipts.fromToolExposure({
+      runtimePolicy,
+      toolName,
+      aliases,
+      decision,
+      reason,
+      runId: run.id,
+      createdAt: run.updatedAt || run.createdAt,
+    });
+    const exists = run.events.some((event) =>
+      event.metadata?.profileEnforcementReceipt
+      && (event.metadata.profileEnforcementReceipt as { id?: string }).id === receipt.id);
+    if (exists) return;
+    run.events.push({
+      id: `${receipt.id}:${run.events.length}`,
+      runId: run.id,
+      kind: 'status',
+      title: 'Profile policy enforced',
+      detail: receipt.summary,
+      status: decision === 'allowed' ? 'done' : 'pending',
+      createdAt: receipt.createdAt,
+      metadata: {
+        source: 'AgentRunNativeToolLoopService',
+        profileEnforcementReceipt: receipt,
+      },
+    });
+  }
+
+  private rankNativeTools(
+    tools: ToolDefinition[],
+    run: UniversalAgentRun,
+    request: UniversalAgentRequest,
+  ): ToolDefinition[] {
+    const requestText = normalizeText(`${request.text} ${run.input} ${(request.requestedTools || []).join(' ')}`).toLowerCase();
+    const requested = new Set((request.requestedTools || []).flatMap((tool) => this.resolveToolAliases(tool)));
+    return [...tools].sort((left, right) => scoreTool(right) - scoreTool(left));
+
+    function scoreTool(tool: ToolDefinition): number {
+      const name = tool.name.toLowerCase();
+      const haystack = `${tool.name} ${tool.description || ''} ${tool.category || ''}`.toLowerCase();
+      let score = 0;
+      if (requested.has(name)) score += 80;
+      if (requestText.includes(name)) score += 50;
+      if (name === 'zavorth_action') score += 45;
+      if (name === 'read_file' || name === 'list_directory') score += 30;
+      if (name === 'get_datetime' && /\b(time|date|hora|data|agora|today|now)\b/i.test(requestText)) score += 45;
+      if (name === 'web_search' && thisRequestLikelyNeedsExternalKnowledge(requestText)) score += 40;
+      for (const token of requestText.split(/\s+/).filter((entry) => entry.length > 3).slice(0, 24)) {
+        if (haystack.includes(token)) score += 2;
+      }
+      return score;
+    }
+  }
+
+  private buildSyntheticToolDefinitions(realToolCount: number): ToolDefinition[] {
+    const tools: ToolDefinition[] = [];
+    if (realToolCount > 1) {
+      tools.push({
+        name: TOOL_PLANNER_NAME,
+        description: 'Plan which governed Zavorth tools or subagent lanes should be used before executing a multi-step request.',
+        category: 'agent-runtime',
+        dangerLevel: 'safe',
+        requiresPermission: false,
+        parameters: {
+          type: 'object',
+          properties: {
+            objective: { type: 'string', description: 'The current task or subtask to plan.' },
+            mode: { type: 'string', description: 'Plan mode.', enum: ['tools', 'subagents', 'mixed'] },
+          },
+          required: ['objective'],
+        },
+      });
+    }
+    if (realToolCount > MAX_EXPOSED_NATIVE_TOOLS - 1) {
+      tools.push({
+        name: COMPACT_TOOL_CATALOG_NAME,
+        description: 'Search or describe the compact catalog of governed tools. A search can materialize matching tools for the next native tool round.',
+        category: 'agent-runtime',
+        dangerLevel: 'safe',
+        requiresPermission: false,
+        parameters: {
+          type: 'object',
+          properties: {
+            operation: { type: 'string', description: 'Catalog operation.', enum: ['search', 'describe'] },
+            query: { type: 'string', description: 'Natural language query or domain to search.' },
+            toolName: { type: 'string', description: 'Specific tool to describe.' },
+            limit: { type: 'number', description: 'Maximum number of tools to return.' },
+          },
+          required: ['operation'],
+        },
+      });
+    }
+    return tools;
+  }
+
+  private repairToolCall(toolCall: ToolCall, knownToolNames: Set<string>): ToolCallRepair {
+    const args = normalizeToolArguments(toolCall.arguments);
+    const argsRepaired = args !== toolCall.arguments;
+    if (knownToolNames.has(toolCall.name)) {
+      return {
+        toolCall: { ...toolCall, arguments: args },
+        repaired: argsRepaired,
+        reason: argsRepaired ? 'arguments-normalized' : undefined,
+      };
+    }
+
+    const normalized = normalizeToolKey(toolCall.name);
+    const exactByNormalized = [...knownToolNames].find((name) => normalizeToolKey(name) === normalized);
+    if (exactByNormalized) {
+      return {
+        toolCall: { ...toolCall, name: exactByNormalized, arguments: args },
+        repaired: true,
+        reason: `repaired tool name ${toolCall.name} -> ${exactByNormalized}`,
+      };
+    }
+
+    const aliasMatch = [...knownToolNames].find((name) =>
+      this.resolveToolAliases(name).some((alias) => normalizeToolKey(alias) === normalized));
+    if (aliasMatch) {
+      return {
+        toolCall: { ...toolCall, name: aliasMatch, arguments: args },
+        repaired: true,
+        reason: `matched alias ${toolCall.name} -> ${aliasMatch}`,
+      };
+    }
+
+    const candidates = this.findToolCandidates(toolCall.name, knownToolNames);
+    if (candidates.length === 1) {
+      return {
+        toolCall: { ...toolCall, name: candidates[0]!, arguments: args },
+        repaired: true,
+        reason: `single fuzzy candidate ${toolCall.name} -> ${candidates[0]}`,
+      };
+    }
+
+    return {
+      toolCall: { ...toolCall, arguments: args },
+      repaired: argsRepaired,
+      reason: candidates.length > 0 ? `Closest exposed tools: ${candidates.slice(0, 3).join(', ')}.` : undefined,
+    };
+  }
+
+  private findToolCandidates(toolName: string, knownToolNames: Set<string>): string[] {
+    const normalized = normalizeToolKey(toolName);
+    return [...knownToolNames]
+      .map((candidate) => ({
+        candidate,
+        score: similarityScore(normalized, normalizeToolKey(candidate)),
+      }))
+      .filter((entry) => entry.score >= 0.55)
+      .sort((left, right) => right.score - left.score)
+      .map((entry) => entry.candidate);
+  }
+
+  private handleToolCatalogCall(input: {
+    run: UniversalAgentRun;
+    request?: UniversalAgentRequest;
+    toolCall: ToolCall;
+    tools: ToolDefinition[];
+    knownToolNames: Set<string>;
+  }): { output: Record<string, unknown>; materializedTools: number } {
+    const args = normalizeToolArguments(input.toolCall.arguments);
+    const operation = normalizeText(args.operation || 'search').toLowerCase();
+    const query = normalizeText(args.query || args.domain || input.request?.text || input.run.input);
+    const limit = Math.min(MAX_CATALOG_MATERIALIZED_TOOLS, Math.max(1, numberFromUnknown(args.limit) || MAX_CATALOG_MATERIALIZED_TOOLS));
+    const state = this.toolCatalogByRun.get(input.run.id) || {
+      allTools: input.tools,
+      exposedToolNames: input.knownToolNames,
+    };
+    const ranked = this.rankCatalogTools(state.allTools, query).filter((tool) => ![COMPACT_TOOL_CATALOG_NAME, TOOL_PLANNER_NAME].includes(tool.name));
+
+    if (operation === 'describe') {
+      const toolName = normalizeText(args.toolName || query);
+      const tool = ranked.find((entry) => entry.name === toolName || normalizeToolKey(entry.name) === normalizeToolKey(toolName));
+      return {
+        materializedTools: 0,
+        output: {
+          status: tool ? 'found' : 'not_found',
+          tool: tool ? summarizeToolDefinition(tool) : null,
+          query: toolName,
+        },
+      };
+    }
+
+    const matches = ranked.slice(0, limit);
+    let materializedTools = 0;
+    for (const tool of matches) {
+      if (!input.knownToolNames.has(tool.name)) {
+        input.tools.push(tool);
+        input.knownToolNames.add(tool.name);
+        state.exposedToolNames.add(tool.name);
+        materializedTools += 1;
+      }
+    }
+    this.toolCatalogByRun.set(input.run.id, state);
+    return {
+      materializedTools,
+      output: {
+        status: 'ok',
+        query,
+        materializedTools: matches.map(summarizeToolDefinition),
+        note: materializedTools > 0
+          ? 'Matching governed tools were materialized for the next native tool round.'
+          : 'Matching governed tools were already exposed.',
+      },
+    };
+  }
+
+  private rankCatalogTools(tools: ToolDefinition[], query: string): ToolDefinition[] {
+    const normalizedQuery = normalizeText(query).toLowerCase();
+    const tokens = normalizedQuery.split(/\s+/).filter((entry) => entry.length > 2);
+    return [...tools].sort((left, right) => score(right) - score(left));
+
+    function score(tool: ToolDefinition): number {
+      const haystack = `${tool.name} ${tool.description || ''} ${tool.category || ''}`.toLowerCase();
+      let total = haystack.includes(normalizedQuery) && normalizedQuery ? 30 : 0;
+      for (const token of tokens) {
+        if (haystack.includes(token)) total += 4;
+      }
+      if (tool.dangerLevel === 'safe' || tool.requiresPermission === false) total += 2;
+      return total;
+    }
+  }
+
+  private handleToolPlanningCall(input: {
+    run: UniversalAgentRun;
+    request?: UniversalAgentRequest;
+    toolCall: ToolCall;
+    knownToolNames: Set<string>;
+  }): Record<string, unknown> {
+    const args = normalizeToolArguments(input.toolCall.arguments);
+    const objective = normalizeText(args.objective || input.request?.text || input.run.input || input.run.title);
+    const mode = normalizeText(args.mode || 'mixed').toLowerCase();
+    const state = this.toolCatalogByRun.get(input.run.id);
+    const allTools = state?.allTools || [...input.knownToolNames].map((name) => ({ name, description: name, parameters: { type: 'object' as const, properties: {} } }));
+    const ranked = this.rankCatalogTools(allTools, objective)
+      .filter((tool) => ![COMPACT_TOOL_CATALOG_NAME, TOOL_PLANNER_NAME].includes(tool.name))
+      .slice(0, 6)
+      .map(summarizeToolDefinition);
+    const subagentRecommended = /\b(audit|review|deep|compare|complex|large|arquitetura|profundo|subagent|subagente|paralel)\b/i.test(objective);
+    return {
+      status: 'planned',
+      objective,
+      mode,
+      recommendedTools: ranked,
+      subagents: {
+        recommended: subagentRecommended,
+        reason: subagentRecommended
+          ? 'The objective is broad enough to benefit from governed read-only subagent lanes before mutation.'
+          : 'Single-run tool use should be enough unless the model uncovers a broader branch.',
+        suggestedRoles: subagentRecommended ? ['planner', 'auditor', 'qa'] : [],
+      },
+      executionRules: [
+        'Use safe observation tools directly when exposed.',
+        'Use zavorth_action for Zavorth configuration or runtime mutations.',
+        'Defer real side effects to the mutation plane when the effect boundary requires approval.',
+      ],
+    };
+  }
+
+  private async recoverStopReasonIfNeeded(input: {
+    input: {
+      messages: ChatMessage[];
+      tools: ToolDefinition[];
+      options: LlmRunOptions;
+    };
+    result: LlmRuntimeResult;
+    stopReasonRecoveryUsed: boolean;
+  }): Promise<{ recovered: boolean; result: LlmRuntimeResult; previousFinishReason?: string }> {
+    if (input.stopReasonRecoveryUsed || !this.llmRuntime) {
+      return { recovered: false, result: input.result };
+    }
+    const finishReason = normalizeText(input.result.response.finishReason).toLowerCase();
+    if (!/(length|max_tokens|incomplete|truncated|content_filter)/.test(finishReason)) {
+      return { recovered: false, result: input.result };
+    }
+    input.input.messages.push({
+      role: 'assistant',
+      content: input.result.response.content || '',
+    });
+    input.input.messages.push({
+      role: 'user',
+      content: 'Continue exactly from the interrupted response. If you intended to call a tool, emit only the valid governed tool call; otherwise finish the answer concisely.',
+    });
+    const recovered = await this.llmRuntime.chatDetailed(input.input.messages, input.input.tools, input.input.options);
+    return {
+      recovered: true,
+      result: recovered,
+      previousFinishReason: input.result.response.finishReason,
+    };
+  }
+
+  private async executeToolWithRetry(toolName: string, args: Record<string, unknown>): Promise<ExecuteToolAttemptResult> {
+    if (!this.toolRuntime) {
+      throw new Error('Tool runtime unavailable.');
+    }
+    try {
+      return {
+        output: await this.toolRuntime.executeTool(toolName, args),
+        attempts: 1,
+      };
+    } catch (error) {
+      if (!isTransientToolError(error)) {
+        throw error;
+      }
+      await delay(120);
+      return {
+        output: await this.toolRuntime.executeTool(toolName, args),
+        attempts: 2,
+      };
+    }
+  }
+
+  private compactMessagesForNextTurn(messages: ChatMessage[], maxChars: number): {
+    compacted: boolean;
+    truncatedToolMessages: number;
+  } {
+    if (estimateMessagesChars(messages) <= maxChars) {
+      return { compacted: false, truncatedToolMessages: 0 };
+    }
+    let truncatedToolMessages = 0;
+    const protectedStart = 1;
+    const protectedTail = Math.max(0, messages.length - 8);
+    for (let index = protectedStart; index < protectedTail; index += 1) {
+      const message = messages[index];
+      if (!message?.content) continue;
+      if (message.role === 'tool' && message.content.length > 1600) {
+        message.content = `${message.content.slice(0, 1500).trim()}\n[tool result compacted before next round]`;
+        truncatedToolMessages += 1;
+      } else if (message.role === 'assistant' && message.content.length > 2400) {
+        message.content = `${message.content.slice(0, 2200).trim()}\n[assistant turn compacted before next round]`;
+      }
+    }
+    if (estimateMessagesChars(messages) > maxChars) {
+      const compactNotice: ChatMessage = {
+        role: 'system',
+        content: 'Earlier native tool-loop context was compacted. Preserve user intent, receipts, approvals and latest tool observations; request catalog search again if you need a hidden tool.',
+      };
+      messages.splice(1, 0, compactNotice);
+    }
+    return { compacted: true, truncatedToolMessages };
+  }
+
+  private resolveContextBudgetChars(run: UniversalAgentRun, request?: UniversalAgentRequest): number {
+    return Math.max(
+      12_000,
+      numberFromUnknown(request?.metadata?.nativeToolContextChars)
+      || numberFromUnknown(run.metadata.nativeToolContextChars)
+      || numberFromUnknown(process.env.ZAVORTH_NATIVE_TOOL_CONTEXT_CHARS)
+      || NATIVE_TOOL_CONTEXT_CHARS,
+    );
+  }
+
+  private inferAdaptiveRoundBudget(run: UniversalAgentRun, request?: UniversalAgentRequest): number {
+    const text = normalizeText(`${request?.text || ''} ${run.input} ${run.title}`).toLowerCase();
+    let rounds = MAX_NATIVE_TOOL_ROUNDS;
+    if (/\b(deep|audit|review|compare|implement|fix|migrate|refactor|profundo|auditoria|comparar|implemente|corrija|migre)\b/.test(text)) {
+      rounds = 8;
+    }
+    if (/\b(subagent|subagente|multi[- ]?step|multi[- ]?round|repo inteiro|entire repo|tudo|all)\b/.test(text)) {
+      rounds = 10;
+    }
+    if ((request?.requestedTools || []).length >= 3 || run.toolExposure.tools.length >= 8) {
+      rounds = Math.max(rounds, 8);
+    }
+    return rounds;
+  }
+
   private resolveToolAliases(toolName: string): string[] {
     const normalized = normalizeText(toolName).toLowerCase();
     const aliases: Record<string, string[]> = {
       read_file: ['read_file', 'read', 'workspace.read'],
+      'workspace.read': ['workspace.read', 'read_file', 'read'],
       list_directory: ['list_directory', 'ls', 'workspace.list'],
+      'workspace.list': ['workspace.list', 'list_directory', 'ls'],
       web_search: ['web_search', 'web.search', 'network_fetch'],
+      'web.search': ['web.search', 'web_search', 'network_fetch'],
       get_datetime: ['get_datetime', 'datetime', 'time.now'],
       write_file: ['write_file', 'write', 'workspace.write', 'filesystem.write'],
       create_file: ['create_file', 'write_file', 'workspace.write', 'filesystem.write'],
       remote_shell: ['remote_shell', 'shell.exec', 'bash.exec'],
       run_sandbox_code: ['run_sandbox_code', 'sandbox.execute'],
+      zavorth_action: ['zavorth_action', 'action.lookup', 'action.preview', 'action.apply'],
+      [COMPACT_TOOL_CATALOG_NAME]: [COMPACT_TOOL_CATALOG_NAME, 'tool.catalog', 'tools.search', 'tool.search'],
+      [TOOL_PLANNER_NAME]: [TOOL_PLANNER_NAME, 'tool.plan', 'agent.plan', 'subagent.plan'],
     };
     return Array.from(new Set([
       normalized,
@@ -758,6 +1338,12 @@ function normalizeText(value: unknown, fallback = ''): string {
   return text || fallback;
 }
 
+function recordOrNull(value: unknown): Record<string, unknown> | null {
+  return value && typeof value === 'object' && !Array.isArray(value)
+    ? value as Record<string, unknown>
+    : null;
+}
+
 function clampText(value: unknown, maxChars = 4000): string {
   const text = String(value ?? '').trim();
   const limit = Math.max(120, maxChars);
@@ -768,4 +1354,109 @@ function truthy(value: unknown): boolean {
   if (value === true) return true;
   const text = normalizeText(value).toLowerCase();
   return ['1', 'true', 'yes', 'sim', 'on', 'enabled'].includes(text);
+}
+
+function numberFromUnknown(value: unknown): number {
+  if (typeof value === 'number' && Number.isFinite(value)) return value;
+  const text = normalizeText(value);
+  if (!text) return 0;
+  const parsed = Number(text);
+  return Number.isFinite(parsed) ? parsed : 0;
+}
+
+function matchesAnyAlias(aliases: string[], entries: string[]): boolean {
+  const normalizedAliases = new Set(aliases.map((alias) => normalizeToolKey(alias)));
+  return entries.some((entry) => normalizedAliases.has(normalizeToolKey(entry)));
+}
+
+function uniqueToolDefinitions(tools: ToolDefinition[]): ToolDefinition[] {
+  const seen = new Set<string>();
+  const output: ToolDefinition[] = [];
+  for (const tool of tools) {
+    const key = normalizeToolKey(tool.name);
+    if (seen.has(key)) continue;
+    seen.add(key);
+    output.push(tool);
+  }
+  return output;
+}
+
+function normalizeToolArguments(value: unknown): Record<string, unknown> {
+  if (value && typeof value === 'object' && !Array.isArray(value)) {
+    return value as Record<string, unknown>;
+  }
+  if (typeof value === 'string') {
+    const parsed = parseJsonObject(value);
+    if (parsed) return parsed;
+    return { value };
+  }
+  if (value === null || value === undefined) {
+    return {};
+  }
+  return { value };
+}
+
+function parseJsonObject(value: string): Record<string, unknown> | null {
+  try {
+    const parsed = JSON.parse(value);
+    return parsed && typeof parsed === 'object' && !Array.isArray(parsed)
+      ? parsed as Record<string, unknown>
+      : null;
+  } catch {
+    return null;
+  }
+}
+
+function normalizeToolKey(value: unknown): string {
+  return normalizeText(value)
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '');
+}
+
+function similarityScore(left: string, right: string): number {
+  if (!left || !right) return 0;
+  if (left === right) return 1;
+  if (left.includes(right) || right.includes(left)) return 0.78;
+  const leftTokens = new Set(toBigrams(left));
+  const rightTokens = new Set(toBigrams(right));
+  const intersection = [...leftTokens].filter((token) => rightTokens.has(token)).length;
+  const union = new Set([...leftTokens, ...rightTokens]).size || 1;
+  return intersection / union;
+}
+
+function toBigrams(value: string): string[] {
+  if (value.length <= 2) return [value];
+  const grams: string[] = [];
+  for (let index = 0; index < value.length - 1; index += 1) {
+    grams.push(value.slice(index, index + 2));
+  }
+  return grams;
+}
+
+function summarizeToolDefinition(tool: ToolDefinition): Record<string, unknown> {
+  return {
+    name: tool.name,
+    description: clampText(tool.description || tool.name, 500),
+    category: tool.category || null,
+    dangerLevel: tool.dangerLevel || null,
+    requiresPermission: tool.requiresPermission === true,
+  };
+}
+
+function estimateMessagesChars(messages: ChatMessage[]): number {
+  return messages.reduce((total, message) => total + normalizeText(message.content).length, 0);
+}
+
+function isTransientToolError(error: unknown): boolean {
+  const message = error instanceof Error ? error.message : String(error ?? '');
+  return /\b(timeout|timed out|temporar|rate limit|429|503|502|econnreset|enetunreach|network|busy|try again)\b/i.test(message);
+}
+
+function delay(ms: number): Promise<void> {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+function thisRequestLikelyNeedsExternalKnowledge(text: string): boolean {
+  return /\b(today|latest|recent|current|now|news|search|browse|web|internet|source|sources|link|links|price|weather|release|version|changelog|who won|where can i find)\b/.test(text)
+    || /\b(hoje|agora|atual|atuais|recente|recentes|ultim[ao]s?|noticia|noticias|pesquis|busc|internet|web|fonte|fontes|link|links|preco|cotacao|clima|tempo|lancamento|versao)\b/.test(text);
 }

@@ -6,11 +6,14 @@ import {
   ChatMessage,
   ILlmProvider,
   LlmResponse,
+  LlmStreamEvent,
   ProviderChatOptions,
   ToolCall,
   ToolDefinition,
 } from './ILlmProvider.js';
 import { buildOpenAiCompatibleNativeToolPayload } from './ProviderNativeToolPayload.js';
+import { buildProviderRequestOptions, isProviderAbortError } from './ProviderAbort.js';
+import { streamOpenAICompatibleCompletion } from './OpenAICompatibleStreaming.js';
 
 export class OpenAIProvider implements ILlmProvider {
   public readonly name = 'openai';
@@ -50,7 +53,7 @@ export class OpenAIProvider implements ILlmProvider {
           messages: convertChatMessagesToOpenAI(messages),
           tools: nativeToolPayload.tools,
           ...nativeToolPayload.extraBody,
-        } as any);
+        } as any, buildProviderRequestOptions(options) as any);
 
         if (attempt > 0) {
           console.log(`[OpenAI Failover] Request succeeded using secondary key (${clientIndex + 1}/${this.clients.length}).`);
@@ -66,12 +69,56 @@ export class OpenAIProvider implements ILlmProvider {
           metadata: nativeToolPayload.metadata,
         };
       } catch (error: any) {
+        if (isProviderAbortError(error, options?.signal)) {
+          throw error;
+        }
         lastError = error;
         console.warn(`[OpenAI] Request failed with key ${clientIndex + 1}: ${error?.message || error}`);
       }
     }
 
     throw lastError || new Error('Falha desconhecida no OpenAI');
+  }
+
+  public async *streamChat(
+    messages: ChatMessage[],
+    tools?: ToolDefinition[],
+    options?: ProviderChatOptions,
+  ): AsyncIterable<LlmStreamEvent> {
+    let lastError: any;
+    for (let attempt = 0; attempt < this.clients.length; attempt += 1) {
+      const clientIndex = (this.currentClientIndex + attempt) % this.clients.length;
+      const client = this.clients[clientIndex];
+      try {
+        const nativeToolPayload = buildOpenAiCompatibleNativeToolPayload({
+          providerName: this.name,
+          tools,
+          options,
+        });
+        const stream = await client.chat.completions.create({
+          model: options?.modelName || config.openaiModel,
+          messages: convertChatMessagesToOpenAI(messages),
+          tools: nativeToolPayload.tools,
+          ...nativeToolPayload.extraBody,
+          stream: true,
+        } as any, buildProviderRequestOptions(options) as any);
+
+        if (attempt > 0) {
+          console.log(`[OpenAI Failover] Streaming request succeeded using secondary key (${clientIndex + 1}/${this.clients.length}).`);
+        }
+        this.currentClientIndex = clientIndex;
+        yield* streamOpenAICompatibleCompletion(stream as any, nativeToolPayload.metadata);
+        return;
+      } catch (error: any) {
+        if (isProviderAbortError(error, options?.signal)) {
+          throw error;
+        }
+        lastError = error;
+        console.warn(`[OpenAI] Streaming request failed with key ${clientIndex + 1}: ${error?.message || error}`);
+      }
+    }
+
+    throw lastError || new Error('Falha desconhecida no OpenAI streaming');
   }
 
   private convertMessages(messages: ChatMessage[]): OpenAI.ChatCompletionMessageParam[] {

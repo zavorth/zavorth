@@ -2,6 +2,7 @@ import type { ChatMessage, ToolDefinition } from '../../providers/ILlmProvider.j
 import type {
   LlmRunOptions,
   LlmRuntimeResult,
+  LlmRuntimeStreamEvent,
 } from '../../services/llm/LlmRuntimeService.js';
 import type {
   UniversalAgentEvent,
@@ -33,6 +34,7 @@ import { AgentRunExecutorPipeline } from './AgentRunExecutorPipeline.js';
 import { AgentRunLlmRequestBuilder } from './AgentRunLlmRequestBuilder.js';
 import { StructuredWorkspaceDraftParser, type StructuredWorkspaceDraft } from './StructuredWorkspaceDraftParser.js';
 import { AgentRunNativeToolLoopService } from './AgentRunNativeToolLoopService.js';
+import type { AgentRunSteeringStream, AgentRunSteeringStreamFrame } from './AgentRunSteeringStream.js';
 
 export type UniversalAgentLlmRuntime = {
   chatDetailed(
@@ -50,6 +52,31 @@ export type AgentRunLlmRuntimeExecutorRuntime = {
   speculativeAutonomyService?: Pick<ZavorthSpeculativeAutonomyService, 'prepare'> | null;
   mutationPlaneService?: Pick<ZavorthMutationPlaneService, 'createPlan'> | null;
   canvasSessionService?: CanvasSpeculativeAutonomySyncService | null;
+  steeringStream?: Pick<AgentRunSteeringStream, 'snapshot' | 'waitForNewerThan'> | null;
+  publishRuntimeEvent?: (
+    run: UniversalAgentRun,
+    type: 'agent.stream.lifecycle' | 'agent.stream.assistant' | 'agent.stream.tool',
+    payload?: Record<string, unknown>,
+  ) => void | Promise<void>;
+  runtimeEventStreamingEnabled?: boolean;
+};
+
+type InterruptibleLlmCallResult = {
+  result: LlmRuntimeResult;
+  liveSteeringFrames: AgentRunSteeringStreamFrame[];
+  interruptCount: number;
+  abortSignalUsed: boolean;
+};
+
+type AssistantStreamState = {
+  streamId: string;
+  emitted: boolean;
+  done: boolean;
+  deltaCount: number;
+  providerNativeTokenStreaming: boolean;
+  providerName: string | null;
+  modelName: string | null;
+  accumulated: string;
 };
 
 function normalizeText(value: unknown, fallback = ''): string {
@@ -96,6 +123,9 @@ export class AgentRunLlmRuntimeExecutor {
   private readonly requestBuilder: AgentRunLlmRequestBuilder;
   private readonly draftParser = new StructuredWorkspaceDraftParser();
   private readonly nativeToolLoop: AgentRunNativeToolLoopService;
+  private readonly steeringStream: Pick<AgentRunSteeringStream, 'snapshot' | 'waitForNewerThan'> | null;
+  private readonly publishRuntimeEvent: AgentRunLlmRuntimeExecutorRuntime['publishRuntimeEvent'] | null;
+  private readonly runtimeEventStreamingEnabled: boolean;
 
   constructor(runtime: AgentRunLlmRuntimeExecutorRuntime = {}) {
     this.llmRuntime = runtime.llmRuntime || null;
@@ -110,6 +140,9 @@ export class AgentRunLlmRuntimeExecutor {
     this.canvasSessions = runtime.canvasSessionService === null
       ? null
       : runtime.canvasSessionService || resolveCanvasSessionServiceForRuntime();
+    this.steeringStream = runtime.steeringStream || null;
+    this.publishRuntimeEvent = runtime.publishRuntimeEvent || null;
+    this.runtimeEventStreamingEnabled = runtime.runtimeEventStreamingEnabled === true;
     this.requestBuilder = new AgentRunLlmRequestBuilder({
       hallucinationInstruction: () => this.hallucinationMitigation.buildInstruction(),
     });
@@ -140,12 +173,45 @@ export class AgentRunLlmRuntimeExecutor {
     const prepared = this.requestBuilder.prepare(run, request);
     const messages = prepared.messages;
     const nativeTools = this.nativeToolLoop.resolveNativeTools(run, request);
-    const options = prepared.options;
+    const assistantStreamState = this.createAssistantStreamState(run);
+    const options = this.withRuntimeAssistantStream(run, prepared.options, assistantStreamState);
     pipeline.complete('input', `messages=${messages.length} tools=${nativeTools.length}`);
     pipeline.start('llm', `provider=${this.llmRuntime.getPreferredProviderName?.() || 'configured-provider'}`);
-    const initialResult = await this.llmRuntime.chatDetailed(messages, nativeTools, options);
-    pipeline.complete('llm', `provider=${initialResult.providerName} model=${initialResult.modelName || 'unknown'}`);
-    pipeline.start('tool-loop', `maxRounds=${this.nativeToolLoop.maxRounds()}`);
+    await this.publishStreamEvent(run, 'agent.stream.lifecycle', {
+      phase: 'llm-started',
+      title: 'LLM request started',
+      summary: 'The provider runtime is generating under the current run and can be interrupted by live steering.',
+      streamStatus: 'running',
+      providerNativeTokenStreaming: false,
+    });
+    const interruptibleInitial = await this.runInitialLlmWithLiveSteeringInterrupts({
+      run,
+      messages,
+      nativeTools,
+      options,
+    });
+    const initialResult = interruptibleInitial.result;
+    const liveSteeringFrames = interruptibleInitial.liveSteeringFrames;
+    const liveSteeringMetadata = liveSteeringFrames.length > 0
+      ? this.buildLiveSteeringMetadata(liveSteeringFrames, {
+        interruptCount: interruptibleInitial.interruptCount,
+        abortSignalUsed: interruptibleInitial.abortSignalUsed,
+      })
+      : null;
+    pipeline.complete(
+      'llm',
+      `provider=${initialResult.providerName} model=${initialResult.modelName || 'unknown'} liveSteering=${liveSteeringFrames.length} interrupts=${interruptibleInitial.interruptCount}`,
+    );
+    await this.publishStreamEvent(run, 'agent.stream.lifecycle', {
+      phase: 'llm-completed',
+      title: 'LLM response received',
+      summary: `Provider ${initialResult.providerName} returned before governed tool handling.`,
+      streamStatus: 'running',
+      providerName: initialResult.providerName,
+      modelName: initialResult.modelName || null,
+      providerNativeTokenStreaming: assistantStreamState.providerNativeTokenStreaming,
+    });
+    pipeline.start('tool-loop', `maxRounds=${this.nativeToolLoop.maxRoundsFor(run, request)}`);
     const toolLoop = await this.nativeToolLoop.run({
       messages,
       initialResult,
@@ -196,6 +262,13 @@ export class AgentRunLlmRuntimeExecutor {
       summary: 'Answer generated by the governed model loop.',
       replyText,
       events: [
+        ...(liveSteeringMetadata ? [{
+          kind: 'steering' as const,
+          title: 'Live steering assimilated',
+          detail: `${liveSteeringFrames.length} steering update(s) interrupted and reissued the LLM call before tool execution.`,
+          status: 'done' as const,
+          metadata: liveSteeringMetadata,
+        }] : []),
         ...toolLoop.events,
         ...this.buildSpeculativeAutonomyEvents(speculativeAutonomy, zCanvasSync),
         {
@@ -213,6 +286,7 @@ export class AgentRunLlmRuntimeExecutor {
             ...(speculativeAutonomy ? { superZavorthSpeculativeAutonomy: buildSpeculativeAutonomyReceipt(speculativeAutonomy) } : {}),
             ...(zCanvasSync ? { zCanvasSession: zCanvasSync } : {}),
             ...(naturalFirstLlmRuntime ? { naturalFirstLlmRuntime } : {}),
+            ...(liveSteeringMetadata ? { agentRunSteeringLive: liveSteeringMetadata } : {}),
             ...(result.metadata ? { runtimeMetadata: result.metadata } : {}),
           },
         },
@@ -227,6 +301,8 @@ export class AgentRunLlmRuntimeExecutor {
         ...(structuredDraft?.patches.length ? { intelligenceFabricDraftWorkspacePatchesSource: structuredDraft.source } : {}),
         ...(speculativeAutonomy ? { superZavorthSpeculativeAutonomy: buildSpeculativeAutonomyReceipt(speculativeAutonomy) } : {}),
         ...(zCanvasSync ? { zCanvasSession: zCanvasSync } : {}),
+        ...(liveSteeringMetadata ? { agentRunSteeringLive: liveSteeringMetadata } : {}),
+        llmRuntimeStream: this.buildAssistantStreamResultMetadata(assistantStreamState),
         nativeToolLoop: {
           toolsExposed: nativeTools.map((tool) => tool.name),
           ...toolLoop.stats,
@@ -252,6 +328,361 @@ export class AgentRunLlmRuntimeExecutor {
         },
         modelPickerSelection: recordOrNull(run.metadata.modelPickerSelection),
       },
+    };
+  }
+
+  private createAssistantStreamState(run: UniversalAgentRun): AssistantStreamState {
+    return {
+      streamId: `${run.id}:assistant`,
+      emitted: false,
+      done: false,
+      deltaCount: 0,
+      providerNativeTokenStreaming: false,
+      providerName: null,
+      modelName: null,
+      accumulated: '',
+    };
+  }
+
+  private withRuntimeAssistantStream(
+    run: UniversalAgentRun,
+    options: LlmRunOptions,
+    state: AssistantStreamState,
+  ): LlmRunOptions {
+    if (!this.publishRuntimeEvent || !this.runtimeEventStreamingEnabled) {
+      return options;
+    }
+    const existingStream = options.stream;
+    const existingOnEvent = existingStream?.onEvent;
+    return {
+      ...options,
+      stream: {
+        ...(existingStream || {}),
+        mode: existingStream?.mode || 'auto',
+        onEvent: async (event) => {
+          await existingOnEvent?.(event);
+          await this.publishLlmRuntimeStreamEvent(run, event, state);
+        },
+      },
+    };
+  }
+
+  private async publishLlmRuntimeStreamEvent(
+    run: UniversalAgentRun,
+    event: LlmRuntimeStreamEvent,
+    state: AssistantStreamState,
+  ): Promise<void> {
+    state.providerNativeTokenStreaming = state.providerNativeTokenStreaming || event.native || event.metadata?.providerNativeTokenStreaming === true;
+    state.providerName = event.providerName || state.providerName;
+    state.modelName = event.modelName || state.modelName;
+
+    if (event.type === 'tool_call_delta') {
+      await this.publishStreamEvent(run, 'agent.stream.tool', {
+        phase: 'tool_call_delta',
+        title: 'Provider tool call streaming',
+        streamStatus: 'running',
+        providerNativeTokenStreaming: state.providerNativeTokenStreaming,
+        providerName: event.providerName,
+        modelName: event.modelName,
+        toolCallDelta: event.toolCallDelta || null,
+      });
+      return;
+    }
+
+    state.emitted = true;
+    const delta = String(event.delta || '');
+    const eventAccumulated = typeof event.accumulated === 'string'
+      ? event.accumulated
+      : typeof event.response?.content === 'string'
+        ? event.response.content
+        : delta
+          ? `${state.accumulated}${delta}`
+          : state.accumulated;
+    state.accumulated = eventAccumulated;
+    if (event.type === 'delta') {
+      state.deltaCount += 1;
+    }
+    state.done = event.type === 'done' || event.done === true;
+
+    await this.publishStreamEvent(run, 'agent.stream.assistant', {
+      source: 'LlmRuntimeService',
+      streamId: state.streamId,
+      phase: event.type,
+      done: state.done,
+      chunkIndex: event.chunkIndex || state.deltaCount,
+      accumulated: state.accumulated,
+      delta,
+      rawChainOfThoughtExposed: false,
+      providerNativeTokenStreaming: state.providerNativeTokenStreaming,
+      providerName: event.providerName,
+      modelName: event.modelName,
+      fallback: event.fallback,
+      native: event.native,
+      ...(event.metadata ? { streamMetadata: event.metadata } : {}),
+    });
+  }
+
+  private buildAssistantStreamResultMetadata(state: AssistantStreamState): Record<string, unknown> {
+    return {
+      source: 'AgentRunLlmRuntimeExecutor',
+      streamId: state.streamId,
+      assistantStreamEmitted: state.emitted,
+      providerNativeTokenStreaming: state.providerNativeTokenStreaming,
+      done: state.done,
+      deltaCount: state.deltaCount,
+      providerName: state.providerName,
+      modelName: state.modelName,
+      accumulatedChars: state.accumulated.length,
+    };
+  }
+
+  private async runInitialLlmWithLiveSteeringInterrupts(input: {
+    run: UniversalAgentRun;
+    messages: ChatMessage[];
+    nativeTools: ToolDefinition[];
+    options: LlmRunOptions;
+  }): Promise<InterruptibleLlmCallResult> {
+    if (!this.llmRuntime || !this.steeringStream) {
+      return {
+        result: await this.llmRuntime!.chatDetailed(input.messages, input.nativeTools, input.options),
+        liveSteeringFrames: [],
+        interruptCount: 0,
+        abortSignalUsed: false,
+      };
+    }
+
+    let cursor = this.steeringStream.snapshot(input.run.id).sequence;
+    let interruptCount = 0;
+    let abortSignalUsed = false;
+    const liveSteeringFrames: AgentRunSteeringStreamFrame[] = [];
+
+    for (let attempt = 0; attempt < 3; attempt += 1) {
+      const abortController = typeof AbortController !== 'undefined' ? new AbortController() : null;
+      const callOptions: LlmRunOptions = abortController
+        ? this.withNonEnumerableAbortSignal(input.options, abortController.signal)
+        : input.options;
+      abortSignalUsed = abortSignalUsed || Boolean(abortController);
+      const pending = this.llmRuntime.chatDetailed(input.messages, input.nativeTools, callOptions);
+      pending.catch(() => undefined);
+      const watchController = new AbortController();
+      const steering = this.waitForNextAssimilableSteeringFrame(input.run.id, cursor, watchController.signal);
+      const winner = await Promise.race([
+        pending.then(
+          (result) => ({ type: 'result' as const, result }),
+          (error) => ({ type: 'error' as const, error }),
+        ),
+        steering.then((frames) => ({ type: 'steering' as const, frames })),
+      ]);
+      watchController.abort();
+
+      if (winner.type === 'result') {
+        return {
+          result: winner.result,
+          liveSteeringFrames,
+          interruptCount,
+          abortSignalUsed,
+        };
+      }
+      if (winner.type === 'error') {
+        throw winner.error;
+      }
+      if (winner.frames.length === 0) {
+        const result = await pending;
+        return {
+          result,
+          liveSteeringFrames,
+          interruptCount,
+          abortSignalUsed,
+        };
+      }
+
+      interruptCount += 1;
+      liveSteeringFrames.push(...winner.frames);
+      cursor = Math.max(cursor, ...winner.frames.map((frame) => frame.sequence));
+      await this.publishStreamEvent(input.run, 'agent.stream.lifecycle', {
+        phase: 'llm-interrupted-by-steering',
+        title: 'Steering interrupted generation',
+        summary: `${winner.frames.length} live steering update(s) arrived before the provider response completed.`,
+        streamStatus: 'interrupted',
+        interruptCount,
+        steeringIds: winner.frames.map((frame) => frame.steeringId),
+        ackIds: winner.frames.map((frame) => frame.ackId),
+        abortSignalUsed: Boolean(abortController),
+        providerNativeTokenStreaming: false,
+      });
+      abortController?.abort(new Error('zavorth-live-steering-interrupt'));
+      const interrupted = await this.waitForInterruptedLlmSettlement(pending);
+      this.appendLiveSteeringMessages(
+        input.messages,
+        interrupted?.result || null,
+        winner.frames,
+        Boolean(abortController),
+      );
+      await this.publishStreamEvent(input.run, 'agent.stream.lifecycle', {
+        phase: 'llm-reissued-after-steering',
+        title: 'LLM request reissued',
+        summary: 'The same run reissued the provider request with steering context included.',
+        streamStatus: 'running',
+        interruptCount,
+        providerNativeTokenStreaming: false,
+      });
+    }
+
+    return {
+      result: await this.llmRuntime.chatDetailed(input.messages, input.nativeTools, input.options),
+      liveSteeringFrames,
+      interruptCount,
+      abortSignalUsed,
+    };
+  }
+
+  private async publishStreamEvent(
+    run: UniversalAgentRun,
+    type: 'agent.stream.lifecycle' | 'agent.stream.assistant' | 'agent.stream.tool',
+    payload: Record<string, unknown>,
+  ): Promise<void> {
+    if (!this.publishRuntimeEvent) {
+      return;
+    }
+    await this.publishRuntimeEvent(run, type, {
+      source: 'AgentRunLlmRuntimeExecutor',
+      ...payload,
+    });
+  }
+
+  private async waitForNextAssimilableSteeringFrame(
+    runId: string,
+    afterSequence: number,
+    stopSignal: AbortSignal,
+  ): Promise<AgentRunSteeringStreamFrame[]> {
+    if (!this.steeringStream) return [];
+    while (!stopSignal.aborted) {
+      const frames = this.collectAssimilableSteeringFrames(runId, afterSequence);
+      if (frames.length > 0) {
+        return frames;
+      }
+      await this.steeringStream.waitForNewerThan(runId, afterSequence, 100);
+    }
+    return [];
+  }
+
+  private async waitForInterruptedLlmSettlement(
+    pending: Promise<LlmRuntimeResult>,
+  ): Promise<{ result: LlmRuntimeResult } | null> {
+    const settled = await Promise.race([
+      pending.then(
+        (result) => ({ type: 'result' as const, result }),
+        () => ({ type: 'interrupted' as const }),
+      ),
+      this.delay(250).then(() => ({ type: 'timeout' as const })),
+    ]);
+    return settled.type === 'result' ? { result: settled.result } : null;
+  }
+
+  private async delay(ms: number): Promise<void> {
+    await new Promise((resolve) => setTimeout(resolve, ms));
+  }
+
+  private withNonEnumerableAbortSignal(options: LlmRunOptions, signal: AbortSignal): LlmRunOptions {
+    const callOptions: LlmRunOptions = { ...options };
+    Object.defineProperty(callOptions, 'signal', {
+      value: signal,
+      enumerable: false,
+      configurable: true,
+    });
+    return callOptions;
+  }
+
+  private collectAssimilableSteeringFrames(
+    runId: string,
+    afterSequence: number,
+  ): AgentRunSteeringStreamFrame[] {
+    if (!this.steeringStream) return [];
+    const frames = this.steeringStream.snapshot(runId).frames
+      .filter((frame) => frame.sequence > afterSequence);
+    const inactiveIds = new Set(
+      frames
+        .filter((frame) => frame.action === 'cancelled' || frame.action === 'superseded')
+        .map((frame) => frame.steeringId),
+    );
+    const byId = new Map<string, AgentRunSteeringStreamFrame>();
+    for (const frame of frames) {
+      if (frame.action !== 'accepted' || frame.status !== 'accepted' || inactiveIds.has(frame.steeringId)) {
+        continue;
+      }
+      byId.set(frame.steeringId, frame);
+    }
+    return Array.from(byId.values()).sort((a, b) => a.sequence - b.sequence);
+  }
+
+  private appendLiveSteeringMessages(
+    messages: ChatMessage[],
+    initialResult: LlmRuntimeResult | null,
+    frames: AgentRunSteeringStreamFrame[],
+    abortSignalUsed: boolean,
+  ): void {
+    messages.push({
+      role: 'assistant',
+      content: initialResult
+        ? this.summarizeInitialResultForLiveSteering(initialResult)
+        : [
+          'Previous model call was interrupted before returning a completed response.',
+          abortSignalUsed
+            ? 'AbortSignal was sent to the provider runtime before reissuing.'
+            : 'Provider runtime did not expose AbortSignal for this call.',
+        ].join('\n'),
+    });
+    messages.push({
+      role: 'user',
+      content: [
+        '[Zavorth live steering]',
+        'Operator steering arrived while the previous model call was still in flight.',
+        'Revise the answer or tool plan now, inside this same run, before any governed tool execution.',
+        '',
+        ...frames.map((frame, index) => (
+          `${index + 1}. (${frame.source}, ack ${frame.ackId}) ${frame.text}`
+        )),
+      ].join('\n'),
+    });
+  }
+
+  private summarizeInitialResultForLiveSteering(result: LlmRuntimeResult): string {
+    const toolNames = (result.response.toolCalls || []).map((toolCall) => toolCall.name);
+    const content = normalizeText(result.response.content);
+    if (content && toolNames.length === 0) {
+      return `Initial model response before live steering:\n${content}`;
+    }
+    if (content) {
+      return [
+        'Initial model response before live steering:',
+        content,
+        `Initial requested tools: ${toolNames.join(', ')}`,
+      ].join('\n');
+    }
+    if (toolNames.length > 0) {
+      return `Initial model response before live steering requested tools: ${toolNames.join(', ')}`;
+    }
+    return 'Initial model response before live steering was empty.';
+  }
+
+  private buildLiveSteeringMetadata(
+    frames: AgentRunSteeringStreamFrame[],
+    interrupt: {
+      interruptCount: number;
+      abortSignalUsed: boolean;
+    },
+  ): Record<string, unknown> {
+    return {
+      schemaVersion: 1,
+      source: 'AgentRunLlmRuntimeExecutor',
+      mode: 'same-run-llm-interrupt-reissue',
+      frameCount: frames.length,
+      interruptCount: interrupt.interruptCount,
+      abortSignalUsed: interrupt.abortSignalUsed,
+      steeringIds: frames.map((frame) => frame.steeringId),
+      ackIds: frames.map((frame) => frame.ackId),
+      maxSequence: frames.at(-1)?.sequence || null,
+      nativeAgentRunSteering: true,
     };
   }
 

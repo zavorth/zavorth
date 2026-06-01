@@ -60,6 +60,18 @@ export class PublicRuntimeEventService {
         return [
           this.wrap('approval.request', event, this.buildApprovalRequest(event.payload)),
         ];
+      case 'agent-stream':
+        return [
+          this.wrap('mission.updated', event, {
+            missionId: sanitizeText(event.payload.runId || event.payload.streamId || event.id),
+            title: sanitizeText(event.payload.title || event.payload.eventType || 'Agent stream'),
+            status: sanitizeText(event.payload.done === true ? 'completed' : event.payload.phase || event.payload.streamStatus || 'running'),
+            risk: 'unknown',
+            currentStep: sanitizeNullableText(event.payload.summary || event.payload.accumulated || event.payload.delta),
+            progress: this.resolveAgentStreamProgress(event.payload),
+            artifacts: [],
+          }),
+        ];
       case 'tool': {
         const toolEvent = this.wrap('tool.updated', event, {
           runId: String(event.payload.runId || ''),
@@ -184,6 +196,15 @@ export class PublicRuntimeEventService {
     }
     const completed = phases.filter((phase: any) => String(phase?.status || '').toLowerCase() === 'completed').length;
     return Math.round((completed / phases.length) * 100);
+  }
+
+  private resolveAgentStreamProgress(payload: any): number | null {
+    const total = Number(payload?.totalChunks || 0);
+    const index = Number(payload?.chunkIndex || 0);
+    if (!Number.isFinite(total) || !Number.isFinite(index) || total <= 0 || index < 0) {
+      return null;
+    }
+    return Math.max(0, Math.min(100, Math.round((index / total) * 100)));
   }
 
   private wrap<TType extends PublicRuntimeEvent['type']>(

@@ -458,4 +458,93 @@ describe('WebAppRuntimeRouteService', () => {
       403,
     );
   });
+
+  it('serves Swarm Scale Plane launch, state and resume on the gateway route', async () => {
+    const routeService = new WebAppRuntimeRouteService();
+    const writeJson = jest.fn();
+    const completedSnapshot = {
+      contractVersion: '2026-06-01.swarm-scale-plane',
+      runId: 'scale-1',
+      status: 'completed',
+      objective: 'Massive dashboard audit',
+      planner: { plannedAgents: 4000, requestedAgents: 4000 },
+      workerPool: { actualMaxConcurrency: 256, maxConcurrency: 256 },
+      metrics: { completedAgents: 4000, failedAgents: 0 },
+      ledger: { usedSteps: 4000, maxSteps: 4000 },
+      reducer: { status: 'ready', conflictCount: 0 },
+    };
+    const swarmScalePlane = {
+      listRuns: jest.fn(() => []),
+      launch: jest.fn(async () => completedSnapshot),
+      getRun: jest.fn(() => completedSnapshot),
+      resume: jest.fn(async () => completedSnapshot),
+    };
+    const deps = {
+      swarmScalePlane,
+      writeJson,
+      readJsonBody: jest.fn(async () => ({
+        objective: 'Massive dashboard audit',
+        desiredAgents: 4000,
+        maxSteps: 4000,
+        maxConcurrency: 256,
+        executionMode: 'deterministic',
+      })),
+    } as any;
+
+    await routeService.handleRequest(
+      { method: 'GET', headers: {} } as http.IncomingMessage,
+      {} as http.ServerResponse,
+      new URL('http://localhost/api/web/gateway/swarm-scale'),
+      '/api/web/gateway/swarm-scale',
+      deps,
+    );
+    await routeService.handleRequest(
+      { method: 'POST', headers: {} } as http.IncomingMessage,
+      {} as http.ServerResponse,
+      new URL('http://localhost/api/web/gateway/swarm-scale'),
+      '/api/web/gateway/swarm-scale',
+      deps,
+    );
+    await routeService.handleRequest(
+      { method: 'GET', headers: {} } as http.IncomingMessage,
+      {} as http.ServerResponse,
+      new URL('http://localhost/api/web/gateway/swarm-scale/state?runId=scale-1'),
+      '/api/web/gateway/swarm-scale/state',
+      deps,
+    );
+    await routeService.handleRequest(
+      { method: 'POST', headers: {} } as http.IncomingMessage,
+      {} as http.ServerResponse,
+      new URL('http://localhost/api/web/gateway/swarm-scale/resume'),
+      '/api/web/gateway/swarm-scale/resume',
+      {
+        ...deps,
+        readJsonBody: jest.fn(async () => ({ runId: 'scale-1' })),
+      } as any,
+    );
+
+    expect(swarmScalePlane.listRuns).toHaveBeenCalledTimes(1);
+    expect(swarmScalePlane.launch).toHaveBeenCalledWith(expect.objectContaining({
+      objective: 'Massive dashboard audit',
+      desiredAgents: 4000,
+      maxSteps: 4000,
+      maxConcurrency: 256,
+      executionMode: 'deterministic',
+      persistState: true,
+    }));
+    expect(swarmScalePlane.getRun).toHaveBeenCalledWith('scale-1');
+    expect(swarmScalePlane.resume).toHaveBeenCalledWith(expect.objectContaining({
+      runId: 'scale-1',
+      persistState: true,
+    }));
+    expect(writeJson).toHaveBeenCalledWith(
+      expect.anything(),
+      expect.objectContaining({
+        ok: true,
+        surface: 'swarm-scale-plane',
+        snapshot: completedSnapshot,
+      }),
+      200,
+    );
+  });
 });

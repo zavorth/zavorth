@@ -3,7 +3,7 @@ import { ZavorthControlService } from '../../src/services/ZavorthControlService.
 import {
   createTestLogRepo,
   fetchZavorthControlJson,
-} from '../helpers/controlWebTestUtils.js';
+} from '../helpers/zavorthControlWebTestUtils.js';
 
 describe('ZavorthControl gateway endpoints', () => {
   const logRepo = createTestLogRepo();

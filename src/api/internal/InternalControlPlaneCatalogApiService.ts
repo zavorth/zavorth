@@ -2,7 +2,7 @@ import type { SnapshotRequest } from '../../contracts/InternalBoundaryContract.j
 import {
   ZavorthControlPlaneCatalogService,
   type ZavorthControlPlaneCatalogSnapshot,
-} from '../../domain/observability/application/control-plane/ZavorthControlPlaneCatalogService.js';
+} from '../../domain/observability/infrastructure/control-plane/ZavorthControlPlaneCatalogService.js';
 import type { ZavorthOperationalOverviewService } from '../../services/ZavorthOperationalOverviewService.js';
 import type { ZavorthTrustOverviewService } from '../../services/ZavorthTrustOverviewService.js';
 import type { ZavorthProductOverviewService } from '../../services/ZavorthProductOverviewService.js';

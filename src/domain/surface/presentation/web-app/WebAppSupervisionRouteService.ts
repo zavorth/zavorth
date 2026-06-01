@@ -6,6 +6,8 @@ import { handleEngineeringRoutes } from './web-app-supervision-route/engineering
 import { handleSessionV2Routes } from './web-app-supervision-route/sessionV2Routes.js';
 import { handleSwarmV2Routes } from './web-app-supervision-route/swarmV2Routes.js';
 import { handleSystemOverlordRoutes } from './web-app-supervision-route/systemOverlordRoutes.js';
+import { handleMobileSupervisionRoutes } from './web-app-supervision-route/mobileSupervisionRoutes.js';
+import { handleProviderRouterRoutes } from './web-app-supervision-route/providerRouterRoutes.js';
 import { handleWatchModeRoutes } from './web-app-supervision-route/watchModeRoutes.js';
 
 export class WebAppSupervisionRouteService {
@@ -19,6 +21,16 @@ export class WebAppSupervisionRouteService {
     const ctx = buildWebAppSupervisionRouteContext(req, res, url, pathname, deps);
 
     if (await handleSystemOverlordRoutes(ctx)) {
+      return true;
+    }
+
+    if (await handleMobileSupervisionRoutes(ctx)) {
+      return true;
+    }
+
+
+
+    if (await handleProviderRouterRoutes(ctx)) {
       return true;
     }
 

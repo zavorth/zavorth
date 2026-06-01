@@ -13,7 +13,7 @@ import {
   type ControlPlaneOverviewCard,
   type ControlPlaneOverviewNarrative,
   type ControlPlaneOverviewPosture,
-} from '../domain/observability/application/control-plane/ControlPlaneOverviewKit.js';
+} from '../domain/observability/infrastructure/control-plane/ControlPlaneOverviewKit.js';
 
 type DistributedRuntimeLike = Pick<ZavorthDistributedRuntimeControlPlaneService, 'buildSnapshot'>;
 type RuntimeStabilityLike = Pick<ZavorthRuntimeStabilityControlPlaneService, 'buildSnapshot'>;

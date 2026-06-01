@@ -10,6 +10,7 @@ import {
   ToolDefinition,
 } from './ILlmProvider.js';
 import { buildOpenAiCompatibleNativeToolPayload } from './ProviderNativeToolPayload.js';
+import { buildProviderRequestOptions } from './ProviderAbort.js';
 
 export class DeepSeekProvider implements ILlmProvider {
   public readonly name = 'deepseek';
@@ -45,7 +46,7 @@ export class DeepSeekProvider implements ILlmProvider {
       tools: openaiTools,
       tool_choice: openaiTools ? 'auto' : undefined,
       ...nativeToolPayload.extraBody,
-    } as any);
+    } as any, buildProviderRequestOptions(options) as any);
 
     const choice = response.choices[0];
 

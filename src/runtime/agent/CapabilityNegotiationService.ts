@@ -556,15 +556,46 @@ export class CapabilityNegotiationService {
       || isApprovedFlag(recordOrNull(input.requestMetadata.capabilityNegotiation)?.required)) {
       return true;
     }
-    if (input.blockedToolIds.length > 0 || input.approvalRequired || input.previewRequired) {
+    const toolIds = input.capabilities.flatMap((capability) => capability.toolIds);
+    if (input.blockedToolIds.length > 0 || input.approvalRequired) {
+      return true;
+    }
+    if (this.isProfileBaselineToolExposure({
+      capabilities: input.capabilities,
+      metadata: input.metadata,
+      toolIds,
+    })) {
+      return false;
+    }
+    if (input.previewRequired) {
       return true;
     }
     if (input.highestRisk === 'danger' || input.highestRisk === 'attention') {
       return true;
     }
-    const toolIds = input.capabilities.flatMap((capability) => capability.toolIds);
     const riskyNames = toolIds.some((toolId) => /write|shell|exec|deploy|commit|delete|selfmod|watchmode|swarm/i.test(toolId));
     return riskyNames || toolIds.length > 2;
+  }
+
+  private isProfileBaselineToolExposure(input: {
+    capabilities: CapabilityNegotiationCapability[];
+    metadata: LooseRecord;
+    toolIds: string[];
+  }): boolean {
+    if (input.toolIds.length === 0) {
+      return false;
+    }
+    if (input.capabilities.some((capability) => !['tool-exposure', 'universal-preview'].includes(capability.source))) {
+      return false;
+    }
+    const profileBundle = recordOrNull(input.metadata.profileBundle)
+      || recordOrNull(input.metadata.profileRuntimeBundle);
+    const capabilityPolicy = recordOrNull(profileBundle?.capabilityPolicy);
+    const baselineTools = new Set(listOrEmpty(capabilityPolicy?.allow).map((toolId) => toolId.toLowerCase()));
+    if (baselineTools.size === 0) {
+      return false;
+    }
+    return input.toolIds.every((toolId) => baselineTools.has(toolId.toLowerCase()));
   }
 
   private hasApprovedScope(input: {

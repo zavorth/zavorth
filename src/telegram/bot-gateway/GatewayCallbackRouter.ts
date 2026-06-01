@@ -1,5 +1,5 @@
 import type { Context } from 'grammy';
-import { normalizeSharedSurfaceCommandCallback } from '../../domain/surface/application/shared-surface/SharedSurfaceCallbackCommandPolicy.js';
+import { normalizeSharedSurfaceCommandCallback } from '../../domain/surface/presentation/shared-surface/SharedSurfaceCallbackCommandPolicy.js';
 
 export type GatewayCallbackRouterDeps = {
   handleHubCallback: (ctx: Context, data: string) => Promise<void>;

@@ -1,4 +1,4 @@
-import type { ChatMessage, ToolDefinition } from '../../providers/ILlmProvider.js';
+import type { ChatMessage, LlmStreamEvent, ToolDefinition } from '../../providers/ILlmProvider.js';
 import type {
   LlmRunOptions,
   LlmRuntimeProviderAttempt,
@@ -57,6 +57,7 @@ type ClaudeAgentSdkOptions = {
   settingSources?: string[];
   env?: Record<string, string | undefined>;
   canUseTool?: CanUseTool;
+  abortController?: AbortController;
 };
 
 type SDKMessage = Record<string, unknown>;
@@ -326,9 +327,16 @@ export class ClaudeAgentSdkRuntimeAdapter {
       let finalText = '';
       let finishReason = 'unknown';
       let messageCount = 0;
+      let streamChunkIndex = 0;
       let sessionId: string | null = null;
       const permissionDecisions: Array<Record<string, unknown>> = [];
       const effectiveAllowedTools = this.resolveEffectiveAllowedTools(options?.toolPolicy, tools);
+      await this.emitStreamEvent(options, {
+        type: 'start',
+        accumulated: '',
+        done: false,
+        metadata: this.buildStreamMetadata(modelName),
+      });
 
       for await (const message of query({
         prompt: buildPrompt(messages),
@@ -340,7 +348,19 @@ export class ClaudeAgentSdkRuntimeAdapter {
         }
         const text = extractMessageText(message);
         if (text) {
+          const delta = text.startsWith(finalText) ? text.slice(finalText.length) : text;
           finalText = text;
+          if (delta) {
+            streamChunkIndex += 1;
+            await this.emitStreamEvent(options, {
+              type: 'delta',
+              delta,
+              accumulated: finalText,
+              chunkIndex: streamChunkIndex,
+              done: false,
+              metadata: this.buildStreamMetadata(modelName, sessionId),
+            });
+          }
         }
         finishReason = extractFinishReason(message);
       }
@@ -353,15 +373,26 @@ export class ClaudeAgentSdkRuntimeAdapter {
         durationMs: Math.max(0, Date.now() - startedAt),
       });
 
+      const response = {
+        content: finalText,
+        toolCalls: [],
+        finishReason,
+      };
+      await this.emitStreamEvent(options, {
+        type: 'done',
+        accumulated: finalText,
+        response,
+        done: true,
+        metadata: this.buildStreamMetadata(modelName, sessionId),
+      });
+
       return {
         providerName: PROVIDER_NAME,
         modelName,
-        response: {
-          content: finalText,
-          toolCalls: [],
-          finishReason,
-        },
+        response,
         metadata: {
+          providerNativeTokenStreaming: Boolean(options?.stream?.onEvent),
+          providerNativeStreamSource: 'claude-agent-sdk-query',
           claudeAgentSdk: {
             credentialRoute: this.credentialRoute,
             cwd: this.cwd,
@@ -406,6 +437,29 @@ export class ClaudeAgentSdkRuntimeAdapter {
       });
       throw error;
     }
+  }
+
+  private async emitStreamEvent(
+    options: LlmRunOptions | undefined,
+    event: LlmStreamEvent,
+  ): Promise<void> {
+    await options?.stream?.onEvent?.({
+      ...event,
+      providerName: PROVIDER_NAME,
+      modelName: normalizeText(event.metadata?.providerNativeStreamModel) || null,
+      fallback: false,
+      native: true,
+    });
+  }
+
+  private buildStreamMetadata(modelName: string, sessionId?: string | null): Record<string, unknown> {
+    return {
+      providerNativeTokenStreaming: true,
+      providerNativeStreamSource: 'claude-agent-sdk-query',
+      providerNativeStreamProvider: PROVIDER_NAME,
+      providerNativeStreamModel: modelName,
+      ...(sessionId ? { claudeAgentSdkSessionId: sessionId } : {}),
+    };
   }
 
   private resolveAllowedTools(rawAllowedTools: string[] | undefined): string[] {
@@ -511,8 +565,19 @@ export class ClaudeAgentSdkRuntimeAdapter {
       persistSession: false,
       settingSources: [],
       env: this.buildEnv(),
+      ...(options?.signal ? { abortController: this.buildAbortController(options.signal) } : {}),
       canUseTool: this.buildCanUseTool(options?.toolPolicy, effectiveAllowedTools, permissionDecisions),
     };
+  }
+
+  private buildAbortController(signal: AbortSignal): AbortController {
+    const controller = new AbortController();
+    if (signal.aborted) {
+      controller.abort(signal.reason);
+      return controller;
+    }
+    signal.addEventListener('abort', () => controller.abort(signal.reason), { once: true });
+    return controller;
   }
 
   private buildEnv(): Record<string, string | undefined> {

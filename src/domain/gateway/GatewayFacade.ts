@@ -1,22 +1,24 @@
-import type { GatewayRuntime } from '../../gateway/core/GatewayRuntime.js';
-import type { GatewayChannelRegistryService } from '../../services/GatewayChannelRegistryService.js';
-import type { ZavorthMemoryPlaneService } from '../../services/ZavorthMemoryPlaneService.js';
-import type { ZavorthRemoteTransportService } from '../../services/ZavorthRemoteTransportService.js';
-import type { ZavorthSessionPlaneService } from '../../services/ZavorthSessionPlaneService.js';
-import type { ZavorthGatewayService } from '../../services/ZavorthGatewayService.js';
 import { DomainFacadeBase, type DomainSnapshot } from '../DomainFacadeBase.js';
 import { GatewayUseCases } from './application/GatewayUseCases.js';
+import type {
+  GatewayChannelRegistryPort,
+  GatewayMemoryPlanePort,
+  GatewayRemoteTransportPort,
+  GatewayRuntimeSnapshotPort,
+  GatewayServiceSnapshotPort,
+  GatewaySessionPlanePort,
+} from './domain/GatewayDomainTypes.js';
 import { GatewayRuntimeAdapter } from './infrastructure/GatewayRuntimeAdapter.js';
 import { GatewayDomainPresenter } from './presentation/GatewayDomainPresenter.js';
 
 type GatewayFacadeRuntime = {
   now?: () => Date;
-  gatewayRuntime?: Pick<GatewayRuntime, 'buildCoreSnapshot'>;
-  gatewayService?: Pick<ZavorthGatewayService, 'buildSnapshot'>;
-  channelRegistryService?: Pick<GatewayChannelRegistryService, 'listChannels'>;
-  sessionPlaneService?: Pick<ZavorthSessionPlaneService, 'buildStatusSummaryFast'>;
-  memoryPlaneService?: Pick<ZavorthMemoryPlaneService, 'buildSnapshotFast'>;
-  remoteTransportService?: Pick<ZavorthRemoteTransportService, 'buildSnapshot'>;
+  gatewayRuntime?: GatewayRuntimeSnapshotPort;
+  gatewayService?: GatewayServiceSnapshotPort;
+  channelRegistryService?: GatewayChannelRegistryPort;
+  sessionPlaneService?: GatewaySessionPlanePort;
+  memoryPlaneService?: GatewayMemoryPlanePort;
+  remoteTransportService?: GatewayRemoteTransportPort;
   defaultUserId?: string | null;
   defaultPlatform?: string | null;
   defaultSessionId?: string | null;

@@ -18,6 +18,7 @@ const OBSERVATION_TOOLS = new Set([
   'memory.read',
   'sessions.history',
   'sessions.list',
+  'zavorth_action',
 ]);
 
 const DRAFT_TOOLS = new Set([
@@ -128,6 +129,7 @@ export function buildDefaultToolEffectDescriptors(): ToolEffectDescriptor[] {
       networkObservation: true,
       untrustedOutput: true,
     }),
+    descriptor('zavorth_action', 'observation', 'governed Zavorth action gateway', 'workspace', 'Routes first-class Zavorth action lookup, preview, apply and receipts. Mutations are approval-gated inside the gateway.'),
     descriptor('network_fetch', 'external_egress', 'network fetch', 'network', 'Network fetch.'),
     descriptor('write_file', 'workspace_mutation', 'write file', 'workspace', 'Workspace file write.'),
     descriptor('create_file', 'workspace_mutation', 'create file', 'workspace', 'Workspace file creation.'),

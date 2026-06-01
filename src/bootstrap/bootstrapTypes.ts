@@ -18,6 +18,7 @@ import type { RuntimeProfileService } from '../services/RuntimeProfileService.js
 import type { SharedSurfaceCommandService } from '../services/SharedSurfaceCommandService.js';
 import type { TerminalSidecarService } from '../services/TerminalSidecarService.js';
 import type { ToolCatalogService } from '../services/tools/ToolCatalogService.js';
+import type { SkillCuratorPlaneService } from '../skills/SkillCuratorPlaneService.js';
 import type { LogRepository } from '../storage/LogRepository.js';
 import type { ZavorthAgentGateway } from '../runtime/agent/index.js';
 import type { ContextEngineRuntime } from './bootstrapContextEngine.js';
@@ -45,6 +46,7 @@ export interface BootstrapFoundation extends BootstrapPreflight, ContextEngineRu
   capabilityLifecycleService: CapabilityLifecycleService;
   configVersioningService: ConfigVersioningService;
   maintenanceAutomation: MaintenanceAutomationService;
+  skillCuratorPlaneService: SkillCuratorPlaneService;
   stopRuntimeMaintenance(): void;
   runtimeComposition: RuntimeCompositionService;
   toolRuntime: ReturnType<RuntimeCompositionService['getToolRuntime']>;

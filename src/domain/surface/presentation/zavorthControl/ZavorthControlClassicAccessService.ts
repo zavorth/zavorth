@@ -11,7 +11,6 @@ export type ZavorthControlClassicAccessDeps = {
 export class ZavorthControlClassicAccessService {
   public requiresAuthorization(pathname: string): boolean {
     return (
-      pathname === '/classic' ||
       pathname === '/api/stats' ||
       pathname === '/api/sidecars' ||
       pathname === '/api/logs' ||
@@ -51,4 +50,3 @@ export class ZavorthControlClassicAccessService {
     return match ? match[1].trim() : null;
   }
 }
-

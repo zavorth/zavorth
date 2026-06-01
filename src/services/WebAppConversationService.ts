@@ -115,6 +115,7 @@ export class WebAppConversationService {
   }> {
     const normalizedComposerPayload = this.composerPayload.normalize(body);
     const message = normalizedComposerPayload.messageText;
+    const providerRouteOverride = this.buildProviderRouteOverride(body);
     if (!message) {
       throw new Error('Mensagem vazia.');
     }
@@ -273,6 +274,7 @@ export class WebAppConversationService {
             attachments: normalizedComposerPayload.attachments,
             selectedSkills: normalizedComposerPayload.selectedSkills,
             voice: normalizedComposerPayload.voice,
+            ...providerRouteOverride,
           },
           resourceImpact,
           requestedTools: responseDecision.requestedTools,
@@ -304,6 +306,7 @@ export class WebAppConversationService {
             attachments: normalizedComposerPayload.attachments,
             selectedSkills: normalizedComposerPayload.selectedSkills,
             voice: normalizedComposerPayload.voice,
+            ...providerRouteOverride,
           },
           resourceImpact,
           kind: 'universal-agent-runtime',
@@ -333,6 +336,7 @@ export class WebAppConversationService {
             attachments: normalizedComposerPayload.attachments,
             selectedSkills: normalizedComposerPayload.selectedSkills,
             voice: normalizedComposerPayload.voice,
+            ...providerRouteOverride,
           },
         );
     if (legacyUnifiedGatewayHandled) {
@@ -365,6 +369,7 @@ export class WebAppConversationService {
         attachments: normalizedComposerPayload.attachments,
         selectedSkills: normalizedComposerPayload.selectedSkills,
         voice: normalizedComposerPayload.voice,
+        ...providerRouteOverride,
       },
     });
     await this.deps.realtime.captureBaseline(sessionId);
@@ -421,6 +426,28 @@ export class WebAppConversationService {
     if (/\b(read|summari[sz]e|resuma|summary)\b/i.test(message)) return 'summarize';
     if (/\b(code|function|class|bug|error|stack|typescript|react|vite)\b/i.test(message)) return 'code-question';
     return 'chat';
+  }
+
+  private buildProviderRouteOverride(body: RuntimeRecord): RuntimeRecord {
+    const metadata = body.metadata && typeof body.metadata === 'object'
+      ? body.metadata as RuntimeRecord
+      : {};
+    const providerName = this.cleanRouteOverride(body.providerName || metadata.providerName);
+    const modelName = this.cleanRouteOverride(body.modelName || metadata.modelName);
+    const allowProviderFallback = body.allowProviderFallback === false || metadata.allowProviderFallback === false
+      ? false
+      : null;
+    return {
+      ...(providerName ? { providerName } : {}),
+      ...(modelName ? { modelName } : {}),
+      ...(allowProviderFallback === false ? { allowProviderFallback: false } : {}),
+    };
+  }
+
+  private cleanRouteOverride(value: unknown): string | null {
+    const text = String(value || '').trim();
+    if (!text || text.length > 180) return null;
+    return /^[a-z0-9][a-z0-9._:/@+-]*$/i.test(text) ? text : null;
   }
 
   private resolveExecutionEngineTargetPath(
@@ -1047,9 +1074,9 @@ export class WebAppConversationService {
         ],
         metadata: {
           taskId: task.taskId || null,
-        responseDecision: input.responseDecision,
-        executionEngineDecision: input.executionEngineDecision || null,
-      },
+          responseDecision: input.responseDecision,
+          executionEngineDecision: input.executionEngineDecision || null,
+        },
       };
     };
 
@@ -1073,6 +1100,9 @@ export class WebAppConversationService {
         responseDecision: input.responseDecision,
         artifactPolicy: input.responseDecision.artifactPolicy,
         composerPayload: input.composerPayload,
+        providerName: input.composerPayload?.providerName || null,
+        modelName: input.composerPayload?.modelName || null,
+        allowProviderFallback: input.composerPayload?.allowProviderFallback !== false,
       },
     }, {
       executor,
@@ -1131,6 +1161,9 @@ export class WebAppConversationService {
         responseDecision: input.responseDecision,
         artifactPolicy: input.responseDecision?.artifactPolicy || null,
         composerPayload: input.composerPayload || null,
+        providerName: input.composerPayload?.providerName || null,
+        modelName: input.composerPayload?.modelName || null,
+        allowProviderFallback: input.composerPayload?.allowProviderFallback !== false,
         executionEngineDecision: input.executionEngineDecision || null,
         legacyUnifiedGatewayAvailable: Boolean(this.resolveLegacyUnifiedGateway()),
         legacyUnifiedGatewayBypassed: Boolean(this.resolveLegacyUnifiedGateway()),

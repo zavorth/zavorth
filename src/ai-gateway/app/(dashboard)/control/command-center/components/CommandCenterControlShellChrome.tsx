@@ -96,6 +96,11 @@ export function CommandCenterMissionBrief({
           <CommandCenterBadge tone={viewModel.toolExposure.mode === "restricted" ? "warn" : "info"}>
             ferramentas: {viewModel.toolExposure.mode}
           </CommandCenterBadge>
+          {viewModel.home ? (
+            <CommandCenterBadge tone={viewModel.home.isolated ? "ok" : "warn"}>
+              home: {viewModel.home.isolated ? "isolado" : "compat"}
+            </CommandCenterBadge>
+          ) : null}
         </div>
       </div>
 
@@ -124,6 +129,14 @@ export function CommandCenterMissionBrief({
           detail={viewModel.health.summary}
           tone={runtimeTone(viewModel.health.status)}
         />
+        {viewModel.home ? (
+          <CommandCenterMetricCard
+            label="Home"
+            value={viewModel.home.source}
+            detail={viewModel.home.root}
+            tone={viewModel.home.isolated ? "ok" : "warn"}
+          />
+        ) : null}
       </div>
 
       {primaryAction ? (

@@ -73,8 +73,36 @@ describe('ConfigureLlmProfileTool', () => {
       action: 'set',
       providerName: 'opencode',
       modelName: 'opencode/minimax-m2.5-free',
-    })).rejects.toThrow(/nao esta pronto/i);
+    })).rejects.toThrow(/opencode: nao conectou; falta OPENCODE_API_KEY/i);
 
     expect(fs.existsSync(envFilePath)).toBe(false);
+  });
+
+  it('accepts Zavorth-native long-tail provider routes with a short prepared notice', async () => {
+    const tool = new ConfigureLlmProfileTool({ envFilePath });
+
+    const result = JSON.parse(await tool.execute({
+      action: 'set',
+      providerName: 'mistral',
+      modelName: 'mistral-large-latest',
+      allowUnavailable: true,
+    }));
+
+    expect(result.status).toBe('success');
+    expect(result.provider).toBe('mistral');
+    expect(result.provider_ready).toBe(false);
+    expect(result.provider_notice).toBe('mistral: salvo, mas ainda falta MISTRAL_API_KEY.');
+    expect(fs.readFileSync(envFilePath, 'utf8')).toContain('LLM_PROVIDER=mistral');
+    expect(fs.readFileSync(envFilePath, 'utf8')).toContain('MISTRAL_MODEL=mistral-large-latest');
+  });
+
+  it('gives a compact missing-config message for OpenClaw parity aliases', async () => {
+    const tool = new ConfigureLlmProfileTool({ envFilePath });
+
+    await expect(tool.execute({
+      action: 'set',
+      providerName: 'github-copilot',
+      modelName: 'gpt-4o',
+    })).rejects.toThrow(/github-copilot: nao conectou; falta GITHUB_COPILOT_API_KEY \+ GITHUB_COPILOT_BASE_URL/i);
   });
 });

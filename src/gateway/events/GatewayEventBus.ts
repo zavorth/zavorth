@@ -6,7 +6,15 @@ export type InternalGatewayEvent =
   | { type: 'gateway_ready'; uptime: number }
   | { type: 'channel_registered'; channelId: string }
   | { type: 'session_routed'; sessionId: string; channelId: string }
-  | { type: 'client_connected'; connectionId: string; transport: 'sse' | 'ws' };
+  | { type: 'client_connected'; connectionId: string; transport: 'sse' | 'ws' }
+  | {
+      type: 'acp_generic_channel_frame';
+      channelId: 'acp-generic';
+      receiptId: string;
+      status: string;
+      sessionId: string;
+      reachesExecutor: boolean;
+    };
 
 export type GatewayEvent = InternalGatewayEvent | { type: 'public_sse'; payload: PublicSseEvent } | { type: 'public_ws'; payload: PublicWsMessage };
 

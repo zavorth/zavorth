@@ -1,11 +1,10 @@
-import type { ArtifactPipelineService } from '../../services/ArtifactPipelineService.js';
-import type { ZavorthMemoryPlaneService } from '../../services/ZavorthMemoryPlaneService.js';
 import { DomainFacadeBase, type DomainSnapshot } from '../DomainFacadeBase.js';
+import type { ArtifactPipelinePort, ArtifactsMemoryPlanePort } from './domain/ArtifactsDomainTypes.js';
 
 type ArtifactsFacadeRuntime = {
   now?: () => Date;
-  memoryPlaneService?: Pick<ZavorthMemoryPlaneService, 'buildSnapshotFast'>;
-  artifactPipelineService?: Pick<ArtifactPipelineService, 'normalizeArtifacts' | 'buildManifest'>;
+  memoryPlaneService?: ArtifactsMemoryPlanePort;
+  artifactPipelineService?: ArtifactPipelinePort;
   defaultUserId?: string | null;
   defaultPlatform?: string | null;
   defaultSessionId?: string | null;
@@ -23,8 +22,8 @@ export type ArtifactsDomainSnapshot = DomainSnapshot & {
 };
 
 export class ArtifactsFacade extends DomainFacadeBase<ArtifactsDomainSnapshot> {
-  private readonly memoryPlane: Pick<ZavorthMemoryPlaneService, 'buildSnapshotFast'> | null;
-  private readonly artifactPipeline: Pick<ArtifactPipelineService, 'normalizeArtifacts' | 'buildManifest'> | null;
+  private readonly memoryPlane: ArtifactsMemoryPlanePort | null;
+  private readonly artifactPipeline: ArtifactPipelinePort | null;
   private readonly defaultUserId: string;
   private readonly defaultPlatform: string | null;
   private readonly defaultSessionId: string | null;

@@ -50,10 +50,17 @@ const LONG_TAIL_CHANNELS: LongTailDescriptor[] = [
   botHttp('twitch', 'Twitch chat/send API', ['TWITCH_OAUTH_TOKEN', 'TWITCH_CHANNELS']),
   botHttp('zalo', 'Zalo Official Account API', ['ZALO_ACCESS_TOKEN', 'ZALO_RECIPIENT_IDS']),
   botHttp('zalouser', 'Zalo user messaging API', ['ZALOUSER_ACCESS_TOKEN', 'ZALOUSER_RECIPIENT_IDS']),
+  botHttp('sms', 'SMS provider send API', ['SMS_API_BASE_URL', 'SMS_PROVIDER_TOKEN', 'SMS_ALLOWED_RECIPIENTS']),
   relay('irc', 'IRC relay HTTP bridge', ['IRC_BRIDGE_URL or IRC_BRIDGE_SCRIPT', 'IRC_ALLOWED_CHANNELS']),
   relay('matrix', 'Matrix homeserver client API', ['MATRIX_HOMESERVER_URL', 'MATRIX_ACCESS_TOKEN', 'MATRIX_ROOM_IDS']),
   relay('nostr', 'Nostr relay publisher', ['NOSTR_RELAY_URL', 'NOSTR_SIGNING_KEY_REF', 'NOSTR_ALLOWED_RECIPIENTS']),
   relay('tlon', 'Tlon/Groups relay bridge', ['TLON_BRIDGE_URL', 'TLON_ALLOWED_RECIPIENTS']),
+  relay('yuanbao', 'Tencent Yuanbao relay bridge', ['YUANBAO_BRIDGE_URL or YUANBAO_BRIDGE_SCRIPT', 'YUANBAO_ALLOWED_RECIPIENTS']),
+  relay('voice-call', 'Voice call bridge via telephony provider', ['VOICE_CALL_BRIDGE_URL or VOICE_CALL_BRIDGE_SCRIPT', 'VOICE_CALL_ALLOWED_NUMBERS']),
+  relay('google-meet', 'Google Meet meeting bridge', ['GOOGLE_MEET_BRIDGE_URL or GOOGLE_MEET_BRIDGE_SCRIPT', 'GOOGLE_MEET_ALLOWED_MEETING_IDS']),
+  webhook('wecom', 'WeCom enterprise messaging webhook', ['WECOM_WEBHOOK_URL'], ['WECOM_BOT_SECRET']),
+  webhook('home-assistant', 'Home Assistant governed webhook', ['HOME_ASSISTANT_WEBHOOK_URL'], ['HOME_ASSISTANT_TOKEN']),
+  relay('weixin', 'Weixin/WeChat personal QR bridge', ['WEIXIN_BRIDGE_URL or WEIXIN_BRIDGE_SCRIPT', 'WEIXIN_ALLOWED_RECIPIENTS']),
   apple('bluebubbles', 'BlueBubbles server bridge', ['BLUEBUBBLES_SERVER_URL', 'BLUEBUBBLES_PASSWORD', 'BLUEBUBBLES_ALLOWED_CHAT_IDS']),
   apple('imessage', 'macOS Node Mesh iMessage bridge', ['IMESSAGE_NODE_ID or IMESSAGE_BRIDGE_SCRIPT', 'IMESSAGE_ALLOWED_RECIPIENTS']),
 ];
@@ -551,7 +558,13 @@ function relay(
   runtimeTarget: string,
   requiredEnv: string[],
 ): LongTailDescriptor {
-  return descriptor(channelId, channelId === 'irc' ? 'local-bridge' : 'relay-http', runtimeTarget, 'src/adapters/channels/ChannelLongTailLiveClients.ts#LocalBridgeChannelLiveClient', {
+  const localBridgeChannels = new Set<ChannelLongTailActivationId>([
+    'irc',
+    'weixin',
+    'voice-call',
+    'google-meet',
+  ]);
+  return descriptor(channelId, localBridgeChannels.has(channelId) ? 'local-bridge' : 'relay-http', runtimeTarget, 'src/adapters/channels/ChannelLongTailLiveClients.ts#LocalBridgeChannelLiveClient', {
     requiredEnv,
     optionalEnv: [`${envPrefix(channelId)}_BRIDGE_TOKEN`, `${envPrefix(channelId)}_STATUS_FILE`],
     allowlistEnv: requiredEnv.filter((entry) => entry.includes('ALLOWED') || entry.includes('ROOM')),
@@ -563,7 +576,7 @@ function relay(
     attachments: false,
     threads: channelId === 'matrix',
     webhookValidation: false,
-    localProcess: channelId === 'irc',
+    localProcess: localBridgeChannels.has(channelId),
   });
 }
 

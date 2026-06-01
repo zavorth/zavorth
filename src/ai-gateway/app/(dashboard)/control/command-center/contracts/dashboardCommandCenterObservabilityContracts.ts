@@ -995,6 +995,13 @@ export type DashboardCommandCenterViewModel = {
   replyPorts: DashboardReplyPort[];
   modelProfile: DashboardModelProfile;
   health: DashboardHealthSnapshot;
+  home?: {
+    root: string;
+    source: string;
+    isolated: boolean;
+    statusCommand: string;
+    switchCommand: string;
+  } | null;
   releaseStatus: DashboardReleaseStatus;
   integrations: DashboardIntegrationSummary[];
   identity: DashboardIdentitySnapshot;

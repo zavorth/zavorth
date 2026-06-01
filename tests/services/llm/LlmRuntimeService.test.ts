@@ -91,6 +91,169 @@ describe('LlmRuntimeService', () => {
     });
   });
 
+  it('passes AbortSignal through to provider chat options', async () => {
+    const controller = new AbortController();
+    const provider = {
+      chat: jest.fn().mockResolvedValue(baseResponse),
+    };
+    jest.spyOn(ProviderFactory, 'create').mockReturnValue(provider as any);
+
+    const runtime = new LlmRuntimeService('openrouter');
+    jest.spyOn(runtime, 'isProviderAvailable').mockReturnValue(true);
+    await runtime.chatDetailed(messages, undefined, {
+      providerName: 'openrouter',
+      modelName: 'anthropic/claude-sonnet-4',
+      signal: controller.signal,
+    });
+
+    expect(provider.chat).toHaveBeenCalledWith(messages, undefined, {
+      modelName: 'anthropic/claude-sonnet-4',
+      signal: controller.signal,
+    });
+  });
+
+  it('streams native provider deltas through chatDetailed when the selected provider supports it', async () => {
+    const events: any[] = [];
+    const streamedResponse: LlmResponse = {
+      content: 'ola streaming',
+      toolCalls: [],
+      finishReason: 'stop',
+      metadata: {
+        providerNativeTokenStreaming: true,
+      },
+    };
+    const provider = {
+      chat: jest.fn().mockResolvedValue(baseResponse),
+      streamChat: jest.fn(async function* () {
+        yield {
+          type: 'start',
+          accumulated: '',
+          metadata: { providerNativeTokenStreaming: true },
+        };
+        yield {
+          type: 'delta',
+          delta: 'ola',
+          accumulated: 'ola',
+          chunkIndex: 1,
+          metadata: { providerNativeTokenStreaming: true },
+        };
+        yield {
+          type: 'delta',
+          delta: ' streaming',
+          accumulated: 'ola streaming',
+          chunkIndex: 2,
+          metadata: { providerNativeTokenStreaming: true },
+        };
+        yield {
+          type: 'done',
+          accumulated: 'ola streaming',
+          response: streamedResponse,
+          done: true,
+          metadata: { providerNativeTokenStreaming: true },
+        };
+      }),
+    };
+    jest.spyOn(ProviderFactory, 'create').mockReturnValue(provider as any);
+
+    const runtime = new LlmRuntimeService('openai');
+    jest.spyOn(runtime, 'isProviderAvailable').mockReturnValue(true);
+    const result = await runtime.chatDetailed(messages, undefined, {
+      providerName: 'openai',
+      modelName: 'gpt-stream',
+      stream: {
+        onEvent: (event) => {
+          events.push(event);
+        },
+      },
+    });
+
+    expect(provider.chat).not.toHaveBeenCalled();
+    expect(provider.streamChat).toHaveBeenCalledWith(messages, undefined, {
+      modelName: 'gpt-stream',
+    });
+    expect(result.response.content).toBe('ola streaming');
+    expect(result.metadata).toEqual(expect.objectContaining({
+      providerNativeTokenStreaming: true,
+      providerNativeCapabilityMatrix: expect.objectContaining({
+        nativeTokenStreaming: expect.objectContaining({
+          capability: 'native_token_streaming',
+          status: 'native_enabled',
+        }),
+      }),
+    }));
+    expect(events).toEqual([
+      expect.objectContaining({
+        type: 'start',
+        providerName: 'openai',
+        modelName: 'gpt-stream',
+        native: true,
+      }),
+      expect.objectContaining({
+        type: 'delta',
+        delta: 'ola',
+        accumulated: 'ola',
+        providerName: 'openai',
+      }),
+      expect.objectContaining({
+        type: 'delta',
+        delta: ' streaming',
+        accumulated: 'ola streaming',
+      }),
+      expect.objectContaining({
+        type: 'done',
+        done: true,
+        accumulated: 'ola streaming',
+      }),
+    ]);
+  });
+
+  it('does not fall back after an AbortSignal cancellation', async () => {
+    const controller = new AbortController();
+    const abortError = new Error('The operation was aborted.');
+    abortError.name = 'AbortError';
+    const primaryProvider = {
+      chat: jest.fn().mockImplementation(() => {
+        controller.abort();
+        return Promise.reject(abortError);
+      }),
+    };
+    const fallbackProvider = {
+      chat: jest.fn().mockResolvedValue(baseResponse),
+    };
+    jest.spyOn(ProviderFactory, 'create').mockImplementation((name: string) => {
+      if (name === 'openrouter') {
+        return primaryProvider as any;
+      }
+      if (name === 'openai') {
+        return fallbackProvider as any;
+      }
+      throw new Error(`unexpected provider ${name}`);
+    });
+
+    const runtime = new LlmRuntimeService('openrouter');
+    jest
+      .spyOn(runtime, 'isProviderAvailable')
+      .mockImplementation((name: string) => ['openrouter', 'openai'].includes(name));
+
+    await expect(runtime.chatDetailed(messages, undefined, {
+      providerName: 'openrouter',
+      modelName: 'shared-model',
+      allowFallback: true,
+      fallbackOrder: ['openai'],
+      signal: controller.signal,
+    })).rejects.toMatchObject({
+      name: 'AbortError',
+    });
+
+    expect(primaryProvider.chat).toHaveBeenCalledTimes(1);
+    expect(fallbackProvider.chat).not.toHaveBeenCalled();
+    expect(defaultLlmRuntimeTelemetryService.buildSnapshot().recentAttempts[0]).toEqual(expect.objectContaining({
+      providerName: 'openrouter',
+      status: 'failed',
+      error: 'llm_request_aborted',
+    }));
+  });
+
   it('redacts raw secrets before sending messages to providers', async () => {
     const provider = {
       chat: jest.fn().mockResolvedValue(baseResponse),

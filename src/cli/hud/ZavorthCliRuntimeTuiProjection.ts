@@ -4,6 +4,10 @@ import { buildZavorthCliApprovalDiffSnapshot } from '../approval-diff/ZavorthCli
 import { buildZavorthCliHomeSnapshot } from '../home/ZavorthCliHomeProjection.js';
 import { readEnvFile } from '../doctor/checks/ZavorthDoctorCheckUtils.js';
 import { ZavorthMutationPlaneService } from '../../services/ZavorthMutationPlaneService.js';
+import { TaskPlaneService } from '../../services/TaskPlaneService.js';
+import { VoiceWakeRuntimeService } from '../../services/VoiceWakeRuntimeService.js';
+import { ZavorthHomePathService } from '../../services/ZavorthHomePathService.js';
+import { ZavorthSandboxControlPlaneService } from '../../services/ZavorthSandboxControlPlaneService.js';
 import type { ZavorthCliRuntimeTuiItem, ZavorthCliRuntimeTuiRow, ZavorthCliRuntimeTuiSnapshot, ZavorthCliRuntimeTuiStatus } from './ZavorthCliRuntimeTuiTypes.js';
 
 type JsonObject = Record<string, unknown>;
@@ -12,6 +16,7 @@ export type BuildZavorthCliRuntimeTuiSnapshotInput = {
   projectRoot: string;
   now?: () => Date;
   mode?: 'snapshot' | 'watch' | 'interactive';
+  homeRoot?: string | null;
   mutationPlane?: Pick<ZavorthMutationPlaneService, 'listPlans' | 'readPlan' | 'approvePlan'>;
 };
 
@@ -20,6 +25,12 @@ export function buildZavorthCliRuntimeTuiSnapshot(input: BuildZavorthCliRuntimeT
   const now = input.now || (() => new Date());
   const mutationPlane = input.mutationPlane || new ZavorthMutationPlaneService();
   const home = buildZavorthCliHomeSnapshot({ projectRoot, now, mutationPlane });
+  const homePaths = new ZavorthHomePathService({
+    projectRoot,
+    explicitHome: input.homeRoot || null,
+    env: process.env,
+    now,
+  }).resolveSnapshot();
   const approvals = buildZavorthCliApprovalDiffSnapshot({
     projectRoot,
     view: 'approvals',
@@ -28,6 +39,21 @@ export function buildZavorthCliRuntimeTuiSnapshot(input: BuildZavorthCliRuntimeT
   });
   const env = readEnvFile(projectRoot);
   const connection = buildConnection(projectRoot, home);
+  const voice = new VoiceWakeRuntimeService({
+    stateFile: path.join(homePaths.resolvedPaths.runtimeDir, 'voice-wake-session.json'),
+    env: { ...process.env, ...env },
+    now,
+  }).status();
+  const tasks = new TaskPlaneService({
+    storePath: path.join(homePaths.resolvedPaths.runtimeDir, 'task-plane.json'),
+    now,
+  }).snapshot();
+  const sandbox = new ZavorthSandboxControlPlaneService({
+    now,
+    workspaceRoot: projectRoot,
+    tempRoot: path.join(homePaths.resolvedPaths.tmpDir, 'sandbox-runs'),
+    env: process.env,
+  }).buildSnapshot();
   const chat = readMessages(projectRoot);
   const timeline = buildTimeline(projectRoot);
   const tools = buildTools(projectRoot);
@@ -46,6 +72,47 @@ export function buildZavorthCliRuntimeTuiSnapshot(input: BuildZavorthCliRuntimeT
     projectRoot,
     mode: input.mode || 'snapshot',
     status,
+    home: {
+      root: homePaths.root,
+      source: homePaths.source,
+      isolated: homePaths.isolated,
+      migrationStatus: homePaths.migration.status,
+      paths: [
+        item('home-data', 'Data', homePaths.isolated ? 'isolated' : 'compat', redact(homePaths.resolvedPaths.dataDir)),
+        item('home-runtime', 'Runtime', 'state', redact(homePaths.resolvedPaths.runtimeDir)),
+        item('home-receipts', 'Receipts', 'evidence', redact(homePaths.resolvedPaths.receiptsDir)),
+      ],
+    },
+    voice: {
+      mode: voice.mode,
+      armedUntil: voice.armedUntil,
+      detector: voice.detector.kind,
+      configured: voice.detector.configured,
+      lastReceipt: voice.lastReceipt ? `${voice.lastReceipt.event}: ${voice.lastReceipt.summary}` : null,
+    },
+    tasks: {
+      total: tasks.items.length,
+      queued: tasks.summary.queued,
+      running: tasks.summary.running,
+      waitingApproval: tasks.summary.waiting_approval,
+      items: tasks.items.slice(0, 8).map((task) => ({
+        id: task.id,
+        title: task.title,
+        status: task.status,
+        detail: `${task.source} - attempts ${task.attempts}${task.claim ? ` - claimed by ${task.claim.owner}` : ''}`,
+      })),
+    },
+    sandbox: {
+      posture: sandbox.summary.posture,
+      strongProfilesReady: sandbox.summary.strongProfilesReady,
+      preferredProfile: sandbox.summary.preferredProfile,
+      items: sandbox.profiles.slice(0, 5).map((profile) => ({
+        id: profile.id,
+        title: profile.label,
+        status: profile.canRun ? 'ready' : 'preview-only',
+        detail: profile.detail,
+      })),
+    },
     connection,
     chat,
     timeline,
@@ -71,8 +138,12 @@ export function buildZavorthCliRuntimeTuiSnapshot(input: BuildZavorthCliRuntimeT
     sessions,
     shortcuts: [
       { key: 'p', label: 'Prompt', command: 'zavorth chat', detail: 'open the terminal agent session' },
+      { key: '/', label: 'Commands', command: 'slash commands', detail: 'discover governed commands' },
+      { key: 'Tab', label: 'Section', command: 'next section', detail: 'move through Chat, Approvals, Diffs, Tasks, Memory, Providers, Channels, Voice, Sandbox and Logs' },
       { key: 'a', label: 'Approvals', command: 'zavorth approve', detail: 'review governed actions' },
       { key: 'd', label: 'Diff', command: 'zavorth diff', detail: 'open mutation previews' },
+      { key: 't', label: 'Tasks', command: 'zavorth tasks list', detail: 'show persistent task plane' },
+      { key: 'v', label: 'Voice', command: 'zavorth echo wake status', detail: 'show wake word privacy state' },
       { key: 'c', label: 'Channels', command: 'zavorth channels status', detail: 'channel readiness' },
       { key: 'o', label: 'Open', command: 'zavorth open', detail: 'Dashboard' },
       { key: 'r', label: 'Refresh', command: 'zavorth tui', detail: 'reload this daily TUI' },
@@ -213,6 +284,10 @@ function resolveRuntimeTuiStatus(input: { homeStatus: string; gateway: ZavorthCl
 
 function row(id: string, label: string, value: string, status: ZavorthCliRuntimeTuiStatus, detail?: string): ZavorthCliRuntimeTuiRow {
   return { id, label, value, status, detail };
+}
+
+function item(id: string, title: string, status: string, detail: string): ZavorthCliRuntimeTuiItem {
+  return { id, title, status, detail };
 }
 
 function stateDir(root: string): string {

@@ -1,5 +1,5 @@
 import { ZavorthControlService } from '../../src/services/ZavorthControlService';
-import { createTestLogRepo, fetchZavorthControlJson } from '../helpers/controlWebTestUtils.js';
+import { createTestLogRepo, fetchZavorthControlJson } from '../helpers/zavorthControlWebTestUtils.js';
 
 describe('ZavorthControl workspace extension plane endpoint', () => {
   const logRepo = createTestLogRepo();

@@ -1,4 +1,6 @@
 import * as http from 'http';
+import fs from 'fs';
+import path from 'path';
 import { timingSafeEqual } from 'node:crypto';
 import { GATEWAY_SESSION_ROUTE_PATHS } from '../../../../contracts/GatewayContract.js';
 import type {
@@ -42,7 +44,6 @@ type UiSurfaceHintsInput = {
   localControlReady: boolean;
   telegramReady: boolean;
   discordReady: boolean;
-  classicReady: boolean;
   cliReady: boolean;
 };
 
@@ -254,6 +255,33 @@ export class WebAppRuntimeStateRouteService {
 
     if (pathname === '/api/web/dashboard/chat-v1' && req.method === 'POST') {
       await this.handleDashboardChatRequest(req, res, deps);
+      return true;
+    }
+
+    if (pathname === '/api/web/chat/side' && req.method === 'POST') {
+      await this.handleDashboardSideChatRequest(req, res, deps);
+      return true;
+    }
+
+    if (pathname === '/api/web/chat/steer' && req.method === 'POST') {
+      await this.handleDashboardSteerChatRequest(req, res, deps);
+      return true;
+    }
+
+    if (
+      (pathname === '/api/web/zavorthControl/memory' || pathname === '/api/web/dashboard/memory')
+      && req.method === 'GET'
+    ) {
+      deps.writeJson(res, this.readZavorthControlMemoryFacts(url), 200);
+      return true;
+    }
+
+    if (
+      (pathname === '/api/web/zavorthControl/memory' || pathname === '/api/web/dashboard/memory')
+      && req.method === 'POST'
+    ) {
+      const body = await deps.readJsonBody(req);
+      deps.writeJson(res, this.applyZavorthControlMemoryAction(url, body), 200);
       return true;
     }
 
@@ -1486,6 +1514,193 @@ export class WebAppRuntimeStateRouteService {
     }, 200);
   }
 
+  private async handleDashboardSideChatRequest(
+    req: http.IncomingMessage,
+    res: http.ServerResponse,
+    deps: WebAppRuntimeRouteDeps,
+  ): Promise<void> {
+    if (!deps.processChatSend) {
+      deps.writeJson(res, {
+        ok: false,
+        error: 'canonical_chat_runtime_unavailable',
+        detail: 'Detached dashboard chat requires the canonical web conversation runtime.',
+      }, 503);
+      return;
+    }
+
+    const body = await deps.readJsonBody(req);
+    const message = String(body?.message || body?.text || '').trim();
+    const kind = String(body?.kind || 'side').trim().toLowerCase() || 'side';
+    const attachments = Array.isArray(body?.attachments) ? body.attachments : [];
+    if (!message && attachments.length === 0) {
+      deps.writeJson(res, {
+        ok: false,
+        error: 'empty_detached_message',
+        detail: 'Detached side-channel messages need text or attachments.',
+      }, 400);
+      return;
+    }
+    const sourceSessionId = String(body?.sessionId || '').trim();
+    const sideSessionId = String(body?.sideSessionId || [
+      sourceSessionId || 'web',
+      kind.replace(/[^a-z0-9_-]/gi, '') || 'side',
+      Date.now().toString(36),
+    ].filter(Boolean).join(':')).trim();
+    const result = await deps.processChatSend({
+      ...body,
+      message: message || 'Review the attached files.',
+      sessionId: sideSessionId,
+      source: 'zavorth-control-side-channel',
+      detached: true,
+      excludeFromTranscript: true,
+      parentSessionId: sourceSessionId || null,
+      metadata: {
+        ...(this.isRecord(body?.metadata) ? body.metadata : {}),
+        detachedSideChannel: true,
+        sideChannelKind: kind,
+        parentSessionId: sourceSessionId || null,
+      },
+    });
+
+    deps.writeJson(res, {
+      ok: true,
+      generatedAt: new Date().toISOString(),
+      detached: true,
+      excludeFromTranscript: true,
+      kind,
+      sideSessionId,
+      sourceSessionId: sourceSessionId || null,
+      sessionId: sideSessionId,
+      taskId: result.taskId || null,
+      runId: result.taskId || null,
+      chat: result,
+      data: result,
+      snapshot: result.snapshot,
+      safety: {
+        delegatedToCanonicalWebRuntime: true,
+        detachedFromMainTranscript: true,
+        parentTranscriptUntouched: true,
+        sideSessionIsolated: true,
+        rawSecretsSerialized: false,
+      },
+    }, 200);
+  }
+
+  private async handleDashboardSteerChatRequest(
+    req: http.IncomingMessage,
+    res: http.ServerResponse,
+    deps: WebAppRuntimeRouteDeps,
+  ): Promise<void> {
+    if (!deps.agentGateway?.steer) {
+      deps.writeJson(res, {
+        ok: false,
+        error: 'native_agent_run_steering_unavailable',
+        detail: 'Active-run steering requires ZavorthAgentGateway.steer.',
+      }, 503);
+      return;
+    }
+
+    const body = await deps.readJsonBody(req);
+    const message = String(body?.message || body?.text || '').trim();
+    const sessionId = String(body?.sessionId || '').trim();
+    const runId = String(body?.runId || body?.activeRunId || '').trim();
+    const action = ['cancel', 'replace'].includes(String(body?.action || body?.steerAction || '').trim().toLowerCase())
+      ? String(body?.action || body?.steerAction).trim().toLowerCase() as 'cancel' | 'replace'
+      : 'add';
+    if (!sessionId) {
+      deps.writeJson(res, {
+        ok: false,
+        error: 'session_id_required',
+        detail: 'Active-run steering requires the current canonical session id.',
+      }, 400);
+      return;
+    }
+    const attachments = Array.isArray(body?.attachments) ? body.attachments : [];
+    if (action !== 'cancel' && !message && attachments.length === 0) {
+      deps.writeJson(res, {
+        ok: false,
+        error: 'empty_steer_message',
+        detail: 'Steering requires text or attachments.',
+      }, 400);
+      return;
+    }
+    if (action !== 'add' && !String(body?.steeringId || body?.replaceTargetId || body?.queueItemId || '').trim()) {
+      deps.writeJson(res, {
+        ok: false,
+        error: 'steering_id_required',
+        detail: 'Cancel/replace steering requires a steering id or queue item id.',
+      }, 400);
+      return;
+    }
+
+    const result = deps.agentGateway.steer({
+      action,
+      runId: runId || null,
+      sessionId,
+      source: 'zavorth-control-steer',
+      text: message || (action === 'cancel' ? 'Cancelled by operator.' : 'Review the attached files.'),
+      queueItemId: String(body?.queueItemId || '').trim() || null,
+      steeringId: String(body?.steeringId || '').trim() || null,
+      replaceTargetId: String(body?.replaceTargetId || '').trim() || null,
+      backoffMs: Number(body?.backoffMs || 0),
+      maxAttempts: Number(body?.maxAttempts || 1),
+      metadata: {
+        ...(this.isRecord(body?.metadata) ? body.metadata : {}),
+        activeRunSteer: true,
+        nativeAgentRunSteering: true,
+        steerTargetRunId: runId || null,
+        action,
+        attachments,
+        selectedSkills: Array.isArray(body?.selectedSkills) ? body.selectedSkills : [],
+        voice: this.isRecord(body?.voice) ? body.voice : null,
+        composerSettings: this.isRecord(body?.composerSettings) ? body.composerSettings : null,
+      },
+    });
+    if (!result.ok) {
+      deps.writeJson(res, {
+        ok: false,
+        generatedAt: new Date().toISOString(),
+        steered: false,
+        action,
+        error: result.error || 'steering_not_accepted',
+        runId: result.run?.id || runId || null,
+        sessionId,
+        run: result.run,
+        safety: {
+          delegatedToNativeAgentGateway: true,
+          nativeAgentRunSteering: true,
+          rawSecretsSerialized: false,
+        },
+      }, result.error === 'active_run_not_found' ? 404 : 409);
+      return;
+    }
+
+    deps.writeJson(res, {
+      ok: true,
+      generatedAt: new Date().toISOString(),
+      steered: true,
+      action,
+      ack: result.ack,
+      steering: result.steering,
+      runId: result.run?.id || runId || null,
+      sessionId,
+      run: result.run,
+      chat: result,
+      data: result,
+      snapshot: {
+        activeRun: result.run,
+        runs: result.run ? [result.run] : [],
+        steering: result.run?.steering || [],
+      },
+      safety: {
+        delegatedToNativeAgentGateway: true,
+        nativeAgentRunSteering: true,
+        transcriptScope: 'active-session',
+        rawSecretsSerialized: false,
+      },
+    }, 200);
+  }
+
   private isProviderLiveProbeRequested(url: URL): boolean {
     return this.readBooleanParam(url, 'live')
       || this.readBooleanParam(url, 'probeLive')
@@ -1716,7 +1931,6 @@ export class WebAppRuntimeStateRouteService {
           localControlReady: true,
           telegramReady: true,
           discordReady: false,
-          classicReady: true,
           cliReady: true,
         }),
         gateway,
@@ -1770,6 +1984,142 @@ export class WebAppRuntimeStateRouteService {
     const normalized = String(value || '').trim();
     if (normalized === 'approve' || normalized === 'deny') return normalized;
     return 'none';
+  }
+
+  private readZavorthControlMemoryFacts(url: URL): RuntimeRecord {
+    const state = this.readZavorthControlMemoryStore();
+    const sessionId = String(url.searchParams.get('sessionId') || '').trim();
+    const limit = Math.min(100, Math.max(1, Number(url.searchParams.get('limit') || 24) || 24));
+    const facts = state.facts
+      .filter((fact) => !sessionId || !fact.sessionId || fact.sessionId === sessionId)
+      .slice(-limit)
+      .reverse();
+    return {
+      ok: true,
+      contractVersion: '2026-05-30.zavorthControl.memory-facts.v1',
+      query: { sessionId, limit },
+      facts,
+      stats: {
+        total: facts.length,
+        persisted: state.facts.length,
+      },
+    };
+  }
+
+  private applyZavorthControlMemoryAction(url: URL, body: RuntimeRecord): RuntimeRecord {
+    const action = String(body.action || '').trim().toLowerCase();
+    const id = String(body.id || body.memoryId || body.key || '').trim();
+    if (!['forget', 'promote', 'correct'].includes(action)) {
+      return {
+        ok: false,
+        error: 'unsupported memory action',
+        allowedActions: ['forget', 'promote', 'correct'],
+      };
+    }
+    if (!id) {
+      return {
+        ok: false,
+        error: 'memory id is required',
+      };
+    }
+    const state = this.readZavorthControlMemoryStore();
+    const before = state.facts.length;
+    let matched = false;
+    if (action === 'forget') {
+      state.facts = state.facts.filter((fact) => fact.id !== id && fact.key !== id);
+      matched = before !== state.facts.length;
+    } else {
+      const now = new Date().toISOString();
+      state.facts = state.facts.map((fact) => {
+        if (fact.id !== id && fact.key !== id) return fact;
+        matched = true;
+        const metadata = asRecord(fact.metadata) || {};
+        if (action === 'promote') {
+          return {
+            ...fact,
+            updatedAt: now,
+            metadata: {
+              ...metadata,
+              promotedAt: now,
+              trust: {
+                ...(asRecord(metadata.trust) || {}),
+                level: 'operator-approved',
+                durableTruth: true,
+              },
+              provenance: metadata.provenance || 'operator-approved',
+            },
+          };
+        }
+        const content = text(body.content || body.summary);
+        return {
+          ...fact,
+          content: content || fact.content,
+          updatedAt: now,
+          metadata: {
+            ...metadata,
+            correctedAt: now,
+            correctionReason: text(body.reason) || 'dashboard correction',
+            trust: {
+              ...(asRecord(metadata.trust) || {}),
+              level: 'operator-approved',
+              durableTruth: true,
+            },
+            provenance: metadata.provenance || 'operator-approved',
+          },
+        };
+      });
+    }
+    this.writeZavorthControlMemoryStore(state);
+    const sessionId = String(body.sessionId || url.searchParams.get('sessionId') || '').trim();
+    const nextUrl = new URL(url.toString());
+    if (sessionId) nextUrl.searchParams.set('sessionId', sessionId);
+    return {
+      ok: matched,
+      action,
+      applied: { id },
+      memory: this.readZavorthControlMemoryFacts(nextUrl),
+    };
+  }
+
+  private readZavorthControlMemoryStore(): { facts: RuntimeRecord[] } {
+    const filePath = this.zavorthControlMemoryStorePath();
+    try {
+      if (!fs.existsSync(filePath)) return { facts: [] };
+      const parsed = JSON.parse(fs.readFileSync(filePath, 'utf8')) as RuntimeRecord;
+      const facts = Array.isArray(parsed.facts) ? parsed.facts : [];
+      return {
+        facts: facts
+          .map((fact) => asRecord(fact))
+          .filter(Boolean)
+          .map((fact) => ({
+            id: text(fact?.id) || text(fact?.key) || `memory-${Date.now()}`,
+            key: text(fact?.key) || text(fact?.id),
+            type: text(fact?.type) || 'factual',
+            content: text(fact?.content) || text(fact?.summary) || text(fact?.key),
+            sessionId: text(fact?.sessionId),
+            metadata: asRecord(fact?.metadata) || {},
+            createdAt: text(fact?.createdAt) || new Date().toISOString(),
+            updatedAt: text(fact?.updatedAt) || text(fact?.createdAt) || new Date().toISOString(),
+            expiresAt: text(fact?.expiresAt) || null,
+          }))
+          .filter((fact) => fact.content),
+      };
+    } catch {
+      return { facts: [] };
+    }
+  }
+
+  private writeZavorthControlMemoryStore(state: { facts: RuntimeRecord[] }): void {
+    const filePath = this.zavorthControlMemoryStorePath();
+    fs.mkdirSync(path.dirname(filePath), { recursive: true });
+    fs.writeFileSync(filePath, JSON.stringify({
+      facts: state.facts,
+      updatedAt: new Date().toISOString(),
+    }, null, 2), 'utf8');
+  }
+
+  private zavorthControlMemoryStorePath(): string {
+    return path.resolve(config.projectRoot || process.cwd(), 'data', 'runtime', 'zavorth-control-memory-facts.json');
   }
 }
 

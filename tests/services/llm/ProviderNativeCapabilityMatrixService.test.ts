@@ -104,6 +104,24 @@ describe('ProviderNativeCapabilityMatrixService', () => {
     }));
   });
 
+  it('marks provider-native token streaming as enabled for first-class streaming adapters', () => {
+    const matrix = new ProviderNativeCapabilityMatrixService();
+
+    expect(matrix.resolve({
+      providerName: 'claude-agent-sdk',
+      modelName: 'claude-sonnet-4-6',
+      capability: 'native_token_streaming',
+    })).toEqual(expect.objectContaining({
+      status: 'native_enabled',
+      providerToolName: null,
+      requiredEvidence: 'none',
+      policy: expect.objectContaining({
+        risk: 'governed_observation',
+        receiptRequired: true,
+      }),
+    }));
+  });
+
   it('tracks vision and audio as governed provider-native capabilities when supported', () => {
     const matrix = new ProviderNativeCapabilityMatrixService();
 

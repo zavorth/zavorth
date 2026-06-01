@@ -6,9 +6,6 @@ import {
   type PreviewAssetPayload,
   type PreviewFilePayload,
 } from './WebConsolePreviewFileService.js';
-import { buildRuntimeShellHtml } from './WebConsoleRuntimeShellHtml.js';
-import { buildRuntimeShellScript } from './WebConsoleRuntimeShellScript.js';
-import { buildRuntimeShellStyles } from './WebConsoleRuntimeShellStyles.js';
 
 type WriteJsonResponse = (res: http.ServerResponse, body: unknown, statusCode?: number) => void;
 
@@ -35,19 +32,22 @@ export class WebConsoleAssetService {
   ): boolean {
     const isDashboardPath = pathname === '/' || pathname === '/dashboard' || pathname === '/dashboard/';
     const isControlPath = pathname === '/dashboard' || pathname === '/dashboard/';
-    const isAppPath = pathname === '/app' || pathname === '/app/';
+    const isRemovedSurfacePath = pathname === '/app'
+      || pathname === '/app/'
+      || pathname === '/classic'
+      || pathname === '/classic/';
 
     if (isDashboardPath || isControlPath) {
       this.writeInline(res, this.readDashboardShellHtml(), 'text/html; charset=utf-8');
       return true;
     }
 
-    if (isAppPath) {
-      if (!this.shouldServeLegacySurfaceRoute()) {
-        this.redirectToControl(res);
-        return true;
-      }
-      this.writeInline(res, buildRuntimeShellHtml(pathname), 'text/html; charset=utf-8');
+    if (isRemovedSurfacePath) {
+      writeJson(res, {
+        ok: false,
+        error: 'This web surface has been removed. Use /dashboard.',
+        dashboardUrl: '/dashboard',
+      }, 410);
       return true;
     }
 
@@ -60,26 +60,13 @@ export class WebConsoleAssetService {
       return true;
     }
 
-    if (pathname === '/classic' || pathname === '/classic/') {
-      this.redirectToControl(res);
-      return true;
-    }
-
     if (pathname === '/app.js') {
-      if (!this.shouldServeLegacySurfaceRoute()) {
-        writeJson(res, { error: 'Not found' }, 404);
-        return true;
-      }
-      this.writeInline(res, buildRuntimeShellScript(), 'application/javascript; charset=utf-8');
+      writeJson(res, { error: 'Not found' }, 404);
       return true;
     }
 
     if (pathname === '/styles.css') {
-      if (!this.shouldServeLegacySurfaceRoute()) {
-        writeJson(res, { error: 'Not found' }, 404);
-        return true;
-      }
-      this.writeInline(res, buildRuntimeShellStyles(), 'text/css; charset=utf-8');
+      writeJson(res, { error: 'Not found' }, 404);
       return true;
     }
 
@@ -119,11 +106,6 @@ export class WebConsoleAssetService {
   private shouldServeDashboardReviewRoute(): boolean {
     return this.isDevelopmentOrTestRuntime()
       && this.isTruthyFlag(process.env.ZAVORTH_COMMAND_CENTER_REVIEW_ENABLED);
-  }
-
-  private shouldServeLegacySurfaceRoute(): boolean {
-    return this.isDevelopmentOrTestRuntime()
-      && this.isTruthyFlag(process.env.ZAVORTH_LEGACY_SURFACES_ENABLED);
   }
 
   private isDevelopmentOrTestRuntime(): boolean {

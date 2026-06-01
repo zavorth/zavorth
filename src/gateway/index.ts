@@ -97,5 +97,6 @@ export type { GatewayEvent } from './events/GatewayEventBus.js';
 export { GatewayLifecycle } from './core/GatewayLifecycle.js';
 export type { GatewayState } from './core/GatewayLifecycle.js';
 export type { GatewayChannelAdapter } from './channels/GatewayChannelAdapter.js';
+export { AcpGenericChannelAdapter } from './channels/adapters/AcpGenericChannelAdapter.js';
 export { GatewaySessionRouter } from './session-routing/GatewaySessionRouter.js';
 export type { GatewayClientSession } from './session-routing/GatewaySessionRouter.js';

@@ -13,8 +13,6 @@ describe('ProductChannelExperienceService', () => {
       controlReady: true,
       telegramReady: false,
       discordReady: false,
-      classicEntry: 'http://127.0.0.1:33333/classic',
-      classicReady: true,
       cliEntry: 'npm run cli -- status',
       cliReady: true,
     });
@@ -40,15 +38,14 @@ describe('ProductChannelExperienceService', () => {
       controlReady: true,
       telegramReady: true,
       discordReady: true,
-      classicEntry: 'http://127.0.0.1:33333/classic',
-      classicReady: true,
       cliEntry: 'npm run cli -- status',
       cliReady: true,
     });
 
     expect(snapshot.recommendedJourney).toBe('web+telegram');
-    expect(snapshot.visibleSurfaces).toEqual(expect.arrayContaining(['control', 'telegram', 'discord', 'classic', 'cli']));
+    expect(snapshot.visibleSurfaces).toEqual(expect.arrayContaining(['control', 'telegram', 'discord', 'cli']));
+    expect(snapshot.visibleSurfaces).not.toContain('classic');
     expect(snapshot.hiddenSecondaryChannels).toEqual([]);
-    expect(snapshot.legacySurfaces).toEqual(expect.arrayContaining(['classic', 'cli']));
+    expect(snapshot.legacySurfaces).toEqual([]);
   });
 });

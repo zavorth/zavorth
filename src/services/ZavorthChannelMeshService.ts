@@ -34,7 +34,9 @@ export class ZavorthChannelMeshService {
 
   constructor(runtime: ZavorthChannelMeshRuntime = {}) {
     this.now = runtime.now || (() => new Date());
-    this.adapters = runtime.channelAdapterRegistryService || new GatewayChannelAdapterRegistryService();
+    this.adapters = runtime.channelAdapterRegistryService || new GatewayChannelAdapterRegistryService({
+      includeLongTailActivationAdapters: true,
+    });
     this.policies = runtime.channelPolicyManager === undefined
       ? new ChannelPolicyManager()
       : runtime.channelPolicyManager;
@@ -646,7 +648,8 @@ export class ZavorthChannelMeshService {
   private selectEntry(entries: ChannelMeshSnapshotEntry[], selectedId?: string | null): ChannelMeshSnapshotEntry | null {
     const normalized = String(selectedId || '').trim().toLowerCase();
     if (normalized) {
-      return entries.find((entry) => String(entry.id || '').trim().toLowerCase() === normalized) || null;
+      const resolved = this.resolveChannelAlias(normalized);
+      return entries.find((entry) => String(entry.id || '').trim().toLowerCase() === resolved) || null;
     }
     const prioritized = this.prioritizeForOperator(entries);
     return prioritized.find((entry) => entry.readiness === 'partial')
@@ -654,6 +657,31 @@ export class ZavorthChannelMeshService {
       || prioritized.find((entry) => entry.readiness === 'ready')
       || entries[0]
       || null;
+  }
+
+  private resolveChannelAlias(value: string): string {
+    const normalized = String(value || '').trim().toLowerCase();
+    const aliases: Record<string, string> = {
+      lark: 'feishu',
+      gchat: 'googlechat',
+      'google-chat': 'googlechat',
+      msteams: 'teams',
+      'microsoft-teams': 'teams',
+      'openclaw-weixin': 'weixin',
+      wechat: 'weixin',
+      qywx: 'wecom',
+      wework: 'wecom',
+      'enterprise-wechat': 'wecom',
+      'nc-talk': 'nextcloud-talk',
+      nc: 'nextcloud-talk',
+      'twitch-chat': 'twitch',
+      zl: 'zalo',
+      zlu: 'zalouser',
+      'zalo-user': 'zalouser',
+      yb: 'yuanbao',
+      'tencent-yuanbao': 'yuanbao',
+    };
+    return aliases[normalized] || normalized;
   }
 
   private buildFeaturedIds(entries: ChannelMeshSnapshotEntry[]): string[] {

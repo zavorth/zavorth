@@ -331,7 +331,7 @@ export class ZavorthCapabilityAbsorptionService {
       JSON.stringify(this.packageJson),
       this.read('docs/channel-mesh.md'),
       this.read('src/bootstrap/bootstrapSurfaceComposition.ts'),
-      this.read('src/domain/channels/application/setup-guide/ChannelSetupGuideCatalog.ts'),
+      this.read('src/domain/channels/infrastructure/setup-guide/ChannelSetupGuideCatalog.ts'),
     ].join('\n').toLowerCase();
     return markers.some((marker) => haystack.includes(marker.toLowerCase()));
   }

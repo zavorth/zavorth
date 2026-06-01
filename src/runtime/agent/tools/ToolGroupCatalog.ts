@@ -19,6 +19,20 @@ export type ToolGroupCatalogEntry = {
 
 const TOOL_GROUP_ENTRIES: ToolGroupCatalogEntry[] = [
   {
+    id: 'zavorth_action',
+    group: 'general',
+    risk: 'safe',
+    requiresApproval: false,
+    description: 'Action Harness roteia lookup, preview, apply e receipts de acoes Zavorth; mutacoes continuam bloqueadas no gateway ate approval.',
+    policyTags: [
+      'capability:action-harness',
+      'group:general',
+      'risk:safe',
+      'first-class-action',
+      'preview-first',
+    ],
+  },
+  {
     id: 'echo_hands',
     group: 'local_control',
     risk: 'danger',

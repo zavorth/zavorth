@@ -5,7 +5,7 @@ import { IntegrationHealthService } from '../../src/services/IntegrationHealthSe
 import { IntegrationInstallerService } from '../../src/services/IntegrationInstallerService';
 import { IntegrationProbeService } from '../../src/services/IntegrationProbeService';
 import { IntegrationRegistryService } from '../../src/services/IntegrationRegistryService';
-import { IntegrationActionRecipeService } from '../../src/domain/platform-ecosystem/application/integration-actions/IntegrationActionRecipeService';
+import { IntegrationActionRecipeService } from '../../src/domain/platform-ecosystem/infrastructure/integration-actions/IntegrationActionRecipeService';
 
 describe('IntegrationActionRecipeService', () => {
   const originalEnvOllamaHost = process.env.OLLAMA_HOST;

@@ -175,6 +175,14 @@ export const NATIVE_AGENT_TOOL_SECURITY_DEFINITIONS: AgentToolSecurityDefinition
     description: 'Changes default provider/model configuration.',
   },
   {
+    toolName: 'zavorth_action',
+    surface: 'native-tool',
+    capabilities: ['local-observation'],
+    defaultRisk: 'safe',
+    requiresConfirmation: false,
+    description: 'Routes first-class Zavorth action lookup, preview, apply and receipts through the governed Action Harness. Mutation is approval-gated inside the gateway.',
+  },
+  {
     toolName: 'auto_skill_creator',
     surface: 'native-tool',
     capabilities: ['skill', 'filesystem'],
@@ -212,6 +220,7 @@ export const BOOTSTRAP_NATIVE_TOOL_SECURITY_MANIFEST = [
   { className: 'EnableMnemosTool', toolName: 'enable_mnemos' },
   { className: 'EchoHandsTool', toolName: 'echo_hands' },
   { className: 'ConfigureLlmProfileTool', toolName: 'configure_llm_profile' },
+  { className: 'ZavorthActionTool', toolName: 'zavorth_action' },
   { className: 'AutoSkillCreatorTool', toolName: 'auto_skill_creator' },
   { className: 'ImageGenerationTool', toolName: 'generate_image' },
   { className: 'MediaAnalysisTool', toolName: 'analyze_media' },

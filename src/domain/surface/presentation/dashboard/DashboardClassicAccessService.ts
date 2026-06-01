@@ -11,7 +11,6 @@ export type DashboardClassicAccessDeps = {
 export class DashboardClassicAccessService {
   public requiresAuthorization(pathname: string): boolean {
     return (
-      pathname === '/classic' ||
       pathname === '/api/stats' ||
       pathname === '/api/sidecars' ||
       pathname === '/api/logs' ||

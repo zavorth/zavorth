@@ -1,4 +1,4 @@
-import { SharedSurfaceTenantGovernanceCommandPack } from '../../src/domain/surface/application/shared-surface/SharedSurfaceTenantGovernanceCommandPack';
+import { SharedSurfaceTenantGovernanceCommandPack } from '../../src/domain/surface/presentation/shared-surface/SharedSurfaceTenantGovernanceCommandPack';
 
 function buildCtx(rawText = '/tenants') {
   return {

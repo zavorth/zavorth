@@ -1,4 +1,4 @@
-import { ZavorthControlPlaneCatalogService } from '../../src/domain/observability/application/control-plane/ZavorthControlPlaneCatalogService.js';
+import { ZavorthControlPlaneCatalogService } from '../../src/domain/observability/infrastructure/control-plane/ZavorthControlPlaneCatalogService.js';
 
 describe('ZavorthControlPlaneCatalogService', () => {
   it('aggregates operational, trust and product overviews into one platform catalog', async () => {

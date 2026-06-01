@@ -1,2 +1,2 @@
 export * from './ProvidersFacade';
-export * from './application/ModelPickerContractService';
+export * from './infrastructure/ModelPickerContractService';

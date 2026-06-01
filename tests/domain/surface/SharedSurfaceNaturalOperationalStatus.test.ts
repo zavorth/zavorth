@@ -1,4 +1,4 @@
-import { resolveNaturalOperationalStatusCommand } from '../../../src/domain/surface/application/shared-surface/SharedSurfaceNaturalOperationalStatus.js';
+import { resolveNaturalOperationalStatusCommand } from '../../../src/domain/surface/presentation/shared-surface/SharedSurfaceNaturalOperationalStatus.js';
 
 describe('resolveNaturalOperationalStatusCommand', () => {
   it('maps provider readiness questions to the shared models command', () => {

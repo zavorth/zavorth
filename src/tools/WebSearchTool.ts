@@ -4,7 +4,6 @@ import { config } from '../config/index.js';
 import { safeFetch } from '../security/SafeFetchService.js';
 import { wrapUntrustedContent } from '../security/UntrustedContent.js';
 import {
-  buildEvidenceProfileQueries,
   getEvidenceDomainProfile,
   inferEvidenceDomainFromText,
   normalizeEvidenceText,
@@ -13,12 +12,20 @@ import {
   type EvidenceDomainProfile,
   type EvidenceSearchDomain,
 } from '../agents/EvidenceDomainProfiles.js';
+import {
+  buildEvidenceSearchPlan,
+  buildEvidenceTrackQueries,
+  weighEvidenceSource,
+  type EvidenceTrackQuery,
+} from '../agents/EvidenceSearchPlan.js';
 
 type RankedSearchCandidate = {
   title: string;
   url: string;
   description: string;
   sourceQuery: string;
+  sourceTrack?: EvidenceTrackQuery['track'];
+  sourceRole?: EvidenceTrackQuery['role'];
   originalRank: number;
   evidenceScore: number;
   highSignal: boolean;
@@ -174,9 +181,14 @@ export class WebSearchTool extends BaseTool {
     profile: EvidenceDomainProfile,
     options: { deep: boolean; extractPages: boolean },
   ): Promise<RankedSearchCandidate[]> {
+    const evidencePlanInput = {
+        query,
+        domain: profile.domain,
+      };
     const queries = options.deep
-      ? buildEvidenceProfileQueries(query, profile.domain)
-      : [query];
+      ? buildEvidenceTrackQueries(evidencePlanInput, 3)
+      : [{ query, track: 'profile', role: 'baseline', rationale: 'plain search query' } satisfies EvidenceTrackQuery];
+    const plan = options.deep ? buildEvidenceSearchPlan(evidencePlanInput) : null;
     const seenUrls = new Set<string>();
     const candidates: RankedSearchCandidate[] = this.buildKnownSourceCandidates(query, profile)
       .filter((candidate) => {
@@ -188,9 +200,9 @@ export class WebSearchTool extends BaseTool {
       });
     let firstError: Error | null = null;
 
-    for (const sourceQuery of queries) {
+    for (const source of queries) {
       try {
-        const searchResults = await this.searchWebWithFallback(sourceQuery);
+        const searchResults = await this.searchWebWithFallback(source.query);
         if (searchResults.noResults || searchResults.results.length === 0) {
           continue;
         }
@@ -204,15 +216,26 @@ export class WebSearchTool extends BaseTool {
           const title = String(res.title || 'Sem titulo').trim();
           const description = String(res.description || '').trim();
           const score = scoreEvidenceSource({ title, url, description }, profile.domain);
+          const weighted = plan
+            ? weighEvidenceSource({
+              baseScore: score.score,
+              highSignal: score.highSignal,
+              track: source.track,
+              role: source.role,
+              plan,
+            })
+            : { score: score.score, highSignal: score.highSignal, reasons: [] };
           candidates.push({
             title,
             url,
             description,
-            sourceQuery,
+            sourceQuery: source.query,
+            sourceTrack: source.track,
+            sourceRole: source.role,
             originalRank: index + 1,
-            evidenceScore: score.score,
-            highSignal: score.highSignal,
-            scoreReasons: score.reasons,
+            evidenceScore: weighted.score,
+            highSignal: weighted.highSignal,
+            scoreReasons: [...score.reasons, ...weighted.reasons].slice(0, 8),
           });
         });
       } catch (error: any) {
@@ -244,7 +267,6 @@ export class WebSearchTool extends BaseTool {
 
     return ranked;
   }
-
   private buildKnownSourceCandidates(query: string, profile: EvidenceDomainProfile): RankedSearchCandidate[] {
     const normalized = normalizeEvidenceText(query);
     const sources: Array<{ title: string; url: string; description: string }> = [];
@@ -340,6 +362,8 @@ export class WebSearchTool extends BaseTool {
         evidenceScore: Math.max(score.score, 80),
         highSignal: true,
         scoreReasons: Array.from(new Set(['known-source', ...score.reasons])).slice(0, 6),
+        sourceTrack: 'profile',
+        sourceRole: 'baseline',
       };
     });
   }
@@ -532,6 +556,9 @@ export class WebSearchTool extends BaseTool {
       lines.push(`   Forca da fonte: ${result.highSignal ? 'alta' : result.evidenceScore >= 20 ? 'media' : 'baixa'} (${result.evidenceScore})`);
       if (result.scoreReasons.length > 0) {
         lines.push(`   Motivos do ranking: ${result.scoreReasons.join(', ')}`);
+      }
+      if (result.sourceTrack) {
+        lines.push(`   Trilha da busca: ${result.sourceTrack} (${result.sourceRole || 'baseline'})`);
       }
       lines.push(`   Trecho da busca: ${this.wrapUntrustedWebEvidence(result.description || 'Trecho indisponivel.', result.url, 'search_snippet')}`);
       if (result.extracted?.excerpt) {

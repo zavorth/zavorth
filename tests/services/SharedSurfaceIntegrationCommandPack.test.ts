@@ -1,4 +1,4 @@
-import { SharedSurfaceIntegrationCommandPack } from '../../src/domain/surface/application/shared-surface/SharedSurfaceIntegrationCommandPack';
+import { SharedSurfaceIntegrationCommandPack } from '../../src/domain/surface/presentation/shared-surface/SharedSurfaceIntegrationCommandPack';
 
 describe('SharedSurfaceIntegrationCommandPack', () => {
   it('routes /plugins actions through the extracted pack', async () => {

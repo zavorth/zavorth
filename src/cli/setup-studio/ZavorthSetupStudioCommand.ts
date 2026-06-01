@@ -46,6 +46,11 @@ export type RunZavorthSetupStudioResult = {
 };
 
 type SetupStudioCliAnswers = {
+  zavorthHome: string | null;
+  skillsGovernanceMode: 'casual' | 'governed';
+  wakeDetectorMode: 'disabled' | 'default-local' | 'custom-command';
+  wakeCommand: string | null;
+  wakeArgs: string | null;
   providerId: string;
   modelId: string | null;
   providerSecret: string | null;
@@ -115,6 +120,11 @@ export async function runZavorthSetupStudioCommand(
     providerId: answersWithProgress.providerId,
     modelId: answersWithProgress.modelId,
     providerSecret: answersWithProgress.providerSecret,
+    zavorthHome: answersWithProgress.zavorthHome,
+    skillsGovernanceMode: answersWithProgress.skillsGovernanceMode,
+    wakeDetectorMode: answersWithProgress.wakeDetectorMode,
+    wakeCommand: answersWithProgress.wakeCommand,
+    wakeArgs: answersWithProgress.wakeArgs,
     telegramBotToken: answersWithProgress.telegramBotToken,
     telegramAllowedUserIds: answersWithProgress.telegramAllowedUserIds,
     discordBotToken: answersWithProgress.discordBotToken,
@@ -463,6 +473,72 @@ async function collectInteractiveAnswers(projectRoot: string): Promise<SetupStud
   });
   p.note(renderExistingConfigPanel(baselineSnapshot), orange('Current config'));
 
+  const homeChoice = await p.select({
+    message: 'Where should Zavorth store this instance home?',
+    options: [
+      { value: '__current__', label: baselineSnapshot.home.isolated ? 'Keep current ZAVORTH_HOME' : 'Compat mode in this project', hint: baselineSnapshot.home.source },
+      { value: '__default__', label: 'Use isolated home beside this project', hint: '.zavorth-home' },
+      { value: '__custom__', label: 'Choose a custom home path' },
+    ],
+    initialValue: baselineSnapshot.home.isolated ? '__current__' : '__default__',
+  });
+  if (p.isCancel(homeChoice)) {
+    p.cancel('First Light cancelled. Nothing was changed.');
+    throw new SetupStudioCancelled();
+  }
+  const customHome = homeChoice === '__custom__'
+    ? await p.text({ message: 'ZAVORTH_HOME path', initialValue: baselineSnapshot.home.root })
+    : '';
+  if (p.isCancel(customHome)) {
+    p.cancel('First Light cancelled. Nothing was changed.');
+    throw new SetupStudioCancelled();
+  }
+  const zavorthHome = resolveSetupHomeChoice(projectRoot, String(homeChoice), String(customHome || ''), baselineSnapshot.home.root);
+  p.note(renderHomeSelectionPanel(zavorthHome, baselineSnapshot.home.source), orange('Zavorth Home'));
+
+  p.note(renderSkillGovernanceIntroPanel(), orange('Skill governance'));
+  const skillsGovernanceMode = await p.select({
+    message: 'How should Zavorth handle imported skills?',
+    options: [
+      { value: 'casual', label: 'Casual', hint: 'recommended for personal use; fast imports, hard blockers remain' },
+      { value: 'governed', label: 'Governed', hint: 'stricter enterprise review for risk, license and audit' },
+    ],
+    initialValue: baselineSnapshot.plan.skillGovernance.mode,
+  });
+  if (p.isCancel(skillsGovernanceMode)) {
+    p.cancel('First Light cancelled. Nothing was changed.');
+    throw new SetupStudioCancelled();
+  }
+  p.note(renderSkillGovernanceSelectionPanel(String(skillsGovernanceMode)), orange('Skill governance'));
+
+  const wakeDetectorMode = await p.select({
+    message: 'Enable Echo wake word setup?',
+    options: [
+      { value: 'default-local', label: 'Default local detector', hint: 'opt-in per session; local first; recommended' },
+      { value: 'custom-command', label: 'Custom detector command', hint: 'use your own local/API bridge process' },
+      { value: 'disabled', label: 'Keep off', hint: 'configure later with zavorth echo wake setup' },
+    ],
+    initialValue: baselineSnapshot.plan.wakeDetector.mode,
+  });
+  if (p.isCancel(wakeDetectorMode)) {
+    p.cancel('First Light cancelled. Nothing was changed.');
+    throw new SetupStudioCancelled();
+  }
+  const wakeCommand = wakeDetectorMode === 'custom-command'
+    ? await p.text({ message: 'Wake detector command', placeholder: 'local-wake-detector' })
+    : '';
+  if (p.isCancel(wakeCommand)) {
+    p.cancel('First Light cancelled. Nothing was changed.');
+    throw new SetupStudioCancelled();
+  }
+  const wakeArgs = wakeDetectorMode === 'custom-command'
+    ? await p.text({ message: 'Wake detector args', placeholder: '--model local' })
+    : '';
+  if (p.isCancel(wakeArgs)) {
+    p.cancel('First Light cancelled. Nothing was changed.');
+    throw new SetupStudioCancelled();
+  }
+
   const setupMode = await p.select({
     message: 'Setup mode',
     options: [
@@ -598,6 +674,7 @@ async function collectInteractiveAnswers(projectRoot: string): Promise<SetupStud
   const skillsSnapshot = buildZavorthSetupStudioSnapshot({
     projectRoot,
     providerId,
+    zavorthHome,
     modelId: String(modelId || provider.defaultModel),
     providerSecret: String(providerSecret || ''),
     searchProvider: normalizedSearchProvider,
@@ -724,6 +801,11 @@ async function collectInteractiveAnswers(projectRoot: string): Promise<SetupStud
   void hatchMode;
 
   return {
+    zavorthHome,
+    skillsGovernanceMode: normalizeSkillsGovernanceMode(String(skillsGovernanceMode)),
+    wakeDetectorMode: normalizeWakeDetectorMode(String(wakeDetectorMode)),
+    wakeCommand: String(wakeCommand || ''),
+    wakeArgs: String(wakeArgs || ''),
     providerId,
     modelId: String(modelId || provider.defaultModel),
     providerSecret: String(providerSecret || ''),
@@ -744,12 +826,54 @@ async function collectInteractiveAnswers(projectRoot: string): Promise<SetupStud
 function renderExistingConfigPanel(snapshot: ZavorthSetupStudioSnapshot): string {
   return [
     `Workspace: ${snapshot.projectRoot}`,
+    `Home: ${snapshot.home.root} (${snapshot.home.source}${snapshot.home.isolated ? ', isolated' : ', compat'})`,
     `Gateway: ${snapshot.gateway.installed ? 'local detected' : 'not installed'} via loopback`,
     `Profile: ${snapshot.existingConfig.profileExists ? 'detected' : 'not found'}`,
     `.env: ${snapshot.existingConfig.envExists ? 'detected' : 'not found'}`,
     `Provider: ${snapshot.existingConfig.configuredProvider || 'not configured'}`,
     `Channels: ${snapshot.existingConfig.configuredChannels.join(', ') || 'none'}`,
   ].join('\n');
+}
+
+function renderHomeSelectionPanel(home: string | null, previousSource: string): string {
+  return [
+    home
+      ? `Selected ZAVORTH_HOME: ${home}`
+      : `Keeping current home mode: ${previousSource}`,
+    'Setup writes the selection only after final confirmation.',
+    'You can switch later with: zavorth home switch --home <path> --apply',
+  ].join('\n');
+}
+
+function renderSkillGovernanceIntroPanel(): string {
+  return [
+    'Casual: fewer prompts for normal personal skill imports.',
+    'Governed: stricter review for teams, legal/compliance, or sensitive workspaces.',
+    'Both modes keep hard blockers active for exfiltration, destructive scripts, unsafe paths and restricted licenses.',
+    'You can switch later with: zavorth skills governance governed --apply',
+  ].join('\n');
+}
+
+function renderSkillGovernanceSelectionPanel(mode: string): string {
+  return mode === 'governed'
+    ? [
+        'Selected: Governed.',
+        'Skill imports will require stricter risk/license review and clearer audit evidence.',
+      ].join('\n')
+    : [
+        'Selected: Casual.',
+        'Zavorth keeps daily imports smooth, but does not bypass hard security or license blockers.',
+      ].join('\n');
+}
+
+function resolveSetupHomeChoice(projectRoot: string, choice: string, customHome: string, currentHome: string): string | null {
+  if (choice === '__custom__') {
+    return customHome.trim() || currentHome;
+  }
+  if (choice === '__default__') {
+    return `${projectRoot.replace(/[\\/]$/u, '')}${projectRoot.includes('\\') ? '\\' : '/'}${'.zavorth-home'}`;
+  }
+  return null;
 }
 
 function renderModelCheckPanel(providerId: string, needsSecret: boolean, secretKey: string | null, secretProvided: boolean): string {
@@ -1074,6 +1198,24 @@ function collectArgsAnswers(args: string[]): SetupStudioCliAnswers {
     || 'deferred';
   const provider = resolveSetupStudioProvider(providerId);
   return {
+    zavorthHome: readFlag(args, 'home') || readFlag(args, 'zavorth-home'),
+    skillsGovernanceMode: normalizeSkillsGovernanceMode(
+      readFlag(args, 'skills-governance')
+      || readFlag(args, 'skill-governance')
+      || readFlag(args, 'skills-governance-mode')
+      || readFlag(args, 'skill-governance-mode')
+      || process.env.ZAVORTH_SKILLS_GOVERNANCE_MODE
+      || 'casual',
+    ),
+    wakeDetectorMode: normalizeWakeDetectorMode(
+      readFlag(args, 'wake-detector')
+      || readFlag(args, 'wake-mode')
+      || (args.includes('--wake-disabled') ? 'disabled' : null)
+      || (args.includes('--wake-custom-command') ? 'custom-command' : null)
+      || (args.includes('--wake-default-local') ? 'default-local' : null),
+    ),
+    wakeCommand: readFlag(args, 'wake-command'),
+    wakeArgs: readFlag(args, 'wake-args'),
     providerId,
     modelId: readFlag(args, 'model') || readFlag(args, 'model-id') || provider.defaultModel,
     providerSecret: readFlag(args, 'secret') || readFlag(args, 'provider-secret'),
@@ -1116,6 +1258,11 @@ function mergeAnswersWithProgress(
 
 function defaultAnswers(): SetupStudioCliAnswers {
   return {
+    zavorthHome: null,
+    skillsGovernanceMode: normalizeSkillsGovernanceMode(process.env.ZAVORTH_SKILLS_GOVERNANCE_MODE || 'casual'),
+    wakeDetectorMode: normalizeWakeDetectorMode(process.env.ZAVORTH_WAKE_EMBEDDED === '1' ? 'default-local' : process.env.ZAVORTH_WAKE_COMMAND ? 'custom-command' : 'default-local'),
+    wakeCommand: process.env.ZAVORTH_WAKE_COMMAND || null,
+    wakeArgs: process.env.ZAVORTH_WAKE_ARGS || null,
     providerId: 'deferred',
     modelId: null,
     providerSecret: null,
@@ -1158,6 +1305,19 @@ function hasDirectConfiguration(args: string[]): boolean {
     '--memory-mode',
     '--vault-scope',
     '--scan-dir',
+    '--home',
+    '--zavorth-home',
+    '--skills-governance',
+    '--skill-governance',
+    '--skills-governance-mode',
+    '--skill-governance-mode',
+    '--wake-detector',
+    '--wake-mode',
+    '--wake-command',
+    '--wake-args',
+    '--wake-disabled',
+    '--wake-custom-command',
+    '--wake-default-local',
     '--enable-hooks',
     '--hooks',
   ].some((name) => arg === name || arg.startsWith(`${name}=`)));
@@ -1216,6 +1376,20 @@ function normalizeVaultScope(value: string | null): SetupStudioCliAnswers['vault
   return value === 'documents' || value === 'downloads' || value === 'custom' || value === 'whole-pc'
     ? value
     : 'skip';
+}
+
+function normalizeSkillsGovernanceMode(value: string | null): SetupStudioCliAnswers['skillsGovernanceMode'] {
+  const normalized = String(value || '').trim().toLowerCase();
+  return normalized === 'governed' || normalized === 'strict' || normalized === 'enterprise'
+    ? 'governed'
+    : 'casual';
+}
+
+function normalizeWakeDetectorMode(value: string | null): SetupStudioCliAnswers['wakeDetectorMode'] {
+  const normalized = String(value || '').trim().toLowerCase();
+  if (normalized === 'off' || normalized === 'disabled' || normalized === 'disable') return 'disabled';
+  if (normalized === 'custom' || normalized === 'custom-command') return 'custom-command';
+  return 'default-local';
 }
 
 function readFlag(args: string[], name: string): string | null {

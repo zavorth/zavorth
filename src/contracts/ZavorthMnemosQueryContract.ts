@@ -1,6 +1,7 @@
 export const ZAVORTH_MNEMOS_QUERY_VERSION = 'zavorth-mnemos-query-v1';
 
 export type ZavorthMnemosQueryRankSource =
+  | 'sqlite-fts5'
   | 'keyword'
   | 'tag'
   | 'graph';
@@ -25,9 +26,10 @@ export type ZavorthMnemosQuerySnapshot = {
     hits: number;
     returned: number;
     graphEdgesUsed: number;
+    sqliteFtsAvailable: boolean;
   };
   ranking: {
-    method: 'keyword-tag-graph-rrf';
+    method: 'sqlite-fts5-keyword-tag-graph-rrf';
     topK: number;
     rrfK: number;
   };
@@ -40,6 +42,7 @@ export type ZavorthMnemosQuerySnapshot = {
     untrustedContextWrapped: true;
     topKOnly: true;
     secretsRedacted: true;
+    sqliteIndexIsDerived: true;
   };
   receipt: {
     id: string;

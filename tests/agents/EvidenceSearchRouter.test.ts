@@ -99,4 +99,27 @@ describe('EvidenceSearchRouter', () => {
   it('keeps stable everyday knowledge as no-search conversation', () => {
     expect(router.detect('me ensine uma receita simples de panqueca')).toBeNull();
   });
+
+  it('builds transparent answer policy for community technical evidence', () => {
+    const need = router.detect('procure relatos no reddit sobre bug no Playwright 2026');
+
+    expect(need).not.toBeNull();
+    const policy = router.buildAnswerPolicyGuidance(need!);
+
+    expect(policy).toContain('EVIDENCE_ANSWER_POLICY');
+    expect(policy).toContain('Search mode: community');
+    expect(policy).toContain('community/forum/social sources');
+    expect(policy).toContain('Lead with practical community findings');
+  });
+
+  it('builds official-first answer policy for high-risk medical evidence', () => {
+    const need = router.detect('quais sintomas de dengue e fontes confiaveis?');
+
+    expect(need).not.toBeNull();
+    const policy = router.buildAnswerPolicyGuidance(need!);
+
+    expect(policy).toContain('answer style: official-first');
+    expect(policy).toContain('Include a concise caveat');
+    expect(policy).toContain('Lead with verified or primary sources');
+  });
 });

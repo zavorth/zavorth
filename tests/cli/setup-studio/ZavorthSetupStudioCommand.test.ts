@@ -175,9 +175,101 @@ describe('Zavorth Setup Studio command', () => {
     const parsed = JSON.parse(result.output);
     expect(parsed.contractVersion).toBe('zavorth-setup-studio-snapshot/1');
     expect(parsed.plan.provider.id).toBe('local');
+    expect(parsed.plan.skillGovernance.mode).toBe('casual');
     expect(parsed.plan.webSearch.provider).toBe('local');
     expect(parsed.hooks.available).toBe(true);
+    expect(parsed.home.root).toBe(root);
+    expect(parsed.home.statusCommand).toBe('zavorth home status');
     expect(parsed.safety.noSecretInOutput).toBe(true);
+  });
+
+  it('lets setup choose governed skill governance and writes it to .env on apply', async () => {
+    const root = fs.mkdtempSync(path.join(os.tmpdir(), 'zavorth-setup-skill-governance-'));
+    tempDirs.push(root);
+
+    const preview = await runZavorthSetupStudioCommand({
+      projectRoot: root,
+      args: ['--json', '--provider=local', '--skills-governance=governed'],
+      json: true,
+      now: () => new Date('2026-05-22T12:00:00.000Z'),
+    });
+    const parsed = JSON.parse(preview.output);
+    expect(parsed.plan.skillGovernance.mode).toBe('governed');
+    expect(parsed.plan.envUpdates).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({ key: 'ZAVORTH_SKILLS_GOVERNANCE_MODE', value: 'governed' }),
+      ]),
+    );
+
+    const applied = await runZavorthSetupStudioCommand({
+      projectRoot: root,
+      args: ['--apply', '--provider=local', '--skills-governance=governed'],
+      now: () => new Date('2026-05-22T12:00:00.000Z'),
+    });
+    expect(applied.exitCode).toBe(0);
+    const envText = fs.readFileSync(path.join(root, '.env'), 'utf8');
+    expect(envText).toContain('ZAVORTH_SKILLS_GOVERNANCE_MODE=governed');
+  });
+
+  it('lets setup choose Echo wake detector mode without turning the microphone on', async () => {
+    const root = fs.mkdtempSync(path.join(os.tmpdir(), 'zavorth-setup-wake-'));
+    tempDirs.push(root);
+
+    const preview = await runZavorthSetupStudioCommand({
+      projectRoot: root,
+      args: ['--json', '--provider=local', '--wake-detector=custom-command', '--wake-command=local-wake', '--wake-args=--token=secret-value'],
+      json: true,
+      now: () => new Date('2026-05-22T12:00:00.000Z'),
+    });
+    const parsed = JSON.parse(preview.output);
+    expect(parsed.plan.wakeDetector.mode).toBe('custom-command');
+    expect(parsed.plan.wakeDetector.rawAudioPersisted).toBe(false);
+    expect(parsed.plan.envUpdates).toEqual(expect.arrayContaining([
+      expect.objectContaining({ key: 'ZAVORTH_WAKE_COMMAND', redactedValue: 'local-wake' }),
+      expect.objectContaining({ key: 'ZAVORTH_WAKE_ARGS', redactedValue: '--token=[REDACTED_SECRET]' }),
+    ]));
+    expect(fs.existsSync(path.join(root, '.env'))).toBe(false);
+
+    const applied = await runZavorthSetupStudioCommand({
+      projectRoot: root,
+      args: ['--apply', '--provider=local', '--wake-detector=default-local'],
+      now: () => new Date('2026-05-22T12:00:00.000Z'),
+    });
+    const envText = fs.readFileSync(path.join(root, '.env'), 'utf8');
+    expect(applied.exitCode).toBe(0);
+    expect(envText).toContain('ZAVORTH_WAKE_EMBEDDED=1');
+    expect(envText).toContain('ZAVORTH_WAKE_TTL_SECONDS=900');
+  });
+
+  it('includes ZAVORTH_HOME in setup preview and apply when a home is selected', async () => {
+    const root = fs.mkdtempSync(path.join(os.tmpdir(), 'zavorth-setup-home-'));
+    const home = path.join(root, 'isolated-home');
+    tempDirs.push(root);
+
+    const preview = await runZavorthSetupStudioCommand({
+      projectRoot: root,
+      args: ['--json', '--provider=local', '--home', home],
+      json: true,
+      now: () => new Date('2026-05-22T12:00:00.000Z'),
+    });
+    const parsed = JSON.parse(preview.output);
+    expect(parsed.home.root).toBe(path.resolve(home));
+    expect(parsed.home.isolated).toBe(true);
+    expect(parsed.plan.envUpdates).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({ key: 'ZAVORTH_HOME', value: path.resolve(home) }),
+      ]),
+    );
+
+    const applied = await runZavorthSetupStudioCommand({
+      projectRoot: root,
+      args: ['--apply', '--provider=local', '--home', home],
+      now: () => new Date('2026-05-22T12:00:00.000Z'),
+    });
+    expect(applied.exitCode).toBe(0);
+    const envText = fs.readFileSync(path.join(root, '.env'), 'utf8');
+    expect(envText).toContain('ZAVORTH_HOME=');
+    expect(envText).toContain(path.resolve(home).replace(/\\/g, '\\\\'));
   });
 
   it('redacts secrets in json preview payloads', async () => {

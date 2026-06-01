@@ -60,6 +60,7 @@ import {
   type WebAppRuntimeGatewayInfrastructure,
 } from '../domain/surface/presentation/web-app/WebAppRuntimeInfrastructureService.js';
 import type { WebRealtimeBusSnapshot } from './WebRealtimeService.js';
+import { ZavorthHomePathService } from './ZavorthHomePathService.js';
 
 export type ZavorthGatewayRuntimeHealthSnapshot = {
   status: 'ready' | 'partial' | 'degraded';
@@ -133,6 +134,14 @@ export type ZavorthGatewayControlApiSnapshot = {
     AIGateway: AIGatewayProxyStatus | null;
     lastHealthyProvider: string | null;
     issues: string[];
+  };
+  home: {
+    root: string;
+    source: 'explicit' | 'env' | 'compat';
+    isolated: boolean;
+    statusCommand: string;
+    switchCommand: string;
+    warnings: string[];
   };
   providers: {
     source: 'provider-control-plane';
@@ -494,6 +503,10 @@ export class ZavorthGatewayRuntimeService {
       }).buildContract({ includeAdvanced }))
       : null;
     const aiGateway = this.readAIGatewayStatus();
+    const home = new ZavorthHomePathService({
+      projectRoot: process.cwd(),
+      env: process.env,
+    }).resolveSnapshot();
     const issues: string[] = [];
 
     if (!providerControlPlane) {
@@ -536,6 +549,14 @@ export class ZavorthGatewayRuntimeService {
         AIGateway: aiGateway,
         lastHealthyProvider: readyProviders[0]?.id || null,
         issues,
+      },
+      home: {
+        root: home.root,
+        source: home.source,
+        isolated: home.isolated,
+        statusCommand: home.dailyUse.statusCommand,
+        switchCommand: home.dailyUse.switchCommand,
+        warnings: home.warnings,
       },
       providers: {
         source: 'provider-control-plane',

@@ -9,6 +9,7 @@ import {
   ToolCall,
   ToolDefinition,
 } from './ILlmProvider.js';
+import { buildProviderRequestOptions } from './ProviderAbort.js';
 
 export class OpenCodeProvider implements ILlmProvider {
   public readonly name = 'opencode';
@@ -65,7 +66,7 @@ export class OpenCodeProvider implements ILlmProvider {
                 },
               }))
             : undefined,
-      });
+      }, buildProviderRequestOptions(options) as any);
 
       const choice = response.choices[0];
       const toolCalls: ToolCall[] = extractFunctionToolCalls(choice.message.tool_calls);

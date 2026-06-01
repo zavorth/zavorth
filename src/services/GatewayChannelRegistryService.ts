@@ -14,7 +14,8 @@ type GatewayChannelRegistryRuntime = {
   hasDispatcher?: boolean;
   canSpawnWeb?: boolean;
   platformCapabilityService?: Pick<PlatformCapabilityService, 'getCapabilities'>;
-  adapterRegistryService?: Pick<GatewayChannelAdapterRegistryService, 'listAdapters'>;
+  adapterRegistryService?: Pick<GatewayChannelAdapterRegistryService, 'listAdapters' | 'getAdapter'>;
+  includeLongTailActivationAdapters?: boolean;
 };
 
 export type GatewayChannelFeatureSet = Pick<
@@ -51,6 +52,7 @@ export type GatewayChannelRegistrySnapshot = {
 export class GatewayChannelRegistryService {
   private readonly now: () => Date;
   private readonly adapters: Pick<GatewayChannelAdapterRegistryService, 'listAdapters'> & {
+    getAdapter?: (id: string) => ChannelAdapterStatus | null;
     setRuntimeAdapters?: (runtimeAdapters: ChannelAdapterContract[]) => void;
     setRuntimeDescriptors?: (
       runtimeDescriptors: Array<RuntimeChannelDescriptor | RuntimeChannelDescriptorContract>,
@@ -65,6 +67,7 @@ export class GatewayChannelRegistryService {
         hasDispatcher: runtime.hasDispatcher,
         canSpawnWeb: runtime.canSpawnWeb,
         platformCapabilityService: runtime.platformCapabilityService,
+        includeLongTailActivationAdapters: runtime.includeLongTailActivationAdapters,
       });
   }
 
@@ -116,7 +119,12 @@ export class GatewayChannelRegistryService {
 
   public getChannel(id: string): GatewayChannelRegistryEntry | null {
     const normalizedId = String(id || '').trim().toLowerCase();
-    return this.listChannels().find((entry) => entry.id === normalizedId) || null;
+    const exact = this.listChannels().find((entry) => entry.id === normalizedId);
+    if (exact) {
+      return exact;
+    }
+    const resolved = this.adapters.getAdapter?.(normalizedId);
+    return resolved ? this.fromAdapter(resolved) : null;
   }
 
   private fromAdapter(entry: ChannelAdapterStatus): GatewayChannelRegistryEntry {

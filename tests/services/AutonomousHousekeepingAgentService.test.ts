@@ -1,7 +1,7 @@
 import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
-import { AutonomousHousekeepingAgentService } from '../../src/domain/ops/application/AutonomousHousekeepingAgentService.js';
+import { AutonomousHousekeepingAgentService } from '../../src/domain/ops/infrastructure/AutonomousHousekeepingAgentService.js';
 
 describe('AutonomousHousekeepingAgentService', () => {
   it('runs housekeeping operations and prepares a supervised refactor preview', async () => {

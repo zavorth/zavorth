@@ -38,7 +38,13 @@ describe('ZavorthA2UIService', () => {
     const assets = service.listAssets('cockpit');
 
     expect(snapshot.protocolVersion).toBe('a2ui.v1');
-    expect(snapshot.capabilities).toEqual(['snapshot', 'action', 'event', 'stream', 'asset']);
+    expect(snapshot.capabilities).toEqual(['snapshot', 'action', 'event', 'stream', 'asset', 'risk-simulation']);
+    expect(snapshot.security).toEqual(expect.objectContaining({
+      hostAccess: 'blocked',
+      tokenAccess: 'blocked',
+      filesystemAccess: 'blocked',
+      actionDispatch: 'transaction-plane',
+    }));
     expect(snapshot.allowedComponents).toContain('panel');
     expect(snapshot.surfaces[0].components).toEqual([
       expect.objectContaining({
@@ -64,6 +70,37 @@ describe('ZavorthA2UIService', () => {
         mimeType: 'image/png',
       }),
     ]);
+  });
+
+  it('strips inline handlers and dangerous URLs from widget props', () => {
+    const service = new ZavorthA2UIService({
+      now: () => new Date('2026-04-18T12:00:00.000Z'),
+    });
+
+    service.beginRendering('risk-preview');
+    service.updateSurface('risk-preview', [
+      {
+        type: 'button',
+        id: 'run',
+        props: {
+          label: 'Run',
+          onClick: 'steal()',
+          href: 'javascript:alert(1)',
+          nested: {
+            srcDoc: '<script>steal()</script>',
+            safe: 'value',
+          },
+        },
+      },
+    ]);
+
+    const props = service.readSnapshot('risk-preview').surfaces[0].components[0].props;
+    expect(props).toEqual({
+      label: 'Run',
+      nested: {
+        safe: 'value',
+      },
+    });
   });
 
   it('dispatches registered actions and exposes a bounded stream', async () => {

@@ -3,7 +3,7 @@ import { ZavorthControlService } from '../../src/services/ZavorthControlService'
 import {
   createTestLogRepo,
   fetchZavorthControlJson,
-} from '../helpers/controlWebTestUtils.js';
+} from '../helpers/zavorthControlWebTestUtils.js';
 
 function createIntegrationHubSnapshot() {
   return {
@@ -411,7 +411,7 @@ describe('ZavorthControlService integration hub', () => {
     config.zavorthWebAuthToken = originalWebAuthToken;
   });
 
-  it('serves the classic zavorthControl integrations block and endpoint', async () => {
+  it('serves the integrations endpoint while the classic zavorthControl is retired', async () => {
     const hubSnapshot = createIntegrationHubSnapshot();
     const integrationHubService = {
       buildCatalogSnapshot: jest.fn(() => hubSnapshot),
@@ -429,11 +429,9 @@ describe('ZavorthControlService integration hub', () => {
     const hub = await hubResponse.json();
     await service.stopAsync();
 
-    expect(pageResponse.status).toBe(200);
+    expect(pageResponse.status).toBe(410);
     expect(hubResponse.status).toBe(200);
-    expect(html).toContain('/api/operations/integrations');
-    expect(html).toContain('Carregando Integration Hub');
-    expect(html).toContain('Roteiro seguro');
+    expect(html).toContain('/zavorthControl');
     expect(hub).toEqual(
       expect.objectContaining({
         mcp: expect.objectContaining({

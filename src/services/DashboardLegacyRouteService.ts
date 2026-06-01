@@ -65,11 +65,6 @@ export class DashboardLegacyRouteService {
     pathname: string,
     deps: DashboardLegacyRouteDeps,
   ): Promise<boolean> {
-    if (pathname === '/classic') {
-      deps.writeHtml(res, deps.getClassicDashboardHtml());
-      return true;
-    }
-
     if (pathname === '/api/stats') {
       deps.writeJson(res, deps.getStats(), 200);
       return true;

@@ -65,11 +65,6 @@ export class ZavorthControlLegacyRouteService {
     pathname: string,
     deps: ZavorthControlLegacyRouteDeps,
   ): Promise<boolean> {
-    if (pathname === '/classic') {
-      deps.writeHtml(res, deps.getClassicZavorthControlHtml());
-      return true;
-    }
-
     if (pathname === '/api/stats') {
       deps.writeJson(res, deps.getStats(), 200);
       return true;

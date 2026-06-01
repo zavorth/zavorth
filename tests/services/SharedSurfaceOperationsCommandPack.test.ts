@@ -1,4 +1,4 @@
-import { SharedSurfaceOperationsCommandPack } from '../../src/domain/surface/application/shared-surface/SharedSurfaceOperationsCommandPack';
+import { SharedSurfaceOperationsCommandPack } from '../../src/domain/surface/presentation/shared-surface/SharedSurfaceOperationsCommandPack';
 
 function buildPack(overrides: Record<string, any> = {}): SharedSurfaceOperationsCommandPack {
   return new SharedSurfaceOperationsCommandPack({

@@ -5,7 +5,7 @@ import {
 } from './ProductModeService.js';
 
 export type ProductChannelJourneyId = 'web-only' | 'web+telegram';
-export type ProductChannelSurfaceId = 'control' | 'telegram' | 'discord' | 'classic' | 'cli';
+export type ProductChannelSurfaceId = 'control' | 'telegram' | 'discord' | 'cli';
 export type ProductChannelSurfaceKind = 'web' | 'telegram' | 'discord' | 'cli';
 
 export type ProductChannelJourney = {
@@ -54,8 +54,6 @@ type BuildSnapshotInput = {
   controlReady?: boolean;
   telegramReady?: boolean;
   discordReady?: boolean;
-  classicEntry?: string | null;
-  classicReady?: boolean;
   cliEntry?: string | null;
   cliReady?: boolean;
 };
@@ -78,7 +76,6 @@ export class ProductChannelExperienceService {
     const telegramReady = input.telegramReady === true;
     const recommendedJourney: ProductChannelJourneyId = telegramReady ? 'web+telegram' : 'web-only';
     const controlEntry = String(input.controlEntry || '/dashboard').trim() || '/dashboard';
-    const classicEntry = String(input.classicEntry || '/classic').trim() || '/classic';
     const cliEntry = String(input.cliEntry || 'npm run cli -- status').trim() || 'npm run cli -- status';
     const hiddenSecondaryChannels = isBasicMode ? [...SECONDARY_CHANNEL_LABELS] : [];
 
@@ -125,19 +122,6 @@ export class ProductChannelExperienceService {
         hiddenReason: isBasicMode
           ? 'Oculto por padrao nos modos chat e assistant para manter a experiencia simples.'
           : null,
-      },
-      {
-        id: 'classic',
-        label: 'Classic dashboard',
-        kind: 'web',
-        primary: false,
-        recommended: false,
-        ready: input.classicReady === true,
-        visible: false,
-        legacy: true,
-        entry: classicEntry,
-        description: 'Surface operacional legada para observabilidade e manutencao.',
-        hiddenReason: 'Interno por padrao; habilite ZAVORTH_LEGACY_SURFACES_ENABLED apenas para manutencao.',
       },
       {
         id: 'cli',
@@ -189,7 +173,7 @@ export class ProductChannelExperienceService {
       isBasicMode
         ? 'Discord, Slack, WhatsApp e outros canais ficam ocultos por padrao nos modos basicos.'
         : 'Canais secundarios continuam disponiveis, mas Telegram segue sendo o primeiro caminho externo recomendado.',
-      'CLI continua disponivel para operador/power user; surfaces legadas ficam escondidas por padrao.',
+      'CLI continua disponivel para operador/power user; /app e /classic foram removidas.',
     ];
 
     return {

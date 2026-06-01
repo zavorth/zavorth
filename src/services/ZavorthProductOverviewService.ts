@@ -14,7 +14,7 @@ import {
   type ControlPlaneOverviewCard,
   type ControlPlaneOverviewNarrative,
   type ControlPlaneOverviewPosture,
-} from '../domain/observability/application/control-plane/ControlPlaneOverviewKit.js';
+} from '../domain/observability/infrastructure/control-plane/ControlPlaneOverviewKit.js';
 
 type HubLike = Pick<ZavorthHubControlPlaneService, 'buildSnapshot'>;
 type EcosystemLike = Pick<ZavorthEcosystemControlPlaneService, 'buildSnapshot'>;

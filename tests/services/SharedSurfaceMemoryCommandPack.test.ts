@@ -1,4 +1,4 @@
-import { SharedSurfaceMemoryCommandPack } from '../../src/domain/surface/application/shared-surface/SharedSurfaceMemoryCommandPack';
+import { SharedSurfaceMemoryCommandPack } from '../../src/domain/surface/presentation/shared-surface/SharedSurfaceMemoryCommandPack';
 
 function buildCtx(rawText = '/memory') {
   return {

@@ -10,11 +10,13 @@ export type WebAppSupervisionRouteContext = {
   experimentalAlias: boolean;
   sessionV2Service: any;
   swarmV2Service: any;
+  swarmScalePlaneService: any;
   sessionV2Label: string;
   swarmV2Label: string;
   isSessionV2Route: (suffix?: string) => boolean;
   isSessionV2RecordingRoute: boolean;
   isSwarmV2Route: (suffix?: string) => boolean;
+  isSwarmScaleRoute: (suffix?: string) => boolean;
 };
 
 export type WebAppSupervisionRouteHandler = (

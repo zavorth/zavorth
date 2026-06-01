@@ -3,10 +3,28 @@ import * as http from 'http';
 import * as path from 'path';
 import { config } from '../../../../config/index.js';
 import type { HostIdentityStatus } from '../../../../services/HostIdentityService.js';
+import { DiskMutationGateService } from '../../../../services/DiskMutationGateService.js';
+import { ProjectConstitutionImportService } from '../../../../services/ProjectConstitutionImportService.js';
+import { AcpGenericChannelAdapterService } from '../../../../services/AcpGenericChannelAdapterService.js';
+import { ZavorthExternalAgentGatewayService } from '../../../../services/ZavorthExternalAgentGatewayService.js';
+import { ZavorthAgentReviewService } from '../../../../services/ZavorthAgentReviewService.js';
+import { ZavorthGitWorkflowService, type ZavorthGitWorkflowAction } from '../../../../services/ZavorthGitWorkflowService.js';
 import type { RuntimeOfficialRemoteAccessAction } from '../../../../runtime/access/RuntimeOfficialRemoteAccessService.js';
+import type {
+  ZavorthExternalAgentAdapterKind,
+  ZavorthExternalAgentIsolationKind,
+  ZavorthExternalAgentNetworkMode,
+} from '../../../../contracts/ZavorthExternalAgentGatewayContract.js';
 import type { WebAppRuntimeRouteDeps } from './WebAppRuntimeRouteService.js';
 
 export class WebAppHostRouteService {
+  private readonly diskMutationGate = new DiskMutationGateService();
+  private readonly gitWorkflow = new ZavorthGitWorkflowService();
+  private readonly agentReview = new ZavorthAgentReviewService();
+  private readonly projectConstitutionImporter = new ProjectConstitutionImportService();
+  private readonly acpGenericChannelAdapter = new AcpGenericChannelAdapterService();
+  private readonly externalAgentGateway = new ZavorthExternalAgentGatewayService();
+
   public async handleRequest(
     req: http.IncomingMessage,
     res: http.ServerResponse,
@@ -64,6 +82,272 @@ export class WebAppHostRouteService {
         },
         200,
       );
+      return true;
+    }
+
+    if (pathname === '/api/web/project-constitution/import' && req.method === 'GET') {
+      try {
+        const workspaceRoot = this.resolveLocalWorkspace(url.searchParams.get('workspaceRoot'));
+        deps.writeJson(res, {
+          ok: true,
+          status: this.projectConstitutionImporter.buildStatus({ workspaceRoot }),
+        }, 200);
+      } catch (error: any) {
+        deps.writeJson(res, { ok: false, error: error?.message || 'Falha ao inspecionar constituicao do projeto.' }, 400);
+      }
+      return true;
+    }
+
+    if (pathname === '/api/web/project-constitution/import' && req.method === 'POST') {
+      const body = await deps.readJsonBody(req);
+      try {
+        const workspaceRoot = this.resolveLocalWorkspace(body.workspaceRoot);
+        const action = String(body.action || 'preview').trim().toLowerCase();
+        if (action === 'apply') {
+          const result = this.projectConstitutionImporter.applyPreview({
+            workspaceRoot,
+            previewId: String(body.previewId || '').trim(),
+            approvalPhrase: String(body.approvalPhrase || '').trim(),
+            approvedBy: String(body.approvedBy || deps.runtime.webUserId || 'dashboard').trim() || 'dashboard',
+          });
+          deps.writeJson(res, { ok: true, result }, 200);
+          return true;
+        }
+
+        const preview = this.projectConstitutionImporter.createPreview({
+          workspaceRoot,
+          sourcePaths: Array.isArray(body.sourcePaths) ? body.sourcePaths.map((entry: unknown) => String(entry || '')) : null,
+        });
+        deps.writeJson(res, { ok: true, preview }, preview.status === 'preview_ready' ? 200 : 404);
+      } catch (error: any) {
+        deps.writeJson(res, { ok: false, error: error?.message || 'Falha ao preparar importacao da constituicao.' }, 400);
+      }
+      return true;
+    }
+
+    if (pathname === '/api/web/disk-mutation-gate' && req.method === 'GET') {
+      try {
+        const workspaceRoot = this.resolveLocalWorkspace(url.searchParams.get('workspaceRoot'));
+        deps.writeJson(res, {
+          ok: true,
+          status: this.diskMutationGate.buildStatus({
+            workspaceRoot,
+            limit: this.normalizePositiveInteger(url.searchParams.get('limit')),
+          }),
+        }, 200);
+      } catch (error: any) {
+        deps.writeJson(res, { ok: false, error: error?.message || 'Falha ao inspecionar gate de mutacao em disco.' }, 400);
+      }
+      return true;
+    }
+
+    if (pathname === '/api/web/disk-mutation-gate' && req.method === 'POST') {
+      const body = await deps.readJsonBody(req);
+      try {
+        const workspaceRoot = this.resolveLocalWorkspace(body.workspaceRoot);
+        const action = String(body.action || 'preview').trim().toLowerCase();
+        if (action === 'apply') {
+          const result = this.diskMutationGate.applyPreview({
+            workspaceRoot,
+            previewId: String(body.previewId || '').trim(),
+            approvalPhrase: String(body.approvalPhrase || '').trim(),
+            approvedBy: String(body.approvedBy || deps.runtime.webUserId || 'dashboard').trim() || 'dashboard',
+          });
+          deps.writeJson(res, { ok: true, result }, 200);
+          return true;
+        }
+
+        const preview = this.diskMutationGate.createPreview({
+          workspaceRoot,
+          operations: Array.isArray(body.operations) ? body.operations : [],
+          requestedBy: String(body.requestedBy || deps.runtime.webUserId || 'dashboard').trim() || 'dashboard',
+          sourceSurface: String(body.sourceSurface || 'dashboard').trim() || 'dashboard',
+          reason: String(body.reason || '').trim() || null,
+        });
+        deps.writeJson(res, { ok: true, preview }, preview.status === 'blocked' ? 409 : 200);
+      } catch (error: any) {
+        deps.writeJson(res, { ok: false, error: error?.message || 'Falha ao preparar gate de mutacao em disco.' }, 400);
+      }
+      return true;
+    }
+
+    if (pathname === '/api/web/git/status' && req.method === 'GET') {
+      try {
+        const workspaceRoot = this.resolveLocalWorkspace(url.searchParams.get('workspaceRoot'));
+        const snapshot = await this.gitWorkflow.run({
+          action: 'status',
+          workspaceRoot,
+        });
+        deps.writeJson(res, { ok: true, snapshot }, 200);
+      } catch (error: any) {
+        deps.writeJson(res, { ok: false, error: error?.message || 'Falha ao inspecionar Git workflow.' }, 400);
+      }
+      return true;
+    }
+
+    const gitWorkflowMatch = pathname.match(/^\/api\/web\/git\/(branch|commit|pr)$/);
+    if (gitWorkflowMatch && req.method === 'POST') {
+      const body = await deps.readJsonBody(req);
+      try {
+        const workspaceRoot = this.resolveLocalWorkspace(body.workspaceRoot);
+        const action = gitWorkflowMatch[1] as ZavorthGitWorkflowAction;
+        const snapshot = await this.gitWorkflow.run({
+          action,
+          workspaceRoot,
+          args: Array.isArray(body.args) ? body.args.map((entry: unknown) => String(entry || '')) : String(body.args || ''),
+          apply: body.apply === true,
+          approvalId: String(body.approvalId || '').trim() || null,
+          approvedBy: String(body.approvedBy || deps.runtime.webUserId || 'dashboard').trim() || 'dashboard',
+        });
+        deps.writeJson(res, { ok: snapshot.status !== 'failed' && snapshot.status !== 'blocked', snapshot }, snapshot.status === 'blocked' ? 409 : 200);
+      } catch (error: any) {
+        deps.writeJson(res, { ok: false, error: error?.message || 'Falha ao executar Git workflow.' }, 400);
+      }
+      return true;
+    }
+
+    if (pathname === '/api/web/review' && req.method === 'POST') {
+      const body = await deps.readJsonBody(req);
+      try {
+        const workspaceRoot = this.resolveLocalWorkspace(body.workspaceRoot);
+        const snapshot = await this.agentReview.run({
+          objective: String(body.objective || body.args || '').trim() || null,
+          workspace: workspaceRoot,
+          target: body.target === 'provided' || body.target === 'github-pr' || body.target === 'workspace-diff' ? body.target : null,
+          mode: body.mode === 'security-review' || body.mode === 'policy-review' || body.mode === 'regression-review' || body.mode === 'code-review'
+            ? body.mode
+            : null,
+          baseRef: String(body.baseRef || body.base || '').trim() || null,
+          targetRef: String(body.targetRef || body.head || '').trim() || null,
+          prTarget: String(body.prTarget || body.pr || '').trim() || null,
+          repo: String(body.repo || '').trim() || null,
+          diffText: String(body.diffText || '').trim() || null,
+          postComment: body.postComment === true,
+          applyPatch: body.applyPatch === true,
+          launchLiveAgents: body.launchLiveAgents === true,
+          approvalId: String(body.approvalId || '').trim() || null,
+          userId: String(body.userId || deps.runtime.webUserId || 'dashboard').trim() || 'dashboard',
+          sessionId: String(body.sessionId || '').trim() || 'dashboard-review',
+        });
+        deps.writeJson(res, { ok: true, snapshot }, 200);
+      } catch (error: any) {
+        deps.writeJson(res, { ok: false, error: error?.message || 'Falha ao executar review governado.' }, 400);
+      }
+      return true;
+    }
+
+    if (pathname === '/api/web/acp-generic-channel-adapter' && req.method === 'GET') {
+      deps.writeJson(res, {
+        ok: true,
+        snapshot: this.acpGenericChannelAdapter.buildSnapshot(),
+      }, 200);
+      return true;
+    }
+
+    if (pathname === '/api/web/acp-generic-channel-adapter' && req.method === 'POST') {
+      const body = await deps.readJsonBody(req);
+      try {
+        const receipt = this.acpGenericChannelAdapter.ingest(body.frame || body, {
+          emitGatewayEvent: false,
+          receiptPath: String(body.receiptPath || '').trim() || null,
+        });
+        const ok = receipt.status !== 'blocked' && receipt.status !== 'failed';
+        deps.writeJson(
+          res,
+          { ok, receipt },
+          receipt.status === 'approval_required'
+            ? 202
+            : ok
+              ? 200
+              : 409,
+        );
+      } catch (error: any) {
+        deps.writeJson(res, { ok: false, error: error?.message || 'Falha ao normalizar frame ACP generico.' }, 400);
+      }
+      return true;
+    }
+
+    if (pathname === '/api/web/external-agents' && req.method === 'GET') {
+      deps.writeJson(res, {
+        ok: true,
+        snapshot: this.externalAgentGateway.buildDashboardSnapshot(),
+      }, 200);
+      return true;
+    }
+
+    if (pathname === '/api/web/external-agents/register' && req.method === 'POST') {
+      const body = await deps.readJsonBody(req);
+      try {
+        const receipt = this.externalAgentGateway.registerProfile({
+          id: this.cleanOptionalString(body.id || body.profileId),
+          label: this.cleanOptionalString(body.label || body.name),
+          adapter: this.normalizeExternalAgentAdapter(body.adapter),
+          root: this.cleanOptionalString(body.root || body.workspaceRoot),
+          command: this.cleanOptionalString(body.command),
+          args: this.normalizeStringArray(body.args),
+          endpoint: this.cleanOptionalString(body.endpoint || body.url),
+          acpServerId: this.cleanOptionalString(body.acpServerId || body.serverId),
+          acpTransport: this.normalizeExternalAgentAcpTransport(body.acpTransport || body.transport),
+          promptMode: this.normalizeExternalAgentPromptMode(body.promptMode),
+          allowedCapabilities: this.normalizeStringArray(body.allowedCapabilities || body.capabilities),
+          enableLive: body.enableLive === true || body.liveExecutionEnabled === true,
+          allowRemoteNetwork: body.allowRemoteNetwork === true,
+          isolation: this.normalizeExternalAgentIsolation(body.isolation),
+          sandboxImage: this.cleanOptionalString(body.sandboxImage),
+          dockerImage: this.cleanOptionalString(body.dockerImage || body.image),
+          wslDistro: this.cleanOptionalString(body.wslDistro || body.distro),
+          workspaceMount: this.cleanOptionalString(body.workspaceMount),
+          sandboxWorkdir: this.cleanOptionalString(body.sandboxWorkdir),
+          workingDirectory: this.cleanOptionalString(body.workingDirectory || body.cwd),
+          network: this.normalizeExternalAgentNetwork(body.network),
+          readOnlyRoot: body.readOnlyRoot !== false,
+          requireStrongIsolation: body.requireStrongIsolation === true,
+          requestedBy: this.cleanOptionalString(body.requestedBy) || deps.runtime.webUserId || 'dashboard',
+          approvalGranted: body.approvalGranted === true || body.approveRegistration === true,
+          onboardingCandidateId: this.cleanOptionalString(body.onboardingCandidateId),
+          source: 'api',
+        });
+        const ok = receipt.status === 'registered';
+        deps.writeJson(res, {
+          ok,
+          receipt,
+          snapshot: this.externalAgentGateway.buildDashboardSnapshot(),
+        }, ok ? 200 : 202);
+      } catch (error: any) {
+        deps.writeJson(res, {
+          ok: false,
+          error: error?.message || 'Falha ao registrar agente externo.',
+          snapshot: this.externalAgentGateway.buildDashboardSnapshot(),
+        }, 400);
+      }
+      return true;
+    }
+
+    if (pathname === '/api/web/external-agents/invoke' && req.method === 'POST') {
+      const body = await deps.readJsonBody(req);
+      try {
+        const receipt = await this.externalAgentGateway.invoke({
+          profileId: String(body.profileId || body.id || '').trim(),
+          prompt: String(body.prompt || body.text || '').trim(),
+          requestedBy: this.cleanOptionalString(body.requestedBy) || deps.runtime.webUserId || 'dashboard',
+          approvalGranted: body.approvalGranted === true || body.approveExternalExecution === true,
+          dryRun: body.dryRun === true,
+          timeoutMs: this.normalizePositiveInteger(body.timeoutMs) || null,
+          receiptPath: this.cleanOptionalString(body.receiptPath),
+        });
+        const ok = receipt.status !== 'blocked' && receipt.status !== 'failed';
+        deps.writeJson(res, {
+          ok,
+          receipt,
+          snapshot: this.externalAgentGateway.buildDashboardSnapshot(),
+        }, receipt.status === 'approval-required' ? 202 : ok ? 200 : receipt.status === 'failed' ? 500 : 409);
+      } catch (error: any) {
+        deps.writeJson(res, {
+          ok: false,
+          error: error?.message || 'Falha ao executar agente externo.',
+          snapshot: this.externalAgentGateway.buildDashboardSnapshot(),
+        }, 400);
+      }
       return true;
     }
 
@@ -357,6 +641,76 @@ export class WebAppHostRouteService {
       return normalized;
     }
     return null;
+  }
+
+  private normalizeExternalAgentAdapter(value: unknown): ZavorthExternalAgentAdapterKind | null {
+    const normalized = String(value || '').trim().toLowerCase();
+    if (normalized === 'cli' || normalized === 'http' || normalized === 'acp' || normalized === 'mcp') {
+      return normalized;
+    }
+    return null;
+  }
+
+  private normalizeExternalAgentIsolation(value: unknown): ZavorthExternalAgentIsolationKind | 'local' | null {
+    const normalized = String(value || '').trim().toLowerCase();
+    if (normalized === 'docker' || normalized === 'wsl' || normalized === 'local' || normalized === 'local-supervised') {
+      return normalized;
+    }
+    return null;
+  }
+
+  private normalizeExternalAgentNetwork(value: unknown): ZavorthExternalAgentNetworkMode | null {
+    const normalized = String(value || '').trim().toLowerCase();
+    if (normalized === 'disabled' || normalized === 'local-only' || normalized === 'profile') {
+      return normalized;
+    }
+    return null;
+  }
+
+  private normalizeExternalAgentPromptMode(value: unknown): 'stdin' | 'arg' | 'json' | null {
+    const normalized = String(value || '').trim().toLowerCase();
+    if (normalized === 'stdin' || normalized === 'arg' || normalized === 'json') {
+      return normalized;
+    }
+    return null;
+  }
+
+  private normalizeExternalAgentAcpTransport(value: unknown): 'mock-jsonrpc' | 'stdio-jsonrpc' | 'acp-sdk-stdio' | null {
+    const normalized = String(value || '').trim().toLowerCase();
+    if (normalized === 'mock-jsonrpc' || normalized === 'stdio-jsonrpc' || normalized === 'acp-sdk-stdio') {
+      return normalized;
+    }
+    return null;
+  }
+
+  private normalizeStringArray(value: unknown): string[] {
+    if (Array.isArray(value)) {
+      return value.map((entry) => String(entry || '').trim()).filter(Boolean);
+    }
+    const text = String(value || '').trim();
+    if (!text) return [];
+    return text.split(/\s+/).map((entry) => entry.trim()).filter(Boolean);
+  }
+
+  private cleanOptionalString(value: unknown): string | null {
+    const normalized = String(value || '').trim();
+    return normalized ? normalized : null;
+  }
+
+  private resolveLocalWorkspace(value: unknown): string {
+    const requested = String(value || '').trim();
+    const workspaceRoot = path.resolve(requested || config.defaultWorkspace || config.projectRoot);
+    const allowedRoot = path.resolve(config.workspaceRoot || config.projectRoot);
+    const projectRoot = path.resolve(config.projectRoot);
+    if (workspaceRoot !== projectRoot && !this.isInsidePath(allowedRoot, workspaceRoot)) {
+      throw new Error('Workspace fora do escopo local autorizado.');
+    }
+    return workspaceRoot;
+  }
+
+  private isInsidePath(parent: string, child: string): boolean {
+    const relative = path.relative(path.resolve(parent), path.resolve(child));
+    return relative === '' || (!relative.startsWith('..') && !path.isAbsolute(relative));
   }
 
   private async runInstallJourneyAction(

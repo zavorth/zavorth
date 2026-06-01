@@ -23,8 +23,15 @@ export type ChannelLongTailActivationId =
   | 'tlon'
   | 'twitch'
   | 'webhooks'
+  | 'wecom'
+  | 'weixin'
   | 'zalo'
-  | 'zalouser';
+  | 'zalouser'
+  | 'yuanbao'
+  | 'sms'
+  | 'home-assistant'
+  | 'voice-call'
+  | 'google-meet';
 
 export type ChannelLongTailActivationGateKind =
   | 'family-adapter'

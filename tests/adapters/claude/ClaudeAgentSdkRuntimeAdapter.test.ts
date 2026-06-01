@@ -62,6 +62,73 @@ describe('ClaudeAgentSdkRuntimeAdapter', () => {
     }));
   });
 
+  it('emits provider-native stream events from Claude Agent SDK query messages', async () => {
+    const events: any[] = [];
+    const adapter = new ClaudeAgentSdkRuntimeAdapter({
+      enabled: true,
+      apiKey: 'test-key',
+      model: 'claude-stream-model',
+      cwd: 'C:/TESTES DEV/zavorth-core/Zavorth',
+      query: () => sdkMessages(
+        {
+          type: 'assistant',
+          message: {
+            content: [{ type: 'text', text: 'Parcial' }],
+            stop_reason: null,
+          },
+          session_id: 'claude-stream-session',
+        },
+        {
+          type: 'result',
+          subtype: 'success',
+          result: 'Parcial final',
+          stop_reason: 'end_turn',
+          session_id: 'claude-stream-session',
+        },
+      ),
+    });
+
+    const result = await adapter.chatDetailed([
+      { role: 'user', content: 'stream' },
+    ], [], {
+      stream: {
+        onEvent: (event) => {
+          events.push(event);
+        },
+      },
+    });
+
+    expect(result.response.content).toBe('Parcial final');
+    expect(result.metadata).toEqual(expect.objectContaining({
+      providerNativeTokenStreaming: true,
+      providerNativeStreamSource: 'claude-agent-sdk-query',
+    }));
+    expect(events).toEqual([
+      expect.objectContaining({
+        type: 'start',
+        providerName: 'claude-agent-sdk',
+        modelName: 'claude-stream-model',
+        native: true,
+      }),
+      expect.objectContaining({
+        type: 'delta',
+        delta: 'Parcial',
+        accumulated: 'Parcial',
+        providerName: 'claude-agent-sdk',
+      }),
+      expect.objectContaining({
+        type: 'delta',
+        delta: ' final',
+        accumulated: 'Parcial final',
+      }),
+      expect.objectContaining({
+        type: 'done',
+        done: true,
+        accumulated: 'Parcial final',
+      }),
+    ]);
+  });
+
   it('does not inherit unrelated host provider secrets into the Claude SDK env', async () => {
     const previousOpenAi = process.env.OPENAI_API_KEY;
     const previousGemini = process.env.GEMINI_API_KEY;
@@ -287,7 +354,7 @@ describe('ClaudeAgentSdkRuntimeAdapter', () => {
       providerName: 'claude-agent-sdk',
       modelName: 'claude-test-model',
     }));
-    expect(result.run.events.some((event) => event.title === 'Resposta gerada pelo provider runtime')).toBe(true);
+    expect(result.run.events.some((event) => event.title === 'Model response generated')).toBe(true);
   });
 
   it('passes approved AgentRun tool exposure into Claude Agent SDK live tool policy', async () => {

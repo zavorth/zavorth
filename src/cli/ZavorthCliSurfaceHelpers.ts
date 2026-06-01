@@ -35,6 +35,13 @@ export type CliHelpSnapshot = {
     | 'hud'
     | 'hatch'
     | 'quickstart'
+    | 'constitution'
+    | 'disk'
+    | 'branch'
+    | 'commit'
+    | 'pr'
+    | 'review'
+    | 'acp'
     | 'start'
     | 'demo'
     | 'connectors'
@@ -190,6 +197,29 @@ const CLI_HELP_TOPIC_ALIASES: Record<string, CliHelpTopic> = {
   quickstart: 'quickstart',
   configure: 'quickstart',
   configurar: 'quickstart',
+  constitution: 'constitution',
+  constituicao: 'constitution',
+  ['constituiÃ§Ã£o']: 'constitution',
+  ['constituição']: 'constitution',
+  projectconstitution: 'constitution',
+  disk: 'disk',
+  diskgate: 'disk',
+  'disk-gate': 'disk',
+  mutationgate: 'disk',
+  'mutation-gate': 'disk',
+  branch: 'branch',
+  commit: 'commit',
+  pr: 'pr',
+  pullrequest: 'pr',
+  'pull-request': 'pr',
+  review: 'review',
+  codereview: 'review',
+  'code-review': 'review',
+  revisao: 'review',
+  acp: 'acp',
+  acpx: 'acp',
+  'acp-channel': 'acp',
+  'acp-adapter': 'acp',
   start: 'start',
   comecar: 'start',
   demo: 'demo',
@@ -393,6 +423,152 @@ const CLI_COMMAND_HELP_PAGES: Record<Exclude<CliHelpTopic, 'root'>, CliHelpPage>
     notes: [
       'QuickStart does not start runtime or run a live probe without explicit consent.',
       'Use "zavorth setup" when you want full profile, memory and preference setup.',
+    ],
+  },
+  constitution: {
+    topic: 'constitution',
+    title: 'zavorth constitution',
+    summary: 'Safely imports AGENTS.md and CLAUDE.md into ZAVORTH_PROJECT.md as approved advisory project context.',
+    sections: [
+      {
+        title: 'Use when',
+        entries: [
+          { summary: 'You already have agent instruction files and want Zavorth to learn the project rules without trusting them blindly.' },
+          { summary: 'You want a preview, approval phrase and receipt before changing persistent project context.' },
+        ],
+      },
+      {
+        title: 'Commands',
+        entries: [
+          { command: 'zavorth constitution status', summary: 'Show candidates, current target and import receipts.' },
+          { command: 'zavorth constitution import', summary: 'Create preview only; no file write.' },
+          { command: 'zavorth constitution import --apply --yes', summary: 'Preview, redact and apply with local owner approval.' },
+          { command: 'zavorth constitution apply <previewId> --approval-phrase "..."', summary: 'Apply a saved preview using the exact approval phrase.' },
+        ],
+      },
+    ],
+    notesTitle: 'Safety',
+    notes: [
+      'Imported content is advisory context only. It cannot grant tools, bypass approval or override Zavorth policy.',
+      'Secrets are redacted before persistence and the receipt records the source files and hashes.',
+    ],
+  },
+  disk: {
+    topic: 'disk',
+    title: 'zavorth disk',
+    summary: 'Universal disk mutation gate with preview, explicit approval and receipts for local file changes.',
+    sections: [
+      {
+        title: 'Use when',
+        entries: [
+          { summary: 'You want a governed path for writing, appending, deleting or creating local files.' },
+          { summary: 'You need a stable receipt proving what changed without storing raw file contents.' },
+        ],
+      },
+      {
+        title: 'Commands',
+        entries: [
+          { command: 'zavorth disk status', summary: 'Show recent disk mutation receipts.' },
+          { command: 'zavorth disk preview --write output/a.txt --content "hello"', summary: 'Create preview only; no target write.' },
+          { command: 'zavorth disk preview --append output/a.txt --content "\\nmore"', summary: 'Preview append with hash precondition.' },
+          { command: 'zavorth disk preview --delete output/a.txt', summary: 'Preview file deletion.' },
+          { command: 'zavorth disk preview --apply --yes --write output/a.txt --content "hello"', summary: 'Preview and apply with local owner approval.' },
+          { command: 'zavorth disk apply <previewId> --approval-phrase "..."', summary: 'Apply a saved preview using the exact approval phrase.' },
+        ],
+      },
+    ],
+    notesTitle: 'Safety',
+    notes: [
+      'Writes outside the workspace, symlinks, protected paths and secret-like content are blocked.',
+      'Apply rechecks the original file hash before writing and records a receipt under .zavorth/receipts.',
+    ],
+  },
+  branch: {
+    topic: 'branch',
+    title: 'zavorth branch',
+    summary: 'Preview or create a git branch through the governed Zavorth Git workflow.',
+    sections: [
+      {
+        title: 'Commands',
+        entries: [
+          { command: 'zavorth branch feature/name', summary: 'Preview git switch -c without mutating refs.' },
+          { command: 'zavorth branch feature/name --apply --yes', summary: 'Create and switch branch with local owner approval.' },
+          { command: 'zavorth git-status', summary: 'Show current branch and dirty file count.' },
+        ],
+      },
+    ],
+    notesTitle: 'Safety',
+    notes: ['Branch names are validated; mutation requires --apply plus --yes or --approval-id.'],
+  },
+  commit: {
+    topic: 'commit',
+    title: 'zavorth commit',
+    summary: 'Preview or create a git commit through Zavorth approval-aware workflow.',
+    sections: [
+      {
+        title: 'Commands',
+        entries: [
+          { command: 'zavorth commit -m "message"', summary: 'Preview git add --all and git commit.' },
+          { command: 'zavorth commit -m "message" --apply --yes', summary: 'Stage all changes and commit with local owner approval.' },
+        ],
+      },
+    ],
+    notesTitle: 'Safety',
+    notes: ['Commit uses explicit git args, no shell interpolation, and writes a git workflow receipt on apply.'],
+  },
+  pr: {
+    topic: 'pr',
+    title: 'zavorth pr',
+    summary: 'Preview or create a GitHub pull request through gh with approval-aware execution.',
+    sections: [
+      {
+        title: 'Commands',
+        entries: [
+          { command: 'zavorth pr --title "Feature" --base main', summary: 'Preview gh pr create.' },
+          { command: 'zavorth pr --title "Feature" --base main --apply --yes', summary: 'Create PR through gh with local owner approval.' },
+        ],
+      },
+    ],
+    notesTitle: 'Safety',
+    notes: ['PR creation is external IO and requires --apply plus --yes or --approval-id.'],
+  },
+  review: {
+    topic: 'review',
+    title: 'zavorth review',
+    summary: 'Run the official governed Agent Review surface over workspace diffs or GitHub PRs.',
+    sections: [
+      {
+        title: 'Commands',
+        entries: [
+          { command: 'zavorth review', summary: 'Review current workspace diff in read-only mode.' },
+          { command: 'zavorth review --security', summary: 'Run governed security review mode.' },
+          { command: 'zavorth review --pr 42 --repo owner/repo', summary: 'Collect GitHub PR metadata/diff through gh and review read-only.' },
+          { command: 'zavorth review --pr 42 --post-comment --approval-id <id>', summary: 'Post approved governed review comment.' },
+        ],
+      },
+    ],
+    notesTitle: 'Safety',
+    notes: ['Read-only by default. Comments, patches and live agents remain approval-gated.'],
+  },
+  acp: {
+    topic: 'acp',
+    title: 'zavorth acp',
+    summary: 'Zavorth-native ACP-compatible channel adapter for external agent frames, handshakes and tool requests.',
+    sections: [
+      {
+        title: 'Commands',
+        entries: [
+          { command: 'zavorth acp channel status', summary: 'Show the generic ACP channel adapter contract and counters.' },
+          { command: 'zavorth acp channel ingest --text "hello"', summary: 'Normalize an ACP-compatible message into Zavorth inbound contracts.' },
+          { command: 'zavorth acp channel ingest --kind tool_request --tool Write --text "edit file"', summary: 'Create an approval-required receipt without executing the tool.' },
+          { command: 'zavorth acp session --prompt "ping"', summary: 'Run the older governed ACP live-session path.' },
+        ],
+      },
+    ],
+    notesTitle: 'Safety',
+    notes: [
+      'The generic channel adapter is Zavorth-native: source tokens are evidence only and never become authority.',
+      'It normalizes frames and approval requests; it does not mutate disk or execute external tools.',
     ],
   },
   start: {
@@ -1180,6 +1356,9 @@ export function buildCliHelpSnapshot(target?: string | null): CliHelpSnapshot {
           { command: 'zavorth -p "explain this repo"', summary: 'One-shot prompt with governed tools.' },
           { command: 'zavorth ask "question"', summary: 'Natural language through the LLM-first agent.' },
           { command: 'zavorth run "task"', summary: 'Governed task with timeline and evidence.' },
+          { command: 'zavorth todo "task"', summary: 'Add a simple item to the persistent work queue.' },
+          { command: 'zavorth later "task amanhã 9h"', summary: 'Schedule work to appear as a task when due.' },
+          { command: 'zavorth work', summary: 'Show current work and materialize due scheduled items.' },
           { command: 'zavorth approve', summary: 'Review pending approvals.' },
           { command: 'zavorth diff', summary: 'Inspect sandbox diffs before host changes.' },
           { command: 'zavorth learn', summary: 'Review learning before future behavior changes.' },

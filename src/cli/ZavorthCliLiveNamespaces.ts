@@ -7,6 +7,10 @@ import { gzip, gunzip } from 'zlib';
 import { promisify } from 'util';
 import { formatZavorthParityHelp } from './ZavorthCliParityCommands.js';
 import { ZavorthOperationalParityService } from '../services/ZavorthOperationalParityService.js';
+import { TaskPlaneService } from '../services/TaskPlaneService.js';
+import { ZavorthHomePathService } from '../services/ZavorthHomePathService.js';
+import { ZavorthActionGateway, type ZavorthActionOperation } from '../runtime/actions/index.js';
+import { SkillCuratorPlaneService } from '../skills/SkillCuratorPlaneService.js';
 import { TerminalPanel } from './presentation/TerminalPanel.js';
 
 type JsonObject = Record<string, unknown>;
@@ -14,10 +18,10 @@ const gzipAsync = promisify(gzip);
 const gunzipAsync = promisify(gunzip);
 
 const LIVE_COMMANDS = new Set([
-  'backup', 'commitments', 'config', 'cron', 'daemon', 'devices', 'directory', 'dns',
+  'actions', 'backup', 'commitments', 'config', 'cron', 'daemon', 'devices', 'directory', 'dns',
   'docs', 'exec-policy', 'gateway', 'health', 'hooks', 'infer', 'logs', 'mcp', 'message', 'node',
   'nodes', 'pairing', 'plugins', 'proxy', 'qr', 'reset', 'secrets', 'sessions', 'skills',
-  'sandbox', 'system', 'tasks', 'uninstall', 'webhooks', 'certify',
+  'mnemos', 'sandbox', 'satellite', 'swarm', 'system', 'tasks', 'uninstall', 'webhooks', 'certify',
 ]);
 
 export function isZavorthLiveNamespaceCommand(command: string): boolean {
@@ -36,6 +40,7 @@ export async function runZavorthLiveNamespaceCommand(input: {
   }
 
   switch (command) {
+    case 'actions': return runActions(input.projectRoot, args);
     case 'backup': return runBackup(input.projectRoot, args);
     case 'certify': return runCertify(input.projectRoot, args);
     case 'commitments': return runCollection(input.projectRoot, 'commitments', args, 'commitment');
@@ -53,6 +58,7 @@ export async function runZavorthLiveNamespaceCommand(input: {
     case 'logs': return runLogs(input.projectRoot, args);
     case 'mcp': return runMcp(input.projectRoot, args);
     case 'message': return runMessage(input.projectRoot, args);
+    case 'mnemos': return runMnemos(input.projectRoot, args);
     case 'gateway': return runServiceCommand(input.projectRoot, 'gateway', args);
     case 'node': return runNodeHost(input.projectRoot, args);
     case 'nodes': return runNodesCommand(input.projectRoot, args);
@@ -62,10 +68,12 @@ export async function runZavorthLiveNamespaceCommand(input: {
     case 'qr': return runQr(input.projectRoot, args);
     case 'reset': return runReset(input.projectRoot, args);
     case 'sandbox': return runSandbox(input.projectRoot, args);
+    case 'satellite': return runSatellite(input.projectRoot, args);
     case 'secrets': return runSecrets(input.projectRoot, args);
     case 'sessions': return runCollection(input.projectRoot, 'sessions', args, 'session');
     case 'skills': return runSkills(input.projectRoot, args);
     case 'system': return runSystem(input.projectRoot, args);
+    case 'swarm': return runSwarm(input.projectRoot, args);
     case 'tasks': return runRunnableCollection(input.projectRoot, 'tasks', args, 'task');
     case 'uninstall': return runUninstall(input.projectRoot, args);
     case 'webhooks': return runWebhooks(input.projectRoot, args);
@@ -83,6 +91,268 @@ async function runCertify(root: string, args: string[]) {
     exitCode: args.includes('--strict') && snapshot.status !== 'pass' ? 1 : 0,
     output,
   };
+}
+
+async function runActions(root: string, args: string[]) {
+  const gateway = new ZavorthActionGateway({ root });
+  const subcommand = firstArg(args, 'lookup');
+  if (subcommand === 'list') {
+    const actions = gateway.listActions().map((action) => ({
+      id: action.id,
+      title: action.title,
+      risk: action.risk,
+      requiresPreview: action.requiresPreview,
+      requiresApproval: action.requiresApproval,
+      domains: action.domains,
+    }));
+    return render(args, 'Zavorth actions', actions.map((action) => `${action.id} | ${action.risk} | ${action.title}`), { actions });
+  }
+
+  if (subcommand === 'receipts') {
+    const result = await gateway.run({
+      operation: 'action.receipts',
+      actionId: readFlag(args, 'id') || args[1] || null,
+      sourceSurface: 'cli:actions',
+      actorId: 'operator',
+    });
+    return render(args, 'Zavorth action receipts', result.lines, result);
+  }
+
+  const operation = resolveCliActionOperation(subcommand);
+  const actionId = readFlag(args, 'id') || readFlag(args, 'action') || (operation === 'action.schema.lookup' ? '' : args[1] || '');
+  const query = readFlag(args, 'query') || (operation === 'action.schema.lookup' ? args.slice(1).filter((arg) => !arg.startsWith('--')).join(' ') : '');
+  const argsJson = readFlag(args, 'args-json') || readFlag(args, 'args') || '{}';
+  const actionArgs = parseCliActionArgs(argsJson);
+  const result = await gateway.run({
+    operation,
+    actionId: actionId || null,
+    query: query || null,
+    domain: readFlag(args, 'domain') || null,
+    args: actionArgs,
+    approvalId: readFlag(args, 'approval-id') || null,
+    trustedOperatorConfirmation: args.includes('--apply') || args.includes('--yes'),
+    sourceSurface: 'cli:actions',
+    actorId: 'operator',
+  });
+  return render(args, 'Zavorth actions', result.lines, result);
+}
+
+function resolveCliActionOperation(value: string): ZavorthActionOperation {
+  switch (value) {
+    case 'lookup':
+    case 'search':
+      return 'action.schema.lookup';
+    case 'status':
+      return 'action.status';
+    case 'preview':
+      return 'action.preview';
+    case 'apply':
+      return 'action.apply';
+    case 'receipts':
+      return 'action.receipts';
+    default:
+      return 'action.schema.lookup';
+  }
+}
+
+function parseCliActionArgs(value: string): Record<string, unknown> {
+  const textValue = String(value || '').trim();
+  if (!textValue) {
+    return {};
+  }
+  try {
+    const parsed: unknown = JSON.parse(textValue);
+    return parsed && typeof parsed === 'object' && !Array.isArray(parsed)
+      ? parsed as Record<string, unknown>
+      : {};
+  } catch {
+    return { query: textValue };
+  }
+}
+
+async function runMnemos(root: string, args: string[]) {
+  const action = firstArg(args, 'recall');
+  const gateway = new ZavorthActionGateway({ root });
+  if (action === 'unify' || action === 'unified' || action === 'index-all') {
+    const { ZavorthMnemosUnifiedMemoryService } = await import('../services/ZavorthMnemosUnifiedMemoryService.js');
+    const service = new ZavorthMnemosUnifiedMemoryService({ projectRoot: root });
+    const snapshot = service.buildSnapshot({ apply: args.includes('--apply') || args.includes('--yes') });
+    return render(args, 'Zavorth Mnemos unified memory', [
+      `Status: ${snapshot.status}`,
+      `Documents: ${snapshot.documentsIndexed}`,
+      `Apply: ${snapshot.applyPerformed ? 'yes' : 'no'}`,
+      `Output: ${snapshot.outputPath}`,
+      ...snapshot.sources.map((source) => `${source.id}: ${source.documents} (${source.status})`),
+    ], snapshot as unknown as JsonObject);
+  }
+  if (['recall', 'search', 'query'].includes(action)) {
+    const query = readFlag(args, 'query') || args.slice(1).filter((arg) => !arg.startsWith('--')).join(' ') || 'recent workflow';
+    const result = await gateway.run({
+      operation: 'action.preview',
+      actionId: 'memory.search',
+      args: {
+        query,
+        limit: readNumberFlag(args, 'limit') || 8,
+      },
+      sourceSurface: 'cli:mnemos',
+      actorId: 'operator',
+    });
+    return render(args, 'Zavorth Mnemos recall', result.lines, result);
+  }
+  if (action === 'forget') {
+    const memoryId = readFlag(args, 'id') || args[1] || '';
+    const result = await gateway.run({
+      operation: args.includes('--apply') || args.includes('--yes') ? 'action.apply' : 'action.preview',
+      actionId: 'memory.forget',
+      args: { memoryId, id: memoryId },
+      trustedOperatorConfirmation: args.includes('--apply') || args.includes('--yes'),
+      approvalId: readFlag(args, 'approval-id') || null,
+      sourceSurface: 'cli:mnemos',
+      actorId: 'operator',
+    });
+    return render(args, 'Zavorth Mnemos forget', result.lines, result);
+  }
+  if (action === 'correct' || action === 'promote') {
+    const { ZavorthNativeLearningLoopService } = await import('../services/ZavorthNativeLearningLoopService.js');
+    const observation = readFlag(args, 'observation')
+      || readFlag(args, 'text')
+      || args.slice(1).filter((arg) => !arg.startsWith('--')).join(' ')
+      || `${action} memory proposal`;
+    const snapshot = await new ZavorthNativeLearningLoopService().buildSnapshot({
+      observation,
+      query: observation,
+      workspace: root,
+      sourceSurface: `cli:mnemos:${action}`,
+      limit: readNumberFlag(args, 'limit') || 5,
+    });
+    const lines = [
+      `proposal mode: ${action}`,
+      `candidates: ${snapshot.summary.candidates}`,
+      `approval required: ${snapshot.summary.requiresApproval}`,
+      ...snapshot.candidates.slice(0, 5).map((candidate) => `- ${candidate.kind}: ${candidate.title} | ${candidate.state}`),
+    ];
+    return render(args, `Zavorth Mnemos ${action}`, lines, snapshot);
+  }
+  return render(args, 'Zavorth Mnemos', [
+    'Supported: recall, unify, forget, correct, promote',
+  ], { ok: true });
+}
+
+async function runSatellite(root: string, args: string[]) {
+  const action = firstArg(args, 'status');
+  if (action === 'approvals' || action === 'daily') {
+    const { ZavorthSatelliteApprovalDailyService } = await import('../services/ZavorthSatelliteApprovalDailyService.js');
+    const service = new ZavorthSatelliteApprovalDailyService({ projectRoot: root });
+    const snapshot = service.buildSnapshot({ applyReceipt: args.includes('--apply-receipt') });
+    return render(args, 'Zavorth Satellite approvals', [
+      `Status: ${snapshot.status}`,
+      `Route: ${snapshot.route}`,
+      `Approval cards: ${snapshot.approvalCards}`,
+      `Offline queue: ${snapshot.offlineQueueSupported ? 'ready' : 'needs configuration'}`,
+      `Push plan: ${snapshot.pushPlanReady ? 'ready' : 'not ready'}`,
+      `Execution authority: ${snapshot.executionAuthority ? 'yes' : 'no'}`,
+    ], snapshot as unknown as JsonObject);
+  }
+  const { ZavorthAppsSatelliteNodesService } = await import('../services/ZavorthAppsSatelliteNodesService.js');
+  const service = new ZavorthAppsSatelliteNodesService({ cwd: root });
+  const satelliteAction = action === 'pair' || action === 'pairing'
+    ? 'pairing.qr'
+    : action === 'push-plan' || action === 'push'
+      ? 'push.plan'
+      : 'status';
+  const snapshot = service.execute({
+    action: satelliteAction as any,
+    nodeKind: (readFlag(args, 'kind') || readFlag(args, 'node-kind') || 'mobile') as any,
+    label: readFlag(args, 'label') || null,
+    actorId: readFlag(args, 'actor') || 'operator',
+    workspace: root,
+    materialize: args.includes('--apply') || args.includes('--materialize'),
+    approvalId: readFlag(args, 'approval-id') || null,
+    ttlSeconds: readNumberFlag(args, 'ttl-seconds') || undefined,
+  });
+  return render(args, 'Zavorth Satellite', service.formatSnapshotText(snapshot).split('\n'), snapshot);
+}
+
+async function runSwarm(root: string, args: string[]) {
+  const action = firstArg(args, 'plan');
+  const { SwarmScalePlaneService } = await import('../domain/execution/infrastructure/SwarmScalePlaneService.js');
+  const stateFilePath = path.join(stateDir(root), 'swarm-scale-plane.json');
+  const service = new SwarmScalePlaneService({ stateFilePath });
+  if (action === 'resume') {
+    const runId = readFlag(args, 'run-id') || args[1] || '';
+    if (!runId) return render(args, 'Zavorth Swarm', ['Missing --run-id for resume.'], { ok: false });
+    const snapshot = await service.resume({
+      runId,
+      stopAfterSteps: readNumberFlag(args, 'stop-after-steps') || undefined,
+      persistState: !args.includes('--no-persist'),
+    });
+    return render(args, 'Zavorth Swarm resume', renderSwarmLines(snapshot), snapshot);
+  }
+  if (action === 'cancel') {
+    const runId = readFlag(args, 'run-id') || args[1] || '';
+    const cancelled = await cancelSwarmRun(stateFilePath, runId);
+    return render(args, 'Zavorth Swarm cancel', [
+      cancelled ? `Cancelled run: ${runId}` : `Run not found: ${runId || '<missing>'}`,
+    ], { ok: cancelled, runId });
+  }
+  const objective = readFlag(args, 'objective')
+    || args.slice(1).filter((arg) => !arg.startsWith('--')).join(' ')
+    || 'Plan a governed large task.';
+  const snapshot = await service.launch({
+    objective,
+    desiredAgents: readNumberFlag(args, 'agents') || readNumberFlag(args, 'desired-agents') || (action === 'plan' ? 5 : 12),
+    maxAgents: readNumberFlag(args, 'max-agents') || 4000,
+    maxSteps: readNumberFlag(args, 'max-steps') || 4000,
+    maxConcurrency: readNumberFlag(args, 'concurrency') || 30,
+    stopAfterSteps: action === 'plan' ? 1 : readNumberFlag(args, 'stop-after-steps') || undefined,
+    persistState: action !== 'plan' && !args.includes('--no-persist'),
+    approvalId: readFlag(args, 'approval-id') || null,
+    allowMutatingTools: args.includes('--allow-mutating-tools'),
+  });
+  return render(args, `Zavorth Swarm ${action === 'run' ? 'run' : 'plan'}`, renderSwarmLines(snapshot), snapshot);
+}
+
+function renderSwarmLines(snapshot: {
+  runId: string;
+  status: string;
+  planner: { plannedAgents: number; requestedAgents: number; mode: string };
+  workerPool: { maxConcurrency: number; actualMaxConcurrency: number; mode: string };
+  ledger: { usedSteps: number; maxSteps: number };
+  reducer: { conflictCount: number; confidence: number; synthesis: string };
+}): string[] {
+  return [
+    `run: ${snapshot.runId}`,
+    `status: ${snapshot.status}`,
+    `agents: ${snapshot.planner.plannedAgents}/${snapshot.planner.requestedAgents} (${snapshot.planner.mode})`,
+    `workers: ${snapshot.workerPool.mode} concurrency=${snapshot.workerPool.actualMaxConcurrency || snapshot.workerPool.maxConcurrency}`,
+    `ledger: ${snapshot.ledger.usedSteps}/${snapshot.ledger.maxSteps}`,
+    `conflicts: ${snapshot.reducer.conflictCount}`,
+    `confidence: ${snapshot.reducer.confidence}`,
+    snapshot.reducer.synthesis ? `synthesis: ${snapshot.reducer.synthesis.slice(0, 240)}` : 'synthesis: pending',
+  ];
+}
+
+async function cancelSwarmRun(stateFilePath: string, runId: string): Promise<boolean> {
+  const normalized = String(runId || '').trim();
+  if (!normalized) return false;
+  try {
+    const parsed = JSON.parse(await fs.readFile(stateFilePath, 'utf8')) as { runs?: Array<Record<string, unknown>> };
+    const runs = Array.isArray(parsed.runs) ? parsed.runs : [];
+    const index = runs.findIndex((run) => String(run.runId || '') === normalized);
+    if (index < 0) return false;
+    const current = runs[index];
+    runs[index] = {
+      ...current,
+      status: 'cancelled',
+      updatedAt: new Date().toISOString(),
+      completedAt: new Date().toISOString(),
+    };
+    await fs.mkdir(path.dirname(stateFilePath), { recursive: true });
+    await fs.writeFile(stateFilePath, `${JSON.stringify({ runs }, null, 2)}\n`, 'utf8');
+    return true;
+  } catch {
+    return false;
+  }
 }
 
 async function runBackup(root: string, args: string[]) {
@@ -615,6 +885,8 @@ async function runRunnableCollection(root: string, collection: string, args: str
       everyMs: readNumberFlag(args, 'every-ms') ?? 0,
       dependsOn: splitList(readFlag(args, 'depends-on') || ''),
       nextRunAt: readFlag(args, 'at') || new Date().toISOString(),
+      taskPlane: collection === 'cron-jobs' && wantsTaskPlaneMaterialization(collection, args),
+      taskTitle: readFlag(args, 'task-title') || '',
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
     };
@@ -624,6 +896,7 @@ async function runRunnableCollection(root: string, collection: string, args: str
     return render(args, `Zavorth ${collection}`, [
       `Created ${label}: ${String(item.id)}`,
       `Status: ${String(item.status)}`,
+      item.taskPlane ? 'Target: Task Plane materialization' : 'Target: direct runnable worker',
       command ? `Command: ${redactCommand(command)}` : 'Command: not set',
     ], { item: sanitizeTaskRecord(item) });
   }
@@ -642,6 +915,9 @@ async function runRunnableCollection(root: string, collection: string, args: str
     if (!args.includes('--yes')) {
       return render(args, `Zavorth ${collection} worker`, [
         'Worker preview only. Add --yes to process due queued/scheduled work.',
+        collection === 'cron-jobs'
+          ? 'Add --task-plane to materialize due cron jobs into zavorth tasks instead of executing directly.'
+          : 'Task worker will execute queued task commands after confirmation.',
         'Use --once for a single pass or --loop with --limit for repeated passes.',
       ], { dryRun: true, due: dueRunnableItems(items).map(sanitizeTaskRecord) });
     }
@@ -682,6 +958,29 @@ async function runRunnableCollection(root: string, collection: string, args: str
   const id = args[1] || readFlag(args, 'id') || '';
   const item = items.find((entry) => String((entry as JsonObject).id) === id) as JsonObject | undefined;
   if (!item) return render(args, `Zavorth ${collection}`, [`No ${label} found for id: ${id || '<missing>'}`], { ok: false });
+  if (wantsTaskPlaneMaterialization(collection, args, item)) {
+    if (!args.includes('--yes')) {
+      return render(args, `Zavorth ${collection}`, [
+        `Task Plane materialization preview: ${String(item.label || item.id)}`,
+        'Add --yes to create a persistent zavorth tasks item.',
+      ], { dryRun: true, item: sanitizeTaskRecord(item), target: 'task-plane' });
+    }
+    const lock = await acquireTaskLock(root, collection);
+    if (!lock.ok) return render(args, `Zavorth ${collection}`, [lock.message], { ok: false, lock });
+    let materialized: JsonObject;
+    try {
+      materialized = await materializeCronItemToTaskPlane(root, item, args);
+      await writeJson(file, items);
+    } finally {
+      await releaseTaskLock(lock.file);
+    }
+    return render(args, `Zavorth ${collection}`, [
+      materialized.created
+        ? `Created Task Plane item: ${String(materialized.taskId)}`
+        : `Task Plane item already exists: ${String(materialized.taskId || 'unknown')}`,
+      `Cron ${String(item.id)} -> ${String(item.status)}`,
+    ], { item: sanitizeTaskRecord(item), taskPlane: materialized });
+  }
   const command = String(item.command || readFlag(args, 'command') || '');
   if (!command) return render(args, `Zavorth ${collection}`, [`No command stored for ${id}. Use --command when creating it.`], { ok: false });
   if (!args.includes('--yes')) return render(args, `Zavorth ${collection}`, [`Run preview: ${redactCommand(command)}`, 'Add --yes to execute this local command under the durable worker lock.'], { dryRun: true, item: sanitizeTaskRecord(item) });
@@ -730,6 +1029,14 @@ async function runTaskWorker(root: string, collection: string, label: string, ar
     const items = await readArray(file);
     const due = dueRunnableItems(items).slice(0, limit);
     for (const item of due) {
+      if (wantsTaskPlaneMaterialization(collection, args, item)) {
+        const materialized = await materializeCronItemToTaskPlane(root, item, args);
+        processed.push({
+          ...sanitizeTaskRecord(item),
+          taskPlane: materialized,
+        });
+        continue;
+      }
       if (!String(item.command || '')) {
         item.status = 'failed';
         item.lastError = 'missing-command';
@@ -750,6 +1057,74 @@ async function runTaskWorker(root: string, collection: string, label: string, ar
       ...processed.map((item) => `- ${String(item.id)} | ${String(item.status)} | attempts ${String(item.attempts || 0)}`),
     ] : ['No due work found.'],
     payload: { ok: true, processed },
+  };
+}
+
+function wantsTaskPlaneMaterialization(collection: string, args: string[], item?: JsonObject): boolean {
+  if (collection !== 'cron-jobs') {
+    return false;
+  }
+  const target = String(readFlag(args, 'target') || item?.target || item?.taskTarget || '').trim().toLowerCase();
+  return args.includes('--task-plane')
+    || args.includes('--materialize-task')
+    || target === 'tasks'
+    || target === 'task-plane'
+    || item?.taskPlane === true;
+}
+
+async function materializeCronItemToTaskPlane(root: string, item: JsonObject, args: string[]): Promise<JsonObject> {
+  const dueAt = String(item.nextRunAt || new Date().toISOString());
+  if (item.lastTaskPlaneDueAt === dueAt && item.lastMaterializedTaskId) {
+    return {
+      created: false,
+      reason: 'already-materialized',
+      taskId: item.lastMaterializedTaskId,
+      dueAt,
+    };
+  }
+
+  const home = new ZavorthHomePathService({
+    projectRoot: root,
+    explicitHome: readFlag(args, 'home') || null,
+    env: process.env,
+  }).resolveSnapshot();
+  const taskPlane = new TaskPlaneService({
+    storePath: path.join(home.resolvedPaths.runtimeDir, 'task-plane.json'),
+  });
+  const task = taskPlane.createTask({
+    title: String(readFlag(args, 'task-title') || item.taskTitle || item.label || `Cron ${String(item.id || 'job')}`).trim(),
+    source: `cron:${String(item.id || 'unknown')}`,
+    receiptId: `cron-task-plane:${String(item.id || 'unknown')}:${Date.now()}`,
+    payload: {
+      cronJobId: item.id || null,
+      cronLabel: item.label || null,
+      commandPreview: redactCommand(String(item.command || '')),
+      commandDigest: createHash('sha256').update(String(item.command || '')).digest('hex'),
+      cronExpression: item.cron || null,
+      dueAt,
+      everyMs: Number(item.everyMs || 0),
+      collection: 'cron-jobs',
+      materializedBy: 'zavorth-cron-worker',
+    },
+  });
+
+  item.taskPlane = true;
+  item.lastMaterializedTaskId = task.id;
+  item.lastTaskPlaneDueAt = dueAt;
+  item.lastMaterializedAt = new Date().toISOString();
+  item.status = Number(item.everyMs || 0) > 0 ? 'scheduled' : 'completed';
+  if (Number(item.everyMs || 0) > 0) {
+    item.nextRunAt = new Date(Date.now() + Number(item.everyMs || 0)).toISOString();
+  }
+  item.updatedAt = new Date().toISOString();
+  await appendTaskLog(root, 'cron-jobs', item, 'task-plane-created', `Created Task Plane item ${task.id}`);
+
+  return {
+    created: true,
+    taskId: task.id,
+    taskStatus: task.status,
+    taskPlaneStorePath: taskPlane.snapshot().storePath,
+    dueAt,
   };
 }
 
@@ -831,7 +1206,8 @@ function buildTaskGraph(items: unknown[]): { nodes: JsonObject[]; edges: Array<{
 
 function formatTaskRow(item: unknown): string {
   const task = item as JsonObject;
-  return `- ${String(task.id)} | ${String(task.status || 'queued')} | attempts ${String(task.attempts || 0)} | ${String(task.label || 'task')}`;
+  const target = task.taskPlane ? ' -> task-plane' : '';
+  return `- ${String(task.id)} | ${String(task.status || 'queued')} | attempts ${String(task.attempts || 0)} | ${String(task.label || 'task')}${target}`;
 }
 
 function taskDetailLines(item: JsonObject): string[] {
@@ -842,8 +1218,10 @@ function taskDetailLines(item: JsonObject): string[] {
     `attempts: ${String(item.attempts || 0)}/${String(item.maxRetries || 0)}`,
     `dependsOn: ${Array.isArray(item.dependsOn) ? item.dependsOn.join(', ') || 'none' : 'none'}`,
     `nextRunAt: ${String(item.nextRunAt || 'now')}`,
+    `target: ${item.taskPlane ? 'task-plane' : 'direct-runner'}`,
+    item.lastMaterializedTaskId ? `lastTaskPlaneItem: ${String(item.lastMaterializedTaskId)}` : '',
     `command: ${redactCommand(String(item.command || '')) || 'not set'}`,
-  ];
+  ].filter(Boolean);
 }
 
 function sanitizeTaskRecord(value: unknown): JsonObject {
@@ -1824,6 +2202,35 @@ async function runSecrets(root: string, args: string[]) {
 
 async function runSkills(root: string, args: string[]) {
   const action = firstArg(args, 'list');
+  if (isSkillGovernanceAction(action, args)) {
+    return runSkillsGovernance(root, args);
+  }
+  if (action === 'curator' || action === 'curate') {
+    return runSkillsCurator(args);
+  }
+  if (action === 'quarantine') {
+    const { SkillQuarantinePipelineService } = await import('../services/SkillQuarantinePipelineService.js');
+    const service = new SkillQuarantinePipelineService({ projectRoot: root });
+    const subcommand = String(args[1] || 'preview').trim().toLowerCase();
+    const skillId = String(args[2] || readFlag(args, 'skill-id') || 'learned-daily-procedure').trim();
+    const snapshot = service.buildSnapshot({
+      skillId,
+      title: readFlag(args, 'title') || skillId,
+      summary: readFlag(args, 'summary') || 'Quarantined skill candidate.',
+      applyDraft: subcommand === 'draft' || subcommand === 'apply' || args.includes('--apply'),
+      promote: subcommand === 'promote' || args.includes('--promote'),
+      approvalId: readFlag(args, 'approval-id'),
+    });
+    return render(args, 'Zavorth skills quarantine', [
+      `Status: ${snapshot.status}`,
+      `Skill: ${snapshot.skillId}`,
+      `Draft written: ${snapshot.draftWritten ? 'yes' : 'no'}`,
+      `Sandbox preview: ${snapshot.sandboxPreviewReady ? 'yes' : 'no'}`,
+      `Promotion: ${snapshot.promotionPerformed ? 'done' : 'approval required'}`,
+      `Quarantine: ${snapshot.quarantinePath}`,
+      snapshot.promotedPath ? `Promoted: ${snapshot.promotedPath}` : 'Promoted: none',
+    ], snapshot as unknown as JsonObject);
+  }
   const registryFile = path.join(stateDir(root), 'skills.json');
   const registry = await readArray(registryFile);
   const catalog = mergeSkillCatalog(await loadSkillCatalog(root), registry);
@@ -1900,6 +2307,135 @@ async function runSkills(root: string, args: string[]) {
   }
   const filtered = filterSkills(catalog, args);
   return render(args, 'Zavorth skills', filtered.length ? filtered.map(formatSkillRow) : ['No skills matched.'], { skills: filtered.map(sanitizeSkillRecord) });
+}
+
+async function runSkillsGovernance(root: string, args: string[]) {
+  const gateway = new ZavorthActionGateway({ root });
+  const wanted = resolveRequestedSkillGovernanceMode(args);
+
+  if (!wanted) {
+    const status = await gateway.status('skills.governance.status');
+    const current = normalizeSkillGovernanceMode(String(status.data?.mode || process.env.ZAVORTH_SKILLS_GOVERNANCE_MODE || 'casual'));
+    return render(args, 'Zavorth skill governance', [
+      `Current mode: ${current}`,
+      'casual: fast personal-use imports; hard security/license blockers remain active.',
+      'governed: stricter review for enterprise, compliance and sensitive workspaces.',
+      'Switch: zavorth skills governance governed --apply',
+    ], {
+      mode: current,
+      envKey: 'ZAVORTH_SKILLS_GOVERNANCE_MODE',
+      actionId: 'skills.governance.status',
+      switchCommands: [
+        'zavorth skills governance casual --apply',
+        'zavorth skills governance governed --apply',
+      ],
+    });
+  }
+
+  if (!args.includes('--apply') && !args.includes('--yes')) {
+    const preview = await gateway.preview('skills.governance.set', { mode: wanted });
+    return render(args, 'Zavorth skill governance', [
+      ...preview.lines.filter((line) => line !== 'Preview only. No file was written.'),
+      'Preview only. Add --apply to write ZAVORTH_SKILLS_GOVERNANCE_MODE into .env.',
+    ], {
+      dryRun: true,
+      mode: wanted,
+      actionId: preview.actionId,
+      ...(preview.data || {}),
+      envKey: 'ZAVORTH_SKILLS_GOVERNANCE_MODE',
+    });
+  }
+
+  const applied = await gateway.apply('skills.governance.set', { mode: wanted }, {
+    trustedOperatorConfirmation: true,
+    actorId: 'operator',
+    sourceSurface: 'cli:skills-governance',
+  });
+
+  return render(args, 'Zavorth skill governance', [
+    ...applied.lines,
+  ], {
+    applied: true,
+    mode: wanted,
+    actionId: applied.actionId,
+    ...(applied.data || {}),
+    envKey: 'ZAVORTH_SKILLS_GOVERNANCE_MODE',
+  });
+}
+
+async function runSkillsCurator(args: string[]) {
+  const plane = new SkillCuratorPlaneService();
+  const topLevelAction = firstArg(args, 'curator');
+  const subcommand = topLevelAction === 'curate'
+    ? 'run'
+    : String(args[1] || 'status').toLowerCase();
+  const skillId = topLevelAction === 'curate'
+    ? readFlag(args, 'id') || ''
+    : String(args[2] || readFlag(args, 'id') || '').trim();
+
+  if (subcommand === 'status') {
+    const status = await plane.status();
+    return render(args, 'Zavorth skills curator', [
+      `State: ${status.enabled ? 'enabled' : 'disabled'}${status.paused ? ' / paused' : ''}`,
+      `Managed skills: ${status.stats.managed} (${status.stats.stale} stale, ${status.stats.archived} archived, ${status.stats.pinned} pinned)`,
+      `Last run: ${status.lastRunAt || 'never'}`,
+      `Next run: ${status.nextRunAt || 'not scheduled yet'}`,
+      status.lastRunSummary ? `Summary: ${status.lastRunSummary}` : 'Summary: none',
+      `Report: ${status.lastReportPath || 'none'}`,
+      'Commands: run --dry-run, run, pause, resume, pin <skill>, unpin <skill>, restore <skill>',
+    ], status as unknown as JsonObject);
+  }
+
+  if (subcommand === 'run') {
+    const report = await plane.runCuratorReview({
+      dryRun: args.includes('--dry-run'),
+      llmReview: args.includes('--llm-review') || args.includes('--ai-review'),
+      reason: args.includes('--dry-run') ? 'cli-dry-run' : 'cli-run',
+      triggeredBy: 'cli:skills-curator',
+    });
+    return render(args, 'Zavorth skills curator', [
+      report.summary,
+      `Lifecycle transitions: ${report.transitions.length}`,
+      `Consolidation candidates: ${report.auxiliaryReview.consolidationCandidates.length}`,
+      `LLM review: ${report.llmReview.status}`,
+      report.dryRun ? 'Dry-run only. No skill lifecycle state was changed.' : 'Applied safe lifecycle transitions.',
+    ], report as unknown as JsonObject);
+  }
+
+  if (subcommand === 'pause') {
+    const state = await plane.pause();
+    return render(args, 'Zavorth skills curator', ['Curator paused. Scheduled maintenance will not run.'], state as unknown as JsonObject);
+  }
+
+  if (subcommand === 'resume') {
+    const state = await plane.resume();
+    return render(args, 'Zavorth skills curator', ['Curator resumed. Scheduled maintenance is eligible again.'], state as unknown as JsonObject);
+  }
+
+  if (subcommand === 'pin' || subcommand === 'unpin') {
+    if (!skillId) {
+      return render(args, 'Zavorth skills curator', ['Missing skill id. Usage: zavorth skills curator pin <skill>'], { ok: false });
+    }
+    const pinned = subcommand === 'pin';
+    await plane.togglePin(skillId, pinned);
+    return render(args, 'Zavorth skills curator', [`${pinned ? 'Pinned' : 'Unpinned'} skill: ${skillId}`], {
+      skillId,
+      pinned,
+    });
+  }
+
+  if (subcommand === 'restore') {
+    if (!skillId) {
+      return render(args, 'Zavorth skills curator', ['Missing skill id. Usage: zavorth skills curator restore <skill>'], { ok: false });
+    }
+    await plane.restoreSkill(skillId);
+    return render(args, 'Zavorth skills curator', [`Restored archived skill: ${skillId}`], { skillId });
+  }
+
+  return render(args, 'Zavorth skills curator', [
+    `Unsupported curator command: ${subcommand}`,
+    'Allowed: status, run, pause, resume, pin, unpin, restore',
+  ], { ok: false, subcommand });
 }
 
 async function loadSkillCatalog(root: string): Promise<JsonObject[]> {
@@ -2303,6 +2839,32 @@ async function runSandbox(root: string, args: string[]) {
   const action = firstArg(args, 'status');
   const sandboxDir = path.join(stateDir(root), 'sandboxes');
   await ensureDir(sandboxDir);
+  if (action === 'doctor') {
+    const { ZavorthSandboxControlPlaneService } = await import('../services/ZavorthSandboxControlPlaneService.js');
+    const service = new ZavorthSandboxControlPlaneService({ workspaceRoot: root });
+    const snapshot = service.buildSnapshot({
+      command: readFlag(args, 'command') || args.slice(1).filter((arg) => !arg.startsWith('--')).join(' ') || null,
+      requestedBy: 'operator',
+      sourceSurface: 'cli:sandbox',
+    });
+    return render(args, 'Zavorth sandbox doctor', service.renderReport({
+      command: readFlag(args, 'command') || null,
+      requestedBy: 'operator',
+      sourceSurface: 'cli:sandbox',
+    }).split('\n'), snapshot);
+  }
+  if (action === 'run') {
+    const id = readFlag(args, 'id') || args[1] || '';
+    if (!id) {
+      return render(args, 'Zavorth sandbox run', [
+        'Missing sandbox id. Use: zavorth sandbox create --yes, then zavorth sandbox run <id> --command <command> --yes',
+      ], { ok: false });
+    }
+    return runSandbox(root, ['exec', id, ...args.slice(2)]);
+  }
+  if (action === 'receipt' || action === 'receipts') {
+    return runSandbox(root, ['logs', ...args.slice(1)]);
+  }
   if (action === 'status' || action === 'backends') {
     const backends = await inspectSandboxBackends(root);
     return render(args, 'Zavorth sandbox', backends.map((backend) => `${backend.id}: ${backend.status} | ${backend.detail}`), { backends });
@@ -2672,6 +3234,60 @@ function firstArg(args: string[], fallback: string): string {
   return String(args.find((arg) => !arg.startsWith('--')) || fallback).trim().toLowerCase();
 }
 
+function isSkillGovernanceAction(action: string, args: string[]): boolean {
+  const text = args.filter((arg) => !arg.startsWith('--')).join(' ').toLowerCase();
+  return action === 'governance'
+    || action === 'governance-mode'
+    || action === 'policy'
+    || action === 'trust'
+    || /skill[s]?\s+governance|governance\s+(?:pra|para|to)|modo\s+(?:governed|governado|casual)/u.test(text)
+    || args.some((arg) => arg.startsWith('--governance') || arg.startsWith('--mode='));
+}
+
+function resolveRequestedSkillGovernanceMode(args: string[]): 'casual' | 'governed' | null {
+  const explicit = readFlag(args, 'mode')
+    || readFlag(args, 'governance')
+    || readFlag(args, 'skills-governance')
+    || readFlag(args, 'skill-governance');
+  const text = [explicit, ...args.filter((arg) => !arg.startsWith('--'))].filter(Boolean).join(' ').toLowerCase();
+  if (/\b(governed|governado|estrito|strict|enterprise|corporativo)\b/u.test(text)) {
+    return 'governed';
+  }
+  if (/\b(casual|rapido|rápido|pessoal|personal|domestico|doméstico)\b/u.test(text)) {
+    return 'casual';
+  }
+  return null;
+}
+
+function normalizeSkillGovernanceMode(value: string): 'casual' | 'governed' {
+  return resolveRequestedSkillGovernanceMode([value]) || 'casual';
+}
+
+function mergeSingleEnvValue(current: string, key: string, value: string): string {
+  const lines = current.split(/\r?\n/u);
+  let replaced = false;
+  const next = lines.map((line) => {
+    if (new RegExp(`^${escapeRegex(key)}\\s*=`, 'u').test(line)) {
+      replaced = true;
+      return `${key}=${quoteEnv(value)}`;
+    }
+    return line;
+  });
+  if (!replaced) {
+    next.push(`${key}=${quoteEnv(value)}`);
+  }
+  while (next.length > 0 && next[next.length - 1] === '') {
+    next.pop();
+  }
+  return `${next.join('\n')}\n`;
+}
+
+function quoteEnv(value: string): string {
+  return /^[A-Za-z0-9_.:/\\-]+$/u.test(value)
+    ? value
+    : JSON.stringify(value);
+}
+
 function readFlag(args: string[], name: string): string | undefined {
   const prefix = `--${name}=`;
   const inline = args.find((arg) => arg.startsWith(prefix));
@@ -2936,6 +3552,12 @@ const CHANNEL_ADAPTERS: ChannelAdapter[] = [
   { id: 'irc', mode: 'local-bridge', env: ['IRC_BRIDGE_URL or IRC_WEBHOOK_URL or IRC_OUTBOX_DIR'], endpointEnv: ['IRC_BRIDGE_URL'], webhookEnv: ['IRC_WEBHOOK_URL'], scriptEnv: ['IRC_SCRIPT_PATH'], outboxEnv: 'IRC_OUTBOX_DIR' },
   { id: 'zalo', mode: 'bot-http', env: ['ZALO_SEND_URL', 'ZALO_ACCESS_TOKEN'], endpointEnv: ['ZALO_SEND_URL'], tokenEnv: ['ZALO_ACCESS_TOKEN'] },
   { id: 'wecom', mode: 'webhook', env: ['WECOM_WEBHOOK_URL'], webhookEnv: ['WECOM_WEBHOOK_URL'] },
+  { id: 'weixin', aliases: ['wechat'], mode: 'local-bridge', env: ['WEIXIN_BRIDGE_URL or WEIXIN_BRIDGE_SCRIPT or WEIXIN_OUTBOX_DIR'], endpointEnv: ['WEIXIN_BRIDGE_URL'], scriptEnv: ['WEIXIN_BRIDGE_SCRIPT'], outboxEnv: 'WEIXIN_OUTBOX_DIR' },
+  { id: 'yuanbao', mode: 'local-bridge', env: ['YUANBAO_BRIDGE_URL or YUANBAO_BRIDGE_SCRIPT or YUANBAO_OUTBOX_DIR'], endpointEnv: ['YUANBAO_BRIDGE_URL'], scriptEnv: ['YUANBAO_BRIDGE_SCRIPT'], outboxEnv: 'YUANBAO_OUTBOX_DIR' },
+  { id: 'sms', mode: 'bot-http', env: ['SMS_SEND_URL or SMS_API_BASE_URL', 'SMS_PROVIDER_TOKEN'], endpointEnv: ['SMS_SEND_URL', 'SMS_API_BASE_URL'], tokenEnv: ['SMS_PROVIDER_TOKEN'] },
+  { id: 'home-assistant', mode: 'webhook', env: ['HOME_ASSISTANT_WEBHOOK_URL or HOME_ASSISTANT_URL'], webhookEnv: ['HOME_ASSISTANT_WEBHOOK_URL'], endpointEnv: ['HOME_ASSISTANT_URL'], tokenEnv: ['HOME_ASSISTANT_TOKEN'] },
+  { id: 'voice-call', mode: 'local-bridge', env: ['VOICE_CALL_BRIDGE_URL or VOICE_CALL_BRIDGE_SCRIPT or VOICE_CALL_OUTBOX_DIR'], endpointEnv: ['VOICE_CALL_BRIDGE_URL'], scriptEnv: ['VOICE_CALL_BRIDGE_SCRIPT'], outboxEnv: 'VOICE_CALL_OUTBOX_DIR' },
+  { id: 'google-meet', mode: 'local-bridge', env: ['GOOGLE_MEET_BRIDGE_URL or GOOGLE_MEET_BRIDGE_SCRIPT or GOOGLE_MEET_OUTBOX_DIR'], endpointEnv: ['GOOGLE_MEET_BRIDGE_URL'], scriptEnv: ['GOOGLE_MEET_BRIDGE_SCRIPT'], outboxEnv: 'GOOGLE_MEET_OUTBOX_DIR' },
   { id: 'line', mode: 'line', env: ['LINE_CHANNEL_ACCESS_TOKEN'], targetEnv: ['LINE_DEFAULT_TARGET_ID'] },
   { id: 'twitch', mode: 'local-bridge', env: ['TWITCH_BRIDGE_URL or TWITCH_WEBHOOK_URL or TWITCH_OUTBOX_DIR'], endpointEnv: ['TWITCH_BRIDGE_URL'], webhookEnv: ['TWITCH_WEBHOOK_URL'], scriptEnv: ['TWITCH_SCRIPT_PATH'], outboxEnv: 'TWITCH_OUTBOX_DIR' },
   { id: 'qq', mode: 'bot-http', env: ['QQ_BOT_WEBHOOK_URL or QQ_SEND_URL'], endpointEnv: ['QQ_SEND_URL'], webhookEnv: ['QQ_BOT_WEBHOOK_URL'] },

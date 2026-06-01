@@ -349,7 +349,7 @@ export function inferEvidenceDomainFromText(text: string): EvidenceSearchDomain 
   if (consumerIntent || (consumerProduct && /\b(melhor(?:es)?|best|comparar|compare|ranking|top|comprar)\b/.test(normalized))) {
     return 'consumer';
   }
-  if (/\b(api|sdk|biblioteca|library|framework|pacote|package|versao|version|release|changelog|github|documentacao|docs?|modelo|llm|provider|software|bug|issue|pull\s+request|pr)\b/.test(normalized)) {
+  if (/\b(api|sdk|biblioteca|library|framework|pacote|package|versao|version|release|changelog|github|stack\s*overflow|stackoverflow|cors|next\.?js|react|node\.?js|npm|documentacao|docs?|modelo|llm|provider|software|bug|issue|pull\s+request|pr)\b/.test(normalized)) {
     return 'technical';
   }
   if (/\b(governo|ministerio|agencia|regulador|regulacao|politica\s+publica|politica\s+global|politica\s+internacional|geopolitica|diplomacia|eleicoes?|lei|decreto|portaria|consulta\s+publica|tribunal|stf|congresso|senado|camara)\b/.test(normalized)) {

@@ -1,4 +1,9 @@
-import { AgentRunService, type AgentRunExecutionOptions, type AgentRunServiceRuntime } from './AgentRunService.js';
+import {
+  AgentRunService,
+  type AgentRunExecutionOptions,
+  type AgentRunServiceRuntime,
+  type AgentRunSteeringInput,
+} from './AgentRunService.js';
 import { MemoryAgentRunStore, type AgentRunStore } from './AgentRunStore.js';
 import {
   resolveAgentGatewayTraceId,
@@ -29,6 +34,7 @@ import type {
   UniversalAgentRequest,
   UniversalAgentRun,
   UniversalAgentRunResult,
+  UniversalAgentSteeringEntry,
   UniversalAgentWorkflowJob,
   UniversalApprovalRequest,
   UniversalReplyPacket,
@@ -74,6 +80,29 @@ export type ZavorthAgentGatewayProcessQueueOptions = AgentRunExecutionOptions & 
 
 export type ZavorthAgentGatewayApprovalIntentInput = Omit<UniversalApprovalIntentResolveInput, 'runs'>;
 
+export type ZavorthAgentGatewaySteerAction = 'add' | 'cancel' | 'replace';
+
+export type ZavorthAgentGatewaySteerInput = AgentRunSteeringInput & {
+  action?: ZavorthAgentGatewaySteerAction;
+  runId?: string | null;
+  steeringId?: string | null;
+};
+
+export type ZavorthAgentGatewaySteerResult = {
+  ok: boolean;
+  action: ZavorthAgentGatewaySteerAction;
+  run: UniversalAgentRun | null;
+  steering: UniversalAgentSteeringEntry | null;
+  ack: {
+    id: string;
+    runId: string;
+    steeringId: string;
+    status: UniversalAgentSteeringEntry['status'];
+    createdAt: string;
+  } | null;
+  error?: string | null;
+};
+
 export type ChannelMeshGatewayEventHandler = (event: unknown) => void | Promise<void>;
 
 export type ChannelMeshEventBusLike = {
@@ -111,6 +140,10 @@ function isTerminalWorkflowStatus(job: UniversalAgentWorkflowJob): boolean {
   return job.status === 'completed' || job.status === 'failed' || job.status === 'cancelled';
 }
 
+function isTerminalRunStatus(run: UniversalAgentRun | null | undefined): boolean {
+  return run?.status === 'completed' || run?.status === 'failed' || run?.status === 'cancelled';
+}
+
 export class ZavorthAgentGateway {
   private readonly runService: AgentRunService;
   private readonly runStore: AgentRunStore;
@@ -123,11 +156,21 @@ export class ZavorthAgentGateway {
   private readonly workflowMaxAttempts: number;
   private readonly runtimePromotionGovernance: RuntimePromotionGovernanceService;
   private readonly runs = new Map<string, UniversalAgentRun>();
+  private readonly inFlightRuns = new Map<string, UniversalAgentRun>();
   private readonly workflowJobs = new Map<string, UniversalAgentWorkflowJob>();
   private readonly pendingExecutions = new Map<string, PendingExecution>();
 
   constructor(runtime: ZavorthAgentGatewayRuntime = {}) {
-    this.runService = new AgentRunService(runtime);
+    const upstreamOnRunCreated = runtime.onRunCreated;
+    this.runService = new AgentRunService({
+      ...runtime,
+      onRunCreated: (run, request) => {
+        upstreamOnRunCreated?.(run, request);
+        this.inFlightRuns.set(run.id, run);
+        this.runs.set(run.id, run);
+        this.persistRuns();
+      },
+    });
     this.runStore = runtime.runStore || new MemoryAgentRunStore();
     this.workflowQueueStore = runtime.workflowQueueStore || new MemoryAgentWorkflowQueueStore();
     this.now = runtime.now || (() => new Date());
@@ -158,6 +201,12 @@ export class ZavorthAgentGateway {
     this.runService.attachWatchModeService(service);
   }
 
+  public attachRuntimeEventBus(
+    service: ZavorthAgentGatewayRuntime['runtimeEventBus'],
+  ): void {
+    this.runService.attachRuntimeEventBus(service);
+  }
+
   public attachChannelMeshEventBus(
     eventBus: ChannelMeshEventBusLike | null | undefined,
     options: AgentRunExecutionOptions = {},
@@ -185,6 +234,7 @@ export class ZavorthAgentGateway {
     options: AgentRunExecutionOptions = {},
   ): Promise<UniversalAgentRunResult> {
     const result = await this.runService.run(input, options);
+    this.inFlightRuns.delete(result.run.id);
     this.runs.set(result.run.id, result.run);
     if (result.run.status === 'waiting_approval') {
       this.pendingExecutions.set(result.run.id, {
@@ -456,6 +506,78 @@ export class ZavorthAgentGateway {
       .slice(0, limit);
   }
 
+  public steer(input: ZavorthAgentGatewaySteerInput): ZavorthAgentGatewaySteerResult {
+    this.refreshRuns();
+    const action = input.action || 'add';
+    const run = this.resolveSteeringRun(input);
+    if (!run) {
+      return {
+        ok: false,
+        action,
+        run: null,
+        steering: null,
+        ack: null,
+        error: 'active_run_not_found',
+      };
+    }
+    if (isTerminalRunStatus(run)) {
+      return {
+        ok: false,
+        action,
+        run,
+        steering: null,
+        ack: null,
+        error: 'run_not_active',
+      };
+    }
+
+    let steering: UniversalAgentSteeringEntry | null = null;
+    if (action === 'cancel') {
+      steering = this.runService.cancelSteering(
+        run,
+        normalizeText(input.steeringId || input.queueItemId),
+        normalizeText(input.text, 'Cancelled by operator.'),
+        toSerializableRecord(input.metadata),
+      );
+    } else if (action === 'replace') {
+      steering = this.runService.replaceSteering(
+        run,
+        normalizeText(input.steeringId || input.replaceTargetId || input.queueItemId),
+        input,
+      );
+    } else {
+      steering = this.runService.recordSteering(run, input);
+    }
+
+    if (!steering) {
+      return {
+        ok: false,
+        action,
+        run,
+        steering: null,
+        ack: null,
+        error: action === 'cancel' ? 'steering_not_found' : 'steering_replace_target_not_found',
+      };
+    }
+
+    this.runs.set(run.id, run);
+    this.persistRuns();
+    return {
+      ok: true,
+      action,
+      run,
+      steering,
+      ack: {
+        id: steering.ackId,
+        runId: run.id,
+        steeringId: steering.id,
+        status: steering.status,
+        createdAt: steering.updatedAt,
+      },
+      error: null,
+    };
+  }
+
   public queryRuns(
     query: UniversalAgentRunObservatoryQuery = {},
   ): UniversalAgentRunObservatorySnapshot {
@@ -464,6 +586,21 @@ export class ZavorthAgentGateway {
       query,
       generatedAt: this.nowIso(),
     });
+  }
+
+  private resolveSteeringRun(input: Pick<ZavorthAgentGatewaySteerInput, 'runId' | 'sessionId'>): UniversalAgentRun | null {
+    const runId = normalizeText(input.runId);
+    if (runId) {
+      return this.runs.get(runId) || null;
+    }
+    const sessionId = normalizeText(input.sessionId);
+    const runs = this.listRuns(200);
+    if (sessionId) {
+      return runs.find((run) => run.sessionId === sessionId && !isTerminalRunStatus(run))
+        || runs.find((run) => run.sessionId === sessionId)
+        || null;
+    }
+    return runs.find((run) => !isTerminalRunStatus(run)) || runs[0] || null;
   }
 
   public listWorkflowJobs(limit = 20): UniversalAgentWorkflowJob[] {
@@ -883,6 +1020,9 @@ export class ZavorthAgentGateway {
   private refreshRuns(): void {
     this.runs.clear();
     this.hydrateRuns();
+    for (const run of this.inFlightRuns.values()) {
+      this.runs.set(run.id, run);
+    }
   }
 
   private hydrateWorkflowJobs(): void {

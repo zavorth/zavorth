@@ -1,10 +1,11 @@
-import type { DynamicHierarchyLaunchResult } from '../../domain/execution/application/DynamicHierarchySwarmService.js';
+import type { DynamicHierarchyLaunchResult } from '../../domain/execution/infrastructure/DynamicHierarchySwarmService.js';
 import type { SelfModificationPreviewResult } from '../../services/SelfModificationCommandService.js';
 import type { WatchModeRunSnapshot } from '../../services/ComputerUseWatchModeService.js';
 import type { TrustSliderLevel, TrustSliderPolicyDecision, UniversalIntentUserRole } from '../uni/UniversalIntentContracts.js';
 import type { CapabilityNegotiationSnapshot } from './CapabilityNegotiationService.js';
 import type { ToolRehearsalSnapshot } from './ToolRehearsalService.js';
 import type { UniversalAgentExecutor, UniversalAgentRequest, UniversalAgentRun, UniversalAgentRunResult, UniversalApprovalRequest } from './UniversalAgentRuntimeTypes.js';
+import { assessSwarmWorkload } from './SwarmWorkloadAssessmentService.js';
 import { type AgentRunFlowHost, hasRequestedTool, normalizeStringList, normalizeText, recordOrNull } from './AgentRunSpecializedFlowUtils.js';
 
 export function installAgentRunPlanningFlows(AgentRunServiceClass: { prototype: AgentRunFlowHost }): void {
@@ -521,7 +522,16 @@ export function installAgentRunPlanningFlows(AgentRunServiceClass: { prototype: 
     input: UniversalAgentRequest,
     run?: UniversalAgentRun | null,
   ): boolean {
-    return this.hasResolvedTool(input, 'swarm.run', run);
+    const assessment = assessSwarmWorkload({
+      text: input.text || run?.input || '',
+      requestedTools: input.requestedTools || [],
+      metadata: input.metadata || {},
+    });
+    return this.hasResolvedTool(input, 'swarm.run', run)
+      || this.hasResolvedTool(input, 'swarm.scale', run)
+      || this.hasResolvedTool(input, 'swarm.massive', run)
+      || this.hasResolvedTool(input, 'swarm.scale.live', run)
+      || assessment.shouldUseSwarm;
   };
 
   proto.shouldCreateSelfModificationPreview = function (this: AgentRunFlowHost, 
@@ -601,6 +611,7 @@ export function installAgentRunPlanningFlows(AgentRunServiceClass: { prototype: 
 
   proto.collectSpecializedToolIdsFromText = function (this: AgentRunFlowHost, text: string): string[] {
     const normalized = normalizeText(text).toLowerCase();
+    const assessment = assessSwarmWorkload({ text });
     const toolIds: string[] = [];
     if (/\b(selfmod|auto[-\s]?melhoria|auto[-\s]?evolucao|melhore o zavorth|modifique o zavorth|aperfeicoe o zavorth)\b/.test(normalized)) {
       toolIds.push('selfmod.preview');
@@ -608,8 +619,12 @@ export function installAgentRunPlanningFlows(AgentRunServiceClass: { prototype: 
     if (/\b(watch mode|watchmode|computer use|observe a tela|monitorar a tela|controle visual|navegue por mim|clique)\b/.test(normalized)) {
       toolIds.push('watchmode.control');
     }
-    if (/\b(swarm|subagentes?|multiagente|multi-agente|equipe de agentes|time de agentes|paralelo)\b/.test(normalized)) {
+    if (/\b(swarm|subagentes?|multiagente|multi-agente|equipe de agentes|time de agentes|paralelo)\b/.test(normalized)
+      || assessment.shouldUseSwarm) {
       toolIds.push('swarm.run');
+    }
+    if (assessment.shouldUseScalePlane) {
+      toolIds.push('swarm.scale');
     }
     return toolIds;
   };

@@ -1038,6 +1038,21 @@ function buildHealthSnapshot(
   };
 }
 
+function buildHomeSnapshot(input: DashboardCommandCenterAdapterInput): DashboardCommandCenterViewModel["home"] {
+  const raw = asRecord(input.home ?? input.runtime?.home ?? input.state?.home);
+  const root = asText(raw.root ?? raw.homeRoot);
+  if (!root) {
+    return null;
+  }
+  return {
+    root,
+    source: asText(raw.source, "unknown"),
+    isolated: raw.isolated === true,
+    statusCommand: asText(raw.statusCommand, "zavorth home status"),
+    switchCommand: asText(raw.switchCommand, "zavorth home switch --home <path> --apply"),
+  };
+}
+
 function normalizeReleaseStatus(value: unknown): DashboardReleaseStatus["status"] {
   const raw = asText(value).toLowerCase();
   if (raw.includes("preview")) {
@@ -1378,6 +1393,7 @@ export function buildDashboardCommandCenterViewModel(
   const budget = buildBudgetSnapshot(input);
   const replay = buildReplaySummary(input, agentRun, events, artifacts);
   const health = buildHealthSnapshot(input, runtime);
+  const home = buildHomeSnapshot(input);
   const releaseStatus = buildReleaseStatus(input);
   const integrations = buildIntegrations(input);
   const identity = buildIdentitySnapshot(input);
@@ -1430,6 +1446,7 @@ export function buildDashboardCommandCenterViewModel(
     replyPorts: buildReplyPorts(input),
     modelProfile: buildModelProfile(input, runtime),
     health,
+    home,
     releaseStatus,
     integrations,
     identity,

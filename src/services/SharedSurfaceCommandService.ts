@@ -9,17 +9,17 @@ import {
   dispatchSharedSurfaceBuiltinCommand,
   dispatchSharedSurfaceCommandPacks,
   preDispatchSharedSurfaceCommand,
-} from '../domain/surface/application/shared-surface/SharedSurfaceCommandDispatch.js';
+} from '../domain/surface/presentation/shared-surface/SharedSurfaceCommandDispatch.js';
 import {
   extractSharedSurfaceNaturalChannelId,
   formatSharedSurfaceNaturalChannelLabel,
   normalizeSharedSurfaceNaturalText,
-} from '../domain/surface/application/shared-surface/SharedSurfaceNaturalIntentSupport.js';
+} from '../domain/surface/presentation/shared-surface/SharedSurfaceNaturalIntentSupport.js';
 import {
   buildSharedSurfaceCommandServiceComposition,
   type SharedSurfaceCommandServiceComposition,
   type SharedSurfaceCommandServiceDeps,
-} from '../domain/surface/application/shared-surface/factory/SharedSurfaceCommandServiceFactory.js';
+} from '../domain/surface/presentation/shared-surface/factory/SharedSurfaceCommandServiceFactory.js';
 import { ZavorthSmartCommandSurfaceService } from './ZavorthSmartCommandSurfaceService.js';
 
 export class SharedSurfaceCommandService {

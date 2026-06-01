@@ -4,7 +4,7 @@ import {
   createTestLogRepo,
   fetchZavorthControlJson,
   fetchJson,
-} from '../helpers/controlWebTestUtils.js';
+} from '../helpers/zavorthControlWebTestUtils.js';
 
 describe('ZavorthControl node mesh transport routes', () => {
   const logRepo = createTestLogRepo();

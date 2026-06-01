@@ -1,11 +1,11 @@
-import type { ZavorthSessionPlaneService } from '../../services/ZavorthSessionPlaneService.js';
 import { DomainFacadeBase, type DomainSnapshot } from '../DomainFacadeBase.js';
 import { SessionPlaneUseCases } from './application/SessionPlaneUseCases.js';
+import type { SessionPlanePort } from './domain/SessionDomainTypes.js';
 import { SessionsDomainPresenter } from './presentation/SessionsDomainPresenter.js';
 
 type SessionsFacadeRuntime = {
   now?: () => Date;
-  sessionPlaneService?: Pick<ZavorthSessionPlaneService, 'buildStatusSummaryFast'>;
+  sessionPlaneService?: Pick<SessionPlanePort, 'buildStatusSummaryFast'>;
   defaultUserId?: string | null;
   defaultPlatform?: string | null;
   defaultSessionId?: string | null;

@@ -1,4 +1,4 @@
-import { SharedSurfaceZavorthBridgeMobileCommandPack } from '../../src/domain/surface/application/shared-surface/SharedSurfaceZavorthBridgeMobileCommandPack';
+import { SharedSurfaceZavorthBridgeMobileCommandPack } from '../../src/domain/surface/presentation/shared-surface/SharedSurfaceZavorthBridgeMobileCommandPack';
 
 function buildCtx(rawText = '/agmobile status') {
   return {

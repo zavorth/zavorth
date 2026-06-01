@@ -48,7 +48,7 @@ describe('Workspace patch/edit tools', () => {
     ]);
   });
 
-  it('applies a unified patch and returns an auditable diff result', async () => {
+  it('gates a unified patch with preview, approval and receipt before writing', async () => {
     const patch = createTwoFilesPatch(
       'notes/item.txt',
       'notes/item.txt',
@@ -64,7 +64,8 @@ describe('Workspace patch/edit tools', () => {
 
     expect(result).toEqual(expect.objectContaining({
       success: true,
-      applied: true,
+      applied: false,
+      approvalRequired: true,
       policy: {
         access: 'apply_patch',
         scope: 'workspace_output',
@@ -72,6 +73,20 @@ describe('Workspace patch/edit tools', () => {
     }));
     expect(result.audit.diffPatch).toContain('-one');
     expect(result.audit.diffPatch).toContain('+two');
+    expect(result.preview.status).toBe('preview_ready');
+    expect(fs.readFileSync(path.join(tempDir, 'output', 'notes', 'item.txt'), 'utf8')).toBe('one\n');
+
+    const applied = JSON.parse(await new WorkspaceApplyPatchTool().execute({
+      previewId: result.preview.previewId,
+      approvalPhrase: result.preview.approval.phrase,
+    }));
+
+    expect(applied).toEqual(expect.objectContaining({
+      success: true,
+      applied: true,
+      approvalRequired: false,
+    }));
+    expect(applied.receipt.operations[0].status).toBe('applied');
     expect(fs.readFileSync(path.join(tempDir, 'output', 'notes', 'item.txt'), 'utf8')).toBe('two\n');
   });
 
@@ -107,6 +122,7 @@ describe('Workspace patch/edit tools', () => {
       success: true,
       applied: false,
       dryRun: true,
+      approvalRequired: true,
       policy: {
         access: 'edit',
         scope: 'workspace_output',
@@ -114,6 +130,7 @@ describe('Workspace patch/edit tools', () => {
     }));
     expect(result.audit.diffPatch).toContain('-one');
     expect(result.audit.diffPatch).toContain('+two');
+    expect(result.preview.status).toBe('preview_ready');
     expect(fs.readFileSync(path.join(tempDir, 'output', 'notes', 'item.txt'), 'utf8')).toBe('one\n');
   });
 });

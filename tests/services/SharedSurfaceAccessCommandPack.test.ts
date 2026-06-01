@@ -1,4 +1,4 @@
-import { SharedSurfaceAccessCommandPack } from '../../src/domain/surface/application/shared-surface/SharedSurfaceAccessCommandPack';
+import { SharedSurfaceAccessCommandPack } from '../../src/domain/surface/presentation/shared-surface/SharedSurfaceAccessCommandPack';
 
 function buildCtx(rawText = '/access') {
   return {

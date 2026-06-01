@@ -72,7 +72,7 @@ describe('ZavorthMnemosQueryService', () => {
       generatedAt: '2026-05-18T12:00:00.000Z',
       status: 'ready',
       ranking: expect.objectContaining({
-        method: 'keyword-tag-graph-rrf',
+        method: 'sqlite-fts5-keyword-tag-graph-rrf',
         topK: 3,
       }),
       safety: expect.objectContaining({
@@ -82,12 +82,14 @@ describe('ZavorthMnemosQueryService', () => {
         untrustedContextWrapped: true,
         topKOnly: true,
         secretsRedacted: true,
+        sqliteIndexIsDerived: true,
       }),
     }));
     expect(snapshot.hits[0]).toEqual(expect.objectContaining({
       pageId: 'memory',
-      rankSources: expect.arrayContaining(['keyword', 'tag']),
+      rankSources: expect.arrayContaining(['sqlite-fts5', 'keyword', 'tag']),
     }));
+    expect(snapshot.summary.sqliteFtsAvailable).toBe(true);
     expect(snapshot.hits.some((hit) => hit.rankSources.includes('graph'))).toBe(true);
     expect(snapshot.context).toContain('<untrusted_mnemos_wiki');
   });

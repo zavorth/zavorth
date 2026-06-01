@@ -1,9 +1,9 @@
-import type { OperationsHealthService } from '../../services/OperationsHealthService.js';
 import { DomainFacadeBase, type DomainSnapshot } from '../DomainFacadeBase.js';
+import type { OperationsHealthPort } from './domain/OpsDomainTypes.js';
 
 type OpsFacadeRuntime = {
   now?: () => Date;
-  operationsHealthService?: Pick<OperationsHealthService, 'readSnapshotFast'>;
+  operationsHealthService?: OperationsHealthPort;
 };
 
 export type OpsDomainSnapshot = DomainSnapshot & {
@@ -17,7 +17,7 @@ export type OpsDomainSnapshot = DomainSnapshot & {
 };
 
 export class OpsFacade extends DomainFacadeBase<OpsDomainSnapshot> {
-  private readonly operationsHealth: Pick<OperationsHealthService, 'readSnapshotFast'> | null;
+  private readonly operationsHealth: OperationsHealthPort | null;
 
   constructor(runtime: OpsFacadeRuntime = {}) {
     super('ops', 'Ops', runtime.now);
@@ -42,12 +42,13 @@ export class OpsFacade extends DomainFacadeBase<OpsDomainSnapshot> {
     }
 
     const snapshot = this.operationsHealth.readSnapshotFast();
-    const sidecars = [snapshot.sidecars.AIGateway, snapshot.sidecars.ZavorthTerminal].filter(Boolean);
+    const sidecars = [snapshot.sidecars.AIGateway, snapshot.sidecars.ZavorthTerminal]
+      .filter((entry): entry is { enabled?: boolean; ready?: boolean } => Boolean(entry));
     const enabledSidecars = sidecars.filter((entry) => entry.enabled).length;
     const readySidecars = sidecars.filter((entry) => entry.enabled && entry.ready).length;
     const recentErrors = Array.isArray(snapshot.errors.recent) ? snapshot.errors.recent.length : 0;
     const channelsHealthy = ['telegram', 'discordBridge', 'whatsapp', 'slack']
-      .map((key) => (snapshot.channels as Record<string, any>)[key] || null)
+      .map((key) => (snapshot.channels as Record<string, any> | undefined)?.[key] || null)
       .filter((entry) => entry && entry.enabled && (entry.ready || entry.started || entry.configured)).length;
 
     return this.composeSnapshot({

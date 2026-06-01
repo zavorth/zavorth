@@ -1,14 +1,13 @@
-import type { ZavorthGovernanceControlPlaneService } from '../../services/ZavorthGovernanceControlPlaneService.js';
-import type { ZavorthTrustPlaneService } from '../../services/ZavorthTrustPlaneService.js';
 import { DomainFacadeBase, type DomainSnapshot } from '../DomainFacadeBase.js';
 import { TrustGovernanceUseCases } from './application/TrustGovernanceUseCases.js';
+import type { GovernanceControlPlanePort, TrustPlaneSnapshotPort } from './domain/TrustGovernanceDomainTypes.js';
 import { TrustGovernancePlaneAdapter } from './infrastructure/TrustGovernancePlaneAdapter.js';
 import { TrustGovernanceDomainPresenter } from './presentation/TrustGovernanceDomainPresenter.js';
 
 type TrustGovernanceFacadeRuntime = {
   now?: () => Date;
-  trustPlaneService?: Pick<ZavorthTrustPlaneService, 'buildSnapshot'>;
-  governanceControlPlaneService?: Pick<ZavorthGovernanceControlPlaneService, 'buildSnapshot'>;
+  trustPlaneService?: TrustPlaneSnapshotPort;
+  governanceControlPlaneService?: GovernanceControlPlanePort;
   trustReady?: boolean | null;
   governanceReady?: boolean | null;
   policiesTracked?: number | null;

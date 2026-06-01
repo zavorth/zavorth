@@ -6,7 +6,7 @@ import type { SharedSurfaceRuntime } from './SurfaceRuntime.js';
 import { WebAppConversationService } from './WebAppConversationService.js';
 import type { WebAppRealtimeInfrastructure } from '../domain/surface/presentation/web-app/WebAppRuntimeInfrastructureService.js';
 import type { WebAppSharedSurfaceFactorySource } from '../domain/surface/presentation/web-app/WebAppSharedSurfaceFactoryService.js';
-import type { ZavorthAgentGateway } from '../runtime/agent/index.js';
+import type { UniversalAgentToolRuntime, ZavorthAgentGateway } from '../runtime/agent/index.js';
 import {
   createWebAppServiceComposition,
   type WebAppServiceComposition,
@@ -28,6 +28,7 @@ export type { WebAppOperationsDeps } from '../domain/surface/presentation/web-ap
 
 export type WebAppServiceOptions = {
   agentGateway?: ZavorthAgentGateway | null;
+  toolRuntime?: UniversalAgentToolRuntime | null;
 };
 
 export class WebAppService {
@@ -58,6 +59,7 @@ export class WebAppService {
       getSharedSurfaceFactorySource: this.getSharedSurfaceFactorySource.bind(this),
       isComputerUseEnabled: this.isComputerUseEnabled.bind(this),
       agentGateway: options.agentGateway || null,
+      toolRuntime: options.toolRuntime || null,
     });
     configureCanonicalPublicApi(this.composition.publicApiRouter, this.composition.publicApi);
   }

@@ -1,4 +1,4 @@
-import { SharedSurfaceCodexRemoteCommandPack } from '../../src/domain/surface/application/shared-surface/SharedSurfaceCodexRemoteCommandPack';
+import { SharedSurfaceCodexRemoteCommandPack } from '../../src/domain/surface/presentation/shared-surface/SharedSurfaceCodexRemoteCommandPack';
 
 function buildCtx(rawText = '/codexremote') {
   return {

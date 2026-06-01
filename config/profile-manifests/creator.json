@@ -1,0 +1,33 @@
+{
+  "version": "zavorth.profile/1",
+  "id": "creator",
+  "label": "Creator",
+  "description": "Creative production profile for drafting, editing, media-aware planning and governed publishing.",
+  "tags": ["creator", "writing", "media"],
+  "cognitive": {
+    "responseStyle": "creative-practical",
+    "autonomy": "speculative",
+    "languagePolicy": "match-user",
+    "planningDepth": "normal"
+  },
+  "runtime": {
+    "trustMode": "balanced",
+    "approvalMode": "risk-based",
+    "sandboxMode": "preferred",
+    "maxToolRounds": 9,
+    "maxDeniedAttempts": 3
+  },
+  "capabilities": {
+    "allow": ["read_file", "list_directory", "get_datetime", "web_search", "zavorth_action"],
+    "requireApproval": ["workspace.write", "shell.exec", "external.send", "write_file", "create_file", "remote_shell", "run_sandbox_code"],
+    "providerNativeTools": ["google_search"]
+  },
+  "surfaces": {
+    "default": "zavorthControl",
+    "allowed": ["cli", "zavorthControl", "web", "telegram", "api"]
+  },
+  "memory": {
+    "mode": "episodic",
+    "learning": "suggest"
+  }
+}

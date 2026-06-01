@@ -17,6 +17,7 @@ export type UniversalAgentEventKind =
   | 'memory'
   | 'tool'
   | 'approval'
+  | 'steering'
   | 'artifact'
   | 'reply'
   | 'error'
@@ -135,6 +136,34 @@ export type UniversalApprovalRequest = {
   createdAt: string;
 };
 
+export type UniversalAgentSteeringStatus =
+  | 'accepted'
+  | 'applied'
+  | 'cancelled'
+  | 'superseded';
+
+export type UniversalAgentSteeringEntry = {
+  id: string;
+  runId: string;
+  sessionId: string;
+  text: string;
+  source: string;
+  status: UniversalAgentSteeringStatus;
+  createdAt: string;
+  updatedAt: string;
+  ackId: string;
+  queueItemId?: string | null;
+  replaceTargetId?: string | null;
+  replacedById?: string | null;
+  cancelledAt?: string | null;
+  cancelReason?: string | null;
+  attempts: number;
+  maxAttempts: number;
+  backoffMs: number;
+  nextRetryAt?: string | null;
+  metadata?: Record<string, unknown>;
+};
+
 export type UniversalAgentRun = {
   id: string;
   traceId: string;
@@ -154,6 +183,7 @@ export type UniversalAgentRun = {
   replyPorts: UniversalReplyPort[];
   modelProfile: UniversalAgentModelProfile;
   approvals: UniversalApprovalRequest[];
+  steering?: UniversalAgentSteeringEntry[];
   artifacts: UniversalArtifactSummary[];
   memorySignals: UniversalMemorySignal[];
   metadata: Record<string, unknown>;

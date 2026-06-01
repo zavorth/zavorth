@@ -24,6 +24,16 @@ export interface A2UIAssetRecord {
   metadata?: Record<string, unknown>;
 }
 
+export interface A2UISecurityPolicy {
+  iframeSandbox: string[];
+  hostAccess: 'blocked';
+  tokenAccess: 'blocked';
+  filesystemAccess: 'blocked';
+  actionDispatch: 'transaction-plane';
+  inlineHandlers: 'stripped';
+  dangerousUrls: 'stripped';
+}
+
 export interface A2UIEventRecord {
   id: string;
   surfaceId: string;
@@ -42,16 +52,18 @@ export interface A2UIEventRecord {
 export interface A2UISnapshot {
   generatedAt: string;
   protocolVersion: 'a2ui.v1';
-  capabilities: Array<'snapshot' | 'action' | 'event' | 'stream' | 'asset'>;
+  capabilities: Array<'snapshot' | 'action' | 'event' | 'stream' | 'asset' | 'risk-simulation'>;
   allowedComponents: string[];
   surfaceId: string | null;
   surfaces: A2UISurfaceState[];
+  security: A2UISecurityPolicy;
   commands: {
     snapshot: string;
     action: string;
     events: string;
     stream: string;
     assets: string;
+    preview: string;
   };
 }
 
@@ -342,16 +354,18 @@ export class ZavorthA2UIService {
     return {
       generatedAt: this.timestamp(),
       protocolVersion: 'a2ui.v1',
-      capabilities: ['snapshot', 'action', 'event', 'stream', 'asset'],
+      capabilities: ['snapshot', 'action', 'event', 'stream', 'asset', 'risk-simulation'],
       allowedComponents: Array.from(this.allowedComponentTypes.values()).sort(),
       surfaceId: normalizedSurfaceId,
       surfaces,
+      security: this.securityPolicy(),
       commands: {
         snapshot: '/api/v2/a2ui/snapshot',
         action: '/api/v2/a2ui/action',
         events: '/api/v2/a2ui/events',
         stream: '/api/v2/a2ui/stream',
         assets: '/api/v2/a2ui/assets',
+        preview: '/api/v2/a2ui/preview',
       },
     };
   }
@@ -382,12 +396,31 @@ export class ZavorthA2UIService {
       return [{
         type,
         id: this.normalizeText(component?.id, `component_${index}`),
-        props: this.clone(component?.props || {}),
+        props: this.sanitizeProps(component?.props || {}),
         children: component?.children
           ? this.sanitizeComponents(component.children, blockedTypes)
           : undefined,
       }];
     });
+  }
+
+  private sanitizeProps(input: Record<string, any>): Record<string, any> {
+    const output: Record<string, any> = {};
+    for (const [key, value] of Object.entries(input || {})) {
+      const normalizedKey = String(key || '').trim();
+      if (!normalizedKey || /^on[A-Z_:-]?/u.test(normalizedKey) || ['dangerouslySetInnerHTML', 'innerHTML', 'outerHTML', 'srcDoc'].includes(normalizedKey)) {
+        continue;
+      }
+      if (typeof value === 'string' && /^(javascript|vbscript|data:text\/html)\s*:/iu.test(value.trim())) {
+        continue;
+      }
+      output[normalizedKey] = Array.isArray(value)
+        ? value.map((entry) => (entry && typeof entry === 'object' ? this.sanitizeProps(entry as Record<string, any>) : entry))
+        : value && typeof value === 'object'
+          ? this.sanitizeProps(value as Record<string, any>)
+          : value;
+    }
+    return this.clone(output);
   }
 
   private resolveActionHandler(surfaceId: string, actionId: string): A2UIActionHandler | null {
@@ -465,5 +498,17 @@ export class ZavorthA2UIService {
 
   private clone<T>(value: T): T {
     return JSON.parse(JSON.stringify(value));
+  }
+
+  private securityPolicy(): A2UISecurityPolicy {
+    return {
+      iframeSandbox: ['allow-scripts'],
+      hostAccess: 'blocked',
+      tokenAccess: 'blocked',
+      filesystemAccess: 'blocked',
+      actionDispatch: 'transaction-plane',
+      inlineHandlers: 'stripped',
+      dangerousUrls: 'stripped',
+    };
   }
 }

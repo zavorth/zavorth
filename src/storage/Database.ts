@@ -221,6 +221,16 @@ export class Database {
         UNIQUE(user_id, key)
       )
     `);
+
+    this.run(`
+      CREATE TABLE IF NOT EXISTS zavorth_skills_telemetry (
+        skill_id TEXT PRIMARY KEY,
+        use_count INTEGER DEFAULT 0,
+        last_executed_at TEXT,
+        status TEXT CHECK(status IN ('active', 'archived')) DEFAULT 'active',
+        pinned INTEGER DEFAULT 0
+      )
+    `);
   }
 
   private ensureColumn(tableName: string, columnName: string, definition: string): void {

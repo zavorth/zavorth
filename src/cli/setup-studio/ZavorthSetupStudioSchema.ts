@@ -34,6 +34,18 @@ export type ZavorthSetupStudioExistingConfig = {
   warnings: string[];
 };
 
+export type ZavorthSetupStudioHomeReadiness = {
+  root: string;
+  source: 'explicit' | 'env' | 'compat';
+  isolated: boolean;
+  statusCommand: string;
+  switchCommand: string;
+  migratePreviewCommand: string;
+  migrateApplyCommand: string;
+  rollbackCommand: string;
+  warnings: string[];
+};
+
 export type ZavorthSetupStudioChannelGuide = {
   id: string;
   label: string;
@@ -97,6 +109,7 @@ export type ZavorthSetupStudioSnapshot = {
   mode: ZavorthSetupStudioMode;
   configHandling: ZavorthSetupStudioConfigHandling;
   existingConfig: ZavorthSetupStudioExistingConfig;
+  home: ZavorthSetupStudioHomeReadiness;
   plan: ZavorthSetupStudioPlan;
   channelGuide: ZavorthSetupStudioChannelGuide[];
   webSearch: ZavorthSetupStudioWebSearchReadiness;

@@ -1,6 +1,6 @@
-import { SharedSurfaceWorkflowGovernanceCommandPack } from '../../src/domain/surface/application/shared-surface/SharedSurfaceWorkflowGovernanceCommandPack.js';
-import { parseNaturalPermissionIntent, parseNaturalWorkflowIntent } from '../../src/domain/surface/application/shared-surface/workflow-governance/workflowGovernanceIntents.js';
-import { formatPermissionListReply } from '../../src/domain/surface/application/shared-surface/workflow-governance/workflowGovernanceRenderers.js';
+import { SharedSurfaceWorkflowGovernanceCommandPack } from '../../src/domain/surface/presentation/shared-surface/SharedSurfaceWorkflowGovernanceCommandPack.js';
+import { parseNaturalPermissionIntent, parseNaturalWorkflowIntent } from '../../src/domain/surface/presentation/shared-surface/workflow-governance/workflowGovernanceIntents.js';
+import { formatPermissionListReply } from '../../src/domain/surface/presentation/shared-surface/workflow-governance/workflowGovernanceRenderers.js';
 
 describe('SharedSurfaceWorkflowGovernanceCommandPack', () => {
   it('resolves a natural workflow resume intent against recent tasks', async () => {

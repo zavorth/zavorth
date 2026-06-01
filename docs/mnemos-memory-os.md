@@ -9,6 +9,10 @@ sessions without turning memory into a hidden black box.
 - Uses bounded context compaction to reduce token waste.
 - Stores synthesized project knowledge in the `.zavorth/wiki` workspace wiki.
 - Supports local ingest, query and lint commands for memory hygiene.
+- Maintains a derived SQLite FTS5 index for fast recall while keeping Markdown
+  wiki pages as the auditable source of truth.
+- Captures universal lifecycle hooks from dashboard, CLI, Telegram, API,
+  runtime and external-agent surfaces without silently promoting raw events.
 - Preserves approval, security and receipt boundaries.
 
 ## Memory Tiers
@@ -24,7 +28,9 @@ sessions without turning memory into a hidden black box.
 
 ```bash
 npm run mnemos:ingest
+npm run mnemos:fts
 npm run mnemos:query -- "provider readiness"
+npm run mnemos:lifecycle -- --type user.prompt.submitted --session-id demo
 npm run mnemos:lint
 npm run mnemos:certify
 npm run mnemos:certify:check
@@ -35,6 +41,10 @@ npm run mnemos:certify:check
 - No raw secrets are stored in wiki pages.
 - Ingest is preview-first when it may write durable memory.
 - Query uses local knowledge sources and does not grant tool authority.
+- SQLite/FTS5 is a derived index only; `.zavorth/wiki` remains the source of
+  truth.
+- Lifecycle hooks are raw episodic events until a promotion gate creates an
+  approved semantic memory with receipt and provenance.
 - Procedural memory captures preferences, not credentials.
 - Handoff envelopes are structured summaries, not permission grants.
 
@@ -51,6 +61,8 @@ If a memory action would broaden scope or persist new knowledge, Zavorth should
 show a preview and require the appropriate approval.
 
 ## Certification
+
+### Certification matrix Certification
 
 The Mnemos certification command verifies this memory surface with local checks
 only. In other words: local checks only. It does not call providers, does not

@@ -3,7 +3,7 @@ import {
   isSharedSurfaceChannelCallbackAction,
   isSharedSurfaceOperationalCallbackCommand,
   normalizeSharedSurfaceCommandCallback,
-} from '../../../src/domain/surface/application/shared-surface/SharedSurfaceCallbackCommandPolicy';
+} from '../../../src/domain/surface/presentation/shared-surface/SharedSurfaceCallbackCommandPolicy';
 
 describe('SharedSurfaceCallbackCommandPolicy', () => {
   it('normalizes read-only shared-surface callbacks', () => {

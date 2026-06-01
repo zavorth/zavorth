@@ -2,7 +2,7 @@ import type {
   ChannelMeshSnapshot,
   ChannelMeshSnapshotEntry,
 } from '../contracts/ChannelMeshContract.js';
-import { isSharedSurfaceChannelCallbackAction } from '../domain/surface/application/shared-surface/SharedSurfaceCallbackCommandPolicy.js';
+import { isSharedSurfaceChannelCallbackAction } from '../domain/surface/presentation/shared-surface/SharedSurfaceCallbackCommandPolicy.js';
 import { ZavorthChannelMeshService } from './ZavorthChannelMeshService.js';
 
 export type ChannelExperienceParityStatus = 'complete' | 'usable' | 'partial' | 'missing';

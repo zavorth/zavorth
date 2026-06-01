@@ -1,4 +1,5 @@
 import path from 'path';
+import { config } from '../config/index.js';
 import {
   SkillSourceRegistryService,
   type SkillSourceRegistryEntry,
@@ -95,8 +96,8 @@ export class SkillImportPreviewService {
         const decision = this.trustPolicy.evaluateSkill(input.source.id, skillName);
         const scan = this.scanner.scanSkillDirectory(sourceSkillDirPath);
         const licenseClassification = this.licenseClassifier.classifySkillDirectory(sourceSkillDirPath, input.source);
-        const licensePolicy = this.licensePolicyService.evaluateClassification(licenseClassification);
-        const risk = this.riskScoringService.assessImport({
+        let licensePolicy = this.licensePolicyService.evaluateClassification(licenseClassification);
+        let risk = this.riskScoringService.assessImport({
           sourceTrust: input.source.trust,
           sourceAllowed: sourceDecision.allowed,
           scanIssues: scan.issues,
@@ -106,6 +107,29 @@ export class SkillImportPreviewService {
           importableFileCount: scan.importableFiles.length,
           skippedFileCount: scan.skippedFiles.length,
         });
+
+        if (
+          config.skillsGovernanceMode === 'casual'
+          && scan.safeToImport
+          && licensePolicy.allowImport
+          && risk.level !== 'blocked'
+          && risk.level !== 'high'
+        ) {
+          licensePolicy = {
+            ...licensePolicy,
+            reviewRequired: false,
+            summary: `${licensePolicy.summary} Casual mode removes manual review only after hard blockers pass.`,
+          };
+          risk = {
+            ...risk,
+            reviewRequired: false,
+            reasons: [
+              ...risk.reasons,
+              'Casual mode keeps security and license blockers, but skips manual review for non-blocking imports.',
+            ],
+          };
+        }
+
         const targetSkillDirPath = path.join(input.targetSource.absolutePath, skillName);
         const allowed = decision.allowed
           && scan.safeToImport

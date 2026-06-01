@@ -14,6 +14,7 @@ import { WebConsoleAssetService } from '../web-console/WebConsoleAssetService.js
 import { WebRealtimeService } from '../../../../services/WebRealtimeService.js';
 import type { SessionV2Service } from '../../../../services/SessionV2Service.js';
 import type { SwarmV2Service } from '../../../../services/SwarmV2Service.js';
+import type { SwarmScalePlaneRuntimeService } from '../../../../services/SwarmScalePlaneRuntimeService.js';
 import type { EngineeringCoreService } from '../../../../services/EngineeringCoreService.js';
 import type { SystemOverlordControlService } from '../../../../services/SystemOverlordControlService.js';
 import type { ComputerUseWatchModeService } from '../../../../services/ComputerUseWatchModeService.js';
@@ -116,7 +117,7 @@ export type WebAppRuntimeRouteDeps = {
   runtime: SharedSurfaceRuntime;
   realtime: WebRealtimeService;
   gatewayRuntime?: ZavorthGatewayRuntimeService | null;
-  agentGateway?: Pick<ZavorthAgentGateway, 'buildSnapshot' | 'approve' | 'reject' | 'handle'> & Partial<Pick<ZavorthAgentGateway, 'resolveApprovalIntent'>> | null;
+  agentGateway?: Pick<ZavorthAgentGateway, 'buildSnapshot' | 'approve' | 'reject' | 'handle'> & Partial<Pick<ZavorthAgentGateway, 'resolveApprovalIntent' | 'steer'>> | null;
   runtimeGateway: ZavorthGatewayService | null;
   runtimeSessionTools: ZavorthSessionToolsService | null;
   sessionTools: ZavorthSessionToolsService | null;
@@ -206,6 +207,10 @@ export type WebAppRuntimeRouteDeps = {
   swarmV2?: Pick<
     SwarmV2Service,
     'launchSwarm' | 'launchOfficialSwarm' | 'launchOfficialSwarmAsync' | 'listSwarms' | 'getSwarm' | 'cancelSwarm' | 'listRoleLibrary' | 'upsertRoleLibraryEntry' | 'getSwarmReplay'
+  > | null;
+  swarmScalePlane?: Pick<
+    SwarmScalePlaneRuntimeService,
+    'launch' | 'resume' | 'listRuns' | 'getRun'
   > | null;
   experimentalSwarmV2?: Pick<
     SwarmV2Service,

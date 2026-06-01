@@ -104,8 +104,17 @@ export class ProviderFactory {
     if (normalized === 'ai-gateway' || normalized === 'ai_gateway' || normalized === 'aigateway') {
       return 'aigateway';
     }
+    if (normalized === 'amazon-bedrock' || normalized === 'amazon_bedrock' || normalized === 'aws-bedrock') {
+      return 'bedrock-claude';
+    }
+    if (normalized === 'anthropic' || normalized === 'claude-direct' || normalized === 'anthropic_direct') {
+      return 'anthropic-direct';
+    }
     if (normalized === 'google' || normalized === 'google-ai-studio' || normalized === 'google_ai_studio') {
       return 'gemini';
+    }
+    if (normalized === 'volcengine') {
+      return 'byteplus';
     }
     if (
       normalized === 'custom_compatible'
@@ -118,7 +127,7 @@ export class ProviderFactory {
     if (normalized === 'local-llama' || normalized === 'local_llama' || normalized === 'localllama') {
       return 'ollama';
     }
-    if (normalized === 'anthropic-sdk' || normalized === 'claude-direct' || normalized === 'anthropic_direct') {
+    if (normalized === 'anthropic-sdk') {
       return 'anthropic-direct';
     }
     if (normalized === 'anthropic_vertex' || normalized === 'claude-vertex' || normalized === 'vertex-claude') {
@@ -490,7 +499,10 @@ export class ProviderFactory {
     const defaults: Record<string, string> = {
       deepinfra: 'https://api.deepinfra.com/v1/openai',
       alibaba: 'https://dashscope.aliyuncs.com/compatible-mode/v1',
+      byteplus: 'https://ark.ap-southeast.bytepluses.com/api/v3',
       cerebras: 'https://api.cerebras.ai/v1',
+      chutes: 'https://llm.chutes.ai/v1',
+      comfy: 'http://localhost:8188/v1',
       cohere: 'https://api.cohere.ai/compatibility/v1',
       fireworks: 'https://api.fireworks.ai/inference/v1',
       falcon: 'https://router.huggingface.co/v1',

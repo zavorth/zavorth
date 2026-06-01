@@ -145,7 +145,6 @@ export class WebAppRuntimeCanonicalStateService {
       localControlReady: true,
       telegramReady: readWebAppRuntimeChannelReadiness(companionPlane, resourcePlane, 'telegram'),
       discordReady: readWebAppRuntimeChannelReadiness(companionPlane, resourcePlane, 'discord'),
-      classicReady: true,
       cliReady: true,
     });
     const snapshot =

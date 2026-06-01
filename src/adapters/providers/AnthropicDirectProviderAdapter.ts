@@ -3,6 +3,7 @@ import type {
   ChatMessage,
   ILlmProvider,
   LlmResponse,
+  LlmStreamEvent,
   ProviderChatOptions,
   ToolCall,
   ToolDefinition,
@@ -18,7 +19,7 @@ export type AnthropicDirectProviderAdapterOptions = {
 
 type AnthropicLikeClient = {
   messages: {
-    create(input: Record<string, unknown>): Promise<Record<string, unknown>>;
+    create(input: Record<string, unknown>, options?: Record<string, unknown>): Promise<any>;
   };
 };
 
@@ -57,9 +58,79 @@ export class AnthropicDirectProviderAdapter implements ILlmProvider {
       system: systemPrompt(messages) || undefined,
       messages: toAnthropicMessages(messages),
       tools: tools && tools.length > 0 ? tools.map(toAnthropicTool) : undefined,
-    });
+    }, options?.signal ? { signal: options.signal } : undefined);
 
     return parseAnthropicResponse(response);
+  }
+
+  public async *streamChat(
+    messages: ChatMessage[],
+    tools?: ToolDefinition[],
+    options?: ProviderChatOptions,
+  ): AsyncIterable<LlmStreamEvent> {
+    if (!this.isConfigured() && !this.injectedClient) {
+      throw new Error('Anthropic direct provider requires ANTHROPIC_API_KEY.');
+    }
+
+    const modelName = String(options?.modelName || this.defaultModelName);
+    const streamMetadata = {
+      providerNativeTokenStreaming: true,
+      providerNativeStreamSource: 'anthropic-messages-stream',
+    };
+    const stream = await this.client().messages.create({
+      model: modelName,
+      max_tokens: 1024,
+      system: systemPrompt(messages) || undefined,
+      messages: toAnthropicMessages(messages),
+      tools: tools && tools.length > 0 ? tools.map(toAnthropicTool) : undefined,
+      stream: true,
+    }, options?.signal ? { signal: options.signal } : undefined) as AsyncIterable<Record<string, any>>;
+
+    yield {
+      type: 'start',
+      accumulated: '',
+      done: false,
+      metadata: streamMetadata,
+    };
+
+    let accumulated = '';
+    let chunkIndex = 0;
+    let finishReason = 'stop';
+
+    for await (const event of stream) {
+      if (event?.type === 'message_delta' && event.delta?.stop_reason) {
+        finishReason = String(event.delta.stop_reason || finishReason);
+      }
+      const deltaText = event?.type === 'content_block_delta' && event.delta?.type === 'text_delta'
+        ? String(event.delta.text || '')
+        : '';
+      if (!deltaText) {
+        continue;
+      }
+      accumulated += deltaText;
+      chunkIndex += 1;
+      yield {
+        type: 'delta',
+        delta: deltaText,
+        accumulated,
+        chunkIndex,
+        done: false,
+        metadata: streamMetadata,
+      };
+    }
+
+    yield {
+      type: 'done',
+      accumulated,
+      done: true,
+      response: {
+        content: accumulated || null,
+        toolCalls: [],
+        finishReason,
+        metadata: streamMetadata,
+      },
+      metadata: streamMetadata,
+    };
   }
 
   private client(): AnthropicLikeClient {

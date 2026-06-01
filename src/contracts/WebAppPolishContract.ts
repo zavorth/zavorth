@@ -56,7 +56,7 @@ export const WEB_APP_POLISH_REQUIREMENTS: WebAppPolishRequirementSpec[] = [
       'Dashboard canonica',
       '/dashboard e a entrada web principal',
     ],
-    reason: 'a web/app precisa apontar para a superficie canonica sem esconder /app e /classic.',
+    reason: 'a web/app precisa apontar para a superficie canonica e deixar /app e /classic fora da superficie publica.',
   },
   {
     id: 'product-command-rail',
@@ -189,7 +189,7 @@ export const WEB_APP_POLISH_PACKAGE_SCRIPTS = [
 ] as const;
 
 export const WEB_APP_POLISH_CONTRACTS = [
-  'A entrada web canonica e /dashboard; /app e /classic continuam fallback legado.',
+  'A entrada web canonica e /dashboard; /app e /classic foram removidas da superficie publica.',
   'A web/app precisa expor a mesma jornada canonica da CLI: onboard, go, chat, status e doctor.',
   'Approvals, diffs, artifacts, memoria, recursos e health precisam estar no mesmo workspace operacional.',
   'Estados vazios autenticados devem explicar o caminho de liberacao sem stack trace ou inventario bruto.',

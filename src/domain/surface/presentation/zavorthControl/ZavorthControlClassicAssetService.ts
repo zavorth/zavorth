@@ -24,7 +24,7 @@ export class ZavorthControlClassicAssetService {
     const publicUrlBlock = publicBaseUrl
       ? `<p class="muted" style="margin-top:0;">URL publica configurada: <a href="${escapeHtml(publicBaseUrl)}" target="_blank">${escapeHtml(publicBaseUrl)}</a></p>`
       : '<p class="muted" style="margin-top:0;">Painel local. Nenhuma URL publica configurada.</p>';
-    const webAppBlock = '<p class="muted" style="margin-top:0;">Entrada web principal: <a href="/zavorthControl">/zavorthControl</a>. <a href="/zavorthControl">/zavorthControl</a> segue como compatibilidade e <a href="/classic">/classic</a> e apenas fallback de manutencao.</p>';
+    const webAppBlock = '<p class="muted" style="margin-top:0;">Entrada web principal: <a href="/zavorthControl">/zavorthControl</a>. As antigas rotas /app e /classic foram removidas.</p>';
     const sidecarIntroBlock = '<div id="sidecar-links" class="card" style="margin-bottom:24px;">Carregando sidecars...</div>';
     const operationsBriefBlock = '<div id="operations-brief" class="card" style="margin-bottom:24px;">Carregando briefing do operador...</div>';
     const operationsOverviewBlock = '<div id="operations-overview" class="card" style="margin-bottom:24px;">Carregando overview operacional...</div>';
@@ -83,8 +83,8 @@ ${ZAVORTH_CONTROL_CLASSIC_STYLES}
       ${webAppBlock}
       <div id="classic-legacy-banner" class="card" style="margin-bottom:24px;">
         <div style="display:grid; gap:8px;">
-          <strong>Este painel e legado e esta funcionalmente congelado.</strong>
-          <span class="muted">Use <a href="/zavorthControl">/zavorthControl</a> como entrada principal do Zavorth. <a href="/zavorthControl">/zavorthControl</a> segue compativel, enquanto <code>/app</code> e <a href="/classic">/classic</a> ficam escondidos do usuario normal e existem apenas como fallback interno de manutencao.</span>
+          <strong>Este painel nao deve ser servido como rota publica.</strong>
+          <span class="muted">Use <a href="/zavorthControl">/zavorthControl</a> como entrada principal do Zavorth. As antigas rotas <code>/app</code> e <code>/classic</code> foram removidas.</span>
           ${initialAuditSummaryBlock}
         </div>
       </div>

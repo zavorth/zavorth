@@ -48,9 +48,29 @@ export interface LlmResponse {
   metadata?: Record<string, unknown>;
 }
 
+export type LlmStreamToolCallDelta = {
+  index: number;
+  id?: string;
+  name?: string;
+  argumentsDelta?: string;
+  arguments?: string;
+};
+
+export type LlmStreamEvent = {
+  type: 'start' | 'delta' | 'tool_call_delta' | 'done';
+  delta?: string;
+  accumulated?: string;
+  chunkIndex?: number;
+  toolCallDelta?: LlmStreamToolCallDelta;
+  response?: LlmResponse;
+  done?: boolean;
+  metadata?: Record<string, unknown>;
+};
+
 export interface ProviderChatOptions {
   modelName?: string;
   providerNativeTools?: ProviderNativeToolRequest[];
+  signal?: AbortSignal;
 }
 
 export type ProviderNativeToolName =
@@ -82,4 +102,9 @@ export interface ILlmProvider {
    * @returns Resposta do LLM com possíveis tool calls
    */
   chat(messages: ChatMessage[], tools?: ToolDefinition[], options?: ProviderChatOptions): Promise<LlmResponse>;
+  streamChat?(
+    messages: ChatMessage[],
+    tools?: ToolDefinition[],
+    options?: ProviderChatOptions,
+  ): AsyncIterable<LlmStreamEvent>;
 }

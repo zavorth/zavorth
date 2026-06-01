@@ -80,6 +80,12 @@ export function inferUniversalAgentRequestedTools(input: UniversalAgentToolInfer
   addIfMatches(
     tools,
     normalizedText,
+    /\b(zavorth|configuracao|configuração|governanca|governança|governance|provider|modelo|home|wake|echo|task|cron|memoria|memória|approval|aprovacao|aprovação|channel|canal|sandbox|setup)\b[\s\S]{0,120}\b(mude|mudar|alterar|altere|trocar|troque|configurar|configure|ativar|ative|desativar|desative|status|readiness|doctor)\b|\b(mude|mudar|alterar|altere|trocar|troque|configurar|configure|ativar|ative|desativar|desative)\b[\s\S]{0,120}\b(zavorth|configuracao|configuração|governanca|governança|governance|provider|modelo|home|wake|echo|task|cron|memoria|memória|approval|aprovacao|aprovação|channel|canal|sandbox|setup)\b/i,
+    'zavorth_action',
+  );
+  addIfMatches(
+    tools,
+    normalizedText,
     /\b(compare|comparar|mudou|mudanca|mudancas|diff)\b|\b(analise|analysis|analisar|review|revisar|liste|listar|mostre|mostrar|inspecione|inspecionar)\b[\s\S]{0,80}\b(downloads?|desktop|documentos?|pasta|folder|repository|repositorio|repo|module|modulo|code|codigo|file|arquivo|logs?)\b|\b(downloads?|desktop|documentos?|pasta|folder|repository|repositorio|repo|module|modulo|code|codigo|file|arquivo|logs?)\b[\s\S]{0,80}\b(analise|analysis|analisar|review|revisar|liste|listar|mostre|mostrar|inspecione|inspecionar)\b/i,
     'read_file',
   );

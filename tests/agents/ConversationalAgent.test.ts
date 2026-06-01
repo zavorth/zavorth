@@ -206,6 +206,11 @@ describe('ConversationalAgent', () => {
       ]),
       expect.any(Object),
     );
+    const systemMessages = llmRuntime.chatDetailed.mock.calls[0][0]
+      .filter((entry: any) => entry.role === 'system')
+      .map((entry: any) => String(entry.content || ''))
+      .join('\n');
+    expect(systemMessages).toContain('EVIDENCE_ANSWER_POLICY');
   });
 
   it('reuses automatic search context instead of hitting web_search twice', async () => {
@@ -524,8 +529,9 @@ describe('ConversationalAgent', () => {
       contextDecision.messages,
       toolDefinitions,
       expect.objectContaining({
-        providerName: 'gemini',
+        providerName: 'aigateway',
         allowFallback: true,
+        fallbackOrder: ['gemini', 'openrouter'],
       }),
     );
   });

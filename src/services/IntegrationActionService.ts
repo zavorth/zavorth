@@ -15,13 +15,13 @@ import { ZavorthBridgeRemoteUpstreamSyncService } from './ZavorthBridgeRemoteUps
 import { GatewayUpstreamSyncService } from './GatewayUpstreamSyncService.js';
 import { IntegrationProbeService } from './IntegrationProbeService.js';
 import { IntegrationRegistryService } from './IntegrationRegistryService.js';
-import { IntegrationActionExecutionSupport } from '../domain/platform-ecosystem/application/integration-actions/IntegrationActionExecutionSupport.js';
-import { IntegrationActionLedgerService } from '../domain/platform-ecosystem/application/integration-actions/IntegrationActionLedgerService.js';
-import { IntegrationActionMonitorSupport } from '../domain/platform-ecosystem/application/integration-actions/IntegrationActionMonitorSupport.js';
-import { IntegrationActionPlanBuilder } from '../domain/platform-ecosystem/application/integration-actions/IntegrationActionPlanBuilder.js';
-import { IntegrationActionRecipeService } from '../domain/platform-ecosystem/application/integration-actions/IntegrationActionRecipeService.js';
-import { IntegrationActionRuntimeBindingSupport } from '../domain/platform-ecosystem/application/integration-actions/IntegrationActionRuntimeBindingSupport.js';
-import type { IntegrationActionExecuteOptions, IntegrationActionRuntime } from '../domain/platform-ecosystem/application/integration-actions/IntegrationActionTypes.js';
+import { IntegrationActionExecutionSupport } from '../domain/platform-ecosystem/infrastructure/integration-actions/IntegrationActionExecutionSupport.js';
+import { IntegrationActionLedgerService } from '../domain/platform-ecosystem/infrastructure/integration-actions/IntegrationActionLedgerService.js';
+import { IntegrationActionMonitorSupport } from '../domain/platform-ecosystem/infrastructure/integration-actions/IntegrationActionMonitorSupport.js';
+import { IntegrationActionPlanBuilder } from '../domain/platform-ecosystem/infrastructure/integration-actions/IntegrationActionPlanBuilder.js';
+import { IntegrationActionRecipeService } from '../domain/platform-ecosystem/infrastructure/integration-actions/IntegrationActionRecipeService.js';
+import { IntegrationActionRuntimeBindingSupport } from '../domain/platform-ecosystem/infrastructure/integration-actions/IntegrationActionRuntimeBindingSupport.js';
+import type { IntegrationActionExecuteOptions, IntegrationActionRuntime } from '../domain/platform-ecosystem/infrastructure/integration-actions/IntegrationActionTypes.js';
 import { ToolHookPipelineService } from './ToolHookPipelineService.js';
 
 export class IntegrationActionService {

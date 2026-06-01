@@ -1,10 +1,10 @@
 import { CommandParser } from '../../src/telegram/CommandParser';
 import { ZavorthChannelActionService } from '../../src/services/ZavorthChannelActionService';
 import { ZavorthChannelMeshService } from '../../src/services/ZavorthChannelMeshService';
-import { buildSharedSurfaceCommandServiceComposition } from '../../src/domain/surface/application/shared-surface/factory/SharedSurfaceCommandServiceFactory.js';
-import { SharedSurfaceControlPlaneCommandPack } from '../../src/domain/surface/application/shared-surface/SharedSurfaceControlPlaneCommandPack';
-import { SharedSurfacePresentationCommandPack } from '../../src/domain/surface/application/shared-surface/SharedSurfacePresentationCommandPack';
-import { SharedSurfaceTaskVariationCommandPack } from '../../src/domain/surface/application/shared-surface/SharedSurfaceTaskVariationCommandPack';
+import { buildSharedSurfaceCommandServiceComposition } from '../../src/domain/surface/presentation/shared-surface/factory/SharedSurfaceCommandServiceFactory.js';
+import { SharedSurfaceControlPlaneCommandPack } from '../../src/domain/surface/presentation/shared-surface/SharedSurfaceControlPlaneCommandPack';
+import { SharedSurfacePresentationCommandPack } from '../../src/domain/surface/presentation/shared-surface/SharedSurfacePresentationCommandPack';
+import { SharedSurfaceTaskVariationCommandPack } from '../../src/domain/surface/presentation/shared-surface/SharedSurfaceTaskVariationCommandPack';
 
 describe('buildSharedSurfaceCommandServiceComposition', () => {
   it('builds the default shared-surface composition from minimal deps', () => {
