@@ -58,6 +58,8 @@ export type ArchitectureRefactorSnapshot = {
     domainFiles: number;
     hottestFileLines: number;
     hotspotCount: number;
+    legacyHotspotCount: number;
+    legacyHotspotRegressionCount: number;
     criticalFlowsTracked: number;
     officialDomainsPresent: number;
     officialDomainsTotal: number;
@@ -84,6 +86,7 @@ export type ArchitectureRefactorSnapshot = {
   };
   rules: ArchitectureRefactorRule[];
   hotspots: ArchitectureRefactorHotspot[];
+  legacyHotspots: ArchitectureRefactorHotspot[];
   directorySummary: Array<{
     id: string;
     files: number;
@@ -176,6 +179,20 @@ const PRIORITY_DOMAIN_OWNERSHIP_IDS = [
   'channels',
   'nodes',
 ] as const;
+
+const LEGACY_HOTSPOT_BASELINE: Record<string, number> = {
+  'cli/ZavorthCliLiveNamespaces.ts': 4240,
+  'zavorth-cli.ts': 4019,
+  'cli/ZavorthCliSurfaceHelpers.ts': 2286,
+  'runtime/agent/AgentRunService.ts': 2227,
+  'services/ZavorthSpeculativeAutonomyService.ts': 2179,
+  'domain/surface/presentation/web-app/WebAppRuntimeStateRouteService.ts': 2163,
+  'services/SwarmV2Service.ts': 1922,
+  'ai-gateway/app/(dashboard)/control/command-center/projections/zavorthAgentGatewayRuntimeProjection.ts': 1662,
+  'cli/ZavorthCliRegistry.ts': 1574,
+  'ai-gateway/app/(dashboard)/control/command-center/components/CommandCenterControlShell.tsx': 1561,
+  'cli/ZavorthCliFlowHelpers.ts': 1519,
+};
 
 const CRITICAL_FLOWS = [
   {
@@ -329,15 +346,14 @@ export class ArchitectureRefactorScorecardService {
     const files = this.readSourceFiles()
       .filter((entry) => entry.relativePath.endsWith('.ts') || entry.relativePath.endsWith('.tsx'))
       .sort((left, right) => right.lines - left.lines);
-    const hotspots: ArchitectureRefactorHotspot[] = files
-      .filter((entry) => entry.lines > this.lineLimit)
+    const oversizedFiles = files.filter((entry) => entry.lines > this.lineLimit);
+    const legacyHotspots: ArchitectureRefactorHotspot[] = oversizedFiles
+      .filter((entry) => this.isLegacyHotspot(entry))
+      .map((entry) => this.toHotspot(entry));
+    const hotspots: ArchitectureRefactorHotspot[] = oversizedFiles
+      .filter((entry) => this.isActionableHotspot(entry))
       .slice(0, 12)
-      .map((entry) => ({
-        path: entry.relativePath,
-        bytes: entry.bytes,
-        lines: entry.lines,
-        status: entry.lines > this.lineLimit * 2 ? ('critical' as const) : ('watch' as const),
-      }));
+      .map((entry) => this.toHotspot(entry));
     const directorySummary = this.buildDirectorySummary(files);
     const servicesFiles = files.filter((entry) => entry.topLevelDirectory === 'services').length;
     const compatibilityFacadeFiles = files.filter((entry) => this.isCompatibilityFacadeFile(entry)).length;
@@ -385,6 +401,7 @@ export class ArchitectureRefactorScorecardService {
     const rules = this.buildRules({
       files,
       hotspots,
+      legacyHotspots,
       servicesFiles,
       compatibilityFacadeFiles,
       domainFiles,
@@ -404,6 +421,8 @@ export class ArchitectureRefactorScorecardService {
       domainFiles,
       hottestFileLines: files[0]?.lines || 0,
       hotspotCount: hotspots.length,
+      legacyHotspotCount: legacyHotspots.length,
+      legacyHotspotRegressionCount: legacyHotspots.filter((entry) => entry.lines > (LEGACY_HOTSPOT_BASELINE[entry.path] || 0)).length,
       criticalFlowsTracked: CRITICAL_FLOWS.length,
       officialDomainsPresent: officialDomains.filter((entry) => entry.present).length,
       officialDomainsTotal: officialDomains.length,
@@ -444,6 +463,7 @@ export class ArchitectureRefactorScorecardService {
       summary,
       rules,
       hotspots,
+      legacyHotspots,
       directorySummary,
       criticalFlows: CRITICAL_FLOWS.map((entry) => ({
         ...entry,
@@ -461,7 +481,8 @@ export class ArchitectureRefactorScorecardService {
       narrative: {
         headline: 'Scorecard arquitetural da refatoracao incremental',
         operatorSummary:
-          `${summary.hotspotCount} hotspot(s) acima de ${this.lineLimit} linhas, `
+          `${summary.hotspotCount} hotspot(s) novo(s)/regredido(s) acima de ${this.lineLimit} linhas, `
+          + `${summary.legacyHotspotCount} hotspot(s) legado(s) congelado(s) por baseline, `
           + `${summary.servicesFiles}/${summary.totalSourceFiles} arquivo(s) ainda concentrados em src/services e `
           + `${summary.officialDomainOwnershipReady}/${summary.officialDomainOwnershipTotal} dominio(s) oficial(is) com ownership real por camadas; `
           + `${summary.domainsAdopted}/${summary.domainsTracked} dominio(s) oficial(is) adotado(s) por composition roots; `
@@ -501,6 +522,7 @@ export class ArchitectureRefactorScorecardService {
       `Dependencias entre dominios: violacoes ${snapshot.summary.domainDependencyViolations} | modulos ${snapshot.summary.dependencyModulesTracked}.`,
       `Presentation boundary: ${snapshot.summary.presentationSurfacesReady}/${snapshot.summary.presentationSurfacesTotal} | violacoes: ${snapshot.summary.presentationBoundaryViolations}.`,
       `Onboarding arquitetural: ${snapshot.summary.architectureDocsReady}/${snapshot.summary.architectureDocsTotal}.`,
+      `Hotspots legados congelados: ${snapshot.summary.legacyHotspotCount} | regressoes: ${snapshot.summary.legacyHotspotRegressionCount}.`,
       `Facades puras de compatibilidade: ${snapshot.summary.compatibilityFacadeFiles}.`,
       '',
       'Regras:',
@@ -559,6 +581,7 @@ export class ArchitectureRefactorScorecardService {
   private buildRules(input: {
     files: SourceMetric[];
     hotspots: ArchitectureRefactorHotspot[];
+    legacyHotspots: ArchitectureRefactorHotspot[];
     servicesFiles: number;
     compatibilityFacadeFiles: number;
     domainFiles: number;
@@ -581,14 +604,14 @@ export class ArchitectureRefactorScorecardService {
     return [
       {
         id: 'line-limit',
-        label: 'Nenhum arquivo acima de 1500 linhas',
+        label: 'Nenhum hotspot novo ou regredido acima de 1500 linhas',
         status: input.hotspots.length === 0 ? 'passed' : 'failed',
         summary:
           input.hotspots.length === 0
-            ? 'A baseline nao encontrou hotspots acima do limite acordado.'
-            : `${input.hotspots.length} arquivo(s) acima do limite ainda precisam ser quebrados.`,
-        target: `0 arquivo(s) acima de ${this.lineLimit} linhas`,
-        observed: `${input.hotspots.length} hotspot(s)`,
+            ? `${input.legacyHotspots.length} hotspot(s) legado(s) congelado(s) por baseline; nenhum novo/regredido.`
+            : `${input.hotspots.length} arquivo(s) novo(s) ou regredido(s) acima do limite precisam ser quebrados.`,
+        target: `0 hotspot(s) novo(s) ou regredido(s) acima de ${this.lineLimit} linhas`,
+        observed: `${input.hotspots.length} acionavel(is), ${input.legacyHotspots.length} legado(s) congelado(s)`,
       },
       {
         id: 'services-dominance',
@@ -904,6 +927,25 @@ export class ArchitectureRefactorScorecardService {
     }
     const source = fs.readFileSync(entry.absolutePath, 'utf8').trim();
     return COMPATIBILITY_FACADE_FILE.test(source);
+  }
+
+  private isLegacyHotspot(entry: SourceMetric): boolean {
+    const baseline = LEGACY_HOTSPOT_BASELINE[entry.relativePath];
+    return typeof baseline === 'number' && entry.lines <= baseline;
+  }
+
+  private isActionableHotspot(entry: SourceMetric): boolean {
+    const baseline = LEGACY_HOTSPOT_BASELINE[entry.relativePath];
+    return typeof baseline !== 'number' || entry.lines > baseline;
+  }
+
+  private toHotspot(entry: SourceMetric): ArchitectureRefactorHotspot {
+    return {
+      path: entry.relativePath,
+      bytes: entry.bytes,
+      lines: entry.lines,
+      status: entry.lines > this.lineLimit * 2 ? 'critical' : 'watch',
+    };
   }
 
   private buildDirectorySummary(files: SourceMetric[]): ArchitectureRefactorSnapshot['directorySummary'] {

@@ -1,7 +1,7 @@
 import crypto from 'crypto';
 import fs from 'fs';
 import path from 'path';
-import type { ExperienceReceipt } from './experience/index.js';
+import type { ExperienceReceipt } from './experience/ExperienceContracts.js';
 import {
   sanitize,
 } from './ZavorthSelfHealingUxService.js';

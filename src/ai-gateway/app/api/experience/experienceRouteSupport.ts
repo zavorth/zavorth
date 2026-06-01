@@ -1,4 +1,5 @@
-import { ExperienceCoreService, type ExperienceCommand } from "../../../../services/experience";
+import type { ExperienceCommand } from "../../../../services/experience/ExperienceContracts";
+import { ExperienceCoreService } from "../../../../services/experience/ExperienceCoreService";
 import {
   ZavorthAgentGateway,
   createDefaultAgentRunStore,

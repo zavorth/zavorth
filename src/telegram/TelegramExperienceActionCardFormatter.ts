@@ -2,7 +2,7 @@ import { InlineKeyboard } from 'grammy';
 import type {
   ExperienceActionCard,
   ExperienceSnapshot,
-} from '../services/experience/index.js';
+} from '../services/experience/ExperienceContracts.js';
 import {
   defaultTelegramExperienceActionCardRegistry,
   type TelegramExperienceActionCardRegistry,

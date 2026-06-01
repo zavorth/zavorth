@@ -1,11 +1,12 @@
 import { ArchitectureRefactorScorecardService } from '../../src/observability/ArchitectureRefactorScorecardService';
+import path from 'path';
 
 describe('ArchitectureRefactorScorecardService', () => {
   it('summarizes hotspots, domain coverage and boundary ports in one baseline snapshot', () => {
     const service = new ArchitectureRefactorScorecardService({
       now: () => new Date('2026-04-15T09:00:00.000Z'),
-      workspaceRoot: 'C:\\TESTES DEV\\zavorth-core\\Zavorth',
-      srcRoot: 'C:\\TESTES DEV\\zavorth-core\\Zavorth\\src',
+      workspaceRoot: process.cwd(),
+      srcRoot: path.join(process.cwd(), 'src'),
       readSourceFiles: () => [
         {
           absolutePath: 'C:\\TESTES DEV\\zavorth-core\\Zavorth\\src\\services\\ZavorthOperationalOverviewService.ts',
@@ -111,12 +112,83 @@ describe('ArchitectureRefactorScorecardService', () => {
     expect(snapshot.rules.find((entry) => entry.id === 'domain-cross-dependencies')?.status).toBe('passed');
     expect(snapshot.rules.find((entry) => entry.id === 'presentation-boundary')?.status).toBe('passed');
     expect(snapshot.summary.presentationSurfacesReady).toBe(5);
-    expect(snapshot.gate.status).toBe('failed');
+    expect(snapshot.gate.status).toBe('warning');
     expect(snapshot.criticalFlows).toHaveLength(6);
     expect(service.renderReport()).toContain('Arquitetura e baseline de refatoracao');
     expect(service.renderReport()).toContain('Ownership oficial');
     expect(service.renderReport()).toContain('Top Modulos Por Dependencia');
     expect(service.renderReport()).toContain('Hotspots:');
+  });
+
+  it('freezes legacy hotspots under baseline and only fails new or regressed hotspots', () => {
+    const service = new ArchitectureRefactorScorecardService({
+      now: () => new Date('2026-04-15T09:00:00.000Z'),
+      workspaceRoot: process.cwd(),
+      srcRoot: path.join(process.cwd(), 'src'),
+      readSourceFiles: () => [
+        {
+          absolutePath: path.join(process.cwd(), 'src/cli/ZavorthCliLiveNamespaces.ts'),
+          relativePath: 'cli/ZavorthCliLiveNamespaces.ts',
+          bytes: 10,
+          lines: 4240,
+          topLevelDirectory: 'cli',
+        },
+        {
+          absolutePath: path.join(process.cwd(), 'src/cli/NewLargeEntrypoint.ts'),
+          relativePath: 'cli/NewLargeEntrypoint.ts',
+          bytes: 10,
+          lines: 1501,
+          topLevelDirectory: 'cli',
+        },
+      ],
+      buildPresentationBoundarySnapshot: () => ({
+        generatedAt: '2026-04-15T09:00:00.000Z',
+        summary: {
+          posture: 'healthy',
+          surfacesReady: 5,
+          surfacesTotal: 5,
+          auditedFiles: 12,
+          violations: 0,
+          allowedChannels: ['snapshot', 'action', 'event', 'stream', 'asset'],
+        },
+        surfaces: [],
+        violations: [],
+        narrative: {
+          headline: 'Presentation Boundary Policy',
+          operatorSummary: '5/5 surfaces visuais auditadas.',
+          nextAction: 'Preservar o boundary.',
+        },
+      }),
+      buildDependencyGraphSnapshot: () => ({
+        generatedAt: '2026-04-15T09:00:00.000Z',
+        summary: {
+          posture: 'healthy',
+          modulesTracked: 2,
+          crossDomainEdges: 0,
+          crossDomainViolations: 0,
+          entrypointsTracked: 1,
+          domainsTracked: 11,
+          domainsAdopted: 11,
+        },
+        crossDomainEdges: [],
+        violations: [],
+        moduleHotspots: [],
+        entrypointHotspots: [],
+        domainMigration: [],
+        narrative: {
+          headline: 'Dependency graph arquitetural',
+          operatorSummary: '0 dependencia cruzada nao autorizada.',
+          nextAction: 'Preservar o boundary entre dominios.',
+        },
+      }),
+    });
+
+    const snapshot = service.buildSnapshot();
+
+    expect(snapshot.summary.legacyHotspotCount).toBe(1);
+    expect(snapshot.summary.hotspotCount).toBe(1);
+    expect(snapshot.hotspots[0]?.path).toBe('cli/NewLargeEntrypoint.ts');
+    expect(snapshot.rules.find((entry) => entry.id === 'line-limit')?.status).toBe('failed');
   });
 
   it('fails the architecture gate when there is an unauthorized cross-domain dependency', () => {

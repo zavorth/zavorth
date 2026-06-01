@@ -50,7 +50,7 @@ import { SharedSurfaceCommandService } from '../services/SharedSurfaceCommandSer
 import { LlmRuntimeService } from '../services/llm/LlmRuntimeService.js';
 import { InternalSurfaceApiService } from '../api/internal/InternalSurfaceApiService.js';
 import { ZavorthPackagePublisher } from '../platform/publish/ZavorthPackagePublisher.js';
-import { ExperienceCoreService } from '../services/experience/index.js';
+import { ExperienceCoreService } from '../services/experience/ExperienceCoreService.js';
 import { createBootstrapToolRuntime } from '../bootstrap/bootstrapToolRuntime.js';
 import { createContextEngineRuntime, wireLegacyUnifiedGatewayAgentCallback } from '../bootstrap/bootstrapContextEngine.js';
 import {

@@ -2,7 +2,7 @@ import type { ZavorthControlClassicAccessDeps } from './ZavorthControlClassicAcc
 import type { ZavorthControlCoreRouteDeps } from './ZavorthControlCoreRouteService.js';
 import type { ZavorthControlHttpCorsDeps } from './ZavorthControlHttpSupportService.js';
 import type { ZavorthControlLegacyRouteDeps } from './ZavorthControlLegacyRouteService.js';
-import { ExperienceCoreService } from '../../../../services/experience/index.js';
+import { ExperienceCoreService } from '../../../../services/experience/ExperienceCoreService.js';
 
 export type ZavorthControlPresentationDepsBridgeInput = {
   host: string;

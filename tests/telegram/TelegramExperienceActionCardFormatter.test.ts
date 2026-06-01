@@ -1,6 +1,6 @@
 import { TelegramExperienceActionCardFormatter } from '../../src/telegram/TelegramExperienceActionCardFormatter.js';
 import { TelegramExperienceActionCardRegistry } from '../../src/telegram/TelegramExperienceActionCardRegistry.js';
-import type { ExperienceSnapshot } from '../../src/services/experience/index.js';
+import type { ExperienceSnapshot } from '../../src/services/experience/ExperienceContracts.js';
 import fs from 'fs';
 import os from 'os';
 import path from 'path';
