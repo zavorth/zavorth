@@ -2,7 +2,7 @@ import type { DashboardClassicAccessDeps } from './DashboardClassicAccessService
 import type { DashboardCoreRouteDeps } from './DashboardCoreRouteService.js';
 import type { DashboardHttpCorsDeps } from './DashboardHttpSupportService.js';
 import type { DashboardLegacyRouteDeps } from './DashboardLegacyRouteService.js';
-import { ExperienceCoreService } from '../../../../services/experience/index.js';
+import { ExperienceCoreService } from '../../../../services/experience/ExperienceCoreService.js';
 
 export type DashboardPresentationDepsBridgeInput = {
   host: string;

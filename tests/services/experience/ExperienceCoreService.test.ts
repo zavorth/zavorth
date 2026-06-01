@@ -1,14 +1,12 @@
-import {
-  ContextRecoveryService,
-  DiffReviewService,
-  ExperienceCoreService,
-  NaturalCommandRouterService,
-  ReasoningSummaryService,
-  ResponseProfilePreferenceService,
-  LearningOSService,
-  TrustLensService,
-  JourneyEngineService,
-} from '../../../src/services/experience/index.js';
+import { ContextRecoveryService } from '../../../src/services/experience/ContextRecoveryService.js';
+import { DiffReviewService } from '../../../src/services/experience/DiffReviewService.js';
+import { ExperienceCoreService } from '../../../src/services/experience/ExperienceCoreService.js';
+import { JourneyEngineService } from '../../../src/services/experience/JourneyEngineService.js';
+import { LearningOSService } from '../../../src/services/experience/LearningOSService.js';
+import { NaturalCommandRouterService } from '../../../src/services/experience/NaturalCommandRouterService.js';
+import { ReasoningSummaryService } from '../../../src/services/experience/ReasoningSummaryService.js';
+import { ResponseProfilePreferenceService } from '../../../src/services/experience/ResponseProfilePreferenceService.js';
+import { TrustLensService } from '../../../src/services/experience/TrustLensService.js';
 import { ZavorthSelfHealingReceiptService } from '../../../src/services/ZavorthSelfHealingReceiptService.js';
 import os from 'os';
 import path from 'path';

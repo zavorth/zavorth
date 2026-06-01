@@ -1,4 +1,4 @@
-import type { ExperienceCommandResult, ExperienceSnapshot } from '../services/experience/index.js';
+import type { ExperienceCommandResult, ExperienceSnapshot } from '../services/experience/ExperienceContracts.js';
 import type { ZavorthProviderReadinessMatrixSnapshot } from './ZavorthProviderReadinessMatrixContract.js';
 
 export const ZAVORTH_SELF_HEALING_UX_CONTRACT_VERSION = 'ZavorthSelfHealingUx/v1' as const;

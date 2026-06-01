@@ -29,7 +29,7 @@ import { TelegramConversationDirectReplyService } from './TelegramConversationDi
 import { TelegramConversationStateService } from './TelegramConversationStateService.js';
 import { TelegramExperienceActionCardFormatter } from '../TelegramExperienceActionCardFormatter.js';
 import { wrapUntrustedContent } from '../../security/UntrustedContent.js';
-import type { ExperienceCoreService } from '../../services/experience/index.js';
+import type { ExperienceCoreService } from '../../services/experience/ExperienceCoreService.js';
 
 type InlineData = Array<{ mimeType: string; data: string }>;
 type TelegramAgentGateway = Pick<ZavorthAgentGateway, 'handle'>;

@@ -14,8 +14,8 @@ import type {
   SalesPackInboundMessageInput,
 } from '../contracts/SalesPackContract.js';
 import type { SalesPackChannelIoEnvelope } from '../contracts/SalesPackChannelIoContract.js';
-import type { ExperienceCommand, ExperienceSurface } from './experience/index.js';
-import { ExperienceCoreService } from './experience/index.js';
+import type { ExperienceCommand, ExperienceSurface } from './experience/ExperienceContracts.js';
+import { ExperienceCoreService } from './experience/ExperienceCoreService.js';
 import { globalLiveNodeRegistry } from './LiveNodeRegistryService.js';
 
 type WriteJson = (res: http.ServerResponse, body: unknown, statusCode?: number) => void;

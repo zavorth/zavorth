@@ -46,7 +46,7 @@ import type { ZavorthWorkspaceMemoryOsService } from '../services/ZavorthWorkspa
 import type { ZavorthSelfHealControlPlaneService } from '../services/ZavorthSelfHealControlPlaneService.js';
 import type { ZavorthReleasePresenceControlPlaneService } from '../services/ZavorthReleasePresenceControlPlaneService.js';
 import type { ZavorthAgentGateway } from '../runtime/agent/index.js';
-import type { ExperienceCoreService } from '../services/experience/index.js';
+import type { ExperienceCoreService } from '../services/experience/ExperienceCoreService.js';
 import type { ZavorthHeadlessApprovalMode } from './headless/ZavorthHeadlessCommand.js';
 
 export type ZavorthCliFlags = {

@@ -29,6 +29,8 @@ function renderMarkdown() {
     `- Control plane kit: ${snapshot.summary.controlPlaneFamiliesReady}/${snapshot.summary.controlPlaneFamiliesTotal}`,
     `- Presentation boundary: ${snapshot.summary.presentationSurfacesReady}/${snapshot.summary.presentationSurfacesTotal}`,
     `- Architecture docs: ${snapshot.summary.architectureDocsReady}/${snapshot.summary.architectureDocsTotal}`,
+    `- Legacy hotspots frozen: ${snapshot.summary.legacyHotspotCount}`,
+    `- Legacy hotspot regressions: ${snapshot.summary.legacyHotspotRegressionCount}`,
     `- Compatibility facades: ${snapshot.summary.compatibilityFacadeFiles}`,
     `- Cross-domain violations: ${snapshot.summary.domainDependencyViolations}`,
     '',

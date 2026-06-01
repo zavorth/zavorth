@@ -5,7 +5,7 @@
   ExperienceLearningCandidate,
   ExperienceSnapshot,
   ExperienceTimelineItem,
-} from '../services/experience/index.js';
+} from '../services/experience/ExperienceContracts.js';
 import { ZavorthSelfHealingUxService } from '../services/ZavorthSelfHealingUxService.js';
 import { formatZavorthSelfHealingProjection } from './ZavorthCliSelfHealingRenderer.js';
 import { renderCliScreen, type CliVisualPanel } from './ZavorthCliVisualSystem.js';
