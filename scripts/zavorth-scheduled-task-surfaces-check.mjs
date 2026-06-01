@@ -44,7 +44,7 @@ function ruleMarkers() {
     ['src/services/ZavorthScheduledTaskSurfaceService.ts', ['ZavorthScheduledTaskPersistenceService', 'checkpoint-4-governed-scheduled-task-surfaces', 'approvalEnvelopeRequiredForMutation']],
     ['src/services/ZavorthAutomationActionService.ts', ['ZavorthScheduledTaskSurfaceService', 'Persistencia: ZavorthScheduledTaskPersistenceService']],
     ['src/telegram/controllers/TelegramSchedulerController.ts', ['ZavorthScheduledTaskSurfaceService', 'Agendamento governado criado', 'Relatorio governado agendado']],
-    ['src/domain/surface/application/shared-surface/SharedSurfaceOperationsCommandPack.ts', ["case '/schedule'", "case '/unschedule'", 'handleSchedule', 'handleReport']],
+    ['src/domain/surface/presentation/shared-surface/SharedSurfaceOperationsCommandPack.ts', ["case '/schedule'", "case '/unschedule'", 'handleSchedule', 'handleReport']],
     ['src/services/SharedSurfaceCommandContract.ts', ["commandType: '/schedule'", "commandType: '/schedules'", "commandType: '/unschedule'", "commandType: '/report'"]],
     ['src/sdk/contracts.ts', ['ZavorthScheduledTaskSurfaceContract']],
     ['src/sdk/index.ts', ['ZavorthScheduledTaskSurfaceService']],
@@ -70,7 +70,7 @@ function ruleTelegramNoDirectSchedulerMutation() {
 
 function ruleSharedSurfaceWiring() {
   const contract = read('src/services/SharedSurfaceCommandContract.ts');
-  const operations = read('src/domain/surface/application/shared-surface/SharedSurfaceOperationsCommandPack.ts');
+  const operations = read('src/domain/surface/presentation/shared-surface/SharedSurfaceOperationsCommandPack.ts');
   const wired = ['/schedule', '/schedules', '/unschedule', '/report'].filter((command) =>
     contract.includes(`commandType: '${command}'`) && operations.includes(`case '${command}'`));
   return rule('shared-surface-schedule-commands', 'Shared surfaces expose schedule lifecycle commands', wired.length === 4, `${wired.length}/4`, '/schedule, /schedules, /unschedule and /report are shared-service commands', wired.length === 4 ? [] : wired);

@@ -31,6 +31,10 @@ logs/
 .zavorth/logs/
 .zavorth/gateway.json
 .zavorth/receipts/
+.zavorth/memory/
+.zavorth/setup-progress.json
+.zavorth/tasks.json
+runtime/
 *.log
 actual-findings.txt
 error_dump.txt

@@ -95,7 +95,7 @@ async function inspectCandidateBaseUrl(baseUrl: string): Promise<{ baseUrl: stri
   }
 
   try {
-    const shell = await fetchWithTimeout(`${candidate}/zavorthControl`, {}, 4000);
+    const shell = await fetchWithTimeout(`${candidate}/dashboard`, {}, 4000);
     if (shell.ok) {
       return { baseUrl: candidate, reachable: true };
     }
@@ -120,12 +120,24 @@ async function resolveBaseUrl(explicitBaseUrl = ''): Promise<string> {
 
 function ensureHostStarted(): void {
   const npmCommand = process.platform === 'win32' ? 'npm.cmd' : 'npm';
-  const result = spawnSync(npmCommand, ['run', 'ops:up', '--', '--allow-readonly'], {
-    cwd: config.projectRoot,
-    stdio: 'inherit',
-    timeout: 90_000,
-    windowsHide: true,
-  });
+  const result = process.platform === 'win32'
+    ? spawnSync(
+      process.env.ComSpec || 'cmd.exe',
+      ['/d', '/s', '/c', 'npm run ops:up -- --allow-readonly'],
+      {
+        cwd: config.projectRoot,
+        stdio: 'inherit',
+        timeout: 90_000,
+        windowsHide: true,
+        shell: false,
+      },
+    )
+    : spawnSync(npmCommand, ['run', 'ops:up', '--', '--allow-readonly'], {
+      cwd: config.projectRoot,
+      stdio: 'inherit',
+      timeout: 90_000,
+      windowsHide: true,
+    });
   if (result.error) {
     throw new Error(`ops:up nao concluiu: ${result.error.message}`);
   }
@@ -158,7 +170,7 @@ async function waitForAppShell(baseUrl: string, waitMs = 20_000): Promise<boolea
   const deadline = Date.now() + waitMs;
   while (Date.now() < deadline) {
     try {
-      const response = await fetchWithTimeout(`${baseUrl}/zavorthControl`, {}, 4000);
+      const response = await fetchWithTimeout(`${baseUrl}/dashboard`, {}, 4000);
       if (response.ok) {
         return true;
       }
@@ -184,7 +196,7 @@ function makeResult(name: string, status: SmokeStatus, detail: string, required 
 
 async function smokeHtmlShell(baseUrl: string): Promise<SmokeResult> {
   try {
-    const response = await fetchWithTimeout(`${baseUrl}/zavorthControl`, {}, 8000);
+    const response = await fetchWithTimeout(`${baseUrl}/dashboard`, {}, 8000);
     const html = await response.text();
     if (!response.ok) {
       throw new Error(`status ${response.status}`);
@@ -192,7 +204,7 @@ async function smokeHtmlShell(baseUrl: string): Promise<SmokeResult> {
 
     const acceptedShells = [
       {
-        label: 'zavorthControl gateway',
+        label: 'dashboard gateway',
         markers: [
           'Local gateway ready',
           'Ask normally. Zavorth will answer, preview risky work, and ask before acting.',
@@ -212,9 +224,9 @@ async function smokeHtmlShell(baseUrl: string): Promise<SmokeResult> {
       throw new Error(`HTML sem elementos esperados (${missingByShell})`);
     }
 
-    return makeResult('ZavorthControl shell', 'PASSOU', `HTML principal do /zavorthControl carregou o shell ${matchedShell.label}.`);
+    return makeResult('Dashboard shell', 'PASSOU', `HTML principal do /dashboard carregou o shell ${matchedShell.label}.`);
   } catch (error: any) {
-    return makeResult('ZavorthControl shell', 'FALHOU', error?.message || String(error));
+    return makeResult('Dashboard shell', 'FALHOU', error?.message || String(error));
   }
 }
 
@@ -425,7 +437,7 @@ async function run(): Promise<void> {
     ready = await waitForAppShell(baseUrl, Math.max(waitMs, 60_000));
   }
   if (!ready) {
-    console.log(`Host nao respondeu em ${baseUrl}/zavorthControl dentro de ${waitMs}ms.\n`);
+    console.log(`Host nao respondeu em ${baseUrl}/dashboard dentro de ${waitMs}ms.\n`);
   }
 
   const results: SmokeResult[] = [];

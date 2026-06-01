@@ -8,102 +8,69 @@ const checks = [
     file: 'src/contracts/LegacySurfaceContract.ts',
     includes: [
       'LEGACY_SURFACE_CONTAINMENT_VERSION',
-      "canonicalEntry: '/zavorthControl'",
-      "frozenSurfaces: ['/app', '/classic']",
+      "canonicalEntry: '/dashboard'",
+      "retiredSurfaces: ['/app', '/classic']",
     ],
   },
   {
     file: 'src/services/LegacySurfaceContainmentService.ts',
     includes: [
-      'legacyFeatureFreeze: true',
+      'legacyRoutesRetired: true',
       'P3-003',
       'decideFeatureDestination',
-      'Use /zavorthControl como entrada principal',
-      'Gateway Contract, Control Plane e ZavorthControl',
+      'Use /dashboard como a unica entrada web',
+      'Runtime API, Gateway Contract',
     ],
   },
   {
     file: 'src/services/RuntimeAccessManifestService.ts',
     alternatives: [
-      'src/domain/gateway/application/runtime-access/RuntimeAccessManifestService.ts',
+      'src/domain/gateway/infrastructure/runtime-access/RuntimeAccessManifestService.ts',
       'src/runtime/access/RuntimeAccessManifestService.ts',
     ],
     includes: [
       'legacyContainment',
-      'controlUrl',
-      'legacyAppUrl',
-      'classicUrl',
-      'Abrir ZavorthControl',
+      'legacyAppUrl: null',
+      'classicUrl: null',
+      '/app e /classic foram removidas',
     ],
   },
   {
     file: 'src/services/WebConsoleAssetService.ts',
     alternatives: [
-      'src/domain/surface/presentation/web-console/WebConsoleRuntimeShellHtml.ts',
       'src/domain/surface/presentation/web-console/WebConsoleAssetService.ts',
     ],
     includes: [
-      'legacy-surface-banner',
-      'canonical-surface-banner',
-      'ZavorthControl canonica',
-      'Surface legada',
+      'isRemovedSurfacePath',
+      'This web surface has been removed. Use /dashboard.',
+      "pathname === '/app.js'",
+      "pathname === '/styles.css'",
+      '410',
     ],
   },
   {
-    file: 'src/services/ZavorthControlClassicAssetService.ts',
+    file: 'src/services/DashboardServiceHelpers.ts',
     alternatives: [
-      'src/domain/surface/presentation/zavorthControl/ZavorthControlClassicAssetService.ts',
+      'src/domain/surface/presentation/dashboard/dashboard-service/DashboardServiceHelpers.ts',
     ],
     includes: [
-      'classic-legacy-banner',
-      '/zavorthControl',
-      '/app',
+      'This web surface has been removed. Use /dashboard.',
+      "pathname === '/app'",
+      "pathname === '/classic'",
+      '410',
     ],
   },
   {
-    file: 'install/install.ps1',
+    file: 'src/services/ZavorthControlServiceHelpers.ts',
+    alternatives: [
+      'src/domain/surface/presentation/zavorthControl/zavorthControl-service/ZavorthControlServiceHelpers.ts',
+    ],
     includes: [
-      '/zavorthControl',
-      '/app',
-      'Legacy shell URL',
+      'This web surface has been removed. Use /zavorthControl.',
+      "pathname === '/app'",
+      "pathname === '/classic'",
+      '410',
     ],
-  },
-  {
-    file: 'scripts/launch-zavorth-supervised.ps1',
-    includes: ['/zavorthControl'],
-  },
-  {
-    file: 'scripts/test-surface-qa.mjs',
-    includes: [
-      '/zavorthControl',
-      'ZavorthControl e legado',
-    ],
-  },
-  {
-    file: 'scripts/web-app-smoke.mjs',
-    includes: [
-      '/zavorthControl',
-      'ZavorthControl shell',
-    ],
-  },
-  {
-    file: 'scripts/web-app-smoke.ts',
-    includes: [
-      '/zavorthControl',
-      'ZavorthControl shell',
-    ],
-  },
-  {
-    file: 'scripts/web-app-visual-smoke.ts',
-    includes: ['/zavorthControl'],
-  },
-  {
-    file: 'src/host.ts',
-    includes: ['/zavorthControl'],
-  },
-  {
-    file: 'src/services/IntegrationProbeService.ts',
-    includes: ['/zavorthControl'],
   },
   {
     file: 'src/telegram/bot-gateway/support/BotGatewayMessageProcessing.ts',
@@ -144,44 +111,6 @@ const checks = [
       'executeCliLegacyUnifiedConversation',
       'resolveCliLegacyUnifiedGateway',
       'legacy_unified_gateway_adapter',
-    ],
-  },
-  {
-    file: 'README.md',
-    includes: [
-      '/zavorthControl',
-      'Shell operacional legado',
-    ],
-  },
-  {
-    file: 'docs/quickstart.md',
-    includes: [
-      '/zavorthControl',
-      'Shell operacional legado',
-    ],
-  },
-  {
-    file: 'docs/web-zavorthControl.md',
-    includes: [
-      '/zavorthControl',
-      'funcionalmente congeladas',
-      'Gateway Contract',
-    ],
-  },
-  {
-    file: 'docs/operations.md',
-    includes: [
-      '/zavorthControl',
-      'shell operacional legado',
-    ],
-  },
-  {
-    file: 'docs/product-direction.md',
-    includes: [
-      '/zavorthControl',
-      '/app',
-      'qa:legacy-compat',
-      'P3-003',
     ],
   },
 ];
@@ -262,7 +191,7 @@ if (failures.length > 0) {
   process.exit(1);
 }
 
-console.log('[legacy-containment] ok: /zavorthControl canonico, /app e /classic preservados como legado congelado.');
+console.log('[legacy-containment] ok: /dashboard canonico, /app e /classic removidos.');
 
 function collectSourceFiles(directories) {
   const files = [];

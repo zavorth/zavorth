@@ -51,7 +51,7 @@ function ruleFilesExist() {
     'scripts/zavorth-universal-skill-bridge-activation.ts',
     'scripts/zavorth-universal-skill-bridge-activation-check.mjs',
     'tests/services/UniversalSkillBridgeActivationService.test.ts',
-    'src/domain/surface/application/shared-surface/SharedSurfaceEcosystemCommandPack.ts',
+    'src/domain/surface/presentation/shared-surface/SharedSurfaceEcosystemCommandPack.ts',
     'src/telegram/controllers/TelegramSkillCatalogController.ts',
     'package.json',
   ];
@@ -79,7 +79,7 @@ function ruleContainsMarkers() {
       '/skills run <skill>',
       'dry-run por padrao',
     ]],
-    ['src/domain/surface/application/shared-surface/SharedSurfaceEcosystemCommandPack.ts', [
+    ['src/domain/surface/presentation/shared-surface/SharedSurfaceEcosystemCommandPack.ts', [
       'skillBridgeActivationService',
       'handleSkillBridgeActivation',
       "lower.startsWith('run ')",

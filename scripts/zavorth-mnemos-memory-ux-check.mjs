@@ -6,7 +6,7 @@ const requiredFiles = [
   'src/services/ZavorthMnemosMemoryUxService.ts',
   'scripts/zavorth-mnemos-memory-ux.ts',
   'tests/services/ZavorthMnemosMemoryUxService.test.ts',
-  'src/ai-gateway/app/(zavorthControl)/zavorthControl/HomePageClient.tsx',
+  'apps/zavorth-control-vite-shell/src/pages.ts',
   'src/telegram/TelegramCommandRoutingService.ts',
   'src/telegram/controllers/TelegramMnemosMemoryUxController.ts',
 ];
@@ -22,7 +22,7 @@ const zavorthControl = fs.existsSync(requiredFiles[4]) ? fs.readFileSync(require
 const telegram = fs.existsSync(requiredFiles[5]) ? fs.readFileSync(requiredFiles[5], 'utf8') : '';
 
 for (const marker of [
-  'zavorthControlCanWriteMemory: false',
+  'dashboardCanWriteMemory: false',
   'cliWriteRequiresApproval: true',
   'telegramWriteRequiresApproval: true',
   'rawJsonHiddenByDefault: true',
@@ -38,7 +38,7 @@ for (const marker of ['mnemos:ux', 'mnemos:ux:check']) {
   if (!packageJson.includes(marker)) failures.push(`package script missing: ${marker}`);
 }
 
-for (const marker of ['Mnemos Memory', 'Memory Health', 'Procedural Rules', 'Wiki Query']) {
+for (const marker of ['Zavorth memory', 'Interactive Memory Mesh', 'Active Scope Inspector', 'Memory controls']) {
   if (!zavorthControl.includes(marker)) failures.push(`zavorthControl marker missing: ${marker}`);
 }
 
@@ -50,7 +50,7 @@ if (!failures.length) {
     : ['tsx', 'scripts/zavorth-mnemos-memory-ux.ts', '--json'], { encoding: 'utf8' });
   const snapshot = JSON.parse(output);
   if (snapshot.version !== 'zavorth-mnemos-memory-ux-v1') failures.push('unexpected memory ux version');
-  if (snapshot.safety.zavorthControlCanWriteMemory !== false) failures.push('zavorthControl must remain read-only');
+  if (snapshot.safety.dashboardCanWriteMemory !== false) failures.push('dashboard must remain read-only');
 }
 
 if (!failures.length) {

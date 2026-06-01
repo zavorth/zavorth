@@ -46,7 +46,7 @@ function ruleMarkers() {
   const checks = [
     ['src/contracts/ZavorthComputerControlPlaneContract.ts', ['computer.observe', 'computer.plan', 'computer.approve', 'terminalAutomationBlocked', 'runDialogBlocked', 'previewBeforeClickOrTyping', 'liveMutationPerformed: false']],
     ['src/services/ZavorthComputerControlPlaneService.ts', ['ComputerUseWatchModeService', 'terminal', 'password-manager', 'file-manager-outside-workspace', 'banking-or-payment', 'seed-phrase-or-wallet', 'mfa-or-auth', 'preview before click or typing']],
-    ['src/domain/surface/application/shared-surface/SharedSurfaceEcosystemCommandPack.ts', ['ZavorthComputerControlPlaneService', 'handleComputer', 'parseComputerCommand', 'ZavorthPerceptionInvocationRouter', '/computer']],
+    ['src/domain/surface/presentation/shared-surface/SharedSurfaceEcosystemCommandPack.ts', ['ZavorthComputerControlPlaneService', 'handleComputer', 'parseComputerCommand', 'ZavorthPerceptionInvocationRouter', '/computer']],
     ['src/services/SharedSurfaceCommandContract.ts', ["discordSlashName: 'computer'", 'desktop computer control plane governado']],
     ['package.json', ['node scripts/zavorth-computer-control-plane-check.mjs']],
   ];

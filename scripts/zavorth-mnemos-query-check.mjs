@@ -3,9 +3,11 @@ import { spawnSync } from 'node:child_process';
 
 const requiredFiles = [
   'src/contracts/ZavorthMnemosQueryContract.ts',
+  'src/services/ZavorthMnemosFtsIndexService.ts',
   'src/services/ZavorthMnemosQueryService.ts',
   'scripts/zavorth-mnemos-query.ts',
   'tests/services/ZavorthMnemosQueryService.test.ts',
+  'tests/services/ZavorthMnemosFtsIndexService.test.ts',
 ];
 
 const failures = [];
@@ -14,11 +16,14 @@ for (const file of requiredFiles) {
 }
 
 const contract = fs.existsSync(requiredFiles[0]) ? fs.readFileSync(requiredFiles[0], 'utf8') : '';
-const service = fs.existsSync(requiredFiles[1]) ? fs.readFileSync(requiredFiles[1], 'utf8') : '';
+const ftsService = fs.existsSync(requiredFiles[1]) ? fs.readFileSync(requiredFiles[1], 'utf8') : '';
+const service = fs.existsSync(requiredFiles[2]) ? fs.readFileSync(requiredFiles[2], 'utf8') : '';
 const packageJson = fs.existsSync('package.json') ? fs.readFileSync('package.json', 'utf8') : '';
 
 const markers = [
   ['rrf method', 'keyword-tag-graph-rrf'],
+  ['sqlite fts rank', 'sqlite-fts5'],
+  ['derived sqlite index', 'sqliteIndexIsDerived: true'],
   ['keyword rank', 'rankByKeyword'],
   ['tag rank', 'rankByTags'],
   ['graph rank', 'rankByGraph'],
@@ -31,7 +36,7 @@ const markers = [
 ];
 
 for (const [label, marker] of markers) {
-  if (!contract.includes(marker) && !service.includes(marker)) {
+  if (!contract.includes(marker) && !service.includes(marker) && !ftsService.includes(marker)) {
     failures.push(`missing marker: ${label}`);
   }
 }
@@ -42,7 +47,7 @@ if (!packageJson.includes('mnemos:query:check')) failures.push('package script m
 if (!failures.length) {
   const jest = spawnSync(
     process.execPath,
-    ['node_modules/jest/bin/jest.js', 'tests/services/ZavorthMnemosQueryService.test.ts', '--runInBand'],
+    ['node_modules/jest/bin/jest.js', 'tests/services/ZavorthMnemosQueryService.test.ts', 'tests/services/ZavorthMnemosFtsIndexService.test.ts', '--runInBand'],
     { stdio: 'inherit' },
   );
   if (jest.status !== 0) failures.push(`jest failed with exit code ${jest.status}`);

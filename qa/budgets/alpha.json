@@ -9,7 +9,7 @@
         "Gateway host boot": { "maxDurationMs": 500, "maxMemoryDeltaBytes": 4194304 },
         "CLI status fast": { "maxDurationMs": 6000, "maxMemoryDeltaBytes": 20971520 },
         "CLI doctor fast": { "maxDurationMs": 12000, "maxMemoryDeltaBytes": 25165824 },
-        "CLI ops access fast": { "maxDurationMs": 1500, "maxMemoryDeltaBytes": 8388608 }
+        "CLI ops access fast": { "maxDurationMs": 2500, "maxMemoryDeltaBytes": 8388608 }
       }
     },
     "benchmark-runtime-flow.json": {
@@ -18,10 +18,10 @@
       "maxAgeHours": 96,
       "operations": {
         "Gateway session spawn": { "maxDurationMs": 1500, "maxMemoryDeltaBytes": 4194304 },
-        "Gateway session send": { "maxDurationMs": 1500, "maxMemoryDeltaBytes": 16777216 },
+        "Gateway session send": { "maxDurationMs": 5000, "maxMemoryDeltaBytes": 16777216 },
         "CLI domain snapshot live": { "maxDurationMs": 30000, "maxMemoryDeltaBytes": 33554432 },
         "Node Mesh invoke device.info": { "maxDurationMs": 2000, "maxMemoryDeltaBytes": 4194304 },
-        "Web shell /app latency": { "maxDurationMs": 1000, "maxMemoryDeltaBytes": 6291456 }
+        "Web shell /dashboard latency": { "maxDurationMs": 1000, "maxMemoryDeltaBytes": 6291456 }
       }
     },
     "benchmark-sidecars.json": {

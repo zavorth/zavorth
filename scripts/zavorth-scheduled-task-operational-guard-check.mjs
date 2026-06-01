@@ -47,7 +47,7 @@ function ruleMarkers() {
     ['src/contracts/ZavorthScheduledTaskOperationalGuardContract.ts', ['ZAVORTH_SCHEDULED_TASK_OPERATIONAL_GUARD_CONTRACT_VERSION', 'approvalExpiredTasks', 'explicitApplyRequiredForAutoPause']],
     ['src/services/ZavorthScheduledTaskOperationalGuardService.ts', ['checkpoint-5-renewal-expiry-auto-pause', 'approval_expired', 'auto_pause_recommended', 'noWorkloadExecution']],
     ['src/services/ZavorthAutomationActionService.ts', ["'reapprove'", 'automation-reapprove']],
-    ['src/domain/surface/application/shared-surface/SharedSurfaceOperationsCommandPack.ts', ['reapprove|renew']],
+    ['src/domain/surface/presentation/shared-surface/SharedSurfaceOperationsCommandPack.ts', ['reapprove|renew']],
     ['src/telegram/controllers/TelegramSchedulerController.ts', ['reapprove|renew']],
     ['src/services/ZavorthAutomationControlPlaneService.ts', ['operationalGuard', 'approvalExpiredTasks', 'autoPauseRecommendedTasks']],
     ['src/services/SchedulerService.ts', ['pauseTask(id: string, reason?: string | null)']],

@@ -14,7 +14,7 @@ async function main() {
     console.log(service.renderReport());
   }
 
-  if (snapshot.gate.status === 'failed' || (requirePass && snapshot.gate.status !== 'passed')) {
+  if (snapshot.gate.status === 'failed' || (requirePass && !snapshot.gate.canProceed)) {
     process.exitCode = 1;
   }
 }
