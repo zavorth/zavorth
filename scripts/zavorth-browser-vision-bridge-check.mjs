@@ -45,7 +45,7 @@ function ruleMarkers() {
   const checks = [
     ['src/contracts/ZavorthBrowserVisionBridgeContract.ts', ['browser.inspect', 'browser.plan', 'browser.apply', 'structuredDomPreferred', 'privateNetworkBlockedByDefault', 'pdfIsUntrustedContent']],
     ['src/services/ZavorthBrowserVisionBridgeService.ts', ['RuntimeBrowserSidecarService', 'assertPublicHttpTargetAllowed', 'document.body.innerText', 'click/type/submit exigem approval', 'screenshot somente quando DOM nao basta']],
-    ['src/domain/surface/application/shared-surface/SharedSurfaceEcosystemCommandPack.ts', ['handleComputer', 'parseComputerBrowserCommand', 'ZavorthPerceptionInvocationRouter', '/computer']],
+    ['src/domain/surface/presentation/shared-surface/SharedSurfaceEcosystemCommandPack.ts', ['handleComputer', 'parseComputerBrowserCommand', 'ZavorthPerceptionInvocationRouter', '/computer']],
     ['src/services/SharedSurfaceCommandContract.ts', ["discordSlashName: 'computer'", 'Opera browser e desktop computer control plane governado']],
     ['package.json', ['node scripts/zavorth-browser-vision-bridge-check.mjs']],
   ];

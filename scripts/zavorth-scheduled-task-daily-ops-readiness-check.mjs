@@ -73,7 +73,7 @@ function runReadinessFixture() {
 
 function ruleSurfaceCommandMarkers() {
   const checks = [
-    ['src/domain/surface/application/shared-surface/SharedSurfaceOperationsCommandPack.ts', ['/schedule', '/schedules', '/unschedule']],
+    ['src/domain/surface/presentation/shared-surface/SharedSurfaceOperationsCommandPack.ts', ['/schedule', '/schedules', '/unschedule']],
     ['src/telegram/controllers/TelegramSchedulerController.ts', ['handleSchedule', 'handleReport', 'handleListSchedules', 'handleUnschedule', 'reapprove|renew']],
     ['src/services/ZavorthAutomationActionService.ts', ['automation-reapprove', "'reapprove'"]],
     ['src/services/ZavorthAutomationControlPlaneService.ts', ['operationalGuard', 'approvalExpiredTasks']],

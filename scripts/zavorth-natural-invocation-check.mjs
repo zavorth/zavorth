@@ -46,7 +46,7 @@ function ruleMarkers() {
     ['src/services/ZavorthNaturalInvocationRouter.ts', ['use a melhor skill', 'quebre', 'spawn_team', 'buildSurfaceCommands']],
     ['src/services/ZavorthNaturalInvocationRouter.ts', ['ZavorthSandboxLifecycleManager', 'looksLikeSandboxLifecycleRequest', 'looksLikeSandboxLifecycleMutation']],
     ['src/services/ZavorthSubagentAutoInvocationPolicyService.ts', ['invoke_live_subagents', 'workspaceMutationRequiresApproval', 'Direct mode skips implicit subagent auto-routing', 'publicRationale', 'noRawChainOfThought']],
-    ['src/domain/surface/application/shared-surface/SharedSurfaceEcosystemCommandPack.ts', ['case \'/sandbox\'', 'looksLikeSandboxLifecycleRequest']],
+    ['src/domain/surface/presentation/shared-surface/SharedSurfaceEcosystemCommandPack.ts', ['case \'/sandbox\'', 'looksLikeSandboxLifecycleRequest']],
     ['scripts/zavorth-natural-invocation.ts', ['--mock-live', '--no-auto-live-subagents']],
     ['package.json', ['zavorth:natural-invocation', 'zavorth:natural-invocation:json', 'zavorth:natural-invocation:check']],
   ];

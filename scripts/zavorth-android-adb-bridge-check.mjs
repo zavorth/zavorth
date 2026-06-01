@@ -46,7 +46,7 @@ function ruleMarkers() {
   const checks = [
     ['src/contracts/ZavorthAndroidAdbBridgeContract.ts', ['device.screenshot', 'device.ui_dump', 'device.plan', 'tapSwipeTextKeyRequireApproval', 'installUninstallBlockedByDefault', 'liveMutationPerformed: false']],
     ['src/services/ZavorthAndroidAdbBridgeService.ts', ['adb devices -l', 'exec-out', 'screencap', '-p', 'uiautomator', 'logcat', '-d', '-t', 'destructive ADB blocked']],
-    ['src/domain/surface/application/shared-surface/SharedSurfaceEcosystemCommandPack.ts', ['ZavorthAndroidAdbBridgeService', 'handleDevice', 'parseDeviceCommand', 'ZavorthPerceptionInvocationRouter', '/device']],
+    ['src/domain/surface/presentation/shared-surface/SharedSurfaceEcosystemCommandPack.ts', ['ZavorthAndroidAdbBridgeService', 'handleDevice', 'parseDeviceCommand', 'ZavorthPerceptionInvocationRouter', '/device']],
     ['src/services/SharedSurfaceCommandContract.ts', ["discordSlashName: 'device'", 'Android ADB/device bridge governado']],
     ['package.json', ['node scripts/zavorth-android-adb-bridge-check.mjs']],
   ];

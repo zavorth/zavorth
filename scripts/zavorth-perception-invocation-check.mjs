@@ -46,7 +46,7 @@ function ruleMarkers() {
   const checks = [
     ['src/contracts/ZavorthPerceptionInvocationContract.ts', ['subagent_perception', 'observer', 'ui-navigator', 'safety-reviewer', 'evidence-summarizer', 'factsObserved', 'actionsBlocked', 'normalUserDoesNotNeedManualCommand', 'setupShownOnlyWhenCapabilityMissing']],
     ['src/services/ZavorthPerceptionInvocationRouter.ts', ['ZavorthPerceptionInvocationRouter', 'buildSurfaceResponse', 'buildSubagentTask', 'read-only perception subagents', 'Fatos observados', 'Acoes bloqueadas', 'buildActivationHints', 'android-adb-setup']],
-    ['src/domain/surface/application/shared-surface/SharedSurfaceEcosystemCommandPack.ts', ['ZavorthPerceptionInvocationRouter', 'perceptionInvocationRouter', 'subagent_perception', 'perception-readonly']],
+    ['src/domain/surface/presentation/shared-surface/SharedSurfaceEcosystemCommandPack.ts', ['ZavorthPerceptionInvocationRouter', 'perceptionInvocationRouter', 'subagent_perception', 'perception-readonly']],
     ['scripts/zavorth-perception-invocation.ts', ['--text', '--approval-id', 'formatPlanText']],
     ['package.json', ['node scripts/zavorth-perception-invocation-check.mjs']],
   ];

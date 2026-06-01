@@ -31,6 +31,9 @@ for (const marker of [
 for (const marker of ['mnemos:certify', 'mnemos:certify:json', 'mnemos:certify:check']) {
   if (!packageJson.includes(marker)) failures.push(`package script missing: ${marker}`);
 }
+for (const marker of ['mnemos:fts', 'mnemos:lifecycle', 'mnemos:lifecycle:check']) {
+  if (!packageJson.includes(marker)) failures.push(`package script missing: ${marker}`);
+}
 
 for (const marker of ['Certification matrix Certification', 'npm run mnemos:certify', 'local checks only']) {
   if (!docs.includes(marker)) failures.push(`docs marker missing: ${marker}`);

@@ -103,7 +103,7 @@ results.push({
   exitCode: legacy.status,
   suite: 'legacy-compat',
   covers: [
-    '/app e /classic preservados como legado',
+    '/app e /classic removidos da superficie publica',
     'links principais apontando para /zavorthControl',
     'docs e launchers alinhados',
   ],
@@ -115,12 +115,24 @@ function run(id, command, commandArgs) {
   if (!json) {
     console.log(`\n[product-experience] ${id}`);
   }
-  const result = spawnSync(command, commandArgs, {
-    cwd: process.cwd(),
-    env: process.env,
-    encoding: 'utf8',
-    stdio: json ? 'pipe' : 'inherit',
-  });
+  const result = process.platform === 'win32' && command === npmCommand
+    ? spawnSync(
+      process.env.ComSpec || 'cmd.exe',
+      ['/d', '/s', '/c', `npm ${commandArgs.map(escapeWindowsArg).join(' ')}`],
+      {
+        cwd: process.cwd(),
+        env: process.env,
+        encoding: 'utf8',
+        shell: false,
+        stdio: json ? 'pipe' : 'inherit',
+      },
+    )
+    : spawnSync(command, commandArgs, {
+      cwd: process.cwd(),
+      env: process.env,
+      encoding: 'utf8',
+      stdio: json ? 'pipe' : 'inherit',
+    });
   if (result.error) {
     if (!json) {
       console.error(`[product-experience] falha ao executar ${id}: ${result.error.message}`);
@@ -128,6 +140,14 @@ function run(id, command, commandArgs) {
     return { status: 1 };
   }
   return { status: typeof result.status === 'number' ? result.status : 1 };
+}
+
+function escapeWindowsArg(value) {
+  const normalized = String(value);
+  if (!/[ \t"]/u.test(normalized)) {
+    return normalized;
+  }
+  return `"${normalized.replace(/(\\*)"/g, '$1$1\\"').replace(/(\\+)$/g, '$1$1')}"`;
 }
 
 function finish(results, startedAt) {

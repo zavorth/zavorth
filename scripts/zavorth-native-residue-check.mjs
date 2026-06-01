@@ -141,7 +141,7 @@ function checkFixtureResidues() {
 }
 
 function checkSharedSurfaceAliases() {
-  const aliasPath = 'src/domain/surface/application/shared-surface/SharedSurfaceNaturalTransportCommandPack.ts';
+  const aliasPath = 'src/domain/surface/presentation/shared-surface/SharedSurfaceNaturalTransportCommandPack.ts';
   const source = readIfExists(aliasPath);
   if (!source) return;
 

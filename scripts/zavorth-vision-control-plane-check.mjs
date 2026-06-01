@@ -43,7 +43,7 @@ function ruleMarkers() {
   const checks = [
     ['src/contracts/ZavorthVisionControlPlaneContract.ts', ['rawContentStored: false', 'liveActionApplied: false', 'allow_readonly', 'allow_with_redaction', 'noClickOrType', 'noExternalIo']],
     ['src/services/ZavorthVisionControlPlaneService.ts', ['untrusted_visual_evidence', 'Policy Broker profile permits read-only perception only', 'noRawSecretsSerialized', 'Intent model stores references and redacted text only']],
-    ['src/domain/surface/application/shared-surface/SharedSurfaceEcosystemCommandPack.ts', ['/vision', 'parseVisionCommand', 'ZavorthPerceptionInvocationRouter']],
+    ['src/domain/surface/presentation/shared-surface/SharedSurfaceEcosystemCommandPack.ts', ['/vision', 'parseVisionCommand', 'ZavorthPerceptionInvocationRouter']],
     ['src/services/SharedSurfaceCommandContract.ts', ["discordSlashName: 'vision'", 'Observa evidencias visuais']],
   ];
   const missing = [];

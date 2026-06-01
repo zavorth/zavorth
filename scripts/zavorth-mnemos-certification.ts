@@ -1,4 +1,3 @@
-﻿#!/usr/bin/env tsx
 import { execFileSync, spawnSync } from 'node:child_process';
 import fs from 'node:fs';
 import path from 'node:path';
@@ -45,6 +44,7 @@ const CHECK_COMMANDS = [
   ['wiki-baseline', 'node', ['scripts/zavorth-mnemos-wiki-baseline-check.mjs']],
   ['ingest', 'node', ['scripts/zavorth-mnemos-ingest-check.mjs']],
   ['query', 'node', ['scripts/zavorth-mnemos-query-check.mjs']],
+  ['lifecycle-hooks', 'node', ['scripts/zavorth-mnemos-lifecycle-hooks-check.mjs']],
   ['lint', 'node', ['scripts/zavorth-mnemos-lint-check.mjs']],
   ['procedural', 'node', ['scripts/zavorth-mnemos-procedural-memory-check.mjs']],
   ['memory-ux', 'node', ['scripts/zavorth-mnemos-memory-ux-check.mjs']],
@@ -60,7 +60,9 @@ const REQUIRED_FILES = [
   '.zavorth/SCHEMA.md',
   '.zavorth/wiki/index.json',
   'src/services/ZavorthMnemosIngestService.ts',
+  'src/services/ZavorthMnemosFtsIndexService.ts',
   'src/services/ZavorthMnemosQueryService.ts',
+  'src/services/ZavorthMnemosLifecycleHookService.ts',
   'src/services/ZavorthMnemosLintService.ts',
   'src/services/ZavorthMnemosProceduralMemoryService.ts',
   'src/services/ZavorthMnemosMemoryUxService.ts',
@@ -123,6 +125,7 @@ function packageScriptsCheck(): CertificationCheck {
     'zavorth:mnemos-wiki-baseline:check',
     'mnemos:ingest:check',
     'mnemos:query:check',
+    'mnemos:lifecycle:check',
     'mnemos:lint:check',
     'mnemos:procedural:check',
     'mnemos:ux:check',
@@ -166,10 +169,10 @@ function runtimeSnapshotCheck(): CertificationCheck[] {
   ));
   const ux = new ZavorthMnemosMemoryUxService().buildSnapshot();
   checks.push(check(
-    ux.status === 'ready' && ux.safety.zavorthControlCanWriteMemory === false ? 'passed' : 'failed',
+    ux.status === 'ready' && ux.safety.dashboardCanWriteMemory === false ? 'passed' : 'failed',
     'ux-runtime',
     'Mnemos UX runtime snapshot is governed',
-    `${ux.status}, zavorthControlCanWriteMemory=${String(ux.safety.zavorthControlCanWriteMemory)}`,
+    `${ux.status}, dashboardCanWriteMemory=${String(ux.safety.dashboardCanWriteMemory)}`,
   ));
   return checks;
 }

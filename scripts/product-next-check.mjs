@@ -4,6 +4,8 @@ const suiteArg = process.argv.find((entry) => entry.startsWith('--suite='));
 const selectedSuite = suiteArg ? String(suiteArg.split('=')[1] || '').trim() : 'all';
 const skipBuild = process.argv.includes('--skip-build');
 const npmCommand = process.platform === 'win32' ? 'npm.cmd' : 'npm';
+const nodeCommand = process.execPath;
+const jestBin = 'node_modules/jest/bin/jest.js';
 
 function runNpm(args) {
   const result = process.platform === 'win32'
@@ -25,6 +27,19 @@ function runNpm(args) {
     });
   if (result.error) {
     console.error(`[product-next-check] falha ao executar ${npmCommand} ${args.join(' ')}:`, result.error.message);
+  }
+  return result;
+}
+
+function runJest(args) {
+  const result = spawnSync(nodeCommand, [jestBin, ...args], {
+    stdio: 'inherit',
+    shell: false,
+    cwd: process.cwd(),
+    env: process.env,
+  });
+  if (result.error) {
+    console.error('[product-next-check] falha ao executar Jest:', result.error.message);
   }
   return result;
 }
@@ -141,7 +156,7 @@ if (!skipBuild) {
 for (const suiteName of requestedSuites) {
   const tests = suites[suiteName] || aggregateSuites[suiteName];
   console.log(`[product-next-check] suite ${suiteName}`);
-  const testResult = runNpm(['test', '--', ...tests, '--runInBand']);
+  const testResult = runJest([...tests, '--runInBand']);
   if (testResult.status !== 0) {
     process.exit(testResult.status || 1);
   }

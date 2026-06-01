@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict';
-import { DynamicHierarchySwarmService } from '../src/domain/execution/application/DynamicHierarchySwarmService.js';
+import { DynamicHierarchySwarmService } from '../src/domain/execution/infrastructure/DynamicHierarchySwarmService.js';
 
 function main(): void {
   const launchSwarm = (input: any) => ({
