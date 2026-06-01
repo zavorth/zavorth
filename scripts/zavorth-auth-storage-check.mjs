@@ -155,11 +155,12 @@ function checkBackupImportExportContracts() {
 
 function checkCanonicalSchemaResidues() {
   const legacyRouteMarker = ['Omni', 'Route'].join('');
+  const legacyGatewayBaseUrlMarker = ['OMNI', 'ROUTE_BASE_URL'].join('');
   const forbidden = [
     new RegExp(legacyRouteMarker, 'i'),
     /9router/i,
     /sk_zavorthBridge/i,
-    /OMNIROUTE_BASE_URL/i,
+    new RegExp(legacyGatewayBaseUrlMarker, 'i'),
     /x-zavorth-bridge-source/i,
     /\.zavorthBridge/i,
   ];

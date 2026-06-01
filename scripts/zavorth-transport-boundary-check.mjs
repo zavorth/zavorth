@@ -15,7 +15,7 @@ const files = {
   chatHelpers: 'src/ai-gateway/sse/handlers/chatHelpers.ts',
   authService: 'src/ai-gateway/sse/services/auth.ts',
   semanticCache: 'src/ai-gateway/lib/semanticCache.ts',
-  cachePage: 'src/ai-gateway/app/(zavorthControl)/zavorthControl/cache/page.tsx',
+  cachePage: 'src/ai-gateway/app/(dashboard)/dashboard/cache/page.tsx',
   deletedAuthOrig: 'src/ai-gateway/sse/services/auth.ts.orig',
 };
 
@@ -168,11 +168,12 @@ function checkHeaderConsumers() {
 
 function checkForbiddenResidues() {
   const legacyRouteMarker = ['Omni', 'Route'].join('');
+  const legacyGatewayBaseUrlMarker = ['OMNI', 'ROUTE_BASE_URL'].join('');
   const forbidden = [
     new RegExp(legacyRouteMarker, 'i'),
     /9router/i,
     /sk_zavorthBridge/i,
-    /OMNIROUTE_BASE_URL/i,
+    new RegExp(legacyGatewayBaseUrlMarker, 'i'),
     /x-zavorth-bridge-source/i,
     /\.zavorthBridge/i,
     /@zavorthBridge/i,
