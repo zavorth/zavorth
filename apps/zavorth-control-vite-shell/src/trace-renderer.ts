@@ -35,11 +35,29 @@ function renderTraceReplay(event: any = {}) {
   if (!replay) return '';
   return `
     <div class="trace-sheet__replay" aria-label="Safe replay context">
-      <span>Replay context</span>
+      <div class="trace-sheet__replay-header" style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 6px;">
+        <span style="font-size: 10px; text-transform: uppercase; color: var(--b-signal-muted); letter-spacing: 0.05em;">Replay context</span>
+        <button class="trace-sheet__replay-btn" type="button" data-replay-run-id="${escapeHtml(replay.runId || '')}" data-replay-trace-id="${escapeHtml(replay.traceId || '')}" style="background: color-mix(in srgb, var(--b-pulse) 12%, transparent); border: 1px solid var(--b-glass-border); border-radius: 4px; padding: 2px 6px; font-family: var(--b-mono); font-size: 10px; color: var(--b-pulse); cursor: pointer; transition: all 0.15s ease;">Replay ⚡</button>
+      </div>
       ${replay.runId ? `<code>run ${escapeHtml(replay.runId)}</code>` : ''}
       ${replay.traceId ? `<code>trace ${escapeHtml(replay.traceId)}</code>` : ''}
       ${replay.sessionId ? `<code>session ${escapeHtml(replay.sessionId)}</code>` : ''}
-      <small>${escapeHtml(replay.policy || 'receipts only')}</small>
+      <small style="display: block; margin-top: 4px;">${escapeHtml(replay.policy || 'receipts only')}</small>
+    </div>
+  `;
+}
+
+function renderTraceLifecycle(event: any = {}) {
+  const lifecycle = event.lifecycle || null;
+  if (!lifecycle) return '';
+  const trust = lifecycle.trust || {};
+  const source = lifecycle.source || {};
+  return `
+    <div class="trace-sheet__lifecycle" aria-label="Mnemos lifecycle">
+      <span>Mnemos lifecycle</span>
+      <small>${escapeHtml(source.surface || event.source || 'runtime')} - ${escapeHtml(trust.level || 'raw')}</small>
+      ${trust.receiptId ? `<code>receipt ${escapeHtml(trust.receiptId)}</code>` : ''}
+      ${trust.approvalId ? `<code>approval ${escapeHtml(trust.approvalId)}</code>` : ''}
     </div>
   `;
 }
@@ -130,6 +148,7 @@ export function renderTraceTimelineHtml(visibleEvents: any[], traceSheetQuery: a
           ${renderTraceChips(event)}
           ${preview}
           ${event.capability?.reason ? `<div class="trace-sheet__policy"><span>Reason</span>${escapeHtml(event.capability.reason)}</div>` : ''}
+          ${renderTraceLifecycle(event)}
           ${renderTraceReceipt(event)}
           ${renderTraceReplay(event)}
           ${meta}

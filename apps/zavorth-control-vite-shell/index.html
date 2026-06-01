@@ -9,7 +9,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="styles/base.css">
-  <link rel="stylesheet" href="styles/layout.css?v=20260519-platform">
+  <link rel="stylesheet" href="styles/layout.css?v=20260530-mascot">
   <link rel="stylesheet" href="styles/components.css">
   <link rel="stylesheet" href="styles/chat.css?v=20260528-functional-polish">
   <link rel="stylesheet" href="styles/pages.css?v=20260528-functional-polish">
@@ -27,11 +27,7 @@
         </button>
         <div class="bridge__brand">
           <div class="bridge__logo">
-            <svg viewBox="0 0 40 40" class="bridge__logo-svg" aria-hidden="true">
-              <rect x="5" y="5" width="30" height="30" rx="10" fill="#00e88f" opacity="0.16"/>
-              <path d="M12 12h17L15 28h17" fill="none" stroke="#00e88f" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
-              <circle cx="28" cy="12" r="2.5" fill="#00e88f"/>
-            </svg>
+            <img src="assets/zavorth-mascot-mark.svg" class="bridge__logo-img" alt="" aria-hidden="true">
           </div>
           <div class="bridge__brand-text">
             <span class="bridge__brand-eyebrow">Zavorth Home</span>
@@ -245,10 +241,11 @@
           <a class="dock-node" data-sector="overview" href="#" title="Work"><span class="dock-node__glyph"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg></span><span class="dock-node__label">Work</span></a>
           <a class="dock-node" data-sector="nodes" href="#" title="Memory"><span class="dock-node__glyph"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><circle cx="19" cy="5" r="2"/><circle cx="5" cy="5" r="2"/><circle cx="19" cy="19" r="2"/><circle cx="5" cy="19" r="2"/><line x1="12" y1="9" x2="12" y2="5"/><line x1="14.5" y1="13.5" x2="18" y2="18"/><line x1="9.5" y1="13.5" x2="6" y2="18"/></svg></span><span class="dock-node__label">Memory</span></a>
           <a class="dock-node" data-sector="dreams" href="#" title="Learning"><span class="dock-node__glyph"><svg viewBox="0 0 24 24"><path d="M21 12.8A8.5 8.5 0 1 1 11.2 3a6.5 6.5 0 0 0 9.8 9.8z"/><path d="M8 16h8"/><path d="M10 12h4"/></svg></span><span class="dock-node__label">Learning</span></a>
-          <a class="dock-node" data-sector="canvas" href="#" title="Canvas"><span class="dock-node__glyph"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="14" rx="2"/><path d="M8 20h8"/><path d="M12 18v2"/><path d="M8 9h8"/><path d="M8 13h5"/></svg></span><span class="dock-node__label">Canvas</span></a>
-          <a class="dock-node" data-sector="skills" href="#" title="Tools"><span class="dock-node__glyph"><svg viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg></span><span class="dock-node__label">Tools</span></a>
-          <a class="dock-node" data-sector="usage" href="#" title="Models"><span class="dock-node__glyph"><svg viewBox="0 0 24 24"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg></span><span class="dock-node__label">Models</span></a>
-          <a class="dock-node" data-sector="config" href="#" title="Settings"><span class="dock-node__glyph"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg></span><span class="dock-node__label">Settings</span></a>
+           <a class="dock-node" data-sector="canvas" href="#" title="Canvas"><span class="dock-node__glyph"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="14" rx="2"/><path d="M8 20h8"/><path d="M12 18v2"/><path d="M8 9h8"/><path d="M8 13h5"/></svg></span><span class="dock-node__label">Canvas</span></a>
+           <a class="dock-node" data-sector="skills" href="#" title="Tools"><span class="dock-node__glyph"><svg viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg></span><span class="dock-node__label">Tools</span></a>
+           <a class="dock-node" data-sector="agents" href="#" title="Agents"><span class="dock-node__glyph"><svg viewBox="0 0 24 24"><path d="M12 3l7 4v5c0 4.5-3 7.5-7 9-4-1.5-7-4.5-7-9V7l7-4z"/><path d="M9 12h6"/><path d="M12 9v6"/></svg></span><span class="dock-node__label">Agents</span></a>
+           <a class="dock-node" data-sector="usage" href="#" title="Models"><span class="dock-node__glyph"><svg viewBox="0 0 24 24"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg></span><span class="dock-node__label">Models</span></a>
+           <a class="dock-node" data-sector="config" href="#" title="Settings"><span class="dock-node__glyph"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg></span><span class="dock-node__label">Settings</span></a>
         </div>
         <div class="dock-group" aria-hidden="true" style="display:none">
           <a class="dock-node" data-sector="channels" href="#" title="Channels" tabindex="-1"><span class="dock-node__label">Channels</span></a>

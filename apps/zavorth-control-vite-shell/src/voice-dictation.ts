@@ -13,6 +13,7 @@ type BindVoiceDictationOptions = {
   onListeningChange: (listening: boolean) => void;
   onTranscript: (transcript: VoiceTranscript) => void;
   onNotice: (message: string) => void;
+  onAttachFile?: (files: File[]) => Promise<void>;
 };
 
 type SpeechRecognitionConstructor = new () => SpeechRecognition;
@@ -69,7 +70,11 @@ function ensureVoiceOverlay() {
 
 function setOverlayText(voiceOverlay: HTMLElement, message: string) {
   const textNode = voiceOverlay.querySelector('.voice-overlay__text');
-  if (textNode) textNode.textContent = message;
+  if (textNode) textNode.textContent = window.ZavorthLocale?.t(message) || message;
+}
+
+function voiceNotice(message: string) {
+  return window.ZavorthLocale?.t(message) || message;
 }
 
 function voiceErrorMessage(error: string | undefined, language: string) {
@@ -99,29 +104,116 @@ export function bindVoiceDictation({
   onListeningChange,
   onTranscript,
   onNotice,
+  onAttachFile,
 }: BindVoiceDictationOptions) {
   if (!voiceButton) return;
 
   let activeRecognition: SpeechRecognition | null = null;
+  let activeRecorder: MediaRecorder | null = null;
+  let recordingStream: MediaStream | null = null;
+  let recordingChunks: Blob[] = [];
   const voiceOverlay = ensureVoiceOverlay();
 
   const stopListening = () => {
-    if (activeRecognition && isListening()) activeRecognition.stop();
+    if (activeRecognition && isListening()) {
+      try {
+        activeRecognition.stop();
+      } catch (e) {
+        console.warn(e);
+      }
+    }
+    if (activeRecorder && activeRecorder.state !== 'inactive') {
+      try {
+        activeRecorder.stop();
+      } catch (e) {
+        console.warn(e);
+      }
+    }
+    if (recordingStream) {
+      if (!activeRecorder || activeRecorder.state === 'inactive') {
+        recordingStream.getTracks().forEach((track) => track.stop());
+        recordingStream = null;
+      }
+    }
     onListeningChange(false);
     voiceOverlay.classList.add('hidden');
   };
 
   voiceOverlay.addEventListener('click', stopListening);
 
+  async function startAudioRecording() {
+    if (!navigator.mediaDevices?.getUserMedia) {
+      onNotice(voiceNotice('Voice is not available in this browser yet. Type or paste the transcribed text.'));
+      return;
+    }
+
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      recordingStream = stream;
+      recordingChunks = [];
+
+      let mimeType = 'audio/webm';
+      if (!MediaRecorder.isTypeSupported(mimeType)) {
+        mimeType = 'audio/ogg';
+      }
+      if (!MediaRecorder.isTypeSupported(mimeType)) {
+        mimeType = 'audio/mp4';
+      }
+      if (!MediaRecorder.isTypeSupported(mimeType)) {
+        mimeType = ''; // Let browser choose default
+      }
+
+      const recorder = mimeType ? new MediaRecorder(stream, { mimeType }) : new MediaRecorder(stream);
+      activeRecorder = recorder;
+
+      recorder.ondataavailable = (event) => {
+        if (event.data && event.data.size > 0) {
+          recordingChunks.push(event.data);
+        }
+      };
+
+      recorder.onstop = async () => {
+        const finalMime = recorder.mimeType || 'audio/webm';
+        const blob = new Blob(recordingChunks, { type: finalMime });
+        const ext = finalMime.includes('webm') ? 'webm' : finalMime.includes('ogg') ? 'ogg' : finalMime.includes('mp4') ? 'mp4' : 'wav';
+        const file = new File([blob], `gravacao-voz.${ext}`, { type: finalMime });
+
+        if (onAttachFile) {
+          await onAttachFile([file]);
+        }
+        if (composeInput) {
+          composeInput.value = `[Audio: gravacao-voz.${ext}]`;
+          composeInput.dispatchEvent(new Event('input'));
+        }
+        if (recordingStream) {
+          recordingStream.getTracks().forEach((track) => track.stop());
+          recordingStream = null;
+        }
+        onNotice(voiceNotice('Voice note recorded and attached successfully!'));
+        activeRecorder = null;
+      };
+
+      onListeningChange(true);
+      voiceOverlay.classList.remove('hidden');
+      setOverlayText(voiceOverlay, 'Recording audio... Click to stop.');
+
+      recorder.start();
+    } catch (error) {
+      console.error('Error starting MediaRecorder:', error);
+      onNotice(voiceNotice('Microphone access is blocked. Allow microphone permission for this site and try again.'));
+    }
+  }
+
   voiceButton.addEventListener('click', async () => {
-    if (activeRecognition && isListening()) {
+    if (isListening()) {
       stopListening();
       return;
     }
 
     const Recognition = window.SpeechRecognition || window.webkitSpeechRecognition;
     if (!Recognition) {
-      onNotice('Voice is not available in this browser yet. Type or paste the transcribed text.');
+      console.warn('SpeechRecognition is not supported. Attempting raw audio recording fallback...');
+      await startAudioRecording();
       return;
     }
 
@@ -130,7 +222,7 @@ export function bindVoiceDictation({
         const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
         stream.getTracks().forEach((track) => track.stop());
       } catch {
-        onNotice('Microphone access is blocked. Allow microphone permission for this site and try again.');
+        onNotice(voiceNotice('Microphone access is blocked. Allow microphone permission for this site and try again.'));
         return;
       }
     }
@@ -150,10 +242,17 @@ export function bindVoiceDictation({
       setOverlayText(voiceOverlay, 'Listening... Speak now.');
     };
 
-    recognition.onerror = (event) => {
-      onListeningChange(false);
-      voiceOverlay.classList.add('hidden');
-      onNotice(voiceErrorMessage(event?.error, recognition.lang || 'default'));
+    recognition.onerror = async (event) => {
+      console.warn('SpeechRecognition failed with error:', event?.error);
+      stopListening();
+
+      // Seamless fallback on network or service blockages!
+      if (event?.error === 'network' || event?.error === 'service-not-allowed' || event?.error === 'language-not-supported') {
+        onNotice(voiceNotice('Speech recognition failed. Switching to direct audio recording...'));
+        await startAudioRecording();
+      } else {
+        onNotice(voiceNotice(voiceErrorMessage(event?.error, recognition.lang || 'default')));
+      }
     };
 
     recognition.onend = () => {

@@ -66,6 +66,23 @@ function dashboardEventFromRealtimeEvent(event: any) {
       time: dashboardEventTime(payload?.updatedAt || payload?.updated_at || event?.createdAt),
     };
   }
+  if (type === 'agent-stream') {
+    const runtimeType = String(payload?.eventType || '').trim() || 'agent.stream';
+    const phase = String(payload?.phase || payload?.streamStatus || payload?.status || 'event').trim();
+    if (runtimeType === 'agent.stream.assistant' && phase === 'delta') {
+      return null;
+    }
+    const done = payload?.done === true || phase === 'done';
+    return {
+      id: `sse:agent-stream:${eventId}:${runtimeType}:${phase}:${payload?.chunkIndex ?? ''}`,
+      type: done ? 'reply' : 'step',
+      title: payload?.title || (runtimeType === 'agent.stream.assistant' ? 'Assistant stream' : 'Agent stream'),
+      detail: payload?.summary || payload?.accumulated || payload?.delta || '',
+      meta: runtimeType,
+      status: done ? 'done' : phase,
+      time: dashboardEventTime(event?.createdAt),
+    };
+  }
   if (type === 'task' || type === 'workflow') {
     const status = String(payload?.status || 'running').trim();
     return {
@@ -184,10 +201,22 @@ export function createRuntimeRealtime({
     return ui.ingestRuntimeEvents(events, { source });
   }
 
+  function emitAgentStreamEvent(event: any) {
+    const ui = window.ZavorthControlChat || {};
+    if (typeof ui.ingestAgentStreamEvent !== 'function') {
+      return false;
+    }
+    return ui.ingestAgentStreamEvent(event, { source: 'sse' });
+  }
+
   function handleRealtimeEvent(event: any) {
     const eventType = String(event?.type || 'message').trim() || 'message';
     markRealtimeConnected(state.realtime.transport === 'eventsource' ? 'eventsource' : 'fetch-sse', eventType);
     if (eventType === 'ping') return;
+
+    if (eventType === 'agent-stream') {
+      emitAgentStreamEvent(event);
+    }
 
     const dashboardEvent = dashboardEventFromRealtimeEvent(event);
     if (dashboardEvent) emitDashboardEvents([dashboardEvent], 'sse');
@@ -310,7 +339,7 @@ export function createRuntimeRealtime({
       scheduleRealtimeReconnect();
     };
 
-    ['snapshot', 'message', 'task', 'tool', 'workflow', 'permission', 'ping'].forEach((type) => {
+    ['snapshot', 'message', 'task', 'tool', 'workflow', 'permission', 'agent-stream', 'ping'].forEach((type) => {
       source.addEventListener(type, (event) => {
         try {
           const parsed = JSON.parse((event as MessageEvent).data || '{}');

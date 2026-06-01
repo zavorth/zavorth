@@ -1,4 +1,5 @@
 import { escapeHtml } from './html-utils';
+import { renderCapabilityStrip } from './page-components';
 import { messageFromErrorPayload } from './runtime-http';
 
 const AUTH_STORAGE_KEY = 'zavorth.zavorthControl.webToken';
@@ -12,6 +13,7 @@ type LearningSummary = {
   published?: number;
   quarantined?: number;
   highConfidence?: number;
+  fromHooks?: number;
 };
 
 type LearningCandidate = {
@@ -155,12 +157,16 @@ function renderCandidates(candidates: LearningCandidate[]) {
     const state = String(candidate.lifecycle || candidate.reviewState || 'draft').replace(/_/g, ' ');
     const steps = Array.isArray(candidate.steps) ? candidate.steps.slice(0, 3) : [];
     const canPromote = candidate.reviewState !== 'rejected' && candidate.lifecycle !== 'trusted_local' && candidate.lifecycle !== 'published';
+    const sourceKind = String((candidate.source as any)?.sourceKind || '').trim();
+    const sourceSurface = String((candidate.source as any)?.sourceSurface || candidate.source?.workflow || 'runtime').trim();
+    const trustLevel = String((candidate.source as any)?.trustLevel || '').trim();
     return `
       <article class="learning-candidate" data-learning-candidate="${escapeHtml(candidate.id)}">
         <div class="learning-candidate__main">
-          <span>${escapeHtml(candidate.kind || 'learning')}</span>
+          <span>${escapeHtml(candidate.kind || 'learning')}${sourceKind === 'lifecycle-hook' ? ' - hook' : ''}</span>
           <strong>${escapeHtml(candidate.title || 'Learning candidate')}</strong>
           <p>${escapeHtml(candidate.summary || candidate.source?.objective || 'Review before this changes future behavior.')}</p>
+          <div class="learning-candidate__meta">${escapeHtml(sourceSurface)}${trustLevel ? ` - ${escapeHtml(trustLevel)}` : ''}</div>
           ${steps.length ? `<ol>${steps.map((step) => `<li>${escapeHtml(step)}</li>`).join('')}</ol>` : ''}
         </div>
         <div class="learning-candidate__side">
@@ -187,22 +193,17 @@ function renderLearningScene(root: HTMLElement, learning: LearningPayload, memor
 
   root.innerHTML = `
     <div class="learning-shell">
+      ${renderCapabilityStrip('dreams')}
       <section class="learning-stage learning-stage--${escapeHtml(state.tone)}" aria-label="Zavorth learning state">
-        <div class="learning-stage__moon" aria-hidden="true"></div>
-        <div class="learning-stage__stars" aria-hidden="true"></div>
-        <div class="learning-stage__agent" aria-hidden="true">
-          <div class="learning-z">Z</div>
-          <span>Z</span><span>Z</span><span>Z</span>
-        </div>
         <div class="learning-stage__copy">
           <span class="dashboard-eyebrow"><span class="dashboard-live-dot"></span>${escapeHtml(state.label)}</span>
-          <h2>Zavorth Learning</h2>
-          <p>Zavorth reviews recent work and suggests what should become memory, a procedure, or a reusable skill. Nothing changes future behavior without review.</p>
+          <h2>Learning</h2>
+          <p>Review candidates from recent runs and Mnemos lifecycle hooks. Nothing changes future behavior without approval.</p>
         </div>
         <div class="learning-stage__stats" aria-label="Learning summary">
           <span><strong>${numberLabel(summary.pending)}</strong><small>to review</small></span>
           <span><strong>${numberLabel(summary.promoted)}</strong><small>trusted</small></span>
-          <span><strong>${numberLabel(summary.quarantined)}</strong><small>blocked</small></span>
+          <span><strong>${numberLabel(summary.fromHooks)}</strong><small>from hooks</small></span>
         </div>
       </section>
 
@@ -238,6 +239,7 @@ function renderLearningScene(root: HTMLElement, learning: LearningPayload, memor
 function renderLearningError(root: HTMLElement, error: unknown) {
   root.innerHTML = `
     <div class="learning-shell">
+      ${renderCapabilityStrip('dreams')}
       <section class="learning-stage learning-stage--warn">
         <div class="learning-stage__agent" aria-hidden="true"><div class="learning-z">Z</div></div>
         <div class="learning-stage__copy">
@@ -252,7 +254,7 @@ function renderLearningError(root: HTMLElement, error: unknown) {
 }
 
 async function loadLearning(root: HTMLElement) {
-  root.innerHTML = '<div class="learning-loading">Checking Zavorth learning...</div>';
+  root.innerHTML = `<div class="learning-shell">${renderCapabilityStrip('dreams')}<div class="learning-loading">Checking Zavorth learning...</div></div>`;
   try {
     const [learningPayload, memoryPayload] = await Promise.all([
       readJson('/api/web/learning-dreams'),

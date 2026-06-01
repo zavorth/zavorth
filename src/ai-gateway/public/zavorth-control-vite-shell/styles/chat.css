@@ -972,6 +972,27 @@
   color: var(--b-signal);
 }
 
+.echo-group--agent-stream .echo-meta__cost {
+  color: color-mix(in srgb, var(--b-pulse) 72%, var(--b-signal-strong));
+}
+
+.echo-group--agent-stream.is-streaming .echo-bubble--agent-stream::after {
+  content: "";
+  display: inline-block;
+  width: 7px;
+  height: 1.15em;
+  margin-left: 4px;
+  vertical-align: -0.18em;
+  border-radius: 2px;
+  background: var(--b-pulse);
+  animation: stream-caret-pulse 900ms steps(2, start) infinite;
+}
+
+@keyframes stream-caret-pulse {
+  0%, 48% { opacity: 1; }
+  49%, 100% { opacity: 0; }
+}
+
 .echo-group.operator .echo-bubble {
   color: var(--b-signal-strong);
   font-size: 16px;
@@ -2027,6 +2048,208 @@
   display: none;
 }
 
+.compose-prompt-queue {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+  margin: 0 18px 8px;
+  padding: 8px;
+  border: 1px solid color-mix(in srgb, var(--b-pulse) 18%, var(--b-glass-border));
+  border-radius: 8px;
+  background: color-mix(in srgb, var(--b-glass) 62%, transparent);
+  box-shadow: inset 0 1px 0 var(--b-surface-highlight);
+}
+
+.compose-prompt-queue[hidden] {
+  display: none;
+}
+
+.compose-prompt-queue__header,
+.compose-prompt-queue__item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+}
+
+.compose-prompt-queue__header {
+  justify-content: space-between;
+  color: var(--b-signal-muted);
+  font: 700 11px/1.2 var(--b-mono);
+  text-transform: uppercase;
+}
+
+.compose-prompt-queue__item {
+  min-height: 32px;
+  padding: 5px 6px;
+  border-radius: 6px;
+  background: color-mix(in srgb, var(--b-void-elevated) 76%, transparent);
+}
+
+.compose-prompt-queue__item strong {
+  display: inline-grid;
+  place-items: center;
+  width: 20px;
+  height: 20px;
+  border-radius: 5px;
+  background: color-mix(in srgb, var(--b-pulse) 14%, transparent);
+  color: var(--b-pulse);
+  font-size: 11px;
+}
+
+.compose-prompt-queue__item span {
+  flex: 1 1 auto;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: var(--b-signal);
+  font-size: 12px;
+}
+
+.compose-prompt-queue button {
+  min-height: 24px;
+  border: 1px solid color-mix(in srgb, var(--b-glass-border) 76%, transparent);
+  border-radius: 6px;
+  background: transparent;
+  color: var(--b-signal-muted);
+  font-size: 11px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.compose-prompt-queue button:hover {
+  border-color: color-mix(in srgb, var(--b-pulse) 34%, transparent);
+  color: var(--b-signal-strong);
+  background: color-mix(in srgb, var(--b-pulse) 10%, transparent);
+}
+
+.compose-prompt-queue__actions {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.compose-prompt-queue__item--failed {
+  border: 1px solid color-mix(in srgb, var(--b-warn) 32%, transparent);
+}
+
+.compose-prompt-queue__item--sending {
+  border: 1px solid color-mix(in srgb, var(--b-pulse) 36%, transparent);
+}
+
+.compose-side-channel {
+  display: grid;
+  gap: 7px;
+  margin: 0 18px 8px;
+  padding: 9px 10px;
+  border: 1px solid color-mix(in srgb, var(--b-info) 22%, var(--b-glass-border));
+  border-radius: 8px;
+  background: color-mix(in srgb, var(--b-void-elevated) 84%, transparent);
+  box-shadow: inset 0 1px 0 var(--b-surface-highlight);
+}
+
+.compose-side-channel[hidden] {
+  display: none;
+}
+
+.compose-side-channel__header,
+.compose-side-channel__meta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  color: var(--b-signal-muted);
+  font: 700 11px/1.2 var(--b-mono);
+  text-transform: uppercase;
+}
+
+.compose-side-channel__prompt {
+  color: var(--b-signal);
+  font-size: 12px;
+  line-height: 1.4;
+}
+
+.compose-side-channel__reply {
+  max-height: 180px;
+  overflow: auto;
+  color: var(--b-signal-strong);
+  font-size: 12.5px;
+  line-height: 1.5;
+}
+
+.compose-side-channel__reply p {
+  margin: 0 0 6px;
+}
+
+.compose-side-channel__reply p:last-child {
+  margin-bottom: 0;
+}
+
+.compose-side-channel__meta {
+  justify-content: flex-start;
+  flex-wrap: wrap;
+  text-transform: none;
+  font-size: 10.5px;
+}
+
+.compose-autocomplete-popover {
+  position: absolute;
+  left: 18px;
+  right: 18px;
+  bottom: calc(100% + 8px);
+  z-index: 20;
+  display: grid;
+  gap: 4px;
+  max-height: min(320px, 46vh);
+  overflow: auto;
+  padding: 6px;
+  border: 1px solid color-mix(in srgb, var(--b-glass-border) 86%, transparent);
+  border-radius: 8px;
+  background: color-mix(in srgb, var(--b-void) 96%, #020806);
+  box-shadow: 0 18px 48px color-mix(in srgb, #000 58%, transparent);
+  backdrop-filter: blur(calc(var(--b-glass-blur) * 0.92)) saturate(var(--b-glass-saturate));
+  -webkit-backdrop-filter: blur(calc(var(--b-glass-blur) * 0.92)) saturate(var(--b-glass-saturate));
+}
+
+.compose-autocomplete-popover.hidden {
+  display: none;
+}
+
+.autocomplete-option {
+  display: grid;
+  grid-template-columns: minmax(108px, max-content) minmax(0, 1fr);
+  gap: 10px;
+  align-items: center;
+  min-height: 36px;
+  padding: 7px 9px;
+  border: 1px solid transparent;
+  border-radius: 6px;
+  color: var(--b-signal-muted);
+  cursor: pointer;
+}
+
+.autocomplete-option.is-active,
+.autocomplete-option:hover {
+  border-color: color-mix(in srgb, var(--b-pulse) 24%, transparent);
+  background: color-mix(in srgb, var(--b-pulse) 10%, transparent);
+  color: var(--b-signal-strong);
+}
+
+.autocomplete-option__cmd {
+  color: var(--b-pulse);
+  font: 700 12px/1.2 var(--b-mono);
+  white-space: nowrap;
+}
+
+.autocomplete-option__desc {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 12px;
+}
+
 .compose-context-chip {
   display: inline-flex;
   align-items: center;
@@ -2203,16 +2426,6 @@
 .compose-skill-option__title { font-weight: 600; }
 .compose-skill-option__meta {
   color: var(--b-signal-muted);
-  font-family: var(--b-mono);
-  font-size: 10px;
-  flex-shrink: 0;
-}
-
-.chat-attachment-grid {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 10px;
-  margin-top: 10px;
 }
 
 .chat-attachment-card {
@@ -3200,7 +3413,8 @@ body.zavorth-chat-focus-mode .nexus-dock {
 .trace-sheet__preview,
 .trace-sheet__policy,
 .trace-sheet__receipt,
-.trace-sheet__replay {
+.trace-sheet__replay,
+.trace-sheet__lifecycle {
   margin-top: 8px;
   padding: 9px 10px;
   border: 1px solid color-mix(in srgb, var(--b-glass-border) 74%, transparent);
@@ -3213,7 +3427,8 @@ body.zavorth-chat-focus-mode .nexus-dock {
 .trace-sheet__preview span,
 .trace-sheet__policy span,
 .trace-sheet__receipt span,
-.trace-sheet__replay span {
+.trace-sheet__replay span,
+.trace-sheet__lifecycle span {
   display: block;
   margin-bottom: 4px;
   color: var(--b-signal-strong);
@@ -3232,7 +3447,8 @@ body.zavorth-chat-focus-mode .nexus-dock {
   background: color-mix(in srgb, var(--b-pulse) 7%, var(--b-glass-highlight));
 }
 .trace-sheet__receipt code,
-.trace-sheet__replay code {
+.trace-sheet__replay code,
+.trace-sheet__lifecycle code {
   display: inline-block;
   max-width: 100%;
   margin: 0 5px 5px 0;
@@ -3250,7 +3466,8 @@ body.zavorth-chat-focus-mode .nexus-dock {
   margin: 3px 0 0;
 }
 .trace-sheet__receipt small,
-.trace-sheet__replay small {
+.trace-sheet__replay small,
+.trace-sheet__lifecycle small {
   display: block;
   margin-top: 4px;
   color: var(--b-signal-muted);
@@ -4575,27 +4792,27 @@ body.zavorth-chat-focus-mode .nexus-dock {
 
   .compose-mobile-actions {
     position: absolute;
-    left: 26px;
+    left: 12px;
     right: auto;
-    width: min(620px, calc(100% - 52px));
-    bottom: 68px;
-    z-index: 5;
-    display: grid;
-    grid-template-columns: repeat(6, minmax(82px, 1fr));
-    gap: 8px;
-    padding: 10px;
-    border: 1px solid color-mix(in srgb, var(--b-glass-border) 76%, transparent);
-    border-radius: 20px;
+    width: 220px;
+    bottom: 58px;
+    z-index: 10;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    padding: 6px;
+    border: 1px solid color-mix(in srgb, var(--b-glass-border) 84%, transparent);
+    border-radius: 8px;
     background:
       linear-gradient(145deg, color-mix(in srgb, var(--b-pulse) 7%, transparent), transparent 72%),
-      color-mix(in srgb, var(--b-void) 94%, #03170f);
-    box-shadow: 0 16px 42px color-mix(in srgb, #000 44%, transparent);
-    backdrop-filter: blur(calc(var(--b-glass-blur) * 0.86)) saturate(var(--b-glass-saturate));
-    -webkit-backdrop-filter: blur(calc(var(--b-glass-blur) * 0.86)) saturate(var(--b-glass-saturate));
+      color-mix(in srgb, var(--b-void) 98%, #010c08);
+    box-shadow: 0 12px 32px color-mix(in srgb, #000 68%, transparent);
+    backdrop-filter: blur(calc(var(--b-glass-blur) * 0.96)) saturate(var(--b-glass-saturate));
+    -webkit-backdrop-filter: blur(calc(var(--b-glass-blur) * 0.96)) saturate(var(--b-glass-saturate));
     opacity: 0;
     visibility: hidden;
     pointer-events: none;
-    transform: translateY(8px) scale(0.98);
+    transform: translateY(6px) scale(0.98);
     transform-origin: left bottom;
     transition: opacity 170ms ease, transform 210ms var(--b-ease-premium), visibility 170ms ease;
   }
@@ -4609,21 +4826,24 @@ body.zavorth-chat-focus-mode .nexus-dock {
 
   .compose-mobile-actions button {
     min-width: 0;
-    min-height: 50px;
-    display: grid;
-    align-content: center;
-    justify-items: center;
-    gap: 5px;
-    border: 1px solid color-mix(in srgb, var(--b-glass-border) 70%, transparent);
-    border-radius: 14px;
-    background: color-mix(in srgb, var(--b-glass-strong) 86%, #03120d);
+    min-height: 38px;
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    text-align: left;
+    gap: 12px;
+    padding: 6px 12px;
+    border: 1px solid transparent;
+    border-radius: 6px;
+    background: transparent;
     color: var(--b-signal-muted);
     font: inherit;
-    font-size: 0.68rem;
-    font-weight: 650;
+    font-size: 0.84rem;
+    font-weight: 550;
+    white-space: nowrap;
     cursor: pointer;
     opacity: 0;
-    transform: translateY(6px);
+    transform: translateY(4px);
     transition: opacity 170ms ease, transform 210ms var(--b-ease-premium), color 160ms ease, border-color 160ms ease, background 160ms ease;
   }
 
@@ -4635,13 +4855,13 @@ body.zavorth-chat-focus-mode .nexus-dock {
   .compose-mobile-actions button:hover,
   .compose-mobile-actions button:focus-visible {
     color: var(--b-signal-strong);
-    border-color: color-mix(in srgb, var(--b-pulse) 28%, var(--b-glass-border));
-    background: color-mix(in srgb, var(--b-pulse) 9%, transparent);
+    border-color: color-mix(in srgb, var(--b-pulse) 22%, transparent);
+    background: color-mix(in srgb, var(--b-pulse) 12%, transparent);
   }
 
   .compose-mobile-actions svg {
-    width: 18px;
-    height: 18px;
+    width: 16px;
+    height: 16px;
     fill: none;
     stroke: currentColor;
     stroke-width: 1.8;
@@ -4877,30 +5097,28 @@ body.zavorth-chat-focus-mode .nexus-dock {
   .compose-mobile-actions {
     position: absolute;
     left: 10px;
-    right: 10px;
-    bottom: 54px;
-    z-index: 5;
-    display: grid;
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-    gap: 7px;
-    padding: 10px;
-    border: 1px solid color-mix(in srgb, var(--b-glass-border) 76%, transparent);
-    border-radius: 24px;
+    right: auto;
+    width: 210px;
+    bottom: 52px;
+    z-index: 10;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    padding: 6px;
+    border: 1px solid color-mix(in srgb, var(--b-glass-border) 84%, transparent);
+    border-radius: 8px;
     background:
       linear-gradient(145deg, color-mix(in srgb, var(--b-pulse) 8%, transparent), transparent 72%),
-      color-mix(in srgb, var(--b-void) 94%, #03170f);
-    box-shadow: 0 18px 48px color-mix(in srgb, #000 54%, transparent);
-    backdrop-filter: blur(calc(var(--b-glass-blur) * 0.9)) saturate(var(--b-glass-saturate));
-    -webkit-backdrop-filter: blur(calc(var(--b-glass-blur) * 0.9)) saturate(var(--b-glass-saturate));
+      color-mix(in srgb, var(--b-void) 98%, #010c08);
+    box-shadow: 0 12px 32px color-mix(in srgb, #000 68%, transparent);
+    backdrop-filter: blur(calc(var(--b-glass-blur) * 0.96)) saturate(var(--b-glass-saturate));
+    -webkit-backdrop-filter: blur(calc(var(--b-glass-blur) * 0.96)) saturate(var(--b-glass-saturate));
     opacity: 0;
     visibility: hidden;
     pointer-events: none;
-    transform: translateY(10px) scale(0.96);
+    transform: translateY(6px) scale(0.98);
     transform-origin: left bottom;
-    transition:
-      opacity 170ms ease,
-      transform 220ms var(--b-ease-premium),
-      visibility 170ms ease;
+    transition: opacity 170ms ease, transform 210ms var(--b-ease-premium), visibility 170ms ease;
   }
 
   .compose-dock__input-frame.is-mobile-actions-open .compose-mobile-actions {
@@ -4912,27 +5130,25 @@ body.zavorth-chat-focus-mode .nexus-dock {
 
   .compose-mobile-actions button {
     min-width: 0;
-    min-height: 64px;
-    display: grid;
-    align-content: center;
-    justify-items: center;
-    gap: 5px;
-    border: 1px solid color-mix(in srgb, var(--b-glass-border) 70%, transparent);
-    border-radius: 18px;
-    background: color-mix(in srgb, var(--b-glass-strong) 86%, #03120d);
+    min-height: 38px;
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    text-align: left;
+    gap: 12px;
+    padding: 6px 12px;
+    border: 1px solid transparent;
+    border-radius: 6px;
+    background: transparent;
     color: var(--b-signal-muted);
     font: inherit;
-    font-size: 0.72rem;
-    font-weight: 700;
+    font-size: 0.84rem;
+    font-weight: 550;
+    white-space: nowrap;
     cursor: pointer;
     opacity: 0;
-    transform: translateY(8px);
-    transition:
-      opacity 180ms ease,
-      transform 220ms var(--b-ease-premium),
-      color 160ms ease,
-      border-color 160ms ease,
-      background 160ms ease;
+    transform: translateY(4px);
+    transition: opacity 170ms ease, transform 210ms var(--b-ease-premium), color 160ms ease, border-color 160ms ease, background 160ms ease;
   }
 
   .compose-dock__input-frame.is-mobile-actions-open .compose-mobile-actions button {
@@ -4949,17 +5165,131 @@ body.zavorth-chat-focus-mode .nexus-dock {
   .compose-mobile-actions button:hover,
   .compose-mobile-actions button:focus-visible {
     color: var(--b-signal-strong);
-    border-color: color-mix(in srgb, var(--b-pulse) 28%, var(--b-glass-border));
-    background: color-mix(in srgb, var(--b-pulse) 9%, transparent);
+    border-color: color-mix(in srgb, var(--b-pulse) 22%, transparent);
+    background: color-mix(in srgb, var(--b-pulse) 12%, transparent);
   }
 
   .compose-mobile-actions svg {
-    width: 18px;
-    height: 18px;
+    width: 16px;
+    height: 16px;
     fill: none;
     stroke: currentColor;
     stroke-width: 1.8;
     stroke-linecap: round;
     stroke-linejoin: round;
   }
+}
+
+/* ==========================================================================
+   Zavorth Advanced Chat & Voice Dictation Operator Overrides
+   ========================================================================== */
+
+/* --- Glassmorphic Attachment Chips with Cyan Glow --- */
+.compose-attachment-chip {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+}
+
+.compose-attachment-chip:hover {
+  border-color: rgba(0, 255, 170, 0.6) !important;
+  box-shadow: 0 0 12px rgba(0, 255, 170, 0.22), inset 0 1px 0 var(--b-surface-highlight) !important;
+  transform: translateY(-1px);
+  background: color-mix(in srgb, var(--b-glass) 88%, transparent) !important;
+}
+
+/* --- Dictation Pulsing HSL Glow --- */
+@keyframes HslVoicePulse {
+  0% {
+    box-shadow: 0 0 0 0 rgba(0, 255, 170, 0.4);
+    background: color-mix(in srgb, var(--b-pulse) 20%, transparent);
+    border-color: rgba(0, 255, 170, 0.6);
+  }
+  50% {
+    box-shadow: 0 0 15px 4px rgba(0, 255, 170, 0.65);
+    background: color-mix(in srgb, var(--b-pulse) 40%, transparent);
+    border-color: rgba(0, 255, 170, 1);
+    transform: scale(1.04);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(0, 255, 170, 0);
+    background: color-mix(in srgb, var(--b-pulse) 20%, transparent);
+    border-color: rgba(0, 255, 170, 0.6);
+  }
+}
+
+#voice-trigger.is-listening {
+  color: var(--b-pulse) !important;
+  animation: HslVoicePulse 1.8s infinite ease-in-out !important;
+}
+
+#voice-trigger.has-voice {
+  border-color: color-mix(in srgb, var(--b-pulse) 60%, transparent) !important;
+  box-shadow: 0 0 8px rgba(0, 255, 170, 0.25) !important;
+  background: color-mix(in srgb, var(--b-pulse) 12%, transparent) !important;
+}
+
+/* --- Collapsible Thinking block & Neon Spinner --- */
+.zavorth-thinking-block {
+  display: block;
+  border: 1px solid rgba(0, 255, 170, 0.2);
+  border-radius: 12px;
+  background: rgba(10, 25, 20, 0.25);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
+  margin: 12px 0;
+  overflow: hidden;
+  transition: border-color 0.2s ease;
+}
+
+.zavorth-thinking-block[open] {
+  border-color: rgba(0, 255, 170, 0.4);
+}
+
+.zavorth-thinking-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 14px;
+  cursor: pointer;
+  user-select: none;
+  list-style: none; /* Hide default chevron */
+}
+
+.zavorth-thinking-header::-webkit-details-marker {
+  display: none; /* Hide default chevron for chrome */
+}
+
+.zavorth-thinking-chevron {
+  width: 14px;
+  height: 14px;
+  display: inline-block;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2300ffaa' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+  background-size: contain;
+  background-repeat: no-repeat;
+  transition: transform 0.2s ease;
+  margin-left: auto;
+}
+
+.zavorth-thinking-block[open] .zavorth-thinking-chevron {
+  transform: rotate(-180deg);
+}
+
+.zavorth-thinking-content {
+  padding: 14px;
+  border-top: 1px solid rgba(0, 255, 170, 0.15);
+  background: rgba(0, 0, 0, 0.15);
+}
+
+/* Dynamic Neon Boot Spinner */
+.boot-spinner {
+  width: 16px;
+  height: 16px;
+  border: 2px solid rgba(0, 255, 170, 0.2);
+  border-radius: 50%;
+  border-top-color: #00ffaa;
+  box-shadow: 0 0 6px rgba(0, 255, 170, 0.4);
+  animation: zavorth-spin 0.8s linear infinite;
+  flex-shrink: 0;
+}
+
+@keyframes zavorth-spin {
+  to { transform: rotate(360deg); }
 }

@@ -25,6 +25,22 @@ import { buildSkillOptions, buildSkillPopoverHtml, promptForSkill, skillFromOpti
 import { bindVoiceDictation } from './voice-dictation';
 import { applyControlLocale, installControlLocale } from './locale';
 import { initRuntimeEngineUi } from './runtime-engines-ui';
+import {
+  createPromptQueueItem,
+  DEFAULT_PROMPT_QUEUE_STORAGE_KEY,
+  hasDuplicateQueuedPrompt,
+  promptSubmitKey,
+  readPromptQueueForSession,
+  serializePromptQueueItem,
+  writePromptQueueForSession,
+} from './prompt-queue';
+import {
+  getSlashCommandSuggestions,
+  parseSlashCommand,
+  renderSlashCommandHelp,
+  shouldQueueLocalSlashCommand,
+  SLASH_COMMANDS,
+} from './slash-commands';
 
 export function initControlApp() {
   installControlLocale();
@@ -64,6 +80,13 @@ export function initControlApp() {
   let selectedExperienceProfile = '';
   let pendingGuidedFlow = '';
   let pendingWorkspaceSelection = null;
+  let isTransmittingSignal = false;
+  let isDrainingPromptQueue = false;
+  let promptQueueSessionKey = getPromptQueueSessionKey();
+  let promptQueue = readPromptQueueForSession(getPromptQueueStorage(), promptQueueSessionKey);
+  let promptQueueDrainTimer = 0;
+  let lastPromptQueueRuntimeRefreshAt = 0;
+  const inFlightSubmitKeys = new Set();
 
   const attachmentTray = document.createElement('div');
   attachmentTray.className = 'compose-attachments';
@@ -74,15 +97,86 @@ export function initControlApp() {
   composerContextBar.hidden = true;
   composerContextBar.setAttribute('aria-live', 'polite');
 
+  const promptQueueBar = document.createElement('div');
+  promptQueueBar.className = 'compose-prompt-queue';
+  promptQueueBar.hidden = true;
+  promptQueueBar.setAttribute('aria-live', 'polite');
+
+  const sideChannelPanel = document.createElement('div');
+  sideChannelPanel.className = 'compose-side-channel';
+  sideChannelPanel.hidden = true;
+  sideChannelPanel.setAttribute('aria-live', 'polite');
+
   const skillPopover = document.createElement('div');
   skillPopover.className = 'compose-skill-popover hidden';
   skillPopover.setAttribute('role', 'dialog');
   skillPopover.setAttribute('aria-label', 'Choose skill');
 
+  const autocompletePopover = document.createElement('div');
+  autocompletePopover.className = 'compose-autocomplete-popover hidden';
+  autocompletePopover.setAttribute('role', 'dialog');
+  autocompletePopover.setAttribute('aria-label', 'Command autocomplete');
+
+  let autocompleteVisible = false;
+  let autocompleteFiltered = [];
+  let autocompleteIndex = 0;
+
+  function renderAutocomplete() {
+    if (autocompleteFiltered.length === 0) {
+      autocompletePopover.classList.add('hidden');
+      autocompleteVisible = false;
+      return;
+    }
+    
+    autocompletePopover.innerHTML = autocompleteFiltered.map((item, idx) => `
+      <div class="autocomplete-option ${idx === autocompleteIndex ? 'is-active' : ''}" data-cmd="/${escapeHtml(item.name)}">
+        <span class="autocomplete-option__cmd">/${escapeHtml(item.name)}${item.args ? ` ${escapeHtml(item.args)}` : ''}</span>
+        <span class="autocomplete-option__desc">${escapeHtml(item.description)}</span>
+      </div>
+    `).join('');
+    
+    autocompletePopover.classList.remove('hidden');
+    autocompleteVisible = true;
+    
+    autocompletePopover.querySelectorAll('.autocomplete-option').forEach((opt, idx) => {
+      opt.addEventListener('click', (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        selectAutocompleteOption(idx);
+      });
+    });
+  }
+
+  function selectAutocompleteOption(idx) {
+    const option = autocompleteFiltered[idx];
+    if (!option || !composeInput) return;
+    
+    const value = (composeInput as HTMLTextAreaElement).value;
+    const slashIdx = value.lastIndexOf('/');
+    if (slashIdx !== -1) {
+      (composeInput as HTMLTextAreaElement).value = value.slice(0, slashIdx) + `/${option.name} `;
+    } else {
+      (composeInput as HTMLTextAreaElement).value = `/${option.name} `;
+    }
+    
+    composeInput.dispatchEvent(new Event('input'));
+    composeInput.focus();
+    hideAutocomplete();
+  }
+
+  function hideAutocomplete() {
+    autocompletePopover.classList.add('hidden');
+    autocompleteVisible = false;
+    autocompleteIndex = 0;
+  }
+
   if (composeFrame && composeInput) {
     composeFrame.insertBefore(attachmentTray, composeInput.nextSibling);
     composeFrame.insertBefore(composerContextBar, attachmentTray.nextSibling);
+    composeFrame.insertBefore(promptQueueBar, composerContextBar.nextSibling);
+    composeFrame.insertBefore(sideChannelPanel, promptQueueBar.nextSibling);
     (composeDock || composeFrame).appendChild(skillPopover);
+    (composeDock || composeFrame).appendChild(autocompletePopover);
   }
 
   function writeComposerSettings(nextSettings) {
@@ -120,6 +214,361 @@ export function initControlApp() {
       return;
     }
     appendEcho('core', message);
+  }
+
+  function clearComposerInput() {
+    if (!composeInput) return;
+    composeInput.value = '';
+    composeInput.style.height = 'auto';
+    composeInput.dispatchEvent(new Event('input'));
+  }
+
+  function getPromptQueueStorage() {
+    try {
+      return window.localStorage;
+    } catch {
+      return null;
+    }
+  }
+
+  function getPromptQueueSessionKey() {
+    try {
+      const url = new URL(window.location.href);
+      const fromUrl = String(url.searchParams.get('sessionId') || '').trim();
+      if (fromUrl) return fromUrl;
+      const fromBridge = String(window.ZavorthRuntimeBridge?.readSessionId?.() || '').trim();
+      if (fromBridge) return fromBridge;
+      const fromStorage = String(sessionStorage.getItem('zavorth.zavorthControl.sessionId') || '').trim();
+      return fromStorage || 'local';
+    } catch {
+      return 'local';
+    }
+  }
+
+  function persistPromptQueue() {
+    writePromptQueueForSession(
+      getPromptQueueStorage(),
+      promptQueueSessionKey,
+      promptQueue,
+      DEFAULT_PROMPT_QUEUE_STORAGE_KEY,
+    );
+  }
+
+  function syncPromptQueueSession() {
+    const nextSessionKey = getPromptQueueSessionKey();
+    if (nextSessionKey === promptQueueSessionKey) return;
+    persistPromptQueue();
+    promptQueueSessionKey = nextSessionKey;
+    promptQueue = readPromptQueueForSession(
+      getPromptQueueStorage(),
+      promptQueueSessionKey,
+      DEFAULT_PROMPT_QUEUE_STORAGE_KEY,
+    );
+  }
+
+  function getActiveRuntimeRun() {
+    const bridge = window.ZavorthRuntimeBridge;
+    const run = typeof bridge?.getActiveRun === 'function'
+      ? bridge.getActiveRun()
+      : bridge?.state?.zavorthControl?.snapshot?.activeRun
+        || bridge?.state?.zavorthControl?.snapshot?.runs?.[0]
+        || null;
+    const status = String(run?.status || '').trim().toLowerCase();
+    return ['queued', 'thinking', 'running', 'waiting_approval', 'planning', 'in_progress', 'processing'].includes(status)
+      ? run
+      : null;
+  }
+
+  function isRuntimeChatBusy() {
+    return Boolean(isTransmittingSignal || getActiveRuntimeRun());
+  }
+
+  function schedulePromptQueueDrain(delayMs = 450) {
+    if (promptQueueDrainTimer) return;
+    promptQueueDrainTimer = window.setTimeout(() => {
+      promptQueueDrainTimer = 0;
+      drainPromptQueue().catch((error) => {
+        recordTraceEvent({
+          type: 'error',
+          title: 'Prompt queue failed',
+          detail: error?.message || String(error),
+          meta: 'queue',
+          status: 'failed',
+        });
+      });
+    }, delayMs);
+  }
+
+  function maybeRefreshRuntimeForQueue() {
+    const bridge = window.ZavorthRuntimeBridge;
+    if (!bridge || typeof bridge.refresh !== 'function') return;
+    const now = Date.now();
+    if (now - lastPromptQueueRuntimeRefreshAt < 4500) return;
+    lastPromptQueueRuntimeRefreshAt = now;
+    bridge.refresh({ skipSessionHydrate: true }).catch(() => undefined);
+  }
+
+  function snapshotQueuedPrompt(text, overrides = {}) {
+    return createPromptQueueItem({
+      text,
+      attachments: overrides.attachments || pendingAttachments,
+      selectedSkills: overrides.selectedSkills || pendingSelectedSkills,
+      voice: 'voice' in overrides ? overrides.voice : (lastVoiceInput ? { ...lastVoiceInput } : null),
+      guidedFlow: 'guidedFlow' in overrides ? overrides.guidedFlow : pendingGuidedFlow,
+      workspaceSelection: 'workspaceSelection' in overrides ? overrides.workspaceSelection : pendingWorkspaceSelection,
+      sessionId: promptQueueSessionKey,
+      localCommandName: overrides.localCommandName || null,
+      localCommandArgs: overrides.localCommandArgs || null,
+      kind: overrides.kind || undefined,
+    });
+  }
+
+  function clearQueuedComposerState() {
+    clearComposerInput();
+    pendingAttachments = [];
+    pendingSelectedSkills = [];
+    pendingGuidedFlow = '';
+    lastVoiceInput = null;
+    refreshAttachmentHint();
+    updateComposerContextBar();
+    updateSendAffordance();
+  }
+
+  function restoreQueuedPrompt(item) {
+    if (!item || !composeInput) return;
+    composeInput.value = item.text || '';
+    pendingAttachments = Array.isArray(item.attachments) ? item.attachments.slice() : [];
+    pendingSelectedSkills = Array.isArray(item.selectedSkills) ? item.selectedSkills.slice() : [];
+    pendingGuidedFlow = item.guidedFlow || '';
+    pendingWorkspaceSelection = item.workspaceSelection || pendingWorkspaceSelection;
+    lastVoiceInput = item.voice || null;
+    composeInput.dispatchEvent(new Event('input'));
+    refreshAttachmentHint();
+    updateComposerContextBar();
+    updateSendAffordance();
+  }
+
+  function promptQueueItemMeta(item) {
+    const parts = [];
+    if (item.localCommandName) parts.push(`/${item.localCommandName}`);
+    if (item.attachments?.length) parts.push(`${item.attachments.length} file${item.attachments.length === 1 ? '' : 's'}`);
+    if (item.selectedSkills?.length) parts.push(`${item.selectedSkills.length} tool${item.selectedSkills.length === 1 ? '' : 's'}`);
+    if (item.attempts > 0 || item.maxAttempts) parts.push(`${item.attempts}/${item.maxAttempts || 3} attempts`);
+    if (item.backoffMs) parts.push(`${item.backoffMs}ms backoff`);
+    if (item.nextRetryAt && item.nextRetryAt > Date.now()) parts.push(`retry ${Math.ceil((item.nextRetryAt - Date.now()) / 1000)}s`);
+    if (item.steeringAckId) parts.push(`ack ${item.steeringAckId}`);
+    if (item.status === 'failed') parts.push('retry pending');
+    return parts.join(' | ') || 'message';
+  }
+
+  function renderPromptQueue() {
+    if (!promptQueueBar) return;
+    promptQueueBar.hidden = promptQueue.length === 0;
+    if (promptQueue.length === 0) {
+      promptQueueBar.innerHTML = '';
+      return;
+    }
+    const activeRun = getActiveRuntimeRun();
+    promptQueueBar.innerHTML = `
+      <div class="compose-prompt-queue__header">
+        <span>${promptQueue.length} queued prompt${promptQueue.length === 1 ? '' : 's'}${activeRun ? ` - run ${escapeHtml(String(activeRun.id || activeRun.runId || 'active'))}` : ''}</span>
+        <div class="compose-prompt-queue__actions">
+          <button type="button" data-prompt-queue-flush>Flush</button>
+          <button type="button" data-prompt-queue-clear>Clear</button>
+        </div>
+      </div>
+      ${promptQueue.map((item, index) => `
+        <div class="compose-prompt-queue__item compose-prompt-queue__item--${escapeHtml(item.status || 'queued')}" data-prompt-queue-id="${escapeHtml(item.id)}">
+          <strong>${index + 1}</strong>
+          <span title="${escapeHtml(promptQueueItemMeta(item))}">${escapeHtml(compactTraceText(item.text || item.localCommandArgs || `/${item.localCommandName || 'command'}`, 76))}</span>
+          ${activeRun && !item.localCommandName ? `<button type="button" data-prompt-queue-steer="${escapeHtml(item.id)}">Steer</button>` : ''}
+          <button type="button" data-prompt-queue-send="${escapeHtml(item.id)}">Send now</button>
+          <button type="button" data-prompt-queue-remove="${escapeHtml(item.id)}" aria-label="Cancel queued prompt">Cancel</button>
+        </div>
+      `).join('')}
+    `;
+  }
+
+  function enqueuePrompt(text, overrides = {}) {
+    syncPromptQueueSession();
+    const item = overrides.item
+      ? serializePromptQueueItem({ ...overrides.item, sessionId: promptQueueSessionKey })
+      : snapshotQueuedPrompt(text, overrides);
+    if (!item.text && item.attachments.length === 0 && !item.localCommandName) return false;
+    if (hasDuplicateQueuedPrompt(promptQueue, item)) {
+      emitLocalNotice('That prompt is already queued for this session.');
+      clearQueuedComposerState();
+      return true;
+    }
+    promptQueue.push(item);
+    persistPromptQueue();
+    renderPromptQueue();
+    recordTraceEvent({
+      type: item.localCommandName ? 'step' : 'request',
+      title: item.localCommandName ? `/${item.localCommandName} queued` : 'Prompt queued',
+      detail: item.text || item.localCommandArgs || '',
+      meta: promptQueueItemMeta(item),
+      status: 'queued',
+    });
+    emitLocalNotice('Prompt queued. It will run when the current agent run is idle.');
+    clearQueuedComposerState();
+    schedulePromptQueueDrain();
+    return true;
+  }
+
+  function requeuePromptAtFront(item, error) {
+    if (!item) return;
+    const attempts = Number(item.attempts || 0) + 1;
+    const maxAttempts = Math.max(1, Number(item.maxAttempts || 3));
+    const baseBackoffMs = Math.max(0, Number(item.backoffMs || 1200));
+    const backoffMs = attempts >= maxAttempts
+      ? 0
+      : Math.min(60_000, baseBackoffMs * (2 ** Math.max(0, attempts - 1)));
+    const next = serializePromptQueueItem({
+      ...item,
+      attempts,
+      maxAttempts,
+      backoffMs: baseBackoffMs,
+      nextRetryAt: backoffMs > 0 ? Date.now() + backoffMs : null,
+      status: 'failed',
+      lastError: error?.message || String(error || 'Send failed.'),
+      pendingRunId: null,
+      sessionId: promptQueueSessionKey,
+    });
+    promptQueue = [next, ...promptQueue.filter((candidate) => candidate.id !== next.id)];
+    persistPromptQueue();
+    renderPromptQueue();
+    recordTraceEvent({
+      type: 'error',
+      title: 'Prompt requeued',
+      detail: attempts >= maxAttempts
+        ? `${next.lastError || 'Send failed.'} Max attempts reached.`
+        : `${next.lastError || 'Send failed.'} Retry scheduled in ${Math.ceil(backoffMs / 1000)}s.`,
+      meta: promptQueueItemMeta(next),
+      status: 'retry',
+    });
+  }
+
+  async function sendQueuedPrompt(item) {
+    if (!item) return false;
+    if (item.localCommandName) {
+      return dispatchLocalSlashCommand(item.localCommandName, item.localCommandArgs || '', {
+        fromQueue: true,
+        queueItem: item,
+      });
+    }
+    restoreQueuedPrompt(item);
+    return transmitSignal({ fromQueue: true, queueItem: item });
+  }
+
+  async function drainPromptQueue() {
+    syncPromptQueueSession();
+    if (isDrainingPromptQueue || promptQueue.length === 0) return;
+    if (isRuntimeChatBusy()) {
+      maybeRefreshRuntimeForQueue();
+      renderPromptQueue();
+      schedulePromptQueueDrain(900);
+      return;
+    }
+    isDrainingPromptQueue = true;
+    try {
+      while (promptQueue.length > 0 && !isRuntimeChatBusy()) {
+        const now = Date.now();
+        const nextIndex = promptQueue.findIndex((item) => (
+          !item.pendingRunId
+          && Number(item.attempts || 0) < Number(item.maxAttempts || 3)
+          && (!item.nextRetryAt || Number(item.nextRetryAt) <= now)
+        ));
+        if (nextIndex < 0) break;
+        const [next] = promptQueue.splice(nextIndex, 1);
+        persistPromptQueue();
+        renderPromptQueue();
+        const sent = await sendQueuedPrompt(next);
+        if (!sent) {
+          break;
+        }
+      }
+    } finally {
+      isDrainingPromptQueue = false;
+      persistPromptQueue();
+      renderPromptQueue();
+      if (promptQueue.length > 0) {
+        const retryTimes = promptQueue
+          .map((item) => Number(item.nextRetryAt || 0))
+          .filter((value) => value > Date.now());
+        const delay = retryTimes.length > 0
+          ? Math.max(450, Math.min(30_000, Math.min(...retryTimes) - Date.now()))
+          : 450;
+        schedulePromptQueueDrain(delay);
+      }
+    }
+  }
+
+  function removeQueuedPrompt(id) {
+    syncPromptQueueSession();
+    const item = promptQueue.find((entry) => entry.id === id || entry.id.startsWith(id));
+    promptQueue = promptQueue.filter((entry) => entry !== item);
+    persistPromptQueue();
+    renderPromptQueue();
+    if (item) {
+      recordTraceEvent({
+        type: 'status',
+        title: 'Queued prompt cancelled',
+        detail: item.text || item.localCommandArgs || item.id,
+        meta: 'queue',
+        status: 'done',
+      });
+      emitLocalNotice('Queued prompt cancelled.');
+    }
+  }
+
+  function replaceQueuedPrompt(id, text) {
+    syncPromptQueueSession();
+    const normalized = String(text || '').trim();
+    const item = promptQueue.find((entry) => entry.id === id || entry.id.startsWith(id));
+    if (!item || !normalized) return false;
+    item.text = normalized;
+    item.localCommandArgs = item.localCommandName ? normalized : item.localCommandArgs;
+    item.status = 'queued';
+    item.pendingRunId = null;
+    item.nextRetryAt = null;
+    item.lastError = null;
+    persistPromptQueue();
+    renderPromptQueue();
+    emitLocalNotice('Queued prompt replaced.');
+    return true;
+  }
+
+  function configureQueuedPromptBackoff(id, backoffMs) {
+    syncPromptQueueSession();
+    const item = promptQueue.find((entry) => entry.id === id || entry.id.startsWith(id));
+    const value = Math.max(0, Number(backoffMs || 0));
+    if (!item || !Number.isFinite(value)) return false;
+    item.backoffMs = value;
+    persistPromptQueue();
+    renderPromptQueue();
+    emitLocalNotice(`Queued prompt backoff set to ${value}ms.`);
+    return true;
+  }
+
+  function configureQueuedPromptAttempts(id, maxAttempts) {
+    syncPromptQueueSession();
+    const item = promptQueue.find((entry) => entry.id === id || entry.id.startsWith(id));
+    const value = Math.max(1, Number(maxAttempts || 0));
+    if (!item || !Number.isFinite(value)) return false;
+    item.maxAttempts = value;
+    persistPromptQueue();
+    renderPromptQueue();
+    emitLocalNotice(`Queued prompt max attempts set to ${value}.`);
+    return true;
+  }
+
+  function clearPromptQueue() {
+    syncPromptQueueSession();
+    promptQueue = [];
+    persistPromptQueue();
+    renderPromptQueue();
+    emitLocalNotice('Prompt queue cleared.');
   }
 
   function updateSendAffordance() {
@@ -233,16 +682,45 @@ export function initControlApp() {
     if (items.length === 0) return '';
     return `
       <div class="chat-attachment-grid" aria-label="Uploaded files">
-        ${items.map((file) => `
-          <div class="chat-attachment-card" title="${escapeHtml(file.name)}">
+        ${items.map((file, fileIdx) => {
+          const isAudio = file.media?.kind === 'audio';
+          const isTextPreview = file.text && file.text.trim().length > 0;
+          
+          const quickLookBtn = isTextPreview ? `
+            <button type="button" class="chat-attachment-card__quicklook" data-quick-look-text="${escapeHtml(file.text)}" data-quick-look-name="${escapeHtml(file.name)}" title="Quick Look Preview">👁️</button>
+          ` : '';
+
+          if (isAudio) {
+            return `
+              <div class="chat-attachment-card chat-attachment-card--audio" title="${escapeHtml(file.name)}">
+                <div class="chat-attachment-card__icon">🎵</div>
+                <div class="chat-attachment-card__body">
+                  <div class="chat-attachment-card__name">${escapeHtml(String(file.name || 'file').replace(/\.[^.]+$/, ''))}</div>
+                  <div class="audio-waveform-player" data-audio-content="${file.content || ''}" data-audio-mime="${file.media?.mimeType || 'audio/wav'}">
+                    <button class="audio-waveform-play-btn" type="button">▶</button>
+                    <div class="audio-waveform-bars">
+                      ${Array.from({ length: 16 }).map(() => `<span class="audio-waveform-bar"></span>`).join('')}
+                    </div>
+                    <span class="audio-waveform-time">0:00</span>
+                  </div>
+                  <div class="chat-attachment-card__meta">${formatBytes(file.size)} - Audio Player</div>
+                </div>
+              </div>
+            `;
+          }
+
+          return `
+            <div class="chat-attachment-card" title="${escapeHtml(file.name)}">
+              ${quickLookBtn}
               <div class="chat-attachment-card__icon">${escapeHtml(attachmentKindLabel(file))}</div>
-            <div class="chat-attachment-card__body">
-              <div class="chat-attachment-card__name">${escapeHtml(String(file.name || 'file').replace(/\.[^.]+$/, ''))}</div>
-              <div class="chat-attachment-card__meta">${escapeHtml(attachmentKindLabel(file))} - ${formatBytes(file.size)} - ${escapeHtml(attachmentStatusLabel(file))}</div>
-              ${file.media?.kind ? `<div class="chat-attachment-card__status">${file.media.kind === 'audio' ? 'Queued for transcription' : file.media.kind === 'video' ? 'Queued for video analysis' : 'Queued for visual analysis'}</div>` : ''}
+              <div class="chat-attachment-card__body">
+                <div class="chat-attachment-card__name">${escapeHtml(String(file.name || 'file').replace(/\.[^.]+$/, ''))}</div>
+                <div class="chat-attachment-card__meta">${escapeHtml(attachmentKindLabel(file))} - ${formatBytes(file.size)} - ${escapeHtml(attachmentStatusLabel(file))}</div>
+                ${file.media?.kind ? `<div class="chat-attachment-card__status">${file.media.kind === 'video' ? 'Queued for video analysis' : 'Queued for visual analysis'}</div>` : ''}
+              </div>
             </div>
-          </div>
-        `).join('')}
+          `;
+        }).join('')}
       </div>
     `;
   }
@@ -267,6 +745,518 @@ export function initControlApp() {
     onSubmit: transmitSignal,
     onSendAffordance: updateSendAffordance,
   });
+
+  // Feature 1: Autocomplete Event Wiring
+  if (composeInput) {
+    composeInput.addEventListener('input', () => {
+      const text = (composeInput as HTMLTextAreaElement).value;
+      const cursor = (composeInput as HTMLTextAreaElement).selectionStart || 0;
+      const beforeCursor = text.slice(0, cursor);
+      const lastSlashIdx = beforeCursor.lastIndexOf('/');
+      
+      if (lastSlashIdx !== -1 && !/\s/.test(beforeCursor.slice(lastSlashIdx))) {
+        const query = beforeCursor.slice(lastSlashIdx).toLowerCase();
+        autocompleteFiltered = getSlashCommandSuggestions(query, 9);
+        autocompleteIndex = 0;
+        renderAutocomplete();
+      } else {
+        hideAutocomplete();
+      }
+    });
+
+    composeInput.addEventListener('keydown', (event) => {
+      if (!autocompleteVisible) return;
+      
+      if (event.key === 'ArrowDown') {
+        event.preventDefault();
+        event.stopImmediatePropagation();
+        autocompleteIndex = (autocompleteIndex + 1) % autocompleteFiltered.length;
+        renderAutocomplete();
+      } else if (event.key === 'ArrowUp') {
+        event.preventDefault();
+        event.stopImmediatePropagation();
+        autocompleteIndex = (autocompleteIndex - 1 + autocompleteFiltered.length) % autocompleteFiltered.length;
+        renderAutocomplete();
+      } else if (event.key === 'Enter') {
+        event.preventDefault();
+        event.stopImmediatePropagation();
+        selectAutocompleteOption(autocompleteIndex);
+      } else if (event.key === 'Escape') {
+        event.preventDefault();
+        event.stopImmediatePropagation();
+        hideAutocomplete();
+      }
+    }, { capture: true });
+
+    document.addEventListener('click', (e) => {
+      if (!autocompletePopover.contains(e.target as Node) && e.target !== composeInput) {
+        hideAutocomplete();
+      }
+    });
+  }
+
+  // Audio Playback Cache & Waves States
+  let activeAudioElement: HTMLAudioElement | null = null;
+  let activeWaveformPlayer: HTMLElement | null = null;
+  let waveAnimFrame: number | null = null;
+
+  // Feature 2, 3 & 5 global click handlers
+  document.addEventListener('click', (event) => {
+    const target = event.target as HTMLElement | null;
+    if (!target) return;
+
+    // --- FEATURE 2: Audio Waveform Player Click ---
+    const playBtn = target.closest('.audio-waveform-play-btn');
+    if (playBtn) {
+      event.preventDefault();
+      event.stopPropagation();
+      
+      const player = playBtn.closest('.audio-waveform-player') as HTMLElement;
+      if (!player) return;
+
+      const base64 = player.getAttribute('data-audio-content') || '';
+      const mime = player.getAttribute('data-audio-mime') || 'audio/wav';
+      if (!base64) {
+        window.emitSignal?.('info', 'Audio player', 'No audio content available to play.');
+        return;
+      }
+
+      if (activeAudioElement && activeWaveformPlayer === player) {
+        if (activeAudioElement.paused) {
+          activeAudioElement.play();
+          playBtn.textContent = '⏸';
+          startWaveformAnimation(player);
+        } else {
+          activeAudioElement.pause();
+          playBtn.textContent = '▶';
+          stopWaveformAnimation(player);
+        }
+        return;
+      }
+
+      if (activeAudioElement) {
+        activeAudioElement.pause();
+        if (activeWaveformPlayer) {
+          const prevBtn = activeWaveformPlayer.querySelector('.audio-waveform-play-btn');
+          if (prevBtn) prevBtn.textContent = '▶';
+          stopWaveformAnimation(activeWaveformPlayer);
+        }
+      }
+
+      const audioUrl = base64.startsWith('data:') ? base64 : `data:${mime};base64,${base64}`;
+      const audio = new Audio(audioUrl);
+      activeAudioElement = audio;
+      activeWaveformPlayer = player;
+
+      audio.addEventListener('timeupdate', () => {
+        const timeSpan = player.querySelector('.audio-waveform-time');
+        if (timeSpan) {
+          const minutes = Math.floor(audio.currentTime / 60);
+          const seconds = Math.floor(audio.currentTime % 60);
+          timeSpan.textContent = `${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
+        }
+        const progress = (audio.currentTime / audio.duration) * 100;
+        player.style.setProperty('--wave-progress', `${progress}%`);
+      });
+
+      audio.addEventListener('ended', () => {
+        playBtn.textContent = '▶';
+        const timeSpan = player.querySelector('.audio-waveform-time');
+        if (timeSpan) timeSpan.textContent = '0:00';
+        player.style.setProperty('--wave-progress', '0%');
+        stopWaveformAnimation(player);
+        activeAudioElement = null;
+        activeWaveformPlayer = null;
+      });
+
+      audio.play().then(() => {
+        playBtn.textContent = '⏸';
+        startWaveformAnimation(player);
+      }).catch(() => {
+        window.emitSignal?.('info', 'Audio error', 'Failed to play the audio stream.');
+      });
+      return;
+    }
+
+    // --- FEATURE 3: Quick Look Preview Click ---
+    const quickLookBtn = target.closest('.chat-attachment-card__quicklook');
+    if (quickLookBtn) {
+      event.preventDefault();
+      event.stopPropagation();
+      const text = quickLookBtn.getAttribute('data-quick-look-text') || '';
+      const name = quickLookBtn.getAttribute('data-quick-look-name') || 'document.txt';
+      openQuickLookModal(name, text);
+      return;
+    }
+
+    // --- FEATURE 5: Terminal Replay Launcher Click ---
+    const replayBtn = target.closest('.trace-sheet__replay-btn');
+    if (replayBtn) {
+      event.preventDefault();
+      event.stopPropagation();
+      const runId = replayBtn.getAttribute('data-replay-run-id') || '';
+      const traceId = replayBtn.getAttribute('data-replay-trace-id') || '';
+      launchTerminalReplay(runId, traceId);
+      return;
+    }
+
+    const memoryNode = target.closest('.zavorth-mem-node');
+    if (memoryNode) {
+      const tree = memoryNode.closest('#zavorth-memory-tree');
+      const inspector = document.getElementById('zavorth-memory-inspection-body');
+      if (tree && inspector) {
+        event.preventDefault();
+        event.stopPropagation();
+        tree.querySelectorAll('.zavorth-mem-node').forEach((node) => node.classList.remove('is-inspected'));
+        memoryNode.classList.add('is-inspected');
+        renderMemoryInspectorFallback(memoryNode.id, inspector);
+      }
+      return;
+    }
+  });
+
+  document.addEventListener('click', (event) => {
+    const target = event.target as Element | null;
+    const memoryNode = target?.closest?.('.zavorth-mem-node') as HTMLElement | null;
+    if (!memoryNode) return;
+    const tree = memoryNode.closest('#zavorth-memory-tree');
+    const inspector = document.getElementById('zavorth-memory-inspection-body');
+    if (!tree || !inspector) return;
+    tree.querySelectorAll('.zavorth-mem-node').forEach((node) => node.classList.remove('is-inspected'));
+    memoryNode.classList.add('is-inspected');
+    renderMemoryInspectorFallback(memoryNode.id, inspector);
+  }, { capture: true });
+
+  function startWaveformAnimation(player: HTMLElement) {
+    const bars = player.querySelectorAll('.audio-waveform-bar');
+    if (bars.length === 0) return;
+    
+    function animate() {
+      bars.forEach((bar) => {
+        const height = Math.random() * 0.8 + 0.2;
+        (bar as HTMLElement).style.transform = `scaleY(${height})`;
+      });
+      waveAnimFrame = requestAnimationFrame(animate);
+    }
+    animate();
+  }
+
+  function stopWaveformAnimation(player: HTMLElement) {
+    if (waveAnimFrame) {
+      cancelAnimationFrame(waveAnimFrame);
+      waveAnimFrame = null;
+    }
+    const bars = player.querySelectorAll('.audio-waveform-bar');
+    bars.forEach((bar) => {
+      (bar as HTMLElement).style.transform = 'scaleY(0.2)';
+    });
+  }
+
+  // Feature 3: Quick Look Modal
+  function openQuickLookModal(fileName: string, fileContent: string) {
+    document.getElementById('zavorth-quicklook-overlay')?.remove();
+
+    const overlay = document.createElement('div');
+    overlay.className = 'zavorth-quicklook-overlay active';
+    overlay.id = 'zavorth-quicklook-overlay';
+    
+    const lines = fileContent.split('\n');
+    const linedTextHtml = lines.map((line, idx) => `
+      <div class="quicklook-line">
+        <span class="quicklook-line-num">${idx + 1}</span>
+        <span class="quicklook-line-text">${escapeHtml(line)}</span>
+      </div>
+    `).join('');
+
+    overlay.innerHTML = `
+      <div class="quicklook-backdrop"></div>
+      <div class="quicklook-frame">
+        <div class="quicklook-header">
+          <div class="quicklook-header__copy">
+            <span class="quicklook-eyebrow">👁️ Quick Look Preview</span>
+            <h2>${escapeHtml(fileName)}</h2>
+          </div>
+          <div class="quicklook-actions">
+            <button class="quicklook-copy-btn" type="button">Copy Content</button>
+            <button class="quicklook-close-btn" type="button">&times;</button>
+          </div>
+        </div>
+        <div class="quicklook-body">
+          <div class="quicklook-code-viewport">
+            ${linedTextHtml}
+          </div>
+        </div>
+      </div>
+    `;
+
+    document.body.appendChild(overlay);
+
+    overlay.querySelector('.quicklook-close-btn')?.addEventListener('click', () => {
+      overlay.classList.remove('active');
+      setTimeout(() => overlay.remove(), 200);
+    });
+    
+    overlay.querySelector('.quicklook-backdrop')?.addEventListener('click', () => {
+      overlay.classList.remove('active');
+      setTimeout(() => overlay.remove(), 200);
+    });
+
+    overlay.querySelector('.quicklook-copy-btn')?.addEventListener('click', () => {
+      navigator.clipboard.writeText(fileContent).then(() => {
+        window.emitSignal?.('success', 'Content copied', 'Copied text from Quick Look to clipboard.');
+      });
+    });
+  }
+
+  function renderMemoryInspectorFallback(nodeId: string, inspector: HTMLElement) {
+    const trustedFolders = Array.from(document.querySelectorAll('.trusted-workspace-card')).map((card) => ({
+      label: card.querySelector('strong')?.textContent?.trim() || 'Trusted workspace',
+      path: card.querySelector('span')?.textContent?.trim() || 'Path unavailable',
+    }));
+    const recentTrace = traceEvents
+      .slice(-5)
+      .map((event: any) => String(event?.title || event?.type || '').trim())
+      .filter(Boolean);
+    const persistedFacts = Array.isArray((window as any).ZavorthRuntimeBridge?.state?.memoryFacts?.facts)
+      ? (window as any).ZavorthRuntimeBridge.state.memoryFacts.facts
+      : [];
+    const currentProvider = document.querySelector('[data-provider-model-catalog-summary]')?.textContent?.trim()
+      || document.querySelector('[data-live-provider]')?.textContent?.trim()
+      || 'Provider state not published yet';
+    const memoryFacts = persistedFacts.length
+      ? persistedFacts.slice(0, 12).map((fact: any) => `
+          <div class="fact-item" id="memory-fact-${escapeHtml(fact.id || fact.key || '')}">
+            <span>${escapeHtml(fact.content || fact.key || 'Persisted memory fact')}</span>
+            <button type="button" class="fact-forget-btn" data-memory-key="${escapeHtml(fact.id || fact.key || '')}">Forget</button>
+          </div>
+        `).join('')
+      : recentTrace.length
+        ? recentTrace.map((title, index) => `
+          <div class="fact-item" id="dashboard-trace-fact-${index + 1}">
+            <span>${escapeHtml(title)}</span>
+            <button type="button" class="fact-forget-btn" data-memory-key="dashboard-trace-fact-${index + 1}">Forget</button>
+          </div>
+        `).join('')
+        : '<p class="no-facts-left">No persisted memory facts are published in this dashboard snapshot.</p>';
+    const htmlByNode: Record<string, string> = {
+      'mem-node-mind': `
+        <div class="zavorth-inspection-card">
+          <h3>Zavorth Core Mind</h3>
+          <p>Current dashboard coordinator state, backed by the active Zavorth session when the runtime bridge is available.</p>
+          <div class="inspection-fact-row"><span>Trace events</span><strong>${traceEvents.length}</strong></div>
+          <div class="inspection-fact-row"><span>Bridge</span><strong>${(window as any).ZavorthRuntimeBridge ? 'available' : 'waiting'}</strong></div>
+        </div>
+      `,
+      'mem-node-workspaces': `
+        <div class="zavorth-inspection-card">
+          <h3>Active Workspaces</h3>
+          <p>Trusted folders currently rendered from the runtime settings API.</p>
+          <div class="inspection-workspace-list">
+            ${trustedFolders.length ? trustedFolders.map((folder) => `
+              <div class="workspace-item"><strong>${escapeHtml(folder.label)}</strong><span>${escapeHtml(folder.path)}</span></div>
+            `).join('') : '<p class="no-facts-left">No trusted workspace registered yet.</p>'}
+          </div>
+        </div>
+      `,
+      'mem-node-vault': `
+        <div class="zavorth-inspection-card">
+          <h3>Durable Fact Vault</h3>
+          <p>Runtime-published facts appear here. In this fallback view, recent trace receipts are shown as session facts.</p>
+          <div class="inspection-fact-vault" id="fact-vault-list">${memoryFacts}</div>
+        </div>
+      `,
+      'mem-node-agents': `
+        <div class="zavorth-inspection-card">
+          <h3>Linked Agents</h3>
+          <p>Agent and provider signals from the active dashboard session.</p>
+          <div class="inspection-fact-row"><span>Provider catalog</span><strong>${escapeHtml(compactTraceText(currentProvider, 120))}</strong></div>
+        </div>
+      `,
+      'mem-node-environments': `
+        <div class="zavorth-inspection-card">
+          <h3>Safe Environments</h3>
+          <p>Execution and approval state exposed by the local runtime bridge.</p>
+          <div class="inspection-fact-row"><span>Runtime bridge</span><strong>${(window as any).ZavorthRuntimeBridge ? 'connected' : 'not connected'}</strong></div>
+          <div class="inspection-fact-row"><span>Trace buffer</span><strong>${traceEvents.length} event(s)</strong></div>
+        </div>
+      `,
+    };
+    inspector.innerHTML = htmlByNode[nodeId] || htmlByNode['mem-node-mind'];
+    inspector.querySelectorAll('.fact-forget-btn').forEach((btn) => {
+      btn.addEventListener('click', async (event) => {
+        event.preventDefault();
+        const button = btn as HTMLButtonElement;
+        const key = button.getAttribute('data-memory-key') || '';
+        button.disabled = true;
+        try {
+          const bridge = (window as any).ZavorthRuntimeBridge;
+          if (bridge?.forgetMemoryFact) {
+            await bridge.forgetMemoryFact({ id: key });
+            window.emitSignal?.('success', 'Memory forget requested', `Sent governed forget request for ${key}.`);
+            button.closest('.fact-item')?.classList.add('forgetting');
+            setTimeout(() => button.closest('.fact-item')?.remove(), 500);
+          } else if (bridge?.sendChat) {
+            await bridge.sendChat(`/memory forget ${key}`);
+            window.emitSignal?.('success', 'Memory forget requested', `Sent governed forget request for ${key}.`);
+            button.closest('.fact-item')?.classList.add('forgetting');
+            setTimeout(() => button.closest('.fact-item')?.remove(), 500);
+          } else {
+            window.emitSignal?.('info', 'Memory forget unavailable', 'No runtime bridge is available for memory mutation.');
+            button.disabled = false;
+          }
+        } catch (error: any) {
+          window.emitSignal?.('info', 'Memory forget failed', String(error?.message || error || 'Request failed.'));
+          button.disabled = false;
+        }
+      });
+    });
+  }
+
+  // Feature 5: Terminal Replay Console Logic
+  function launchTerminalReplay(runId: string, traceId: string) {
+    document.getElementById('zavorth-terminal-replay-modal')?.remove();
+
+    const overlay = document.createElement('div');
+    overlay.className = 'zavorth-terminal-replay active';
+    overlay.id = 'zavorth-terminal-replay-modal';
+
+    overlay.innerHTML = `
+      <div class="zavorth-terminal-replay__backdrop"></div>
+      <div class="zavorth-terminal-replay__frame">
+        <div class="zavorth-terminal-replay__header">
+          <div class="zavorth-terminal-replay__header-dots">
+            <span></span><span></span><span></span>
+          </div>
+          <div class="zavorth-terminal-replay__header-title">Zavorth Terminal Observatory [Replay: ${escapeHtml(runId || traceId || 'Live Run')}]</div>
+          <button class="zavorth-terminal-replay__close" type="button">&times;</button>
+        </div>
+        <div class="zavorth-terminal-replay__body">
+          <div class="zavorth-terminal-replay__screen">
+            <div class="zavorth-terminal-replay__scanlines"></div>
+            <div class="zavorth-terminal-replay__content" id="zavorth-terminal-replay-content">
+              <!-- Replay lines will be typed here -->
+            </div>
+          </div>
+        </div>
+        <div class="zavorth-terminal-replay__footer">
+          <span class="zavorth-terminal-replay__status">SYSTEM STATUS: REPLAYING_RUN</span>
+          <div class="zavorth-terminal-replay__controls">
+            <button class="replay-ctrl-btn active" id="replay-speed-1x" type="button">1x</button>
+            <button class="replay-ctrl-btn" id="replay-speed-2x" type="button">2x</button>
+            <button class="replay-ctrl-btn" id="replay-pause" type="button">Pause</button>
+          </div>
+        </div>
+      </div>
+    `;
+
+    document.body.appendChild(overlay);
+
+    const eventMatchesReplay = (event: any) => {
+      if (!runId && !traceId) return true;
+      const replay = event?.replay || {};
+      return [event?.runId, event?.agentRunId, event?.id, replay.runId].filter(Boolean).includes(runId)
+        || [event?.traceId, replay.traceId].filter(Boolean).includes(traceId);
+    };
+    const replayEvents = traceEvents
+      .filter(eventMatchesReplay)
+      .slice(-80);
+    const logs = [
+      { type: 'system', text: `>> REPLAYING ZAVORTH TRACE [${runId || traceId || 'current-session'}]` },
+      ...replayEvents.map((event: any) => {
+        const type = /error|failed|blocked|rejected/i.test(`${event?.type || ''} ${event?.status || ''}`)
+          ? 'error'
+          : /receipt|success|done|completed/i.test(`${event?.type || ''} ${event?.status || ''}`)
+            ? 'success'
+            : /command|terminal|tool|mcp/i.test(`${event?.type || ''} ${event?.title || ''}`)
+              ? 'cmd'
+              : 'log';
+        const title = event?.title || event?.type || 'runtime event';
+        const detail = event?.detail || event?.meta || event?.preview || '';
+        const time = event?.time || event?.createdAt || new Date().toLocaleTimeString();
+        return {
+          type,
+          text: `[${time}] [${String(event?.type || 'event').toUpperCase()}] ${title}${detail ? ` - ${detail}` : ''}`,
+        };
+      }),
+      replayEvents.length
+        ? { type: 'success', text: `>> REPLAY COMPLETE. ${replayEvents.length} real trace event(s) rendered.` }
+        : { type: 'system', text: '>> NO MATCHING TRACE EVENTS YET. Run a task first, then replay its receipt.' },
+    ];
+
+    let replayIndex = 0;
+    let speedMs = 80;
+    let isPaused = false;
+
+    const content = overlay.querySelector('#zavorth-terminal-replay-content') as HTMLElement;
+    const speed1xBtn = overlay.querySelector('#replay-speed-1x');
+    const speed2xBtn = overlay.querySelector('#replay-speed-2x');
+    const pauseBtn = overlay.querySelector('#replay-pause');
+
+    function printNextLine() {
+      if (isPaused) return;
+      if (replayIndex >= logs.length) {
+        const doneDiv = document.createElement('div');
+        doneDiv.className = 'terminal-replay-line terminal-replay-line--success';
+        doneDiv.textContent = '>> REPLAY SEQUENCE COMPLETED.';
+        content.appendChild(doneDiv);
+        content.scrollTop = content.scrollHeight;
+        return;
+      }
+
+      const log = logs[replayIndex];
+      const lineDiv = document.createElement('div');
+      lineDiv.className = `terminal-replay-line terminal-replay-line--${log.type}`;
+      content.appendChild(lineDiv);
+
+      let charIdx = 0;
+      const text = log.text;
+      const typing = setInterval(() => {
+        if (isPaused) {
+          clearInterval(typing);
+          return;
+        }
+        if (charIdx >= text.length) {
+          clearInterval(typing);
+          replayIndex++;
+          setTimeout(printNextLine, 100);
+        } else {
+          lineDiv.textContent += text[charIdx];
+          charIdx++;
+          content.scrollTop = content.scrollHeight;
+        }
+      }, speedMs === 40 ? 5 : 10);
+    }
+
+    printNextLine();
+
+    const closeModal = () => {
+      isPaused = true;
+      overlay.classList.remove('active');
+      setTimeout(() => overlay.remove(), 200);
+    };
+
+    overlay.querySelector('.zavorth-terminal-replay__close')?.addEventListener('click', closeModal);
+    overlay.querySelector('.zavorth-terminal-replay__backdrop')?.addEventListener('click', closeModal);
+
+    speed1xBtn?.addEventListener('click', () => {
+      speedMs = 80;
+      speed1xBtn.classList.add('active');
+      speed2xBtn?.classList.remove('active');
+    });
+
+    speed2xBtn?.addEventListener('click', () => {
+      speedMs = 40;
+      speed2xBtn.classList.add('active');
+      speed1xBtn?.classList.remove('active');
+    });
+
+    pauseBtn?.addEventListener('click', () => {
+      isPaused = !isPaused;
+      pauseBtn.classList.toggle('active', isPaused);
+      pauseBtn.textContent = isPaused ? 'Resume' : 'Pause';
+      if (!isPaused) printNextLine();
+    });
+  }
 
   const sendBtn = document.getElementById('send-btn');
   if (sendBtn) sendBtn.addEventListener('click', () => {
@@ -378,6 +1368,7 @@ export function initControlApp() {
   function updateDashboardGlass() {
     dashboardLiveView?.updateDashboardGlass();
     window.ZavorthLocale?.apply();
+    if (typeof hydrateConsoleLogs === 'function') hydrateConsoleLogs();
   }
 
   window.addEventListener('zavorth-control-locale-change', () => {
@@ -416,6 +1407,8 @@ export function initControlApp() {
     renderTraceSheet();
     updateComposerBadges();
     updateDashboardGlass();
+    
+    if (typeof appendConsoleLog === 'function') appendConsoleLog(entry);
   }
 
   function ingestRuntimeEvents(events = [], options = {}) {
@@ -673,11 +1666,16 @@ export function initControlApp() {
     pendingAttachments = [];
     pendingSelectedSkills = [];
     pendingGuidedFlow = '';
+    persistPromptQueue();
+    promptQueueSessionKey = sessionId;
+    promptQueue = [];
+    persistPromptQueue();
     lastVoiceInput = null;
     traceSheetQuery = { runId: '', traceId: '', sessionId: '', source: '' };
     traceEvents.length = 0;
     traceEventIds.clear();
     refreshAttachmentHint();
+    renderPromptQueue();
     renderTraceSheet();
     window.ZavorthRuntimeBridge?.suppressTranscriptRender?.(2500);
     recordTraceEvent({
@@ -763,6 +1761,42 @@ export function initControlApp() {
       if (action === 'settings') toggleComposerSettings();
       if (action === 'new') startNewLocalSession();
       if (action === 'export') openExportMenu();
+    });
+  }
+  if (promptQueueBar) {
+    promptQueueBar.addEventListener('click', (event) => {
+      const target = event.target;
+      const clear = target.closest?.('[data-prompt-queue-clear]');
+      if (clear) {
+        clearPromptQueue();
+        return;
+      }
+      const flush = target.closest?.('[data-prompt-queue-flush]');
+      if (flush) {
+        drainPromptQueue().catch(() => undefined);
+        return;
+      }
+      const remove = target.closest?.('[data-prompt-queue-remove]');
+      if (remove) {
+        removeQueuedPrompt(remove.getAttribute('data-prompt-queue-remove') || '');
+        return;
+      }
+      const steer = target.closest?.('[data-prompt-queue-steer]');
+      if (steer) {
+        steerQueuedPrompt(steer.getAttribute('data-prompt-queue-steer') || '').catch(() => undefined);
+        return;
+      }
+      const send = target.closest?.('[data-prompt-queue-send]');
+      if (send) {
+        const id = send.getAttribute('data-prompt-queue-send') || '';
+        const index = promptQueue.findIndex((item) => item.id === id);
+        if (index >= 0) {
+          const [item] = promptQueue.splice(index, 1);
+          promptQueue.unshift(item);
+          renderPromptQueue();
+          drainPromptQueue().catch(() => undefined);
+        }
+      }
     });
   }
   document.addEventListener('click', (event) => {
@@ -935,6 +1969,426 @@ ${current}` : skillPrompt;
     updateComposerBadges();
   }
 
+  function clearLocalConversation() {
+    if (neuralFeed) neuralFeed.innerHTML = '';
+    const terminalView = document.getElementById('terminal-view');
+    if (terminalView) terminalView.classList.add('is-empty');
+    clearComposerInput();
+    recordTraceEvent({
+      type: 'session',
+      title: 'Conversation cleared',
+      detail: 'Local chat surface cleared by slash command.',
+      meta: 'slash',
+      status: 'done',
+    });
+    appendEchoDivider('Conversation cleared');
+    emitLocalNotice('Conversation cleared.');
+  }
+
+  function setFocusMode(enabled = true) {
+    writeComposerSettings({ ...composerSettingsState, focus: enabled });
+    document.body.classList.toggle('zavorth-chat-focus-mode', enabled);
+    emitLocalNotice(enabled ? 'Focus mode on.' : 'Focus mode off.');
+  }
+
+  function extractSideChannelReply(payload) {
+    const messages = payload?.snapshot?.messages || payload?.data?.snapshot?.messages || [];
+    const assistant = Array.isArray(messages)
+      ? [...messages].reverse().find((message) => String(message?.role || '').toLowerCase() === 'assistant')
+      : null;
+    const content = assistant?.content;
+    if (typeof content === 'string' && content.trim()) return content.trim();
+    if (Array.isArray(content)) {
+      const text = content.map((part) => part?.text || part?.content || '').filter(Boolean).join('\n').trim();
+      if (text) return text;
+    }
+    return String(payload?.chat?.nextAction || payload?.data?.nextAction || payload?.message || 'Detached side-channel completed.').trim();
+  }
+
+  function renderSideChannelResult(kind, message, payload, status = 'done') {
+    if (!sideChannelPanel) return;
+    const reply = extractSideChannelReply(payload);
+    sideChannelPanel.hidden = false;
+    sideChannelPanel.innerHTML = `
+      <div class="compose-side-channel__header">
+        <span>/${escapeHtml(kind)} detached</span>
+        <small>${escapeHtml(status)}</small>
+      </div>
+      <div class="compose-side-channel__prompt">${escapeHtml(compactTraceText(message, 120))}</div>
+      <div class="compose-side-channel__reply">${sanitizeRenderedHtml(renderMarkdown(reply))}</div>
+      <div class="compose-side-channel__meta">
+        <span>side session: ${escapeHtml(String(payload?.sideSessionId || payload?.sessionId || 'runtime'))}</span>
+        ${payload?.runId || payload?.taskId ? `<span>run: ${escapeHtml(String(payload.runId || payload.taskId))}</span>` : ''}
+      </div>
+    `;
+  }
+
+  async function sendSideMessage(kind, message, composerSnapshot = null) {
+    const text = String(message || '').trim();
+    const snapshot = composerSnapshot || snapshotQueuedPrompt(text || 'Review attached files.');
+    if (!text && snapshot.attachments.length === 0) {
+      emitLocalNotice(`/${kind} needs a message.`);
+      return false;
+    }
+    clearComposerInput();
+    pendingAttachments = [];
+    pendingSelectedSkills = [];
+    pendingGuidedFlow = '';
+    lastVoiceInput = null;
+    refreshAttachmentHint();
+    updateComposerContextBar();
+    recordTraceEvent({
+      type: 'request',
+      title: `Detached ${kind} message`,
+      detail: text || 'Review attached files',
+      meta: snapshot.attachments.length ? `side-channel | ${snapshot.attachments.length} file(s)` : 'side-channel',
+      status: 'running',
+    });
+    const runtimeBridge = window.ZavorthRuntimeBridge;
+    if (!runtimeBridge || typeof runtimeBridge.sendSideChat !== 'function') {
+      const unavailable = 'The detached side channel is not available in this runtime yet. I did not send this message into the main conversation.';
+      restoreQueuedPrompt(snapshot);
+      emitLocalNotice(unavailable);
+      recordTraceEvent({
+        type: 'error',
+        title: 'Detached side channel unavailable',
+        detail: 'ZavorthRuntimeBridge.sendSideChat is not exposed.',
+        meta: 'side-channel',
+        status: 'blocked',
+      });
+      return false;
+    }
+    try {
+      const payload = await runtimeBridge.sendSideChat(text || 'Review the attached files.', {
+        kind,
+        attachments: snapshot.attachments,
+        selectedSkills: snapshot.selectedSkills,
+        voice: snapshot.voice,
+        composerSettings: composerSettingsState,
+        emitSignal: window.emitSignal,
+      });
+      renderSideChannelResult(kind, text || 'Review attached files', payload, 'completed');
+      emitLocalNotice(`Detached /${kind} completed outside the main transcript.`);
+      recordTraceEvent({
+        type: 'receipt',
+        title: `Detached /${kind} completed`,
+        detail: payload?.sideSessionId || payload?.sessionId || 'side-channel',
+        meta: 'side-channel',
+        status: 'done',
+      });
+      return true;
+    } catch (error) {
+      restoreQueuedPrompt(snapshot);
+      renderSideChannelResult(kind, text || 'Review attached files', {
+        message: error?.message || String(error),
+        sideSessionId: 'not sent',
+      }, 'failed');
+      recordTraceEvent({
+        type: 'error',
+        title: 'Detached side channel failed',
+        detail: error?.message || String(error),
+        meta: 'side-channel',
+        status: 'failed',
+      });
+      return false;
+    }
+  }
+
+  async function sendSteerMessage(message, snapshot = null) {
+    const text = String(message || '').trim();
+    const activeRun = getActiveRuntimeRun();
+    if (!activeRun) {
+      emitLocalNotice('No active run is available for /steer.');
+      return false;
+    }
+    const runtimeBridge = window.ZavorthRuntimeBridge;
+    if (!runtimeBridge || typeof runtimeBridge.sendSteerChat !== 'function') {
+      emitLocalNotice('This runtime does not expose active-run steering yet.');
+      return false;
+    }
+    const payloadSnapshot = snapshot || snapshotQueuedPrompt(text || 'Steer the active run.');
+    if (!text && payloadSnapshot.attachments.length === 0) {
+      emitLocalNotice('/steer needs a message or a queued prompt.');
+      return false;
+    }
+    const runId = String(activeRun.id || activeRun.runId || '').trim();
+    recordTraceEvent({
+      type: 'step',
+      title: 'Steer active run',
+      detail: text || 'Review attached files',
+      meta: runId || 'active run',
+      status: 'running',
+    });
+    const payload = await runtimeBridge.sendSteerChat(text || 'Review the attached files.', {
+      runId,
+      queueItemId: payloadSnapshot.id || null,
+      backoffMs: payloadSnapshot.backoffMs || 0,
+      maxAttempts: payloadSnapshot.maxAttempts || 1,
+      attachments: payloadSnapshot.attachments,
+      selectedSkills: payloadSnapshot.selectedSkills,
+      voice: payloadSnapshot.voice,
+      composerSettings: composerSettingsState,
+      emitSignal: window.emitSignal,
+    });
+    recordTraceEvent({
+      type: 'receipt',
+      title: 'Steer accepted',
+      detail: payload?.ack?.id || payload?.runId || payload?.taskId || runId || 'active run',
+      meta: payload?.steering?.id || 'steer',
+      status: 'done',
+    });
+    return true;
+  }
+
+  function renderDeveloperWorkflowResult(command, payload) {
+    const snapshot = payload?.snapshot || payload?.result || payload;
+    if (!snapshot) return `/${command} returned no workflow snapshot.`;
+    if (command === 'review' && snapshot.review) {
+      const findings = snapshot.review?.verification?.acceptedFindingCount ?? snapshot.review?.findings?.length ?? 0;
+      return [
+        `/${command} governed review`,
+        '',
+        `Status: ${snapshot.status || snapshot.review?.status || 'unknown'}`,
+        `Target: ${snapshot.target || 'workspace-diff'}`,
+        `Review: ${snapshot.review?.reviewId || 'n/a'}`,
+        `Findings: ${findings}`,
+        `Dashboard: ${snapshot.visual?.route || '/dashboard/reviews'}`,
+        '',
+        snapshot.summary || snapshot.review?.summary || '',
+      ].filter(Boolean).join('\n');
+    }
+    const plan = Array.isArray(snapshot.plannedCommands)
+      ? snapshot.plannedCommands.map((entry) => `${entry.command} ${entry.args?.join?.(' ') || ''}`).join(' && ')
+      : '';
+    return [
+      `/${command} git workflow`,
+      '',
+      `Status: ${snapshot.status || 'unknown'}`,
+      `Branch: ${snapshot.branch || 'unknown'}`,
+      `Dirty files: ${snapshot.dirtyFiles ?? 'unknown'}`,
+      plan ? `Plan: ${plan}` : '',
+      snapshot.approval?.required ? `Approval: ${snapshot.approval.satisfied ? snapshot.approval.approvalId : 'required for apply'}` : '',
+      snapshot.receipt?.receiptId ? `Receipt: ${snapshot.receipt.receiptId}` : '',
+      '',
+      snapshot.summary || '',
+    ].filter(Boolean).join('\n');
+  }
+
+  async function runDeveloperWorkflowSlash(command, args) {
+    const runtimeBridge = window.ZavorthRuntimeBridge;
+    if (!runtimeBridge || typeof runtimeBridge.runDeveloperWorkflowCommand !== 'function') {
+      emitLocalNotice(`/${command} is not connected to the runtime bridge yet.`);
+      return false;
+    }
+    clearComposerInput();
+    recordTraceEvent({
+      type: 'request',
+      title: `/${command} workflow`,
+      detail: String(args || '').trim() || 'status',
+      meta: 'git-workflow',
+      status: 'running',
+    });
+    try {
+      const payload = await runtimeBridge.runDeveloperWorkflowCommand(command, args, {
+        approvedBy: 'dashboard',
+      });
+      appendEcho('core', renderDeveloperWorkflowResult(command, payload));
+      recordTraceEvent({
+        type: 'receipt',
+        title: `/${command} workflow completed`,
+        detail: payload?.snapshot?.receipt?.receiptId || payload?.snapshot?.review?.reviewId || payload?.snapshot?.summary || 'workflow snapshot',
+        meta: payload?.snapshot?.status || 'git-workflow',
+        status: payload?.snapshot?.status === 'blocked' || payload?.snapshot?.status === 'failed' ? 'failed' : 'done',
+      });
+      return true;
+    } catch (error) {
+      appendEcho('core', `/${command} failed: ${error?.message || String(error)}`);
+      recordTraceEvent({
+        type: 'error',
+        title: `/${command} workflow failed`,
+        detail: error?.message || String(error),
+        meta: 'git-workflow',
+        status: 'failed',
+      });
+      return false;
+    }
+  }
+
+  async function steerQueuedPrompt(id) {
+    syncPromptQueueSession();
+    const activeRun = getActiveRuntimeRun();
+    if (!activeRun) {
+      emitLocalNotice('No active run is available to steer.');
+      return false;
+    }
+    const index = promptQueue.findIndex((item) => item.id === id);
+    if (index < 0) return false;
+    const item = promptQueue[index];
+    promptQueue[index] = {
+      ...item,
+      status: 'sending',
+      pendingRunId: String(activeRun.id || activeRun.runId || '').trim() || null,
+    };
+    persistPromptQueue();
+    renderPromptQueue();
+    try {
+      const ok = await sendSteerMessage(item.text, item);
+      if (!ok) {
+        promptQueue[index] = item;
+        persistPromptQueue();
+        renderPromptQueue();
+        return false;
+      }
+      promptQueue[index] = {
+        ...item,
+        status: 'steered',
+      };
+      promptQueue = promptQueue.filter((entry) => entry.id !== id);
+      persistPromptQueue();
+      renderPromptQueue();
+      emitLocalNotice('Queued prompt steered into the active run.');
+      return true;
+    } catch (error) {
+      promptQueue[index] = {
+        ...item,
+        status: 'failed',
+        pendingRunId: null,
+        attempts: Number(item.attempts || 0) + 1,
+        lastError: error?.message || String(error),
+      };
+      persistPromptQueue();
+      renderPromptQueue();
+      emitLocalNotice(`Queued steer failed: ${error?.message || String(error)}`);
+      return false;
+    }
+  }
+
+  async function dispatchLocalSlashCommand(commandName, args = '', options = {}) {
+    const command = String(commandName || '').toLowerCase();
+    if (command === 'help') {
+      clearComposerInput();
+      appendEcho('core', renderSlashCommandHelp(SLASH_COMMANDS));
+      return true;
+    }
+    if (command === 'clear') {
+      clearLocalConversation();
+      return true;
+    }
+    if (command === 'new') {
+      clearComposerInput();
+      startNewLocalSession();
+      return true;
+    }
+    if (command === 'export') {
+      const normalized = String(args || '').toLowerCase();
+      const format = ['md', 'markdown', 'json', 'txt', 'text'].includes(normalized) ? normalized : '';
+      clearComposerInput();
+      exportCurrentConversation(format === 'markdown' ? 'md' : format === 'text' ? 'txt' : format || 'md');
+      return true;
+    }
+    if (command === 'focus') {
+      clearComposerInput();
+      const normalized = String(args || '').toLowerCase();
+      setFocusMode(normalized === 'off' || normalized === 'false' ? false : true);
+      return true;
+    }
+    if (command === 'btw' || command === 'side') {
+      const snapshot = snapshotQueuedPrompt(args || 'Review attached files.');
+      await sendSideMessage(command, args, snapshot);
+      return true;
+    }
+    if (command === 'branch' || command === 'commit' || command === 'pr' || command === 'review') {
+      return runDeveloperWorkflowSlash(command, args);
+    }
+    if (command === 'queue') {
+      clearComposerInput();
+      const rawAction = String(args || 'show').trim();
+      const action = rawAction.toLowerCase();
+      const [rawVerb, id, ...rest] = rawAction.split(/\s+/);
+      const verb = String(rawVerb || '').toLowerCase();
+      if (action === 'clear') {
+        clearPromptQueue();
+        return true;
+      }
+      if (action === 'flush' || action === 'drain') {
+        await drainPromptQueue();
+        return true;
+      }
+      if (verb === 'cancel' || verb === 'remove') {
+        if (!id) emitLocalNotice('/queue cancel needs a queue id.');
+        else removeQueuedPrompt(id);
+        return true;
+      }
+      if (verb === 'replace') {
+        const replacement = rest.join(' ').trim();
+        if (!id || !replacement || !replaceQueuedPrompt(id, replacement)) {
+          emitLocalNotice('/queue replace needs a queue id and new message.');
+        }
+        return true;
+      }
+      if (verb === 'backoff') {
+        if (!id || !configureQueuedPromptBackoff(id, Number(rest[0] || 0))) {
+          emitLocalNotice('/queue backoff needs a queue id and milliseconds.');
+        }
+        return true;
+      }
+      if (verb === 'attempts') {
+        if (!id || !configureQueuedPromptAttempts(id, Number(rest[0] || 0))) {
+          emitLocalNotice('/queue attempts needs a queue id and count.');
+        }
+        return true;
+      }
+      renderPromptQueue();
+      emitLocalNotice(promptQueue.length ? `${promptQueue.length} prompt(s) queued for this session.` : 'Prompt queue is empty.');
+      return true;
+    }
+    if (command === 'steer') {
+      const raw = String(args || '').trim();
+      const [candidateId, ...rest] = raw.split(/\s+/);
+      const queued = candidateId
+        ? promptQueue.find((item) => item.id === candidateId || item.id.startsWith(candidateId))
+        : promptQueue[0];
+      if (queued && (!rest.length || candidateId === queued.id || queued.id.startsWith(candidateId))) {
+        clearComposerInput();
+        return steerQueuedPrompt(queued.id);
+      }
+      const snapshot = options.queueItem || snapshotQueuedPrompt(raw);
+      clearQueuedComposerState();
+      return sendSteerMessage(raw, snapshot);
+    }
+    return false;
+  }
+
+  function handleLocalSlashCommand(text) {
+    const parsed = parseSlashCommand(text);
+    if (!parsed) return false;
+    const { command, args } = parsed;
+    if (isRuntimeChatBusy() && shouldQueueLocalSlashCommand(command)) {
+      enqueuePrompt(text, {
+        localCommandName: command.key,
+        localCommandArgs: args,
+        kind: 'local-command',
+        attachments: [],
+        selectedSkills: [],
+        voice: null,
+        guidedFlow: '',
+        workspaceSelection: null,
+      });
+      return true;
+    }
+    dispatchLocalSlashCommand(command.key, args, { originalText: text }).catch((error) => {
+      recordTraceEvent({
+        type: 'error',
+        title: `/${command.name} failed`,
+        detail: error?.message || String(error),
+        meta: 'slash',
+        status: 'failed',
+      });
+      emitLocalNotice(`/${command.name} failed: ${error?.message || String(error)}`);
+    });
+    return true;
+  }
+
   bindVoiceDictation({
     voiceButton: voiceBtn,
     composeInput,
@@ -949,11 +2403,51 @@ ${current}` : skillPrompt;
       updateComposerContextBar();
     },
     onNotice: emitLocalNotice,
+    onAttachFile: addAttachmentFiles,
   });
 
-  let transmitSignalImpl = () => {};
-  function transmitSignal() {
-    transmitSignalImpl();
+  let transmitSignalImpl = async () => false;
+  async function transmitSignal(options = {}) {
+    if (!composeInput) return false;
+    syncPromptQueueSession();
+    const text = composeInput.value.trim();
+    const hasPayload = text || pendingAttachments.length > 0;
+    if (!hasPayload) return false;
+
+    if (!options.fromQueue && handleLocalSlashCommand(text)) {
+      return true;
+    }
+
+    const submittedItem = options.queueItem || snapshotQueuedPrompt(text);
+    const submitKey = promptSubmitKey(submittedItem);
+    if (inFlightSubmitKeys.has(submitKey) && !options.fromQueue) {
+      emitLocalNotice('That prompt is already being sent.');
+      return true;
+    }
+
+    if (isRuntimeChatBusy() && !options.fromQueue) {
+      enqueuePrompt(text);
+      return true;
+    }
+
+    isTransmittingSignal = true;
+    inFlightSubmitKeys.add(submitKey);
+    try {
+      const sent = await transmitSignalImpl();
+      if (!sent) {
+        if (options.fromQueue) {
+          requeuePromptAtFront(submittedItem, new Error('The runtime did not accept the queued prompt.'));
+        } else {
+          restoreQueuedPrompt(submittedItem);
+          emitLocalNotice('The runtime did not accept the message. I restored it in the composer.');
+        }
+      }
+      return Boolean(sent);
+    } finally {
+      inFlightSubmitKeys.delete(submitKey);
+      isTransmittingSignal = false;
+      schedulePromptQueueDrain(120);
+    }
   }
   // --------- Suggestion Chips Logic ---------
   const suggestionChips = document.querySelectorAll('.suggestion-chip');
@@ -1023,6 +2517,8 @@ ${current}` : skillPrompt;
     return 'runtime';
   }
 
+  const agentStreamGroups = new Map<string, any>();
+
   function appendEcho(role, text, logicCells) {
     const group = document.createElement('div');
     group.className = `echo-group ${role}`;
@@ -1049,6 +2545,132 @@ ${current}` : skillPrompt;
     scrollFeedToEnd();
   }
 
+  function resolveAgentStreamId(payload: any = {}) {
+    const raw = payload.streamId || (payload.runId ? `${payload.runId}:assistant` : '') || payload.traceId || payload.sessionId || 'active';
+    return String(raw || 'active').replace(/[^\w:.-]/g, '-') || 'active';
+  }
+
+  function agentStreamStatusText(payload: any = {}) {
+    const title = String(payload.title || 'Generating response').trim();
+    const summary = String(payload.summary || '').trim();
+    if (summary && summary !== title) return `${title}\n\n${summary}`;
+    return title;
+  }
+
+  function ensureAgentStreamGroup(payload: any = {}) {
+    if (!neuralFeed) return null;
+    const streamId = resolveAgentStreamId(payload);
+    const existing = agentStreamGroups.get(streamId);
+    if (existing?.group?.isConnected) {
+      existing.updatedAt = Date.now();
+      return existing;
+    }
+
+    removeThinkingState();
+    const group = document.createElement('div');
+    group.className = 'echo-group core echo-group--agent-stream is-streaming';
+    group.setAttribute('data-zavorth-agent-stream-id', streamId);
+    group.innerHTML = buildEchoGroupHtml({
+      role: 'core',
+      text: agentStreamStatusText(payload),
+      timestamp: currentTimestamp(),
+      modelLabel: getCurrentModelLabel(),
+      routeLabel: 'streaming',
+    });
+    neuralFeed.appendChild(group);
+    const bubble = group.querySelector('.echo-bubble');
+    bubble?.classList.add('echo-bubble--agent-stream');
+    const state = {
+      group,
+      bubble,
+      streamId,
+      text: '',
+      done: false,
+      updatedAt: Date.now(),
+    };
+    agentStreamGroups.set(streamId, state);
+    scrollFeedToEnd();
+    return state;
+  }
+
+  function updateAgentStreamBubble(state: any, text: unknown, done = false) {
+    if (!state?.bubble) return false;
+    const nextText = String(text || '').trim() || 'Generating response...';
+    state.text = nextText;
+    state.done = Boolean(done);
+    state.updatedAt = Date.now();
+    state.bubble.innerHTML = renderMarkdown(nextText);
+    state.group?.classList.toggle('is-streaming', !state.done);
+    state.group?.classList.toggle('is-complete', state.done);
+    if (window.Prism) window.Prism.highlightAllUnder?.(state.group);
+    scrollFeedToEnd();
+    return true;
+  }
+
+  function ingestAgentStreamEvent(event: any = {}) {
+    const payload = event.payload || event || {};
+    const runtimeType = String(payload.eventType || event.eventType || event.type || '').trim();
+    if (!runtimeType) return false;
+
+    if (runtimeType === 'agent.execution.started' || runtimeType === 'agent.stream.lifecycle') {
+      const state = ensureAgentStreamGroup({
+        ...payload,
+        title: payload.title || 'Generating response',
+        summary: payload.summary || 'The run is active and can still receive /steer updates.',
+      });
+      if (!state) return false;
+      updateAgentStreamBubble(state, agentStreamStatusText({
+        ...payload,
+        title: payload.title || 'Generating response',
+        summary: payload.summary || 'The run is active and can still receive /steer updates.',
+      }), false);
+      return true;
+    }
+
+    if (runtimeType !== 'agent.stream.assistant') {
+      return false;
+    }
+
+    const phase = String(payload.phase || '').trim();
+    const state = ensureAgentStreamGroup(payload);
+    if (!state) return false;
+    const done = payload.done === true || phase === 'done';
+    const accumulated = String(payload.accumulated || '').trim();
+    const delta = String(payload.delta || '');
+    const nextText = accumulated || `${state.text || ''}${delta}`;
+    updateAgentStreamBubble(state, nextText, done);
+    if (done) {
+      recordTraceEvent({
+        id: `agent-stream:${state.streamId}:done`,
+        type: 'reply',
+        title: 'Response stream completed',
+        detail: nextText,
+        meta: payload.providerNativeTokenStreaming ? 'provider-native-stream' : 'runtime-delta-stream',
+        status: 'done',
+      });
+    }
+    return true;
+  }
+
+  function finalizeAgentStream(payload: any = {}) {
+    const runId = String(
+      payload.runId
+      || payload?.run?.id
+      || payload?.chat?.runId
+      || payload?.data?.runId
+      || payload?.snapshot?.activeRun?.id
+      || '',
+    ).trim();
+    if (runId) {
+      const direct = agentStreamGroups.get(`${runId}:assistant`) || agentStreamGroups.get(runId);
+      if (direct?.done) return true;
+    }
+    const now = Date.now();
+    return Array.from(agentStreamGroups.values()).some((state) => (
+      state.done && now - state.updatedAt < 15_000
+    ));
+  }
+
   function appendEchoDivider(label) {
     if (!neuralFeed) return;
     const divider = document.createElement('div');
@@ -1068,6 +2690,7 @@ ${current}` : skillPrompt;
     }
 
     neuralFeed.innerHTML = '';
+    agentStreamGroups.clear();
     appendEchoDivider(options.label || 'Live history');
 
     suppressTraceCapture = true;
@@ -1216,6 +2839,8 @@ ${current}` : skillPrompt;
     renderTranscript,
     recordTraceEvent,
     ingestRuntimeEvents,
+    ingestAgentStreamEvent,
+    finalizeAgentStream,
     refreshDashboard: updateDashboardGlass,
     openTraceSheet,
     scrollFeedToEnd,
@@ -1396,6 +3021,8 @@ ${current}` : skillPrompt;
       );
       appendEcho('core',
         'Zavorth is online. The local gateway is connected.\n\nAsk naturally; I will show preview, risk and approval when an action needs it.',
+
+
         cells
       );
     }, 400);
@@ -1420,6 +3047,236 @@ ${current}` : skillPrompt;
   } else {
     seedNeuralFeed();
   }
+
+  // --------- Retro-Futuristic Event Console & Interactive Features ---------
+  
+  function appendConsoleLog(event: any) {
+    const consoleContainer = document.getElementById('zavorth-console-events');
+    if (!consoleContainer) return;
+    
+    const line = document.createElement('div');
+    const typeClass = String(event.type || 'system').toLowerCase();
+    line.className = `zavorth-console-line zavorth-console-line--${typeClass}`;
+    
+    const time = event.time || currentTimestamp();
+    const title = event.title || 'Event';
+    const detail = event.detail || '';
+    
+    line.innerHTML = `
+      <span class="zavorth-console-time">[${escapeHtml(time)}]</span>
+      <span class="zavorth-console-tag">[${escapeHtml(typeClass.toUpperCase())}]</span>
+      <span class="zavorth-console-text"><strong>${escapeHtml(title)}</strong>: ${escapeHtml(detail)}</span>
+    `;
+    
+    consoleContainer.appendChild(line);
+    while (consoleContainer.childNodes.length > 50) {
+      consoleContainer.removeChild(consoleContainer.firstChild);
+    }
+    consoleContainer.scrollTop = consoleContainer.scrollHeight;
+  }
+
+  function hydrateConsoleLogs() {
+    const consoleContainer = document.getElementById('zavorth-console-events');
+    if (!consoleContainer) return;
+    
+    consoleContainer.innerHTML = '';
+    const recentEvents = traceEvents.slice(-30);
+    if (recentEvents.length === 0) {
+      const line = document.createElement('div');
+      line.className = 'zavorth-console-line zavorth-console-line--system';
+      line.innerHTML = `
+        <span class="zavorth-console-time">[${currentTimestamp()}]</span>
+        <span class="zavorth-console-tag">[SYSTEM]</span>
+        <span class="zavorth-console-text">Console initialized. Listening to real-time events...</span>
+      `;
+      consoleContainer.appendChild(line);
+    } else {
+      recentEvents.forEach(appendConsoleLog);
+    }
+  }
+
+  // Clear console event listener
+  document.addEventListener('click', (event) => {
+    const clearBtn = (event.target as HTMLElement)?.closest('.zavorth-console-clear');
+    if (!clearBtn) return;
+    const consoleContainer = document.getElementById('zavorth-console-events');
+    if (consoleContainer) {
+      consoleContainer.innerHTML = `
+        <div class="zavorth-console-line zavorth-console-line--system">
+          <span class="zavorth-console-time">[${currentTimestamp()}]</span>
+          <span class="zavorth-console-tag">[SYSTEM]</span>
+          <span class="zavorth-console-text">Console logs cleared by operator.</span>
+        </div>
+      `;
+    }
+  });
+
+  // OTP Pairing Flow
+  document.addEventListener('click', async (event) => {
+    const otpBtn = (event.target as HTMLElement)?.closest('#zavorth-otp-generate-btn');
+    if (!otpBtn) return;
+    
+    const otpDisplay = document.getElementById('zavorth-otp-key-display');
+    const otpCode = document.getElementById('zavorth-otp-code-val');
+    const otpTimerVal = document.getElementById('zavorth-otp-timer-val');
+    const otpStatus = document.getElementById('zavorth-otp-status');
+    const otpStatusText = document.getElementById('zavorth-otp-status-text');
+
+    if ((window as any)._zavorthOtpInterval) {
+      clearInterval((window as any)._zavorthOtpInterval);
+    }
+    
+    if (otpStatus) otpStatus.style.display = 'flex';
+    if (otpStatusText) {
+      otpStatusText.textContent = 'Requesting a real Node Mesh pairing draft from Zavorth...';
+      otpStatus.className = 'zavorth-pairing-status zavorth-pairing-status--waiting';
+    }
+
+    let draft: any = null;
+    try {
+      const response = await fetch('/api/web/nodes/pairing-draft', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'same-origin',
+        body: JSON.stringify({
+          profileId: 'desktop-companion',
+          label: 'Dashboard companion node',
+          requestedBy: 'zavorth-control-dashboard',
+          hostHints: {
+            surface: 'zavorth-control-vite-shell',
+            platform: navigator.platform || '',
+            userAgent: navigator.userAgent || '',
+          },
+        }),
+      });
+      const payload = await response.json().catch(() => null);
+      if (!response.ok || !payload?.ok || !payload?.draft?.pairingCode) {
+        throw new Error(payload?.error || `Pairing draft rejected (${response.status})`);
+      }
+      draft = payload.draft;
+    } catch (error: any) {
+      if (otpDisplay) otpDisplay.style.display = 'none';
+      if (otpStatusText) {
+        otpStatusText.textContent = `Pairing unavailable: ${error?.message || 'Zavorth did not return a pairing draft.'}`;
+        otpStatus.className = 'zavorth-pairing-status zavorth-pairing-status--expired';
+      }
+      recordTraceEvent({
+        type: 'error',
+        title: 'Node pairing unavailable',
+        detail: error?.message || 'Zavorth did not return a pairing draft.',
+        meta: 'nodes-os',
+        status: 'failed',
+      });
+      return;
+    }
+
+    const code = String(draft.pairingCode || '').trim();
+    const nodeId = String(draft.entry?.id || '').trim();
+
+    if (otpCode) otpCode.textContent = code;
+    if (otpDisplay) otpDisplay.style.display = 'flex';
+    if (otpStatusText) {
+      otpStatusText.innerHTML = `<em>Pairing draft active:</em> ${escapeHtml(nodeId || 'Node')} is waiting for a companion claim.`;
+      otpStatus.className = 'zavorth-pairing-status zavorth-pairing-status--waiting';
+    }
+
+    recordTraceEvent({
+      type: 'session',
+      title: 'Node pairing draft created',
+      detail: nodeId ? `Pairing code issued for ${nodeId}.` : 'Pairing code issued by Zavorth Node Mesh.',
+      meta: 'nodes-os',
+      status: 'waiting',
+    });
+
+    let secondsLeft = 60;
+    if (otpTimerVal) otpTimerVal.textContent = `Expires in ${secondsLeft}s`;
+
+    (window as any)._zavorthOtpInterval = setInterval(() => {
+      secondsLeft -= 1;
+      if (otpTimerVal) otpTimerVal.textContent = `Expires in ${secondsLeft}s`;
+
+      if (secondsLeft <= 0) {
+        clearInterval((window as any)._zavorthOtpInterval);
+        (window as any)._zavorthOtpInterval = null;
+        if (otpDisplay) otpDisplay.style.display = 'none';
+        if (otpStatusText) {
+          otpStatusText.textContent = `OTP code expired. Generate a new key.`;
+          otpStatus.className = 'zavorth-pairing-status zavorth-pairing-status--expired';
+        }
+      }
+    }, 1000);
+  });
+
+  // Raw JSON Config Editor Logic
+  document.addEventListener('input', (event) => {
+    const textarea = event.target as HTMLTextAreaElement;
+    if (textarea?.id !== 'zavorth-config-editor-textarea') return;
+    
+    const configSaveBtn = document.getElementById('zavorth-config-save-btn') as HTMLButtonElement | null;
+    const configStatus = document.getElementById('zavorth-config-status');
+    
+    try {
+      JSON.parse(textarea.value);
+      if (configStatus) {
+        configStatus.textContent = 'JSON status: OK';
+        configStatus.className = 'zavorth-config-editor-status zavorth-config-editor-status--ok';
+      }
+      if (configSaveBtn) configSaveBtn.disabled = false;
+    } catch (error: any) {
+      if (configStatus) {
+        configStatus.textContent = `Error: ${error.message}`;
+        configStatus.className = 'zavorth-config-editor-status zavorth-config-editor-status--error';
+      }
+      if (configSaveBtn) configSaveBtn.disabled = true;
+    }
+  });
+
+  document.addEventListener('click', (event) => {
+    const configSaveBtn = (event.target as HTMLElement)?.closest('#zavorth-config-save-btn');
+    if (!configSaveBtn) return;
+    
+    const configTextarea = document.getElementById('zavorth-config-editor-textarea') as HTMLTextAreaElement | null;
+    const configStatus = document.getElementById('zavorth-config-status');
+    
+    if (configTextarea) {
+      try {
+        const parsed = JSON.parse(configTextarea.value);
+        const runtimeProjection = parsed?.zavorthControl && typeof parsed.zavorthControl === 'object'
+          ? parsed.zavorthControl
+          : parsed;
+        if (window.ZavorthRuntimeBridge?.state) {
+          window.ZavorthRuntimeBridge.state.zavorthControl = {
+            ...window.ZavorthRuntimeBridge.state.zavorthControl,
+            ...runtimeProjection
+          };
+        }
+        
+        if (configStatus) {
+          configStatus.textContent = 'Session projection applied locally.';
+          configStatus.className = 'zavorth-config-editor-status zavorth-config-editor-status--saved';
+        }
+        
+        recordTraceEvent({
+          type: 'session',
+          title: 'Session projection updated',
+          detail: 'Active dashboard projection updated locally via Raw JSON editor.',
+          meta: 'settings',
+          status: 'done',
+        });
+        
+        updateDashboardGlass();
+      } catch (error: any) {
+        if (configStatus) {
+          configStatus.textContent = `Failed to save: ${error.message}`;
+          configStatus.className = 'zavorth-config-editor-status zavorth-config-editor-status--error';
+        }
+      }
+    }
+  });
+
+  // Expose helpers globally so they are fully available
+  (window as any).appendConsoleLog = appendConsoleLog;
+  (window as any).hydrateConsoleLogs = hydrateConsoleLogs;
 
   // --------- Theme Toggle ---------
   initThemeToggle();

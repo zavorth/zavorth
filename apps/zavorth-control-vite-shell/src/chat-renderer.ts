@@ -91,16 +91,21 @@ export function buildThinkingStateHtml({ timestamp, modelLabel, stateCardHtml }:
         <span class="echo-timestamp">${escapeHtml(timestamp)}</span>
         <span class="echo-meta"><span class="echo-meta__model">${escapeHtml(modelLabel)}</span><span class="echo-meta__cost">working</span></span>
       </div>
-      <div class="thinking-indicator">
-        <div class="thinking-indicator__dots">
-          <span></span><span></span><span></span>
+      <details class="zavorth-thinking-block" open>
+        <summary class="zavorth-thinking-header">
+          <div class="boot-spinner">
+            <div class="boot-spinner-circle"></div>
+          </div>
+          <div class="thinking-indicator__copy">
+            <strong>Planning the next safe step</strong>
+            <small>Zavorth is computing... Click to collapse reasoning details.</small>
+          </div>
+          <span class="zavorth-thinking-chevron"></span>
+        </summary>
+        <div class="zavorth-thinking-content">
+          ${stateCardHtml}
         </div>
-        <div class="thinking-indicator__copy">
-          <strong>Planning the next safe step</strong>
-          <small>Preview, approval and receipt stay visible here.</small>
-        </div>
-      </div>
-      ${stateCardHtml}
+      </details>
     </div>
   `;
 }

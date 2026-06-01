@@ -1,4 +1,24 @@
-export type SupportedControlLocale = 'en-US' | 'pt-BR' | 'es-AR';
+export type SupportedControlLocale =
+  | 'en-US'
+  | 'pt-BR'
+  | 'es-AR'
+  | 'zh-CN'
+  | 'zh-TW'
+  | 'de'
+  | 'es'
+  | 'ja-JP'
+  | 'ko'
+  | 'fr'
+  | 'ar'
+  | 'it'
+  | 'tr'
+  | 'uk'
+  | 'id'
+  | 'pl'
+  | 'th'
+  | 'vi'
+  | 'nl'
+  | 'fa';
 export type ControlLocalePreference = SupportedControlLocale | 'system';
 export type ControlLocale = SupportedControlLocale;
 
@@ -9,11 +29,49 @@ export const CONTROL_LOCALES: Array<{ code: ControlLocalePreference; label: stri
   { code: 'en-US', label: 'English (US)', hint: 'Default product language' },
   { code: 'pt-BR', label: 'Português (Brasil)', hint: 'Interface brasileira' },
   { code: 'es-AR', label: 'Español (Argentina)', hint: 'Interfaz latinoamericana' },
+  { code: 'zh-CN', label: '简体中文 (Simplified Chinese)', hint: '中文界面' },
+  { code: 'zh-TW', label: '繁體中文 (Traditional Chinese)', hint: '繁體界面' },
+  { code: 'de', label: 'Deutsch', hint: 'Deutsche Benutzeroberfläche' },
+  { code: 'es', label: 'Español', hint: 'Interfaz española' },
+  { code: 'ja-JP', label: '日本語', hint: '日本語インターフェース' },
+  { code: 'ko', label: '한국어', hint: '한국어 인터페이스' },
+  { code: 'fr', label: 'Français', hint: 'Interface française' },
+  { code: 'ar', label: 'العربية', hint: 'واجهة عربية' },
+  { code: 'it', label: 'Italiano', hint: 'Interfaccia italiana' },
+  { code: 'tr', label: 'Türkçe', hint: 'Türkçe arayüz' },
+  { code: 'uk', label: 'Українська', hint: 'Український інтерфейс' },
+  { code: 'id', label: 'Bahasa Indonesia', hint: 'Antarmuka Indonesia' },
+  { code: 'pl', label: 'Polski', hint: 'Polski interfejs' },
+  { code: 'th', label: 'ไทย', hint: 'อินเตอร์เฟซภาษาไทย' },
+  { code: 'vi', label: 'Tiếng Việt', hint: 'Giao diện tiếng Việt' },
+  { code: 'nl', label: 'Nederlands', hint: 'Nederlandse interface' },
+  { code: 'fa', label: 'فارسی', hint: 'رابط کاربری فارسی' },
 ];
 
-const SUPPORTED_LOCALES: SupportedControlLocale[] = ['en-US', 'pt-BR', 'es-AR'];
+const SUPPORTED_LOCALES: SupportedControlLocale[] = [
+  'en-US',
+  'pt-BR',
+  'es-AR',
+  'zh-CN',
+  'zh-TW',
+  'de',
+  'es',
+  'ja-JP',
+  'ko',
+  'fr',
+  'ar',
+  'it',
+  'tr',
+  'uk',
+  'id',
+  'pl',
+  'th',
+  'vi',
+  'nl',
+  'fa',
+];
 
-const STRINGS: Record<Exclude<SupportedControlLocale, 'en-US'>, Record<string, string>> = {
+const STRINGS: Partial<Record<SupportedControlLocale, Record<string, string>>> = {
   'pt-BR': {
     'Inbox': 'Caixa de entrada',
     'Work': 'Trabalho',
@@ -67,6 +125,13 @@ const STRINGS: Record<Exclude<SupportedControlLocale, 'en-US'>, Record<string, s
     'Start voice': 'Iniciar voz',
     'New session': 'Nova sessão',
     'Export': 'Exportar',
+    'Listening... Speak now.': 'Ouvindo... Fale agora.',
+    'Recording audio... Speak now.': 'Gravando áudio... Fale agora.',
+    'Recording audio... Click to stop.': 'Gravando áudio... Clique para parar.',
+    'Voice note recorded and attached successfully!': 'Nota de voz gravada e anexada com sucesso!',
+    'Speech recognition failed. Switching to direct audio recording...': 'Reconhecimento de voz falhou. Alternando para gravação direta de áudio...',
+    'Microphone access is blocked. Allow microphone permission for this site and try again.': 'Acesso ao microfone bloqueado. Permita o uso do microfone para este site e tente novamente.',
+    'Voice is not available in this browser yet. Type or paste the transcribed text.': 'Função de voz não disponível neste navegador. Digite ou cole o texto.',
     'Send': 'Enviar',
     'Artifact': 'Artefato',
     'Search': 'Pesquisar',
@@ -689,6 +754,7 @@ const STRINGS: Record<Exclude<SupportedControlLocale, 'en-US'>, Record<string, s
     'Preview is starting.': 'La vista previa esta iniciando.',
   },
 };
+(STRINGS as any)['es'] = STRINGS['es-AR'];
 
 declare global {
   interface Window {
@@ -725,7 +791,9 @@ export function resolveSupportedControlLocale(locale: string): SupportedControlL
   if (exact) return exact;
   const language = normalized.split('-')[0]?.toLowerCase();
   if (language === 'pt') return 'pt-BR';
-  if (language === 'es') return 'es-AR';
+  if (language === 'es') return 'es';
+  if (language === 'zh') return 'zh-CN';
+  if (language === 'ja') return 'ja-JP';
   return 'en-US';
 }
 
