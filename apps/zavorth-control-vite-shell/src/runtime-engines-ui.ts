@@ -1,4 +1,10 @@
 import { escapeHtml } from './html-utils';
+import {
+  renderA2UICanvasHtml,
+  selectA2UISurface,
+  type A2UISnapshot,
+  type A2UIStreamSnapshot,
+} from './a2ui-renderer';
 
 type EngineId = 'lite' | 'velocity' | 'shield';
 
@@ -67,6 +73,11 @@ type CanvasSession = {
   egressEvents: Array<{ id: string; url: string; reason: string }>;
 };
 
+type A2UIRuntimeState = {
+  snapshot: A2UISnapshot;
+  stream: A2UIStreamSnapshot | null;
+};
+
 declare global {
   interface Window {
     emitSignal?: (type: string, title: string, message?: string) => void;
@@ -88,6 +99,8 @@ declare global {
 
 let cachedEngineSnapshot: EngineSnapshot | null = null;
 let cachedCanvasSession: CanvasSession | null = null;
+let cachedA2UIState: A2UIRuntimeState | null = null;
+let cachedA2UISurfaceId: string | null = null;
 const ENGINE_STORAGE_KEY = 'zavorth.control.engine';
 
 function errorMessage(value: unknown, fallback = 'Request failed.'): string {
@@ -191,6 +204,37 @@ function localFallbackJson<T>(url: string, init?: RequestInit): T {
   }
   if (url.includes('/api/web/diff/review')) {
     return { ok: true, review: { status: 'recorded', summary: 'Diff decision recorded locally.' } } as T;
+  }
+  if (url.includes('/api/v2/a2ui/snapshot')) {
+    return {
+      ok: true,
+      data: {
+        generatedAt: new Date().toISOString(),
+        protocolVersion: 'a2ui.v1',
+        capabilities: ['snapshot', 'action', 'event', 'stream', 'asset'],
+        allowedComponents: [],
+        surfaceId: null,
+        surfaces: [],
+        commands: {
+          snapshot: '/api/v2/a2ui/snapshot',
+          action: '/api/v2/a2ui/action',
+          events: '/api/v2/a2ui/events',
+          stream: '/api/v2/a2ui/stream',
+          assets: '/api/v2/a2ui/assets',
+        },
+      },
+    } as T;
+  }
+  if (url.includes('/api/v2/a2ui/stream')) {
+    return {
+      ok: true,
+      data: {
+        generatedAt: new Date().toISOString(),
+        protocolVersion: 'a2ui.v1',
+        surfaceId: null,
+        items: [],
+      },
+    } as T;
   }
   throw new Error(`No local fallback for ${url}`);
 }
@@ -692,6 +736,21 @@ async function addTrustedWorkspace(form: HTMLFormElement) {
   window.emitSignal?.('success', 'Trusted folder added', 'Velocity can review and apply accepted low-risk diffs in this folder.');
 }
 
+function fileSystemEntryName(entry: any): string {
+  return String(entry?.name || '').trim();
+}
+
+function droppedFolderPath(item: DataTransferItem, entry: any): string {
+  const file = item.getAsFile();
+  const directPath = String((file as any)?.path || '').trim();
+  if (directPath) return directPath;
+  const relative = String(file?.webkitRelativePath || '').trim();
+  if (relative && relative.includes('/')) {
+    return relative.split('/')[0] || relative;
+  }
+  return String(entry?.fullPath || '').trim().replace(/^\/+/, '');
+}
+
 async function removeTrustedWorkspace(id: string) {
   const payload = await fetchJson<{ ok: boolean; policies: TrustedWorkspacePolicy[] }>(`/api/web/trusted-workspaces/${encodeURIComponent(id)}`, {
     method: 'DELETE',
@@ -706,6 +765,17 @@ function activeAttempt(session: CanvasSession): CanvasAttempt | null {
 function renderCanvas(session: CanvasSession) {
   const root = document.querySelector('[data-canvas-root]');
   if (!root) return;
+  const a2uiHtml = cachedA2UIState
+    ? renderA2UICanvasHtml({
+      snapshot: cachedA2UIState.snapshot,
+      stream: cachedA2UIState.stream,
+      activeSurfaceId: cachedA2UISurfaceId,
+    })
+    : null;
+  if (a2uiHtml) {
+    root.innerHTML = a2uiHtml;
+    return;
+  }
   const attempt = activeAttempt(session);
   const summary = summarizeCanvasAttempt(session, attempt);
   const timeline = session.attempts.map((item) => `
@@ -759,8 +829,32 @@ function renderCanvas(session: CanvasSession) {
   `;
 }
 
+function unwrapA2UIData<T>(payload: any): T {
+  return (payload?.data || payload) as T;
+}
+
+async function loadA2UIState(): Promise<A2UIRuntimeState | null> {
+  try {
+    const snapshotPayload = await fetchJson<{ ok: boolean; data: A2UISnapshot } | A2UISnapshot>('/api/v2/a2ui/snapshot');
+    const snapshot = unwrapA2UIData<A2UISnapshot>(snapshotPayload);
+    const surface = selectA2UISurface(snapshot, cachedA2UISurfaceId);
+    cachedA2UISurfaceId = surface?.surfaceId || cachedA2UISurfaceId || null;
+    let stream: A2UIStreamSnapshot | null = null;
+    if (surface?.surfaceId) {
+      const streamPayload = await fetchJson<{ ok: boolean; data: A2UIStreamSnapshot } | A2UIStreamSnapshot>(
+        `/api/v2/a2ui/stream?surfaceId=${encodeURIComponent(surface.surfaceId)}&limit=20`,
+      );
+      stream = unwrapA2UIData<A2UIStreamSnapshot>(streamPayload);
+    }
+    return { snapshot, stream };
+  } catch {
+    return null;
+  }
+}
+
 async function loadCanvas() {
   let payload: { ok: boolean; session: CanvasSession };
+  cachedA2UIState = await loadA2UIState();
   try {
     payload = await fetchJson<{ ok: boolean; session: CanvasSession }>('/api/web/canvas/session');
   } catch {
@@ -768,6 +862,25 @@ async function loadCanvas() {
   }
   cachedCanvasSession = payload.session;
   renderCanvas(payload.session);
+}
+
+async function dispatchA2UIAction(surfaceId: string, actionId: string, payload: Record<string, unknown> = {}) {
+  if (!surfaceId || !actionId) return;
+  const result = await fetchJson<{ ok: boolean; status: string; summary: string }>('/api/v2/a2ui/action', {
+    method: 'POST',
+    body: JSON.stringify({
+      surfaceId,
+      actionId,
+      requestedBy: 'zavorth-control',
+      payload,
+      correlation: {
+        source: 'z-canvas',
+        activeAttemptId: cachedCanvasSession?.activeAttemptId || null,
+      },
+    }),
+  });
+  window.emitSignal?.(result.ok ? 'success' : 'info', 'A2UI action', result.summary || result.status || actionId);
+  await loadCanvas();
 }
 
 async function createCanvasAttempt() {
@@ -828,6 +941,67 @@ export function initRuntimeEngineUi() {
   loadEngines().catch((error) => window.emitSignal?.('info', 'Runtime engines', error.message));
   loadTrustedWorkspaces().catch(() => undefined);
   loadCanvas().catch(() => undefined);
+
+  // Feature 6: Trusted Folders Drag & Drop
+  setTimeout(() => {
+    const trustedPanel = document.querySelector('.settings-trusted-panel');
+    if (trustedPanel) {
+      trustedPanel.addEventListener('dragover', (e) => {
+        e.preventDefault();
+        trustedPanel.classList.add('drag-active');
+      });
+
+      trustedPanel.addEventListener('dragleave', () => {
+        trustedPanel.classList.remove('drag-active');
+      });
+
+      trustedPanel.addEventListener('drop', async (e: DragEvent) => {
+        e.preventDefault();
+        trustedPanel.classList.remove('drag-active');
+        
+        const items = e.dataTransfer?.items;
+        if (!items || items.length === 0) return;
+        
+        const item = items[0];
+        if (item.kind !== 'file') return;
+        
+        const entry = item.webkitGetAsEntry();
+        if (entry && entry.isDirectory) {
+          const pathInput = trustedPanel.querySelector('input[name="path"]') as HTMLInputElement;
+          const labelInput = trustedPanel.querySelector('input[name="label"]') as HTMLInputElement;
+          const selectState = trustedPanel.querySelector('select[name="state"]') as HTMLSelectElement;
+          
+          if (pathInput && labelInput) {
+            const path = droppedFolderPath(item, entry);
+            const label = fileSystemEntryName(entry) || path.split(/[\\/]/).filter(Boolean).pop() || 'Dropped folder';
+            pathInput.value = path;
+            labelInput.value = label;
+            if (selectState) selectState.value = 'trusted';
+            
+            if (/^[a-z]:[\\/]|^\\\\|^\//i.test(path)) {
+              const form = trustedPanel.querySelector('[data-trusted-workspace-form]') as HTMLFormElement | null;
+              if (form) {
+                await addTrustedWorkspace(form);
+              } else {
+                window.emitSignal?.('success', 'Folder drag detected', `Prepared ${label}.`);
+              }
+            } else {
+              window.emitSignal?.('info', 'Folder path needed', `Browser did not expose an absolute path for ${label}. Paste the local path, then add it.`);
+            }
+            
+            pathInput.classList.add('zavorth-input-pulse');
+            labelInput.classList.add('zavorth-input-pulse');
+            setTimeout(() => {
+              pathInput.classList.remove('zavorth-input-pulse');
+              labelInput.classList.remove('zavorth-input-pulse');
+            }, 1000);
+          }
+        } else {
+          window.emitSignal?.('info', 'Invalid drop item', 'Only folders can be dragged to Trusted Folders.');
+        }
+      });
+    }
+  }, 1200);
 
   window.ZavorthRuntimeEngines = {
     getActiveEngineId: () => cachedEngineSnapshot?.activeEngineId || 'lite',
@@ -910,6 +1084,33 @@ export function initRuntimeEngineUi() {
       return;
     }
 
+    if (target?.closest?.('[data-a2ui-refresh]')) {
+      event.preventDefault();
+      loadCanvas().catch((error) => window.emitSignal?.('info', 'A2UI', errorMessage(error)));
+      return;
+    }
+
+    const a2uiSurfaceButton = target?.closest?.('[data-a2ui-surface]');
+    if (a2uiSurfaceButton) {
+      event.preventDefault();
+      cachedA2UISurfaceId = a2uiSurfaceButton.getAttribute('data-a2ui-surface') || null;
+      loadCanvas().catch((error) => window.emitSignal?.('info', 'A2UI surface', errorMessage(error)));
+      return;
+    }
+
+    const a2uiActionButton = target?.closest?.('[data-a2ui-action]:not(form)');
+    if (a2uiActionButton) {
+      event.preventDefault();
+      dispatchA2UIAction(
+        a2uiActionButton.getAttribute('data-a2ui-surface-id') || cachedA2UISurfaceId || '',
+        a2uiActionButton.getAttribute('data-a2ui-action') || '',
+        {
+          componentId: a2uiActionButton.getAttribute('data-a2ui-component-id') || null,
+        },
+      ).catch((error) => window.emitSignal?.('info', 'A2UI action', errorMessage(error)));
+      return;
+    }
+
     if (target?.closest?.('[data-engine-switch-dismiss]')) {
       event.preventDefault();
       target.closest('[data-engine-switch-card], [data-engine-promotion-card], [data-canvas-recommendation-card]')?.remove();
@@ -953,6 +1154,23 @@ export function initRuntimeEngineUi() {
 
   document.addEventListener('submit', (event) => {
     const form = event.target instanceof HTMLFormElement ? event.target : null;
+    if (form?.matches('[data-a2ui-form]')) {
+      event.preventDefault();
+      const formData = new FormData(form);
+      const payload: Record<string, unknown> = {};
+      formData.forEach((value, key) => {
+        payload[key] = typeof value === 'string' ? value : value.name;
+      });
+      dispatchA2UIAction(
+        form.getAttribute('data-a2ui-surface-id') || cachedA2UISurfaceId || '',
+        form.getAttribute('data-a2ui-action') || '',
+        {
+          componentId: form.getAttribute('data-a2ui-component-id') || null,
+          fields: payload,
+        },
+      ).catch((error) => window.emitSignal?.('info', 'A2UI form', errorMessage(error)));
+      return;
+    }
     if (!form?.matches('[data-trusted-workspace-form]')) return;
     event.preventDefault();
     addTrustedWorkspace(form).catch((error) => window.emitSignal?.('info', 'Trusted workspace', error.message));

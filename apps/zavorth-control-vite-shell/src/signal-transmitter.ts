@@ -51,7 +51,7 @@ export function createSignalTransmitter(options: SignalTransmitterOptions) {
   return async function transmitSignal() {
     const text = options.composeInput.value.trim();
     const pendingAttachments = options.getPendingAttachments();
-    if (!text && pendingAttachments.length === 0) return;
+    if (!text && pendingAttachments.length === 0) return false;
 
     const outboundAttachments = pendingAttachments.map((file, index) => ({
       id: file.id || `attachment:${index + 1}:${file.name}`,
@@ -79,7 +79,7 @@ export function createSignalTransmitter(options: SignalTransmitterOptions) {
       if (options.tokenCount) options.tokenCount.textContent = '0 tokens';
       const sendBtn = document.getElementById('send-btn');
       if (sendBtn) sendBtn.classList.remove('active');
-      return;
+      return true;
     }
     const engineDecision = await window.ZavorthRuntimeEngines?.decidePrompt?.(outboundText, {
       operation: outboundAttachments.length > 0 ? 'read' : undefined,
@@ -176,14 +176,8 @@ export function createSignalTransmitter(options: SignalTransmitterOptions) {
         meta: 'read-only',
         status: 'running',
       });
-      setTimeout(() => {
-        options.appendThinkingState();
-        setTimeout(() => {
-          options.removeThinkingState();
-          options.renderPersonalDayFlow(outboundText);
-        }, 640);
-      }, 180);
-      return;
+      await delayedThinking(options, () => options.renderPersonalDayFlow(outboundText));
+      return true;
     }
 
     if (shouldHandleDeveloperReviewFlow(outboundText, guidedFlow)) {
@@ -198,15 +192,11 @@ export function createSignalTransmitter(options: SignalTransmitterOptions) {
         meta: 'read-only',
         status: pendingWorkspaceSelection ? 'running' : 'waiting',
       });
-      setTimeout(() => {
-        options.appendThinkingState();
-        setTimeout(() => {
-          options.removeThinkingState();
-          if (pendingWorkspaceSelection) options.renderDeveloperReviewFlow(outboundText, pendingWorkspaceSelection);
-          else options.renderDeveloperWorkspacePicker(outboundText);
-        }, 640);
-      }, 180);
-      return;
+      await delayedThinking(options, () => {
+        if (pendingWorkspaceSelection) options.renderDeveloperReviewFlow(outboundText, pendingWorkspaceSelection);
+        else options.renderDeveloperWorkspacePicker(outboundText);
+      });
+      return true;
     }
 
     if (shouldHandleBusinessAuditFlow(outboundText, guidedFlow)) {
@@ -218,14 +208,8 @@ export function createSignalTransmitter(options: SignalTransmitterOptions) {
         meta: 'business',
         status: 'running',
       });
-      setTimeout(() => {
-        options.appendThinkingState();
-        setTimeout(() => {
-          options.removeThinkingState();
-          options.renderBusinessAuditFlow(outboundText);
-        }, 640);
-      }, 180);
-      return;
+      await delayedThinking(options, () => options.renderBusinessAuditFlow(outboundText));
+      return true;
     }
 
     const runtimeBridge = window.ZavorthRuntimeBridge;
@@ -252,7 +236,7 @@ export function createSignalTransmitter(options: SignalTransmitterOptions) {
         if (typeof runtimeBridge.openUnlockModal === 'function') {
           runtimeBridge.openUnlockModal('To send live messages, unlock this tab with the local Zavorth token.');
         }
-        return;
+        return false;
       }
       options.recordTraceEvent({
         type: 'step',
@@ -262,24 +246,27 @@ export function createSignalTransmitter(options: SignalTransmitterOptions) {
         status: 'running',
       });
       options.appendThinkingState();
-      runtimeBridge.sendChat(
-        outboundText,
-        {
-          appendEcho: options.appendEcho,
-          removeThinkingState: options.removeThinkingState,
-          renderApprovals: options.renderApprovals,
-          renderArtifacts: options.renderArtifacts,
-          emitSignal: window.emitSignal,
-        },
-        {
-          attachments: outboundAttachments,
-          selectedSkills: outboundSkills,
-          voice: outboundVoice,
-          composerSettings: outboundComposerSettings,
-          engineId: selectedEngineId,
-          engineDecision: engineDecision?.decision || null,
-        },
-      ).catch((error: any) => {
+      try {
+        await runtimeBridge.sendChat(
+          outboundText,
+          {
+            appendEcho: options.appendEcho,
+            removeThinkingState: options.removeThinkingState,
+            renderApprovals: options.renderApprovals,
+            renderArtifacts: options.renderArtifacts,
+            emitSignal: window.emitSignal,
+          },
+          {
+            attachments: outboundAttachments,
+            selectedSkills: outboundSkills,
+            voice: outboundVoice,
+            composerSettings: outboundComposerSettings,
+            engineId: selectedEngineId,
+            engineDecision: engineDecision?.decision || null,
+          },
+        );
+        return true;
+      } catch (error: any) {
         options.removeThinkingState();
         const detail = messageFromCaughtError(error);
         options.recordTraceEvent({
@@ -291,8 +278,8 @@ export function createSignalTransmitter(options: SignalTransmitterOptions) {
         if (!error?.uiHandled) {
           options.appendEcho('core', `I could not send this to the live runtime.\n\n${detail}`);
         }
-      });
-      return;
+        return false;
+      }
     }
 
     options.recordTraceEvent({
@@ -301,14 +288,22 @@ export function createSignalTransmitter(options: SignalTransmitterOptions) {
       detail: 'No live bridge is available; using the local dashboard response.',
       status: 'fallback',
     });
-    setTimeout(() => {
-      options.appendThinkingState();
-      setTimeout(() => {
-        options.removeThinkingState();
-        options.generateCoreResponse(outboundText);
-      }, 1200 + Math.random() * 800);
-    }, 300);
+    await delayedThinking(options, () => options.generateCoreResponse(outboundText), 300, 1200 + Math.random() * 800);
+    return true;
   };
+}
+
+async function delayedThinking(
+  options: Pick<SignalTransmitterOptions, 'appendThinkingState' | 'removeThinkingState'>,
+  render: () => void,
+  beforeMs = 180,
+  activeMs = 640,
+) {
+  await new Promise((resolve) => window.setTimeout(resolve, beforeMs));
+  options.appendThinkingState();
+  await new Promise((resolve) => window.setTimeout(resolve, activeMs));
+  options.removeThinkingState();
+  render();
 }
 
 function canvasHintForRequest(text: string, attachments: any[]) {

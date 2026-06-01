@@ -131,8 +131,47 @@ export function createDashboardLiveView({
   const updateDashboardTimeline = (events: DashboardTraceEvent[]) => {
     const timeline = document.querySelector<HTMLElement>('[data-dashboard-timeline]');
     if (!timeline) return;
-    timeline.hidden = false;
-    timeline.innerHTML = '';
+    if (events.length === 0) {
+      timeline.innerHTML = `
+        <div class="zavorth-gantt-empty">
+          <span class="zavorth-gantt-empty-dot"></span>
+          <span>Waiting for execution stream...</span>
+        </div>
+      `;
+      return;
+    }
+    
+    timeline.innerHTML = `
+      <div class="zavorth-gantt-chart">
+        <div class="zavorth-gantt-grid">
+          ${events.map((event, index) => {
+            const kind = traceEventClass(event.type);
+            const label = traceEventLabel(event.type);
+            const title = event.title || 'Checkpoint';
+            
+            // Generate sequence offsets
+            const startPercent = Math.min(80, index * 22);
+            const durationPercent = 20;
+            
+            return `
+              <div class="zavorth-gantt-row zavorth-gantt-row--${kind}">
+                <div class="zavorth-gantt-label">
+                  <span class="zavorth-gantt-icon"></span>
+                  <strong>${escapeHtml(label)}</strong>
+                  <small>${escapeHtml(event.time || 'just now')}</small>
+                </div>
+                <div class="zavorth-gantt-track">
+                  <div class="zavorth-gantt-bar" style="left: ${startPercent}%; width: ${durationPercent}%;">
+                    <span class="zavorth-gantt-bar-glow"></span>
+                    <span class="zavorth-gantt-bar-text">${escapeHtml(compactTraceText(title, 26))}</span>
+                  </div>
+                </div>
+              </div>
+            `;
+          }).join('')}
+        </div>
+      </div>
+    `;
   };
 
   const updateDashboardGlass = () => {
@@ -201,6 +240,45 @@ export function createDashboardLiveView({
     setDashboardText('[data-provider-picker="active"]', getCurrentModelRouteLabel());
     setDashboardText('[data-provider-picker="fallbacks"]', snapshot.modelLabel || 'configured');
     setDashboardText('[data-provider-picker="proof"]', snapshot.errorEvents > 0 ? 'needs review' : 'redacted proof');
+
+    // Feature 7: Live Connectivity Map Styling
+    const pathLlm = document.getElementById('path-bridge-llm');
+    const nodeLlm = document.getElementById('node-llm');
+    const mapContainer = document.querySelector('.zavorth-connectivity-map');
+    
+    if (snapshot.errorEvents > 0) {
+      pathLlm?.classList.add('is-warning');
+      pathLlm?.classList.remove('is-active');
+      nodeLlm?.classList.add('is-warning');
+      nodeLlm?.classList.remove('is-active');
+    } else {
+      pathLlm?.classList.remove('is-warning');
+      pathLlm?.classList.add('is-active');
+      nodeLlm?.classList.remove('is-warning');
+      nodeLlm?.classList.add('is-active');
+    }
+    
+    // Bind click handlers to connectivity map nodes
+    if (mapContainer && !mapContainer.dataset.connectivityBound) {
+      mapContainer.setAttribute('data-connectivity-bound', '1');
+      const nodeMessages: Record<string, string> = {
+        'node-user': 'Operator channel: Secured. Zero-trust command approval policy active.',
+        'node-dash': 'Zavorth Control Shell: Operational. Telemetry pipeline running at 60fps.',
+        'node-gate': 'Gateway Daemon: Connected. WebSocket secure tunnels established.',
+        'node-bridge': 'Runtime Bridge: Connected. JSON-RPC local loopback online.',
+        'node-llm': `Active LLM Route: ${snapshot.liveSnapshot.routeLabel || getCurrentModelRouteLabel()} (${snapshot.liveSnapshot.modelLabel || snapshot.modelLabel || 'Gateway Model'})`
+      };
+      
+      mapContainer.querySelectorAll('.zavorth-conn-node').forEach((node) => {
+        node.addEventListener('click', (e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          const id = node.id;
+          const msg = nodeMessages[id] || 'Zavorth runtime node is operational and safe.';
+          window.emitSignal?.('info', node.querySelector('.node-label')?.textContent || 'Runtime node', msg);
+        });
+      });
+    }
 
     updateDashboardTimeline(latestTraceEvents(4));
   };

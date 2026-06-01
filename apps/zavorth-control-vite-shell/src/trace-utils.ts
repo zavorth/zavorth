@@ -12,7 +12,7 @@ export function traceEventClass(type: unknown) {
   if (['artifact', 'receipt', 'remote-apply'].includes(normalized)) return 'receipt';
   if (['error', 'failure'].includes(normalized)) return 'error';
   if (['request', 'reply'].includes(normalized)) return 'message';
-  if (['thinking', 'step', 'signal', 'session'].includes(normalized)) return 'step';
+  if (['thinking', 'step', 'signal', 'session', 'lifecycle'].includes(normalized)) return 'step';
   return 'event';
 }
 
@@ -31,6 +31,7 @@ export function traceEventLabel(type: unknown) {
     'remote-apply': 'MCP receipt',
     signal: 'Signal',
     session: 'Session',
+    lifecycle: 'Lifecycle',
     error: 'Error',
   };
   return labels[normalized] || 'Event';
@@ -112,6 +113,7 @@ export function normalizeTraceEvent(event: any = {}, fallbackTime: () => string)
       traceId: event.traceId,
       sessionId: event.sessionId,
     }),
+    lifecycle: event.lifecycle && typeof event.lifecycle === 'object' ? event.lifecycle : null,
     approvalId: traceString(event.approvalId || '', 76),
     preview: traceString(event.preview || event.previewSummary || '', 180),
   };
@@ -143,4 +145,3 @@ export function traceEventMatchesQuery(event: any = {}, query: any = {}) {
   }
   return Boolean(query.sessionId && sessionId === query.sessionId);
 }
-

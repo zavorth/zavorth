@@ -113,10 +113,10 @@
   --b-body-lg: 14px;
 
   /* ═══ Radii ═══ */
-  --b-radius-sm: 6px;
-  --b-radius-md: 10px;
-  --b-radius-lg: 14px;
-  --b-radius-xl: 20px;
+  --b-radius-sm: 4px;
+  --b-radius-md: 6px;
+  --b-radius-lg: 8px;
+  --b-radius-xl: 10px;
   --b-radius-full: 9999px;
 
   /* ═══ Motion ═══ */

@@ -4,6 +4,7 @@
  */
 import { CONTROL_LOCALES, readControlLocalePreference } from './locale';
 import { initLearningDreamsUi } from './learning-dreams-ui';
+import { renderCapabilityStrip, renderSurfaceFlow } from './page-components';
 import { initRuntimeEngineUi } from './runtime-engines-ui';
 
 declare global {
@@ -29,6 +30,65 @@ export function initControlPages() {
           <button class="operator-primary-action" type="button" data-dashboard-sector="terminal">Open chat</button>
         </div>
       </section>
+      ${renderSurfaceFlow()}
+      ${renderCapabilityStrip('overview')}
+
+      <!-- Interactive Runtime Connectivity Map -->
+      <div class="zavorth-connectivity-map" aria-label="Runtime Connectivity Map">
+        <div class="zavorth-connectivity-map__header">
+          <span class="zavorth-connectivity-map__dot"></span>
+          <span>Runtime Connectivity & Signals</span>
+        </div>
+        <svg viewBox="0 0 600 100" class="zavorth-connectivity-svg">
+          <defs>
+            <filter id="neon-glow-conn" x="-20%" y="-20%" width="140%" height="140%">
+              <feGaussianBlur stdDeviation="2.5" result="blur" />
+              <feMerge>
+                <feMergeNode in="blur" />
+                <feMergeNode in="SourceGraphic" />
+              </feMerge>
+            </filter>
+          </defs>
+          
+          <!-- Connections with active neon pulsing -->
+          <path d="M 60 40 L 175 40" class="zavorth-conn-path is-active" id="path-user-dash" />
+          <path d="M 195 40 L 305 40" class="zavorth-conn-path is-active" id="path-dash-gate" />
+          <path d="M 325 40 L 435 40" class="zavorth-conn-path is-active" id="path-gate-bridge" />
+          <path d="M 455 40 L 535 40" class="zavorth-conn-path is-active" id="path-bridge-llm" />
+          
+          <!-- Nodes -->
+          <g class="zavorth-conn-node is-active" id="node-user" transform="translate(50, 40)">
+            <circle r="15" />
+            <text y="4" class="node-icon">👤</text>
+            <text y="28" class="node-label">Operator</text>
+          </g>
+          
+          <g class="zavorth-conn-node is-active" id="node-dash" transform="translate(185, 40)">
+            <circle r="15" />
+            <text y="4" class="node-icon">💻</text>
+            <text y="28" class="node-label">Dashboard</text>
+          </g>
+          
+          <g class="zavorth-conn-node is-active" id="node-gate" transform="translate(315, 40)">
+            <circle r="15" />
+            <text y="4" class="node-icon">⚡</text>
+            <text y="28" class="node-label">Gateway</text>
+          </g>
+          
+          <g class="zavorth-conn-node is-active" id="node-bridge" transform="translate(445, 40)">
+            <circle r="15" />
+            <text y="4" class="node-icon">🔌</text>
+            <text y="28" class="node-label">Bridge</text>
+          </g>
+          
+          <g class="zavorth-conn-node is-active" id="node-llm" transform="translate(545, 40)">
+            <circle r="15" />
+            <text y="4" class="node-icon">🧠</text>
+            <text y="28" class="node-label">LLM Route</text>
+          </g>
+        </svg>
+      </div>
+
       <section class="work-simple-grid" aria-label="Work overview">
         <section class="work-simple-panel work-simple-panel--main">
           <div class="platform-section-title">Current task</div>
@@ -41,6 +101,32 @@ export function initControlPages() {
             <span><strong data-live-runtime-state>Runtime</strong><small data-live-runtime-detail>Checking access</small></span>
             <span><strong data-live-gateway-state>Gateway</strong><small data-live-gateway-detail>Local route</small></span>
             <span><strong data-live-sync-state>Last sync</strong><small data-live-sync-detail>Starting now</small></span>
+          </div>
+          
+          <!-- Retro-Futuristic Event Console -->
+          <div class="platform-section-title" style="margin-top: 24px; display: flex; align-items: center; gap: 8px;">
+            <span>System events stream</span>
+          </div>
+          <div class="zavorth-console-panel">
+            <div class="zavorth-console-header">
+              <span class="zavorth-console-dot"></span>
+              <span class="zavorth-console-title">zavorth_event_stream.log</span>
+              <button class="zavorth-console-clear" type="button">Clear</button>
+            </div>
+            <div class="zavorth-console-body" id="zavorth-console-events">
+              <div class="zavorth-console-line zavorth-console-line--system">
+                <span class="zavorth-console-time">[00:00:00]</span>
+                <span class="zavorth-console-tag">[SYSTEM]</span>
+                <span class="zavorth-console-text">Console initialized. Listening to real-time events...</span>
+              </div>
+            </div>
+          </div>
+          <div class="platform-section-title" style="margin-top: 24px;">Trace Gantt</div>
+          <div class="zavorth-gantt-chart" data-dashboard-timeline aria-label="Runtime trace Gantt timeline">
+            <div class="zavorth-gantt-empty">
+              <span class="zavorth-gantt-empty-dot"></span>
+              <span>Waiting for execution stream...</span>
+            </div>
           </div>
         </section>
         <section class="work-simple-panel">
@@ -168,12 +254,66 @@ export function initControlPages() {
         </div>
         <button class="operator-primary-action" type="button" data-dashboard-prompt="Explain the current AI model, provider route, fallback, and anything that still needs setup.">View current model</button>
       </section>
+      ${renderCapabilityStrip('usage')}
       <section class="platform-summary platform-summary--compact" aria-label="Model usage summary">
         ${premiumMetric("Tokens", "0", "no measured usage", "info")}
         ${premiumMetric("Cost", "$0.00", "waiting for provider proof", "info")}
         ${premiumMetric("Calls", "0", "no tools executed", "info")}
         ${premiumMetric("Errors", "0", "no visible errors", "ok")}
       </section>
+      
+      <!-- Sleek Neon SVG Charts -->
+      <section class="zavorth-charts-panel">
+        <div class="zavorth-chart-card">
+          <div class="zavorth-chart-header">
+            <h3>Token Usage History (Neural Feed)</h3>
+            <span class="mono" id="zavorth-chart-tokens-val">0 tokens total</span>
+          </div>
+          <div class="zavorth-chart-container">
+            <svg viewBox="0 0 500 120" preserveAspectRatio="none" class="zavorth-svg-chart">
+              <defs>
+                <linearGradient id="token-glow" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0%" stop-color="#00ffaa" stop-opacity="0.3"></stop>
+                  <stop offset="100%" stop-color="#00ffaa" stop-opacity="0.0"></stop>
+                </linearGradient>
+              </defs>
+              <path d="M 0 120 L 50 115 L 100 112 L 150 108 L 200 100 L 250 95 L 300 80 L 350 75 L 400 60 L 450 50 L 500 45 L 500 120 Z" fill="url(#token-glow)"></path>
+              <path d="M 0 120 L 50 115 L 100 112 L 150 108 L 200 100 L 250 95 L 300 80 L 350 75 L 400 60 L 450 50 L 500 45" fill="none" stroke="#00ffaa" stroke-width="2.5" class="zavorth-neon-path"></path>
+              <circle cx="50" cy="115" r="3.5" fill="#00ffaa" class="zavorth-neon-dot"></circle>
+              <circle cx="150" cy="108" r="3.5" fill="#00ffaa" class="zavorth-neon-dot"></circle>
+              <circle cx="250" cy="95" r="3.5" fill="#00ffaa" class="zavorth-neon-dot"></circle>
+              <circle cx="300" cy="80" r="3.5" fill="#00ffaa" class="zavorth-neon-dot"></circle>
+              <circle cx="400" cy="60" r="3.5" fill="#00ffaa" class="zavorth-neon-dot"></circle>
+              <circle cx="450" cy="50" r="3.5" fill="#00ffaa" class="zavorth-neon-dot"></circle>
+              <circle cx="500" cy="45" r="3.5" fill="#00ffaa" class="zavorth-neon-dot"></circle>
+            </svg>
+          </div>
+        </div>
+        
+        <div class="zavorth-chart-card">
+          <div class="zavorth-chart-header">
+            <h3>Cost Accumulation ($ HSL Neon)</h3>
+            <span class="mono" id="zavorth-chart-cost-val">$0.00 total</span>
+          </div>
+          <div class="zavorth-chart-container">
+            <svg viewBox="0 0 500 120" preserveAspectRatio="none" class="zavorth-svg-chart">
+              <g fill="#00bfff" opacity="0.8">
+                <rect x="20" y="115" width="25" height="5" rx="2" class="zavorth-neon-rect"></rect>
+                <rect x="70" y="113" width="25" height="7" rx="2" class="zavorth-neon-rect"></rect>
+                <rect x="120" y="110" width="25" height="10" rx="2" class="zavorth-neon-rect"></rect>
+                <rect x="170" y="108" width="25" height="12" rx="2" class="zavorth-neon-rect"></rect>
+                <rect x="220" y="105" width="25" height="15" rx="2" class="zavorth-neon-rect"></rect>
+                <rect x="270" y="100" width="25" height="20" rx="2" class="zavorth-neon-rect"></rect>
+                <rect x="320" y="95" width="25" height="25" rx="2" class="zavorth-neon-rect"></rect>
+                <rect x="370" y="85" width="25" height="35" rx="2" class="zavorth-neon-rect"></rect>
+                <rect x="420" y="75" width="25" height="45" rx="2" class="zavorth-neon-rect"></rect>
+                <rect x="470" y="65" width="25" height="55" rx="2" class="zavorth-neon-rect"></rect>
+              </g>
+            </svg>
+          </div>
+        </div>
+      </section>
+      
       <section class="platform-workspace platform-workspace--operator">
         <div class="platform-main">
           <div class="platform-section-title">Actions</div>
@@ -205,19 +345,86 @@ export function initControlPages() {
   `);
 
   populate('sector-agents', `
-    <div class="premium-page">
-      <section class="premium-hero premium-hero--compact">
+    <div class="premium-page platform-page--operator">
+      <section class="premium-hero premium-hero--compact platform-hero--operator">
         <div>
-          <span class="dashboard-eyebrow"><span class="dashboard-live-dot"></span>Agent Review</span>
-          <h1 class="premium-title">Review before changing.</h1>
-          <p class="premium-subtitle">Read-only findings, file references, severity and patch previews stay separate from apply actions.</p>
+          <span class="dashboard-eyebrow"><span class="dashboard-live-dot"></span>External Agents</span>
+          <h1 class="premium-title">External agent control.</h1>
+          <p class="premium-subtitle">Registered external agents, sandbox posture, latest receipts and governed execution share one Zavorth-native cockpit.</p>
         </div>
-        <button class="operator-primary-action" type="button" data-dashboard-prompt="Run Agent Review in read-only mode and list the highest risk findings first.">Start review</button>
+        <button class="operator-primary-action" type="button" data-external-agent-action="refresh">Sync registry</button>
       </section>
-      <section class="premium-grid">
-        ${surfaceCard('Read-only review', 'Ready', 'ok', 'Finds bugs and risks without editing files.')}
-        ${surfaceCard('Patch preview', 'Approval gated', 'info', 'Shows proposed changes before apply.')}
-        ${surfaceCard('Swarm review', 'Budget guarded', 'info', 'Uses parallel agents only when useful and within token limits.')}
+      ${renderCapabilityStrip('agents')}
+      <section class="agent-os-live-summary" aria-label="External agent summary">
+        <span><strong data-external-agent-metric="profiles">0</strong><small data-external-agent-meta="profiles">waiting for registry</small></span>
+        <span><strong data-external-agent-metric="live">0</strong><small data-external-agent-meta="live">approval gated</small></span>
+        <span><strong data-external-agent-metric="sandbox">0</strong><small data-external-agent-meta="sandbox">strong boundary</small></span>
+        <span><strong data-external-agent-metric="receipt">none</strong><small data-external-agent-meta="receipt">latest receipt</small></span>
+      </section>
+      <section class="platform-workspace platform-workspace--operator external-agent-dashboard">
+        <div class="platform-main">
+          <div class="platform-section-title">Registry</div>
+          <div class="card-grid card-grid--quiet" data-external-agent-grid></div>
+          <div class="platform-section-title">Profiles</div>
+          <div class="table-wrap">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Profile</th>
+                  <th>Adapter</th>
+                  <th>Sandbox</th>
+                  <th>Live</th>
+                  <th>Receipt</th>
+                  <th>Action</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr><td class="mono">none</td><td>waiting</td><td>no sandbox declared</td><td>disabled</td><td>none</td><td>register a profile</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+        <aside class="platform-side">
+          <div class="platform-section-title">Register</div>
+          <form class="external-agent-form" data-external-agent-register-form>
+            <label><span>Id</span><input name="id" type="text" placeholder="claude-local"></label>
+            <label><span>Label</span><input name="label" type="text" placeholder="Claude Local"></label>
+            <div class="external-agent-form__row">
+              <label><span>Adapter</span><select name="adapter"><option value="cli">CLI</option><option value="http">HTTP</option><option value="acp">ACP</option><option value="mcp">MCP</option></select></label>
+              <label><span>Prompt</span><select name="promptMode"><option value="stdin">stdin</option><option value="arg">arg</option><option value="json">json</option></select></label>
+            </div>
+            <label><span>Command</span><input name="command" type="text" placeholder="claude"></label>
+            <label><span>Args</span><input name="args" type="text" placeholder="--model sonnet"></label>
+            <label><span>Endpoint</span><input name="endpoint" type="text" placeholder="http://127.0.0.1:8765/agent"></label>
+            <label><span>Root</span><input name="root" type="text" placeholder="C:\\project"></label>
+            <div class="external-agent-form__row">
+              <label><span>Isolation</span><select name="isolation"><option value="local-supervised">local supervised</option><option value="docker">docker</option><option value="wsl">wsl</option></select></label>
+              <label><span>Docker image</span><input name="dockerImage" type="text" placeholder="agent:latest"></label>
+            </div>
+            <label><span>WSL distro</span><input name="wslDistro" type="text" placeholder="Ubuntu-24.04"></label>
+            <label class="external-agent-check"><input name="enableLive" type="checkbox"> <span>Enable live execution</span></label>
+            <label class="external-agent-check"><input name="requireStrongIsolation" type="checkbox"> <span>Require strong isolation</span></label>
+            <label class="external-agent-check"><input name="approveRegistration" type="checkbox"> <span>Approve this registration</span></label>
+            <button class="operator-primary-action" type="button" data-external-agent-action="register">Register profile</button>
+          </form>
+          <div class="platform-section-title">Execution</div>
+          <div class="external-agent-console">
+            <label><span>Profile</span><select data-external-agent-profile-select><option value="">No profile registered</option></select></label>
+            <label><span>Prompt</span><textarea data-external-agent-prompt rows="4" placeholder="Ask the external agent to inspect this workspace."></textarea></label>
+            <label class="external-agent-check"><input data-external-agent-approve-execution type="checkbox"> <span>Approve this run</span></label>
+            <div class="external-agent-actions">
+              <button type="button" data-external-agent-action="preview">Preview</button>
+              <button type="button" data-external-agent-action="invoke">Run</button>
+            </div>
+          </div>
+          <div class="platform-section-title">Latest receipt</div>
+          <div class="external-agent-receipt">
+            <strong data-external-agent-receipt-status>none</strong>
+            <span data-external-agent-receipt-profile>no profile</span>
+            <p data-external-agent-receipt-summary>No receipt has been written yet.</p>
+            <code data-external-agent-receipt-command>waiting for next action</code>
+          </div>
+        </aside>
       </section>
     </div>
   `);
@@ -232,6 +439,7 @@ export function initControlPages() {
         </div>
         <button class="operator-primary-action" type="button" data-dashboard-prompt="Suggest the best Zavorth tool for my current task and explain why.">Suggest tool</button>
       </section>
+      ${renderCapabilityStrip('skills')}
       <section class="skill-toolbar skill-toolbar--quiet">
         <input type="search" placeholder="Search tools" aria-label="Search tools" data-skill-search>
         <button type="button" class="is-active" data-skill-filter="all">All</button>
@@ -283,8 +491,35 @@ export function initControlPages() {
         </div>
         <button class="operator-primary-action" type="button" data-dashboard-prompt="Show what Zavorth can remember right now and which scopes are active.">View memory</button>
       </section>
+      ${renderCapabilityStrip('nodes')}
       <section class="platform-workspace platform-workspace--operator">
         <div class="platform-main">
+          
+          <div class="platform-section-title">Memory inspector</div>
+          <div class="zavorth-memory-mesh-panel">
+            <div id="zavorth-memory-tree" class="zavorth-memory-tree">
+              <div class="zavorth-memory-scope-list" role="list" aria-label="Memory scopes">
+                <button class="zavorth-mem-node is-inspected" id="mem-node-vault" type="button"><strong>Fact vault</strong><span>persisted facts, provenance, trust</span></button>
+                <button class="zavorth-mem-node" id="mem-node-recall" type="button"><strong>Mnemos recall</strong><span>FTS5 search over local wiki memory</span></button>
+                <button class="zavorth-mem-node" id="mem-node-workspaces" type="button"><strong>Workspaces</strong><span>trusted folders and scope</span></button>
+                <button class="zavorth-mem-node" id="mem-node-agents" type="button"><strong>Agents</strong><span>consented companions</span></button>
+                <button class="zavorth-mem-node" id="mem-node-environments" type="button"><strong>Execution</strong><span>runtime safety boundary</span></button>
+              </div>
+            </div>
+            <div id="zavorth-memory-inspection-panel" class="zavorth-memory-inspection-panel">
+              <div class="zavorth-memory-inspection-header">
+                <span class="zavorth-memory-inspection-dot"></span>
+                <span>Active Scope Inspector</span>
+              </div>
+              <div class="zavorth-memory-inspection-body" id="zavorth-memory-inspection-body">
+                <div class="zavorth-memory-inspection-empty">
+                  <span>🧠 Node Scoped</span>
+                  <p>Click on any neon node in the interactive memory mesh to audit allowed folders, fact vaults, security protocols, or connected agents in real time.</p>
+                </div>
+              </div>
+            </div>
+          </div>
+
           <div class="platform-section-title">Controls</div>
           <div class="tool-empty-action">
             <strong>No memory scope required yet.</strong>
@@ -302,6 +537,24 @@ export function initControlPages() {
             <button type="button" data-dashboard-prompt="Show connected external agents and how to limit what each can do."><strong>Connect agent</strong><span>No external agent is discovered without a path you provide.</span></button>
             <button type="button" data-dashboard-prompt="Show available execution environments and which ones require approval."><strong>Execution environments</strong><span>Files, shell, and remote actions stay approval gated.</span></button>
           </div>
+          
+          <div class="platform-section-title" style="margin-top: 28px;">Device pairing</div>
+          <div class="zavorth-pairing-panel">
+            <div class="zavorth-pairing-info">
+              <p>Pair a trusted local device to this session with a short lived one-time key. The paired device keeps the same scoped safety boundary.</p>
+            </div>
+            <div class="zavorth-pairing-controls">
+              <button class="operator-primary-action" id="zavorth-otp-generate-btn" type="button">Generate Pairing Key</button>
+              <div class="zavorth-otp-display" id="zavorth-otp-key-display" style="display: none;">
+                <span class="zavorth-otp-code" id="zavorth-otp-code-val">000-000</span>
+                <span class="zavorth-otp-timer" id="zavorth-otp-timer-val">Expires in 60s</span>
+              </div>
+            </div>
+            <div class="zavorth-pairing-status" id="zavorth-otp-status" style="display: none;">
+              <span class="zavorth-pairing-status-dot"></span>
+              <span id="zavorth-otp-status-text">Ready to pair new node...</span>
+            </div>
+          </div>
         </div>
         <aside class="platform-side">
           <div class="platform-section-title">State</div>
@@ -318,6 +571,7 @@ export function initControlPages() {
 
   populate('sector-dreams', `
     <div class="premium-page learning-page" data-learning-dreams-root>
+      ${renderCapabilityStrip('dreams')}
       <div class="learning-loading">Checking Zavorth learning...</div>
     </div>
   `);
@@ -332,6 +586,7 @@ export function initControlPages() {
         </div>
         <button class="operator-primary-action" type="button" data-dashboard-prompt="Open Z-Canvas for the current request and show preview, diff, logs and risks before applying anything.">Use Canvas</button>
       </section>
+      ${renderCapabilityStrip('canvas')}
       <section class="z-canvas-shell" data-canvas-root>
         <div class="z-canvas-loading">Starting sandbox preview...</div>
       </section>
@@ -348,6 +603,7 @@ export function initControlPages() {
         </div>
         <button class="operator-primary-action" type="button" data-dashboard-prompt="Open settings health and tell me what should be configured next.">Settings health</button>
       </section>
+      ${renderCapabilityStrip('config')}
       <section class="settings-minimal" aria-label="Settings">
         <article class="settings-minimal-card settings-minimal-card--essentials">
           <div class="settings-minimal-card__header">
@@ -440,7 +696,36 @@ export function initControlPages() {
               <span>Proof</span><strong data-provider-picker="proof">Sanitized</strong><small>Keys never appear in output.</small>
             </button>
           </div>
-          <div class="settings-diagnostics-grid">
+        
+        <!-- Direct JSON config details accordion -->
+        <details class="settings-minimal-details zavorth-config-details">
+          <summary>
+            <span>Runtime Projection JSON</span>
+            <small>Inspect or override this tab's dashboard projection.</small>
+          </summary>
+          <div class="zavorth-config-editor-wrapper">
+            <p class="zavorth-config-editor-desc">Edit the active dashboard projection below in raw JSON format. Runtime persistence still belongs to the governed settings and node APIs.</p>
+            <textarea class="zavorth-config-textarea" id="zavorth-config-editor-textarea" autocomplete="off" spellcheck="false">{
+  "zavorthControl": {
+    "live": true,
+    "theme": "dark",
+    "safety": "high",
+    "tokens": {
+      "limit": 150000,
+      "alertThreshold": 0.8
+    },
+    "sandbox": {
+      "previews": true,
+      "networkRestricted": true
+    }
+  }
+}</textarea>
+            <div class="zavorth-config-editor-actions">
+              <span class="zavorth-config-editor-status" id="zavorth-config-status">JSON status: OK</span>
+              <button class="operator-primary-action" id="zavorth-config-save-btn" type="button">Save config</button>
+            </div>
+          </div>
+        </details>  <div class="settings-diagnostics-grid">
             <section>
               <div class="platform-section-title">Provider catalog</div>
               <div class="info-grid info-grid--quiet" data-provider-model-catalog-summary>
@@ -507,11 +792,19 @@ export function initControlPages() {
   bindSkillFilters();
   bindLocaleSettings();
   initRuntimeEngineUi();
+  normalizeStaticEmptyStates();
   window.ZavorthLocale?.apply();
 
   function populate(id, html) {
     const el = document.getElementById(id);
     if (el) el.innerHTML = html;
+  }
+
+  function normalizeStaticEmptyStates() {
+    const memoryEmpty = document.querySelector('#zavorth-memory-inspection-body .zavorth-memory-inspection-empty');
+    if (memoryEmpty) {
+      memoryEmpty.innerHTML = '<span>Select a memory scope</span><p>Inspect facts, recall local memory, review trusted folders, or check connected agents.</p>';
+    }
   }
 
   function bindPromptActions() {

@@ -146,10 +146,20 @@
   display: flex;
   align-items: center;
   justify-content: center;
+  overflow: hidden;
+  border-radius: 10px;
+  background: color-mix(in srgb, var(--b-chrome-strong) 88%, black);
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--b-pulse) 20%, transparent);
 }
 .bridge__logo-svg { 
   width: 100%; height: 100%; 
   display: block; 
+}
+.bridge__logo-img {
+  width: 100%;
+  height: 100%;
+  display: block;
+  object-fit: cover;
 }
 
 .bridge__brand-text {
@@ -635,7 +645,7 @@
   }
 
   .nexus-dock::after {
-    content: "Z";
+    content: "";
     position: absolute;
     top: 28px;
     left: 28px;
@@ -645,10 +655,13 @@
     height: 34px;
     border-radius: 11px;
     border: 1px solid color-mix(in srgb, var(--b-pulse) 30%, transparent);
-    background: color-mix(in srgb, var(--b-pulse) 12%, transparent);
+    background:
+      url("../assets/zavorth-mascot-mark.svg") center / cover no-repeat,
+      color-mix(in srgb, var(--b-chrome-strong) 88%, black);
     color: var(--b-pulse);
     font-family: var(--b-font-display);
     font-weight: 800;
+    box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--b-pulse) 16%, transparent);
   }
 
   .nexus-dock__rail {

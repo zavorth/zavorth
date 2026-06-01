@@ -21,8 +21,15 @@ export function createRuntimeRefresh(options: RuntimeRefreshOptions) {
     try {
       const auth = await options.readJson('/api/auth/status');
       const canAttemptProtectedSnapshot = Boolean(auth?.authenticated || options.readToken() || options.hasStoredToken());
+      const queryString = options.buildZavorthControlQueryString();
       const zavorthControl = canAttemptProtectedSnapshot
-        ? await options.readJson(`/api/web/zavorthControl${options.buildZavorthControlQueryString()}`, { headers: options.authHeaders() })
+        ? await options.readJson(`/api/web/zavorthControl${queryString}`, { headers: options.authHeaders() })
+          .catch((error: any) => {
+            if (error?.status === 404) {
+              return options.readJson(`/api/web/dashboard${queryString}`, { headers: options.authHeaders() });
+            }
+            throw error;
+          })
         : {
           live: false,
           authRequired: true,
@@ -31,14 +38,19 @@ export function createRuntimeRefresh(options: RuntimeRefreshOptions) {
           message: 'Unlock the local runtime to read live state.',
         };
       const canReadProtectedRuntime = Boolean(zavorthControl?.live && !zavorthControl?.authRequired);
-      const [providerModelCatalog, providerActivation, salesPack, salesPackChannelIo] = canReadProtectedRuntime
+      const [providerModelCatalog, providerActivation, salesPack, salesPackChannelIo, memoryFacts, externalAgents] = canReadProtectedRuntime
         ? await Promise.all([
           options.readJson('/api/providers/model-catalog', { headers: options.authHeaders() }).catch(() => null),
           options.readJson('/api/providers/activation', { headers: options.authHeaders() }).catch(() => null),
           options.readJson('/api/v2/sales-pack/snapshot', { headers: options.authHeaders() }).catch(() => null),
           options.readJson('/api/v2/sales-pack/channel-io/snapshot', { headers: options.authHeaders() }).catch(() => null),
+          options.readJson(`/api/web/zavorthControl/memory?sessionId=${encodeURIComponent(options.readSessionId() || '')}`, { headers: options.authHeaders() })
+            .catch((error: any) => error?.status === 404
+              ? options.readJson(`/api/web/dashboard/memory?sessionId=${encodeURIComponent(options.readSessionId() || '')}`, { headers: options.authHeaders() }).catch(() => null)
+              : null),
+          options.readJson('/api/web/external-agents', { headers: options.authHeaders() }).catch(() => null),
         ])
-        : [null, null, null, null];
+        : [null, null, null, null, null, null];
 
       options.state.auth = auth;
       options.state.zavorthControl = zavorthControl;
@@ -46,6 +58,8 @@ export function createRuntimeRefresh(options: RuntimeRefreshOptions) {
       options.state.providerActivation = providerActivation?.providerActivation || providerActivation || null;
       options.state.salesPack = salesPack;
       options.state.salesPackChannelIo = salesPackChannelIo;
+      options.state.memoryFacts = memoryFacts;
+      options.state.externalAgents = externalAgents?.snapshot || externalAgents || null;
       options.writeRunId(zavorthControl?.snapshot?.activeRun?.id || zavorthControl?.activeRun?.id || options.readRunId());
 
       if (canReadProtectedRuntime) {

@@ -245,7 +245,7 @@ export function initRuntimeBridge() {
   });
 
   function escapeHtml(value) {
-    return String(value - '')
+    return String(value ?? '')
       .replace(/&/g, '&amp;')
       .replace(/</g, '&lt;')
       .replace(/>/g, '&gt;')
@@ -1217,6 +1217,62 @@ export function initRuntimeBridge() {
   }
 
   function updateAgents() {
+    const external = state.externalAgents || {};
+    const registry = external.registry || external.snapshot?.registry || {};
+    const profiles = Array.isArray(registry.profiles) ? registry.profiles : [];
+    const latestReceipt = external.latestReceipt || external.snapshot?.latestReceipt || null;
+    const summary = external.summary || registry.summary || {};
+    const setExternalText = (selector, value) => {
+      const node = document.querySelector(selector);
+      if (node) node.textContent = String(value ?? '');
+    };
+    const liveCount = profiles.filter((profile) => profile?.liveExecutionEnabled).length || Number(summary.liveEnabled || 0);
+    const sandboxCount = profiles.filter((profile) => profile?.isolation?.strongBoundary).length || Number(summary.stronglyIsolated || 0);
+    setExternalText('[data-external-agent-metric="profiles"]', numberLabel(profiles.length || summary.total || summary.profiles || 0));
+    setExternalText('[data-external-agent-metric="live"]', numberLabel(liveCount));
+    setExternalText('[data-external-agent-metric="sandbox"]', numberLabel(sandboxCount));
+    setExternalText('[data-external-agent-metric="receipt"]', latestReceipt?.status || summary.latestReceiptStatus || 'none');
+    setExternalText('[data-external-agent-receipt-status]', latestReceipt?.status || 'none');
+    setExternalText('[data-external-agent-receipt-profile]', latestReceipt?.profile?.id || latestReceipt?.profileId || 'no profile');
+    setExternalText('[data-external-agent-receipt-summary]', latestReceipt?.output?.text || latestReceipt?.summary || latestReceipt?.request?.promptPreview || 'No receipt has been written yet.');
+    setExternalText('[data-external-agent-receipt-command]', latestReceipt?.execution?.command || latestReceipt?.nextAction?.command || 'waiting for next action');
+
+    const profileSelect = document.querySelector('[data-external-agent-profile-select]');
+    if (profileSelect) {
+      const current = profileSelect.value;
+      profileSelect.innerHTML = profiles.length
+        ? profiles.map((profile) => `<option value="${escapeHtml(profile.id)}">${escapeHtml(profile.label || profile.id)}</option>`).join('')
+        : '<option value="">No profile registered</option>';
+      if (current && profiles.some((profile) => profile.id === current)) profileSelect.value = current;
+    }
+
+    const tableBody = document.querySelector('#sector-agents .data-table tbody');
+    if (tableBody && profiles.length) {
+      tableBody.innerHTML = profiles.map((profile) => `
+        <tr>
+          <td class="mono">${escapeHtml(profile.id)}</td>
+          <td>${escapeHtml(profile.adapter || 'agent')}</td>
+          <td>${escapeHtml(profile.isolation?.kind || 'local-supervised')}</td>
+          <td>${profile.liveExecutionEnabled ? 'enabled' : 'disabled'}</td>
+          <td>${escapeHtml(latestReceipt?.profile?.id === profile.id ? latestReceipt?.status || 'receipt' : 'none')}</td>
+          <td>${profile.safety?.requiresApprovalPerInvocation === false ? 'direct' : 'approval gated'}</td>
+        </tr>
+      `).join('');
+    }
+
+    if (profiles.length) {
+      setCardGrid('sector-agents', profiles.slice(0, 6).map((profile) => entityCardHtml({
+        title: profile.label || profile.id,
+        id: profile.id,
+        status: profile.liveExecutionEnabled ? 'Live gated' : 'Registered',
+        detail: profile.isolation?.strongBoundary
+          ? `${profile.adapter || 'agent'} with strong isolation.`
+          : `${profile.adapter || 'agent'} registered; each live run remains approval gated.`,
+        meta: `<span class="badge badge--muted">${escapeHtml(profile.isolation?.kind || 'local-supervised')}</span>`,
+      })).join(''));
+      return;
+    }
+
     const runs = getRuns();
     if (runs.length === 0) {
       setCardGrid('sector-agents', entityCardHtml({
@@ -1241,6 +1297,65 @@ export function initRuntimeBridge() {
         meta: `<span class="badge badge--muted">${escapeHtml(normalizeModelProfile(run.modelProfile)?.modelLabel || getCurrentModelLabel())}</span>`,
       });
     }).join(''));
+  }
+
+  async function refreshExternalAgents() {
+    const payload = await readJson('/api/web/external-agents', { headers: authHeaders() });
+    state.externalAgents = payload?.snapshot || payload;
+    updateAgents();
+    return payload;
+  }
+
+  function readExternalAgentForm() {
+    const form = document.querySelector('[data-external-agent-register-form]');
+    const data = new FormData(form);
+    const args = String(data.get('args') || '').trim();
+    return {
+      id: String(data.get('id') || '').trim(),
+      label: String(data.get('label') || '').trim(),
+      adapter: String(data.get('adapter') || 'cli').trim(),
+      promptMode: String(data.get('promptMode') || 'stdin').trim(),
+      command: String(data.get('command') || '').trim(),
+      args: args ? args.split(/\s+/).filter(Boolean) : [],
+      endpoint: String(data.get('endpoint') || '').trim(),
+      root: String(data.get('root') || '').trim(),
+      isolation: String(data.get('isolation') || 'local-supervised').trim(),
+      dockerImage: String(data.get('dockerImage') || '').trim(),
+      wslDistro: String(data.get('wslDistro') || '').trim(),
+      enableLive: Boolean(form?.querySelector('[name="enableLive"]')?.checked),
+      requireStrongIsolation: Boolean(form?.querySelector('[name="requireStrongIsolation"]')?.checked),
+      approveRegistration: Boolean(form?.querySelector('[name="approveRegistration"]')?.checked),
+    };
+  }
+
+  async function registerExternalAgentProfile() {
+    const payload = await readJson('/api/web/external-agents/register', {
+      method: 'POST',
+      headers: authHeaders(),
+      body: JSON.stringify(readExternalAgentForm()),
+    });
+    state.externalAgents = payload?.snapshot || state.externalAgents;
+    updateAgents();
+    return payload;
+  }
+
+  async function invokeExternalAgent(preview = false) {
+    const select = document.querySelector('[data-external-agent-profile-select]');
+    const prompt = document.querySelector('[data-external-agent-prompt]');
+    const approved = document.querySelector('[data-external-agent-approve-execution]');
+    const payload = await readJson('/api/web/external-agents/invoke', {
+      method: 'POST',
+      headers: authHeaders(),
+      body: JSON.stringify({
+        profileId: String(select?.value || '').trim(),
+        prompt: String(prompt?.value || '').trim(),
+        approvalGranted: !preview && Boolean(approved?.checked),
+        dryRun: preview,
+      }),
+    });
+    state.externalAgents = payload?.snapshot || state.externalAgents;
+    updateAgents();
+    return payload;
   }
 
   function normalizeToolEntry(entry) {
@@ -1301,9 +1416,119 @@ export function initRuntimeBridge() {
     }));
   }
 
-  function updateSkills() {
-    const tools = collectToolExposures();
+  async function updateSkillsAsync() {
     const premiumList = document.querySelector('#sector-skills .premium-skill-list');
+    const asideEl = document.querySelector('#sector-skills aside');
+
+    try {
+      const payload = await readJson('/api/web/zavorthControl/skills', {
+        headers: authHeaders(),
+      });
+
+      if (payload && payload.ok && Array.isArray(payload.skills)) {
+        const skills = payload.skills;
+        const activeSkills = skills.filter((s) => s.status === 'active');
+        const archivedSkills = skills.filter((s) => s.status === 'archived');
+
+        setLiveStripValue('[data-tools-live-count]', activeSkills.length);
+        const pinnedCount = activeSkills.filter((s) => s.pinned).length;
+        setLiveStripValue('[data-tools-live-ready]', `${activeSkills.length} active / ${pinnedCount} pinned`);
+
+        if (premiumList) {
+          premiumList.innerHTML = activeSkills
+            .map((skill) => {
+              const isNative = skill.sourceId === 'zavorth-native';
+              const archiveBtn = isNative
+                ? ''
+                : `<button type="button" class="skill-row__archive" data-skill-archive-id="${escapeHtml(skill.id)}" style="background: rgba(255,69,0,0.1); color: #ff4500; border: 1px solid rgba(255,69,0,0.25); border-radius: 4px; padding: 4px 8px; margin-right: 4px; cursor: pointer; font-size: 11px; font-weight: 500;">📦 Archive</button>`;
+
+              const pinBtn = `<button type="button" class="skill-row__pin" data-skill-pin-id="${escapeHtml(skill.id)}" data-skill-pinned="${skill.pinned}" style="background: ${skill.pinned ? 'rgba(0,255,170,0.1)' : 'transparent'}; color: ${skill.pinned ? '#00ffaa' : '#888'}; border: 1px solid ${skill.pinned ? 'rgba(0,255,170,0.25)' : '#444'}; border-radius: 4px; padding: 4px 8px; margin-right: 4px; cursor: pointer; font-size: 11px; font-weight: 500;">${skill.pinned ? '📌 Pinned' : '📌 Pin'}</button>`;
+
+              const usePrompt = `Use tool ${skill.name} in this request.`;
+              const riskTone = skill.riskLevel === 'high' ? 'warn' : skill.riskLevel === 'medium' ? 'info' : 'ok';
+              const search = `${skill.name} ${skill.description}`.toLowerCase();
+              const lastRunLabel = skill.lastExecutedAt ? ` | Last: ${formatDate(skill.lastExecutedAt)}` : '';
+
+              return `
+              <article class="skill-row skill-row--${riskTone}" data-skill-row data-skill-status="${skill.riskLevel}" data-skill-search-text="${escapeHtml(search)}" style="margin-bottom: 12px; padding: 12px; border-radius: 8px; background: rgba(255,255,255,0.015); display: flex; justify-content: space-between; align-items: center; border: 1px solid rgba(255,255,255,0.05);">
+                <div style="flex: 1; padding-right: 12px; text-align: left;">
+                  <h2 style="margin: 0 0 4px; font-size: 14px; font-weight: 600; color: #fff; text-align: left; display: flex; align-items: center; gap: 8px;">
+                    ${escapeHtml(skill.name)} 
+                    <span style="font-size: 9px; font-weight: normal; color: #888; background: rgba(255,255,255,0.05); padding: 1px 4px; border-radius: 3px;">${escapeHtml(skill.riskLevel)}</span>
+                  </h2>
+                  <p style="margin: 0; font-size: 12px; color: #aaa; line-height: 1.4; text-align: left;">${escapeHtml(skill.description)}</p>
+                  <small style="display: block; margin-top: 4px; font-size: 10px; color: #555; font-family: monospace;">Uses: ${skill.useCount}${lastRunLabel}</small>
+                </div>
+                <div style="display: flex; align-items: center; gap: 4px;">
+                  ${pinBtn}
+                  ${archiveBtn}
+                  <button type="button" class="skill-row__use" data-dashboard-prompt="${escapeHtml(usePrompt)}" style="background: rgba(0,191,255,0.1); color: #00bfff; border: 1px solid rgba(0,191,255,0.25); border-radius: 4px; padding: 4px 8px; cursor: pointer; font-size: 11px; font-weight: 500;">Use</button>
+                </div>
+              </article>
+            `;
+            })
+            .join('');
+        }
+
+        if (asideEl) {
+          let vaultHtml = `
+            <div class="platform-section-title" style="margin-top: 24px;">Skills Vault</div>
+            <div class="premium-status-list" style="background: rgba(255,255,255,0.01); border: 1px dashed rgba(255,255,255,0.1); border-radius: 8px; padding: 12px; margin-top: 8px;">
+          `;
+          if (archivedSkills.length === 0) {
+            vaultHtml += `<div style="font-size: 11px; color: #666; text-align: center; padding: 12px;">Vault empty. Inactive tools appear here.</div>`;
+          } else {
+            vaultHtml += archivedSkills
+              .map((skill) => {
+                const kbSize = (skill.sizeBytes / 1024).toFixed(1);
+                return `
+                <div style="display: flex; justify-content: space-between; align-items: center; padding: 8px 0; border-bottom: 1px solid rgba(255,255,255,0.05);">
+                  <div style="flex: 1; text-align: left;">
+                    <strong style="font-size: 12px; color: #aaa; display: block; text-align: left;">${escapeHtml(skill.name)}</strong>
+                    <small style="font-size: 9px; color: #555;">Size: ${kbSize} KB</small>
+                  </div>
+                  <button type="button" class="skill-row__restore" data-skill-restore-id="${escapeHtml(skill.id)}" style="background: rgba(0,255,170,0.1); color: #00ffaa; border: 1px solid rgba(0,255,170,0.25); border-radius: 4px; padding: 2px 6px; cursor: pointer; font-size: 10px; font-weight: 500;">↻ Restore</button>
+                </div>
+              `;
+              })
+              .join('');
+          }
+          vaultHtml += `</div>`;
+
+          asideEl.innerHTML = `
+            <div class="platform-section-title">Safety</div>
+            <div class="premium-status-list">
+              ${premiumStatus('New tools', 'approval gated', 'ok')}
+              ${premiumStatus('Changes', 'preview first', 'info')}
+              ${premiumStatus('External sources', 'blocked', 'ok')}
+              ${premiumStatus('Undo', 'receipt backed', 'ok')}
+            </div>
+            ${vaultHtml}
+          `;
+        }
+
+        setCardGrid(
+          'sector-skills',
+          activeSkills
+            .slice(0, 12)
+            .map((tool) =>
+              entityCardHtml({
+                title: tool.name,
+                id: tool.id,
+                status: tool.pinned ? 'pinned' : tool.trust || 'ready',
+                detail: tool.description,
+              })
+            )
+            .join('')
+        );
+
+        return;
+      }
+    } catch (e) {
+      console.warn('Failed to fetch skills from REST endpoint, using fallback', e);
+    }
+
+    const tools = collectToolExposures();
     const skillFilterFor = (tool) => {
       const haystack = `${tool.status || ''} ${tool.summary || ''}`.toLowerCase();
       if (!tool.enabled || /setup|scope|consent|config|credential|token/.test(haystack)) return 'setup';
@@ -1330,32 +1555,35 @@ export function initRuntimeBridge() {
     };
 
     if (premiumList) {
-      const rows = tools.length > 0 ? tools.slice(0, 12) : [
-        {
-          title: 'Review workspace',
-          summary: 'Reads the project in read-only mode and highlights clear risks.',
-          status: state.auth?.webReady ? 'ready' : 'local',
-          enabled: true,
-        },
-        {
-          title: 'Understand files',
-          summary: 'Uses only approved folders to explain documents.',
-          status: 'needs scope',
-          enabled: true,
-        },
-        {
-          title: 'Tool curator',
-          summary: 'Suggests improvements without changing anything before approval.',
-          status: 'preview first',
-          enabled: true,
-        },
-        {
-          title: 'Connect external agent',
-          summary: 'Creates a profile only from a path you provide.',
-          status: 'consent required',
-          enabled: true,
-        },
-      ];
+      const rows =
+        tools.length > 0
+          ? tools.slice(0, 12)
+          : [
+              {
+                title: 'Review workspace',
+                summary: 'Reads the project in read-only mode and highlights clear risks.',
+                status: state.auth?.webReady ? 'ready' : 'local',
+                enabled: true,
+              },
+              {
+                title: 'Understand files',
+                summary: 'Uses only approved folders to explain documents.',
+                status: 'needs scope',
+                enabled: true,
+              },
+              {
+                title: 'Tool curator',
+                summary: 'Suggests improvements without changing anything before approval.',
+                status: 'preview first',
+                enabled: true,
+              },
+              {
+                title: 'Connect external agent',
+                summary: 'Creates a profile only from a path you provide.',
+                status: 'consent required',
+                enabled: true,
+              },
+            ];
       premiumList.innerHTML = rows.map(renderSkillRow).join('');
     }
 
@@ -1363,8 +1591,18 @@ export function initRuntimeBridge() {
     const approvalCount = tools.filter((tool) => skillFilterFor(tool) === 'approval').length;
     const latestTool = runEventRows(20).find(({ event }) => /tool|capability|terminal|artifact|mcp/i.test(`${event?.title || ''} ${event?.detail || ''}`));
     setLiveStripValue('[data-tools-live-count]', tools.length || 0);
-    setLiveStripValue('[data-tools-live-ready]', tools.length ? `${readyCount} ready / ${approvalCount} gated` : state.zavorthControl?.authRequired ? 'unlock required' : 'waiting');
-    setLiveStripValue('[data-tools-live-last]', latestTool ? text(latestTool.event?.title || latestTool.event?.detail, 'tool event') : 'no tool yet');
+    setLiveStripValue(
+      '[data-tools-live-ready]',
+      tools.length
+        ? `${readyCount} ready / ${approvalCount} gated`
+        : state.zavorthControl?.authRequired
+          ? 'unlock required'
+          : 'waiting'
+    );
+    setLiveStripValue(
+      '[data-tools-live-last]',
+      latestTool ? text(latestTool.event?.title || latestTool.event?.detail, 'tool event') : 'no tool yet'
+    );
 
     updatePremiumStatus('New tools', 'approval gated', 'ok');
     updatePremiumStatus('Changes', eventCountMatching(/skill.*merge|curator/i) ? 'available' : 'preview first', 'info');
@@ -1372,22 +1610,34 @@ export function initRuntimeBridge() {
     updatePremiumStatus('Undo', totalArtifactCount() ? 'receipt backed' : 'ready', 'ok');
 
     if (tools.length === 0) {
-      setCardGrid('sector-skills', entityCardHtml({
-        title: 'Active run tools',
-        id: 'live runtime',
-        status: state.zavorthControl?.authRequired ? 'Protected' : 'Waiting',
-        detail: state.zavorthControl?.authRequired
-          ? 'Unlock the dashboard to read live tools.'
-          : 'No tool is exposed by an active run right now.',
-      }));
+      setCardGrid(
+        'sector-skills',
+        entityCardHtml({
+          title: 'Active run tools',
+          id: 'live runtime',
+          status: state.zavorthControl?.authRequired ? 'Protected' : 'Waiting',
+          detail: state.zavorthControl?.authRequired
+            ? 'Unlock the dashboard to read live tools.'
+            : 'No tool is exposed by an active run right now.',
+        })
+      );
       return;
     }
-    setCardGrid('sector-skills', tools.slice(0, 12).map((tool) => entityCardHtml({
-      title: tool.title,
-      id: tool.id,
-      status: tool.enabled ? tool.status : 'disabled',
-      detail: tool.summary,
-    })).join(''));
+    setCardGrid(
+      'sector-skills',
+      tools.slice(0, 12).map((tool) =>
+        entityCardHtml({
+          title: tool.title,
+          id: tool.id,
+          status: tool.enabled ? tool.status : 'disabled',
+          detail: tool.summary,
+        })
+      ).join('')
+    );
+  }
+
+  function updateSkills() {
+    updateSkillsAsync();
   }
 
   const {
@@ -2226,6 +2476,25 @@ export function initRuntimeBridge() {
     return payload;
   }
 
+  async function runDeveloperWorkflowCommand(command, args = '', options = {}) {
+    const action = String(command || '').trim().toLowerCase();
+    if (!['branch', 'commit', 'pr', 'review'].includes(action)) {
+      throw new Error(`Unsupported developer workflow command: ${command || 'unknown'}`);
+    }
+    const payload = {
+      args: Array.isArray(args) ? args : String(args || '').trim().split(/\s+/).filter(Boolean),
+      input: Array.isArray(args) ? args.join(' ') : String(args || '').trim(),
+      approvedBy: options?.approvedBy || 'dashboard',
+      preview: options?.preview !== false,
+    };
+    const route = action === 'review' ? '/api/web/review' : `/api/web/git/${encodeURIComponent(action)}`;
+    return readJson(route, {
+      method: 'POST',
+      headers: authHeaders(),
+      body: JSON.stringify(payload),
+    });
+  }
+
   refresh = createRuntimeRefresh({
     applyRuntimeData,
     authHeaders,
@@ -2267,7 +2536,34 @@ export function initRuntimeBridge() {
     openPersistentTrace,
     hydrateCurrentSession,
     sendSalesPackDemoInbound,
+    runDeveloperWorkflowCommand,
+    refreshExternalAgents,
+    registerExternalAgentProfile,
+    invokeExternalAgent,
   };
+
+  document.addEventListener('click', (event) => {
+    const action = event.target?.closest?.('[data-external-agent-action]');
+    if (!action) return;
+    const kind = action.getAttribute('data-external-agent-action');
+    if (!['refresh', 'register', 'preview', 'invoke'].includes(kind)) return;
+    event.preventDefault();
+    action.disabled = true;
+    const previousText = action.textContent;
+    action.textContent = kind === 'refresh' ? 'Syncing...' : kind === 'register' ? 'Registering...' : 'Running...';
+    const task = kind === 'refresh'
+      ? refreshExternalAgents()
+      : kind === 'register'
+        ? registerExternalAgentProfile()
+        : invokeExternalAgent(kind === 'preview');
+    task
+      .then(() => window.emitSignal?.('success', 'External agents', `${kind} completed.`))
+      .catch((error) => window.emitSignal?.('error', 'External agents', error?.message || `${kind} failed.`))
+      .finally(() => {
+        action.disabled = false;
+        action.textContent = previousText || kind;
+      });
+  });
 
   document.addEventListener('click', (event) => {
     const action = event.target?.closest?.('[data-sales-os-action]');
@@ -2324,6 +2620,118 @@ export function initRuntimeBridge() {
       applyButton.textContent = 'Try again';
       window.emitSignal?.('error', 'Apply blocked', String(error?.message || 'Try again.'));
     });
+  });
+
+  document.addEventListener('click', (event) => {
+    const target = event.target instanceof Element ? event.target : null;
+    if (!target) return;
+
+    const pinBtn = target.closest('[data-skill-pin-id]');
+    if (pinBtn) {
+      event.preventDefault();
+      const skillId = pinBtn.getAttribute('data-skill-pin-id');
+      const pinned = pinBtn.getAttribute('data-skill-pinned') === 'true';
+
+      const previousText = pinBtn.textContent;
+      if (pinBtn instanceof HTMLButtonElement) pinBtn.disabled = true;
+      pinBtn.textContent = '...';
+
+      readJson(`/api/web/zavorthControl/skills`, {
+        method: 'POST',
+        headers: {
+          ...authHeaders(),
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          action: 'pin',
+          skillId,
+          pinned: !pinned,
+        }),
+      }).then((res) => {
+        if (res && res.ok) {
+          window.emitSignal?.('success', 'Pin updated', `Skill "${skillId}" status changed.`);
+          updateSkills();
+        } else {
+          throw new Error(res?.error || 'Failed to update pin');
+        }
+      }).catch((err) => {
+        window.emitSignal?.('error', 'Curation error', err.message);
+      }).finally(() => {
+        if (pinBtn instanceof HTMLButtonElement) pinBtn.disabled = false;
+        pinBtn.textContent = previousText;
+      });
+      return;
+    }
+
+    const archiveBtn = target.closest('[data-skill-archive-id]');
+    if (archiveBtn) {
+      event.preventDefault();
+      const skillId = archiveBtn.getAttribute('data-skill-archive-id');
+
+      const previousText = archiveBtn.textContent;
+      if (archiveBtn instanceof HTMLButtonElement) archiveBtn.disabled = true;
+      archiveBtn.textContent = '📦 ...';
+
+      readJson(`/api/web/zavorthControl/skills`, {
+        method: 'POST',
+        headers: {
+          ...authHeaders(),
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          action: 'archive',
+          skillId,
+        }),
+      }).then((res) => {
+        if (res && res.ok) {
+          window.emitSignal?.('success', 'Skill archived', `Skill "${skillId}" moved to Vault.`);
+          updateSkills();
+        } else {
+          throw new Error(res?.error || 'Failed to archive');
+        }
+      }).catch((err) => {
+        window.emitSignal?.('error', 'Curation error', err.message);
+      }).finally(() => {
+        if (archiveBtn instanceof HTMLButtonElement) archiveBtn.disabled = false;
+        archiveBtn.textContent = previousText;
+      });
+      return;
+    }
+
+    const restoreBtn = target.closest('[data-skill-restore-id]');
+    if (restoreBtn) {
+      event.preventDefault();
+      const skillId = restoreBtn.getAttribute('data-skill-restore-id');
+
+      const previousText = restoreBtn.textContent;
+      if (restoreBtn instanceof HTMLButtonElement) restoreBtn.disabled = true;
+      restoreBtn.textContent = '↻ ...';
+
+      readJson(`/api/web/zavorthControl/skills`, {
+        method: 'POST',
+        headers: {
+          ...authHeaders(),
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          action: 'restore',
+          skillId,
+        }),
+      }).then((res) => {
+        if (res && res.ok) {
+          window.emitSignal?.('success', 'Skill restored', `Skill "${skillId}" is now active in library.`);
+          updateSkills();
+        } else {
+          throw new Error(res?.error || 'Failed to restore');
+        }
+      }).catch((err) => {
+        window.emitSignal?.('error', 'Curation error', err.message);
+      }).finally(() => {
+        if (restoreBtn instanceof HTMLButtonElement) restoreBtn.disabled = false;
+        restoreBtn.textContent = previousText;
+      });
+      return;
+    }
   });
 
   if (document.readyState === 'loading') {

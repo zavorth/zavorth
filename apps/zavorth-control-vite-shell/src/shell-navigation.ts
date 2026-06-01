@@ -1,22 +1,5 @@
 import { translate } from './locale';
-
-const SECTOR_LABELS: Record<string, string> = {
-  terminal: 'Inbox',
-  overview: 'Work',
-  nodes: 'Memory',
-  canvas: 'Canvas',
-  skills: 'Tools',
-  usage: 'Models',
-  config: 'Settings',
-  dreams: 'Learning',
-  channels: 'Channels',
-  'sales-os': 'Approvals',
-  instances: 'History',
-  sessions: 'Sessions',
-  agents: 'Agents',
-  docs: 'Docs',
-  cron: 'Schedule',
-};
+import { sectorLabel } from './dashboard-surface-registry';
 
 export function initDockNavigation(options: {
   coreFrame: HTMLElement | null;
@@ -39,7 +22,7 @@ export function initDockNavigation(options: {
       const target = document.getElementById(`sector-${sectorId}`);
       if (target) target.classList.add('active');
 
-      if (bridgeCurrent) bridgeCurrent.textContent = translate(SECTOR_LABELS[sectorId] || sectorId);
+      if (bridgeCurrent) bridgeCurrent.textContent = translate(sectorLabel(sectorId));
       if (sectorId === 'overview') requestAnimationFrame(() => onOverviewActivated?.());
     });
   });

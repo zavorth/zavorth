@@ -746,3 +746,381 @@ nextjs-portal,
     width: 100%;
   }
 }
+
+/* ==========================================================================
+   Zavorth Premium Inbox Enhancements (Quick Look, Terminal Replay, Waveforms)
+   ========================================================================== */
+
+/* 1. Quick Look Overlay */
+.zavorth-quicklook-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 10005;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  visibility: hidden;
+  transition: all 0.25s ease-out;
+}
+.zavorth-quicklook-overlay.active {
+  opacity: 1;
+  visibility: visible;
+}
+.quicklook-backdrop {
+  position: absolute;
+  inset: 0;
+  background: color-mix(in srgb, var(--b-void) 65%, transparent);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+}
+.quicklook-frame {
+  position: relative;
+  z-index: 2;
+  width: min(800px, calc(100vw - 32px));
+  height: min(600px, calc(100vh - 48px));
+  border: 1px solid var(--b-glass-border);
+  border-radius: var(--b-radius-xl);
+  background: linear-gradient(155deg, color-mix(in srgb, var(--b-glass-highlight) 20%, transparent), transparent 58%), color-mix(in srgb, var(--b-glass-strong) 95%, transparent);
+  box-shadow: 0 16px 48px rgba(0, 255, 170, 0.08), var(--b-glass-shadow);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  transform: scale(0.95);
+  transition: transform 0.25s var(--b-ease-out);
+}
+.zavorth-quicklook-overlay.active .quicklook-frame {
+  transform: scale(1);
+}
+.quicklook-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 24px;
+  border-bottom: 1px solid var(--b-shell);
+}
+.quicklook-eyebrow {
+  display: block;
+  font-family: var(--b-mono);
+  font-size: 10px;
+  text-transform: uppercase;
+  color: var(--b-pulse);
+  letter-spacing: 0.05em;
+  margin-bottom: 2px;
+}
+.quicklook-header__copy h2 {
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--b-signal-strong);
+  margin: 0;
+}
+.quicklook-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.quicklook-copy-btn {
+  background: color-mix(in srgb, var(--b-pulse) 12%, transparent);
+  border: 1px solid var(--b-glass-border);
+  border-radius: var(--b-radius-md);
+  font-family: var(--b-mono);
+  font-size: 11px;
+  color: var(--b-pulse);
+  padding: 6px 12px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+.quicklook-copy-btn:hover {
+  background: color-mix(in srgb, var(--b-pulse) 22%, transparent);
+  box-shadow: 0 0 8px rgba(0, 255, 170, 0.2);
+}
+.quicklook-close-btn {
+  background: transparent;
+  border: none;
+  font-size: 24px;
+  line-height: 1;
+  color: var(--b-signal-muted);
+  cursor: pointer;
+  transition: color 0.15s ease;
+}
+.quicklook-close-btn:hover {
+  color: var(--b-signal-strong);
+}
+.quicklook-body {
+  flex-grow: 1;
+  overflow: hidden;
+  padding: 16px;
+}
+.quicklook-code-viewport {
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 15, 10, 0.3);
+  border: 1px solid var(--b-glass-border);
+  border-radius: var(--b-radius-md);
+  overflow: auto;
+  font-family: var(--b-mono);
+  font-size: 12.5px;
+  color: var(--b-signal);
+  padding: 14px;
+}
+.quicklook-line {
+  display: flex;
+  line-height: 1.5;
+}
+.quicklook-line:hover {
+  background: rgba(0, 255, 170, 0.03);
+}
+.quicklook-line-num {
+  width: 40px;
+  color: var(--b-signal-muted);
+  text-align: right;
+  padding-right: 14px;
+  user-select: none;
+  border-right: 1px solid rgba(0, 255, 170, 0.1);
+  margin-right: 14px;
+}
+.quicklook-line-text {
+  white-space: pre-wrap;
+  word-break: break-all;
+}
+
+/* 2. Terminal Replay Console */
+.zavorth-terminal-replay {
+  position: fixed;
+  inset: 0;
+  z-index: 10006;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  visibility: hidden;
+  transition: all 0.25s ease-out;
+}
+.zavorth-terminal-replay.active {
+  opacity: 1;
+  visibility: visible;
+}
+.zavorth-terminal-replay__backdrop {
+  position: absolute;
+  inset: 0;
+  background: color-mix(in srgb, var(--b-void) 70%, transparent);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+}
+.zavorth-terminal-replay__frame {
+  position: relative;
+  z-index: 2;
+  width: min(720px, calc(100vw - 32px));
+  height: min(480px, calc(100vh - 48px));
+  border: 1.5px solid color-mix(in srgb, var(--b-pulse) 40%, var(--b-glass-border));
+  border-radius: 8px;
+  background: #020806;
+  box-shadow: 0 0 30px rgba(0, 255, 170, 0.12);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  transform: scale(0.95);
+  transition: transform 0.25s var(--b-ease-out);
+}
+.zavorth-terminal-replay.active .zavorth-terminal-replay__frame {
+  transform: scale(1);
+}
+.zavorth-terminal-replay__header {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: center;
+  gap: 16px;
+  padding: 10px 16px;
+  background: #071510;
+  border-bottom: 1.5px solid color-mix(in srgb, var(--b-pulse) 25%, transparent);
+}
+.zavorth-terminal-replay__header-dots {
+  display: flex;
+  gap: 6px;
+}
+.zavorth-terminal-replay__header-dots span {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #ff3b30;
+}
+.zavorth-terminal-replay__header-dots span:nth-child(2) { background: #ffcc00; }
+.zavorth-terminal-replay__header-dots span:nth-child(3) { background: var(--b-pulse); }
+.zavorth-terminal-replay__header-title {
+  font-family: var(--b-mono);
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--b-pulse);
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+.zavorth-terminal-replay__close {
+  background: transparent;
+  border: none;
+  font-size: 20px;
+  color: var(--b-signal-muted);
+  cursor: pointer;
+  line-height: 1;
+}
+.zavorth-terminal-replay__close:hover {
+  color: #ff3b30;
+}
+.zavorth-terminal-replay__body {
+  flex-grow: 1;
+  padding: 14px;
+  overflow: hidden;
+  position: relative;
+}
+.zavorth-terminal-replay__screen {
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  position: relative;
+}
+.zavorth-terminal-replay__scanlines {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.06), rgba(0, 255, 0, 0.02), rgba(0, 0, 255, 0.06));
+  background-size: 100% 4px, 6px 100%;
+  pointer-events: none;
+  z-index: 3;
+  opacity: 0.65;
+}
+.zavorth-terminal-replay__content {
+  width: 100%;
+  height: 100%;
+  overflow-y: auto;
+  font-family: var(--b-mono);
+  font-size: 12px;
+  line-height: 1.6;
+  color: var(--b-pulse);
+  text-shadow: 0 0 4px rgba(0, 255, 170, 0.55);
+  padding-right: 10px;
+}
+.terminal-replay-line {
+  margin-bottom: 4px;
+  white-space: pre-wrap;
+  word-break: break-all;
+}
+.terminal-replay-line--system { color: #00c0ff; text-shadow: 0 0 4px rgba(0, 192, 255, 0.5); }
+.terminal-replay-line--success { color: var(--b-pulse); }
+.terminal-replay-line--log { color: var(--b-signal-muted); }
+.terminal-replay-line--cmd { color: #ffea00; text-shadow: 0 0 4px rgba(255, 234, 0, 0.4); }
+
+.zavorth-terminal-replay__footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 16px;
+  background: #071510;
+  border-top: 1px solid rgba(0, 255, 170, 0.15);
+  font-family: var(--b-mono);
+  font-size: 10px;
+}
+.zavorth-terminal-replay__status {
+  color: var(--b-signal-muted);
+}
+.zavorth-terminal-replay__controls {
+  display: flex;
+  gap: 6px;
+}
+.replay-ctrl-btn {
+  background: transparent;
+  border: 1px solid rgba(0, 255, 170, 0.25);
+  border-radius: 4px;
+  padding: 2px 8px;
+  color: var(--b-signal-muted);
+  font-family: var(--b-mono);
+  font-size: 10px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+.replay-ctrl-btn:hover,
+.replay-ctrl-btn.active {
+  border-color: var(--b-pulse);
+  color: var(--b-pulse);
+  background: rgba(0, 255, 170, 0.08);
+}
+
+/* 3. Audio Waveform Player */
+.audio-waveform-player {
+  --wave-progress: 0%;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: rgba(0, 255, 170, 0.02);
+  border: 1px solid var(--b-glass-border);
+  border-radius: var(--b-radius-md);
+  padding: 6px 10px;
+  margin-top: 6px;
+}
+.audio-waveform-play-btn {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: var(--b-pulse);
+  border: none;
+  color: var(--b-void);
+  font-size: 10px;
+  display: inline-grid;
+  place-items: center;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+.audio-waveform-play-btn:hover {
+  transform: scale(1.1);
+  box-shadow: 0 0 8px var(--b-pulse);
+}
+.audio-waveform-bars {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  flex-grow: 1;
+  height: 20px;
+  position: relative;
+  background: linear-gradient(90deg, var(--b-pulse) var(--wave-progress), var(--b-signal-muted) var(--wave-progress));
+  -webkit-background-clip: text;
+  background-clip: text;
+}
+.audio-waveform-bar {
+  width: 2px;
+  height: 100%;
+  background: var(--b-signal-muted);
+  border-radius: 1px;
+  transform: scaleY(0.2);
+  transform-origin: center;
+  transition: transform 0.1s ease;
+}
+.audio-waveform-player .audio-waveform-bar {
+  /* Waveform progressive visual mapping */
+  background: inherit;
+}
+.audio-waveform-time {
+  font-family: var(--b-mono);
+  font-size: 9.5px;
+  color: var(--b-signal-muted);
+  flex-shrink: 0;
+}
+
+.chat-attachment-card__quicklook {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  width: 20px;
+  height: 20px;
+  border-radius: 4px;
+  border: 1px solid var(--b-glass-border);
+  background: color-mix(in srgb, var(--b-glass) 80%, transparent);
+  color: var(--b-signal-muted);
+  font-size: 9px;
+  cursor: pointer;
+  display: inline-grid;
+  place-items: center;
+  transition: all 0.15s ease;
+  z-index: 5;
+}
+.chat-attachment-card__quicklook:hover {
+  border-color: var(--b-pulse);
+  color: var(--b-pulse);
+  background: color-mix(in srgb, var(--b-pulse) 12%, transparent);
+}
