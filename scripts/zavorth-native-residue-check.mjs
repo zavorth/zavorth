@@ -5,12 +5,13 @@ import { spawnSync } from 'node:child_process';
 const root = process.cwd();
 const failures = [];
 const notes = [];
+const legacyGatewayBaseUrlMarker = ['OMNI', 'ROUTE_BASE_URL'].join('');
 
 const forbiddenPatterns = [
   { label: 'Antigravity', pattern: /antigravity/i },
   { label: '9router', pattern: /9router/i },
   { label: 'sk_zavorthBridge', pattern: /sk_zavorthBridge/i },
-  { label: 'OMNIROUTE_BASE_URL', pattern: /OMNIROUTE_BASE_URL/i },
+  { label: 'legacy gateway base url env', pattern: new RegExp(legacyGatewayBaseUrlMarker, 'i') },
   { label: 'x-zavorth-bridge-source', pattern: /x-zavorth-bridge-source/i },
 ];
 
