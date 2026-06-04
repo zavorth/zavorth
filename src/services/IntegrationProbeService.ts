@@ -12,6 +12,7 @@ import type {
 } from '../contracts/IntegrationHubContract.js';
 import type { ChannelProviderDoctorReport } from './ChannelProviderDoctorService.js';
 import { ChannelProviderDoctorService } from './ChannelProviderDoctorService.js';
+import { IntegrationConnectorMeshService } from './IntegrationConnectorMeshService.js';
 import { IntegrationRegistryService } from './IntegrationRegistryService.js';
 import { SidecarStatusService } from './SidecarStatusService.js';
 
@@ -25,6 +26,7 @@ type IntegrationProbeRuntime = {
   externalExecutor?: Pick<ExternalExecutor, 'isAvailable'>;
   [key: string]: unknown;
   channelProviderDoctorService?: Pick<ChannelProviderDoctorService, 'run'>;
+  integrationConnectorMeshService?: Pick<IntegrationConnectorMeshService, 'doctor'>;
   stateFile?: string;
   timeoutMs?: number;
 };
@@ -51,6 +53,7 @@ export class IntegrationProbeService {
   private readonly sidecarStatusService: Pick<SidecarStatusService, 'readSummary'>;
   private readonly externalExecutor: Pick<ExternalExecutor, 'isAvailable'>;
   private readonly channelProviderDoctorService: Pick<ChannelProviderDoctorService, 'run'>;
+  private readonly integrationConnectorMeshService: Pick<IntegrationConnectorMeshService, 'doctor'>;
   private readonly stateFile: string;
   private readonly timeoutMs: number;
 
@@ -62,10 +65,17 @@ export class IntegrationProbeService {
     const legacyRuntimeExecutor = runtime[this.legacyRuntimeKey('Executor')] as
       | Pick<ExternalExecutor, 'isAvailable'>
       | undefined;
-    this.externalExecutor = runtime.externalExecutor || legacyRuntimeExecutor || new ExternalExecutor();
+    const externalExecutorExecutor = runtime.externalExecutorExecutor as
+      | Pick<ExternalExecutor, 'isAvailable'>
+      | undefined;
+    this.externalExecutor = runtime.externalExecutor || externalExecutorExecutor || legacyRuntimeExecutor || new ExternalExecutor();
     this.channelProviderDoctorService = runtime.channelProviderDoctorService || new ChannelProviderDoctorService();
     this.stateFile = runtime.stateFile || config.integrationHubProbeStateFile;
     this.timeoutMs = runtime.timeoutMs || config.integrationHubProbeTimeoutMs;
+    this.integrationConnectorMeshService = runtime.integrationConnectorMeshService || new IntegrationConnectorMeshService({
+      fetchImpl: this.fetchImpl,
+      timeoutMs: this.timeoutMs,
+    });
   }
 
   public getLatestProbe(integrationId: string): IntegrationProbeSnapshot | null {
@@ -105,6 +115,7 @@ export class IntegrationProbeService {
         return this.runAIGatewayProbe(manifest);
       case 'zavorth-terminal':
         return this.runZavorthBridgeRemoteProbe(manifest);
+      case 'external-executor':
       case EXTERNAL_EXECUTOR_ID:
         return this.runExternalExecutorProbe(manifest);
       case 'ollama':
@@ -114,6 +125,13 @@ export class IntegrationProbeService {
       case 'slack':
       case 'whatsapp':
         return this.runChannelProviderProbe(manifest);
+      case 'composio':
+      case 'nango':
+      case 'pipedream':
+      case 'zapier':
+      case 'n8n':
+      case 'workato':
+        return this.runIntegrationConnectorProbe(manifest);
       default:
         return this.createSnapshot(manifest, {
         status: 'unsupported',
@@ -353,8 +371,8 @@ export class IntegrationProbeService {
         status: available ? 'ok' : 'failed',
         transport: 'cli',
         summary: available
-          ? 'CLI do external runner respondeu ao probe real'
-          : 'CLI do external runner nao respondeu ao probe real',
+          ? 'ExternalExecutor CLI respondeu ao probe real'
+          : 'ExternalExecutor CLI nao respondeu ao probe real',
         detail: available
           ? 'O external runner local/WSL aceitou a checagem de disponibilidade.'
           : 'O Zavorth nao conseguiu confirmar a disponibilidade real da CLI do external runner.',
@@ -408,6 +426,25 @@ export class IntegrationProbeService {
       checkedTarget: this.resolveChannelCheckedTarget(manifest.id, item.mode, report),
       httpStatus: null,
       latencyMs: null,
+    });
+  }
+
+  private async runIntegrationConnectorProbe(manifest: IntegrationManifest): Promise<IntegrationProbeSnapshot> {
+    const doctor = await this.integrationConnectorMeshService.doctor(manifest.id);
+    return this.createSnapshot(manifest, {
+      status: doctor.status === 'ready'
+        ? 'ok'
+        : doctor.status === 'missing_config'
+          ? 'not_configured'
+          : doctor.status === 'unsupported_probe'
+            ? 'unsupported'
+            : 'failed',
+      transport: doctor.checkedTarget ? 'api' : 'runtime',
+      summary: doctor.summary,
+      detail: doctor.nextAction,
+      checkedTarget: doctor.checkedTarget,
+      httpStatus: doctor.httpStatus,
+      latencyMs: doctor.latencyMs,
     });
   }
 

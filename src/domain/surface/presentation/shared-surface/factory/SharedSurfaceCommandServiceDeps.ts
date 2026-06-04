@@ -52,7 +52,7 @@ import type { RuntimeOfficialRemoteAccessService } from "../../../../../runtime/
 import type { GatewayCompatibilityDoctorService } from "../../../../../services/GatewayCompatibilityDoctorService.js";
 import type { GatewayUpstreamSyncService } from "../../../../../services/GatewayUpstreamSyncService.js";
 import type { ZavorthGatewayLauncherService } from "../../../../../services/ZavorthGatewayLauncherService.js";
-import type { SharedSurfaceParityService } from "../../../../../services/SharedSurfaceParityService.js";
+import type { SharedSurfaceConsistencyService } from "../../../../../services/SharedSurfaceConsistencyService.js";
 import type { SkillCatalogApiService } from "../../../../../services/SkillCatalogApiService.js";
 import type { SkillMcpSidecarService } from "../../../../../services/SkillMcpSidecarService.js";
 import type { SkillLibraryPresentationService } from "../../../../../services/SkillLibraryPresentationService.js";
@@ -168,7 +168,7 @@ export type SharedSurfaceCommandServiceDeps = {
     ModeEscalationService,
     "buildSnapshot" | "resolveRequest"
   > | null;
-  sharedSurfaceParityService?: SharedSurfaceParityService;
+  sharedSurfaceConsistencyService?: SharedSurfaceConsistencyService;
   AIGatewayGatewayService?: AIGatewayProxyService;
   AIGatewayGatewayLauncherService?: ZavorthGatewayLauncherService;
   GatewayCompatibilityDoctorService?: GatewayCompatibilityDoctorService;

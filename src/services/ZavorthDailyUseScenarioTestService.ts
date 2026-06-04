@@ -67,7 +67,7 @@ export type ZavorthDailyUseScenarioTestSnapshot = {
     simulationOnly: true;
     noLiveProviderProbeByDefault: true;
     noTelegramMessageSent: true;
-    noExternalAgentStarted: true;
+    noRuntimeAdapterStarted: true;
     noFileContentExfiltration: true;
     noSkillMergeApplied: true;
   };
@@ -146,7 +146,7 @@ export class ZavorthDailyUseScenarioTestService {
         simulationOnly: true,
         noLiveProviderProbeByDefault: true,
         noTelegramMessageSent: true,
-        noExternalAgentStarted: true,
+        noRuntimeAdapterStarted: true,
         noFileContentExfiltration: true,
         noSkillMergeApplied: true,
       },
@@ -447,7 +447,7 @@ function createSwarmSimulation(now: () => Date): Pick<SwarmV2Service, 'launchOff
       },
       safety: {
         simulationOnly: true,
-        noExternalAgentStarted: true,
+        noRuntimeAdapterStarted: true,
       },
     } as any),
   };

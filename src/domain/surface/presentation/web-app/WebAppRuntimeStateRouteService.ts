@@ -1378,7 +1378,7 @@ export class WebAppRuntimeStateRouteService {
         contractAdapter: {
           contractVersion: contractAdapter.contractVersion,
           source: contractAdapter.source,
-          parity: contractAdapter.parity,
+          consistency: contractAdapter.consistency,
           safety: contractAdapter.safety,
         },
       },

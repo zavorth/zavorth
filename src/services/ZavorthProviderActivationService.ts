@@ -244,14 +244,13 @@ export class ZavorthProviderActivationService {
     probeStatus: string,
   ): ZavorthProviderActivationRoute {
     const adapterKind = classifyAdapter(provider);
-    const typedConnectorReady = hasTypedConnector(provider);
-    const needsConnector = (adapterKind === 'media_specific' || adapterKind === 'configuration_only') && !typedConnectorReady;
-    const executionReady = provider.defaultRouteAllowed && !needsConnector;
-    const status: ZavorthProviderActivationStatus = executionReady
+    const connectorReady = hasExecutionConnector(provider, adapterKind);
+    const executionReady = hasExecutionPath(provider, adapterKind, connectorReady);
+    const status: ZavorthProviderActivationStatus = executionReady && provider.status === 'ready'
       ? 'ready'
-      : provider.status === 'missing_auth' || provider.status === 'missing_base_url'
+      : executionReady
         ? 'attention'
-        : 'attention';
+        : 'blocked';
     return {
       id: provider.id,
       label: provider.label,
@@ -263,11 +262,9 @@ export class ZavorthProviderActivationService {
       executionReady,
       liveProofCommand: `zavorth providers live --provider ${provider.id}`,
       setupAction: resolveSetupAction(provider),
-      connectorAction: needsConnector
-        ? `Typed ${adapterKind === 'media_specific' ? 'media' : 'provider'} connector is required before live execution.`
-        : typedConnectorReady
-          ? 'Typed Zavorth media connector is configured and gated by live proof.'
-          : 'Route can execute through an existing Zavorth adapter once live proof is fresh.',
+      connectorAction: executionReady
+        ? connectorAction(provider, adapterKind)
+        : `A Zavorth adapter is required before ${provider.label} can execute.`,
       credentialRefs: [...provider.credentialRefs],
       modalities: [...provider.modalities],
       modelCount: provider.effectiveModelCount,
@@ -275,9 +272,52 @@ export class ZavorthProviderActivationService {
   }
 }
 
-function hasTypedConnector(provider: ZavorthProviderModelCatalogProvider): boolean {
+function hasExecutionPath(
+  provider: ZavorthProviderModelCatalogProvider,
+  adapterKind: ZavorthProviderAdapterKind,
+  connectorReady: boolean,
+): boolean {
+  if (['native', 'openai_compatible', 'aggregator', 'local_runtime'].includes(adapterKind)) return true;
+  if (adapterKind === 'media_specific') return connectorReady;
+  if (adapterKind === 'configuration_only') {
+    return connectorReady || provider.capabilities.map(normalizeId).some((capability) => capability === 'embedding');
+  }
+  return false;
+}
+
+function hasExecutionConnector(
+  provider: ZavorthProviderModelCatalogProvider,
+  adapterKind: ZavorthProviderAdapterKind,
+): boolean {
+  if (['native', 'openai_compatible', 'aggregator', 'local_runtime'].includes(adapterKind)) return true;
   const id = normalizeId(provider.id);
-  return id === 'elevenlabs';
+  const modalities = provider.modalities.map(normalizeId);
+  const capabilities = provider.capabilities.map(normalizeId);
+  const genericMediaConnectorIds = new Set([
+    'azure-speech',
+    'byteplus',
+    'byteplus-plan',
+    'comfy',
+    'deepgram',
+    'elevenlabs',
+    'fal',
+    'google',
+    'gradium',
+    'inworld',
+    'minimax',
+    'nanobanana',
+    'openai',
+    'runway',
+    'senseaudio',
+    'tts-local-cli',
+    'volcengine',
+    'volcengine-plan',
+    'vydra',
+  ]);
+  if (genericMediaConnectorIds.has(id)) return true;
+  if (modalities.some((modality) => ['image', 'video', 'audio', 'music', 'tts', 'transcription'].includes(modality))) return true;
+  if (capabilities.includes('embedding')) return true;
+  return false;
 }
 
 function classifyAdapter(provider: ZavorthProviderModelCatalogProvider): ZavorthProviderAdapterKind {
@@ -288,13 +328,33 @@ function classifyAdapter(provider: ZavorthProviderModelCatalogProvider): Zavorth
   if (provider.routeKind === 'aggregator') return 'aggregator';
   if (provider.mode === 'local' || provider.routeKind === 'local_runtime') return 'local_runtime';
   const modalities = provider.modalities.map(normalizeId);
-  if (modalities.includes('video') || modalities.includes('audio') || modalities.includes('image')) {
-    return provider.routeKind === 'custom_compatible' ? 'media_specific' : 'native';
-  }
-  if (provider.routeKind === 'custom_compatible' || provider.capabilities.includes('tool_use') || provider.capabilities.includes('chat')) {
+  const capabilities = provider.capabilities.map(normalizeId);
+  if (provider.routeKind === 'custom_compatible' || capabilities.includes('tool_use') || capabilities.includes('chat')) {
     return 'openai_compatible';
   }
+  if (modalities.includes('video') || modalities.includes('audio') || modalities.includes('image') || modalities.includes('music') || modalities.includes('tts') || modalities.includes('transcription')) {
+    return 'media_specific';
+  }
   return 'configuration_only';
+}
+
+function connectorAction(
+  provider: ZavorthProviderModelCatalogProvider,
+  adapterKind: ZavorthProviderAdapterKind,
+): string {
+  if (adapterKind === 'media_specific') {
+    return 'Route can execute through Zavorth media adapters once credentials/endpoints and live proof are configured.';
+  }
+  if (adapterKind === 'configuration_only' && provider.capabilities.map(normalizeId).includes('embedding')) {
+    return 'Route can execute through Zavorth embedding adapters once credentials/endpoints and live proof are configured.';
+  }
+  if (adapterKind === 'openai_compatible') {
+    return 'Route can execute through the Zavorth OpenAI-compatible runtime adapter once credentials/endpoints are configured.';
+  }
+  if (adapterKind === 'local_runtime') {
+    return 'Route can execute through a local OpenAI-compatible runtime endpoint once the local server is reachable.';
+  }
+  return 'Route can execute through an existing Zavorth adapter once live proof is fresh.';
 }
 
 function resolveSetupAction(provider: ZavorthProviderModelCatalogProvider): string {
@@ -316,7 +376,7 @@ function summarize(
     needsCredentials: routes.filter((route) => /credential|api_key|configure/i.test(route.setupAction) && route.credentialRefs.length > 0 && !route.catalogReady).length,
     needsBaseUrl: routes.filter((route) => /base url/i.test(route.setupAction)).length,
     needsLiveProof: routes.filter((route) => route.catalogReady && !route.liveReady).length,
-    needsConnector: routes.filter((route) => !route.executionReady && ['media_specific', 'configuration_only'].includes(route.adapterKind)).length,
+    needsConnector: routes.filter((route) => !route.executionReady).length,
     nativeAdapters: routes.filter((route) => route.adapterKind === 'native').length,
     openAiCompatibleAdapters: routes.filter((route) => route.adapterKind === 'openai_compatible').length,
     mediaSpecificAdapters: routes.filter((route) => route.adapterKind === 'media_specific').length,
@@ -348,7 +408,7 @@ function buildNextAction(
   const proof = routes.find((route) => route.catalogReady && !route.liveReady);
   if (proof) return `Run ${proof.liveProofCommand} to activate ${proof.label}.`;
   const connector = routes.find((route) => !route.executionReady && route.adapterKind === 'media_specific');
-  if (connector) return `Add typed connector support for ${connector.label} before live media execution.`;
+  if (connector) return `Add a Zavorth connector for ${connector.label} before live execution.`;
   if (summary.executionReady > 0) return 'Provider activation is ready; configure additional credentials to expand coverage.';
   return 'Configure one provider credential, run live proof, then select it as default.';
 }

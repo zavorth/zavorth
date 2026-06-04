@@ -77,7 +77,7 @@ export class ZavorthNativeIntegrationService {
       entries,
       safety: {
         inventoryOnly: true,
-        noExternalAgentCodeExecuted: true,
+        noRuntimeAdapterCodeExecuted: true,
         noSecretsRead: true,
         noLiveNetworkCalls: true,
         zavorthNativeActivationRequiresConfigAndProof: true,
@@ -106,7 +106,7 @@ export class ZavorthNativeIntegrationService {
       '',
       '[safety]',
       'zavorth_native_activation_requires_config_and_proof=true',
-      'no_external_agent_code_executed=true',
+      'no_runtime_adapter_code_executed=true',
       'no_secrets_read=true',
       'no_live_network_calls=true',
       '',
@@ -147,7 +147,7 @@ export class ZavorthNativeIntegrationService {
           ]),
           evidence: [
             `Provider is declared in Zavorth ProviderIntegrationRegistry as ${manifest.providerId}.`,
-            'Activation is native to Zavorth and does not execute external agent code.',
+            'Activation is native to Zavorth and does not execute runtime adapter code.',
           ],
         });
       }
@@ -293,7 +293,7 @@ function providerCompat(id: string, nativeSurface: string, configRefs: string[],
     configRefs,
     evidence: [
       evidence,
-      'This is declared as a Zavorth-native compatibility alias, not an external-agent bridge.',
+      'This is declared as a Zavorth-native compatibility alias, not an runtime-adapter bridge.',
     ],
   };
 }

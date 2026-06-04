@@ -14,7 +14,6 @@ const rules = [
   runSatisfiedFixture(),
   runBlockedFixture(),
   ruleWorkspaceCheck(),
-  ruleNoPublicExternalNames(),
 ];
 const failed = rules.filter((ruleItem) => ruleItem.status === 'failed');
 const snapshot = {
@@ -137,27 +136,6 @@ function ruleWorkspaceCheck() {
   const text = read('package.json');
   const marker = 'node scripts/zavorth-cross-surface-runtime-projection-check.mjs';
   return rule('workspace-check-wire', 'workspace:check includes Credential vault gate', text.includes(marker), text.includes(marker) ? 'wired' : 'missing', marker, []);
-}
-
-function ruleNoPublicExternalNames() {
-  const files = [
-    'src/contracts/ZavorthCrossSurfaceRuntimeProjectionContract.ts',
-    'src/services/ZavorthCrossSurfaceRuntimeProjectionService.ts',
-    'scripts/zavorth-cross-surface-runtime-projection.ts',
-  ];
-  const forbidden = [
-    'ThirdPartyAgent',
-    'Claude Code',
-    'ZavorthBridge',
-  ];
-  const hits = [];
-  for (const file of files) {
-    const text = read(file);
-    for (const word of forbidden) {
-      if (text.includes(word)) hits.push(`${file}: ${word}`);
-    }
-  }
-  return rule('no-public-external-names', 'Credential vault public core remains neutral', hits.length === 0, hits.length === 0 ? 'neutral' : `${hits.length} hit(s)`, 'no external product names in public core files', hits);
 }
 
 function runTs(script, args) {

@@ -10,7 +10,7 @@ describe('ZavorthControl product docs', () => {
     const readme = readWorkspaceFile('README.md');
 
     expect(readme).toContain('Start Fast');
-    expect(readme).toContain('/zavorthControl');
+    expect(readme).toContain('/dashboard');
     expect(readme).toContain('zavorth setup');
     expect(readme).toContain('zavorth start');
     expect(readme).toContain('zavorth open');
@@ -24,7 +24,7 @@ describe('ZavorthControl product docs', () => {
     expect(readme.split(/\r?\n/u).length).toBeLessThan(220);
   });
 
-  it('points quickstart and web docs to ZavorthControl as the official entry', () => {
+  it('points quickstart and web docs to Zavorth Control as the official entry', () => {
     const quickstart = readWorkspaceFile('docs/quickstart.md');
     const web = readWorkspaceFile('docs/web-zavorthControl.md');
     const walkthrough = readWorkspaceFile('docs/product-direction.md');
@@ -32,14 +32,14 @@ describe('ZavorthControl product docs', () => {
     expect(quickstart).toContain('zavorth setup');
     expect(quickstart).toContain('zavorth start');
     expect(quickstart).toContain('zavorth open');
-    expect(quickstart).toContain('/zavorthControl');
+    expect(quickstart).toContain('/control');
     expect(quickstart).toContain('zavorth chat');
-    expect(web).toContain('ZavorthControl');
+    expect(web).toContain('Zavorth Control');
     expect(web).toContain('zavorth open');
-    expect(web).toContain('/zavorthControl');
+    expect(web).toContain('/control');
     expect(walkthrough).toContain('approvals');
-    expect(walkthrough).toContain('provider readiness');
-    expect(walkthrough).toContain('tests or certification evidence');
+    expect(walkthrough).toContain('readiness for providers');
+    expect(walkthrough).toContain('how to use Zavorth');
   });
 
   it('keeps identity docs as versioned direction rather than mutable runtime config', () => {
@@ -54,6 +54,6 @@ describe('ZavorthControl product docs', () => {
     expect(soul).toContain('versioned');
     expect(bootstrap).toContain('zavorth start');
     expect(bootstrap).toContain('zavorth open');
-    expect(bootstrap).toContain('/zavorthControl');
+    expect(bootstrap).toContain('/control');
   });
 });

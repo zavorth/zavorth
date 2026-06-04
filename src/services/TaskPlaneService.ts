@@ -3,9 +3,12 @@ import path from 'node:path';
 import { randomUUID } from 'node:crypto';
 
 import type { TaskPlaneItem, TaskPlaneSnapshot, TaskPlaneStatus } from '../contracts/TaskPlaneContract.js';
+import { ZavorthOperationalStateDbService } from './ZavorthOperationalStateDbService.js';
 
 type TaskPlaneServiceOptions = {
   storePath: string;
+  stateDb?: ZavorthOperationalStateDbService | null;
+  stateDbPath?: string | null;
   now?: () => Date;
 };
 
@@ -30,14 +33,22 @@ const STATUSES: TaskPlaneStatus[] = [
 
 export class TaskPlaneService {
   private readonly storePath: string;
+  private readonly stateDb: ZavorthOperationalStateDbService | null;
+  private readonly stateDbPath: string | null;
   private readonly now: () => Date;
+  private legacySeeded = false;
 
   constructor(options: TaskPlaneServiceOptions) {
     this.storePath = path.resolve(options.storePath);
+    this.stateDb = options.stateDb || null;
+    this.stateDbPath = options.stateDbPath ? path.resolve(options.stateDbPath) : null;
     this.now = options.now || (() => new Date());
   }
 
   public createTask(input: CreateTaskInput): TaskPlaneItem {
+    if (this.hasStateDb()) {
+      return this.withStateDb((stateDb) => stateDb.createTask(input));
+    }
     const store = this.readStore();
     const item = this.newTask(input);
     store.items.push(item);
@@ -46,6 +57,9 @@ export class TaskPlaneService {
   }
 
   public listTasks(): TaskPlaneItem[] {
+    if (this.hasStateDb()) {
+      return this.withStateDb((stateDb) => stateDb.listTasks());
+    }
     return this.readStore().items.map((item) => this.clone(item));
   }
 
@@ -54,7 +68,7 @@ export class TaskPlaneService {
     return {
       contractVersion: 'task-plane/1',
       generatedAt: this.now().toISOString(),
-      storePath: this.storePath,
+      storePath: this.stateDb?.path || this.stateDbPath || this.storePath,
       summary: STATUSES.reduce((acc, status) => {
         acc[status] = items.filter((item) => item.status === status).length;
         return acc;
@@ -70,6 +84,9 @@ export class TaskPlaneService {
   }
 
   public claimTask(id: string, owner: string, leaseMs?: number | null): TaskPlaneItem | null {
+    if (this.hasStateDb()) {
+      return this.withStateDb((stateDb) => stateDb.claimTask(id, owner, leaseMs));
+    }
     const store = this.readStore();
     const item = store.items.find((entry) => entry.id === id);
     if (!item || !this.canClaim(item)) {
@@ -89,6 +106,9 @@ export class TaskPlaneService {
   }
 
   public updateStatus(id: string, status: TaskPlaneStatus, actor = 'system', detail?: string): TaskPlaneItem | null {
+    if (this.hasStateDb()) {
+      return this.withStateDb((stateDb) => stateDb.updateTaskStatus(id, status, actor, detail));
+    }
     const store = this.readStore();
     const item = store.items.find((entry) => entry.id === id);
     if (!item) {
@@ -110,6 +130,9 @@ export class TaskPlaneService {
   }
 
   public retryTask(id: string, actor = 'operator'): TaskPlaneItem | null {
+    if (this.hasStateDb()) {
+      return this.withStateDb((stateDb) => stateDb.retryTask(id, actor));
+    }
     const store = this.readStore();
     const item = store.items.find((entry) => entry.id === id);
     if (!item || !['failed', 'blocked', 'cancelled'].includes(item.status)) {
@@ -156,6 +179,36 @@ export class TaskPlaneService {
       return false;
     }
     return Date.parse(item.claim.leaseUntil) <= this.now().getTime();
+  }
+
+  private hasStateDb(): boolean {
+    return Boolean(this.stateDb || this.stateDbPath);
+  }
+
+  private withStateDb<T>(fn: (stateDb: ZavorthOperationalStateDbService) => T): T {
+    if (this.stateDb) {
+      this.seedStateDb(this.stateDb);
+      return fn(this.stateDb);
+    }
+    const stateDb = new ZavorthOperationalStateDbService({
+      dbPath: this.stateDbPath as string,
+      now: this.now,
+    });
+    try {
+      this.seedStateDb(stateDb);
+      return fn(stateDb);
+    } finally {
+      stateDb.close();
+    }
+  }
+
+  private seedStateDb(stateDb: ZavorthOperationalStateDbService): void {
+    if (this.legacySeeded) return;
+    const legacy = this.readStore().items;
+    if (legacy.length > 0) {
+      stateDb.importTaskPlaneItems(legacy);
+    }
+    this.legacySeeded = true;
   }
 
   private readStore(): { items: TaskPlaneItem[] } {

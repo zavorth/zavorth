@@ -128,7 +128,7 @@ async function runLiveSmoke(entry: DiagnosticsQaMigrationLiveEntry): Promise<unk
           : 'directory',
       ref: source,
     },
-    targetNamespace: readArg('--namespace') || (entry.targetId === 'migrate-claude' ? 'claude' : 'external-agent'),
+    targetNamespace: readArg('--namespace') || (entry.targetId === 'migrate-claude' ? 'claude' : 'runtime-adapter'),
     dryRun: !args.includes('--apply'),
     confirmApply: args.includes('--confirm-apply'),
     outputDir: artifactDir,

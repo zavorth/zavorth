@@ -12,7 +12,7 @@ sessions without turning memory into a hidden black box.
 - Maintains a derived SQLite FTS5 index for fast recall while keeping Markdown
   wiki pages as the auditable source of truth.
 - Captures universal lifecycle hooks from dashboard, CLI, Telegram, API,
-  runtime and external-agent surfaces without silently promoting raw events.
+  runtime surfaces without silently promoting raw events.
 - Preserves approval, security and receipt boundaries.
 
 ## Memory Tiers
@@ -60,11 +60,7 @@ Use Mnemos when you want Zavorth to answer questions like:
 If a memory action would broaden scope or persist new knowledge, Zavorth should
 show a preview and require the appropriate approval.
 
-## Certification
+## Local Checks
 
-### Certification matrix Certification
-
-The Mnemos certification command verifies this memory surface with local checks
-only. In other words: local checks only. It does not call providers, does not
-perform network access, and does not mutate durable memory while certifying
-readiness.
+Mnemos local checks verify the memory surface without calling providers,
+performing network access or mutating durable memory.

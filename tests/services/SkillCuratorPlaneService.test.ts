@@ -142,6 +142,115 @@ describe('SkillCuratorPlaneService', () => {
     expect(status.pinned).toEqual(['alpha-pinned']);
   });
 
+  it('keeps scheduled developer curation as a quiet dry-run instead of interrupting for approval', async () => {
+    db.rows.set('alpha-archive', {
+      skill_id: 'alpha-archive',
+      use_count: 2,
+      last_executed_at: '2025-12-01T00:00:00.000Z',
+      status: 'active',
+      pinned: 0,
+    });
+    const seed = createService({
+      db,
+      now: '2026-05-31T10:00:00.000Z',
+      skills: [skill('alpha-archive')],
+      tempDir,
+      intervalHours: 1,
+      minIdleHours: 0,
+      staleAfterDays: 30,
+      archiveAfterDays: 90,
+      profileId: 'developer',
+      improvementPolicy: improvementPolicy({
+        mode: 'quiet-staging',
+        silent: ['telemetry', 'ranking', 'metadata', 'candidate', 'staging_diff', 'sandbox_validation'],
+        notify: ['low_risk_archive'],
+      }),
+    });
+    await seed.maybeRunCurator({ idleForSeconds: 999 });
+    const service = createService({
+      db,
+      now: '2026-05-31T12:00:00.000Z',
+      skills: [skill('alpha-archive')],
+      tempDir,
+      intervalHours: 1,
+      minIdleHours: 0,
+      staleAfterDays: 30,
+      archiveAfterDays: 90,
+      profileId: 'developer',
+      improvementPolicy: improvementPolicy({
+        mode: 'quiet-staging',
+        silent: ['telemetry', 'ranking', 'metadata', 'candidate', 'staging_diff', 'sandbox_validation'],
+        notify: ['low_risk_archive'],
+      }),
+    });
+
+    const result = await service.maybeRunCurator({ idleForSeconds: 999 });
+
+    expect(result.ran).toBe(true);
+    expect(result.report?.dryRun).toBe(true);
+    expect(result.report?.autonomy).toEqual(expect.objectContaining({
+      profileId: 'developer',
+      scheduledRunMode: 'silent-dry-run',
+      lowRiskArchiveAllowed: false,
+      approvalInterruptsCreated: 0,
+    }));
+    expect(archiveCalls).toEqual([]);
+  });
+
+  it('lets personal scheduled curation apply reversible low-risk cleanup silently', async () => {
+    db.rows.set('alpha-archive', {
+      skill_id: 'alpha-archive',
+      use_count: 2,
+      last_executed_at: '2025-12-01T00:00:00.000Z',
+      status: 'active',
+      pinned: 0,
+    });
+    const policy = improvementPolicy({
+      mode: 'quiet-curation',
+      silent: ['telemetry', 'ranking', 'metadata', 'candidate', 'draft_skill', 'staging_diff', 'sandbox_validation', 'low_risk_archive'],
+      notify: ['apply'],
+      interruptMode: 'never-for-low-risk',
+    });
+    const seed = createService({
+      db,
+      now: '2026-05-31T10:00:00.000Z',
+      skills: [skill('alpha-archive')],
+      tempDir,
+      intervalHours: 1,
+      minIdleHours: 0,
+      staleAfterDays: 30,
+      archiveAfterDays: 90,
+      profileId: 'personal',
+      improvementPolicy: policy,
+    });
+    await seed.maybeRunCurator({ idleForSeconds: 999 });
+    const service = createService({
+      db,
+      now: '2026-05-31T12:00:00.000Z',
+      skills: [skill('alpha-archive')],
+      tempDir,
+      intervalHours: 1,
+      minIdleHours: 0,
+      staleAfterDays: 30,
+      archiveAfterDays: 90,
+      profileId: 'personal',
+      improvementPolicy: policy,
+    });
+
+    const result = await service.maybeRunCurator({ idleForSeconds: 999 });
+
+    expect(result.ran).toBe(true);
+    expect(result.report?.dryRun).toBe(false);
+    expect(result.report?.autonomy).toEqual(expect.objectContaining({
+      profileId: 'personal',
+      scheduledRunMode: 'silent-apply-reversible',
+      lowRiskArchiveAllowed: true,
+      approvalInterruptsCreated: 0,
+      interruptMode: 'never-for-low-risk',
+    }));
+    expect(archiveCalls).toEqual(['alpha-archive']);
+  });
+
   it('supports pause, resume, pin and restore operations through the plane', async () => {
     const service = createService({
       db,
@@ -232,6 +341,8 @@ describe('SkillCuratorPlaneService', () => {
     archiveAfterDays?: number;
     llmRuntime?: any;
     llmReviewEnabled?: boolean;
+    profileId?: string;
+    improvementPolicy?: any;
   }) {
     return new SkillCuratorPlaneService({
       database: options.db as any,
@@ -244,6 +355,8 @@ describe('SkillCuratorPlaneService', () => {
       archiveAfterDays: options.archiveAfterDays ?? 90,
       llmRuntime: options.llmRuntime ?? null,
       llmReviewEnabled: options.llmReviewEnabled ?? false,
+      profileId: options.profileId,
+      improvementPolicy: options.improvementPolicy,
       catalogService: {
         listEntries: () => options.skills as any,
       },
@@ -298,6 +411,18 @@ describe('SkillCuratorPlaneService', () => {
       sourceId: 'agent-created',
       imported: true,
       dirPath: path.join(tempDir, name),
+    };
+  }
+
+  function improvementPolicy(overrides: Record<string, unknown> = {}) {
+    return {
+      mode: 'quiet-staging',
+      silent: ['telemetry', 'ranking', 'metadata', 'candidate', 'staging_diff', 'sandbox_validation'],
+      notify: ['draft_skill', 'low_risk_archive'],
+      requireApproval: ['apply', 'policy', 'provider', 'channel', 'secret', 'external_send', 'host_mutation'],
+      maxSilentRisk: 'low',
+      interruptMode: 'daily-digest',
+      ...overrides,
     };
   }
 });

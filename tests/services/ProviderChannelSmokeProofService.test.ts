@@ -1,7 +1,7 @@
 import type { ChannelAdapterStatus, ChannelFeatureSet } from '../../src/contracts/ChannelMeshContract.js';
 import { ProviderChannelSmokeProofService } from '../../src/services/ProviderChannelSmokeProofService.js';
-import { ProviderMeshParityService } from '../../src/services/ProviderMeshParityService.js';
-import { ChannelMeshParityService } from '../../src/services/ChannelMeshParityService.js';
+import { ProviderMeshReadinessService } from '../../src/services/ProviderMeshReadinessService.js';
+import { ChannelMeshConsistencyService } from '../../src/services/ChannelMeshConsistencyService.js';
 
 const features = (overrides: Partial<ChannelFeatureSet> = {}): ChannelFeatureSet => ({
   inbound: true,
@@ -71,7 +71,7 @@ describe('ProviderChannelSmokeProofService Worker 5', () => {
 
   it('builds provider smoke receipts for first-class, generic and local providers', () => {
     const service = new ProviderChannelSmokeProofService();
-    const providerMesh = new ProviderMeshParityService();
+    const providerMesh = new ProviderMeshReadinessService();
 
     const openai = service.buildProviderProof(providerMesh.buildEntry('openai'));
     const amazonBedrock = service.buildProviderProof(providerMesh.buildEntry('amazon-bedrock'));
@@ -119,14 +119,14 @@ describe('ProviderChannelSmokeProofService Worker 5', () => {
   });
 
   it('builds channel smoke receipts for native, webhook and local bridge channels', () => {
-    const channelMesh = new ChannelMeshParityService({
+    const channelMesh = new ChannelMeshConsistencyService({
       adapterStatuses: [
         adapter({ id: 'slack', label: 'Slack' }),
       ],
       sourceChannels: ['slack', 'googlechat', 'bluebubbles'],
     });
     const service = new ProviderChannelSmokeProofService({
-      channelMeshParityService: channelMesh,
+      channelMeshConsistencyService: channelMesh,
     });
 
     const slack = service.buildChannelProof(channelMesh.buildEntry('slack'));
@@ -169,10 +169,10 @@ describe('ProviderChannelSmokeProofService Worker 5', () => {
   });
 
   it('blocks explicit unsupported provider or unmapped channel entries without hiding the receipt', () => {
-    const providerMesh = new ProviderMeshParityService({
+    const providerMesh = new ProviderMeshReadinessService({
       sourceProviders: ['telegram'],
     });
-    const channelMesh = new ChannelMeshParityService({
+    const channelMesh = new ChannelMeshConsistencyService({
       sourceChannels: ['openai'],
       adapterStatuses: [],
     });

@@ -151,7 +151,7 @@ const rules = [
       'closedSourceModules: 19',
       'closedPrimitives: 8',
       'remainingCapabilityNeedsReview: 0',
-      'hands off to certified parity after remaining runtime decisions close',
+      'hands off to certified consistency after remaining runtime decisions close',
       'sourceP1Gaps: 0',
     ],
   }),

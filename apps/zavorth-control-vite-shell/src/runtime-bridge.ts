@@ -1205,7 +1205,7 @@ export function initRuntimeBridge() {
         title: 'Agent Mesh',
         id: 'Maestro',
         status: state.zavorthControl?.snapshot?.agentMesh ? 'Connected' : 'Auditable',
-        detail: 'External agents appear as governed arms of Zavorth.',
+        detail: 'Runtime adapters appear as governed arms of Zavorth.',
       }),
       entityCardHtml({
         title: 'Audit Trail',
@@ -1217,7 +1217,7 @@ export function initRuntimeBridge() {
   }
 
   function updateAgents() {
-    const external = state.externalAgents || {};
+    const external = state.runtimeAdapters || {};
     const registry = external.registry || external.snapshot?.registry || {};
     const profiles = Array.isArray(registry.profiles) ? registry.profiles : [];
     const latestReceipt = external.latestReceipt || external.snapshot?.latestReceipt || null;
@@ -1228,16 +1228,16 @@ export function initRuntimeBridge() {
     };
     const liveCount = profiles.filter((profile) => profile?.liveExecutionEnabled).length || Number(summary.liveEnabled || 0);
     const sandboxCount = profiles.filter((profile) => profile?.isolation?.strongBoundary).length || Number(summary.stronglyIsolated || 0);
-    setExternalText('[data-external-agent-metric="profiles"]', numberLabel(profiles.length || summary.total || summary.profiles || 0));
-    setExternalText('[data-external-agent-metric="live"]', numberLabel(liveCount));
-    setExternalText('[data-external-agent-metric="sandbox"]', numberLabel(sandboxCount));
-    setExternalText('[data-external-agent-metric="receipt"]', latestReceipt?.status || summary.latestReceiptStatus || 'none');
-    setExternalText('[data-external-agent-receipt-status]', latestReceipt?.status || 'none');
-    setExternalText('[data-external-agent-receipt-profile]', latestReceipt?.profile?.id || latestReceipt?.profileId || 'no profile');
-    setExternalText('[data-external-agent-receipt-summary]', latestReceipt?.output?.text || latestReceipt?.summary || latestReceipt?.request?.promptPreview || 'No receipt has been written yet.');
-    setExternalText('[data-external-agent-receipt-command]', latestReceipt?.execution?.command || latestReceipt?.nextAction?.command || 'waiting for next action');
+    setExternalText('[data-runtime-adapter-metric="profiles"]', numberLabel(profiles.length || summary.total || summary.profiles || 0));
+    setExternalText('[data-runtime-adapter-metric="live"]', numberLabel(liveCount));
+    setExternalText('[data-runtime-adapter-metric="sandbox"]', numberLabel(sandboxCount));
+    setExternalText('[data-runtime-adapter-metric="receipt"]', latestReceipt?.status || summary.latestReceiptStatus || 'none');
+    setExternalText('[data-runtime-adapter-receipt-status]', latestReceipt?.status || 'none');
+    setExternalText('[data-runtime-adapter-receipt-profile]', latestReceipt?.profile?.id || latestReceipt?.profileId || 'no profile');
+    setExternalText('[data-runtime-adapter-receipt-summary]', latestReceipt?.output?.text || latestReceipt?.summary || latestReceipt?.request?.promptPreview || 'No receipt has been written yet.');
+    setExternalText('[data-runtime-adapter-receipt-command]', latestReceipt?.execution?.command || latestReceipt?.nextAction?.command || 'waiting for next action');
 
-    const profileSelect = document.querySelector('[data-external-agent-profile-select]');
+    const profileSelect = document.querySelector('[data-runtime-adapter-profile-select]');
     if (profileSelect) {
       const current = profileSelect.value;
       profileSelect.innerHTML = profiles.length
@@ -1299,15 +1299,15 @@ export function initRuntimeBridge() {
     }).join(''));
   }
 
-  async function refreshExternalAgents() {
-    const payload = await readJson('/api/web/external-agents', { headers: authHeaders() });
-    state.externalAgents = payload?.snapshot || payload;
+  async function refreshRuntimeAdapters() {
+    const payload = await readJson('/api/web/zavorth-runtime-adapters', { headers: authHeaders() });
+    state.runtimeAdapters = payload?.snapshot || payload;
     updateAgents();
     return payload;
   }
 
-  function readExternalAgentForm() {
-    const form = document.querySelector('[data-external-agent-register-form]');
+  function readRuntimeAdapterForm() {
+    const form = document.querySelector('[data-runtime-adapter-register-form]');
     const data = new FormData(form);
     const args = String(data.get('args') || '').trim();
     return {
@@ -1328,22 +1328,22 @@ export function initRuntimeBridge() {
     };
   }
 
-  async function registerExternalAgentProfile() {
-    const payload = await readJson('/api/web/external-agents/register', {
+  async function registerRuntimeAdapterProfile() {
+    const payload = await readJson('/api/web/zavorth-runtime-adapters/register', {
       method: 'POST',
       headers: authHeaders(),
-      body: JSON.stringify(readExternalAgentForm()),
+      body: JSON.stringify(readRuntimeAdapterForm()),
     });
-    state.externalAgents = payload?.snapshot || state.externalAgents;
+    state.runtimeAdapters = payload?.snapshot || state.runtimeAdapters;
     updateAgents();
     return payload;
   }
 
-  async function invokeExternalAgent(preview = false) {
-    const select = document.querySelector('[data-external-agent-profile-select]');
-    const prompt = document.querySelector('[data-external-agent-prompt]');
-    const approved = document.querySelector('[data-external-agent-approve-execution]');
-    const payload = await readJson('/api/web/external-agents/invoke', {
+  async function invokeRuntimeAdapter(preview = false) {
+    const select = document.querySelector('[data-runtime-adapter-profile-select]');
+    const prompt = document.querySelector('[data-runtime-adapter-prompt]');
+    const approved = document.querySelector('[data-runtime-adapter-approve-execution]');
+    const payload = await readJson('/api/web/zavorth-runtime-adapters/invoke', {
       method: 'POST',
       headers: authHeaders(),
       body: JSON.stringify({
@@ -1353,7 +1353,7 @@ export function initRuntimeBridge() {
         dryRun: preview,
       }),
     });
-    state.externalAgents = payload?.snapshot || state.externalAgents;
+    state.runtimeAdapters = payload?.snapshot || state.runtimeAdapters;
     updateAgents();
     return payload;
   }
@@ -1440,9 +1440,9 @@ export function initRuntimeBridge() {
               const isNative = skill.sourceId === 'zavorth-native';
               const archiveBtn = isNative
                 ? ''
-                : `<button type="button" class="skill-row__archive" data-skill-archive-id="${escapeHtml(skill.id)}" style="background: rgba(255,69,0,0.1); color: #ff4500; border: 1px solid rgba(255,69,0,0.25); border-radius: 4px; padding: 4px 8px; margin-right: 4px; cursor: pointer; font-size: 11px; font-weight: 500;">📦 Archive</button>`;
+                : `<button type="button" class="skill-row__archive daily-button daily-button--ghost" data-skill-archive-id="${escapeHtml(skill.id)}">Archive</button>`;
 
-              const pinBtn = `<button type="button" class="skill-row__pin" data-skill-pin-id="${escapeHtml(skill.id)}" data-skill-pinned="${skill.pinned}" style="background: ${skill.pinned ? 'rgba(0,255,170,0.1)' : 'transparent'}; color: ${skill.pinned ? '#00ffaa' : '#888'}; border: 1px solid ${skill.pinned ? 'rgba(0,255,170,0.25)' : '#444'}; border-radius: 4px; padding: 4px 8px; margin-right: 4px; cursor: pointer; font-size: 11px; font-weight: 500;">${skill.pinned ? '📌 Pinned' : '📌 Pin'}</button>`;
+              const pinBtn = `<button type="button" class="skill-row__pin daily-button daily-button--ghost" data-skill-pin-id="${escapeHtml(skill.id)}" data-skill-pinned="${skill.pinned}">${skill.pinned ? 'Pinned' : 'Pin'}</button>`;
 
               const usePrompt = `Use tool ${skill.name} in this request.`;
               const riskTone = skill.riskLevel === 'high' ? 'warn' : skill.riskLevel === 'medium' ? 'info' : 'ok';
@@ -1450,19 +1450,18 @@ export function initRuntimeBridge() {
               const lastRunLabel = skill.lastExecutedAt ? ` | Last: ${formatDate(skill.lastExecutedAt)}` : '';
 
               return `
-              <article class="skill-row skill-row--${riskTone}" data-skill-row data-skill-status="${skill.riskLevel}" data-skill-search-text="${escapeHtml(search)}" style="margin-bottom: 12px; padding: 12px; border-radius: 8px; background: rgba(255,255,255,0.015); display: flex; justify-content: space-between; align-items: center; border: 1px solid rgba(255,255,255,0.05);">
-                <div style="flex: 1; padding-right: 12px; text-align: left;">
-                  <h2 style="margin: 0 0 4px; font-size: 14px; font-weight: 600; color: #fff; text-align: left; display: flex; align-items: center; gap: 8px;">
-                    ${escapeHtml(skill.name)} 
-                    <span style="font-size: 9px; font-weight: normal; color: #888; background: rgba(255,255,255,0.05); padding: 1px 4px; border-radius: 3px;">${escapeHtml(skill.riskLevel)}</span>
-                  </h2>
-                  <p style="margin: 0; font-size: 12px; color: #aaa; line-height: 1.4; text-align: left;">${escapeHtml(skill.description)}</p>
-                  <small style="display: block; margin-top: 4px; font-size: 10px; color: #555; font-family: monospace;">Uses: ${skill.useCount}${lastRunLabel}</small>
+              <article class="skill-row skill-row--${riskTone}" data-skill-row data-skill-status="${skill.riskLevel}" data-skill-search-text="${escapeHtml(search)}">
+                <div class="daily-row__main">
+                  <h2>${escapeHtml(skill.name)}</h2>
+                  <p>${escapeHtml(skill.description)}</p>
+                  <small>Uses: ${skill.useCount}${lastRunLabel}</small>
                 </div>
-                <div style="display: flex; align-items: center; gap: 4px;">
+                <span class="daily-status daily-status--${riskTone}">${escapeHtml(skill.riskLevel)}</span>
+                <button type="button" class="daily-skill-toggle" aria-pressed="${skill.pinned ? 'true' : 'false'}" aria-label="${skill.pinned ? 'Unpin' : 'Pin'} ${escapeHtml(skill.name)}" data-skill-pin-id="${escapeHtml(skill.id)}" data-skill-pinned="${skill.pinned}"><span></span></button>
+                <div class="daily-row__actions">
                   ${pinBtn}
                   ${archiveBtn}
-                  <button type="button" class="skill-row__use" data-dashboard-prompt="${escapeHtml(usePrompt)}" style="background: rgba(0,191,255,0.1); color: #00bfff; border: 1px solid rgba(0,191,255,0.25); border-radius: 4px; padding: 4px 8px; cursor: pointer; font-size: 11px; font-weight: 500;">Use</button>
+                  <button type="button" class="skill-row__use" data-dashboard-prompt="${escapeHtml(usePrompt)}">Use</button>
                 </div>
               </article>
             `;
@@ -1487,7 +1486,7 @@ export function initRuntimeBridge() {
                     <strong style="font-size: 12px; color: #aaa; display: block; text-align: left;">${escapeHtml(skill.name)}</strong>
                     <small style="font-size: 9px; color: #555;">Size: ${kbSize} KB</small>
                   </div>
-                  <button type="button" class="skill-row__restore" data-skill-restore-id="${escapeHtml(skill.id)}" style="background: rgba(0,255,170,0.1); color: #00ffaa; border: 1px solid rgba(0,255,170,0.25); border-radius: 4px; padding: 2px 6px; cursor: pointer; font-size: 10px; font-weight: 500;">↻ Restore</button>
+                  <button type="button" class="skill-row__restore daily-button daily-button--ghost" data-skill-restore-id="${escapeHtml(skill.id)}">Restore</button>
                 </div>
               `;
               })
@@ -1544,11 +1543,12 @@ export function initRuntimeBridge() {
       const search = `${title} ${summary} ${status}`.toLowerCase();
       return `
       <article class="skill-row skill-row--${tool.enabled ? 'ok' : 'info'}" data-skill-row data-skill-status="${escapeHtml(filter)}" data-skill-search-text="${escapeHtml(search)}">
-        <div>
+        <div class="daily-row__main">
           <h2>${escapeHtml(title)}</h2>
           <p>${escapeHtml(summary)}</p>
         </div>
-        <span>${escapeHtml(status)}</span>
+        <span class="daily-status daily-status--${tool.enabled ? 'ok' : 'info'}">${escapeHtml(status)}</span>
+        <button type="button" class="daily-skill-toggle" aria-pressed="${tool.enabled ? 'true' : 'false'}" aria-label="${tool.enabled ? 'Disable' : 'Enable'} ${escapeHtml(title)}" data-dashboard-prompt="${escapeHtml(tool.enabled ? `Disable ${title} after confirming impact.` : `Enable or configure ${title}.`)}"><span></span></button>
         <button type="button" class="skill-row__use" data-dashboard-prompt="${escapeHtml(prompt)}">Use</button>
       </article>
     `;
@@ -1578,7 +1578,7 @@ export function initRuntimeBridge() {
                 enabled: true,
               },
               {
-                title: 'Connect external agent',
+                title: 'Connect adapter',
                 summary: 'Creates a profile only from a path you provide.',
                 status: 'consent required',
                 enabled: true,
@@ -2290,6 +2290,15 @@ export function initRuntimeBridge() {
           engineDecision,
         }),
       });
+      if (payload?.snapshot) {
+        state.zavorthControl = {
+          ...(state.zavorthControl || {}),
+          live: state.zavorthControl?.live !== false,
+          generatedAt: payload.generatedAt || state.zavorthControl?.generatedAt,
+          snapshot: payload.snapshot,
+        };
+        writeRunId(payload.run?.id || payload.runId || payload.snapshot?.activeRun?.id || readRunId());
+      }
       writeSessionId(payload?.sessionId || payload?.snapshot?.sessionId);
       ui.removeThinkingState?.();
       ui.appendEcho?.('core', extractAssistantReply(payload));
@@ -2320,6 +2329,48 @@ export function initRuntimeBridge() {
       await refresh().catch(() => undefined);
       throw error;
     }
+  }
+
+  async function sendSteerChat(message, options = {}) {
+    const text = String(message || '').trim();
+    if (!text) {
+      throw new Error('Steering message is empty.');
+    }
+    const activeRun = getActiveRun();
+    const runId = String(options?.runId || activeRun?.id || activeRun?.runId || readRunId() || '').trim();
+    const sessionId = String(options?.sessionId || activeRun?.sessionId || readSessionId() || '').trim();
+    const payload = await readJson('/api/web/chat/steer', {
+      method: 'POST',
+      headers: authHeaders(),
+      body: JSON.stringify({
+        message: text,
+        text,
+        runId: runId || undefined,
+        sessionId: sessionId || undefined,
+        queueItemId: options?.queueItemId || undefined,
+        backoffMs: options?.backoffMs || undefined,
+        maxAttempts: options?.maxAttempts || undefined,
+        attachments: Array.isArray(options?.attachments) ? options.attachments.slice(0, 5) : [],
+        selectedSkills: Array.isArray(options?.selectedSkills) ? options.selectedSkills.slice(0, 8) : [],
+        voice: options?.voice || null,
+        composerSettings: options?.composerSettings || null,
+        action: options?.action || undefined,
+        steeringId: options?.steeringId || undefined,
+        replaceTargetId: options?.replaceTargetId || undefined,
+      }),
+    });
+    if (payload?.snapshot) {
+      state.zavorthControl = {
+        ...(state.zavorthControl || {}),
+        live: state.zavorthControl?.live !== false,
+        generatedAt: payload.generatedAt || state.zavorthControl?.generatedAt,
+        snapshot: payload.snapshot,
+      };
+    }
+    writeRunId(payload?.run?.id || payload?.runId || payload?.snapshot?.activeRun?.id || runId);
+    writeSessionId(payload?.sessionId || payload?.snapshot?.sessionId || sessionId);
+    options?.emitSignal?.('success', 'Steer accepted', payload?.ack?.id || payload?.steering?.id || runId || 'active run');
+    return payload;
   }
 
   async function decideApproval(input, ui = {}) {
@@ -2516,6 +2567,7 @@ export function initRuntimeBridge() {
     state,
     refresh,
     sendChat,
+    sendSteerChat,
     decideApproval,
     applyRemoteMeshApproval,
     applyDiffPreview,
@@ -2537,28 +2589,28 @@ export function initRuntimeBridge() {
     hydrateCurrentSession,
     sendSalesPackDemoInbound,
     runDeveloperWorkflowCommand,
-    refreshExternalAgents,
-    registerExternalAgentProfile,
-    invokeExternalAgent,
+    refreshRuntimeAdapters,
+    registerRuntimeAdapterProfile,
+    invokeRuntimeAdapter,
   };
 
   document.addEventListener('click', (event) => {
-    const action = event.target?.closest?.('[data-external-agent-action]');
+    const action = event.target?.closest?.('[data-runtime-adapter-action]');
     if (!action) return;
-    const kind = action.getAttribute('data-external-agent-action');
+    const kind = action.getAttribute('data-runtime-adapter-action');
     if (!['refresh', 'register', 'preview', 'invoke'].includes(kind)) return;
     event.preventDefault();
     action.disabled = true;
     const previousText = action.textContent;
     action.textContent = kind === 'refresh' ? 'Syncing...' : kind === 'register' ? 'Registering...' : 'Running...';
     const task = kind === 'refresh'
-      ? refreshExternalAgents()
+      ? refreshRuntimeAdapters()
       : kind === 'register'
-        ? registerExternalAgentProfile()
-        : invokeExternalAgent(kind === 'preview');
+        ? registerRuntimeAdapterProfile()
+        : invokeRuntimeAdapter(kind === 'preview');
     task
-      .then(() => window.emitSignal?.('success', 'External agents', `${kind} completed.`))
-      .catch((error) => window.emitSignal?.('error', 'External agents', error?.message || `${kind} failed.`))
+      .then(() => window.emitSignal?.('success', 'Runtime adapters', `${kind} completed.`))
+      .catch((error) => window.emitSignal?.('error', 'Runtime adapters', error?.message || `${kind} failed.`))
       .finally(() => {
         action.disabled = false;
         action.textContent = previousText || kind;
@@ -2670,7 +2722,7 @@ export function initRuntimeBridge() {
 
       const previousText = archiveBtn.textContent;
       if (archiveBtn instanceof HTMLButtonElement) archiveBtn.disabled = true;
-      archiveBtn.textContent = '📦 ...';
+      archiveBtn.textContent = 'Archiving...';
 
       readJson(`/api/web/zavorthControl/skills`, {
         method: 'POST',
@@ -2705,7 +2757,7 @@ export function initRuntimeBridge() {
 
       const previousText = restoreBtn.textContent;
       if (restoreBtn instanceof HTMLButtonElement) restoreBtn.disabled = true;
-      restoreBtn.textContent = '↻ ...';
+      restoreBtn.textContent = 'Restoring...';
 
       readJson(`/api/web/zavorthControl/skills`, {
         method: 'POST',

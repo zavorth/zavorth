@@ -2,28 +2,23 @@
 
 Zavorth is a local-first governed agent runtime. It receives natural-language
 requests, routes work through policy, asks for approval when an action is
-sensitive, records receipts and keeps enough operational memory to continue
-later.
+sensitive, records receipts and keeps operational memory for continuity.
 
 ## What This Repository Contains
 
 - the agent runtime;
-- the official CLI entry points;
-- the Zavorth Control web surface at `/control`;
-- channel, provider, skill, subagent, scheduler and perception contracts;
+- the official CLI;
+- Zavorth Control at `/control`;
+- channel, provider, skill, subagent and scheduler contracts;
 - security policy, approvals, receipts and operational checks;
-- docs for daily use and development.
-
-The repository should not read like an implementation diary. Private audits,
-temporary planning notes and old external-runtime plans are intentionally not
-part of the public surface.
+- user and integrator documentation.
 
 ## Main Surfaces
 
-### ZavorthControl
+### Zavorth Control
 
-`/control` is the primary web gateway. It is where users see runtime state,
-approvals, sessions, artifacts, channel status and the next safe action.
+`/control` is the primary web surface for runtime state, approvals, sessions,
+artifacts, channel status and next safe actions.
 
 ### CLI
 
@@ -32,40 +27,26 @@ requests and automation-friendly JSON.
 
 ### Runtime API
 
-The runtime API is the integration boundary for clients and adapters. It should
-surface the same governed state as the CLI and ZavorthControl.
+The runtime API is the integration boundary for clients and adapters.
 
 ### Channels
 
 Telegram, Discord, WhatsApp, Slack, Signal, iMessage and other adapters are
-optional surfaces. They should share the same Channel Mesh contract rather than
-become separate products.
+optional surfaces over the same Channel Mesh contract.
 
-## Current Operating Model
+## How Work Flows
 
-1. A request enters through CLI, ZavorthControl, API or a channel.
+1. A request enters through CLI, Zavorth Control, API or a channel.
 2. Zavorth builds context and classifies risk.
-3. Policy Broker evaluates tools, workspace, network, provider, channel and
-   mutation boundaries.
+3. Policy evaluates tools, workspace, network, provider, channel and mutation boundaries.
 4. The runtime asks for approval when needed.
 5. Work runs through governed tools, subagents, skills or scheduled flows.
 6. Results return as text, artifacts, receipts and replayable state.
 
-## Roadmap
-
-The public roadmap is intentionally small:
-
-- transport discovery inside Channel Mesh;
-- live readiness by channel and provider;
-- simpler `SecretRef` setup and approval UX;
-- public docs that stay current.
-
-See [Roadmap](/docs/product-direction.md).
-
 ## Read Next
 
 - [Quickstart](/docs/quickstart.md)
-- [ZavorthControl](/docs/web-zavorthControl.md)
+- [Zavorth Control](/docs/web-zavorthControl.md)
 - [CLI](/docs/zavorth-cli.md)
 - [Operations](/docs/operations.md)
 - [Security](/docs/security.md)

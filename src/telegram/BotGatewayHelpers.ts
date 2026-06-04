@@ -9,7 +9,7 @@ import {
   EXTERNAL_EXECUTOR_LABEL,
   buildExternalMetadataPatch,
   externalizeExecutorText,
-  getExternalAgentBindingsFromMetadata,
+  getRuntimeAdapterBindingsFromMetadata,
   getExternalExecutorAgentId,
   getExternalMetadataValue,
   isExternalPathAccessRequiredError,
@@ -31,7 +31,7 @@ type TaskManagerLike = {
 type ExternalExecutorPermissionDeps = {
   taskManager: TaskManagerLike;
   permissionService: PermissionServiceLike;
-  resolveExternalAgentRole(task: Task): string;
+  resolveRuntimeAdapterRole(task: Task): string;
   resolveApprovedExternalAccessPath(result: any): string;
   toWslPath(targetPath: string): string;
 };
@@ -118,8 +118,8 @@ export async function createExternalExecutorPermissionRequest(
 
   const workspace = task.workspace || config.defaultWorkspace;
   const workspaceWsl = String(result.metadata?.workspace_wsl || '').trim() || workspace.replace(/\\/g, '/');
-  const agentRole = deps.resolveExternalAgentRole(task);
-  const agentBindings = getExternalAgentBindingsFromMetadata(task.metadata);
+  const agentRole = deps.resolveRuntimeAdapterRole(task);
+  const agentBindings = getRuntimeAdapterBindingsFromMetadata(task.metadata);
   const suggestedAgentId = String(
     getExternalMetadataValue(task.metadata, 'agentId') ||
     agentBindings[agentRole] ||
@@ -146,7 +146,7 @@ export async function createExternalExecutorPermissionRequest(
       agent_role: agentRole,
       current_agent_id: result.metadata?.agent_id || getExternalExecutorAgentId(),
       suggested_agent_id: suggestedAgentId,
-      suggested_command: `external agents bind ${suggestedAgentId} --workspace "${workspaceWsl}" --non-interactive`,
+      suggested_command: `runtime adapters bind ${suggestedAgentId} --workspace "${workspaceWsl}" --non-interactive`,
     },
   });
 

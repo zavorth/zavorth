@@ -131,10 +131,10 @@ export class OpenShellRemoteSandboxService {
         envDenylistRequired: true,
       },
       commands: {
-        check: 'npm run openshell-sandbox-parity:check --silent',
+        check: 'npm run openshell-sandbox-certification:check --silent',
         focusedTests: [
           'npx jest tests/services/OpenShellRemoteSandboxService.test.ts --runInBand',
-          'npm run openshell-sandbox-parity:check --silent',
+          'npm run openshell-sandbox-certification:check --silent',
         ],
         typecheck: 'npm run runtime:check --silent',
         nextWorker: 'Worker 4 - SDK/export closure',
@@ -213,7 +213,7 @@ export class OpenShellRemoteSandboxService {
 
   private assertOpenShellMapping(mapping: CapabilitySourceMapping): void {
     if (mapping.primitiveId !== 'sandbox.remote' || mapping.status !== 'normalized') {
-      throw new Error('OpenShell source module must be normalized as sandbox.remote before runtime parity closure.');
+      throw new Error('OpenShell source module must be normalized as sandbox.remote before runtime certification closure.');
     }
   }
 }

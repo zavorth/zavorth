@@ -7,7 +7,7 @@ import { ZavorthGovernedScheduledTaskRegistryService } from '../../../src/servic
 describe('ZavorthGovernedScheduledTaskRegistryService', () => {
   const service = new ZavorthGovernedScheduledTaskRegistryService({
     now: () => new Date('2026-05-12T12:00:00.000Z'),
-    cwd: () => 'C:/TESTES DEV/zavorth-core/Zavorth',
+    cwd: () => 'C:/workspace/zavorth-core/Zavorth',
   });
 
   it('requires owner re-approval when the scope envelope is missing', () => {
@@ -128,7 +128,7 @@ describe('ZavorthGovernedScheduledTaskRegistryService', () => {
   it('marks an expired scope envelope as expired instead of active', () => {
     const original = new ZavorthGovernedScheduledTaskRegistryService({
       now: () => new Date('2026-05-12T12:00:00.000Z'),
-      cwd: () => 'C:/TESTES DEV/zavorth-core/Zavorth',
+      cwd: () => 'C:/workspace/zavorth-core/Zavorth',
     }).buildSnapshot({
       schedule: 'daily 09:00',
       approval: {
@@ -140,7 +140,7 @@ describe('ZavorthGovernedScheduledTaskRegistryService', () => {
 
     const later = new ZavorthGovernedScheduledTaskRegistryService({
       now: () => new Date('2026-05-12T12:00:01.000Z'),
-      cwd: () => 'C:/TESTES DEV/zavorth-core/Zavorth',
+      cwd: () => 'C:/workspace/zavorth-core/Zavorth',
     }).buildSnapshot({
       schedule: 'daily 09:00',
       approval: {

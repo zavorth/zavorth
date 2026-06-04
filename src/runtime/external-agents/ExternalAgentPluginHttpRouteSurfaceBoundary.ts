@@ -84,7 +84,7 @@ export type ExternalAgentPluginHttpRouteSurfaceBoundaryOptions<TRuntimeId extend
 };
 
 export type ExternalAgentPluginHttpRouteSurfaceBoundaryNormalization<TRuntimeId extends string = string> = {
-  nativeContract: 'ZavorthPluginHttpRouteSurfaceParity/v1';
+  nativeContract: 'ZavorthPluginHttpRouteSurfaceConsistency/v1';
   generatedAt: string;
   runtimeId: TRuntimeId;
   httpRoutes: ExternalAgentZavorthHttpRouteSurface[];
@@ -153,7 +153,7 @@ export function normalizeExternalAgentPluginHttpRouteSurfaces<TRuntimeId extends
     .flatMap((route) => route.requestedTools);
 
   return {
-    nativeContract: 'ZavorthPluginHttpRouteSurfaceParity/v1',
+    nativeContract: 'ZavorthPluginHttpRouteSurfaceConsistency/v1',
     generatedAt: options.generatedAt,
     runtimeId: options.runtimeId,
     httpRoutes,

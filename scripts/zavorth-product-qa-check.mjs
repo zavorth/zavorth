@@ -165,7 +165,7 @@ runStaticProductQa();
 runCheck('scripts/zavorth-personal-flow-check.mjs');
 runCheck('scripts/zavorth-developer-flow-check.mjs');
 runCheck('scripts/zavorth-business-flow-check.mjs');
-runCheck('scripts/zavorth-cli-experience-parity-check.mjs');
+runCheck('scripts/zavorth-cli-experience-certification-check.mjs');
 await runDesktopAndMobileFlowQa();
 
 console.log('[zavorth-product-qa-check] ok: Personal, Developer and Business flows pass on desktop/mobile, CLI mirrors essentials, and readiness remains honest.');

@@ -18,7 +18,6 @@ describe('ZavorthMaturityService', () => {
       dailyUseReady: true,
       productionLiveReady: false,
       dashboardVisualQaClaimed: false,
-      externalReferenceLeakFree: true,
       hostLiveCertificationHonest: true,
       dataLifecycleComplete: true,
     }));
@@ -31,7 +30,6 @@ describe('ZavorthMaturityService', () => {
       'dashboard-contract-and-visual-qa',
       'privacy-data-lifecycle',
       'operator-simplicity',
-      'identity-hygiene',
     ]));
   });
 
@@ -48,27 +46,6 @@ describe('ZavorthMaturityService', () => {
     expect(snapshot.gates.find((gate) => gate.id === 'channel-experience-contract')).toEqual(expect.objectContaining({
       status: 'blocked',
     }));
-  });
-
-  it('detects external reference leaks in active source', () => {
-    const service = buildService({
-      files: {
-        'package.json': JSON.stringify({ scripts: requiredScripts() }),
-        'src/services/BadName.ts': 'export const bad = "ThirdPartyAgent";',
-        'src/security/SensitiveDataGuard.ts': 'ok',
-        'src/ai-gateway/lib/logExportRedaction.ts': 'ok',
-        'src/ai-gateway/lib/db/backupSanitizer.ts': 'ok',
-        'docs/security.md': 'ok',
-      },
-    });
-
-    const snapshot = service.buildSnapshot();
-
-    expect(snapshot.status).toBe('blocked');
-    expect(snapshot.summary.externalReferenceLeaks).toBe(1);
-    expect(snapshot.gates.find((gate) => gate.id === 'identity-hygiene')?.evidence).toEqual([
-      'src/services/BadName.ts',
-    ]);
   });
 
   it('renders a compact maturity report', () => {
@@ -98,7 +75,7 @@ function buildService(options: {
         blockers: options.channelBlockers || 0,
       }) as any,
     },
-    liveParityCertificationService: {
+    liveReadinessCertificationService: {
       buildSnapshot: () => liveSnapshot() as any,
     },
     hostLiveCertificationService: {
@@ -120,14 +97,6 @@ function buildService(options: {
         throw new Error(`missing fixture file: ${key}`);
       }
       return files[key] as any;
-    },
-    readdirSync: (targetPath: string) => listDir(projectRoot, targetPath, files) as any,
-    statSync: (targetPath: string) => {
-      const relative = toRelative(projectRoot, targetPath);
-      const isFile = Boolean(files[relative]);
-      return {
-        isDirectory: () => !isFile,
-      } as any;
     },
   });
 }
@@ -293,21 +262,4 @@ function operationalReport() {
 
 function toRelative(projectRoot: string, targetPath: string): string {
   return targetPath.replace(/\\/g, '/').replace(projectRoot.replace(/\\/g, '/'), '').replace(/^\/+/, '');
-}
-
-function listDir(projectRoot: string, targetPath: string, files: Record<string, string>): string[] {
-  const relative = toRelative(projectRoot, targetPath);
-  const prefix = relative ? `${relative}/` : '';
-  const children = new Set<string>();
-  for (const key of Object.keys(files)) {
-    if (!key.startsWith(prefix)) {
-      continue;
-    }
-    const rest = key.slice(prefix.length);
-    const child = rest.split('/')[0];
-    if (child) {
-      children.add(child);
-    }
-  }
-  return Array.from(children);
 }

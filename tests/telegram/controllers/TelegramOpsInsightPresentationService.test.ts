@@ -1,7 +1,7 @@
 import { TelegramOpsInsightPresentationService } from '../../../src/telegram/controllers/TelegramOpsInsightPresentationService';
 
 describe('TelegramOpsInsightPresentationService', () => {
-  it('includes product observability and surface parity in the status reply', () => {
+  it('includes product observability and surface consistency in the status reply', () => {
     const service = new TelegramOpsInsightPresentationService();
 
     const reply = service.formatSystemStatusReply(

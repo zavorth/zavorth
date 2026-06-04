@@ -13,9 +13,9 @@ import type { ZavorthPluginRegistryService } from '../../../../services/ZavorthP
 import type { ZavorthRemoteTransportActionService } from '../../../../services/ZavorthRemoteTransportActionService.js';
 import type { ZavorthRemoteTransportService } from '../../../../services/ZavorthRemoteTransportService.js';
 import {
-  ChannelExperienceParityService,
-  type ChannelExperienceParitySnapshot,
-} from '../../../../services/ChannelExperienceParityService.js';
+  ChannelExperienceConsistencyService,
+  type ChannelExperienceConsistencySnapshot,
+} from '../../../../services/ChannelExperienceConsistencyService.js';
 import type {
   SurfaceBlock,
   SurfaceReceiptStatus,
@@ -118,8 +118,8 @@ export class SharedSurfaceIntegrationCommandPack {
   private async handleChannels(ctx: IMessageContext, args: string): Promise<void> {
     const normalizedArgs = String(args || '').trim();
     const [actionCandidate, channelIdCandidate] = normalizedArgs.split(/\s+/).filter(Boolean);
-    if (String(actionCandidate || '').trim().toLowerCase() === 'parity') {
-      await this.handleChannelExperienceParity(ctx, channelIdCandidate || null);
+    if (String(actionCandidate || '').trim().toLowerCase() === 'consistency') {
+      await this.handleChannelExperienceConsistency(ctx, channelIdCandidate || null);
       return;
     }
 
@@ -164,18 +164,18 @@ export class SharedSurfaceIntegrationCommandPack {
     await ctx.reply(this.deps.channelMeshService.renderReport({ selectedId }));
   }
 
-  private async handleChannelExperienceParity(ctx: IMessageContext, selectedId: string | null): Promise<void> {
+  private async handleChannelExperienceConsistency(ctx: IMessageContext, selectedId: string | null): Promise<void> {
     const buildSnapshot = this.deps.channelMeshService.buildSnapshot;
     if (typeof buildSnapshot !== 'function') {
       await ctx.reply(this.deps.channelMeshService.renderReport({ selectedId }));
       return;
     }
-    const parity = new ChannelExperienceParityService({
+    const consistency = new ChannelExperienceConsistencyService({
       channelMeshService: {
         buildSnapshot: buildSnapshot.bind(this.deps.channelMeshService),
       },
     }).buildSnapshot({ selectedId });
-    await replyWithSharedSurfaceResponse(ctx, this.buildChannelExperienceParitySurfaceResponse(parity));
+    await replyWithSharedSurfaceResponse(ctx, this.buildChannelExperienceConsistencySurfaceResponse(consistency));
   }
 
   private async handleTransports(ctx: IMessageContext, args: string): Promise<void> {
@@ -317,19 +317,19 @@ export class SharedSurfaceIntegrationCommandPack {
     });
   }
 
-  private buildChannelExperienceParitySurfaceResponse(snapshot: ChannelExperienceParitySnapshot) {
+  private buildChannelExperienceConsistencySurfaceResponse(snapshot: ChannelExperienceConsistencySnapshot) {
     const entries = snapshot.selected ? [snapshot.selected] : snapshot.entries;
     const actions: SurfaceResponseAction[] = [
       {
-        id: 'channel-parity-overview',
+        id: 'channel-consistency-overview',
         label: 'Paridade',
         kind: 'command',
-        command: '/channels parity',
-        callbackData: '/channels parity',
+        command: '/channels consistency',
+        callbackData: '/channels consistency',
         style: 'primary',
       },
       {
-        id: 'channel-parity-channels',
+        id: 'channel-consistency-channels',
         label: 'Canais',
         kind: 'command',
         command: '/channels',
@@ -337,7 +337,7 @@ export class SharedSurfaceIntegrationCommandPack {
         style: 'secondary',
       },
       {
-        id: 'channel-parity-commands',
+        id: 'channel-consistency-commands',
         label: 'Comandos',
         kind: 'command',
         command: '/commands channel',
@@ -346,7 +346,7 @@ export class SharedSurfaceIntegrationCommandPack {
       },
     ];
     return createSurfaceResponse({
-      id: `channel-experience-parity-${snapshot.selected?.channelId || 'overview'}`,
+      id: `channel-experience-consistency-${snapshot.selected?.channelId || 'overview'}`,
       intent: 'status',
       title: snapshot.narrative.headline,
       summary: snapshot.narrative.operatorSummary,

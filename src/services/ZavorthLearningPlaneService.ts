@@ -10,6 +10,13 @@ import {
 export type LearningCandidateKind = 'skill' | 'recipe' | 'playbook';
 export type LearningCandidateLifecycle = 'learned_draft' | 'trusted_local' | 'published' | 'quarantined';
 export type LearningCandidateReviewState = 'pending' | 'approved' | 'rejected';
+export type LearningPlaneActionId =
+  | 'approve'
+  | 'reject'
+  | 'promote'
+  | 'forget'
+  | 'promoteProcedure'
+  | 'promoteSkill';
 
 export type LearningCandidateSnapshot = {
   id: string;
@@ -80,7 +87,7 @@ export type LearningPlaneMetricsSnapshot = {
 export type LearningPlaneActionExecution = {
   generatedAt: string;
   candidateId: string;
-  actionId: 'approve' | 'reject' | 'promote';
+  actionId: LearningPlaneActionId;
   status: 'applied' | 'blocked' | 'noop';
   ok: boolean;
   summary: string;
@@ -214,7 +221,7 @@ export class ZavorthLearningPlaneService {
 
   public executeAction(input: {
     candidateId: string;
-    actionId: 'approve' | 'reject' | 'promote';
+    actionId: LearningPlaneActionId;
   }): LearningPlaneActionExecution {
     const candidateId = this.normalizeValue(input.candidateId);
     const actionId = input.actionId;
@@ -256,10 +263,12 @@ export class ZavorthLearningPlaneService {
         summary = `${candidate.title} aprovado como draft revisavel.`;
         details.push('O item continua como learned_draft ate uma promocao explicita.');
       }
-    } else if (actionId === 'reject') {
+    } else if (actionId === 'reject' || actionId === 'forget') {
       if (current.lifecycle === 'quarantined' && current.reviewState === 'rejected') {
         status = 'noop';
-        summary = `${candidate.title} ja esta em quarentena.`;
+        summary = actionId === 'forget'
+          ? `${candidate.title} ja estava esquecido/quarentenado.`
+          : `${candidate.title} ja esta em quarentena.`;
         details.push('Nenhuma mudanca foi necessaria.');
       } else {
         next = {
@@ -269,10 +278,14 @@ export class ZavorthLearningPlaneService {
           updatedAt: now,
           rejectedAt: now,
         };
-        summary = `${candidate.title} foi colocado em quarentena.`;
-        details.push('Candidatos rejeitados nao entram no runtime trusted.');
+        summary = actionId === 'forget'
+          ? `${candidate.title} foi esquecido e revogado do learning plane.`
+          : `${candidate.title} foi colocado em quarentena.`;
+        details.push(actionId === 'forget'
+          ? 'O candidato permanece rastreavel como revogado, sem comportamento persistido no runtime trusted.'
+          : 'Candidatos rejeitados nao entram no runtime trusted.');
       }
-    } else if (actionId === 'promote') {
+    } else if (actionId === 'promote' || actionId === 'promoteProcedure' || actionId === 'promoteSkill') {
       if (current.lifecycle === 'trusted_local' || current.lifecycle === 'published') {
         status = 'noop';
         summary = `${candidate.title} ja foi promovido.`;
@@ -291,7 +304,13 @@ export class ZavorthLearningPlaneService {
           rejectedAt: null,
         };
         summary = `${candidate.title} promovido para trusted local.`;
-        details.push('O candidato agora pode aparecer como habilidade aprendida no platform plane.');
+        if (actionId === 'promoteProcedure') {
+          details.push('O candidato agora pode aparecer como procedimento local aprendido no platform plane.');
+        } else if (actionId === 'promoteSkill') {
+          details.push('O candidato agora pode aparecer como habilidade local aprendida no platform plane.');
+        } else {
+          details.push('O candidato agora pode aparecer como habilidade aprendida no platform plane.');
+        }
       }
     } else {
       status = 'blocked';

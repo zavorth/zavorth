@@ -40,6 +40,10 @@ describe('Zavorth Setup Studio premium flow', () => {
     expect(snapshot.existingConfig.configuredModel).toBe('gpt-4.1');
     expect(snapshot.existingConfig.configuredChannels).toEqual(['telegram']);
     expect(snapshot.safety.noSecretInOutput).toBe(true);
+    expect(snapshot.capabilityActions).toMatchObject({
+      exposed: 0,
+      receipts: 0,
+    });
     expect(snapshot.steps.map((step) => step.id)).toContain('provider');
   });
 
@@ -68,6 +72,7 @@ describe('Zavorth Setup Studio premium flow', () => {
     expect(output).toContain('Security warning');
     expect(output).toContain('Web/search: google');
     expect(output).toContain('Readiness');
+    expect(output).toContain('Capability actions');
     expect(output).toContain('Automation: 2 template(s), disabled until reviewed');
     expect(output).toContain('What happens next');
     expect(output).toContain('zavorth setup');

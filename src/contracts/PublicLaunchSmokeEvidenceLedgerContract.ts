@@ -1,4 +1,4 @@
-import type { ParityCertificationGateStatus } from './ParityCertificationContract.js';
+import type { ReleaseCertificationGateStatus } from './ReleaseCertificationContract.js';
 import type { ReleaseCertificationProfileHardeningSnapshot } from './ReleaseCertificationProfileHardeningContract.js';
 
 export const ZAVORTH_PUBLIC_LAUNCH_SMOKE_EVIDENCE_LEDGER_CONTRACT_VERSION = '2026-05-04.checkpoint-15';
@@ -60,7 +60,7 @@ export type PublicLaunchSmokeEvidenceGate = {
     | 'evidence-receipts-complete'
     | 'no-live-io-by-default'
     | 'no-secret-values-in-ledger';
-  status: ParityCertificationGateStatus;
+  status: ReleaseCertificationGateStatus;
   title: string;
   observed: number | string | boolean;
   threshold: number | string | boolean;

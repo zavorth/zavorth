@@ -4,32 +4,32 @@ import type {
   RemainingRuntimeDecisionStatus,
 } from '../contracts/RemainingRuntimeDecisionsContract.js';
 import { ZAVORTH_REMAINING_RUNTIME_DECISIONS_CONTRACT_VERSION } from '../contracts/RemainingRuntimeDecisionsContract.js';
-import { ChannelMeshParityService } from './ChannelMeshParityService.js';
-import { MemoryArtifactParityService } from './MemoryArtifactParityService.js';
-import { ParityCertificationService } from './ParityCertificationService.js';
-import { SatelliteAppParityService } from './SatelliteAppParityService.js';
+import { ChannelMeshConsistencyService } from './ChannelMeshConsistencyService.js';
+import { MemoryArtifactConsistencyService } from './MemoryArtifactConsistencyService.js';
+import { ReleaseCertificationService } from './ReleaseCertificationService.js';
+import { SatelliteAppConsistencyService } from './SatelliteAppConsistencyService.js';
 
 type RemainingRuntimeDecisionsRuntime = {
   now?: () => Date;
-  channelMeshParityService?: ChannelMeshParityService;
-  satelliteAppParityService?: SatelliteAppParityService;
-  memoryArtifactParityService?: MemoryArtifactParityService;
-  parityCertificationService?: ParityCertificationService;
+  channelMeshConsistencyService?: ChannelMeshConsistencyService;
+  satelliteAppConsistencyService?: SatelliteAppConsistencyService;
+  memoryArtifactConsistencyService?: MemoryArtifactConsistencyService;
+  releaseCertificationService?: ReleaseCertificationService;
 };
 
 export class RemainingRuntimeDecisionsService {
   private readonly now: () => Date;
-  private readonly channelMesh: ChannelMeshParityService;
-  private readonly satelliteApp: SatelliteAppParityService;
-  private readonly memoryArtifact: MemoryArtifactParityService;
-  private readonly certification: ParityCertificationService;
+  private readonly channelMesh: ChannelMeshConsistencyService;
+  private readonly satelliteApp: SatelliteAppConsistencyService;
+  private readonly memoryArtifact: MemoryArtifactConsistencyService;
+  private readonly certification: ReleaseCertificationService;
 
   constructor(runtime: RemainingRuntimeDecisionsRuntime = {}) {
     this.now = runtime.now || (() => new Date());
-    this.channelMesh = runtime.channelMeshParityService || new ChannelMeshParityService({ now: this.now });
-    this.satelliteApp = runtime.satelliteAppParityService || new SatelliteAppParityService({ now: this.now });
-    this.memoryArtifact = runtime.memoryArtifactParityService || new MemoryArtifactParityService({ now: this.now });
-    this.certification = runtime.parityCertificationService || new ParityCertificationService({ now: this.now });
+    this.channelMesh = runtime.channelMeshConsistencyService || new ChannelMeshConsistencyService({ now: this.now });
+    this.satelliteApp = runtime.satelliteAppConsistencyService || new SatelliteAppConsistencyService({ now: this.now });
+    this.memoryArtifact = runtime.memoryArtifactConsistencyService || new MemoryArtifactConsistencyService({ now: this.now });
+    this.certification = runtime.releaseCertificationService || new ReleaseCertificationService({ now: this.now });
   }
 
   public buildSnapshot(): RemainingRuntimeDecisionsSnapshot {
@@ -89,7 +89,7 @@ export class RemainingRuntimeDecisionsService {
       },
       commands: {
         check: 'npm run remaining-runtime-decisions:check --silent',
-        certify: 'npm run parity-certify --silent',
+        certify: 'npm run release-certify --silent',
         nextStage: 'Release certification profile hardening',
       },
       policy: {

@@ -102,6 +102,19 @@ export type ZavorthSetupStudioHatchPlan = {
   commands: string[];
 };
 
+export type ZavorthSetupStudioCapabilityActionReadiness = {
+  status: 'ready' | 'available' | 'attention';
+  exposed: number;
+  receipts: number;
+  items: Array<{
+    id: string;
+    title: string;
+    status: 'available';
+    nextAction: string;
+  }>;
+  statusCommand: string;
+};
+
 export type ZavorthSetupStudioSnapshot = {
   contractVersion: 'zavorth-setup-studio-snapshot/1';
   generatedAt: string;
@@ -118,6 +131,7 @@ export type ZavorthSetupStudioSnapshot = {
   gateway: ZavorthSetupStudioGatewayReadiness;
   controlUi: ZavorthSetupStudioControlUiReadiness;
   hatch: ZavorthSetupStudioHatchPlan;
+  capabilityActions: ZavorthSetupStudioCapabilityActionReadiness;
   steps: ZavorthSetupStudioStep[];
   nextActions: Array<{
     label: string;

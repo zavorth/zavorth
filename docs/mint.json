@@ -1,0 +1,108 @@
+{
+  "name": "Zavorth",
+  "logo": {
+    "light": "/logo.svg",
+    "dark": "/logo.svg",
+    "href": "/"
+  },
+  "favicon": "/favicon.svg",
+  "colors": {
+    "primary": "#7C3AED",
+    "light": "#A78BFA",
+    "dark": "#5B21B6",
+    "background": {
+      "dark": "#0F0A1E"
+    }
+  },
+  "topbarLinks": [
+    {
+      "name": "GitHub",
+      "url": "https://github.com/zavorth/zavorth-core"
+    }
+  ],
+  "topbarCtaButton": {
+    "name": "Get started",
+    "url": "/produto/start/getting-started"
+  },
+  "tabs": [
+    {
+      "name": "Product docs",
+      "url": "produto"
+    }
+  ],
+  "navigation": [
+    {
+      "group": "Start",
+      "pages": [
+        "produto/index",
+        "produto/start/what-is-zavorth",
+        "produto/start/getting-started",
+        "produto/start/onboarding",
+        "produto/start/showcase"
+      ]
+    },
+    {
+      "group": "Concepts",
+      "pages": [
+        "produto/conceitos/features",
+        "produto/conceitos/aprovacoes",
+        "produto/conceitos/memoria"
+      ]
+    },
+    {
+      "group": "Channels",
+      "pages": [
+        "produto/canais/index",
+        "produto/canais/telegram",
+        "produto/canais/discord",
+        "produto/canais/whatsapp",
+        "produto/canais/slack",
+        "produto/canais/signal",
+        "produto/canais/email"
+      ]
+    },
+    {
+      "group": "Providers",
+      "pages": [
+        "produto/providers/index",
+        "produto/providers/gemini",
+        "produto/providers/anthropic",
+        "produto/providers/local",
+        "produto/providers/custom"
+      ]
+    },
+    {
+      "group": "Skills",
+      "pages": [
+        "produto/skills/index",
+        "produto/skills/instalar",
+        "produto/skills/criar"
+      ]
+    },
+    {
+      "group": "Interfaces",
+      "pages": [
+        "produto/interfaces/zavorthcontrol",
+        "produto/interfaces/cli"
+      ]
+    },
+    {
+      "group": "Help",
+      "pages": [
+        "produto/ajuda/troubleshooting",
+        "produto/ajuda/faq",
+        "produto/ajuda/glossario"
+      ]
+    }
+  ],
+  "redirects": [
+    {
+      "source": "/docs/:path*",
+      "destination": "/:path*",
+      "permanent": true
+    }
+  ],
+  "footerSocials": {
+    "github": "https://github.com/zavorth/zavorth-core"
+  }
+}

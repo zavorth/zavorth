@@ -4,19 +4,18 @@
   <h1>Zavorth</h1>
 
   <p>
-    <strong>Ask naturally. Execute safely. Keep evidence.</strong>
+    <strong>A local operating system for AI agents.</strong>
   </p>
 
   <p>
-    A local-first agent operating system for governed automation, code work,
-    document understanding, remote approvals, provider routing, and auditable
-    autonomous workflows.
+    Ask in natural language, connect your tools and providers, let Zavorth plan
+    the work, approve real risk, and keep a clear trail of what happened.
   </p>
 
   <p>
     <a href="LICENSE"><img alt="License" src="https://img.shields.io/badge/license-proprietary-111827?style=for-the-badge"></a>
     <a href="docs/security.md"><img alt="Security" src="https://img.shields.io/badge/security-governed-0f766e?style=for-the-badge"></a>
-    <a href="docs/runtime-readiness.md"><img alt="Readiness" src="https://img.shields.io/badge/readiness-operator--first-2563eb?style=for-the-badge"></a>
+    <a href="docs/operations.md"><img alt="Operations" src="https://img.shields.io/badge/operations-operator--first-2563eb?style=for-the-badge"></a>
     <a href="docs/zavorth-cli.md"><img alt="CLI" src="https://img.shields.io/badge/cli-premium-7c3aed?style=for-the-badge"></a>
   </p>
 
@@ -36,9 +35,9 @@
 
 ## What Zavorth Is
 
-Zavorth is not a loose chatbot wrapped around shell commands. It is a governed
-runtime that receives natural language, classifies intent, routes work through
-approved surfaces, and records evidence for what happened.
+Zavorth is a local operating system for AI agents. It receives natural language,
+classifies intent, chooses the right provider, tool, channel, memory or worker,
+and routes action through policy before anything sensitive happens.
 
 It is built for users who want an agent that can be useful every day without
 silently taking unlimited control of their machine.
@@ -74,11 +73,12 @@ npx zavorth providers add
 npx zavorth channels telegram
 npx zavorth status
 npx zavorth ready
+npx zavorth ready --product
 npx zavorth trust
 ```
 
 For the safest first run, open the Dashboard, connect a provider, review the
-readiness report, then send one normal request:
+readiness state, then send one normal request:
 
 ```text
 Review this repository and tell me what is risky.
@@ -87,8 +87,8 @@ Review this repository and tell me what is risky.
 ## Product Surface
 
 The Dashboard is the main operating surface. It is designed around one daily
-loop: ask naturally, preview risky work, approve only what needs approval, then
-keep the receipt.
+loop: ask for the outcome, let Zavorth prepare the work, approve only real risk,
+then review the result.
 
 <p align="center">
   <img src="assets/brand/zavorth-dashboard-preview.png" alt="Zavorth dashboard preview" width="100%" />
@@ -100,9 +100,10 @@ keep the receipt.
 | --- | --- |
 | Natural First Runtime | Free text enters the agent gateway instead of dying in a shallow command path. |
 | Dashboard | Operator home for readiness, approvals, providers, receipts, tasks, skills, and review. |
-| CLI/TUI | A terminal surface for status, smart commands, provider state, approvals, and daily checks. |
+| CLI/TUI | A daily terminal app for chat, status, smart commands, provider state, approvals, tasks, voice, sandbox, and logs. |
 | Telegram and channels | Remote operation with governed approvals, receipts, and channel-aware responses. |
-| Provider Catalog | A large provider and model catalog with readiness, live proof, fallbacks, and safe status. |
+| Satellite Companion | Pairing, remote approval cards, offline queue, wake/voice readiness, and local-node status. |
+| Provider Catalog | A large provider and model catalog with readiness, fallbacks, and safe status. |
 | Mnemos | Scoped local memory and universal file understanding for documents, PDFs, images, and archives. |
 | Echo | Voice and TTS control surface with clear provider readiness. |
 | Nexus | Integration and connector map for the user's local environment. |
@@ -129,6 +130,7 @@ keep the receipt.
 | `zavorth start` | Start or resume the local runtime and make `/dashboard` available. |
 | `zavorth open` | Open the local Dashboard with the current access token. |
 | `zavorth ready` | One command operator readiness check. |
+| `zavorth ready --product` | Product certification for setup, providers, channels, dashboard, TUI and clean home isolation. |
 | `zavorth status` | Show current health. |
 | `zavorth providers` | Show provider and model readiness. |
 | `zavorth providers add` | Guided provider/API key/model wizard with redacted secrets. |
@@ -154,7 +156,7 @@ Zavorth is designed to be proactive without becoming reckless.
 - Natural approval is supported, but risky grants stay scoped by time, action, channel, and limit.
 - Break-glass mode exists for extreme cases, but it is still explicit, audited, revocable, and guarded.
 - Secrets are handled as references and must not be serialized into prompts, logs, receipts, or screenshots.
-- External agents, providers, sandboxes, and skills are configurable capabilities, not silent dependencies.
+- Providers, sandboxes, channels, and skills are configurable capabilities, not silent dependencies.
 - Providers are cataloged honestly: configured and proven routes are marked ready; missing credentials stay "not configured".
 - Transaction and execution flows prefer simulation, preview, and audit before any live operation.
 
@@ -163,20 +165,21 @@ Zavorth is designed to be proactive without becoming reckless.
 | Path | Role |
 | --- | --- |
 | `src/` | Core runtime, services, providers, gateways, policy, and dashboard integration. |
-| `scripts/` | Operator commands, readiness checks, certification packs, and local tooling. |
+| `scripts/` | Operator commands, readiness checks, release utilities, and local tooling. |
 | `tests/` | Unit, runtime, security, gateway, provider, dashboard, and skill checks. |
 | `docs/` | Product docs, architecture notes, security posture, operations, and roadmap. |
 | `skill-library/` | Native skills, governed curation inputs, and approved skill surfaces. |
 | `assets/` | Brand, dashboard, social, and repository presentation assets. |
 | `agent/` | Runtime-side agent support and voice/media helpers. |
 | `apps/` | Application surfaces and companion app code. |
-| `data/` | Local evidence, receipts, live proof, state snapshots, and runtime artifacts. |
+| `data/` | Local receipts, state snapshots, and runtime artifacts. |
 
 ## Status Honesty
 
 Zavorth can know about a provider, channel, backend, or skill without pretending
-it is live. A capability is only treated as ready when its configuration,
-policy, and proof allow it.
+it is live. A route can be available for execution while still asking for the
+credential, endpoint, policy, or live proof that your machine has not provided
+yet.
 
 That means the repo may show many cataloged routes while only a subset is
 active on a specific machine. This is intentional: it keeps setup simple, avoids
@@ -186,19 +189,19 @@ false readiness, and prevents accidental execution with missing credentials.
 
 - [Documentation index](docs/README.md)
 - [Quickstart](docs/quickstart.md)
+- [Capabilities](docs/capabilities.md)
 - [Architecture](docs/architecture.md)
 - [Security](docs/security.md)
 - [Telegram](docs/telegram.md)
 - [Dashboard](docs/web-dashboard.md)
 - [CLI guide](docs/zavorth-cli.md)
-- [Runtime readiness](docs/runtime-readiness.md)
-- [External agent onboarding](docs/external-agent-onboarding.md)
-- [External agent gateway](docs/external-agent-gateway.md)
+- [Operations](docs/operations.md)
 - [Capability mesh](docs/capability-mesh.md)
-- [Roadmap](docs/product-direction.md)
+- [Product Principles](docs/product-direction.md)
+- [Product Certification](docs/product-certification.md)
 
 ---
 
 <div align="center">
-  <sub>Zavorth is built for autonomous work with local control, explicit trust, and visible evidence.</sub>
+  <sub>Zavorth is built for autonomous work with local control, explicit trust, and visible receipts.</sub>
 </div>

@@ -50,7 +50,7 @@ describe('ZavorthDailyUseScenarioTestService', () => {
       simulationOnly: true,
       noLiveProviderProbeByDefault: true,
       noTelegramMessageSent: true,
-      noExternalAgentStarted: true,
+      noRuntimeAdapterStarted: true,
       noSkillMergeApplied: true,
     }));
     expect(snapshot.scenarios.every((scenario) => scenario.safety.hiddenExecution === false)).toBe(true);

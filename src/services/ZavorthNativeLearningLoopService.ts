@@ -13,6 +13,7 @@ import { ZavorthMemoryLearningLoopService } from './ZavorthMemoryLearningLoopSer
 import { ZavorthMnemosProceduralMemoryService } from './ZavorthMnemosProceduralMemoryService.js';
 import { ZavorthReplayLearningService, type ZavorthReplayLearningSnapshot } from './ZavorthReplayLearningService.js';
 import { ZavorthSkillEvolutionService, type ZavorthSkillEvolutionSnapshot } from './ZavorthSkillEvolutionService.js';
+import { ZavorthAdaptiveLearningOsService } from './ZavorthAdaptiveLearningOsService.js';
 
 type NativeLearningRuntime = {
   now?: () => Date;
@@ -20,6 +21,7 @@ type NativeLearningRuntime = {
   replayLearning?: Pick<ZavorthReplayLearningService, 'buildSnapshot'>;
   skillEvolution?: Pick<ZavorthSkillEvolutionService, 'buildSnapshot'>;
   proceduralMemory?: Pick<ZavorthMnemosProceduralMemoryService, 'preview' | 'list'>;
+  adaptiveLearning?: Pick<ZavorthAdaptiveLearningOsService, 'buildSnapshot' | 'ingestObservation'>;
 };
 
 type BuildSnapshotInput = {
@@ -49,6 +51,7 @@ export class ZavorthNativeLearningLoopService {
   private readonly replayLearning: Pick<ZavorthReplayLearningService, 'buildSnapshot'>;
   private readonly skillEvolution: Pick<ZavorthSkillEvolutionService, 'buildSnapshot'>;
   private readonly proceduralMemory: Pick<ZavorthMnemosProceduralMemoryService, 'preview' | 'list'>;
+  private readonly adaptiveLearning: Pick<ZavorthAdaptiveLearningOsService, 'buildSnapshot' | 'ingestObservation'>;
 
   public constructor(runtime: NativeLearningRuntime = {}) {
     this.now = runtime.now || (() => new Date());
@@ -56,6 +59,7 @@ export class ZavorthNativeLearningLoopService {
     this.replayLearning = runtime.replayLearning || new ZavorthReplayLearningService();
     this.skillEvolution = runtime.skillEvolution || new ZavorthSkillEvolutionService();
     this.proceduralMemory = runtime.proceduralMemory || new ZavorthMnemosProceduralMemoryService();
+    this.adaptiveLearning = runtime.adaptiveLearning || new ZavorthAdaptiveLearningOsService({ now: this.now });
   }
 
   public async buildSnapshot(input: BuildSnapshotInput = {}): Promise<ZavorthNativeLearningLoopSnapshot> {
@@ -70,10 +74,20 @@ export class ZavorthNativeLearningLoopService {
       workspace: input.workspace || null,
       limit: input.limit,
     });
-    const [memoryStatus, replaySnapshot, skillSnapshot] = await Promise.all([
+    const [memoryStatus, replaySnapshot, skillSnapshot, adaptiveSnapshot] = await Promise.all([
       this.memoryLoop.buildStatus(),
       Promise.resolve(this.replayLearning.buildSnapshot({ limit: 12, workspace: input.workspace || null })),
       Promise.resolve(this.skillEvolution.buildSnapshot()),
+      observation
+        ? this.adaptiveLearning.ingestObservation({
+          observation,
+          userId: input.userId || null,
+          sessionId: input.sessionId || null,
+          workspace: input.workspace || null,
+          sourceSurface,
+          commitGreenMemory: false,
+        })
+        : this.adaptiveLearning.buildSnapshot(),
     ]);
 
     const candidates: ZavorthNativeLearningLoopCandidate[] = [];
@@ -128,6 +142,21 @@ export class ZavorthNativeLearningLoopService {
     const requiresApproval = uniqueCandidates.filter((candidate) => candidate.approvalRequired).length;
     const promoted = uniqueCandidates.filter((candidate) => candidate.state === 'promoted').length;
     const status: ZavorthNativeLearningLoopSnapshot['status'] = quarantined > 0 ? 'attention' : 'passed';
+    const adaptiveTechnicalScannerReady = adaptiveSnapshot.safety.technicalScannerReady
+      && adaptiveSnapshot.classification.technical.scanned;
+    const adaptiveSemanticClassifierReady = adaptiveSnapshot.safety.semanticClassifierGoverned
+      && adaptiveSnapshot.summary.semanticClassifierUsed === Boolean(observation);
+    const adaptiveMultilingualRecallReady = adaptiveSnapshot.safety.multilingualRecallLocalOnly
+      && adaptiveSnapshot.summary.multilingualRecallReady;
+    const adaptiveOperatorI18nReady = adaptiveSnapshot.safety.operatorI18nReady
+      && adaptiveSnapshot.summary.i18nReady;
+    const adaptiveLearningReady = adaptiveSnapshot.safety.localOnly
+      && adaptiveSnapshot.safety.redLaneNeverSilent
+      && adaptiveSnapshot.invariants.shadowLearningBeforePromotion
+      && adaptiveTechnicalScannerReady
+      && adaptiveSemanticClassifierReady
+      && adaptiveMultilingualRecallReady
+      && adaptiveOperatorI18nReady;
 
     return {
       generatedAt,
@@ -146,12 +175,18 @@ export class ZavorthNativeLearningLoopService {
         approvedNudgesReady: uniqueCandidates.some((candidate) => candidate.kind === 'approved-nudge'),
         reversibleUserModelReady: replaySnapshot.policy.approvalRequiredForProfile === true
           && replaySnapshot.profile.mode === 'suggest-only',
+        adaptiveLearningReady,
+        adaptiveTechnicalScannerReady,
+        adaptiveSemanticClassifierReady,
+        adaptiveMultilingualRecallReady,
+        adaptiveOperatorI18nReady,
         securityPolicyFirewallReady: true,
         rawSecretsSerialized: false,
         externalIoPerformed: false,
         workspaceMutationPerformed: false,
       },
       sessionSearch,
+      adaptiveLearning: adaptiveSnapshot,
       userModel: this.userModel(replaySnapshot),
       candidates: uniqueCandidates,
       invariants: {
@@ -189,6 +224,11 @@ export class ZavorthNativeLearningLoopService {
       `- session search: ${snapshot.summary.sessionSearchReady ? 'ready' : 'needs attention'}`,
       `- auto-skill candidates: ${snapshot.summary.autoSkillCandidateReady ? 'ready' : 'needs observation'}`,
       `- skill improvement candidates: ${snapshot.summary.skillImprovementCandidateReady ? 'ready' : 'needs attention'}`,
+      `- adaptive learning lanes: ${snapshot.summary.adaptiveLearningReady ? 'ready' : 'needs attention'}`,
+      `- adaptive technical scanner: ${snapshot.summary.adaptiveTechnicalScannerReady ? 'ready' : 'needs attention'}`,
+      `- adaptive semantic classifier: ${snapshot.summary.adaptiveSemanticClassifierReady ? 'ready' : 'needs attention'}`,
+      `- adaptive multilingual recall: ${snapshot.summary.adaptiveMultilingualRecallReady ? 'ready' : 'needs attention'}`,
+      `- adaptive operator i18n: ${snapshot.summary.adaptiveOperatorI18nReady ? 'ready' : 'needs attention'}`,
       `- approvable nudges: ${snapshot.summary.approvedNudgesReady ? 'ready' : 'needs runtime history'}`,
       `- security policy firewall: ${snapshot.summary.securityPolicyFirewallReady ? 'ready' : 'blocked'}`,
     ];
@@ -526,13 +566,15 @@ export class ZavorthNativeLearningLoopService {
     const actions: ZavorthNativeLearningLoopCandidate['actions'] = [
       { id: 'approve', label: 'Approve as draft', command: `zavorth learn approve ${id}` },
       { id: 'reject', label: 'Reject', command: `zavorth learn reject ${id}` },
-      { id: 'revoke', label: 'Revoke later', command: `zavorth learn revoke ${id}` },
+      { id: 'forget', label: 'Forget later', command: `zavorth learn forget ${id}` },
     ];
     if (kind === 'auto-skill-candidate' || kind === 'skill-improvement-candidate') {
       actions.push({ id: 'preview-skill', label: 'Preview skill draft', command: `zavorth skills evolve --preview ${id}` });
+      actions.push({ id: 'promoteSkill', label: 'Promote skill after approval', command: `zavorth learn promote-skill ${id}` });
     }
     if (kind === 'procedural-memory') {
       actions.push({ id: 'convert-to-procedure', label: 'Keep as Mnemos procedure', command: `zavorth mnemos procedural approve ${id}` });
+      actions.push({ id: 'promoteProcedure', label: 'Promote procedure after approval', command: `zavorth learn promote-procedure ${id}` });
     }
     if (state === 'requires_approval') {
       actions.push({ id: 'promote', label: 'Promote after approval', command: `zavorth learn promote ${id}` });

@@ -41,7 +41,7 @@ export class WebAppHostRouteService {
         ? deps.accessManifest.buildManifestFromReadiness(readiness)
         : await deps.accessManifest.buildManifest();
       const requestedSessionId = String(url.searchParams.get('sessionId') || '').trim();
-      const surfaceParitySnapshot = requestedSessionId
+      const surfaceConsistencySnapshot = requestedSessionId
         ? await deps.realtime.getResolvedSnapshot(requestedSessionId).catch(() => null)
         : null;
       const [installJourney, officialRemoteAccess, remoteAccess] = includeFullDetail
@@ -68,14 +68,14 @@ export class WebAppHostRouteService {
           installJourney,
           officialRemoteAccess,
           remoteAccess,
-          surfaceParity: deps.surfaceParity.buildManifest({
-            context: surfaceParitySnapshot
+          surfaceConsistency: deps.surfaceConsistency.buildManifest({
+            context: surfaceConsistencySnapshot
               ? {
                 access: manifest,
-                continuity: surfaceParitySnapshot.continuity,
-                tasks: surfaceParitySnapshot.tasks,
-                permissions: surfaceParitySnapshot.permissions,
-                workflowRuns: surfaceParitySnapshot.workflowRuns,
+                continuity: surfaceConsistencySnapshot.continuity,
+                tasks: surfaceConsistencySnapshot.tasks,
+                permissions: surfaceConsistencySnapshot.permissions,
+                workflowRuns: surfaceConsistencySnapshot.workflowRuns,
               }
               : null,
           }),
@@ -267,7 +267,7 @@ export class WebAppHostRouteService {
       return true;
     }
 
-    if (pathname === '/api/web/external-agents' && req.method === 'GET') {
+    if ((pathname === '/api/web/zavorth-runtime-adapters' || pathname === '/api/web/external-agents') && req.method === 'GET') {
       deps.writeJson(res, {
         ok: true,
         snapshot: this.externalAgentGateway.buildDashboardSnapshot(),
@@ -275,7 +275,7 @@ export class WebAppHostRouteService {
       return true;
     }
 
-    if (pathname === '/api/web/external-agents/register' && req.method === 'POST') {
+    if ((pathname === '/api/web/zavorth-runtime-adapters/register' || pathname === '/api/web/external-agents/register') && req.method === 'POST') {
       const body = await deps.readJsonBody(req);
       try {
         const receipt = this.externalAgentGateway.registerProfile({
@@ -323,7 +323,7 @@ export class WebAppHostRouteService {
       return true;
     }
 
-    if (pathname === '/api/web/external-agents/invoke' && req.method === 'POST') {
+    if ((pathname === '/api/web/zavorth-runtime-adapters/invoke' || pathname === '/api/web/external-agents/invoke') && req.method === 'POST') {
       const body = await deps.readJsonBody(req);
       try {
         const receipt = await this.externalAgentGateway.invoke({
@@ -557,24 +557,24 @@ export class WebAppHostRouteService {
       return true;
     }
 
-    if (pathname === '/api/web/host/surface-parity' && req.method === 'GET') {
+    if (pathname === '/api/web/host/surface-consistency' && req.method === 'GET') {
       const manifest = await deps.accessManifest.buildManifest();
       const requestedSessionId = String(url.searchParams.get('sessionId') || '').trim();
-      const surfaceParitySnapshot = requestedSessionId
+      const surfaceConsistencySnapshot = requestedSessionId
         ? await deps.realtime.getResolvedSnapshot(requestedSessionId).catch(() => null)
         : null;
       deps.writeJson(
         res,
         {
           ok: true,
-          parity: deps.surfaceParity.buildManifest({
-            context: surfaceParitySnapshot
+          consistency: deps.surfaceConsistency.buildManifest({
+            context: surfaceConsistencySnapshot
               ? {
                 access: manifest,
-                continuity: surfaceParitySnapshot.continuity,
-                tasks: surfaceParitySnapshot.tasks,
-                permissions: surfaceParitySnapshot.permissions,
-                workflowRuns: surfaceParitySnapshot.workflowRuns,
+                continuity: surfaceConsistencySnapshot.continuity,
+                tasks: surfaceConsistencySnapshot.tasks,
+                permissions: surfaceConsistencySnapshot.permissions,
+                workflowRuns: surfaceConsistencySnapshot.workflowRuns,
               }
               : { access: manifest },
           }),
@@ -606,7 +606,7 @@ export class WebAppHostRouteService {
             requireMutableAccess: false,
           }),
           remoteAccess: await deps.remoteAccess.inspect(),
-          surfaceParity: deps.surfaceParity.buildManifest({
+          surfaceConsistency: deps.surfaceConsistency.buildManifest({
             context: {
               access: manifest,
             },

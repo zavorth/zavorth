@@ -5,6 +5,7 @@ import path from 'node:path';
 const root = process.cwd();
 const sourceRoot = path.join(root, 'apps', 'zavorth-control-vite-shell');
 const staticShellRoot = path.join(root, 'src', 'ai-gateway', 'public', 'zavorth-control-vite-shell');
+const normalizeOnly = process.argv.includes('--normalize-only');
 
 const requiredSourceFiles = [
   'index.html',
@@ -66,7 +67,16 @@ function assertSourceExists() {
 
 function copyFile(source, target) {
   fs.mkdirSync(path.dirname(target), { recursive: true });
+  if (isTextAsset(source)) {
+    const text = fs.readFileSync(source, 'utf8').replace(/\r\n?/g, '\n');
+    fs.writeFileSync(target, text, 'utf8');
+    return;
+  }
   fs.copyFileSync(source, target);
+}
+
+function isTextAsset(filePath) {
+  return ['.html', '.css', '.js', '.json', '.svg', '.txt', '.md'].includes(path.extname(filePath).toLowerCase());
 }
 
 function copyDirectory(source, target) {
@@ -82,6 +92,21 @@ function copyDirectory(source, target) {
   }
 }
 
+function normalizeExistingTextFiles(targetRoot) {
+  if (!fs.existsSync(targetRoot)) return;
+  for (const entry of fs.readdirSync(targetRoot, { withFileTypes: true })) {
+    const entryPath = path.join(targetRoot, entry.name);
+    if (entry.isDirectory()) {
+      normalizeExistingTextFiles(entryPath);
+      continue;
+    }
+    if (!entry.isFile() || !isTextAsset(entryPath)) continue;
+    const text = fs.readFileSync(entryPath, 'utf8');
+    const normalized = text.replace(/\r\n?/g, '\n');
+    if (normalized !== text) fs.writeFileSync(entryPath, normalized, 'utf8');
+  }
+}
+
 function syncTo(targetRoot, options = {}) {
   copyFile(path.join(sourceRoot, 'index.html'), path.join(targetRoot, 'index.html'));
   copyDirectory(path.join(sourceRoot, 'public', 'scripts'), path.join(targetRoot, 'scripts'));
@@ -91,6 +116,12 @@ function syncTo(targetRoot, options = {}) {
   if (options.includePublicFolder) {
     copyDirectory(path.join(sourceRoot, 'public'), path.join(targetRoot, 'public'));
   }
+}
+
+if (normalizeOnly) {
+  normalizeExistingTextFiles(staticShellRoot);
+  console.log('[zavorth-control-vite-sync] normalized text assets in Next Vite shell output');
+  process.exit(0);
 }
 
 assertSourceExists();

@@ -118,17 +118,17 @@ export function executeLearningAction(
     throw new Error('Learning plane indisponivel.');
   }
   const candidateId = support.normalizeValue(input.candidateId);
-  const actionId = String(input.actionId || '').trim().toLowerCase();
+  const actionId = normalizeLearningActionId(input.actionId);
   if (!candidateId) {
     throw new Error('candidateId obrigatorio.');
   }
-  if (!['approve', 'reject', 'promote'].includes(actionId)) {
+  if (!actionId) {
     throw new Error('actionId invalido para learning plane.');
   }
 
   const execution = learningPlane.executeAction({
     candidateId,
-    actionId: actionId as 'approve' | 'reject' | 'promote',
+    actionId,
   });
   return {
     generatedAt: execution.generatedAt,
@@ -139,6 +139,27 @@ export function executeLearningAction(
     summary: execution.summary,
     details: execution.details,
   };
+}
+
+function normalizeLearningActionId(value: unknown):
+  | 'approve'
+  | 'reject'
+  | 'promote'
+  | 'forget'
+  | 'promoteProcedure'
+  | 'promoteSkill'
+  | null {
+  const normalized = String(value || '').trim().replace(/_/g, '-').toLowerCase();
+  if (normalized === 'approve' || normalized === 'reject' || normalized === 'promote' || normalized === 'forget') {
+    return normalized;
+  }
+  if (normalized === 'promote-procedure' || normalized === 'promoteprocedure') {
+    return 'promoteProcedure';
+  }
+  if (normalized === 'promote-skill' || normalized === 'promoteskill') {
+    return 'promoteSkill';
+  }
+  return null;
 }
 
 export function readLearningMetrics(

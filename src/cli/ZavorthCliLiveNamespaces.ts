@@ -5,12 +5,29 @@ import * as fs from 'fs/promises';
 import * as path from 'path';
 import { gzip, gunzip } from 'zlib';
 import { promisify } from 'util';
-import { formatZavorthParityHelp } from './ZavorthCliParityCommands.js';
-import { ZavorthOperationalParityService } from '../services/ZavorthOperationalParityService.js';
+import { formatZavorthCertificationHelp } from './ZavorthCliCertificationCommands.js';
+import { ZavorthOperationalReadinessService } from '../services/ZavorthOperationalReadinessService.js';
+import { ZavorthNativeCapabilityCertificationService } from '../services/ZavorthNativeCapabilityCertificationService.js';
+import { ZavorthBestInClassProductService } from '../services/ZavorthBestInClassProductService.js';
+import { GoalLoopService } from '../services/GoalLoopService.js';
+import { GoalLoopDaemonService } from '../services/GoalLoopDaemonService.js';
+import { GoalLoopWorkerService } from '../services/GoalLoopWorkerService.js';
+import { GoalPlaneService } from '../services/GoalPlaneService.js';
+import { TaskBoardPlaneService } from '../services/TaskBoardPlaneService.js';
 import { TaskPlaneService } from '../services/TaskPlaneService.js';
 import { ZavorthHomePathService } from '../services/ZavorthHomePathService.js';
+import { ZavorthBackgroundTaskService } from '../services/ZavorthBackgroundTaskService.js';
+import { ZavorthCapabilityLifecycleService } from '../services/ZavorthCapabilityLifecycleService.js';
+import { ZavorthCapabilityUsageSignalsService } from '../services/ZavorthCapabilityUsageSignalsService.js';
+import { ZavorthCapabilityAtlasService } from '../services/ZavorthCapabilityAtlasService.js';
+import { ZavorthDailyProductQuietAutonomyService } from '../services/ZavorthDailyProductQuietAutonomyService.js';
 import { ZavorthActionGateway, type ZavorthActionOperation } from '../runtime/actions/index.js';
+import { ZavorthSessionRecallService } from '../services/ZavorthSessionRecallService.js';
+import { ZavorthXaiRuntimeService } from '../services/ZavorthXaiRuntimeService.js';
+import { ZavorthOperationalStateDbService } from '../services/ZavorthOperationalStateDbService.js';
+import { LlmRuntimeService } from '../services/llm/LlmRuntimeService.js';
 import { SkillCuratorPlaneService } from '../skills/SkillCuratorPlaneService.js';
+import { AgentRunService } from '../runtime/agent/AgentRunService.js';
 import { TerminalPanel } from './presentation/TerminalPanel.js';
 
 type JsonObject = Record<string, unknown>;
@@ -18,10 +35,10 @@ const gzipAsync = promisify(gzip);
 const gunzipAsync = promisify(gunzip);
 
 const LIVE_COMMANDS = new Set([
-  'actions', 'backup', 'commitments', 'config', 'cron', 'daemon', 'devices', 'directory', 'dns',
-  'docs', 'exec-policy', 'gateway', 'health', 'hooks', 'infer', 'logs', 'mcp', 'message', 'node',
+  'actions', 'atlas', 'autonomy', 'background', 'backup', 'board', 'commitments', 'config', 'cron', 'daily', 'daemon', 'devices', 'directory', 'dns',
+  'docs', 'exec-policy', 'gateway', 'go', 'goals', 'health', 'hooks', 'infer', 'logs', 'mcp', 'message', 'node',
   'nodes', 'pairing', 'plugins', 'proxy', 'qr', 'reset', 'secrets', 'sessions', 'skills',
-  'mnemos', 'sandbox', 'satellite', 'swarm', 'system', 'tasks', 'uninstall', 'webhooks', 'certify',
+  'mnemos', 'sandbox', 'satellite', 'state', 'swarm', 'system', 'taskboard', 'tasks', 'uninstall', 'webhooks', 'certify', 'xai',
 ]);
 
 export function isZavorthLiveNamespaceCommand(command: string): boolean {
@@ -36,16 +53,21 @@ export async function runZavorthLiveNamespaceCommand(input: {
   const command = input.command.toLowerCase();
   const args = input.args;
   if (args.includes('--help') || args.includes('-h')) {
-    return text(formatZavorthParityHelp(command) || '');
+    return text(formatZavorthCertificationHelp(command) || '');
   }
 
   switch (command) {
     case 'actions': return runActions(input.projectRoot, args);
+    case 'atlas': return runCapabilityAtlas(input.projectRoot, args);
+    case 'autonomy': return runDailyProduct(input.projectRoot, args);
+    case 'background': return runBackground(input.projectRoot, args);
     case 'backup': return runBackup(input.projectRoot, args);
+    case 'board': return runTaskBoard(input.projectRoot, args);
     case 'certify': return runCertify(input.projectRoot, args);
     case 'commitments': return runCollection(input.projectRoot, 'commitments', args, 'commitment');
     case 'config': return runConfig(input.projectRoot, args);
     case 'cron': return runRunnableCollection(input.projectRoot, 'cron-jobs', args, 'job');
+    case 'daily': return runDailyProduct(input.projectRoot, args);
     case 'daemon': return runServiceCommand(input.projectRoot, 'daemon', args);
     case 'devices': return runCollection(input.projectRoot, 'devices', args, 'device');
     case 'directory': return runDirectory(input.projectRoot, args);
@@ -53,6 +75,8 @@ export async function runZavorthLiveNamespaceCommand(input: {
     case 'docs': return runDocs(input.projectRoot, args);
     case 'exec-policy': return runExecPolicy(input.projectRoot, args);
     case 'health': return runHealth(input.projectRoot, args);
+    case 'go': return runGoals(input.projectRoot, args);
+    case 'goals': return runGoals(input.projectRoot, args);
     case 'hooks': return runHooks(input.projectRoot, args);
     case 'infer': return runInfer(input.projectRoot, args);
     case 'logs': return runLogs(input.projectRoot, args);
@@ -69,20 +93,54 @@ export async function runZavorthLiveNamespaceCommand(input: {
     case 'reset': return runReset(input.projectRoot, args);
     case 'sandbox': return runSandbox(input.projectRoot, args);
     case 'satellite': return runSatellite(input.projectRoot, args);
+    case 'state': return runState(input.projectRoot, args);
     case 'secrets': return runSecrets(input.projectRoot, args);
     case 'sessions': return runCollection(input.projectRoot, 'sessions', args, 'session');
     case 'skills': return runSkills(input.projectRoot, args);
     case 'system': return runSystem(input.projectRoot, args);
     case 'swarm': return runSwarm(input.projectRoot, args);
+    case 'taskboard': return runTaskBoard(input.projectRoot, args);
     case 'tasks': return runRunnableCollection(input.projectRoot, 'tasks', args, 'task');
     case 'uninstall': return runUninstall(input.projectRoot, args);
     case 'webhooks': return runWebhooks(input.projectRoot, args);
-    default: return text(formatZavorthParityHelp(command) || '');
+    case 'xai': return runXai(input.projectRoot, args);
+    default: return text(formatZavorthCertificationHelp(command) || '');
   }
 }
 
 async function runCertify(root: string, args: string[]) {
-  const service = new ZavorthOperationalParityService();
+  const target = firstArg(args, 'operational');
+  if (['best-in-class', 'best', 'product-best', 'product-excellence'].includes(target)) {
+    const service = new ZavorthBestInClassProductService({
+      projectRoot: root,
+      ...(readFlag(args, 'evidence-root') ? { evidenceRoot: readFlag(args, 'evidence-root') } : {}),
+      env: process.env,
+    });
+    const snapshot = await service.buildSnapshot();
+    const output = args.includes('--json')
+      ? `${JSON.stringify(snapshot, null, 2)}\n`
+      : `${service.renderText(snapshot)}\n`;
+    return {
+      exitCode: args.includes('--strict') && snapshot.status !== 'ready' ? 1 : 0,
+      output,
+    };
+  }
+  if (['native-capability', 'native', 'capability'].includes(target)) {
+    const service = new ZavorthNativeCapabilityCertificationService({
+      projectRoot: root,
+      ...(readFlag(args, 'evidence-root') ? { evidenceRoot: readFlag(args, 'evidence-root') } : {}),
+      env: process.env,
+    });
+    const snapshot = await service.buildSnapshot();
+    const output = args.includes('--json')
+      ? `${JSON.stringify(snapshot, null, 2)}\n`
+      : `${service.renderText(snapshot)}\n`;
+    return {
+      exitCode: args.includes('--strict') && snapshot.status !== 'ready' ? 1 : 0,
+      output,
+    };
+  }
+  const service = new ZavorthOperationalReadinessService();
   const snapshot = service.buildSnapshot(root);
   const output = args.includes('--json')
     ? `${JSON.stringify(snapshot, null, 2)}\n`
@@ -96,6 +154,41 @@ async function runCertify(root: string, args: string[]) {
 async function runActions(root: string, args: string[]) {
   const gateway = new ZavorthActionGateway({ root });
   const subcommand = firstArg(args, 'lookup');
+  if (['lifecycle', 'promote', 'archive'].includes(subcommand)) {
+    const service = new ZavorthCapabilityLifecycleService({
+      projectRoot: root,
+      env: process.env,
+    });
+    const input = {
+      actionIds: readFlags(args, 'action').concat(readFlags(args, 'action-id')),
+      apply: args.includes('--apply'),
+      actor: readFlag(args, 'actor') || 'operator',
+      approvalId: readFlag(args, 'approval-id') || null,
+    };
+    const snapshot = input.apply ? service.apply(input) : service.snapshot(input);
+    return render(args, 'Zavorth capability lifecycle', service.renderText(snapshot).split('\n'), snapshot as unknown as JsonObject);
+  }
+  if (['usage', 'signals', 'adoption', 'performance'].includes(subcommand)) {
+    const service = new ZavorthCapabilityUsageSignalsService({
+      projectRoot: root,
+      env: process.env,
+    });
+    const snapshot = args.includes('--record')
+      ? service.record({
+        actionId: readFlag(args, 'action') || readFlag(args, 'action-id') || firstUsageActionPosition(args),
+        capabilityId: readFlag(args, 'capability') || undefined,
+        title: readFlag(args, 'title') || undefined,
+        kind: (readFlag(args, 'event') || readFlag(args, 'kind') || 'shown') as any,
+        surface: (readFlag(args, 'surface') || 'cli') as any,
+        actor: readFlag(args, 'actor') || 'operator',
+        status: (readFlag(args, 'status') || 'ok') as any,
+        durationMs: readNumberFlag(args, 'duration-ms'),
+        receiptId: readFlag(args, 'receipt') || undefined,
+        metadata: readFlag(args, 'title') ? { title: readFlag(args, 'title') } : {},
+      })
+      : service.snapshot();
+    return render(args, 'Zavorth capability usage', service.renderText(snapshot).split('\n'), snapshot as unknown as JsonObject);
+  }
   if (subcommand === 'list') {
     const actions = gateway.listActions().map((action) => ({
       id: action.id,
@@ -135,6 +228,450 @@ async function runActions(root: string, args: string[]) {
     actorId: 'operator',
   });
   return render(args, 'Zavorth actions', result.lines, result);
+}
+
+async function runCapabilityAtlas(root: string, args: string[]) {
+  const service = new ZavorthCapabilityAtlasService({ projectRoot: root });
+  const snapshot = service.buildSnapshot({
+    query: readFlag(args, 'query') || args.filter((arg) => !arg.startsWith('--')).join(' '),
+    category: readFlag(args, 'category') as any || null,
+    limit: Number(readFlag(args, 'limit') || 200),
+  });
+  return render(args, 'Zavorth Capability Atlas', service.renderText(snapshot).split('\n'), snapshot as unknown as JsonObject);
+}
+
+async function runDailyProduct(_root: string, args: string[]) {
+  const service = new ZavorthDailyProductQuietAutonomyService();
+  const snapshot = service.buildSnapshot({
+    profileId: readFlag(args, 'profile') || process.env.ZAVORTH_PROFILE || process.env.ZAVORTH_EXPERIENCE_PROFILE || null,
+  });
+  return render(args, 'Zavorth daily product', service.renderText(snapshot).split('\n'), snapshot as unknown as JsonObject);
+}
+
+async function runBackground(root: string, args: string[]) {
+  const action = firstArg(args, 'status');
+  const service = new ZavorthBackgroundTaskService({
+    projectRoot: root,
+    explicitHome: readFlag(args, 'home') || null,
+    env: process.env,
+  });
+  if (['status', 'list', 'ls'].includes(action)) {
+    const snapshot = service.snapshot();
+    return render(args, 'Zavorth background tasks', [
+      `total: ${snapshot.summary.total}`,
+      `queued: ${snapshot.summary.queued}`,
+      `running: ${snapshot.summary.running}`,
+      `waiting approval: ${snapshot.summary.waitingApproval}`,
+      ...snapshot.items.slice(-12).map((item) => `- ${item.id} | ${item.status} | ${item.title}`),
+    ], snapshot as unknown as JsonObject);
+  }
+  const prompt = readFlag(args, 'prompt')
+    || readFlag(args, 'objective')
+    || (['create', 'run', 'start', 'add'].includes(action)
+      ? args.slice(1).filter((arg) => !arg.startsWith('--')).join(' ')
+      : args.filter((arg) => !arg.startsWith('--')).join(' '));
+  if (!prompt) {
+    return render(args, 'Zavorth background tasks', [
+      'Use: zavorth background "<objective>"',
+      'Status: zavorth background status',
+    ], { ok: false });
+  }
+  const task = service.createBackgroundTask({
+    prompt,
+    title: readFlag(args, 'title') || null,
+    sessionId: readFlag(args, 'session-id') || null,
+    profileId: readFlag(args, 'profile') || readFlag(args, 'profile-id') || null,
+    sourceSurface: 'cli:background',
+  });
+  return render(args, 'Zavorth background tasks', [
+    `created: ${task.id}`,
+    `status: ${task.status}`,
+    `title: ${task.title}`,
+    'worker: separated task-plane item; no command was executed immediately',
+  ], { task });
+}
+
+async function runGoals(root: string, args: string[]) {
+  const action = firstArg(args, 'status');
+  const service = goalPlaneServiceForCli(root, args);
+  if (['status', 'list', 'ls'].includes(action)) {
+    const snapshot = service.snapshot();
+    return render(args, 'Zavorth Goal Plane', [
+      `active: ${snapshot.summary.active}`,
+      `paused: ${snapshot.summary.paused}`,
+      `done: ${snapshot.summary.done}`,
+      ...snapshot.goals.slice(-12).map((goal) => `- ${goal.id} | ${goal.status} | ${goal.objective}`),
+    ], snapshot as unknown as JsonObject);
+  }
+  if (['pause', 'resume', 'done', 'cancel', 'cancelled'].includes(action)) {
+    const id = args[1] || readFlag(args, 'id') || '';
+    const next = action === 'resume' ? 'active' : action === 'done' ? 'done' : action === 'pause' ? 'paused' : 'cancelled';
+    const goal = service.transition(id, next, 'operator', readFlag(args, 'reason') || undefined);
+    return render(args, 'Zavorth Goal Plane', goal
+      ? [`${goal.id}: ${goal.status}`]
+      : [`No goal found for id: ${id || '<missing>'}`], { goal });
+  }
+  if (action === 'tick' || action === 'turn') {
+    const id = args[1] || readFlag(args, 'id') || '';
+    const goal = service.recordTurn(id, 'operator', readFlag(args, 'detail') || undefined);
+    return render(args, 'Zavorth Goal Plane', goal
+      ? [`${goal.id}: turn ${goal.turnsUsed}/${goal.maxTurns}`, `status: ${goal.status}`]
+      : [`No active goal found for id: ${id || '<missing>'}`], { goal });
+  }
+  if (['loop', 'judge', 'step', 'continue'].includes(action)) {
+    const id = args[1] || readFlag(args, 'id') || readFlag(args, 'goal-id') || '';
+    const loop = goalLoopServiceForCli(root, args);
+    const snapshot = await loop.evaluate({
+      goalId: id,
+      turnSummary: readFlag(args, 'summary') || readFlag(args, 'detail') || readFlag(args, 'result') || null,
+      lastAssistantText: readFlag(args, 'last') || readFlag(args, 'last-assistant') || null,
+      userIntervened: args.includes('--user-intervened'),
+      force: args.includes('--force'),
+      actor: 'operator',
+      sourceSurface: 'cli:goals',
+    });
+    return render(args, 'Zavorth Goal Loop', [
+      `goal: ${snapshot.goal?.id || id || '<missing>'}`,
+      `verdict: ${snapshot.verdict.status}`,
+      `judge: ${snapshot.verdict.judge}`,
+      `reason: ${snapshot.verdict.reason}`,
+      snapshot.continuationTask ? `queued: ${snapshot.continuationTask.id}` : 'queued: none',
+      snapshot.receipt ? `receipt: ${snapshot.receipt.id}` : 'receipt: none',
+      'execution: not started automatically',
+    ], snapshot as unknown as JsonObject);
+  }
+  if (['worker', 'work', 'run-worker', 'drain'].includes(action)) {
+    const worker = goalLoopWorkerServiceForCli(root, args);
+    const taskArg = args[1] && !args[1].startsWith('--') ? args[1] : null;
+    const snapshot = await worker.drain({
+      taskId: readFlag(args, 'task-id') || readFlag(args, 'id') || taskArg,
+      workerId: readFlag(args, 'worker-id') || 'cli-goal-loop-worker',
+      leaseMs: readNumberFlag(args, 'lease-ms') || null,
+      maxItems: readNumberFlag(args, 'max-items') || (action === 'drain' ? 5 : 1),
+      dryRun: args.includes('--dry-run') || args.includes('--preview'),
+    });
+    return render(args, 'Zavorth Goal Loop Worker', [
+      `worker: ${snapshot.workerId}`,
+      `processed: ${snapshot.processed}/${snapshot.maxItems}`,
+      ...snapshot.runs.slice(0, 8).map((run) => [
+        `- task: ${run.task?.id || 'none'}`,
+        `status: ${run.task?.status || 'idle'}`,
+        `agent: ${run.agentRun?.status || 'not-run'}`,
+        `verdict: ${run.loop?.verdict.status || 'not-judged'}`,
+        run.loop?.continuationTask ? `next: ${run.loop.continuationTask.id}` : 'next: none',
+      ].join(' | ')),
+    ], snapshot as unknown as JsonObject);
+  }
+  if (['daemon', 'scheduler', 'background-loop'].includes(action)) {
+    const daemon = goalLoopDaemonServiceForCli(root, args);
+    const subcommand = args[1] && !args[1].startsWith('--') ? args[1] : 'status';
+    const input = {
+      daemonId: readFlag(args, 'daemon-id') || 'cli-goal-loop-daemon',
+      intervalMs: readNumberFlag(args, 'interval-ms') || null,
+      leaseMs: readNumberFlag(args, 'lease-ms') || null,
+      staleAfterMs: readNumberFlag(args, 'stale-after-ms') || null,
+      maxItems: readNumberFlag(args, 'max-items') || null,
+      maxTicks: readNumberFlag(args, 'max-ticks') || null,
+      stopWhenIdle: args.includes('--stop-when-idle'),
+      dryRun: args.includes('--dry-run') || args.includes('--preview'),
+    };
+    const snapshot = subcommand === 'tick'
+      ? await daemon.tick(input)
+      : subcommand === 'run'
+        ? await daemon.run({ ...input, maxTicks: input.maxTicks || 3 })
+        : subcommand === 'start'
+          ? daemon.start(input)
+          : subcommand === 'stop'
+            ? daemon.stop(input)
+            : daemon.snapshot(input);
+    return render(args, 'Zavorth Goal Loop Daemon', [
+      `daemon: ${snapshot.daemonId}`,
+      `status: ${snapshot.status}`,
+      `pending: ${snapshot.pendingContinuations}`,
+      `running: ${snapshot.runningContinuations}`,
+      `heartbeat: ${snapshot.lastHeartbeatAt || 'none'}`,
+      `last run: ${snapshot.lastRunAt || 'none'}`,
+      `backoff: ${snapshot.backoffMs}ms`,
+      `stale recovered: ${snapshot.staleRecovered}`,
+      snapshot.receipt ? `receipt: ${snapshot.receipt.id}` : 'receipt: none',
+    ], snapshot as unknown as JsonObject);
+  }
+  const objective = readFlag(args, 'objective')
+    || (action === 'create' || action === 'start'
+      ? args.slice(1).filter((arg) => !arg.startsWith('--')).join(' ')
+      : args.filter((arg) => !arg.startsWith('--')).join(' '));
+  if (!objective) {
+    return render(args, 'Zavorth Goal Plane', [
+      'Use: zavorth go "<objective>"',
+      'Status: zavorth goals status',
+    ], { ok: false });
+  }
+  const goal = service.createGoal({
+    objective,
+    sessionId: readFlag(args, 'session-id') || null,
+    profileId: readFlag(args, 'profile') || readFlag(args, 'profile-id') || null,
+    maxTurns: readNumberFlag(args, 'max-turns') || 12,
+    actor: 'operator',
+  });
+  return render(args, 'Zavorth Goal Plane', [
+    `created: ${goal.id}`,
+    `status: ${goal.status}`,
+    `task-plane: ${goal.taskPlaneItemId || 'not linked'}`,
+    `turns: ${goal.turnsUsed}/${goal.maxTurns}`,
+  ], { goal });
+}
+
+async function runTaskBoard(root: string, args: string[]) {
+  const action = firstArg(args, 'status');
+  const service = taskBoardServiceForCli(root, args);
+  if (['status', 'list', 'ls'].includes(action)) {
+    const snapshot = service.snapshot();
+    return render(args, 'Zavorth TaskBoard', [
+      `boards: ${snapshot.summary.boards}`,
+      `tasks: ${snapshot.summary.tasks}`,
+      `ready: ${snapshot.summary.ready}`,
+      `running: ${snapshot.summary.running}`,
+      `review: ${snapshot.summary.review}`,
+      `blocked: ${snapshot.summary.blocked}`,
+    ], snapshot as unknown as JsonObject);
+  }
+  if (action === 'create-board' || action === 'new') {
+    const board = service.createBoard(readFlag(args, 'title') || args.slice(1).filter((arg) => !arg.startsWith('--')).join(' ') || 'Daily work');
+    return render(args, 'Zavorth TaskBoard', [`created board: ${board.id}`, `title: ${board.title}`], { board });
+  }
+  if (action === 'note') {
+    const note = readFlag(args, 'text') || args.slice(1).filter((arg) => !arg.startsWith('--')).join(' ');
+    const board = service.addBlackboardNote({
+      boardId: readFlag(args, 'board-id') || null,
+      text: note,
+      actor: 'operator',
+    });
+    return render(args, 'Zavorth TaskBoard', [`blackboard updated: ${board.id}`, `notes: ${board.blackboard.length}`], { board });
+  }
+  if (action === 'decompose' || action === 'split') {
+    const objective = readFlag(args, 'objective') || args.slice(1).filter((arg) => !arg.startsWith('--')).join(' ');
+    if (!objective) return render(args, 'Zavorth TaskBoard', ['Missing objective for decompose.'], { ok: false });
+    const parts = splitList(readFlag(args, 'parts') || '').filter(Boolean);
+    const tasks = service.decompose({
+      boardId: readFlag(args, 'board-id') || null,
+      objective,
+      parts: parts.length ? parts : null,
+      includeReview: !args.includes('--no-review'),
+      actor: 'operator',
+    });
+    return render(args, 'Zavorth TaskBoard', [
+      `created tasks: ${tasks.length}`,
+      ...tasks.map((task) => `- ${task.id} | ${String(task.payload.role || 'worker')} | ${task.title}`),
+    ], { tasks });
+  }
+  const title = readFlag(args, 'title')
+    || (['triage', 'add', 'card'].includes(action)
+      ? args.slice(1).filter((arg) => !arg.startsWith('--')).join(' ')
+      : args.filter((arg) => !arg.startsWith('--')).join(' '));
+  if (!title) {
+    return render(args, 'Zavorth TaskBoard', [
+      'Use: zavorth taskboard triage "<task>"',
+      'Or: zavorth taskboard decompose "<objective>"',
+    ], { ok: false });
+  }
+  const task = service.triage({
+    boardId: readFlag(args, 'board-id') || null,
+    title,
+    body: readFlag(args, 'body') || null,
+    actor: 'operator',
+  });
+  return render(args, 'Zavorth TaskBoard', [
+    `created card: ${task.id}`,
+    `lane: ${String(task.payload.lane || 'backlog')}`,
+    `status: ${task.status}`,
+  ], { task });
+}
+
+async function runXai(root: string, args: string[]) {
+  const action = firstArg(args, 'doctor');
+  const service = new ZavorthXaiRuntimeService({ env: process.env });
+  if (action === 'doctor' || action === 'status') {
+    const snapshot = args.includes('--live') ? await service.liveDoctor() : service.doctor();
+    return render(args, 'Zavorth xAI provider', [
+      `configured: ${snapshot.configured ? 'yes' : 'no'}`,
+      `model: ${snapshot.model}`,
+      `auth: ${snapshot.authMode}`,
+      `native search: ${snapshot.capabilities.nativeSearch ? 'yes' : 'no'}`,
+      args.includes('--live') ? `live ready: ${snapshot.liveReady ? 'yes' : 'no'}` : 'live check: skipped',
+      snapshot.error ? `error: ${snapshot.error}` : '',
+    ].filter(Boolean), snapshot as unknown as JsonObject);
+  }
+  if (action === 'search') {
+    const query = readFlag(args, 'query') || args.slice(1).filter((arg) => !arg.startsWith('--')).join(' ');
+    const snapshot = await service.search({ query, live: args.includes('--live') });
+    return render(args, 'Zavorth xAI native search', snapshot.lines, snapshot as unknown as JsonObject);
+  }
+  return render(args, 'Zavorth xAI provider', [
+    'Supported: doctor, search',
+  ], { ok: true });
+}
+
+async function runState(root: string, args: string[]) {
+  const home = new ZavorthHomePathService({
+    projectRoot: root,
+    explicitHome: readFlag(args, 'home') || null,
+    env: process.env,
+  }).resolveSnapshot();
+  const stateDb = stateDbForHome(home);
+  const snapshot = stateDb.snapshot();
+  stateDb.close();
+  return render(args, 'Zavorth Operational StateDB', [
+    `db: ${snapshot.dbPath}`,
+    `journal: ${snapshot.journalMode}`,
+    `fts: ${snapshot.ftsAvailable ? 'enabled' : 'fallback'}`,
+    `sessions: ${snapshot.counts.sessions}`,
+    `messages: ${snapshot.counts.messages}`,
+    `tasks: ${snapshot.counts.tasks}`,
+    `goals: ${snapshot.counts.goals}`,
+    `boards: ${snapshot.counts.boards}`,
+    `events: ${snapshot.counts.events}`,
+  ], snapshot as unknown as JsonObject);
+}
+
+function taskPlaneServiceForCli(root: string, args: string[]): TaskPlaneService {
+  const home = new ZavorthHomePathService({
+    projectRoot: root,
+    explicitHome: readFlag(args, 'home') || null,
+    env: process.env,
+  }).resolveSnapshot();
+  return new TaskPlaneService({
+    storePath: path.join(home.resolvedPaths.runtimeDir, 'task-plane.json'),
+    stateDbPath: home.resolvedPaths.dbPath,
+  });
+}
+
+function goalPlaneServiceForCli(root: string, args: string[]): GoalPlaneService {
+  const home = new ZavorthHomePathService({
+    projectRoot: root,
+    explicitHome: readFlag(args, 'home') || null,
+    env: process.env,
+  }).resolveSnapshot();
+  return new GoalPlaneService({
+    storePath: path.join(home.resolvedPaths.runtimeDir, 'goal-plane.json'),
+    taskPlane: taskPlaneServiceForCli(root, args),
+    stateDbPath: home.resolvedPaths.dbPath,
+  });
+}
+
+function goalLoopServiceForCli(root: string, args: string[]): GoalLoopService {
+  const home = new ZavorthHomePathService({
+    projectRoot: root,
+    explicitHome: readFlag(args, 'home') || null,
+    env: process.env,
+  }).resolveSnapshot();
+  const taskPlane = new TaskPlaneService({
+    storePath: path.join(home.resolvedPaths.runtimeDir, 'task-plane.json'),
+    stateDbPath: home.resolvedPaths.dbPath,
+  });
+  const goalPlane = new GoalPlaneService({
+    storePath: path.join(home.resolvedPaths.runtimeDir, 'goal-plane.json'),
+    taskPlane,
+    stateDbPath: home.resolvedPaths.dbPath,
+  });
+  return new GoalLoopService({
+    goalPlane,
+    taskPlane,
+    stateDbPath: home.resolvedPaths.dbPath,
+  });
+}
+
+function goalLoopWorkerServiceForCli(root: string, args: string[]): GoalLoopWorkerService {
+  const home = new ZavorthHomePathService({
+    projectRoot: root,
+    explicitHome: readFlag(args, 'home') || null,
+    env: process.env,
+  }).resolveSnapshot();
+  const taskPlane = new TaskPlaneService({
+    storePath: path.join(home.resolvedPaths.runtimeDir, 'task-plane.json'),
+    stateDbPath: home.resolvedPaths.dbPath,
+  });
+  const goalPlane = new GoalPlaneService({
+    storePath: path.join(home.resolvedPaths.runtimeDir, 'goal-plane.json'),
+    taskPlane,
+    stateDbPath: home.resolvedPaths.dbPath,
+  });
+  const loop = new GoalLoopService({
+    goalPlane,
+    taskPlane,
+    stateDbPath: home.resolvedPaths.dbPath,
+  });
+  const agentRunner = new AgentRunService({
+    llmRuntime: args.includes('--live-llm')
+      ? new LlmRuntimeService(readFlag(args, 'provider') || undefined)
+      : null,
+    defaultProviderLabel: args.includes('--live-llm') ? 'Zavorth configured LLM' : 'Zavorth Goal Loop Worker',
+    defaultModelLabel: args.includes('--live-llm') ? 'configured-runtime' : 'policy-fallback',
+  });
+  return new GoalLoopWorkerService({
+    goalPlane,
+    taskPlane,
+    loop,
+    agentRunner,
+    stateDbPath: home.resolvedPaths.dbPath,
+  });
+}
+
+function goalLoopDaemonServiceForCli(root: string, args: string[]): GoalLoopDaemonService {
+  const home = new ZavorthHomePathService({
+    projectRoot: root,
+    explicitHome: readFlag(args, 'home') || null,
+    env: process.env,
+  }).resolveSnapshot();
+  const taskPlane = new TaskPlaneService({
+    storePath: path.join(home.resolvedPaths.runtimeDir, 'task-plane.json'),
+    stateDbPath: home.resolvedPaths.dbPath,
+  });
+  const goalPlane = new GoalPlaneService({
+    storePath: path.join(home.resolvedPaths.runtimeDir, 'goal-plane.json'),
+    taskPlane,
+    stateDbPath: home.resolvedPaths.dbPath,
+  });
+  const loop = new GoalLoopService({
+    goalPlane,
+    taskPlane,
+    stateDbPath: home.resolvedPaths.dbPath,
+  });
+  const agentRunner = new AgentRunService({
+    llmRuntime: args.includes('--live-llm')
+      ? new LlmRuntimeService(readFlag(args, 'provider') || undefined)
+      : null,
+    defaultProviderLabel: args.includes('--live-llm') ? 'Zavorth configured LLM' : 'Zavorth Goal Loop Daemon',
+    defaultModelLabel: args.includes('--live-llm') ? 'configured-runtime' : 'policy-fallback',
+  });
+  const worker = new GoalLoopWorkerService({
+    goalPlane,
+    taskPlane,
+    loop,
+    agentRunner,
+    stateDbPath: home.resolvedPaths.dbPath,
+  });
+  return new GoalLoopDaemonService({
+    taskPlane,
+    worker,
+    stateDbPath: home.resolvedPaths.dbPath,
+  });
+}
+
+function taskBoardServiceForCli(root: string, args: string[]): TaskBoardPlaneService {
+  const home = new ZavorthHomePathService({
+    projectRoot: root,
+    explicitHome: readFlag(args, 'home') || null,
+    env: process.env,
+  }).resolveSnapshot();
+  return new TaskBoardPlaneService({
+    storePath: path.join(home.resolvedPaths.runtimeDir, 'task-board.json'),
+    taskPlane: taskPlaneServiceForCli(root, args),
+    stateDbPath: home.resolvedPaths.dbPath,
+  });
+}
+
+function stateDbForHome(home: ReturnType<ZavorthHomePathService['resolveSnapshot']>): ZavorthOperationalStateDbService {
+  return new ZavorthOperationalStateDbService({ dbPath: home.resolvedPaths.dbPath });
 }
 
 function resolveCliActionOperation(value: string): ZavorthActionOperation {
@@ -198,6 +735,47 @@ async function runMnemos(root: string, args: string[]) {
       actorId: 'operator',
     });
     return render(args, 'Zavorth Mnemos recall', result.lines, result);
+  }
+  if (['session-recall', 'session_recall', 'sessions', 'session-search'].includes(action)) {
+    const query = readFlag(args, 'query')
+      || args.slice(1).filter((arg) => !arg.startsWith('--')).join(' ');
+    const result = await gateway.run({
+      operation: 'action.preview',
+      actionId: 'mnemos.session_recall',
+      args: {
+        query,
+        sessionId: readFlag(args, 'session-id') || null,
+        currentSessionId: readFlag(args, 'current-session-id') || null,
+        aroundMessageId: readFlag(args, 'around-message-id') || null,
+        limit: readNumberFlag(args, 'limit') || 8,
+      },
+      sourceSurface: 'cli:mnemos',
+      actorId: 'operator',
+    });
+    return render(args, 'Zavorth Mnemos session recall', result.lines, result);
+  }
+  if (action === 'session-append') {
+    const home = new ZavorthHomePathService({
+      projectRoot: root,
+      explicitHome: readFlag(args, 'home') || null,
+      env: process.env,
+    }).resolveSnapshot();
+    const service = new ZavorthSessionRecallService({
+      storePath: path.join(home.resolvedPaths.runtimeDir, 'mnemos-session-recall.json'),
+      stateDbPath: home.resolvedPaths.dbPath,
+    });
+    const content = readFlag(args, 'text') || args.slice(1).filter((arg) => !arg.startsWith('--')).join(' ');
+    if (!content) return render(args, 'Zavorth Mnemos session recall', ['Missing --text for session-append.'], { ok: false });
+    const session = service.appendMessage({
+      sessionId: readFlag(args, 'session-id') || null,
+      title: readFlag(args, 'title') || null,
+      role: readFlag(args, 'role') || 'user',
+      content,
+    });
+    return render(args, 'Zavorth Mnemos session recall', [
+      `session: ${session.id}`,
+      `messages: ${session.messages.length}`,
+    ], { session });
   }
   if (action === 'forget') {
     const memoryId = readFlag(args, 'id') || args[1] || '';
@@ -869,6 +1447,12 @@ async function runCollection(root: string, collection: string, args: string[], l
 
 async function runRunnableCollection(root: string, collection: string, args: string[], label: string) {
   const action = firstArg(args, 'list');
+  if (collection === 'tasks' && action === 'background') {
+    return runBackground(root, args.slice(1));
+  }
+  if (collection === 'tasks' && ['board', 'taskboard', 'kanban'].includes(action)) {
+    return runTaskBoard(root, args.slice(1));
+  }
   const file = path.join(stateDir(root), `${collection}.json`);
   const items = await readArray(file);
   if (['add', 'create', 'schedule'].includes(action)) {
@@ -3253,7 +3837,7 @@ function resolveRequestedSkillGovernanceMode(args: string[]): 'casual' | 'govern
   if (/\b(governed|governado|estrito|strict|enterprise|corporativo)\b/u.test(text)) {
     return 'governed';
   }
-  if (/\b(casual|rapido|rápido|pessoal|personal|domestico|doméstico)\b/u.test(text)) {
+  if (/\b(casual|rapido|rÃ¡pido|pessoal|personal|domestico|domÃ©stico)\b/u.test(text)) {
     return 'casual';
   }
   return null;
@@ -3312,6 +3896,32 @@ function readNumberFlag(args: string[], name: string): number | null {
   if (!raw) return null;
   const value = Number(raw);
   return Number.isFinite(value) && value > 0 ? value : null;
+}
+
+function firstUsageActionPosition(args: string[]): string {
+  const valueFlags = new Set([
+    '--action',
+    '--action-id',
+    '--capability',
+    '--title',
+    '--event',
+    '--kind',
+    '--surface',
+    '--actor',
+    '--status',
+    '--duration-ms',
+    '--receipt',
+  ]);
+  for (let index = 1; index < args.length; index += 1) {
+    const arg = args[index];
+    if (valueFlags.has(arg)) {
+      index += 1;
+      continue;
+    }
+    if (arg.startsWith('--')) continue;
+    return arg;
+  }
+  return '';
 }
 
 function stateDir(root: string): string {

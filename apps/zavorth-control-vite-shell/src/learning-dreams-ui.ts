@@ -1,5 +1,4 @@
 import { escapeHtml } from './html-utils';
-import { renderCapabilityStrip } from './page-components';
 import { messageFromErrorPayload } from './runtime-http';
 
 const AUTH_STORAGE_KEY = 'zavorth.zavorthControl.webToken';
@@ -192,32 +191,31 @@ function renderLearningScene(root: HTMLElement, learning: LearningPayload, memor
   const updated = learning.generatedAt ? new Date(learning.generatedAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : 'now';
 
   root.innerHTML = `
-    <div class="learning-shell">
-      ${renderCapabilityStrip('dreams')}
-      <section class="learning-stage learning-stage--${escapeHtml(state.tone)}" aria-label="Zavorth learning state">
-        <div class="learning-stage__copy">
-          <span class="dashboard-eyebrow"><span class="dashboard-live-dot"></span>${escapeHtml(state.label)}</span>
-          <h2>Learning</h2>
-          <p>Review candidates from recent runs and Mnemos lifecycle hooks. Nothing changes future behavior without approval.</p>
+    <div class="daily-page learning-shell">
+      <section class="daily-header">
+        <div>
+          <span class="daily-kicker">${escapeHtml(state.label)}</span>
+          <h1>Learning</h1>
+          <p>Review what Zavorth wants to remember or promote.</p>
         </div>
-        <div class="learning-stage__stats" aria-label="Learning summary">
-          <span><strong>${numberLabel(summary.pending)}</strong><small>to review</small></span>
-          <span><strong>${numberLabel(summary.promoted)}</strong><small>trusted</small></span>
-          <span><strong>${numberLabel(summary.fromHooks)}</strong><small>from hooks</small></span>
-        </div>
+        <button class="daily-button daily-button--primary" type="button" data-learning-refresh>Refresh</button>
+      </section>
+      <section class="daily-stat-row" aria-label="Learning summary">
+        <article class="daily-metric"><span>Review</span><strong>${numberLabel(summary.pending)}</strong><small>waiting</small></article>
+        <article class="daily-metric"><span>Trusted</span><strong>${numberLabel(summary.promoted)}</strong><small>promoted</small></article>
+        <article class="daily-metric"><span>Hooks</span><strong>${numberLabel(summary.fromHooks)}</strong><small>session signals</small></article>
       </section>
 
       <section class="learning-phases" aria-label="Learning phases">
         ${renderPhases(summary, memory)}
       </section>
 
-      <section class="learning-review" aria-label="Learning review">
-        <div class="learning-review__header">
+      <section class="daily-panel learning-review" aria-label="Learning review">
+        <div class="daily-panel__head learning-review__header">
           <div>
             <span>Review queue</span>
             <h3>What Zavorth wants to remember</h3>
           </div>
-          <button type="button" data-learning-refresh>Refresh</button>
         </div>
         <div class="learning-candidates">
           ${renderCandidates(candidates)}
@@ -238,23 +236,33 @@ function renderLearningScene(root: HTMLElement, learning: LearningPayload, memor
 
 function renderLearningError(root: HTMLElement, error: unknown) {
   root.innerHTML = `
-    <div class="learning-shell">
-      ${renderCapabilityStrip('dreams')}
-      <section class="learning-stage learning-stage--warn">
-        <div class="learning-stage__agent" aria-hidden="true"><div class="learning-z">Z</div></div>
-        <div class="learning-stage__copy">
-          <span class="dashboard-eyebrow"><span class="dashboard-live-dot"></span>Locked</span>
-          <h2>Learning needs access</h2>
+    <div class="daily-page learning-shell">
+      <section class="daily-header">
+        <div>
+          <span class="daily-kicker">Locked</span>
+          <h1>Learning needs access</h1>
           <p>${escapeHtml(String((error as Error)?.message || 'Unlock this dashboard with the local token to review learning candidates.'))}</p>
         </div>
-        <button class="operator-primary-action" type="button" data-dashboard-prompt="Help me unlock the local Zavorth dashboard token safely.">Unlock</button>
+        <button class="daily-button daily-button--primary" type="button" data-dashboard-prompt="Help me unlock the local Zavorth dashboard token safely.">Unlock</button>
       </section>
     </div>
   `;
 }
 
 async function loadLearning(root: HTMLElement) {
-  root.innerHTML = `<div class="learning-shell">${renderCapabilityStrip('dreams')}<div class="learning-loading">Checking Zavorth learning...</div></div>`;
+  root.innerHTML = `
+    <div class="daily-page learning-shell">
+      <section class="daily-header">
+        <div>
+          <span class="daily-kicker">Learning</span>
+          <h1>Learning</h1>
+          <p>Review memory and skill suggestions before they change future behavior.</p>
+        </div>
+        <button class="daily-button daily-button--primary" type="button" data-learning-refresh>Refresh</button>
+      </section>
+      <div class="learning-loading">Checking learning...</div>
+    </div>
+  `;
   try {
     const [learningPayload, memoryPayload] = await Promise.all([
       readJson('/api/web/learning-dreams'),

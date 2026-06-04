@@ -2,7 +2,7 @@ import type { CapabilityNormalizationSnapshot } from './CapabilityNormalizationC
 import type { CodexRuntimeSnapshot } from './CodexRuntimeContract.js';
 import type { ModuleSdkExportSnapshot } from './ModuleSdkExportContract.js';
 import type { OpenShellRemoteSandboxSnapshot } from './RemoteSandboxContract.js';
-import type { ParityCertificationSnapshot } from './ParityCertificationContract.js';
+import type { ReleaseCertificationSnapshot } from './ReleaseCertificationContract.js';
 import type { ProviderChannelSmokeProofSnapshot } from './ProviderChannelSmokeProofContract.js';
 import type { RuntimeFamilyClosureSnapshot } from './RuntimeFamilyClosureContract.js';
 
@@ -59,7 +59,7 @@ export type FinalAbsorptionCertificationSnapshot = {
   statement: {
     privateCertification: 'Zavorth has absorbed the tracked private capability inventory into Zavorth-native contracts, services, policies, artifacts, receipts, and no-live-IO proof gates.';
     trackedInventory: '125 normalized source modules are covered by the Worker 1 through Worker 6 closure chain.';
-    liveEndToEndParity: 'not-claimed-by-this-certificate';
+    liveEndToEndConsistency: 'not-claimed-by-this-certificate';
     publicLaunch: 'certified-by-static-and-no-live-IO-profile';
   };
   summary: {
@@ -98,7 +98,7 @@ export type FinalAbsorptionCertificationSnapshot = {
     moduleSdkExport: Pick<ModuleSdkExportSnapshot, 'contractVersion' | 'status' | 'summary'>;
     providerChannelSmoke: Pick<ProviderChannelSmokeProofSnapshot, 'contractVersion' | 'status' | 'summary'>;
     runtimeFamilyClosure: Pick<RuntimeFamilyClosureSnapshot, 'contractVersion' | 'status' | 'summary'>;
-    parityCertification: Pick<ParityCertificationSnapshot, 'contractVersion' | 'profile' | 'status' | 'summary'>;
+    releaseCertification: Pick<ReleaseCertificationSnapshot, 'contractVersion' | 'profile' | 'status' | 'summary'>;
   };
   policy: {
     finalCertificateOnly: true;
@@ -109,7 +109,7 @@ export type FinalAbsorptionCertificationSnapshot = {
     noFilesystemWrites: true;
     noArtifactBodyReads: true;
     noSecretValuesSerialized: true;
-    liveEndToEndParityRequiresSeparateOperatorRun: true;
+    liveEndToEndConsistencyRequiresSeparateOperatorRun: true;
   };
   commands: {
     certify: 'npm run final-absorption-certify --silent';

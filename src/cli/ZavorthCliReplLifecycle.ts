@@ -14,6 +14,15 @@ import {
 import { formatCliChatHelp, isCliChatHelpCommand } from './ZavorthCliChatHelp.js';
 import { formatCliChatWelcome } from './ZavorthCliSurfaceHelpers.js';
 import { globalSpinner } from './presentation/TerminalSpinner.js';
+import {
+  buildTerminalShellSnapshot,
+  formatTerminalShellScreen,
+} from './ZavorthCliTerminalShell.js';
+import {
+  runZavorthCliTerminalShellInk,
+  type ZavorthTerminalShellRunResult,
+  type ZavorthTerminalShellRunnerParams,
+} from './ZavorthCliTerminalShellInkApp.js';
 
 async function readCliReplQuestion(
   rl: ReturnType<CliReadlineFactory>,
@@ -36,8 +45,31 @@ export async function runZavorthCliRepl(params: {
   writer: CliWriter;
   runOnce: (rawInput: string, flags: ZavorthCliFlags) => Promise<CliExecutionResult>;
   welcomeText?: string | null;
+  terminalShellRunner?: (params: ZavorthTerminalShellRunnerParams) => Promise<ZavorthTerminalShellRunResult>;
+  forceTerminalShell?: boolean;
 }): Promise<number> {
   const { flags, readlineFactory, writer, runOnce } = params;
+  if (!flags.json) {
+    const initialText = formatTerminalShellScreen(buildTerminalShellSnapshot({
+      sessionId: flags.sessionId,
+      profileId: flags.userId || 'operator',
+      messages: [{
+        role: 'assistant',
+        text: params.welcomeText || 'Ready for a new request.',
+      }],
+    }));
+    const shellRunner = params.terminalShellRunner || runZavorthCliTerminalShellInk;
+    const shellResult = await shellRunner({
+      flags,
+      runOnce,
+      initialText,
+      welcomeText: params.welcomeText || null,
+      force: params.forceTerminalShell,
+    });
+    if (shellResult.rendered) {
+      return shellResult.exitCode;
+    }
+  }
   const rl = readlineFactory();
   let interrupted = false;
   if (typeof (rl as any).on === 'function') {

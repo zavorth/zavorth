@@ -81,7 +81,7 @@ try {
     'credential-ref-gate',
     'typed-connector-simulation',
     'zavorthControl-projection',
-    'cross-surface-parity',
+    'cross-surface-consistency',
     'secret-redaction',
     'no-live-execution',
   ];

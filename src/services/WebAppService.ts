@@ -150,7 +150,7 @@ export class WebAppService {
       taskResourcePlanner: this.composition.taskResourcePlanner,
       modeEscalation: this.composition.modeEscalation,
       workspaceOptimizer: this.composition.workspaceOptimizer,
-      surfaceParity: this.composition.surfaceParity,
+      surfaceConsistency: this.composition.surfaceConsistency,
       skillCatalogApi: this.composition.skillCatalogApi,
       skillMcpSidecar: this.composition.skillMcpSidecar,
       skillLibraryPresentation: this.composition.skillLibraryPresentation,

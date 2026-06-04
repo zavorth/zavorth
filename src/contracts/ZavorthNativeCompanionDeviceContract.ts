@@ -60,7 +60,7 @@ export type ZavorthNativeCapabilityReceipt = {
   reason: string;
 };
 
-export type ZavorthNativeParityEntry = {
+export type ZavorthNativeConsistencyEntry = {
   target: ZavorthNativeRuntimeTarget;
   decision: ZavorthNativeDecision;
   capabilities: ZavorthNativeCapabilityId[];
@@ -131,7 +131,7 @@ export type ZavorthNativeCompanionDeviceSnapshot = {
     nodeVersion: string;
     cwd: string;
   };
-  parity: ZavorthNativeParityEntry[];
+  consistency: ZavorthNativeConsistencyEntry[];
   satellite: ZavorthSatelliteCapabilityBridgeProof;
   desktop: ZavorthDesktopCompanionBridgeProof;
   mlxTts: ZavorthMlxTtsRuntimeReceipt;

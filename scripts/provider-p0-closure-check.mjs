@@ -50,13 +50,13 @@ const rules = [
     ],
   }),
   ruleContainsAll({
-    id: 'provider-mesh-parity-service',
+    id: 'provider-mesh-readiness-service',
     label: 'Provider Mesh maps Anthropic-compatible runtime strategy',
     target: 'Service maps classifier output to anthropic-compatible-runtime and keeps templates visible',
-    files: ['src/services/ProviderMeshParityService.ts', 'src/contracts/ProviderMeshParityContract.ts'],
+    files: ['src/services/ProviderMeshReadinessService.ts', 'src/contracts/ProviderMeshReadinessContract.ts'],
     needles: [
       'anthropic-compatible-runtime',
-      'ProviderMeshParityAdapterStrategy',
+      'ProviderMeshReadinessAdapterStrategy',
     ],
   }),
   ruleContainsAll({

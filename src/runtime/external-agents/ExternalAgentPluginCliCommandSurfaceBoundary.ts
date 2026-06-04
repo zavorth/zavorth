@@ -87,7 +87,7 @@ export type ExternalAgentPluginCliCommandSurfaceBoundaryOptions<TRuntimeId exten
 };
 
 export type ExternalAgentPluginCliCommandSurfaceBoundaryNormalization<TRuntimeId extends string = string> = {
-  nativeContract: 'ZavorthPluginCliCommandSurfaceParity/v1';
+  nativeContract: 'ZavorthPluginCliCommandSurfaceConsistency/v1';
   generatedAt: string;
   runtimeId: TRuntimeId;
   cliCommands: ExternalAgentZavorthCliCommandSurface[];
@@ -155,7 +155,7 @@ export function normalizeExternalAgentPluginCliCommandSurfaces<TRuntimeId extend
     .flatMap((command) => command.requestedTools);
 
   return {
-    nativeContract: 'ZavorthPluginCliCommandSurfaceParity/v1',
+    nativeContract: 'ZavorthPluginCliCommandSurfaceConsistency/v1',
     generatedAt: options.generatedAt,
     runtimeId: options.runtimeId,
     cliCommands,

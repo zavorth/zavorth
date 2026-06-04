@@ -1,0 +1,30 @@
+import { ZavorthBestInClassProductService } from '../src/services/ZavorthBestInClassProductService.js';
+
+const json = process.argv.includes('--json');
+const strict = process.argv.includes('--strict') || process.argv.includes('--require-ready');
+const evidenceRoot = readFlag('--evidence-root');
+
+async function main(): Promise<void> {
+  const service = new ZavorthBestInClassProductService({
+    projectRoot: process.cwd(),
+    ...(evidenceRoot ? { evidenceRoot } : {}),
+  });
+  const snapshot = await service.buildSnapshot();
+  process.stdout.write(json ? `${JSON.stringify(snapshot, null, 2)}\n` : service.renderText(snapshot));
+  if (strict && snapshot.status !== 'ready') {
+    process.exit(1);
+  }
+}
+
+function readFlag(name: string): string | null {
+  const index = process.argv.indexOf(name);
+  if (index < 0) return null;
+  const value = process.argv[index + 1];
+  return value && !value.startsWith('--') ? value : null;
+}
+
+void main().catch((error) => {
+  const message = error instanceof Error ? error.message : String(error);
+  process.stderr.write(`zavorth best-in-class product failed: ${message}\n`);
+  process.exit(1);
+});

@@ -1,11 +1,11 @@
 import type { NormalizedInboundMessage } from '../runtime/agent/contracts/index.js';
 import type {
-  ExternalAgentApprovalEnvelope,
-  ExternalAgentEventEnvelope,
-} from '../runtime/external-agents/contracts.js';
+  RuntimeAdapterApprovalEnvelope,
+  RuntimeAdapterEventEnvelope,
+} from '../runtime/zavorth-runtime-adapters/contracts.js';
 import type {
-  ExternalAgentGatewayHandshakeNormalization,
-} from '../runtime/external-agents/ExternalAgentGatewayHandshakeBoundary.js';
+  RuntimeAdapterGatewayHandshakeNormalization,
+} from '../runtime/zavorth-runtime-adapters/RuntimeAdapterGatewayHandshakeBoundary.js';
 import type {
   SourceAgentRuntimeToolPolicyDoctorSnapshot,
 } from './SourceAgentRuntimeBridgeContract.js';
@@ -134,17 +134,17 @@ export type AcpGenericChannelAdapterReceipt = {
   normalization: {
     nativeContract:
       | 'NormalizedInboundMessage'
-      | 'ExternalAgentEventEnvelope'
-      | 'ExternalAgentGatewayHandshake'
+      | 'RuntimeAdapterEventEnvelope'
+      | 'RuntimeAdapterGatewayHandshake'
       | 'ZavorthStructuredGatewayError/v1';
     reachesExecutor: boolean;
     gatewayEventEmitted: boolean;
     duplicateOf: string | null;
   };
   message: NormalizedInboundMessage | null;
-  eventEnvelope: ExternalAgentEventEnvelope | null;
-  handshake: ExternalAgentGatewayHandshakeNormalization | null;
-  approvals: ExternalAgentApprovalEnvelope[];
+  eventEnvelope: RuntimeAdapterEventEnvelope | null;
+  handshake: RuntimeAdapterGatewayHandshakeNormalization | null;
+  approvals: RuntimeAdapterApprovalEnvelope[];
   toolPolicy: SourceAgentRuntimeToolPolicyDoctorSnapshot | null;
   output: {
     text: string;

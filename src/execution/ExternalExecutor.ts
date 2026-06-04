@@ -135,7 +135,7 @@ function readRuntimeNumber(canonicalKey: string, fallback: number): number {
 /**
  * ExternalExecutor - executor real para external runner (WSL/direct).
  *
- * O Zavorth delega uma tarefa ja validada pelo Gateway para um agente externo.
+ * O Zavorth delega uma tarefa ja validada pelo Gateway para um cliente ACP.
  * O agente deve respeitar o workspace aprovado e retornar um resumo curto da
  * execucao.
  */
@@ -236,7 +236,7 @@ export class ExternalExecutor implements IExecutor {
       if ((result.stdout || '').includes('WORKSPACE_MISMATCH')) {
         result.success = false;
         result.error_code = `${EXTERNAL_EXECUTOR_ERROR_PREFIX}_WORKSPACE_MISMATCH`;
-        result.error_message = 'O agente externo esta preso a um workspace diferente do workspace aprovado pelo Zavorth.';
+        result.error_message = 'O cliente ACP esta preso a um workspace diferente do workspace aprovado pelo Zavorth.';
       } else {
         const requestedPath = this.parsePathAccessRequest(result.stdout || '');
         if (requestedPath) {

@@ -142,7 +142,7 @@ export class LearningOSService {
     }
 
     const actionId = decision === 'revoke'
-      ? 'reject'
+      ? 'forget'
       : decision === 'promote'
         ? 'promote'
         : decision === 'approve'

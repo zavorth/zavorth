@@ -16,7 +16,7 @@ describe('ClaudeAgentSdkRuntimeAdapter', () => {
   it('stays unavailable until explicitly enabled', () => {
     const adapter = new ClaudeAgentSdkRuntimeAdapter({
       apiKey: 'test-key',
-      cwd: 'C:/TESTES DEV/zavorth-core/Zavorth',
+      cwd: 'C:/workspace/zavorth-core/Zavorth',
     });
 
     expect(adapter.isAvailable()).toBe(false);
@@ -28,8 +28,8 @@ describe('ClaudeAgentSdkRuntimeAdapter', () => {
       enabled: true,
       apiKey: 'test-key',
       model: 'claude-test-model',
-      cwd: 'C:/TESTES DEV/zavorth-core/Zavorth',
-      allowedWorkspaceRoots: ['C:/TESTES DEV/zavorth-core'],
+      cwd: 'C:/workspace/zavorth-core/Zavorth',
+      allowedWorkspaceRoots: ['C:/workspace/zavorth-core'],
       query: (params) => {
         calls.push(params as unknown as Record<string, unknown>);
         return sdkMessages({
@@ -68,7 +68,7 @@ describe('ClaudeAgentSdkRuntimeAdapter', () => {
       enabled: true,
       apiKey: 'test-key',
       model: 'claude-stream-model',
-      cwd: 'C:/TESTES DEV/zavorth-core/Zavorth',
+      cwd: 'C:/workspace/zavorth-core/Zavorth',
       query: () => sdkMessages(
         {
           type: 'assistant',
@@ -142,7 +142,7 @@ describe('ClaudeAgentSdkRuntimeAdapter', () => {
       const adapter = new ClaudeAgentSdkRuntimeAdapter({
         enabled: true,
         apiKey: 'explicit-anthropic-secret',
-        cwd: 'C:/TESTES DEV/zavorth-core/Zavorth',
+        cwd: 'C:/workspace/zavorth-core/Zavorth',
         env: {
           ZAVORTH_SAFE_FLAG: '1',
         },
@@ -183,7 +183,7 @@ describe('ClaudeAgentSdkRuntimeAdapter', () => {
       enabled: true,
       apiKey: 'test-key',
       cwd: 'D:/outside',
-      allowedWorkspaceRoots: ['C:/TESTES DEV/zavorth-core'],
+      allowedWorkspaceRoots: ['C:/workspace/zavorth-core'],
       query,
     });
 
@@ -198,7 +198,7 @@ describe('ClaudeAgentSdkRuntimeAdapter', () => {
     const adapter = new ClaudeAgentSdkRuntimeAdapter({
       enabled: true,
       apiKey: 'test-key',
-      cwd: 'C:/TESTES DEV/zavorth-core/Zavorth',
+      cwd: 'C:/workspace/zavorth-core/Zavorth',
       toolPolicyMode: 'configured',
       allowedTools: ['Write', 'Bash'],
       requireApprovalForConfiguredTools: true,
@@ -246,7 +246,7 @@ describe('ClaudeAgentSdkRuntimeAdapter', () => {
     const adapter = new ClaudeAgentSdkRuntimeAdapter({
       enabled: true,
       apiKey: 'test-key',
-      cwd: 'C:/TESTES DEV/zavorth-core/Zavorth',
+      cwd: 'C:/workspace/zavorth-core/Zavorth',
       toolPolicyMode: 'configured',
       allowedTools: ['Write', 'Bash'],
       requireApprovalForConfiguredTools: true,
@@ -322,7 +322,7 @@ describe('ClaudeAgentSdkRuntimeAdapter', () => {
     const adapter = new ClaudeAgentSdkRuntimeAdapter({
       enabled: true,
       apiKey: 'test-key',
-      cwd: 'C:/TESTES DEV/zavorth-core/Zavorth',
+      cwd: 'C:/workspace/zavorth-core/Zavorth',
       query: () => sdkMessages({
         type: 'result',
         subtype: 'success',
@@ -362,7 +362,7 @@ describe('ClaudeAgentSdkRuntimeAdapter', () => {
     const adapter = new ClaudeAgentSdkRuntimeAdapter({
       enabled: true,
       apiKey: 'test-key',
-      cwd: 'C:/TESTES DEV/zavorth-core/Zavorth',
+      cwd: 'C:/workspace/zavorth-core/Zavorth',
       toolPolicyMode: 'configured',
       allowedTools: ['Write', 'Bash'],
       requireApprovalForConfiguredTools: true,

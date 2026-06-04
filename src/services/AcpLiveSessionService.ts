@@ -353,7 +353,7 @@ export class AcpLiveSessionService {
           fs: { readTextFile: true, writeTextFile: false },
           terminal: false,
         },
-        clientInfo: { name: 'zavorth-acp-client', version: '1.0.0' },
+        clientInfo: { name: 'zavorth-runtime-adapter', version: '1.0.0' },
       }), timeoutMs, 'ACP initialize timed out.');
       params.push('initialize', 'ACP SDK initialize completed.', { protocolVersion: acpSdk.PROTOCOL_VERSION });
 

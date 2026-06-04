@@ -139,13 +139,13 @@ describe('ZavorthQaSecurityReleaseCertificationPackService Surface controls', ()
       liveExternalIoPerformed: false,
       secretValuesSerialized: false,
     }));
-    expect(snapshot.functionalParityRunner.printableLines).toEqual(expect.arrayContaining([
+    expect(snapshot.functionalConsistencyRunner.printableLines).toEqual(expect.arrayContaining([
       expect.stringContaining('qa-scenarios'),
       expect.stringContaining('security'),
       expect.stringContaining('release-acceptance'),
       expect.stringContaining('workflow-semantics'),
       expect.stringContaining('patch-risk'),
-      expect.stringContaining('functional-parity'),
+      expect.stringContaining('functional-consistency'),
     ]));
     expect(snapshot.policy).toEqual(expect.objectContaining({
       localChecksOnly: true,

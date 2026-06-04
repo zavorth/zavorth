@@ -57,9 +57,9 @@ if (snapshot) {
   assertRule('surfaces:cli', hasSurface(snapshot, 'cli'), 'CLI consumes GatewaySpineSnapshot');
   assertRule('surfaces:telegram', hasSurface(snapshot, 'telegram'), 'Telegram consumes GatewaySpineSnapshot without being privileged');
   assertRule(
-    'invariant:surface-parity',
-    snapshot.invariants?.some((entry) => entry.id === 'surface-state-parity' && entry.status === 'passed'),
-    'Surface state parity invariant passes',
+    'invariant:surface-consistency',
+    snapshot.invariants?.some((entry) => entry.id === 'surface-state-consistency' && entry.status === 'passed'),
+    'Surface state consistency invariant passes',
   );
 }
 

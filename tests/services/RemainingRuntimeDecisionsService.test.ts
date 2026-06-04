@@ -1,11 +1,11 @@
-import { ChannelMeshParityService } from '../../src/services/ChannelMeshParityService.js';
-import { MemoryArtifactParityService } from '../../src/services/MemoryArtifactParityService.js';
-import { ParityCertificationService } from '../../src/services/ParityCertificationService.js';
+import { ChannelMeshConsistencyService } from '../../src/services/ChannelMeshConsistencyService.js';
+import { MemoryArtifactConsistencyService } from '../../src/services/MemoryArtifactConsistencyService.js';
+import { ReleaseCertificationService } from '../../src/services/ReleaseCertificationService.js';
 import { RemainingRuntimeDecisionsService } from '../../src/services/RemainingRuntimeDecisionsService.js';
-import { SatelliteAppParityService } from '../../src/services/SatelliteAppParityService.js';
+import { SatelliteAppConsistencyService } from '../../src/services/SatelliteAppConsistencyService.js';
 
 describe('RemainingRuntimeDecisionsService Intent model3', () => {
-  it('closes the four remaining runtime decisions and reaches certification-ready parity', () => {
+  it('closes the four remaining runtime decisions and reaches certification-ready consistency', () => {
     const snapshot = new RemainingRuntimeDecisionsService({
       now: () => new Date('2026-05-04T23:00:00.000Z'),
     }).buildSnapshot();
@@ -55,10 +55,10 @@ describe('RemainingRuntimeDecisionsService Intent model3', () => {
     );
   });
 
-  it('makes the underlying parity snapshots report zero gaps', () => {
-    const channel = new ChannelMeshParityService().buildSnapshot();
-    const satellite = new SatelliteAppParityService().buildSnapshot();
-    const memory = new MemoryArtifactParityService().buildSnapshot();
+  it('makes the underlying consistency snapshots report zero gaps', () => {
+    const channel = new ChannelMeshConsistencyService().buildSnapshot();
+    const satellite = new SatelliteAppConsistencyService().buildSnapshot();
+    const memory = new MemoryArtifactConsistencyService().buildSnapshot();
 
     expect(channel.summary.unsupported).toBe(0);
     expect(channel.entries).toEqual(
@@ -85,7 +85,7 @@ describe('RemainingRuntimeDecisionsService Intent model3', () => {
   });
 
   it('makes private certification pass with zero P0/P1/P2 gaps', () => {
-    const certification = new ParityCertificationService({
+    const certification = new ReleaseCertificationService({
       now: () => new Date('2026-05-04T23:10:00.000Z'),
     }).buildSnapshot();
 

@@ -5,7 +5,7 @@ import {
 import { ProviderFactory } from '../../src/providers/ProviderFactory.js';
 import { LiveReadinessService } from '../../src/services/LiveReadinessService.js';
 import { ProviderLongTailActivationService } from '../../src/services/ProviderLongTailActivationService.js';
-import { ProviderMeshParityService } from '../../src/services/ProviderMeshParityService.js';
+import { ProviderMeshReadinessService } from '../../src/services/ProviderMeshReadinessService.js';
 
 const response = (payload: Record<string, unknown>, init: { status?: number } = {}) =>
   new Response(JSON.stringify(payload), {
@@ -53,7 +53,7 @@ describe('ProviderLongTailActivationService Credential vault', () => {
         noSecretsSerialized: true,
       }),
     );
-    expect(snapshot.commands.nextStage).toBe('Intent model3 - Live Parity Certification');
+    expect(snapshot.commands.nextStage).toBe('Intent model3 - Live Consistency Certification');
   });
 
   it('gives every long-tail provider config, doctor, smoke command and receipt', () => {
@@ -109,7 +109,7 @@ describe('ProviderLongTailActivationService Credential vault', () => {
   });
 
   it('removes generated provider manifests from the provider mesh', () => {
-    const providerMesh = new ProviderMeshParityService().buildSnapshot();
+    const providerMesh = new ProviderMeshReadinessService().buildSnapshot();
 
     expect(providerMesh.summary.generatedProviderManifests).toBe(0);
     expect(providerMesh.generatedProviderManifests).toHaveLength(0);

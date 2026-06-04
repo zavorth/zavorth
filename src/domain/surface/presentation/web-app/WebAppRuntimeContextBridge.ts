@@ -97,7 +97,7 @@ export class WebAppRuntimeContextBridge {
 
   public async executeLearningPlaneAction(input: {
     candidateId: string;
-    actionId: 'approve' | 'reject' | 'promote';
+    actionId: 'approve' | 'reject' | 'promote' | 'forget' | 'promoteProcedure' | 'promoteSkill';
   }): Promise<ReturnType<ZavorthLearningPlaneService['executeAction']> | null> {
     const service = this.getLearningPlaneService();
     if (!service) {

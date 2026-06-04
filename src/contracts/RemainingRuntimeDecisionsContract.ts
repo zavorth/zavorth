@@ -1,7 +1,7 @@
-import type { ChannelMeshParitySnapshot } from './ChannelMeshParityContract.js';
-import type { MemoryArtifactParitySnapshot } from './MemoryArtifactParityContract.js';
-import type { ParityCertificationSnapshot } from './ParityCertificationContract.js';
-import type { SatelliteAppParitySnapshot } from './SatelliteAppParityContract.js';
+import type { ChannelMeshConsistencySnapshot } from './ChannelMeshConsistencyContract.js';
+import type { MemoryArtifactConsistencySnapshot } from './MemoryArtifactConsistencyContract.js';
+import type { ReleaseCertificationSnapshot } from './ReleaseCertificationContract.js';
+import type { SatelliteAppConsistencySnapshot } from './SatelliteAppConsistencyContract.js';
 
 export const ZAVORTH_REMAINING_RUNTIME_DECISIONS_CONTRACT_VERSION = '2026-05-04.checkpoint-13';
 
@@ -37,7 +37,7 @@ export type RemainingRuntimeDecisionsSnapshot = {
     remainingMemoryTemplates: number;
     remainingMemoryDecisions: number;
     certificationOpenGaps: number;
-    certificationStatus: ParityCertificationSnapshot['status'];
+    certificationStatus: ReleaseCertificationSnapshot['status'];
     releaseReady: boolean;
     liveExternalCallRequired: false;
     liveChannelSendRequired: false;
@@ -46,10 +46,10 @@ export type RemainingRuntimeDecisionsSnapshot = {
     secretValuesSerialized: false;
   };
   entries: RemainingRuntimeDecisionEntry[];
-  channelSnapshot: Pick<ChannelMeshParitySnapshot, 'contractVersion' | 'summary'>;
-  satelliteSnapshot: Pick<SatelliteAppParitySnapshot, 'contractVersion' | 'summary' | 'nativeWrapperDecision'>;
-  memorySnapshot: Pick<MemoryArtifactParitySnapshot, 'contractVersion' | 'summary'>;
-  certification: Pick<ParityCertificationSnapshot, 'contractVersion' | 'profile' | 'status' | 'summary'>;
+  channelSnapshot: Pick<ChannelMeshConsistencySnapshot, 'contractVersion' | 'summary'>;
+  satelliteSnapshot: Pick<SatelliteAppConsistencySnapshot, 'contractVersion' | 'summary' | 'nativeWrapperDecision'>;
+  memorySnapshot: Pick<MemoryArtifactConsistencySnapshot, 'contractVersion' | 'summary'>;
+  certification: Pick<ReleaseCertificationSnapshot, 'contractVersion' | 'profile' | 'status' | 'summary'>;
   commands: {
     check: string;
     certify: string;

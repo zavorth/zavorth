@@ -1,4 +1,12 @@
 import {
+  buildTerminalShellSnapshot,
+  formatTerminalShellScreen,
+  type TerminalShellCard,
+  type TerminalShellMessage,
+  type TerminalShellQueuedItem,
+  type TerminalShellReceipt,
+} from '../ZavorthCliTerminalShell.js';
+import {
   renderPremiumKeyValueTable,
   renderZavorthPremiumCliScreen,
   type ZavorthPremiumCliAction,
@@ -7,7 +15,145 @@ import {
 } from '../premium/index.js';
 import type { ZavorthCliRuntimeTuiItem, ZavorthCliRuntimeTuiSnapshot, ZavorthCliRuntimeTuiStatus } from './ZavorthCliRuntimeTuiTypes.js';
 
-export function renderZavorthCliRuntimeTui(snapshot: ZavorthCliRuntimeTuiSnapshot): string {
+export type ZavorthCliRuntimeTuiRenderOptions = {
+  mode?: 'daily' | 'technical';
+};
+
+export function renderZavorthCliRuntimeTui(
+  snapshot: ZavorthCliRuntimeTuiSnapshot,
+  options: ZavorthCliRuntimeTuiRenderOptions = {},
+): string {
+  if (options.mode === 'technical') {
+    return renderZavorthCliRuntimeTechnicalTui(snapshot);
+  }
+  return renderZavorthCliRuntimeDailyShell(snapshot);
+}
+
+function renderZavorthCliRuntimeTerminalShell(snapshot: ZavorthCliRuntimeTuiSnapshot): string {
+  const activeRun = snapshot.goalLoop.running > 0 || snapshot.tasks.running > 0;
+  const messages: TerminalShellMessage[] = snapshot.chat.recent.length
+    ? snapshot.chat.recent.slice(0, 4).reverse().map((item) => ({
+      role: 'assistant',
+      text: `${item.title}: ${item.detail}`,
+    }))
+    : [{
+      role: 'assistant',
+      text: snapshot.status === 'ready'
+        ? 'Ready for a new request.'
+        : `${labelForStatus(snapshot.status)}. ${snapshot.agentKernel.missing[0] || 'Check setup when you have a minute.'}`,
+    }];
+  const cards: TerminalShellCard[] = [
+    ...snapshot.approvals.items.slice(0, 3).map((item) => ({
+      kind: 'approval' as const,
+      title: item.title,
+      status: item.status,
+      body: item.detail,
+      command: item.id ? `zavorth approve ${item.id}` : 'zavorth approve',
+    })),
+    ...snapshot.diffs.slice(0, 2).map((item) => ({
+      kind: 'diff' as const,
+      title: item.title,
+      status: item.status,
+      body: item.detail,
+      command: item.id ? `zavorth diff ${item.id}` : 'zavorth diff',
+    })),
+    ...snapshot.timeline.slice(0, 2).map((item) => ({
+      kind: 'status' as const,
+      title: item.title,
+      status: item.status,
+      body: item.detail,
+    })),
+  ];
+  const queue: TerminalShellQueuedItem[] = snapshot.tasks.items
+    .filter((item) => item.status === 'queued' || item.status === 'running')
+    .slice(0, 4)
+    .map((item, index) => ({
+      id: item.id || `task-${index + 1}`,
+      text: item.title,
+      kind: 'message',
+      status: item.status === 'running' ? 'ready' : 'queued',
+    }));
+  const receipts: TerminalShellReceipt[] = [
+    ...snapshot.capabilityActions.items.slice(0, 3).map((item) => ({
+      id: item.id,
+      title: item.title,
+      detail: item.detail,
+    })),
+    ...snapshot.logs.slice(0, 2).map((item) => ({
+      id: item.id,
+      title: item.title,
+      detail: item.detail,
+    })),
+  ];
+  return formatTerminalShellScreen(buildTerminalShellSnapshot({
+    mode: 'daily',
+    sessionId: snapshot.sessions[0]?.id || 'main',
+    profileId: snapshot.agentKernel.profile,
+    providerLabel: snapshot.agentKernel.provider || 'auto',
+    modelLabel: snapshot.agentKernel.model || 'auto',
+    activeRun,
+    messages,
+    cards,
+    receipts,
+    queue,
+    voiceArmed: snapshot.voice.mode !== 'off',
+  }));
+}
+
+function renderZavorthCliRuntimeDailyShell(snapshot: ZavorthCliRuntimeTuiSnapshot): string {
+  return renderZavorthCliRuntimeTerminalShell(snapshot);
+  const provider = snapshot.agentKernel.model && snapshot.agentKernel.model !== 'not configured'
+    ? snapshot.agentKernel.model
+    : snapshot.agentKernel.provider || 'auto';
+  const readyChannels = snapshot.channels.filter((channel) => channel.status === 'ready').length;
+  const latest = [
+    ...snapshot.chat.recent.slice(0, 2),
+    ...snapshot.timeline.slice(0, 3),
+    ...snapshot.logs.slice(0, 2),
+  ].slice(0, 5);
+  const activeWork = snapshot.goalLoop.running > 0
+    ? `${snapshot.goalLoop.running} goal continuation(s) running`
+    : snapshot.tasks.running > 0
+      ? `${snapshot.tasks.running} task(s) running`
+      : 'No active work';
+  const approvalState = snapshot.approvals.pending > 0
+    ? `${snapshot.approvals.pending} waiting`
+    : 'none waiting';
+  const setupState = snapshot.agentKernel.missing.length
+    ? snapshot.agentKernel.missing.slice(0, 2).join('; ')
+    : 'ready';
+  const lines = [
+    'Zavorth Terminal Shell',
+    `${labelForStatus(snapshot.status)} · profile ${snapshot.agentKernel.profile} · provider ${provider}`,
+    '',
+    'Ask Zavorth',
+    '  zavorth chat "review this workspace"',
+    '  zavorth tui --technical        show full runtime diagnostics',
+    '',
+    'Now',
+    `  Work       ${activeWork}`,
+    `  Approvals  ${approvalState}`,
+    `  Channels   ${readyChannels}/${snapshot.channels.length} ready`,
+    `  Voice      ${snapshot.voice.mode}`,
+    `  Setup      ${setupState}`,
+    '',
+    'Quick actions',
+    '  p  Open chat              zavorth chat',
+    '  a  Review approvals       zavorth approve',
+    '  t  Show tasks             zavorth tasks list',
+    '  m  Search memory          zavorth mnemos recall',
+    '  v  Voice wake status      zavorth echo wake status',
+    '  c  Check channels         zavorth channels status',
+    '',
+    'Latest',
+    ...(latest.length ? latest.flatMap(renderDailyItem) : ['  Nothing recorded yet.']),
+    '',
+    'Low-risk maintenance stays quiet. Risky changes still show preview, approval and receipt.',
+  ];
+  return lines.join('\n');
+}
+
+function renderZavorthCliRuntimeTechnicalTui(snapshot: ZavorthCliRuntimeTuiSnapshot): string {
   const latestChat = snapshot.chat.recent.slice(0, 4);
   const latestTimeline = snapshot.timeline.slice(0, 5);
   const pendingApprovals = snapshot.approvals.items.slice(0, 5);
@@ -22,6 +168,7 @@ export function renderZavorthCliRuntimeTui(snapshot: ZavorthCliRuntimeTuiSnapsho
   ];
   const taskItems = snapshot.tasks.items.slice(0, 5);
   const sandboxItems = snapshot.sandbox.items.slice(0, 4);
+  const capabilityActionItems = snapshot.capabilityActions.items.slice(0, 4);
   const panels: ZavorthPremiumCliPanel[] = [
     {
       title: 'Today',
@@ -34,11 +181,51 @@ export function renderZavorthCliRuntimeTui(snapshot: ZavorthCliRuntimeTuiSnapsho
         snapshot.approvals.pending > 0
           ? `${snapshot.approvals.pending} governed action(s) need review.`
           : 'No governed action is waiting right now.',
+        snapshot.goalLoop.running > 0 || snapshot.goalLoop.queued > 0
+          ? `Goal Loop: ${snapshot.goalLoop.queued} queued, ${snapshot.goalLoop.running} running.`
+          : snapshot.goalLoop.lines[0] || 'Goal Loop idle.',
         snapshot.status === 'ready'
           ? 'Zavorth looks ready for daily work.'
           : snapshot.status === 'blocked'
             ? 'Zavorth needs attention before normal work.'
             : 'Zavorth is usable, with a few setup items to review.',
+        `Agent Kernel: ${snapshot.agentKernel.status} / ${snapshot.agentKernel.profile} / ${snapshot.agentKernel.intent}.`,
+      ],
+    },
+    {
+      title: 'Daily product',
+      accent: snapshot.dailyProduct.status === 'ready' ? 'emerald' : snapshot.dailyProduct.status === 'blocked' ? 'rose' : 'amber',
+      dense: true,
+      lines: [
+        snapshot.dailyProduct.headline,
+        '',
+        ...renderPremiumKeyValueTable([
+          { key: 'Primary surface', value: snapshot.dailyProduct.primarySurface },
+          { key: 'Visible tabs', value: snapshot.dailyProduct.visibleTabs.join(', ') },
+          { key: 'Quiet autonomy', value: snapshot.dailyProduct.quietMode },
+          { key: 'Silent', value: snapshot.dailyProduct.silentLanes.slice(0, 5).join(', ') || 'none' },
+          { key: 'Digest', value: snapshot.dailyProduct.digestLanes.slice(0, 4).join(', ') || 'none' },
+          { key: 'Approval', value: snapshot.dailyProduct.approvalBoundaries.slice(0, 5).join(', ') || 'none' },
+        ]).split('\n'),
+      ],
+    },
+    {
+      title: 'Agent Kernel',
+      accent: snapshot.agentKernel.status === 'blocked' ? 'rose' : snapshot.agentKernel.status === 'ready' ? 'emerald' : 'amber',
+      dense: true,
+      lines: [
+        ...renderPremiumKeyValueTable([
+          { key: 'Profile', value: snapshot.agentKernel.profile },
+          { key: 'Provider', value: snapshot.agentKernel.provider },
+          { key: 'Model', value: snapshot.agentKernel.model },
+          { key: 'Intent route', value: snapshot.agentKernel.intent },
+          { key: 'Quiet autonomy', value: snapshot.agentKernel.quietAutonomy },
+          { key: 'Performance samples', value: `${snapshot.agentKernel.performanceSamples}` },
+        ]).split('\n'),
+        '',
+        ...(snapshot.agentKernel.missing.length
+          ? snapshot.agentKernel.missing.slice(0, 3).map((item) => `- ${item}`)
+          : ['No critical kernel setup item.']),
       ],
     },
     {
@@ -57,6 +244,22 @@ export function renderZavorthCliRuntimeTui(snapshot: ZavorthCliRuntimeTuiSnapsho
         ...(pendingApprovals.length ? renderItems(pendingApprovals) : ['No pending approvals.']),
         '',
         ...(diffPreview.length ? renderItems(diffPreview) : ['No diff previews available.']),
+      ],
+    },
+    {
+      title: 'Goal Loop',
+      accent: snapshot.goalLoop.status === 'active' ? 'emerald' : snapshot.goalLoop.queued > 0 ? 'amber' : 'cyan',
+      dense: true,
+      lines: [
+        ...renderPremiumKeyValueTable([
+          { key: 'Daemon', value: snapshot.goalLoop.status },
+          { key: 'Current', value: snapshot.goalLoop.current },
+          { key: 'Queued', value: `${snapshot.goalLoop.queued}` },
+          { key: 'Running', value: `${snapshot.goalLoop.running}` },
+          { key: 'Next tick', value: snapshot.goalLoop.nextRunAfter || 'waiting' },
+        ]).split('\n'),
+        '',
+        ...snapshot.goalLoop.lines.slice(0, 3),
       ],
     },
     {
@@ -117,6 +320,20 @@ export function renderZavorthCliRuntimeTui(snapshot: ZavorthCliRuntimeTuiSnapsho
       ],
     },
     {
+      title: 'Capability actions',
+      accent: snapshot.capabilityActions.status === 'attention' ? 'amber' : 'emerald',
+      dense: true,
+      lines: [
+        ...renderPremiumKeyValueTable([
+          { key: 'Available', value: `${snapshot.capabilityActions.exposed}` },
+          { key: 'Receipts', value: `${snapshot.capabilityActions.receipts}` },
+          { key: 'Activation', value: 'preview + approval' },
+        ]).split('\n'),
+        '',
+        ...(capabilityActionItems.length ? renderItems(capabilityActionItems) : ['No verified capability action is exposed yet.']),
+      ],
+    },
+    {
       title: 'Sessions',
       accent: 'amber',
       lines: sessionLogItems.length ? renderItems(sessionLogItems) : ['No local sessions or logs recorded yet.'],
@@ -137,16 +354,33 @@ export function renderZavorthCliRuntimeTui(snapshot: ZavorthCliRuntimeTuiSnapsho
   });
 }
 
+function labelForStatus(status: ZavorthCliRuntimeTuiStatus): string {
+  if (status === 'ready') return 'Ready';
+  if (status === 'blocked') return 'Needs attention';
+  return 'Partially ready';
+}
+
+function renderDailyItem(item: ZavorthCliRuntimeTuiItem): string[] {
+  return [
+    `  ${item.status}  ${item.title}`,
+    `      ${item.detail}`,
+  ];
+}
+
 function buildStatusRows(snapshot: ZavorthCliRuntimeTuiSnapshot): ZavorthPremiumCliStatusRow[] {
   return [
     { label: 'Runtime', value: snapshot.status, status: toPremiumStatus(snapshot.status) },
+    { label: 'Kernel', value: snapshot.agentKernel.status, status: toPremiumStatus(toRuntimeStatus(snapshot.agentKernel.status)) },
+    { label: 'Daily', value: snapshot.dailyProduct.status, status: toPremiumStatus(toRuntimeStatus(snapshot.dailyProduct.status)) },
     { label: 'Gateway', value: snapshot.connection.gateway.value, status: toPremiumStatus(snapshot.connection.gateway.status) },
     { label: 'Home', value: snapshot.home.isolated ? 'isolated' : 'compat', status: snapshot.home.isolated ? 'ready' : 'warning' },
     { label: 'Voice', value: snapshot.voice.mode, status: snapshot.voice.mode === 'off' ? 'warning' : 'ready' },
+    { label: 'Goal Loop', value: snapshot.goalLoop.status, status: snapshot.goalLoop.status === 'active' ? 'ready' : snapshot.goalLoop.queued > 0 ? 'waiting' : 'warning' },
     { label: 'Tasks', value: `${snapshot.tasks.total}`, status: snapshot.tasks.waitingApproval > 0 ? 'waiting' : 'ready' },
     { label: 'Approvals', value: `${snapshot.approvals.pending}`, status: snapshot.approvals.pending > 0 ? 'waiting' : 'ready' },
     { label: 'Chat', value: `${snapshot.chat.total}`, status: snapshot.chat.total > 0 ? 'ready' : 'warning' },
     { label: 'Tools', value: `${snapshot.tools.mcpTools + snapshot.tools.skills + snapshot.tools.plugins}`, status: snapshot.tools.items.length ? 'ready' : 'warning' },
+    { label: 'Capabilities', value: `${snapshot.capabilityActions.exposed}`, status: snapshot.capabilityActions.status === 'attention' ? 'warning' : 'ready' },
   ];
 }
 
@@ -155,7 +389,7 @@ function buildActions(snapshot: ZavorthCliRuntimeTuiSnapshot): ZavorthPremiumCli
     label: `[${shortcut.key}] ${shortcut.label}`,
     command: shortcut.command,
     detail: shortcut.detail,
-    accent: shortcut.key === 'a' || shortcut.key === 'd' ? 'amber' : shortcut.key === 'o' || shortcut.key === 'p' ? 'emerald' : 'cyan',
+    accent: shortcut.key === 'a' || shortcut.key === 'd' || shortcut.key === 'g' ? 'amber' : shortcut.key === 'o' || shortcut.key === 'p' ? 'emerald' : 'cyan',
   }));
 }
 
@@ -177,5 +411,10 @@ function row(key: string, value: string, status: ZavorthCliRuntimeTuiStatus, det
 function toPremiumStatus(status: ZavorthCliRuntimeTuiStatus): 'ready' | 'warning' | 'blocked' {
   if (status === 'ready') return 'ready';
   if (status === 'blocked') return 'blocked';
+  return 'warning';
+}
+
+function toRuntimeStatus(status: string): ZavorthCliRuntimeTuiStatus {
+  if (status === 'ready' || status === 'blocked') return status;
   return 'warning';
 }

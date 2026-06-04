@@ -35,6 +35,7 @@ confirmation when there is ambiguity or risk.
 
 ## Related
 
+- [Capabilities](/docs/capabilities.md)
 - [Channel Mesh](/docs/channel-mesh.md)
 - [Provider Mesh](/docs/provider-mesh.md)
-- [Roadmap](/docs/product-direction.md)
+- [Product Principles](/docs/product-direction.md)

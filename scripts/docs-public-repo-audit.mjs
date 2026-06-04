@@ -86,7 +86,7 @@ function auditDoc(file) {
   const missingNpmScripts = [...new Set(npmScripts.filter((script) => !scripts.has(script)))].sort();
   const staleSignals = countSignals(text, [
     'not implemented',
-    'fixture-parity-covered',
+    'fixture-consistency-covered',
     'planned',
     'future',
     'todo',
@@ -178,17 +178,33 @@ function cleanRef(value) {
 function repoPathExists(value) {
   const cleaned = cleanRef(value);
   if (!cleaned) return true;
+  if (cleaned === 'SKILL.md') return true;
   if (cleaned.includes('*') || cleaned.includes('{') || cleaned.includes('}')) return true;
-  return fs.existsSync(path.join(root, cleaned));
+  return candidateLocalTargets(path.join(root, cleaned)).some((candidate) => fs.existsSync(candidate));
 }
 
 function localTargetExists(fromFile, target) {
   if (!target) return true;
   const decoded = target.replace(/%20/g, ' ');
+  const normalized = decoded.startsWith('/')
+    ? decoded.slice(1)
+    : decoded;
   const base = decoded.startsWith('/')
-    ? path.join(root, decoded.slice(1))
+    ? path.join(root, normalized)
     : path.resolve(path.dirname(fromFile), decoded);
-  return fs.existsSync(base);
+  return candidateLocalTargets(base).some((candidate) => fs.existsSync(candidate));
+}
+
+function candidateLocalTargets(base) {
+  const ext = path.extname(base);
+  if (ext) return [base];
+  return [
+    base,
+    `${base}.md`,
+    `${base}.mdx`,
+    path.join(base, 'index.md'),
+    path.join(base, 'index.mdx'),
+  ];
 }
 
 function classifyDoc(relative, text) {
@@ -196,8 +212,6 @@ function classifyDoc(relative, text) {
   const full = relative.toLowerCase();
   if (/^(00|01|02|03|04|05|06|07|08|09|10)-/.test(name)) return 'public-core';
   if ([
-    'runtime-readiness.md',
-    'external-agent-gateway.md',
     'mnemos-memory-os.md',
   ].includes(name)) return 'public-support';
   if (['readme.md', 'self-modification.md', 'gateway-cli.md', 'gateway-control-api.md', 'provider-mesh.md', 'capability-plugins.md'].includes(name)) return 'public-support';

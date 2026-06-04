@@ -112,7 +112,7 @@ export function getExternalMetadataValue(
   return metadata[EXTERNAL_METADATA_KEYS[key]] ?? metadata[LEGACY_EXTERNAL_METADATA_KEYS[key]];
 }
 
-export function getExternalAgentRoleFromMetadata(
+export function getRuntimeAdapterRoleFromMetadata(
   metadata: Record<string, any> | null | undefined,
 ): string {
   const role =
@@ -122,7 +122,7 @@ export function getExternalAgentRoleFromMetadata(
   return String(role || 'default').trim().toLowerCase();
 }
 
-export function getExternalAgentBindingsFromMetadata(
+export function getRuntimeAdapterBindingsFromMetadata(
   metadata: Record<string, any> | null | undefined,
 ): Record<string, string> {
   const legacyBindings = getExternalMetadataValue(metadata, 'agentBindings');

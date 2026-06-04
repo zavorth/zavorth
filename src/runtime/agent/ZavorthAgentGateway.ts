@@ -207,6 +207,18 @@ export class ZavorthAgentGateway {
     this.runService.attachRuntimeEventBus(service);
   }
 
+  public addRuntimeEventBus(
+    service: ZavorthAgentGatewayRuntime['runtimeEventBus'],
+  ): void {
+    this.runService.addRuntimeEventBus(service);
+  }
+
+  public removeRuntimeEventBus(
+    service: ZavorthAgentGatewayRuntime['runtimeEventBus'],
+  ): void {
+    this.runService.removeRuntimeEventBus(service);
+  }
+
   public attachChannelMeshEventBus(
     eventBus: ChannelMeshEventBusLike | null | undefined,
     options: AgentRunExecutionOptions = {},

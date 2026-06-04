@@ -89,7 +89,7 @@ const rules = [
   }),
   ruleContainsAll({
     id: 'module-sdk-closure-service',
-    label: 'Closure service summarizes package export parity',
+    label: 'Closure service summarizes package export consistency',
     target: 'Service reports 8 Zavorth public subpaths, 299 Source package exports approx, 296 plugin SDK entrypoints approx and no compatibility shim',
     files: ['src/services/ModuleSdkExportClosureService.ts'],
     needles: [
@@ -131,7 +131,7 @@ const rules = [
     target: 'Tests cover snapshot closure, package exports, SDK helpers and Plugin OS registry compatibility',
     files: ['tests/services/ModuleSdkExportClosureService.test.ts'],
     needles: [
-      'closes Plugin SDK and package export parity through a Zavorth-native SDK',
+      'closes Plugin SDK and package export consistency through a Zavorth-native SDK',
       'exposes stable package exports for the Module SDK',
       'creates native module manifests that register in Plugin OS',
       'defines module handlers without Source import-path compatibility',

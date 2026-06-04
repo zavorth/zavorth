@@ -132,7 +132,7 @@ After the personal side is clear, ask the operational questions:
       tasks or provider changes.
 
 11. Daily surfaces
-    - Which surfaces matter first: `/zavorthControl`, CLI, `/satellite`, Telegram or
+    - Which surfaces matter first: `/control`, CLI, `/satellite`, Telegram or
       another channel?
 
 12. First safe mission
@@ -175,7 +175,7 @@ When bootstrap is done:
 
 1. summarize the resulting calibration in 5-8 bullets;
 2. ask for one final correction pass;
-3. point the user back to `zavorth start`, `zavorth open` and the ZavorthControl at `/zavorthControl`;
+3. point the user back to `zavorth start`, `zavorth open` and Zavorth Control at `/control`;
 4. suggest the first safe mission the user chose;
 5. if the user wants a minimal deployment, keep the distilled answers in the
    generated profile files and treat this guide as reference material.

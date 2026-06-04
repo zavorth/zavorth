@@ -385,7 +385,7 @@ const INVENTORY_ITEMS: InventoryItemDefinition[] = [
     ],
     evidenceDocs: ACP_COMPATIBILITY_DOCS,
     observedBehavior: 'Large QA/live/Docker/security/release matrix with scenario assets, opengrep rules, and CI workflow coverage.',
-    stateConfigDependencies: ['local QA runner', 'security rule metadata', 'release channel policy', 'CI parity decision'],
+    stateConfigDependencies: ['local QA runner', 'security rule metadata', 'release channel policy', 'CI consistency decision'],
     approvalRequiredForLive: false,
     provenanceRequired: true,
     zavorthEquivalent: owner('ZavorthQaSecurityReleaseCertificationContract', 'ZavorthQaSecurityReleaseCertificationService', 'DashboardReleaseReadiness'),

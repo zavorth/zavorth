@@ -5,8 +5,10 @@ import type {
 } from '../contracts/CapabilityContract.js';
 import type { IntegrationCatalogEntry, IntegrationCatalogSnapshot } from '../contracts/IntegrationHubContract.js';
 import type { PlatformCapability } from '../contracts/PlatformContract.js';
+import type { ZavorthCapabilityActionSurfaceSnapshot } from '../contracts/ZavorthCapabilityActionSurfaceContract.js';
 import { getDefaultCapabilityRegistry, type CapabilityRegistry } from '../capabilities/CapabilityRegistry.js';
 import { IntegrationHubService } from './IntegrationHubService.js';
+import { ZavorthCapabilityActionSurfaceService } from './ZavorthCapabilityActionSurfaceService.js';
 import { ZavorthAgentOperatingSystemService } from './ZavorthAgentOperatingSystemService.js';
 import { PlatformCapabilityService } from './PlatformCapabilityService.js';
 import { ProviderDoctorService } from './ProviderDoctorService.js';
@@ -16,14 +18,18 @@ type PlatformCapabilityServiceLike = Pick<PlatformCapabilityService, 'getCapabil
 type IntegrationHubServiceLike = Pick<IntegrationHubService, 'buildCatalogSnapshot'>;
 type ProviderDoctorServiceLike = Pick<ProviderDoctorService, 'inspect'>;
 type AgentOperatingSystemServiceLike = Pick<ZavorthAgentOperatingSystemService, 'buildSnapshot'>;
+type CapabilityActionSurfaceServiceLike = Pick<ZavorthCapabilityActionSurfaceService, 'buildSnapshot'>;
 
 type ZavorthCapabilityCatalogRuntime = {
+  projectRoot?: string;
+  env?: Record<string, string | undefined>;
   now?: () => Date;
   capabilityRegistry?: CapabilityRegistryLike;
   platformCapabilityService?: PlatformCapabilityServiceLike;
   integrationHubService?: IntegrationHubServiceLike;
   providerDoctorService?: ProviderDoctorServiceLike;
   agentOperatingSystemService?: AgentOperatingSystemServiceLike;
+  capabilityActionSurfaceService?: CapabilityActionSurfaceServiceLike;
 };
 
 export type ZavorthCapabilityCategorySnapshot = {
@@ -143,6 +149,7 @@ export type ZavorthCapabilityCatalogSnapshot = {
       entryCommand: string;
     }>;
   };
+  capabilityActions: ZavorthCapabilityActionSurfaceSnapshot;
   narrative: {
     headline: string;
     operatorSummary: string;
@@ -164,6 +171,7 @@ export class ZavorthCapabilityCatalogService {
   private readonly integrationHubService: IntegrationHubServiceLike;
   private readonly providerDoctorService: ProviderDoctorServiceLike;
   private readonly agentOperatingSystemService: AgentOperatingSystemServiceLike;
+  private readonly capabilityActionSurfaceService: CapabilityActionSurfaceServiceLike;
 
   constructor(runtime: ZavorthCapabilityCatalogRuntime = {}) {
     this.now = runtime.now || (() => new Date());
@@ -172,6 +180,11 @@ export class ZavorthCapabilityCatalogService {
     this.integrationHubService = runtime.integrationHubService || new IntegrationHubService();
     this.providerDoctorService = runtime.providerDoctorService || new ProviderDoctorService();
     this.agentOperatingSystemService = runtime.agentOperatingSystemService || new ZavorthAgentOperatingSystemService();
+    this.capabilityActionSurfaceService = runtime.capabilityActionSurfaceService || new ZavorthCapabilityActionSurfaceService({
+      projectRoot: runtime.projectRoot,
+      env: runtime.env,
+      now: this.now,
+    });
   }
 
   public buildSnapshot(): ZavorthCapabilityCatalogSnapshot {
@@ -184,6 +197,7 @@ export class ZavorthCapabilityCatalogService {
     const providerSummary = this.summarizeProviders();
     const mcpSummary = this.summarizeMcp(integrationSnapshot);
     const agentOsSummary = this.summarizeAgentOs();
+    const capabilityActions = this.capabilityActionSurfaceService.buildSnapshot();
     const categories = this.buildCategorySnapshots(capabilities);
     const featuredCommands = this.buildFeaturedCommands(capabilities);
     const featuredImplicitRoutes = this.buildFeaturedImplicitRoutes(capabilities);
@@ -208,6 +222,7 @@ export class ZavorthCapabilityCatalogService {
       providers: providerSummary,
       mcp: mcpSummary,
       agentOs: agentOsSummary,
+      capabilityActions,
       narrative: this.buildNarrative(summary, platformSummary, integrationSummary, providerSummary, mcpSummary, agentOsSummary),
     };
   }

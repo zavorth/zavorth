@@ -33,18 +33,18 @@ export class SharedSurfaceLearningCommandPack {
   private async handleLearning(ctx: IMessageContext, args: string): Promise<void> {
     const normalizedArgs = String(args || '').trim();
     const tokens = normalizedArgs.split(/\s+/).filter(Boolean);
-    const actionId = String(tokens[0] || '').trim().toLowerCase();
+    const actionId = this.normalizeActionId(tokens[0]);
     const candidateId = tokens.slice(1).join(' ').trim();
 
     try {
-      if (['approve', 'reject', 'promote'].includes(actionId)) {
+      if (actionId) {
         if (!candidateId) {
-          await ctx.reply('Use /learning <approve|reject|promote> <candidateId>.');
+          await ctx.reply('Use /learning <approve|reject|promote|forget|promote-skill|promote-procedure> <candidateId>.');
           return;
         }
         const execution = this.deps.learningPlaneService.executeAction({
           candidateId,
-          actionId: actionId as 'approve' | 'reject' | 'promote',
+          actionId,
         });
         const lines = [
           'Learning plane do Zavorth',
@@ -85,5 +85,26 @@ export class SharedSurfaceLearningCommandPack {
     } catch (error: any) {
       await ctx.reply(error?.message || 'Nao consegui montar o learning plane agora.');
     }
+  }
+
+  private normalizeActionId(value: unknown):
+    | 'approve'
+    | 'reject'
+    | 'promote'
+    | 'forget'
+    | 'promoteProcedure'
+    | 'promoteSkill'
+    | null {
+    const normalized = String(value || '').trim().replace(/_/g, '-').toLowerCase();
+    if (normalized === 'approve' || normalized === 'reject' || normalized === 'promote' || normalized === 'forget') {
+      return normalized;
+    }
+    if (normalized === 'promote-procedure' || normalized === 'promoteprocedure') {
+      return 'promoteProcedure';
+    }
+    if (normalized === 'promote-skill' || normalized === 'promoteskill') {
+      return 'promoteSkill';
+    }
+    return null;
   }
 }

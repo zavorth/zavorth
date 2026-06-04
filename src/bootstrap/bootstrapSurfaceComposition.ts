@@ -19,6 +19,7 @@ import { SlackGateway } from '../adapters/channels/SlackGateway.js';
 import { TeamsGateway } from '../adapters/channels/TeamsGateway.js';
 import { WhatsAppGateway } from '../adapters/channels/WhatsAppGateway.js';
 import { ZavorthGatewayService } from '../services/ZavorthGatewayService.js';
+import { GoalLoopStatusProjectionService } from '../services/GoalLoopStatusProjectionService.js';
 import type { BroadcastCapableGateway } from '../services/ZavorthChannelActionService.js';
 import { ZavorthMemoryPlaneService } from '../services/ZavorthMemoryPlaneService.js';
 import { ZavorthSessionPlaneService } from '../services/ZavorthSessionPlaneService.js';
@@ -104,6 +105,16 @@ export function composeSurfaceRuntime(
     memoryPlaneService: sharedMemoryPlaneService,
     sessionToolsService: sharedSessionToolsService,
     toolSurfaceService: sharedToolSurfaceService,
+    goalLoopStatusService: new GoalLoopStatusProjectionService({
+      taskStorePath: `${config.runtimeDir}/task-plane.json`,
+      goalStorePath: `${config.runtimeDir}/goal-plane.json`,
+      stateDbPath: config.dbPath,
+      daemonId: 'bootstrap-goal-loop-daemon',
+      daemonEnabled: config.goalLoopDaemonEnabled,
+      intervalMs: config.goalLoopDaemonIntervalMs,
+      leaseMs: config.goalLoopDaemonLeaseMs,
+      staleAfterMs: config.goalLoopDaemonStaleAfterMs,
+    }),
   });
   const sharedSelfModificationCommandService = new SelfModificationCommandService();
   foundation.agentGateway.attachSelfModificationService(sharedSelfModificationCommandService);

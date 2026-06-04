@@ -34,7 +34,7 @@ logs/
 .zavorth/memory/
 .zavorth/setup-progress.json
 .zavorth/tasks.json
-runtime/
+/runtime/
 *.log
 actual-findings.txt
 error_dump.txt

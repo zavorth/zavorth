@@ -19,7 +19,7 @@ describe('ZavorthNativeReplacementDecommissionService Dashboard controls', () =>
       nativeReplacementRegistryEntries: 4,
       promotedNativeCapabilities: 2,
       optionalCompatibilityAdapters: 4,
-      parityHarnessesPassed: 4,
+      consistencyHarnessesPassed: 4,
       adapterDependenciesReduced: 2,
       sourceAssumptionsDecommissioned: 2,
       compatibilityBoundariesReady: 1,
@@ -40,7 +40,7 @@ describe('ZavorthNativeReplacementDecommissionService Dashboard controls', () =>
       sourcePatternRef: 'diagnostic://error-classifier',
       zavorthNativeOwner: 'ZavorthNativeEngineAbsorptionService',
       replacementDecision: 'promote-native',
-      parityCoveragePercent: 97,
+      consistencyCoveragePercent: 97,
       adapterRequiredAfterReplacement: false,
       sourceAssumptions: ['source-error-format'],
       acceptanceGate: 'npm run gate',
@@ -53,7 +53,7 @@ describe('ZavorthNativeReplacementDecommissionService Dashboard controls', () =>
       sourcePatternDiagnosticsOnly: true,
       publicName: 'Zavorth',
       replacementDecision: 'promote-native',
-      parityCoveragePercent: 97,
+      consistencyCoveragePercent: 97,
       adapterRequiredAfterReplacement: false,
       canRunWithoutSourceRuntime: true,
       sourceAssumptionCount: 1,
@@ -74,7 +74,7 @@ describe('ZavorthNativeReplacementDecommissionService Dashboard controls', () =>
       sourcePatternRef: 'diagnostic://channel-bridge',
       zavorthNativeOwner: 'ZavorthChannelMessagingBridgeService',
       replacementDecision: 'keep-optional-adapter',
-      parityCoveragePercent: 90,
+      consistencyCoveragePercent: 90,
       adapterRequiredAfterReplacement: false,
       sourceAssumptions: ['source-channel-driver-shape'],
       acceptanceGate: 'npm run channel-gate',
@@ -103,10 +103,10 @@ describe('ZavorthNativeReplacementDecommissionService Dashboard controls', () =>
     }));
   });
 
-  it('builds parity harness receipts without calling source runtimes', () => {
+  it('builds consistency harness receipts without calling source runtimes', () => {
     const service = createService();
     const entry = service.buildSnapshot().registryEntries[0];
-    const receipt = service.buildParityHarness(entry);
+    const receipt = service.buildConsistencyHarness(entry);
 
     expect(receipt).toEqual(expect.objectContaining({
       registryEntryId: entry.registryEntryId,
@@ -118,7 +118,7 @@ describe('ZavorthNativeReplacementDecommissionService Dashboard controls', () =>
     expect(receipt.scenarios).toHaveLength(3);
     expect(receipt.scenarios.every((scenario) => scenario.passed)).toBe(true);
     expect(receipt.safety).toEqual(expect.objectContaining({
-      parityFixtureOnly: true,
+      consistencyFixtureOnly: true,
       noSourceRuntimeCall: true,
       noProviderCall: true,
       noToolExecution: true,
@@ -195,7 +195,7 @@ describe('ZavorthNativeReplacementDecommissionService Dashboard controls', () =>
       tone: 'ready',
       policyPills: expect.arrayContaining([
         'native replacement registry',
-        'parity tests',
+        'consistency tests',
         'adapter dependency reduction',
         'decommission gates',
         'optional compatibility boundaries',
@@ -206,7 +206,7 @@ describe('ZavorthNativeReplacementDecommissionService Dashboard controls', () =>
     expect(snapshot.dashboardProjection.cards.map((entry) => entry.id)).toEqual(expect.arrayContaining([
       'registry',
       'promoted',
-      'parity',
+      'consistency',
       'adapters',
       'assumptions',
       'boundary',

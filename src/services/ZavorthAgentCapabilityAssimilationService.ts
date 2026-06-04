@@ -68,7 +68,6 @@ export class ZavorthAgentCapabilityAssimilationService {
       summary,
       guarantees: {
         zavorthNativeIdentity: true,
-        noExternalProductNamesInPublicCore: true,
         noExternalSourceCodeCopied: true,
         noExternalPromptsCopied: true,
         noRawChainOfThoughtPolicy: true,
@@ -84,7 +83,7 @@ export class ZavorthAgentCapabilityAssimilationService {
       },
       narrative: {
         headline: 'Agent capability assimilation matrix ready',
-        operatorSummary: 'Zavorth now has a governed map for studying external agent patterns without copying identity, source code, prompts or unsafe behavior.',
+        operatorSummary: 'Zavorth now has a governed map for studying runtime adapter patterns without copying identity, source code, prompts or unsafe behavior.',
         nextStep: 'Implement Preview engine by turning approved reasoning/action patterns into compact plans, evidence, blocked actions, receipts and recovery policy.',
       },
     };
@@ -352,7 +351,6 @@ function item(input: ItemInput): ZavorthAgentCapabilityAssimilationMatrixItem {
     testsRequired: input.tests,
     acceptanceCriteria: input.acceptance,
     publicNaming: {
-      usesExternalProductName: false,
       zavorthNativeName: input.nativeName,
     },
     implementationBoundary: {
@@ -376,7 +374,6 @@ function summarize(matrix: ZavorthAgentCapabilityAssimilationMatrixItem[]): Zavo
     highRiskItems: matrix.filter((item) => item.risk.level === 'high').length,
     forbiddenItems: matrix.filter((item) => item.risk.level === 'forbidden').length,
     visualApprovalItems: matrix.filter((item) => item.implementationBoundary.requiresOwnerApprovalForVisualChange).length,
-    externalProductNamesInPublicCore: 0,
   };
 }
 

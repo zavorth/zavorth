@@ -1,65 +1,50 @@
 # Zavorth Capability Mesh
 
-Capability Mesh is the arbitration layer that decides how Zavorth should handle
-a request when skills and connected external agents may both be available.
+Capability Mesh is the native arbitration layer that decides how Zavorth should handle a request with existing skills, skill composition, or governed skill drafting.
 
-It reads inventories only:
+It reads only Zavorth-owned inventories:
 
 ```text
-internal skill catalog
-external agent gateway profiles
-skill creation/adaptation options
+native skill catalog
+skill composition options
+skill creation/adaptation drafts
 ```
 
-It does not invoke an external agent, install a skill, call a network endpoint,
-or expose tools during arbitration.
+It does not install a skill, call a network endpoint, mutate files, or expose tools during arbitration.
 
 ## Daily Use
 
 Ask naturally:
 
 ```text
-zavorth capability-mesh --request "revise esse código Rust com segurança"
+zavorth capability-mesh --request "revise esse codigo Rust com seguranca"
 ```
 
-If you explicitly want to consider connected agents more strongly:
+The mesh returns ranked native options:
 
 ```text
-zavorth capability-mesh \
-  --request "use o melhor agente externo para revisar Rust" \
-  --prefer-external
-```
-
-The mesh returns ranked options:
-
-```text
-internal-skill
+native-skill
 skill-composition
 create-zavorth-skill
-external-agent
-adapt-external-capability
+adapt-native-capability
 ```
 
 ## Decision Rules
 
 ```text
-1. Prefer exact Zavorth-native skill.
-2. If the request is multi-step, consider composing internal skills.
+1. Prefer an exact Zavorth-native skill.
+2. If the request is multi-step, consider composing native skills.
 3. If no capability exists, propose creating a skill draft.
-4. If connected agents are stronger, propose delegated use with approval.
-5. If an external capability should become native, propose adaptation/import.
+4. If a draft should become reusable, keep it preview-first until approval.
 ```
 
 ## Safety
 
 ```text
 read-only inventory
-no external process started
 no network probe
 no skill installed
 no secret serialized
-external delegation requires approval per run
-external adaptation/import requires review
 skill creation starts as draft
 ```
 
@@ -74,19 +59,13 @@ Zavorth, use a melhor capacidade para revisar Rust.
 Mesh result:
 
 ```text
-internal generic code review: partial
-external rust-reviewer: strong/exact, approval-required
+native generic code review: partial
 create rust review skill: fallback/draft
 ```
 
 Zavorth can then ask:
 
 ```text
-Tenho uma skill interna genérica, mas o agente rust-reviewer é mais específico.
-Quer que eu use esse agente externo em modo governado?
+Tenho uma skill generica e posso criar um draft de skill Rust mais especifico.
+Quer revisar o draft antes de instalar?
 ```
-
-If approved, execution still goes through External Agent Gateway and receipts.
-The suggested mesh command is preview-first; it does not include the live
-approval flag. The operator must approve the generated gateway receipt before a
-connected external agent is invoked.

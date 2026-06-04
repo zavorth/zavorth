@@ -55,7 +55,7 @@ const service = new ZavorthIntelligenceFabricService({
   },
 });
 
-const workspaceRoot = 'C:/TESTES DEV/zavorth-core/Zavorth';
+const workspaceRoot = 'C:/workspace/zavorth-core/Zavorth';
 const scenarios: PromotionScenario[] = [
   {
     id: 'risk-0-chat-local-owner',

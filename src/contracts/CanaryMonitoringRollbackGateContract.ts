@@ -1,4 +1,4 @@
-import type { ParityCertificationGateStatus } from './ParityCertificationContract.js';
+import type { ReleaseCertificationGateStatus } from './ReleaseCertificationContract.js';
 import type { CanaryLaunchRehearsalSnapshot } from './CanaryLaunchRehearsalContract.js';
 
 export const ZAVORTH_CANARY_MONITORING_ROLLBACK_GATE_CONTRACT_VERSION = '2026-05-04.checkpoint-22';
@@ -89,7 +89,7 @@ export type CanaryMonitoringRollbackGate = {
     | 'publication-and-promotion-held'
     | 'remote-mutation-blocked'
     | 'monitoring-receipts-complete';
-  status: ParityCertificationGateStatus;
+  status: ReleaseCertificationGateStatus;
   title: string;
   observed: number | string | boolean;
   threshold: number | string | boolean;

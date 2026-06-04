@@ -19,7 +19,7 @@ describe('ChannelExperienceCertificationService', () => {
     expect(snapshot.summary.blockers).toBe(0);
     expect(snapshot.dashboardEvidence.status).toBe('contract-ready');
     expect(snapshot.smokePlan.globalCommands).toEqual(expect.arrayContaining([
-      '/channels parity',
+      '/channels consistency',
       '/models',
       '/gateway',
     ]));

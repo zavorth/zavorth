@@ -1,7 +1,7 @@
 # Security
 
 Security in Zavorth is a runtime primitive. It decides whether an action can run,
-what approval is required and what evidence must be recorded.
+what approval is required and what receipt must be recorded.
 
 ## Core Rules
 
@@ -43,7 +43,7 @@ blocked or redacted before execution.
 
 ### Receipts And Audit
 
-Important decisions produce readable evidence: allowed, denied, redacted,
+Important decisions produce readable receipts: allowed, denied, redacted,
 approved, blocked, expired or rolled back.
 
 ## Daily Checks
@@ -61,4 +61,4 @@ Use the broader workspace check before release or after wide runtime changes.
 - [Operations](/docs/operations.md)
 - [Effect Boundary](/docs/effect-boundary.md)
 - [Self-Modification](/docs/self-modification.md)
-- [Roadmap](/docs/product-direction.md)
+- [Product Principles](/docs/product-direction.md)

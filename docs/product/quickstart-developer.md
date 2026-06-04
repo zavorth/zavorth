@@ -23,7 +23,7 @@ npx zavorth doctor --json
 npm test
 ```
 
-## 3. Run The Core QA Path
+## 3. Check The Workspace
 
 ```bash
 npm run runtime:check

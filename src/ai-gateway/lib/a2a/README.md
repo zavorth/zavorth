@@ -703,7 +703,7 @@ All `/a2a` requests require a Bearer token via the `Authorization` header:
 Authorization: Bearer YOUR_ZAVORTH_A2A_API_KEY
 ```
 
-Set `ZAVORTH_A2A_API_KEY` for external agent clients. `ZavorthGateway_API_KEY` is still accepted as a legacy fallback.
+Set `ZAVORTH_A2A_API_KEY` for runtime adapter clients. `ZavorthGateway_API_KEY` is still accepted as a legacy fallback.
 
 If no A2A API key is configured, external requests fail closed. The dashboard may still run same-origin local smoke checks when login is intentionally disabled. For isolated development labs only, `ZAVORTH_A2A_ALLOW_UNAUTHENTICATED=true` restores unauthenticated A2A access.
 

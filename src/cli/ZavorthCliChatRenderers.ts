@@ -1,4 +1,5 @@
 import { sanitizeHumanCliText } from './ZavorthCliText.js';
+import { filterTerminalComposerOutput } from './ZavorthCliTerminalComposer.js';
 import { paintCliTone } from './ZavorthCliVisualTheme.js';
 import { TerminalMarkdown } from './presentation/TerminalMarkdown.js';
 
@@ -9,7 +10,7 @@ export type CliChatAssistantMessageOptions = {
 };
 
 function normalizeCliChatLine(value: string | null | undefined): string {
-  return sanitizeHumanCliText(value || '').replace(/\s+$/g, '').trim();
+  return sanitizeHumanCliText(filterTerminalComposerOutput(value || '')).replace(/\s+$/g, '').trim();
 }
 
 function normalizeCliChatLines(value: string | string[] | null | undefined): string[] {
@@ -23,7 +24,7 @@ function normalizeCliChatLines(value: string | string[] | null | undefined): str
 
 export function formatCliChatAssistantMessage(options: CliChatAssistantMessageOptions): string {
   const title = normalizeCliChatLine(options.title || 'Zavorth') || 'Zavorth';
-  const rawBody = Array.isArray(options.body) ? options.body.join('\n') : (options.body || '');
+  const rawBody = filterTerminalComposerOutput(Array.isArray(options.body) ? options.body.join('\n') : (options.body || ''));
   const isTTY = process.stdout.isTTY && !process.argv.includes('--json');
 
   const renderedBody = isTTY && rawBody.trim()

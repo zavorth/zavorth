@@ -38,13 +38,13 @@ const readinessChecks = [
     ],
   },
   {
-    id: 'telegram-web-parity',
+    id: 'telegram-web-consistency',
     label: 'paridade Telegram/web',
-    suite: 'telegram-web-parity',
+    suite: 'telegram-web-consistency',
     covers: [
       'continuidade de transcript',
       'approval/session state compartilhado',
-      'surface parity para web e Telegram',
+      'surface consistency para web e Telegram',
     ],
   },
   {
@@ -167,7 +167,7 @@ function finish(results, startedAt) {
       modes: 'npm run qa:product:modes',
       escalation: 'npm run qa:mode-escalation',
       controlUi: 'npm run qa:control-ui',
-      telegramWebParity: 'npm run qa:telegram-web-parity',
+      telegramWebConsistency: 'npm run qa:telegram-web-consistency',
       memoryHybrid: 'npm run qa:memory-hybrid',
       legacy: 'npm run qa:legacy-compat',
       all: 'npm run qa:product-experience',

@@ -87,7 +87,7 @@ export type ExternalAgentPluginServiceSurfaceBoundaryOptions<TRuntimeId extends 
 };
 
 export type ExternalAgentPluginServiceSurfaceBoundaryNormalization<TRuntimeId extends string = string> = {
-  nativeContract: 'ZavorthPluginServiceSurfaceParity/v1';
+  nativeContract: 'ZavorthPluginServiceSurfaceConsistency/v1';
   generatedAt: string;
   runtimeId: TRuntimeId;
   services: ExternalAgentZavorthServiceSurface[];
@@ -163,7 +163,7 @@ export function normalizeExternalAgentPluginServiceSurfaces<TRuntimeId extends s
     .flatMap((service) => service.requestedTools);
 
   return {
-    nativeContract: 'ZavorthPluginServiceSurfaceParity/v1',
+    nativeContract: 'ZavorthPluginServiceSurfaceConsistency/v1',
     generatedAt: options.generatedAt,
     runtimeId: options.runtimeId,
     services,

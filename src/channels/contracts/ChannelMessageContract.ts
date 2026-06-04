@@ -4,12 +4,16 @@ import { randomUUID } from 'crypto';
 import type { NormalizedInboundMessage } from '../../runtime/agent/contracts/index.js';
 
 export type CanonicalChannelPlatform =
+  | 'web'
+  | 'telegram'
+  | 'discord'
   | 'slack'
   | 'whatsapp'
   | 'signal'
   | 'imessage'
   | 'teams'
-  | 'email';
+  | 'email'
+  | 'api';
 
 export type CanonicalChannelInboundMessage = {
   platform: CanonicalChannelPlatform;

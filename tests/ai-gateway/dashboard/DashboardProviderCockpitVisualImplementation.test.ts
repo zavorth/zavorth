@@ -149,7 +149,7 @@ describe('Dashboard Provider Cockpit Visual Implementation', () => {
     }));
   });
 
-  it('passes provider cockpit through runtime projections for Web and CLI parity', () => {
+  it('passes provider cockpit through runtime projections for Web and CLI consistency', () => {
     const adapterInput = buildDashboardAdapterInputFromDashboardRuntimeProjection({
       projectionVersion: 'dashboard-runtime-projection/v1',
       generatedAt: '2026-05-13T20:00:00.000Z',

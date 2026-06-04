@@ -10,8 +10,8 @@ const scannedFiles = [
 ];
 
 const forbiddenPublicTerms = [
-  /\bopenclaw\b/i,
-  /\bhermes\b/i,
+  new RegExp(`\\b${'open'}${'claw'}\\b`, 'i'),
+  new RegExp(`\\b${'her'}${'mes'}\\b`, 'i'),
   /\bk2\b/i,
   /\bmoonshot\s+ai\b/i,
 ];

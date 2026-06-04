@@ -61,7 +61,7 @@ describe('ZavorthControlContractAdapterService', () => {
         authority: 'runtime-api-v1',
         zavorthControlExecutionAuthority: false,
       }),
-      parity: expect.objectContaining({
+      consistency: expect.objectContaining({
         providersFromCanonicalApi: true,
         channelsFromCanonicalApi: true,
         approvalsFromCanonicalApi: true,

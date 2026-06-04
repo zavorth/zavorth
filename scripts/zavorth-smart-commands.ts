@@ -43,7 +43,7 @@ async function main(): Promise<void> {
       '  /new /reset /model /personality /retry /undo /compress /usage /insights /skills /stop /platforms /status /sethome',
       '',
       'Safety:',
-      '  Read-only commands do not start runtime, network or external agents.',
+      '  Read-only commands do not start runtime, network or runtime adapters.',
       '  State-changing commands preview first and require approval before write/rollback/cancel.',
       '',
     ].join('\n'));

@@ -47,7 +47,7 @@ describe('ZavorthOperationalRolloutEvalService', () => {
     expect(snapshot.summary.failures).toBeGreaterThan(0);
     expect(snapshot.scenarioEvals[0]?.observedStatus).toBe('blocked');
     expect(snapshot.scenarioEvals[0]?.findings.some((finding) =>
-      finding.code === 'status-parity' && finding.severity === 'fail',
+      finding.code === 'status-consistency' && finding.severity === 'fail',
     )).toBe(true);
   });
 

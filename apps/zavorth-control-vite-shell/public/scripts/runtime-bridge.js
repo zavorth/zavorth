@@ -1828,7 +1828,7 @@
         title: 'Agent Mesh',
         id: 'Maestro',
         status: state.zavorthControl?.snapshot?.agentMesh ? 'Connected' : 'Auditable',
-        detail: 'External agents appear as governed arms of Zavorth.',
+        detail: 'Runtime adapters appear as governed arms of Zavorth.',
       }),
       entityCardHtml({
         title: 'Audit Trail',
@@ -1970,7 +1970,7 @@
           enabled: true,
         },
         {
-          title: 'Connect external agent',
+          title: 'Connect adapter',
           summary: 'Creates a profile only from a path you provide.',
           status: 'consent required',
           enabled: true,
@@ -2144,7 +2144,7 @@
     updatePremiumStatus('Safe execution', backendCount ? `${backendCount} visible` : 'approval gated', backendCount ? 'ok' : 'warn');
     updatePlatformAction('sector-nodes', 'File memory', hasMnemos ? 'Memory tools are visible in the runtime.' : 'Memory scope is configurable.');
     updatePlatformAction('sector-nodes', 'Parallel work', hasSwarm ? 'Ready with cost limits and receipts.' : 'Active when a task asks for parallel work.');
-    updatePlatformAction('sector-nodes', 'Connect agent', companions.length ? `${companions.length} consented profile(s).` : 'Only from a path you provide.');
+    updatePlatformAction('sector-nodes', 'Connect adapter', companions.length ? `${companions.length} consented profile(s).` : 'Only from a path you provide.');
     updatePlatformAction('sector-nodes', 'Execution environments', backendCount ? `${backendCount} visible backend signal(s).` : 'Shell, files, and remote actions require scope.');
 
     setTableHeaders('sector-nodes', ['Node', 'Type', 'Processes', 'Memory', 'Summary', 'Actions', 'Status']);

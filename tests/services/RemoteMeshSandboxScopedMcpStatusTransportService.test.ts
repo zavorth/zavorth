@@ -118,7 +118,7 @@ describe('RemoteMeshSandboxScopedMcpStatusTransportService R7', () => {
 
   it('blocks credential-like query parameters and URL userinfo', () => {
     const diagnostics = RemoteMeshSandboxScopedMcpStatusTransportService.diagnose({
-      endpointUrl: 'https://user:pass@notebook.tailnet.example/mcp?token=secret-token-value',
+      endpointUrl: 'https://user:pass@notebook.tailnet.example/mcp?auth=secret-auth-value',
       authToken: 'header-token',
       tokenSource: 'test',
     });

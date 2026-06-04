@@ -349,7 +349,7 @@ export class GatewayChannelAdapterRegistryService {
       notes: [
         `Zavorth-native long-tail channel via ${entry.family} adapter.`,
         `Runtime target: ${entry.runtimeTarget}.`,
-        'No OpenClaw gateway or external agent bridge is required for this channel surface.',
+        'No external gateway or runtime adapter bridge is required for this channel surface.',
         configured
           ? 'Configured doctor passed locally; run staging-live proof with explicit confirmation before default routing.'
           : `Missing config: ${missing.join(', ') || 'channel credentials/allowlist'}.`,
@@ -640,7 +640,7 @@ export class GatewayChannelAdapterRegistryService {
       qywx: 'wecom',
       wework: 'wecom',
       'enterprise-wechat': 'wecom',
-      'openclaw-weixin': 'weixin',
+      'weixin-compat': 'weixin',
       wechat: 'weixin',
       zl: 'zalo',
       zlu: 'zalouser',

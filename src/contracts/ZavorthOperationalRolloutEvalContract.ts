@@ -41,8 +41,8 @@ export type ZavorthOperationalRolloutEvalFinding = {
   surface?: ZavorthCrossSurfaceProjectionSurface | 'all' | null;
   severity: 'pass' | 'warning' | 'fail';
   code:
-    | 'status-parity'
-    | 'semantic-parity'
+    | 'status-consistency'
+    | 'semantic-consistency'
     | 'required-action'
     | 'fallback-coverage'
     | 'api-projection'

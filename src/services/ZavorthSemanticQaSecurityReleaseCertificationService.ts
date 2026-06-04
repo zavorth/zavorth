@@ -107,7 +107,7 @@ export class ZavorthSemanticQaSecurityReleaseCertificationService {
         warnFamilies: pack.summary.warnFamilies,
         failFamilies: pack.summary.failFamilies,
         warningReceipts: receipts.filter((receipt) => receipt.status === 'warn').length,
-        blockingFailures: pack.functionalParityRunner.families.reduce((sum, family) => sum + family.blockingFailures, 0),
+        blockingFailures: pack.functionalConsistencyRunner.families.reduce((sum, family) => sum + family.blockingFailures, 0),
         localChecksOnly: true,
         dependencyPatchesAcceptedSilently: false,
         rawWorkflowYamlCopied: false,
@@ -178,7 +178,7 @@ export class ZavorthSemanticQaSecurityReleaseCertificationService {
   ): ZavorthSemanticQaSecurityReleaseClaim[] {
     const receipts = allReceipts(pack);
     return [
-      ...pack.functionalParityRunner.families.map((family) => this.familyClaim(family)),
+      ...pack.functionalConsistencyRunner.families.map((family) => this.familyClaim(family)),
       ...receipts.map((receipt) => this.receiptClaim(receipt)),
       ...pack.qaScenarios.receipts.map((receipt) => this.qaScenarioClaim(receipt)),
       ...pack.security.receipts.map((receipt) => this.securityControlClaim(receipt)),
@@ -294,22 +294,22 @@ export class ZavorthSemanticQaSecurityReleaseCertificationService {
   private functionalRunnerClaim(pack: ZavorthQaSecurityReleaseCertificationSnapshot): ZavorthSemanticQaSecurityReleaseClaim {
     return this.claim({
       kind: 'functional-runner-policy',
-      status: pack.functionalParityRunner.status === 'fail' ? 'gap' : 'covered',
+      status: pack.functionalConsistencyRunner.status === 'fail' ? 'gap' : 'covered',
       priority: 'P0',
-      familyId: 'functional-parity',
-      receiptStatus: pack.functionalParityRunner.status,
-      expectedBehavior: 'Functional parity runner aggregates every QA/security/release family into one local release gate.',
-      zavorthEquivalent: 'ZavorthFunctionalParityCertificationRunnerSnapshot printable family matrix.',
+      familyId: 'functional-consistency',
+      receiptStatus: pack.functionalConsistencyRunner.status,
+      expectedBehavior: 'Functional consistency runner aggregates every QA/security/release family into one local release gate.',
+      zavorthEquivalent: 'ZavorthFunctionalReleaseCertificationRunnerSnapshot printable family matrix.',
       evidence: [
-        `status=${pack.functionalParityRunner.status}`,
-        `families=${pack.functionalParityRunner.families.length}`,
-        `printableLines=${pack.functionalParityRunner.printableLines.length}`,
-        `dependencyPatchesAcceptedSilently=${pack.functionalParityRunner.dependencyPatchesAcceptedSilently}`,
-        `rawWorkflowYamlCopied=${pack.functionalParityRunner.rawWorkflowYamlCopied}`,
+        `status=${pack.functionalConsistencyRunner.status}`,
+        `families=${pack.functionalConsistencyRunner.families.length}`,
+        `printableLines=${pack.functionalConsistencyRunner.printableLines.length}`,
+        `dependencyPatchesAcceptedSilently=${pack.functionalConsistencyRunner.dependencyPatchesAcceptedSilently}`,
+        `rawWorkflowYamlCopied=${pack.functionalConsistencyRunner.rawWorkflowYamlCopied}`,
       ],
-      receiptIds: pack.functionalParityRunner.families
+      receiptIds: pack.functionalConsistencyRunner.families
         .flatMap((family) => family.receipts)
-        .filter((receipt) => receipt.familyId === 'functional-parity')
+        .filter((receipt) => receipt.familyId === 'functional-consistency')
         .map((receipt) => receipt.id),
       notes: ['The runner is the S7 release-certification surface for downstream automation.'],
     });
@@ -431,12 +431,12 @@ export class ZavorthSemanticQaSecurityReleaseCertificationService {
       {
         id: 'blocking-failure-blocks-release',
         status: pack.summary.failFamilies === 0
-          && pack.functionalParityRunner.families.every((family) => family.blockingFailures === 0)
+          && pack.functionalConsistencyRunner.families.every((family) => family.blockingFailures === 0)
             ? 'passed'
             : 'failed',
         evidence: [
           `failFamilies=${pack.summary.failFamilies}`,
-          `blockingFailures=${pack.functionalParityRunner.families.reduce((sum, family) => sum + family.blockingFailures, 0)}`,
+          `blockingFailures=${pack.functionalConsistencyRunner.families.reduce((sum, family) => sum + family.blockingFailures, 0)}`,
         ],
         receiptIds: receipts.filter((receipt) => receipt.severity === 'blocking').map((receipt) => receipt.id),
         liveExternalIoPerformed: false,
@@ -528,7 +528,7 @@ export class ZavorthSemanticQaSecurityReleaseCertificationService {
 }
 
 function allReceipts(pack: ZavorthQaSecurityReleaseCertificationSnapshot): ZavorthQaSecurityReleaseReceipt[] {
-  return pack.functionalParityRunner.families.flatMap((family) => family.receipts);
+  return pack.functionalConsistencyRunner.families.flatMap((family) => family.receipts);
 }
 
 function semanticStatus(
@@ -551,7 +551,7 @@ function familyPriority(familyId: ZavorthQaSecurityReleaseFamilyId): ZavorthSema
     case 'qa-scenarios':
     case 'security':
     case 'release-acceptance':
-    case 'functional-parity':
+    case 'functional-consistency':
       return 'P0';
     case 'workflow-semantics':
     case 'patch-risk':

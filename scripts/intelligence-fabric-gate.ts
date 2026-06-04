@@ -72,7 +72,7 @@ const scenarios: Scenario[] = [
   },
   {
     id: 'local-owner-reversible-write',
-    input: { text: 'aplique uma edicao reversivel no workspace', trustMode: 'local_owner', workspaceRoot: 'C:/TESTES DEV/zavorth-core/Zavorth' },
+    input: { text: 'aplique uma edicao reversivel no workspace', trustMode: 'local_owner', workspaceRoot: 'C:/workspace/zavorth-core/Zavorth' },
     expect: (snapshot) => [
       snapshot.classification.riskLevel === 3 ? '' : 'workspace edit must be risk 3',
       snapshot.riskGate.overallDecision === 'allow' ? '' : 'local owner reversible write should be allowed',

@@ -1,6 +1,6 @@
 import { ProviderP0ClosureService } from '../../src/services/ProviderP0ClosureService.js';
-import { ProviderMeshParityService } from '../../src/services/ProviderMeshParityService.js';
-import { ParityCertificationService } from '../../src/services/ParityCertificationService.js';
+import { ProviderMeshReadinessService } from '../../src/services/ProviderMeshReadinessService.js';
+import { ReleaseCertificationService } from '../../src/services/ReleaseCertificationService.js';
 
 describe('ProviderP0ClosureService Intent model0', () => {
   it('closes the two provider P0 gaps by moving Anthropic-compatible routes to supported templates', () => {
@@ -53,7 +53,7 @@ describe('ProviderP0ClosureService Intent model0', () => {
   });
 
   it('makes Provider Mesh report zero unsupported providers', () => {
-    const providerSnapshot = new ProviderMeshParityService({
+    const providerSnapshot = new ProviderMeshReadinessService({
       now: () => new Date('2026-05-04T20:10:00.000Z'),
     }).buildSnapshot();
 
@@ -71,7 +71,7 @@ describe('ProviderP0ClosureService Intent model0', () => {
   });
 
   it('unblocks P0 certification and inherits final release readiness', () => {
-    const certification = new ParityCertificationService({
+    const certification = new ReleaseCertificationService({
       now: () => new Date('2026-05-04T20:20:00.000Z'),
     }).buildSnapshot();
 

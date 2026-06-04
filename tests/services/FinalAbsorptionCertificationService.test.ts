@@ -51,7 +51,7 @@ describe('FinalAbsorptionCertificationService Worker 7', () => {
     expect(snapshot.statement).toEqual(
       expect.objectContaining({
         trackedInventory: '125 normalized source modules are covered by the Worker 1 through Worker 6 closure chain.',
-        liveEndToEndParity: 'not-claimed-by-this-certificate',
+        liveEndToEndConsistency: 'not-claimed-by-this-certificate',
         publicLaunch: 'certified-by-static-and-no-live-IO-profile',
       }),
     );
@@ -77,7 +77,7 @@ describe('FinalAbsorptionCertificationService Worker 7', () => {
         noFilesystemWrites: true,
         noArtifactBodyReads: true,
         noSecretValuesSerialized: true,
-        liveEndToEndParityRequiresSeparateOperatorRun: true,
+        liveEndToEndConsistencyRequiresSeparateOperatorRun: true,
       }),
     );
   });
@@ -93,7 +93,7 @@ describe('FinalAbsorptionCertificationService Worker 7', () => {
     expect(snapshot.sourceSnapshots.moduleSdkExport.status).toBe('closed');
     expect(snapshot.sourceSnapshots.providerChannelSmoke.status).toBe('closed');
     expect(snapshot.sourceSnapshots.runtimeFamilyClosure.status).toBe('closed');
-    expect(snapshot.sourceSnapshots.parityCertification).toEqual(
+    expect(snapshot.sourceSnapshots.releaseCertification).toEqual(
       expect.objectContaining({
         profile: 'public-launch',
         status: 'certified',
@@ -110,7 +110,7 @@ describe('FinalAbsorptionCertificationService Worker 7', () => {
     expect(text).toContain('Zavorth Final Absorption Certification');
     expect(text).toContain('Status: certified');
     expect(text).toContain('Tracked inventory: 125 source modules, 24 primitives');
-    expect(text).toContain('Live E2E parity: not-claimed-by-this-certificate');
+    expect(text).toContain('Live E2E consistency: not-claimed-by-this-certificate');
     expect(text).toContain('Next: No next worker in this closure chain');
   });
 });

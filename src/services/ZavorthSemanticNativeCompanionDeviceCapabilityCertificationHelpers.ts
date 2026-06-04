@@ -15,7 +15,7 @@ import type {
 } from '../contracts/ZavorthSemanticNativeCompanionDeviceCapabilityCertificationContract.js';
 
 export function allReceipts(pack: ZavorthNativeCompanionDeviceSnapshot): ZavorthNativeCapabilityReceipt[] {
-  return pack.parity.flatMap((entry) => entry.receipts);
+  return pack.consistency.flatMap((entry) => entry.receipts);
 }
 
 export function receiptsForCapability(
@@ -26,14 +26,14 @@ export function receiptsForCapability(
 }
 
 export function uniqueCapabilities(pack: ZavorthNativeCompanionDeviceSnapshot): ZavorthNativeCapabilityId[] {
-  return [...new Set(pack.parity.flatMap((entry) => entry.capabilities))].sort();
+  return [...new Set(pack.consistency.flatMap((entry) => entry.capabilities))].sort();
 }
 
 export function requiredTarget(
   pack: ZavorthNativeCompanionDeviceSnapshot,
   target: ZavorthNativeRuntimeTarget,
-): ZavorthNativeCompanionDeviceSnapshot['parity'][number] {
-  const entry = pack.parity.find((candidate) => candidate.target === target);
+): ZavorthNativeCompanionDeviceSnapshot['consistency'][number] {
+  const entry = pack.consistency.find((candidate) => candidate.target === target);
   if (!entry) {
     throw new Error(`missing native companion target ${target}`);
   }
@@ -41,7 +41,7 @@ export function requiredTarget(
 }
 
 export function targetStatus(
-  entry: ZavorthNativeCompanionDeviceSnapshot['parity'][number],
+  entry: ZavorthNativeCompanionDeviceSnapshot['consistency'][number],
 ): ZavorthSemanticNativeCompanionDeviceCapabilityClaimStatus {
   if (entry.status === 'covered') return 'covered';
   if (entry.status === 'owner-gated') return 'owner-gated';

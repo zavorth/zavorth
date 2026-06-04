@@ -1,5 +1,5 @@
-import type { ChannelMeshParitySnapshot } from './ChannelMeshParityContract.js';
-import type { ProviderMeshParitySnapshot } from './ProviderMeshParityContract.js';
+import type { ChannelMeshConsistencySnapshot } from './ChannelMeshConsistencyContract.js';
+import type { ProviderMeshReadinessSnapshot } from './ProviderMeshReadinessContract.js';
 
 export const ZAVORTH_PROVIDER_CHANNEL_SMOKE_PROOF_CONTRACT_VERSION = '2026-05-04.worker-5' as const;
 
@@ -112,8 +112,8 @@ export type ProviderChannelSmokeProofSnapshot = {
   providerProofs: ProviderSmokeProof[];
   channelProofs: ChannelSmokeProof[];
   receipts: ProviderChannelSmokeReceipt[];
-  providerSnapshot: Pick<ProviderMeshParitySnapshot, 'contractVersion' | 'summary'>;
-  channelSnapshot: Pick<ChannelMeshParitySnapshot, 'contractVersion' | 'summary'>;
+  providerSnapshot: Pick<ProviderMeshReadinessSnapshot, 'contractVersion' | 'summary'>;
+  channelSnapshot: Pick<ChannelMeshConsistencySnapshot, 'contractVersion' | 'summary'>;
   policy: {
     noProviderNetworkCalls: true;
     noLiveChannelSends: true;
@@ -124,8 +124,8 @@ export type ProviderChannelSmokeProofSnapshot = {
   };
   commands: {
     check: 'npm run provider-channel-smoke-proof:check --silent';
-    providerParity: 'npm run provider-mesh-parity:check --silent';
-    channelParity: 'npm run channel-mesh-parity:check --silent';
+    providerConsistency: 'npm run provider-mesh-readiness:check --silent';
+    channelConsistency: 'npm run channel-mesh-consistency:check --silent';
     focusedTests: string[];
     typecheck: 'npm run runtime:check --silent';
     nextWorker: 'Worker 6 - media/voice/web/docs diagnostics closure';

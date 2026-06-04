@@ -96,7 +96,7 @@ describe('ConfigureLlmProfileTool', () => {
     expect(fs.readFileSync(envFilePath, 'utf8')).toContain('MISTRAL_MODEL=mistral-large-latest');
   });
 
-  it('gives a compact missing-config message for OpenClaw parity aliases', async () => {
+  it('gives a compact missing-config message for compatibility aliases', async () => {
     const tool = new ConfigureLlmProfileTool({ envFilePath });
 
     await expect(tool.execute({

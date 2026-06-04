@@ -238,8 +238,9 @@ export class ZavorthRuntimeReadinessService {
           requireApprovalFor: ['shell.exec', 'git.push'],
         },
       });
+      const lightRouteOk = light.route === 'light-chat' || light.route === 'llm-reply';
       const ok = light.shouldEnterGateway === true
-        && light.route === 'light-chat'
+        && lightRouteOk
         && risky.shouldEnterGateway === true
         && risky.requiresApproval === true
         && risky.risk.previewRequired === true;
@@ -289,11 +290,15 @@ export class ZavorthRuntimeReadinessService {
   private buildDashboardCheck(): ZavorthRuntimeReadinessCheck {
     return this.safeCheck('dashboard', 'Dashboard', true, 'zavorth go', () => {
       const snapshot = this.dashboardHome.buildSnapshot() as ZavorthDashboardExperienceHomeSnapshot;
-      const pageExists = this.existsSyncImpl(path.join(this.projectRoot, 'src', 'ai-gateway', 'app', '(dashboard)', 'dashboard', 'page.tsx'));
+      const groupedPageExists = this.existsSyncImpl(path.join(this.projectRoot, 'src', 'ai-gateway', 'app', '(dashboard)', 'dashboard', 'page.tsx'));
+      const rootPageExists = this.existsSyncImpl(path.join(this.projectRoot, 'src', 'ai-gateway', 'app', 'dashboard', 'page.tsx'));
+      const viteShellExists = this.existsSyncImpl(path.join(this.projectRoot, 'apps', 'zavorth-control-vite-shell', 'index.html'))
+        && this.existsSyncImpl(path.join(this.projectRoot, 'apps', 'zavorth-control-vite-shell', 'src', 'pages.ts'));
+      const surfaceExists = groupedPageExists || rootPageExists || viteShellExists;
       const ok = snapshot.route === '/dashboard'
         && snapshot.safety.projectionOnly === true
         && snapshot.safety.dashboardCanExecuteTargetAction === false
-        && pageExists;
+        && surfaceExists;
       return {
         status: ok ? 'ready' : 'blocked',
         summary: ok
@@ -303,7 +308,9 @@ export class ZavorthRuntimeReadinessService {
           `route=${snapshot.route}`,
           `projectionOnly=${String(snapshot.safety.projectionOnly)}`,
           `dashboardCanExecute=${String(snapshot.safety.dashboardCanExecuteTargetAction)}`,
-          `pageExists=${String(pageExists)}`,
+          `groupedPageExists=${String(groupedPageExists)}`,
+          `rootPageExists=${String(rootPageExists)}`,
+          `viteShellExists=${String(viteShellExists)}`,
         ],
         nextAction: ok ? 'Open /dashboard or run zavorth go.' : 'Restore the /dashboard daily-use surface.',
       };

@@ -187,7 +187,7 @@ function normalizeCapabilities(
   return {
     reportedToolCount: Number(capabilities.reportedToolCount ?? discoveredTools.length ?? 0),
     reportedChannelCount: Number(capabilities.reportedChannelCount ?? 0),
-    primaryDomain: sanitizeAgentMeshText(capabilities.primaryDomain || 'external-agent'),
+    primaryDomain: sanitizeAgentMeshText(capabilities.primaryDomain || 'runtime-adapter'),
     discoveredTools,
     supportedProtocols: normalizeProtocols(capabilities.supportedProtocols, protocol),
     supportsDryRun: Boolean(capabilities.supportsDryRun ?? true),
@@ -199,7 +199,7 @@ function normalizeCapabilities(
 
 function normalizeExecution(value: any): AgentMeshDriverExecution {
   return {
-    summary: sanitizeAgentMeshText(value?.summary || value?.finalResponseSummary || 'External agent execution completed.'),
+    summary: sanitizeAgentMeshText(value?.summary || value?.finalResponseSummary || 'runtime adapter execution completed.'),
     toolCallsMade: Math.max(0, Number(value?.toolCallsMade ?? value?.metrics?.toolCallsMade ?? 1)),
     partial: Boolean(value?.partial),
   };

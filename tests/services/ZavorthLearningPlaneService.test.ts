@@ -1,6 +1,42 @@
 import { ZavorthLearningPlaneService } from '../../src/services/ZavorthLearningPlaneService.js';
 
 function createWorkflowRun(overrides: Record<string, any> = {}) {
+  const phases = [
+    {
+      id: 'stage-1',
+      label: 'Inspect runtime',
+      executor: 'codex',
+      role: 'operator',
+      strategy_note: null,
+      index: 0,
+      status: 'completed',
+      task_id: 'task-1',
+      attempt_count: 1,
+      objective: 'Inspecionar',
+      handoff_summary: null,
+      started_at: '2026-04-09T13:00:00.000Z',
+      finished_at: '2026-04-09T13:02:00.000Z',
+      result_summary: 'Tudo certo.',
+      artifact_count: 1,
+    },
+    {
+      id: 'stage-2',
+      label: 'Publish release',
+      executor: 'codex',
+      role: 'operator',
+      strategy_note: null,
+      index: 1,
+      status: 'completed',
+      task_id: 'task-2',
+      attempt_count: 1,
+      objective: 'Publicar',
+      handoff_summary: null,
+      started_at: '2026-04-09T13:03:00.000Z',
+      finished_at: '2026-04-09T13:09:00.000Z',
+      result_summary: 'Release criado.',
+      artifact_count: 1,
+    },
+  ];
   return {
     workflow_run_id: 'wf-1',
     workflow_name: 'ship',
@@ -23,42 +59,8 @@ function createWorkflowRun(overrides: Record<string, any> = {}) {
     operator_closed_at: null,
     operator_close_reason: null,
     operator_closed_by_surface: null,
-    stages: [
-      {
-        id: 'stage-1',
-        label: 'Inspect runtime',
-        executor: 'codex',
-        role: 'operator',
-        strategy_note: null,
-        index: 0,
-        status: 'completed',
-        task_id: 'task-1',
-        attempt_count: 1,
-        objective: 'Inspecionar',
-        handoff_summary: null,
-        started_at: '2026-04-09T13:00:00.000Z',
-        finished_at: '2026-04-09T13:02:00.000Z',
-        result_summary: 'Tudo certo.',
-        artifact_count: 1,
-      },
-      {
-        id: 'stage-2',
-        label: 'Publish release',
-        executor: 'codex',
-        role: 'operator',
-        strategy_note: null,
-        index: 1,
-        status: 'completed',
-        task_id: 'task-2',
-        attempt_count: 1,
-        objective: 'Publicar',
-        handoff_summary: null,
-        started_at: '2026-04-09T13:03:00.000Z',
-        finished_at: '2026-04-09T13:09:00.000Z',
-        result_summary: 'Release criado.',
-        artifact_count: 1,
-      },
-    ],
+    stages: phases,
+    phases,
     resume_stage: null,
     actionable_stages: [],
     resume_prompt: 'Repita este fluxo para futuros pacotes.',
@@ -152,6 +154,62 @@ describe('ZavorthLearningPlaneService', () => {
       }),
     );
     expect(storedState).toContain('"trusted_local"');
+  });
+
+  it('forgets candidates and separates procedure/skill promotion receipts', () => {
+    let storedState: string | null = null;
+    const service = new ZavorthLearningPlaneService({
+      now: () => new Date('2026-04-09T14:00:00.000Z'),
+      workflowRunService: {
+        listRuns: jest.fn(() => [createWorkflowRun()]),
+      } as any,
+      stateFile: 'C:/tmp/learning-plane.json',
+      existsSync: jest.fn(() => storedState !== null),
+      readFileSync: jest.fn(() => storedState || ''),
+      writeFileSync: jest.fn((_file, data) => {
+        storedState = String(data);
+      }),
+      mkdirSync: jest.fn(),
+    });
+
+    const forgotten = service.executeAction({
+      candidateId: 'candidate:wf-1',
+      actionId: 'forget',
+    });
+    expect(forgotten.ok).toBe(true);
+    expect(forgotten.summary).toContain('foi esquecido');
+    expect(forgotten.snapshot.candidates[0]).toEqual(
+      expect.objectContaining({
+        reviewState: 'rejected',
+        lifecycle: 'quarantined',
+      }),
+    );
+
+    const blocked = service.executeAction({
+      candidateId: 'candidate:wf-1',
+      actionId: 'promoteSkill',
+    });
+    expect(blocked.ok).toBe(false);
+    expect(blocked.status).toBe('blocked');
+
+    service.executeAction({
+      candidateId: 'candidate:wf-1',
+      actionId: 'approve',
+    });
+
+    const promotedSkill = service.executeAction({
+      candidateId: 'candidate:wf-1',
+      actionId: 'promoteSkill',
+    });
+    expect(promotedSkill.ok).toBe(true);
+    expect(promotedSkill.details.join('\n')).toContain('habilidade local aprendida');
+
+    const promotedProcedure = service.executeAction({
+      candidateId: 'candidate:wf-1',
+      actionId: 'promoteProcedure',
+    });
+    expect(promotedProcedure.ok).toBe(true);
+    expect(promotedProcedure.status).toBe('noop');
   });
 
   it('emits stable learning quality metrics from candidate history', () => {

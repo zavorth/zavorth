@@ -3,15 +3,16 @@ import { spawn } from 'child_process';
 import { existsSync, readFileSync, writeFileSync } from 'fs';
 import path from 'path';
 import { formatCliHelp, resolveCliHelpTopic } from './cli/ZavorthCliSurfaceHelpers.js';
+import { getCommandAliases } from './cli/locales/localeManager.js';
 import {
   resolveZavorthSimpleCommand,
   type ZavorthSimpleCommandPlan,
 } from './cli/SimpleCommandRouter.js';
 import {
-  formatZavorthParityHelp,
-  formatZavorthParityPreparedNotice,
-  isZavorthParityStubCommand,
-} from './cli/ZavorthCliParityCommands.js';
+  formatZavorthCertificationHelp,
+  formatZavorthConsistencyPreparedNotice,
+  isZavorthConsistencyStubCommand,
+} from './cli/ZavorthCliCertificationCommands.js';
 import {
   isZavorthLiveNamespaceCommand,
   runZavorthLiveNamespaceCommand,
@@ -47,35 +48,6 @@ async function printCliPanel(title: string, lines: string[], type: 'default' | '
 const entryDir = path.dirname(path.resolve(process.argv[1] || process.cwd()));
 const runningFromDist = path.basename(entryDir).toLowerCase() === 'dist';
 const projectRoot = runningFromDist ? path.resolve(entryDir, '..') : path.resolve(entryDir, '..');
-
-const PUBLIC_COMMAND_ALIASES: Record<string, string> = {
-  ajuda: 'help',
-  configurar: 'setup',
-  configuracao: 'setup',
-  demonstracao: 'demo',
-  comecar: 'start',
-  ['comeÃ§ar']: 'start',
-  inicio: 'start',
-  ligar: 'start',
-  conectores: 'connectors',
-  iniciar: 'start',
-  abrir: 'open',
-  painel: 'open',
-  pronto: 'ready',
-  saude: 'status',
-  provedores: 'providers',
-  modelos: 'providers',
-  canal: 'channels',
-  canais: 'channels',
-  habilidades: 'skills',
-  revisao: 'review',
-  seguranca: 'trust',
-  estado: 'status',
-  diagnostico: 'doctor',
-  ['diagnÃ³stico']: 'doctor',
-  conversar: 'chat',
-  terminal: 'chat',
-};
 
 const PUBLIC_COMMANDS = [
   'chat',
@@ -124,7 +96,7 @@ const PUBLIC_COMMANDS = [
 
 function normalizePublicCommandAliases(rawArgs: string[]): string[] {
   const first = String(rawArgs[0] || '').trim().toLowerCase();
-  const alias = PUBLIC_COMMAND_ALIASES[first];
+  const alias = getCommandAliases()[first];
   if (!alias) {
     return rawArgs;
   }
@@ -1644,6 +1616,23 @@ async function runReadyToGo(rawArgs: string[] = []): Promise<number> {
   if (rawArgs.includes('--watch') || rawArgs.includes('watch')) {
     return runStayOnline(rawArgs);
   }
+  if (rawArgs.includes('--product') || rawArgs.includes('--certification') || rawArgs.includes('--final')) {
+    const { ZavorthProductCertificationService } = await import('./services/ZavorthProductCertificationService.js');
+    const service = new ZavorthProductCertificationService({
+      projectRoot,
+      includeDeepProductCheck: rawArgs.includes('--deep'),
+    });
+    const snapshot = await service.buildSnapshot();
+    if (rawArgs.includes('--json')) {
+      process.stdout.write(`${JSON.stringify(snapshot, null, 2)}\n`);
+    } else {
+      process.stdout.write(service.renderCli(snapshot));
+    }
+    return snapshot.status === 'blocked'
+      || ((rawArgs.includes('--require-pass') || rawArgs.includes('--strict')) && snapshot.status !== 'ready')
+      ? 1
+      : 0;
+  }
   const { ZavorthReadyToGoService } = await import('./services/ZavorthReadyToGoService.js');
   const service = new ZavorthReadyToGoService();
   const snapshot = await service.buildSnapshot({
@@ -1723,16 +1712,20 @@ async function runSkillExpansionPack(rawArgs: string[] = []): Promise<number> {
   return npmInherited(['exec', 'tsx', '--', 'scripts/zavorth-skill-expansion-pack.ts', ...rawArgs], projectRoot);
 }
 
-async function runSupremacyParity(rawArgs: string[] = []): Promise<number> {
-  return npmInherited(['exec', 'tsx', '--', 'scripts/zavorth-supremacy-parity.ts', ...rawArgs], projectRoot);
+async function runCapabilityCertification(rawArgs: string[] = []): Promise<number> {
+  return npmInherited(['exec', 'tsx', '--', 'scripts/zavorth-capability-certification.ts', ...rawArgs], projectRoot);
 }
 
-async function runProviderParity(rawArgs: string[] = []): Promise<number> {
-  return npmInherited(['exec', 'tsx', '--', 'scripts/zavorth-provider-parity.ts', ...rawArgs], projectRoot);
+async function runProviderConsistency(rawArgs: string[] = []): Promise<number> {
+  return npmInherited(['exec', 'tsx', '--', 'scripts/zavorth-provider-certification.ts', ...rawArgs], projectRoot);
 }
 
 async function runProviderCapabilityCatalog(rawArgs: string[] = []): Promise<number> {
   return npmInherited(['exec', 'tsx', '--', 'scripts/zavorth-provider-capability-catalog.ts', ...rawArgs], projectRoot);
+}
+
+async function runProviderCapabilityMatrix(rawArgs: string[] = []): Promise<number> {
+  return npmInherited(['exec', 'tsx', '--', 'scripts/zavorth-provider-capability-matrix.ts', ...rawArgs], projectRoot);
 }
 
 async function runNativeIntegrations(rawArgs: string[] = []): Promise<number> {
@@ -1746,6 +1739,10 @@ async function runProviderChannelWizard(rawArgs: string[] = []): Promise<number>
 async function runChannelCapabilityCatalog(rawArgs: string[] = []): Promise<number> {
   const forwarded = rawArgs.includes('--json') ? ['--json'] : [];
   return npmInherited(['exec', 'tsx', '--', 'scripts/channel-long-tail-activation.ts', ...forwarded], projectRoot);
+}
+
+async function runChannelCapabilityAtlas(rawArgs: string[] = []): Promise<number> {
+  return npmInherited(['exec', 'tsx', '--', 'scripts/zavorth-channel-capability-atlas.ts', ...rawArgs], projectRoot);
 }
 
 async function runChannelDeepening(rawArgs: string[] = []): Promise<number> {
@@ -2018,7 +2015,7 @@ async function runRuntimeReadinessFixProvider(rawArgs: string[] = []): Promise<n
   return selected?.defaultRouteAllowed ? 0 : 1;
 }
 
-async function runCliExperienceParity(rawArgs: string[] = []): Promise<number> {
+async function runCliExperienceConsistency(rawArgs: string[] = []): Promise<number> {
   if (!rawArgs.includes('--legacy')) {
     const { ZavorthCliTuiPolishService } = await import('./services/ZavorthCliTuiPolishService.js');
     const service = new ZavorthCliTuiPolishService();
@@ -2039,8 +2036,8 @@ async function runCliExperienceParity(rawArgs: string[] = []): Promise<number> {
       : 0;
   }
 
-  const { ZavorthCliExperienceParityService } = await import('./services/ZavorthCliExperienceParityService.js');
-  const service = new ZavorthCliExperienceParityService();
+  const { ZavorthCliExperienceCertificationService } = await import('./services/ZavorthCliExperienceCertificationService.js');
+  const service = new ZavorthCliExperienceCertificationService();
   const snapshot = service.buildSnapshot();
 
   if (rawArgs.includes('--json')) {
@@ -2501,13 +2498,13 @@ async function runBuiltinLauncher(rawArgs: string[]): Promise<number | null> {
     return result.exitCode;
   }
 
-  if (isZavorthParityStubCommand(command)) {
-    const help = formatZavorthParityHelp(command);
+  if (isZavorthConsistencyStubCommand(command)) {
+    const help = formatZavorthCertificationHelp(command);
     if (restArgs.length === 0 || restArgs.includes('--help') || restArgs.includes('-h')) {
       process.stdout.write(help || '');
       return 0;
     }
-    const notice = formatZavorthParityPreparedNotice(command, restArgs);
+    const notice = formatZavorthConsistencyPreparedNotice(command, restArgs);
     process.stdout.write(notice || help || '');
     return 0;
   }
@@ -2754,6 +2751,9 @@ async function runBuiltinLauncher(rawArgs: string[]): Promise<number | null> {
     if (restArgs.includes('--help') || restArgs.includes('-h')) {
       return printBuiltinHelp('channels');
     }
+    if (['atlas', 'matrix', 'capability-atlas', 'capabilities', 'coverage'].includes(channelAction)) {
+      return runChannelCapabilityAtlas(restArgs.slice(1));
+    }
     if (['doctor', 'canary', 'activate'].includes(channelAction)) {
       return runChannelLongTailActivation(normalizeMeshActivationArgs('channel', channelAction, restArgs));
     }
@@ -2893,7 +2893,7 @@ async function runBuiltinLauncher(rawArgs: string[]): Promise<number | null> {
     || command === 'smart-commands'
     || command === 'slash'
     || command === 'slash-command'
-    || command === 'commands-parity'
+    || command === 'commands-certification'
   ) {
     return runSmartCommands(restArgs);
   }
@@ -3010,12 +3010,12 @@ async function runBuiltinLauncher(rawArgs: string[]): Promise<number | null> {
     return runSkillExpansionPack(restArgs);
   }
 
-  if (command === 'supremacy-parity' || command === 'supremacy' || command === 'parity-pack') {
-    return runSupremacyParity(restArgs);
+  if (command === 'capability-certification' || command === 'native-certification' || command === 'certification-pack') {
+    return runCapabilityCertification(restArgs);
   }
 
-  if (command === 'provider-parity' || command === 'providers-parity') {
-    return runProviderParity(restArgs);
+  if (command === 'provider-certification' || command === 'providers-certification') {
+    return runProviderConsistency(restArgs);
   }
 
   if (command === 'gateway-matrix' || command === 'channels-matrix') {
@@ -3035,7 +3035,7 @@ async function runBuiltinLauncher(rawArgs: string[]): Promise<number | null> {
   }
 
   if (command === 'daily' || command === 'cli-home' || command === 'start-here' || command === 'home') {
-    return runCliExperienceParity(restArgs);
+    return runCliExperienceConsistency(restArgs);
   }
 
   if (command === 'experience-certify' || command === 'daily-certify') {
@@ -3112,10 +3112,11 @@ async function runBuiltinLauncher(rawArgs: string[]): Promise<number | null> {
         'Commands:',
         '  status           Show configured provider readiness',
         '  catalog          Show provider catalog and capabilities',
+        '  matrix           Show canonical provider capability matrix',
         '  add              Configure a provider',
         '  setup            Guided provider setup',
         '  switch           Change active provider/model',
-        '  parity           Show provider parity inventory',
+        '  consistency           Show provider readiness inventory',
         '',
         'Examples:',
         '  zavorth models status',
@@ -3123,11 +3124,14 @@ async function runBuiltinLauncher(rawArgs: string[]): Promise<number | null> {
         '  zavorth models add --provider openai --model gpt-4.1',
       ], 'info');
     }
-    if (providerAction === 'parity') {
-      return runProviderParity(restArgs.slice(1));
+    if (providerAction === 'consistency') {
+      return runProviderConsistency(restArgs.slice(1));
     }
     if (['catalog', 'capabilities', 'capability-catalog', 'all', 'inventory'].includes(providerAction)) {
       return runProviderCapabilityCatalog(restArgs.slice(1));
+    }
+    if (['matrix', 'capability-matrix', 'coverage'].includes(providerAction)) {
+      return runProviderCapabilityMatrix(restArgs.slice(1));
     }
     if (['add', 'setup', 'configure', 'switch'].includes(providerAction)) {
       return runProviderChannelWizard(['providers', ...restArgs]);

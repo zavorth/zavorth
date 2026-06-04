@@ -14,7 +14,7 @@ Use this skill for security audits, vulnerability review, and abuse-case analysi
 
 - Lead with validated findings and severity.
 - Check secrets, injection, over-permission, unsafe execution, and supply chain.
-- Treat untrusted skills and external agents as hostile until proven safe.
+- Treat untrusted skills and runtime adapters as hostile until proven safe.
 - Never print raw secrets.
 
 ## Output

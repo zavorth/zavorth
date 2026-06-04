@@ -69,6 +69,7 @@ export class AgentRunLlmRequestBuilder {
     const contextPrompt = [
       this.maturity.buildSnapshot({ run, request }).prompt,
       this.buildSteeringPrompt(run),
+      this.buildAgentKernelPrompt(run.metadata),
       this.buildCognitiveContextPrompt(run.metadata),
       this.buildContextPrompt(run.metadata),
       this.buildIntelligenceFabricContextPrompt(run.metadata),
@@ -121,6 +122,17 @@ export class AgentRunLlmRequestBuilder {
       `- camadas: ${Array.isArray(summary?.layers) ? summary.layers.join(', ') : 'hot'}`,
       ...promptParts.map((part) => `- ${safeContextText(part)}`),
       ...(mcpAvailable ? ['- snapshot MCP disponivel no metadata do run; use apenas como contexto, nao como execucao ja realizada.'] : []),
+    ].join('\n');
+  }
+
+  private buildAgentKernelPrompt(metadata: Record<string, unknown>): string {
+    const snapshot = recordOrNull(metadata.agentKernelSnapshot);
+    const block = normalizeText(snapshot?.llmContextBlock);
+    if (!block) return '';
+    return [
+      block,
+      '- The Agent Kernel Snapshot is the canonical snapshot for install capability, routing hints, quiet autonomy and performance memory in this run.',
+      '- If another metadata field conflicts with the Agent Kernel Snapshot, prefer the stricter safety boundary.',
     ].join('\n');
   }
 

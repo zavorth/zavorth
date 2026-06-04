@@ -327,6 +327,7 @@ export class AgentRunService {
   private readonly now: () => Date;
   private readonly idFactory: (prefix: string) => string;
   private runtimeEventBus: AgentRunRuntimeEventBus | null;
+  private readonly runtimeEventBusSubscribers: AgentRunRuntimeEventBus[] = [];
   private readonly evidenceWorkerMode: 'inline' | 'async-heavy' | 'worker-first-heavy';
   private readonly evidenceWorker: AgentRunEvidenceWorker | null;
   private readonly asyncEvidenceCollectorIds: AgentRunEvidenceCollectorId[] | null;
@@ -564,6 +565,23 @@ export class AgentRunService {
 
   public attachRuntimeEventBus(service: AgentRunRuntimeEventBus | null | undefined): void {
     this.runtimeEventBus = service || null;
+  }
+
+  public addRuntimeEventBus(service: AgentRunRuntimeEventBus | null | undefined): void {
+    if (!service || this.runtimeEventBusSubscribers.includes(service)) {
+      return;
+    }
+    this.runtimeEventBusSubscribers.push(service);
+  }
+
+  public removeRuntimeEventBus(service: AgentRunRuntimeEventBus | null | undefined): void {
+    if (!service) {
+      return;
+    }
+    const index = this.runtimeEventBusSubscribers.indexOf(service);
+    if (index >= 0) {
+      this.runtimeEventBusSubscribers.splice(index, 1);
+    }
   }
 
   public recordSteering(
@@ -1725,6 +1743,7 @@ export class AgentRunService {
     type: AgentRunRuntimeEventType,
     payload: Record<string, unknown> = {},
   ): Promise<void> {
+    const eventBuses = this.getRuntimeEventBuses();
     const receipt = {
       type,
       emittedAt: this.now().toISOString(),
@@ -1733,26 +1752,45 @@ export class AgentRunService {
     };
     this.appendRuntimeEventReceipt(run, {
       ...receipt,
-      delivery: this.runtimeEventBus ? 'pending' : 'not-configured',
+      delivery: eventBuses.length > 0 ? 'pending' : 'not-configured',
     });
-    if (!this.runtimeEventBus) {
+    if (eventBuses.length === 0) {
       return;
     }
 
+    const runtimePayload = {
+      ...payload,
+      runId: run.id,
+      traceId: run.traceId,
+      requestId: run.requestId,
+      sessionId: run.sessionId,
+      userId: run.userId,
+      channel: run.channel,
+      status: run.status,
+      surfaceChatId: this.resolveRuntimeEventSurfaceChatId(run),
+      surfaceThreadId: this.resolveRuntimeEventMetadataText(run, 'threadId'),
+      surfaceTaskId: this.resolveRuntimeEventMetadataText(run, 'taskId'),
+    };
+    let delivered = 0;
+    const errors: string[] = [];
     try {
-      await this.runtimeEventBus.emit(type, {
-        ...payload,
-        runId: run.id,
-        traceId: run.traceId,
-        requestId: run.requestId,
-        sessionId: run.sessionId,
-        userId: run.userId,
-        channel: run.channel,
-        status: run.status,
-      });
+      for (const eventBus of eventBuses) {
+        try {
+          await eventBus.emit(type, runtimePayload);
+          delivered += 1;
+        } catch (error) {
+          errors.push(error instanceof Error ? error.message : String(error));
+        }
+      }
+      if (delivered === 0 && errors.length > 0) {
+        throw new Error(errors.join('; '));
+      }
       this.appendRuntimeEventReceipt(run, {
         ...receipt,
-        delivery: 'delivered',
+        delivery: errors.length > 0 ? 'partial' : 'delivered',
+        delivered,
+        failed: errors.length,
+        error: errors.length > 0 ? errors.join('; ') : undefined,
       });
     } catch (error) {
       this.appendRuntimeEventReceipt(run, {
@@ -1866,7 +1904,8 @@ export class AgentRunService {
         source: 'AgentRunService',
         stage: 2,
         phase: 2,
-        configured: Boolean(this.runtimeEventBus),
+        configured: this.getRuntimeEventBuses().length > 0,
+        subscriberCount: this.getRuntimeEventBuses().length,
         snapshot: this.readRuntimeEventBusSnapshot(),
         events: [
           ...events,
@@ -1876,15 +1915,37 @@ export class AgentRunService {
     };
   }
 
+  private getRuntimeEventBuses(): AgentRunRuntimeEventBus[] {
+    return [
+      this.runtimeEventBus,
+      ...this.runtimeEventBusSubscribers,
+    ].filter((eventBus): eventBus is AgentRunRuntimeEventBus => Boolean(eventBus));
+  }
+
   private readRuntimeEventBusSnapshot(): unknown {
-    if (!this.runtimeEventBus?.snapshot) {
-      return null;
-    }
-    try {
-      return this.runtimeEventBus.snapshot();
-    } catch {
-      return null;
-    }
+    return this.getRuntimeEventBuses().map((eventBus, index) => {
+      if (!eventBus.snapshot) {
+        return { index, snapshot: null };
+      }
+      try {
+        return { index, snapshot: eventBus.snapshot() };
+      } catch {
+        return { index, snapshot: null };
+      }
+    });
+  }
+
+  private resolveRuntimeEventSurfaceChatId(run: UniversalAgentRun): string | null {
+    return this.resolveRuntimeEventMetadataText(run, 'chatId')
+      || this.resolveRuntimeEventMetadataText(run, 'surfaceChatId')
+      || run.sessionId
+      || null;
+  }
+
+  private resolveRuntimeEventMetadataText(run: UniversalAgentRun, key: string): string | null {
+    const metadata = recordOrNull(run.metadata);
+    const text = String(metadata?.[key] ?? '').trim();
+    return text || null;
   }
 
   private applyCachedEvidenceSnapshot<TSnapshot extends Record<string, unknown>>(

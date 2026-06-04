@@ -73,7 +73,7 @@ for (const marker of [
   'Zavorth memory',
   'Receipts',
   'Connectors',
-  'External agent control',
+  'runtime adapter control',
 ]) {
   if (!home.includes(marker)) {
     throw new Error(`zavorthControl home marker missing: ${marker}`);

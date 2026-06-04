@@ -4,7 +4,6 @@
  */
 import { CONTROL_LOCALES, readControlLocalePreference } from './locale';
 import { initLearningDreamsUi } from './learning-dreams-ui';
-import { renderCapabilityStrip, renderSurfaceFlow } from './page-components';
 import { initRuntimeEngineUi } from './runtime-engines-ui';
 
 declare global {
@@ -19,181 +18,114 @@ declare global {
 export function initControlPages() {
 
   populate('sector-overview', `
-    <div class="premium-page premium-page--platform platform-page--operator dashboard-glass" data-zavorth-premium-dashboard-v2>
-      <section class="premium-hero premium-hero--platform platform-hero--operator" aria-label="Work overview">
-        <div>
-          <span class="dashboard-eyebrow"><span class="dashboard-live-dot"></span>Work</span>
-          <h1 class="premium-title">Current work</h1>
-          <p class="premium-subtitle">See what Zavorth is doing now, what needs a decision, and the safest next step.</p>
-        </div>
-        <div class="premium-hero__actions">
-          <button class="operator-primary-action" type="button" data-dashboard-sector="terminal">Open chat</button>
-        </div>
+    <div class="daily-page daily-page--work" data-zavorth-premium-dashboard-v2>
+      ${dailyHeader('Work', 'Current run and anything that needs your attention.', '<button class="daily-button daily-button--primary" type="button" data-dashboard-sector="terminal">Open chat</button>')}
+      <section class="daily-stat-row daily-stat-row--compact" aria-label="Work status">
+        ${dailyMetric('Status', '<span data-live-runtime-state>Ready</span>', '<span data-live-runtime-detail>No active run</span>')}
+        ${dailyMetric('Input', '<span data-live-gateway-state>Local</span>', '<span data-live-gateway-detail>Web and terminal</span>')}
+        ${dailyMetric('Mode', '<span data-runtime-engine-active>Lite</span>', 'Configured route')}
+        ${dailyMetric('Approvals', '0', 'Nothing pending')}
       </section>
-      ${renderSurfaceFlow()}
-      ${renderCapabilityStrip('overview')}
-
-      <!-- Interactive Runtime Connectivity Map -->
-      <div class="zavorth-connectivity-map" aria-label="Runtime Connectivity Map">
-        <div class="zavorth-connectivity-map__header">
-          <span class="zavorth-connectivity-map__dot"></span>
-          <span>Runtime Connectivity & Signals</span>
-        </div>
-        <svg viewBox="0 0 600 100" class="zavorth-connectivity-svg">
-          <defs>
-            <filter id="neon-glow-conn" x="-20%" y="-20%" width="140%" height="140%">
-              <feGaussianBlur stdDeviation="2.5" result="blur" />
-              <feMerge>
-                <feMergeNode in="blur" />
-                <feMergeNode in="SourceGraphic" />
-              </feMerge>
-            </filter>
-          </defs>
-          
-          <!-- Connections with active neon pulsing -->
-          <path d="M 60 40 L 175 40" class="zavorth-conn-path is-active" id="path-user-dash" />
-          <path d="M 195 40 L 305 40" class="zavorth-conn-path is-active" id="path-dash-gate" />
-          <path d="M 325 40 L 435 40" class="zavorth-conn-path is-active" id="path-gate-bridge" />
-          <path d="M 455 40 L 535 40" class="zavorth-conn-path is-active" id="path-bridge-llm" />
-          
-          <!-- Nodes -->
-          <g class="zavorth-conn-node is-active" id="node-user" transform="translate(50, 40)">
-            <circle r="15" />
-            <text y="4" class="node-icon">👤</text>
-            <text y="28" class="node-label">Operator</text>
-          </g>
-          
-          <g class="zavorth-conn-node is-active" id="node-dash" transform="translate(185, 40)">
-            <circle r="15" />
-            <text y="4" class="node-icon">💻</text>
-            <text y="28" class="node-label">Dashboard</text>
-          </g>
-          
-          <g class="zavorth-conn-node is-active" id="node-gate" transform="translate(315, 40)">
-            <circle r="15" />
-            <text y="4" class="node-icon">⚡</text>
-            <text y="28" class="node-label">Gateway</text>
-          </g>
-          
-          <g class="zavorth-conn-node is-active" id="node-bridge" transform="translate(445, 40)">
-            <circle r="15" />
-            <text y="4" class="node-icon">🔌</text>
-            <text y="28" class="node-label">Bridge</text>
-          </g>
-          
-          <g class="zavorth-conn-node is-active" id="node-llm" transform="translate(545, 40)">
-            <circle r="15" />
-            <text y="4" class="node-icon">🧠</text>
-            <text y="28" class="node-label">LLM Route</text>
-          </g>
-        </svg>
-      </div>
-
-      <section class="work-simple-grid" aria-label="Work overview">
-        <section class="work-simple-panel work-simple-panel--main">
-          <div class="platform-section-title">Current task</div>
-          <div class="work-current-task">
-            <strong data-dashboard-runtime-title>No task running</strong>
-            <p data-dashboard-runtime-text>Ask Zavorth in the Inbox. When a request could change files, call tools, or touch external state, Zavorth will preview the risk and ask for approval.</p>
-            <button type="button" data-dashboard-sector="terminal">Ask Zavorth</button>
-          </div>
-          <div class="work-now-strip" aria-label="Current runtime facts">
-            <span><strong data-live-runtime-state>Runtime</strong><small data-live-runtime-detail>Checking access</small></span>
-            <span><strong data-live-gateway-state>Gateway</strong><small data-live-gateway-detail>Local route</small></span>
-            <span><strong data-live-sync-state>Last sync</strong><small data-live-sync-detail>Starting now</small></span>
-          </div>
-          
-          <!-- Retro-Futuristic Event Console -->
-          <div class="platform-section-title" style="margin-top: 24px; display: flex; align-items: center; gap: 8px;">
-            <span>System events stream</span>
-          </div>
-          <div class="zavorth-console-panel">
-            <div class="zavorth-console-header">
-              <span class="zavorth-console-dot"></span>
-              <span class="zavorth-console-title">zavorth_event_stream.log</span>
-              <button class="zavorth-console-clear" type="button">Clear</button>
+      <div class="agent-os-live-summary" hidden aria-hidden="true">Runtime summary is available to the live bridge.</div>
+      <section class="daily-layout daily-layout--main" aria-label="Work overview">
+        <article class="daily-panel daily-panel--primary">
+          <div class="daily-panel__head">
+            <div>
+              <span>Now</span>
+              <h2 data-dashboard-runtime-title>No active work</h2>
             </div>
-            <div class="zavorth-console-body" id="zavorth-console-events">
-              <div class="zavorth-console-line zavorth-console-line--system">
-                <span class="zavorth-console-time">[00:00:00]</span>
-                <span class="zavorth-console-tag">[SYSTEM]</span>
-                <span class="zavorth-console-text">Console initialized. Listening to real-time events...</span>
+            <button class="daily-button" type="button" data-dashboard-sector="terminal">Ask</button>
+          </div>
+          <p class="daily-muted" data-dashboard-runtime-text>Ready for a new request.</p>
+          <details class="daily-disclosure daily-disclosure--quiet" open>
+            <summary>Logs</summary>
+            <div class="zavorth-console-panel daily-console">
+              <div class="zavorth-console-header">
+                <span class="zavorth-console-dot"></span>
+                <span class="zavorth-console-title">Live log</span>
+                <button class="zavorth-console-clear" type="button">Clear</button>
+              </div>
+              <div class="zavorth-console-body" id="zavorth-console-events">
+                <div class="zavorth-console-line zavorth-console-line--system">
+                  <span class="zavorth-console-time">[00:00]</span>
+                  <span class="zavorth-console-tag">[SESSION]</span>
+                  <span class="zavorth-console-text">Dashboard connected.</span>
+                </div>
               </div>
             </div>
-          </div>
-          <div class="platform-section-title" style="margin-top: 24px;">Trace Gantt</div>
-          <div class="zavorth-gantt-chart" data-dashboard-timeline aria-label="Runtime trace Gantt timeline">
-            <div class="zavorth-gantt-empty">
-              <span class="zavorth-gantt-empty-dot"></span>
-              <span>Waiting for execution stream...</span>
+          </details>
+          <details class="daily-disclosure daily-disclosure--quiet">
+            <summary>Trace timeline</summary>
+            <div class="zavorth-gantt-chart" data-dashboard-timeline aria-label="Runtime trace timeline">
+              <div class="zavorth-gantt-empty">
+                <span class="zavorth-gantt-empty-dot"></span>
+                <span>No trace yet.</span>
+              </div>
             </div>
-          </div>
-        </section>
-        <section class="work-simple-panel">
-          <div class="platform-section-title">Needs attention</div>
-          <div class="work-decision-empty">
-            <strong data-dashboard-approval-title>No pending approvals</strong>
-            <p data-dashboard-approval-text>When Zavorth needs a decision, it appears here with approve, deny, or adjust scope.</p>
-          </div>
-        </section>
-        <section class="work-simple-panel work-simple-panel--status">
-          <div class="platform-section-title">State</div>
-          <div class="work-compact-status">
-            ${premiumStatus("Engine", '<span data-runtime-engine-active>Lite</span>', "info")}
-            ${premiumStatus("Dashboard", "online", "ok")}
-            ${premiumStatus("Risky actions", "approval gated", "ok")}
-          </div>
-        </section>
+          </details>
+        </article>
+        <aside class="daily-stack">
+          <article class="daily-panel">
+            <div class="daily-panel__head">
+              <div><span>Approvals</span><h2 data-dashboard-approval-title>Nothing to approve</h2></div>
+              <button class="daily-button" type="button" data-dashboard-sector="sales-os">Open</button>
+            </div>
+            <p class="daily-muted" data-dashboard-approval-text>No decision is waiting for you.</p>
+          </article>
+          <article class="daily-panel">
+            <div class="daily-panel__head"><div><span>Useful status</span><h2>System</h2></div></div>
+            <div class="daily-key-value">
+              ${dailyKeyValue('Dashboard', 'Online')}
+              ${dailyKeyValue('Background', '<span data-live-sync-state>Idle</span>')}
+              ${dailyKeyValue('Last sync', '<span data-live-sync-detail>Starting</span>')}
+              ${dailyKeyValue('Autonomy', 'Quiet')}
+            </div>
+          </article>
+        </aside>
       </section>
     </div>
   `);
 
   populate('sector-channels', `
-    <div class="premium-page">
-      <section class="premium-hero premium-hero--compact">
-        <div>
-          <span class="dashboard-eyebrow"><span class="dashboard-live-dot"></span>Channels</span>
-          <h1 class="premium-title">Channels stay conversational.</h1>
-          <p class="premium-subtitle">Use web, CLI or remote chat naturally. Zavorth steps in only when a message would expose data or trigger an external action.</p>
-        </div>
-        <button class="operator-primary-action" type="button" data-dashboard-prompt="Show available channels and the next setup step only.">Configure channel</button>
+    <div class="daily-page">
+      ${dailyHeader('Channels', 'Connect remote inboxes for requests and approved replies.', '<button class="daily-button daily-button--primary" type="button" data-dashboard-prompt="Connect a channel. Show only missing credentials and the next setup step.">Connect</button><button class="daily-button" type="button" data-dashboard-prompt="Test configured channels and show only failures or missing credentials.">Test</button>')}
+      <section class="daily-stat-row daily-stat-row--compact" aria-label="Channel status">
+        ${dailyMetric('Connected', 'Local', 'Web and terminal')}
+        ${dailyMetric('Remote', 'Optional', 'Token or webhook')}
+        ${dailyMetric('Last message', 'None', 'No remote activity')}
       </section>
-      <section class="premium-grid">
-        ${surfaceCard('Web dashboard', 'Ready', 'ok', 'Chat, files, voice and approvals when needed.')}
-        ${surfaceCard('CLI / TUI', 'Ready', 'ok', 'Fast ask, edit and apply commands with engine routing.')}
-        ${surfaceCard('Remote chat', 'Optional', 'info', 'Use phone chat when configured; sensitive sends stay scoped.')}
-        ${surfaceCard('Team channel', 'Optional', 'info', 'Shared approvals and updates without exposing secrets.')}
-        ${surfaceCard('Workspace channel', 'Optional', 'info', 'Project-aware messages with redaction.')}
-        ${surfaceCard('External messaging', 'Optional', 'info', 'Outbound messages stay opt-in.')}
+      <section class="daily-panel daily-panel--list daily-panel--flush">
+        <div class="daily-panel__head">
+          <div><span>Channels</span><h2>Available routes</h2></div>
+        </div>
+        <div class="daily-list daily-list--compact">
+          ${channelRow('Dashboard', 'Local chat', 'Ready', 'ok', 'Open', 'Details', 'Open the local dashboard chat.')}
+          ${channelRow('Telegram', 'Bot token', 'Set up', 'warn', 'Connect', 'Details', 'Connect Telegram with a bot token and editable progress replies.')}
+          ${channelRow('Discord', 'Bot or app', 'Set up', 'warn', 'Connect', 'Details', 'Connect Discord for workspace chat.')}
+          ${channelRow('Slack', 'Workspace app', 'Set up', 'warn', 'Connect', 'Details', 'Connect Slack for team requests.')}
+          ${channelRow('WhatsApp', 'Bridge or webhook', 'Set up', 'warn', 'Connect', 'Details', 'Connect WhatsApp through a configured bridge.')}
+          ${channelRow('Email', 'Mailbox route', 'Set up', 'warn', 'Connect', 'Details', 'Connect an email inbox for governed requests.')}
+          ${channelRow('Signal', 'Local bridge', 'Set up', 'warn', 'Connect', 'Details', 'Connect Signal through a local bridge.')}
+          ${channelRow('Teams', 'Microsoft app', 'Set up', 'warn', 'Connect', 'Details', 'Connect Microsoft Teams for approved team replies.')}
+        </div>
       </section>
     </div>
   `);
 
   populate('sector-sales-os', `
-    <div class="premium-page">
-      <section class="premium-hero premium-hero--compact">
-        <div>
-          <span class="dashboard-eyebrow"><span class="dashboard-live-dot"></span>Approvals</span>
-          <h1 class="premium-title">Decisions should be obvious.</h1>
-          <p class="premium-subtitle">Accept, reject, allow for a scope or revoke later. Critical actions keep extra confirmations.</p>
+    <div class="daily-page">
+      ${dailyHeader('Approvals', 'Only decisions that need you stop here.', '<button class="daily-button daily-button--primary" type="button" data-dashboard-prompt="Show pending approvals with approve, reject and limit controls.">Review</button>')}
+      <section class="daily-stat-row" aria-label="Approval status">
+        ${dailyMetric('Pending', '<span data-sales-os-metric="approvals">0</span>', '<span data-sales-os-meta="approvals">No pending approval</span>')}
+        ${dailyMetric('Receipts', 'On', 'Every decision')}
+        ${dailyMetric('Risky work', 'Gated', 'Preview first')}
+      </section>
+      <section class="daily-panel daily-panel--primary">
+        <div class="daily-panel__head">
+          <div><span>Queue</span><h2 data-dashboard-approval-title>No decision waiting</h2></div>
+          <button class="daily-button" type="button" data-dashboard-sector="terminal">Open chat</button>
         </div>
-        <button class="operator-primary-action" type="button" data-dashboard-prompt="Show pending approvals, auto-approvals and break-glass status.">Review approvals</button>
-      </section>
-      <section class="premium-metrics">
-        ${premiumMetric('Pending', '<span data-sales-os-metric="approvals">0</span>', '<span data-sales-os-meta="approvals">no pending approval</span>', 'warn')}
-        ${premiumMetric('Auto approvals', 'Scoped', 'time-limited and revocable', 'info')}
-        ${premiumMetric('Extreme mode', 'Locked', 'requires maximum confirmation', 'warn')}
-        ${premiumMetric('Receipts', 'On', 'every decision leaves proof', 'ok')}
-      </section>
-      <section class="decision-board" aria-label="Approval decision board">
-        ${decisionCard('Next decision', 'No pending approvals', 'When one appears, this card shows action, risk, scope, TTL and approve/reject controls.', 'ok', 'Open Inbox')}
-        ${decisionCard('Allow always', 'Available with limits', 'Persistent permission must still name scope, risk ceiling, expiration and rollback notes.', 'info', 'Manage scopes')}
-        ${decisionCard('Break-glass', 'Locked', 'Critical mode asks multiple confirmations, explains risks and keeps hard stops for obvious catastrophes.', 'warn', 'Inspect')}
-      </section>
-      <section class="premium-layout">
-        ${plainPanel('Plain-language approval', 'A user can type approve, click a button, or use any enabled channel; the same resolver verifies scope and receipt.')}
-        ${plainPanel('Revocation', 'Every persistent permission can be revoked from dashboard, CLI or remote channel.')}
-        ${plainPanel('Audit trail', 'Approval cards link back to the request, policy reason, TTL and final receipt.')}
+        <p class="daily-muted" data-dashboard-approval-text>Approval cards appear here when a request can change files, policy, channels or external state.</p>
       </section>
     </div>
   `);
@@ -245,127 +177,44 @@ export function initControlPages() {
   `);
 
   populate('sector-usage', `
-    <div class="premium-page platform-page--operator">
-      <section class="premium-hero premium-hero--compact platform-hero--operator">
-        <div>
-          <span class="dashboard-eyebrow"><span class="dashboard-live-dot"></span>Models</span>
-          <h1 class="premium-title">AI models</h1>
-          <p class="premium-subtitle">See which route Zavorth uses, whether it is ready, and what has been measured in this session.</p>
-        </div>
-        <button class="operator-primary-action" type="button" data-dashboard-prompt="Explain the current AI model, provider route, fallback, and anything that still needs setup.">View current model</button>
+    <div class="daily-page">
+      ${dailyHeader('Models', 'Choose, test and inspect AI routes.', '<button class="daily-button daily-button--primary" type="button" data-dashboard-prompt="Test the active provider route with a sanitized request.">Test route</button>')}
+      <section class="daily-stat-row" aria-label="Model status">
+        ${dailyMetric('Active route', 'Auto', '<span data-provider-picker="active">Configured route</span>')}
+        ${dailyMetric('Fallbacks', '<span data-provider-picker="fallbacks">Live routes</span>', 'Used only when ready')}
+        ${dailyMetric('Proof', '<span data-provider-picker="proof">Sanitized</span>', 'Secrets hidden')}
       </section>
-      ${renderCapabilityStrip('usage')}
-      <section class="platform-summary platform-summary--compact" aria-label="Model usage summary">
-        ${premiumMetric("Tokens", "0", "no measured usage", "info")}
-        ${premiumMetric("Cost", "$0.00", "waiting for provider proof", "info")}
-        ${premiumMetric("Calls", "0", "no tools executed", "info")}
-        ${premiumMetric("Errors", "0", "no visible errors", "ok")}
-      </section>
-      
-      <!-- Sleek Neon SVG Charts -->
-      <section class="zavorth-charts-panel">
-        <div class="zavorth-chart-card">
-          <div class="zavorth-chart-header">
-            <h3>Token Usage History (Neural Feed)</h3>
-            <span class="mono" id="zavorth-chart-tokens-val">0 tokens total</span>
-          </div>
-          <div class="zavorth-chart-container">
-            <svg viewBox="0 0 500 120" preserveAspectRatio="none" class="zavorth-svg-chart">
-              <defs>
-                <linearGradient id="token-glow" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="0%" stop-color="#00ffaa" stop-opacity="0.3"></stop>
-                  <stop offset="100%" stop-color="#00ffaa" stop-opacity="0.0"></stop>
-                </linearGradient>
-              </defs>
-              <path d="M 0 120 L 50 115 L 100 112 L 150 108 L 200 100 L 250 95 L 300 80 L 350 75 L 400 60 L 450 50 L 500 45 L 500 120 Z" fill="url(#token-glow)"></path>
-              <path d="M 0 120 L 50 115 L 100 112 L 150 108 L 200 100 L 250 95 L 300 80 L 350 75 L 400 60 L 450 50 L 500 45" fill="none" stroke="#00ffaa" stroke-width="2.5" class="zavorth-neon-path"></path>
-              <circle cx="50" cy="115" r="3.5" fill="#00ffaa" class="zavorth-neon-dot"></circle>
-              <circle cx="150" cy="108" r="3.5" fill="#00ffaa" class="zavorth-neon-dot"></circle>
-              <circle cx="250" cy="95" r="3.5" fill="#00ffaa" class="zavorth-neon-dot"></circle>
-              <circle cx="300" cy="80" r="3.5" fill="#00ffaa" class="zavorth-neon-dot"></circle>
-              <circle cx="400" cy="60" r="3.5" fill="#00ffaa" class="zavorth-neon-dot"></circle>
-              <circle cx="450" cy="50" r="3.5" fill="#00ffaa" class="zavorth-neon-dot"></circle>
-              <circle cx="500" cy="45" r="3.5" fill="#00ffaa" class="zavorth-neon-dot"></circle>
-            </svg>
-          </div>
+      <section class="daily-panel daily-panel--list daily-panel--flush">
+        <div class="daily-panel__head">
+          <div><span>Provider catalog</span><h2>Routes</h2></div>
+          <button class="daily-button" type="button" data-dashboard-prompt="Explain the current AI model, provider route, fallback, and anything that still needs setup.">Details</button>
         </div>
-        
-        <div class="zavorth-chart-card">
-          <div class="zavorth-chart-header">
-            <h3>Cost Accumulation ($ HSL Neon)</h3>
-            <span class="mono" id="zavorth-chart-cost-val">$0.00 total</span>
-          </div>
-          <div class="zavorth-chart-container">
-            <svg viewBox="0 0 500 120" preserveAspectRatio="none" class="zavorth-svg-chart">
-              <g fill="#00bfff" opacity="0.8">
-                <rect x="20" y="115" width="25" height="5" rx="2" class="zavorth-neon-rect"></rect>
-                <rect x="70" y="113" width="25" height="7" rx="2" class="zavorth-neon-rect"></rect>
-                <rect x="120" y="110" width="25" height="10" rx="2" class="zavorth-neon-rect"></rect>
-                <rect x="170" y="108" width="25" height="12" rx="2" class="zavorth-neon-rect"></rect>
-                <rect x="220" y="105" width="25" height="15" rx="2" class="zavorth-neon-rect"></rect>
-                <rect x="270" y="100" width="25" height="20" rx="2" class="zavorth-neon-rect"></rect>
-                <rect x="320" y="95" width="25" height="25" rx="2" class="zavorth-neon-rect"></rect>
-                <rect x="370" y="85" width="25" height="35" rx="2" class="zavorth-neon-rect"></rect>
-                <rect x="420" y="75" width="25" height="45" rx="2" class="zavorth-neon-rect"></rect>
-                <rect x="470" y="65" width="25" height="55" rx="2" class="zavorth-neon-rect"></rect>
-              </g>
-            </svg>
-          </div>
+        <div class="daily-provider-summary" data-provider-model-catalog-summary>
+          <div class="info-row"><span class="info-row__label">Routes</span><span class="info-row__value mono">loading</span></div>
+          <div class="info-row"><span class="info-row__label">Ready</span><span class="info-row__value mono">loading</span></div>
+          <div class="info-row"><span class="info-row__label">Models</span><span class="info-row__value mono">loading</span></div>
+          <div class="info-row"><span class="info-row__label">Media</span><span class="info-row__value mono">loading</span></div>
         </div>
-      </section>
-      
-      <section class="platform-workspace platform-workspace--operator">
-        <div class="platform-main">
-          <div class="platform-section-title">Actions</div>
-          <div class="platform-action-list" aria-label="Model actions">
-            <button type="button" data-dashboard-prompt="Explain Zavorth's active model, provider, fallback, and when I should switch routes."><strong>Active model</strong><span>Uses the configured route right now.</span></button>
-            <button type="button" data-dashboard-prompt="Test the current AI route with a safe sanitized check. Do not expose secrets."><strong>Test route</strong><span>Runs a safe readiness check before use.</span></button>
-            <button type="button" data-dashboard-prompt="Show tokens, cost, tool calls, and measurement gaps for this session."><strong>Recent usage</strong><span>Summarizes what has been measured.</span></button>
-          </div>
-          <div class="platform-section-title">Catalog</div>
-          <div class="info-grid info-grid--quiet" data-provider-model-catalog-summary>
-            <div class="info-row"><span class="info-row__label">Routes</span><span class="info-row__value mono">waiting</span></div>
-            <div class="info-row"><span class="info-row__label">Ready</span><span class="info-row__value mono">waiting</span></div>
-            <div class="info-row"><span class="info-row__label">Models</span><span class="info-row__value mono">waiting</span></div>
-            <div class="info-row"><span class="info-row__label">Media</span><span class="info-row__value mono">waiting</span></div>
-          </div>
-          <div class="card-grid card-grid--quiet" data-provider-model-catalog-list></div>
-        </div>
-        <aside class="platform-side">
-          <div class="platform-section-title">State</div>
-          <div class="premium-status-list">
-            ${premiumStatus("Usage", "local", "info")}
-            ${premiumStatus("Costs", "when reported", "info")}
-            ${premiumStatus("Secrets", "redacted", "ok")}
-            ${premiumStatus("Export", "manual", "info")}
-          </div>
-        </aside>
+        <div class="daily-card-feed" data-provider-model-catalog-list></div>
       </section>
     </div>
   `);
 
   populate('sector-agents', `
-    <div class="premium-page platform-page--operator">
-      <section class="premium-hero premium-hero--compact platform-hero--operator">
-        <div>
-          <span class="dashboard-eyebrow"><span class="dashboard-live-dot"></span>External Agents</span>
-          <h1 class="premium-title">External agent control.</h1>
-          <p class="premium-subtitle">Registered external agents, sandbox posture, latest receipts and governed execution share one Zavorth-native cockpit.</p>
-        </div>
-        <button class="operator-primary-action" type="button" data-external-agent-action="refresh">Sync registry</button>
+    <div class="daily-page runtime-adapter-dashboard">
+      ${dailyHeader('Agents', 'Use local runtime adapters through governed policies.', '<button class="daily-button daily-button--primary" type="button" data-runtime-adapter-action="refresh">Sync</button>')}
+      <section class="daily-stat-row" aria-label="Runtime adapter status">
+        ${dailyMetric('Profiles', '<span data-runtime-adapter-metric="profiles">0</span>', '<span data-runtime-adapter-meta="profiles">registered</span>')}
+        ${dailyMetric('Live', '<span data-runtime-adapter-metric="live">0</span>', '<span data-runtime-adapter-meta="live">approval gated</span>')}
+        ${dailyMetric('Sandbox', '<span data-runtime-adapter-metric="sandbox">0</span>', '<span data-runtime-adapter-meta="sandbox">isolated</span>')}
+        ${dailyMetric('Receipt', '<span data-runtime-adapter-metric="receipt">none</span>', '<span data-runtime-adapter-meta="receipt">latest</span>')}
       </section>
-      ${renderCapabilityStrip('agents')}
-      <section class="agent-os-live-summary" aria-label="External agent summary">
-        <span><strong data-external-agent-metric="profiles">0</strong><small data-external-agent-meta="profiles">waiting for registry</small></span>
-        <span><strong data-external-agent-metric="live">0</strong><small data-external-agent-meta="live">approval gated</small></span>
-        <span><strong data-external-agent-metric="sandbox">0</strong><small data-external-agent-meta="sandbox">strong boundary</small></span>
-        <span><strong data-external-agent-metric="receipt">none</strong><small data-external-agent-meta="receipt">latest receipt</small></span>
-      </section>
-      <section class="platform-workspace platform-workspace--operator external-agent-dashboard">
-        <div class="platform-main">
-          <div class="platform-section-title">Registry</div>
-          <div class="card-grid card-grid--quiet" data-external-agent-grid></div>
-          <div class="platform-section-title">Profiles</div>
+      <section class="daily-layout daily-layout--main">
+        <article class="daily-panel daily-panel--primary">
+          <div class="daily-panel__head">
+            <div><span>Profiles</span><h2>Registered helpers</h2></div>
+            <button class="daily-button" type="button" data-runtime-adapter-action="refresh">Refresh</button>
+          </div>
           <div class="table-wrap">
             <table class="data-table">
               <thead>
@@ -375,379 +224,289 @@ export function initControlPages() {
                   <th>Sandbox</th>
                   <th>Live</th>
                   <th>Receipt</th>
-                  <th>Action</th>
+                  <th>Policy</th>
                 </tr>
               </thead>
               <tbody>
-                <tr><td class="mono">none</td><td>waiting</td><td>no sandbox declared</td><td>disabled</td><td>none</td><td>register a profile</td></tr>
+                <tr><td class="mono">none</td><td>waiting</td><td>not declared</td><td>disabled</td><td>none</td><td>register first</td></tr>
               </tbody>
             </table>
           </div>
-        </div>
-        <aside class="platform-side">
-          <div class="platform-section-title">Register</div>
-          <form class="external-agent-form" data-external-agent-register-form>
-            <label><span>Id</span><input name="id" type="text" placeholder="claude-local"></label>
-            <label><span>Label</span><input name="label" type="text" placeholder="Claude Local"></label>
-            <div class="external-agent-form__row">
-              <label><span>Adapter</span><select name="adapter"><option value="cli">CLI</option><option value="http">HTTP</option><option value="acp">ACP</option><option value="mcp">MCP</option></select></label>
-              <label><span>Prompt</span><select name="promptMode"><option value="stdin">stdin</option><option value="arg">arg</option><option value="json">json</option></select></label>
+          <div class="card-grid card-grid--quiet" data-runtime-adapter-grid hidden></div>
+        </article>
+        <aside class="daily-stack">
+          <article class="daily-panel">
+            <div class="daily-panel__head"><div><span>Register</span><h2>New helper</h2></div></div>
+            <form class="runtime-adapter-form" data-runtime-adapter-register-form>
+              <label><span>Id</span><input name="id" type="text" placeholder="local-helper"></label>
+              <label><span>Label</span><input name="label" type="text" placeholder="Local helper"></label>
+              <div class="runtime-adapter-form__row">
+                <label><span>Adapter</span><select name="adapter"><option value="cli">CLI</option><option value="http">HTTP</option><option value="acp">ACP</option><option value="mcp">MCP</option></select></label>
+                <label><span>Prompt</span><select name="promptMode"><option value="stdin">stdin</option><option value="arg">arg</option><option value="json">json</option></select></label>
+              </div>
+              <label><span>Command</span><input name="command" type="text" placeholder="agent"></label>
+              <label><span>Root</span><input name="root" type="text" placeholder="C:\\project"></label>
+              <button class="daily-button daily-button--wide" type="button" data-runtime-adapter-action="register">Register</button>
+            </form>
+          </article>
+          <article class="daily-panel">
+            <div class="daily-panel__head"><div><span>Run</span><h2>Preview first</h2></div></div>
+            <div class="runtime-adapter-console">
+              <label><span>Profile</span><select data-runtime-adapter-profile-select><option value="">No profile registered</option></select></label>
+              <label><span>Prompt</span><textarea data-runtime-adapter-prompt rows="3" placeholder="Ask the helper to inspect this workspace."></textarea></label>
+              <label class="runtime-adapter-check"><input data-runtime-adapter-approve-execution type="checkbox"> <span>Approve this run</span></label>
+              <div class="runtime-adapter-actions">
+                <button type="button" data-runtime-adapter-action="preview">Preview</button>
+                <button type="button" data-runtime-adapter-action="invoke">Run</button>
+              </div>
             </div>
-            <label><span>Command</span><input name="command" type="text" placeholder="claude"></label>
-            <label><span>Args</span><input name="args" type="text" placeholder="--model sonnet"></label>
-            <label><span>Endpoint</span><input name="endpoint" type="text" placeholder="http://127.0.0.1:8765/agent"></label>
-            <label><span>Root</span><input name="root" type="text" placeholder="C:\\project"></label>
-            <div class="external-agent-form__row">
-              <label><span>Isolation</span><select name="isolation"><option value="local-supervised">local supervised</option><option value="docker">docker</option><option value="wsl">wsl</option></select></label>
-              <label><span>Docker image</span><input name="dockerImage" type="text" placeholder="agent:latest"></label>
+          </article>
+          <article class="daily-panel">
+            <div class="daily-panel__head"><div><span>Receipt</span><h2 data-runtime-adapter-receipt-status>none</h2></div></div>
+            <div class="runtime-adapter-receipt">
+              <span data-runtime-adapter-receipt-profile>no profile</span>
+              <p data-runtime-adapter-receipt-summary>No receipt has been written yet.</p>
+              <code data-runtime-adapter-receipt-command>waiting for next action</code>
             </div>
-            <label><span>WSL distro</span><input name="wslDistro" type="text" placeholder="Ubuntu-24.04"></label>
-            <label class="external-agent-check"><input name="enableLive" type="checkbox"> <span>Enable live execution</span></label>
-            <label class="external-agent-check"><input name="requireStrongIsolation" type="checkbox"> <span>Require strong isolation</span></label>
-            <label class="external-agent-check"><input name="approveRegistration" type="checkbox"> <span>Approve this registration</span></label>
-            <button class="operator-primary-action" type="button" data-external-agent-action="register">Register profile</button>
-          </form>
-          <div class="platform-section-title">Execution</div>
-          <div class="external-agent-console">
-            <label><span>Profile</span><select data-external-agent-profile-select><option value="">No profile registered</option></select></label>
-            <label><span>Prompt</span><textarea data-external-agent-prompt rows="4" placeholder="Ask the external agent to inspect this workspace."></textarea></label>
-            <label class="external-agent-check"><input data-external-agent-approve-execution type="checkbox"> <span>Approve this run</span></label>
-            <div class="external-agent-actions">
-              <button type="button" data-external-agent-action="preview">Preview</button>
-              <button type="button" data-external-agent-action="invoke">Run</button>
-            </div>
-          </div>
-          <div class="platform-section-title">Latest receipt</div>
-          <div class="external-agent-receipt">
-            <strong data-external-agent-receipt-status>none</strong>
-            <span data-external-agent-receipt-profile>no profile</span>
-            <p data-external-agent-receipt-summary>No receipt has been written yet.</p>
-            <code data-external-agent-receipt-command>waiting for next action</code>
-          </div>
+          </article>
         </aside>
       </section>
     </div>
   `);
 
   populate('sector-skills', `
-    <div class="premium-page platform-page--operator">
-      <section class="premium-hero premium-hero--compact platform-hero--operator">
-        <div>
-          <span class="dashboard-eyebrow"><span class="dashboard-live-dot"></span>Tools</span>
-          <h1 class="premium-title">Zavorth tools</h1>
-          <p class="premium-subtitle">Use ready capabilities when they help the current task. Risky work still asks for approval.</p>
-        </div>
-        <button class="operator-primary-action" type="button" data-dashboard-prompt="Suggest the best Zavorth tool for my current task and explain why.">Suggest tool</button>
-      </section>
-      ${renderCapabilityStrip('skills')}
-      <section class="skill-toolbar skill-toolbar--quiet">
-        <input type="search" placeholder="Search tools" aria-label="Search tools" data-skill-search>
+    <div class="daily-page">
+      ${dailyHeader('Skills', 'Enable and use installed capabilities.', '<button class="daily-button daily-button--primary" type="button" data-dashboard-prompt="Suggest the best Zavorth skill for my current task and explain the risk before using it.">Suggest</button>')}
+      <section class="daily-toolbar skill-toolbar skill-toolbar--quiet">
+        <input type="search" placeholder="Search skills" aria-label="Search skills" data-skill-search>
         <button type="button" class="is-active" data-skill-filter="all">All</button>
         <button type="button" data-skill-filter="ready">Ready</button>
-        <button type="button" data-skill-filter="setup">Needs setup</button>
-        <button type="button" data-skill-filter="approval">Approval gated</button>
+        <button type="button" data-skill-filter="setup">Set up</button>
+        <button type="button" data-skill-filter="approval">Approval</button>
       </section>
-      <section class="platform-workspace platform-workspace--operator">
-        <div class="platform-main">
-          <div class="platform-section-title">Library</div>
-          <div class="tool-empty-action">
-            <strong>Not sure what to use?</strong>
-            <span>Ask Zavorth to choose the lightest safe tool for the current request.</span>
-            <button type="button" data-dashboard-prompt="Choose the lightest safe tool for my current request. Explain the risk before using anything.">Choose for me</button>
-          </div>
-          <div class="agent-os-live-summary" aria-label="Live tool summary">
-            <span><strong data-tools-live-count>0</strong><small>runtime tools</small></span>
-            <span><strong data-tools-live-ready>waiting</strong><small>ready state</small></span>
-            <span><strong data-tools-live-last>no tool yet</strong><small>last signal</small></span>
-          </div>
-          <section class="premium-skill-list premium-skill-list--quiet">
-            ${skillRow("Review workspace", "Ready", "Reads the project and highlights clear risks without editing files.", "ok", "ready", "Review my workspace in read-only mode and show the highest-risk items first.")}
-            ${skillRow("Understand files", "Needs scope", "Uses only approved folders to explain documents.", "info", "setup", "Show me how to configure a safe folder scope for file memory.")}
-            ${skillRow("Tool curator", "Preview first", "Suggests improvements without changing anything before approval.", "info", "approval", "Open the tool curator in preview mode and show only safe suggestions.")}
-            ${skillRow("Transactions", "Simulation", "Previews and audits transactions; real money stays blocked.", "warn", "approval", "Simulate a transaction and list risks without executing anything real.")}
-            ${skillRow("Connect external agent", "Consent required", "Creates a profile only from a path you provide.", "info", "approval", "Explain how to connect an external agent with consent and a limited scope.")}
-          </section>
+      <section class="daily-panel daily-panel--list">
+        <div class="daily-panel__head">
+          <div><span>Installed</span><h2>5 skills</h2></div>
+          <small class="daily-muted"><span data-tools-live-ready>0 ready</span></small>
         </div>
-        <aside class="platform-side">
-          <div class="platform-section-title">Safety</div>
-          <div class="premium-status-list">
-            ${premiumStatus("New tools", "approval gated", "ok")}
-            ${premiumStatus("Changes", "preview first", "info")}
-            ${premiumStatus("External sources", "blocked", "ok")}
-            ${premiumStatus("Undo", "receipt backed", "ok")}
-          </div>
-        </aside>
+        <section class="premium-skill-list premium-skill-list--quiet">
+          ${skillRow("Review workspace", "Ready", "Reads the project and highlights risks without editing files.", "ok", "ready", "Review my workspace in read-only mode and show the highest-risk items first.")}
+          ${skillRow("Understand files", "Needs scope", "Uses only approved folders to explain documents.", "info", "setup", "Show me how to configure a safe folder scope for file memory.")}
+          ${skillRow("Tool curator", "Preview", "Suggests improvements before anything changes.", "info", "approval", "Open the tool curator in preview mode and show only safe suggestions.")}
+          ${skillRow("Transactions", "Simulation", "Previews and audits transactions; real money stays blocked.", "warn", "approval", "Simulate a transaction and list risks without executing anything real.")}
+          ${skillRow("Connect adapter", "Consent", "Creates a profile only from a path you provide.", "info", "approval", "Explain how to connect an runtime adapter with consent and a limited scope.")}
+        </section>
       </section>
     </div>
   `);
 
   populate('sector-nodes', `
-    <div class="premium-page platform-page--operator">
-      <section class="premium-hero premium-hero--compact platform-hero--operator">
-        <div>
-          <span class="dashboard-eyebrow"><span class="dashboard-live-dot"></span>Memory</span>
-          <h1 class="premium-title">Zavorth memory</h1>
-          <p class="premium-subtitle">Control what Zavorth may remember, which files it can read, and which agents can work alongside it.</p>
-        </div>
-        <button class="operator-primary-action" type="button" data-dashboard-prompt="Show what Zavorth can remember right now and which scopes are active.">View memory</button>
+    <div class="daily-page">
+      ${dailyHeader('Memory', 'Search, correct and forget what Zavorth remembers.', '<button class="daily-button daily-button--primary" type="button" data-dashboard-prompt="Search Zavorth memory and show facts with provenance.">Search</button>')}
+      <section class="daily-panel daily-panel--search">
+        <input type="search" placeholder="Search memory" aria-label="Search memory">
+        <button class="daily-button" type="button" data-dashboard-prompt="Search Zavorth memory for the typed topic and show provenance.">Search</button>
       </section>
-      ${renderCapabilityStrip('nodes')}
-      <section class="platform-workspace platform-workspace--operator">
-        <div class="platform-main">
-          
-          <div class="platform-section-title">Memory inspector</div>
+      <section class="daily-action-row" aria-label="Memory actions">
+        <button type="button" data-dashboard-prompt="Recall useful memory with provenance.">Recall</button>
+        <button type="button" data-dashboard-prompt="Forget a memory fact by id with receipt.">Forget</button>
+        <button type="button" data-dashboard-prompt="Correct a memory fact with receipt.">Correct</button>
+        <button type="button" data-dashboard-prompt="Promote a repeated pattern into a rule after approval.">Promote</button>
+      </section>
+      <section class="daily-layout daily-layout--main">
+        <article class="daily-panel daily-panel--primary">
+          <div class="daily-panel__head">
+            <div><span>Scopes</span><h2>Active memory</h2></div>
+          </div>
           <div class="zavorth-memory-mesh-panel">
             <div id="zavorth-memory-tree" class="zavorth-memory-tree">
               <div class="zavorth-memory-scope-list" role="list" aria-label="Memory scopes">
-                <button class="zavorth-mem-node is-inspected" id="mem-node-vault" type="button"><strong>Fact vault</strong><span>persisted facts, provenance, trust</span></button>
-                <button class="zavorth-mem-node" id="mem-node-recall" type="button"><strong>Mnemos recall</strong><span>FTS5 search over local wiki memory</span></button>
-                <button class="zavorth-mem-node" id="mem-node-workspaces" type="button"><strong>Workspaces</strong><span>trusted folders and scope</span></button>
-                <button class="zavorth-mem-node" id="mem-node-agents" type="button"><strong>Agents</strong><span>consented companions</span></button>
-                <button class="zavorth-mem-node" id="mem-node-environments" type="button"><strong>Execution</strong><span>runtime safety boundary</span></button>
+                <button class="zavorth-mem-node is-inspected" id="mem-node-vault" type="button"><strong>Facts</strong><span>Provenance and trust</span></button>
+                <button class="zavorth-mem-node" id="mem-node-recall" type="button"><strong>Recall</strong><span>Local search</span></button>
+                <button class="zavorth-mem-node" id="mem-node-workspaces" type="button"><strong>Folders</strong><span>Allowed scope</span></button>
+                <button class="zavorth-mem-node" id="mem-node-agents" type="button"><strong>Agents</strong><span>Consented links</span></button>
+                <button class="zavorth-mem-node" id="mem-node-environments" type="button"><strong>Execution</strong><span>Safety boundary</span></button>
               </div>
             </div>
             <div id="zavorth-memory-inspection-panel" class="zavorth-memory-inspection-panel">
               <div class="zavorth-memory-inspection-header">
                 <span class="zavorth-memory-inspection-dot"></span>
-                <span>Active Scope Inspector</span>
+                <span>Inspector</span>
               </div>
               <div class="zavorth-memory-inspection-body" id="zavorth-memory-inspection-body">
                 <div class="zavorth-memory-inspection-empty">
-                  <span>🧠 Node Scoped</span>
-                  <p>Click on any neon node in the interactive memory mesh to audit allowed folders, fact vaults, security protocols, or connected agents in real time.</p>
+                  <span>Select a scope</span>
+                  <p>Facts, folders and linked agents appear here.</p>
                 </div>
               </div>
             </div>
           </div>
-
-          <div class="platform-section-title">Controls</div>
-          <div class="tool-empty-action">
-            <strong>No memory scope required yet.</strong>
-            <span>Start with a folder, document, or rule that Zavorth should remember only when useful.</span>
-            <button type="button" data-dashboard-prompt="Help me add a safe memory scope. Ask what folder or fact should be remembered, then explain how to forget it later.">Add memory scope</button>
-          </div>
-          <div class="agent-os-live-summary" aria-label="Live memory summary">
-            <span><strong data-memory-live-files>waiting</strong><small>file memory</small></span>
-            <span><strong data-memory-live-agents>0</strong><small>linked agents</small></span>
-            <span><strong data-memory-live-env>approval gated</strong><small>execution</small></span>
-          </div>
-          <div class="platform-action-list" aria-label="Memory controls">
-            <button type="button" data-dashboard-prompt="Show file memory scopes and which folders are allowed."><strong>File memory</strong><span>Folders and documents enter only with approved scope.</span></button>
-            <button type="button" data-dashboard-prompt="Show whether Zavorth can split a task into parallel work and which limits apply."><strong>Parallel work</strong><span>Uses cost limits and receipts when useful.</span></button>
-            <button type="button" data-dashboard-prompt="Show connected external agents and how to limit what each can do."><strong>Connect agent</strong><span>No external agent is discovered without a path you provide.</span></button>
-            <button type="button" data-dashboard-prompt="Show available execution environments and which ones require approval."><strong>Execution environments</strong><span>Files, shell, and remote actions stay approval gated.</span></button>
-          </div>
-          
-          <div class="platform-section-title" style="margin-top: 28px;">Device pairing</div>
-          <div class="zavorth-pairing-panel">
-            <div class="zavorth-pairing-info">
-              <p>Pair a trusted local device to this session with a short lived one-time key. The paired device keeps the same scoped safety boundary.</p>
+        </article>
+        <aside class="daily-stack">
+          <article class="daily-panel">
+            <div class="daily-panel__head"><div><span>Status</span><h2>Memory</h2></div></div>
+            <div class="daily-key-value">
+              ${dailyKeyValue('File memory', '<span data-memory-live-files>Configurable</span>')}
+              ${dailyKeyValue('Linked agents', '<span data-memory-live-agents>0</span>')}
+              ${dailyKeyValue('Execution', '<span data-memory-live-env>Approval gated</span>')}
             </div>
-            <div class="zavorth-pairing-controls">
-              <button class="operator-primary-action" id="zavorth-otp-generate-btn" type="button">Generate Pairing Key</button>
-              <div class="zavorth-otp-display" id="zavorth-otp-key-display" style="display: none;">
-                <span class="zavorth-otp-code" id="zavorth-otp-code-val">000-000</span>
-                <span class="zavorth-otp-timer" id="zavorth-otp-timer-val">Expires in 60s</span>
-              </div>
+          </article>
+          <article class="daily-panel">
+            <div class="daily-panel__head"><div><span>Pairing</span><h2>Trusted device</h2></div></div>
+            <button class="daily-button daily-button--wide" id="zavorth-otp-generate-btn" type="button">Generate key</button>
+            <div class="zavorth-otp-display" id="zavorth-otp-key-display" style="display: none;">
+              <span class="zavorth-otp-code" id="zavorth-otp-code-val">000-000</span>
+              <span class="zavorth-otp-timer" id="zavorth-otp-timer-val">Expires in 60s</span>
             </div>
             <div class="zavorth-pairing-status" id="zavorth-otp-status" style="display: none;">
               <span class="zavorth-pairing-status-dot"></span>
-              <span id="zavorth-otp-status-text">Ready to pair new node...</span>
+              <span id="zavorth-otp-status-text">Ready to pair.</span>
             </div>
-          </div>
-        </div>
-        <aside class="platform-side">
-          <div class="platform-section-title">State</div>
-          <div class="premium-status-list">
-            ${premiumStatus("File memory", "configurable", "info")}
-            ${premiumStatus("Parallel work", "ready", "ok")}
-            ${premiumStatus("External links", "consent required", "info")}
-            ${premiumStatus("Safe execution", "approval gated", "warn")}
-          </div>
+          </article>
         </aside>
       </section>
     </div>
   `);
 
   populate('sector-dreams', `
-    <div class="premium-page learning-page" data-learning-dreams-root>
-      ${renderCapabilityStrip('dreams')}
-      <div class="learning-loading">Checking Zavorth learning...</div>
+    <div class="daily-page learning-page" data-learning-dreams-root>
+      ${dailyHeader('Learning', 'Review memory and skill suggestions before they change future behavior.', '<button class="daily-button daily-button--primary" type="button" data-learning-refresh>Refresh</button>')}
+      <div class="learning-loading">Checking learning...</div>
     </div>
   `);
 
   populate('sector-canvas', `
-    <div class="premium-page z-canvas-page">
-      <section class="premium-hero premium-hero--compact">
-        <div>
-          <span class="dashboard-eyebrow"><span class="dashboard-live-dot"></span>Canvas</span>
-          <h1 class="premium-title">Sandbox preview first.</h1>
-          <p class="premium-subtitle">Review attempts, diffs and blocked network calls before anything is applied to your workspace.</p>
-        </div>
-        <button class="operator-primary-action" type="button" data-dashboard-prompt="Open Z-Canvas for the current request and show preview, diff, logs and risks before applying anything.">Use Canvas</button>
+    <div class="daily-page z-canvas-page">
+      ${dailyHeader('Canvas', 'Preview UI, diffs and sandbox output before applying changes.', '<button class="daily-button daily-button--primary" type="button" data-dashboard-prompt="Open Z-Canvas for the current request and show preview, diff, logs and risks before applying anything.">Open preview</button>')}
+      <section class="daily-stat-row daily-stat-row--compact" aria-label="Canvas status">
+        ${dailyMetric('Preview', 'Sandbox', 'isolated frame')}
+        ${dailyMetric('Diff', 'Gated', 'approval before apply')}
+        ${dailyMetric('Network', 'Blocked', 'unless allowed')}
+        ${dailyMetric('Receipt', 'On', 'every apply')}
       </section>
-      ${renderCapabilityStrip('canvas')}
       <section class="z-canvas-shell" data-canvas-root>
-        <div class="z-canvas-loading">Starting sandbox preview...</div>
+        <div class="z-canvas-loading">Open a preview from chat or a pending action.</div>
       </section>
     </div>
   `);
 
   populate('sector-config', `
-    <div class="premium-page platform-page--operator settings-minimal-page">
-      <section class="premium-hero premium-hero--compact platform-hero--operator">
-        <div>
-          <span class="dashboard-eyebrow"><span class="dashboard-live-dot"></span>Settings</span>
-          <h1 class="premium-title">Preferences</h1>
-          <p class="premium-subtitle">Keep everyday choices here. Advanced runtime details stay folded until needed.</p>
-        </div>
-        <button class="operator-primary-action" type="button" data-dashboard-prompt="Open settings health and tell me what should be configured next.">Settings health</button>
-      </section>
-      ${renderCapabilityStrip('config')}
-      <section class="settings-minimal" aria-label="Settings">
-        <article class="settings-minimal-card settings-minimal-card--essentials">
-          <div class="settings-minimal-card__header">
-            <div>
-              <span>Common</span>
-              <h2>What usually matters</h2>
-            </div>
-            <div class="settings-minimal-pills" aria-label="Safety defaults">
-              <span>Approvals limited</span>
-              <span>Secrets hidden</span>
-              <span>Receipts on</span>
-            </div>
-          </div>
-          <div class="settings-minimal-list">
-            <div class="settings-minimal-row">
-              <div>
-                <strong>Language</strong>
-                <span>Use device language or choose one manually.</span>
-              </div>
+    <div class="daily-page settings-minimal-page">
+      ${dailyHeader('Settings', 'Model, channels, security, profile and appearance.', '<button class="daily-button daily-button--primary" type="button" data-dashboard-prompt="Run settings health and show only missing setup.">Check</button>')}
+      <section class="daily-settings-shell" aria-label="Settings">
+        <nav class="daily-settings-nav" aria-label="Settings sections">
+          <a href="#settings-general">General</a>
+          <a href="#settings-model">Model</a>
+          <a href="#settings-channels">Channels</a>
+          <a href="#settings-security">Security</a>
+          <a href="#settings-advanced">Advanced</a>
+        </nav>
+        <div class="daily-settings-content">
+          <section class="daily-settings-group" id="settings-general">
+            <h2>General</h2>
+            <div class="daily-settings-row daily-settings-row--with-action">
+              <div><strong>Language</strong><span>Use system language or choose one.</span></div>
               <label class="settings-minimal-select">
-                <span>Language</span>
                 <select data-zavorth-locale-select>
                   ${CONTROL_LOCALES.map((locale) => `<option value="${locale.code}" ${locale.code === readControlLocalePreference() ? 'selected' : ''}>${locale.label}</option>`).join('')}
                 </select>
               </label>
-              <button class="settings-minimal-action" type="button" data-zavorth-locale-apply>Apply</button>
+              <button class="daily-button" type="button" data-zavorth-locale-apply>Apply</button>
             </div>
-            <div class="settings-minimal-row">
-              <div>
-                <strong>Active engine</strong>
-                <span>Zavorth can promote to safer engines when a request needs it.</span>
-              </div>
+            <div class="daily-settings-row">
+              <div><strong>Active engine</strong><span>Current runtime mode.</span></div>
               <strong class="settings-minimal-current" data-runtime-engine-active>Lite</strong>
             </div>
-          </div>
-        </article>
+          </section>
 
-        <details class="settings-minimal-details">
-          <summary>
-            <span>Execution</span>
-            <small>Lite, Velocity or Shield.</small>
-          </summary>
-          <div class="runtime-engine-panel" aria-label="Runtime engines">
-            <div class="runtime-engine-grid settings-engine-list" data-runtime-engine-cards data-runtime-engine-layout="compact"></div>
-          </div>
-        </details>
-
-        <details class="settings-minimal-details">
-          <summary>
-            <span>Trusted folders</span>
-            <small>Folders where accepted low-risk diffs may apply faster.</small>
-          </summary>
-          <div class="trusted-workspace-panel settings-trusted-panel" aria-label="Trusted workspaces">
-            <form class="trusted-workspace-form" data-trusted-workspace-form>
-              <label>
-                <span>Folder path</span>
-                <input name="path" type="text" placeholder="C:\\projects\\playground" autocomplete="off">
-              </label>
-              <label>
-                <span>Label</span>
-                <input name="label" type="text" placeholder="Playground" autocomplete="off">
-              </label>
-              <label>
-                <span>State</span>
-                <select name="state">
-                  <option value="trusted">Trusted</option>
-                  <option value="sensitive">Sensitive</option>
-                  <option value="untrusted">Untrusted</option>
-                </select>
-              </label>
-              <button type="submit">Add folder</button>
-            </form>
-            <div class="trusted-workspace-list" data-trusted-workspaces-list></div>
-          </div>
-        </details>
-
-        <details class="settings-minimal-details settings-minimal-details--advanced">
-          <summary>
-            <span>Advanced</span>
-            <small>Model route and provider proof.</small>
-          </summary>
-          <div class="provider-picker-premium settings-provider-summary" aria-label="Provider picker">
-            <button type="button" class="provider-picker-card is-active" data-dashboard-prompt="Show Gemini provider models, live proof and recommended default model.">
-              <span>Active route</span><strong>Auto / Gemini</strong><small data-provider-picker="active">Uses configured route</small>
-            </button>
-            <button type="button" class="provider-picker-card" data-dashboard-prompt="Show fallback providers and which ones are live validated.">
-              <span>Fallbacks</span><strong data-provider-picker="fallbacks">Live routes</strong><small>Only proven routes become defaults.</small>
-            </button>
-            <button type="button" class="provider-picker-card" data-dashboard-prompt="Test the selected provider with a sanitized proof.">
-              <span>Proof</span><strong data-provider-picker="proof">Sanitized</strong><small>Keys never appear in output.</small>
-            </button>
-          </div>
-        
-        <!-- Direct JSON config details accordion -->
-        <details class="settings-minimal-details zavorth-config-details">
-          <summary>
-            <span>Runtime Projection JSON</span>
-            <small>Inspect or override this tab's dashboard projection.</small>
-          </summary>
-          <div class="zavorth-config-editor-wrapper">
-            <p class="zavorth-config-editor-desc">Edit the active dashboard projection below in raw JSON format. Runtime persistence still belongs to the governed settings and node APIs.</p>
-            <textarea class="zavorth-config-textarea" id="zavorth-config-editor-textarea" autocomplete="off" spellcheck="false">{
-  "zavorthControl": {
-    "live": true,
-    "theme": "dark",
-    "safety": "high",
-    "tokens": {
-      "limit": 150000,
-      "alertThreshold": 0.8
-    },
-    "sandbox": {
-      "previews": true,
-      "networkRestricted": true
-    }
-  }
-}</textarea>
-            <div class="zavorth-config-editor-actions">
-              <span class="zavorth-config-editor-status" id="zavorth-config-status">JSON status: OK</span>
-              <button class="operator-primary-action" id="zavorth-config-save-btn" type="button">Save config</button>
+          <section class="daily-settings-group" id="settings-model">
+            <div class="daily-settings-group__head">
+              <h2>Model</h2>
+              <button class="daily-button" type="button" data-dashboard-prompt="Test the active model route with sanitized proof.">Test</button>
             </div>
-          </div>
-        </details>  <div class="settings-diagnostics-grid">
-            <section>
-              <div class="platform-section-title">Provider catalog</div>
-              <div class="info-grid info-grid--quiet" data-provider-model-catalog-summary>
+            <div class="daily-settings-row">
+              <div><strong>Active route</strong><span data-provider-picker="active">Configured route</span></div>
+              <strong class="settings-minimal-current" data-provider-picker="fallbacks">Live routes</strong>
+            </div>
+            <details class="daily-disclosure">
+              <summary>Provider catalog</summary>
+              <div class="daily-provider-summary" data-provider-model-catalog-summary>
                 <div class="info-row"><span class="info-row__label">Routes</span><span class="info-row__value mono">loading</span></div>
                 <div class="info-row"><span class="info-row__label">Live</span><span class="info-row__value mono">loading</span></div>
                 <div class="info-row"><span class="info-row__label">Models</span><span class="info-row__value mono">loading</span></div>
                 <div class="info-row"><span class="info-row__label">Media</span><span class="info-row__value mono">loading</span></div>
               </div>
-              <div class="card-grid card-grid--quiet" data-provider-model-catalog-list></div>
-            </section>
-            <section>
-              <div class="platform-section-title">Developer diagnostics</div>
-              <div class="info-grid info-grid--quiet" data-provider-activation-summary>
+              <div class="daily-card-feed" data-provider-model-catalog-list></div>
+            </details>
+          </section>
+
+          <section class="daily-settings-group" id="settings-channels">
+            <div class="daily-settings-group__head">
+              <h2>Channels</h2>
+              <button class="daily-button" type="button" data-dashboard-sector="channels">Manage</button>
+            </div>
+            ${settingsLinkRow('Telegram', 'Connect')}
+            ${settingsLinkRow('Discord', 'Connect')}
+            ${settingsLinkRow('Slack', 'Connect')}
+            ${settingsLinkRow('WhatsApp', 'Connect')}
+          </section>
+
+          <section class="daily-settings-group" id="settings-security">
+            <h2>Security</h2>
+            <div class="daily-settings-row">
+              <div><strong>Execution policy</strong><span>Risky work requires preview.</span></div>
+              <strong class="settings-minimal-current">Approval</strong>
+            </div>
+            <details class="daily-disclosure">
+              <summary>Execution engines</summary>
+              <div class="runtime-engine-panel" aria-label="Runtime engines">
+                <div class="runtime-engine-grid settings-engine-list" data-runtime-engine-cards data-runtime-engine-layout="compact"></div>
+              </div>
+            </details>
+            <details class="daily-disclosure">
+              <summary>Trusted folders</summary>
+              <div class="trusted-workspace-panel settings-trusted-panel" aria-label="Trusted workspaces">
+                <form class="trusted-workspace-form" data-trusted-workspace-form>
+                  <label><span>Folder path</span><input name="path" type="text" placeholder="C:\\projects\\playground" autocomplete="off"></label>
+                  <label><span>Label</span><input name="label" type="text" placeholder="Playground" autocomplete="off"></label>
+                  <label><span>State</span><select name="state"><option value="trusted">Trusted</option><option value="sensitive">Sensitive</option><option value="untrusted">Untrusted</option></select></label>
+                  <button type="submit">Add folder</button>
+                </form>
+                <div class="trusted-workspace-list" data-trusted-workspaces-list></div>
+              </div>
+            </details>
+          </section>
+
+          <section class="daily-settings-group" id="settings-advanced">
+            <h2>Advanced</h2>
+            <details class="daily-disclosure">
+              <summary>Activation diagnostics</summary>
+              <div class="daily-provider-summary" data-provider-activation-summary>
                 <div class="info-row"><span class="info-row__label">Execution</span><span class="info-row__value mono">loading</span></div>
                 <div class="info-row"><span class="info-row__label">Proof</span><span class="info-row__value mono">loading</span></div>
                 <div class="info-row"><span class="info-row__label">Adapters</span><span class="info-row__value mono">loading</span></div>
                 <div class="info-row"><span class="info-row__label">Connectors</span><span class="info-row__value mono">loading</span></div>
               </div>
-              <div class="card-grid card-grid--quiet" data-provider-activation-list></div>
-            </section>
-          </div>
-        </details>
+              <div class="daily-card-feed" data-provider-activation-list></div>
+            </details>
+            <details class="daily-disclosure zavorth-config-details">
+              <summary>Runtime JSON</summary>
+              <div class="zavorth-config-editor-wrapper">
+                <textarea class="zavorth-config-textarea" id="zavorth-config-editor-textarea" autocomplete="off" spellcheck="false">{
+  "zavorthControl": {
+    "live": true,
+    "theme": "dark",
+    "safety": "high"
+  }
+}</textarea>
+                <div class="zavorth-config-editor-actions">
+                  <span class="zavorth-config-editor-status" id="zavorth-config-status">JSON status: OK</span>
+                  <button class="daily-button" id="zavorth-config-save-btn" type="button">Save</button>
+                </div>
+              </div>
+            </details>
+          </section>
+        </div>
       </section>
     </div>
   `);
@@ -891,6 +650,46 @@ export function initControlPages() {
     });
   }
 
+  function dailyHeader(title, subtitle, actions = '') {
+    return `<section class="daily-header">
+      <div>
+        <span class="daily-kicker"><span class="dashboard-live-dot"></span>${title}</span>
+        <h1>${title}</h1>
+        <p>${subtitle}</p>
+      </div>
+      ${actions ? `<div class="daily-header__actions">${actions}</div>` : ''}
+    </section>`;
+  }
+
+  function dailyMetric(label, value, sub) {
+    return `<article class="daily-metric"><span>${label}</span><strong>${value}</strong><small>${sub}</small></article>`;
+  }
+
+  function dailyKeyValue(label, value) {
+    return `<div class="daily-key-value__row"><span>${label}</span><strong>${value}</strong></div>`;
+  }
+
+  function channelRow(name, subtitle, status, tone, primary, secondary, prompt) {
+    return `<article class="daily-channel-row daily-channel-row--${tone}">
+      <span class="daily-status-dot" aria-hidden="true"></span>
+      <div class="daily-row__main">
+        <h2>${name}<small>${subtitle}</small></h2>
+      </div>
+      <span class="daily-status daily-status--${tone}">${status}</span>
+      <div class="daily-row__actions">
+        <button type="button" class="daily-button" data-dashboard-prompt="${prompt}">${primary}</button>
+        <button type="button" class="daily-button daily-button--ghost" data-dashboard-prompt="Show setup status, last error and next step for ${name}.">${secondary}</button>
+      </div>
+    </article>`;
+  }
+
+  function settingsLinkRow(name, action) {
+    return `<div class="daily-settings-row">
+      <div><strong>${name}</strong><span>Optional channel</span></div>
+      <button class="daily-button" type="button" data-dashboard-prompt="Configure ${name} and show only the missing credential or webhook.">${action}</button>
+    </div>`;
+  }
+
   function premiumMetric(label, value, sub, tone) {
     return `<article class="premium-metric premium-metric--${tone}"><span>${label}</span><strong>${value}</strong><small>${sub}</small></article>`;
   }
@@ -929,7 +728,13 @@ export function initControlPages() {
 
   function skillRow(name, status, detail, tone, filter, prompt) {
     const search = `${name} ${status} ${detail}`.toLowerCase();
-    return `<article class="skill-row skill-row--${tone}" data-skill-row data-skill-status="${filter}" data-skill-search-text="${search}"><div><h2>${name}</h2><p>${detail}</p></div><span>${status}</span><button type="button" class="skill-row__use" data-dashboard-prompt="${prompt}">Use</button></article>`;
+    const enabled = filter === 'ready';
+    return `<article class="skill-row skill-row--${tone}" data-skill-row data-skill-status="${filter}" data-skill-search-text="${search}">
+      <div class="daily-row__main"><h2>${name}</h2><p>${detail}</p></div>
+      <span class="daily-status daily-status--${tone}">${status}</span>
+      <button type="button" class="daily-skill-toggle" aria-pressed="${enabled ? 'true' : 'false'}" aria-label="${enabled ? 'Disable' : 'Enable'} ${name}" data-dashboard-prompt="${enabled ? `Disable ${name} after confirming impact.` : `Enable or configure ${name}. Show only the missing setup and risk.`}"><span></span></button>
+      <button type="button" class="skill-row__use" data-dashboard-prompt="${prompt}">Use</button>
+    </article>`;
   }
 }
 

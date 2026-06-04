@@ -24,7 +24,7 @@ describe('ZavorthMnemosLifecycleHookService', () => {
           prompt: 'remember api_key: sk-1234567890abcdef12345678 only after approval',
         },
         source: {
-          surface: 'external-agent',
+          surface: 'runtime-adapter',
           agent: 'claude-local',
           provider: 'anthropic',
         },
@@ -40,7 +40,7 @@ describe('ZavorthMnemosLifecycleHookService', () => {
       const events = compiler.readEvents(root);
       expect(events).toHaveLength(1);
       expect(events[0].type).toBe('user.prompt.submitted');
-      expect(events[0].source?.surface).toBe('external-agent');
+      expect(events[0].source?.surface).toBe('runtime-adapter');
       expect(events[0].payload.prompt).toContain('[redacted-secret]');
     } finally {
       fs.rmSync(root, { recursive: true, force: true });

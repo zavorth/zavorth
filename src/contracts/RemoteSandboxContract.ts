@@ -191,7 +191,7 @@ export type OpenShellRemoteSandboxSnapshot = {
     envDenylistRequired: true;
   };
   commands: {
-    check: 'npm run openshell-sandbox-parity:check --silent';
+    check: 'npm run openshell-sandbox-certification:check --silent';
     focusedTests: string[];
     typecheck: 'npm run runtime:check --silent';
     nextWorker: 'Worker 4 - SDK/export closure';

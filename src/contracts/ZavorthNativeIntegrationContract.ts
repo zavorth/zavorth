@@ -41,7 +41,7 @@ export type ZavorthNativeIntegrationSnapshot = {
   entries: ZavorthNativeIntegrationEntry[];
   safety: {
     inventoryOnly: true;
-    noExternalAgentCodeExecuted: true;
+    noRuntimeAdapterCodeExecuted: true;
     noSecretsRead: true;
     noLiveNetworkCalls: true;
     zavorthNativeActivationRequiresConfigAndProof: true;

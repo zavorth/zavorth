@@ -310,7 +310,7 @@ export type ZavorthNativeIntegrationRegistryNormalization = {
     provenanceInternalOnly: true;
     serializedOutputContainsSensitiveFixture: false;
   };
-  nextGateRecommended: 'future-native-integration-refresh-or-dashboard-parity-gate';
+  nextGateRecommended: 'future-native-integration-refresh-or-dashboard-consistency-gate';
 };
 
 export type ZavorthNativeIntegrationRegistryOptions<TRuntimeId extends string = string> = {
@@ -890,7 +890,7 @@ export function normalizeZavorthNativeIntegrationRegistry<TRuntimeId extends str
       provenanceInternalOnly: true,
       serializedOutputContainsSensitiveFixture: false,
     },
-    nextGateRecommended: 'future-native-integration-refresh-or-dashboard-parity-gate',
+    nextGateRecommended: 'future-native-integration-refresh-or-dashboard-consistency-gate',
   };
 }
 

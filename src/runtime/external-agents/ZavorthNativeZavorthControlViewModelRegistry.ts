@@ -274,7 +274,7 @@ export type ZavorthNativeZavorthControlViewModelRegistryNormalization = {
     provenanceInternalOnly: true;
     serializedOutputContainsSensitiveFixture: false;
   };
-  nextGateRecommended: 'future-zavorthControl-native-parity-or-native-refresh-gate';
+  nextGateRecommended: 'future-zavorthControl-native-consistency-or-native-refresh-gate';
 };
 
 export type ZavorthNativeZavorthControlViewModelRegistryOptions<TRuntimeId extends string = string> = {
@@ -788,7 +788,7 @@ export function normalizeZavorthNativeZavorthControlViewModelRegistry<TRuntimeId
       provenanceInternalOnly: true,
       serializedOutputContainsSensitiveFixture: false,
     },
-    nextGateRecommended: 'future-zavorthControl-native-parity-or-native-refresh-gate',
+    nextGateRecommended: 'future-zavorthControl-native-consistency-or-native-refresh-gate',
   };
 }
 

@@ -90,7 +90,7 @@ function auditDoc(file) {
 function collectReadinessSignals(text) {
   const terms = {
     planned: ['planned', 'future', 'futuro', 'planejado'],
-    notImplemented: ['not implemented', 'nao implementado', 'não implementado', 'fixture-parity-covered'],
+    notImplemented: ['not implemented', 'nao implementado', 'não implementado', 'fixture-consistency-covered'],
     todo: ['todo', 'pendente', 'pending', 'tbd'],
     stage: ['stage', 'etapa', 'legacy-cycle'],
     gate: ['gate', 'readiness', 'canary', 'certification', 'certificacao', 'certificação'],
@@ -181,7 +181,7 @@ function buildEvidence({ refs, checks, readinessSignals, text }) {
   const existingChecks = checks.filter((check) => check.exists).slice(0, 8).map((check) => `${check.kind}:${check.value}`);
   const missingChecks = checks.filter((check) => !check.exists).slice(0, 8).map((check) => `${check.kind}:${check.value}`);
   const explicitNotImplementedLines = text.split(/\r?\n/)
-    .filter((line) => /not implemented|fixture-parity-covered|nao implementado|não implementado|planned|future|pendente|pending/i.test(line))
+    .filter((line) => /not implemented|fixture-consistency-covered|nao implementado|não implementado|planned|future|pendente|pending/i.test(line))
     .slice(0, 6)
     .map((line) => line.trim());
   return {

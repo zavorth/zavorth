@@ -74,8 +74,8 @@ const LEGACY_LARGE_SOURCE_ALLOWLIST = new Set([
 const NEW_FILE_LINE_ALLOWLIST = new Set([
   'src/domain/execution/infrastructure/SwarmScalePlaneService.ts',
   'src/domain/surface/presentation/shared-surface/SharedSurfaceEcosystemCommandPack.ts',
-  'src/runtime/external-agents/ExternalAgentPluginCommandHttpFixtures.ts',
-  'src/runtime/external-agents/ExternalAgentProviderCapabilityFixtures.ts',
+  'src/runtime/zavorth-runtime-adapters/RuntimeAdapterPluginCommandHttpFixtures.ts',
+  'src/runtime/zavorth-runtime-adapters/RuntimeAdapterProviderCapabilityFixtures.ts',
   'src/services/providers/ZavorthProviderRouterService.ts',
   'src/skills/SkillCuratorPlaneService.ts',
 ]);

@@ -21,6 +21,13 @@ zavorth open
 zavorth ready
 ```
 
+For the product-level check that summarizes install, providers, channels,
+dashboard, terminal, quiet autonomy and clean home isolation:
+
+```bash
+zavorth ready --product
+```
+
 From this repository:
 
 ```bash
@@ -134,7 +141,7 @@ zavorth ready
 zavorth doctor
 ```
 
-For maintainers, the equivalent CI gates verify:
+For maintainers, stable checks verify:
 
 - the 10-minute quickstart contract
 - Zavorth Control at `/control`
@@ -142,11 +149,13 @@ For maintainers, the equivalent CI gates verify:
 - Telegram approval loop fixture
 - Discord connector setup fixture
 - exact connector doctor output
+- product certification output
 
 Before publishing a build or refreshing the public repository presentation, run:
 
 ```bash
 npm run release:check
+npm run qa:zavorth-product-certification --silent
 ```
 
 ## Everyday Commands
@@ -164,6 +173,9 @@ zavorth connectors
 zavorth providers
 zavorth providers add
 zavorth channels telegram
+zavorth actions lookup capabilities
+zavorth actions usage
+zavorth actions lifecycle
 ```
 
 ## Safety
@@ -177,6 +189,7 @@ zavorth channels telegram
 ## Next
 
 - [CLI](/docs/zavorth-cli.md)
+- [Capabilities](/docs/capabilities.md)
 - [ZavorthControl](/docs/web-zavorthControl.md)
 - [Telegram](/docs/telegram.md)
 - [Discord](/docs/discord.md)

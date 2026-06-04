@@ -13,7 +13,7 @@ Zavorth Node Mesh lets desktop, mobile, browser and headless companions pair wit
   - `GET /api/node-mesh/live/snapshot`
   - `GET /api/node-mesh/live/events`
   - `POST /api/node-mesh/live/disconnect`
-- Live zavorthControl endpoints require the ZavorthControl token or JWT. EventSource clients may pass `?token=<zavorthControl-token>` because native EventSource cannot set custom headers.
+- Live zavorthControl endpoints require the ZavorthControl token or JWT. EventSource clients use a short-lived stream ticket minted through an authenticated request, so the primary token is never placed in the URL.
 
 ## Safety Rules
 

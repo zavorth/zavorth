@@ -1,35 +1,26 @@
-# Zavorth Roadmap
+# Zavorth Product Principles
 
-This roadmap describes current product direction, not implementation history.
+This page describes the user-facing direction of Zavorth.
 
-## Current Focus
+## What Zavorth Optimizes For
 
-- Keep the local-first runtime reliable for daily operator use.
-- Improve zavorthControl, CLI, Telegram, and API flows around the same governed gateway.
-- Continue hardening approvals, receipts, provider readiness, and memory.
-- Keep skill evolution native, scoped, auditable, and approval-based.
+- Local-first control over work, memory and credentials.
+- Natural requests that become governed actions when they touch real systems.
+- Clear readiness for providers, channels, memory and approvals.
+- Receipts that make important work reviewable later.
+- A small set of daily surfaces: CLI, Zavorth Control, API and connected channels.
 
-## Near-Term Priorities
+## Product Rules
 
-1. Polish the operator zavorthControl around readiness, approvals, providers, and memory.
-2. Expand provider certification without claiming live support before a real proof exists.
-3. Improve Mnemos file understanding and the workspace wiki flow.
-4. Keep Swarm execution bounded by budget, isolation policy, and replayable evidence.
-5. Make product documentation smaller, clearer, and aligned with real behavior.
+- Sensitive actions are never silent.
+- Secrets are represented as references, not copied into prompts or receipts.
+- Catalog support is not the same as live readiness.
+- External runtimes are optional adapters, not required dependencies.
+- Public documentation should explain how to use Zavorth, not how a feature was built.
 
-## Non-Goals
+## Stable User Surfaces
 
-- No silent execution of sensitive actions.
-- No raw secret serialization in prompts, logs, receipts, or screenshots.
-- No hidden dependency on external agents or imported skill bodies.
-- No product documentation that depends on temporary implementation notes.
-
-## Release Rule
-
-A capability is considered product-ready only when it has:
-
-- a stable command or UI surface;
-- a clear readiness status;
-- security and identity checks;
-- documented approval behavior;
-- tests or certification evidence.
+- `zavorth` CLI for setup, status, doctors and automation.
+- `/control` for operator state, approvals, providers, channels and memory.
+- Runtime API for typed integrations.
+- Channel Mesh for optional chat surfaces.

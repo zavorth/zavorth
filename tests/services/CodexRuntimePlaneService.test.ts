@@ -7,7 +7,7 @@ import { CapabilityNormalizationService } from '../../src/services/CapabilityNor
 import { CodexRuntimePlaneService } from '../../src/services/CodexRuntimePlaneService.js';
 
 describe('CodexRuntimePlaneService Worker 2', () => {
-  it('closes Codex app-server runtime parity as Zavorth-native proof', () => {
+  it('closes Codex app-server runtime certification as Zavorth-native proof', () => {
     const snapshot = new CodexRuntimePlaneService({
       now: () => new Date('2026-05-04T23:00:00.000Z'),
     }).buildSnapshot({

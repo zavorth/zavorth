@@ -57,7 +57,6 @@ export type ZavorthAgentCapabilityAssimilationMatrixItem = {
   testsRequired: string[];
   acceptanceCriteria: string[];
   publicNaming: {
-    usesExternalProductName: false;
     zavorthNativeName: string;
   };
   implementationBoundary: {
@@ -94,11 +93,9 @@ export type ZavorthAgentCapabilityAssimilationSnapshot = {
     highRiskItems: number;
     forbiddenItems: number;
     visualApprovalItems: number;
-    externalProductNamesInPublicCore: 0;
   };
   guarantees: {
     zavorthNativeIdentity: true;
-    noExternalProductNamesInPublicCore: true;
     noExternalSourceCodeCopied: true;
     noExternalPromptsCopied: true;
     noRawChainOfThoughtPolicy: true;

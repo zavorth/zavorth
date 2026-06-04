@@ -5,7 +5,7 @@ import {
 } from '../contracts/ZavorthExperienceLayerDailyUseCertificationContract.js';
 import { ZavorthAutonomySliderService } from './ZavorthAutonomySliderService.js';
 import { ZavorthCapabilityStoreService } from './ZavorthCapabilityStoreService.js';
-import { ZavorthCliExperienceParityService } from './ZavorthCliExperienceParityService.js';
+import { ZavorthCliExperienceCertificationService } from './ZavorthCliExperienceCertificationService.js';
 import { ZavorthConversationalSetupService } from './ZavorthConversationalSetupService.js';
 import { ZavorthDashboardExperienceHomeService } from './ZavorthDashboardExperienceHomeService.js';
 import { ZavorthDoItWithMeService } from './ZavorthDoItWithMeService.js';
@@ -160,10 +160,10 @@ export class ZavorthExperienceLayerDailyUseCertificationService {
       }),
       this.certifySnapshotPhase({
         id: 'checkpoint-13',
-        title: 'CLI Experience Parity',
+        title: 'CLI Experience Consistency',
         command: 'zavorth daily',
         surface: 'cli',
-        service: new ZavorthCliExperienceParityService(),
+        service: new ZavorthCliExperienceCertificationService(),
         input: {},
         evidence: ['The CLI mirrors Dashboard Home with home areas, guided missions and runtime questions.'],
         riskBoundary: 'CLI convenience entrypoints do not skip preview, approval or receipts.',

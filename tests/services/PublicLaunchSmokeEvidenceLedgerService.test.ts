@@ -130,7 +130,7 @@ describe('PublicLaunchSmokeEvidenceLedgerService Intent model5', () => {
     );
     expect(snapshot.commands.drySmokeCommands).toEqual(
       expect.arrayContaining([
-        'npm run parity-certify:public-launch --silent',
+        'npm run release-certify:public-launch --silent',
         'npm run release-certification-hardening --silent -- --require-ready',
         'npm run runtime:check --silent',
       ]),

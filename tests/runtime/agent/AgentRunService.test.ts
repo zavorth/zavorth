@@ -456,6 +456,54 @@ describe('AgentRunService', () => {
     }));
   });
 
+  it('fans runtime lifecycle events out to subscribed buses', async () => {
+    const primary: Array<{ type: string; payload?: Record<string, unknown> }> = [];
+    const subscriber: Array<{ type: string; payload?: Record<string, unknown> }> = [];
+    const service = new AgentRunService({
+      now: () => new Date('2026-04-27T12:00:00.000Z'),
+      idFactory: createIdFactory(),
+      executor: jest.fn(({ run }) => ({
+        status: 'completed',
+        summary: `Run ${run.id} processado.`,
+        replyText: 'Resposta enviada para multiplas superficies.',
+      })),
+      runtimeEventBus: {
+        emit: async (type, payload) => {
+          primary.push({ type, payload });
+        },
+      },
+    });
+    service.addRuntimeEventBus({
+      emit: async (type, payload) => {
+        subscriber.push({ type, payload });
+      },
+    });
+
+    const result = await service.run({
+      userId: 'grey',
+      channel: 'telegram',
+      sessionId: 'telegram-session',
+      text: 'acompanhe o progresso',
+      requestedTools: [],
+      metadata: {
+        capabilityNegotiationApproved: true,
+        chatId: '4242',
+      },
+    });
+
+    expect(primary.map((event) => event.type)).toEqual(subscriber.map((event) => event.type));
+    expect(subscriber[0].payload).toEqual(expect.objectContaining({
+      runId: result.run.id,
+      channel: 'telegram',
+      sessionId: 'telegram-session',
+      surfaceChatId: '4242',
+    }));
+    expect(result.run.metadata.runtimeEventBus).toEqual(expect.objectContaining({
+      configured: true,
+      subscriberCount: 2,
+    }));
+  });
+
   it('uses the provider runtime when no explicit executor is configured', async () => {
     const llmRuntime: UniversalAgentLlmRuntime = {
       chatDetailed: jest.fn(async () => ({

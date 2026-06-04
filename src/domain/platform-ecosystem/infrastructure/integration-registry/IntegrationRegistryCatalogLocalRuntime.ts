@@ -5,7 +5,7 @@ export const INTEGRATION_LOCAL_RUNTIME_MANIFESTS: IntegrationManifest[] = [
   {
     id: 'AIGateway',
     label: 'AIGateway',
-    aliases: ['omni-route'],
+    aliases: ['ai-gateway-local'],
     summary: 'Gateway local-first jÃƒÆ’Ã‚Â¡ integrado ao Zavorth.',
     description: 'Funciona como sidecar local e conversa diretamente com o runtime do Zavorth.',
     supportLevel: 'native',
@@ -109,7 +109,7 @@ export const INTEGRATION_LOCAL_RUNTIME_MANIFESTS: IntegrationManifest[] = [
   {
     id: 'external-executor',
     label: 'External Executor',
-    aliases: ['external-runner', 'local-agent-bridge', 'agent-bridge'],
+    aliases: ['external_executor', 'external-runner', 'local-agent-bridge', 'agent-bridge'],
     summary: 'Executor local/WSL ja suportado no Zavorth para codigo e agentes.',
     description: 'O hub o trata como conector local com foco em revisao, execucao e orquestracao.',
     supportLevel: 'native',

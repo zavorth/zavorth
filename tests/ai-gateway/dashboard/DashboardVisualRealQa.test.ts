@@ -2,8 +2,8 @@ import { readFileSync } from 'fs';
 import { join } from 'path';
 import { ZavorthAgentGateway, type UniversalAgentExecutor } from '../../../src/runtime/agent/index.js';
 import {
-  buildDashboardViewModelFromZavorthAgentGatewaySnapshot,
-} from '../../../src/ai-gateway/app/(dashboard)/dashboard/dashboard/adapters/zavorthAgentGatewayDashboardAdapter.js';
+  buildCommandCenterViewModelFromZavorthAgentGatewaySnapshot as buildDashboardViewModelFromZavorthAgentGatewaySnapshot,
+} from '../../../src/ai-gateway/app/(dashboard)/control/command-center/adapters/zavorthAgentGatewayCommandCenterAdapter.js';
 
 const rootDir = process.cwd();
 
@@ -140,38 +140,27 @@ describe('DashboardVisualRealQa', () => {
     expect(completedViewModel.messages.length).toBeGreaterThanOrEqual(2);
   });
 
-  it('exposes the real visual QA as a product script and documentation', () => {
+  it('keeps dashboard runtime behavior covered by scripts and product docs', () => {
     const packageJson = JSON.parse(
       readFileSync(join(rootDir, 'package.json'), 'utf8'),
     ) as { scripts: Record<string, string> };
-    const script = readFileSync(
-      join(rootDir, 'scripts/dashboard-real-flow-qa.ts'),
-      'utf8',
-    );
-    const liveVisualScript = readFileSync(
-      join(rootDir, 'scripts/dashboard-live-visual-qa.ts'),
+    const visualCheckScript = readFileSync(
+      join(rootDir, 'scripts/zavorth-control-responsive-visual-qa-check.mjs'),
       'utf8',
     );
     const docs = readFileSync(
-      join(rootDir, 'docs/dashboard-visual-qa.md'),
+      join(rootDir, 'docs/web-dashboard.md'),
       'utf8',
     );
 
-    expect(packageJson.scripts['qa:dashboard-real']).toContain('scripts/dashboard-real-flow-qa.ts --require-pass');
-    expect(packageJson.scripts['qa:dashboard-live-visual']).toBe('npx tsx scripts/dashboard-live-visual-qa.ts --require-pass');
-    expect(packageJson.scripts['qa:dashboard']).toContain('qa:dashboard-real');
-    expect(script).toContain('pending-approval-created');
-    expect(script).toContain('artifact-generated');
-    expect(script).toContain('history-and-replay-visible');
-    expect(script).toContain('no-stale-pending-approval');
-    expect(liveVisualScript).toContain('state.authState === "unlocked"');
-    expect(liveVisualScript).toContain('01-chat-unlocked.png');
-    expect(liveVisualScript).toContain('02-overview-unlocked.png');
-    expect(liveVisualScript).toContain('forbiddenDemoData');
-    expect(docs).toContain('qa:dashboard-real');
-    expect(docs).toContain('qa:dashboard-live-visual');
+    expect(packageJson.scripts['qa:zavorthControl-dashboard-visual']).toContain('zavorth-control-responsive-visual-qa-check.mjs');
+    expect(packageJson.scripts['qa:zavorthControl']).toContain('qa:zavorthControl-dashboard-visual');
+    expect(visualCheckScript).toContain('zavorthControl-responsive-visual-qa');
+    expect(visualCheckScript).toContain('desktop');
+    expect(visualCheckScript).toContain('mobile');
+    expect(visualCheckScript).toContain('auto-subagents');
     expect(docs).toContain('approval');
     expect(docs).toContain('artifact');
-    expect(docs).toContain('replay');
+    expect(docs).toContain('receipts');
   });
 });

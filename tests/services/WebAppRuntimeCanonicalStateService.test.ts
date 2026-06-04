@@ -113,7 +113,7 @@ describe('WebAppRuntimeCanonicalStateService', () => {
         installJourney: {} as any,
         officialRemoteAccess: {} as any,
         remoteAccess: {} as any,
-        surfaceParity: {} as any,
+        surfaceConsistency: {} as any,
         consoleAssets: {} as any,
         buildMemoryPlaneSnapshot: jest.fn(async () => null),
         buildLayeredMemoryStatus: jest.fn(async () => null),

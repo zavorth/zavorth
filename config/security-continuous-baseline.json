@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updatedAt": "2026-05-28T21:49:10.878Z",
+  "updatedAt": "2026-06-02T14:55:17.894Z",
   "snapshot": {
     "controls": [
       {
@@ -12,7 +12,7 @@
       {
         "id": "security/AgentToolSecurityCatalog",
         "relativePath": "src/security/AgentToolSecurityCatalog.ts",
-        "sha256": "6d5c2141f4626fb4b780e10d744bad515d64c9ca48b738f70bd8ee987ded6c64",
+        "sha256": "0f571408e015cfee37d15679368716f11ba9a2de05f376a965d76c7c29182174",
         "present": true
       },
       {
@@ -30,7 +30,7 @@
       {
         "id": "security/LlmEgressGuard",
         "relativePath": "src/security/LlmEgressGuard.ts",
-        "sha256": "f156a7b4e2f4c6d4286208b0322b836105d4a6a0fb8fff0d299e311bf542ade0",
+        "sha256": "a2a82d21f0ee018560dd7353c524ac5380d14697eafcaac67928e51062b03ece",
         "present": true
       },
       {

@@ -60,10 +60,14 @@ describe('Zavorth CLI HUD', () => {
     expect(result.exitCode).toBe(0);
     expect(result.snapshot.contractVersion).toBe('zavorth-cli-hud/1');
     expect(result.snapshot.selectedPlanId).toBe(plan.id);
-    expect(result.output).toContain('Daily terminal');
-    expect(result.output).toContain('Today');
-    expect(result.output).toContain('Approvals & Diff');
-    expect(result.output).toContain('zavorth chat');
+    expect(result.output).toContain('Zavorth Terminal Shell');
+    expect(result.output).toContain('Conversation');
+    expect(result.output).toContain('Composer');
+    expect(result.output).toContain('bottom-bar');
+    expect(result.output).toContain('Approvals');
+    expect(result.output).toContain('Memory');
+    expect(result.output).not.toContain('Agent Kernel');
+    expect(result.output).not.toContain('Capability actions');
   });
 
   test('exports daily TUI json without requiring a TTY', () => {
@@ -83,6 +87,10 @@ describe('Zavorth CLI HUD', () => {
     expect(parsed.contractVersion).toBe('zavorth-cli-runtime-tui/1');
     expect(parsed.safety.readOnlySnapshot).toBe(true);
     expect(parsed.safety.noHostApply).toBe(true);
+    expect(parsed.capabilityActions).toMatchObject({
+      exposed: 0,
+      receipts: 0,
+    });
   });
 
   test('arms approval without --yes and does not approve the plan', () => {
@@ -244,7 +252,7 @@ describe('Zavorth CLI HUD', () => {
     expect(parsed.receipt.noHostApply).toBe(true);
   });
 
-  test('renders unified runtime TUI with gateway, chat, tools, channels, sessions, logs and diffs', () => {
+  test('renders daily runtime shell with useful commands instead of technical panels', () => {
     const { root, mutationPlane } = createMutationPlane();
     createPendingPlan(mutationPlane);
     fs.mkdirSync(path.join(root, '.zavorth', 'logs'), { recursive: true });
@@ -265,13 +273,45 @@ describe('Zavorth CLI HUD', () => {
     });
 
     expect(result.exitCode).toBe(0);
+    expect(result.output).toContain('Zavorth Terminal Shell');
+    expect(result.output).toContain('Conversation');
+    expect(result.output).toContain('Cards');
+    expect(result.output).toContain('Composer');
+    expect(result.output).toContain('Queue');
+    expect(result.output).toContain('Receipts hidden');
+    expect(result.output).not.toContain('Agent Kernel');
+    expect(result.output).not.toContain('External delegation');
+  });
+
+  test('keeps the full runtime diagnostics behind --technical', () => {
+    const { root, mutationPlane } = createMutationPlane();
+    createPendingPlan(mutationPlane);
+    fs.mkdirSync(path.join(root, '.zavorth', 'logs'), { recursive: true });
+    fs.writeFileSync(path.join(root, '.zavorth', 'gateway.json'), JSON.stringify({ status: 'running', pid: 1234 }));
+    fs.writeFileSync(path.join(root, '.zavorth', 'messages.json'), JSON.stringify([{ id: 'message-1', channel: 'telegram', target: 'chat-1', status: 'draft', message: 'hello world' }]));
+    fs.writeFileSync(path.join(root, '.zavorth', 'mcp-runtime.json'), JSON.stringify({ servers: [{ id: 'fs', status: 'available', toolsCount: 2, resourcesCount: 1 }] }));
+    fs.writeFileSync(path.join(root, '.zavorth', 'skills-runtime.json'), JSON.stringify({ enabled: [{ id: 'debugging', name: 'Debugging' }] }));
+    fs.writeFileSync(path.join(root, '.zavorth', 'plugins-runtime.json'), JSON.stringify({ plugins: [{ id: 'workspace', status: 'enabled' }] }));
+    fs.writeFileSync(path.join(root, '.zavorth', 'sessions.json'), JSON.stringify([{ id: 'session-1', label: 'Main session', status: 'ready' }]));
+    fs.writeFileSync(path.join(root, '.zavorth', 'logs', 'tasks.json'), JSON.stringify([{ id: 'log-1', taskId: 'task-1', event: 'completed', status: 'completed', createdAt: '2026-05-22T12:00:00.000Z' }]));
+
+    const result = runZavorthCliHud({
+      projectRoot: root,
+      args: ['runtime', '--once', '--technical'],
+      mutationPlane,
+      tty: false,
+      now: () => new Date('2026-05-22T12:00:00.000Z'),
+    });
+
+    expect(result.exitCode).toBe(0);
     expect(result.output).toContain('Daily terminal');
+    expect(result.output).toContain('Agent Kernel');
     expect(result.output).toContain('Connection');
-    expect(result.output).toContain('Today');
+    expect(result.output).toContain('Daily product');
     expect(result.output).toContain('Chat & Timeline');
     expect(result.output).toContain('Approvals & Diff');
     expect(result.output).toContain('Integrations');
-    expect(result.output).toContain('Sessions');
+    expect(result.output).not.toContain('External delegation');
   });
 
   test('exports unified runtime TUI json contract', () => {
@@ -291,5 +331,14 @@ describe('Zavorth CLI HUD', () => {
     expect(parsed.contractVersion).toBe('zavorth-cli-runtime-tui/1');
     expect(parsed.safety.readOnlySnapshot).toBe(true);
     expect(parsed.approvals.pending).toBe(1);
+    expect(parsed.dailyProduct).toEqual(expect.objectContaining({
+      status: 'ready',
+      primarySurface: 'chat',
+    }));
+    expect(parsed.dailyProduct.approvalBoundaries).toEqual(expect.arrayContaining([
+      'secret',
+      'external_send',
+      'host_mutation',
+    ]));
   });
 });

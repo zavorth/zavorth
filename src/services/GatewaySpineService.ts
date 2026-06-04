@@ -51,7 +51,7 @@ const CANONICAL_COMMANDS: GatewaySpineCommand[] = [
     slash: '/gateway status',
     apiPath: '/api/gateway/spine',
     description: 'Show the canonical Gateway Spine status.',
-    surfaceParity: ['web', 'cli', 'telegram', 'api'],
+    surfaceConsistency: ['web', 'cli', 'telegram', 'api'],
   },
   {
     id: 'gateway.sessions',
@@ -59,7 +59,7 @@ const CANONICAL_COMMANDS: GatewaySpineCommand[] = [
     slash: '/sessions',
     apiPath: '/api/gateway/spine/sessions',
     description: 'List sessions from the Gateway-owned session projection.',
-    surfaceParity: ['web', 'cli', 'telegram', 'api'],
+    surfaceConsistency: ['web', 'cli', 'telegram', 'api'],
   },
   {
     id: 'gateway.channels',
@@ -67,7 +67,7 @@ const CANONICAL_COMMANDS: GatewaySpineCommand[] = [
     slash: '/channels',
     apiPath: '/api/gateway/spine/channels',
     description: 'List channels from the Channel Mesh registry.',
-    surfaceParity: ['web', 'cli', 'telegram', 'api'],
+    surfaceConsistency: ['web', 'cli', 'telegram', 'api'],
   },
   {
     id: 'gateway.approvals',
@@ -75,7 +75,7 @@ const CANONICAL_COMMANDS: GatewaySpineCommand[] = [
     slash: '/approvals',
     apiPath: '/api/gateway/spine/approvals',
     description: 'Show pending approvals through the gateway projection.',
-    surfaceParity: ['web', 'cli', 'telegram', 'api'],
+    surfaceConsistency: ['web', 'cli', 'telegram', 'api'],
   },
   {
     id: 'gateway.receipts',
@@ -83,7 +83,7 @@ const CANONICAL_COMMANDS: GatewaySpineCommand[] = [
     slash: '/receipts',
     apiPath: '/api/gateway/spine/receipts',
     description: 'Show operational receipts attached to the current gateway truth.',
-    surfaceParity: ['web', 'cli', 'telegram', 'api'],
+    surfaceConsistency: ['web', 'cli', 'telegram', 'api'],
   },
   {
     id: 'gateway.artifacts',
@@ -91,7 +91,7 @@ const CANONICAL_COMMANDS: GatewaySpineCommand[] = [
     slash: '/artifacts',
     apiPath: '/api/gateway/spine/artifacts',
     description: 'Show artifacts owned by the gateway projection.',
-    surfaceParity: ['web', 'cli', 'telegram', 'api'],
+    surfaceConsistency: ['web', 'cli', 'telegram', 'api'],
   },
 ];
 
@@ -159,13 +159,13 @@ export class GatewaySpineService {
         detail: 'Gateway Spine is the canonical source for sessions, channels, commands, approvals, receipts and artifacts.',
       },
       {
-        id: 'surface-state-parity',
+        id: 'surface-state-consistency',
         status: surfaces.every((surface) => surface.sameSourceOfTruth) ? 'passed' as const : 'attention' as const,
         detail: 'Web, CLI and channel adapters consume GatewaySpineSnapshot instead of owning separate state.',
       },
       {
         id: 'telegram-not-special',
-        status: CANONICAL_COMMANDS.every((command) => command.surfaceParity.includes('telegram') && command.surfaceParity.includes('cli'))
+        status: CANONICAL_COMMANDS.every((command) => command.surfaceConsistency.includes('telegram') && command.surfaceConsistency.includes('cli'))
           ? 'passed' as const
           : 'attention' as const,
         detail: 'Telegram is a first-class renderer, not a privileged command plane.',

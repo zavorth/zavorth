@@ -50,8 +50,8 @@ const rules = [
     needles: [
       'LiveReadinessService',
       'CapabilityNormalizationService',
-      'ProviderMeshParityService',
-      'ChannelMeshParityService',
+      'ProviderMeshReadinessService',
+      'ChannelMeshConsistencyService',
       'RuntimeFamilyClosureService',
       'CHANNEL_TEMPLATE_ONLY',
       'CHANNEL_DRY_RUN_ONLY',

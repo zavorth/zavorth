@@ -148,7 +148,7 @@ export interface LearningMetricsDTO {
 export interface LearningActionResultDTO {
   generatedAt: string;
   candidateId: string;
-  actionId: 'approve' | 'reject' | 'promote';
+  actionId: 'approve' | 'reject' | 'promote' | 'forget' | 'promoteProcedure' | 'promoteSkill';
   status: 'applied' | 'blocked' | 'noop';
   ok: boolean;
   summary: string;

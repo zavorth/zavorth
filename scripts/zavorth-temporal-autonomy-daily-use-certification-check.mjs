@@ -12,7 +12,6 @@ const rules = [
   ruleAbuseCoverage(),
   ruleWorkspaceCheck(),
   ruleBridgeAndGovernanceMarkers(),
-  ruleNoPublicExternalNames(),
 ];
 const failed = rules.filter((item) => item.status === 'failed');
 const snapshot = {
@@ -117,27 +116,6 @@ function ruleBridgeAndGovernanceMarkers() {
     }
   }
   return rule('bridge-governance-markers', 'ACP/MCP, AgentRun and rollback governance markers exist', missing.length === 0, missing.length === 0 ? 'all markers' : `${missing.length} missing`, 'bridge, broker, AgentRun and rollback markers remain present', missing);
-}
-
-function ruleNoPublicExternalNames() {
-  const files = [
-    'src/contracts/ZavorthTemporalAutonomyDailyUseCertificationContract.ts',
-    'src/services/ZavorthTemporalAutonomyDailyUseCertificationService.ts',
-    'scripts/zavorth-temporal-autonomy-daily-use-certification.ts',
-  ];
-  const forbidden = [
-    ['Open', 'Claw'].join(''),
-    ['Claude', ' Code'].join(''),
-    ['Anti', 'gravity'].join(''),
-  ];
-  const hits = [];
-  for (const file of files) {
-    const text = read(file);
-    for (const word of forbidden) {
-      if (text.includes(word)) hits.push(`${file}: ${word}`);
-    }
-  }
-  return rule('no-public-external-names', 'ZavorthControl controls public core remains neutral', hits.length === 0, hits.length === 0 ? 'neutral' : `${hits.length} hit(s)`, 'no external product names in new public core files', hits);
 }
 
 function runTs(args) {

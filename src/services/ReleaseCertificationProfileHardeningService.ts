@@ -8,23 +8,23 @@ import type {
 } from '../contracts/ReleaseCertificationProfileHardeningContract.js';
 import { ZAVORTH_RELEASE_CERTIFICATION_PROFILE_HARDENING_CONTRACT_VERSION } from '../contracts/ReleaseCertificationProfileHardeningContract.js';
 import type {
-  ParityCertificationProfile,
-  ParityCertificationSnapshot,
-} from '../contracts/ParityCertificationContract.js';
-import { ParityCertificationService } from './ParityCertificationService.js';
+  ReleaseCertificationProfile,
+  ReleaseCertificationSnapshot,
+} from '../contracts/ReleaseCertificationContract.js';
+import { ReleaseCertificationService } from './ReleaseCertificationService.js';
 
 type ReleaseCertificationProfileHardeningRuntime = {
   now?: () => Date;
-  parityCertificationService?: ParityCertificationService;
+  releaseCertificationService?: ReleaseCertificationService;
 };
 
 export class ReleaseCertificationProfileHardeningService {
   private readonly now: () => Date;
-  private readonly certification: ParityCertificationService;
+  private readonly certification: ReleaseCertificationService;
 
   constructor(runtime: ReleaseCertificationProfileHardeningRuntime = {}) {
     this.now = runtime.now || (() => new Date());
-    this.certification = runtime.parityCertificationService || new ParityCertificationService({
+    this.certification = runtime.releaseCertificationService || new ReleaseCertificationService({
       now: this.now,
     });
   }
@@ -96,8 +96,8 @@ export class ReleaseCertificationProfileHardeningService {
         run: 'npm run release-certification-hardening --silent',
         runJson: 'npm run release-certification-hardening:json --silent',
         check: 'npm run release-certification-hardening:check --silent',
-        releaseCandidate: 'npm run parity-certify:release-candidate --silent',
-        publicLaunch: 'npm run parity-certify:public-launch --silent',
+        releaseCandidate: 'npm run release-certify:release-candidate --silent',
+        publicLaunch: 'npm run release-certify:public-launch --silent',
         focusedTests: [
           'npx jest tests/services/ReleaseCertificationProfileHardeningService.test.ts --runInBand',
           'npm run release-certification-hardening:check --silent',
@@ -168,7 +168,7 @@ export class ReleaseCertificationProfileHardeningService {
   }
 
   private profilePolicy(input: {
-    profile: ParityCertificationProfile;
+    profile: ReleaseCertificationProfile;
     gateId: string;
     label: string;
   }): ReleaseCertificationProfilePolicy {
@@ -184,15 +184,15 @@ export class ReleaseCertificationProfileHardeningService {
       requireReceipts: true,
       requireNoLiveIo: true,
       requireSecretRedaction: true,
-      command: `npm run parity-certify --silent -- --profile=${input.profile}`,
-      jsonCommand: `npm run parity-certify:json --silent -- --profile=${input.profile}`,
-      requireReadyCommand: `npm run parity-certify --silent -- --profile=${input.profile} --require-ready --require-no-blockers`,
+      command: `npm run release-certify --silent -- --profile=${input.profile}`,
+      jsonCommand: `npm run release-certify:json --silent -- --profile=${input.profile}`,
+      requireReadyCommand: `npm run release-certify --silent -- --profile=${input.profile} --require-ready --require-no-blockers`,
     };
   }
 
   private policyForProfile(
     policies: ReleaseCertificationProfilePolicy[],
-    profile: ParityCertificationProfile,
+    profile: ReleaseCertificationProfile,
   ): ReleaseCertificationProfilePolicy {
     const policy = policies.find((item) => item.profile === profile);
     if (!policy) {
@@ -202,7 +202,7 @@ export class ReleaseCertificationProfileHardeningService {
   }
 
   private profileResult(
-    snapshot: ParityCertificationSnapshot,
+    snapshot: ReleaseCertificationSnapshot,
     policy: ReleaseCertificationProfilePolicy,
   ): ReleaseCertificationProfileResult {
     const noLiveIo = snapshot.summary.liveExternalCallRequired === false
@@ -314,7 +314,7 @@ export class ReleaseCertificationProfileHardeningService {
 
   private finalReceipts(
     profileResults: ReleaseCertificationProfileResult[],
-    certifications: ParityCertificationSnapshot[],
+    certifications: ReleaseCertificationSnapshot[],
   ): ReleaseCertificationFinalReceipt[] {
     const byProfile = new Map(profileResults.map((result) => [result.profile, result]));
     return certifications.flatMap((snapshot) =>

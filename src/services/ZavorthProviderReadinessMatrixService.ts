@@ -674,7 +674,71 @@ function resolveOpenAiCompatibleProbe(keys: Set<string>): ProviderProbeConfig | 
     return probeConfig(`${baseUrl}/api/tags`, 'GET', {}, countModelsField('models'));
   }
 
-  return null;
+  const genericProviderKey = resolveGenericProviderKey(keys);
+  if (!genericProviderKey) return null;
+  const envPrefix = envPrefixForProviderKey(genericProviderKey);
+  const baseUrl = normalizeBaseUrl(
+    resolveSecretRef(`${envPrefix}_BASE_URL`)
+    || defaultOpenAiCompatibleBaseUrl(genericProviderKey)
+    || resolveSecretRef('CUSTOM_OPENAI_COMPATIBLE_BASE_URL'),
+  );
+  const key = resolveSecretRef(`${envPrefix}_API_KEY`)
+    || resolveSecretRef(`${envPrefix}_TOKEN`)
+    || resolveSecretRef('CUSTOM_OPENAI_COMPATIBLE_API_KEY');
+  if (!baseUrl || (!key && !isLocalBaseUrl(baseUrl))) return null;
+  return probeConfig(openAiCompatibleModelsUrl(baseUrl), 'GET', key ? { Authorization: `Bearer ${key}` } : {}, countAnyModelArray);
+}
+
+function resolveGenericProviderKey(keys: Set<string>): string | null {
+  const excluded = new Set([
+    'custom-openai-compatible',
+    'openai-compatible',
+    'provider',
+    'llm',
+  ]);
+  return Array.from(keys).map(normalizeId).find((key) => key && !excluded.has(key)) || null;
+}
+
+function envPrefixForProviderKey(value: string): string {
+  return String(value || '').toUpperCase().replace(/[^A-Z0-9]+/g, '_').replace(/^_+|_+$/g, '');
+}
+
+function isLocalBaseUrl(value: string): boolean {
+  return /(^http:\/\/(localhost|127\.0\.0\.1|\[::1\])|^http:\/\/0\.0\.0\.0)/iu.test(value);
+}
+
+function openAiCompatibleModelsUrl(baseUrl: string): string {
+  const normalized = normalizeBaseUrl(baseUrl);
+  return /\/models$/iu.test(normalized) ? normalized : `${normalized}/models`;
+}
+
+function defaultOpenAiCompatibleBaseUrl(providerKey: string): string {
+  const defaults: Record<string, string> = {
+    aigateway: 'http://127.0.0.1:20128/v1',
+    alibaba: 'https://dashscope.aliyuncs.com/compatible-mode/v1',
+    byteplus: 'https://ark.ap-southeast.bytepluses.com/api/v3',
+    cerebras: 'https://api.cerebras.ai/v1',
+    chutes: 'https://llm.chutes.ai/v1',
+    cohere: 'https://api.cohere.ai/compatibility/v1',
+    comfy: 'http://localhost:8188/v1',
+    deepinfra: 'https://api.deepinfra.com/v1/openai',
+    fireworks: 'https://api.fireworks.ai/inference/v1',
+    lmstudio: 'http://localhost:1234/v1',
+    litellm: 'http://127.0.0.1:4000/v1',
+    microsoft: 'https://models.inference.ai.azure.com',
+    'microsoft-foundry': 'https://models.inference.ai.azure.com',
+    moonshot: 'https://api.moonshot.ai/v1',
+    nvidia: 'https://integrate.api.nvidia.com/v1',
+    opencode: 'https://opencode.ai/zen/v1',
+    qianfan: 'https://qianfan.baidubce.com/v2',
+    sglang: 'http://localhost:30000/v1',
+    stepfun: 'https://api.stepfun.com/v1',
+    tencent: 'https://api.hunyuan.cloud.tencent.com/v1',
+    venice: 'https://api.venice.ai/api/v1',
+    vllm: 'http://localhost:8000/v1',
+    zai: 'https://open.bigmodel.cn/api/paas/v4',
+  };
+  return defaults[normalizeId(providerKey)] || '';
 }
 
 function probeConfig(

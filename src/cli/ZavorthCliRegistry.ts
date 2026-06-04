@@ -1226,7 +1226,7 @@ function formatDailyUseCliProjection(
   const command = String(commandName || '').trim().toLowerCase();
   const normalizedArgs = String(args || '').trim();
   const firstArg = normalizedArgs.split(/\s+/)[0]?.toLowerCase() || '';
-  if ((command === 'channels' || command === 'channel') && firstArg === 'parity') {
+  if ((command === 'channels' || command === 'channel') && firstArg === 'consistency') {
     return null;
   }
   const tables: Record<string, { title: string; summary: string; rows: Array<[string, string, string]>; notes: string[] }> = {

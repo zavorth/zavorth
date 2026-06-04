@@ -36,4 +36,4 @@ discovery as first-class work.
 
 - [Architecture](/docs/architecture.md)
 - [Operations](/docs/operations.md)
-- [Roadmap](/docs/product-direction.md)
+- [Product Principles](/docs/product-direction.md)

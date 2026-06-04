@@ -58,7 +58,7 @@ export type ZavorthTemporalAutonomyDailyUseReceipt = {
     | 'scheduled-task-certification-consumed'
     | 'channel-capability-consumed'
     | 'abuse-scenario'
-    | 'parity-matrix'
+    | 'consistency-matrix'
     | 'no-dashboard-visual-mutation';
   status: 'recorded' | 'passed' | 'attention' | 'blocked';
   summary: string;

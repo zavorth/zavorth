@@ -41,7 +41,6 @@ function ruleFilesExist() {
     'scripts/zavorth-capability-absorption.ts',
     'scripts/zavorth-capability-absorption-check.mjs',
     'tests/services/ZavorthCapabilityAbsorptionService.test.ts',
-    'docs/capability-absorption.md',
   ];
   const missing = files.filter((file) => !fs.existsSync(path.join(root, file)));
   return rule(
@@ -64,18 +63,12 @@ function ruleContainsMarkers() {
       'ZAVORTH_CAPABILITY_ABSORPTION_CONTRACT_VERSION',
     ]],
     ['src/services/ZavorthCapabilityAbsorptionService.ts', [
-      'OpenClaw-style long-tail channels',
+      'Zavorth-native long-tail channels',
       'Zavorth-native-style learning loop',
       'Zavorth-native advanced ZavorthControl',
       'Native browser automation',
       'Multi-backend execution',
       'catalog support is not live proof',
-    ]],
-    ['docs/capability-absorption.md', [
-      'Zavorth Capability Absorption Map',
-      'Phase 2 - Channel Deepening',
-      'Phase 3 - Learning Loop',
-      'catalog is not live proof',
     ]],
   ];
   const missing = [];
@@ -94,7 +87,7 @@ function ruleContainsMarkers() {
     'Capability absorption markers are wired',
     missing.length === 0,
     missing.length === 0 ? 'all markers' : `${missing.length} missing`,
-    'OpenClaw/Zavorth-native/Zavorth-native map, statuses and policy language exist',
+    'reference/Zavorth-native/Zavorth-native map, statuses and policy language exist',
     missing,
   );
 }

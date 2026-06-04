@@ -14,42 +14,50 @@ function check(id, ok, detail) {
 
 const executorPath = 'src/runtime/agent/AgentRunLlmRuntimeExecutor.ts';
 const executor = read(executorPath);
+const nativeLoopPath = 'src/runtime/agent/AgentRunNativeToolLoopService.ts';
+const nativeLoop = read(nativeLoopPath);
 const safeToolsPath = 'src/tools/governance/SafeObservationTools.ts';
 const safeTools = read(safeToolsPath);
 const classifierPath = 'src/runtime/agent/NaturalFirstRunClassifier.ts';
 const classifier = read(classifierPath);
 
 check(
+  'effect-boundary/executor-delegates-native-loop',
+  executor.includes('AgentRunNativeToolLoopService') && executor.includes('this.nativeToolLoop.run'),
+  `${executorPath} must delegate native tool execution to AgentRunNativeToolLoopService.`,
+);
+
+check(
   'effect-boundary/native-loop-imports-tool-mapper',
-  executor.includes('mapToolCallToEffectDecision') && executor.includes('ToolEffectRegistry'),
-  `${executorPath} must map native tool calls through the effect boundary.`,
+  nativeLoop.includes('mapToolCallToEffectDecision') && nativeLoop.includes('ToolEffectRegistry'),
+  `${nativeLoopPath} must map native tool calls through the effect boundary.`,
 );
 
 check(
   'effect-boundary/native-loop-audits-safe-observations',
-  executor.includes('safeObservations') && executor.includes('isSafeObservationTool'),
-  `${executorPath} must audit safe observation fast-path tool calls.`,
+  nativeLoop.includes('safeObservations') && nativeLoop.includes('isSafeObservationTool'),
+  `${nativeLoopPath} must audit safe observation fast-path tool calls.`,
 );
 
 check(
   'effect-boundary/native-loop-defers-side-effects',
-  executor.includes('sideEffectsDeferred') && executor.includes('effect-boundary-deferred'),
-  `${executorPath} must defer non-observation effects instead of executing them directly.`,
+  nativeLoop.includes('sideEffectsDeferred') && nativeLoop.includes('effect-boundary-deferred'),
+  `${nativeLoopPath} must defer non-observation effects instead of executing them directly.`,
 );
 
 check(
   'effect-boundary/native-loop-denies-untrusted-side-effects',
-  executor.includes('effectBoundaryDenied') && executor.includes('effect-boundary-deny'),
-  `${executorPath} must deny untrusted side effects at the effect boundary.`,
+  nativeLoop.includes('effectBoundaryDenied') && nativeLoop.includes('effect-boundary-deny'),
+  `${nativeLoopPath} must deny untrusted side effects at the effect boundary.`,
 );
 
-const executeToolIndex = executor.indexOf('this.toolRuntime.executeTool');
-const safeObservationIndex = executor.indexOf('const safeObservation =');
-const deferredIndex = executor.indexOf('effect-boundary-deferred');
+const executeToolIndex = nativeLoop.indexOf('this.toolRuntime.executeTool');
+const safeObservationIndex = nativeLoop.indexOf('const safeObservation =');
+const deferredIndex = nativeLoop.indexOf('effect-boundary-deferred');
 check(
   'effect-boundary/execute-tool-after-boundary',
   executeToolIndex > safeObservationIndex && executeToolIndex > deferredIndex,
-  `${executorPath} must evaluate safe/deferred/deny branches before executeTool.`,
+  `${nativeLoopPath} must evaluate safe/deferred/deny branches before executeTool.`,
 );
 
 for (const toolName of ['get_datetime', 'read_file', 'list_directory', 'workspace.read', 'workspace.list']) {

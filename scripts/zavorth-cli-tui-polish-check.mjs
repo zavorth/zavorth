@@ -5,7 +5,7 @@ import { spawnSync } from 'node:child_process';
 const result = spawnSync('npx', [
   'jest',
   'tests/services/ZavorthCliTuiPolishService.test.ts',
-  'tests/services/ZavorthCliExperienceParityService.test.ts',
+  'tests/services/ZavorthCliExperienceCertificationService.test.ts',
   '--runInBand',
 ], {
   cwd: process.cwd(),

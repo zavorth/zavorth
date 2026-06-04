@@ -22,7 +22,7 @@ Zavorth is not a loose bot connected to a pile of scripts. It is an operating la
 - **Policy Broker first**: risky actions are evaluated before execution.
 - **Local-first**: the host remains the center of gravity.
 - **Channel Mesh**: Telegram, web, CLI and other channels route into the same runtime.
-- **Evidence by default**: approvals, receipts and artifacts make work reviewable.
+- **Receipts by default**: approvals, receipts and artifacts make work reviewable.
 
 ## Who It Is For
 
@@ -33,6 +33,6 @@ Zavorth is not a loose bot connected to a pile of scripts. It is an operating la
 
 ## Product Promise
 
-Ask naturally. Execute safely. Keep evidence.
+Ask naturally. Execute safely. Keep receipts.
 
 That is the bar for every public surface.

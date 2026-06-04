@@ -4,6 +4,7 @@ import {
   type ZavorthActionOperation,
   ZavorthActionGateway,
 } from '../runtime/actions/index.js';
+import type { GoalLoopLlmRuntime } from '../services/GoalLoopService.js';
 
 const OPERATIONS: ZavorthActionOperation[] = [
   'action.schema.lookup',
@@ -43,6 +44,10 @@ function normalizeOperation(value: unknown): ZavorthActionOperation {
 }
 
 export class ZavorthActionTool extends BaseTool {
+  constructor(private readonly runtime: { llmRuntime?: GoalLoopLlmRuntime | null } = {}) {
+    super();
+  }
+
   public readonly name = 'zavorth_action';
   public readonly description = [
     'Lookup, preview, apply, status and receipts for first-class Zavorth operational actions.',
@@ -91,6 +96,7 @@ export class ZavorthActionTool extends BaseTool {
     const operation = normalizeOperation(args.operation);
     const gateway = new ZavorthActionGateway({
       root: String(args.root || process.cwd()),
+      llmRuntime: this.runtime.llmRuntime || null,
     });
     const result = await gateway.run({
       operation,

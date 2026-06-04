@@ -53,7 +53,7 @@ describe('AcpGenericChannelAdapterService', () => {
       diskMutationPerformed: false,
       gatewayNormalizationOnly: true,
     }));
-    expect(JSON.stringify(receipt).toLowerCase()).not.toContain('openclaw');
+    expect(JSON.stringify(receipt).toLowerCase()).not.toContain('external-gateway-required');
     expect(fs.existsSync(path.join(root, 'data/runtime/acp-generic-channel-adapter-last.json'))).toBe(true);
   });
 

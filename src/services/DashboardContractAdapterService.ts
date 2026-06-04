@@ -55,7 +55,7 @@ export class DashboardContractAdapterService {
         selectedTemplateId: input.missionTemplateId || null,
         source: 'web',
       }),
-      parity: {
+      consistency: {
         providersFromCanonicalApi: true,
         channelsFromCanonicalApi: true,
         approvalsFromCanonicalApi: true,

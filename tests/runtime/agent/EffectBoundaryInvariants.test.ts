@@ -10,11 +10,14 @@ function read(relativePath: string): string {
 
 describe('Effect Boundary invariants', () => {
   it('keeps native LLM tool execution behind the effect boundary', () => {
-    const source = read('src/runtime/agent/AgentRunLlmRuntimeExecutor.ts');
+    const executor = read('src/runtime/agent/AgentRunLlmRuntimeExecutor.ts');
+    const source = read('src/runtime/agent/AgentRunNativeToolLoopService.ts');
     const executeToolIndex = source.indexOf('this.toolRuntime.executeTool');
     const safeObservationIndex = source.indexOf('const safeObservation =');
     const deferredIndex = source.indexOf('effect-boundary-deferred');
 
+    expect(executor).toContain('AgentRunNativeToolLoopService');
+    expect(executor).toContain('this.nativeToolLoop.run');
     expect(source).toContain('mapToolCallToEffectDecision');
     expect(source).toContain('effect-boundary-deny');
     expect(source).toContain('sideEffectsDeferred');
@@ -24,13 +27,13 @@ describe('Effect Boundary invariants', () => {
 
   it('keeps safe observation tools explicit and auditable', () => {
     const safeTools = read('src/tools/governance/SafeObservationTools.ts');
-    const executor = read('src/runtime/agent/AgentRunLlmRuntimeExecutor.ts');
+    const nativeLoop = read('src/runtime/agent/AgentRunNativeToolLoopService.ts');
 
     for (const toolName of ['get_datetime', 'read_file', 'list_directory', 'workspace.read', 'workspace.list']) {
       expect(safeTools).toContain(`'${toolName}'`);
     }
-    expect(executor).toContain('safeObservations');
-    expect(executor).toContain('isSafeObservationTool');
+    expect(nativeLoop).toContain('safeObservations');
+    expect(nativeLoop).toContain('isSafeObservationTool');
   });
 
   it('keeps open-ended user text on an LLM-preferred path', () => {

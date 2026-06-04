@@ -10,7 +10,7 @@ import type {
 import type { ZavorthInvocationReceipt } from './ZavorthInvocationReceiptContract.js';
 
 export const ZAVORTH_SUBAGENT_RUNTIME_CONTRACT_VERSION =
-  '2026-05-10.subagent-runtime-parity-checkpoint-4' as const;
+  '2026-05-10.subagent-runtime-consistency-checkpoint-4' as const;
 
 export type ZavorthSubagentRuntimeAction =
   | 'subagents.spawn'

@@ -246,7 +246,7 @@ describe('Zavorth live CLI namespaces', () => {
     expect(payload.record.permissions).toContain('workspace:read');
   });
 
-  test('certifies operational parity domains from the CLI', async () => {
+  test('certifies operational readiness domains from the CLI', async () => {
     const projectRoot = path.resolve(__dirname, '..', '..');
     const result = await runZavorthLiveNamespaceCommand({
       projectRoot,
@@ -256,7 +256,7 @@ describe('Zavorth live CLI namespaces', () => {
     const payload = JSON.parse(result.output);
 
     expect(result.exitCode).toBe(0);
-    expect(payload.contractVersion).toBe('zavorth-operational-parity/1');
+    expect(payload.contractVersion).toBe('zavorth-operational-consistency/1');
     expect(payload.status).toBe('pass');
     expect(payload.domains.map((domain: { id: string }) => domain.id)).toContain('channels');
     expect(payload.domains.map((domain: { id: string }) => domain.id)).toContain('gateway');
@@ -410,21 +410,21 @@ describe('Zavorth live CLI namespaces', () => {
     }
   });
 
-  test('migrates backup manifests and imports external agent state with preview-first writes', async () => {
+  test('migrates backup manifests and imports runtime adapter state with preview-first writes', async () => {
     const root = makeRoot();
     const source = path.join(root, 'external-state');
     fs.mkdirSync(source, { recursive: true });
     fs.writeFileSync(path.join(source, 'config.json'), JSON.stringify({ provider: 'example' }));
     await runZavorthLiveNamespaceCommand({ projectRoot: root, command: 'backup', args: ['create'] });
     const migrationPreview = await runZavorthLiveNamespaceCommand({ projectRoot: root, command: 'backup', args: ['migrate', '--to-version', '3'] });
-    const importedPreview = await runZavorthLiveNamespaceCommand({ projectRoot: root, command: 'backup', args: ['import', '--source', source, '--agent', 'external-agent'] });
-    const imported = await runZavorthLiveNamespaceCommand({ projectRoot: root, command: 'backup', args: ['import', '--source', source, '--agent', 'external-agent', '--yes'] });
+    const importedPreview = await runZavorthLiveNamespaceCommand({ projectRoot: root, command: 'backup', args: ['import', '--source', source, '--agent', 'runtime-adapter'] });
+    const imported = await runZavorthLiveNamespaceCommand({ projectRoot: root, command: 'backup', args: ['import', '--source', source, '--agent', 'runtime-adapter', '--yes'] });
 
     expect(migrationPreview.output).toContain('Migration preview only');
     expect(migrationPreview.output).toContain('To: 3');
     expect(importedPreview.output).toContain('Import preview only');
     expect(imported.output).toContain('Imported mapped agent state');
-    expect(fs.existsSync(path.join(root, '.zavorth', 'imports', 'external-agent.json'))).toBe(true);
+    expect(fs.existsSync(path.join(root, '.zavorth', 'imports', 'runtime-adapter.json'))).toBe(true);
   });
 
   test('lists and reads redacted message drafts', async () => {
@@ -554,12 +554,12 @@ describe('Zavorth live CLI namespaces', () => {
     await runZavorthLiveNamespaceCommand({
       projectRoot: root,
       command: 'webhooks',
-      args: ['add', 'local', '--url', 'https://example.com/hook?token=secret'],
+      args: ['add', 'local', '--url', 'https://example.com/hook?auth=secret'],
     });
     const test = await runZavorthLiveNamespaceCommand({ projectRoot: root, command: 'webhooks', args: ['test', 'local'] });
 
     expect(test.output).toContain('Test preview');
-    expect(test.output).toContain('token=***');
+    expect(test.output).toContain('auth=***');
     expect(test.output).not.toContain('secret');
   });
 

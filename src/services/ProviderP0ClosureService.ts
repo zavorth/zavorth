@@ -4,28 +4,28 @@ import type {
   ProviderP0ClosureStatus,
 } from '../contracts/ProviderP0ClosureContract.js';
 import { ZAVORTH_PROVIDER_P0_CLOSURE_CONTRACT_VERSION } from '../contracts/ProviderP0ClosureContract.js';
-import { ParityCertificationService } from './ParityCertificationService.js';
-import { ProviderMeshParityService } from './ProviderMeshParityService.js';
+import { ReleaseCertificationService } from './ReleaseCertificationService.js';
+import { ProviderMeshReadinessService } from './ProviderMeshReadinessService.js';
 
 type ProviderP0ClosureRuntime = {
   now?: () => Date;
-  providerMeshParityService?: ProviderMeshParityService;
-  parityCertificationService?: ParityCertificationService;
+  providerMeshReadinessService?: ProviderMeshReadinessService;
+  releaseCertificationService?: ReleaseCertificationService;
 };
 
 const CLOSED_PROVIDER_IDS = ['anthropic', 'anthropic-vertex'];
 
 export class ProviderP0ClosureService {
   private readonly now: () => Date;
-  private readonly providerMesh: ProviderMeshParityService;
-  private readonly certification: ParityCertificationService;
+  private readonly providerMesh: ProviderMeshReadinessService;
+  private readonly certification: ReleaseCertificationService;
 
   constructor(runtime: ProviderP0ClosureRuntime = {}) {
     this.now = runtime.now || (() => new Date());
-    this.providerMesh = runtime.providerMeshParityService || new ProviderMeshParityService({
+    this.providerMesh = runtime.providerMeshReadinessService || new ProviderMeshReadinessService({
       now: this.now,
     });
-    this.certification = runtime.parityCertificationService || new ParityCertificationService({
+    this.certification = runtime.releaseCertificationService || new ReleaseCertificationService({
       now: this.now,
     });
   }
@@ -67,8 +67,8 @@ export class ProviderP0ClosureService {
       },
       commands: {
         check: 'npm run provider-p0-closure:check --silent',
-        providerParity: 'npm run provider-mesh-parity:check --silent',
-        certify: 'npm run parity-certify --silent',
+        providerConsistency: 'npm run provider-mesh-readiness:check --silent',
+        certify: 'npm run release-certify --silent',
         nextStage: 'Etapa 11 - P1 Provider Adapter Runtime',
       },
       policy: {
@@ -94,7 +94,7 @@ export class ProviderP0ClosureService {
       adapterStrategy: entry.adapterStrategy,
       p0Closed,
       remainingTier: p0Closed && entry.status === 'template-ready' ? 'p1-template' : 'none',
-      command: `ProviderMeshParityService.buildEntry(${JSON.stringify(providerId)})`,
+      command: `ProviderMeshReadinessService.buildEntry(${JSON.stringify(providerId)})`,
       receipt: `provider-p0-closure.${providerId}.receipt`,
     };
   }

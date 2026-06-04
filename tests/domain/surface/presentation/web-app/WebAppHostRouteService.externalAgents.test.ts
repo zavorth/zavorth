@@ -4,7 +4,7 @@ import path from 'node:path';
 import { WebAppHostRouteService } from '../../../../../src/domain/surface/presentation/web-app/WebAppHostRouteService.js';
 import { ZavorthExternalAgentGatewayService } from '../../../../../src/services/ZavorthExternalAgentGatewayService.js';
 
-describe('WebAppHostRouteService external agent dashboard routes', () => {
+describe('WebAppHostRouteService Zavorth runtime adapter dashboard routes', () => {
   const now = () => new Date('2026-05-31T15:00:00.000Z');
   let root: string;
 
@@ -41,8 +41,8 @@ describe('WebAppHostRouteService external agent dashboard routes', () => {
     await service.handleRequest(
       { method: 'GET' } as any,
       {} as any,
-      new URL('http://zavorth.local/api/web/external-agents'),
-      '/api/web/external-agents',
+      new URL('http://zavorth.local/api/web/zavorth-runtime-adapters'),
+      '/api/web/zavorth-runtime-adapters',
       deps,
     );
 
@@ -58,8 +58,8 @@ describe('WebAppHostRouteService external agent dashboard routes', () => {
     await service.handleRequest(
       { method: 'POST' } as any,
       {} as any,
-      new URL('http://zavorth.local/api/web/external-agents/register'),
-      '/api/web/external-agents/register',
+      new URL('http://zavorth.local/api/web/zavorth-runtime-adapters/register'),
+      '/api/web/zavorth-runtime-adapters/register',
       deps,
     );
 
@@ -70,8 +70,8 @@ describe('WebAppHostRouteService external agent dashboard routes', () => {
     await service.handleRequest(
       { method: 'POST' } as any,
       {} as any,
-      new URL('http://zavorth.local/api/web/external-agents/invoke'),
-      '/api/web/external-agents/invoke',
+      new URL('http://zavorth.local/api/web/zavorth-runtime-adapters/invoke'),
+      '/api/web/zavorth-runtime-adapters/invoke',
       deps,
     );
 
@@ -83,8 +83,8 @@ describe('WebAppHostRouteService external agent dashboard routes', () => {
     await service.handleRequest(
       { method: 'POST' } as any,
       {} as any,
-      new URL('http://zavorth.local/api/web/external-agents/invoke'),
-      '/api/web/external-agents/invoke',
+      new URL('http://zavorth.local/api/web/zavorth-runtime-adapters/invoke'),
+      '/api/web/zavorth-runtime-adapters/invoke',
       deps,
     );
 

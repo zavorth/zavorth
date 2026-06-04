@@ -3,7 +3,7 @@ import {
   type NormalizedInboundMessage,
   type UniversalAgentExecutor,
 } from '../../../src/runtime/agent/index.js';
-import { FixtureExternalAgentAdapter } from '../../../src/runtime/external-agents/index.js';
+import { FixtureRuntimeAdapterAdapter } from '../../../src/runtime/zavorth-runtime-adapters/index.js';
 
 function createIdFactory() {
   let index = 0;
@@ -25,7 +25,7 @@ describe('Gateway normalized inbound conformance', () => {
       idFactory: createIdFactory(),
       executor,
     });
-    const externalAdapter = new FixtureExternalAgentAdapter();
+    const externalAdapter = new FixtureRuntimeAdapterAdapter();
     const [externalEvent] = await externalAdapter.pullTestEvents();
     const messages: NormalizedInboundMessage[] = [
       {

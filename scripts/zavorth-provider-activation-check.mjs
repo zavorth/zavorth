@@ -10,8 +10,8 @@ const requiredFiles = [
   'src/services/ZavorthProviderActivationService.ts',
   'scripts/zavorth-provider-activation.ts',
   'tests/services/ZavorthProviderActivationService.test.ts',
-  'assets/zavorthControl/scripts/pages.js',
-  'assets/zavorthControl/scripts/runtime-bridge.js',
+  'assets/zavorth-control/scripts/pages.js',
+  'assets/zavorth-control/scripts/runtime-bridge.js',
 ];
 
 for (const file of requiredFiles) {
@@ -30,12 +30,12 @@ if (snapshot) {
   assertRule('summary:adapters', Number(snapshot.summary?.nativeAdapters || 0) > 0 && Number(snapshot.summary?.openAiCompatibleAdapters || 0) > 0, 'Provider activation classifies native and compatible adapters');
   assertRule('summary:media-connectors', Number(snapshot.summary?.mediaSpecificAdapters || 0) > 0, 'Provider activation tracks media-specific connector work');
   assertRule('live-plan:commands', Array.isArray(snapshot.liveProofPlan) && snapshot.liveProofPlan.some((entry) => String(entry.command || '').includes('zavorth providers live --provider')), 'Provider activation exposes explicit live-proof commands');
-  assertRule('safety:no-hidden-live', snapshot.safety?.noHiddenLiveNetworkCalls === true && snapshot.zavorthControlProjection?.normalRenderMakesNoNetworkCalls === true, 'Provider activation zavorthControl render makes no hidden live calls');
+  assertRule('safety:no-hidden-live', snapshot.safety?.noHiddenLiveNetworkCalls === true && snapshot.dashboardProjection?.normalRenderMakesNoNetworkCalls === true, 'Provider activation dashboard render makes no hidden live calls');
   assertRule('safety:no-secrets', !JSON.stringify(snapshot).match(/sk-[A-Za-z0-9_-]{20,}|AIza[A-Za-z0-9_-]{20,}|Bearer\s+[A-Za-z0-9._-]{20,}/), 'Provider activation does not serialize raw provider secrets');
 }
 
-const pageSource = read('assets/zavorthControl/scripts/pages.js');
-const runtimeSource = read('assets/zavorthControl/scripts/runtime-bridge.js');
+const pageSource = read('assets/zavorth-control/scripts/pages.js');
+const runtimeSource = read('assets/zavorth-control/scripts/runtime-bridge.js');
 assertRule('zavorthControl:markup', pageSource.includes('data-provider-activation-summary') && pageSource.includes('data-provider-activation-list'), 'ZavorthControl includes provider activation markup');
 assertRule('zavorthControl:runtime', runtimeSource.includes('/api/providers/activation') && runtimeSource.includes('updateProviderActivation'), 'ZavorthControl runtime fetches and renders provider activation');
 

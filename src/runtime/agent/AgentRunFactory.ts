@@ -8,6 +8,7 @@ import { AgenticRouteClassifier } from './AgenticRouteClassifier.js';
 import { ZavorthSubagentAutoInvocationPolicyService } from '../../services/ZavorthSubagentAutoInvocationPolicyService.js';
 import { ToolExposurePolicy, type ToolExposurePolicyHintProfile } from './ToolExposurePolicy.js';
 import { UniversalPreviewModeService } from './UniversalPreviewModeService.js';
+import { ZavorthAgentKernelSnapshotService } from '../../services/ZavorthAgentKernelSnapshotService.js';
 import {
   ProfileManifestService,
 } from '../../services/ProfileManifestService.js';
@@ -33,6 +34,7 @@ export type AgentRunFactoryRuntime = {
   subagentAutoInvocationPolicy?: Pick<ZavorthSubagentAutoInvocationPolicyService, 'decide'> | null;
   universalPreviewMode?: UniversalPreviewModeService | null;
   profileManifestService?: Pick<ProfileManifestService, 'compileProfileById'> | null;
+  agentKernelSnapshotService?: Pick<ZavorthAgentKernelSnapshotService, 'buildSnapshotSync'> | null;
 };
 
 export type AgentRunModelPickerContractService = {
@@ -284,6 +286,7 @@ export class AgentRunFactory {
   private readonly subagentAutoInvocationPolicy: Pick<ZavorthSubagentAutoInvocationPolicyService, 'decide'>;
   private readonly universalPreviewMode: UniversalPreviewModeService;
   private readonly profileManifestService: Pick<ProfileManifestService, 'compileProfileById'>;
+  private readonly agentKernelSnapshotService: Pick<ZavorthAgentKernelSnapshotService, 'buildSnapshotSync'>;
 
   constructor(runtime: AgentRunFactoryRuntime) {
     this.now = runtime.now;
@@ -303,6 +306,10 @@ export class AgentRunFactory {
       now: this.now,
     });
     this.profileManifestService = runtime.profileManifestService || new ProfileManifestService();
+    this.agentKernelSnapshotService = runtime.agentKernelSnapshotService || new ZavorthAgentKernelSnapshotService({
+      now: this.now,
+      profileManifestService: this.profileManifestService,
+    });
   }
 
   public createRun(input: UniversalAgentRequest): UniversalAgentRun {
@@ -425,6 +432,16 @@ export class AgentRunFactory {
     const modelPickerContract = this.readModelPickerContract();
     const modelPickerSelection = this.toModelPickerSelectionMetadata(modelPickerContract?.selected || null);
     const modelProfile = this.buildModelProfile(input.modelProfile, modelPickerContract?.selected || null);
+    const agentKernelSnapshot = this.agentKernelSnapshotService.buildSnapshotSync({
+      projectRoot: normalizeText(input.metadata?.projectRoot) || process.cwd(),
+      text,
+      channel: input.channel,
+      profileId: profileResolution.profileId,
+      profileSource: profileResolution.source,
+      profileBundle: profileResolution.profileBundle,
+      modelProfile,
+      includeProviderActivation: false,
+    });
     const replyPorts = this.buildReplyPorts(input);
 
     return {
@@ -510,6 +527,9 @@ export class AgentRunFactory {
         universalPreviewMode,
         ...(importedCapabilityTrust ? { importedCapabilityTrust } : {}),
         ...(modelPickerSelection ? { modelPickerSelection } : {}),
+        agentKernelSnapshot,
+        capabilityPassport: agentKernelSnapshot.capabilityPassport,
+        intentDecision: agentKernelSnapshot.intentDecision,
         adapterSource: 'universal-agent-runtime',
       },
     };

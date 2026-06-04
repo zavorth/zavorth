@@ -58,7 +58,7 @@ function createIntegrationHubSnapshot() {
       generatedAt: new Date().toISOString(),
       activeProviderName: 'gemini',
       activeModelName: 'gemini-2.5-flash',
-      preferredZavorthBridgeModel: 'omni-route-coder',
+      preferredZavorthBridgeModel: 'ai-gateway-coder',
       recommendedProfile: {
         id: 'coding',
         label: 'Coding',
@@ -97,7 +97,7 @@ function createIntegrationHubSnapshot() {
           effectiveProviderName: 'AIGateway',
           mode: 'hybrid',
           readiness: 'needs_probe',
-          currentModel: 'omni-route-coder',
+          currentModel: 'ai-gateway-coder',
           summary: 'Rota local/hibrida para coding pesado.',
           issue: 'Precisa de probe local.',
         },

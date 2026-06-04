@@ -1,5 +1,5 @@
 export const ZAVORTH_CHANNEL_DEEPENING_CONTRACT_VERSION =
-  '2026-05-24.phase-2-channel-deepening' as const;
+  '2026-05-24.channel-live-readiness' as const;
 
 export type ZavorthChannelDeepeningStatus =
   | 'live_ready'
@@ -86,7 +86,7 @@ export type ZavorthChannelDeepeningSnapshot = {
   generatedAt: string;
   contractVersion: typeof ZAVORTH_CHANNEL_DEEPENING_CONTRACT_VERSION;
   source: 'ZavorthChannelDeepeningService';
-  phase: 'Phase 2 - Channel Deepening';
+  focus: 'Channel Live Readiness';
   status: 'passed' | 'attention' | 'blocked';
   summary: {
     total: number;
@@ -123,6 +123,6 @@ export type ZavorthChannelDeepeningSnapshot = {
     inspect: 'npm run zavorth:channel-deepening';
     inspectJson: 'npm run zavorth:channel-deepening:json';
     check: 'npm run zavorth:channel-deepening:check --silent';
-    next: 'Phase 3 - Learning Loop';
+    next: 'zavorth channels doctor';
   };
 };

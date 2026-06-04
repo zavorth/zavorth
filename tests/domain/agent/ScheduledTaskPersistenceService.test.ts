@@ -6,7 +6,7 @@ import {
 
 describe('ZavorthScheduledTaskPersistenceService', () => {
   const now = () => new Date('2026-05-12T12:00:00.000Z');
-  const cwd = () => 'C:/TESTES DEV/zavorth-core/Zavorth';
+  const cwd = () => 'C:/workspace/zavorth-core/Zavorth';
 
   it('previews governed metadata without SchedulerService persistence', async () => {
     const service = new ZavorthScheduledTaskPersistenceService({ now, cwd });
@@ -151,7 +151,7 @@ function approvedScheduledTask(approvalId = 'approval-123') {
     intent: 'Enviar resumo operacional do workspace',
     command: 'Enviar resumo operacional',
     schedule: 'every 15m',
-    workspace: 'C:/TESTES DEV/zavorth-core/Zavorth',
+    workspace: 'C:/workspace/zavorth-core/Zavorth',
     surface: 'telegram' as const,
     createdBy: 'owner',
     allowedTools: ['web_search'],

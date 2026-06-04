@@ -8,8 +8,8 @@ import {
 describe('SharedSurfaceCallbackCommandPolicy', () => {
   it('normalizes read-only shared-surface callbacks', () => {
     expect(normalizeSharedSurfaceCommandCallback('  /channels   status   whatsapp  ')).toBe('/channels status whatsapp');
-    expect(normalizeSharedSurfaceCommandCallback('/channels parity')).toBe('/channels parity');
-    expect(normalizeSharedSurfaceCommandCallback('/channels parity whatsapp')).toBe('/channels parity whatsapp');
+    expect(normalizeSharedSurfaceCommandCallback('/channels consistency')).toBe('/channels consistency');
+    expect(normalizeSharedSurfaceCommandCallback('/channels consistency whatsapp')).toBe('/channels consistency whatsapp');
     expect(normalizeSharedSurfaceCommandCallback('/commands page 2')).toBe('/commands page 2');
     expect(normalizeSharedSurfaceCommandCallback('/model gemma-4-31b-it')).toBe('/model gemma-4-31b-it');
     expect(normalizeSharedSurfaceCommandCallback('/readiness')).toBe('/readiness');

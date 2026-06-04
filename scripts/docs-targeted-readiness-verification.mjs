@@ -55,7 +55,7 @@ function verifyDoc(doc) {
   const explicitLines = collectExplicitLines(text);
   const publicLike = isPublicLike(doc.file);
   const historicalLike = isHistoricalLike(doc.file);
-  const notReadyLineCount = explicitLines.filter((line) => /not implemented|nao implementado|não implementado|fixture-parity-covered|planned|future|futuro|planejado|pending|pendente|todo|tbd/i.test(line)).length;
+  const notReadyLineCount = explicitLines.filter((line) => /not implemented|nao implementado|não implementado|fixture-consistency-covered|planned|future|futuro|planejado|pending|pendente|todo|tbd/i.test(line)).length;
 
   const implementedRefs = refs.filter((ref) => ref.exists).length;
   const implementedChecks = checks.filter((check) => check.exists).length;
@@ -136,7 +136,7 @@ function collectChecks(text) {
 function collectExplicitLines(text) {
   return text.split(/\r?\n/)
     .map((line) => line.trim())
-    .filter((line) => /not implemented|nao implementado|não implementado|fixture-parity-covered|planned|future|futuro|planejado|pending|pendente|todo|tbd|next gate|future gate|futura|próxima etapa|proximo passo/i.test(line))
+    .filter((line) => /not implemented|nao implementado|não implementado|fixture-consistency-covered|planned|future|futuro|planejado|pending|pendente|todo|tbd|next gate|future gate|futura|próxima etapa|proximo passo/i.test(line))
     .slice(0, 30);
 }
 

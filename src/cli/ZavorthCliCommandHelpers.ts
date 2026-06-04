@@ -60,6 +60,7 @@ import {
   normalizeCliCommandName,
   normalizeCliInput,
 } from './ZavorthCliFlowHelpers.js';
+import { normalizeTerminalComposerInput } from './ZavorthCliTerminalComposer.js';
 import { normalizeZavorthHeadlessArgs } from './headless/ZavorthHeadlessCommand.js';
 import type { ZavorthCliFlags, ZavorthCliRuntime, ZavorthCliServiceOverrides } from './ZavorthCliContract.js';
 
@@ -351,7 +352,7 @@ function isCliNativeAliasCommand(commandName: string | null): boolean {
   }
 
 function resolveCliExecutionInput(rawInput: string): CliResolvedExecutionInput {
-  const normalized = normalizeCliInput(rawInput);
+  const normalized = normalizeCliInput(normalizeTerminalComposerInput(rawInput));
   if (!normalized) {
     return {
       surfaceText: '',

@@ -1,5 +1,5 @@
-import { ChannelMeshParityService } from '../../src/services/ChannelMeshParityService.js';
-import { ProviderMeshParityService } from '../../src/services/ProviderMeshParityService.js';
+import { ChannelMeshConsistencyService } from '../../src/services/ChannelMeshConsistencyService.js';
+import { ProviderMeshReadinessService } from '../../src/services/ProviderMeshReadinessService.js';
 import { RuntimeAdapterClosureService } from '../../src/services/RuntimeAdapterClosureService.js';
 
 describe('RuntimeAdapterClosureService Intent model1', () => {
@@ -85,7 +85,7 @@ describe('RuntimeAdapterClosureService Intent model1', () => {
   });
 
   it('makes Provider Mesh report zero provider templates', () => {
-    const providerSnapshot = new ProviderMeshParityService({
+    const providerSnapshot = new ProviderMeshReadinessService({
       now: () => new Date('2026-05-04T21:10:00.000Z'),
     }).buildSnapshot();
 
@@ -103,7 +103,7 @@ describe('RuntimeAdapterClosureService Intent model1', () => {
   });
 
   it('makes Channel Mesh report zero unsupported routes after TLON bridge closure', () => {
-    const channelSnapshot = new ChannelMeshParityService({
+    const channelSnapshot = new ChannelMeshConsistencyService({
       now: () => new Date('2026-05-04T21:20:00.000Z'),
     }).buildSnapshot();
 

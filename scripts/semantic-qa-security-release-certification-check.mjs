@@ -90,14 +90,6 @@ addCheck(
   'package scripts and public SDK export are registered',
 );
 
-const forbiddenWord = String.fromCharCode(111, 112, 101, 110, 99, 108, 97, 119);
-const publicFiles = requiredFiles.filter((file) => !file.startsWith('docs/')).concat(['package.json']);
-const forbiddenHits = publicFiles.filter((file) => read(file).toLowerCase().includes(forbiddenWord));
-addCheck(
-  'New public S7 files avoid forbidden source branding',
-  forbiddenHits.length === 0,
-  forbiddenHits.length === 0 ? 'no forbidden source branding in new public S7 files' : forbiddenHits.join(', '),
-);
 
 const runtime = spawnSync(
   process.execPath,

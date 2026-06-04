@@ -4,6 +4,7 @@ import path from 'node:path';
 
 const root = process.cwd();
 const read = (file) => fs.readFileSync(path.join(root, file), 'utf8');
+const normalizeLineEndings = (text) => text.replace(/\r\n?/g, '\n');
 
 const files = {
   globals: 'src/ai-gateway/app/globals.css',
@@ -242,7 +243,9 @@ for (const [key, marker] of requiredMarkers) {
 }
 
 for (const [source, target] of syncedAssetPairs) {
-  if (read(source) !== read(target)) failures.push(`Vite source is not synced to ${target}`);
+  if (normalizeLineEndings(read(source)) !== normalizeLineEndings(read(target))) {
+    failures.push(`Vite source is not synced to ${target}`);
+  }
 }
 
 const publicText = [

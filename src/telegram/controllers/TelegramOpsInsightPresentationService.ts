@@ -3,7 +3,7 @@ import type { SidecarStatusCard } from '../../services/SidecarStatusService.js';
 import {
   type ProductObservabilitySnapshot,
 } from '../../services/ProductObservabilityService.js';
-import { SharedSurfaceParityService } from '../../services/SharedSurfaceParityService.js';
+import { SharedSurfaceConsistencyService } from '../../services/SharedSurfaceConsistencyService.js';
 import { SkillLibraryPresentationService } from '../../services/SkillLibraryPresentationService.js';
 import { getDefaultCapabilityRegistry } from '../../capabilities/CapabilityRegistry.js';
 import {
@@ -56,7 +56,7 @@ export class TelegramOpsInsightPresentationService {
   private static cachedSkillPlaneSnapshot:
     ReturnType<SkillLibraryPresentationService['buildSnapshot']> | null = null;
   private readonly capabilityRegistry = getDefaultCapabilityRegistry();
-  private readonly surfaceParityService = new SharedSurfaceParityService();
+  private readonly surfaceConsistencyService = new SharedSurfaceConsistencyService();
   private readonly skillLibraryPresentationService = new SkillLibraryPresentationService();
 
   public buildSystemStatusSurfaceResponse(
@@ -152,9 +152,9 @@ export class TelegramOpsInsightPresentationService {
       lines.push('', 'Produto', ...productLines);
     }
 
-    const surfaceParityLines = this.formatSurfaceParityLines();
-    if (surfaceParityLines.length > 0) {
-      lines.push('', 'Superficies', ...surfaceParityLines);
+    const surfaceConsistencyLines = this.formatSurfaceConsistencyLines();
+    if (surfaceConsistencyLines.length > 0) {
+      lines.push('', 'Superficies', ...surfaceConsistencyLines);
     }
 
     const skillPlaneLines = this.formatSkillPlaneLines();
@@ -558,24 +558,24 @@ export class TelegramOpsInsightPresentationService {
     return lines;
   }
 
-  private formatSurfaceParityLines(): string[] {
-    const parity = this.surfaceParityService.buildManifest();
-    if (!parity) {
+  private formatSurfaceConsistencyLines(): string[] {
+    const consistency = this.surfaceConsistencyService.buildManifest();
+    if (!consistency) {
       return [];
     }
 
     const lines = [
-      `- Web: ${parity.surfaces?.web?.ready ? 'pronto' : 'pendente'} - ${parity.surfaces?.web?.summary || 'Sem resumo adicional.'}`,
-      `- Telegram: ${parity.surfaces?.telegram?.ready ? 'pronto' : 'pendente'} - ${parity.surfaces?.telegram?.summary || 'Sem resumo adicional.'}`,
+      `- Web: ${consistency.surfaces?.web?.ready ? 'pronto' : 'pendente'} - ${consistency.surfaces?.web?.summary || 'Sem resumo adicional.'}`,
+      `- Telegram: ${consistency.surfaces?.telegram?.ready ? 'pronto' : 'pendente'} - ${consistency.surfaces?.telegram?.summary || 'Sem resumo adicional.'}`,
     ];
 
-    if (parity.surfaces?.discord) {
+    if (consistency.surfaces?.discord) {
       lines.push(
-        `- Discord: ${Number(parity.surfaces.discord.slashReadyCount || 0)} slash ativo(s) - ${parity.surfaces.discord.summary || 'Sem resumo adicional.'}`,
+        `- Discord: ${Number(consistency.surfaces.discord.slashReadyCount || 0)} slash ativo(s) - ${consistency.surfaces.discord.summary || 'Sem resumo adicional.'}`,
       );
     }
 
-    const recommended = parity.recommended
+    const recommended = consistency.recommended
       .map((entry) => String(entry.surfaceCommand || entry.commandType || '').trim())
       .filter(Boolean)
       .slice(0, 4);

@@ -119,7 +119,7 @@ const BREAK_GLASS_HARD_STOPS = [
   'whole-disk-delete',
   'unrestricted-shell',
   'unbounded-financial-transaction',
-  'external-agent-unbounded-delegation',
+  'runtime-adapter-unbounded-delegation',
   'self-delete-governance',
 ];
 

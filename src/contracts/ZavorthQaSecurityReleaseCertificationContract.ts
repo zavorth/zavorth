@@ -6,7 +6,7 @@ export type ZavorthQaSecurityReleaseFamilyId =
   | 'release-acceptance'
   | 'workflow-semantics'
   | 'patch-risk'
-  | 'functional-parity';
+  | 'functional-consistency';
 
 export type ZavorthQaSecurityReleaseCheckStatus = 'pass' | 'warn' | 'fail';
 
@@ -130,7 +130,7 @@ export type ZavorthPatchRiskLedgerSnapshot = {
   secretValuesSerialized: false;
 };
 
-export type ZavorthFunctionalParityCertificationRunnerSnapshot = {
+export type ZavorthFunctionalReleaseCertificationRunnerSnapshot = {
   status: ZavorthQaSecurityReleaseCheckStatus;
   families: ZavorthCertificationFamilyResult[];
   printableLines: string[];
@@ -157,7 +157,7 @@ export type ZavorthQaSecurityReleaseCertificationSnapshot = {
   releaseAcceptance: ZavorthReleaseAcceptanceSnapshot;
   workflowSemantics: ZavorthWorkflowSemanticSnapshot;
   patchRisk: ZavorthPatchRiskLedgerSnapshot;
-  functionalParityRunner: ZavorthFunctionalParityCertificationRunnerSnapshot;
+  functionalConsistencyRunner: ZavorthFunctionalReleaseCertificationRunnerSnapshot;
   summary: {
     families: number;
     passFamilies: number;

@@ -27,7 +27,7 @@ const snapshot = {
 if (asJson) {
   console.log(JSON.stringify(snapshot, null, 2));
 } else {
-  console.log('[zavorth-smart-commands] checking slash parity');
+  console.log('[zavorth-smart-commands] checking slash consistency');
   for (const rule of rules) {
     const marker = rule.status === 'passed' ? 'ok' : 'fail';
     console.log(`[zavorth-smart-commands] ${marker} ${rule.label}: ${rule.observed} | ${rule.target}`);
@@ -84,7 +84,7 @@ function ruleMarkers() {
       '/platforms',
       '/status',
       '/sethome <path>',
-      'noExternalAgentInvocation: true',
+      'noRuntimeAdapterInvocation: true',
     ]],
     ['src/cli/ZavorthCliRegistry.ts', [
       'ZavorthSmartCommandSurfaceService',
@@ -135,7 +135,7 @@ function runCommand(command, expectedStatus) {
     && snapshot?.surface === 'smart-command-surface'
     && snapshot?.safety?.noShellExecution === true
     && snapshot?.safety?.noNetworkProbe === true
-    && snapshot?.safety?.noExternalAgentInvocation === true
+    && snapshot?.safety?.noRuntimeAdapterInvocation === true
     && (!expectedStatus || snapshot.status === expectedStatus);
   return {
     id: `command-${command.replace(/[^a-z0-9]+/gi, '-').replace(/^-|-$/g, '')}`,

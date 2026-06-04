@@ -31,7 +31,7 @@ describe('ZavorthSmartCommandSurfaceService', () => {
         noNetworkProbe: true,
         noSecretSerialization: true,
         noFilesystemMutationWithoutApproval: true,
-        noExternalAgentInvocation: true,
+        noRuntimeAdapterInvocation: true,
       }));
       expect(snapshot.policy.crossSurfaceAliasesStable).toBe(true);
     }

@@ -17,8 +17,8 @@ const FILES = {
   bin: 'bin/zavorth.js',
   registry: 'src/cli/ZavorthCliRegistry.ts',
   helpers: 'src/cli/ZavorthCliSurfaceHelpers.ts',
-  inkIndex: 'src/cli/ink-test-env/index.tsx',
-  inkPackage: 'src/cli/ink-test-env/package.json',
+  inkIndex: 'tools/cli/ink-test-env/index.tsx',
+  inkPackage: 'tools/cli/ink-test-env/package.json',
 } as const;
 
 const REQUIRED_COMMANDS = [

@@ -9,7 +9,7 @@ import type {
 } from '../BotGatewaySupportTypes.js';
 import {
   EXTERNAL_EXECUTOR_LABEL,
-  getExternalAgentRoleFromMetadata,
+  getRuntimeAdapterRoleFromMetadata,
 } from '../../ExternalExecutorIdentity.js';
 
 export function resolveBroadcastRecipients(
@@ -188,9 +188,9 @@ export async function start(
   }
 }
 
-export function resolveExternalAgentRole(task: unknown): string {
+export function resolveRuntimeAdapterRole(task: unknown): string {
   const metadata = readMetadataRecord(task);
-  return getExternalAgentRoleFromMetadata(metadata);
+  return getRuntimeAdapterRoleFromMetadata(metadata);
 }
 
 export function resolveApprovedExternalAccessPath(result: unknown): string {

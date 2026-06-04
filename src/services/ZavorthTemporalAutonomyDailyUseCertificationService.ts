@@ -261,7 +261,7 @@ function buildMatrix(input: {
       scenarioPassed(input.abuseScenarios, 'acp_bypass'),
       'ACP is optional bridge capacity and cannot bypass MCP/tool governance or owner approval.',
       ['AcpxBridgeRuntimeAdapter', 'SourceAgentRuntimeBridgeContract', 'owner-gated bridge readiness'],
-      'Keep external agent runtime bridges disabled by default.',
+      'Keep runtime adapter runtime bridges disabled by default.',
     ),
     matrix(
       'mcp_governance',
@@ -372,8 +372,8 @@ function buildReceipts(
       summary: scenario.summary,
     })),
     {
-      id: 'checkpoint-8-parity-matrix',
-      kind: 'parity-matrix',
+      id: 'checkpoint-8-consistency-matrix',
+      kind: 'consistency-matrix',
       status: matrix.every((entry) => entry.status === 'pass') ? 'passed' : 'blocked',
       summary: `${matrix.filter((entry) => entry.status === 'pass').length}/${matrix.length} daily-use matrix areas passed.`,
     },

@@ -1,3 +1,4 @@
+import { randomUUID } from 'node:crypto';
 import type { WebAppSupervisionRouteHandler } from './types.js';
 import { getRequestedBy } from './helpers.js';
 import {
@@ -9,6 +10,8 @@ import {
 // ---------------------------------------------------------------------------
 
 const mobileService = new ZavorthMobileSupervisionService();
+const streamTickets = new Map<string, number>();
+const STREAM_TICKET_TTL_MS = 30_000;
 
 // ---------------------------------------------------------------------------
 // Helpers
@@ -16,20 +19,41 @@ const mobileService = new ZavorthMobileSupervisionService();
 
 function extractMobileToken(ctx: {
   req: { headers: Record<string, string | string[] | undefined> };
-  url: URL;
 }): string {
   const fromHeader = String(
     (Array.isArray(ctx.req.headers['x-zavorth-mobile-token'])
       ? ctx.req.headers['x-zavorth-mobile-token'][0]
       : ctx.req.headers['x-zavorth-mobile-token']) || '',
   ).trim();
-  if (fromHeader) return fromHeader;
-  return String(ctx.url.searchParams.get('token') || '').trim();
+  return fromHeader;
 }
 
 function requireAuth(ctx: Parameters<WebAppSupervisionRouteHandler>[0]): boolean {
   const token = extractMobileToken(ctx as any);
   return mobileService.validateSessionToken(token);
+}
+
+function mintStreamTicket(): string {
+  pruneStreamTickets();
+  const ticket = randomUUID();
+  streamTickets.set(ticket, Date.now() + STREAM_TICKET_TTL_MS);
+  return ticket;
+}
+
+function consumeStreamTicket(ticket: string): boolean {
+  pruneStreamTickets();
+  const normalized = String(ticket || '').trim();
+  const expiresAt = streamTickets.get(normalized);
+  if (!expiresAt) return false;
+  streamTickets.delete(normalized);
+  return expiresAt > Date.now();
+}
+
+function pruneStreamTickets(): void {
+  const now = Date.now();
+  for (const [ticket, expiresAt] of streamTickets.entries()) {
+    if (expiresAt <= now) streamTickets.delete(ticket);
+  }
 }
 
 // ---------------------------------------------------------------------------
@@ -192,7 +216,7 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:var(--f
     var err=document.getElementById('login-error');
     var t=inp.value.trim();
     if(!t){err.textContent='Token obrigatorio.';return}
-    fetch(BASE+'/api/web/mobile/auth?token='+encodeURIComponent(t))
+    fetch(BASE+'/api/web/mobile/auth',{headers:{'X-Zavorth-Mobile-Token':t}})
       .then(function(r){return r.json()})
       .then(function(d){
         if(d.ok&&d.authenticated){
@@ -294,25 +318,33 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:var(--f
     var banner=document.getElementById('conn-banner');
     banner.className='conn-banner disconnected';
     banner.textContent='Conectando...';
-    sse=new EventSource(BASE+'/api/web/mobile/stream?token='+encodeURIComponent(token));
-    sse.onopen=function(){
-      banner.className='conn-banner connected';
-      banner.textContent='Conectado — stream ativo';
-    };
-    sse.addEventListener('agent-log',onSSE);
-    sse.addEventListener('receipt',onSSE);
-    sse.addEventListener('approval-pending',onSSE);
-    sse.addEventListener('approval-resolved',onSSE);
-    sse.addEventListener('status-change',onSSE);
-    sse.addEventListener('provider-switch',onSSE);
-    sse.onerror=function(){
-      banner.className='conn-banner disconnected';
-      banner.textContent='Desconectado — reconectando...';
-      if(sse){sse.close();sse=null;}
-      reconnectTimer=setTimeout(connectSSE,3000);
-    };
+    fetch(BASE+'/api/web/mobile/stream-ticket',{headers:{'X-Zavorth-Mobile-Token':token}})
+      .then(function(r){return r.json()})
+      .then(function(d){
+        if(!d.ok||!d.ticket){throw new Error('ticket')}
+        sse=new EventSource(BASE+'/api/web/mobile/stream?ticket='+encodeURIComponent(d.ticket));
+        sse.onopen=function(){
+          banner.className='conn-banner connected';
+          banner.textContent='Conectado - stream ativo';
+        };
+        sse.addEventListener('agent-log',onSSE);
+        sse.addEventListener('receipt',onSSE);
+        sse.addEventListener('approval-pending',onSSE);
+        sse.addEventListener('approval-resolved',onSSE);
+        sse.addEventListener('status-change',onSSE);
+        sse.addEventListener('provider-switch',onSSE);
+        sse.onerror=function(){
+          banner.className='conn-banner disconnected';
+          banner.textContent='Desconectado - reconectando...';
+          if(sse){sse.close();sse=null;}
+          reconnectTimer=setTimeout(connectSSE,3000);
+        };
+      })
+      .catch(function(){
+        banner.className='conn-banner disconnected';
+        banner.textContent='Sessao movel nao autenticada.';
+      });
   }
-
   function onSSE(ev){
     try{
       var data=JSON.parse(ev.data);
@@ -386,7 +418,7 @@ export const handleMobileSupervisionRoutes: WebAppSupervisionRouteHandler = asyn
     // Require operator approval token header
     const expected = String(
       process.env.ZAVORTH_OPERATOR_APPROVAL_TOKEN
-      || process.env.ZAVORTH_EXTERNAL_AGENT_API_APPROVAL_TOKEN
+      || process.env.ZAVORTH_RUNTIME_ADAPTER_API_APPROVAL_TOKEN
       || process.env.ZAVORTH_DASHBOARD_OPERATOR_TOKEN
       || '',
     ).trim();
@@ -436,10 +468,30 @@ export const handleMobileSupervisionRoutes: WebAppSupervisionRouteHandler = asyn
   }
 
   // -----------------------------------------------------------------------
+  // GET /api/web/mobile/stream-ticket — Short-lived SSE ticket
+  // -----------------------------------------------------------------------
+  if (pathname === '/api/web/mobile/stream-ticket' && req.method === 'GET') {
+    if (!requireAuth(ctx)) {
+      deps.writeJson(res, { ok: false, error: 'Sessao movel nao autenticada.' }, 401);
+      return true;
+    }
+    deps.writeJson(res, {
+      ok: true,
+      ticket: mintStreamTicket(),
+      expiresInMs: STREAM_TICKET_TTL_MS,
+      safety: {
+        primaryTokenInUrl: false,
+        singleUse: true,
+      },
+    }, 200);
+    return true;
+  }
+
+  // -----------------------------------------------------------------------
   // GET /api/web/mobile/stream — SSE endpoint
   // -----------------------------------------------------------------------
   if (pathname === '/api/web/mobile/stream' && req.method === 'GET') {
-    if (!requireAuth(ctx)) {
+    if (!consumeStreamTicket(String(url.searchParams.get('ticket') || ''))) {
       deps.writeJson(res, { ok: false, error: 'Sessao movel nao autenticada.' }, 401);
       return true;
     }

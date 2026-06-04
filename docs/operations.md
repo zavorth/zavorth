@@ -37,9 +37,9 @@ zavorth skills
 zavorth review
 ```
 
-They separate contract readiness from live host readiness. A capability can be
-implemented and still need credentials, device pairing, sidecar setup or user
-approval before it is live on this machine.
+They separate catalog readiness from live host readiness. A capability can be
+available in the catalog and still need credentials, device pairing, sidecar
+setup or user approval before it is live on this machine.
 
 ## Readiness Language
 
@@ -91,8 +91,8 @@ Channel Mesh should tell the operator whether a channel is live, partial,
 outbox-only or unavailable. Provider checks should do the same for model,
 search, media, speech and other provider-backed capabilities.
 
-The next roadmap item is stronger transport discovery per channel and live
-readiness per provider. See [Roadmap](/docs/product-direction.md).
+See [Product Principles](/docs/product-direction.md) for how Zavorth treats
+readiness, policy and honest capability reporting.
 
 ## Secrets
 
@@ -119,11 +119,6 @@ Then validate the specific area:
 
 ## Publishing Hygiene
 
-Before presenting the repo publicly:
-
-```bash
-npm run runtime:check
-npm run security:ci
-```
-
-Public docs should describe the current product, not old implementation notes.
+Public docs should describe the current product and the user/operator contract.
+Release preparation should verify type health, security posture and no-secret
+logging before any public package is published.

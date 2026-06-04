@@ -289,7 +289,7 @@ function startFakeStreaming(state: HarnessState): void {
     });
   });
 
-  schedule(state, 720, () => {
+  schedule(state, 1_200, () => {
     broadcastAgentStream(state, "delta", {
       delta: "beta-two ",
       accumulated: "provider alpha-one beta-two ",
@@ -297,7 +297,7 @@ function startFakeStreaming(state: HarnessState): void {
     });
   });
 
-  schedule(state, 1_220, () => {
+  schedule(state, 2_400, () => {
     const steeringText = state.steeringAssimilated ? "guide-ack " : "";
     broadcastAgentStream(state, "delta", {
       delta: `${steeringText}gamma-three `,
@@ -306,7 +306,7 @@ function startFakeStreaming(state: HarnessState): void {
     });
   });
 
-  schedule(state, 1_800, () => {
+  schedule(state, 4_000, () => {
     const steeringText = state.steeringAssimilated ? "guide-ack " : "";
     state.runStatus = "completed";
     state.completedAt = new Date().toISOString();
@@ -423,6 +423,19 @@ async function handleApi(request: http.IncomingMessage, response: http.ServerRes
   if (request.method === "POST" && url.pathname === "/api/web/chat/send") {
     const body = await readRequestJson(request);
     state.chatSendCalls.push(body);
+    const text = extractComposerText(body);
+    if (/^\/steer\b/i.test(text) && state.runStatus === "running") {
+      acceptSteering(state, body);
+      json(response, {
+        ok: true,
+        sessionId: state.sessionId,
+        runId: state.runId,
+        ack: { id: "stream-e2e-steer-ack", status: "accepted" },
+        steering: { id: "stream-e2e-steer", status: "accepted" },
+        snapshot: snapshot(state),
+      });
+      return;
+    }
     startFakeStreaming(state);
     json(response, {
       ok: true,
@@ -436,22 +449,7 @@ async function handleApi(request: http.IncomingMessage, response: http.ServerRes
 
   if (request.method === "POST" && url.pathname === "/api/web/chat/steer") {
     const body = await readRequestJson(request);
-    state.steerCalls.push(body);
-    state.steeringAssimilated = true;
-    broadcast(state, "agent-stream", {
-      id: `stream-e2e-steer-${state.steerCalls.length}`,
-      type: "agent-stream",
-      createdAt: new Date().toISOString(),
-      payload: {
-        eventType: "agent.stream.lifecycle",
-        phase: "steering-accepted",
-        runId: state.runId,
-        sessionId: state.sessionId,
-        streamId: `${state.runId}:assistant`,
-        title: "Steering accepted",
-        summary: "The fake provider stream will assimilate the steering update.",
-      },
-    });
+    acceptSteering(state, body);
     json(response, {
       ok: true,
       sessionId: state.sessionId,
@@ -464,6 +462,30 @@ async function handleApi(request: http.IncomingMessage, response: http.ServerRes
   }
 
   notFound(response);
+}
+
+function extractComposerText(body: unknown): string {
+  const value = body && typeof body === "object" ? body as Record<string, unknown> : {};
+  return String(value.text || value.message || value.prompt || value.input || "").trim();
+}
+
+function acceptSteering(state: HarnessState, body: unknown): void {
+  state.steerCalls.push(body);
+  state.steeringAssimilated = true;
+  broadcast(state, "agent-stream", {
+    id: `stream-e2e-steer-${state.steerCalls.length}`,
+    type: "agent-stream",
+    createdAt: new Date().toISOString(),
+    payload: {
+      eventType: "agent.stream.lifecycle",
+      phase: "steering-accepted",
+      runId: state.runId,
+      sessionId: state.sessionId,
+      streamId: `${state.runId}:assistant`,
+      title: "Steering accepted",
+      summary: "The fake provider stream will assimilate the steering update.",
+    },
+  });
 }
 
 function startServer(state: HarnessState): Promise<{ server: http.Server; url: string }> {
@@ -510,6 +532,15 @@ async function sendComposerMessage(page: any, text: string): Promise<void> {
   })()`);
 }
 
+async function waitForPageCondition(page: any, expression: string, timeout = 10_000): Promise<boolean> {
+  try {
+    await page.waitForFunction(expression, null, { timeout });
+    return true;
+  } catch {
+    return false;
+  }
+}
+
 async function run(): Promise<Report> {
   const options = readOptions();
   const report = createReport(options.outDir);
@@ -517,7 +548,7 @@ async function run(): Promise<Report> {
 
   const state = createHarnessState();
   const { server, url } = await startServer(state);
-  report.url = `${url}?token=stream-e2e-token&sessionId=${encodeURIComponent(state.sessionId)}&fresh=${Date.now()}`;
+  report.url = `${url}?sessionId=${encodeURIComponent(state.sessionId)}&fresh=${Date.now()}#token=stream-e2e-token`;
 
   const browser = await chromium.launch({ headless: true });
   const page = await browser.newPage({ viewport: { width: 1440, height: 980 }, deviceScaleFactor: 1 });
@@ -559,23 +590,53 @@ async function run(): Promise<Report> {
     report.screenshots.push(shellScreenshot);
 
     await sendComposerMessage(page, "Start a provider-native streaming E2E proof.");
-    await page.waitForFunction(
+    const partialRendered = await waitForPageCondition(
+      page,
       `Array.from(document.querySelectorAll(".echo-group--agent-stream .echo-bubble")).some((node) => /alpha-one/.test(node.textContent || ""))`,
-      null,
-      { timeout: 10_000 },
     );
+
+    const preSteerMetrics = await page.evaluate(`(() => {
+      const activeStream = document.querySelector(".echo-group--agent-stream:not(.is-complete)");
+      const activeRun = window.ZavorthRuntimeBridge?.getActiveRun?.();
+      return {
+        activeStreamFound: Boolean(activeStream),
+        activeStreamClass: String(activeStream?.className || ""),
+        activeStreamId: String(activeStream?.getAttribute("data-zavorth-agent-stream-id") || ""),
+        activeRunStatus: String(activeRun?.status || ""),
+        activeRunId: String(activeRun?.id || activeRun?.runId || ""),
+        storedRunId: String(sessionStorage.getItem("zavorth.zavorthControl.runId") || ""),
+        composeValue: String(document.getElementById("compose-input")?.value || ""),
+      };
+    })()`);
 
     await sendComposerMessage(page, "/steer fold in the steering update before the final token");
 
-    await page.waitForFunction(
+    const postSteerMetrics = await page.evaluate(`(() => {
+      const activeStream = document.querySelector(".echo-group--agent-stream:not(.is-complete)");
+      const activeRun = window.ZavorthRuntimeBridge?.getActiveRun?.();
+      const notices = Array.from(document.querySelectorAll(".local-notice, .echo-group--notice, [data-local-notice]"))
+        .map((node) => String(node.textContent || "").replace(/\\s+/g, " ").trim())
+        .filter(Boolean)
+        .slice(-5);
+      return {
+        activeStreamFound: Boolean(activeStream),
+        activeStreamClass: String(activeStream?.className || ""),
+        activeStreamId: String(activeStream?.getAttribute("data-zavorth-agent-stream-id") || ""),
+        activeRunStatus: String(activeRun?.status || ""),
+        activeRunId: String(activeRun?.id || activeRun?.runId || ""),
+        storedRunId: String(sessionStorage.getItem("zavorth.zavorthControl.runId") || ""),
+        composeValue: String(document.getElementById("compose-input")?.value || ""),
+        notices,
+      };
+    })()`);
+
+    const steerRendered = await waitForPageCondition(
+      page,
       `Array.from(document.querySelectorAll(".echo-group--agent-stream .echo-bubble")).some((node) => /guide-ack/.test(node.textContent || ""))`,
-      null,
-      { timeout: 10_000 },
     );
-    await page.waitForFunction(
+    const doneRendered = await waitForPageCondition(
+      page,
       `Array.from(document.querySelectorAll(".echo-group--agent-stream.is-complete .echo-bubble")).some((node) => /omega-final/.test(node.textContent || ""))`,
-      null,
-      { timeout: 10_000 },
     );
 
     const finalScreenshot = path.join(options.outDir, "02-streaming-complete.png");
@@ -590,7 +651,11 @@ async function run(): Promise<Report> {
       const groups = Array.from(document.querySelectorAll(".echo-group--agent-stream"));
       const group = groups[groups.length - 1];
       const finalText = String(group?.querySelector(".echo-bubble")?.textContent || "").replace(/\s+/g, " ").trim();
+      const activeRun = window.ZavorthRuntimeBridge?.getActiveRun?.();
       return {
+        partialRendered: ${JSON.stringify(partialRendered)},
+        steerRendered: ${JSON.stringify(steerRendered)},
+        doneRendered: ${JSON.stringify(doneRendered)},
         sampleCount: samples.length,
         firstPartialAt: firstPartial?.at || 0,
         firstSteerAt: firstSteer?.at || 0,
@@ -599,10 +664,15 @@ async function run(): Promise<Report> {
         steerBeforeDone: Boolean(firstSteer && firstDone && firstSteer.at <= firstDone.at),
         finalText,
         finalClassName: group?.className || "",
+        activeRunStatus: String(activeRun?.status || ""),
+        activeRunId: String(activeRun?.id || activeRun?.runId || ""),
+        composeValue: String(document.getElementById("compose-input")?.value || ""),
       };
     })()`);
 
     report.metrics.dom = domMetrics;
+    report.metrics.preSteer = preSteerMetrics;
+    report.metrics.postSteer = postSteerMetrics;
     report.metrics.server = {
       chatSendCalls: state.chatSendCalls.length,
       steerCalls: state.steerCalls.length,

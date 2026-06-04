@@ -291,7 +291,7 @@ export class ZavorthSmartCommandSurfaceService {
         noNetworkProbe: true,
         noSecretSerialization: true,
         noFilesystemMutationWithoutApproval: true,
-        noExternalAgentInvocation: true,
+        noRuntimeAdapterInvocation: true,
       },
       catalog: this.listCommands(),
     };
@@ -431,7 +431,7 @@ function replyFor(command: ZavorthSmartCommandResolution, ctx: CommandContext): 
     return {
       title: 'Plataformas do Zavorth',
       body: 'Superficies suportadas: CLI, dashboard, Telegram, Discord, WhatsApp/API e canais externos governados.',
-      hints: ['zavorth connectors doctor', 'zavorth external-agent-onboarding'],
+      hints: ['zavorth connectors doctor', 'zavorth capability-mesh --request "<pedido>"'],
     };
   }
   if (command.id === 'sethome') {

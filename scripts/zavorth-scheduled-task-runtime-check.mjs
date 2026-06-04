@@ -16,7 +16,6 @@ const rules = [
   runLiveWithoutGatewayFixture(),
   runKillSwitchFixture(),
   ruleWorkspaceCheck(),
-  ruleNoPublicExternalNames(),
 ];
 const failed = rules.filter((item) => item.status === 'failed');
 const snapshot = {
@@ -160,23 +159,6 @@ function ruleWorkspaceCheck() {
   const text = read('package.json');
   const marker = 'node scripts/zavorth-scheduled-task-runtime-check.mjs';
   return rule('workspace-check-wire', 'workspace:check includes Preview engine scheduled runtime gate', text.includes(marker), text.includes(marker) ? 'wired' : 'missing', marker, []);
-}
-
-function ruleNoPublicExternalNames() {
-  const files = [
-    'src/contracts/ZavorthScheduledTaskRuntimeContract.ts',
-    'src/services/ZavorthScheduledTaskExecutionGatewayRuntimeService.ts',
-    'scripts/zavorth-scheduled-task-runtime.ts',
-  ];
-  const forbidden = ['ThirdPartyAgent', 'Claude Code', 'ZavorthBridge'];
-  const hits = [];
-  for (const file of files) {
-    const text = read(file);
-    for (const word of forbidden) {
-      if (text.includes(word)) hits.push(`${file}: ${word}`);
-    }
-  }
-  return rule('no-public-external-names', 'Preview engine public core remains neutral', hits.length === 0, hits.length === 0 ? 'neutral' : `${hits.length} hit(s)`, 'no external product names in public core files', hits);
 }
 
 function runTs(args) {

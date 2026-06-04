@@ -104,7 +104,7 @@ export class ZavorthSemanticNativeCompanionDeviceCapabilityCertificationService 
         optionalRuntimeClaimsCertified: claims.filter((claim) => claim.kind === 'optional-runtime-policy').length,
         scenariosPassed: scenarios.filter((scenario) => scenario.status === 'passed').length,
         capabilityStatusCounts: capabilityStatusCounts(pack),
-        targetStatuses: Object.fromEntries(pack.parity.map((entry) => [entry.target, entry.status])),
+        targetStatuses: Object.fromEntries(pack.consistency.map((entry) => [entry.target, entry.status])),
         liveExternalIoPerformed: false,
         enabledByDefault: false,
         processSpawnedByDefault: false,
@@ -177,13 +177,13 @@ export class ZavorthSemanticNativeCompanionDeviceCapabilityCertificationService 
     scenarios: ZavorthSemanticNativeCompanionDeviceCapabilityScenario[],
   ): ZavorthSemanticNativeCompanionDeviceCapabilityClaim[] {
     return [
-      ...pack.parity.map((entry) => this.targetClaim(entry)),
+      ...pack.consistency.map((entry) => this.targetClaim(entry)),
       ...uniqueCapabilities(pack).map((capabilityId) => this.capabilityClaim(pack, capabilityId)),
       this.pwaBridgeClaim(pack),
       this.desktopBridgeClaim(pack),
       this.sharedDeviceRuntimeClaim(pack),
       this.optionalRuntimeClaim(pack),
-      ...pack.parity
+      ...pack.consistency
         .filter((entry) => entry.status === 'owner-gated')
         .map((entry) => this.wrapperGateClaim(entry)),
       ...this.permissionPolicyClaims(pack),
@@ -193,7 +193,7 @@ export class ZavorthSemanticNativeCompanionDeviceCapabilityCertificationService 
     ];
   }
 
-  private targetClaim(entry: ZavorthNativeCompanionDeviceSnapshot['parity'][number]): ZavorthSemanticNativeCompanionDeviceCapabilityClaim {
+  private targetClaim(entry: ZavorthNativeCompanionDeviceSnapshot['consistency'][number]): ZavorthSemanticNativeCompanionDeviceCapabilityClaim {
     return this.claim({
       kind: 'target-coverage',
       status: targetStatus(entry),
@@ -348,7 +348,7 @@ export class ZavorthSemanticNativeCompanionDeviceCapabilityCertificationService 
     });
   }
 
-  private wrapperGateClaim(entry: ZavorthNativeCompanionDeviceSnapshot['parity'][number]): ZavorthSemanticNativeCompanionDeviceCapabilityClaim {
+  private wrapperGateClaim(entry: ZavorthNativeCompanionDeviceSnapshot['consistency'][number]): ZavorthSemanticNativeCompanionDeviceCapabilityClaim {
     return this.claim({
       kind: 'wrapper-owner-gate',
       status: entry.ownerDecisionRequired && entry.enabledByDefault === false ? 'owner-gated' : 'gap',

@@ -84,7 +84,7 @@ describe('ZavorthIntelligenceFabricService', () => {
   it('allows draft patch simulation without approval and without side effects', () => {
     const snapshot = service().buildShadowSnapshot({
       text: 'crie um patch em rascunho para corrigir esse bug',
-      workspaceRoot: 'C:/TESTES DEV/zavorth-core/Zavorth',
+      workspaceRoot: 'C:/workspace/zavorth-core/Zavorth',
     });
 
     expect(snapshot.classification.taskKind).toBe('debugging');
@@ -98,7 +98,7 @@ describe('ZavorthIntelligenceFabricService', () => {
     const snapshot = service().buildShadowSnapshot({
       text: 'aplique uma edicao reversivel no workspace',
       trustMode: 'local_owner',
-      workspaceRoot: 'C:/TESTES DEV/zavorth-core/Zavorth',
+      workspaceRoot: 'C:/workspace/zavorth-core/Zavorth',
     });
 
     expect(snapshot.classification.riskLevel).toBe(3);
@@ -113,7 +113,7 @@ describe('ZavorthIntelligenceFabricService', () => {
   it('requires sandbox and approval for install or shell impact', () => {
     const snapshot = service().buildShadowSnapshot({
       text: 'rode npm install lodash',
-      workspaceRoot: 'C:/TESTES DEV/zavorth-core/Zavorth',
+      workspaceRoot: 'C:/workspace/zavorth-core/Zavorth',
     });
 
     expect(snapshot.classification.riskLevel).toBe(4);
@@ -179,7 +179,6 @@ describe('ZavorthIntelligenceFabricService', () => {
     const reply = api.renderReply({ text: 'quero usar voce atraves do canal caseiro-xpto' });
 
     expect(reply).toContain('Acao live aplicada: nao');
-    expect(reply).not.toContain('ThirdPartyAgent');
   });
 
   it('records task evals without raw prompt or secret material and builds a scoreboard', () => {

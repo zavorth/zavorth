@@ -1,5 +1,5 @@
 import type { CapabilitySourceMapping } from '../contracts/CapabilityNormalizationContract.js';
-import type { ChannelMeshParityEntry } from '../contracts/ChannelMeshParityContract.js';
+import type { ChannelMeshConsistencyEntry } from '../contracts/ChannelMeshConsistencyContract.js';
 import type {
   LiveReadinessEntry,
   LiveReadinessGate,
@@ -10,22 +10,22 @@ import type {
   LiveReadinessStatus,
 } from '../contracts/LiveReadinessContract.js';
 import { ZAVORTH_LIVE_READINESS_CONTRACT_VERSION } from '../contracts/LiveReadinessContract.js';
-import type { ProviderMeshParityProviderEntry } from '../contracts/ProviderMeshParityContract.js';
+import type { ProviderMeshReadinessProviderEntry } from '../contracts/ProviderMeshReadinessContract.js';
 import type { RuntimeFamilyClosureEntry } from '../contracts/RuntimeFamilyClosureContract.js';
 import {
   CapabilityNormalizationService,
   DEFAULT_PRIVATE_CAPABILITY_SOURCE_MODULES,
 } from './CapabilityNormalizationService.js';
-import { ChannelMeshParityService } from './ChannelMeshParityService.js';
-import { ProviderMeshParityService } from './ProviderMeshParityService.js';
+import { ChannelMeshConsistencyService } from './ChannelMeshConsistencyService.js';
+import { ProviderMeshReadinessService } from './ProviderMeshReadinessService.js';
 import { RuntimeFamilyClosureService } from './RuntimeFamilyClosureService.js';
 
 type LiveReadinessRuntime = {
   now?: () => Date;
   sourceModules?: string[];
   normalizationService?: CapabilityNormalizationService;
-  providerMeshParityService?: ProviderMeshParityService;
-  channelMeshParityService?: ChannelMeshParityService;
+  providerMeshReadinessService?: ProviderMeshReadinessService;
+  channelMeshConsistencyService?: ChannelMeshConsistencyService;
   runtimeFamilyClosureService?: RuntimeFamilyClosureService;
 };
 
@@ -151,8 +151,8 @@ export class LiveReadinessService {
   private readonly now: () => Date;
   private readonly sourceModules: string[];
   private readonly normalization: CapabilityNormalizationService;
-  private readonly providerMesh: ProviderMeshParityService;
-  private readonly channelMesh: ChannelMeshParityService;
+  private readonly providerMesh: ProviderMeshReadinessService;
+  private readonly channelMesh: ChannelMeshConsistencyService;
   private readonly runtimeFamilies: RuntimeFamilyClosureService;
 
   constructor(runtime: LiveReadinessRuntime = {}) {
@@ -162,11 +162,11 @@ export class LiveReadinessService {
       now: this.now,
       sourceModules: this.sourceModules,
     });
-    this.providerMesh = runtime.providerMeshParityService || new ProviderMeshParityService({
+    this.providerMesh = runtime.providerMeshReadinessService || new ProviderMeshReadinessService({
       now: this.now,
       normalizationService: this.normalization,
     });
-    this.channelMesh = runtime.channelMeshParityService || new ChannelMeshParityService({
+    this.channelMesh = runtime.channelMeshConsistencyService || new ChannelMeshConsistencyService({
       now: this.now,
       normalizationService: this.normalization,
     });
@@ -249,8 +249,8 @@ export class LiveReadinessService {
 
   public buildEntry(
     mapping: CapabilitySourceMapping,
-    providerEntry: ProviderMeshParityProviderEntry | null = null,
-    channelEntry: ChannelMeshParityEntry | null = null,
+    providerEntry: ProviderMeshReadinessProviderEntry | null = null,
+    channelEntry: ChannelMeshConsistencyEntry | null = null,
     runtimeEntry: RuntimeFamilyClosureEntry | null = null,
   ): LiveReadinessEntry {
     const classification = this.classify(mapping, providerEntry, channelEntry, runtimeEntry);
@@ -284,8 +284,8 @@ export class LiveReadinessService {
 
   private classify(
     mapping: CapabilitySourceMapping,
-    providerEntry: ProviderMeshParityProviderEntry | null,
-    channelEntry: ChannelMeshParityEntry | null,
+    providerEntry: ProviderMeshReadinessProviderEntry | null,
+    channelEntry: ChannelMeshConsistencyEntry | null,
     runtimeEntry: RuntimeFamilyClosureEntry | null,
   ): LiveClassification {
     if (!mapping.primitiveId) {
@@ -305,7 +305,7 @@ export class LiveReadinessService {
 
   private classifyProvider(
     mapping: CapabilitySourceMapping,
-    providerEntry: ProviderMeshParityProviderEntry,
+    providerEntry: ProviderMeshReadinessProviderEntry,
   ): LiveClassification {
     const requiredConfig = providerEntry.credentialPolicy.credentialRefs;
     const baseGates = this.commonGates(mapping, requiredConfig);
@@ -409,7 +409,7 @@ export class LiveReadinessService {
 
   private classifyChannel(
     mapping: CapabilitySourceMapping,
-    channelEntry: ChannelMeshParityEntry,
+    channelEntry: ChannelMeshConsistencyEntry,
   ): LiveClassification {
     const name = mapping.normalizedSourceName;
     const requiredConfig = channelEntry.credentialPolicy.credentialRefs;
@@ -636,7 +636,7 @@ export class LiveReadinessService {
     return {
       status: 'blocked',
       profileFloor: 'dry-audit',
-      recommendedPhase: 'Intent model3 - Live Parity Certification',
+      recommendedPhase: 'Intent model3 - Live Consistency Certification',
       reason,
       liveAdapterTarget: null,
       requiredConfig: [],

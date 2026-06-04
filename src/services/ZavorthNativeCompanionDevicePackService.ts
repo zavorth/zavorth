@@ -6,7 +6,7 @@ import type {
   ZavorthNativeCapabilityId,
   ZavorthNativeCapabilityReceipt,
   ZavorthNativeCompanionDeviceSnapshot,
-  ZavorthNativeParityEntry,
+  ZavorthNativeConsistencyEntry,
   ZavorthSatelliteCapabilityBridgeProof,
 } from '../contracts/ZavorthNativeCompanionDeviceContract.js';
 import { ZAVORTH_NATIVE_COMPANION_DEVICE_CONTRACT_VERSION } from '../contracts/ZavorthNativeCompanionDeviceContract.js';
@@ -52,14 +52,14 @@ export class ZavorthNativeCompanionDevicePackService {
     const satellite = await this.satelliteBridge.runProof();
     const desktop = this.desktopBridge.buildProof();
     const mlxTts = this.mlxTtsAdapter.buildReadinessReceipt();
-    const parity = this.buildParity({
+    const consistency = this.buildConsistency({
       satellite,
       desktop,
       mlxTts,
     });
-    const receipts = parity.flatMap((entry) => entry.receipts);
-    const targetsCovered = parity.filter((entry) => entry.status === 'covered').length;
-    const targetsOwnerGated = parity.filter((entry) => entry.status === 'owner-gated').length;
+    const receipts = consistency.flatMap((entry) => entry.receipts);
+    const targetsCovered = consistency.filter((entry) => entry.status === 'covered').length;
+    const targetsOwnerGated = consistency.filter((entry) => entry.status === 'owner-gated').length;
     const status = satellite.status === 'passed'
       && (desktop.status === 'passed' || desktop.status === 'attention')
       && targetsOwnerGated >= 3
@@ -79,21 +79,21 @@ export class ZavorthNativeCompanionDevicePackService {
         nodeVersion: process.version,
         cwd: normalizePath(this.cwd),
       },
-      parity,
+      consistency,
       satellite,
       desktop,
       mlxTts,
       summary: {
-        targets: parity.length,
+        targets: consistency.length,
         targetsCovered,
         targetsOwnerGated,
-        capabilitiesReported: new Set(parity.flatMap((entry) => entry.capabilities)).size,
+        capabilitiesReported: new Set(consistency.flatMap((entry) => entry.capabilities)).size,
         capabilityReceipts: receipts.length,
         pwaBridgeFunctional: satellite.status === 'passed',
         desktopBridgeFunctional: desktop.status === 'passed' || desktop.status === 'attention',
         mlxTtsOptionalRuntime: mlxTts.enabledByDefault === false && mlxTts.processSpawned === false,
         nativeWrappersOwnerGated: ['android-wrapper', 'ios-wrapper', 'macos-wrapper']
-          .every((target) => parity.find((entry) => entry.target === target)?.status === 'owner-gated'),
+          .every((target) => consistency.find((entry) => entry.target === target)?.status === 'owner-gated'),
         liveExternalIoPerformed: false,
         enabledByDefault: false,
         secretValuesSerialized: false,
@@ -138,7 +138,7 @@ export class ZavorthNativeCompanionDevicePackService {
       `Live external IO performed: ${snapshot.summary.liveExternalIoPerformed}`,
       'Targets:',
     ];
-    for (const entry of snapshot.parity) {
+    for (const entry of snapshot.consistency) {
       lines.push(`- ${entry.target}: ${entry.status}, decision=${entry.decision}, capabilities=${entry.capabilities.length}`);
     }
     lines.push(`Next: ${snapshot.commands.nextStage}`);
@@ -152,11 +152,11 @@ export class ZavorthNativeCompanionDevicePackService {
     return this.mlxTtsAdapter.buildPreviewReceipt(input);
   }
 
-  private buildParity(input: {
+  private buildConsistency(input: {
     satellite: ZavorthSatelliteCapabilityBridgeProof;
     desktop: ZavorthDesktopCompanionBridgeProof;
     mlxTts: ZavorthMlxTtsRuntimeReceipt;
-  }): ZavorthNativeParityEntry[] {
+  }): ZavorthNativeConsistencyEntry[] {
     const satelliteCapabilities: ZavorthNativeCapabilityId[] = [
       'camera.capture',
       'location.read',
@@ -242,7 +242,7 @@ export class ZavorthNativeCompanionDevicePackService {
   private ownerGatedWrapper(
     target: 'android-wrapper' | 'ios-wrapper' | 'macos-wrapper',
     capabilities: ZavorthNativeCapabilityId[],
-  ): ZavorthNativeParityEntry {
+  ): ZavorthNativeConsistencyEntry {
     return {
       target,
       decision: 'owner-gated',

@@ -162,13 +162,13 @@ export class CodexRuntimePlaneService {
         approvalFirstForSensitiveActions: true,
       },
       commands: {
-        check: 'npm run codex-runtime-parity:check --silent',
+        check: 'npm run codex-runtime-certification:check --silent',
         focusedTests: [
           'npx jest tests/services/CodexRuntimePlaneService.test.ts --runInBand',
-          'npm run codex-runtime-parity:check --silent',
+          'npm run codex-runtime-certification:check --silent',
         ],
         typecheck: 'npm run runtime:check --silent',
-        nextWorker: 'Worker 3 - OpenShell Sandbox Plane parity',
+        nextWorker: 'Worker 3 - OpenShell Sandbox Plane consistency',
       },
     };
   }
@@ -313,7 +313,7 @@ export class CodexRuntimePlaneService {
 
   private assertCodexMapping(mapping: CapabilitySourceMapping): void {
     if (mapping.primitiveId !== 'agent.runtime' || mapping.status !== 'normalized') {
-      throw new Error('Codex source module must be normalized as agent.runtime before runtime parity closure.');
+      throw new Error('Codex source module must be normalized as agent.runtime before runtime certification closure.');
     }
   }
 

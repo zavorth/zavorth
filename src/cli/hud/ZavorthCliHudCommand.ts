@@ -32,6 +32,9 @@ export function runZavorthCliHud(input: RunZavorthCliHudInput): RunZavorthCliHud
   const mutationPlane = input.mutationPlane || new ZavorthMutationPlaneService();
   const runtimeMode = shouldRenderRuntimeTui(args, input.inputKeys || []);
   if (runtimeMode) {
+    const runtimeRenderMode = args.includes('--technical') || args.includes('--full') || args.includes('--diagnostics')
+      ? 'technical'
+      : 'daily';
     const snapshot = buildZavorthCliRuntimeTuiSnapshot({
       projectRoot: input.projectRoot,
       mode: args.includes('--watch') ? 'watch' : input.tty ? 'interactive' : 'snapshot',
@@ -41,7 +44,7 @@ export function runZavorthCliHud(input: RunZavorthCliHudInput): RunZavorthCliHud
     });
     const output = input.json || args.includes('--json')
       ? `${JSON.stringify(snapshot, null, 2)}\n`
-      : `${renderZavorthCliRuntimeTui(snapshot)}\n`;
+      : `${renderZavorthCliRuntimeTui(snapshot, { mode: runtimeRenderMode })}\n`;
     const hudSnapshot = buildZavorthCliHudSnapshot({
       projectRoot: input.projectRoot,
       mode: 'snapshot',

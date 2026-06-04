@@ -8,7 +8,7 @@ function createProviderSnapshot(overrides: Partial<any> = {}) {
   return {
     activeProviderName: 'gemini',
     activeModelName: 'gemini-2.5-flash',
-    preferredZavorthBridgeModel: 'omni-route-coder',
+    preferredZavorthBridgeModel: 'ai-gateway-coder',
     readyCount: 1,
     needsConfigurationCount: 1,
     needsProbeCount: 1,

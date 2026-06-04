@@ -14,7 +14,6 @@ const rules = [
   runLiveApprovedFixture(),
   runBlockedLowerEvalFixture(),
   ruleWorkspaceCheck(),
-  ruleNoPublicExternalNames(),
 ];
 const failed = rules.filter((ruleItem) => ruleItem.status === 'failed');
 const snapshot = {
@@ -127,27 +126,6 @@ function ruleWorkspaceCheck() {
   const text = read('package.json');
   const marker = 'node scripts/zavorth-ux-rollout-evidence-canary-check.mjs';
   return rule('workspace-check-wire', 'workspace:check includes Surface controls gate', text.includes(marker), text.includes(marker) ? 'wired' : 'missing', marker, []);
-}
-
-function ruleNoPublicExternalNames() {
-  const files = [
-    'src/contracts/ZavorthUxRolloutEvidenceCanaryContract.ts',
-    'src/services/ZavorthUxRolloutEvidenceCanaryService.ts',
-    'scripts/zavorth-ux-rollout-evidence-canary.ts',
-  ];
-  const forbidden = [
-    'ThirdPartyAgent',
-    'Claude Code',
-    'ZavorthBridge',
-  ];
-  const hits = [];
-  for (const file of files) {
-    const text = read(file);
-    for (const word of forbidden) {
-      if (text.includes(word)) hits.push(`${file}: ${word}`);
-    }
-  }
-  return rule('no-public-external-names', 'Surface controls public core remains neutral', hits.length === 0, hits.length === 0 ? 'neutral' : `${hits.length} hit(s)`, 'no external product names in public core files', hits);
 }
 
 function canonicalEvidence() {

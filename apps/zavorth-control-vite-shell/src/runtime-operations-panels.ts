@@ -534,7 +534,7 @@ export function createRuntimeOperationsPanels(options: RuntimeOperationsPanelsOp
     options.updatePremiumStatus('Safe execution', backendCount ? `${backendCount} visible` : 'approval gated', backendCount ? 'ok' : 'warn');
     options.updatePlatformAction('sector-nodes', 'File memory', hasMnemos ? 'Memory tools are visible in the runtime.' : 'Memory scope is configurable.');
     options.updatePlatformAction('sector-nodes', 'Parallel work', hasSwarm ? 'Ready with cost limits and receipts.' : 'Active when a task asks for parallel work.');
-    options.updatePlatformAction('sector-nodes', 'Connect agent', companions.length ? `${companions.length} consented profile(s).` : 'Only from a path you provide.');
+    options.updatePlatformAction('sector-nodes', 'Connect adapter', companions.length ? `${companions.length} consented profile(s).` : 'Only from a path you provide.');
     options.updatePlatformAction('sector-nodes', 'Execution environments', backendCount ? `${backendCount} visible backend signal(s).` : 'Shell, files, and remote actions require scope.');
 
     options.setTableHeaders('sector-nodes', ['Node', 'Type', 'Processes', 'Memory', 'Summary', 'Actions', 'Status']);

@@ -3065,7 +3065,7 @@ ${current}` : skillPrompt;
         `Protocol: WebSocket/SSE\nEndpoint: ${location.origin}/api\nModel:    ${getCurrentModelLabel()}\nRoute:    ${getCurrentModelRouteLabel()}`
       );
       appendEcho('core',
-        'Zavorth is online. The local gateway is connected.\n\nAsk naturally; I will show preview, risk and approval when an action needs it.',
+        'Zavorth is online. Ask normally. Low-risk maintenance stays quiet; real decisions appear when needed.',
         cells
       );
     }, 400);
@@ -3124,20 +3124,6 @@ ${current}` : skillPrompt;
     });
   }
 
-  const onboardingToggle = document.getElementById('onboarding-toggle');
-  if (onboardingToggle) {
-    onboardingToggle.addEventListener('click', () => {
-      const hero = document.getElementById('terminal-hero');
-      if (hero) {
-        const isCollapsed = !hero.classList.contains('show-onboarding');
-        hero.classList.toggle('show-onboarding', isCollapsed);
-        onboardingToggle.classList.toggle('is-active', isCollapsed);
-        const label = onboardingToggle.querySelector('span');
-        if (label) {
-          label.textContent = isCollapsed ? 'Ocultar Guia' : 'Guia de Governança';
-        }
-      }
-    });
-  }
+
 
 })();

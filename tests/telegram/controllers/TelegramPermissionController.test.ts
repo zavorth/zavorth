@@ -202,7 +202,7 @@ describe('TelegramPermissionController', () => {
       resolved_value: 'zavorth',
       metadata: {
         agent_role: 'reviewer',
-        suggested_command: 'external agents bind zavorth --workspace "/mnt/c/repo" --non-interactive',
+        suggested_command: 'runtime adapters bind zavorth --workspace "/mnt/c/repo" --non-interactive',
       },
     } as any);
 

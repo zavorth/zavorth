@@ -127,7 +127,7 @@ export class IdentityContainmentService {
       id: 'runtime-agent-connectors',
       category: 'file-path',
       description: 'Governed external runtime connector surface.',
-      location: 'src/runtime/external-agents/',
+      location: 'src/runtime/zavorth-runtime-adapters/',
       occurrences: 1,
       status: 'migrated',
       nativeReplacement: 'src/runtime/execution-adapters/',

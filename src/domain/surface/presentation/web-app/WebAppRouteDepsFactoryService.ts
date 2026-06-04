@@ -63,7 +63,7 @@ type WebAppRouteDepsFactoryOptions = {
   startupService: SurfaceDependency;
   officialRemoteAccess: SurfaceDependency;
   remoteAccess: SurfaceDependency;
-  surfaceParity: SurfaceDependency;
+  surfaceConsistency: SurfaceDependency;
   consoleAssets: SurfaceDependency;
   channelInstall: SurfaceDependency;
   channelProviderDoctor: SurfaceDependency;
@@ -246,7 +246,7 @@ export class WebAppRouteDepsFactoryService {
       startupService: this.options.startupService,
       officialRemoteAccess: this.options.officialRemoteAccess,
       remoteAccess: this.options.remoteAccess,
-      surfaceParity: this.options.surfaceParity,
+      surfaceConsistency: this.options.surfaceConsistency,
       consoleAssets: this.options.consoleAssets,
       runtime: this.options.getRuntime()!,
       realtime: this.options.getRealtime()!,

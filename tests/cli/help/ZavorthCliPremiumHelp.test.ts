@@ -56,7 +56,7 @@ describe('Zavorth premium CLI help', () => {
     expect(setup).toContain('zavorth open');
   });
 
-  test('renders parity command namespaces as Zavorth-native help pages', () => {
+  test('renders consistency command namespaces as Zavorth-native help pages', () => {
     const plugins = formatCliHelp('plugins');
     const message = formatCliHelp('message');
     const backup = formatCliHelp('backup');

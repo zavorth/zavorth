@@ -9,7 +9,7 @@ import type { RuntimeBootstrapRepairService } from '../../../../services/Runtime
 import type { RuntimeStartupService } from '../../../../services/RuntimeStartupService.js';
 import type { RuntimeOfficialRemoteAccessService } from '../../../../runtime/access/RuntimeOfficialRemoteAccessService.js';
 import type { RuntimeRemoteAccessService } from '../../../../runtime/access/RuntimeRemoteAccessService.js';
-import { SharedSurfaceParityService } from '../../../../services/SharedSurfaceParityService.js';
+import { SharedSurfaceConsistencyService } from '../../../../services/SharedSurfaceConsistencyService.js';
 import { WebConsoleAssetService } from '../web-console/WebConsoleAssetService.js';
 import { WebRealtimeService } from '../../../../services/WebRealtimeService.js';
 import type { SessionV2Service } from '../../../../services/SessionV2Service.js';
@@ -79,7 +79,7 @@ type BuildStatusSnapshot = (sessionId: string) => Promise<any>;
 type BuildMetricsSnapshot = (sessionId: string) => Promise<any>;
 type ExecuteLearningAction = (input: {
   candidateId: string;
-  actionId: 'approve' | 'reject' | 'promote';
+  actionId: 'approve' | 'reject' | 'promote' | 'forget' | 'promoteProcedure' | 'promoteSkill';
 }) => Promise<any> | any;
 type SearchLayeredMemory = (input: {
   sessionId: string;
@@ -112,7 +112,7 @@ export type WebAppRuntimeRouteDeps = {
   startupService?: Pick<RuntimeStartupService, 'startAndWait'> | null;
   officialRemoteAccess: Pick<RuntimeOfficialRemoteAccessService, 'inspect' | 'runAction'>;
   remoteAccess: Pick<RuntimeRemoteAccessService, 'inspect'>;
-  surfaceParity: SharedSurfaceParityService;
+  surfaceConsistency: SharedSurfaceConsistencyService;
   consoleAssets: WebConsoleAssetService;
   runtime: SharedSurfaceRuntime;
   realtime: WebRealtimeService;

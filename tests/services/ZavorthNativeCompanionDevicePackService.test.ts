@@ -136,7 +136,7 @@ describe('ZavorthNativeCompanionDevicePackService Runtime gateway', () => {
       enabledByDefault: false,
       secretValuesSerialized: false,
     }));
-    expect(snapshot.parity).toEqual(expect.arrayContaining([
+    expect(snapshot.consistency).toEqual(expect.arrayContaining([
       expect.objectContaining({
         target: 'satellite-pwa',
         status: 'covered',

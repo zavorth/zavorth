@@ -42,7 +42,7 @@ function filesExist() {
     'scripts/zavorth-product-qa-live.ts',
     'scripts/zavorth-product-qa-live-check.mjs',
     'tests/services/ZavorthProductQaLiveService.test.ts',
-    'docs/product-qa-live.md',
+    'docs/operations.md',
   ];
   const missing = files.filter((file) => !existsSync(join(root, file)));
   return rule('files', missing.length === 0, `${files.length - missing.length}/${files.length} files present`, missing);

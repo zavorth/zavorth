@@ -131,7 +131,7 @@ function guidanceForAction(
     }
     return `${item.label} is not live-ready. Use setup, pairing and proof first; outbound work must use safe outbox or stay blocked.`;
   }
-  return `${item.label} is represented by the Phase 2 all-channel contract. Catalog support is not live proof.`;
+    return `${item.label} is represented by the all-channel readiness contract. Catalog support is not live proof.`;
 }
 
 function yesNo(value: boolean): string {

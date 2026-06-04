@@ -10,12 +10,12 @@ import type {
 } from '../contracts/NativeCapabilityClosureContract.js';
 import { ZAVORTH_NATIVE_CAPABILITY_CLOSURE_CONTRACT_VERSION } from '../contracts/NativeCapabilityClosureContract.js';
 import { CapabilityNormalizationService } from './CapabilityNormalizationService.js';
-import { ParityCertificationService } from './ParityCertificationService.js';
+import { ReleaseCertificationService } from './ReleaseCertificationService.js';
 
 type NativeCapabilityClosureRuntime = {
   now?: () => Date;
   capabilityNormalizationService?: CapabilityNormalizationService;
-  parityCertificationService?: ParityCertificationService;
+  releaseCertificationService?: ReleaseCertificationService;
 };
 
 const CLOSED_PRIMITIVES = new Set([
@@ -32,14 +32,14 @@ const CLOSED_PRIMITIVES = new Set([
 export class NativeCapabilityClosureService {
   private readonly now: () => Date;
   private readonly normalization: CapabilityNormalizationService;
-  private readonly certification: ParityCertificationService;
+  private readonly certification: ReleaseCertificationService;
 
   constructor(runtime: NativeCapabilityClosureRuntime = {}) {
     this.now = runtime.now || (() => new Date());
     this.normalization = runtime.capabilityNormalizationService || new CapabilityNormalizationService({
       now: this.now,
     });
-    this.certification = runtime.parityCertificationService || new ParityCertificationService({
+    this.certification = runtime.releaseCertificationService || new ReleaseCertificationService({
       now: this.now,
     });
   }
@@ -86,7 +86,7 @@ export class NativeCapabilityClosureService {
       commands: {
         check: 'npm run native-capability-closure:check --silent',
         capabilityNormalization: 'npm run capability-normalization:check --silent',
-        certify: 'npm run parity-certify --silent',
+        certify: 'npm run release-certify --silent',
         nextStage: 'Etapa 13 - Remaining Runtime Decisions',
       },
       policy: {

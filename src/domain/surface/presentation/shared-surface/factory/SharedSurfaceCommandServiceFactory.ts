@@ -48,7 +48,7 @@ import { RuntimeOfficialRemoteAccessService } from "../../../../../runtime/acces
 import { GatewayCompatibilityDoctorService } from "../../../../../services/GatewayCompatibilityDoctorService.js";
 import { GatewayUpstreamSyncService } from "../../../../../services/GatewayUpstreamSyncService.js";
 import { ZavorthGatewayLauncherService } from "../../../../../services/ZavorthGatewayLauncherService.js";
-import { SharedSurfaceParityService } from "../../../../../services/SharedSurfaceParityService.js";
+import { SharedSurfaceConsistencyService } from "../../../../../services/SharedSurfaceConsistencyService.js";
 import { SkillCatalogApiService } from "../../../../../services/SkillCatalogApiService.js";
 import { SkillMcpSidecarService } from "../../../../../services/SkillMcpSidecarService.js";
 import { SkillLibraryPresentationService } from "../../../../../services/SkillLibraryPresentationService.js";
@@ -390,8 +390,8 @@ export function buildSharedSurfaceCommandServiceComposition(
       desktopResources: desktopResourcePlaneService as any,
     });
   const modeEscalationService = deps.modeEscalationService || null;
-  const sharedSurfaceParityService =
-    deps.sharedSurfaceParityService || new SharedSurfaceParityService();
+  const sharedSurfaceConsistencyService =
+    deps.sharedSurfaceConsistencyService || new SharedSurfaceConsistencyService();
   const AIGatewayGatewayService =
     deps.AIGatewayGatewayService || new AIGatewayProxyService();
   const AIGatewayGatewayLauncherService =
@@ -539,7 +539,7 @@ export function buildSharedSurfaceCommandServiceComposition(
       workspaceOptimizerService,
       taskResourcePlannerService,
       modeEscalationService,
-      sharedSurfaceParityService,
+      sharedSurfaceConsistencyService,
       AIGatewayGatewayService,
       AIGatewayGatewayLauncherService,
       GatewayCompatibilityDoctorService: gatewayCompatibilityDoctorService,

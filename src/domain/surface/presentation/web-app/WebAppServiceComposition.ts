@@ -47,7 +47,7 @@ import type {
 } from '../../../../contracts/SatelliteContract.js';
 import { SessionV2Service } from '../../../../services/SessionV2Service.js';
 import { SelfModificationCommandService } from '../../../../services/SelfModificationCommandService.js';
-import { SharedSurfaceParityService } from '../../../../services/SharedSurfaceParityService.js';
+import { SharedSurfaceConsistencyService } from '../../../../services/SharedSurfaceConsistencyService.js';
 import { SkillCatalogApiService } from '../../../../services/SkillCatalogApiService.js';
 import { SkillInstallPlanPresentationService } from '../../../../services/SkillInstallPlanPresentationService.js';
 import { SkillLibraryPresentationService } from '../../../../services/SkillLibraryPresentationService.js';
@@ -237,7 +237,7 @@ export type WebAppServiceComposition = {
   startupService: RuntimeStartupService;
   officialRemoteAccess: RuntimeOfficialRemoteAccessService;
   remoteAccess: RuntimeRemoteAccessService;
-  surfaceParity: SharedSurfaceParityService;
+  surfaceConsistency: SharedSurfaceConsistencyService;
   webSecurity: WebAppSecurityService;
   consoleAssets: WebConsoleAssetService;
   satellitePwaRoutes: SatellitePwaRouteService;
@@ -336,7 +336,7 @@ export function createWebAppServiceComposition(
   const remoteAccess = new RuntimeRemoteAccessService({
     officialRemoteAccessService: officialRemoteAccess,
   });
-  const surfaceParity = new SharedSurfaceParityService();
+  const surfaceConsistency = new SharedSurfaceConsistencyService();
   const webSecurity = new WebAppSecurityService(options.auth);
   const consoleAssets = new WebConsoleAssetService();
   const satellitePwaRoutes = new SatellitePwaRouteService();
@@ -371,7 +371,7 @@ export function createWebAppServiceComposition(
     selfModificationService: selfModificationCommandService,
     swarmScalePlaneService: swarmScalePlane,
   });
-  agentGateway.attachRuntimeEventBus(createWebAgentRunRuntimeEventBus(options.getRealtime));
+  agentGateway.addRuntimeEventBus(createWebAgentRunRuntimeEventBus(options.getRealtime));
   const permissionAuditService = new PermissionService();
   const capabilityLifecycle = new CapabilityLifecycleService();
   const mutationPlane = new ZavorthMutationPlaneService();
@@ -506,7 +506,7 @@ export function createWebAppServiceComposition(
     startupService,
     officialRemoteAccess,
     remoteAccess,
-    surfaceParity,
+    surfaceConsistency,
     consoleAssets,
     channelInstall,
     channelProviderDoctor,
@@ -547,7 +547,7 @@ export function createWebAppServiceComposition(
     startupService,
     officialRemoteAccess,
     remoteAccess,
-    surfaceParity,
+    surfaceConsistency,
     webSecurity,
     consoleAssets,
     satellitePwaRoutes,

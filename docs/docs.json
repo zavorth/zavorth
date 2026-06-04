@@ -1,0 +1,155 @@
+{
+  "$schema": "https://mintlify.com/docs.json",
+  "theme": "mint",
+  "name": "Zavorth",
+  "colors": {
+    "primary": "#6D28D9",
+    "light": "#8B5CF6",
+    "dark": "#4C1D95"
+  },
+  "favicon": "/favicon.svg",
+  "font": {
+    "headings": {
+      "family": "Inter"
+    },
+    "body": {
+      "family": "Inter"
+    }
+  },
+  "background": {
+    "color": {
+      "light": "#FAFAF9",
+      "dark": "#0C0A14"
+    }
+  },
+  "logo": {
+    "light": "/logo.svg",
+    "dark": "/logo.svg",
+    "href": "/"
+  },
+  "navbar": {
+    "links": [
+      {
+        "label": "GitHub",
+        "href": "https://github.com/zavorth/zavorth-core"
+      },
+      {
+        "label": "Discord",
+        "href": "https://discord.gg/zavorth"
+      }
+    ],
+    "primary": {
+      "type": "button",
+      "label": "Get started",
+      "href": "/produto/start/getting-started"
+    }
+  },
+  "navigation": {
+    "tabs": [
+      {
+        "tab": "Get started",
+        "groups": [
+          {
+            "group": "Overview",
+            "pages": [
+              "produto/index",
+              "produto/start/what-is-zavorth",
+              "produto/start/showcase"
+            ]
+          },
+          {
+            "group": "First steps",
+            "pages": [
+              "produto/start/getting-started",
+              "produto/start/onboarding"
+            ]
+          },
+          {
+            "group": "Core concepts",
+            "pages": [
+              "produto/conceitos/features",
+              "produto/conceitos/aprovacoes",
+              "produto/conceitos/memoria"
+            ]
+          }
+        ]
+      },
+      {
+        "tab": "Channels",
+        "groups": [
+          {
+            "group": "Channels",
+            "pages": [
+              "produto/canais/index",
+              "produto/canais/telegram",
+              "produto/canais/discord",
+              "produto/canais/whatsapp",
+              "produto/canais/slack",
+              "produto/canais/signal",
+              "produto/canais/email"
+            ]
+          }
+        ]
+      },
+      {
+        "tab": "Models",
+        "groups": [
+          {
+            "group": "AI Providers",
+            "pages": [
+              "produto/providers/index",
+              "produto/providers/gemini",
+              "produto/providers/anthropic",
+              "produto/providers/local",
+              "produto/providers/custom"
+            ]
+          }
+        ]
+      },
+      {
+        "tab": "Skills",
+        "groups": [
+          {
+            "group": "Skills",
+            "pages": [
+              "produto/skills/index",
+              "produto/skills/instalar",
+              "produto/skills/criar"
+            ]
+          }
+        ]
+      },
+      {
+        "tab": "Reference",
+        "groups": [
+          {
+            "group": "Interfaces",
+            "pages": [
+              "produto/interfaces/zavorthcontrol",
+              "produto/interfaces/cli"
+            ]
+          },
+          {
+            "group": "Help",
+            "pages": [
+              "produto/ajuda/troubleshooting",
+              "produto/ajuda/faq",
+              "produto/ajuda/glossario"
+            ]
+          },
+          {
+            "group": "What's New",
+            "pages": [
+              "produto/changelog"
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  "footer": {
+    "socials": {
+      "github": "https://github.com/zavorth/zavorth-core"
+    }
+  }
+}

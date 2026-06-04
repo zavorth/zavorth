@@ -433,8 +433,8 @@ export class WebAppRuntimeInteractionRouteService {
   ): Promise<boolean> {
     const body = await deps.readJsonBody(req);
     const candidateId = String(body.candidateId || '').trim();
-    const actionId = String(body.actionId || '').trim();
-    if (!candidateId || !['approve', 'reject', 'promote'].includes(actionId)) {
+    const actionId = normalizeLearningDreamActionId(body.actionId);
+    if (!candidateId || !actionId) {
       deps.writeJson(res, { ok: false, error: 'candidateId and supported actionId are required' }, 400);
       return true;
     }
@@ -447,11 +447,17 @@ export class WebAppRuntimeInteractionRouteService {
     };
     state.entries[candidateId] = {
       ...current,
-      reviewState: actionId === 'reject' ? 'rejected' : 'approved',
-      lifecycle: actionId === 'promote' ? 'trusted_local' : actionId === 'reject' ? 'quarantined' : current.lifecycle,
+      reviewState: actionId === 'reject' || actionId === 'forget' ? 'rejected' : 'approved',
+      lifecycle: actionId === 'promote' || actionId === 'promoteSkill' || actionId === 'promoteProcedure'
+        ? 'trusted_local'
+        : actionId === 'reject' || actionId === 'forget'
+          ? 'quarantined'
+          : current.lifecycle,
       updatedAt: now,
-      promotedAt: actionId === 'promote' ? now : current.promotedAt || null,
-      rejectedAt: actionId === 'reject' ? now : current.rejectedAt || null,
+      promotedAt: actionId === 'promote' || actionId === 'promoteSkill' || actionId === 'promoteProcedure'
+        ? now
+        : current.promotedAt || null,
+      rejectedAt: actionId === 'reject' || actionId === 'forget' ? now : current.rejectedAt || null,
     };
     state.updatedAt = now;
     this.writeLearningState(state);
@@ -1251,4 +1257,25 @@ export class WebAppRuntimeInteractionRouteService {
     }
     return true;
   }
+}
+
+function normalizeLearningDreamActionId(value: unknown):
+  | 'approve'
+  | 'reject'
+  | 'promote'
+  | 'forget'
+  | 'promoteProcedure'
+  | 'promoteSkill'
+  | null {
+  const normalized = String(value || '').trim().replace(/_/g, '-').toLowerCase();
+  if (normalized === 'approve' || normalized === 'reject' || normalized === 'promote' || normalized === 'forget') {
+    return normalized;
+  }
+  if (normalized === 'promote-procedure' || normalized === 'promoteprocedure') {
+    return 'promoteProcedure';
+  }
+  if (normalized === 'promote-skill' || normalized === 'promoteskill') {
+    return 'promoteSkill';
+  }
+  return null;
 }

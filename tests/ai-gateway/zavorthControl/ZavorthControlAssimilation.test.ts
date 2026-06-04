@@ -11,14 +11,14 @@ import {
   ZavorthAgentGateway,
 } from '../../../src/runtime/agent/index.js';
 import {
-  ExternalAgentCapabilityProvider,
-  ExternalAgentChannelBridge,
-  ExternalAgentSessionMemoryBridge,
-} from '../../../src/runtime/external-agents/index.js';
+  RuntimeAdapterCapabilityProvider,
+  RuntimeAdapterChannelBridge,
+  RuntimeAdapterSessionMemoryBridge,
+} from '../../../src/runtime/zavorth-runtime-adapters/index.js';
 import {
   FixtureExternalExecutorSidecarClient,
   QuarantinedExternalExecutorSidecarAdapter,
-} from '../../../src/runtime/external-agents/external-executor/index.js';
+} from '../../../src/runtime/zavorth-runtime-adapters/external-executor/index.js';
 
 function createIdFactory() {
   let index = 0;
@@ -35,7 +35,7 @@ describe('Plan 111 Surface controls ZavorthControl assimilation', () => {
       client,
       now: () => new Date('2026-04-27T22:00:00.000Z'),
     });
-    const capabilityProvider = new ExternalAgentCapabilityProvider({
+    const capabilityProvider = new RuntimeAdapterCapabilityProvider({
       adapter,
       now: () => new Date('2026-04-27T22:01:00.000Z'),
     });
@@ -78,7 +78,7 @@ describe('Plan 111 Surface controls ZavorthControl assimilation', () => {
         ],
       }),
     });
-    const channelBridge = new ExternalAgentChannelBridge({
+    const channelBridge = new RuntimeAdapterChannelBridge({
       adapter,
       gateway,
       now: () => new Date('2026-04-27T22:03:00.000Z'),
@@ -87,7 +87,7 @@ describe('Plan 111 Surface controls ZavorthControl assimilation', () => {
     const [sourceEvent] = await adapter.pullTestEvents();
     const bridged = await channelBridge.bridgeInboundEvent(sourceEvent);
     const [sourceSession] = await adapter.listSessions();
-    const sessionBridge = new ExternalAgentSessionMemoryBridge({
+    const sessionBridge = new RuntimeAdapterSessionMemoryBridge({
       adapter,
       now: () => new Date('2026-04-27T22:04:00.000Z'),
     });

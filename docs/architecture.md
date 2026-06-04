@@ -46,7 +46,7 @@ Sensitive work follows one path:
 5. request approval when needed;
 6. keep execution read-only, dry-run or executor-ready;
 7. emit a visual receipt;
-8. prepare rollback evidence before mutation.
+8. prepare rollback receipts before mutation.
 
 Use `zavorth chat "edit src/index.ts"` for the normal CLI entry. ZavorthControl can
 render sensitive work as an action card, but it does not execute actions by

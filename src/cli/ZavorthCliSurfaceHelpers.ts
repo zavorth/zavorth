@@ -23,9 +23,9 @@ import {
 } from './ZavorthCliMascot.js';
 import { padCliVisualText, paintCliTone, stripCliAnsi } from './ZavorthCliVisualTheme.js';
 import {
-  formatZavorthParityHelp,
+  formatZavorthCertificationHelp,
   getZavorthPublicCommandRows,
-} from './ZavorthCliParityCommands.js';
+} from './ZavorthCliCertificationCommands.js';
 
 export type CliHelpSnapshot = {
   surface: 'zavorth-cli';
@@ -553,7 +553,7 @@ const CLI_COMMAND_HELP_PAGES: Record<Exclude<CliHelpTopic, 'root'>, CliHelpPage>
   acp: {
     topic: 'acp',
     title: 'zavorth acp',
-    summary: 'Zavorth-native ACP-compatible channel adapter for external agent frames, handshakes and tool requests.',
+    summary: 'Zavorth-native ACP-compatible channel adapter for ACP frames, handshakes and tool requests.',
     sections: [
       {
         title: 'Commands',
@@ -1451,9 +1451,9 @@ function formatPublicCommandHelp(target?: string | null): string | null {
   const topic = String(target || '').trim().toLowerCase().split(/\s+/u)[0] || '';
   const localGuidedPages = new Set(['home', 'hatch', 'quickstart', 'setup', 'onboard', 'onboarding']);
   if (!localGuidedPages.has(topic)) {
-    const parityHelp = formatZavorthParityHelp(topic);
-    if (parityHelp) {
-      return parityHelp;
+    const certificationHelp = formatZavorthCertificationHelp(topic);
+    if (certificationHelp) {
+      return certificationHelp;
     }
   }
   const pages: Record<string, {

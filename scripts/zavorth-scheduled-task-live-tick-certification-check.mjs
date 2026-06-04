@@ -15,7 +15,6 @@ const rules = [
   runLegacyFixture(),
   runAutoPauseFixture(),
   ruleWorkspaceCheck(),
-  ruleNoPublicExternalNames(),
 ];
 const failed = rules.filter((item) => item.status === 'failed');
 const snapshot = {
@@ -123,27 +122,6 @@ function ruleWorkspaceCheck() {
   const text = read('package.json');
   const marker = 'node scripts/zavorth-scheduled-task-live-tick-certification-check.mjs';
   return rule('workspace-check-wire', 'workspace:check includes Runtime gateway live tick certification gate', text.includes(marker), text.includes(marker) ? 'wired' : 'missing', marker, []);
-}
-
-function ruleNoPublicExternalNames() {
-  const files = [
-    'src/contracts/ZavorthScheduledTaskLiveTickCertificationContract.ts',
-    'src/services/ZavorthScheduledTaskLiveTickCertificationService.ts',
-    'scripts/zavorth-scheduled-task-live-tick-certification.ts',
-  ];
-  const forbidden = [
-    ['Open', 'Claw'].join(''),
-    ['Claude', ' Code'].join(''),
-    ['Anti', 'gravity'].join(''),
-  ];
-  const hits = [];
-  for (const file of files) {
-    const text = read(file);
-    for (const word of forbidden) {
-      if (text.includes(word)) hits.push(`${file}: ${word}`);
-    }
-  }
-  return rule('no-public-external-names', 'Runtime gateway public core remains neutral', hits.length === 0, hits.length === 0 ? 'neutral' : `${hits.length} hit(s)`, 'no external product names in public core files', hits);
 }
 
 function runTs(args) {

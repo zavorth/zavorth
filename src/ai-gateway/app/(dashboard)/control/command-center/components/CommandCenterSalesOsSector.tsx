@@ -198,7 +198,7 @@ export function CommandCenterSalesOsSector({
           <div className="bcc-list">
             {bridges.length > 0 ? bridges.map((bridge) => (
               <div key={asText(bridge.id, "bridge")} className="bcc-list-item">
-                <span className="bcc-list-item__title">{asText(bridge.agentName, "Agente externo")}</span>
+                <span className="bcc-list-item__title">{asText(bridge.agentName, "Cliente ACP")}</span>
                 <span className="bcc-list-item__meta">
                   {asText(bridge.primaryProtocol, "protocolo")} - {asText(bridge.status, "status")} - {asText(readRecord(bridge.connection)?.redacted, "conexao redigida")}
                 </span>

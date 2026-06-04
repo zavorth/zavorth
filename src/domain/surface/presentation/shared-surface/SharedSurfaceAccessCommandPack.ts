@@ -3,14 +3,14 @@ import type { RuntimeAccessManifestService } from '../../../../runtime/access/Ru
 import type { RuntimeBootstrapService } from '../../../../runtime/access/RuntimeBootstrapService.js';
 import type { RuntimeInstallJourneyService } from '../../../../runtime/access/RuntimeInstallJourneyService.js';
 import type { RuntimeOfficialRemoteAccessService } from '../../../../runtime/access/RuntimeOfficialRemoteAccessService.js';
-import type { SharedSurfaceParityService } from '../../../../services/SharedSurfaceParityService.js';
+import type { SharedSurfaceConsistencyService } from '../../../../services/SharedSurfaceConsistencyService.js';
 
 type SharedSurfaceAccessCommandPackDeps = {
   runtimeAccessManifestService: Pick<RuntimeAccessManifestService, 'buildManifest'>;
   runtimeBootstrapService: Pick<RuntimeBootstrapService, 'inspectLive'>;
   runtimeInstallJourneyService: Pick<RuntimeInstallJourneyService, 'run'>;
   runtimeOfficialRemoteAccessService: Pick<RuntimeOfficialRemoteAccessService, 'inspect'>;
-  sharedSurfaceParityService: Pick<SharedSurfaceParityService, 'buildManifest'>;
+  sharedSurfaceConsistencyService: Pick<SharedSurfaceConsistencyService, 'buildManifest'>;
 };
 
 export class SharedSurfaceAccessCommandPack {
@@ -35,7 +35,7 @@ export class SharedSurfaceAccessCommandPack {
       dryRun: true,
       requireMutableAccess: false,
     });
-    const parity = this.deps.sharedSurfaceParityService.buildManifest();
+    const consistency = this.deps.sharedSurfaceConsistencyService.buildManifest();
     const mode = String(args || '').trim().toLowerCase();
 
     if (mode === 'local') {
@@ -84,8 +84,8 @@ export class SharedSurfaceAccessCommandPack {
         `- ${surface.label}: ${surface.entry}${surface.remoteEntry ? ` | remoto: ${surface.remoteEntry}` : ''} | ${surface.ready ? 'pronto' : 'pendente'}`,
       ),
       '',
-      `Paridade web/Telegram: ${parity.summary}`,
-      ...parity.recommended.slice(0, 3).map((entry) => `- ${entry.surfaceCommand}: ${entry.description}`),
+      `Paridade web/Telegram: ${consistency.summary}`,
+      ...consistency.recommended.slice(0, 3).map((entry) => `- ${entry.surfaceCommand}: ${entry.description}`),
       '',
       `Comandos uteis: ${manifest.commands.start} | ${manifest.commands.bootstrap} | ${manifest.commands.manifest}`,
       ...manifest.nextSteps.slice(0, 4).map((step) => `- ${step.title}: ${step.description}`),
@@ -102,7 +102,7 @@ export class SharedSurfaceAccessCommandPack {
       dryRun: true,
       requireMutableAccess: false,
     });
-    const parity = this.deps.sharedSurfaceParityService.buildManifest();
+    const consistency = this.deps.sharedSurfaceConsistencyService.buildManifest();
     const nextActions = report.actions.slice(0, 5);
     const journeyPhases = journey.phases.filter((phase) => phase.status !== 'ready').slice(0, 3);
 
@@ -115,7 +115,7 @@ export class SharedSurfaceAccessCommandPack {
       `Dependencias: ${report.dependencies.installRequired ? 'npm install pendente' : 'ok'} | build=${report.dependencies.buildRequired ? 'pendente' : 'ok'}`,
       `Local: ${report.supervisedRuntime.accessReadiness.local.ready ? 'pronto' : 'pendente'} | remoto: ${report.supervisedRuntime.accessReadiness.remote.ready ? 'pronto' : 'pendente'}`,
       `Acesso remoto oficial: ${officialRemote.remote.ready ? 'validado' : 'pendente'} | ${officialRemote.recommendedPathReason}`,
-      `Paridade entre superficies: ${parity.summary}`,
+      `Paridade entre superficies: ${consistency.summary}`,
       '',
       ...(nextActions.length > 0
         ? [
