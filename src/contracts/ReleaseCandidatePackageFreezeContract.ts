@@ -1,4 +1,4 @@
-import type { ParityCertificationGateStatus } from './ParityCertificationContract.js';
+import type { ReleaseCertificationGateStatus } from './ReleaseCertificationContract.js';
 import type { PublicLaunchSmokeEvidenceLedgerSnapshot } from './PublicLaunchSmokeEvidenceLedgerContract.js';
 
 export const ZAVORTH_RELEASE_CANDIDATE_PACKAGE_FREEZE_CONTRACT_VERSION = '2026-05-04.checkpoint-16';
@@ -54,7 +54,7 @@ export type ReleaseCandidatePackageFreezeGate = {
     | 'rollback-plan-present'
     | 'no-publish-side-effects'
     | 'freeze-receipts-complete';
-  status: ParityCertificationGateStatus;
+  status: ReleaseCertificationGateStatus;
   title: string;
   observed: number | string | boolean;
   threshold: number | string | boolean;

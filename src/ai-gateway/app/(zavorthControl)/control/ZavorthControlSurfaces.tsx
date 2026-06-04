@@ -141,6 +141,11 @@ export function WorkSurface() {
             <span><strong data-live-gateway-state>Gateway</strong><small data-live-gateway-detail>Local route</small></span>
             <span><strong data-live-sync-state>Last sync</strong><small data-live-sync-detail>Starting now</small></span>
           </div>
+          <div className="goal-loop-strip" aria-label="Goal Loop daemon status">
+            <span><strong data-goal-loop-state>Goal Loop</strong><small data-goal-loop-detail>No standing goal</small></span>
+            <span><strong data-goal-loop-queue>0 queued</strong><small data-goal-loop-task>Worker idle</small></span>
+            <span><strong data-goal-loop-next>Next tick</strong><small data-goal-loop-heartbeat>Waiting for heartbeat</small></span>
+          </div>
         </section>
 
         <section className="work-simple-panel">
@@ -156,6 +161,7 @@ export function WorkSurface() {
           <div className="work-compact-status">
             <Status label="Engine" value={<span data-runtime-engine-active>Lite</span>} tone="info" />
             <Status label="Dashboard" value="online" tone="ok" />
+            <Status label="Goal Loop" value={<span data-goal-loop-status>idle</span>} tone="info" />
             <Status label="Sensitive actions" value="approval gated" tone="ok" />
           </div>
         </section>
@@ -205,7 +211,7 @@ export function MemorySurface() {
           <div className="platform-action-list">
             <Action title="File memory" detail="Folders and documents enter only with approved scope." prompt="Show file memory scopes and which folders are allowed." />
             <Action title="Parallel work" detail="Uses cost limits and receipts when useful." prompt="Show whether Zavorth can split a task into parallel work and which limits apply." />
-            <Action title="Connect agent" detail="No external agent is discovered without a path you provide." prompt="Show connected external agents and how to limit what each can do." />
+            <Action title="Connect adapter" detail="No runtime adapter is discovered without a path you provide." prompt="Show connected runtime adapters and how to limit what each can do." />
             <Action title="Execution environments" detail="Files, shell, and remote actions stay approval gated." prompt="Show available execution environments and which ones require approval." />
           </div>
         </div>

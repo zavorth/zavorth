@@ -16,7 +16,7 @@ export type ZavorthMnemosLifecycleHookType =
   | 'memory.candidate.created';
 
 export type ZavorthMnemosLifecycleHookSource = {
-  surface: 'dashboard' | 'cli' | 'telegram' | 'api' | 'external-agent' | 'runtime' | 'unknown';
+  surface: 'dashboard' | 'cli' | 'telegram' | 'api' | 'runtime-adapter' | 'runtime' | 'unknown';
   agent?: string | null;
   provider?: string | null;
   channel?: string | null;

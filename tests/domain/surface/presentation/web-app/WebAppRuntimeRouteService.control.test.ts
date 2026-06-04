@@ -62,7 +62,7 @@ describe('WebAppRuntimeRouteService', () => {
       installJourney: {} as any,
       officialRemoteAccess: { inspect: jest.fn(), runAction: jest.fn() } as any,
       remoteAccess: { inspect: jest.fn() } as any,
-      surfaceParity: {} as any,
+      surfaceConsistency: {} as any,
       consoleAssets: {} as any,
       runtime: {} as any,
       realtime: {} as any,
@@ -381,7 +381,7 @@ describe('WebAppRuntimeRouteService', () => {
       remoteAccess: {
         inspect: inspectRemote,
       } as any,
-      surfaceParity: {} as any,
+      surfaceConsistency: {} as any,
       consoleAssets: {} as any,
       runtime: {
         hostIdentityService: {
@@ -486,7 +486,7 @@ describe('WebAppRuntimeRouteService', () => {
       remoteAccess: {
         inspect: jest.fn(),
       } as any,
-      surfaceParity: {} as any,
+      surfaceConsistency: {} as any,
       consoleAssets: {} as any,
       runtime: {} as any,
       realtime: {} as any,
@@ -537,14 +537,14 @@ describe('WebAppRuntimeRouteService', () => {
     );
   });
 
-  it('injects contextual action parity when the host parity route receives a session id', async () => {
+  it('injects contextual action consistency when the host consistency route receives a session id', async () => {
     const routeService = new WebAppRuntimeRouteService();
     const writeJson = jest.fn();
     const req = { method: 'GET' } as http.IncomingMessage;
     const res = {} as http.ServerResponse;
     const sessionId = 'session-web-2';
-    const url = new URL(`http://localhost/api/web/host/surface-parity?sessionId=${encodeURIComponent(sessionId)}`);
-    const paritySnapshot = {
+    const url = new URL(`http://localhost/api/web/host/surface-consistency?sessionId=${encodeURIComponent(sessionId)}`);
+    const consistencySnapshot = {
       generatedAt: '2026-04-06T12:00:00.000Z',
       summary: 'Paridade pronta.',
       surfaces: {
@@ -573,7 +573,7 @@ describe('WebAppRuntimeRouteService', () => {
       recommended: [],
       commands: [],
     };
-    const buildManifest = jest.fn(() => paritySnapshot);
+    const buildManifest = jest.fn(() => consistencySnapshot);
     const accessManifest = {
       recommendedPlan: {
         primaryAction: 'remote',
@@ -656,7 +656,7 @@ describe('WebAppRuntimeRouteService', () => {
       remoteAccess: {
         inspect: jest.fn(),
       } as any,
-      surfaceParity: {
+      surfaceConsistency: {
         buildManifest,
       } as any,
       consoleAssets: {} as any,
@@ -692,7 +692,7 @@ describe('WebAppRuntimeRouteService', () => {
       getGatewaySessionTools: jest.fn(),
     };
 
-    const handled = await routeService.handleRequest(req, res, url, '/api/web/host/surface-parity', deps);
+    const handled = await routeService.handleRequest(req, res, url, '/api/web/host/surface-consistency', deps);
 
     expect(handled).toBe(true);
     expect(getResolvedSnapshot).toHaveBeenCalledWith(sessionId);
@@ -732,7 +732,7 @@ describe('WebAppRuntimeRouteService', () => {
       res,
       expect.objectContaining({
         ok: true,
-        parity: expect.objectContaining({
+        consistency: expect.objectContaining({
           actions: expect.arrayContaining([
             expect.objectContaining({
               actionType: 'continue-latest-context',
@@ -793,7 +793,7 @@ describe('WebAppRuntimeRouteService', () => {
       remoteAccess: {
         inspect: jest.fn(async () => ({ summary: 'compat' })),
       } as any,
-      surfaceParity: {} as any,
+      surfaceConsistency: {} as any,
       consoleAssets: {} as any,
       runtime: {
         hostIdentityService: {
@@ -901,7 +901,7 @@ describe('WebAppRuntimeRouteService', () => {
       remoteAccess: {
         inspect: jest.fn(),
       } as any,
-      surfaceParity: {} as any,
+      surfaceConsistency: {} as any,
       consoleAssets: {} as any,
       runtime: {} as any,
       realtime: {} as any,

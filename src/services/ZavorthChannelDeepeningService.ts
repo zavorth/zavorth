@@ -352,7 +352,7 @@ export class ZavorthChannelDeepeningService {
       generatedAt: this.now().toISOString(),
       contractVersion: ZAVORTH_CHANNEL_DEEPENING_CONTRACT_VERSION,
       source: 'ZavorthChannelDeepeningService',
-      phase: 'Phase 2 - Channel Deepening',
+      focus: 'Channel Live Readiness',
       status,
       summary,
       guarantees: {
@@ -368,7 +368,7 @@ export class ZavorthChannelDeepeningService {
         inspect: 'npm run zavorth:channel-deepening',
         inspectJson: 'npm run zavorth:channel-deepening:json',
         check: 'npm run zavorth:channel-deepening:check --silent',
-        next: 'Phase 3 - Learning Loop',
+        next: 'zavorth channels doctor',
       },
     };
   }

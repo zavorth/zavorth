@@ -7,31 +7,31 @@ import type {
   ProviderSmokeProof,
 } from '../contracts/ProviderChannelSmokeProofContract.js';
 import { ZAVORTH_PROVIDER_CHANNEL_SMOKE_PROOF_CONTRACT_VERSION } from '../contracts/ProviderChannelSmokeProofContract.js';
-import type { ChannelMeshParityEntry } from '../contracts/ChannelMeshParityContract.js';
-import type { ProviderMeshParityProviderEntry } from '../contracts/ProviderMeshParityContract.js';
-import { ChannelMeshParityService } from './ChannelMeshParityService.js';
-import { ProviderMeshParityService } from './ProviderMeshParityService.js';
+import type { ChannelMeshConsistencyEntry } from '../contracts/ChannelMeshConsistencyContract.js';
+import type { ProviderMeshReadinessProviderEntry } from '../contracts/ProviderMeshReadinessContract.js';
+import { ChannelMeshConsistencyService } from './ChannelMeshConsistencyService.js';
+import { ProviderMeshReadinessService } from './ProviderMeshReadinessService.js';
 
 type ProviderChannelSmokeProofRuntime = {
   now?: () => Date;
   mode?: ProviderChannelSmokeProofMode;
-  providerMeshParityService?: ProviderMeshParityService;
-  channelMeshParityService?: ChannelMeshParityService;
+  providerMeshReadinessService?: ProviderMeshReadinessService;
+  channelMeshConsistencyService?: ChannelMeshConsistencyService;
 };
 
 export class ProviderChannelSmokeProofService {
   private readonly now: () => Date;
   private readonly mode: ProviderChannelSmokeProofMode;
-  private readonly providerMesh: ProviderMeshParityService;
-  private readonly channelMesh: ChannelMeshParityService;
+  private readonly providerMesh: ProviderMeshReadinessService;
+  private readonly channelMesh: ChannelMeshConsistencyService;
 
   constructor(runtime: ProviderChannelSmokeProofRuntime = {}) {
     this.now = runtime.now || (() => new Date());
     this.mode = runtime.mode || 'mock-live-harness';
-    this.providerMesh = runtime.providerMeshParityService || new ProviderMeshParityService({
+    this.providerMesh = runtime.providerMeshReadinessService || new ProviderMeshReadinessService({
       now: this.now,
     });
-    this.channelMesh = runtime.channelMeshParityService || new ChannelMeshParityService({
+    this.channelMesh = runtime.channelMeshConsistencyService || new ChannelMeshConsistencyService({
       now: this.now,
     });
   }
@@ -83,8 +83,8 @@ export class ProviderChannelSmokeProofService {
       },
       commands: {
         check: 'npm run provider-channel-smoke-proof:check --silent',
-        providerParity: 'npm run provider-mesh-parity:check --silent',
-        channelParity: 'npm run channel-mesh-parity:check --silent',
+        providerConsistency: 'npm run provider-mesh-readiness:check --silent',
+        channelConsistency: 'npm run channel-mesh-consistency:check --silent',
         focusedTests: ['npx jest tests/services/ProviderChannelSmokeProofService.test.ts --runInBand'],
         typecheck: 'npm run runtime:check --silent',
         nextWorker: 'Worker 6 - media/voice/web/docs diagnostics closure',
@@ -92,7 +92,7 @@ export class ProviderChannelSmokeProofService {
     };
   }
 
-  public buildProviderProof(entry: ProviderMeshParityProviderEntry): ProviderSmokeProof {
+  public buildProviderProof(entry: ProviderMeshReadinessProviderEntry): ProviderSmokeProof {
     const blocked = entry.status === 'unsupported' || entry.status === 'unmapped' || !entry.runtimeSupported;
     const providerId = entry.route.providerId || entry.normalizedSourceName;
     const routeId = entry.route.routeId || providerId;
@@ -161,7 +161,7 @@ export class ProviderChannelSmokeProofService {
     };
   }
 
-  public buildChannelProof(entry: ChannelMeshParityEntry): ChannelSmokeProof {
+  public buildChannelProof(entry: ChannelMeshConsistencyEntry): ChannelSmokeProof {
     const blocked = entry.status === 'unsupported' || entry.status === 'unmapped' || entry.status === 'template-ready';
     const status = blocked ? 'blocked' : 'mock-proven';
     const receipt = this.buildReceipt({

@@ -80,7 +80,7 @@ export type ExternalAgentPluginToolExposurePolicyBoundaryOptions<TRuntimeId exte
 };
 
 export type ExternalAgentPluginToolExposurePolicyBoundaryNormalization<TRuntimeId extends string = string> = {
-  nativeContract: 'ZavorthPluginToolExposurePolicyParity/v1';
+  nativeContract: 'ZavorthPluginToolExposurePolicyConsistency/v1';
   generatedAt: string;
   runtimeId: TRuntimeId;
   policies: ExternalAgentZavorthToolExposurePolicySurface[];
@@ -149,7 +149,7 @@ export function normalizeExternalAgentPluginToolExposurePolicy<TRuntimeId extend
     .flatMap((policy) => policy.requestedTools);
 
   return {
-    nativeContract: 'ZavorthPluginToolExposurePolicyParity/v1',
+    nativeContract: 'ZavorthPluginToolExposurePolicyConsistency/v1',
     generatedAt: options.generatedAt,
     runtimeId: options.runtimeId,
     policies,

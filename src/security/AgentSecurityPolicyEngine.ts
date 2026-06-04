@@ -35,7 +35,7 @@ export type AgentSecuritySurface =
   | 'rag'
   | 'skill'
   | 'plugin'
-  | 'external-agent'
+  | 'runtime-adapter'
   | 'runtime'
   | 'unknown';
 

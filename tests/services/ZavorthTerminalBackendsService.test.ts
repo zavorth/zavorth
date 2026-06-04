@@ -23,9 +23,10 @@ describe('ZavorthTerminalBackendsService', () => {
     ]);
     expect(snapshot.backends.find((entry) => entry.id === 'local')?.status).toBe('ready');
     expect(snapshot.backends.find((entry) => entry.id === 'docker')?.liveReady).toBe(false);
-    expect(snapshot.backends.find((entry) => entry.id === 'modal')?.status).toBe('planned');
+    expect(snapshot.backends.find((entry) => entry.id === 'modal')?.status).toBe('needs-configuration');
+    expect(snapshot.backends.find((entry) => entry.id === 'modal')?.liveCapable).toBe(true);
     expect(snapshot.safety.noBackendLiveByDefault).toBe(true);
-    expect(snapshot.safety.plannedBackendsDoNotClaimLive).toBe(true);
+    expect(snapshot.safety.cloudBackendsRequireExplicitConfiguration).toBe(true);
   });
 
   it('requires approval for dangerous terminal commands before any backend can execute', () => {
@@ -106,20 +107,28 @@ describe('ZavorthTerminalBackendsService', () => {
     }));
   });
 
-  it('does not claim Modal or Daytona as live backends', () => {
+  it('plans Modal and Daytona through real adapter envelopes once configured', () => {
     const service = new ZavorthTerminalBackendsService({
+      env: {
+        DAYTONA_API_KEY: 'daytona-secret',
+        ZAVORTH_DAYTONA_WORKSPACE: 'zavorth-workspace',
+      },
       cwd: 'C:/workspace',
       now: () => new Date('2026-05-24T12:00:00.000Z'),
     });
 
     const snapshot = service.execute({
+      action: 'terminal.plan',
       backend: 'daytona',
-      command: 'npm test',
+      command: 'echo ok',
     });
 
-    expect(snapshot.status).toBe('planned');
+    expect(snapshot.status).toBe('preview');
     expect(snapshot.selectedBackend).toBe('daytona');
     expect(snapshot.plan.willExecute).toBe(false);
-    expect(snapshot.backends.find((entry) => entry.id === 'daytona')?.liveCapable).toBe(false);
+    expect(snapshot.plan.executable).toBe('daytona');
+    expect(snapshot.plan.args).toEqual(['workspace', 'exec', 'zavorth-workspace', '--', 'echo ok']);
+    expect(snapshot.backends.find((entry) => entry.id === 'daytona')?.liveCapable).toBe(true);
+    expect(snapshot.backends.find((entry) => entry.id === 'daytona')?.status).toBe('ready');
   });
 });

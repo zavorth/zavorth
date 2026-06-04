@@ -29,5 +29,13 @@
   "memory": {
     "mode": "episodic",
     "learning": "suggest"
+  },
+  "improvement": {
+    "mode": "creative-staging",
+    "silent": ["telemetry", "ranking", "metadata", "candidate", "draft_skill", "staging_diff", "sandbox_validation", "low_risk_archive"],
+    "notify": ["apply"],
+    "requireApproval": ["apply", "policy", "provider", "channel", "secret", "external_send", "host_mutation"],
+    "maxSilentRisk": "medium",
+    "interruptMode": "never-for-low-risk"
   }
 }

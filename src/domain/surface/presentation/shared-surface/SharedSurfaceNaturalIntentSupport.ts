@@ -123,6 +123,18 @@ export function parseSharedSurfaceNaturalLearningIntent(rawText: string): Natura
   }
 
   if (candidateId && /\b(promover|promova|promote)\b/.test(normalized)) {
+    if (/\b(skill|habilidade)\b/.test(normalized)) {
+      return {
+        args: `promote-skill ${candidateId}`,
+        intro: `Entendi que voce quer promover o candidato ${candidateId} como skill no learning plane.`,
+      };
+    }
+    if (/\b(procedure|procedimento|procedural)\b/.test(normalized)) {
+      return {
+        args: `promote-procedure ${candidateId}`,
+        intro: `Entendi que voce quer promover o candidato ${candidateId} como procedimento no learning plane.`,
+      };
+    }
     return {
       args: `promote ${candidateId}`,
       intro: `Entendi que voce quer promover o candidato ${candidateId} no learning plane.`,
@@ -140,6 +152,13 @@ export function parseSharedSurfaceNaturalLearningIntent(rawText: string): Natura
     return {
       args: `reject ${candidateId}`,
       intro: `Entendi que voce quer rejeitar o candidato ${candidateId} no learning plane.`,
+    };
+  }
+
+  if (candidateId && /\b(esquecer|esqueca|forget|revogar|revogue)\b/.test(normalized)) {
+    return {
+      args: `forget ${candidateId}`,
+      intro: `Entendi que voce quer esquecer/revogar o candidato ${candidateId} no learning plane.`,
     };
   }
 

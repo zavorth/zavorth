@@ -1,102 +1,46 @@
-# 36 - Runtime Readiness
+# Runtime Readiness
 
-Date: 2026-05-16
-Status: runtime-readiness-command-ready
+Runtime readiness is the operator-facing answer to a simple question: can
+Zavorth safely do useful work right now?
 
-Runtime Readiness turns the certification sweep into one daily operator check.
+The readiness view should be honest. It can say a capability is available,
+missing setup, waiting for credentials, outbox-only, approval-required or
+blocked. It must not claim live provider, channel or sandbox behavior until the
+runtime has the required configuration and a recent receipt.
 
-## Command
+## What Readiness Covers
 
-```text
-zavorth ready
-zavorth ready --offline
-zavorth stay-online
-zavorth stay-online --watch
-zavorth stay-online --watch --notify-telegram
-zavorth ready --json
-zavorth readiness
-zavorth readiness fixes
-zavorth readiness fix provider --live-proof --provider <id>
-zavorth readiness --json
-zavorth readiness --technical
-```
+- provider and model availability;
+- channel setup and allowlists;
+- approvals waiting for the user;
+- receipts and recent runtime activity;
+- sandbox posture;
+- memory and learning state;
+- connected companion or node surfaces;
+- blocked actions and the reason.
 
-`zavorth ready` is the Zavorth Ready To Go launch guard. It is the one command
-to run before leaving the PC. It checks the daily runtime, active provider,
-configured provider fallbacks, ZavorthControl, Telegram, approvals, memory, skills
-and transaction safety. Because the operator is explicitly asking for a launch
-guard, the default command may run safe provider live probes against configured
-providers. It never sends prompts, executes tools, approves actions, imports
-skills or performs transactions. Use `zavorth ready --offline` to use only
-stored evidence.
+## What Good Looks Like
 
-`zavorth stay-online` is the companion watchdog for after Ready To Go. It reads
-the same launch guard plus the supervised keepalive snapshot and reports either
-"continua tudo ok" or the first concrete alert. `--watch` repeats the check. `--notify-telegram`
-uses `TELEGRAM_BOT_TOKEN` plus `ZAVORTH_STAY_ONLINE_NOTIFY_CHAT_IDS` or
-`TELEGRAM_ALLOWED_USER_IDS` to send status changes and active alerts without
-serializing the bot token.
+A healthy runtime can:
 
-Default output is operator UX: `Pronto`, `Atencao` or `Bloqueado`, plus the
-next safe action. `--technical` keeps the old diagnostic report for debugging.
-`--json` includes the source readiness snapshot and `operatorUx` for zavorthControl
-or automation consumers.
+- answer a normal prompt with the selected provider or local model;
+- show the active profile, provider and model without exposing secrets;
+- preview risky actions before they mutate files, send messages or call tools;
+- require approval for sensitive actions;
+- record receipts for important work;
+- show missing setup in plain language.
 
-## What It Verifies
+## Live Credentials
 
-- natural-first text enters the gateway
-- risky text becomes preview/approval
-- provider mesh can report configured routes without hidden live probes
-- `/control` exists as the daily-use projection-only surface
-- Telegram remote approval is configured or clearly marked as an optional setup gap
-- approvals remain gateway-mediated and do not execute target actions
-- transaction plane is ready-held, not live-executing
-- external skill imports remain explicit, reviewed and pinned
-- memory continuity can produce a snapshot without hidden writes
+Some integrations need real credentials or local services before they can be
+considered live. Missing credentials are not a product failure by themselves.
+The important rule is that Zavorth should clearly say what is missing and never
+pretend that a dry-run is a live provider, live channel or live sandbox.
 
-## Daily Meaning
+## Related
 
-`status=ready` means the whole operator path is green.
-
-`status=attention` means Zavorth is usable, but something optional or degraded needs setup, usually Telegram or provider credentials.
-
-`status=blocked` means at least one required daily safety contract failed and Zavorth should not be used unattended until that check is repaired.
-
-## Safety Contract
-
-Runtime Readiness is read-only. It does not start live provider probes, approve actions, execute tools, import skills, write memory, or move money.
-
-The command only reports readiness and the next safe action.
-
-Stay Online is also observation-first. Its self-heal path only proposes safe
-commands such as `zavorth readiness fixes` or `zavorth ready`;
-it does not run target actions, bypass approvals or execute live transactions.
-
-Guided Fixes are also projection-first. They turn each `Atencao` or `Bloqueado`
-card into a safe next step for CLI, ZavorthControl or Telegram. If a fix needs a
-real provider probe, it is shown as an explicit operator command:
-`zavorth readiness fix provider --live-proof --provider <id>`.
-
-Provider live proof is stored as sanitized local health evidence. It stores
-provider id, target, status, timestamps and evidence hash, never raw API keys.
-Normal readiness can then trust fresh proof without running hidden network calls
-on every render.
-
-## Operator Surfaces
-
-- CLI: `zavorth readiness` prints the operator summary by default.
-- ZavorthControl: `/api/runtime/readiness` exposes `runtimeReadinessUx` for the
-  `/control` readiness strip.
-- ZavorthControl fixes: `/api/runtime/readiness/fixes` exposes guided next steps,
-  but still cannot execute target actions or hidden live probes.
-- ZavorthControl stay-online: `/api/runtime/stay-online` exposes the watchdog
-  snapshot for status strips and external operator views.
-- Telegram: `/readiness` returns the same summary with safe callback buttons
-  for ZavorthControl, Status, Providers and Approvals.
-- Telegram stay-online: `/stayonline` returns the latest watchdog verdict with
-  safe buttons for Ready, Readiness, Fixes and ZavorthControl.
-- Telegram fixes: `/fixes` returns the same guided next steps with read-only
-  callbacks.
-
-These surfaces are projection-only. Buttons route to existing governed views or
-commands; they do not execute target actions.
+- [Install](/docs/install.md)
+- [Operations](/docs/operations.md)
+- [Provider Mesh](/docs/provider-mesh.md)
+- [Channel Mesh](/docs/channel-mesh.md)
+- [Security](/docs/security.md)

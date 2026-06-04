@@ -52,7 +52,7 @@ export function buildSharedSurfaceCommandServiceAssembly(
     runtimeBootstrapService: deps.runtimeBootstrapService,
     runtimeInstallJourneyService: deps.runtimeInstallJourneyService,
     runtimeOfficialRemoteAccessService: deps.runtimeOfficialRemoteAccessService,
-    sharedSurfaceParityService: deps.sharedSurfaceParityService,
+    sharedSurfaceConsistencyService: deps.sharedSurfaceConsistencyService,
   });
   const capabilityCommandPack = new SharedSurfaceCapabilityCommandPack({
     capabilityLifecycleService: deps.capabilityLifecycleService,

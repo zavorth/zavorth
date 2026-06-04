@@ -110,6 +110,9 @@ zavorth providers switch
 zavorth providers test openai
 zavorth channels telegram
 zavorth channels discord
+zavorth actions lookup capabilities
+zavorth actions usage
+zavorth actions lifecycle
 zavorth skills
 zavorth review
 zavorth trust
@@ -164,7 +167,7 @@ zavorth readiness --technical
 `ready` is Zavorth Ready To Go: the launch guard before leaving the PC. It is
 provider-agnostic, validates the active provider plus configured fallbacks, and
 returns one verdict for remote use. By default it may run explicit safe provider
-probes; `--offline` uses stored evidence only.
+probes; `--offline` uses stored readiness state only.
 
 `readiness` is the daily operator gate. It checks the natural-first runtime,
 provider mesh, ZavorthControl, Telegram, approvals, transaction plane, skill imports
@@ -172,7 +175,7 @@ and memory continuity in one read-only report. `attention` means Zavorth can be
 usable with a setup gap; `blocked` means a required safety contract failed.
 The default view is human-first (`Pronto`, `Atencao`, `Bloqueado`) with a next
 safe action. Use `--technical` for the diagnostic form with check ids and
-evidence markers.
+readiness markers.
 
 `stay-online` is the watchdog after `ready`: it keeps checking Ready To Go plus
 the supervised keepalive snapshot. `--watch` keeps it running; add
@@ -217,8 +220,8 @@ starting a bot, sending messages, or printing raw secrets. Use `connectors
 doctor` after the wizard when you want the technical channel health report.
 
 `--live` runs a real provider probe using a safe models/readiness endpoint and
-returns only sanitized evidence: target without query strings, HTTP status,
-duration, model count and evidence hash. It must never print the API key or
+returns only sanitized readiness details: target without query strings, HTTP status,
+duration, model count and receipt hash. It must never print the API key or
 provider token.
 
 `providers cockpit` projects the same provider data for the ZavorthControl. It
@@ -277,4 +280,4 @@ zavorth doctor
 - [Quickstart](/docs/quickstart.md)
 - [Operations](/docs/operations.md)
 - [ZavorthControl](/docs/web-zavorthControl.md)
-- [Roadmap](/docs/product-direction.md)
+- [Product Principles](/docs/product-direction.md)

@@ -62,4 +62,13 @@ describe('IntegrationRegistryService', () => {
     expect(service.resolveRequestedIntegration('slack').manifest?.id).toBe('slack');
     expect(service.resolveRequestedIntegration('whatsapp-cloud-api').manifest?.id).toBe('whatsapp');
   });
+
+  it('resolves agent connector brokers as first-class native manifests', () => {
+    const service = new IntegrationRegistryService();
+
+    expect(service.resolveRequestedIntegration('composio').manifest?.id).toBe('composio');
+    expect(service.resolveRequestedIntegration('nango-auth').manifest?.id).toBe('nango');
+    expect(service.resolveRequestedIntegration('n8n-local').manifest?.id).toBe('n8n');
+    expect(service.resolveRequestedIntegration('zapier-actions').manifest?.id).toBe('zapier');
+  });
 });

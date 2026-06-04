@@ -3,7 +3,7 @@ import type {
   CapabilityPrimitiveDefinition,
   CapabilitySourceMapping,
 } from './CapabilityNormalizationContract.js';
-import type { ParityCertificationSnapshot } from './ParityCertificationContract.js';
+import type { ReleaseCertificationSnapshot } from './ReleaseCertificationContract.js';
 
 export const ZAVORTH_NATIVE_CAPABILITY_CLOSURE_CONTRACT_VERSION = '2026-05-04.checkpoint-12';
 
@@ -46,7 +46,7 @@ export type NativeCapabilityClosureSnapshot = {
     remainingCapabilityNeedsReview: number;
     remainingCapabilityUnmapped: number;
     certificationP1Gaps: number;
-    certificationStatus: ParityCertificationSnapshot['status'];
+    certificationStatus: ReleaseCertificationSnapshot['status'];
     releaseReady: boolean;
     liveExternalCallRequired: false;
     filesystemWriteRequired: false;
@@ -54,7 +54,7 @@ export type NativeCapabilityClosureSnapshot = {
   };
   entries: NativeCapabilityClosureEntry[];
   capabilitySnapshot: Pick<CapabilityNormalizationSnapshot, 'contractVersion' | 'summary'>;
-  certification: Pick<ParityCertificationSnapshot, 'contractVersion' | 'profile' | 'status' | 'summary'>;
+  certification: Pick<ReleaseCertificationSnapshot, 'contractVersion' | 'profile' | 'status' | 'summary'>;
   commands: {
     check: string;
     capabilityNormalization: string;

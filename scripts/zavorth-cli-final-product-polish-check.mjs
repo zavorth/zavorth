@@ -43,7 +43,7 @@ function ruleFilesExist() {
     'scripts/zavorth-cli-final-product-polish.ts',
     'scripts/zavorth-cli-final-product-polish-check.mjs',
     'tests/services/ZavorthCliFinalProductPolishService.test.ts',
-    'src/cli/ink-test-env/index.tsx',
+    'tools/cli/ink-test-env/index.tsx',
   ];
   const missing = files.filter((file) => !fs.existsSync(path.join(root, file)));
   return rule(
@@ -58,7 +58,7 @@ function ruleFilesExist() {
 
 function ruleContainsMarkers() {
   const checks = [
-    ['src/cli/ink-test-env/index.tsx', [
+    ['tools/cli/ink-test-env/index.tsx', [
       'Zavorth Agent OS / Command Runtime',
       'AutoExit',
       'waitUntilExit()',
@@ -150,10 +150,21 @@ function ruleWorkspaceCheck() {
 }
 
 function ruleInkPreview() {
+  const dependencyPrep = ensureInkPreviewDependencies();
+  if (!dependencyPrep.ok) {
+    return rule(
+      'ink-preview',
+      'Ink preview renders once and exits',
+      false,
+      'dependencies unavailable',
+      'isolated tools/cli/ink-test-env dependencies are installed',
+      [dependencyPrep.detail],
+    );
+  }
   const command = process.platform === 'win32' ? (process.env.ComSpec || 'cmd.exe') : 'npm';
   const args = process.platform === 'win32'
-    ? ['/d', '/s', '/c', 'npm --prefix src/cli/ink-test-env run once --silent']
-    : ['--prefix', 'src/cli/ink-test-env', 'run', 'once', '--silent'];
+    ? ['/d', '/s', '/c', 'npm --prefix tools/cli/ink-test-env run once --silent']
+    : ['--prefix', 'tools/cli/ink-test-env', 'run', 'once', '--silent'];
   const result = spawnSync(command, args, {
     cwd: root,
     encoding: 'utf8',
@@ -177,6 +188,32 @@ function ruleInkPreview() {
     'exit=0; welcome=1; no render loop',
     passed ? [] : [result.error?.message || result.stderr || result.stdout || 'no output'],
   );
+}
+
+function ensureInkPreviewDependencies() {
+  const packageDir = path.join(root, 'tools', 'cli', 'ink-test-env');
+  const reactPackage = path.join(packageDir, 'node_modules', 'react', 'package.json');
+  const inkPackage = path.join(packageDir, 'node_modules', 'ink', 'package.json');
+  if (fs.existsSync(reactPackage) && fs.existsSync(inkPackage)) {
+    return { ok: true, detail: 'dependencies already installed' };
+  }
+  const command = process.platform === 'win32' ? (process.env.ComSpec || 'cmd.exe') : 'npm';
+  const args = process.platform === 'win32'
+    ? ['/d', '/s', '/c', 'npm ci --ignore-scripts --no-audit --no-fund']
+    : ['ci', '--ignore-scripts', '--no-audit', '--no-fund'];
+  const result = spawnSync(command, args, {
+    cwd: packageDir,
+    encoding: 'utf8',
+    timeout: 120000,
+    shell: false,
+  });
+  if (result.status !== 0) {
+    return {
+      ok: false,
+      detail: result.error?.message || result.stderr || result.stdout || `npm ci exited ${result.status}`,
+    };
+  }
+  return { ok: true, detail: 'dependencies installed' };
 }
 
 function ruleSnapshot() {

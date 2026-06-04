@@ -1,4 +1,4 @@
-import type { ParityCertificationGateStatus } from './ParityCertificationContract.js';
+import type { ReleaseCertificationGateStatus } from './ReleaseCertificationContract.js';
 import type { CanaryPromotionDecisionLedgerSnapshot } from './CanaryPromotionDecisionLedgerContract.js';
 
 export const ZAVORTH_FINAL_CANARY_RELEASE_CLOSURE_CONTRACT_VERSION = '2026-05-04.checkpoint-24';
@@ -87,7 +87,7 @@ export type FinalCanaryReleaseClosureGate = {
     | 'rollback-and-pause-held'
     | 'remote-mutation-blocked'
     | 'closure-receipts-complete';
-  status: ParityCertificationGateStatus;
+  status: ReleaseCertificationGateStatus;
   title: string;
   observed: number | string | boolean;
   threshold: number | string | boolean;

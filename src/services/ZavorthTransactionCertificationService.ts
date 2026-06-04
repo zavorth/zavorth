@@ -424,7 +424,7 @@ function buildGates(scenarios: ZavorthTransactionCertificationScenario[]): Zavor
       evidence: scenarios.map((scenario) => `${scenario.id}:lanes=${scenario.laneKinds.length}:actions=${scenario.enabledActions.join('|') || 'none'}`),
     },
     {
-      kind: 'cross-surface-parity',
+      kind: 'cross-surface-consistency',
       passed: ['web', 'api', 'cli', 'telegram'].every((surface) => surfaces.has(surface as ZavorthTransactionSurfaceKind)),
       summary: 'Certification covers Web, API, CLI and Telegram surfaces through the same projection path.',
       evidence: [...surfaces].sort(),

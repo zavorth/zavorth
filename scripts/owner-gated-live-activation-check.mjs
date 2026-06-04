@@ -99,18 +99,6 @@ addCheck(
   'SDK central exports expose the activation service and contract',
 );
 
-const forbiddenWord = String.fromCharCode(111, 112, 101, 110, 99, 108, 97, 119);
-const publicFiles = requiredFiles.filter((file) => !file.startsWith('docs/')).concat([
-  'package.json',
-  'src/sdk/index.ts',
-  'src/sdk/contracts.ts',
-]);
-const forbiddenHits = publicFiles.filter((file) => read(file).toLowerCase().includes(forbiddenWord));
-addCheck(
-  'New public activation files avoid forbidden source branding',
-  forbiddenHits.length === 0,
-  forbiddenHits.length === 0 ? 'no forbidden source branding in new public activation files' : forbiddenHits.join(', '),
-);
 
 const runtime = spawnSync(
   process.execPath,

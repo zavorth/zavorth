@@ -1,4 +1,5 @@
 import { sanitizeHumanCliText } from './ZavorthCliText.js';
+import { filterTerminalComposerOutput } from './ZavorthCliTerminalComposer.js';
 import { paintCliTone, type CliVisualTone } from './ZavorthCliVisualTheme.js';
 import { TerminalMarkdown } from './presentation/TerminalMarkdown.js';
 
@@ -23,7 +24,7 @@ const EVENT_TONE_META: Record<CliEventCardTone, { symbol: string; visualTone: Cl
 };
 
 function normalizeEventCardLine(value: string | null | undefined): string {
-  return sanitizeHumanCliText(value || '').replace(/\s+$/g, '').trim();
+  return sanitizeHumanCliText(filterTerminalComposerOutput(value || '')).replace(/\s+$/g, '').trim();
 }
 
 function normalizeEventCardLines(value: string | string[] | null | undefined): string[] {
@@ -44,7 +45,7 @@ function normalizeEventCardCommand(value: string | null | undefined): string {
 export function formatCliEventCard(options: CliEventCardOptions): string {
   const meta = EVENT_TONE_META[options.tone] || EVENT_TONE_META.info;
   const title = normalizeEventCardLine(options.title) || 'Zavorth';
-  const rawBody = Array.isArray(options.body) ? options.body.join('\n') : (options.body || '');
+  const rawBody = filterTerminalComposerOutput(Array.isArray(options.body) ? options.body.join('\n') : (options.body || ''));
   const isTTY = process.stdout.isTTY && !process.argv.includes('--json');
 
   const renderedBody = isTTY && rawBody.trim()

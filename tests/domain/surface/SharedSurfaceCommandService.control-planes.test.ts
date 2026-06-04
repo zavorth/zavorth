@@ -650,7 +650,7 @@ describe('SharedSurfaceCommandService', () => {
     expect(ctx.reply).toHaveBeenCalledWith(expect.stringContaining('Saida do workflow:'));
   });
 
-  it('surfaces official remote access and parity details in /access', async () => {
+  it('surfaces official remote access and consistency details in /access', async () => {
     const ctx = {
       platform: 'telegram',
       userId: 'telegram-user',
@@ -720,7 +720,7 @@ describe('SharedSurfaceCommandService', () => {
           ],
         })),
       } as any,
-      sharedSurfaceParityService: {
+      sharedSurfaceConsistencyService: {
         buildManifest: jest.fn(() => ({
           summary: 'Web e Telegram compartilham o mesmo nucleo de comandos.',
           recommended: [
@@ -741,7 +741,7 @@ describe('SharedSurfaceCommandService', () => {
     expect(ctx.reply).toHaveBeenCalledWith(expect.stringContaining('/workflow: Retoma ou inicia workflows compostos.'));
   });
 
-  it('surfaces official install journey and parity details in /bootstrap', async () => {
+  it('surfaces official install journey and consistency details in /bootstrap', async () => {
     const ctx = {
       platform: 'telegram',
       userId: 'telegram-user',
@@ -800,7 +800,7 @@ describe('SharedSurfaceCommandService', () => {
           recommendedPathReason: 'Ainda falta validar a URL publica oficial.',
         })),
       } as any,
-      sharedSurfaceParityService: {
+      sharedSurfaceConsistencyService: {
         buildManifest: jest.fn(() => ({
           summary: 'Web e Telegram estao alinhados para access, bootstrap e workflow.',
         })),

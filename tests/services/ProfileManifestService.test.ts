@@ -51,6 +51,26 @@ describe('ProfileManifestService', () => {
       capabilityPolicy: expect.objectContaining({
         requireApproval: expect.arrayContaining(['workspace.write', 'shell.exec']),
       }),
+      improvementPolicy: expect.objectContaining({
+        mode: 'quiet-staging',
+        silent: expect.arrayContaining(['staging_diff', 'sandbox_validation']),
+        notify: expect.arrayContaining(['low_risk_archive']),
+        requireApproval: expect.arrayContaining(['apply', 'secret', 'external_send']),
+        interruptMode: 'daily-digest',
+      }),
+    }));
+
+    expect(bundles.find((bundle) => bundle.id === 'personal')?.improvementPolicy).toEqual(expect.objectContaining({
+      mode: 'quiet-curation',
+      silent: expect.arrayContaining(['draft_skill', 'low_risk_archive']),
+      requireApproval: expect.arrayContaining(['apply', 'policy', 'secret']),
+      interruptMode: 'never-for-low-risk',
+    }));
+    expect(bundles.find((bundle) => bundle.id === 'operator')?.improvementPolicy).toEqual(expect.objectContaining({
+      mode: 'manual',
+      silent: ['telemetry'],
+      requireApproval: expect.arrayContaining(['low_risk_archive', 'apply', 'external_send']),
+      interruptMode: 'immediate',
     }));
   });
 
@@ -82,6 +102,13 @@ describe('ProfileManifestService', () => {
       memory: {
         mode: 'semantic',
       },
+      improvement: {
+        mode: 'quiet-curation',
+        silent: ['telemetry', 'candidate'],
+        notify: ['draft_skill'],
+        requireApproval: ['apply', 'secret'],
+        interruptMode: 'never-for-low-risk',
+      },
     }, null, 2));
 
     const service = new ProfileManifestService({ profileDir: root });
@@ -100,6 +127,13 @@ describe('ProfileManifestService', () => {
       }),
       memoryPolicy: expect.objectContaining({
         mode: 'semantic',
+      }),
+      improvementPolicy: expect.objectContaining({
+        mode: 'quiet-curation',
+        silent: ['telemetry', 'candidate'],
+        notify: ['draft_skill'],
+        requireApproval: ['apply', 'secret'],
+        interruptMode: 'never-for-low-risk',
       }),
     }));
     expect(bundle?.checksum).toMatch(/^[a-f0-9]{64}$/);

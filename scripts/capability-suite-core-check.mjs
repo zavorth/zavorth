@@ -65,7 +65,7 @@ const steps = [
       'tests/channels/ChannelMeshAdapters.test.ts',
       'tests/channels/ChannelPolicyManager.test.ts',
       'tests/services/ZavorthChannelMeshService.test.ts',
-      'tests/integration/ChannelAdapterParity.test.ts',
+      'tests/integration/ChannelAdapterConsistency.test.ts',
       '--runInBand',
     ],
   },

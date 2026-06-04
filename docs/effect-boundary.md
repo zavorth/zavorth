@@ -67,7 +67,7 @@ Examples:
 - sends/publishes become external egress effects;
 - secret access requires admin policy.
 
-Untrusted content may be evidence, but it cannot authorize side effects.
+Untrusted content may be context, but it cannot authorize side effects.
 
 ## Why This Matters
 

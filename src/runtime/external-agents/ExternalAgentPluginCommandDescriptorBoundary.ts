@@ -74,7 +74,7 @@ export type ExternalAgentPluginCommandDescriptorBoundaryOptions<TRuntimeId exten
 };
 
 export type ExternalAgentPluginCommandDescriptorBoundaryNormalization<TRuntimeId extends string = string> = {
-  nativeContract: 'ZavorthPluginCommandDescriptorParity/v1';
+  nativeContract: 'ZavorthPluginCommandDescriptorConsistency/v1';
   generatedAt: string;
   runtimeId: TRuntimeId;
   descriptors: ExternalAgentZavorthCommandDescriptor[];
@@ -136,7 +136,7 @@ export function normalizeExternalAgentPluginCommandDescriptors<TRuntimeId extend
     .flatMap((descriptor) => descriptor.requestedTools);
 
   return {
-    nativeContract: 'ZavorthPluginCommandDescriptorParity/v1',
+    nativeContract: 'ZavorthPluginCommandDescriptorConsistency/v1',
     generatedAt: options.generatedAt,
     runtimeId: options.runtimeId,
     descriptors,

@@ -133,7 +133,7 @@ export class ModuleSdkExportClosureService {
         zavorthPublicSubpaths: packageExports.length,
         decision: 'zavorth-native-sdk',
         reason:
-          'Zavorth closes SDK/export parity with stable contract-first module subpaths instead of a compatibility shim for Source import paths.',
+          'Zavorth closes SDK/export consistency with stable contract-first module subpaths instead of a compatibility shim for Source import paths.',
         compatibilityShimProvided: false,
         sourceImportPathsSupported: false,
       },

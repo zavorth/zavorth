@@ -63,7 +63,7 @@ function ruleContainsMarkers() {
       'ZAVORTH_NATIVE_REPLACEMENT_DECOMMISSION_CONTRACT_VERSION',
       'zavorth-native-replacement-decommission/8',
       'ZavorthNativeReplacementRegistryEntry',
-      'ZavorthParityTestHarnessReceipt',
+      'ZavorthConsistencyTestHarnessReceipt',
       'ZavorthAdapterDependencyReductionReceipt',
       'ZavorthSourceAssumptionDecommissionReceipt',
       'optional-compatibility-boundary',
@@ -71,7 +71,7 @@ function ruleContainsMarkers() {
     ]],
     ['src/services/ZavorthNativeReplacementDecommissionService.ts', [
       'registerNativeReplacement',
-      'buildParityHarness',
+      'buildConsistencyHarness',
       'reduceAdapterDependency',
       'decommissionSourceAssumption',
       'buildCompatibilityBoundary',
@@ -87,7 +87,7 @@ function ruleContainsMarkers() {
       'native-replacement-decommission-complete',
       'Zavorth Native Replacement Decommission',
       'native replacement registry',
-      'parity tests',
+      'consistency tests',
       'adapter dependency reduction',
       'decommission gates',
       'optional compatibility boundaries',
@@ -114,7 +114,7 @@ function ruleContainsMarkers() {
     label: 'ZavorthControl controls native replacement markers are present',
     status: missing.length === 0 ? 'passed' : 'failed',
     observed: missing.length === 0 ? 'all markers present' : `${missing.length} missing marker(s)`,
-    target: 'registry, parity, adapter reduction, decommission and plan completion markers are present',
+    target: 'registry, consistency, adapter reduction, decommission and plan completion markers are present',
     details: missing,
   };
 }
@@ -145,7 +145,7 @@ function runNativeReplacementFixture() {
     && snapshot.contractVersion === 'zavorth-native-replacement-decommission/8'
     && snapshot.summary?.nativeReplacementRegistryEntries >= 4
     && snapshot.summary?.promotedNativeCapabilities >= 2
-    && snapshot.summary?.parityHarnessesPassed >= 4
+    && snapshot.summary?.consistencyHarnessesPassed >= 4
     && snapshot.summary?.adapterDependenciesReduced >= 2
     && snapshot.summary?.compatibilityBoundariesReady === 1
     && snapshot.summary?.sourceRuntimeRequiredForPromotedCapabilities === false
@@ -158,7 +158,7 @@ function runNativeReplacementFixture() {
     label: 'Native replacement fixture passes',
     status: ok ? 'passed' : 'failed',
     observed: ok ? `${snapshot.status}, ${snapshot.summary.promotedNativeCapabilities} promoted, plan=${snapshot.commands.planStatus}` : 'invalid native replacement snapshot',
-    target: 'default snapshot is ready with native replacement registry, parity, optional adapters and plan completion',
+    target: 'default snapshot is ready with native replacement registry, consistency, optional adapters and plan completion',
     details: ok ? [] : [result.stdout],
   };
 }

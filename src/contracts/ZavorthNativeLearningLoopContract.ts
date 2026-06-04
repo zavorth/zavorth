@@ -1,3 +1,5 @@
+import type { ZavorthAdaptiveLearningSnapshot } from './ZavorthAdaptiveLearningOsContract.js';
+
 export const ZAVORTH_NATIVE_LEARNING_LOOP_CONTRACT_VERSION =
   '2026-05-24.phase-3-native-learning-loop' as const;
 
@@ -35,7 +37,15 @@ export type ZavorthNativeLearningLoopCandidate = {
     evidenceRefs: string[];
   };
   actions: Array<{
-    id: 'approve' | 'reject' | 'promote' | 'revoke' | 'preview-skill' | 'convert-to-procedure';
+    id:
+      | 'approve'
+      | 'reject'
+      | 'promote'
+      | 'forget'
+      | 'promoteProcedure'
+      | 'promoteSkill'
+      | 'preview-skill'
+      | 'convert-to-procedure';
     label: string;
     command: string;
   }>;
@@ -90,12 +100,18 @@ export type ZavorthNativeLearningLoopSnapshot = {
     skillImprovementCandidateReady: boolean;
     approvedNudgesReady: boolean;
     reversibleUserModelReady: boolean;
+    adaptiveLearningReady: boolean;
+    adaptiveTechnicalScannerReady: boolean;
+    adaptiveSemanticClassifierReady: boolean;
+    adaptiveMultilingualRecallReady: boolean;
+    adaptiveOperatorI18nReady: boolean;
     securityPolicyFirewallReady: boolean;
     rawSecretsSerialized: false;
     externalIoPerformed: false;
     workspaceMutationPerformed: false;
   };
   sessionSearch: ZavorthNativeLearningLoopSessionSearch | null;
+  adaptiveLearning: ZavorthAdaptiveLearningSnapshot;
   userModel: ZavorthNativeLearningLoopUserModel;
   candidates: ZavorthNativeLearningLoopCandidate[];
   invariants: {

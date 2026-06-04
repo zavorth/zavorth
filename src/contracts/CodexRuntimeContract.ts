@@ -239,9 +239,9 @@ export type CodexRuntimeSnapshot = {
     approvalFirstForSensitiveActions: true;
   };
   commands: {
-    check: 'npm run codex-runtime-parity:check --silent';
+    check: 'npm run codex-runtime-certification:check --silent';
     focusedTests: string[];
     typecheck: 'npm run runtime:check --silent';
-    nextWorker: 'Worker 3 - OpenShell Sandbox Plane parity';
+    nextWorker: 'Worker 3 - OpenShell Sandbox Plane consistency';
   };
 };

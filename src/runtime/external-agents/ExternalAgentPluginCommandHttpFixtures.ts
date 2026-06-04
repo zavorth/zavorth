@@ -110,7 +110,7 @@ export type ExternalAgentCanonicalDashboardCommandCatalogRow = {
 };
 
 export type ExternalAgentCanonicalPluginCommandDescriptorNormalization = {
-  nativeContract: 'ZavorthPluginCommandDescriptorParity/v1';
+  nativeContract: 'ZavorthPluginCommandDescriptorConsistency/v1';
   generatedAt: string;
   runtimeId: typeof EXTERNAL_AGENT_CANONICAL_COMMAND_HTTP_RUNTIME_ID;
   descriptors: ExternalAgentCanonicalZavorthCommandDescriptor[];
@@ -179,7 +179,7 @@ export type ExternalAgentCanonicalZavorthCliCommandSurface = {
 };
 
 export type ExternalAgentCanonicalPluginCliCommandSurfaceNormalization = {
-  nativeContract: 'ZavorthPluginCliCommandSurfaceParity/v1';
+  nativeContract: 'ZavorthPluginCliCommandSurfaceConsistency/v1';
   generatedAt: string;
   runtimeId: typeof EXTERNAL_AGENT_CANONICAL_COMMAND_HTTP_RUNTIME_ID;
   cliCommands: ExternalAgentCanonicalZavorthCliCommandSurface[];
@@ -254,7 +254,7 @@ export type ExternalAgentCanonicalGatewayMethodCatalogRow = {
 };
 
 export type ExternalAgentCanonicalPluginGatewayMethodSurfaceNormalization = {
-  nativeContract: 'ZavorthPluginGatewayMethodSurfaceParity/v1';
+  nativeContract: 'ZavorthPluginGatewayMethodSurfaceConsistency/v1';
   generatedAt: string;
   runtimeId: typeof EXTERNAL_AGENT_CANONICAL_COMMAND_HTTP_RUNTIME_ID;
   gatewayMethods: ExternalAgentCanonicalZavorthGatewayMethodSurface[];
@@ -330,7 +330,7 @@ export type ExternalAgentCanonicalHttpRouteCatalogRow = {
 };
 
 export type ExternalAgentCanonicalPluginHttpRouteSurfaceNormalization = {
-  nativeContract: 'ZavorthPluginHttpRouteSurfaceParity/v1';
+  nativeContract: 'ZavorthPluginHttpRouteSurfaceConsistency/v1';
   generatedAt: string;
   runtimeId: typeof EXTERNAL_AGENT_CANONICAL_COMMAND_HTTP_RUNTIME_ID;
   httpRoutes: ExternalAgentCanonicalZavorthHttpRouteSurface[];
@@ -408,7 +408,7 @@ export type ExternalAgentCanonicalServiceCatalogRow = {
 };
 
 export type ExternalAgentCanonicalPluginServiceSurfaceNormalization = {
-  nativeContract: 'ZavorthPluginServiceSurfaceParity/v1';
+  nativeContract: 'ZavorthPluginServiceSurfaceConsistency/v1';
   generatedAt: string;
   runtimeId: typeof EXTERNAL_AGENT_CANONICAL_COMMAND_HTTP_RUNTIME_ID;
   services: ExternalAgentCanonicalZavorthServiceSurface[];
@@ -480,7 +480,7 @@ export type ExternalAgentCanonicalToolExposureCapabilityRow = {
 };
 
 export type ExternalAgentCanonicalPluginToolExposurePolicyNormalization = {
-  nativeContract: 'ZavorthPluginToolExposurePolicyParity/v1';
+  nativeContract: 'ZavorthPluginToolExposurePolicyConsistency/v1';
   generatedAt: string;
   runtimeId: typeof EXTERNAL_AGENT_CANONICAL_COMMAND_HTTP_RUNTIME_ID;
   policies: ExternalAgentCanonicalZavorthToolExposurePolicySurface[];

@@ -40,12 +40,12 @@ const rules = [
   ruleContainsAll({
     id: 'provider-channel-smoke-service',
     label: 'Service builds deterministic provider/channel smoke receipts',
-    target: 'Service consumes Provider Mesh and Channel Mesh parity, emits provider/channel proofs, blocks unsupported entries and avoids live IO',
+    target: 'Service consumes Provider Mesh and Channel Mesh consistency, emits provider/channel proofs, blocks unsupported entries and avoids live IO',
     files: ['src/services/ProviderChannelSmokeProofService.ts'],
     needles: [
       'ProviderChannelSmokeProofService',
-      'ProviderMeshParityService',
-      'ChannelMeshParityService',
+      'ProviderMeshReadinessService',
+      'ChannelMeshConsistencyService',
       'buildProviderProof',
       'buildChannelProof',
       'provider-request-envelope',

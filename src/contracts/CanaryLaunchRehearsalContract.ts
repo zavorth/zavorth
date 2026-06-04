@@ -1,4 +1,4 @@
-import type { ParityCertificationGateStatus } from './ParityCertificationContract.js';
+import type { ReleaseCertificationGateStatus } from './ReleaseCertificationContract.js';
 import type { CanaryExecutionApprovalLedgerSnapshot } from './CanaryExecutionApprovalLedgerContract.js';
 
 export const ZAVORTH_CANARY_LAUNCH_REHEARSAL_CONTRACT_VERSION = '2026-05-04.checkpoint-21';
@@ -85,7 +85,7 @@ export type CanaryLaunchRehearsalGate = {
     | 'launch-side-effects-blocked'
     | 'publication-and-promotion-held'
     | 'rehearsal-receipts-complete';
-  status: ParityCertificationGateStatus;
+  status: ReleaseCertificationGateStatus;
   title: string;
   observed: number | string | boolean;
   threshold: number | string | boolean;

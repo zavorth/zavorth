@@ -1,13 +1,13 @@
 import { stdout as output } from 'process';
 import { globalSpinner } from './presentation/TerminalSpinner.js';
 import { TerminalPanel } from './presentation/TerminalPanel.js';
-import { paintCliTone } from './ZavorthCliVisualTheme.js';
 import type {
   ZavorthCliFlags,
   ZavorthCliIo,
   ZavorthCliRuntime,
   ZavorthCliServiceOverrides,
   CliExecutionResult,
+  CliTerminalStreamEvent,
   CliReadlineFactory,
   CliRuntimeProfile,
   CliWriter,
@@ -37,6 +37,7 @@ import {
   formatCliRecoverableErrorEventCard,
   formatCliSuccessEventCard,
 } from './ZavorthCliEventCards.js';
+import { formatTerminalComposerPrompt } from './ZavorthCliTerminalComposer.js';
 
 export function defaultWriter(): CliWriter {
   return {
@@ -407,8 +408,7 @@ export function formatCliHistoryHint(sessionId: string | null | undefined): stri
 }
 
 export function formatCliReplPrompt(flags: Pick<ZavorthCliFlags, 'sessionId' | 'chatId'>): string {
-  void flags;
-  return `${paintCliTone('zavorth', 'muted')} ${paintCliTone('>', 'brand')} `;
+  return formatTerminalComposerPrompt(flags);
 }
 
 export function formatCliTaskDispatchOutput(
@@ -1174,6 +1174,14 @@ export async function executeCliUniversalAgentRuntime(
       error: 'Runtime universal indisponivel para a CLI.',
     };
   }
+  if (flags.terminalAbortSignal?.aborted) {
+    return {
+      ok: false,
+      handled: true,
+      output: ['Request interrupted before it reached the runtime.'],
+      error: 'interrupted',
+    };
+  }
 
   const requestText = formatCliConversationLabel(trimmed);
   const explicitExecution = String(flags.command || '').trim() === 'task';
@@ -1192,7 +1200,11 @@ export async function executeCliUniversalAgentRuntime(
     routingPolicy: resolveCliLegacyUnifiedGateway(runtime) ? 'gateway' : 'fallback',
   });
 
-  const showSpinner = !flags.json && process.stdout.isTTY;
+  const showSpinner = !flags.json && process.stdout.isTTY && !flags.terminalStream;
+  const terminalStreamBus = createCliTerminalRuntimeEventBus(flags);
+  if (terminalStreamBus && typeof agentGateway.addRuntimeEventBus === 'function') {
+    agentGateway.addRuntimeEventBus(terminalStreamBus);
+  }
   if (showSpinner) {
     globalSpinner.start('Zavorth is thinking...');
   }
@@ -1216,6 +1228,14 @@ export async function executeCliUniversalAgentRuntime(
         legacyUnifiedGatewayBypassed: legacyUnifiedGatewayAvailable,
       },
     }, executorOptions);
+    if (flags.terminalAbortSignal?.aborted) {
+      return {
+        ok: false,
+        handled: true,
+        output: ['Request interrupted safely. No terminal result was applied.'],
+        error: 'interrupted',
+      };
+    }
 
     if (showSpinner) {
       globalSpinner.succeed('Zavorth finished reasoning');
@@ -1311,7 +1331,69 @@ export async function executeCliUniversalAgentRuntime(
       output: [],
       error: message,
     };
+  } finally {
+    if (terminalStreamBus && typeof agentGateway.removeRuntimeEventBus === 'function') {
+      agentGateway.removeRuntimeEventBus(terminalStreamBus);
+    }
   }
+}
+
+function createCliTerminalRuntimeEventBus(flags: ZavorthCliFlags): { emit: (type: string, payload?: Record<string, unknown>) => Promise<void> } | null {
+  const sink = flags.terminalStream || null;
+  if (!sink) {
+    return null;
+  }
+  return {
+    emit: async (type: string, payload: Record<string, unknown> = {}) => {
+      const event = mapRuntimeEventToTerminalStream(type, payload);
+      if (event) {
+        await sink.onEvent(event);
+      }
+    },
+  };
+}
+
+function mapRuntimeEventToTerminalStream(
+  type: string,
+  payload: Record<string, unknown>,
+): CliTerminalStreamEvent | null {
+  if (type === 'agent.stream.assistant') {
+    const phase = String(payload.phase || '').toLowerCase();
+    const done = payload.done === true || phase === 'done';
+    const delta = String(payload.delta || '');
+    const accumulated = String(payload.accumulated || '');
+    return {
+      type: done ? 'done' : phase === 'start' ? 'start' : 'delta',
+      delta,
+      accumulated,
+      text: accumulated || delta,
+      runId: typeof payload.runId === 'string' ? payload.runId : undefined,
+      streamId: typeof payload.streamId === 'string' ? payload.streamId : undefined,
+      raw: payload,
+    };
+  }
+  if (type === 'agent.stream.tool') {
+    return {
+      type: 'tool',
+      title: String(payload.title || 'Tool activity'),
+      status: String(payload.streamStatus || payload.phase || 'running'),
+      text: String(payload.toolCallDelta || payload.title || 'Tool activity'),
+      runId: typeof payload.runId === 'string' ? payload.runId : undefined,
+      streamId: typeof payload.streamId === 'string' ? payload.streamId : undefined,
+      raw: payload,
+    };
+  }
+  if (type === 'agent.execution.started' || type === 'agent.execution.completed' || type === 'agent.execution.failed') {
+    return {
+      type: type.endsWith('failed') ? 'error' : 'status',
+      title: String(payload.title || type),
+      status: String(payload.status || type.split('.').pop() || 'status'),
+      text: String(payload.detail || payload.summary || payload.title || type),
+      runId: typeof payload.runId === 'string' ? payload.runId : undefined,
+      raw: payload,
+    };
+  }
+  return null;
 }
 
 export async function executeCliUniversalApprovalDecision(

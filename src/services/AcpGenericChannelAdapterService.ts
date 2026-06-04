@@ -12,15 +12,15 @@ import {
 } from '../contracts/AcpGenericChannelAdapterContract.js';
 import { SourceAgentRuntimeToolPolicyService } from './SourceAgentRuntimeToolPolicyService.js';
 import type {
-  ExternalAgentApprovalEnvelope,
-} from '../runtime/external-agents/contracts.js';
+  RuntimeAdapterApprovalEnvelope,
+} from '../runtime/zavorth-runtime-adapters/contracts.js';
 import {
-  normalizeExternalAgentGatewayHandshake,
-} from '../runtime/external-agents/ExternalAgentGatewayHandshakeBoundary.js';
+  normalizeRuntimeAdapterGatewayHandshake,
+} from '../runtime/zavorth-runtime-adapters/RuntimeAdapterGatewayHandshakeBoundary.js';
 import {
-  normalizeExternalAgentGatewayProtocolFrame,
-  type ExternalAgentGatewayProtocolFrame,
-} from '../runtime/external-agents/ExternalAgentGatewayProtocolBoundary.js';
+  normalizeRuntimeAdapterGatewayProtocolFrame,
+  type RuntimeAdapterGatewayProtocolFrame,
+} from '../runtime/zavorth-runtime-adapters/RuntimeAdapterGatewayProtocolBoundary.js';
 
 type Runtime = {
   now?: () => Date;
@@ -126,7 +126,7 @@ export class AcpGenericChannelAdapterService {
           duplicateOf: this.seenIdempotencyKeys.get(idempotencyKey) || null,
           sourceRuntimeName,
           sourceRuntimeVersion,
-          nativeContract: 'ExternalAgentEventEnvelope',
+          nativeContract: 'RuntimeAdapterEventEnvelope',
           reachesExecutor: false,
           gatewayEventEmitted: false,
           outputText: 'Duplicate ACP channel frame ignored by idempotency key.',
@@ -226,9 +226,9 @@ export class AcpGenericChannelAdapterService {
     sourceRuntimeVersion: string | null;
     gatewayEventEmitted: boolean;
   }): AcpGenericChannelAdapterReceipt {
-    const handshake = normalizeExternalAgentGatewayHandshake({
+    const handshake = normalizeRuntimeAdapterGatewayHandshake({
       clientId: normalizeText(input.envelope.handshake?.clientId, input.runtimeId),
-      sourceRole: normalizeText(input.envelope.handshake?.role, 'external-agent'),
+      sourceRole: normalizeText(input.envelope.handshake?.role, 'runtime-adapter'),
       sourceScopes: uniqueStrings(input.envelope.handshake?.scopes || []),
       sourceTokenPresent: input.envelope.handshake?.tokenPresent === true,
       sourceEvidence: {
@@ -251,7 +251,7 @@ export class AcpGenericChannelAdapterService {
       ...input,
       status: handshake.trust.downgradedScopes.length > 0 ? 'diagnostic' : 'accepted',
       duplicateOf: null,
-      nativeContract: 'ExternalAgentGatewayHandshake',
+      nativeContract: 'RuntimeAdapterGatewayHandshake',
       reachesExecutor: false,
       handshake,
       gatewayEventEmitted: input.gatewayEventEmitted,
@@ -282,7 +282,7 @@ export class AcpGenericChannelAdapterService {
     const denied = toolPolicy?.decisions.filter((decision) => decision.decision === 'deny') || [];
     const approvalRequired = toolPolicy?.decisions.filter((decision) => decision.decision === 'approval_required') || [];
     const frame = toProtocolFrame(input.envelope, input);
-    const normalized = normalizeExternalAgentGatewayProtocolFrame(frame, {
+    const normalized = normalizeRuntimeAdapterGatewayProtocolFrame(frame, {
       runtimeId: input.runtimeId,
       observedAt: this.now().toISOString(),
       defaultUserId: normalizeText(input.envelope.actor?.id, 'external-user'),
@@ -306,7 +306,7 @@ export class AcpGenericChannelAdapterService {
       ? 'blocked'
       : approvalRequired.length > 0
         ? 'approval_required'
-        : normalized.nativeContract === 'ExternalAgentEventEnvelope'
+        : normalized.nativeContract === 'RuntimeAdapterEventEnvelope'
           ? 'diagnostic'
           : 'accepted';
 
@@ -343,7 +343,7 @@ export class AcpGenericChannelAdapterService {
     message?: AcpGenericChannelAdapterReceipt['message'];
     eventEnvelope?: AcpGenericChannelAdapterReceipt['eventEnvelope'];
     handshake?: AcpGenericChannelAdapterReceipt['handshake'];
-    approvals?: ExternalAgentApprovalEnvelope[];
+    approvals?: RuntimeAdapterApprovalEnvelope[];
     toolPolicy?: AcpGenericChannelAdapterReceipt['toolPolicy'];
   }): AcpGenericChannelAdapterReceipt {
     return {
@@ -442,7 +442,7 @@ function toProtocolFrame(
     sourceRuntimeName: string | null;
     sourceRuntimeVersion: string | null;
   },
-): ExternalAgentGatewayProtocolFrame {
+): RuntimeAdapterGatewayProtocolFrame {
   return {
     frameKind: externalFrameKindFor(input.frameKind),
     id: input.frameId,
@@ -481,7 +481,7 @@ function toProtocolFrame(
   };
 }
 
-function externalFrameKindFor(kind: AcpGenericChannelFrameKind): ExternalAgentGatewayProtocolFrame['frameKind'] {
+function externalFrameKindFor(kind: AcpGenericChannelFrameKind): RuntimeAdapterGatewayProtocolFrame['frameKind'] {
   if (kind === 'event') return 'event';
   if (kind === 'response') return 'response';
   if (kind === 'error') return 'error';
@@ -511,7 +511,7 @@ function buildApprovals(
     envelope: AcpGenericChannelEnvelope;
   },
   decisions: NonNullable<ReturnType<SourceAgentRuntimeToolPolicyService['buildDoctor']>['decisions']>,
-): ExternalAgentApprovalEnvelope[] {
+): RuntimeAdapterApprovalEnvelope[] {
   return decisions.map((decision) => ({
     id: `acp-generic-approval:${normalizeId(`${input.frameId}:${decision.toolName}`, 'tool')}`,
     runtimeId: input.runtimeId,

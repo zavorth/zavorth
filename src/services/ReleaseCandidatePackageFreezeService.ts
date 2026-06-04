@@ -191,7 +191,7 @@ export class ReleaseCandidatePackageFreezeService {
         id: 'public-launch-certification-lock',
         kind: 'smoke-ledger',
         status: 'locked',
-        command: 'npm run parity-certify:public-launch --silent',
+        command: 'npm run release-certify:public-launch --silent',
         evidence: 'Public-launch profile certification remains certified with zero P0/P1/P2 gaps.',
       }),
       artifact({

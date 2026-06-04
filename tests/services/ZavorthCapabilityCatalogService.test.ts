@@ -146,7 +146,7 @@ describe('ZavorthCapabilityCatalogService', () => {
             generatedAt: '2026-04-02T12:00:00.000Z',
             activeProviderName: 'gemini',
             activeModelName: 'gemini-2.5-flash',
-            preferredZavorthBridgeModel: 'omni-route-coder',
+            preferredZavorthBridgeModel: 'ai-gateway-coder',
             recommendedProfile: {
               id: 'coding',
               label: 'Coding',
@@ -205,7 +205,7 @@ describe('ZavorthCapabilityCatalogService', () => {
         inspect: () => ({
           activeProviderName: 'gemini',
           activeModelName: 'gemini-2.5-flash',
-          preferredZavorthBridgeModel: 'omni-route-coder',
+          preferredZavorthBridgeModel: 'ai-gateway-coder',
           providers: [
             {
               id: 'gemini',
@@ -300,6 +300,14 @@ describe('ZavorthCapabilityCatalogService', () => {
             headline: 'Agent OS limitado',
             operatorSummary: '1 loop ativo e 1 com retomada.',
           },
+        }),
+      } as any,
+      capabilityActionSurfaceService: {
+        buildSnapshot: () => ({
+          surface: 'capability-action-surface',
+          status: 'ready',
+          summary: { exposed: 1, blocked: 0, receipts: 1, visibleSurfaces: 3 },
+          items: [{ actionId: 'capability.candidate.research-pack', title: 'Research pack', status: 'available' }],
         }),
       } as any,
     });
@@ -405,6 +413,12 @@ describe('ZavorthCapabilityCatalogService', () => {
         featuredLoops: expect.arrayContaining([
           expect.objectContaining({ id: 'sdd', status: 'resumable' }),
         ]),
+      }),
+    );
+    expect(snapshot.capabilityActions).toEqual(
+      expect.objectContaining({
+        surface: 'capability-action-surface',
+        summary: expect.objectContaining({ exposed: 1, receipts: 1 }),
       }),
     );
     expect(snapshot.narrative.headline).toContain('3 capacidades');

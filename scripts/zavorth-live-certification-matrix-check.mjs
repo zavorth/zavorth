@@ -68,7 +68,7 @@ function ruleContainsMarkers() {
       'CLI daily-use surface',
       'Provider P0 matrix',
       'Telegram channel',
-      'Subagents live parity',
+      'Subagents live consistency',
       'Skills and learning loop',
       'Scheduler daily autonomy',
       'Perception and device control',

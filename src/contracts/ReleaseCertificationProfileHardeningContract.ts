@@ -1,8 +1,8 @@
 import type {
-  ParityCertificationGateStatus,
-  ParityCertificationProfile,
-  ParityCertificationSnapshot,
-} from './ParityCertificationContract.js';
+  ReleaseCertificationGateStatus,
+  ReleaseCertificationProfile,
+  ReleaseCertificationSnapshot,
+} from './ReleaseCertificationContract.js';
 
 export const ZAVORTH_RELEASE_CERTIFICATION_PROFILE_HARDENING_CONTRACT_VERSION = '2026-05-04.checkpoint-14';
 
@@ -10,12 +10,12 @@ export const RELEASE_CERTIFICATION_HARDENED_PROFILES = [
   'private-absorption',
   'release-candidate',
   'public-launch',
-] as const satisfies readonly ParityCertificationProfile[];
+] as const satisfies readonly ReleaseCertificationProfile[];
 
 export type ReleaseCertificationProfileHardeningStatus = 'certified' | 'attention' | 'blocked';
 
 export type ReleaseCertificationProfilePolicy = {
-  profile: ParityCertificationProfile;
+  profile: ReleaseCertificationProfile;
   gateId: string;
   label: string;
   maxP0Gaps: 0;
@@ -34,9 +34,9 @@ export type ReleaseCertificationProfilePolicy = {
 };
 
 export type ReleaseCertificationProfileResult = {
-  profile: ParityCertificationProfile;
+  profile: ReleaseCertificationProfile;
   gateId: string;
-  status: ParityCertificationSnapshot['status'];
+  status: ReleaseCertificationSnapshot['status'];
   certified: boolean;
   releaseReady: boolean;
   sourceOpenGaps: number;
@@ -57,8 +57,8 @@ export type ReleaseCertificationProfileResult = {
 
 export type ReleaseCertificationHardeningGate = {
   id: string;
-  profile: ParityCertificationProfile | 'all';
-  status: ParityCertificationGateStatus;
+  profile: ReleaseCertificationProfile | 'all';
+  status: ReleaseCertificationGateStatus;
   title: string;
   observed: number | string | boolean;
   threshold: number | string | boolean;
@@ -68,10 +68,10 @@ export type ReleaseCertificationHardeningGate = {
 
 export type ReleaseCertificationFinalReceipt = {
   id: string;
-  profile: ParityCertificationProfile;
+  profile: ReleaseCertificationProfile;
   sourceReceiptId: string;
   gateId: string;
-  status: ParityCertificationGateStatus;
+  status: ReleaseCertificationGateStatus;
   evidence: string;
   noLiveIo: true;
   secretValuesSerialized: false;
@@ -108,7 +108,7 @@ export type ReleaseCertificationProfileHardeningSnapshot = {
   profileResults: ReleaseCertificationProfileResult[];
   gates: ReleaseCertificationHardeningGate[];
   finalReceipts: ReleaseCertificationFinalReceipt[];
-  certifications: Array<Pick<ParityCertificationSnapshot, 'contractVersion' | 'profile' | 'status' | 'summary' | 'recommendations'>>;
+  certifications: Array<Pick<ReleaseCertificationSnapshot, 'contractVersion' | 'profile' | 'status' | 'summary' | 'recommendations'>>;
   commands: {
     run: string;
     runJson: string;

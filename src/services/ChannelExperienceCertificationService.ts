@@ -9,10 +9,10 @@ import type {
   ChannelExperienceCertificationSnapshot,
 } from '../contracts/ChannelExperienceCertificationContract.js';
 import type {
-  ChannelExperienceParityEntry,
-  ChannelExperienceParitySnapshot,
-} from './ChannelExperienceParityService.js';
-import { ChannelExperienceParityService } from './ChannelExperienceParityService.js';
+  ChannelExperienceConsistencyEntry,
+  ChannelExperienceConsistencySnapshot,
+} from './ChannelExperienceConsistencyService.js';
+import { ChannelExperienceConsistencyService } from './ChannelExperienceConsistencyService.js';
 import { getSharedSurfaceCommandContract } from './SharedSurfaceCommandContract.js';
 import { createSurfaceResponse, renderSurfaceResponseForTarget } from '../domain/surface/application/surface-response/index.js';
 import { isSharedSurfaceChannelCallbackAction } from '../domain/surface/presentation/shared-surface/SharedSurfaceCallbackCommandPolicy.js';
@@ -22,7 +22,7 @@ import { ZavorthChannelMeshService } from './ZavorthChannelMeshService.js';
 type ChannelExperienceCertificationRuntime = {
   now?: () => Date;
   channelMeshService?: Pick<ZavorthChannelMeshService, 'buildSnapshot'>;
-  channelExperienceParityService?: Pick<ChannelExperienceParityService, 'buildSnapshot'>;
+  channelExperienceConsistencyService?: Pick<ChannelExperienceConsistencyService, 'buildSnapshot'>;
   requiredChannelIds?: string[];
   extendedChannelIds?: string[];
 };
@@ -68,14 +68,14 @@ const REFERENCE_BASELINE_BY_CHANNEL: Record<string, string[]> = {
 export class ChannelExperienceCertificationService {
   private readonly now: () => Date;
   private readonly channelMesh: Pick<ZavorthChannelMeshService, 'buildSnapshot'>;
-  private readonly parity: Pick<ChannelExperienceParityService, 'buildSnapshot'>;
+  private readonly consistency: Pick<ChannelExperienceConsistencyService, 'buildSnapshot'>;
   private readonly requiredChannelIds: string[];
   private readonly extendedChannelIds: string[];
 
   public constructor(runtime: ChannelExperienceCertificationRuntime = {}) {
     this.now = runtime.now || (() => new Date());
     this.channelMesh = runtime.channelMeshService || new ZavorthChannelMeshService();
-    this.parity = runtime.channelExperienceParityService || new ChannelExperienceParityService({
+    this.consistency = runtime.channelExperienceConsistencyService || new ChannelExperienceConsistencyService({
       channelMeshService: this.channelMesh,
       targetChannelIds: [
         ...(runtime.requiredChannelIds || REQUIRED_CERTIFIED_CHANNELS),
@@ -88,9 +88,9 @@ export class ChannelExperienceCertificationService {
 
   public buildSnapshot(input: { selectedId?: string | null } = {}): ChannelExperienceCertificationSnapshot {
     const mesh = this.channelMesh.buildSnapshot({ selectedId: null });
-    const parity = this.parity.buildSnapshot({ selectedId: null });
+    const consistency = this.consistency.buildSnapshot({ selectedId: null });
     const targetIds = this.resolveTargetIds(mesh);
-    const entries = targetIds.map((channelId) => this.buildEntry(channelId, mesh, parity));
+    const entries = targetIds.map((channelId) => this.buildEntry(channelId, mesh, consistency));
     const selectedId = this.normalizeId(input.selectedId);
     const selected = selectedId
       ? entries.find((entry) => entry.channelId === selectedId) || null
@@ -152,11 +152,11 @@ export class ChannelExperienceCertificationService {
   private buildEntry(
     channelId: string,
     mesh: ChannelMeshSnapshot,
-    parity: ChannelExperienceParitySnapshot,
+    consistency: ChannelExperienceConsistencySnapshot,
   ): ChannelExperienceCertificationEntry {
     const meshEntry = mesh.entries.find((entry) => this.normalizeId(entry.id) === channelId) || null;
-    const parityEntry = parity.entries.find((entry) => entry.channelId === channelId) || null;
-    const checks = this.buildChecks(channelId, meshEntry, parityEntry);
+    const consistencyEntry = consistency.entries.find((entry) => entry.channelId === channelId) || null;
+    const checks = this.buildChecks(channelId, meshEntry, consistencyEntry);
     const required = checks.filter((check) => check.required && check.status !== 'na');
     const passed = required.filter((check) => check.status === 'pass');
     const blockers = required
@@ -166,11 +166,11 @@ export class ChannelExperienceCertificationService {
 
     return {
       channelId,
-      label: meshEntry?.label || parityEntry?.label || this.toLabel(channelId),
+      label: meshEntry?.label || consistencyEntry?.label || this.toLabel(channelId),
       status,
-      readiness: meshEntry?.readiness || parityEntry?.readiness || 'missing',
-      transport: meshEntry?.transport || parityEntry?.transport || 'missing',
-      implementationState: meshEntry?.implementationState || parityEntry?.implementationState || 'missing',
+      readiness: meshEntry?.readiness || consistencyEntry?.readiness || 'missing',
+      transport: meshEntry?.transport || consistencyEntry?.transport || 'missing',
+      implementationState: meshEntry?.implementationState || consistencyEntry?.implementationState || 'missing',
       score: {
         passed: passed.length,
         required: required.length,
@@ -180,7 +180,7 @@ export class ChannelExperienceCertificationService {
       checks,
       blockers,
       referenceBaseline: REFERENCE_BASELINE_BY_CHANNEL[channelId] || ['status', 'commands', 'safe delivery'],
-      zavorthEvidence: this.buildZavorthEvidence(channelId, meshEntry, parityEntry),
+      zavorthEvidence: this.buildZavorthEvidence(channelId, meshEntry, consistencyEntry),
       smokeCommands: this.buildChannelSmokeCommands(channelId, meshEntry),
     };
   }
@@ -188,7 +188,7 @@ export class ChannelExperienceCertificationService {
   private buildChecks(
     channelId: string,
     meshEntry: ChannelMeshSnapshotEntry | null,
-    parityEntry: ChannelExperienceParityEntry | null,
+    consistencyEntry: ChannelExperienceConsistencyEntry | null,
   ): ChannelExperienceCertificationCheck[] {
     const actionKinds = new Set((meshEntry?.actions || []).map((action) => action.kind));
     const commandDeckReady = this.hasRequiredCommandDeck();
@@ -204,8 +204,8 @@ export class ChannelExperienceCertificationService {
       isSharedSurfaceChannelCallbackAction('status')
       && isSharedSurfaceChannelCallbackAction('login-qr')
       && !isSharedSurfaceChannelCallbackAction('logout');
-    const parityRichReady = this.parityCheckPassed(parityEntry, 'rich-replies');
-    const parityGuidedReady = this.parityCheckPassed(parityEntry, 'guided-actions');
+    const consistencyRichReady = this.consistencyCheckPassed(consistencyEntry, 'rich-replies');
+    const consistencyGuidedReady = this.consistencyCheckPassed(consistencyEntry, 'guided-actions');
     const qrRequired = channelId === 'whatsapp' && !this.isWebhookBacked(meshEntry);
     const qrReady = Boolean(
       meshEntry?.loginQr?.supported
@@ -226,8 +226,8 @@ export class ChannelExperienceCertificationService {
     return [
       this.check('adapter', 'Adapter/canal registrado', true, Boolean(meshEntry), 'canal precisa existir no Channel Mesh', [meshEntry?.summary || '']),
       this.check('status-card', 'Status por canal visivel', true, statusReady, 'status card/linhas de status precisam estar no contrato', this.statusEvidence(meshEntry)),
-      this.check('shared-renderer', 'Resposta rica multi-canal', true, rendererReady && renderSmokeReady && (parityRichReady || richFallbackReady), 'renderer compartilhado precisa ter alvo e smoke por canal', [`target=${renderTarget}`, parityEntry?.summary || '']),
-      this.check('guided-actions', 'Acoes guiadas equivalentes', true, guidedActionsReady && parityGuidedReady, 'acoes minimas inspect/status/policy/doctor precisam existir', Array.from(actionKinds)),
+      this.check('shared-renderer', 'Resposta rica multi-canal', true, rendererReady && renderSmokeReady && (consistencyRichReady || richFallbackReady), 'renderer compartilhado precisa ter alvo e smoke por canal', [`target=${renderTarget}`, consistencyEntry?.summary || '']),
+      this.check('guided-actions', 'Acoes guiadas equivalentes', true, guidedActionsReady && consistencyGuidedReady, 'acoes minimas inspect/status/policy/doctor precisam existir', Array.from(actionKinds)),
       this.check('command-deck', 'Command deck de canais', true, commandDeckReady, `comandos exigidos: ${REQUIRED_CHANNEL_EXPERIENCE_COMMANDS.join(', ')}`, REQUIRED_CHANNEL_EXPERIENCE_COMMANDS),
       this.check('model-menu', 'Selecao de modelo acessivel', true, modelMenuReady, '/models precisa existir com menu nativo ou fallback textual', [`modelMenus=${Boolean(meshEntry?.interactiveSurface?.modelMenus)}`]),
       this.check('connection-state', 'Estado de conexao/login', true, Boolean(meshEntry?.connection || (meshEntry?.statusRows || []).length > 0 || typeof meshEntry?.configured === 'boolean'), 'operador precisa ver conectado/configurado/erro', this.statusEvidence(meshEntry)),
@@ -264,7 +264,7 @@ export class ChannelExperienceCertificationService {
       globalCommands: [
         'npm run channel-experience-certification',
         'npm run channel-experience-certification:check',
-        '/channels parity',
+        '/channels consistency',
         '/channels',
         '/commands channel',
         '/models',
@@ -312,7 +312,7 @@ export class ChannelExperienceCertificationService {
   private buildZavorthEvidence(
     channelId: string,
     meshEntry: ChannelMeshSnapshotEntry | null,
-    parityEntry: ChannelExperienceParityEntry | null,
+    consistencyEntry: ChannelExperienceConsistencyEntry | null,
   ): string[] {
     if (!meshEntry) {
       return ['canal ausente'];
@@ -323,7 +323,7 @@ export class ChannelExperienceCertificationService {
       `provider=${meshEntry.provider || 'n/d'}`,
       `actions=${(meshEntry.actions || []).map((action) => action.kind).join(',') || 'n/d'}`,
       `policy=${meshEntry.policy?.state || 'n/d'}`,
-      `parity=${parityEntry?.status || 'n/d'}`,
+      `consistency=${consistencyEntry?.status || 'n/d'}`,
     ];
   }
 
@@ -333,7 +333,7 @@ export class ChannelExperienceCertificationService {
       `/channels status ${channelId}`,
       `/channels policy ${channelId}`,
       `/channels doctor ${channelId}`,
-      `/channels parity ${channelId}`,
+      `/channels consistency ${channelId}`,
     ];
     if (channelId === 'whatsapp' && (meshEntry?.features.qrLogin || meshEntry?.loginQr?.supported)) {
       commands.push('/channels login-qr whatsapp');
@@ -393,7 +393,7 @@ export class ChannelExperienceCertificationService {
       .filter((entry) => this.requiredChannelIds.includes(entry.channelId))
       .find((entry) => entry.blockers.length > 0);
     if (firstRequiredBlocker) {
-      return `/channels parity ${firstRequiredBlocker.channelId} e fechar: ${firstRequiredBlocker.blockers[0]}`;
+      return `/channels consistency ${firstRequiredBlocker.channelId} e fechar: ${firstRequiredBlocker.blockers[0]}`;
     }
     return 'Manter npm run channel-experience-certification:check no QA antes de alterar qualquer canal.';
   }
@@ -440,7 +440,7 @@ export class ChannelExperienceCertificationService {
     return rendered.text.includes('Channel experience certification') && rendered.actions.length > 0;
   }
 
-  private parityCheckPassed(entry: ChannelExperienceParityEntry | null, checkId: string): boolean {
+  private consistencyCheckPassed(entry: ChannelExperienceConsistencyEntry | null, checkId: string): boolean {
     return Boolean(entry?.checks.some((check) => check.id === checkId && check.status === 'pass'));
   }
 

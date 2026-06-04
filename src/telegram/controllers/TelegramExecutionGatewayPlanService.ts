@@ -7,7 +7,7 @@ import { WorkspaceOperationalMemoryService } from '../../runtime/context/Workspa
 import {
   EXTERNAL_EXECUTOR_ID,
   EXTERNAL_EXECUTOR_LABEL,
-  getExternalAgentRoleFromMetadata,
+  getRuntimeAdapterRoleFromMetadata,
   isExternalCommand,
   isExternalExecutor,
 } from '../ExternalExecutorIdentity.js';
@@ -143,8 +143,8 @@ export class TelegramExecutionGatewayPlanService {
     }
   }
 
-  public resolveExternalAgentRole(task: Task): string {
-    return getExternalAgentRoleFromMetadata(task.metadata);
+  public resolveRuntimeAdapterRole(task: Task): string {
+    return getRuntimeAdapterRoleFromMetadata(task.metadata);
   }
 
   private getDefaultWorkspace(commandType: string): string {

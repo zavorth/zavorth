@@ -10,7 +10,7 @@ const nodeBin = process.execPath;
 const runAudit = process.argv.includes('--audit');
 const results = [];
 
-runStep('installer parity', nodeBin, ['scripts/installer-parity-check.mjs']);
+runStep('installer consistency', nodeBin, ['scripts/installer-readiness-check.mjs']);
 runStep('installer release manifest', nodeBin, ['scripts/installer-release-manifest.mjs', '--check']);
 runStep('release channels', nodeBin, ['scripts/release-channels-check.mjs']);
 runStep('standalone launcher', nodeBin, ['scripts/standalone-launcher-check.mjs']);

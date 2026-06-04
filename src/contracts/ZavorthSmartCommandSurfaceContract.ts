@@ -87,7 +87,7 @@ export type ZavorthSmartCommandSnapshot = {
     noNetworkProbe: true;
     noSecretSerialization: true;
     noFilesystemMutationWithoutApproval: true;
-    noExternalAgentInvocation: true;
+    noRuntimeAdapterInvocation: true;
   };
   catalog: ZavorthSmartCommandResolution[];
 };

@@ -1,6 +1,11 @@
 import { config } from '../config/index.js';
+import { GoalLoopDaemonService } from '../services/GoalLoopDaemonService.js';
+import { GoalLoopService } from '../services/GoalLoopService.js';
+import { GoalLoopWorkerService } from '../services/GoalLoopWorkerService.js';
+import { GoalPlaneService } from '../services/GoalPlaneService.js';
 import { McpRuntimeService } from '../mcp/McpRuntimeService.js';
 import { TaskManager } from '../orchestrator/TaskManager.js';
+import { TaskPlaneService } from '../services/TaskPlaneService.js';
 import { Database } from '../storage/Database.js';
 import { LogRepository } from '../storage/LogRepository.js';
 import { TaskRepository } from '../storage/TaskRepository.js';
@@ -17,6 +22,7 @@ import { RuntimeArtifactMaintenanceService } from '../services/RuntimeArtifactMa
 import { RuntimeLogMaintenanceService } from '../services/RuntimeLogMaintenanceService.js';
 import { RuntimeProfileService } from '../services/RuntimeProfileService.js';
 import { TerminalSidecarService } from '../services/TerminalSidecarService.js';
+import { ChannelProgressRuntimeBridgeService } from '../services/ChannelProgressRuntimeBridgeService.js';
 import { LlmRuntimeService } from '../services/llm/LlmRuntimeService.js';
 import { ModelPickerContractService } from '../domain/providers/index.js';
 import { SkillCuratorPlaneService } from '../skills/SkillCuratorPlaneService.js';
@@ -186,6 +192,53 @@ export async function initializeBootstrapFoundation(
     runStore: createDefaultAgentRunStore(),
     workflowQueueStore: createDefaultAgentWorkflowQueueStore(),
   });
+  agentGateway.addRuntimeEventBus(new ChannelProgressRuntimeBridgeService());
+  let goalLoopDaemon: GoalLoopDaemonService | null = null;
+  if (config.goalLoopDaemonEnabled) {
+    const taskPlane = new TaskPlaneService({
+      storePath: `${config.runtimeDir}/task-plane.json`,
+      stateDbPath: config.dbPath,
+    });
+    const goalPlane = new GoalPlaneService({
+      storePath: `${config.runtimeDir}/goal-plane.json`,
+      taskPlane,
+      stateDbPath: config.dbPath,
+    });
+    const goalLoop = new GoalLoopService({
+      goalPlane,
+      taskPlane,
+      stateDbPath: config.dbPath,
+      llmRuntime: new LlmRuntimeService(),
+    });
+    const goalLoopWorker = new GoalLoopWorkerService({
+      goalPlane,
+      taskPlane,
+      loop: goalLoop,
+      agentRunner: {
+        run: (request, options) => agentGateway.handle(request, options),
+      },
+      stateDbPath: config.dbPath,
+    });
+    goalLoopDaemon = new GoalLoopDaemonService({
+      taskPlane,
+      worker: goalLoopWorker,
+      stateDbPath: config.dbPath,
+    });
+    goalLoopDaemon.start({
+      daemonId: 'bootstrap-goal-loop-daemon',
+      intervalMs: config.goalLoopDaemonIntervalMs,
+      leaseMs: config.goalLoopDaemonLeaseMs,
+      staleAfterMs: config.goalLoopDaemonStaleAfterMs,
+      maxItems: config.goalLoopDaemonMaxItems,
+    });
+    logRepo.log(
+      'info',
+      'GoalLoopDaemon',
+      `Goal Loop daemon ativo: interval=${config.goalLoopDaemonIntervalMs}ms maxItems=${config.goalLoopDaemonMaxItems}.`,
+    );
+  } else {
+    logRepo.log('info', 'GoalLoopDaemon', 'Goal Loop daemon desativado por ZAVORTH_GOAL_LOOP_DAEMON_ENABLED=false.');
+  }
   // === END CONTEXT ENGINE WIRING ===
 
   return {
@@ -202,6 +255,7 @@ export async function initializeBootstrapFoundation(
     maintenanceAutomation,
     skillCuratorPlaneService,
     stopRuntimeMaintenance() {
+      goalLoopDaemon?.stop({ daemonId: 'bootstrap-goal-loop-daemon' });
       if (!runtimeMaintenanceTimer) {
         return;
       }

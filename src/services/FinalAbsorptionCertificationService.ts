@@ -10,7 +10,7 @@ import { CapabilityNormalizationService } from './CapabilityNormalizationService
 import { CodexRuntimePlaneService } from './CodexRuntimePlaneService.js';
 import { ModuleSdkExportClosureService } from './ModuleSdkExportClosureService.js';
 import { OpenShellRemoteSandboxService } from './OpenShellRemoteSandboxService.js';
-import { ParityCertificationService } from './ParityCertificationService.js';
+import { ReleaseCertificationService } from './ReleaseCertificationService.js';
 import { ProviderChannelSmokeProofService } from './ProviderChannelSmokeProofService.js';
 import { RuntimeFamilyClosureService } from './RuntimeFamilyClosureService.js';
 
@@ -22,7 +22,7 @@ type FinalAbsorptionCertificationRuntime = {
   moduleSdkExportClosureService?: ModuleSdkExportClosureService;
   providerChannelSmokeProofService?: ProviderChannelSmokeProofService;
   runtimeFamilyClosureService?: RuntimeFamilyClosureService;
-  parityCertificationService?: ParityCertificationService;
+  releaseCertificationService?: ReleaseCertificationService;
 };
 
 type EvidenceInput = {
@@ -43,7 +43,7 @@ export class FinalAbsorptionCertificationService {
   private readonly moduleSdkExport: ModuleSdkExportClosureService;
   private readonly providerChannelSmoke: ProviderChannelSmokeProofService;
   private readonly runtimeFamilyClosure: RuntimeFamilyClosureService;
-  private readonly parityCertification: ParityCertificationService;
+  private readonly releaseCertification: ReleaseCertificationService;
 
   constructor(runtime: FinalAbsorptionCertificationRuntime = {}) {
     this.now = runtime.now || (() => new Date());
@@ -68,7 +68,7 @@ export class FinalAbsorptionCertificationService {
       now: this.now,
       normalizationService: this.capabilityNormalization,
     });
-    this.parityCertification = runtime.parityCertificationService || new ParityCertificationService({
+    this.releaseCertification = runtime.releaseCertificationService || new ReleaseCertificationService({
       now: this.now,
       profile: 'public-launch',
     });
@@ -82,7 +82,7 @@ export class FinalAbsorptionCertificationService {
     const moduleSdkExport = this.moduleSdkExport.buildSnapshot();
     const providerChannelSmoke = this.providerChannelSmoke.buildSnapshot();
     const runtimeFamilyClosure = this.runtimeFamilyClosure.buildSnapshot();
-    const parityCertification = this.parityCertification.buildSnapshot({ profile: 'public-launch' });
+    const releaseCertification = this.releaseCertification.buildSnapshot({ profile: 'public-launch' });
 
     const evidence = [
       this.evidence({
@@ -132,7 +132,7 @@ export class FinalAbsorptionCertificationService {
       }),
       this.evidence({
         id: 'worker-4-module-sdk-export',
-        title: 'Worker 4 closed Module SDK and export parity',
+        title: 'Worker 4 closed Module SDK and export consistency',
         passed: moduleSdkExport.status === 'closed'
           && moduleSdkExport.summary.exportedSurfaces === moduleSdkExport.summary.publicSubpaths
           && moduleSdkExport.summary.missingSurfaces === 0
@@ -175,17 +175,17 @@ export class FinalAbsorptionCertificationService {
       }),
       this.evidence({
         id: 'public-launch-certification',
-        title: 'Public launch profile is certified by no-live-IO parity gates',
-        passed: parityCertification.status === 'certified'
-          && parityCertification.summary.sourceP0Gaps === 0
-          && parityCertification.summary.sourceP1Gaps === 0
-          && parityCertification.summary.sourceP2Gaps === 0,
-        command: 'npm run parity-certify:public-launch --silent',
-        observed: `${parityCertification.status}, P0 ${parityCertification.summary.sourceP0Gaps}, P1 ${parityCertification.summary.sourceP1Gaps}, P2 ${parityCertification.summary.sourceP2Gaps}`,
+        title: 'Public launch profile is certified by no-live-IO consistency gates',
+        passed: releaseCertification.status === 'certified'
+          && releaseCertification.summary.sourceP0Gaps === 0
+          && releaseCertification.summary.sourceP1Gaps === 0
+          && releaseCertification.summary.sourceP2Gaps === 0,
+        command: 'npm run release-certify:public-launch --silent',
+        observed: `${releaseCertification.status}, P0 ${releaseCertification.summary.sourceP0Gaps}, P1 ${releaseCertification.summary.sourceP1Gaps}, P2 ${releaseCertification.summary.sourceP2Gaps}`,
         required: 'certified, P0 0, P1 0, P2 0',
         evidence: [
-          `${parityCertification.summary.receipts} parity certification receipts available.`,
-          `${parityCertification.summary.gates} parity certification gates evaluated.`,
+          `${releaseCertification.summary.receipts} consistency certification receipts available.`,
+          `${releaseCertification.summary.gates} consistency certification gates evaluated.`,
         ],
       }),
     ];
@@ -200,7 +200,7 @@ export class FinalAbsorptionCertificationService {
       statement: {
         privateCertification: 'Zavorth has absorbed the tracked private capability inventory into Zavorth-native contracts, services, policies, artifacts, receipts, and no-live-IO proof gates.',
         trackedInventory: '125 normalized source modules are covered by the Worker 1 through Worker 6 closure chain.',
-        liveEndToEndParity: 'not-claimed-by-this-certificate',
+        liveEndToEndConsistency: 'not-claimed-by-this-certificate',
         publicLaunch: 'certified-by-static-and-no-live-IO-profile',
       },
       summary: {
@@ -217,14 +217,14 @@ export class FinalAbsorptionCertificationService {
         runtimeFamilyPrimitives: runtimeFamilyClosure.summary.primitives,
         runtimeFamilySourceModules: runtimeFamilyClosure.summary.sourceModules,
         runtimeFamilyModeProofs: runtimeFamilyClosure.summary.modeProofs,
-        p0Gaps: parityCertification.summary.sourceP0Gaps,
-        p1Gaps: parityCertification.summary.sourceP1Gaps,
-        p2Gaps: parityCertification.summary.sourceP2Gaps,
+        p0Gaps: releaseCertification.summary.sourceP0Gaps,
+        p1Gaps: releaseCertification.summary.sourceP1Gaps,
+        p2Gaps: releaseCertification.summary.sourceP2Gaps,
         totalReceipts: codexRuntime.receipts.length
           + openshellSandbox.receipts.length
           + providerChannelSmoke.receipts.length
           + runtimeFamilyClosure.receipts.length
-          + parityCertification.receipts.length
+          + releaseCertification.receipts.length
           + receipts.length,
         liveExternalCallRequired: false,
         liveChannelSendRequired: false,
@@ -267,11 +267,11 @@ export class FinalAbsorptionCertificationService {
           status: runtimeFamilyClosure.status,
           summary: runtimeFamilyClosure.summary,
         },
-        parityCertification: {
-          contractVersion: parityCertification.contractVersion,
-          profile: parityCertification.profile,
-          status: parityCertification.status,
-          summary: parityCertification.summary,
+        releaseCertification: {
+          contractVersion: releaseCertification.contractVersion,
+          profile: releaseCertification.profile,
+          status: releaseCertification.status,
+          summary: releaseCertification.summary,
         },
       },
       policy: {
@@ -283,7 +283,7 @@ export class FinalAbsorptionCertificationService {
         noFilesystemWrites: true,
         noArtifactBodyReads: true,
         noSecretValuesSerialized: true,
-        liveEndToEndParityRequiresSeparateOperatorRun: true,
+        liveEndToEndConsistencyRequiresSeparateOperatorRun: true,
       },
       commands: {
         certify: 'npm run final-absorption-certify --silent',
@@ -311,7 +311,7 @@ export class FinalAbsorptionCertificationService {
       `Runtime families: ${snapshot.summary.runtimeFamilyPrimitives} primitives, ${snapshot.summary.runtimeFamilyModeProofs} mode proofs`,
       `Gaps: P0 ${snapshot.summary.p0Gaps}, P1 ${snapshot.summary.p1Gaps}, P2 ${snapshot.summary.p2Gaps}`,
       `Receipts: ${snapshot.summary.totalReceipts}`,
-      `Live E2E parity: ${snapshot.statement.liveEndToEndParity}`,
+      `Live E2E consistency: ${snapshot.statement.liveEndToEndConsistency}`,
       '',
       'Evidence:',
       ...snapshot.evidence.map((item) => `- ${item.status.toUpperCase()} ${item.id}: ${item.observed} / ${item.required}`),

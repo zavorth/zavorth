@@ -66,7 +66,7 @@
   "allowed_workspaces": [
     "C:/workspace/projeto-exemplo",
     "C:/workspace/zavorth-release",
-    "C:/TESTES DEV"
+    "C:/workspace/local-lab"
   ],
 
   "sensitive_directories": [

@@ -86,7 +86,7 @@ export type ExternalAgentPluginGatewayMethodSurfaceBoundaryOptions<TRuntimeId ex
 };
 
 export type ExternalAgentPluginGatewayMethodSurfaceBoundaryNormalization<TRuntimeId extends string = string> = {
-  nativeContract: 'ZavorthPluginGatewayMethodSurfaceParity/v1';
+  nativeContract: 'ZavorthPluginGatewayMethodSurfaceConsistency/v1';
   generatedAt: string;
   runtimeId: TRuntimeId;
   gatewayMethods: ExternalAgentZavorthGatewayMethodSurface[];
@@ -161,7 +161,7 @@ export function normalizeExternalAgentPluginGatewayMethodSurfaces<TRuntimeId ext
     .flatMap((method) => method.requestedTools);
 
   return {
-    nativeContract: 'ZavorthPluginGatewayMethodSurfaceParity/v1',
+    nativeContract: 'ZavorthPluginGatewayMethodSurfaceConsistency/v1',
     generatedAt: options.generatedAt,
     runtimeId: options.runtimeId,
     gatewayMethods,

@@ -1,9 +1,9 @@
 import type {
-  ExternalAgentBridgeChannelHealthSnapshot,
-  ExternalAgentCapabilityInventorySnapshot,
-  ExternalAgentDeliveryReceipt,
-  ExternalAgentSessionReadModel,
-  ExternalAgentWorkerStatusSnapshot,
+  RuntimeAdapterBridgeChannelHealthSnapshot,
+  RuntimeAdapterCapabilityInventorySnapshot,
+  RuntimeAdapterDeliveryReceipt,
+  RuntimeAdapterSessionReadModel,
+  RuntimeAdapterWorkerStatusSnapshot,
 } from "../../../../../../contracts/CommandCenterRuntimeBoundaryContract.js";
 import {
   ZAVORTH_COMMAND_CENTER_ASSIMILATION_VERSION,
@@ -31,11 +31,11 @@ import {
 
 export type ZavorthCommandCenterAssimilationInput = {
   projection?: CommandCenterRuntimeProjection | null;
-  capabilityInventory?: ExternalAgentCapabilityInventorySnapshot | null;
-  channelHealth?: ExternalAgentBridgeChannelHealthSnapshot | null;
-  deliveryReceipts?: ExternalAgentDeliveryReceipt[];
-  sessionReadModels?: ExternalAgentSessionReadModel[];
-  externalWorkers?: ExternalAgentWorkerStatusSnapshot[];
+  capabilityInventory?: RuntimeAdapterCapabilityInventorySnapshot | null;
+  channelHealth?: RuntimeAdapterBridgeChannelHealthSnapshot | null;
+  deliveryReceipts?: RuntimeAdapterDeliveryReceipt[];
+  sessionReadModels?: RuntimeAdapterSessionReadModel[];
+  externalWorkers?: RuntimeAdapterWorkerStatusSnapshot[];
   transportStatus?: ZavorthCommandCenterTransportStatus;
   loading?: boolean;
   error?: string | null;
@@ -250,7 +250,7 @@ function mapProjectionMessage(entry: CommandCenterRuntimeProjection["messages"][
   };
 }
 
-function mapReadModelEntry(entry: ExternalAgentSessionReadModel["entries"][number]): ZavorthSessionTimelineEntry {
+function mapReadModelEntry(entry: RuntimeAdapterSessionReadModel["entries"][number]): ZavorthSessionTimelineEntry {
   return {
     id: `zavorth-history:${entry.id}`,
     role: entry.role,
@@ -276,7 +276,7 @@ function mergeUniqueEntries(entries: ZavorthSessionTimelineEntry[]): ZavorthSess
 
 function buildSessionTimelines(
   projection: CommandCenterRuntimeProjection,
-  readModels: ExternalAgentSessionReadModel[],
+  readModels: RuntimeAdapterSessionReadModel[],
 ): ZavorthSessionTimeline[] {
   const timelines = new Map<string, ZavorthSessionTimeline>();
   const activeSessionId = projection.effectiveSessionId || projection.activeSessionId || null;
@@ -328,7 +328,7 @@ function mapApproval(approval: CommandCenterRuntimeProjection["approvals"][numbe
 
 function buildArtifacts(
   projection: CommandCenterRuntimeProjection,
-  readModels: ExternalAgentSessionReadModel[],
+  readModels: RuntimeAdapterSessionReadModel[],
 ): ZavorthArtifactSignal[] {
   const artifacts = [
     ...projection.artifacts.map((artifact): ZavorthArtifactSignal => ({
@@ -373,8 +373,8 @@ function channelStatusToRuntimeStatus(status: string): ZavorthCommandCenterRunti
 }
 
 function buildChannelActivity(
-  channelHealth: ExternalAgentBridgeChannelHealthSnapshot | null | undefined,
-  receipts: ExternalAgentDeliveryReceipt[],
+  channelHealth: RuntimeAdapterBridgeChannelHealthSnapshot | null | undefined,
+  receipts: RuntimeAdapterDeliveryReceipt[],
 ): ZavorthChannelActivity[] {
   const channels = asArray(channelHealth?.channels);
   return channels.map((channel) => {
@@ -418,7 +418,7 @@ function mapCapabilityStatus(status: string, policy: string): ZavorthCapabilityS
 
 function buildCapabilities(
   projection: CommandCenterRuntimeProjection,
-  inventory: ExternalAgentCapabilityInventorySnapshot | null | undefined,
+  inventory: RuntimeAdapterCapabilityInventorySnapshot | null | undefined,
 ): ZavorthCapabilityState[] {
   const fromProjection = projection.toolExposure.tools.map((tool): ZavorthCapabilityState => ({
     id: tool.id,
@@ -465,7 +465,7 @@ function mapWorkerStatus(status: unknown): ZavorthWorkerStatus["status"] {
 function buildWorkers(
   projection: CommandCenterRuntimeProjection,
   generatedAt: string,
-  externalWorkers: ExternalAgentWorkerStatusSnapshot[],
+  externalWorkers: RuntimeAdapterWorkerStatusSnapshot[],
 ): ZavorthWorkerStatus[] {
   const workflowWorkers = projection.workflowJobs.map((job, index): ZavorthWorkerStatus => ({
     id: asText(job.id, `worker-job-${index + 1}`),

@@ -274,9 +274,23 @@ export function initControlApp() {
         || bridge?.state?.zavorthControl?.snapshot?.runs?.[0]
         || null;
     const status = String(run?.status || '').trim().toLowerCase();
-    return ['queued', 'thinking', 'running', 'waiting_approval', 'planning', 'in_progress', 'processing'].includes(status)
-      ? run
-      : null;
+    if (['queued', 'thinking', 'running', 'waiting_approval', 'planning', 'in_progress', 'processing'].includes(status)) {
+      return run;
+    }
+
+    const activeStream = document.querySelector('.echo-group--agent-stream:not(.is-complete)');
+    const streamRunId = String(activeStream?.getAttribute('data-zavorth-agent-stream-id') || '')
+      .split(':')[0]
+      .trim();
+    const fallbackRunId = streamRunId || String(sessionStorage.getItem('zavorth.zavorthControl.runId') || '').trim();
+    if (activeStream && fallbackRunId) {
+      return {
+        id: fallbackRunId,
+        runId: fallbackRunId,
+        status: 'running',
+      };
+    }
+    return null;
   }
 
   function isRuntimeChatBusy() {

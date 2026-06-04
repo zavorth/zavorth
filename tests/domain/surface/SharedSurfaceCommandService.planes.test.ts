@@ -491,13 +491,13 @@ describe('SharedSurfaceCommandService', () => {
     );
   });
 
-  it('renders channel experience parity as a rich shared surface report', async () => {
+  it('renders channel experience consistency as a rich shared surface report', async () => {
     const ctx = {
       platform: 'telegram',
       userId: 'telegram-user',
       chatId: 'telegram:chat-1',
       isGroup: false,
-      rawText: '/channels parity whatsapp',
+      rawText: '/channels consistency whatsapp',
       reply: jest.fn(async () => undefined),
       editMessage: jest.fn(async () => undefined),
     };

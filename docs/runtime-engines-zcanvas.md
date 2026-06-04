@@ -61,11 +61,11 @@ Velocity trace is compact. Shield trace is full and audit-oriented. Lite keeps t
 
 ## Attachment Safety
 
-Attachments are treated as evidence, not instructions. Text extracted from PDFs, documents, spreadsheets, images or audio may contain prompt injection. When attachment text asks Zavorth to ignore instructions, reveal secrets, execute commands or exfiltrate data, the attachment profile marks it as untrusted instruction-injection content. The user request remains the authority; embedded instructions inside files do not change engine policy.
+Attachments are treated as context, not instructions. Text extracted from PDFs, documents, spreadsheets, images or audio may contain prompt injection. When attachment text asks Zavorth to ignore instructions, reveal secrets, execute commands or exfiltrate data, the attachment profile marks it as untrusted instruction-injection content. The user request remains the authority; embedded instructions inside files do not change engine policy.
 
-## Product QA Checklist
+## Operator Checklist
 
-Before calling a dashboard change complete, validate:
+When reviewing runtime and Canvas behavior, validate:
 
 - Inbox request routes through the engine router.
 - Visual or UI work recommends Z-Canvas.

@@ -5,7 +5,7 @@ describe('IntegrationHubService', () => {
     const manifest = {
       id: 'AIGateway',
       label: 'AIGateway',
-      aliases: ['omni-route'],
+      aliases: ['ai-gateway-local'],
       summary: 'Gateway local-first.',
       description: 'Vendor local.',
       supportLevel: 'native',

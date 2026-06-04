@@ -6,7 +6,7 @@ import { ZavorthScheduledTaskExecutionGatewayRuntimeService } from '../../../src
 
 describe('ZavorthScheduledTaskExecutionGatewayRuntimeService', () => {
   const fixedNow = () => new Date('2026-05-12T12:00:00.000Z');
-  const cwd = () => 'C:/TESTES DEV/zavorth-core/Zavorth';
+  const cwd = () => 'C:/workspace/zavorth-core/Zavorth';
 
   it('does not submit when Intent model registry still needs approval', async () => {
     const service = new ZavorthScheduledTaskExecutionGatewayRuntimeService({ now: fixedNow, cwd });

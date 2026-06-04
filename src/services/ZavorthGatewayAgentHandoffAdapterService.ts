@@ -233,7 +233,7 @@ export class ZavorthGatewayAgentHandoffAdapterService {
         compatibilityBoundary: 'Legacy pass-through remains a boundary; do not create a second agent gateway to bridge it.',
         nextIntegrationSteps: [
           'Choose one legacy ingress before adapting CoreOrchestrator or SurfaceTaskDispatchService.',
-          'Route that ingress behind the existing ZavorthAgentGateway only after behavior parity is covered by tests.',
+          'Route that ingress behind the existing ZavorthAgentGateway only after behavior consistency is covered by tests.',
         ],
         risks: [],
       },
@@ -470,7 +470,7 @@ export class ZavorthGatewayAgentHandoffAdapterService {
         id: 'single-entrypoint-wiring-gate',
         status: 'pending',
         owner: 'shared',
-        description: 'P0-003c keeps real wiring pending until one legacy entrypoint is explicitly selected and parity-tested.',
+        description: 'P0-003c keeps real wiring pending until one legacy entrypoint is explicitly selected and consistency-tested.',
         evidence: [
           'CoreOrchestrator and SurfaceTaskDispatchService remain legacy pass-through boundaries.',
           'Telegram natural requests already use the existing ZavorthAgentGateway selectively before legacy fallback.',

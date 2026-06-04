@@ -1116,7 +1116,7 @@
     if (runtimeText) {
       runtimeText.textContent = activeRun
         ? `${text(activeRun.status, 'running')} - ${deriveNextRunAction(activeRun)}`
-        : 'Use Chat for natural requests. Zavorth previews risky actions, asks when needed and writes receipts after completion.';
+        : 'Ask in plain language. Zavorth chooses tools, previews risky work, and shows the result clearly.';
     }
 
     updatePremiumStatus('Web dashboard', state.auth?.webReady ? 'ready' : 'local', state.auth?.webReady ? 'ok' : 'info');
@@ -1540,13 +1540,13 @@
         title: 'Policy Simulator',
         id: 'dry-run',
         status: summary.pendingApprovals ? 'Approval required' : 'Governed',
-        detail: 'Sensitive actions go through preview before live execution.',
+        detail: 'Autonomy stays quiet for reversible work; real decisions still use preview.',
       }),
       entityCardHtml({
         title: 'Agent Mesh',
         id: 'Maestro',
         status: state.zavorthControl?.snapshot?.agentMesh ? 'Connected' : 'Auditable',
-        detail: 'External agents appear as governed arms of Zavorth.',
+        detail: 'Runtime adapters appear as governed arms of Zavorth.',
       }),
       entityCardHtml({
         title: 'Audit Trail',
@@ -1676,7 +1676,7 @@
           enabled: true,
         },
         {
-          title: 'External agent onboarding',
+          title: 'Runtime adapter onboarding',
           summary: 'Creates profiles from user-provided paths without silent scanning or live execution.',
           status: 'consent required',
           enabled: true,
@@ -1838,12 +1838,12 @@
     updatePremiumStatus('Swarm v2', hasSwarm ? 'ready' : 'ready', 'ok');
     updatePremiumStatus('ACP', hasAcp ? 'configured' : 'opt-in', hasAcp ? 'ok' : 'info');
     updatePremiumStatus('Backends', backendCount ? `${backendCount} visible` : 'policy gated', backendCount ? 'ok' : 'warn');
-    updatePremiumStatus('External agents', companions.length ? `${companions.length} profile(s)` : 'consent required', companions.length ? 'ok' : 'info');
+    updatePremiumStatus('Runtime adapters', companions.length ? `${companions.length} profile(s)` : 'consent required', companions.length ? 'ok' : 'info');
     updatePlatformAction('sector-nodes', 'Mnemos', hasMnemos ? 'Memory tools visible in runtime.' : 'Memory vault scope is configurable.');
     updatePlatformAction('sector-nodes', 'Swarm v2', hasSwarm ? 'Parallel work is ready with budget guard.' : 'Ready when a swarm task is requested.');
     updatePlatformAction('sector-nodes', 'ACP', hasAcp ? 'ACP adapter is configured.' : 'Universal ACP remains opt-in and policy-gated.');
     updatePlatformAction('sector-nodes', 'Execution backends', backendCount ? `${backendCount} backend/profile signal(s) visible.` : 'Backends require explicit configuration.');
-    updatePlatformAction('sector-nodes', 'External agents', companions.length ? `${companions.length} consented profile(s).` : 'User-provided paths only; no silent discovery.');
+    updatePlatformAction('sector-nodes', 'Runtime adapters', companions.length ? `${companions.length} consented profile(s).` : 'User-provided paths only; no silent discovery.');
 
     setTableHeaders('sector-nodes', ['Node', 'Type', 'Processes', 'Memory', 'Summary', 'Actions', 'Status']);
     if (companions.length === 0) {

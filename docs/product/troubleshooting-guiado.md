@@ -16,7 +16,7 @@ zavorth open
 zavorth connectors doctor
 ```
 
-## 3. Check Critical Regression Gates
+## 3. Check Critical Runtime Health
 
 ```bash
 npm run runtime:check

@@ -27,7 +27,7 @@ export type ZavorthNativeReplacementInput = {
   sourcePatternRef: string;
   zavorthNativeOwner: string;
   replacementDecision: ZavorthNativeReplacementDecision;
-  parityCoveragePercent: number;
+  consistencyCoveragePercent: number;
   adapterRequiredAfterReplacement: boolean;
   sourceAssumptions: string[];
   acceptanceGate: string;
@@ -43,7 +43,7 @@ export type ZavorthNativeReplacementRegistryEntry = {
   publicName: 'Zavorth';
   zavorthNativeOwner: string;
   replacementDecision: ZavorthNativeReplacementDecision;
-  parityCoveragePercent: number;
+  consistencyCoveragePercent: number;
   adapterRequiredAfterReplacement: boolean;
   canRunWithoutSourceRuntime: boolean;
   sourceAssumptions: string[];
@@ -59,24 +59,24 @@ export type ZavorthNativeReplacementRegistryEntry = {
   };
 };
 
-export type ZavorthParityScenario = {
+export type ZavorthConsistencyScenario = {
   scenarioId: string;
   expectedBehavior: string;
   nativeBehavior: string;
   passed: boolean;
 };
 
-export type ZavorthParityTestHarnessReceipt = {
+export type ZavorthConsistencyTestHarnessReceipt = {
   harnessId: string;
   registryEntryId: string;
   capabilityId: string;
   status: 'passed' | 'attention' | 'failed';
-  parityCoveragePercent: number;
+  consistencyCoveragePercent: number;
   canRunNativeWithoutSourceRuntime: boolean;
   sourceRuntimeRequired: false;
-  scenarios: ZavorthParityScenario[];
+  scenarios: ZavorthConsistencyScenario[];
   safety: {
-    parityFixtureOnly: true;
+    consistencyFixtureOnly: true;
     noSourceRuntimeCall: true;
     noProviderCall: true;
     noToolExecution: true;
@@ -152,7 +152,7 @@ export type ZavorthNativeReplacementDecommissionSnapshot = {
   phase: 'native-replacement-decommission';
   previousDelegatedWorkerStatus: ZavorthDelegatedWorkerBridgeStatus;
   registryEntries: ZavorthNativeReplacementRegistryEntry[];
-  parityHarnessReceipts: ZavorthParityTestHarnessReceipt[];
+  consistencyHarnessReceipts: ZavorthConsistencyTestHarnessReceipt[];
   adapterDependencyReductionReceipts: ZavorthAdapterDependencyReductionReceipt[];
   sourceAssumptionDecommissionReceipts: ZavorthSourceAssumptionDecommissionReceipt[];
   compatibilityBoundaryReceipt: ZavorthCompatibilityBoundaryReceipt;
@@ -166,7 +166,7 @@ export type ZavorthNativeReplacementDecommissionSnapshot = {
     nativeReplacementRegistryEntries: number;
     promotedNativeCapabilities: number;
     optionalCompatibilityAdapters: number;
-    parityHarnessesPassed: number;
+    consistencyHarnessesPassed: number;
     adapterDependenciesReduced: number;
     sourceAssumptionsDecommissioned: number;
     compatibilityBoundariesReady: number;

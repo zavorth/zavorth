@@ -92,15 +92,7 @@ function publicDocsAreClean() {
     'docs/product/quickstart-developer.md',
     'docs/product/troubleshooting-guiado.md',
     'docs/README.md',
-    'docs/apps-satellite-nodes.md',
-    'docs/capability-absorption.md',
-    'docs/channel-deepening.md',
-    'docs/zavorth-control-advanced-interaction.md',
-    'docs/extension-plugin-sdk.md',
-    'docs/native-browser-computer-use.md',
-    'docs/native-learning-loop.md',
     'docs/node-mesh-live-native.md',
-    'docs/product-qa-live.md',
     'docs/terminal-backends.md',
   ]);
   const allowedMaintainerPatterns = [

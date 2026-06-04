@@ -16,6 +16,9 @@ function zavorthControlClassicClientOverviewSummaryCapabilities() {
       const featuredRoutes = Array.isArray(capabilities.featuredImplicitRoutes) ? capabilities.featuredImplicitRoutes : [];
       const platformSummary = capabilities.platforms?.summary || {};
       const integrationSummary = capabilities.integrations || {};
+      const capabilityActions = capabilities.capabilityActions || {};
+      const capabilityActionSummary = capabilityActions.summary || {};
+      const capabilityActionItems = Array.isArray(capabilityActions.items) ? capabilityActions.items : [];
       const categoryItems = categories.length
         ? categories.map((category) =>
             '<li><strong>' + escapeHtml(category.label || category.type || 'Categoria') + '</strong> Ã‚Â· '
@@ -51,6 +54,18 @@ function zavorthControlClassicClientOverviewSummaryCapabilities() {
             + '</div>'
           ).join('')
         : '<div class="muted">Nenhuma rota automatica em destaque.</div>';
+      const governedCapabilityItems = capabilityActionItems.length
+        ? capabilityActionItems.slice(0, 4).map((entry) =>
+            '<div class="cockpit-action-card">'
+            + '<div style="display:flex;justify-content:space-between;gap:10px;align-items:center;flex-wrap:wrap;">'
+            + '<strong>' + escapeHtml(entry.title || entry.actionId || 'Capability action') + '</strong>'
+            + '<span class="badge badge-allowed">' + escapeHtml(entry.status || 'available') + '</span>'
+            + '</div>'
+            + '<small>' + escapeHtml(entry.detail || 'Verified adapter available through the Action Harness.') + '</small>'
+            + '<div class="cockpit-command">' + escapeHtml(entry.previewCommand || 'zavorth actions preview <action-id>') + '</div>'
+            + '</div>'
+          ).join('')
+        : '<div class="muted">Nenhuma capacidade verificada foi exposta ainda.</div>';
 
       node.innerHTML =
         '<div class="cockpit-status">'
@@ -72,12 +87,14 @@ function zavorthControlClassicClientOverviewSummaryCapabilities() {
         + '<div class="cockpit-mini-card"><strong>Plugins</strong><div>' + escapeHtml(String(summary.plugin || 0)) + '</div><small>Capacidades externas</small></div>'
         + '<div class="cockpit-mini-card"><strong>Plataformas prontas</strong><div>' + escapeHtml(String(platformSummary.ready || 0)) + '</div><small>Telegram, Discord, WhatsApp</small></div>'
         + '<div class="cockpit-mini-card"><strong>Integracoes prontas</strong><div>' + escapeHtml(String(integrationSummary.ready || 0)) + '</div><small>Bindings utilizaveis agora</small></div>'
+        + '<div class="cockpit-mini-card"><strong>Novas capacidades</strong><div>' + escapeHtml(String(capabilityActionSummary.exposed || 0)) + '</div><small>Verificadas e governadas</small></div>'
         + '</div>'
         + '<div class="sidecar-card"><strong>Categorias</strong><ul class="cockpit-list">' + categoryItems + '</ul></div>'
         + '</div>'
         + '<div class="cockpit-stack">'
         + '<div class="sidecar-card"><strong>Comandos em destaque</strong><div class="cockpit-action-list">' + commandItems + '</div></div>'
         + '<div class="sidecar-card"><strong>Rotas automaticas em destaque</strong><div class="cockpit-action-list">' + routeItems + '</div></div>'
+        + '<div class="sidecar-card"><strong>Capability actions</strong><small>Ativacao real continua exigindo preview e aprovacao.</small><div class="cockpit-action-list">' + governedCapabilityItems + '</div></div>'
         + '<div class="sidecar-card"><strong>Panorama de superficies</strong><small>Ready: ' + escapeHtml(String(platformSummary.ready || 0)) + ' | Partial: ' + escapeHtml(String(platformSummary.partial || 0)) + ' | Planned: ' + escapeHtml(String(platformSummary.planned || 0)) + ' | Disabled: ' + escapeHtml(String(platformSummary.disabled || 0)) + '</small><small>Integration Hub: ' + escapeHtml(String(integrationSummary.total || 0)) + ' catalogadas | ' + escapeHtml(String(integrationSummary.templates || 0)) + ' templates | ' + escapeHtml(String(integrationSummary.installed || 0)) + ' instaladas</small></div>'
         + '</div>'
         + '</div>';
@@ -87,4 +104,3 @@ function zavorthControlClassicClientOverviewSummaryCapabilities() {
 export function getZavorthControlClassicClientOverviewSummaryCapabilitiesScript(): string {
   return extractFunctionBody(zavorthControlClassicClientOverviewSummaryCapabilities);
 }
-

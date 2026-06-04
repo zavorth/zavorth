@@ -63,7 +63,7 @@ API v1:
 | --- | --- | --- |
 | `GET` | `/api/web/zavorthControl/contracts-v1` | Reads the canonical Runtime API v1 projection for the current zavorthControl context. |
 | `GET` | `/api/web/zavorthControl/events-v1` | Reads canonical Runtime API v1 events for the active session. |
-| `GET` | `/api/web/zavorthControl/gui-certification-v1` | Runs daily-use GUI readiness checks for future visual clients. |
+| `GET` | `/api/web/zavorthControl/gui-readiness-v1` | Reads daily-use GUI readiness for future visual clients. |
 | `POST` | `/api/web/zavorthControl/chat-v1` | Delegates mission preview and explicit live chat submission to Runtime API v1. |
 | `POST` | `/api/web/zavorthControl/actions` | Delegates approval, mission, provider and channel actions to Runtime API v1. |
 
@@ -125,7 +125,7 @@ Each card should show:
 - declared files or target;
 - approve once, deny, preview, rollback and receipt actions.
 
-Receipts should be shown as readable evidence cards with status, summary and
+Receipts should be shown as readable cards with status, summary and
 rollback state. `GET /api/v1/receipts` returns a `trustUx` projection as well,
 so clients can render the same simple/advanced trust language without
 reinterpreting raw receipts.
@@ -144,8 +144,8 @@ ZavorthControl provider and channel panels should prefer Runtime API v1 contract
 - channel actions delegated through `/api/web/zavorthControl/actions` with `action: "channel.action"`.
 
 The panels must render readiness honestly. A listed provider or channel is not
-ready unless the contract says it is ready. Catalog support is not live proof.
-Default routing requires live evidence and `defaultRouteAllowed: true`.
+ready unless the contract says it is ready. Catalog support is not live readiness.
+Default routing requires live readiness and `defaultRouteAllowed: true`.
 
 Preview tests are safe. Live provider probes and sensitive channel actions
 still require explicit confirmation and Policy Broker receipts.
@@ -160,7 +160,7 @@ Runtime API v1 exposes these capabilities as governed projections:
 - imported and first-party skills are instruction-only by default.
 - support files in imported skills are not executable tools.
 - scheduled tasks may run only through governed scheduler scope and the Execution Gateway.
-- PC, browser and Android perception may be routed naturally for read-only evidence.
+- PC, browser and Android perception may be routed naturally for read-only context.
 - browser control, Android tap/type/install/uninstall and terminal automation remain approval-gated.
 - visual artifacts are redacted and carried by receipt-safe references.
 
@@ -181,9 +181,9 @@ receipts, schedules, skills, agents, providers and channels. CLI projections do
 not execute mutations by themselves. Writes, network, device control and live
 channel actions stay inside the governed runtime and Policy Broker path.
 
-## Daily-Use GUI Certification
+## Daily-Use GUI Readiness
 
-Daily-Use GUI Certification is the pre-desktop gate for status, health, providers, channels, approvals, receipts, missions, chat, events and governed actions.
+Daily-use GUI readiness covers status, health, providers, channels, approvals, receipts, missions, chat, events and governed actions.
 
 Use these checks when changing Runtime API v1 or the user-facing runtime path:
 

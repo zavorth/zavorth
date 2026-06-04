@@ -9,6 +9,11 @@ import {
 import { LlmRuntimeService } from '../services/llm/LlmRuntimeService.js';
 import { redactSensitiveText } from '../security/SensitiveDataGuard.js';
 import { Database } from '../storage/Database.js';
+import type {
+  ProfileImprovementLane,
+  ProfileImprovementPolicy,
+  ProfileRuntimeBundle,
+} from '../contracts/ProfileManifestContract.js';
 import type { SkillCatalogEntry } from './SkillCatalogContract.js';
 import { SkillCatalogService } from './SkillCatalogService.js';
 import { SkillCurationService } from './SkillCurationService.js';
@@ -47,6 +52,22 @@ export type SkillCuratorConsolidationCandidate = {
   recommendation: string;
 };
 
+export type SkillCuratorAutonomyReport = {
+  profileId: string | null;
+  mode: ProfileImprovementPolicy['mode'];
+  silent: ProfileImprovementLane[];
+  notify: ProfileImprovementLane[];
+  requireApproval: ProfileImprovementLane[];
+  maxSilentRisk: ProfileImprovementPolicy['maxSilentRisk'];
+  interruptMode: ProfileImprovementPolicy['interruptMode'];
+  scheduledRunMode: 'manual-dry-run' | 'silent-dry-run' | 'silent-apply-reversible';
+  backgroundOnly: boolean;
+  lowRiskArchiveAllowed: boolean;
+  approvalInterruptsCreated: number;
+  transitionLanes: ProfileImprovementLane[];
+  notes: string[];
+};
+
 export type SkillCuratorRunReport = {
   contractVersion: SkillCuratorState['contractVersion'];
   id: string;
@@ -63,6 +84,7 @@ export type SkillCuratorRunReport = {
     archiveAfterDays: number;
   };
   transitions: SkillCuratorTransition[];
+  autonomy: SkillCuratorAutonomyReport;
   auxiliaryReview: {
     mode: 'local-heuristic' | 'zavorth-live-loop';
     consolidationCandidates: SkillCuratorConsolidationCandidate[];
@@ -108,6 +130,7 @@ export type SkillCuratorStatus = {
   lastReportPath: string | null;
   runCount: number;
   config: SkillCuratorRunReport['config'];
+  autonomy: SkillCuratorAutonomyReport;
   stats: {
     total: number;
     managed: number;
@@ -165,6 +188,9 @@ type SkillCuratorPlaneRuntime = {
   llmProviderName?: string;
   llmModelName?: string;
   llmMaxProposals?: number;
+  profileBundle?: Pick<ProfileRuntimeBundle, 'id' | 'improvementPolicy'> | null;
+  profileId?: string | null;
+  improvementPolicy?: ProfileImprovementPolicy | null;
 };
 
 type SkillCuratorRunOptions = {
@@ -176,6 +202,15 @@ type SkillCuratorRunOptions = {
 };
 
 const CONTRACT_VERSION = '2026-05-31.zavorth.skill-curator-plane.v1' as const;
+
+const DEFAULT_IMPROVEMENT_POLICY: ProfileImprovementPolicy = {
+  mode: 'quiet-staging',
+  silent: ['telemetry', 'ranking', 'metadata', 'candidate', 'staging_diff', 'sandbox_validation'],
+  notify: ['draft_skill', 'low_risk_archive'],
+  requireApproval: ['apply', 'policy', 'provider', 'channel', 'secret', 'external_send', 'host_mutation'],
+  maxSilentRisk: 'low',
+  interruptMode: 'daily-digest',
+};
 
 export class SkillCuratorPlaneService {
   private readonly catalogService: Pick<SkillCatalogService, 'listEntries'>;
@@ -199,6 +234,8 @@ export class SkillCuratorPlaneService {
   private readonly llmProviderName: string;
   private readonly llmModelName: string;
   private readonly llmMaxProposals: number;
+  private readonly profileId: string | null;
+  private readonly improvementPolicy: ProfileImprovementPolicy;
 
   constructor(runtime: SkillCuratorPlaneRuntime = {}) {
     const catalogService = runtime.catalogService || new SkillCatalogService();
@@ -224,6 +261,10 @@ export class SkillCuratorPlaneService {
     this.minIdleHours = runtime.minIdleHours ?? config.skillsCuratorMinIdleHours;
     this.staleAfterDays = runtime.staleAfterDays ?? config.skillsCuratorStaleAfterDays;
     this.archiveAfterDays = runtime.archiveAfterDays ?? config.skillsCuratorArchiveAfterDays;
+    this.profileId = runtime.profileBundle?.id || runtime.profileId || null;
+    this.improvementPolicy = normalizeImprovementPolicy(
+      runtime.improvementPolicy || runtime.profileBundle?.improvementPolicy || DEFAULT_IMPROVEMENT_POLICY,
+    );
   }
 
   public async status(): Promise<SkillCuratorStatus> {
@@ -278,6 +319,11 @@ export class SkillCuratorPlaneService {
       lastReportPath: state.lastReportPath,
       runCount: state.runCount,
       config: this.curatorConfig(),
+      autonomy: this.buildAutonomyReport({
+        dryRun: this.shouldDryRunForScheduledRun(),
+        triggeredBy: 'status',
+        transitions: [],
+      }),
       stats: {
         total: skillRows.length,
         managed: skillRows.filter((entry) => entry.managed).length,
@@ -305,6 +351,11 @@ export class SkillCuratorPlaneService {
     const state = await this.loadState();
     const dryRun = options.dryRun === true;
     const transitions = await this.applyAutomaticTransitions(state, dryRun);
+    const autonomy = this.buildAutonomyReport({
+      dryRun,
+      triggeredBy: options.triggeredBy || 'operator',
+      transitions,
+    });
     const activeManagedSkills = this.catalogService.listEntries().filter((entry) => this.isManagedSkill(entry));
     const auxiliaryReview = this.buildAuxiliaryReview(activeManagedSkills);
     const llmReview = await this.buildLlmReview({
@@ -334,6 +385,7 @@ export class SkillCuratorPlaneService {
       durationSeconds,
       config: this.curatorConfig(),
       transitions,
+      autonomy,
       auxiliaryReview,
       llmReview,
       summary,
@@ -375,6 +427,7 @@ export class SkillCuratorPlaneService {
     }
     const report = await this.runCuratorReview({
       ...options,
+      dryRun: options.dryRun ?? this.shouldDryRunForScheduledRun(),
       reason: options.reason || 'scheduled',
       triggeredBy: options.triggeredBy || 'runtime-maintenance',
     });
@@ -821,6 +874,15 @@ export class SkillCuratorPlaneService {
         ),
       ]
       : [`- ${report.llmReview.status}${report.llmReview.error ? `: ${report.llmReview.error}` : ''}`];
+    const autonomyLines = [
+      `- profile: ${report.autonomy.profileId || 'default'}`,
+      `- mode: ${report.autonomy.mode}`,
+      `- scheduledRunMode: ${report.autonomy.scheduledRunMode}`,
+      `- interruptMode: ${report.autonomy.interruptMode}`,
+      `- lowRiskArchiveAllowed: ${String(report.autonomy.lowRiskArchiveAllowed)}`,
+      `- approvalInterruptsCreated: ${String(report.autonomy.approvalInterruptsCreated)}`,
+      ...report.autonomy.notes.map((note) => `- ${note}`),
+    ];
     return [
       `# Zavorth Skill Curator Report`,
       '',
@@ -828,6 +890,9 @@ export class SkillCuratorPlaneService {
       `- dryRun: ${String(report.dryRun)}`,
       `- triggeredBy: ${report.triggeredBy}`,
       `- summary: ${report.summary}`,
+      '',
+      '## Autonomy policy',
+      ...autonomyLines,
       '',
       '## Lifecycle transitions',
       ...transitionLines,
@@ -879,6 +944,73 @@ export class SkillCuratorPlaneService {
       staleAfterDays: this.staleAfterDays,
       archiveAfterDays: this.archiveAfterDays,
     };
+  }
+
+  private shouldDryRunForScheduledRun(): boolean {
+    if (this.improvementPolicy.mode === 'manual') return true;
+    return !this.lowRiskArchiveAllowed();
+  }
+
+  private lowRiskArchiveAllowed(): boolean {
+    return this.improvementPolicy.silent.includes('low_risk_archive')
+      && !this.improvementPolicy.requireApproval.includes('low_risk_archive')
+      && this.improvementPolicy.mode !== 'manual';
+  }
+
+  private buildAutonomyReport(input: {
+    dryRun: boolean;
+    triggeredBy: string;
+    transitions: SkillCuratorTransition[];
+  }): SkillCuratorAutonomyReport {
+    const transitionLanes = unique(
+      input.transitions.map((entry) => this.transitionLane(entry)),
+    ) as ProfileImprovementLane[];
+    const lowRiskArchiveAllowed = this.lowRiskArchiveAllowed();
+    const scheduledRunMode = this.improvementPolicy.mode === 'manual'
+      ? 'manual-dry-run'
+      : input.dryRun
+        ? 'silent-dry-run'
+        : 'silent-apply-reversible';
+    const backgroundOnly = !['operator', 'manual', 'test'].includes(input.triggeredBy);
+    const actor = backgroundOnly ? 'Background curator' : 'Curator review';
+    const approvalLanes = transitionLanes.filter((lane) => this.improvementPolicy.requireApproval.includes(lane));
+    const notes = [
+      input.dryRun
+        ? `${actor} prepared a reversible report without mutating skills.`
+        : `${actor} applied only reversible low-risk lifecycle transitions.`,
+      'No approval dialog is created from background curation; risky work is held for operator review or digest.',
+    ];
+    if (approvalLanes.length > 0) {
+      notes.push(`Transitions requiring approval were left as report-only lanes: ${approvalLanes.join(', ')}.`);
+    }
+    if (this.improvementPolicy.interruptMode === 'never-for-low-risk') {
+      notes.push('Low-risk improvement notifications are suppressed for this profile.');
+    } else if (this.improvementPolicy.interruptMode === 'daily-digest') {
+      notes.push('Non-urgent improvement notifications are folded into the daily/status digest.');
+    } else {
+      notes.push('This profile allows immediate operator interruption for approval-gated improvement work.');
+    }
+
+    return {
+      profileId: this.profileId,
+      mode: this.improvementPolicy.mode,
+      silent: this.improvementPolicy.silent,
+      notify: this.improvementPolicy.notify,
+      requireApproval: this.improvementPolicy.requireApproval,
+      maxSilentRisk: this.improvementPolicy.maxSilentRisk,
+      interruptMode: this.improvementPolicy.interruptMode,
+      scheduledRunMode,
+      backgroundOnly,
+      lowRiskArchiveAllowed,
+      approvalInterruptsCreated: 0,
+      transitionLanes,
+      notes,
+    };
+  }
+
+  private transitionLane(transition: SkillCuratorTransition): ProfileImprovementLane {
+    if (transition.to === 'archived') return 'low_risk_archive';
+    return 'metadata';
   }
 
   private reportId(date: Date): string {
@@ -935,4 +1067,19 @@ function normalizePriority(value: string): 'low' | 'medium' | 'high' {
   if (normalized === 'high') return 'high';
   if (normalized === 'low') return 'low';
   return 'medium';
+}
+
+function normalizeImprovementPolicy(policy: ProfileImprovementPolicy): ProfileImprovementPolicy {
+  return {
+    mode: policy.mode || DEFAULT_IMPROVEMENT_POLICY.mode,
+    silent: unique(policy.silent || DEFAULT_IMPROVEMENT_POLICY.silent) as ProfileImprovementLane[],
+    notify: unique(policy.notify || DEFAULT_IMPROVEMENT_POLICY.notify) as ProfileImprovementLane[],
+    requireApproval: unique(policy.requireApproval || DEFAULT_IMPROVEMENT_POLICY.requireApproval) as ProfileImprovementLane[],
+    maxSilentRisk: policy.maxSilentRisk || DEFAULT_IMPROVEMENT_POLICY.maxSilentRisk,
+    interruptMode: policy.interruptMode || DEFAULT_IMPROVEMENT_POLICY.interruptMode,
+  };
+}
+
+function unique<T extends string>(values: readonly T[]): T[] {
+  return Array.from(new Set(values.map((entry) => String(entry || '').trim()).filter(Boolean) as T[]));
 }

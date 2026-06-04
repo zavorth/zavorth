@@ -44,7 +44,7 @@ const rules = [
     id: 'provider-mesh-runtime-closure-service',
     label: 'Provider Mesh promotes generated compatible runtimes out of templates',
     target: 'Generated compatible providers become generic-compatible when a runtime strategy exists',
-    files: ['src/services/ProviderMeshParityService.ts'],
+    files: ['src/services/ProviderMeshReadinessService.ts'],
     needles: [
       'generic-compatible',
       'openai-compatible-runtime',
@@ -56,7 +56,7 @@ const rules = [
     id: 'provider-mesh-runtime-closure-tests',
     label: 'Provider Mesh tests prove generated provider runtime closure',
     target: 'Tests cover OpenAI-compatible, Anthropic-compatible and local compatible examples',
-    files: ['tests/services/ProviderMeshParityService.test.ts'],
+    files: ['tests/services/ProviderMeshReadinessService.test.ts'],
     needles: [
       'generic-compatible',
       'amazon-bedrock',
@@ -68,7 +68,7 @@ const rules = [
     id: 'channel-mesh-runtime-closure-service',
     label: 'Channel Mesh promotes generated transport runtimes out of templates',
     target: 'Webhook, bot API and local bridge routes are adapter-backed when dry envelopes normalize',
-    files: ['src/services/ChannelMeshParityService.ts'],
+    files: ['src/services/ChannelMeshConsistencyService.ts'],
     needles: [
       'adapter-backed',
       'bot-api-template',
@@ -80,7 +80,7 @@ const rules = [
     id: 'channel-mesh-runtime-closure-tests',
     label: 'Channel Mesh tests prove generated channel runtime closure',
     target: 'Tests cover adapter-backed generated channels and TLON local bridge decision',
-    files: ['tests/services/ChannelMeshParityService.test.ts'],
+    files: ['tests/services/ChannelMeshConsistencyService.test.ts'],
     needles: [
       'adapter-backed',
       'TLON into a governed local bridge route',

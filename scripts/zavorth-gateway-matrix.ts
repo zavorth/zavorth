@@ -1,10 +1,10 @@
 #!/usr/bin/env node
 
-import { ZavorthSupremacyParityPackService } from '../src/services/ZavorthSupremacyParityPackService.js';
+import { ZavorthCapabilityCertificationPackService } from '../src/services/ZavorthCapabilityCertificationPackService.js';
 
 async function main(): Promise<void> {
   const args = process.argv.slice(2);
-  const snapshot = await new ZavorthSupremacyParityPackService().buildSnapshot();
+  const snapshot = await new ZavorthCapabilityCertificationPackService().buildSnapshot();
   if (args.includes('--json')) {
     process.stdout.write(`${JSON.stringify(snapshot.gatewayMatrix, null, 2)}\n`);
     return;

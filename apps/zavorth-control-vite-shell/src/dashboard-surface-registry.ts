@@ -37,7 +37,7 @@ export const PRIMARY_DASHBOARD_SURFACE = {
   source: 'apps/zavorth-control-vite-shell',
   publicRoute: '/zavorth-control-vite-shell',
   role: 'canonical-user-dashboard',
-  note: 'Daily dashboard surface for chat, runtime, memory, tools, models, settings, canvas, and external agents.',
+  note: 'Daily dashboard surface for chat, runtime, memory, tools, models, settings, canvas, and runtime adapters.',
 } as const;
 
 export const DASHBOARD_SECTORS: DashboardSector[] = [
@@ -47,11 +47,11 @@ export const DASHBOARD_SECTORS: DashboardSector[] = [
   { id: 'dreams', label: 'Learning', visible: true, summary: 'Session hooks, learning candidates, consolidation, and review before promotion.' },
   { id: 'canvas', label: 'Canvas', visible: true, summary: 'A2UI renderer, sandbox preview, mutation gate, diffs, and receipts.' },
   { id: 'skills', label: 'Tools', visible: true, summary: 'Tool library, git/review commands, constitution importer, and governed actions.' },
-  { id: 'agents', label: 'Agents', visible: true, summary: 'External agents, ACP adapter, sandbox posture, execution preview, and receipts.' },
+  { id: 'agents', label: 'Agents', visible: true, summary: 'Runtime adapters, ACP adapter, sandbox posture, execution preview, and receipts.' },
   { id: 'usage', label: 'Models', visible: true, summary: 'Provider routes, model readiness, streaming proof, usage, and fallback state.' },
   { id: 'config', label: 'Settings', visible: true, summary: 'Language, engines, trusted folders, provider diagnostics, and advanced JSON.' },
-  { id: 'channels', label: 'Channels', visible: false, summary: 'Web, CLI, remote, and team channels.' },
-  { id: 'sales-os', label: 'Approvals', visible: false, summary: 'Approval scopes, receipts, revocation, and break-glass policy.' },
+  { id: 'channels', label: 'Channels', visible: true, summary: 'Web, CLI, remote, and team channels.' },
+  { id: 'sales-os', label: 'Approvals', visible: true, summary: 'Approval scopes, receipts, revocation, and break-glass policy.' },
   { id: 'instances', label: 'History', visible: false, summary: 'Past work, receipts, decisions, and rollback guidance.' },
   { id: 'sessions', label: 'Sessions', visible: false, summary: 'Session timeline and handoff context.' },
   { id: 'docs', label: 'Docs', visible: false, summary: 'Short references for setup, models, memory, tools, and safe execution.' },
@@ -70,8 +70,8 @@ export const DASHBOARD_CAPABILITY_PLACEMENTS: DashboardCapabilityPlacement[] = [
   { id: 'mutation.gate', label: 'Mutation gate', detail: 'Disk changes require preview, approval, and receipt before apply.', sector: 'canvas', state: 'live' },
   { id: 'git.workflow', label: 'Git/review', detail: '/branch, /commit, /pr and zavorth review route through governed workflow services.', sector: 'skills', state: 'live' },
   { id: 'constitution.importer', label: 'Constitution importer', detail: 'CLAUDE.md and AGENTS.md import through preview, approval, and origin registry.', sector: 'skills', state: 'live' },
-  { id: 'external.acp', label: 'ACP adapter', detail: 'Generic ACP channels are Zavorth-native and not conceptually tied to OpenClaw.', sector: 'agents', state: 'live' },
-  { id: 'external.registry', label: 'External agents', detail: 'Profiles, sandbox posture, previewed execution, and receipts live in the Agents tab.', sector: 'agents', state: 'live' },
+  { id: 'external.acp', label: 'ACP adapter', detail: 'Generic ACP channels are Zavorth-native and use a neutral runtime-adapter contract.', sector: 'agents', state: 'live' },
+  { id: 'external.registry', label: 'Runtime adapters', detail: 'Profiles, sandbox posture, previewed execution, and receipts live in the Agents tab.', sector: 'agents', state: 'live' },
   { id: 'providers.streaming', label: 'Provider streaming', detail: 'Model routes expose setup, base URL, default model, native streaming, and canary status.', sector: 'usage', state: 'ready' },
   { id: 'settings.doctor', label: 'Setup doctor', detail: 'Provider, engine, folder, and language readiness stay folded into everyday settings.', sector: 'config', state: 'ready' },
 ];

@@ -11,7 +11,7 @@
         <div>
           <span class="dashboard-eyebrow"><span class="dashboard-live-dot"></span>Overview</span>
           <h1 class="premium-title">Today in Zavorth.</h1>
-          <p class="premium-subtitle">A simple operator view: what is ready, what needs approval, and the safest next action.</p>
+          <p class="premium-subtitle">Ask for the outcome, see what is ready, approve real risk, and keep the work understandable.</p>
         </div>
         <div class="premium-hero__actions">
           <button class="operator-primary-action" type="button" data-dashboard-prompt="Run Zavorth Ready To Go and summarize the result in simple language.">Ready check</button>
@@ -32,7 +32,7 @@
           <button class="platform-command-row platform-command-row--primary" type="button" data-dashboard-sector="terminal">
             <span>
               <strong data-dashboard-runtime-title>Waiting for a mission</strong>
-              <small data-dashboard-runtime-text>Use Chat for natural requests. Zavorth previews risky actions, asks when needed and writes receipts after completion.</small>
+              <small data-dashboard-runtime-text>Ask in plain language. Zavorth chooses tools, previews risky work, and shows the result clearly.</small>
             </span>
             <em>Open chat</em>
           </button>
@@ -40,7 +40,7 @@
             ${premiumStep('1', 'Ask', 'plain language')}
             ${premiumStep('2', 'Preview', 'risk and tools')}
             ${premiumStep('3', 'Approve', 'scope and TTL')}
-            ${premiumStep('4', 'Receipt', 'proof and replay')}
+            ${premiumStep('4', 'Result', 'proof and replay')}
           </div>
           <div class="platform-timeline platform-timeline--quiet" data-dashboard-timeline hidden>
             <div class="platform-section-title">Recent activity</div>
@@ -48,13 +48,13 @@
           <div class="platform-action-list" aria-label="Common actions">
             <button type="button" data-dashboard-sector="terminal"><strong>Ask Zavorth</strong><span>Start with a normal request.</span></button>
             <button type="button" data-dashboard-sector="sales-os"><strong>Review approvals</strong><span>Accept, reject or scope permissions.</span></button>
-            <button type="button" data-dashboard-sector="instances"><strong>Inspect receipts</strong><span>See what happened and why.</span></button>
+            <button type="button" data-dashboard-sector="instances"><strong>Review results</strong><span>See what happened and why.</span></button>
           </div>
           <div class="operator-checklist" aria-label="Setup checklist">
             ${setupStep('Provider', 'ready', 'Choose model and fallback before deep work.')}
             ${setupStep('Inbox', 'ready', 'Ask naturally; risky actions become previews.')}
             ${setupStep('Approvals', 'gated', 'Human decisions stay scoped and reversible.')}
-            ${setupStep('Receipts', 'on', 'Every completed action leaves proof.')}
+            ${setupStep('History', 'on', 'Every completed action stays explainable.')}
           </div>
         </div>
 
@@ -78,13 +78,13 @@
         <div>
           <span class="dashboard-eyebrow"><span class="dashboard-live-dot"></span>Channel Gateway</span>
           <h1 class="premium-title">Every channel uses the same rules.</h1>
-          <p class="premium-subtitle">Natural-first input, approval resolver, redaction, receipts and channel-aware actions stay unified.</p>
+          <p class="premium-subtitle">Messages from Telegram, Discord, Slack, WhatsApp, Signal and Email become normal Zavorth requests with the same safety rules.</p>
         </div>
         <button class="operator-primary-action" type="button" data-dashboard-prompt="Help me configure a channel safely. Show only the next safe step.">Configure channel</button>
       </section>
       <section class="premium-grid">
-        ${surfaceCard('Web dashboard', 'Ready', 'ok', 'Live operator surface for chat, approvals, receipts and readiness.')}
-        ${surfaceCard('CLI / TUI', 'Ready', 'ok', 'Terminal operator mode for status, ready checks, providers and curator.')}
+        ${surfaceCard('Web dashboard', 'Ready', 'ok', 'Daily surface for chat, approvals, provider readiness and results.')}
+        ${surfaceCard('CLI / TUI', 'Ready', 'ok', 'Terminal app for chat, history, providers, tasks, voice, sandbox and logs.')}
         ${surfaceCard('Telegram', 'Configurable', 'info', 'Remote approvals and status can be enabled with scoped secrets.')}
         ${surfaceCard('Discord', 'Configurable', 'info', 'Shared command surface; rich buttons when available.')}
         ${surfaceCard('Slack', 'Configurable', 'info', 'Workspace channel bridge with redaction and receipts.')}
@@ -147,7 +147,7 @@
           <div class="data-table-wrap"><table class="data-table"><thead><tr><th>Surface</th><th>Mode</th><th>Status</th><th>Next step</th></tr></thead><tbody>
             <tr><td>Web</td><td>operator</td><td><span class="badge badge--ok"><span class="badge__dot"></span>Ready</span></td><td>Ask in Chat</td></tr>
             <tr><td>CLI</td><td>operator</td><td><span class="badge badge--ok"><span class="badge__dot"></span>Ready</span></td><td>Run ready check</td></tr>
-            <tr><td>External agents</td><td>optional</td><td><span class="badge badge--info"><span class="badge__dot"></span>Consent required</span></td><td>Onboard first</td></tr>
+            <tr><td>Runtime adapters</td><td>optional</td><td><span class="badge badge--info"><span class="badge__dot"></span>Consent required</span></td><td>Onboard first</td></tr>
           </tbody></table></div>
         </article>
       </section>
@@ -253,7 +253,7 @@
             ${skillRow('Mnemos file understanding', 'Needs scope', 'Reads approved folders and explains documents with receipts.', 'info')}
             ${skillRow('Skill curator', 'Preview first', 'Suggests merge, quality score and metadata fixes before approval.', 'info')}
             ${skillRow('Transaction plane', 'Simulation', 'Previews and audits transactions; live money remains strongly gated.', 'warn')}
-            ${skillRow('External agent onboarding', 'Consent required', 'Detects user-provided agent folders and creates profiles safely.', 'info')}
+            ${skillRow('Runtime adapter onboarding', 'Consent required', 'Detects user-provided agent folders and creates profiles safely.', 'info')}
           </section>
         </div>
         <aside class="platform-side">
@@ -277,7 +277,7 @@
           <h1 class="premium-title">Runtime mesh, under control.</h1>
           <p class="premium-subtitle">Connected surfaces and optional agents stay visible, scoped and off by default when they need consent.</p>
         </div>
-        <button class="operator-primary-action" type="button" data-dashboard-prompt="Show connected surfaces, external agents and sandbox backend readiness.">Inspect Nexus</button>
+        <button class="operator-primary-action" type="button" data-dashboard-prompt="Show connected surfaces, runtime adapters and sandbox backend readiness.">Inspect Nexus</button>
       </section>
       <section class="platform-workspace platform-workspace--operator">
         <div class="platform-main">
@@ -287,7 +287,7 @@
             <button type="button" data-dashboard-prompt="Show Swarm v2 readiness and token budget."><strong>Swarm v2</strong><span>Parallel work with budget guard and receipts.</span></button>
             <button type="button" data-dashboard-prompt="Show ACP status and configured adapters."><strong>ACP</strong><span>Universal support, provider-agnostic and policy-gated.</span></button>
             <button type="button" data-dashboard-prompt="Show sandbox backend readiness."><strong>Execution backends</strong><span>Docker, WSL, SSH and remote sandboxes stay policy-gated.</span></button>
-            <button type="button" data-dashboard-prompt="Show external agent onboarding profiles."><strong>External agents</strong><span>User-provided paths only; no silent scanning.</span></button>
+            <button type="button" data-dashboard-prompt="Show runtime adapter onboarding profiles."><strong>Runtime adapters</strong><span>User-provided paths only; no silent scanning.</span></button>
           </div>
         </div>
         <aside class="platform-side">
@@ -297,7 +297,7 @@
             ${premiumStatus('Swarm v2', 'ready', 'ok')}
             ${premiumStatus('ACP', 'opt-in', 'info')}
             ${premiumStatus('Backends', 'policy gated', 'warn')}
-            ${premiumStatus('External agents', 'consent required', 'info')}
+            ${premiumStatus('Runtime adapters', 'consent required', 'info')}
           </div>
         </aside>
       </section>

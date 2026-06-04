@@ -114,7 +114,7 @@ function buildPack(overrides: Record<string, any> = {}): SharedSurfaceAccessComm
         nextSteps: ['Validar tunnel oficial.'],
       })),
     } as any,
-    sharedSurfaceParityService: {
+    sharedSurfaceConsistencyService: {
       buildManifest: jest.fn(() => ({
         summary: 'Web e Telegram estao alinhados para access, bootstrap e workflow.',
         recommended: [
@@ -130,7 +130,7 @@ function buildPack(overrides: Record<string, any> = {}): SharedSurfaceAccessComm
 }
 
 describe('SharedSurfaceAccessCommandPack', () => {
-  it('surfaces official remote access and parity details in /access', async () => {
+  it('surfaces official remote access and consistency details in /access', async () => {
     const pack = buildPack();
     const ctx = buildCtx('/access');
 
@@ -153,7 +153,7 @@ describe('SharedSurfaceAccessCommandPack', () => {
     expect(ctx.reply).toHaveBeenCalledWith(expect.stringContaining('http://localhost:3000/app'));
   });
 
-  it('surfaces official install journey and parity details in /bootstrap', async () => {
+  it('surfaces official install journey and consistency details in /bootstrap', async () => {
     const pack = buildPack();
     const ctx = buildCtx('/bootstrap');
 

@@ -957,9 +957,9 @@ describe('ZavorthControlService', () => {
       '/api/web/host/official-remote-access',
       { token },
     );
-    const { status: surfaceParityStatus, payload: surfaceParityPayload } = await fetchZavorthControlJson(
+    const { status: surfaceConsistencyStatus, payload: surfaceConsistencyPayload } = await fetchZavorthControlJson(
       baseUrl,
-      `/api/web/host/surface-parity?sessionId=${encodeURIComponent(sessionPayload.sessionId)}`,
+      `/api/web/host/surface-consistency?sessionId=${encodeURIComponent(sessionPayload.sessionId)}`,
       { token },
     );
     const { status: actionStatus, payload: actionPayload } = await fetchZavorthControlJson(
@@ -1028,7 +1028,7 @@ describe('ZavorthControlService', () => {
     expect(installJourneyStatus).toBe(200);
     expect(remoteAccessStatus).toBe(200);
     expect(officialRemoteAccessStatus).toBe(200);
-    expect(surfaceParityStatus).toBe(200);
+    expect(surfaceConsistencyStatus).toBe(200);
     expect(actionStatus).toBe(202);
     expect(catalogStatus).toBe(200);
     expect(sendStatus).toBe(200);
@@ -1161,10 +1161,10 @@ describe('ZavorthControlService', () => {
         }),
       }),
     );
-    expect(surfaceParityPayload).toEqual(
+    expect(surfaceConsistencyPayload).toEqual(
       expect.objectContaining({
         ok: true,
-        parity: expect.objectContaining({
+        consistency: expect.objectContaining({
           actions: expect.arrayContaining([
             expect.objectContaining({
               actionType: expect.stringMatching(/^(open-official-app|continue-official-access)$/),

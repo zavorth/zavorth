@@ -253,7 +253,7 @@
             ${skillRow("Understand files", "Needs scope", "Uses only approved folders to explain documents.", "info", "setup", "Show me how to configure a safe folder scope for file memory.")}
             ${skillRow("Tool curator", "Preview first", "Suggests improvements without changing anything before approval.", "info", "approval", "Open the tool curator in preview mode and show only safe suggestions.")}
             ${skillRow("Transactions", "Simulation", "Previews and audits transactions; real money stays blocked.", "warn", "approval", "Simulate a transaction and list risks without executing anything real.")}
-            ${skillRow("Connect external agent", "Consent required", "Creates a profile only from a path you provide.", "info", "approval", "Explain how to connect an external agent with consent and a limited scope.")}
+            ${skillRow("Connect adapter", "Consent required", "Creates a profile only from a path you provide.", "info", "approval", "Explain how to connect an runtime adapter with consent and a limited scope.")}
           </section>
         </div>
         <aside class="platform-side">
@@ -295,7 +295,7 @@
           <div class="platform-action-list" aria-label="Memory controls">
             <button type="button" data-dashboard-prompt="Show file memory scopes and which folders are allowed."><strong>File memory</strong><span>Folders and documents enter only with approved scope.</span></button>
             <button type="button" data-dashboard-prompt="Show whether Zavorth can split a task into parallel work and which limits apply."><strong>Parallel work</strong><span>Uses cost limits and receipts when useful.</span></button>
-            <button type="button" data-dashboard-prompt="Show connected external agents and how to limit what each can do."><strong>Connect agent</strong><span>No external agent is discovered without a path you provide.</span></button>
+            <button type="button" data-dashboard-prompt="Show connected runtime adapters and how to limit what each can do."><strong>Connect adapter</strong><span>No runtime adapter is discovered without a path you provide.</span></button>
             <button type="button" data-dashboard-prompt="Show available execution environments and which ones require approval."><strong>Execution environments</strong><span>Files, shell, and remote actions stay approval gated.</span></button>
           </div>
         </div>

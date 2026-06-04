@@ -1,6 +1,6 @@
 import { CapabilityNormalizationService } from '../../src/services/CapabilityNormalizationService.js';
 import { NativeCapabilityClosureService } from '../../src/services/NativeCapabilityClosureService.js';
-import { ParityCertificationService } from '../../src/services/ParityCertificationService.js';
+import { ReleaseCertificationService } from '../../src/services/ReleaseCertificationService.js';
 
 describe('NativeCapabilityClosureService Intent model2', () => {
   it('closes formerly needs-review capability primitives with native contracts', () => {
@@ -103,8 +103,8 @@ describe('NativeCapabilityClosureService Intent model2', () => {
     expect(capabilitySnapshot.mappings.filter((entry) => entry.status === 'needs-review')).toEqual([]);
   });
 
-  it('hands off to certified parity after remaining runtime decisions close', () => {
-    const certification = new ParityCertificationService({
+  it('hands off to certified consistency after remaining runtime decisions close', () => {
+    const certification = new ReleaseCertificationService({
       now: () => new Date('2026-05-04T22:20:00.000Z'),
     }).buildSnapshot();
 

@@ -139,15 +139,11 @@ executes the global npm update when `--yes` is present.
 
 ## Standalone Launcher Artifacts
 
-Phase 8 adds the standalone launcher lane. Today this produces a single-file
-Node launcher plus platform wrappers:
+Zavorth can be packaged as a single-file Node launcher plus platform wrappers.
+Release artifacts are produced by the maintainer release flow, not by the normal
+user install path.
 
-```bash
-npm run standalone:build
-npm run qa:standalone-launcher
-```
-
-Generated artifact names:
+Generated artifact names use this shape:
 
 ```txt
 zavorth.cjs
@@ -237,20 +233,8 @@ Raw secret values are blocked; use `secretRefs` such as `OPENAI_API_KEY` instead
 Applied config is written under `data/runtime/managed-config/` with a receipt in
 `managed_config_receipts.jsonl`.
 
-## Premium Distribution QA
+## Release Safety
 
-Run the Phase 13 safety gate before publishing installer or CLI UX changes:
-
-```bash
-npm run premium-distribution:qa
-```
-
-This checks installer parity, release channels, standalone launcher metadata,
-shell completions, headless mode, inspect, managed config, terminal presentation,
-approval diff rendering and no-secret-leak smokes.
-
-For a slower security-oriented pass that also runs production critical audit:
-
-```bash
-npm run premium-distribution:qa:audit
-```
+Published releases should include platform metadata, checksums and clear version
+information. Installer and update flows must keep preview, consent and no-secret
+logging guarantees intact.

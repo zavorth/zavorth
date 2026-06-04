@@ -24,7 +24,7 @@ const snapshot = {
 if (asJson) {
   console.log(JSON.stringify(snapshot, null, 2));
 } else {
-  console.log('[zavorth-channel-deepening] checking Phase 2');
+  console.log('[zavorth-channel-deepening] checking channel live readiness');
   for (const rule of rules) {
     const marker = rule.status === 'passed' ? 'ok' : 'fail';
     console.log(`[zavorth-channel-deepening] ${marker} ${rule.label}: ${rule.observed} | ${rule.target}`);
@@ -41,11 +41,11 @@ function ruleFilesExist() {
     'scripts/zavorth-channel-deepening.ts',
     'scripts/zavorth-channel-deepening-check.mjs',
     'tests/services/ZavorthChannelDeepeningService.test.ts',
-    'docs/channel-deepening.md',
+    'docs/channel-mesh.md',
   ];
   const missing = files.filter((file) => !fs.existsSync(path.join(root, file)));
   return rule(
-    'phase-2-files',
+    'channel-readiness-files',
     'Channel deepening files exist',
     missing.length === 0,
     `${files.length - missing.length}/${files.length}`,
@@ -88,14 +88,14 @@ function ruleContainsMarkers() {
       'webhooks',
       'catalog support is not live proof',
     ]],
-    ['docs/channel-deepening.md', [
-      'Zavorth Channel Deepening',
+    ['docs/channel-mesh.md', [
+      'Channel Mesh',
       'setup',
       'doctor',
       'pairing',
-      'live proof',
+      'live readiness',
       'safe outbox',
-      'catalog is not live proof',
+      'Catalog support is not live readiness',
     ]],
   ];
   const missing = [];
@@ -110,7 +110,7 @@ function ruleContainsMarkers() {
     }
   }
   return rule(
-    'phase-2-markers',
+    'channel-readiness-markers',
     'Channel deepening markers are wired',
     missing.length === 0,
     missing.length === 0 ? 'all markers' : `${missing.length} missing`,
@@ -192,7 +192,7 @@ function ruleSnapshot() {
   ];
   const missingIds = requiredIds.filter((id) => !ids.has(id));
   const pass = data
-    && data.contractVersion === '2026-05-24.phase-2-channel-deepening'
+    && data.contractVersion === '2026-05-24.channel-live-readiness'
     && ['passed', 'attention'].includes(data.status)
     && data.summary?.total >= 34
     && data.summary?.liveProofCommands === data.summary?.total

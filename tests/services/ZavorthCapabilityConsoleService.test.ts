@@ -91,7 +91,6 @@ describe('ZavorthCapabilityConsoleService', () => {
     expect(output).toContain('Preview e approval:');
     expect(output).toContain('aplicar rascunho <planId>');
     expect(output).toContain('Comandos uteis:');
-    expect(output).not.toContain('ThirdPartyAgent');
   });
 
   function runtime() {

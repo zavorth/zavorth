@@ -1,7 +1,7 @@
 # Zavorth Documentation
 
-This is the official public documentation set for Zavorth. It is intentionally
-small: daily-use guides, stable architecture notes and integration contracts.
+This is the public documentation set for Zavorth. It should help users install,
+understand, operate and integrate the agent.
 
 ## Start Here
 
@@ -11,83 +11,36 @@ small: daily-use guides, stable architecture notes and integration contracts.
 | [Quickstart](/docs/quickstart.md) | First local setup |
 | [Zavorth Control](/docs/web-zavorthControl.md) | Using `/control` |
 | [CLI](/docs/zavorth-cli.md) | Terminal operation and JSON output |
+| [Product Certification](/docs/product-certification.md) | Daily product readiness and clean install confidence |
 | [Troubleshooting](/docs/troubleshooting.md) | Fixing common runtime issues |
 
-## Architecture
+## Core Concepts
 
 | Doc | Use it for |
 | --- | --- |
 | [Architecture](/docs/architecture.md) | Runtime shape and major planes |
+| [Capabilities](/docs/capabilities.md) | How to find, preview and approve usable capabilities |
 | [Effect Boundary](/docs/effect-boundary.md) | LLM freedom with governed real effects |
-| [Executors](/docs/execution.md) | Execution providers and supervised work |
 | [Security](/docs/security.md) | Policy, approvals, egress and receipts |
 | [Provider Mesh](/docs/provider-mesh.md) | Provider selection and live readiness |
-| [Self Modification](/docs/self-modification.md) | How Zavorth changes its own repo safely |
-
-## Product Surfaces
-
-| Doc | Use it for |
-| --- | --- |
 | [Channel Mesh](/docs/channel-mesh.md) | Multi-channel status and setup |
+| [Memory](/docs/mnemos-memory-os.md) | Local memory and recall |
+
+## Certification Ledger
+
+- Intent model3 - Live Consistency Certification: current modules tracked dynamically, providers and channels certified from the active inventory, No live external IO.
+
+## Integrations
+
+| Doc | Use it for |
+| --- | --- |
 | [Telegram](/docs/telegram.md) | Telegram-specific operation |
-| [Capability Plugins](/docs/capability-plugins.md) | Capability packs and governed extension |
-| [Capabilities And Plugins](/docs/capabilities-and-plugins.md) | Product-level plugin overview |
 | [Gateway Control API](/docs/gateway-control-api.md) | Control-plane HTTP surface |
-
-## Operator And Developer Guides
-
-| Doc | Use it for |
-| --- | --- |
-| [Operator Cockpit](/docs/product/operator-cockpit.md) | Daily operator view |
-| [Operator Quickstart](/docs/product/quickstart-operator.md) | Operator setup flow |
-| [Developer Quickstart](/docs/product/quickstart-developer.md) | Contributor setup flow |
-| [Guided Troubleshooting](/docs/product/troubleshooting-guiado.md) | Operator troubleshooting |
-
-## Protocols
-
-| Doc | Use it for |
-| --- | --- |
 | [REST v1](/docs/protocol/rest-v1.md) | Public REST contract |
 | [Runtime API v1](/docs/protocol/runtime-api-v1.md) | GUI/API runtime contract |
-| [WebSocket v1](/docs/protocol/websocket-v1.md) | Experimental WebSocket notes |
-| [SDK Usage](/docs/protocol/sdk-usage.md) | TypeScript and Python client usage |
-
-## Planning
-
-| Doc | Use it for |
-| --- | --- |
-| [Roadmap](/docs/product-direction.md) | Small public roadmap |
-| [Product Pitch](/docs/product-story.md) | Positioning and narrative |
-
-## Certification Notes
-
-- Provider, channel, speech and media checks are explicit readiness gates.
-- checkpoint-5-channels-and-messaging-ready: Zavorth Channel Messaging Bridge
-  keeps channels conversational by default while preserving NormalizedInboundMessage,
-  ReplyPipeline outbound flow, ZavorthTrustPlane pairing and credential isolation.
-- checkpoint-5-channels-and-messaging-complete: the next gated stage remains
-  291 Runtime gateway - Sessions, Memory, And Continuation.
-- Long Tail channel activation is guarded by an Approval gate: catalog and
-  configured-doctor commands can inspect setup safely, while staging-live sends
-  require an explicit operator command, credentials, recipient allowlists and
-  redacted receipts.
-- Live I/O requires configured credentials, provider capability, owner approval
-  and a receipt.
-- Preview-only and certification commands must not perform external sends,
-  payments, installs or secret access unless the command name and operator
-  confirmation make that live behavior explicit.
 
 ## Documentation Rules
 
-- Public docs describe real current behavior or clearly marked roadmap.
-- Private audits, implementation scratchpads and temporary planning notes do not belong here.
-- Commands in docs should exist in `package.json` or be plain installed CLI commands.
-- Local links should resolve before docs are committed.
-- No external action, install, deploy, secret access, or shell execution is implied by documentation, certification gates, or preview-only operational cycles.
-
-Before publishing documentation changes, run the product release gate from the
-repository root:
-
-```bash
-npm run release:check
-```
+- Public docs describe real current behavior.
+- Temporary plans and private audits do not belong here.
+- Commands in docs should be user-facing commands or stable maintainer commands.

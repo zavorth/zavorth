@@ -1,4 +1,4 @@
-import type { ParityCertificationGateStatus } from './ParityCertificationContract.js';
+import type { ReleaseCertificationGateStatus } from './ReleaseCertificationContract.js';
 import type { ReleaseCandidatePackageFreezeSnapshot } from './ReleaseCandidatePackageFreezeContract.js';
 
 export const ZAVORTH_RELEASE_CANDIDATE_DISTRIBUTION_REHEARSAL_CONTRACT_VERSION = '2026-05-04.checkpoint-17';
@@ -60,7 +60,7 @@ export type ReleaseCandidateDistributionRehearsalGate = {
     | 'rollback-and-installer-rehearsed'
     | 'docs-and-policy-linked'
     | 'rehearsal-receipts-complete';
-  status: ParityCertificationGateStatus;
+  status: ReleaseCertificationGateStatus;
   title: string;
   observed: number | string | boolean;
   threshold: number | string | boolean;

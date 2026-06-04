@@ -248,7 +248,7 @@ const STRINGS: Partial<Record<SupportedControlLocale, Record<string, string>>> =
     'Add memory scope': 'Adicionar escopo de memória',
     'File memory': 'Memória de arquivos',
     'Parallel work': 'Trabalho paralelo',
-    'Connect agent': 'Conectar agente',
+    'Connect adapter': 'Conectar agente',
     'Execution environments': 'Ambientes de execução',
     'Configuration, redacted.': 'Configuração, com segredos ocultos.',
     'Preferences': 'Preferências',
@@ -585,7 +585,7 @@ const STRINGS: Partial<Record<SupportedControlLocale, Record<string, string>>> =
     'Add memory scope': 'Agregar alcance de memoria',
     'File memory': 'Memoria de archivos',
     'Parallel work': 'Trabajo paralelo',
-    'Connect agent': 'Conectar agente',
+    'Connect adapter': 'Conectar agente',
     'Execution environments': 'Entornos de ejecución',
     'Configuration, redacted.': 'Configuración, con secretos ocultos.',
     'Preferences': 'Preferencias',
@@ -811,7 +811,7 @@ export function readControlLocalePreference(): ControlLocalePreference {
   } catch {
     // Locale is a convenience preference.
   }
-  return 'system';
+  return 'en-US';
 }
 
 export function readControlLocale(): ControlLocale {

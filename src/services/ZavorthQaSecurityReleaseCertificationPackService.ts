@@ -1,7 +1,7 @@
 import path from 'node:path';
 import type {
   ZavorthCertificationFamilyResult,
-  ZavorthFunctionalParityCertificationRunnerSnapshot,
+  ZavorthFunctionalReleaseCertificationRunnerSnapshot,
   ZavorthQaScenarioImporterSnapshot,
   ZavorthQaSecurityReleaseCertificationSnapshot,
   ZavorthQaSecurityReleaseCheckStatus,
@@ -76,8 +76,8 @@ export class ZavorthQaSecurityReleaseCertificationPackService {
       this.familyFromWorkflowSemantics(workflowSemantics),
       this.familyFromPatchRisk(patchRisk),
     ];
-    const functionalParityRunner = this.buildFunctionalParityRunner(baseFamilies);
-    const families = functionalParityRunner.families;
+    const functionalConsistencyRunner = this.buildFunctionalConsistencyRunner(baseFamilies);
+    const families = functionalConsistencyRunner.families;
     const receipts = families.flatMap((family) => family.receipts);
     const failFamilies = families.filter((family) => family.status === 'fail').length;
     const warnFamilies = families.filter((family) => family.status === 'warn').length;
@@ -100,7 +100,7 @@ export class ZavorthQaSecurityReleaseCertificationPackService {
       releaseAcceptance,
       workflowSemantics,
       patchRisk,
-      functionalParityRunner,
+      functionalConsistencyRunner,
       summary: {
         families: families.length,
         passFamilies,
@@ -156,21 +156,21 @@ export class ZavorthQaSecurityReleaseCertificationPackService {
       `Raw workflow YAML copied: ${snapshot.summary.rawWorkflowYamlCopied}`,
       `Live external IO performed: ${snapshot.summary.liveExternalIoPerformed}`,
       'Families:',
-      ...snapshot.functionalParityRunner.printableLines,
+      ...snapshot.functionalConsistencyRunner.printableLines,
       `Next: ${snapshot.commands.nextStage}`,
     ];
     return lines.join('\n');
   }
 
-  private buildFunctionalParityRunner(
+  private buildFunctionalConsistencyRunner(
     baseFamilies: ZavorthCertificationFamilyResult[],
-  ): ZavorthFunctionalParityCertificationRunnerSnapshot {
+  ): ZavorthFunctionalReleaseCertificationRunnerSnapshot {
     const baseStatus = combineStatuses(baseFamilies.map((family) => family.status));
     const functionalReceipt: ZavorthQaSecurityReleaseReceipt = {
-      id: `zavorth.surface-controls.functional-parity.runner.${this.now().getTime()}.receipt`,
-      familyId: 'functional-parity',
-      checkId: 'functional-parity.runner',
-      label: 'Functional parity certification runner is complete',
+      id: `zavorth.surface-controls.functional-consistency.runner.${this.now().getTime()}.receipt`,
+      familyId: 'functional-consistency',
+      checkId: 'functional-consistency.runner',
+      label: 'Functional consistency certification runner is complete',
       status: baseStatus === 'fail' ? 'fail' : baseStatus === 'warn' ? 'warn' : 'pass',
       severity: 'blocking',
       evidenceKind: 'policy',
@@ -186,8 +186,8 @@ export class ZavorthQaSecurityReleaseCertificationPackService {
       notes: ['The runner prints pass, warn and fail for every absorbed surface family.'],
     };
     const functionalFamily = this.buildFamilyResult({
-      familyId: 'functional-parity',
-      label: 'Functional Parity Runner',
+      familyId: 'functional-consistency',
+      label: 'Functional Consistency Runner',
       receipts: [functionalReceipt],
       notes: ['Aggregates all Surface controls family receipts into a release-ready runner.'],
     });

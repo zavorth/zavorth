@@ -42,7 +42,7 @@ export type ZavorthTerminalBackendDescriptor = {
   id: ZavorthTerminalBackendId;
   label: string;
   status: 'ready' | 'needs-configuration' | 'planned';
-  isolation: 'host-process' | 'container' | 'remote-shell' | 'linux-vm' | 'managed-cloud-sandbox' | 'planned-cloud-workspace';
+  isolation: 'host-process' | 'container' | 'remote-shell' | 'linux-vm' | 'managed-cloud-sandbox' | 'cloud-function' | 'cloud-dev-workspace' | 'planned-cloud-workspace';
   liveCapable: boolean;
   liveReady: boolean;
   requiresConfiguration: string[];
@@ -107,7 +107,7 @@ export type ZavorthTerminalBackendSnapshot = {
     commandEnvelopeUsesStructuredArgs: true;
     stdoutStderrRedacted: true;
     receiptsRequired: true;
-    plannedBackendsDoNotClaimLive: true;
+    cloudBackendsRequireExplicitConfiguration: true;
   };
   commands: {
     status: 'zavorth execution-backends';

@@ -667,7 +667,7 @@ export class ZavorthChannelMeshService {
       'google-chat': 'googlechat',
       msteams: 'teams',
       'microsoft-teams': 'teams',
-      'openclaw-weixin': 'weixin',
+      'weixin-compat': 'weixin',
       wechat: 'weixin',
       qywx: 'wecom',
       wework: 'wecom',

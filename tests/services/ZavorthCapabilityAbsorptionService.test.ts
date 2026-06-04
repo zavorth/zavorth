@@ -1,7 +1,7 @@
 import { ZavorthCapabilityAbsorptionService } from '../../src/services/ZavorthCapabilityAbsorptionService.js';
 
 describe('ZavorthCapabilityAbsorptionService', () => {
-  it('builds an honest Phase 1 absorption map for OpenClaw, Zavorth-native and Zavorth-native capabilities', () => {
+  it('builds an honest Phase 1 absorption map for external, Zavorth-native and Zavorth-native capabilities', () => {
     const service = new ZavorthCapabilityAbsorptionService({
       now: () => new Date('2026-05-24T12:00:00.000Z'),
     });
@@ -21,7 +21,7 @@ describe('ZavorthCapabilityAbsorptionService', () => {
     expect(snapshot.policy.securityPolicyCannotBeLearnedAway).toBe(true);
     expect(snapshot.items.map((item) => item.id)).toEqual(expect.arrayContaining([
       'governance-policy-broker-receipts',
-      'openclaw-style-onboarding',
+      'guided-onboarding',
       'channels-long-tail',
       'native-learning-loop',
       'dashboard-native-ui',

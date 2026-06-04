@@ -73,7 +73,7 @@ import type { ChannelSetupAssistantService } from '../../../../services/ChannelS
 import type { SelfModificationCommandService } from '../../../../services/SelfModificationCommandService.js';
 import type { SystemOverlordControlService } from '../../../../services/SystemOverlordControlService.js';
 import type { EngineeringCoreService } from '../../../../services/EngineeringCoreService.js';
-import type { SharedSurfaceParityService } from '../../../../services/SharedSurfaceParityService.js';
+import type { SharedSurfaceConsistencyService } from '../../../../services/SharedSurfaceConsistencyService.js';
 
 type WebAppSharedSurfaceOperations = {
   channelActions: ZavorthChannelActionService | null;
@@ -135,7 +135,7 @@ export type WebAppSharedSurfaceFactorySource = {
   taskResourcePlanner: TaskResourcePlannerService;
   modeEscalation: ModeEscalationService;
   workspaceOptimizer: CompanionWorkspaceOptimizerService;
-  surfaceParity: SharedSurfaceParityService;
+  surfaceConsistency: SharedSurfaceConsistencyService;
   skillCatalogApi: SkillCatalogApiService;
   skillMcpSidecar: SkillMcpSidecarService;
   skillLibraryPresentation: SkillLibraryPresentationService;
@@ -213,7 +213,7 @@ export class WebAppSharedSurfaceFactoryService {
       taskResourcePlannerService: source.taskResourcePlanner,
       modeEscalationService: source.modeEscalation,
       workspaceOptimizerService: source.workspaceOptimizer,
-      sharedSurfaceParityService: source.surfaceParity,
+      sharedSurfaceConsistencyService: source.surfaceConsistency,
       AIGatewayGatewayService: source.operations.AIGatewayGateway || undefined,
       AIGatewayGatewayLauncherService: source.operations.AIGatewayGatewayLauncher || undefined,
       GatewayCompatibilityDoctorService: source.operations.AIGatewayCompatibilityDoctor || undefined,

@@ -246,4 +246,36 @@ describe('ZavorthNativeLearningLoopService', () => {
     expect(snapshot.candidates.some((candidate) => candidate.state === 'quarantined')).toBe(true);
     expect(snapshot.candidates.every((candidate) => candidate.safety.rawSecretsSerialized === false)).toBe(true);
   });
+
+  it('includes Adaptive Learning OS classification without silently persisting Green Lane memory', async () => {
+    const memory = ZavorthMemoryLearningLoopService.createInMemoryForTests(
+      () => new Date('2026-05-24T12:00:00.000Z'),
+    );
+    const service = new ZavorthNativeLearningLoopService({
+      now: () => new Date('2026-05-24T12:00:00.000Z'),
+      memoryLearningLoop: memory,
+      replayLearning: { buildSnapshot: replaySnapshot },
+      skillEvolution: { buildSnapshot: skillSnapshot },
+    });
+
+    const snapshot = await service.buildSnapshot({
+      observation: 'The user prefers direct Portuguese answers with evidence.',
+      userId: 'operator',
+      sourceSurface: 'test',
+    });
+    const recall = await memory.search({
+      query: 'direct Portuguese evidence',
+      userId: 'operator',
+    });
+
+    expect(snapshot.summary.adaptiveLearningReady).toBe(true);
+    expect(snapshot.summary.adaptiveTechnicalScannerReady).toBe(true);
+    expect(snapshot.summary.adaptiveSemanticClassifierReady).toBe(true);
+    expect(snapshot.summary.adaptiveMultilingualRecallReady).toBe(true);
+    expect(snapshot.summary.adaptiveOperatorI18nReady).toBe(true);
+    expect(snapshot.adaptiveLearning.summary.greenAutoApplied).toBeGreaterThanOrEqual(1);
+    expect(snapshot.adaptiveLearning.classification.technical.scanned).toBe(true);
+    expect(snapshot.adaptiveLearning.memoryWrites).toHaveLength(0);
+    expect(recall.entries).toHaveLength(0);
+  });
 });

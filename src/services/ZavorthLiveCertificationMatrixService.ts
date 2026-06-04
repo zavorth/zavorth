@@ -194,7 +194,7 @@ function buildMatrix(input: {
       `missionTraceable=${input.missionFlow.summary.missionTraceable}`,
       `rawSecrets=${input.missionFlow.summary.rawSecretsSerialized}`,
     ], null),
-    item('subagents', 'Subagents live parity', 'subagent', input.subagentSkill.summary.subagentRuntimeLiveReady ? 'dry_run_passed' : 'blocked', true, true, [
+    item('subagents', 'Subagents live consistency', 'subagent', input.subagentSkill.summary.subagentRuntimeLiveReady ? 'dry_run_passed' : 'blocked', true, true, [
       `subagentRuntimeLiveReady=${input.subagentSkill.summary.subagentRuntimeLiveReady}`,
       `naturalInvocationReady=${input.subagentSkill.summary.naturalInvocationReady}`,
       `workspaceMutationPerformed=${input.subagentSkill.summary.workspaceMutationPerformed}`,

@@ -43,7 +43,7 @@ function filesExist() {
     'scripts/zavorth-extension-plugin-sdk.ts',
     'scripts/zavorth-extension-plugin-sdk-check.mjs',
     'tests/services/ZavorthExtensionPluginSdkService.test.ts',
-    'docs/extension-plugin-sdk.md',
+    'docs/capability-plugins.md',
   ];
   const missing = files.filter((file) => !existsSync(join(root, file)));
   return rule('files', missing.length === 0, `${files.length - missing.length}/${files.length} files present`, missing);

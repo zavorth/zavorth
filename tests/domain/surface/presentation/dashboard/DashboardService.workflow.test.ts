@@ -515,7 +515,7 @@ describe('DashboardService', () => {
           recommendedPathId: expect.any(String),
           paths: expect.any(Array),
         }),
-        surfaceParity: expect.objectContaining({
+        surfaceConsistency: expect.objectContaining({
           recommended: expect.arrayContaining([
             expect.objectContaining({
               commandType: '/task',

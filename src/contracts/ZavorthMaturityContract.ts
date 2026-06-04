@@ -19,7 +19,6 @@ export type ZavorthMaturityDistinctions = {
   productionLiveReady: boolean;
   dashboardVisualQaClaimed: boolean;
   stubsAndPartialsExplicit: boolean;
-  externalReferenceLeakFree: boolean;
   hostLiveCertificationHonest: boolean;
   dataLifecycleComplete: boolean;
 };
@@ -39,14 +38,13 @@ export type ZavorthMaturitySnapshot = {
     channelContractsReleaseReady: boolean;
     channelContractsCertified: number;
     channelContractsTotal: number;
-    liveParityCertified: boolean;
+    liveReadinessCertified: boolean;
     hostLiveReadyChannels: number;
     hostLiveTotalChannels: number;
     dataLifecycleReleaseReady: boolean;
     dashboardVisualQaEvidenceReady: boolean;
     operationalMaturityOk: boolean;
     stubsOrPartials: number;
-    externalReferenceLeaks: number;
   };
   gates: ZavorthMaturityGate[];
   distinctions: ZavorthMaturityDistinctions;

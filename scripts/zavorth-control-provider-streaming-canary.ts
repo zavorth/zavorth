@@ -91,7 +91,7 @@ function readRuntimeTokenFile(): string {
   return fs.readFileSync(tokenFile, "utf8").trim();
 }
 
-const openClawProviderIds = [
+const referenceProviderIds = [
   "amazon-bedrock",
   "amazon-bedrock-mantle",
   "anthropic",
@@ -167,7 +167,7 @@ const zavorthProviderIds = [
 
 const zavorthRunnableProviderIds = new Set(zavorthProviderIds);
 
-const openClawToZavorthProviderAliases: Record<string, string> = {
+const referenceToZavorthProviderAliases: Record<string, string> = {
   "amazon-bedrock": "bedrock-claude",
   "amazon-bedrock-mantle": "bedrock-claude",
   anthropic: "anthropic-direct",
@@ -227,22 +227,22 @@ function defaultProviderTargets(envPath: string): ProviderTarget[] {
       runnable: zavorthRunnableProviderIds.has(providerName),
     });
   }
-  for (const openClawId of openClawProviderIds) {
-    const zavorthRoute = openClawToZavorthProviderAliases[openClawId] || openClawId;
+  for (const referenceId of referenceProviderIds) {
+    const zavorthRoute = referenceToZavorthProviderAliases[referenceId] || referenceId;
     const existing = byProvider.get(zavorthRoute);
     if (existing) {
       const currentSource = existing.source || "zavorth";
-      existing.source = currentSource.includes(`openclaw:${openClawId}`)
+      existing.source = currentSource.includes(`reference:${referenceId}`)
         ? currentSource
-        : `${currentSource}+openclaw:${openClawId}`;
+        : `${currentSource}+reference:${referenceId}`;
       continue;
     }
     byProvider.set(zavorthRoute, {
       providerName: zavorthRoute,
       modelName: explicitModels[zavorthRoute] || null,
-      source: `openclaw:${openClawId}`,
+      source: `reference:${referenceId}`,
       runnable: true,
-      reason: `OpenClaw provider "${openClawId}" is executed through Zavorth's native provider-factory compatibility route.`,
+      reason: `Reference provider "${referenceId}" is executed through Zavorth's native provider-factory compatibility route.`,
     });
   }
   return Array.from(byProvider.values()).sort((left, right) => left.providerName.localeCompare(right.providerName));
@@ -617,25 +617,46 @@ async function sendProviderCanary(page: any, target: ProviderTarget, timeoutMs: 
     const metrics = window.__zavorthProviderStreamingCanary || { events: [], samples: [] };
     window.__zavorthProviderStreamingCanary = metrics;
     try {
-      const bridge = window.ZavorthRuntimeBridge;
-      const ui = window.ZavorthControlChat || {};
-      if (!bridge?.sendChat) throw new Error("ZavorthRuntimeBridge.sendChat is unavailable.");
+      const url = new URL(window.location.href);
+      const token = sessionStorage.getItem("zavorth.zavorthControl.webToken") || url.searchParams.get("token") || "";
+      const sessionId = url.searchParams.get("sessionId") || "provider-stream-session";
       metrics.sendStartedAt = Date.now();
-      window.__zavorthProviderStreamingCanarySend = bridge.sendChat(
-        [
-          "Provider streaming canary.",
-          "Provider: " + providerName + ".",
-          "Answer with one short sentence. Do not use tools.",
-        ].join(" "),
-        ui,
-        {
+      window.__zavorthProviderStreamingCanarySend = fetch("/api/web/chat/side", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          ...(token ? { "X-Zavorth-Token": token } : {}),
+        },
+        body: JSON.stringify({
+          message: [
+            "Provider streaming canary.",
+            "Provider: " + providerName + ".",
+            "Answer with one short sentence. Do not use tools.",
+          ].join(" "),
+          sessionId,
+          sideSessionId: sessionId,
+          kind: "provider-streaming-canary",
           providerName,
           modelName: modelName || undefined,
           allowProviderFallback: false,
           composerSettings: { canary: "provider-native-token-streaming" },
-        },
-      ).then(
-        (payload) => {
+        }),
+      }).then(async (response) => {
+          const rawText = await response.text().catch(() => "");
+          let payload = {};
+          try {
+            payload = rawText ? JSON.parse(rawText) : {};
+          } catch {
+            payload = { ok: false, rawText: rawText.slice(0, 2000) };
+          }
+          metrics.lastChatSideResponse = {
+            status: response.status,
+            ok: response.ok,
+            body: typeof payload === "object" && payload ? payload : {},
+          };
+          if (!response.ok || payload?.ok === false) {
+            throw new Error(payload?.detail || payload?.error || ("HTTP " + response.status));
+          }
           metrics.sendCompletedAt = Date.now();
           metrics.responseSummary = {
             ok: payload?.ok,
@@ -722,7 +743,7 @@ async function runProvider(browser: any, options: Options, target: ProviderTarge
       modelName: target.modelName,
       status: "skip",
       url: redactUrl(url),
-      detail: target.reason || "Provider is listed in the parity matrix but is not runnable through Zavorth yet.",
+      detail: target.reason || "Provider is listed in the consistency matrix but is not runnable through Zavorth yet.",
       metrics: {
         source: target.source || null,
         runnable: false,
@@ -810,6 +831,7 @@ async function runProvider(browser: any, options: Options, target: ProviderTarge
           sendCompletedAt: metrics.sendCompletedAt || 0,
           sendError: metrics.sendError || "",
           responseSummary: metrics.responseSummary || null,
+          lastChatSideResponse: metrics.lastChatSideResponse || null,
           eventCount: Array.isArray(metrics.events) ? metrics.events.length : 0,
           sampleCount: Array.isArray(metrics.samples) ? metrics.samples.length : 0,
           events: Array.isArray(metrics.events) ? metrics.events.slice(-12) : [],
@@ -859,12 +881,12 @@ async function main(): Promise<Report> {
         status: "skip",
         url: options.url,
         detail: target.runnable === false
-          ? (target.reason || "Provider is listed in the parity matrix but is not runnable through Zavorth yet.")
+          ? (target.reason || "Provider is listed in the consistency matrix but is not runnable through Zavorth yet.")
           : "Dry-run only. Add --run-live to call the real dashboard and providers.",
         metrics: {
           source: target.source || null,
           runnable: target.runnable !== false,
-          ...(target.runnable === false ? { parityOnly: true } : {}),
+          ...(target.runnable === false ? { consistencyOnly: true } : {}),
         },
         screenshot: null,
       });

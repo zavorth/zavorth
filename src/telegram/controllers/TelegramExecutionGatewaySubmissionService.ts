@@ -12,7 +12,7 @@ import {
   EXTERNAL_EXECUTOR_LABEL,
   LEGACY_EXTERNAL_EXECUTOR_ID,
   buildExternalMetadataPatch,
-  getExternalAgentBindingsFromMetadata,
+  getRuntimeAdapterBindingsFromMetadata,
   getExternalPermissionIdsFromMetadata,
   isExternalExecutor,
   isExternalPathAccessRequiredError,
@@ -88,7 +88,7 @@ export class TelegramExecutionGatewaySubmissionService {
 
     if (isExternalExecutor(executor)) {
       const workspace = effectivePlan.workspace_recommendation || task.workspace || config.defaultWorkspace;
-      const agentRole = this.deps.gatewayPlanService.resolveExternalAgentRole(task);
+      const agentRole = this.deps.gatewayPlanService.resolveRuntimeAdapterRole(task);
       const tenantMetadata = TenantContextService.buildPermissionMetadataMatchFromTask(task);
       const approvedBindings = [
         ...(await this.deps.permissionService.listApprovedRequests(
@@ -106,7 +106,7 @@ export class TelegramExecutionGatewaySubmissionService {
       ];
       const approvedBinding = approvedBindings[0] || null;
       if (approvedBinding?.resolved_value) {
-        const agentBindings = getExternalAgentBindingsFromMetadata(task.metadata);
+        const agentBindings = getRuntimeAdapterBindingsFromMetadata(task.metadata);
         const permissionIds = getExternalPermissionIdsFromMetadata(task.metadata);
         task.metadata = {
           ...(task.metadata || {}),

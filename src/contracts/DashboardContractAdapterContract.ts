@@ -27,7 +27,7 @@ export type DashboardContractAdapterSnapshot = {
   approvals: CanonicalApprovalsDTO;
   receipts: CanonicalReceiptsDTO;
   missions: CanonicalMissionsDTO;
-  parity: {
+  consistency: {
     providersFromCanonicalApi: true;
     channelsFromCanonicalApi: true;
     approvalsFromCanonicalApi: true;

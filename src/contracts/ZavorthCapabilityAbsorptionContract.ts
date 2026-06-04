@@ -11,7 +11,7 @@ export type ZavorthCapabilityAbsorptionStatus =
 
 export type ZavorthCapabilityAbsorptionSource =
   | 'zavorth'
-  | 'openclaw'
+  | 'reference'
   | 'native'
   | 'cross-agent';
 
@@ -71,7 +71,7 @@ export type ZavorthCapabilityAbsorptionSnapshot = {
     missing: number;
     requiresCredentials: number;
     requiresApp: number;
-    openclawInspired: number;
+    referenceInspired: number;
     nativeInspired: number;
     crossAgent: number;
     nextPhases: Record<ZavorthCapabilityAbsorptionItem['nextPhase'], number>;

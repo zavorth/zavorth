@@ -439,8 +439,8 @@ export class ProviderMeshConsolidationService {
         firstQuestionId: onboarding.providerMeshOnboarding.firstQuestion.id,
         capabilityCount: onboarding.providerMeshOnboarding.capabilities.length,
         selectedCapability: onboarding.providerMeshOnboarding.selectedCapability?.capability || null,
-        sameContractAcrossSurfaces: onboarding.providerMeshOnboarding.surfaceParity.sameContractAcrossSurfaces,
-        consumers: [...onboarding.providerMeshOnboarding.surfaceParity.consumers],
+        sameContractAcrossSurfaces: onboarding.providerMeshOnboarding.surfaceConsistency.sameContractAcrossSurfaces,
+        consumers: [...onboarding.providerMeshOnboarding.surfaceConsistency.consumers],
       },
       receipts: this.buildReceipts({
         input,

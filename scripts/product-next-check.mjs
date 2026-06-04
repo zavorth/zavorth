@@ -90,7 +90,7 @@ const suites = {
     'tests/domain/surface/presentation/web-app/WebAppRuntimeRouteService.test.ts',
     'tests/services/ZavorthGatewayControlSocketService.test.ts',
   ],
-  'telegram-web-parity': [
+  'telegram-web-consistency': [
     'tests/integration/CrossSurfaceContinuity.test.ts',
     'tests/services/WebAppGatewaySessions.test.ts',
     'tests/telegram/TelegramChannelContractService.test.ts',

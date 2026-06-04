@@ -28,5 +28,13 @@
   "memory": {
     "mode": "working",
     "learning": "approved-only"
+  },
+  "improvement": {
+    "mode": "manual",
+    "silent": ["telemetry"],
+    "notify": ["ranking", "metadata", "candidate", "staging_diff", "sandbox_validation"],
+    "requireApproval": ["draft_skill", "low_risk_archive", "apply", "policy", "provider", "channel", "secret", "external_send", "host_mutation"],
+    "maxSilentRisk": "low",
+    "interruptMode": "immediate"
   }
 }

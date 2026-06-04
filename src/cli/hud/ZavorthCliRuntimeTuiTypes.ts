@@ -21,6 +21,26 @@ export type ZavorthCliRuntimeTuiSnapshot = {
   projectRoot: string;
   mode: 'snapshot' | 'watch' | 'interactive';
   status: ZavorthCliRuntimeTuiStatus;
+  agentKernel: {
+    status: string;
+    profile: string;
+    provider: string;
+    model: string;
+    intent: string;
+    quietAutonomy: string;
+    performanceSamples: number;
+    missing: string[];
+  };
+  dailyProduct: {
+    status: string;
+    headline: string;
+    primarySurface: string;
+    visibleTabs: string[];
+    quietMode: string;
+    silentLanes: string[];
+    digestLanes: string[];
+    approvalBoundaries: string[];
+  };
   home: {
     root: string;
     source: string;
@@ -41,6 +61,15 @@ export type ZavorthCliRuntimeTuiSnapshot = {
     running: number;
     waitingApproval: number;
     items: ZavorthCliRuntimeTuiItem[];
+  };
+  goalLoop: {
+    status: string;
+    current: string;
+    detail: string;
+    nextRunAfter: string | null;
+    queued: number;
+    running: number;
+    lines: string[];
   };
   sandbox: {
     posture: string;
@@ -64,6 +93,13 @@ export type ZavorthCliRuntimeTuiSnapshot = {
     skills: number;
     plugins: number;
     items: ZavorthCliRuntimeTuiItem[];
+  };
+  capabilityActions: {
+    status: string;
+    exposed: number;
+    receipts: number;
+    items: ZavorthCliRuntimeTuiItem[];
+    nextAction: string;
   };
   approvals: {
     pending: number;

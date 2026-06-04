@@ -1,7 +1,7 @@
 import { ZavorthChannelDeepeningService } from '../../src/services/ZavorthChannelDeepeningService.js';
 
 describe('ZavorthChannelDeepeningService', () => {
-  it('builds an all-channel Phase 2 map with setup, doctor, pairing, proof and outbox coverage', () => {
+  it('builds an all-channel readiness map with setup, doctor, pairing, proof and outbox coverage', () => {
     const service = new ZavorthChannelDeepeningService({
       now: () => new Date('2026-05-24T12:00:00.000Z'),
       env: {},
@@ -10,7 +10,7 @@ describe('ZavorthChannelDeepeningService', () => {
     const snapshot = service.buildSnapshot();
     const ids = snapshot.items.map((item) => item.id);
 
-    expect(snapshot.contractVersion).toBe('2026-05-24.phase-2-channel-deepening');
+    expect(snapshot.contractVersion).toBe('2026-05-24.channel-live-readiness');
     expect(snapshot.status).toBe('attention');
     expect(snapshot.summary.total).toBeGreaterThanOrEqual(34);
     expect(snapshot.summary.liveProofCommands).toBe(snapshot.summary.total);

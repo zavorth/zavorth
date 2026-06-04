@@ -96,7 +96,7 @@ export type ProviderMeshConceptSeparation = {
   explanation: string[];
 };
 
-export type ProviderMeshSurfaceParity = {
+export type ProviderMeshSurfaceConsistency = {
   contractName: 'ModelPickerContract';
   selectedProfileName: 'SelectedModelProfile';
   consumers: ProviderMeshOnboardingConsumer[];
@@ -130,7 +130,7 @@ export type ProviderMeshOnboardingProductSnapshot = {
   capabilities: ProviderMeshCapabilitySuggestion[];
   selectedCapability: ProviderMeshCapabilitySuggestion | null;
   conceptSeparation: ProviderMeshConceptSeparation;
-  surfaceParity: ProviderMeshSurfaceParity;
+  surfaceConsistency: ProviderMeshSurfaceConsistency;
   incompleteProviders: ProviderMeshIncompleteProvider[];
   acceptance: ProviderMeshOnboardingAcceptance;
   explanation: string[];
@@ -252,13 +252,13 @@ export class ProviderMeshOnboardingProductService {
       ? capabilities.find((entry) => entry.capability === requestedCapability) || null
       : capabilities.find((entry) => entry.ready) || capabilities[0] || null;
     const conceptSeparation = this.buildConceptSeparation(picker);
-    const surfaceParity = this.buildSurfaceParity();
+    const surfaceConsistency = this.buildSurfaceConsistency();
     const incompleteProviders = this.findIncompleteProviders(picker, options.includeAdvanced === true);
     const acceptance = this.buildAcceptance({
       firstQuestion,
       capabilities,
       conceptSeparation,
-      surfaceParity,
+      surfaceConsistency,
       incompleteProviders,
       routes: picker.contract.routes.routes,
     });
@@ -273,7 +273,7 @@ export class ProviderMeshOnboardingProductService {
       capabilities,
       selectedCapability,
       conceptSeparation,
-      surfaceParity,
+      surfaceConsistency,
       incompleteProviders,
       acceptance,
       explanation: [
@@ -507,7 +507,7 @@ export class ProviderMeshOnboardingProductService {
     };
   }
 
-  private buildSurfaceParity(): ProviderMeshSurfaceParity {
+  private buildSurfaceConsistency(): ProviderMeshSurfaceConsistency {
     return {
       contractName: 'ModelPickerContract',
       selectedProfileName: 'SelectedModelProfile',
@@ -540,7 +540,7 @@ export class ProviderMeshOnboardingProductService {
     firstQuestion: ProviderMeshOnboardingQuestion;
     capabilities: ProviderMeshCapabilitySuggestion[];
     conceptSeparation: ProviderMeshConceptSeparation;
-    surfaceParity: ProviderMeshSurfaceParity;
+    surfaceConsistency: ProviderMeshSurfaceConsistency;
     incompleteProviders: ProviderMeshIncompleteProvider[];
     routes: AccessRouteCatalogEntry[];
   }): ProviderMeshOnboardingAcceptance {
@@ -553,7 +553,7 @@ export class ProviderMeshOnboardingProductService {
       registersFallback: input.capabilities.some((entry) => entry.fallbackRouteIds.length > 0),
       explainsCostLatencyLimitations: input.capabilities.every((entry) => Boolean(entry.costModel && entry.latencyModel && entry.explanation.length > 0)),
       saysCatalogSource: input.capabilities.every((entry) => entry.catalogSources.length > 0),
-      sameContractAcrossSurfaces: input.surfaceParity.sameContractAcrossSurfaces && input.incompleteProviders.length === 0,
+      sameContractAcrossSurfaces: input.surfaceConsistency.sameContractAcrossSurfaces && input.incompleteProviders.length === 0,
     };
   }
 

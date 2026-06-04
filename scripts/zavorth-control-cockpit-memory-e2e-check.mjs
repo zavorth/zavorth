@@ -179,7 +179,7 @@ async function main() {
         beforeForgetText,
         forgotten,
         trustedPanel: Boolean(q(".settings-trusted-panel")),
-        fakeOpenClawText: document.body.textContent?.includes("OpenClaw Daemon") || false,
+        fakeExternalDemoText: document.body.textContent?.includes("External Daemon Demo") || false,
       };
     });
 
@@ -189,7 +189,7 @@ async function main() {
     assertCheck(checks, "persisted-memory-fact-rendered", result.beforeForgetText.includes("Persisted cockpit E2E memory fact"), result.beforeForgetText);
     assertCheck(checks, "memory-forget-contract-called", result.forgotten.includes("mem-e2e-1"), JSON.stringify(result.forgotten));
     assertCheck(checks, "trusted-folder-panel-present", result.trustedPanel, "Trusted folder panel is available for drag/drop or manual path.");
-    assertCheck(checks, "no-openclaw-demo-memory-copy", !result.fakeOpenClawText, "No OpenClaw demo memory label rendered.");
+    assertCheck(checks, "no-external-demo-memory-copy", !result.fakeExternalDemoText, "No external demo memory label rendered.");
     assertCheck(checks, "browser-console-clean", consoleErrors.length === 0, consoleErrors.join("\n"));
 
     const failed = checks.filter((check) => !check.passed);

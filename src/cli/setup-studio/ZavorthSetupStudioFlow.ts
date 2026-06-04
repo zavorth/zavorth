@@ -34,6 +34,13 @@ export function renderZavorthSetupStudioSnapshot(snapshot: ZavorthSetupStudioSna
     `Unsupported here: ${snapshot.skills.unsupportedOnThisOs}`,
     `Blocked by policy: ${snapshot.skills.blockedByPolicy}`,
   ];
+  const capabilityActionLines = [
+    `Available: ${snapshot.capabilityActions.exposed}`,
+    `Receipts: ${snapshot.capabilityActions.receipts}`,
+    'Activation: preview and owner approval remain required.',
+    `Status: ${snapshot.capabilityActions.statusCommand}`,
+    ...snapshot.capabilityActions.items.slice(0, 3).map((entry) => `- ${entry.title}: ${entry.nextAction}`),
+  ];
   const modelCheckLines = snapshot.plan.provider.id === 'deferred'
     ? [
       'No model is selected yet.',
@@ -94,6 +101,7 @@ export function renderZavorthSetupStudioSnapshot(snapshot: ZavorthSetupStudioSna
     onboardingSection('Model check', modelCheckLines),
     onboardingSection('Surfaces', surfacesLines),
     onboardingSection('Readiness', readinessLines),
+    onboardingSection('Capability actions', capabilityActionLines),
     onboardingSection('Gateway runtime', gatewayLines),
     onboardingSection('Zavorth Home', [
       `Active: ${snapshot.home.root}`,

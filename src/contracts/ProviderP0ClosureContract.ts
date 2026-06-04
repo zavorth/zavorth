@@ -1,5 +1,5 @@
-import type { ProviderMeshParitySnapshot } from './ProviderMeshParityContract.js';
-import type { ParityCertificationSnapshot } from './ParityCertificationContract.js';
+import type { ProviderMeshReadinessSnapshot } from './ProviderMeshReadinessContract.js';
+import type { ReleaseCertificationSnapshot } from './ReleaseCertificationContract.js';
 
 export const ZAVORTH_PROVIDER_P0_CLOSURE_CONTRACT_VERSION = '2026-05-04.checkpoint-10';
 
@@ -28,17 +28,17 @@ export type ProviderP0ClosureSnapshot = {
     providerUnsupported: number;
     providerTemplateReady: number;
     certificationP0Gaps: number;
-    certificationStatus: ParityCertificationSnapshot['status'];
+    certificationStatus: ReleaseCertificationSnapshot['status'];
     releaseReady: boolean;
     liveExternalCallRequired: false;
     secretValuesSerialized: false;
   };
   entries: ProviderP0ClosureEntry[];
-  providerSnapshot: Pick<ProviderMeshParitySnapshot, 'contractVersion' | 'summary'>;
-  certification: Pick<ParityCertificationSnapshot, 'contractVersion' | 'profile' | 'status' | 'summary'>;
+  providerSnapshot: Pick<ProviderMeshReadinessSnapshot, 'contractVersion' | 'summary'>;
+  certification: Pick<ReleaseCertificationSnapshot, 'contractVersion' | 'profile' | 'status' | 'summary'>;
   commands: {
     check: string;
-    providerParity: string;
+    providerConsistency: string;
     certify: string;
     nextStage: 'Etapa 11 - P1 Provider Adapter Runtime';
   };

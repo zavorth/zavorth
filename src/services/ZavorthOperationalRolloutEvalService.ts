@@ -204,13 +204,13 @@ function evaluateScenario(
   const scenarioId = scenario.id;
   const expected = scenario.expectedStatus;
   findings.push(statusFinding(scenarioId, expected, projection.status));
-  findings.push(...semanticParityFindings(scenarioId, projection));
+  findings.push(...semanticConsistencyFindings(scenarioId, projection));
   findings.push(...requiredActionFindings(scenarioId, projection, expected));
   findings.push(...surfaceFallbackFindings(scenarioId, projection));
   findings.push(...apiFindings(scenarioId, projection, expected));
   findings.push(...dashboardFindings(scenarioId, projection));
   findings.push(...safetyFindings(scenarioId, projection));
-  findings.push(telegramParityFinding(scenarioId, projection));
+  findings.push(telegramConsistencyFinding(scenarioId, projection));
 
   const failures = findings.filter((finding) => finding.severity === 'fail').length;
   const warnings = findings.filter((finding) => finding.severity === 'warning').length;
@@ -258,13 +258,13 @@ function statusFinding(
     scenarioId,
     'all',
     ok ? 'pass' : 'fail',
-    'status-parity',
+    'status-consistency',
     ok ? `Observed expected status ${observed}.` : `Expected ${expected}, observed ${observed}.`,
     ok ? null : 'Fix runtime routing before rollout.',
   );
 }
 
-function semanticParityFindings(
+function semanticConsistencyFindings(
   scenarioId: string,
   projection: ZavorthCrossSurfaceRuntimeProjectionSnapshot,
 ): ZavorthOperationalRolloutEvalFinding[] {
@@ -272,7 +272,7 @@ function semanticParityFindings(
     scenarioId,
     card.surface,
     card.sameSemanticStatusAsRuntime && card.status === projection.status ? 'pass' : 'fail',
-    'semantic-parity',
+    'semantic-consistency',
     `${card.surface} semantic status is ${card.status}.`,
     card.status === projection.status ? null : 'Surface must mirror central runtime status.',
   ));
@@ -395,7 +395,7 @@ function safetyFindings(
   ];
 }
 
-function telegramParityFinding(
+function telegramConsistencyFinding(
   scenarioId: string,
   projection: ZavorthCrossSurfaceRuntimeProjectionSnapshot,
 ): ZavorthOperationalRolloutEvalFinding {
@@ -411,8 +411,8 @@ function telegramParityFinding(
     'telegram',
     ok ? 'pass' : 'warning',
     'telegram-not-privileged',
-    ok ? 'Telegram has buttons without being the only interactive surface.' : 'Telegram interaction parity needs another button-capable surface.',
-    ok ? null : 'Keep Discord/Web parity whenever Telegram gets richer controls.',
+    ok ? 'Telegram has buttons without being the only interactive surface.' : 'Telegram interaction consistency needs another button-capable surface.',
+    ok ? null : 'Keep Discord/Web consistency whenever Telegram gets richer controls.',
   );
 }
 
@@ -455,7 +455,7 @@ function buildSurfaceCoverage(
         ? surfaceFindings.some((item) => item.code === 'fallback-coverage' && item.severity === 'pass')
         : true,
       interactiveWhenSupported: BUTTON_SURFACES.has(surface)
-        ? surfaceFindings.some((item) => item.code === 'semantic-parity' && item.severity === 'pass')
+        ? surfaceFindings.some((item) => item.code === 'semantic-consistency' && item.severity === 'pass')
         : true,
     };
   });
@@ -500,7 +500,7 @@ function buildReceipts(
       id: 'checkpoint-6-surface-coverage',
       kind: 'surface-coverage',
       status: surfaceCoverage.some((surface) => surface.failures > 0) ? 'blocked' : 'recorded',
-      summary: `${surfaceCoverage.length} surfaces evaluated for parity, fallback and action coverage.`,
+      summary: `${surfaceCoverage.length} surfaces evaluated for consistency, fallback and action coverage.`,
     },
     {
       id: 'checkpoint-6-visual-change-boundary',
@@ -613,7 +613,7 @@ function narrativeForStatus(
   if (status === 'passed') {
     return {
       headline: 'Operational eval passed for dry-run canary.',
-      operatorSummary: `${summary.scenarios} scenarios and ${summary.surfaces} surfaces preserved policy, UX parity and no-live-action boundaries.`,
+      operatorSummary: `${summary.scenarios} scenarios and ${summary.surfaces} surfaces preserved policy, UX consistency and no-live-action boundaries.`,
       nextAction: `Proceed with ${mode} and collect real operator evidence.`,
     };
   }

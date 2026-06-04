@@ -96,4 +96,4 @@ to the runtime; the browser never executes the target action directly.
 - [CLI](/docs/zavorth-cli.md)
 - [Experience Core](/docs/experience-core.md)
 - [Security](/docs/security.md)
-- [Roadmap](/docs/product-direction.md)
+- [Product Principles](/docs/product-direction.md)

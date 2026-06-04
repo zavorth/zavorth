@@ -120,7 +120,7 @@ export class AgentMeshExecutionService {
           } else {
             for (let index = 0; index < driverToolCalls; index += 1) {
               toolCallRecords.push({
-                toolName: index === 0 ? 'external_agent_driver_action' : `external_agent_driver_action_${index + 1}`,
+                toolName: index === 0 ? 'runtime_adapter_driver_action' : `runtime_adapter_driver_action_${index + 1}`,
                 durationMs: Math.max(1, Math.floor((Date.now() - startTime) / driverToolCalls)),
                 sandboxVerdict: 'allowed',
               });

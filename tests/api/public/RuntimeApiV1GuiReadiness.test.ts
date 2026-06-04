@@ -70,7 +70,7 @@ function permissionFixture(status: 'pending' | 'approved' | 'rejected' = 'pendin
     kind: 'workspace.write',
     status,
     scope: 'once',
-    workspace: 'C:/TESTES DEV/zavorth-core/Zavorth',
+    workspace: 'C:/workspace/zavorth-core/Zavorth',
     requested_value: 'Edit src/index.ts',
     resolved_value: null,
     reason: 'GUI readiness approval fixture.',

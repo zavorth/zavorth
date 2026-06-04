@@ -31,7 +31,7 @@ export type GatewaySpineCommand = {
   slash: string;
   apiPath: string;
   description: string;
-  surfaceParity: GatewaySpineSurface[];
+  surfaceConsistency: GatewaySpineSurface[];
 };
 
 export type GatewaySpineChannel = {

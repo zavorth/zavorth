@@ -134,7 +134,7 @@ export class ZavorthSemanticAgentRuntimeCertificationService {
         canUseToolMustDenyOutsidePolicy: true,
         acpAndCliBridgesOwnerGated: true,
         sandboxCwdControlled: true,
-        noExternalAgentRuntimeExecutionDuringCertification: true,
+        noRuntimeAdapterRuntimeExecutionDuringCertification: true,
         noAnthropicApiImpersonation: true,
         noProviderBypass: true,
         noImportPathShim: true,
@@ -264,7 +264,7 @@ export class ZavorthSemanticAgentRuntimeCertificationService {
           `hasCwdControl=${guards.hasCwdControl}`,
         ],
         receiptIds: [`${AGENT_RECEIPT_PREFIX}.cwd-sandbox.workspace-roots`],
-        notes: ['S2 certifies cwd behavior without running external agent code.'],
+        notes: ['S2 certifies cwd behavior without running runtime adapter code.'],
       }),
       this.claim({
         kind: 'runtime-adapter',
@@ -396,7 +396,7 @@ export class ZavorthSemanticAgentRuntimeCertificationService {
         kind: 'live-execution-policy',
         status: liveExecutionPerformed === false && enabledByDefault === false ? 'covered' : 'gap',
         priority: 'P0',
-        expectedBehavior: 'S2 certification must not execute external agent runtimes or enable them by default.',
+        expectedBehavior: 'S2 certification must not execute runtime adapter runtimes or enable them by default.',
         zavorthEquivalent: 'Certification reads guards, dry-run receipts and policy doctors only.',
         evidence: [
           `liveExecutionPerformed=${liveExecutionPerformed}`,

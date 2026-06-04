@@ -38,7 +38,7 @@ export function createRuntimeRefresh(options: RuntimeRefreshOptions) {
           message: 'Unlock the local runtime to read live state.',
         };
       const canReadProtectedRuntime = Boolean(zavorthControl?.live && !zavorthControl?.authRequired);
-      const [providerModelCatalog, providerActivation, salesPack, salesPackChannelIo, memoryFacts, externalAgents] = canReadProtectedRuntime
+      const [providerModelCatalog, providerActivation, salesPack, salesPackChannelIo, memoryFacts, runtimeAdapters] = canReadProtectedRuntime
         ? await Promise.all([
           options.readJson('/api/providers/model-catalog', { headers: options.authHeaders() }).catch(() => null),
           options.readJson('/api/providers/activation', { headers: options.authHeaders() }).catch(() => null),
@@ -48,7 +48,7 @@ export function createRuntimeRefresh(options: RuntimeRefreshOptions) {
             .catch((error: any) => error?.status === 404
               ? options.readJson(`/api/web/dashboard/memory?sessionId=${encodeURIComponent(options.readSessionId() || '')}`, { headers: options.authHeaders() }).catch(() => null)
               : null),
-          options.readJson('/api/web/external-agents', { headers: options.authHeaders() }).catch(() => null),
+          options.readJson('/api/web/zavorth-runtime-adapters', { headers: options.authHeaders() }).catch(() => null),
         ])
         : [null, null, null, null, null, null];
 
@@ -59,7 +59,7 @@ export function createRuntimeRefresh(options: RuntimeRefreshOptions) {
       options.state.salesPack = salesPack;
       options.state.salesPackChannelIo = salesPackChannelIo;
       options.state.memoryFacts = memoryFacts;
-      options.state.externalAgents = externalAgents?.snapshot || externalAgents || null;
+      options.state.runtimeAdapters = runtimeAdapters?.snapshot || runtimeAdapters || null;
       options.writeRunId(zavorthControl?.snapshot?.activeRun?.id || zavorthControl?.activeRun?.id || options.readRunId());
 
       if (canReadProtectedRuntime) {

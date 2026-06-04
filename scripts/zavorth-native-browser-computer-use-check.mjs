@@ -42,7 +42,7 @@ function filesExist() {
     'scripts/zavorth-native-browser-computer-use.ts',
     'scripts/zavorth-native-browser-computer-use-check.mjs',
     'tests/services/ZavorthNativeBrowserComputerUseService.test.ts',
-    'docs/native-browser-computer-use.md',
+    'docs/runtime-engines-zcanvas.md',
   ];
   const missing = files.filter((file) => !existsSync(join(root, file)));
   return rule('files', missing.length === 0, `${files.length - missing.length}/${files.length} files present`, missing);

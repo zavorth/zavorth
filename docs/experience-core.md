@@ -60,8 +60,8 @@ Surfaces should render this instead of inventing separate daily summaries.
 `ExperienceResponseProfile/v1` keeps answer style consistent:
 
 - `short`: direct answer and next step;
-- `dev`: files, commands, tests and evidence;
-- `executive`: impact, decision, risk and evidence;
+- `dev`: files, commands, tests and receipts;
+- `executive`: impact, decision, risk and receipts;
 - `mentor`: guided explanation without exposing raw chain-of-thought.
 
 Profiles change tone and structure only. They do not modify Trust Lens,

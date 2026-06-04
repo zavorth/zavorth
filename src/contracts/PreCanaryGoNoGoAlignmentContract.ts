@@ -1,4 +1,4 @@
-import type { ParityCertificationGateStatus } from './ParityCertificationContract.js';
+import type { ReleaseCertificationGateStatus } from './ReleaseCertificationContract.js';
 import type { ReleaseCandidateDistributionRehearsalSnapshot } from './ReleaseCandidateDistributionRehearsalContract.js';
 
 export const ZAVORTH_PRE_CANARY_GO_NO_GO_ALIGNMENT_CONTRACT_VERSION = '2026-05-04.checkpoint-18';
@@ -72,7 +72,7 @@ export type PreCanaryGoNoGoAlignmentGate = {
     | 'canary-side-effects-blocked'
     | 'no-publication-regression'
     | 'alignment-receipts-complete';
-  status: ParityCertificationGateStatus;
+  status: ReleaseCertificationGateStatus;
   title: string;
   observed: number | string | boolean;
   threshold: number | string | boolean;

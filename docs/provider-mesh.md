@@ -25,7 +25,7 @@ It answers three questions:
 - provider family and concrete route are different concepts;
 - a model can appear in a catalog while the host still lacks credentials;
 - live readiness is stronger than manifest readiness;
-- default routing requires live proof (`health` evidence or an explicit `live_probe`);
+- default routing requires live readiness (`health` status or an explicit `live_probe`);
 - fallbacks should be explained when selected.
 
 ## Daily Model Choice
@@ -46,7 +46,7 @@ provider choice, credentials, fallback and external effects remain policy-govern
 
 ## Live Readiness Matrix
 
-Use the readiness matrix to separate catalog support from live proof:
+Use the readiness matrix to separate catalog support from live readiness:
 
 ```bash
 zavorth providers
@@ -62,20 +62,20 @@ Normal rendering does not make hidden network calls or serialize provider
 secrets. Test buttons should come from the same projection and trigger an
 explicit operator action.
 
-The live matrix adds sanitized evidence to the same contract:
+The live matrix adds sanitized readiness details to the same contract:
 
 - `live_passed`, `live_failed`, `live_blocked` and `live_not_run` counters;
-- `liveReady`, `defaultRouteAllowed`, `readinessProof` and `defaultBlockReason` per provider;
+- `liveReady`, `defaultRouteAllowed`, `readinessSource` and `defaultBlockReason` per provider;
 - `catalogReadyButNotLive` and `defaultRouteAllowed` counters for honest selection;
 - `target` without query strings or credentials;
-- HTTP status, duration, model count when available and an evidence hash;
+- HTTP status, duration, model count when available and a receipt hash;
 - no raw API keys, bearer tokens or request bodies in the projection.
 
 Use `--live` only when the operator deliberately wants a real provider call.
 Without `--live`, the command remains a catalog/readiness view.
-Catalog support is intentionally not live proof. A provider can be configured and
+Catalog support is intentionally not live readiness. A provider can be configured and
 still be blocked from default routing until it has either healthy runtime
-evidence or a fresh explicit live probe.
+status or a fresh explicit live probe.
 
 The ZavorthControl provider cockpit is a projection contract, not a visual
 change by itself. It exposes cards, actions, health checks and receipts for
@@ -89,13 +89,12 @@ not touch the zavorthControl layout.
 
 ## ZavorthControl Provider Cockpit
 
-The approved zavorthControl block is implemented as a narrow right-panel card in
-`/control`. It renders only the `providerCockpit` projection published by the
-runtime:
+The ZavorthControl provider cockpit renders only the `providerCockpit`
+projection published by the runtime:
 
 - ready/total provider counts;
 - live pass/fail/blocked counters;
-- top provider cards with readiness, live state and sanitized evidence;
+- top provider cards with readiness, live state and sanitized receipt details;
 - read/probe command preparation through the chat draft;
 - no zavorthControl-side provider fetches, no raw secrets and no hidden execution.
 

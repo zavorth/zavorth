@@ -73,7 +73,7 @@ export class AgentMeshOrchestrationService {
       },
       narrative: {
         headline: 'Zavorth Agent Mesh',
-        description: 'Dynamic external agent orchestration with explicit consent, redacted connection metadata, policy checks and auditable receipts.',
+        description: 'Dynamic runtime adapter orchestration with explicit consent, redacted connection metadata, policy checks and auditable receipts.',
       },
     };
   }
@@ -93,8 +93,8 @@ export class AgentMeshOrchestrationService {
 
     const newBridge: AgentMeshBridgeConfig = {
       id: `bridge-${randomUUID()}`,
-      agentName: cleanText(request.agentName, 'External Agent'),
-      agentDescription: cleanText(request.agentDescription, 'External agent bridge'),
+      agentName: cleanText(request.agentName, 'Runtime Adapter'),
+      agentDescription: cleanText(request.agentDescription, 'runtime adapter bridge'),
       connection,
       primaryProtocol: request.primaryProtocol,
       status: 'discovered_unverified',
@@ -318,15 +318,15 @@ function normalizeStoredBridge(value: unknown): AgentMeshBridgeConfig | null {
   const bridge = value as Partial<AgentMeshBridgeConfig> & { connectionUri?: string };
   const primaryProtocol = bridge.primaryProtocol || 'webhook';
   const connection = bridge.connection || buildConnectionRef({
-    agentName: bridge.agentName || 'External Agent',
-    agentDescription: bridge.agentDescription || 'External agent bridge',
+    agentName: bridge.agentName || 'Runtime Adapter',
+    agentDescription: bridge.agentDescription || 'runtime adapter bridge',
     connectionUri: bridge.connectionUri || 'unknown',
     primaryProtocol,
   });
   return {
     id: cleanText(bridge.id, `bridge-${randomUUID()}`),
-    agentName: cleanText(bridge.agentName, 'External Agent'),
-    agentDescription: cleanText(bridge.agentDescription, 'External agent bridge'),
+    agentName: cleanText(bridge.agentName, 'Runtime Adapter'),
+    agentDescription: cleanText(bridge.agentDescription, 'runtime adapter bridge'),
     connection,
     primaryProtocol,
     status: bridge.status || 'discovered_unverified',
@@ -377,7 +377,7 @@ function redactConnection(raw: string, kind: AgentMeshConnectionKind): string {
   } catch {
     // Non-URL values are reduced to a basename-like display value.
   }
-  const basename = raw.replace(/\\/g, '/').split('/').filter(Boolean).pop() || 'external-agent';
+  const basename = raw.replace(/\\/g, '/').split('/').filter(Boolean).pop() || 'runtime-adapter';
   return `${kind}:${basename}`;
 }
 

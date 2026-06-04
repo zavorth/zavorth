@@ -229,6 +229,57 @@ function routeNeedsAuth(route: ProviderIntegrationRouteManifest): boolean {
   return route.authKind !== 'none' && route.authKind !== 'local_endpoint';
 }
 
+function defaultBaseUrlForRoute(route: ProviderIntegrationRouteManifest): string | null {
+  const keys = [
+    route.routeId,
+    route.providerId,
+    route.providerName,
+    route.vendorId,
+    ...(route.aliases || []),
+  ].map(normalizeId);
+  const defaults: Record<string, string> = {
+    aigateway: 'http://127.0.0.1:20128/v1',
+    alibaba: 'https://dashscope.aliyuncs.com/compatible-mode/v1',
+    byteplus: 'https://ark.ap-southeast.bytepluses.com/api/v3',
+    cerebras: 'https://api.cerebras.ai/v1',
+    chutes: 'https://llm.chutes.ai/v1',
+    cohere: 'https://api.cohere.ai/compatibility/v1',
+    comfy: 'http://localhost:8188/v1',
+    deepinfra: 'https://api.deepinfra.com/v1/openai',
+    fireworks: 'https://api.fireworks.ai/inference/v1',
+    falcon: 'https://router.huggingface.co/v1',
+    groq: 'https://api.groq.com/openai/v1',
+    huggingface: 'https://router.huggingface.co/v1',
+    jais: 'https://router.huggingface.co/v1',
+    'github-models': 'https://models.github.ai/inference',
+    'kimi-coding': 'https://api.moonshot.ai/v1',
+    lmstudio: 'http://localhost:1234/v1',
+    litellm: 'http://127.0.0.1:4000/v1',
+    microsoft: 'https://models.inference.ai.azure.com',
+    'microsoft-foundry': 'https://models.inference.ai.azure.com',
+    mistral: 'https://api.mistral.ai/v1',
+    moonshot: 'https://api.moonshot.ai/v1',
+    nvidia: 'https://integrate.api.nvidia.com/v1',
+    ollama: 'http://127.0.0.1:11434',
+    opencode: 'https://opencode.ai/zen/v1',
+    perplexity: 'https://api.perplexity.ai',
+    qianfan: 'https://qianfan.baidubce.com/v2',
+    sambanova: 'https://api.sambanova.ai/v1',
+    sglang: 'http://localhost:30000/v1',
+    stepfun: 'https://api.stepfun.com/v1',
+    tencent: 'https://api.hunyuan.cloud.tencent.com/v1',
+    together: 'https://api.together.xyz/v1',
+    'vercel-ai-gateway': 'https://ai-gateway.vercel.sh/v1',
+    venice: 'https://api.venice.ai/api/v1',
+    voyage: 'https://api.voyageai.com/v1',
+    vllm: 'http://localhost:8000/v1',
+    xai: 'https://api.x.ai/v1',
+    zai: 'https://open.bigmodel.cn/api/paas/v4',
+  };
+  const match = keys.find((key) => defaults[key]);
+  return match ? defaults[match]! : null;
+}
+
 function routeSupportsDiscovery(route: ProviderIntegrationRouteManifest): boolean {
   return route.passthroughModels === true || route.catalogSource === 'live_api' || (route.models || []).length > 0;
 }
@@ -371,7 +422,8 @@ export class AccessRouteResolutionService {
       .map((ref) => asStringOrNull(lookupRecordValue(baseUrls, [ref, ...keys])))
       .find(Boolean)
       || configuredBaseUrl
-      || asStringOrNull(lookupRecordValue(baseUrls, keys));
+      || asStringOrNull(lookupRecordValue(baseUrls, keys))
+      || defaultBaseUrlForRoute(route);
     const health = this.lookupHealth(route, options.health, mergedConfigured);
     const currentModelName = asStringOrNull(lookupRecordValue(options.currentModels, keys))
       || asStringOrNull(connection?.defaultModel);

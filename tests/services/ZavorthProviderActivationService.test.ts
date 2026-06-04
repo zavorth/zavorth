@@ -14,9 +14,11 @@ describe('ZavorthProviderActivationService', () => {
     expect(snapshot.summary.nativeAdapters).toBeGreaterThan(0);
     expect(snapshot.summary.openAiCompatibleAdapters).toBeGreaterThan(0);
     expect(snapshot.summary.mediaSpecificAdapters).toBeGreaterThan(0);
+    expect(snapshot.summary.executionReady).toBe(snapshot.summary.routes);
+    expect(snapshot.summary.needsConnector).toBe(0);
     expect(snapshot.liveProofPlan.some((entry) => entry.command.includes('zavorth providers live --provider'))).toBe(true);
     expect(snapshot.adapterMatrix.native).toEqual(expect.arrayContaining(['gemini', 'openai']));
-    expect(snapshot.connectorBacklog.some((entry) => entry.adapterKind === 'media_specific')).toBe(true);
+    expect(snapshot.connectorBacklog).toEqual([]);
     expect(snapshot.safety).toMatchObject({
       noRawProviderSecrets: true,
       noHiddenLiveNetworkCalls: true,

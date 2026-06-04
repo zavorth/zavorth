@@ -130,10 +130,10 @@
       "command": "node scripts/productization-contract-check.mjs",
       "description": "Comando canonico: productization:check"
     },
-    "provider-mesh-parity:check": {
+    "provider-mesh-readiness:check": {
       "status": "canonical",
-      "command": "node scripts/provider-mesh-parity-check.mjs",
-      "description": "Comando canonico: provider-mesh-parity:check"
+      "command": "node scripts/provider-mesh-readiness-check.mjs",
+      "description": "Comando canonico: provider-mesh-readiness:check"
     },
     "provider-mesh:check": {
       "status": "canonical",
@@ -220,10 +220,10 @@
       "command": "node scripts/provider-mesh-check.mjs",
       "description": "Comando canonico: qa:provider-mesh"
     },
-    "qa:provider-mesh-parity": {
+    "qa:provider-mesh-readiness": {
       "status": "canonical",
-      "command": "node scripts/provider-mesh-parity-check.mjs",
-      "description": "Comando canonico: qa:provider-mesh-parity"
+      "command": "node scripts/provider-mesh-readiness-check.mjs",
+      "description": "Comando canonico: qa:provider-mesh-readiness"
     },
     "qa:run-observatory": {
       "status": "canonical",

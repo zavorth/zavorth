@@ -490,6 +490,18 @@ export class IntegrationHealthService {
           && String(config.whatsappAccessToken || '').trim()
           && String(config.whatsappWebhookVerifyToken || '').trim(),
         );
+      case 'composio':
+        return Boolean(String(process.env.COMPOSIO_API_KEY || '').trim());
+      case 'nango':
+        return Boolean(String(process.env.NANGO_SECRET_KEY || process.env.NANGO_ACTION_EXECUTE_URL || '').trim());
+      case 'pipedream':
+        return Boolean(String(process.env.PIPEDREAM_API_KEY || process.env.PIPEDREAM_HEALTH_URL || process.env.PIPEDREAM_EXECUTE_URL || '').trim());
+      case 'zapier':
+        return Boolean(String(process.env.ZAPIER_API_KEY || process.env.ZAPIER_HEALTH_URL || process.env.ZAPIER_EXECUTE_URL || '').trim());
+      case 'n8n':
+        return Boolean(String(process.env.N8N_BASE_URL || process.env.N8N_HEALTH_URL || process.env.N8N_EXECUTE_URL || '').trim());
+      case 'workato':
+        return Boolean(String(process.env.WORKATO_API_TOKEN || process.env.WORKATO_HEALTH_URL || process.env.WORKATO_EXECUTE_URL || '').trim());
       case 'copilot':
         return false;
       default:

@@ -30,4 +30,4 @@ through Zavorth policy.
 
 - [Capabilities](/docs/capabilities-and-plugins.md)
 - [Security](/docs/security.md)
-- [Roadmap](/docs/product-direction.md)
+- [Product Principles](/docs/product-direction.md)

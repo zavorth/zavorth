@@ -18,9 +18,9 @@ describe('IntentSafetyClassifier Portuguese false-positive hardening', () => {
   it('ignores TESTES DEV in workspace paths while preserving inspection intent', () => {
     const result = classifier.classify({
       surface: 'cli',
-      text: 'Analise os arquivos localizados na pasta C:/TESTES DEV/zavorth-core e me diga como funciona o modulo de logs.',
+      text: 'Analise os arquivos localizados na pasta C:/workspace/zavorth-core e me diga como funciona o modulo de logs.',
       contextHints: {
-        workspacePath: 'C:/TESTES DEV/zavorth-core',
+        workspacePath: 'C:/workspace/zavorth-core',
       },
     });
 

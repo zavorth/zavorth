@@ -11,6 +11,7 @@ import {
   ZAVORTH_SURFACE_EXPERIENCE_BUNDLE_VERSION,
   type CognitiveContextBundle,
   type ProfileCompiledBundles,
+  type ProfileImprovementLane,
   type ProfileManifest,
   type ProfileManifestLoadResult,
   type ProfileRuntimeBundle,
@@ -57,6 +58,62 @@ const ProfileManifestSchema = z.object({
     scanScopes: z.array(z.string()).optional(),
     learning: z.enum(['off', 'suggest', 'approved-only']).optional(),
   }).optional(),
+  improvement: z.object({
+    mode: z.enum(['manual', 'quiet-staging', 'quiet-curation', 'creative-staging']).optional(),
+    silent: z.array(z.enum([
+      'telemetry',
+      'ranking',
+      'metadata',
+      'candidate',
+      'draft_skill',
+      'staging_diff',
+      'sandbox_validation',
+      'low_risk_archive',
+      'apply',
+      'policy',
+      'provider',
+      'channel',
+      'secret',
+      'external_send',
+      'host_mutation',
+    ])).optional(),
+    notify: z.array(z.enum([
+      'telemetry',
+      'ranking',
+      'metadata',
+      'candidate',
+      'draft_skill',
+      'staging_diff',
+      'sandbox_validation',
+      'low_risk_archive',
+      'apply',
+      'policy',
+      'provider',
+      'channel',
+      'secret',
+      'external_send',
+      'host_mutation',
+    ])).optional(),
+    requireApproval: z.array(z.enum([
+      'telemetry',
+      'ranking',
+      'metadata',
+      'candidate',
+      'draft_skill',
+      'staging_diff',
+      'sandbox_validation',
+      'low_risk_archive',
+      'apply',
+      'policy',
+      'provider',
+      'channel',
+      'secret',
+      'external_send',
+      'host_mutation',
+    ])).optional(),
+    maxSilentRisk: z.enum(['low', 'medium', 'high']).optional(),
+    interruptMode: z.enum(['never-for-low-risk', 'daily-digest', 'immediate']).optional(),
+  }).optional(),
   metadata: z.record(z.string(), z.unknown()).optional(),
 }).strict();
 
@@ -102,6 +159,14 @@ const DEFAULT_BUNDLE: Omit<
     mode: 'working',
     scanScopes: [],
     learning: 'approved-only',
+  },
+  improvementPolicy: {
+    mode: 'quiet-staging',
+    silent: ['telemetry', 'ranking', 'metadata', 'candidate', 'staging_diff', 'sandbox_validation'],
+    notify: ['draft_skill', 'low_risk_archive'],
+    requireApproval: ['apply', 'policy', 'provider', 'channel', 'secret', 'external_send', 'host_mutation'],
+    maxSilentRisk: 'low',
+    interruptMode: 'daily-digest',
   },
 };
 
@@ -199,6 +264,14 @@ export class ProfileManifestService {
       ...(merged.memory || {}),
       scanScopes: unique(chain.flatMap((entry) => entry.manifest.memory?.scanScopes || [])),
     };
+    const improvementPolicy = {
+      ...DEFAULT_BUNDLE.improvementPolicy,
+      ...(merged.improvement || {}),
+      silent: lastExplicitImprovementLaneList(chain, 'silent') || DEFAULT_BUNDLE.improvementPolicy.silent,
+      notify: lastExplicitImprovementLaneList(chain, 'notify') || DEFAULT_BUNDLE.improvementPolicy.notify,
+      requireApproval: lastExplicitImprovementLaneList(chain, 'requireApproval')
+        || DEFAULT_BUNDLE.improvementPolicy.requireApproval,
+    };
     const cognitiveContextBundle = this.buildCognitiveContextBundle({
       id: merged.id,
       label: merged.label,
@@ -235,6 +308,7 @@ export class ProfileManifestService {
       capabilityPolicy,
       surfacePolicy,
       memoryPolicy,
+      improvementPolicy,
       cognitiveContextBundle,
       runtimePolicyBundle,
       surfaceExperienceBundle,
@@ -381,6 +455,13 @@ function mergeManifest(base: ProfileManifest, next: ProfileManifest): ProfileMan
       ...(next.memory || {}),
       scanScopes: unique([...(base.memory?.scanScopes || []), ...(next.memory?.scanScopes || [])]),
     },
+    improvement: {
+      ...(base.improvement || {}),
+      ...(next.improvement || {}),
+      silent: next.improvement?.silent || base.improvement?.silent,
+      notify: next.improvement?.notify || base.improvement?.notify,
+      requireApproval: next.improvement?.requireApproval || base.improvement?.requireApproval,
+    },
     metadata: { ...(base.metadata || {}), ...(next.metadata || {}) },
   };
 }
@@ -407,6 +488,19 @@ function lastExplicitSurfaceAllowed(chain: ProfileManifestLoadResult[]): string[
     }
   }
   return [];
+}
+
+function lastExplicitImprovementLaneList(
+  chain: ProfileManifestLoadResult[],
+  key: 'silent' | 'notify' | 'requireApproval',
+): ProfileImprovementLane[] | null {
+  for (let index = chain.length - 1; index >= 0; index -= 1) {
+    const lanes = chain[index]?.manifest.improvement?.[key];
+    if (Array.isArray(lanes)) {
+      return unique(lanes) as ProfileImprovementLane[];
+    }
+  }
+  return null;
 }
 
 function checksum(value: unknown): string {

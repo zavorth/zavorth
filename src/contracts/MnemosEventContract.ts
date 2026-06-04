@@ -29,7 +29,7 @@ export type MnemosSessionEvent = {
   type: MnemosEventType;
   payload: Record<string, any>;
   source?: {
-    surface: 'dashboard' | 'cli' | 'telegram' | 'api' | 'external-agent' | 'runtime' | 'unknown';
+    surface: 'dashboard' | 'cli' | 'telegram' | 'api' | 'runtime-adapter' | 'runtime' | 'unknown';
     agent?: string | null;
     provider?: string | null;
     channel?: string | null;

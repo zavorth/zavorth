@@ -26,7 +26,7 @@ describe('WebAppRuntimeRouteService', () => {
       remoteAccess: {
         inspect: jest.fn(),
       } as any,
-      surfaceParity: {} as any,
+      surfaceConsistency: {} as any,
       consoleAssets: {} as any,
       runtime: {
         webUserId: 'telegram-admin',
@@ -893,7 +893,7 @@ describe('WebAppRuntimeRouteService', () => {
       remoteAccess: {
         inspect,
       } as any,
-      surfaceParity: {} as any,
+      surfaceConsistency: {} as any,
       consoleAssets: {} as any,
       runtime: {} as any,
       realtime: {} as any,
@@ -969,7 +969,7 @@ describe('WebAppRuntimeRouteService', () => {
       remoteAccess: {
         inspect: jest.fn(),
       } as any,
-      surfaceParity: {} as any,
+      surfaceConsistency: {} as any,
       consoleAssets: {} as any,
       runtime: {
         webUserId: 'telegram-admin',

@@ -1,6 +1,6 @@
-import type { ChannelMeshParitySnapshot } from './ChannelMeshParityContract.js';
-import type { ParityCertificationSnapshot } from './ParityCertificationContract.js';
-import type { ProviderMeshParitySnapshot } from './ProviderMeshParityContract.js';
+import type { ChannelMeshConsistencySnapshot } from './ChannelMeshConsistencyContract.js';
+import type { ReleaseCertificationSnapshot } from './ReleaseCertificationContract.js';
+import type { ProviderMeshReadinessSnapshot } from './ProviderMeshReadinessContract.js';
 
 export const ZAVORTH_RUNTIME_ADAPTER_CLOSURE_CONTRACT_VERSION = '2026-05-04.checkpoint-11';
 
@@ -47,20 +47,20 @@ export type RuntimeAdapterClosureSnapshot = {
     remainingChannelTemplates: number;
     remainingChannelUnsupported: number;
     certificationP1Gaps: number;
-    certificationStatus: ParityCertificationSnapshot['status'];
+    certificationStatus: ReleaseCertificationSnapshot['status'];
     releaseReady: boolean;
     liveExternalCallRequired: false;
     liveChannelSendRequired: false;
     secretValuesSerialized: false;
   };
   entries: RuntimeAdapterClosureEntry[];
-  providerSnapshot: Pick<ProviderMeshParitySnapshot, 'contractVersion' | 'summary'>;
-  channelSnapshot: Pick<ChannelMeshParitySnapshot, 'contractVersion' | 'summary'>;
-  certification: Pick<ParityCertificationSnapshot, 'contractVersion' | 'profile' | 'status' | 'summary'>;
+  providerSnapshot: Pick<ProviderMeshReadinessSnapshot, 'contractVersion' | 'summary'>;
+  channelSnapshot: Pick<ChannelMeshConsistencySnapshot, 'contractVersion' | 'summary'>;
+  certification: Pick<ReleaseCertificationSnapshot, 'contractVersion' | 'profile' | 'status' | 'summary'>;
   commands: {
     check: string;
-    providerParity: string;
-    channelParity: string;
+    providerConsistency: string;
+    channelConsistency: string;
     certify: string;
     nextStage: 'Etapa 12 - Native Capability Closure';
   };

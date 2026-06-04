@@ -1,4 +1,4 @@
-import type { ParityCertificationGateStatus } from './ParityCertificationContract.js';
+import type { ReleaseCertificationGateStatus } from './ReleaseCertificationContract.js';
 import type { CanaryPlanDryRunHoldSnapshot } from './CanaryPlanDryRunHoldContract.js';
 
 export const ZAVORTH_CANARY_EXECUTION_APPROVAL_LEDGER_CONTRACT_VERSION = '2026-05-04.checkpoint-20';
@@ -83,7 +83,7 @@ export type CanaryExecutionApprovalLedgerGate = {
     | 'launch-side-effects-blocked'
     | 'publication-and-promotion-held'
     | 'ledger-receipts-complete';
-  status: ParityCertificationGateStatus;
+  status: ReleaseCertificationGateStatus;
   title: string;
   observed: number | string | boolean;
   threshold: number | string | boolean;

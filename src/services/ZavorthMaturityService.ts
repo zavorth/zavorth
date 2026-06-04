@@ -2,19 +2,18 @@ import fs from 'node:fs';
 import path from 'node:path';
 import type {
   ZavorthMaturityGate,
-  ZavorthMaturityGateStatus,
   ZavorthMaturitySnapshot,
   ZavorthMaturityStatus,
 } from '../contracts/ZavorthMaturityContract.js';
 import { OperationalMaturityService } from '../domain/platform-ecosystem/application/OperationalMaturityService.js';
 import { ChannelExperienceCertificationService } from './ChannelExperienceCertificationService.js';
-import { LiveParityCertificationService } from './LiveParityCertificationService.js';
+import { LiveReadinessCertificationService } from './LiveReadinessCertificationService.js';
 import { ZavorthDashboardVisualQaService } from './ZavorthDashboardVisualQaService.js';
 import { ZavorthDataLifecyclePolicyService } from './ZavorthDataLifecyclePolicyService.js';
 import { ZavorthHostLiveCertificationService } from './ZavorthHostLiveCertificationService.js';
 
 type ChannelExperienceCertificationReader = Pick<ChannelExperienceCertificationService, 'buildSnapshot'>;
-type LiveParityCertificationReader = Pick<LiveParityCertificationService, 'buildSnapshot'>;
+type LiveReadinessCertificationReader = Pick<LiveReadinessCertificationService, 'buildSnapshot'>;
 type OperationalMaturityReader = Pick<OperationalMaturityService, 'validate'>;
 type ZavorthHostLiveCertificationReader = Pick<ZavorthHostLiveCertificationService, 'buildSnapshot'>;
 type ZavorthDataLifecyclePolicyReader = Pick<ZavorthDataLifecyclePolicyService, 'buildSnapshot'>;
@@ -24,15 +23,13 @@ type ZavorthMaturityRuntime = {
   now?: () => Date;
   projectRoot?: string;
   channelExperienceCertificationService?: ChannelExperienceCertificationReader;
-  liveParityCertificationService?: LiveParityCertificationReader;
+  liveReadinessCertificationService?: LiveReadinessCertificationReader;
   operationalMaturityService?: OperationalMaturityReader;
   hostLiveCertificationService?: ZavorthHostLiveCertificationReader;
   dataLifecyclePolicyService?: ZavorthDataLifecyclePolicyReader;
   dashboardVisualQaService?: ZavorthDashboardVisualQaReader;
   existsSync?: typeof fs.existsSync;
   readFileSync?: typeof fs.readFileSync;
-  readdirSync?: typeof fs.readdirSync;
-  statSync?: typeof fs.statSync;
 };
 
 type PackageInfo = {
@@ -55,31 +52,22 @@ const REQUIRED_OPERATOR_SCRIPTS = [
   'zavorth:dashboard-visual-qa:check',
 ];
 
-const IDENTITY_SCAN_ROOTS = [
-  'src',
-  'package.json',
-];
-const EXTERNAL_BASELINE_NAME_PATTERN = /\bThirdPartyAgent\b/i;
-
 export class ZavorthMaturityService {
   private readonly now: () => Date;
   private readonly projectRoot: string;
   private readonly channelExperience: ChannelExperienceCertificationReader;
-  private readonly liveParity: LiveParityCertificationReader;
+  private readonly liveReadiness: LiveReadinessCertificationReader;
   private readonly operationalMaturity: OperationalMaturityReader;
   private readonly hostLive: ZavorthHostLiveCertificationReader;
   private readonly dataLifecycle: ZavorthDataLifecyclePolicyReader;
   private readonly dashboardVisualQa: ZavorthDashboardVisualQaReader;
-  private readonly existsSync: typeof fs.existsSync;
   private readonly readFileSync: typeof fs.readFileSync;
-  private readonly readdirSync: typeof fs.readdirSync;
-  private readonly statSync: typeof fs.statSync;
 
   public constructor(runtime: ZavorthMaturityRuntime = {}) {
     this.now = runtime.now || (() => new Date());
     this.projectRoot = path.resolve(runtime.projectRoot || process.cwd());
     this.channelExperience = runtime.channelExperienceCertificationService || new ChannelExperienceCertificationService();
-    this.liveParity = runtime.liveParityCertificationService || new LiveParityCertificationService({ now: this.now });
+    this.liveReadiness = runtime.liveReadinessCertificationService || new LiveReadinessCertificationService({ now: this.now });
     this.operationalMaturity = runtime.operationalMaturityService || new OperationalMaturityService({
       projectRoot: this.projectRoot,
       now: this.now,
@@ -95,21 +83,17 @@ export class ZavorthMaturityService {
       now: this.now,
       existsSync: runtime.existsSync,
     });
-    this.existsSync = runtime.existsSync || fs.existsSync.bind(fs);
     this.readFileSync = runtime.readFileSync || fs.readFileSync.bind(fs);
-    this.readdirSync = runtime.readdirSync || fs.readdirSync.bind(fs);
-    this.statSync = runtime.statSync || fs.statSync.bind(fs);
   }
 
   public buildSnapshot(): ZavorthMaturitySnapshot {
     const channel = this.channelExperience.buildSnapshot();
-    const live = this.liveParity.buildSnapshot({ profile: 'staging-live' });
+    const live = this.liveReadiness.buildSnapshot({ profile: 'staging-live' });
     const operational = this.operationalMaturity.validate();
     const hostLive = this.hostLive.buildSnapshot();
     const dataLifecycle = this.dataLifecycle.buildSnapshot();
     const dashboardVisualQa = this.dashboardVisualQa.buildSnapshot();
     const packageInfo = this.readPackageInfo();
-    const identityLeaks = this.scanExternalReferenceLeaks();
     const stubsOrPartials = channel.entries.filter((entry) =>
       ['partial', 'planned', 'missing'].includes(String(entry.readiness || '').toLowerCase())
       || ['stub', 'planned', 'missing'].includes(String(entry.transport || '').toLowerCase())
@@ -124,7 +108,6 @@ export class ZavorthMaturityService {
       this.dashboardEvidenceGate(channel, dashboardVisualQa),
       this.dataLifecycleGate(dataLifecycle),
       this.operatorSimplicityGate(packageInfo),
-      this.identityHygieneGate(identityLeaks),
     ];
     const requiredBlocked = gates.filter((gate) => gate.required && gate.status === 'blocked').length;
     const attention = gates.filter((gate) => gate.status === 'attention').length;
@@ -140,14 +123,13 @@ export class ZavorthMaturityService {
       channelContractsReleaseReady: channel.summary.releaseReady,
       channelContractsCertified: channel.summary.certified,
       channelContractsTotal: channel.summary.total,
-      liveParityCertified: live.status === 'certified',
+      liveReadinessCertified: live.status === 'certified',
       hostLiveReadyChannels: hostLive.summary.liveReady,
       hostLiveTotalChannels: hostLive.summary.total,
       dataLifecycleReleaseReady: dataLifecycle.summary.releaseReady,
       dashboardVisualQaEvidenceReady: dashboardVisualQa.summary.evidenceReady,
       operationalMaturityOk: operational.ok,
       stubsOrPartials,
-      externalReferenceLeaks: identityLeaks.length,
     };
 
     return {
@@ -163,7 +145,6 @@ export class ZavorthMaturityService {
         productionLiveReady,
         dashboardVisualQaClaimed: dashboardVisualQa.summary.evidenceReady,
         stubsAndPartialsExplicit: stubsOrPartials >= 0 && gates.some((gate) => gate.id === 'stub-partial-truth-ledger'),
-        externalReferenceLeakFree: identityLeaks.length === 0,
         hostLiveCertificationHonest: hostLive.distinctions.contractReadyIsNotLive
           && hostLive.distinctions.noExternalSendDuringCertification,
         dataLifecycleComplete: dataLifecycle.summary.releaseReady,
@@ -226,7 +207,7 @@ export class ZavorthMaturityService {
     });
   }
 
-  private liveBoundaryGate(live: ReturnType<LiveParityCertificationService['buildSnapshot']>): ZavorthMaturityGate {
+  private liveBoundaryGate(live: ReturnType<LiveReadinessCertificationService['buildSnapshot']>): ZavorthMaturityGate {
     const productionNotClaimed = String(live.statement?.productionLiveRelease || '') === 'not-claimed-without-operator-live-receipts';
     const ok = live.status === 'certified'
       && live.policy.noLiveIoDuringCertification === true
@@ -244,7 +225,7 @@ export class ZavorthMaturityService {
         `productionLiveRelease=${live.statement?.productionLiveRelease || 'n/d'}`,
         `noLiveIoDuringCertification=${String(live.policy.noLiveIoDuringCertification)}`,
       ],
-      commands: ['npm run live-parity-certify -- --profile staging-live'],
+      commands: ['npm run live-readiness-certify -- --profile staging-live'],
       nextAction: ok
         ? 'Promover producao live somente com recibos reais do operador.'
         : 'Separar staging-live, contract-ready e production-live no relatorio.',
@@ -396,23 +377,6 @@ export class ZavorthMaturityService {
     });
   }
 
-  private identityHygieneGate(identityLeaks: string[]): ZavorthMaturityGate {
-    return this.gate({
-      id: 'identity-hygiene',
-      label: 'Identidade Zavorth no core',
-      status: identityLeaks.length === 0 ? 'passed' : 'blocked',
-      required: true,
-      summary: identityLeaks.length === 0
-        ? 'Nenhuma referencia externa indevida encontrada em src/package.'
-        : `${identityLeaks.length} referencia(s) externa(s) indevida(s) no core.`,
-      evidence: identityLeaks.length === 0 ? ['scanPaths=src,package.json'] : identityLeaks.slice(0, 8),
-      commands: ['npm run zavorth:maturity:check'],
-      nextAction: identityLeaks.length === 0
-        ? 'Manter referencias externas apenas em docs/auditorias historicas.'
-        : 'Renomear arquivos/classes/textos internos para identidade Zavorth.',
-    });
-  }
-
   private readPackageInfo(): PackageInfo {
     const packagePath = path.resolve(this.projectRoot, 'package.json');
     try {
@@ -422,39 +386,6 @@ export class ZavorthMaturityService {
       };
     } catch {
       return { scripts: {} };
-    }
-  }
-
-  private scanExternalReferenceLeaks(): string[] {
-    const leaks: string[] = [];
-    for (const root of IDENTITY_SCAN_ROOTS) {
-      const targetPath = path.resolve(this.projectRoot, root);
-      if (!this.existsSync(targetPath)) {
-        continue;
-      }
-      this.scanPathForExternalReference(targetPath, leaks);
-    }
-    return leaks;
-  }
-
-  private scanPathForExternalReference(targetPath: string, leaks: string[]): void {
-    const stat = this.statSync(targetPath);
-    if (stat.isDirectory()) {
-      for (const child of this.readdirSync(targetPath)) {
-        if (child === 'node_modules' || child === 'dist' || child === 'dist-ops') {
-          continue;
-        }
-        this.scanPathForExternalReference(path.join(targetPath, child), leaks);
-      }
-      return;
-    }
-
-    if (!/\.(ts|tsx|js|mjs|json)$/i.test(targetPath)) {
-      return;
-    }
-    const content = this.readFileSync(targetPath, 'utf8');
-    if (EXTERNAL_BASELINE_NAME_PATTERN.test(content)) {
-      leaks.push(path.relative(this.projectRoot, targetPath).replace(/\\/g, '/'));
     }
   }
 

@@ -35,6 +35,7 @@ import { ProviderControlPlaneService } from './ProviderControlPlaneService.js';
 import { OperationsHealthService } from '../observability/OperationsHealthService.js';
 import { ZavorthA2UIService } from './ZavorthA2UIService.js';
 import { ZavorthProactivePermissionService } from './ZavorthProactivePermissionService.js';
+import { GoalLoopStatusProjectionService, type GoalLoopStatusProjection } from './GoalLoopStatusProjectionService.js';
 
 type ZavorthGatewayRuntime = {
   now?: () => Date;
@@ -62,6 +63,7 @@ type ZavorthGatewayRuntime = {
   channelRegistryService?: Pick<GatewayChannelRegistryService, 'listChannels'>;
   a2ui?: ZavorthA2UIService;
   proactivePermissions?: ZavorthProactivePermissionService;
+  goalLoopStatusService?: Pick<GoalLoopStatusProjectionService, 'buildSnapshot'>;
 };
 
 export type ZavorthGatewayControlPlaneSnapshot = {
@@ -126,6 +128,7 @@ export type ZavorthGatewaySnapshot = {
   nodeMesh: ReturnType<ZavorthNodeMeshService['buildSnapshot']>;
   pluginRegistry: ReturnType<ZavorthPluginRegistryService['buildSnapshot']>;
   remoteTransports: ReturnType<ZavorthRemoteTransportService['buildSnapshot']>;
+  goalLoop: GoalLoopStatusProjection | null;
   narrative: {
     headline: string;
     operatorSummary: string;
@@ -167,6 +170,7 @@ export class ZavorthGatewayService {
   private readonly domains: DomainRegistry;
   public readonly a2ui: ZavorthA2UIService;
   public readonly proactivePermissions: ZavorthProactivePermissionService;
+  private readonly goalLoopStatus: Pick<GoalLoopStatusProjectionService, 'buildSnapshot'> | null;
 
   constructor(runtime: ZavorthGatewayRuntime = {}) {
     this.now = runtime.now || (() => new Date());
@@ -201,6 +205,7 @@ export class ZavorthGatewayService {
         });
       this.a2ui = runtime.a2ui || new ZavorthA2UIService();
       this.proactivePermissions = runtime.proactivePermissions || new ZavorthProactivePermissionService();
+      this.goalLoopStatus = runtime.goalLoopStatusService || null;
       
       this.domains = new DomainRegistry({
       now: this.now,
@@ -425,6 +430,7 @@ export class ZavorthGatewayService {
     const nodeMesh = this.nodeMesh.buildSnapshot();
     const pluginRegistry = this.pluginRegistry.buildSnapshot();
     const remoteTransports = this.remoteTransports.buildSnapshot();
+    const goalLoop = this.goalLoopStatus ? this.safeBuildGoalLoopStatus() : null;
     const controlPlane = this.buildControlPlane({
       hookPlane,
       nodeMesh,
@@ -466,6 +472,7 @@ export class ZavorthGatewayService {
       nodeMesh,
       pluginRegistry,
       remoteTransports,
+      goalLoop,
       narrative: {
         headline: 'Zavorth Gateway consolida canais, sessao, tools, plugins, runtime e transportes remotos em um unico snapshot.',
         operatorSummary: hasSessionContext
@@ -489,6 +496,14 @@ export class ZavorthGatewayService {
             + this.buildNodeHostMaintenanceNarrative(nodeMesh),
       },
     };
+  }
+
+  private safeBuildGoalLoopStatus(): GoalLoopStatusProjection | null {
+    try {
+      return this.goalLoopStatus?.buildSnapshot() || null;
+    } catch {
+      return null;
+    }
   }
 
   private buildControlPlane(input: {

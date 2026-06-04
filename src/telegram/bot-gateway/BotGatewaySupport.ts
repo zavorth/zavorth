@@ -17,7 +17,7 @@ import {
   normalizeExternalRequestedPath,
   resolveApprovedExternalAccessPath,
   resolveBroadcastRecipients,
-  resolveExternalAgentRole,
+  resolveRuntimeAdapterRole,
   sendToChat,
   start,
   startDashboardSurface,
@@ -110,8 +110,8 @@ export class BotGatewaySupport {
     return flushPendingSupervisedNotifications(this.runtime);
   }
 
-  public resolveExternalAgentRole(task: unknown): string {
-    return resolveExternalAgentRole(task);
+  public resolveRuntimeAdapterRole(task: unknown): string {
+    return resolveRuntimeAdapterRole(task);
   }
 
   public resolveApprovedExternalAccessPath(result: unknown): string {

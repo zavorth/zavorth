@@ -2,7 +2,7 @@
 
 Channel Mesh is the canonical channel layer for Zavorth. It gives every channel the same operational contract while allowing each surface to render actions in its own native way.
 
-Phase 2 channel deepening is tracked in the dedicated channel deepening document. That map covers every known surface with setup, doctor, pairing, live proof and safe outbox semantics; it does not treat catalog support as live proof.
+Each channel exposes setup, doctor, pairing, live readiness and safe outbox semantics. Catalog support is not live readiness.
 
 ## Goal
 
@@ -63,11 +63,11 @@ Each channel should expose honest readiness:
 - `blocked`: policy prevents use;
 - `unsupported`: known but not supported by this runtime.
 
-Readiness is not the same as live proof. The Runtime API channel projection also exposes:
+Readiness is stronger than catalog support. The Runtime API channel projection also exposes:
 
-- `liveReady`: true only when the runtime has health, recent event, or bridge evidence;
-- `readinessProof`: `health`, `live_event`, `bridge`, `configuration`, `catalog`, `none`, or `blocked`;
-- `defaultRouteAllowed`: true only when a ready channel has live proof and an outbound/session path;
+- `liveReady`: true only when the runtime has health, recent event, or bridge status;
+- `readinessSource`: `health`, `live_event`, `bridge`, `configuration`, `catalog`, `none`, or `blocked`;
+- `defaultRouteAllowed`: true only when a ready channel has live readiness and an outbound/session path;
 - `defaultBlockReason`: the human reason a channel cannot be used as a default live route.
 
 A configured adapter, catalog entry, QR-ready pairing flow, or local stub must not be presented as a live channel until `liveReady` and `defaultRouteAllowed` are both true.

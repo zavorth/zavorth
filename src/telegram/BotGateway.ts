@@ -98,8 +98,8 @@ export class BotGateway extends BotGatewayState implements LiveChannelBroadcastG
     return this.getBotGatewaySupportInstance().resolveWorkspaceCommandInput(rawText, parsed);
   }
 
-  public resolveExternalAgentRole(task: unknown): string {
-    return this.getBotGatewaySupportInstance().resolveExternalAgentRole(task);
+  public resolveRuntimeAdapterRole(task: unknown): string {
+    return this.getBotGatewaySupportInstance().resolveRuntimeAdapterRole(task);
   }
 
   public resolveApprovedExternalAccessPath(result: unknown): string {

@@ -7,7 +7,7 @@ import {
   type ZavorthNativeReplacementDecommissionStatus,
   type ZavorthNativeReplacementInput,
   type ZavorthNativeReplacementRegistryEntry,
-  type ZavorthParityTestHarnessReceipt,
+  type ZavorthConsistencyTestHarnessReceipt,
   type ZavorthSourceAssumptionDecommissionReceipt,
 } from '../contracts/ZavorthNativeReplacementDecommissionContract.js';
 import type {
@@ -30,7 +30,7 @@ const DEFAULT_REPLACEMENTS: ZavorthNativeReplacementInput[] = [
     sourcePatternRef: 'diagnostic://checkpoint-2/error-recovery',
     zavorthNativeOwner: 'ZavorthNativeEngineAbsorptionService',
     replacementDecision: 'promote-native',
-    parityCoveragePercent: 100,
+    consistencyCoveragePercent: 100,
     adapterRequiredAfterReplacement: false,
     sourceAssumptions: ['source-error-taxonomy-shape'],
     acceptanceGate: 'npm run zavorth:native-engine-absorption:check --silent',
@@ -42,7 +42,7 @@ const DEFAULT_REPLACEMENTS: ZavorthNativeReplacementInput[] = [
     sourcePatternRef: 'diagnostic://checkpoint-2/tool-argument-repair',
     zavorthNativeOwner: 'ZavorthNativeEngineAbsorptionService',
     replacementDecision: 'promote-native',
-    parityCoveragePercent: 96,
+    consistencyCoveragePercent: 96,
     adapterRequiredAfterReplacement: false,
     sourceAssumptions: ['source-tool-call-json-repair-order'],
     acceptanceGate: 'npm run zavorth:native-engine-absorption:check --silent',
@@ -54,7 +54,7 @@ const DEFAULT_REPLACEMENTS: ZavorthNativeReplacementInput[] = [
     sourcePatternRef: 'diagnostic://checkpoint-5/channel-messaging',
     zavorthNativeOwner: 'ZavorthChannelMessagingBridgeService',
     replacementDecision: 'keep-optional-adapter',
-    parityCoveragePercent: 92,
+    consistencyCoveragePercent: 92,
     adapterRequiredAfterReplacement: false,
     sourceAssumptions: ['source-channel-driver-shape', 'source-credential-port-layout'],
     acceptanceGate: 'npm run zavorth:channel-messaging-bridge:check --silent',
@@ -66,7 +66,7 @@ const DEFAULT_REPLACEMENTS: ZavorthNativeReplacementInput[] = [
     sourcePatternRef: 'diagnostic://checkpoint-7/delegated-workers',
     zavorthNativeOwner: 'ZavorthDelegatedWorkerBridgeService',
     replacementDecision: 'defer',
-    parityCoveragePercent: 88,
+    consistencyCoveragePercent: 88,
     adapterRequiredAfterReplacement: false,
     sourceAssumptions: ['source-worker-lifecycle-shape'],
     acceptanceGate: 'npm run zavorth:delegated-worker-bridge:check --silent',
@@ -86,7 +86,7 @@ export class ZavorthNativeReplacementDecommissionService {
   public buildSnapshot(input: SnapshotInput = {}): ZavorthNativeReplacementDecommissionSnapshot {
     const previousDelegatedWorkerStatus = input.delegatedWorkerStatus || this.defaultDelegatedWorkerStatus;
     const registryEntries = DEFAULT_REPLACEMENTS.map((entry) => this.registerNativeReplacement(entry));
-    const parityHarnessReceipts = registryEntries.map((entry) => this.buildParityHarness(entry));
+    const consistencyHarnessReceipts = registryEntries.map((entry) => this.buildConsistencyHarness(entry));
     const adapterDependencyReductionReceipts = registryEntries.map((entry) => this.reduceAdapterDependency(entry));
     const sourceAssumptionDecommissionReceipts = registryEntries.flatMap((entry) => (
       entry.sourceAssumptions.map((assumption) => this.decommissionSourceAssumption(entry, assumption))
@@ -95,7 +95,7 @@ export class ZavorthNativeReplacementDecommissionService {
     const acceptanceMatrix = buildAcceptanceMatrix(
       previousDelegatedWorkerStatus,
       registryEntries,
-      parityHarnessReceipts,
+      consistencyHarnessReceipts,
       adapterDependencyReductionReceipts,
       sourceAssumptionDecommissionReceipts,
       compatibilityBoundaryReceipt,
@@ -104,7 +104,7 @@ export class ZavorthNativeReplacementDecommissionService {
     const dashboardProjection = this.buildDashboardProjection({
       status,
       registryEntries,
-      parityHarnessReceipts,
+      consistencyHarnessReceipts,
       adapterDependencyReductionReceipts,
       sourceAssumptionDecommissionReceipts,
       compatibilityBoundaryReceipt,
@@ -119,7 +119,7 @@ export class ZavorthNativeReplacementDecommissionService {
       phase: 'native-replacement-decommission',
       previousDelegatedWorkerStatus,
       registryEntries,
-      parityHarnessReceipts,
+      consistencyHarnessReceipts,
       adapterDependencyReductionReceipts,
       sourceAssumptionDecommissionReceipts,
       compatibilityBoundaryReceipt,
@@ -129,7 +129,7 @@ export class ZavorthNativeReplacementDecommissionService {
         nativeReplacementRegistryEntries: registryEntries.length,
         promotedNativeCapabilities: promotedEntries.length,
         optionalCompatibilityAdapters: adapterDependencyReductionReceipts.filter((entry) => entry.status !== 'blocked').length,
-        parityHarnessesPassed: parityHarnessReceipts.filter((entry) => entry.status === 'passed').length,
+        consistencyHarnessesPassed: consistencyHarnessReceipts.filter((entry) => entry.status === 'passed').length,
         adapterDependenciesReduced: adapterDependencyReductionReceipts.filter((entry) => entry.status === 'optionalized').length,
         sourceAssumptionsDecommissioned: sourceAssumptionDecommissionReceipts.filter((entry) => entry.status === 'decommissioned').length,
         compatibilityBoundariesReady: compatibilityBoundaryReceipt.status === 'optional-compatibility-ready' ? 1 : 0,
@@ -165,7 +165,7 @@ export class ZavorthNativeReplacementDecommissionService {
     const decision = input.replacementDecision;
     const canRunWithoutSourceRuntime = decision === 'promote-native'
       && !input.adapterRequiredAfterReplacement
-      && input.parityCoveragePercent >= 90;
+      && input.consistencyCoveragePercent >= 90;
 
     return {
       registryEntryId: `zavorth.native-replacement.${safeId(input.capabilityId)}`,
@@ -176,7 +176,7 @@ export class ZavorthNativeReplacementDecommissionService {
       publicName: 'Zavorth',
       zavorthNativeOwner: input.zavorthNativeOwner,
       replacementDecision: decision,
-      parityCoveragePercent: clampPercent(input.parityCoveragePercent),
+      consistencyCoveragePercent: clampPercent(input.consistencyCoveragePercent),
       adapterRequiredAfterReplacement: input.adapterRequiredAfterReplacement,
       canRunWithoutSourceRuntime,
       sourceAssumptions: input.sourceAssumptions.map((entry) => safeId(entry)),
@@ -193,19 +193,19 @@ export class ZavorthNativeReplacementDecommissionService {
     };
   }
 
-  public buildParityHarness(entry: ZavorthNativeReplacementRegistryEntry): ZavorthParityTestHarnessReceipt {
+  public buildConsistencyHarness(entry: ZavorthNativeReplacementRegistryEntry): ZavorthConsistencyTestHarnessReceipt {
     const requiredCoverage = entry.replacementDecision === 'promote-native' ? 90 : 80;
-    const passed = entry.parityCoveragePercent >= requiredCoverage;
+    const passed = entry.consistencyCoveragePercent >= requiredCoverage;
     const canRunNativeWithoutSourceRuntime = entry.replacementDecision === 'promote-native'
       ? entry.canRunWithoutSourceRuntime
       : true;
 
     return {
-      harnessId: `zavorth.parity.${safeId(entry.capabilityId)}`,
+      harnessId: `zavorth.consistency.${safeId(entry.capabilityId)}`,
       registryEntryId: entry.registryEntryId,
       capabilityId: entry.capabilityId,
       status: passed && canRunNativeWithoutSourceRuntime ? 'passed' : 'failed',
-      parityCoveragePercent: entry.parityCoveragePercent,
+      consistencyCoveragePercent: entry.consistencyCoveragePercent,
       canRunNativeWithoutSourceRuntime,
       sourceRuntimeRequired: false,
       scenarios: [
@@ -214,7 +214,7 @@ export class ZavorthNativeReplacementDecommissionService {
         scenario('identity', 'Public identity remains Zavorth', !entry.safety.publicIdentityChanged),
       ],
       safety: {
-        parityFixtureOnly: true,
+        consistencyFixtureOnly: true,
         noSourceRuntimeCall: true,
         noProviderCall: true,
         noToolExecution: true,
@@ -289,7 +289,7 @@ export class ZavorthNativeReplacementDecommissionService {
   public buildDashboardProjection(input: {
     status: ZavorthNativeReplacementDecommissionStatus;
     registryEntries: ZavorthNativeReplacementRegistryEntry[];
-    parityHarnessReceipts: ZavorthParityTestHarnessReceipt[];
+    consistencyHarnessReceipts: ZavorthConsistencyTestHarnessReceipt[];
     adapterDependencyReductionReceipts: ZavorthAdapterDependencyReductionReceipt[];
     sourceAssumptionDecommissionReceipts: ZavorthSourceAssumptionDecommissionReceipt[];
     compatibilityBoundaryReceipt: ZavorthCompatibilityBoundaryReceipt;
@@ -302,7 +302,7 @@ export class ZavorthNativeReplacementDecommissionService {
       cards: [
         card('registry', 'Registry', String(input.registryEntries.length), 'Native replacement registry entries'),
         card('promoted', 'Promoted Native', String(promoted), 'Capabilities certified to run without source runtime'),
-        card('parity', 'Parity Harnesses', String(input.parityHarnessReceipts.filter((entry) => entry.status === 'passed').length), 'Fixture parity harnesses passed'),
+        card('consistency', 'Consistency Harnesses', String(input.consistencyHarnessReceipts.filter((entry) => entry.status === 'passed').length), 'Fixture consistency harnesses passed'),
         card('adapters', 'Adapters', String(input.adapterDependencyReductionReceipts.length), 'Adapters reduced to optional compatibility boundaries'),
         card('assumptions', 'Source Assumptions', String(input.sourceAssumptionDecommissionReceipts.length), 'Source-specific assumptions decommissioned or quarantined'),
         card('boundary', 'Compatibility', input.compatibilityBoundaryReceipt.status, 'Public surface remains Zavorth-only'),
@@ -310,7 +310,7 @@ export class ZavorthNativeReplacementDecommissionService {
       ],
       policyPills: [
         'native replacement registry',
-        'parity tests',
+        'consistency tests',
         'adapter dependency reduction',
         'decommission gates',
         'optional compatibility boundaries',
@@ -330,7 +330,7 @@ export class ZavorthNativeReplacementDecommissionService {
       `Previous delegated worker bridge: ${snapshot.previousDelegatedWorkerStatus}`,
       `Registry entries: ${snapshot.summary.nativeReplacementRegistryEntries}`,
       `Promoted native capabilities: ${snapshot.summary.promotedNativeCapabilities}`,
-      `Parity harnesses passed: ${snapshot.summary.parityHarnessesPassed}`,
+      `Consistency harnesses passed: ${snapshot.summary.consistencyHarnessesPassed}`,
       `Adapter dependencies reduced: ${snapshot.summary.adapterDependenciesReduced}`,
       `Source assumptions decommissioned: ${snapshot.summary.sourceAssumptionsDecommissioned}`,
       `Compatibility boundaries ready: ${snapshot.summary.compatibilityBoundariesReady}`,
@@ -352,7 +352,7 @@ export class ZavorthNativeReplacementDecommissionService {
 function buildAcceptanceMatrix(
   previousDelegatedWorkerStatus: ZavorthDelegatedWorkerBridgeStatus,
   registryEntries: ZavorthNativeReplacementRegistryEntry[],
-  parityHarnessReceipts: ZavorthParityTestHarnessReceipt[],
+  consistencyHarnessReceipts: ZavorthConsistencyTestHarnessReceipt[],
   adapterDependencyReductionReceipts: ZavorthAdapterDependencyReductionReceipt[],
   sourceAssumptionDecommissionReceipts: ZavorthSourceAssumptionDecommissionReceipt[],
   compatibilityBoundaryReceipt: ZavorthCompatibilityBoundaryReceipt,
@@ -364,8 +364,8 @@ function buildAcceptanceMatrix(
       && registryEntries.every((entry) => entry.publicName === 'Zavorth' && entry.sourcePatternDiagnosticsOnly), `${registryEntries.length} registry entry(ies)`),
     acceptance('promoted-capabilities-run-without-source-runtime', promotedEntries.length >= 2
       && promotedEntries.every((entry) => entry.canRunWithoutSourceRuntime && !entry.adapterRequiredAfterReplacement), `${promotedEntries.length} promoted native capability(ies)`),
-    acceptance('parity-tests-pass-without-source-runtime', parityHarnessReceipts.length === registryEntries.length
-      && parityHarnessReceipts.every((entry) => entry.status === 'passed' && !entry.sourceRuntimeRequired && entry.safety.noSourceRuntimeCall), `${parityHarnessReceipts.length} parity harness(es)`),
+    acceptance('consistency-tests-pass-without-source-runtime', consistencyHarnessReceipts.length === registryEntries.length
+      && consistencyHarnessReceipts.every((entry) => entry.status === 'passed' && !entry.sourceRuntimeRequired && entry.safety.noSourceRuntimeCall), `${consistencyHarnessReceipts.length} consistency harness(es)`),
     acceptance('adapter-dependency-reduction-ready', adapterDependencyReductionReceipts.length === registryEntries.length
       && adapterDependencyReductionReceipts.every((entry) => entry.status !== 'blocked' && !entry.adapterRequiredAfter), `${adapterDependencyReductionReceipts.length} adapter receipt(s)`),
     acceptance('source-assumptions-decommissioned-or-quarantined', sourceAssumptionDecommissionReceipts.length > 0
@@ -373,7 +373,7 @@ function buildAcceptanceMatrix(
     acceptance('optional-compatibility-boundary-ready', compatibilityBoundaryReceipt.status === 'optional-compatibility-ready'
       && compatibilityBoundaryReceipt.publicSurface === 'ZavorthOnly'
       && compatibilityBoundaryReceipt.safety.adaptersRemainOptional, compatibilityBoundaryReceipt.status),
-    acceptance('no-source-tool-provider-file-execution', parityHarnessReceipts.every((entry) => entry.safety.noSourceRuntimeCall && entry.safety.noProviderCall && entry.safety.noToolExecution && entry.safety.noFileMutation)
+    acceptance('no-source-tool-provider-file-execution', consistencyHarnessReceipts.every((entry) => entry.safety.noSourceRuntimeCall && entry.safety.noProviderCall && entry.safety.noToolExecution && entry.safety.noFileMutation)
       && adapterDependencyReductionReceipts.every((entry) => entry.safety.noSourceRuntimeCodeExecuted), 'all receipts are fixture/no-execution'),
   ];
 }

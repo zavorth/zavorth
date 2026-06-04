@@ -96,18 +96,18 @@ function a2uiSnapshot() {
   };
 }
 
-function externalAgentSnapshot() {
+function runtimeAdapterSnapshot() {
   const profiles = state.externalProfiles;
   return {
     generatedAt: new Date().toISOString(),
-    contractVersion: "zavorth-external-agent-gateway/1",
-    surface: "external-agent-dashboard",
+    contractVersion: "zavorth-runtime-adapter-gateway/1",
+    surface: "runtime-adapter-dashboard",
     registry: {
       generatedAt: new Date().toISOString(),
-      contractVersion: "zavorth-external-agent-gateway/1",
-      surface: "external-agent-gateway",
+      contractVersion: "zavorth-runtime-adapter-gateway/1",
+      surface: "runtime-adapter-gateway",
       status: profiles.length ? "ready" : "empty",
-      registryFile: path.join(rootDir, ".tmp", "consolidated-external-agent-profiles.json"),
+      registryFile: path.join(rootDir, ".tmp", "consolidated-runtime-adapter-profiles.json"),
       profiles,
       summary: {
         total: profiles.length,
@@ -189,8 +189,8 @@ function externalProfile(body) {
 function externalReceipt(kind, status, profile, outputText, invoked = false) {
   return {
     generatedAt: new Date().toISOString(),
-    contractVersion: "zavorth-external-agent-gateway/1",
-    surface: "external-agent-gateway",
+    contractVersion: "zavorth-runtime-adapter-gateway/1",
+    surface: "runtime-adapter-gateway",
     kind,
     status,
     profile,
@@ -218,7 +218,7 @@ function externalReceipt(kind, status, profile, outputText, invoked = false) {
       liveNetworkPerformed: false,
     },
     output: { text: outputText, stdout: invoked ? outputText : null, stderr: null },
-    nextAction: { label: invoked ? "Review external agent output" : "Approve this invocation", command: null },
+    nextAction: { label: invoked ? "Review runtime adapter output" : "Approve this invocation", command: null },
     safety: {
       approvalRequired: true,
       approvalBypassAllowed: false,
@@ -285,23 +285,23 @@ async function handleApi(request, response, url) {
     if (request.method === "GET") return json(response, { ok: true, snapshot: { surface: "acp-generic-channel-adapter", adapter: { conceptualDependency: "zavorth-native" } } });
     return json(response, { ok: true, receipt: { surface: "acp-generic-channel-adapter", status: "approval_required", normalizedInboundMessage: { topic: "im_message" }, approvals: [{ title: "ACP tool request: Write" }] } }, 202);
   }
-  if (url.pathname === "/api/web/external-agents") {
+  if (url.pathname === "/api/web/zavorth-runtime-adapters") {
     bump("external.get");
-    return json(response, { ok: true, snapshot: externalAgentSnapshot() });
+    return json(response, { ok: true, snapshot: runtimeAdapterSnapshot() });
   }
-  if (url.pathname === "/api/web/external-agents/register") {
+  if (url.pathname === "/api/web/zavorth-runtime-adapters/register") {
     bump("external.register");
     const profile = externalProfile(body);
     state.externalProfiles = [profile];
-    state.latestExternalReceipt = externalReceipt("profile-registration", "registered", profile, `External agent profile ${profile.id} registered.`, false);
-    return json(response, { ok: true, receipt: state.latestExternalReceipt, snapshot: externalAgentSnapshot() });
+    state.latestExternalReceipt = externalReceipt("profile-registration", "registered", profile, `runtime adapter profile ${profile.id} registered.`, false);
+    return json(response, { ok: true, receipt: state.latestExternalReceipt, snapshot: runtimeAdapterSnapshot() });
   }
-  if (url.pathname === "/api/web/external-agents/invoke") {
+  if (url.pathname === "/api/web/zavorth-runtime-adapters/invoke") {
     bump("external.invoke");
     const profile = state.externalProfiles.find((entry) => entry.id === body.profileId) || state.externalProfiles[0] || externalProfile({ id: body.profileId });
     const approved = body.approvalGranted === true || body.approveExternalExecution === true;
-    state.latestExternalReceipt = externalReceipt("agent-invocation", approved ? "completed" : "approval-required", profile, approved ? "external-agent-e2e-ok" : "Invocation plan ready.", approved);
-    return json(response, { ok: true, receipt: state.latestExternalReceipt, snapshot: externalAgentSnapshot() }, approved ? 200 : 202);
+    state.latestExternalReceipt = externalReceipt("agent-invocation", approved ? "completed" : "approval-required", profile, approved ? "zavorth-runtime-adapter-e2e-ok" : "Invocation plan ready.", approved);
+    return json(response, { ok: true, receipt: state.latestExternalReceipt, snapshot: runtimeAdapterSnapshot() }, approved ? 200 : 202);
   }
   return json(response, { ok: true, route: url.pathname });
 }
@@ -415,7 +415,7 @@ async function main() {
     addCheck(checks, "acp-generic-adapter-normalizes-frame", routeResult.acp.receipt?.surface === "acp-generic-channel-adapter" && routeResult.acp.receipt?.status === "approval_required", JSON.stringify(routeResult.acp.receipt));
 
     await clickNav(page, "Agentes");
-    await page.getByText("External agent control.", { exact: true }).waitFor({ timeout: 10_000 });
+    await page.getByText("runtime adapter control.", { exact: true }).waitFor({ timeout: 10_000 });
     const agentsSection = page.locator("#sector-agents");
     await agentsSection.locator('[name="id"]').fill("e2e-agent");
     await agentsSection.locator('[name="label"]').fill("E2E Agent");
@@ -424,12 +424,12 @@ async function main() {
     await agentsSection.locator('[name="approveRegistration"]').check();
     await agentsSection.getByRole("button", { name: "Register profile" }).click();
     await page.waitForFunction(() => document.body.textContent?.includes("e2e-agent"), null, { timeout: 10_000 });
-    await agentsSection.locator("[data-external-agent-prompt]").fill("Run consolidated external agent check");
-    await agentsSection.locator("[data-external-agent-approve-execution]").check();
-    await agentsSection.locator(".external-agent-actions [data-external-agent-action=\"invoke\"]").click();
-    await page.waitForFunction(() => document.body.textContent?.includes("external-agent-e2e-ok"), null, { timeout: 10_000 });
+    await agentsSection.locator("[data-runtime-adapter-prompt]").fill("Run consolidated runtime adapter check");
+    await agentsSection.locator("[data-runtime-adapter-approve-execution]").check();
+    await agentsSection.locator(".runtime-adapter-actions [data-runtime-adapter-action=\"invoke\"]").click();
+    await page.waitForFunction(() => document.body.textContent?.includes("zavorth-runtime-adapter-e2e-ok"), null, { timeout: 10_000 });
     const agentsText = await page.locator("#sector-agents").innerText();
-    addCheck(checks, "external-agents-register-and-invoke", state.calls["external.register"] >= 1 && state.calls["external.invoke"] >= 1 && agentsText.includes("external-agent-e2e-ok"), agentsText.slice(0, 220));
+    addCheck(checks, "zavorth-runtime-adapters-register-and-invoke", state.calls["external.register"] >= 1 && state.calls["external.invoke"] >= 1 && agentsText.includes("zavorth-runtime-adapter-e2e-ok"), agentsText.slice(0, 220));
 
     addCheck(checks, "browser-console-has-no-errors", consoleErrors.length === 0, consoleErrors.join("\n"));
     const failed = checks.filter((check) => check.status === "fail");

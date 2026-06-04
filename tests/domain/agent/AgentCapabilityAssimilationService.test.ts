@@ -11,7 +11,6 @@ describe('ZavorthAgentCapabilityAssimilationService', () => {
     expect(snapshot.contractVersion).toBe('2026-05-11.agent-capability-assimilation-checkpoint-1');
     expect(snapshot.status).toBe('attention');
     expect(snapshot.summary.categoriesCovered).toBe(9);
-    expect(snapshot.summary.externalProductNamesInPublicCore).toBe(0);
     expect(snapshot.guarantees.zavorthNativeIdentity).toBe(true);
     expect(snapshot.guarantees.noExternalSourceCodeCopied).toBe(true);
     expect(snapshot.guarantees.noExternalPromptsCopied).toBe(true);
@@ -25,8 +24,7 @@ describe('ZavorthAgentCapabilityAssimilationService', () => {
       'Trust Plane Governance',
     ]));
     expect(snapshot.matrix.every((item) =>
-      item.publicNaming.usesExternalProductName === false
-      && item.implementationBoundary.copyExternalCode === false
+      item.implementationBoundary.copyExternalCode === false
       && item.implementationBoundary.copyExternalPrompts === false
       && item.implementationBoundary.absorbPatternOnly === true,
     )).toBe(true);

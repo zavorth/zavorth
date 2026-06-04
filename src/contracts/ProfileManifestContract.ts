@@ -12,6 +12,45 @@ export type RuntimePolicyBundleVersion = typeof ZAVORTH_RUNTIME_POLICY_BUNDLE_VE
 export type SurfaceExperienceBundleVersion = typeof ZAVORTH_SURFACE_EXPERIENCE_BUNDLE_VERSION;
 export type ProfileEnforcementReceiptVersion = typeof ZAVORTH_PROFILE_ENFORCEMENT_RECEIPT_VERSION;
 
+export type ProfileImprovementMode =
+  | 'manual'
+  | 'quiet-staging'
+  | 'quiet-curation'
+  | 'creative-staging';
+
+export type ProfileImprovementRisk = 'low' | 'medium' | 'high';
+
+export type ProfileImprovementInterruptMode =
+  | 'never-for-low-risk'
+  | 'daily-digest'
+  | 'immediate';
+
+export type ProfileImprovementLane =
+  | 'telemetry'
+  | 'ranking'
+  | 'metadata'
+  | 'candidate'
+  | 'draft_skill'
+  | 'staging_diff'
+  | 'sandbox_validation'
+  | 'low_risk_archive'
+  | 'apply'
+  | 'policy'
+  | 'provider'
+  | 'channel'
+  | 'secret'
+  | 'external_send'
+  | 'host_mutation';
+
+export type ProfileImprovementPolicy = {
+  mode: ProfileImprovementMode;
+  silent: ProfileImprovementLane[];
+  notify: ProfileImprovementLane[];
+  requireApproval: ProfileImprovementLane[];
+  maxSilentRisk: ProfileImprovementRisk;
+  interruptMode: ProfileImprovementInterruptMode;
+};
+
 export type ProfileManifest = {
   version: ProfileManifestVersion;
   id: string;
@@ -47,6 +86,7 @@ export type ProfileManifest = {
     scanScopes?: string[];
     learning?: 'off' | 'suggest' | 'approved-only';
   };
+  improvement?: Partial<ProfileImprovementPolicy>;
   metadata?: Record<string, unknown>;
 };
 
@@ -71,6 +111,7 @@ export type ProfileRuntimeBundle = {
     allowed: string[];
   };
   memoryPolicy: Required<NonNullable<ProfileManifest['memory']>>;
+  improvementPolicy: ProfileImprovementPolicy;
   cognitiveContextBundle: CognitiveContextBundle;
   runtimePolicyBundle: RuntimePolicyBundle;
   surfaceExperienceBundle: SurfaceExperienceBundle;

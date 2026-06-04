@@ -1,4 +1,4 @@
-import type { ParityCertificationGateStatus } from './ParityCertificationContract.js';
+import type { ReleaseCertificationGateStatus } from './ReleaseCertificationContract.js';
 import type { PreCanaryGoNoGoAlignmentSnapshot } from './PreCanaryGoNoGoAlignmentContract.js';
 
 export const ZAVORTH_CANARY_PLAN_DRY_RUN_HOLD_CONTRACT_VERSION = '2026-05-04.checkpoint-19';
@@ -77,7 +77,7 @@ export type CanaryPlanDryRunHoldGate = {
     | 'canary-launch-side-effects-blocked'
     | 'promotion-and-publication-held'
     | 'dry-run-receipts-complete';
-  status: ParityCertificationGateStatus;
+  status: ReleaseCertificationGateStatus;
   title: string;
   observed: number | string | boolean;
   threshold: number | string | boolean;

@@ -13,7 +13,7 @@ import { ModuleSdkExportClosureService } from '../../src/services/ModuleSdkExpor
 import { PluginRegistryService } from '../../src/services/PluginRegistryService.js';
 
 describe('ModuleSdkExportClosureService Worker 4', () => {
-  it('closes Plugin SDK and package export parity through a Zavorth-native SDK', () => {
+  it('closes Plugin SDK and package export consistency through a Zavorth-native SDK', () => {
     const snapshot = new ModuleSdkExportClosureService({
       now: () => new Date('2026-05-04T23:45:00.000Z'),
     }).buildSnapshot();

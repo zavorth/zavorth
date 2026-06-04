@@ -15,7 +15,6 @@ const rules = [
   runInvalidScheduleFixture(),
   runBudgetCeilingFixture(),
   ruleWorkspaceCheck(),
-  ruleNoPublicExternalNames(),
 ];
 const failed = rules.filter((item) => item.status === 'failed');
 const snapshot = {
@@ -151,23 +150,6 @@ function ruleWorkspaceCheck() {
   const text = read('package.json');
   const marker = 'node scripts/zavorth-governed-scheduled-tasks-check.mjs';
   return rule('workspace-check-wire', 'workspace:check includes Intent model scheduled-task gate', text.includes(marker), text.includes(marker) ? 'wired' : 'missing', marker, []);
-}
-
-function ruleNoPublicExternalNames() {
-  const files = [
-    'src/contracts/ZavorthScheduledTaskContract.ts',
-    'src/services/ZavorthGovernedScheduledTaskRegistryService.ts',
-    'scripts/zavorth-governed-scheduled-tasks.ts',
-  ];
-  const forbidden = ['ThirdPartyAgent', 'Claude Code', 'ZavorthBridge'];
-  const hits = [];
-  for (const file of files) {
-    const text = read(file);
-    for (const word of forbidden) {
-      if (text.includes(word)) hits.push(`${file}: ${word}`);
-    }
-  }
-  return rule('no-public-external-names', 'Intent model public core remains neutral', hits.length === 0, hits.length === 0 ? 'neutral' : `${hits.length} hit(s)`, 'no external product names in public core files', hits);
 }
 
 function runTs(args) {

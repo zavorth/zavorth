@@ -18,7 +18,7 @@ const checks = [
   check('zavorthControl-control', 'ZavorthControl /control visual and product QA', ['npm', ['run', 'zavorth:zavorthControl-final-product-polish:check', '--silent']], {
     category: 'zavorthControl',
     required: true,
-    docs: ['docs/web-zavorthControl.md', 'docs/control-visual-qa.md'],
+    docs: ['docs/web-zavorthControl.md'],
   }),
   check('live-certification', 'Live certification matrix and long-tail adapter honesty', ['npm', ['run', 'zavorth:live-certification-matrix:check', '--silent']], {
     category: 'live-adapters',
@@ -29,44 +29,49 @@ const checks = [
   check('e2e-runtime', 'End-to-end mission flow public runtime certification', ['npm', ['run', 'zavorth:end-to-end-mission-flow-public-runtime-certification:check', '--silent']], {
     category: 'daily-qa',
     required: true,
-    docs: ['docs/runtime-readiness.md', 'docs/execution.md'],
+    docs: ['docs/operations.md', 'docs/execution.md'],
   }),
   check('live-proof-pack', 'Live readiness evidence proof pack', ['npm', ['run', 'zavorth:live-readiness-evidence-proof-pack:check', '--silent']], {
     category: 'daily-qa',
     required: true,
     liveCapable: true,
-    docs: ['docs/runtime-readiness.md'],
+    docs: ['docs/operations.md'],
   }),
   check('docs-install', 'Documentation, install and public repo closure', ['npm', ['run', 'zavorth:documentation-repo-final:check', '--silent']], {
     category: 'docs-install',
     required: true,
     docs: ['docs/install.md', 'docs/quickstart.md', 'docs/README.md'],
   }),
-  check('capability-absorption', 'OpenClaw/Zavorth-native/Zavorth-native absorption map', ['npm', ['run', 'zavorth:capability-absorption:check', '--silent']], {
+  check('capability-absorption', 'Zavorth-native capability absorption map', ['npm', ['run', 'zavorth:capability-absorption:check', '--silent']], {
     category: 'product-strategy',
     required: true,
-    docs: ['docs/capability-absorption.md'],
+    docs: ['docs/overview.md'],
   }),
   check('channel-deepening', 'All-channel setup, doctor, pairing, proof and outbox map', ['npm', ['run', 'zavorth:channel-deepening:check', '--silent']], {
     category: 'channel-deepening',
     required: true,
-    docs: ['docs/channel-deepening.md', 'docs/channel-mesh.md'],
+    docs: ['docs/channel-mesh.md'],
   }),
   check('native-learning-loop', 'Mnemos native learning loop and reversible user model', ['npm', ['run', 'zavorth:native-learning-loop:check', '--silent']], {
     category: 'learning',
     required: true,
-    docs: ['docs/native-learning-loop.md', 'docs/mnemos-memory-os.md'],
+    docs: ['docs/mnemos-memory-os.md'],
+  }),
+  check('adaptive-learning-os', 'Adaptive Learning OS lanes, multilingual guardrails and redacted snapshots', ['npm', ['run', 'zavorth:adaptive-learning-os:check', '--silent']], {
+    category: 'learning',
+    required: true,
+    docs: ['docs/adaptive-learning-os.md'],
   }),
   check('zavorth-control-advanced-interaction', 'Zavorth-native advanced ZavorthControl tool cards, subagents, queue and reconnect', ['npm', ['run', 'zavorth:zavorth-control-advanced-interaction:check', '--silent']], {
     category: 'zavorthControl',
     required: true,
-    docs: ['docs/web-zavorthControl.md', 'docs/zavorth-control-advanced-interaction.md'],
+    docs: ['docs/web-zavorthControl.md'],
   }),
   check('native-browser-computer-use', 'Native browser and computer-use governed sidecar capability', ['npm', ['run', 'zavorth:native-browser-computer-use:check', '--silent']], {
     category: 'perception',
     required: true,
     liveCapable: true,
-    docs: ['docs/native-browser-computer-use.md'],
+    docs: ['docs/runtime-engines-zcanvas.md'],
   }),
   check('terminal-backends', 'Governed terminal execution backends for local, Docker, SSH, WSL and Vercel Sandbox', ['npm', ['run', 'zavorth:terminal-backends:check', '--silent']], {
     category: 'execution',
@@ -78,19 +83,19 @@ const checks = [
     category: 'apps-satellite',
     required: true,
     liveCapable: true,
-    docs: ['docs/apps-satellite-nodes.md', 'docs/web-zavorthControl.md'],
+    docs: ['docs/web-zavorthControl.md', 'docs/node-mesh-live-native.md'],
   }),
   check('extension-plugin-sdk', 'Extension and plugin SDK manifest, permissions, lifecycle, marketplace and hot reload', ['npm', ['run', 'zavorth:extension-plugin-sdk:check', '--silent']], {
     category: 'plugins',
     required: true,
     liveCapable: true,
-    docs: ['docs/extension-plugin-sdk.md', 'docs/capability-plugins.md'],
+    docs: ['docs/capability-plugins.md'],
   }),
   check('product-qa-live', 'Final live product QA matrix for install, provider, Telegram, mutation, receipt, zavorthControl, CLI, learning and rollback/sandbox', ['npm', ['run', 'zavorth:product-qa-live:check', '--silent']], {
     category: 'product-live-qa',
     required: true,
     liveCapable: true,
-    docs: ['docs/product-qa-live.md', 'docs/runtime-readiness.md'],
+    docs: ['docs/operations.md'],
   }),
   check('runtime-types', 'Runtime TypeScript contract', ['npm', ['run', 'runtime:check', '--silent']], {
     category: 'refactor',

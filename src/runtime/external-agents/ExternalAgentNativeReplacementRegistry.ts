@@ -3,7 +3,7 @@ export const EXTERNAL_AGENT_NATIVE_REPLACEMENT_RULES = {
   rewriteAroundZavorthContracts: true,
   provenanceOutOfCanonicalNames: true,
   testsPreservedBeforeReplacement: true,
-  adapterRemovableOnlyAfterParity: true,
+  adapterRemovableOnlyAfterConsistency: true,
   sourceModulesCopied: false,
 } as const;
 
@@ -24,7 +24,7 @@ export type ExternalAgentNativeReplacementContract =
   | 'UniversalAgentExecutorResult'
   | 'ZavorthDashboardAssimilationSnapshot';
 
-export type ExternalAgentNativeReplacementParityCase = {
+export type ExternalAgentNativeReplacementConsistencyCase = {
   id: string;
   label: string;
   contract: ExternalAgentNativeReplacementContract;
@@ -43,11 +43,11 @@ export type ExternalAgentNativeReplacementCandidate = {
   adapterPath?: string;
   nativePath: string;
   publicSurfaceIds: string[];
-  parityCases: ExternalAgentNativeReplacementParityCase[];
+  consistencyCases: ExternalAgentNativeReplacementConsistencyCase[];
   rules?: Partial<ExternalAgentNativeReplacementRules>;
 };
 
-export type ExternalAgentNativeReplacementParityResult = {
+export type ExternalAgentNativeReplacementConsistencyResult = {
   id: string;
   label: string;
   contract: ExternalAgentNativeReplacementContract;
@@ -67,12 +67,12 @@ export type ExternalAgentNativeReplacementCandidateResult = {
   nativeContract: ExternalAgentNativeReplacementContract;
   nativePath: string;
   adapterPath?: string;
-  status: 'parity-ready' | 'blocked';
-  adapterPathStatus: 'optional-removable' | 'required-until-parity';
+  status: 'consistency-ready' | 'blocked';
+  adapterPathStatus: 'optional-removable' | 'required-until-consistency';
   canRemoveAdapter: boolean;
   rules: ExternalAgentNativeReplacementRules;
   ruleViolations: string[];
-  parity: ExternalAgentNativeReplacementParityResult[];
+  consistency: ExternalAgentNativeReplacementConsistencyResult[];
   identityLeaks: ExternalAgentNativeReplacementIdentityLeak[];
 };
 
@@ -83,7 +83,7 @@ export type ExternalAgentNativeReplacementPlan = {
   candidates: ExternalAgentNativeReplacementCandidateResult[];
   summary: {
     total: number;
-    parityReady: number;
+    consistencyReady: number;
     blocked: number;
     removableAdapters: number;
   };
@@ -174,16 +174,16 @@ function scanIdentityLeaks(
   });
 }
 
-function evaluateParityCase(
-  parityCase: ExternalAgentNativeReplacementParityCase,
-): ExternalAgentNativeReplacementParityResult {
-  const adapter = stableStringify(parityCase.adapterBehavior);
-  const native = stableStringify(parityCase.nativeBehavior);
+function evaluateConsistencyCase(
+  consistencyCase: ExternalAgentNativeReplacementConsistencyCase,
+): ExternalAgentNativeReplacementConsistencyResult {
+  const adapter = stableStringify(consistencyCase.adapterBehavior);
+  const native = stableStringify(consistencyCase.nativeBehavior);
   const passed = adapter === native;
   return {
-    id: parityCase.id,
-    label: parityCase.label,
-    contract: parityCase.contract,
+    id: consistencyCase.id,
+    label: consistencyCase.label,
+    contract: consistencyCase.contract,
     passed,
     reason: passed
       ? 'Native behavior matches adapter behavior at the Zavorth public-contract layer.'
@@ -223,10 +223,10 @@ function evaluateRuleViolations(
     violations.push('Provenance must stay out of canonical public names.');
   }
   if (!rules.testsPreservedBeforeReplacement) {
-    violations.push('Parity tests must be preserved before replacement.');
+    violations.push('Consistency tests must be preserved before replacement.');
   }
-  if (!rules.adapterRemovableOnlyAfterParity) {
-    violations.push('Adapter dependency can be removed only after parity passes.');
+  if (!rules.adapterRemovableOnlyAfterConsistency) {
+    violations.push('Adapter dependency can be removed only after consistency passes.');
   }
   if (rules.sourceModulesCopied !== false || sourceModuleCopyRequested) {
     violations.push('Source runtime modules cannot be copied into native replacement candidates.');
@@ -250,9 +250,9 @@ export class ExternalAgentNativeReplacementRegistry {
 
   public buildPlan(): ExternalAgentNativeReplacementPlan {
     const results = Array.from(this.candidates.values()).map((candidate) => this.evaluateCandidate(candidate));
-    const parityReady = results.filter((result) => result.status === 'parity-ready').length;
+    const consistencyReady = results.filter((result) => result.status === 'consistency-ready').length;
     const removableAdapters = results.filter((result) => result.canRemoveAdapter).length;
-    const blocked = results.length - parityReady;
+    const blocked = results.length - consistencyReady;
     return {
       version: 'external-agent-native-replacement-plan/v1',
       status: blocked === 0 ? 'ready' : 'blocked',
@@ -260,7 +260,7 @@ export class ExternalAgentNativeReplacementRegistry {
       candidates: results,
       summary: {
         total: results.length,
-        parityReady,
+        consistencyReady,
         blocked,
         removableAdapters,
       },
@@ -277,8 +277,8 @@ export class ExternalAgentNativeReplacementRegistry {
   ): ExternalAgentNativeReplacementCandidateResult {
     const rules = resolveRules(candidate.rules);
     const ruleViolations = evaluateRuleViolations(rules, sourceModuleCopyWasRequested(candidate.rules));
-    const parity = candidate.parityCases.map(evaluateParityCase);
-    const parityPassed = parity.length > 0 && parity.every((result) => result.passed);
+    const consistency = candidate.consistencyCases.map(evaluateConsistencyCase);
+    const consistencyPassed = consistency.length > 0 && consistency.every((result) => result.passed);
     const publicPayload = {
       id: candidate.id,
       label: candidate.label,
@@ -286,11 +286,11 @@ export class ExternalAgentNativeReplacementRegistry {
       nativeContract: candidate.nativeContract,
       nativePath: candidate.nativePath,
       publicSurfaceIds: candidate.publicSurfaceIds,
-      nativeBehavior: candidate.parityCases.map((parityCase) => parityCase.nativeBehavior),
+      nativeBehavior: candidate.consistencyCases.map((consistencyCase) => consistencyCase.nativeBehavior),
     };
     const identityLeaks: ExternalAgentNativeReplacementIdentityLeak[] = [];
     scanIdentityLeaks(publicPayload, this.forbiddenSourceTerms, '$', identityLeaks);
-    const canRemoveAdapter = parityPassed && ruleViolations.length === 0 && identityLeaks.length === 0;
+    const canRemoveAdapter = consistencyPassed && ruleViolations.length === 0 && identityLeaks.length === 0;
 
     return {
       id: candidate.id,
@@ -299,12 +299,12 @@ export class ExternalAgentNativeReplacementRegistry {
       nativeContract: candidate.nativeContract,
       nativePath: candidate.nativePath,
       adapterPath: candidate.adapterPath,
-      status: canRemoveAdapter ? 'parity-ready' : 'blocked',
-      adapterPathStatus: canRemoveAdapter ? 'optional-removable' : 'required-until-parity',
+      status: canRemoveAdapter ? 'consistency-ready' : 'blocked',
+      adapterPathStatus: canRemoveAdapter ? 'optional-removable' : 'required-until-consistency',
       canRemoveAdapter,
       rules,
       ruleViolations,
-      parity,
+      consistency,
       identityLeaks,
     };
   }

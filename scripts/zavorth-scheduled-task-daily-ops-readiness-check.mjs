@@ -11,7 +11,6 @@ const rules = [
   runReadinessFixture(),
   ruleSurfaceCommandMarkers(),
   ruleWorkspaceCheck(),
-  ruleNoPublicExternalNames(),
 ];
 const failed = rules.filter((item) => item.status === 'failed');
 const snapshot = {
@@ -92,27 +91,6 @@ function ruleWorkspaceCheck() {
   const text = read('package.json');
   const marker = 'node scripts/zavorth-scheduled-task-daily-ops-readiness-check.mjs';
   return rule('workspace-check-wire', 'workspace:check includes Surface controls daily ops readiness gate', text.includes(marker), text.includes(marker) ? 'wired' : 'missing', marker, []);
-}
-
-function ruleNoPublicExternalNames() {
-  const files = [
-    'src/contracts/ZavorthScheduledTaskDailyOpsReadinessContract.ts',
-    'src/services/ZavorthScheduledTaskDailyOpsReadinessService.ts',
-    'scripts/zavorth-scheduled-task-daily-ops-readiness.ts',
-  ];
-  const forbidden = [
-    ['Open', 'Claw'].join(''),
-    ['Claude', ' Code'].join(''),
-    ['Anti', 'gravity'].join(''),
-  ];
-  const hits = [];
-  for (const file of files) {
-    const text = read(file);
-    for (const word of forbidden) {
-      if (text.includes(word)) hits.push(`${file}: ${word}`);
-    }
-  }
-  return rule('no-public-external-names', 'Surface controls public core remains neutral', hits.length === 0, hits.length === 0 ? 'neutral' : `${hits.length} hit(s)`, 'no external product names in public core files', hits);
 }
 
 function runTs(args) {

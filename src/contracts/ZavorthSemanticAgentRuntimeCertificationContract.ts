@@ -107,7 +107,7 @@ export type ZavorthSemanticAgentRuntimeCertificationSnapshot = {
     canUseToolMustDenyOutsidePolicy: true;
     acpAndCliBridgesOwnerGated: true;
     sandboxCwdControlled: true;
-    noExternalAgentRuntimeExecutionDuringCertification: true;
+    noRuntimeAdapterRuntimeExecutionDuringCertification: true;
     noAnthropicApiImpersonation: true;
     noProviderBypass: true;
     noImportPathShim: true;

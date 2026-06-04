@@ -17,12 +17,12 @@ import type {
 import { ZAVORTH_PROVIDER_LONG_TAIL_ACTIVATION_CONTRACT_VERSION } from '../contracts/ProviderLongTailActivationContract.js';
 import type { LiveReadinessEntry, LiveReadinessStatus } from '../contracts/LiveReadinessContract.js';
 import { LiveReadinessService } from './LiveReadinessService.js';
-import { ProviderMeshParityService } from './ProviderMeshParityService.js';
+import { ProviderMeshReadinessService } from './ProviderMeshReadinessService.js';
 
 type ProviderLongTailActivationRuntime = {
   now?: () => Date;
   liveReadinessService?: LiveReadinessService;
-  providerMeshParityService?: ProviderMeshParityService;
+  providerMeshReadinessService?: ProviderMeshReadinessService;
   env?: Record<string, string | undefined>;
   fetchImpl?: typeof fetch;
 };
@@ -73,14 +73,14 @@ const PROVIDER_LONG_TAIL: ProviderLongTailActivationDescriptor[] = [
 export class ProviderLongTailActivationService {
   private readonly now: () => Date;
   private readonly liveReadiness: LiveReadinessService;
-  private readonly providerMesh: ProviderMeshParityService;
+  private readonly providerMesh: ProviderMeshReadinessService;
   private readonly env: Record<string, string | undefined>;
   private readonly fetchImpl: typeof fetch | undefined;
 
   constructor(runtime: ProviderLongTailActivationRuntime = {}) {
     this.now = runtime.now || (() => new Date());
     this.liveReadiness = runtime.liveReadinessService || new LiveReadinessService({ now: this.now });
-    this.providerMesh = runtime.providerMeshParityService || new ProviderMeshParityService({ now: this.now });
+    this.providerMesh = runtime.providerMeshReadinessService || new ProviderMeshReadinessService({ now: this.now });
     this.env = runtime.env || process.env;
     this.fetchImpl = runtime.fetchImpl;
   }
@@ -135,7 +135,7 @@ export class ProviderLongTailActivationService {
         stagingLiveSmoke: 'npm run provider-long-tail-activation -- --profile staging-live --provider <provider> --confirm-live-io',
         focusedTests: ['npx jest tests/services/ProviderLongTailActivationService.test.ts --runInBand'],
         typecheck: 'npm run runtime:check --silent',
-        nextStage: 'Intent model3 - Live Parity Certification',
+        nextStage: 'Intent model3 - Live Consistency Certification',
       },
     };
   }

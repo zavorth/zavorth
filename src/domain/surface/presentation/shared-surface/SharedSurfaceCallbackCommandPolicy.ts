@@ -29,7 +29,7 @@ const SAFE_CHANNEL_CALLBACK_ACTIONS = new Set([
   'doctor',
   'inspect',
   'login-qr',
-  'parity',
+  'consistency',
   'policy',
   'status',
 ]);
@@ -40,7 +40,7 @@ const KNOWN_CHANNEL_ACTIONS = new Set([
   'inspect',
   'login-qr',
   'logout',
-  'parity',
+  'consistency',
   'policy',
   'policy-reload',
   'prepare',
@@ -163,8 +163,8 @@ function evaluateChannelCommand(args: string[]): SharedSurfaceCallbackCommandDec
 
   const firstArg = String(args[0] || '').trim().toLowerCase();
   if (args.length === 1) {
-    if (firstArg === 'parity') {
-      return { allowed: true, commandText: '/channels parity', commandType: '/channels' };
+    if (firstArg === 'consistency') {
+      return { allowed: true, commandText: '/channels consistency', commandType: '/channels' };
     }
     if (KNOWN_CHANNEL_ACTIONS.has(firstArg)) {
       return { allowed: false, reason: 'Acao de canal exige alvo explicito.' };

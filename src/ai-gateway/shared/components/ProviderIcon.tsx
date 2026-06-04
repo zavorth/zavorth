@@ -1,77 +1,16 @@
 "use client";
 
 /**
- * ProviderIcon — Renders a provider logo using @lobehub/icons with PNG fallback.
+ * ProviderIcon renders provider logos from Zavorth-owned static assets.
  *
- * Strategy (#529):
- * 1. Try @lobehub/icons ProviderIcon (130+ providers, React components)
- * 2. Fall back to /providers/{id}.png (existing static assets)
- * 3. Fall back to /providers/{id}.svg (SVG assets)
- * 4. Fall back to a generic AI icon
- *
- * Usage:
- *   <ProviderIcon providerId="openai" size={24} />
- *   <ProviderIcon providerId="anthropic" size={28} type="color" />
+ * Strategy:
+ * 1. Try /providers/{id}.png
+ * 2. Fall back to /providers/{id}.svg
+ * 3. Fall back to a generic AI icon
  */
 
-import { memo, useState, Component, type ReactNode } from "react";
+import { memo, useState } from "react";
 import Image from "next/image";
-import { ProviderIcon as LobehubProviderIcon } from "@lobehub/icons";
-
-// Mapping from ZavorthGateway provider IDs → Lobehub icon IDs
-// Lobehub uses lowercase IDs matching ModelProvider enum values
-const LOBEHUB_PROVIDER_MAP: Record<string, string> = {
-  openai: "openai",
-  anthropic: "anthropic",
-  claude: "anthropic",
-  gemini: "google",
-  google: "google",
-  deepseek: "deepseek",
-  groq: "groq",
-  mistral: "mistral",
-  cohere: "cohere",
-  perplexity: "perplexity",
-  xai: "xai",
-  grok: "xai",
-  together: "togetherai",
-  fireworks: "fireworks",
-  "fireworks-ai": "fireworks",
-  cerebras: "cerebras",
-  huggingface: "huggingface",
-  "hugging-face": "huggingface",
-  openrouter: "openrouter",
-  "open-router": "openrouter",
-  ollama: "ollama",
-  minimax: "minimax",
-  qwen: "qwen",
-  alibaba: "qwen",
-  moonshot: "moonshot",
-  kimi: "moonshot",
-  baidu: "baidu",
-  ernie: "baidu",
-  spark: "iflytek",
-  "zhipu-ai": "zhipu",
-  zhipu: "zhipu",
-  lmsys: "lmsys",
-  "stability-ai": "stability",
-  stability: "stability",
-  replicate: "replicate",
-  ai21: "ai21",
-  nvidia: "nvidia",
-  cloudflare: "cloudflare",
-  "cloudflare-ai": "cloudflare",
-  "aws-bedrock": "bedrock",
-  bedrock: "bedrock",
-  azure: "azure",
-  "azure-openai": "azure",
-  copilot: "githubcopilot",
-  "github-copilot": "githubcopilot",
-  mistralai: "mistral",
-  codex: "openai",
-  blackbox: "blackboxai",
-  blackboxai: "blackboxai",
-  pollinations: "pollinations",
-};
 
 interface ProviderIconProps {
   providerId: string;
@@ -81,38 +20,19 @@ interface ProviderIconProps {
   style?: React.CSSProperties;
 }
 
-/** Error boundary to catch Lobehub component render errors gracefully. */
-class LobehubErrorBoundary extends Component<
-  { children: ReactNode; onError: () => void },
-  { hasError: boolean }
-> {
-  constructor(props) {
-    super(props);
-    this.state = { hasError: false };
-  }
-
-  static getDerivedStateFromError() {
-    return { hasError: true };
-  }
-
-  componentDidCatch() {
-    this.props.onError();
-  }
-
-  render() {
-    if (this.state.hasError) return null;
-    return this.props.children;
-  }
-}
-
-function GenericProviderIcon({ size }: { size: number }) {
-  return (
-    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" style={{ flex: "none" }}>
-      <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="1.5" opacity="0.4" />
-      <path d="M8 12h8M12 8v8" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
-    </svg>
-  );
-}
+const PROVIDER_ASSET_ALIASES: Record<string, string> = {
+  "aws-bedrock": "bedrock",
+  "azure-openai": "azure",
+  blackboxai: "blackbox",
+  "cloudflare-ai": "cloudflare-ai",
+  "fireworks-ai": "fireworks",
+  "github-copilot": "copilot",
+  "hugging-face": "huggingface",
+  mistralai: "mistral",
+  "open-router": "openrouter",
+  "stability-ai": "stability",
+  togetherai: "together",
+};
 
 const KNOWN_PNGS = new Set([
   "aimlapi",
@@ -178,6 +98,7 @@ const KNOWN_PNGS = new Set([
   "xai",
   "zeroclaw",
 ]);
+
 const KNOWN_SVGS = new Set([
   "apikey",
   "assemblyai",
@@ -206,43 +127,38 @@ const KNOWN_SVGS = new Set([
   "zai",
 ]);
 
+function GenericProviderIcon({ size }: { size: number }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" style={{ flex: "none" }}>
+      <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="1.5" opacity="0.4" />
+      <path d="M8 12h8M12 8v8" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+    </svg>
+  );
+}
+
+function normalizeProviderAssetId(providerId: string): string {
+  const normalized = providerId.toLowerCase();
+  return PROVIDER_ASSET_ALIASES[normalized] || normalized;
+}
+
 const ProviderIcon = memo(function ProviderIcon({
   providerId,
   size = 24,
-  type = "color",
   className,
   style,
 }: ProviderIconProps) {
-  const normalizedId = providerId.toLowerCase();
-  const lobehubId = LOBEHUB_PROVIDER_MAP[normalizedId] ?? null;
-  const hasPng = KNOWN_PNGS.has(normalizedId);
-  const hasSvg = KNOWN_SVGS.has(normalizedId);
+  const assetId = normalizeProviderAssetId(providerId);
+  const hasPng = KNOWN_PNGS.has(assetId);
+  const hasSvg = KNOWN_SVGS.has(assetId);
 
-  const [useLobehub, setUseLobehub] = useState(lobehubId !== null);
   const [usePng, setUsePng] = useState(hasPng);
   const [useSvg, setUseSvg] = useState(!hasPng && hasSvg);
 
-  if (useLobehub && lobehubId) {
-    return (
-      <span
-        className={className}
-        style={{ display: "inline-flex", alignItems: "center", ...style }}
-      >
-        <LobehubErrorBoundary onError={() => setUseLobehub(false)}>
-          <LobehubProviderIcon provider={lobehubId} size={size} type={type} />
-        </LobehubErrorBoundary>
-      </span>
-    );
-  }
-
   if (usePng) {
     return (
-      <span
-        className={className}
-        style={{ display: "inline-flex", alignItems: "center", ...style }}
-      >
+      <span className={className} style={{ display: "inline-flex", alignItems: "center", ...style }}>
         <Image
-          src={`/providers/${normalizedId}.png`}
+          src={`/providers/${assetId}.png`}
           alt={providerId}
           width={size}
           height={size}
@@ -259,12 +175,9 @@ const ProviderIcon = memo(function ProviderIcon({
 
   if (useSvg) {
     return (
-      <span
-        className={className}
-        style={{ display: "inline-flex", alignItems: "center", ...style }}
-      >
+      <span className={className} style={{ display: "inline-flex", alignItems: "center", ...style }}>
         <Image
-          src={`/providers/${normalizedId}.svg`}
+          src={`/providers/${assetId}.svg`}
           alt={providerId}
           width={size}
           height={size}

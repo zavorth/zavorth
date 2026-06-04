@@ -7,6 +7,7 @@ import {
 import { INTEGRATION_CHANNEL_MANIFESTS } from '../../domain/platform-ecosystem/infrastructure/integration-registry/IntegrationRegistryCatalogChannels.js';
 import { ChannelLongTailActivationService } from '../../services/ChannelLongTailActivationService.js';
 import { ZavorthHomePathService } from '../../services/ZavorthHomePathService.js';
+import { ZavorthCapabilityActionSurfaceService } from '../../services/ZavorthCapabilityActionSurfaceService.js';
 import { ZavorthSetupStudioConfigStore } from './ZavorthSetupStudioConfigStore.js';
 import type {
   ZavorthSetupStudioConfigHandling,
@@ -74,6 +75,14 @@ export function buildZavorthSetupStudioSnapshot(
   const gateway = buildGatewayReadiness(projectRoot);
   const controlUi = buildControlUiReadiness(projectRoot);
   const hatch = buildHatchPlan();
+  const capabilityActionSurface = new ZavorthCapabilityActionSurfaceService({
+    projectRoot,
+    env: {
+      ...process.env,
+      ...(selectedHome ? { ZAVORTH_HOME: selectedHome } : {}),
+    },
+    now: input.now,
+  }).buildSnapshot();
   return {
     contractVersion: 'zavorth-setup-studio-snapshot/1',
     generatedAt: (input.now || (() => new Date()))().toISOString(),
@@ -90,6 +99,18 @@ export function buildZavorthSetupStudioSnapshot(
     gateway,
     controlUi,
     hatch,
+    capabilityActions: {
+      status: capabilityActionSurface.status,
+      exposed: capabilityActionSurface.summary.exposed,
+      receipts: capabilityActionSurface.summary.receipts,
+      items: capabilityActionSurface.items.slice(0, 5).map((entry) => ({
+        id: entry.actionId,
+        title: entry.title,
+        status: entry.status,
+        nextAction: entry.previewCommand,
+      })),
+      statusCommand: capabilityActionSurface.commands.status,
+    },
     steps: buildZavorthSetupStudioSteps({
       existingConfig,
       plan,

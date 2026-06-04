@@ -183,6 +183,6 @@ export type ProviderLongTailActivationSnapshot = {
     stagingLiveSmoke: 'npm run provider-long-tail-activation -- --profile staging-live --provider <provider> --confirm-live-io';
     focusedTests: string[];
     typecheck: 'npm run runtime:check --silent';
-    nextStage: 'Intent model3 - Live Parity Certification';
+    nextStage: 'Intent model3 - Live Consistency Certification';
   };
 };

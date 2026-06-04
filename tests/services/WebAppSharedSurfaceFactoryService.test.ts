@@ -71,7 +71,7 @@ describe('WebAppSharedSurfaceFactoryService', () => {
       taskResourcePlanner: { id: 'taskResourcePlanner' },
       modeEscalation: { id: 'modeEscalation' },
       workspaceOptimizer: { id: 'workspaceOptimizer' },
-      surfaceParity: { id: 'surfaceParity' },
+      surfaceConsistency: { id: 'surfaceConsistency' },
       skillCatalogApi: { id: 'skillCatalogApi' },
       skillMcpSidecar: { id: 'skillMcpSidecar' },
       skillLibraryPresentation: { id: 'skillLibraryPresentation' },

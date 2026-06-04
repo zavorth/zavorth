@@ -62,6 +62,8 @@ export type ZavorthCliFlags = {
   commandText: string | null;
   headless: boolean;
   approvalMode: ZavorthHeadlessApprovalMode | null;
+  terminalStream?: CliTerminalStreamSink | null;
+  terminalAbortSignal?: AbortSignal | null;
 };
 
 export type CliWriter = {
@@ -142,6 +144,8 @@ export type ZavorthCliRuntime = {
   agentGateway?: Pick<
     ZavorthAgentGateway,
     | 'handle'
+    | 'addRuntimeEventBus'
+    | 'removeRuntimeEventBus'
     | 'buildSnapshot'
     | 'listWorkflowJobs'
     | 'processQueuedWorkflows'
@@ -215,6 +219,8 @@ export type ZavorthCliServiceOverrides = {
   agentGateway?: Pick<
     ZavorthAgentGateway,
     | 'handle'
+    | 'addRuntimeEventBus'
+    | 'removeRuntimeEventBus'
     | 'buildSnapshot'
     | 'listWorkflowJobs'
     | 'processQueuedWorkflows'
@@ -239,3 +245,19 @@ export type CliExecutionResult = {
 };
 
 export type CliRuntimeProfile = 'ops' | 'surface' | 'summary' | 'task';
+
+export type CliTerminalStreamEvent = {
+  type: 'start' | 'delta' | 'tool' | 'done' | 'status' | 'error';
+  text?: string;
+  delta?: string;
+  accumulated?: string;
+  title?: string;
+  status?: string;
+  runId?: string;
+  streamId?: string;
+  raw?: Record<string, unknown>;
+};
+
+export type CliTerminalStreamSink = {
+  onEvent: (event: CliTerminalStreamEvent) => void | Promise<void>;
+};

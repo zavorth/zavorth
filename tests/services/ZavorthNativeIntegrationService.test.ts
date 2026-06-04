@@ -1,7 +1,7 @@
 import { ZavorthNativeIntegrationService } from '../../src/services/ZavorthNativeIntegrationService.js';
 
 describe('ZavorthNativeIntegrationService', () => {
-  it('builds a Zavorth-native catalog without requiring external agent code at runtime', () => {
+  it('builds a Zavorth-native catalog without requiring runtime adapter code at runtime', () => {
     const snapshot = new ZavorthNativeIntegrationService({
       now: () => new Date('2026-05-23T12:00:00.000Z'),
     }).buildSnapshot();
@@ -15,7 +15,7 @@ describe('ZavorthNativeIntegrationService', () => {
     expect(snapshot.summary.needsAdapter).toBe(0);
     expect(snapshot.summary.missingConfigurationOnly).toBe(true);
     expect(snapshot.safety).toEqual(expect.objectContaining({
-      noExternalAgentCodeExecuted: true,
+      noRuntimeAdapterCodeExecuted: true,
       noSecretsRead: true,
       noLiveNetworkCalls: true,
       zavorthNativeActivationRequiresConfigAndProof: true,

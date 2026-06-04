@@ -9,7 +9,7 @@ function makeDeps(body: Record<string, unknown>, overrides: Partial<WebAppRuntim
     installJourney: {} as any,
     officialRemoteAccess: { inspect: jest.fn(), runAction: jest.fn() } as any,
     remoteAccess: { inspect: jest.fn() } as any,
-    surfaceParity: {} as any,
+    surfaceConsistency: {} as any,
     consoleAssets: {} as any,
     runtime: {} as any,
     realtime: {} as any,

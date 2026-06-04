@@ -7,7 +7,7 @@ const requiredFiles = [
   'scripts/zavorth-native-learning-loop.ts',
   'scripts/zavorth-native-learning-loop-check.mjs',
   'tests/services/ZavorthNativeLearningLoopService.test.ts',
-  'docs/native-learning-loop.md',
+  'docs/mnemos-memory-os.md',
 ];
 
 const failures = [];
@@ -19,7 +19,7 @@ const service = read('src/services/ZavorthNativeLearningLoopService.ts');
 const contract = read('src/contracts/ZavorthNativeLearningLoopContract.ts');
 const packageJson = read('package.json');
 const productGate = read('scripts/zavorth-product-readiness-gate.mjs');
-const docs = read('docs/native-learning-loop.md');
+const docs = read('docs/mnemos-memory-os.md');
 
 const markers = [
   ['contract version', 'phase-3-native-learning-loop'],
@@ -29,6 +29,12 @@ const markers = [
   ['approved nudge', 'approved-nudge'],
   ['user model update', 'user-model-update'],
   ['reversible user model', 'userModelIsReversible'],
+  ['adaptive learning ready', 'adaptiveLearningReady'],
+  ['adaptive learning snapshot', 'adaptiveLearning'],
+  ['adaptive technical scanner', 'technicalScannerReady'],
+  ['adaptive semantic classifier', 'semanticClassifierGoverned'],
+  ['adaptive multilingual recall', 'multilingualRecallLocalOnly'],
+  ['adaptive operator i18n', 'operatorI18nReady'],
   ['security firewall', 'neverLearnsSecurityPolicy'],
   ['untrusted recall', 'untrustedOnRecall'],
   ['top-k recall', 'topKOnly'],
@@ -72,6 +78,14 @@ if (run.status !== 0) {
     if (!snapshot.summary.autoSkillCandidateReady) failures.push('auto skill candidate lane is not ready');
     if (!snapshot.summary.skillImprovementCandidateReady) failures.push('skill improvement lane is not ready');
     if (!snapshot.summary.reversibleUserModelReady) failures.push('reversible user model is not ready');
+    if (!snapshot.summary.adaptiveLearningReady) failures.push('adaptive learning lanes are not ready');
+    if (!snapshot.adaptiveLearning?.safety?.redLaneNeverSilent) failures.push('adaptive learning snapshot missing red lane guard');
+    if (!snapshot.adaptiveLearning?.safety?.technicalScannerReady) failures.push('adaptive learning snapshot missing technical scanner guard');
+    if (!snapshot.adaptiveLearning?.safety?.semanticClassifierGoverned) failures.push('adaptive learning snapshot missing semantic classifier guard');
+    if (!snapshot.adaptiveLearning?.safety?.multilingualRecallLocalOnly) failures.push('adaptive learning snapshot missing multilingual recall guard');
+    if (!snapshot.adaptiveLearning?.safety?.operatorI18nReady) failures.push('adaptive learning snapshot missing operator i18n guard');
+    if (!snapshot.adaptiveLearning?.classification?.technical?.scanned) failures.push('adaptive learning snapshot missing technical classification');
+    if (snapshot.adaptiveLearning?.memoryWrites?.length) failures.push('native learning loop persisted adaptive learning during snapshot');
     if (!snapshot.summary.securityPolicyFirewallReady) failures.push('security policy firewall is not ready');
     if (snapshot.summary.rawSecretsSerialized !== false) failures.push('raw secret serialization invariant failed');
     if (!snapshot.invariants.neverLearnsSecurityPolicy) failures.push('security learning invariant failed');

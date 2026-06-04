@@ -143,6 +143,13 @@ export async function handleZavorthCliRegistrySessionsCommand(params: RegistryCo
     const tokens = String(args || '').trim().split(/\s+/).filter(Boolean);
     const first = String(tokens[0] || '').trim().toLowerCase();
     const candidateId = tokens.slice(1).join(' ').trim();
+    const learningActionId = first === 'promote-procedure' || first === 'promoteprocedure'
+      ? 'promoteProcedure'
+      : first === 'promote-skill' || first === 'promoteskill'
+        ? 'promoteSkill'
+        : first === 'approve' || first === 'reject' || first === 'promote' || first === 'forget'
+          ? first
+          : null;
     if (first === 'metrics') {
       const metrics = runtime.learningPlaneService.readMetrics();
       const body = effectiveFlags.json
@@ -151,10 +158,10 @@ export async function handleZavorthCliRegistrySessionsCommand(params: RegistryCo
       writer.line(body);
       return { ok: true, handled: true, output: [body], error: null };
     }
-    if ((first === 'approve' || first === 'reject' || first === 'promote') && candidateId) {
+    if (learningActionId && candidateId) {
       const result = await runtime.learningPlaneService.executeAction({
         candidateId,
-        actionId: first,
+        actionId: learningActionId,
       } as any);
       const body = effectiveFlags.json
         ? JSON.stringify(result, null, 2)

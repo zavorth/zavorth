@@ -99,7 +99,7 @@ export type ZavorthSemanticNativeCompanionDeviceCapabilityCertificationSnapshot 
     optionalRuntimeClaimsCertified: number;
     scenariosPassed: number;
     capabilityStatusCounts: Record<ZavorthNativeCapabilityStatus, number>;
-    targetStatuses: Record<string, ZavorthNativeCompanionDeviceSnapshot['parity'][number]['status']>;
+    targetStatuses: Record<string, ZavorthNativeCompanionDeviceSnapshot['consistency'][number]['status']>;
     liveExternalIoPerformed: false;
     enabledByDefault: false;
     processSpawnedByDefault: false;

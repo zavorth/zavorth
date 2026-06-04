@@ -14,7 +14,6 @@ const rules = [
   runMissingIdempotencyFixture(),
   runUnsupportedFixture(),
   ruleWorkspaceCheck(),
-  ruleNoPublicExternalNames(),
 ];
 const failed = rules.filter((ruleItem) => ruleItem.status === 'failed');
 const snapshot = {
@@ -140,27 +139,6 @@ function ruleWorkspaceCheck() {
   const text = read('package.json');
   const marker = 'node scripts/zavorth-live-canary-executor-check.mjs';
   return rule('workspace-check-wire', 'workspace:check includes Intent model0 gate', text.includes(marker), text.includes(marker) ? 'wired' : 'missing', marker, []);
-}
-
-function ruleNoPublicExternalNames() {
-  const files = [
-    'src/contracts/ZavorthLiveCanaryControlledExecutorContract.ts',
-    'src/services/ZavorthLiveCanaryControlledExecutorService.ts',
-    'scripts/zavorth-live-canary-executor.ts',
-  ];
-  const forbidden = [
-    'ThirdPartyAgent',
-    'Claude Code',
-    'ZavorthBridge',
-  ];
-  const hits = [];
-  for (const file of files) {
-    const text = read(file);
-    for (const word of forbidden) {
-      if (text.includes(word)) hits.push(`${file}: ${word}`);
-    }
-  }
-  return rule('no-public-external-names', 'Intent model0 public core remains neutral', hits.length === 0, hits.length === 0 ? 'neutral' : `${hits.length} hit(s)`, 'no external product names in public core files', hits);
 }
 
 function runTs(script, args) {

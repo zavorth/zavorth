@@ -5,9 +5,13 @@ import { buildZavorthCliHomeSnapshot } from '../home/ZavorthCliHomeProjection.js
 import { readEnvFile } from '../doctor/checks/ZavorthDoctorCheckUtils.js';
 import { ZavorthMutationPlaneService } from '../../services/ZavorthMutationPlaneService.js';
 import { TaskPlaneService } from '../../services/TaskPlaneService.js';
+import { GoalLoopStatusProjectionService } from '../../services/GoalLoopStatusProjectionService.js';
 import { VoiceWakeRuntimeService } from '../../services/VoiceWakeRuntimeService.js';
 import { ZavorthHomePathService } from '../../services/ZavorthHomePathService.js';
+import { ZavorthAgentKernelSnapshotService } from '../../services/ZavorthAgentKernelSnapshotService.js';
+import { ZavorthDailyProductQuietAutonomyService } from '../../services/ZavorthDailyProductQuietAutonomyService.js';
 import { ZavorthSandboxControlPlaneService } from '../../services/ZavorthSandboxControlPlaneService.js';
+import { ZavorthCapabilityActionSurfaceService } from '../../services/ZavorthCapabilityActionSurfaceService.js';
 import type { ZavorthCliRuntimeTuiItem, ZavorthCliRuntimeTuiRow, ZavorthCliRuntimeTuiSnapshot, ZavorthCliRuntimeTuiStatus } from './ZavorthCliRuntimeTuiTypes.js';
 
 type JsonObject = Record<string, unknown>;
@@ -46,8 +50,15 @@ export function buildZavorthCliRuntimeTuiSnapshot(input: BuildZavorthCliRuntimeT
   }).status();
   const tasks = new TaskPlaneService({
     storePath: path.join(homePaths.resolvedPaths.runtimeDir, 'task-plane.json'),
+    stateDbPath: homePaths.resolvedPaths.dbPath,
     now,
   }).snapshot();
+  const goalLoop = new GoalLoopStatusProjectionService({
+    taskStorePath: path.join(homePaths.resolvedPaths.runtimeDir, 'task-plane.json'),
+    goalStorePath: path.join(homePaths.resolvedPaths.runtimeDir, 'goal-plane.json'),
+    stateDbPath: homePaths.resolvedPaths.dbPath,
+    now,
+  }).buildSnapshot();
   const sandbox = new ZavorthSandboxControlPlaneService({
     now,
     workspaceRoot: projectRoot,
@@ -57,9 +68,31 @@ export function buildZavorthCliRuntimeTuiSnapshot(input: BuildZavorthCliRuntimeT
   const chat = readMessages(projectRoot);
   const timeline = buildTimeline(projectRoot);
   const tools = buildTools(projectRoot);
+  const capabilityActionSurface = new ZavorthCapabilityActionSurfaceService({
+    projectRoot,
+    env: {
+      ...process.env,
+      ...env,
+      ...(input.homeRoot ? { ZAVORTH_HOME: input.homeRoot } : {}),
+    },
+    now,
+  }).buildSnapshot();
   const channels = buildChannels(env);
   const sessions = readSessions(projectRoot);
   const logs = readLogItems(projectRoot);
+  const agentKernel = new ZavorthAgentKernelSnapshotService({
+    now,
+    env: { ...process.env, ...env },
+  }).buildSnapshotSync({
+    projectRoot,
+    text: 'status do Zavorth',
+    channel: 'cli',
+    profileId: env.ZAVORTH_PROFILE || env.ZAVORTH_EXPERIENCE_PROFILE || null,
+    includeProviderActivation: false,
+  });
+  const dailyProduct = new ZavorthDailyProductQuietAutonomyService({ now }).buildSnapshot({
+    profileId: agentKernel.capabilityPassport.activeProfile.id,
+  });
   const status = resolveRuntimeTuiStatus({
     homeStatus: home.status,
     gateway: connection.gateway.status,
@@ -72,6 +105,26 @@ export function buildZavorthCliRuntimeTuiSnapshot(input: BuildZavorthCliRuntimeT
     projectRoot,
     mode: input.mode || 'snapshot',
     status,
+    agentKernel: {
+      status: agentKernel.status,
+      profile: agentKernel.capabilityPassport.activeProfile.id,
+      provider: agentKernel.capabilityPassport.providers.activeProvider,
+      model: agentKernel.capabilityPassport.providers.activeModel,
+      intent: agentKernel.intentDecision?.kind || 'none',
+      quietAutonomy: `${agentKernel.quietAutonomy.mode}/${agentKernel.quietAutonomy.interruptMode}`,
+      performanceSamples: agentKernel.performanceMemory.sampleCount,
+      missing: agentKernel.capabilityPassport.missing.slice(0, 6),
+    },
+    dailyProduct: {
+      status: dailyProduct.status,
+      headline: dailyProduct.dailyProduct.headline,
+      primarySurface: dailyProduct.dailyProduct.primarySurface,
+      visibleTabs: dailyProduct.dailyProduct.visibleTabs.map((tab) => tab.label),
+      quietMode: `${dailyProduct.quietAutonomy.activePolicy.mode}/${dailyProduct.quietAutonomy.activePolicy.interruptMode}`,
+      silentLanes: dailyProduct.quietAutonomy.activePolicy.silentLanes.map((lane) => lane.lane),
+      digestLanes: dailyProduct.quietAutonomy.activePolicy.digestLanes.map((lane) => lane.lane),
+      approvalBoundaries: dailyProduct.quietAutonomy.activePolicy.approvalLanes.map((lane) => lane.lane),
+    },
     home: {
       root: homePaths.root,
       source: homePaths.source,
@@ -102,6 +155,15 @@ export function buildZavorthCliRuntimeTuiSnapshot(input: BuildZavorthCliRuntimeT
         detail: `${task.source} - attempts ${task.attempts}${task.claim ? ` - claimed by ${task.claim.owner}` : ''}`,
       })),
     },
+    goalLoop: {
+      status: goalLoop.daemon.status,
+      current: goalLoop.goals.current?.objective || 'No standing goal',
+      detail: goalLoop.latest.receipt?.summary || goalLoop.latest.event?.type || goalLoop.lines[0] || 'Goal Loop is idle.',
+      nextRunAfter: goalLoop.daemon.nextRunAfter,
+      queued: goalLoop.continuations.queued,
+      running: goalLoop.continuations.running,
+      lines: goalLoop.lines,
+    },
     sandbox: {
       posture: sandbox.summary.posture,
       strongProfilesReady: sandbox.summary.strongProfilesReady,
@@ -117,6 +179,18 @@ export function buildZavorthCliRuntimeTuiSnapshot(input: BuildZavorthCliRuntimeT
     chat,
     timeline,
     tools,
+    capabilityActions: {
+      status: capabilityActionSurface.status,
+      exposed: capabilityActionSurface.summary.exposed,
+      receipts: capabilityActionSurface.summary.receipts,
+      items: capabilityActionSurface.items.slice(0, 6).map((entry) => ({
+        id: entry.actionId,
+        title: entry.title,
+        status: entry.status,
+        detail: entry.previewCommand,
+      })),
+      nextAction: capabilityActionSurface.commands.nextStage,
+    },
     approvals: {
       pending: approvals.summary.pending,
       selectedPlanId: approvals.cards.find((card) => card.approvalStatus === 'pending')?.id || null,
@@ -145,6 +219,7 @@ export function buildZavorthCliRuntimeTuiSnapshot(input: BuildZavorthCliRuntimeT
       { key: 't', label: 'Tasks', command: 'zavorth tasks list', detail: 'show persistent task plane' },
       { key: 'v', label: 'Voice', command: 'zavorth echo wake status', detail: 'show wake word privacy state' },
       { key: 'c', label: 'Channels', command: 'zavorth channels status', detail: 'channel readiness' },
+      { key: 'k', label: 'Capabilities', command: 'npm run zavorth:capability-action-surface --silent -- --list', detail: 'verified capabilities available through Action Harness' },
       { key: 'o', label: 'Open', command: 'zavorth open', detail: 'Dashboard' },
       { key: 'r', label: 'Refresh', command: 'zavorth tui', detail: 'reload this daily TUI' },
       { key: 'q', label: 'Quit', command: 'quit', detail: 'leave runtime TUI' },

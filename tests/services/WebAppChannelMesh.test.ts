@@ -427,7 +427,7 @@ describe('WebApp channel mesh', () => {
   });
 
   it('reflects the full runtime-backed channel mesh through the protected web api without duplicate fallback entries', async () => {
-    const root = fs.mkdtempSync(path.join(os.tmpdir(), 'zavorth-web-channel-runtime-parity-'));
+    const root = fs.mkdtempSync(path.join(os.tmpdir(), 'zavorth-web-channel-runtime-consistency-'));
     tempDirs.push(root);
     config.zavorthWebAuthToken = 'web-secret';
     config.dashboardRuntimeStateFile = path.join(root, 'dashboard-runtime.json');

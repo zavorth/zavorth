@@ -217,8 +217,8 @@ export function initializeBotGatewayControllers(
           {
             taskManager,
             permissionService: gateway.permissionService,
-            resolveExternalAgentRole: (currentTask) =>
-              gateway.botGatewaySupport.resolveExternalAgentRole(currentTask),
+            resolveRuntimeAdapterRole: (currentTask) =>
+              gateway.botGatewaySupport.resolveRuntimeAdapterRole(currentTask),
             resolveApprovedExternalAccessPath: (currentResult) =>
               gateway.botGatewaySupport.resolveApprovedExternalAccessPath(
                 currentResult,

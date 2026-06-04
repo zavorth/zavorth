@@ -69,7 +69,7 @@ const rules = [
       'generatedProviderManifestsRemainingTotal: false',
       'ProviderLongTailConfiguredDoctorReceipt',
       'ProviderLongTailStagingLiveReceipt',
-      'Intent model3 - Live Parity Certification',
+      'Intent model3 - Live Consistency Certification',
     ],
   }),
   ruleContainsAll({
@@ -116,7 +116,7 @@ const rules = [
       'runConfiguredDoctor',
       'runStagingLiveSmoke',
       'missingRequiredEnv',
-      'Intent model3 - Live Parity Certification',
+      'Intent model3 - Live Consistency Certification',
     ],
   }),
   ruleContainsAll({

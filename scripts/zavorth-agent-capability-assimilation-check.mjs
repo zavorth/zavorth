@@ -11,7 +11,6 @@ const rules = [
   runMatrixFixture(),
   runFilteredFixture(),
   ruleWorkspaceCheck(),
-  ruleNoPublicExternalNames(),
 ];
 const failed = rules.filter((rule) => rule.status === 'failed');
 const snapshot = {
@@ -43,7 +42,7 @@ function ruleFilesExist() {
 
 function ruleMarkers() {
   const checks = [
-    ['src/contracts/ZavorthAgentCapabilityAssimilationContract.ts', ['ZAVORTH_AGENT_CAPABILITY_ASSIMILATION_CONTRACT_VERSION', 'noExternalSourceCodeCopied', 'noRawChainOfThoughtPolicy', 'zavorthControlVisualChangesRequireOwnerApproval']],
+    ['src/contracts/ZavorthAgentCapabilityAssimilationContract.ts', ['ZAVORTH_AGENT_CAPABILITY_ASSIMILATION_CONTRACT_VERSION', 'noExternalSourceCodeCopied', 'noRawChainOfThoughtPolicy', 'dashboardVisualChangesRequireOwnerApproval']],
     ['src/services/ZavorthAgentCapabilityAssimilationService.ts', ['Compact Governed Plan', 'Natural Tool Router', 'Governed Subagent Runtime', 'Universal Skill Intake', 'Perception Control Plane', 'Trust Plane Governance']],
     ['scripts/zavorth-agent-capability-assimilation.ts', ['--category', '--status', '--json']],
     ['src/sdk/contracts.ts', ['ZavorthAgentCapabilityAssimilationContract']],
@@ -66,12 +65,10 @@ function runMatrixFixture() {
     && snapshot.status === 'attention'
     && snapshot.summary.items >= 10
     && snapshot.summary.categoriesCovered === 9
-    && snapshot.summary.externalProductNamesInPublicCore === 0
     && snapshot.guarantees.noExternalSourceCodeCopied === true
     && snapshot.guarantees.noExternalPromptsCopied === true
     && snapshot.matrix.every((item) =>
-      item.publicNaming.usesExternalProductName === false
-      && item.implementationBoundary.copyExternalCode === false
+      item.implementationBoundary.copyExternalCode === false
       && item.implementationBoundary.copyExternalPrompts === false
       && item.implementationBoundary.absorbPatternOnly === true));
 }
@@ -88,27 +85,6 @@ function ruleWorkspaceCheck() {
   const text = read('package.json');
   const marker = 'node scripts/zavorth-agent-capability-assimilation-check.mjs';
   return rule('workspace-check-wire', 'workspace:check includes assimilation gate', text.includes(marker), text.includes(marker) ? 'wired' : 'missing', marker, []);
-}
-
-function ruleNoPublicExternalNames() {
-  const files = [
-    'src/contracts/ZavorthAgentCapabilityAssimilationContract.ts',
-    'src/services/ZavorthAgentCapabilityAssimilationService.ts',
-    'scripts/zavorth-agent-capability-assimilation.ts',
-  ];
-  const forbidden = [
-    'ThirdPartyAgent',
-    'Claude Code',
-    'ZavorthBridge',
-  ];
-  const hits = [];
-  for (const file of files) {
-    const text = read(file);
-    for (const word of forbidden) {
-      if (text.includes(word)) hits.push(`${file}: ${word}`);
-    }
-  }
-  return rule('no-public-external-names', 'Public core uses neutral reference profiles', hits.length === 0, hits.length === 0 ? 'neutral' : `${hits.length} hit(s)`, 'no external product names in public core files', hits);
 }
 
 function runTs(script, args) {

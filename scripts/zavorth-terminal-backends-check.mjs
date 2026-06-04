@@ -53,7 +53,7 @@ function markersPresent() {
     ['src/contracts/ZavorthTerminalBackendsContract.ts', [
       '2026-05-24.terminal-backends-phase-6',
       'vercel-sandbox',
-      'plannedBackendsDoNotClaimLive',
+      'cloudBackendsRequireExplicitConfiguration',
       'stdoutStderrRedacted',
     ]],
     ['src/services/ZavorthTerminalBackendsService.ts', [
@@ -62,7 +62,7 @@ function markersPresent() {
       'SSH remote shell',
       'WSL Linux runtime',
       'Vercel Sandbox',
-      'Modal backend',
+      'Modal cloud function',
       'Daytona workspace',
     ]],
     ['package.json', [
@@ -92,8 +92,8 @@ function statusFixture() {
     && snapshot.backends?.some((entry) => entry.id === 'ssh')
     && snapshot.backends?.some((entry) => entry.id === 'wsl')
     && snapshot.backends?.some((entry) => entry.id === 'vercel-sandbox')
-    && snapshot.backends?.some((entry) => entry.id === 'modal' && entry.status === 'planned')
-    && snapshot.backends?.some((entry) => entry.id === 'daytona' && entry.status === 'planned')
+    && snapshot.backends?.some((entry) => entry.id === 'modal' && entry.status === 'needs-configuration' && entry.liveCapable === true)
+    && snapshot.backends?.some((entry) => entry.id === 'daytona' && entry.status === 'needs-configuration' && entry.liveCapable === true)
     && snapshot.safety?.noBackendLiveByDefault === true);
 }
 
@@ -123,11 +123,12 @@ function liveDisabledFixture() {
 }
 
 function plannedBackendFixture() {
-  const result = runTs(['--json', '--backend', 'modal', '--command', 'echo later']);
+  const result = runTs(['--json', '--action', 'plan', '--backend', 'modal', '--command', 'echo later']);
   return jsonRule('planned-backend-fixture', result, (snapshot) =>
-    snapshot.status === 'planned'
+    snapshot.status === 'preview'
     && snapshot.selectedBackend === 'modal'
-    && snapshot.safety?.plannedBackendsDoNotClaimLive === true);
+    && snapshot.plan?.executable === 'modal'
+    && snapshot.safety?.cloudBackendsRequireExplicitConfiguration === true);
 }
 
 function runTs(args) {

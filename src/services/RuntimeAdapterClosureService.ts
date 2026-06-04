@@ -1,4 +1,4 @@
-import type { ChannelMeshParityEntry } from '../contracts/ChannelMeshParityContract.js';
+import type { ChannelMeshConsistencyEntry } from '../contracts/ChannelMeshConsistencyContract.js';
 import type {
   RuntimeAdapterClosureEntry,
   RuntimeAdapterClosureSnapshot,
@@ -6,16 +6,16 @@ import type {
   RuntimeAdapterClosureStrategy,
 } from '../contracts/RuntimeAdapterClosureContract.js';
 import { ZAVORTH_RUNTIME_ADAPTER_CLOSURE_CONTRACT_VERSION } from '../contracts/RuntimeAdapterClosureContract.js';
-import type { ProviderMeshParityProviderEntry } from '../contracts/ProviderMeshParityContract.js';
-import { ChannelMeshParityService } from './ChannelMeshParityService.js';
-import { ParityCertificationService } from './ParityCertificationService.js';
-import { ProviderMeshParityService } from './ProviderMeshParityService.js';
+import type { ProviderMeshReadinessProviderEntry } from '../contracts/ProviderMeshReadinessContract.js';
+import { ChannelMeshConsistencyService } from './ChannelMeshConsistencyService.js';
+import { ReleaseCertificationService } from './ReleaseCertificationService.js';
+import { ProviderMeshReadinessService } from './ProviderMeshReadinessService.js';
 
 type RuntimeAdapterClosureRuntime = {
   now?: () => Date;
-  providerMeshParityService?: ProviderMeshParityService;
-  channelMeshParityService?: ChannelMeshParityService;
-  parityCertificationService?: ParityCertificationService;
+  providerMeshReadinessService?: ProviderMeshReadinessService;
+  channelMeshConsistencyService?: ChannelMeshConsistencyService;
+  releaseCertificationService?: ReleaseCertificationService;
 };
 
 const CHANNEL_RUNTIME_STRATEGIES = new Set([
@@ -27,19 +27,19 @@ const CHANNEL_RUNTIME_STRATEGIES = new Set([
 
 export class RuntimeAdapterClosureService {
   private readonly now: () => Date;
-  private readonly providerMesh: ProviderMeshParityService;
-  private readonly channelMesh: ChannelMeshParityService;
-  private readonly certification: ParityCertificationService;
+  private readonly providerMesh: ProviderMeshReadinessService;
+  private readonly channelMesh: ChannelMeshConsistencyService;
+  private readonly certification: ReleaseCertificationService;
 
   constructor(runtime: RuntimeAdapterClosureRuntime = {}) {
     this.now = runtime.now || (() => new Date());
-    this.providerMesh = runtime.providerMeshParityService || new ProviderMeshParityService({
+    this.providerMesh = runtime.providerMeshReadinessService || new ProviderMeshReadinessService({
       now: this.now,
     });
-    this.channelMesh = runtime.channelMeshParityService || new ChannelMeshParityService({
+    this.channelMesh = runtime.channelMeshConsistencyService || new ChannelMeshConsistencyService({
       now: this.now,
     });
-    this.certification = runtime.parityCertificationService || new ParityCertificationService({
+    this.certification = runtime.releaseCertificationService || new ReleaseCertificationService({
       now: this.now,
     });
   }
@@ -102,9 +102,9 @@ export class RuntimeAdapterClosureService {
       },
       commands: {
         check: 'npm run runtime-adapter-closure:check --silent',
-        providerParity: 'npm run provider-mesh-parity:check --silent',
-        channelParity: 'npm run channel-mesh-parity:check --silent',
-        certify: 'npm run parity-certify --silent',
+        providerConsistency: 'npm run provider-mesh-readiness:check --silent',
+        channelConsistency: 'npm run channel-mesh-consistency:check --silent',
+        certify: 'npm run release-certify --silent',
         nextStage: 'Etapa 12 - Native Capability Closure',
       },
       policy: {
@@ -117,7 +117,7 @@ export class RuntimeAdapterClosureService {
     };
   }
 
-  private buildProviderEntry(entry: ProviderMeshParityProviderEntry): RuntimeAdapterClosureEntry {
+  private buildProviderEntry(entry: ProviderMeshReadinessProviderEntry): RuntimeAdapterClosureEntry {
     return {
       surface: 'provider.call',
       id: entry.normalizedSourceName,
@@ -132,7 +132,7 @@ export class RuntimeAdapterClosureService {
     };
   }
 
-  private buildChannelEntry(entry: ChannelMeshParityEntry): RuntimeAdapterClosureEntry {
+  private buildChannelEntry(entry: ChannelMeshConsistencyEntry): RuntimeAdapterClosureEntry {
     return {
       surface: 'channel.message',
       id: entry.normalizedSourceName,
@@ -151,7 +151,7 @@ export class RuntimeAdapterClosureService {
     };
   }
 
-  private providerStrategy(entry: ProviderMeshParityProviderEntry): RuntimeAdapterClosureStrategy {
+  private providerStrategy(entry: ProviderMeshReadinessProviderEntry): RuntimeAdapterClosureStrategy {
     if (entry.adapterStrategy === 'local-openai-compatible-runtime') {
       return 'local-provider-runtime';
     }
@@ -161,7 +161,7 @@ export class RuntimeAdapterClosureService {
     return 'generic-provider-runtime';
   }
 
-  private channelStrategy(entry: ChannelMeshParityEntry): RuntimeAdapterClosureStrategy {
+  private channelStrategy(entry: ChannelMeshConsistencyEntry): RuntimeAdapterClosureStrategy {
     if (entry.route.transportStrategy === 'local-bridge') {
       return 'local-bridge-channel-runtime';
     }

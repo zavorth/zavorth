@@ -17,15 +17,15 @@
       "featured": true
     },
     {
-      "id": "plugin:external-agent-bridge",
-      "label": "External Agent Bridge",
+      "id": "plugin:runtime-adapter-bridge",
+      "label": "Runtime Adapter Bridge",
       "kind": "plugin",
       "source": "registry:local-catalog",
       "readiness": "partial",
       "trust": "review",
       "installState": "available",
-      "summary": "Conector agent-to-agent recomendado para parity e federacao com runtimes externos.",
-      "actionHint": "/plugins install external-agent-bridge",
+      "summary": "Conector agent-to-agent recomendado para consistency e federacao com runtimes externos.",
+      "actionHint": "/plugins install runtime-adapter-bridge",
       "tags": ["registry", "agents", "featured"],
       "capabilities": ["code", "agents"],
       "details": ["Pack: agent-federation", "Conector governado para interoperar com runtimes externos."],
@@ -137,12 +137,12 @@
     {
       "id": "agent-federation",
       "label": "Agent Federation",
-      "summary": "Colecao curada para parity e federacao com runtimes externos no mesmo plano.",
+      "summary": "Colecao curada para consistency e federacao com runtimes externos no mesmo plano.",
       "actionHint": "/platform collection:agent-federation",
-      "entries": ["plugin:external-agent-bridge"],
+      "entries": ["plugin:runtime-adapter-bridge"],
       "tags": ["registry", "agents", "federation"],
       "capabilities": ["agents", "code"],
-      "details": ["Bom ponto de partida para parity e federacao governada com runtimes externos."],
+      "details": ["Bom ponto de partida para consistency e federacao governada com runtimes externos."],
       "featured": true
     },
     {
@@ -185,11 +185,11 @@
       "label": "Remote Provider Rollout",
       "summary": "Recipe guiada para sincronizar gateways remotos e fechar o primeiro rollout de providers externos.",
       "actionHint": "/platform recipe:remote-provider-rollout",
-      "targets": ["collection:remote-gateways", "plugin:external-agent-bridge"],
+      "targets": ["collection:remote-gateways", "plugin:runtime-adapter-bridge"],
       "steps": [
         "Sincronize o catalogo remoto para puxar novidades do ecossistema.",
         "Adote a colecao Remote Gateways no platform plane.",
-        "Prepare o conector agent-to-agent para parity e federacao externa."
+        "Prepare o conector agent-to-agent para consistency e federacao externa."
       ],
       "tags": ["registry", "remote", "providers"],
       "details": ["Recipe curada para o rollout inicial do ecossistema remoto do Zavorth."],

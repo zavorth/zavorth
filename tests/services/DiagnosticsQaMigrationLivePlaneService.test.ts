@@ -194,7 +194,7 @@ describe('DiagnosticsQaMigrationLivePlaneService Intent model0', () => {
   });
 
   it('blocks migration apply until operator confirmation', async () => {
-    const sourceFile = path.join(workspaceRoot, 'external-agent.json');
+    const sourceFile = path.join(workspaceRoot, 'runtime-adapter.json');
     await fs.promises.writeFile(sourceFile, JSON.stringify({ channel: 'signal' }), 'utf8');
     const service = new MigrationImportService({
       artifactDir,
@@ -207,7 +207,7 @@ describe('DiagnosticsQaMigrationLivePlaneService Intent model0', () => {
         kind: 'config-file',
         ref: sourceFile,
       },
-      targetNamespace: 'external-agent',
+      targetNamespace: 'runtime-adapter',
       dryRun: false,
       outputDir: artifactDir,
       allowedRoots: [workspaceRoot, artifactDir],
@@ -225,7 +225,7 @@ describe('DiagnosticsQaMigrationLivePlaneService Intent model0', () => {
         kind: 'config-file',
         ref: sourceFile,
       },
-      targetNamespace: 'external-agent',
+      targetNamespace: 'runtime-adapter',
       dryRun: false,
       confirmApply: true,
       outputDir: artifactDir,
@@ -234,7 +234,7 @@ describe('DiagnosticsQaMigrationLivePlaneService Intent model0', () => {
 
     expect(applied.ok).toBe(true);
     expect(applied.status).toBe('applied');
-    const manifest = (await fs.promises.readdir(artifactDir)).find((file) => file.startsWith('zavorth.migration.external-agent'));
+    const manifest = (await fs.promises.readdir(artifactDir)).find((file) => file.startsWith('zavorth.migration.runtime-adapter'));
     expect(manifest).toBeTruthy();
   });
 });

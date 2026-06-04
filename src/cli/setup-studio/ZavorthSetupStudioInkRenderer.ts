@@ -758,6 +758,7 @@ function RightRail({ Box, Text, snapshot, secrets, activeSecretField, secretBuff
     createElement(Text, { color: COLORS.text }, `Skills  ${snapshot.skills.eligible}`),
     createElement(Text, { color: snapshot.skills.missingRequirements > 0 ? COLORS.amber : COLORS.green }, `Missing ${snapshot.skills.missingRequirements}`),
     createElement(Text, { color: snapshot.gateway.installed ? COLORS.green : COLORS.amber }, `Gateway ${snapshot.gateway.installed ? 'ok' : 'build'}`),
+    createElement(Text, { color: snapshot.capabilityActions.status === 'attention' ? COLORS.amber : COLORS.green }, `Actions ${snapshot.capabilityActions.exposed} verified`),
     createElement(Text, { color: COLORS.text }, `Control ${truncate(snapshot.controlUi.url, 24)}`),
     createElement(Text, { color: activeTextField === 'modelId' ? COLORS.cyan : COLORS.text }, `Model   ${truncate(activeTextField === 'modelId' ? textBuffer : snapshot.plan.provider.modelId, 24)}`),
     createElement(Text, { color: COLORS.muted }, ''),

@@ -405,7 +405,7 @@ export const PRIMITIVES: CapabilityPrimitiveDefinition[] = [
     label: 'QA Scenario',
     family: 'qa',
     intent: 'qa_scenario',
-    summary: 'Runs simulated provider, channel, capability, and release parity scenarios.',
+    summary: 'Runs simulated provider, channel, capability, and release consistency scenarios.',
     moduleKind: 'qa',
     runtimeStatus: 'native-contract',
     contractTarget: 'src/contracts/QaSmokeMatrixContract.ts',

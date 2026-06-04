@@ -314,7 +314,7 @@ describe('ProviderMeshOnboardingProductService', () => {
       model: true,
       credential: true,
     }));
-    expect(snapshot.surfaceParity.consumers).toEqual(expect.arrayContaining([
+    expect(snapshot.surfaceConsistency.consumers).toEqual(expect.arrayContaining([
       'onboarding',
       'providers_page',
       'control',

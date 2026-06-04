@@ -299,6 +299,8 @@ export class ZavorthTerminalBackendsService {
     const sshHost = String(input.sshHost || this.env.ZAVORTH_SSH_HOST || '').trim();
     const wslDistro = String(input.wslDistro || this.env.ZAVORTH_WSL_DISTRO || '').trim();
     const vercelReady = isTruthy(this.env.ZAVORTH_VERCEL_SANDBOX_ENABLED) && Boolean(this.env.VERCEL_TOKEN);
+    const modalReady = modalConfigured(this.env);
+    const daytonaReady = daytonaConfigured(this.env);
     return [
       descriptor({
         id: 'local',
@@ -362,27 +364,27 @@ export class ZavorthTerminalBackendsService {
       }),
       descriptor({
         id: 'modal',
-        label: 'Modal backend',
-        status: 'planned',
-        isolation: 'planned-cloud-workspace',
-        liveCapable: false,
-        liveReady: false,
-        requiresConfiguration: ['planned adapter'],
-        defaultCommand: 'planned',
-        nextCommand: 'Use local, Docker, SSH, WSL or Vercel Sandbox until Modal is implemented.',
-        limitations: ['Tracked for future support; no live claim today.'],
+        label: 'Modal cloud function',
+        status: modalReady ? 'ready' : 'needs-configuration',
+        isolation: 'cloud-function',
+        liveCapable: true,
+        liveReady: modalReady,
+        requiresConfiguration: ['Modal CLI', 'MODAL_TOKEN_ID + MODAL_TOKEN_SECRET or ZAVORTH_MODAL_TOKEN', 'optional ZAVORTH_MODAL_FUNCTION'],
+        defaultCommand: 'modal run <function> --command <command>',
+        nextCommand: 'configure Modal credentials and run zavorth execution-backends --backend modal',
+        limitations: ['Remote execution remains gated by approval, live flag, command receipts and the configured Modal function policy.'],
       }),
       descriptor({
         id: 'daytona',
         label: 'Daytona workspace',
-        status: 'planned',
-        isolation: 'planned-cloud-workspace',
-        liveCapable: false,
-        liveReady: false,
-        requiresConfiguration: ['planned adapter'],
-        defaultCommand: 'planned',
-        nextCommand: 'Use local, Docker, SSH, WSL or Vercel Sandbox until Daytona is implemented.',
-        limitations: ['Tracked for future support; no live claim today.'],
+        status: daytonaReady ? 'ready' : 'needs-configuration',
+        isolation: 'cloud-dev-workspace',
+        liveCapable: true,
+        liveReady: daytonaReady,
+        requiresConfiguration: ['Daytona CLI', 'DAYTONA_API_KEY or ZAVORTH_DAYTONA_API_KEY', 'ZAVORTH_DAYTONA_WORKSPACE'],
+        defaultCommand: 'daytona workspace exec <workspace> -- <command>',
+        nextCommand: 'configure Daytona credentials/workspace and run zavorth execution-backends --backend daytona',
+        limitations: ['Workspace target, mounts and network use stay governed by approval and receipts.'],
       }),
     ];
   }
@@ -427,7 +429,7 @@ export class ZavorthTerminalBackendsService {
         commandEnvelopeUsesStructuredArgs: true,
         stdoutStderrRedacted: true,
         receiptsRequired: true,
-        plannedBackendsDoNotClaimLive: true,
+        cloudBackendsRequireExplicitConfiguration: true,
       },
       commands: {
         status: 'zavorth execution-backends',
@@ -481,6 +483,18 @@ function classifyCommandRisk(command: string | null): ZavorthTerminalCommandRisk
 
 function requiresApproval(risk: ZavorthTerminalCommandRisk): boolean {
   return risk !== 'read-only';
+}
+
+function modalConfigured(env: Record<string, string | undefined>): boolean {
+  const tokenPair = Boolean(String(env.MODAL_TOKEN_ID || '').trim()) && Boolean(String(env.MODAL_TOKEN_SECRET || '').trim());
+  const token = Boolean(String(env.ZAVORTH_MODAL_TOKEN || '').trim());
+  return tokenPair || token || isTruthy(env.ZAVORTH_MODAL_ENABLED);
+}
+
+function daytonaConfigured(env: Record<string, string | undefined>): boolean {
+  const apiKey = Boolean(String(env.DAYTONA_API_KEY || env.ZAVORTH_DAYTONA_API_KEY || '').trim());
+  const workspace = Boolean(String(env.ZAVORTH_DAYTONA_WORKSPACE || '').trim());
+  return (apiKey && workspace) || isTruthy(env.ZAVORTH_DAYTONA_ENABLED);
 }
 
 function buildEnvelope(input: {
@@ -553,6 +567,24 @@ function buildEnvelope(input: {
       executable: String(input.env.ZAVORTH_VERCEL_SANDBOX_CLI || 'vercel'),
       args: ['sandbox', 'exec', '--', command],
       displayCommand: 'vercel sandbox exec -- <command>',
+    };
+  }
+  if (input.backend === 'modal') {
+    const executable = String(input.env.ZAVORTH_MODAL_COMMAND || 'modal').trim();
+    const functionRef = String(input.env.ZAVORTH_MODAL_FUNCTION || 'zavorth_remote_exec').trim();
+    return {
+      executable,
+      args: ['run', functionRef, '--command', command],
+      displayCommand: `${executable} run ${functionRef} --command ${quoteDisplay(command)}`,
+    };
+  }
+  if (input.backend === 'daytona') {
+    const executable = String(input.env.ZAVORTH_DAYTONA_COMMAND || 'daytona').trim();
+    const workspace = String(input.env.ZAVORTH_DAYTONA_WORKSPACE || '<workspace>').trim();
+    return {
+      executable,
+      args: ['workspace', 'exec', workspace, '--', command],
+      displayCommand: `${executable} workspace exec ${workspace} -- ${quoteDisplay(command)}`,
     };
   }
   return {

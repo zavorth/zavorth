@@ -25,7 +25,7 @@ export type ZavorthTransactionCertificationGateKind =
   | 'credential-ref-gate'
   | 'typed-connector-simulation'
   | 'dashboard-projection'
-  | 'cross-surface-parity'
+  | 'cross-surface-consistency'
   | 'secret-redaction'
   | 'no-live-execution';
 
@@ -112,7 +112,7 @@ export function buildZavorthTransactionCertificationContractSnapshot(): ZavorthT
       'credential-ref-gate',
       'typed-connector-simulation',
       'dashboard-projection',
-      'cross-surface-parity',
+      'cross-surface-consistency',
       'secret-redaction',
       'no-live-execution',
     ],
