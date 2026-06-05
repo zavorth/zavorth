@@ -63,7 +63,7 @@ API v1:
 | --- | --- | --- |
 | `GET` | `/api/web/zavorthControl/contracts-v1` | Reads the canonical Runtime API v1 projection for the current zavorthControl context. |
 | `GET` | `/api/web/zavorthControl/events-v1` | Reads canonical Runtime API v1 events for the active session. |
-| `GET` | `/api/web/zavorthControl/gui-readiness-v1` | Reads daily-use GUI readiness for future visual clients. |
+| `GET` | `/api/web/zavorthControl/gui-certification-v1` | Reads Daily-Use GUI Certification for future visual clients. |
 | `POST` | `/api/web/zavorthControl/chat-v1` | Delegates mission preview and explicit live chat submission to Runtime API v1. |
 | `POST` | `/api/web/zavorthControl/actions` | Delegates approval, mission, provider and channel actions to Runtime API v1. |
 
@@ -181,9 +181,9 @@ receipts, schedules, skills, agents, providers and channels. CLI projections do
 not execute mutations by themselves. Writes, network, device control and live
 channel actions stay inside the governed runtime and Policy Broker path.
 
-## Daily-Use GUI Readiness
+## Daily-Use GUI Certification
 
-Daily-use GUI readiness covers status, health, providers, channels, approvals, receipts, missions, chat, events and governed actions.
+Daily-Use GUI Certification covers status, health, providers, channels, approvals, receipts, missions, chat, events and governed actions.
 
 Use these checks when changing Runtime API v1 or the user-facing runtime path:
 

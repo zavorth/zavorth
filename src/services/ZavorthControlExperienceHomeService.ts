@@ -181,6 +181,14 @@ const PERMISSION_PANEL: ZavorthControlPermissionPanelItem[] = [
 
 const GETTING_STARTED: ZavorthControlExperienceHomeFirstStep[] = [
   {
+    id: 'setup-checklist',
+    label: 'Setup checklist',
+    summary: 'Connect channels, providers and execution backend with clear proof before live use.',
+    command: 'npm run zavorth:dashboard-setup-checklist',
+    href: '/control/providers?setup=checklist',
+    optional: false,
+  },
+  {
     id: 'setup',
     label: 'Preview setup',
     summary: 'See profile, workspace and safety defaults before anything is written.',

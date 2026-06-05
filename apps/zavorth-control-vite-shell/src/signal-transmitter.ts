@@ -17,6 +17,7 @@ type SignalTransmitterOptions = {
   getPendingSelectedSkills: () => any[];
   getPendingWorkspaceSelection: () => any;
   getSelectedExperienceProfile: () => string;
+  getExperienceProfilePayload: () => any;
   recordTraceEvent: (event: Record<string, unknown>) => void;
   refreshAttachmentHint: () => void;
   removeThinkingState: () => void;
@@ -36,6 +37,9 @@ type SignalTransmitterOptions = {
 
 declare global {
   interface Window {
+    ZavorthControlChat?: {
+      setComposerRunState?: (state: 'idle' | 'running' | 'cancelling') => void;
+    };
     ZavorthRuntimeBridge?: any;
     ZavorthRuntimeEngines?: {
       getActiveEngineId?: () => string;
@@ -70,6 +74,7 @@ export function createSignalTransmitter(options: SignalTransmitterOptions) {
     const lastVoiceInput = options.getLastVoiceInput();
     const outboundVoice = lastVoiceInput ? { ...lastVoiceInput } : null;
     const outboundComposerSettings = { ...options.getComposerSettingsState() };
+    const outboundExperienceProfile = options.getExperienceProfilePayload();
     const naturalEngineSwitchHandled = text
       ? await (window.ZavorthRuntimeEngines?.requestNaturalEngineSwitch?.(text) || requestNaturalEngineSwitch(text)).catch(() => false)
       : false;
@@ -100,11 +105,21 @@ export function createSignalTransmitter(options: SignalTransmitterOptions) {
         outboundAttachments.length ? `${outboundAttachments.length} file(s)` : '',
         outboundSkills.length ? `${outboundSkills.length} tool(s)` : '',
         outboundVoice ? 'voice' : '',
+        outboundExperienceProfile?.id ? `profile:${outboundExperienceProfile.id}` : '',
         outboundComposerSettings.model && outboundComposerSettings.model !== 'auto' ? `model:${outboundComposerSettings.model}` : '',
         outboundComposerSettings.sensitivity && outboundComposerSettings.sensitivity !== 'default' ? `sens:${outboundComposerSettings.sensitivity}` : '',
       ].filter(Boolean).join(' - ') || 'chat',
       status: 'queued',
     });
+    if (outboundExperienceProfile?.id) {
+      options.recordTraceEvent({
+        type: 'step',
+        title: 'Experience profile applied',
+        detail: `${outboundExperienceProfile.label}: ${outboundExperienceProfile.approvalTone}`,
+        meta: outboundExperienceProfile.id,
+        status: 'ready',
+      });
+    }
     if (engineDecision?.decision) {
       options.recordTraceEvent({
         type: 'step',
@@ -245,6 +260,7 @@ export function createSignalTransmitter(options: SignalTransmitterOptions) {
         meta: options.getCurrentModelRouteLabel(),
         status: 'running',
       });
+      window.ZavorthControlChat?.setComposerRunState?.("running");
       options.appendThinkingState();
       try {
         await runtimeBridge.sendChat(
@@ -261,13 +277,16 @@ export function createSignalTransmitter(options: SignalTransmitterOptions) {
             selectedSkills: outboundSkills,
             voice: outboundVoice,
             composerSettings: outboundComposerSettings,
+            experienceProfile: outboundExperienceProfile,
             engineId: selectedEngineId,
             engineDecision: engineDecision?.decision || null,
           },
         );
+        window.ZavorthControlChat?.setComposerRunState?.("idle");
         return true;
       } catch (error: any) {
         options.removeThinkingState();
+        window.ZavorthControlChat?.setComposerRunState?.("idle");
         const detail = messageFromCaughtError(error);
         options.recordTraceEvent({
           type: 'error',
@@ -288,7 +307,9 @@ export function createSignalTransmitter(options: SignalTransmitterOptions) {
       detail: 'No live bridge is available; using the local dashboard response.',
       status: 'fallback',
     });
+    window.ZavorthControlChat?.setComposerRunState?.("running");
     await delayedThinking(options, () => options.generateCoreResponse(outboundText), 300, 1200 + Math.random() * 800);
+    window.ZavorthControlChat?.setComposerRunState?.("idle");
     return true;
   };
 }

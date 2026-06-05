@@ -6,7 +6,7 @@ const read = (file) => readFileSync(join(root, file), 'utf8');
 
 const files = {
   webStateRoute: 'src/domain/surface/presentation/web-app/WebAppRuntimeStateRouteService.ts',
-  operationsPanel: 'src/ai-gateway/app/(zavorthControl)/zavorthControl/zavorthControl/components/ZavorthControlOperationsPanel.tsx',
+  operationsPanel: 'src/ai-gateway/app/(zavorthControl)/control/zavorth-control/components/ZavorthControlOperationsPanel.tsx',
   packageJson: 'package.json',
 };
 

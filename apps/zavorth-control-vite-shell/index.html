@@ -106,6 +106,68 @@
                   <span class="terminal-hero__hello">Inbox</span>
                   <span class="terminal-hero__question">Ask Zavorth or start with a suggestion.</span>
                 </div>
+                <div class="autonomy-command-center" data-autonomy-command-center>
+                  <div class="autonomy-command-center__header">
+                    <div>
+                      <span class="autonomy-command-center__eyebrow">Autonomy</span>
+                      <strong>Missions and memory</strong>
+                    </div>
+                    <p>Pick the depth, watch the plan, and review what Zavorth wants to learn before anything important changes.</p>
+                  </div>
+                  <div class="autonomy-card-grid" aria-label="Autonomy mission shortcuts">
+                    <button class="autonomy-card" type="button" data-autonomy-card data-autonomy-card-id="deep-missions" data-prompt="Open Deep missions. Let me choose Normal, Deep, Mission or Adversarial depth, estimate workers, time, cost and effects, then review the plan before any risky action.">
+                      <span class="autonomy-card__icon">DM</span>
+                      <span class="autonomy-card__copy"><span class="autonomy-card__eyebrow">Missions</span><strong>Deep missions</strong><span>Choose depth, workers, cost, time and effects before work starts.</span></span>
+                      <span class="autonomy-card__action">Review plan</span>
+                    </button>
+                    <button class="autonomy-card" type="button" data-autonomy-card data-autonomy-card-id="mission-plan-board" data-prompt="Open the mission plan board with pending, running, blocked and done work. Show evidence, receipts, Stop and Continue controls.">
+                      <span class="autonomy-card__icon">MP</span>
+                      <span class="autonomy-card__copy"><span class="autonomy-card__eyebrow">Plan</span><strong>Mission plan</strong><span>Track classify, research, implement, verify and final synthesis.</span></span>
+                      <span class="autonomy-card__action">Review evidence</span>
+                    </button>
+                    <button class="autonomy-card" type="button" data-autonomy-card data-autonomy-card-id="memory-dreams" data-prompt="Open Memory dreams. Show candidates with Apply, Edit, Forget, Keep reviewing and Rollback actions, without saving anything new.">
+                      <span class="autonomy-card__icon">MD</span>
+                      <span class="autonomy-card__copy"><span class="autonomy-card__eyebrow">Memory</span><strong>Memory dreams</strong><span>Review useful candidates, duplicates, expiry and sensitive blocks.</span></span>
+                      <span class="autonomy-card__action">Keep reviewing</span>
+                    </button>
+                    <button class="autonomy-card" type="button" data-autonomy-card data-autonomy-card-id="learning-center" data-prompt="Open the Learning center. Summarize quiet learns, items waiting review, blocked sensitive notes and memories with expiry.">
+                      <span class="autonomy-card__icon">LC</span>
+                      <span class="autonomy-card__copy"><span class="autonomy-card__eyebrow">Learning</span><strong>Learning center</strong><span>See quiet learns, review items, blocked sensitive notes and expiries.</span></span>
+                      <span class="autonomy-card__action">View receipt</span>
+                    </button>
+                  </div>
+                  <div class="mission-depth-strip" aria-label="Mission depth modes">
+                    <button class="mission-depth-mode" type="button" data-mission-depth-mode="normal" data-prompt="Set mission depth to Normal. Keep it quick, local and reversible."><strong>Normal</strong><span>Fast local task</span></button>
+                    <button class="mission-depth-mode" type="button" data-mission-depth-mode="deep" data-prompt="Set mission depth to Deep. Estimate time and evidence before starting."><strong>Deep</strong><span>More research</span></button>
+                    <button class="mission-depth-mode" type="button" data-mission-depth-mode="mission" data-prompt="Set mission depth to Mission. Create a durable board, worker plan and cost guard."><strong>Mission</strong><span>Workers + board</span></button>
+                    <button class="mission-depth-mode" type="button" data-mission-depth-mode="adversarial" data-prompt="Set mission depth to Adversarial. Add critique, failure checks and approval gates for risky actions."><strong>Adversarial</strong><span>Stress test</span></button>
+                  </div>
+                  <div class="mission-plan-board" data-mission-plan-board>
+                    <div class="mission-plan-board__header">
+                      <strong>Mission plan</strong>
+                      <span>Review plan · Start mission · Stop · Continue · Review evidence · View receipt</span>
+                    </div>
+                    <div class="mission-plan-board__steps">
+                      <button class="mission-plan-step" type="button" data-prompt="Open mission step Classify. Show evidence, blockers, receipts and the next safe action."><span>01</span><strong>Classify</strong><em>Done</em></button>
+                      <button class="mission-plan-step" type="button" data-prompt="Open mission step Research. Show evidence, blockers, receipts and the next safe action."><span>02</span><strong>Research</strong><em>Running</em></button>
+                      <button class="mission-plan-step" type="button" data-prompt="Open mission step Implement. Show evidence, blockers, receipts and the next safe action."><span>03</span><strong>Implement</strong><em>Pending</em></button>
+                      <button class="mission-plan-step" type="button" data-prompt="Open mission step Verify. Show evidence, blockers, receipts and the next safe action."><span>04</span><strong>Verify</strong><em>Pending</em></button>
+                      <button class="mission-plan-step" type="button" data-prompt="Open mission step Synthesis. Show evidence, blockers, receipts and the next safe action."><span>05</span><strong>Synthesis</strong><em>Blocked</em></button>
+                    </div>
+                  </div>
+                  <div class="memory-dream-grid" data-memory-dreams-panel>
+                    <div class="memory-dream-card" data-memory-dreams><span>Ready</span><strong>Prefers concise answers</strong><p>Low-risk style preference, reversible and expiring.</p><div><button type="button" data-prompt="Memory dream action: Apply. Show the candidate, evidence, expiry, receipt and rollback before applying.">Apply</button><button type="button" data-prompt="Memory dream action: Edit. Show the candidate, evidence, expiry, receipt and rollback before applying.">Edit</button><button type="button" data-prompt="Memory dream action: Forget. Show the candidate, evidence, expiry, receipt and rollback before applying.">Forget</button></div></div>
+                    <div class="memory-dream-card" data-memory-dreams><span>Review</span><strong>Repeated procedure</strong><p>Candidate for a reusable procedure after review.</p><div><button type="button" data-prompt="Memory dream action: Apply. Show the candidate, evidence, expiry, receipt and rollback before applying.">Apply</button><button type="button" data-prompt="Memory dream action: Keep reviewing. Show the candidate, evidence, expiry, receipt and rollback before applying.">Keep reviewing</button></div></div>
+                    <div class="memory-dream-card" data-memory-dreams><span>Merge</span><strong>Duplicate memory</strong><p>Existing note covers this. Keep only one source.</p><div><button type="button" data-prompt="Memory dream action: Forget. Show the candidate, evidence, expiry, receipt and rollback before applying.">Forget</button><button type="button" data-prompt="Memory dream action: Rollback. Show the candidate, evidence, expiry, receipt and rollback before applying.">Rollback</button></div></div>
+                    <div class="memory-dream-card" data-memory-dreams><span>Blocked</span><strong>Sensitive note blocked</strong><p>Needs explicit approval and redacted evidence first.</p><div><button type="button" data-prompt="Memory dream action: Review evidence. Show the candidate, evidence, expiry, receipt and rollback before applying.">Review evidence</button><button type="button" data-prompt="Memory dream action: Forget. Show the candidate, evidence, expiry, receipt and rollback before applying.">Forget</button></div></div>
+                  </div>
+                  <div class="learning-center-strip" data-learning-center>
+                    <button class="learning-center-metric" type="button" data-prompt="Open Learning center metric: Quiet learns. Show evidence, receipts, expiry and review options."><strong>3</strong><span>Quiet learns</span><small>Low-risk receipts</small></button>
+                    <button class="learning-center-metric" type="button" data-prompt="Open Learning center metric: Waiting review. Show evidence, receipts, expiry and review options."><strong>2</strong><span>Waiting review</span><small>Editable candidates</small></button>
+                    <button class="learning-center-metric" type="button" data-prompt="Open Learning center metric: Blocked sensitive. Show evidence, receipts, expiry and review options."><strong>1</strong><span>Blocked sensitive</span><small>No raw profile saved</small></button>
+                    <button class="learning-center-metric" type="button" data-prompt="Open Learning center metric: Expiring memories. Show evidence, receipts, expiry and review options."><strong>4</strong><span>Expiring memories</span><small>Due this week</small></button>
+                  </div>
+                </div>
               </div>
                 <div class="approval-context-banner" id="approval-context-banner" hidden>
                   <div>

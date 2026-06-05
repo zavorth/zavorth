@@ -143,6 +143,12 @@ export type ZavorthProviderReadinessMatrixSnapshot = {
     executionAuthority: false;
     canRenderTestButtons: true;
   };
+  zavorthControlProjection: {
+    route: '/dashboard';
+    endpoint: '/api/providers/readiness';
+    executionAuthority: false;
+    canRenderTestButtons: true;
+  };
   invariants: Array<{
     id: string;
     status: 'passed';

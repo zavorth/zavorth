@@ -1,4 +1,4 @@
-﻿import { execFileSync } from 'node:child_process';
+import { execFileSync } from 'node:child_process';
 import { existsSync, readFileSync } from 'node:fs';
 import path from 'node:path';
 
@@ -11,9 +11,9 @@ for (const file of [
   'src/services/ZavorthControlExperienceHomeService.ts',
   'scripts/zavorth-control-experience-home.ts',
   'tests/services/ZavorthControlExperienceHomeService.test.ts',
-  'src/ai-gateway/app/(zavorthControl)/zavorthControl/HomePageClient.tsx',
-  'assets/zavorthControl/index.html',
-  'assets/zavorthControl/styles/chat.css',
+  'src/ai-gateway/app/(zavorthControl)/control/HomePageClient.tsx',
+  'assets/zavorth-control/index.html',
+  'assets/zavorth-control/styles/chat.css',
 ]) {
   if (!existsSync(path.join(root, file))) {
     throw new Error(`missing ${file}`);
@@ -69,9 +69,9 @@ for (const area of ['inbox', 'tasks', 'approvals', 'receipts', 'connectors']) {
 }
 
 const home = [
-  readFileSync(path.join(root, 'src/ai-gateway/app/(zavorthControl)/zavorthControl/HomePageClient.tsx'), 'utf8'),
-  readFileSync(path.join(root, 'assets/zavorthControl/index.html'), 'utf8'),
-  readFileSync(path.join(root, 'assets/zavorthControl/styles/chat.css'), 'utf8'),
+  readFileSync(path.join(root, 'src/ai-gateway/app/(zavorthControl)/control/HomePageClient.tsx'), 'utf8'),
+  readFileSync(path.join(root, 'assets/zavorth-control/index.html'), 'utf8'),
+  readFileSync(path.join(root, 'assets/zavorth-control/styles/chat.css'), 'utf8'),
 ].join('\n');
 for (const marker of [
   'chat-console-bar',
@@ -85,8 +85,8 @@ for (const marker of [
   'zavorth connectors doctor',
   'Receipts',
   'Connectors',
-  'PermissÃµes',
-  'Auto-aprovaÃ§Ãµes',
+  'Permissões',
+  'Auto-aprovações',
   'Modo extremo',
   'Revogar',
   'home-profile-grid',

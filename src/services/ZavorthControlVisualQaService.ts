@@ -120,7 +120,7 @@ export class ZavorthControlVisualQaService {
 
   private buildArtifacts(): ZavorthControlVisualQaArtifact[] {
     const artifacts = [
-      this.artifact('preview-html', '.tmp/control-browser-preview/index.html', 'html'),
+      this.artifact('preview-html', '.tmp/zavorthControl-browser-preview/index.html', 'html'),
       this.artifact('manifest', '.tmp/zavorth-control-visual-qa/manifest.json', 'json'),
       this.artifact('desktop-screenshot', '.tmp/zavorth-control-visual-qa/desktop.png', 'png'),
       this.artifact('mobile-screenshot', '.tmp/zavorth-control-visual-qa/mobile.png', 'png'),

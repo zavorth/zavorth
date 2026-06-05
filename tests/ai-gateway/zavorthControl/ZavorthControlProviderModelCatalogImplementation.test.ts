@@ -8,13 +8,13 @@ describe('ZavorthControl Provider & Model Catalog Implementation', () => {
       'utf8',
     );
     const pagesSource = readFileSync(
-      join(process.cwd(), 'assets/zavorthControl/scripts/pages.js'),
+      join(process.cwd(), 'apps/zavorth-control-vite-shell/src/pages.ts'),
       'utf8',
     );
-    const runtimeBridgeSource = readFileSync(
-      join(process.cwd(), 'assets/zavorthControl/scripts/runtime-bridge.js'),
-      'utf8',
-    );
+    const runtimeBridgeSource = [
+      readFileSync(join(process.cwd(), 'apps/zavorth-control-vite-shell/src/runtime-refresh.ts'), 'utf8'),
+      readFileSync(join(process.cwd(), 'apps/zavorth-control-vite-shell/src/runtime-provider-panels.ts'), 'utf8'),
+    ].join('\n');
     const packageJson = JSON.parse(readFileSync(join(process.cwd(), 'package.json'), 'utf8')) as {
       scripts: Record<string, string>;
     };
@@ -22,7 +22,7 @@ describe('ZavorthControl Provider & Model Catalog Implementation', () => {
     expect(routeSource).toContain("pathname === '/api/providers/model-catalog'");
     expect(routeSource).toContain('buildProviderModelCatalogProjection');
     expect(routeSource).toContain('provider_model_catalog_live_probe_requires_explicit_operator_cli_or_approved_api');
-    expect(pagesSource).toContain('Provider & Model Catalog');
+    expect(pagesSource).toContain('Provider catalog');
     expect(pagesSource).toContain('data-provider-model-catalog-summary');
     expect(pagesSource).toContain('data-provider-model-catalog-list');
     expect(runtimeBridgeSource).toContain('/api/providers/model-catalog');

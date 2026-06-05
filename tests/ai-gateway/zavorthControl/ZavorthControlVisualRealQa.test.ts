@@ -2,8 +2,8 @@ import { readFileSync } from 'fs';
 import { join } from 'path';
 import { ZavorthAgentGateway, type UniversalAgentExecutor } from '../../../src/runtime/agent/index.js';
 import {
-  buildZavorthControlViewModelFromZavorthAgentGatewaySnapshot,
-} from '../../../src/ai-gateway/app/(zavorthControl)/zavorthControl/zavorthControl/adapters/zavorthAgentGatewayZavorthControlAdapter.js';
+  buildCommandCenterViewModelFromZavorthAgentGatewaySnapshot as buildZavorthControlViewModelFromZavorthAgentGatewaySnapshot,
+} from '../../../src/ai-gateway/app/(dashboard)/control/command-center/adapters/zavorthAgentGatewayCommandCenterAdapter.js';
 
 const rootDir = process.cwd();
 
@@ -145,19 +145,19 @@ describe('ZavorthControlVisualRealQa', () => {
       readFileSync(join(rootDir, 'package.json'), 'utf8'),
     ) as { scripts: Record<string, string> };
     const script = readFileSync(
-      join(rootDir, 'scripts/zavorthControl-real-flow-qa.ts'),
+      join(rootDir, 'scripts/dashboard-real-flow-qa.ts'),
       'utf8',
     );
     const liveVisualScript = readFileSync(
-      join(rootDir, 'scripts/zavorthControl-live-visual-qa.ts'),
+      join(rootDir, 'scripts/dashboard-live-visual-qa.ts'),
       'utf8',
     );
     const docs = readFileSync(
-      join(rootDir, 'docs/zavorthControl-visual-qa.md'),
+      join(rootDir, 'docs/web-dashboard.md'),
       'utf8',
     );
 
-    expect(packageJson.scripts['qa:zavorthControl-real']).toContain('scripts/zavorthControl-real-flow-qa.ts --require-pass');
+    expect(packageJson.scripts['qa:zavorthControl-real']).toContain('scripts/dashboard-real-flow-qa.ts --require-pass');
     expect(packageJson.scripts['qa:zavorthControl-live-visual']).toBe('npx tsx scripts/zavorthControl-live-visual-qa.ts --require-pass');
     expect(packageJson.scripts['qa:zavorthControl']).toContain('qa:zavorthControl-real');
     expect(script).toContain('pending-approval-created');

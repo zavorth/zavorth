@@ -3,7 +3,7 @@ import { join } from 'path';
 
 const zavorthControlDir = join(
   process.cwd(),
-  'src/ai-gateway/app/(zavorthControl)/zavorthControl',
+  'src/ai-gateway/app/(zavorthControl)/control',
 );
 
 function readZavorthControlSources(dir: string): string {

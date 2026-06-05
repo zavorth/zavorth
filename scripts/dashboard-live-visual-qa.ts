@@ -11,7 +11,10 @@ const defaultOutDir = path.join(rootDir, ".tmp", "zavorthControl-live-visual-qa"
 type CliOptions = {
   url: string;
   outDir: string;
-  token: string;
+  tokenArg: string;
+  envToken: string;
+  envFileToken: string;
+  tokenFile: string;
   requirePass: boolean;
 };
 
@@ -60,11 +63,40 @@ function readOptions(): CliOptions {
   const envFileToken = readEnvTokenFromFile(path.join(rootDir, ".env"));
   const tokenFile = readRuntimeTokenFile();
   return {
-    url: readCliValue("url") || "http://127.0.0.1:3000/zavorthControl",
+    url: readCliValue("url") || "http://127.0.0.1:3000/dashboard",
     outDir: path.resolve(rootDir, readCliValue("out") || defaultOutDir),
-    token: tokenArg || envToken || envFileToken || tokenFile,
+    tokenArg,
+    envToken,
+    envFileToken,
+    tokenFile,
     requirePass: process.argv.includes("--require-pass"),
   };
+}
+
+function fallbackToken(options: CliOptions): string {
+  return options.tokenArg || options.envToken || options.envFileToken || options.tokenFile;
+}
+
+async function resolveTokenForServer(options: CliOptions): Promise<string> {
+  if (options.tokenArg) {
+    return options.tokenArg;
+  }
+
+  try {
+    const statusUrl = new URL("/api/auth/status", options.url);
+    const response = await fetch(statusUrl);
+    const payload = await response.json().catch(() => null) as { tokenSource?: unknown } | null;
+    if (payload?.tokenSource === "runtime-file") {
+      return options.tokenFile || options.envToken || options.envFileToken;
+    }
+    if (payload?.tokenSource === "env") {
+      return options.envToken || options.envFileToken || options.tokenFile;
+    }
+  } catch {
+    // The browser probe will surface the server error; token selection falls back below.
+  }
+
+  return fallbackToken(options);
 }
 
 function writeReport(report: LiveVisualQaReport, outDir: string): void {
@@ -99,6 +131,7 @@ function writeReport(report: LiveVisualQaReport, outDir: string): void {
 async function main(): Promise<LiveVisualQaReport> {
   const options = readOptions();
   fs.mkdirSync(options.outDir, { recursive: true });
+  const token = await resolveTokenForServer(options);
   const browser = await chromium.launch({ headless: true });
   const page = await browser.newPage({
     viewport: { width: 1440, height: 980 },
@@ -106,8 +139,8 @@ async function main(): Promise<LiveVisualQaReport> {
   });
 
   const url = new URL(options.url);
-  if (options.token) {
-    url.searchParams.set("token", options.token);
+  if (token) {
+    url.searchParams.set("token", token);
   }
 
   let state: LiveVisualQaReport["state"];

@@ -954,7 +954,7 @@ export class WebAppConversationService {
 
     const lines = [
       unsupported.length === attachments.length
-        ? 'I received the attachment, but it arrived as metadata only.'
+        ? 'I received the attachment, but it arrived as metadata only; chegou apenas como metadados.'
         : 'I received the attachments. Some arrived as metadata only and will not be analyzed now.',
       '',
       ...unsupported.slice(0, 5).map((attachment) => `- ${attachment.name} (${attachment.type || 'unknown type'}, ${attachment.size || 0} bytes)`),

@@ -84,14 +84,14 @@ export class ZavorthActiveMissionUxService {
       counts,
       timeline,
       actions,
-      dashboardProjection: {
+      zavorthControlProjection: {
         route: '/dashboard',
         renderMode: 'mission-timeline',
         executionAuthority: false,
       },
       safety: {
         projectionOnly: true,
-        dashboardCanExecute: false,
+        zavorthControlCanExecute: false,
         rawSecretsSerialized: false,
         approvalsStillRequired: true,
       },
@@ -218,7 +218,7 @@ function buildActions(input: {
       kind: 'inspect_run',
       requiresApproval: false,
       mutatesState: false,
-      dashboardCanExecute: false,
+      zavorthControlCanExecute: false,
     });
   }
   const sensitiveActions = Array.isArray(input.sensitiveCard?.actions) ? input.sensitiveCard.actions : [];
@@ -230,7 +230,7 @@ function buildActions(input: {
       kind: sensitiveActionKind(text(action?.kind)),
       requiresApproval: Boolean(action?.requiresApproval),
       mutatesState: false,
-      dashboardCanExecute: false,
+      zavorthControlCanExecute: false,
     });
   }
   const receiptAction = Array.isArray(input.visualReceipts?.cards)
@@ -244,7 +244,7 @@ function buildActions(input: {
       kind: 'inspect_receipts',
       requiresApproval: false,
       mutatesState: false,
-      dashboardCanExecute: false,
+      zavorthControlCanExecute: false,
     });
   }
   if (input.providerSelection) {
@@ -255,7 +255,7 @@ function buildActions(input: {
       kind: 'provider_status',
       requiresApproval: false,
       mutatesState: false,
-      dashboardCanExecute: false,
+      zavorthControlCanExecute: false,
     });
   }
   if (actions.length === 0) {
@@ -266,7 +266,7 @@ function buildActions(input: {
       kind: 'inspect_run',
       requiresApproval: false,
       mutatesState: false,
-      dashboardCanExecute: false,
+      zavorthControlCanExecute: false,
     });
   }
   return actions.slice(0, 5);

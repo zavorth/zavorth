@@ -2266,6 +2266,9 @@ export function initRuntimeBridge() {
     const composerSettings = composerPayload.composerSettings && typeof composerPayload.composerSettings === 'object'
       ? composerPayload.composerSettings
       : null;
+    const experienceProfile = composerPayload.experienceProfile && typeof composerPayload.experienceProfile === 'object'
+      ? composerPayload.experienceProfile
+      : null;
     const engineId = typeof composerPayload.engineId === 'string'
       ? composerPayload.engineId
       : (window.ZavorthRuntimeEngines?.getActiveEngineId?.() || undefined);
@@ -2286,6 +2289,7 @@ export function initRuntimeBridge() {
           selectedSkills,
           voice,
           composerSettings,
+          experienceProfile,
           engineId,
           engineDecision,
         }),
@@ -2370,6 +2374,41 @@ export function initRuntimeBridge() {
     writeRunId(payload?.run?.id || payload?.runId || payload?.snapshot?.activeRun?.id || runId);
     writeSessionId(payload?.sessionId || payload?.snapshot?.sessionId || sessionId);
     options?.emitSignal?.('success', 'Steer accepted', payload?.ack?.id || payload?.steering?.id || runId || 'active run');
+    return payload;
+  }
+
+  async function cancelActiveRun(options: any = {}) {
+    const activeRun = getActiveRun();
+    const missionId = String(options?.missionId || activeRun?.id || activeRun?.runId || readRunId() || '').trim();
+    const sessionId = String(options?.sessionId || activeRun?.sessionId || readSessionId() || '').trim();
+    if (!missionId) {
+      disconnectRealtime('user-stop-no-run');
+      options?.emitSignal?.('info', 'Stop requested', 'No active run id was available; the live stream was disconnected.');
+      return { status: 'cancelled-preview', missionId: null, sessionId };
+    }
+    const payload = await readJson('/api/web/zavorthControl/actions', {
+      method: 'POST',
+      headers: authHeaders(),
+      body: JSON.stringify({
+        action: 'mission.cancel',
+        missionId,
+        sessionId: sessionId || undefined,
+        reason: String(options?.reason || 'User requested cancellation from ZavorthControl.'),
+      }),
+    });
+    if (payload?.snapshot) {
+      state.zavorthControl = {
+        ...(state.zavorthControl || {}),
+        live: state.zavorthControl?.live !== false,
+        generatedAt: payload.generatedAt || state.zavorthControl?.generatedAt,
+        snapshot: payload.snapshot,
+      };
+      writeRunId(payload.run?.id || payload.runId || payload.snapshot?.activeRun?.id || missionId);
+    }
+    writeSessionId(payload?.sessionId || payload?.snapshot?.sessionId || sessionId);
+    disconnectRealtime('user-stop');
+    options?.emitSignal?.('success', 'Stop requested', missionId);
+    await refresh({ skipSessionHydrate: true }).catch(() => undefined);
     return payload;
   }
 
@@ -2568,6 +2607,7 @@ export function initRuntimeBridge() {
     refresh,
     sendChat,
     sendSteerChat,
+    cancelActiveRun,
     decideApproval,
     applyRemoteMeshApproval,
     applyDiffPreview,

@@ -84,8 +84,8 @@ export async function proxy(request: any) {
     }
   }
 
-  // zavorthControlSectorForPath — Dashboard routes map to the ZavorthControl sector.
-  if (pathname.startsWith("/dashboard")) {
+  // zavorthControlSectorForPath — Control routes map to the ZavorthControl sector.
+  if (pathname.startsWith("/control") || pathname.startsWith("/dashboard")) {
     if (isLoopbackRequest(request) || isLocalDashboardRequest(request)) {
       return response;
     }
@@ -182,7 +182,7 @@ export async function proxy(request: any) {
   // Redirect / to the single official dashboard surface.
   // redirectZavorthControlPathToControl — Root always lands on the primary control surface.
   if (pathname === "/") {
-    return NextResponse.redirect(new URL("/dashboard", request.url));
+    return NextResponse.redirect(new URL("/control", request.url));
   }
 
   return response;

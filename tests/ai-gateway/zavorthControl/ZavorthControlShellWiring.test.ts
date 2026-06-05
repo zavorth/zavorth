@@ -1,13 +1,12 @@
 import { existsSync, readFileSync } from 'fs';
 import { join } from 'path';
 
-const controlDir = join(
-  process.cwd(),
-  'src/ai-gateway/app/(zavorthControl)/zavorthControl',
-);
+const appDir = join(process.cwd(), 'src/ai-gateway/app');
+const controlDir = join(appDir, '(zavorthControl)/control');
+const legacyControlDir = join(appDir, '(zavorthControl)/zavorthControl');
 
 describe('ZavorthControlShellWiring', () => {
-  it('wires /zavorthControl to the ZavorthControl shell instead of the legacy layout', () => {
+  it('wires /control to the ZavorthControl shell instead of the legacy layout', () => {
     const view = readFileSync(join(controlDir, 'controlPageClient.view.tsx'), 'utf8');
 
     expect(view).toContain('ZavorthControlControlShell');
@@ -17,12 +16,12 @@ describe('ZavorthControlShellWiring', () => {
   });
 
   it('does not expose /zavorthControl as a routable product page', () => {
-    expect(existsSync(join(controlDir, 'page.tsx'))).toBe(false);
+    expect(existsSync(join(legacyControlDir, 'page.tsx'))).toBe(false);
   });
 
   it('keeps the shell connected to the real control model and adapter', () => {
     const shell = readFileSync(
-      join(controlDir, 'zavorthControl/components/ZavorthControlControlShell.tsx'),
+      join(controlDir, 'zavorth-control/components/ZavorthControlControlShell.tsx'),
       'utf8',
     );
 
@@ -43,11 +42,11 @@ describe('ZavorthControlShellWiring', () => {
     expect(shell).toContain('model.setDraft');
 
     const overview = readFileSync(
-      join(controlDir, 'zavorthControl/components/ZavorthControlOverviewSector.tsx'),
+      join(controlDir, 'zavorth-control/components/ZavorthControlOverviewSector.tsx'),
       'utf8',
     );
     const nexusHook = readFileSync(
-      join(controlDir, 'zavorthControl/components/useZavorthControlNexusWorkbench.ts'),
+      join(controlDir, 'zavorth-control/components/useZavorthControlNexusWorkbench.ts'),
       'utf8',
     );
     expect(nexusHook).toContain('/api/v2/nexus/workbench');
@@ -66,11 +65,11 @@ describe('ZavorthControlShellWiring', () => {
 
   it('keeps the premium chat surface wired to real sending, events, artifacts and memory context', () => {
     const shell = readFileSync(
-      join(controlDir, 'zavorthControl/components/ZavorthControlControlShell.tsx'),
+      join(controlDir, 'zavorth-control/components/ZavorthControlControlShell.tsx'),
       'utf8',
     );
     const chatSurface = readFileSync(
-      join(controlDir, 'zavorthControl/components/ZavorthControlChatSurface.tsx'),
+      join(controlDir, 'zavorth-control/components/ZavorthControlChatSurface.tsx'),
       'utf8',
     );
 
@@ -88,15 +87,15 @@ describe('ZavorthControlShellWiring', () => {
 
   it('adds the phase 6 operation layer without creating destructive automatic actions', () => {
     const shell = readFileSync(
-      join(controlDir, 'zavorthControl/components/ZavorthControlControlShell.tsx'),
+      join(controlDir, 'zavorth-control/components/ZavorthControlControlShell.tsx'),
       'utf8',
     );
     const operationsPanel = readFileSync(
-      join(controlDir, 'zavorthControl/components/ZavorthControlOperationsPanel.tsx'),
+      join(controlDir, 'zavorth-control/components/ZavorthControlOperationsPanel.tsx'),
       'utf8',
     );
     const commandPalette = readFileSync(
-      join(controlDir, 'zavorthControl/components/ZavorthControlCommandPalette.tsx'),
+      join(controlDir, 'zavorth-control/components/ZavorthControlCommandPalette.tsx'),
       'utf8',
     );
 
@@ -117,7 +116,7 @@ describe('ZavorthControlShellWiring', () => {
 
   it('renders every ZavorthControl sector from real control data or honest empty states', () => {
     const shell = readFileSync(
-      join(controlDir, 'zavorthControl/components/ZavorthControlControlShell.tsx'),
+      join(controlDir, 'zavorth-control/components/ZavorthControlControlShell.tsx'),
       'utf8',
     );
 
@@ -143,15 +142,15 @@ describe('ZavorthControlShellWiring', () => {
 
   it('renders the Nexus Workbench in the ZavorthControl overview from the canonical API', () => {
     const overview = readFileSync(
-      join(controlDir, 'zavorthControl/components/ZavorthControlOverviewSector.tsx'),
+      join(controlDir, 'zavorth-control/components/ZavorthControlOverviewSector.tsx'),
       'utf8',
     );
     const adapter = readFileSync(
-      join(controlDir, 'zavorthControl/adapters/zavorthControlZavorthControlAdapter.ts'),
+      join(controlDir, 'zavorth-control/adapters/zavorthControlZavorthControlAdapter.ts'),
       'utf8',
     );
     const nexusAdapter = readFileSync(
-      join(controlDir, 'zavorthControl/adapters/zavorthControlZavorthControlNexusWorkbenchAdapter.ts'),
+      join(controlDir, 'zavorth-control/adapters/zavorthControlZavorthControlNexusWorkbenchAdapter.ts'),
       'utf8',
     );
 
@@ -174,11 +173,11 @@ describe('ZavorthControlShellWiring', () => {
 
   it('ships the Developer Workspace as an official ZavorthControl sector', () => {
     const shell = readFileSync(
-      join(controlDir, 'zavorthControl/components/ZavorthControlControlShell.tsx'),
+      join(controlDir, 'zavorth-control/components/ZavorthControlControlShell.tsx'),
       'utf8',
     );
     const workspace = readFileSync(
-      join(controlDir, 'zavorthControl/components/ZavorthControlDeveloperWorkspace.tsx'),
+      join(controlDir, 'zavorth-control/components/ZavorthControlDeveloperWorkspace.tsx'),
       'utf8',
     );
 
@@ -192,7 +191,7 @@ describe('ZavorthControlShellWiring', () => {
 
   it('ships the Gateway Console as a controlled Gateway Control API surface', () => {
     const gatewayConsole = readFileSync(
-      join(controlDir, 'zavorthControl/components/ZavorthControlGatewayConsole.tsx'),
+      join(controlDir, 'zavorth-control/components/ZavorthControlGatewayConsole.tsx'),
       'utf8',
     );
 
@@ -206,7 +205,7 @@ describe('ZavorthControlShellWiring', () => {
 
   it('renders the shared Model Picker contract inside the Gateway Console', () => {
     const gatewayConsole = readFileSync(
-      join(controlDir, 'zavorthControl/components/ZavorthControlGatewayConsole.tsx'),
+      join(controlDir, 'zavorth-control/components/ZavorthControlGatewayConsole.tsx'),
       'utf8',
     );
 
@@ -219,7 +218,7 @@ describe('ZavorthControlShellWiring', () => {
 
   it('does not port demo metrics from the fake zavorthControl into the real /zavorthControl shell', () => {
     const shell = readFileSync(
-      join(controlDir, 'zavorthControl/components/ZavorthControlControlShell.tsx'),
+      join(controlDir, 'zavorth-control/components/ZavorthControlControlShell.tsx'),
       'utf8',
     );
 

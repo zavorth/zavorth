@@ -6,7 +6,7 @@ const rootDir = process.cwd();
 describe('ZavorthControl XSS hardening', () => {
   it('sanitizes Markdown and rich panel HTML before innerHTML sinks', () => {
     const appScript = readFileSync(
-      join(rootDir, 'assets/zavorthControl/scripts/app.js'),
+      join(rootDir, 'assets/zavorth-control/scripts/app.js'),
       'utf8',
     );
 
@@ -28,7 +28,7 @@ describe('ZavorthControl XSS hardening', () => {
 
   it('keeps active SVG artifacts out of visual preview object URLs', () => {
     const runtimeBridge = readFileSync(
-      join(rootDir, 'assets/zavorthControl/scripts/runtime-bridge.js'),
+      join(rootDir, 'assets/zavorth-control/scripts/runtime-bridge.js'),
       'utf8',
     );
     const interactionRoutes = readFileSync(

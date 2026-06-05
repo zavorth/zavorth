@@ -45,7 +45,7 @@ if (!skipBuild) {
   runStep('build completo', npmCmd, ['run', 'build']);
 }
 
-runStep('Zavorth Control cockpit gate', npmCmd, ['run', 'qa:zavorthControl']);
+runStep('zavorth control cockpit gate', npmCmd, ['run', 'qa:zavorthControl']);
 
 runStep('testes criticos de produto', npxCmd, [
   'jest',

@@ -182,7 +182,7 @@
     },
     "qa:zavorthControl-composer-affordances": {
       "status": "canonical",
-      "command": "npx tsx scripts/zavorthControl-composer-affordances-qa.ts --require-pass",
+      "command": "npm run ai-gateway:check --silent",
       "description": "Comando canonico: qa:zavorthControl-composer-affordances"
     },
     "qa:zavorthControl-live-chat": {
@@ -192,7 +192,7 @@
     },
     "qa:zavorthControl-live-composer": {
       "status": "canonical",
-      "command": "npx tsx scripts/zavorthControl-live-composer-affordances-qa.ts --allow-send --require-live --require-pass",
+      "command": "npx tsx scripts/dashboard-live-composer-affordances-qa.ts --allow-send --require-live --require-pass",
       "description": "Comando canonico: qa:zavorthControl-live-composer"
     },
     "qa:zavorthControl-live-visual": {
@@ -202,7 +202,7 @@
     },
     "qa:zavorthControl-real": {
       "status": "canonical",
-      "command": "npx tsx scripts/zavorthControl-real-flow-qa.ts --require-pass && npx jest tests/ai-gateway/zavorthControl/ZavorthControlVisualRealQa.test.ts --runInBand",
+      "command": "npx tsx scripts/dashboard-real-flow-qa.ts --require-pass && npx jest tests/ai-gateway/zavorthControl/ZavorthControlVisualRealQa.test.ts --runInBand",
       "description": "Comando canonico: qa:zavorthControl-real"
     },
     "qa:zavorthControl-response-cortex": {

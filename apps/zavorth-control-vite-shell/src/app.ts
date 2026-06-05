@@ -12,6 +12,15 @@ import { bindAttachmentTray, bindComposeInputEvents, bindComposerContextBar, bin
 import { exportConversation, getExportMenuHtml } from './conversation-export';
 import { createControlSheets } from './control-sheets';
 import { createDashboardLiveView } from './dashboard-live-view';
+import {
+  buildExperienceProfilePayload,
+  EXPERIENCE_PROFILE_CATALOG,
+  getExperienceProfile,
+  persistExperienceProfile,
+  readStoredExperienceProfile,
+  resolveExperienceProfile,
+  type ExperienceProfileUiContract,
+} from './experience-profile-ui';
 import { escapeHtml, renderMarkdown, sanitizeRenderedHtml } from './html-utils';
 import { createLocalPreviewResponses } from './local-preview-responses';
 import { bindNeuralFeedInteractions } from './neural-feed-interactions';
@@ -77,7 +86,7 @@ export function initControlApp() {
   let lastVoiceInput = null;
   let isListening = false;
   let traceSheetQuery = { runId: '', traceId: '', sessionId: '', source: '' };
-  let selectedExperienceProfile = '';
+  let selectedExperienceProfile = readStoredExperienceProfile(getPromptQueueStorage());
   let pendingGuidedFlow = '';
   let pendingWorkspaceSelection = null;
   let isTransmittingSignal = false;
@@ -1294,6 +1303,8 @@ export function initControlApp() {
   const composerSettingsPanel = document.getElementById('compose-settings-panel');
   const exportChatTrigger = document.getElementById('export-chat-trigger');
   const newSessionTrigger = document.getElementById('new-session-trigger');
+  const stopRunTrigger = document.getElementById('stop-run-trigger') as HTMLButtonElement | null;
+  const runtimeProgressPill = document.querySelector('[data-runtime-progress-pill]') as HTMLElement | null;
   const attachmentCountBadge = document.getElementById('attachment-count-badge');
   const voiceStateBadge = document.getElementById('voice-state-badge');
   const toolCountBadge = document.getElementById('tool-count-badge');
@@ -1383,6 +1394,25 @@ export function initControlApp() {
     dashboardLiveView?.updateDashboardGlass();
     window.ZavorthLocale?.apply();
     if (typeof hydrateConsoleLogs === 'function') hydrateConsoleLogs();
+  }
+
+  function setComposerRunState(state: 'idle' | 'running' | 'cancelling') {
+    const active = state === 'running' || state === 'cancelling';
+    if (runtimeProgressPill) {
+      runtimeProgressPill.hidden = !active;
+      runtimeProgressPill.textContent = state === 'cancelling' ? 'Stopping' : 'In progress';
+      runtimeProgressPill.dataset.runtimeState = state;
+    }
+    if (sendBtn) {
+      sendBtn.hidden = active;
+      sendBtn.setAttribute('aria-disabled', active ? 'true' : 'false');
+    }
+    if (stopRunTrigger) {
+      stopRunTrigger.hidden = !active;
+      stopRunTrigger.disabled = state === 'cancelling';
+      stopRunTrigger.dataset.runtimeState = state;
+    }
+    composeDock?.classList.toggle('is-runtime-active', active);
   }
 
   window.addEventListener('zavorth-control-locale-change', () => {
@@ -1537,21 +1567,95 @@ export function initControlApp() {
     composeInput.focus();
   }
 
+  function getCurrentExperienceProfile(): ExperienceProfileUiContract {
+    return getExperienceProfile(selectedExperienceProfile || 'personal');
+  }
+
+  function renderExperienceProfilePanel(profile: ExperienceProfileUiContract) {
+    const terminalHero = document.getElementById('terminal-hero');
+    if (!terminalHero) return;
+    let panel = document.getElementById('experience-profile-panel');
+    if (!panel) {
+      panel = document.createElement('div');
+      panel.id = 'experience-profile-panel';
+      panel.className = 'experience-profile-panel';
+      panel.addEventListener('click', (event) => {
+        const button = (event.target as HTMLElement | null)?.closest?.('[data-profile]');
+        const profile = button?.getAttribute('data-profile');
+        if (!profile) return;
+        setSelectedExperienceProfile(profile);
+        focusComposeWithPrompt(`Use ${getExperienceProfile(profile).label} mode for this request.`);
+      });
+      terminalHero.appendChild(panel);
+    }
+    const channelBadges = profile.suggestedChannels
+      .map((channel) => `<span>${escapeHtml(channel)}</span>`)
+      .join('');
+    const capabilityBadges = profile.suggestedCapabilities
+      .slice(0, 5)
+      .map((capability) => `<span>${escapeHtml(capability)}</span>`)
+      .join('');
+    const checklist = profile.checklist
+      .map((item) => `<li>${escapeHtml(item)}</li>`)
+      .join('');
+    const buttons = EXPERIENCE_PROFILE_CATALOG
+      .map((item) => `
+        <button type="button" data-profile="${escapeHtml(item.id)}" aria-pressed="${item.id === profile.id ? 'true' : 'false'}" class="${item.id === profile.id ? 'is-selected' : ''}">
+          ${escapeHtml(item.label)}
+        </button>
+      `)
+      .join('');
+    panel.innerHTML = `
+      <div class="experience-profile-panel__header">
+        <span>Current profile</span>
+        <strong>${escapeHtml(profile.label)}</strong>
+        <small>${escapeHtml(profile.summary)}</small>
+      </div>
+      <div class="experience-profile-panel__body">
+        <div>
+          <span class="experience-profile-panel__label">Start here</span>
+          <ul>${checklist}</ul>
+        </div>
+        <div>
+          <span class="experience-profile-panel__label">Suggested routes</span>
+          <div class="experience-profile-panel__badges">${channelBadges}</div>
+          <div class="experience-profile-panel__badges experience-profile-panel__badges--muted">${capabilityBadges}</div>
+        </div>
+      </div>
+      <div class="experience-profile-panel__switcher" aria-label="Experience profile">
+        ${buttons}
+      </div>
+      <p class="experience-profile-panel__hint">Say "${escapeHtml(profile.naturalPrompts[0])}" any time. This changes wording and setup, not execution authority.</p>
+    `;
+  }
+
   function setSelectedExperienceProfile(profile) {
-    selectedExperienceProfile = String(profile || '').trim().toLowerCase();
+    const resolved = resolveExperienceProfile(profile, selectedExperienceProfile || 'personal');
+    selectedExperienceProfile = resolved.id;
+    persistExperienceProfile(getPromptQueueStorage(), resolved.id);
     document.querySelectorAll('[data-profile]').forEach((node) => {
       const active = String(node.getAttribute('data-profile') || '').toLowerCase() === selectedExperienceProfile;
       node.classList.toggle('is-selected', active);
       node.setAttribute('aria-pressed', active ? 'true' : 'false');
     });
     if (selectedExperienceProfile) {
+      renderExperienceProfilePanel(resolved);
       recordTraceEvent({
         type: 'step',
         title: 'Experience profile selected',
-        detail: selectedExperienceProfile,
+        detail: `${resolved.label}: ${resolved.approvalTone}`,
         meta: 'dashboard',
         status: 'ready',
       });
+    }
+  }
+
+  function applyNaturalExperienceProfileSwitch(text) {
+    const normalized = String(text || '').trim().toLowerCase();
+    if (!/\b(use|switch|mode|profile|modo|perfil|troque|usar|quero)\b/.test(normalized)) return;
+    const resolved = resolveExperienceProfile(normalized, selectedExperienceProfile || 'personal');
+    if (resolved.id !== selectedExperienceProfile) {
+      setSelectedExperienceProfile(resolved.id);
     }
   }
 
@@ -1760,6 +1864,37 @@ export function initControlApp() {
   }
   if (newSessionTrigger) {
     newSessionTrigger.addEventListener('click', startNewLocalSession);
+  }
+  if (stopRunTrigger) {
+    stopRunTrigger.addEventListener('click', async (event) => {
+      event.preventDefault();
+      event.stopPropagation();
+      setComposerRunState('cancelling');
+      try {
+        const runtimeBridge = window.ZavorthRuntimeBridge;
+        if (runtimeBridge && typeof runtimeBridge.cancelActiveRun === 'function') {
+          await runtimeBridge.cancelActiveRun({
+            reason: 'User pressed Stop in ZavorthControl.',
+            emitSignal: window.emitSignal,
+          });
+        } else {
+          removeThinkingState();
+          window.ZavorthRuntimeBridge?.disconnectRealtime?.('user-stop');
+        }
+        recordTraceEvent({
+          type: 'step',
+          title: 'Run stop requested',
+          detail: 'The active Zavorth run was asked to stop from the composer.',
+          status: 'cancelled',
+        });
+      } catch (error: any) {
+        window.emitSignal?.('error', 'Stop failed', error?.message || 'Could not cancel the active run.');
+      } finally {
+        removeThinkingState();
+        setComposerRunState('idle');
+        updateDashboardGlass();
+      }
+    });
   }
   if (mobileComposerActions) {
     mobileComposerActions.addEventListener('click', (event) => {
@@ -2431,6 +2566,9 @@ ${current}` : skillPrompt;
     if (!options.fromQueue && handleLocalSlashCommand(text)) {
       return true;
     }
+    if (!options.fromQueue) {
+      applyNaturalExperienceProfileSwitch(text);
+    }
 
     const submittedItem = options.queueItem || snapshotQueuedPrompt(text);
     const submitKey = promptSubmitKey(submittedItem);
@@ -2493,6 +2631,7 @@ ${current}` : skillPrompt;
       }
     });
   });
+  setSelectedExperienceProfile(selectedExperienceProfile || 'personal');
 
   // --------- Neural Echo Rendering ---------
   const neuralFeed = document.getElementById('neural-feed');
@@ -2846,6 +2985,7 @@ ${current}` : skillPrompt;
     appendEcho,
     appendThinkingState,
     removeThinkingState,
+    setComposerRunState,
     openArtifactPane,
     renderApprovals,
     renderRemoteMeshApprovals,
@@ -2895,6 +3035,7 @@ ${current}` : skillPrompt;
     getPendingSelectedSkills: () => pendingSelectedSkills,
     getPendingWorkspaceSelection: () => pendingWorkspaceSelection,
     getSelectedExperienceProfile: () => selectedExperienceProfile,
+    getExperienceProfilePayload: () => buildExperienceProfilePayload(getCurrentExperienceProfile()),
     recordTraceEvent,
     refreshAttachmentHint,
     removeThinkingState,
@@ -3033,8 +3174,17 @@ ${current}` : skillPrompt;
         'Connected to local gateway in 42ms',
         `Protocol: WebSocket/SSE\nEndpoint: ${location.origin}/api\nModel:    ${getCurrentModelLabel()}\nRoute:    ${getCurrentModelRouteLabel()}`
       );
+      const profile = getCurrentExperienceProfile();
       appendEcho('core',
-        'Zavorth is online. The local gateway is connected.\n\nAsk naturally; I will show preview, risk and approval when an action needs it.',
+        [
+          'Zavorth is online. The local gateway is connected.',
+          '',
+          `Current profile: ${profile.label}. ${profile.summary}`,
+          `Suggested setup: ${profile.suggestedChannels.join(', ')}. Capabilities: ${profile.suggestedCapabilities.slice(0, 4).join(', ')}.`,
+          '',
+          `You can say "${profile.naturalPrompts[0]}" or choose another profile any time. I will adapt wording and setup without bypassing approvals.`,
+          'Nothing sensitive is written to memory until you confirm it.',
+        ].join('\n'),
 
 
         cells

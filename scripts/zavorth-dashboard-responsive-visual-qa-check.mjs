@@ -1,11 +1,11 @@
-﻿#!/usr/bin/env node
+#!/usr/bin/env node
 
 import fs from 'node:fs';
 import path from 'node:path';
 
 const rootDir = process.cwd();
 const files = {
-  css: 'src/ai-gateway/app/(zavorthControl)/zavorthControl/zavorthControl/styles/zavorthControl.css',
+  css: 'src/ai-gateway/app/(zavorthControl)/control/zavorth-control/styles/zavorthControl.css',
   visualQa: 'scripts/zavorth-control-visual-qa.ts',
   packageJson: 'package.json',
 };

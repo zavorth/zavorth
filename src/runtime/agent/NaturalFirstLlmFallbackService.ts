@@ -97,7 +97,7 @@ export class NaturalFirstLlmFallbackService {
     });
     const text = normalizeText(request.text || run.input);
     const replyText = [
-      'I can receive this request, but no model is configured yet.',
+      'Zavorth can receive this request, but no model is configured yet.',
       '',
       text
         ? `Received: "${text}".`

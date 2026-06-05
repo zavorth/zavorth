@@ -8,13 +8,71 @@ export function useControlPageClient() {
   const [wsReconnectAttempt, setWsReconnectAttempt] = useState<number>(0);
   const reconnectTimeoutRef = useRef<any>(null);
 
-  const fetchJson = async (url: string) => {
-    const res = await fetch(url);
+  const fetchJson = async <T = Record<string, any>>(url: string, init?: RequestInit): Promise<T> => {
+    const res = await fetch(url, init);
     return res.json();
   };
 
   const loadControlState = async () => {
-    return fetchJson("/api/gateway-control");
+    const gatewayControl = await fetchJson("/api/gateway-control");
+    const developerWorkspace = await fetchJson("/api/developer-workspace");
+    return { gatewayControl, developerWorkspace };
+  };
+
+  const reloadGatewayControl = async () => fetchJson("/api/gateway-control");
+  const reloadDeveloperWorkspace = async () => fetchJson("/api/developer-workspace");
+
+  const loadRuntimeEventsV1 = async (query = "") => {
+    return fetchJson<Record<string, any>>(`/api/web/zavorthControl/events-v1${query}`);
+  };
+
+  const submitZavorthControlAction = async (payload: Record<string, any>) => {
+    return fetchJson<Record<string, any>>("/api/web/zavorthControl/actions", {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify(payload),
+    });
+  };
+
+  const submitChatV1 = async (message: string, options: { sessionId?: string | null; live?: boolean } = {}) => {
+    return fetchJson<Record<string, any>>(`/api/web/zavorthControl/chat-v1`, {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({
+        message,
+        sessionId: options.sessionId || null,
+        live: options.live === true,
+      }),
+    });
+  };
+
+  const handleApprovalDecision = async (permissionId: string, decision: "approve" | "deny") => {
+    return submitZavorthControlAction({
+      action: decision === "approve" ? "approval.approve" : "approval.deny",
+      permissionId,
+    });
+  };
+
+  const handleProviderTest = async (providerId: string) => {
+    return submitZavorthControlAction({
+      action: "provider.test",
+      providerId,
+    });
+  };
+
+  const handleChannelAction = async (channelId: string, channelAction: string) => {
+    return submitZavorthControlAction({
+      action: "channel.action",
+      channelId,
+      channelAction,
+    });
+  };
+
+  const handleMissionCancel = async (missionId: string) => {
+    return submitZavorthControlAction({
+      action: "mission.cancel",
+      missionId,
+    });
   };
 
   const scheduleReconnect = () => {
@@ -30,9 +88,17 @@ export function useControlPageClient() {
     };
   }, []);
 
-  return {
-    wsReconnectAttempt,
-    loadControlState,
+    return {
+      wsReconnectAttempt,
+      loadControlState,
+      reloadGatewayControl,
+      reloadDeveloperWorkspace,
+      loadRuntimeEventsV1,
+    submitChatV1,
+    handleApprovalDecision,
+    handleProviderTest,
+    handleChannelAction,
+    handleMissionCancel,
     scheduleReconnect,
   };
 }

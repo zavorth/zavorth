@@ -6,7 +6,7 @@ const files = {
   service: 'src/services/ZavorthActiveMissionUxService.ts',
   script: 'scripts/zavorth-active-mission-ux.ts',
   route: 'src/domain/surface/presentation/web-app/WebAppRuntimeStateRouteService.ts',
-  panel: 'src/ai-gateway/app/(zavorthControl)/zavorthControl/zavorthControl/components/ZavorthControlOperationsPanel.tsx',
+  panel: 'src/ai-gateway/app/(zavorthControl)/control/zavorth-control/components/ZavorthControlOperationsPanel.tsx',
   test: 'tests/services/ZavorthActiveMissionUxService.test.ts',
 };
 

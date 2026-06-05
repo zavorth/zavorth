@@ -5,16 +5,16 @@ import {
   buildZavorthControlZavorthControlFixturePreviewViewModel,
   listZavorthControlZavorthControlFixturePreviewOptions,
   resolveZavorthControlZavorthControlFixturePreviewId,
-} from '../../../src/ai-gateway/app/(zavorthControl)/zavorthControl/zavorthControl/preview/zavorthControlFixturePreview.js';
+} from '../../../src/ai-gateway/app/(zavorthControl)/control/zavorth-control/preview/zavorthControlFixturePreview.js';
 import {
   ZAVORTH_CONTROL_FIXTURE_IDS,
   type ZavorthControlZavorthControlFixtureId,
-} from '../../../src/ai-gateway/app/(zavorthControl)/zavorthControl/zavorthControl/fixtures/zavorthControlZavorthControlFixtures.js';
+} from '../../../src/ai-gateway/app/(zavorthControl)/control/zavorth-control/fixtures/zavorthControlZavorthControlFixtures.js';
 
 const rootDir = process.cwd();
 const zavorthControlDir = join(
   rootDir,
-  'src/ai-gateway/app/(zavorthControl)/zavorthControl/zavorthControl',
+  'src/ai-gateway/app/(zavorthControl)/control/zavorth-control',
 );
 
 describe('ZavorthControlFixturePreview', () => {

@@ -1,4 +1,13 @@
 /* Zavorth Control stylesheet */
+:root {
+    --bcc-bg: #070707;
+    --bcc-panel: #121318;
+    --bcc-border: rgba(255, 255, 255, 0.1);
+    --bcc-text: #f7f4ea;
+    --bcc-muted: #8e8d94;
+    --bcc-accent: #f5b51b;
+}
+
 .bsk-zavorthControl,
 .bsk-zavorthControl * {
     box-sizing: border-box;
@@ -44,6 +53,80 @@
 
 .bcc-mermaid-render {
     font-family: monospace;
+}
+
+.bcc-mission-brief,
+.bcc-overview-hero,
+.bcc-state-card,
+.bcc-run-card {
+    border: 1px solid var(--bcc-border);
+    background: var(--bcc-panel);
+    color: var(--bcc-text);
+}
+
+.bcc-metric-card,
+.bcc-run-timeline,
+.bcc-run-observatory-item,
+.bcc-health-row,
+.bcc-tool-chip,
+.bcc-release-strip,
+.bcc-fixture-preview {
+    color: var(--bcc-text);
+}
+
+.bcc-run-observatory-item,
+.bcc-health-row,
+.bcc-tool-chip {
+    border-bottom: 1px solid var(--bcc-border);
+}
+
+.bcc-release-strip,
+.bcc-fixture-preview {
+    background: rgba(245, 181, 27, 0.08);
+    border: 1px solid rgba(245, 181, 27, 0.22);
+}
+
+.bcc-hero__eyebrow {
+    color: var(--bcc-accent);
+    text-transform: uppercase;
+}
+
+.bcc-suggestion-chip,
+.bcc-suggestion-chips {
+    border: 1px solid var(--bcc-border);
+    color: var(--bcc-text);
+}
+
+.bcc-message__avatar {
+    display: inline-grid;
+    place-items: center;
+    width: 28px;
+    height: 28px;
+}
+
+.bcc-compose__input-frame {
+    border: 1px solid var(--bcc-border);
+    background: rgba(255, 255, 255, 0.04);
+}
+
+.bcc-active-run-state {
+    color: var(--bcc-accent);
+}
+
+.bcc-dock__glyph,
+.bcc-mascot__svg,
+.bcc-bridge__center {
+    color: var(--bcc-accent);
+}
+
+@keyframes bcc-float {
+    from { transform: translateY(0); }
+    to { transform: translateY(-4px); }
+}
+
+@keyframes bcc-gradient-flow {
+    from { background-position: 0% 50%; }
+    to { background-position: 100% 50%; }
 }
 
 @media (max-width: 860px) {

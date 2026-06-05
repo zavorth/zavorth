@@ -20,6 +20,42 @@ Zavorth Control is the operator gateway for:
 - reviewing blocked or pending actions;
 - continuing work without losing context.
 
+## Setup Checklist
+
+Zavorth Control can project a setup checklist for the three daily-use foundations:
+
+- connect a channel;
+- test a model provider;
+- configure an execution backend.
+
+The checklist is projection-only. It shows state, proof and next commands, but sensitive sends, live probes and terminal mutation remain approval-bound in the runtime.
+
+```bash
+npm run zavorth:dashboard-setup-checklist
+npm run zavorth:dashboard-setup-checklist:json
+```
+
+## Daily Product Experience
+
+Zavorth Control can also consume the `daily-product-experience` projection. It
+combines the first-run checklist, daily loop, review center and quality gates so
+the first screen can answer:
+
+- what should I set up first?
+- what happens when I ask for work?
+- what did Zavorth learn or change?
+- what still needs proof before it can be live?
+
+```bash
+npm run zavorth:daily-product-experience
+npm run zavorth:daily-product-experience:json
+```
+
+This projection renders at `/control` with `renderMode:
+daily-product-experience`. It is read-only: opening a card can draft a prompt or
+show a checklist, but it must not send messages, mutate files, install tools,
+promote learned memory or change providers by itself.
+
 ## Premium Control Blocks
 
 The first `/control` screen should stay chat-first, but it now also renders the

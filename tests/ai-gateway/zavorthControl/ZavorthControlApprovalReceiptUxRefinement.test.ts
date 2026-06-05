@@ -1,6 +1,6 @@
 import fs from 'fs';
 import path from 'path';
-import { getApprovals, getReceiptCards } from '../../../src/ai-gateway/app/(zavorthControl)/zavorthControl/zavorthControlPageClient.utils';
+import { getApprovals, getReceiptCards } from '../../../src/ai-gateway/app/(zavorthControl)/control/zavorthControlPageClient.utils';
 
 const root = process.cwd();
 
@@ -50,8 +50,8 @@ describe('ZavorthControl approval inbox and receipt UX refinement', () => {
   });
 
   it('renders approval and receipt language as product UX, not raw JSON only', () => {
-    const sidebar = read('src/ai-gateway/app/(zavorthControl)/zavorthControl/zavorthControlPageClient.sidebar.tsx');
-    const main = read('src/ai-gateway/app/(zavorthControl)/zavorthControl/zavorthControlPageClient.main.tsx');
+    const sidebar = read('src/ai-gateway/app/(zavorthControl)/control/zavorthControlPageClient.sidebar.tsx');
+    const main = read('src/ai-gateway/app/(zavorthControl)/control/zavorthControlPageClient.main.tsx');
 
     expect(sidebar).toContain('Approval Inbox');
     expect(sidebar).toContain('Approve once');

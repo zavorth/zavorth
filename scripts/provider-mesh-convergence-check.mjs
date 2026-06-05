@@ -52,7 +52,7 @@ const rules = [
     label: 'onboarding consumes model picker',
     target: 'onboarding reads /api/onboarding/model-picker',
     files: [
-      'src/ai-gateway/app/(zavorthControl)/zavorthControl/onboarding/page.tsx',
+      'src/ai-gateway/app/(zavorthControl)/control/onboarding/page.tsx',
     ],
     needles: ['/api/onboarding/model-picker'],
   }),
@@ -74,7 +74,7 @@ const rules = [
     label: 'providers page consumes model picker',
     target: 'providers page reads advanced picker and passes pickerRoute to cards',
     files: [
-      'src/ai-gateway/app/(zavorthControl)/zavorthControl/providers/page.tsx',
+      'src/ai-gateway/app/(zavorthControl)/control/providers/page.tsx',
     ],
     needles: [
       '/api/onboarding/model-picker?includeAdvanced=true',
@@ -87,7 +87,7 @@ const rules = [
     label: '/zavorthControl consumes model picker snapshot',
     target: 'Gateway Console renders snapshot.modelPicker without rebuilding selection rules',
     files: [
-      'src/ai-gateway/app/(zavorthControl)/zavorthControl/zavorthControl/components/ZavorthControlGatewayConsole.tsx',
+      'src/ai-gateway/app/(zavorthControl)/control/zavorth-control/components/ZavorthControlGatewayConsole.tsx',
     ],
     needles: [
       'snapshot?.modelPicker',
@@ -253,10 +253,10 @@ function ruleContainsAll(input) {
 
 function providerDetailWarning() {
   const files = [
-    'src/ai-gateway/app/(zavorthControl)/zavorthControl/providers/[id]/provider-detail-models-panel.tsx',
-    'src/ai-gateway/app/(zavorthControl)/zavorthControl/providers/[id]/provider-detail-page.model-actions.ts',
-    'src/ai-gateway/app/(zavorthControl)/zavorthControl/providers/[id]/provider-detail-model-sections-compatible.tsx',
-    'src/ai-gateway/app/(zavorthControl)/zavorthControl/providers/[id]/useProviderDetailPageModel.ts',
+    'src/ai-gateway/app/(zavorthControl)/control/providers/[id]/provider-detail-models-panel.tsx',
+    'src/ai-gateway/app/(zavorthControl)/control/providers/[id]/provider-detail-page.model-actions.ts',
+    'src/ai-gateway/app/(zavorthControl)/control/providers/[id]/provider-detail-model-sections-compatible.tsx',
+    'src/ai-gateway/app/(zavorthControl)/control/providers/[id]/useProviderDetailPageModel.ts',
   ];
   const missingMarkers = files
     .filter((file) => exists(file))

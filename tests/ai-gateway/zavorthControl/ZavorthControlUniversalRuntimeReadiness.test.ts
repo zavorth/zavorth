@@ -1,5 +1,5 @@
-import { buildZavorthControlZavorthControlViewModel } from '../../../src/ai-gateway/app/(zavorthControl)/zavorthControl/zavorthControl/adapters/zavorthControlZavorthControlAdapter.js';
-import { buildZavorthControlViewModelFromZavorthAgentGatewaySnapshot } from '../../../src/ai-gateway/app/(zavorthControl)/zavorthControl/zavorthControl/adapters/zavorthAgentGatewayZavorthControlAdapter.js';
+import { buildZavorthControlZavorthControlViewModel } from '../../../src/ai-gateway/app/(zavorthControl)/control/zavorth-control/adapters/zavorthControlZavorthControlAdapter.js';
+import { buildZavorthControlViewModelFromZavorthAgentGatewaySnapshot } from '../../../src/ai-gateway/app/(zavorthControl)/control/zavorth-control/adapters/zavorthAgentGatewayZavorthControlAdapter.js';
 import { ZavorthAgentGateway } from '../../../src/runtime/agent/index.js';
 
 function createIdFactory() {

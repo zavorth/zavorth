@@ -157,6 +157,12 @@ export class ZavorthProviderReadinessMatrixService {
         executionAuthority: false,
         canRenderTestButtons: true,
       },
+      zavorthControlProjection: {
+        route: '/dashboard',
+        endpoint: '/api/providers/readiness',
+        executionAuthority: false,
+        canRenderTestButtons: true,
+      },
       invariants: [
         {
           id: 'catalog-is-not-live-proof',

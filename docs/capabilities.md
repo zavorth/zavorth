@@ -28,6 +28,9 @@ A capability becoming visible does not mean it can act silently. Anything that c
 - Read receipts: `zavorth actions receipts --action <action-id>`
 - Review local usage signals: `zavorth actions usage`
 - Review lifecycle decisions: `zavorth actions lifecycle`
+- Review daily capability flow: `npm run zavorth:daily-capability-flow`
+- Preview an MCP package: `npm run zavorth:mcp-ecosystem-intake -- --source <path>`
+- Check MCP intake safety: `npm run zavorth:mcp-ecosystem-intake:check`
 
 ## Current Verified Actions
 
@@ -41,6 +44,7 @@ When Zavorth verifies a new adapter and exposes it through the Action Harness, i
 - Secrets should stay in local environment configuration or SecretRefs, not in chat.
 - New or sensitive abilities start with preview.
 - Risky work requires explicit approval.
+- External MCP packages remain quarantined until review and approval.
 - Every approved action should leave a receipt.
 
 ## Local Usage Signals

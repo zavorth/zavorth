@@ -7,8 +7,8 @@ import {
   buildZavorthControlZavorthControlFixturePreviewViewModel,
   listZavorthControlZavorthControlFixturePreviewOptions,
   resolveZavorthControlZavorthControlFixturePreviewId,
-} from "../src/ai-gateway/app/(zavorthControl)/zavorthControl/zavorthControl/preview/zavorthControlFixturePreview";
-import type { ZavorthControlZavorthControlViewModel } from "../src/ai-gateway/app/(zavorthControl)/zavorthControl/zavorthControl/contracts";
+} from "../src/ai-gateway/app/(zavorthControl)/control/zavorth-control/preview/zavorthControlFixturePreview";
+import type { ZavorthControlZavorthControlViewModel } from "../src/ai-gateway/app/(zavorthControl)/control/zavorth-control/contracts";
 
 const rootDir = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const defaultOutDir = path.join(rootDir, ".tmp", "zavorthControl-browser-preview");
@@ -43,7 +43,7 @@ function escapeScriptJson(value: unknown): string {
 
 function buildPreviewHtml(defaultFixtureId: string): string {
   const css = fs.readFileSync(
-    path.join(rootDir, "src/ai-gateway/app/(zavorthControl)/zavorthControl/zavorthControl/styles/zavorthControl.css"),
+    path.join(rootDir, "src/ai-gateway/app/(zavorthControl)/control/zavorth-control/styles/zavorthControl.css"),
     "utf8",
   );
   const options = listZavorthControlZavorthControlFixturePreviewOptions();

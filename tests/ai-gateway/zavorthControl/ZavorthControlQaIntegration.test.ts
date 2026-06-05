@@ -9,17 +9,21 @@ describe('ZavorthControlQaIntegration', () => {
   ) as { scripts: Record<string, string> };
 
   it('exposes a single ZavorthControl QA script for product and CI flows', () => {
-    expect(packageJson.scripts['qa:zavorthControl']).toBe(
-      [
-        'npm run qa:zavorthControl-cockpit --silent',
-        'npm run qa:zavorthControl-browser-preview --silent',
-        'npm run qa:zavorthControl-real --silent',
-        'npm run qa:zavorthControl-chat-visual --silent',
-        'npm run qa:zavorthControl-composer-affordances --silent',
-        'npm run qa:zavorthControl-response-cortex --silent',
-        'npm run ai-gateway:check --silent',
-      ].join(' && '),
-    );
+    const zavorthControlQa = packageJson.scripts['qa:zavorthControl'];
+    for (const gate of [
+      'npm run ai-gateway:check --silent',
+      'npm run runtime-api-v1:check --silent',
+      'npm run qa:zavorthControl-response-cortex --silent',
+      'npm run qa:zavorthControl-provider-cockpit-visual --silent',
+      'npm run qa:zavorthControl-provider-cockpit-live --silent',
+      'npm run qa:zavorthControl-chat-visual --silent',
+      'npm run qa:zavorthControl-composer-affordances --silent',
+      'npm run qa:zavorthControl-browser-preview --silent',
+      'npm run qa:zavorthControl-real --silent',
+      'npm run qa:zavorthControl-cockpit --silent',
+    ]) {
+      expect(zavorthControlQa).toContain(gate);
+    }
   });
 
   it('keeps the cockpit gate inside the dedicated ZavorthControl QA script', () => {
