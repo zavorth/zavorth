@@ -9,6 +9,7 @@ understand, operate and integrate the agent.
 | --- | --- |
 | [Overview](/docs/overview.md) | Product and runtime summary |
 | [Quickstart](/docs/quickstart.md) | First local setup |
+| [Daily Use Trail](/docs/daily-use-trail.md) | The simplest setup and daily work path |
 | [Zavorth Control](/docs/web-zavorthControl.md) | Using `/control` |
 | [CLI](/docs/zavorth-cli.md) | Terminal operation and JSON output |
 | [Product Certification](/docs/product-certification.md) | Daily product readiness and clean install confidence |
@@ -23,8 +24,12 @@ understand, operate and integrate the agent.
 | [Effect Boundary](/docs/effect-boundary.md) | LLM freedom with governed real effects |
 | [Security](/docs/security.md) | Policy, approvals, egress and receipts |
 | [Provider Mesh](/docs/provider-mesh.md) | Provider selection and live readiness |
-| [Channel Mesh](/docs/channel-mesh.md) | Multi-channel status and setup |
+| [Channel Mesh](/docs/channel-mesh.md) | Multi-channel status, setup and connection playbooks |
 | [Memory](/docs/mnemos-memory-os.md) | Local memory and recall |
+| [Native Evolution, Runtime Profiles and MCP Intake](/docs/native-evolution-runtime-mcp.md) | Daily capability flow, governed prompt candidates, lightweight runtime playbooks and MCP review |
+| [Native Autonomy Spine](/docs/native-autonomy-spine.md) | Turn-end learning, Skill Forge, live channel proof, backend proof and review center |
+| [Dynamic Mission Harness](/docs/dynamic-mission-harness.md) | Preview, approve and materialize deep multi-worker missions |
+| [Mnemos Dream Cycle](/docs/mnemos-dream-cycle.md) | Consolidate memory into reviewable candidate stores |
 
 ## Certification Ledger
 

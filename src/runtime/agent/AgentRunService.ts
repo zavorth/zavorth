@@ -80,6 +80,7 @@ import {
   ZavorthLlmBrainService,
 } from '../../services/ZavorthLlmBrainService.js';
 import type { ZavorthLlmBrainSnapshot } from '../../contracts/ZavorthLlmBrainContract.js';
+import type { ZavorthNativeAutonomySpineService } from '../../services/ZavorthNativeAutonomySpineService.js';
 import { PersonalOpsAutopilotService } from './PersonalOpsAutopilotService.js';
 import { AgentTeamCompilerService } from './AgentTeamCompilerService.js';
 import { CrossChannelContinuityService } from './CrossChannelContinuityService.js';
@@ -186,6 +187,7 @@ export type AgentRunServiceRuntime = {
   providerArena?: ProviderArenaService | null;
   skillMcpQuarantine?: SkillMcpQuarantineService | null;
   llmBrain?: Pick<ZavorthLlmBrainService, 'buildRunSnapshot'> | null;
+  nativeAutonomySpine?: Pick<ZavorthNativeAutonomySpineService, 'buildSnapshot'> | null;
   defaultProviderLabel?: string;
   defaultModelLabel?: string;
   intelligenceFabric?: Pick<ZavorthIntelligenceFabricService, 'buildShadowSnapshot'> | null;
@@ -384,6 +386,7 @@ export class AgentRunService {
   private readonly providerArena: ProviderArenaService;
   private readonly skillMcpQuarantine: SkillMcpQuarantineService;
   private readonly llmBrain: Pick<ZavorthLlmBrainService, 'buildRunSnapshot'>;
+  private readonly nativeAutonomySpine: Pick<ZavorthNativeAutonomySpineService, 'buildSnapshot'> | null;
   private readonly modelPickerContractService: AgentRunModelPickerContractService | null;
   private readonly naturalFirstApprovalSafety: NaturalFirstApprovalSafetyService;
   private readonly naturalFirstMemoryContinuity: NaturalFirstMemoryContinuityService;
@@ -513,6 +516,7 @@ export class AgentRunService {
     this.llmBrain = runtime.llmBrain || new ZavorthLlmBrainService({
       now: this.now,
     });
+    this.nativeAutonomySpine = runtime.nativeAutonomySpine || null;
     this.modelPickerContractService = runtime.modelPickerContractService || null;
     this.naturalFirstApprovalSafety = runtime.naturalFirstApprovalSafety || new NaturalFirstApprovalSafetyService();
     this.naturalFirstMemoryContinuity = runtime.naturalFirstMemoryContinuity || new NaturalFirstMemoryContinuityService();
@@ -929,6 +933,7 @@ export class AgentRunService {
   ): Promise<UniversalAgentRunResult> {
     const baseline = this.metadataEvidenceHelpers.startCoreDietBaseline();
     let run: UniversalAgentRun | null = null;
+    let finalAssistantText = '';
     try {
       const prepared = await this.corePipeline.prepare(input, baseline);
       run = prepared.run;
@@ -1082,6 +1087,7 @@ export class AgentRunService {
         ? run.summary
         : 'The request was recorded safely.',
     );
+    finalAssistantText = replyText;
     const assistantStream = recordOrNull(executorResult.metadata?.llmRuntimeStream);
     if (assistantStream?.assistantStreamEmitted === true) {
       await this.publishAssistantReplyStreamDone(run, replyText, {
@@ -1114,6 +1120,7 @@ export class AgentRunService {
     } finally {
       if (run) {
         await this.corePipeline.finalize(run, baseline);
+        await this.applyNativeAutonomySpine(run, input, finalAssistantText || run.summary);
       }
     }
   }
@@ -2063,6 +2070,68 @@ export class AgentRunService {
       executorOverride: options.executor,
       toolRuntimeOverride: options.toolRuntime,
     }));
+  }
+
+  private async applyNativeAutonomySpine(
+    run: UniversalAgentRun,
+    request: UniversalAgentRequest,
+    replyText: string,
+  ): Promise<void> {
+    if (!this.nativeAutonomySpine) return;
+    const generatedAt = this.now().toISOString();
+    try {
+      const snapshot = await this.nativeAutonomySpine.buildSnapshot({
+        turn: {
+          turnId: run.id,
+          sessionId: run.sessionId,
+          userId: run.userId,
+          outcome: run.status === 'completed' ? 'success' : run.status === 'failed' ? 'failure' : 'interrupted',
+          userMessage: request.text,
+          assistantResponse: replyText,
+          toolReceipts: run.events.slice(-40).map((event) => ({
+            id: event.id,
+            kind: event.kind,
+            status: event.status,
+            summary: event.title,
+          })),
+          toolCallCount: Math.max(
+            run.events.filter((event) => event.kind === 'tool').length,
+            request.requestedTools?.length || 0,
+          ),
+          sourceSurface: run.channel,
+        },
+      });
+      run.metadata = {
+        ...run.metadata,
+        nativeAutonomySpine: snapshot,
+      };
+      run.events.push({
+        id: this.idFactory('agent-event'),
+        runId: run.id,
+        kind: 'memory',
+        title: 'Native autonomy spine reviewed turn',
+        detail: 'Turn-end learning, Skill Forge, channel proof and backend proof were projected without live side effects.',
+        status: 'done',
+        createdAt: generatedAt,
+        metadata: {
+          source: 'ZavorthNativeAutonomySpineService',
+          status: snapshot.status,
+          candidates: snapshot.learning.candidates.length,
+          skillDrafts: snapshot.skillForge.drafts.length,
+          quietLanes: snapshot.reviewCenter.quietLanes,
+        },
+      });
+    } catch (error) {
+      run.metadata = {
+        ...run.metadata,
+        nativeAutonomySpine: {
+          version: 'native-autonomy-spine/v1',
+          status: 'attention',
+          error: error instanceof Error ? error.message : String(error),
+          rawSecretsSerialized: false,
+        },
+      };
+    }
   }
 
   private applyExecutorResult(

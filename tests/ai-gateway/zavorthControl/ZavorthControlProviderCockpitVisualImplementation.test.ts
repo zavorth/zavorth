@@ -1,7 +1,7 @@
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
-import { buildZavorthControlZavorthControlViewModel } from '../../../src/ai-gateway/app/(zavorthControl)/zavorthControl/zavorthControl/adapters/zavorthControlZavorthControlAdapter.js';
-import { buildZavorthControlAdapterInputFromZavorthControlRuntimeProjection } from '../../../src/ai-gateway/app/(zavorthControl)/zavorthControl/zavorthControl/projections/zavorthControlRuntimeProjection.js';
+import { buildZavorthControlZavorthControlViewModel } from '../../../src/ai-gateway/app/(zavorthControl)/control/zavorth-control/adapters/zavorthControlZavorthControlAdapter.js';
+import { buildZavorthControlAdapterInputFromZavorthControlRuntimeProjection } from '../../../src/ai-gateway/app/(zavorthControl)/control/zavorth-control/projections/zavorthControlRuntimeProjection.js';
 
 function createProviderCockpitFixture() {
   return {
@@ -189,7 +189,7 @@ describe('ZavorthControl Provider Cockpit Visual Implementation', () => {
 
   it('renders from projected state and prepares commands instead of executing provider probes', () => {
     const panelSource = readFileSync(
-      join(process.cwd(), 'src/ai-gateway/app/(zavorthControl)/zavorthControl/zavorthControl/components/ZavorthControlOperationsPanel.tsx'),
+      join(process.cwd(), 'src/ai-gateway/app/(zavorthControl)/control/zavorth-control/components/ZavorthControlOperationsPanel.tsx'),
       'utf8',
     );
     const previewSource = readFileSync(
@@ -209,7 +209,7 @@ describe('ZavorthControl Provider Cockpit Visual Implementation', () => {
       'utf8',
     );
     const fixturesSource = readFileSync(
-      join(process.cwd(), 'src/ai-gateway/app/(zavorthControl)/zavorthControl/zavorthControl/fixtures/zavorthControlZavorthControlFixtures.ts'),
+      join(process.cwd(), 'src/ai-gateway/app/(zavorthControl)/control/zavorth-control/fixtures/zavorthControlZavorthControlFixtures.ts'),
       'utf8',
     );
     const packageJson = JSON.parse(readFileSync(join(process.cwd(), 'package.json'), 'utf8')) as {

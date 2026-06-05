@@ -3,66 +3,54 @@ import { join } from 'path';
 
 const controlDir = join(
   process.cwd(),
-  'src/ai-gateway/app/(zavorthControl)/zavorthControl',
+  'src/ai-gateway/app/(zavorthControl)/control',
 );
 
 describe('ZavorthControl access and onboarding', () => {
   it('accepts the CLI hash token and scrubs it before runtime calls', () => {
-    const utils = readFileSync(join(controlDir, 'controlPageClient.utils.ts'), 'utf8');
+    const authSession = readFileSync(
+      join(process.cwd(), 'apps/zavorth-control-vite-shell/src/runtime-auth-session.ts'),
+      'utf8',
+    );
 
-    expect(utils).toContain('new URLSearchParams(url.hash.startsWith("#")');
-    expect(utils).toContain('hashParams.get("token")');
-    expect(utils).toContain('hashParams.get("zavorthToken")');
-    expect(utils).toContain('hashParams.delete("token")');
-    expect(utils).toContain('hashParams.delete("zavorthToken")');
-    expect(utils).toContain('window.sessionStorage.setItem("zavorth.webAuthToken", urlToken)');
+    expect(authSession).toContain("new URLSearchParams(url.hash.startsWith('#')");
+    expect(authSession).toContain("hashParams.get('token')");
+    expect(authSession).toContain('sessionStorage.setItem(authStorageKey, tokenFromUrl)');
+    expect(authSession).toContain("hashParams.delete('token')");
+    expect(authSession).toContain("url.searchParams.delete('token')");
+    expect(authSession).toContain("history.replaceState(null, '', url)");
   });
 
-  it('ships first-run guidance in the official /zavorthControl shell instead of the Vite prototype', () => {
-    const panel = readFileSync(
-      join(controlDir, 'zavorthControl/components/ZavorthControlOnboardingPanel.tsx'),
-      'utf8',
-    );
-    const shell = readFileSync(
-      join(controlDir, 'zavorthControl/components/ZavorthControlControlShell.tsx'),
-      'utf8',
-    );
+  it('ships first-run guidance in the official /zavorthControl shell', () => {
+    const page = readFileSync(join(controlDir, 'page.tsx'), 'utf8');
+    const assets = readFileSync(join(controlDir, 'ControlPageAssets.tsx'), 'utf8');
+    const shell = readFileSync(join(controlDir, 'LegacyDashboardShell.tsx'), 'utf8');
+    const inbox = readFileSync(join(controlDir, 'TerminalInboxSector.tsx'), 'utf8');
 
-    expect(shell).toContain('ZavorthControlOnboardingPanel');
-    expect(panel).toContain('/api/auth/validate');
-    expect(panel).toContain('zavorth.webAuthToken');
-    expect(panel).toContain('Runtime protegido');
-    expect(panel).toContain('Provider');
-    expect(panel).toContain('Safe tools');
-    expect(panel).toContain('First run');
-    expect(panel).toContain('Resuma esta pasta e diga o que posso fazer aqui.');
+    expect(page).toContain('LegacyDashboardShell');
+    expect(assets).toContain('readViteModuleScriptSrc');
+    expect(shell).toContain('TerminalInboxSector');
+    expect(inbox).toContain('Provider');
+    expect(inbox).toContain('First run setup');
+    expect(inbox).toContain('Nothing is written to memory until you confirm it.');
+    expect(inbox).toContain('data-first-run-setup-message');
   });
 
   it('keeps premium access/onboarding/approval classes in the scoped visual contract', () => {
-    const visualContract = readFileSync(
-      join(controlDir, 'zavorthControl/styles/zavorthControlVisualContract.ts'),
-      'utf8',
-    );
     const css = readFileSync(
-      join(controlDir, 'zavorthControl/styles/zavorthControl.css'),
-      'utf8',
-    );
-    const operationsPanel = readFileSync(
-      join(controlDir, 'zavorthControl/components/ZavorthControlOperationsPanel.tsx'),
+      join(process.cwd(), 'apps/zavorth-control-vite-shell/public/styles/chat.css'),
       'utf8',
     );
 
     for (const className of [
-      'bcc-access-card',
-      'bcc-onboarding-step',
-      'bcc-approval-summary',
+      'first-run-setup-message',
+      'compose-dock__progress-pill',
+      'compose-dock__stop',
     ]) {
-      expect(visualContract).toContain(className);
       expect(css).toContain(`.${className}`);
     }
 
-    expect(operationsPanel).toContain('Aguardando sua decisao');
-    expect(operationsPanel).toContain('Mutacao, rede sensivel e impacto externo');
-    expect(operationsPanel).toContain('Negar');
+    expect(css).toContain('.terminal-view:not(.is-empty) .first-run-setup-message');
+    expect(css).toContain('var(--b-error)');
   });
 });

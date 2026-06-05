@@ -10,8 +10,8 @@ describe('ZavorthActiveMissionUxService', () => {
 
     expect(snapshot.surface).toBe('active-mission-ux');
     expect(snapshot.status).toBe('idle');
-    expect(snapshot.safety.dashboardCanExecute).toBe(false);
-    expect(snapshot.dashboardProjection.executionAuthority).toBe(false);
+    expect(snapshot.safety.zavorthControlCanExecute).toBe(false);
+    expect(snapshot.zavorthControlProjection.executionAuthority).toBe(false);
     expect(snapshot.timeline[0]?.source).toBe('system');
   });
 

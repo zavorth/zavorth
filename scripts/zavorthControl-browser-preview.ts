@@ -4,11 +4,11 @@ import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import {
-  buildZavorthControlZavorthControlFixturePreviewViewModel,
-  listZavorthControlZavorthControlFixturePreviewOptions,
-  resolveZavorthControlZavorthControlFixturePreviewId,
-} from "../src/ai-gateway/app/(zavorthControl)/zavorthControl/zavorthControl/preview/zavorthControlFixturePreview";
-import type { ZavorthControlZavorthControlViewModel } from "../src/ai-gateway/app/(zavorthControl)/zavorthControl/zavorthControl/contracts";
+  buildDashboardCommandCenterFixturePreviewViewModel as buildZavorthControlZavorthControlFixturePreviewViewModel,
+  listDashboardCommandCenterFixturePreviewOptions as listZavorthControlZavorthControlFixturePreviewOptions,
+  resolveDashboardCommandCenterFixturePreviewId as resolveZavorthControlZavorthControlFixturePreviewId,
+} from "../src/ai-gateway/app/(dashboard)/control/command-center/preview/commandCenterFixturePreview";
+import type { DashboardCommandCenterViewModel as ZavorthControlZavorthControlViewModel } from "../src/ai-gateway/app/(dashboard)/control/command-center/contracts";
 
 const rootDir = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const defaultOutDir = path.join(rootDir, ".tmp", "zavorthControl-browser-preview");
@@ -43,7 +43,7 @@ function escapeScriptJson(value: unknown): string {
 
 function buildPreviewHtml(defaultFixtureId: string): string {
   const css = fs.readFileSync(
-    path.join(rootDir, "src/ai-gateway/app/(zavorthControl)/zavorthControl/zavorthControl/styles/zavorthControl.css"),
+    path.join(rootDir, "src/ai-gateway/app/(dashboard)/control/command-center/styles/commandCenter.css"),
     "utf8",
   );
   const options = listZavorthControlZavorthControlFixturePreviewOptions();

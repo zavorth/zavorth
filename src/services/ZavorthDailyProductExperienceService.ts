@@ -1,0 +1,301 @@
+import {
+  ZAVORTH_DAILY_PRODUCT_EXPERIENCE_VERSION,
+  type ZavorthDailyProductExperienceDashboardCard,
+  type ZavorthDailyProductExperienceLoopStep,
+  type ZavorthDailyProductExperienceReviewItem,
+  type ZavorthDailyProductExperienceSetupStep,
+  type ZavorthDailyProductExperienceSnapshot,
+  type ZavorthDailyProductExperienceStatus,
+  type ZavorthDailyProductExperienceStepStatus,
+} from '../contracts/ZavorthDailyProductExperienceContract.js';
+import type { DashboardSetupChecklistSnapshot } from '../contracts/DashboardSetupChecklistContract.js';
+import type { ZavorthDailyCapabilityFlowSnapshot } from '../contracts/ZavorthDailyCapabilityFlowContract.js';
+import type { ZavorthExperienceProfileContract } from '../contracts/ZavorthExperienceProfileContract.js';
+import { DashboardSetupChecklistService } from './DashboardSetupChecklistService.js';
+import { ZavorthDailyCapabilityFlowService, type ZavorthDailyCapabilityFlowInput } from './ZavorthDailyCapabilityFlowService.js';
+import { ZavorthExperienceProfileService, type ZavorthExperienceProfileInput } from './ZavorthExperienceProfileService.js';
+
+type Runtime = {
+  now?: () => Date;
+  profiles?: Pick<ZavorthExperienceProfileService, 'buildContract'>;
+  setupChecklist?: Pick<DashboardSetupChecklistService, 'buildSnapshot'>;
+  capabilityFlow?: Pick<ZavorthDailyCapabilityFlowService, 'buildSnapshot'>;
+};
+
+export type ZavorthDailyProductExperienceInput = ZavorthExperienceProfileInput & ZavorthDailyCapabilityFlowInput;
+
+export class ZavorthDailyProductExperienceService {
+  private readonly now: () => Date;
+  private readonly profiles: Pick<ZavorthExperienceProfileService, 'buildContract'>;
+  private readonly setupChecklist: Pick<DashboardSetupChecklistService, 'buildSnapshot'>;
+  private readonly capabilityFlow: Pick<ZavorthDailyCapabilityFlowService, 'buildSnapshot'>;
+
+  constructor(runtime: Runtime = {}) {
+    this.now = runtime.now || (() => new Date());
+    this.profiles = runtime.profiles || new ZavorthExperienceProfileService();
+    this.setupChecklist = runtime.setupChecklist || new DashboardSetupChecklistService({ now: this.now });
+    this.capabilityFlow = runtime.capabilityFlow || new ZavorthDailyCapabilityFlowService({ now: this.now });
+  }
+
+  public async buildSnapshot(input: ZavorthDailyProductExperienceInput = {}): Promise<ZavorthDailyProductExperienceSnapshot> {
+    const profile = this.profiles.buildContract(input);
+    const setup = this.setupChecklist.buildSnapshot();
+    const capability = await this.capabilityFlow.buildSnapshot(input);
+    const selectedProfile = profile.profiles.find((entry) => entry.id === profile.selected.profileId) || profile.profiles[0];
+    const setupSteps = buildSetupSteps(setup);
+    const status = resolveStatus(setup, capability);
+
+    return {
+      generatedAt: this.now().toISOString(),
+      version: ZAVORTH_DAILY_PRODUCT_EXPERIENCE_VERSION,
+      status,
+      headline: headlineFor(status),
+      selectedProfile: {
+        profileId: profile.selected.profileId,
+        label: selectedProfile?.label || profile.selected.profileId,
+        autonomy: profile.selected.autonomy,
+        explanation: profile.selected.explanation,
+        summary: selectedProfile?.summary || 'Daily work profile.',
+      },
+      firstRun: {
+        title: 'Start guided',
+        summary: 'Choose a profile, prove one provider, prove one channel, pick an execution profile, then run a small mission.',
+        steps: setupSteps,
+      },
+      dailyLoop: {
+        title: 'Daily loop',
+        summary: 'Ask normally, let low-risk work stay quiet, review important changes, then check what changed later.',
+        steps: buildDailyLoop(),
+      },
+      reviewCenter: {
+        title: 'Review center',
+        summary: 'Everything useful and reversible should be easy to inspect: learned memory, skills, channels, backends, evals and receipts.',
+        items: buildReviewItems(capability),
+      },
+      dashboardProjection: {
+        route: '/control',
+        renderMode: 'daily-product-experience',
+        cards: buildDashboardCards(status, capability),
+      },
+      language: {
+        publicTone: 'plain-product-language',
+        defaultWords: ['setup', 'review', 'approve', 'undo', 'learned', 'history', 'ready', 'needs setup'],
+        advancedWordsHiddenByDefault: ['policy broker', 'transaction plane', 'ledger', 'quarantine', 'sandbox primitive'],
+        allowedWhenUserAsksForDetails: ['approval scope', 'receipt evidence', 'runtime profile', 'readiness proof', 'dry-run'],
+      },
+      qualityGates: {
+        commands: [
+          'npm run zavorth:daily-product-experience:check --silent',
+          'npm run zavorth:daily-capability-flow:check --silent',
+          'npm run zavorth:dashboard-setup-checklist:check --silent',
+          'npm run zavorth-control-vite:check --silent',
+          'npm run security:secrets --silent',
+        ],
+        covers: [
+          'first-run setup remains guided',
+          'daily loop stays projection-only',
+          'learned memory remains editable and forgettable',
+          'skills and MCP stay preview-first',
+          'channels and providers do not claim fake live readiness',
+          'execution backends stay dry-run until strong smoke passes',
+          'approval fatigue is tested as a product risk',
+        ],
+      },
+      safety: {
+        projectionOnly: true,
+        noLiveActionExecuted: true,
+        rawSecretsSerialized: false,
+        setupDoesNotGrantAuthority: true,
+        liveActionsRemainApprovalBound: true,
+        memoryChangesRemainReviewable: true,
+        externalToolsRemainPreviewUntilApproved: true,
+      },
+    };
+  }
+
+  public renderText(snapshot: ZavorthDailyProductExperienceSnapshot): string {
+    return [
+      'Zavorth Daily Product Experience',
+      snapshot.headline,
+      '',
+      `Profile: ${snapshot.selectedProfile.label} (${snapshot.selectedProfile.profileId})`,
+      '',
+      '[Start guided]',
+      ...snapshot.firstRun.steps.map((step) => `- [${step.status}] ${step.label}: ${step.nextAction}`),
+      '',
+      '[Daily loop]',
+      ...snapshot.dailyLoop.steps.map((step) => `- ${step.label}: ${step.summary}`),
+      '',
+      '[Review center]',
+      ...snapshot.reviewCenter.items.map((item) => `- [${item.status}] ${item.label}: ${item.userQuestion}`),
+      '',
+      '[Quality gates]',
+      ...snapshot.qualityGates.commands.map((command) => `- ${command}`),
+    ].join('\n');
+  }
+}
+
+function buildSetupSteps(setup: DashboardSetupChecklistSnapshot): ZavorthDailyProductExperienceSetupStep[] {
+  const byId = new Map(setup.items.map((item) => [item.id, item]));
+  const provider = byId.get('connect-provider');
+  const channel = byId.get('connect-telegram');
+  const backend = byId.get('configure-executor');
+  const memory = byId.get('review-memory');
+  const skills = byId.get('install-skills-governed');
+  const scheduler = byId.get('schedule-with-preview');
+  const quality = byId.get('run-quality-evals');
+
+  return [
+    {
+      id: 'choose-profile',
+      area: 'profile',
+      label: 'Choose profile',
+      status: 'done',
+      summary: 'Personal, Creator, Developer, Business and Power change wording, suggestions and detail.',
+      nextAction: 'Pick a profile or describe how you want Zavorth to work.',
+      command: 'zavorth experience --profile personal',
+      href: '/control?setup=profile',
+      proof: 'Experience profiles do not grant execution authority.',
+    },
+    setupStep('test-provider', 'provider', 'Test provider', provider),
+    setupStep('connect-channel', 'channel', 'Connect channel', channel),
+    setupStep('configure-runtime', 'runtime', 'Configure runtime', backend),
+    setupStep('review-memory', 'memory', 'Review learned memory', memory),
+    setupStep('review-tools', 'skills', 'Review tools and skills', skills),
+    setupStep('schedule-routine', 'scheduler', 'Schedule a routine', scheduler),
+    setupStep('run-evals', 'quality', 'Run evals', quality),
+  ];
+}
+
+function setupStep(
+  id: ZavorthDailyProductExperienceSetupStep['id'],
+  area: ZavorthDailyProductExperienceSetupStep['area'],
+  label: string,
+  source: DashboardSetupChecklistSnapshot['items'][number] | undefined,
+): ZavorthDailyProductExperienceSetupStep {
+  return {
+    id,
+    area,
+    label,
+    status: mapStepStatus(source?.status),
+    summary: source?.summary || 'Open this setup step and follow the next command.',
+    nextAction: source?.nextAction || 'Open setup checklist.',
+    command: source?.command || 'npm run zavorth:dashboard-setup-checklist --silent',
+    href: source?.href || '/control?setup=checklist',
+    proof: source?.proof || 'Projection-only setup step.',
+  };
+}
+
+function buildDailyLoop(): ZavorthDailyProductExperienceLoopStep[] {
+  return [
+    loop('ask', 'Ask', 'Use natural language from dashboard, CLI, API or a configured channel.', true, []),
+    loop('understand', 'Understand', 'Zavorth reads profile, context, readiness and risk before choosing a route.', true, []),
+    loop('choose-route', 'Choose route', 'It decides whether to answer, use a skill, call a subagent, schedule work or ask for setup.', true, []),
+    loop('work', 'Work', 'Low-risk reversible work can stay quiet; writes, shell, sends, provider changes and sensitive memory ask first.', false, [
+      'file or system mutation',
+      'shell execution',
+      'external send',
+      'provider or channel change',
+      'security setting change',
+      'sensitive learned memory',
+    ]),
+    loop('deliver', 'Deliver', 'Results return where the user asked, or stay as preview/outbox until a live route is proven.', true, []),
+    loop('receipt', 'History', 'Important actions leave a redacted record the user can inspect later.', true, []),
+    loop('review', 'Review', 'The user can edit or forget learned memory, reject candidates, roll back behavior and archive skills.', true, []),
+  ];
+}
+
+function loop(
+  id: ZavorthDailyProductExperienceLoopStep['id'],
+  label: string,
+  summary: string,
+  quietByDefault: boolean,
+  approvalAppearsFor: string[],
+): ZavorthDailyProductExperienceLoopStep {
+  return {
+    id,
+    label,
+    summary,
+    quietByDefault,
+    approvalAppearsFor,
+    visibleInDashboard: true,
+  };
+}
+
+function buildReviewItems(capability: ZavorthDailyCapabilityFlowSnapshot): ZavorthDailyProductExperienceReviewItem[] {
+  return [
+    reviewItem('learned-memory', 'Learned memory', 'attention', 'Review what Zavorth learned, why, confidence, expiry, edit and forget.', '/control/memory?view=learned', 'npm run zavorth:memory-learning-loop:check --silent', 'What did Zavorth learn about me and why?'),
+    reviewItem('skill-lifecycle', 'Skills lifecycle', 'attention', 'Draft, scan, smoke, approve, install, measure and archive from one lifecycle.', '/control/skills?view=lifecycle', 'npm run zavorth:skill-curator-live-loop:check --silent', 'Which skills are drafts, active or unused?'),
+    reviewItem('channel-readiness', 'Channels', 'attention', 'Show live, outbox, preview or blocked with the next setup step.', '/control/providers?view=channels', 'npm run zavorth:channel-connection-playbook:check --silent', 'Which channels can really send now?'),
+    reviewItem('backend-readiness', 'Execution', 'attention', 'Show local-jail, Docker, WSL and cloud readiness with dry-run when strong smoke is missing.', '/control/providers?view=execution', 'npm run zavorth:execution-backend-playbook:check --silent', 'Can Zavorth execute live here or only preview?'),
+    reviewItem('quality-evals', 'Quality evals', capability.continuousEvals.status, capability.continuousEvals.summary, '/control/docs?view=quality', 'npm run zavorth:operational-rollout-eval:check --silent', 'Did response quality, leaks, tool-use or approval fatigue regress?'),
+    reviewItem('receipts', 'History', 'ready', 'Important changes stay reviewable with redacted evidence and rollback context.', '/control/logs?view=receipts', 'npm run security:secrets --silent', 'What changed, what was blocked, and what can I undo?'),
+  ];
+}
+
+function reviewItem(
+  id: ZavorthDailyProductExperienceReviewItem['id'],
+  label: string,
+  status: ZavorthDailyProductExperienceStatus,
+  summary: string,
+  href: string,
+  command: string,
+  userQuestion: string,
+): ZavorthDailyProductExperienceReviewItem {
+  return { id, label, status, summary, href, command, userQuestion };
+}
+
+function buildDashboardCards(
+  status: ZavorthDailyProductExperienceStatus,
+  capability: ZavorthDailyCapabilityFlowSnapshot,
+): ZavorthDailyProductExperienceDashboardCard[] {
+  return [
+    card('daily-start', 'Start here', 'Choose profile, test one provider, connect one channel and run one small mission.', '/control?daily=start', 'Start daily setup. Show profile, provider, channel, runtime and first mission as a guided checklist.', status),
+    card('setup-guide', 'Setup guide', 'Providers, channels and execution backend show honest ready, preview, outbox or blocked state.', '/control/providers?daily=setup', 'Open setup guide. Show providers, channels, backends and the next useful command.', status),
+    card('daily-loop', 'Daily loop', 'Ask, understand, work, deliver, record history and review what changed.', '/control?daily=loop', 'Explain the current request through the daily loop and show where approval would appear.', 'ready'),
+    card('review-center', 'Review center', 'Learned memory, skills, channels, execution, evals and history stay inspectable.', '/control/memory?daily=review', 'Open review center. Show learned memory, skills, channels, backends, quality checks and history.', 'attention'),
+    card('quality-gates', 'Quality gates', 'Run checks for leaks, readiness, approval fatigue, tool-use and recovery before promotion.', '/control/docs?daily=quality', 'Run the daily product quality overview and list failing checks without executing live actions.', capability.continuousEvals.status),
+  ];
+}
+
+function card(
+  id: ZavorthDailyProductExperienceDashboardCard['id'],
+  title: string,
+  summary: string,
+  href: string,
+  prompt: string,
+  status: ZavorthDailyProductExperienceStatus,
+): ZavorthDailyProductExperienceDashboardCard {
+  return {
+    id,
+    title,
+    summary,
+    href,
+    prompt,
+    status,
+    mutatesState: false,
+    executionAuthority: false,
+  };
+}
+
+function resolveStatus(setup: DashboardSetupChecklistSnapshot, capability: ZavorthDailyCapabilityFlowSnapshot): ZavorthDailyProductExperienceStatus {
+  if (setup.summary.blocked > 0 || capability.status === 'blocked') return 'blocked';
+  if (setup.summary.needsSetup > 0) return 'needs-setup';
+  if (setup.summary.next > 0 || capability.status === 'attention') return 'attention';
+  return 'ready';
+}
+
+function headlineFor(status: ZavorthDailyProductExperienceStatus): string {
+  if (status === 'blocked') return 'Fix the blocked item before making Zavorth part of daily work.';
+  if (status === 'needs-setup') return 'Zavorth is close; finish provider, channel or execution setup first.';
+  if (status === 'attention') return 'Zavorth is usable now, with a few reviewable next steps.';
+  return 'Zavorth is ready for daily use with reviewable memory, tools and history.';
+}
+
+function mapStepStatus(status: DashboardSetupChecklistSnapshot['items'][number]['status'] | undefined): ZavorthDailyProductExperienceStepStatus {
+  if (!status) return 'pending';
+  if (status === 'done') return 'done';
+  if (status === 'blocked') return 'blocked';
+  if (status === 'needs-setup') return 'needs-setup';
+  return 'next';
+}

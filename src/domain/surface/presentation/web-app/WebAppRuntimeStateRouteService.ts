@@ -194,7 +194,7 @@ export class WebAppRuntimeStateRouteService {
       return true;
     }
 
-    if (pathname === '/api/web/dashboard/events-v1' && req.method === 'GET') {
+    if ((pathname === '/api/web/dashboard/events-v1' || pathname === '/api/web/zavorthControl/events-v1') && req.method === 'GET') {
       if (!deps.publicApi) {
         deps.writeJson(res, {
           ok: false,
@@ -211,6 +211,7 @@ export class WebAppRuntimeStateRouteService {
         safety: {
           projectionOnly: true,
           dashboardCanExecute: false,
+          zavorthControlCanExecute: false,
           policyBrokerRequiredForMutableActions: true,
           rawSecretsSerialized: false,
         },
@@ -218,7 +219,7 @@ export class WebAppRuntimeStateRouteService {
       return true;
     }
 
-    if (pathname === '/api/web/dashboard/gui-certification-v1' && req.method === 'GET') {
+    if ((pathname === '/api/web/dashboard/gui-certification-v1' || pathname === '/api/web/zavorthControl/gui-certification-v1') && req.method === 'GET') {
       if (!deps.publicApi) {
         deps.writeJson(res, {
           ok: false,
@@ -240,6 +241,7 @@ export class WebAppRuntimeStateRouteService {
         safety: {
           projectionOnly: true,
           dashboardCanExecute: false,
+          zavorthControlCanExecute: false,
           desktopCanBypassRuntime: false,
           policyBrokerRequiredForMutableActions: true,
           rawSecretsSerialized: false,
@@ -248,12 +250,12 @@ export class WebAppRuntimeStateRouteService {
       return true;
     }
 
-    if (pathname === '/api/web/dashboard/actions' && req.method === 'POST') {
+    if ((pathname === '/api/web/dashboard/actions' || pathname === '/api/web/zavorthControl/actions') && req.method === 'POST') {
       await this.handleDashboardActionRequest(req, res, deps);
       return true;
     }
 
-    if (pathname === '/api/web/dashboard/chat-v1' && req.method === 'POST') {
+    if ((pathname === '/api/web/dashboard/chat-v1' || pathname === '/api/web/zavorthControl/chat-v1') && req.method === 'POST') {
       await this.handleDashboardChatRequest(req, res, deps);
       return true;
     }
@@ -1455,6 +1457,7 @@ export class WebAppRuntimeStateRouteService {
           safety: {
             controllerMutatedDirectly: false,
             dashboardCanExecute: false,
+            zavorthControlCanExecute: false,
             policyBrokerRequiredForMutableActions: true,
           },
         }, 400);
@@ -1470,6 +1473,7 @@ export class WebAppRuntimeStateRouteService {
         controllerMutatedDirectly: false,
         delegatedToRuntimeApiV1: true,
         dashboardCanExecute: false,
+        zavorthControlCanExecute: false,
         policyBrokerRequiredForMutableActions: true,
         rawSecretsSerialized: false,
       },
@@ -1506,6 +1510,7 @@ export class WebAppRuntimeStateRouteService {
       safety: {
         delegatedToRuntimeApiV1: true,
         dashboardCanExecute: false,
+        zavorthControlCanExecute: false,
         dryRunByDefault: true,
         liveRequiresExplicitFlag: true,
         policyBrokerRequiredForTools: true,

@@ -1,6 +1,15 @@
 import fs from 'fs';
 import path from 'path';
 import { config } from '../config/index.js';
+import type { AgentRunStore } from '../runtime/agent/AgentRunStore.js';
+import type { UniversalAgentRun } from '../runtime/agent/UniversalAgentRuntimeTypes.js';
+import type {
+  ZavorthExperienceLearningCandidate,
+  ZavorthNativeAutonomySpineSnapshot,
+  ZavorthSkillForgeDraft,
+} from '../contracts/ZavorthNativeAutonomySpineContract.js';
+import { ZAVORTH_NATIVE_AUTONOMY_SPINE_VERSION } from '../contracts/ZavorthNativeAutonomySpineContract.js';
+import { redactSensitiveText } from './ZavorthNativeAutonomyShared.js';
 import {
   WorkflowRunService,
   type WorkflowRunSnapshot,
@@ -119,6 +128,7 @@ type LearningStateFile = {
 type LearningPlaneRuntime = {
   now?: () => Date;
   workflowRunService?: Pick<WorkflowRunService, 'listRuns'>;
+  nativeRunStore?: Pick<AgentRunStore, 'loadRuns'> | null;
   stateFile?: string;
   maxCandidates?: number;
   existsSync?: typeof fs.existsSync;
@@ -130,6 +140,7 @@ type LearningPlaneRuntime = {
 export class ZavorthLearningPlaneService {
   private readonly now: () => Date;
   private readonly workflowRuns: Pick<WorkflowRunService, 'listRuns'>;
+  private readonly nativeRunStore: Pick<AgentRunStore, 'loadRuns'> | null;
   private readonly stateFile: string;
   private readonly maxCandidates: number;
   private readonly existsSyncImpl: typeof fs.existsSync;
@@ -140,6 +151,7 @@ export class ZavorthLearningPlaneService {
   constructor(runtime: LearningPlaneRuntime = {}) {
     this.now = runtime.now || (() => new Date());
     this.workflowRuns = runtime.workflowRunService || new WorkflowRunService();
+    this.nativeRunStore = runtime.nativeRunStore || null;
     this.stateFile = runtime.stateFile || config.learningPlaneStateFile;
     this.maxCandidates = Math.max(1, runtime.maxCandidates || config.learningPlaneMaxCandidates || 40);
     this.existsSyncImpl = runtime.existsSync || fs.existsSync.bind(fs);
@@ -151,7 +163,7 @@ export class ZavorthLearningPlaneService {
   public buildSnapshot(input: { workspace?: string | null } = {}): LearningPlaneSnapshot {
     const workspace = this.normalizeValue(input.workspace);
     const state = this.readState();
-    const candidates = this.workflowRuns
+    const workflowCandidates = this.workflowRuns
       .listRuns({
         workspace: workspace || null,
         limit: this.maxCandidates,
@@ -159,6 +171,11 @@ export class ZavorthLearningPlaneService {
       })
       .map((run) => this.toCandidate(run, state.entries))
       .filter((candidate): candidate is LearningCandidateSnapshot => Boolean(candidate))
+    const nativeCandidates = this.listNativeRunCandidates(workspace, state.entries);
+    const candidates = [
+      ...workflowCandidates,
+      ...nativeCandidates,
+    ]
       .sort((left, right) => {
         if (right.score !== left.score) {
           return right.score - left.score;
@@ -418,6 +435,221 @@ export class ZavorthLearningPlaneService {
         ...(run.resume_prompt ? [`Resume prompt: ${run.resume_prompt}`] : []),
       ],
     };
+  }
+
+  private listNativeRunCandidates(
+    workspace: string,
+    stateEntries: Record<string, LearningStateEntry>,
+  ): LearningCandidateSnapshot[] {
+    if (!this.nativeRunStore) {
+      return [];
+    }
+    try {
+      return this.nativeRunStore.loadRuns()
+        .filter((run) => !workspace || this.normalizeValue(run.workspace || '') === workspace)
+        .flatMap((run) => this.toNativeRunCandidates(run, stateEntries));
+    } catch {
+      return [];
+    }
+  }
+
+  private toNativeRunCandidates(
+    run: UniversalAgentRun,
+    stateEntries: Record<string, LearningStateEntry>,
+  ): LearningCandidateSnapshot[] {
+    const spine = this.readNativeAutonomySpine(run);
+    if (!spine || run.status !== 'completed') {
+      return [];
+    }
+
+    const learningCandidates = Array.isArray(spine.learning?.candidates)
+      ? spine.learning.candidates.map((candidate) => this.toNativeLearningCandidate(run, candidate, stateEntries))
+      : [];
+    const draftCandidates = Array.isArray(spine.skillForge?.drafts)
+      ? spine.skillForge.drafts.map((draft) => this.toNativeSkillDraftCandidate(run, draft, stateEntries))
+      : [];
+
+    return [...learningCandidates, ...draftCandidates].filter((candidate): candidate is LearningCandidateSnapshot => Boolean(candidate));
+  }
+
+  private toNativeLearningCandidate(
+    run: UniversalAgentRun,
+    candidate: ZavorthExperienceLearningCandidate,
+    stateEntries: Record<string, LearningStateEntry>,
+  ): LearningCandidateSnapshot {
+    const candidateId = this.normalizeValue(`candidate:native:${run.id}:${candidate.candidateId}`);
+    const generatedAt = this.now().toISOString();
+    const createdAt = run.updatedAt || run.createdAt || generatedAt;
+    const state = stateEntries[candidateId] || this.defaultNativeLearningState(candidate, createdAt);
+    const workspace = run.workspace || '';
+    const title = this.nativeLearningTitle(candidate);
+
+    return {
+      id: candidateId,
+      platformEntryId: this.normalizeValue(
+        `skill:learned:native-turn:${path.basename(workspace || 'workspace')}:${candidate.candidateId}`,
+      ),
+      title,
+      kind: this.nativeLearningKind(candidate),
+      summary: redactSensitiveText(candidate.summary),
+      score: this.normalizeScore(candidate.confidence),
+      reviewState: state.reviewState,
+      lifecycle: state.lifecycle,
+      createdAt,
+      updatedAt: state.updatedAt || createdAt,
+      lastValidatedAt: createdAt,
+      source: {
+        workflowRunId: run.id,
+        workflow: 'native-autonomy-spine',
+        workspace,
+        objective: redactSensitiveText(run.input || run.title || ''),
+        artifactCount: Array.isArray(run.artifacts) ? run.artifacts.length : 0,
+        completedStages: 1,
+        totalStages: 1,
+        originTaskId: run.requestId || null,
+        sourceSurface: run.channel || null,
+      },
+      steps: [
+        `${candidate.lane} lane`,
+        candidate.approvalRequired ? 'Revisar antes de alterar comportamento.' : 'Aplicado como preferencia reversivel com receipt.',
+      ],
+      details: [
+        `Origem: native-autonomy-spine`,
+        `Tipo: ${candidate.kind}`,
+        `Risco: ${candidate.risk}`,
+        `Receipt: ${candidate.receiptId}`,
+        `Expira em: ${candidate.expiry}`,
+        ...candidate.evidenceRefs.map((ref) => `Evidencia: ${redactSensitiveText(ref)}`),
+      ],
+    };
+  }
+
+  private toNativeSkillDraftCandidate(
+    run: UniversalAgentRun,
+    draft: ZavorthSkillForgeDraft,
+    stateEntries: Record<string, LearningStateEntry>,
+  ): LearningCandidateSnapshot {
+    const candidateId = this.normalizeValue(`candidate:native-skill:${run.id}:${draft.draftId}`);
+    const generatedAt = this.now().toISOString();
+    const createdAt = run.updatedAt || run.createdAt || generatedAt;
+    const state = stateEntries[candidateId] || {
+      reviewState: 'pending',
+      lifecycle: 'learned_draft',
+      updatedAt: createdAt,
+    } satisfies LearningStateEntry;
+    const workspace = run.workspace || '';
+
+    return {
+      id: candidateId,
+      platformEntryId: this.normalizeValue(
+        `skill:learned:skill-forge:${path.basename(workspace || 'workspace')}:${draft.draftId}`,
+      ),
+      title: redactSensitiveText(draft.title),
+      kind: 'skill',
+      summary: `Skill Forge criou um draft preview-only (${draft.risk}) que exige scanner e smoke antes de instalar.`,
+      score: this.scoreDraft(draft),
+      reviewState: state.reviewState,
+      lifecycle: state.lifecycle,
+      createdAt,
+      updatedAt: state.updatedAt || createdAt,
+      lastValidatedAt: createdAt,
+      source: {
+        workflowRunId: run.id,
+        workflow: 'skill-forge',
+        workspace,
+        objective: redactSensitiveText(run.input || run.title || ''),
+        artifactCount: 0,
+        completedStages: 1,
+        totalStages: 3,
+        originTaskId: run.requestId || null,
+        sourceSurface: run.channel || null,
+      },
+      steps: [
+        'Draft gerado sem materializacao.',
+        'Rodar scanner estatico.',
+        'Rodar smoke nao destrutivo.',
+        draft.approvalRequired ? 'Pedir aprovacao antes de instalar.' : 'Promover somente depois de validacao.',
+      ],
+      details: [
+        `Origem: skill-forge-runtime`,
+        `Risco: ${draft.risk}`,
+        `Materializado: ${draft.materialized ? 'sim' : 'nao'}`,
+        `Smoke obrigatorio: ${draft.smokeRequired ? 'sim' : 'nao'}`,
+        `Rollback disponivel: ${draft.rollbackAvailable ? 'sim' : 'nao'}`,
+        ...draft.preview.tests.map((test) => `Teste: ${redactSensitiveText(test)}`),
+        ...draft.evidenceRefs.map((ref) => `Evidencia: ${redactSensitiveText(ref)}`),
+      ],
+    };
+  }
+
+  private readNativeAutonomySpine(run: UniversalAgentRun): ZavorthNativeAutonomySpineSnapshot | null {
+    const raw = run.metadata?.nativeAutonomySpine;
+    if (!raw || typeof raw !== 'object' || Array.isArray(raw)) {
+      return null;
+    }
+    const candidate = raw as Partial<ZavorthNativeAutonomySpineSnapshot>;
+    return candidate.version === ZAVORTH_NATIVE_AUTONOMY_SPINE_VERSION
+      ? candidate as ZavorthNativeAutonomySpineSnapshot
+      : null;
+  }
+
+  private defaultNativeLearningState(
+    candidate: ZavorthExperienceLearningCandidate,
+    createdAt: string,
+  ): LearningStateEntry {
+    if (candidate.lane === 'red' || candidate.status === 'blocked') {
+      return {
+        reviewState: 'rejected',
+        lifecycle: 'quarantined',
+        updatedAt: createdAt,
+        rejectedAt: createdAt,
+      };
+    }
+    if (candidate.lane === 'green' && candidate.status === 'auto-applied') {
+      return {
+        reviewState: 'approved',
+        lifecycle: 'trusted_local',
+        updatedAt: createdAt,
+        promotedAt: createdAt,
+      };
+    }
+    return {
+      reviewState: 'pending',
+      lifecycle: 'learned_draft',
+      updatedAt: createdAt,
+    };
+  }
+
+  private nativeLearningKind(candidate: ZavorthExperienceLearningCandidate): LearningCandidateKind {
+    if (candidate.kind === 'skill-signal') {
+      return 'skill';
+    }
+    if (candidate.kind === 'procedure') {
+      return 'playbook';
+    }
+    return 'recipe';
+  }
+
+  private nativeLearningTitle(candidate: ZavorthExperienceLearningCandidate): string {
+    if (candidate.kind === 'policy-change') return 'Mudanca de seguranca bloqueada';
+    if (candidate.kind === 'sensitive-user-model') return 'Memoria sensivel bloqueada';
+    if (candidate.kind === 'skill-signal') return 'Draft de skill sugerido pelo uso';
+    if (candidate.kind === 'procedure') return 'Procedimento sugerido pelo uso';
+    return 'Preferencia reversivel aprendida';
+  }
+
+  private normalizeScore(value: unknown): number {
+    const score = Number(value || 0);
+    if (!Number.isFinite(score)) {
+      return 0.55;
+    }
+    return Math.max(0.55, Math.min(1, Number(score.toFixed(3))));
+  }
+
+  private scoreDraft(draft: ZavorthSkillForgeDraft): number {
+    if (draft.risk === 'high') return 0.58;
+    if (draft.risk === 'medium') return 0.68;
+    return 0.78;
   }
 
   private buildTitle(run: WorkflowRunSnapshot, kind: LearningCandidateKind): string {

@@ -231,6 +231,118 @@ describe('Experience Core Layer', () => {
     expect(snapshot.reasoningSummary?.approvalReason).toContain('Executa comando local');
   });
 
+  it('projects native autonomy spine status into the shared dashboard snapshot without raw prompts', () => {
+    const run = makeRun({
+      status: 'completed',
+      approvals: [],
+      input: 'prefiro bullets com token sk-test-secret',
+      metadata: {
+        nativeAutonomySpine: {
+          version: 'native-autonomy-spine/v1',
+          status: 'attention',
+          generatedAt: '2026-05-21T12:00:00.000Z',
+          stages: [
+            { id: 'post-turn-learning', status: 'ready', summary: '1 candidate.' },
+            { id: 'skill-forge', status: 'ready', summary: '0 drafts.' },
+          ],
+          learning: {
+            candidates: [{ candidateId: 'learn-1' }],
+          },
+          skillForge: {
+            drafts: [],
+          },
+          dynamicMission: {
+            status: 'needs-approval',
+            workflow: {
+              tasks: [{ taskId: 'task-1' }, { taskId: 'task-2' }],
+            },
+            approval: {
+              required: true,
+            },
+            safety: {
+              previewOnly: true,
+            },
+          },
+          dreamCycle: {
+            status: 'ready',
+            candidateStore: {
+              memories: [{ id: 'memory-1' }],
+            },
+            quarantine: [],
+            safety: {
+              sourceStoreImmutable: true,
+            },
+          },
+          channel: {
+            readiness: {
+              liveReady: false,
+              defaultRouteAllowed: false,
+            },
+          },
+          backend: {
+            readiness: {
+              liveReady: false,
+              liveMutationAllowed: false,
+            },
+          },
+          summary: {
+            organicLearningReady: true,
+            skillForgeReady: true,
+            dynamicMissionReady: false,
+            dreamCycleReady: true,
+            liveChannelReady: false,
+            backendProviderReady: false,
+          },
+          reviewCenter: {
+            actions: ['learn forget'],
+            receipts: ['receipt-1'],
+            quietLanes: true,
+          },
+          safety: {
+            rawSecretsSerialized: false,
+          },
+        },
+      },
+    });
+    const service = new ExperienceCoreService({
+      now,
+      agentGateway: {
+        buildSnapshot: jest.fn(() => ({
+          generatedAt: now().toISOString(),
+          source: { kind: 'universal-agent-runtime', label: 'Zavorth Agent Gateway' },
+          activeRun: run,
+          runs: [run],
+          runObservatory: {} as any,
+          capabilityLoopGovernance: null,
+          runtimePromotionGovernance: {} as any,
+          workflowJobs: [],
+          workflowQueue: {} as any,
+        })),
+        handle: jest.fn(),
+        approve: jest.fn(),
+        reject: jest.fn(),
+      },
+    });
+
+    const snapshot = service.buildHome({ surface: 'web', sessionId: 'session-1' });
+    const projection = snapshot.raw?.nativeAutonomySpine as any;
+
+    expect(projection).toEqual(expect.objectContaining({
+      version: 'native-autonomy-spine/v1',
+      status: 'attention',
+      learningCandidates: 1,
+      skillDrafts: 0,
+      dynamicMissionTasks: 2,
+      dynamicMissionApprovalRequired: true,
+      dreamCandidateMemories: 1,
+      dreamQuarantineItems: 0,
+      quietLanes: true,
+      rawSecretsSerialized: false,
+    }));
+    expect(JSON.stringify(projection)).not.toContain('sk-test-secret');
+    expect(JSON.stringify(projection)).not.toContain('prefiro bullets');
+  });
+
   it('supports explicit response profiles across shared snapshots', () => {
     const run = makeRun({
       metadata: {

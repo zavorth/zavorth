@@ -245,6 +245,9 @@ export class ExperienceCoreService {
     );
     const memorySignals = this.buildMemorySignals(activeRun, workspace);
     const llmBrain = recordOrNull(activeRun?.metadata?.zavorthLlmBrain) as ZavorthLlmBrainSnapshot | null;
+    const nativeAutonomySpine = this.buildNativeAutonomySpineProjection(
+      recordOrNull(activeRun?.metadata?.nativeAutonomySpine),
+    );
     const agentMaturity = this.agentMaturity.buildSnapshot({
       run: activeRun,
       request: activeRun
@@ -394,6 +397,7 @@ export class ExperienceCoreService {
             queueAdapter: agentSnapshot.workflowQueue.kind,
           }
           : null,
+        nativeAutonomySpine,
       },
     };
   }
@@ -771,6 +775,78 @@ export class ExperienceCoreService {
       createdAt: llmBrain.generatedAt,
       updatedAt: llmBrain.generatedAt,
     }];
+  }
+
+  private buildNativeAutonomySpineProjection(
+    spine: Record<string, unknown> | null,
+  ): Record<string, unknown> | null {
+    if (!spine) {
+      return null;
+    }
+    const learning = recordOrNull(spine.learning);
+    const skillForge = recordOrNull(spine.skillForge);
+    const dynamicMission = recordOrNull(spine.dynamicMission);
+    const dynamicMissionWorkflow = recordOrNull(dynamicMission?.workflow);
+    const dynamicMissionApproval = recordOrNull(dynamicMission?.approval);
+    const dreamCycle = recordOrNull(spine.dreamCycle);
+    const dreamCandidateStore = recordOrNull(dreamCycle?.candidateStore);
+    const channel = recordOrNull(spine.channel);
+    const backend = recordOrNull(spine.backend);
+    const reviewCenter = recordOrNull(spine.reviewCenter);
+    const safety = recordOrNull(spine.safety);
+    const summary = recordOrNull(spine.summary);
+    const channelReadiness = recordOrNull(channel?.readiness);
+    const backendReadiness = recordOrNull(backend?.readiness);
+
+    return {
+      version: normalizeText(spine.version, 'native-autonomy-spine/v1'),
+      generatedAt: normalizeText(spine.generatedAt),
+      status: normalizeText(spine.status, 'attention'),
+      stages: Array.isArray(spine.stages)
+        ? spine.stages.map((stage) => {
+            const record = recordOrNull(stage);
+            return {
+              id: normalizeText(record?.id),
+              status: normalizeText(record?.status, 'attention'),
+              summary: normalizeText(record?.summary),
+            };
+          }).filter((stage) => stage.id)
+        : [],
+      learningCandidates: Array.isArray(learning?.candidates) ? learning.candidates.length : 0,
+      skillDrafts: Array.isArray(skillForge?.drafts) ? skillForge.drafts.length : 0,
+      dynamicMissionTasks: Array.isArray(dynamicMissionWorkflow?.tasks) ? dynamicMissionWorkflow.tasks.length : 0,
+      dynamicMissionApprovalRequired: dynamicMissionApproval?.required === true,
+      dreamCandidateMemories: Array.isArray(dreamCandidateStore?.memories) ? dreamCandidateStore.memories.length : 0,
+      dreamQuarantineItems: Array.isArray(dreamCycle?.quarantine) ? dreamCycle.quarantine.length : 0,
+      channel: channel
+        ? {
+          liveReady: channelReadiness?.liveReady === true,
+          defaultRouteAllowed: channelReadiness?.defaultRouteAllowed === true,
+        }
+        : null,
+      backend: backend
+        ? {
+          liveReady: backendReadiness?.liveReady === true,
+          liveMutationAllowed: backendReadiness?.liveMutationAllowed === true,
+        }
+        : null,
+      summary: summary
+        ? {
+          organicLearningReady: summary.organicLearningReady === true,
+          skillForgeReady: summary.skillForgeReady === true,
+          dynamicMissionReady: summary.dynamicMissionReady === true,
+          dreamCycleReady: summary.dreamCycleReady === true,
+          liveChannelReady: summary.liveChannelReady === true,
+          backendProviderReady: summary.backendProviderReady === true,
+        }
+        : null,
+      reviewActions: Array.isArray(reviewCenter?.actions)
+        ? reviewCenter.actions.map((entry) => normalizeText(entry)).filter(Boolean).slice(0, 8)
+        : [],
+      receiptCount: Array.isArray(reviewCenter?.receipts) ? reviewCenter.receipts.length : 0,
+      quietLanes: reviewCenter?.quietLanes === true,
+      rawSecretsSerialized: safety?.rawSecretsSerialized === false ? false : null,
+    };
   }
 
   private mergeLearningCandidates(

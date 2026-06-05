@@ -10,6 +10,7 @@ import type {
   UniversalAgentLlmRuntime,
   UniversalAgentToolRuntime,
 } from '../../../src/runtime/agent/index.js';
+import { ZavorthNativeAutonomySpineService } from '../../../src/services/ZavorthNativeAutonomySpineService.js';
 import type { SkillManifest } from '../../../src/context-engine/SkillScanner.js';
 import type { McpRuntimeSnapshot } from '../../../src/mcp/McpRuntimeService.js';
 
@@ -454,6 +455,45 @@ describe('AgentRunService', () => {
         }),
       ]),
     }));
+  });
+
+  it('can attach the native autonomy spine after a successful turn without leaking raw secrets', async () => {
+    const executor = jest.fn<ReturnType<UniversalAgentExecutor>, Parameters<UniversalAgentExecutor>>(({ run }) => ({
+      status: 'completed',
+      summary: `Run ${run.id} completed.`,
+      replyText: 'I will use 3 bullets for short summaries.',
+    }));
+    const service = new AgentRunService({
+      now: () => new Date('2026-06-05T12:00:00.000Z'),
+      idFactory: createIdFactory(),
+      executor,
+      nativeAutonomySpine: new ZavorthNativeAutonomySpineService({
+        now: () => new Date('2026-06-05T12:00:00.000Z'),
+      }),
+    });
+
+    const result = await service.run({
+      userId: 'grey',
+      channel: 'web',
+      sessionId: 'session-native-spine',
+      text: 'Sempre use 3 bullets nos resumos. token=secret-token sk-test-123',
+      requestedTools: [],
+      metadata: {
+        capabilityNegotiationApproved: true,
+      },
+    });
+
+    expect(result.ok).toBe(true);
+    expect(result.run.metadata.nativeAutonomySpine).toEqual(expect.objectContaining({
+      version: 'native-autonomy-spine/v1',
+      status: 'ready',
+      summary: expect.objectContaining({
+        organicLearningReady: true,
+        skillForgeReady: true,
+      }),
+    }));
+    expect(JSON.stringify(result.run.metadata.nativeAutonomySpine)).not.toContain('secret-token');
+    expect(JSON.stringify(result.run.metadata.nativeAutonomySpine)).not.toContain('sk-test-123');
   });
 
   it('fans runtime lifecycle events out to subscribed buses', async () => {

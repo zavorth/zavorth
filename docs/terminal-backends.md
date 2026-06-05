@@ -28,7 +28,34 @@ configuration, policy, approval and receipts.
 zavorth execution-backends
 zavorth execution-backends --backend docker --command "npm test"
 zavorth execution-backends --backend local --command "npm test" --live --approval-id <id>
+npm run zavorth:execution-backend-playbook -- --backend docker
+npm run zavorth:runtime-profile-playbook -- --target vps-24-7
+npm run zavorth:runtime-profile-playbook -- --target safe-8gb-desktop
+npm run zavorth:execution-backend-playbook:check
 ```
+
+## Execution Backend Playbook
+
+The Execution Backend Playbook is the guided path for local and remote execution providers. It keeps local preview useful while making strong backends obvious:
+
+- local supervised shell;
+- Docker;
+- WSL;
+- Vercel Sandbox;
+- SSH;
+- Modal;
+- Daytona.
+
+Live mutation is never enabled by default. Strong sandbox smoke, live flag and scoped approval stay separate checks.
+
+## Runtime Profile Playbook
+
+The Runtime Profile Playbook is the guided path for low-resource and always-on
+operation. It recommends `chat` for a small VPS, `safe-8gb` for constrained
+desktops, `dev` for workstations and `full` for explicit lab sessions.
+
+Profile selection only changes boot posture and sidecar pressure. It does not
+turn dry-run into live mutation, renew expired approvals or bypass receipts.
 
 Live terminal execution is disabled by default even when a backend is configured.
 To run a command live, all of these must be true:

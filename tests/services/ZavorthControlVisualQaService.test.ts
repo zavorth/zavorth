@@ -7,7 +7,7 @@ describe('ZavorthControlVisualQaService', () => {
     const service = new ZavorthControlVisualQaService({
       now: () => NOW,
       projectRoot: 'C:/fixture/zavorth',
-      existsSync: (targetPath: string) => targetPath.replace(/\\/g, '/').endsWith('.tmp/control-browser-preview/index.html'),
+      existsSync: (targetPath: string) => targetPath.replace(/\\/g, '/').endsWith('.tmp/zavorthControl-browser-preview/index.html'),
     });
 
     const snapshot = service.buildSnapshot();

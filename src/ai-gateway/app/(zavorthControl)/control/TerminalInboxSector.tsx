@@ -190,6 +190,388 @@ function SuggestionChip({ prompt, children, mission, autoSubmit }: SuggestionChi
   );
 }
 
+type DailyCapabilityCard = {
+  id: string;
+  title: string;
+  summary: string;
+  prompt: string;
+  Icon: () => ReactNode;
+};
+
+type AutonomyCommandCard = DailyCapabilityCard & {
+  eyebrow: string;
+  action: string;
+};
+
+type MissionDepthMode = {
+  name: string;
+  detail: string;
+  prompt: string;
+};
+
+type MissionPlanStep = {
+  index: string;
+  label: string;
+  status: string;
+};
+
+type MemoryDreamCard = {
+  title: string;
+  summary: string;
+  status: string;
+  actions: string[];
+};
+
+type LearningCenterMetric = {
+  label: string;
+  value: string;
+  detail: string;
+};
+
+const dailyCapabilityCards: DailyCapabilityCard[] = [
+  {
+    id: "improve-behavior",
+    title: "Improve behavior",
+    summary: "Review drafts, evals and rollback before changing how Zavorth works.",
+    prompt: "Open the behavior improvement lab. Show drafts, eval results, approval state and rollback options before applying anything.",
+    Icon: IconTrace,
+  },
+  {
+    id: "memory-learning",
+    title: "Memory",
+    summary: "See what was learned, why it exists, how long it lasts, and forget it fast.",
+    prompt: "Open learned memory. Show evidence, confidence, expiry, edit and forget actions without storing anything new.",
+    Icon: IconMemory,
+  },
+  {
+    id: "mcp-catalog",
+    title: "Tools catalog",
+    summary: "Preview MCP tools, risk, smoke checks and install steps from one place.",
+    prompt: "Open the tools catalog. Show available MCP entries, risk previews, smoke status and the next safe install step.",
+    Icon: IconPlus,
+  },
+  {
+    id: "skill-lifecycle",
+    title: "Skills lifecycle",
+    summary: "Draft, test, approve, install, measure and retire skills calmly.",
+    prompt: "Open the skill lifecycle. Show drafts, sandbox status, approvals, usage signals and archive or promote actions.",
+    Icon: IconDocument,
+  },
+  {
+    id: "runtime-wizard",
+    title: "Runtime wizard",
+    summary: "Pick VPS, safe-8GB, developer or full mode and run the doctor.",
+    prompt: "Open runtime setup. Help me choose a runtime profile, apply the config preview and run readiness checks.",
+    Icon: IconTerminal,
+  },
+  {
+    id: "channel-wizard",
+    title: "Channels",
+    summary: "Connect Telegram, Slack, WhatsApp, Signal, Email or Discord with proof.",
+    prompt: "Open channel setup. Show each channel status, required credentials, live proof and next step.",
+    Icon: IconSend,
+  },
+  {
+    id: "backend-wizard",
+    title: "Execution",
+    summary: "Set local-jail, Docker, WSL or cloud execution with clear dry-run or live state.",
+    prompt: "Open execution backend setup. Show local-jail, Docker, WSL and cloud readiness with the exact blocker or next smoke test.",
+    Icon: IconShield,
+  },
+  {
+    id: "continuous-evals",
+    title: "Run evals",
+    summary: "Check quality, leaks, tool-use, approval fatigue and recovery before shipping.",
+    prompt: "Run the daily evaluation overview. Include quality, learning safety, tool-use, leaks, recovery and approval fatigue.",
+    Icon: IconSearch,
+  },
+];
+
+function DailyFlowCard({ card }: { card: DailyCapabilityCard }) {
+  const Icon = card.Icon;
+  return (
+    <button
+      className="daily-capability-card"
+      type="button"
+      data-daily-capability-card
+      data-daily-capability-card-id={card.id}
+      data-prompt={card.prompt}
+    >
+      <span className="daily-capability-card__icon">
+        <Icon />
+      </span>
+      <span className="daily-capability-card__body">
+        <strong>{card.title}</strong>
+        <span>{card.summary}</span>
+      </span>
+    </button>
+  );
+}
+
+const dailyProductExperienceCards: DailyCapabilityCard[] = [
+  {
+    id: "daily-start",
+    title: "Start guided",
+    summary: "Profile, provider, channel, runtime and first small mission.",
+    prompt: "Open the daily product experience. Start with profile, provider, channel, runtime and first mission as a simple setup path.",
+    Icon: IconPlus,
+  },
+  {
+    id: "daily-loop",
+    title: "Daily loop",
+    summary: "Ask, route, work, deliver, record history and review changes.",
+    prompt: "Explain the current request through the daily loop. Show where work stays quiet and where approval appears.",
+    Icon: IconTrace,
+  },
+  {
+    id: "review-center",
+    title: "Review center",
+    summary: "Learned memory, skills, channels, execution, evals and history.",
+    prompt: "Open the review center. Show learned memory, skills, channel readiness, execution readiness, quality checks and history.",
+    Icon: IconMemory,
+  },
+];
+
+function DailyProductExperienceCard({ card }: { card: DailyCapabilityCard }) {
+  const Icon = card.Icon;
+  return (
+    <button
+      className="daily-product-experience-card"
+      type="button"
+      data-daily-product-experience
+      data-daily-product-experience-card-id={card.id}
+      data-prompt={card.prompt}
+    >
+      <span className="daily-product-experience-card__icon">
+        <Icon />
+      </span>
+      <span className="daily-product-experience-card__body">
+        <strong>{card.title}</strong>
+        <span>{card.summary}</span>
+      </span>
+    </button>
+  );
+}
+
+const autonomyCommandCards: AutonomyCommandCard[] = [
+  {
+    id: "deep-missions",
+    eyebrow: "Missions",
+    title: "Deep missions",
+    summary: "Choose depth, workers, cost, time and effects before work starts.",
+    action: "Review plan",
+    prompt: "Open Deep missions. Let me choose Normal, Deep, Mission or Adversarial depth, estimate workers, time, cost and effects, then review the plan before any risky action.",
+    Icon: IconTrace,
+  },
+  {
+    id: "mission-plan-board",
+    eyebrow: "Plan",
+    title: "Mission plan",
+    summary: "Track classify, research, implement, verify and final synthesis.",
+    action: "Review evidence",
+    prompt: "Open the mission plan board with pending, running, blocked and done work. Show evidence, receipts, Stop and Continue controls.",
+    Icon: IconSearch,
+  },
+  {
+    id: "memory-dreams",
+    eyebrow: "Memory",
+    title: "Memory dreams",
+    summary: "Review useful candidates, duplicates, expiry and sensitive blocks.",
+    action: "Keep reviewing",
+    prompt: "Open Memory dreams. Show candidates with Apply, Edit, Forget, Keep reviewing and Rollback actions, without saving anything new.",
+    Icon: IconMemory,
+  },
+  {
+    id: "learning-center",
+    eyebrow: "Learning",
+    title: "Learning center",
+    summary: "See quiet learns, review items, blocked sensitive notes and expiries.",
+    action: "View receipt",
+    prompt: "Open the Learning center. Summarize quiet learns, items waiting review, blocked sensitive notes and memories with expiry.",
+    Icon: IconShield,
+  },
+];
+
+const missionDepthModes: MissionDepthMode[] = [
+  {
+    name: "Normal",
+    detail: "Fast local task",
+    prompt: "Set mission depth to Normal. Keep it quick, local and reversible.",
+  },
+  {
+    name: "Deep",
+    detail: "More research",
+    prompt: "Set mission depth to Deep. Estimate time and evidence before starting.",
+  },
+  {
+    name: "Mission",
+    detail: "Workers + board",
+    prompt: "Set mission depth to Mission. Create a durable board, worker plan and cost guard.",
+  },
+  {
+    name: "Adversarial",
+    detail: "Stress test",
+    prompt: "Set mission depth to Adversarial. Add critique, failure checks and approval gates for risky actions.",
+  },
+];
+
+const missionPlanSteps: MissionPlanStep[] = [
+  { index: "01", label: "Classify", status: "Done" },
+  { index: "02", label: "Research", status: "Running" },
+  { index: "03", label: "Implement", status: "Pending" },
+  { index: "04", label: "Verify", status: "Pending" },
+  { index: "05", label: "Synthesis", status: "Blocked" },
+];
+
+const memoryDreamCards: MemoryDreamCard[] = [
+  {
+    title: "Prefers concise answers",
+    summary: "Low-risk style preference, reversible and expiring.",
+    status: "Ready",
+    actions: ["Apply", "Edit", "Forget"],
+  },
+  {
+    title: "Repeated procedure",
+    summary: "Candidate for a reusable procedure after review.",
+    status: "Review",
+    actions: ["Apply", "Keep reviewing"],
+  },
+  {
+    title: "Duplicate memory",
+    summary: "Existing note covers this. Keep only one source.",
+    status: "Merge",
+    actions: ["Forget", "Rollback"],
+  },
+  {
+    title: "Sensitive note blocked",
+    summary: "Needs explicit approval and redacted evidence first.",
+    status: "Blocked",
+    actions: ["Review evidence", "Forget"],
+  },
+];
+
+const learningCenterMetrics: LearningCenterMetric[] = [
+  { label: "Quiet learns", value: "3", detail: "Low-risk receipts" },
+  { label: "Waiting review", value: "2", detail: "Editable candidates" },
+  { label: "Blocked sensitive", value: "1", detail: "No raw profile saved" },
+  { label: "Expiring memories", value: "4", detail: "Due this week" },
+];
+
+function AutonomyCard({ card }: { card: AutonomyCommandCard }) {
+  const Icon = card.Icon;
+  return (
+    <button
+      className="autonomy-card"
+      type="button"
+      data-autonomy-card
+      data-autonomy-card-id={card.id}
+      data-prompt={card.prompt}
+    >
+      <span className="autonomy-card__icon">
+        <Icon />
+      </span>
+      <span className="autonomy-card__copy">
+        <span className="autonomy-card__eyebrow">{card.eyebrow}</span>
+        <strong>{card.title}</strong>
+        <span>{card.summary}</span>
+      </span>
+      <span className="autonomy-card__action">{card.action}</span>
+    </button>
+  );
+}
+
+function AutonomyCommandCenter() {
+  return (
+    <div className="autonomy-command-center" data-autonomy-command-center>
+      <div className="autonomy-command-center__header">
+        <div>
+          <span className="autonomy-command-center__eyebrow">Autonomy</span>
+          <strong>Missions and memory</strong>
+        </div>
+        <p>Pick the depth, watch the plan, and review what Zavorth wants to learn before anything important changes.</p>
+      </div>
+
+      <div className="autonomy-card-grid" aria-label="Autonomy mission shortcuts">
+        {autonomyCommandCards.map((card) => (
+          <AutonomyCard key={card.id} card={card} />
+        ))}
+      </div>
+
+      <div className="mission-depth-strip" aria-label="Mission depth modes">
+        {missionDepthModes.map((mode) => (
+          <button
+            key={mode.name}
+            className="mission-depth-mode"
+            type="button"
+            data-mission-depth-mode={mode.name.toLowerCase()}
+            data-prompt={mode.prompt}
+          >
+            <strong>{mode.name}</strong>
+            <span>{mode.detail}</span>
+          </button>
+        ))}
+      </div>
+
+      <div className="mission-plan-board" data-mission-plan-board>
+        <div className="mission-plan-board__header">
+          <strong>Mission plan</strong>
+          <span>Review plan · Start mission · Stop · Continue · Review evidence · View receipt</span>
+        </div>
+        <div className="mission-plan-board__steps">
+          {missionPlanSteps.map((step) => (
+            <button
+              key={step.index}
+              className="mission-plan-step"
+              type="button"
+              data-prompt={`Open mission step ${step.label}. Show evidence, blockers, receipts and the next safe action.`}
+            >
+              <span>{step.index}</span>
+              <strong>{step.label}</strong>
+              <em>{step.status}</em>
+            </button>
+          ))}
+        </div>
+      </div>
+
+      <div className="memory-dream-grid" data-memory-dreams-panel>
+        {memoryDreamCards.map((dream) => (
+          <div className="memory-dream-card" key={dream.title} data-memory-dreams>
+            <span>{dream.status}</span>
+            <strong>{dream.title}</strong>
+            <p>{dream.summary}</p>
+            <div>
+              {dream.actions.map((action) => (
+                <button
+                  key={action}
+                  type="button"
+                  data-prompt={`Memory dream action: ${action}. Show the candidate, evidence, expiry, receipt and rollback before applying.`}
+                >
+                  {action}
+                </button>
+              ))}
+            </div>
+          </div>
+        ))}
+      </div>
+
+      <div className="learning-center-strip" data-learning-center>
+        {learningCenterMetrics.map((metric) => (
+          <button
+            key={metric.label}
+            className="learning-center-metric"
+            type="button"
+            data-prompt={`Open Learning center metric: ${metric.label}. Show evidence, receipts, expiry and review options.`}
+          >
+            <strong>{metric.value}</strong>
+            <span>{metric.label}</span>
+            <small>{metric.detail}</small>
+          </button>
+        ))}
+      </div>
+    </div>
+  );
+}
+
 export function TerminalInboxSector() {
   return (
     <section className="sector active" id="sector-terminal">
@@ -231,17 +613,35 @@ export function TerminalInboxSector() {
               </div>
             </div>
 
-            <div className="terminal-hero" id="terminal-hero">
-              <div className="terminal-hero__status">
-                <span className="terminal-hero__status-dot" />
-                <span>Zavorth ready</span>
-                <span className="terminal-hero__engine" id="engine-mode-pill">Express ready</span>
-              </div>
-              <div className="terminal-hero__greeting">
-                <span className="terminal-hero__hello">Inbox</span>
-                <span className="terminal-hero__question">Ask Zavorth or start with a suggestion.</span>
-              </div>
-            </div>
+                <div className="terminal-hero" id="terminal-hero">
+                  <div className="terminal-hero__status">
+                    <span className="terminal-hero__status-dot" />
+                    <span>Zavorth ready</span>
+                    <span className="terminal-hero__engine" id="engine-mode-pill">Express ready</span>
+                  </div>
+                  <div className="terminal-hero__greeting">
+                    <span className="terminal-hero__hello">Inbox</span>
+                    <span className="terminal-hero__question">Ask Zavorth or start with a suggestion.</span>
+                  </div>
+                  <div className="daily-product-experience-strip" aria-label="Daily product experience">
+                    {dailyProductExperienceCards.map((card) => (
+                      <DailyProductExperienceCard key={card.id} card={card} />
+                    ))}
+                  </div>
+                  <div className="first-run-setup-message" data-first-run-setup-message>
+                    <strong>First run setup</strong>
+                    <span>Tell Zavorth what to call itself, how formal it should be, and what kind of help matters most here. Nothing is written to memory until you confirm it.</span>
+	                    <button type="button" data-prompt="Start first run setup. Ask what Zavorth should be called, how it should speak, and what user preferences may be saved only after confirmation.">
+	                      Start setup
+	                    </button>
+	                  </div>
+	                  <div className="daily-capability-grid" aria-label="Daily capability flow">
+	                    {dailyCapabilityCards.map((card) => (
+	                      <DailyFlowCard key={card.id} card={card} />
+	                    ))}
+	                  </div>
+                    <AutonomyCommandCenter />
+	                </div>
 
             <div className="approval-context-banner" id="approval-context-banner" hidden>
               <div>
@@ -392,13 +792,16 @@ export function TerminalInboxSector() {
                       <IconSettings />
                     </button>
                   </div>
-                  <div className="compose-dock__controls-right">
-                    <span className="compose-dock__token-count" id="token-count">
-                      0 tokens
-                    </span>
-                    <button
-                      className="compose-dock__action"
-                      id="new-session-trigger"
+                    <div className="compose-dock__controls-right">
+                      <span className="compose-dock__token-count" id="token-count">
+                        0 tokens
+                      </span>
+                      <span className="compose-dock__progress-pill" data-runtime-progress-pill hidden>
+                        In progress
+                      </span>
+                      <button
+                        className="compose-dock__action"
+                        id="new-session-trigger"
                       title="New session"
                       aria-label="New session"
                       data-tooltip="Start a clean session"
@@ -416,17 +819,28 @@ export function TerminalInboxSector() {
                       <IconDownload />
                       <span>Export</span>
                     </button>
-                    <button
-                      className="compose-dock__send"
-                      id="send-btn"
+                      <button
+                        className="compose-dock__send"
+                        id="send-btn"
                       title="Send"
                       aria-label="Send message"
                       data-tooltip="Send to Zavorth"
                     >
-                      <IconSend />
-                      <span>Send</span>
-                    </button>
-                  </div>
+                        <IconSend />
+                        <span>Send</span>
+                      </button>
+                      <button
+                        className="compose-dock__stop"
+                        id="stop-run-trigger"
+                        title="Stop"
+                        aria-label="Stop current run"
+                        data-tooltip="Cancel the active Zavorth run"
+                        hidden
+                      >
+                        <span aria-hidden="true">■</span>
+                        <span>Stop</span>
+                      </button>
+                    </div>
                 </div>
               </div>
             </div>

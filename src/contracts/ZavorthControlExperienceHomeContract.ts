@@ -46,7 +46,7 @@ export type ZavorthControlPermissionPanelItem = {
 };
 
 export type ZavorthControlExperienceHomeFirstStep = {
-  id: 'setup' | 'go' | 'demo' | 'connectors';
+  id: 'setup' | 'setup-checklist' | 'go' | 'demo' | 'connectors';
   label: string;
   summary: string;
   command: string;

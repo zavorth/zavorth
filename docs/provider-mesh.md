@@ -44,6 +44,26 @@ for the product-facing model choice flow.
 This layer keeps broad provider coverage while preserving Zavorth's advantage:
 provider choice, credentials, fallback and external effects remain policy-governed and receipt-backed.
 
+## Provider Connection Playbook
+
+The Provider Connection Playbook turns provider readiness into a first-run setup path:
+
+- choose provider;
+- add required credential keys as local secrets;
+- configure base URL for compatible/local providers;
+- confirm the default model;
+- run a safe probe;
+- run explicit live probe only when requested;
+- allow default route only after live proof.
+
+Catalog support is not live provider readiness. The playbook exposes key names and status, never raw secret values.
+
+```bash
+npm run zavorth:provider-connection-playbook -- --provider openai
+npm run zavorth:provider-connection-playbook:json -- --provider ollama
+npm run zavorth:provider-connection-playbook:check
+```
+
 ## Live Readiness Matrix
 
 Use the readiness matrix to separate catalog support from live readiness:

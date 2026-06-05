@@ -1,12 +1,12 @@
-﻿import {
+import {
   ZAVORTH_ZAVORTH_CONTROL_ASSIMILATION_VERSION,
-} from '../../../src/ai-gateway/app/(zavorthControl)/zavorthControl/zavorthControl/contracts/index.js';
+} from '../../../src/ai-gateway/app/(zavorthControl)/control/zavorth-control/contracts/index.js';
 import {
   ZavorthControlRealtimeStore,
   buildZavorthControlAssimilationSnapshot,
   buildZavorthControlRuntimeProjectionFromZavorthAgentGatewaySnapshot,
   scanZavorthControlSnapshotForSourceIdentityLeaks,
-} from '../../../src/ai-gateway/app/(zavorthControl)/zavorthControl/zavorthControl/projections/index.js';
+} from '../../../src/ai-gateway/app/(zavorthControl)/control/zavorth-control/projections/index.js';
 import {
   ZavorthAgentGateway,
 } from '../../../src/runtime/agent/index.js';

@@ -6,7 +6,7 @@ const root = process.cwd();
 const read = (file) => fs.readFileSync(path.join(root, file), 'utf8');
 
 const globals = read('src/ai-gateway/app/globals.css');
-const home = read('src/ai-gateway/app/(zavorthControl)/zavorthControl/HomePageClient.tsx');
+const home = read('src/ai-gateway/app/(zavorthControl)/control/HomePageClient.tsx');
 const sidebar = read('src/ai-gateway/shared/constants/sidebarVisibility.ts');
 
 const requiredTokens = [

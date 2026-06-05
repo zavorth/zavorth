@@ -106,6 +106,7 @@ export type ZavorthOperationalRolloutReceipt = {
 export type ZavorthOperationalRolloutSafety = {
   noLiveActionExecuted: true;
   noDashboardVisualMutation: true;
+  noZavorthControlVisualMutation: true;
   projectionsOnly: true;
   noExternalProviderRequired: true;
   ownerApprovalRequiredForRolloutChange: true;

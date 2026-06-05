@@ -4,18 +4,18 @@ import path from 'node:path';
 const root = process.cwd();
 
 for (const file of [
-  'assets/zavorthControl/index.html',
-  'assets/zavorthControl/scripts/app.js',
-  'assets/zavorthControl/styles/chat.css',
+  'assets/zavorth-control/index.html',
+  'assets/zavorth-control/scripts/app.js',
+  'assets/zavorth-control/styles/chat.css',
 ]) {
   if (!existsSync(path.join(root, file))) {
     throw new Error(`missing ${file}`);
   }
 }
 
-const html = readFileSync(path.join(root, 'assets/zavorthControl/index.html'), 'utf8');
-const app = readFileSync(path.join(root, 'assets/zavorthControl/scripts/app.js'), 'utf8');
-const css = readFileSync(path.join(root, 'assets/zavorthControl/styles/chat.css'), 'utf8');
+const html = readFileSync(path.join(root, 'assets/zavorth-control/index.html'), 'utf8');
+const app = readFileSync(path.join(root, 'assets/zavorth-control/scripts/app.js'), 'utf8');
+const css = readFileSync(path.join(root, 'assets/zavorth-control/styles/chat.css'), 'utf8');
 
 for (const marker of [
   'data-profile="developer"',

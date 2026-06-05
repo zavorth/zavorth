@@ -36,6 +36,33 @@ Zavorth should respond with:
 - next safe action;
 - equivalent CLI/API path for operators.
 
+## Channel Connection Playbook
+
+The Channel Connection Playbook is the guided setup layer for everyday users and operators. It reads the existing scaffold, Channel Mesh and doctor contracts, then shows one clear path per channel:
+
+- choose the channel and mode;
+- prepare the safe `.env` scaffold;
+- fill only the required input keys;
+- configure webhook or local bridge when needed;
+- close allowlists for operators and recipients;
+- run doctor;
+- prove live readiness;
+- send a safe test.
+
+Catalogado ou scaffoldado nao significa conectado ao vivo. A playbook keeps that visible by separating `requiredInputKeys`, `missingInputKeys`, `liveReady`, `readinessProof`, `defaultRouteAllowed` and `defaultBlockReason`.
+
+Useful commands:
+
+```bash
+npm run zavorth:channel-connection-playbook -- --channel telegram
+npm run zavorth:channel-connection-playbook -- --channel whatsapp --mode cloud-api
+npm run zavorth:channel-connection-playbook:json -- --channel slack
+npm run zavorth:channel-connection-playbook:check
+npm run zavorth:dashboard-setup-checklist
+```
+
+The JSON output never includes raw token values, passwords or provider secrets. It only lists key names and the next safe command.
+
 ## Canonical Surfaces
 
 ```bash

@@ -28,7 +28,7 @@ export type ZavorthActiveMissionUxAction = {
   kind: 'inspect_run' | 'inspect_receipts' | 'inspect_preview' | 'approve_once' | 'deny' | 'rollback' | 'provider_status';
   requiresApproval: boolean;
   mutatesState: boolean;
-  dashboardCanExecute: false;
+  zavorthControlCanExecute: false;
 };
 
 export type ZavorthActiveMissionUxSnapshot = {
@@ -59,14 +59,14 @@ export type ZavorthActiveMissionUxSnapshot = {
   };
   timeline: ZavorthActiveMissionUxTimelineEvent[];
   actions: ZavorthActiveMissionUxAction[];
-  dashboardProjection: {
+  zavorthControlProjection: {
     route: '/dashboard';
     renderMode: 'mission-timeline';
     executionAuthority: false;
   };
   safety: {
     projectionOnly: true;
-    dashboardCanExecute: false;
+    zavorthControlCanExecute: false;
     rawSecretsSerialized: false;
     approvalsStillRequired: true;
   };

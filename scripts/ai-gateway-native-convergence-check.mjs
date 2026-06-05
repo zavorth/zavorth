@@ -32,8 +32,8 @@ const rules = [
     label: 'ZavorthControl consumes Agent Gateway snapshot',
     target: '/zavorthControl can render ZavorthAgentGatewaySnapshot instead of rebuilding a parallel runtime',
     files: [
-      'src/ai-gateway/app/(zavorthControl)/zavorthControl/zavorthControl/adapters/zavorthAgentGatewayZavorthControlAdapter.ts',
-      'src/ai-gateway/app/(zavorthControl)/zavorthControl/zavorthControl/projections/zavorthAgentGatewayRuntimeProjection.ts',
+      'src/ai-gateway/app/(zavorthControl)/control/zavorth-control/adapters/zavorthAgentGatewayZavorthControlAdapter.ts',
+      'src/ai-gateway/app/(zavorthControl)/control/zavorth-control/projections/zavorthAgentGatewayRuntimeProjection.ts',
     ],
     needles: [
       'ZavorthAgentGatewaySnapshot',
@@ -61,7 +61,7 @@ const rules = [
     target: 'agent runs carry budget/route correlation and ZavorthControl reads it',
     files: [
       'src/runtime/agent/AgentRunLlmRouteReceipt.ts',
-      'src/ai-gateway/app/(zavorthControl)/zavorthControl/zavorthControl/adapters/zavorthControlZavorthControlRunObservability.ts',
+      'src/ai-gateway/app/(zavorthControl)/control/zavorth-control/adapters/zavorthControlZavorthControlRunObservability.ts',
     ],
     needles: [
       'providerRouteBudgetCorrelation',

@@ -23,7 +23,7 @@ describe('ZavorthControlOfficialEntry', () => {
     expect(proxy).toContain('pathname.startsWith("/control")');
   });
 
-  it('removes legacy route shells so they cannot become the default again', () => {
+  it('removes legacy compatibility route files so they cannot become the default again', () => {
     const view = readFileSync(join(controlDir, 'controlPageClient.view.tsx'), 'utf8');
 
     expect(existsSync(join(appDir, '(zavorthControl)', removedLegacyRoute))).toBe(false);

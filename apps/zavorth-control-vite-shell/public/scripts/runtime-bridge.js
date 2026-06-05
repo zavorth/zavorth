@@ -3553,9 +3553,17 @@
 
   async function refresh(options = {}) {
     try {
+      const queryString = buildZavorthControlQueryString();
+      const readZavorthControlSnapshot = () => readJson(`/api/web/zavorthControl${queryString}`, { headers: authHeaders() })
+        .catch((error) => {
+          if (error?.status === 404) {
+            return readJson(`/api/web/dashboard${queryString}`, { headers: authHeaders() });
+          }
+          throw error;
+        });
       const [auth, zavorthControl, providerModelCatalog, providerActivation, salesPack, salesPackChannelIo] = await Promise.all([
         readJson('/api/auth/status'),
-        readJson(`/api/web/zavorthControl${buildZavorthControlQueryString()}`, { headers: authHeaders() }),
+        readZavorthControlSnapshot(),
         readJson('/api/providers/model-catalog', { headers: authHeaders() }).catch(() => null),
         readJson('/api/providers/activation', { headers: authHeaders() }).catch(() => null),
         readJson('/api/v2/sales-pack/snapshot').catch(() => null),

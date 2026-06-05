@@ -1,4 +1,5 @@
 import { ZavorthLearningPlaneService } from '../../src/services/ZavorthLearningPlaneService.js';
+import type { UniversalAgentRun } from '../../src/runtime/agent/UniversalAgentRuntimeTypes.js';
 
 function createWorkflowRun(overrides: Record<string, any> = {}) {
   const phases = [
@@ -76,6 +77,100 @@ function createWorkflowRun(overrides: Record<string, any> = {}) {
     ],
     artifacts_manifest: {},
     externalized_state: null,
+    ...overrides,
+  };
+}
+
+function createNativeAutonomyRun(overrides: Partial<UniversalAgentRun> = {}): UniversalAgentRun {
+  return {
+    id: 'run-native-1',
+    traceId: 'trace-native-1',
+    requestId: 'request-native-1',
+    sessionId: 'session-native-1',
+    userId: 'grey',
+    channel: 'web',
+    title: 'Release notes workflow',
+    input: 'prefiro bullets e repita esse fluxo com token sk-test-secret',
+    workspace: 'C:/repo/demo',
+    status: 'completed',
+    createdAt: '2026-04-09T13:30:00.000Z',
+    updatedAt: '2026-04-09T13:40:00.000Z',
+    summary: 'Fluxo concluido com checklist.',
+    events: [],
+    toolExposure: {
+      mode: 'safe',
+      summary: 'Sem ferramentas sensiveis.',
+      tools: [],
+    },
+    replyPorts: [],
+    modelProfile: {
+      providerLabel: 'Zavorth',
+      modelLabel: 'modelo atual',
+      routingPolicy: 'direct',
+    },
+    approvals: [],
+    artifacts: [],
+    memorySignals: [],
+    metadata: {
+      nativeAutonomySpine: {
+        version: 'native-autonomy-spine/v1',
+        generatedAt: '2026-04-09T13:40:00.000Z',
+        status: 'attention',
+        learning: {
+          candidates: [
+            {
+              candidateId: 'learn-pref-1',
+              kind: 'preference',
+              lane: 'green',
+              risk: 'low',
+              status: 'auto-applied',
+              approvalRequired: false,
+              evidenceRefs: ['turn:run-native-1'],
+              confidence: 0.79,
+              expiry: '2026-07-08T13:40:00.000Z',
+              receiptId: 'receipt-pref-1',
+              summary: 'Low-risk reversible preference can be learned quietly with receipt.',
+            },
+            {
+              candidateId: 'learn-skill-1',
+              kind: 'skill-signal',
+              lane: 'yellow',
+              risk: 'medium',
+              status: 'candidate',
+              approvalRequired: true,
+              evidenceRefs: ['turn:run-native-1'],
+              confidence: 0.74,
+              expiry: '2026-05-09T13:40:00.000Z',
+              receiptId: 'receipt-skill-1',
+              summary: 'Repeated or complex workflow should become a reviewable skill draft.',
+            },
+          ],
+          postTurnReview: {
+            redactedObservation: 'user: prefiro bullets com [REDACTED_SECRET]',
+          },
+        },
+        skillForge: {
+          drafts: [
+            {
+              draftId: 'draft-release-notes',
+              title: 'Release Notes Workflow',
+              status: 'draft',
+              materialized: false,
+              approvalRequired: true,
+              smokeRequired: true,
+              rollbackAvailable: true,
+              risk: 'medium',
+              evidenceRefs: ['turn:run-native-1'],
+              preview: {
+                manifest: '{"name":"release-notes-workflow"}',
+                skillBody: 'secret sk-test-secret must not leak',
+                tests: ['static-risk-scan', 'non-destructive-smoke'],
+              },
+            },
+          ],
+        },
+      },
+    },
     ...overrides,
   };
 }
@@ -260,5 +355,56 @@ describe('ZavorthLearningPlaneService', () => {
         promotedRate: 0.5,
       }),
     );
+  });
+
+  it('projects native autonomy spine turn learning into the reviewable learning plane without raw secrets', () => {
+    const service = new ZavorthLearningPlaneService({
+      now: () => new Date('2026-04-09T14:00:00.000Z'),
+      workflowRunService: {
+        listRuns: jest.fn(() => []),
+      } as any,
+      nativeRunStore: {
+        loadRuns: jest.fn(() => [createNativeAutonomyRun()]),
+      },
+      existsSync: jest.fn(() => false),
+    });
+
+    const snapshot = service.buildSnapshot({
+      workspace: 'C:/repo/demo',
+    });
+    const serialized = JSON.stringify(snapshot);
+
+    expect(snapshot.summary.total).toBe(3);
+    expect(snapshot.summary.pending).toBe(2);
+    expect(snapshot.summary.promoted).toBe(1);
+    expect(snapshot.candidates).toEqual(expect.arrayContaining([
+      expect.objectContaining({
+        id: 'candidate:native:run-native-1:learn-pref-1',
+        platformEntryId: 'skill:learned:native-turn:demo:learn-pref-1',
+        kind: 'recipe',
+        reviewState: 'approved',
+        lifecycle: 'trusted_local',
+        source: expect.objectContaining({
+          workflowRunId: 'run-native-1',
+          workflow: 'native-autonomy-spine',
+          sourceSurface: 'web',
+        }),
+      }),
+      expect.objectContaining({
+        id: 'candidate:native:run-native-1:learn-skill-1',
+        kind: 'skill',
+        reviewState: 'pending',
+        lifecycle: 'learned_draft',
+      }),
+      expect.objectContaining({
+        id: 'candidate:native-skill:run-native-1:draft-release-notes',
+        title: 'Release Notes Workflow',
+        kind: 'skill',
+        reviewState: 'pending',
+        lifecycle: 'learned_draft',
+      }),
+    ]));
+    expect(serialized).toContain('[REDACTED_SECRET]');
+    expect(serialized).not.toContain('sk-test-secret');
   });
 });

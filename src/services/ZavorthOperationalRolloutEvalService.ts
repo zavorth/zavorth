@@ -87,6 +87,7 @@ export class ZavorthOperationalRolloutEvalService {
       safety: {
         noLiveActionExecuted: true,
         noDashboardVisualMutation: true,
+        noZavorthControlVisualMutation: true,
         projectionsOnly: true,
         noExternalProviderRequired: true,
         ownerApprovalRequiredForRolloutChange: true,

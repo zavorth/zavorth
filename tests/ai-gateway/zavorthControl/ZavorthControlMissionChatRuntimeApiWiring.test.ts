@@ -20,7 +20,7 @@ describe('ZavorthControl mission and chat runtime API wiring', () => {
   });
 
   it('submits chat from the ZavorthControl through chat-v1 instead of the legacy session send route', () => {
-    const hook = read('src/ai-gateway/app/(zavorthControl)/zavorthControl/useControlPageClient.ts');
+    const hook = read('src/ai-gateway/app/(zavorthControl)/control/useControlPageClient.ts');
 
     expect(hook).toContain('fetchJson<Record<string, any>>(`/api/web/zavorthControl/chat-v1`');
     expect(hook).toContain('live: options.live === true');
@@ -30,9 +30,9 @@ describe('ZavorthControl mission and chat runtime API wiring', () => {
   });
 
   it('renders mission rows and explicit preview/live controls from the canonical contract', () => {
-    const main = read('src/ai-gateway/app/(zavorthControl)/zavorthControl/zavorthControlPageClient.main.tsx');
-    const sidebar = read('src/ai-gateway/app/(zavorthControl)/zavorthControl/zavorthControlPageClient.sidebar.tsx');
-    const utils = read('src/ai-gateway/app/(zavorthControl)/zavorthControl/zavorthControlPageClient.utils.ts');
+    const main = read('src/ai-gateway/app/(zavorthControl)/control/zavorthControlPageClient.main.tsx');
+    const sidebar = read('src/ai-gateway/app/(zavorthControl)/control/zavorthControlPageClient.sidebar.tsx');
+    const utils = read('src/ai-gateway/app/(zavorthControl)/control/zavorthControlPageClient.utils.ts');
 
     expect(utils).toContain('export function getMissionRows');
     expect(utils).toContain('state?.runtimeApiV1?.contracts?.missions?.data');

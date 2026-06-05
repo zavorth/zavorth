@@ -8,6 +8,7 @@ import {
 import { RuntimeAccessReadinessService } from "../../../../runtime/access/RuntimeAccessReadinessService";
 import { ZavorthLearningPlaneService } from "../../../../services/ZavorthLearningPlaneService";
 import { ZavorthMemoryPlaneService } from "../../../../services/ZavorthMemoryPlaneService";
+import { ZavorthNativeAutonomySpineService } from "../../../../services/ZavorthNativeAutonomySpineService";
 import { LlmRuntimeService } from "../../../../services/llm/LlmRuntimeService";
 import { config } from "../../../../config";
 
@@ -15,17 +16,21 @@ let experienceCore: ExperienceCoreService | null = null;
 
 export function getExperienceCoreService(): ExperienceCoreService {
   if (experienceCore) return experienceCore;
+  const runStore = createDefaultAgentRunStore();
   const agentGateway = new ZavorthAgentGateway({
     defaultProviderLabel: config.llmProvider || "Zavorth",
     defaultModelLabel: config.geminiModel || config.geminiDefaultModel || config.openaiModel || "modelo atual",
     llmRuntime: new LlmRuntimeService(),
-    runStore: createDefaultAgentRunStore(),
+    runStore,
     workflowQueueStore: createDefaultAgentWorkflowQueueStore(),
+    nativeAutonomySpine: new ZavorthNativeAutonomySpineService(),
   });
   experienceCore = new ExperienceCoreService({
     agentGateway,
     memoryPlane: new ZavorthMemoryPlaneService(),
-    learningPlane: new ZavorthLearningPlaneService(),
+    learningPlane: new ZavorthLearningPlaneService({
+      nativeRunStore: runStore,
+    }),
     runtimeAccessReadiness: new RuntimeAccessReadinessService(),
   });
   return experienceCore;

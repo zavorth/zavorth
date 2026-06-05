@@ -38,7 +38,7 @@ const LIVE_COMMANDS = new Set([
   'actions', 'atlas', 'autonomy', 'background', 'backup', 'board', 'commitments', 'config', 'cron', 'daily', 'daemon', 'devices', 'directory', 'dns',
   'docs', 'exec-policy', 'gateway', 'go', 'goals', 'health', 'hooks', 'infer', 'logs', 'mcp', 'message', 'node',
   'nodes', 'pairing', 'plugins', 'proxy', 'qr', 'reset', 'secrets', 'sessions', 'skills',
-  'mnemos', 'sandbox', 'satellite', 'state', 'swarm', 'system', 'taskboard', 'tasks', 'uninstall', 'webhooks', 'certify', 'xai',
+  'mnemos', 'sandbox', 'satellite', 'start', 'setup', 'connect', 'learn', 'tools', 'state', 'swarm', 'system', 'taskboard', 'tasks', 'uninstall', 'webhooks', 'certify', 'xai',
 ]);
 
 export function isZavorthLiveNamespaceCommand(command: string): boolean {
@@ -83,6 +83,11 @@ export async function runZavorthLiveNamespaceCommand(input: {
     case 'mcp': return runMcp(input.projectRoot, args);
     case 'message': return runMessage(input.projectRoot, args);
     case 'mnemos': return runMnemos(input.projectRoot, args);
+    case 'start': return runHappyPath(input.projectRoot, args, 'start');
+    case 'setup': return runHappyPath(input.projectRoot, args, 'setup');
+    case 'connect': return runHappyPath(input.projectRoot, args, 'connect');
+    case 'learn': return runHappyPath(input.projectRoot, args, 'learn');
+    case 'tools': return runHappyPath(input.projectRoot, args, 'tools');
     case 'gateway': return runServiceCommand(input.projectRoot, 'gateway', args);
     case 'node': return runNodeHost(input.projectRoot, args);
     case 'nodes': return runNodesCommand(input.projectRoot, args);
@@ -246,6 +251,72 @@ async function runDailyProduct(_root: string, args: string[]) {
     profileId: readFlag(args, 'profile') || process.env.ZAVORTH_PROFILE || process.env.ZAVORTH_EXPERIENCE_PROFILE || null,
   });
   return render(args, 'Zavorth daily product', service.renderText(snapshot).split('\n'), snapshot as unknown as JsonObject);
+}
+
+async function runHappyPath(_root: string, args: string[], kind: 'start' | 'setup' | 'connect' | 'learn' | 'tools') {
+  const flows: Record<typeof kind, { title: string; lines: string[]; commands: string[] }> = {
+    start: {
+      title: 'Zavorth start',
+      lines: [
+        'Start here for a clean first run.',
+        '1. Choose an experience profile: zavorth setup profile',
+        '2. Test the model route: zavorth setup provider',
+        '3. Connect channels when ready: zavorth connect channels',
+        '4. Review learned memory anytime: zavorth learn memory',
+        '5. Open tools and skills: zavorth tools catalog',
+      ],
+      commands: ['zavorth setup profile', 'zavorth setup provider', 'zavorth connect channels', 'zavorth learn memory', 'zavorth tools catalog'],
+    },
+    setup: {
+      title: 'Zavorth setup',
+      lines: [
+        'Set up the local experience in small steps.',
+        'Profile: choose personal, creator, developer, business or power.',
+        'Provider: add a key or local model, then run a probe.',
+        'Runtime: pick VPS, safe-8GB, developer or full and run the doctor.',
+        'Dashboard: open the setup checklist for the next useful action.',
+      ],
+      commands: ['zavorth setup profile', 'zavorth setup provider', 'zavorth setup runtime', 'zavorth health'],
+    },
+    connect: {
+      title: 'Connect channels',
+      lines: [
+        'Connect channels with honest readiness.',
+        'Telegram can become live with bot token and chat proof.',
+        'Slack, WhatsApp, Signal, Email and Discord show required credentials and live probes.',
+        'Outbox-only routes stay marked as outbox until their bridge passes a smoke test.',
+        'No message is sent from this guide.',
+      ],
+      commands: ['zavorth connect channels', 'zavorth message doctor', 'zavorth pairing create'],
+    },
+    learn: {
+      title: 'Review learned memory',
+      lines: [
+        'Review what Zavorth learned and keep it reversible.',
+        'Show evidence, confidence, expiry and receipts before promoting anything.',
+        'Approve, edit, reject or forget candidates from the learning surface.',
+        'Sensitive profile, secrets, shell, channel and provider changes stay approval-bound.',
+      ],
+      commands: ['zavorth learn memory', 'zavorth mnemos status', 'zavorth daily'],
+    },
+    tools: {
+      title: 'Zavorth tools catalog',
+      lines: [
+        'Browse tools, MCP entries and skills before installing.',
+        'Safe entries start as preview with risk, smoke status and required setup.',
+        'Executable support files stay inactive until wrapped and approved.',
+        'Installed skills report usage signals so the curator can promote or retire them.',
+      ],
+      commands: ['zavorth tools catalog', 'zavorth mcp status', 'zavorth skills list'],
+    },
+  };
+  const flow = flows[kind];
+  return render(args, flow.title, flow.lines, {
+    ok: true,
+    kind,
+    commands: flow.commands,
+    sideEffects: 'none',
+  });
 }
 
 async function runBackground(root: string, args: string[]) {

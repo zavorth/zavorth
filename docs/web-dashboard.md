@@ -72,6 +72,19 @@ manually.
 - blocked actions and the reason;
 - artifacts and receipts.
 
+## QA
+
+Use these checks before treating the Dashboard as visually ready:
+
+```bash
+npm run qa:zavorthControl-real --silent
+npm run qa:zavorthControl-live-visual --silent
+```
+
+The real-flow check covers approval, artifact, replay and history behavior. The
+live visual check opens the local Dashboard, unlocks it with the active runtime
+token, captures screenshots and fails if demo data appears.
+
 ## Compatibility
 
 `/dashboard` is kept as a compatibility redirect for older bookmarks. New
