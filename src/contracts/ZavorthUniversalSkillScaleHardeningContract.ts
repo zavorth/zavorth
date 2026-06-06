@@ -78,7 +78,7 @@ export type ZavorthUniversalSkillScaleHardeningSnapshot = {
     items: ZavorthUniversalSkillDashboardReviewItem[];
     recommendedDataEndpoint: '/api/skills/scale-hardening';
   };
-  zavorthControlReview?: {
+  zavorthControlReview: {
     contractOnly: true;
     approvedVisualChangesApplied: false;
     layoutMutationPerformed: false;
@@ -97,10 +97,12 @@ export type ZavorthUniversalSkillScaleHardeningSnapshot = {
   };
   policy: {
     dashboardControlsOnboardingIsAuthority: true;
+    zavorthControlControlsOnboardingIsAuthority: true;
     previewFirstForLargeLibraries: true;
     batchApplyRequiresExplicitAllowlist: true;
     canaryBeforeBulkApply: true;
     dashboardReviewDoesNotChangeVisuals: true;
+    zavorthControlReviewDoesNotChangeVisuals: true;
     noVisualChangeWithoutOwnerApproval: true;
     noExecutionPerformed: true;
     noDirectUpstreamRuntimeUse: true;
@@ -110,6 +112,6 @@ export type ZavorthUniversalSkillScaleHardeningSnapshot = {
     run: 'npm run zavorth:universal-skill-scale-hardening -- --discover';
     runJson: 'npm run zavorth:universal-skill-scale-hardening:json -- --discover';
     check: 'npm run zavorth:universal-skill-scale-hardening:check --silent';
-    nextStage: 'Intent model0 - Approved Dashboard Implementation and Live Scale Canary';
+    nextStage: 'Intent model0 - Approved ZavorthControl Implementation and Live Scale Canary';
   };
 };

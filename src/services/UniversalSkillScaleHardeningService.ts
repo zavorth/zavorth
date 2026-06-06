@@ -9,6 +9,7 @@ import {
   type ZavorthUniversalSkillScaleGate,
   type ZavorthUniversalSkillScaleHardeningSnapshot,
   type ZavorthUniversalSkillScaleHardeningStatus,
+  type ZavorthUniversalSkillZavorthControlReviewItem,
 } from '../contracts/ZavorthUniversalSkillScaleHardeningContract.js';
 import {
   UniversalSkillRealSourceOnboardingService,
@@ -78,14 +79,18 @@ export class UniversalSkillScaleHardeningService {
       largeLibraryThreshold,
       massiveLibraryThreshold,
     };
-    const dashboardReview: ZavorthUniversalSkillScaleHardeningSnapshot['dashboardReview'] = {
+    const zavorthControlReview: ZavorthUniversalSkillScaleHardeningSnapshot['zavorthControlReview'] = {
       contractOnly: true,
       approvedVisualChangesApplied: false,
       layoutMutationPerformed: false,
-      items: this.buildDashboardReviewItems({ onboarding, batches, capacity }),
+      items: this.buildZavorthControlReviewItems({ onboarding, batches, capacity }),
       recommendedDataEndpoint: '/api/skills/scale-hardening' as const,
     };
-    const gates = this.buildGates({ onboarding, batches, capacity, dashboardItems: dashboardReview.items });
+    const dashboardReview: ZavorthUniversalSkillScaleHardeningSnapshot['dashboardReview'] = {
+      ...zavorthControlReview,
+      items: zavorthControlReview.items,
+    };
+    const gates = this.buildGates({ onboarding, batches, capacity, zavorthControlItems: zavorthControlReview.items });
     const status = resolveStatus(onboarding.status, gates);
     const reportPath = path.resolve(input.scaleReportPath || path.join(
       projectRoot,
@@ -102,6 +107,7 @@ export class UniversalSkillScaleHardeningService {
       gates,
       batches,
       dashboardReview,
+      zavorthControlReview,
       status,
       reportPersisted: false,
       reportPath: shouldPersistReport ? reportPath : null,
@@ -130,7 +136,7 @@ export class UniversalSkillScaleHardeningService {
       `Status: ${snapshot.status}`,
       `Escala: ${snapshot.capacity.scaleBand} | candidates=${snapshot.capacity.candidateCount} | batches=${snapshot.capacity.batchCount} | batchSize=${snapshot.capacity.batchSize}`,
       `Fontes em QA: ${snapshot.capacity.includedSourceCount} | onboarding=${snapshot.onboarding.status} | QA=${snapshot.onboarding.qa.status}`,
-      `Dashboard review: contract-only=${snapshot.dashboardReview.contractOnly} | visual-applied=${snapshot.dashboardReview.approvedVisualChangesApplied}`,
+      `ZavorthControl review: contract-only=${snapshot.zavorthControlReview.contractOnly} | visual-applied=${snapshot.zavorthControlReview.approvedVisualChangesApplied}`,
       `Report: ${snapshot.report.persisted ? snapshot.report.path : 'nao persistido'}`,
       '',
       'Gates:',
@@ -152,8 +158,8 @@ export class UniversalSkillScaleHardeningService {
       }
     }
 
-    lines.push('', 'Dashboard review items:');
-    for (const item of snapshot.dashboardReview.items) {
+    lines.push('', 'ZavorthControl review items:');
+    for (const item of snapshot.zavorthControlReview.items) {
       lines.push(`- ${item.priority} ${item.label}: ${item.status} | approval=${item.ownerApprovalRequired}`);
     }
 
@@ -174,6 +180,7 @@ export class UniversalSkillScaleHardeningService {
     gates: ZavorthUniversalSkillScaleGate[];
     batches: ZavorthUniversalSkillScaleBatch[];
     dashboardReview: ZavorthUniversalSkillScaleHardeningSnapshot['dashboardReview'];
+    zavorthControlReview: ZavorthUniversalSkillScaleHardeningSnapshot['zavorthControlReview'];
     status: ZavorthUniversalSkillScaleHardeningStatus;
     reportPersisted: boolean;
     reportPath: string | null;
@@ -189,6 +196,7 @@ export class UniversalSkillScaleHardeningService {
       gates: input.gates,
       batches: input.batches,
       dashboardReview: input.dashboardReview,
+      zavorthControlReview: input.zavorthControlReview,
       rollout: this.buildRollout({ status: input.status, onboarding: input.onboarding, capacity: input.capacity }),
       report: {
         persisted: input.reportPersisted,
@@ -197,10 +205,12 @@ export class UniversalSkillScaleHardeningService {
       },
       policy: {
         dashboardControlsOnboardingIsAuthority: true,
+        zavorthControlControlsOnboardingIsAuthority: true,
         previewFirstForLargeLibraries: true,
         batchApplyRequiresExplicitAllowlist: true,
         canaryBeforeBulkApply: true,
         dashboardReviewDoesNotChangeVisuals: true,
+        zavorthControlReviewDoesNotChangeVisuals: true,
         noVisualChangeWithoutOwnerApproval: true,
         noExecutionPerformed: true,
         noDirectUpstreamRuntimeUse: true,
@@ -210,7 +220,7 @@ export class UniversalSkillScaleHardeningService {
         run: 'npm run zavorth:universal-skill-scale-hardening -- --discover',
         runJson: 'npm run zavorth:universal-skill-scale-hardening:json -- --discover',
         check: 'npm run zavorth:universal-skill-scale-hardening:check --silent',
-        nextStage: 'Intent model0 - Approved Dashboard Implementation and Live Scale Canary',
+        nextStage: 'Intent model0 - Approved ZavorthControl Implementation and Live Scale Canary',
       },
     };
   }
@@ -255,7 +265,7 @@ export class UniversalSkillScaleHardeningService {
     onboarding: ZavorthUniversalSkillRealSourceOnboardingSnapshot;
     batches: ZavorthUniversalSkillScaleBatch[];
     capacity: ZavorthUniversalSkillScaleHardeningSnapshot['capacity'];
-    dashboardItems: ZavorthUniversalSkillDashboardReviewItem[];
+    zavorthControlItems: ZavorthUniversalSkillZavorthControlReviewItem[];
   }): ZavorthUniversalSkillScaleGate[] {
     const candidates = input.capacity.candidateCount;
     const maxCandidates = input.onboarding.qa.expansion.certification.scaleLimits.maxCandidates;
@@ -263,7 +273,7 @@ export class UniversalSkillScaleHardeningService {
     const hasWarningRegression = input.onboarding.regression.findings.some((finding) => finding.severity === 'warning');
     return [
       gate({
-        id: 'dashboard-controls-onboarding',
+        id: 'zavorthControl-controls-onboarding',
         label: 'Etapa 8 como autoridade',
         status: input.onboarding.status === 'blocked' ? 'blocked' : input.onboarding.status,
         observed: input.onboarding.status,
@@ -307,12 +317,12 @@ export class UniversalSkillScaleHardeningService {
         summary: `${input.onboarding.regression.findings.length} finding(s) de regressao.`,
       }),
       gate({
-        id: 'dashboard-review-contract',
-        label: 'Contrato para dashboard',
-        status: input.dashboardItems.length >= 5 ? 'passed' : 'attention',
-        observed: input.dashboardItems.length,
+        id: 'zavorthControl-review-contract',
+        label: 'Contrato para ZavorthControl',
+        status: input.zavorthControlItems.length >= 5 ? 'passed' : 'attention',
+        observed: input.zavorthControlItems.length,
         target: 'itens suficientes para card, tabela, filtros, alertas e acoes',
-        summary: `${input.dashboardItems.length} item(ns) preparados para review visual futuro.`,
+        summary: `${input.zavorthControlItems.length} item(ns) preparados para review visual futuro.`,
       }),
       gate({
         id: 'no-visual-mutation',
@@ -320,7 +330,7 @@ export class UniversalSkillScaleHardeningService {
         status: 'passed',
         observed: true,
         target: 'nenhuma mudanca de layout/CSS nesta etapa',
-        summary: 'Etapa 9 produz contrato e evidencia, nao altera layout do dashboard.',
+        summary: 'Etapa 9 produz contrato e evidencia, nao altera layout do ZavorthControl.',
       }),
       gate({
         id: 'no-execution',
@@ -333,11 +343,11 @@ export class UniversalSkillScaleHardeningService {
     ];
   }
 
-  private buildDashboardReviewItems(input: {
+  private buildZavorthControlReviewItems(input: {
     onboarding: ZavorthUniversalSkillRealSourceOnboardingSnapshot;
     batches: ZavorthUniversalSkillScaleBatch[];
     capacity: ZavorthUniversalSkillScaleHardeningSnapshot['capacity'];
-  }): ZavorthUniversalSkillDashboardReviewItem[] {
+  }): ZavorthUniversalSkillZavorthControlReviewItem[] {
     const status = input.onboarding.status;
     return [
       dashboardItem({

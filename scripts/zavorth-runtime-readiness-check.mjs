@@ -108,12 +108,12 @@ const requiredMarkers = {
     'stayOnline',
     'ZavorthRuntimeReadinessUxService',
   ],
-  'src/ai-gateway/app/(zavorthControl)/control/HomePageClient.tsx': [
-    '/api/runtime/readiness',
-    '/api/runtime/readiness/fixes',
-    'runtimeReadiness',
-    'runtimeGuidedFixes',
-    'statusLabel',
+  'assets/zavorth-control/scripts/pages.js': [
+    'Ready check',
+    'Run Zavorth Ready To Go',
+    'Stay Online status',
+    'Ask Zavorth',
+    'Provider',
   ],
   'src/telegram/TelegramCommandRoutingService.ts': [
     '/ready',

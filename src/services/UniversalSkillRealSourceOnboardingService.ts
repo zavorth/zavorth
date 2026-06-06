@@ -177,14 +177,14 @@ export class UniversalSkillRealSourceOnboardingService {
         run: 'npm run zavorth:universal-skill-real-source-onboarding -- --discover',
         runJson: 'npm run zavorth:universal-skill-real-source-onboarding:json -- --discover',
         check: 'npm run zavorth:universal-skill-real-source-onboarding:check --silent',
-        nextStage: 'Certification matrix - Real Library Scale Hardening and Dashboard Review',
+        nextStage: 'Certification matrix - Real Library Scale Hardening and ZavorthControl Review',
       },
     };
   }
 
   public formatSnapshotText(snapshot: ZavorthUniversalSkillRealSourceOnboardingSnapshot): string {
     const lines = [
-      'Universal Skill Real Source Onboarding - Dashboard controls',
+      'Universal Skill Real Source Onboarding - ZavorthControl controls',
       '',
       `Status: ${snapshot.status}`,
       `Modo: ${snapshot.mode} | Canal: ${snapshot.channel}`,

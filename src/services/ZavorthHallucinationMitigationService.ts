@@ -188,7 +188,7 @@ export class ZavorthHallucinationMitigationService {
   ): string {
     const notes: string[] = [];
     if (input.executionClaimWithoutReceipt) {
-      notes.push('Reliability note: I do not have an execution receipt for this run; treat any claim of an applied action below as a proposal or draft, not as something already executed.');
+      notes.push('Reliability note: nao tenho recibo de execucao deste run; I do not have an execution receipt for this run; treat any claim of an applied action below as a proposal or draft, not as something already executed.');
     }
     if (input.unsupportedEvidenceSensitive) {
       const reason = input.highStakes
