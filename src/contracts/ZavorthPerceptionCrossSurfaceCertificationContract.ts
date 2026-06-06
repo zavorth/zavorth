@@ -114,9 +114,9 @@ export type ZavorthPerceptionDashboardProjection = {
   }>;
 };
 
-export type ZavorthPerceptionZavorthControlTarget = ZavorthPerceptionDashboardTarget;
+export interface ZavorthPerceptionZavorthControlTarget extends ZavorthPerceptionDashboardTarget {}
 
-export type ZavorthPerceptionZavorthControlProjection = ZavorthPerceptionDashboardProjection;
+export interface ZavorthPerceptionZavorthControlProjection extends ZavorthPerceptionDashboardProjection {}
 
 export type ZavorthPerceptionCertificationMatrixRow = {
   id: ZavorthPerceptionCertificationScenarioId;

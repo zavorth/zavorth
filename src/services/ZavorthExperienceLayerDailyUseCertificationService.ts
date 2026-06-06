@@ -297,6 +297,7 @@ function validateProjectionSafety(value: unknown): { ok: boolean; errors: string
     ['hidden execution authority', /"hiddenExecutionAuthority"\s*:\s*true/],
     ['generic execution authority', /"executionAuthority"\s*:\s*true/],
     ['dashboard execution authority', /"dashboardCanExecute(?:TargetAction)?"\s*:\s*true/],
+    ['zavorth control execution authority', /"zavorthControlCanExecute(?:TargetAction)?"\s*:\s*true/],
     ['satellite target execution authority', /"satelliteCanExecuteTargetAction"\s*:\s*true/],
     ['cli target execution authority', /"cliCanExecuteTargetAction"\s*:\s*true/],
     ['openai-like secret', /\bsk-[A-Za-z0-9_-]{12,}\b/],

@@ -5,7 +5,7 @@ function readFlag(argv: string[], name: string): string | null {
   const inline = argv.find((arg) => arg.startsWith(prefix));
   if (inline) return inline.slice(prefix.length);
   const index = argv.indexOf(`--${name}`);
-  return index >= 0 ? argv[index + 1] || null : null;
+  return index >= 0 && index + 1 < argv.length ? argv[index + 1] : null;
 }
 
 async function main(): Promise<void> {

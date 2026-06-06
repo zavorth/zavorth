@@ -212,7 +212,7 @@ export function useZavorthControlSalesPackBusinessMode(
     disable,
     refresh,
     seedDemo,
-  }), [enabled, effectiveEnabled, activationReason, snapshot, loading, busyActionId, message]);
+  }), [enabled, effectiveEnabled, activationReason, snapshot, loading, busyActionId, message, resolvedIdentity, storageKey]);
 }
 
 async function fetchSalesPackSnapshot(): Promise<ZavorthControlSalesPackSnapshot> {
@@ -350,7 +350,21 @@ async function readJsonResponse(response: Response): Promise<unknown> {
 function readErrorMessage(payload: unknown, fallback: string): string {
   const record = asRecord(payload);
   const error = typeof record?.error === "string" ? record.error.trim() : "";
-  return error || fallback;
+  return sanitizeUserFacingError(error) || fallback;
+}
+
+function sanitizeUserFacingError(message: string): string {
+  const firstLine = message.split(/\r?\n/).map((line) => line.trim()).find(Boolean) || "";
+  if (!firstLine || firstLine.length > 180) {
+    return "";
+  }
+  if (/\bat\s+\S+\s*\(|node_modules|[A-Za-z]:\\|\/(?:src|app|var|tmp|home)\//i.test(message)) {
+    return "";
+  }
+  if (/\b(?:sk-[A-Za-z0-9_-]{8,}|gh[pousr]_[A-Za-z0-9_]{12,}|Bearer\s+[A-Za-z0-9._~+/-]+=*)\b/i.test(message)) {
+    return "";
+  }
+  return firstLine;
 }
 
 function asRecord(value: unknown): Record<string, unknown> | null {

@@ -4,6 +4,7 @@ import {
 } from './ZavorthControlOverviewSector';
 
 type AnyRecord = Record<string, any>;
+type ActionCallback = (payload: AnyRecord) => void;
 
 function array(value: unknown): AnyRecord[] {
   return Array.isArray(value) ? value as AnyRecord[] : [];
@@ -30,7 +31,34 @@ function capabilityStatus(capability: AnyRecord): string {
   return 'Disponivel';
 }
 
-export function ZavorthControlTaskTimeline({ viewModel = {} }: { viewModel?: AnyRecord }) {
+function ProjectionActionButton({
+  children,
+  onAction,
+  payload,
+}: {
+  children: React.ReactNode;
+  onAction?: ActionCallback;
+  payload: AnyRecord;
+}) {
+  return (
+    <button
+      type="button"
+      disabled={!onAction}
+      aria-disabled={!onAction}
+      onClick={() => onAction?.(payload)}
+    >
+      {children}
+    </button>
+  );
+}
+
+export function ZavorthControlTaskTimeline({
+  viewModel = {},
+  onViewReceipt,
+}: {
+  viewModel?: AnyRecord;
+  onViewReceipt?: ActionCallback;
+}) {
   const run = viewModel.agentRun || {};
   const events = array(viewModel.events);
   const approvals = array(viewModel.approvals).filter((approval) => approval.status === 'pending');
@@ -58,12 +86,24 @@ export function ZavorthControlTaskTimeline({ viewModel = {} }: { viewModel?: Any
           </li>
         ))}
       </ol>
-      <button type="button">View receipt</button>
+      <ProjectionActionButton onAction={onViewReceipt} payload={{ source: 'task-timeline', run }}>
+        View receipt
+      </ProjectionActionButton>
     </section>
   );
 }
 
-export function ZavorthControlMemoryCenter({ viewModel = {} }: { viewModel?: AnyRecord }) {
+export function ZavorthControlMemoryCenter({
+  viewModel = {},
+  onEdit,
+  onForget,
+  onNeverLearn,
+}: {
+  viewModel?: AnyRecord;
+  onEdit?: ActionCallback;
+  onForget?: ActionCallback;
+  onNeverLearn?: ActionCallback;
+}) {
   const memories = array(viewModel.memorySignals).slice(0, 3);
   const visibleMemories = memories.length ? memories : [{
     id: 'memory-empty',
@@ -86,9 +126,9 @@ export function ZavorthControlMemoryCenter({ viewModel = {} }: { viewModel?: Any
             <small>Origem: {label(memory.source || memory.origin || memory.evidenceRef, 'conversa atual')}</small>
             <small>Confianca: {confidenceLabel(memory.confidence)} · Expira: {label(memory.expiry || memory.expiresAt, 'revisar depois')}</small>
             <div className="bcc-context-actions">
-              <button type="button">Editar</button>
-              <button type="button">Esquecer</button>
-              <button type="button">Nunca aprender isso</button>
+              <ProjectionActionButton onAction={onEdit} payload={memory}>Editar</ProjectionActionButton>
+              <ProjectionActionButton onAction={onForget} payload={memory}>Esquecer</ProjectionActionButton>
+              <ProjectionActionButton onAction={onNeverLearn} payload={memory}>Nunca aprender isso</ProjectionActionButton>
             </div>
           </article>
         ))}
@@ -97,7 +137,15 @@ export function ZavorthControlMemoryCenter({ viewModel = {} }: { viewModel?: Any
   );
 }
 
-export function ZavorthControlSkillCatalog({ viewModel = {} }: { viewModel?: AnyRecord }) {
+export function ZavorthControlSkillCatalog({
+  viewModel = {},
+  onTestSkill,
+  onPromote,
+}: {
+  viewModel?: AnyRecord;
+  onTestSkill?: ActionCallback;
+  onPromote?: ActionCallback;
+}) {
   const capabilities = array(viewModel.capabilities).slice(0, 4);
   const skills = capabilities.length ? capabilities : [{
     id: 'skill-empty',
@@ -119,8 +167,8 @@ export function ZavorthControlSkillCatalog({ viewModel = {} }: { viewModel?: Any
             <small>{capabilityStatus(skill)} · risco {label(skill.risk, 'safe')}</small>
             <small>Ultimo smoke: {label(skill.lastSmoke || skill.smokeStatus, 'Built-in verified')}</small>
             <div className="bcc-context-actions">
-              <button type="button">Testar skill</button>
-              <button type="button">Promover</button>
+              <ProjectionActionButton onAction={onTestSkill} payload={skill}>Testar skill</ProjectionActionButton>
+              <ProjectionActionButton onAction={onPromote} payload={skill}>Promover</ProjectionActionButton>
             </div>
           </article>
         ))}
@@ -129,7 +177,13 @@ export function ZavorthControlSkillCatalog({ viewModel = {} }: { viewModel?: Any
   );
 }
 
-export function ZavorthControlSetupGuides({ viewModel = {} }: { viewModel?: AnyRecord }) {
+export function ZavorthControlSetupGuides({
+  viewModel = {},
+  onOpenConfig,
+}: {
+  viewModel?: AnyRecord;
+  onOpenConfig?: ActionCallback;
+}) {
   const runtime = viewModel.runtime || {};
   const integrations = array(viewModel.integrations);
   const providerStatus = label(viewModel.providerCockpit?.status || runtime.currentProviderLabel, 'provider');
@@ -147,17 +201,17 @@ export function ZavorthControlSetupGuides({ viewModel = {} }: { viewModel?: AnyR
         <article className="bcc-context-item">
           <strong>Provider</strong>
           <small>{providerStatus}</small>
-          <button type="button">Abrir configuracao</button>
+          <ProjectionActionButton onAction={onOpenConfig} payload={{ target: 'provider' }}>Abrir configuracao</ProjectionActionButton>
         </article>
         <article className="bcc-context-item">
           <strong>Canais</strong>
           <small>{channelStatus}</small>
-          <button type="button">Abrir configuracao</button>
+          <ProjectionActionButton onAction={onOpenConfig} payload={{ target: 'channels' }}>Abrir configuracao</ProjectionActionButton>
         </article>
         <article className="bcc-context-item">
           <strong>Execucao</strong>
           <small>{label(runtime.productModeLabel, 'chat')} · dry-run quando nao houver backend forte</small>
-          <button type="button">Abrir configuracao</button>
+          <ProjectionActionButton onAction={onOpenConfig} payload={{ target: 'runtime' }}>Abrir configuracao</ProjectionActionButton>
         </article>
       </div>
     </section>
@@ -170,12 +224,26 @@ export function ZavorthControlContextRail({
   onRunObservatoryQueryChange = () => {},
   onResolveNexusApproval = () => {},
   onRunNexusWorkbenchAction = () => {},
+  onViewReceipt,
+  onEditMemory,
+  onForgetMemory,
+  onNeverLearnMemory,
+  onTestSkill,
+  onPromoteSkill,
+  onOpenConfig,
 }: {
   viewModel?: AnyRecord;
   nexusWorkbench?: AnyRecord;
   onRunObservatoryQueryChange?: (query: AnyRecord) => void;
   onResolveNexusApproval?: (approval: AnyRecord | null) => void;
   onRunNexusWorkbenchAction?: (action: AnyRecord | null) => void;
+  onViewReceipt?: ActionCallback;
+  onEditMemory?: ActionCallback;
+  onForgetMemory?: ActionCallback;
+  onNeverLearnMemory?: ActionCallback;
+  onTestSkill?: ActionCallback;
+  onPromoteSkill?: ActionCallback;
+  onOpenConfig?: ActionCallback;
 }) {
   // projection-only: this rail never fetches, sends, installs, forgets or promotes directly.
   // All actions are labels for governed routes owned by the main runtime and setup surfaces.
@@ -183,10 +251,19 @@ export function ZavorthControlContextRail({
     <aside className="bcc-context-rail" aria-label="Contexto discreto da conversa">
       <details open>
         <summary>Contexto</summary>
-        <ZavorthControlTaskTimeline viewModel={viewModel} />
-        <ZavorthControlMemoryCenter viewModel={viewModel} />
-        <ZavorthControlSkillCatalog viewModel={viewModel} />
-        <ZavorthControlSetupGuides viewModel={viewModel} />
+        <ZavorthControlTaskTimeline viewModel={viewModel} onViewReceipt={onViewReceipt} />
+        <ZavorthControlMemoryCenter
+          viewModel={viewModel}
+          onEdit={onEditMemory}
+          onForget={onForgetMemory}
+          onNeverLearn={onNeverLearnMemory}
+        />
+        <ZavorthControlSkillCatalog
+          viewModel={viewModel}
+          onTestSkill={onTestSkill}
+          onPromote={onPromoteSkill}
+        />
+        <ZavorthControlSetupGuides viewModel={viewModel} onOpenConfig={onOpenConfig} />
         <div className="bcc-context-rail__section bcc-nexus-context">
           <ZavorthControlNexusContext
             viewModel={{ ...viewModel, nexusWorkbench }}

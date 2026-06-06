@@ -3198,7 +3198,7 @@ ${current}` : skillPrompt;
       'Business mode is active.',
       '',
       'I prepared a governed audit preview. This is safe to inspect: no policy was changed, no channel was modified, no message was sent and no workspace files were edited.',
-      'Nothing outside this zavorthControl was changed.',
+      'Nothing outside this ZavorthControl was changed.',
       '',
       'The approval channel, policy scope, TTL, blocked actions and receipt evidence are below.',
     ].join('\n');
