@@ -66,6 +66,7 @@ type SkillLoaderRuntime = {
   skillProvenanceService?: Pick<SkillProvenanceService, 'buildProvenance'>;
   licensePolicyService?: Pick<LicensePolicyService, 'evaluateClassification'>;
   skillRiskScoringService?: Pick<SkillRiskScoringService, 'assessImport'>;
+  quiet?: boolean;
 };
 
 /**
@@ -80,6 +81,7 @@ export class SkillLoader {
   private readonly provenanceService: Pick<SkillProvenanceService, 'buildProvenance'>;
   private readonly licensePolicyService: Pick<LicensePolicyService, 'evaluateClassification'>;
   private readonly riskScoringService: Pick<SkillRiskScoringService, 'assessImport'>;
+  private readonly quiet: boolean;
 
   constructor(runtime: SkillLoaderRuntime = {}) {
     this.sourceRegistry = runtime.sourceRegistryService || new SkillSourceRegistryService();
@@ -88,6 +90,7 @@ export class SkillLoader {
     this.provenanceService = runtime.skillProvenanceService || new SkillProvenanceService();
     this.licensePolicyService = runtime.licensePolicyService || new LicensePolicyService();
     this.riskScoringService = runtime.skillRiskScoringService || new SkillRiskScoringService();
+    this.quiet = runtime.quiet === true;
     this.ensureSkillsDirs();
   }
 
@@ -99,7 +102,9 @@ export class SkillLoader {
 
       if (!fs.existsSync(source.absolutePath)) {
         fs.mkdirSync(source.absolutePath, { recursive: true });
-        console.log(`Diretorio de skills criado: ${source.absolutePath}`);
+        if (!this.quiet) {
+          console.log(`Diretorio de skills criado: ${source.absolutePath}`);
+        }
       }
     }
   }

@@ -177,6 +177,16 @@ export type AgentOsDashboardSnapshot = {
   actions: Array<{ id: string; label: string; enabled: boolean; reason: string }>;
 };
 
+export type AgentOsZavorthControlProjection = {
+  source: 'AgentOsZavorthControlProjection';
+  title: string;
+  status: AgentOsStatus;
+  detailsHiddenByDefault: true;
+  liveActionApplied: false;
+  cards: AgentOsDashboardSnapshot['cards'];
+  actions: AgentOsDashboardSnapshot['actions'];
+};
+
 export type AgentOsSnapshot = {
   contractVersion: typeof AGENT_OS_CONTRACT_VERSION;
   generatedAt: string;
@@ -188,6 +198,7 @@ export type AgentOsSnapshot = {
   reputation: AgentOsReputationSnapshot;
   architectureDecision: AgentOsArchitectureDecisionDraft;
   dashboard: AgentOsDashboardSnapshot;
+  zavorthControl: AgentOsZavorthControlProjection;
   safety: {
     thinkingBlocked: false;
     simulationHasSideEffects: false;

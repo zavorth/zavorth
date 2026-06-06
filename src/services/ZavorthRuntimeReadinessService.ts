@@ -67,6 +67,7 @@ export type ZavorthRuntimeReadinessSnapshot = {
     jsonCommand: 'zavorth readiness --json';
     dailyCommand: 'zavorth daily';
     dashboardRoute: '/dashboard';
+    zavorthControlRoute: '/dashboard';
     safeStartupCommand: 'zavorth go';
   };
   safety: {
@@ -171,6 +172,7 @@ export class ZavorthRuntimeReadinessService {
         jsonCommand: 'zavorth readiness --json',
         dailyCommand: 'zavorth daily',
         dashboardRoute: '/dashboard',
+        zavorthControlRoute: '/dashboard',
         safeStartupCommand: 'zavorth go',
       },
       safety: {

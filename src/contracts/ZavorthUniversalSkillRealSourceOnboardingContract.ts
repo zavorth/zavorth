@@ -107,6 +107,6 @@ export type ZavorthUniversalSkillRealSourceOnboardingSnapshot = {
     run: 'npm run zavorth:universal-skill-real-source-onboarding -- --discover';
     runJson: 'npm run zavorth:universal-skill-real-source-onboarding:json -- --discover';
     check: 'npm run zavorth:universal-skill-real-source-onboarding:check --silent';
-    nextStage: 'Certification matrix - Real Library Scale Hardening and Dashboard Review';
+    nextStage: 'Certification matrix - Real Library Scale Hardening and ZavorthControl Review';
   };
 };

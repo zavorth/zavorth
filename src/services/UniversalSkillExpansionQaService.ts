@@ -176,7 +176,7 @@ export class UniversalSkillExpansionQaService {
         run: 'npm run zavorth:universal-skill-expansion-qa -- --source <path>',
         runJson: 'npm run zavorth:universal-skill-expansion-qa:json -- --source <path>',
         check: 'npm run zavorth:universal-skill-expansion-qa:check --silent',
-        nextStage: 'Dashboard controls - Real Source Onboarding and Continuous Regression',
+        nextStage: 'ZavorthControl controls - Real Source Onboarding and Continuous Regression',
       },
     };
   }

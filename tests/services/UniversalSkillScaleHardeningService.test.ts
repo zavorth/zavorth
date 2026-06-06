@@ -72,11 +72,12 @@ describe('UniversalSkillScaleHardeningService Certification matrix', () => {
     }));
     expect(snapshot.batches).toHaveLength(3);
     expect(snapshot.batches.every((batch) => batch.approvalRequired)).toBe(true);
-    expect(snapshot.dashboardReview).toEqual(expect.objectContaining({
+    expect(snapshot.zavorthControlReview).toEqual(expect.objectContaining({
       contractOnly: true,
       approvedVisualChangesApplied: false,
       layoutMutationPerformed: false,
     }));
+    expect(snapshot.dashboardReview).toEqual(snapshot.zavorthControlReview);
     expect(snapshot.dashboardReview.items.every((item) => item.ownerApprovalRequired)).toBe(true);
     expect(snapshot.policy.noVisualChangeWithoutOwnerApproval).toBe(true);
   });
@@ -95,7 +96,7 @@ describe('UniversalSkillScaleHardeningService Certification matrix', () => {
 
     expect(snapshot.status).toBe('blocked');
     expect(snapshot.gates).toEqual(expect.arrayContaining([
-      expect.objectContaining({ id: 'dashboard-controls-onboarding', status: 'blocked' }),
+      expect.objectContaining({ id: 'zavorthControl-controls-onboarding', status: 'blocked' }),
       expect.objectContaining({ id: 'candidate-scale-limit', status: 'blocked' }),
     ]));
     expect(snapshot.rollout.recommendedMode).toBe('hold');

@@ -29,20 +29,20 @@ const requiredFiles = [
     ],
   },
   {
-    path: 'src/ai-gateway/app/(zavorthControl)/control/BootstrapBanner.tsx',
+    path: 'src/ai-gateway/app/(zavorthControl)/control/page.tsx',
     includes: [
-      'Local secrets were sealed on first launch',
-      '%APPDATA%\\\\Zavorth\\\\server.env',
-      '~/.zavorth/server.env',
+      'ControlPageClient',
+      'LegacyDashboardShell',
+      'ControlPageAssets',
     ],
   },
   {
-    path: 'src/ai-gateway/app/(zavorthControl)/control/HomePageClient.tsx',
+    path: 'src/ai-gateway/app/(zavorthControl)/control/ZavorthControlBridge.tsx',
     includes: [
-      'Zavorth Control Plane',
-      'operator surface',
-      'Open provider arena',
-      'Inspect endpoint surface',
+      'Zavorth Home',
+      'Zavorth',
+      'Ready',
+      'Search',
     ],
   },
   {
