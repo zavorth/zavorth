@@ -123,24 +123,8 @@ export class ZavorthRuntimeReadinessUxService {
       primaryAction,
       secondaryActions,
       cards,
-      dashboardProjection: {
-        route: '/dashboard',
-        endpoint: '/api/runtime/readiness',
-        slot: 'runtime-readiness',
-        renderMode: 'operator-cards',
-        showTechnicalDetailsByDefault: false,
-        executionAuthority: false,
-        cards,
-      },
-      zavorthControlProjection: {
-        route: '/dashboard',
-        endpoint: '/api/runtime/readiness',
-        slot: 'runtime-readiness',
-        renderMode: 'operator-cards',
-        showTechnicalDetailsByDefault: false,
-        executionAuthority: false,
-        cards,
-      },
+      dashboardProjection: createRuntimeReadinessProjection(cards),
+      zavorthControlProjection: createRuntimeReadinessProjection(cards),
       cliProjection: {
         command: 'zavorth readiness',
         jsonCommand: 'zavorth readiness --json',
@@ -297,6 +281,20 @@ export class ZavorthRuntimeReadinessUxService {
     };
     return uniqueActions([dashboardAction, ...actions]);
   }
+}
+
+function createRuntimeReadinessProjection(
+  cards: ZavorthRuntimeReadinessUxCard[],
+): ZavorthRuntimeReadinessUxDashboardProjection {
+  return {
+    route: '/dashboard',
+    endpoint: '/api/runtime/readiness',
+    slot: 'runtime-readiness',
+    renderMode: 'operator-cards',
+    showTechnicalDetailsByDefault: false,
+    executionAuthority: false,
+    cards,
+  };
 }
 
 function titleForCheck(id: ZavorthRuntimeReadinessCheckId): string {
