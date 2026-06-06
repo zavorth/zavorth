@@ -1,12 +1,12 @@
 {
   "version": 1,
-  "updatedAt": "2026-06-02T14:55:17.894Z",
+  "updatedAt": "2026-06-06T06:47:19.203Z",
   "snapshot": {
     "controls": [
       {
         "id": "security/AgentSecurityPolicyEngine",
         "relativePath": "src/security/AgentSecurityPolicyEngine.ts",
-        "sha256": "2fa7f7f4df4b3763c7f427ab107ad9f3a653bdcf2df09706d0bda63b095f95e7",
+        "sha256": "c97a56486517d5dad41e85ace661639de472843e4f77d0a0dd3aadf42fc864a4",
         "present": true
       },
       {
@@ -216,7 +216,7 @@
       {
         "id": "scripts/command-catalog.json",
         "relativePath": "scripts/command-catalog.json",
-        "sha256": "99ffe5cc0a33a83bd976a2eff3fff0cfbc082a56eb647a43bfc4fbfb7f945a4e",
+        "sha256": "6b67eabdbe6660bda49079a4a0a1f276a1553be4c9a796a209c00ac1d4b60910",
         "present": true
       }
     ],
