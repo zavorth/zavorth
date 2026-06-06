@@ -20,8 +20,9 @@ export type ToolExposurePolicyHintProfile = {
   intentCategory?: string | null;
   groups?: string[];
   recommendedToolNames?: string[];
-  toolExposureGatedByCognitiveFirewall?: false;
-  isHardGate?: false;
+  quarantinedToolNames?: string[];
+  toolExposureGatedByCognitiveFirewall?: boolean;
+  isHardGate?: boolean;
   reason?: string;
 };
 
@@ -120,20 +121,37 @@ export class ToolExposurePolicy {
   public buildProfile(input: ToolExposurePolicyInput): UniversalToolExposureProfile {
     const requireApprovalFor = new Set((input.requireApprovalFor || []).map((tool) => tool.toLowerCase()));
     const blockedToolIds = normalizeToolIds(input.blockedTools);
-    const blockedToolSet = new Set(blockedToolIds.map((tool) => tool.toLowerCase()));
     const blockedToolReason = normalizeToolId(input.blockedToolReason || 'blocked-by-imported-capability-trust');
     const hintToolIds = normalizeToolIds(input.toolHintProfile?.recommendedToolNames);
+    const cognitiveFirewallBlockedToolIds = normalizeToolIds(input.toolHintProfile?.quarantinedToolNames);
     const toolIds = Array.from(new Set([
       ...normalizeToolIds(input.requestedTools),
       ...normalizeToolIds(input.allowedTools),
       ...hintToolIds,
     ]));
+    const effectiveBlockedToolIds = Array.from(new Set([
+      ...blockedToolIds,
+      ...cognitiveFirewallBlockedToolIds,
+    ]));
+    const effectiveBlockedToolSet = new Set(effectiveBlockedToolIds.map((tool) => tool.toLowerCase()));
 
     const blockedTools: UniversalBlockedToolExposure[] = [];
     const blockedExposureSet = new Set<string>();
+    for (const toolId of cognitiveFirewallBlockedToolIds) {
+      const normalizedToolId = toolId.toLowerCase();
+      if (blockedExposureSet.has(normalizedToolId)) {
+        continue;
+      }
+      blockedExposureSet.add(normalizedToolId);
+      blockedTools.push({
+        id: toolId,
+        label: humanizeToolLabel(toolId),
+        reason: 'blocked-by-cognitive-firewall-plugin-quarantine',
+      });
+    }
     const tools = toolIds.flatMap((toolId): UniversalToolExposure[] => {
       const normalizedToolId = toolId.toLowerCase();
-      if (blockedToolSet.has(normalizedToolId)) {
+      if (effectiveBlockedToolSet.has(normalizedToolId)) {
         if (!blockedExposureSet.has(normalizedToolId)) {
           blockedExposureSet.add(normalizedToolId);
           blockedTools.push({
@@ -175,7 +193,8 @@ export class ToolExposurePolicy {
       tools,
       ...(blockedTools.length > 0 ? {
         blockedTools,
-        toolExposureGatedByImportedCapabilityTrust: true,
+        ...(blockedToolIds.length > 0 ? { toolExposureGatedByImportedCapabilityTrust: true } : {}),
+        ...(cognitiveFirewallBlockedToolIds.length > 0 ? { toolExposureGatedByCognitiveFirewall: true } : {}),
       } : {}),
     };
   }

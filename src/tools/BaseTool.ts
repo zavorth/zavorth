@@ -8,6 +8,7 @@ export abstract class BaseTool {
   abstract readonly name: string;
   abstract readonly description: string;
   abstract readonly parameters: ToolDefinition['parameters'];
+  public readonly metadata?: ToolDefinition['metadata'];
 
   /**
    * Executa a ferramenta com os argumentos fornecidos.
@@ -22,6 +23,7 @@ export abstract class BaseTool {
     return {
       name: this.name,
       description: this.description,
+      ...(this.metadata ? { metadata: { ...this.metadata } } : {}),
       parameters: this.parameters,
     };
   }

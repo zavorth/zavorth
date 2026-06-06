@@ -81,6 +81,13 @@ export type TerminalShellQueuedItem = {
   status: 'queued' | 'ready';
 };
 
+export type TerminalShellStreamRenderBuffer = {
+  start(): void;
+  push(input: { delta?: string | null; accumulated?: string | null }): void;
+  complete(input?: { accumulated?: string | null }): void;
+  abort(): void;
+};
+
 export type TerminalShellComposer = {
   position: 'bottom';
   value: string;
@@ -452,6 +459,68 @@ export function queueTerminalShellInput(input: {
     operatorNotice: input.activeRun
       ? 'Input queued for this run.'
       : 'Input ready to send.',
+  };
+}
+
+export function createTerminalShellStreamRenderBuffer(input: {
+  intervalMs?: number;
+  onFlush: (text: string) => void;
+  setIntervalImpl?: typeof setInterval;
+  clearIntervalImpl?: typeof clearInterval;
+}): TerminalShellStreamRenderBuffer {
+  const intervalMs = Math.max(16, Math.floor(input.intervalMs || 120));
+  const setIntervalImpl = input.setIntervalImpl || setInterval;
+  const clearIntervalImpl = input.clearIntervalImpl || clearInterval;
+  let timer: ReturnType<typeof setInterval> | null = null;
+  let liveText = '';
+  let lastFlushedText = '';
+
+  const flush = (force = false) => {
+    if (!liveText) {
+      return;
+    }
+    if (!force && liveText === lastFlushedText) {
+      return;
+    }
+    lastFlushedText = liveText;
+    input.onFlush(liveText);
+  };
+
+  const stopTimer = () => {
+    if (!timer) {
+      return;
+    }
+    clearIntervalImpl(timer);
+    timer = null;
+  };
+
+  return {
+    start() {
+      if (timer) {
+        return;
+      }
+      timer = setIntervalImpl(() => flush(), intervalMs);
+    },
+    push(event) {
+      const accumulated = String(event.accumulated || '');
+      liveText = accumulated || `${liveText}${String(event.delta || '')}`;
+      this.start();
+    },
+    complete(event = {}) {
+      const accumulated = String(event.accumulated || '');
+      if (accumulated) {
+        liveText = accumulated;
+      }
+      flush(true);
+      stopTimer();
+      liveText = '';
+      lastFlushedText = '';
+    },
+    abort() {
+      stopTimer();
+      liveText = '';
+      lastFlushedText = '';
+    },
   };
 }
 

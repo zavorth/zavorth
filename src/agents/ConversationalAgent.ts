@@ -88,14 +88,15 @@ type ConversationalToolPolicyDecision = {
   tools?: ToolDefinition[];
   toolHintProfile?: ToolGatekeeperHintProfile;
   recommendedToolNames?: string[];
-  toolExposureGatedByCognitiveFirewall?: false;
+  toolExposureGatedByCognitiveFirewall?: boolean;
 };
 type ConversationalToolPolicyInput = {
   tools: ToolDefinition[];
   source: 'context-engine' | 'cognitive-firewall' | 'none';
   recommendedToolNames: string[];
-  toolExposureGatedByCognitiveFirewall: false;
+  toolExposureGatedByCognitiveFirewall: boolean;
   hintGroups: string[];
+  quarantinedToolNames: string[];
 };
 const AUTO_WEB_SEARCH_LIMIT = 8;
 const MAX_CONVERSATIONAL_TOOL_ROUNDS = 5;
@@ -195,6 +196,7 @@ export class ConversationalAgent {
       toolPolicyInput.tools,
       allTools,
       requiredToolNames,
+      new Set(toolPolicyInput.quarantinedToolNames),
     );
     const messages: ChatMessage[] = contextDecision
       ? [...contextDecision.messages]
@@ -610,15 +612,22 @@ export class ConversationalAgent {
     filteredTools: ToolDefinition[],
     allTools: ToolDefinition[],
     requiredToolNames: Set<string>,
+    quarantinedToolNames: Set<string> = new Set(),
   ): ToolDefinition[] {
     const byName = new Map<string, ToolDefinition>();
 
     for (const tool of filteredTools || []) {
+      if (quarantinedToolNames.has(tool.name)) {
+        continue;
+      }
       byName.set(tool.name, tool);
     }
 
     for (const tool of allTools || []) {
       if (requiredToolNames.has(tool.name)) {
+        if (quarantinedToolNames.has(tool.name)) {
+          continue;
+        }
         byName.set(tool.name, tool);
       }
     }
@@ -645,8 +654,10 @@ export class ConversationalAgent {
       recommendedToolNames: hintProfile?.recommendedToolNames
         || decision?.recommendedToolNames
         || tools.map((tool) => tool.name),
-      toolExposureGatedByCognitiveFirewall: false,
+      toolExposureGatedByCognitiveFirewall: hintProfile?.toolExposureGatedByCognitiveFirewall === true
+        || decision?.toolExposureGatedByCognitiveFirewall === true,
       hintGroups: hintProfile?.groups || [],
+      quarantinedToolNames: hintProfile?.quarantinedToolNames || [],
     };
   }
 
