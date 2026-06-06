@@ -607,7 +607,7 @@ function buildRunId(
     .map((source) => path.resolve(source.sourcePath).toLowerCase())
     .sort()
     .join('|');
-  return `dashboard-controls-${generatedAt.replace(/[^0-9]/g, '').slice(0, 14)}-${stableHash(`${projectRoot}|${sourcePart}`)}`;
+  return `zavorth-control-${generatedAt.replace(/[^0-9]/g, '').slice(0, 14)}-${stableHash(`${projectRoot}|${sourcePart}`)}`;
 }
 
 function stableHash(value: string): string {
