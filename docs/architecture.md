@@ -27,8 +27,9 @@ state. Web, CLI and channel adapters should render `GatewaySpineSnapshot`
 instead of keeping separate copies of sessions, approvals, receipts or
 artifacts.
 
-Use `zavorth gateway` for a compact operator view, or `zavorth gateway --json`
-for the API/projection payload.
+Use `zavorth serve` or `zavorth ui` to open the operator surface. Gateway
+state is exposed through the runtime API/projection payload rather than a
+separate CLI command.
 
 ### Policy Plane
 
@@ -72,8 +73,9 @@ Zavorth's normal governance path, but adds a stronger team runtime:
   separation and docker/wsl/external-sandbox profiles for stronger hosts;
 - deterministic final synthesis when no LLM synthesis provider is attached.
 
-Use `zavorth swarm` or the ZavorthControl swarm surface when validating multi-agent
-work interactively. Maintainer CI verifies the official Swarm v2 contract.
+Use `npm run swarm-v2:check` or the ZavorthControl swarm surface when validating
+multi-agent work interactively. Maintainer CI verifies the official Swarm v2
+contract.
 
 ### Memory And Artifact Plane
 

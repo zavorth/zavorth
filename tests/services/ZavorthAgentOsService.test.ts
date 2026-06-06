@@ -59,6 +59,14 @@ describe('ZavorthAgentOsService', () => {
       expect(snapshot.reputation.liveActivationAllowed).toBe(false);
       expect(snapshot.architectureDecision.filesWritten).toBe(false);
       expect(snapshot.dashboard.cards.map((card) => card.id)).toContain('project-twin');
+      expect(snapshot.zavorthControl).toEqual(expect.objectContaining({
+        source: 'AgentOsZavorthControlProjection',
+        detailsHiddenByDefault: true,
+        liveActionApplied: false,
+        cards: expect.arrayContaining([
+          expect.objectContaining({ id: 'project-twin' }),
+        ]),
+      }));
     } finally {
       fs.rmSync(workspaceRoot, { recursive: true, force: true });
     }

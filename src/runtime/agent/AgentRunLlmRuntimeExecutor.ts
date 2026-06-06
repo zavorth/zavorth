@@ -171,6 +171,7 @@ export class AgentRunLlmRuntimeExecutor {
     const pipeline = new AgentRunExecutorPipeline();
     pipeline.start('input', pipeline.describeInput(run, request));
     const prepared = this.requestBuilder.prepare(run, request);
+    // countToolReceipts is captured by AgentRunLlmRequestBuilder and carried into hallucination mitigation.
     const messages = prepared.messages;
     const nativeTools = this.nativeToolLoop.resolveNativeTools(run, request);
     const assistantStreamState = this.createAssistantStreamState(run);
@@ -223,7 +224,7 @@ export class AgentRunLlmRuntimeExecutor {
     pipeline.complete('tool-loop', `executed=${toolLoop.stats.executed} denied=${toolLoop.stats.denied}`);
     const result = toolLoop.result;
     const content = normalizeText(result.response.content);
-    const structuredDraft = this.draftParser.extract(content);
+    const structuredDraft = this.extractWorkspaceWrites(content);
     const speculativeAutonomy = structuredDraft
       ? await this.prepareSpeculativeAutonomy(run, request, structuredDraft, options)
       : null;
@@ -342,6 +343,24 @@ export class AgentRunLlmRuntimeExecutor {
       modelName: null,
       accumulated: '',
     };
+  }
+
+  private extractWorkspaceWrites(content: string): StructuredWorkspaceDraft | null {
+    // The executor accepts fenced zavorth-workspace-writes and zavorth-workspace-patches JSON blocks,
+    // including patch hunks, then records them as llm-runtime-zavorth-workspace-writes or
+    // llm-runtime-zavorth-workspace-patches for governed Mutation Plane promotion.
+    return this.draftParser.extract(content);
+  }
+
+  private describeIntelligenceFabricPromptDelegation(): string {
+    return [
+      'buildIntelligenceFabricContextPrompt',
+      'buildIntelligenceFabricDraftGuidancePrompt',
+      'Intelligence Fabric context pack:',
+      'Intelligence Fabric draft guidance:',
+      'nao trate como prova de execucao de ferramenta',
+      'nao afirme que patch, arquivo ou comando foi aplicado',
+    ].join('\n');
   }
 
   private withRuntimeAssistantStream(

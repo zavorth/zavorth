@@ -91,6 +91,7 @@ export type ZavorthScheduledTaskDailyOpsReadinessSnapshot = {
     consumesStage6LiveTickCertification: true;
     allUserActionsGoThroughGovernedSurfaces: true;
     hostTaskCertificationIsExplicit: true;
+    noZavorthControlVisualMutation: true;
     noDashboardVisualMutation: true;
     noDirectDispatcherBypass: true;
     rawSecretsSerialized: false;

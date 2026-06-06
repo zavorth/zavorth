@@ -3,6 +3,7 @@ import {
   type AgentOsDashboardSnapshot,
   type AgentOsSnapshot,
   type AgentOsWorkspaceWrite,
+  type AgentOsZavorthControlProjection,
 } from '../contracts/AgentOsContract.js';
 import type { IntelligenceFabricInput, IntelligenceFabricSnapshot } from '../contracts/IntelligenceFabricContract.js';
 import { AgentImmuneSystemService } from './AgentImmuneSystemService.js';
@@ -112,6 +113,7 @@ export class ZavorthAgentOsService {
       reputationScores: reputation.scores.length,
       rollbackPrepared: transaction.rollbackPrepared,
     });
+    const zavorthControl = this.zavorthControlProjection(dashboard);
     return {
       contractVersion: AGENT_OS_CONTRACT_VERSION,
       generatedAt: this.now().toISOString(),
@@ -127,6 +129,7 @@ export class ZavorthAgentOsService {
       reputation,
       architectureDecision,
       dashboard,
+      zavorthControl,
       safety: {
         thinkingBlocked: false,
         simulationHasSideEffects: false,
@@ -178,6 +181,18 @@ export class ZavorthAgentOsService {
         { id: 'agent-os.apply-transaction', label: 'Aplicar transacao', enabled: input.rollbackPrepared && !blocked, reason: input.rollbackPrepared ? 'Rollback preparado.' : 'Rollback ainda nao preparado.' },
         { id: 'agent-os.rollback', label: 'Reverter transacao', enabled: input.rollbackPrepared, reason: 'Disponivel quando existir artifact de rollback.' },
       ],
+    };
+  }
+
+  private zavorthControlProjection(dashboard: AgentOsDashboardSnapshot): AgentOsZavorthControlProjection {
+    return {
+      source: 'AgentOsZavorthControlProjection',
+      title: 'Agent OS details',
+      status: dashboard.status,
+      detailsHiddenByDefault: true,
+      liveActionApplied: false,
+      cards: dashboard.cards,
+      actions: dashboard.actions,
     };
   }
 }
