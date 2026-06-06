@@ -11,8 +11,6 @@ import type {
   UniversalAgentRunStatus,
 } from '../src/runtime/agent/UniversalAgentRuntimeTypes.js';
 
-const operationalCycleSafetyInvariant = 'No external action, install, deploy, secret access, or shell execution';
-
 type CycleCheck = {
   id: string;
   status: 'passed' | 'failed';
