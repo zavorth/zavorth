@@ -5,11 +5,17 @@ import {
   createZavorthNativeIntegrationRegistryFixture,
   createZavorthNativeSessionHistoryRegistryFixture,
 } from '../../../../../../contracts/CommandCenterRuntimeBoundaryContract.js';
+import type { ZavorthControlProviderCockpitSnapshot } from '../contracts/zavorthControlZavorthControlObservabilityContracts';
 
 export const ZAVORTH_CONTROL_NATIVE_FIRST_RUNTIME_PROJECTION_VERSION = 'zavorth-control-native-first-runtime-projection/v1' as const;
 export const ZAVORTH_CONTROL_NATIVE_FIRST_RUNTIME_NOW = '2026-05-19T00:00:00.000Z' as const;
 
 type AnyRecord = Record<string, any>;
+
+type ZavorthControlRuntimeProjectionProviderCockpit = {
+  providerCockpit?: ZavorthControlProviderCockpitSnapshot | null;
+  perceptionControl?: AnyRecord | null;
+};
 
 function array<T = any>(value: unknown): T[] {
   return Array.isArray(value) ? value as T[] : [];
@@ -156,6 +162,17 @@ function eventsFromNativeDashboardViews(dashboardRegistry: AnyRecord, policy: An
   ];
 }
 
+function perceptionControlFromSource(source: AnyRecord): AnyRecord | null {
+  const projection = source.perceptionControl
+    || source.zavorthControlProjection
+    || source.dashboardProjection?.perceptionControl
+    || source.dashboardProjection
+    || null;
+  return projection && typeof projection === 'object' && !Array.isArray(projection)
+    ? projection as AnyRecord
+    : null;
+}
+
 function createPolicy(): AnyRecord {
   return {
     generatedAt: ZAVORTH_CONTROL_NATIVE_FIRST_RUNTIME_NOW,
@@ -193,6 +210,7 @@ export function buildZavorthControlAdapterInputFromZavorthControlRuntimeProjecti
       identity: projection.identity,
       logs: projection.logs,
       providerCockpit: projection.providerCockpit,
+      perceptionControl: projection.perceptionControl,
     },
     wsStatus: projection.wsStatus,
     activeSessionId: projection.activeSessionId,
@@ -232,6 +250,8 @@ export function buildZavorthControlAdapterInputFromZavorthControlRuntimeProjecti
     artifactMemory: projection.artifactMemory,
     personalOpsAutopilot: projection.personalOpsAutopilot,
     agentTeamCompiler: projection.agentTeamCompiler,
+    dynamicWorkflow: projection.dynamicWorkflow,
+    effortControl: projection.effortControl,
     crossChannelContinuity: projection.crossChannelContinuity,
     askBeforeAssumptionPolicy: projection.askBeforeAssumptionPolicy,
     providerMeshConsolidation: projection.providerMeshConsolidation,
@@ -250,6 +270,7 @@ export function buildZavorthControlAdapterInputFromZavorthControlRuntimeProjecti
     skillMcpQuarantine: projection.skillMcpQuarantine,
     providerArena: projection.providerArena,
     providerCockpit: projection.providerCockpit,
+    perceptionControl: projection.perceptionControl,
   };
 }
 
@@ -360,6 +381,7 @@ export function buildZavorthControlNativeFirstRuntimeProjection(
       firstRunStatus: 'complete',
     },
     logs: source.nativeFirstPolicy.logs,
+    perceptionControl: perceptionControlFromSource(source),
     workflowJobs: [],
     runtimeWarnings: [
       ...array(source.nativeFirstPolicy.runtimeWarnings),

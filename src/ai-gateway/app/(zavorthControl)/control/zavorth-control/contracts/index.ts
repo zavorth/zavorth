@@ -44,3 +44,9 @@ export type ZavorthControlRunObservatorySnapshot = {
   runs: ZavorthControlRunObservatoryRun[];
   [key: string]: unknown;
 };
+
+export type {
+  ZavorthControlAgentTeamCompilerRole,
+  ZavorthControlAgentTeamCompilerRoleKind,
+  ZavorthControlAgentTeamCompilerSnapshot,
+} from './zavorthControlZavorthControlContracts';

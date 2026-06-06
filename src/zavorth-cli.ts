@@ -64,6 +64,8 @@ const PUBLIC_COMMANDS = [
   'models',
   'mnemos',
   'swarm',
+  'workflows',
+  'effort',
   'sandbox',
   'satellite',
   'hud',
@@ -2378,6 +2380,130 @@ async function runProviderReadiness(rawArgs: string[] = []): Promise<number> {
   return 0;
 }
 
+async function runDynamicWorkflows(rawArgs: string[] = []): Promise<number> {
+  if (rawArgs.includes('--help') || rawArgs.includes('-h')) {
+    return printCliPanel('Zavorth Dynamic Workflows', [
+      'Usage: zavorth workflows "<objective>" [options]',
+      '       zavorth workflows preview "<objective>" [options]',
+      '       zavorth workflows launch <workflowId> --approval-id <approvalId>',
+      '',
+      'Creates a governed wide-work plan: cheap fanout workers, bounded concurrency, cost guard, saved preview and final synthesis through Swarm V2.',
+      '',
+      'Options:',
+      '  --fanout <n>              Number of workers, capped by policy',
+      '  --max-concurrency <n>     Parallel worker cap',
+      '  --worker-model <class>    cheap, standard or premium',
+      '  --synthesis-model <class> cheap, standard or premium',
+      '  --max-cents <n>           Budget cap in cents',
+      '  --storage-dir <path>      Preview/receipt storage override',
+      '  --json                    Output machine-readable JSON',
+    ], 'info');
+  }
+  const { ZavorthDynamicWorkflowService } = await import('./services/ZavorthDynamicWorkflowService.js');
+  const service = new ZavorthDynamicWorkflowService({
+    storageDir: readFlexibleStringFlag(rawArgs, 'storage-dir'),
+  });
+  const positionalValues: string[] = [];
+  for (let index = 0; index < rawArgs.length; index += 1) {
+    const arg = rawArgs[index] || '';
+    if (arg.startsWith('--')) {
+      if (!arg.includes('=') && rawArgs[index + 1] && !rawArgs[index + 1].startsWith('--')) {
+        index += 1;
+      }
+      continue;
+    }
+    positionalValues.push(arg);
+  }
+  const dynamicPositionals = positionalValues[0] === 'preview'
+    ? positionalValues.slice(1)
+    : positionalValues;
+  const positionalObjective = dynamicPositionals.join(' ').trim();
+  if (positionalValues[0] === 'launch') {
+    const result = service.launchSavedWorkflow(
+      readFlexibleStringFlag(rawArgs, 'workflow-id') || positionalValues[1] || '',
+      { approvalId: readFlexibleStringFlag(rawArgs, 'approval-id') || readFlexibleStringFlag(rawArgs, 'approval') },
+    );
+    if (rawArgs.includes('--json')) {
+      process.stdout.write(`${JSON.stringify(result, null, 2)}\n`);
+    } else {
+      process.stdout.write([
+        'Zavorth Dynamic Workflow Launch',
+        `status: ${result.status}`,
+        `workflow: ${result.workflowId}`,
+        `receipt: ${result.receiptId || 'none'}`,
+        result.reason ? `reason: ${result.reason}` : null,
+      ].filter((line): line is string => Boolean(line)).join('\n'));
+      process.stdout.write('\n');
+    }
+    return result.status === 'blocked' && rawArgs.includes('--require-pass') ? 1 : 0;
+  }
+  const toNumber = (value: string | null): number | null => {
+    if (!value) return null;
+    const parsed = Number(value);
+    return Number.isFinite(parsed) ? parsed : null;
+  };
+  const snapshot = service.buildPreview({
+    objective: readFlexibleStringFlag(rawArgs, 'objective')
+      || readFlexibleStringFlag(rawArgs, 'request')
+      || positionalObjective,
+    requestedFanout: toNumber(readFlexibleStringFlag(rawArgs, 'fanout') || readFlexibleStringFlag(rawArgs, 'workers')),
+    maxConcurrency: toNumber(readFlexibleStringFlag(rawArgs, 'max-concurrency') || readFlexibleStringFlag(rawArgs, 'concurrency')),
+    maxCents: toNumber(readFlexibleStringFlag(rawArgs, 'max-cents') || readFlexibleStringFlag(rawArgs, 'budget-cents')),
+    workerModelClass: readFlexibleStringFlag(rawArgs, 'worker-model') || readFlexibleStringFlag(rawArgs, 'worker-model-class'),
+    synthesisModelClass: readFlexibleStringFlag(rawArgs, 'synthesis-model') || readFlexibleStringFlag(rawArgs, 'synthesis-model-class'),
+  });
+  const previewRegistry = service.savePreview(snapshot);
+
+  if (rawArgs.includes('--json')) {
+    process.stdout.write(`${JSON.stringify({ ...snapshot, previewRegistry }, null, 2)}\n`);
+  } else {
+    process.stdout.write(`${service.renderText(snapshot)}\npreview: ${previewRegistry.status} ${previewRegistry.receiptId || ''}\n`);
+  }
+
+  return snapshot.status === 'blocked' && rawArgs.includes('--require-pass') ? 1 : 0;
+}
+
+async function runEffortControl(rawArgs: string[] = []): Promise<number> {
+  const { ZavorthEffortControlService } = await import('./services/ZavorthEffortControlService.js');
+  const service = new ZavorthEffortControlService();
+  const positional = collectEffortControlPositionals(rawArgs);
+  const knownLevel = /^(low|light|fast|standard|high|deep|heavy|ultra|ultra-code|ultra_code|ultracode|max|massive)$/i;
+  const first = positional[0] || null;
+  const level = readFlexibleStringFlag(rawArgs, 'level') || (first && knownLevel.test(first) ? first : null);
+  const positionalRequest = positional.slice(level ? 1 : 0).join(' ').trim();
+  const snapshot = service.buildSnapshot({
+    level,
+    request: readFlexibleStringFlag(rawArgs, 'request') || positionalRequest,
+    profile: readFlexibleStringFlag(rawArgs, 'profile'),
+    maxCents: readFlexibleStringFlag(rawArgs, 'max-cents') || readFlexibleStringFlag(rawArgs, 'budget-cents'),
+  });
+
+  if (rawArgs.includes('--json')) {
+    process.stdout.write(`${JSON.stringify(snapshot, null, 2)}\n`);
+  } else {
+    process.stdout.write(`${service.renderText(snapshot)}\n`);
+  }
+
+  return 0;
+}
+
+function collectEffortControlPositionals(rawArgs: string[]): string[] {
+  const flagsWithValues = new Set(['level', 'request', 'profile', 'max-cents', 'budget-cents']);
+  const positional: string[] = [];
+  for (let index = 0; index < rawArgs.length; index += 1) {
+    const arg = rawArgs[index] || '';
+    if (!arg.startsWith('--')) {
+      positional.push(arg);
+      continue;
+    }
+    const flagName = arg.slice(2).split('=')[0]?.toLowerCase() || '';
+    if (!arg.includes('=') && flagsWithValues.has(flagName) && rawArgs[index + 1] && !rawArgs[index + 1].startsWith('--')) {
+      index += 1;
+    }
+  }
+  return positional;
+}
+
 async function runProviderLongTailActivation(rawArgs: string[] = []): Promise<number> {
   return npmInherited(['exec', 'tsx', '--', 'scripts/provider-long-tail-activation.ts', ...rawArgs], projectRoot);
 }
@@ -2422,6 +2548,10 @@ async function runBuiltinLauncher(rawArgs: string[]): Promise<number | null> {
       return null;
     }
     return printBuiltinHelp(restArgs[0]);
+  }
+
+  if (command === 'workflows' && (restArgs.includes('--help') || restArgs.includes('-h'))) {
+    return runDynamicWorkflows(['--help']);
   }
 
   const helpTopic = resolveCliHelpTopic(command);
@@ -2692,6 +2822,7 @@ async function runBuiltinLauncher(rawArgs: string[]): Promise<number | null> {
   }
 
   if (command === 'channels' || command === 'channel') {
+    // [gateway channels] Product mirror for channel setup, proofs and readiness.
     const channelAction = String(restArgs[0] || '').trim().toLowerCase();
     const channelSubAction = String(restArgs[1] || '').trim().toLowerCase();
     const phase2Channels = new Set([
@@ -2852,6 +2983,18 @@ async function runBuiltinLauncher(rawArgs: string[]): Promise<number | null> {
     return runModelCostGuard(restArgs);
   }
 
+  if (command === 'workflows' || command === 'dynamic-workflows' || command === 'workflow') {
+    if (command === 'workflows' && ['status', 'process'].includes(String(restArgs[0] || '').trim().toLowerCase())) {
+      const { runZavorthCli } = await import('./cli/ZavorthCli.js');
+      return runZavorthCli(['workflows', ...restArgs]);
+    }
+    return runDynamicWorkflows(restArgs);
+  }
+
+  if (command === 'effort' || command === 'reasoning-effort' || command === 'thinking-effort') {
+    return runEffortControl(restArgs);
+  }
+
   if (command === 'visual-receipts' || command === 'receipts-v2') {
     return runVisualReceiptsV2(restArgs);
   }
@@ -2864,7 +3007,7 @@ async function runBuiltinLauncher(rawArgs: string[]): Promise<number | null> {
     return runNaturalRuntimeQuestions(restArgs);
   }
 
-  if (command === 'dashboard-home' || command === 'experience-home') {
+  if (command === 'dashboard-home' || command === 'experience-home' || command === 'zavorthControl-home') {
     return runDashboardExperienceHome(restArgs);
   }
 
