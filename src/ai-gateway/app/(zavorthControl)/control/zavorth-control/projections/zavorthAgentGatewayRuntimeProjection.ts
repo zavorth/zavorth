@@ -21,6 +21,22 @@ function redactSensitiveText(value: string): string {
     .replace(/\b(token|secret|password|api[_-]?key)\s*[:=]\s*[^,\s]+/gi, '$1=[redacted]');
 }
 
+function isSensitiveKey(key: string): boolean {
+  const normalized = key.toLowerCase().replace(/[^a-z0-9]/g, '');
+  return [
+    'apikey',
+    'token',
+    'secret',
+    'password',
+    'accesstoken',
+    'refreshtoken',
+    'clientsecret',
+    'credential',
+    'privatekey',
+    'key',
+  ].includes(normalized);
+}
+
 function sanitizeRuntimeSnapshot(value: unknown): unknown {
   if (typeof value === 'string') {
     return redactSensitiveText(value);
@@ -30,7 +46,10 @@ function sanitizeRuntimeSnapshot(value: unknown): unknown {
   }
   if (value && typeof value === 'object') {
     return Object.fromEntries(
-      Object.entries(value as AnyRecord).map(([key, entry]) => [key, sanitizeRuntimeSnapshot(entry)]),
+      Object.entries(value as AnyRecord).map(([key, entry]) => [
+        key,
+        isSensitiveKey(key) ? '[redacted-secret]' : sanitizeRuntimeSnapshot(entry),
+      ]),
     );
   }
   return value;

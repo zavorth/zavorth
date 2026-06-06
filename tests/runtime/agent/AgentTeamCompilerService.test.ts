@@ -170,9 +170,46 @@ describe('AgentTeamCompilerService Channel mesh0', () => {
     expect(result.roles).toHaveLength(4);
     expect(result.roles.every((role) => role.status === 'prepared')).toBe(true);
     expect(result.turns.some((turn) => turn.phase === 'peer-review')).toBe(true);
+    for (const role of result.roles) {
+      expect(result.turns.some((turn) => turn.phase === 'peer-review' && turn.targetRoleId === role.roleId)).toBe(true);
+    }
     expect(result.turns.some((turn) => turn.phase === 'synthesis-input')).toBe(true);
     expect(result.synthesis.status).toBe('ready-for-final-synthesis');
     expect(result.synthesis.requiredEvidenceRefs.length).toBe(result.turns.length);
+  });
+
+  it('blocks synthesis readiness when peer-review coverage is impossible', () => {
+    const run = new AgentRunService({
+      now: () => new Date('2026-05-04T00:40:00.000Z'),
+    }).createRun({
+      userId: 'grey',
+      channel: 'cli',
+      sessionId: 'session-agent-team-peer-review-gap',
+      text: 'compile uma equipe de agentes para revisar com apenas um worker',
+      requestedTools: ['workspace.read'],
+      metadata: {
+        suggestedSubagents: ['planner'],
+      },
+    });
+    const service = new AgentTeamCompilerService({
+      now: () => new Date('2026-05-04T00:42:00.000Z'),
+    });
+    const snapshot = service.buildSnapshot({
+      run,
+      generatedAt: run.updatedAt,
+    });
+
+    const result = service.launchApprovedTeam(snapshot, {
+      approvalId: snapshot.approval.approvalId,
+      generatedAt: '2026-05-04T00:42:00.000Z',
+    });
+
+    expect(result.status).toBe('blocked');
+    expect(result.blockedReasons).toEqual(expect.arrayContaining([
+      'peer-review-missing',
+      'peer-review-missing:planner',
+    ]));
+    expect(result.synthesis.status).toBe('blocked');
   });
 
   it('redacts secret-like content from team launch turns and receipts', () => {
