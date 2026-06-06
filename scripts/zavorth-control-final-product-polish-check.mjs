@@ -61,10 +61,9 @@ function ruleContainsMarkers() {
       'force-dynamic',
     ]],
     ['src/ai-gateway/app/(zavorthControl)/control/zavorth-control/components/ZavorthControlControlShell.tsx', [
-      'activeSectorId === "terminal"',
+      'activeSectorId === "chat"',
       'ZavorthControlChatSurface',
       'handleSelectSector',
-      'sectorId === "sales-os"',
       'sectorId === "instances"',
       'sectorId === "config"',
       'sectorId === "docs"',
@@ -74,6 +73,12 @@ function ruleContainsMarkers() {
       'onResolveApproval',
       'Message for Zavorth',
       'bcc-event-stream',
+    ]],
+    ['src/ai-gateway/app/(zavorthControl)/control/zavorth-control/components/ZavorthControlContextRail.tsx', [
+      'ZavorthControlTaskTimeline',
+      'Aguardando sua revisao',
+      'View receipt',
+      'projection-only',
     ]],
     ['src/ai-gateway/app/(zavorthControl)/control/zavorth-control/styles/zavorthControl.css', [
       'bcc-control-grid--chat',

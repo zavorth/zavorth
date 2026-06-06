@@ -36,6 +36,8 @@ describe('ZavorthUnifiedOnboardingService', () => {
     ]));
     expect(snapshot.safeDemo.readOnly).toBe(true);
     expect(snapshot.dashboardProjection.executionAuthority).toBe(false);
+    expect(snapshot.zavorthControlProjection.executionAuthority).toBe(false);
+    expect(snapshot.zavorthControlProjection.route).toBe('/control');
   });
 
   it('marks provider setup as needed when no provider is ready', () => {
@@ -145,6 +147,13 @@ function productizationStub(sandboxStatus: 'ready' | 'fallback') {
         receipt: {} as any,
         dashboardProjection: {
           route: '/dashboard',
+          executionAuthority: false,
+          approvalRequiredForMutableActions: true,
+          visualBlocksRequireOwnerApproval: true,
+          endpoints: [],
+        },
+        zavorthControlProjection: {
+          route: '/control',
           executionAuthority: false,
           approvalRequiredForMutableActions: true,
           visualBlocksRequireOwnerApproval: true,

@@ -1106,7 +1106,7 @@ export class WebAppRuntimeInteractionRouteService {
       const sessionId = requestedSessionId || String(sourceRun?.sessionId || '').trim() || deps.runtime.webUserId;
       const userId = String(sourceRun?.userId || deps.runtime.webUserId || 'web-owner').trim();
       const result = await deps.agentGateway.handle({
-        requestId: `dashboard-apply-draft-${planId}`,
+        requestId: `zavorthControl-apply-draft-${planId}`,
         traceId: String(sourceRun?.traceId || '').trim() || null,
         userId,
         sessionId,
@@ -1126,10 +1126,10 @@ export class WebAppRuntimeInteractionRouteService {
           intelligenceFabricApplyDraftPlanId: planId,
           intelligenceFabricApplyDraftGuidance: true,
           intelligenceFabricApproveDraftPlan: true,
-          intelligenceFabricApprovalId: String(body.approvalId || `dashboard:${planId}`).trim(),
+          intelligenceFabricApprovalId: String(body.approvalId || `zavorthControl:${planId}`).trim(),
           approvedBy: userId,
-          dashboardApplyDraft: {
-            source: 'Dashboard',
+          zavorthControlApplyDraft: {
+            source: 'ZavorthControl',
             runId: requestedRunId || null,
             sessionId,
             confirmOwnerControlledApply: true,
@@ -1196,7 +1196,7 @@ export class WebAppRuntimeInteractionRouteService {
       const userId = String(sourceRun?.userId || deps.runtime.webUserId || 'web-owner').trim();
       const recommendation = String(body.recommendation || body.reason || 'auto_demote_controlled').trim();
       const result = await deps.agentGateway.handle({
-        requestId: 'dashboard-demote-fabric',
+        requestId: 'zavorthControl-demote-fabric',
         traceId: String(sourceRun?.traceId || '').trim() || null,
         userId,
         sessionId,
@@ -1216,8 +1216,8 @@ export class WebAppRuntimeInteractionRouteService {
           intelligenceFabricMode: 'disabled',
           intelligenceFabricDemoteControlled: true,
           approvedBy: userId,
-          dashboardDemoteFabric: {
-            source: 'Dashboard',
+          zavorthControlDemoteFabric: {
+            source: 'ZavorthControl',
             runId: requestedRunId || null,
             sessionId,
             status: String(body.status || '').trim() || null,

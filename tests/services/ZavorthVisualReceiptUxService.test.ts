@@ -29,12 +29,20 @@ describe('ZavorthVisualReceiptUxService', () => {
     expect(snapshot.dashboardProjection).toEqual(expect.objectContaining({
       route: '/dashboard',
       executionAuthority: false,
+      zavorthControlCanExecute: false,
+      renderMode: 'projection-only',
+    }));
+    expect(snapshot.zavorthControlProjection).toEqual(expect.objectContaining({
+      route: '/control',
+      executionAuthority: false,
+      zavorthControlCanExecute: false,
       renderMode: 'projection-only',
     }));
     expect(snapshot.cards[0]).toEqual(expect.objectContaining({
       safety: expect.objectContaining({
         rawSecretsSerialized: false,
         dashboardCanExecute: false,
+        zavorthControlCanExecute: false,
         projectionOnly: true,
       }),
       advanced: expect.objectContaining({
@@ -44,8 +52,8 @@ describe('ZavorthVisualReceiptUxService', () => {
       }),
     }));
     expect(snapshot.cards[0]?.actions).toEqual(expect.arrayContaining([
-      expect.objectContaining({ kind: 'inspect', mutatesState: false, dashboardCanExecute: false }),
-      expect.objectContaining({ kind: 'rollback', mutatesState: true, dashboardCanExecute: false }),
+      expect.objectContaining({ kind: 'inspect', mutatesState: false, dashboardCanExecute: false, zavorthControlCanExecute: false }),
+      expect.objectContaining({ kind: 'rollback', mutatesState: true, dashboardCanExecute: false, zavorthControlCanExecute: false }),
     ]));
     expect(JSON.stringify(snapshot)).not.toContain('sk-thisshouldberemoved');
     expect(JSON.stringify(snapshot)).toContain('[REDACTED_SECRET]');

@@ -16,6 +16,16 @@ import type { SandboxHostReadinessSnapshot } from './SandboxHostReadinessService
 
 type ProviderDoctorLike = Pick<ProviderDoctorService, 'inspect'>;
 type ProductizationLike = Pick<ZavorthProductizationProtectedRuntimeService, 'buildSnapshot'>;
+type UnifiedOnboardingProjectionRoute = '/dashboard' | '/control';
+
+function buildUnifiedOnboardingProjection<Route extends UnifiedOnboardingProjectionRoute>(route: Route) {
+  return {
+    route,
+    executionAuthority: false as const,
+    visualBlocksRequireOwnerApproval: true as const,
+    endpoint: '/api/onboarding/unified' as const,
+  };
+}
 
 export type ZavorthUnifiedOnboardingInput = ZavorthProductizationProtectedRuntimeInput & {
   includeAdvanced?: boolean;
@@ -134,12 +144,8 @@ export class ZavorthUnifiedOnboardingService {
         writesOnlyWithConfirmation: true,
       },
       safeDemo,
-      dashboardProjection: {
-        route: '/dashboard',
-        executionAuthority: false,
-        visualBlocksRequireOwnerApproval: true,
-        endpoint: '/api/onboarding/unified',
-      },
+      dashboardProjection: buildUnifiedOnboardingProjection('/dashboard'),
+      zavorthControlProjection: buildUnifiedOnboardingProjection('/control'),
       invariants: [
         {
           id: 'setup-go-doctor-one-journey',

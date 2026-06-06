@@ -16,6 +16,8 @@ type Runtime = {
 const FILES = {
   indexHtml: 'src/ai-gateway/app/(zavorthControl)/control/page.tsx',
   pagesJs: 'src/ai-gateway/app/(zavorthControl)/control/zavorth-control/components/ZavorthControlControlShell.tsx',
+  chatSurfaceJs: 'src/ai-gateway/app/(zavorthControl)/control/zavorth-control/components/ZavorthControlChatSurface.tsx',
+  contextRailJs: 'src/ai-gateway/app/(zavorthControl)/control/zavorth-control/components/ZavorthControlContextRail.tsx',
   pagesCss: 'src/ai-gateway/app/(zavorthControl)/control/zavorth-control/styles/zavorthControl.css',
   runtimeBridgeJs: 'src/ai-gateway/app/(zavorthControl)/control/useControlPageClient.ts',
 } as const;
@@ -33,6 +35,8 @@ export class ZavorthControlFinalProductPolishService {
     const files = {
       indexHtml: this.read(FILES.indexHtml),
       pagesJs: this.read(FILES.pagesJs),
+      chatSurfaceJs: this.read(FILES.chatSurfaceJs),
+      contextRailJs: this.read(FILES.contextRailJs),
       pagesCss: this.read(FILES.pagesCss),
       runtimeBridgeJs: this.read(FILES.runtimeBridgeJs),
     };
@@ -58,19 +62,20 @@ export class ZavorthControlFinalProductPolishService {
         attention,
         blocked,
         zavorthControlPath: '/control',
-        chatFirstHome: files.pagesJs.includes('activeSectorId === "terminal"')
+        chatFirstHome: files.pagesJs.includes('activeSectorId === "chat"')
           && files.pagesJs.includes('ZavorthControlChatSurface')
           && files.pagesJs.includes('bcc-control-grid--chat'),
         nextActionsReady: files.pagesJs.includes('handleSelectSector')
           && files.pagesJs.includes('ZavorthControlDock'),
         readinessSummaryReady: files.pagesJs.includes('runtime.doctor')
           && files.runtimeBridgeJs.includes('loadControlState'),
-        approvalsInboxReady: files.indexHtml.includes('data-sector="sales-os"')
-          || files.pagesJs.includes('sectorId === "sales-os"'),
-        receiptsViewerReady: files.pagesJs.includes('sectorId === "instances"')
-          && files.pagesJs.includes('Receipts'),
-        missionTimelineReady: files.pagesJs.includes('runObservatory')
-          && files.pagesJs.includes('trace'),
+        approvalsInboxReady: files.chatSurfaceJs.includes('approvalCount')
+          && files.chatSurfaceJs.includes('onResolveApproval')
+          && files.contextRailJs.includes('Aguardando sua revisao'),
+        receiptsViewerReady: files.chatSurfaceJs.includes('View receipt')
+          && files.contextRailJs.includes('View receipt'),
+        missionTimelineReady: files.contextRailJs.includes('ZavorthControlTaskTimeline')
+          && files.contextRailJs.includes('Timeline'),
         advancedModeCollapsed: files.pagesJs.includes('sectorId === "config"')
           && files.pagesJs.includes('sectorId === "docs"'),
         mobileResponsive: files.pagesCss.includes('@media (max-width: 700px)')
@@ -121,18 +126,25 @@ export class ZavorthControlFinalProductPolishService {
     return lines.join('\n');
   }
 
-  private buildEntries(files: { indexHtml: string; pagesJs: string; pagesCss: string; runtimeBridgeJs: string }): ZavorthControlFinalProductPolishEntry[] {
+  private buildEntries(files: {
+    indexHtml: string;
+    pagesJs: string;
+    chatSurfaceJs: string;
+    contextRailJs: string;
+    pagesCss: string;
+    runtimeBridgeJs: string;
+  }): ZavorthControlFinalProductPolishEntry[] {
     return [
       this.entry({
         id: 'zavorth-control.chat-first-home',
         label: 'Chat-first Zavorth Control home',
         kind: 'home',
-        passed: files.pagesJs.includes('activeSectorId === "terminal"')
+        passed: files.pagesJs.includes('activeSectorId === "chat"')
           && files.pagesJs.includes('ZavorthControlChatSurface')
           && files.pagesJs.includes('bcc-control-grid--chat'),
         userVisible: true,
         defaultSimple: true,
-        evidence: ['native terminal sector', 'React chat surface', 'chat grid'],
+        evidence: ['native chat sector', 'React chat surface', 'chat grid'],
       }),
       this.entry({
         id: 'zavorth-control.next-actions',
@@ -158,31 +170,32 @@ export class ZavorthControlFinalProductPolishService {
         id: 'zavorth-control.approvals-inbox',
         label: 'Approvals inbox',
         kind: 'approval',
-        passed: files.pagesJs.includes('sectorId === "sales-os"')
-          && files.pagesJs.includes('Inline approval'),
+        passed: files.chatSurfaceJs.includes('approvalCount')
+          && files.chatSurfaceJs.includes('onResolveApproval')
+          && files.contextRailJs.includes('Aguardando sua revisao'),
         userVisible: true,
         defaultSimple: true,
-        evidence: ['approval sector', 'inline approval copy'],
+        evidence: ['chat approval strip', 'context rail review copy'],
       }),
       this.entry({
         id: 'zavorth-control.receipts-viewer',
         label: 'Receipts viewer',
         kind: 'receipt',
-        passed: files.pagesJs.includes('sectorId === "instances"')
-          && files.pagesJs.includes('Receipts'),
+        passed: files.chatSurfaceJs.includes('View receipt')
+          && files.contextRailJs.includes('View receipt'),
         userVisible: true,
         defaultSimple: true,
-        evidence: ['receipt sector', 'receipt rendering'],
+        evidence: ['chat receipt action', 'context rail receipt action'],
       }),
       this.entry({
         id: 'zavorth-control.mission-timeline',
         label: 'Mission timeline',
         kind: 'mission',
-        passed: files.pagesJs.includes('runObservatory')
-          && files.pagesJs.includes('trace'),
+        passed: files.contextRailJs.includes('ZavorthControlTaskTimeline')
+          && files.contextRailJs.includes('Timeline'),
         userVisible: true,
         defaultSimple: true,
-        evidence: ['trace sheet', 'timeline'],
+        evidence: ['context rail timeline', 'task lifecycle'],
       }),
       this.entry({
         id: 'zavorth-control.advanced-collapsed',

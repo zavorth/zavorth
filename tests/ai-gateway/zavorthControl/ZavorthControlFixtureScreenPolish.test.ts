@@ -15,17 +15,25 @@ describe('ZavorthControlFixtureScreenPolish', () => {
       join(zavorthControlDir, 'components/ZavorthControlControlShell.tsx'),
       'utf8',
     );
+    const contextRail = readFileSync(
+      join(zavorthControlDir, 'components/ZavorthControlContextRail.tsx'),
+      'utf8',
+    );
     const operations = readFileSync(
       join(zavorthControlDir, 'components/ZavorthControlOperationsPanel.tsx'),
       'utf8',
     );
 
-    expect(shell).toContain('ZavorthControlMissionBrief');
-    expect(shell).toContain('ZavorthControlOverviewSector');
-    expect(shell).toContain('ZavorthControlStateCard');
+    expect(shell).toContain('ZavorthControlChatSurface');
+    expect(shell).toContain('ZavorthControlContextRail');
+    expect(shell).not.toContain('<ZavorthControlMissionBrief');
+    expect(shell).not.toContain('<ZavorthControlStateCard');
     expect(shell).toContain('Run Observatory');
     expect(shell).toContain('formatZavorthControlRunObservatoryQuery');
-    expect(shell).toContain('bcc-release-strip');
+    expect(contextRail).toContain('ZavorthControlTaskTimeline');
+    expect(contextRail).toContain('ZavorthControlMemoryCenter');
+    expect(contextRail).toContain('ZavorthControlSkillCatalog');
+    expect(contextRail).toContain('ZavorthControlSetupGuides');
     expect(operations).toContain('ZavorthControlRunPanel');
     expect(operations).toContain('formatZavorthControlRunObservatoryQuery');
     expect(operations).toContain('viewModel.health.checks');
@@ -57,10 +65,11 @@ describe('ZavorthControlFixtureScreenPolish', () => {
     );
 
     for (const className of [
-      '.bcc-mission-brief',
       '.bcc-metric-card',
-      '.bcc-overview-hero',
-      '.bcc-state-card',
+      '.bcc-context-rail',
+      '.bcc-context-rail__section',
+      '.bcc-empty-chat-greeting',
+      '.bcc-run-controls',
       '.bcc-run-timeline',
       '.bcc-run-observatory-item',
       '.bcc-health-row',

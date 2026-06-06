@@ -1,10 +1,10 @@
 import { NextResponse } from "next/server";
 import { requireManagementAuth } from "@/lib/api/requireManagementAuth";
 import {
-  UniversalSkillApprovedDashboardCanaryService,
-  type UniversalSkillApprovedDashboardCanaryInput,
-} from "../../../../../services/UniversalSkillApprovedDashboardCanaryService.js";
-import type { ZavorthUniversalSkillCanaryMode } from "../../../../../contracts/ZavorthUniversalSkillApprovedDashboardCanaryContract.js";
+  UniversalSkillApprovedZavorthControlCanaryService,
+  type UniversalSkillApprovedZavorthControlCanaryInput,
+} from "../../../../../services/UniversalSkillApprovedZavorthControlCanaryService.js";
+import type { ZavorthUniversalSkillCanaryMode } from "../../../../../contracts/ZavorthUniversalSkillApprovedZavorthControlCanaryContract.js";
 
 export async function GET(request: Request) {
   const authError = await requireManagementAuth(request);
@@ -12,7 +12,7 @@ export async function GET(request: Request) {
 
   try {
     const url = new URL(request.url);
-    const service = new UniversalSkillApprovedDashboardCanaryService();
+    const service = new UniversalSkillApprovedZavorthControlCanaryService();
     const snapshot = await service.buildSnapshot({
       discover: url.searchParams.get("discover") !== "false",
       canaryMode: normalizeCanaryMode(url.searchParams.get("canary")),
@@ -35,8 +35,8 @@ export async function POST(request: Request) {
   if (authError) return authError;
 
   try {
-    const body = await request.json().catch(() => ({})) as Partial<UniversalSkillApprovedDashboardCanaryInput>;
-    const service = new UniversalSkillApprovedDashboardCanaryService();
+    const body = await request.json().catch(() => ({})) as Partial<UniversalSkillApprovedZavorthControlCanaryInput>;
+    const service = new UniversalSkillApprovedZavorthControlCanaryService();
     const snapshot = await service.buildSnapshot({
       ...body,
       canaryMode: normalizeCanaryMode(body.canaryMode),
@@ -53,7 +53,7 @@ export async function POST(request: Request) {
 }
 
 function normalizeCanaryMode(value: unknown): ZavorthUniversalSkillCanaryMode {
-  return value === "dry-run" || value === "live" || value === "dashboard-only"
+  return value === "dry-run" || value === "live" || value === "zavorthControl-only"
     ? value
-    : "dashboard-only";
+    : "zavorthControl-only";
 }

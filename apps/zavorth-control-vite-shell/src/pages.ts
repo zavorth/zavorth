@@ -1,6 +1,7 @@
 /**
  * Zavorth Control pages.
  * Static placeholders stay honest; runtime-bridge replaces them with live data.
+ * runtime adapter control remains an explicit setup/advanced surface, not a chat-first nag.
  */
 import { CONTROL_LOCALES, readControlLocalePreference } from './locale';
 import { initLearningDreamsUi } from './learning-dreams-ui';

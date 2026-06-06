@@ -9,15 +9,17 @@ import { GatewaySessionService } from '../runtime/sessions/GatewaySessionService
 import { GatewaySessionStoreService } from '../runtime/sessions/GatewaySessionStoreService.js';
 import { GatewaySessionToolsService } from '../runtime/sessions/GatewaySessionToolsService.js';
 import type { BotGateway } from '../adapters/telegram/BotGateway.js';
-import { DiscordBridgeGateway } from '../adapters/channels/DiscordBridgeGateway.js';
-import { DiscordGateway } from '../adapters/channels/DiscordGateway.js';
-import { EmailGateway } from '../adapters/channels/EmailGateway.js';
-import { InstagramGateway } from '../adapters/channels/InstagramGateway.js';
-import { IMessageGateway } from '../adapters/channels/IMessageGateway.js';
-import { SignalGateway } from '../adapters/channels/SignalGateway.js';
-import { SlackGateway } from '../adapters/channels/SlackGateway.js';
-import { TeamsGateway } from '../adapters/channels/TeamsGateway.js';
-import { WhatsAppGateway } from '../adapters/channels/WhatsAppGateway.js';
+import {
+  DiscordBridgeGateway,
+  DiscordGateway,
+  EmailGateway,
+  InstagramGateway,
+  IMessageGateway,
+  SignalGateway,
+  SlackGateway,
+  TeamsGateway,
+  WhatsAppGateway,
+} from '../adapters/channels/index.js';
 import { ZavorthGatewayService } from '../services/ZavorthGatewayService.js';
 import { GoalLoopStatusProjectionService } from '../services/GoalLoopStatusProjectionService.js';
 import type { BroadcastCapableGateway } from '../services/ZavorthChannelActionService.js';

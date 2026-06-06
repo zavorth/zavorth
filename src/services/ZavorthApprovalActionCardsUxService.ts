@@ -6,11 +6,13 @@ import {
   type ZavorthApprovalActionCardTone,
 } from '../contracts/ZavorthApprovalActionCardsUxContract.js';
 
+type LooseRecord = Record<string, any>;
+
 export type ZavorthApprovalActionCardsUxInput = {
-  approvals?: Array<Record<string, any>> | null;
-  sensitiveActionFlowUx?: Record<string, any> | null;
-  visualReceipts?: Record<string, any> | null;
-  activeMissionUx?: Record<string, any> | null;
+  approvals?: Array<LooseRecord> | null;
+  sensitiveActionFlowUx?: LooseRecord | null;
+  visualReceipts?: LooseRecord | null;
+  activeMissionUx?: LooseRecord | null;
 };
 
 type ZavorthApprovalActionCardsUxRuntime = {
@@ -27,7 +29,7 @@ export class ZavorthApprovalActionCardsUxService {
   public buildSnapshot(input: ZavorthApprovalActionCardsUxInput = {}): ZavorthApprovalActionCardsUxSnapshot {
     const generatedAt = this.now().toISOString();
     const sensitiveCard = asRecord(input.sensitiveActionFlowUx?.card);
-    const receiptCards = Array.isArray(input.visualReceipts?.cards) ? input.visualReceipts?.cards as Record<string, any>[] : [];
+    const receiptCards = Array.isArray(input.visualReceipts?.cards) ? input.visualReceipts?.cards as LooseRecord[] : [];
     const approvals = Array.isArray(input.approvals) ? input.approvals : [];
     const cards = approvals.length > 0
       ? approvals.map((approval, index) => buildApprovalCard({
@@ -74,6 +76,7 @@ export class ZavorthApprovalActionCardsUxService {
         route: '/dashboard' as const,
         renderMode: 'interactive-action-cards' as const,
         executionAuthority: false as const,
+        zavorthControlCanExecuteTargetAction: false as const,
         approvalResolutionAuthority: 'gateway-mediated' as const,
       },
       nextAction: cards.length > 0
@@ -103,10 +106,10 @@ export class ZavorthApprovalActionCardsUxService {
 }
 
 function buildApprovalCard(input: {
-  approval: Record<string, any>;
+  approval: LooseRecord;
   index: number;
-  sensitiveCard: Record<string, any> | null;
-  receiptCard: Record<string, any> | null;
+  sensitiveCard: LooseRecord | null;
+  receiptCard: LooseRecord | null;
 }): ZavorthApprovalActionCard {
   const approvalId = text(input.approval.id || input.approval.approvalId) || `approval-${input.index + 1}`;
   const status = normalizeStatus(text(input.approval.status));
@@ -150,6 +153,7 @@ function buildApprovalCard(input: {
     safety: {
       policyBrokerRequired: true,
       dashboardCanExecuteTargetAction: false,
+      zavorthControlCanExecuteTargetAction: false,
       rawSecretsSerialized: false,
       approvalScopeBound: true,
     },
@@ -168,6 +172,7 @@ function buildActions(card: ZavorthApprovalActionCard): ZavorthApprovalActionCar
       approvalId: card.id,
       dashboardCanResolveApproval: false,
       dashboardCanExecuteTargetAction: false,
+      zavorthControlCanExecuteTargetAction: false,
       requiresApproval: false,
     },
   ];
@@ -181,6 +186,7 @@ function buildActions(card: ZavorthApprovalActionCard): ZavorthApprovalActionCar
         approvalId: card.id,
         dashboardCanResolveApproval: true,
         dashboardCanExecuteTargetAction: false,
+        zavorthControlCanExecuteTargetAction: false,
         requiresApproval: false,
       },
       {
@@ -191,6 +197,7 @@ function buildActions(card: ZavorthApprovalActionCard): ZavorthApprovalActionCar
         approvalId: card.id,
         dashboardCanResolveApproval: true,
         dashboardCanExecuteTargetAction: false,
+        zavorthControlCanExecuteTargetAction: false,
         requiresApproval: false,
       },
     );
@@ -204,6 +211,7 @@ function buildActions(card: ZavorthApprovalActionCard): ZavorthApprovalActionCar
       approvalId: card.id,
       dashboardCanResolveApproval: false,
       dashboardCanExecuteTargetAction: false,
+      zavorthControlCanExecuteTargetAction: false,
       requiresApproval: false,
     });
   }
@@ -215,13 +223,14 @@ function buildActions(card: ZavorthApprovalActionCard): ZavorthApprovalActionCar
     approvalId: card.id,
     dashboardCanResolveApproval: false,
     dashboardCanExecuteTargetAction: false,
+    zavorthControlCanExecuteTargetAction: false,
     requiresApproval: false,
   });
   return actions;
 }
 
-function findSensitiveActionCommand(card: Record<string, any> | null, kind: string): string | null {
-  const actions = Array.isArray(card?.actions) ? card?.actions as Record<string, any>[] : [];
+function findSensitiveActionCommand(card: LooseRecord | null, kind: string): string | null {
+  const actions = Array.isArray(card?.actions) ? card?.actions as LooseRecord[] : [];
   const action = actions.find((entry) => text(entry.kind) === kind || text(entry.id).includes(kind));
   return text(action?.command) || null;
 }
@@ -252,8 +261,8 @@ function toneForApproval(
   return 'info';
 }
 
-function asRecord(value: unknown): Record<string, any> | null {
-  return value && typeof value === 'object' && !Array.isArray(value) ? value as Record<string, any> : null;
+function asRecord(value: unknown): LooseRecord | null {
+  return value && typeof value === 'object' && !Array.isArray(value) ? value as LooseRecord : null;
 }
 
 function text(value: unknown): string {

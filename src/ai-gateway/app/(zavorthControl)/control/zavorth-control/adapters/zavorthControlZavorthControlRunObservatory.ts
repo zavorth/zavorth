@@ -64,17 +64,37 @@ export function mapZavorthControlRunObservatory(value: unknown): ZavorthControlR
       },
       runs: [],
       diffPreviews: [],
-      intelligenceFabricHealth: null,
-      zavorthControlIntelligenceFabricHealth: null,
+      intelligenceFabricHealth: {},
+      extensions: {},
     };
   }
 
-  const diffPreviews = Array.isArray(snapshot.diffPreviews) ? snapshot.diffPreviews : [];
-  const intelligenceFabricHealth = mapFabricHealth(snapshot.intelligenceFabricHealth);
+  const {
+    generatedAt,
+    query,
+    totalRuns,
+    matchedRuns,
+    indexes,
+    runs,
+    diffPreviews: _diffPreviews,
+    intelligenceFabricHealth: _intelligenceFabricHealth,
+    ...extensions
+  } = snapshot;
+  const diffPreviews = Array.isArray(_diffPreviews) ? _diffPreviews : [];
+  const normalizedRuns = Array.isArray(runs)
+    ? runs.filter((entry) => entry && typeof entry === 'object')
+    : [];
+  const intelligenceFabricHealth = mapFabricHealth(_intelligenceFabricHealth);
   return {
-    ...snapshot,
+    generatedAt: text(generatedAt, new Date(0).toISOString()),
+    query: record(query),
+    totalRuns: numberOrNull(totalRuns) ?? 0,
+    matchedRuns: numberOrNull(matchedRuns) ?? normalizedRuns.length,
+    indexes: record(indexes),
+    runs: normalizedRuns,
     diffPreviews,
-    intelligenceFabricHealth: snapshot.intelligenceFabricHealth || null,
-    zavorthControlIntelligenceFabricHealth: intelligenceFabricHealth,
+    intelligenceFabricHealth: record(_intelligenceFabricHealth),
+    zavorthControlIntelligenceFabricHealth: intelligenceFabricHealth || undefined,
+    extensions,
   };
 }

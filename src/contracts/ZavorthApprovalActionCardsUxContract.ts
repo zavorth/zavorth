@@ -12,6 +12,7 @@ export type ZavorthApprovalActionCardAction = {
   approvalId: string | null;
   dashboardCanResolveApproval: boolean;
   dashboardCanExecuteTargetAction: false;
+  zavorthControlCanExecuteTargetAction: false;
   requiresApproval: boolean;
 };
 
@@ -46,6 +47,7 @@ export type ZavorthApprovalActionCard = {
   safety: {
     policyBrokerRequired: true;
     dashboardCanExecuteTargetAction: false;
+    zavorthControlCanExecuteTargetAction: false;
     rawSecretsSerialized: false;
     approvalScopeBound: true;
   };
@@ -70,6 +72,7 @@ export type ZavorthApprovalActionCardsUxSnapshot = {
     route: '/dashboard';
     renderMode: 'interactive-action-cards';
     executionAuthority: false;
+    zavorthControlCanExecuteTargetAction: false;
     approvalResolutionAuthority: 'gateway-mediated';
   };
   nextAction: string;

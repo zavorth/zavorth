@@ -374,7 +374,7 @@ describe('WebAppRuntimeInteractionRouteService', () => {
     expect(handled).toBe(true);
     expect(handle).toHaveBeenCalledWith(
       expect.objectContaining({
-        requestId: 'dashboard-apply-draft-plan-risk3-1',
+        requestId: 'zavorthControl-apply-draft-plan-risk3-1',
         traceId: 'trace-draft-1',
         userId: 'ana',
         sessionId: 'session-web-1',
@@ -385,9 +385,9 @@ describe('WebAppRuntimeInteractionRouteService', () => {
           intelligenceFabricApplyDraftPlanId: 'plan-risk3-1',
           intelligenceFabricApplyDraftGuidance: true,
           intelligenceFabricApproveDraftPlan: true,
-          intelligenceFabricApprovalId: 'dashboard:plan-risk3-1',
-          dashboardApplyDraft: expect.objectContaining({
-            source: 'Dashboard',
+          intelligenceFabricApprovalId: 'zavorthControl:plan-risk3-1',
+          zavorthControlApplyDraft: expect.objectContaining({
+            source: 'ZavorthControl',
             runId: sourceRun.id,
             sessionId: sourceRun.sessionId,
             confirmOwnerControlledApply: true,
@@ -413,7 +413,7 @@ describe('WebAppRuntimeInteractionRouteService', () => {
     );
   });
 
-  it('demotes Intelligence Fabric from Dashboard with explicit owner confirmation', async () => {
+  it('demotes Intelligence Fabric from ZavorthControl with explicit owner confirmation', async () => {
     const service = new WebAppRuntimeInteractionRouteService();
     const writeJson = jest.fn();
     const sourceRun = {
@@ -482,7 +482,7 @@ describe('WebAppRuntimeInteractionRouteService', () => {
     expect(handled).toBe(true);
     expect(handle).toHaveBeenCalledWith(
       expect.objectContaining({
-        requestId: 'dashboard-demote-fabric',
+        requestId: 'zavorthControl-demote-fabric',
         traceId: 'trace-fabric-1',
         userId: 'ana',
         sessionId: 'session-web-1',
@@ -492,8 +492,8 @@ describe('WebAppRuntimeInteractionRouteService', () => {
         metadata: expect.objectContaining({
           intelligenceFabricMode: 'disabled',
           intelligenceFabricDemoteControlled: true,
-          dashboardDemoteFabric: expect.objectContaining({
-            source: 'Dashboard',
+          zavorthControlDemoteFabric: expect.objectContaining({
+            source: 'ZavorthControl',
             runId: sourceRun.id,
             sessionId: sourceRun.sessionId,
             status: 'degraded',
