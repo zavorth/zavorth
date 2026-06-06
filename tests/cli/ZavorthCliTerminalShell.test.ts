@@ -1,6 +1,7 @@
 import {
   buildTerminalShellCommandRegistry,
   buildTerminalShellSnapshot,
+  createTerminalShellStreamRenderBuffer,
   createTerminalShellHistoryStore,
   formatTerminalShellCardLine,
   formatTerminalShellSelectableCardLine,
@@ -100,6 +101,41 @@ describe('Zavorth CLI terminal shell', () => {
       status: 'queued',
     });
     expect(queued.operatorNotice).toContain('queued for this run');
+  });
+
+  it('throttles stream render deltas and flushes the final text without loss', () => {
+    jest.useFakeTimers();
+    try {
+      const flushed: string[] = [];
+      const buffer = createTerminalShellStreamRenderBuffer({
+        intervalMs: 120,
+        onFlush: (text) => flushed.push(text),
+      });
+
+      buffer.start();
+      for (let index = 0; index < 20; index += 1) {
+        buffer.push({ accumulated: `chunk-${index}` });
+      }
+
+      expect(flushed).toEqual([]);
+      jest.advanceTimersByTime(119);
+      expect(flushed).toEqual([]);
+      jest.advanceTimersByTime(1);
+      expect(flushed).toEqual(['chunk-19']);
+
+      for (let index = 0; index < 20; index += 1) {
+        buffer.push({ delta: String(index % 10) });
+      }
+      jest.advanceTimersByTime(120);
+      expect(flushed).toHaveLength(2);
+      expect(flushed[1]).toBe('chunk-1901234567890123456789');
+
+      buffer.complete({ accumulated: 'final answer' });
+      expect(flushed.at(-1)).toBe('final answer');
+      buffer.abort();
+    } finally {
+      jest.useRealTimers();
+    }
   });
 
   it('supports multiline editing, slash palette and voice toggle keys in a deterministic reducer', () => {

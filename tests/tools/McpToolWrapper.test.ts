@@ -43,4 +43,23 @@ describe('McpToolWrapper', () => {
       arguments: { url: 'https://example.com' },
     });
   });
+
+  it('preserves MCP plugin provenance in the tool definition for quarantine checks', () => {
+    const wrapper = new McpToolWrapper(
+      { callTool: jest.fn() } as any,
+      'browser_navigate',
+      'browser-navigate',
+      'Navigate browser',
+      { type: 'object', properties: {}, required: [] },
+      { pluginId: 'mcp:browser', source: 'mcp' },
+    );
+
+    expect(wrapper.getDefinition()).toEqual(expect.objectContaining({
+      name: 'browser_navigate',
+      metadata: {
+        pluginId: 'mcp:browser',
+        source: 'mcp',
+      },
+    }));
+  });
 });

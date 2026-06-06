@@ -118,6 +118,22 @@ export class ZavorthCli {
       writer: this.writer,
       runOnce: (rawInput: string, runFlags: ZavorthCliFlags) => this.runOnce(rawInput, runFlags),
       welcomeText,
+      steerActiveRun: runtime.agentGateway?.steer
+        ? async ({ text, sessionId, queueItemId }) => {
+          const result = runtime.agentGateway!.steer({
+            sessionId,
+            text,
+            source: 'zavorth-terminal-shell-steer',
+            queueItemId,
+          });
+          return {
+            ok: result.ok,
+            notice: result.ok
+              ? `Live steering accepted for run ${result.run?.id || 'active'}.`
+              : `Live steering unavailable: ${result.error || 'active run not found'}. Queued locally.`,
+          };
+        }
+        : undefined,
     });
   }
 

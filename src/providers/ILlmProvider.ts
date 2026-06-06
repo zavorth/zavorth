@@ -28,6 +28,12 @@ export interface ToolDefinition {
   category?: string;
   dangerLevel?: string;
   requiresPermission?: boolean;
+  metadata?: {
+    pluginId?: string;
+    source?: string;
+    sourceTrusted?: boolean;
+    [key: string]: unknown;
+  };
   parameters: {
     type: 'object';
     properties: Record<string, ToolParameter>;

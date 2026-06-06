@@ -152,6 +152,7 @@ export type ZavorthCliRuntime = {
     | 'findPendingApproval'
     | 'approve'
     | 'reject'
+    | 'steer'
   > | null;
 };
 
@@ -227,6 +228,7 @@ export type ZavorthCliServiceOverrides = {
     | 'findPendingApproval'
     | 'approve'
     | 'reject'
+    | 'steer'
   > | null;
   commandService?: SurfaceCommandBoundary;
 };

@@ -11,6 +11,7 @@
 
 import type { IntentCategory } from './IntentClassifier.js';
 import type { ToolDefinition } from '../providers/ILlmProvider.js';
+import { PluginStateService } from '../services/PluginStateService.js';
 
 export type IntentToolCategoryMap = Partial<Record<IntentCategory | string, string[]>>;
 export type ToolGatekeeperHintGroup =
@@ -30,10 +31,11 @@ export type ToolGatekeeperHintProfile = {
   recommendedToolNames: string[];
   tools: ToolDefinition[];
   omittedToolNames: string[];
+  quarantinedToolNames: string[];
   totalTools: number;
   filteredTools: number;
-  toolExposureGatedByCognitiveFirewall: false;
-  isHardGate: false;
+  toolExposureGatedByCognitiveFirewall: boolean;
+  isHardGate: boolean;
   reason: string;
 };
 
@@ -94,6 +96,58 @@ export function getDynamicIntentToolMap(): Record<string, string[]> {
 }
 
 export class ToolGatekeeper {
+  private readonly pluginState: PluginStateService;
+
+  constructor(pluginState?: PluginStateService) {
+    this.pluginState = pluginState ?? new PluginStateService();
+  }
+
+  /**
+   * Aplica a política de quarentena de plugins do operador.
+   * Remove ferramentas cujo pluginId não está aprovado (trust !== 'trusted' ou sourceTrusted !== true).
+   * Ferramentas sem pluginId associado são sempre permitidas (tratadas como ferramentas nativas).
+   */
+  private applyPluginQuarantine(tools: ToolDefinition[]): {
+    approved: ToolDefinition[];
+    quarantined: string[];
+  } {
+    const approved: ToolDefinition[] = [];
+    const quarantined: string[] = [];
+
+    for (const tool of tools) {
+      const pluginId = this.resolvePluginId(tool);
+      if (pluginId && !this.pluginState.isApproved(pluginId)) {
+        quarantined.push(tool.name);
+      } else {
+        approved.push(tool);
+      }
+    }
+
+    return { approved, quarantined };
+  }
+
+  private resolvePluginId(tool: ToolDefinition): string | null {
+    const metadata = tool.metadata || {};
+    const explicit = [
+      metadata.pluginId,
+      metadata.sourcePluginId,
+      metadata.packageId,
+      metadata.serverId,
+    ]
+      .map((value) => String(value || '').trim())
+      .find(Boolean);
+    if (explicit) {
+      return explicit;
+    }
+
+    const source = String(metadata.source || '').trim().toLowerCase();
+    if (source === 'mcp' || source === 'plugin' || source === 'external-plugin') {
+      return `untrusted-source:${source}:${tool.name}`;
+    }
+
+    return null;
+  }
+
   public buildHintProfile(
     allTools: ToolDefinition[],
     intentCategory: IntentCategory,
@@ -101,45 +155,57 @@ export class ToolGatekeeper {
     const defaultAllowedNames = DEFAULT_INTENT_TOOL_MAP[intentCategory];
     const totalTools = allTools.length;
 
+    // Etapa 1: Quarentena de plugins não aprovados pelo operador (hard gate de segurança)
+    const { approved: approvedTools, quarantined: quarantinedToolNames } = this.applyPluginQuarantine(allTools);
+    const pluginGateApplied = quarantinedToolNames.length > 0;
+
     if (defaultAllowedNames === '*') {
-      const recommendedToolNames = allTools.map((tool) => tool.name);
+      const recommendedToolNames = approvedTools.map((tool) => tool.name);
       return {
         intentCategory,
         groups: INTENT_HINT_GROUPS[intentCategory],
         recommendedToolNames,
-        tools: [...allTools],
+        tools: [...approvedTools],
         omittedToolNames: [],
+        quarantinedToolNames,
         totalTools,
-        filteredTools: totalTools,
-        toolExposureGatedByCognitiveFirewall: false,
-        isHardGate: false,
-        reason: 'Intent hint recommends the full available toolset; final exposure belongs to runtime policy.',
+        filteredTools: approvedTools.length,
+        toolExposureGatedByCognitiveFirewall: pluginGateApplied,
+        isHardGate: pluginGateApplied,
+        reason: pluginGateApplied
+          ? `Intent hint recomenda o toolset completo; ${quarantinedToolNames.length} ferramenta(s) bloqueada(s) pela política de plugins do operador.`
+          : 'Intent hint recommends the full available toolset; final exposure belongs to runtime policy.',
       };
     }
 
-    const recommendedToolNames = Array.from(
+    // Etapa 2: Filtragem por intenção aplicada sobre o pool já aprovado
+    const intendedToolNames = Array.from(
       new Set([
         ...(defaultAllowedNames || []),
         ...(dynamicIntentToolMap[intentCategory] || []),
       ]),
     );
-    const allowedSet = new Set(recommendedToolNames);
-    const tools = allTools.filter((tool) => allowedSet.has(tool.name));
+    const allowedSet = new Set(intendedToolNames);
+    const tools = approvedTools.filter((tool) => allowedSet.has(tool.name));
     const selectedNames = new Set(tools.map((tool) => tool.name));
+    const recommendedToolNames = tools.map((tool) => tool.name);
 
     return {
       intentCategory,
       groups: INTENT_HINT_GROUPS[intentCategory],
       recommendedToolNames,
       tools,
-      omittedToolNames: allTools
+      omittedToolNames: approvedTools
         .map((tool) => tool.name)
         .filter((name) => !selectedNames.has(name)),
+      quarantinedToolNames,
       totalTools,
       filteredTools: tools.length,
-      toolExposureGatedByCognitiveFirewall: false,
-      isHardGate: false,
-      reason: 'Intent classifier produced a tool hint only; final exposure belongs to runtime policy.',
+      toolExposureGatedByCognitiveFirewall: pluginGateApplied,
+      isHardGate: pluginGateApplied,
+      reason: pluginGateApplied
+        ? `Intent classifier filtrou por intenção; ${quarantinedToolNames.length} ferramenta(s) bloqueada(s) pela política de plugins do operador.`
+        : 'Intent classifier produced a tool hint only; final exposure belongs to runtime policy.',
     };
   }
 
@@ -162,9 +228,11 @@ export class ToolGatekeeper {
     totalTools: number,
     filteredTools: number,
     intentCategory: IntentCategory,
+    quarantinedCount = 0,
   ): string {
     const saved = totalTools - filteredTools;
     const percent = totalTools > 0 ? Math.round((saved / totalTools) * 100) : 0;
-    return `[Cognitive Firewall Hint] Intent: ${intentCategory} | Tools: ${filteredTools}/${totalTools} recomendadas (${percent}% economia estimada, gate=false)`;
+    const quarantineInfo = quarantinedCount > 0 ? ` | Quarentena: ${quarantinedCount} bloqueada(s)` : '';
+    return `[Cognitive Firewall] Intent: ${intentCategory} | Tools: ${filteredTools}/${totalTools} recomendadas (${percent}% economia estimada${quarantineInfo})`;
   }
 }
