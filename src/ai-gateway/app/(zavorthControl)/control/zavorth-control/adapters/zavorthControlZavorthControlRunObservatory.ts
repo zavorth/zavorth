@@ -1,9 +1,17 @@
 import type {
-  ZavorthControlIntelligenceFabricHealthSnapshot,
   ZavorthControlRunObservatorySnapshot,
-} from '../contracts/zavorthControlZavorthControlObservabilityContracts';
+} from '../contracts';
 
 type AnyRecord = Record<string, any>;
+
+type ZavorthControlIntelligenceFabricHealthSnapshot = {
+  status: string;
+  recommendation: string;
+  p95LatencyMs: number | null;
+  rollbackInstruction: string;
+  demoteAvailable: boolean;
+  raw: AnyRecord;
+};
 
 function record(value: unknown): AnyRecord {
   return value && typeof value === 'object' && !Array.isArray(value) ? value as AnyRecord : {};
@@ -43,7 +51,22 @@ export function mapFabricHealth(value: unknown): ZavorthControlIntelligenceFabri
 export function mapZavorthControlRunObservatory(value: unknown): ZavorthControlRunObservatorySnapshot {
   const snapshot = record(value);
   if (!Object.keys(snapshot).length) {
-    return {};
+    return {
+      generatedAt: new Date(0).toISOString(),
+      query: {},
+      totalRuns: 0,
+      matchedRuns: 0,
+      indexes: {
+        runIds: [],
+        traceIds: [],
+        sessionIds: [],
+        statuses: [],
+      },
+      runs: [],
+      diffPreviews: [],
+      intelligenceFabricHealth: null,
+      zavorthControlIntelligenceFabricHealth: null,
+    };
   }
 
   const diffPreviews = Array.isArray(snapshot.diffPreviews) ? snapshot.diffPreviews : [];

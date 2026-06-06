@@ -42,6 +42,22 @@ function redactSensitiveText(value: string): string {
     .replace(/\b(token|secret|password|api[_-]?key)\s*[:=]\s*[^,\s]+/gi, '$1=[redacted]');
 }
 
+function isSensitiveKey(key: string): boolean {
+  const normalized = key.toLowerCase().replace(/[^a-z0-9]/g, '');
+  return [
+    'apikey',
+    'token',
+    'secret',
+    'password',
+    'accesstoken',
+    'refreshtoken',
+    'clientsecret',
+    'credential',
+    'privatekey',
+    'key',
+  ].includes(normalized);
+}
+
 function sanitizeRuntimeSnapshot(value: unknown): unknown {
   if (typeof value === 'string') {
     return redactSensitiveText(value);
@@ -51,7 +67,10 @@ function sanitizeRuntimeSnapshot(value: unknown): unknown {
   }
   if (value && typeof value === 'object') {
     return Object.fromEntries(
-      Object.entries(value as AnyRecord).map(([key, entry]) => [key, sanitizeRuntimeSnapshot(entry)]),
+      Object.entries(value as AnyRecord).map(([key, entry]) => [
+        key,
+        isSensitiveKey(key) ? '[redacted-secret]' : sanitizeRuntimeSnapshot(entry),
+      ]),
     );
   }
   return value;
@@ -875,6 +894,12 @@ export function buildZavorthControlZavorthControlViewModel(input: AnyRecord = {}
   const capabilities = array(input.capabilities || toolExposure.tools).map((capability) => normalizeCapability(record(capability)));
   const subagentAutoInvocation = subagentSnapshot(input, agentRun);
   const runObservatory = mapZavorthControlRunObservatory(input.runObservatory);
+  const perceptionControl = firstNonEmptyRecord(
+    input.perceptionControl,
+    input.runtime?.perceptionControl,
+    input.state?.perceptionControl,
+    agentRun.metadata?.perceptionControl,
+  );
   const trace = traceFrom(input, agentRun);
   const replyPorts = normalizeReplyPorts(input, runtime);
   const nexusWorkbench = buildNexusWorkbench(input);
@@ -984,8 +1009,10 @@ export function buildZavorthControlZavorthControlViewModel(input: AnyRecord = {}
     nexusWorkbench,
     modelProfile,
     modelPicker: input.modelPicker || input.runtime?.modelPicker || null,
+    perceptionControl: Object.keys(perceptionControl).length > 0 ? perceptionControl : null,
     agentRun: agentRunView,
-    runObservatory: Object.keys(runObservatory).length ? runObservatory : {
+    runObservatory: Object.keys(record(input.runObservatory)).length ? runObservatory : {
+      ...runObservatory,
       runs: agentRunView ? [agentRunView] : [],
       matchedRuns: agentRunView ? 1 : 0,
       totalRuns: agentRunView ? 1 : 0,

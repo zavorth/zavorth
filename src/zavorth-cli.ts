@@ -2466,7 +2466,7 @@ async function runDynamicWorkflows(rawArgs: string[] = []): Promise<number> {
 async function runEffortControl(rawArgs: string[] = []): Promise<number> {
   const { ZavorthEffortControlService } = await import('./services/ZavorthEffortControlService.js');
   const service = new ZavorthEffortControlService();
-  const positional = rawArgs.filter((arg) => !arg.startsWith('--'));
+  const positional = collectEffortControlPositionals(rawArgs);
   const knownLevel = /^(low|light|fast|standard|high|deep|heavy|ultra|ultra-code|ultra_code|ultracode|max|massive)$/i;
   const first = positional[0] || null;
   const level = readFlexibleStringFlag(rawArgs, 'level') || (first && knownLevel.test(first) ? first : null);
@@ -2485,6 +2485,23 @@ async function runEffortControl(rawArgs: string[] = []): Promise<number> {
   }
 
   return 0;
+}
+
+function collectEffortControlPositionals(rawArgs: string[]): string[] {
+  const flagsWithValues = new Set(['level', 'request', 'profile', 'max-cents', 'budget-cents']);
+  const positional: string[] = [];
+  for (let index = 0; index < rawArgs.length; index += 1) {
+    const arg = rawArgs[index] || '';
+    if (!arg.startsWith('--')) {
+      positional.push(arg);
+      continue;
+    }
+    const flagName = arg.slice(2).split('=')[0]?.toLowerCase() || '';
+    if (!arg.includes('=') && flagsWithValues.has(flagName) && rawArgs[index + 1] && !rawArgs[index + 1].startsWith('--')) {
+      index += 1;
+    }
+  }
+  return positional;
 }
 
 async function runProviderLongTailActivation(rawArgs: string[] = []): Promise<number> {
