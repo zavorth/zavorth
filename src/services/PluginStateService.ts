@@ -21,6 +21,11 @@ export type PluginRegistryState = {
   entries: Record<string, StoredPluginState>;
 };
 
+export type PluginApprovalSnapshot = {
+  approvedPluginIds: Set<string>;
+  isApproved: (pluginId: string | null | undefined) => boolean;
+};
+
 type PluginStateRuntime = {
   now?: () => Date;
   stateFile?: string;
@@ -48,11 +53,12 @@ export class PluginStateService {
   }
 
   public readState(): PluginRegistryState {
-    return this.readJsonFile<PluginRegistryState>({
+    const state = this.readJsonFile<PluginRegistryState>({
       version: 1,
       updatedAt: this.now().toISOString(),
-      entries: {},
+      entries: this.createEntriesMap(),
     });
+    return this.normalizeState(state);
   }
 
   public getState(pluginId: string | null | undefined): StoredPluginState | null {
@@ -61,8 +67,8 @@ export class PluginStateService {
       return null;
     }
 
-    const entries = this.readState().entries || {};
-    if (entries[normalizedId]) {
+    const entries = this.readState().entries || this.createEntriesMap();
+    if (Object.prototype.hasOwnProperty.call(entries, normalizedId)) {
       return entries[normalizedId];
     }
 
@@ -166,12 +172,35 @@ export class PluginStateService {
    * @param pluginId - Identificador do plugin a ser verificado
    * @returns true se o plugin estiver aprovado para execução, false caso contrário
    */
-  public isApproved(pluginId: string | null | undefined): boolean {
-    const state = this.getState(pluginId);
-    if (!state) {
-      return false;
+  public getApprovalSnapshot(): PluginApprovalSnapshot {
+    const state = this.readState();
+    const approvedPluginIds = new Set<string>();
+
+    for (const [key, entry] of Object.entries(state.entries || {})) {
+      if (entry?.trust !== 'trusted' || entry.sourceTrusted !== true) {
+        continue;
+      }
+      const normalizedKey = this.normalizeId(key);
+      const normalizedPluginId = this.normalizeId(entry.pluginId);
+      if (normalizedKey) {
+        approvedPluginIds.add(normalizedKey);
+      }
+      if (normalizedPluginId) {
+        approvedPluginIds.add(normalizedPluginId);
+      }
     }
-    return state.trust === 'trusted' && state.sourceTrusted === true;
+
+    return {
+      approvedPluginIds,
+      isApproved: (pluginId) => {
+        const normalizedId = this.normalizeId(pluginId);
+        return normalizedId ? approvedPluginIds.has(normalizedId) : false;
+      },
+    };
+  }
+
+  public isApproved(pluginId: string | null | undefined): boolean {
+    return this.getApprovalSnapshot().isApproved(pluginId);
   }
 
   public clearState(pluginId: string | null | undefined): boolean {
@@ -204,7 +233,7 @@ export class PluginStateService {
 
   private writeJsonFile(state: PluginRegistryState): void {
     this.mkdirSyncImpl(path.dirname(this.stateFile), { recursive: true });
-    this.writeFileSyncImpl(this.stateFile, JSON.stringify(state, null, 2), 'utf8');
+    this.writeFileSyncImpl(this.stateFile, JSON.stringify(this.normalizeState(state), null, 2), 'utf8');
   }
 
   private normalizeId(value: string | null | undefined): string {
@@ -214,5 +243,29 @@ export class PluginStateService {
       .replace(/[^a-z0-9_\-:/]+/g, '-')
       .replace(/-+/g, '-')
       .replace(/^-|-$/g, '');
+  }
+
+  private createEntriesMap(): Record<string, StoredPluginState> {
+    return Object.create(null) as Record<string, StoredPluginState>;
+  }
+
+  private normalizeState(state: PluginRegistryState): PluginRegistryState {
+    const entries = this.createEntriesMap();
+    for (const [key, entry] of Object.entries(state?.entries || {})) {
+      if (!entry) {
+        continue;
+      }
+      const normalizedKey = this.normalizeId(key || entry.pluginId);
+      if (!normalizedKey) {
+        continue;
+      }
+      entries[normalizedKey] = entry;
+    }
+
+    return {
+      version: Number.isFinite(state?.version) ? state.version : 1,
+      updatedAt: state?.updatedAt || this.now().toISOString(),
+      entries,
+    };
   }
 }

@@ -113,10 +113,11 @@ export class ToolGatekeeper {
   } {
     const approved: ToolDefinition[] = [];
     const quarantined: string[] = [];
+    const approvalSnapshot = this.pluginState.getApprovalSnapshot();
 
     for (const tool of tools) {
       const pluginId = this.resolvePluginId(tool);
-      if (pluginId && !this.pluginState.isApproved(pluginId)) {
+      if (pluginId && !approvalSnapshot.isApproved(pluginId)) {
         quarantined.push(tool.name);
       } else {
         approved.push(tool);
@@ -155,7 +156,7 @@ export class ToolGatekeeper {
     const defaultAllowedNames = DEFAULT_INTENT_TOOL_MAP[intentCategory];
     const totalTools = allTools.length;
 
-    // Etapa 1: Quarentena de plugins não aprovados pelo operador (hard gate de segurança)
+    // Step 1: quarantine plugin tools that the operator has not approved.
     const { approved: approvedTools, quarantined: quarantinedToolNames } = this.applyPluginQuarantine(allTools);
     const pluginGateApplied = quarantinedToolNames.length > 0;
 
@@ -173,12 +174,12 @@ export class ToolGatekeeper {
         toolExposureGatedByCognitiveFirewall: pluginGateApplied,
         isHardGate: pluginGateApplied,
         reason: pluginGateApplied
-          ? `Intent hint recomenda o toolset completo; ${quarantinedToolNames.length} ferramenta(s) bloqueada(s) pela política de plugins do operador.`
+          ? `Intent hint recommends the full toolset; ${quarantinedToolNames.length} tool(s) blocked by operator plugin policy.`
           : 'Intent hint recommends the full available toolset; final exposure belongs to runtime policy.',
       };
     }
 
-    // Etapa 2: Filtragem por intenção aplicada sobre o pool já aprovado
+    // Step 2: apply intent filtering over the already approved pool.
     const intendedToolNames = Array.from(
       new Set([
         ...(defaultAllowedNames || []),
@@ -204,7 +205,7 @@ export class ToolGatekeeper {
       toolExposureGatedByCognitiveFirewall: pluginGateApplied,
       isHardGate: pluginGateApplied,
       reason: pluginGateApplied
-        ? `Intent classifier filtrou por intenção; ${quarantinedToolNames.length} ferramenta(s) bloqueada(s) pela política de plugins do operador.`
+        ? `Intent classifier filtered by intent; ${quarantinedToolNames.length} tool(s) blocked by operator plugin policy.`
         : 'Intent classifier produced a tool hint only; final exposure belongs to runtime policy.',
     };
   }
@@ -232,7 +233,7 @@ export class ToolGatekeeper {
   ): string {
     const saved = totalTools - filteredTools;
     const percent = totalTools > 0 ? Math.round((saved / totalTools) * 100) : 0;
-    const quarantineInfo = quarantinedCount > 0 ? ` | Quarentena: ${quarantinedCount} bloqueada(s)` : '';
-    return `[Cognitive Firewall] Intent: ${intentCategory} | Tools: ${filteredTools}/${totalTools} recomendadas (${percent}% economia estimada${quarantineInfo})`;
+    const quarantineInfo = quarantinedCount > 0 ? ` | Quarantine: ${quarantinedCount} blocked` : '';
+    return `[Cognitive Firewall] Intent: ${intentCategory} | Tools: ${filteredTools}/${totalTools} recommended (${percent}% estimated savings${quarantineInfo})`;
   }
 }

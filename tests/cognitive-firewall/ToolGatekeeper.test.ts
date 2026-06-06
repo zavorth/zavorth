@@ -158,7 +158,52 @@ describe('ToolGatekeeper dynamic skill map', () => {
     expect(hint.toolExposureGatedByCognitiveFirewall).toBe(true);
     expect(hint.isHardGate).toBe(true);
     expect(gatekeeper.getFilterStats(tools.length, hint.filteredTools, 'full_toolset', hint.quarantinedToolNames.length))
-      .toContain('Quarentena: 1 bloqueada');
+      .toContain('Quarantine: 1 blocked');
+  });
+
+  it('loads plugin approval state once per hint profile build', () => {
+    const readFileSync = jest.fn(() => JSON.stringify({
+      version: 1,
+      updatedAt: '2026-06-06T00:00:00.000Z',
+      entries: {
+        'mcp:trusted-pack': {
+          pluginId: 'mcp:trusted-pack',
+          installed: true,
+          trust: 'trusted',
+          installedRevision: 'rev-test',
+          sourceDigest: 'sha256-test',
+          sourceLocator: 'test-registry',
+          sourceTrusted: true,
+          updatedAt: '2026-06-06T00:00:00.000Z',
+        },
+      },
+    }));
+    const pluginState = new PluginStateService({
+      stateFile: 'X:/state/plugin-state.json',
+      existsSync: jest.fn(() => true),
+      readFileSync,
+    });
+    const gatekeeper = new ToolGatekeeper(pluginState);
+    const tools: ToolDefinition[] = [
+      {
+        name: 'trusted_lookup',
+        description: 'Trusted lookup',
+        metadata: { pluginId: 'mcp:trusted-pack', source: 'mcp' },
+        parameters: { type: 'object', properties: {} },
+      },
+      {
+        name: 'unknown_lookup',
+        description: 'Unknown lookup',
+        metadata: { pluginId: 'mcp:unknown-pack', source: 'mcp' },
+        parameters: { type: 'object', properties: {} },
+      },
+    ];
+
+    const hint = gatekeeper.buildHintProfile(tools, 'full_toolset');
+
+    expect(hint.tools.map((tool) => tool.name)).toEqual(['trusted_lookup']);
+    expect(hint.quarantinedToolNames).toEqual(['unknown_lookup']);
+    expect(readFileSync).toHaveBeenCalledTimes(1);
   });
 
   it('allows plugin tools only when the operator trust state and source trust are both explicit', () => {

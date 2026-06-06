@@ -617,6 +617,9 @@ export class ConversationalAgent {
     const byName = new Map<string, ToolDefinition>();
 
     for (const tool of filteredTools || []) {
+      if (quarantinedToolNames.has(tool.name)) {
+        continue;
+      }
       byName.set(tool.name, tool);
     }
 
