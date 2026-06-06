@@ -14,6 +14,9 @@ description: "Zavorth is a personal AI that runs on your machine, talks through 
   <Card title="Get started" href="/docs/produto/start/getting-started" icon="rocket">
     Install Zavorth and chat with it in under 5 minutes.
   </Card>
+  <Card title="Primeiro uso" href="/docs/produto/start/primeiro-uso" icon="play">
+    Um caminho simples para instalar, abrir o chat, conectar um modelo e entender aprovacoes.
+  </Card>
   <Card title="Set it up your way" href="/docs/produto/start/onboarding" icon="sparkles">
     Give Zavorth a name, a personality, and your preferred language.
   </Card>
@@ -111,6 +114,9 @@ Want the full guide? See [Getting started](/docs/produto/start/getting-started).
 <Columns>
   <Card title="Docs overview" href="/docs/produto/start/what-is-zavorth" icon="book-open">
     Everything you need to know, in plain language.
+  </Card>
+  <Card title="Primeiro uso" href="/docs/produto/start/primeiro-uso" icon="play">
+    O caminho feliz para instalar, conversar, conectar e revisar.
   </Card>
   <Card title="Connect a channel" href="/docs/produto/canais" icon="message-square">
     Telegram, Discord, WhatsApp, Slack, and more.

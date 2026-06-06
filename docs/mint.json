@@ -7,11 +7,11 @@
   },
   "favicon": "/favicon.svg",
   "colors": {
-    "primary": "#7C3AED",
-    "light": "#A78BFA",
-    "dark": "#5B21B6",
+    "primary": "#00E88F",
+    "light": "#7DFFCA",
+    "dark": "#047857",
     "background": {
-      "dark": "#0F0A1E"
+      "dark": "#060809"
     }
   },
   "topbarLinks": [
@@ -36,6 +36,7 @@
       "pages": [
         "produto/index",
         "produto/start/what-is-zavorth",
+        "produto/start/primeiro-uso",
         "produto/start/getting-started",
         "produto/start/onboarding",
         "produto/start/showcase"
