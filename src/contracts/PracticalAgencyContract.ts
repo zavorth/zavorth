@@ -16,6 +16,7 @@ export type ConversationalAgencyMessage = {
   nextAction: string;
   detailsHiddenByDefault: true;
   dashboardDetailsAvailable: true;
+  zavorthControlDetailsAvailable: true;
   internalTermsSuppressed: string[];
 };
 

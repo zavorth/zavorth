@@ -58,6 +58,8 @@ export type ZavorthDoItWithMeContract = {
     mission: ZavorthGuidedMissionCard | null;
     dashboardRoute: '/dashboard';
     dashboardCanExecute: false;
+    zavorthControlRoute: '/control';
+    zavorthControlCanExecute: false;
   };
   safety: {
     projectionOnly: true;

@@ -15,7 +15,7 @@ describe('ZavorthExperienceLayerDailyUseCertificationService', () => {
       'zavorth missions guide',
       'zavorth trust-panel',
       'zavorth visual-receipts',
-      'zavorth dashboard-home',
+      'zavorth zavorthControl-home',
       'zavorth daily',
     ]));
   });

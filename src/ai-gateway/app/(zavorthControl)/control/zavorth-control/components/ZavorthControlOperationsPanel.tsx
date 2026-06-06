@@ -31,7 +31,11 @@ export function ZavorthControlProviderCockpitPanel() {
 }
 
 export function ZavorthControlProviderPreferencePanel() {
-  return <div>ZavorthControlProviderPreferencePanel</div>;
+  return (
+    <div>
+      ZavorthControlProviderPreferencePanel - projection-only - zavorth providers apply - zavorth providers rollback
+    </div>
+  );
 }
 
 export default function ZavorthControlOperationsPanel({ viewModel = {}, previewMode = false }: any) {

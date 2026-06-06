@@ -21,6 +21,7 @@ export type ZavorthVisualReceiptV2Action = {
   requiresApproval: boolean;
   mutatesState: boolean;
   dashboardCanExecute: false;
+  zavorthControlCanExecute: false;
 };
 
 export type ZavorthVisualReceiptV2Card = {
@@ -78,6 +79,7 @@ export type ZavorthVisualReceiptsV2Snapshot = {
     projectionOnly: true;
     rawSecretsSerialized: false;
     dashboardCanExecute: false;
+    zavorthControlCanExecute: false;
     approvalActionsStayScoped: true;
     rollbackRequiresApproval: true;
   };
