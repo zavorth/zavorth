@@ -36,6 +36,16 @@ export type ZavorthRuntimeReadinessUxCard = {
   action: ZavorthRuntimeReadinessUxAction;
 };
 
+export type ZavorthRuntimeReadinessUxDashboardProjection = {
+  route: '/dashboard';
+  endpoint: '/api/runtime/readiness';
+  slot: 'runtime-readiness';
+  renderMode: 'operator-cards';
+  showTechnicalDetailsByDefault: false;
+  executionAuthority: false;
+  cards: ZavorthRuntimeReadinessUxCard[];
+};
+
 export type ZavorthRuntimeReadinessUxSnapshot = {
   contractVersion: typeof ZAVORTH_RUNTIME_READINESS_UX_CONTRACT_VERSION;
   schemaVersion: 1;
@@ -50,15 +60,8 @@ export type ZavorthRuntimeReadinessUxSnapshot = {
   primaryAction: ZavorthRuntimeReadinessUxAction;
   secondaryActions: ZavorthRuntimeReadinessUxAction[];
   cards: ZavorthRuntimeReadinessUxCard[];
-  dashboardProjection: {
-    route: '/dashboard';
-    endpoint: '/api/runtime/readiness';
-    slot: 'runtime-readiness';
-    renderMode: 'operator-cards';
-    showTechnicalDetailsByDefault: false;
-    executionAuthority: false;
-    cards: ZavorthRuntimeReadinessUxCard[];
-  };
+  dashboardProjection: ZavorthRuntimeReadinessUxDashboardProjection;
+  zavorthControlProjection: ZavorthRuntimeReadinessUxDashboardProjection;
   cliProjection: {
     command: 'zavorth readiness';
     jsonCommand: 'zavorth readiness --json';
@@ -120,15 +123,8 @@ export class ZavorthRuntimeReadinessUxService {
       primaryAction,
       secondaryActions,
       cards,
-      dashboardProjection: {
-        route: '/dashboard',
-        endpoint: '/api/runtime/readiness',
-        slot: 'runtime-readiness',
-        renderMode: 'operator-cards',
-        showTechnicalDetailsByDefault: false,
-        executionAuthority: false,
-        cards,
-      },
+      dashboardProjection: createRuntimeReadinessProjection(cards),
+      zavorthControlProjection: createRuntimeReadinessProjection(cards),
       cliProjection: {
         command: 'zavorth readiness',
         jsonCommand: 'zavorth readiness --json',
@@ -285,6 +281,20 @@ export class ZavorthRuntimeReadinessUxService {
     };
     return uniqueActions([dashboardAction, ...actions]);
   }
+}
+
+function createRuntimeReadinessProjection(
+  cards: ZavorthRuntimeReadinessUxCard[],
+): ZavorthRuntimeReadinessUxDashboardProjection {
+  return {
+    route: '/dashboard',
+    endpoint: '/api/runtime/readiness',
+    slot: 'runtime-readiness',
+    renderMode: 'operator-cards',
+    showTechnicalDetailsByDefault: false,
+    executionAuthority: false,
+    cards,
+  };
 }
 
 function titleForCheck(id: ZavorthRuntimeReadinessCheckId): string {

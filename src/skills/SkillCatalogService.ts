@@ -16,7 +16,7 @@ export class SkillCatalogService {
 
   constructor(runtime: SkillCatalogRuntime = {}) {
     this.now = runtime.now || (() => new Date());
-    this.skillLoader = runtime.skillLoader || new SkillLoader();
+    this.skillLoader = runtime.skillLoader || new SkillLoader({ quiet: true });
   }
 
   public listEntries(): SkillCatalogEntry[] {
