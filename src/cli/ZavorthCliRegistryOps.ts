@@ -88,9 +88,14 @@ import {
   resolvePersonalOpsAutopilotCliText,
 } from './ZavorthCliPersonalOpsAutopilotRenderer.js';
 import {
+  buildAgentTeamCompilerCliLaunchResult,
   buildAgentTeamCompilerCliSnapshot,
+  buildAgentTeamCompilerLaunchResultFromRun,
   buildAgentTeamCompilerSnapshotFromRun,
+  formatAgentTeamCompilerLaunchResult,
   formatAgentTeamCompilerSnapshot,
+  resolveAgentTeamCompilerApprovalId,
+  resolveAgentTeamCompilerCliAction,
   resolveAgentTeamCompilerCliText,
 } from './ZavorthCliAgentTeamCompilerRenderer.js';
 import {
@@ -860,6 +865,23 @@ export async function handleZavorthCliRegistryOpsCommand(params: RegistryCommand
         userId: effectiveFlags.userId,
         sessionId: effectiveFlags.sessionId,
       });
+    const action = resolveAgentTeamCompilerCliAction(args);
+    if (action === 'launch') {
+      const approvalId = resolveAgentTeamCompilerApprovalId(args);
+      const launchResult = activeRun
+        ? buildAgentTeamCompilerLaunchResultFromRun(activeRun, approvalId)
+        : buildAgentTeamCompilerCliLaunchResult({
+          text: resolveAgentTeamCompilerCliText(args) || resolveAgentTeamCompilerCliText(String(effectiveFlags.commandText || '')),
+          userId: effectiveFlags.userId,
+          sessionId: effectiveFlags.sessionId,
+          approvalId,
+        });
+      const body = effectiveFlags.json
+        ? JSON.stringify(launchResult, null, 2)
+        : formatAgentTeamCompilerLaunchResult(launchResult);
+      writer.line(body);
+      return { ok: true, handled: true, output: [body], error: null };
+    }
     const body = effectiveFlags.json
       ? JSON.stringify(snapshot, null, 2)
       : formatAgentTeamCompilerSnapshot(snapshot);

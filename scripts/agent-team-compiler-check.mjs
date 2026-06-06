@@ -1,9 +1,11 @@
 #!/usr/bin/env node
 import fs from 'node:fs';
 import path from 'node:path';
+import { spawnSync } from 'node:child_process';
 
 const root = process.cwd();
 const asJson = process.argv.includes('--json');
+const jestBin = path.join(root, 'node_modules', 'jest', 'bin', 'jest.js');
 
 const rules = [
   ruleFilesExist({
@@ -34,6 +36,9 @@ const rules = [
       'approvalRequiredBeforeLaunch',
       'budgetsDefaultToZero',
       'providerSelectionIsAdvisory',
+      'launchApprovedTeam',
+      'peerReviewRequiredBeforeSynthesis',
+      'mutationRequiresSubagentGateway',
     ],
   }),
   ruleContainsAcross({
@@ -67,6 +72,20 @@ const rules = [
       'resolveAgentTeamCompilerCliText',
       'formatAgentTeamCompilerSnapshot',
       'zavorth agent-team',
+      'formatAgentTeamCompilerLaunchResult',
+      'resolveAgentTeamCompilerApprovalId',
+    ],
+  }),
+  ruleCommandPasses({
+    id: 'agent-team-launch-tests-pass',
+    label: 'Agent Team launch protocol tests pass',
+    target: 'Approved launch prepares a review board, blocks missing approval and keeps execution projection-only',
+    command: process.execPath,
+    args: [
+      jestBin,
+      'tests/runtime/agent/AgentTeamCompilerService.test.ts',
+      'tests/cli/ZavorthCliAgentTeamCompiler.test.ts',
+      '--runInBand',
     ],
   }),
   ruleContainsAcross({
@@ -88,6 +107,9 @@ const rules = [
       'mapAgentTeamCompiler',
       'Agent Team Compiler',
       'summary.roleCount',
+      'approvalId',
+      'directToolExecution',
+      'synthesisRequired',
     ],
   }),
   ruleContainsAll({
@@ -200,4 +222,21 @@ function read(relativePath) {
     return null;
   }
   return fs.readFileSync(absolute, 'utf8');
+}
+
+function ruleCommandPasses(input) {
+  const result = spawnSync(input.command, input.args, {
+    cwd: root,
+    encoding: 'utf8',
+    stdio: ['ignore', 'pipe', 'pipe'],
+  });
+  const output = `${result.error ? `${result.error.message}\n` : ''}${result.stdout || ''}\n${result.stderr || ''}`.trim();
+  return {
+    id: input.id,
+    label: input.label,
+    status: result.status === 0 ? 'passed' : 'failed',
+    observed: `exit ${result.status}`,
+    target: input.target,
+    details: result.status === 0 ? [] : output.split(/\r?\n/).slice(0, 12),
+  };
 }

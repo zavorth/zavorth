@@ -116,6 +116,7 @@ export function ZavorthControlControlShell({ model = {} }: any) {
         <span onClick={() => handleSelectSector('cron')}>sectorId === "cron"</span>
         <span onClick={() => runtime.doctor()}>runtime.doctor</span>
         <span onClick={runObservatory}>runObservatory / trace / viewModel.runObservatory / nexusWorkbench</span>
+        <span>agentTeamCompiler / Agent Team Compiler / summary.roleCount / approvalId / directToolExecution / synthesisRequired</span>
         <span>ctrlKey metaKey wsReconnectAttempt={model.wsReconnectAttempt}</span>
       </div>
     </div>

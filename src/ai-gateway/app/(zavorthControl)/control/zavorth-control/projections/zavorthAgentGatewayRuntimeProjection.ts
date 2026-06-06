@@ -15,6 +15,27 @@ function text(value: unknown, fallback = ''): string {
   return normalized || fallback;
 }
 
+function redactSensitiveText(value: string): string {
+  return value
+    .replace(/\b(sk-[A-Za-z0-9_-]{8,}|ghp_[A-Za-z0-9_]{8,}|AIza[A-Za-z0-9_-]{12,})\b/g, '[redacted-secret]')
+    .replace(/\b(token|secret|password|api[_-]?key)\s*[:=]\s*[^,\s]+/gi, '$1=[redacted]');
+}
+
+function sanitizeRuntimeSnapshot(value: unknown): unknown {
+  if (typeof value === 'string') {
+    return redactSensitiveText(value);
+  }
+  if (Array.isArray(value)) {
+    return value.map(sanitizeRuntimeSnapshot);
+  }
+  if (value && typeof value === 'object') {
+    return Object.fromEntries(
+      Object.entries(value as AnyRecord).map(([key, entry]) => [key, sanitizeRuntimeSnapshot(entry)]),
+    );
+  }
+  return value;
+}
+
 function activeRunFrom(snapshot: AnyRecord): AnyRecord {
   const active = record(snapshot.activeRun);
   if (Object.keys(active).length > 0) {
@@ -291,6 +312,33 @@ export function mapProviderCockpit(activeRun: any, snapshot: any) {
   return activeRun?.metadata?.providerCockpit || snapshot?.providerCockpit || { status: 'mapped' };
 }
 
+export function mapPerceptionControlProjection(activeRun: any, snapshot: any) {
+  return activeRun?.metadata?.perceptionControl
+    || snapshot?.perceptionControl
+    || snapshot?.zavorthControlProjection
+    || snapshot?.dashboardProjection?.perceptionControl
+    || snapshot?.dashboardProjection
+    || null;
+}
+
+export function mapAgentTeamCompiler(activeRun: any) {
+  return activeRun?.metadata?.agentTeamCompiler || null;
+}
+
+export function mapDynamicWorkflow(activeRun: any) {
+  const snapshot = activeRun?.metadata?.dynamicWorkflow;
+  return snapshot && typeof snapshot === 'object' && !Array.isArray(snapshot)
+    ? sanitizeRuntimeSnapshot(snapshot)
+    : null;
+}
+
+export function mapEffortControl(activeRun: any) {
+  const snapshot = activeRun?.metadata?.effortControl;
+  return snapshot && typeof snapshot === 'object' && !Array.isArray(snapshot)
+    ? sanitizeRuntimeSnapshot(snapshot)
+    : null;
+}
+
 export function buildZavorthControlRuntimeProjectionFromZavorthAgentGatewaySnapshot(snapshotInput: any): AnyRecord {
   const snapshot = record(snapshotInput);
   const activeRun = activeRunFrom(snapshot);
@@ -396,6 +444,7 @@ export function buildZavorthControlRuntimeProjectionFromZavorthAgentGatewaySnaps
     workflowJobs,
     subagentAutoInvocation: subagentAutoInvocationFromRun(activeRun),
     providerCockpit: mapProviderCockpit(activeRun, snapshot),
+    perceptionControl: mapPerceptionControlProjection(activeRun, snapshot),
     naturalFirstRuntime: naturalFirstRuntimeFromRun(activeRun),
     capabilityDiscovery: activeRun.metadata?.capabilityDiscovery || activeRun.metadata?.naturalCapabilityDiscovery || null,
     universalPreviewMode: activeRun.metadata?.universalPreviewMode || null,
@@ -407,7 +456,9 @@ export function buildZavorthControlRuntimeProjectionFromZavorthAgentGatewaySnaps
     selfingDashboard: activeRun.metadata?.selfingDashboard || activeRun.metadata?.selfingZavorthControl || null,
     artifactMemory: activeRun.metadata?.artifactMemory || null,
     personalOpsAutopilot: activeRun.metadata?.personalOpsAutopilot || null,
-    agentTeamCompiler: activeRun.metadata?.agentTeamCompiler || null,
+    agentTeamCompiler: mapAgentTeamCompiler(activeRun),
+    dynamicWorkflow: mapDynamicWorkflow(activeRun),
+    effortControl: mapEffortControl(activeRun),
     crossChannelContinuity: activeRun.metadata?.crossChannelContinuity || null,
     askBeforeAssumptionPolicy: activeRun.metadata?.askBeforeAssumptionPolicy || null,
     providerMeshConsolidation: activeRun.metadata?.providerMeshConsolidation || null,

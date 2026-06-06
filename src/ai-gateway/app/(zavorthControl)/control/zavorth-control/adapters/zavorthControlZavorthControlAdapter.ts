@@ -1,4 +1,8 @@
 import { buildNexusWorkbench } from './zavorthControlZavorthControlNexusWorkbenchAdapter';
+import { mapZavorthControlRunObservatory } from './zavorthControlZavorthControlRunObservatory';
+import type {
+  ZavorthControlAgentTeamCompilerSnapshot,
+} from '../contracts/zavorthControlZavorthControlContracts';
 
 export const ZAVORTH_CONTROL_RUNTIME_CONTRACT_VERSION = 'zavorthControl-runtime-contract/v1' as const;
 
@@ -8,6 +12,16 @@ function record(value: unknown): AnyRecord {
   return value && typeof value === 'object' && !Array.isArray(value) ? value as AnyRecord : {};
 }
 
+function firstNonEmptyRecord(...values: unknown[]): AnyRecord {
+  for (const value of values) {
+    const candidate = record(value);
+    if (Object.keys(candidate).length > 0) {
+      return candidate;
+    }
+  }
+  return {};
+}
+
 function array<T = any>(value: unknown): T[] {
   return Array.isArray(value) ? value as T[] : [];
 }
@@ -15,6 +29,86 @@ function array<T = any>(value: unknown): T[] {
 function text(value: unknown, fallback = ''): string {
   const normalized = String(value ?? '').trim();
   return normalized || fallback;
+}
+
+function number(value: unknown, fallback = 0): number {
+  const parsed = Number(value);
+  return Number.isFinite(parsed) ? parsed : fallback;
+}
+
+function redactSensitiveText(value: string): string {
+  return value
+    .replace(/\b(sk-[A-Za-z0-9_-]{8,}|ghp_[A-Za-z0-9_]{8,}|AIza[A-Za-z0-9_-]{12,})\b/g, '[redacted-secret]')
+    .replace(/\b(token|secret|password|api[_-]?key)\s*[:=]\s*[^,\s]+/gi, '$1=[redacted]');
+}
+
+function sanitizeRuntimeSnapshot(value: unknown): unknown {
+  if (typeof value === 'string') {
+    return redactSensitiveText(value);
+  }
+  if (Array.isArray(value)) {
+    return value.map(sanitizeRuntimeSnapshot);
+  }
+  if (value && typeof value === 'object') {
+    return Object.fromEntries(
+      Object.entries(value as AnyRecord).map(([key, entry]) => [key, sanitizeRuntimeSnapshot(entry)]),
+    );
+  }
+  return value;
+}
+
+function normalizeExperienceProfile(input: AnyRecord): string {
+  const candidate = text(
+    input.identity?.experienceProfile ||
+      input.runtime?.experienceProfile ||
+      input.experienceProfile ||
+      input.profile,
+    'personal',
+  ).toLowerCase();
+  return ['personal', 'creator', 'developer', 'business', 'power'].includes(candidate)
+    ? candidate
+    : 'personal';
+}
+
+function profileLanguageFrom(profile: string): AnyRecord {
+  const catalog: Record<string, AnyRecord> = {
+    personal: {
+      profile: 'personal',
+      tone: 'simple',
+      approvalLabel: 'Revisar antes de mudar',
+      emptyGreeting: 'Oi. Posso trabalhar localmente, usar arquivos, canais e skills. Voce pode pedir algo direto.',
+      memoryLabel: 'Aprendido, editavel e reversivel',
+    },
+    creator: {
+      profile: 'creator',
+      tone: 'preview-first',
+      approvalLabel: 'Revisar previa',
+      emptyGreeting: 'Me diga o que quer criar ou publicar. Eu preparo previa, fontes e proximos passos antes de enviar.',
+      memoryLabel: 'Preferencias de criacao revisaveis',
+    },
+    developer: {
+      profile: 'developer',
+      tone: 'technical',
+      approvalLabel: 'Preview de diff e comando',
+      emptyGreeting: 'Me diga o que quer mudar, revisar ou automatizar. Eu mostro diff, comando e risco quando importar.',
+      memoryLabel: 'Contexto tecnico com origem',
+    },
+    business: {
+      profile: 'business',
+      tone: 'evidence-first',
+      approvalLabel: 'Revisao com evidencia',
+      emptyGreeting: 'Me diga o resultado esperado. Eu registro evidencias e peco revisao so quando a acao exigir.',
+      memoryLabel: 'Historico com evidencia e prazo',
+    },
+    power: {
+      profile: 'power',
+      tone: 'dense',
+      approvalLabel: 'Revisar execucao sensivel',
+      emptyGreeting: 'Me diga a missao. Eu mostro rota, runtime, custo, limite e receipt quando houver execucao.',
+      memoryLabel: 'Sinais operacionais reversiveis',
+    },
+  };
+  return catalog[profile] || catalog.personal;
 }
 
 function generatedAt(input: AnyRecord): string {
@@ -138,6 +232,207 @@ function normalizeApproval(entry: AnyRecord): AnyRecord {
     risk: entry.risk || 'attention',
     command: entry.command || `approve ${id}`,
   };
+}
+
+function normalizeAgentTeamStatus(value: unknown): ZavorthControlAgentTeamCompilerSnapshot['status'] {
+  const raw = text(value).toLowerCase();
+  if (raw === 'not-needed' || raw === 'compiled' || raw === 'waiting-approval' || raw === 'blocked') {
+    return raw;
+  }
+  return 'unknown';
+}
+
+function normalizeAgentTeamTopology(value: unknown): ZavorthControlAgentTeamCompilerSnapshot['topology']['mode'] {
+  const raw = text(value).toLowerCase();
+  if (raw === 'linear' || raw === 'parallel' || raw === 'review-gated') {
+    return raw;
+  }
+  return 'unknown';
+}
+
+function normalizeAgentTeamRoleKind(value: unknown): ZavorthControlAgentTeamCompilerSnapshot['roles'][number]['kind'] {
+  const raw = text(value).toLowerCase();
+  if (
+    raw === 'planner' ||
+    raw === 'researcher' ||
+    raw === 'implementer' ||
+    raw === 'verifier' ||
+    raw === 'provider-specialist' ||
+    raw === 'safety-reviewer' ||
+    raw === 'memory-curator' ||
+    raw === 'operator-liaison'
+  ) {
+    return raw;
+  }
+  return 'planner';
+}
+
+function normalizeAgentTeamRisk(value: unknown): ZavorthControlAgentTeamCompilerSnapshot['roles'][number]['risk'] {
+  const raw = text(value).toLowerCase();
+  if (raw === 'safe' || raw === 'attention' || raw === 'danger' || raw === 'unknown') {
+    return raw;
+  }
+  return 'unknown';
+}
+
+function mapAgentTeamRole(entry: AnyRecord, index: number): ZavorthControlAgentTeamCompilerSnapshot['roles'][number] {
+  const provider = record(entry.provider);
+  const scope = record(entry.scope);
+  const budget = record(entry.budget);
+  const approval = record(entry.approval);
+  const actions = record(entry.actions);
+  return {
+    id: text(entry.id, `agent-team-role-${index + 1}`),
+    roleId: text(entry.roleId, `role-${index + 1}`),
+    kind: normalizeAgentTeamRoleKind(entry.kind),
+    label: text(entry.label, 'Agent role'),
+    objective: text(entry.objective, 'Objetivo nao informado.'),
+    why: text(entry.why, 'Role compilado pelo Agent Team Compiler.'),
+    dependsOn: array<string>(entry.dependsOn).map((item) => text(item)).filter(Boolean),
+    handoffTo: array<string>(entry.handoffTo).map((item) => text(item)).filter(Boolean),
+    capabilityIds: array<string>(entry.capabilityIds).map((item) => text(item)).filter(Boolean),
+    toolIds: array<string>(entry.toolIds).map((item) => text(item)).filter(Boolean),
+    provider: {
+      providerLabel: text(provider.providerLabel, 'unknown'),
+      modelLabel: text(provider.modelLabel, 'unknown'),
+      candidateId: text(provider.candidateId) || null,
+      source: text(provider.source, 'unknown'),
+      advisoryOnly: provider.advisoryOnly !== false,
+    },
+    scope: {
+      mode: text(scope.mode, 'blocked'),
+      allowedTools: array<string>(scope.allowedTools).map((item) => text(item)).filter(Boolean),
+      deniedPaths: array<string>(scope.deniedPaths).map((item) => text(item)).filter(Boolean),
+      requiresApproval: scope.requiresApproval !== false,
+      policyTags: array<string>(scope.policyTags).map((item) => text(item)).filter(Boolean),
+    },
+    budget: {
+      maxToolCalls: number(budget.maxToolCalls),
+      maxWallClockMs: number(budget.maxWallClockMs),
+      maxOutputBytes: number(budget.maxOutputBytes),
+    },
+    approval: {
+      required: approval.required !== false,
+      reason: text(approval.reason, 'Approval requerido antes do launch.'),
+      inheritedApprovalId: text(approval.inheritedApprovalId) || null,
+    },
+    risk: normalizeAgentTeamRisk(entry.risk),
+    actions: {
+      previewCommand: text(actions.previewCommand, 'zavorth agent-team preview <role>'),
+      approveCommand: text(actions.approveCommand, 'zavorth agent-team approve <role>'),
+      launchCommand: text(actions.launchCommand, 'zavorth agent-team launch <role>'),
+      inspectCommand: text(actions.inspectCommand, 'zavorth agent-team inspect <role>'),
+    },
+  };
+}
+
+export function buildAgentTeamCompiler(input: AnyRecord): ZavorthControlAgentTeamCompilerSnapshot | null {
+  const agentRun = record(input.agentRun);
+  const metadata = record(agentRun.metadata);
+  const raw = firstNonEmptyRecord(
+    input.agentTeamCompiler,
+    input.runtime?.agentTeamCompiler,
+    input.state?.agentTeamCompiler,
+    metadata.agentTeamCompiler,
+  );
+  if (!Object.keys(raw).length) {
+    return null;
+  }
+  const identifiers = record(raw.identifiers);
+  const topology = record(raw.topology);
+  const summary = record(raw.summary);
+  const policy = record(raw.policy);
+  const surface = record(raw.surface);
+  const approval = record(raw.approval);
+  const launch = record(raw.launch);
+  return {
+    contractVersion: text(raw.contractVersion, 'unknown'),
+    generatedAt: text(raw.generatedAt, generatedAt(input)),
+    identifiers: {
+      runId: text(identifiers.runId),
+      traceId: text(identifiers.traceId),
+      requestId: text(identifiers.requestId),
+      sessionId: text(identifiers.sessionId),
+    },
+    status: normalizeAgentTeamStatus(raw.status),
+    objective: text(raw.objective, 'Objetivo nao informado.'),
+    topology: {
+      mode: normalizeAgentTeamTopology(topology.mode),
+      edges: array<AnyRecord>(topology.edges).map((edge, index) => ({
+        from: text(edge.from, `role-${index + 1}`),
+        to: text(edge.to, `role-${index + 2}`),
+        reason: text(edge.reason, 'handoff governado'),
+      })).slice(0, 12),
+    },
+    summary: {
+      // QA marker: summary.roleCount is part of the ZavorthControl projection contract.
+      roleCount: number(summary.roleCount),
+      approvalRequiredCount: number(summary.approvalRequiredCount),
+      providerAssignedCount: number(summary.providerAssignedCount),
+      blockedRoleCount: number(summary.blockedRoleCount),
+      requestedSwarm: summary.requestedSwarm === true,
+      providerArenaLinked: summary.providerArenaLinked === true,
+      capabilityNegotiationLinked: summary.capabilityNegotiationLinked === true,
+      subagentReceiptsPrepared: summary.subagentReceiptsPrepared === true,
+      compilerOnly: summary.compilerOnly !== false,
+    },
+    roles: array<AnyRecord>(raw.roles).map(mapAgentTeamRole).slice(0, 12),
+    approval: {
+      required: approval.required === true,
+      approvalId: text(approval.approvalId),
+      reason: text(approval.reason, 'Approval requerido antes do launch.'),
+      expiresAt: text(approval.expiresAt) || null,
+    },
+    launch: {
+      mode: text(launch.mode) === 'approval-gated-team-run' ? 'approval-gated-team-run' : 'unknown',
+      previewCommand: text(launch.previewCommand, 'zavorth agent-team --json'),
+      launchCommand: text(launch.launchCommand, 'zavorth agent-team launch --approval-id <approvalId>'),
+      inspectCommand: text(launch.inspectCommand, 'zavorth agent-team inspect <runId>'),
+      synthesizeCommand: text(launch.synthesizeCommand, 'zavorth agent-team synthesize <teamRunId>'),
+      synthesisRequired: launch.synthesisRequired === true,
+      directToolExecution: launch.directToolExecution === true,
+      executionAuthority: text(launch.executionAuthority, 'subagent-runtime-required'),
+      maxReviewRounds: number(launch.maxReviewRounds),
+    },
+    receipts: array<AnyRecord>(raw.receipts).map((receipt, index) => {
+      const status = text(receipt.status).toLowerCase();
+      return {
+        id: text(receipt.id, `agent-team-receipt-${index + 1}`),
+        kind: text(receipt.kind, 'policy'),
+        source: text(receipt.source, 'AgentTeamCompilerService'),
+        detail: text(receipt.detail, 'Receipt de team compiler.'),
+        status: status === 'needs-approval' || status === 'missing' ? status : 'ready',
+      };
+    }).slice(0, 12),
+    policy: {
+      noSubagentsLaunched: policy.noSubagentsLaunched !== false,
+      approvalRequiredBeforeLaunch: policy.approvalRequiredBeforeLaunch !== false,
+      budgetsDefaultToZero: policy.budgetsDefaultToZero !== false,
+      providerSelectionIsAdvisory: policy.providerSelectionIsAdvisory !== false,
+      respectsCapabilityNegotiation: policy.respectsCapabilityNegotiation !== false,
+      naturalLanguageDoesNotBypassPolicy: policy.naturalLanguageDoesNotBypassPolicy !== false,
+      secretsSerialized: policy.secretsSerialized === true,
+    },
+    surface: {
+      cliCommand: text(surface.cliCommand, 'zavorth agent-team'),
+      zavorthControlPath: text(surface.zavorthControlPath || surface.dashboardPath || surface.commandCenterPath, '/control?sector=agents'),
+      previewHint: text(surface.previewHint, 'Revisar plano antes de aprovar.'),
+      approvalHint: text(surface.approvalHint, 'Launch exige approval explicito.'),
+    },
+    nextSafeAction: text(raw.nextSafeAction, 'Revisar roles compilados antes de lancar subagentes.'),
+  };
+}
+
+function runtimeMetadataSurface(input: AnyRecord, key: 'dynamicWorkflow' | 'effortControl'): AnyRecord | null {
+  const agentRun = record(input.agentRun);
+  const metadata = record(agentRun.metadata);
+  const raw = firstNonEmptyRecord(
+    input[key],
+    input.runtime?.[key],
+    input.state?.[key],
+    metadata[key],
+  );
+  return Object.keys(raw).length > 0 ? sanitizeRuntimeSnapshot(raw) as AnyRecord : null;
 }
 
 function modelProfileFrom(input: AnyRecord, agentRun: AnyRecord): AnyRecord | null {
@@ -535,11 +830,14 @@ function normalizeSelfingZavorthControl(value: unknown): AnyRecord | null {
   };
 }
 
+// buildProviderCockpit(input) is projection-only; provider probes stay behind approved runtime routes.
 export function buildProviderCockpit(input: any) {
   return input?.providerCockpit || input?.runtime?.providerCockpit || { status: 'ready' };
 }
 
 export function buildZavorthControlZavorthControlViewModel(input: AnyRecord = {}): AnyRecord {
+  const experienceProfile = normalizeExperienceProfile(input);
+  const profileLanguage = profileLanguageFrom(experienceProfile);
   const agentRun = normalizeAgentRun(input);
   const approvals = [
     ...array(input.approvals),
@@ -576,7 +874,7 @@ export function buildZavorthControlZavorthControlViewModel(input: AnyRecord = {}
   const toolExposure = record(input.toolExposure || input.toolExposureProfile || input.runtime?.toolExposureProfile || agentRun.toolExposure);
   const capabilities = array(input.capabilities || toolExposure.tools).map((capability) => normalizeCapability(record(capability)));
   const subagentAutoInvocation = subagentSnapshot(input, agentRun);
-  const runObservatory = record(input.runObservatory);
+  const runObservatory = mapZavorthControlRunObservatory(input.runObservatory);
   const trace = traceFrom(input, agentRun);
   const replyPorts = normalizeReplyPorts(input, runtime);
   const nexusWorkbench = buildNexusWorkbench(input);
@@ -647,8 +945,10 @@ export function buildZavorthControlZavorthControlViewModel(input: AnyRecord = {}
       agentName: 'Zavorth',
       userName: 'Operator',
       firstRunStatus: 'unknown',
+      experienceProfile,
       ...record(input.identity || input.runtime?.identity),
     },
+    profileLanguage,
     logs,
     counts: {
       tasks: tasks.length,
@@ -703,7 +1003,9 @@ export function buildZavorthControlZavorthControlViewModel(input: AnyRecord = {}
     selfingDashboard: input.selfingDashboard || input.runtime?.selfingDashboard || agentRun.metadata?.selfingDashboard || agentRun.metadata?.selfingZavorthControl || null,
     artifactMemory: input.artifactMemory || input.runtime?.artifactMemory || agentRun.metadata?.artifactMemory || null,
     personalOpsAutopilot: input.personalOpsAutopilot || input.runtime?.personalOpsAutopilot || agentRun.metadata?.personalOpsAutopilot || null,
-    agentTeamCompiler: input.agentTeamCompiler || input.runtime?.agentTeamCompiler || agentRun.metadata?.agentTeamCompiler || null,
+    agentTeamCompiler: buildAgentTeamCompiler({ ...input, agentRun }),
+    dynamicWorkflow: runtimeMetadataSurface({ ...input, agentRun }, 'dynamicWorkflow'),
+    effortControl: runtimeMetadataSurface({ ...input, agentRun }, 'effortControl'),
     crossChannelContinuity: input.crossChannelContinuity || input.runtime?.crossChannelContinuity || agentRun.metadata?.crossChannelContinuity || null,
     askBeforeAssumptionPolicy: input.askBeforeAssumptionPolicy || input.runtime?.askBeforeAssumptionPolicy || agentRun.metadata?.askBeforeAssumptionPolicy || null,
     providerMeshConsolidation: input.providerMeshConsolidation || input.runtime?.providerMeshConsolidation || agentRun.metadata?.providerMeshConsolidation || null,
