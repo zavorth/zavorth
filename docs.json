@@ -3,9 +3,9 @@
   "theme": "mint",
   "name": "Zavorth",
   "colors": {
-    "primary": "#6D28D9",
-    "light": "#8B5CF6",
-    "dark": "#4C1D95"
+    "primary": "#00E88F",
+    "light": "#7DFFCA",
+    "dark": "#047857"
   },
   "favicon": "/favicon.svg",
   "font": {
@@ -19,7 +19,7 @@
   "background": {
     "color": {
       "light": "#FAFAF9",
-      "dark": "#0C0A14"
+      "dark": "#060809"
     }
   },
   "logo": {
@@ -61,6 +61,7 @@
             "group": "First steps",
             "pages": [
               "docs/produto/start/getting-started",
+              "docs/produto/start/primeiro-uso",
               "docs/produto/start/onboarding"
             ]
           },

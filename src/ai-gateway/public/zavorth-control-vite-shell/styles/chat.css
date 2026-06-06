@@ -6168,3 +6168,251 @@ body.zavorth-chat-focus-mode .nexus-dock {
 @keyframes zavorth-spin {
   to { transform: rotate(360deg); }
 }
+
+/* ==========================================================================
+   Everyday Chat Polish
+   Chat stays first; deeper setup and mission surfaces stay available as compact actions.
+   ========================================================================== */
+
+#sector-terminal .terminal-view.is-empty {
+  justify-content: center;
+  padding-top: clamp(18px, 6vh, 72px);
+}
+
+#sector-terminal .terminal-hero {
+  gap: 14px;
+  margin-top: 0;
+}
+
+#sector-terminal .terminal-hero__status {
+  border-color: color-mix(in srgb, var(--b-pulse) 20%, var(--b-glass-border));
+  background:
+    linear-gradient(135deg, color-mix(in srgb, var(--b-pulse) 9%, transparent), transparent),
+    color-mix(in srgb, var(--b-glass) 48%, transparent);
+}
+
+#sector-terminal .terminal-hero__hello {
+  font-size: clamp(2.15rem, 5vw, 4.1rem);
+  font-weight: 780;
+  letter-spacing: -0.04em;
+}
+
+#sector-terminal .terminal-hero__question {
+  max-width: 620px;
+  margin-inline: auto;
+  color: color-mix(in srgb, var(--b-signal) 86%, transparent);
+  font-size: clamp(1rem, 1.7vw, 1.22rem);
+  font-weight: 500;
+}
+
+.autonomy-command-center {
+  width: min(760px, calc(100% - 40px));
+  margin-top: 4px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  box-shadow: none;
+}
+
+.autonomy-command-center__header,
+.mission-depth-strip,
+.mission-plan-board,
+.memory-dream-grid,
+.learning-center-strip {
+  display: none;
+}
+
+.autonomy-card-grid {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 8px;
+}
+
+.autonomy-card {
+  display: inline-flex;
+  align-items: center;
+  width: auto;
+  min-height: 34px;
+  padding: 7px 11px;
+  border-radius: var(--b-radius-full);
+  border-color: color-mix(in srgb, var(--b-glass-border) 84%, transparent);
+  background: color-mix(in srgb, var(--b-glass) 52%, transparent);
+  box-shadow: none;
+}
+
+#sector-terminal .autonomy-card {
+  min-height: 34px;
+  padding: 7px 11px;
+}
+
+.autonomy-card:hover {
+  transform: translateY(-1px);
+  border-color: color-mix(in srgb, var(--b-pulse) 28%, var(--b-glass-border));
+  background: color-mix(in srgb, var(--b-glass-strong) 62%, transparent);
+}
+
+.autonomy-card__icon,
+.autonomy-card__eyebrow,
+.autonomy-card__copy > span:last-child,
+.autonomy-card__action {
+  display: none;
+}
+
+.autonomy-card__copy strong {
+  font-size: 0.78rem;
+  font-weight: 650;
+  color: color-mix(in srgb, var(--b-signal) 92%, var(--b-signal-strong));
+}
+
+#sector-terminal .experience-profile-panel {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  width: min(700px, calc(100% - 40px));
+  margin-top: 2px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  box-shadow: none;
+  text-align: center;
+}
+
+#sector-terminal .experience-profile-panel__header {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+#sector-terminal .experience-profile-panel__header span {
+  color: var(--b-signal-muted);
+  font-size: 0.62rem;
+}
+
+#sector-terminal .experience-profile-panel__header strong {
+  font-size: 0.78rem;
+  font-weight: 680;
+}
+
+#sector-terminal .experience-profile-panel__header small,
+#sector-terminal .experience-profile-panel__body,
+#sector-terminal .experience-profile-panel__hint {
+  display: none;
+}
+
+#sector-terminal .experience-profile-panel__switcher {
+  justify-content: center;
+  gap: 6px;
+}
+
+#sector-terminal .experience-profile-panel__switcher button {
+  min-height: 26px;
+  padding: 4px 8px;
+  border-radius: var(--b-radius-full);
+  font-size: 0.68rem;
+  color: var(--b-signal-muted);
+  background: color-mix(in srgb, var(--b-glass) 44%, transparent);
+}
+
+.terminal-view.is-empty .suggestion-chips {
+  margin-top: 8px;
+}
+
+.suggestion-chip {
+  min-height: 34px;
+  border-color: color-mix(in srgb, var(--b-glass-border) 84%, transparent);
+  background: color-mix(in srgb, var(--b-glass) 48%, transparent);
+  box-shadow: none;
+}
+
+.suggestion-chip:hover {
+  box-shadow: 0 10px 26px color-mix(in srgb, #000 22%, transparent);
+}
+
+#sector-terminal .compose-dock {
+  filter: drop-shadow(0 18px 38px color-mix(in srgb, #000 34%, transparent));
+}
+
+#sector-terminal .compose-dock__input-frame {
+  border-color: color-mix(in srgb, var(--b-glass-border) 92%, transparent);
+  background:
+    linear-gradient(180deg, color-mix(in srgb, var(--b-glass-highlight) 10%, transparent), transparent 42%),
+    color-mix(in srgb, var(--b-void-elevated) 78%, transparent);
+}
+
+#sector-terminal .compose-dock__input-frame:focus-within {
+  border-color: color-mix(in srgb, var(--b-pulse) 36%, var(--b-glass-border));
+  box-shadow:
+    inset 0 1px 0 color-mix(in srgb, var(--b-glass-highlight) 58%, transparent),
+    0 0 0 1px color-mix(in srgb, var(--b-pulse) 14%, transparent),
+    0 18px 42px color-mix(in srgb, #000 28%, transparent);
+}
+
+.compose-attachment-chip:hover {
+  border-color: color-mix(in srgb, var(--b-pulse) 46%, var(--b-glass-border)) !important;
+  box-shadow:
+    0 0 12px color-mix(in srgb, var(--b-pulse) 18%, transparent),
+    inset 0 1px 0 var(--b-surface-highlight) !important;
+}
+
+#voice-trigger.has-voice,
+#voice-trigger.is-listening {
+  box-shadow: 0 0 12px color-mix(in srgb, var(--b-pulse) 20%, transparent) !important;
+}
+
+.zavorth-thinking-block {
+  border-color: color-mix(in srgb, var(--b-pulse) 18%, var(--b-glass-border));
+  background: color-mix(in srgb, var(--b-glass) 36%, transparent);
+}
+
+.zavorth-thinking-content {
+  border-top-color: color-mix(in srgb, var(--b-pulse) 14%, var(--b-glass-border));
+  background: color-mix(in srgb, var(--b-void) 24%, transparent);
+}
+
+.boot-spinner {
+  border-color: color-mix(in srgb, var(--b-pulse) 20%, transparent);
+  border-top-color: var(--b-pulse);
+  box-shadow: 0 0 8px color-mix(in srgb, var(--b-pulse) 28%, transparent);
+}
+
+@keyframes HslVoicePulse {
+  0% {
+    box-shadow: 0 0 0 0 color-mix(in srgb, var(--b-pulse) 28%, transparent);
+    background: color-mix(in srgb, var(--b-pulse) 18%, transparent);
+    border-color: color-mix(in srgb, var(--b-pulse) 42%, transparent);
+  }
+  50% {
+    box-shadow: 0 0 16px 4px color-mix(in srgb, var(--b-pulse) 34%, transparent);
+    background: color-mix(in srgb, var(--b-pulse) 28%, transparent);
+    border-color: color-mix(in srgb, var(--b-pulse) 70%, transparent);
+    transform: scale(1.035);
+  }
+  100% {
+    box-shadow: 0 0 0 0 color-mix(in srgb, var(--b-pulse) 0%, transparent);
+    background: color-mix(in srgb, var(--b-pulse) 18%, transparent);
+    border-color: color-mix(in srgb, var(--b-pulse) 42%, transparent);
+  }
+}
+
+@media (max-width: 720px) {
+  #sector-terminal .terminal-view.is-empty {
+    padding-top: 18px;
+  }
+
+  .autonomy-card-grid,
+  .terminal-view.is-empty .suggestion-chips {
+    justify-content: flex-start;
+    overflow-x: auto;
+    flex-wrap: nowrap;
+    width: min(100%, calc(100vw - 28px));
+    padding-bottom: 4px;
+  }
+
+  .autonomy-card,
+  .suggestion-chip {
+    flex: 0 0 auto;
+  }
+}

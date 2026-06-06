@@ -874,3 +874,88 @@
     background: color-mix(in srgb, var(--b-glass-highlight) 10%, transparent);
   }
 }
+
+/* ==========================================================================
+   Everyday Product Polish
+   Keeps the chat-first shell calm while preserving all existing controls.
+   ========================================================================== */
+
+.core-frame {
+  background:
+    radial-gradient(circle at 18% 18%, color-mix(in srgb, var(--b-pulse) 10%, transparent) 0 1px, transparent 1.8px),
+    radial-gradient(circle at 76% 22%, rgba(255, 255, 255, 0.08) 0 1px, transparent 1.7px),
+    radial-gradient(circle at 38% 78%, color-mix(in srgb, var(--b-warn) 10%, transparent) 0 1px, transparent 1.8px),
+    linear-gradient(135deg, color-mix(in srgb, var(--b-pulse) 10%, transparent), transparent 34%),
+    linear-gradient(220deg, color-mix(in srgb, var(--b-warn) 7%, transparent), transparent 42%),
+    linear-gradient(180deg, #050708 0%, #070d11 54%, #040607 100%);
+  background-size: 190px 190px, 260px 260px, 230px 230px, auto, auto, auto;
+}
+
+.core-frame::before {
+  opacity: 0.46;
+  filter: blur(42px);
+}
+
+.core-frame::after {
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.035) 0%, transparent 18%),
+    linear-gradient(90deg, transparent 0%, color-mix(in srgb, var(--b-pulse) 5%, transparent) 50%, transparent 100%),
+    repeating-linear-gradient(90deg, rgba(255, 255, 255, 0.025) 0 1px, transparent 1px 112px);
+  opacity: 0.52;
+}
+
+.bridge {
+  min-height: 58px;
+  padding-inline: 18px;
+  border-bottom-color: color-mix(in srgb, var(--b-glass-border) 76%, transparent);
+  background:
+    linear-gradient(180deg, color-mix(in srgb, var(--b-glass-highlight) 12%, transparent), transparent),
+    color-mix(in srgb, var(--b-chrome-strong) 82%, transparent);
+}
+
+.bridge__logo {
+  border-radius: 8px;
+  box-shadow:
+    inset 0 0 0 1px color-mix(in srgb, var(--b-pulse) 22%, transparent),
+    0 0 18px color-mix(in srgb, var(--b-pulse) 10%, transparent);
+}
+
+.bridge__brand-eyebrow {
+  color: var(--b-signal-muted);
+  letter-spacing: 0.08em;
+}
+
+.bridge__path-current {
+  color: var(--b-signal-strong);
+}
+
+.bridge__search,
+.bridge__action-btn,
+.bridge__pulse {
+  border-color: color-mix(in srgb, var(--b-glass-border) 82%, transparent);
+  background: color-mix(in srgb, var(--b-glass) 56%, transparent);
+}
+
+.bridge__search:hover,
+.bridge__action-btn:hover {
+  border-color: color-mix(in srgb, var(--b-pulse) 28%, var(--b-glass-border));
+  background: color-mix(in srgb, var(--b-glass-strong) 72%, transparent);
+}
+
+.dock-node {
+  border-radius: 8px;
+}
+
+.dock-node.active {
+  box-shadow:
+    inset 0 0 0 1px color-mix(in srgb, var(--b-pulse) 28%, transparent),
+    0 8px 24px color-mix(in srgb, var(--b-pulse) 8%, transparent);
+}
+
+[data-theme="light"] .core-frame {
+  background:
+    radial-gradient(circle at 18% 18%, rgba(5, 150, 105, 0.10) 0 1px, transparent 1.8px),
+    radial-gradient(circle at 76% 22%, rgba(15, 23, 42, 0.08) 0 1px, transparent 1.7px),
+    linear-gradient(180deg, #ffffff 0%, #f7fbfa 54%, #f8fafc 100%);
+  background-size: 190px 190px, 260px 260px, auto;
+}
