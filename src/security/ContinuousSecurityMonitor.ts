@@ -646,8 +646,16 @@ function isLowFrictionDoctorAttention(doctor: OperationalSecurityDoctorReport): 
 }
 
 function sha256File(filePath: string): string {
+  return sha256Text(fs.readFileSync(filePath, 'utf8'));
+}
+
+export function fingerprintContinuousSecurityText(value: string): string {
+  return sha256Text(value);
+}
+
+function sha256Text(value: string): string {
   return createHash('sha256')
-    .update(fs.readFileSync(filePath))
+    .update(value.replace(/\r\n?/g, '\n'), 'utf8')
     .digest('hex');
 }
 

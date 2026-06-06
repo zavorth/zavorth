@@ -3,6 +3,7 @@ import os from 'node:os';
 import path from 'node:path';
 import {
   buildContinuousSecurityMonitorReport,
+  fingerprintContinuousSecurityText,
   formatContinuousSecurityMonitorReport,
   writeContinuousSecurityBaseline,
 } from '../../src/security/ContinuousSecurityMonitor';
@@ -85,6 +86,12 @@ describe('ContinuousSecurityMonitor', () => {
     expect(report.checks).toEqual(expect.arrayContaining([
       expect.objectContaining({ id: 'security-baseline', status: 'fail' }),
     ]));
+  });
+
+  it('keeps fingerprints stable across Windows and Unix line endings', () => {
+    expect(fingerprintContinuousSecurityText('line one\r\nline two\r\n')).toBe(
+      fingerprintContinuousSecurityText('line one\nline two\n'),
+    );
   });
 
   it('keeps missing baseline low-friction by default but can require it for CI', () => {
