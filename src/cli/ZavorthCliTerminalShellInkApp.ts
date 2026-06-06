@@ -3,6 +3,7 @@ import type { CliExecutionResult, CliTerminalStreamEvent, ZavorthCliFlags } from
 import {
   buildTerminalShellCommandRegistry,
   buildTerminalShellSnapshot,
+  createTerminalShellStreamRenderBuffer,
   createTerminalShellHistoryStore,
   formatTerminalShellSelectableCardLine,
   formatTerminalShellScreen,
@@ -33,6 +34,12 @@ export type ZavorthTerminalShellRunnerParams = {
   initialCards?: TerminalShellCard[];
   initialMessages?: TerminalShellMessage[];
   force?: boolean;
+  steerActiveRun?: (input: {
+    text: string;
+    sessionId: string;
+    userId: string;
+    queueItemId: string;
+  }) => Promise<{ ok: boolean; notice: string }>;
 };
 
 export type ZavorthTerminalShellRunResult = {
@@ -216,6 +223,17 @@ function TerminalShellInkApp(props: ZavorthTerminalShellRunnerParams & {
   const [queue, setQueue] = useState<TerminalShellQueuedItem[]>([]);
   const [notice, setNotice] = useState('Enter sends. Shift+Enter adds a line. / opens commands.');
   const activeAbortRef = useRef<AbortController | null>(null);
+  const streamRenderBuffer = useMemo(() => createTerminalShellStreamRenderBuffer({
+    intervalMs: 120,
+    onFlush: (text) => {
+      setMessages((current) => {
+        const withoutLive = current.filter(
+          (message) => message.role !== 'assistant' || !message.text.startsWith('[stream] '),
+        );
+        return [...withoutLive.slice(-6), { role: 'assistant', text: `[stream] ${text}` }];
+      });
+    },
+  }), []);
 
   const shell = useMemo(() => buildTerminalShellSnapshot({
     mode: focusState.mode,
@@ -235,6 +253,50 @@ function TerminalShellInkApp(props: ZavorthTerminalShellRunnerParams & {
     const raw = inputState.value.trim();
     if (!raw || busy) {
       if (raw && busy) {
+        // Live steering routes /steer <instruction> to the active run.
+        const isSteerCommand = raw.toLowerCase().startsWith('/steer ');
+        if (isSteerCommand) {
+          const steerInstruction = raw.slice('/steer '.length).trim();
+          const queueItemId = `queued-${queue.length + 1}`;
+          let steerFailureNotice: string | null = null;
+          if (props.steerActiveRun) {
+            try {
+              const result = await props.steerActiveRun({
+                text: steerInstruction,
+                sessionId: flags.sessionId,
+                userId: flags.userId || 'operator',
+                queueItemId,
+              });
+              setNotice(result.notice);
+              setInputState((state) => ({ ...state, value: '', cursor: 0, paletteOpen: false }));
+              if (result.ok) {
+                setCards((current) => [
+                  ...current.slice(-4),
+                  {
+                    kind: 'status',
+                    title: 'Live steering',
+                    status: 'accepted',
+                    body: steerInstruction,
+                  },
+                ]);
+                return;
+              }
+              steerFailureNotice = result.notice;
+            } catch (error: any) {
+              steerFailureNotice = `Live steering unavailable: ${error?.message || String(error)}`;
+            }
+          }
+          const queued = queueTerminalShellInput({
+            activeRun: true,
+            text: `/steer ${steerInstruction}`,
+            existingQueue: queue,
+          });
+          setQueue(queued.queue);
+          const queuedNotice = `Steering instruction queued: "${steerInstruction.slice(0, 40)}"`;
+          setNotice(steerFailureNotice ? `${steerFailureNotice} ${queuedNotice}` : queuedNotice);
+          setInputState((state) => ({ ...state, value: '', cursor: 0, paletteOpen: false }));
+          return;
+        }
         const queued = queueTerminalShellInput({
           activeRun: true,
           text: raw,
@@ -265,10 +327,10 @@ function TerminalShellInkApp(props: ZavorthTerminalShellRunnerParams & {
       historyIndex: null,
     }));
     setMessages((current) => [...current.slice(-6), { role: 'user', text: raw }]);
-      setCards((current) => [
-        ...current.slice(-4),
-        {
-          kind: normalized.startsWith('/') ? 'tool' : 'status',
+    setCards((current) => [
+      ...current.slice(-4),
+      {
+        kind: normalized.startsWith('/') ? 'tool' : 'status',
         title: normalized.startsWith('/') ? 'Command' : 'Working',
         status: 'running',
         body: normalized,
@@ -276,12 +338,13 @@ function TerminalShellInkApp(props: ZavorthTerminalShellRunnerParams & {
     ]);
 
     try {
-      let liveAssistantText = '';
       const abortController = new AbortController();
       activeAbortRef.current = abortController;
+
       const terminalStream = {
         onEvent: async (event: CliTerminalStreamEvent) => {
           if (abortController.signal.aborted) {
+            streamRenderBuffer.abort();
             return;
           }
           if (event.type === 'tool') {
@@ -296,22 +359,24 @@ function TerminalShellInkApp(props: ZavorthTerminalShellRunnerParams & {
             ]);
             return;
           }
-          if (event.type === 'delta' || event.type === 'start' || event.type === 'done') {
-            liveAssistantText = event.accumulated || `${liveAssistantText}${event.delta || ''}`;
-            if (!liveAssistantText && event.type !== 'start') {
-              return;
-            }
-            setMessages((current) => {
-              const withoutLive = current.filter((message) => message.role !== 'assistant' || !message.text.startsWith('[stream] '));
-              return [
-                ...withoutLive.slice(-6),
-                {
-                  role: 'assistant',
-                  text: `[stream] ${liveAssistantText || '...'}`,
-                },
-              ];
+          if (event.type === 'start') {
+            streamRenderBuffer.abort();
+            streamRenderBuffer.start();
+            setNotice('Streaming response...');
+            return;
+          }
+          if (event.type === 'delta') {
+            streamRenderBuffer.push({
+              delta: event.delta,
+              accumulated: event.accumulated,
             });
-            setNotice(event.type === 'done' ? 'Stream complete.' : 'Streaming response...');
+            return;
+          }
+          if (event.type === 'done') {
+            streamRenderBuffer.complete({
+              accumulated: event.accumulated,
+            });
+            setNotice('Stream complete.');
             return;
           }
           if (event.type === 'status' || event.type === 'error') {
@@ -363,6 +428,7 @@ function TerminalShellInkApp(props: ZavorthTerminalShellRunnerParams & {
       }]);
       setNotice('The request stopped safely.');
     } finally {
+      streamRenderBuffer.abort();
       activeAbortRef.current = null;
       setBusy(false);
     }

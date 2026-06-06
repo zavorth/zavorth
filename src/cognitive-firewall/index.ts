@@ -22,8 +22,8 @@ export interface FirewallDecision {
   toolHintProfile: ToolGatekeeperHintProfile;
   /** Nomes recomendados para exposicao, sem substituir a policy final. */
   recommendedToolNames: string[];
-  /** O Cognitive Firewall deixou de ser gate final de tool exposure. */
-  toolExposureGatedByCognitiveFirewall: false;
+  /** True quando o Cognitive Firewall bloqueou exposicao de plugin/capability nao confiavel. */
+  toolExposureGatedByCognitiveFirewall: boolean;
   /** Se true, a mensagem é chat trivial (bom dia, ok, obrigado). Pode usar LLM mais barato. */
   useFastModel: boolean;
   /** Classificação de intenção completa para logging/debug */
@@ -50,13 +50,14 @@ export class CognitiveFirewall {
       allTools.length,
       toolHintProfile.filteredTools,
       classification.category,
+      toolHintProfile.quarantinedToolNames.length,
     );
 
     return {
       tools: toolHintProfile.tools,
       toolHintProfile,
       recommendedToolNames: toolHintProfile.recommendedToolNames,
-      toolExposureGatedByCognitiveFirewall: false,
+      toolExposureGatedByCognitiveFirewall: toolHintProfile.toolExposureGatedByCognitiveFirewall,
       useFastModel: classification.isTrivialChat,
       classification,
       stats,

@@ -35,6 +35,7 @@ function createWriter() {
 describe('Zavorth CLI Terminal Shell Ink REPL bridge', () => {
   test('uses the live terminal shell runner before creating readline in an interactive terminal', async () => {
     const { lines, writer } = createWriter();
+    const steerActiveRun = jest.fn();
     const exitCode = await runZavorthCliRepl({
       flags: createFlags(),
       readlineFactory: () => {
@@ -42,8 +43,10 @@ describe('Zavorth CLI Terminal Shell Ink REPL bridge', () => {
       },
       writer,
       runOnce: async () => ({ ok: true, handled: true, output: [], error: null }),
-      terminalShellRunner: async ({ initialText }) => {
+      steerActiveRun,
+      terminalShellRunner: async ({ initialText, steerActiveRun: forwardedSteer }) => {
         lines.push(initialText.includes('Zavorth Terminal Shell') ? 'terminal-shell-rendered' : 'missing-shell');
+        expect(forwardedSteer).toBe(steerActiveRun);
         return { rendered: true, exitCode: 0 };
       },
       forceTerminalShell: true,

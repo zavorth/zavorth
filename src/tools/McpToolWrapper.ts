@@ -18,6 +18,7 @@ export class McpToolWrapper extends BaseTool {
     private readonly remoteName: string,
     public readonly description: string,
     public readonly parameters: ToolDefinition['parameters'],
+    public readonly metadata?: ToolDefinition['metadata'],
   ) {
     super();
   }

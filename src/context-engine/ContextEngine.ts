@@ -60,8 +60,8 @@ export interface ContextEngineDecision {
   toolHintProfile: FirewallDecision['toolHintProfile'];
   /** Nomes recomendados pelo hint, sem substituir policy final. */
   recommendedToolNames: string[];
-  /** O Cognitive Firewall nao e gate final de tool exposure. */
-  toolExposureGatedByCognitiveFirewall: false;
+  /** True quando o Cognitive Firewall bloqueou exposicao de plugin/capability nao confiavel. */
+  toolExposureGatedByCognitiveFirewall: boolean;
   /** Se pode usar modelo barato (chat trivial) */
   useFastModel: boolean;
   /** Stats do firewall para logging */
@@ -211,7 +211,7 @@ export class ContextEngine {
       tools: firewallDecision.tools,
       toolHintProfile: firewallDecision.toolHintProfile,
       recommendedToolNames: firewallDecision.recommendedToolNames,
-      toolExposureGatedByCognitiveFirewall: false,
+      toolExposureGatedByCognitiveFirewall: firewallDecision.toolExposureGatedByCognitiveFirewall,
       useFastModel: firewallDecision.useFastModel,
       firewallStats: firewallDecision.stats,
       intentCategory: firewallDecision.classification.category,

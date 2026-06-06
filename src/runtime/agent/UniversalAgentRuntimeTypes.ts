@@ -107,6 +107,7 @@ export type UniversalToolExposureProfile = {
   tools: UniversalToolExposure[];
   blockedTools?: UniversalBlockedToolExposure[];
   toolExposureGatedByImportedCapabilityTrust?: boolean;
+  toolExposureGatedByCognitiveFirewall?: boolean;
 };
 
 export type UniversalArtifactSummary = {

@@ -99,6 +99,10 @@ export class McpClientManager {
         tool.name,
         tool.description || `Ferramenta externa MCP: ${tool.name}`,
         parameters,
+        {
+          pluginId: `mcp:${this.name}`,
+          source: 'mcp',
+        },
       );
 
       registry.register(
