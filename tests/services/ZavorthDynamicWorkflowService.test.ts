@@ -123,6 +123,44 @@ describe('ZavorthDynamicWorkflowService', () => {
     expect(materialized.safety.noDirectExecutionAuthority).toBe(true);
   });
 
+  it('returns a governed blocked result when the Swarm launch fails', () => {
+    const service = new ZavorthDynamicWorkflowService({
+      now,
+      swarmLauncher: {
+        launchSwarm() {
+          throw new Error('executor unavailable');
+        },
+      },
+    });
+    const snapshot = service.buildPreview({
+      objective: 'Execute uma pesquisa pequena',
+      requestedFanout: 2,
+      maxConcurrency: 1,
+      maxCents: 50,
+      workerModelClass: 'cheap',
+      synthesisModelClass: 'standard',
+    });
+
+    const result = service.materializeApprovedWorkflow(snapshot, {});
+
+    expect(result.status).toBe('blocked');
+    expect(result.reason).toBe('swarm launch failed: executor unavailable');
+    expect(result.swarmSnapshot).toBeNull();
+    expect(result.safety.noDirectExecutionAuthority).toBe(true);
+  });
+
+  it('rejects malformed saved previews even when the contract version is present', () => {
+    const root = fs.mkdtempSync(path.join(os.tmpdir(), 'zavorth-dynamic-workflows-malformed-'));
+    const service = new ZavorthDynamicWorkflowService({ now, storageDir: root });
+    fs.writeFileSync(
+      path.join(root, 'malformed-preview.json'),
+      JSON.stringify({ contractVersion: 'zavorth-dynamic-workflows/1', workflowId: 'malformed-preview' }),
+      'utf8',
+    );
+
+    expect(service.loadPreview('malformed-preview')).toBeNull();
+  });
+
   it('persists preview snapshots and launches them only with the matching approval id', () => {
     const root = fs.mkdtempSync(path.join(os.tmpdir(), 'zavorth-dynamic-workflows-'));
     const launched: any[] = [];
