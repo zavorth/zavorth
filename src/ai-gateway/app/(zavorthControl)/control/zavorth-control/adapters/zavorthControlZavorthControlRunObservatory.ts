@@ -1,9 +1,17 @@
 import type {
-  ZavorthControlIntelligenceFabricHealthSnapshot,
   ZavorthControlRunObservatorySnapshot,
-} from '../contracts/zavorthControlZavorthControlObservabilityContracts';
+} from '../contracts';
 
 type AnyRecord = Record<string, any>;
+
+type ZavorthControlIntelligenceFabricHealthSnapshot = {
+  status: string;
+  recommendation: string;
+  p95LatencyMs: number | null;
+  rollbackInstruction: string;
+  demoteAvailable: boolean;
+  raw: AnyRecord;
+};
 
 function record(value: unknown): AnyRecord {
   return value && typeof value === 'object' && !Array.isArray(value) ? value as AnyRecord : {};
@@ -48,9 +56,15 @@ export function mapZavorthControlRunObservatory(value: unknown): ZavorthControlR
       query: {},
       totalRuns: 0,
       matchedRuns: 0,
-      indexes: {},
+      indexes: {
+        runIds: [],
+        traceIds: [],
+        sessionIds: [],
+        statuses: [],
+      },
       runs: [],
       diffPreviews: [],
+      intelligenceFabricHealth: {},
       extensions: {},
     };
   }

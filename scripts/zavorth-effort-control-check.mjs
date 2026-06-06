@@ -10,6 +10,7 @@ const rules = [
   markersPresent(),
   lowFixture(),
   ultraFixture(),
+  publicCliFixture(),
   jestFixture(),
   packageGate(),
 ];
@@ -53,7 +54,18 @@ function markersPresent() {
   ];
   const missing = [];
   for (const [file, needles] of checks) {
-    const text = fs.readFileSync(path.join(root, file), 'utf8');
+    const filePath = path.join(root, file);
+    if (!fs.existsSync(filePath)) {
+      missing.push(`${file}: file not found`);
+      continue;
+    }
+    let text = '';
+    try {
+      text = fs.readFileSync(filePath, 'utf8');
+    } catch (error) {
+      missing.push(`${file}: read failed (${error?.message || String(error)})`);
+      continue;
+    }
     for (const needle of needles) if (!text.includes(needle)) missing.push(`${file}: missing ${needle}`);
   }
   return rule('markers', 'Effort control markers exist', missing.length === 0, missing.length ? `${missing.length} missing` : 'all markers', 'levels, guardrails and CLI wiring are present', missing);
@@ -79,6 +91,14 @@ function ultraFixture() {
     && snapshot.routing.synthesisModelClass === 'premium'
     && snapshot.approval.required === true
     && snapshot.commandPreview.dynamicWorkflow.includes('zavorth workflows'));
+}
+
+function publicCliFixture() {
+  const result = runTs(['src/zavorth-cli.ts', 'effort', 'ultra-code', '--max-cents', '200', 'revise repo', '--json']);
+  return jsonRule('public-cli', 'Public effort CLI skips flag values when building the request', result, (snapshot) =>
+    snapshot.effectiveLevel === 'ultra-code'
+    && snapshot.budget.maxCents === 200
+    && snapshot.requestPreview === 'revise repo');
 }
 
 function jestFixture() {
