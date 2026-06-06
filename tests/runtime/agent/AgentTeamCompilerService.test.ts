@@ -92,4 +92,116 @@ describe('AgentTeamCompilerService Channel mesh0', () => {
     expect(snapshot.summary.roleCount).toBe(0);
     expect(snapshot.policy.noSubagentsLaunched).toBe(true);
   });
+
+  it('blocks team launch without the matching approval id', () => {
+    const run = new AgentRunService({
+      now: () => new Date('2026-05-04T00:40:00.000Z'),
+    }).createRun({
+      userId: 'grey',
+      channel: 'cli',
+      sessionId: 'session-agent-team-launch-blocked',
+      text: 'compile uma equipe de agentes para implementar e revisar',
+      requestedTools: ['workspace.read'],
+      metadata: {
+        suggestedSubagents: ['planner', 'implementer', 'verifier'],
+      },
+    });
+    const service = new AgentTeamCompilerService({
+      now: () => new Date('2026-05-04T00:42:00.000Z'),
+    });
+    const snapshot = service.buildSnapshot({
+      run,
+      generatedAt: run.updatedAt,
+    });
+
+    const result = service.launchApprovedTeam(snapshot, {
+      approvalId: 'agent-team-approval:wrong',
+      generatedAt: '2026-05-04T00:42:00.000Z',
+    });
+
+    expect(result.status).toBe('blocked');
+    expect(result.approval.matched).toBe(false);
+    expect(result.blockedReasons).toContain('approval-id-mismatch');
+    expect(result.turns).toHaveLength(0);
+    expect(result.policy.noDirectToolExecution).toBe(true);
+  });
+
+  it('prepares an approved review-gated team board with final synthesis evidence', () => {
+    const run = new AgentRunService({
+      now: () => new Date('2026-05-04T00:40:00.000Z'),
+    }).createRun({
+      userId: 'grey',
+      channel: 'cli',
+      sessionId: 'session-agent-team-launch-approved',
+      text: 'compile uma equipe de agentes para implementar, debater, revisar e validar',
+      requestedTools: ['workspace.read'],
+      metadata: {
+        suggestedSubagents: ['planner', 'implementer', 'verifier', 'safety-reviewer'],
+      },
+    });
+    const service = new AgentTeamCompilerService({
+      now: () => new Date('2026-05-04T00:42:00.000Z'),
+    });
+    const snapshot = service.buildSnapshot({
+      run,
+      generatedAt: run.updatedAt,
+    });
+
+    const result = service.launchApprovedTeam(snapshot, {
+      approvalId: snapshot.approval.approvalId,
+      generatedAt: '2026-05-04T00:42:00.000Z',
+    });
+
+    expect(result).toEqual(expect.objectContaining({
+      status: 'prepared',
+      compilerRunId: run.id,
+      approval: expect.objectContaining({
+        required: true,
+        matched: true,
+      }),
+      policy: expect.objectContaining({
+        noDirectToolExecution: true,
+        mutationRequiresSubagentGateway: true,
+        peerReviewRequiredBeforeSynthesis: true,
+        receiptsRequiredBeforeCompletion: true,
+        secretsSerialized: false,
+      }),
+    }));
+    expect(result.roles).toHaveLength(4);
+    expect(result.roles.every((role) => role.status === 'prepared')).toBe(true);
+    expect(result.turns.some((turn) => turn.phase === 'peer-review')).toBe(true);
+    expect(result.turns.some((turn) => turn.phase === 'synthesis-input')).toBe(true);
+    expect(result.synthesis.status).toBe('ready-for-final-synthesis');
+    expect(result.synthesis.requiredEvidenceRefs.length).toBe(result.turns.length);
+  });
+
+  it('redacts secret-like content from team launch turns and receipts', () => {
+    const run = new AgentRunService({
+      now: () => new Date('2026-05-04T00:40:00.000Z'),
+    }).createRun({
+      userId: 'grey',
+      channel: 'cli',
+      sessionId: 'session-agent-team-launch-secret',
+      text: 'compile equipe de agentes com token=sk-secret-value para revisar',
+      requestedTools: ['workspace.read'],
+      metadata: {
+        suggestedSubagents: ['planner', 'verifier'],
+      },
+    });
+    const service = new AgentTeamCompilerService({
+      now: () => new Date('2026-05-04T00:42:00.000Z'),
+    });
+    const snapshot = service.buildSnapshot({
+      run,
+      generatedAt: run.updatedAt,
+    });
+    const result = service.launchApprovedTeam(snapshot, {
+      approvalId: snapshot.approval.approvalId,
+      generatedAt: '2026-05-04T00:42:00.000Z',
+    });
+
+    const serialized = JSON.stringify(result);
+    expect(serialized).not.toContain('sk-secret-value');
+    expect(serialized).toContain('[redacted]');
+  });
 });

@@ -435,6 +435,10 @@ export {
 } from './AgentTeamCompilerService.js';
 export type {
   AgentTeamCompilerInput,
+  AgentTeamCompilerLaunchResult,
+  AgentTeamCompilerLaunchRole,
+  AgentTeamCompilerLaunchStatus,
+  AgentTeamCompilerLaunchTurn,
   AgentTeamCompilerReceipt,
   AgentTeamCompilerRole,
   AgentTeamCompilerRoleKind,

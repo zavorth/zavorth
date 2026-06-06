@@ -14,6 +14,8 @@ export type AgentTeamCompilerStatus = 'not-needed' | 'compiled' | 'waiting-appro
 
 export type AgentTeamCompilerTopology = 'linear' | 'parallel' | 'review-gated';
 
+export type AgentTeamCompilerLaunchStatus = 'blocked' | 'prepared';
+
 export type AgentTeamCompilerRoleKind =
   | 'planner'
   | 'researcher'
@@ -117,6 +119,23 @@ export type AgentTeamCompilerSnapshot = {
     subagentReceiptsPrepared: boolean;
     compilerOnly: true;
   };
+  approval: {
+    required: boolean;
+    approvalId: string;
+    reason: string;
+    expiresAt: string | null;
+  };
+  launch: {
+    mode: 'approval-gated-team-run';
+    previewCommand: string;
+    launchCommand: string;
+    inspectCommand: string;
+    synthesizeCommand: string;
+    synthesisRequired: true;
+    directToolExecution: false;
+    executionAuthority: 'subagent-runtime-required';
+    maxReviewRounds: number;
+  };
   roles: AgentTeamCompilerRole[];
   receipts: AgentTeamCompilerReceipt[];
   policy: {
@@ -142,6 +161,62 @@ export type AgentTeamCompilerInput = {
   generatedAt?: string | null;
 };
 
+export type AgentTeamCompilerLaunchTurn = {
+  id: string;
+  phase: 'claim' | 'peer-review' | 'synthesis-input';
+  roleId: string;
+  targetRoleId: string | null;
+  status: 'prepared' | 'blocked';
+  prompt: string;
+  evidenceRefs: string[];
+};
+
+export type AgentTeamCompilerLaunchRole = {
+  roleId: string;
+  kind: AgentTeamCompilerRoleKind;
+  status: 'prepared' | 'blocked';
+  scopeMode: AgentTeamCompilerRole['scope']['mode'];
+  allowedTools: string[];
+  budget: AgentTeamCompilerRole['budget'];
+  reviewRequired: boolean;
+  evidenceRefs: string[];
+};
+
+export type AgentTeamCompilerLaunchResult = {
+  contractVersion: typeof AGENT_TEAM_COMPILER_CONTRACT_VERSION;
+  source: 'AgentTeamCompilerService';
+  generatedAt: string;
+  status: AgentTeamCompilerLaunchStatus;
+  teamRunId: string;
+  compilerRunId: string;
+  approval: {
+    required: true;
+    expectedApprovalId: string;
+    providedApprovalId: string | null;
+    matched: boolean;
+  };
+  roles: AgentTeamCompilerLaunchRole[];
+  turns: AgentTeamCompilerLaunchTurn[];
+  synthesis: {
+    status: 'blocked' | 'ready-for-final-synthesis';
+    command: string;
+    requiredEvidenceRefs: string[];
+    reviewerRoleIds: string[];
+    summary: string;
+  };
+  receipts: AgentTeamCompilerReceipt[];
+  blockedReasons: string[];
+  policy: {
+    noDirectToolExecution: true;
+    launchRequiresMatchingApproval: true;
+    mutationRequiresSubagentGateway: true;
+    peerReviewRequiredBeforeSynthesis: true;
+    receiptsRequiredBeforeCompletion: true;
+    secretsSerialized: false;
+  };
+  nextSafeAction: string;
+};
+
 type LooseRecord = Record<string, unknown>;
 
 type RoleSeed = {
@@ -163,6 +238,21 @@ function normalizeKey(value: unknown, fallback = 'agent'): string {
     .toLowerCase()
     .replace(/[^a-z0-9_.:-]+/g, '-')
     .replace(/^-+|-+$/g, '') || fallback;
+}
+
+function safeSegment(value: unknown, fallback = 'agent'): string {
+  return normalizeKey(value, fallback)
+    .replace(/[:]+/g, '-')
+    .replace(/[^a-z0-9_.-]+/g, '-')
+    .replace(/^-+|-+$/g, '') || fallback;
+}
+
+function addMinutesIso(value: string, minutes: number): string | null {
+  const time = Date.parse(value);
+  if (!Number.isFinite(time)) {
+    return null;
+  }
+  return new Date(time + minutes * 60_000).toISOString();
 }
 
 function recordOrNull(value: unknown): LooseRecord | null {
@@ -331,6 +421,8 @@ export class AgentTeamCompilerService {
     const receipts = this.buildReceipts(run, roles, observatory.receipts.length, requestedSwarm);
     const status = this.resolveStatus(run, roles, requestedSwarm);
     const edges = this.buildEdges(roles);
+    const approvalId = `agent-team-approval:${run.id}`;
+    const cliCommand = `zavorth agent-team "${redactText(run.input, 'pedido', 80)}"`;
 
     return {
       contractVersion: AGENT_TEAM_COMPILER_CONTRACT_VERSION,
@@ -359,6 +451,25 @@ export class AgentTeamCompilerService {
         subagentReceiptsPrepared: roles.every((role) => Boolean(role.subagentReceipt)),
         compilerOnly: true,
       },
+      approval: {
+        required: requestedSwarm && roles.length > 0,
+        approvalId,
+        reason: requestedSwarm
+          ? 'Lancar Agent Team exige approval explicito, budget e escopo revisados.'
+          : 'Sem launch de Agent Team necessario para esta run.',
+        expiresAt: addMinutesIso(generatedAt, 30),
+      },
+      launch: {
+        mode: 'approval-gated-team-run',
+        previewCommand: `${cliCommand} --json`,
+        launchCommand: `zavorth agent-team launch "${redactText(run.input, 'pedido', 80)}" --approval-id ${approvalId}`,
+        inspectCommand: `zavorth agent-team inspect ${run.id}`,
+        synthesizeCommand: `zavorth agent-team synthesize ${run.id}`,
+        synthesisRequired: true,
+        directToolExecution: false,
+        executionAuthority: 'subagent-runtime-required',
+        maxReviewRounds: 2,
+      },
       roles,
       receipts,
       policy: {
@@ -371,12 +482,96 @@ export class AgentTeamCompilerService {
         secretsSerialized: false,
       },
       surface: {
-        cliCommand: `zavorth agent-team "${redactText(run.input, 'pedido', 80)}"`,
+        cliCommand,
         dashboardPath: '/dashboard?sector=agents',
         previewHint: 'Use o plano compilado para revisar roles, scopes, provider e receipts antes de aprovar.',
         approvalHint: 'Lancar subagentes exige approval explicito do Swarm/AgentRunService.',
       },
       nextSafeAction: this.resolveNextSafeAction(status, roles),
+    };
+  }
+
+  public launchApprovedTeam(
+    snapshot: AgentTeamCompilerSnapshot,
+    input: {
+      approvalId?: string | null;
+      generatedAt?: string | null;
+    } = {},
+  ): AgentTeamCompilerLaunchResult {
+    const generatedAt = normalizeText(input.generatedAt, this.now().toISOString());
+    const expectedApprovalId = normalizeText(snapshot.approval?.approvalId);
+    const providedApprovalId = normalizeText(input.approvalId) || null;
+    const approvalMatched = Boolean(expectedApprovalId && providedApprovalId === expectedApprovalId);
+    const blockedReasons = this.resolveLaunchBlockedReasons(snapshot, approvalMatched);
+    const status: AgentTeamCompilerLaunchStatus = blockedReasons.length > 0 ? 'blocked' : 'prepared';
+    const teamRunId = `agent-team-run-${safeSegment(snapshot.identifiers.runId, 'run')}`;
+    const roles = status === 'prepared'
+      ? snapshot.roles.map((role) => this.prepareLaunchRole(role))
+      : snapshot.roles.map((role) => ({
+        roleId: role.roleId,
+        kind: role.kind,
+        status: 'blocked' as const,
+        scopeMode: role.scope.mode,
+        allowedTools: [...role.scope.allowedTools],
+        budget: { ...role.budget },
+        reviewRequired: true,
+        evidenceRefs: [],
+      }));
+    const turns = status === 'prepared'
+      ? this.prepareLaunchTurns(snapshot, teamRunId)
+      : [];
+    const requiredEvidenceRefs = turns.map((turn) => turn.id);
+    const reviewerRoleIds = unique(snapshot.roles
+      .filter((role) => role.kind === 'verifier' || role.kind === 'safety-reviewer')
+      .map((role) => role.roleId));
+    return {
+      contractVersion: AGENT_TEAM_COMPILER_CONTRACT_VERSION,
+      source: 'AgentTeamCompilerService',
+      generatedAt,
+      status,
+      teamRunId,
+      compilerRunId: snapshot.identifiers.runId,
+      approval: {
+        required: true,
+        expectedApprovalId,
+        providedApprovalId,
+        matched: approvalMatched,
+      },
+      roles,
+      turns,
+      synthesis: {
+        status: status === 'prepared' ? 'ready-for-final-synthesis' : 'blocked',
+        command: `zavorth agent-team synthesize ${teamRunId}`,
+        requiredEvidenceRefs,
+        reviewerRoleIds,
+        summary: status === 'prepared'
+          ? 'Team run preparado com claims, peer review e entrada obrigatoria de sintese final.'
+          : 'Team run bloqueado antes de preparar claims/reviews.',
+      },
+      receipts: [
+        ...snapshot.receipts,
+        {
+          id: `agent-team-receipt:${snapshot.identifiers.runId}:launch-protocol`,
+          kind: 'approval',
+          source: 'AgentTeamCompilerService.launchApprovedTeam',
+          detail: status === 'prepared'
+            ? 'Approval conferido; team run preparado sem executar ferramentas diretamente.'
+            : 'Launch bloqueado por approval, roles ou estado do compiler.',
+          status: status === 'prepared' ? 'ready' : 'needs-approval',
+        },
+      ],
+      blockedReasons,
+      policy: {
+        noDirectToolExecution: true,
+        launchRequiresMatchingApproval: true,
+        mutationRequiresSubagentGateway: true,
+        peerReviewRequiredBeforeSynthesis: true,
+        receiptsRequiredBeforeCompletion: true,
+        secretsSerialized: false,
+      },
+      nextSafeAction: status === 'prepared'
+        ? 'Executar cada role pelo runtime de subagentes aprovado e sintetizar apenas depois dos reviews.'
+        : 'Revisar approval, roles e receipts antes de tentar launch novamente.',
     };
   }
 
@@ -575,6 +770,92 @@ export class AgentTeamCompilerService {
         inspectCommand: `zavorth agent-team inspect ${roleId}`,
       },
     };
+  }
+
+  private resolveLaunchBlockedReasons(
+    snapshot: AgentTeamCompilerSnapshot,
+    approvalMatched: boolean,
+  ): string[] {
+    const reasons: string[] = [];
+    if (snapshot.status === 'not-needed') {
+      reasons.push('agent-team-not-needed');
+    }
+    if (snapshot.status === 'blocked') {
+      reasons.push('compiler-blocked');
+    }
+    if (snapshot.roles.length === 0) {
+      reasons.push('no-roles');
+    }
+    if (!approvalMatched) {
+      reasons.push('approval-id-mismatch');
+    }
+    if (!snapshot.policy.approvalRequiredBeforeLaunch || !snapshot.policy.budgetsDefaultToZero) {
+      reasons.push('policy-invariant-missing');
+    }
+    return unique(reasons);
+  }
+
+  private prepareLaunchRole(role: AgentTeamCompilerRole): AgentTeamCompilerLaunchRole {
+    return {
+      roleId: role.roleId,
+      kind: role.kind,
+      status: 'prepared',
+      scopeMode: role.scope.mode,
+      allowedTools: [...role.scope.allowedTools],
+      budget: { ...role.budget },
+      reviewRequired: true,
+      evidenceRefs: [
+        role.subagentReceipt.id,
+        `agent-team-role:${role.roleId}:claim`,
+        `agent-team-role:${role.roleId}:review`,
+      ],
+    };
+  }
+
+  private prepareLaunchTurns(
+    snapshot: AgentTeamCompilerSnapshot,
+    teamRunId: string,
+  ): AgentTeamCompilerLaunchTurn[] {
+    const reviewer = snapshot.roles.find((role) => role.kind === 'verifier')
+      || snapshot.roles.find((role) => role.kind === 'safety-reviewer')
+      || snapshot.roles[0];
+    const turns: AgentTeamCompilerLaunchTurn[] = [];
+    for (const role of snapshot.roles) {
+      const claimId = `${teamRunId}-${safeSegment(role.roleId)}-claim`;
+      turns.push({
+        id: claimId,
+        phase: 'claim',
+        roleId: role.roleId,
+        targetRoleId: null,
+        status: 'prepared',
+        prompt: redactText(`Declare plano, evidencia esperada e limites para ${role.objective}`, '', 360),
+        evidenceRefs: [role.subagentReceipt.id],
+      });
+      if (reviewer && reviewer.roleId !== role.roleId) {
+        turns.push({
+          id: `${teamRunId}-${safeSegment(reviewer.roleId)}-reviews-${safeSegment(role.roleId)}`,
+          phase: 'peer-review',
+          roleId: reviewer.roleId,
+          targetRoleId: role.roleId,
+          status: 'prepared',
+          prompt: redactText(`Revise a contribuicao de ${role.roleId} contra escopo, budget, riscos e criterios de conclusao.`, '', 360),
+          evidenceRefs: [claimId, reviewer.subagentReceipt.id],
+        });
+      }
+    }
+    const synthesisRole = reviewer || snapshot.roles[snapshot.roles.length - 1];
+    if (synthesisRole) {
+      turns.push({
+        id: `${teamRunId}-final-synthesis-input`,
+        phase: 'synthesis-input',
+        roleId: synthesisRole.roleId,
+        targetRoleId: null,
+        status: 'prepared',
+        prompt: 'Sintetize somente evidencias revisadas, liste bloqueios e nao declare conclusao sem receipts.',
+        evidenceRefs: turns.map((turn) => turn.id),
+      });
+    }
+    return turns;
   }
 
   private resolveRoleReason(kind: AgentTeamCompilerRoleKind): string {

@@ -53,6 +53,16 @@ describe('ZavorthControl Agent Team Compiler Channel mesh0', () => {
         approvalRequiredCount: 3,
         compilerOnly: true,
       }),
+      approval: expect.objectContaining({
+        required: true,
+        approvalId: expect.stringContaining('agent-team-approval:'),
+      }),
+      launch: expect.objectContaining({
+        mode: 'approval-gated-team-run',
+        directToolExecution: false,
+        synthesisRequired: true,
+        executionAuthority: 'subagent-runtime-required',
+      }),
       policy: expect.objectContaining({
         noSubagentsLaunched: true,
         approvalRequiredBeforeLaunch: true,
@@ -98,6 +108,9 @@ describe('ZavorthControl Agent Team Compiler Channel mesh0', () => {
       }),
       policy: expect.objectContaining({
         noSubagentsLaunched: true,
+      }),
+      launch: expect.objectContaining({
+        directToolExecution: false,
       }),
     }));
   });
