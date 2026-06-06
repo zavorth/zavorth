@@ -25,7 +25,7 @@ const chat = existsSync(files.chat) ? readFileSync(files.chat, 'utf8') : '';
 const contextRail = existsSync(files.contextRail) ? readFileSync(files.contextRail, 'utf8') : '';
 const adapter = existsSync(files.adapter) ? readFileSync(files.adapter, 'utf8') : '';
 const packageJson = existsSync(files.packageJson) ? readFileSync(files.packageJson, 'utf8') : '';
-const chatBranch = shell.includes('case "chat"') ? shell.slice(shell.indexOf('case "chat"')) : shell;
+const chatBranch = shell.includes('case "chat"') ? shell.slice(shell.indexOf('case "chat"')) : '';
 
 const order = [
   '<ZavorthControlActiveMissionPanel',
@@ -41,7 +41,8 @@ const order = [
 rules.push(
   {
     id: 'shell:chat-first',
-    status: shell.includes('ZavorthControlChatSurface') &&
+    status: chatBranch &&
+      shell.includes('ZavorthControlChatSurface') &&
       shell.includes('ZavorthControlContextRail') &&
       chatBranch.indexOf('<ZavorthControlContextRail') > chatBranch.indexOf('<ZavorthControlChatSurface') &&
       !shell.includes('<ZavorthControlOnboardingPanel') &&

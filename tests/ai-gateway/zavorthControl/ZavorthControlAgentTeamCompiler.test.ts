@@ -1,4 +1,5 @@
 import { buildZavorthControlZavorthControlViewModel } from '../../../src/ai-gateway/app/(zavorthControl)/control/zavorth-control/adapters/zavorthControlZavorthControlAdapter.js';
+import { mapZavorthControlRunObservatory } from '../../../src/ai-gateway/app/(zavorthControl)/control/zavorth-control/adapters/zavorthControlZavorthControlRunObservatory.js';
 import { buildZavorthControlRuntimeProjectionFromZavorthAgentGatewaySnapshot } from '../../../src/ai-gateway/app/(zavorthControl)/control/zavorth-control/projections/zavorthAgentGatewayRuntimeProjection.js';
 import {
   AgentRunService,
@@ -35,6 +36,10 @@ describe('ZavorthControl Agent Team Compiler Channel mesh0', () => {
     const viewModel = buildZavorthControlZavorthControlViewModel({
       runtime: {
         status: 'ready',
+        perceptionControl: {
+          status: 'active',
+          selectedRoute: 'local',
+        },
       },
       wsStatus: 'connected',
       agentRun: {
@@ -43,6 +48,13 @@ describe('ZavorthControl Agent Team Compiler Channel mesh0', () => {
         metadata: run.metadata,
       },
       agentTeamCompiler: run.metadata.agentTeamCompiler as any,
+      dynamicWorkflow: {
+        apiKey: 'plain-api-key',
+        nested: {
+          password: 'hunter2',
+        },
+        note: 'token=secret-value',
+      },
     });
 
     expect(viewModel.agentTeamCompiler).toEqual(expect.objectContaining({
@@ -70,6 +82,15 @@ describe('ZavorthControl Agent Team Compiler Channel mesh0', () => {
       }),
     }));
     expect(viewModel.agentTeamCompiler?.roles[0]?.actions.previewCommand).toContain('zavorth agent-team preview');
+    expect(viewModel.perceptionControl).toEqual(expect.objectContaining({
+      status: 'active',
+      selectedRoute: 'local',
+    }));
+    expect(JSON.stringify(viewModel.dynamicWorkflow)).not.toContain('plain-api-key');
+    expect(JSON.stringify(viewModel.dynamicWorkflow)).not.toContain('hunter2');
+    expect(JSON.stringify(viewModel.dynamicWorkflow)).not.toContain('secret-value');
+    expect(viewModel.dynamicWorkflow.apiKey).toBe('[redacted-secret]');
+    expect(viewModel.dynamicWorkflow.nested.password).toBe('[redacted-secret]');
   });
 
   it('maps gateway snapshots with Agent Team Compiler into runtime projection', async () => {
@@ -94,6 +115,17 @@ describe('ZavorthControl Agent Team Compiler Channel mesh0', () => {
         suggestedSubagents: ['planner', 'verifier'],
       },
     });
+    result.run.metadata.perceptionControl = {
+      status: 'active',
+      selectedRoute: 'gateway',
+    };
+    result.run.metadata.dynamicWorkflow = {
+      key: 'raw-key',
+      nested: {
+        accessToken: 'raw-token',
+      },
+      note: 'api_key=raw-secret',
+    };
 
     const projection = buildZavorthControlRuntimeProjectionFromZavorthAgentGatewaySnapshot(
       gateway.buildSnapshot({ activeRunId: result.run.id }),
@@ -112,6 +144,35 @@ describe('ZavorthControl Agent Team Compiler Channel mesh0', () => {
       launch: expect.objectContaining({
         directToolExecution: false,
       }),
+    }));
+    expect(projection.perceptionControl).toEqual(expect.objectContaining({
+      status: 'active',
+      selectedRoute: 'gateway',
+    }));
+    expect(JSON.stringify(projection.dynamicWorkflow)).not.toContain('raw-key');
+    expect(JSON.stringify(projection.dynamicWorkflow)).not.toContain('raw-token');
+    expect(JSON.stringify(projection.dynamicWorkflow)).not.toContain('raw-secret');
+    expect(projection.dynamicWorkflow.key).toBe('[redacted-secret]');
+    expect(projection.dynamicWorkflow.nested.accessToken).toBe('[redacted-secret]');
+  });
+
+  it('returns a full empty run observatory shape for absent input', () => {
+    const observatory = mapZavorthControlRunObservatory(null);
+
+    expect(observatory).toEqual(expect.objectContaining({
+      query: {},
+      totalRuns: 0,
+      matchedRuns: 0,
+      runs: [],
+      diffPreviews: [],
+      intelligenceFabricHealth: null,
+      zavorthControlIntelligenceFabricHealth: null,
+    }));
+    expect(observatory.indexes).toEqual(expect.objectContaining({
+      runIds: [],
+      traceIds: [],
+      sessionIds: [],
+      statuses: [],
     }));
   });
 });

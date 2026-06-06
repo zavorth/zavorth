@@ -127,6 +127,30 @@ describe('Zavorth CLI Agent Team Compiler', () => {
     expect(result.policy.noDirectToolExecution).toBe(true);
   });
 
+  it('does not silently render preview for parsed inspect and synthesize actions', async () => {
+    for (const action of ['inspect', 'synthesize']) {
+      const writes: string[] = [];
+      const result = await handleZavorthCliRegistryOpsCommand({
+        runtime: {} as any,
+        effectiveFlags: createFlags(false),
+        commandName: 'agent-team',
+        normalized: 'agent-team',
+        args: `${action} run-1`,
+        writer: {
+          line: (text) => writes.push(text),
+          error: (text) => writes.push(text),
+        },
+      });
+
+      expect(result).toEqual(expect.objectContaining({
+        ok: false,
+        handled: true,
+        error: `Acao "${action}" ainda nao foi implementada para agent-team.`,
+      }));
+      expect(writes[0]).toBe(`Acao "${action}" ainda nao foi implementada para agent-team.`);
+    }
+  });
+
   it('formats a compact human summary', () => {
     const snapshot = buildAgentTeamCompilerCliSnapshot({
       text: 'compile equipe para entrega',

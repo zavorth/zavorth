@@ -53,7 +53,7 @@ export async function POST(request: Request) {
 }
 
 function normalizeCanaryMode(value: unknown): ZavorthUniversalSkillCanaryMode {
-  return value === "dry-run" || value === "live" || value === "dashboard-only"
+  return value === "dry-run" || value === "live" || value === "zavorthControl-only"
     ? value
-    : "dashboard-only";
+    : "zavorthControl-only";
 }

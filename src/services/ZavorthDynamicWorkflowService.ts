@@ -174,23 +174,28 @@ export class ZavorthDynamicWorkflowService {
       return this.blocked(snapshot, 'approval required before materializing dynamic workflow');
     }
     const roles = buildSwarmRoles(snapshot);
-    const swarmSnapshot = this.swarmLauncher.launchSwarm({
-      swarmId: safeFilePart(snapshot.workflowId),
-      objective: snapshot.objectivePreview,
-      roles,
-      official: true,
-      maxRoles: snapshot.scale.effectiveFanout,
-      maxConcurrency: snapshot.scale.maxConcurrency,
-      batchSize: snapshot.scale.maxConcurrency,
-      autoSelectRoles: false,
-      tokenBudget: {
-        modelClass: snapshot.routing.workers.modelClass,
-        maxEstimatedUsd: Number((snapshot.budget.maxCents / 100).toFixed(2)),
-        maxEstimatedTokens: snapshot.budget.estimatedTotalTokens,
-        maxLlmCalls: snapshot.scale.effectiveFanout + 1,
-        approved: true,
-      },
-    });
+    let swarmSnapshot: unknown;
+    try {
+      swarmSnapshot = this.swarmLauncher.launchSwarm({
+        swarmId: safeFilePart(snapshot.workflowId),
+        objective: snapshot.objectivePreview,
+        roles,
+        official: true,
+        maxRoles: snapshot.scale.effectiveFanout,
+        maxConcurrency: snapshot.scale.maxConcurrency,
+        batchSize: snapshot.scale.maxConcurrency,
+        autoSelectRoles: false,
+        tokenBudget: {
+          modelClass: snapshot.routing.workers.modelClass,
+          maxEstimatedUsd: Number((snapshot.budget.maxCents / 100).toFixed(2)),
+          maxEstimatedTokens: snapshot.budget.estimatedTotalTokens,
+          maxLlmCalls: snapshot.scale.effectiveFanout + 1,
+          approved: true,
+        },
+      });
+    } catch (error) {
+      return this.blocked(snapshot, `swarm launch failed: ${errorMessage(error)}`);
+    }
 
     return {
       status: 'materialized',
@@ -243,9 +248,7 @@ export class ZavorthDynamicWorkflowService {
     if (!fs.existsSync(filePath)) return null;
     try {
       const parsed = JSON.parse(fs.readFileSync(filePath, 'utf8'));
-      return parsed?.contractVersion === ZAVORTH_DYNAMIC_WORKFLOW_CONTRACT_VERSION
-        ? parsed as ZavorthDynamicWorkflowSnapshot
-        : null;
+      return isDynamicWorkflowSnapshot(parsed) ? parsed : null;
     } catch {
       return null;
     }
@@ -350,6 +353,66 @@ function buildBudget(input: {
     approvalRequiredAboveCents: Math.min(input.maxCents, 25),
     stopWhenExceeded: true,
   };
+}
+
+function isDynamicWorkflowSnapshot(value: unknown): value is ZavorthDynamicWorkflowSnapshot {
+  if (!value || typeof value !== 'object' || Array.isArray(value)) return false;
+  const snapshot = value as Record<string, any>;
+  const scale = snapshot.scale;
+  const materialization = snapshot.materialization;
+  const approval = snapshot.approval;
+  const routing = snapshot.routing;
+  const budget = snapshot.budget;
+  const orchestration = snapshot.orchestration;
+  const safety = snapshot.safety;
+  const surface = snapshot.surface;
+  return snapshot.contractVersion === ZAVORTH_DYNAMIC_WORKFLOW_CONTRACT_VERSION
+    && typeof snapshot.generatedAt === 'string'
+    && typeof snapshot.workflowId === 'string'
+    && ['preview', 'needs-approval', 'blocked'].includes(snapshot.status)
+    && typeof snapshot.objectivePreview === 'string'
+    && isRecord(scale)
+    && isFiniteNumber(scale.requestedFanout)
+    && isFiniteNumber(scale.effectiveFanout)
+    && isFiniteNumber(scale.maxConcurrency)
+    && isFiniteNumber(scale.requestedConcurrency)
+    && isFiniteNumber(scale.batchCount)
+    && isRecord(materialization)
+    && typeof materialization.ready === 'boolean'
+    && typeof materialization.launchCommand === 'string'
+    && isRecord(approval)
+    && typeof approval.required === 'boolean'
+    && (approval.approvalId === null || typeof approval.approvalId === 'string')
+    && Array.isArray(approval.reasons)
+    && Array.isArray(snapshot.blockedReasons)
+    && isRecord(routing)
+    && isRecord(routing.workers)
+    && isRecord(routing.synthesis)
+    && ['cheap', 'standard', 'premium'].includes(routing.workers.modelClass)
+    && ['cheap', 'standard', 'premium'].includes(routing.synthesis.modelClass)
+    && isRecord(budget)
+    && isFiniteNumber(budget.maxCents)
+    && isFiniteNumber(budget.estimatedTotalTokens)
+    && isRecord(orchestration)
+    && Array.isArray(orchestration.workerGroups)
+    && isRecord(orchestration.synthesisStage)
+    && isRecord(safety)
+    && safety.noArbitraryCodeExecution === true
+    && safety.noSecretSerialization === true
+    && isRecord(surface)
+    && typeof surface.cliCommand === 'string';
+}
+
+function isRecord(value: unknown): value is Record<string, any> {
+  return Boolean(value && typeof value === 'object' && !Array.isArray(value));
+}
+
+function isFiniteNumber(value: unknown): value is number {
+  return typeof value === 'number' && Number.isFinite(value);
+}
+
+function errorMessage(error: unknown): string {
+  return error instanceof Error ? error.message : String(error || 'unknown error');
 }
 
 function buildWorkerGroups(input: {

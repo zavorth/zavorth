@@ -96,6 +96,14 @@ export type ZavorthProductizationProtectedRuntimeSnapshot = {
 };
 
 type SandboxHostReadinessLike = Pick<SandboxHostReadinessService, 'inspect'>;
+type ProtectedRuntimeProjectionRoute = '/dashboard' | '/control';
+type ProtectedRuntimeProjection<Route extends ProtectedRuntimeProjectionRoute> = {
+  route: Route;
+  executionAuthority: false;
+  approvalRequiredForMutableActions: true;
+  visualBlocksRequireOwnerApproval: true;
+  endpoints: string[];
+};
 
 export type ZavorthProductizationProtectedRuntimeServiceOptions = {
   now?: () => Date;
@@ -103,6 +111,25 @@ export type ZavorthProductizationProtectedRuntimeServiceOptions = {
 };
 
 const STRONG_SANDBOX_PRIORITY: SandboxHostTierId[] = ['firecracker', 'gvisor', 'docker'];
+const PRODUCTIZATION_PROTECTED_RUNTIME_ENDPOINTS = [
+  '/api/productization/protected-runtime',
+  '/api/productization/protected-runtime?view=templates',
+  '/api/productization/protected-runtime?view=missions',
+  '/api/productization/protected-runtime?view=receipts',
+  '/api/productization/protected-runtime?view=sandbox',
+];
+
+function buildProtectedRuntimeProjection<Route extends ProtectedRuntimeProjectionRoute>(
+  route: Route,
+): ProtectedRuntimeProjection<Route> {
+  return {
+    route,
+    executionAuthority: false,
+    approvalRequiredForMutableActions: true,
+    visualBlocksRequireOwnerApproval: true,
+    endpoints: [...PRODUCTIZATION_PROTECTED_RUNTIME_ENDPOINTS],
+  };
+}
 
 export class ZavorthProductizationProtectedRuntimeService {
   private readonly now: () => Date;
@@ -166,32 +193,8 @@ export class ZavorthProductizationProtectedRuntimeService {
       templates,
       mission,
       receipt,
-      dashboardProjection: {
-        route: '/dashboard',
-        executionAuthority: false,
-        approvalRequiredForMutableActions: true,
-        visualBlocksRequireOwnerApproval: true,
-        endpoints: [
-          '/api/productization/protected-runtime',
-          '/api/productization/protected-runtime?view=templates',
-          '/api/productization/protected-runtime?view=missions',
-          '/api/productization/protected-runtime?view=receipts',
-          '/api/productization/protected-runtime?view=sandbox',
-        ],
-      },
-      zavorthControlProjection: {
-        route: '/control',
-        executionAuthority: false,
-        approvalRequiredForMutableActions: true,
-        visualBlocksRequireOwnerApproval: true,
-        endpoints: [
-          '/api/productization/protected-runtime',
-          '/api/productization/protected-runtime?view=templates',
-          '/api/productization/protected-runtime?view=missions',
-          '/api/productization/protected-runtime?view=receipts',
-          '/api/productization/protected-runtime?view=sandbox',
-        ],
-      },
+      dashboardProjection: buildProtectedRuntimeProjection('/dashboard'),
+      zavorthControlProjection: buildProtectedRuntimeProjection('/control'),
       cli: {
         commands: [
           'zavorth onboard',

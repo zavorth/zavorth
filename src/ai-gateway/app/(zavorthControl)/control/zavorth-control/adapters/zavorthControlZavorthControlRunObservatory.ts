@@ -1,9 +1,17 @@
 import type {
-  ZavorthControlIntelligenceFabricHealthSnapshot,
   ZavorthControlRunObservatorySnapshot,
-} from '../contracts/zavorthControlZavorthControlObservabilityContracts';
+} from '../contracts';
 
 type AnyRecord = Record<string, any>;
+
+type ZavorthControlIntelligenceFabricHealthSnapshot = {
+  status: string;
+  recommendation: string;
+  p95LatencyMs: number | null;
+  rollbackInstruction: string;
+  demoteAvailable: boolean;
+  raw: AnyRecord;
+};
 
 function record(value: unknown): AnyRecord {
   return value && typeof value === 'object' && !Array.isArray(value) ? value as AnyRecord : {};
@@ -43,15 +51,50 @@ export function mapFabricHealth(value: unknown): ZavorthControlIntelligenceFabri
 export function mapZavorthControlRunObservatory(value: unknown): ZavorthControlRunObservatorySnapshot {
   const snapshot = record(value);
   if (!Object.keys(snapshot).length) {
-    return {};
+    return {
+      generatedAt: new Date(0).toISOString(),
+      query: {},
+      totalRuns: 0,
+      matchedRuns: 0,
+      indexes: {
+        runIds: [],
+        traceIds: [],
+        sessionIds: [],
+        statuses: [],
+      },
+      runs: [],
+      diffPreviews: [],
+      intelligenceFabricHealth: {},
+      extensions: {},
+    };
   }
 
-  const diffPreviews = Array.isArray(snapshot.diffPreviews) ? snapshot.diffPreviews : [];
-  const intelligenceFabricHealth = mapFabricHealth(snapshot.intelligenceFabricHealth);
+  const {
+    generatedAt,
+    query,
+    totalRuns,
+    matchedRuns,
+    indexes,
+    runs,
+    diffPreviews: _diffPreviews,
+    intelligenceFabricHealth: _intelligenceFabricHealth,
+    ...extensions
+  } = snapshot;
+  const diffPreviews = Array.isArray(_diffPreviews) ? _diffPreviews : [];
+  const normalizedRuns = Array.isArray(runs)
+    ? runs.filter((entry) => entry && typeof entry === 'object')
+    : [];
+  const intelligenceFabricHealth = mapFabricHealth(_intelligenceFabricHealth);
   return {
-    ...snapshot,
+    generatedAt: text(generatedAt, new Date(0).toISOString()),
+    query: record(query),
+    totalRuns: numberOrNull(totalRuns) ?? 0,
+    matchedRuns: numberOrNull(matchedRuns) ?? normalizedRuns.length,
+    indexes: record(indexes),
+    runs: normalizedRuns,
     diffPreviews,
-    intelligenceFabricHealth: snapshot.intelligenceFabricHealth || null,
-    zavorthControlIntelligenceFabricHealth: intelligenceFabricHealth,
+    intelligenceFabricHealth: record(_intelligenceFabricHealth),
+    zavorthControlIntelligenceFabricHealth: intelligenceFabricHealth || undefined,
+    extensions,
   };
 }

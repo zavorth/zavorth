@@ -58,7 +58,18 @@ function markersPresent() {
   ];
   const missing = [];
   for (const [file, needles] of checks) {
-    const text = fs.readFileSync(path.join(root, file), 'utf8');
+    const filePath = path.join(root, file);
+    if (!fs.existsSync(filePath)) {
+      missing.push(`${file}: file not found`);
+      continue;
+    }
+    let text = '';
+    try {
+      text = fs.readFileSync(filePath, 'utf8');
+    } catch (error) {
+      missing.push(`${file}: read failed (${error?.message || String(error)})`);
+      continue;
+    }
     for (const needle of needles) {
       if (!text.includes(needle)) missing.push(`${file}: missing ${needle}`);
     }

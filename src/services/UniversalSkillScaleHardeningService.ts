@@ -418,7 +418,7 @@ export class UniversalSkillScaleHardeningService {
         recommendedMode: 'hold',
         nextActions: [
           'Resolver gates blocked antes de qualquer apply em escala.',
-          'Rodar novamente a Etapa 9 em preview para atualizar batches e dashboard review.',
+          'Rodar novamente a Etapa 9 em preview para atualizar batches e ZavorthControl review.',
         ],
       };
     }
@@ -439,7 +439,7 @@ export class UniversalSkillScaleHardeningService {
         : 'preview',
       nextActions: [
         'Revisar os batches planejados e escolher um canary pequeno.',
-        'Solicitar aprovacao visual antes de implementar os itens de dashboard review.',
+        'Solicitar aprovacao visual antes de implementar os itens de ZavorthControl review.',
       ],
     };
   }
