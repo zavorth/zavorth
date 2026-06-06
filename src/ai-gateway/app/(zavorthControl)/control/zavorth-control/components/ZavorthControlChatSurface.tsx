@@ -31,16 +31,22 @@ export function ZavorthControlEmptyChatGreeting({ viewModel = {} }: any) {
   );
 }
 
-export function ZavorthControlRunControls({ sending = false, viewModel = {} }: any) {
+export function ZavorthControlRunControls({
+  sending = false,
+  viewModel = {},
+  onStop,
+  onQueue,
+  onViewReceipt,
+}: any) {
   const queued = viewModel.tasks?.filter((task: any) => task.status === 'queued').length || 0;
   const receipts = viewModel.artifacts?.length || viewModel.replay?.artifactCount || 0;
 
   return (
     <div className="bcc-run-controls" data-active-run-state={sending ? 'in-progress' : 'ready'}>
       <span className="bcc-active-run-state">{sending ? 'In progress' : 'Ready'}</span>
-      <button type="button" disabled={!sending}>Stop</button>
-      <button type="button">Queue {queued}</button>
-      <button type="button">View receipt {receipts}</button>
+      <button type="button" disabled={!sending || !onStop} onClick={() => onStop?.()}>Stop</button>
+      <button type="button" disabled={!onQueue} onClick={() => onQueue?.()}>Queue {queued}</button>
+      <button type="button" disabled={!receipts || !onViewReceipt} onClick={() => onViewReceipt?.()}>View receipt {receipts}</button>
     </div>
   );
 }
@@ -50,6 +56,9 @@ export function ZavorthControlChatSurface({
   sending = false,
   onSend = () => {},
   onDraftChange = () => {},
+  onStop,
+  onQueue,
+  onViewReceipt,
   viewModel = {},
 }: any) {
   const onResolveApproval = () => {};
@@ -65,10 +74,10 @@ export function ZavorthControlChatSurface({
       <div className="bcc-event-stream">Event Stream {events.length}</div>
       <div className="bcc-chat-feed">
         {!hasMessages ? <ZavorthControlEmptyChatGreeting viewModel={viewModel} /> : null}
-        {messages.map((message: any) => {
+        {messages.map((message: any, index: number) => {
           const isUser = message.role === 'user';
           return (
-            <article className="bcc-message" data-role={message.role || 'assistant'} key={message.id || message.text}>
+            <article className="bcc-message" data-role={message.role || 'assistant'} key={`${message.id || message.text || 'message'}:${index}`}>
               <span className="bcc-message__avatar">{isUser ? 'You' : 'Z'}</span>
               {message.text}
             </article>
@@ -88,7 +97,13 @@ export function ZavorthControlChatSurface({
         <button>Retry draft</button>
         <button disabled={sending} onClick={() => onSend(draft)}>Send</button>
       </div>
-      <ZavorthControlRunControls sending={sending} viewModel={viewModel} />
+      <ZavorthControlRunControls
+        sending={sending}
+        viewModel={viewModel}
+        onStop={onStop}
+        onQueue={onQueue}
+        onViewReceipt={onViewReceipt}
+      />
       <ZavorthControlAdvancedInteractionPanel />
       <div style={{ display: 'none' }}>
         viewModel.messages viewModel.events viewModel.artifacts viewModel.memorySignals

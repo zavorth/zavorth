@@ -882,6 +882,11 @@ export async function handleZavorthCliRegistryOpsCommand(params: RegistryCommand
       writer.line(body);
       return { ok: true, handled: true, output: [body], error: null };
     }
+    if (action === 'inspect' || action === 'synthesize') {
+      const error = `Acao "${action}" ainda nao foi implementada para agent-team.`;
+      writer.error(error);
+      return { ok: false, handled: true, output: [], error };
+    }
     const body = effectiveFlags.json
       ? JSON.stringify(snapshot, null, 2)
       : formatAgentTeamCompilerSnapshot(snapshot);

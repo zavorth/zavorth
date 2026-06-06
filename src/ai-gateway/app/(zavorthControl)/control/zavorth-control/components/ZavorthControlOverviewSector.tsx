@@ -33,9 +33,9 @@ export function ZavorthControlOverviewSector({
     traceId: 'trace',
     sessionId: 'session',
   };
-  const diffPreviews = Array.isArray(viewModel.runObservatory?.diffPreviews)
+  const diffPreviews = (Array.isArray(viewModel.runObservatory?.diffPreviews)
     ? viewModel.runObservatory.diffPreviews
-    : [];
+    : []).filter((preview: unknown) => preview && typeof preview === 'object');
   const fabricHealth = viewModel.runObservatory?.zavorthControlIntelligenceFabricHealth || null;
 
   return (
@@ -51,8 +51,8 @@ export function ZavorthControlOverviewSector({
       <button onClick={() => onRunObservatoryQueryChange({ traceId: observedRun.traceId })}>Trace</button>
       <button onClick={() => onRunObservatoryQueryChange({ sessionId: observedRun.sessionId })}>Session</button>
       {/* Draft {preview.observability.draftReady} Gate {preview.observability.riskGateDecision} preview.actions.approveApplyLabel sem impacto live */}
-      {diffPreviews.map((preview: any) => (
-        <article key={preview.id || preview.planId} className="bcc-run-observatory-draft-preview">
+      {diffPreviews.map((preview: any, index: number) => (
+        <article key={preview.id || preview.planId || `diff-preview-${index}`} className="bcc-run-observatory-draft-preview">
           <h3>{preview.title || 'Previa de alteracao'}</h3>
           <p>{preview.summary || preview.text || 'Rascunho reversivel aguardando decisao.'}</p>
           <p>Draft {String(preview.observability?.draftReady)} - Gate {preview.observability?.riskGateDecision || 'unknown'} - sem impacto live</p>

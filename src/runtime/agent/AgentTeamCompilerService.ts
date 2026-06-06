@@ -502,7 +502,18 @@ export class AgentTeamCompilerService {
     const expectedApprovalId = normalizeText(snapshot.approval?.approvalId);
     const providedApprovalId = normalizeText(input.approvalId) || null;
     const approvalMatched = Boolean(expectedApprovalId && providedApprovalId === expectedApprovalId);
-    const blockedReasons = this.resolveLaunchBlockedReasons(snapshot, approvalMatched);
+    const initialBlockedReasons = this.resolveLaunchBlockedReasons(snapshot, approvalMatched);
+    const candidateTurns = initialBlockedReasons.length === 0
+      ? this.prepareLaunchTurns(snapshot, `agent-team-run-${safeSegment(snapshot.identifiers.runId, 'run')}`)
+      : [];
+    const blockedReasons = unique([
+      ...initialBlockedReasons,
+      ...(
+        initialBlockedReasons.length === 0
+          ? this.resolvePeerReviewBlockedReasons(snapshot, candidateTurns)
+          : []
+      ),
+    ]);
     const status: AgentTeamCompilerLaunchStatus = blockedReasons.length > 0 ? 'blocked' : 'prepared';
     const teamRunId = `agent-team-run-${safeSegment(snapshot.identifiers.runId, 'run')}`;
     const roles = status === 'prepared'
@@ -518,7 +529,7 @@ export class AgentTeamCompilerService {
         evidenceRefs: [],
       }));
     const turns = status === 'prepared'
-      ? this.prepareLaunchTurns(snapshot, teamRunId)
+      ? candidateTurns
       : [];
     const requiredEvidenceRefs = turns.map((turn) => turn.id);
     const reviewerRoleIds = unique(snapshot.roles
@@ -816,9 +827,10 @@ export class AgentTeamCompilerService {
     snapshot: AgentTeamCompilerSnapshot,
     teamRunId: string,
   ): AgentTeamCompilerLaunchTurn[] {
-    const reviewer = snapshot.roles.find((role) => role.kind === 'verifier')
-      || snapshot.roles.find((role) => role.kind === 'safety-reviewer')
-      || snapshot.roles[0];
+    const reviewerCandidates = [
+      ...snapshot.roles.filter((role) => role.kind === 'verifier' || role.kind === 'safety-reviewer'),
+      ...snapshot.roles,
+    ];
     const turns: AgentTeamCompilerLaunchTurn[] = [];
     for (const role of snapshot.roles) {
       const claimId = `${teamRunId}-${safeSegment(role.roleId)}-claim`;
@@ -831,7 +843,8 @@ export class AgentTeamCompilerService {
         prompt: redactText(`Declare plano, evidencia esperada e limites para ${role.objective}`, '', 360),
         evidenceRefs: [role.subagentReceipt.id],
       });
-      if (reviewer && reviewer.roleId !== role.roleId) {
+      const reviewer = reviewerCandidates.find((candidate) => candidate.roleId !== role.roleId);
+      if (reviewer) {
         turns.push({
           id: `${teamRunId}-${safeSegment(reviewer.roleId)}-reviews-${safeSegment(role.roleId)}`,
           phase: 'peer-review',
@@ -843,7 +856,7 @@ export class AgentTeamCompilerService {
         });
       }
     }
-    const synthesisRole = reviewer || snapshot.roles[snapshot.roles.length - 1];
+    const synthesisRole = reviewerCandidates[0] || snapshot.roles[snapshot.roles.length - 1];
     if (synthesisRole) {
       turns.push({
         id: `${teamRunId}-final-synthesis-input`,
@@ -856,6 +869,17 @@ export class AgentTeamCompilerService {
       });
     }
     return turns;
+  }
+
+  private resolvePeerReviewBlockedReasons(
+    snapshot: AgentTeamCompilerSnapshot,
+    turns: AgentTeamCompilerLaunchTurn[],
+  ): string[] {
+    const reviewTurns = turns.filter((turn) => turn.phase === 'peer-review');
+    const missing = snapshot.roles.filter((role) => !reviewTurns.some((turn) => turn.targetRoleId === role.roleId));
+    return missing.length > 0
+      ? ['peer-review-missing', ...missing.map((role) => `peer-review-missing:${role.roleId}`)]
+      : [];
   }
 
   private resolveRoleReason(kind: AgentTeamCompilerRoleKind): string {
