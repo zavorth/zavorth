@@ -26,7 +26,8 @@ describe('ZavorthControlShellWiring', () => {
     );
 
     expect(shell).toContain('buildZavorthControlZavorthControlViewModel');
-    expect(shell).toContain('ZavorthControlOnboardingPanel');
+    expect(shell).toContain('ZavorthControlContextRail');
+    expect(shell).not.toContain('<ZavorthControlOnboardingPanel');
     expect(shell).toContain('ZavorthControlDeveloperWorkspace');
     expect(shell).toContain('ZavorthControlGatewayConsole');
     expect(shell).toContain('model.state?.agentRuntime');
@@ -40,6 +41,10 @@ describe('ZavorthControlShellWiring', () => {
     expect(shell).toContain('model.handleSend');
     expect(shell).toContain('model.handleSessionChange');
     expect(shell).toContain('model.setDraft');
+    expect(shell).toContain('viewModel.dynamicWorkflow');
+    expect(shell).toContain('viewModel.effortControl');
+    expect(shell).toContain('Dynamic Workflow');
+    expect(shell).toContain('Effort Control');
 
     const overview = readFileSync(
       join(controlDir, 'zavorth-control/components/ZavorthControlOverviewSector.tsx'),
@@ -141,6 +146,10 @@ describe('ZavorthControlShellWiring', () => {
   });
 
   it('renders the Nexus Workbench in the ZavorthControl overview from the canonical API', () => {
+    const contextRail = readFileSync(
+      join(controlDir, 'zavorth-control/components/ZavorthControlContextRail.tsx'),
+      'utf8',
+    );
     const overview = readFileSync(
       join(controlDir, 'zavorth-control/components/ZavorthControlOverviewSector.tsx'),
       'utf8',
@@ -154,6 +163,10 @@ describe('ZavorthControlShellWiring', () => {
       'utf8',
     );
 
+    expect(contextRail).toContain('ZavorthControlNexusContext');
+    expect(contextRail).toContain('onRunObservatoryQueryChange={onRunObservatoryQueryChange}');
+    expect(contextRail).toContain('onResolveNexusApproval={onResolveNexusApproval}');
+    expect(contextRail).toContain('onRunNexusWorkbenchAction={onRunNexusWorkbenchAction}');
     expect(overview).toContain('Nexus Workbench');
     expect(overview).toContain('viewModel.nexusWorkbench');
     expect(overview).toContain('humanNexusWorkbenchStatus');

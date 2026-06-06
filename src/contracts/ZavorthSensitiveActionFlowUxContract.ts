@@ -67,6 +67,7 @@ export type ZavorthSensitiveActionFlowUxCard = {
   actions: ZavorthSensitiveActionFlowUxAction[];
   safety: {
     dashboardCanExecute: false;
+    zavorthControlCanExecute: false;
     policyBrokerRequired: true;
     previewBeforeApply: true;
     receiptAlwaysGenerated: true;
@@ -84,6 +85,11 @@ export type ZavorthSensitiveActionFlowUxSnapshot = {
   source: ZavorthSensitiveActionFlowSnapshot;
   dashboardProjection: {
     route: '/dashboard';
+    renderMode: 'action-card';
+    executionAuthority: false;
+  };
+  zavorthControlProjection: {
+    route: '/control';
     renderMode: 'action-card';
     executionAuthority: false;
   };

@@ -15,7 +15,9 @@ describe('ZavorthSensitiveActionFlowUxService', () => {
     expect(snapshot.card.approval.required).toBe(true);
     expect(snapshot.card.execution.executed).toBe(false);
     expect(snapshot.card.safety.dashboardCanExecute).toBe(false);
+    expect(snapshot.card.safety.zavorthControlCanExecute).toBe(false);
     expect(snapshot.dashboardProjection.executionAuthority).toBe(false);
+    expect(snapshot.zavorthControlProjection.executionAuthority).toBe(false);
     expect(snapshot.card.actions.map((action) => action.id)).toEqual(
       expect.arrayContaining(['view-preview', 'approve-once', 'deny']),
     );

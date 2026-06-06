@@ -114,6 +114,10 @@ export type ZavorthPerceptionDashboardProjection = {
   }>;
 };
 
+export type ZavorthPerceptionZavorthControlTarget = ZavorthPerceptionDashboardTarget;
+
+export type ZavorthPerceptionZavorthControlProjection = ZavorthPerceptionDashboardProjection;
+
 export type ZavorthPerceptionCertificationMatrixRow = {
   id: ZavorthPerceptionCertificationScenarioId;
   label: string;
@@ -130,6 +134,7 @@ export type ZavorthPerceptionCrossSurfaceCertificationSnapshot = {
   naturalPlan: ZavorthPerceptionInvocationPlan;
   surfaceResponse: SurfaceResponse;
   surfaceProjections: ZavorthPerceptionSurfaceProjection[];
+  zavorthControlProjection: ZavorthPerceptionZavorthControlProjection;
   dashboardProjection: ZavorthPerceptionDashboardProjection;
   certificationMatrix: ZavorthPerceptionCertificationMatrixRow[];
   liveCanary: {

@@ -17,9 +17,11 @@ describe('ZavorthVisualReceiptsV2Service', () => {
     expect(snapshot.status).toBe('ready');
     expect(snapshot.summary.rawSecretsSerialized).toBe(false);
     expect(snapshot.safety.dashboardCanExecute).toBe(false);
+    expect(snapshot.safety.zavorthControlCanExecute).toBe(false);
     expect(snapshot.dashboardProjection.executionAuthority).toBe(false);
     expect(snapshot.cards[0]?.confidence).toBe('clear');
     expect(snapshot.cards[0]?.safeActions.every((action) => action.dashboardCanExecute === false)).toBe(true);
+    expect(snapshot.cards[0]?.safeActions.every((action) => action.zavorthControlCanExecute === false)).toBe(true);
     expect(JSON.stringify(snapshot)).not.toContain('sk-secretshouldvanish');
     expect(JSON.stringify(snapshot)).not.toContain(googleToken);
     expect(JSON.stringify(snapshot)).toContain('[REDACTED_SECRET]');
@@ -41,7 +43,7 @@ describe('ZavorthVisualReceiptsV2Service', () => {
     expect(snapshot.summary.rollbackAvailable).toBe(1);
     expect(snapshot.cards[0]?.confidence).toBe('needs_review');
     expect(snapshot.cards[0]?.safeActions).toEqual(expect.arrayContaining([
-      expect.objectContaining({ kind: 'rollback', requiresApproval: true, mutatesState: true, dashboardCanExecute: false }),
+      expect.objectContaining({ kind: 'rollback', requiresApproval: true, mutatesState: true, dashboardCanExecute: false, zavorthControlCanExecute: false }),
       expect.objectContaining({ kind: 'export', safeByDefault: true }),
     ]));
     expect(snapshot.cards[0]?.receiptStory.some((line) => line.includes('Policy Broker'))).toBe(true);

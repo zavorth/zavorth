@@ -109,6 +109,7 @@ export type ZavorthUxRolloutReceipt = {
 export type ZavorthUxRolloutSafety = {
   evidenceOnly: true;
   noLiveActionExecuted: true;
+  noZavorthControlVisualMutation: true;
   noDashboardVisualMutation: true;
   liveCanaryRequiresOwnerApproval: true;
   evidenceMustBeRedacted: true;

@@ -40,6 +40,8 @@ describe('ZavorthApprovalActionCardsUxService', () => {
     );
     expect(snapshot.cards[0]?.actions.find((action) => action.kind === 'allow_once')?.dashboardCanResolveApproval).toBe(true);
     expect(snapshot.cards[0]?.actions.every((action) => action.dashboardCanExecuteTargetAction === false)).toBe(true);
+    expect(snapshot.cards[0]?.actions.every((action) => action.zavorthControlCanExecuteTargetAction === false)).toBe(true);
+    expect(snapshot.dashboardProjection.zavorthControlCanExecuteTargetAction).toBe(false);
   });
 
   it('can build from sensitive flow even when gateway approvals are absent', () => {

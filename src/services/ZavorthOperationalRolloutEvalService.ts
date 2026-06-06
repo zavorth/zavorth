@@ -556,6 +556,8 @@ function scenarioEvalToSample(
       dashboardVisualMutation: false,
     },
     safety: {
+      noZavorthControlVisualMutation: true,
+      zavorthControlIsViewModelOnly: true,
       noDashboardVisualMutation: true,
       dashboardIsViewModelOnly: true,
       noLiveActionExecuted: true,

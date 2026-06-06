@@ -140,6 +140,12 @@ export class ZavorthUnifiedOnboardingService {
         visualBlocksRequireOwnerApproval: true,
         endpoint: '/api/onboarding/unified',
       },
+      zavorthControlProjection: {
+        route: '/control',
+        executionAuthority: false,
+        visualBlocksRequireOwnerApproval: true,
+        endpoint: '/api/onboarding/unified',
+      },
       invariants: [
         {
           id: 'setup-go-doctor-one-journey',

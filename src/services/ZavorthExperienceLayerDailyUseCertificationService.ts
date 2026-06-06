@@ -7,7 +7,7 @@ import { ZavorthAutonomySliderService } from './ZavorthAutonomySliderService.js'
 import { ZavorthCapabilityStoreService } from './ZavorthCapabilityStoreService.js';
 import { ZavorthCliExperienceCertificationService } from './ZavorthCliExperienceCertificationService.js';
 import { ZavorthConversationalSetupService } from './ZavorthConversationalSetupService.js';
-import { ZavorthDashboardExperienceHomeService } from './ZavorthDashboardExperienceHomeService.js';
+import { ZavorthControlExperienceHomeService } from './ZavorthControlExperienceHomeService.js';
 import { ZavorthDoItWithMeService } from './ZavorthDoItWithMeService.js';
 import { ZavorthExperienceProfileService } from './ZavorthExperienceProfileService.js';
 import { ZavorthGuidedMissionsService } from './ZavorthGuidedMissionsService.js';
@@ -150,13 +150,13 @@ export class ZavorthExperienceLayerDailyUseCertificationService {
       }),
       this.certifySnapshotPhase({
         id: 'checkpoint-12',
-        title: 'Dashboard Experience Home',
-        command: 'zavorth dashboard-home',
+        title: 'ZavorthControl Chat-First Entry',
+        command: 'zavorth zavorthControl-home',
         surface: 'dashboard',
-        service: new ZavorthDashboardExperienceHomeService(),
+        service: new ZavorthControlExperienceHomeService(),
         input: {},
-        evidence: ['Dashboard Home exposes Inbox, Tasks, Approvals, Receipts, Connectors, guided starts and runtime questions over /dashboard.'],
-        riskBoundary: 'Dashboard Home is an experience layer, not execution authority.',
+        evidence: ['ZavorthControl opens as chat-first daily use while memory, skills, approvals, receipts and setup remain reachable as explicit surfaces.'],
+        riskBoundary: 'ZavorthControl daily entry is an experience layer, not execution authority.',
       }),
       this.certifySnapshotPhase({
         id: 'checkpoint-13',
@@ -180,7 +180,7 @@ export class ZavorthExperienceLayerDailyUseCertificationService {
       coveredPhases: phases.length,
       phases,
       dailyUseFlow: [
-        'User starts with zavorth daily or /dashboard.',
+        'User starts with zavorth daily or ZavorthControl chat.',
         'Zavorth starts from Inbox, Tasks, Approvals, Receipts or Connectors, then suggests a guided mission or answers a runtime question.',
         'Sensitive work becomes preview, risk, scoped approval and receipt.',
         'Satellite and CLI can help decide or inspect, but target execution remains in the governed runtime.',
