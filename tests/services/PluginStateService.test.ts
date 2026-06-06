@@ -124,6 +124,35 @@ describe('PluginStateService', () => {
     expect(readFileSync).toHaveBeenCalledTimes(1);
   });
 
+  it('normalizes legacy entry keys to the persisted plugin id', () => {
+    const service = new PluginStateService({
+      stateFile: 'X:/state/plugin-state.json',
+      existsSync: jest.fn(() => true),
+      readFileSync: jest.fn(() => JSON.stringify({
+        version: 1,
+        updatedAt: '2026-04-02T12:04:00.000Z',
+        entries: {
+          'legacy-alias': {
+            pluginId: 'mcp:real-pack',
+            installed: true,
+            trust: 'trusted',
+            installedRevision: 'rev-2',
+            sourceDigest: 'sha256-2',
+            sourceLocator: 'registry:remote-catalog',
+            sourceTrusted: true,
+            updatedAt: '2026-04-02T12:04:00.000Z',
+          },
+        },
+      })),
+    });
+
+    const state = service.readState();
+
+    expect(Object.prototype.hasOwnProperty.call(state.entries, 'legacy-alias')).toBe(false);
+    expect(Object.prototype.hasOwnProperty.call(state.entries, 'mcp:real-pack')).toBe(true);
+    expect(service.isApproved('mcp:real-pack')).toBe(true);
+  });
+
   it('does not approve trusted labels without trusted source provenance', () => {
     const service = new PluginStateService({
       stateFile: 'X:/state/plugin-state.json',

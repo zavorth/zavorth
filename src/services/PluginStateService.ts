@@ -255,7 +255,7 @@ export class PluginStateService {
       if (!entry) {
         continue;
       }
-      const normalizedKey = this.normalizeId(key || entry.pluginId);
+      const normalizedKey = this.normalizeId(entry.pluginId) || this.normalizeId(key);
       if (!normalizedKey) {
         continue;
       }

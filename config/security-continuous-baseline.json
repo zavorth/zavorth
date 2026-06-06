@@ -1,84 +1,84 @@
 {
   "version": 1,
-  "updatedAt": "2026-06-06T06:47:19.203Z",
+  "updatedAt": "2026-06-06T06:52:29.084Z",
   "snapshot": {
     "controls": [
       {
         "id": "security/AgentSecurityPolicyEngine",
         "relativePath": "src/security/AgentSecurityPolicyEngine.ts",
-        "sha256": "c97a56486517d5dad41e85ace661639de472843e4f77d0a0dd3aadf42fc864a4",
+        "sha256": "5f4c209a89a3c14eefd7ee4965512919a39a9367d5ca81ad23a3eea6f988a9ee",
         "present": true
       },
       {
         "id": "security/AgentToolSecurityCatalog",
         "relativePath": "src/security/AgentToolSecurityCatalog.ts",
-        "sha256": "0f571408e015cfee37d15679368716f11ba9a2de05f376a965d76c7c29182174",
+        "sha256": "a22cd64921c48c0cdd9b2c8010ab5755fa6eeeecad69e810c964c95897ef06a1",
         "present": true
       },
       {
         "id": "security/ApprovalSigningKeyService",
         "relativePath": "src/security/ApprovalSigningKeyService.ts",
-        "sha256": "ac14e29ae98f4e6cd393676fb4e041c2d9e40028b6b42738d111853730ba435e",
+        "sha256": "220932395652b027bd4cac72f1a197d1c0d9e79378c8b8b468f7f02f0e655a9d",
         "present": true
       },
       {
         "id": "security/ContinuousSecurityMonitor",
         "relativePath": "src/security/ContinuousSecurityMonitor.ts",
-        "sha256": "9043f07671f6d560b9a694c55c4d6e6870aca8db0fc09468080947d44fccf8c2",
+        "sha256": "24af693a5114a0d77daab1f0e182202f869338ce0d702769058c330e0b371dbd",
         "present": true
       },
       {
         "id": "security/LlmEgressGuard",
         "relativePath": "src/security/LlmEgressGuard.ts",
-        "sha256": "a2a82d21f0ee018560dd7353c524ac5380d14697eafcaac67928e51062b03ece",
+        "sha256": "33ea48d3ddc39b18676f933305e8b3f0afc196590f307e75b0cdc6e9500669f9",
         "present": true
       },
       {
         "id": "security/SafeFetchService",
         "relativePath": "src/security/SafeFetchService.ts",
-        "sha256": "d046a6e5a83a7ac3af43024279ed27c7a290468e873fd5e3e2b10108e6154b46",
+        "sha256": "75d37f37adb5112f685b4118fc9f80ab61817414939a9a5b89741912d6426a38",
         "present": true
       },
       {
         "id": "security/SecurityPolicyBroker",
         "relativePath": "src/security/SecurityPolicyBroker.ts",
-        "sha256": "5ce5d0bb979dacd668e1e7f7d633daee04af69c5e3c85e36844c80bbb021983d",
+        "sha256": "cf5d9b8748710e974b05ad091f970fdac8bf8a048a0ced3a482fb57ecfe92d2c",
         "present": true
       },
       {
         "id": "security/SecurityOperationalPreset",
         "relativePath": "src/security/SecurityOperationalPreset.ts",
-        "sha256": "6e88234835ed4fd320a98bbbb1a6174c4f9d29bb3bc12a319b6d68fdf66aa166",
+        "sha256": "da3c67fa561381b921aef3975cd64de051022cf25617d2bb3913a96fe6230bb0",
         "present": true
       },
       {
         "id": "security/SecurityProfile",
         "relativePath": "src/security/SecurityProfile.ts",
-        "sha256": "39fbab0d3cb3e5845d7ca9138999ef01f9dfecc10e033240e5bf6af3cf3b6769",
+        "sha256": "fcc51d9bb27084df303bf4dcf16db20ef139189c36f32f8f0c847872acf77ce4",
         "present": true
       },
       {
         "id": "security/SensitiveDataGuard",
         "relativePath": "src/security/SensitiveDataGuard.ts",
-        "sha256": "f692b8e81ceabb9315d0b87953a466ef3c4e63210ff0f8b4386a52ddc0790612",
+        "sha256": "5b7d5333f75b6f1b791e132fe8969145e304c65665bfcce3c1e4dde9f0542ef7",
         "present": true
       },
       {
         "id": "security/ToolApprovalEnvelope",
         "relativePath": "src/security/ToolApprovalEnvelope.ts",
-        "sha256": "4939975420909246f8fe5b7a69704b40cabb8845884592fca3e7e8cd5abc4aca",
+        "sha256": "04ef427b6d315bec37435804ad509a4b018a31f08b4bcfc065e2cd6d69ba8110",
         "present": true
       },
       {
         "id": "security/ToolOutputTrust",
         "relativePath": "src/security/ToolOutputTrust.ts",
-        "sha256": "cbb560ff69266a4173f5512b0843f0552a5cc706cf1da743a2dd08ab276593ba",
+        "sha256": "8eb1228e5214d3ec50c3e1c8a2d8a5ceb8f62f3521b9c9ee332857e95606043b",
         "present": true
       },
       {
         "id": "security/UntrustedContent",
         "relativePath": "src/security/UntrustedContent.ts",
-        "sha256": "02dd7ab9a9532918cf2db2ab0269a6d03af3661fcb756885461e9db5c7052c33",
+        "sha256": "9826b070e52723f1dd2a25b46a0d7d8bc0d8646404123f9aea7ddb5cd818effa",
         "present": true
       }
     ],
@@ -140,37 +140,37 @@
       {
         "id": "tests/security/SecurityProfile.test.ts",
         "relativePath": "tests/security/SecurityProfile.test.ts",
-        "sha256": "642f03da0e35df81c6fae583abb95322e68e402b8c67fca8b291e3005056bab0",
+        "sha256": "fabff1c83c877f44b900db1e4d52668b0170f7c0b08a5c4501920ec545a6579b",
         "present": true
       },
       {
         "id": "tests/security/SecurityPolicyBroker.test.ts",
         "relativePath": "tests/security/SecurityPolicyBroker.test.ts",
-        "sha256": "18423e8ebb9b32394322964608a26a880fb047f5bd7d3dddf27b77242af3d341",
+        "sha256": "b1b654a81df9e2dea6684b6c6e21f1d47ce5be9b0db554d137c5145f1b11858a",
         "present": true
       },
       {
         "id": "tests/security/SecurityOperationalPreset.test.ts",
         "relativePath": "tests/security/SecurityOperationalPreset.test.ts",
-        "sha256": "938474b3b375e06dfce0230af3839763003dc705a0906163dfa6546290f23ede",
+        "sha256": "5f13b4c02c83784cb5eba4398227978e3bec255c965ca4460f39068381bc641f",
         "present": true
       },
       {
         "id": "tests/security/OperationalSecurityDoctor.test.ts",
         "relativePath": "tests/security/OperationalSecurityDoctor.test.ts",
-        "sha256": "59254d762711d3dd827414cf07c86d24fcbacf1f6e5fa0db4da77a4685d7ce26",
+        "sha256": "8844e68334e220b9373485c5a37889813009edc09f0f7ee174147a7866f56952",
         "present": true
       },
       {
         "id": "tests/security/ContinuousSecurityMonitor.test.ts",
         "relativePath": "tests/security/ContinuousSecurityMonitor.test.ts",
-        "sha256": "ab35c72e11d80a10dda23bccb72c3ae56397205d93b144dff21fc0474649ffea",
+        "sha256": "0fe13df0a46bb4812b5831e277891f33c2fb76b65251c5d75ec54bcd2ce4a415",
         "present": true
       },
       {
         "id": "tests/execution/ToolExecutor.security-policy.test.ts",
         "relativePath": "tests/execution/ToolExecutor.security-policy.test.ts",
-        "sha256": "f3fda0a855d92451e114d02f5ebcaabd697c3e5b78aafc16f51505175f7a39a4",
+        "sha256": "b8365f380a930971745cbeec41757e331c5ef9e7d1dd9dbb84223d0a3bf3c8ef",
         "present": true
       }
     ],
@@ -178,13 +178,13 @@
       {
         "id": ".githooks/pre-commit",
         "relativePath": ".githooks/pre-commit",
-        "sha256": "b8276892d0f157515faddfb34449d747c56aef33e163d3b60c59c23c83b448fa",
+        "sha256": "67848089c3bed000b91296ee495c3e35aa2d056a66cb7072575e40907d08eebb",
         "present": true
       },
       {
         "id": ".githooks/pre-push",
         "relativePath": ".githooks/pre-push",
-        "sha256": "0cad51f877b1b4cafe04b8bb1f64cd83d56d946e5de6b51efc7bd7c103237341",
+        "sha256": "542ca72645841a4f79b4f1d67a2fe6aca9daac001331cd6720a91b11b7893ca7",
         "present": true
       }
     ],
@@ -223,7 +223,7 @@
     "ciWorkflow": {
       "id": "security-workflow",
       "relativePath": ".github/workflows/security.yml",
-      "sha256": "0583b1e3accf75d8e945e029c90f4a8257c57c64c9965a4e6d2153cb0828ff75",
+      "sha256": "9a6910a919acc353d480339a39c16b7905d257abfc0f07baa184419831cbb8a6",
       "present": true
     }
   }
