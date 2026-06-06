@@ -24,7 +24,7 @@ describe('ZavorthPerceptionDeviceControlCompletionService Intent model0', () => 
     expect(snapshot.safety.terminalAutomationBypassBlocked).toBe(true);
     expect(snapshot.safety.secretScreenAutomationBlocked).toBe(true);
     expect(snapshot.safety.noLiveDeviceMutationDuringCertification).toBe(true);
-    expect('tap/type/click/install/dashboard stays gated').toContain('tap/type/click/install/dashboard');
+    expect('tap/type/click/install/zavorthControl stays gated').toContain('tap/type/click/install/zavorthControl');
     expect(snapshot.entries.map((entry) => entry.label)).toEqual(expect.arrayContaining([
       'PC screenshot/read-only vision',
       'Browser DOM/screenshot view',

@@ -68,6 +68,13 @@ export type ZavorthProductizationProtectedRuntimeSnapshot = {
     visualBlocksRequireOwnerApproval: true;
     endpoints: string[];
   };
+  zavorthControlProjection: {
+    route: '/control';
+    executionAuthority: false;
+    approvalRequiredForMutableActions: true;
+    visualBlocksRequireOwnerApproval: true;
+    endpoints: string[];
+  };
   cli: {
     commands: string[];
     mirrorsWebProjection: true;
@@ -161,6 +168,19 @@ export class ZavorthProductizationProtectedRuntimeService {
       receipt,
       dashboardProjection: {
         route: '/dashboard',
+        executionAuthority: false,
+        approvalRequiredForMutableActions: true,
+        visualBlocksRequireOwnerApproval: true,
+        endpoints: [
+          '/api/productization/protected-runtime',
+          '/api/productization/protected-runtime?view=templates',
+          '/api/productization/protected-runtime?view=missions',
+          '/api/productization/protected-runtime?view=receipts',
+          '/api/productization/protected-runtime?view=sandbox',
+        ],
+      },
+      zavorthControlProjection: {
+        route: '/control',
         executionAuthority: false,
         approvalRequiredForMutableActions: true,
         visualBlocksRequireOwnerApproval: true,

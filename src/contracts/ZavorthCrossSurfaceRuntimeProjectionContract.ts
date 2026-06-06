@@ -106,6 +106,8 @@ export type ZavorthDashboardRuntimeProjection = {
   safeViewModelOnly: true;
 };
 
+export type ZavorthControlRuntimeProjection = ZavorthDashboardRuntimeProjection;
+
 export type ZavorthCrossSurfaceProjectionReceipt = {
   id: string;
   kind:
@@ -121,6 +123,8 @@ export type ZavorthCrossSurfaceProjectionReceipt = {
 };
 
 export type ZavorthCrossSurfaceProjectionSafety = {
+  noZavorthControlVisualMutation: true;
+  zavorthControlIsViewModelOnly: true;
   noDashboardVisualMutation: true;
   dashboardIsViewModelOnly: true;
   noLiveActionExecuted: true;
@@ -145,6 +149,7 @@ export type ZavorthCrossSurfaceRuntimeProjectionSnapshot = {
   toolOrchestration: ZavorthToolOrchestrationVerificationSnapshot;
   surfaceCards: ZavorthCrossSurfaceProjectionCard[];
   apiProjection: ZavorthCrossSurfaceApiProjection;
+  zavorthControlProjection: ZavorthControlRuntimeProjection;
   dashboardProjection: ZavorthDashboardRuntimeProjection;
   channelFallbacks: Record<ZavorthCrossSurfaceProjectionSurface, string>;
   receipts: ZavorthCrossSurfaceProjectionReceipt[];

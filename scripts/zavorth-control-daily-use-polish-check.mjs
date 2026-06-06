@@ -2,6 +2,10 @@ import { existsSync, readFileSync } from 'node:fs';
 
 const files = {
   panel: 'src/ai-gateway/app/(zavorthControl)/control/zavorth-control/components/ZavorthControlOperationsPanel.tsx',
+  shell: 'src/ai-gateway/app/(zavorthControl)/control/zavorth-control/components/ZavorthControlControlShell.tsx',
+  chat: 'src/ai-gateway/app/(zavorthControl)/control/zavorth-control/components/ZavorthControlChatSurface.tsx',
+  contextRail: 'src/ai-gateway/app/(zavorthControl)/control/zavorth-control/components/ZavorthControlContextRail.tsx',
+  adapter: 'src/ai-gateway/app/(zavorthControl)/control/zavorth-control/adapters/zavorthControlZavorthControlAdapter.ts',
   packageJson: 'package.json',
 };
 
@@ -16,7 +20,12 @@ for (const [id, file] of Object.entries(files)) {
 }
 
 const panel = existsSync(files.panel) ? readFileSync(files.panel, 'utf8') : '';
+const shell = existsSync(files.shell) ? readFileSync(files.shell, 'utf8') : '';
+const chat = existsSync(files.chat) ? readFileSync(files.chat, 'utf8') : '';
+const contextRail = existsSync(files.contextRail) ? readFileSync(files.contextRail, 'utf8') : '';
+const adapter = existsSync(files.adapter) ? readFileSync(files.adapter, 'utf8') : '';
 const packageJson = existsSync(files.packageJson) ? readFileSync(files.packageJson, 'utf8') : '';
+const chatBranch = shell.includes('case "chat"') ? shell.slice(shell.indexOf('case "chat"')) : shell;
 
 const order = [
   '<ZavorthControlActiveMissionPanel',
@@ -30,6 +39,77 @@ const order = [
 ];
 
 rules.push(
+  {
+    id: 'shell:chat-first',
+    status: shell.includes('ZavorthControlChatSurface') &&
+      shell.includes('ZavorthControlContextRail') &&
+      chatBranch.indexOf('<ZavorthControlContextRail') > chatBranch.indexOf('<ZavorthControlChatSurface') &&
+      !shell.includes('<ZavorthControlOnboardingPanel') &&
+      !shell.includes('<ZavorthControlMissionBrief') &&
+      !shell.includes('<ZavorthControlStateCard') ? 'passed' : 'failed',
+    summary: 'Opening dashboard remains chat-first; setup and status details live behind contextual surfaces.',
+  },
+  {
+    id: 'chat:compact-run-controls',
+    status: [
+      'ZavorthControlEmptyChatGreeting',
+      'data-active-run-state',
+      'In progress',
+      'Stop',
+      'Queue',
+      'View receipt',
+    ].every((needle) => chat.includes(needle)) &&
+      !/falta conectar/i.test(chat) &&
+      !/provider mesh|policy broker|transaction plane/i.test(chat) ? 'passed' : 'failed',
+    summary: 'Chat surface owns natural empty greeting, stop, queue and receipt controls without setup nagging.',
+  },
+  {
+    id: 'rail:context-only',
+    status: [
+      'ZavorthControlTaskTimeline',
+      'ZavorthControlMemoryCenter',
+      'ZavorthControlSkillCatalog',
+      'ZavorthControlSetupGuides',
+      'projection-only',
+      'Editar',
+      'Esquecer',
+      'Nunca aprender isso',
+      'Testar skill',
+      'Promover',
+      'Abrir configuracao',
+    ].every((needle) => contextRail.includes(needle)) &&
+      !contextRail.includes('fetch(') &&
+      !/falta conectar/i.test(contextRail) ? 'passed' : 'failed',
+    summary: 'Memory, skills, setup and timeline are reviewable from a discrete projection-only rail.',
+  },
+  {
+    id: 'dock:quiet-sector-navigation',
+    status: [
+      'onSelectSector',
+      'aria-pressed={activeSectorId === sector.id}',
+      'Chat',
+      'Memoria',
+      'Skills',
+      'Setup',
+      'Workspace',
+      'Gateway',
+      'activeSectorId={activeSectorId}',
+      'onSelectSector={handleSelectSector}',
+    ].every((needle) => shell.includes(needle)) ? 'passed' : 'failed',
+    summary: 'Memory, skills, setup, workspace and gateway are reachable through quiet navigation, not first-screen cards.',
+  },
+  {
+    id: 'language:profile-projection',
+    status: [
+      'profileLanguageFrom',
+      'emptyGreeting',
+      'Preview de diff e comando',
+      'Revisao com evidencia',
+      'profileLanguage',
+    ].every((needle) => adapter.includes(needle)) &&
+      chat.includes('viewModel.profileLanguage?.emptyGreeting') ? 'passed' : 'failed',
+    summary: 'Chat copy is projected by experience profile instead of hardcoded as one-size-fits-all language.',
+  },
   {
     id: 'order:daily-use-first',
     status: isOrdered(panel, order) ? 'passed' : 'failed',

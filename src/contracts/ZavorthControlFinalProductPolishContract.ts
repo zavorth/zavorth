@@ -32,6 +32,8 @@ export type ZavorthControlFinalProductPolishSnapshot = {
   files: {
     indexHtml: string;
     pagesJs: string;
+    chatSurfaceJs: string;
+    contextRailJs: string;
     pagesCss: string;
     runtimeBridgeJs: string;
   };

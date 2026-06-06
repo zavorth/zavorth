@@ -1218,6 +1218,7 @@ export class WebAppRuntimeStateRouteService {
         rawSecretsSerialized: false,
         mutatesConfig: false,
         dashboardExecutionAuthority: false,
+        zavorthControlExecutionAuthority: false,
       },
       commands: {
         inspect: 'zavorth providers preference --json',

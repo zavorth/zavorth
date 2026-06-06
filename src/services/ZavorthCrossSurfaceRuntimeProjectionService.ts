@@ -79,6 +79,7 @@ export class ZavorthCrossSurfaceRuntimeProjectionService {
       toolOrchestration,
       surfaceCards,
       apiProjection,
+      zavorthControlProjection: dashboardProjection,
       dashboardProjection,
       channelFallbacks,
       receipts,
@@ -336,6 +337,8 @@ function buildReceipts(
 
 function buildSafety(): ZavorthCrossSurfaceProjectionSafety {
   return {
+    noZavorthControlVisualMutation: true,
+    zavorthControlIsViewModelOnly: true,
     noDashboardVisualMutation: true,
     dashboardIsViewModelOnly: true,
     noLiveActionExecuted: true,

@@ -78,6 +78,7 @@ export class ZavorthVisualReceiptsV2Service {
         projectionOnly: true,
         rawSecretsSerialized: false,
         dashboardCanExecute: false,
+        zavorthControlCanExecute: false,
         approvalActionsStayScoped: true,
         rollbackRequiresApproval: true,
       },
@@ -195,6 +196,7 @@ function buildActions(source: ZavorthVisualReceiptUxCard): ZavorthVisualReceiptV
     requiresApproval: action.requiresApproval,
     mutatesState: action.mutatesState,
     dashboardCanExecute: false,
+    zavorthControlCanExecute: false,
   }));
   base.push({
     id: 'export-markdown',
@@ -205,6 +207,7 @@ function buildActions(source: ZavorthVisualReceiptUxCard): ZavorthVisualReceiptV
     requiresApproval: false,
     mutatesState: false,
     dashboardCanExecute: false,
+    zavorthControlCanExecute: false,
   });
   return base;
 }

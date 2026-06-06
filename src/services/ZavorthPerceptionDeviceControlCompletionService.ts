@@ -153,7 +153,7 @@ export class ZavorthPerceptionDeviceControlCompletionService {
     for (const command of snapshot.naturalCommands) {
       lines.push(`- "${command.utterance}" -> ${command.route} (${command.defaultMode}) via ${command.commandHint}`);
     }
-    lines.push('', 'Safety: read-only vision may route naturally; tap/type/click/install/dashboard always stays policy/approval-gated.');
+    lines.push('', 'Safety: read-only vision may route naturally; tap/type/click/install/ZavorthControl always stays policy/approval-gated.');
     lines.push(`Next: ${snapshot.commands.nextStage}`);
     return lines.join('\n');
   }

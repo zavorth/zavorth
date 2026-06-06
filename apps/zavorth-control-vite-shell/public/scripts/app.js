@@ -3198,6 +3198,7 @@ ${current}` : skillPrompt;
       'Business mode is active.',
       '',
       'I prepared a governed audit preview. This is safe to inspect: no policy was changed, no channel was modified, no message was sent and no workspace files were edited.',
+      'Nothing outside this zavorthControl was changed.',
       '',
       'The approval channel, policy scope, TTL, blocked actions and receipt evidence are below.',
     ].join('\n');
@@ -3225,7 +3226,7 @@ ${current}` : skillPrompt;
             <span>Approval channel</span>
             <strong>dashboard</strong>
           </div>
-          <p>Primary approval channel: Dashboard inbox. Optional channel delivery stays inactive until a separate channel is configured and tested live.</p>
+          <p>Primary approval channel: ZavorthControl inbox. Optional channel delivery stays inactive until a separate channel is configured and tested live.</p>
           <div class="business-flow-actions" data-business-approval="${safeReceiptId}" data-status="pending">
             <button type="button" class="interactive-btn" data-business-flow-action="deny-channel" data-business-receipt-id="${safeReceiptId}">Deny</button>
             <button type="button" class="interactive-btn interactive-btn--primary" data-business-flow-action="confirm-channel" data-business-receipt-id="${safeReceiptId}">Confirm channel</button>

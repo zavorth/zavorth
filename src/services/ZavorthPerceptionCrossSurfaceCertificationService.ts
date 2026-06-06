@@ -114,6 +114,10 @@ export class ZavorthPerceptionCrossSurfaceCertificationService {
       ...surfaceProjections,
       dashboardProjection,
     ]);
+    const zavorthControlProjection = {
+      ...dashboardProjection,
+      status,
+    };
 
     return {
       contractVersion: ZAVORTH_PERCEPTION_CROSS_SURFACE_CERTIFICATION_VERSION,
@@ -123,10 +127,8 @@ export class ZavorthPerceptionCrossSurfaceCertificationService {
       naturalPlan,
       surfaceResponse,
       surfaceProjections,
-      dashboardProjection: {
-        ...dashboardProjection,
-        status,
-      },
+      zavorthControlProjection,
+      dashboardProjection: zavorthControlProjection,
       certificationMatrix,
       liveCanary: {
         enabled: false,
@@ -147,6 +149,7 @@ export class ZavorthPerceptionCrossSurfaceCertificationService {
   }
 
   public formatSnapshotText(snapshot: ZavorthPerceptionCrossSurfaceCertificationSnapshot): string {
+    const projection = snapshot.zavorthControlProjection || snapshot.dashboardProjection;
     const rows = snapshot.certificationMatrix.map((row) =>
       `${pad(row.id, 35)} ${pad(row.status, 10)} ${row.evidence}`,
     );
@@ -155,10 +158,10 @@ export class ZavorthPerceptionCrossSurfaceCertificationService {
       '',
       `Status: ${snapshot.status}`,
       `Surfaces: ${snapshot.surfaceProjections.filter((surface) => surface.status === 'passed').length}/${snapshot.surfaceProjections.length}`,
-      `Targets: ${snapshot.dashboardProjection.targets.length}`,
-      `Pending plans: ${snapshot.dashboardProjection.pendingPlans.length}`,
-      `Approvals: ${snapshot.dashboardProjection.approvals.length}`,
-      `Artifacts: ${snapshot.dashboardProjection.artifacts.length}`,
+      `Targets: ${projection.targets.length}`,
+      `Pending plans: ${projection.pendingPlans.length}`,
+      `Approvals: ${projection.approvals.length}`,
+      `Artifacts: ${projection.artifacts.length}`,
       '',
       `${pad('Scenario', 35)} ${pad('Status', 10)} Evidence`,
       ...rows,
@@ -166,8 +169,8 @@ export class ZavorthPerceptionCrossSurfaceCertificationService {
       'Commands:',
       ...REQUIRED_COMMANDS.map((command) => `- ${command}`),
       '',
-      `Dashboard projection: ${snapshot.dashboardProjection.surface.dashboardPath}`,
-      `API projection: ${snapshot.dashboardProjection.surface.apiPath}`,
+      `ZavorthControl projection: ${projection.surface.dashboardPath}`,
+      `API projection: ${projection.surface.apiPath}`,
       `Next: ${snapshot.nextSafeAction}`,
     ].join('\n');
   }
@@ -289,7 +292,7 @@ function buildDashboardProjection(
     activeObservation: {
       route: 'vision/browser/android',
       targetKind: 'cross-surface',
-      summary: 'Dashboard projection carries read-only targets, pending plans, approvals and redacted artifacts.',
+      summary: 'ZavorthControl projection carries read-only targets, pending plans, approvals and redacted artifacts.',
       readOnly: true,
     },
     pendingPlans,

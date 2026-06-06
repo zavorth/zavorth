@@ -92,6 +92,12 @@ export type ZavorthUnifiedOnboardingSnapshot = {
     visualBlocksRequireOwnerApproval: true;
     endpoint: '/api/onboarding/unified';
   };
+  zavorthControlProjection: {
+    route: '/control';
+    executionAuthority: false;
+    visualBlocksRequireOwnerApproval: true;
+    endpoint: '/api/onboarding/unified';
+  };
   invariants: Array<{
     id: string;
     status: 'passed';

@@ -70,6 +70,7 @@ export class ZavorthUxRolloutEvidenceCanaryService {
       safety: {
         evidenceOnly: true,
         noLiveActionExecuted: true,
+        noZavorthControlVisualMutation: true,
         noDashboardVisualMutation: true,
         liveCanaryRequiresOwnerApproval: true,
         evidenceMustBeRedacted: true,
