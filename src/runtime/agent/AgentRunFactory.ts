@@ -216,8 +216,9 @@ function resolveToolHintProfile(metadata?: Record<string, unknown>): ToolExposur
     intentCategory: intentCategory || null,
     groups,
     recommendedToolNames,
-    toolExposureGatedByCognitiveFirewall: false,
-    isHardGate: false,
+    quarantinedToolNames: normalizeStringList(record.quarantinedToolNames),
+    toolExposureGatedByCognitiveFirewall: record.toolExposureGatedByCognitiveFirewall === true,
+    isHardGate: record.isHardGate === true,
     reason: reason || undefined,
   };
 }
@@ -233,8 +234,9 @@ function buildToolExposureHintMetadata(
     intentCategory: toolHintProfile.intentCategory ?? null,
     groups: toolHintProfile.groups || [],
     recommendedToolNames: toolHintProfile.recommendedToolNames || [],
-    toolExposureGatedByCognitiveFirewall: false,
-    isHardGate: false,
+    quarantinedToolNames: toolHintProfile.quarantinedToolNames || [],
+    toolExposureGatedByCognitiveFirewall: toolHintProfile.toolExposureGatedByCognitiveFirewall === true,
+    isHardGate: toolHintProfile.isHardGate === true,
     usedAsPolicyInput: true,
   };
   if (toolHintProfile.reason) {
@@ -263,8 +265,13 @@ function mergeToolHintProfiles(
       ...(explicit.recommendedToolNames || []),
       ...(discovered.recommendedToolNames || []),
     ])),
-    toolExposureGatedByCognitiveFirewall: false,
-    isHardGate: false,
+    quarantinedToolNames: Array.from(new Set([
+      ...(explicit.quarantinedToolNames || []),
+      ...(discovered.quarantinedToolNames || []),
+    ])),
+    toolExposureGatedByCognitiveFirewall: explicit.toolExposureGatedByCognitiveFirewall === true
+      || discovered.toolExposureGatedByCognitiveFirewall === true,
+    isHardGate: explicit.isHardGate === true || discovered.isHardGate === true,
     reason: [
       explicit.reason,
       discovered.reason,

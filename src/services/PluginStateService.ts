@@ -61,7 +61,21 @@ export class PluginStateService {
       return null;
     }
 
-    return this.readState().entries[normalizedId] || null;
+    const entries = this.readState().entries || {};
+    if (entries[normalizedId]) {
+      return entries[normalizedId];
+    }
+
+    for (const [key, entry] of Object.entries(entries)) {
+      if (
+        this.normalizeId(key) === normalizedId
+        || this.normalizeId(entry?.pluginId) === normalizedId
+      ) {
+        return entry;
+      }
+    }
+
+    return null;
   }
 
   public resolveState(
@@ -97,7 +111,7 @@ export class PluginStateService {
     }
 
     return {
-      pluginId: normalizedId,
+      pluginId: stored.pluginId || normalizedId,
       installed: typeof stored.installed === 'boolean' ? stored.installed : defaults.installed,
       trust: stored.trust === 'trusted'
         ? 'trusted'
@@ -141,6 +155,23 @@ export class PluginStateService {
     state.updatedAt = nextEntry.updatedAt;
     this.writeJsonFile(state);
     return nextEntry;
+  }
+
+  /**
+   * Verifica se um plugin foi explicitamente aprovado pelo operador para execução.
+   * Um plugin é considerado aprovado apenas se estiver marcado como 'trusted'
+   * E se sua fonte for considerada confiável (sourceTrusted === true).
+   * Plugins com trust 'review' são sempre bloqueados pelo Cognitive Firewall.
+   *
+   * @param pluginId - Identificador do plugin a ser verificado
+   * @returns true se o plugin estiver aprovado para execução, false caso contrário
+   */
+  public isApproved(pluginId: string | null | undefined): boolean {
+    const state = this.getState(pluginId);
+    if (!state) {
+      return false;
+    }
+    return state.trust === 'trusted' && state.sourceTrusted === true;
   }
 
   public clearState(pluginId: string | null | undefined): boolean {

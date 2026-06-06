@@ -5,6 +5,31 @@ import {
   ToolGatekeeper,
 } from '../../src/cognitive-firewall';
 import type { ToolDefinition } from '../../src/providers/ILlmProvider';
+import { PluginStateService, type StoredPluginState } from '../../src/services/PluginStateService';
+
+function buildPluginState(entries: Record<string, Partial<StoredPluginState>> = {}): PluginStateService {
+  const normalizedEntries = Object.fromEntries(
+    Object.entries(entries).map(([key, entry]) => [key.toLowerCase(), {
+      pluginId: entry.pluginId || key,
+      installed: entry.installed ?? true,
+      trust: entry.trust || 'review',
+      installedRevision: entry.installedRevision || 'rev-test',
+      sourceDigest: entry.sourceDigest || 'sha256-test',
+      sourceLocator: entry.sourceLocator || 'test-registry',
+      sourceTrusted: entry.sourceTrusted ?? false,
+      updatedAt: entry.updatedAt || '2026-06-06T00:00:00.000Z',
+    }]),
+  );
+  return new PluginStateService({
+    stateFile: 'X:/state/plugin-state.json',
+    existsSync: jest.fn(() => true),
+    readFileSync: jest.fn(() => JSON.stringify({
+      version: 1,
+      updatedAt: '2026-06-06T00:00:00.000Z',
+      entries: normalizedEntries,
+    })),
+  });
+}
 
 describe('ToolGatekeeper dynamic skill map', () => {
   afterEach(() => {
@@ -74,7 +99,7 @@ describe('ToolGatekeeper dynamic skill map', () => {
     expect(decision.toolHintProfile.groups).toEqual(['workspace']);
     expect(decision.recommendedToolNames).toEqual(expect.arrayContaining(['read_file', 'list_directory']));
     expect(decision.toolExposureGatedByCognitiveFirewall).toBe(false);
-    expect(decision.stats).toContain('gate=false');
+    expect(decision.stats).toContain('Tools: 2/3');
   });
 
   it('keeps recent news requests mapped to web hints and simple chat lightweight', () => {
@@ -111,5 +136,57 @@ describe('ToolGatekeeper dynamic skill map', () => {
       'semantic_memory',
       'get_datetime',
     ]);
+  });
+
+  it('blocks untrusted plugin tools before the LLM sees them, even for full toolset intent', () => {
+    const gatekeeper = new ToolGatekeeper(buildPluginState());
+    const tools: ToolDefinition[] = [
+      { name: 'read_file', description: 'Native read', parameters: { type: 'object', properties: {} } },
+      {
+        name: 'remote_plugin_send',
+        description: 'External send',
+        metadata: { pluginId: 'mcp:remote-pack', source: 'mcp' },
+        parameters: { type: 'object', properties: {} },
+      },
+    ];
+
+    const hint = gatekeeper.buildHintProfile(tools, 'full_toolset');
+
+    expect(hint.tools.map((tool) => tool.name)).toEqual(['read_file']);
+    expect(hint.recommendedToolNames).toEqual(['read_file']);
+    expect(hint.quarantinedToolNames).toEqual(['remote_plugin_send']);
+    expect(hint.toolExposureGatedByCognitiveFirewall).toBe(true);
+    expect(hint.isHardGate).toBe(true);
+    expect(gatekeeper.getFilterStats(tools.length, hint.filteredTools, 'full_toolset', hint.quarantinedToolNames.length))
+      .toContain('Quarentena: 1 bloqueada');
+  });
+
+  it('allows plugin tools only when the operator trust state and source trust are both explicit', () => {
+    const gatekeeper = new ToolGatekeeper(buildPluginState({
+      'mcp:trusted-pack': {
+        pluginId: 'mcp:trusted-pack',
+        trust: 'trusted',
+        sourceTrusted: true,
+      },
+    }));
+    const tools: ToolDefinition[] = [
+      {
+        name: 'trusted_lookup',
+        description: 'Trusted lookup',
+        metadata: { pluginId: 'mcp:trusted-pack', source: 'mcp' },
+        parameters: { type: 'object', properties: {} },
+      },
+      {
+        name: 'source_only_mcp',
+        description: 'No plugin id',
+        metadata: { source: 'mcp' },
+        parameters: { type: 'object', properties: {} },
+      },
+    ];
+
+    const hint = gatekeeper.buildHintProfile(tools, 'full_toolset');
+
+    expect(hint.tools.map((tool) => tool.name)).toEqual(['trusted_lookup']);
+    expect(hint.quarantinedToolNames).toEqual(['source_only_mcp']);
   });
 });

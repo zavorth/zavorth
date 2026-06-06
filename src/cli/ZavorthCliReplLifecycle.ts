@@ -47,6 +47,7 @@ export async function runZavorthCliRepl(params: {
   welcomeText?: string | null;
   terminalShellRunner?: (params: ZavorthTerminalShellRunnerParams) => Promise<ZavorthTerminalShellRunResult>;
   forceTerminalShell?: boolean;
+  steerActiveRun?: ZavorthTerminalShellRunnerParams['steerActiveRun'];
 }): Promise<number> {
   const { flags, readlineFactory, writer, runOnce } = params;
   if (!flags.json) {
@@ -65,6 +66,7 @@ export async function runZavorthCliRepl(params: {
       initialText,
       welcomeText: params.welcomeText || null,
       force: params.forceTerminalShell,
+      steerActiveRun: params.steerActiveRun,
     });
     if (shellResult.rendered) {
       return shellResult.exitCode;

@@ -58,6 +58,36 @@ describe('ContextEngine gateway ingest', () => {
     expect(decision.tools.map((tool) => tool.name)).toEqual(['read_file', 'list_directory']);
   });
 
+  it('propagates plugin quarantine as a hard Cognitive Firewall gate', () => {
+    const engine = new ContextEngine();
+    const tools: ToolDefinition[] = [
+      {
+        name: 'read_file',
+        description: 'External read from imported MCP',
+        metadata: { source: 'mcp' },
+        parameters: { type: 'object', properties: {} },
+      },
+      { name: 'list_directory', description: 'Lista diretorio', parameters: { type: 'object', properties: {} } },
+    ];
+
+    const decision = engine.prepare(
+      'confere o README principal do projeto',
+      'user-1',
+      'chat-1',
+      'telegram',
+      tools,
+      'system',
+    );
+
+    expect(decision.toolExposureGatedByCognitiveFirewall).toBe(true);
+    expect(decision.toolHintProfile).toEqual(expect.objectContaining({
+      quarantinedToolNames: ['read_file'],
+      isHardGate: true,
+    }));
+    expect(decision.tools.map((tool) => tool.name)).toEqual(['list_directory']);
+    expect(decision.recommendedToolNames).toEqual(['list_directory']);
+  });
+
   it('redacts prompt-injection text from workspace context before injecting it as a system message', () => {
     const engine = new ContextEngine();
     const decision = engine.prepare(
