@@ -33,14 +33,14 @@
                     "power-user"
                 ],
     "inputContract":  [
-                          "user intent",
-                          "runtime context",
-                          "policy constraints"
+                          "code artifacts",
+                          "threat model",
+                          "compliance requirements"
                       ],
     "outputContract":  [
-                           "governed guidance",
-                           "next action",
-                           "verification criteria"
+                           "vulnerability findings",
+                           "risk assessment",
+                           "remediation guidance"
                        ],
     "noExecutionByDefault":  true,
     "requiresPolicyBroker":  true,

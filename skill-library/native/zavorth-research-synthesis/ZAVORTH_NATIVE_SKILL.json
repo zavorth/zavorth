@@ -32,14 +32,14 @@
                     "power-user"
                 ],
     "inputContract":  [
-                          "user intent",
-                          "runtime context",
-                          "policy constraints"
+                          "research question",
+                          "source constraints",
+                          "depth requirements"
                       ],
     "outputContract":  [
-                           "governed guidance",
-                           "next action",
-                           "verification criteria"
+                           "synthesized findings",
+                           "source citations",
+                           "confidence scores"
                        ],
     "noExecutionByDefault":  true,
     "requiresPolicyBroker":  true,

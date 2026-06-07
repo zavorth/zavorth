@@ -344,15 +344,9 @@ function buildOperationalClosure(input: {
 }
 
 function hasStrongBackendProof(backend: ZavorthTerminalBackendSnapshot['backends'][number]): boolean {
-  const proof = (backend as {
-    readinessProof?: {
-      kind?: string;
-      rawSecretSerialized?: boolean;
-    };
-  }).readinessProof;
   return backend.id !== 'local'
     && backend.liveReady === true
-    && (!proof || (proof.kind === 'host-probe' && proof.rawSecretSerialized === false));
+    && backend.liveCapable === true;
 }
 
 function entry(input: {
