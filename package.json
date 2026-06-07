@@ -1251,6 +1251,7 @@
     "playwright-core": "^1.54.2"
   },
   "devDependencies": {
+    "@swc/helpers": "^0.5.23",
     "@types/better-sqlite3": "^7.6.13",
     "@types/diff": "^7.0.2",
     "@types/figlet": "^1.7.0",
