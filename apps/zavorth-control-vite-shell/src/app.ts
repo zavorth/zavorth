@@ -50,6 +50,14 @@ import {
   shouldQueueLocalSlashCommand,
   SLASH_COMMANDS,
 } from './slash-commands';
+import { buildWorkflowSlashRequest } from './workflow-intent';
+
+const CHAT_EFFORT_LABELS = {
+  low: 'Low',
+  balanced: 'Normal',
+  deep: 'Deep',
+  ultra: 'Ultra',
+};
 
 export function initControlApp() {
   installControlLocale();
@@ -63,6 +71,7 @@ export function initControlApp() {
 
   // --------- Dock Navigation ---------
   const coreFrame = document.getElementById('core-frame');
+  const sidebarToggle = document.getElementById('sidebar-toggle');
   const dockNodes = document.querySelectorAll('.dock-node[data-sector]');
   const sectors = document.querySelectorAll('.sector');
   const bridgeCurrent = document.getElementById('bridge-current');
@@ -74,6 +83,7 @@ export function initControlApp() {
     bridgeCurrent,
     onOverviewActivated: updateDashboardGlass,
   });
+  initSidebarCollapse();
 
   // --------- Neural Feed (Chat) Input ---------
   const composeInput = document.getElementById('compose-input');
@@ -88,6 +98,7 @@ export function initControlApp() {
   let traceSheetQuery = { runId: '', traceId: '', sessionId: '', source: '' };
   let selectedExperienceProfile = readStoredExperienceProfile(getPromptQueueStorage());
   let pendingGuidedFlow = '';
+  let pendingWorkflowIntent = null;
   let pendingWorkspaceSelection = null;
   let isTransmittingSignal = false;
   let isDrainingPromptQueue = false;
@@ -214,6 +225,7 @@ export function initControlApp() {
     if (composeInput && pendingAttachments.length === 0) {
       composeInput.placeholder = getComposePlaceholder(composerSettingsState);
     }
+    updateChatControlBar();
     updateComposerContextBar();
   }
 
@@ -238,6 +250,30 @@ export function initControlApp() {
     } catch {
       return null;
     }
+  }
+
+  function initSidebarCollapse() {
+    if (!coreFrame || !sidebarToggle) return;
+    const storage = getPromptQueueStorage();
+    const storedValue = storage?.getItem('zavorth.zavorthControl.sidebarCollapsed');
+    setSidebarCollapsed(storedValue === '1' || storedValue === 'true');
+    sidebarToggle.addEventListener('click', () => {
+      const shouldCollapse = !coreFrame.classList.contains('is-sidebar-collapsed');
+      setSidebarCollapsed(shouldCollapse);
+      try {
+        storage?.setItem('zavorth.zavorthControl.sidebarCollapsed', shouldCollapse ? '1' : '0');
+      } catch {
+        // Storage can be unavailable in embedded or private contexts.
+      }
+    });
+  }
+
+  function setSidebarCollapsed(collapsed) {
+    if (!coreFrame || !sidebarToggle) return;
+    coreFrame.classList.toggle('is-sidebar-collapsed', collapsed);
+    sidebarToggle.setAttribute('aria-pressed', collapsed ? 'true' : 'false');
+    sidebarToggle.setAttribute('aria-label', collapsed ? 'Expand sidebar' : 'Collapse sidebar');
+    sidebarToggle.setAttribute('title', collapsed ? 'Expand sidebar' : 'Collapse sidebar');
   }
 
   function getPromptQueueSessionKey() {
@@ -338,6 +374,7 @@ export function initControlApp() {
       selectedSkills: overrides.selectedSkills || pendingSelectedSkills,
       voice: 'voice' in overrides ? overrides.voice : (lastVoiceInput ? { ...lastVoiceInput } : null),
       guidedFlow: 'guidedFlow' in overrides ? overrides.guidedFlow : pendingGuidedFlow,
+      workflowIntent: 'workflowIntent' in overrides ? overrides.workflowIntent : pendingWorkflowIntent,
       workspaceSelection: 'workspaceSelection' in overrides ? overrides.workspaceSelection : pendingWorkspaceSelection,
       sessionId: promptQueueSessionKey,
       localCommandName: overrides.localCommandName || null,
@@ -351,6 +388,7 @@ export function initControlApp() {
     pendingAttachments = [];
     pendingSelectedSkills = [];
     pendingGuidedFlow = '';
+    pendingWorkflowIntent = null;
     lastVoiceInput = null;
     refreshAttachmentHint();
     updateComposerContextBar();
@@ -363,6 +401,7 @@ export function initControlApp() {
     pendingAttachments = Array.isArray(item.attachments) ? item.attachments.slice() : [];
     pendingSelectedSkills = Array.isArray(item.selectedSkills) ? item.selectedSkills.slice() : [];
     pendingGuidedFlow = item.guidedFlow || '';
+    pendingWorkflowIntent = item.workflowIntent || null;
     pendingWorkspaceSelection = item.workspaceSelection || pendingWorkspaceSelection;
     lastVoiceInput = item.voice || null;
     composeInput.dispatchEvent(new Event('input'));
@@ -1571,6 +1610,624 @@ export function initControlApp() {
     return getExperienceProfile(selectedExperienceProfile || 'personal');
   }
 
+  function normalizeChatEffort(value) {
+    const normalized = String(value || '').trim().toLowerCase();
+    if (normalized === 'normal' || normalized === 'medium' || normalized === 'default') return 'balanced';
+    if (normalized === 'high') return 'deep';
+    if (normalized === 'max' || normalized === 'ultra-code') return 'ultra';
+    return Object.prototype.hasOwnProperty.call(CHAT_EFFORT_LABELS, normalized) ? normalized : 'balanced';
+  }
+
+  function updateChatControlBar() {
+    const profile = getCurrentExperienceProfile();
+    document.querySelectorAll('[data-chat-profile-label]').forEach((node) => {
+      node.textContent = profile.label;
+    });
+    const effort = normalizeChatEffort(composerSettingsState.effort);
+    document.querySelectorAll('[data-chat-effort]').forEach((node) => {
+      const active = String(node.getAttribute('data-chat-effort') || '') === effort;
+      node.classList.toggle('is-selected', active);
+      node.setAttribute('aria-pressed', active ? 'true' : 'false');
+    });
+    document.querySelectorAll('[data-chat-effort-label]').forEach((node) => {
+      node.textContent = CHAT_EFFORT_LABELS[effort] || CHAT_EFFORT_LABELS.balanced;
+    });
+  }
+
+  function setChatEffort(value, options = {}) {
+    const effort = normalizeChatEffort(value);
+    writeComposerSettings({ ...composerSettingsState, effort });
+    if (!options.silent) {
+      emitLocalNotice(`Effort set to ${CHAT_EFFORT_LABELS[effort] || CHAT_EFFORT_LABELS.balanced}.`);
+    }
+    return effort;
+  }
+
+  function typedSlashName(options = {}) {
+    return String(options.typedName || options.originalText || '')
+      .trim()
+      .replace(/^\//, '')
+      .split(/[\s:]+/)[0]
+      .toLowerCase();
+  }
+
+  function getDashboardSnapshot() {
+    return window.ZavorthRuntimeBridge?.state?.zavorthControl?.snapshot || {};
+  }
+
+  function getDashboardRuns() {
+    const snapshot = getDashboardSnapshot();
+    return Array.isArray(snapshot.runs) ? snapshot.runs : [];
+  }
+
+  function getDashboardWorkflowJobs() {
+    const snapshot = getDashboardSnapshot();
+    return Array.isArray(snapshot.workflowJobs) ? snapshot.workflowJobs : [];
+  }
+
+  function getPendingDashboardApprovals() {
+    const approvals = [];
+    for (const run of getDashboardRuns()) {
+      const runApprovals = Array.isArray(run?.approvals) ? run.approvals : [];
+      for (const approval of runApprovals) {
+        if (String(approval?.status || '').toLowerCase() === 'pending') approvals.push({ ...approval, runId: run?.id || run?.runId || null });
+      }
+    }
+    const snapshot = getDashboardSnapshot();
+    for (const key of ['approvals', 'permissions', 'pendingApprovals']) {
+      const values = Array.isArray(snapshot[key]) ? snapshot[key] : [];
+      for (const approval of values) {
+        if (String(approval?.status || 'pending').toLowerCase() === 'pending') approvals.push(approval);
+      }
+    }
+    const byId = new Map();
+    approvals.forEach((approval, index) => {
+      const id = String(approval?.id || approval?.approvalId || approval?.permissionId || approval?.taskId || `approval-${index}`).trim();
+      byId.set(id, { ...approval, id });
+    });
+    return Array.from(byId.values());
+  }
+
+  function currentComposerModelLabel() {
+    const model = String(composerSettingsState.model || 'auto').trim();
+    return model && model !== 'auto' ? model : 'auto';
+  }
+
+  function renderModelStatus() {
+    const bridge = window.ZavorthRuntimeBridge;
+    const profile = typeof bridge?.resolveCurrentModelProfile === 'function'
+      ? bridge.resolveCurrentModelProfile()
+      : null;
+    return [
+      'Model route',
+      '',
+      `Composer override: \`${currentComposerModelLabel()}\``,
+      `Runtime model: \`${bridge?.getCurrentModelLabel?.() || 'not reported'}\``,
+      `Provider: \`${bridge?.getCurrentProviderLabel?.() || profile?.providerLabel || 'not reported'}\``,
+      `Route: \`${bridge?.getCurrentModelRouteLabel?.() || profile?.routingPolicy || 'runtime'}\``,
+      '',
+      'Use `/model provider/model` to route the next turns. Use `/model auto` to inherit runtime routing.',
+    ].join('\n');
+  }
+
+  async function setModelSlash(args) {
+    const raw = String(args || '').trim();
+    clearComposerInput();
+    if (!raw || raw.toLowerCase() === 'status') {
+      await runBackendSessionCommand('model', raw, () => renderModelStatus());
+      return true;
+    }
+    if (['list', 'models'].includes(raw.toLowerCase())) {
+      await runBackendSessionCommand('models', raw, () => renderModelsSummary(raw));
+      return true;
+    }
+    const normalized = ['default', 'inherit', 'clear', 'reset'].includes(raw.toLowerCase()) ? 'auto' : raw;
+    const payload = await runBackendSessionCommand('model', normalized, () => [
+      `Model route set to \`${normalized}\`.`,
+      '',
+      normalized === 'auto'
+        ? 'The next turns will inherit the live runtime provider route.'
+        : 'The next turns will send this composer model route to the runtime provider resolver.',
+    ].join('\n'), { append: false });
+    writeComposerSettings({ ...composerSettingsState, model: payload?.commandResult?.modelRoute || normalized });
+    appendEcho('core', payload?.responseMarkdown || [
+      `Model route set to \`${normalized}\`.`,
+      '',
+      normalized === 'auto'
+        ? 'The next turns will inherit the live runtime provider route.'
+        : 'The next turns will send this composer model route to the runtime provider resolver.',
+    ].join('\n'));
+    recordTraceEvent({
+      type: 'step',
+      title: 'Model route changed',
+      detail: payload?.commandResult?.modelRoute || normalized,
+      meta: 'slash /model',
+      status: 'ready',
+    });
+    return true;
+  }
+
+  function renderModelsSummary(args = '') {
+    const providerHint = String(args || '').trim();
+    const bridge = window.ZavorthRuntimeBridge;
+    const profile = typeof bridge?.resolveCurrentModelProfile === 'function'
+      ? bridge.resolveCurrentModelProfile()
+      : null;
+    const examples = [
+      '/model auto',
+      '/model openai/gpt-5.5',
+      '/model anthropic/claude-opus',
+      '/model local/llama',
+    ];
+    return [
+      'Available model routing',
+      '',
+      `Current runtime: \`${bridge?.getCurrentProviderLabel?.() || profile?.providerLabel || 'provider not reported'} / ${bridge?.getCurrentModelLabel?.() || profile?.modelLabel || 'model not reported'}\``,
+      `Composer override: \`${currentComposerModelLabel()}\``,
+      providerHint && providerHint !== 'list' ? `Provider filter: \`${providerHint}\`` : '',
+      '',
+      'Zavorth will only use models/providers that are configured in the local runtime.',
+      'Examples:',
+      ...examples.map((example) => `- \`${example}\``),
+    ].filter(Boolean).join('\n');
+  }
+
+  function setThinkingSlash(args) {
+    const raw = String(args || '').trim().toLowerCase();
+    clearComposerInput();
+    if (!raw || raw === 'status') {
+      appendEcho('core', `Thinking: ${composerSettingsState.thinking ? 'on' : 'off'}\nEffort: ${CHAT_EFFORT_LABELS[normalizeChatEffort(composerSettingsState.effort)] || 'Normal'}`);
+      return true;
+    }
+    if (['off', 'none', 'false'].includes(raw)) {
+      writeComposerSettings({ ...composerSettingsState, thinking: false });
+      emitLocalNotice('Thinking disabled for the next chat turns.');
+      return true;
+    }
+    if (['default', 'inherit', 'clear', 'reset'].includes(raw)) {
+      writeComposerSettings({ ...composerSettingsState, thinking: false, effort: 'balanced' });
+      emitLocalNotice('Thinking reset to the default composer behavior.');
+      return true;
+    }
+    const effort = normalizeChatEffort(raw);
+    writeComposerSettings({ ...composerSettingsState, thinking: true, effort });
+    emitLocalNotice(`Thinking enabled at ${CHAT_EFFORT_LABELS[effort] || 'Normal'} effort.`);
+    return true;
+  }
+
+  async function setFastSlash(args) {
+    const raw = String(args || '').trim().toLowerCase();
+    clearComposerInput();
+    const engines = window.ZavorthRuntimeEngines;
+    const active = String(engines?.getActiveEngineId?.() || 'lite');
+    if (!raw || raw === 'status') {
+      appendEcho('core', `Fast mode: ${composerSettingsState.fast ? 'on' : 'off'}\nRuntime engine: \`${active}\``);
+      return true;
+    }
+    if (['default', 'inherit', 'clear', 'reset', 'off', 'normal'].includes(raw)) {
+      writeComposerSettings({ ...composerSettingsState, fast: false, effort: normalizeChatEffort(composerSettingsState.effort) === 'low' ? 'balanced' : composerSettingsState.effort });
+      if (engines && typeof engines.selectEngine === 'function') {
+        await engines.selectEngine('lite').catch((error) => emitLocalNotice(`Fast engine switch skipped: ${error?.message || String(error)}`));
+      }
+      emitLocalNotice('Fast mode off.');
+      return true;
+    }
+    if (['on', 'fast', 'yes', 'true'].includes(raw)) {
+      writeComposerSettings({ ...composerSettingsState, fast: true, effort: 'low' });
+      if (engines && typeof engines.selectEngine === 'function') {
+        await engines.selectEngine('velocity').catch((error) => emitLocalNotice(`Fast engine switch skipped: ${error?.message || String(error)}`));
+      }
+      emitLocalNotice('Fast mode on for the next chat turns.');
+      return true;
+    }
+    emitLocalNotice('Usage: /fast [on|off|status|default]');
+    return true;
+  }
+
+  function setVerboseSlash(args) {
+    const raw = String(args || '').trim().toLowerCase();
+    clearComposerInput();
+    if (!raw || raw === 'status') {
+      appendEcho('core', `Verbose progress: \`${composerSettingsState.verbose || 'off'}\``);
+      return true;
+    }
+    const next = raw === 'true' ? 'on' : raw === 'false' ? 'off' : raw;
+    if (!['on', 'off', 'full'].includes(next)) {
+      emitLocalNotice('Usage: /verbose [on|off|full|status]');
+      return true;
+    }
+    writeComposerSettings({ ...composerSettingsState, verbose: next });
+    emitLocalNotice(`Verbose progress set to ${next}.`);
+    return true;
+  }
+
+  function setTraceSlash(args) {
+    const raw = String(args || '').trim().toLowerCase();
+    clearComposerInput();
+    if (raw === 'open') {
+      openTraceSheet();
+      return true;
+    }
+    if (['on', 'off'].includes(raw)) {
+      writeComposerSettings({ ...composerSettingsState, trace: raw === 'on' });
+      emitLocalNotice(raw === 'on' ? 'Trace capture preference enabled.' : 'Trace capture preference disabled.');
+      return true;
+    }
+    appendEcho('core', [
+      'Trace status',
+      '',
+      `Captured events: ${traceEvents.length}`,
+      `Preference: ${composerSettingsState.trace ? 'on' : 'off'}`,
+      'Use `/trace open` to inspect the visible trace history.',
+    ].join('\n'));
+    return true;
+  }
+
+  async function stopActiveRunSlash() {
+    clearComposerInput();
+    setComposerRunState('cancelling');
+    try {
+      const runtimeBridge = window.ZavorthRuntimeBridge;
+      if (!runtimeBridge || typeof runtimeBridge.cancelActiveRun !== 'function') {
+        removeThinkingState();
+        runtimeBridge?.disconnectRealtime?.('slash-stop-no-bridge');
+        emitLocalNotice('Stop requested. No live runtime bridge was available, so only the local stream was cleared.');
+        return true;
+      }
+      const payload = await runtimeBridge.cancelActiveRun({
+        reason: 'User sent /stop in ZavorthControl.',
+        emitSignal: window.emitSignal,
+      });
+      appendEcho('core', [
+        'Stop requested.',
+        '',
+        `Status: \`${payload?.status || 'sent'}\``,
+        payload?.missionId || payload?.runId ? `Run: \`${payload.missionId || payload.runId}\`` : '',
+      ].filter(Boolean).join('\n'));
+      recordTraceEvent({
+        type: 'step',
+        title: 'Run stop requested',
+        detail: payload?.missionId || payload?.runId || 'active run',
+        meta: 'slash /stop',
+        status: 'cancelled',
+      });
+      return true;
+    } catch (error) {
+      appendEcho('core', `/stop failed: ${error?.message || String(error)}`);
+      return true;
+    } finally {
+      removeThinkingState();
+      setComposerRunState('idle');
+      updateDashboardGlass();
+    }
+  }
+
+  function renderStatusSummary() {
+    const activeRun = getActiveRuntimeRun();
+    const profile = getCurrentExperienceProfile();
+    const queueCount = promptQueue.length;
+    const approvals = getPendingDashboardApprovals();
+    return [
+      'Zavorth status',
+      '',
+      `Session: \`${getPromptQueueSessionKey()}\``,
+      `Profile: \`${profile.label}\``,
+      `Model override: \`${currentComposerModelLabel()}\``,
+      `Runtime model: \`${window.ZavorthRuntimeBridge?.getCurrentModelLabel?.() || 'not reported'}\``,
+      `Effort: \`${CHAT_EFFORT_LABELS[normalizeChatEffort(composerSettingsState.effort)] || 'Normal'}\``,
+      `Thinking: \`${composerSettingsState.thinking ? 'on' : 'off'}\``,
+      `Fast: \`${composerSettingsState.fast ? 'on' : 'off'}\``,
+      `Active run: \`${activeRun ? String(activeRun.id || activeRun.runId || activeRun.status || 'running') : 'none'}\``,
+      `Queue: \`${queueCount}\``,
+      `Pending approvals: \`${approvals.length}\``,
+    ].join('\n');
+  }
+
+  function renderUsageSummary(args = '') {
+    const snapshot = getDashboardSnapshot();
+    const runs = getDashboardRuns();
+    const usage = snapshot.usage || snapshot.summary?.usage || {};
+    const tokenValues = [
+      usage.totalTokens,
+      usage.tokens,
+      usage.inputTokens && usage.outputTokens ? Number(usage.inputTokens) + Number(usage.outputTokens) : null,
+      ...runs.map((run) => run?.usage?.totalTokens || run?.usage?.tokens || run?.tokensUsed),
+    ].map(Number).filter(Number.isFinite);
+    const costValues = [
+      usage.totalCost,
+      usage.costUsd,
+      usage.cost,
+      ...runs.map((run) => run?.usage?.costUsd || run?.costUsd || run?.cost),
+    ].map(Number).filter(Number.isFinite);
+    const totalTokens = tokenValues.reduce((sum, value) => sum + value, 0);
+    const totalCost = costValues.reduce((sum, value) => sum + value, 0);
+    const activeRun = getActiveRuntimeRun();
+    const full = String(args || '').toLowerCase() === 'full';
+    return [
+      'Usage summary',
+      '',
+      `Runs visible: \`${runs.length}\``,
+      `Active run: \`${activeRun ? String(activeRun.id || activeRun.runId || activeRun.status || 'running') : 'none'}\``,
+      `Tokens: \`${totalTokens ? totalTokens.toLocaleString() : 'not reported'}\``,
+      `Cost: \`${totalCost ? `$${totalCost.toFixed(4)}` : 'not reported'}\``,
+      `Queue: \`${promptQueue.length}\``,
+      `Trace events: \`${traceEvents.length}\``,
+      full && runs.length
+        ? `\nRecent runs:\n${runs.slice(0, 6).map((run) => `- ${run.id || run.runId || 'run'}: ${run.status || 'unknown'}`).join('\n')}`
+        : '',
+    ].filter(Boolean).join('\n');
+  }
+
+  function renderContextSummary() {
+    return [
+      'Next request context',
+      '',
+      `Session: \`${getPromptQueueSessionKey()}\``,
+      `Attachments: \`${pendingAttachments.length}\``,
+      `Selected tools: \`${pendingSelectedSkills.length ? pendingSelectedSkills.map((skill) => skill.title || skill.id).join(', ') : 'none'}\``,
+      `Workspace selection: \`${pendingWorkspaceSelection?.root || 'none'}\``,
+      `Guided flow: \`${pendingGuidedFlow || 'none'}\``,
+      `Workflow intent: \`${pendingWorkflowIntent?.kind || 'none'}\``,
+      `Composer: model=${currentComposerModelLabel()}, effort=${composerSettingsState.effort}, tools=${composerSettingsState.tools ? 'on' : 'off'}, thinking=${composerSettingsState.thinking ? 'on' : 'off'}`,
+    ].join('\n');
+  }
+
+  function renderToolsSummary(open = false) {
+    const options = buildSkillOptions();
+    if (open) openSkillPopover();
+    return [
+      open ? 'Tools panel opened.' : 'Available tools',
+      '',
+      ...options.map((skill) => `- ${skill.title} (\`${skill.id}\`, ${skill.status})`),
+      '',
+      pendingSelectedSkills.length
+        ? `Selected: ${pendingSelectedSkills.map((skill) => skill.title || skill.id).join(', ')}`
+        : 'Selected: none',
+    ].join('\n');
+  }
+
+  function renderAgentsSummary() {
+    const runs = getDashboardRuns();
+    const jobs = getDashboardWorkflowJobs();
+    const activeRun = getActiveRuntimeRun();
+    return [
+      'Agents and tasks',
+      '',
+      `Active run: \`${activeRun ? String(activeRun.id || activeRun.runId || activeRun.status || 'running') : 'none'}\``,
+      `Visible runs: \`${runs.length}\``,
+      `Workflow jobs: \`${jobs.length}\``,
+      '',
+      ...runs.slice(0, 6).map((run) => `- ${run.title || run.id || run.runId || 'run'}: ${run.status || 'unknown'}`),
+      jobs.length ? '\nJobs:\n' + jobs.slice(0, 6).map((job) => `- ${job.id || job.jobId || 'job'}: ${job.status || 'unknown'}`).join('\n') : '',
+    ].filter(Boolean).join('\n');
+  }
+
+  function renderWhoamiSummary() {
+    const profile = getCurrentExperienceProfile();
+    const bridge = window.ZavorthRuntimeBridge;
+    const state = bridge?.state || {};
+    return [
+      'Local identity',
+      '',
+      `Dashboard profile: \`${profile.label}\``,
+      `Session: \`${getPromptQueueSessionKey()}\``,
+      `Runtime bridge: \`${bridge ? 'connected' : 'not connected'}\``,
+      `Live auth: \`${state.zavorthControl?.authRequired ? 'token required' : 'local session'}\``,
+      `Provider: \`${bridge?.getCurrentProviderLabel?.() || 'not reported'}\``,
+    ].join('\n');
+  }
+
+  async function runBackendSessionCommand(command, args = '', fallbackRenderer = null, options = {}) {
+    const runtimeBridge = window.ZavorthRuntimeBridge;
+    if (!runtimeBridge || typeof runtimeBridge.runSessionCommand !== 'function') {
+      const fallback = typeof fallbackRenderer === 'function' ? fallbackRenderer() : '';
+      if (options.append !== false && fallback) appendEcho('core', fallback);
+      return { ok: false, responseMarkdown: fallback, fallback: true };
+    }
+    try {
+      const profile = getCurrentExperienceProfile();
+      const payload = await runtimeBridge.runSessionCommand({
+        command,
+        args,
+        composerSettings: composerSettingsState,
+        experienceProfile: profile.id || selectedExperienceProfile || 'personal',
+        queueLength: promptQueue.length,
+        clientContext: buildSlashClientContext(),
+      });
+      if (options.append !== false) {
+        appendEcho('core', payload?.responseMarkdown || `${command} completed.`);
+      }
+      recordTraceEvent({
+        type: 'receipt',
+        title: `/${command} command`,
+        detail: payload?.receipt?.receiptId || payload?.commandResult?.kind || command,
+        meta: 'slash command backend',
+        status: 'done',
+      });
+      return payload;
+    } catch (error) {
+      const fallback = typeof fallbackRenderer === 'function' ? fallbackRenderer() : '';
+      if (options.append !== false) {
+        appendEcho('core', fallback || `/${command} failed: ${error?.message || String(error)}`);
+      }
+      recordTraceEvent({
+        type: 'error',
+        title: `/${command} command failed`,
+        detail: error?.message || String(error),
+        meta: 'slash command backend',
+        status: 'failed',
+      });
+      return { ok: false, error: error?.message || String(error), responseMarkdown: fallback };
+    }
+  }
+
+  function buildSlashClientContext() {
+    return {
+      attachments: pendingAttachments.slice(0, 8).map((attachment, index) => ({
+        id: attachment.id || attachment.name || `attachment-${index}`,
+        name: attachment.name || attachment.filename || `attachment-${index}`,
+        kind: attachment.kind || attachment.type || 'attachment',
+        status: attachment.status || 'pending',
+        size: attachment.size || attachment.bytes || null,
+      })),
+      selectedSkills: pendingSelectedSkills.slice(0, 12).map((skill) => ({
+        id: skill.id,
+        title: skill.title || skill.name || skill.id,
+        status: skill.status || 'selected',
+      })),
+      workspaceSelection: pendingWorkspaceSelection
+        ? {
+            root: pendingWorkspaceSelection.root || pendingWorkspaceSelection.path || '',
+            label: pendingWorkspaceSelection.label || pendingWorkspaceSelection.name || '',
+          }
+        : null,
+      guidedFlow: pendingGuidedFlow || null,
+      workflowIntent: pendingWorkflowIntent
+        ? {
+            kind: pendingWorkflowIntent.kind,
+            objective: pendingWorkflowIntent.objective || pendingWorkflowIntent.prompt || '',
+          }
+        : null,
+    };
+  }
+
+  async function handleProfileSlash(args) {
+    const raw = String(args || '').trim();
+    clearComposerInput();
+    if (!raw || raw.toLowerCase() === 'status') {
+      const profile = getCurrentExperienceProfile();
+      await runBackendSessionCommand('profile', raw, () => [
+        `Current profile: \`${profile.label}\``,
+        '',
+        profile.summary,
+        '',
+        `Available: ${EXPERIENCE_PROFILE_CATALOG.map((item) => `\`${item.id}\``).join(', ')}`,
+      ].join('\n'));
+      return true;
+    }
+    const resolved = resolveExperienceProfile(raw, selectedExperienceProfile || 'personal');
+    setSelectedExperienceProfile(resolved.id);
+    emitLocalNotice(`Profile set to ${resolved.label}.`);
+    return true;
+  }
+
+  async function runCompactSlash(args) {
+    const reason = String(args || '').trim();
+    clearComposerInput();
+    const runtimeBridge = window.ZavorthRuntimeBridge;
+    if (!runtimeBridge || typeof runtimeBridge.compactSession !== 'function') {
+      emitLocalNotice('/compact is not connected to the live runtime bridge yet.');
+      return true;
+    }
+    recordTraceEvent({
+      type: 'step',
+      title: 'Session compaction requested',
+      detail: reason || 'No reason provided',
+      meta: 'slash /compact',
+      status: 'running',
+    });
+    try {
+      const payload = await runtimeBridge.compactSession({
+        reason,
+        keepLastMessages: 0,
+        emitSignal: window.emitSignal,
+        ui: window.ZavorthControlChat,
+      });
+      const receipt = payload?.receipt || payload?.compaction?.receipt || {};
+      appendEcho('core', [
+        'Session compacted.',
+        '',
+        `Receipt: \`${receipt.receiptId || 'not reported'}\``,
+        `Messages read: \`${receipt.originalMessageCount ?? 'unknown'}\``,
+        `Active transcript entries now: \`${receipt.retainedMessageCount ?? 'unknown'}\``,
+        'No memory was approved or persisted by this command.',
+      ].join('\n'));
+      recordTraceEvent({
+        type: 'receipt',
+        title: 'Session compaction completed',
+        detail: receipt.receiptId || 'session.compaction',
+        meta: 'slash /compact',
+        status: 'done',
+      });
+      return true;
+    } catch (error) {
+      appendEcho('core', `/compact failed: ${error?.message || String(error)}`);
+      recordTraceEvent({
+        type: 'error',
+        title: 'Session compaction failed',
+        detail: error?.message || String(error),
+        meta: 'slash /compact',
+        status: 'failed',
+      });
+      return true;
+    }
+  }
+
+  async function handleApprovalsSlash(args, options = {}) {
+    clearComposerInput();
+    const typedName = typedSlashName(options);
+    const raw = String(args || '').trim();
+    const parts = raw.split(/\s+/).filter(Boolean);
+    const decisionFromAlias = typedName === 'approve' ? 'approve' : typedName === 'deny' ? 'reject' : '';
+    const explicitDecision = ['approve', 'allow', 'yes'].includes(String(parts[0] || '').toLowerCase())
+      ? 'approve'
+      : ['deny', 'reject', 'no'].includes(String(parts[0] || '').toLowerCase())
+        ? 'reject'
+        : '';
+    const decision = decisionFromAlias || explicitDecision;
+    if (!decision) {
+      const approvals = getPendingDashboardApprovals();
+      appendEcho('core', [
+        'Pending approvals',
+        '',
+        approvals.length
+          ? approvals.map((approval) => `- \`${approval.id || approval.approvalId || approval.permissionId || approval.taskId}\`: ${approval.title || approval.summary || approval.kind || 'approval'}`).join('\n')
+          : 'No pending approvals in the current dashboard snapshot.',
+        '',
+        'Use `/approve <id>` or `/deny <id>` when a pending approval is visible.',
+      ].join('\n'));
+      return true;
+    }
+    const id = decisionFromAlias ? parts[0] : parts[1];
+    const kind = (decisionFromAlias ? parts[1] : parts[2]) || 'permission';
+    if (!id) {
+      emitLocalNotice(`/${typedName || 'approvals'} needs an approval id.`);
+      return true;
+    }
+    const runtimeBridge = window.ZavorthRuntimeBridge;
+    if (!runtimeBridge || typeof runtimeBridge.decideApproval !== 'function') {
+      emitLocalNotice('Approval decisions are not connected to the live runtime bridge.');
+      return true;
+    }
+    try {
+      await runtimeBridge.decideApproval({
+        id,
+        kind,
+        decision,
+        scope: 'once',
+        scopeNote: `Slash /${typedName || 'approvals'} decision from ZavorthControl.`,
+      }, {
+        emitSignal: window.emitSignal,
+        appendEcho,
+        renderArtifacts,
+      });
+      emitLocalNotice(`Approval ${decision === 'approve' ? 'approved' : 'rejected'}: ${id}.`);
+      return true;
+    } catch (error) {
+      appendEcho('core', `Approval decision failed: ${error?.message || String(error)}`);
+      return true;
+    }
+  }
+
+  function cycleExperienceProfile() {
+    const ids = EXPERIENCE_PROFILE_CATALOG.map((profile) => profile.id);
+    const current = selectedExperienceProfile || 'personal';
+    const index = Math.max(0, ids.indexOf(current));
+    const next = ids[(index + 1) % ids.length] || 'personal';
+    setSelectedExperienceProfile(next);
+    emitLocalNotice(`Profile set to ${getExperienceProfile(next).label}.`);
+  }
+
   function renderExperienceProfilePanel(profile: ExperienceProfileUiContract) {
     const terminalHero = document.getElementById('terminal-hero');
     if (!terminalHero) return;
@@ -1640,6 +2297,7 @@ export function initControlApp() {
     });
     if (selectedExperienceProfile) {
       renderExperienceProfilePanel(resolved);
+      updateChatControlBar();
       recordTraceEvent({
         type: 'step',
         title: 'Experience profile selected',
@@ -1972,6 +2630,18 @@ export function initControlApp() {
       writeComposerSettings({ ...composerSettingsState, [key]: !composerSettingsState[key] });
       if (key === 'tools' && composerSettingsState.tools) openSkillPopover();
       if (key === 'focus') emitLocalNotice(composerSettingsState.focus ? 'Focus mode on.' : 'Focus mode off.');
+    });
+  });
+  document.querySelectorAll('[data-chat-effort]').forEach((button) => {
+    button.addEventListener('click', (event) => {
+      event.preventDefault();
+      setChatEffort(button.getAttribute('data-chat-effort') || 'balanced');
+    });
+  });
+  document.querySelectorAll('[data-chat-profile-cycle]').forEach((button) => {
+    button.addEventListener('click', (event) => {
+      event.preventDefault();
+      cycleExperienceProfile();
     });
   });
   document.addEventListener('click', (event) => {
@@ -2363,6 +3033,37 @@ ${current}` : skillPrompt;
     }
   }
 
+  async function runWorkflowIntentSlash(command, args) {
+    const request = buildWorkflowSlashRequest(command, args);
+    clearComposerInput();
+    setChatEffort(request.effort, { silent: true });
+    pendingGuidedFlow = request.guidedFlow;
+    pendingWorkflowIntent = request.workflowIntent;
+
+    if (!composeInput) {
+      emitLocalNotice(`/${request.command} is not available because the composer is not mounted.`);
+      return false;
+    }
+
+    composeInput.value = request.text;
+    composeInput.dispatchEvent(new Event('input'));
+
+    if (!request.autoSubmit) {
+      composeInput.focus();
+      emitLocalNotice(`/${request.command} needs an objective. I opened an editable mission draft.`);
+      return true;
+    }
+
+    recordTraceEvent({
+      type: 'request',
+      title: `/${request.command} command`,
+      detail: request.workflowIntent.objectivePreview || 'workflow objective',
+      meta: `${request.workflowIntent.kind} | effort:${request.workflowIntent.effort}`,
+      status: 'queued',
+    });
+    return transmitSignal();
+  }
+
   async function steerQueuedPrompt(id) {
     syncPromptQueueSession();
     const activeRun = getActiveRuntimeRun();
@@ -2428,6 +3129,22 @@ ${current}` : skillPrompt;
       startNewLocalSession();
       return true;
     }
+    if (command === 'stop') {
+      return stopActiveRunSlash();
+    }
+    if (command === 'compact') {
+      return runCompactSlash(args);
+    }
+    if (command === 'profile') {
+      return handleProfileSlash(args);
+    }
+    if (command === 'model') {
+      return setModelSlash(args);
+    }
+    if (command === 'models') {
+      clearComposerInput();
+      return runBackendSessionCommand('models', args, () => renderModelsSummary(args));
+    }
     if (command === 'export') {
       const normalized = String(args || '').toLowerCase();
       const format = ['md', 'markdown', 'json', 'txt', 'text'].includes(normalized) ? normalized : '';
@@ -2440,6 +3157,86 @@ ${current}` : skillPrompt;
       const normalized = String(args || '').toLowerCase();
       setFocusMode(normalized === 'off' || normalized === 'false' ? false : true);
       return true;
+    }
+    if (command === 'effort') {
+      clearComposerInput();
+      setChatEffort(args || 'balanced');
+      return true;
+    }
+    if (command === 'think') {
+      return setThinkingSlash(args);
+    }
+    if (command === 'fast') {
+      return setFastSlash(args);
+    }
+    if (command === 'verbose') {
+      return setVerboseSlash(args);
+    }
+    if (command === 'trace') {
+      return setTraceSlash(args);
+    }
+    if (command === 'status') {
+      clearComposerInput();
+      return runBackendSessionCommand('status', args, () => renderStatusSummary());
+    }
+    if (command === 'usage') {
+      clearComposerInput();
+      return runBackendSessionCommand('usage', args, () => renderUsageSummary(args));
+    }
+    if (command === 'context') {
+      clearComposerInput();
+      return runBackendSessionCommand('context', args, () => renderContextSummary());
+    }
+    if (command === 'tools') {
+      clearComposerInput();
+      return runBackendSessionCommand('tools', args, () => renderToolsSummary(false));
+    }
+    if (command === 'skills') {
+      clearComposerInput();
+      const open = String(args || '').trim().toLowerCase() === 'open';
+      if (open) openSkillPopover();
+      return runBackendSessionCommand('skills', args, () => renderToolsSummary(open));
+    }
+    if (command === 'agents') {
+      clearComposerInput();
+      return runBackendSessionCommand('agents', args, () => renderAgentsSummary());
+    }
+    if (command === 'approvals') {
+      return handleApprovalsSlash(args, options);
+    }
+    if (command === 'whoami') {
+      clearComposerInput();
+      return runBackendSessionCommand('whoami', args, () => renderWhoamiSummary());
+    }
+    if (command === 'go') {
+      return runWorkflowIntentSlash(command, args);
+    }
+    if (command === 'workflows') {
+      return runWorkflowIntentSlash(command, args);
+    }
+    if (command === 'plan-review') {
+      clearComposerInput();
+      return runBackendSessionCommand('plan-review', args, () => [
+        'Plan review',
+        '',
+        'I will ask one question at a time, record the decision as a receipt, and avoid changing anything directly.',
+      ].join('\n'));
+    }
+    if (command === 'brief-reply') {
+      clearComposerInput();
+      return runBackendSessionCommand('brief-reply', args, () => [
+        'Brief reply mode',
+        '',
+        'I will keep the next draft short, channel-ready, and profile-aware.',
+      ].join('\n'));
+    }
+    if (command === 'test-loop') {
+      clearComposerInput();
+      return runBackendSessionCommand('test-loop', args, () => [
+        'Governed test loop',
+        '',
+        'I will start with the failing test, preview commands, request approval for writes, and attach receipts.',
+      ].join('\n'));
     }
     if (command === 'btw' || command === 'side') {
       const snapshot = snapshotQueuedPrompt(args || 'Review attached files.');
@@ -2525,7 +3322,7 @@ ${current}` : skillPrompt;
       });
       return true;
     }
-    dispatchLocalSlashCommand(command.key, args, { originalText: text }).catch((error) => {
+    dispatchLocalSlashCommand(command.key, args, { originalText: text, typedName: parsed.name }).catch((error) => {
       recordTraceEvent({
         type: 'error',
         title: `/${command.name} failed`,
@@ -3032,6 +3829,7 @@ ${current}` : skillPrompt;
     getLastVoiceInput: () => lastVoiceInput,
     getPendingAttachments: () => pendingAttachments,
     getPendingGuidedFlow: () => pendingGuidedFlow,
+    getPendingWorkflowIntent: () => pendingWorkflowIntent,
     getPendingSelectedSkills: () => pendingSelectedSkills,
     getPendingWorkspaceSelection: () => pendingWorkspaceSelection,
     getSelectedExperienceProfile: () => selectedExperienceProfile,
@@ -3053,6 +3851,9 @@ ${current}` : skillPrompt;
     },
     resetPendingGuidedFlow: () => {
       pendingGuidedFlow = '';
+    },
+    resetPendingWorkflowIntent: () => {
+      pendingWorkflowIntent = null;
     },
     resetPendingSelectedSkills: () => {
       pendingSelectedSkills = [];

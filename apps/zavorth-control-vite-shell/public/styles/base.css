@@ -421,3 +421,77 @@ h1, h2, h3, h4,
     scroll-behavior: auto !important;
   }
 }
+
+/* ==========================================================================
+   Workbench tone
+   Muted product palette for daily use. Green remains semantic; the primary
+   accent is deliberately warmer and quieter than the previous neon pulse.
+   ========================================================================== */
+
+:root {
+  --b-void: #090a0c;
+  --b-void-accent: #0c0e11;
+  --b-void-elevated: #111419;
+  --b-void-hover: #171b21;
+  --b-void-muted: #15191f;
+
+  --b-surface: #101318;
+  --b-surface-fg: #e7e9ee;
+  --b-popover: #12161c;
+  --b-popover-fg: #e7e9ee;
+
+  --b-chrome: rgba(9, 10, 12, 0.96);
+  --b-chrome-strong: rgba(9, 10, 12, 0.985);
+  --b-glass: rgba(17, 20, 25, 0.72);
+  --b-glass-strong: rgba(20, 24, 30, 0.88);
+  --b-glass-border: rgba(225, 232, 240, 0.075);
+  --b-glass-highlight: rgba(255, 255, 255, 0.055);
+
+  --b-signal: #c7ccd5;
+  --b-signal-strong: #f2f4f7;
+  --b-signal-muted: #838b98;
+  --b-signal-dim: #586170;
+
+  --b-shell: #1a2028;
+  --b-shell-strong: #28313c;
+  --b-shell-hover: #374250;
+  --b-input-border: #252d37;
+
+  --b-pulse: #c59a4a;
+  --b-pulse-hover: #d6ae67;
+  --b-pulse-muted: rgba(197, 154, 74, 0.72);
+  --b-pulse-subtle: rgba(197, 154, 74, 0.105);
+  --b-pulse-fg: #0a0b0d;
+  --b-pulse-glow: rgba(197, 154, 74, 0.13);
+
+  --b-accent-2: #8898aa;
+  --b-accent-2-subtle: rgba(136, 152, 170, 0.10);
+  --b-ok: #42b883;
+  --b-ok-muted: rgba(66, 184, 131, 0.74);
+  --b-ok-subtle: rgba(66, 184, 131, 0.09);
+  --b-focus: rgba(197, 154, 74, 0.18);
+  --b-focus-ring: 0 0 0 2px var(--b-void), 0 0 0 3px rgba(197, 154, 74, 0.66);
+  --b-shadow-glow: 0 0 26px var(--b-pulse-glow);
+  --b-glow-emerald: 0 0 18px var(--b-pulse-glow), 0 8px 30px rgba(197, 154, 74, 0.055);
+  --b-app-gradient:
+    linear-gradient(180deg, #090a0c 0%, #0b0d10 46%, #08090b 100%);
+  --b-aurora-layer:
+    linear-gradient(120deg, transparent 0%, rgba(197, 154, 74, 0.055) 38%, transparent 76%);
+}
+
+[data-theme="light"] {
+  --b-pulse: #9b6f25;
+  --b-pulse-hover: #7c5416;
+  --b-pulse-muted: rgba(155, 111, 37, 0.72);
+  --b-pulse-subtle: rgba(155, 111, 37, 0.10);
+  --b-pulse-glow: rgba(155, 111, 37, 0.14);
+  --b-ok: #17885d;
+  --b-ok-muted: rgba(23, 136, 93, 0.74);
+  --b-ok-subtle: rgba(23, 136, 93, 0.09);
+  --b-focus: rgba(155, 111, 37, 0.18);
+  --b-focus-ring: 0 0 0 2px var(--b-void), 0 0 0 3px rgba(155, 111, 37, 0.62);
+  --b-app-gradient:
+    linear-gradient(180deg, #f8fafc 0%, #f3f5f8 48%, #f8fafc 100%);
+  --b-aurora-layer:
+    linear-gradient(120deg, transparent 0%, rgba(155, 111, 37, 0.05) 38%, transparent 76%);
+}

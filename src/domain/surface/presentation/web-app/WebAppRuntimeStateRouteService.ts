@@ -1486,18 +1486,70 @@ export class WebAppRuntimeStateRouteService {
     res: http.ServerResponse,
     deps: WebAppRuntimeRouteDeps,
   ): Promise<void> {
-    if (!deps.publicApi) {
+    if (!deps.processChatSend && !deps.publicApi) {
       deps.writeJson(res, {
         ok: false,
-        error: 'canonical_public_api_unavailable',
-        detail: 'Dashboard chat wiring requires the runtime API v1 service.',
+        error: 'canonical_chat_runtime_unavailable',
+        detail: 'Dashboard chat wiring requires the canonical web conversation runtime.',
       }, 503);
       return;
     }
 
     const body = await deps.readJsonBody(req);
-    const result = await deps.publicApi.submitChat({
-      message: String(body?.message || body?.text || '').trim(),
+    const message = String(body?.message || body?.text || '').trim();
+    if (!message) {
+      deps.writeJson(res, {
+        ok: false,
+        error: 'empty_dashboard_message',
+        detail: 'Dashboard chat requires a non-empty message.',
+      }, 400);
+      return;
+    }
+    if (deps.processChatSend) {
+      const result = await deps.processChatSend({
+        ...body,
+        message,
+        source: 'zavorth-control',
+        metadata: {
+          ...(this.isRecord(body?.metadata) ? body.metadata : {}),
+          dashboardChat: true,
+          workflowIntent: this.isRecord(body?.workflowIntent) ? body.workflowIntent : null,
+          composerSettings: this.isRecord(body?.composerSettings) ? body.composerSettings : null,
+          experienceProfile: this.isRecord(body?.experienceProfile) ? body.experienceProfile : null,
+        },
+      });
+      deps.writeJson(res, {
+        ok: true,
+        generatedAt: new Date().toISOString(),
+        sessionId: result.sessionId,
+        taskId: result.taskId || null,
+        runId: result.taskId || null,
+        chat: result,
+        data: result,
+        snapshot: result.snapshot,
+        safety: {
+          delegatedToCanonicalWebRuntime: true,
+          dashboardCanExecute: false,
+          zavorthControlCanExecute: false,
+          policyBrokerRequiredForTools: true,
+          rawSecretsSerialized: false,
+        },
+      }, 200);
+      return;
+    }
+
+    const publicApi = deps.publicApi;
+    if (!publicApi) {
+      deps.writeJson(res, {
+        ok: false,
+        error: 'canonical_public_api_unavailable',
+        detail: 'Dashboard chat fallback requires the runtime API v1 service.',
+      }, 503);
+      return;
+    }
+
+    const result = await publicApi.submitChat({
+      message,
       sessionId: String(body?.sessionId || '').trim() || null,
       live: body?.live === true || body?.execute === true,
     });

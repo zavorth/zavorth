@@ -122,6 +122,30 @@ export class GatewaySessionLedgerService {
     this.writeRecord(resolved, record);
   }
 
+  public replaceTranscript(
+    target: GatewaySessionLedgerTarget,
+    transcript: GatewaySessionTranscriptEntry[],
+  ): void {
+    const resolved = this.normalizeTarget(target);
+    if (!resolved) {
+      return;
+    }
+
+    const record = this.readRecordSync(resolved) || this.createEmptyRecord(resolved);
+    record.transcript = transcript
+      .map((entry) => this.normalizeTranscriptEntry(entry, resolved.platform))
+      .slice(-this.maxTranscriptEntries);
+    record.updatedAt = this.now().toISOString();
+    if (record.snapshot) {
+      record.snapshot = {
+        ...record.snapshot,
+        updatedAt: record.updatedAt,
+        transcriptCount: record.transcript.length,
+      };
+    }
+    this.writeRecord(resolved, record);
+  }
+
   public saveSnapshot(
     target: GatewaySessionLedgerTarget,
     snapshot: Omit<GatewaySessionLedgerSnapshot, 'updatedAt'>,

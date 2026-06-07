@@ -3,6 +3,24 @@ import { WebAppRuntimeInteractionRouteService } from '../../src/domain/surface/p
 import type { WebAppRuntimeRouteDeps } from '../../src/domain/surface/presentation/web-app/WebAppRuntimeRouteService.js';
 
 describe('WebAppRuntimeInteractionRouteService', () => {
+  it('routes dedicated session commands to the canonical command backend', async () => {
+    const service = new WebAppRuntimeInteractionRouteService();
+    const handleSessionCommand = jest.fn(async () => true);
+    const handled = await service.handleRequest(
+      { method: 'POST' } as http.IncomingMessage,
+      {} as http.ServerResponse,
+      new URL('http://localhost/api/web/session/status'),
+      '/api/web/session/status',
+      {} as WebAppRuntimeRouteDeps,
+      {
+        handleSessionCommand,
+      } as any,
+    );
+
+    expect(handled).toBe(true);
+    expect(handleSessionCommand).toHaveBeenCalledTimes(1);
+  });
+
   it('serves tool run cards and diff payloads for the session artifact plane', async () => {
     const service = new WebAppRuntimeInteractionRouteService();
     const writeJson = jest.fn();

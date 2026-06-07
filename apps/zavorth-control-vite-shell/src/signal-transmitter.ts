@@ -14,6 +14,7 @@ type SignalTransmitterOptions = {
   getLastVoiceInput: () => any;
   getPendingAttachments: () => any[];
   getPendingGuidedFlow: () => string;
+  getPendingWorkflowIntent?: () => any;
   getPendingSelectedSkills: () => any[];
   getPendingWorkspaceSelection: () => any;
   getSelectedExperienceProfile: () => string;
@@ -30,6 +31,7 @@ type SignalTransmitterOptions = {
   resetLastVoiceInput: () => void;
   resetPendingAttachments: () => void;
   resetPendingGuidedFlow: () => void;
+  resetPendingWorkflowIntent?: () => void;
   resetPendingSelectedSkills: () => void;
   setSelectedExperienceProfile: (profile: string) => void;
   tokenCount: HTMLElement | null;
@@ -74,6 +76,7 @@ export function createSignalTransmitter(options: SignalTransmitterOptions) {
     const lastVoiceInput = options.getLastVoiceInput();
     const outboundVoice = lastVoiceInput ? { ...lastVoiceInput } : null;
     const outboundComposerSettings = { ...options.getComposerSettingsState() };
+    const outboundWorkflowIntent = options.getPendingWorkflowIntent?.() || null;
     const outboundExperienceProfile = options.getExperienceProfilePayload();
     const naturalEngineSwitchHandled = text
       ? await (window.ZavorthRuntimeEngines?.requestNaturalEngineSwitch?.(text) || requestNaturalEngineSwitch(text)).catch(() => false)
@@ -106,7 +109,9 @@ export function createSignalTransmitter(options: SignalTransmitterOptions) {
         outboundSkills.length ? `${outboundSkills.length} tool(s)` : '',
         outboundVoice ? 'voice' : '',
         outboundExperienceProfile?.id ? `profile:${outboundExperienceProfile.id}` : '',
+        outboundWorkflowIntent?.kind ? `workflow:${outboundWorkflowIntent.kind}` : '',
         outboundComposerSettings.model && outboundComposerSettings.model !== 'auto' ? `model:${outboundComposerSettings.model}` : '',
+        outboundComposerSettings.effort && outboundComposerSettings.effort !== 'balanced' ? `effort:${outboundComposerSettings.effort}` : '',
         outboundComposerSettings.sensitivity && outboundComposerSettings.sensitivity !== 'default' ? `sens:${outboundComposerSettings.sensitivity}` : '',
       ].filter(Boolean).join(' - ') || 'chat',
       status: 'queued',
@@ -182,6 +187,7 @@ export function createSignalTransmitter(options: SignalTransmitterOptions) {
 
     const guidedFlow = options.getPendingGuidedFlow();
     options.resetPendingGuidedFlow();
+    options.resetPendingWorkflowIntent?.();
     if (shouldHandlePersonalDayFlow(outboundText, guidedFlow)) {
       if (!options.getSelectedExperienceProfile()) options.setSelectedExperienceProfile('personal');
       options.recordTraceEvent({
@@ -278,6 +284,7 @@ export function createSignalTransmitter(options: SignalTransmitterOptions) {
             voice: outboundVoice,
             composerSettings: outboundComposerSettings,
             experienceProfile: outboundExperienceProfile,
+            workflowIntent: outboundWorkflowIntent,
             engineId: selectedEngineId,
             engineDecision: engineDecision?.decision || null,
           },
