@@ -43,6 +43,7 @@ type Runtime = {
 };
 
 const DEFAULT_VECTOR_DIMENSIONS = 32;
+const MEMORY_RECORDS_TABLE = 'zavorth_memory_records';
 
 export class SqliteVecMemoryBackend {
   private readonly now: () => Date;
@@ -99,7 +100,7 @@ export class SqliteVecMemoryBackend {
 
     if (this.db) {
       this.db.prepare(`
-        INSERT OR REPLACE INTO credential-vault_memory_records
+        INSERT OR REPLACE INTO ${MEMORY_RECORDS_TABLE}
           (id, namespace, text, metadata_json, keywords_json, vector_json, vector_hash, created_at)
         VALUES (?, ?, ?, ?, ?, ?, ?, ?)
       `).run(
@@ -207,7 +208,7 @@ export class SqliteVecMemoryBackend {
       const Database = require('better-sqlite3') as SqliteConstructor;
       const db = new Database(dbPath);
       db.exec(`
-        CREATE TABLE IF NOT EXISTS credential-vault_memory_records (
+        CREATE TABLE IF NOT EXISTS ${MEMORY_RECORDS_TABLE} (
           id TEXT PRIMARY KEY,
           namespace TEXT NOT NULL,
           text TEXT NOT NULL,
@@ -217,8 +218,8 @@ export class SqliteVecMemoryBackend {
           vector_hash TEXT NOT NULL,
           created_at TEXT NOT NULL
         );
-        CREATE INDEX IF NOT EXISTS idx_credential-vault_memory_namespace ON credential-vault_memory_records(namespace);
-        CREATE INDEX IF NOT EXISTS idx_credential-vault_memory_created ON credential-vault_memory_records(created_at);
+        CREATE INDEX IF NOT EXISTS idx_zavorth_memory_namespace ON ${MEMORY_RECORDS_TABLE}(namespace);
+        CREATE INDEX IF NOT EXISTS idx_zavorth_memory_created ON ${MEMORY_RECORDS_TABLE}(created_at);
       `);
       return db;
     } catch {
@@ -229,7 +230,7 @@ export class SqliteVecMemoryBackend {
   private loadRecords(namespace: string): MemoryKnowledgeRecord[] {
     if (this.db) {
       const rows = this.db.prepare(
-        'SELECT * FROM credential-vault_memory_records WHERE namespace = ? ORDER BY created_at DESC',
+        `SELECT * FROM ${MEMORY_RECORDS_TABLE} WHERE namespace = ? ORDER BY created_at DESC`,
       ).all(normalizeNamespace(namespace)) as MemoryRow[];
       return rows.map(rowToRecord);
     }

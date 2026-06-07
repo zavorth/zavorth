@@ -1,6 +1,7 @@
 import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
+import Database from 'better-sqlite3';
 import { SqliteVecMemoryBackend } from '../../src/adapters/memory/SqliteVecMemoryBackend.js';
 import { GovernedTerminalRuntime } from '../../src/services/GovernedTerminalRuntime.js';
 import { SourceDocumentExtractionService } from '../../src/services/SourceDocumentExtractionService.js';
@@ -26,9 +27,10 @@ describe('SourceMemoryDocumentTerminalPackService Credential vault', () => {
   });
 
   it('writes and queries replayable sqlite-backed memory receipts', () => {
+    const dbPath = path.join(tempRoot, 'memory.sqlite');
     const backend = new SqliteVecMemoryBackend({
       now,
-      dbPath: path.join(tempRoot, 'memory.sqlite'),
+      dbPath,
     });
     const write = backend.write({
       namespace: 'credential-vault-test',
@@ -46,6 +48,7 @@ describe('SourceMemoryDocumentTerminalPackService Credential vault', () => {
     expect(write.receipt).toEqual(
       expect.objectContaining({
         status: 'applied',
+        backendId: 'sqlite-vector-concept-backend',
         artifactFirst: true,
         replayable: true,
         liveIoPerformed: false,
@@ -56,7 +59,19 @@ describe('SourceMemoryDocumentTerminalPackService Credential vault', () => {
     expect(query.results).toHaveLength(1);
     expect(query.receipt.resultRecordIds).toContain(write.record.id);
     expect(query.receipt.topScore).toBeGreaterThan(0);
+    expect(backend.buildReplaySnapshot('credential-vault-test')).toEqual(
+      expect.objectContaining({
+        backendId: 'sqlite-vector-concept-backend',
+        records: 1,
+        sqliteVecExtensionLoaded: false,
+      }),
+    );
     backend.close();
+
+    const db = new Database(dbPath, { readonly: true });
+    const tables = db.prepare("SELECT name FROM sqlite_master WHERE type = 'table' ORDER BY name").all() as Array<{ name: string }>;
+    db.close();
+    expect(tables.map((row) => row.name)).toContain('zavorth_memory_records');
   });
 
   it('creates PDF and HTML extraction artifacts', () => {
