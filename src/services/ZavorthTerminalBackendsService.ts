@@ -34,9 +34,12 @@ type TerminalBackendsDeps = {
   env?: Record<string, string | undefined>;
   cwd?: string;
   runner?: (input: RunnerInput) => RunnerOutput;
+  probeRunner?: (input: RunnerInput) => RunnerOutput;
 };
 
 const DEFAULT_TIMEOUT_MS = 30_000;
+const DEFAULT_PROBE_TIMEOUT_MS = 3_000;
+const DEFAULT_WSL_PROBE_TIMEOUT_MS = 90_000;
 const OUTPUT_PREVIEW_LIMIT = 4_000;
 const LIVE_ENABLE_ENV = 'ZAVORTH_TERMINAL_BACKENDS_ALLOW_LIVE';
 
@@ -55,12 +58,14 @@ export class ZavorthTerminalBackendsService {
   private readonly env: Record<string, string | undefined>;
   private readonly cwd: string;
   private readonly runner: (input: RunnerInput) => RunnerOutput;
+  private readonly probeRunner: (input: RunnerInput) => RunnerOutput;
 
   public constructor(deps: TerminalBackendsDeps = {}) {
     this.now = deps.now || (() => new Date());
     this.env = deps.env || process.env;
     this.cwd = path.resolve(deps.cwd || process.cwd());
     this.runner = deps.runner || defaultRunner;
+    this.probeRunner = deps.probeRunner || defaultRunner;
   }
 
   public execute(input: ZavorthTerminalBackendInput = {}): ZavorthTerminalBackendSnapshot {
@@ -298,95 +303,236 @@ export class ZavorthTerminalBackendsService {
     const dockerImage = String(input.dockerImage || this.env.ZAVORTH_TERMINAL_DOCKER_IMAGE || this.env.ZAVORTH_CONTAINER_IMAGE || 'node:22-bookworm').trim();
     const sshHost = String(input.sshHost || this.env.ZAVORTH_SSH_HOST || '').trim();
     const wslDistro = String(input.wslDistro || this.env.ZAVORTH_WSL_DISTRO || '').trim();
-    const vercelReady = isTruthy(this.env.ZAVORTH_VERCEL_SANDBOX_ENABLED) && Boolean(this.env.VERCEL_TOKEN);
+    const dockerConfigured = isTruthy(this.env.ZAVORTH_DOCKER_ENABLED) || Boolean(this.env.DOCKER_HOST);
+    const wslConfigured = process.platform === 'win32' && (isTruthy(this.env.ZAVORTH_WSL_ENABLED) || Boolean(wslDistro));
+    const sshConfigured = Boolean(sshHost);
+    const vercelConfigured = isTruthy(this.env.ZAVORTH_VERCEL_SANDBOX_ENABLED) && Boolean(this.env.VERCEL_TOKEN);
     const modalReady = modalConfigured(this.env);
     const daytonaReady = daytonaConfigured(this.env);
+    const dockerAvailability = dockerConfigured
+      ? null
+      : this.probeExecutablePresence('docker', 'Docker CLI was found; Docker daemon readiness is deferred until a task asks for isolated execution.');
+    const wslAvailability = wslConfigured || process.platform !== 'win32'
+      ? null
+      : this.probeExecutablePresence('wsl.exe', 'WSL executable was found; Linux runtime readiness is deferred until a task asks for isolated execution.');
+    const dockerProbe = dockerConfigured
+      ? this.probeBackend('docker', ['version', '--format', '{{.Server.Version}}'])
+      : dockerAvailability || readinessProof('not-configured', false, 'Docker is not enabled for Zavorth execution backends and the Docker CLI was not found.', null);
+    const wslProbe = wslConfigured
+      ? this.probeBackend(
+          'wsl.exe',
+          wslDistro ? ['-d', wslDistro, '--', 'sh', '-lc', 'true'] : ['--', 'sh', '-lc', 'true'],
+          this.wslProbeTimeoutMs(),
+        )
+      : wslAvailability || readinessProof('not-configured', false, process.platform === 'win32'
+        ? 'WSL backend is not enabled and wsl.exe was not found.'
+        : 'WSL backend requires a Windows host.', null);
+    const vercelProbe = vercelConfigured
+      ? this.probeBackend(String(this.env.ZAVORTH_VERCEL_SANDBOX_CLI || 'vercel'), ['--version'])
+      : readinessProof('not-configured', false, 'Vercel Sandbox credentials or enablement flag are not configured.', null);
+    const modalProbe = modalReady
+      ? this.probeBackend(String(this.env.ZAVORTH_MODAL_COMMAND || 'modal'), ['--version'])
+      : readinessProof('not-configured', false, 'Modal credentials or enablement flag are not configured.', null);
+    const daytonaProbe = daytonaReady
+      ? this.probeBackend(String(this.env.ZAVORTH_DAYTONA_COMMAND || 'daytona'), ['version'])
+      : readinessProof('not-configured', false, 'Daytona credentials or workspace are not configured.', null);
+    const sshProof = sshConfigured
+      ? readinessProof('configured-only', true, 'SSH host is configured; run a scoped live probe before treating it as strong execution readiness.', 'ssh <host> -- true')
+      : readinessProof('not-configured', false, 'SSH host is not configured.', null);
     return [
       descriptor({
         id: 'local',
         label: 'Local supervised shell',
         status: 'ready',
         isolation: 'host-process',
+        installed: true,
+        dormant: false,
+        activationMode: 'always',
         liveCapable: true,
         liveReady: true,
         requiresConfiguration: [],
         defaultCommand: process.platform === 'win32' ? 'powershell.exe -NoProfile -Command <command>' : 'sh -lc <command>',
         nextCommand: 'zavorth execution-backends --backend local --command "npm test"',
         limitations: ['No OS sandbox; mutation commands still require approval and receipts.'],
+        readinessProof: readinessProof('local-host', true, 'Local supervised shell exists on this host, but it is not counted as strong isolation.', null),
       }),
       descriptor({
         id: 'docker',
         label: 'Docker container',
-        status: isTruthy(this.env.ZAVORTH_DOCKER_ENABLED) || Boolean(this.env.DOCKER_HOST) ? 'ready' : 'needs-configuration',
+        status: dockerProbe.kind === 'host-probe'
+          ? 'ready'
+          : dockerProbe.kind === 'available-dormant'
+            ? 'available-on-demand'
+            : 'needs-configuration',
         isolation: 'container',
+        installed: dockerProbe.kind === 'host-probe' || dockerProbe.kind === 'available-dormant',
+        dormant: dockerProbe.kind === 'available-dormant',
+        activationMode: dockerProbe.kind === 'host-probe' ? 'configured' : dockerProbe.kind === 'available-dormant' ? 'on-demand' : 'manual',
         liveCapable: true,
-        liveReady: isTruthy(this.env.ZAVORTH_DOCKER_ENABLED) || Boolean(this.env.DOCKER_HOST),
+        liveReady: dockerProbe.kind === 'host-probe',
         requiresConfiguration: ['Docker daemon reachable', `container image (${dockerImage})`],
         defaultCommand: `docker run --rm --network none -v <workspace>:/workspace -w /workspace ${dockerImage} sh -lc <command>`,
-        nextCommand: 'set ZAVORTH_DOCKER_ENABLED=true and run zavorth execution-backends --backend docker',
-        limitations: ['Network is disabled by default; install/network commands require a separate policy decision.'],
+        nextCommand: dockerProbe.kind === 'available-dormant'
+          ? 'Ask Zavorth to use Docker for this task; the daemon probe stays deferred until then.'
+          : 'set ZAVORTH_DOCKER_ENABLED=true and run zavorth execution-backends --backend docker',
+        limitations: [
+          'Network is disabled by default; install/network commands require a separate policy decision.',
+          dockerProbe.kind === 'available-dormant'
+            ? 'Kept asleep by default to save notebook resources.'
+            : 'Configured readiness requires a successful Docker daemon probe.',
+        ],
+        readinessProof: dockerProbe,
       }),
       descriptor({
         id: 'ssh',
         label: 'SSH remote shell',
-        status: sshHost ? 'ready' : 'needs-configuration',
+        status: 'needs-configuration',
         isolation: 'remote-shell',
+        installed: sshConfigured,
+        dormant: false,
+        activationMode: sshConfigured ? 'manual' : 'manual',
         liveCapable: true,
-        liveReady: Boolean(sshHost),
+        liveReady: false,
         requiresConfiguration: ['ZAVORTH_SSH_HOST', 'SSH key or agent outside prompt/logs'],
         defaultCommand: 'ssh <host> -- <command>',
         nextCommand: 'set ZAVORTH_SSH_HOST and run zavorth execution-backends --backend ssh',
         limitations: ['Remote filesystem scope must be approved; no secrets are serialized into command previews.'],
+        readinessProof: sshProof,
       }),
       descriptor({
         id: 'wsl',
         label: 'WSL Linux runtime',
-        status: process.platform === 'win32' ? 'ready' : 'needs-configuration',
+        status: wslProbe.kind === 'host-probe'
+          ? 'ready'
+          : wslProbe.kind === 'available-dormant'
+            ? 'available-on-demand'
+            : 'needs-configuration',
         isolation: 'linux-vm',
+        installed: wslProbe.kind === 'host-probe' || wslProbe.kind === 'available-dormant',
+        dormant: wslProbe.kind === 'available-dormant',
+        activationMode: wslProbe.kind === 'host-probe' ? 'configured' : wslProbe.kind === 'available-dormant' ? 'on-demand' : 'manual',
         liveCapable: true,
-        liveReady: process.platform === 'win32',
+        liveReady: wslProbe.kind === 'host-probe',
         requiresConfiguration: wslDistro ? ['wsl.exe available'] : ['wsl.exe available', 'optional ZAVORTH_WSL_DISTRO'],
         defaultCommand: 'wsl.exe [-d <distro>] -- sh -lc <command>',
-        nextCommand: 'zavorth execution-backends --backend wsl --command "npm test"',
-        limitations: ['Workspace path translation depends on the host WSL installation.'],
+        nextCommand: wslProbe.kind === 'available-dormant'
+          ? 'Ask Zavorth to use WSL for this task; the Linux probe stays deferred until then.'
+          : 'zavorth execution-backends --backend wsl --command "npm test"',
+        limitations: [
+          'Workspace path translation depends on the host WSL installation.',
+          wslProbe.kind === 'available-dormant'
+            ? 'Kept asleep by default to save notebook resources.'
+            : 'Configured readiness requires a successful WSL execution probe.',
+        ],
+        readinessProof: wslProbe,
       }),
       descriptor({
         id: 'vercel-sandbox',
         label: 'Vercel Sandbox',
-        status: vercelReady ? 'ready' : 'needs-configuration',
+        status: vercelProbe.kind === 'host-probe' ? 'ready' : 'needs-configuration',
         isolation: 'managed-cloud-sandbox',
+        installed: vercelProbe.kind === 'host-probe',
+        dormant: false,
+        activationMode: vercelProbe.kind === 'host-probe' ? 'configured' : 'manual',
         liveCapable: true,
-        liveReady: vercelReady,
+        liveReady: vercelProbe.kind === 'host-probe',
         requiresConfiguration: ['VERCEL_TOKEN', 'ZAVORTH_VERCEL_SANDBOX_ENABLED=true'],
         defaultCommand: 'vercel sandbox exec <command>',
         nextCommand: 'configure Vercel Sandbox credentials and run zavorth execution-backends --backend vercel-sandbox',
         limitations: ['Cloud egress, artifacts and billing must remain behind explicit policy and receipts.'],
+        readinessProof: vercelProbe,
       }),
       descriptor({
         id: 'modal',
         label: 'Modal cloud function',
-        status: modalReady ? 'ready' : 'needs-configuration',
+        status: modalProbe.kind === 'host-probe' ? 'ready' : 'needs-configuration',
         isolation: 'cloud-function',
+        installed: modalProbe.kind === 'host-probe',
+        dormant: false,
+        activationMode: modalProbe.kind === 'host-probe' ? 'configured' : 'manual',
         liveCapable: true,
-        liveReady: modalReady,
+        liveReady: modalProbe.kind === 'host-probe',
         requiresConfiguration: ['Modal CLI', 'MODAL_TOKEN_ID + MODAL_TOKEN_SECRET or ZAVORTH_MODAL_TOKEN', 'optional ZAVORTH_MODAL_FUNCTION'],
         defaultCommand: 'modal run <function> --command <command>',
         nextCommand: 'configure Modal credentials and run zavorth execution-backends --backend modal',
         limitations: ['Remote execution remains gated by approval, live flag, command receipts and the configured Modal function policy.'],
+        readinessProof: modalProbe,
       }),
       descriptor({
         id: 'daytona',
         label: 'Daytona workspace',
-        status: daytonaReady ? 'ready' : 'needs-configuration',
+        status: daytonaProbe.kind === 'host-probe' ? 'ready' : 'needs-configuration',
         isolation: 'cloud-dev-workspace',
+        installed: daytonaProbe.kind === 'host-probe',
+        dormant: false,
+        activationMode: daytonaProbe.kind === 'host-probe' ? 'configured' : 'manual',
         liveCapable: true,
-        liveReady: daytonaReady,
+        liveReady: daytonaProbe.kind === 'host-probe',
         requiresConfiguration: ['Daytona CLI', 'DAYTONA_API_KEY or ZAVORTH_DAYTONA_API_KEY', 'ZAVORTH_DAYTONA_WORKSPACE'],
         defaultCommand: 'daytona workspace exec <workspace> -- <command>',
         nextCommand: 'configure Daytona credentials/workspace and run zavorth execution-backends --backend daytona',
         limitations: ['Workspace target, mounts and network use stay governed by approval and receipts.'],
+        readinessProof: daytonaProbe,
       }),
     ];
+  }
+
+  private probeBackend(executable: string, args: string[], timeoutMs = DEFAULT_PROBE_TIMEOUT_MS): ZavorthTerminalBackendDescriptor['readinessProof'] {
+    const command = `${executable} ${args.join(' ')}`.trim();
+    const result = this.probeRunner({
+      executable,
+      args,
+      cwd: this.cwd,
+      timeoutMs,
+      env: this.env,
+    });
+    if (result.status === 0) {
+      return readinessProof('host-probe', true, firstLine(result.stdout) || `${executable} responded to readiness probe.`, command);
+    }
+    return readinessProof(
+      'probe-failed',
+      false,
+      firstLine(result.stderr) || firstLine(result.stdout) || result.error || `${executable} readiness probe failed.`,
+      command,
+    );
+  }
+
+  private probeExecutablePresence(executable: string, summary: string): ZavorthTerminalBackendDescriptor['readinessProof'] | null {
+    const probe = process.platform === 'win32'
+      ? {
+          executable: 'where.exe',
+          args: [executable],
+          command: `where.exe ${executable}`,
+        }
+      : {
+          executable: 'sh',
+          args: ['-lc', `command -v ${shellQuote(executable)}`],
+          command: `command -v ${executable}`,
+        };
+    const result = this.probeRunner({
+      executable: probe.executable,
+      args: probe.args,
+      cwd: this.cwd,
+      timeoutMs: DEFAULT_PROBE_TIMEOUT_MS,
+      env: this.env,
+    });
+    if (result.status !== 0) {
+      return null;
+    }
+    return readinessProof(
+      'available-dormant',
+      true,
+      firstLine(result.stdout) ? `${summary} Found: ${firstLine(result.stdout)}.` : summary,
+      probe.command,
+    );
+  }
+
+  private wslProbeTimeoutMs(): number {
+    const configured = Number(this.env.ZAVORTH_WSL_PROBE_TIMEOUT_MS || 0);
+    if (Number.isFinite(configured) && configured >= DEFAULT_TIMEOUT_MS) {
+      return Math.min(configured, 300_000);
+    }
+    return DEFAULT_WSL_PROBE_TIMEOUT_MS;
   }
 
   private buildSnapshot(input: {
@@ -598,6 +744,36 @@ function descriptor(input: ZavorthTerminalBackendDescriptor): ZavorthTerminalBac
   return input;
 }
 
+function readinessProof(
+  kind: ZavorthTerminalBackendDescriptor['readinessProof']['kind'],
+  observed: boolean,
+  summary: string,
+  command: string | null,
+): ZavorthTerminalBackendDescriptor['readinessProof'] {
+  return {
+    kind,
+    observed,
+    summary: sanitizeProjectionText(redactSecrets(summary)).slice(0, 500),
+    command: command ? redactSecrets(command) : null,
+    rawSecretSerialized: false,
+  };
+}
+
+function firstLine(value: string): string {
+  return sanitizeProjectionText(redactSecrets(String(value || '')))
+    .split(/\r?\n/u)
+    .map((line) => line.trim())
+    .find(Boolean) || '';
+}
+
+function sanitizeProjectionText(value: string): string {
+  return String(value || '')
+    .replace(/\u0000/g, '')
+    .replace(/[\u0001-\u0008\u000B\u000C\u000E-\u001F\u007F]/g, ' ')
+    .replace(/[ \t]+/g, ' ')
+    .trim();
+}
+
 function emptyExecution(attempted: boolean): ZavorthTerminalBackendSnapshot['execution'] {
   return {
     attempted,
@@ -657,6 +833,10 @@ function nextSafeAction(status: ZavorthTerminalBackendStatus, backend: ZavorthTe
 
 function quoteDisplay(value: string): string {
   return `"${redactSecrets(value).replace(/"/g, '\\"')}"`;
+}
+
+function shellQuote(value: string): string {
+  return `'${String(value).replace(/'/g, "'\\''")}'`;
 }
 
 function redactPreview(value: string): string | null {

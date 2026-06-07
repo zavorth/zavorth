@@ -4,6 +4,7 @@ export type ZavorthNaturalRuntimeQuestionIntent =
   | 'runtime_summary'
   | 'providers_ready'
   | 'channels_ready'
+  | 'execution_backends_ready'
   | 'approvals_pending'
   | 'receipts_summary'
   | 'setup_gaps'
