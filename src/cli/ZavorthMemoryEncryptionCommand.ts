@@ -79,7 +79,7 @@ function readStringFlag(args: string[], name: string): string | null {
   const direct = args.find((arg) => arg.startsWith(`--${name}=`));
   if (direct) return direct.slice(name.length + 3);
   const index = args.indexOf(`--${name}`);
-  if (index >= 0 && args[index + 1]) return args[index + 1];
+  if (index >= 0 && args[index + 1] && !args[index + 1].startsWith('--')) return args[index + 1];
   return null;
 }
 

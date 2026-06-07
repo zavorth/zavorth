@@ -38,6 +38,7 @@ const initial: SetupState = {
 let state = initial;
 const subscribers = new Set<(state: SetupState) => void>();
 let listening = false;
+let listenPending = false;
 
 type Unlisten = () => void;
 
@@ -68,7 +69,7 @@ async function invokeCommand<T = unknown>(command: string, payload?: Record<stri
 async function listenForBootstrapEvents() {
   const listen = tauri()?.event?.listen;
   if (!listen) {
-    return;
+    throw new Error('Zavorth Setup event bridge is not available.');
   }
   await listen<BootstrapEvent>('zavorth-setup', event => applyEvent(event.payload));
 }
@@ -127,12 +128,30 @@ function applyEvent(event: BootstrapEvent) {
   });
 }
 
+function errorMessage(error: unknown): string {
+  return error instanceof Error ? error.message : String(error || 'Zavorth Setup bridge failed.');
+}
+
+function emitFailure(error: unknown) {
+  applyEvent({ type: 'failed', error: errorMessage(error) });
+}
+
 export function subscribe(callback: (state: SetupState) => void) {
   subscribers.add(callback);
   callback(state);
-  if (!listening) {
-    listening = true;
-    listenForBootstrapEvents().catch(() => undefined);
+  if (!listening && !listenPending) {
+    listenPending = true;
+    listenForBootstrapEvents()
+      .then(() => {
+        listening = true;
+      })
+      .catch(error => {
+        listening = false;
+        emitFailure(error);
+      })
+      .finally(() => {
+        listenPending = false;
+      });
   }
   return () => {
     subscribers.delete(callback);
@@ -141,21 +160,33 @@ export function subscribe(callback: (state: SetupState) => void) {
 
 export async function startInstall() {
   emit({ ...initial, route: 'progress', running: true });
-  await invokeCommand('start_bootstrap', {
-    args: {
-      tag: 'latest',
-      dryRun: false,
-      installRoot: null,
-    },
-  });
+  try {
+    await invokeCommand('start_bootstrap', {
+      args: {
+        tag: 'latest',
+        dryRun: false,
+        installRoot: null,
+      },
+    });
+  } catch (error) {
+    emitFailure(error);
+  }
 }
 
 export async function cancelInstall() {
-  await invokeCommand('cancel_bootstrap');
+  try {
+    await invokeCommand('cancel_bootstrap');
+  } catch (error) {
+    emitFailure(error);
+  }
 }
 
 export async function launchDesktop() {
-  await invokeCommand('launch_zavorth_desktop', { installRoot: state.installRoot });
+  try {
+    await invokeCommand('launch_zavorth_desktop', { installRoot: state.installRoot });
+  } catch (error) {
+    emitFailure(error);
+  }
 }
 
 export function snapshot() {

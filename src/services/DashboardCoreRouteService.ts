@@ -797,7 +797,7 @@ export class DashboardCoreRouteService {
   ): boolean {
     const authService = deps.authService;
     if (!authService) {
-      return true;
+      return false;
     }
     if (authService.resolveAuthenticatedIdentity(req)) {
       return true;

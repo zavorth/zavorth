@@ -2623,7 +2623,7 @@ async function runBuiltinLauncher(rawArgs: string[]): Promise<number | null> {
     return runZavorthTasksCommand(restArgs);
   }
 
-  if (command === 'memory' && ['encryption', 'encrypt', 'privacy', 'status', 'migrate', 'rollback'].includes(String(restArgs[0] || 'status').trim().toLowerCase())) {
+  if (command === 'memory' && ['encryption', 'encrypt', 'privacy', 'status', 'migrate', 'migration', 'preview', 'plan', 'apply', 'enable', 'rollback', 'restore'].includes(String(restArgs[0] || 'status').trim().toLowerCase())) {
     const { runZavorthMemoryEncryptionCommand } = await import('./cli/ZavorthMemoryEncryptionCommand.js');
     const memoryArgs = ['encryption', 'encrypt', 'privacy'].includes(String(restArgs[0] || '').trim().toLowerCase())
       ? restArgs.slice(1)

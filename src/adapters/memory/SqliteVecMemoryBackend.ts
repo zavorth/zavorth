@@ -265,6 +265,8 @@ export class SqliteVecMemoryBackend {
   }
 
   private openSqlite(dbPath: string): SqliteDatabase | null {
+    const existedBefore = dbPath !== ':memory:' && fs.existsSync(dbPath);
+    let db: SqliteDatabase | null = null;
     try {
       if (dbPath !== ':memory:') {
         fs.mkdirSync(path.dirname(dbPath), { recursive: true });
@@ -277,13 +279,15 @@ export class SqliteVecMemoryBackend {
           reason: sqlite.reason,
         };
         if (this.fullFileEncryption.required) {
+          if (existedBefore) {
+            throw new Error(sqlite.reason);
+          }
           return null;
         }
       }
 
-      const existedBefore = dbPath !== ':memory:' && fs.existsSync(dbPath);
       const Database = sqlite.constructorRef || (require('better-sqlite3') as SqliteConstructor);
-      const db = new Database(dbPath);
+      db = new Database(dbPath);
       if (this.fullFileEncryption.mode !== 'off' && sqlite.constructorRef && this.fullFileEncryption.key) {
         this.fullFileEncryption.driverPackage = sqlite.driverPackage;
         applySqlCipherPragmas(db, this.fullFileEncryption.key);
@@ -323,10 +327,32 @@ export class SqliteVecMemoryBackend {
         }
       }
       return db;
-    } catch {
+    } catch (error) {
+      const reason = error instanceof Error ? error.message : 'SQLite memory database open failed.';
+      try {
+        db?.close();
+      } catch {
+        // Best effort cleanup only.
+      }
       if (this.fullFileEncryption.mode !== 'off') {
         this.fullFileEncryption.status = this.fullFileEncryption.required ? 'required-unavailable' : 'unavailable';
         this.fullFileEncryption.active = false;
+        this.fullFileEncryption.proof = {
+          unkeyedOpenBlocked: null,
+          reason,
+        };
+      }
+      if (!existedBefore && dbPath !== ':memory:') {
+        for (const candidate of [dbPath, `${dbPath}-shm`, `${dbPath}-wal`]) {
+          try {
+            fs.rmSync(candidate, { force: true });
+          } catch {
+            // Best effort cleanup only.
+          }
+        }
+      }
+      if (existedBefore || this.fullFileEncryption.required) {
+        throw new Error(`SQLite memory database could not be opened safely: ${reason}`);
       }
       return null;
     }
@@ -438,8 +464,9 @@ export class SqliteVecMemoryBackend {
       return (JSON.parse(payload) as MemoryKnowledgeRecord[])
         .map(normalizeRecord)
         .filter((record): record is MemoryKnowledgeRecord => Boolean(record));
-    } catch {
-      return [];
+    } catch (error) {
+      const reason = error instanceof Error ? error.message : 'Invalid JSON memory fallback.';
+      throw new Error(`Unable to read encrypted JSON memory fallback: ${reason}`);
     }
   }
 

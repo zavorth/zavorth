@@ -1,6 +1,7 @@
 import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
+import type { MemoryKnowledgeRecord } from '../contracts/SourceMemoryDocumentTerminalPackContract.js';
 import { SqliteVecMemoryBackend } from '../adapters/memory/SqliteVecMemoryBackend.js';
 
 export type ZavorthMemoryEncryptionMode = 'off' | 'opportunistic' | 'required';
@@ -58,6 +59,10 @@ type MigrationInput = StatusInput & {
   backupPath?: string | null;
 };
 
+type PersistedMemoryStore =
+  | { exists: false; kind: 'none'; path: string }
+  | { exists: true; kind: 'sqlite' | 'json'; path: string };
+
 export class ZavorthMemoryEncryptionStatusService {
   private readonly now: () => Date;
   private readonly defaultDbPath?: string;
@@ -69,24 +74,27 @@ export class ZavorthMemoryEncryptionStatusService {
 
   public buildStatus(input: StatusInput = {}): ZavorthMemoryEncryptionStatus {
     const dbPath = this.resolveDbPath(input.dbPath);
-    const databaseExists = fs.existsSync(dbPath);
+    const store = this.resolvePersistedStore(dbPath);
+    const databaseExists = store.kind === 'sqlite';
     const jsonFallbackExists = fs.existsSync(jsonFallbackPath(dbPath));
-    const backendPath = databaseExists ? dbPath : this.createProbeDbPath();
+    const backendPath = store.exists ? dbPath : this.createProbeDbPath();
     const backend = new SqliteVecMemoryBackend({
       dbPath: backendPath,
       now: this.now,
+      forceJsonFallback: store.kind === 'json',
       fullFileEncryption: this.buildFullFileConfig(input),
     });
-    if (!databaseExists) {
+    if (!store.exists) {
       backend.write({
         namespace: 'memory-encryption-probe',
         text: 'Zavorth memory encryption status probe.',
         metadata: { source: 'memory-encryption-status' },
       });
     }
-    const snapshot = backend.buildReplaySnapshot(databaseExists ? undefined : 'memory-encryption-probe');
+    const records = store.exists ? backend.exportRecords().length : 0;
+    const snapshot = backend.buildReplaySnapshot(store.exists ? undefined : 'memory-encryption-probe');
     backend.close();
-    if (!databaseExists) {
+    if (!store.exists) {
       removeFileFamily(backendPath);
     }
 
@@ -97,7 +105,7 @@ export class ZavorthMemoryEncryptionStatusService {
       dbPath,
       databaseExists,
       jsonFallbackExists,
-      records: databaseExists ? snapshot.records : 0,
+      records,
       contentEncrypted: true,
       safeForDailyUse,
       atRestEncryptionMode: snapshot.atRestEncryptionMode,
@@ -114,43 +122,53 @@ export class ZavorthMemoryEncryptionStatusService {
 
   public previewMigration(input: MigrationInput = {}): ZavorthMemoryEncryptionMigrationReceipt {
     const dbPath = this.resolveDbPath(input.dbPath);
-    const backupPath = input.backupPath || defaultBackupPath(dbPath, this.now);
-    const status = this.buildStatus(input);
-    if (!fs.existsSync(dbPath)) {
+    const store = this.resolvePersistedStore(dbPath);
+    const backupPath = input.backupPath || defaultBackupPath(store.path, this.now);
+    if (!store.exists) {
       return this.migrationReceipt('preview', 'blocked', dbPath, backupPath, 0, false, 'Memory database does not exist yet.');
     }
-    if (status.fullFileEncryptionStatus === 'required-unavailable' || status.fullFileEncryptionStatus === 'unavailable') {
-      return this.migrationReceipt('preview', 'blocked', dbPath, backupPath, status.records, false, `Full-file encryption is ${status.fullFileEncryptionStatus}.`);
+    let records = 0;
+    try {
+      records = this.exportSourceRecords(store, dbPath, input).length;
+    } catch (error) {
+      return this.migrationReceipt('preview', 'failed', dbPath, backupPath, 0, false, error instanceof Error ? error.message : 'Memory source preview failed.');
     }
-    return this.migrationReceipt('preview', 'preview', dbPath, backupPath, status.records, status.fullFileEncrypted, 'Migration can be applied with backup and verification.');
+    let currentFullFileEncrypted = false;
+    try {
+      currentFullFileEncrypted = this.buildStatus(input).fullFileEncrypted;
+    } catch {
+      currentFullFileEncrypted = false;
+    }
+    const target = this.probeFullFileTarget(input, dbPath);
+    if (!target.fullFileEncrypted) {
+      return this.migrationReceipt('preview', 'blocked', dbPath, backupPath, records, false, `Full-file encryption is ${target.fullFileEncryptionStatus}.`);
+    }
+    return this.migrationReceipt('preview', 'preview', dbPath, backupPath, records, currentFullFileEncrypted, 'Migration can be applied with backup and verification.');
   }
 
   public applyMigration(input: MigrationInput = {}): ZavorthMemoryEncryptionMigrationReceipt {
     const dbPath = this.resolveDbPath(input.dbPath);
-    if (!fs.existsSync(dbPath)) {
+    const store = this.resolvePersistedStore(dbPath);
+    if (!store.exists) {
       return this.migrationReceipt('apply', 'blocked', dbPath, null, 0, false, 'Memory database does not exist yet.');
     }
 
-    const source = new SqliteVecMemoryBackend({
-      dbPath,
-      now: this.now,
-      fullFileEncryption: {
-        mode: 'off',
-      },
-    });
-    const records = source.exportRecords();
-    source.close();
-    const backupPath = input.backupPath || defaultBackupPath(dbPath, this.now);
+    let records: MemoryKnowledgeRecord[] = [];
+    try {
+      records = this.exportSourceRecords(store, dbPath, input);
+    } catch (error) {
+      return this.migrationReceipt('apply', 'failed', dbPath, null, 0, false, error instanceof Error ? error.message : 'Memory source export failed.');
+    }
+
+    const backupPath = input.backupPath || defaultBackupPath(store.path, this.now);
     const tempPath = dbPath.replace(/\.sqlite$/i, `.migrating-${process.pid}-${Date.now()}.sqlite`);
 
     try {
       const target = new SqliteVecMemoryBackend({
         dbPath: tempPath,
         now: this.now,
-        fullFileEncryption: this.buildFullFileConfig({
-          ...input,
-          mode: input.mode || 'required',
-        }),
+        atRestEncryptionKeyPath: defaultFieldKeyPath(dbPath),
+        fullFileEncryption: this.buildMigrationFullFileConfig(input, dbPath),
       });
       target.importRecords(records);
       const snapshot = target.buildReplaySnapshot(records[0]?.namespace || 'credential-vault');
@@ -161,8 +179,15 @@ export class ZavorthMemoryEncryptionStatusService {
         return this.migrationReceipt('apply', 'blocked', dbPath, backupPath, records.length, false, `Full-file encryption is ${snapshot.fullFileEncryptionStatus}.`);
       }
 
-      fs.copyFileSync(dbPath, backupPath);
+      fs.mkdirSync(path.dirname(backupPath), { recursive: true });
+      fs.copyFileSync(store.path, backupPath);
+      if (store.kind === 'json') {
+        removeSqliteFilesOnly(dbPath);
+      }
       fs.copyFileSync(tempPath, dbPath);
+      if (store.kind === 'json') {
+        rmSyncWithRetry(jsonFallbackPath(dbPath));
+      }
       removeFileFamily(tempPath);
       return this.migrationReceipt('apply', 'applied', dbPath, backupPath, records.length, true, 'Memory database migrated with verified full-file encryption.');
     } catch (error) {
@@ -177,7 +202,14 @@ export class ZavorthMemoryEncryptionStatusService {
     if (!backupPath || !fs.existsSync(backupPath)) {
       return this.migrationReceipt('rollback', 'blocked', dbPath, backupPath, 0, false, 'Backup path is required for rollback.');
     }
-    fs.copyFileSync(backupPath, dbPath);
+    if (backupPath.includes('.json.backup-')) {
+      removeSqliteFilesOnly(dbPath);
+      rmSyncWithRetry(defaultFullFileKeyPath(dbPath));
+      rmSyncWithRetry(`${defaultFullFileKeyPath(dbPath)}.dpapi`);
+      fs.copyFileSync(backupPath, jsonFallbackPath(dbPath));
+    } else {
+      fs.copyFileSync(backupPath, dbPath);
+    }
     return this.migrationReceipt('rollback', 'rolled-back', dbPath, backupPath, 0, false, 'Memory database restored from backup.');
   }
 
@@ -227,6 +259,120 @@ export class ZavorthMemoryEncryptionStatusService {
       ...(input.keyStore ? { keyStore: input.keyStore } : {}),
       ...(input.driverPackages ? { driverPackages: input.driverPackages } : {}),
     };
+  }
+
+  private buildMigrationFullFileConfig(input: StatusInput, dbPath: string): {
+    mode: ZavorthMemoryEncryptionMode;
+    key?: string | Buffer;
+    keyPath?: string;
+    keyStore?: 'auto' | 'file' | 'os';
+    driverPackages?: string[];
+  } {
+    const config = this.buildFullFileConfig({
+      ...input,
+      mode: input.mode || 'required',
+    });
+    if (config.mode !== 'off' && !config.key && !config.keyPath) {
+      config.keyPath = defaultFullFileKeyPath(dbPath);
+      config.keyStore = input.keyStore || config.keyStore || 'auto';
+    }
+    return config;
+  }
+
+  private buildPreviewFullFileConfig(input: StatusInput): {
+    mode: ZavorthMemoryEncryptionMode;
+    key?: string | Buffer;
+    keyPath?: string;
+    keyStore?: 'auto' | 'file' | 'os';
+    driverPackages?: string[];
+  } {
+    const config = this.buildFullFileConfig({
+      ...input,
+      mode: input.mode || 'required',
+    });
+    if (config.mode !== 'off' && !config.key) {
+      delete config.keyPath;
+      delete config.keyStore;
+      config.key = 'zavorth-memory-encryption-preview-key';
+    }
+    return config;
+  }
+
+  private exportSourceRecords(store: PersistedMemoryStore & { exists: true }, dbPath: string, input: StatusInput): MemoryKnowledgeRecord[] {
+    if (store.kind === 'json') {
+      const backend = new SqliteVecMemoryBackend({
+        dbPath,
+        now: this.now,
+        forceJsonFallback: true,
+        fullFileEncryption: { mode: 'off' },
+      });
+      try {
+        return backend.exportRecords();
+      } finally {
+        backend.close();
+      }
+    }
+
+    const attempts = [
+      { mode: 'off' as const },
+      this.buildMigrationFullFileConfig(input, dbPath),
+    ];
+    let lastError: unknown = null;
+    for (const fullFileEncryption of attempts) {
+      let backend: SqliteVecMemoryBackend | null = null;
+      try {
+        backend = new SqliteVecMemoryBackend({
+          dbPath,
+          now: this.now,
+          fullFileEncryption,
+        });
+        return backend.exportRecords();
+      } catch (error) {
+        lastError = error;
+      } finally {
+        backend?.close();
+      }
+    }
+    throw lastError instanceof Error ? lastError : new Error('Memory source export failed.');
+  }
+
+  private probeFullFileTarget(input: StatusInput, dbPath: string): {
+    fullFileEncrypted: boolean;
+    fullFileEncryptionStatus: ZavorthMemoryEncryptionStatus['fullFileEncryptionStatus'];
+  } {
+    const tempPath = dbPath.replace(/\.sqlite$/i, `.preview-${process.pid}-${Date.now()}.sqlite`);
+    let backend: SqliteVecMemoryBackend | null = null;
+    try {
+      backend = new SqliteVecMemoryBackend({
+        dbPath: tempPath,
+        now: this.now,
+        fullFileEncryption: this.buildPreviewFullFileConfig(input),
+      });
+      const snapshot = backend.buildReplaySnapshot('memory-encryption-preview');
+      return {
+        fullFileEncrypted: snapshot.fullFileEncrypted,
+        fullFileEncryptionStatus: snapshot.fullFileEncryptionStatus,
+      };
+    } catch {
+      return {
+        fullFileEncrypted: false,
+        fullFileEncryptionStatus: 'required-unavailable',
+      };
+    } finally {
+      backend?.close();
+      removeFileFamily(tempPath);
+    }
+  }
+
+  private resolvePersistedStore(dbPath: string): PersistedMemoryStore {
+    if (fs.existsSync(dbPath)) {
+      return { exists: true, kind: 'sqlite', path: dbPath };
+    }
+    const fallbackPath = jsonFallbackPath(dbPath);
+    if (fs.existsSync(fallbackPath)) {
+      return { exists: true, kind: 'json', path: fallbackPath };
+    }
+    return { exists: false, kind: 'none', path: dbPath };
   }
 
   private createProbeDbPath(): string {
@@ -286,8 +432,22 @@ function defaultBackupPath(dbPath: string, now: () => Date): string {
   return `${dbPath}.backup-${now().toISOString().replace(/[:.]/g, '-')}`;
 }
 
+function defaultFullFileKeyPath(dbPath: string): string {
+  return dbPath.replace(/\.sqlite$/i, '.sqlcipher.key');
+}
+
+function defaultFieldKeyPath(dbPath: string): string {
+  return dbPath.replace(/\.sqlite$/i, '.key');
+}
+
 function jsonFallbackPath(dbPath: string): string {
   return dbPath.replace(/\.sqlite$/i, '.json');
+}
+
+function removeSqliteFilesOnly(dbPath: string): void {
+  for (const candidate of [dbPath, `${dbPath}-shm`, `${dbPath}-wal`]) {
+    rmSyncWithRetry(candidate);
+  }
 }
 
 function removeFileFamily(dbPath: string): void {

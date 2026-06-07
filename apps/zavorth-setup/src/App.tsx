@@ -59,7 +59,14 @@ export function App() {
     return (
       <Screen>
         <Brand eyebrow="Installing" title="Setting up Zavorth." />
-        <div className="progress" aria-label="Install progress">
+        <div
+          className="progress"
+          role="progressbar"
+          aria-label="Install progress"
+          aria-valuemin={0}
+          aria-valuemax={100}
+          aria-valuenow={progress}
+        >
           <span style={{ width: `${progress}%` }} />
         </div>
         <ol className="stage-list">

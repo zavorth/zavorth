@@ -261,6 +261,19 @@ describe('SourceMemoryDocumentTerminalPackService Credential vault', () => {
     expect(fs.readFileSync(fallbackPath, 'utf8')).not.toContain('Required full file encryption');
   });
 
+  it('does not overwrite an unreadable encrypted json fallback', () => {
+    const dbPath = path.join(tempRoot, 'corrupt-json-fallback-memory.sqlite');
+    const fallbackPath = path.join(tempRoot, 'corrupt-json-fallback-memory.json');
+    fs.writeFileSync(fallbackPath, 'not-json', 'utf8');
+
+    expect(() => new SqliteVecMemoryBackend({
+      now,
+      dbPath,
+      forceJsonFallback: true,
+    })).toThrow(/Unable to read encrypted JSON memory fallback/);
+    expect(fs.readFileSync(fallbackPath, 'utf8')).toBe('not-json');
+  });
+
   it('does not claim full-file encryption when sqlite key pragmas are ignored', () => {
     const dbPath = path.join(tempRoot, 'unverified-full-file-memory.sqlite');
     const backend = new SqliteVecMemoryBackend({

@@ -173,7 +173,7 @@ export async function loadHome(sessionId?: string, responseProfile?: string): Pr
     method: 'GET',
     path: '/api/experience/home',
     query: {
-      surface: 'desktop',
+      surface: 'web',
       sessionId,
       responseProfile,
     },
@@ -212,7 +212,7 @@ export async function loadApprovals(): Promise<ApprovalItem[]> {
   const result = await apiRequest<{ approvals?: ApprovalItem[]; pending?: ApprovalItem[] }>({
     method: 'GET',
     path: '/api/experience/approvals',
-    query: { surface: 'desktop' },
+    query: { surface: 'web' },
   });
   const data = requireOk(result, 'Could not load approvals.');
   return data.approvals || data.pending || [];
@@ -227,7 +227,7 @@ export async function resolveApproval(
     path: `/api/experience/approvals/${encodeURIComponent(approvalId)}/decision`,
     body: {
       decision,
-      surface: 'desktop',
+      surface: 'web',
       userId: 'desktop-user',
     },
   });
@@ -238,7 +238,7 @@ export async function loadLearning(): Promise<LearningItem[]> {
   const result = await apiRequest<{ candidates?: LearningItem[]; learning?: { candidates?: LearningItem[] } }>({
     method: 'GET',
     path: '/api/experience/learning',
-    query: { surface: 'desktop' },
+    query: { surface: 'web' },
   });
   const data = requireOk(result, 'Could not load learning candidates.');
   return data.candidates || data.learning?.candidates || [];
@@ -253,7 +253,7 @@ export async function resolveLearning(
     path: `/api/experience/learning/${encodeURIComponent(candidateId)}/decision`,
     body: {
       decision,
-      surface: 'desktop',
+      surface: 'web',
       userId: 'desktop-user',
     },
   });
@@ -264,7 +264,7 @@ export async function loadTools(): Promise<ToolItem[]> {
   const result = await apiRequest<{ tools?: ToolItem[]; items?: ToolItem[] }>({
     method: 'GET',
     path: '/api/v2/echo/tools',
-    query: { surface: 'desktop' },
+    query: { surface: 'web' },
   });
   if (!result.ok) {
     return [];
@@ -276,7 +276,7 @@ export async function loadNexusStatus(): Promise<unknown> {
   const result = await apiRequest({
     method: 'GET',
     path: '/api/v2/nexus/status',
-    query: { surface: 'desktop' },
+    query: { surface: 'web' },
   });
   return result.ok ? result.data : null;
 }
@@ -285,7 +285,7 @@ export async function loadMemoryEncryptionStatus(): Promise<MemoryEncryptionStat
   const result = await apiRequest<{ status?: MemoryEncryptionStatus }>({
     method: 'GET',
     path: '/api/experience/memory/encryption',
-    query: { surface: 'desktop' },
+    query: { surface: 'web' },
   });
   if (!result.ok) {
     return null;
@@ -311,7 +311,7 @@ export async function runMemoryEncryptionMigration(input: {
       mode: 'required',
       keyStore: 'auto',
       backupPath: input.backupPath || undefined,
-      surface: 'desktop',
+      surface: 'web',
     },
     timeoutMs: 60000,
   });
