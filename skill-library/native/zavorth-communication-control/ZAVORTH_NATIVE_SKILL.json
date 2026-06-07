@@ -24,6 +24,8 @@
     "permissionProfileId":  "workspace-write-approval",
     "riskLevel":  "medium",
     "capabilityTags":  [
+                           "communication",
+                           "channel",
                            "workflow"
                        ],
     "presets":  [

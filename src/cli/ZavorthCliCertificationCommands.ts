@@ -176,23 +176,23 @@ function premiumBox(title: string, lines: string[]): string {
   const availableWidth = columns > 0 ? Math.max(48, Math.min(BORDER_WIDTH, columns - 4)) : BORDER_WIDTH;
   const panelWidth = Math.min(availableWidth, Math.max(44, cleanTitle.length + 8, ...lines.map((line) => visibleWidth(line) + 4)));
   return renderConsistencyBox(cleanTitle, lines, panelWidth);
-  const width = Math.min(BORDER_WIDTH, Math.max(44, cleanTitle.length + 8, ...lines.map((line) => visibleWidth(line) + 4)));
-  const inner = width - 4;
-  const titleText = ` ${cleanTitle} `;
-  const top = `Ã¢â€¢Â­Ã¢â€â‚¬${titleText}${'Ã¢â€â‚¬'.repeat(Math.max(0, width - titleText.length - 3))}Ã¢â€¢Â®`;
-  const body = lines.flatMap((line) => wrapLine(line, width - 4))
-    .map((line) => `Ã¢â€â€š ${line.padEnd(inner)} Ã¢â€â€š`);
-  const bottom = `Ã¢â€¢Â°${'Ã¢â€â‚¬'.repeat(width - 2)}Ã¢â€¢Â¯`;
-  return [top, ...body, bottom].join('\n');
 }
 
 function renderConsistencyBox(title: string, lines: string[], width: number): string {
   const inner = width - 4;
   const titleText = ` ${title} `;
-  const top = `Ã¢â€¢Â­${titleText}${'Ã¢â€â‚¬'.repeat(Math.max(0, width - visibleWidth(titleText) - 2))}Ã¢â€¢Â®`;
+  const border = {
+    topLeft: '\u250c',
+    topRight: '\u2510',
+    bottomLeft: '\u2514',
+    bottomRight: '\u2518',
+    horizontal: '\u2500',
+    vertical: '\u2502',
+  };
+  const top = `${border.topLeft}${titleText}${border.horizontal.repeat(Math.max(0, width - visibleWidth(titleText) - 2))}${border.topRight}`;
   const body = lines.flatMap((line) => wrapLine(line, inner))
-    .map((line) => `Ã¢â€â€š ${line.padEnd(inner)} Ã¢â€â€š`);
-  const bottom = `Ã¢â€¢Â°${'Ã¢â€â‚¬'.repeat(width - 2)}Ã¢â€¢Â¯`;
+    .map((line) => `${border.vertical} ${line.padEnd(inner)} ${border.vertical}`);
+  const bottom = `${border.bottomLeft}${border.horizontal.repeat(width - 2)}${border.bottomRight}`;
   return [top, ...body, bottom].join('\n');
 }
 

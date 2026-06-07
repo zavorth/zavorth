@@ -33,14 +33,14 @@
                     "power-user"
                 ],
     "inputContract":  [
-                          "user intent",
-                          "runtime context",
-                          "policy constraints"
+                          "operational context",
+                          "service state",
+                          "runbook requirements"
                       ],
     "outputContract":  [
-                           "governed guidance",
-                           "next action",
-                           "verification criteria"
+                           "runtime actions",
+                           "recovery steps",
+                           "health status"
                        ],
     "noExecutionByDefault":  true,
     "requiresPolicyBroker":  true,

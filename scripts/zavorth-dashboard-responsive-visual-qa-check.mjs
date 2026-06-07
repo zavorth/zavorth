@@ -5,8 +5,8 @@ import path from 'node:path';
 
 const rootDir = process.cwd();
 const files = {
-  css: 'src/ai-gateway/app/(zavorthControl)/control/zavorth-control/styles/zavorthControl.css',
-  visualQa: 'scripts/zavorth-control-visual-qa.ts',
+  css: 'src/ai-gateway/app/(dashboard)/control/command-center/styles/commandCenter.css',
+  visualQa: 'scripts/zavorth-dashboard-visual-qa.ts',
   packageJson: 'package.json',
 };
 
@@ -34,7 +34,7 @@ function main() {
   const packageJson = JSON.parse(read(files.packageJson));
   const workspaceCheck = String(packageJson.scripts?.['workspace:check'] || '');
 
-  assertContains(files.css, css, '.bsk-zavorthControl,\n.bsk-zavorthControl *');
+  assertContains(files.css, css, '.bsk-command-center,\n.bsk-command-center *');
   assertContains(files.css, css, 'box-sizing: border-box;');
   assertContains(files.css, css, 'max-width: 100vw;');
   assertContains(files.css, css, 'overflow-x: hidden;');
@@ -60,7 +60,7 @@ function main() {
     'zavorth:zavorthControl-responsive-visual-qa:check',
   );
 
-  console.log('[zavorthControl-responsive-visual-qa] ok responsive visual QA guard is wired');
+  console.log('[zavorth-dashboard-responsive-visual-qa] ok responsive visual QA guard is wired');
 }
 
 main();

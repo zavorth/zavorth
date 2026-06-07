@@ -33,14 +33,14 @@
                     "power-user"
                 ],
     "inputContract":  [
-                          "user intent",
-                          "runtime context",
-                          "policy constraints"
+                          "transaction intent",
+                          "ledger state",
+                          "approval thresholds"
                       ],
     "outputContract":  [
-                           "governed guidance",
-                           "next action",
-                           "verification criteria"
+                           "transaction preview",
+                           "financial impact",
+                           "audit trail"
                        ],
     "noExecutionByDefault":  true,
     "requiresPolicyBroker":  true,

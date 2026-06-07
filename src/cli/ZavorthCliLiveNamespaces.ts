@@ -3908,7 +3908,7 @@ function resolveRequestedSkillGovernanceMode(args: string[]): 'casual' | 'govern
   if (/\b(governed|governado|estrito|strict|enterprise|corporativo)\b/u.test(text)) {
     return 'governed';
   }
-  if (/\b(casual|rapido|rÃƒÂ¡pido|pessoal|personal|domestico|domÃƒÂ©stico)\b/u.test(text)) {
+  if (/\b(casual|rapido|r\u00e1pido|pessoal|personal|domestico|dom\u00e9stico)\b/u.test(text)) {
     return 'casual';
   }
   return null;
