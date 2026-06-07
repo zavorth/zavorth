@@ -15,9 +15,9 @@ configuration, policy, approval and receipts.
 | Backend | Status | Notes |
 | --- | --- | --- |
 | Local | Ready | Supervised host process. Not an OS sandbox. Mutations require approval. |
-| Docker | Configurable / on demand | Container envelope with network disabled by default. If the CLI exists but Zavorth is in a light profile, it is reported as available on demand instead of started at boot. |
+| Docker | Configurable / on-demand | Container envelope with network disabled by default. If the CLI exists and Zavorth is in a light profile, it is reported as available on demand rather than being started at boot. |
 | SSH | Configurable | Remote shell envelope. Requires `ZAVORTH_SSH_HOST`. |
-| WSL | Configurable / on demand on Windows | Linux runtime through `wsl.exe`. Presence can be detected without starting the Linux runtime; readiness probe is deferred until a task asks for it. |
+| WSL | Configurable / on-demand on Windows | Linux runtime through `wsl.exe`. Presence can be detected without starting the Linux runtime; readiness probe is deferred until a task asks for it. |
 | Vercel Sandbox | Configurable | Managed cloud sandbox. Requires `VERCEL_TOKEN` and explicit opt-in. |
 | Modal | Planned | Tracked as future adapter; no live claim today. |
 | Daytona | Planned | Tracked as future adapter; no live claim today. |
