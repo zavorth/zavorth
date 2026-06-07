@@ -17,6 +17,7 @@ import type { SalesPackChannelIoEnvelope } from '../contracts/SalesPackChannelIo
 import type { ExperienceCommand, ExperienceSurface } from './experience/ExperienceContracts.js';
 import { ExperienceCoreService } from './experience/ExperienceCoreService.js';
 import { globalLiveNodeRegistry } from './LiveNodeRegistryService.js';
+import { ZavorthMemoryEncryptionStatusService, type ZavorthMemoryEncryptionMode } from './ZavorthMemoryEncryptionStatusService.js';
 
 type WriteJson = (res: http.ServerResponse, body: unknown, statusCode?: number) => void;
 type WriteText = (res: http.ServerResponse, body: string, statusCode?: number) => void;
@@ -641,6 +642,10 @@ export class DashboardCoreRouteService {
     pathname: string,
     deps: DashboardCoreRouteDeps,
   ): Promise<boolean> {
+    if (pathname === '/api/experience/memory/encryption' && (req.method === 'GET' || req.method === 'POST')) {
+      return this.handleMemoryEncryptionRequest(req, res, url, deps);
+    }
+
     const service = deps.experienceCore;
     if (!service) {
       deps.writeJson(res, { ok: false, error: 'Experience Core is not attached to this runtime.' }, 503);
@@ -742,6 +747,114 @@ export class DashboardCoreRouteService {
 
     deps.writeJson(res, { ok: false, error: 'Experience route not found.' }, 404);
     return true;
+  }
+
+  private async handleMemoryEncryptionRequest(
+    req: http.IncomingMessage,
+    res: http.ServerResponse,
+    url: URL,
+    deps: DashboardCoreRouteDeps,
+  ): Promise<boolean> {
+    let body: Record<string, any> = {};
+    if (req.method === 'POST') {
+      body = await deps.readJsonBody(req);
+    }
+    if (!this.isExperienceManagementAuthorized(req, url, deps, body)) {
+      deps.writeJson(res, { ok: false, error: 'Unauthorized' }, 401);
+      return true;
+    }
+
+    const service = new ZavorthMemoryEncryptionStatusService();
+    const input = this.readMemoryEncryptionInput(url, body);
+    if (req.method === 'GET') {
+      deps.writeJson(res, {
+        ok: true,
+        surface: this.readOptionalString(url.searchParams.get('surface')) || 'web',
+        status: service.buildStatus(input),
+      });
+      return true;
+    }
+
+    const action = String(body.action || 'preview').trim().toLowerCase();
+    const receipt = action === 'apply' || action === 'enable'
+      ? service.applyMigration(input)
+      : action === 'rollback' || action === 'restore'
+        ? service.rollbackMigration(input)
+        : service.previewMigration(input);
+    deps.writeJson(res, {
+      ok: receipt.status !== 'failed',
+      receipt,
+      status: service.buildStatus(input),
+    }, receipt.status === 'blocked' ? 409 : receipt.status === 'failed' ? 500 : 200);
+    return true;
+  }
+
+  private isExperienceManagementAuthorized(
+    req: http.IncomingMessage,
+    url: URL,
+    deps: DashboardCoreRouteDeps,
+    body: Record<string, any> = {},
+  ): boolean {
+    const authService = deps.authService;
+    if (!authService) {
+      return true;
+    }
+    if (authService.resolveAuthenticatedIdentity(req)) {
+      return true;
+    }
+    const authorization = String(req.headers.authorization || '').trim();
+    const bearer = authorization.toLowerCase().startsWith('bearer ')
+      ? authorization.slice('bearer '.length).trim()
+      : '';
+    const token = bearer
+      || String(url.searchParams.get('token') || body.token || body.runtimeToken || '').trim();
+    return Boolean(token && authService.validate(token));
+  }
+
+  private readMemoryEncryptionInput(url: URL, body: Record<string, any>): {
+    dbPath?: string | null;
+    mode?: ZavorthMemoryEncryptionMode | null;
+    key?: string | null;
+    keyPath?: string | null;
+    keyStore?: 'auto' | 'file' | 'os' | null;
+    backupPath?: string | null;
+    driverPackages?: string[];
+  } {
+    return {
+      dbPath: this.readOptionalString(body.dbPath) || this.readOptionalString(url.searchParams.get('dbPath')),
+      mode: this.readMemoryEncryptionMode(body.mode) || this.readMemoryEncryptionMode(url.searchParams.get('mode')),
+      key: typeof body.key === 'string' ? body.key : null,
+      keyPath: this.readOptionalString(body.keyPath) || this.readOptionalString(url.searchParams.get('keyPath')),
+      keyStore: this.readMemoryEncryptionKeyStore(body.keyStore) || this.readMemoryEncryptionKeyStore(url.searchParams.get('keyStore')),
+      backupPath: this.readOptionalString(body.backupPath) || this.readOptionalString(url.searchParams.get('backupPath')),
+      driverPackages: Array.isArray(body.driverPackages)
+        ? body.driverPackages.map((entry) => String(entry || '').trim()).filter(Boolean)
+        : this.readMemoryEncryptionDrivers(body.drivers || url.searchParams.get('drivers')),
+    };
+  }
+
+  private readMemoryEncryptionMode(value: unknown): ZavorthMemoryEncryptionMode | null {
+    const text = String(value || '').trim().toLowerCase();
+    if (text === 'off' || text === 'opportunistic' || text === 'required') {
+      return text;
+    }
+    return null;
+  }
+
+  private readMemoryEncryptionKeyStore(value: unknown): 'auto' | 'file' | 'os' | null {
+    const text = String(value || '').trim().toLowerCase();
+    if (text === 'auto' || text === 'file' || text === 'os') {
+      return text;
+    }
+    return null;
+  }
+
+  private readMemoryEncryptionDrivers(value: unknown): string[] | undefined {
+    const text = String(value || '').trim();
+    if (!text) {
+      return undefined;
+    }
+    return text.split(',').map((entry) => entry.trim()).filter(Boolean);
   }
 
   private readExperienceSurface(value: unknown): ExperienceSurface {

@@ -148,6 +148,7 @@
     "docs/operations.md",
     "docs/self-modification.md",
     "docs/troubleshooting.md",
+    "docs/memory-encryption.md",
     "docs/zavorth-cli.md",
     "skill-library/native/"
   ],
@@ -354,6 +355,15 @@
     "provider-long-tail-activation:json": "npx tsx scripts/provider-long-tail-activation.ts --json",
     "provider-long-tail-activation:check": "node scripts/provider-long-tail-activation-check.mjs",
     "qa:provider-long-tail-activation": "node scripts/provider-long-tail-activation-check.mjs",
+    "source-memory-document-terminal-pack": "npx tsx scripts/source-memory-document-terminal-pack.ts",
+    "source-memory-document-terminal-pack:json": "npx tsx scripts/source-memory-document-terminal-pack.ts --json",
+    "source-memory-document-terminal-pack:check": "node scripts/source-memory-document-terminal-pack-check.mjs",
+    "qa:source-memory-document-terminal-pack": "npx jest tests/services/SourceMemoryDocumentTerminalPackService.test.ts --runInBand && node scripts/source-memory-document-terminal-pack-check.mjs",
+    "zavorth:memory-encryption": "npx tsx scripts/zavorth-memory-encryption.ts",
+    "zavorth:memory-encryption:json": "npx tsx scripts/zavorth-memory-encryption.ts status --json",
+    "zavorth:memory-encryption:check": "node scripts/zavorth-memory-encryption-check.mjs",
+    "zavorth:memory-encryption:sqlcipher-smoke": "node scripts/zavorth-memory-encryption-sqlcipher-smoke.mjs",
+    "qa:zavorth-memory-encryption": "npx jest tests/services/ZavorthMemoryEncryptionStatusService.test.ts tests/services/SourceMemoryDocumentTerminalPackService.test.ts --runInBand && node scripts/zavorth-memory-encryption-check.mjs",
     "zavorth:provider-live-matrix": "npx tsx scripts/zavorth-provider-readiness-matrix.ts live",
     "zavorth:provider-live-matrix:json": "npx tsx scripts/zavorth-provider-readiness-matrix.ts live --json",
     "zavorth:provider-live-matrix:check": "node scripts/zavorth-provider-readiness-matrix-check.mjs",
@@ -1236,6 +1246,7 @@
     "zustand": "^5.0.13"
   },
   "optionalDependencies": {
+    "better-sqlite3-multiple-ciphers": "^12.10.0",
     "node-pty": "^1.0.0",
     "playwright-core": "^1.54.2"
   },

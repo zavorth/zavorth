@@ -3,7 +3,7 @@
 Zavorth now has two native desktop surfaces:
 
 - **Zavorth Setup** installs, updates, repairs and checks the local runtime before daily use.
-- **Zavorth Desktop** opens the daily chat shell, manages the local runtime token, starts the runtime when needed and exposes quick access to logs and repair.
+- **Zavorth Desktop** is the daily native chat shell. It manages the local runtime token in the main process, starts the runtime when needed, calls the local API directly and exposes approvals, memory, skills, channels and settings without leaking the token to the renderer.
 
 ## Setup Flow
 
@@ -17,11 +17,12 @@ Setup keeps each step explicit, cancellable and local. It never prints the dashb
 ## Desktop Flow
 
 1. Desktop checks the local runtime status.
-2. If the runtime is already live, it opens the dashboard with a short-lived local token route.
-3. If the runtime is not live, Desktop can start it and then open the dashboard.
+2. If the runtime is already live, Desktop loads the native chat and hydrates it from `/api/experience/home`.
+3. If the runtime is not live, Desktop can start it and then retry the native API calls.
 4. If access breaks, Desktop can repair the token file and show the log folder.
+5. The renderer only sends local API paths to Electron; the main process injects the bearer token and blocks non-API or unsafe paths.
 
-The dashboard remains the main daily product. The desktop shell exists to remove manual terminal steps and keep startup, repair and local access in one place.
+The old web control surface remains available during migration, but Desktop is the intended daily product surface once each feature area is covered natively.
 
 ## Commands
 
@@ -35,4 +36,4 @@ npm run zavorth:desktop-setup:check
 
 ## Packaging Direction
 
-Zavorth Setup is a Tauri app so the installer can stay small. Zavorth Desktop is an Electron app so it can reuse the web dashboard shell while adding native runtime, files, logs, notifications and update affordances.
+Zavorth Setup is a Tauri app so the installer can stay small. Zavorth Desktop is an Electron app with its own React UI and a native bridge for runtime, files, logs, notifications and update affordances.

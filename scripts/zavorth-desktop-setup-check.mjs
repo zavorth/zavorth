@@ -9,7 +9,9 @@ const requiredFiles = [
   'apps/zavorth-desktop/package.json',
   'apps/zavorth-desktop/electron/main.cjs',
   'apps/zavorth-desktop/electron/preload.cjs',
+  'apps/zavorth-desktop/src/apiClient.ts',
   'apps/zavorth-desktop/src/App.tsx',
+  'apps/zavorth-desktop/src/slashCommands.ts',
   'apps/zavorth-desktop/src/styles.css',
   'apps/zavorth-setup/package.json',
   'apps/zavorth-setup/src/App.tsx',
@@ -67,7 +69,9 @@ if (failures.length === 0) {
     "preload: path.join(__dirname, 'preload.cjs')",
     'resolveZavorthHome',
     'startZavorthRuntime',
-    'buildDashboardUrl',
+    'buildRuntimeBaseUrl',
+    'zavorth:api:request',
+    '/api/experience/home',
   ]) {
     if (!main.includes(needle)) {
       failures.push(`desktop main missing contract: ${needle}`);
@@ -76,11 +80,15 @@ if (failures.length === 0) {
   if (/console\.log\([^)]*token/iu.test(main) || /rememberLog\([^)]*token/iu.test(main)) {
     failures.push('desktop main must not log dashboard tokens');
   }
+  if (/loadURL\(next\.dashboardUrl\)|buildDashboardUrl|dashboardUrl|\/dashboard/iu.test(main)) {
+    failures.push('desktop main must not load dashboard as the chat surface');
+  }
 
   const preload = read('apps/zavorth-desktop/electron/preload.cjs');
   for (const needle of [
     "contextBridge.exposeInMainWorld('zavorthDesktop'",
     'getRuntimeStatus',
+    'apiRequest',
     'repairAccess',
     'startSetup',
     'openLogs',
@@ -88,6 +96,49 @@ if (failures.length === 0) {
   ]) {
     if (!preload.includes(needle)) {
       failures.push(`desktop preload missing bridge API: ${needle}`);
+    }
+  }
+
+  const app = read('apps/zavorth-desktop/src/App.tsx');
+  for (const needle of [
+    'sendMessage',
+    'resolveApproval',
+    'resolveLearning',
+    'DesktopCommandBar',
+    'MemoryPanel',
+    'Memory protection',
+    'Advanced memory protection',
+    'runMemoryEncryptionMigration',
+    'SkillsPanel',
+    'ChannelsPanel',
+    'SettingsPanel',
+  ]) {
+    if (!app.includes(needle)) {
+      failures.push(`desktop app missing native surface: ${needle}`);
+    }
+  }
+
+  const apiClient = read('apps/zavorth-desktop/src/apiClient.ts');
+  for (const needle of [
+    '/api/experience/home',
+    '/api/experience/ask',
+    '/api/experience/approvals',
+    '/api/experience/learning',
+    '/api/experience/memory/encryption',
+    '/api/v2/echo/tools',
+    '/api/v2/nexus/status',
+    'loadMemoryEncryptionStatus',
+    'apiRequest',
+  ]) {
+    if (!apiClient.includes(needle)) {
+      failures.push(`desktop api client missing endpoint: ${needle}`);
+    }
+  }
+
+  const commands = read('apps/zavorth-desktop/src/slashCommands.ts');
+  for (const command of ['/stop', '/model', '/effort', '/profile', '/steer', '/usage', '/go', '/workflows', '/memory', '/skills', '/channels', '/settings']) {
+    if (!commands.includes(command)) {
+      failures.push(`desktop slash commands missing ${command}`);
     }
   }
 

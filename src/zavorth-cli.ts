@@ -62,6 +62,7 @@ const PUBLIC_COMMANDS = [
   'open',
   'providers',
   'models',
+  'memory',
   'mnemos',
   'swarm',
   'workflows',
@@ -2620,6 +2621,14 @@ async function runBuiltinLauncher(rawArgs: string[]): Promise<number | null> {
 
   if (command === 'tasks' || command === 'task') {
     return runZavorthTasksCommand(restArgs);
+  }
+
+  if (command === 'memory' && ['encryption', 'encrypt', 'privacy', 'status', 'migrate', 'rollback'].includes(String(restArgs[0] || 'status').trim().toLowerCase())) {
+    const { runZavorthMemoryEncryptionCommand } = await import('./cli/ZavorthMemoryEncryptionCommand.js');
+    const memoryArgs = ['encryption', 'encrypt', 'privacy'].includes(String(restArgs[0] || '').trim().toLowerCase())
+      ? restArgs.slice(1)
+      : restArgs;
+    return runZavorthMemoryEncryptionCommand(memoryArgs);
   }
 
   if (isZavorthLiveNamespaceCommand(command)) {
