@@ -3,7 +3,7 @@ const { contextBridge, ipcRenderer } = require('electron');
 contextBridge.exposeInMainWorld('zavorthDesktop', {
   getRuntimeStatus: () => ipcRenderer.invoke('zavorth:runtime:status'),
   startRuntime: () => ipcRenderer.invoke('zavorth:runtime:start'),
-  openDashboard: () => ipcRenderer.invoke('zavorth:dashboard:open'),
+  apiRequest: request => ipcRenderer.invoke('zavorth:api:request', request),
   repairAccess: () => ipcRenderer.invoke('zavorth:access:repair'),
   startSetup: () => ipcRenderer.invoke('zavorth:setup:start'),
   openLogs: () => ipcRenderer.invoke('zavorth:logs:open'),

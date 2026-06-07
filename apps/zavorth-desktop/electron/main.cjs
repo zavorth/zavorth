@@ -7,6 +7,7 @@ const {
 const crypto = require('node:crypto');
 const fs = require('node:fs');
 const http = require('node:http');
+const https = require('node:https');
 const os = require('node:os');
 const path = require('node:path');
 const { spawn } = require('node:child_process');
@@ -105,37 +106,136 @@ function resolveAccessToken({ generate = false } = {}) {
   return { token, source: 'generated' };
 }
 
-function publicDashboardUrl() {
-  const host = process.env.ZAVORTH_WEB_HOST && process.env.ZAVORTH_WEB_HOST !== '0.0.0.0'
-    ? process.env.ZAVORTH_WEB_HOST
-    : '127.0.0.1';
+function buildRuntimeBaseUrl() {
+  const rawHost = String(process.env.ZAVORTH_WEB_HOST || '127.0.0.1').trim();
+  const host = rawHost && rawHost !== '0.0.0.0' ? rawHost : '127.0.0.1';
   const port = Number(process.env.ZAVORTH_WEB_PORT || process.env.PORT || 3000);
-  return `http://${host}:${Number.isFinite(port) ? port : 3000}/dashboard`;
+  return `http://${host}:${Number.isFinite(port) ? port : 3000}`;
 }
 
-function buildDashboardUrl() {
-  const access = resolveAccessToken({ generate: true });
-  const publicUrl = publicDashboardUrl();
-  return {
-    publicUrl,
-    dashboardUrl: `${publicUrl}#token=${encodeURIComponent(access.token)}`,
-    tokenSource: access.source,
-    tokenReady: Boolean(access.token),
-  };
+function sanitizeApiPath(value) {
+  const text = String(value || '').trim();
+  if (!text.startsWith('/api/')) {
+    throw new Error('Only local Zavorth API paths are allowed.');
+  }
+  if (/^[a-z][a-z\d+.-]*:/iu.test(text) || text.includes('\\') || text.includes('..')) {
+    throw new Error('Unsafe local API path.');
+  }
+  return text;
 }
 
-function probeDashboard(publicUrl) {
+function buildLocalApiUrl(pathname, query) {
+  const url = new URL(sanitizeApiPath(pathname), buildRuntimeBaseUrl());
+  if (query && typeof query === 'object' && !Array.isArray(query)) {
+    for (const [key, value] of Object.entries(query)) {
+      if (value === undefined || value === null) {
+        continue;
+      }
+      url.searchParams.set(key, String(value));
+    }
+  }
+  return url;
+}
+
+function requestJson(url, options) {
+  const transport = url.protocol === 'https:' ? https : http;
+  const method = options.method || 'GET';
+  const headers = options.headers || {};
+  const body = options.body || null;
+  const timeoutMs = options.timeoutMs || 12000;
+
   return new Promise(resolve => {
-    const req = http.get(publicUrl, res => {
-      res.resume();
-      resolve(res.statusCode ? res.statusCode < 500 : false);
+    const req = transport.request(url, { method, headers }, res => {
+      const chunks = [];
+      let size = 0;
+      res.on('data', chunk => {
+        size += chunk.length;
+        if (size > 8 * 1024 * 1024) {
+          req.destroy(new Error('Local API response is too large.'));
+          return;
+        }
+        chunks.push(chunk);
+      });
+      res.on('end', () => {
+        const text = Buffer.concat(chunks).toString('utf8');
+        let data = text;
+        if (text) {
+          try {
+            data = JSON.parse(text);
+          } catch {
+            data = text;
+          }
+        }
+        resolve({
+          ok: Boolean(res.statusCode && res.statusCode >= 200 && res.statusCode < 300),
+          status: res.statusCode || 0,
+          data,
+          error: res.statusCode && res.statusCode >= 400 ? `Local API returned ${res.statusCode}.` : '',
+        });
+      });
     });
-    req.setTimeout(900, () => {
-      req.destroy();
-      resolve(false);
+
+    req.setTimeout(timeoutMs, () => {
+      req.destroy(new Error('Local API request timed out.'));
     });
-    req.on('error', () => resolve(false));
+    req.on('error', error => {
+      resolve({
+        ok: false,
+        status: 0,
+        data: null,
+        error: error.message || 'Local API request failed.',
+      });
+    });
+    if (body) {
+      req.write(body);
+    }
+    req.end();
   });
+}
+
+async function desktopApiRequest(input = {}) {
+  const method = String(input.method || 'GET').toUpperCase();
+  const body = input.body === undefined ? null : JSON.stringify(input.body);
+  const access = resolveAccessToken({ generate: true });
+  if (!access.token) {
+    return {
+      ok: false,
+      status: 401,
+      data: null,
+      error: 'Local access token is not ready.',
+    };
+  }
+
+  try {
+    const url = buildLocalApiUrl(input.path || '/api/experience/home', input.query);
+    return await requestJson(url, {
+      method,
+      body,
+      headers: {
+        Accept: 'application/json',
+        Authorization: `Bearer ${access.token}`,
+        ...(body ? { 'Content-Type': 'application/json' } : {}),
+      },
+      timeoutMs: Number(input.timeoutMs || 12000),
+    });
+  } catch (error) {
+    return {
+      ok: false,
+      status: 0,
+      data: null,
+      error: error instanceof Error ? error.message : 'Local API request failed.',
+    };
+  }
+}
+
+async function probeRuntime() {
+  const result = await desktopApiRequest({
+    method: 'GET',
+    path: '/api/experience/home',
+    query: { surface: 'desktop' },
+    timeoutMs: 900,
+  });
+  return Boolean(result.ok);
 }
 
 function cliCommand() {
@@ -184,17 +284,16 @@ function startZavorthRuntime() {
 }
 
 async function runtimeStatus(message = '') {
-  const url = buildDashboardUrl();
-  const running = await probeDashboard(url.publicUrl);
+  const access = resolveAccessToken({ generate: true });
+  const running = await probeRuntime();
   return {
-    ok: Boolean(url.tokenReady),
+    ok: Boolean(access.token),
     running,
-    dashboardUrl: url.dashboardUrl,
-    publicUrl: url.publicUrl,
-    tokenReady: url.tokenReady,
-    tokenSource: url.tokenSource,
+    baseUrl: buildRuntimeBaseUrl(),
+    tokenReady: Boolean(access.token),
+    tokenSource: access.source,
     runtimePid: runtimeProcess?.pid || null,
-    message: message || (running ? 'Local dashboard is reachable.' : 'Local dashboard is not reachable yet.'),
+    message: message || (running ? 'Local runtime is reachable.' : 'Local runtime is not reachable yet.'),
   };
 }
 
@@ -215,11 +314,11 @@ async function loadRenderer() {
 
 function createWindow() {
   mainWindow = new BrowserWindow({
-    width: 1180,
-    height: 780,
+    width: 1240,
+    height: 820,
     minWidth: 920,
     minHeight: 620,
-    backgroundColor: '#07080a',
+    backgroundColor: '#08090c',
     title: 'Zavorth',
     webPreferences: {
       preload: path.join(__dirname, 'preload.cjs'),
@@ -238,18 +337,7 @@ ipcMain.handle('zavorth:runtime:start', async () => {
   startZavorthRuntime();
   return runtimeStatus('Runtime launch requested.');
 });
-ipcMain.handle('zavorth:dashboard:open', async () => {
-  const before = await runtimeStatus();
-  if (!before.running) {
-    startZavorthRuntime();
-    await new Promise(resolve => setTimeout(resolve, 1200));
-  }
-  const next = await runtimeStatus('Opening local chat.');
-  if (mainWindow && !mainWindow.isDestroyed()) {
-    await mainWindow.loadURL(next.dashboardUrl);
-  }
-  return next;
-});
+ipcMain.handle('zavorth:api:request', async (_event, input) => desktopApiRequest(input));
 ipcMain.handle('zavorth:access:repair', async () => {
   resolveAccessToken({ generate: true });
   return runtimeStatus('Local access is ready.');
