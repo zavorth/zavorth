@@ -1,0 +1,205 @@
+:root {
+  color-scheme: dark;
+  font-family:
+    "Segoe UI",
+    -apple-system,
+    BlinkMacSystemFont,
+    "SF Pro Text",
+    system-ui,
+    sans-serif;
+  background: #07080a;
+  color: #f3f4f6;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  min-width: 360px;
+  min-height: 100vh;
+  background:
+    radial-gradient(circle at 50% 0%, rgba(230, 177, 64, 0.12), transparent 34rem),
+    linear-gradient(145deg, #0d0f13, #050607 62%);
+}
+
+button {
+  border: 0;
+  font: inherit;
+}
+
+.desktop-shell {
+  display: grid;
+  min-height: 100vh;
+  place-items: center;
+  padding: 24px;
+}
+
+.connect-panel {
+  width: min(680px, 100%);
+  border: 1px solid rgba(255, 255, 255, 0.09);
+  border-radius: 22px;
+  padding: 28px;
+  background: rgba(13, 15, 19, 0.82);
+  box-shadow: 0 24px 80px rgba(0, 0, 0, 0.4);
+  backdrop-filter: blur(20px);
+}
+
+.wordmark,
+.status-row,
+.actions,
+.secondary-actions,
+.event-list li {
+  display: flex;
+  align-items: center;
+}
+
+.wordmark {
+  gap: 12px;
+}
+
+.mark {
+  display: grid;
+  width: 42px;
+  height: 42px;
+  place-items: center;
+  border-radius: 13px;
+  background: linear-gradient(145deg, rgba(255, 196, 54, 0.18), rgba(255, 255, 255, 0.05));
+  color: #ffc436;
+  font-weight: 800;
+}
+
+.wordmark strong {
+  display: block;
+  font-size: 16px;
+}
+
+.wordmark small,
+.message,
+.connect-panel p,
+.status-row {
+  color: rgba(243, 244, 246, 0.64);
+}
+
+.status-row {
+  gap: 9px;
+  margin-top: 34px;
+  font-size: 13px;
+}
+
+.status-row code {
+  margin-left: auto;
+  color: rgba(243, 244, 246, 0.44);
+  font-family: "Cascadia Code", "SF Mono", ui-monospace, monospace;
+  font-size: 12px;
+}
+
+.status-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 999px;
+  background: #8b8f99;
+}
+
+.status-dot--ready {
+  background: #ffc436;
+  box-shadow: 0 0 0 5px rgba(255, 196, 54, 0.12);
+}
+
+h1 {
+  margin: 18px 0 10px;
+  color: #fff;
+  font-size: clamp(2.2rem, 8vw, 4.6rem);
+  letter-spacing: 0;
+  line-height: 0.95;
+}
+
+.connect-panel p {
+  max-width: 48rem;
+  margin: 0;
+  font-size: 15px;
+  line-height: 1.6;
+}
+
+.actions {
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 26px;
+}
+
+.actions button,
+.secondary-actions button {
+  min-height: 40px;
+  border-radius: 12px;
+  padding: 0 15px;
+  cursor: pointer;
+  color: #f8fafc;
+  background: rgba(255, 255, 255, 0.08);
+  transition: background 120ms ease, transform 120ms ease;
+}
+
+.actions button:first-child {
+  color: #1b1200;
+  background: #ffc436;
+  font-weight: 750;
+}
+
+.actions button:disabled,
+.secondary-actions button:disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+.actions button:not(:disabled):hover,
+.secondary-actions button:not(:disabled):hover {
+  background: rgba(255, 255, 255, 0.14);
+  transform: translateY(-1px);
+}
+
+.actions button:first-child:not(:disabled):hover {
+  background: #ffd265;
+}
+
+.secondary-actions {
+  gap: 8px;
+  margin-top: 10px;
+}
+
+.secondary-actions button {
+  min-height: 32px;
+  padding: 0 11px;
+  color: rgba(243, 244, 246, 0.72);
+  font-size: 12px;
+}
+
+.message {
+  margin-top: 18px;
+  font-size: 13px;
+}
+
+.event-list {
+  display: grid;
+  gap: 6px;
+  margin: 18px 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.event-list li {
+  justify-content: space-between;
+  gap: 16px;
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
+  padding-top: 8px;
+  color: rgba(243, 244, 246, 0.62);
+  font-size: 12px;
+}
+
+.event-list li[data-tone="error"] {
+  color: #ff9b9b;
+}
+
+.event-list time {
+  color: rgba(243, 244, 246, 0.36);
+  font-variant-numeric: tabular-nums;
+}
