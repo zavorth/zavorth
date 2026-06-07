@@ -16,7 +16,7 @@
   <link rel="stylesheet" href="styles/overlays.css?v=20260528-functional-polish">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css">
   <link rel="icon" type="image/svg+xml" href="assets/zavorth-icon.svg">
-  <script type="module" crossorigin src="./assets/index-D5s9-fX2.js"></script>
+  <script type="module" crossorigin src="./assets/index-CJV5t7LB.js"></script>
 </head>
 <body>
   <div class="core-frame" id="core-frame">
@@ -25,6 +25,10 @@
       <div class="bridge__left">
         <button class="bridge__menu-trigger" id="mobile-menu-trigger" aria-label="Open menu">
           <svg viewBox="0 0 24 24" width="20" height="20"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+        </button>
+        <button class="bridge__sidebar-toggle" id="sidebar-toggle" type="button" aria-label="Collapse sidebar" aria-pressed="false" title="Collapse sidebar">
+          <svg class="bridge__sidebar-toggle-icon bridge__sidebar-toggle-icon--collapse" viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="4" width="16" height="16" rx="2"/><path d="M10 4v16"/></svg>
+          <svg class="bridge__sidebar-toggle-icon bridge__sidebar-toggle-icon--expand" viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="4" width="16" height="16" rx="2"/><path d="M14 4v16"/></svg>
         </button>
         <div class="bridge__brand">
           <div class="bridge__logo">
@@ -73,16 +77,23 @@
           <div class="terminal-main">
             <div class="terminal-view is-empty" id="terminal-view">
               <div class="chat-console-bar" aria-label="Chat controls">
-                <div class="chat-console-bar__selects">
-                  <button class="chat-console-select" type="button" data-prompt="Show current session status and what is ready.">
-                    <span>Session</span><strong>main</strong>
+                <div class="chat-console-bar__primary">
+                  <button class="chat-console-select" type="button" data-chat-profile-cycle aria-label="Change experience profile">
+                    <span>Profile</span><strong data-chat-profile-label>Personal</strong>
                   </button>
-                  <button class="chat-console-select" type="button" data-prompt="Show the active provider, model and fallbacks.">
-                    <span>Provider</span><strong>Auto</strong>
-                  </button>
-                  <button class="chat-console-select" type="button" data-prompt="Show active input routes and which ones need setup.">
-                    <span>Input</span><strong>Local</strong>
-                  </button>
+                  <div class="chat-console-segment" role="group" aria-label="Reasoning effort">
+                    <span class="chat-console-segment__label">Effort</span>
+                    <button type="button" data-chat-effort="low">Low</button>
+                    <button type="button" data-chat-effort="balanced">Normal</button>
+                    <button type="button" data-chat-effort="deep">Deep</button>
+                    <button type="button" data-chat-effort="ultra">Ultra</button>
+                  </div>
+                  <div class="chat-console-segment chat-console-segment--mode" role="group" aria-label="Execution mode">
+                    <span class="chat-console-segment__label">Mode</span>
+                    <button type="button" data-engine-select="lite"><span>Chat</span></button>
+                    <button type="button" data-engine-select="velocity"><span>Fast</span></button>
+                    <button type="button" data-engine-select="shield"><span>Safe</span></button>
+                  </div>
                 </div>
                 <div class="chat-console-bar__actions">
                   <button class="chat-console-icon" type="button" data-prompt="Refresh readiness and summarize only what needs attention." aria-label="Refresh readiness">
@@ -101,7 +112,6 @@
                 <div class="terminal-hero__status">
                   <span class="terminal-hero__status-dot"></span>
                   <span>Zavorth ready</span>
-                  <span class="terminal-hero__engine" id="engine-mode-pill">Express ready</span>
                 </div>
                 <div class="terminal-hero__greeting">
                   <span class="terminal-hero__hello">Inbox</span>

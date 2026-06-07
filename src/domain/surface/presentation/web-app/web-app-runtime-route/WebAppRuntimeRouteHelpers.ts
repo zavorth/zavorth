@@ -346,6 +346,37 @@ export function isWebAppRuntimeCanonicalSessionSpawnRoute(pathname: string): boo
     || LEGACY_GATEWAY_SESSION_ROUTE_ALIASES.spawn.includes(pathname as typeof LEGACY_GATEWAY_SESSION_ROUTE_ALIASES.spawn[number]);
 }
 
+export function isWebAppRuntimeCanonicalSessionCompactRoute(pathname: string): boolean {
+  return pathname === GATEWAY_SESSION_ROUTE_PATHS.compact
+    || LEGACY_GATEWAY_SESSION_ROUTE_ALIASES.compact.includes(pathname as typeof LEGACY_GATEWAY_SESSION_ROUTE_ALIASES.compact[number]);
+}
+
+export function resolveWebAppRuntimeCanonicalSessionCommand(pathname: string): string | null {
+  const commandRoutes: Array<[string, readonly string[]]> = [
+    ['command', LEGACY_GATEWAY_SESSION_ROUTE_ALIASES.command],
+    ['status', LEGACY_GATEWAY_SESSION_ROUTE_ALIASES.status],
+    ['usage', LEGACY_GATEWAY_SESSION_ROUTE_ALIASES.usage],
+    ['model', LEGACY_GATEWAY_SESSION_ROUTE_ALIASES.model],
+    ['models', LEGACY_GATEWAY_SESSION_ROUTE_ALIASES.models],
+    ['profile', LEGACY_GATEWAY_SESSION_ROUTE_ALIASES.profile],
+    ['tools', LEGACY_GATEWAY_SESSION_ROUTE_ALIASES.tools],
+    ['skills', LEGACY_GATEWAY_SESSION_ROUTE_ALIASES.skills],
+    ['agents', LEGACY_GATEWAY_SESSION_ROUTE_ALIASES.agents],
+    ['whoami', LEGACY_GATEWAY_SESSION_ROUTE_ALIASES.whoami],
+    ['context', LEGACY_GATEWAY_SESSION_ROUTE_ALIASES.context],
+    ['plan-review', LEGACY_GATEWAY_SESSION_ROUTE_ALIASES['plan-review']],
+    ['brief-reply', LEGACY_GATEWAY_SESSION_ROUTE_ALIASES['brief-reply']],
+    ['test-loop', LEGACY_GATEWAY_SESSION_ROUTE_ALIASES['test-loop']],
+  ];
+  for (const [command, aliases] of commandRoutes) {
+    const canonicalPath = (GATEWAY_SESSION_ROUTE_PATHS as Record<string, string>)[command];
+    if (pathname === canonicalPath || aliases.includes(pathname)) {
+      return command;
+    }
+  }
+  return null;
+}
+
 export function isWebAppRuntimeFullDetailRequested(url: URL): boolean {
   const detail = String(url.searchParams.get('detail') || '').trim().toLowerCase();
   return detail === 'full' || detail === 'resolved' || detail === 'hydrated';

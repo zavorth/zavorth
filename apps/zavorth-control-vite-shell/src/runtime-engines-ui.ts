@@ -345,7 +345,7 @@ function ingestEngineTraces(events: Array<Record<string, any>> = []) {
 }
 
 function engineShortLabel(engineId: EngineId, fallback: string): string {
-  if (engineId === 'lite') return t('Lite');
+  if (engineId === 'lite') return t('Chat');
   if (engineId === 'velocity') return t('Fast');
   if (engineId === 'shield') return t('Safe');
   return fallback;
@@ -434,6 +434,11 @@ function updateExpressPill(snapshot: EngineSnapshot) {
   document.querySelectorAll('[data-runtime-engine-active]').forEach((node) => {
     node.textContent = engineShortLabel(snapshot.activeEngineId, active?.label || snapshot.activeEngineId);
   });
+  document.querySelectorAll('[data-engine-select]').forEach((node) => {
+    const selected = node.getAttribute('data-engine-select') === snapshot.activeEngineId;
+    node.classList.toggle('is-selected', selected);
+    node.setAttribute('aria-pressed', selected ? 'true' : 'false');
+  });
   if (!pill) return;
   const decision = snapshot.decision;
   pill.textContent = localizedEngineStatusLabel(snapshot);
@@ -503,10 +508,15 @@ async function loadEngines() {
 }
 
 async function selectEngine(engineId: EngineId) {
-  cachedEngineSnapshot = await fetchJson<EngineSnapshot>('/api/web/execution-engines', {
+  const request = {
     method: 'POST',
     body: JSON.stringify({ engineId }),
-  });
+  };
+  try {
+    cachedEngineSnapshot = await fetchJson<EngineSnapshot>('/api/web/execution-engines', request);
+  } catch {
+    cachedEngineSnapshot = localFallbackJson<EngineSnapshot>('/api/web/execution-engines', request);
+  }
   ingestEngineTraces(cachedEngineSnapshot.traces || []);
   persistEngineId(cachedEngineSnapshot.activeEngineId);
   renderEngineCards(cachedEngineSnapshot);
