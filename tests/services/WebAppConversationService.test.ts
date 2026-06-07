@@ -732,6 +732,35 @@ describe('WebAppConversationService natural-first routing', () => {
         }),
       }),
     }));
+
+    await service.processChatSend({
+      sessionId: 'session-dashboard-workflow-fractional-budget',
+      message: 'compare notas de pesquisa em paralelo',
+      composerSettings: { effort: 'low' },
+      workflowIntent: {
+        source: 'slash-command',
+        kind: 'governed-workflow',
+        command: '/workflows',
+        dynamicWorkflow: true,
+        maxFanout: 0.5,
+      },
+    });
+
+    const fractionalSnapshot = agentGateway.buildSnapshot({
+      activeSessionId: 'session-dashboard-workflow-fractional-budget',
+    });
+    expect(fractionalSnapshot.activeRun?.metadata).toEqual(expect.objectContaining({
+      dynamicWorkflow: expect.objectContaining({
+        command: '/workflows',
+        maxFanout: 1,
+        effortLevel: 'low',
+      }),
+      effortControl: expect.objectContaining({
+        budget: expect.objectContaining({
+          maxSubagents: 1,
+        }),
+      }),
+    }));
   });
 
   it('stops risky Dashboard requests at the Universal Agent approval gate', async () => {
