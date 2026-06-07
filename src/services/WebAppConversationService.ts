@@ -465,7 +465,7 @@ export class WebAppConversationService {
     });
     const requestedFanout = Number(workflowIntent?.maxFanout);
     const maxFanout = Number.isFinite(requestedFanout) && requestedFanout > 0
-      ? Math.min(Math.floor(requestedFanout), effortControl.budget.maxSubagents)
+      ? Math.min(Math.max(1, Math.floor(requestedFanout)), effortControl.budget.maxSubagents)
       : effortControl.budget.maxSubagents;
     const dynamicWorkflow = workflowIntent
       ? {
