@@ -141,9 +141,7 @@ export function App() {
       const home = await loadHome(sessionId, responseProfile);
       setSnapshot(home);
       const homeMessages = normalizeMessages(home.chat?.messages);
-      if (homeMessages.length > 0) {
-        setMessages(homeMessages);
-      }
+      setMessages(homeMessages);
       setNotice('');
       return home;
     } catch (error) {
@@ -475,6 +473,10 @@ function DesktopCommandBar(props: {
         placeholder="Ask Zavorth"
         rows={1}
         onKeyDown={event => {
+          const nativeEvent = event.nativeEvent as KeyboardEvent;
+          if (event.isComposing || nativeEvent.isComposing) {
+            return;
+          }
           if (event.key === 'Enter' && !event.shiftKey) {
             event.preventDefault();
             void props.onSubmit(props.value);
@@ -563,7 +565,7 @@ function MemoryPanel(props: {
         return (
           <div className="zvd-panel-card" key={id}>
             <strong>{candidate.title || candidate.kind || 'Learning candidate'}</strong>
-            <span>{candidate.summary || `${candidate.lane || 'lane'} · ${candidate.risk || 'risk unknown'}`}</span>
+            <span>{candidate.summary || `${candidate.lane || 'lane'} - ${candidate.risk || 'risk unknown'}`}</span>
             <div className="zvd-card-actions">
               <button disabled={props.busy} onClick={() => void props.onLearningDecision(id, 'approve')}>Approve</button>
               <button disabled={props.busy} onClick={() => void props.onLearningDecision(id, 'reject')}>Reject</button>

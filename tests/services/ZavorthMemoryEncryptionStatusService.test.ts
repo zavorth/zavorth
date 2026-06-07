@@ -142,6 +142,107 @@ describe('ZavorthMemoryEncryptionStatusService', () => {
       }),
     );
   });
+
+  it('uses the final database key path for file-backed full-file migration', () => {
+    const driverAvailable = canLoadDriver('better-sqlite3-multiple-ciphers');
+    if (!driverAvailable) {
+      expect(driverAvailable).toBe(false);
+      return;
+    }
+
+    const dbPath = path.join(tempRoot, 'file-key-memory.sqlite');
+    const backend = new SqliteVecMemoryBackend({ dbPath, now });
+    backend.write({
+      namespace: 'file-key',
+      text: 'File backed migration must be readable after the temp database is promoted.',
+      metadata: { source: 'file-key-migration-test' },
+    });
+    backend.close();
+
+    const service = new ZavorthMemoryEncryptionStatusService({ now });
+    const result = service.applyMigration({
+      dbPath,
+      mode: 'required',
+      keyStore: 'file',
+      driverPackages: ['better-sqlite3-multiple-ciphers'],
+    });
+
+    expect(result.status).toBe('applied');
+    expect(fs.existsSync(dbPath.replace(/\.sqlite$/i, '.sqlcipher.key'))).toBe(true);
+
+    const sealed = new SqliteVecMemoryBackend({
+      dbPath,
+      now,
+      fullFileEncryption: {
+        mode: 'required',
+        keyStore: 'file',
+        driverPackages: ['better-sqlite3-multiple-ciphers'],
+      },
+    });
+    const query = sealed.query({
+      namespace: 'file-key',
+      query: 'temp database promoted',
+    });
+    sealed.close();
+
+    expect(query.results).toHaveLength(1);
+    expect(query.results[0].text).toContain('File backed migration');
+  });
+
+  it('migrates encrypted JSON fallback into a verified full-file database', () => {
+    const driverAvailable = canLoadDriver('better-sqlite3-multiple-ciphers');
+    if (!driverAvailable) {
+      expect(driverAvailable).toBe(false);
+      return;
+    }
+
+    const dbPath = path.join(tempRoot, 'json-fallback-memory.sqlite');
+    const jsonPath = dbPath.replace(/\.sqlite$/i, '.json');
+    const backend = new SqliteVecMemoryBackend({
+      dbPath,
+      now,
+      fullFileEncryption: {
+        mode: 'required',
+        key: 'json-fallback-unavailable-source',
+        driverPackages: ['zavorth-missing-sqlcipher-driver'],
+      },
+    });
+    backend.write({
+      namespace: 'json-fallback',
+      text: 'JSON fallback migration keeps learned content sealed and readable.',
+      metadata: { source: 'json-fallback-migration-test' },
+    });
+    backend.close();
+
+    expect(fs.existsSync(dbPath)).toBe(false);
+    expect(fs.existsSync(jsonPath)).toBe(true);
+
+    const service = new ZavorthMemoryEncryptionStatusService({ now });
+    const result = service.applyMigration({
+      dbPath,
+      mode: 'required',
+      key: 'json-fallback-target-key',
+      driverPackages: ['better-sqlite3-multiple-ciphers'],
+    });
+
+    expect(result).toEqual(
+      expect.objectContaining({
+        status: 'applied',
+        recordsMigrated: 1,
+        fullFileEncrypted: true,
+      }),
+    );
+    expect(fs.existsSync(jsonPath)).toBe(false);
+    expect(fs.existsSync(dbPath)).toBe(true);
+
+    const status = service.buildStatus({
+      dbPath,
+      mode: 'required',
+      key: 'json-fallback-target-key',
+      driverPackages: ['better-sqlite3-multiple-ciphers'],
+    });
+    expect(status.fullFileEncrypted).toBe(true);
+  });
 });
 
 function canLoadDriver(packageName: string): boolean {

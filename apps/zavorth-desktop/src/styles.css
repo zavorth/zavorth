@@ -147,7 +147,6 @@ button:disabled {
 .zvd-controls select {
   appearance: none;
   min-width: 110px;
-  outline: none;
 }
 
 .zvd-controls button:hover,
@@ -284,12 +283,21 @@ button:disabled {
   max-height: 140px;
   resize: none;
   border: 0;
-  outline: none;
   padding: 12px 12px;
   color: #fff;
   background: transparent;
   font-size: 15px;
   line-height: 1.35;
+}
+
+.zvd-controls select:focus-visible,
+.zvd-controls button:focus-visible,
+.zvd-card-actions button:focus-visible,
+.zvd-composer textarea:focus-visible,
+.zvd-composer-actions button:focus-visible,
+.zvd-rail button:focus-visible {
+  outline: 2px solid rgba(231, 181, 79, 0.76);
+  outline-offset: 2px;
 }
 
 .zvd-composer-actions {

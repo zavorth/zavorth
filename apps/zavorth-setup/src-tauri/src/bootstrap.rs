@@ -125,9 +125,6 @@ pub async fn get_bootstrap_status(state: State<'_, Arc<AppState>>) -> Result<Boo
 
 #[tauri::command]
 pub async fn launch_zavorth_desktop(install_root: Option<String>) -> Result<(), String> {
-    let root = install_root
-        .map(PathBuf::from)
-        .unwrap_or_else(resolve_repo_root);
     if let Ok(desktop_exe) = std::env::var("ZAVORTH_DESKTOP_EXE") {
         StdCommand::new(desktop_exe)
             .spawn()
@@ -135,6 +132,7 @@ pub async fn launch_zavorth_desktop(install_root: Option<String>) -> Result<(), 
         return Ok(());
     }
 
+    let root = trusted_launch_root(install_root);
     let desktop = root.join("apps").join("zavorth-desktop");
     if desktop.exists() {
         let npm = if cfg!(target_os = "windows") { "npm.cmd" } else { "npm" };
@@ -148,6 +146,20 @@ pub async fn launch_zavorth_desktop(install_root: Option<String>) -> Result<(), 
     }
 
     return Err(format!("Zavorth Desktop was not found at {}", desktop.display()));
+}
+
+fn trusted_launch_root(install_root: Option<String>) -> PathBuf {
+    let trusted = resolve_repo_root();
+    let Some(candidate) = install_root else {
+        return trusted;
+    };
+    let Ok(canonical) = PathBuf::from(candidate).canonicalize() else {
+        return trusted;
+    };
+    if canonical == trusted || canonical.starts_with(&trusted) {
+        return canonical;
+    }
+    trusted
 }
 
 async fn run_bootstrap(

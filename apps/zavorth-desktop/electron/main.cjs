@@ -102,7 +102,12 @@ function resolveAccessToken({ generate = false } = {}) {
 
   const token = generateToken();
   fs.mkdirSync(path.dirname(tokenFile), { recursive: true });
-  fs.writeFileSync(tokenFile, `${token}\n`, 'utf8');
+  fs.writeFileSync(tokenFile, `${token}\n`, { encoding: 'utf8', mode: 0o600 });
+  try {
+    fs.chmodSync(tokenFile, 0o600);
+  } catch {
+    // Windows may ignore POSIX permissions; the token still stays in the local runtime directory.
+  }
   return { token, source: 'generated' };
 }
 
@@ -232,7 +237,7 @@ async function probeRuntime() {
   const result = await desktopApiRequest({
     method: 'GET',
     path: '/api/experience/home',
-    query: { surface: 'desktop' },
+    query: { surface: 'web' },
     timeoutMs: 900,
   });
   return Boolean(result.ok);
@@ -258,23 +263,45 @@ function startZavorthRuntime() {
   const err = fs.openSync(path.join(paths.logsDir, 'zavorth-desktop-runtime.err.log'), 'a');
   const cli = cliCommand();
   const access = resolveAccessToken({ generate: true });
+  let logDescriptorsClosed = false;
+  const closeLogDescriptors = () => {
+    if (logDescriptorsClosed) {
+      return;
+    }
+    logDescriptorsClosed = true;
+    for (const descriptor of [out, err]) {
+      try {
+        fs.closeSync(descriptor);
+      } catch {
+        // Best effort cleanup for parent-side descriptors.
+      }
+    }
+  };
 
-  runtimeProcess = spawn(cli.command, [...cli.args, 'go'], {
-    cwd: paths.repoRoot,
-    env: {
-      ...process.env,
-      ZAVORTH_HOME: paths.zavorthHome,
-      ZAVORTH_WEB_AUTH_TOKEN: access.token,
-    },
-    stdio: ['ignore', out, err],
-    windowsHide: true,
-  });
+  try {
+    runtimeProcess = spawn(cli.command, [...cli.args, 'go'], {
+      cwd: paths.repoRoot,
+      env: {
+        ...process.env,
+        ZAVORTH_HOME: paths.zavorthHome,
+        ZAVORTH_WEB_AUTH_TOKEN: access.token,
+      },
+      stdio: ['ignore', out, err],
+      windowsHide: true,
+    });
+  } catch (error) {
+    closeLogDescriptors();
+    throw error;
+  }
+  closeLogDescriptors();
 
   runtimeProcess.once('exit', code => {
+    closeLogDescriptors();
     emitBootEvent(code === 0 ? 'info' : 'warn', `Runtime process exited with code ${code ?? 'unknown'}.`);
     runtimeProcess = null;
   });
   runtimeProcess.once('error', error => {
+    closeLogDescriptors();
     emitBootEvent('error', `Runtime could not start: ${error.message}`);
     runtimeProcess = null;
   });
@@ -355,8 +382,10 @@ ipcMain.handle('zavorth:setup:start', async () => {
 ipcMain.handle('zavorth:logs:open', async () => {
   const { logsDir } = resolveRuntimePaths();
   fs.mkdirSync(logsDir, { recursive: true });
-  await shell.openPath(logsDir);
-  return { ok: true, path: logsDir };
+  const openError = await shell.openPath(logsDir);
+  return openError
+    ? { ok: false, path: logsDir, error: openError }
+    : { ok: true, path: logsDir };
 });
 ipcMain.handle('zavorth:boot:events', async () => lastEvents);
 
