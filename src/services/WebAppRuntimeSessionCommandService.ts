@@ -217,10 +217,10 @@ export class WebAppRuntimeSessionCommandService {
   }): RuntimeRecord {
     const snapshot = this.recordOrNull(context.canonicalState.snapshot) || {};
     const agentRuntime = this.recordOrNull(context.canonicalState.agentRuntime) || {};
-    const runs = [
+    const runs = this.mergeUniqueRecords([
       ...this.arrayOfRecords(agentRuntime.runs),
       ...this.arrayOfRecords(snapshot.runs),
-    ];
+    ]);
     const toolRuns = this.arrayOfRecords(snapshot.toolRuns);
     const usageRecords = [
       this.recordOrNull(snapshot.usage),
@@ -609,12 +609,46 @@ export class WebAppRuntimeSessionCommandService {
     const direct = this.recordOrNull(agentRuntime.activeRun)
       || this.recordOrNull(snapshot.activeRun);
     if (direct) return this.compactItem(direct, 'run');
-    const runs = [
+    const runs = this.mergeUniqueRecords([
       ...this.arrayOfRecords(agentRuntime.runs),
       ...this.arrayOfRecords(snapshot.runs),
-    ];
+    ]);
     const active = runs.find((run) => !this.isClosedStatus(run.status));
     return active ? this.compactItem(active, 'run') : null;
+  }
+
+  private mergeUniqueRecords(records: RuntimeRecord[]): RuntimeRecord[] {
+    const byKey = new Map<string, RuntimeRecord>();
+    records.forEach((record, index) => {
+      const key = this.recordIdentity(record, index);
+      if (!byKey.has(key)) {
+        byKey.set(key, record);
+        return;
+      }
+      byKey.set(key, {
+        ...record,
+        ...this.recordOrNull(byKey.get(key)),
+        usage: this.recordOrNull(byKey.get(key)?.usage) || this.recordOrNull(record.usage) || undefined,
+      });
+    });
+    return Array.from(byKey.values());
+  }
+
+  private recordIdentity(record: RuntimeRecord, index: number): string {
+    const direct = this.cleanLabel(
+      record.id
+      || record.runId
+      || record.taskId
+      || record.traceId
+      || record.requestId,
+    );
+    if (direct) return direct;
+    return [
+      this.cleanLabel(record.sessionId),
+      this.cleanLabel(record.status),
+      this.cleanLabel(record.title || record.summary || record.kind),
+      this.cleanLabel(record.createdAt || record.updatedAt),
+    ].filter(Boolean).join('|') || `record-${index}`;
   }
 
   private compactItem(item: RuntimeRecord, fallbackKind: string): RuntimeRecord {

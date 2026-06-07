@@ -208,6 +208,12 @@ export function initRuntimeBridge() {
     return numeric.toLocaleString('en-US');
   }
 
+  function nonNegativeInteger(value, fallback = 0) {
+    const numeric = Number(value);
+    if (!Number.isFinite(numeric)) return Math.max(0, Math.floor(Number(fallback) || 0));
+    return Math.max(0, Math.floor(numeric));
+  }
+
   function formatDate(value) {
     const date = new Date(String(value || ''));
     if (!Number.isFinite(date.getTime())) return 'now';
@@ -2395,7 +2401,7 @@ export function initRuntimeBridge() {
       body: JSON.stringify({
         sessionId: sessionId || undefined,
         reason: String(options?.reason || '').trim(),
-        keepLastMessages: Number(options?.keepLastMessages || 0) || 0,
+        keepLastMessages: nonNegativeInteger(options?.keepLastMessages),
         source: 'zavorth-control',
       }),
     });
@@ -2430,7 +2436,7 @@ export function initRuntimeBridge() {
         args: String(options?.args || '').trim(),
         composerSettings: options?.composerSettings || null,
         experienceProfile: options?.experienceProfile || null,
-        queueLength: Number(options?.queueLength || 0) || 0,
+        queueLength: nonNegativeInteger(options?.queueLength),
         clientContext: options?.clientContext || null,
         source: 'zavorth-control',
       }),

@@ -86,9 +86,21 @@ export function composerSettingLabel(key: string, value: unknown) {
 }
 
 export function isComposerPresetActive(preset: string, settings: ComposerSettings) {
-  if (preset === 'safe-review') return settings.model === 'safe' && settings.sensitivity === 'high';
-  if (preset === 'fast-local') return settings.model === 'local' && settings.focus;
-  return settings.model === 'auto' && settings.sensitivity === 'default';
+  const presetSettings = {
+    ...DEFAULT_COMPOSER_SETTINGS,
+    ...composerPresetSettings(preset),
+  };
+  const normalizedPreset = normalizeComposerSettings(presetSettings);
+  const normalizedSettings = normalizeComposerSettings(settings);
+  return [
+    'model',
+    'effort',
+    'sensitivity',
+    'tools',
+    'thinking',
+    'focus',
+    'fast',
+  ].every((key) => normalizedPreset[key as keyof ComposerSettings] === normalizedSettings[key as keyof ComposerSettings]);
 }
 
 export function composerPresetSettings(preset: string): Partial<ComposerSettings> {

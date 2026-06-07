@@ -20,6 +20,9 @@ function buildCanonicalState(overrides: Record<string, any> = {}) {
         },
       ],
       usage: { totalTokens: 900, costUsd: 0.0021 },
+      runs: [
+        { id: 'run-1', status: 'running', usage: { totalTokens: 300, costUsd: 0.001 } },
+      ],
     },
     agentRuntime: {
       activeRun: { id: 'run-1', status: 'running' },
