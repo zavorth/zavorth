@@ -1,20 +1,48 @@
 {
-  "id": "zavorth-dev-workbench",
-  "title": "Zavorth Dev Workbench",
-  "source": "workspace-library",
-  "trust": "trusted",
-  "tags": [
-    "workbench",
-    "implementation",
-    "inspect",
-    "through",
-    "actions",
-    "approvals",
-    "before",
-    "build"
-  ],
-  "curatedBy": "zavorth-skill-curator",
-  "contractVersion": "zavorth-skill-curator-live-loop/1",
-  "updatedAt": "2026-05-18T18:40:32.046Z",
-  "safeMetadataApply": true
+    "id":  "zavorth-dev-workbench",
+    "title":  "Zavorth Dev Workbench",
+    "source":  "workspace-library",
+    "trust":  "trusted",
+    "tags":  [
+                 "workbench",
+                 "implementation",
+                 "inspect",
+                 "through",
+                 "actions",
+                 "approvals",
+                 "before",
+                 "build"
+             ],
+    "curatedBy":  "zavorth-skill-curator",
+    "contractVersion":  "zavorth-skill-curator-live-loop/1",
+    "updatedAt":  "2026-05-18T18:40:32.046Z",
+    "safeMetadataApply":  true,
+    "name":  "Zavorth Dev Workbench",
+    "native":  true,
+    "description":  "Zavorth-owned native skill for dev workbench.",
+    "category":  "engineering",
+    "permissionProfileId":  "workspace-write-approval",
+    "riskLevel":  "medium",
+    "capabilityTags":  [
+                           "code",
+                           "workflow"
+                       ],
+    "presets":  [
+                    "developer",
+                    "ops",
+                    "power-user"
+                ],
+    "inputContract":  [
+                          "user intent",
+                          "runtime context",
+                          "policy constraints"
+                      ],
+    "outputContract":  [
+                           "governed guidance",
+                           "next action",
+                           "verification criteria"
+                       ],
+    "noExecutionByDefault":  true,
+    "requiresPolicyBroker":  true,
+    "receiptsRequired":  true
 }

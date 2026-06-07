@@ -11,9 +11,9 @@ export type ZavorthCapabilityAbsorptionStatus =
 
 export type ZavorthCapabilityAbsorptionSource =
   | 'zavorth'
-  | 'reference'
-  | 'native'
-  | 'cross-agent';
+  | 'catalog-seed'
+  | 'zavorth-native'
+  | 'ecosystem-signal';
 
 export type ZavorthCapabilityAbsorptionCategory =
   | 'governance'
@@ -71,9 +71,9 @@ export type ZavorthCapabilityAbsorptionSnapshot = {
     missing: number;
     requiresCredentials: number;
     requiresApp: number;
-    referenceInspired: number;
-    nativeInspired: number;
-    crossAgent: number;
+    catalogSeeded: number;
+    zavorthNativeSeeded: number;
+    ecosystemSignals: number;
     nextPhases: Record<ZavorthCapabilityAbsorptionItem['nextPhase'], number>;
     liveProofStillRequired: number;
     rawSecretsSerialized: false;

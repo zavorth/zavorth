@@ -75,6 +75,35 @@ describe('ZavorthProductCertificationService', () => {
     expect(report).toContain('local operating system for AI agents');
     expect(report).toContain('zavorth ready --product');
   });
+
+  it('treats provider mesh as ready when at least one route has live proof and missing credentials are optional expansion', async () => {
+    const service = new ZavorthProductCertificationService({
+      projectRoot: root,
+      env: { ZAVORTH_HOME: path.join(root, 'home') },
+      now: () => new Date('2026-06-02T12:00:00.000Z'),
+      providerActivation: {
+        buildSnapshot: async () => ({
+          summary: {
+            routes: 104,
+            liveReady: 4,
+            executionReady: 104,
+            needsCredentials: 83,
+            needsBaseUrl: 5,
+            needsConnector: 0,
+          },
+        }),
+      },
+    });
+
+    const snapshot = await service.buildSnapshot();
+    const gate = snapshot.gates.find((entry) => entry.id === 'provider-mesh');
+
+    expect(gate).toMatchObject({
+      status: 'ready',
+      nextAction: null,
+    });
+    expect(gate?.summary).toContain('4 live-proved');
+  });
 });
 
 function seedDocs(root: string): void {

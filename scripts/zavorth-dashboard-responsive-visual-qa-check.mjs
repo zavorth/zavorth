@@ -29,7 +29,7 @@ function assertOrder(label, content, before, after) {
 }
 
 function main() {
-  const css = read(files.css);
+  const css = read(files.css).replace(/\r\n/g, '\n');
   const visualQa = read(files.visualQa);
   const packageJson = JSON.parse(read(files.packageJson));
   const workspaceCheck = String(packageJson.scripts?.['workspace:check'] || '');

@@ -1,20 +1,48 @@
 {
-  "id": "zavorth-media-generation-review",
-  "title": "Zavorth Media Generation Review",
-  "source": "workspace-library",
-  "trust": "trusted",
-  "tags": [
-    "generation",
-    "review",
-    "media",
-    "artifact",
-    "modality",
-    "provider",
-    "audio",
-    "avoid"
-  ],
-  "curatedBy": "zavorth-skill-curator",
-  "contractVersion": "zavorth-skill-curator-live-loop/1",
-  "updatedAt": "2026-05-18T18:40:32.047Z",
-  "safeMetadataApply": true
+    "id":  "zavorth-media-generation-review",
+    "title":  "Zavorth Media Generation Review",
+    "source":  "workspace-library",
+    "trust":  "trusted",
+    "tags":  [
+                 "generation",
+                 "review",
+                 "media",
+                 "artifact",
+                 "modality",
+                 "provider",
+                 "audio",
+                 "avoid"
+             ],
+    "curatedBy":  "zavorth-skill-curator",
+    "contractVersion":  "zavorth-skill-curator-live-loop/1",
+    "updatedAt":  "2026-05-18T18:40:32.047Z",
+    "safeMetadataApply":  true,
+    "name":  "Zavorth Media Generation Review",
+    "native":  true,
+    "description":  "Zavorth-owned native skill for media generation review.",
+    "category":  "research",
+    "permissionProfileId":  "network-read-approval",
+    "riskLevel":  "medium",
+    "capabilityTags":  [
+                           "document",
+                           "research"
+                       ],
+    "presets":  [
+                    "developer",
+                    "ops",
+                    "power-user"
+                ],
+    "inputContract":  [
+                          "user intent",
+                          "runtime context",
+                          "policy constraints"
+                      ],
+    "outputContract":  [
+                           "governed guidance",
+                           "next action",
+                           "verification criteria"
+                       ],
+    "noExecutionByDefault":  true,
+    "requiresPolicyBroker":  true,
+    "receiptsRequired":  true
 }

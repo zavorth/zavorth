@@ -11,6 +11,8 @@ const rules = [
   runAllFixture(),
   runWhatsappFixture(),
   runSignalFixture(),
+  rulePublicDocsHonestReadiness(),
+  ruleFeatureDocsProofGated(),
   ruleWorkspaceCheck(),
 ];
 const failed = rules.filter((item) => item.status === 'failed');
@@ -97,6 +99,60 @@ function ruleWorkspaceCheck() {
   return rule('workspace-check-wire', 'workspace:check includes channel connection playbook gate', missing.length === 0, missing.length === 0 ? 'wired' : `${missing.length} missing`, 'script and workspace gate are present', missing);
 }
 
+function rulePublicDocsHonestReadiness() {
+  const file = 'docs/produto/canais/index.md';
+  const text = read(file);
+  const liveClaimChannels = [
+    'Discord',
+    'WhatsApp',
+    'Slack',
+    'Signal',
+    'iMessage',
+    'Microsoft Teams',
+    'Email',
+  ];
+  const rows = text.split(/\r?\n/);
+  const badClaims = liveClaimChannels.filter((label) => {
+    const row = rows.find((line) => line.trim().startsWith(`| **${label}** |`));
+    if (!row) return false;
+    const statusCell = row.split('|').map((cell) => cell.trim())[2] || '';
+    return /^live$/i.test(statusCell) || /^live\b/i.test(statusCell);
+  });
+  const hasHonestyMarker = text.includes('Live-ready means this local installation has passed its own doctor/live proof');
+  return rule(
+    'public-channel-docs-honest-readiness',
+    'Public channel docs do not claim optional channels are live without local proof',
+    badClaims.length === 0 && hasHonestyMarker,
+    badClaims.length === 0 ? 'no false live claims' : `false live claims: ${badClaims.join(', ')}`,
+    'optional channels are described as setup/proof gated and docs define live-ready',
+    badClaims.map((label) => `${file}: ${label} must not be listed as Live by default`),
+  );
+}
+
+function ruleFeatureDocsProofGated() {
+  const file = 'docs/produto/conceitos/features.md';
+  const text = read(file);
+  const missing = [];
+  for (const marker of [
+    'Guided first-class setup',
+    'Doctor/live proof gates external channels before they can become default routes',
+    'Every connected channel uses the same runtime',
+  ]) {
+    if (!text.includes(marker)) missing.push(`${file}: missing ${marker}`);
+  }
+  for (const stale of ['20+ more', 'Every channel uses the same runtime']) {
+    if (text.includes(stale)) missing.push(`${file}: stale overclaim ${stale}`);
+  }
+  return rule(
+    'feature-docs-proof-gated',
+    'Feature docs describe channel breadth as proof-gated',
+    missing.length === 0,
+    missing.length === 0 ? 'proof-gated language' : `${missing.length} issues`,
+    'features page uses guided/proof-gated channel wording',
+    missing,
+  );
+}
+
 function runTs(args) {
   return spawnSync(process.execPath, [
     path.join(root, 'node_modules', 'tsx', 'dist', 'cli.mjs'),
@@ -135,4 +191,8 @@ function printRules(items, prefix) {
 
 function compact(...parts) {
   return parts.join('\n').split(/\r?\n/).map((line) => line.trim()).filter(Boolean).slice(0, 12);
+}
+
+function escapeRegExp(value) {
+  return String(value).replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 }

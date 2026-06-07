@@ -22,11 +22,15 @@ async function main(): Promise<void> {
   if (args.requirePass && snapshot.status === 'blocked') {
     process.exitCode = 1;
   }
+  if (args.requireLive && snapshot.operationalClosure.liveProofSatisfied === false) {
+    process.exitCode = 2;
+  }
 }
 
 function parseArgs(argv: string[]): {
   json: boolean;
   requirePass: boolean;
+  requireLive: boolean;
   includeAdvanced: boolean;
   providerId: string | null;
 } {
@@ -38,6 +42,7 @@ function parseArgs(argv: string[]): {
   return {
     json: argv.includes('--json'),
     requirePass: argv.includes('--require-pass'),
+    requireLive: argv.includes('--require-live'),
     includeAdvanced: !argv.includes('--basic'),
     providerId: valueAfter('--provider'),
   };

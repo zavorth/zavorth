@@ -8,7 +8,7 @@ import { promisify } from 'util';
 import { formatZavorthCertificationHelp } from './ZavorthCliCertificationCommands.js';
 import { ZavorthOperationalReadinessService } from '../services/ZavorthOperationalReadinessService.js';
 import { ZavorthNativeCapabilityCertificationService } from '../services/ZavorthNativeCapabilityCertificationService.js';
-import { ZavorthBestInClassProductService } from '../services/ZavorthBestInClassProductService.js';
+import { ZavorthProductExcellenceService } from '../services/ZavorthProductExcellenceService.js';
 import { GoalLoopService } from '../services/GoalLoopService.js';
 import { GoalLoopDaemonService } from '../services/GoalLoopDaemonService.js';
 import { GoalLoopWorkerService } from '../services/GoalLoopWorkerService.js';
@@ -115,8 +115,8 @@ export async function runZavorthLiveNamespaceCommand(input: {
 
 async function runCertify(root: string, args: string[]) {
   const target = firstArg(args, 'operational');
-  if (['best-in-class', 'best', 'product-best', 'product-excellence'].includes(target)) {
-    const service = new ZavorthBestInClassProductService({
+  if (['product-excellence', 'product', 'excellence'].includes(target)) {
+    const service = new ZavorthProductExcellenceService({
       projectRoot: root,
       ...(readFlag(args, 'evidence-root') ? { evidenceRoot: readFlag(args, 'evidence-root') } : {}),
       env: process.env,
@@ -3908,7 +3908,7 @@ function resolveRequestedSkillGovernanceMode(args: string[]): 'casual' | 'govern
   if (/\b(governed|governado|estrito|strict|enterprise|corporativo)\b/u.test(text)) {
     return 'governed';
   }
-  if (/\b(casual|rapido|rÃ¡pido|pessoal|personal|domestico|domÃ©stico)\b/u.test(text)) {
+  if (/\b(casual|rapido|rÃƒÂ¡pido|pessoal|personal|domestico|domÃƒÂ©stico)\b/u.test(text)) {
     return 'casual';
   }
   return null;
