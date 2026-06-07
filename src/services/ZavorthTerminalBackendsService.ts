@@ -339,6 +339,8 @@ export class ZavorthTerminalBackendsService {
     const sshProof = sshConfigured
       ? readinessProof('configured-only', true, 'SSH host is configured; run a scoped live probe before treating it as strong execution readiness.', 'ssh <host> -- true')
       : readinessProof('not-configured', false, 'SSH host is not configured.', null);
+    const dockerState = backendStateFromProof(dockerProbe);
+    const wslState = backendStateFromProof(wslProbe);
     return [
       descriptor({
         id: 'local',
@@ -359,17 +361,13 @@ export class ZavorthTerminalBackendsService {
       descriptor({
         id: 'docker',
         label: 'Docker container',
-        status: dockerProbe.kind === 'host-probe'
-          ? 'ready'
-          : dockerProbe.kind === 'available-dormant'
-            ? 'available-on-demand'
-            : 'needs-configuration',
+        status: dockerState.status,
         isolation: 'container',
         installed: dockerProbe.kind === 'host-probe' || dockerProbe.kind === 'available-dormant',
-        dormant: dockerProbe.kind === 'available-dormant',
-        activationMode: dockerProbe.kind === 'host-probe' ? 'configured' : dockerProbe.kind === 'available-dormant' ? 'on-demand' : 'manual',
+        dormant: dockerState.dormant,
+        activationMode: dockerState.activationMode,
         liveCapable: true,
-        liveReady: dockerProbe.kind === 'host-probe',
+        liveReady: dockerState.liveReady,
         requiresConfiguration: ['Docker daemon reachable', `container image (${dockerImage})`],
         defaultCommand: `docker run --rm --network none -v <workspace>:/workspace -w /workspace ${dockerImage} sh -lc <command>`,
         nextCommand: dockerProbe.kind === 'available-dormant'
@@ -402,17 +400,13 @@ export class ZavorthTerminalBackendsService {
       descriptor({
         id: 'wsl',
         label: 'WSL Linux runtime',
-        status: wslProbe.kind === 'host-probe'
-          ? 'ready'
-          : wslProbe.kind === 'available-dormant'
-            ? 'available-on-demand'
-            : 'needs-configuration',
+        status: wslState.status,
         isolation: 'linux-vm',
         installed: wslProbe.kind === 'host-probe' || wslProbe.kind === 'available-dormant',
-        dormant: wslProbe.kind === 'available-dormant',
-        activationMode: wslProbe.kind === 'host-probe' ? 'configured' : wslProbe.kind === 'available-dormant' ? 'on-demand' : 'manual',
+        dormant: wslState.dormant,
+        activationMode: wslState.activationMode,
         liveCapable: true,
-        liveReady: wslProbe.kind === 'host-probe',
+        liveReady: wslState.liveReady,
         requiresConfiguration: wslDistro ? ['wsl.exe available'] : ['wsl.exe available', 'optional ZAVORTH_WSL_DISTRO'],
         defaultCommand: 'wsl.exe [-d <distro>] -- sh -lc <command>',
         nextCommand: wslProbe.kind === 'available-dormant'
@@ -756,6 +750,36 @@ function readinessProof(
     summary: sanitizeProjectionText(redactSecrets(summary)).slice(0, 500),
     command: command ? redactSecrets(command) : null,
     rawSecretSerialized: false,
+  };
+}
+
+function backendStateFromProof(proof: ZavorthTerminalBackendDescriptor['readinessProof']): Pick<
+  ZavorthTerminalBackendDescriptor,
+  'status' | 'liveReady' | 'dormant' | 'activationMode'
+> {
+  if (proof.kind === 'host-probe') {
+    return {
+      status: 'ready',
+      liveReady: true,
+      dormant: false,
+      activationMode: 'configured',
+    };
+  }
+
+  if (proof.kind === 'available-dormant') {
+    return {
+      status: 'available-on-demand',
+      liveReady: false,
+      dormant: true,
+      activationMode: 'on-demand',
+    };
+  }
+
+  return {
+    status: 'needs-configuration',
+    liveReady: false,
+    dormant: false,
+    activationMode: 'manual',
   };
 }
 
