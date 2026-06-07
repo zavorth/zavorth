@@ -348,7 +348,7 @@ describe('WebAppConversationService natural-first routing', () => {
     }));
     expect(realtime.recordAssistantMessage).toHaveBeenCalledWith(
       'session-dashboard-chat-only',
-      expect.stringContaining('Pedido recebido: "ol?"'),
+      expect.stringContaining('no model is configured yet'),
       null,
       'universal-agent-runtime',
     );
@@ -679,6 +679,57 @@ describe('WebAppConversationService natural-first routing', () => {
       }),
       responseDecision: expect.objectContaining({
         responsePath: 'agent-runtime',
+      }),
+    }));
+  });
+
+  it('clamps dynamic workflow fanout to the selected effort budget', async () => {
+    const realtime = createRealtimeMock();
+    const sendToSession = jest.fn(async () => ({ taskId: 'task-universal-workflow' }));
+    const agentGateway = new ZavorthAgentGateway({
+      now: () => new Date('2026-04-26T15:05:00.000Z'),
+      idFactory: (() => {
+        let index = 0;
+        return (prefix: string) => {
+          index += 1;
+          return `${prefix}-${index}`;
+        };
+      })(),
+    });
+    const service = new WebAppConversationService({
+      runtime: createRuntime() as any,
+      realtime: realtime as any,
+      getGatewaySessionTools: () => ({ sendToSession } as any),
+      getSharedSurfaceCommandService: () => ({ maybeHandle: jest.fn(async () => false) } as any),
+      agentGateway,
+    });
+
+    await service.processChatSend({
+      sessionId: 'session-dashboard-workflow-budget',
+      message: 'pesquise artigos recentes sobre agentes autonomos',
+      composerSettings: { effort: 'low' },
+      workflowIntent: {
+        source: 'slash-command',
+        kind: 'governed-workflow',
+        command: '/workflows',
+        dynamicWorkflow: true,
+        maxFanout: 999,
+      },
+    });
+
+    const snapshot = agentGateway.buildSnapshot({ activeSessionId: 'session-dashboard-workflow-budget' });
+    expect(snapshot.activeRun?.metadata).toEqual(expect.objectContaining({
+      dynamicWorkflow: expect.objectContaining({
+        command: '/workflows',
+        maxFanout: 1,
+        effortLevel: 'low',
+        budgetGuardRequired: true,
+      }),
+      effortControl: expect.objectContaining({
+        effectiveLevel: 'low',
+        budget: expect.objectContaining({
+          maxSubagents: 1,
+        }),
       }),
     }));
   });

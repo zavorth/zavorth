@@ -463,6 +463,10 @@ export class WebAppConversationService {
       request: message,
       profile: experienceProfile?.id || experienceProfile?.label || null,
     });
+    const requestedFanout = Number(workflowIntent?.maxFanout);
+    const maxFanout = Number.isFinite(requestedFanout) && requestedFanout > 0
+      ? Math.min(Math.floor(requestedFanout), effortControl.budget.maxSubagents)
+      : effortControl.budget.maxSubagents;
     const dynamicWorkflow = workflowIntent
       ? {
           source: workflowIntent.source || 'dashboard',
@@ -472,7 +476,7 @@ export class WebAppConversationService {
           budgetGuardRequired: true,
           finalSynthesisRequired: true,
           effortLevel: effortControl.effectiveLevel,
-          maxFanout: workflowIntent.maxFanout || effortControl.budget.maxSubagents,
+          maxFanout,
           rawSecretsSerialized: false,
         }
       : null;

@@ -1515,7 +1515,11 @@ export class WebAppRuntimeStateRouteService {
           dashboardChat: true,
           workflowIntent: this.isRecord(body?.workflowIntent) ? body.workflowIntent : null,
           composerSettings: this.isRecord(body?.composerSettings) ? body.composerSettings : null,
-          experienceProfile: this.isRecord(body?.experienceProfile) ? body.experienceProfile : null,
+          experienceProfile: this.isRecord(body?.experienceProfile)
+            ? body.experienceProfile
+            : typeof body?.experienceProfile === 'string'
+              ? body.experienceProfile.trim() || null
+              : null,
         },
       });
       deps.writeJson(res, {

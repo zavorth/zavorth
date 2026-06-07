@@ -220,6 +220,7 @@ export function initControlApp() {
       const key = preset.getAttribute('data-composer-preset');
       const active = isComposerPresetActive(key, composerSettingsState);
       preset.classList.toggle('is-active', Boolean(active));
+      preset.setAttribute('aria-pressed', active ? 'true' : 'false');
     });
     document.body.classList.toggle('zavorth-chat-focus-mode', Boolean(composerSettingsState.focus));
     if (composeInput && pendingAttachments.length === 0) {
@@ -389,6 +390,7 @@ export function initControlApp() {
     pendingSelectedSkills = [];
     pendingGuidedFlow = '';
     pendingWorkflowIntent = null;
+    pendingWorkspaceSelection = null;
     lastVoiceInput = null;
     refreshAttachmentHint();
     updateComposerContextBar();
@@ -1927,20 +1929,26 @@ export function initControlApp() {
     const snapshot = getDashboardSnapshot();
     const runs = getDashboardRuns();
     const usage = snapshot.usage || snapshot.summary?.usage || {};
-    const tokenValues = [
-      usage.totalTokens,
-      usage.tokens,
-      usage.inputTokens && usage.outputTokens ? Number(usage.inputTokens) + Number(usage.outputTokens) : null,
-      ...runs.map((run) => run?.usage?.totalTokens || run?.usage?.tokens || run?.tokensUsed),
-    ].map(Number).filter(Number.isFinite);
-    const costValues = [
-      usage.totalCost,
-      usage.costUsd,
-      usage.cost,
-      ...runs.map((run) => run?.usage?.costUsd || run?.costUsd || run?.cost),
-    ].map(Number).filter(Number.isFinite);
-    const totalTokens = tokenValues.reduce((sum, value) => sum + value, 0);
-    const totalCost = costValues.reduce((sum, value) => sum + value, 0);
+    const aggregateTokens = Number(
+      usage.totalTokens
+      ?? usage.tokens
+      ?? (Number.isFinite(Number(usage.inputTokens)) || Number.isFinite(Number(usage.outputTokens))
+        ? Number(usage.inputTokens || 0) + Number(usage.outputTokens || 0)
+        : NaN),
+    );
+    const aggregateCost = Number(usage.totalCost ?? usage.costUsd ?? usage.cost);
+    const runTokens = runs.reduce((sum, run) => {
+      const record = run?.usage || run || {};
+      const value = Number(record.totalTokens ?? record.tokens ?? record.tokensUsed);
+      return Number.isFinite(value) ? sum + value : sum;
+    }, 0);
+    const runCost = runs.reduce((sum, run) => {
+      const record = run?.usage || run || {};
+      const value = Number(record.costUsd ?? record.totalCost ?? record.cost);
+      return Number.isFinite(value) ? sum + value : sum;
+    }, 0);
+    const totalTokens = Number.isFinite(aggregateTokens) && aggregateTokens > 0 ? aggregateTokens : runTokens;
+    const totalCost = Number.isFinite(aggregateCost) && aggregateCost > 0 ? aggregateCost : runCost;
     const activeRun = getActiveRuntimeRun();
     const full = String(args || '').toLowerCase() === 'full';
     return [
@@ -2085,7 +2093,7 @@ export function initControlApp() {
       workflowIntent: pendingWorkflowIntent
         ? {
             kind: pendingWorkflowIntent.kind,
-            objective: pendingWorkflowIntent.objective || pendingWorkflowIntent.prompt || '',
+            objective: pendingWorkflowIntent.objectivePreview || pendingWorkflowIntent.objective || pendingWorkflowIntent.prompt || '',
           }
         : null,
     };
@@ -2442,6 +2450,8 @@ export function initControlApp() {
     pendingAttachments = [];
     pendingSelectedSkills = [];
     pendingGuidedFlow = '';
+    pendingWorkflowIntent = null;
+    pendingWorkspaceSelection = null;
     persistPromptQueue();
     promptQueueSessionKey = sessionId;
     promptQueue = [];

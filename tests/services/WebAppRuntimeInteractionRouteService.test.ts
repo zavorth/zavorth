@@ -21,6 +21,52 @@ describe('WebAppRuntimeInteractionRouteService', () => {
     expect(handleSessionCommand).toHaveBeenCalledTimes(1);
   });
 
+  it('allows safe session commands over GET but requires POST for mutating commands', async () => {
+    const service = new WebAppRuntimeInteractionRouteService();
+    const handleSessionCommand = jest.fn(async () => true);
+    const writeJson = jest.fn();
+    const deps = { writeJson } as unknown as WebAppRuntimeRouteDeps;
+
+    const safeHandled = await service.handleRequest(
+      { method: 'GET' } as http.IncomingMessage,
+      {} as http.ServerResponse,
+      new URL('http://localhost/api/web/session/status'),
+      '/api/web/session/status',
+      deps,
+      { handleSessionCommand } as any,
+    );
+
+    expect(safeHandled).toBe(true);
+    expect(handleSessionCommand).toHaveBeenCalledWith(
+      expect.anything(),
+      expect.anything(),
+      'status',
+    );
+
+    handleSessionCommand.mockClear();
+
+    const mutatingHandled = await service.handleRequest(
+      { method: 'GET' } as http.IncomingMessage,
+      {} as http.ServerResponse,
+      new URL('http://localhost/api/web/session/model?args=openai/gpt-5.5'),
+      '/api/web/session/model',
+      deps,
+      { handleSessionCommand } as any,
+    );
+
+    expect(mutatingHandled).toBe(true);
+    expect(handleSessionCommand).not.toHaveBeenCalled();
+    expect(writeJson).toHaveBeenCalledWith(
+      expect.anything(),
+      expect.objectContaining({
+        ok: false,
+        error: 'Session command model requires POST.',
+        rawSecretsSerialized: false,
+      }),
+      405,
+    );
+  });
+
   it('serves tool run cards and diff payloads for the session artifact plane', async () => {
     const service = new WebAppRuntimeInteractionRouteService();
     const writeJson = jest.fn();

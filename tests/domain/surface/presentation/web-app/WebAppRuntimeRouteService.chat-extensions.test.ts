@@ -51,6 +51,38 @@ function makeDeps(body: Record<string, unknown>, overrides: Partial<WebAppRuntim
 }
 
 describe('WebAppRuntimeRouteService chat extensions', () => {
+  it('preserves string experience profiles in dashboard chat payloads', async () => {
+    const routeService = new WebAppRuntimeRouteService();
+    const req = { method: 'POST' } as http.IncomingMessage;
+    const res = {} as http.ServerResponse;
+    const deps = makeDeps({
+      message: 'review this plan',
+      sessionId: 'session-main',
+      experienceProfile: 'developer',
+      composerSettings: { effort: 'deep' },
+    });
+
+    const handled = await routeService.handleRequest(
+      req,
+      res,
+      new URL('http://localhost/api/web/dashboard/chat-v1'),
+      '/api/web/dashboard/chat-v1',
+      deps,
+    );
+
+    expect(handled).toBe(true);
+    expect(deps.processChatSend).toHaveBeenCalledWith(expect.objectContaining({
+      message: 'review this plan',
+      source: 'zavorth-control',
+      experienceProfile: 'developer',
+      metadata: expect.objectContaining({
+        dashboardChat: true,
+        composerSettings: { effort: 'deep' },
+        experienceProfile: 'developer',
+      }),
+    }));
+  });
+
   it('routes detached side chat through the canonical web conversation runtime', async () => {
     const routeService = new WebAppRuntimeRouteService();
     const req = { method: 'POST' } as http.IncomingMessage;

@@ -1107,6 +1107,18 @@
   background: rgba(22, 26, 32, 0.92);
 }
 
+[data-theme="light"] .bridge__sidebar-toggle {
+  color: #475569;
+  border-color: rgba(15, 23, 42, 0.14);
+  background: rgba(248, 250, 252, 0.92);
+}
+
+[data-theme="light"] .bridge__sidebar-toggle:hover {
+  color: #0f172a;
+  border-color: rgba(197, 154, 74, 0.42);
+  background: #fff;
+}
+
 .bridge__sidebar-toggle:active {
   transform: translateY(1px);
 }
@@ -1119,7 +1131,7 @@
 .bridge__sidebar-toggle-icon {
   width: 18px;
   height: 18px;
-  stroke: currentColor;
+  stroke: currentcolor;
   fill: none;
   stroke-width: 1.7px;
   stroke-linecap: round;

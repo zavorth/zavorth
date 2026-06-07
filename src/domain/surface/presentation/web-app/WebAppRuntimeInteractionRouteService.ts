@@ -215,8 +215,33 @@ export class WebAppRuntimeInteractionRouteService {
     }
 
     const sessionCommand = resolveWebAppRuntimeCanonicalSessionCommand(pathname);
-    if (sessionCommand && (req.method === 'POST' || req.method === 'GET')) {
+    const safeGetSessionCommands = new Set([
+      'status',
+      'usage',
+      'models',
+      'profile',
+      'tools',
+      'skills',
+      'agents',
+      'whoami',
+      'context',
+      'plan-review',
+      'brief-reply',
+      'test-loop',
+    ]);
+    if (sessionCommand && req.method === 'POST') {
       return helpers.handleSessionCommand(req, res, sessionCommand);
+    }
+    if (sessionCommand && req.method === 'GET' && safeGetSessionCommands.has(sessionCommand)) {
+      return helpers.handleSessionCommand(req, res, sessionCommand);
+    }
+    if (sessionCommand) {
+      deps.writeJson(res, {
+        ok: false,
+        error: `Session command ${sessionCommand} requires POST.`,
+        rawSecretsSerialized: false,
+      }, 405);
+      return true;
     }
 
     if (pathname === '/api/web/permissions/approve' && req.method === 'POST') {

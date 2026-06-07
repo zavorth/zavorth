@@ -4,14 +4,16 @@ import path from 'node:path';
 import { spawnSync } from 'node:child_process';
 
 const root = process.cwd();
-const commands = ['status', 'usage', 'context', 'model', 'models', 'profile', 'tools', 'skills', 'agents', 'whoami', 'plan-review', 'brief-reply', 'test-loop'];
-const rules = [
+const backendCommands = ['status', 'usage', 'context', 'model', 'models', 'profile', 'tools', 'skills', 'agents', 'whoami', 'plan-review', 'brief-reply', 'test-loop'];
+const dailyCommands = [...backendCommands, 'stop', 'queue', 'approvals', 'compact', 'steer', 'go', 'workflows'];
+const ruleFns = [
   ruleFilesExist(),
   ruleBackendServiceMarkers(),
   ruleRouteContractMarkers(),
   ruleDashboardBridgeMarkers(),
   ruleFocusedTestsPass(),
 ];
+const rules = ruleFns.map((fn) => safeRule(fn));
 const failed = rules.filter((item) => item.status === 'failed');
 
 console.log('[zavorth-session-command-backends] checking dedicated chat command backends');
@@ -24,6 +26,7 @@ for (const item of rules) {
 if (failed.length > 0) process.exitCode = 1;
 
 function ruleFilesExist() {
+  return () => {
   const files = [
     'src/services/WebAppRuntimeSessionCommandService.ts',
     'tests/services/WebAppRuntimeSessionCommandService.test.ts',
@@ -33,12 +36,14 @@ function ruleFilesExist() {
   ];
   const missing = files.filter((file) => !fs.existsSync(path.join(root, file)));
   return rule('files', 'Session command backend files exist', missing.length === 0, `${files.length - missing.length}/${files.length}`, 'service, tests, route and dashboard files are present', missing);
+  };
 }
 
 function ruleBackendServiceMarkers() {
+  return () => {
   const service = read('src/services/WebAppRuntimeSessionCommandService.ts');
   const missing = [];
-  for (const command of commands) {
+  for (const command of backendCommands) {
     if (!service.includes(`case '${command}'`) && !service.includes(`${command}: '${command}'`)) {
       missing.push(`missing backend command ${command}`);
     }
@@ -47,15 +52,17 @@ function ruleBackendServiceMarkers() {
     if (!service.includes(marker)) missing.push(`missing safety marker ${marker}`);
   }
   return rule('service-markers', 'Service covers daily commands with redacted receipts', missing.length === 0, missing.length === 0 ? 'all markers' : `${missing.length} missing`, 'all commands, redaction, model metadata and no implicit provider probe', missing);
+  };
 }
 
 function ruleRouteContractMarkers() {
+  return () => {
   const contract = read('src/contracts/GatewayContract.ts');
   const routeHelpers = read('src/domain/surface/presentation/web-app/web-app-runtime-route/WebAppRuntimeRouteHelpers.ts');
   const interaction = read('src/domain/surface/presentation/web-app/WebAppRuntimeInteractionRouteService.ts');
   const routeService = read('src/domain/surface/presentation/web-app/WebAppRuntimeRouteService.ts');
   const missing = [];
-  for (const command of commands) {
+  for (const command of backendCommands) {
     if (!contract.includes(`${command}: '/api/web/gateway/sessions/${command}'`)
       && !contract.includes(`'${command}': '/api/web/gateway/sessions/${command}'`)) {
       missing.push(`missing canonical route ${command}`);
@@ -63,18 +70,22 @@ function ruleRouteContractMarkers() {
     if (!contract.includes(`/api/web/session/${command}`)) {
       missing.push(`missing legacy route alias ${command}`);
     }
-    if (!routeHelpers.includes(`['${command}', LEGACY_GATEWAY_SESSION_ROUTE_ALIASES.${command}]`)
-      && !routeHelpers.includes(`['${command}', LEGACY_GATEWAY_SESSION_ROUTE_ALIASES['${command}']]`)) {
-      missing.push(`missing route helper ${command}`);
-    }
   }
-  for (const marker of ['resolveWebAppRuntimeCanonicalSessionCommand', 'handleSessionCommand', 'WebAppRuntimeSessionCommandService']) {
-    if (!`${interaction}\n${routeService}`.includes(marker)) missing.push(`missing route marker ${marker}`);
+  for (const marker of [
+    'resolveWebAppRuntimeCanonicalSessionCommand',
+    'Object.entries(LEGACY_GATEWAY_SESSION_ROUTE_ALIASES)',
+    'structuralRoutes',
+    'handleSessionCommand',
+    'WebAppRuntimeSessionCommandService',
+  ]) {
+    if (!`${routeHelpers}\n${interaction}\n${routeService}`.includes(marker)) missing.push(`missing route marker ${marker}`);
   }
   return rule('route-contracts', 'Routes expose dedicated command backends', missing.length === 0, missing.length === 0 ? 'wired' : `${missing.length} missing`, 'canonical route, alias, resolver and handler are wired', missing);
+  };
 }
 
 function ruleDashboardBridgeMarkers() {
+  return () => {
   const app = read('apps/zavorth-control-vite-shell/src/app.ts');
   const bridge = read('apps/zavorth-control-vite-shell/src/runtime-bridge.ts');
   const missing = [];
@@ -86,12 +97,35 @@ function ruleDashboardBridgeMarkers() {
   for (const command of ['plan-review', 'brief-reply', 'test-loop']) {
     if (!app.includes(`runBackendSessionCommand('${command}'`)) missing.push(`dashboard ${command} backend call`);
   }
-  if (!app.includes("runBackendSessionCommand('model'")) missing.push('dashboard model backend call');
-  if (!app.includes('buildSlashClientContext')) missing.push('sanitized client context');
+  const dashboardMarkers = {
+    stop: 'stopActiveRunSlash',
+    queue: "command === 'queue'",
+    approvals: 'handleApprovalsSlash',
+    compact: 'compactSession',
+    steer: "command === 'steer'",
+    go: 'runWorkflowIntentSlash',
+    workflows: 'buildWorkflowSlashRequest',
+  };
+  for (const command of dailyCommands) {
+    if (backendCommands.includes(command)) continue;
+    const marker = dashboardMarkers[command];
+    if (!marker || !app.includes(marker)) missing.push(`dashboard ${command} handler`);
+  }
+  for (const marker of [
+    "runBackendSessionCommand('model'",
+    'buildSlashClientContext',
+    'pendingWorkflowIntent.objectivePreview',
+    'pendingWorkspaceSelection = null',
+    'nonNegativeInteger',
+  ]) {
+    if (!`${app}\n${bridge}`.includes(marker)) missing.push(`missing dashboard marker ${marker}`);
+  }
   return rule('dashboard-bridge', 'Dashboard uses backend commands before local fallback', missing.length === 0, missing.length === 0 ? 'wired' : `${missing.length} missing`, 'runtime bridge and app dispatch are wired', missing);
+  };
 }
 
 function ruleFocusedTestsPass() {
+  return () => {
   const result = spawnSync(process.execPath, [
     path.join(root, 'node_modules', 'jest', 'bin', 'jest.js'),
     'tests/services/WebAppRuntimeSessionCommandService.test.ts',
@@ -110,6 +144,7 @@ function ruleFocusedTestsPass() {
     'Jest command service and route tests pass',
     result.status === 0 ? [] : compact(result.stdout, result.stderr),
   );
+  };
 }
 
 function read(file) {
@@ -118,6 +153,21 @@ function read(file) {
 
 function rule(id, label, passed, observed, target, details = []) {
   return { id, label, status: passed ? 'passed' : 'failed', observed, target, details };
+}
+
+function safeRule(fn) {
+  try {
+    return fn();
+  } catch (error) {
+    return rule(
+      'rule-error',
+      'Rule execution failed',
+      false,
+      error?.message || String(error),
+      'rules report structured failures without aborting the check',
+      compact(error?.stack || error),
+    );
+  }
 }
 
 function compact(...parts) {
