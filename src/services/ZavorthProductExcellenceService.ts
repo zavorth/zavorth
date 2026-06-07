@@ -1,4 +1,4 @@
-import fs from 'node:fs';
+﻿import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 
@@ -11,31 +11,31 @@ import { ZavorthAppsSatelliteNodesService } from './ZavorthAppsSatelliteNodesSer
 import { ZavorthHomePathService } from './ZavorthHomePathService.js';
 import { ZavorthProductHardeningService } from './ZavorthProductHardeningService.js';
 
-export const ZAVORTH_BEST_IN_CLASS_PRODUCT_CONTRACT_VERSION = 'zavorth-best-in-class-product/1' as const;
+export const ZAVORTH_PRODUCT_EXCELLENCE_CONTRACT_VERSION = 'zavorth-product-excellence/1' as const;
 
-export type ZavorthBestInClassStatus = 'ready' | 'attention' | 'blocked';
+export type ZavorthProductExcellenceStatus = 'ready' | 'attention' | 'blocked';
 
-export type ZavorthBestInClassGate = {
+export type ZavorthProductExcellenceGate = {
   id: string;
   title: string;
-  status: ZavorthBestInClassStatus;
+  status: ZavorthProductExcellenceStatus;
   summary: string;
   evidence: string[];
   nextActions: string[];
 };
 
-export type ZavorthBestInClassAxis = {
+export type ZavorthProductExcellenceAxis = {
   id: 'research-autonomy' | 'personal-product' | 'governance';
   title: string;
-  status: ZavorthBestInClassStatus;
+  status: ZavorthProductExcellenceStatus;
   summary: string;
-  gates: ZavorthBestInClassGate[];
+  gates: ZavorthProductExcellenceGate[];
 };
 
-export type ZavorthBestInClassProductSnapshot = {
-  contractVersion: typeof ZAVORTH_BEST_IN_CLASS_PRODUCT_CONTRACT_VERSION;
+export type ZavorthProductExcellenceSnapshot = {
+  contractVersion: typeof ZAVORTH_PRODUCT_EXCELLENCE_CONTRACT_VERSION;
   generatedAt: string;
-  status: ZavorthBestInClassStatus;
+  status: ZavorthProductExcellenceStatus;
   projectRoot: string;
   summary: {
     axes: number;
@@ -47,18 +47,18 @@ export type ZavorthBestInClassProductSnapshot = {
     attentionGates: number;
     blockedGates: number;
   };
-  axes: ZavorthBestInClassAxis[];
+  axes: ZavorthProductExcellenceAxis[];
   productGates: {
-    tuiDaily: ZavorthBestInClassStatus;
-    zCanvasLive: ZavorthBestInClassStatus;
-    satelliteUsable: ZavorthBestInClassStatus;
-    wakeSetupReady: ZavorthBestInClassStatus;
-    cleanInstallReady: ZavorthBestInClassStatus;
+    tuiDaily: ZavorthProductExcellenceStatus;
+    zCanvasLive: ZavorthProductExcellenceStatus;
+    satelliteUsable: ZavorthProductExcellenceStatus;
+    wakeSetupReady: ZavorthProductExcellenceStatus;
+    cleanInstallReady: ZavorthProductExcellenceStatus;
   };
   commands: {
-    certify: 'zavorth certify best-in-class';
-    certifyJson: 'zavorth certify best-in-class --json';
-    qa: 'npm run qa:zavorth-best-in-class-product --silent';
+    certify: 'zavorth certify product-excellence';
+    certifyJson: 'zavorth certify product-excellence --json';
+    qa: 'npm run qa:zavorth-product-excellence --silent';
     tui: 'zavorth tui --json';
     canvas: 'zavorth dashboard';
     satellite: 'zavorth apps --action pairing.qr';
@@ -83,7 +83,7 @@ type ServiceOptions = {
   now?: () => Date;
 };
 
-export class ZavorthBestInClassProductService {
+export class ZavorthProductExcellenceService {
   private readonly projectRoot: string;
   private readonly evidenceRoot: string | null | undefined;
   private readonly env: Record<string, string | undefined>;
@@ -96,7 +96,7 @@ export class ZavorthBestInClassProductService {
     this.now = options.now || (() => new Date());
   }
 
-  public async buildSnapshot(): Promise<ZavorthBestInClassProductSnapshot> {
+  public async buildSnapshot(): Promise<ZavorthProductExcellenceSnapshot> {
     const [autonomy, product, governance] = await Promise.all([
       this.researchAutonomyAxis(),
       this.personalProductAxis(),
@@ -104,10 +104,10 @@ export class ZavorthBestInClassProductService {
     ]);
     const axes = [autonomy, product, governance];
     const gates = axes.flatMap((axis) => axis.gates);
-    const productGate = (id: string): ZavorthBestInClassStatus =>
+    const productGate = (id: string): ZavorthProductExcellenceStatus =>
       product.gates.find((gate) => gate.id === id)?.status || 'blocked';
     return {
-      contractVersion: ZAVORTH_BEST_IN_CLASS_PRODUCT_CONTRACT_VERSION,
+      contractVersion: ZAVORTH_PRODUCT_EXCELLENCE_CONTRACT_VERSION,
       generatedAt: this.now().toISOString(),
       status: this.aggregate(axes.map((axis) => axis.status)),
       projectRoot: this.projectRoot,
@@ -130,9 +130,9 @@ export class ZavorthBestInClassProductService {
         cleanInstallReady: productGate('clean-install-ready'),
       },
       commands: {
-        certify: 'zavorth certify best-in-class',
-        certifyJson: 'zavorth certify best-in-class --json',
-        qa: 'npm run qa:zavorth-best-in-class-product --silent',
+        certify: 'zavorth certify product-excellence',
+        certifyJson: 'zavorth certify product-excellence --json',
+        qa: 'npm run qa:zavorth-product-excellence --silent',
         tui: 'zavorth tui --json',
         canvas: 'zavorth dashboard',
         satellite: 'zavorth apps --action pairing.qr',
@@ -151,9 +151,9 @@ export class ZavorthBestInClassProductService {
     };
   }
 
-  public renderText(snapshot: ZavorthBestInClassProductSnapshot): string {
+  public renderText(snapshot: ZavorthProductExcellenceSnapshot): string {
     const lines = [
-      'Zavorth Best-in-Class Product',
+      'Zavorth Product Excellence',
       '',
       `Status: ${snapshot.status}`,
       `Axes: ${snapshot.summary.readyAxes}/${snapshot.summary.axes} ready | attention=${snapshot.summary.attentionAxes} | blocked=${snapshot.summary.blockedAxes}`,
@@ -172,7 +172,7 @@ export class ZavorthBestInClassProductService {
     return `${lines.join('\n')}\n`;
   }
 
-  private async researchAutonomyAxis(): Promise<ZavorthBestInClassAxis> {
+  private async researchAutonomyAxis(): Promise<ZavorthProductExcellenceAxis> {
     const certification = await new ZavorthNativeCapabilityCertificationService({
       projectRoot: this.projectRoot,
       ...(this.evidenceRoot !== undefined ? { evidenceRoot: this.evidenceRoot } : {}),
@@ -213,7 +213,7 @@ export class ZavorthBestInClassProductService {
     );
   }
 
-  private async personalProductAxis(): Promise<ZavorthBestInClassAxis> {
+  private async personalProductAxis(): Promise<ZavorthProductExcellenceAxis> {
     const [tui, a2ui, satellite, wake, cleanInstall] = await Promise.all([
       Promise.resolve(this.tuiGate()),
       Promise.resolve(this.zCanvasGate()),
@@ -225,11 +225,11 @@ export class ZavorthBestInClassProductService {
       'personal-product',
       'Produto pessoal, canais e apps',
       [tui, a2ui, satellite, wake, cleanInstall],
-      'The absorbed power is projected into daily user surfaces instead of staying hidden in backend services.',
+      'Daily user surfaces expose the runtime capabilities without forcing users into backend internals.',
     );
   }
 
-  private async governanceAxis(): Promise<ZavorthBestInClassAxis> {
+  private async governanceAxis(): Promise<ZavorthProductExcellenceAxis> {
     const hardening = await new ZavorthProductHardeningService({
       projectRoot: this.projectRoot,
       env: this.env,
@@ -265,11 +265,11 @@ export class ZavorthBestInClassProductService {
       'governance',
       'Governanca operacional',
       gates,
-      'Governance remains the differentiator while product and autonomy increase.',
+      'Governed execution stays clear, reversible and receipt-backed as the product becomes more capable.',
     );
   }
 
-  private tuiGate(): ZavorthBestInClassGate {
+  private tuiGate(): ZavorthProductExcellenceGate {
     const snapshot = buildZavorthCliRuntimeTuiSnapshot({
       projectRoot: this.projectRoot,
       mode: 'interactive',
@@ -307,10 +307,10 @@ export class ZavorthBestInClassProductService {
     );
   }
 
-  private zCanvasGate(): ZavorthBestInClassGate {
+  private zCanvasGate(): ZavorthProductExcellenceGate {
     const service = new ZavorthA2UIService({ now: this.now });
-    service.beginRendering('best-in-class-canvas', { ready: true }, { owner: 'best-in-class-certification' });
-    service.updateSurface('best-in-class-canvas', [
+    service.beginRendering('product-excellence-canvas', { ready: true }, { owner: 'product-excellence-certification' });
+    service.updateSurface('product-excellence-canvas', [
       {
         type: 'panel',
         id: 'canvas-panel',
@@ -322,10 +322,10 @@ export class ZavorthBestInClassProductService {
         ],
       },
     ]);
-    service.registerActionHandler('best-in-class-canvas', 'preview.action', () => ({ previewOnly: true }));
-    const snapshot = service.readSnapshot('best-in-class-canvas');
+    service.registerActionHandler('product-excellence-canvas', 'preview.action', () => ({ previewOnly: true }));
+    const snapshot = service.readSnapshot('product-excellence-canvas');
     const surface = snapshot.surfaces[0];
-    const streamBefore = service.readStream('best-in-class-canvas', 10);
+    const streamBefore = service.readStream('product-excellence-canvas', 10);
     const routeFilesReady = this.exists('apps/zavorth-control-vite-shell/src/a2ui-renderer.ts')
       && this.hasMarker('apps/zavorth-control-vite-shell/src/runtime-engines-ui.ts', '/api/v2/a2ui/action')
       && this.hasMarker('apps/zavorth-control-vite-shell/src/runtime-engines-ui.ts', 'renderA2UICanvasHtml');
@@ -352,7 +352,7 @@ export class ZavorthBestInClassProductService {
     );
   }
 
-  private satelliteGate(): ZavorthBestInClassGate {
+  private satelliteGate(): ZavorthProductExcellenceGate {
     const snapshot = new ZavorthAppsSatelliteNodesService({
       now: this.now,
       cwd: this.projectRoot,
@@ -390,12 +390,12 @@ export class ZavorthBestInClassProductService {
     );
   }
 
-  private wakeGate(): ZavorthBestInClassGate {
+  private wakeGate(): ZavorthProductExcellenceGate {
     const setup = new VoiceWakeDetectorSetupService({
       projectRoot: this.projectRoot,
       env: this.env,
     }).buildPlan({ choice: 'default-local' });
-    const tempRoot = fs.mkdtempSync(path.join(os.tmpdir(), 'zavorth-best-wake-'));
+    const tempRoot = fs.mkdtempSync(path.join(os.tmpdir(), 'zavorth-product-excellence-wake-'));
     try {
       const runtime = new VoiceWakeRuntimeService({
         stateFile: path.join(tempRoot, 'voice-wake-session.json'),
@@ -431,9 +431,9 @@ export class ZavorthBestInClassProductService {
     }
   }
 
-  private cleanInstallGate(): ZavorthBestInClassGate {
-    const tempRoot = fs.mkdtempSync(path.join(os.tmpdir(), 'zavorth-best-clean-root-'));
-    const tempHome = fs.mkdtempSync(path.join(os.tmpdir(), 'zavorth-best-clean-home-'));
+  private cleanInstallGate(): ZavorthProductExcellenceGate {
+    const tempRoot = fs.mkdtempSync(path.join(os.tmpdir(), 'zavorth-product-excellence-clean-root-'));
+    const tempHome = fs.mkdtempSync(path.join(os.tmpdir(), 'zavorth-product-excellence-clean-home-'));
     try {
       const home = new ZavorthHomePathService({
         projectRoot: tempRoot,
@@ -472,11 +472,11 @@ export class ZavorthBestInClassProductService {
   }
 
   private axis(
-    id: ZavorthBestInClassAxis['id'],
+    id: ZavorthProductExcellenceAxis['id'],
     title: string,
-    gates: ZavorthBestInClassGate[],
+    gates: ZavorthProductExcellenceGate[],
     summary: string,
-  ): ZavorthBestInClassAxis {
+  ): ZavorthProductExcellenceAxis {
     return {
       id,
       title,
@@ -489,21 +489,21 @@ export class ZavorthBestInClassProductService {
   private gate(
     id: string,
     title: string,
-    status: ZavorthBestInClassStatus,
+    status: ZavorthProductExcellenceStatus,
     summary: string,
     evidence: string[] = [],
     nextActions: string[] = [],
-  ): ZavorthBestInClassGate {
+  ): ZavorthProductExcellenceGate {
     return { id, title, status, summary, evidence, nextActions };
   }
 
-  private mapCertificationStatus(status: 'ready' | 'partial' | 'missing'): ZavorthBestInClassStatus {
+  private mapCertificationStatus(status: 'ready' | 'partial' | 'missing'): ZavorthProductExcellenceStatus {
     if (status === 'ready') return 'ready';
     if (status === 'partial') return 'attention';
     return 'blocked';
   }
 
-  private aggregate(statuses: ZavorthBestInClassStatus[]): ZavorthBestInClassStatus {
+  private aggregate(statuses: ZavorthProductExcellenceStatus[]): ZavorthProductExcellenceStatus {
     if (statuses.includes('blocked')) return 'blocked';
     if (statuses.includes('attention')) return 'attention';
     return 'ready';

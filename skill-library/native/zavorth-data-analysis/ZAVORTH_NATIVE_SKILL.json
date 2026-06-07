@@ -1,20 +1,48 @@
 {
-  "id": "zavorth-data-analysis",
-  "title": "Zavorth Data Analysis",
-  "source": "workspace-library",
-  "trust": "trusted",
-  "tags": [
-    "data",
-    "analysis",
-    "reproducible",
-    "structured",
-    "analyze",
-    "assumptions",
-    "avoid",
-    "credentials"
-  ],
-  "curatedBy": "zavorth-skill-curator",
-  "contractVersion": "zavorth-skill-curator-live-loop/1",
-  "updatedAt": "2026-05-18T18:40:32.045Z",
-  "safeMetadataApply": true
+    "id":  "zavorth-data-analysis",
+    "title":  "Zavorth Data Analysis",
+    "source":  "workspace-library",
+    "trust":  "trusted",
+    "tags":  [
+                 "data",
+                 "analysis",
+                 "reproducible",
+                 "structured",
+                 "analyze",
+                 "assumptions",
+                 "avoid",
+                 "credentials"
+             ],
+    "curatedBy":  "zavorth-skill-curator",
+    "contractVersion":  "zavorth-skill-curator-live-loop/1",
+    "updatedAt":  "2026-05-18T18:40:32.045Z",
+    "safeMetadataApply":  true,
+    "name":  "Zavorth Data Analysis",
+    "native":  true,
+    "description":  "Zavorth-owned native skill for data analysis.",
+    "category":  "research",
+    "permissionProfileId":  "workspace-read",
+    "riskLevel":  "medium",
+    "capabilityTags":  [
+                           "data",
+                           "research"
+                       ],
+    "presets":  [
+                    "developer",
+                    "ops",
+                    "power-user"
+                ],
+    "inputContract":  [
+                          "user intent",
+                          "runtime context",
+                          "policy constraints"
+                      ],
+    "outputContract":  [
+                           "governed guidance",
+                           "next action",
+                           "verification criteria"
+                       ],
+    "noExecutionByDefault":  true,
+    "requiresPolicyBroker":  true,
+    "receiptsRequired":  true
 }

@@ -9,7 +9,7 @@ import {
 } from '../contracts/ZavorthProductCertificationContract.js';
 import { buildZavorthCliRuntimeTuiSnapshot } from '../cli/hud/ZavorthCliRuntimeTuiProjection.js';
 import { ZavorthAgentKernelSnapshotService } from './ZavorthAgentKernelSnapshotService.js';
-import { ZavorthBestInClassProductService } from './ZavorthBestInClassProductService.js';
+import { ZavorthProductExcellenceService } from './ZavorthProductExcellenceService.js';
 import { ZavorthChannelLiveCanaryService } from './ZavorthChannelLiveCanaryService.js';
 import { ZavorthChannelMeshService } from './ZavorthChannelMeshService.js';
 import { ZavorthProviderActivationService } from './ZavorthProviderActivationService.js';
@@ -19,6 +19,7 @@ type ProductCertificationRuntime = {
   env?: Record<string, string | undefined>;
   now?: () => Date;
   includeDeepProductCheck?: boolean;
+  providerActivation?: Pick<ZavorthProviderActivationService, 'buildSnapshot'>;
 };
 
 export class ZavorthProductCertificationService {
@@ -26,29 +27,31 @@ export class ZavorthProductCertificationService {
   private readonly env: Record<string, string | undefined>;
   private readonly now: () => Date;
   private readonly includeDeepProductCheck: boolean;
+  private readonly providerActivation: Pick<ZavorthProviderActivationService, 'buildSnapshot'>;
 
   constructor(runtime: ProductCertificationRuntime = {}) {
     this.projectRoot = path.resolve(runtime.projectRoot || process.cwd());
     this.env = runtime.env || process.env;
     this.now = runtime.now || (() => new Date());
     this.includeDeepProductCheck = runtime.includeDeepProductCheck === true;
+    this.providerActivation = runtime.providerActivation || new ZavorthProviderActivationService({ now: this.now });
   }
 
   public async buildSnapshot(): Promise<ZavorthProductCertificationSnapshot> {
-    const [kernel, providers, channelCanary, bestInClass] = await Promise.all([
+    const [kernel, providers, channelCanary, productExcellence] = await Promise.all([
       new ZavorthAgentKernelSnapshotService({ now: this.now, env: this.env }).buildSnapshot({
         projectRoot: this.projectRoot,
         text: 'status do Zavorth',
         channel: 'cli',
         includeProviderActivation: true,
       }),
-      new ZavorthProviderActivationService({ now: this.now }).buildSnapshot({ includeAdvanced: true }),
+      this.providerActivation.buildSnapshot({ includeAdvanced: true }),
       Promise.resolve(new ZavorthChannelLiveCanaryService({
         now: this.now,
         env: this.env,
       }).buildSnapshot()),
       this.includeDeepProductCheck
-        ? new ZavorthBestInClassProductService({
+        ? new ZavorthProductExcellenceService({
           projectRoot: this.projectRoot,
           env: this.env,
           now: this.now,
@@ -77,19 +80,15 @@ export class ZavorthProductCertificationService {
       this.gate(
         'provider-mesh',
         'Provider Mesh',
-        providers.summary.needsConnector > 0 ? 'blocked' : providers.summary.needsCredentials > 0 ? 'attention' : 'ready',
-        `${providers.summary.executionReady}/${providers.summary.routes} provider route(s) have an execution path; live proof depends on configured credentials.`,
+        providerMeshStatus(providers.summary),
+        providerMeshSummary(providers.summary),
         [
           `liveReady=${providers.summary.liveReady}`,
           `needsCredentials=${providers.summary.needsCredentials}`,
           `needsBaseUrl=${providers.summary.needsBaseUrl}`,
           `needsConnector=${providers.summary.needsConnector}`,
         ],
-        providers.summary.needsConnector > 0
-          ? 'Add missing execution connectors before claiming those providers as usable.'
-          : providers.summary.needsCredentials > 0
-            ? 'Configure provider credentials, then run provider live canaries.'
-            : null,
+        providerMeshNextAction(providers.summary),
       ),
       this.gate(
         'channel-mesh',
@@ -211,14 +210,14 @@ export class ZavorthProductCertificationService {
         ],
         this.releaseHygieneReady() ? null : 'Register and run release:scan before publishing a public snapshot.',
       ),
-      ...(bestInClass ? [
+      ...(productExcellence ? [
         this.gate(
           'deep-product-check',
           'Deep Product Check',
-          bestInClass.status,
-          `${bestInClass.summary.readyGates}/${bestInClass.summary.gates} deep product gate(s) are ready.`,
-          [`axes=${bestInClass.summary.readyAxes}/${bestInClass.summary.axes}`],
-          bestInClass.status === 'ready' ? null : 'Run qa:zavorth-best-in-class-product and inspect attention gates.',
+          productExcellence.status,
+          `${productExcellence.summary.readyGates}/${productExcellence.summary.gates} deep product gate(s) are ready.`,
+          [`axes=${productExcellence.summary.readyAxes}/${productExcellence.summary.axes}`],
+          productExcellence.status === 'ready' ? null : 'Run qa:zavorth-product-excellence and inspect attention gates.',
         ),
       ] : []),
     ];
@@ -389,4 +388,39 @@ function aggregate(statuses: ZavorthProductCertificationStatus[]): ZavorthProduc
   if (statuses.includes('blocked')) return 'blocked';
   if (statuses.includes('attention')) return 'attention';
   return 'ready';
+}
+
+type ProviderMeshSummary = {
+  routes: number;
+  liveReady: number;
+  executionReady: number;
+  needsCredentials: number;
+  needsBaseUrl: number;
+  needsConnector: number;
+};
+
+function providerMeshStatus(summary: ProviderMeshSummary): ZavorthProductCertificationStatus {
+  if (summary.needsConnector > 0 && summary.executionReady === 0) return 'blocked';
+  if (summary.liveReady > 0 && summary.executionReady > 0) return 'ready';
+  if (summary.needsConnector > 0 || summary.needsCredentials > 0 || summary.needsBaseUrl > 0) return 'attention';
+  return 'ready';
+}
+
+function providerMeshSummary(summary: ProviderMeshSummary): string {
+  const base = `${summary.executionReady}/${summary.routes} provider route(s) have an execution path`;
+  if (summary.liveReady > 0) {
+    return `${base}; ${summary.liveReady} live-proved route(s) are usable now. Missing credentials/base URLs expand optional coverage.`;
+  }
+  return `${base}; live proof depends on configured credentials.`;
+}
+
+function providerMeshNextAction(summary: ProviderMeshSummary): string | null {
+  if (summary.needsConnector > 0 && summary.executionReady === 0) {
+    return 'Add missing execution connectors before claiming those providers as usable.';
+  }
+  if (summary.liveReady > 0 && summary.executionReady > 0) return null;
+  if (summary.needsCredentials > 0 || summary.needsBaseUrl > 0) {
+    return 'Configure provider credentials, then run provider live canaries.';
+  }
+  return null;
 }

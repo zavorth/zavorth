@@ -10,6 +10,7 @@ const rules = [
   ruleFilesExist(),
   ruleContainsMarkers(),
   ruleNativeSkillAssets(),
+  ruleNativeSkillHygiene(),
   runNativePackFixture(),
   runDeveloperActivationFixture(),
 ];
@@ -70,6 +71,9 @@ function ruleContainsMarkers() {
       'ZAVORTH_NATIVE_SKILL_DEFINITIONS',
       'large-skill-absorption',
       'agent-orchestrator',
+      'guided-plan-review',
+      'compact-channel-reply',
+      'governed-test-loop',
       'zavorth-native',
       'noDirectToolUseByDefault',
     ]],
@@ -113,6 +117,7 @@ function ruleContainsMarkers() {
 function ruleNativeSkillAssets() {
   const expected = [
     'task-planning',
+    'guided-plan-review',
     'agent-orchestrator',
     'large-skill-absorption',
     'security-audit',
@@ -123,10 +128,12 @@ function ruleNativeSkillAssets() {
     'web-research-governed',
     'provider-doctor',
     'channel-response-design',
+    'compact-channel-reply',
     'dashboard-ops',
     'memory-curator',
     'incident-triage',
     'user-onboarding',
+    'governed-test-loop',
   ];
   const missing = [];
   for (const id of expected) {
@@ -157,14 +164,62 @@ function ruleNativeSkillAssets() {
   };
 }
 
+function ruleNativeSkillHygiene() {
+  const nativeRoot = path.join(root, 'skill-library', 'native');
+  const forbidden = [
+    /\bexternal\s+(agent|assistant|runtime)\b/i,
+    /\bthird[- ]party\s+(agent|assistant|runtime)\b/i,
+    /\bmarket\s+(leader|rival)\b/i,
+    /\bcompetitive\s+(benchmark|comparison)\b/i,
+    /\b(reference|rival)\s+(agent|assistant|runtime)\b/i,
+    /\binspir(?:ed|ado|ada)\b/i,
+    /\bbest[- ]in[- ]class\b/i,
+    /\bsuperior(ity)?\b/i,
+  ];
+  const issues = [];
+  const deniedDirectExecutionProfile = ['local', 'execution'].join('-');
+  for (const dirent of fs.readdirSync(nativeRoot, { withFileTypes: true })) {
+    if (!dirent.isDirectory()) continue;
+    const dir = path.join(nativeRoot, dirent.name);
+    for (const fileName of ['SKILL.md', 'ZAVORTH_NATIVE_SKILL.json']) {
+      const file = path.join(dir, fileName);
+      if (!fs.existsSync(file)) continue;
+      const text = fs.readFileSync(file, 'utf8');
+      for (const pattern of forbidden) {
+        if (pattern.test(text)) issues.push(`${dirent.name}/${fileName}: forbidden native-surface wording ${pattern}`);
+      }
+      if (fileName === 'ZAVORTH_NATIVE_SKILL.json') {
+        try {
+          const manifest = JSON.parse(text);
+          if (manifest.noExecutionByDefault !== true) issues.push(`${dirent.name}: native skill must default to no execution`);
+          if (manifest.requiresPolicyBroker !== true) issues.push(`${dirent.name}: native skill must require policy broker`);
+          if (manifest.receiptsRequired !== true) issues.push(`${dirent.name}: native skill must require receipts`);
+          if (String(manifest.permissionProfileId || '').includes(deniedDirectExecutionProfile)) issues.push(`${dirent.name}: direct execution profile is not allowed for native skill manifests`);
+          if (manifest.id !== dirent.name) issues.push(`${dirent.name}: manifest id must match directory name`);
+        } catch (error) {
+          issues.push(`${dirent.name}: invalid manifest JSON ${error instanceof Error ? error.message : String(error)}`);
+        }
+      }
+    }
+  }
+  return {
+    id: 'native-skill-hygiene',
+    label: 'Native skill library stays Zavorth-owned and no-execution by default',
+    status: issues.length === 0 ? 'passed' : 'failed',
+    observed: issues.length === 0 ? 'clean' : `${issues.length} issue(s)`,
+    target: 'no external-reference wording, no direct execution defaults',
+    details: issues,
+  };
+}
+
 function runNativePackFixture() {
   return runPackRule({
     id: 'native-pack-list',
     label: 'Lists native pack without external sources',
-    target: 'snapshot passes with 15 native skills, 6 presets and no execution',
+    target: 'snapshot passes with 18 native skills, 6 presets and no execution',
     args: ['--json'],
     expect: (snapshot) => snapshot.status === 'passed'
-      && snapshot.summary.nativeSkills >= 15
+      && snapshot.summary.nativeSkills >= 18
       && snapshot.summary.presets === 6
       && snapshot.summary.executionPerformed === false
       && snapshot.summary.directToolUsePerformed === false
@@ -184,6 +239,8 @@ function runDeveloperActivationFixture() {
       && snapshot.activationPlan.requested === true
       && snapshot.activationPlan.readySkillIds.includes('large-skill-absorption')
       && snapshot.activationPlan.readySkillIds.includes('code-review')
+      && snapshot.activationPlan.readySkillIds.includes('governed-test-loop')
+      && snapshot.activationPlan.approvalRequiredSkillIds.includes('governed-test-loop')
       && snapshot.activationPlan.noExecutionPerformed === true
       && snapshot.activationPlan.noDirectToolUsePerformed === true,
   });

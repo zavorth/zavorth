@@ -1,0 +1,17 @@
+{
+  "id": "governed-test-loop",
+  "name": "Governed Test Loop",
+  "native": true,
+  "description": "Plan a test-first implementation loop through Zavorth preview, approval, execution gates, and receipts.",
+  "category": "engineering",
+  "publicCommands": ["/tdd", "/test-loop", "/red-green"],
+  "permissionProfileId": "workspace-write-approval",
+  "riskLevel": "medium",
+  "capabilityTags": ["code", "workflow"],
+  "presets": ["developer", "ops", "power-user"],
+  "inputContract": ["implementation request", "test suite context", "backend readiness"],
+  "outputContract": ["test-first plan", "command preview", "verification criteria"],
+  "noExecutionByDefault": true,
+  "requiresPolicyBroker": true,
+  "receiptsRequired": true
+}

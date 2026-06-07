@@ -82,6 +82,51 @@ const smokeProof = {
   },
 };
 
+const terminalBackends = {
+  backends: [
+    {
+      id: 'local',
+      liveCapable: true,
+      liveReady: true,
+      readinessProof: {
+        kind: 'local-host',
+        observed: true,
+        summary: 'local shell',
+        command: null,
+        rawSecretSerialized: false,
+      },
+    },
+    {
+      id: 'wsl',
+      liveCapable: true,
+      liveReady: true,
+      readinessProof: {
+        kind: 'host-probe',
+        observed: true,
+        summary: 'wsl probe passed',
+        command: 'wsl.exe --status',
+        rawSecretSerialized: false,
+      },
+    },
+    {
+      id: 'docker',
+      liveCapable: true,
+      liveReady: false,
+      readinessProof: {
+        kind: 'not-configured',
+        observed: false,
+        summary: 'docker not configured',
+        command: null,
+        rawSecretSerialized: false,
+      },
+    },
+  ],
+  safety: {
+    noBackendLiveByDefault: true,
+    cloudBackendsRequireExplicitConfiguration: true,
+  },
+};
+
 describe('ZavorthLiveReadinessEvidenceProofPackService Certification matrix', () => {
   it('certifies provider and channel live readiness without false default routing', async () => {
     const snapshot = await new ZavorthLiveReadinessEvidenceProofPackService({
@@ -95,6 +140,9 @@ describe('ZavorthLiveReadinessEvidenceProofPackService Certification matrix', ()
       smokeProof: {
         buildSnapshot: () => smokeProof as any,
       },
+      terminalBackends: {
+        execute: () => terminalBackends as any,
+      },
     }).buildSnapshot();
 
     expect(snapshot.contractVersion).toBe('2026-05-14.checkpoint-9-live-readiness-evidence-proof-pack');
@@ -104,17 +152,66 @@ describe('ZavorthLiveReadinessEvidenceProofPackService Certification matrix', ()
     expect(snapshot.summary.channelLiveReady).toBe(1);
     expect(snapshot.summary.channelDefaultRouteAllowed).toBe(1);
     expect(snapshot.summary.catalogReadyButNotLive).toBe(2);
+    expect(snapshot.summary.backendLiveReady).toBe(2);
+    expect(snapshot.summary.strongBackendLiveReady).toBe(1);
+    expect(snapshot.summary.liveProofRequired).toBe(false);
     expect(snapshot.summary.providerNetworkUsed).toBe(false);
     expect(snapshot.summary.liveChannelSendPerformed).toBe(false);
     expect(snapshot.summary.rawSecretsSerialized).toBe(false);
     expect(snapshot.policy.catalogSupportIsNotLiveProof).toBe(true);
     expect(snapshot.policy.defaultRoutingRequiresLiveProof).toBe(true);
     expect(snapshot.policy.smokeProofDoesNotUseExternalIo).toBe(true);
+    expect(snapshot.operationalClosure.status).toBe('live-proved');
+    expect(snapshot.operationalClosure.canClaimOperationalClosure).toBe(true);
     expect(snapshot.entries.map((entry) => entry.id)).toEqual(expect.arrayContaining([
       'providers.live-readiness',
       'channels.live-readiness',
       'provider-channel.smoke-proof',
       'default-route.policy',
+      'terminal-backends.strong-live-readiness',
     ]));
+  });
+
+  it('keeps a code-ready but live-proof-required verdict when provider proof is missing', async () => {
+    const missingProviderLiveProof = {
+      ...providerMatrix,
+      summary: {
+        ...providerMatrix.summary,
+        liveReady: 0,
+        defaultRouteAllowed: 0,
+      },
+      entries: providerMatrix.entries.map((entry) => ({
+        ...entry,
+        liveReady: false,
+        defaultRouteAllowed: false,
+      })),
+    };
+
+    const snapshot = await new ZavorthLiveReadinessEvidenceProofPackService({
+      now: () => new Date('2026-05-14T15:00:00.000Z'),
+      providerMatrix: {
+        buildLiveSnapshot: async () => missingProviderLiveProof as any,
+      },
+      channelMesh: {
+        readChannels: () => channelMesh as any,
+      },
+      smokeProof: {
+        buildSnapshot: () => smokeProof as any,
+      },
+      terminalBackends: {
+        execute: () => terminalBackends as any,
+      },
+    }).buildSnapshot();
+
+    expect(snapshot.status).toBe('passed');
+    expect(snapshot.summary.liveProofRequired).toBe(true);
+    expect(snapshot.operationalClosure.status).toBe('live-proof-required');
+    expect(snapshot.operationalClosure.codeReady).toBe(true);
+    expect(snapshot.operationalClosure.canClaimOperationalClosure).toBe(false);
+    expect(snapshot.operationalClosure.requirements).toContainEqual(expect.objectContaining({
+      id: 'provider.default-route-live-proof',
+      status: 'attention',
+    }));
+    expect(snapshot.operationalClosure.nextCommands).toContain('zavorth providers live --provider <provider>');
   });
 });

@@ -14,11 +14,11 @@ describe('ZavorthNativeIntelligencePackService Intent model', () => {
     expect(snapshot.contractVersion).toBe('2026-05-10.native-intelligence-checkpoint-1');
     expect(snapshot.nativeRootPath).toBe(path.join(projectRoot, 'skill-library', 'native'));
     expect(snapshot.summary).toEqual(expect.objectContaining({
-      nativeSkills: 15,
+      nativeSkills: 18,
       presets: 6,
       missingSkillFiles: 0,
       manifestIssues: 0,
-      activationReady: 15,
+      activationReady: 18,
       executionPerformed: false,
       directToolUsePerformed: false,
     }));
@@ -31,6 +31,9 @@ describe('ZavorthNativeIntelligencePackService Intent model', () => {
     expect(snapshot.skills.map((entry) => entry.id)).toEqual(expect.arrayContaining([
       'agent-orchestrator',
       'large-skill-absorption',
+      'guided-plan-review',
+      'compact-channel-reply',
+      'governed-test-loop',
       'security-audit',
       'prompt-injection-defense',
       'user-onboarding',
@@ -60,8 +63,10 @@ describe('ZavorthNativeIntelligencePackService Intent model', () => {
       'large-skill-absorption',
       'code-review',
       'repo-map',
+      'governed-test-loop',
     ]));
     expect(snapshot.activationPlan.approvalRequiredSkillIds).toContain('large-skill-absorption');
+    expect(snapshot.activationPlan.approvalRequiredSkillIds).toContain('governed-test-loop');
   });
 
   it('exposes the native source through the skill catalog and trust policy', () => {
@@ -73,10 +78,12 @@ describe('ZavorthNativeIntelligencePackService Intent model', () => {
       sourceId: 'zavorth-native',
       sourceConfigured: true,
       policyAllowsSource: true,
-      catalogVisibleSkillCount: 15,
+      catalogVisibleSkillCount: 18,
       missingFromCatalog: [],
     }));
     expect(snapshot.skills.every((entry) => entry.catalogVisible)).toBe(true);
     expect(snapshot.skills.every((entry) => entry.runtimePolicy.noExecutionByDefault)).toBe(true);
+    expect(snapshot.skills.every((entry) => entry.runtimePolicy.requiresPolicyBroker)).toBe(true);
+    expect(snapshot.skills.find((entry) => entry.id === 'governed-test-loop')?.permissionProfileId).toBe('workspace-write-approval');
   });
 });

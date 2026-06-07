@@ -1,0 +1,17 @@
+{
+  "id": "guided-plan-review",
+  "name": "Guided Plan Review",
+  "native": true,
+  "description": "Clarify complex plans with one focused question at a time before implementation.",
+  "category": "reasoning",
+  "publicCommands": ["/grill-me", "/grill", "/plan-review"],
+  "permissionProfileId": "local-readonly",
+  "riskLevel": "low",
+  "capabilityTags": ["workflow"],
+  "presets": ["basic", "developer", "research", "ops", "power-user"],
+  "inputContract": ["user intent", "workspace context", "known constraints"],
+  "outputContract": ["single question", "recommended answer", "acceptance criteria"],
+  "noExecutionByDefault": true,
+  "requiresPolicyBroker": true,
+  "receiptsRequired": true
+}

@@ -1,20 +1,47 @@
 {
-  "id": "zavorth-research-synthesis",
-  "title": "Zavorth Research Synthesis",
-  "source": "workspace-library",
-  "trust": "trusted",
-  "tags": [
-    "synthesis",
-    "research",
-    "sources",
-    "uncertainty",
-    "with",
-    "answer",
-    "caveats",
-    "citations"
-  ],
-  "curatedBy": "zavorth-skill-curator",
-  "contractVersion": "zavorth-skill-curator-live-loop/1",
-  "updatedAt": "2026-05-18T18:40:32.049Z",
-  "safeMetadataApply": true
+    "id":  "zavorth-research-synthesis",
+    "title":  "Zavorth Research Synthesis",
+    "source":  "workspace-library",
+    "trust":  "trusted",
+    "tags":  [
+                 "synthesis",
+                 "research",
+                 "sources",
+                 "uncertainty",
+                 "with",
+                 "answer",
+                 "caveats",
+                 "citations"
+             ],
+    "curatedBy":  "zavorth-skill-curator",
+    "contractVersion":  "zavorth-skill-curator-live-loop/1",
+    "updatedAt":  "2026-05-18T18:40:32.049Z",
+    "safeMetadataApply":  true,
+    "name":  "Zavorth Research Synthesis",
+    "native":  true,
+    "description":  "Zavorth-owned native skill for research synthesis.",
+    "category":  "research",
+    "permissionProfileId":  "network-read-approval",
+    "riskLevel":  "medium",
+    "capabilityTags":  [
+                           "research"
+                       ],
+    "presets":  [
+                    "developer",
+                    "ops",
+                    "power-user"
+                ],
+    "inputContract":  [
+                          "user intent",
+                          "runtime context",
+                          "policy constraints"
+                      ],
+    "outputContract":  [
+                           "governed guidance",
+                           "next action",
+                           "verification criteria"
+                       ],
+    "noExecutionByDefault":  true,
+    "requiresPolicyBroker":  true,
+    "receiptsRequired":  true
 }
