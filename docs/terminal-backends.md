@@ -15,9 +15,9 @@ configuration, policy, approval and receipts.
 | Backend | Status | Notes |
 | --- | --- | --- |
 | Local | Ready | Supervised host process. Not an OS sandbox. Mutations require approval. |
-| Docker | Configurable | Container envelope with network disabled by default. |
+| Docker | Configurable / on demand | Container envelope with network disabled by default. If the CLI exists but Zavorth is in a light profile, it is reported as available on demand instead of started at boot. |
 | SSH | Configurable | Remote shell envelope. Requires `ZAVORTH_SSH_HOST`. |
-| WSL | Configurable/ready on Windows | Linux runtime through `wsl.exe`. |
+| WSL | Configurable / on demand on Windows | Linux runtime through `wsl.exe`. Presence can be detected without starting the Linux runtime; readiness probe is deferred until a task asks for it. |
 | Vercel Sandbox | Configurable | Managed cloud sandbox. Requires `VERCEL_TOKEN` and explicit opt-in. |
 | Modal | Planned | Tracked as future adapter; no live claim today. |
 | Daytona | Planned | Tracked as future adapter; no live claim today. |
@@ -66,9 +66,16 @@ To run a command live, all of these must be true:
 - `ZAVORTH_TERMINAL_BACKENDS_ALLOW_LIVE=true` is set;
 - the execution emits a redacted receipt.
 
+On constrained notebooks, Docker and WSL can stay asleep. Zavorth may report them
+as `available-on-demand` when the local executable is present, but it does not
+start Docker Desktop, wake WSL or run a daemon probe just to render status. The
+heavier readiness probe happens only when a governed task asks to use that
+isolated executor.
+
 ## Safety Rules
 
 - No backend is live by default.
+- Docker and WSL can be available on demand without being kept live in the background.
 - Docker, SSH, WSL and Vercel Sandbox must be configured before live execution.
 - Modal and Daytona are explicit future adapters, not fake live integrations.
 - stdout/stderr previews are redacted before serialization.

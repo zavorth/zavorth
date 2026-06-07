@@ -4,10 +4,12 @@ import {
   type ZavorthNaturalRuntimeQuestionIntent,
   type ZavorthNaturalRuntimeQuestionsSnapshot,
 } from '../contracts/ZavorthNaturalRuntimeQuestionsContract.js';
+import type { ZavorthTerminalBackendDescriptor } from '../contracts/ZavorthTerminalBackendsContract.js';
 import { GatewaySpineService } from './GatewaySpineService.js';
 import { ZavorthCapabilityStoreService } from './ZavorthCapabilityStoreService.js';
 import { ZavorthProviderReadinessMatrixService } from './ZavorthProviderReadinessMatrixService.js';
 import { ZavorthSatelliteApprovalCompanionService } from './ZavorthSatelliteApprovalCompanionService.js';
+import { ZavorthTerminalBackendsService } from './ZavorthTerminalBackendsService.js';
 import { ZavorthTrustPanelService } from './ZavorthTrustPanelService.js';
 import { ZavorthVisualReceiptsV2Service } from './ZavorthVisualReceiptsV2Service.js';
 
@@ -23,6 +25,7 @@ export type ZavorthNaturalRuntimeQuestionsRuntime = {
   approvals?: Pick<ZavorthSatelliteApprovalCompanionService, 'buildSnapshot'>;
   receipts?: Pick<ZavorthVisualReceiptsV2Service, 'buildSnapshot'>;
   trust?: Pick<ZavorthTrustPanelService, 'buildContract'>;
+  terminalBackends?: Pick<ZavorthTerminalBackendsService, 'execute'>;
 };
 
 export class ZavorthNaturalRuntimeQuestionsService {
@@ -33,6 +36,7 @@ export class ZavorthNaturalRuntimeQuestionsService {
   private readonly approvals: Pick<ZavorthSatelliteApprovalCompanionService, 'buildSnapshot'>;
   private readonly receipts: Pick<ZavorthVisualReceiptsV2Service, 'buildSnapshot'>;
   private readonly trust: Pick<ZavorthTrustPanelService, 'buildContract'>;
+  private readonly terminalBackends: Pick<ZavorthTerminalBackendsService, 'execute'>;
 
   constructor(runtime: ZavorthNaturalRuntimeQuestionsRuntime = {}) {
     this.now = runtime.now || (() => new Date());
@@ -42,6 +46,7 @@ export class ZavorthNaturalRuntimeQuestionsService {
     this.approvals = runtime.approvals || new ZavorthSatelliteApprovalCompanionService();
     this.receipts = runtime.receipts || new ZavorthVisualReceiptsV2Service();
     this.trust = runtime.trust || new ZavorthTrustPanelService();
+    this.terminalBackends = runtime.terminalBackends || new ZavorthTerminalBackendsService();
   }
 
   public buildSnapshot(input: ZavorthNaturalRuntimeQuestionsInput = {}): ZavorthNaturalRuntimeQuestionsSnapshot {
@@ -54,6 +59,9 @@ export class ZavorthNaturalRuntimeQuestionsService {
     const approvals = this.approvals.buildSnapshot({});
     const receipts = this.receipts.buildSnapshot({});
     const trust = this.trust.buildContract({});
+    const terminalBackends = intent === 'execution_backends_ready'
+      ? this.terminalBackends.execute({})
+      : null;
     const cards = buildCards(intent, {
       providers,
       channels,
@@ -61,6 +69,7 @@ export class ZavorthNaturalRuntimeQuestionsService {
       approvals,
       receipts,
       trust,
+      terminalBackends,
     });
 
     return sanitizeValue({
@@ -79,6 +88,8 @@ export class ZavorthNaturalRuntimeQuestionsService {
           'Which providers are ready?',
           'Which channels can I use now?',
           'Do I have pending approvals?',
+          'Can Zavorth run this in an isolated executor?',
+          'Are Docker or WSL ready?',
           'Show me the latest receipts.',
           'What is blocked or missing setup?',
           'What can Zavorth do without asking first?',
@@ -89,6 +100,7 @@ export class ZavorthNaturalRuntimeQuestionsService {
         source('channels', 'capability-store', 'zavorth capability-store --category communication', '/dashboard'),
         source('approvals', 'satellite-approval-companion', 'zavorth satellite-approvals', '/satellite'),
         source('receipts', 'visual-receipts-v2', 'zavorth visual-receipts', '/dashboard'),
+        source('execution-backends', 'terminal-backends', 'zavorth execution-backends', null),
         source('trust', 'trust-panel', 'zavorth trust-panel', '/dashboard'),
         source('gateway', 'gateway-spine', 'zavorth gateway status', '/dashboard'),
       ],
@@ -136,6 +148,9 @@ export class ZavorthNaturalRuntimeQuestionsService {
 
 function classifyIntent(question: string): ZavorthNaturalRuntimeQuestionIntent {
   if (/channel|telegram|whatsapp|discord|signal|slack|email/.test(question)) return 'channels_ready';
+  if (/executor|execution|backend|sandbox|docker|wsl|container|isolad|isolat|ambiente isolado|safe executor|strong backend/.test(question)) {
+    return 'execution_backends_ready';
+  }
   if (/approval|approve|deny|permission|pending/.test(question)) return 'approvals_pending';
   if (/receipt|audit|evidence|what happened|done/.test(question)) return 'receipts_summary';
   if (/missing|broken|blocked|setup|configure|need/.test(question)) return 'setup_gaps';
@@ -174,11 +189,51 @@ function buildCards(intent: ZavorthNaturalRuntimeQuestionIntent, data: Record<st
 
   if (intent === 'providers_ready') return [providerCard];
   if (intent === 'channels_ready') return [channelCard];
+  if (intent === 'execution_backends_ready') return [buildExecutionBackendCard(data.terminalBackends)];
   if (intent === 'approvals_pending') return [approvalCard];
   if (intent === 'receipts_summary') return [receiptCard];
   if (intent === 'safety_boundary') return [trustCard];
   if (intent === 'setup_gaps') return [providerCard, channelCard, trustCard].filter((entry) => entry.status !== 'ready');
   return [gatewayCard, providerCard, channelCard, approvalCard, receiptCard, trustCard];
+}
+
+function buildExecutionBackendCard(snapshot: any): ZavorthNaturalRuntimeAnswerCard {
+  const backends: ZavorthTerminalBackendDescriptor[] = Array.isArray(snapshot?.backends) ? snapshot.backends : [];
+  const readyStrong = backends.filter((backend) =>
+    backend?.liveReady === true && backend?.id !== 'local' && backend?.status === 'ready');
+  const dormantStrong = backends.filter((backend) =>
+    backend?.id !== 'local' && backend?.status === 'available-on-demand' && backend?.activationMode === 'on-demand');
+  const localReady = backends.some((backend) => backend?.id === 'local' && backend?.liveReady === true);
+  const dockerReady = readyStrong.some((backend) => backend?.id === 'docker');
+  const wslReady = readyStrong.some((backend) => backend?.id === 'wsl');
+  const dockerDormant = dormantStrong.some((backend) => backend?.id === 'docker');
+  const wslDormant = dormantStrong.some((backend) => backend?.id === 'wsl');
+  const readyLabels = readyStrong.map((backend) => String(backend.label || backend.id)).slice(0, 4);
+  const dormantLabels = dormantStrong.map((backend) => String(backend.label || backend.id)).slice(0, 4);
+  const status: ZavorthNaturalRuntimeAnswerCard['status'] = readyStrong.length > 0
+    ? 'ready'
+    : dormantStrong.length > 0 || localReady
+      ? 'attention'
+      : 'unknown';
+  const availability = readyStrong.length > 0
+    ? `${joinLabels(readyLabels)} ${readyStrong.length === 1 ? 'is' : 'are'} ready for isolated execution.`
+    : dormantStrong.length > 0
+      ? `${joinLabels(dormantLabels)} ${dormantStrong.length === 1 ? 'is' : 'are'} available on demand and kept asleep until a task asks for isolated execution.`
+      : 'No isolated executor is live-ready yet; Zavorth can still preview plans and use the local supervised shell.';
+  const namedReadiness = [
+    `Docker: ${dockerReady ? 'ready' : dockerDormant ? 'available on demand' : 'not installed or not configured'}.`,
+    `WSL: ${wslReady ? 'ready' : wslDormant ? 'available on demand' : 'not installed or not configured'}.`,
+  ].join(' ');
+
+  return card('execution-backends', 'Safe executor', status, [
+    availability,
+    namedReadiness,
+    dormantStrong.length > 0
+      ? 'Dormant executors are intentionally asleep so a notebook does not stay heavy just to advertise readiness.'
+      : 'Executor probes stay lightweight unless the user asks for isolated execution.',
+    'Live command execution stays off by default; risky actions still need approval and receipts.',
+    'Docker plans keep network disabled by default unless a governed action explicitly allows network use.',
+  ], 'Ask Zavorth to run work in an isolated executor when you need it; readiness checks do not execute your command.');
 }
 
 function buildShortAnswer(intent: ZavorthNaturalRuntimeQuestionIntent, cards: ZavorthNaturalRuntimeAnswerCard[]): string {
@@ -221,6 +276,12 @@ function providerStatus(snapshot: any): ZavorthNaturalRuntimeAnswerCard['status'
 function countStatus(ready: number, needsSetup: number): ZavorthNaturalRuntimeAnswerCard['status'] {
   if (ready > 0 && needsSetup === 0) return 'ready';
   return needsSetup > 0 ? 'attention' : 'unknown';
+}
+
+function joinLabels(labels: string[]): string {
+  if (labels.length === 0) return 'No isolated executor';
+  if (labels.length === 1) return labels[0]!;
+  return `${labels.slice(0, -1).join(', ')} and ${labels[labels.length - 1]}`;
 }
 
 function normalizeQuestion(value: string): string {
