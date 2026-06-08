@@ -14,6 +14,7 @@ import { DashboardAuthService } from '../DashboardAuthService.js';
 import { DashboardClassicAccessService } from '../DashboardClassicAccessService.js';
 import { DashboardClassicAssetService } from '../DashboardClassicAssetService.js';
 import { DashboardCoreRouteService } from '../DashboardCoreRouteService.js';
+import { TrustedDeviceAccessService } from '../../../../../services/TrustedDeviceAccessService.js';
 import { DashboardHttpSupportService } from '../DashboardHttpSupportService.js';
 import { DashboardLegacyRouteService } from '../DashboardLegacyRouteService.js';
 import { DashboardOperationsRouteService } from '../DashboardOperationsRouteService.js';
@@ -99,7 +100,10 @@ export function initializeDashboardService(service: any, logRepo: LogRepository,
 }
 
 function initializeSurfaceFields(service: any, logRepo: LogRepository, deps: any = {}): void {
-  service.authService = new DashboardAuthService();
+  service.trustedDeviceAccess = deps.trustedDeviceAccess || new TrustedDeviceAccessService();
+  service.authService = new DashboardAuthService({
+    trustedDevices: service.trustedDeviceAccess,
+  });
   service.agentGateway = deps.agentGateway || null;
   service.webApp = new WebAppService(service.authService, {
     agentGateway: service.agentGateway,
@@ -109,7 +113,9 @@ function initializeSurfaceFields(service: any, logRepo: LogRepository, deps: any
   service.classicAssets = new DashboardClassicAssetService();
   service.a2ui = new ZavorthA2UIService();
   service.proactivePermissions = new ZavorthProactivePermissionService();
-  service.coreRoutes = new DashboardCoreRouteService();
+  service.coreRoutes = new DashboardCoreRouteService({
+    localAccess: service.trustedDeviceAccess,
+  });
   service.httpSupport = new DashboardHttpSupportService();
   service.legacyRoutes = new DashboardLegacyRouteService();
   service.operationsRoutes = new DashboardOperationsRouteService();

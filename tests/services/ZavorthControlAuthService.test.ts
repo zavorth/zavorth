@@ -191,6 +191,41 @@ describe('ZavorthControlAuthService', () => {
       scopes: ['runtime:control', 'approval:respond'],
     });
   });
+
+  it('rejects trusted device tokens without runtime-control scope for control auth', () => {
+    const root = fs.mkdtempSync(path.join(os.tmpdir(), 'zavorth-control-auth-trusted-device-scope-'));
+    tempDirs.push(root);
+    const ownerToken = 'bsk_cc_controlownerforscopeddevicesaaaaaaaaaaaa';
+    config.zavorthWebAuthToken = ownerToken;
+    config.zavorthWebAuthTokenFile = path.join(root, 'web-token.txt');
+    config.trustedDeviceAccessStateFile = path.join(root, 'trusted-devices.json');
+    const trustedDevices = new TrustedDeviceAccessService({
+      stateFilePath: config.trustedDeviceAccessStateFile,
+      now: () => new Date('2026-06-07T12:00:00.000Z'),
+      randomBytes: (size) => Buffer.alloc(size, 12),
+      idFactory: (() => {
+        let next = 0;
+        return (prefix: string) => `${prefix}-${++next}`;
+      })(),
+    });
+    const draft = trustedDevices.createPairingRequest({
+      deviceName: 'Approval device',
+      requestedScopes: ['approval:respond'],
+      requestedBy: 'local-owner',
+    });
+    const approved = trustedDevices.approvePairingRequest({
+      requestId: draft.requestId,
+      approvedBy: 'local-owner',
+    });
+
+    const service = new ZavorthControlAuthService();
+    const identity = service.resolveAuthenticatedIdentity({
+      headers: { authorization: `Bearer ${approved.deviceToken}` },
+    });
+
+    expect(approved.deviceToken).not.toBe(ownerToken);
+    expect(identity).toBeNull();
+  });
 });
 
 function signJwt(claims: Record<string, unknown>, secret: string): string {

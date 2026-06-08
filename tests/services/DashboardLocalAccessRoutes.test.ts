@@ -113,15 +113,65 @@ describe('Dashboard local access routes', () => {
     await route.handleRequest(
       { method: 'POST', headers: {} } as http.IncomingMessage,
       {} as http.ServerResponse,
-      new URL('http://localhost/api/v2/local-access/pairing-draft'),
-      '/api/v2/local-access/pairing-draft',
-      { ...deps, readJsonBody: jest.fn(async () => ({ deviceName: 'Nested device' })) },
+      new URL('http://localhost/api/v2/local-access/pairing-approve'),
+      '/api/v2/local-access/pairing-approve',
+      { ...deps, readJsonBody: jest.fn(async () => ({ requestId: 'pairing-1' })) },
     );
 
     expect(calls[0]).toEqual({
       statusCode: 403,
       body: { ok: false, error: 'Owner authentication required' },
     });
+  });
+
+  it('rejects malformed local access route inputs as bad requests', async () => {
+    const localAccess = createTrustedDeviceService();
+    const { route, deps, calls } = createRoute(localAccess, {
+      authenticated: true,
+      source: 'dashboard-token',
+      userId: 'local-owner',
+      profileId: 'default',
+    });
+
+    await route.handleRequest(
+      { method: 'POST', headers: {} } as http.IncomingMessage,
+      {} as http.ServerResponse,
+      new URL('http://localhost/api/v2/local-access/pairing-draft'),
+      '/api/v2/local-access/pairing-draft',
+      { ...deps, readJsonBody: jest.fn(async () => ({
+        deviceName: 'Bad TTL',
+        deviceTtlMs: -1,
+      })) },
+    );
+    await route.handleRequest(
+      { method: 'POST', headers: {} } as http.IncomingMessage,
+      {} as http.ServerResponse,
+      new URL('http://localhost/api/v2/local-access/pairing-approve'),
+      '/api/v2/local-access/pairing-approve',
+      { ...deps, readJsonBody: jest.fn(async () => ({})) },
+    );
+    await route.handleRequest(
+      { method: 'POST', headers: {} } as http.IncomingMessage,
+      {} as http.ServerResponse,
+      new URL('http://localhost/api/v2/local-access/devices/revoke'),
+      '/api/v2/local-access/devices/revoke',
+      { ...deps, readJsonBody: jest.fn(async () => ({})) },
+    );
+
+    expect(calls).toEqual([
+      {
+        statusCode: 400,
+        body: { ok: false, error: 'deviceTtlMs must be a positive number or null' },
+      },
+      {
+        statusCode: 400,
+        body: { ok: false, error: 'bad-request' },
+      },
+      {
+        statusCode: 400,
+        body: { ok: false, error: 'bad-request' },
+      },
+    ]);
   });
 
   function createTrustedDeviceService(): TrustedDeviceAccessService {

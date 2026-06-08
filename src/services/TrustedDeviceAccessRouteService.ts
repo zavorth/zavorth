@@ -48,9 +48,7 @@ export class TrustedDeviceAccessRouteService {
           requestedScopes: this.readTrustedDeviceScopes(body.scopes || body.requestedScopes),
           requestedBy: identity.userId,
           ttlMs: this.readPositiveNumber(body.ttlMs),
-          deviceTtlMs: Object.prototype.hasOwnProperty.call(body, 'deviceTtlMs')
-            ? (body.deviceTtlMs === null ? null : this.readPositiveNumber(body.deviceTtlMs))
-            : undefined,
+          deviceTtlMs: this.readDeviceTtlMs(body),
         });
         deps.writeJson(res, {
           ok: true,
@@ -74,8 +72,13 @@ export class TrustedDeviceAccessRouteService {
 
     if (pathname === '/api/v2/local-access/pairing-approve' && req.method === 'POST') {
       const body = await deps.readJsonBody(req);
+      const requestId = this.readOptionalString(body.requestId);
+      if (!requestId) {
+        deps.writeJson(res, { ok: false, error: 'bad-request' }, 400);
+        return true;
+      }
       const result = this.localAccess.approvePairingRequest({
-        requestId: this.readOptionalString(body.requestId) || '',
+        requestId,
         approvedBy: identity.userId,
         userId: identity.userId,
         profileId: identity.profileId,
@@ -97,8 +100,13 @@ export class TrustedDeviceAccessRouteService {
 
     if (pathname === '/api/v2/local-access/devices/revoke' && req.method === 'POST') {
       const body = await deps.readJsonBody(req);
+      const deviceId = this.readOptionalString(body.deviceId);
+      if (!deviceId) {
+        deps.writeJson(res, { ok: false, error: 'bad-request' }, 400);
+        return true;
+      }
       const result = this.localAccess.revokeDevice({
-        deviceId: this.readOptionalString(body.deviceId) || '',
+        deviceId,
         revokedBy: identity.userId,
         reason: this.readOptionalString(body.reason),
       });
@@ -126,6 +134,20 @@ export class TrustedDeviceAccessRouteService {
   private readPositiveNumber(value: unknown): number | null {
     const numeric = Number(value);
     return Number.isFinite(numeric) && numeric > 0 ? numeric : null;
+  }
+
+  private readDeviceTtlMs(body: Record<string, any>): number | null | undefined {
+    if (!Object.prototype.hasOwnProperty.call(body, 'deviceTtlMs')) {
+      return undefined;
+    }
+    if (body.deviceTtlMs === null) {
+      return null;
+    }
+    const ttlMs = this.readPositiveNumber(body.deviceTtlMs);
+    if (ttlMs === null) {
+      throw new Error('deviceTtlMs must be a positive number or null');
+    }
+    return ttlMs;
   }
 
   private readTrustedDeviceScopes(value: unknown): TrustedDeviceAccessScope[] | undefined {

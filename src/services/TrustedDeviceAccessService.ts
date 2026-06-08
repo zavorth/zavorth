@@ -110,7 +110,9 @@ export class TrustedDeviceAccessService {
     this.randomBytes = options.randomBytes || crypto.randomBytes;
     this.idFactory = options.idFactory || ((prefix) => `${prefix}-${crypto.randomUUID()}`);
     this.defaultPairingTtlMs = options.defaultPairingTtlMs ?? 5 * 60 * 1000;
-    this.defaultDeviceTtlMs = options.defaultDeviceTtlMs ?? 90 * 24 * 60 * 60 * 1000;
+    this.defaultDeviceTtlMs = options.defaultDeviceTtlMs === undefined
+      ? 90 * 24 * 60 * 60 * 1000
+      : options.defaultDeviceTtlMs;
   }
 
   public createPairingRequest(input: {
@@ -427,8 +429,9 @@ export class TrustedDeviceAccessService {
         devices: this.normalizeRecord(parsed.devices),
         receipts: Array.isArray(parsed.receipts) ? parsed.receipts.slice(-100) as TrustedDeviceReceipt[] : [],
       };
-    } catch {
-      return this.emptyState();
+    } catch (error) {
+      const detail = error instanceof Error ? error.message : String(error);
+      throw new Error(`Failed to read trusted-device access state at ${this.stateFilePath}: ${detail}`);
     }
   }
 

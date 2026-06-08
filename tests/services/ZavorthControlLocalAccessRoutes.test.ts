@@ -66,6 +66,9 @@ describe('ZavorthControl local access routes', () => {
     );
 
     expect(handled).toBe(true);
+    expect(deps.authService.resolveAuthenticatedIdentity).toHaveBeenCalledWith(expect.objectContaining({
+      method: 'POST',
+    }));
     expect(calls[0]).toMatchObject({
       statusCode: 200,
       body: {
