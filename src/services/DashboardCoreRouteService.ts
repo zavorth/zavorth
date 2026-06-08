@@ -18,6 +18,8 @@ import type { ExperienceCommand, ExperienceSurface } from './experience/Experien
 import { ExperienceCoreService } from './experience/ExperienceCoreService.js';
 import { globalLiveNodeRegistry } from './LiveNodeRegistryService.js';
 import { ZavorthMemoryEncryptionStatusService, type ZavorthMemoryEncryptionMode } from './ZavorthMemoryEncryptionStatusService.js';
+import { TrustedDeviceAccessService } from './TrustedDeviceAccessService.js';
+import { TrustedDeviceAccessRouteService } from './TrustedDeviceAccessRouteService.js';
 
 type WriteJson = (res: http.ServerResponse, body: unknown, statusCode?: number) => void;
 type WriteText = (res: http.ServerResponse, body: string, statusCode?: number) => void;
@@ -109,6 +111,7 @@ export type DashboardCoreRouteServiceOptions = {
   salesPack?: SalesPackMvpService;
   salesPackBusinessMode?: SalesPackBusinessModeService;
   salesPackChannelIo?: SalesPackChannelIoService;
+  localAccess?: TrustedDeviceAccessService;
 };
 
 type SalesPackBusinessModeIdentity = {
@@ -122,6 +125,7 @@ export class DashboardCoreRouteService {
   private readonly salesPack: SalesPackMvpService;
   private readonly salesPackBusinessMode: SalesPackBusinessModeService;
   private readonly salesPackChannelIo: SalesPackChannelIoService;
+  private readonly localAccessRoutes: TrustedDeviceAccessRouteService;
 
   public constructor(options: DashboardCoreRouteServiceOptions = {}) {
     this.operationalMaturity = options.operationalMaturity || new OperationalMaturityService();
@@ -130,6 +134,10 @@ export class DashboardCoreRouteService {
     this.salesPackChannelIo = options.salesPackChannelIo || new SalesPackChannelIoService({
       salesPack: this.salesPack,
     });
+    this.localAccessRoutes = new TrustedDeviceAccessRouteService(
+      options.localAccess || new TrustedDeviceAccessService(),
+      'dashboard-token',
+    );
   }
 
   public async handleRequest(
@@ -142,6 +150,10 @@ export class DashboardCoreRouteService {
     if (pathname === '/') {
       deps.writeRedirect(res, '/dashboard');
       return true;
+    }
+
+    if (pathname.startsWith('/api/v2/local-access')) {
+      return this.localAccessRoutes.handleRequest(req, res, pathname, deps);
     }
 
     if (pathname.startsWith('/api/experience')) {

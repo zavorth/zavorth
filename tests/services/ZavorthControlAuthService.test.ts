@@ -4,10 +4,12 @@ import path from 'path';
 import crypto from 'crypto';
 import { config } from '../../src/config/index.js';
 import { ZavorthControlAuthService } from '../../src/services/ZavorthControlAuthService.js';
+import { TrustedDeviceAccessService } from '../../src/services/TrustedDeviceAccessService.js';
 
 describe('ZavorthControlAuthService', () => {
   const originalWebAuthToken = config.zavorthWebAuthToken;
   const originalWebAuthTokenFile = config.zavorthWebAuthTokenFile;
+  const originalTrustedDeviceAccessStateFile = config.trustedDeviceAccessStateFile;
   const originalHighRiskApprovalPin = config.highRiskApprovalPin;
   const originalJwtSecret = process.env.ZAVORTH_CONTROL_JWT_SECRET;
   const originalJwtIssuer = process.env.ZAVORTH_CONTROL_JWT_ISSUER;
@@ -17,6 +19,7 @@ describe('ZavorthControlAuthService', () => {
   afterEach(() => {
     config.zavorthWebAuthToken = originalWebAuthToken;
     config.zavorthWebAuthTokenFile = originalWebAuthTokenFile;
+    config.trustedDeviceAccessStateFile = originalTrustedDeviceAccessStateFile;
     config.highRiskApprovalPin = originalHighRiskApprovalPin;
     restoreEnv('ZAVORTH_CONTROL_JWT_SECRET', originalJwtSecret);
     restoreEnv('ZAVORTH_CONTROL_JWT_ISSUER', originalJwtIssuer);
@@ -144,6 +147,48 @@ describe('ZavorthControlAuthService', () => {
       source: 'zavorthControl-token',
       userId: 'local-owner',
       profileId: config.zavorthProductMode || 'default',
+    });
+  });
+
+  it('accepts runtime-control trusted device tokens without exposing the owner token', () => {
+    const root = fs.mkdtempSync(path.join(os.tmpdir(), 'zavorth-control-auth-trusted-device-'));
+    tempDirs.push(root);
+    const ownerToken = 'bsk_cc_controlownerfortrusteddevicesaaaaaaaaaaaa';
+    config.zavorthWebAuthToken = ownerToken;
+    config.zavorthWebAuthTokenFile = path.join(root, 'web-token.txt');
+    config.trustedDeviceAccessStateFile = path.join(root, 'trusted-devices.json');
+    const trustedDevices = new TrustedDeviceAccessService({
+      stateFilePath: config.trustedDeviceAccessStateFile,
+      now: () => new Date('2026-06-07T12:00:00.000Z'),
+      randomBytes: (size) => Buffer.alloc(size, 11),
+      idFactory: (() => {
+        let next = 0;
+        return (prefix: string) => `${prefix}-${++next}`;
+      })(),
+    });
+    const draft = trustedDevices.createPairingRequest({
+      deviceName: 'Satellite',
+      requestedScopes: ['runtime:control', 'approval:respond'],
+      requestedBy: 'local-owner',
+    });
+    const approved = trustedDevices.approvePairingRequest({
+      requestId: draft.requestId,
+      approvedBy: 'local-owner',
+    });
+
+    const service = new ZavorthControlAuthService();
+    const identity = service.resolveAuthenticatedIdentity({
+      headers: { authorization: `Bearer ${approved.deviceToken}` },
+    });
+
+    expect(approved.deviceToken).not.toBe(ownerToken);
+    expect(identity).toEqual({
+      authenticated: true,
+      source: 'trusted-device',
+      userId: 'local-owner',
+      profileId: 'default',
+      deviceId: approved.device.deviceId,
+      scopes: ['runtime:control', 'approval:respond'],
     });
   });
 });

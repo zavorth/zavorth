@@ -17,6 +17,8 @@ import type { SalesPackChannelIoEnvelope } from '../contracts/SalesPackChannelIo
 import type { ExperienceCommand, ExperienceSurface } from './experience/ExperienceContracts.js';
 import { ExperienceCoreService } from './experience/ExperienceCoreService.js';
 import { globalLiveNodeRegistry } from './LiveNodeRegistryService.js';
+import { TrustedDeviceAccessService } from './TrustedDeviceAccessService.js';
+import { TrustedDeviceAccessRouteService } from './TrustedDeviceAccessRouteService.js';
 
 type WriteJson = (res: http.ServerResponse, body: unknown, statusCode?: number) => void;
 type WriteText = (res: http.ServerResponse, body: string, statusCode?: number) => void;
@@ -108,6 +110,7 @@ export type ZavorthControlCoreRouteServiceOptions = {
   salesPack?: SalesPackMvpService;
   salesPackBusinessMode?: SalesPackBusinessModeService;
   salesPackChannelIo?: SalesPackChannelIoService;
+  localAccess?: TrustedDeviceAccessService;
 };
 
 type SalesPackBusinessModeIdentity = {
@@ -121,6 +124,7 @@ export class ZavorthControlCoreRouteService {
   private readonly salesPack: SalesPackMvpService;
   private readonly salesPackBusinessMode: SalesPackBusinessModeService;
   private readonly salesPackChannelIo: SalesPackChannelIoService;
+  private readonly localAccessRoutes: TrustedDeviceAccessRouteService;
 
   public constructor(options: ZavorthControlCoreRouteServiceOptions = {}) {
     this.operationalMaturity = options.operationalMaturity || new OperationalMaturityService();
@@ -129,6 +133,10 @@ export class ZavorthControlCoreRouteService {
     this.salesPackChannelIo = options.salesPackChannelIo || new SalesPackChannelIoService({
       salesPack: this.salesPack,
     });
+    this.localAccessRoutes = new TrustedDeviceAccessRouteService(
+      options.localAccess || new TrustedDeviceAccessService(),
+      'zavorthControl-token',
+    );
   }
 
   public async handleRequest(
@@ -141,6 +149,10 @@ export class ZavorthControlCoreRouteService {
     if (pathname === '/') {
       deps.writeRedirect(res, '/control');
       return true;
+    }
+
+    if (pathname.startsWith('/api/v2/local-access')) {
+      return this.localAccessRoutes.handleRequest(req, res, pathname, deps);
     }
 
     if (pathname.startsWith('/api/experience')) {
