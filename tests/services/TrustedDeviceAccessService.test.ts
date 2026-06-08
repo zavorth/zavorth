@@ -113,6 +113,40 @@ describe('TrustedDeviceAccessService', () => {
     });
   });
 
+  it('preserves explicit never-expiring device grants', () => {
+    const service = createService({ defaultDeviceTtlMs: null });
+    const draft = service.createPairingRequest({
+      deviceName: 'Desk device',
+      requestedScopes: ['chat:read'],
+      requestedBy: 'local-owner',
+    });
+    const approved = service.approvePairingRequest({
+      requestId: draft.requestId,
+      approvedBy: 'local-owner',
+    });
+
+    now = new Date('2027-06-07T12:00:00.000Z');
+
+    expect(approved.device.expiresAt).toBeNull();
+    expect(service.validateBearerToken(approved.deviceToken, {
+      requiredScopes: ['chat:read'],
+    })).toMatchObject({
+      ok: true,
+      identity: {
+        deviceId: approved.device.deviceId,
+      },
+    });
+  });
+
+  it('fails closed on unreadable state instead of replacing it with an empty file', () => {
+    const service = createService();
+    fs.mkdirSync(path.dirname(service.stateFilePath), { recursive: true });
+    fs.writeFileSync(service.stateFilePath, '{not-json', 'utf8');
+
+    expect(() => service.listDevices()).toThrow(/failed to read trusted-device access state/i);
+    expect(fs.readFileSync(service.stateFilePath, 'utf8')).toBe('{not-json');
+  });
+
   it('revokes device grants and records redacted receipts', () => {
     const service = createService();
     const draft = service.createPairingRequest({
@@ -158,13 +192,16 @@ describe('TrustedDeviceAccessService', () => {
     })).toThrow(/unsupported trusted-device scope/i);
   });
 
-  function createService(): TrustedDeviceAccessService {
+  function createService(options: {
+    defaultDeviceTtlMs?: number | null;
+  } = {}): TrustedDeviceAccessService {
     const root = fs.mkdtempSync(path.join(os.tmpdir(), 'zavorth-trusted-device-'));
     tempDirs.push(root);
     return new TrustedDeviceAccessService({
       stateFilePath: path.join(root, 'trusted-devices.json'),
       now: () => now,
       randomBytes: (size) => Buffer.alloc(size, 7),
+      defaultDeviceTtlMs: options.defaultDeviceTtlMs,
       idFactory: (() => {
         let next = 0;
         return (prefix: string) => `${prefix}-${++next}`;

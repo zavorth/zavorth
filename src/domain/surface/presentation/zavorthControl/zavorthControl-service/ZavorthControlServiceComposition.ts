@@ -14,6 +14,7 @@ import { ZavorthControlAuthService } from '../ZavorthControlAuthService.js';
 import { ZavorthControlClassicAccessService } from '../ZavorthControlClassicAccessService.js';
 import { ZavorthControlClassicAssetService } from '../ZavorthControlClassicAssetService.js';
 import { ZavorthControlCoreRouteService } from '../ZavorthControlCoreRouteService.js';
+import { TrustedDeviceAccessService } from '../../../../../services/TrustedDeviceAccessService.js';
 import { ZavorthControlHttpSupportService } from '../ZavorthControlHttpSupportService.js';
 import { ZavorthControlLegacyRouteService } from '../ZavorthControlLegacyRouteService.js';
 import { ZavorthControlOperationsRouteService } from '../ZavorthControlOperationsRouteService.js';
@@ -99,7 +100,10 @@ export function initializeZavorthControlService(service: any, logRepo: LogReposi
 }
 
 function initializeSurfaceFields(service: any, logRepo: LogRepository, deps: any = {}): void {
-  service.authService = new ZavorthControlAuthService();
+  service.trustedDeviceAccess = deps.trustedDeviceAccess || new TrustedDeviceAccessService();
+  service.authService = new ZavorthControlAuthService({
+    trustedDevices: service.trustedDeviceAccess,
+  });
   service.agentGateway = deps.agentGateway || null;
   service.webApp = new WebAppService(service.authService, {
     agentGateway: service.agentGateway,
@@ -109,7 +113,9 @@ function initializeSurfaceFields(service: any, logRepo: LogRepository, deps: any
   service.classicAssets = new ZavorthControlClassicAssetService();
   service.a2ui = new ZavorthA2UIService();
   service.proactivePermissions = new ZavorthProactivePermissionService();
-  service.coreRoutes = new ZavorthControlCoreRouteService();
+  service.coreRoutes = new ZavorthControlCoreRouteService({
+    localAccess: service.trustedDeviceAccess,
+  });
   service.httpSupport = new ZavorthControlHttpSupportService();
   service.legacyRoutes = new ZavorthControlLegacyRouteService();
   service.operationsRoutes = new ZavorthControlOperationsRouteService();
@@ -389,4 +395,3 @@ function initializeRuntimeComposition(service: any, deps: any): void {
     });
   }
 }
-
