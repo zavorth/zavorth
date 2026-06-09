@@ -17,6 +17,7 @@ export type SkillLicensePolicyLabel =
 
 export type SkillSupportFile = {
   path: string;
+  displayPath?: string;
   relativePath: string;
   kind: SkillSupportFileKind;
   external: boolean;
@@ -102,8 +103,11 @@ export interface SkillMetadata {
   name: string;
   description: string;
   dirPath: string;
+  displayDirPath?: string;
   skillFilePath: string;
+  displaySkillFilePath?: string;
   supportFilePaths: string[];
+  displaySupportFilePaths?: string[];
   supportFiles?: SkillSupportFile[];
   sourceId?: string;
   sourceLabel?: string;

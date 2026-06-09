@@ -1196,6 +1196,7 @@
     "@modelcontextprotocol/sdk": "^1.28.0",
     "@mozilla/readability": "^0.6.0",
     "@slack/web-api": "^7.15.2",
+    "@tabler/icons-react": "^3.44.0",
     "@tailwindcss/postcss": "^4.3.0",
     "antd": "^6.4.3",
     "bcryptjs": "^3.0.3",

@@ -1,0 +1,19 @@
+{
+  "id": "zavorth-conversation-review",
+  "name": "Zavorth Conversation Review",
+  "native": true,
+  "description": "Review past user feedback, chats, and runtime outcomes to improve memory, context, prompts, and product behavior.",
+  "category": "memory",
+  "permissionProfileId": "owner-approved",
+  "riskLevel": "medium",
+  "capabilityTags": ["feedback", "memory", "context", "prompts", "continuous-improvement"],
+  "presets": ["basic", "developer", "research", "ops", "power-user"],
+  "inputContract": ["approved conversations", "feedback", "retention policy"],
+  "outputContract": ["themes", "proposed improvements", "memory changes", "review items"],
+  "inspiredBy": [
+    "AIAgentSkills/honeydew-ai/conversation-review"
+  ],
+  "noExecutionByDefault": true,
+  "requiresPolicyBroker": true,
+  "receiptsRequired": true
+}

@@ -94,7 +94,7 @@ export type DashboardCoreRouteDeps = {
   writeRedirect: WriteRedirect;
   a2ui: any;
   proactivePermissions: any;
-  experienceCore?: Pick<ExperienceCoreService, 'buildHome' | 'executeCommand' | 'buildTimelineForRun'> | null;
+  experienceCore?: Pick<ExperienceCoreService, 'buildHome' | 'executeCommand' | 'buildTimelineForRun' | 'dispatchRuntimeStateAction'> | null;
   authService?: Pick<DashboardAuthService, 'validate' | 'resolveAuthenticatedIdentity'>;
   echo?: {
     getPendingPermissions: () => unknown[];
@@ -677,6 +677,27 @@ export class DashboardCoreRouteService {
       return true;
     }
 
+    if (pathname === '/api/experience/runtime-state/action' && req.method === 'POST') {
+      const body = await deps.readJsonBody(req);
+      const trustedDesktopBridge = req.headers['x-zavorth-desktop-bridge'] === '1';
+      const result = service.dispatchRuntimeStateAction({
+        type: this.readOptionalString(body.type) as any,
+        surface: this.readOptionalString(body.surface) || homeInput.surface,
+        userId: this.readOptionalString(body.userId) || 'web-user',
+        sessionId: this.readOptionalString(body.sessionId) || homeInput.sessionId,
+        source: trustedDesktopBridge ? 'zavorth-desktop-bridge' : this.readOptionalString(body.source) || 'runtime-api',
+        approved: trustedDesktopBridge || this.parseBoolean(body.approved) === true,
+        previewOnly: this.parseBoolean(body.previewOnly) === true,
+        payload: this.readRecord(body.payload) || {},
+      });
+      deps.writeJson(
+        res,
+        result || { ok: false, error: 'Runtime state bus is not attached.' },
+        result?.ok ? 200 : 409,
+      );
+      return true;
+    }
+
     if (pathname === '/api/experience/ask' && req.method === 'POST') {
       const body = await deps.readJsonBody(req);
       const text = this.readOptionalString(body.text) || this.readOptionalString(body.message);
@@ -684,6 +705,7 @@ export class DashboardCoreRouteService {
         deps.writeJson(res, { ok: false, error: 'Campo "text" precisa ser uma string nao vazia.' }, 400);
         return true;
       }
+      const metadata = this.readRecord(body.metadata) || { source: 'runtime-api' };
       const command: Partial<ExperienceCommand> & { text: string } = {
         text,
         intent: (this.readOptionalString(body.intent) as ExperienceCommand['intent']) || 'ask',
@@ -692,7 +714,11 @@ export class DashboardCoreRouteService {
         sessionId: this.readOptionalString(body.sessionId),
         workspace: this.readOptionalString(body.workspace),
         trustMode: (this.readOptionalString(body.trustMode) as ExperienceCommand['trustMode']) || 'protected',
-        metadata: this.readRecord(body.metadata) || { source: 'runtime-api' },
+        responseProfile: this.readOptionalString(body.responseProfile) as ExperienceCommand['responseProfile'],
+        metadata: {
+          ...metadata,
+          trustedDesktopBridge: req.headers['x-zavorth-desktop-bridge'] === '1',
+        },
       };
       deps.writeJson(res, await service.executeCommand(command));
       return true;
