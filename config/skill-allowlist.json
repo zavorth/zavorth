@@ -1,8 +1,9 @@
 {
   "version": 1,
-  "updatedAt": "2026-05-15T21:13:00.193Z",
+  "updatedAt": "2026-06-09T20:56:38.325Z",
   "defaultPolicy": "deny",
   "allowedSourceIds": [
+    "zavorth-native",
     "workspace-agents",
     "workspace-library",
     "workspace-imported-library"
@@ -10,8 +11,8 @@
   "rules": [
     {
       "sourceId": "zavorth-native",
-      "mode": "none",
-      "reason": "Curated Zavorth-native shortlist remains disabled and review-gated until owner policy enables it."
+      "mode": "all",
+      "reason": "Official Zavorth-owned native intelligence pack."
     },
     {
       "sourceId": "workspace-agents",
