@@ -1,5 +1,6 @@
 import fs from 'node:fs';
 import path from 'node:path';
+import crypto from 'node:crypto';
 import type { SkillMetadata } from '../skills/SkillLoader.js';
 import { ZavorthPathCompactor } from '../skills/ZavorthPathCompactor.js';
 
@@ -28,7 +29,7 @@ export class ZavorthSandboxCapabilityProvisioner {
         continue;
       }
 
-      const targetSkillDir = path.resolve(targetBaseDir, safeSkillName);
+      const targetSkillDir = path.resolve(targetBaseDir, this.uniqueDirectoryName(skill, safeSkillName));
       if (!targetSkillDir.startsWith(path.resolve(targetBaseDir) + path.sep)) {
         continue;
       }
@@ -66,5 +67,16 @@ export class ZavorthSandboxCapabilityProvisioner {
       .replace(/^[.-]+/g, '')
       .replace(/^\.+$/g, '')
       .slice(0, 120);
+  }
+
+  private static uniqueDirectoryName(skill: SkillMetadata, safeSkillName: string): string {
+    const stableId = [
+      (skill as { id?: string }).id || '',
+      skill.name || '',
+      skill.dirPath || '',
+      skill.skillFilePath || '',
+    ].join('\0');
+    const suffix = crypto.createHash('sha256').update(stableId).digest('hex').slice(0, 8);
+    return `${safeSkillName.slice(0, 111)}-${suffix}`;
   }
 }

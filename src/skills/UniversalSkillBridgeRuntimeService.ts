@@ -711,7 +711,7 @@ export class UniversalSkillBridgeRuntimeService {
         userId: input.actorId || null,
         sessionId: input.sessionId || null,
         source: 'universal-skill-bridge-runtime',
-        approved: true,
+        approved: ['approved', 'prepared', 'dry-run'].includes(input.status),
         payload: {
           skill: {
             id: safeId(name),
@@ -721,7 +721,7 @@ export class UniversalSkillBridgeRuntimeService {
             lastReceiptId: input.receipt.id,
           },
           metadata: {
-            phase: input.status === 'prepared' ? 'execution' : input.status === 'approval-required' ? 'approval' : 'preview',
+            phase: runtimeSkillLifecyclePhase(input.status),
             bridgeStatus: input.status,
             mode: input.mode,
             channel: input.channel,
@@ -746,6 +746,22 @@ function normalizeChannel(value: string | null | undefined): string {
 function normalizeNullable(value: string | null | undefined): string | null {
   const normalized = String(value || '').trim();
   return normalized || null;
+}
+
+function runtimeSkillLifecyclePhase(status: ZavorthUniversalSkillBridgeStatus): string {
+  if (status === 'prepared') {
+    return 'execution';
+  }
+  if (status === 'approval-required') {
+    return 'approval';
+  }
+  if (status === 'denied') {
+    return 'denied';
+  }
+  if (status === 'not-found') {
+    return 'not-found';
+  }
+  return 'preview';
 }
 
 function clampNumber(value: unknown, min: number, max: number, fallback: number): number {

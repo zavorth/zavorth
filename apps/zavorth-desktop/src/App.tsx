@@ -337,7 +337,9 @@ export function App() {
           profile: experienceProfile,
           workspace: workspaceScopeForMetadata(activeWorkspaceScope),
         });
-        setSnapshot(result.snapshot || snapshot);
+        const projectedSnapshot = result.snapshot || snapshot;
+        setSnapshot(projectedSnapshot);
+        applyRuntimeStateProjection(projectedSnapshot);
         appendLocalMessage(setMessages, 'system', result.error || 'Stop request sent.');
       } finally {
         setBusy(false);

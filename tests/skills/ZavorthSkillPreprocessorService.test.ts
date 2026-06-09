@@ -183,6 +183,7 @@ describe('ZavorthSkillPreprocessorService', () => {
           actorId: 'actor-xyz',
           skillName: 'eval-skill',
           sourcePath: '/path/to/skill',
+          provenance: { imported: false },
         };
 
         const result = await preprocessor.preprocess(input);
@@ -205,6 +206,7 @@ describe('ZavorthSkillPreprocessorService', () => {
             actorId: 'actor-xyz',
             skillName: 'eval-skill',
             sourcePath: '/path/to/skill',
+            provenance: { imported: false },
           },
         });
       });
@@ -300,6 +302,7 @@ describe('ZavorthSkillPreprocessorService', () => {
           content,
           sessionId: 'session-1',
           actorId: 'actor-2',
+          provenance: { imported: false },
         };
 
         const result = await preprocessor.preprocess(input);

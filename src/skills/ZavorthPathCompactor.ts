@@ -22,7 +22,7 @@ export class ZavorthPathCompactor {
 
     // 1. Normalize absolute path with Unix-style slashes
     let normalized = absolutePath.replace(/\\/g, '/');
-    if (normalized.length > 1 && normalized.endsWith('/')) {
+    if (!this.isWindowsDriveRoot(normalized) && normalized.length > 1 && normalized.endsWith('/')) {
       normalized = normalized.replace(/\/+$/g, '');
     }
 
@@ -34,7 +34,7 @@ export class ZavorthPathCompactor {
 
     // 3. Normalize homedir path
     let normalizedHomedir = homedir.replace(/\\/g, '/');
-    if (normalizedHomedir.endsWith('/')) {
+    if (!this.isWindowsDriveRoot(normalizedHomedir) && normalizedHomedir.endsWith('/')) {
       normalizedHomedir = normalizedHomedir.slice(0, -1);
     }
 
@@ -90,5 +90,9 @@ export class ZavorthPathCompactor {
     }
 
     return normalized;
+  }
+
+  private static isWindowsDriveRoot(value: string): boolean {
+    return /^[A-Za-z]:\/$/.test(value.replace(/\\/g, '/'));
   }
 }

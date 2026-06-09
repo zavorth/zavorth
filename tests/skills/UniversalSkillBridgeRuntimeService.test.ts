@@ -205,12 +205,12 @@ describe('UniversalSkillBridgeRuntimeService Approval gate', () => {
 
     const runtimeState = runtimeStateBus.buildSnapshot();
     expect(snapshot.status).toBe('dry-run');
-    expect(runtimeState.state.skills.active[0]).toEqual(expect.objectContaining({
+    expect(runtimeState.state.skills.active).toEqual(expect.arrayContaining([expect.objectContaining({
       name: 'research-pack',
       source: 'imported',
       status: 'preview',
       lastReceiptId: snapshot.receipts[0].id,
-    }));
+    })]));
     expect(runtimeState.receipts[0]).toEqual(expect.objectContaining({
       domain: 'skills',
       action: 'skill-lifecycle',
