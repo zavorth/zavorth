@@ -24,6 +24,13 @@ describe('ZavorthPathCompactor', () => {
     expect(ZavorthPathCompactor.compact('foo\\bar\\baz')).toBe('foo/bar/baz');
   });
 
+  it('preserves Windows drive roots while normalizing slashes', () => {
+    homedirSpy = jest.spyOn(os, 'homedir').mockReturnValue('/var/empty');
+
+    expect(ZavorthPathCompactor.compact('C:\\')).toBe('C:/');
+    expect(ZavorthPathCompactor.compact('C:/')).toBe('C:/');
+  });
+
   it('compacts exactly home directory to ~', () => {
     homedirSpy = jest.spyOn(os, 'homedir').mockReturnValue('/home/zavorth-user');
     Object.defineProperty(process, 'platform', { value: 'linux', configurable: true });

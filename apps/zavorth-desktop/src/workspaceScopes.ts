@@ -21,20 +21,6 @@ export const defaultWorkspaceScopes: DesktopWorkspaceScope[] = [
     kind: 'folder',
     path: null,
   },
-  {
-    id: 'active-projects',
-    label: '1_PROJETOS_ATIVOS',
-    shortLabel: '1_PROJETOS_ATIVOS',
-    kind: 'folder',
-    path: 'C:\\TESTES DEV\\1_PROJETOS_ATIVOS',
-  },
-  {
-    id: 'zavorth',
-    label: 'Zavorth',
-    shortLabel: 'Zavorth',
-    kind: 'folder',
-    path: 'C:\\TESTES DEV\\1_PROJETOS_ATIVOS\\Zavorth',
-  },
 ];
 
 export function workspaceScopeForMetadata(scope: DesktopWorkspaceScope) {

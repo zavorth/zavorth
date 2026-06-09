@@ -212,7 +212,7 @@ export class TrustedDeviceAccessService {
       tokenHash: this.hashSecret(deviceToken),
       scopes: [...request.scopes],
       userId: this.normalizeActor(input.userId || request.requestedBy || 'local-owner'),
-      profileId: String(input.profileId || 'default').trim() || 'default',
+      profileId: this.normalizeProfileId(input.profileId),
       createdAt: now.toISOString(),
       expiresAt,
       status: 'active',
@@ -344,6 +344,13 @@ export class TrustedDeviceAccessService {
 
   private normalizeActor(value: string): string {
     return String(value || '').trim() || 'local-owner';
+  }
+
+  private normalizeProfileId(inputValue: string | null | undefined): string | null {
+    if (inputValue === null) {
+      return null;
+    }
+    return String(inputValue ?? 'default').trim() || 'default';
   }
 
   private normalizePositiveMs(value: number | null | undefined, fallback: number): number {

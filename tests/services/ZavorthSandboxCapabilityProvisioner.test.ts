@@ -46,7 +46,10 @@ describe('ZavorthSandboxCapabilityProvisioner', () => {
 
     ZavorthSandboxCapabilityProvisioner.provision([mockSkill], sandboxDir);
 
-    const destSkillDir = path.join(sandboxDir, '.zavorth', 'capabilities', 'my-skill');
+    const capabilitiesDir = path.join(sandboxDir, '.zavorth', 'capabilities');
+    const [provisionedDir] = fs.readdirSync(capabilitiesDir);
+    expect(provisionedDir).toMatch(/^my-skill-[a-f0-9]{8}$/);
+    const destSkillDir = path.join(capabilitiesDir, provisionedDir);
     expect(fs.existsSync(destSkillDir)).toBe(true);
     expect(fs.existsSync(path.join(destSkillDir, 'SKILL.md'))).toBe(true);
     expect(fs.readFileSync(path.join(destSkillDir, 'SKILL.md'), 'utf8')).toBe('# My Skill\nInstruction body');
@@ -78,8 +81,46 @@ describe('ZavorthSandboxCapabilityProvisioner', () => {
 
     const capabilitiesDir = path.join(sandboxDir, '.zavorth', 'capabilities');
     const provisionedDirs = fs.readdirSync(capabilitiesDir);
-    expect(provisionedDirs).toEqual(['unsafe-skill']);
-    expect(fs.existsSync(path.join(capabilitiesDir, 'unsafe-skill', 'SKILL.md'))).toBe(true);
+    expect(provisionedDirs).toHaveLength(1);
+    expect(provisionedDirs[0]).toMatch(/^unsafe-skill-[a-f0-9]{8}$/);
+    expect(fs.existsSync(path.join(capabilitiesDir, provisionedDirs[0], 'SKILL.md'))).toBe(true);
     expect(fs.existsSync(path.join(sandboxDir, '.zavorth', 'unsafe:skill'))).toBe(false);
+  });
+
+  it('keeps colliding sanitized names in distinct capability directories', () => {
+    const firstDir = path.join(tempTestDir, 'unsafe-one');
+    const secondDir = path.join(tempTestDir, 'unsafe-two');
+    fs.mkdirSync(firstDir, { recursive: true });
+    fs.mkdirSync(secondDir, { recursive: true });
+    fs.writeFileSync(path.join(firstDir, 'SKILL.md'), '# First skill', 'utf8');
+    fs.writeFileSync(path.join(secondDir, 'SKILL.md'), '# Second skill', 'utf8');
+
+    const firstSkill: SkillMetadata = {
+      name: '../unsafe:skill',
+      description: 'First',
+      dirPath: firstDir,
+      skillFilePath: path.join(firstDir, 'SKILL.md'),
+      supportFilePaths: [],
+      supportFiles: [],
+    } as any;
+    const secondSkill: SkillMetadata = {
+      name: '../unsafe:skill',
+      description: 'Second',
+      dirPath: secondDir,
+      skillFilePath: path.join(secondDir, 'SKILL.md'),
+      supportFilePaths: [],
+      supportFiles: [],
+    } as any;
+
+    ZavorthSandboxCapabilityProvisioner.provision([firstSkill, secondSkill], sandboxDir);
+
+    const capabilitiesDir = path.join(sandboxDir, '.zavorth', 'capabilities');
+    const provisionedDirs = fs.readdirSync(capabilitiesDir).sort();
+    expect(provisionedDirs).toHaveLength(2);
+    expect(new Set(provisionedDirs).size).toBe(2);
+    for (const dirName of provisionedDirs) {
+      expect(dirName).toMatch(/^unsafe-skill-[a-f0-9]{8}$/);
+      expect(fs.existsSync(path.join(capabilitiesDir, dirName, 'SKILL.md'))).toBe(true);
+    }
   });
 });

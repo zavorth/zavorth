@@ -58,6 +58,11 @@ export interface PreprocessInput {
    * Optional source path of the skill file (passed in security policy metadata).
    */
   sourcePath?: string;
+
+  /**
+   * Optional skill provenance. Missing provenance is treated as untrusted.
+   */
+  provenance?: SkillMetadata['provenance'];
 }
 
 /**
@@ -223,6 +228,21 @@ export class ZavorthSkillPreprocessorService {
       // Append raw text up to this command match
       finalBody += bodyContent.substring(lastIndex, matchIndex);
 
+      if (!this.isExplicitlyTrustedProvenance(input.provenance)) {
+        const errorReason = 'Blocked by security policy: untrusted source';
+        executedCommands.push({
+          command,
+          allowed: false,
+          error: errorReason,
+        });
+        if (this.strictSecurity) {
+          throw new SecurityPolicyViolationError(command, errorReason);
+        }
+        finalBody += `[Blocked: command execution denied by security policy]`;
+        lastIndex = evalRegex.lastIndex;
+        continue;
+      }
+
       // Validate against the SecurityPolicyBroker
       const decision = decideSecurityPolicy({
         surface: 'skill',
@@ -233,6 +253,7 @@ export class ZavorthSkillPreprocessorService {
           actorId: input.actorId,
           skillName: input.skillName,
           sourcePath: input.sourcePath,
+          provenance: input.provenance,
         },
       });
 
@@ -309,7 +330,6 @@ export class ZavorthSkillPreprocessorService {
     // 2. Resolve from SQLite database if available
     if (this.database) {
       try {
-        // Try zavorth_state_meta
         const stateMetaRow = this.database.get(
           'SELECT value_json FROM zavorth_state_meta WHERE key = ?',
           [key]
@@ -317,8 +337,11 @@ export class ZavorthSkillPreprocessorService {
         if (stateMetaRow && stateMetaRow.value_json) {
           return JSON.parse(stateMetaRow.value_json);
         }
+      } catch (err) {
+        console.warn(`[ZavorthSkillPreprocessorService] Error looking up key "${key}" in zavorth_state_meta:`, err);
+      }
 
-        // Try user_memory for matching user/actor
+      try {
         const userMemoryRow = this.database.get(
           'SELECT value FROM user_memory WHERE user_id = ? AND key = ?',
           [actorId, key]
@@ -335,8 +358,11 @@ export class ZavorthSkillPreprocessorService {
         if (fallbackMemoryRow && fallbackMemoryRow.value !== undefined) {
           return fallbackMemoryRow.value;
         }
+      } catch (err) {
+        console.warn(`[ZavorthSkillPreprocessorService] Error looking up key "${key}" in user_memory:`, err);
+      }
 
-        // Try snippets (as a fallback user configuration slot)
+      try {
         const snippetRow = this.database.get(
           'SELECT content FROM snippets WHERE user_id = ? AND name = ?',
           [actorId, key]
@@ -345,7 +371,7 @@ export class ZavorthSkillPreprocessorService {
           return snippetRow.content;
         }
       } catch (err) {
-        console.warn(`[ZavorthSkillPreprocessorService] Error looking up key "${key}" in database:`, err);
+        console.warn(`[ZavorthSkillPreprocessorService] Error looking up key "${key}" in snippets:`, err);
       }
     }
 
@@ -459,7 +485,7 @@ export class ZavorthSkillPreprocessorService {
       }
 
       // Governed Execution Security: only trusted local skills are allowed to execute shell commands
-      const isTrusted = input.skill.provenance?.imported !== true;
+      const isTrusted = this.isExplicitlyTrustedProvenance(input.skill.provenance);
       if (!isTrusted) {
         return `[Zavorth capability evaluation blocked: untrusted source]`;
       }
@@ -506,5 +532,13 @@ export class ZavorthSkillPreprocessorService {
         return `[Zavorth capability evaluation error: ${err.message}]`;
       }
     });
+  }
+
+  private static isExplicitlyTrustedProvenance(provenance: SkillMetadata['provenance'] | undefined): boolean {
+    return provenance !== undefined && provenance !== null && provenance.imported === false;
+  }
+
+  private isExplicitlyTrustedProvenance(provenance: SkillMetadata['provenance'] | undefined): boolean {
+    return ZavorthSkillPreprocessorService.isExplicitlyTrustedProvenance(provenance);
   }
 }

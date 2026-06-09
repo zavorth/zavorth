@@ -679,7 +679,7 @@ export class DashboardCoreRouteService {
 
     if (pathname === '/api/experience/runtime-state/action' && req.method === 'POST') {
       const body = await deps.readJsonBody(req);
-      const trustedDesktopBridge = req.headers['x-zavorth-desktop-bridge'] === '1';
+      const trustedDesktopBridge = this.isVerifiedDesktopBridge(req, deps);
       const result = service.dispatchRuntimeStateAction({
         type: this.readOptionalString(body.type) as any,
         surface: this.readOptionalString(body.surface) || homeInput.surface,
@@ -717,7 +717,7 @@ export class DashboardCoreRouteService {
         responseProfile: this.readOptionalString(body.responseProfile) as ExperienceCommand['responseProfile'],
         metadata: {
           ...metadata,
-          trustedDesktopBridge: req.headers['x-zavorth-desktop-bridge'] === '1',
+          trustedDesktopBridge: this.isVerifiedDesktopBridge(req, deps),
         },
       };
       deps.writeJson(res, await service.executeCommand(command));
@@ -1032,5 +1032,13 @@ export class DashboardCoreRouteService {
       return null;
     }
     return value as Record<string, unknown>;
+  }
+
+  private isVerifiedDesktopBridge(req: http.IncomingMessage, deps: DashboardCoreRouteDeps): boolean {
+    if (req.headers['x-zavorth-desktop-bridge'] !== '1') {
+      return false;
+    }
+    const identity = deps.authService?.resolveAuthenticatedIdentity(req);
+    return identity?.authenticated === true;
   }
 }

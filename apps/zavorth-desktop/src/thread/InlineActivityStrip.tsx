@@ -25,8 +25,18 @@ export function InlineActivityStrip(props: {
       </div>
       {firstApproval ? (
         <div className="zvd-activity-actions">
-          <button onClick={() => void props.onDecision(itemId(firstApproval, 'approval-0'), 'approve')}>Approve</button>
-          <button onClick={() => void props.onDecision(itemId(firstApproval, 'approval-0'), 'reject')}>Reject</button>
+          <button
+            disabled={props.busy}
+            onClick={() => void (!props.busy && props.onDecision(itemId(firstApproval, 'approval-0'), 'approve'))}
+          >
+            Approve
+          </button>
+          <button
+            disabled={props.busy}
+            onClick={() => void (!props.busy && props.onDecision(itemId(firstApproval, 'approval-0'), 'reject'))}
+          >
+            Reject
+          </button>
           <button onClick={props.onOpenReview}>Details</button>
         </div>
       ) : <span className="zvd-running-dot" />}
