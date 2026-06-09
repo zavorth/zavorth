@@ -35,10 +35,14 @@ import type {
 } from './SkillCatalogContract.js';
 import { SkillContentScannerService, type SkillContentScanResult } from './SkillContentScannerService.js';
 import { SkillLoader } from './SkillLoader.js';
+import { ZavorthSkillPreprocessorService } from './ZavorthSkillPreprocessorService.js';
+import { ZavorthPathCompactor } from './ZavorthPathCompactor.js';
+import { ZavorthRuntimeStateBusService } from '../services/ZavorthRuntimeStateBusService.js';
 
 type Runtime = {
   now?: () => Date;
   projectRoot?: string;
+  runtimeStateBus?: Pick<ZavorthRuntimeStateBusService, 'dispatch'> | null;
   skillLoader?: Pick<SkillLoader, 'loadAll' | 'buildSkillPrompt'>;
   skillTrustPolicyService?: Pick<SkillTrustPolicyService, 'evaluateSource' | 'evaluateSkill'>;
   contentScannerService?: Pick<SkillContentScannerService, 'scanSkillDirectory'>;
@@ -59,6 +63,8 @@ export type UniversalSkillBridgeRuntimeInput = {
   maxPromptChars?: number;
   allowLocalSkills?: boolean;
   persistReceipt?: boolean;
+  sessionId?: string | null;
+  actorId?: string | null;
 };
 
 const DEFAULT_MAX_PROMPT_CHARS = 16000;
@@ -75,6 +81,7 @@ export class UniversalSkillBridgeRuntimeService {
   private readonly mkdirSyncImpl: typeof fs.mkdirSync;
   private readonly readFileSyncImpl: typeof fs.readFileSync;
   private readonly writeFileSyncImpl: typeof fs.writeFileSync;
+  private readonly runtimeStateBus: Pick<ZavorthRuntimeStateBusService, 'dispatch'> | null;
 
   constructor(runtime: Runtime = {}) {
     this.now = runtime.now || (() => new Date());
@@ -92,6 +99,12 @@ export class UniversalSkillBridgeRuntimeService {
     this.mkdirSyncImpl = runtime.mkdirSync || fs.mkdirSync.bind(fs);
     this.readFileSyncImpl = runtime.readFileSync || fs.readFileSync.bind(fs);
     this.writeFileSyncImpl = runtime.writeFileSync || fs.writeFileSync.bind(fs);
+    this.runtimeStateBus = runtime.runtimeStateBus === null
+      ? null
+      : runtime.runtimeStateBus || new ZavorthRuntimeStateBusService({
+        now: this.now,
+        stateFilePath: path.join(this.projectRoot, 'data', 'runtime', 'zavorth-runtime-state-bus.json'),
+      });
   }
 
   public async invoke(input: UniversalSkillBridgeRuntimeInput): Promise<ZavorthUniversalSkillBridgeSnapshot> {
@@ -114,11 +127,21 @@ export class UniversalSkillBridgeRuntimeService {
         ownerApprovalId,
         securityProfile: input.securityProfile,
         persistReceipt: input.persistReceipt !== false,
+        sessionId: input.sessionId,
+        actorId: input.actorId,
       });
     }
 
     const skillSummary = this.summarizeSkill(skill);
-    const prompt = this.skillLoader.buildSkillPrompt(skill);
+    const rawPrompt = this.skillLoader.buildSkillPrompt(skill);
+    const prompt = ZavorthSkillPreprocessorService.preprocess({
+      content: rawPrompt,
+      skill,
+      projectRoot: this.projectRoot,
+      sessionId: input.sessionId,
+      actorId: input.actorId,
+      securityProfile: input.securityProfile,
+    });
     const promptInjectionFindings = detectPromptInjectionIndicators({
       skillName: skill.name,
       content: prompt,
@@ -127,7 +150,8 @@ export class UniversalSkillBridgeRuntimeService {
       path: finding.path,
       preview: finding.preview,
     }));
-    const contentScan = this.contentScanner.scanSkillDirectory(skill.dirPath);
+    const expandedDirPath = ZavorthPathCompactor.expand(skill.dirPath);
+    const contentScan = this.contentScanner.scanSkillDirectory(expandedDirPath);
     const trustDecision = this.skillTrustPolicy.evaluateSkill(skill.sourceId, skill.name);
     const reasons = this.collectReasons({
       skill,
@@ -177,6 +201,15 @@ export class UniversalSkillBridgeRuntimeService {
     if (input.persistReceipt !== false) {
       this.appendReceipt(receipt);
     }
+    this.publishSkillLifecycle({
+      skill,
+      status,
+      mode,
+      channel,
+      receipt,
+      sessionId: input.sessionId,
+      actorId: input.actorId,
+    });
 
     return this.buildSnapshot({
       generatedAt,
@@ -233,6 +266,8 @@ export class UniversalSkillBridgeRuntimeService {
     ownerApprovalId: string | null;
     securityProfile?: string | null;
     persistReceipt: boolean;
+    sessionId?: string | null;
+    actorId?: string | null;
   }): ZavorthUniversalSkillBridgeSnapshot {
     const brokerDecision = decideSecurityPolicy({
       surface: 'skill',
@@ -258,6 +293,16 @@ export class UniversalSkillBridgeRuntimeService {
     if (input.persistReceipt) {
       this.appendReceipt(receipt);
     }
+    this.publishSkillLifecycle({
+      skill: null,
+      skillName: input.skillName || 'missing-skill',
+      status: 'not-found',
+      mode: input.mode,
+      channel: input.channel,
+      receipt,
+      sessionId: input.sessionId,
+      actorId: input.actorId,
+    });
 
     return this.buildSnapshot({
       generatedAt: input.generatedAt,
@@ -643,6 +688,51 @@ export class UniversalSkillBridgeRuntimeService {
       receipts: [...current, receipt].slice(-500),
     }, null, 2), 'utf8');
   }
+
+  private publishSkillLifecycle(input: {
+    skill: SkillMetadata | null;
+    skillName?: string | null;
+    status: ZavorthUniversalSkillBridgeStatus;
+    mode: ZavorthUniversalSkillBridgeMode;
+    channel: string;
+    receipt: ZavorthUniversalSkillBridgeReceipt;
+    sessionId?: string | null;
+    actorId?: string | null;
+  }): void {
+    if (!this.runtimeStateBus) {
+      return;
+    }
+    const name = input.skill?.name || input.skillName || input.receipt.skillName || 'missing-skill';
+    const source = runtimeSkillSource(input.skill);
+    try {
+      this.runtimeStateBus.dispatch({
+        type: 'skill-lifecycle',
+        surface: input.channel,
+        userId: input.actorId || null,
+        sessionId: input.sessionId || null,
+        source: 'universal-skill-bridge-runtime',
+        approved: true,
+        payload: {
+          skill: {
+            id: safeId(name),
+            name,
+            source,
+            status: runtimeSkillStatus(input.status, source),
+            lastReceiptId: input.receipt.id,
+          },
+          metadata: {
+            phase: input.status === 'prepared' ? 'execution' : input.status === 'approval-required' ? 'approval' : 'preview',
+            bridgeStatus: input.status,
+            mode: input.mode,
+            channel: input.channel,
+            imported: input.skill?.provenance?.imported === true,
+          },
+        },
+      });
+    } catch {
+      // Skill bridge receipts must not fail the safe prompt envelope path.
+    }
+  }
 }
 
 function normalizeToken(value: string): string {
@@ -681,6 +771,26 @@ function safeId(value: string): string {
     .replace(/[^a-z0-9_.:-]+/g, '-')
     .replace(/-+/g, '-')
     .replace(/^-|-$/g, '') || 'skill';
+}
+
+function runtimeSkillSource(skill: SkillMetadata | null): 'native' | 'imported' | 'preview' | 'review' | 'unknown' {
+  if (!skill) return 'unknown';
+  if (skill.provenance?.imported === true) return 'imported';
+  if (skill.sourceTrust === 'review') return 'review';
+  if (skill.sourceId === 'zavorth-native' || skill.sourceId?.includes('native')) return 'native';
+  return 'unknown';
+}
+
+function runtimeSkillStatus(
+  status: ZavorthUniversalSkillBridgeStatus,
+  source: ReturnType<typeof runtimeSkillSource>,
+): 'available' | 'preview' | 'approved' | 'executing' | 'blocked' | 'quarantined' {
+  if (status === 'prepared') return 'approved';
+  if (status === 'dry-run' || status === 'approval-required') return 'preview';
+  if (status === 'denied' || status === 'not-found') {
+    return source === 'imported' ? 'quarantined' : 'blocked';
+  }
+  return source === 'imported' ? 'quarantined' : 'available';
 }
 
 function sha256(value: string | Buffer): string {

@@ -59,12 +59,12 @@ const DEFAULT_POLICY: SkillTrustPolicyRawDocument = {
   version: 1,
   updatedAt: null,
   defaultPolicy: 'deny',
-  allowedSourceIds: ['zavorth-native', 'workspace-agents', 'workspace-library', 'workspace-imported-library'],
+  allowedSourceIds: ['workspace-agents', 'workspace-library', 'workspace-imported-library'],
   rules: [
     {
       sourceId: 'zavorth-native',
-      mode: 'all',
-      reason: 'Official Zavorth-owned native intelligence pack.',
+      mode: 'none',
+      reason: 'Curated Zavorth-native shortlist remains disabled and review-gated until owner policy enables it.',
     },
     {
       sourceId: 'workspace-agents',

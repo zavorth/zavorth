@@ -1,0 +1,19 @@
+{
+  "id": "zavorth-workspace-scope",
+  "name": "Zavorth Workspace Scope",
+  "native": true,
+  "description": "Select, inspect, and enforce the local folder or no-folder chat scope used by Zavorth.",
+  "category": "workspace",
+  "permissionProfileId": "local-scoped",
+  "riskLevel": "medium",
+  "capabilityTags": ["workspace", "scope", "local-first", "filesystem", "approvals"],
+  "presets": ["basic", "developer", "ops", "power-user"],
+  "inputContract": ["requested folder", "current scope", "requested operation"],
+  "outputContract": ["active scope", "allowed operations", "blocked operations", "receipts"],
+  "inspiredBy": [
+    "AIAgentSkills/alinaqi_claude-bootstrap/workspace"
+  ],
+  "noExecutionByDefault": true,
+  "requiresPolicyBroker": true,
+  "receiptsRequired": true
+}
