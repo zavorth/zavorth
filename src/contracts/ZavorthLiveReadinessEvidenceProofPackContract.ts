@@ -1,5 +1,6 @@
 import type { ChannelMeshSnapshot } from './ChannelMeshContract.js';
 import type { ProviderChannelSmokeProofSnapshot } from './ProviderChannelSmokeProofContract.js';
+import type { ZavorthTerminalBackendSnapshot } from './ZavorthTerminalBackendsContract.js';
 import type { ZavorthProviderReadinessMatrixSnapshot } from './ZavorthProviderReadinessMatrixContract.js';
 
 export const ZAVORTH_LIVE_READINESS_EVIDENCE_PROOF_PACK_CONTRACT_VERSION =
@@ -21,6 +22,25 @@ export type ZavorthLiveReadinessEvidenceEntry = {
   operatorAction: string | null;
 };
 
+export type ZavorthLiveReadinessOperationalRequirement = {
+  id: string;
+  label: string;
+  status: ZavorthLiveReadinessEvidenceStatus;
+  observed: string;
+  target: string;
+  command: string;
+};
+
+export type ZavorthLiveReadinessOperationalClosure = {
+  status: 'live-proved' | 'live-proof-required' | 'blocked';
+  codeReady: boolean;
+  liveProofSatisfied: boolean;
+  canClaimOperationalClosure: boolean;
+  verdict: string;
+  requirements: ZavorthLiveReadinessOperationalRequirement[];
+  nextCommands: string[];
+};
+
 export type ZavorthLiveReadinessEvidenceProofPackSnapshot = {
   generatedAt: string;
   contractVersion: typeof ZAVORTH_LIVE_READINESS_EVIDENCE_PROOF_PACK_CONTRACT_VERSION;
@@ -30,7 +50,9 @@ export type ZavorthLiveReadinessEvidenceProofPackSnapshot = {
   providerMatrix: ZavorthProviderReadinessMatrixSnapshot;
   channelMesh: ChannelMeshSnapshot;
   smokeProof: ProviderChannelSmokeProofSnapshot;
+  terminalBackends: ZavorthTerminalBackendSnapshot;
   entries: ZavorthLiveReadinessEvidenceEntry[];
+  operationalClosure: ZavorthLiveReadinessOperationalClosure;
   summary: {
     entries: number;
     passed: number;
@@ -44,6 +66,10 @@ export type ZavorthLiveReadinessEvidenceProofPackSnapshot = {
     channelDefaultRouteAllowed: number;
     catalogReadyButNotLive: number;
     smokeProofReceipts: number;
+    backendTotal: number;
+    backendLiveReady: number;
+    strongBackendLiveReady: number;
+    liveProofRequired: boolean;
     rawSecretsSerialized: false;
     providerNetworkUsed: false;
     liveChannelSendPerformed: false;
@@ -64,6 +90,8 @@ export type ZavorthLiveReadinessEvidenceProofPackSnapshot = {
     providerMatrix: 'npm run zavorth:provider-live-matrix --silent';
     channelMesh: 'npm run channels:mesh --silent';
     smokeProof: 'npm run provider-channel-smoke-proof:check --silent';
+    terminalBackends: 'npm run zavorth:terminal-backends:check --silent';
+    requireLive: 'npm run zavorth:live-readiness-evidence-proof-pack:json -- --require-live';
     nextStage: 'Intent model0 - Final Daily Runtime Closure and Release Gate';
   };
 };

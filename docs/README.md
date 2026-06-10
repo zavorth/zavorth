@@ -31,9 +31,9 @@ understand, operate and integrate the agent.
 | [Dynamic Mission Harness](/docs/dynamic-mission-harness.md) | Preview, approve and materialize deep multi-worker missions |
 | [Mnemos Dream Cycle](/docs/mnemos-dream-cycle.md) | Consolidate memory into reviewable candidate stores |
 
-## Certification Ledger
+## Product Readiness
 
-- Intent model3 - Live Consistency Certification: current modules tracked dynamically, providers and channels certified from the active inventory, No live external IO.
+- Zavorth checks the active runtime inventory before publishing readiness. Provider and channel routes only become live when this installation has the required credentials, allowlists and proof receipts.
 
 ## Integrations
 

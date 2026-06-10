@@ -1,20 +1,48 @@
 {
-  "id": "zavorth-transaction-safe-finance",
-  "title": "Zavorth Transaction-safe Finance",
-  "source": "workspace-library",
-  "trust": "trusted",
-  "tags": [
-    "approval",
-    "finance",
-    "preview",
-    "transaction-safe",
-    "actions",
-    "ledger",
-    "risk",
-    "after"
-  ],
-  "curatedBy": "zavorth-skill-curator",
-  "contractVersion": "zavorth-skill-curator-live-loop/1",
-  "updatedAt": "2026-05-18T18:40:32.051Z",
-  "safeMetadataApply": true
+    "id":  "zavorth-transaction-safe-finance",
+    "title":  "Zavorth Transaction-safe Finance",
+    "source":  "workspace-library",
+    "trust":  "trusted",
+    "tags":  [
+                 "approval",
+                 "finance",
+                 "preview",
+                 "transaction-safe",
+                 "actions",
+                 "ledger",
+                 "risk",
+                 "after"
+             ],
+    "curatedBy":  "zavorth-skill-curator",
+    "contractVersion":  "zavorth-skill-curator-live-loop/1",
+    "updatedAt":  "2026-05-18T18:40:32.051Z",
+    "safeMetadataApply":  true,
+    "name":  "Zavorth Transaction-safe Finance",
+    "native":  true,
+    "description":  "Zavorth-owned native skill for transaction-safe finance.",
+    "category":  "operations",
+    "permissionProfileId":  "workspace-write-approval",
+    "riskLevel":  "high",
+    "capabilityTags":  [
+                           "workflow",
+                           "data"
+                       ],
+    "presets":  [
+                    "developer",
+                    "ops",
+                    "power-user"
+                ],
+    "inputContract":  [
+                          "transaction intent",
+                          "ledger state",
+                          "approval thresholds"
+                      ],
+    "outputContract":  [
+                           "transaction preview",
+                           "financial impact",
+                           "audit trail"
+                       ],
+    "noExecutionByDefault":  true,
+    "requiresPolicyBroker":  true,
+    "receiptsRequired":  true
 }

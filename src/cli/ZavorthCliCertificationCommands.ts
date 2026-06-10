@@ -24,7 +24,7 @@ const COMMANDS: ZavorthCliCertificationCommand[] = [
   { name: 'capability', summary: 'Run ability and provider ability commands.', usage: 'zavorth capability [command]', description: 'Inspect provider, tool, media, search and embedding abilities.', status: 'ready', commands: [['catalog', 'Show ability catalog.'], ['doctor', 'Diagnose ability readiness.'], ['infer', 'Route to provider-backed ability commands.']], examples: [['zavorth capability catalog', 'Inspect available abilities.']] },
   { name: 'channels', summary: 'Add, inspect and configure messaging channels.', usage: 'zavorth channels [command]', description: 'Configure Telegram, Discord, Slack, email and other chat channels.', status: 'ready', commands: [['add', 'Add or update a channel.'], ['status', 'Show readiness.'], ['list', 'List available channels.']], examples: [['zavorth channels telegram', 'Configure Telegram ChatOps.']] },
   { name: 'chat', summary: 'Open the terminal conversation UI.', usage: 'zavorth chat', description: 'Talk with Zavorth in the terminal.', status: 'ready', examples: [['zavorth chat', 'Start terminal conversation.']] },
-  { name: 'certify', summary: 'Certify operational readiness across channels, gateway, plugins, QA and onboarding.', usage: 'zavorth certify [best-in-class|native-capability] [options]', description: 'Run no-secret, no-network certification passes over the native Zavorth control plane.', status: 'ready', commands: [['best-in-class', 'Certify research/autonomy, personal product and governance axes together.'], ['native-capability', 'Certify daily capability areas against a local evidence tree and Zavorth-native smoke.']], options: ['--json           Output JSON', '--strict         Exit non-zero unless every domain passes', '--evidence-root <path>  Optional local evidence tree'], examples: [['zavorth certify', 'Show operational certification.'], ['zavorth certify best-in-class --json', 'Export product excellence certification snapshot.'], ['zavorth certify native-capability --json', 'Export daily capability certification snapshot.']] },
+  { name: 'certify', summary: 'Certify operational readiness across channels, gateway, plugins, QA and onboarding.', usage: 'zavorth certify [product-excellence|native-capability] [options]', description: 'Run no-secret, no-network certification passes over the native Zavorth control plane.', status: 'ready', commands: [['product-excellence', 'Certify research/autonomy, personal product and governance axes together.'], ['native-capability', 'Certify daily capability areas against a local evidence tree and Zavorth-native smoke.']], options: ['--json           Output JSON', '--strict         Exit non-zero unless every domain passes', '--evidence-root <path>  Optional local evidence tree'], examples: [['zavorth certify', 'Show operational certification.'], ['zavorth certify product-excellence --json', 'Export product excellence certification snapshot.'], ['zavorth certify native-capability --json', 'Export daily capability certification snapshot.']] },
   { name: 'commitments', summary: 'List and manage inferred follow-up commitments.', usage: 'zavorth commitments [command]', description: 'Inspect follow-ups and operator commitments inferred from runs and evidence.', status: 'prepared', commands: [['list', 'List commitments.'], ['resolve', 'Resolve a commitment.']], examples: [['zavorth commitments list', 'Show pending follow-ups.']] },
   { name: 'completion', summary: 'Generate shell completion scripts.', usage: 'zavorth completion <shell>', description: 'Generate shell completions for bash, zsh, fish or PowerShell.', status: 'ready', commands: [['bash', 'Generate bash completion.'], ['zsh', 'Generate zsh completion.'], ['fish', 'Generate fish completion.'], ['powershell', 'Generate PowerShell completion.']], examples: [['zavorth completions powershell', 'Print PowerShell completions.']] },
   { name: 'completions', summary: 'Generate shell completion scripts.', usage: 'zavorth completions <shell>', description: 'Generate shell completions for bash, zsh, fish or PowerShell.', status: 'ready', commands: [['bash', 'Generate bash completion.'], ['zsh', 'Generate zsh completion.'], ['fish', 'Generate fish completion.'], ['powershell', 'Generate PowerShell completion.']], examples: [['zavorth completions powershell', 'Print PowerShell completions.']] },
@@ -176,23 +176,23 @@ function premiumBox(title: string, lines: string[]): string {
   const availableWidth = columns > 0 ? Math.max(48, Math.min(BORDER_WIDTH, columns - 4)) : BORDER_WIDTH;
   const panelWidth = Math.min(availableWidth, Math.max(44, cleanTitle.length + 8, ...lines.map((line) => visibleWidth(line) + 4)));
   return renderConsistencyBox(cleanTitle, lines, panelWidth);
-  const width = Math.min(BORDER_WIDTH, Math.max(44, cleanTitle.length + 8, ...lines.map((line) => visibleWidth(line) + 4)));
-  const inner = width - 4;
-  const titleText = ` ${cleanTitle} `;
-  const top = `â•­â”€${titleText}${'â”€'.repeat(Math.max(0, width - titleText.length - 3))}â•®`;
-  const body = lines.flatMap((line) => wrapLine(line, width - 4))
-    .map((line) => `â”‚ ${line.padEnd(inner)} â”‚`);
-  const bottom = `â•°${'â”€'.repeat(width - 2)}â•¯`;
-  return [top, ...body, bottom].join('\n');
 }
 
 function renderConsistencyBox(title: string, lines: string[], width: number): string {
   const inner = width - 4;
   const titleText = ` ${title} `;
-  const top = `â•­${titleText}${'â”€'.repeat(Math.max(0, width - visibleWidth(titleText) - 2))}â•®`;
+  const border = {
+    topLeft: '\u250c',
+    topRight: '\u2510',
+    bottomLeft: '\u2514',
+    bottomRight: '\u2518',
+    horizontal: '\u2500',
+    vertical: '\u2502',
+  };
+  const top = `${border.topLeft}${titleText}${border.horizontal.repeat(Math.max(0, width - visibleWidth(titleText) - 2))}${border.topRight}`;
   const body = lines.flatMap((line) => wrapLine(line, inner))
-    .map((line) => `â”‚ ${line.padEnd(inner)} â”‚`);
-  const bottom = `â•°${'â”€'.repeat(width - 2)}â•¯`;
+    .map((line) => `${border.vertical} ${line.padEnd(inner)} ${border.vertical}`);
+  const bottom = `${border.bottomLeft}${border.horizontal.repeat(width - 2)}${border.bottomRight}`;
   return [top, ...body, bottom].join('\n');
 }
 
