@@ -164,7 +164,7 @@ describe('WebAppRuntimeSessionMutationService compact', () => {
         ok: false,
         error: expect.stringContaining('Falha ao compactar sessao.'),
       }),
-      400,
+      500,
     );
     expect(JSON.stringify(deps.writeJson.mock.calls)).not.toContain('super-secret-value');
   });

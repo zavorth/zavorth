@@ -781,6 +781,7 @@ describe('WebAppConversationService natural-first routing', () => {
         command: '/workflows',
         maxFanout: 1,
         effortLevel: 'low',
+        budgetGuardRequired: true,
       }),
       effortControl: expect.objectContaining({
         budget: expect.objectContaining({
