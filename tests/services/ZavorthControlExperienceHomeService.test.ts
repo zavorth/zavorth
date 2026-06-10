@@ -17,6 +17,7 @@ describe('ZavorthControlExperienceHomeService', () => {
       'receipts',
       'connectors',
     ]);
+    expect(snapshot.simpleNavigation.areas.find((area) => area.id === 'tasks')?.href).toBe('/dashboard/cli-tools');
     expect(snapshot.gettingStarted.title).toBe('Primeiros passos');
     expect(snapshot.gettingStarted.summary).toContain('demo is optional');
     expect(snapshot.gettingStarted.steps.map((step) => step.command)).toEqual(expect.arrayContaining([
@@ -47,6 +48,7 @@ describe('ZavorthControlExperienceHomeService', () => {
     expect(snapshot.primaryMissions).toEqual(expect.arrayContaining([
       expect.objectContaining({
         id: 'review-a-repo',
+        href: '/dashboard/cli-tools',
         risk: 'medium',
         approvalExpectation: expect.stringContaining('approval'),
       }),

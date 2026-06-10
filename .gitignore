@@ -44,8 +44,6 @@ SECURITY_AUDIT_REPORT*.md
 security-audit*.json
 tracking.json
 tsc-*.out
-openclaw_screenshots/
-capture_openclaw.js
 
 # === Temp Files ===
 tmp/

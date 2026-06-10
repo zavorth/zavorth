@@ -68,7 +68,7 @@ export function formatQuotaLabel(name: string) {
 }
 
 /**
- * Format ISO date string to countdown format (inspired by vscode-zavorth-bridge-cockpit)
+ * Format ISO date string to compact countdown format.
  * @param {string|Date} date - ISO date string or Date object
  * @returns {string} Formatted countdown (e.g., "2d 5h 30m", "4h 40m", "15m") or "-"
  */

@@ -1,20 +1,49 @@
 {
-  "id": "zavorth-communication-control",
-  "title": "Zavorth Communication Control",
-  "source": "workspace-library",
-  "trust": "trusted",
-  "tags": [
-    "communication",
-    "control",
-    "approval",
-    "channel",
-    "messages",
-    "across",
-    "actions",
-    "approve"
-  ],
-  "curatedBy": "zavorth-skill-curator",
-  "contractVersion": "zavorth-skill-curator-live-loop/1",
-  "updatedAt": "2026-05-18T18:40:32.044Z",
-  "safeMetadataApply": true
+    "id":  "zavorth-communication-control",
+    "title":  "Zavorth Communication Control",
+    "source":  "workspace-library",
+    "trust":  "trusted",
+    "tags":  [
+                 "communication",
+                 "control",
+                 "approval",
+                 "channel",
+                 "messages",
+                 "across",
+                 "actions",
+                 "approve"
+             ],
+    "curatedBy":  "zavorth-skill-curator",
+    "contractVersion":  "zavorth-skill-curator-live-loop/1",
+    "updatedAt":  "2026-05-18T18:40:32.044Z",
+    "safeMetadataApply":  true,
+    "name":  "Zavorth Communication Control",
+    "native":  true,
+    "description":  "Zavorth-owned native skill for communication control.",
+    "category":  "channels",
+    "permissionProfileId":  "workspace-write-approval",
+    "riskLevel":  "medium",
+    "capabilityTags":  [
+                           "communication",
+                           "channel",
+                           "workflow"
+                       ],
+    "presets":  [
+                    "developer",
+                    "ops",
+                    "power-user"
+                ],
+    "inputContract":  [
+                          "user intent",
+                          "runtime context",
+                          "policy constraints"
+                      ],
+    "outputContract":  [
+                           "governed guidance",
+                           "next action",
+                           "verification criteria"
+                       ],
+    "noExecutionByDefault":  true,
+    "requiresPolicyBroker":  true,
+    "receiptsRequired":  true
 }

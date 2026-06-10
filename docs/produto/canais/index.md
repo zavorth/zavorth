@@ -3,22 +3,24 @@ title: "Channels"
 description: "Connect Zavorth to Telegram, Discord, WhatsApp, Slack, Signal, iMessage, Teams, Email, and more."
 ---
 
-Zavorth works from any channel you already use. One runtime, every surface — the same Zavorth whether you are on Telegram or Slack.
+Zavorth works from the channels you already use. One runtime, every surface: the same Zavorth whether you are in the browser dashboard, Telegram, Slack, WhatsApp, Discord, Signal, Email, or another configured route.
+
+Live-ready means this local installation has passed its own doctor/live proof with your credentials, allowlists, and channel policy. A channel being catalogued or scaffolded does not mean it can send or receive live messages yet.
 
 ## Available channels
 
-| Channel | Status | Notes |
+| Channel | Default status | Notes |
 |---|---|---|
-| **Telegram** | ✅ Live | Recommended first channel — easiest to set up |
-| **Discord** | ✅ Live | Native gateway with slash commands |
-| **WhatsApp** | ✅ Live | Cloud API or local bridge (Baileys) |
-| **Slack** | ✅ Live | Native bot or stub mode |
-| **Signal** | ✅ Live | Via signal-cli local bridge |
-| **iMessage** | ✅ Live | macOS bridge, read-only by default |
-| **Microsoft Teams** | ✅ Live | Microsoft Graph / Bot Framework |
-| **Email** | ✅ Live | SMTP/IMAP for notifications and approvals |
-| **ZavorthControl** | ✅ Live | Browser dashboard — always available |
-| **CLI** | ✅ Live | Terminal — always available |
+| **ZavorthControl** | Local ready | Browser dashboard; available without external channel credentials |
+| **CLI** | Local ready | Terminal; available without external channel credentials |
+| **Telegram** | Fast setup, proof-gated | Recommended first phone channel; bot token plus allowlist |
+| **Discord** | Setup + doctor required | Native gateway with slash commands after bot token, guild policy, and proof |
+| **WhatsApp** | Setup + live proof required | Cloud API or local Baileys bridge; webhook/QR is not live proof by itself |
+| **Slack** | Setup + live proof required | Native bot or outbox/stub until token, signing secret, allowlist, and proof pass |
+| **Signal** | Local bridge required | signal-cli/JSON-RPC bridge with a dedicated account and allowlist |
+| **iMessage** | macOS bridge required | Read-only by default; sending needs allowlist and explicit proof |
+| **Microsoft Teams** | Setup + live proof required | Microsoft Graph / Bot Framework credentials and tenant policy |
+| **Email** | Outbox first, SMTP/IMAP proof required | Notifications and approvals after recipients and mail transport are proven |
 | Matrix | Catalogued | Needs setup and credentials |
 | Mattermost | Catalogued | Needs setup and credentials |
 | Google Chat | Catalogued | Needs setup and credentials |
@@ -27,7 +29,7 @@ Zavorth works from any channel you already use. One runtime, every surface — t
 | IRC / LINE / Zalo | Catalogued | Needs setup and credentials |
 | Home Assistant | Catalogued | Needs setup and credentials |
 
-**Catalogued** means the channel is planned and supported in the codebase but not yet live-ready — it needs activation and credentials.
+**Catalogued** means the channel is known by Zavorth but is not live-ready. It needs activation, credentials, allowlists, and a successful doctor/live proof before it can become a default route.
 
 ## Setting up a channel
 
@@ -41,22 +43,25 @@ zavorth channels whatsapp
 zavorth channels signal
 ```
 
-These commands walk you through the required credentials and allowlist setup. They preview everything before writing — no secrets are stored until you confirm.
+These commands walk you through the required credentials and allowlist setup. They preview everything before writing; no secrets are stored until you confirm.
 
 After setup, check that everything is working:
 
 ```bash
 zavorth connectors doctor telegram
 zavorth connectors doctor discord
+npm run zavorth:channel-connection-playbook -- --channel slack
+npm run zavorth:channel-connection-playbook -- --channel whatsapp --mode cloud-api
 ```
 
 ## Safety by default
 
 Every channel uses the same safety model:
 
-- **Allowlist** — only approved senders can trigger actions
-- **Policy** — each channel has its own open/closed/allowlist mode
-- **Approval routing** — sensitive tasks ask for your OK regardless of which channel sent them
+- **Allowlist** - only approved senders can trigger actions
+- **Policy** - each channel has its own open/closed/allowlist mode
+- **Approval routing** - sensitive tasks ask for your OK regardless of which channel sent them
+- **Live proof** - default routes require a successful doctor/live proof in this installation
 
 Channel policy lives in `.zavorth/channel-policies.json`. You can also set it per-channel in `.env`:
 
@@ -69,22 +74,22 @@ ZAVORTH_CHANNEL_POLICY_WHATSAPP_ALLOWED=+15555550123
 
 <Columns>
   <Card title="Telegram" href="/docs/produto/canais/telegram" icon="send">
-    The fastest channel to set up. Just a bot token.
+    The fastest channel to set up. Just a bot token and an allowlist.
   </Card>
   <Card title="Discord" href="/docs/produto/canais/discord" icon="message-square">
-    Native bot with slash commands and server allowlists.
+    Native bot with slash commands, server allowlists, and doctor proof.
   </Card>
   <Card title="WhatsApp" href="/docs/produto/canais/whatsapp" icon="smartphone">
-    Cloud API or local Baileys bridge.
+    Cloud API or local Baileys bridge, both proof-gated before live use.
   </Card>
   <Card title="Slack" href="/docs/produto/canais/slack" icon="hash">
-    Native Slack bot with channel and workspace allowlists.
+    Native Slack bot or outbox/stub while setup is incomplete.
   </Card>
   <Card title="Signal" href="/docs/produto/canais/signal" icon="lock">
-    Local bridge via signal-cli. Private by default.
+    Local bridge via signal-cli. Dedicated account strongly recommended.
   </Card>
   <Card title="Email" href="/docs/produto/canais/email" icon="mail">
-    SMTP/IMAP for notifications and approval requests.
+    SMTP/IMAP for notifications and approval requests after recipient proof.
   </Card>
 </Columns>
 

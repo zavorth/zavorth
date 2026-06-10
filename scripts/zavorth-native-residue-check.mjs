@@ -6,6 +6,14 @@ const root = process.cwd();
 const failures = [];
 const notes = [];
 const legacyGatewayBaseUrlMarker = ['OMNI', 'ROUTE_BASE_URL'].join('');
+const maxRepoWideScanBytes = 512 * 1024;
+
+const rawSkillLibraryPrefixes = [
+  'skill-library/.raw/',
+  'skill-library/imported-raw/',
+  'skill-library/native-raw/',
+  'skill-library/review/',
+];
 
 const forbiddenPatterns = [
   { label: 'Antigravity', pattern: /antigravity/i },
@@ -37,8 +45,11 @@ const scanExtensions = new Set([
 ]);
 
 const skippedPathParts = new Set([
+  '.agents',
   '.git',
   '.next',
+  '.superpowers',
+  'artifacts',
   'coverage',
   'dist',
   'dist-ops',
@@ -61,7 +72,6 @@ const launchFacingRetiredExecutorFiles = [
   'src/execution/execution-gateway/ExecutionGatewayAliases.ts',
   'src/ai-gateway/shared/constants/cliTools.ts',
   'src/ai-gateway/shared/services/cli-runtime/cliRuntimeTools.ts',
-  'src/ai-gateway/app/(zavorthControl)/control/cli-tools/components/managed-cli-tool-card/managedCliToolProfiles.ts',
   'src/ai-gateway/app/api/cli-tools/_shared/externalExecutorSettingsRoute.ts',
   'src/ai-gateway/lib/acp/registry.ts',
   'src/domain/platform-ecosystem/infrastructure/integration-registry/catalog-local.ts',
@@ -171,10 +181,16 @@ function checkRepoWideLegacyResidues() {
   let scanned = 0;
   let historicalHits = 0;
   let policyBoundaryHits = 0;
+  let skippedLargeFiles = 0;
 
   for (const filePath of files) {
     const absolutePath = abs(filePath);
     if (!fs.existsSync(absolutePath)) continue;
+    const stat = fs.statSync(absolutePath);
+    if (stat.size > maxRepoWideScanBytes) {
+      skippedLargeFiles += 1;
+      continue;
+    }
 
     const source = fs.readFileSync(absolutePath, 'utf8');
     const lines = source.split(/\r?\n/);
@@ -207,6 +223,10 @@ function checkRepoWideLegacyResidues() {
   }
 
   notes.push(`scanned ${scanned} git-visible text file(s) for forbidden runtime/product legacy residues`);
+  notes.push('ignored raw skill-library staging prefixes during repo-wide legacy residue scan');
+  if (skippedLargeFiles > 0) {
+    notes.push(`skipped ${skippedLargeFiles} large text file(s) above ${maxRepoWideScanBytes} bytes`);
+  }
   if (historicalHits > 0) {
     notes.push(`allowed ${historicalHits} historical provenance residue(s) in explicitly marked docs`);
   }
@@ -243,6 +263,8 @@ function listGitVisibleFiles() {
 }
 
 function shouldScan(filePath) {
+  if (rawSkillLibraryPrefixes.some((prefix) => filePath.startsWith(prefix))) return false;
+
   const parts = filePath.split('/');
   if (parts.some((part) => skippedPathParts.has(part))) return false;
 

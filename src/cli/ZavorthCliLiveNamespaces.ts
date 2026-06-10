@@ -8,7 +8,7 @@ import { promisify } from 'util';
 import { formatZavorthCertificationHelp } from './ZavorthCliCertificationCommands.js';
 import { ZavorthOperationalReadinessService } from '../services/ZavorthOperationalReadinessService.js';
 import { ZavorthNativeCapabilityCertificationService } from '../services/ZavorthNativeCapabilityCertificationService.js';
-import { ZavorthBestInClassProductService } from '../services/ZavorthBestInClassProductService.js';
+import { ZavorthProductExcellenceService } from '../services/ZavorthProductExcellenceService.js';
 import { GoalLoopService } from '../services/GoalLoopService.js';
 import { GoalLoopDaemonService } from '../services/GoalLoopDaemonService.js';
 import { GoalLoopWorkerService } from '../services/GoalLoopWorkerService.js';
@@ -115,8 +115,9 @@ export async function runZavorthLiveNamespaceCommand(input: {
 
 async function runCertify(root: string, args: string[]) {
   const target = firstArg(args, 'operational');
-  if (['best-in-class', 'best', 'product-best', 'product-excellence'].includes(target)) {
-    const service = new ZavorthBestInClassProductService({
+  const operationalTargets = new Set(['operational', 'readiness', 'ops']);
+  if (['product-excellence', 'product', 'excellence'].includes(target)) {
+    const service = new ZavorthProductExcellenceService({
       projectRoot: root,
       ...(readFlag(args, 'evidence-root') ? { evidenceRoot: readFlag(args, 'evidence-root') } : {}),
       env: process.env,
@@ -143,6 +144,26 @@ async function runCertify(root: string, args: string[]) {
     return {
       exitCode: args.includes('--strict') && snapshot.status !== 'ready' ? 1 : 0,
       output,
+    };
+  }
+  if (!operationalTargets.has(target)) {
+    const payload = {
+      ok: false,
+      error: `Unknown certify target: ${target}`,
+      allowedTargets: ['operational', 'product-excellence', 'native-capability'],
+    };
+    if (args.includes('--json')) {
+      return {
+        exitCode: 1,
+        output: `${JSON.stringify(payload, null, 2)}\n`,
+      };
+    }
+    return {
+      exitCode: 1,
+      output: [
+        `Unknown certify target: ${target}`,
+        'Allowed targets: operational, product-excellence, native-capability',
+      ].join('\n') + '\n',
     };
   }
   const service = new ZavorthOperationalReadinessService();
@@ -3908,7 +3929,7 @@ function resolveRequestedSkillGovernanceMode(args: string[]): 'casual' | 'govern
   if (/\b(governed|governado|estrito|strict|enterprise|corporativo)\b/u.test(text)) {
     return 'governed';
   }
-  if (/\b(casual|rapido|rÃ¡pido|pessoal|personal|domestico|domÃ©stico)\b/u.test(text)) {
+  if (/\b(casual|rapido|r\u00e1pido|pessoal|personal|domestico|dom\u00e9stico)\b/u.test(text)) {
     return 'casual';
   }
   return null;

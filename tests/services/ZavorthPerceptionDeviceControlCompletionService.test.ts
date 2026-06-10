@@ -2,9 +2,10 @@ import { ZavorthPerceptionDeviceControlCompletionService } from '../../src/servi
 
 describe('ZavorthPerceptionDeviceControlCompletionService Intent model0', () => {
   it('certifies PC, browser and Android perception/dashboard without unsafe defaults', async () => {
-    const snapshot = await new ZavorthPerceptionDeviceControlCompletionService({
+    const service = new ZavorthPerceptionDeviceControlCompletionService({
       now: () => new Date('2026-05-14T14:00:00.000Z'),
-    }).buildSnapshot();
+    });
+    const snapshot = await service.buildSnapshot();
 
     expect(snapshot.contractVersion).toBe('2026-05-14.checkpoint-10-perception-device-control-completion');
     expect(snapshot.status).toBe('passed');
@@ -37,5 +38,7 @@ describe('ZavorthPerceptionDeviceControlCompletionService Intent model0', () => 
       'look at my connected phone',
       'tap/type on my phone to fix this',
     ]));
+    const formattedSnapshot = service.formatSnapshotText(snapshot);
+    expect(formattedSnapshot).toContain('tap/type/click/install/ZavorthControl');
   });
 });

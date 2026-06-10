@@ -7,7 +7,7 @@ import {
   type SecurityPolicyBrokerReceipt,
 } from '../security/SecurityPolicyBroker.js';
 
-export type SkillAllowMode = 'all' | 'explicit' | 'none';
+export type SkillAllowMode = 'all' | 'explicit' | 'review' | 'none';
 export type SkillTrustPolicyDefault = 'allow' | 'deny';
 
 export type SkillTrustRule = {
@@ -59,7 +59,7 @@ const DEFAULT_POLICY: SkillTrustPolicyRawDocument = {
   version: 1,
   updatedAt: null,
   defaultPolicy: 'deny',
-  allowedSourceIds: ['zavorth-native', 'workspace-agents', 'workspace-library', 'workspace-imported-library'],
+  allowedSourceIds: ['zavorth-native', 'workspace-agents', 'workspace-library'],
   rules: [
     {
       sourceId: 'zavorth-native',
@@ -78,8 +78,8 @@ const DEFAULT_POLICY: SkillTrustPolicyRawDocument = {
     },
     {
       sourceId: 'workspace-imported-library',
-      mode: 'all',
-      reason: 'Biblioteca local de imports curados.',
+      mode: 'review',
+      reason: 'Imported skills stay visible for review and require explicit promotion before execution.',
     },
   ],
 };
@@ -148,7 +148,7 @@ export class SkillTrustPolicyService {
   }): SkillTrustPolicyDocument {
     const current = this.readPolicy();
     const sourceId = this.normalizeSourceId(input.sourceId);
-    const mode = input.mode === 'all' || input.mode === 'explicit' || input.mode === 'none'
+    const mode = input.mode === 'all' || input.mode === 'explicit' || input.mode === 'review' || input.mode === 'none'
       ? input.mode
       : 'none';
     const rules = current.rules.filter((entry) => entry.sourceId !== sourceId);
@@ -162,7 +162,7 @@ export class SkillTrustPolicyService {
     if (mode === 'all') {
       allowedSourceIds.add(sourceId);
     }
-    if (mode === 'none') {
+    if (mode === 'none' || mode === 'review') {
       allowedSourceIds.delete(sourceId);
     }
     return this.savePolicy({
@@ -179,6 +179,15 @@ export class SkillTrustPolicyService {
 
     if (rule?.mode === 'none') {
       return this.deny(normalizedSourceId, null, 'none', rule.reason || `Fonte ${normalizedSourceId} bloqueada pela allowlist.`);
+    }
+
+    if (rule?.mode === 'review') {
+      return this.allow(
+        normalizedSourceId,
+        null,
+        'review',
+        rule.reason || `Fonte ${normalizedSourceId} visivel somente para revisao.`,
+      );
     }
 
     if (rule?.mode === 'all') {
@@ -231,6 +240,15 @@ export class SkillTrustPolicyService {
 
     const policy = this.readPolicy();
     const rule = this.findRule(policy, normalizedSourceId);
+
+    if (rule?.mode === 'review') {
+      return this.deny(
+        normalizedSourceId,
+        normalizedSkillName,
+        'review',
+        rule.reason || `Skill ${normalizedSkillName || 'desconhecida'} exige revisao antes de execucao.`,
+      );
+    }
 
     if (rule?.mode === 'all') {
       return this.allow(
@@ -328,7 +346,7 @@ export class SkillTrustPolicyService {
   private normalizeRule(rule: SkillTrustRuleRaw): SkillTrustRule {
     return {
       sourceId: this.normalizeSourceId(rule.sourceId),
-      mode: rule.mode === 'all' || rule.mode === 'explicit' || rule.mode === 'none'
+      mode: rule.mode === 'all' || rule.mode === 'explicit' || rule.mode === 'review' || rule.mode === 'none'
         ? rule.mode
         : 'none',
       skillNames: this.normalizeSkillNameList(rule.skillNames),

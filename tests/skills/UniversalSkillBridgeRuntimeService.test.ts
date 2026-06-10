@@ -3,6 +3,7 @@ import os from 'os';
 import path from 'path';
 import { UniversalSkillBridgeRuntimeService } from '../../src/skills/UniversalSkillBridgeRuntimeService.js';
 import { UniversalSkillTrustImportService } from '../../src/skills/UniversalSkillTrustImportService.js';
+import { ZavorthRuntimeStateBusService } from '../../src/services/ZavorthRuntimeStateBusService.js';
 
 function writeSourceSkill(root: string, input: {
   dirName: string;
@@ -54,6 +55,86 @@ describe('UniversalSkillBridgeRuntimeService Approval gate', () => {
     fs.mkdirSync(path.join(root, '.agents', 'skills'), { recursive: true });
     fs.mkdirSync(path.join(root, 'skill-library'), { recursive: true });
     fs.mkdirSync(importedTarget, { recursive: true });
+
+    // Enable the imported library source and its allowlist policy for testing
+    fs.mkdirSync(path.join(root, 'config'), { recursive: true });
+    fs.writeFileSync(path.join(root, 'config', 'skill-sources.json'), JSON.stringify({
+      version: 1,
+      sources: [
+        {
+          id: 'zavorth-native',
+          label: 'Zavorth native intelligence pack',
+          kind: 'workspace',
+          trust: 'trusted',
+          enabled: true,
+          ingestionMode: 'local-scan',
+          path: 'skill-library/native',
+          createIfMissing: true,
+          ownership: 'zavorth-native',
+          registrySource: 'zavorth:native-intelligence-pack',
+          license: 'Zavorth-Internal',
+        },
+        {
+          id: 'workspace-agents',
+          label: 'Workspace .agents skills',
+          kind: 'workspace',
+          trust: 'trusted',
+          enabled: true,
+          ingestionMode: 'local-scan',
+          path: '.agents/skills',
+          createIfMissing: true,
+          ownership: 'workspace',
+          registrySource: 'zavorth:local-workspace',
+        },
+        {
+          id: 'workspace-library',
+          label: 'Workspace skill library',
+          kind: 'workspace',
+          trust: 'trusted',
+          enabled: true,
+          ingestionMode: 'local-scan',
+          path: 'skill-library',
+          createIfMissing: true,
+          ownership: 'workspace',
+          registrySource: 'zavorth:local-workspace',
+        },
+        {
+          id: 'workspace-imported-library',
+          label: 'Workspace imported skill library',
+          kind: 'workspace',
+          trust: 'review',
+          enabled: true,
+          ingestionMode: 'local-scan',
+          path: 'skill-library/imported',
+          createIfMissing: true,
+          ownership: 'curated-import',
+          registrySource: 'zavorth:curated-import',
+        },
+      ],
+    }, null, 2), 'utf8');
+    fs.writeFileSync(path.join(root, 'config', 'skill-allowlist.json'), JSON.stringify({
+      version: 1,
+      defaultPolicy: 'deny',
+      allowedSourceIds: ['zavorth-native', 'workspace-agents', 'workspace-library', 'workspace-imported-library'],
+      rules: [
+        {
+          sourceId: 'zavorth-native',
+          mode: 'all',
+        },
+        {
+          sourceId: 'workspace-agents',
+          mode: 'all',
+        },
+        {
+          sourceId: 'workspace-library',
+          mode: 'all',
+        },
+        {
+          sourceId: 'workspace-imported-library',
+          mode: 'all',
+        },
+      ],
+    }, null, 2), 'utf8');
   });
 
   afterEach(() => {
@@ -97,6 +178,129 @@ describe('UniversalSkillBridgeRuntimeService Approval gate', () => {
       channelSafeOutput: true,
     }));
     expect(fs.existsSync(path.join(root, '.zavorth', 'receipts', 'universal-skill-bridge-runtime.json'))).toBe(true);
+  });
+
+  it('publishes skill lifecycle receipts into the runtime state bus', async () => {
+    writeSourceSkill(source, {
+      dirName: 'research-pack',
+      name: 'research-pack',
+      description: 'Research local documents and produce evidence notes.',
+      license: 'MIT',
+    });
+    await importSkill(root, source, importedTarget, 'research-pack');
+    const runtimeStateBus = new ZavorthRuntimeStateBusService({
+      stateFilePath: path.join(root, 'runtime-state.json'),
+      now: () => new Date('2026-05-10T15:10:00.000Z'),
+    });
+
+    const snapshot = await new UniversalSkillBridgeRuntimeService({
+      now: () => new Date('2026-05-10T15:10:00.000Z'),
+      projectRoot: root,
+      runtimeStateBus,
+    }).invoke({
+      skillName: 'research-pack',
+      intent: 'Summarize the workspace notes.',
+      channel: 'cli',
+    });
+
+    const runtimeState = runtimeStateBus.buildSnapshot();
+    expect(snapshot.status).toBe('dry-run');
+    expect(runtimeState.state.skills.active).toEqual(expect.arrayContaining([expect.objectContaining({
+      name: 'research-pack',
+      source: 'imported',
+      status: 'preview',
+      lastReceiptId: snapshot.receipts[0].id,
+    })]));
+    expect(runtimeState.receipts[0]).toEqual(expect.objectContaining({
+      domain: 'skills',
+      action: 'skill-lifecycle',
+      status: 'applied',
+    }));
+  });
+
+  it('records denied skill lifecycle as a contract-safe receipt phase', async () => {
+    const skillDir = path.join(importedTarget, 'restricted-runtime');
+    fs.mkdirSync(skillDir, { recursive: true });
+    fs.writeFileSync(path.join(skillDir, 'SKILL.md'), [
+      '---',
+      'name: restricted-runtime',
+      'description: Restricted runtime policy.',
+      '---',
+      '',
+      '# Restricted Runtime',
+      '',
+      'Summarize local notes.',
+    ].join('\n'), 'utf8');
+    fs.writeFileSync(path.join(skillDir, 'ORIGIN.json'), JSON.stringify({
+      version: 1,
+      importedAt: '2026-05-10T15:00:00.000Z',
+      importMode: 'manual',
+      skillName: 'restricted-runtime',
+      source: {
+        id: 'universal-source:restricted',
+        label: 'Restricted Source',
+        kind: 'repository',
+        trust: 'review',
+        registrySource: 'zavorth:universal-skill-intake',
+        upstream: source,
+        license: 'proprietary',
+        ownership: 'universal-intake',
+      },
+      originalSkillPath: 'restricted-runtime/SKILL.md',
+      originalRelativePath: 'restricted-runtime',
+      copiedFiles: ['SKILL.md'],
+      governance: {
+        risk: {
+          score: 20,
+          level: 'low',
+          reviewRequired: true,
+          reasons: ['manual fixture'],
+        },
+        licensePolicy: {
+          label: 'restricted',
+          allowImport: true,
+          allowRuntimeUse: false,
+          allowCoreCopy: false,
+          reviewRequired: true,
+          summary: 'Runtime use is not allowed.',
+        },
+        audit: {
+          lastEventId: 'fixture',
+          trailFilePath: null,
+          lastAction: 'import',
+          lastRecordedAt: '2026-05-10T15:00:00.000Z',
+        },
+      },
+    }, null, 2), 'utf8');
+    const runtimeStateBus = new ZavorthRuntimeStateBusService({
+      stateFilePath: path.join(root, 'runtime-state.json'),
+      now: () => new Date('2026-05-10T15:10:00.000Z'),
+    });
+
+    const snapshot = await new UniversalSkillBridgeRuntimeService({
+      now: () => new Date('2026-05-10T15:10:00.000Z'),
+      projectRoot: root,
+      runtimeStateBus,
+    }).invoke({
+      skillName: 'restricted-runtime',
+      intent: 'Use this skill.',
+      channel: 'cli',
+    });
+
+    const runtimeState = runtimeStateBus.buildSnapshot();
+    expect(snapshot.status).toBe('denied');
+    expect(runtimeState.state.skills.active).toEqual(expect.arrayContaining([expect.objectContaining({
+      name: 'restricted-runtime',
+      source: 'imported',
+      status: 'quarantined',
+      lastReceiptId: snapshot.receipts[0].id,
+    })]));
+    expect(runtimeState.receipts[0]).toEqual(expect.objectContaining({
+      domain: 'skills',
+      action: 'skill-lifecycle',
+      phase: 'receipt',
+    }));
+    expect((runtimeState.receipts[0].metadata as any).payload.metadata.phase).toBe('receipt');
   });
 
   it('requires owner approval before live bridge preparation', async () => {

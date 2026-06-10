@@ -2001,18 +2001,12 @@ export function initRuntimeBridge() {
           <div class="zavorth-unlock-card__mark">Z</div>
           <div>
             <span class="zavorth-unlock-card__eyebrow">Local access</span>
-            <h4>Connect to Zavorth runtime</h4>
+            <h4>Local runtime</h4>
           </div>
-          ${statusBadge('warn', hasStoredToken() ? 'Revalidate token' : 'Token required')}
         </div>
         <p class="zavorth-unlock-card__reason">
-          ${text(reason, 'Paste the local token to unlock live conversations, runs, approvals, and artifacts in this tab.')}
+          ${text(reason, 'Paste the local token from this installation to unlock live chat in this browser tab.')}
         </p>
-        <div class="zavorth-unlock-status-grid" aria-label="Connection requirements">
-          <span><strong>Runtime</strong><small>${state.auth?.webReady || state.auth?.gatewayReady ? 'Local server reachable' : 'Checking local server'}</small></span>
-          <span><strong>Auth</strong><small>${hasStoredToken() ? 'Token saved in this tab' : 'Token required'}</small></span>
-          <span><strong>Session</strong><small>${readSessionId() ? 'Existing session found' : 'New session ready'}</small></span>
-        </div>
         <label class="zavorth-secret-field">
           <span>Dashboard token</span>
           <div class="zavorth-secret-field__row">
@@ -2022,25 +2016,37 @@ export function initRuntimeBridge() {
             </button>
           </div>
         </label>
+        <p class="zavorth-unlock-card__storage">
+          Stored only in this tab sessionStorage. You can lock the tab again from access status.
+        </p>
         <div class="zavorth-unlock-help">
-          <strong>Quick fix</strong>
-          <ol>
-            <li>Open the dashboard with <span class="mono">zavorth dashboard</span> to receive an authenticated URL.</li>
-            <li>To copy manually, run <span class="mono">zavorth dashboard token</span> in the local terminal.</li>
-            <li>If the token fails, generate a new one and do not reuse an old token from another tab.</li>
-          </ol>
-          <div class="zavorth-unlock-help__path">
-            <span>Current route</span>
-            <code>${escapeHtml(window.location.origin)}</code>
-          </div>
-          <div class="zavorth-unlock-actions">
-            <button id="zavorth-copy-token-command" type="button">Copy token command</button>
-            <button id="zavorth-refresh-access" type="button">Refresh status</button>
-            <button id="zavorth-reconnect-runtime" type="button">Reconnect</button>
+          <button id="zavorth-unlock-help-toggle" class="zavorth-unlock-help__toggle" type="button" aria-expanded="false" aria-controls="zavorth-unlock-help-panel">
+            Where do I find the token?
+          </button>
+          <div id="zavorth-unlock-help-panel" class="zavorth-unlock-help__panel" hidden>
+            <ol>
+              <li>Open the dashboard with <span class="mono">zavorth dashboard</span> to receive an authenticated URL.</li>
+              <li>To copy manually, run <span class="mono">zavorth dashboard token</span> in the local terminal.</li>
+              <li>If the token fails, generate a new one and do not reuse an old token from another tab.</li>
+            </ol>
+            <div class="zavorth-unlock-status-grid" aria-label="Connection requirements">
+              <span><strong>Runtime</strong><small>${state.auth?.webReady || state.auth?.gatewayReady ? 'Local server reachable' : 'Checking local server'}</small></span>
+              <span><strong>Auth</strong><small>${hasStoredToken() ? 'Token saved in this tab' : 'Token required'}</small></span>
+              <span><strong>Session</strong><small>${readSessionId() ? 'Existing session found' : 'New session ready'}</small></span>
+            </div>
+            <div class="zavorth-unlock-help__path">
+              <span>Current route</span>
+              <code>${escapeHtml(window.location.origin)}</code>
+            </div>
+            <div class="zavorth-unlock-actions">
+              <button id="zavorth-copy-token-command" type="button">Copy token command</button>
+              <button id="zavorth-refresh-access" type="button">Refresh status</button>
+              <button id="zavorth-reconnect-runtime" type="button">Reconnect</button>
+            </div>
           </div>
         </div>
         <p id="zavorth-unlock-feedback" class="zavorth-unlock-feedback">
-          The token is stored only in this tab sessionStorage. After validation, the top status changes to Core Unlocked.
+          After validation, Zavorth opens the live chat for this tab.
         </p>
       </form>
     `;
@@ -2061,6 +2067,13 @@ export function initRuntimeBridge() {
     const copyCommand = document.getElementById('zavorth-copy-token-command');
     const refreshStatus = document.getElementById('zavorth-refresh-access');
     const reconnectRuntime = document.getElementById('zavorth-reconnect-runtime');
+    const helpToggle = document.getElementById('zavorth-unlock-help-toggle');
+    const helpPanel = document.getElementById('zavorth-unlock-help-panel');
+    if (helpToggle && helpPanel) {
+      helpPanel.setAttribute('hidden', '');
+      helpToggle.setAttribute('aria-expanded', 'false');
+      helpToggle.setAttribute('aria-controls', 'zavorth-unlock-help-panel');
+    }
 
     if (toggle && input) {
       toggle.onclick = () => {
@@ -2096,6 +2109,13 @@ export function initRuntimeBridge() {
         disconnectRealtime('manual-reconnect');
         await refresh().catch((error) => setUnlockFeedback(messageFromCaughtError(error, 'Reconnect failed.'), 'danger'));
         setUnlockFeedback(state.realtime.connected ? 'Realtime stream connected.' : 'Reconnect requested. If protected, paste a fresh token.');
+      };
+    }
+    if (helpToggle && helpPanel) {
+      helpToggle.onclick = () => {
+        const willOpen = helpPanel.hasAttribute('hidden');
+        helpPanel.toggleAttribute('hidden', !willOpen);
+        helpToggle.setAttribute('aria-expanded', willOpen ? 'true' : 'false');
       };
     }
 
