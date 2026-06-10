@@ -756,10 +756,10 @@ function runtimeSkillLifecyclePhase(status: ZavorthUniversalSkillBridgeStatus): 
     return 'approval';
   }
   if (status === 'denied') {
-    return 'denied';
+    return 'receipt';
   }
   if (status === 'not-found') {
-    return 'not-found';
+    return 'receipt';
   }
   return 'preview';
 }

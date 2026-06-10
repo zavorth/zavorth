@@ -29,7 +29,16 @@ export type ZavorthRuntimeStateActionType =
   | 'surface-event'
   | 'skill-lifecycle'
   | 'domain-state'
-  | 'operate-domain';
+  | 'operate-domain'
+  | 'set-permission'
+  | 'select-model-spec'
+  | 'route-model'
+  | 'set-provider-connection'
+  | 'set-workspace-knowledge'
+  | 'register-personal-connector'
+  | 'set-mcp-trust'
+  | 'recover-scheduled-jobs'
+  | 'resume-stream';
 
 export type ZavorthRuntimeStateReceiptStatus =
   | 'preview'
@@ -53,6 +62,7 @@ export type ZavorthRuntimeStateModel = {
   label: string;
   provider: string;
   connected: boolean;
+  connectedModelIds: string[];
   selectedAt: string;
   source: string;
 };
@@ -63,6 +73,130 @@ export type ZavorthRuntimeStateSkill = {
   source: 'native' | 'imported' | 'preview' | 'review' | 'unknown';
   status: 'available' | 'preview' | 'approved' | 'executing' | 'blocked' | 'quarantined';
   lastReceiptId: string | null;
+};
+
+export type ZavorthRuntimePermissionDecision = 'allow' | 'approval' | 'block' | 'configure';
+
+export type ZavorthRuntimePermissionRule = {
+  default: ZavorthRuntimePermissionDecision;
+  requiresApproval: boolean;
+  scope: 'global' | 'workspace' | 'provider' | 'connector' | 'mcp' | 'skill';
+  reason: string;
+};
+
+export type ZavorthRuntimePermissionsMatrix = {
+  version: 1;
+  domains: Record<string, {
+    label: string;
+    actions: Record<string, ZavorthRuntimePermissionRule>;
+  }>;
+};
+
+export type ZavorthRuntimeModelSpec = {
+  id: 'daily' | 'coding' | 'research' | 'local-private' | 'budget';
+  label: string;
+  summary: string;
+  allowedProviderIds: string[];
+  preferredModelIds: string[];
+  fallbackModelIds: string[];
+  maxEffort: 'low' | 'standard' | 'high' | 'ultra-code';
+  estimatedCost: 'low' | 'medium' | 'high';
+  allowedSkillIds: string[];
+  allowedSubagentIds: string[];
+};
+
+export type ZavorthRuntimeDynamicRoute = {
+  intent: string;
+  providerId: string;
+  modelId: string;
+  specId: string;
+  reason: string;
+  fallbackModelIds: string[];
+  estimatedCost: 'low' | 'medium' | 'high';
+  risk: 'low' | 'medium' | 'high';
+  selectedAt: string;
+};
+
+export type ZavorthRuntimeProviderConnection = {
+  id: string;
+  label: string;
+  status: 'configured' | 'needs-setup' | 'blocked';
+  targetHost: string | null;
+  localLoopback: boolean;
+  defaultRouteAllowed: boolean;
+  blockReason: string | null;
+  updatedAt: string;
+};
+
+export type ZavorthRuntimeWorkspaceKnowledge = {
+  workspaceId: string;
+  activeWorkspaceLabel: string;
+  isolation: 'chat' | 'runtime-local' | 'folder' | 'project' | 'zavorth-local';
+  trustedWorkspaceIds: string[];
+  allowedPaths: string[];
+  ragSources: Array<{
+    id: string;
+    kind: 'document' | 'web' | 'email' | 'memory';
+    label: string;
+    trusted: boolean;
+  }>;
+  untrustedContextWrapping: true;
+};
+
+export type ZavorthRuntimePersonalConnector = {
+  id: string;
+  kind: 'email' | 'calendar' | 'task';
+  label: string;
+  status: 'disabled' | 'configured' | 'needs-setup' | 'blocked';
+  enabled: boolean;
+  readAllowed: boolean;
+  draftAllowed: boolean;
+  sendRequiresApproval: true;
+  writeRequiresApproval: true;
+  lastReceiptId: string | null;
+};
+
+export type ZavorthRuntimeMcpTrustServer = {
+  id: string;
+  label: string;
+  origin: string;
+  trustState: 'blocked' | 'review' | 'trusted';
+  toolNames: string[];
+  risk: 'low' | 'medium' | 'high';
+  networkAccess: 'blocked' | 'loopback' | 'restricted';
+  exposedToModel: boolean;
+  lastReceiptId: string | null;
+};
+
+export type ZavorthRuntimeSkillHistoryEntry = {
+  id: string;
+  skillId: string;
+  skillName: string;
+  mode: 'manual' | 'always-applied' | 'auto-selected' | 'blocked' | 'approved' | 'executed';
+  source: ZavorthRuntimeStateSkill['source'];
+  receiptId: string | null;
+  at: string;
+};
+
+export type ZavorthRuntimeStreamSession = {
+  sessionId: string | null;
+  status: 'idle' | 'streaming' | 'resumable' | 'completed' | 'failed';
+  resumeToken: string | null;
+  updatedAt: string;
+  resumable: true;
+};
+
+export type ZavorthRuntimeCapabilitiesProjection = {
+  summary: {
+    available: number;
+    blocked: number;
+    configurable: number;
+    pending: number;
+  };
+  available: Array<{ id: string; label: string; domain: string }>;
+  blocked: Array<{ id: string; label: string; reason: string }>;
+  configurable: Array<{ id: string; label: string; reason: string }>;
+  pending: Array<{ id: string; label: string; reason: string }>;
 };
 
 export type ZavorthRuntimeStateDomainState = {
@@ -122,6 +256,32 @@ export type ZavorthRuntimeStateBusState = {
     snapshot: ZavorthEffortControlSnapshot;
     selectedAt: string;
   };
+  permissionsMatrix: ZavorthRuntimePermissionsMatrix;
+  modelSpec: {
+    selectedSpecId: string;
+    selectedAt: string;
+    specs: ZavorthRuntimeModelSpec[];
+  };
+  dynamicRouting: {
+    selected: ZavorthRuntimeDynamicRoute;
+    providerConnections: ZavorthRuntimeProviderConnection[];
+  };
+  workspaceKnowledge: ZavorthRuntimeWorkspaceKnowledge;
+  personalOps: {
+    connectors: ZavorthRuntimePersonalConnector[];
+  };
+  mcpTrust: {
+    servers: ZavorthRuntimeMcpTrustServer[];
+    policy: {
+      externalServersRequireTrust: true;
+      quarantinedToolsHidden: true;
+      privateNetworkBlockedByDefault: true;
+    };
+  };
+  skillHistory: {
+    entries: ZavorthRuntimeSkillHistoryEntry[];
+  };
+  streamSession: ZavorthRuntimeStreamSession;
 };
 
 export type ZavorthRuntimeStateBusProjection = {
@@ -149,6 +309,28 @@ export type ZavorthRuntimeStateBusProjection = {
     importedSkillsQuarantined: boolean;
     rawSecretsSerialized: false;
   };
+  capabilities: ZavorthRuntimeCapabilitiesProjection;
+  permissionsMatrix: ZavorthRuntimePermissionsMatrix;
+  modelSpecs: {
+    selectedSpecId: string;
+    specs: ZavorthRuntimeModelSpec[];
+  };
+  dynamicRouting: {
+    selected: ZavorthRuntimeDynamicRoute;
+    providerConnections: ZavorthRuntimeProviderConnection[];
+  };
+  workspaceKnowledge: ZavorthRuntimeWorkspaceKnowledge;
+  personalOps: {
+    connectors: ZavorthRuntimePersonalConnector[];
+  };
+  mcpTrust: {
+    servers: ZavorthRuntimeMcpTrustServer[];
+    policy: ZavorthRuntimeStateBusState['mcpTrust']['policy'];
+  };
+  skillHistory: {
+    entries: ZavorthRuntimeSkillHistoryEntry[];
+  };
+  streamSession: ZavorthRuntimeStreamSession;
 };
 
 export type ZavorthRuntimeStateBusSnapshot = {
@@ -181,6 +363,15 @@ export type ZavorthRuntimeStateBusActionInput = {
     workspace?: unknown;
     skill?: unknown;
     domain?: unknown;
+    permission?: unknown;
+    modelSpec?: unknown;
+    dynamicRouting?: unknown;
+    providerConnection?: unknown;
+    workspaceKnowledge?: unknown;
+    personalConnector?: unknown;
+    mcpTrust?: unknown;
+    scheduledJobs?: unknown;
+    streamSession?: unknown;
     metadata?: unknown;
   } | null;
 };

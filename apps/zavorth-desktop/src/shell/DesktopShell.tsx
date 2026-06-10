@@ -6,6 +6,7 @@ import type {
   MemoryEncryptionMigrationReceipt,
   MemoryEncryptionStatus,
   MemoryItem,
+  RuntimeCapabilitiesSnapshot,
   ToolItem,
 } from '../apiClient';
 import { DesktopCommandBar } from '../composer/DesktopCommandBar';
@@ -43,6 +44,7 @@ export function DesktopShell(props: {
   notice: string;
   profile: string;
   runtimeMessage: string;
+  runtimeCapabilities: RuntimeCapabilitiesSnapshot | null;
   showNotice: boolean;
   showRuntimeSetup: boolean;
   sidebarCollapsed: boolean;
@@ -201,6 +203,7 @@ export function DesktopShell(props: {
               memoryItems={props.memoryItems}
               nexusStatus={props.nexusStatus}
               profile={props.profile}
+              runtimeCapabilities={props.runtimeCapabilities}
               status={props.status}
               theme={props.theme}
               accent={props.accent}
@@ -213,6 +216,7 @@ export function DesktopShell(props: {
               onProfile={props.onProfile}
               onReviewDecision={props.onReviewDecision}
               onRuntimeStart={props.onRuntimeStart}
+              onRuntimeStateAction={props.onRuntimeStateAction}
               onTheme={props.onTheme}
             />
           )}

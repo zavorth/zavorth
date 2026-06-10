@@ -1,111 +1,11 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import {
-  loadDesktopPanelsData,
-  loadHome,
-  loadRuntimeStatus,
-  dispatchRuntimeStateAction,
-  repairAccess,
-  resolveApproval as resolveApprovalRequest,
-  resolveLearning as resolveLearningRequest,
-  runMemoryEncryptionMigration,
-  sendExperienceMessage,
-  startRuntime,
-  steerActiveRun,
-  type ApprovalItem,
-  type ChatMessage,
-  type ExperienceSnapshot,
-  type LearningItem,
-  type MemoryEncryptionMigrationReceipt,
-  type MemoryEncryptionStatus,
-  type MemoryItem,
-  type ToolItem,
-} from './apiClient';
+import { dispatchRuntimeStateAction, loadDesktopPanelsData, loadHome, loadRuntimeStatus, repairAccess, resolveApproval as resolveApprovalRequest, resolveLearning as resolveLearningRequest, runMemoryEncryptionMigration, sendExperienceMessage, startRuntime, steerActiveRun, type ApprovalItem, type ChatMessage, type ExperienceSnapshot, type LearningItem, type MemoryEncryptionMigrationReceipt, type MemoryEncryptionStatus, type MemoryItem, type RuntimeCapabilitiesSnapshot, type ToolItem } from './apiClient';
 import type { BootEvent, RuntimeStatus } from './global';
+import { appendLocalMessage, applyRuntimeCapabilitiesToDesktop, asRecord, defaultConnectedModelIds, desktopEffortFromRuntime, fallbackStatus, modelOptionsFromRuntimeCapabilities, normalizeMessages, responseProfileByExperience, runtimeInstrumentActionInput, runtimeStateFromSnapshot, runtimeStateState } from './appRuntimeState';
 import { modelOptions } from './modelCatalog';
 import { DesktopShell } from './shell/DesktopShell';
 import { parseSlashCommand, slashCommands, type DesktopPanel } from './slashCommands';
 import { defaultWorkspaceScopes, workspaceScopeForMetadata, type DesktopWorkspaceScope } from './workspaceScopes';
-
-const fallbackStatus: RuntimeStatus = {
-  ok: false,
-  running: false,
-  baseUrl: 'http://127.0.0.1:3000',
-  tokenReady: false,
-  tokenSource: 'missing',
-  runtimePid: null,
-  message: 'Desktop bridge unavailable.',
-};
-
-const responseProfileByExperience: Record<string, string> = {
-  personal: 'short',
-  creator: 'mentor',
-  developer: 'dev',
-  business: 'executive',
-  power: 'dev',
-};
-
-function asRecord(value: unknown): Record<string, unknown> {
-  return value && typeof value === 'object' && !Array.isArray(value) ? value as Record<string, unknown> : {};
-}
-
-function normalizeMessage(raw: unknown, index: number): ChatMessage {
-  const record = asRecord(raw);
-  const role = String(record.role || record.kind || 'assistant');
-  const normalizedRole: ChatMessage['role'] = role === 'user' || role === 'system' || role === 'tool'
-    ? role
-    : 'assistant';
-  const content = String(record.content || record.text || record.message || record.markdown || '').trim();
-  return {
-    id: String(record.id || record.messageId || `message-${index}-${Date.now()}`),
-    role: normalizedRole,
-    content: content || '(empty message)',
-    at: String(record.at || record.createdAt || record.generatedAt || new Date().toISOString()),
-    title: typeof record.title === 'string' ? record.title : undefined,
-  };
-}
-
-function normalizeMessages(value: unknown): ChatMessage[] {
-  if (!Array.isArray(value)) {
-    return [];
-  }
-  return value.map(normalizeMessage).filter(message => message.content);
-}
-
-function itemId(item: ApprovalItem | LearningItem | MemoryItem | ToolItem, fallback: string): string {
-  return String(item.id || ('approvalId' in item ? item.approvalId : '') || ('candidateId' in item ? item.candidateId : '') || fallback);
-}
-
-function appendLocalMessage(setMessages: (updater: (current: ChatMessage[]) => ChatMessage[]) => void, role: ChatMessage['role'], content: string) {
-  setMessages(current => [
-    ...current,
-    {
-      id: `local-${role}-${Date.now()}-${Math.random().toString(36).slice(2)}`,
-      role,
-      content,
-      at: new Date().toISOString(),
-    },
-  ]);
-}
-
-function desktopEffortFromRuntime(value: unknown): string {
-  const normalized = String(value || '').trim().toLowerCase();
-  if (normalized === 'standard') {
-    return 'medium';
-  }
-  if (normalized === 'ultra-code') {
-    return 'ultra';
-  }
-  return ['low', 'medium', 'high', 'ultra'].includes(normalized) ? normalized : 'medium';
-}
-
-function runtimeStateFromSnapshot(snapshot: ExperienceSnapshot | null): Record<string, unknown> {
-  const raw = asRecord(snapshot?.raw);
-  return asRecord(raw.runtimeState);
-}
-
-function runtimeStateState(snapshot: ExperienceSnapshot | null): Record<string, unknown> {
-  return asRecord(runtimeStateFromSnapshot(snapshot).state);
-}
 
 export function App() {
   const [status, setStatus] = useState<RuntimeStatus>(fallbackStatus);
@@ -117,6 +17,7 @@ export function App() {
   const [nexusStatus, setNexusStatus] = useState<unknown>(null);
   const [memoryEncryptionStatus, setMemoryEncryptionStatus] = useState<MemoryEncryptionStatus | null>(null);
   const [memoryEncryptionReceipt, setMemoryEncryptionReceipt] = useState<MemoryEncryptionMigrationReceipt | null>(null);
+  const [runtimeCapabilities, setRuntimeCapabilities] = useState<RuntimeCapabilitiesSnapshot | null>(null);
   const [events, setEvents] = useState<BootEvent[]>([]);
   const [activePanel, setActivePanel] = useState<DesktopPanel>('chat');
   const [commandPaletteOpen, setCommandPaletteOpen] = useState(false);
@@ -132,20 +33,40 @@ export function App() {
   const [accent, setAccent] = useState<'orange' | 'purple' | 'navy'>('orange');
   const [workspaceScopes, setWorkspaceScopes] = useState<DesktopWorkspaceScope[]>(defaultWorkspaceScopes);
   const [workspaceScopeId, setWorkspaceScopeId] = useState('local');
+  const [runtimeConnectedModelIds, setRuntimeConnectedModelIds] = useState<string[]>(() => defaultConnectedModelIds());
 
   const bridgeReady = Boolean(window.zavorthDesktop);
   const sessionId = snapshot?.sessionId || 'desktop-main';
   const responseProfile = responseProfileByExperience[experienceProfile] || 'short';
-  const connectedModelOptions = useMemo(() => modelOptions.filter(model => model.connected !== false), []);
+  const connectedModelOptions = useMemo(() => {
+    if (runtimeCapabilities) {
+      return modelOptionsFromRuntimeCapabilities(runtimeCapabilities);
+    }
+    const connectedIds = new Set(runtimeConnectedModelIds.length > 0 ? runtimeConnectedModelIds : defaultConnectedModelIds());
+    const options = modelOptions.filter(model => connectedIds.has(model.id));
+    return options.length > 0 ? options : modelOptions.filter(model => model.connected !== false);
+  }, [runtimeCapabilities, runtimeConnectedModelIds]);
   const activeWorkspaceScope = workspaceScopes.find(scope => scope.id === workspaceScopeId) || workspaceScopes[0];
 
   const applyRuntimeStateProjection = useCallback((home: ExperienceSnapshot | null) => {
+    const runtimeState = runtimeStateFromSnapshot(home);
+    const projections = asRecord(runtimeState.projections);
+    const commandBar = asRecord(projections.commandBar);
+    const projectedConnectedModelIds = Array.isArray(commandBar.connectedModelIds)
+      ? commandBar.connectedModelIds.map(value => String(value || '').trim()).filter(Boolean)
+      : [];
+    if (projectedConnectedModelIds.length > 0) {
+      setRuntimeConnectedModelIds(projectedConnectedModelIds);
+    }
     const state = runtimeStateState(home);
     const model = asRecord(state.model);
     const effortState = asRecord(state.effort);
     const workspace = asRecord(state.workspace);
     const runtimeModelId = String(model.id || '').trim();
-    if (runtimeModelId && connectedModelOptions.some(option => option.id === runtimeModelId)) {
+    const modelConnected = projectedConnectedModelIds.length > 0
+      ? projectedConnectedModelIds.includes(runtimeModelId)
+      : connectedModelOptions.some(option => option.id === runtimeModelId);
+    if (runtimeModelId && modelConnected) {
       setSelectedModel(runtimeModelId);
     }
     if (effortState.level) {
@@ -182,12 +103,21 @@ export function App() {
       setTools(data.tools);
       setNexusStatus(data.nexusStatus);
       setMemoryEncryptionStatus(data.memoryEncryptionStatus);
+      setRuntimeCapabilities(data.runtimeCapabilities);
+      applyRuntimeCapabilitiesToDesktop({
+        capabilities: data.runtimeCapabilities,
+        setSelectedModel,
+        setEffort,
+        setWorkspaceScopes,
+        setWorkspaceScopeId,
+      });
     } catch {
       setApprovals([]);
       setLearning([]);
       setTools([]);
       setNexusStatus(null);
       setMemoryEncryptionStatus(null);
+      setRuntimeCapabilities(null);
     }
   }, []);
 
@@ -416,21 +346,13 @@ export function App() {
     metadata?: Record<string, unknown>;
   }) => {
     try {
+      const actionInput = runtimeInstrumentActionInput(input);
       await dispatchRuntimeStateAction({
-        type: 'operate-domain',
+        type: actionInput.type,
         approved: true,
         sessionId,
         source: 'zavorth-desktop-statusbar',
-        payload: {
-          domain: {
-            domain: input.domain,
-            operation: input.operation,
-          },
-          metadata: {
-            requestedFrom: 'desktop-statusbar',
-            ...input.metadata,
-          },
-        },
+        payload: actionInput.payload,
       });
       await refreshHome();
       await refreshPanels();
@@ -438,6 +360,91 @@ export function App() {
       setNotice(error instanceof Error ? error.message : 'Could not update runtime control.');
     }
   }, [refreshHome, refreshPanels, sessionId]);
+
+  const applyRuntimeSelection = useCallback(async (input: {
+    type: 'set-effort' | 'route-model' | 'set-workspace';
+    payload: Record<string, unknown>;
+    connectedModelIds?: string[];
+  }) => {
+    try {
+      await dispatchRuntimeStateAction({
+        type: input.type,
+        approved: true,
+        sessionId,
+        source: 'zavorth-desktop-bridge',
+        connectedModelIds: input.connectedModelIds,
+        payload: {
+          ...input.payload,
+          metadata: {
+            trustedDesktopBridge: true,
+            requestedFrom: 'desktop-command-bar',
+          },
+        },
+      });
+      await refreshHome();
+      await refreshPanels();
+    } catch (error) {
+      setNotice(error instanceof Error ? error.message : 'Could not persist runtime selection.');
+    }
+  }, [refreshHome, refreshPanels, sessionId]);
+
+  const handleEffortSelection = useCallback(async (value: string) => {
+    await applyRuntimeSelection({
+      type: 'set-effort',
+      payload: { effort: value },
+    });
+  }, [applyRuntimeSelection]);
+
+  const handleModelSelection = useCallback(async (value: string) => {
+    const model = connectedModelOptions.find(option => option.id === value);
+    await applyRuntimeSelection({
+      type: 'route-model',
+      connectedModelIds: connectedModelOptions.map(option => option.id),
+      payload: {
+        dynamicRouting: {
+          modelId: value,
+          providerId: model?.family || value.split(':')[0] || 'runtime',
+          intent: 'desktop-model-picker',
+          reason: `Desktop selected ${model?.label || value}.`,
+          fallbackModelIds: connectedModelOptions.map(option => option.id).filter(id => id !== value).slice(0, 4),
+          risk: 'low',
+        },
+      },
+    });
+  }, [applyRuntimeSelection, connectedModelOptions]);
+
+  const handleWorkspaceScopeSelection = useCallback(async (value: string) => {
+    const scope = workspaceScopes.find(candidate => candidate.id === value);
+    if (!scope) {
+      return;
+    }
+    await applyRuntimeSelection({
+      type: 'set-workspace',
+      payload: {
+        workspace: workspaceScopeForMetadata(scope),
+      },
+    });
+  }, [applyRuntimeSelection, workspaceScopes]);
+
+  const handleWorkspaceFolderSelection = useCallback(async () => {
+    const result = await window.zavorthDesktop?.selectWorkspaceFolder();
+    if (!result || result.canceled || !result.path || !result.label) {
+      return;
+    }
+    const nextScope: DesktopWorkspaceScope = {
+      id: `folder:${result.path}`,
+      label: result.label,
+      shortLabel: result.label,
+      kind: 'folder',
+      path: result.path,
+    };
+    await applyRuntimeSelection({
+      type: 'set-workspace',
+      payload: {
+        workspace: workspaceScopeForMetadata(nextScope),
+      },
+    });
+  }, [applyRuntimeSelection]);
 
   return (
     <DesktopShell
@@ -461,6 +468,7 @@ export function App() {
       notice={notice}
       profile={experienceProfile}
       runtimeMessage={status.message}
+      runtimeCapabilities={runtimeCapabilities}
       selectedModel={selectedModel}
       showNotice={Boolean(notice)}
       showRuntimeSetup={!status.running}
@@ -473,11 +481,11 @@ export function App() {
       onAccessRepair={requestAccessRepair}
       onAccent={setAccent}
       onCommandPalette={setCommandPaletteOpen}
-      onEffort={setEffort}
+      onEffort={handleEffortSelection}
       onEncryptionAction={handleMemoryEncryptionAction}
       onInput={setInput}
       onLearningDecision={resolveLearning}
-      onModel={setSelectedModel}
+      onModel={handleModelSelection}
       onNewSession={() => {
         setMessages([]);
         setInput('');
@@ -496,25 +504,8 @@ export function App() {
       onSidebarCollapsed={setSidebarCollapsed}
       onSubmit={sendMessage}
       onTheme={setTheme}
-      onWorkspaceFolder={async () => {
-        const result = await window.zavorthDesktop?.selectWorkspaceFolder();
-        if (!result || result.canceled || !result.path || !result.label) {
-          return;
-        }
-        const nextScope: DesktopWorkspaceScope = {
-          id: `folder:${result.path}`,
-          label: result.label,
-          shortLabel: result.label,
-          kind: 'folder',
-          path: result.path,
-        };
-        setWorkspaceScopes(current => {
-          const exists = current.some(scope => scope.id === nextScope.id);
-          return exists ? current : [...current, nextScope];
-        });
-        setWorkspaceScopeId(nextScope.id);
-      }}
-      onWorkspaceScope={setWorkspaceScopeId}
+      onWorkspaceFolder={handleWorkspaceFolderSelection}
+      onWorkspaceScope={handleWorkspaceScopeSelection}
     />
   );
 }
