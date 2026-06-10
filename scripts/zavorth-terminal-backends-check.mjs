@@ -51,8 +51,9 @@ function filesExist() {
 function markersPresent() {
   const markers = [
     ['src/contracts/ZavorthTerminalBackendsContract.ts', [
-      '2026-05-24.terminal-backends-phase-6',
+      '2026-05-24.terminal-backends-phase-7',
       'vercel-sandbox',
+      'readinessProof',
       'cloudBackendsRequireExplicitConfiguration',
       'stdoutStderrRedacted',
     ]],
@@ -86,8 +87,9 @@ function markersPresent() {
 function statusFixture() {
   const result = runTs(['--json']);
   return jsonRule('status-fixture', result, (snapshot) =>
-    snapshot.contractVersion === '2026-05-24.terminal-backends-phase-6'
+    snapshot.contractVersion === '2026-05-24.terminal-backends-phase-7'
     && snapshot.backends?.some((entry) => entry.id === 'local' && entry.status === 'ready')
+    && snapshot.backends?.every((entry) => entry.readinessProof?.rawSecretSerialized === false)
     && snapshot.backends?.some((entry) => entry.id === 'docker')
     && snapshot.backends?.some((entry) => entry.id === 'ssh')
     && snapshot.backends?.some((entry) => entry.id === 'wsl')
