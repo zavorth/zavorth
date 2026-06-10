@@ -294,8 +294,7 @@ async function fetchJson<T>(url: string, init?: RequestInit): Promise<T> {
   try {
     payload = await response.json();
   } catch {
-    if (response.ok) return localFallbackJson<T>(url, init);
-    throw new Error(`Request failed: ${response.status}`);
+    throw new Error(response.ok ? `Invalid JSON response from ${url}` : `Request failed: ${response.status}`);
   }
   if (!response.ok || payload?.ok === false) {
     throw new Error(errorMessage(payload?.error || payload?.selection?.availability?.reason, `Request failed: ${response.status}`));

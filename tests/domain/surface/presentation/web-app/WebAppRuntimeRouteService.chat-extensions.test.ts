@@ -83,6 +83,39 @@ describe('WebAppRuntimeRouteService chat extensions', () => {
     }));
   });
 
+  it('preserves workflow metadata when dashboard chat fields are metadata-only', async () => {
+    const routeService = new WebAppRuntimeRouteService();
+    const req = { method: 'POST' } as http.IncomingMessage;
+    const res = {} as http.ServerResponse;
+    const deps = makeDeps({
+      message: 'continue this workflow',
+      sessionId: 'session-main',
+      metadata: {
+        workflowIntent: { kind: 'governed-workflow', command: '/go' },
+        composerSettings: { effort: 'low' },
+        experienceProfile: 'developer',
+      },
+    });
+
+    const handled = await routeService.handleRequest(
+      req,
+      res,
+      new URL('http://localhost/api/web/dashboard/chat-v1'),
+      '/api/web/dashboard/chat-v1',
+      deps,
+    );
+
+    expect(handled).toBe(true);
+    expect(deps.processChatSend).toHaveBeenCalledWith(expect.objectContaining({
+      metadata: expect.objectContaining({
+        dashboardChat: true,
+        workflowIntent: { kind: 'governed-workflow', command: '/go' },
+        composerSettings: { effort: 'low' },
+        experienceProfile: 'developer',
+      }),
+    }));
+  });
+
   it('routes detached side chat through the canonical web conversation runtime', async () => {
     const routeService = new WebAppRuntimeRouteService();
     const req = { method: 'POST' } as http.IncomingMessage;

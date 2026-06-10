@@ -87,6 +87,7 @@ export function createSignalTransmitter(options: SignalTransmitterOptions) {
       if (options.tokenCount) options.tokenCount.textContent = '0 tokens';
       const sendBtn = document.getElementById('send-btn');
       if (sendBtn) sendBtn.classList.remove('active');
+      options.resetPendingWorkflowIntent?.();
       return true;
     }
     const engineDecision = await window.ZavorthRuntimeEngines?.decidePrompt?.(outboundText, {

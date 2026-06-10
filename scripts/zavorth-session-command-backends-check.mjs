@@ -44,7 +44,7 @@ function ruleBackendServiceMarkers() {
   const service = read('src/services/WebAppRuntimeSessionCommandService.ts');
   const missing = [];
   for (const command of backendCommands) {
-    if (!service.includes(`case '${command}'`) && !service.includes(`${command}: '${command}'`)) {
+    if (!service.includes(`case '${command}'`)) {
       missing.push(`missing backend command ${command}`);
     }
   }

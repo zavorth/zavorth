@@ -16,6 +16,7 @@ export type PromptQueueItem = {
   kind: 'message' | 'local-command';
   sessionId: string;
   localCommandName?: string | null;
+  localCommandTypedName?: string | null;
   localCommandArgs?: string | null;
   pendingRunId?: string | null;
   steeringAckId?: string | null;
@@ -44,6 +45,7 @@ export function createPromptQueueItem(input: {
   workspaceSelection?: any | null;
   sessionId?: string | null;
   localCommandName?: string | null;
+  localCommandTypedName?: string | null;
   localCommandArgs?: string | null;
   kind?: 'message' | 'local-command';
   maxAttempts?: number | null;
@@ -72,6 +74,7 @@ export function createPromptQueueItem(input: {
     kind: input.kind || (input.localCommandName ? 'local-command' : 'message'),
     sessionId: String(input.sessionId || 'local').trim() || 'local',
     localCommandName: input.localCommandName || null,
+    localCommandTypedName: input.localCommandTypedName || null,
     localCommandArgs: input.localCommandArgs || null,
     pendingRunId: null,
     steeringAckId: null,
@@ -127,6 +130,7 @@ export function serializePromptQueueItem(item: PromptQueueItem): PromptQueueItem
     kind: item.kind || (item.localCommandName ? 'local-command' : 'message'),
     sessionId: String(item.sessionId || 'local').trim() || 'local',
     localCommandName: item.localCommandName || null,
+    localCommandTypedName: item.localCommandTypedName || null,
     localCommandArgs: item.localCommandArgs || null,
     pendingRunId: item.pendingRunId || null,
     steeringAckId: item.steeringAckId || null,

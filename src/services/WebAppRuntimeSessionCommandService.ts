@@ -54,11 +54,12 @@ export class WebAppRuntimeSessionCommandService {
       }, deps, helpers);
       deps.writeJson(res, payload, 200);
     } catch (error: unknown) {
+      console.error('[WebAppRuntimeSessionCommandService] command failed', error);
       deps.writeJson(res, {
         ok: false,
-        error: errorMessage(error, 'Falha ao executar comando de sessao.'),
+        error: 'Falha ao executar comando de sessao.',
         rawSecretsSerialized: false,
-      }, 400);
+      }, 500);
     }
     return true;
   }

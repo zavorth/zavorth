@@ -23,6 +23,7 @@ export function buildInlineDataFromAttachments(attachments: WebComposerAttachmen
   return attachments
     .map((attachment) => resolveReadyMediaAttachment(attachment))
     .filter((entry): entry is InlineMedia => entry !== null)
+    .slice(0, 5)
     .map((entry) => ({
       mimeType: entry.mimeType,
       data: entry.content,

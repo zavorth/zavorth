@@ -1,4 +1,5 @@
 import { WebAppRuntimeSessionCommandService } from '../../src/services/WebAppRuntimeSessionCommandService';
+import { renderSessionCommandMarkdown } from '../../src/services/WebAppRuntimeSessionCommandMarkdown';
 
 function buildCanonicalState(overrides: Record<string, any> = {}) {
   return {
@@ -268,6 +269,20 @@ describe('WebAppRuntimeSessionCommandService', () => {
     expect(context.commandResult.selectedTools).toEqual([
       expect.objectContaining({ id: 'tool.file-read', title: 'File reader' }),
     ]);
+  });
+
+  it('renders zero usage values as reported numbers', () => {
+    const markdown = renderSessionCommandMarkdown({
+      kind: 'usage',
+      visibleRuns: 0,
+      toolRuns: 0,
+      activeRun: null,
+      totalTokens: 0,
+      totalCostUsd: 0,
+    });
+
+    expect(markdown).toContain('Tokens: `0`');
+    expect(markdown).toContain('Cost: `$0.0000`');
   });
 
   it('projects native short aliases into governed skill modes without execution or secret leakage', async () => {

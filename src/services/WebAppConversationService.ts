@@ -449,9 +449,15 @@ export class WebAppConversationService {
   private buildComposerRuntimeHints(body: RuntimeRecord, message: string): RuntimeRecord {
     const metadata = this.recordOrNull(body.metadata) || {};
     const composerSettings = this.recordOrNull(body.composerSettings);
-    const experienceProfile = this.recordOrNull(body.experienceProfile);
+    const rawExperienceProfile = body.experienceProfile ?? metadata.experienceProfile;
+    const experienceProfile = typeof rawExperienceProfile === 'string'
+      ? rawExperienceProfile.trim()
+      : this.recordOrNull(rawExperienceProfile);
     const workflowIntent = this.recordOrNull(body.workflowIntent) || this.recordOrNull(metadata.workflowIntent);
     const engineDecision = this.recordOrNull(body.engineDecision);
+    const profileForEffort = typeof experienceProfile === 'string'
+      ? experienceProfile
+      : experienceProfile?.id || experienceProfile?.label || null;
     const effortLevel = this.resolveComposerEffortLevel(
       composerSettings?.effort
       || workflowIntent?.effort
@@ -461,7 +467,7 @@ export class WebAppConversationService {
     const effortControl = this.effortControl.buildSnapshot({
       level: effortLevel,
       request: message,
-      profile: experienceProfile?.id || experienceProfile?.label || null,
+      profile: profileForEffort,
     });
     const requestedFanout = Number(workflowIntent?.maxFanout);
     const maxFanout = Number.isFinite(requestedFanout) && requestedFanout > 0
