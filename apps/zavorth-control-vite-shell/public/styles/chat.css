@@ -6416,3 +6416,625 @@ body.zavorth-chat-focus-mode .nexus-dock {
     flex: 0 0 auto;
   }
 }
+
+/* ==========================================================================
+   Operator Workbench Chat
+   Chat should feel like a daily tool, not a landing page.
+   ========================================================================== */
+
+#sector-terminal .terminal-view.is-empty {
+  justify-content: flex-start;
+  align-items: stretch;
+  gap: 0;
+  min-height: 100%;
+  padding: clamp(22px, 4vh, 42px) clamp(22px, 5vw, 72px) 18px;
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.018), transparent 160px),
+    transparent;
+  overflow-y: auto;
+}
+
+#sector-terminal .chat-console-bar {
+  display: none;
+}
+
+#sector-terminal .terminal-hero {
+  align-items: flex-start;
+  width: min(920px, 100%);
+  margin: clamp(22px, 5vh, 52px) auto 14px;
+  gap: 8px;
+  text-align: left;
+}
+
+#sector-terminal .terminal-hero__status {
+  min-height: 24px;
+  padding: 3px 8px;
+  gap: 6px;
+  border-radius: 7px;
+  color: #9ba4b2;
+  border-color: rgba(225, 232, 240, 0.075);
+  background: rgba(17, 20, 25, 0.58);
+  box-shadow: none;
+  font-size: 0.68rem;
+  font-weight: 600;
+}
+
+#sector-terminal .terminal-hero__status-dot {
+  width: 6px;
+  height: 6px;
+  background: var(--b-ok);
+  box-shadow: 0 0 0 3px var(--b-ok-subtle);
+}
+
+#sector-terminal .terminal-hero__engine {
+  color: #7d8794;
+}
+
+#sector-terminal .terminal-hero__engine::before {
+  color: #4f5967;
+}
+
+#sector-terminal .terminal-hero__greeting {
+  align-items: flex-start;
+  gap: 3px;
+  margin-top: 10px;
+}
+
+#sector-terminal .terminal-hero__hello {
+  color: #f3f4f6;
+  font-size: clamp(1.55rem, 2.3vw, 2rem);
+  font-weight: 720;
+  letter-spacing: 0;
+  line-height: 1.08;
+  text-shadow: none;
+}
+
+#sector-terminal .terminal-hero__question {
+  max-width: 520px;
+  margin: 0;
+  color: #8a93a1;
+  font-size: clamp(0.9rem, 1.1vw, 0.98rem);
+  font-weight: 430;
+  line-height: 1.45;
+}
+
+#sector-terminal .terminal-view.is-empty .autonomy-command-center,
+#sector-terminal .terminal-view.is-empty .experience-profile-panel {
+  display: none;
+}
+
+#sector-terminal .terminal-view.is-empty .compose-dock {
+  position: sticky;
+  bottom: 12px;
+  width: min(920px, 100%);
+  max-width: min(920px, 100%);
+  margin: auto auto 0;
+  padding: 0 0 10px;
+  transform: none;
+  filter: none;
+}
+
+#sector-terminal .compose-dock::before {
+  display: none;
+}
+
+#sector-terminal .terminal-view.is-empty .suggestion-chips {
+  display: flex;
+  justify-content: flex-start;
+  width: 100%;
+  max-width: 100%;
+  margin: 0 0 10px;
+  gap: 7px;
+  animation: none;
+}
+
+#sector-terminal .suggestion-chip {
+  min-height: 32px;
+  padding: 6px 10px;
+  gap: 7px;
+  border-radius: 8px;
+  color: #a1a9b5;
+  border-color: rgba(225, 232, 240, 0.07);
+  background: rgba(17, 20, 25, 0.58);
+  box-shadow: none;
+  font-size: 0.78rem;
+  font-weight: 560;
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+}
+
+#sector-terminal .suggestion-chip svg {
+  width: 14px;
+  height: 14px;
+  stroke: var(--b-pulse-muted);
+}
+
+#sector-terminal .suggestion-chip:hover {
+  color: #f1f3f5;
+  border-color: rgba(197, 154, 74, 0.24);
+  background: rgba(197, 154, 74, 0.075);
+  box-shadow: none;
+  transform: none;
+}
+
+#sector-terminal .compose-dock__input-frame {
+  border-radius: 16px;
+  border-color: rgba(225, 232, 240, 0.09);
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.035), transparent 52px),
+    rgba(15, 18, 23, 0.96);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.035),
+    0 16px 36px rgba(0, 0, 0, 0.28);
+}
+
+#sector-terminal .compose-dock__input-frame:focus-within {
+  border-color: rgba(197, 154, 74, 0.36);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.05),
+    0 0 0 1px rgba(197, 154, 74, 0.08),
+    0 16px 36px rgba(0, 0, 0, 0.30);
+}
+
+#sector-terminal .compose-dock__input-frame > textarea {
+  min-height: 54px;
+  padding: 17px 18px 0;
+  color: #e8eaee;
+  font-size: 0.98rem;
+}
+
+#sector-terminal .compose-dock__input-frame > textarea::placeholder {
+  color: #77808d;
+}
+
+#sector-terminal .compose-dock__controls {
+  padding: 5px 10px 10px;
+}
+
+#sector-terminal .compose-dock__action,
+#sector-terminal .compose-dock__btn,
+#sector-terminal .compose-dock__send {
+  color: #858e9a;
+  border-radius: 9px;
+}
+
+#sector-terminal .compose-dock__action:hover,
+#sector-terminal .compose-dock__btn:hover {
+  color: #e8eaee;
+  background: rgba(255, 255, 255, 0.055);
+}
+
+#sector-terminal .compose-dock__send {
+  width: 38px;
+  min-width: 38px;
+  height: 38px;
+  padding: 0;
+  border: 1px solid rgba(225, 232, 240, 0.06);
+  background: rgba(255, 255, 255, 0.045);
+}
+
+#sector-terminal .compose-dock__send span {
+  display: none;
+}
+
+#sector-terminal .compose-dock__send.active,
+#sector-terminal .compose-dock__send.is-active {
+  color: var(--b-pulse-fg);
+  border-color: rgba(214, 174, 103, 0.46);
+  background: linear-gradient(135deg, var(--b-pulse), var(--b-pulse-hover));
+  box-shadow: 0 8px 24px rgba(197, 154, 74, 0.14);
+}
+
+#sector-terminal .compose-dock__token-count {
+  color: #697381;
+}
+
+#sector-terminal .approval-context-banner {
+  width: min(920px, 100%);
+  margin: 0 auto 10px;
+  border-radius: 12px;
+}
+
+#voice-trigger.has-voice,
+#voice-trigger.is-listening {
+  box-shadow: none !important;
+}
+
+.zavorth-thinking-block {
+  border-color: rgba(225, 232, 240, 0.08);
+  background: rgba(17, 20, 25, 0.74);
+}
+
+.zavorth-thinking-block[open] {
+  border-color: rgba(197, 154, 74, 0.25);
+}
+
+.zavorth-thinking-chevron {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23c59a4a' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+}
+
+.zavorth-thinking-content {
+  border-top-color: rgba(225, 232, 240, 0.07);
+  background: rgba(0, 0, 0, 0.14);
+}
+
+.boot-spinner {
+  border-color: rgba(197, 154, 74, 0.18);
+  border-top-color: var(--b-pulse);
+  box-shadow: none;
+}
+
+@media (max-width: 720px) {
+  #sector-terminal .terminal-view.is-empty {
+    padding: 18px 14px 12px;
+  }
+
+  #sector-terminal .terminal-hero {
+    margin-top: 18px;
+  }
+
+  #sector-terminal .terminal-view.is-empty .suggestion-chips {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    overflow: visible;
+    flex-wrap: initial;
+    padding-bottom: 3px;
+  }
+
+  #sector-terminal .suggestion-chip {
+    min-width: 0;
+    justify-content: flex-start;
+  }
+
+  #sector-terminal .suggestion-chip span {
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+}
+
+#sector-terminal.sector,
+#sector-terminal {
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.018), transparent 240px),
+    rgba(9, 10, 12, 0.88);
+}
+
+/* ==========================================================================
+   Modern Chat Composer
+   Lower, softer input bar that reads like a chatbot composer instead of a form.
+   ========================================================================== */
+
+#sector-terminal .terminal-view.is-empty .compose-dock {
+  width: min(900px, 100%);
+  max-width: min(900px, 100%);
+  padding-bottom: 8px;
+}
+
+#sector-terminal .compose-dock__input-frame {
+  min-height: 76px;
+  border-radius: 28px;
+  border-color: rgba(225, 232, 240, 0.082);
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.042), transparent 46%),
+    rgba(14, 17, 22, 0.94);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.045),
+    0 10px 28px rgba(0, 0, 0, 0.24);
+  overflow: hidden;
+}
+
+#sector-terminal .compose-dock__input-frame:focus-within {
+  border-color: rgba(197, 154, 74, 0.34);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.055),
+    0 0 0 1px rgba(197, 154, 74, 0.07),
+    0 12px 30px rgba(0, 0, 0, 0.26);
+}
+
+#sector-terminal .compose-dock__input-frame > textarea {
+  min-height: 76px;
+  padding: 16px 58px 42px 18px;
+  font-size: 0.95rem;
+  line-height: 1.35;
+}
+
+#sector-terminal .compose-dock__controls {
+  position: absolute;
+  left: 10px;
+  right: 10px;
+  bottom: 8px;
+  min-height: 32px;
+  padding: 0;
+  pointer-events: none;
+}
+
+#sector-terminal .compose-dock__controls-left,
+#sector-terminal .compose-dock__controls-right {
+  gap: 5px;
+  pointer-events: auto;
+}
+
+#sector-terminal .compose-dock__action,
+#sector-terminal .compose-dock__btn {
+  width: 31px;
+  min-width: 31px;
+  height: 31px;
+  padding: 0;
+  justify-content: center;
+  border-radius: 50%;
+  color: #8b95a3;
+  background: transparent;
+}
+
+#sector-terminal .compose-dock__action span,
+#sector-terminal .compose-dock__send span,
+#sector-terminal .terminal-view.is-empty #new-session-trigger,
+#sector-terminal .terminal-view.is-empty #export-chat-trigger,
+#sector-terminal .terminal-view.is-empty .compose-dock__token-count {
+  display: none;
+}
+
+#sector-terminal .compose-dock__action:hover,
+#sector-terminal .compose-dock__btn:hover {
+  color: #e9ecf1;
+  background: rgba(255, 255, 255, 0.058);
+}
+
+#sector-terminal .compose-dock__action svg,
+#sector-terminal .compose-dock__btn svg {
+  width: 17px;
+  height: 17px;
+}
+
+#sector-terminal .compose-dock__send {
+  width: 35px;
+  min-width: 35px;
+  height: 35px;
+  border-radius: 13px;
+  color: #9aa3b0;
+  border-color: rgba(225, 232, 240, 0.065);
+  background: rgba(255, 255, 255, 0.045);
+}
+
+#sector-terminal .compose-dock__send svg {
+  width: 17px;
+  height: 17px;
+}
+
+#sector-terminal .compose-dock__send:hover {
+  color: #f1f3f5;
+  background: rgba(255, 255, 255, 0.07);
+}
+
+#sector-terminal .compose-dock__send.active,
+#sector-terminal .compose-dock__send.is-active {
+  color: #111419;
+  border-color: rgba(214, 174, 103, 0.50);
+  background: linear-gradient(135deg, #c59a4a, #d6ae67);
+  box-shadow: 0 7px 18px rgba(197, 154, 74, 0.14);
+}
+
+@media (max-width: 720px) {
+  #sector-terminal .terminal-view.is-empty .compose-dock {
+    padding-bottom: 6px;
+  }
+
+  #sector-terminal .compose-dock__input-frame {
+    min-height: 66px;
+    border-radius: 24px;
+  }
+
+  #sector-terminal .compose-dock__input-frame > textarea {
+    min-height: 66px;
+    padding: 15px 52px 36px 17px;
+    font-size: 0.93rem;
+  }
+
+  #sector-terminal .compose-dock__controls {
+    left: 9px;
+    right: 9px;
+    bottom: 7px;
+    min-height: 29px;
+  }
+
+  #sector-terminal .compose-dock__action,
+  #sector-terminal .compose-dock__btn {
+    width: 29px;
+    min-width: 29px;
+    height: 29px;
+  }
+
+  #sector-terminal .compose-dock__action svg,
+  #sector-terminal .compose-dock__btn svg {
+    width: 16px;
+    height: 16px;
+  }
+
+  #sector-terminal .compose-dock__send {
+    width: 33px;
+    min-width: 33px;
+    height: 33px;
+    border-radius: 12px;
+  }
+}
+
+/* ==========================================================================
+   Chat Operation Toolbar
+   Clickable profile, effort and execution controls for the main chat surface.
+   ========================================================================== */
+
+#sector-terminal .chat-console-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  width: min(1040px, calc(100% - 96px));
+  min-height: 42px;
+  margin: 18px auto 8px;
+  padding: 5px;
+  border-radius: 16px;
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.035), transparent),
+    rgba(12, 14, 18, 0.76);
+  border-color: rgba(225, 232, 240, 0.075);
+  box-shadow: none;
+}
+
+#sector-terminal .chat-console-bar__primary {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+  flex: 1 1 auto;
+}
+
+#sector-terminal .chat-console-bar__actions {
+  flex: 0 0 auto;
+}
+
+#sector-terminal .chat-console-select {
+  min-width: 142px;
+  min-height: 32px;
+  padding: 0 10px;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.032);
+  border-color: rgba(225, 232, 240, 0.07);
+}
+
+#sector-terminal .chat-console-select span,
+#sector-terminal .chat-console-segment__label {
+  color: #7f8896;
+  font-family: var(--b-mono);
+  font-size: 9px;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+#sector-terminal .chat-console-select strong {
+  color: #e8ebf0;
+  font-size: 12px;
+  font-weight: 740;
+}
+
+#sector-terminal .chat-console-segment {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  min-height: 32px;
+  padding: 3px;
+  border: 1px solid rgba(225, 232, 240, 0.07);
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.026);
+}
+
+#sector-terminal .chat-console-segment__label {
+  padding: 0 7px 0 8px;
+  white-space: nowrap;
+}
+
+#sector-terminal .chat-console-segment button {
+  min-height: 24px;
+  padding: 0 9px;
+  border: 0;
+  border-radius: 9px;
+  background: transparent;
+  color: #8c95a4;
+  font-size: 11px;
+  font-weight: 740;
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+#sector-terminal .chat-console-segment button:hover,
+#sector-terminal .chat-console-select:hover,
+#sector-terminal .chat-console-icon:hover {
+  color: #f2f4f7;
+  background: rgba(255, 255, 255, 0.055);
+  border-color: rgba(197, 154, 74, 0.26);
+}
+
+#sector-terminal .chat-console-segment button.is-selected,
+#sector-terminal .chat-console-segment button[aria-pressed="true"] {
+  color: #f5d38e;
+  background: rgba(197, 154, 74, 0.12);
+  box-shadow: inset 0 0 0 1px rgba(197, 154, 74, 0.18);
+}
+
+#sector-terminal .chat-console-segment--mode button.is-selected,
+#sector-terminal .chat-console-segment--mode button[aria-pressed="true"] {
+  color: #e9ecf1;
+  background: rgba(225, 232, 240, 0.075);
+  box-shadow: inset 0 0 0 1px rgba(225, 232, 240, 0.10);
+}
+
+#sector-terminal .chat-console-icon {
+  width: 32px;
+  height: 32px;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.026);
+  border-color: rgba(225, 232, 240, 0.07);
+}
+
+#sector-terminal .terminal-hero__status {
+  gap: 7px;
+}
+
+@media (max-width: 980px) {
+  #sector-terminal .chat-console-bar {
+    width: calc(100% - 24px);
+    align-items: stretch;
+    gap: 8px;
+    margin-top: 12px;
+  }
+
+  #sector-terminal .chat-console-bar__primary {
+    overflow-x: auto;
+    padding-bottom: 2px;
+    scrollbar-width: none;
+  }
+
+  #sector-terminal .chat-console-bar__primary::-webkit-scrollbar {
+    display: none;
+  }
+
+  #sector-terminal .chat-console-select {
+    flex: 0 0 132px;
+  }
+
+  #sector-terminal .chat-console-segment {
+    flex: 0 0 auto;
+  }
+
+  #sector-terminal .chat-console-bar__actions {
+    justify-content: flex-end;
+  }
+}
+
+@media (max-width: 620px) {
+  #sector-terminal .chat-console-bar {
+    width: calc(100% - 28px);
+    padding: 4px;
+    border-radius: 15px;
+  }
+
+  #sector-terminal .chat-console-bar__actions {
+    display: none;
+  }
+
+  #sector-terminal .chat-console-select {
+    min-height: 30px;
+    flex-basis: 124px;
+  }
+
+  #sector-terminal .chat-console-segment {
+    min-height: 30px;
+  }
+
+  #sector-terminal .chat-console-segment button {
+    min-height: 22px;
+    padding-inline: 8px;
+  }
+}

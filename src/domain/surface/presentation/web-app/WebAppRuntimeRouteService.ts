@@ -58,6 +58,7 @@ import {
   WebAppRuntimeSessionMutationService,
   type WebAppRuntimeSessionMutationHelpers,
 } from '../../../../services/WebAppRuntimeSessionMutationService.js';
+import { WebAppRuntimeSessionCommandService } from '../../../../services/WebAppRuntimeSessionCommandService.js';
 import {
   WebAppRuntimeStateRouteService,
   type WebAppRuntimeStateRouteHelpers,
@@ -255,6 +256,7 @@ export class WebAppRuntimeRouteService {
   private readonly hostRoutes = new WebAppHostRouteService();
   private readonly interactionRoutes = new WebAppRuntimeInteractionRouteService();
   private readonly runtimeOperationsRoutes = new WebAppRuntimeOperationsRouteService();
+  private readonly sessionCommands = new WebAppRuntimeSessionCommandService();
   private readonly sessionMutations = new WebAppRuntimeSessionMutationService();
   private readonly stateRoutes = new WebAppRuntimeStateRouteService();
   private readonly supervisionRoutes = new WebAppSupervisionRouteService();
@@ -382,6 +384,19 @@ export class WebAppRuntimeRouteService {
       handleSpawn: (req, res) => this.sessionMutations.handleSpawn(
         req,
         res,
+        deps,
+        this.buildSessionMutationHelpers(deps),
+      ),
+      handleCompact: (req, res) => this.sessionMutations.handleCompact(
+        req,
+        res,
+        deps,
+        this.buildSessionMutationHelpers(deps),
+      ),
+      handleSessionCommand: (req, res, command) => this.sessionCommands.handleCommand(
+        req,
+        res,
+        command,
         deps,
         this.buildSessionMutationHelpers(deps),
       ),

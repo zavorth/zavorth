@@ -28,6 +28,21 @@ export const GATEWAY_SESSION_ROUTE_PATHS = {
   history: '/api/web/gateway/sessions/history',
   send: '/api/web/gateway/sessions/send',
   spawn: '/api/web/gateway/sessions/spawn',
+  compact: '/api/web/gateway/sessions/compact',
+  command: '/api/web/gateway/sessions/command',
+  status: '/api/web/gateway/sessions/status',
+  usage: '/api/web/gateway/sessions/usage',
+  model: '/api/web/gateway/sessions/model',
+  models: '/api/web/gateway/sessions/models',
+  profile: '/api/web/gateway/sessions/profile',
+  tools: '/api/web/gateway/sessions/tools',
+  skills: '/api/web/gateway/sessions/skills',
+  agents: '/api/web/gateway/sessions/agents',
+  whoami: '/api/web/gateway/sessions/whoami',
+  context: '/api/web/gateway/sessions/context',
+  'plan-review': '/api/web/gateway/sessions/plan-review',
+  'brief-reply': '/api/web/gateway/sessions/brief-reply',
+  'test-loop': '/api/web/gateway/sessions/test-loop',
 } as const;
 
 export type GatewayControlEventKind =
@@ -48,6 +63,21 @@ export const LEGACY_GATEWAY_SESSION_ROUTE_ALIASES = {
   plane: ['/api/web/session-tools', '/api/web/sessions'],
   send: ['/api/web/session-tools/send', '/api/web/sessions/send', '/api/web/chat/send'],
   spawn: ['/api/web/session-tools/spawn', '/api/web/sessions/spawn'],
+  compact: ['/api/web/session-tools/compact', '/api/web/sessions/compact', '/api/web/session/compact'],
+  command: ['/api/web/session-tools/command', '/api/web/sessions/command', '/api/web/session/command'],
+  status: ['/api/web/session-tools/status', '/api/web/sessions/status', '/api/web/session/status'],
+  usage: ['/api/web/session-tools/usage', '/api/web/sessions/usage', '/api/web/session/usage'],
+  model: ['/api/web/session-tools/model', '/api/web/sessions/model', '/api/web/session/model'],
+  models: ['/api/web/session-tools/models', '/api/web/sessions/models', '/api/web/session/models'],
+  profile: ['/api/web/session-tools/profile', '/api/web/sessions/profile', '/api/web/session/profile'],
+  tools: ['/api/web/session-tools/tools', '/api/web/sessions/tools', '/api/web/session/tools'],
+  skills: ['/api/web/session-tools/skills', '/api/web/sessions/skills', '/api/web/session/skills'],
+  agents: ['/api/web/session-tools/agents', '/api/web/sessions/agents', '/api/web/session/agents'],
+  whoami: ['/api/web/session-tools/whoami', '/api/web/sessions/whoami', '/api/web/session/whoami'],
+  context: ['/api/web/session-tools/context', '/api/web/sessions/context', '/api/web/session/context'],
+  'plan-review': ['/api/web/session-tools/plan-review', '/api/web/sessions/plan-review', '/api/web/session/plan-review'],
+  'brief-reply': ['/api/web/session-tools/brief-reply', '/api/web/sessions/brief-reply', '/api/web/session/brief-reply'],
+  'test-loop': ['/api/web/session-tools/test-loop', '/api/web/sessions/test-loop', '/api/web/session/test-loop'],
 } as const;
 
 export type GatewayCanonicalSessionContext = {

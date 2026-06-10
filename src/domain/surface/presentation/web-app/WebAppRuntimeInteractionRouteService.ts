@@ -2,8 +2,10 @@ import * as http from 'http';
 import fs from 'fs';
 import path from 'path';
 import {
+  isWebAppRuntimeCanonicalSessionCompactRoute,
   isWebAppRuntimeCanonicalSessionSendRoute,
   isWebAppRuntimeCanonicalSessionSpawnRoute,
+  resolveWebAppRuntimeCanonicalSessionCommand,
 } from './web-app-runtime-route/WebAppRuntimeRouteHelpers.js';
 import { config } from '../../../../config/index.js';
 import { shouldPersistZavorthArtifacts } from '../../../../contracts/ZavorthResponseDecisionContract.js';
@@ -27,6 +29,15 @@ export type WebAppRuntimeInteractionRouteHelpers = {
   handleSpawn: (
     req: http.IncomingMessage,
     res: http.ServerResponse,
+  ) => Promise<boolean>;
+  handleCompact: (
+    req: http.IncomingMessage,
+    res: http.ServerResponse,
+  ) => Promise<boolean>;
+  handleSessionCommand: (
+    req: http.IncomingMessage,
+    res: http.ServerResponse,
+    command: string,
   ) => Promise<boolean>;
 };
 
@@ -197,6 +208,40 @@ export class WebAppRuntimeInteractionRouteService {
 
     if (isWebAppRuntimeCanonicalSessionSpawnRoute(pathname) && req.method === 'POST') {
       return helpers.handleSpawn(req, res);
+    }
+
+    if (isWebAppRuntimeCanonicalSessionCompactRoute(pathname) && req.method === 'POST') {
+      return helpers.handleCompact(req, res);
+    }
+
+    const sessionCommand = resolveWebAppRuntimeCanonicalSessionCommand(pathname);
+    const safeGetSessionCommands = new Set([
+      'status',
+      'usage',
+      'models',
+      'profile',
+      'tools',
+      'skills',
+      'agents',
+      'whoami',
+      'context',
+      'plan-review',
+      'brief-reply',
+      'test-loop',
+    ]);
+    if (sessionCommand && req.method === 'POST') {
+      return helpers.handleSessionCommand(req, res, sessionCommand);
+    }
+    if (sessionCommand && req.method === 'GET' && safeGetSessionCommands.has(sessionCommand)) {
+      return helpers.handleSessionCommand(req, res, sessionCommand);
+    }
+    if (sessionCommand) {
+      deps.writeJson(res, {
+        ok: false,
+        error: `Session command ${sessionCommand} requires POST.`,
+        rawSecretsSerialized: false,
+      }, 405);
+      return true;
     }
 
     if (pathname === '/api/web/permissions/approve' && req.method === 'POST') {
