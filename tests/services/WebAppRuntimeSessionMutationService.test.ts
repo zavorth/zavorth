@@ -26,8 +26,8 @@ describe('WebAppRuntimeSessionMutationService compact', () => {
             { role: 'user', content: 'Keep the pending approval visible.' },
           ],
           tasks: [{ task_id: 'task-1', status: 'running', title: 'Review workspace' }],
-          permissions: [{ permissionId: 'perm-1', status: 'pending', reason: 'Needs shell approval' }],
-          workflowRuns: [],
+          permissions: [{ permission_id: 'perm-1', task_id: 'task-approval-1', status: 'pending', reason: 'Needs shell approval' }],
+          workflowRuns: [{ workflow_run_id: 'workflow-1', workflow_name: 'Nightly review', status: 'running' }],
           toolRuns: [{ runId: 'tool-1' }],
         })),
         compactSessionTranscript,
@@ -82,6 +82,8 @@ describe('WebAppRuntimeSessionMutationService compact', () => {
     expect(summary).toContain('OPENAI_API_KEY=[redacted]');
     expect(summary).not.toContain('sk-super-secret-token-here');
     expect(summary).toContain('perm-1');
+    expect(summary).toContain('workflow-1');
+    expect(summary).toContain('Nightly review');
     expect(helpers.buildCanonicalStatePayload).toHaveBeenCalledWith(
       'session-1',
       expect.objectContaining({ sessionPlaneMode: 'summary' }),

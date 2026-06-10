@@ -280,7 +280,7 @@ export class WebAppRuntimeSessionMutationService {
     const pendingPermissions = input.permissions
       .filter((permission) => String(permission.status || '').toLowerCase() === 'pending')
       .slice(0, 8)
-      .map((permission) => `- approval ${this.compactLine(permission.permissionId || permission.id || permission.taskId || 'pending', 80)}: ${this.compactLine(permission.reason || permission.summary || permission.description || 'waiting for user decision', 160)}`);
+      .map((permission) => `- approval ${this.compactLine(permission.permissionId || permission.permission_id || permission.id || permission.taskId || permission.task_id || 'pending', 80)}: ${this.compactLine(permission.reason || permission.summary || permission.description || 'waiting for user decision', 160)}`);
     const openTasks = input.tasks
       .filter((task) => !['done', 'completed', 'failed', 'cancelled', 'canceled'].includes(String(task.status || '').toLowerCase()))
       .slice(0, 8)
@@ -288,7 +288,7 @@ export class WebAppRuntimeSessionMutationService {
     const activeWorkflows = input.workflowRuns
       .filter((run) => !['done', 'completed', 'failed', 'cancelled', 'canceled'].includes(String(run.status || '').toLowerCase()))
       .slice(0, 6)
-      .map((run) => `- workflow ${this.compactLine(run.id || run.runId || 'active', 80)}: ${this.compactLine(run.status || run.title || 'active', 140)}`);
+      .map((run) => `- workflow ${this.compactLine(run.id || run.runId || run.workflowRunId || run.workflow_run_id || 'active', 80)}: ${this.compactLine(run.title || run.workflowName || run.workflow_name || run.status || 'active', 140)}`);
     return [
       'Session compacted.',
       '',
