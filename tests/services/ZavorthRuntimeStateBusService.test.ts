@@ -363,6 +363,7 @@ describe('ZavorthRuntimeStateBusService', () => {
       status: 'configured',
       sendRequiresApproval: true,
     });
+    expect(personal.snapshot.state.context.status).toBe('ready');
 
     const mcp = service.dispatch({
       type: 'set-mcp-trust',

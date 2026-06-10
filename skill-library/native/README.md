@@ -7,9 +7,9 @@ keep them disabled, and promote only small audited skills into this folder.
 Runtime policy:
 
 - Source: `zavorth-native`
-- Trust: `review`
-- Enabled by default: `false`
-- Allowlist mode: `none`
+- Trust: `native-curated`
+- Enabled by default: `true`
+- Allowlist mode: `native source allowed; imported sources remain review-only`
 
 Curation rules:
 

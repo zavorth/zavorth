@@ -10,6 +10,14 @@ import type { BootEvent, RuntimeStatus } from '../global';
 import { asRecord, EmptyPanel, itemId, panelLabels, PanelScaffold } from '../primitives/desktopPrimitives';
 import type { DesktopPanel } from '../slashCommands';
 
+function summarizeNexusStatus(value: unknown): string {
+  if (!value) {
+    return 'Status unavailable.';
+  }
+  const serialized = JSON.stringify(value);
+  return serialized.length > 220 ? `${serialized.slice(0, 220)}...` : serialized;
+}
+
 export function DesktopInspector(props: {
   activePanel: DesktopPanel;
   approvals: ApprovalItem[];
@@ -223,7 +231,7 @@ function SettingsPanel(props: {
       </div>
       <div className="zvd-panel-card">
         <strong>Nexus</strong>
-        <span>{props.nexusStatus ? JSON.stringify(props.nexusStatus).slice(0, 220) : 'Status unavailable.'}</span>
+        <span>{summarizeNexusStatus(props.nexusStatus)}</span>
       </div>
       {props.events.map(event => (
         <div className="zvd-event" key={`${event.at}-${event.message}`} data-tone={event.type}>

@@ -510,7 +510,7 @@ export class ZavorthRuntimeStateBusService {
       };
       state.context = {
         ...state.context,
-        status: connector.status === 'configured' ? 'attention' : 'ready',
+        status: connector.status === 'configured' ? 'ready' : 'attention',
         summary: `${connector.label} is registered as a governed ${connector.kind} connector.`,
         updatedAt: now,
       };
