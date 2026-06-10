@@ -404,7 +404,10 @@ export class WebAppRuntimeSessionCommandService {
     const snapshot = this.recordOrNull(context.canonicalState.snapshot) || {};
     const composer = this.recordOrNull(context.input.composerSettings) || {};
     const attachments = this.arrayOfRecords(clientContext.attachments);
-    const selectedTools = this.arrayOfRecords(clientContext.selectedSkills || clientContext.selectedTools)
+    const selectedSkills = this.arrayOfRecords(clientContext.selectedSkills);
+    const selectedTools = (selectedSkills.length > 0
+      ? selectedSkills
+      : this.arrayOfRecords(clientContext.selectedTools))
       .map((entry) => this.compactItem(entry, 'tool'));
     const workspaceSelection = this.recordOrNull(clientContext.workspaceSelection);
     const workflowIntent = this.recordOrNull(clientContext.workflowIntent);

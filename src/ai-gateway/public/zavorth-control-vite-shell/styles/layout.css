@@ -1154,6 +1154,7 @@
 
   .core-frame.is-sidebar-collapsed {
     --dock-width: 76px;
+
     grid-template-columns: var(--dock-width) minmax(0, 1fr);
   }
 

@@ -251,6 +251,25 @@ describe('WebAppRuntimeSessionCommandService', () => {
     expect(JSON.stringify(context)).not.toContain('abc123');
   });
 
+  it('falls back to selected tools when selected skills is present but empty', async () => {
+    const service = new WebAppRuntimeSessionCommandService();
+    const deps = buildDeps();
+    const helpers = buildHelpers();
+
+    const context = await service.executeCanonicalCommand({
+      command: 'context',
+      sessionId: 'session-1',
+      clientContext: {
+        selectedSkills: [],
+        selectedTools: [{ id: 'tool.file-read', title: 'File reader' }],
+      },
+    } as any, deps, helpers);
+
+    expect(context.commandResult.selectedTools).toEqual([
+      expect.objectContaining({ id: 'tool.file-read', title: 'File reader' }),
+    ]);
+  });
+
   it('projects native short aliases into governed skill modes without execution or secret leakage', async () => {
     const service = new WebAppRuntimeSessionCommandService();
     const deps = buildDeps();
