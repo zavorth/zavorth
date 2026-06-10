@@ -38,6 +38,8 @@ function ruleFilesExist() {
     'scripts/zavorth-channel-connection-playbook-check.mjs',
     'tests/services/ChannelConnectionPlaybookService.test.ts',
     'docs/channel-mesh.md',
+    'docs/produto/canais/index.md',
+    'docs/produto/conceitos/features.md',
   ];
   const missing = files.filter((file) => !fs.existsSync(path.join(root, file)));
   return rule('channel-connection-playbook-files', 'Playbook files exist', missing.length === 0, `${files.length - missing.length}/${files.length}`, 'contract, service, CLI, check, tests and docs are present', missing);

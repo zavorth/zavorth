@@ -61,7 +61,7 @@ export type ZavorthProductExcellenceSnapshot = {
     qa: 'npm run qa:zavorth-product-excellence --silent';
     tui: 'zavorth tui --json';
     canvas: 'zavorth dashboard';
-    satellite: 'zavorth apps --action pairing.qr';
+    satellite: 'zavorth satellite pairing';
     wake: 'zavorth echo wake setup --default-local';
     setup: 'zavorth setup --dry-run';
   };
@@ -135,7 +135,7 @@ export class ZavorthProductExcellenceService {
         qa: 'npm run qa:zavorth-product-excellence --silent',
         tui: 'zavorth tui --json',
         canvas: 'zavorth dashboard',
-        satellite: 'zavorth apps --action pairing.qr',
+        satellite: 'zavorth satellite pairing',
         wake: 'zavorth echo wake setup --default-local',
         setup: 'zavorth setup --dry-run',
       },
@@ -386,7 +386,7 @@ export class ZavorthProductExcellenceService {
         `pairing=${snapshot.pairing.status}`,
         `offlineQueue=${snapshot.offlineQueue.status}`,
       ],
-      ready ? [] : ['Run zavorth apps --action pairing.qr and inspect health warnings.'],
+      ready ? [] : ['Run zavorth satellite pairing and inspect health warnings.'],
     );
   }
 

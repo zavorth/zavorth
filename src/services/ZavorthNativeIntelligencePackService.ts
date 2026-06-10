@@ -267,6 +267,8 @@ export class ZavorthNativeIntelligencePackService {
           && manifest.name === definition.name
           && manifest.native === true
           && manifest.noExecutionByDefault === true
+          && manifest.requiresPolicyBroker === definition.runtimePolicy.requiresPolicyBroker
+          && manifest.receiptsRequired === definition.runtimePolicy.receiptsRequired
           && manifest.permissionProfileId === definition.permissionProfileId;
         if (!manifestMatchesDefinition) {
           issues.push('manifest does not match native definition');

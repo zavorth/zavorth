@@ -263,6 +263,21 @@ describe('Zavorth live CLI namespaces', () => {
     expect(payload.domains.map((domain: { id: string }) => domain.id)).toContain('plugins');
   });
 
+  test('rejects unknown certification targets instead of falling back to operational readiness', async () => {
+    const root = makeRoot();
+    const result = await runZavorthLiveNamespaceCommand({
+      projectRoot: root,
+      command: 'certify',
+      args: ['made-up-target', '--json'],
+    });
+    const payload = JSON.parse(result.output);
+
+    expect(result.exitCode).toBe(1);
+    expect(payload.ok).toBe(false);
+    expect(payload.error).toContain('Unknown certify target');
+    expect(payload.allowedTargets).toContain('operational');
+  });
+
   test('blocks plugin install when expected checksum does not match', async () => {
     const root = makeRoot();
     const pluginDir = path.join(root, 'sample-plugin');
