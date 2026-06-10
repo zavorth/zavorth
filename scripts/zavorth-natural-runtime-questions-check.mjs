@@ -40,6 +40,34 @@ if (/\bsk-[A-Za-z0-9_-]{12,}\b/.test(output)) {
   throw new Error('raw secret leaked in natural runtime question output');
 }
 
+const executionOutput = execFileSync(
+  runner,
+  [...prefix, 'tsx', 'scripts/zavorth-natural-runtime-questions.ts', 'Docker e WSL estao prontos para rodar isolado?', '--json'],
+  { cwd: root, encoding: 'utf8' },
+);
+const executionSnapshot = JSON.parse(executionOutput);
+
+if (executionSnapshot.intent !== 'execution_backends_ready') {
+  throw new Error(`unexpected execution backend intent ${executionSnapshot.intent}`);
+}
+if (!executionSnapshot.answer.cards.some((card) => card.id === 'execution-backends')) {
+  throw new Error('execution backend answer card missing');
+}
+if (!executionSnapshot.sources.some((source) =>
+  source.id === 'execution-backends' &&
+  source.surface === 'terminal-backends' &&
+  source.executionAuthority === false
+)) {
+  throw new Error('execution backend source must be terminal-backends and projection-only');
+}
+if (
+  executionSnapshot.runtimeProjection.executionAuthority !== false ||
+  executionSnapshot.safety.projectionOnly !== true ||
+  executionSnapshot.safety.doesNotMutateConfiguration !== true
+) {
+  throw new Error('execution backend runtime question must stay read-only');
+}
+
 execFileSync(
   runner,
   [...prefix, 'jest', '--runTestsByPath', 'tests/services/ZavorthNaturalRuntimeQuestionsService.test.ts', '--runInBand'],
