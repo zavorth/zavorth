@@ -30,6 +30,7 @@ import { ReasoningSummaryService } from './ReasoningSummaryService.js';
 import { ResponseProfilePreferenceService } from './ResponseProfilePreferenceService.js';
 import { TrustLensService } from './TrustLensService.js';
 import type {
+  UniversalAgentModelProfile,
   UniversalAgentRun,
   UniversalAgentRunResult,
   UniversalApprovalRequest,
@@ -61,6 +62,15 @@ import {
 import {
   ZavorthRuntimeStateBusService,
 } from '../ZavorthRuntimeStateBusService.js';
+import {
+  ZavorthRuntimeCapabilitiesService,
+  type ZavorthRuntimeCapabilitiesSnapshot,
+} from '../ZavorthRuntimeCapabilitiesService.js';
+import {
+  ZavorthRuntimeOperationalSpineService,
+  type ZavorthRuntimeOperationalSpineSyncInput,
+  type ZavorthRuntimeOperationalSpineSyncResult,
+} from '../ZavorthRuntimeOperationalSpineService.js';
 import type {
   ZavorthRuntimeStateBusActionInput,
   ZavorthRuntimeStateBusDispatchResult,
@@ -96,6 +106,7 @@ export type ExperienceCoreRuntime = {
   providerReadinessMatrix?: Pick<ZavorthProviderReadinessMatrixService, 'buildSnapshot'>;
   agentMaturity?: Pick<ZavorthAgentMaturityService, 'buildSnapshot'>;
   runtimeStateBus?: Pick<ZavorthRuntimeStateBusService, 'buildSnapshot' | 'syncExperienceCommand' | 'dispatch'> | null;
+  runtimeOperationalSpine?: Pick<ZavorthRuntimeOperationalSpineService, 'syncOperationalState'> | null;
 };
 
 export type ExperienceHomeInput = {
@@ -215,6 +226,7 @@ export class ExperienceCoreService {
   private readonly providerReadinessMatrix: Pick<ZavorthProviderReadinessMatrixService, 'buildSnapshot'>;
   private readonly agentMaturity: Pick<ZavorthAgentMaturityService, 'buildSnapshot'>;
   private readonly runtimeStateBus: Pick<ZavorthRuntimeStateBusService, 'buildSnapshot' | 'syncExperienceCommand' | 'dispatch'> | null;
+  private readonly runtimeOperationalSpine: Pick<ZavorthRuntimeOperationalSpineService, 'syncOperationalState'> | null;
 
   constructor(runtime: ExperienceCoreRuntime = {}) {
     this.now = runtime.now || (() => new Date());
@@ -243,6 +255,12 @@ export class ExperienceCoreService {
     this.runtimeStateBus = runtime.runtimeStateBus === null
       ? null
       : runtime.runtimeStateBus || new ZavorthRuntimeStateBusService({ now: this.now });
+    this.runtimeOperationalSpine = runtime.runtimeOperationalSpine === null || !this.runtimeStateBus
+      ? null
+      : runtime.runtimeOperationalSpine || new ZavorthRuntimeOperationalSpineService({
+        now: this.now,
+        runtimeStateBus: this.runtimeStateBus,
+      });
   }
 
   public buildHome(input: ExperienceHomeInput = {}): ExperienceSnapshot {
@@ -464,6 +482,11 @@ export class ExperienceCoreService {
       });
     }
     const runtimeState = this.safeRuntimeStateSync(command);
+    const runtimeWorkspace = this.workspacePathFromRuntimeState(runtimeState);
+    if (!command.workspace && runtimeWorkspace) {
+      command.workspace = runtimeWorkspace;
+    }
+    const runtimeModelProfile = this.modelProfileFromRuntimeState(runtimeState);
     const plan = this.router.route(command);
 
     try {
@@ -603,7 +626,8 @@ export class ExperienceCoreService {
           sessionId: command.sessionId,
           channel: command.surface,
           text: command.text,
-          workspace: command.workspace || null,
+          workspace: command.workspace || runtimeWorkspace || null,
+          modelProfile: runtimeModelProfile,
           metadata: {
             ...(command.metadata || {}),
             responseProfile: command.responseProfile || undefined,
@@ -684,6 +708,30 @@ export class ExperienceCoreService {
   public dispatchRuntimeStateAction(input: ZavorthRuntimeStateBusActionInput): ZavorthRuntimeStateBusDispatchResult | null {
     try {
       return this.runtimeStateBus?.dispatch(input) || null;
+    } catch {
+      return null;
+    }
+  }
+
+  public buildRuntimeCapabilities(): ZavorthRuntimeCapabilitiesSnapshot | null {
+    try {
+      if (!this.runtimeStateBus) {
+        return null;
+      }
+      return new ZavorthRuntimeCapabilitiesService({
+        now: this.now,
+        runtimeStateBus: this.runtimeStateBus,
+      }).buildSnapshot();
+    } catch {
+      return null;
+    }
+  }
+
+  public async syncRuntimeOperationalState(
+    input: ZavorthRuntimeOperationalSpineSyncInput = {},
+  ): Promise<ZavorthRuntimeOperationalSpineSyncResult | null> {
+    try {
+      return await this.runtimeOperationalSpine?.syncOperationalState(input) || null;
     } catch {
       return null;
     }
@@ -1099,6 +1147,37 @@ export class ExperienceCoreService {
     } catch {
       return this.safeRuntimeStateSnapshot();
     }
+  }
+
+  private workspacePathFromRuntimeState(runtimeState: ZavorthRuntimeStateBusSnapshot | null): string | null {
+    const workspace = runtimeState?.state.workspace || null;
+    if (!workspace?.path) {
+      return null;
+    }
+    if (workspace.kind === 'folder' || workspace.kind === 'project' || workspace.kind === 'zavorth') {
+      return workspace.path;
+    }
+    return null;
+  }
+
+  private modelProfileFromRuntimeState(
+    runtimeState: ZavorthRuntimeStateBusSnapshot | null,
+  ): Partial<UniversalAgentModelProfile> | undefined {
+    const model = runtimeState?.state.model || null;
+    if (!model?.id || model.connected !== true) {
+      return undefined;
+    }
+    return {
+      providerLabel: model.provider,
+      modelLabel: model.label,
+      routingPolicy: 'gateway',
+      routeId: model.id,
+      familyId: model.provider,
+      ready: true,
+      selectionExplanation: [
+        `Runtime state selected ${model.label} from ${model.source || 'runtime'}.`,
+      ],
+    };
   }
 
   private buildNativeAutonomySpineProjection(

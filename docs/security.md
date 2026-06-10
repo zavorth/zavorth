@@ -54,6 +54,22 @@ the runtime for specific tasks such as approvals or read-only chat.
 Dangerous commands, unsafe network destinations and sensitive provider egress are
 blocked or redacted before execution.
 
+### Best-Of Runtime Absorption
+
+Zavorth absorbs patterns from Odysseus, Open WebUI, AnythingLLM and LibreChat as
+governed runtime capabilities, not as trusted shortcuts:
+
+- model specs, dynamic routing and provider setup are projected by the runtime
+  state bus and never by the desktop alone;
+- imported skills and external MCP servers stay quarantined until an explicit
+  operator trust decision promotes them;
+- email, calendar and task connectors start disabled and split read, draft,
+  send and write permissions;
+- private-network egress is blocked by default, with loopback allowed only for
+  explicitly local provider ids;
+- every sensitive change is expected to produce preview, approval, execution,
+  receipt and learning phases.
+
 ### Receipts And Audit
 
 Important decisions produce readable receipts: allowed, denied, redacted,
@@ -74,4 +90,5 @@ Use the broader workspace check before release or after wide runtime changes.
 - [Operations](/docs/operations.md)
 - [Effect Boundary](/docs/effect-boundary.md)
 - [Self-Modification](/docs/self-modification.md)
+- [Best-Of Runtime Threat Model](/docs/best-of-runtime-threat-model.md)
 - [Product Principles](/docs/product-direction.md)

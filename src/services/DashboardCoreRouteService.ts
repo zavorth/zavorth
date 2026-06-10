@@ -94,7 +94,7 @@ export type DashboardCoreRouteDeps = {
   writeRedirect: WriteRedirect;
   a2ui: any;
   proactivePermissions: any;
-  experienceCore?: Pick<ExperienceCoreService, 'buildHome' | 'executeCommand' | 'buildTimelineForRun' | 'dispatchRuntimeStateAction'> | null;
+  experienceCore?: Pick<ExperienceCoreService, 'buildHome' | 'executeCommand' | 'buildTimelineForRun' | 'dispatchRuntimeStateAction' | 'buildRuntimeCapabilities' | 'syncRuntimeOperationalState'> | null;
   authService?: Pick<DashboardAuthService, 'validate' | 'resolveAuthenticatedIdentity'>;
   echo?: {
     getPendingPermissions: () => unknown[];
@@ -154,6 +154,25 @@ export class DashboardCoreRouteService {
 
     if (pathname.startsWith('/api/v2/local-access')) {
       return this.localAccessRoutes.handleRequest(req, res, pathname, deps);
+    }
+
+    if (pathname === '/api/runtime/capabilities' && req.method === 'GET') {
+      if (deps.authService && !deps.authService.resolveAuthenticatedIdentity(req)) {
+        deps.writeJson(res, { ok: false, error: 'Unauthorized' }, 401);
+        return true;
+      }
+      await deps.experienceCore?.syncRuntimeOperationalState?.({
+        userId: String(url.searchParams.get('userId') || 'desktop-user'),
+        sessionId: String(url.searchParams.get('sessionId') || 'desktop-main'),
+        workspacePath: url.searchParams.get('workspacePath'),
+      });
+      const snapshot = deps.experienceCore?.buildRuntimeCapabilities?.() || null;
+      deps.writeJson(
+        res,
+        snapshot || { ok: false, error: 'Runtime capabilities are not attached.' },
+        snapshot ? 200 : 503,
+      );
+      return true;
     }
 
     if (pathname.startsWith('/api/experience')) {
@@ -689,6 +708,7 @@ export class DashboardCoreRouteService {
         source: trustedDesktopBridge ? 'zavorth-desktop-bridge' : this.readOptionalString(body.source) || 'runtime-api',
         approved: trustedDesktopBridge || this.parseBoolean(body.approved) === true,
         previewOnly: this.parseBoolean(body.previewOnly) === true,
+        connectedModelIds: this.readStringArray(body.connectedModelIds),
         payload: this.readRecord(body.payload) || {},
       });
       deps.writeJson(
@@ -1026,6 +1046,16 @@ export class DashboardCoreRouteService {
 
   private readOptionalString(value: unknown): string | null {
     return this.readNonEmptyString(value);
+  }
+
+  private readStringArray(value: unknown): string[] | null {
+    if (!Array.isArray(value)) {
+      return null;
+    }
+    const values = value
+      .map((entry) => this.readOptionalString(entry))
+      .filter((entry): entry is string => Boolean(entry));
+    return values.length > 0 ? values : null;
   }
 
   private readRecord(value: unknown): Record<string, unknown> | null {

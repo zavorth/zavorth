@@ -137,6 +137,7 @@ export type DesktopPanelsData = {
   tools: ToolItem[];
   nexusStatus: unknown;
   memoryEncryptionStatus: MemoryEncryptionStatus | null;
+  runtimeCapabilities: RuntimeCapabilitiesSnapshot | null;
 };
 
 export type RuntimeStateActionInput = {
@@ -145,7 +146,96 @@ export type RuntimeStateActionInput = {
   previewOnly?: boolean;
   sessionId?: string | null;
   source?: string | null;
+  connectedModelIds?: string[] | null;
   payload?: Record<string, unknown>;
+};
+
+export type RuntimeCapabilitiesSnapshot = {
+  contractVersion?: string;
+  capabilities?: {
+    summary?: {
+      available?: number;
+      blocked?: number;
+      configurable?: number;
+      pending?: number;
+    };
+    available?: Array<{ id?: string; label?: string; domain?: string }>;
+    blocked?: Array<{ id?: string; label?: string; reason?: string }>;
+    configurable?: Array<{ id?: string; label?: string; reason?: string }>;
+    pending?: Array<{ id?: string; label?: string; reason?: string }>;
+  };
+  permissions?: {
+    domains?: Record<string, {
+      label?: string;
+      actions?: Record<string, {
+        default?: string;
+        requiresApproval?: boolean;
+        scope?: string;
+        reason?: string;
+      }>;
+    }>;
+  };
+  modelSpecs?: {
+    selectedSpecId?: string;
+    selectedEffort?: string;
+    specs?: Array<{
+      id?: string;
+      label?: string;
+      summary?: string;
+      estimatedCost?: string;
+      maxEffort?: string;
+      preferredModelIds?: string[];
+    }>;
+  };
+  providers?: {
+    connected?: Array<{ id?: string; label?: string; status?: string; targetHost?: string | null }>;
+    selectableModelIds?: string[];
+    selectedModelId?: string;
+    routingReason?: string;
+  };
+  workspace?: {
+    id?: string;
+    label?: string;
+    path?: string | null;
+    isolation?: string;
+    knowledgeSourceCount?: number;
+    untrustedContextWrapping?: boolean;
+  };
+  personalOps?: {
+    connectors?: Array<{ id?: string; kind?: string; label?: string; status?: string; enabled?: boolean }>;
+  };
+  mcpTrust?: {
+    servers?: Array<{
+      id?: string;
+      label?: string;
+      origin?: string;
+      trustState?: string;
+      toolNames?: string[];
+      exposedToModel?: boolean;
+    }>;
+  };
+  skillHistory?: {
+    entries?: Array<{
+      id?: string;
+      skillId?: string;
+      skillName?: string;
+      mode?: string;
+      source?: string;
+      receiptId?: string | null;
+      at?: string;
+    }>;
+  };
+  streamSession?: {
+    status?: string;
+    resumeToken?: string | null;
+    resumable?: boolean;
+  };
+  jobs?: {
+    status?: string;
+    summary?: string;
+    actionIds?: string[];
+  };
+  safety?: Record<string, unknown>;
 };
 
 function bridge() {
@@ -353,11 +443,21 @@ export async function dispatchRuntimeStateAction(input: RuntimeStateActionInput)
       userId: 'desktop-user',
       sessionId: input.sessionId || undefined,
       source: input.source || 'zavorth-desktop',
+      connectedModelIds: input.connectedModelIds || undefined,
       payload: input.payload || {},
     },
     timeoutMs: 20000,
   });
   return requireOk(result, 'Could not update runtime state.');
+}
+
+export async function loadRuntimeCapabilities(): Promise<RuntimeCapabilitiesSnapshot> {
+  const result = await apiRequest<RuntimeCapabilitiesSnapshot>({
+    method: 'GET',
+    path: '/api/runtime/capabilities',
+    timeoutMs: 10000,
+  });
+  return requireOk(result, 'Could not load runtime capabilities.');
 }
 
 export async function steerActiveRun(input: {
@@ -381,12 +481,13 @@ export async function steerActiveRun(input: {
 }
 
 export async function loadDesktopPanelsData(): Promise<DesktopPanelsData> {
-  const [approvals, learning, tools, nexusStatus, memoryEncryptionStatus] = await Promise.all([
+  const [approvals, learning, tools, nexusStatus, memoryEncryptionStatus, runtimeCapabilities] = await Promise.all([
     loadApprovals().catch(() => []),
     loadLearning().catch(() => []),
     loadTools().catch(() => []),
     loadNexusStatus().catch(() => null),
     loadMemoryEncryptionStatus().catch(() => null),
+    loadRuntimeCapabilities().catch(() => null),
   ]);
-  return { approvals, learning, tools, nexusStatus, memoryEncryptionStatus };
+  return { approvals, learning, tools, nexusStatus, memoryEncryptionStatus, runtimeCapabilities };
 }

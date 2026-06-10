@@ -165,6 +165,102 @@ describe('ExperienceCoreService runtime state bus integration', () => {
     expect(actionResult?.receipt.action).toBe('operate-domain');
   });
 
+  it('uses persisted runtime selections for the next agent execution when the command omits local controls', async () => {
+    const root = fs.mkdtempSync(path.join(os.tmpdir(), 'zavorth-experience-runtime-continuity-'));
+    const workspace = path.join(root, 'workspace');
+    fs.mkdirSync(workspace, { recursive: true });
+    let capturedRequest: UniversalAgentRequest | null = null;
+    const runtimeStateBus = new ZavorthRuntimeStateBusService({
+      stateFilePath: path.join(root, 'runtime-state.json'),
+      allowedWorkspaceRoots: [root],
+      now: () => new Date('2026-06-09T10:00:00.000Z'),
+    });
+    const agentGateway = {
+      handle: jest.fn(async (request: UniversalAgentRequest): Promise<UniversalAgentRunResult> => {
+        capturedRequest = request;
+        return {
+          ok: true,
+          run: makeRun(request),
+          replies: [],
+        };
+      }),
+      buildSnapshot: jest.fn(() => ({
+        generatedAt: '2026-06-09T10:00:00.000Z',
+        source: {
+          kind: 'universal-agent-runtime',
+          label: 'Zavorth Agent Gateway',
+        },
+        activeRun: null,
+        runs: [],
+        runObservatory: null,
+        capabilityLoopGovernance: null,
+        runtimePromotionGovernance: null,
+        workflowJobs: [],
+        workflowQueue: { kind: 'memory' },
+      })),
+      approve: jest.fn(),
+      reject: jest.fn(),
+    } as any;
+    const service = new ExperienceCoreService({
+      agentGateway,
+      runtimeStateBus,
+      now: () => new Date('2026-06-09T10:00:00.000Z'),
+    });
+
+    expect(service.dispatchRuntimeStateAction({
+      type: 'set-model',
+      approved: true,
+      source: 'zavorth-desktop-bridge',
+      connectedModelIds: ['zavorth:core', 'openai:gpt-5'],
+      payload: { model: 'openai:gpt-5' },
+    })?.ok).toBe(true);
+    expect(service.dispatchRuntimeStateAction({
+      type: 'set-effort',
+      approved: true,
+      source: 'zavorth-desktop-bridge',
+      payload: { effort: 'high' },
+    })?.ok).toBe(true);
+    expect(service.dispatchRuntimeStateAction({
+      type: 'set-workspace',
+      approved: true,
+      source: 'zavorth-desktop-bridge',
+      payload: {
+        workspace: {
+          id: 'folder:test',
+          label: 'workspace',
+          kind: 'folder',
+          path: workspace,
+        },
+      },
+    })?.ok).toBe(true);
+
+    const result = await service.executeCommand({
+      text: 'revise o workspace selecionado',
+      intent: 'run',
+      surface: 'api',
+      userId: 'desktop-user',
+      sessionId: 'desktop-main',
+      responseProfile: 'dev',
+      metadata: {
+        client: 'zavorth-desktop',
+      },
+    });
+
+    expect(result.ok).toBe(true);
+    expect(capturedRequest?.workspace).toBe(path.resolve(workspace));
+    expect(capturedRequest?.modelProfile).toMatchObject({
+      providerLabel: 'OpenAI',
+      modelLabel: 'GPT-5',
+      routingPolicy: 'gateway',
+      routeId: 'openai:gpt-5',
+      ready: true,
+    });
+    expect(capturedRequest?.metadata?.effortControl).toMatchObject({
+      effectiveLevel: 'high',
+    });
+    expect(result.snapshot.workspace).toBe(path.resolve(workspace));
+  });
+
   it('publishes live gateway, agents, cron, context and session state into the runtime bus', () => {
     const root = fs.mkdtempSync(path.join(os.tmpdir(), 'zavorth-experience-live-state-'));
     const runtimeStateBus = new ZavorthRuntimeStateBusService({
@@ -346,5 +442,92 @@ describe('ExperienceCoreService runtime state bus integration', () => {
       && receipt.action === 'domain-state'
       && receipt.phase === 'learning'
     ))).toBe(true);
+  });
+
+  it('exposes sanitized runtime capabilities from the same runtime state bus', () => {
+    const root = fs.mkdtempSync(path.join(os.tmpdir(), 'zavorth-experience-capabilities-'));
+    const runtimeStateBus = new ZavorthRuntimeStateBusService({
+      stateFilePath: path.join(root, 'runtime-state.json'),
+      now: () => new Date('2026-06-10T11:30:00.000Z'),
+    });
+    const service = new ExperienceCoreService({
+      runtimeStateBus,
+      now: () => new Date('2026-06-10T11:30:00.000Z'),
+    });
+
+    service.dispatchRuntimeStateAction({
+      type: 'register-personal-connector',
+      approved: true,
+      payload: {
+        personalConnector: {
+          id: 'calendar:primary',
+          kind: 'calendar',
+          label: 'Primary calendar',
+          configured: true,
+          rawToken: 'calendar-token-should-not-leak',
+        },
+      },
+    });
+
+    const capabilities = service.buildRuntimeCapabilities();
+
+    expect(capabilities?.contractVersion).toBe('zavorth-runtime-capabilities/1');
+    expect(capabilities?.personalOps.connectors.find((connector) => connector.id === 'calendar:primary')).toMatchObject({
+      status: 'configured',
+      enabled: false,
+      writeRequiresApproval: true,
+    });
+    expect(capabilities?.modelSpecs.selectedSpecId).toBe('daily');
+    expect(JSON.stringify(capabilities)).not.toContain('calendar-token-should-not-leak');
+  });
+
+  it('syncs operational spine state before building runtime capabilities', async () => {
+    const root = fs.mkdtempSync(path.join(os.tmpdir(), 'zavorth-experience-runtime-spine-'));
+    const runtimeStateBus = new ZavorthRuntimeStateBusService({
+      stateFilePath: path.join(root, 'runtime-state.json'),
+      now: () => new Date('2026-06-10T12:30:00.000Z'),
+    });
+    const service = new ExperienceCoreService({
+      runtimeStateBus,
+      runtimeOperationalSpine: {
+        syncOperationalState: async () => {
+          runtimeStateBus.dispatch({
+            type: 'set-provider-connection',
+            approved: true,
+            source: 'test-spine',
+            payload: {
+              providerConnection: {
+                providerId: 'ollama',
+                label: 'Ollama local',
+                targetUrl: 'http://127.0.0.1:11434',
+              },
+            },
+          });
+          return {
+            ok: true,
+            generatedAt: '2026-06-10T12:30:00.000Z',
+            summary: {
+              providerConnections: 1,
+              connectedModels: 1,
+              trustedWorkspaces: 0,
+              recoverableJobs: 0,
+              mcpServers: 0,
+              sessionResumable: false,
+            },
+          };
+        },
+      },
+      now: () => new Date('2026-06-10T12:30:00.000Z'),
+    });
+
+    await service.syncRuntimeOperationalState({
+      userId: 'desktop-user',
+      sessionId: 'desktop-main',
+    });
+    const capabilities = service.buildRuntimeCapabilities();
+
+    expect(capabilities?.providers.connected).toEqual(expect.arrayContaining([
+      expect.objectContaining({ id: 'ollama' }),
+    ]));
   });
 });

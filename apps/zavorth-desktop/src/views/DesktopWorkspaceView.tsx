@@ -6,6 +6,7 @@ import type {
   MemoryEncryptionMigrationReceipt,
   MemoryEncryptionStatus,
   MemoryItem,
+  RuntimeCapabilitiesSnapshot,
   ToolItem,
 } from '../apiClient';
 import type { BootEvent, RuntimeStatus } from '../global';
@@ -26,6 +27,7 @@ type WorkspaceViewProps = {
   memoryItems: MemoryItem[];
   nexusStatus: unknown;
   profile: string;
+  runtimeCapabilities: RuntimeCapabilitiesSnapshot | null;
   status: RuntimeStatus;
   theme: 'light' | 'dark' | 'system';
   tools: ToolItem[];
@@ -37,6 +39,7 @@ type WorkspaceViewProps = {
   onProfile(value: string): void;
   onReviewDecision(id: string, decision: 'approve' | 'reject'): void | Promise<void>;
   onRuntimeStart(): void | Promise<void>;
+  onRuntimeStateAction(input: { domain: string; operation: string; metadata?: Record<string, unknown> }): void | Promise<void>;
   onTheme(value: 'light' | 'dark' | 'system'): void;
 };
 
@@ -74,6 +77,7 @@ export function DesktopWorkspaceView(props: WorkspaceViewProps) {
       events={props.events}
       nexusStatus={props.nexusStatus}
       profile={props.profile}
+      runtimeCapabilities={props.runtimeCapabilities}
       status={props.status}
       theme={props.theme}
       accent={props.accent}
@@ -82,6 +86,7 @@ export function DesktopWorkspaceView(props: WorkspaceViewProps) {
       onProfile={props.onProfile}
       onRepair={props.onAccessRepair}
       onStart={props.onRuntimeStart}
+      onRuntimeStateAction={props.onRuntimeStateAction}
       onTheme={props.onTheme}
     />
   );
@@ -434,6 +439,7 @@ function SettingsView(props: {
   events: BootEvent[];
   nexusStatus: unknown;
   profile: string;
+  runtimeCapabilities: RuntimeCapabilitiesSnapshot | null;
   status: RuntimeStatus;
   theme: 'light' | 'dark' | 'system';
   onAccent(value: 'orange' | 'purple' | 'navy'): void;
@@ -441,8 +447,10 @@ function SettingsView(props: {
   onProfile(value: string): void;
   onRepair(): void | Promise<void>;
   onStart(): void | Promise<void>;
+  onRuntimeStateAction(input: { domain: string; operation: string; metadata?: Record<string, unknown> }): void | Promise<void>;
   onTheme(value: 'light' | 'dark' | 'system'): void;
 }) {
+  const [runtimeMode, setRuntimeMode] = useState<'overview' | 'permissions' | 'providers' | 'mcp' | 'skills' | 'jobs' | 'personal'>('overview');
   const experienceRows = [
     {
       id: 'experience-profile',
@@ -512,6 +520,221 @@ function SettingsView(props: {
     },
   ];
 
+  const capabilities = props.runtimeCapabilities;
+  const capabilitySummary = capabilities?.capabilities?.summary;
+  const selectedSpec = capabilities?.modelSpecs?.specs?.find(spec => spec.id === capabilities.modelSpecs?.selectedSpecId);
+  const providerCount = capabilities?.providers?.connected?.length || 0;
+  const mcpReviewCount = (capabilities?.mcpTrust?.servers || []).filter(server => server.trustState !== 'trusted').length;
+  const configuredPersonalOps = (capabilities?.personalOps?.connectors || []).filter(connector => connector.status === 'configured').length;
+  const permissionRows = Object.entries(capabilities?.permissions?.domains || {}).flatMap(([domain, policy]) =>
+    Object.entries(policy.actions || {}).map(([action, rule]) => ({
+      id: `permission-${domain}-${action}`,
+      title: `${policy.label || domain}: ${action}`,
+      description: rule.reason || 'Governed permission from runtime matrix.',
+      meta: `${rule.default || 'review'}${rule.requiresApproval ? ' + approval' : ''}`,
+      tone: rule.default === 'block' ? 'danger' as const : rule.requiresApproval ? 'warning' as const : 'ready' as const,
+      actions: (
+        <div className="zvd-row-actions">
+          <button
+            disabled={props.busy}
+            onClick={() => void props.onRuntimeStateAction({
+              domain: 'gateway',
+              operation: 'set-permission',
+              metadata: {
+                runtimeActionType: 'set-permission',
+                permission: {
+                  domain,
+                  action,
+                  decision: rule.default || 'approval',
+                  requiresApproval: rule.requiresApproval !== false,
+                  scope: rule.scope || 'runtime',
+                  reason: rule.reason || 'Operator reviewed permission from desktop.',
+                },
+              },
+            })}
+            type="button"
+          >
+            Receipt
+          </button>
+        </div>
+      ),
+    })),
+  );
+  const providerRows = (capabilities?.providers?.connected || []).map(provider => ({
+    id: `provider-${provider.id || provider.label}`,
+    title: provider.label || provider.id || 'Provider',
+    description: provider.targetHost ? `Target: ${provider.targetHost}` : 'Configured through sanitized runtime state.',
+    meta: provider.status || 'configured',
+    tone: provider.status === 'configured' ? 'ready' as const : 'warning' as const,
+    actions: (
+      <div className="zvd-row-actions">
+        <button
+          disabled={props.busy}
+          onClick={() => void props.onRuntimeStateAction({
+            domain: 'gateway',
+            operation: 'sync',
+            metadata: { providerId: provider.id || null },
+          })}
+          type="button"
+        >
+          Sync
+        </button>
+      </div>
+    ),
+  }));
+  const mcpRows = (capabilities?.mcpTrust?.servers || []).map(server => ({
+    id: `mcp-${server.id || server.label}`,
+    title: server.label || server.id || 'MCP server',
+    description: `${server.toolNames?.length || 0} tool(s); exposed=${server.exposedToModel ? 'yes' : 'no'}.`,
+    meta: server.trustState || 'review',
+    tone: server.trustState === 'trusted' ? 'ready' as const : server.trustState === 'blocked' ? 'danger' as const : 'warning' as const,
+    actions: (
+      <div className="zvd-row-actions">
+        <button
+          disabled={props.busy || server.trustState === 'trusted'}
+          onClick={() => void props.onRuntimeStateAction({
+            domain: 'skills',
+            operation: 'trust-mcp',
+            metadata: {
+              runtimeActionType: 'set-mcp-trust',
+              mcpTrust: {
+                id: server.id,
+                label: server.label,
+                origin: server.origin || 'desktop',
+                trustState: 'trusted',
+                toolNames: server.toolNames || [],
+              },
+            },
+          })}
+          type="button"
+        >
+          Trust
+        </button>
+        <button
+          disabled={props.busy || server.trustState === 'blocked'}
+          onClick={() => void props.onRuntimeStateAction({
+            domain: 'skills',
+            operation: 'block-mcp',
+            metadata: {
+              runtimeActionType: 'set-mcp-trust',
+              mcpTrust: {
+                id: server.id,
+                label: server.label,
+                origin: server.origin || 'desktop',
+                trustState: 'blocked',
+                toolNames: server.toolNames || [],
+              },
+            },
+          })}
+          type="button"
+        >
+          Block
+        </button>
+      </div>
+    ),
+  }));
+  const skillRows = (capabilities?.skillHistory?.entries || []).map(entry => ({
+    id: `skill-history-${entry.id || entry.skillName}`,
+    title: entry.skillName || entry.skillId || 'Skill',
+    description: `Mode: ${entry.mode || 'recorded'}; source: ${entry.source || 'runtime'}.`,
+    meta: entry.receiptId || entry.at || 'receipt-backed',
+    tone: entry.mode === 'blocked' ? 'danger' as const : entry.mode === 'auto-selected' ? 'ready' as const : 'muted' as const,
+    actions: (
+      <div className="zvd-row-actions">
+        <button
+          disabled={props.busy}
+          onClick={() => void props.onRuntimeStateAction({
+            domain: 'skills',
+            operation: 'sync',
+            metadata: { skillId: entry.skillId || null },
+          })}
+          type="button"
+        >
+          Sync
+        </button>
+      </div>
+    ),
+  }));
+  const personalRows = (capabilities?.personalOps?.connectors || []).map(connector => ({
+    id: `personal-${connector.id || connector.label}`,
+    title: connector.label || connector.id || 'Personal connector',
+    description: `${connector.kind || 'connector'}: read=${connector.readAllowed ? 'yes' : 'no'}, draft=${connector.draftAllowed ? 'yes' : 'no'}, send requires approval.`,
+    meta: connector.enabled ? 'enabled' : connector.status || 'disabled',
+    tone: connector.enabled ? 'warning' as const : connector.status === 'configured' ? 'ready' as const : 'muted' as const,
+  }));
+  const jobRows = [
+    {
+      id: 'runtime-jobs',
+      title: 'Scheduled jobs',
+      description: capabilities?.jobs?.summary || 'Scheduler recovery state is not projected yet.',
+      meta: capabilities?.jobs?.status || 'unknown',
+      tone: capabilities?.jobs?.status === 'attention' ? 'warning' as const : capabilities?.jobs ? 'ready' as const : 'muted' as const,
+      actions: (
+        <div className="zvd-row-actions">
+          <button
+            disabled={props.busy}
+            onClick={() => void props.onRuntimeStateAction({
+              domain: 'cron',
+              operation: 'recover',
+              metadata: {
+                runtimeActionType: 'recover-scheduled-jobs',
+                scheduledJobs: {
+                  recoverable: capabilities?.jobs?.status === 'attention' ? 1 : 0,
+                },
+              },
+            })}
+            type="button"
+          >
+            Recover
+          </button>
+        </div>
+      ),
+    },
+    {
+      id: 'runtime-stream',
+      title: 'Stream session',
+      description: capabilities?.streamSession?.resumeToken
+        ? `Resume token: ${capabilities.streamSession.resumeToken}`
+        : 'No resumable stream token is active.',
+      meta: capabilities?.streamSession?.status || 'idle',
+      tone: capabilities?.streamSession?.resumable ? 'ready' as const : 'muted' as const,
+    },
+  ];
+  const runtimeCapabilityRows = [
+    {
+      id: 'runtime-capabilities',
+      title: 'Runtime capabilities',
+      description: capabilitySummary
+        ? `${capabilitySummary.available || 0} available, ${capabilitySummary.configurable || 0} configurable, ${capabilitySummary.blocked || 0} blocked.`
+        : 'Capabilities API is unavailable.',
+      meta: capabilities?.contractVersion || 'offline',
+      tone: capabilities ? 'ready' as const : 'warning' as const,
+    },
+    {
+      id: 'runtime-model-spec',
+      title: 'Model spec',
+      description: selectedSpec?.summary || capabilities?.providers?.routingReason || 'Model specs are loaded from runtime state.',
+      meta: selectedSpec?.label || capabilities?.modelSpecs?.selectedSpecId || 'daily',
+      tone: capabilities ? 'ready' as const : 'muted' as const,
+    },
+    {
+      id: 'runtime-providers',
+      title: 'Connected providers',
+      description: providerCount > 0
+        ? `${providerCount} provider connection(s) configured without exposing secrets.`
+        : 'No configured provider connections are projected yet.',
+      meta: `${capabilities?.providers?.selectableModelIds?.length || 0} models`,
+      tone: providerCount > 0 ? 'ready' as const : 'muted' as const,
+    },
+    {
+      id: 'runtime-trust',
+      title: 'MCP and personal ops trust',
+      description: `${mcpReviewCount} MCP server(s) need trust review; ${configuredPersonalOps} personal connector(s) configured but still governed.`,
+      meta: 'approval-first',
+      tone: mcpReviewCount > 0 || configuredPersonalOps > 0 ? 'warning' as const : 'muted' as const,
+    },
+  ];
+
   const runtimeRows = [
     {
       id: 'runtime',
@@ -534,6 +757,7 @@ function SettingsView(props: {
       meta: 'local',
       tone: props.nexusStatus ? 'ready' as const : 'muted' as const,
     },
+    ...runtimeCapabilityRows,
     ...props.events.map(event => ({
       id: `${event.at}-${event.message}`,
       title: event.message,
@@ -542,6 +766,19 @@ function SettingsView(props: {
       tone: event.type === 'error' ? 'danger' as const : 'muted' as const,
     })),
   ];
+  const runtimeRowsForMode = runtimeMode === 'permissions'
+    ? permissionRows
+    : runtimeMode === 'providers'
+      ? providerRows
+      : runtimeMode === 'mcp'
+        ? mcpRows
+        : runtimeMode === 'skills'
+          ? skillRows
+          : runtimeMode === 'jobs'
+            ? jobRows
+            : runtimeMode === 'personal'
+              ? personalRows
+              : runtimeRows;
 
   return (
     <PageFrame
@@ -556,7 +793,20 @@ function SettingsView(props: {
         </section>
         <section className="zvd-settings-section" aria-label="Runtime">
           <h2>Runtime</h2>
-          <DetailRows rows={runtimeRows} empty="No runtime status is available." />
+          <TextTabs<typeof runtimeMode>
+            value={runtimeMode}
+            onChange={setRuntimeMode}
+            items={[
+              { value: 'overview', label: 'Overview' },
+              { value: 'permissions', label: 'Permissions', count: permissionRows.length },
+              { value: 'providers', label: 'Providers', count: providerRows.length },
+              { value: 'mcp', label: 'MCP', count: mcpRows.length },
+              { value: 'skills', label: 'Skills', count: skillRows.length },
+              { value: 'jobs', label: 'Jobs', count: jobRows.length },
+              { value: 'personal', label: 'Personal Ops', count: personalRows.length },
+            ]}
+          />
+          <DetailRows rows={runtimeRowsForMode} empty="No runtime status is available." />
         </section>
       </div>
     </PageFrame>
