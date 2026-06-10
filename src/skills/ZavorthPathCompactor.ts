@@ -81,12 +81,14 @@ export class ZavorthPathCompactor {
     let normalized = compactedPath.replace(/\\/g, '/');
 
     if (normalized === '~') {
-      return homedir.replace(/\\/g, '/').replace(/\/+$/g, '');
+      return this.normalizeHomeDirectory(homedir);
     }
 
     if (normalized.startsWith('~/')) {
-      const normalizedHomedir = homedir.replace(/\\/g, '/').replace(/\/+$/g, '');
-      return normalizedHomedir + '/' + normalized.slice(2);
+      const normalizedHomedir = this.normalizeHomeDirectory(homedir);
+      return normalizedHomedir.endsWith('/')
+        ? normalizedHomedir + normalized.slice(2)
+        : normalizedHomedir + '/' + normalized.slice(2);
     }
 
     return normalized;
@@ -94,5 +96,13 @@ export class ZavorthPathCompactor {
 
   private static isWindowsDriveRoot(value: string): boolean {
     return /^[A-Za-z]:\/$/.test(value.replace(/\\/g, '/'));
+  }
+
+  private static normalizeHomeDirectory(value: string): string {
+    let normalized = value.replace(/\\/g, '/');
+    if (!this.isWindowsDriveRoot(normalized)) {
+      normalized = normalized.replace(/\/+$/g, '');
+    }
+    return normalized;
   }
 }
