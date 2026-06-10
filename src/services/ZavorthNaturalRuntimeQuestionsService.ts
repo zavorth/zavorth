@@ -13,6 +13,8 @@ import { ZavorthTerminalBackendsService } from './ZavorthTerminalBackendsService
 import { ZavorthTrustPanelService } from './ZavorthTrustPanelService.js';
 import { ZavorthVisualReceiptsV2Service } from './ZavorthVisualReceiptsV2Service.js';
 
+const MAX_EXECUTION_BACKEND_LABELS = 4;
+
 export type ZavorthNaturalRuntimeQuestionsInput = {
   question?: unknown;
 };
@@ -197,7 +199,7 @@ function buildCards(intent: ZavorthNaturalRuntimeQuestionIntent, data: Record<st
   return [gatewayCard, providerCard, channelCard, approvalCard, receiptCard, trustCard];
 }
 
-function buildExecutionBackendCard(snapshot: any): ZavorthNaturalRuntimeAnswerCard {
+function buildExecutionBackendCard(snapshot: { backends?: ZavorthTerminalBackendDescriptor[] } | null | undefined): ZavorthNaturalRuntimeAnswerCard {
   const backends: ZavorthTerminalBackendDescriptor[] = Array.isArray(snapshot?.backends) ? snapshot.backends : [];
   const readyStrong = backends.filter((backend) =>
     backend?.liveReady === true && backend?.id !== 'local' && backend?.status === 'ready');
@@ -208,8 +210,8 @@ function buildExecutionBackendCard(snapshot: any): ZavorthNaturalRuntimeAnswerCa
   const wslReady = readyStrong.some((backend) => backend?.id === 'wsl');
   const dockerDormant = dormantStrong.some((backend) => backend?.id === 'docker');
   const wslDormant = dormantStrong.some((backend) => backend?.id === 'wsl');
-  const readyLabels = readyStrong.map((backend) => String(backend.label || backend.id)).slice(0, 4);
-  const dormantLabels = dormantStrong.map((backend) => String(backend.label || backend.id)).slice(0, 4);
+  const readyLabels = readyStrong.map((backend) => String(backend.label || backend.id)).slice(0, MAX_EXECUTION_BACKEND_LABELS);
+  const dormantLabels = dormantStrong.map((backend) => String(backend.label || backend.id)).slice(0, MAX_EXECUTION_BACKEND_LABELS);
   const status: ZavorthNaturalRuntimeAnswerCard['status'] = readyStrong.length > 0
     ? 'ready'
     : dormantStrong.length > 0 || localReady

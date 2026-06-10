@@ -5,6 +5,7 @@ describe('ZavorthTerminalBackendsService', () => {
     const service = new ZavorthTerminalBackendsService({
       env: {},
       cwd: 'C:/workspace',
+      platform: 'win32',
       now: () => new Date('2026-05-24T12:00:00.000Z'),
     });
 
@@ -116,6 +117,7 @@ describe('ZavorthTerminalBackendsService', () => {
         ZAVORTH_DAYTONA_WORKSPACE: 'zavorth-workspace',
       },
       cwd: 'C:/workspace',
+      platform: 'win32',
       now: () => new Date('2026-05-24T12:00:00.000Z'),
       probeRunner: () => ({
         status: 0,
@@ -195,6 +197,7 @@ describe('ZavorthTerminalBackendsService', () => {
     const service = new ZavorthTerminalBackendsService({
       env: {},
       cwd: 'C:/workspace',
+      platform: 'win32',
       now: () => new Date('2026-05-24T12:00:00.000Z'),
       probeRunner,
     });
@@ -236,6 +239,121 @@ describe('ZavorthTerminalBackendsService', () => {
     }));
   });
 
+  it('upgrades dormant Docker into a real readiness probe when live execution explicitly selects it', () => {
+    const probeRunner = jest.fn((input) => {
+      if (input.executable === 'docker') {
+        return {
+          status: 0,
+          stdout: '24.0.7',
+          stderr: '',
+          error: null,
+        };
+      }
+      if (input.executable === 'where.exe') {
+        return {
+          status: 0,
+          stdout: 'C:\\Program Files\\Docker\\Docker\\resources\\bin\\docker.exe',
+          stderr: '',
+          error: null,
+        };
+      }
+      return {
+        status: 1,
+        stdout: '',
+        stderr: 'unexpected probe',
+        error: 'unexpected probe',
+      };
+    });
+    const service = new ZavorthTerminalBackendsService({
+      env: {},
+      cwd: 'C:/workspace',
+      platform: 'win32',
+      now: () => new Date('2026-05-24T12:00:00.000Z'),
+      probeRunner,
+    });
+
+    const snapshot = service.execute({
+      action: 'terminal.execute',
+      backend: 'docker',
+      command: 'echo ok',
+      live: true,
+      approvalId: 'approval-1',
+    });
+    const docker = snapshot.backends.find((entry) => entry.id === 'docker');
+
+    expect(docker).toMatchObject({
+      status: 'ready',
+      liveReady: true,
+      dormant: false,
+      readinessProof: {
+        kind: 'host-probe',
+        rawSecretSerialized: false,
+      },
+    });
+    expect(probeRunner).toHaveBeenCalledWith(expect.objectContaining({
+      executable: 'docker',
+      args: ['version', '--format', '{{.Server.Version}}'],
+    }));
+  });
+
+  it('upgrades dormant WSL into a minimal execution probe when live execution explicitly selects it', () => {
+    const probeRunner = jest.fn((input) => {
+      if (input.executable === 'wsl.exe') {
+        return {
+          status: 0,
+          stdout: 'ok',
+          stderr: '',
+          error: null,
+        };
+      }
+      if (input.executable === 'where.exe') {
+        return {
+          status: 0,
+          stdout: 'C:\\Windows\\System32\\wsl.exe',
+          stderr: '',
+          error: null,
+        };
+      }
+      return {
+        status: 1,
+        stdout: '',
+        stderr: 'unexpected probe',
+        error: 'unexpected probe',
+      };
+    });
+    const service = new ZavorthTerminalBackendsService({
+      env: {},
+      cwd: 'C:/workspace',
+      platform: 'win32',
+      now: () => new Date('2026-05-24T12:00:00.000Z'),
+      probeRunner,
+    });
+
+    const snapshot = service.execute({
+      action: 'terminal.execute',
+      backend: 'wsl',
+      command: 'echo ok',
+      live: true,
+      approvalId: 'approval-1',
+    });
+    const wsl = snapshot.backends.find((entry) => entry.id === 'wsl');
+
+    expect(wsl).toMatchObject({
+      status: 'ready',
+      liveReady: true,
+      dormant: false,
+      readinessProof: {
+        kind: 'host-probe',
+        rawSecretSerialized: false,
+      },
+    });
+    expect(probeRunner).toHaveBeenCalledWith(expect.objectContaining({
+      executable: 'wsl.exe',
+      args: ['--', 'sh', '-lc', 'true'],
+      timeoutMs: 90000,
+    }));
+  });
+
   it('proves WSL readiness with a minimal execution probe instead of a status-only probe', () => {
     const probeRunner = jest.fn(() => ({
       status: 0,
@@ -246,6 +364,7 @@ describe('ZavorthTerminalBackendsService', () => {
     const service = new ZavorthTerminalBackendsService({
       env: { ZAVORTH_WSL_ENABLED: 'true' },
       cwd: 'C:/workspace',
+      platform: 'win32',
       now: () => new Date('2026-05-24T12:00:00.000Z'),
       probeRunner,
     });
@@ -271,6 +390,7 @@ describe('ZavorthTerminalBackendsService', () => {
     const service = new ZavorthTerminalBackendsService({
       env: { ZAVORTH_WSL_ENABLED: 'true' },
       cwd: 'C:/workspace',
+      platform: 'win32',
       now: () => new Date('2026-05-24T12:00:00.000Z'),
       probeRunner: () => ({
         status: 1,
