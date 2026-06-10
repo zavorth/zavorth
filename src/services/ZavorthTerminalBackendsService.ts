@@ -33,6 +33,7 @@ type TerminalBackendsDeps = {
   now?: () => Date;
   env?: Record<string, string | undefined>;
   cwd?: string;
+  platform?: NodeJS.Platform;
   runner?: (input: RunnerInput) => RunnerOutput;
   probeRunner?: (input: RunnerInput) => RunnerOutput;
 };
@@ -57,6 +58,7 @@ export class ZavorthTerminalBackendsService {
   private readonly now: () => Date;
   private readonly env: Record<string, string | undefined>;
   private readonly cwd: string;
+  private readonly platform: NodeJS.Platform;
   private readonly runner: (input: RunnerInput) => RunnerOutput;
   private readonly probeRunner: (input: RunnerInput) => RunnerOutput;
 
@@ -64,6 +66,7 @@ export class ZavorthTerminalBackendsService {
     this.now = deps.now || (() => new Date());
     this.env = deps.env || process.env;
     this.cwd = path.resolve(deps.cwd || process.cwd());
+    this.platform = deps.platform || process.platform;
     this.runner = deps.runner || defaultRunner;
     this.probeRunner = deps.probeRunner || defaultRunner;
   }
@@ -116,6 +119,7 @@ export class ZavorthTerminalBackendsService {
       timeoutMs,
       input,
       env: this.env,
+      platform: this.platform,
     });
     receipts.push(receipt('command-plan', 'done', `${risk} command prepared for ${selectedBackend} with structured executable/args.`));
 
@@ -300,11 +304,16 @@ export class ZavorthTerminalBackendsService {
   }
 
   private buildBackends(input: ZavorthTerminalBackendInput): ZavorthTerminalBackendDescriptor[] {
+    const action = normalizeAction(input.action);
+    const requestedBackend = normalizeBackend(input.backend);
+    const liveExecutionRequested = input.live === true && action === 'terminal.execute';
+    const dockerRequestedNow = requestedBackend === 'docker' && liveExecutionRequested;
+    const wslRequestedNow = this.platform === 'win32' && requestedBackend === 'wsl' && liveExecutionRequested;
     const dockerImage = String(input.dockerImage || this.env.ZAVORTH_TERMINAL_DOCKER_IMAGE || this.env.ZAVORTH_CONTAINER_IMAGE || 'node:22-bookworm').trim();
     const sshHost = String(input.sshHost || this.env.ZAVORTH_SSH_HOST || '').trim();
     const wslDistro = String(input.wslDistro || this.env.ZAVORTH_WSL_DISTRO || '').trim();
     const dockerConfigured = isTruthy(this.env.ZAVORTH_DOCKER_ENABLED) || Boolean(this.env.DOCKER_HOST);
-    const wslConfigured = process.platform === 'win32' && (isTruthy(this.env.ZAVORTH_WSL_ENABLED) || Boolean(wslDistro));
+    const wslConfigured = this.platform === 'win32' && (isTruthy(this.env.ZAVORTH_WSL_ENABLED) || Boolean(wslDistro));
     const sshConfigured = Boolean(sshHost);
     const vercelConfigured = isTruthy(this.env.ZAVORTH_VERCEL_SANDBOX_ENABLED) && Boolean(this.env.VERCEL_TOKEN);
     const modalReady = modalConfigured(this.env);
@@ -312,19 +321,19 @@ export class ZavorthTerminalBackendsService {
     const dockerAvailability = dockerConfigured
       ? null
       : this.probeExecutablePresence('docker', 'Docker CLI was found; Docker daemon readiness is deferred until a task asks for isolated execution.');
-    const wslAvailability = wslConfigured || process.platform !== 'win32'
+    const wslAvailability = wslConfigured || this.platform !== 'win32'
       ? null
       : this.probeExecutablePresence('wsl.exe', 'WSL executable was found; Linux runtime readiness is deferred until a task asks for isolated execution.');
-    const dockerProbe = dockerConfigured
+    const dockerProbe = dockerConfigured || dockerRequestedNow
       ? this.probeBackend('docker', ['version', '--format', '{{.Server.Version}}'])
       : dockerAvailability || readinessProof('not-configured', false, 'Docker is not enabled for Zavorth execution backends and the Docker CLI was not found.', null);
-    const wslProbe = wslConfigured
+    const wslProbe = wslConfigured || wslRequestedNow
       ? this.probeBackend(
           'wsl.exe',
           wslDistro ? ['-d', wslDistro, '--', 'sh', '-lc', 'true'] : ['--', 'sh', '-lc', 'true'],
           this.wslProbeTimeoutMs(),
         )
-      : wslAvailability || readinessProof('not-configured', false, process.platform === 'win32'
+      : wslAvailability || readinessProof('not-configured', false, this.platform === 'win32'
         ? 'WSL backend is not enabled and wsl.exe was not found.'
         : 'WSL backend requires a Windows host.', null);
     const vercelProbe = vercelConfigured
@@ -353,7 +362,7 @@ export class ZavorthTerminalBackendsService {
         liveCapable: true,
         liveReady: true,
         requiresConfiguration: [],
-        defaultCommand: process.platform === 'win32' ? 'powershell.exe -NoProfile -Command <command>' : 'sh -lc <command>',
+        defaultCommand: this.platform === 'win32' ? 'powershell.exe -NoProfile -Command <command>' : 'sh -lc <command>',
         nextCommand: 'zavorth execution-backends --backend local --command "npm test"',
         limitations: ['No OS sandbox; mutation commands still require approval and receipts.'],
         readinessProof: readinessProof('local-host', true, 'Local supervised shell exists on this host, but it is not counted as strong isolation.', null),
@@ -492,7 +501,7 @@ export class ZavorthTerminalBackendsService {
   }
 
   private probeExecutablePresence(executable: string, summary: string): ZavorthTerminalBackendDescriptor['readinessProof'] | null {
-    const probe = process.platform === 'win32'
+    const probe = this.platform === 'win32'
       ? {
           executable: 'where.exe',
           args: [executable],
@@ -644,10 +653,11 @@ function buildEnvelope(input: {
   timeoutMs: number;
   input: ZavorthTerminalBackendInput;
   env: Record<string, string | undefined>;
+  platform: NodeJS.Platform;
 }): Pick<ZavorthTerminalBackendSnapshot['plan'], 'executable' | 'args' | 'displayCommand'> {
   const command = input.command;
   if (input.backend === 'local') {
-    if (process.platform === 'win32') {
+    if (input.platform === 'win32') {
       return {
         executable: 'powershell.exe',
         args: ['-NoProfile', '-ExecutionPolicy', 'Bypass', '-Command', command],
