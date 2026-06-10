@@ -175,8 +175,11 @@ def copy_and_sanitize(src_dir, dst_dir, username):
                 with open(src_path, 'r', encoding='utf-8') as f:
                     content = f.read()
                 is_text = True
-            except Exception:
-                pass
+            except UnicodeDecodeError:
+                is_text = False
+            except OSError as e:
+                print(f"Failed to read text file {src_path}: {e}")
+                is_text = False
             
             if is_text and content is not None:
                 sanitized_content = sanitize_text(content, username)

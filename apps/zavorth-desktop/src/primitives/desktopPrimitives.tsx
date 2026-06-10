@@ -56,7 +56,7 @@ export function normalizeMessages(value: unknown): ChatMessage[] {
 }
 
 export function itemId(item: ApprovalItem | LearningItem | MemoryItem | ToolItem, fallback: string): string {
-  return String(item.id || ('approvalId' in item ? item.approvalId : '') || ('candidateId' in item ? item.candidateId : '') || fallback);
+  return String(item.id ?? ('approvalId' in item ? item.approvalId : undefined) ?? ('candidateId' in item ? item.candidateId : undefined) ?? fallback);
 }
 
 export function PanelScaffold(props: { title: string; subtitle: string; children: ReactNode }) {
