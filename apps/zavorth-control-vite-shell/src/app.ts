@@ -3168,6 +3168,8 @@ ${current}` : skillPrompt;
     neuralFeed.appendChild(divider);
 
     setTimeout(() => {
+      const liveSnapshot = getLiveRuntimeSnapshot();
+      const liveUnlocked = liveSnapshot.live && !liveSnapshot.authRequired;
       const cells = buildLogicCell(
         'local_access_check',
         'M22 12h-4l-3 9L9 3l-3 9H2',
@@ -3177,7 +3179,7 @@ ${current}` : skillPrompt;
       const profile = getCurrentExperienceProfile();
       appendEcho('core',
         [
-          'Dashboard is ready.',
+          liveUnlocked ? 'Dashboard is ready.' : 'Checking local runtime access',
           '',
           `Current profile: ${profile.label}. ${profile.summary}`,
           `Suggested setup: ${profile.suggestedChannels.join(', ')}. Capabilities: ${profile.suggestedCapabilities.slice(0, 4).join(', ')}.`,

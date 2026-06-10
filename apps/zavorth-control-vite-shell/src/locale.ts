@@ -752,6 +752,19 @@ const STRINGS: Partial<Record<SupportedControlLocale, Record<string, string>>> =
     'Preview is starting.': 'La vista previa esta iniciando.',
   },
 };
+const DASHBOARD_ACCESS_STRINGS = {
+  'Dashboard Ready': 'Dashboard Ready',
+  'Checking local runtime access': 'Checking local runtime access',
+  'Dashboard is ready.': 'Dashboard is ready.',
+  'If this browser needs access, paste the local token. I will mark the runtime connected only after the local bridge confirms it.': 'If this browser needs access, paste the local token. I will mark the runtime connected only after the local bridge confirms it.',
+};
+
+SUPPORTED_LOCALES.forEach((locale) => {
+  STRINGS[locale] = {
+    ...DASHBOARD_ACCESS_STRINGS,
+    ...(STRINGS[locale] || {}),
+  };
+});
 (STRINGS as any)['es'] = STRINGS['es-AR'];
 
 declare global {
