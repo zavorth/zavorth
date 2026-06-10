@@ -3785,53 +3785,37 @@ ${current}` : skillPrompt;
   function seedNeuralFeed() {
     recordTraceEvent({
       type: 'session',
-      title: 'Session started',
-      detail: 'Dashboard connected to the local runtime.',
+      title: 'Dashboard opened',
+      detail: 'Local runtime access is being checked.',
       meta: location.origin,
-      status: 'online',
+      status: 'checking',
     });
     const divider = document.createElement('div');
     divider.className = 'echo-divider';
     divider.innerHTML = `
       <span class="echo-divider__line"></span>
-      <span class="echo-divider__label">Session Started</span>
+      <span class="echo-divider__label">Dashboard Ready</span>
       <span class="echo-divider__line"></span>
     `;
     neuralFeed.appendChild(divider);
 
     setTimeout(() => {
+      const liveSnapshot = getLiveRuntimeSnapshot();
+      const liveUnlocked = liveSnapshot.live && !liveSnapshot.authRequired;
       const cells = buildLogicCell(
-        'gateway_connect',
+        'local_access_check',
         'M22 12h-4l-3 9L9 3l-3 9H2',
-        'Connected to local gateway in 42ms',
+        'Checking local runtime access',
         `Protocol: WebSocket/SSE\nEndpoint: ${location.origin}/api\nModel:    ${getCurrentModelLabel()}\nRoute:    ${getCurrentModelRouteLabel()}`
       );
       appendEcho('core',
-        'Zavorth is online. The local gateway is connected.\n\nAsk naturally; I will show preview, risk and approval when an action needs it.',
+        `${liveUnlocked ? 'Dashboard is ready.' : 'Checking local runtime access'}\n\nIf this browser needs access, paste the local token. I will mark the runtime connected only after the local bridge confirms it.`,
         cells
       );
     }, 400);
   }
 
-  // --------- Boot Sequence ---------
-  const bootGate = document.getElementById('boot-gate');
-  const bootStatus = document.getElementById('boot-status');
-
-  if (bootGate) {
-    setTimeout(() => {
-      bootStatus.innerHTML = '<div class="boot-spinner"></div> Authenticating with local core...';
-      setTimeout(() => {
-        bootStatus.innerHTML = '<span style="color:var(--b-ok)">System Ready</span>';
-        setTimeout(() => {
-          bootGate.classList.add('hidden');
-          seedNeuralFeed();
-          window.emitSignal('success', 'Zavorth connected', 'Secure connection established with the runtime.');
-        }, 600);
-      }, 800);
-    }, 600);
-  } else {
-    seedNeuralFeed();
-  }
+  seedNeuralFeed();
 
   // --------- Theme Toggle ---------
   const themeToggle = document.getElementById('theme-toggle');
