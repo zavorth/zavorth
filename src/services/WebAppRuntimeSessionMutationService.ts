@@ -256,7 +256,7 @@ export class WebAppRuntimeSessionMutationService {
       const payload = await this.executeCanonicalCompact(body, deps, helpers);
       deps.writeJson(res, payload, 200);
     } catch (error: unknown) {
-      deps.writeJson(res, { ok: false, error: errorMessage(error, 'Falha ao compactar sessao.') }, 400);
+      deps.writeJson(res, { ok: false, error: errorMessage(error, 'Falha ao compactar sessao.') }, 500);
     }
     return true;
   }
