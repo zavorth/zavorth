@@ -3,6 +3,11 @@ import fs from 'fs';
 import path from 'path';
 import { config } from '../config/index.js';
 import { generateZavorthControlToken, isWeakZavorthControlToken } from './ZavorthControlTokenService.js';
+import {
+  TrustedDeviceAccessService,
+  type TrustedDeviceAccessScope,
+  type TrustedDeviceIdentity,
+} from './TrustedDeviceAccessService.js';
 
 type AuthStatus = {
   enabled: boolean;
@@ -16,16 +21,18 @@ export type ZavorthControlAuthenticatedIdentity = {
   source: 'jwt' | 'zavorthControl-token';
   userId: string;
   profileId: string | null;
-};
+} | TrustedDeviceIdentity;
 
 export class ZavorthControlAuthService {
   private readonly token: string;
   private readonly status: AuthStatus;
+  private readonly trustedDevices: TrustedDeviceAccessService;
 
-  constructor() {
+  constructor(options: { trustedDevices?: TrustedDeviceAccessService } = {}) {
     const resolved = this.resolveToken();
     this.token = resolved.token;
     this.status = resolved.status;
+    this.trustedDevices = options.trustedDevices || new TrustedDeviceAccessService();
   }
 
   public validate(candidate: string | null | undefined): boolean {
@@ -63,6 +70,21 @@ export class ZavorthControlAuthService {
         userId: 'local-owner',
         profileId: config.zavorthProductMode || 'default',
       };
+    }
+    return this.resolveTrustedDeviceIdentity(req, { requiredScopes: ['runtime:control'] });
+  }
+
+  public resolveTrustedDeviceIdentity(req: {
+    headers?: Record<string, string | string[] | undefined>;
+  }, options: {
+    requiredScopes?: TrustedDeviceAccessScope[];
+  } = {}): TrustedDeviceIdentity | null {
+    const token = this.resolveRequestToken(req);
+    const validated = this.trustedDevices.validateBearerToken(token, {
+      requiredScopes: options.requiredScopes || [],
+    });
+    if (validated.ok) {
+      return validated.identity;
     }
     return null;
   }

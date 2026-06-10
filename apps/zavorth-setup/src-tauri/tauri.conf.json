@@ -1,0 +1,44 @@
+{
+  "$schema": "https://schema.tauri.app/config/2",
+  "productName": "Zavorth Setup",
+  "version": "0.1.0",
+  "identifier": "app.zavorth.setup",
+  "build": {
+    "beforeDevCommand": "npm run dev",
+    "devUrl": "http://127.0.0.1:5181",
+    "beforeBuildCommand": "npm run build",
+    "frontendDist": "../dist"
+  },
+  "app": {
+    "windows": [
+      {
+        "label": "main",
+        "title": "Zavorth Setup",
+        "width": 880,
+        "height": 620,
+        "minWidth": 720,
+        "minHeight": 520,
+        "resizable": true,
+        "fullscreen": false,
+        "decorations": true,
+        "transparent": false,
+        "center": true
+      }
+    ],
+    "security": {
+      "csp": "default-src 'self'; img-src 'self' data:; style-src 'self' 'unsafe-inline'; script-src 'self'; font-src 'self' data:; connect-src 'self' ipc: http://ipc.localhost"
+    },
+    "withGlobalTauri": true
+  },
+  "bundle": {
+    "active": true,
+    "category": "DeveloperTool",
+    "shortDescription": "Zavorth Setup",
+    "longDescription": "Installs, updates and repairs the local Zavorth runtime.",
+    "targets": ["app", "dmg", "appimage", "msi", "nsis"],
+    "icon": []
+  },
+  "plugins": {
+    "opener": {}
+  }
+}

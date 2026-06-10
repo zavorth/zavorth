@@ -30,6 +30,7 @@ import { ReasoningSummaryService } from './ReasoningSummaryService.js';
 import { ResponseProfilePreferenceService } from './ResponseProfilePreferenceService.js';
 import { TrustLensService } from './TrustLensService.js';
 import type {
+  UniversalAgentModelProfile,
   UniversalAgentRun,
   UniversalAgentRunResult,
   UniversalApprovalRequest,
@@ -58,6 +59,23 @@ import {
   ZavorthAgentMaturityService,
   type ZavorthAgentMaturitySnapshot,
 } from '../ZavorthAgentMaturityService.js';
+import {
+  ZavorthRuntimeStateBusService,
+} from '../ZavorthRuntimeStateBusService.js';
+import {
+  ZavorthRuntimeCapabilitiesService,
+  type ZavorthRuntimeCapabilitiesSnapshot,
+} from '../ZavorthRuntimeCapabilitiesService.js';
+import {
+  ZavorthRuntimeOperationalSpineService,
+  type ZavorthRuntimeOperationalSpineSyncInput,
+  type ZavorthRuntimeOperationalSpineSyncResult,
+} from '../ZavorthRuntimeOperationalSpineService.js';
+import type {
+  ZavorthRuntimeStateBusActionInput,
+  ZavorthRuntimeStateBusDispatchResult,
+  ZavorthRuntimeStateBusSnapshot,
+} from '../../contracts/ZavorthRuntimeStateBusContract.js';
 
 type AgentGatewayLike = Pick<
   ZavorthAgentGateway,
@@ -87,6 +105,8 @@ export type ExperienceCoreRuntime = {
   selfHealingReceipts?: ZavorthSelfHealingReceiptService;
   providerReadinessMatrix?: Pick<ZavorthProviderReadinessMatrixService, 'buildSnapshot'>;
   agentMaturity?: Pick<ZavorthAgentMaturityService, 'buildSnapshot'>;
+  runtimeStateBus?: Pick<ZavorthRuntimeStateBusService, 'buildSnapshot' | 'syncExperienceCommand' | 'dispatch'> | null;
+  runtimeOperationalSpine?: Pick<ZavorthRuntimeOperationalSpineService, 'syncOperationalState'> | null;
 };
 
 export type ExperienceHomeInput = {
@@ -97,6 +117,7 @@ export type ExperienceHomeInput = {
   activeTraceId?: string | null;
   userId?: string | null;
   responseProfile?: ExperienceResponseProfileId | null;
+  metadata?: Record<string, unknown> | null;
 };
 
 function normalizeText(value: unknown, fallback = ''): string {
@@ -108,6 +129,14 @@ function recordOrNull(value: unknown): Record<string, unknown> | null {
   return value && typeof value === 'object' && !Array.isArray(value)
     ? value as Record<string, unknown>
     : null;
+}
+
+function isLiveRunStatus(status: unknown): boolean {
+  return status === 'queued' || status === 'thinking' || status === 'running' || status === 'waiting_approval';
+}
+
+function isLiveWorkflowJobStatus(status: unknown): boolean {
+  return status === 'waiting_approval' || status === 'queued' || status === 'running';
 }
 
 function inferRequestedTimeZone(text: string): string {
@@ -197,6 +226,8 @@ export class ExperienceCoreService {
   private readonly selfHealingReceipts: ZavorthSelfHealingReceiptService;
   private readonly providerReadinessMatrix: Pick<ZavorthProviderReadinessMatrixService, 'buildSnapshot'>;
   private readonly agentMaturity: Pick<ZavorthAgentMaturityService, 'buildSnapshot'>;
+  private readonly runtimeStateBus: Pick<ZavorthRuntimeStateBusService, 'buildSnapshot' | 'syncExperienceCommand' | 'dispatch'> | null;
+  private readonly runtimeOperationalSpine: Pick<ZavorthRuntimeOperationalSpineService, 'syncOperationalState'> | null;
 
   constructor(runtime: ExperienceCoreRuntime = {}) {
     this.now = runtime.now || (() => new Date());
@@ -222,6 +253,15 @@ export class ExperienceCoreService {
     this.selfHealingReceipts = runtime.selfHealingReceipts || new ZavorthSelfHealingReceiptService({ now: this.now });
     this.providerReadinessMatrix = runtime.providerReadinessMatrix || new ZavorthProviderReadinessMatrixService({ now: this.now });
     this.agentMaturity = runtime.agentMaturity || new ZavorthAgentMaturityService();
+    this.runtimeStateBus = runtime.runtimeStateBus === null
+      ? null
+      : runtime.runtimeStateBus || new ZavorthRuntimeStateBusService({ now: this.now });
+    this.runtimeOperationalSpine = runtime.runtimeOperationalSpine === null || !this.runtimeStateBus
+      ? null
+      : runtime.runtimeOperationalSpine || new ZavorthRuntimeOperationalSpineService({
+        now: this.now,
+        runtimeStateBus: this.runtimeStateBus,
+      });
   }
 
   public buildHome(input: ExperienceHomeInput = {}): ExperienceSnapshot {
@@ -326,6 +366,20 @@ export class ExperienceCoreService {
       trust,
       requestedProfile: input.responseProfile || persistedProfile || null,
     });
+    const runtimeState = input.metadata?.skipRuntimeProjection === true
+      ? this.safeRuntimeStateSnapshot()
+      : this.publishRuntimeStateProjection({
+        surface,
+        sessionId: sessionId || activeRun?.sessionId || null,
+        userId,
+        workspace: workspace || activeRun?.workspace || null,
+        agentSnapshot,
+        activeRun,
+        approvals,
+        pendingLearningCount,
+        memorySignalCount: memorySignals.length,
+        healthSummary: health.summary,
+      });
 
     return {
       contractVersion: EXPERIENCE_SNAPSHOT_CONTRACT_VERSION,
@@ -398,6 +452,7 @@ export class ExperienceCoreService {
           }
           : null,
         nativeAutonomySpine,
+        runtimeState,
       },
     };
   }
@@ -429,6 +484,12 @@ export class ExperienceCoreService {
         source: `command:${command.intent || 'ask'}`,
       });
     }
+    const runtimeState = this.safeRuntimeStateSync(command);
+    const runtimeWorkspace = this.workspacePathFromRuntimeState(runtimeState);
+    if (!command.workspace && runtimeWorkspace) {
+      command.workspace = runtimeWorkspace;
+    }
+    const runtimeModelProfile = this.modelProfileFromRuntimeState(runtimeState);
     const plan = this.router.route(command);
 
     try {
@@ -436,7 +497,16 @@ export class ExperienceCoreService {
         const result = command.approval.decision === 'approve'
           ? await this.agentGateway?.approve(command.approval.id)
           : await this.agentGateway?.reject(command.approval.id);
-        const snapshot = this.buildHome(command);
+        if (result) {
+          this.publishRuntimeApprovalDecision(command, true);
+        }
+        const snapshot = result ? this.buildHome(command) : this.buildHome({
+          ...command,
+          metadata: {
+            ...command.metadata,
+            skipRuntimeProjection: true,
+          },
+        });
         const reply = this.replyFromText(
           result
             ? `Approval ${command.approval.decision === 'approve' ? 'approved' : 'rejected'}: ${command.approval.id}.`
@@ -462,6 +532,8 @@ export class ExperienceCoreService {
           workspace: command.workspace || null,
         });
         const snapshot = this.buildHome(command);
+        this.publishRuntimeLearningDecision(command, learning);
+        this.attachRuntimeStateSnapshot(snapshot);
         const reply = this.replyFromText(learning.summary, command, null);
         return this.finalizeCommandResult(command, {
           ok: learning.ok,
@@ -565,10 +637,20 @@ export class ExperienceCoreService {
           sessionId: command.sessionId,
           channel: command.surface,
           text: command.text,
-          workspace: command.workspace || null,
+          workspace: command.workspace || runtimeWorkspace || null,
+          modelProfile: runtimeModelProfile,
           metadata: {
             ...(command.metadata || {}),
             responseProfile: command.responseProfile || undefined,
+            effortControl: runtimeState?.state.effort.snapshot,
+            runtimeState: runtimeState
+              ? {
+                model: runtimeState.state.model,
+                workspace: runtimeState.state.workspace,
+                statusbar: runtimeState.projections.statusbar,
+                lifecycle: runtimeState.projections.lifecycle,
+              }
+              : undefined,
             experiencePlan: {
               id: plan.id,
               kind: plan.kind,
@@ -632,6 +714,283 @@ export class ExperienceCoreService {
     });
     const run = agentSnapshot?.activeRun || agentSnapshot?.runs.find((candidate) => candidate.id === input.runId) || null;
     return this.buildTimeline(run, run ? [run] : []);
+  }
+
+  public dispatchRuntimeStateAction(input: ZavorthRuntimeStateBusActionInput): ZavorthRuntimeStateBusDispatchResult | null {
+    try {
+      return this.runtimeStateBus?.dispatch(input) || null;
+    } catch {
+      return null;
+    }
+  }
+
+  public buildRuntimeCapabilities(): ZavorthRuntimeCapabilitiesSnapshot | null {
+    try {
+      if (!this.runtimeStateBus) {
+        return null;
+      }
+      return new ZavorthRuntimeCapabilitiesService({
+        now: this.now,
+        runtimeStateBus: this.runtimeStateBus,
+      }).buildSnapshot();
+    } catch {
+      return null;
+    }
+  }
+
+  public async syncRuntimeOperationalState(
+    input: ZavorthRuntimeOperationalSpineSyncInput = {},
+  ): Promise<ZavorthRuntimeOperationalSpineSyncResult | null> {
+    try {
+      return await this.runtimeOperationalSpine?.syncOperationalState(input) || null;
+    } catch {
+      return null;
+    }
+  }
+
+  private publishRuntimeStateProjection(input: {
+    surface: ExperienceSurface;
+    sessionId: string | null;
+    userId: string;
+    workspace: string | null;
+    agentSnapshot: ZavorthAgentGatewaySnapshot | null;
+    activeRun: UniversalAgentRun | null;
+    approvals: UniversalApprovalRequest[];
+    pendingLearningCount: number;
+    memorySignalCount: number;
+    healthSummary: string;
+  }): ZavorthRuntimeStateBusSnapshot | null {
+    if (!this.runtimeStateBus) {
+      return null;
+    }
+
+    const pendingApprovals = input.approvals.filter((approval) => approval.status === 'pending').length;
+    const activeRunStatus = input.activeRun?.status || null;
+    const activeRunLive = isLiveRunStatus(activeRunStatus);
+    const workflowJobs = input.agentSnapshot?.workflowJobs || [];
+    const liveWorkflowJobs = workflowJobs.filter((job) => isLiveWorkflowJobStatus(String(job.status || '')));
+    const source = 'experience-core-live-projection';
+
+    this.safeDispatchRuntimeState({
+      type: 'sync-command',
+      surface: input.surface,
+      userId: input.userId,
+      sessionId: input.sessionId,
+      source,
+      approved: true,
+      payload: {
+        metadata: {
+          responseProfile: null,
+          liveProjection: true,
+        },
+      },
+    });
+
+    this.safeDispatchRuntimeState({
+      type: 'domain-state',
+      surface: input.surface,
+      userId: input.userId,
+      sessionId: input.sessionId,
+      source,
+      approved: true,
+      payload: {
+        domain: {
+          domain: 'gateway',
+          status: !input.agentSnapshot
+            ? 'offline'
+            : pendingApprovals > 0
+              ? 'attention'
+              : activeRunLive
+                ? 'running'
+                : 'ready',
+          summary: !input.agentSnapshot
+            ? 'Agent Gateway is not attached to this surface.'
+            : pendingApprovals > 0
+              ? `${pendingApprovals} approval(s) waiting for operator decision.`
+              : activeRunLive
+                ? `Gateway is driving ${input.activeRun?.title || input.activeRun?.id || 'an active run'}.`
+                : input.healthSummary,
+          actionIds: ['runtime.gateway.open', 'runtime.gateway.sync', 'runtime.gateway.restart'],
+        },
+        metadata: {
+          runCount: input.agentSnapshot?.runs.length || 0,
+          pendingApprovals,
+        },
+      },
+    });
+
+    this.safeDispatchRuntimeState({
+      type: 'domain-state',
+      surface: input.surface,
+      userId: input.userId,
+      sessionId: input.sessionId,
+      source,
+      approved: true,
+      payload: {
+        domain: {
+          domain: 'agents',
+          status: activeRunLive ? 'running' : pendingApprovals > 0 ? 'attention' : 'ready',
+          summary: activeRunLive
+            ? `Agent run active: ${input.activeRun?.title || input.activeRun?.id || 'current task'}.`
+            : pendingApprovals > 0
+              ? 'Agents are waiting for approval before continuing.'
+              : 'Agent plane ready for governed runs.',
+          actionIds: ['runtime.agents.open', 'runtime.agents.pause', 'runtime.agents.sync'],
+        },
+        metadata: {
+          activeRunId: input.activeRun?.id || null,
+          activeRunStatus,
+        },
+      },
+    });
+
+    this.safeDispatchRuntimeState({
+      type: 'domain-state',
+      surface: input.surface,
+      userId: input.userId,
+      sessionId: input.sessionId,
+      source,
+      approved: true,
+      payload: {
+        domain: {
+          domain: 'cron',
+          status: liveWorkflowJobs.length > 0 ? 'running' : 'ready',
+          summary: liveWorkflowJobs.length > 0
+            ? `${liveWorkflowJobs.length} workflow job(s) active in the local queue.`
+            : 'Cron and workflow queue are idle.',
+          actionIds: ['runtime.cron.open', 'runtime.cron.pause', 'runtime.cron.sync'],
+        },
+        metadata: {
+          workflowJobCount: workflowJobs.length,
+          liveWorkflowJobCount: liveWorkflowJobs.length,
+        },
+      },
+    });
+
+    this.safeDispatchRuntimeState({
+      type: 'domain-state',
+      surface: input.surface,
+      userId: input.userId,
+      sessionId: input.sessionId,
+      source,
+      approved: true,
+      payload: {
+        domain: {
+          domain: 'context',
+          status: input.pendingLearningCount > 0 ? 'attention' : 'ready',
+          summary: input.pendingLearningCount > 0
+            ? `${input.pendingLearningCount} learning candidate(s) waiting for review.`
+            : input.memorySignalCount > 0
+              ? `${input.memorySignalCount} memory signal(s) attached to the active context.`
+              : input.workspace
+                ? `Context scoped to ${input.workspace}.`
+                : 'Context plane ready.',
+          actionIds: ['runtime.context.open', 'runtime.context.sync'],
+        },
+        metadata: {
+          workspace: input.workspace,
+          memorySignalCount: input.memorySignalCount,
+          pendingLearningCount: input.pendingLearningCount,
+        },
+      },
+    });
+
+    this.safeDispatchRuntimeState({
+      type: 'domain-state',
+      surface: input.surface,
+      userId: input.userId,
+      sessionId: input.sessionId,
+      source,
+      approved: true,
+      payload: {
+        domain: {
+          domain: 'session',
+          status: activeRunLive ? 'running' : 'ready',
+          summary: input.sessionId
+            ? `Session ${input.sessionId} is attached to the runtime bus.`
+            : 'Session plane ready.',
+          actionIds: ['runtime.session.open', 'runtime.session.sync'],
+        },
+        metadata: {
+          activeRunId: input.activeRun?.id || null,
+          phase: 'receipt',
+        },
+      },
+    });
+
+    return this.safeRuntimeStateSnapshot();
+  }
+
+  private publishRuntimeApprovalDecision(command: ExperienceCommand, found: boolean): void {
+    if (!command.approval?.id) {
+      return;
+    }
+    this.safeDispatchRuntimeState({
+      type: 'operate-domain',
+      surface: command.surface,
+      userId: command.userId,
+      sessionId: command.sessionId,
+      source: 'experience-core-approval',
+      approved: true,
+      payload: {
+        domain: {
+          domain: 'gateway',
+          operation: command.approval.decision === 'approve' ? 'approve' : 'reject',
+        },
+        metadata: {
+          approvalId: command.approval.id,
+          decision: command.approval.decision,
+          found,
+        },
+      },
+    });
+  }
+
+  private publishRuntimeLearningDecision(
+    command: ExperienceCommand,
+    learning: ReturnType<LearningOSService['decide']>,
+  ): void {
+    this.safeDispatchRuntimeState({
+      type: 'domain-state',
+      surface: command.surface,
+      userId: command.userId,
+      sessionId: command.sessionId,
+      source: 'experience-core-learning',
+      approved: true,
+      payload: {
+        domain: {
+          domain: 'context',
+          status: learning.ok ? 'ready' : 'attention',
+          summary: learning.summary,
+          actionIds: ['runtime.context.sync', 'runtime.learning.review'],
+        },
+        metadata: {
+          phase: 'learning',
+          candidateId: command.learning?.candidateId || null,
+          decision: command.learning?.decision || null,
+          learningStatus: learning.status,
+        },
+      },
+    });
+  }
+
+  private attachRuntimeStateSnapshot(snapshot: ExperienceSnapshot): void {
+    const runtimeState = this.safeRuntimeStateSnapshot();
+    if (!runtimeState) {
+      return;
+    }
+    snapshot.raw = {
+      ...(snapshot.raw || {}),
+      runtimeState,
+    };
+  }
+
+  private safeDispatchRuntimeState(input: ZavorthRuntimeStateBusActionInput): ZavorthRuntimeStateBusDispatchResult | null {
+    try {
+      return this.runtimeStateBus?.dispatch(input) || null;
+    } catch {
+      return null;
+    }
   }
 
   private safeAgentSnapshot(input: ZavorthAgentGatewaySnapshotOptions): ZavorthAgentGatewaySnapshot | null {
@@ -775,6 +1134,61 @@ export class ExperienceCoreService {
       createdAt: llmBrain.generatedAt,
       updatedAt: llmBrain.generatedAt,
     }];
+  }
+
+  private safeRuntimeStateSnapshot(): ZavorthRuntimeStateBusSnapshot | null {
+    try {
+      return this.runtimeStateBus?.buildSnapshot() || null;
+    } catch {
+      return null;
+    }
+  }
+
+  private safeRuntimeStateSync(command: ExperienceCommand): ZavorthRuntimeStateBusSnapshot | null {
+    try {
+      return this.runtimeStateBus?.syncExperienceCommand({
+        surface: command.surface,
+        userId: command.userId,
+        sessionId: command.sessionId || null,
+        workspace: command.workspace || null,
+        text: command.text,
+        responseProfile: command.responseProfile || null,
+        metadata: command.metadata || {},
+      }) || null;
+    } catch {
+      return this.safeRuntimeStateSnapshot();
+    }
+  }
+
+  private workspacePathFromRuntimeState(runtimeState: ZavorthRuntimeStateBusSnapshot | null): string | null {
+    const workspace = runtimeState?.state.workspace || null;
+    if (!workspace?.path) {
+      return null;
+    }
+    if (workspace.kind === 'folder' || workspace.kind === 'project' || workspace.kind === 'zavorth') {
+      return workspace.path;
+    }
+    return null;
+  }
+
+  private modelProfileFromRuntimeState(
+    runtimeState: ZavorthRuntimeStateBusSnapshot | null,
+  ): Partial<UniversalAgentModelProfile> | undefined {
+    const model = runtimeState?.state.model || null;
+    if (!model?.id || model.connected !== true) {
+      return undefined;
+    }
+    return {
+      providerLabel: model.provider,
+      modelLabel: model.label,
+      routingPolicy: 'gateway',
+      routeId: model.id,
+      familyId: model.provider,
+      ready: true,
+      selectionExplanation: [
+        `Runtime state selected ${model.label} from ${model.source || 'runtime'}.`,
+      ],
+    };
   }
 
   private buildNativeAutonomySpineProjection(
@@ -992,6 +1406,10 @@ export class ExperienceCoreService {
       const result = decision === 'approve'
         ? await this.agentGateway?.approve(approvalId)
         : await this.agentGateway?.reject(approvalId);
+      this.publishRuntimeApprovalDecision({
+        ...command,
+        approval: { id: approvalId, decision },
+      }, Boolean(result));
       const snapshot = this.buildHome(command);
       const reply = this.replyFromText(
         result
@@ -1019,6 +1437,14 @@ export class ExperienceCoreService {
         workspace: command.workspace || null,
       });
       const snapshot = this.buildHome(command);
+      this.publishRuntimeLearningDecision({
+        ...command,
+        learning: {
+          candidateId: learningMatch[2],
+          decision: learningMatch[1] === 'approve' ? 'approve' : 'reject',
+        },
+      }, learning);
+      this.attachRuntimeStateSnapshot(snapshot);
       return {
         ok: learning.ok,
         handled: true,

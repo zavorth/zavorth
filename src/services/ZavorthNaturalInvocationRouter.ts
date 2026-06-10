@@ -23,6 +23,7 @@ import {
 } from '../security/SecurityPolicyBroker.js';
 import type { SecurityProfileId } from '../security/SecurityProfile.js';
 import { SkillLoader, type SkillMetadata } from '../skills/SkillLoader.js';
+import { ZavorthPathCompactor } from '../skills/ZavorthPathCompactor.js';
 import {
   UniversalSkillBridgeRuntimeService,
   type UniversalSkillBridgeRuntimeInput,
@@ -194,6 +195,10 @@ export class ZavorthNaturalInvocationRouter {
       })
       : null;
 
+    const availableCapabilitiesCatalogue = !selectedSkill && skills.length > 0
+      ? buildAvailableCapabilitiesCatalogue(skills)
+      : null;
+
     return {
       generatedAt,
       contractVersion: ZAVORTH_NATURAL_INVOCATION_CONTRACT_VERSION,
@@ -237,6 +242,7 @@ export class ZavorthNaturalInvocationRouter {
         selectedSkillName: selectedSkill?.name || null,
         sourcePath: analysis.sourcePath,
       }),
+      availableCapabilitiesCatalogue,
       commands: {
         invoke: 'npm run zavorth:natural-invocation -- --text "<request>"',
         invokeJson: 'npm run zavorth:natural-invocation:json -- --text "<request>"',
@@ -656,6 +662,46 @@ function buildSurfaceCommands(): ZavorthNaturalInvocationSurfaceCommand[] {
     command('/sandbox doctor', 'Sandbox doctor', 'Explain which sandbox runtimes are available on this host.', false),
     command('/invoke <request>', 'Natural invoke', 'Route a natural request to skill, subagent or direct answer.', false),
   ];
+}
+
+const MAX_AVAILABLE_CAPABILITIES = 40;
+const MAX_CAPABILITY_DESCRIPTION_CHARS = 180;
+const MAX_CAPABILITY_PATH_CHARS = 220;
+
+function buildAvailableCapabilitiesCatalogue(skills: SkillMetadata[]): string {
+  const visibleSkills = skills.slice(0, MAX_AVAILABLE_CAPABILITIES);
+  const lines: string[] = [
+    '<zavorth_available_capabilities>',
+    'As habilidades governadas a seguir estao disponiveis no ecossistema do Zavorth.',
+    'Use os caminhos apenas como referencia local. Leia o arquivo antes de aplicar detalhes de uma habilidade.',
+    '',
+  ];
+
+  for (const skill of visibleSkills) {
+    const displayPath = skill.displaySkillFilePath || ZavorthPathCompactor.compact(skill.skillFilePath);
+    lines.push(`- Nome: ${escapeCatalogueText(skill.name, 80)}`);
+    lines.push(`  Descricao: ${escapeCatalogueText(skill.description, MAX_CAPABILITY_DESCRIPTION_CHARS)}`);
+    lines.push(`  Caminho: ${escapeCatalogueText(displayPath, MAX_CAPABILITY_PATH_CHARS)}`);
+    lines.push('');
+  }
+
+  if (skills.length > visibleSkills.length) {
+    lines.push(`... ${skills.length - visibleSkills.length} habilidade(s) omitidas. Use /skills search <query> para refinar.`);
+  }
+
+  lines.push('</zavorth_available_capabilities>');
+  return lines.join('\n').trim();
+}
+
+function escapeCatalogueText(value: unknown, maxLength: number): string {
+  const normalized = normalizeText(value, 'n/d').replace(/\s+/g, ' ');
+  const truncated = normalized.length > maxLength
+    ? `${normalized.slice(0, maxLength - 3)}...`
+    : normalized;
+  return truncated
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;');
 }
 
 function command(

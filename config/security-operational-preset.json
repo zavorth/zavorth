@@ -1,8 +1,8 @@
 {
   "version": 1,
   "activePreset": "professional",
-  "appliedAt": "2026-05-15T21:13:00.193Z",
-  "appliedBy": "security-preset-cli",
+  "appliedAt": "2026-06-09T20:56:38.325Z",
+  "appliedBy": "zavorth-cli",
   "securityProfile": "professional",
   "mcpProfile": "safe",
   "mcpAllowlist": [
@@ -20,7 +20,7 @@
     "requireBaseline": true
   },
   "receipt": {
-    "id": "security-preset:professional:20260515T211300193Z",
+    "id": "security-preset:professional:20260609T205638325Z",
     "summary": "Preset professional aplicado com perfil professional, MCP safe e skills deny."
   }
 }

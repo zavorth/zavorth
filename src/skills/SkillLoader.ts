@@ -24,6 +24,7 @@ import {
 import { SkillTrustPolicyService } from '../services/SkillTrustPolicyService.js';
 import { LicensePolicyService } from './LicensePolicyService.js';
 import { SkillRiskScoringService } from './SkillRiskScoringService.js';
+import { ZavorthPathCompactor } from './ZavorthPathCompactor.js';
 
 const BLOCKED_ROOT_SUPPORT_FILES = new Set([
   'SKILL.md',
@@ -301,9 +302,15 @@ export class SkillLoader {
       name: frontmatter.name,
       description: frontmatter.description,
       dirPath,
+      displayDirPath: ZavorthPathCompactor.compact(dirPath),
       skillFilePath: filePath,
+      displaySkillFilePath: ZavorthPathCompactor.compact(filePath),
       supportFilePaths: supportFiles.map((entry) => entry.path),
-      supportFiles,
+      displaySupportFilePaths: supportFiles.map((entry) => ZavorthPathCompactor.compact(entry.path)),
+      supportFiles: supportFiles.map((entry) => ({
+        ...entry,
+        displayPath: ZavorthPathCompactor.compact(entry.path),
+      })),
       sourceId: source.id,
       sourceLabel: source.label,
       sourceKind: source.kind,
@@ -328,6 +335,8 @@ export class SkillLoader {
 
     if (
       config.skillsGovernanceMode === 'casual'
+      && provenance.imported !== true
+      && source.trust === 'trusted'
       && (!licensePolicy || licensePolicy.allowRuntimeUse)
       && (!risk || (risk.level !== 'blocked' && risk.level !== 'high'))
     ) {
@@ -596,10 +605,11 @@ export class SkillLoader {
   }
 
   private readRawFile(filePath: string): string {
-    if (!fs.existsSync(filePath)) {
+    const expandedPath = ZavorthPathCompactor.expand(filePath);
+    if (!fs.existsSync(expandedPath)) {
       return '';
     }
 
-    return fs.readFileSync(filePath, 'utf-8').replace(/^\uFEFF/, '');
+    return fs.readFileSync(expandedPath, 'utf-8').replace(/^\uFEFF/, '');
   }
 }

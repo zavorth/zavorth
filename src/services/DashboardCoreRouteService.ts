@@ -16,13 +16,37 @@ import type {
 import type { SalesPackChannelIoEnvelope } from '../contracts/SalesPackChannelIoContract.js';
 import type { ExperienceCommand, ExperienceSurface } from './experience/ExperienceContracts.js';
 import { ExperienceCoreService } from './experience/ExperienceCoreService.js';
+import type { ZavorthRuntimeStateActionType } from '../contracts/ZavorthRuntimeStateBusContract.js';
 import { globalLiveNodeRegistry } from './LiveNodeRegistryService.js';
+import { ZavorthMemoryEncryptionStatusService, type ZavorthMemoryEncryptionMode } from './ZavorthMemoryEncryptionStatusService.js';
+import { TrustedDeviceAccessService } from './TrustedDeviceAccessService.js';
+import { TrustedDeviceAccessRouteService } from './TrustedDeviceAccessRouteService.js';
 
 type WriteJson = (res: http.ServerResponse, body: unknown, statusCode?: number) => void;
 type WriteText = (res: http.ServerResponse, body: string, statusCode?: number) => void;
 type WriteRedirect = (res: http.ServerResponse, location: string, statusCode?: number) => void;
 type ReadJsonBody = (req: http.IncomingMessage) => Promise<Record<string, any>>;
 type ReadRawBody = (req: http.IncomingMessage) => Promise<string>;
+
+const RUNTIME_STATE_ACTION_TYPES = new Set<ZavorthRuntimeStateActionType>([
+  'sync-command',
+  'set-effort',
+  'set-model',
+  'set-workspace',
+  'surface-event',
+  'skill-lifecycle',
+  'domain-state',
+  'operate-domain',
+  'set-permission',
+  'select-model-spec',
+  'route-model',
+  'set-provider-connection',
+  'set-workspace-knowledge',
+  'register-personal-connector',
+  'set-mcp-trust',
+  'recover-scheduled-jobs',
+  'resume-stream',
+]);
 
 type NodeMeshLike = {
   buildSnapshot: (input?: any) => any;
@@ -91,7 +115,7 @@ export type DashboardCoreRouteDeps = {
   writeRedirect: WriteRedirect;
   a2ui: any;
   proactivePermissions: any;
-  experienceCore?: Pick<ExperienceCoreService, 'buildHome' | 'executeCommand' | 'buildTimelineForRun'> | null;
+  experienceCore?: Pick<ExperienceCoreService, 'buildHome' | 'executeCommand' | 'buildTimelineForRun' | 'dispatchRuntimeStateAction' | 'buildRuntimeCapabilities' | 'syncRuntimeOperationalState'> | null;
   authService?: Pick<DashboardAuthService, 'validate' | 'resolveAuthenticatedIdentity'>;
   echo?: {
     getPendingPermissions: () => unknown[];
@@ -108,6 +132,7 @@ export type DashboardCoreRouteServiceOptions = {
   salesPack?: SalesPackMvpService;
   salesPackBusinessMode?: SalesPackBusinessModeService;
   salesPackChannelIo?: SalesPackChannelIoService;
+  localAccess?: TrustedDeviceAccessService;
 };
 
 type SalesPackBusinessModeIdentity = {
@@ -121,6 +146,7 @@ export class DashboardCoreRouteService {
   private readonly salesPack: SalesPackMvpService;
   private readonly salesPackBusinessMode: SalesPackBusinessModeService;
   private readonly salesPackChannelIo: SalesPackChannelIoService;
+  private readonly localAccessRoutes: TrustedDeviceAccessRouteService;
 
   public constructor(options: DashboardCoreRouteServiceOptions = {}) {
     this.operationalMaturity = options.operationalMaturity || new OperationalMaturityService();
@@ -129,6 +155,10 @@ export class DashboardCoreRouteService {
     this.salesPackChannelIo = options.salesPackChannelIo || new SalesPackChannelIoService({
       salesPack: this.salesPack,
     });
+    this.localAccessRoutes = new TrustedDeviceAccessRouteService(
+      options.localAccess || new TrustedDeviceAccessService(),
+      'dashboard-token',
+    );
   }
 
   public async handleRequest(
@@ -140,6 +170,29 @@ export class DashboardCoreRouteService {
   ): Promise<boolean> {
     if (pathname === '/') {
       deps.writeRedirect(res, '/dashboard');
+      return true;
+    }
+
+    if (pathname.startsWith('/api/v2/local-access')) {
+      return this.localAccessRoutes.handleRequest(req, res, pathname, deps);
+    }
+
+    if (pathname === '/api/runtime/capabilities' && req.method === 'GET') {
+      if (deps.authService && !deps.authService.resolveAuthenticatedIdentity(req)) {
+        deps.writeJson(res, { ok: false, error: 'Unauthorized' }, 401);
+        return true;
+      }
+      await deps.experienceCore?.syncRuntimeOperationalState?.({
+        userId: String(url.searchParams.get('userId') || 'desktop-user'),
+        sessionId: String(url.searchParams.get('sessionId') || 'desktop-main'),
+        workspacePath: url.searchParams.get('workspacePath'),
+      });
+      const snapshot = deps.experienceCore?.buildRuntimeCapabilities?.() || null;
+      deps.writeJson(
+        res,
+        snapshot || { ok: false, error: 'Runtime capabilities are not attached.' },
+        snapshot ? 200 : 503,
+      );
       return true;
     }
 
@@ -641,6 +694,10 @@ export class DashboardCoreRouteService {
     pathname: string,
     deps: DashboardCoreRouteDeps,
   ): Promise<boolean> {
+    if (pathname === '/api/experience/memory/encryption' && (req.method === 'GET' || req.method === 'POST')) {
+      return this.handleMemoryEncryptionRequest(req, res, url, deps);
+    }
+
     const service = deps.experienceCore;
     if (!service) {
       deps.writeJson(res, { ok: false, error: 'Experience Core is not attached to this runtime.' }, 503);
@@ -660,6 +717,39 @@ export class DashboardCoreRouteService {
       return true;
     }
 
+    if (pathname === '/api/experience/runtime-state/action' && req.method === 'POST') {
+      const body = await deps.readJsonBody(req);
+      const desktopBridgeUserId = this.getVerifiedDesktopBridgeUserId(req, deps);
+      const trustedDesktopBridge = desktopBridgeUserId !== null;
+      const authenticatedIdentity = deps.authService?.resolveAuthenticatedIdentity(req) || null;
+      if (!trustedDesktopBridge && !authenticatedIdentity) {
+        deps.writeJson(res, { ok: false, error: 'Authentication required for runtime state actions.' }, 401);
+        return true;
+      }
+      const actionType = this.readRuntimeStateActionType(body.type);
+      if (!actionType) {
+        deps.writeJson(res, { ok: false, error: 'Unsupported runtime state action type.' }, 400);
+        return true;
+      }
+      const result = service.dispatchRuntimeStateAction({
+        type: actionType,
+        surface: this.readOptionalString(body.surface) || homeInput.surface,
+        userId: desktopBridgeUserId || this.readIdentityUserId(authenticatedIdentity) || 'authenticated-user',
+        sessionId: this.readOptionalString(body.sessionId) || homeInput.sessionId,
+        source: trustedDesktopBridge ? 'zavorth-desktop-bridge' : 'runtime-api',
+        approved: trustedDesktopBridge,
+        previewOnly: this.parseBoolean(body.previewOnly) === true,
+        connectedModelIds: this.readStringArray(body.connectedModelIds),
+        payload: this.readRecord(body.payload) || {},
+      });
+      deps.writeJson(
+        res,
+        result || { ok: false, error: 'Runtime state bus is not attached.' },
+        result?.ok ? 200 : 409,
+      );
+      return true;
+    }
+
     if (pathname === '/api/experience/ask' && req.method === 'POST') {
       const body = await deps.readJsonBody(req);
       const text = this.readOptionalString(body.text) || this.readOptionalString(body.message);
@@ -667,6 +757,7 @@ export class DashboardCoreRouteService {
         deps.writeJson(res, { ok: false, error: 'Campo "text" precisa ser uma string nao vazia.' }, 400);
         return true;
       }
+      const metadata = this.readRecord(body.metadata) || { source: 'runtime-api' };
       const command: Partial<ExperienceCommand> & { text: string } = {
         text,
         intent: (this.readOptionalString(body.intent) as ExperienceCommand['intent']) || 'ask',
@@ -675,7 +766,11 @@ export class DashboardCoreRouteService {
         sessionId: this.readOptionalString(body.sessionId),
         workspace: this.readOptionalString(body.workspace),
         trustMode: (this.readOptionalString(body.trustMode) as ExperienceCommand['trustMode']) || 'protected',
-        metadata: this.readRecord(body.metadata) || { source: 'runtime-api' },
+        responseProfile: this.readOptionalString(body.responseProfile) as ExperienceCommand['responseProfile'],
+        metadata: {
+          ...metadata,
+          trustedDesktopBridge: this.isVerifiedDesktopBridge(req, deps),
+        },
       };
       deps.writeJson(res, await service.executeCommand(command));
       return true;
@@ -742,6 +837,114 @@ export class DashboardCoreRouteService {
 
     deps.writeJson(res, { ok: false, error: 'Experience route not found.' }, 404);
     return true;
+  }
+
+  private async handleMemoryEncryptionRequest(
+    req: http.IncomingMessage,
+    res: http.ServerResponse,
+    url: URL,
+    deps: DashboardCoreRouteDeps,
+  ): Promise<boolean> {
+    let body: Record<string, any> = {};
+    if (req.method === 'POST') {
+      body = await deps.readJsonBody(req);
+    }
+    if (!this.isExperienceManagementAuthorized(req, url, deps, body)) {
+      deps.writeJson(res, { ok: false, error: 'Unauthorized' }, 401);
+      return true;
+    }
+
+    const service = new ZavorthMemoryEncryptionStatusService();
+    const input = this.readMemoryEncryptionInput(url, body);
+    if (req.method === 'GET') {
+      deps.writeJson(res, {
+        ok: true,
+        surface: this.readOptionalString(url.searchParams.get('surface')) || 'web',
+        status: service.buildStatus(input),
+      });
+      return true;
+    }
+
+    const action = String(body.action || 'preview').trim().toLowerCase();
+    const receipt = action === 'apply' || action === 'enable'
+      ? service.applyMigration(input)
+      : action === 'rollback' || action === 'restore'
+        ? service.rollbackMigration(input)
+        : service.previewMigration(input);
+    deps.writeJson(res, {
+      ok: receipt.status !== 'failed',
+      receipt,
+      status: service.buildStatus(input),
+    }, receipt.status === 'blocked' ? 409 : receipt.status === 'failed' ? 500 : 200);
+    return true;
+  }
+
+  private isExperienceManagementAuthorized(
+    req: http.IncomingMessage,
+    url: URL,
+    deps: DashboardCoreRouteDeps,
+    body: Record<string, any> = {},
+  ): boolean {
+    const authService = deps.authService;
+    if (!authService) {
+      return false;
+    }
+    if (authService.resolveAuthenticatedIdentity(req)) {
+      return true;
+    }
+    const authorization = String(req.headers.authorization || '').trim();
+    const bearer = authorization.toLowerCase().startsWith('bearer ')
+      ? authorization.slice('bearer '.length).trim()
+      : '';
+    const token = bearer
+      || String(url.searchParams.get('token') || body.token || body.runtimeToken || '').trim();
+    return Boolean(token && authService.validate(token));
+  }
+
+  private readMemoryEncryptionInput(url: URL, body: Record<string, any>): {
+    dbPath?: string | null;
+    mode?: ZavorthMemoryEncryptionMode | null;
+    key?: string | null;
+    keyPath?: string | null;
+    keyStore?: 'auto' | 'file' | 'os' | null;
+    backupPath?: string | null;
+    driverPackages?: string[];
+  } {
+    return {
+      dbPath: this.readOptionalString(body.dbPath) || this.readOptionalString(url.searchParams.get('dbPath')),
+      mode: this.readMemoryEncryptionMode(body.mode) || this.readMemoryEncryptionMode(url.searchParams.get('mode')),
+      key: typeof body.key === 'string' ? body.key : null,
+      keyPath: this.readOptionalString(body.keyPath) || this.readOptionalString(url.searchParams.get('keyPath')),
+      keyStore: this.readMemoryEncryptionKeyStore(body.keyStore) || this.readMemoryEncryptionKeyStore(url.searchParams.get('keyStore')),
+      backupPath: this.readOptionalString(body.backupPath) || this.readOptionalString(url.searchParams.get('backupPath')),
+      driverPackages: Array.isArray(body.driverPackages)
+        ? body.driverPackages.map((entry) => String(entry || '').trim()).filter(Boolean)
+        : this.readMemoryEncryptionDrivers(body.drivers || url.searchParams.get('drivers')),
+    };
+  }
+
+  private readMemoryEncryptionMode(value: unknown): ZavorthMemoryEncryptionMode | null {
+    const text = String(value || '').trim().toLowerCase();
+    if (text === 'off' || text === 'opportunistic' || text === 'required') {
+      return text;
+    }
+    return null;
+  }
+
+  private readMemoryEncryptionKeyStore(value: unknown): 'auto' | 'file' | 'os' | null {
+    const text = String(value || '').trim().toLowerCase();
+    if (text === 'auto' || text === 'file' || text === 'os') {
+      return text;
+    }
+    return null;
+  }
+
+  private readMemoryEncryptionDrivers(value: unknown): string[] | undefined {
+    const text = String(value || '').trim();
+    if (!text) {
+      return undefined;
+    }
+    return text.split(',').map((entry) => entry.trim()).filter(Boolean);
   }
 
   private readExperienceSurface(value: unknown): ExperienceSurface {
@@ -876,10 +1079,45 @@ export class DashboardCoreRouteService {
     return this.readNonEmptyString(value);
   }
 
+  private readStringArray(value: unknown): string[] | null {
+    if (!Array.isArray(value)) {
+      return null;
+    }
+    const values = value
+      .map((entry) => this.readOptionalString(entry))
+      .filter((entry): entry is string => Boolean(entry));
+    return values.length > 0 ? values : null;
+  }
+
   private readRecord(value: unknown): Record<string, unknown> | null {
     if (!value || typeof value !== 'object' || Array.isArray(value)) {
       return null;
     }
     return value as Record<string, unknown>;
+  }
+
+  private isVerifiedDesktopBridge(req: http.IncomingMessage, deps: DashboardCoreRouteDeps): boolean {
+    return this.getVerifiedDesktopBridgeUserId(req, deps) !== null;
+  }
+
+  private getVerifiedDesktopBridgeUserId(req: http.IncomingMessage, deps: DashboardCoreRouteDeps): string | null {
+    if (req.headers['x-zavorth-desktop-bridge'] !== '1') {
+      return null;
+    }
+    const identity = deps.authService?.resolveAuthenticatedIdentity(req);
+    if (identity?.authenticated !== true || !identity.userId) {
+      return null;
+    }
+    return identity.userId;
+  }
+
+  private readRuntimeStateActionType(value: unknown): ZavorthRuntimeStateActionType | null {
+    const actionType = this.readOptionalString(value) as ZavorthRuntimeStateActionType | null;
+    return actionType && RUNTIME_STATE_ACTION_TYPES.has(actionType) ? actionType : null;
+  }
+
+  private readIdentityUserId(identity: DashboardAuthenticatedIdentity | null): string | null {
+    const userId = this.readOptionalString(identity && 'userId' in identity ? identity.userId : null);
+    return userId || null;
   }
 }
