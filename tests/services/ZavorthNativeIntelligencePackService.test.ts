@@ -1,4 +1,6 @@
 import path from 'path';
+import fs from 'fs';
+import os from 'os';
 import { ZavorthNativeIntelligencePackService } from '../../src/services/ZavorthNativeIntelligencePackService.js';
 
 describe('ZavorthNativeIntelligencePackService Intent model', () => {
@@ -85,5 +87,29 @@ describe('ZavorthNativeIntelligencePackService Intent model', () => {
     expect(snapshot.skills.every((entry) => entry.runtimePolicy.noExecutionByDefault)).toBe(true);
     expect(snapshot.skills.every((entry) => entry.runtimePolicy.requiresPolicyBroker)).toBe(true);
     expect(snapshot.skills.find((entry) => entry.id === 'governed-test-loop')?.permissionProfileId).toBe('workspace-write-approval');
+  });
+
+  it('blocks activation when manifest governance drifts from the native runtime policy', () => {
+    const tempRoot = fs.mkdtempSync(path.join(os.tmpdir(), 'zavorth-native-intelligence-'));
+    const nativeRoot = path.join(tempRoot, 'skill-library', 'native');
+    try {
+      fs.cpSync(path.join(projectRoot, 'skill-library', 'native'), nativeRoot, { recursive: true });
+      const manifestPath = path.join(nativeRoot, 'task-planning', 'ZAVORTH_NATIVE_SKILL.json');
+      const manifest = JSON.parse(fs.readFileSync(manifestPath, 'utf8')) as Record<string, unknown>;
+      manifest.requiresPolicyBroker = false;
+      fs.writeFileSync(manifestPath, JSON.stringify(manifest, null, 2), 'utf8');
+
+      const snapshot = new ZavorthNativeIntelligencePackService({
+        projectRoot,
+        nativeRootPath: nativeRoot,
+      }).buildSnapshot({ projectRoot, nativeRootPath: nativeRoot });
+      const taskPlanning = snapshot.skills.find((entry) => entry.id === 'task-planning');
+
+      expect(snapshot.status).toBe('blocked');
+      expect(taskPlanning?.fileStatus.manifestMatchesDefinition).toBe(false);
+      expect(taskPlanning?.fileStatus.issues).toContain('manifest does not match native definition');
+    } finally {
+      fs.rmSync(tempRoot, { recursive: true, force: true });
+    }
   });
 });

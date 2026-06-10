@@ -228,6 +228,8 @@ function buildEntries(input: {
       passed: input.smokeProof.policy.noProviderNetworkCalls === true
         && input.smokeProof.policy.noLiveChannelSends === true
         && input.smokeProof.policy.noSecretsSerialized === true
+        && input.smokeProof.summary.providerBlocked === 0
+        && input.smokeProof.summary.channelBlocked === 0
         && input.smokeProof.summary.liveExternalCallRequired === false
         && input.smokeProof.summary.liveChannelSendRequired === false
         && input.smokeProof.summary.secretValuesSerialized === false,
@@ -327,15 +329,18 @@ function buildOperationalClosure(input: {
   const blocked = requirements.some((requirement) => requirement.status === 'blocked');
   const liveProofSatisfied = requirements.every((requirement) => requirement.status === 'passed');
   const status = blocked ? 'blocked' : liveProofSatisfied ? 'live-proved' : 'live-proof-required';
+  const codeReady = blocked === false;
   const nextCommands = requirements
     .filter((requirement) => requirement.status !== 'passed')
     .map((requirement) => requirement.command);
   return {
     status,
-    codeReady: blocked === false,
+    codeReady,
     liveProofSatisfied,
     canClaimOperationalClosure: liveProofSatisfied,
-    verdict: liveProofSatisfied
+    verdict: blocked
+      ? 'Zavorth has blocked readiness evidence and cannot claim code readiness or operational closure until the blocked proof pack items are fixed.'
+      : liveProofSatisfied
       ? 'Zavorth has enough live proof to claim operational closure for providers, channels and execution backends.'
       : 'Zavorth is code-ready and safe, but cannot honestly claim full operational readiness until the listed live proofs pass on this machine.',
     requirements: requirements.map((requirement) => ({ ...requirement })),

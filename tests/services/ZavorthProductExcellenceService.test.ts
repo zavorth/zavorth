@@ -81,6 +81,21 @@ describe('ZavorthProductExcellenceService', () => {
     expect(report).toContain('z-canvas-live');
     expect(report).toContain('qa:zavorth-product-excellence');
   });
+
+  it('uses the current satellite pairing command in product projections', async () => {
+    const root = fs.mkdtempSync(path.join(os.tmpdir(), 'zavorth-product-excellence-commands-'));
+    try {
+      const snapshot = await new ZavorthProductExcellenceService({
+        projectRoot: root,
+        now: () => new Date('2026-06-02T12:00:00.000Z'),
+      }).buildSnapshot();
+
+      expect(snapshot.commands.satellite).toBe('zavorth satellite pairing');
+      expect(JSON.stringify(snapshot)).not.toContain('zavorth apps --action pairing.qr');
+    } finally {
+      fs.rmSync(root, { recursive: true, force: true });
+    }
+  });
 });
 
 function seedEvidenceFixture(root: string): void {

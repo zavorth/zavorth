@@ -115,6 +115,7 @@ export async function runZavorthLiveNamespaceCommand(input: {
 
 async function runCertify(root: string, args: string[]) {
   const target = firstArg(args, 'operational');
+  const operationalTargets = new Set(['operational', 'readiness', 'ops']);
   if (['product-excellence', 'product', 'excellence'].includes(target)) {
     const service = new ZavorthProductExcellenceService({
       projectRoot: root,
@@ -143,6 +144,26 @@ async function runCertify(root: string, args: string[]) {
     return {
       exitCode: args.includes('--strict') && snapshot.status !== 'ready' ? 1 : 0,
       output,
+    };
+  }
+  if (!operationalTargets.has(target)) {
+    const payload = {
+      ok: false,
+      error: `Unknown certify target: ${target}`,
+      allowedTargets: ['operational', 'product-excellence', 'native-capability'],
+    };
+    if (args.includes('--json')) {
+      return {
+        exitCode: 1,
+        output: `${JSON.stringify(payload, null, 2)}\n`,
+      };
+    }
+    return {
+      exitCode: 1,
+      output: [
+        `Unknown certify target: ${target}`,
+        'Allowed targets: operational, product-excellence, native-capability',
+      ].join('\n') + '\n',
     };
   }
   const service = new ZavorthOperationalReadinessService();

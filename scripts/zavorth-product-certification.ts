@@ -38,7 +38,7 @@ async function main(): Promise<void> {
 
 function liveRequiredGatesReady(snapshot: Awaited<ReturnType<ZavorthProductCertificationService['buildSnapshot']>>): boolean {
   const liveGateIds = new Set(['provider-mesh', 'channel-mesh', 'channel-live-canary']);
-  return snapshot.gates
-    .filter((gate) => liveGateIds.has(gate.id))
-    .every((gate) => gate.status === 'ready');
+  const gatesById = new Map(snapshot.gates.map((gate) => [gate.id, gate]));
+  return Array.from(liveGateIds)
+    .every((gateId) => gatesById.get(gateId)?.status === 'ready');
 }

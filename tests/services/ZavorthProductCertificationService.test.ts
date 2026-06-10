@@ -144,6 +144,75 @@ describe('ZavorthProductCertificationService', () => {
     });
     expect(gate?.summary).toContain('4 live-proved');
   });
+
+  it('keeps provider mesh in attention when routes still need live proof', async () => {
+    const service = new ZavorthProductCertificationService({
+      projectRoot: root,
+      env: { ZAVORTH_HOME: path.join(root, 'home') },
+      now: () => new Date('2026-06-02T12:00:00.000Z'),
+      providerActivation: {
+        buildSnapshot: async () => ({
+          contractVersion: '2026-05-17.provider-activation.v1',
+          schemaVersion: 1,
+          surface: 'provider-activation',
+          generatedAt: '2026-06-02T12:00:00.000Z',
+          status: 'attention',
+          summary: {
+            routes: 3,
+            liveReady: 0,
+            executionReady: 3,
+            needsCredentials: 0,
+            needsBaseUrl: 0,
+            needsLiveProof: 3,
+            needsConnector: 0,
+            nativeAdapters: 1,
+            openAiCompatibleAdapters: 2,
+            mediaSpecificAdapters: 0,
+            localRuntimeAdapters: 0,
+            liveProbeAttempted: 0,
+            liveProbePassed: 0,
+            liveProbeFailed: 0,
+            liveProbeBlocked: 0,
+          },
+          routes: [],
+          adapterMatrix: {
+            native: [],
+            openai_compatible: [],
+            aggregator: [],
+            local_runtime: [],
+            media_specific: [],
+            configuration_only: [],
+          },
+          liveProofPlan: [],
+          connectorBacklog: [],
+          dashboardProjection: {
+            route: '/dashboard',
+            endpoint: '/api/providers/activation',
+            executionAuthority: false,
+            normalRenderMakesNoNetworkCalls: true,
+          },
+          safety: {
+            noRawProviderSecrets: true,
+            noHiddenLiveNetworkCalls: true,
+            liveProofRequiresExplicitOperatorAction: true,
+            nonCompatibleProvidersNeedTypedConnector: true,
+            dashboardCannotExecuteProviderCalls: true,
+          },
+          commands: [],
+          nextAction: 'Run live proof.',
+        }),
+      },
+    });
+
+    const gate = (await service.buildSnapshot()).gates.find((entry) => entry.id === 'provider-mesh');
+
+    expect(gate).toMatchObject({
+      status: 'attention',
+      nextAction: 'Run provider live canaries/proofs before claiming provider mesh routes as usable.',
+    });
+    expect(gate?.summary).toContain('3 route(s) still need explicit live proof');
+    expect(gate?.evidence).toContain('needsLiveProof=3');
+  });
 });
 
 function seedDocs(root: string): void {

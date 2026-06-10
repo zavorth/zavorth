@@ -84,6 +84,7 @@ export class ZavorthProductCertificationService {
         providerMeshSummary(providers.summary),
         [
           `liveReady=${providers.summary.liveReady}`,
+          `needsLiveProof=${providers.summary.needsLiveProof}`,
           `needsCredentials=${providers.summary.needsCredentials}`,
           `needsBaseUrl=${providers.summary.needsBaseUrl}`,
           `needsConnector=${providers.summary.needsConnector}`,
@@ -394,6 +395,7 @@ type ProviderMeshSummary = {
   routes: number;
   liveReady: number;
   executionReady: number;
+  needsLiveProof?: number;
   needsCredentials: number;
   needsBaseUrl: number;
   needsConnector: number;
@@ -402,16 +404,16 @@ type ProviderMeshSummary = {
 function providerMeshStatus(summary: ProviderMeshSummary): ZavorthProductCertificationStatus {
   if (summary.needsConnector > 0 && summary.executionReady === 0) return 'blocked';
   if (summary.liveReady > 0 && summary.executionReady > 0) return 'ready';
-  if (summary.needsConnector > 0 || summary.needsCredentials > 0 || summary.needsBaseUrl > 0) return 'attention';
+  if ((summary.needsLiveProof || 0) > 0 || summary.needsConnector > 0 || summary.needsCredentials > 0 || summary.needsBaseUrl > 0) return 'attention';
   return 'ready';
 }
 
 function providerMeshSummary(summary: ProviderMeshSummary): string {
   const base = `${summary.executionReady}/${summary.routes} provider route(s) have an execution path`;
   if (summary.liveReady > 0) {
-    return `${base}; ${summary.liveReady} live-proved route(s) are usable now. Missing credentials/base URLs expand optional coverage.`;
+    return `${base}; ${summary.liveReady} live-proved route(s) are usable now; ${summary.needsLiveProof || 0} still need live proof before becoming default routes. Missing credentials/base URLs expand optional coverage.`;
   }
-  return `${base}; live proof depends on configured credentials.`;
+  return `${base}; ${summary.needsLiveProof || 0} route(s) still need explicit live proof before provider mesh can be called usable.`;
 }
 
 function providerMeshNextAction(summary: ProviderMeshSummary): string | null {
@@ -419,6 +421,9 @@ function providerMeshNextAction(summary: ProviderMeshSummary): string | null {
     return 'Add missing execution connectors before claiming those providers as usable.';
   }
   if (summary.liveReady > 0 && summary.executionReady > 0) return null;
+  if ((summary.needsLiveProof || 0) > 0) {
+    return 'Run provider live canaries/proofs before claiming provider mesh routes as usable.';
+  }
   if (summary.needsCredentials > 0 || summary.needsBaseUrl > 0) {
     return 'Configure provider credentials, then run provider live canaries.';
   }

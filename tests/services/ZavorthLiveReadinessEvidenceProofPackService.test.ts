@@ -214,4 +214,36 @@ describe('ZavorthLiveReadinessEvidenceProofPackService Certification matrix', ()
     }));
     expect(snapshot.operationalClosure.nextCommands).toContain('zavorth providers live --provider <provider>');
   });
+
+  it('does not claim code readiness when proof-pack evidence is blocked', async () => {
+    const blockedSmokeProof = {
+      ...smokeProof,
+      summary: {
+        ...smokeProof.summary,
+        providerBlocked: 1,
+      },
+    };
+
+    const snapshot = await new ZavorthLiveReadinessEvidenceProofPackService({
+      now: () => new Date('2026-05-14T15:00:00.000Z'),
+      providerMatrix: {
+        buildLiveSnapshot: async () => providerMatrix as any,
+      },
+      channelMesh: {
+        readChannels: () => channelMesh as any,
+      },
+      smokeProof: {
+        buildSnapshot: () => blockedSmokeProof as any,
+      },
+      terminalBackends: {
+        execute: () => terminalBackends as any,
+      },
+    }).buildSnapshot();
+
+    expect(snapshot.status).toBe('blocked');
+    expect(snapshot.operationalClosure.status).toBe('blocked');
+    expect(snapshot.operationalClosure.codeReady).toBe(false);
+    expect(snapshot.operationalClosure.canClaimOperationalClosure).toBe(false);
+    expect(snapshot.operationalClosure.verdict).toContain('cannot claim code readiness');
+  });
 });
