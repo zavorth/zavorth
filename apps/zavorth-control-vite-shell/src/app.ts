@@ -3985,7 +3985,7 @@ ${current}` : skillPrompt;
     neuralFeed.appendChild(divider);
 
     setTimeout(() => {
-      const liveSnapshot = getLiveRuntimeSnapshot();
+      const liveSnapshot = dashboardLiveView?.getLiveRuntimeSnapshot?.() || {};
       const liveUnlocked = liveSnapshot.live && !liveSnapshot.authRequired;
       const cells = buildLogicCell(
         'local_access_check',
