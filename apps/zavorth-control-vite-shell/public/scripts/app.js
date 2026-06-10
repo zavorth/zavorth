@@ -3800,6 +3800,8 @@ ${current}` : skillPrompt;
     neuralFeed.appendChild(divider);
 
     setTimeout(() => {
+      const liveSnapshot = getLiveRuntimeSnapshot();
+      const liveUnlocked = liveSnapshot.live && !liveSnapshot.authRequired;
       const cells = buildLogicCell(
         'local_access_check',
         'M22 12h-4l-3 9L9 3l-3 9H2',
@@ -3807,7 +3809,7 @@ ${current}` : skillPrompt;
         `Protocol: WebSocket/SSE\nEndpoint: ${location.origin}/api\nModel:    ${getCurrentModelLabel()}\nRoute:    ${getCurrentModelRouteLabel()}`
       );
       appendEcho('core',
-        'Dashboard is ready.\n\nIf this browser needs access, paste the local token. I will mark the runtime connected only after the local bridge confirms it.',
+        `${liveUnlocked ? 'Dashboard is ready.' : 'Checking local runtime access'}\n\nIf this browser needs access, paste the local token. I will mark the runtime connected only after the local bridge confirms it.`,
         cells
       );
     }, 400);
