@@ -1,0 +1,64 @@
+{
+  "name": "@zavorth/desktop",
+  "version": "0.1.0",
+  "private": true,
+  "main": "electron/main.cjs",
+  "description": "Zavorth Desktop native shell for the local runtime.",
+  "scripts": {
+    "dev": "npm run build --silent && npx --yes --package electron electron electron/main.cjs",
+    "build": "vite build",
+    "check": "vite build --mode production",
+    "check:shell": "node scripts/desktop-shell-check.mjs",
+    "check:electron": "node scripts/desktop-electron-smoke.mjs",
+    "package:dir": "npm run build --silent && npx --yes --package electron-builder electron-builder --dir"
+  },
+  "dependencies": {
+    "@tabler/icons-react": "^3.44.0",
+    "@vitejs/plugin-react": "^6.0.2",
+    "vite": "^8.0.14",
+    "typescript": "^5.7.0",
+    "react": "19.2.6",
+    "react-dom": "19.2.6"
+  },
+  "devDependencies": {
+    "electron": "^39.2.7",
+    "electron-builder": "^26.0.12"
+  },
+  "build": {
+    "appId": "app.zavorth.desktop",
+    "productName": "Zavorth",
+    "artifactName": "Zavorth-${version}-${os}-${arch}.${ext}",
+    "asar": true,
+    "files": [
+      "dist/**",
+      "electron/**",
+      "package.json"
+    ],
+    "extraMetadata": {
+      "main": "electron/main.cjs"
+    },
+    "directories": {
+      "output": "release"
+    },
+    "win": {
+      "target": [
+        "nsis",
+        "msi"
+      ]
+    },
+    "mac": {
+      "target": [
+        "dmg",
+        "zip"
+      ],
+      "hardenedRuntime": true
+    },
+    "linux": {
+      "target": [
+        "AppImage",
+        "deb"
+      ],
+      "category": "Utility"
+    }
+  }
+}

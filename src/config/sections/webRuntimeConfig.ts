@@ -10,6 +10,9 @@ export function buildWebRuntimeConfig(projectRoot: string) {
     zavorthWebAuthTokenFile:
       process.env.ZAVORTH_WEB_AUTH_TOKEN_FILE ||
       path.resolve(projectRoot, 'data', 'runtime', 'web-api-token.txt'),
+    trustedDeviceAccessStateFile:
+      process.env.ZAVORTH_TRUSTED_DEVICE_ACCESS_STATE_FILE ||
+      path.resolve(projectRoot, 'data', 'runtime', 'trusted-device-access.json'),
     zavorthEchoEdgeAuthToken: process.env.ZAVORTH_ECHO_EDGE_AUTH_TOKEN || '',
     zavorthEchoEdgeAuthTokenFile:
       process.env.ZAVORTH_ECHO_EDGE_AUTH_TOKEN_FILE ||

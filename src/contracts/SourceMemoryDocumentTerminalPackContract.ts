@@ -43,6 +43,15 @@ export type MemoryKnowledgeRecord = {
   createdAt: string;
 };
 
+export type MemoryAtRestEncryptionMode = 'field' | 'field+file' | 'json-field';
+
+export type MemoryFullFileEncryptionStatus =
+  | 'off'
+  | 'active'
+  | 'unavailable'
+  | 'required-unavailable'
+  | 'unverified';
+
 export type MemoryKnowledgeWriteReceipt = {
   id: string;
   status: 'applied' | 'blocked';
@@ -51,6 +60,10 @@ export type MemoryKnowledgeWriteReceipt = {
   namespace: string;
   vectorDimensions: number;
   sqliteVecExtensionLoaded: boolean;
+  atRestEncrypted: true;
+  atRestEncryptionMode: MemoryAtRestEncryptionMode;
+  fullFileEncrypted: boolean;
+  fullFileEncryptionStatus: MemoryFullFileEncryptionStatus;
   artifactFirst: true;
   replayable: true;
   liveIoPerformed: false;
@@ -76,6 +89,10 @@ export type MemoryKnowledgeQueryReceipt = {
   query: string;
   resultRecordIds: string[];
   topScore: number;
+  atRestEncrypted: true;
+  atRestEncryptionMode: MemoryAtRestEncryptionMode;
+  fullFileEncrypted: boolean;
+  fullFileEncryptionStatus: MemoryFullFileEncryptionStatus;
   artifactFirst: true;
   replayable: true;
   liveIoPerformed: false;

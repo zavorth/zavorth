@@ -91,6 +91,7 @@ export type ZavorthNaturalInvocationPlan = {
     summary: string;
     nextAction: string;
   };
+  availableCapabilitiesCatalogue?: string | null;
   commands: {
     invoke: 'npm run zavorth:natural-invocation -- --text "<request>"';
     invokeJson: 'npm run zavorth:natural-invocation:json -- --text "<request>"';
