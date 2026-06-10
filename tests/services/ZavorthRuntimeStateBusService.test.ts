@@ -215,6 +215,7 @@ describe('ZavorthRuntimeStateBusService', () => {
       text: 'use the big route',
       metadata: {
         client: 'zavorth-desktop',
+        trustedDesktopBridge: true,
         effort: 'ultra',
         workspace: {
           id: 'folder:test',

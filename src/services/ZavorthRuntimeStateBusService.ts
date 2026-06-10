@@ -184,7 +184,9 @@ export class ZavorthRuntimeStateBusService {
     });
     store.receipts = [receipt, ...store.receipts].slice(0, 100);
     store.updatedAt = receipt.createdAt;
-    store.lastReplayAt = store.lastReplayAt || receipt.createdAt;
+    if (!store.lastReplayAt || receipt.createdAt > store.lastReplayAt) {
+      store.lastReplayAt = receipt.createdAt;
+    }
     this.writeStore(store);
     return {
       ok: status !== 'blocked',
@@ -205,10 +207,8 @@ export class ZavorthRuntimeStateBusService {
     metadata?: RuntimeRecord | null;
   }): ZavorthRuntimeStateBusSnapshot {
     const metadata = record(input.metadata) || {};
-    const trustedDesktopBridge = metadata.trustedDesktopBridge === true;
-    const commandSource = trustedDesktopBridge
-      ? 'zavorth-desktop-bridge'
-      : clean(metadata.client) || clean(metadata.source) || input.surface || 'experience-core';
+    const trustedDesktopBridge = false;
+    const commandSource = clean(metadata.client) || clean(metadata.source) || input.surface || 'experience-core';
     const connectedModelIds = Array.isArray(metadata.connectedModelIds)
       ? metadata.connectedModelIds.map((value) => clean(value)).filter((value): value is string => Boolean(value))
       : null;
@@ -1194,9 +1194,7 @@ export class ZavorthRuntimeStateBusService {
   }
 
   private isOperatorDesktopSelection(input: ZavorthRuntimeStateBusActionInput): boolean {
-    const payloadMetadata = record(input.payload?.metadata) || {};
-    return clean(input.source) === 'zavorth-desktop-bridge'
-      || payloadMetadata.trustedDesktopBridge === true;
+    return clean(input.source) === 'zavorth-desktop-bridge';
   }
 
   private readDynamicRoute(

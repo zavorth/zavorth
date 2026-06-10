@@ -174,6 +174,71 @@ describe('Dashboard local access routes', () => {
     ]);
   });
 
+  it('gates runtime state actions and ignores client-supplied approval impersonation', async () => {
+    const localAccess = createTrustedDeviceService();
+    const { route, deps, calls } = createRoute(localAccess, {
+      authenticated: true,
+      source: 'dashboard-token',
+      userId: 'server-user',
+      profileId: 'default',
+    });
+    const dispatchRuntimeStateAction = jest.fn(() => ({
+      ok: true,
+      receipt: { status: 'pending-approval' },
+    }));
+
+    await route.handleRequest(
+      { method: 'POST', headers: {} } as http.IncomingMessage,
+      {} as http.ServerResponse,
+      new URL('http://localhost/api/experience/runtime-state/action'),
+      '/api/experience/runtime-state/action',
+      {
+        ...deps,
+        authService: {
+          validate: jest.fn(() => false),
+          resolveAuthenticatedIdentity: jest.fn(() => null),
+        },
+        experienceCore: { dispatchRuntimeStateAction },
+        readJsonBody: jest.fn(async () => ({
+          type: 'set-workspace',
+          approved: true,
+          userId: 'attacker',
+          payload: { workspace: { kind: 'folder', path: 'C:\\sensitive' } },
+        })),
+      },
+    );
+
+    await route.handleRequest(
+      { method: 'POST', headers: {} } as http.IncomingMessage,
+      {} as http.ServerResponse,
+      new URL('http://localhost/api/experience/runtime-state/action'),
+      '/api/experience/runtime-state/action',
+      {
+        ...deps,
+        experienceCore: { dispatchRuntimeStateAction },
+        readJsonBody: jest.fn(async () => ({
+          type: 'set-workspace',
+          approved: true,
+          userId: 'attacker',
+          source: 'zavorth-desktop-bridge',
+          payload: { workspace: { kind: 'chat', path: null } },
+        })),
+      },
+    );
+
+    expect(calls[0]).toMatchObject({
+      statusCode: 401,
+      body: { ok: false },
+    });
+    expect(dispatchRuntimeStateAction).toHaveBeenCalledTimes(1);
+    expect(dispatchRuntimeStateAction).toHaveBeenCalledWith(expect.objectContaining({
+      type: 'set-workspace',
+      userId: 'server-user',
+      source: 'runtime-api',
+      approved: false,
+    }));
+  });
+
   function createTrustedDeviceService(): TrustedDeviceAccessService {
     const root = fs.mkdtempSync(path.join(os.tmpdir(), 'zavorth-local-access-routes-'));
     tempDirs.push(root);

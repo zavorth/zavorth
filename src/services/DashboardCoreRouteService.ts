@@ -16,6 +16,7 @@ import type {
 import type { SalesPackChannelIoEnvelope } from '../contracts/SalesPackChannelIoContract.js';
 import type { ExperienceCommand, ExperienceSurface } from './experience/ExperienceContracts.js';
 import { ExperienceCoreService } from './experience/ExperienceCoreService.js';
+import type { ZavorthRuntimeStateActionType } from '../contracts/ZavorthRuntimeStateBusContract.js';
 import { globalLiveNodeRegistry } from './LiveNodeRegistryService.js';
 import { ZavorthMemoryEncryptionStatusService, type ZavorthMemoryEncryptionMode } from './ZavorthMemoryEncryptionStatusService.js';
 import { TrustedDeviceAccessService } from './TrustedDeviceAccessService.js';
@@ -26,6 +27,26 @@ type WriteText = (res: http.ServerResponse, body: string, statusCode?: number) =
 type WriteRedirect = (res: http.ServerResponse, location: string, statusCode?: number) => void;
 type ReadJsonBody = (req: http.IncomingMessage) => Promise<Record<string, any>>;
 type ReadRawBody = (req: http.IncomingMessage) => Promise<string>;
+
+const RUNTIME_STATE_ACTION_TYPES = new Set<ZavorthRuntimeStateActionType>([
+  'sync-command',
+  'set-effort',
+  'set-model',
+  'set-workspace',
+  'surface-event',
+  'skill-lifecycle',
+  'domain-state',
+  'operate-domain',
+  'set-permission',
+  'select-model-spec',
+  'route-model',
+  'set-provider-connection',
+  'set-workspace-knowledge',
+  'register-personal-connector',
+  'set-mcp-trust',
+  'recover-scheduled-jobs',
+  'resume-stream',
+]);
 
 type NodeMeshLike = {
   buildSnapshot: (input?: any) => any;
@@ -700,13 +721,23 @@ export class DashboardCoreRouteService {
       const body = await deps.readJsonBody(req);
       const desktopBridgeUserId = this.getVerifiedDesktopBridgeUserId(req, deps);
       const trustedDesktopBridge = desktopBridgeUserId !== null;
+      const authenticatedIdentity = deps.authService?.resolveAuthenticatedIdentity(req) || null;
+      if (!trustedDesktopBridge && !authenticatedIdentity) {
+        deps.writeJson(res, { ok: false, error: 'Authentication required for runtime state actions.' }, 401);
+        return true;
+      }
+      const actionType = this.readRuntimeStateActionType(body.type);
+      if (!actionType) {
+        deps.writeJson(res, { ok: false, error: 'Unsupported runtime state action type.' }, 400);
+        return true;
+      }
       const result = service.dispatchRuntimeStateAction({
-        type: this.readOptionalString(body.type) as any,
+        type: actionType,
         surface: this.readOptionalString(body.surface) || homeInput.surface,
-        userId: desktopBridgeUserId || this.readOptionalString(body.userId) || 'web-user',
+        userId: desktopBridgeUserId || this.readIdentityUserId(authenticatedIdentity) || 'authenticated-user',
         sessionId: this.readOptionalString(body.sessionId) || homeInput.sessionId,
-        source: trustedDesktopBridge ? 'zavorth-desktop-bridge' : this.readOptionalString(body.source) || 'runtime-api',
-        approved: trustedDesktopBridge || this.parseBoolean(body.approved) === true,
+        source: trustedDesktopBridge ? 'zavorth-desktop-bridge' : 'runtime-api',
+        approved: trustedDesktopBridge,
         previewOnly: this.parseBoolean(body.previewOnly) === true,
         connectedModelIds: this.readStringArray(body.connectedModelIds),
         payload: this.readRecord(body.payload) || {},
@@ -1078,5 +1109,15 @@ export class DashboardCoreRouteService {
       return null;
     }
     return identity.userId;
+  }
+
+  private readRuntimeStateActionType(value: unknown): ZavorthRuntimeStateActionType | null {
+    const actionType = this.readOptionalString(value) as ZavorthRuntimeStateActionType | null;
+    return actionType && RUNTIME_STATE_ACTION_TYPES.has(actionType) ? actionType : null;
+  }
+
+  private readIdentityUserId(identity: DashboardAuthenticatedIdentity | null): string | null {
+    const userId = this.readOptionalString(identity && 'userId' in identity ? identity.userId : null);
+    return userId || null;
   }
 }
