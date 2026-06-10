@@ -1,0 +1,20 @@
+{
+  "id": "zavorth-taskflow",
+  "name": "Zavorth TaskFlow",
+  "native": true,
+  "description": "Coordinate durable multi-step jobs with owner context, persisted state, waits, child tasks, and resumable receipts.",
+  "category": "orchestration",
+  "permissionProfileId": "owner-approved",
+  "riskLevel": "medium",
+  "capabilityTags": ["taskflow", "durable", "resume", "state", "waits"],
+  "presets": ["developer", "ops", "power-user"],
+  "inputContract": ["owner", "goal", "current state", "waits", "child tasks"],
+  "outputContract": ["flow status", "next action", "receipts", "blocked reason"],
+  "inspiredBy": [
+    "OpenClaw/taskflow",
+    "OpenClaw/taskflow-inbox-triage"
+  ],
+  "noExecutionByDefault": true,
+  "requiresPolicyBroker": true,
+  "receiptsRequired": true
+}

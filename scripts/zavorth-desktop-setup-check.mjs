@@ -52,7 +52,7 @@ if (failures.length === 0) {
   }
 
   const desktopPkg = readJson('apps/zavorth-desktop/package.json');
-  for (const scriptName of ['dev', 'build', 'check', 'package:dir']) {
+  for (const scriptName of ['dev', 'build', 'check', 'check:electron', 'package:dir']) {
     if (!desktopPkg.scripts?.[scriptName]) {
       failures.push(`missing desktop package script: ${scriptName}`);
     }
@@ -72,6 +72,7 @@ if (failures.length === 0) {
     'buildRuntimeBaseUrl',
     'zavorth:api:request',
     '/api/experience/home',
+    'X-Zavorth-Desktop-Bridge',
   ]) {
     if (!main.includes(needle)) {
       failures.push(`desktop main missing contract: ${needle}`);
@@ -99,19 +100,25 @@ if (failures.length === 0) {
     }
   }
 
-  const app = read('apps/zavorth-desktop/src/App.tsx');
+  const app = [
+    read('apps/zavorth-desktop/src/App.tsx'),
+    read('apps/zavorth-desktop/src/shell/DesktopShell.tsx'),
+    read('apps/zavorth-desktop/src/composer/DesktopCommandBar.tsx'),
+    read('apps/zavorth-desktop/src/views/DesktopWorkspaceView.tsx'),
+    read('apps/zavorth-desktop/src/thread/ThreadView.tsx'),
+  ].join('\n');
   for (const needle of [
     'sendMessage',
     'resolveApproval',
     'resolveLearning',
     'DesktopCommandBar',
-    'MemoryPanel',
+    'MemoryView',
     'Memory protection',
-    'Advanced memory protection',
+    'Advanced protection active',
     'runMemoryEncryptionMigration',
-    'SkillsPanel',
-    'ChannelsPanel',
-    'SettingsPanel',
+    'SkillsView',
+    'ChannelsView',
+    'SettingsView',
   ]) {
     if (!app.includes(needle)) {
       failures.push(`desktop app missing native surface: ${needle}`);
@@ -128,6 +135,8 @@ if (failures.length === 0) {
     '/api/v2/echo/tools',
     '/api/v2/nexus/status',
     'loadMemoryEncryptionStatus',
+    'dispatchRuntimeStateAction',
+    '/api/experience/runtime-state/action',
     'apiRequest',
   ]) {
     if (!apiClient.includes(needle)) {

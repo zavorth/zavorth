@@ -1,10 +1,9 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import type { FormEvent, ReactNode } from 'react';
 import {
-  loadApprovals,
   loadDesktopPanelsData,
   loadHome,
   loadRuntimeStatus,
+  dispatchRuntimeStateAction,
   repairAccess,
   resolveApproval as resolveApprovalRequest,
   resolveLearning as resolveLearningRequest,
@@ -22,7 +21,10 @@ import {
   type ToolItem,
 } from './apiClient';
 import type { BootEvent, RuntimeStatus } from './global';
+import { modelOptions } from './modelCatalog';
+import { DesktopShell } from './shell/DesktopShell';
 import { parseSlashCommand, slashCommands, type DesktopPanel } from './slashCommands';
+import { defaultWorkspaceScopes, workspaceScopeForMetadata, type DesktopWorkspaceScope } from './workspaceScopes';
 
 const fallbackStatus: RuntimeStatus = {
   ok: false,
@@ -33,9 +35,6 @@ const fallbackStatus: RuntimeStatus = {
   runtimePid: null,
   message: 'Desktop bridge unavailable.',
 };
-
-const profileLabels = ['personal', 'creator', 'developer', 'business', 'power'] as const;
-const effortLabels = ['low', 'medium', 'high', 'ultra'] as const;
 
 const responseProfileByExperience: Record<string, string> = {
   personal: 'short',
@@ -88,6 +87,26 @@ function appendLocalMessage(setMessages: (updater: (current: ChatMessage[]) => C
   ]);
 }
 
+function desktopEffortFromRuntime(value: unknown): string {
+  const normalized = String(value || '').trim().toLowerCase();
+  if (normalized === 'standard') {
+    return 'medium';
+  }
+  if (normalized === 'ultra-code') {
+    return 'ultra';
+  }
+  return ['low', 'medium', 'high', 'ultra'].includes(normalized) ? normalized : 'medium';
+}
+
+function runtimeStateFromSnapshot(snapshot: ExperienceSnapshot | null): Record<string, unknown> {
+  const raw = asRecord(snapshot?.raw);
+  return asRecord(raw.runtimeState);
+}
+
+function runtimeStateState(snapshot: ExperienceSnapshot | null): Record<string, unknown> {
+  return asRecord(runtimeStateFromSnapshot(snapshot).state);
+}
+
 export function App() {
   const [status, setStatus] = useState<RuntimeStatus>(fallbackStatus);
   const [snapshot, setSnapshot] = useState<ExperienceSnapshot | null>(null);
@@ -100,15 +119,51 @@ export function App() {
   const [memoryEncryptionReceipt, setMemoryEncryptionReceipt] = useState<MemoryEncryptionMigrationReceipt | null>(null);
   const [events, setEvents] = useState<BootEvent[]>([]);
   const [activePanel, setActivePanel] = useState<DesktopPanel>('chat');
+  const [commandPaletteOpen, setCommandPaletteOpen] = useState(false);
   const [experienceProfile, setExperienceProfile] = useState('personal');
   const [effort, setEffort] = useState('medium');
+  const [inspectorOpen] = useState(false);
   const [input, setInput] = useState('');
   const [busy, setBusy] = useState(false);
   const [notice, setNotice] = useState('');
+  const [selectedModel, setSelectedModel] = useState('zavorth:core');
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+  const [theme, setTheme] = useState<'light' | 'dark' | 'system'>('system');
+  const [accent, setAccent] = useState<'orange' | 'purple' | 'navy'>('orange');
+  const [workspaceScopes, setWorkspaceScopes] = useState<DesktopWorkspaceScope[]>(defaultWorkspaceScopes);
+  const [workspaceScopeId, setWorkspaceScopeId] = useState('local');
 
   const bridgeReady = Boolean(window.zavorthDesktop);
   const sessionId = snapshot?.sessionId || 'desktop-main';
   const responseProfile = responseProfileByExperience[experienceProfile] || 'short';
+  const connectedModelOptions = useMemo(() => modelOptions.filter(model => model.connected !== false), []);
+  const activeWorkspaceScope = workspaceScopes.find(scope => scope.id === workspaceScopeId) || workspaceScopes[0];
+
+  const applyRuntimeStateProjection = useCallback((home: ExperienceSnapshot | null) => {
+    const state = runtimeStateState(home);
+    const model = asRecord(state.model);
+    const effortState = asRecord(state.effort);
+    const workspace = asRecord(state.workspace);
+    const runtimeModelId = String(model.id || '').trim();
+    if (runtimeModelId && connectedModelOptions.some(option => option.id === runtimeModelId)) {
+      setSelectedModel(runtimeModelId);
+    }
+    if (effortState.level) {
+      setEffort(desktopEffortFromRuntime(effortState.level));
+    }
+    const workspaceId = String(workspace.id || '').trim();
+    if (workspaceId) {
+      const nextScope: DesktopWorkspaceScope = {
+        id: workspaceId,
+        label: String(workspace.label || workspaceId),
+        shortLabel: String(workspace.label || workspaceId),
+        kind: String(workspace.kind || '').toLowerCase() === 'chat' ? 'chat' : 'folder',
+        path: workspace.path ? String(workspace.path) : null,
+      };
+      setWorkspaceScopes(current => current.some(scope => scope.id === nextScope.id) ? current : [...current, nextScope]);
+      setWorkspaceScopeId(workspaceId);
+    }
+  }, [connectedModelOptions]);
 
   const refreshRuntime = useCallback(async () => {
     if (!bridgeReady) {
@@ -140,6 +195,7 @@ export function App() {
     try {
       const home = await loadHome(sessionId, responseProfile);
       setSnapshot(home);
+      applyRuntimeStateProjection(home);
       const homeMessages = normalizeMessages(home.chat?.messages);
       setMessages(homeMessages);
       setNotice('');
@@ -148,7 +204,7 @@ export function App() {
       setNotice(error instanceof Error ? error.message : 'Could not reach the local runtime.');
       return null;
     }
-  }, [responseProfile, sessionId]);
+  }, [applyRuntimeStateProjection, responseProfile, sessionId]);
 
   useEffect(() => {
     if (!bridgeReady) {
@@ -276,9 +332,14 @@ export function App() {
           sessionId,
           responseProfile,
           effort,
+          model: selectedModel,
+          connectedModelIds: connectedModelOptions.map(model => model.id),
           profile: experienceProfile,
+          workspace: workspaceScopeForMetadata(activeWorkspaceScope),
         });
-        setSnapshot(result.snapshot || snapshot);
+        const projectedSnapshot = result.snapshot || snapshot;
+        setSnapshot(projectedSnapshot);
+        applyRuntimeStateProjection(projectedSnapshot);
         appendLocalMessage(setMessages, 'system', result.error || 'Stop request sent.');
       } finally {
         setBusy(false);
@@ -296,10 +357,14 @@ export function App() {
         sessionId,
         responseProfile,
         effort,
+        model: selectedModel,
+        connectedModelIds: connectedModelOptions.map(model => model.id),
         profile: experienceProfile,
+        workspace: workspaceScopeForMetadata(activeWorkspaceScope),
       });
       if (result.snapshot) {
         setSnapshot(result.snapshot);
+        applyRuntimeStateProjection(result.snapshot);
       }
       const nextMessages = normalizeMessages(result.snapshot?.chat?.messages);
       const replies = normalizeMessages(result.replies || result.messages);
@@ -345,326 +410,111 @@ export function App() {
     }
   }
 
-  return (
-    <main className="zvd-app">
-      <aside className="zvd-rail" aria-label="Zavorth navigation">
-        <div className="zvd-mark">Z</div>
-        <button className={activePanel === 'chat' ? 'is-active' : ''} onClick={() => setActivePanel('chat')}>Chat</button>
-        <button className={activePanel === 'approvals' ? 'is-active' : ''} onClick={() => setActivePanel('approvals')}>Review</button>
-        <button className={activePanel === 'memory' ? 'is-active' : ''} onClick={() => setActivePanel('memory')}>Memory</button>
-        <button className={activePanel === 'skills' ? 'is-active' : ''} onClick={() => setActivePanel('skills')}>Skills</button>
-        <button className={activePanel === 'channels' ? 'is-active' : ''} onClick={() => setActivePanel('channels')}>Channels</button>
-        <button className={activePanel === 'settings' ? 'is-active' : ''} onClick={() => setActivePanel('settings')}>Settings</button>
-      </aside>
-
-      <section className="zvd-shell" aria-label="Zavorth Desktop">
-        <header className="zvd-topbar">
-          <div>
-            <strong>Zavorth</strong>
-            <span>{status.running ? 'Local runtime ready' : 'Local runtime idle'}</span>
-          </div>
-          <div className="zvd-controls">
-            <select value={experienceProfile} onChange={event => setExperienceProfile(event.target.value)} aria-label="Experience profile">
-              {profileLabels.map(profile => <option key={profile} value={profile}>{profile}</option>)}
-            </select>
-            <select value={effort} onChange={event => setEffort(event.target.value)} aria-label="Effort">
-              {effortLabels.map(level => <option key={level} value={level}>{level}</option>)}
-            </select>
-            <button onClick={() => setActivePanel('settings')}>Model</button>
-            <button disabled={busy} onClick={() => void refreshHome()}>Refresh</button>
-          </div>
-        </header>
-
-        <div className="zvd-content">
-          <section className="zvd-chat" aria-label="Chat">
-            {notice && <div className="zvd-notice">{notice}</div>}
-            {!status.running && (
-              <div className="zvd-inline-setup">
-                <span>{status.message}</span>
-                <button disabled={busy} onClick={() => void requestRuntimeStart()}>Start</button>
-                <button disabled={busy} onClick={() => void requestAccessRepair()}>Repair</button>
-              </div>
-            )}
-            <div className="zvd-thread" aria-live="polite">
-              {messages.length === 0 ? (
-                <div className="zvd-empty-thread">
-                  <strong>Ready when you are.</strong>
-                  <span>Ask normally, or type /help for commands.</span>
-                </div>
-              ) : messages.map(message => (
-                <article key={message.id} className={`zvd-message zvd-message--${message.role}`}>
-                  <span>{message.role}</span>
-                  <p>{message.content}</p>
-                </article>
-              ))}
-            </div>
-            <DesktopCommandBar
-              busy={busy}
-              value={input}
-              onChange={setInput}
-              onSubmit={sendMessage}
-              onPanel={setActivePanel}
-            />
-          </section>
-
-          <aside className={`zvd-panel ${activePanel === 'chat' ? 'zvd-panel--quiet' : ''}`}>
-            {activePanel === 'approvals' && (
-              <ApprovalsPanel approvals={approvals} busy={busy} onDecision={resolveApproval} />
-            )}
-            {activePanel === 'memory' && (
-              <MemoryPanel
-                items={memoryItems}
-                learning={learning}
-                busy={busy}
-                encryptionStatus={memoryEncryptionStatus}
-                encryptionReceipt={memoryEncryptionReceipt}
-                onLearningDecision={resolveLearning}
-                onEncryptionAction={handleMemoryEncryptionAction}
-              />
-            )}
-            {activePanel === 'skills' && (
-              <SkillsPanel tools={tools} />
-            )}
-            {activePanel === 'channels' && (
-              <ChannelsPanel channels={channelItems} />
-            )}
-            {activePanel === 'settings' && (
-              <SettingsPanel
-                status={status}
-                events={events}
-                nexusStatus={nexusStatus}
-                busy={busy}
-                onStart={requestRuntimeStart}
-                onRepair={requestAccessRepair}
-              />
-            )}
-            {activePanel === 'chat' && (
-              <div className="zvd-panel-card">
-                <strong>Session</strong>
-                <span>Profile: {experienceProfile}</span>
-                <span>Effort: {effort}</span>
-                <span>Session: {sessionId}</span>
-              </div>
-            )}
-          </aside>
-        </div>
-      </section>
-    </main>
-  );
-}
-
-function DesktopCommandBar(props: {
-  busy: boolean;
-  value: string;
-  onChange(value: string): void;
-  onSubmit(value?: string): void | Promise<void>;
-  onPanel(panel: DesktopPanel): void;
-}) {
-  function submit(event: FormEvent) {
-    event.preventDefault();
-    void props.onSubmit(props.value);
-  }
+  const requestRuntimeInstrument = useCallback(async (input: {
+    domain: string;
+    operation: string;
+    metadata?: Record<string, unknown>;
+  }) => {
+    try {
+      await dispatchRuntimeStateAction({
+        type: 'operate-domain',
+        approved: true,
+        sessionId,
+        source: 'zavorth-desktop-statusbar',
+        payload: {
+          domain: {
+            domain: input.domain,
+            operation: input.operation,
+          },
+          metadata: {
+            requestedFrom: 'desktop-statusbar',
+            ...input.metadata,
+          },
+        },
+      });
+      await refreshHome();
+      await refreshPanels();
+    } catch (error) {
+      setNotice(error instanceof Error ? error.message : 'Could not update runtime control.');
+    }
+  }, [refreshHome, refreshPanels, sessionId]);
 
   return (
-    <form className="zvd-composer" onSubmit={submit}>
-      <textarea
-        value={props.value}
-        onChange={event => props.onChange(event.target.value)}
-        placeholder="Ask Zavorth"
-        rows={1}
-        onKeyDown={event => {
-          const nativeEvent = event.nativeEvent as KeyboardEvent;
-          if (event.isComposing || nativeEvent.isComposing) {
-            return;
-          }
-          if (event.key === 'Enter' && !event.shiftKey) {
-            event.preventDefault();
-            void props.onSubmit(props.value);
-          }
-        }}
-      />
-      <div className="zvd-composer-actions">
-        <button type="button" onClick={() => props.onPanel('skills')}>Tools</button>
-        <button type="button" onClick={() => props.onPanel('memory')}>Memory</button>
-        <button type="submit" disabled={props.busy || !props.value.trim()}>
-          {props.busy ? 'Working' : 'Send'}
-        </button>
-      </div>
-    </form>
+    <DesktopShell
+      activePanel={activePanel}
+      approvals={approvals}
+      busy={busy}
+      channels={channelItems}
+      commandPaletteOpen={commandPaletteOpen}
+      effort={effort}
+      accent={accent}
+      encryptionReceipt={memoryEncryptionReceipt}
+      encryptionStatus={memoryEncryptionStatus}
+      events={events}
+      input={input}
+      inspectorOpen={inspectorOpen}
+      learning={learning}
+      memoryItems={memoryItems}
+      modelOptions={connectedModelOptions}
+      messages={messages}
+      nexusStatus={nexusStatus}
+      notice={notice}
+      profile={experienceProfile}
+      runtimeMessage={status.message}
+      selectedModel={selectedModel}
+      showNotice={Boolean(notice)}
+      showRuntimeSetup={!status.running}
+      sidebarCollapsed={sidebarCollapsed}
+      status={status}
+      theme={theme}
+      tools={tools}
+      workspaceScope={activeWorkspaceScope}
+      workspaceScopes={workspaceScopes}
+      onAccessRepair={requestAccessRepair}
+      onAccent={setAccent}
+      onCommandPalette={setCommandPaletteOpen}
+      onEffort={setEffort}
+      onEncryptionAction={handleMemoryEncryptionAction}
+      onInput={setInput}
+      onLearningDecision={resolveLearning}
+      onModel={setSelectedModel}
+      onNewSession={() => {
+        setMessages([]);
+        setInput('');
+        setActivePanel('chat');
+      }}
+      onPanel={setActivePanel}
+      onProfile={setExperienceProfile}
+      onRefresh={async () => {
+        await refreshRuntime();
+        await refreshHome();
+        await refreshPanels();
+      }}
+      onReviewDecision={resolveApproval}
+      onRuntimeStart={requestRuntimeStart}
+      onRuntimeStateAction={requestRuntimeInstrument}
+      onSidebarCollapsed={setSidebarCollapsed}
+      onSubmit={sendMessage}
+      onTheme={setTheme}
+      onWorkspaceFolder={async () => {
+        const result = await window.zavorthDesktop?.selectWorkspaceFolder();
+        if (!result || result.canceled || !result.path || !result.label) {
+          return;
+        }
+        const nextScope: DesktopWorkspaceScope = {
+          id: `folder:${result.path}`,
+          label: result.label,
+          shortLabel: result.label,
+          kind: 'folder',
+          path: result.path,
+        };
+        setWorkspaceScopes(current => {
+          const exists = current.some(scope => scope.id === nextScope.id);
+          return exists ? current : [...current, nextScope];
+        });
+        setWorkspaceScopeId(nextScope.id);
+      }}
+      onWorkspaceScope={setWorkspaceScopeId}
+    />
   );
-}
-
-function ApprovalsPanel(props: {
-  approvals: ApprovalItem[];
-  busy: boolean;
-  onDecision(id: string, decision: 'approve' | 'reject'): void | Promise<void>;
-}) {
-  return (
-    <PanelScaffold title="Review" subtitle="Approvals that need an operator decision.">
-      {props.approvals.length === 0 ? <EmptyPanel text="No pending approvals." /> : props.approvals.map((approval, index) => {
-        const id = itemId(approval, `approval-${index}`);
-        return (
-          <div className="zvd-panel-card" key={id}>
-            <strong>{approval.title || approval.action || 'Pending approval'}</strong>
-            <span>{approval.summary || approval.risk || approval.status || 'Review the requested action.'}</span>
-            <div className="zvd-card-actions">
-              <button disabled={props.busy} onClick={() => void props.onDecision(id, 'approve')}>Approve</button>
-              <button disabled={props.busy} onClick={() => void props.onDecision(id, 'reject')}>Reject</button>
-            </div>
-          </div>
-        );
-      })}
-    </PanelScaffold>
-  );
-}
-
-function MemoryPanel(props: {
-  items: MemoryItem[];
-  learning: LearningItem[];
-  busy: boolean;
-  encryptionStatus: MemoryEncryptionStatus | null;
-  encryptionReceipt: MemoryEncryptionMigrationReceipt | null;
-  onLearningDecision(id: string, decision: 'approve' | 'reject' | 'forget'): void | Promise<void>;
-  onEncryptionAction(action: 'preview' | 'apply' | 'rollback'): void | Promise<void>;
-}) {
-  const protectionLabel = props.encryptionStatus?.fullFileEncrypted
-    ? 'Advanced memory protection'
-    : props.encryptionStatus?.contentEncrypted
-      ? 'Standard memory protection'
-      : 'Memory protection';
-  const protectionState = props.encryptionStatus
-    ? props.encryptionStatus.fullFileEncrypted
-      ? 'Whole memory file is sealed.'
-      : props.encryptionStatus.guidance
-    : 'Status unavailable.';
-  const canRollback = Boolean(props.encryptionReceipt?.backupPath && props.encryptionReceipt.status === 'applied');
-
-  return (
-    <PanelScaffold title="Memory" subtitle="Learned context and reversible candidates.">
-      <div className="zvd-panel-card">
-        <strong>Memory protection</strong>
-        <span>{protectionLabel}</span>
-        <span>{protectionState}</span>
-        {props.encryptionStatus?.fullFileEncryptionDriverPackage && (
-          <span>Driver: {props.encryptionStatus.fullFileEncryptionDriverPackage}</span>
-        )}
-        {props.encryptionReceipt && (
-          <span>{props.encryptionReceipt.status}: {props.encryptionReceipt.reason}</span>
-        )}
-        <div className="zvd-card-actions">
-          <button disabled={props.busy} onClick={() => void props.onEncryptionAction('preview')}>Preview</button>
-          <button disabled={props.busy || props.encryptionStatus?.fullFileEncrypted} onClick={() => void props.onEncryptionAction('apply')}>
-            Enable advanced
-          </button>
-          <button disabled={props.busy || !canRollback} onClick={() => void props.onEncryptionAction('rollback')}>Rollback</button>
-        </div>
-      </div>
-      {props.items.length === 0 && props.learning.length === 0 && <EmptyPanel text="No memory items are projected yet." />}
-      {props.learning.map((candidate, index) => {
-        const id = itemId(candidate, `learning-${index}`);
-        return (
-          <div className="zvd-panel-card" key={id}>
-            <strong>{candidate.title || candidate.kind || 'Learning candidate'}</strong>
-            <span>{candidate.summary || `${candidate.lane || 'lane'} - ${candidate.risk || 'risk unknown'}`}</span>
-            <div className="zvd-card-actions">
-              <button disabled={props.busy} onClick={() => void props.onLearningDecision(id, 'approve')}>Approve</button>
-              <button disabled={props.busy} onClick={() => void props.onLearningDecision(id, 'reject')}>Reject</button>
-              <button disabled={props.busy} onClick={() => void props.onLearningDecision(id, 'forget')}>Forget</button>
-            </div>
-          </div>
-        );
-      })}
-      {props.items.map((item, index) => (
-        <div className="zvd-panel-card" key={itemId(item, `memory-${index}`)}>
-          <strong>{item.title || item.kind || 'Memory receipt'}</strong>
-          <span>{item.summary || item.receiptId || 'Stored with provenance.'}</span>
-        </div>
-      ))}
-    </PanelScaffold>
-  );
-}
-
-function SkillsPanel(props: { tools: ToolItem[] }) {
-  return (
-    <PanelScaffold title="Skills" subtitle="Tools exposed by the local runtime.">
-      {props.tools.length === 0 ? <EmptyPanel text="No tools are projected yet." /> : props.tools.map((tool, index) => (
-        <div className="zvd-panel-card" key={itemId(tool, `tool-${index}`)}>
-          <strong>{tool.title || tool.name || tool.id || 'Tool'}</strong>
-          <span>{tool.description || tool.source || tool.status || 'Available through the runtime.'}</span>
-        </div>
-      ))}
-    </PanelScaffold>
-  );
-}
-
-function ChannelsPanel(props: { channels: any[] }) {
-  return (
-    <PanelScaffold title="Channels" subtitle="Configured routes and readiness.">
-      {props.channels.length === 0 ? <EmptyPanel text="No channel readiness is projected yet." /> : props.channels.map((channel, index) => {
-        const record = asRecord(channel);
-        return (
-          <div className="zvd-panel-card" key={String(record.id || record.channel || record.name || `channel-${index}`)}>
-            <strong>{String(record.name || record.channel || record.id || 'Channel')}</strong>
-            <span>
-              {record.liveReady ? 'Live ready' : record.outboxOnly ? 'Outbox only' : String(record.status || record.summary || 'Needs setup')}
-            </span>
-          </div>
-        );
-      })}
-    </PanelScaffold>
-  );
-}
-
-function SettingsPanel(props: {
-  status: RuntimeStatus;
-  events: BootEvent[];
-  nexusStatus: unknown;
-  busy: boolean;
-  onStart(): void | Promise<void>;
-  onRepair(): void | Promise<void>;
-}) {
-  return (
-    <PanelScaffold title="Settings" subtitle="Local runtime, provider route and desktop access.">
-      <div className="zvd-panel-card">
-        <strong>Runtime</strong>
-        <span>{props.status.running ? 'Reachable' : 'Not reachable yet'}</span>
-        <span>{props.status.baseUrl}</span>
-        <div className="zvd-card-actions">
-          <button disabled={props.busy} onClick={() => void props.onStart()}>Start</button>
-          <button disabled={props.busy} onClick={() => void props.onRepair()}>Repair access</button>
-          <button disabled={!window.zavorthDesktop} onClick={() => void window.zavorthDesktop?.openLogs()}>Logs</button>
-        </div>
-      </div>
-      <div className="zvd-panel-card">
-        <strong>Provider route</strong>
-        <span>Model control is routed through the local runtime. Use /model to keep this panel open.</span>
-      </div>
-      <div className="zvd-panel-card">
-        <strong>Nexus</strong>
-        <span>{props.nexusStatus ? JSON.stringify(props.nexusStatus).slice(0, 220) : 'Status unavailable.'}</span>
-      </div>
-      {props.events.map(event => (
-        <div className="zvd-event" key={`${event.at}-${event.message}`} data-tone={event.type}>
-          <span>{event.message}</span>
-          <time>{new Date(event.at).toLocaleTimeString()}</time>
-        </div>
-      ))}
-    </PanelScaffold>
-  );
-}
-
-function PanelScaffold(props: { title: string; subtitle: string; children: ReactNode }) {
-  return (
-    <>
-      <div className="zvd-panel-heading">
-        <h2>{props.title}</h2>
-        <p>{props.subtitle}</p>
-      </div>
-      <div className="zvd-panel-list">{props.children}</div>
-    </>
-  );
-}
-
-function EmptyPanel(props: { text: string }) {
-  return <div className="zvd-empty-panel">{props.text}</div>;
 }

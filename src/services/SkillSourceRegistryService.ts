@@ -55,19 +55,19 @@ const DEFAULT_SOURCE_REGISTRY: SkillSourceRegistryRawDocument = {
   sources: [
     {
       id: 'zavorth-native',
-      label: 'Zavorth native intelligence pack',
+      label: 'Zavorth native curated shortlist',
       kind: 'workspace',
-      trust: 'trusted',
-      enabled: true,
+      trust: 'review',
+      enabled: false,
       ingestionMode: 'local-scan',
       path: 'skill-library/native',
-      createIfMissing: true,
+      createIfMissing: false,
       ownership: 'zavorth-native',
       registrySource: 'zavorth:native-intelligence-pack',
       license: 'Zavorth-Internal',
       notes: [
-        'Official Zavorth-owned native intelligence skills shipped with the product.',
-        'Native skills are static product assets and do not execute tools by default.',
+        'Small curated Zavorth-native shortlist only; bulk third-party imports must not live here.',
+        'Disabled and review-gated by default until explicitly enabled by owner policy.',
       ],
     },
     {

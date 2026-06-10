@@ -1,6 +1,7 @@
 const {
   app,
   BrowserWindow,
+  dialog,
   ipcMain,
   shell,
 } = require('electron');
@@ -219,6 +220,7 @@ async function desktopApiRequest(input = {}) {
       headers: {
         Accept: 'application/json',
         Authorization: `Bearer ${access.token}`,
+        'X-Zavorth-Desktop-Bridge': '1',
         ...(body ? { 'Content-Type': 'application/json' } : {}),
       },
       timeoutMs: Number(input.timeoutMs || 12000),
@@ -243,12 +245,50 @@ async function probeRuntime() {
   return Boolean(result.ok);
 }
 
-function cliCommand() {
-  const { cliBin } = resolveRuntimePaths();
-  if (fs.existsSync(cliBin)) {
-    return { command: process.execPath, args: [cliBin] };
+function nodeCommand() {
+  const fromEnv = String(process.env.ZAVORTH_NODE_BINARY || process.env.npm_node_execpath || '').trim();
+  if (fromEnv) {
+    return fromEnv;
   }
-  return { command: process.platform === 'win32' ? 'zavorth.cmd' : 'zavorth', args: [] };
+  return process.platform === 'win32' ? 'node.exe' : 'node';
+}
+
+function runtimeCommand() {
+  const paths = resolveRuntimePaths();
+  const sourceHostBin = path.join(paths.repoRoot, 'src', 'host.ts');
+  const hostBin = path.join(paths.repoRoot, 'dist', 'host.js');
+  const tsxBin = path.join(paths.repoRoot, 'node_modules', 'tsx', 'dist', 'loader.mjs');
+  const node = nodeCommand();
+
+  if (fs.existsSync(sourceHostBin) && fs.existsSync(tsxBin)) {
+    return {
+      command: node,
+      args: ['--import', tsxBin, sourceHostBin],
+      label: 'src/host.ts',
+    };
+  }
+
+  if (fs.existsSync(hostBin)) {
+    return {
+      command: node,
+      args: [hostBin],
+      label: 'dist/host.js',
+    };
+  }
+
+  if (fs.existsSync(paths.cliBin)) {
+    return {
+      command: node,
+      args: [paths.cliBin, 'go'],
+      label: 'bin/zavorth.js go',
+    };
+  }
+
+  return {
+    command: process.platform === 'win32' ? 'zavorth.cmd' : 'zavorth',
+    args: ['go'],
+    label: 'zavorth go',
+  };
 }
 
 function startZavorthRuntime() {
@@ -261,7 +301,7 @@ function startZavorthRuntime() {
   fs.mkdirSync(paths.logsDir, { recursive: true });
   const out = fs.openSync(path.join(paths.logsDir, 'zavorth-desktop-runtime.out.log'), 'a');
   const err = fs.openSync(path.join(paths.logsDir, 'zavorth-desktop-runtime.err.log'), 'a');
-  const cli = cliCommand();
+  const runtime = runtimeCommand();
   const access = resolveAccessToken({ generate: true });
   let logDescriptorsClosed = false;
   const closeLogDescriptors = () => {
@@ -279,10 +319,11 @@ function startZavorthRuntime() {
   };
 
   try {
-    runtimeProcess = spawn(cli.command, [...cli.args, 'go'], {
+    runtimeProcess = spawn(runtime.command, runtime.args, {
       cwd: paths.repoRoot,
       env: {
         ...process.env,
+        ZAVORTH_NODE_BINARY: nodeCommand(),
         ZAVORTH_HOME: paths.zavorthHome,
         ZAVORTH_WEB_AUTH_TOKEN: access.token,
       },
@@ -306,7 +347,7 @@ function startZavorthRuntime() {
     runtimeProcess = null;
   });
 
-  emitBootEvent('info', 'Starting local runtime.');
+  emitBootEvent('info', `Starting local runtime via ${runtime.label}.`);
   return runtimeProcess;
 }
 
@@ -365,13 +406,33 @@ ipcMain.handle('zavorth:runtime:start', async () => {
   return runtimeStatus('Runtime launch requested.');
 });
 ipcMain.handle('zavorth:api:request', async (_event, input) => desktopApiRequest(input));
+ipcMain.handle('zavorth:workspace:select-folder', async () => {
+  if (!mainWindow || mainWindow.isDestroyed()) {
+    return { canceled: true, path: null, label: null };
+  }
+  const result = await dialog.showOpenDialog(mainWindow, {
+    title: 'Selecionar pasta de trabalho do Zavorth',
+    properties: ['openDirectory'],
+  });
+  if (result.canceled || result.filePaths.length === 0) {
+    return { canceled: true, path: null, label: null };
+  }
+  const selectedPath = path.resolve(result.filePaths[0]);
+  return {
+    canceled: false,
+    path: selectedPath,
+    label: path.basename(selectedPath) || selectedPath,
+  };
+});
 ipcMain.handle('zavorth:access:repair', async () => {
   resolveAccessToken({ generate: true });
   return runtimeStatus('Local access is ready.');
 });
 ipcMain.handle('zavorth:setup:start', async () => {
-  const cli = cliCommand();
-  const command = `${cli.command} ${[...cli.args, 'setup'].join(' ')}`.trim();
+  const paths = resolveRuntimePaths();
+  const command = fs.existsSync(paths.cliBin)
+    ? `${nodeCommand()} "${paths.cliBin}" setup`
+    : `${process.platform === 'win32' ? 'zavorth.cmd' : 'zavorth'} setup`;
   emitBootEvent('info', 'Setup can be opened from the terminal command.');
   return {
     ok: true,

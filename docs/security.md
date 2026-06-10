@@ -36,6 +36,19 @@ different scope should require a new approval.
 Secrets are represented by references and diagnostics, not raw values. The user
 should know what credential is missing without seeing the credential in chat.
 
+### Local Access And Trusted Devices
+
+The desktop runtime keeps one owner token for local control and can derive
+separate trusted-device grants for future companion, mobile or remote surfaces.
+Each device grant has its own token, explicit scopes, expiry, revocation state
+and redacted receipts. Raw device tokens and pairing codes are never persisted;
+only hashed secret material is stored locally.
+
+Owner authentication is required to create, approve, list or revoke trusted
+devices. A trusted device cannot approve another trusted device. Broad dashboard
+access requires the `runtime:control` scope; narrower grants can be checked by
+the runtime for specific tasks such as approvals or read-only chat.
+
 ### Command And Egress Guards
 
 Dangerous commands, unsafe network destinations and sensitive provider egress are
