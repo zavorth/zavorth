@@ -1,20 +1,48 @@
 {
-  "id": "zavorth-security-review",
-  "title": "Zavorth Security Review",
-  "source": "workspace-library",
-  "trust": "trusted",
-  "tags": [
-    "review",
-    "security",
-    "findings",
-    "risk",
-    "secrets",
-    "skills",
-    "abuse-case",
-    "agent"
-  ],
-  "curatedBy": "zavorth-skill-curator",
-  "contractVersion": "zavorth-skill-curator-live-loop/1",
-  "updatedAt": "2026-05-18T18:40:32.050Z",
-  "safeMetadataApply": true
+    "id":  "zavorth-security-review",
+    "title":  "Zavorth Security Review",
+    "source":  "workspace-library",
+    "trust":  "trusted",
+    "tags":  [
+                 "review",
+                 "security",
+                 "findings",
+                 "risk",
+                 "secrets",
+                 "skills",
+                 "abuse-case",
+                 "agent"
+             ],
+    "curatedBy":  "zavorth-skill-curator",
+    "contractVersion":  "zavorth-skill-curator-live-loop/1",
+    "updatedAt":  "2026-05-18T18:40:32.050Z",
+    "safeMetadataApply":  true,
+    "name":  "Zavorth Security Review",
+    "native":  true,
+    "description":  "Zavorth-owned native skill for security review.",
+    "category":  "security",
+    "permissionProfileId":  "workspace-read",
+    "riskLevel":  "medium",
+    "capabilityTags":  [
+                           "security",
+                           "code"
+                       ],
+    "presets":  [
+                    "developer",
+                    "ops",
+                    "power-user"
+                ],
+    "inputContract":  [
+                          "code artifacts",
+                          "threat model",
+                          "compliance requirements"
+                      ],
+    "outputContract":  [
+                           "vulnerability findings",
+                           "risk assessment",
+                           "remediation guidance"
+                       ],
+    "noExecutionByDefault":  true,
+    "requiresPolicyBroker":  true,
+    "receiptsRequired":  true
 }

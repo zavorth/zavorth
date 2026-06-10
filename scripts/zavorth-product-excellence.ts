@@ -1,11 +1,11 @@
-import { ZavorthBestInClassProductService } from '../src/services/ZavorthBestInClassProductService.js';
+﻿import { ZavorthProductExcellenceService } from '../src/services/ZavorthProductExcellenceService.js';
 
 const json = process.argv.includes('--json');
 const strict = process.argv.includes('--strict') || process.argv.includes('--require-ready');
 const evidenceRoot = readFlag('--evidence-root');
 
 async function main(): Promise<void> {
-  const service = new ZavorthBestInClassProductService({
+  const service = new ZavorthProductExcellenceService({
     projectRoot: process.cwd(),
     ...(evidenceRoot ? { evidenceRoot } : {}),
   });
@@ -25,6 +25,6 @@ function readFlag(name: string): string | null {
 
 void main().catch((error) => {
   const message = error instanceof Error ? error.message : String(error);
-  process.stderr.write(`zavorth best-in-class product failed: ${message}\n`);
+  process.stderr.write(`zavorth product excellence failed: ${message}\n`);
   process.exit(1);
 });

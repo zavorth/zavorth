@@ -87,7 +87,7 @@ function ruleContainsMarkers() {
     'Capability absorption markers are wired',
     missing.length === 0,
     missing.length === 0 ? 'all markers' : `${missing.length} missing`,
-    'reference/Zavorth-native/Zavorth-native map, statuses and policy language exist',
+    'catalog/Zavorth-native/ecosystem map, statuses and policy language exist',
     missing,
   );
 }

@@ -31,7 +31,14 @@ async function main(): Promise<void> {
     process.exitCode = 1;
     return;
   }
-  if (requireLive && snapshot.summary.liveCredentialGated > 0) {
+  if (requireLive && liveRequiredGatesReady(snapshot) === false) {
     process.exitCode = 2;
   }
+}
+
+function liveRequiredGatesReady(snapshot: Awaited<ReturnType<ZavorthProductCertificationService['buildSnapshot']>>): boolean {
+  const liveGateIds = new Set(['provider-mesh', 'channel-mesh', 'channel-live-canary']);
+  const gatesById = new Map(snapshot.gates.map((gate) => [gate.id, gate]));
+  return Array.from(liveGateIds)
+    .every((gateId) => gatesById.get(gateId)?.status === 'ready');
 }

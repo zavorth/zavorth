@@ -88,5 +88,5 @@ npm run mnemos:dream-cycle --silent
 ```
 
 This layer is intentionally Zavorth-native. It uses the existing learning,
-skill, channel and backend concepts as internal product primitives rather than
-comparative benchmarks.
+skill, channel and backend concepts as internal product primitives with native
+readiness measurements.

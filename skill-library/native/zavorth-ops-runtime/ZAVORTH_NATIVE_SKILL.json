@@ -1,20 +1,48 @@
 {
-  "id": "zavorth-ops-runtime",
-  "title": "Zavorth Ops Runtime",
-  "source": "workspace-library",
-  "trust": "trusted",
-  "tags": [
-    "runtime",
-    "readiness",
-    "recovery",
-    "services",
-    "action",
-    "approval",
-    "attention",
-    "before"
-  ],
-  "curatedBy": "zavorth-skill-curator",
-  "contractVersion": "zavorth-skill-curator-live-loop/1",
-  "updatedAt": "2026-05-18T18:40:32.048Z",
-  "safeMetadataApply": true
+    "id":  "zavorth-ops-runtime",
+    "title":  "Zavorth Ops Runtime",
+    "source":  "workspace-library",
+    "trust":  "trusted",
+    "tags":  [
+                 "runtime",
+                 "readiness",
+                 "recovery",
+                 "services",
+                 "action",
+                 "approval",
+                 "attention",
+                 "before"
+             ],
+    "curatedBy":  "zavorth-skill-curator",
+    "contractVersion":  "zavorth-skill-curator-live-loop/1",
+    "updatedAt":  "2026-05-18T18:40:32.048Z",
+    "safeMetadataApply":  true,
+    "name":  "Zavorth Ops Runtime",
+    "native":  true,
+    "description":  "Zavorth-owned native skill for ops runtime.",
+    "category":  "operations",
+    "permissionProfileId":  "workspace-read",
+    "riskLevel":  "medium",
+    "capabilityTags":  [
+                           "workflow",
+                           "automation"
+                       ],
+    "presets":  [
+                    "developer",
+                    "ops",
+                    "power-user"
+                ],
+    "inputContract":  [
+                          "operational context",
+                          "service state",
+                          "runbook requirements"
+                      ],
+    "outputContract":  [
+                           "runtime actions",
+                           "recovery steps",
+                           "health status"
+                       ],
+    "noExecutionByDefault":  true,
+    "requiresPolicyBroker":  true,
+    "receiptsRequired":  true
 }

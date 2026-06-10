@@ -1,20 +1,48 @@
 {
-  "id": "zavorth-file-document-understanding",
-  "title": "Zavorth File And Document Understanding",
-  "source": "workspace-library",
-  "trust": "trusted",
-  "tags": [
-    "file",
-    "document",
-    "understanding",
-    "documents",
-    "extraction",
-    "files",
-    "analysis",
-    "appropriate"
-  ],
-  "curatedBy": "zavorth-skill-curator",
-  "contractVersion": "zavorth-skill-curator-live-loop/1",
-  "updatedAt": "2026-05-18T18:40:32.047Z",
-  "safeMetadataApply": true
+    "id":  "zavorth-file-document-understanding",
+    "title":  "Zavorth File And Document Understanding",
+    "source":  "workspace-library",
+    "trust":  "trusted",
+    "tags":  [
+                 "file",
+                 "document",
+                 "understanding",
+                 "documents",
+                 "extraction",
+                 "files",
+                 "analysis",
+                 "appropriate"
+             ],
+    "curatedBy":  "zavorth-skill-curator",
+    "contractVersion":  "zavorth-skill-curator-live-loop/1",
+    "updatedAt":  "2026-05-18T18:40:32.047Z",
+    "safeMetadataApply":  true,
+    "name":  "Zavorth File And Document Understanding",
+    "native":  true,
+    "description":  "Zavorth-owned native skill for file and document understanding.",
+    "category":  "research",
+    "permissionProfileId":  "workspace-read",
+    "riskLevel":  "low",
+    "capabilityTags":  [
+                           "document",
+                           "data"
+                       ],
+    "presets":  [
+                    "developer",
+                    "ops",
+                    "power-user"
+                ],
+    "inputContract":  [
+                          "user intent",
+                          "runtime context",
+                          "policy constraints"
+                      ],
+    "outputContract":  [
+                           "governed guidance",
+                           "next action",
+                           "verification criteria"
+                       ],
+    "noExecutionByDefault":  true,
+    "requiresPolicyBroker":  true,
+    "receiptsRequired":  true
 }
