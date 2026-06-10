@@ -379,6 +379,7 @@ export function initControlApp() {
       workspaceSelection: 'workspaceSelection' in overrides ? overrides.workspaceSelection : pendingWorkspaceSelection,
       sessionId: promptQueueSessionKey,
       localCommandName: overrides.localCommandName || null,
+      localCommandTypedName: overrides.localCommandTypedName || null,
       localCommandArgs: overrides.localCommandArgs || null,
       kind: overrides.kind || undefined,
     });
@@ -517,6 +518,8 @@ export function initControlApp() {
     if (!item) return false;
     if (item.localCommandName) {
       return dispatchLocalSlashCommand(item.localCommandName, item.localCommandArgs || '', {
+        originalText: item.text || item.localCommandArgs || `/${item.localCommandName}`,
+        typedName: item.localCommandTypedName || item.localCommandName,
         fromQueue: true,
         queueItem: item,
       });
@@ -1947,8 +1950,10 @@ export function initControlApp() {
       const value = Number(record.costUsd ?? record.totalCost ?? record.cost);
       return Number.isFinite(value) ? sum + value : sum;
     }, 0);
-    const totalTokens = Number.isFinite(aggregateTokens) && aggregateTokens > 0 ? aggregateTokens : runTokens;
-    const totalCost = Number.isFinite(aggregateCost) && aggregateCost > 0 ? aggregateCost : runCost;
+    const totalTokens = Number.isFinite(aggregateTokens) ? aggregateTokens : runTokens;
+    const totalCost = Number.isFinite(aggregateCost) ? aggregateCost : runCost;
+    const hasTotalTokens = Number.isFinite(totalTokens);
+    const hasTotalCost = Number.isFinite(totalCost);
     const activeRun = getActiveRuntimeRun();
     const full = String(args || '').toLowerCase() === 'full';
     return [
@@ -1956,8 +1961,8 @@ export function initControlApp() {
       '',
       `Runs visible: \`${runs.length}\``,
       `Active run: \`${activeRun ? String(activeRun.id || activeRun.runId || activeRun.status || 'running') : 'none'}\``,
-      `Tokens: \`${totalTokens ? totalTokens.toLocaleString() : 'not reported'}\``,
-      `Cost: \`${totalCost ? `$${totalCost.toFixed(4)}` : 'not reported'}\``,
+      `Tokens: \`${hasTotalTokens ? totalTokens.toLocaleString() : 'not reported'}\``,
+      `Cost: \`${hasTotalCost ? `$${totalCost.toFixed(4)}` : 'not reported'}\``,
       `Queue: \`${promptQueue.length}\``,
       `Trace events: \`${traceEvents.length}\``,
       full && runs.length
@@ -3045,15 +3050,15 @@ ${current}` : skillPrompt;
 
   async function runWorkflowIntentSlash(command, args) {
     const request = buildWorkflowSlashRequest(command, args);
-    clearComposerInput();
-    setChatEffort(request.effort, { silent: true });
-    pendingGuidedFlow = request.guidedFlow;
-    pendingWorkflowIntent = request.workflowIntent;
-
     if (!composeInput) {
       emitLocalNotice(`/${request.command} is not available because the composer is not mounted.`);
       return false;
     }
+
+    clearComposerInput();
+    setChatEffort(request.effort, { silent: true });
+    pendingGuidedFlow = request.guidedFlow;
+    pendingWorkflowIntent = request.workflowIntent;
 
     composeInput.value = request.text;
     composeInput.dispatchEvent(new Event('input'));
@@ -3322,6 +3327,7 @@ ${current}` : skillPrompt;
     if (isRuntimeChatBusy() && shouldQueueLocalSlashCommand(command)) {
       enqueuePrompt(text, {
         localCommandName: command.key,
+        localCommandTypedName: parsed.name,
         localCommandArgs: args,
         kind: 'local-command',
         attachments: [],

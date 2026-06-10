@@ -288,6 +288,33 @@ describe('WebAppConversationService natural-first routing', () => {
     expect(result.taskId).toBe('task-web-1');
   });
 
+  it('preserves string experience profiles in composer runtime hints', async () => {
+    const realtime = createRealtimeMock();
+    const sendToSession = jest.fn(async () => ({ taskId: 'task-profile-string' }));
+    const service = new WebAppConversationService({
+      runtime: createRuntime() as any,
+      realtime: realtime as any,
+      getGatewaySessionTools: () => ({ sendToSession } as any),
+      getSharedSurfaceCommandService: () => ({ maybeHandle: jest.fn(async () => false) } as any),
+    });
+
+    await service.processChatSend({
+      sessionId: 'session-web-profile-string',
+      message: 'revise esse codigo TypeScript',
+      experienceProfile: 'developer',
+      composerSettings: { effort: 'high' },
+    });
+
+    expect(sendToSession).toHaveBeenCalledWith(expect.objectContaining({
+      composerPayload: expect.objectContaining({
+        experienceProfile: 'developer',
+        effortControl: expect.objectContaining({
+          requestedLevel: 'high',
+        }),
+      }),
+    }));
+  });
+
   it('routes low-signal conversation through the Universal Agent Runtime without opening a task', async () => {
     const realtime = createRealtimeMock();
     const sendToSession = jest.fn(async () => ({ taskId: 'should-not-open' }));

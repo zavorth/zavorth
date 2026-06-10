@@ -1506,20 +1506,23 @@ export class WebAppRuntimeStateRouteService {
       return;
     }
     if (deps.processChatSend) {
+      const requestMetadata = this.isRecord(body?.metadata) ? body.metadata : {};
+      const workflowIntent = this.resolveMetadataRecord(body?.workflowIntent, requestMetadata.workflowIntent);
+      const composerSettings = this.resolveMetadataRecord(body?.composerSettings, requestMetadata.composerSettings);
+      const experienceProfile = this.resolveExperienceProfileMetadata(
+        body?.experienceProfile,
+        requestMetadata.experienceProfile,
+      );
       const result = await deps.processChatSend({
         ...body,
         message,
         source: 'zavorth-control',
         metadata: {
-          ...(this.isRecord(body?.metadata) ? body.metadata : {}),
+          ...requestMetadata,
           dashboardChat: true,
-          workflowIntent: this.isRecord(body?.workflowIntent) ? body.workflowIntent : null,
-          composerSettings: this.isRecord(body?.composerSettings) ? body.composerSettings : null,
-          experienceProfile: this.isRecord(body?.experienceProfile)
-            ? body.experienceProfile
-            : typeof body?.experienceProfile === 'string'
-              ? body.experienceProfile.trim() || null
-              : null,
+          ...(workflowIntent ? { workflowIntent } : {}),
+          ...(composerSettings ? { composerSettings } : {}),
+          ...(experienceProfile ? { experienceProfile } : {}),
         },
       });
       deps.writeJson(res, {
@@ -1772,6 +1775,24 @@ export class WebAppRuntimeStateRouteService {
   private readBooleanParam(url: URL, name: string): boolean {
     const raw = String(url.searchParams.get(name) || '').trim().toLowerCase();
     return raw === '1' || raw === 'true' || raw === 'yes' || raw === 'on';
+  }
+
+  private resolveMetadataRecord(primary: unknown, fallback: unknown): RuntimeRecord | null {
+    if (this.isRecord(primary)) return primary;
+    if (this.isRecord(fallback)) return fallback;
+    return null;
+  }
+
+  private resolveExperienceProfileMetadata(primary: unknown, fallback: unknown): RuntimeRecord | string | null {
+    if (this.isRecord(primary)) return primary;
+    if (typeof primary === 'string') {
+      return primary.trim() || null;
+    }
+    if (this.isRecord(fallback)) return fallback;
+    if (typeof fallback === 'string') {
+      return fallback.trim() || null;
+    }
+    return null;
   }
 
   private isRecord(value: unknown): value is RuntimeRecord {

@@ -13,6 +13,10 @@ export function renderSessionCommandMarkdown(result: RuntimeRecord): string {
   const workspaceSelection = recordOrNull(result.workspaceSelection);
   const workflowIntent = recordOrNull(result.workflowIntent);
   const composer = recordOrNull(result.composer) || {};
+  const totalTokens = Number(result.totalTokens);
+  const totalCostUsd = Number(result.totalCostUsd);
+  const hasTotalTokens = result.totalTokens !== null && result.totalTokens !== undefined && Number.isFinite(totalTokens);
+  const hasTotalCostUsd = result.totalCostUsd !== null && result.totalCostUsd !== undefined && Number.isFinite(totalCostUsd);
   switch (result.kind) {
     case 'status':
       return [
@@ -35,8 +39,8 @@ export function renderSessionCommandMarkdown(result: RuntimeRecord): string {
         `Runs visible: \`${result.visibleRuns}\``,
         `Tool runs: \`${result.toolRuns}\``,
         `Active run: \`${activeRun?.id || 'none'}\``,
-        `Tokens: \`${result.totalTokens ? Number(result.totalTokens).toLocaleString() : 'not reported'}\``,
-        `Cost: \`${result.totalCostUsd ? `$${Number(result.totalCostUsd).toFixed(4)}` : 'not reported'}\``,
+        `Tokens: \`${hasTotalTokens ? totalTokens.toLocaleString() : 'not reported'}\``,
+        `Cost: \`${hasTotalCostUsd ? `$${totalCostUsd.toFixed(4)}` : 'not reported'}\``,
         result.mode === 'full' && Array.isArray(result.recentRuns) && result.recentRuns.length
           ? `\nRecent runs:\n${result.recentRuns.map((run: RuntimeRecord) => `- ${run.id}: ${run.status}`).join('\n')}`
           : '',
