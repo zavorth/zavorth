@@ -103,6 +103,18 @@ let cachedA2UIState: A2UIRuntimeState | null = null;
 let cachedA2UISurfaceId: string | null = null;
 const ENGINE_STORAGE_KEY = 'zavorth.control.engine';
 
+class TransportFallbackError extends Error {
+  constructor(message: string) {
+    super(message);
+    this.name = 'TransportFallbackError';
+  }
+}
+
+function isTransportFallbackError(error: unknown): boolean {
+  return error instanceof TransportFallbackError
+    || String((error as Error)?.name || '').trim() === 'TransportFallbackError';
+}
+
 function errorMessage(value: unknown, fallback = 'Request failed.'): string {
   if (value instanceof Error && value.message) return value.message;
   if (typeof value === 'string' && value.trim()) return value.trim();
@@ -262,22 +274,27 @@ async function fetchJson<T>(url: string, init?: RequestInit): Promise<T> {
         }
         resolve(payload as T);
       };
-      xhr.onerror = () => reject(new Error(`Network request failed: ${url}`));
+      xhr.onerror = () => reject(new TransportFallbackError(`Network request failed: ${url}`));
       xhr.send(typeof init?.body === 'string' ? init.body : null);
     });
   }
-  const response = await fetch(url, {
-    ...init,
-    headers: {
-      'Content-Type': 'application/json',
-      ...(init?.headers || {}),
-    },
-  });
+  let response: Response;
+  try {
+    response = await fetch(url, {
+      ...init,
+      headers: {
+        'Content-Type': 'application/json',
+        ...(init?.headers || {}),
+      },
+    });
+  } catch (error) {
+    throw new TransportFallbackError(errorMessage(error, `Network request failed: ${url}`));
+  }
   let payload: any = null;
   try {
     payload = await response.json();
   } catch {
-    return localFallbackJson<T>(url, init);
+    throw new Error(response.ok ? `Invalid JSON response from ${url}` : `Request failed: ${response.status}`);
   }
   if (!response.ok || payload?.ok === false) {
     throw new Error(errorMessage(payload?.error || payload?.selection?.availability?.reason, `Request failed: ${response.status}`));
@@ -345,7 +362,7 @@ function ingestEngineTraces(events: Array<Record<string, any>> = []) {
 }
 
 function engineShortLabel(engineId: EngineId, fallback: string): string {
-  if (engineId === 'lite') return t('Lite');
+  if (engineId === 'lite') return t('Chat');
   if (engineId === 'velocity') return t('Fast');
   if (engineId === 'shield') return t('Safe');
   return fallback;
@@ -434,6 +451,11 @@ function updateExpressPill(snapshot: EngineSnapshot) {
   document.querySelectorAll('[data-runtime-engine-active]').forEach((node) => {
     node.textContent = engineShortLabel(snapshot.activeEngineId, active?.label || snapshot.activeEngineId);
   });
+  document.querySelectorAll('[data-engine-select]').forEach((node) => {
+    const selected = node.getAttribute('data-engine-select') === snapshot.activeEngineId;
+    node.classList.toggle('is-selected', selected);
+    node.setAttribute('aria-pressed', selected ? 'true' : 'false');
+  });
   if (!pill) return;
   const decision = snapshot.decision;
   pill.textContent = localizedEngineStatusLabel(snapshot);
@@ -493,7 +515,8 @@ function renderEngineCards(snapshot: EngineSnapshot) {
 async function loadEngines() {
   try {
     cachedEngineSnapshot = await fetchJson<EngineSnapshot>('/api/web/execution-engines');
-  } catch {
+  } catch (error) {
+    if (!isTransportFallbackError(error)) throw error;
     cachedEngineSnapshot = localFallbackJson<EngineSnapshot>('/api/web/execution-engines');
   }
   ingestEngineTraces(cachedEngineSnapshot.traces || []);
@@ -503,10 +526,16 @@ async function loadEngines() {
 }
 
 async function selectEngine(engineId: EngineId) {
-  cachedEngineSnapshot = await fetchJson<EngineSnapshot>('/api/web/execution-engines', {
+  const request = {
     method: 'POST',
     body: JSON.stringify({ engineId }),
-  });
+  };
+  try {
+    cachedEngineSnapshot = await fetchJson<EngineSnapshot>('/api/web/execution-engines', request);
+  } catch (error) {
+    if (!isTransportFallbackError(error)) throw error;
+    cachedEngineSnapshot = localFallbackJson<EngineSnapshot>('/api/web/execution-engines', request);
+  }
   ingestEngineTraces(cachedEngineSnapshot.traces || []);
   persistEngineId(cachedEngineSnapshot.activeEngineId);
   renderEngineCards(cachedEngineSnapshot);
@@ -529,7 +558,8 @@ async function decidePrompt(prompt: string, options: { operation?: string; targe
       method: 'POST',
       body,
     });
-  } catch {
+  } catch (error) {
+    if (!isTransportFallbackError(error)) throw error;
     cachedEngineSnapshot = localFallbackJson<EngineSnapshot>('/api/web/execution-engines', {
       method: 'POST',
       body,

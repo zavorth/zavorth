@@ -1486,18 +1486,77 @@ export class WebAppRuntimeStateRouteService {
     res: http.ServerResponse,
     deps: WebAppRuntimeRouteDeps,
   ): Promise<void> {
-    if (!deps.publicApi) {
+    if (!deps.processChatSend && !deps.publicApi) {
       deps.writeJson(res, {
         ok: false,
-        error: 'canonical_public_api_unavailable',
-        detail: 'Dashboard chat wiring requires the runtime API v1 service.',
+        error: 'canonical_chat_runtime_unavailable',
+        detail: 'Dashboard chat wiring requires the canonical web conversation runtime.',
       }, 503);
       return;
     }
 
     const body = await deps.readJsonBody(req);
-    const result = await deps.publicApi.submitChat({
-      message: String(body?.message || body?.text || '').trim(),
+    const message = String(body?.message || body?.text || '').trim();
+    if (!message) {
+      deps.writeJson(res, {
+        ok: false,
+        error: 'empty_dashboard_message',
+        detail: 'Dashboard chat requires a non-empty message.',
+      }, 400);
+      return;
+    }
+    if (deps.processChatSend) {
+      const requestMetadata = this.isRecord(body?.metadata) ? body.metadata : {};
+      const workflowIntent = this.resolveMetadataRecord(body?.workflowIntent, requestMetadata.workflowIntent);
+      const composerSettings = this.resolveMetadataRecord(body?.composerSettings, requestMetadata.composerSettings);
+      const experienceProfile = this.resolveExperienceProfileMetadata(
+        body?.experienceProfile,
+        requestMetadata.experienceProfile,
+      );
+      const result = await deps.processChatSend({
+        ...body,
+        message,
+        source: 'zavorth-control',
+        metadata: {
+          ...requestMetadata,
+          dashboardChat: true,
+          ...(workflowIntent ? { workflowIntent } : {}),
+          ...(composerSettings ? { composerSettings } : {}),
+          ...(experienceProfile ? { experienceProfile } : {}),
+        },
+      });
+      deps.writeJson(res, {
+        ok: true,
+        generatedAt: new Date().toISOString(),
+        sessionId: result.sessionId,
+        taskId: result.taskId || null,
+        runId: result.taskId || null,
+        chat: result,
+        data: result,
+        snapshot: result.snapshot,
+        safety: {
+          delegatedToCanonicalWebRuntime: true,
+          dashboardCanExecute: false,
+          zavorthControlCanExecute: false,
+          policyBrokerRequiredForTools: true,
+          rawSecretsSerialized: false,
+        },
+      }, 200);
+      return;
+    }
+
+    const publicApi = deps.publicApi;
+    if (!publicApi) {
+      deps.writeJson(res, {
+        ok: false,
+        error: 'canonical_public_api_unavailable',
+        detail: 'Dashboard chat fallback requires the runtime API v1 service.',
+      }, 503);
+      return;
+    }
+
+    const result = await publicApi.submitChat({
+      message,
       sessionId: String(body?.sessionId || '').trim() || null,
       live: body?.live === true || body?.execute === true,
     });
@@ -1716,6 +1775,24 @@ export class WebAppRuntimeStateRouteService {
   private readBooleanParam(url: URL, name: string): boolean {
     const raw = String(url.searchParams.get(name) || '').trim().toLowerCase();
     return raw === '1' || raw === 'true' || raw === 'yes' || raw === 'on';
+  }
+
+  private resolveMetadataRecord(primary: unknown, fallback: unknown): RuntimeRecord | null {
+    if (this.isRecord(primary)) return primary;
+    if (this.isRecord(fallback)) return fallback;
+    return null;
+  }
+
+  private resolveExperienceProfileMetadata(primary: unknown, fallback: unknown): RuntimeRecord | string | null {
+    if (this.isRecord(primary)) return primary;
+    if (typeof primary === 'string') {
+      return primary.trim() || null;
+    }
+    if (this.isRecord(fallback)) return fallback;
+    if (typeof fallback === 'string') {
+      return fallback.trim() || null;
+    }
+    return null;
   }
 
   private isRecord(value: unknown): value is RuntimeRecord {

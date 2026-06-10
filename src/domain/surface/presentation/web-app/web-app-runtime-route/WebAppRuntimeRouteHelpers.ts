@@ -346,6 +346,25 @@ export function isWebAppRuntimeCanonicalSessionSpawnRoute(pathname: string): boo
     || LEGACY_GATEWAY_SESSION_ROUTE_ALIASES.spawn.includes(pathname as typeof LEGACY_GATEWAY_SESSION_ROUTE_ALIASES.spawn[number]);
 }
 
+export function isWebAppRuntimeCanonicalSessionCompactRoute(pathname: string): boolean {
+  return pathname === GATEWAY_SESSION_ROUTE_PATHS.compact
+    || LEGACY_GATEWAY_SESSION_ROUTE_ALIASES.compact.includes(pathname as typeof LEGACY_GATEWAY_SESSION_ROUTE_ALIASES.compact[number]);
+}
+
+export function resolveWebAppRuntimeCanonicalSessionCommand(pathname: string): string | null {
+  const structuralRoutes = new Set(['plane', 'send', 'spawn', 'compact']);
+  const commandRoutes = Object.entries(LEGACY_GATEWAY_SESSION_ROUTE_ALIASES)
+    .filter(([command]) => !structuralRoutes.has(command))
+    .filter(([command]) => Boolean((GATEWAY_SESSION_ROUTE_PATHS as Record<string, string>)[command]));
+  for (const [command, aliases] of commandRoutes) {
+    const canonicalPath = (GATEWAY_SESSION_ROUTE_PATHS as Record<string, string>)[command];
+    if (pathname === canonicalPath || (aliases as readonly string[]).includes(pathname)) {
+      return command;
+    }
+  }
+  return null;
+}
+
 export function isWebAppRuntimeFullDetailRequested(url: URL): boolean {
   const detail = String(url.searchParams.get('detail') || '').trim().toLowerCase();
   return detail === 'full' || detail === 'resolved' || detail === 'hydrated';

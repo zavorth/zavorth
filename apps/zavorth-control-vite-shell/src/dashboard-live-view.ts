@@ -285,6 +285,7 @@ export function createDashboardLiveView({
 
   return {
     getDashboardSnapshot,
+    getLiveRuntimeSnapshot,
     updateDashboardGlass,
   };
 }

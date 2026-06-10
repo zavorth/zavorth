@@ -5,6 +5,7 @@ export type PromptQueueItem = {
   selectedSkills: any[];
   voice: any | null;
   guidedFlow: string;
+  workflowIntent?: any | null;
   workspaceSelection: any | null;
   createdAt: number;
   attempts: number;
@@ -15,6 +16,7 @@ export type PromptQueueItem = {
   kind: 'message' | 'local-command';
   sessionId: string;
   localCommandName?: string | null;
+  localCommandTypedName?: string | null;
   localCommandArgs?: string | null;
   pendingRunId?: string | null;
   steeringAckId?: string | null;
@@ -39,9 +41,11 @@ export function createPromptQueueItem(input: {
   selectedSkills?: any[];
   voice?: any | null;
   guidedFlow?: string | null;
+  workflowIntent?: any | null;
   workspaceSelection?: any | null;
   sessionId?: string | null;
   localCommandName?: string | null;
+  localCommandTypedName?: string | null;
   localCommandArgs?: string | null;
   kind?: 'message' | 'local-command';
   maxAttempts?: number | null;
@@ -59,6 +63,7 @@ export function createPromptQueueItem(input: {
     selectedSkills: cloneQueueValue(input.selectedSkills || [], []),
     voice: input.voice ? cloneQueueValue(input.voice, null) : null,
     guidedFlow: String(input.guidedFlow || '').trim(),
+    workflowIntent: input.workflowIntent ? cloneQueueValue(input.workflowIntent, null) : null,
     workspaceSelection: input.workspaceSelection ? cloneQueueValue(input.workspaceSelection, null) : null,
     createdAt: now,
     attempts: 0,
@@ -69,6 +74,7 @@ export function createPromptQueueItem(input: {
     kind: input.kind || (input.localCommandName ? 'local-command' : 'message'),
     sessionId: String(input.sessionId || 'local').trim() || 'local',
     localCommandName: input.localCommandName || null,
+    localCommandTypedName: input.localCommandTypedName || null,
     localCommandArgs: input.localCommandArgs || null,
     pendingRunId: null,
     steeringAckId: null,
@@ -80,6 +86,7 @@ export function promptSubmitKey(input: {
   text?: string | null;
   attachments?: any[] | null;
   selectedSkills?: any[] | null;
+  workflowIntent?: any | null;
   localCommandName?: string | null;
   localCommandArgs?: string | null;
   kind?: string | null;
@@ -102,6 +109,7 @@ export function promptSubmitKey(input: {
     text: String(input.text || '').trim(),
     attachments: attachmentSignature,
     selectedSkills: skillSignature,
+    workflowIntent: input.workflowIntent ? cloneQueueValue(input.workflowIntent, null) : null,
   });
 }
 
@@ -112,6 +120,7 @@ export function serializePromptQueueItem(item: PromptQueueItem): PromptQueueItem
     attachments: cloneQueueValue(item.attachments || [], []),
     selectedSkills: cloneQueueValue(item.selectedSkills || [], []),
     voice: item.voice ? cloneQueueValue(item.voice, null) : null,
+    workflowIntent: item.workflowIntent ? cloneQueueValue(item.workflowIntent, null) : null,
     workspaceSelection: item.workspaceSelection ? cloneQueueValue(item.workspaceSelection, null) : null,
     attempts: Math.max(0, Number(item.attempts || 0)),
     maxAttempts: Math.max(1, Number(item.maxAttempts || 3)),
@@ -121,6 +130,7 @@ export function serializePromptQueueItem(item: PromptQueueItem): PromptQueueItem
     kind: item.kind || (item.localCommandName ? 'local-command' : 'message'),
     sessionId: String(item.sessionId || 'local').trim() || 'local',
     localCommandName: item.localCommandName || null,
+    localCommandTypedName: item.localCommandTypedName || null,
     localCommandArgs: item.localCommandArgs || null,
     pendingRunId: item.pendingRunId || null,
     steeringAckId: item.steeringAckId || null,

@@ -41,6 +41,14 @@ import type {
   ExecutionEngineRouteOperation,
   ExecutionEngineRouterService,
 } from './ExecutionEngineRouterService.js';
+import { ZavorthEffortControlService } from './ZavorthEffortControlService.js';
+import { resolveComposerModelRouteOverride } from './WebAppComposerModelRoute.js';
+import {
+  buildInlineDataFromAttachments,
+  extractInlineDataFromComposerPayload,
+  getReadyMediaAttachments,
+  resolveReadyMediaAttachment,
+} from './WebAppConversationInlineData.js';
 
 type RuntimeRecord = Record<string, unknown>;
 type ComposerCatalogOptions = NonNullable<ConstructorParameters<typeof ComposerCatalogService>[0]>;
@@ -69,6 +77,7 @@ export class WebAppConversationService {
   private readonly audioTranscription = new AudioTranscriptionService({
     mediaUnderstanding: this.mediaUnderstanding,
   });
+  private readonly effortControl = new ZavorthEffortControlService();
   private readonly surfaceOperationalIntentService: Pick<SurfaceOperationalIntentService, 'decideResponse'>;
   private readonly responseRenderer = new ZavorthUserResponseRendererService();
 
@@ -116,6 +125,7 @@ export class WebAppConversationService {
     const normalizedComposerPayload = this.composerPayload.normalize(body);
     const message = normalizedComposerPayload.messageText;
     const providerRouteOverride = this.buildProviderRouteOverride(body);
+    const composerRuntimeHints = this.buildComposerRuntimeHints(body, message);
     if (!message) {
       throw new Error('Mensagem vazia.');
     }
@@ -275,6 +285,7 @@ export class WebAppConversationService {
             selectedSkills: normalizedComposerPayload.selectedSkills,
             voice: normalizedComposerPayload.voice,
             ...providerRouteOverride,
+            ...composerRuntimeHints,
           },
           resourceImpact,
           requestedTools: responseDecision.requestedTools,
@@ -307,6 +318,7 @@ export class WebAppConversationService {
             selectedSkills: normalizedComposerPayload.selectedSkills,
             voice: normalizedComposerPayload.voice,
             ...providerRouteOverride,
+            ...composerRuntimeHints,
           },
           resourceImpact,
           kind: 'universal-agent-runtime',
@@ -337,6 +349,7 @@ export class WebAppConversationService {
             selectedSkills: normalizedComposerPayload.selectedSkills,
             voice: normalizedComposerPayload.voice,
             ...providerRouteOverride,
+            ...composerRuntimeHints,
           },
         );
     if (legacyUnifiedGatewayHandled) {
@@ -370,6 +383,7 @@ export class WebAppConversationService {
         selectedSkills: normalizedComposerPayload.selectedSkills,
         voice: normalizedComposerPayload.voice,
         ...providerRouteOverride,
+        ...composerRuntimeHints,
       },
     });
     await this.deps.realtime.captureBaseline(sessionId);
@@ -429,25 +443,73 @@ export class WebAppConversationService {
   }
 
   private buildProviderRouteOverride(body: RuntimeRecord): RuntimeRecord {
-    const metadata = body.metadata && typeof body.metadata === 'object'
-      ? body.metadata as RuntimeRecord
-      : {};
-    const providerName = this.cleanRouteOverride(body.providerName || metadata.providerName);
-    const modelName = this.cleanRouteOverride(body.modelName || metadata.modelName);
-    const allowProviderFallback = body.allowProviderFallback === false || metadata.allowProviderFallback === false
-      ? false
+    return resolveComposerModelRouteOverride(body);
+  }
+
+  private buildComposerRuntimeHints(body: RuntimeRecord, message: string): RuntimeRecord {
+    const metadata = this.recordOrNull(body.metadata) || {};
+    const composerSettings = this.recordOrNull(body.composerSettings);
+    const rawExperienceProfile = body.experienceProfile ?? metadata.experienceProfile;
+    const experienceProfile = typeof rawExperienceProfile === 'string'
+      ? rawExperienceProfile.trim()
+      : this.recordOrNull(rawExperienceProfile);
+    const workflowIntent = this.recordOrNull(body.workflowIntent) || this.recordOrNull(metadata.workflowIntent);
+    const engineDecision = this.recordOrNull(body.engineDecision);
+    const profileForEffort = typeof experienceProfile === 'string'
+      ? experienceProfile
+      : experienceProfile?.id || experienceProfile?.label || null;
+    const effortLevel = this.resolveComposerEffortLevel(
+      composerSettings?.effort
+      || workflowIntent?.effort
+      || body.effort
+      || metadata.effort,
+    );
+    const effortControl = this.effortControl.buildSnapshot({
+      level: effortLevel,
+      request: message,
+      profile: profileForEffort,
+    });
+    const requestedFanout = Number(workflowIntent?.maxFanout);
+    const maxFanout = Number.isFinite(requestedFanout) && requestedFanout > 0
+      ? Math.min(Math.max(1, Math.floor(requestedFanout)), effortControl.budget.maxSubagents)
+      : effortControl.budget.maxSubagents;
+    const dynamicWorkflow = workflowIntent
+      ? {
+          source: workflowIntent.source || 'dashboard',
+          kind: workflowIntent.kind || null,
+          command: workflowIntent.command || null,
+          recommended: Boolean(workflowIntent.dynamicWorkflow || effortControl.routing.dynamicWorkflowsRecommended),
+          budgetGuardRequired: true,
+          finalSynthesisRequired: true,
+          effortLevel: effortControl.effectiveLevel,
+          maxFanout,
+          rawSecretsSerialized: false,
+        }
       : null;
+
     return {
-      ...(providerName ? { providerName } : {}),
-      ...(modelName ? { modelName } : {}),
-      ...(allowProviderFallback === false ? { allowProviderFallback: false } : {}),
+      ...(composerSettings ? { composerSettings } : {}),
+      ...(experienceProfile ? { experienceProfile } : {}),
+      ...(workflowIntent ? { workflowIntent } : {}),
+      ...(dynamicWorkflow ? { dynamicWorkflow } : {}),
+      ...(engineDecision ? { engineDecision } : {}),
+      ...(typeof body.engineId === 'string' && body.engineId.trim() ? { engineId: body.engineId.trim() } : {}),
+      effortControl,
     };
   }
 
-  private cleanRouteOverride(value: unknown): string | null {
-    const text = String(value || '').trim();
-    if (!text || text.length > 180) return null;
-    return /^[a-z0-9][a-z0-9._:/@+-]*$/i.test(text) ? text : null;
+  private resolveComposerEffortLevel(value: unknown): 'low' | 'standard' | 'high' | 'ultra-code' {
+    const normalized = String(value || '').trim().toLowerCase().replace(/_/g, '-');
+    if (normalized === 'low' || normalized === 'fast' || normalized === 'light') return 'low';
+    if (normalized === 'deep' || normalized === 'high' || normalized === 'heavy') return 'high';
+    if (normalized === 'ultra' || normalized === 'ultra-code' || normalized === 'max') return 'ultra-code';
+    return 'standard';
+  }
+
+  private recordOrNull(value: unknown): RuntimeRecord | null {
+    return value && typeof value === 'object' && !Array.isArray(value)
+      ? value as RuntimeRecord
+      : null;
   }
 
   private resolveExecutionEngineTargetPath(
@@ -642,7 +704,7 @@ export class WebAppConversationService {
         voice: payload.voice,
         originalMessage: message,
         mediaConversation: true,
-        inlineData: this.buildInlineDataFromAttachments(mediaAttachments),
+        inlineData: buildInlineDataFromAttachments(mediaAttachments),
       },
       resourceImpact: null,
       userVisibleText: message,
@@ -663,7 +725,7 @@ export class WebAppConversationService {
         voice: payload.voice,
         originalMessage: message,
         mediaConversation: true,
-        inlineData: this.buildInlineDataFromAttachments(mediaAttachments),
+        inlineData: buildInlineDataFromAttachments(mediaAttachments),
       },
       {
         userVisibleText: message,
@@ -696,7 +758,7 @@ export class WebAppConversationService {
     error: string | null;
     attempts?: Array<{ provider: string; model: string | null; status: string; reason: string | null; latencyMs: number }>;
   }> {
-    const media = this.resolveReadyMediaAttachment(attachment);
+    const media = resolveReadyMediaAttachment(attachment);
     if (!media) {
       return {
         ok: false,
@@ -833,46 +895,7 @@ export class WebAppConversationService {
   }
 
   private getReadyMediaAttachments(attachments: WebComposerAttachment[]): WebComposerAttachment[] {
-    return (Array.isArray(attachments) ? attachments : [])
-      .filter((attachment) => Boolean(this.resolveReadyMediaAttachment(attachment)))
-      .slice(0, 5);
-  }
-
-  private resolveReadyMediaAttachment(attachment: WebComposerAttachment | null | undefined): {
-    kind: 'image' | 'audio' | 'video';
-    mimeType: string;
-    content: string;
-  } | null {
-    if (!attachment) {
-      return null;
-    }
-    const content = String(attachment.content || '').trim();
-    if (!content) {
-      return null;
-    }
-    const mediaKind = String(attachment.media?.kind || '').trim().toLowerCase();
-    const mimeType = String(attachment.media?.mimeType || attachment.type || '').trim();
-    const kind = mediaKind === 'image' || /^image\//i.test(mimeType)
-      ? 'image'
-      : mediaKind === 'audio' || /^audio\//i.test(mimeType)
-        ? 'audio'
-        : mediaKind === 'video' || /^video\//i.test(mimeType)
-          ? 'video'
-          : null;
-    if (!kind || !mimeType) {
-      return null;
-    }
-    return { kind, mimeType, content };
-  }
-
-  private buildInlineDataFromAttachments(attachments: WebComposerAttachment[]): Array<{ mimeType: string; data: string }> {
-    return attachments
-      .map((attachment) => this.resolveReadyMediaAttachment(attachment))
-      .filter((entry): entry is { kind: 'image' | 'audio' | 'video'; mimeType: string; content: string } => entry !== null)
-      .map((entry) => ({
-        mimeType: entry.mimeType,
-        data: entry.content,
-      }));
+    return getReadyMediaAttachments(attachments);
   }
 
   private isExplicitAttachmentDeliverableRequest(message: string): boolean {
@@ -947,7 +970,7 @@ export class WebAppConversationService {
     }
 
     const unsupported = attachments.filter((attachment) =>
-      !String(attachment.text || '').trim() && !this.resolveReadyMediaAttachment(attachment));
+      !String(attachment.text || '').trim() && !resolveReadyMediaAttachment(attachment));
     if (unsupported.length === 0) {
       return false;
     }
@@ -1069,6 +1092,9 @@ export class WebAppConversationService {
             status: 'done',
             metadata: {
               taskId: task.taskId || null,
+              effortControl: input.composerPayload?.effortControl || null,
+              workflowIntent: input.composerPayload?.workflowIntent || null,
+              dynamicWorkflow: input.composerPayload?.dynamicWorkflow || null,
             },
           },
         ],
@@ -1076,6 +1102,9 @@ export class WebAppConversationService {
           taskId: task.taskId || null,
           responseDecision: input.responseDecision,
           executionEngineDecision: input.executionEngineDecision || null,
+          effortControl: input.composerPayload?.effortControl || null,
+          workflowIntent: input.composerPayload?.workflowIntent || null,
+          dynamicWorkflow: input.composerPayload?.dynamicWorkflow || null,
         },
       };
     };
@@ -1100,6 +1129,9 @@ export class WebAppConversationService {
         responseDecision: input.responseDecision,
         artifactPolicy: input.responseDecision.artifactPolicy,
         composerPayload: input.composerPayload,
+        effortControl: input.composerPayload?.effortControl || null,
+        workflowIntent: input.composerPayload?.workflowIntent || null,
+        dynamicWorkflow: input.composerPayload?.dynamicWorkflow || null,
         providerName: input.composerPayload?.providerName || null,
         modelName: input.composerPayload?.modelName || null,
         allowProviderFallback: input.composerPayload?.allowProviderFallback !== false,
@@ -1161,6 +1193,9 @@ export class WebAppConversationService {
         responseDecision: input.responseDecision,
         artifactPolicy: input.responseDecision?.artifactPolicy || null,
         composerPayload: input.composerPayload || null,
+        effortControl: input.composerPayload?.effortControl || null,
+        workflowIntent: input.composerPayload?.workflowIntent || null,
+        dynamicWorkflow: input.composerPayload?.dynamicWorkflow || null,
         providerName: input.composerPayload?.providerName || null,
         modelName: input.composerPayload?.modelName || null,
         allowProviderFallback: input.composerPayload?.allowProviderFallback !== false,
@@ -1359,7 +1394,7 @@ export class WebAppConversationService {
     if (!legacyUnifiedGateway || !text || text.startsWith('/')) {
       return false;
     }
-    const inlineData = this.extractInlineDataFromComposerPayload(composerPayload);
+    const inlineData = extractInlineDataFromComposerPayload(composerPayload);
 
     await legacyUnifiedGateway.handleEvent({
       surface: 'web',
@@ -1388,29 +1423,6 @@ export class WebAppConversationService {
       },
     });
     return true;
-  }
-
-  private extractInlineDataFromComposerPayload(composerPayload?: RuntimeRecord | null): Array<{ mimeType: string; data: string }> {
-    if (!composerPayload || typeof composerPayload !== 'object') {
-      return [];
-    }
-    const explicitInlineData = (composerPayload as { inlineData?: unknown }).inlineData;
-    if (Array.isArray(explicitInlineData)) {
-      return explicitInlineData
-        .map((entry) => {
-          if (!entry || typeof entry !== 'object' || Array.isArray(entry)) return null;
-          const record = entry as Record<string, unknown>;
-          const mimeType = String(record.mimeType || '').trim();
-          const data = String(record.data || '').trim();
-          return mimeType && data ? { mimeType, data } : null;
-        })
-        .filter((entry): entry is { mimeType: string; data: string } => entry !== null)
-        .slice(0, 5);
-    }
-    const attachments = (composerPayload as { attachments?: unknown }).attachments;
-    return Array.isArray(attachments)
-      ? this.buildInlineDataFromAttachments(attachments as WebComposerAttachment[])
-      : [];
   }
 
   private resolveLegacyUnifiedGateway(): SharedSurfaceRuntime['legacyUnifiedGateway'] {

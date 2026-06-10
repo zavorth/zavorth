@@ -232,6 +232,74 @@ export class WebRealtimeService {
     );
   }
 
+  public compactSessionTranscript(
+    sessionId: string,
+    content: string,
+    options: {
+      receiptId: string;
+      keepLastMessages?: number;
+    },
+  ): {
+    message: WebChatMessage;
+    originalMessageCount: number;
+    retainedMessageCount: number;
+  } {
+    const normalizedSessionId = String(sessionId || '').trim();
+    if (!normalizedSessionId) {
+      throw new Error('sessionId obrigatorio para compactar transcript.');
+    }
+    const session = this.getSession(normalizedSessionId);
+    const originalMessageCount = session.messages.length;
+    const keepLastMessages = Math.max(0, Math.min(12, Number(options.keepLastMessages || 0) || 0));
+    const retainedMessages = keepLastMessages > 0
+      ? session.messages.slice(-keepLastMessages)
+      : [];
+    const createdAt = new Date().toISOString();
+    const message: WebChatMessage = {
+      id: String(options.receiptId || '').trim() || randomUUID(),
+      role: 'assistant',
+      content: String(content || '').trim(),
+      createdAt,
+      taskId: null,
+      kind: 'session.compaction',
+    };
+    const nextMessages = [message, ...retainedMessages.filter((entry) => entry.id !== message.id)];
+    session.messages = nextMessages;
+    session.lastSnapshot = null;
+    this.sessionLedger.replaceTranscript(
+      {
+        platform: 'web',
+        chatId: this.getChatId(normalizedSessionId),
+        sessionId: normalizedSessionId,
+        runtimeUserId: this.webUserId,
+        sourceUserId: normalizedSessionId,
+      },
+      nextMessages.map((entry) => ({
+        id: entry.id,
+        role: entry.role,
+        content: entry.content,
+        createdAt: entry.createdAt,
+        taskId: entry.taskId || null,
+        kind: entry.kind || null,
+        mentions: entry.mentions,
+        surface: 'web',
+      })),
+    );
+
+    this.emit(normalizedSessionId, {
+      id: randomUUID(),
+      type: 'message',
+      createdAt,
+      payload: message,
+    });
+
+    return {
+      message,
+      originalMessageCount,
+      retainedMessageCount: nextMessages.length,
+    };
+  }
+
   public recordAgentRuntimeEvent(
     sessionId: string,
     eventType: string,

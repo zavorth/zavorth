@@ -208,6 +208,12 @@ export function initRuntimeBridge() {
     return numeric.toLocaleString('en-US');
   }
 
+  function nonNegativeInteger(value, fallback = 0) {
+    const numeric = Number(value);
+    if (!Number.isFinite(numeric)) return Math.max(0, Math.floor(Number(fallback) || 0));
+    return Math.max(0, Math.floor(numeric));
+  }
+
   function formatDate(value) {
     const date = new Date(String(value || ''));
     if (!Number.isFinite(date.getTime())) return 'now';
@@ -2289,6 +2295,9 @@ export function initRuntimeBridge() {
     const experienceProfile = composerPayload.experienceProfile && typeof composerPayload.experienceProfile === 'object'
       ? composerPayload.experienceProfile
       : null;
+    const workflowIntent = composerPayload.workflowIntent && typeof composerPayload.workflowIntent === 'object'
+      ? composerPayload.workflowIntent
+      : null;
     const engineId = typeof composerPayload.engineId === 'string'
       ? composerPayload.engineId
       : (window.ZavorthRuntimeEngines?.getActiveEngineId?.() || undefined);
@@ -2310,6 +2319,13 @@ export function initRuntimeBridge() {
           voice,
           composerSettings,
           experienceProfile,
+          workflowIntent,
+          metadata: workflowIntent
+            ? {
+                workflowIntent,
+                dashboardCommandIntent: workflowIntent,
+              }
+            : undefined,
           engineId,
           engineDecision,
         }),
@@ -2394,6 +2410,66 @@ export function initRuntimeBridge() {
     writeRunId(payload?.run?.id || payload?.runId || payload?.snapshot?.activeRun?.id || runId);
     writeSessionId(payload?.sessionId || payload?.snapshot?.sessionId || sessionId);
     options?.emitSignal?.('success', 'Steer accepted', payload?.ack?.id || payload?.steering?.id || runId || 'active run');
+    return payload;
+  }
+
+  async function compactSession(options: any = {}) {
+    const sessionId = String(options?.sessionId || readSessionId() || '').trim();
+    const payload = await readJson('/api/web/session/compact', {
+      method: 'POST',
+      headers: authHeaders(),
+      body: JSON.stringify({
+        sessionId: sessionId || undefined,
+        reason: String(options?.reason || '').trim(),
+        keepLastMessages: nonNegativeInteger(options?.keepLastMessages),
+        source: 'zavorth-control',
+      }),
+    });
+    if (payload?.snapshot) {
+      state.zavorthControl = {
+        ...(state.zavorthControl || {}),
+        live: state.zavorthControl?.live !== false,
+        generatedAt: payload.generatedAt || state.zavorthControl?.generatedAt,
+        snapshot: payload.snapshot,
+      };
+    }
+    writeSessionId(payload?.sessionId || payload?.snapshot?.sessionId || sessionId);
+    options?.emitSignal?.('success', 'Session compacted', payload?.receipt?.receiptId || payload?.compaction?.receipt?.receiptId || 'receipt created');
+    await refresh({ skipSessionHydrate: true }).catch(() => undefined);
+    await hydrateCurrentSession(options?.ui || window.ZavorthControlChat || {}).catch(() => undefined);
+    await fetchDashboardEvents(options?.ui || window.ZavorthControlChat || {}).catch(() => undefined);
+    return payload;
+  }
+
+  async function runSessionCommand(options: any = {}) {
+    const command = String(options?.command || '').trim().replace(/^\//, '').toLowerCase();
+    if (!command) {
+      throw new Error('Session command is empty.');
+    }
+    const sessionId = String(options?.sessionId || readSessionId() || '').trim();
+    const payload = await readJson(`/api/web/session/${encodeURIComponent(command)}`, {
+      method: 'POST',
+      headers: authHeaders(),
+      body: JSON.stringify({
+        command,
+        sessionId: sessionId || undefined,
+        args: String(options?.args || '').trim(),
+        composerSettings: options?.composerSettings || null,
+        experienceProfile: options?.experienceProfile || null,
+        queueLength: nonNegativeInteger(options?.queueLength),
+        clientContext: options?.clientContext || null,
+        source: 'zavorth-control',
+      }),
+    });
+    if (payload?.snapshot) {
+      state.zavorthControl = {
+        ...(state.zavorthControl || {}),
+        live: state.zavorthControl?.live !== false,
+        generatedAt: payload.generatedAt || state.zavorthControl?.generatedAt,
+        snapshot: payload.snapshot,
+      };
+    }
+    writeSessionId(payload?.sessionId || payload?.snapshot?.sessionId || sessionId);
     return payload;
   }
 
@@ -2627,6 +2703,8 @@ export function initRuntimeBridge() {
     refresh,
     sendChat,
     sendSteerChat,
+    compactSession,
+    runSessionCommand,
     cancelActiveRun,
     decideApproval,
     applyRemoteMeshApproval,
