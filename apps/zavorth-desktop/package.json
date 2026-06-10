@@ -8,9 +8,12 @@
     "dev": "npm run build --silent && npx --yes --package electron electron electron/main.cjs",
     "build": "vite build",
     "check": "vite build --mode production",
+    "check:shell": "node scripts/desktop-shell-check.mjs",
+    "check:electron": "node scripts/desktop-electron-smoke.mjs",
     "package:dir": "npm run build --silent && npx --yes --package electron-builder electron-builder --dir"
   },
   "dependencies": {
+    "@tabler/icons-react": "^3.44.0",
     "@vitejs/plugin-react": "^6.0.2",
     "vite": "^8.0.14",
     "typescript": "^5.7.0",

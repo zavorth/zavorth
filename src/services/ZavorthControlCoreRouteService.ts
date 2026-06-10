@@ -17,6 +17,8 @@ import type { SalesPackChannelIoEnvelope } from '../contracts/SalesPackChannelIo
 import type { ExperienceCommand, ExperienceSurface } from './experience/ExperienceContracts.js';
 import { ExperienceCoreService } from './experience/ExperienceCoreService.js';
 import { globalLiveNodeRegistry } from './LiveNodeRegistryService.js';
+import { TrustedDeviceAccessService } from './TrustedDeviceAccessService.js';
+import { TrustedDeviceAccessRouteService } from './TrustedDeviceAccessRouteService.js';
 
 type WriteJson = (res: http.ServerResponse, body: unknown, statusCode?: number) => void;
 type WriteText = (res: http.ServerResponse, body: string, statusCode?: number) => void;
@@ -91,7 +93,7 @@ export type ZavorthControlCoreRouteDeps = {
   writeRedirect: WriteRedirect;
   a2ui: any;
   proactivePermissions: any;
-  experienceCore?: Pick<ExperienceCoreService, 'buildHome' | 'executeCommand' | 'buildTimelineForRun'> | null;
+  experienceCore?: Pick<ExperienceCoreService, 'buildHome' | 'executeCommand' | 'buildTimelineForRun' | 'dispatchRuntimeStateAction'> | null;
   authService?: Pick<ZavorthControlAuthService, 'validate' | 'resolveAuthenticatedIdentity'>;
   echo?: {
     getPendingPermissions: () => unknown[];
@@ -108,6 +110,7 @@ export type ZavorthControlCoreRouteServiceOptions = {
   salesPack?: SalesPackMvpService;
   salesPackBusinessMode?: SalesPackBusinessModeService;
   salesPackChannelIo?: SalesPackChannelIoService;
+  localAccess?: TrustedDeviceAccessService;
 };
 
 type SalesPackBusinessModeIdentity = {
@@ -121,6 +124,7 @@ export class ZavorthControlCoreRouteService {
   private readonly salesPack: SalesPackMvpService;
   private readonly salesPackBusinessMode: SalesPackBusinessModeService;
   private readonly salesPackChannelIo: SalesPackChannelIoService;
+  private readonly localAccessRoutes: TrustedDeviceAccessRouteService;
 
   public constructor(options: ZavorthControlCoreRouteServiceOptions = {}) {
     this.operationalMaturity = options.operationalMaturity || new OperationalMaturityService();
@@ -129,6 +133,10 @@ export class ZavorthControlCoreRouteService {
     this.salesPackChannelIo = options.salesPackChannelIo || new SalesPackChannelIoService({
       salesPack: this.salesPack,
     });
+    this.localAccessRoutes = new TrustedDeviceAccessRouteService(
+      options.localAccess || new TrustedDeviceAccessService(),
+      'zavorthControl-token',
+    );
   }
 
   public async handleRequest(
@@ -141,6 +149,10 @@ export class ZavorthControlCoreRouteService {
     if (pathname === '/') {
       deps.writeRedirect(res, '/control');
       return true;
+    }
+
+    if (pathname.startsWith('/api/v2/local-access')) {
+      return this.localAccessRoutes.handleRequest(req, res, pathname, deps);
     }
 
     if (pathname.startsWith('/api/experience')) {
@@ -660,6 +672,28 @@ export class ZavorthControlCoreRouteService {
       return true;
     }
 
+    if (pathname === '/api/experience/runtime-state/action' && req.method === 'POST') {
+      const body = await deps.readJsonBody(req);
+      const desktopBridgeUserId = this.getVerifiedDesktopBridgeUserId(req, deps);
+      const trustedDesktopBridge = desktopBridgeUserId !== null;
+      const result = service.dispatchRuntimeStateAction({
+        type: this.readOptionalString(body.type) as any,
+        surface: this.readOptionalString(body.surface) || homeInput.surface,
+        userId: desktopBridgeUserId || this.readOptionalString(body.userId) || 'web-user',
+        sessionId: this.readOptionalString(body.sessionId) || homeInput.sessionId,
+        source: trustedDesktopBridge ? 'zavorth-desktop-bridge' : this.readOptionalString(body.source) || 'runtime-api',
+        approved: trustedDesktopBridge || this.parseBoolean(body.approved) === true,
+        previewOnly: this.parseBoolean(body.previewOnly) === true,
+        payload: this.readRecord(body.payload) || {},
+      });
+      deps.writeJson(
+        res,
+        result || { ok: false, error: 'Runtime state bus is not attached.' },
+        result?.ok ? 200 : 409,
+      );
+      return true;
+    }
+
     if (pathname === '/api/experience/ask' && req.method === 'POST') {
       const body = await deps.readJsonBody(req);
       const text = this.readOptionalString(body.text) || this.readOptionalString(body.message);
@@ -667,6 +701,7 @@ export class ZavorthControlCoreRouteService {
         deps.writeJson(res, { ok: false, error: 'Campo "text" precisa ser uma string nao vazia.' }, 400);
         return true;
       }
+      const metadata = this.readRecord(body.metadata) || { source: 'runtime-api' };
       const command: Partial<ExperienceCommand> & { text: string } = {
         text,
         intent: (this.readOptionalString(body.intent) as ExperienceCommand['intent']) || 'ask',
@@ -675,7 +710,11 @@ export class ZavorthControlCoreRouteService {
         sessionId: this.readOptionalString(body.sessionId),
         workspace: this.readOptionalString(body.workspace),
         trustMode: (this.readOptionalString(body.trustMode) as ExperienceCommand['trustMode']) || 'protected',
-        metadata: this.readRecord(body.metadata) || { source: 'runtime-api' },
+        responseProfile: this.readOptionalString(body.responseProfile) as ExperienceCommand['responseProfile'],
+        metadata: {
+          ...metadata,
+          trustedDesktopBridge: this.isVerifiedDesktopBridge(req, deps),
+        },
       };
       deps.writeJson(res, await service.executeCommand(command));
       return true;
@@ -881,5 +920,20 @@ export class ZavorthControlCoreRouteService {
       return null;
     }
     return value as Record<string, unknown>;
+  }
+
+  private isVerifiedDesktopBridge(req: http.IncomingMessage, deps: ZavorthControlCoreRouteDeps): boolean {
+    return this.getVerifiedDesktopBridgeUserId(req, deps) !== null;
+  }
+
+  private getVerifiedDesktopBridgeUserId(req: http.IncomingMessage, deps: ZavorthControlCoreRouteDeps): string | null {
+    if (req.headers['x-zavorth-desktop-bridge'] !== '1') {
+      return null;
+    }
+    const identity = deps.authService?.resolveAuthenticatedIdentity(req);
+    if (identity?.authenticated !== true || !identity.userId) {
+      return null;
+    }
+    return identity.userId;
   }
 }

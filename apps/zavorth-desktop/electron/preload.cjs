@@ -6,6 +6,7 @@ contextBridge.exposeInMainWorld('zavorthDesktop', {
   apiRequest: request => ipcRenderer.invoke('zavorth:api:request', request),
   repairAccess: () => ipcRenderer.invoke('zavorth:access:repair'),
   startSetup: () => ipcRenderer.invoke('zavorth:setup:start'),
+  selectWorkspaceFolder: () => ipcRenderer.invoke('zavorth:workspace:select-folder'),
   openLogs: () => ipcRenderer.invoke('zavorth:logs:open'),
   onBootEvent: callback => {
     const listener = (_event, payload) => callback(payload);

@@ -8,6 +8,7 @@ declare global {
       apiRequest<T = unknown>(request: DesktopApiRequest): Promise<DesktopApiResult<T>>;
       repairAccess(): Promise<RuntimeStatus>;
       startSetup(): Promise<{ ok: boolean; command: string; message: string }>;
+      selectWorkspaceFolder(): Promise<{ canceled: boolean; path: string | null; label: string | null }>;
       openLogs(): Promise<{ ok: boolean; path: string }>;
       onBootEvent(callback: (event: BootEvent) => void): () => void;
     };

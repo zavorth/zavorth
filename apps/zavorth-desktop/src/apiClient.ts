@@ -29,6 +29,7 @@ export type ExperienceSnapshot = {
     readiness?: ChannelItem[];
   };
   runtime?: Record<string, unknown>;
+  raw?: Record<string, unknown>;
 };
 
 export type AskResponse = {
@@ -138,6 +139,15 @@ export type DesktopPanelsData = {
   memoryEncryptionStatus: MemoryEncryptionStatus | null;
 };
 
+export type RuntimeStateActionInput = {
+  type: string;
+  approved?: boolean;
+  previewOnly?: boolean;
+  sessionId?: string | null;
+  source?: string | null;
+  payload?: Record<string, unknown>;
+};
+
 function bridge() {
   if (!window.zavorthDesktop) {
     throw new Error('Zavorth Desktop bridge is unavailable.');
@@ -187,6 +197,15 @@ export async function sendExperienceMessage(input: {
   responseProfile?: string;
   effort?: string;
   profile?: string;
+  model?: string;
+  connectedModelIds?: string[];
+  workspace?: {
+    id: string;
+    label: string;
+    kind: string;
+    path: string | null;
+    confinement: string;
+  };
 }): Promise<AskResponse> {
   const result = await apiRequest<AskResponse>({
     method: 'POST',
@@ -197,10 +216,14 @@ export async function sendExperienceMessage(input: {
       surface: 'api',
       userId: 'desktop-user',
       responseProfile: input.responseProfile,
+      model: input.model,
       metadata: {
         client: 'zavorth-desktop',
         effort: input.effort,
+        model: input.model,
+        connectedModelIds: input.connectedModelIds || [],
         profile: input.profile,
+        workspace: input.workspace,
       },
     },
     timeoutMs: 60000,
@@ -316,6 +339,25 @@ export async function runMemoryEncryptionMigration(input: {
     timeoutMs: 60000,
   });
   return requireOk(result, 'Could not update memory protection.');
+}
+
+export async function dispatchRuntimeStateAction(input: RuntimeStateActionInput): Promise<unknown> {
+  const result = await apiRequest({
+    method: 'POST',
+    path: '/api/experience/runtime-state/action',
+    body: {
+      type: input.type,
+      approved: input.approved,
+      previewOnly: input.previewOnly,
+      surface: 'api',
+      userId: 'desktop-user',
+      sessionId: input.sessionId || undefined,
+      source: input.source || 'zavorth-desktop',
+      payload: input.payload || {},
+    },
+    timeoutMs: 20000,
+  });
+  return requireOk(result, 'Could not update runtime state.');
 }
 
 export async function steerActiveRun(input: {
