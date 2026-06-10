@@ -117,6 +117,7 @@ export type ExperienceHomeInput = {
   activeTraceId?: string | null;
   userId?: string | null;
   responseProfile?: ExperienceResponseProfileId | null;
+  metadata?: Record<string, unknown> | null;
 };
 
 function normalizeText(value: unknown, fallback = ''): string {
@@ -365,18 +366,20 @@ export class ExperienceCoreService {
       trust,
       requestedProfile: input.responseProfile || persistedProfile || null,
     });
-    const runtimeState = this.publishRuntimeStateProjection({
-      surface,
-      sessionId: sessionId || activeRun?.sessionId || null,
-      userId,
-      workspace: workspace || activeRun?.workspace || null,
-      agentSnapshot,
-      activeRun,
-      approvals,
-      pendingLearningCount,
-      memorySignalCount: memorySignals.length,
-      healthSummary: health.summary,
-    });
+    const runtimeState = input.metadata?.skipRuntimeProjection === true
+      ? this.safeRuntimeStateSnapshot()
+      : this.publishRuntimeStateProjection({
+        surface,
+        sessionId: sessionId || activeRun?.sessionId || null,
+        userId,
+        workspace: workspace || activeRun?.workspace || null,
+        agentSnapshot,
+        activeRun,
+        approvals,
+        pendingLearningCount,
+        memorySignalCount: memorySignals.length,
+        healthSummary: health.summary,
+      });
 
     return {
       contractVersion: EXPERIENCE_SNAPSHOT_CONTRACT_VERSION,
@@ -494,8 +497,16 @@ export class ExperienceCoreService {
         const result = command.approval.decision === 'approve'
           ? await this.agentGateway?.approve(command.approval.id)
           : await this.agentGateway?.reject(command.approval.id);
-        this.publishRuntimeApprovalDecision(command, Boolean(result));
-        const snapshot = this.buildHome(command);
+        if (result) {
+          this.publishRuntimeApprovalDecision(command, true);
+        }
+        const snapshot = result ? this.buildHome(command) : this.buildHome({
+          ...command,
+          metadata: {
+            ...command.metadata,
+            skipRuntimeProjection: true,
+          },
+        });
         const reply = this.replyFromText(
           result
             ? `Approval ${command.approval.decision === 'approve' ? 'approved' : 'rejected'}: ${command.approval.id}.`

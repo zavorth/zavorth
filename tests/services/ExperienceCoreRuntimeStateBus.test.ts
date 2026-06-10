@@ -107,6 +107,33 @@ describe('ExperienceCoreService runtime state bus integration', () => {
       now: () => new Date('2026-06-09T10:00:00.000Z'),
     });
 
+    expect(service.dispatchRuntimeStateAction({
+      type: 'set-model',
+      approved: true,
+      source: 'zavorth-desktop-bridge',
+      connectedModelIds: ['zavorth:core', 'openai:gpt-5'],
+      payload: { model: 'openai:gpt-5' },
+    })?.ok).toBe(true);
+    expect(service.dispatchRuntimeStateAction({
+      type: 'set-effort',
+      approved: true,
+      source: 'zavorth-desktop-bridge',
+      payload: { effort: 'ultra' },
+    })?.ok).toBe(true);
+    expect(service.dispatchRuntimeStateAction({
+      type: 'set-workspace',
+      approved: true,
+      source: 'zavorth-desktop-bridge',
+      payload: {
+        workspace: {
+          id: 'folder:test',
+          label: 'workspace',
+          kind: 'folder',
+          path: workspace,
+        },
+      },
+    })?.ok).toBe(true);
+
     const result = await service.executeCommand({
       text: 'implementar uma melhoria no workspace',
       intent: 'run',
@@ -116,16 +143,7 @@ describe('ExperienceCoreService runtime state bus integration', () => {
       responseProfile: 'dev',
       metadata: {
         client: 'zavorth-desktop',
-        trustedDesktopBridge: true,
-        effort: 'ultra',
-        model: 'openai:gpt-5',
         connectedModelIds: ['zavorth:core', 'openai:gpt-5'],
-        workspace: {
-          id: 'folder:test',
-          label: 'workspace',
-          kind: 'folder',
-          path: workspace,
-        },
       },
     });
 
