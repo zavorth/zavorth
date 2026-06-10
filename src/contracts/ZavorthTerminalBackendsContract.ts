@@ -1,5 +1,5 @@
 export const ZAVORTH_TERMINAL_BACKENDS_CONTRACT_VERSION =
-  '2026-05-24.terminal-backends-phase-6' as const;
+  '2026-05-24.terminal-backends-phase-7' as const;
 
 export type ZavorthTerminalBackendId =
   | 'local'
@@ -17,12 +17,20 @@ export type ZavorthTerminalBackendAction =
 
 export type ZavorthTerminalBackendStatus =
   | 'ready'
+  | 'available-on-demand'
   | 'needs-configuration'
   | 'approval-required'
   | 'blocked'
   | 'preview'
   | 'planned'
   | 'executed';
+
+export type ZavorthTerminalBackendActivationMode =
+  | 'always'
+  | 'configured'
+  | 'on-demand'
+  | 'manual'
+  | 'planned';
 
 export type ZavorthTerminalCommandRisk =
   | 'read-only'
@@ -38,17 +46,29 @@ export type ZavorthTerminalBackendReceipt = {
   rawSecretSerialized: false;
 };
 
+export type ZavorthTerminalBackendReadinessProof = {
+  kind: 'local-host' | 'not-configured' | 'configured-only' | 'available-dormant' | 'host-probe' | 'probe-failed' | 'planned';
+  observed: boolean;
+  summary: string;
+  command: string | null;
+  rawSecretSerialized: false;
+};
+
 export type ZavorthTerminalBackendDescriptor = {
   id: ZavorthTerminalBackendId;
   label: string;
-  status: 'ready' | 'needs-configuration' | 'planned';
+  status: 'ready' | 'available-on-demand' | 'needs-configuration' | 'planned';
   isolation: 'host-process' | 'container' | 'remote-shell' | 'linux-vm' | 'managed-cloud-sandbox' | 'cloud-function' | 'cloud-dev-workspace' | 'planned-cloud-workspace';
+  installed: boolean;
+  dormant: boolean;
+  activationMode: ZavorthTerminalBackendActivationMode;
   liveCapable: boolean;
   liveReady: boolean;
   requiresConfiguration: string[];
   defaultCommand: string;
   nextCommand: string;
   limitations: string[];
+  readinessProof: ZavorthTerminalBackendReadinessProof;
 };
 
 export type ZavorthTerminalBackendInput = {

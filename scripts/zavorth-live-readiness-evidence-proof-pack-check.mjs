@@ -9,6 +9,7 @@ const rules = [
   packageScriptsWired(),
   workspaceCheckWired(),
   runProofPackSnapshot(),
+  runRequireLiveModeSnapshot(),
 ];
 const failed = rules.filter((rule) => rule.status === 'failed');
 const snapshot = { generatedAt: new Date().toISOString(), status: failed.length > 0 ? 'failed' : 'passed', rules };
@@ -72,10 +73,44 @@ function runProofPackSnapshot() {
       && data.policy?.smokeProofDoesNotUseExternalIo === true
       && data.summary?.rawSecretsSerialized === false
       && data.summary?.providerNetworkUsed === false
-      && data.summary?.liveChannelSendPerformed === false;
+      && data.summary?.liveChannelSendPerformed === false
+      && data.summary?.liveProofRequired === (data.operationalClosure?.liveProofSatisfied === false)
+      && ['live-proved', 'live-proof-required', 'blocked'].includes(data.operationalClosure?.status)
+      && Array.isArray(data.operationalClosure?.requirements)
+      && data.operationalClosure.requirements.length >= 4
+      && data.operationalClosure.requirements.some((item) => item.id === 'provider.default-route-live-proof')
+      && data.operationalClosure.requirements.some((item) => item.id === 'execution.strong-backend-live-proof');
     return rule('snapshot', 'Proof pack snapshot runs', pass, `status=${data.status}; entries=${data.summary?.entries}`, 'live readiness evidence with no false readiness or unsafe IO', pass ? [] : [JSON.stringify(data, null, 2)]);
   } catch (error) {
     return rule('snapshot', 'Proof pack snapshot runs', false, 'invalid JSON', 'valid JSON output', [String(error), ...compact(result.stderr, result.stdout)]);
+  }
+}
+
+function runRequireLiveModeSnapshot() {
+  const result = spawnSync(process.execPath, [
+    path.join(root, 'node_modules', 'tsx', 'dist', 'cli.mjs'),
+    'scripts/zavorth-live-readiness-evidence-proof-pack.ts',
+    '--json',
+    '--require-live',
+  ], { cwd: root, encoding: 'utf8', env: process.env });
+  try {
+    const data = JSON.parse(result.stdout);
+    const expectedStatus = data.operationalClosure?.liveProofSatisfied === true ? 0 : 2;
+    const pass = result.status === expectedStatus
+      && data.operationalClosure?.codeReady === true
+      && (data.operationalClosure.liveProofSatisfied === true
+        || data.operationalClosure.nextCommands.length > 0)
+      && data.operationalClosure.requirements.every((item) => typeof item.command === 'string' && item.command.length > 0);
+    return rule(
+      'require-live-mode',
+      'Strict live mode fails only when live proof is actually incomplete',
+      pass,
+      `exit=${result.status}; closure=${data.operationalClosure?.status}`,
+      'exit 0 when live-proved, exit 2 with actionable commands when live proof is missing',
+      pass ? [] : [JSON.stringify(data.operationalClosure, null, 2), ...compact(result.stderr)],
+    );
+  } catch (error) {
+    return rule('require-live-mode', 'Strict live mode fails only when live proof is actually incomplete', false, 'invalid JSON', 'valid JSON output', [String(error), ...compact(result.stderr, result.stdout)]);
   }
 }
 

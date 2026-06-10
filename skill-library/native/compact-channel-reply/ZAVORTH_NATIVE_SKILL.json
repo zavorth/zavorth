@@ -1,0 +1,17 @@
+{
+  "id": "compact-channel-reply",
+  "name": "Compact Channel Reply",
+  "native": true,
+  "description": "Shape short, high-signal replies for mobile, chat, CLI, and status surfaces.",
+  "category": "channels",
+  "publicCommands": ["/brief", "/short", "/caveman"],
+  "permissionProfileId": "local-readonly",
+  "riskLevel": "low",
+  "capabilityTags": ["workflow"],
+  "presets": ["basic", "developer", "ops", "power-user"],
+  "inputContract": ["draft response", "surface context", "safety status"],
+  "outputContract": ["compact response", "visible next action"],
+  "noExecutionByDefault": true,
+  "requiresPolicyBroker": true,
+  "receiptsRequired": true
+}

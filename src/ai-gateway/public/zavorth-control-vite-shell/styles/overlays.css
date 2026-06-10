@@ -1,28 +1,7 @@
 /*
  * Zavorth Nexus - Overlay System
- * Boot Gate, Core Modals, Signal Toasts, Command Palette.
+ * Core Modals, Signal Toasts, Command Palette.
  */
-
-/* --- Boot Gate --- */
-#boot-gate {
-  position: fixed;
-  inset: 0;
-  z-index: 9999;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  background: var(--b-app-gradient);
-  backdrop-filter: blur(var(--b-glass-blur)) saturate(var(--b-glass-saturate));
-  -webkit-backdrop-filter: blur(var(--b-glass-blur)) saturate(var(--b-glass-saturate));
-  transition: opacity 0.4s var(--b-ease-out), visibility 0.4s;
-}
-#boot-gate.hidden {
-  display: none;
-  opacity: 0;
-  visibility: hidden;
-  pointer-events: none;
-}
 
 nextjs-portal,
 [data-nextjs-toast],
@@ -32,47 +11,6 @@ nextjs-portal,
 .__nextjs-dev-overlay,
 .__nextjs-build-watcher {
   display: none !important;
-}
-
-.boot-gate__brand {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 20px;
-  animation: b-rise 0.6s var(--b-ease-spring);
-}
-
-.boot-gate__logo {
-  width: 80px;
-  height: 80px;
-  border-radius: var(--b-radius-xl);
-  box-shadow: 0 0 60px var(--b-pulse-subtle);
-  animation: b-glow-pulse 3s ease-in-out infinite;
-}
-.boot-gate__logo svg { width: 100%; height: 100%; display: block; }
-
-.boot-gate__status {
-  font-family: var(--b-mono);
-  font-size: 13px;
-  color: var(--b-pulse);
-  letter-spacing: 0.04em;
-  margin-top: 10px;
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-
-.boot-spinner {
-  width: 16px;
-  height: 16px;
-  border: 2px solid color-mix(in srgb, var(--b-pulse) 30%, transparent);
-  border-top-color: var(--b-pulse);
-  border-radius: 50%;
-  animation: b-spin 0.8s linear infinite;
-}
-
-@keyframes b-spin {
-  to { transform: rotate(360deg); }
 }
 
 /* --- Overlay Shade --- */
@@ -322,7 +260,7 @@ nextjs-portal,
 }
 
 .core-modal.core-modal--unlock {
-  width: min(560px, calc(100vw - 32px));
+  width: min(480px, calc(100vw - 32px));
 }
 
 .core-modal__header {
@@ -358,12 +296,12 @@ nextjs-portal,
 
 .zavorth-unlock-card {
   display: grid;
-  gap: 14px;
+  gap: 16px;
 }
 
 .zavorth-unlock-card__header {
   display: grid;
-  grid-template-columns: auto minmax(0, 1fr) auto;
+  grid-template-columns: auto minmax(0, 1fr);
   align-items: center;
   gap: 12px;
 }
@@ -399,6 +337,7 @@ nextjs-portal,
 }
 
 .zavorth-unlock-card__reason,
+.zavorth-unlock-card__storage,
 .zavorth-unlock-feedback {
   margin: 0;
   color: var(--b-signal-muted);
@@ -406,9 +345,15 @@ nextjs-portal,
   line-height: 1.55;
 }
 
+.zavorth-unlock-card__storage {
+  margin-top: -6px;
+  font-size: 0.78rem;
+}
+
 .zavorth-unlock-status-grid {
   display: grid;
   gap: 0;
+  margin-top: 10px;
   border-top: 1px solid color-mix(in srgb, var(--b-glass-border) 58%, transparent);
   border-bottom: 1px solid color-mix(in srgb, var(--b-glass-border) 58%, transparent);
 }
@@ -466,9 +411,9 @@ nextjs-portal,
 
 .zavorth-secret-field input {
   width: 100%;
-  min-height: 44px;
+  min-height: 46px;
   border: 1px solid color-mix(in srgb, var(--b-glass-border) 72%, transparent);
-  border-radius: 14px;
+  border-radius: 16px;
   background: color-mix(in srgb, var(--b-void) 78%, transparent);
   color: var(--b-signal-strong);
   font: inherit;
@@ -483,9 +428,9 @@ nextjs-portal,
 
 .zavorth-secret-field button {
   min-width: 84px;
-  min-height: 44px;
+  min-height: 46px;
   border: 1px solid color-mix(in srgb, var(--b-glass-border) 72%, transparent);
-  border-radius: 14px;
+  border-radius: 16px;
   background: color-mix(in srgb, var(--b-glass-highlight) 32%, transparent);
   color: var(--b-signal);
   font-weight: 700;
@@ -501,6 +446,7 @@ nextjs-portal,
   display: flex;
   flex-wrap: wrap;
   gap: 8px;
+  padding: 0 14px 14px;
 }
 
 .zavorth-unlock-actions button {
@@ -525,22 +471,58 @@ nextjs-portal,
 
 .zavorth-unlock-help {
   display: grid;
-  gap: 7px;
-  padding: 2px 0 0;
-  border: 0;
-  border-top: 1px solid color-mix(in srgb, var(--b-glass-border) 48%, transparent);
-  border-radius: 0;
-  background: transparent;
+  gap: 0;
+  padding: 0;
+  border: 1px solid color-mix(in srgb, var(--b-glass-border) 55%, transparent);
+  border-radius: 16px;
+  background: color-mix(in srgb, var(--b-glass-highlight) 18%, transparent);
 }
 
-.zavorth-unlock-help strong {
+.zavorth-unlock-help__toggle {
+  cursor: pointer;
+  width: 100%;
+  border: 0;
+  background: transparent;
+  color: var(--b-signal);
+  padding: 12px 14px;
+  text-align: left;
+  font-size: 0.84rem;
+  font-weight: 760;
+}
+
+.zavorth-unlock-help__toggle::after {
+  content: "+";
+  float: right;
+  color: var(--b-signal-muted);
+  font-family: var(--b-mono);
+}
+
+.zavorth-unlock-help__toggle[aria-expanded="true"] {
+  border-bottom: 1px solid color-mix(in srgb, var(--b-glass-border) 45%, transparent);
+}
+
+.zavorth-unlock-help__toggle[aria-expanded="true"]::after {
+  content: "-";
+}
+
+.zavorth-unlock-help__toggle:hover {
   color: var(--b-signal-strong);
+}
+
+.zavorth-unlock-help__panel {
+  display: grid;
+  gap: 10px;
+  padding-top: 10px;
+}
+
+.zavorth-unlock-help__panel[hidden] {
+  display: none;
 }
 
 .zavorth-unlock-help ol {
   display: grid;
   gap: 4px;
-  margin: 0;
+  margin: 0 14px;
   padding-left: 18px;
   color: var(--b-signal-muted);
   font-size: 0.82rem;
@@ -550,8 +532,8 @@ nextjs-portal,
 .zavorth-unlock-help__path {
   display: grid;
   gap: 4px;
-  margin-top: 2px;
-  padding-top: 6px;
+  margin: 0 14px;
+  padding-top: 2px;
   border-top: 0;
 }
 
@@ -574,12 +556,12 @@ nextjs-portal,
 }
 
 .zavorth-unlock-feedback {
-  padding: 11px 12px;
+  padding: 0;
   border: 0;
-  border-left: 2px solid color-mix(in srgb, var(--b-info) 58%, transparent);
+  border-left: 0;
   border-radius: 0;
   background: transparent;
-  font-size: 0.82rem;
+  font-size: 0.78rem;
 }
 
 .zavorth-unlock-feedback.is-danger {

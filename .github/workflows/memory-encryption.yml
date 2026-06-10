@@ -1,0 +1,28 @@
+name: Memory Encryption
+
+on:
+  workflow_dispatch:
+
+jobs:
+  memory-encryption:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5
+        with:
+          persist-credentials: false
+
+      - name: Setup Node
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Check memory encryption contract
+        run: npm run zavorth:memory-encryption:check --silent
+
+      - name: Prove advanced memory encryption when driver is available
+        run: npm run zavorth:memory-encryption:sqlcipher-smoke --silent

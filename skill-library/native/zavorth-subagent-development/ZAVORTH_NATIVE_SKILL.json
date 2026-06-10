@@ -1,0 +1,21 @@
+{
+  "id": "zavorth-subagent-development",
+  "name": "Zavorth Subagent Development",
+  "native": true,
+  "description": "Coordinate independent implementation tasks through registered Zavorth subagents and staged reviews.",
+  "category": "orchestration",
+  "permissionProfileId": "owner-approved",
+  "riskLevel": "medium",
+  "capabilityTags": ["subagents", "parallel", "implementation", "review", "workflow"],
+  "presets": ["developer", "ops", "power-user"],
+  "inputContract": ["plan", "registered lanes", "workspace scope", "verification criteria"],
+  "outputContract": ["task assignments", "review results", "integration decision"],
+  "inspiredBy": [
+    "Hermes/subagent-driven-development",
+    "AIAgentSkills/obra_superpowers/dispatching-parallel-agents",
+    "AIAgentSkills/obra_superpowers/subagent-driven-development"
+  ],
+  "noExecutionByDefault": true,
+  "requiresPolicyBroker": true,
+  "receiptsRequired": true
+}

@@ -1,9 +1,10 @@
-export const ZAVORTH_NATURAL_RUNTIME_QUESTIONS_CONTRACT_VERSION = '2026-05-15.experience-layer.checkpoint-11' as const;
+export const ZAVORTH_NATURAL_RUNTIME_QUESTIONS_CONTRACT_VERSION = '2026-05-24.experience-layer.checkpoint-12' as const;
 
 export type ZavorthNaturalRuntimeQuestionIntent =
   | 'runtime_summary'
   | 'providers_ready'
   | 'channels_ready'
+  | 'execution_backends_ready'
   | 'approvals_pending'
   | 'receipts_summary'
   | 'setup_gaps'

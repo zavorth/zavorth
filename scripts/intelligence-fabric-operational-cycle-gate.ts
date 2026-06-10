@@ -19,6 +19,7 @@ type CycleCheck = {
 
 const asJson = process.argv.includes('--json');
 const now = '2026-05-08T15:00:00.000Z';
+const OPERATIONAL_CYCLE_SAFETY_POLICY = 'No external action, install, deploy, secret access, or shell execution';
 
 main().catch((error) => {
   console.error(error instanceof Error ? error.stack || error.message : String(error));
@@ -46,6 +47,7 @@ async function main(): Promise<void> {
       demoteEndpoint: '/api/web/agent-runs/demote-fabric',
       modeApplied: routeResult.response?.demote?.mode ?? null,
       globalRuntimeChanged: routeResult.response?.demote?.globalRuntimeChanged ?? null,
+      safetyPolicy: OPERATIONAL_CYCLE_SAFETY_POLICY,
     },
     checks,
   };

@@ -36,6 +36,7 @@ export type ZavorthNativeIntelligencePackInput = {
 
 export const ZAVORTH_NATIVE_SKILL_DEFINITIONS: ZavorthNativeSkillDefinition[] = [
   skill('task-planning', 'Task Planning', 'Break unclear goals into safe execution plans, acceptance criteria, and checkpoints.', 'reasoning', 'local-readonly', 'low', ['workflow'], ['basic', 'developer', 'research', 'ops', 'power-user']),
+  skill('guided-plan-review', 'Guided Plan Review', 'Clarify complex plans with one focused question at a time before implementation.', 'reasoning', 'local-readonly', 'low', ['workflow'], ['basic', 'developer', 'research', 'ops', 'power-user']),
   skill('agent-orchestrator', 'Agent Orchestrator', 'Choose, combine, and sequence Zavorth skills or future subagents without inventing ungoverned workers.', 'orchestration', 'local-readonly', 'low', ['workflow', 'automation'], ['basic', 'developer', 'security', 'research', 'ops', 'power-user']),
   skill('large-skill-absorption', 'Large Skill Absorption', 'Plan safe chunking, indexing, summarization, and normalization for oversized skill libraries.', 'orchestration', 'workspace-write-approval', 'medium', ['workflow', 'document'], ['developer', 'security', 'research', 'ops', 'power-user']),
   skill('security-audit', 'Security Audit', 'Review code, runtime, policies, prompts, channels, and tools for security risks with evidence-first findings.', 'security', 'workspace-read', 'medium', ['security', 'code'], ['security', 'developer', 'ops', 'power-user']),
@@ -46,18 +47,20 @@ export const ZAVORTH_NATIVE_SKILL_DEFINITIONS: ZavorthNativeSkillDefinition[] = 
   skill('web-research-governed', 'Web Research Governed', 'Plan and synthesize web research with source attribution, SSRF-safe fetching, and untrusted content boundaries.', 'research', 'network-read-approval', 'medium', ['research'], ['research', 'security', 'power-user']),
   skill('provider-doctor', 'Provider Doctor', 'Diagnose provider, model, credential-ref, rate-limit, and routing readiness without exposing raw secrets.', 'operations', 'connector-live-secretref', 'medium', ['automation'], ['ops', 'developer', 'power-user']),
   skill('channel-response-design', 'Channel Response Design', 'Shape dense, consistent responses for Telegram, WhatsApp, Signal, Discord, iMessage, CLI, and dashboard surfaces.', 'channels', 'local-readonly', 'low', ['workflow'], ['basic', 'ops', 'power-user']),
+  skill('compact-channel-reply', 'Compact Channel Reply', 'Shape short, high-signal replies for mobile, chat, CLI, and status surfaces.', 'channels', 'local-readonly', 'low', ['workflow'], ['basic', 'developer', 'ops', 'power-user']),
   skill('dashboard-ops', 'Dashboard Ops', 'Translate runtime state into dense operational dashboard cards, tables, filters, and safe action models.', 'operations', 'local-readonly', 'low', ['workflow', 'data'], ['ops', 'developer', 'power-user']),
   skill('memory-curator', 'Memory Curator', 'Decide what should be remembered, summarized, retained, redacted, or forgotten under data-lifecycle policy.', 'memory', 'workspace-read', 'medium', ['data', 'document'], ['basic', 'research', 'ops', 'power-user']),
   skill('incident-triage', 'Incident Triage', 'Prioritize errors, degraded integrations, security alerts, regressions, and recovery steps.', 'operations', 'workspace-read', 'medium', ['security', 'workflow'], ['ops', 'security', 'developer', 'power-user']),
   skill('user-onboarding', 'User Onboarding', 'Guide first-run setup, presets, safe defaults, next steps, and plain-language recovery paths.', 'onboarding', 'local-readonly', 'low', ['workflow'], ['basic', 'ops', 'power-user']),
+  skill('governed-test-loop', 'Governed Test Loop', 'Plan a test-first implementation loop through Zavorth preview, approval, execution gates, and receipts.', 'engineering', 'workspace-write-approval', 'medium', ['code', 'workflow'], ['developer', 'ops', 'power-user']),
 ];
 
 const PRESETS: ZavorthNativeSkillPreset[] = [
-  preset('basic', 'Basic', 'Default daily use for normal users with safe planning, orchestration, documents, channels, memory, and onboarding.', ['task-planning', 'agent-orchestrator', 'prompt-injection-defense', 'document-analysis', 'channel-response-design', 'memory-curator', 'user-onboarding'], 'standard-user'),
-  preset('developer', 'Developer', 'Engineering workflow with planning, repository mapping, code review, provider checks, and large skill absorption.', ['task-planning', 'agent-orchestrator', 'large-skill-absorption', 'security-audit', 'code-review', 'repo-map', 'provider-doctor', 'dashboard-ops'], 'developer'),
+  preset('basic', 'Basic', 'Default daily use for normal users with safe planning, guided review, orchestration, documents, channels, memory, and onboarding.', ['task-planning', 'guided-plan-review', 'agent-orchestrator', 'prompt-injection-defense', 'document-analysis', 'channel-response-design', 'compact-channel-reply', 'memory-curator', 'user-onboarding'], 'standard-user'),
+  preset('developer', 'Developer', 'Engineering workflow with planning, guided review, repository mapping, code review, provider checks, test-loop planning, and large skill absorption.', ['task-planning', 'guided-plan-review', 'agent-orchestrator', 'large-skill-absorption', 'security-audit', 'code-review', 'repo-map', 'provider-doctor', 'dashboard-ops', 'compact-channel-reply', 'governed-test-loop'], 'developer'),
   preset('security', 'Security', 'Security-first operations for audits, prompt-injection defense, repository mapping, incidents, and governed research.', ['agent-orchestrator', 'large-skill-absorption', 'security-audit', 'prompt-injection-defense', 'code-review', 'repo-map', 'web-research-governed', 'incident-triage'], 'security-operator'),
-  preset('research', 'Research', 'Evidence-heavy synthesis with document analysis, governed web research, planning, memory, and absorption.', ['task-planning', 'agent-orchestrator', 'large-skill-absorption', 'document-analysis', 'web-research-governed', 'memory-curator'], 'researcher'),
-  preset('ops', 'Ops', 'Runtime operations for provider health, dashboard operations, incidents, channel responses, onboarding, and memory.', ['task-planning', 'agent-orchestrator', 'provider-doctor', 'dashboard-ops', 'incident-triage', 'channel-response-design', 'memory-curator', 'user-onboarding'], 'operator'),
+  preset('research', 'Research', 'Evidence-heavy synthesis with document analysis, governed web research, guided planning, memory, and absorption.', ['task-planning', 'guided-plan-review', 'agent-orchestrator', 'large-skill-absorption', 'document-analysis', 'web-research-governed', 'memory-curator'], 'researcher'),
+  preset('ops', 'Ops', 'Runtime operations for provider health, dashboard operations, incidents, compact channel responses, test-loop planning, onboarding, and memory.', ['task-planning', 'guided-plan-review', 'agent-orchestrator', 'provider-doctor', 'dashboard-ops', 'incident-triage', 'channel-response-design', 'compact-channel-reply', 'governed-test-loop', 'memory-curator', 'user-onboarding'], 'operator'),
   preset('power-user', 'Power User', 'All native intelligence skills with every action still routed through policy and approval gates.', ZAVORTH_NATIVE_SKILL_DEFINITIONS.map((entry) => entry.id), 'power-user'),
 ];
 
@@ -264,6 +267,8 @@ export class ZavorthNativeIntelligencePackService {
           && manifest.name === definition.name
           && manifest.native === true
           && manifest.noExecutionByDefault === true
+          && manifest.requiresPolicyBroker === definition.runtimePolicy.requiresPolicyBroker
+          && manifest.receiptsRequired === definition.runtimePolicy.receiptsRequired
           && manifest.permissionProfileId === definition.permissionProfileId;
         if (!manifestMatchesDefinition) {
           issues.push('manifest does not match native definition');
@@ -290,6 +295,7 @@ export class ZavorthNativeIntelligencePackService {
       skillLoader: new SkillLoader({
         sourceRegistryService: new SkillSourceRegistryService({ projectRoot }),
         skillTrustPolicyService: new SkillTrustPolicyService({ projectRoot }),
+        quiet: true,
       }),
     });
   }

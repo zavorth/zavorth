@@ -5,7 +5,7 @@ import { config } from '../config/index.js';
 export type SecurityOperationalPresetId = 'personal' | 'professional' | 'enterprise';
 export type PresetSecurityProfileId = 'personal' | 'professional' | 'enterprise';
 export type PresetMcpProfile = 'safe' | 'trusted' | 'dangerous';
-export type PresetSkillAllowMode = 'all' | 'explicit' | 'none';
+export type PresetSkillAllowMode = 'all' | 'explicit' | 'review' | 'none';
 export type PresetSkillTrustPolicyDefault = 'allow' | 'deny';
 
 export type SecurityOperationalPresetDefinition = {
@@ -105,8 +105,8 @@ const LOCAL_SKILL_RULES = [
   },
   {
     sourceId: 'workspace-imported-library',
-    mode: 'all' as const,
-    reason: 'Imports curados entram somente depois de revisao local e permanecem auditaveis.',
+    mode: 'review' as const,
+    reason: 'Imports permanecem em revisao ate promocao explicita para uma fonte nativa ou curada.',
   },
 ];
 
@@ -124,7 +124,7 @@ const PRESETS: Record<SecurityOperationalPresetId, SecurityOperationalPresetDefi
     },
     skillPolicy: {
       defaultPolicy: 'deny',
-      allowedSourceIds: ['zavorth-native', 'workspace-agents', 'workspace-library', 'workspace-imported-library'],
+      allowedSourceIds: ['zavorth-native', 'workspace-agents', 'workspace-library'],
       rules: LOCAL_SKILL_RULES,
     },
     continuousSecurity: {
@@ -149,7 +149,7 @@ const PRESETS: Record<SecurityOperationalPresetId, SecurityOperationalPresetDefi
     },
     skillPolicy: {
       defaultPolicy: 'deny',
-      allowedSourceIds: ['zavorth-native', 'workspace-agents', 'workspace-library', 'workspace-imported-library'],
+      allowedSourceIds: ['zavorth-native', 'workspace-agents', 'workspace-library'],
       rules: LOCAL_SKILL_RULES,
     },
     continuousSecurity: {
@@ -174,7 +174,7 @@ const PRESETS: Record<SecurityOperationalPresetId, SecurityOperationalPresetDefi
     },
     skillPolicy: {
       defaultPolicy: 'deny',
-      allowedSourceIds: ['zavorth-native', 'workspace-agents', 'workspace-library', 'workspace-imported-library'],
+      allowedSourceIds: ['zavorth-native', 'workspace-agents', 'workspace-library'],
       rules: LOCAL_SKILL_RULES,
     },
     continuousSecurity: {

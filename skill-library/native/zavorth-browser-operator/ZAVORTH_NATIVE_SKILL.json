@@ -1,20 +1,48 @@
 {
-  "id": "zavorth-browser-operator",
-  "title": "Zavorth Browser Operator",
-  "source": "workspace-library",
-  "trust": "trusted",
-  "tags": [
-    "browser",
-    "operator",
-    "evidence",
-    "local",
-    "approval",
-    "avoid",
-    "behavior",
-    "capture"
-  ],
-  "curatedBy": "zavorth-skill-curator",
-  "contractVersion": "zavorth-skill-curator-live-loop/1",
-  "updatedAt": "2026-05-18T18:40:32.043Z",
-  "safeMetadataApply": true
+    "id":  "zavorth-browser-operator",
+    "title":  "Zavorth Browser Operator",
+    "source":  "workspace-library",
+    "trust":  "trusted",
+    "tags":  [
+                 "browser",
+                 "operator",
+                 "evidence",
+                 "local",
+                 "approval",
+                 "avoid",
+                 "behavior",
+                 "capture"
+             ],
+    "curatedBy":  "zavorth-skill-curator",
+    "contractVersion":  "zavorth-skill-curator-live-loop/1",
+    "updatedAt":  "2026-05-18T18:40:32.043Z",
+    "safeMetadataApply":  true,
+    "name":  "Zavorth Browser Operator",
+    "native":  true,
+    "description":  "Zavorth-owned native skill for browser operator.",
+    "category":  "operations",
+    "permissionProfileId":  "tool-execution-approval",
+    "riskLevel":  "medium",
+    "capabilityTags":  [
+                           "browser",
+                           "workflow"
+                       ],
+    "presets":  [
+                    "developer",
+                    "ops",
+                    "power-user"
+                ],
+    "inputContract":  [
+                          "user intent",
+                          "runtime context",
+                          "policy constraints"
+                      ],
+    "outputContract":  [
+                           "governed guidance",
+                           "next action",
+                           "verification criteria"
+                       ],
+    "noExecutionByDefault":  true,
+    "requiresPolicyBroker":  true,
+    "receiptsRequired":  true
 }

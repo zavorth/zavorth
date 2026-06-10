@@ -38,7 +38,6 @@ const LAUNCH_FACING_RETIRED_EXECUTOR_FILES = [
   'src/execution/execution-gateway/ExecutionGatewayAliases.ts',
   'src/ai-gateway/shared/constants/cliTools.ts',
   'src/ai-gateway/shared/services/cli-runtime/cliRuntimeTools.ts',
-  'src/ai-gateway/app/(zavorthControl)/control/cli-tools/components/managed-cli-tool-card/managedCliToolProfiles.ts',
   'src/ai-gateway/app/api/cli-tools/_shared/externalExecutorSettingsRoute.ts',
   'src/ai-gateway/lib/acp/registry.ts',
   'src/domain/platform-ecosystem/infrastructure/integration-registry/catalog-local.ts',
