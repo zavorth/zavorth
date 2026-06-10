@@ -75,4 +75,11 @@ describe('ZavorthPathCompactor', () => {
     expect(ZavorthPathCompactor.expand('~/docs/file.txt')).toBe('/home/zavorth-user/docs/file.txt');
     expect(ZavorthPathCompactor.expand('/other/path')).toBe('/other/path');
   });
+
+  it('preserves Windows drive roots when expanding compacted paths', () => {
+    homedirSpy = jest.spyOn(os, 'homedir').mockReturnValue('C:/');
+
+    expect(ZavorthPathCompactor.expand('~')).toBe('C:/');
+    expect(ZavorthPathCompactor.expand('~/workspace')).toBe('C:/workspace');
+  });
 });

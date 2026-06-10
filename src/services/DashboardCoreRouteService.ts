@@ -679,11 +679,12 @@ export class DashboardCoreRouteService {
 
     if (pathname === '/api/experience/runtime-state/action' && req.method === 'POST') {
       const body = await deps.readJsonBody(req);
-      const trustedDesktopBridge = this.isVerifiedDesktopBridge(req, deps);
+      const desktopBridgeUserId = this.getVerifiedDesktopBridgeUserId(req, deps);
+      const trustedDesktopBridge = desktopBridgeUserId !== null;
       const result = service.dispatchRuntimeStateAction({
         type: this.readOptionalString(body.type) as any,
         surface: this.readOptionalString(body.surface) || homeInput.surface,
-        userId: this.readOptionalString(body.userId) || 'web-user',
+        userId: desktopBridgeUserId || this.readOptionalString(body.userId) || 'web-user',
         sessionId: this.readOptionalString(body.sessionId) || homeInput.sessionId,
         source: trustedDesktopBridge ? 'zavorth-desktop-bridge' : this.readOptionalString(body.source) || 'runtime-api',
         approved: trustedDesktopBridge || this.parseBoolean(body.approved) === true,
@@ -1035,10 +1036,17 @@ export class DashboardCoreRouteService {
   }
 
   private isVerifiedDesktopBridge(req: http.IncomingMessage, deps: DashboardCoreRouteDeps): boolean {
+    return this.getVerifiedDesktopBridgeUserId(req, deps) !== null;
+  }
+
+  private getVerifiedDesktopBridgeUserId(req: http.IncomingMessage, deps: DashboardCoreRouteDeps): string | null {
     if (req.headers['x-zavorth-desktop-bridge'] !== '1') {
-      return false;
+      return null;
     }
     const identity = deps.authService?.resolveAuthenticatedIdentity(req);
-    return identity?.authenticated === true;
+    if (identity?.authenticated !== true || !identity.userId) {
+      return null;
+    }
+    return identity.userId;
   }
 }
