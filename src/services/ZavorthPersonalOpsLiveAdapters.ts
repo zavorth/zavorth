@@ -408,7 +408,7 @@ function buildGmailRaw(payload: Record<string, unknown>): string {
   const to = normalizeRecipients(payload.to).join(', ');
   const cc = normalizeRecipients(payload.cc).join(', ');
   const bcc = normalizeRecipients(payload.bcc).join(', ');
-  const subject = clean(payload.subject) || '';
+  const subject = sanitizeHeaderValue(clean(payload.subject)) || '';
   const body = clean(payload.body) || '';
   const lines = [
     to ? `To: ${to}` : '',
@@ -476,7 +476,7 @@ function microsoftTask(payload: Record<string, unknown>): Record<string, unknown
 
 function microsoftMailMessage(payload: Record<string, unknown>): Record<string, unknown> {
   return {
-    subject: clean(payload.subject) || '',
+    subject: sanitizeHeaderValue(clean(payload.subject)) || '',
     body: {
       contentType: 'Text',
       content: clean(payload.body) || '',
@@ -512,10 +512,18 @@ function appendUrlParam(url: URL, key: string, value: unknown): void {
 
 function normalizeRecipients(value: unknown): string[] {
   if (Array.isArray(value)) {
-    return value.map((entry) => clean(entry)).filter((entry): entry is string => Boolean(entry));
+    return value
+      .map((entry) => sanitizeHeaderValue(clean(entry)))
+      .filter((entry): entry is string => Boolean(entry));
   }
-  const single = clean(value);
+  const single = sanitizeHeaderValue(clean(value));
   return single ? [single] : [];
+}
+
+function sanitizeHeaderValue(value: string | null): string | null {
+  if (!value) return null;
+  const sanitized = value.replace(/[\r\n]+/g, ' ').trim();
+  return sanitized || null;
 }
 
 function positiveInt(value: unknown, fallback: number): number {

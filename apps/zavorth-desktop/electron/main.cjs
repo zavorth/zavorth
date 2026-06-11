@@ -404,7 +404,6 @@ async function connectGooglePersonalOps() {
     accessToken,
     refreshToken,
     oauthToken: accessToken,
-    clientSecret,
     scopes,
     expiresAt,
     approved: true,

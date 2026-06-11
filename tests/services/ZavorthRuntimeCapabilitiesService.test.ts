@@ -27,6 +27,41 @@ describe('ZavorthRuntimeCapabilitiesService', () => {
         },
       },
     });
+    runtimeStateBus.appendReceipt({
+      id: 'blocked-provider-receipt-1',
+      createdAt: '2026-06-10T11:00:00.000Z',
+      domain: 'model',
+      action: 'set-provider-connection',
+      status: 'blocked',
+      phase: 'receipt',
+      summary: 'Blocked unsafe provider target.',
+      preview: {
+        mutation: 'set provider connection',
+        requiresApproval: true,
+        reason: 'private_network_provider_requires_explicit_local_provider',
+      },
+      approval: {
+        required: true,
+        approved: false,
+        approvalId: null,
+      },
+      safety: {
+        pathValidated: false,
+        rawSecretsSerialized: false,
+        receiptSpoofingPrevented: true,
+        approvalBypassPrevented: true,
+      },
+      metadata: {
+        error: 'private_network_provider_requires_explicit_local_provider',
+        payload: {
+          providerConnection: {
+            providerId: 'openai',
+            label: 'OpenAI unsafe local',
+            targetHost: 'http://127.0.0.1:11434',
+          },
+        },
+      },
+    });
     runtimeStateBus.dispatch({
       type: 'set-provider-connection',
       approved: true,
@@ -105,6 +140,13 @@ describe('ZavorthRuntimeCapabilitiesService', () => {
     expect(snapshot.modelSpecs.selectedSpecId).toBe('daily');
     expect(snapshot.providers.connected.some((provider) => provider.id === 'ollama')).toBe(true);
     expect(snapshot.providers.configurable.some((provider) => provider.id === 'anthropic')).toBe(true);
+    expect(snapshot.providers.blocked).toEqual(expect.arrayContaining([
+      expect.objectContaining({
+        id: 'openai',
+        status: 'blocked',
+        blockReason: 'private_network_provider_requires_explicit_local_provider',
+      }),
+    ]));
     expect(snapshot.workspaceKnowledge.allowedPaths).toEqual([path.normalize('C:/repo')]);
     expect(snapshot.workspaceKnowledge.ragSources).toEqual(expect.arrayContaining([
       expect.objectContaining({ id: 'docs', trusted: true }),

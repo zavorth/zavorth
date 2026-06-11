@@ -105,6 +105,19 @@ describe('ZavorthPersonalOpsOAuthService', () => {
     });
     expect(calls[0].url).toContain('oauth2.googleapis.com/token');
     expect(calls[0].body).toContain('grant_type=refresh_token');
+    expect(calls[0].body).toContain('refresh_token=refresh-secret');
     expect(JSON.stringify(result)).not.toContain('refresh-secret');
+  });
+
+  it('fails closed for unsupported OAuth providers', () => {
+    const service = new ZavorthPersonalOpsOAuthService();
+
+    expect(() => service.buildAuthorizationUrl({
+      provider: 'unknown-provider',
+      clientId: 'client-id',
+      redirectUri: 'http://127.0.0.1/callback',
+      scopes: [],
+      state: 'state',
+    })).toThrow('personal_ops_oauth_provider_unsupported');
   });
 });

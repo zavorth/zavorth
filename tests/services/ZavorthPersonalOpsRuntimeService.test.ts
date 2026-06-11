@@ -46,6 +46,25 @@ function makeRuntime() {
   return { service, bus, secureStorage, adapter };
 }
 
+function approvePersonalOps(
+  bus: ZavorthRuntimeStateBusService,
+  input: { operation: string; connectorId: string },
+): string {
+  const result = bus.dispatch({
+    type: 'sync-command',
+    approved: true,
+    source: 'personal-ops-approval-test',
+    payload: {
+      metadata: {
+        approvalScope: 'personal-ops',
+        operation: input.operation,
+        connectorId: input.connectorId,
+      },
+    },
+  });
+  return result.receipt.id;
+}
+
 class MemoryPersonalOpsAdapter {
   public readonly reads: unknown[] = [];
   public readonly drafts: unknown[] = [];
@@ -176,7 +195,7 @@ describe('ZavorthPersonalOpsRuntimeService', () => {
   });
 
   it('returns a preview and blocks adapters when email operations are missing explicit approval', async () => {
-    const { service, adapter } = makeRuntime();
+    const { service, bus, adapter } = makeRuntime();
     service.connectAccount({
       kind: 'email',
       provider: 'google',
@@ -206,7 +225,7 @@ describe('ZavorthPersonalOpsRuntimeService', () => {
   });
 
   it('creates email drafts without sending and only sends email after approval', async () => {
-    const { service, adapter } = makeRuntime();
+    const { service, bus, adapter } = makeRuntime();
     service.connectAccount({
       kind: 'email',
       provider: 'google',
@@ -216,10 +235,18 @@ describe('ZavorthPersonalOpsRuntimeService', () => {
       profile: 'personal',
     });
 
+    const draftApprovalId = approvePersonalOps(bus, {
+      operation: 'email.draft',
+      connectorId: 'email:ana-example-com',
+    });
+    const sendApprovalId = approvePersonalOps(bus, {
+      operation: 'email.send',
+      connectorId: 'email:ana-example-com',
+    });
     const draft = await service.executeOperation({
       operation: 'email.draft',
       connectorId: 'email:ana-example-com',
-      approvalId: 'approval-draft-1',
+      approvalId: draftApprovalId,
       approved: true,
       payload: {
         to: ['bob@example.com'],
@@ -231,7 +258,7 @@ describe('ZavorthPersonalOpsRuntimeService', () => {
     const send = await service.executeOperation({
       operation: 'email.send',
       connectorId: 'email:ana-example-com',
-      approvalId: 'approval-send-1',
+      approvalId: sendApprovalId,
       approved: true,
       payload: {
         to: ['bob@example.com'],
@@ -252,7 +279,7 @@ describe('ZavorthPersonalOpsRuntimeService', () => {
   });
 
   it('governs calendar and task writes with approval-backed receipts', async () => {
-    const { service, adapter } = makeRuntime();
+    const { service, bus, adapter } = makeRuntime();
     service.connectAccount({
       kind: 'calendar',
       provider: 'google',
@@ -276,10 +303,18 @@ describe('ZavorthPersonalOpsRuntimeService', () => {
       payload: { title: 'Consulta', startsAt: '2026-06-11T10:00:00-03:00' },
       profile: 'personal',
     });
+    const eventApprovalId = approvePersonalOps(bus, {
+      operation: 'calendar.create-event',
+      connectorId: 'calendar:ana-example-com',
+    });
+    const taskApprovalId = approvePersonalOps(bus, {
+      operation: 'task.update',
+      connectorId: 'task:ana-example-com',
+    });
     const event = await service.executeOperation({
       operation: 'calendar.create-event',
       connectorId: 'calendar:ana-example-com',
-      approvalId: 'approval-calendar-1',
+      approvalId: eventApprovalId,
       approved: true,
       payload: { title: 'Consulta', startsAt: '2026-06-11T10:00:00-03:00' },
       profile: 'personal',
@@ -287,7 +322,7 @@ describe('ZavorthPersonalOpsRuntimeService', () => {
     const task = await service.executeOperation({
       operation: 'task.update',
       connectorId: 'task:ana-example-com',
-      approvalId: 'approval-task-1',
+      approvalId: taskApprovalId,
       approved: true,
       payload: { taskId: 'task-123', title: 'Revisar PR', status: 'done' },
       profile: 'personal',

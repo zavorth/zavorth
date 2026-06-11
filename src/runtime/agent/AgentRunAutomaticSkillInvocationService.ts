@@ -115,16 +115,23 @@ export class AgentRunAutomaticSkillInvocationService {
           .filter(Boolean)
         : [];
 
+      const bridgeStatus = normalizeText((bridgeSnapshot as { status?: unknown }).status);
+      const blockedByBridge = ['denied', 'not-found', 'approval-required'].includes(bridgeStatus);
+
       return this.finalizeSnapshot({
         run: input.run,
         generatedAt,
-        status: 'selected',
+        status: blockedByBridge ? 'blocked' : 'selected',
         selectedSkillName: selectedSkill.name,
         supportSkillName: selection.supportSkillName || null,
-        bridgeStatus: String((bridgeSnapshot as { status?: unknown }).status || 'selected'),
+        bridgeStatus: bridgeStatus || (blockedByBridge ? 'blocked' : 'selected'),
         receiptIds,
-        promptEnvelopeText: normalizeText((bridgeSnapshot as { promptEnvelope?: { text?: unknown } | null }).promptEnvelope?.text) || null,
-        reason: `Auto-selected governed skill "${selectedSkill.name}" em modo dry-run.`,
+        promptEnvelopeText: blockedByBridge
+          ? null
+          : normalizeText((bridgeSnapshot as { promptEnvelope?: { text?: unknown } | null }).promptEnvelope?.text) || null,
+        reason: blockedByBridge
+          ? `Auto-skill invocation blocked by governed bridge (${bridgeStatus || 'blocked'}).`
+          : `Auto-selected governed skill "${selectedSkill.name}" em modo dry-run.`,
         skillCount: skills.length,
       });
     } catch (error) {

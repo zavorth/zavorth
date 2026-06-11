@@ -102,6 +102,30 @@ describe('zavorth desktop runtime state helpers', () => {
     });
 
     expect(runtimeInstrumentActionInput({
+      domain: 'gateway',
+      operation: 'route-model',
+      metadata: {
+        runtimeActionType: 'route-model',
+        dynamicRouting: {
+          modelId: 'openai:gpt-5',
+          providerId: 'openai',
+          specId: 'coding',
+          reason: 'test route',
+        },
+        model: { id: 'openai:gpt-5' },
+      },
+    })).toMatchObject({
+      type: 'route-model',
+      payload: {
+        dynamicRouting: expect.objectContaining({
+          modelId: 'openai:gpt-5',
+          providerId: 'openai',
+          specId: 'coding',
+        }),
+      },
+    });
+
+    expect(runtimeInstrumentActionInput({
       domain: 'context',
       operation: 'scope-knowledge',
       metadata: {

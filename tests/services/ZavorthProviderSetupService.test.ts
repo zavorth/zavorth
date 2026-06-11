@@ -26,6 +26,18 @@ describe('ZavorthProviderSetupService', () => {
     expect(preview.blockReason).toBe('private_network_provider_requires_explicit_local_provider');
   });
 
+  it('canonicalizes provider target hosts before private-network policy checks', () => {
+    const service = new ZavorthProviderSetupService();
+    const preview = service.preview({
+      providerId: 'openai',
+      targetHost: 'https://public.example@127.0.0.1:11434/v1',
+      credentialPresent: true,
+    });
+
+    expect(preview.status).toBe('blocked');
+    expect(preview.localLoopback).toBe(true);
+  });
+
   it('allows Ollama loopback setup as a local provider', () => {
     const service = new ZavorthProviderSetupService();
     const connection = service.toRuntimeConnection({

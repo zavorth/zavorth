@@ -13,9 +13,9 @@ import { SecureStorageService } from './SecureStorageService.js';
 import { TrustedWorkspacePolicyService } from './TrustedWorkspacePolicyService.js';
 import { ZavorthRuntimeStateBusService } from './ZavorthRuntimeStateBusService.js';
 
-type RuntimeStateBusLike = Pick<ZavorthRuntimeStateBusService, 'dispatch' | 'buildSnapshot'>;
+type RuntimeStateBusLike = Pick<ZavorthRuntimeStateBusService, 'dispatch' | 'buildSnapshot' | 'appendReceipt'>;
 type SecureStorageLike = Pick<SecureStorageService, 'writeSecret' | 'readSecret'>;
-type WorkspacePolicyLike = Pick<TrustedWorkspacePolicyService, 'validatePolicyInput'>;
+type WorkspacePolicyLike = Pick<TrustedWorkspacePolicyService, 'validatePolicyInput' | 'evaluate'>;
 type McpPolicyLike = Pick<McpToolPolicyFileService, 'setProfile' | 'allowTool' | 'removeTool' | 'readPolicy'>;
 
 export type ZavorthRuntimeSecureIntegrationRuntime = {
@@ -198,16 +198,6 @@ export class ZavorthRuntimeSecureIntegrationService {
     const toolNames = Array.isArray(trust.toolNames)
       ? trust.toolNames.map((entry) => safeId(entry)).filter((entry): entry is string => Boolean(entry))
       : [];
-    if (this.mcpPolicy) {
-      this.mcpPolicy.setProfile(profileForMcpTrustState(state));
-      for (const toolName of toolNames) {
-        if (state === 'trusted') {
-          this.mcpPolicy.allowTool(toolName);
-        } else {
-          this.mcpPolicy.removeTool(toolName);
-        }
-      }
-    }
     const nextInput = this.withPayload(input, {
       mcpTrust: {
         ...trust,
@@ -221,7 +211,18 @@ export class ZavorthRuntimeSecureIntegrationService {
         rawSecretsSerialized: false,
       },
     });
-    return this.runtimeStateBus.dispatch(nextInput);
+    const result = this.runtimeStateBus.dispatch(nextInput);
+    if (result.ok && result.receipt.approval.approved && this.mcpPolicy) {
+      this.mcpPolicy.setProfile(profileForMcpTrustState(state));
+      for (const toolName of toolNames) {
+        if (state === 'trusted') {
+          this.mcpPolicy.allowTool(toolName);
+        } else {
+          this.mcpPolicy.removeTool(toolName);
+        }
+      }
+    }
+    return result;
   }
 
   private storeSecretFields(input: {
@@ -296,6 +297,10 @@ export class ZavorthRuntimeSecureIntegrationService {
         if (!validation.ok) {
           return { ok: false, paths: normalizedPaths, rejectedPath: validation.path, reason: validation.reason || 'workspace-policy-blocked' };
         }
+        const evaluation = this.workspacePolicy.evaluate(resolved);
+        if (!evaluation.allowedForVelocity) {
+          return { ok: false, paths: normalizedPaths, rejectedPath: evaluation.path || resolved, reason: evaluation.reason || 'workspace-policy-blocked' };
+        }
       }
       normalizedPaths.push(resolved);
     }
@@ -308,7 +313,6 @@ export class ZavorthRuntimeSecureIntegrationService {
     error: string,
     metadata: Record<string, unknown> = {},
   ): ZavorthRuntimeStateBusDispatchResult {
-    const snapshot = this.runtimeStateBus.buildSnapshot();
     const receipt: ZavorthRuntimeStateReceipt = {
       id: this.nextReceiptId(),
       createdAt: this.now().toISOString(),
@@ -335,10 +339,12 @@ export class ZavorthRuntimeSecureIntegrationService {
       },
       metadata: {
         ...metadata,
+        error,
         source: 'ZavorthRuntimeSecureIntegrationService',
         rawSecretsSerialized: false,
       },
     };
+    const snapshot = this.runtimeStateBus.appendReceipt(receipt);
     return {
       ok: false,
       applied: false,
