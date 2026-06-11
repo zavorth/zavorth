@@ -147,6 +147,8 @@ export type ZavorthRuntimePersonalConnector = {
   id: string;
   kind: 'email' | 'calendar' | 'task';
   label: string;
+  provider?: string | null;
+  accountEmailDomain?: string | null;
   status: 'disabled' | 'configured' | 'needs-setup' | 'blocked';
   enabled: boolean;
   readAllowed: boolean;

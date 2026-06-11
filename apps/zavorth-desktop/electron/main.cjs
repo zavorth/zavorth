@@ -11,7 +11,8 @@ const http = require('node:http');
 const https = require('node:https');
 const os = require('node:os');
 const path = require('node:path');
-const { spawn } = require('node:child_process');
+const { pathToFileURL } = require('node:url');
+const { execFileSync, spawn } = require('node:child_process');
 
 let mainWindow = null;
 let runtimeProcess = null;
@@ -51,6 +52,7 @@ function resolveRuntimePaths() {
     runtimeDir,
     logsDir,
     tokenFile: process.env.ZAVORTH_WEB_AUTH_TOKEN_FILE || path.join(runtimeDir, 'web-api-token.txt'),
+    hostLockFile: path.join(runtimeDir, 'host-supervisor.lock.json'),
     cliBin: path.join(repoRoot, 'bin', 'zavorth.js'),
   };
 }
@@ -65,6 +67,60 @@ function emitBootEvent(type, message) {
   if (mainWindow && !mainWindow.isDestroyed()) {
     mainWindow.webContents.send('zavorth:boot:event', event);
   }
+}
+
+function readWindowsProcessCommandLine(pid) {
+  if (process.platform !== 'win32' || !pid) {
+    return '';
+  }
+  try {
+    return String(execFileSync('powershell.exe', [
+      '-NoProfile',
+      '-Command',
+      `(Get-CimInstance Win32_Process -Filter "ProcessId=${Number(pid)}").CommandLine`,
+    ], { encoding: 'utf8', windowsHide: true, timeout: 3000 }) || '').trim();
+  } catch {
+    return '';
+  }
+}
+
+function repairStaleHostLock() {
+  const { hostLockFile } = resolveRuntimePaths();
+  let lock = null;
+  try {
+    lock = JSON.parse(fs.readFileSync(hostLockFile, 'utf8'));
+  } catch {
+    return false;
+  }
+  const pid = Number(lock && lock.pid);
+  if (!Number.isFinite(pid) || pid <= 0) {
+    fs.rmSync(hostLockFile, { force: true });
+    emitBootEvent('warn', 'Removed invalid Zavorth host lock.');
+    return true;
+  }
+  try {
+    process.kill(pid, 0);
+  } catch {
+    fs.rmSync(hostLockFile, { force: true });
+    emitBootEvent('warn', `Removed stale Zavorth host lock for PID ${pid}.`);
+    return true;
+  }
+  const commandLine = readWindowsProcessCommandLine(pid).toLowerCase();
+  const looksLikeHost = commandLine.includes('src\\host.ts')
+    || commandLine.includes('src/host.ts')
+    || commandLine.includes('dist\\host.js')
+    || commandLine.includes('dist/host.js')
+    || commandLine.includes('bin\\zavorth.js')
+    || commandLine.includes('bin/zavorth.js');
+  const looksLikeDesktop = commandLine.includes('electron.exe')
+    || commandLine.includes('apps\\zavorth-desktop')
+    || commandLine.includes('apps/zavorth-desktop');
+  if (!looksLikeHost || looksLikeDesktop) {
+    fs.rmSync(hostLockFile, { force: true });
+    emitBootEvent('warn', `Removed stale Zavorth host lock pointing at PID ${pid}.`);
+    return true;
+  }
+  return false;
 }
 
 function isWeakToken(value) {
@@ -199,6 +255,206 @@ function requestJson(url, options) {
   });
 }
 
+function readGoogleOAuthConfig() {
+  const clientId = String(process.env.ZAVORTH_GOOGLE_OAUTH_CLIENT_ID || process.env.GOOGLE_OAUTH_CLIENT_ID || '').trim();
+  const clientSecret = String(process.env.ZAVORTH_GOOGLE_OAUTH_CLIENT_SECRET || process.env.GOOGLE_OAUTH_CLIENT_SECRET || '').trim();
+  if (!clientId || !clientSecret) {
+    throw new Error('Google OAuth desktop client is not configured.');
+  }
+  return { clientId, clientSecret };
+}
+
+function exchangeGoogleOAuthCode(input) {
+  const body = new URLSearchParams();
+  body.set('grant_type', 'authorization_code');
+  body.set('code', input.code);
+  body.set('client_id', input.clientId);
+  body.set('client_secret', input.clientSecret);
+  body.set('redirect_uri', input.redirectUri);
+  return requestJson(new URL('https://oauth2.googleapis.com/token'), {
+    method: 'POST',
+    body: body.toString(),
+    headers: {
+      Accept: 'application/json',
+      'Content-Type': 'application/x-www-form-urlencoded',
+    },
+    timeoutMs: 30000,
+  });
+}
+
+async function loadGoogleAccountEmail(accessToken) {
+  const result = await requestJson(new URL('https://openidconnect.googleapis.com/v1/userinfo'), {
+    method: 'GET',
+    headers: {
+      Accept: 'application/json',
+      Authorization: `Bearer ${accessToken}`,
+    },
+    timeoutMs: 15000,
+  });
+  const email = result.ok && result.data && typeof result.data === 'object'
+    ? String(result.data.email || '').trim()
+    : '';
+  return email || null;
+}
+
+function waitForGoogleOAuthCallback(input) {
+  return new Promise((resolve, reject) => {
+    const timeout = setTimeout(() => {
+      try {
+        server.close();
+      } catch {
+        // Best effort close.
+      }
+      reject(new Error('Google authorization timed out.'));
+    }, 180000);
+
+    const server = http.createServer((req, res) => {
+      const url = new URL(req.url || '/', input.redirectOrigin);
+      if (url.pathname !== '/oauth/google/callback') {
+        res.writeHead(404, { 'Content-Type': 'text/plain; charset=utf-8' });
+        res.end('Not found');
+        return;
+      }
+      const state = url.searchParams.get('state');
+      const code = url.searchParams.get('code');
+      const error = url.searchParams.get('error');
+      clearTimeout(timeout);
+      server.close();
+      if (error || state !== input.state || !code) {
+        res.writeHead(400, { 'Content-Type': 'text/html; charset=utf-8' });
+        res.end('<h1>Zavorth</h1><p>Google authorization was not completed.</p>');
+        reject(new Error(error || 'Invalid Google authorization callback.'));
+        return;
+      }
+      res.writeHead(200, { 'Content-Type': 'text/html; charset=utf-8' });
+      res.end('<h1>Zavorth</h1><p>Google account connected. You can close this tab.</p>');
+      resolve(code);
+    });
+
+    server.once('error', error => {
+      clearTimeout(timeout);
+      reject(error);
+    });
+    server.listen(0, '127.0.0.1', () => {
+      const address = server.address();
+      const port = address && typeof address === 'object' ? address.port : 0;
+      input.onReady(port);
+    });
+  });
+}
+
+async function connectGooglePersonalOps() {
+  const { clientId, clientSecret } = readGoogleOAuthConfig();
+  const runtimeReady = await ensureRuntimeReadyForOAuth();
+  if (!runtimeReady) {
+    throw new Error('Local runtime is not reachable yet. Start Zavorth runtime and try Google again.');
+  }
+  const state = crypto.randomBytes(24).toString('base64url');
+  let redirectUri = '';
+  const scopes = [
+    'openid',
+    'email',
+    'profile',
+    'https://www.googleapis.com/auth/gmail.readonly',
+    'https://www.googleapis.com/auth/gmail.compose',
+    'https://www.googleapis.com/auth/gmail.send',
+    'https://www.googleapis.com/auth/calendar.events',
+    'https://www.googleapis.com/auth/tasks',
+  ];
+  const codePromise = waitForGoogleOAuthCallback({
+    state,
+    redirectOrigin: 'http://127.0.0.1',
+    onReady: port => {
+      redirectUri = `http://127.0.0.1:${port}/oauth/google/callback`;
+      const authUrl = new URL('https://accounts.google.com/o/oauth2/v2/auth');
+      authUrl.searchParams.set('response_type', 'code');
+      authUrl.searchParams.set('client_id', clientId);
+      authUrl.searchParams.set('redirect_uri', redirectUri);
+      authUrl.searchParams.set('scope', scopes.join(' '));
+      authUrl.searchParams.set('state', state);
+      authUrl.searchParams.set('access_type', 'offline');
+      authUrl.searchParams.set('include_granted_scopes', 'true');
+      authUrl.searchParams.set('prompt', 'consent');
+      shell.openExternal(authUrl.toString()).catch(error => {
+        emitBootEvent('error', `Could not open Google authorization: ${error.message}`);
+      });
+    },
+  });
+
+  emitBootEvent('info', 'Google authorization opened in your browser.');
+  const code = await codePromise;
+  const tokenResult = await exchangeGoogleOAuthCode({ code, clientId, clientSecret, redirectUri });
+  if (!tokenResult.ok || !tokenResult.data || typeof tokenResult.data !== 'object') {
+    throw new Error('Google token exchange failed.');
+  }
+  const accessToken = String(tokenResult.data.access_token || '').trim();
+  const refreshToken = String(tokenResult.data.refresh_token || '').trim();
+  const expiresIn = Number(tokenResult.data.expires_in || 0);
+  if (!accessToken) {
+    throw new Error('Google access token was not returned.');
+  }
+  const accountEmail = await loadGoogleAccountEmail(accessToken);
+  const expiresAt = Number.isFinite(expiresIn) && expiresIn > 0
+    ? new Date(Date.now() + expiresIn * 1000).toISOString()
+    : null;
+  const connectorBase = {
+    provider: 'google',
+    accountEmail,
+    label: accountEmail ? `Google ${accountEmail}` : 'Google account',
+    accessToken,
+    refreshToken,
+    oauthToken: accessToken,
+    scopes,
+    expiresAt,
+    approved: true,
+  };
+  const results = [];
+  for (const kind of ['email', 'calendar', 'task']) {
+    const connectorId = accountEmail
+      ? `${kind}:${accountEmail.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '')}`
+      : `${kind}:google`;
+    const result = await desktopApiRequest({
+      method: 'POST',
+      path: '/api/experience/runtime-state/action',
+      body: {
+        type: 'register-personal-connector',
+        surface: 'api',
+        userId: 'desktop-user',
+        source: 'zavorth-desktop-google-oauth',
+        approved: true,
+        payload: {
+          personalConnector: {
+            ...connectorBase,
+            id: connectorId,
+            kind,
+            configured: true,
+            enabled: true,
+            status: 'configured',
+          },
+          metadata: {
+            provider: 'google',
+            accountEmailDomain: accountEmail && accountEmail.includes('@') ? accountEmail.split('@').pop() : null,
+          },
+        },
+      },
+      timeoutMs: 20000,
+    });
+    results.push({ kind, ok: result.ok, status: result.status, error: result.error || null });
+  }
+  const failed = results.filter(result => !result.ok);
+  if (failed.length > 0) {
+    throw new Error('Google account authorized, but Zavorth could not register every connector.');
+  }
+  emitBootEvent('info', 'Google Personal Ops account connected.');
+  return {
+    ok: true,
+    provider: 'google',
+    accountEmail,
+    connectors: results.map(result => result.kind),
+    message: 'Google account connected to Personal Ops.',
+  };
+}
+
 async function desktopApiRequest(input = {}) {
   const method = String(input.method || 'GET').toUpperCase();
   const body = input.body === undefined ? null : JSON.stringify(input.body);
@@ -245,6 +501,21 @@ async function probeRuntime() {
   return Boolean(result.ok);
 }
 
+async function ensureRuntimeReadyForOAuth() {
+  if (await probeRuntime()) {
+    return true;
+  }
+  startZavorthRuntime();
+  const deadline = Date.now() + 25000;
+  while (Date.now() < deadline) {
+    await new Promise(resolve => setTimeout(resolve, 750));
+    if (await probeRuntime()) {
+      return true;
+    }
+  }
+  return false;
+}
+
 function nodeCommand() {
   const fromEnv = String(process.env.ZAVORTH_NODE_BINARY || process.env.npm_node_execpath || '').trim();
   if (fromEnv) {
@@ -263,7 +534,7 @@ function runtimeCommand() {
   if (fs.existsSync(sourceHostBin) && fs.existsSync(tsxBin)) {
     return {
       command: node,
-      args: ['--import', tsxBin, sourceHostBin],
+      args: ['--import', pathToFileURL(tsxBin).href, sourceHostBin],
       label: 'src/host.ts',
     };
   }
@@ -298,6 +569,7 @@ function startZavorthRuntime() {
   }
 
   const paths = resolveRuntimePaths();
+  repairStaleHostLock();
   fs.mkdirSync(paths.logsDir, { recursive: true });
   const out = fs.openSync(path.join(paths.logsDir, 'zavorth-desktop-runtime.out.log'), 'a');
   const err = fs.openSync(path.join(paths.logsDir, 'zavorth-desktop-runtime.err.log'), 'a');
@@ -406,6 +678,21 @@ ipcMain.handle('zavorth:runtime:start', async () => {
   return runtimeStatus('Runtime launch requested.');
 });
 ipcMain.handle('zavorth:api:request', async (_event, input) => desktopApiRequest(input));
+ipcMain.handle('zavorth:personal-ops:google-connect', async () => {
+  try {
+    return await connectGooglePersonalOps();
+  } catch (error) {
+    const message = error instanceof Error ? error.message : 'Google authorization failed.';
+    emitBootEvent('error', message);
+    return {
+      ok: false,
+      provider: 'google',
+      accountEmail: null,
+      connectors: [],
+      error: message,
+    };
+  }
+});
 ipcMain.handle('zavorth:workspace:select-folder', async () => {
   if (!mainWindow || mainWindow.isDestroyed()) {
     return { canceled: true, path: null, label: null };

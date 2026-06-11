@@ -104,6 +104,7 @@ import { BlueprintCompletionGateService } from './BlueprintCompletionGateService
 import { RunBudgetPolicy } from './RunBudgetPolicy.js';
 import { AgentRunPolicyKernel } from './AgentRunPolicyKernel.js';
 import { SkillMcpQuarantineService } from './SkillMcpQuarantineService.js';
+import { AgentRunAutomaticSkillInvocationService } from './AgentRunAutomaticSkillInvocationService.js';
 import { ToolExposurePolicy } from './ToolExposurePolicy.js';
 import { executionContextScope } from '../context/ExecutionContextScope.js';
 import type { ProfileRuntimeBundle } from '../../contracts/ProfileManifestContract.js';
@@ -186,6 +187,7 @@ export type AgentRunServiceRuntime = {
   blueprintCompletionGate?: BlueprintCompletionGateService | null;
   providerArena?: ProviderArenaService | null;
   skillMcpQuarantine?: SkillMcpQuarantineService | null;
+  autoSkillInvocation?: Pick<AgentRunAutomaticSkillInvocationService, 'apply'> | null;
   llmBrain?: Pick<ZavorthLlmBrainService, 'buildRunSnapshot'> | null;
   nativeAutonomySpine?: Pick<ZavorthNativeAutonomySpineService, 'buildSnapshot'> | null;
   defaultProviderLabel?: string;
@@ -385,6 +387,7 @@ export class AgentRunService {
   private readonly blueprintCompletionGate: BlueprintCompletionGateService;
   private readonly providerArena: ProviderArenaService;
   private readonly skillMcpQuarantine: SkillMcpQuarantineService;
+  private readonly autoSkillInvocation: Pick<AgentRunAutomaticSkillInvocationService, 'apply'> | null;
   private readonly llmBrain: Pick<ZavorthLlmBrainService, 'buildRunSnapshot'>;
   private readonly nativeAutonomySpine: Pick<ZavorthNativeAutonomySpineService, 'buildSnapshot'> | null;
   private readonly modelPickerContractService: AgentRunModelPickerContractService | null;
@@ -513,6 +516,11 @@ export class AgentRunService {
     this.skillMcpQuarantine = runtime.skillMcpQuarantine || new SkillMcpQuarantineService({
       now: this.now,
     });
+    this.autoSkillInvocation = runtime.autoSkillInvocation === null
+      ? null
+      : runtime.autoSkillInvocation || new AgentRunAutomaticSkillInvocationService({
+        now: this.now,
+      });
     this.llmBrain = runtime.llmBrain || new ZavorthLlmBrainService({
       now: this.now,
     });
@@ -1032,6 +1040,8 @@ export class AgentRunService {
         return naturalFirstApprovalFallback;
       }
 
+      await this.applyAutomaticSkillInvocationIfNeeded(run, input);
+
       const preExecutionReview = this.metadataEvidenceHelpers.timeCoreDietStage(activeRun, baseline, 'policy-kernel-pre-execution', () => (
         this.policyKernel.reviewPreExecution(activeRun)
       ));
@@ -1300,6 +1310,8 @@ export class AgentRunService {
     if (agenticManagedAgentResult) {
       return agenticManagedAgentResult;
     }
+
+    await this.applyAutomaticSkillInvocationIfNeeded(run, request);
 
     let executorResult: UniversalAgentExecutorResult;
     try {
@@ -1573,6 +1585,59 @@ export class AgentRunService {
       memoryWithReceipts: snapshot,
     };
     return snapshot;
+  }
+
+  private async applyAutomaticSkillInvocationIfNeeded(
+    run: UniversalAgentRun,
+    request: UniversalAgentRequest,
+  ): Promise<void> {
+    if (!this.autoSkillInvocation) {
+      return;
+    }
+    const existing = recordOrNull(run.metadata.autoSkillInvocation);
+    if (existing && ['selected', 'blocked', 'failed'].includes(normalizeText(existing.status))) {
+      return;
+    }
+    try {
+      await this.autoSkillInvocation.apply({ run, request });
+    } catch (error) {
+      const generatedAt = this.now().toISOString();
+      const reason = error instanceof Error ? error.message : String(error);
+      run.metadata = {
+        ...run.metadata,
+        autoSkillInvocation: {
+          contractVersion: 'agent-run-automatic-skill-invocation/1',
+          source: 'AgentRunAutomaticSkillInvocationService',
+          generatedAt,
+          status: 'failed',
+          selectedSkillName: null,
+          supportSkillName: null,
+          mode: 'dry-run',
+          bridgeStatus: 'error',
+          receiptIds: [],
+          promptEnvelopeText: null,
+          rawSecretsSerialized: false,
+          reason,
+          skillCount: 0,
+        },
+      };
+      run.events.push({
+        id: this.idFactory('agent-event'),
+        runId: run.id,
+        kind: 'planning',
+        title: 'Skill auto-selected',
+        detail: reason,
+        status: 'pending',
+        createdAt: generatedAt,
+        metadata: {
+          source: 'AgentRunAutomaticSkillInvocationService',
+          contractVersion: 'agent-run-automatic-skill-invocation/1',
+          status: 'failed',
+          reason,
+          rawSecretsSerialized: false,
+        },
+      });
+    }
   }
 
   private applySkillMcpQuarantine(
