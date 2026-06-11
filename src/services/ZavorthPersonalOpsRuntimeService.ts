@@ -166,7 +166,7 @@ export type ZavorthPersonalOpsExecuteResult = {
   error: string | null;
 };
 
-type RuntimeStateBusLike = Pick<ZavorthRuntimeStateBusService, 'dispatch' | 'buildSnapshot'>;
+type RuntimeStateBusLike = Pick<ZavorthRuntimeStateBusService, 'dispatch' | 'buildSnapshot' | 'appendReceipt'>;
 type SecureIntegrationLike = Pick<ZavorthRuntimeSecureIntegrationService, 'dispatch'>;
 
 export type ZavorthPersonalOpsRuntimeOptions = {
@@ -320,9 +320,15 @@ export class ZavorthPersonalOpsRuntimeService {
       reason: `${definition.label} touches personal data and must pass approval before adapter execution.`,
     });
     const approvalId = clean(input.approvalId) || this.nextId('personal-ops-approval');
+    const verifiedApproval = input.approved === true
+      && this.hasVerifiedApproval({
+        approvalId,
+        operation: input.operation,
+        connectorId,
+      });
     const approval = {
       required: true,
-      approved: input.approved === true && Boolean(clean(input.approvalId)),
+      approved: verifiedApproval,
       approvalId,
     } satisfies ZavorthPersonalOpsReceipt['approval'];
 
@@ -442,6 +448,29 @@ export class ZavorthPersonalOpsRuntimeService {
         error: error instanceof Error ? error.message : 'personal_ops_adapter_failed',
       });
     }
+  }
+
+  private hasVerifiedApproval(input: {
+    approvalId: string;
+    operation: ZavorthPersonalOpsOperation;
+    connectorId: string;
+  }): boolean {
+    const approvalId = clean(input.approvalId);
+    if (!approvalId) return false;
+    const snapshot = this.runtimeStateBus.buildSnapshot();
+    return snapshot.receipts.some((receipt) => {
+      if (receipt.approval.approved !== true) return false;
+      if (receipt.status !== 'applied' && receipt.status !== 'noop') return false;
+      if (receipt.approval.approvalId !== approvalId && receipt.id !== approvalId) return false;
+      const payload = record(record(receipt.metadata)?.payload);
+      const metadata = record(payload?.metadata);
+      const approvalScope = clean(metadata?.approvalScope);
+      const approvedOperation = clean(metadata?.operation);
+      const approvedConnectorId = safeId(metadata?.connectorId);
+      return approvalScope === 'personal-ops'
+        && approvedOperation === input.operation
+        && approvedConnectorId === safeId(input.connectorId);
+    });
   }
 
   private operationResult(input: {

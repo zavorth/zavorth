@@ -376,7 +376,6 @@ try {
       'settings-skill-lifecycle-action',
       'settings-job-recovery-action',
       'settings-stream-resume-action',
-      'settings-personal-google-oauth-action',
     ],
   }, null, 2));
 } finally {

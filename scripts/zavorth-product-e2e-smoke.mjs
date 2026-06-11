@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict';
-import { writeFileSync, rmSync } from 'node:fs';
+import { mkdirSync, writeFileSync, rmSync } from 'node:fs';
 import { join } from 'node:path';
 import { tmpdir } from 'node:os';
 import { pathToFileURL } from 'node:url';
@@ -12,6 +12,7 @@ const { ZavorthWorkspaceKnowledgeService } = await import(pathToFileURL(join(roo
 
 const tempDir = join(tmpdir(), `zavorth-product-e2e-${Date.now()}`);
 const persistPath = join(tempDir, 'runtime-state.json');
+mkdirSync(tempDir, { recursive: true });
 const now = () => new Date('2026-06-10T20:30:00.000Z');
 
 try {

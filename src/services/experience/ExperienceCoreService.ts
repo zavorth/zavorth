@@ -108,7 +108,7 @@ export type ExperienceCoreRuntime = {
   selfHealingReceipts?: ZavorthSelfHealingReceiptService;
   providerReadinessMatrix?: Pick<ZavorthProviderReadinessMatrixService, 'buildSnapshot'>;
   agentMaturity?: Pick<ZavorthAgentMaturityService, 'buildSnapshot'>;
-  runtimeStateBus?: Pick<ZavorthRuntimeStateBusService, 'buildSnapshot' | 'syncExperienceCommand' | 'dispatch'> | null;
+  runtimeStateBus?: Pick<ZavorthRuntimeStateBusService, 'buildSnapshot' | 'syncExperienceCommand' | 'dispatch' | 'appendReceipt'> | null;
   runtimeOperationalSpine?: Pick<ZavorthRuntimeOperationalSpineService, 'syncOperationalState'> | null;
   runtimeSecureIntegration?: Pick<ZavorthRuntimeSecureIntegrationService, 'dispatch'> | null;
 };
@@ -230,7 +230,7 @@ export class ExperienceCoreService {
   private readonly selfHealingReceipts: ZavorthSelfHealingReceiptService;
   private readonly providerReadinessMatrix: Pick<ZavorthProviderReadinessMatrixService, 'buildSnapshot'>;
   private readonly agentMaturity: Pick<ZavorthAgentMaturityService, 'buildSnapshot'>;
-  private readonly runtimeStateBus: Pick<ZavorthRuntimeStateBusService, 'buildSnapshot' | 'syncExperienceCommand' | 'dispatch'> | null;
+  private readonly runtimeStateBus: Pick<ZavorthRuntimeStateBusService, 'buildSnapshot' | 'syncExperienceCommand' | 'dispatch' | 'appendReceipt'> | null;
   private readonly runtimeOperationalSpine: Pick<ZavorthRuntimeOperationalSpineService, 'syncOperationalState'> | null;
   private readonly runtimeSecureIntegration: Pick<ZavorthRuntimeSecureIntegrationService, 'dispatch'> | null;
 

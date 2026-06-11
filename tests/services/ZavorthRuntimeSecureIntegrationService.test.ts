@@ -138,6 +138,40 @@ describe('ZavorthRuntimeSecureIntegrationService', () => {
     expect(result.error).toBe('workspace_knowledge_path_blocked');
     expect(result.snapshot.projections.workspaceKnowledge.allowedPaths).toEqual([]);
     expect(result.receipt.status).toBe('blocked');
+    expect(bus.buildSnapshot().receipts[0].id).toBe(result.receipt.id);
+  });
+
+  it('blocks workspace knowledge paths outside trusted workspace policy membership', () => {
+    const { bus } = makeRuntime();
+    const secureStorage = new MemorySecureStorage();
+    const workspacePolicy = new TrustedWorkspacePolicyService();
+    const trustedRoot = fs.mkdtempSync(path.join(os.tmpdir(), 'zavorth-trusted-workspace-'));
+    const outsideRoot = fs.mkdtempSync(path.join(os.tmpdir(), 'zavorth-outside-workspace-'));
+    workspacePolicy.add({ path: trustedRoot, state: 'trusted' });
+    const service = new ZavorthRuntimeSecureIntegrationService({
+      runtimeStateBus: bus,
+      secureStorage,
+      workspacePolicy,
+      now: () => new Date('2026-06-10T14:00:00.000Z'),
+    });
+
+    const result = service.dispatch({
+      type: 'set-workspace-knowledge',
+      approved: true,
+      source: 'desktop-workspace-picker',
+      payload: {
+        workspaceKnowledge: {
+          workspaceId: 'folder:outside',
+          activeWorkspaceLabel: 'outside',
+          allowedPaths: [outsideRoot],
+          ragSources: [],
+        },
+      },
+    });
+
+    expect(result.ok).toBe(false);
+    expect(result.receipt.status).toBe('blocked');
+    expect(result.error).toBe('workspace_knowledge_path_blocked');
   });
 
   it('persists MCP trust decisions to policy before exposing tools to the model', () => {
@@ -177,6 +211,43 @@ describe('ZavorthRuntimeSecureIntegrationService', () => {
     expect(result.snapshot.projections.mcpTrust.servers.find((server) => server.id === 'mcp:filesystem')).toMatchObject({
       trustState: 'trusted',
       exposedToModel: true,
+    });
+  });
+
+  it('does not persist MCP policy changes before runtime approval is applied', () => {
+    const { root, bus } = makeRuntime();
+    const secureStorage = new MemorySecureStorage();
+    const mcpPolicy = new McpToolPolicyFileService({
+      policyFile: path.join(root, 'mcp-tool-policy-unapproved.json'),
+      now: () => new Date('2026-06-10T14:00:00.000Z'),
+    });
+    const service = new ZavorthRuntimeSecureIntegrationService({
+      runtimeStateBus: bus,
+      secureStorage,
+      mcpPolicy,
+      now: () => new Date('2026-06-10T14:00:00.000Z'),
+    });
+
+    const result = service.dispatch({
+      type: 'set-mcp-trust',
+      approved: false,
+      source: 'desktop-mcp-trust',
+      payload: {
+        mcpTrust: {
+          id: 'mcp:filesystem',
+          label: 'Filesystem MCP',
+          origin: 'local',
+          trustState: 'trusted',
+          toolNames: ['read_file', 'write_file'],
+        },
+      },
+    });
+
+    expect(result.ok).toBe(true);
+    expect(result.receipt.status).toBe('pending-approval');
+    expect(mcpPolicy.readPolicy()).not.toMatchObject({
+      profile: 'trusted',
+      allowlist: expect.arrayContaining(['read_file', 'write_file']),
     });
   });
 });

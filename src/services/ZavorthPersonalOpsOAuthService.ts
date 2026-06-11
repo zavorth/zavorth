@@ -164,9 +164,13 @@ async function readJson(response: Response): Promise<Record<string, unknown>> {
 
 function normalizeProvider(value: unknown): 'google' | 'microsoft' {
   const provider = String(value || '').trim().toLowerCase();
-  return provider === 'microsoft' || provider === 'msgraph' || provider === 'graph'
-    ? 'microsoft'
-    : 'google';
+  if (provider === 'microsoft' || provider === 'msgraph' || provider === 'graph') {
+    return 'microsoft';
+  }
+  if (provider === 'google' || provider === 'gmail') {
+    return 'google';
+  }
+  throw new Error('personal_ops_oauth_provider_unsupported');
 }
 
 function safeTenant(value: unknown): string {

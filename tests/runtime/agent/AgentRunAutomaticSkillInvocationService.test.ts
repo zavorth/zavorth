@@ -90,4 +90,48 @@ describe('AgentRunAutomaticSkillInvocationService', () => {
       }),
     ]));
   });
+
+  it('marks auto-selected skills blocked when the governed bridge denies invocation', async () => {
+    const service = new AgentRunAutomaticSkillInvocationService({
+      now: () => new Date('2026-06-10T15:00:00.000Z'),
+      skillLoader: {
+        loadAll: jest.fn(() => [skill('write-file')]),
+      },
+      skillRouter: {
+        routeSelection: jest.fn(async () => ({
+          primarySkillName: 'write-file',
+          supportSkillName: null,
+        })),
+      },
+      skillBridge: {
+        invoke: jest.fn(async () => ({
+          status: 'approval-required',
+          promptEnvelope: { text: 'should not be exposed' },
+          receipts: [{ id: 'skill-blocked-receipt-1' }],
+        })),
+      },
+    });
+    const runFactory = new AgentRunService({
+      now: () => new Date('2026-06-10T15:00:00.000Z'),
+      idFactory: (prefix) => `${prefix}-blocked-skill`,
+    });
+    const request = {
+      userId: 'operator',
+      channel: 'cli' as const,
+      sessionId: 'session-blocked-skill',
+      text: 'edite esse arquivo',
+      requestedTools: [],
+    };
+    const run = runFactory.createRun(request);
+
+    const snapshot = await service.apply({ run, request });
+
+    expect(snapshot).toMatchObject({
+      status: 'blocked',
+      selectedSkillName: 'write-file',
+      bridgeStatus: 'approval-required',
+      promptEnvelopeText: null,
+      receiptIds: ['skill-blocked-receipt-1'],
+    });
+  });
 });

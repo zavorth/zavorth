@@ -5,6 +5,7 @@ import {
   type ZavorthRuntimePermissionsMatrix,
   type ZavorthRuntimePersonalConnector,
   type ZavorthRuntimeProviderConnection,
+  type ZavorthRuntimeStateReceipt,
   type ZavorthRuntimeStateBusSnapshot,
   type ZavorthRuntimeWorkspaceKnowledge,
 } from '../contracts/ZavorthRuntimeStateBusContract.js';
@@ -97,7 +98,10 @@ export class ZavorthRuntimeCapabilitiesService {
   public buildSnapshot(): ZavorthRuntimeCapabilitiesSnapshot {
     const runtime = this.runtimeStateBus.buildSnapshot();
     const projections = runtime.projections;
-    const providerConnections = projections.dynamicRouting.providerConnections;
+    const providerConnections = withBlockedProviderReceipts(
+      projections.dynamicRouting.providerConnections,
+      runtime.receipts,
+    );
     return {
       contractVersion: ZAVORTH_RUNTIME_CAPABILITIES_CONTRACT_VERSION,
       generatedAt: this.now().toISOString(),
@@ -188,6 +192,55 @@ function personalConnectorOperations(connector: ZavorthRuntimePersonalConnector)
     personalOperation('email.draft', 'Create draft', connector.enabled && connector.draftAllowed),
     personalOperation('email.send', 'Send email', connector.enabled),
   ];
+}
+
+function withBlockedProviderReceipts(
+  providers: ZavorthRuntimeProviderConnection[],
+  receipts: ZavorthRuntimeStateReceipt[],
+): ZavorthRuntimeProviderConnection[] {
+  const byId = new Map(providers.map((provider) => [provider.id, provider]));
+  for (const receipt of receipts) {
+    if (receipt.action !== 'set-provider-connection' || receipt.status !== 'blocked') {
+      continue;
+    }
+    const payload = record(record(receipt.metadata)?.payload);
+    const provider = record(payload?.providerConnection);
+    const id = safeId(provider?.providerId || provider?.id);
+    if (!id || byId.has(id)) {
+      continue;
+    }
+    byId.set(id, {
+      id,
+      label: clean(provider?.label) || id,
+      status: 'blocked',
+      targetHost: clean(provider?.targetHost),
+      localLoopback: provider?.localLoopback === true,
+      defaultRouteAllowed: false,
+      blockReason: clean(receipt.metadata.error) || receipt.preview.reason || 'provider_blocked',
+      updatedAt: receipt.createdAt,
+    });
+  }
+  return Array.from(byId.values());
+}
+
+function record(value: unknown): Record<string, unknown> | null {
+  return value && typeof value === 'object' && !Array.isArray(value)
+    ? value as Record<string, unknown>
+    : null;
+}
+
+function clean(value: unknown): string | null {
+  const normalized = String(value || '').trim();
+  return normalized || null;
+}
+
+function safeId(value: unknown): string {
+  return String(value || '')
+    .trim()
+    .toLowerCase()
+    .replace(/[^a-z0-9_.:/-]+/g, '-')
+    .replace(/^-+|-+$/g, '')
+    .slice(0, 120);
 }
 
 function personalOperation(id: string, label: string, enabled: boolean): {

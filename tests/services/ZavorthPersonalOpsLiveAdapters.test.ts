@@ -65,10 +65,22 @@ describe('ZavorthPersonalOps live adapters', () => {
       approved: true,
       profile: 'personal',
     });
+    const approval = bus.dispatch({
+      type: 'sync-command',
+      approved: true,
+      source: 'personal-ops-approval-test',
+      payload: {
+        metadata: {
+          approvalScope: 'personal-ops',
+          operation: 'email.read',
+          connectorId: 'email:ana-example-com',
+        },
+      },
+    });
     const result = await service.executeOperation({
       operation: 'email.read',
       connectorId: 'email:ana-example-com',
-      approvalId: 'approval-read-email',
+      approvalId: approval.receipt.id,
       approved: true,
       payload: { query: 'from:bob', maxResults: 2 },
       profile: 'personal',
@@ -111,6 +123,41 @@ describe('ZavorthPersonalOps live adapters', () => {
     expect(calls[0].body).toContain('raw');
   });
 
+  it('sanitizes Gmail MIME headers before encoding draft payloads', async () => {
+    const storage = new MemorySecureStorage();
+    storage.writeSecret('personal.email.email-ana-example-com.accessToken', 'google-access-token');
+    const calls: Array<{ body: string }> = [];
+    const google = new ZavorthPersonalOpsGoogleAdapter({
+      secureStorage: storage,
+      fetchImpl: async (_url, init) => {
+        calls.push({ body: String(init?.body || '') });
+        return jsonResponse({ id: 'draft-123', message: { id: 'msg-draft-123' } });
+      },
+    });
+
+    await google.draftEmail({
+      connector: { id: 'email:ana-example-com', kind: 'email', label: 'Gmail', status: 'configured', enabled: true, readAllowed: true, draftAllowed: true, sendRequiresApproval: true, writeRequiresApproval: true, lastReceiptId: null },
+      connectorId: 'email:ana-example-com',
+      provider: 'google',
+      operation: 'email.draft',
+      payload: {
+        to: ['bob@example.com\r\nBcc: attacker@example.com'],
+        subject: 'Hello\r\nX-Injected: yes',
+        body: 'private body',
+      },
+      approvalId: 'approval-draft',
+      credentialRefs: ['personal.email.email-ana-example-com.accessToken'],
+      requestedAt: '2026-06-10T16:30:00.000Z',
+    });
+
+    const raw = JSON.parse(calls[0].body).message.raw;
+    const decoded = Buffer.from(raw.replace(/-/g, '+').replace(/_/g, '/'), 'base64').toString('utf8');
+    expect(decoded).toContain('To: bob@example.com Bcc: attacker@example.com');
+    expect(decoded).toContain('Subject: Hello X-Injected: yes');
+    expect(decoded).not.toContain('\r\nBcc: attacker@example.com');
+    expect(decoded).not.toContain('\r\nX-Injected: yes');
+  });
+
   it('refreshes expired Google access tokens once and retries the request', async () => {
     const storage = new MemorySecureStorage();
     storage.writeSecret('personal.email.email-ana-example-com.accessToken', 'expired-access');
@@ -146,7 +193,7 @@ describe('ZavorthPersonalOps live adapters', () => {
 
     expect(result).toMatchObject({ messageIds: ['msg-fresh'], count: 1 });
     expect(storage.readSecret('personal.email.email-ana-example-com.accessToken')).toBe('fresh-access');
-    expect(calls.some((url) => url.includes('oauth2.googleapis.com/token'))).toBe(true);
+    expect(calls.filter((url) => url.includes('oauth2.googleapis.com/token'))).toHaveLength(1);
   });
 
   it('maps Microsoft Graph email, calendar and task operations to Graph endpoints', async () => {

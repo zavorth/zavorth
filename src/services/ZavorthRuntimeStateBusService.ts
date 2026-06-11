@@ -141,6 +141,17 @@ export class ZavorthRuntimeStateBusService {
     return this.toSnapshot(store, store.restoredFromDisk);
   }
 
+  public appendReceipt(receipt: ZavorthRuntimeStateReceipt): ZavorthRuntimeStateBusSnapshot {
+    const store = this.readStore();
+    store.receipts = [receipt, ...store.receipts].slice(0, 100);
+    store.updatedAt = receipt.createdAt;
+    if (!store.lastReplayAt || receipt.createdAt > store.lastReplayAt) {
+      store.lastReplayAt = receipt.createdAt;
+    }
+    this.writeStore(store);
+    return this.toSnapshot(store, true);
+  }
+
   public dispatch(input: ZavorthRuntimeStateBusActionInput): ZavorthRuntimeStateBusDispatchResult {
     const store = this.readStore();
     const beforeSerialized = JSON.stringify(store.state);
@@ -1712,6 +1723,8 @@ function coercePersonalConnector(value: unknown): ZavorthRuntimePersonalConnecto
     id,
     kind,
     label: clean(raw.label) || id,
+    provider: safeId(raw.provider) || null,
+    accountEmailDomain: clean(raw.accountEmailDomain) || emailDomain(raw.accountEmail),
     status: normalizePersonalConnectorStatus(raw.status),
     enabled: raw.enabled === true,
     readAllowed: raw.readAllowed === true,

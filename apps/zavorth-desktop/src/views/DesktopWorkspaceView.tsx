@@ -847,13 +847,15 @@ function SettingsView(props: {
       tone: connector.enabled ? 'warning' as const : connector.status === 'configured' ? 'ready' as const : 'muted' as const,
       actions: (
         <div className="zvd-row-actions">
-          <button
-            disabled={props.busy}
-            onClick={() => void connectGoogle()}
-            type="button"
-          >
-            Connect Google
-          </button>
+          {connector.status !== 'configured' ? (
+            <button
+              disabled={props.busy}
+              onClick={() => void connectGoogle()}
+              type="button"
+            >
+              Connect Google
+            </button>
+          ) : null}
           <button
             disabled={props.busy || connector.status === 'disabled'}
             onClick={() => void props.onRuntimeStateAction({
