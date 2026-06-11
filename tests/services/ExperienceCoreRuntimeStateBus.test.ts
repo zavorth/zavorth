@@ -64,6 +64,51 @@ function makeWorkflowJob(request: UniversalAgentRequest, overrides: Partial<Univ
 }
 
 describe('ExperienceCoreService runtime state bus integration', () => {
+  it('routes UI runtime mutations through the secure integration before raw bus dispatch', () => {
+    const rawDispatch = jest.fn(() => ({
+      ok: true,
+      applied: true,
+      snapshot: { source: 'raw-bus' },
+      receipt: { action: 'raw-dispatch' },
+    }));
+    const secureDispatch = jest.fn(() => ({
+      ok: true,
+      applied: true,
+      snapshot: { source: 'secure-integration' },
+      receipt: { action: 'secure-dispatch' },
+    }));
+    const service = new ExperienceCoreService({
+      now: () => new Date('2026-06-09T10:00:00.000Z'),
+      runtimeOperationalSpine: null,
+      runtimeStateBus: {
+        buildSnapshot: jest.fn(),
+        syncExperienceCommand: jest.fn(),
+        dispatch: rawDispatch,
+      } as any,
+      runtimeSecureIntegration: {
+        dispatch: secureDispatch,
+      } as any,
+    });
+    const action = {
+      type: 'set-provider-connection',
+      approved: true,
+      source: 'zavorth-desktop-bridge',
+      payload: {
+        providerConnection: {
+          id: 'openai',
+          status: 'configured',
+          apiKey: 'test-provider-token-fixture',
+        },
+      },
+    } as any;
+
+    const result = service.dispatchRuntimeStateAction(action);
+
+    expect(result?.snapshot).toEqual({ source: 'secure-integration' });
+    expect(secureDispatch).toHaveBeenCalledWith(action);
+    expect(rawDispatch).not.toHaveBeenCalled();
+  });
+
   it('syncs desktop model, effort and workspace into gateway metadata and home projection', async () => {
     const root = fs.mkdtempSync(path.join(os.tmpdir(), 'zavorth-experience-runtime-state-'));
     const workspace = path.join(root, 'workspace');

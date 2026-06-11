@@ -188,7 +188,10 @@ export type RuntimeCapabilitiesSnapshot = {
     }>;
   };
   providers?: {
-    connected?: Array<{ id?: string; label?: string; status?: string; targetHost?: string | null }>;
+    connected?: RuntimeProviderConnection[];
+    configurable?: RuntimeProviderConnection[];
+    blocked?: RuntimeProviderConnection[];
+    all?: RuntimeProviderConnection[];
     selectableModelIds?: string[];
     selectedModelId?: string;
     routingReason?: string;
@@ -201,8 +204,46 @@ export type RuntimeCapabilitiesSnapshot = {
     knowledgeSourceCount?: number;
     untrustedContextWrapping?: boolean;
   };
+  workspaceKnowledge?: {
+    workspaceId?: string;
+    activeWorkspaceLabel?: string;
+    isolation?: string;
+    trustedWorkspaceIds?: string[];
+    allowedPaths?: string[];
+    ragSources?: Array<{
+      id?: string;
+      kind?: 'document' | 'web' | 'email' | 'memory' | string;
+      label?: string;
+      trusted?: boolean;
+    }>;
+    untrustedContextWrapping?: boolean;
+  };
   personalOps?: {
-    connectors?: Array<{ id?: string; kind?: string; label?: string; status?: string; enabled?: boolean }>;
+    connectors?: Array<{
+      id?: string;
+      kind?: string;
+      label?: string;
+      status?: string;
+      enabled?: boolean;
+      readAllowed?: boolean;
+      draftAllowed?: boolean;
+      sendRequiresApproval?: boolean;
+      writeRequiresApproval?: boolean;
+      lastReceiptId?: string | null;
+      operations?: Array<{
+        id?: string;
+        label?: string;
+        requiresApproval?: boolean;
+        enabled?: boolean;
+      }>;
+      profilePriority?: string;
+    }>;
+    policy?: {
+      primaryProfile?: string;
+      defaultOutsidePersonal?: string;
+      liveAdaptersRequireCredentialRef?: boolean;
+      mcpAllowedAsAdapter?: boolean;
+    };
   };
   mcpTrust?: {
     servers?: Array<{
@@ -211,7 +252,10 @@ export type RuntimeCapabilitiesSnapshot = {
       origin?: string;
       trustState?: string;
       toolNames?: string[];
+      risk?: string;
+      networkAccess?: string;
       exposedToModel?: boolean;
+      lastReceiptId?: string | null;
     }>;
   };
   skillHistory?: {
@@ -238,6 +282,17 @@ export type RuntimeCapabilitiesSnapshot = {
   safety?: Record<string, unknown>;
 };
 
+export type RuntimeProviderConnection = {
+  id?: string;
+  label?: string;
+  status?: string;
+  targetHost?: string | null;
+  localLoopback?: boolean;
+  defaultRouteAllowed?: boolean;
+  blockReason?: string | null;
+  updatedAt?: string;
+};
+
 function bridge() {
   if (!window.zavorthDesktop) {
     throw new Error('Zavorth Desktop bridge is unavailable.');
@@ -247,6 +302,10 @@ function bridge() {
 
 export async function apiRequest<T = unknown>(request: DesktopApiRequest): Promise<DesktopApiResult<T>> {
   return bridge().apiRequest<T>(request);
+}
+
+export async function connectGooglePersonalOps() {
+  return bridge().connectGooglePersonalOps();
 }
 
 function requireOk<T>(result: DesktopApiResult<T>, fallback: string): T {

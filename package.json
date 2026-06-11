@@ -238,6 +238,7 @@
     "qa:acp-live-session": "node scripts/acp-live-session-check.mjs",
     "runtime:build": "tsc",
     "runtime:check": "tsc --noEmit",
+    "qa:zavorth-operational-cockpit": "npx tsx scripts/zavorth-product-e2e-smoke.mjs",
     "architecture:ddd:check": "node scripts/ddd-boundary-check.mjs",
     "zavorth:runtime-engines:check": "npx jest tests/services/ExecutionEngineRuntimeServices.test.ts --runInBand",
     "agent-team-compiler:check": "node scripts/agent-team-compiler-check.mjs",

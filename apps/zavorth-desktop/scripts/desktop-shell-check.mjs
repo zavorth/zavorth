@@ -124,7 +124,7 @@ const missing = [
     'sourceHostBin',
     'tsxBin',
     "'src', 'host.ts'",
-    "'--import', tsxBin",
+    'pathToFileURL(tsxBin).href',
     'hostBin',
     "'dist', 'host.js'",
     'ZAVORTH_NODE_BINARY',
