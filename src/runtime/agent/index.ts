@@ -55,6 +55,9 @@ export {
   AgentRunService,
 } from './AgentRunService.js';
 export {
+  AgentRunAutomaticSkillInvocationService,
+} from './AgentRunAutomaticSkillInvocationService.js';
+export {
   NaturalFirstRunClassifier,
 } from './NaturalFirstRunClassifier.js';
 export {

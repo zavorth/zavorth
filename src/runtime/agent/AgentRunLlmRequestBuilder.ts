@@ -74,6 +74,7 @@ export class AgentRunLlmRequestBuilder {
       this.buildContextPrompt(run.metadata),
       this.buildIntelligenceFabricContextPrompt(run.metadata),
       this.buildIntelligenceFabricDraftGuidancePrompt(run.metadata),
+      this.buildAutoSkillInvocationPrompt(run.metadata),
     ].filter(Boolean).join('\n');
     const systemPrompt = [
       'You are Zavorth, a local-first governed runtime for AI agents.',
@@ -228,6 +229,28 @@ export class AgentRunLlmRequestBuilder {
       ...actions.map((action) => `- acao proposta: ${safeContextText(action.kind || 'acao', 120)} em ${safeContextText(action.target || 'alvo desconhecido', 240)} (${safeContextText(action.description || 'sem detalhe', 720)})`),
       ...(guidance.rollbackPlan ? [`- rollback sugerido: ${safeContextText(guidance.rollbackPlan, 720)}`] : []),
       ...(testsToRun.length > 0 ? [`- testes sugeridos: ${testsToRun.map((entry) => safeContextText(entry, 240)).join('; ')}`] : []),
+    ].join('\n');
+  }
+
+  private buildAutoSkillInvocationPrompt(metadata: Record<string, unknown>): string {
+    const autoSkillInvocation = recordOrNull(metadata.autoSkillInvocation);
+    if (!autoSkillInvocation || normalizeText(autoSkillInvocation.status) !== 'selected') {
+      return '';
+    }
+
+    const receiptIds = Array.isArray(autoSkillInvocation.receiptIds)
+      ? autoSkillInvocation.receiptIds.map((entry) => normalizeText(entry)).filter(Boolean).slice(0, 6)
+      : [];
+    const promptEnvelopeText = normalizeText(autoSkillInvocation.promptEnvelopeText);
+
+    return [
+      'Auto-selected governed skill (context only; does not grant tool execution by itself):',
+      `- skill: ${safeContextText(autoSkillInvocation.selectedSkillName || 'unknown', 120)}`,
+      `- mode: ${safeContextText(autoSkillInvocation.mode || 'dry-run', 80)}; status: ${safeContextText(autoSkillInvocation.status || 'unknown', 80)}`,
+      ...(autoSkillInvocation.bridgeStatus ? [`- bridge status: ${safeContextText(autoSkillInvocation.bridgeStatus, 120)}`] : []),
+      ...(promptEnvelopeText ? [`- skill prompt envelope: ${safeContextText(promptEnvelopeText, 3000)}`] : []),
+      ...(receiptIds.length > 0 ? [`- receipt ids: ${receiptIds.map((entry) => safeContextText(entry, 120)).join(', ')}`] : []),
+      '- Treat this as governed context only. It does not grant tool execution by itself; visible policy and approvals still govern tools.',
     ].join('\n');
   }
 

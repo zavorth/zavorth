@@ -9,6 +9,7 @@ import type {
   RuntimeCapabilitiesSnapshot,
   ToolItem,
 } from '../apiClient';
+import { connectGooglePersonalOps } from '../apiClient';
 import type { BootEvent, RuntimeStatus } from '../global';
 import { asRecord, effortLabels, itemId, panelLabels, profileLabels } from '../primitives/desktopPrimitives';
 import type { DesktopPanel } from '../slashCommands';
@@ -450,7 +451,23 @@ function SettingsView(props: {
   onRuntimeStateAction(input: { domain: string; operation: string; metadata?: Record<string, unknown> }): void | Promise<void>;
   onTheme(value: 'light' | 'dark' | 'system'): void;
 }) {
-  const [runtimeMode, setRuntimeMode] = useState<'overview' | 'permissions' | 'providers' | 'mcp' | 'skills' | 'jobs' | 'personal'>('overview');
+  const [runtimeMode, setRuntimeMode] = useState<'overview' | 'permissions' | 'providers' | 'workspace' | 'mcp' | 'skills' | 'jobs' | 'personal'>('overview');
+  const [personalConnectStatus, setPersonalConnectStatus] = useState<string | null>(null);
+  const connectGoogle = async () => {
+    setPersonalConnectStatus('Opening Google authorization...');
+    try {
+      const result = await connectGooglePersonalOps();
+      if (!result.ok) {
+        setPersonalConnectStatus(result.error || 'Google authorization did not complete.');
+        return;
+      }
+      setPersonalConnectStatus(result.accountEmail
+        ? `Connected ${result.accountEmail}.`
+        : 'Google account connected.');
+    } catch (error) {
+      setPersonalConnectStatus(error instanceof Error ? error.message : 'Google authorization failed.');
+    }
+  };
   const experienceRows = [
     {
       id: 'experience-profile',
@@ -523,7 +540,12 @@ function SettingsView(props: {
   const capabilities = props.runtimeCapabilities;
   const capabilitySummary = capabilities?.capabilities?.summary;
   const selectedSpec = capabilities?.modelSpecs?.specs?.find(spec => spec.id === capabilities.modelSpecs?.selectedSpecId);
-  const providerCount = capabilities?.providers?.connected?.length || 0;
+  const connectedProviders = capabilities?.providers?.connected || [];
+  const configurableProviders = capabilities?.providers?.configurable || [];
+  const blockedProviders = capabilities?.providers?.blocked || [];
+  const providerConnections = capabilities?.providers?.all || [...connectedProviders, ...configurableProviders, ...blockedProviders];
+  const providerCount = connectedProviders.length;
+  const workspaceKnowledge = capabilities?.workspaceKnowledge;
   const mcpReviewCount = (capabilities?.mcpTrust?.servers || []).filter(server => server.trustState !== 'trusted').length;
   const configuredPersonalOps = (capabilities?.personalOps?.connectors || []).filter(connector => connector.status === 'configured').length;
   const permissionRows = Object.entries(capabilities?.permissions?.domains || {}).flatMap(([domain, policy]) =>
@@ -560,33 +582,149 @@ function SettingsView(props: {
       ),
     })),
   );
-  const providerRows = (capabilities?.providers?.connected || []).map(provider => ({
-    id: `provider-${provider.id || provider.label}`,
-    title: provider.label || provider.id || 'Provider',
-    description: provider.targetHost ? `Target: ${provider.targetHost}` : 'Configured through sanitized runtime state.',
-    meta: provider.status || 'configured',
-    tone: provider.status === 'configured' ? 'ready' as const : 'warning' as const,
+  const modelSpecRows = (capabilities?.modelSpecs?.specs || []).map(spec => ({
+    id: `model-spec-${spec.id || spec.label}`,
+    title: spec.label || spec.id || 'Model spec',
+    description: `${spec.summary || 'Runtime model preset.'} Preferred: ${(spec.preferredModelIds || []).join(', ') || 'runtime choice'}.`,
+    meta: spec.id === capabilities?.modelSpecs?.selectedSpecId ? 'selected' : spec.maxEffort || spec.estimatedCost || 'available',
+    tone: spec.id === capabilities?.modelSpecs?.selectedSpecId ? 'ready' as const : 'muted' as const,
     actions: (
       <div className="zvd-row-actions">
         <button
-          disabled={props.busy}
+          disabled={props.busy || spec.id === capabilities?.modelSpecs?.selectedSpecId}
           onClick={() => void props.onRuntimeStateAction({
-            domain: 'gateway',
-            operation: 'sync',
-            metadata: { providerId: provider.id || null },
+            domain: 'model',
+            operation: 'select-spec',
+            metadata: {
+              runtimeActionType: 'select-model-spec',
+              modelSpec: { id: spec.id },
+            },
           })}
           type="button"
         >
-          Sync
+          Select
         </button>
       </div>
     ),
   }));
+  const providerRows = [
+    ...modelSpecRows,
+    ...providerConnections.map(provider => ({
+      id: `provider-${provider.id || provider.label}`,
+      title: provider.label || provider.id || 'Provider',
+      description: provider.targetHost
+        ? `Target: ${provider.targetHost}; loopback=${provider.localLoopback ? 'yes' : 'no'}; default route=${provider.defaultRouteAllowed ? 'yes' : 'no'}.`
+        : provider.blockReason || 'Setup is governed and does not run hidden live probes.',
+      meta: provider.status || 'configured',
+      tone: provider.status === 'configured' ? 'ready' as const : provider.status === 'blocked' ? 'danger' as const : 'warning' as const,
+      actions: (
+        <div className="zvd-row-actions">
+          <button
+            disabled={props.busy}
+            onClick={() => void props.onRuntimeStateAction({
+              domain: 'gateway',
+              operation: provider.status === 'configured' ? 'provider-receipt' : 'setup-provider',
+              metadata: {
+                runtimeActionType: 'set-provider-connection',
+                providerConnection: {
+                  providerId: provider.id,
+                  label: provider.label,
+                  status: provider.status || 'needs-setup',
+                  targetHost: provider.targetHost || null,
+                  blockReason: provider.blockReason || null,
+                },
+              },
+            })}
+            type="button"
+          >
+            {provider.status === 'configured' ? 'Receipt' : 'Setup'}
+          </button>
+        </div>
+      ),
+    })),
+  ];
+  const workspaceRows = [
+    {
+      id: 'workspace-active',
+      title: workspaceKnowledge?.activeWorkspaceLabel || capabilities?.workspace?.label || 'Chat',
+      description: capabilities?.workspace?.path
+        ? `Filesystem scope is confined to ${capabilities.workspace.path}.`
+        : 'Chat mode keeps filesystem and shell out of scope.',
+      meta: workspaceKnowledge?.isolation || capabilities?.workspace?.isolation || 'chat',
+      tone: capabilities?.workspace?.path ? 'ready' as const : 'muted' as const,
+      actions: (
+        <div className="zvd-row-actions">
+          <button
+            disabled={props.busy}
+            onClick={() => void props.onRuntimeStateAction({
+              domain: 'context',
+              operation: 'scope-knowledge',
+              metadata: {
+                runtimeActionType: 'set-workspace-knowledge',
+                workspaceKnowledge: {
+                  workspaceId: workspaceKnowledge?.workspaceId || capabilities?.workspace?.id || 'chat',
+                  activeWorkspaceLabel: workspaceKnowledge?.activeWorkspaceLabel || capabilities?.workspace?.label || 'Chat',
+                  isolation: workspaceKnowledge?.isolation || capabilities?.workspace?.isolation || 'chat',
+                  trustedWorkspaceIds: workspaceKnowledge?.trustedWorkspaceIds || [],
+                  allowedPaths: workspaceKnowledge?.allowedPaths || (capabilities?.workspace?.path ? [capabilities.workspace.path] : []),
+                  ragSources: workspaceKnowledge?.ragSources || [],
+                },
+              },
+            })}
+            type="button"
+          >
+            Receipt
+          </button>
+        </div>
+      ),
+    },
+    ...(workspaceKnowledge?.allowedPaths || []).map((allowedPath, index) => ({
+      id: `workspace-path-${index}`,
+      title: allowedPath,
+      description: 'Approved filesystem, shell, RAG and skill scope path.',
+      meta: 'allowed path',
+      tone: 'ready' as const,
+    })),
+    ...(workspaceKnowledge?.ragSources || []).map(source => ({
+      id: `rag-source-${source.id || source.label}`,
+      title: source.label || source.id || 'Knowledge source',
+      description: `${source.kind || 'source'} context is ${source.trusted ? 'trusted' : 'wrapped as untrusted'} before the model sees it.`,
+      meta: source.trusted ? 'trusted' : 'untrusted',
+      tone: source.trusted ? 'ready' as const : 'warning' as const,
+      actions: (
+        <div className="zvd-row-actions">
+          <button
+            disabled={props.busy}
+            onClick={() => void props.onRuntimeStateAction({
+              domain: 'context',
+              operation: 'scope-knowledge',
+              metadata: {
+                runtimeActionType: 'set-workspace-knowledge',
+                workspaceKnowledge: {
+                  workspaceId: workspaceKnowledge?.workspaceId || capabilities?.workspace?.id || 'chat',
+                  activeWorkspaceLabel: workspaceKnowledge?.activeWorkspaceLabel || capabilities?.workspace?.label || 'Chat',
+                  isolation: workspaceKnowledge?.isolation || capabilities?.workspace?.isolation || 'chat',
+                  trustedWorkspaceIds: workspaceKnowledge?.trustedWorkspaceIds || [],
+                  allowedPaths: workspaceKnowledge?.allowedPaths || [],
+                  ragSources: (workspaceKnowledge?.ragSources || []).map(candidate => (
+                    candidate.id === source.id ? { ...candidate, trusted: true } : candidate
+                  )),
+                },
+              },
+            })}
+            type="button"
+          >
+            Trust source
+          </button>
+        </div>
+      ),
+    })),
+  ];
   const mcpRows = (capabilities?.mcpTrust?.servers || []).map(server => ({
     id: `mcp-${server.id || server.label}`,
     title: server.label || server.id || 'MCP server',
-    description: `${server.toolNames?.length || 0} tool(s); exposed=${server.exposedToModel ? 'yes' : 'no'}.`,
-    meta: server.trustState || 'review',
+    description: `${server.toolNames?.length || 0} tool(s); network=${server.networkAccess || 'blocked'}; exposed=${server.exposedToModel ? 'yes' : 'no'}.`,
+    meta: `${server.trustState || 'review'} / ${server.risk || 'risk unknown'}`,
     tone: server.trustState === 'trusted' ? 'ready' as const : server.trustState === 'blocked' ? 'danger' as const : 'warning' as const,
     actions: (
       <div className="zvd-row-actions">
@@ -633,7 +771,7 @@ function SettingsView(props: {
       </div>
     ),
   }));
-  const skillRows = (capabilities?.skillHistory?.entries || []).map(entry => ({
+  const skillHistoryRows = (capabilities?.skillHistory?.entries || []).map(entry => ({
     id: `skill-history-${entry.id || entry.skillName}`,
     title: entry.skillName || entry.skillId || 'Skill',
     description: `Mode: ${entry.mode || 'recorded'}; source: ${entry.source || 'runtime'}.`,
@@ -645,23 +783,122 @@ function SettingsView(props: {
           disabled={props.busy}
           onClick={() => void props.onRuntimeStateAction({
             domain: 'skills',
-            operation: 'sync',
-            metadata: { skillId: entry.skillId || null },
+            operation: 'execute-skill',
+            metadata: {
+              runtimeActionType: 'skill-lifecycle',
+              skill: {
+                id: entry.skillId || entry.id,
+                name: entry.skillName || entry.skillId || 'Skill',
+                source: entry.source || 'native',
+                status: 'executing',
+                lastReceiptId: entry.receiptId || null,
+              },
+            },
           })}
           type="button"
         >
-          Sync
+          Execute
         </button>
       </div>
     ),
   }));
-  const personalRows = (capabilities?.personalOps?.connectors || []).map(connector => ({
-    id: `personal-${connector.id || connector.label}`,
-    title: connector.label || connector.id || 'Personal connector',
-    description: `${connector.kind || 'connector'}: read=${connector.readAllowed ? 'yes' : 'no'}, draft=${connector.draftAllowed ? 'yes' : 'no'}, send requires approval.`,
-    meta: connector.enabled ? 'enabled' : connector.status || 'disabled',
-    tone: connector.enabled ? 'warning' as const : connector.status === 'configured' ? 'ready' as const : 'muted' as const,
-  }));
+  const skillRows = skillHistoryRows.length > 0 ? skillHistoryRows : [
+    {
+      id: 'skill-router-default',
+      title: 'Skill router',
+      description: 'Natural routing can preview the best native skill before execution.',
+      meta: 'approval-first',
+      tone: 'muted' as const,
+      actions: (
+        <div className="zvd-row-actions">
+          <button
+            disabled={props.busy}
+            onClick={() => void props.onRuntimeStateAction({
+              domain: 'skills',
+              operation: 'preview-skill',
+              metadata: {
+                runtimeActionType: 'skill-lifecycle',
+                skill: {
+                  id: 'native:skill-router',
+                  name: 'Skill router',
+                  source: 'native',
+                  status: 'preview',
+                },
+              },
+            })}
+            type="button"
+          >
+            Preview route
+          </button>
+        </div>
+      ),
+    },
+  ];
+  const projectedPersonalRows = (capabilities?.personalOps?.connectors || []).map(connector => {
+    const operations = connector.operations || [];
+    const operationSummary = operations.length > 0
+      ? operations.map(operation => `${operation.label || operation.id}${operation.enabled ? '' : ' (setup)'}`).join(', ')
+      : `${connector.kind || 'connector'} actions wait for account setup`;
+    return {
+      id: `personal-${connector.id || connector.label}`,
+      title: connector.label || connector.id || 'Personal connector',
+      description: `${operationSummary}. Every personal operation requires approval and redacted receipts.`,
+      meta: connector.enabled ? 'enabled / approval-required' : connector.status || 'disabled',
+      tone: connector.enabled ? 'warning' as const : connector.status === 'configured' ? 'ready' as const : 'muted' as const,
+      actions: (
+        <div className="zvd-row-actions">
+          <button
+            disabled={props.busy}
+            onClick={() => void connectGoogle()}
+            type="button"
+          >
+            Connect Google
+          </button>
+          <button
+            disabled={props.busy || connector.status === 'disabled'}
+            onClick={() => void props.onRuntimeStateAction({
+              domain: 'context',
+              operation: 'disable-personal-connector',
+              metadata: {
+                runtimeActionType: 'register-personal-connector',
+                personalConnector: {
+                  id: connector.id,
+                  kind: connector.kind || 'email',
+                  label: connector.label || connector.id,
+                  status: 'disabled',
+                  configured: false,
+                  enabled: false,
+                },
+              },
+            })}
+            type="button"
+          >
+            Disable
+          </button>
+        </div>
+      ),
+    };
+  });
+  const personalRows = projectedPersonalRows.length > 0 ? projectedPersonalRows : [
+    {
+      id: 'personal-google-setup',
+      title: 'Google Personal Ops',
+      description: personalConnectStatus || 'Connect Gmail, Google Calendar, and Google Tasks through the governed desktop OAuth flow. Every operation still requires approval and redacted receipts.',
+      meta: 'not connected',
+      tone: 'muted' as const,
+      actions: (
+        <div className="zvd-row-actions">
+          <button
+            disabled={props.busy}
+            onClick={() => void connectGoogle()}
+            type="button"
+          >
+            Connect Google
+          </button>
+        </div>
+      ),
+    },
+  ];
   const jobRows = [
     {
       id: 'runtime-jobs',
@@ -698,6 +935,28 @@ function SettingsView(props: {
         : 'No resumable stream token is active.',
       meta: capabilities?.streamSession?.status || 'idle',
       tone: capabilities?.streamSession?.resumable ? 'ready' as const : 'muted' as const,
+      actions: (
+        <div className="zvd-row-actions">
+          <button
+            disabled={props.busy || !capabilities?.streamSession?.resumeToken}
+            onClick={() => void props.onRuntimeStateAction({
+              domain: 'session',
+              operation: 'resume-stream',
+              metadata: {
+                runtimeActionType: 'resume-stream',
+                streamSession: {
+                  sessionId: capabilities?.streamSession?.resumeToken ? 'desktop-main' : null,
+                  status: capabilities?.streamSession?.resumeToken ? 'streaming' : 'idle',
+                  resumeToken: capabilities?.streamSession?.resumeToken || null,
+                },
+              },
+            })}
+            type="button"
+          >
+            Resume
+          </button>
+        </div>
+      ),
     },
   ];
   const runtimeCapabilityRows = [
@@ -770,15 +1029,17 @@ function SettingsView(props: {
     ? permissionRows
     : runtimeMode === 'providers'
       ? providerRows
-      : runtimeMode === 'mcp'
-        ? mcpRows
-        : runtimeMode === 'skills'
-          ? skillRows
-          : runtimeMode === 'jobs'
-            ? jobRows
-            : runtimeMode === 'personal'
-              ? personalRows
-              : runtimeRows;
+      : runtimeMode === 'workspace'
+        ? workspaceRows
+        : runtimeMode === 'mcp'
+          ? mcpRows
+          : runtimeMode === 'skills'
+            ? skillRows
+            : runtimeMode === 'jobs'
+              ? jobRows
+              : runtimeMode === 'personal'
+                ? personalRows
+                : runtimeRows;
 
   return (
     <PageFrame
@@ -800,6 +1061,7 @@ function SettingsView(props: {
               { value: 'overview', label: 'Overview' },
               { value: 'permissions', label: 'Permissions', count: permissionRows.length },
               { value: 'providers', label: 'Providers', count: providerRows.length },
+              { value: 'workspace', label: 'Workspace', count: workspaceRows.length },
               { value: 'mcp', label: 'MCP', count: mcpRows.length },
               { value: 'skills', label: 'Skills', count: skillRows.length },
               { value: 'jobs', label: 'Jobs', count: jobRows.length },

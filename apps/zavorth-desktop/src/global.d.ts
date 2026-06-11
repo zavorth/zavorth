@@ -6,6 +6,7 @@ declare global {
       getRuntimeStatus(): Promise<RuntimeStatus>;
       startRuntime(): Promise<RuntimeStatus>;
       apiRequest<T = unknown>(request: DesktopApiRequest): Promise<DesktopApiResult<T>>;
+      connectGooglePersonalOps(): Promise<GooglePersonalOpsConnectResult>;
       repairAccess(): Promise<RuntimeStatus>;
       startSetup(): Promise<{ ok: boolean; command: string; message: string }>;
       selectWorkspaceFolder(): Promise<{ canceled: boolean; path: string | null; label: string | null }>;
@@ -27,6 +28,15 @@ export type DesktopApiResult<T = unknown> = {
   ok: boolean;
   status: number;
   data: T | null;
+  error?: string;
+};
+
+export type GooglePersonalOpsConnectResult = {
+  ok: boolean;
+  provider: 'google';
+  accountEmail: string | null;
+  connectors: string[];
+  message?: string;
   error?: string;
 };
 
