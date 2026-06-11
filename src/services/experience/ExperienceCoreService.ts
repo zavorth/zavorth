@@ -71,6 +71,9 @@ import {
   type ZavorthRuntimeOperationalSpineSyncInput,
   type ZavorthRuntimeOperationalSpineSyncResult,
 } from '../ZavorthRuntimeOperationalSpineService.js';
+import {
+  ZavorthRuntimeSecureIntegrationService,
+} from '../ZavorthRuntimeSecureIntegrationService.js';
 import type {
   ZavorthRuntimeStateBusActionInput,
   ZavorthRuntimeStateBusDispatchResult,
@@ -107,6 +110,7 @@ export type ExperienceCoreRuntime = {
   agentMaturity?: Pick<ZavorthAgentMaturityService, 'buildSnapshot'>;
   runtimeStateBus?: Pick<ZavorthRuntimeStateBusService, 'buildSnapshot' | 'syncExperienceCommand' | 'dispatch'> | null;
   runtimeOperationalSpine?: Pick<ZavorthRuntimeOperationalSpineService, 'syncOperationalState'> | null;
+  runtimeSecureIntegration?: Pick<ZavorthRuntimeSecureIntegrationService, 'dispatch'> | null;
 };
 
 export type ExperienceHomeInput = {
@@ -228,6 +232,7 @@ export class ExperienceCoreService {
   private readonly agentMaturity: Pick<ZavorthAgentMaturityService, 'buildSnapshot'>;
   private readonly runtimeStateBus: Pick<ZavorthRuntimeStateBusService, 'buildSnapshot' | 'syncExperienceCommand' | 'dispatch'> | null;
   private readonly runtimeOperationalSpine: Pick<ZavorthRuntimeOperationalSpineService, 'syncOperationalState'> | null;
+  private readonly runtimeSecureIntegration: Pick<ZavorthRuntimeSecureIntegrationService, 'dispatch'> | null;
 
   constructor(runtime: ExperienceCoreRuntime = {}) {
     this.now = runtime.now || (() => new Date());
@@ -259,6 +264,12 @@ export class ExperienceCoreService {
     this.runtimeOperationalSpine = runtime.runtimeOperationalSpine === null || !this.runtimeStateBus
       ? null
       : runtime.runtimeOperationalSpine || new ZavorthRuntimeOperationalSpineService({
+        now: this.now,
+        runtimeStateBus: this.runtimeStateBus,
+      });
+    this.runtimeSecureIntegration = runtime.runtimeSecureIntegration === null || !this.runtimeStateBus
+      ? null
+      : runtime.runtimeSecureIntegration || new ZavorthRuntimeSecureIntegrationService({
         now: this.now,
         runtimeStateBus: this.runtimeStateBus,
       });
@@ -718,7 +729,7 @@ export class ExperienceCoreService {
 
   public dispatchRuntimeStateAction(input: ZavorthRuntimeStateBusActionInput): ZavorthRuntimeStateBusDispatchResult | null {
     try {
-      return this.runtimeStateBus?.dispatch(input) || null;
+      return this.runtimeSecureIntegration?.dispatch(input) || this.runtimeStateBus?.dispatch(input) || null;
     } catch {
       return null;
     }

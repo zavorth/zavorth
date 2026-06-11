@@ -4,6 +4,7 @@ contextBridge.exposeInMainWorld('zavorthDesktop', {
   getRuntimeStatus: () => ipcRenderer.invoke('zavorth:runtime:status'),
   startRuntime: () => ipcRenderer.invoke('zavorth:runtime:start'),
   apiRequest: request => ipcRenderer.invoke('zavorth:api:request', request),
+  connectGooglePersonalOps: () => ipcRenderer.invoke('zavorth:personal-ops:google-connect'),
   repairAccess: () => ipcRenderer.invoke('zavorth:access:repair'),
   startSetup: () => ipcRenderer.invoke('zavorth:setup:start'),
   selectWorkspaceFolder: () => ipcRenderer.invoke('zavorth:workspace:select-folder'),

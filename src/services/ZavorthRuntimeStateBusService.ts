@@ -1296,6 +1296,8 @@ export class ZavorthRuntimeStateBusService {
       id,
       kind,
       label: clean(raw.label || raw.name) || formatModelLabel(id.replace(/[:_-]+/g, ' ')),
+      provider: safeId(raw.provider) || null,
+      accountEmailDomain: emailDomain(raw.accountEmail),
       status: configured ? 'configured' : normalizePersonalConnectorStatus(raw.status),
       enabled: raw.enabled === true && configured,
       readAllowed: configured,
@@ -1367,6 +1369,12 @@ export class ZavorthRuntimeStateBusService {
       actionIds: Array.isArray(raw.actionIds) ? raw.actionIds.map((entry) => safeId(entry)).filter(Boolean) : [],
     };
   }
+}
+
+function emailDomain(value: unknown): string | null {
+  const email = clean(value);
+  const domain = email && email.includes('@') ? email.split('@').pop() : null;
+  return domain ? safeId(domain) : null;
 }
 
 function domainForAction(input: ZavorthRuntimeStateBusActionInput): ZavorthRuntimeStateDomain {

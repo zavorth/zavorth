@@ -159,11 +159,96 @@ export function runtimeInstrumentActionInput(input: {
       },
     };
   }
+  if (runtimeActionType === 'set-provider-connection') {
+    return {
+      type: 'set-provider-connection',
+      payload: {
+        providerConnection: metadata.providerConnection,
+        metadata: {
+          requestedFrom: 'desktop-settings',
+          ...metadata,
+        },
+      },
+    };
+  }
+  if (runtimeActionType === 'select-model-spec') {
+    return {
+      type: 'select-model-spec',
+      payload: {
+        modelSpec: metadata.modelSpec,
+        metadata: {
+          requestedFrom: 'desktop-settings',
+          ...metadata,
+        },
+      },
+    };
+  }
+  if (runtimeActionType === 'route-model') {
+    return {
+      type: 'route-model',
+      payload: {
+        dynamicRouting: metadata.dynamicRouting,
+        model: metadata.model,
+        metadata: {
+          requestedFrom: 'desktop-settings',
+          ...metadata,
+        },
+      },
+    };
+  }
+  if (runtimeActionType === 'set-workspace-knowledge') {
+    return {
+      type: 'set-workspace-knowledge',
+      payload: {
+        workspaceKnowledge: metadata.workspaceKnowledge,
+        metadata: {
+          requestedFrom: 'desktop-settings',
+          ...metadata,
+        },
+      },
+    };
+  }
+  if (runtimeActionType === 'register-personal-connector') {
+    return {
+      type: 'register-personal-connector',
+      payload: {
+        personalConnector: metadata.personalConnector,
+        metadata: {
+          requestedFrom: 'desktop-settings',
+          ...metadata,
+        },
+      },
+    };
+  }
   if (runtimeActionType === 'recover-scheduled-jobs') {
     return {
       type: 'recover-scheduled-jobs',
       payload: {
         scheduledJobs: metadata.scheduledJobs || {},
+        metadata: {
+          requestedFrom: 'desktop-settings',
+          ...metadata,
+        },
+      },
+    };
+  }
+  if (runtimeActionType === 'resume-stream') {
+    return {
+      type: 'resume-stream',
+      payload: {
+        streamSession: metadata.streamSession,
+        metadata: {
+          requestedFrom: 'desktop-settings',
+          ...metadata,
+        },
+      },
+    };
+  }
+  if (runtimeActionType === 'skill-lifecycle') {
+    return {
+      type: 'skill-lifecycle',
+      payload: {
+        skill: metadata.skill,
         metadata: {
           requestedFrom: 'desktop-settings',
           ...metadata,
