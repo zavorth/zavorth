@@ -12,6 +12,7 @@ import {
 } from './McpManifest.js';
 import { McpToolPolicyFileService } from '../services/McpToolPolicyFileService.js';
 import { SecurityAuditLogger } from '../services/SecurityAuditLogger.js';
+import { McpToolPolicy } from './McpToolPolicy.js';
 
 
 /** Recursively stable JSON stringify with sorted object keys. */
