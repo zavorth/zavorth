@@ -79,12 +79,14 @@ export class WorkspacePathGuard {
       throw new Error('Input path is required.');
     }
     const resolvedPath = path.resolve(this.rootPath, inputPath);
+    this.validateContainment(resolvedPath);
     if (!fs.existsSync(resolvedPath)) {
       throw new Error(`Path does not exist: ${inputPath}`);
     }
     const realPath = fs.realpathSync(resolvedPath);
     this.validateContainment(realPath);
     this.validateBlocklist(resolvedPath);
+    this.validateBlocklist(realPath);
     return resolvedPath;
   }
 
@@ -115,6 +117,7 @@ export class WorkspacePathGuard {
     if (fs.existsSync(resolvedPath)) {
       const realPath = fs.realpathSync(resolvedPath);
       this.validateContainment(realPath);
+      this.validateBlocklist(realPath);
     }
 
     return resolvedPath;

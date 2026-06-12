@@ -148,6 +148,10 @@ describe('ToolExposurePolicy', () => {
         'workspace_git_status',
         'workspace:workspace.filesystem.read',
         'workspace_filesystem_read',
+        'workspace:workspace.filesystem.list',
+        'workspace_filesystem_list',
+        'workspace:workspace.filesystem.search',
+        'workspace_filesystem_search',
         'workspace:workspace.filesystem.write',
         'workspace_filesystem_write',
         'workspace:workspace.notes.create',
@@ -173,6 +177,10 @@ describe('ToolExposurePolicy', () => {
     expect(allowed).toContain('workspace_git_status');
     expect(allowed).toContain('workspace:workspace.filesystem.read');
     expect(allowed).toContain('workspace_filesystem_read');
+    expect(allowed).toContain('workspace:workspace.filesystem.list');
+    expect(allowed).toContain('workspace_filesystem_list');
+    expect(allowed).toContain('workspace:workspace.filesystem.search');
+    expect(allowed).toContain('workspace_filesystem_search');
     expect(allowed).not.toContain('workspace:workspace.filesystem.write');
     expect(allowed).not.toContain('workspace_filesystem_write');
     expect(allowed).not.toContain('workspace:workspace.notes.create');
@@ -184,6 +192,43 @@ describe('ToolExposurePolicy', () => {
         expect.objectContaining({ id: 'workspace_filesystem_write', reason: 'global-policy-block' }),
         expect.objectContaining({ id: 'workspace:workspace.notes.create', reason: 'global-policy-block' }),
         expect.objectContaining({ id: 'workspace_notes_create', reason: 'global-policy-block' }),
+      ])
+    );
+  });
+
+  it('blocks read/list/search when filesystemRead is false', () => {
+    const policy = new ToolExposurePolicy();
+    const profile = policy.buildProfile({
+      requestedTools: [
+        'workspace:workspace.filesystem.read',
+        'workspace_filesystem_read',
+        'workspace:workspace.filesystem.list',
+        'workspace_filesystem_list',
+        'workspace:workspace.filesystem.search',
+        'workspace_filesystem_search',
+      ],
+      metadata: {
+        workspace: {
+          workspaceId: 'test-ws-123',
+          workspacePermissions: {
+            gitReadOnly: false,
+            filesystemRead: false,
+            filesystemWrite: false,
+            notes: false,
+          },
+        },
+      },
+    });
+
+    expect(profile.tools).toHaveLength(0);
+    expect(profile.blockedTools).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({ id: 'workspace:workspace.filesystem.read', reason: 'global-policy-block' }),
+        expect.objectContaining({ id: 'workspace_filesystem_read', reason: 'global-policy-block' }),
+        expect.objectContaining({ id: 'workspace:workspace.filesystem.list', reason: 'global-policy-block' }),
+        expect.objectContaining({ id: 'workspace_filesystem_list', reason: 'global-policy-block' }),
+        expect.objectContaining({ id: 'workspace:workspace.filesystem.search', reason: 'global-policy-block' }),
+        expect.objectContaining({ id: 'workspace_filesystem_search', reason: 'global-policy-block' }),
       ])
     );
   });

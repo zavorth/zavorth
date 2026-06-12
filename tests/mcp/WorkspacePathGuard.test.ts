@@ -144,4 +144,23 @@ describe('WorkspacePathGuard', () => {
       guard.resolveForWrite('.env');
     }).toThrow('Access to sensitive file ".env" is blocked.');
   });
+
+  it('should reject symlink inside root pointing to blocklisted file inside root', () => {
+    const envFile = path.join(root, '.env');
+    fs.writeFileSync(envFile, 'SECRET_KEY=123', 'utf8');
+
+    const linkPath = path.join(root, 'safe.txt');
+    try {
+      fs.symlinkSync(envFile, linkPath);
+      expect(() => {
+        guard.resolveExisting('safe.txt');
+      }).toThrow('Access to sensitive file ".env" is blocked.');
+    } catch (e: any) {
+      if (e.code === 'EPERM') {
+        console.warn('Skipping inner symlink to .env test due to Windows EPERM (requires admin rights).');
+      } else {
+        throw e;
+      }
+    }
+  });
 });

@@ -2,6 +2,7 @@ import { Server } from '@modelcontextprotocol/sdk/server/index.js';
 import { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio.js';
 import { CallToolRequestSchema, ListToolsRequestSchema } from '@modelcontextprotocol/sdk/types.js';
 import { execFile } from 'child_process';
+import fs from 'fs';
 import path from 'path';
 import { WorkspacePathGuard } from './WorkspacePathGuard.js';
 import { SecurityAuditLogger } from '../../services/SecurityAuditLogger.js';
@@ -110,6 +111,39 @@ server.setRequestHandler(ListToolsRequestSchema, async () => {
           properties: {},
         },
       },
+      {
+        name: 'workspace.filesystem.read',
+        description: 'Reads the content of an existing file in the workspace (max 1MB, text only)',
+        inputSchema: {
+          type: 'object',
+          properties: {
+            file: { type: 'string', description: 'The relative path of the file to read' },
+          },
+          required: ['file'],
+        },
+      },
+      {
+        name: 'workspace.filesystem.list',
+        description: 'Lists contents of a directory in the workspace (prunes node_modules, .git, etc.)',
+        inputSchema: {
+          type: 'object',
+          properties: {
+            directory: { type: 'string', description: 'Optional directory path relative to workspace root' },
+          },
+        },
+      },
+      {
+        name: 'workspace.filesystem.search',
+        description: 'Searches for files matching a query string in the workspace',
+        inputSchema: {
+          type: 'object',
+          properties: {
+            query: { type: 'string', description: 'The case-insensitive substring to search for (max 128 chars)' },
+            directory: { type: 'string', description: 'Optional starting directory path relative to workspace root' },
+          },
+          required: ['query'],
+        },
+      },
     ],
   };
 });
@@ -211,6 +245,174 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
       const output = await runGit(['branch', '-a']);
       return {
         content: [{ type: 'text', text: output || 'No branches found.' }],
+      };
+    }
+
+    if (toolName === 'workspace.filesystem.read') {
+      if (typeof params.file !== 'string') {
+        throw new Error('Argument "file" must be a string.');
+      }
+      const resolved = pathGuard.resolveExisting(params.file);
+
+      auditLogger.logWorkspaceEvent({
+        event: 'workspace_filesystem_read',
+        workspaceId: sessionId,
+        rootPath: workspaceRoot,
+        toolName,
+        operation: 'read-file',
+        path: resolved,
+      });
+
+      const stat = fs.statSync(resolved);
+      if (!stat.isFile()) {
+        throw new Error('Path is not a file.');
+      }
+
+      if (stat.size > 1024 * 1024) {
+        throw new Error('File size exceeds maximum limit of 1MB.');
+      }
+
+      const buffer = fs.readFileSync(resolved);
+      if (buffer.includes(0)) {
+        throw new Error('Binary files are not allowed.');
+      }
+
+      const text = buffer.toString('utf8');
+      return {
+        content: [{ type: 'text', text }],
+      };
+    }
+
+    if (toolName === 'workspace.filesystem.list') {
+      const dirParam = params.directory;
+      if (dirParam !== undefined && typeof dirParam !== 'string') {
+        throw new Error('Argument "directory" must be a string.');
+      }
+
+      const resolved = pathGuard.resolveExisting(dirParam || '.');
+
+      auditLogger.logWorkspaceEvent({
+        event: 'workspace_filesystem_read',
+        workspaceId: sessionId,
+        rootPath: workspaceRoot,
+        toolName,
+        operation: 'list-directory',
+        path: resolved,
+      });
+
+      const stat = fs.statSync(resolved);
+      if (!stat.isDirectory()) {
+        throw new Error('Path is not a directory.');
+      }
+
+      const items = fs.readdirSync(resolved, { withFileTypes: true });
+      const root = pathGuard.getRoot();
+      const relativeDir = path.relative(root, resolved);
+
+      const listOutput: { path: string; type: 'dir' | 'file' }[] = [];
+      for (const item of items) {
+        const itemRelative = relativeDir ? path.join(relativeDir, item.name) : item.name;
+        const normalizedRelative = itemRelative.replace(/\\/g, '/');
+        if (pathGuard.shouldPrune(normalizedRelative)) {
+          continue;
+        }
+        const isDir = item.isDirectory();
+        listOutput.push({
+          path: normalizedRelative,
+          type: isDir ? 'dir' : 'file',
+        });
+      }
+
+      const sliced = listOutput.slice(0, 500);
+      const lines = sliced.map(entry => {
+        const prefix = entry.type === 'dir' ? '[DIR] ' : '[FILE]';
+        return `${prefix} ${entry.path}`;
+      });
+
+      return {
+        content: [{ type: 'text', text: lines.join('\n') || '(Directory empty)' }],
+      };
+    }
+
+    if (toolName === 'workspace.filesystem.search') {
+      const query = params.query;
+      const dirParam = params.directory;
+
+      if (typeof query !== 'string') {
+        throw new Error('Argument "query" must be a string.');
+      }
+      if (query.length === 0) {
+        throw new Error('Argument "query" cannot be empty.');
+      }
+      if (query.length > 128) {
+        throw new Error('Argument "query" exceeds maximum length of 128 characters.');
+      }
+      if (dirParam !== undefined && typeof dirParam !== 'string') {
+        throw new Error('Argument "directory" must be a string.');
+      }
+
+      const resolved = pathGuard.resolveExisting(dirParam || '.');
+
+      auditLogger.logWorkspaceEvent({
+        event: 'workspace_filesystem_read',
+        workspaceId: sessionId,
+        rootPath: workspaceRoot,
+        toolName,
+        operation: 'search-files',
+        path: resolved,
+      });
+
+      const stat = fs.statSync(resolved);
+      if (!stat.isDirectory()) {
+        throw new Error('Path is not a directory.');
+      }
+
+      const results: string[] = [];
+      const visitedCount = { count: 0 };
+
+      const searchDirectory = (currentDir: string, depth: number) => {
+        if (depth > 20 || results.length >= 100 || visitedCount.count >= 5000) {
+          return;
+        }
+
+        let entries: fs.Dirent[];
+        try {
+          entries = fs.readdirSync(currentDir, { withFileTypes: true });
+        } catch {
+          return;
+        }
+
+        for (const entry of entries) {
+          if (results.length >= 100 || visitedCount.count >= 5000) {
+            return;
+          }
+
+          visitedCount.count++;
+
+          const entryPath = path.join(currentDir, entry.name);
+          const relativePath = path.relative(pathGuard.getRoot(), entryPath).replace(/\\/g, '/');
+
+          if (pathGuard.shouldPrune(relativePath)) {
+            continue;
+          }
+
+          const lowerRelative = relativePath.toLowerCase();
+          const lowerQuery = query.toLowerCase();
+          if (lowerRelative.includes(lowerQuery)) {
+            results.push(relativePath);
+          }
+
+          if (entry.isDirectory()) {
+            searchDirectory(entryPath, depth + 1);
+          }
+        }
+      };
+
+      searchDirectory(resolved, 0);
+
+      const searchRes = results.map(r => `[FOUND] ${r}`).join('\n');
+      return {
+        content: [{ type: 'text', text: searchRes || 'No matches found.' }],
       };
     }
 

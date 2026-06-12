@@ -173,4 +173,144 @@ describe('WorkspaceMcpServer E2E Git Read-Only', () => {
 
     fs.rmSync(nonGitDir, { recursive: true, force: true });
   });
+
+  it('registers filesystem read, list, and search tools', async () => {
+    const registry = new ToolRegistry();
+    const serverScript = path.resolve('src/mcp/workspace/WorkspaceMcpServer.ts');
+    const npxCmd = process.platform === 'win32' ? 'npx.cmd' : 'npx';
+
+    const manager = new McpClientManager(
+      'workspace',
+      npxCmd,
+      ['tsx', serverScript],
+      {
+        ZAVORTH_WORKSPACE_ROOT: tempDir,
+        ZAVORTH_WORKSPACE_SESSION_ID: 'test-session-id',
+      },
+      ['PATH']
+    );
+    activeManagers.push(manager);
+
+    await manager.connect(registry);
+
+    const readTool = registry.getTool('workspace_filesystem_read');
+    const listTool = registry.getTool('workspace_filesystem_list');
+    const searchTool = registry.getTool('workspace_filesystem_search');
+
+    expect(readTool).toBeDefined();
+    expect(listTool).toBeDefined();
+    expect(searchTool).toBeDefined();
+
+    // workspace_filesystem_write must NOT be defined
+    const writeTool = registry.getTool('workspace_filesystem_write');
+    expect(writeTool).toBeUndefined();
+  });
+
+  it('performs filesystem read, list, and search with all validation checks', async () => {
+    const registry = new ToolRegistry();
+    const serverScript = path.resolve('src/mcp/workspace/WorkspaceMcpServer.ts');
+    const npxCmd = process.platform === 'win32' ? 'npx.cmd' : 'npx';
+
+    const manager = new McpClientManager(
+      'workspace',
+      npxCmd,
+      ['tsx', serverScript],
+      {
+        ZAVORTH_WORKSPACE_ROOT: tempDir,
+        ZAVORTH_WORKSPACE_SESSION_ID: 'test-session-id',
+      },
+      ['PATH']
+    );
+    activeManagers.push(manager);
+
+    await manager.connect(registry);
+
+    const readTool = registry.getTool('workspace_filesystem_read')!;
+    const listTool = registry.getTool('workspace_filesystem_list')!;
+    const searchTool = registry.getTool('workspace_filesystem_search')!;
+
+    // 1. Read small file
+    fs.writeFileSync(path.join(tempDir, 'small.txt'), 'hello world from small file', 'utf8');
+    let readRes = await readTool.execute({ file: 'small.txt' });
+    expect(readRes).toBe('hello world from small file');
+
+    // 2. Reject file > 1MB
+    const largeFile = path.join(tempDir, 'large.txt');
+    const stream = fs.createWriteStream(largeFile);
+    for (let i = 0; i < 110000; i++) {
+      stream.write('1234567890\n');
+    }
+    stream.end();
+    await new Promise((resolve) => stream.on('finish', resolve));
+
+    let readLargeRes = await readTool.execute({ file: 'large.txt' });
+    expect(readLargeRes).toContain('File size exceeds maximum limit of 1MB');
+
+    // 3. Reject binary file
+    const binFile = path.join(tempDir, 'binary.dat');
+    fs.writeFileSync(binFile, Buffer.from([0x01, 0x02, 0x00, 0x04]));
+    let readBinRes = await readTool.execute({ file: 'binary.dat' });
+    expect(readBinRes).toContain('Binary files are not allowed');
+
+    // 4. Reject .env file
+    const envFile = path.join(tempDir, '.env');
+    fs.writeFileSync(envFile, 'SECRET=1234', 'utf8');
+    let readEnvRes = await readTool.execute({ file: '.env' });
+    expect(readEnvRes).toContain('Access to sensitive file ".env" is blocked');
+
+    // 5. Reject path traversal
+    let readTraversalRes = await readTool.execute({ file: '../outside.txt' });
+    expect(readTraversalRes).toContain('Path traversal detected');
+
+    // 6. Symlinks checks (Inner and Outer)
+    const outsideFile = path.join(os.tmpdir(), 'outside-test.txt');
+    fs.writeFileSync(outsideFile, 'secret contents', 'utf8');
+
+    const linkToOutside = path.join(tempDir, 'out-link.txt');
+    const linkToEnv = path.join(tempDir, 'safe-link.txt');
+
+    try {
+      fs.symlinkSync(outsideFile, linkToOutside);
+      let readLinkOut = await readTool.execute({ file: 'out-link.txt' });
+      expect(readLinkOut).toContain('Path traversal detected');
+    } catch (e: any) {
+      if (e.code !== 'EPERM') throw e;
+    } finally {
+      try {
+        fs.unlinkSync(outsideFile);
+      } catch {}
+    }
+
+    try {
+      fs.symlinkSync(envFile, linkToEnv);
+      let readLinkEnv = await readTool.execute({ file: 'safe-link.txt' });
+      expect(readLinkEnv).toContain('Access to sensitive file ".env" is blocked');
+    } catch (e: any) {
+      if (e.code !== 'EPERM') throw e;
+    }
+
+    // 7. Directory listing with pruning
+    fs.mkdirSync(path.join(tempDir, 'node_modules', 'lodash'), { recursive: true });
+    fs.writeFileSync(path.join(tempDir, 'node_modules', 'lodash', 'index.js'), 'code', 'utf8');
+    fs.mkdirSync(path.join(tempDir, 'src'), { recursive: true });
+    fs.writeFileSync(path.join(tempDir, 'src', 'app.ts'), 'console.log()', 'utf8');
+
+    let listRes = await listTool.execute({ directory: '.' });
+    expect(listRes).toContain('[DIR]  src');
+    expect(listRes).toContain('[FILE] file1.txt');
+    expect(listRes).toContain('[FILE] small.txt');
+    expect(listRes).not.toContain('node_modules');
+    expect(listRes).not.toContain('.git');
+    expect(listRes).not.toContain(tempDir.replace(/\\/g, '/'));
+
+    // 8. Search case-insensitive without regex
+    let searchRes = await searchTool.execute({ query: 'SMALL' });
+    expect(searchRes).toContain('[FOUND] small.txt');
+    expect(searchRes).not.toContain('file1.txt');
+
+    let searchAllRes = await searchTool.execute({ query: '.txt' });
+    expect(searchAllRes).toContain('[FOUND] file1.txt');
+    expect(searchAllRes).toContain('[FOUND] small.txt');
+    expect(searchAllRes).not.toContain('node_modules');
+  });
 });
