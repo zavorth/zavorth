@@ -256,5 +256,65 @@ describe('ToolExposurePolicy', () => {
     expect(allowed).toContain('workspace:workspace.filesystem.gitignore.read');
     expect(profile.blockedTools).toBeUndefined();
   });
+
+  it('blocks workspace tools when metadata.workspace is absent', () => {
+    const policy = new ToolExposurePolicy();
+    const profile = policy.buildProfile({
+      requestedTools: [
+        'workspace:workspace.filesystem.read',
+        'workspace_filesystem_read',
+        'workspace_git_status',
+      ],
+      metadata: {},
+    });
+
+    expect(profile.tools).toHaveLength(0);
+    expect(profile.blockedTools).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({ id: 'workspace:workspace.filesystem.read', reason: 'global-policy-block' }),
+        expect.objectContaining({ id: 'workspace_filesystem_read', reason: 'global-policy-block' }),
+        expect.objectContaining({ id: 'workspace_git_status', reason: 'global-policy-block' }),
+      ])
+    );
+  });
+
+  it('blocks workspace tools when workspacePermissions is absent', () => {
+    const policy = new ToolExposurePolicy();
+    const profile = policy.buildProfile({
+      requestedTools: [
+        'workspace_filesystem_read',
+      ],
+      metadata: {
+        workspace: {
+          workspaceId: 'test-ws-123',
+        },
+      },
+    });
+
+    expect(profile.tools).toHaveLength(0);
+    expect(profile.blockedTools).toEqual([
+      expect.objectContaining({ id: 'workspace_filesystem_read', reason: 'global-policy-block' }),
+    ]);
+  });
+
+  it('allows workspace tools when workspacePermissions has true', () => {
+    const policy = new ToolExposurePolicy();
+    const profile = policy.buildProfile({
+      requestedTools: [
+        'workspace_filesystem_read',
+      ],
+      metadata: {
+        workspace: {
+          workspaceId: 'test-ws-123',
+          workspacePermissions: {
+            filesystemRead: true,
+          },
+        },
+      },
+    });
+
+    expect(profile.tools.map(t => t.id)).toEqual(['workspace_filesystem_read']);
+    expect(profile.blockedTools).toBeUndefined();
+  });
 });
 
