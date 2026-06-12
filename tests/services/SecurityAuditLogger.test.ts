@@ -295,5 +295,76 @@ describe('SecurityAuditLogger', () => {
         })
       );
     });
+
+    it('should log workspace events and handle raw paths (>128 chars) safely', () => {
+      const longRootPath = 'C:\\very\\long\\directory\\path\\that\\exceeds\\one\\hundred\\and\\twenty\\eight\\characters\\to\\test\\safe\\validation\\limits\\and\\avoid\\throwing\\errors';
+      const longFilePath = 'C:\\very\\long\\directory\\path\\that\\exceeds\\one\\hundred\\and\\twenty\\eight\\characters\\to\\test\\safe\\validation\\limits\\and\\avoid\\throwing\\errors\\somefile.txt';
+      
+      logger.logWorkspaceEvent({
+        event: 'workspace_git_read',
+        workspaceId: 'my-ws-session',
+        rootPath: longRootPath,
+        toolName: 'workspace_git_status',
+        decision: 'allowed',
+        path: longFilePath,
+        operation: 'git-status',
+      });
+
+      expect(mockLogRepo.log).toHaveBeenLastCalledWith(
+        'security',
+        'security_audit',
+        'workspace_git_read',
+        expect.objectContaining({
+          event: 'workspace_git_read',
+          workspaceId: 'my-ws-session',
+          rootPathSuffix: 'errors',
+          pathSuffix: '.txt',
+        })
+      );
+
+      // Verify that raw path and rootPath are NOT in metadata, only hashes/suffixes
+      const loggedMetadata = mockLogRepo.log.mock.calls[mockLogRepo.log.mock.calls.length - 1][3];
+      expect(loggedMetadata.rootPath).toBeUndefined();
+      expect(loggedMetadata.path).toBeUndefined();
+      expect(loggedMetadata.rootPathHash).toBeDefined();
+      expect(loggedMetadata.pathHash).toBeDefined();
+    });
+
+    it('should fall back to redacted/precomputed rootPathHash and rootPathSuffix if rootPath is missing', () => {
+      logger.logWorkspaceEvent({
+        event: 'workspace_tool_blocked',
+        workspaceId: 'my-ws-session',
+        rootPathHash: 'precomputed-hash-123',
+        rootPathSuffix: 'my-suffix',
+        toolName: 'workspace_git_status',
+        decision: 'blocked',
+        reason: 'permission-denied',
+      });
+
+      expect(mockLogRepo.log).toHaveBeenLastCalledWith(
+        'security',
+        'security_audit',
+        'workspace_tool_blocked',
+        expect.objectContaining({
+          event: 'workspace_tool_blocked',
+          workspaceId: 'my-ws-session',
+          rootPathHash: 'precomputed-hash-123',
+          rootPathSuffix: 'my-suffix',
+          toolName: 'workspace_git_status',
+          decision: 'blocked',
+          reason: 'permission-denied',
+        })
+      );
+    });
+
+    it('should reject raw paths containing carriage returns or newlines', () => {
+      expect(() => {
+        logger.logWorkspaceEvent({
+          event: 'workspace_git_read',
+          workspaceId: 'session',
+          rootPath: 'C:\\path\r\nwith\\newlines',
+        });
+      }).toThrow('Path field contains forbidden newline or control characters.');
+    });
   });
 });
