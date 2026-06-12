@@ -543,6 +543,8 @@
     "zavorth:mcp-ecosystem-intake": "npx tsx scripts/zavorth-mcp-ecosystem-intake.ts",
     "zavorth:mcp-ecosystem-intake:json": "npx tsx scripts/zavorth-mcp-ecosystem-intake.ts --json",
     "zavorth:mcp-ecosystem-intake:check": "npx jest tests/services/ZavorthNativeEvolutionRuntimeMcpService.test.ts --runInBand && node scripts/zavorth-native-evolution-runtime-mcp-check.mjs",
+    "zavorth:mcp-install": "npx tsx scripts/zavorth-mcp-install.ts",
+    "zavorth:mcp-install:json": "npx tsx scripts/zavorth-mcp-install.ts --json",
     "zavorth:native-evolution-runtime-mcp:check": "npx jest tests/services/ZavorthNativeEvolutionRuntimeMcpService.test.ts --runInBand && node scripts/zavorth-native-evolution-runtime-mcp-check.mjs",
     "zavorth:daily-capability-flow": "npx tsx scripts/zavorth-daily-capability-flow.ts",
     "zavorth:daily-capability-flow:json": "npx tsx scripts/zavorth-daily-capability-flow.ts --json",
