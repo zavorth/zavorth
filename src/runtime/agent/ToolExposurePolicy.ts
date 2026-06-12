@@ -205,49 +205,63 @@ export class ToolExposurePolicy {
 
     // Apply workspace policy validation
     const workspaceMeta = input.metadata?.workspace as any;
-    if (workspaceMeta) {
-      const perms = workspaceMeta.workspacePermissions || {};
-      const filteredTools: UniversalToolExposure[] = [];
-      for (const tool of tools) {
-        let allowed = true;
-        const normalizedId = tool.id.toLowerCase();
+    const perms = workspaceMeta?.workspacePermissions;
 
-        const isGitTool =
-          normalizedId.startsWith('workspace:workspace.git.') ||
-          normalizedId.startsWith('workspace_git_');
+    const filteredTools: UniversalToolExposure[] = [];
+    for (const tool of tools) {
+      const normalizedId = tool.id.toLowerCase();
+      const isWorkspaceTool =
+        normalizedId.startsWith('workspace:') ||
+        normalizedId.startsWith('workspace_');
 
-        const isFilesystemTool =
-          normalizedId.startsWith('workspace:workspace.filesystem.') ||
-          normalizedId.startsWith('workspace_filesystem_');
+      if (isWorkspaceTool) {
+        let allowed = false;
+        let blockReason = 'workspace-permission-denied';
 
-        const isNotesTool =
-          normalizedId.startsWith('workspace:workspace.notes.') ||
-          normalizedId.startsWith('workspace_notes_');
-
-        if (isGitTool) {
-          allowed = perms.gitReadOnly === true;
-        } else if (isFilesystemTool) {
-          const isFilesystemWrite =
-            normalizedId.startsWith('workspace:workspace.filesystem.write') ||
-            normalizedId.startsWith('workspace:workspace.filesystem.mkdir') ||
-            normalizedId.startsWith('workspace:workspace.filesystem.delete') ||
-            normalizedId.startsWith('workspace:workspace.filesystem.edit') ||
-            normalizedId.startsWith('workspace:workspace.filesystem.applypatch') ||
-            normalizedId.startsWith('workspace_filesystem_write') ||
-            normalizedId.startsWith('workspace_filesystem_mkdir') ||
-            normalizedId.startsWith('workspace_filesystem_delete') ||
-            normalizedId.startsWith('workspace_filesystem_edit') ||
-            normalizedId.startsWith('workspace_filesystem_applypatch');
-
-          if (isFilesystemWrite) {
-            allowed = perms.filesystemWrite === true;
-          } else {
-            allowed = perms.filesystemRead === true;
-          }
-        } else if (isNotesTool) {
-          allowed = perms.notes === true;
-        } else if (normalizedId.startsWith('workspace:') || normalizedId.startsWith('workspace_')) {
+        if (!workspaceMeta) {
           allowed = false;
+          blockReason = 'workspace-metadata-missing';
+        } else if (!perms) {
+          allowed = false;
+          blockReason = 'workspace-permissions-missing';
+        } else {
+          const isGitTool =
+            normalizedId.startsWith('workspace:workspace.git.') ||
+            normalizedId.startsWith('workspace_git_');
+
+          const isFilesystemTool =
+            normalizedId.startsWith('workspace:workspace.filesystem.') ||
+            normalizedId.startsWith('workspace_filesystem_');
+
+          const isNotesTool =
+            normalizedId.startsWith('workspace:workspace.notes.') ||
+            normalizedId.startsWith('workspace_notes_');
+
+          if (isGitTool) {
+            allowed = perms.gitReadOnly === true;
+          } else if (isFilesystemTool) {
+            const isFilesystemWrite =
+              normalizedId.startsWith('workspace:workspace.filesystem.write') ||
+              normalizedId.startsWith('workspace:workspace.filesystem.mkdir') ||
+              normalizedId.startsWith('workspace:workspace.filesystem.delete') ||
+              normalizedId.startsWith('workspace:workspace.filesystem.edit') ||
+              normalizedId.startsWith('workspace:workspace.filesystem.applypatch') ||
+              normalizedId.startsWith('workspace_filesystem_write') ||
+              normalizedId.startsWith('workspace_filesystem_mkdir') ||
+              normalizedId.startsWith('workspace_filesystem_delete') ||
+              normalizedId.startsWith('workspace_filesystem_edit') ||
+              normalizedId.startsWith('workspace_filesystem_applypatch');
+
+            if (isFilesystemWrite) {
+              allowed = perms.filesystemWrite === true;
+            } else {
+              allowed = perms.filesystemRead === true;
+            }
+          } else if (isNotesTool) {
+            allowed = perms.notes === true;
+          } else {
+            allowed = false;
+          }
         }
 
         if (allowed) {
@@ -260,18 +274,20 @@ export class ToolExposurePolicy {
           });
           auditLogger.logWorkspaceEvent({
             event: 'workspace_tool_blocked',
-            workspaceId: workspaceMeta.workspaceId || 'unknown',
+            workspaceId: workspaceMeta?.workspaceId || 'unknown',
             toolName: tool.id,
             decision: 'blocked',
-            reason: 'workspace-permission-denied',
-            ...(workspaceMeta.workspaceRoot ? { rootPath: workspaceMeta.workspaceRoot } : {}),
-            ...(workspaceMeta.rootPathHash ? { rootPathHash: workspaceMeta.rootPathHash } : {}),
-            ...(workspaceMeta.rootPathSuffix ? { rootPathSuffix: workspaceMeta.rootPathSuffix } : {}),
+            reason: blockReason,
+            ...(workspaceMeta?.workspaceRoot ? { rootPath: workspaceMeta.workspaceRoot } : {}),
+            ...(workspaceMeta?.rootPathHash ? { rootPathHash: workspaceMeta.rootPathHash } : {}),
+            ...(workspaceMeta?.rootPathSuffix ? { rootPathSuffix: workspaceMeta.rootPathSuffix } : {}),
           });
         }
+      } else {
+        filteredTools.push(tool);
       }
-      tools = filteredTools;
     }
+    tools = filteredTools;
 
     // Apply narrowing for untrusted group users
     if (input.metadata?.channelUserIdAllowed === false) {
