@@ -44,13 +44,36 @@ describe('SecurityAuditLogger', () => {
       expect(metadata.chatIdHash).toBeDefined();
       expect(metadata.chatIdHash).not.toBe('5511999999999@c.us');
       expect(metadata.chatIdHash).toHaveLength(64); // SHA-256 hex length
-      expect(metadata.chatIdSuffix).toBe('c.us');
+      expect(metadata.chatIdSuffix).toBe('@c.us');
 
       // Check channelUserId hash and suffix
       expect(metadata.channelUserIdHash).toBeDefined();
       expect(metadata.channelUserIdHash).not.toBe('5511999999999');
       expect(metadata.channelUserIdHash).toHaveLength(64);
-      expect(metadata.channelUserIdSuffix).toBe('9999');
+      expect(metadata.channelUserIdSuffix).toBe('redacted');
+    });
+
+    it('should throw an error in production if ZAVORTH_AUDIT_HASH_KEY is missing', () => {
+      delete process.env.ZAVORTH_AUDIT_HASH_KEY;
+      const oldEnv = process.env.NODE_ENV;
+      process.env.NODE_ENV = 'production';
+
+      try {
+        expect(() => {
+          logger.logChannelAccessDecision({
+            event: 'channel_message_accepted',
+            decision: 'allowed',
+            channel: 'whatsapp',
+            chatId: '5511999999999@c.us',
+            isGroup: false,
+            channelUserId: '5511999999999',
+            channelUserIdAllowed: true,
+            triggerType: 'dm',
+          });
+        }).toThrow('ZAVORTH_AUDIT_HASH_KEY environment variable is required in production.');
+      } finally {
+        process.env.NODE_ENV = oldEnv;
+      }
     });
   });
 
