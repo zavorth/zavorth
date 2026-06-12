@@ -1,5 +1,6 @@
 import { LogRepository } from '../storage/LogRepository.js';
 import crypto from 'crypto';
+import path from 'path';
 
 export class SecurityAuditLogger {
   private readonly logRepo: LogRepository;
@@ -71,6 +72,15 @@ export class SecurityAuditLogger {
           throw new Error(`Payload field "${key}" contains forbidden newline or control characters.`);
         }
       }
+    }
+  }
+
+  private validateRawPathForHashOnly(value: string, maxLength = 4096): void {
+    if (value.length > maxLength) {
+      throw new Error(`Path field exceeds maximum length of ${maxLength} characters.`);
+    }
+    if (/[\r\n\t\x00-\x1F\x7F-\x9F]/.test(value)) {
+      throw new Error(`Path field contains forbidden newline or control characters.`);
     }
   }
 
@@ -339,6 +349,102 @@ export class SecurityAuditLogger {
     const allowedKeys = [
       'event', 'actor', 'source', 'toolId', 'serverId',
       'previousStatus', 'newStatus', 'fingerprint', 'allowlistChanged', 'timestamp'
+    ];
+
+    this.validateKeys(metadata, allowedKeys);
+    this.safePersist(payload.event, metadata);
+  }
+
+  private getRootPathSuffix(rootPath: string): string {
+    const clean = rootPath.replace(/\\/g, '/').replace(/\/+$/, '');
+    const idx = clean.lastIndexOf('/');
+    if (idx >= 0) {
+      return clean.slice(idx + 1);
+    }
+    return clean || 'redacted';
+  }
+
+  private getPathSuffix(filePath: string): string {
+    const filename = path.basename(filePath).toLowerCase();
+    const ext = path.extname(filePath).toLowerCase();
+    return ext || filename || 'redacted';
+  }
+
+  // 5. Workspace Events
+  public logWorkspaceEvent(payload: {
+    event: 'workspace_opened' | 'workspace_revoked' | 'workspace_tool_allowed' | 'workspace_tool_blocked' | 'workspace_path_denied' | 'workspace_git_read' | 'workspace_filesystem_read' | 'workspace_filesystem_write' | 'workspace_notes_event';
+    workspaceId: string;
+    rootPath?: string;
+    rootPathHash?: string;
+    rootPathSuffix?: string;
+    toolName?: string;
+    decision?: 'allowed' | 'blocked';
+    reason?: string;
+    path?: string;
+    operation?: string;
+  }): void {
+    const allowedPayloadKeys = [
+      'event', 'workspaceId', 'rootPath', 'rootPathHash', 'rootPathSuffix', 'toolName', 'decision', 'reason', 'path', 'operation'
+    ];
+    this.validateKeys(payload, allowedPayloadKeys);
+
+    // Validate only normal payload fields with validatePayloadValues
+    const copy = { ...payload };
+    delete copy.rootPath;
+    delete copy.path;
+    this.validatePayloadValues(copy);
+
+    // Validate raw path fields separately without the 128 character limit
+    if (payload.rootPath) {
+      this.validateRawPathForHashOnly(payload.rootPath);
+    }
+    if (payload.path) {
+      this.validateRawPathForHashOnly(payload.path);
+    }
+
+    const validEvents = [
+      'workspace_opened',
+      'workspace_revoked',
+      'workspace_tool_allowed',
+      'workspace_tool_blocked',
+      'workspace_path_denied',
+      'workspace_git_read',
+      'workspace_filesystem_read',
+      'workspace_filesystem_write',
+      'workspace_notes_event'
+    ];
+
+    if (!validEvents.includes(payload.event)) {
+      throw new Error(`Invalid workspace event: ${payload.event}`);
+    }
+
+    const metadata: Record<string, any> = {
+      event: payload.event,
+      workspaceId: this.sanitizeString(payload.workspaceId),
+      timestamp: new Date().toISOString(),
+    };
+
+    if (payload.rootPath) {
+      metadata.rootPathHash = this.hashId(payload.rootPath);
+      metadata.rootPathSuffix = this.sanitizeString(this.getRootPathSuffix(payload.rootPath));
+    } else {
+      metadata.rootPathHash = payload.rootPathHash ? this.sanitizeString(payload.rootPathHash) : 'redacted';
+      metadata.rootPathSuffix = payload.rootPathSuffix ? this.sanitizeString(payload.rootPathSuffix) : 'redacted';
+    }
+
+    if (payload.toolName) metadata.toolName = this.sanitizeString(payload.toolName);
+    if (payload.decision) metadata.decision = payload.decision;
+    if (payload.reason) metadata.reason = this.sanitizeString(payload.reason);
+    if (payload.operation) metadata.operation = this.sanitizeString(payload.operation);
+    if (payload.path) {
+      metadata.pathHash = this.hashId(payload.path);
+      metadata.pathSuffix = this.sanitizeString(this.getPathSuffix(payload.path));
+    }
+
+    const allowedKeys = [
+      'event', 'workspaceId', 'rootPathHash', 'rootPathSuffix',
+      'toolName', 'decision', 'reason', 'pathHash', 'pathSuffix',
+      'operation', 'timestamp'
     ];
 
     this.validateKeys(metadata, allowedKeys);
