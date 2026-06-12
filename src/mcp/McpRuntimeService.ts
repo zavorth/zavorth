@@ -1,13 +1,85 @@
+import crypto from 'crypto';
 import fs from 'fs';
 import path from 'path';
 import { config } from '../config/index.js';
 import { LogRepository } from '../storage/LogRepository.js';
+import { BaseTool } from '../tools/BaseTool.js';
 import { ToolRegistry } from '../tools/ToolRegistry.js';
 import { McpClientManager } from './McpClientManager.js';
 import {
   McpManifestLoader,
   type ResolvedMcpServerManifestEntry,
 } from './McpManifest.js';
+import { McpToolPolicyFileService } from '../services/McpToolPolicyFileService.js';
+
+/** Recursively stable JSON stringify with sorted object keys. */
+function canonicalStringify(val: unknown): string {
+  if (val === null || typeof val !== 'object') {
+    return JSON.stringify(val);
+  }
+  if (Array.isArray(val)) {
+    return '[' + (val as unknown[]).map(canonicalStringify).join(',') + ']';
+  }
+  const keys = Object.keys(val as Record<string, unknown>).sort();
+  const parts = keys.map(
+    (k) => JSON.stringify(k) + ':' + canonicalStringify((val as Record<string, unknown>)[k]),
+  );
+  return '{' + parts.join(',') + '}';
+}
+
+/**
+ * Wraps an MCP tool under a namespaced name (`serverId:toolName`) while
+ * delegating all execution to the original tool (which keeps its remoteName intact).
+ */
+class NamespacedMcpTool extends BaseTool {
+  public readonly name: string;
+  public readonly description: string;
+  public readonly parameters: BaseTool['parameters'];
+  public readonly metadata: BaseTool['metadata'];
+
+  constructor(
+    private readonly originalTool: BaseTool,
+    namespacedName: string,
+  ) {
+    super();
+    this.name = namespacedName;
+    this.description = originalTool.description;
+    this.parameters = originalTool.parameters;
+    this.metadata = originalTool.metadata;
+  }
+
+  execute(args: Record<string, unknown>): Promise<string> {
+    return this.originalTool.execute(args);
+  }
+}
+
+/**
+ * Intercepts ToolRegistry.register() calls during MCP discovery so that
+ * the two-phase logic can collect tools before making any persistence or
+ * registry decisions.
+ */
+class RegistryInterceptor extends ToolRegistry {
+  constructor(
+    private readonly actualRegistry: ToolRegistry,
+    private readonly onRegister: (tool: BaseTool, securityDef?: any) => void,
+  ) {
+    super();
+  }
+
+  public override register(tool: BaseTool, securityDefinition?: any): void {
+    this.onRegister(tool, securityDefinition);
+  }
+
+  // Delegate getTool / getAllTools to the real registry so McpClientManager
+  // collision-checks still work correctly.
+  public override getTool(name: string): BaseTool | undefined {
+    return this.actualRegistry.getTool(name);
+  }
+
+  public override getAllTools(): BaseTool[] {
+    return this.actualRegistry.getAllTools();
+  }
+}
 
 type McpManagerLike = {
   readonly name: string;
@@ -47,6 +119,16 @@ export type McpRuntimeSnapshot = {
   entries: McpRuntimeServerSnapshot[];
 };
 
+/** Internal representation of a tool discovered during MCP server connection. */
+type DiscoveredMcpTool = {
+  tool: BaseTool;
+  securityDefinition?: any;
+  namespacedName: string;
+  toolName: string;
+  fingerprint: string;
+  description: string;
+};
+
 export class McpRuntimeService {
   private readonly managers: McpManagerLike[] = [];
   private readonly stateFile: string;
@@ -59,6 +141,7 @@ export class McpRuntimeService {
     private readonly managerFactory: McpManagerFactory = (entry) =>
       new McpClientManager(entry.id, entry.command, entry.args, entry.env, entry.allowedEnv),
     stateFile: string = config.mcpRuntimeStateFile,
+    private readonly policyFileService: McpToolPolicyFileService = new McpToolPolicyFileService(),
   ) {
     this.stateFile = path.resolve(stateFile);
   }
@@ -93,6 +176,20 @@ export class McpRuntimeService {
       return;
     }
 
+    // ── Global Phase 1: Connect all managers with interceptors ─────────────
+    // Collect all discovered tools BEFORE making any drift/policy decisions.
+    // This is necessary so collision detection (for legacy allowlist migration)
+    // can see tools from ALL servers simultaneously, regardless of connect order.
+    type PerServerData = {
+      manager: McpManagerLike;
+      server: ResolvedMcpServerManifestEntry;
+      discovered: DiscoveredMcpTool[];
+      attemptedAt: string;
+      error?: any;
+    };
+
+    const perServerData: PerServerData[] = [];
+
     for (const server of enabledServers) {
       const manager = this.managerFactory(server);
       const attemptedAt = new Date().toISOString();
@@ -104,32 +201,25 @@ export class McpRuntimeService {
       }
 
       try {
-        const beforeTools = new Set(this.registry.getAllTools().map((tool) => tool.name));
-        await manager.connect(this.registry);
-        this.managers.push(manager);
-        const registeredToolNames = this.registry.getAllTools()
-          .map((tool) => tool.name)
-          .filter((toolName) => !beforeTools.has(toolName));
-        const connectedAt = new Date().toISOString();
-        this.entries.set(server.id, {
-          id: server.id,
-          capability: String(server.capability || '').trim() || null,
-          enabled: true,
-          status: 'connected',
-          toolCount: registeredToolNames.length,
-          toolNames: registeredToolNames,
-          command: server.command,
-          args: [...server.args],
-          lastAttemptedAt: attemptedAt,
-          lastConnectedAt: connectedAt,
-          lastError: null,
-        });
-        this.logRepo.log(
-          'info',
-          'MCP',
-          `Servidor MCP ${server.id} conectado${server.capability ? ` (${server.capability})` : ''}.`,
-        );
+        const discovered = await this.collectDiscoveredTools(manager, server.id);
+        perServerData.push({ manager, server, discovered, attemptedAt });
       } catch (error: any) {
+        perServerData.push({ manager, server, discovered: [], attemptedAt, error });
+      }
+    }
+
+    // ── Global Phase 2: Resolve drift/migration with full collision context ─
+    // Build the complete global list of ALL discovered namespaced names.
+    const allGlobalNamespacedTools = perServerData.flatMap(
+      ({ discovered }) => discovered.map((d) => d.namespacedName),
+    );
+
+    const policyDoc = this.policyFileService.readPolicy();
+    let policyChanged = false;
+    const globalPolicy = this.policyFileService.getMcpToolPolicy(process.env);
+
+    for (const { manager, server, discovered, attemptedAt, error } of perServerData) {
+      if (error) {
         this.entries.set(server.id, {
           id: server.id,
           capability: String(server.capability || '').trim() || null,
@@ -144,13 +234,44 @@ export class McpRuntimeService {
           lastError: error?.message || String(error),
         });
         this.logRepo.log(
-          'warn',
-          'MCP',
+          'warn', 'MCP',
           `Falha ao conectar servidor MCP ${server.id}: ${error?.message || error}`,
         );
+        this.writeSnapshot();
+        continue;
       }
 
+      const { registeredNames, changed } = this.resolveDiscoveredTools(
+        discovered, allGlobalNamespacedTools, policyDoc, globalPolicy,
+      );
+
+      if (changed) policyChanged = true;
+
+      this.managers.push(manager);
+      const connectedAt = new Date().toISOString();
+      this.entries.set(server.id, {
+        id: server.id,
+        capability: String(server.capability || '').trim() || null,
+        enabled: true,
+        status: 'connected',
+        toolCount: registeredNames.length,
+        toolNames: registeredNames,
+        command: server.command,
+        args: [...server.args],
+        lastAttemptedAt: attemptedAt,
+        lastConnectedAt: connectedAt,
+        lastError: null,
+      });
+      this.logRepo.log(
+        'info', 'MCP',
+        `Servidor MCP ${server.id} conectado${server.capability ? ` (${server.capability})` : ''}.`,
+      );
       this.writeSnapshot();
+    }
+
+    // Single policy write after processing ALL servers
+    if (policyChanged) {
+      this.policyFileService.savePolicy(policyDoc);
     }
   }
 
@@ -256,13 +377,8 @@ export class McpRuntimeService {
     const attemptedAt = new Date().toISOString();
 
     try {
-      const beforeTools = new Set(this.registry.getAllTools().map((tool) => tool.name));
-      await manager.connect(this.registry);
+      const registeredToolNames = await this.connectManager(manager, serverId);
       this.managers.push(manager);
-
-      const registeredToolNames = this.registry.getAllTools()
-        .map((tool) => tool.name)
-        .filter((toolName) => !beforeTools.has(toolName));
 
       const connectedAt = new Date().toISOString();
       this.entries.set(serverId, {
@@ -315,6 +431,188 @@ export class McpRuntimeService {
 
   public readSnapshot(): McpRuntimeSnapshot {
     return this.buildSnapshot(Array.from(this.entries.values()));
+  }
+
+  private computeFingerprint(serverId: string, toolName: string, inputSchema: unknown): string {
+    const data = canonicalStringify({
+      serverId,
+      toolName,
+      inputSchema: inputSchema || {},
+    });
+    return crypto.createHash('sha256').update(data).digest('hex');
+  }
+
+  /** Phase 1: Connect a single manager using a RegistryInterceptor to capture tools without registering them. */
+  private async collectDiscoveredTools(
+    manager: McpManagerLike,
+    serverId: string,
+  ): Promise<DiscoveredMcpTool[]> {
+    const discovered: DiscoveredMcpTool[] = [];
+    const interceptor = new RegistryInterceptor(this.registry, (tool, securityDefinition) => {
+      const toolName = (tool as any).remoteName as string | undefined || tool.name;
+      const namespacedName = `${serverId}:${toolName}`;
+      const fingerprint = this.computeFingerprint(serverId, toolName, tool.parameters);
+      discovered.push({
+        tool,
+        securityDefinition,
+        namespacedName,
+        toolName,
+        fingerprint,
+        description: tool.description || '',
+      });
+    });
+    await manager.connect(interceptor);
+    return discovered;
+  }
+
+  /**
+   * Phase 2: Resolve drift/migration for a list of discovered tools.
+   * `allActiveNamespacedTools` must include ALL tools visible in scope (from all servers)
+   * so that legacy-allowlist collision detection is order-independent.
+   * Mutates `policyDoc` in memory; the caller is responsible for persisting it once.
+   */
+  private resolveDiscoveredTools(
+    discovered: DiscoveredMcpTool[],
+    allActiveNamespacedTools: string[],
+    policyDoc: any,
+    globalPolicy: McpToolPolicy,
+  ): { registeredNames: string[]; changed: boolean } {
+    let changed = false;
+    const registeredNames: string[] = [];
+
+    for (const d of discovered) {
+      const { tool, securityDefinition, namespacedName, toolName, fingerprint, description } = d;
+      const existing = policyDoc.tools?.[namespacedName];
+      let status: 'approved' | 'pending_approval' = 'pending_approval';
+
+      if (existing) {
+        if (existing.status === 'approved') {
+          if (existing.fingerprint !== fingerprint) {
+            // Schema drift: demote back to pending
+            this.logRepo.log('warn', 'MCP', `Schema drift detectado para "${namespacedName}".`);
+            this.policyFileService.markToolPending(policyDoc, namespacedName, fingerprint, 'schema_drift', description);
+            changed = true;
+            // status stays 'pending_approval'
+          } else if (existing.description !== description) {
+            // Description-only drift: warn and update lastSeen, keep approved
+            this.logRepo.log(
+              'warn', 'MCP',
+              `Descricao da ferramenta "${namespacedName}" mudou (description drift). Ferramenta permanece aprovada.`,
+            );
+            this.policyFileService.updateToolLastSeen(policyDoc, namespacedName, description);
+            changed = true;
+            status = 'approved';
+          } else {
+            status = 'approved';
+          }
+        } else {
+          // Already pending/blocked: check if fingerprint changed while waiting for approval
+          if (existing.fingerprint !== fingerprint) {
+            this.logRepo.log(
+              'warn', 'MCP',
+              `Ferramenta pending "${namespacedName}" teve fingerprint alterado. Atualizando registro pending.`,
+            );
+            // Always use 'schema_drift' when the fingerprint changes — regardless of the original pendingReason
+            this.policyFileService.markToolPending(policyDoc, namespacedName, fingerprint, 'schema_drift', description);
+            changed = true;
+          }
+          // status remains 'pending_approval'
+        }
+      } else {
+        // Brand-new tool: check legacy allowlist migration
+        const allowlistArr = globalPolicy.getAllowlist();
+        const legacyItem = allowlistArr.find(
+          (item: string) => !item.includes(':') && item.toLowerCase() === toolName.toLowerCase(),
+        );
+
+        if (legacyItem !== undefined) {
+          const collisions = allActiveNamespacedTools.filter(
+            (t) => t.includes(':') && t.slice(t.indexOf(':') + 1).toLowerCase() === toolName.toLowerCase(),
+          );
+
+          if (collisions.length === 1) {
+            status = 'approved';
+            this.logRepo.log(
+              'info', 'MCP',
+              `Auto-migrando ferramenta legada "${namespacedName}" (allowlist simples "${legacyItem}").`,
+            );
+            this.policyFileService.autoMigrateLegacyTool(policyDoc, namespacedName, fingerprint, description);
+            changed = true;
+          } else {
+            this.logRepo.log(
+              'warn', 'MCP',
+              `Colisao detectada para allowlist legada "${legacyItem}" — `
+              + `${collisions.length} servidores expondo. "${namespacedName}" fica como pending_approval.`,
+            );
+            this.policyFileService.markToolPending(policyDoc, namespacedName, fingerprint, 'new_tool', description);
+            changed = true;
+          }
+        } else {
+          this.logRepo.log('warn', 'MCP', `Nova ferramenta detectada: "${namespacedName}". Marcando como pending_approval.`);
+          this.policyFileService.markToolPending(policyDoc, namespacedName, fingerprint, 'new_tool', description);
+          changed = true;
+        }
+      }
+
+      if (status !== 'approved') continue;
+
+      // Global policy check (profile + allowlist)
+      const globalDecision = globalPolicy.decide(namespacedName, allActiveNamespacedTools);
+      if (!globalDecision.allowed) {
+        this.logRepo.log(
+          'warn', 'MCP',
+          `Ferramenta "${namespacedName}" aprovada no drift, mas bloqueada pela politica global: ${globalDecision.reason}`,
+        );
+        continue;
+      }
+
+      // Register under the namespaced name
+      const namespacedTool = new NamespacedMcpTool(tool, namespacedName);
+      const finalSecurityDef = securityDefinition
+        ? { ...securityDefinition, toolName: namespacedName }
+        : undefined;
+      this.registry.register(namespacedTool, finalSecurityDef);
+      registeredNames.push(namespacedName);
+    }
+
+    return { registeredNames, changed };
+  }
+
+  /**
+   * Single-server connection (used by reloadServer).
+   * Phase 1: collect this server's tools.
+   * Phase 2: resolve with `alreadyRegisteredFromOthers` providing cross-server collision context.
+   * Saves policy atomically after processing.
+   */
+  private async connectManager(manager: McpManagerLike, serverId: string): Promise<string[]> {
+    const discovered = await this.collectDiscoveredTools(manager, serverId);
+
+    // For single-server reload: use tools already in registry from OTHER servers as collision context
+    const alreadyRegisteredFromOthers = this.registry
+      .getAllTools()
+      .map((t) => t.name)
+      .filter((n) => {
+        const parts = n.split(':');
+        return parts.length === 2 && parts[0] !== serverId;
+      });
+
+    const allActiveNamespacedTools = [
+      ...alreadyRegisteredFromOthers,
+      ...discovered.map((d) => d.namespacedName),
+    ];
+
+    const policyDoc = this.policyFileService.readPolicy();
+    const globalPolicy = this.policyFileService.getMcpToolPolicy(process.env);
+
+    const { registeredNames, changed } = this.resolveDiscoveredTools(
+      discovered, allActiveNamespacedTools, policyDoc, globalPolicy,
+    );
+
+    if (changed) {
+      this.policyFileService.savePolicy(policyDoc);
+    }
+
+    return registeredNames;
   }
 
   private loadManifestEntries(): ResolvedMcpServerManifestEntry[] {

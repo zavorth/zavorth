@@ -9,11 +9,21 @@ import {
 
 export type McpSecurityProfile = 'safe' | 'trusted' | 'dangerous';
 
+export type McpToolEntry = {
+  status: 'approved' | 'pending_approval' | 'blocked';
+  fingerprint: string;
+  description?: string;
+  lastSeenDescription?: string;
+  lastSeenAt?: string;
+  pendingReason?: 'new_tool' | 'schema_drift';
+};
+
 export type McpToolPolicyDocument = {
   version: number;
   updatedAt: string | null;
   profile: McpSecurityProfile;
   allowlist: string[];
+  tools?: Record<string, McpToolEntry>;
 };
 
 export type McpToolPolicyDecision = {
@@ -56,6 +66,7 @@ const DEFAULT_POLICY_DOCUMENT: McpToolPolicyDocument = {
   updatedAt: null,
   profile: 'safe',
   allowlist: [],
+  tools: {},
 };
 
 export class McpToolPolicy {
@@ -117,43 +128,103 @@ export class McpToolPolicy {
           : null,
         profile: normalized.profile,
         allowlist: normalized.getAllowlist(),
+        tools: parsed.tools && typeof parsed.tools === 'object' && !Array.isArray(parsed.tools)
+          ? parsed.tools
+          : {},
       };
     } catch {
       return { ...DEFAULT_POLICY_DOCUMENT };
     }
   }
 
-  public decide(toolName: string): McpToolPolicyDecision {
-    const normalized = this.normalizeToolName(toolName);
+  public decide(toolName: string, activeNamespacedTools?: string[]): McpToolPolicyDecision {
+    const colonIndex = toolName.indexOf(':');
+    const isNamespaced = colonIndex > 0;
 
-    if (this.allowlist.has(normalized)) {
+    if (isNamespaced) {
+      // Case-sensitive exact match first (highest priority)
+      if (this.allowlist.has(toolName)) {
+        return this.withBrokerDecision(toolName, {
+          allowed: true,
+          profile: this.profile,
+          reason: `Tool "${toolName}" permitida por allowlist MCP explicita (namespaced).`,
+        });
+      }
+
+      // Legacy allowlist fallback: simple name (case-insensitive comparison only for the lookup)
+      const simpleName = toolName.slice(colonIndex + 1);
+      const hasLegacyMatch = Array.from(this.allowlist).some(
+        (item) => !item.includes(':') && item.toLowerCase() === simpleName.toLowerCase(),
+      );
+
+      if (hasLegacyMatch) {
+        const active = activeNamespacedTools || [];
+        const collisions = active.filter(
+          (t) => t.includes(':') && t.slice(t.indexOf(':') + 1).toLowerCase() === simpleName.toLowerCase(),
+        );
+        if (collisions.length === 1 && collisions[0] === toolName) {
+          return this.withBrokerDecision(toolName, {
+            allowed: true,
+            profile: this.profile,
+            reason:
+              `Tool "${toolName}" permitida por compatibilidade retroativa com allowlist legada "${simpleName}" `
+              + '(unico servidor expondo essa ferramenta).',
+          });
+        }
+        // Collision detected or no match — do not auto-approve
+      }
+    } else {
+      // Simple (non-namespaced) name — normalize to lowercase for legacy checks
+      const normalized = this.normalizeToolName(toolName);
+      if (this.allowlist.has(normalized)) {
+        return this.withBrokerDecision(normalized, {
+          allowed: true,
+          profile: this.profile,
+          reason: `Tool "${normalized}" permitida por allowlist MCP (nome simples).`,
+        });
+      }
+
+      const allowedByProfile = this.allowedToolsForProfile(this.profile);
+      if (allowedByProfile.has(normalized)) {
+        return this.withBrokerDecision(normalized, {
+          allowed: true,
+          profile: this.profile,
+          reason: `Tool "${normalized}" permitida pelo perfil MCP "${this.profile}".`,
+        });
+      }
+
       return this.withBrokerDecision(normalized, {
-        allowed: true,
+        allowed: false,
         profile: this.profile,
-        reason: `Tool "${normalized}" permitida por allowlist MCP explicita.`,
+        reason:
+          `Tool "${normalized}" bloqueada pelo perfil MCP "${this.profile}". `
+          + 'Use ZAVORTH_MCP_PROFILE=trusted|dangerous ou ZAVORTH_MCP_ALLOW_TOOLS para liberar explicitamente.',
       });
     }
 
+    // Namespaced tool not in any allowlist — check profile for the simple name
+    const simpleName = toolName.slice(colonIndex + 1);
+    const normalizedSimple = this.normalizeToolName(simpleName);
     const allowedByProfile = this.allowedToolsForProfile(this.profile);
-    if (allowedByProfile.has(normalized)) {
-      return this.withBrokerDecision(normalized, {
+    if (allowedByProfile.has(normalizedSimple)) {
+      return this.withBrokerDecision(toolName, {
         allowed: true,
         profile: this.profile,
-        reason: `Tool "${normalized}" permitida pelo perfil MCP "${this.profile}".`,
+        reason: `Tool "${toolName}" permitida pelo perfil MCP "${this.profile}" (nome base "${normalizedSimple}").`,
       });
     }
 
-    return this.withBrokerDecision(normalized, {
+    return this.withBrokerDecision(toolName, {
       allowed: false,
       profile: this.profile,
       reason:
-        `Tool "${normalized}" bloqueada pelo perfil MCP "${this.profile}". `
+        `Tool "${toolName}" bloqueada pelo perfil MCP "${this.profile}". `
         + 'Use ZAVORTH_MCP_PROFILE=trusted|dangerous ou ZAVORTH_MCP_ALLOW_TOOLS para liberar explicitamente.',
     });
   }
 
-  public filterDefinitions<T extends { name: string }>(definitions: T[]): T[] {
-    return definitions.filter((definition) => this.decide(definition.name).allowed);
+  public filterDefinitions<T extends { name: string }>(definitions: T[], activeNamespacedTools?: string[]): T[] {
+    return definitions.filter((definition) => this.decide(definition.name, activeNamespacedTools).allowed);
   }
 
   public describe(): {
@@ -191,7 +262,12 @@ export class McpToolPolicy {
   }
 
   private normalizeToolName(name: string): string {
-    return String(name || '').trim().toLowerCase();
+    const trimmed = String(name || '').trim();
+    // Preserve case for namespaced IDs (serverId:toolName)
+    if (trimmed.includes(':')) {
+      return trimmed;
+    }
+    return trimmed.toLowerCase();
   }
 
   private withBrokerDecision(
