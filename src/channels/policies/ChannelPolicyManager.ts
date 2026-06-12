@@ -8,12 +8,18 @@ import type {
   ChannelPolicySummary,
 } from '../../contracts/ChannelMeshContract.js';
 
+export interface GroupToolPolicy {
+  untrustedUserMode: 'none' | 'safe-only' | 'allowlist-only' | 'safe-plus-allowlist';
+  allowedToolsForUntrustedUsers: string[];
+}
+
 export interface ChannelAccessPolicy {
   channelId: string;
   isOpenAccess: boolean;
   allowedList: string[];
   blockedList: string[];
   updatedAt: string;
+  groupToolPolicy?: GroupToolPolicy;
 }
 
 type ChannelPolicyStoreState = {
@@ -161,6 +167,26 @@ export class ChannelPolicyManager {
       return true;
     }
     return policy.allowedList.includes(normalizedIdentifier);
+  }
+
+  public async verifyChatAccess(channelId: string, chatId: string, userId: string): Promise<boolean> {
+    const policy = this.getPolicy(channelId);
+    if (!policy) {
+      return false;
+    }
+    const normalizedUser = normalizeIdentifier(userId);
+    const normalizedChat = normalizeIdentifier(chatId);
+    if (policy.blockedList.includes(normalizedUser) || policy.blockedList.includes(normalizedChat)) {
+      return false;
+    }
+    if (policy.isOpenAccess) {
+      return true;
+    }
+    return policy.allowedList.includes(normalizedUser);
+  }
+
+  public async verifyUserAccess(channelId: string, userId: string): Promise<boolean> {
+    return this.verifyAccess(channelId, userId);
   }
 
   private ensurePoliciesLoaded(persistIfMissing: boolean): void {
