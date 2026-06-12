@@ -372,7 +372,7 @@ export class SecurityAuditLogger {
 
   // 5. Workspace Events
   public logWorkspaceEvent(payload: {
-    event: 'workspace_opened' | 'workspace_revoked' | 'workspace_tool_allowed' | 'workspace_tool_blocked' | 'workspace_path_denied' | 'workspace_git_read' | 'workspace_filesystem_read' | 'workspace_filesystem_write' | 'workspace_notes_event';
+    event: 'workspace_opened' | 'workspace_revoked' | 'workspace_tool_allowed' | 'workspace_tool_blocked' | 'workspace_path_denied' | 'workspace_git_read' | 'workspace_filesystem_read' | 'workspace_filesystem_write' | 'workspace_notes_event' | 'workspace_write_requested' | 'workspace_write_approved' | 'workspace_write_denied';
     workspaceId: string;
     rootPath?: string;
     rootPathHash?: string;
@@ -411,7 +411,10 @@ export class SecurityAuditLogger {
       'workspace_git_read',
       'workspace_filesystem_read',
       'workspace_filesystem_write',
-      'workspace_notes_event'
+      'workspace_notes_event',
+      'workspace_write_requested',
+      'workspace_write_approved',
+      'workspace_write_denied'
     ];
 
     if (!validEvents.includes(payload.event)) {
