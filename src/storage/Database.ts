@@ -24,7 +24,7 @@ export class Database {
     this.db.pragma('temp_store = MEMORY');
 
     this.createTables();
-    console.log('💾 [V3] Database SQLite inicializado com `better-sqlite3` (WAL mode ativo).');
+    console.warn('💾 [V3] Database SQLite inicializado com `better-sqlite3` (WAL mode ativo).');
   }
 
   public static async getInstance(): Promise<Database> {

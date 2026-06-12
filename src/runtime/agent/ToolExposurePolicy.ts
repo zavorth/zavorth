@@ -6,6 +6,8 @@ import type {
   UniversalToolRiskLevel,
 } from './UniversalAgentRuntimeTypes.js';
 import { resolveToolGroupCatalogEntry } from './tools/ToolGroupCatalog.js';
+import { SecurityAuditLogger } from '../../services/SecurityAuditLogger.js';
+import { LogRepository } from '../../storage/LogRepository.js';
 
 export type ToolExposurePolicyInput = {
   requestedTools?: string[];
@@ -14,6 +16,7 @@ export type ToolExposurePolicyInput = {
   blockedTools?: string[];
   blockedToolReason?: string;
   toolHintProfile?: ToolExposurePolicyHintProfile | null;
+  metadata?: Record<string, unknown>;
 };
 
 export type ToolExposurePolicyHintProfile = {
@@ -41,6 +44,9 @@ const DEFAULT_SAFE_TOOLS = new Set([
   'sessions.list',
   'zavorth_action',
   'swarm.run',
+  'swarm.scale',
+  'swarm.massive',
+  'swarm.scale.live',
 ]);
 
 const DEFAULT_ATTENTION_TOOLS = new Set([
@@ -48,9 +54,6 @@ const DEFAULT_ATTENTION_TOOLS = new Set([
   'web.search',
   'pdf.generate',
   'report.send',
-  'swarm.scale',
-  'swarm.massive',
-  'swarm.scale.live',
 ]);
 
 const DEFAULT_DANGER_TOOLS = new Set([
@@ -119,6 +122,8 @@ function resolveMode(tools: UniversalToolExposure[]): UniversalToolExposureMode 
 
 export class ToolExposurePolicy {
   public buildProfile(input: ToolExposurePolicyInput): UniversalToolExposureProfile {
+    const auditLogger = (input.metadata?.auditLogger as SecurityAuditLogger) || new SecurityAuditLogger((input.metadata?.logRepo as LogRepository) || new LogRepository());
+
     const requireApprovalFor = new Set((input.requireApprovalFor || []).map((tool) => tool.toLowerCase()));
     const blockedToolIds = normalizeToolIds(input.blockedTools);
     const blockedToolReason = normalizeToolId(input.blockedToolReason || 'blocked-by-imported-capability-trust');
@@ -148,8 +153,16 @@ export class ToolExposurePolicy {
         label: humanizeToolLabel(toolId),
         reason: 'blocked-by-cognitive-firewall-plugin-quarantine',
       });
+      auditLogger.logToolExposureDecision({
+        event: 'tool_exposure_decision',
+        decision: 'blocked',
+        toolName: toolId,
+        risk: inferRisk(toolId),
+        reason: 'blocked-by-cognitive-firewall-plugin-quarantine',
+        channelUserIdAllowed: input.metadata?.channelUserIdAllowed !== false,
+      });
     }
-    const tools = toolIds.flatMap((toolId): UniversalToolExposure[] => {
+    let tools = toolIds.flatMap((toolId): UniversalToolExposure[] => {
       const normalizedToolId = toolId.toLowerCase();
       if (effectiveBlockedToolSet.has(normalizedToolId)) {
         if (!blockedExposureSet.has(normalizedToolId)) {
@@ -158,6 +171,17 @@ export class ToolExposurePolicy {
             id: toolId,
             label: humanizeToolLabel(toolId),
             reason: blockedToolReason,
+          });
+          const reasonEnum = (blockedToolReason === 'blocked-by-cognitive-firewall-plugin-quarantine' || blockedToolReason === 'blocked-by-imported-capability-trust')
+            ? blockedToolReason
+            : 'blocked-by-imported-capability-trust';
+          auditLogger.logToolExposureDecision({
+            event: 'tool_exposure_decision',
+            decision: 'blocked',
+            toolName: toolId,
+            risk: inferRisk(toolId),
+            reason: reasonEnum,
+            channelUserIdAllowed: input.metadata?.channelUserIdAllowed !== false,
           });
         }
         return [];
@@ -178,6 +202,52 @@ export class ToolExposurePolicy {
         description: catalogEntry?.description || this.describeTool(toolId, risk),
       }];
     });
+
+    // Apply narrowing for untrusted group users
+    if (input.metadata?.channelUserIdAllowed === false) {
+      const groupPolicy = input.metadata.groupToolPolicy as any;
+      const VALID_UNTRUSTED_USER_MODES = ['none', 'safe-only', 'allowlist-only', 'safe-plus-allowlist'];
+      const untrustedUserMode = groupPolicy && VALID_UNTRUSTED_USER_MODES.includes(groupPolicy.untrustedUserMode)
+        ? groupPolicy.untrustedUserMode
+        : 'safe-only';
+      const allowedToolsForUntrustedUsers = Array.isArray(groupPolicy?.allowedToolsForUntrustedUsers)
+        ? groupPolicy.allowedToolsForUntrustedUsers
+        : [];
+
+      const filteredTools: UniversalToolExposure[] = [];
+      for (const tool of tools) {
+        let allowed = false;
+        if (untrustedUserMode === 'none') {
+          allowed = false;
+        } else if (untrustedUserMode === 'safe-only') {
+          allowed = tool.risk === 'safe';
+        } else if (untrustedUserMode === 'allowlist-only') {
+          allowed = allowedToolsForUntrustedUsers.includes(tool.id);
+        } else if (untrustedUserMode === 'safe-plus-allowlist') {
+          allowed = tool.risk === 'safe' || allowedToolsForUntrustedUsers.includes(tool.id);
+        }
+
+        if (allowed) {
+          filteredTools.push(tool);
+        } else {
+          blockedTools.push({
+            id: tool.id,
+            label: tool.label,
+            reason: 'unauthorized-user-in-group',
+          });
+          auditLogger.logToolExposureDecision({
+            event: 'tool_exposure_decision',
+            decision: 'blocked',
+            toolName: tool.id,
+            risk: tool.risk,
+            reason: 'unauthorized-user-in-group',
+            channelUserIdAllowed: false,
+            groupToolPolicyMode: untrustedUserMode,
+          });
+        }
+      }
+      tools = filteredTools;
+    }
 
     const mode = resolveMode(tools);
     const exposureSummary = tools.length === 0

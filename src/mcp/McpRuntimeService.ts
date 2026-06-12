@@ -11,6 +11,8 @@ import {
   type ResolvedMcpServerManifestEntry,
 } from './McpManifest.js';
 import { McpToolPolicyFileService } from '../services/McpToolPolicyFileService.js';
+import { SecurityAuditLogger } from '../services/SecurityAuditLogger.js';
+
 
 /** Recursively stable JSON stringify with sorted object keys. */
 function canonicalStringify(val: unknown): string {
@@ -133,6 +135,7 @@ export class McpRuntimeService {
   private readonly managers: McpManagerLike[] = [];
   private readonly stateFile: string;
   private entries = new Map<string, McpRuntimeServerSnapshot>();
+  private readonly auditLogger: SecurityAuditLogger;
 
   constructor(
     private readonly registry: ToolRegistry,
@@ -144,6 +147,7 @@ export class McpRuntimeService {
     private readonly policyFileService: McpToolPolicyFileService = new McpToolPolicyFileService(),
   ) {
     this.stateFile = path.resolve(stateFile);
+    this.auditLogger = new SecurityAuditLogger(this.logRepo);
   }
 
   public async start(): Promise<void> {
@@ -242,7 +246,7 @@ export class McpRuntimeService {
       }
 
       const { registeredNames, changed } = this.resolveDiscoveredTools(
-        discovered, allGlobalNamespacedTools, policyDoc, globalPolicy,
+        discovered, allGlobalNamespacedTools, policyDoc, globalPolicy, server.id,
       );
 
       if (changed) policyChanged = true;
@@ -476,6 +480,7 @@ export class McpRuntimeService {
     allActiveNamespacedTools: string[],
     policyDoc: any,
     globalPolicy: McpToolPolicy,
+    serverId: string,
   ): { registeredNames: string[]; changed: boolean } {
     let changed = false;
     const registeredNames: string[] = [];
@@ -492,6 +497,15 @@ export class McpRuntimeService {
             this.logRepo.log('warn', 'MCP', `Schema drift detectado para "${namespacedName}".`);
             this.policyFileService.markToolPending(policyDoc, namespacedName, fingerprint, 'schema_drift', description);
             changed = true;
+            this.auditLogger.logMcpRuntimeEvent({
+              event: 'mcp_schema_drift_detected',
+              serverId,
+              toolName,
+              namespacedToolId: namespacedName,
+              fingerprint,
+              previousFingerprint: existing.fingerprint,
+              pendingReason: 'schema_drift',
+            });
             // status stays 'pending_approval'
           } else if (existing.description !== description) {
             // Description-only drift: warn and update lastSeen, keep approved
@@ -502,6 +516,13 @@ export class McpRuntimeService {
             this.policyFileService.updateToolLastSeen(policyDoc, namespacedName, description);
             changed = true;
             status = 'approved';
+            this.auditLogger.logMcpRuntimeEvent({
+              event: 'mcp_description_drift_detected',
+              serverId,
+              toolName,
+              namespacedToolId: namespacedName,
+              fingerprint,
+            });
           } else {
             status = 'approved';
           }
@@ -515,6 +536,15 @@ export class McpRuntimeService {
             // Always use 'schema_drift' when the fingerprint changes — regardless of the original pendingReason
             this.policyFileService.markToolPending(policyDoc, namespacedName, fingerprint, 'schema_drift', description);
             changed = true;
+            this.auditLogger.logMcpRuntimeEvent({
+              event: 'mcp_schema_drift_detected',
+              serverId,
+              toolName,
+              namespacedToolId: namespacedName,
+              fingerprint,
+              previousFingerprint: existing.fingerprint,
+              pendingReason: 'schema_drift',
+            });
           }
           // status remains 'pending_approval'
         }
@@ -546,11 +576,27 @@ export class McpRuntimeService {
             );
             this.policyFileService.markToolPending(policyDoc, namespacedName, fingerprint, 'new_tool', description);
             changed = true;
+            this.auditLogger.logMcpRuntimeEvent({
+              event: 'mcp_tool_pending',
+              serverId,
+              toolName,
+              namespacedToolId: namespacedName,
+              fingerprint,
+              pendingReason: 'new_tool',
+            });
           }
         } else {
           this.logRepo.log('warn', 'MCP', `Nova ferramenta detectada: "${namespacedName}". Marcando como pending_approval.`);
           this.policyFileService.markToolPending(policyDoc, namespacedName, fingerprint, 'new_tool', description);
           changed = true;
+          this.auditLogger.logMcpRuntimeEvent({
+            event: 'mcp_tool_pending',
+            serverId,
+            toolName,
+            namespacedToolId: namespacedName,
+            fingerprint,
+            pendingReason: 'new_tool',
+          });
         }
       }
 
@@ -563,6 +609,14 @@ export class McpRuntimeService {
           'warn', 'MCP',
           `Ferramenta "${namespacedName}" aprovada no drift, mas bloqueada pela politica global: ${globalDecision.reason}`,
         );
+        this.auditLogger.logMcpRuntimeEvent({
+          event: 'mcp_tool_blocked',
+          serverId,
+          toolName,
+          namespacedToolId: namespacedName,
+          fingerprint,
+          effectiveAllowed: false,
+        });
         continue;
       }
 
@@ -573,6 +627,14 @@ export class McpRuntimeService {
         : undefined;
       this.registry.register(namespacedTool, finalSecurityDef);
       registeredNames.push(namespacedName);
+      this.auditLogger.logMcpRuntimeEvent({
+        event: 'mcp_tool_registered',
+        serverId,
+        toolName,
+        namespacedToolId: namespacedName,
+        fingerprint,
+        effectiveAllowed: true,
+      });
     }
 
     return { registeredNames, changed };
@@ -605,7 +667,7 @@ export class McpRuntimeService {
     const globalPolicy = this.policyFileService.getMcpToolPolicy(process.env);
 
     const { registeredNames, changed } = this.resolveDiscoveredTools(
-      discovered, allActiveNamespacedTools, policyDoc, globalPolicy,
+      discovered, allActiveNamespacedTools, policyDoc, globalPolicy, serverId,
     );
 
     if (changed) {

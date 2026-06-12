@@ -1,6 +1,8 @@
 #!/usr/bin/env node
 import { McpManagementService } from '../src/mcp/McpManagementService.js';
 import { McpToolPolicyFileService } from '../src/services/McpToolPolicyFileService.js';
+import { SecurityAuditLogger } from '../src/services/SecurityAuditLogger.js';
+import { LogRepository } from '../src/storage/LogRepository.js';
 
 const args = process.argv.slice(2);
 const commandName = args[0] || 'list';
@@ -17,6 +19,16 @@ main().catch((error) => {
 async function main(): Promise<void> {
   const managementService = new McpManagementService();
   const policyFileService = new McpToolPolicyFileService();
+
+  let auditLoggerInstance: SecurityAuditLogger | null = null;
+  async function getAuditLogger(): Promise<SecurityAuditLogger> {
+    if (!auditLoggerInstance) {
+      const logRepo = new LogRepository();
+      await logRepo.init().catch(() => {});
+      auditLoggerInstance = new SecurityAuditLogger(logRepo);
+    }
+    return auditLoggerInstance;
+  }
 
   if (commandName === 'list') {
     const servers = managementService.list();
@@ -140,6 +152,13 @@ async function main(): Promise<void> {
       }
     }
 
+    (await getAuditLogger()).logCliAdminEvent({
+      event: 'mcp_server_added',
+      actor: 'local-cli',
+      source: 'zavorth-mcp-install',
+      serverId: id,
+    });
+
     if (args.includes('--json')) {
       console.log(JSON.stringify(result, null, 2));
     } else {
@@ -154,6 +173,14 @@ async function main(): Promise<void> {
       throw new Error('Uso: zavorth-mcp-install remove <id>');
     }
     const result = managementService.remove(id);
+    
+    (await getAuditLogger()).logCliAdminEvent({
+      event: 'mcp_server_removed',
+      actor: 'local-cli',
+      source: 'zavorth-mcp-install',
+      serverId: id,
+    });
+
     if (args.includes('--json')) {
       console.log(JSON.stringify(result, null, 2));
     } else {
@@ -168,6 +195,14 @@ async function main(): Promise<void> {
       throw new Error(`Uso: zavorth-mcp-install ${commandName} <id>`);
     }
     const result = managementService.setEnabled(id, commandName === 'enable');
+
+    (await getAuditLogger()).logCliAdminEvent({
+      event: commandName === 'enable' ? 'mcp_server_enabled' : 'mcp_server_disabled',
+      actor: 'local-cli',
+      source: 'zavorth-mcp-install',
+      serverId: id,
+    });
+
     if (args.includes('--json')) {
       console.log(JSON.stringify(result, null, 2));
     } else {
@@ -187,8 +222,20 @@ async function main(): Promise<void> {
     const forceFingerprint = args.includes('--force-fingerprint');
 
     const doc = policyFileService.readPolicy();
+    const previousStatus = doc.tools?.[toolId]?.status || 'unknown';
     policyFileService.approveTool(doc, toolId, fingerprint, description, forceFingerprint);
     policyFileService.savePolicy(doc);
+
+    (await getAuditLogger()).logCliAdminEvent({
+      event: 'mcp_tool_approved',
+      actor: 'local-cli',
+      source: 'zavorth-mcp-install',
+      toolId,
+      previousStatus,
+      newStatus: 'approved',
+      fingerprint: fingerprint || doc.tools?.[toolId]?.fingerprint,
+      allowlistChanged: true,
+    });
 
     if (args.includes('--json')) {
       console.log(JSON.stringify({ ok: true, toolId, action: 'approved' }, null, 2));
@@ -205,8 +252,19 @@ async function main(): Promise<void> {
     }
 
     const doc = policyFileService.readPolicy();
+    const previousStatus = doc.tools?.[toolId]?.status || 'unknown';
     policyFileService.blockTool(doc, toolId);
     policyFileService.savePolicy(doc);
+
+    (await getAuditLogger()).logCliAdminEvent({
+      event: 'mcp_tool_blocked_by_admin',
+      actor: 'local-cli',
+      source: 'zavorth-mcp-install',
+      toolId,
+      previousStatus,
+      newStatus: 'blocked',
+      allowlistChanged: true,
+    });
 
     if (args.includes('--json')) {
       console.log(JSON.stringify({ ok: true, toolId, action: 'blocked' }, null, 2));
@@ -223,8 +281,18 @@ async function main(): Promise<void> {
     }
 
     const doc = policyFileService.readPolicy();
+    const previousStatus = doc.tools?.[toolId]?.status || 'unknown';
     policyFileService.forgetTool(doc, toolId);
     policyFileService.savePolicy(doc);
+
+    (await getAuditLogger()).logCliAdminEvent({
+      event: 'mcp_tool_forgotten',
+      actor: 'local-cli',
+      source: 'zavorth-mcp-install',
+      toolId,
+      previousStatus,
+      allowlistChanged: true,
+    });
 
     if (args.includes('--json')) {
       console.log(JSON.stringify({ ok: true, toolId, action: 'forgotten' }, null, 2));
