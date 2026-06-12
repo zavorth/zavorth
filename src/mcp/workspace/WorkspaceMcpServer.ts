@@ -7,6 +7,8 @@ import path from 'path';
 import { WorkspacePathGuard } from './WorkspacePathGuard.js';
 import { SecurityAuditLogger } from '../../services/SecurityAuditLogger.js';
 import { LogRepository } from '../../storage/LogRepository.js';
+import { WorkspaceWriteApprovalService } from '../../services/WorkspaceWriteApprovalService.js';
+import { Database } from '../../storage/Database.js';
 
 const workspaceRoot = process.env.ZAVORTH_WORKSPACE_ROOT;
 const sessionId = process.env.ZAVORTH_WORKSPACE_SESSION_ID;
@@ -144,9 +146,43 @@ server.setRequestHandler(ListToolsRequestSchema, async () => {
           required: ['query'],
         },
       },
+      {
+        name: 'workspace.filesystem.write',
+        description: 'Creates a new file or overwrites an existing file in the workspace.',
+        inputSchema: {
+          type: 'object',
+          properties: {
+            file: { type: 'string', description: 'Relative path of the target file' },
+            content: { type: 'string', description: 'Text content to write' },
+            operationId: { type: 'string', description: 'The approved operation ID required for retries' },
+          },
+          required: ['file', 'content'],
+        },
+      },
+      {
+        name: 'workspace.filesystem.mkdir',
+        description: 'Creates a directory in the workspace.',
+        inputSchema: {
+          type: 'object',
+          properties: {
+            directory: { type: 'string', description: 'Relative path of the directory' },
+            operationId: { type: 'string', description: 'The approved operation ID required for retries' },
+          },
+          required: ['directory'],
+        },
+      },
     ],
   };
 });
+
+let approvalService: WorkspaceWriteApprovalService | undefined;
+const getApprovalService = async (): Promise<WorkspaceWriteApprovalService> => {
+  if (!approvalService) {
+    const dbInstance = await Database.getInstance();
+    approvalService = new WorkspaceWriteApprovalService(dbInstance, auditLogger);
+  }
+  return approvalService;
+};
 
 server.setRequestHandler(CallToolRequestSchema, async (request) => {
   const toolName = request.params.name;
@@ -413,6 +449,173 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
       const searchRes = results.map(r => `[FOUND] ${r}`).join('\n');
       return {
         content: [{ type: 'text', text: searchRes || 'No matches found.' }],
+      };
+    }
+
+    if (toolName === 'workspace.filesystem.write') {
+      if (typeof params.file !== 'string') {
+        throw new Error('Argument "file" must be a string.');
+      }
+      if (typeof params.content !== 'string') {
+        throw new Error('Argument "content" must be a string.');
+      }
+      if (params.content.length > 256 * 1024) {
+        throw new Error('Content exceeds maximum limit of 256KB.');
+      }
+      if (params.content.includes('\x00')) {
+        throw new Error('Binary content is not allowed.');
+      }
+
+      const resolved = pathGuard.resolveForWrite(params.file);
+
+      // Parent directory must exist
+      const parentDir = path.dirname(resolved);
+      if (!fs.existsSync(parentDir) || !fs.statSync(parentDir).isDirectory()) {
+        throw new Error('Parent directory does not exist.');
+      }
+
+      const service = await getApprovalService();
+
+      if (params.operationId === undefined) {
+        // First phase: request approval
+        const operationId = await service.requestApproval(sessionId, toolName, resolved, params);
+        return {
+          content: [{
+            type: 'text',
+            text: JSON.stringify({
+              error: 'WRITE_APPROVAL_REQUIRED',
+              operationId,
+              pathSuffix: path.extname(resolved) || path.basename(resolved),
+            })
+          }],
+          isError: true,
+        };
+      }
+
+      // If operationId is provided, consume it
+      if (typeof params.operationId !== 'string') {
+        throw new Error('Argument "operationId" must be a string.');
+      }
+
+      const consumed = await service.consumeApproval(sessionId, toolName, resolved, params, params.operationId);
+      if (!consumed) {
+        return {
+          isError: true,
+          content: [{
+            type: 'text',
+            text: JSON.stringify({
+              error: 'WRITE_APPROVAL_EXPIRED',
+              message: 'Write approval has expired or is invalid.'
+            })
+          }]
+        };
+      }
+
+      // Atomic Write logic:
+      // temp file inside the same directory: .<basename>.zavorth-write-<operationId>.tmp
+      const basename = path.basename(resolved);
+      const tempFile = path.join(parentDir, `.${basename}.zavorth-write-${params.operationId}.tmp`);
+
+      try {
+        // Write to temp file with 'wx' flag (create exclusive)
+        fs.writeFileSync(tempFile, params.content, { flag: 'wx', encoding: 'utf8' });
+        // Atomic rename
+        fs.renameSync(tempFile, resolved);
+      } catch (writeError: any) {
+        // Cleanup temp file if it exists
+        if (fs.existsSync(tempFile)) {
+          try {
+            fs.unlinkSync(tempFile);
+          } catch {}
+        }
+        throw writeError;
+      }
+
+      // Log success
+      auditLogger.logWorkspaceEvent({
+        event: 'workspace_filesystem_write',
+        workspaceId: sessionId,
+        rootPath: workspaceRoot,
+        toolName,
+        operation: 'write-file',
+        path: resolved,
+      });
+
+      return {
+        content: [{ type: 'text', text: 'File written successfully.' }],
+      };
+    }
+
+    if (toolName === 'workspace.filesystem.mkdir') {
+      if (typeof params.directory !== 'string') {
+        throw new Error('Argument "directory" must be a string.');
+      }
+
+      const resolved = pathGuard.resolveForWrite(params.directory);
+
+      // Target path must not exist
+      if (fs.existsSync(resolved)) {
+        throw new Error('Target path already exists.');
+      }
+
+      // No recursive creation: parent must exist
+      const parentDir = path.dirname(resolved);
+      if (!fs.existsSync(parentDir) || !fs.statSync(parentDir).isDirectory()) {
+        throw new Error('Parent directory does not exist.');
+      }
+
+      const service = await getApprovalService();
+
+      if (params.operationId === undefined) {
+        // First phase: request approval
+        const operationId = await service.requestApproval(sessionId, toolName, resolved, params);
+        return {
+          content: [{
+            type: 'text',
+            text: JSON.stringify({
+              error: 'WRITE_APPROVAL_REQUIRED',
+              operationId,
+              pathSuffix: path.extname(resolved) || path.basename(resolved),
+            })
+          }],
+          isError: true,
+        };
+      }
+
+      // If operationId is provided, consume it
+      if (typeof params.operationId !== 'string') {
+        throw new Error('Argument "operationId" must be a string.');
+      }
+
+      const consumed = await service.consumeApproval(sessionId, toolName, resolved, params, params.operationId);
+      if (!consumed) {
+        return {
+          isError: true,
+          content: [{
+            type: 'text',
+            text: JSON.stringify({
+              error: 'WRITE_APPROVAL_EXPIRED',
+              message: 'Write approval has expired or is invalid.'
+            })
+          }]
+        };
+      }
+
+      // Create the directory
+      fs.mkdirSync(resolved, { recursive: false });
+
+      // Log success
+      auditLogger.logWorkspaceEvent({
+        event: 'workspace_filesystem_write',
+        workspaceId: sessionId,
+        rootPath: workspaceRoot,
+        toolName,
+        operation: 'create-directory',
+        path: resolved,
+      });
+
+      return {
+        content: [{ type: 'text', text: 'Directory created successfully.' }],
       };
     }
 
