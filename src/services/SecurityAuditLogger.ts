@@ -10,14 +10,25 @@ export class SecurityAuditLogger {
 
   // HMAC-SHA256 hashing using the local key ZAVORTH_AUDIT_HASH_KEY or secure fallback
   private hashId(id: string): string {
-    const key = process.env.ZAVORTH_AUDIT_HASH_KEY || 'default-zavorth-audit-key-please-change-in-production';
+    const key = process.env.ZAVORTH_AUDIT_HASH_KEY;
+    if (!key) {
+      if (process.env.NODE_ENV === 'production') {
+        throw new Error('ZAVORTH_AUDIT_HASH_KEY environment variable is required in production.');
+      }
+      return crypto.createHmac('sha256', 'default-zavorth-audit-key-please-change-in-production').update(id).digest('hex');
+    }
     return crypto.createHmac('sha256', key).update(id).digest('hex');
   }
 
   private getSuffix(id: string): string {
-    const cleanId = id.trim();
-    if (cleanId.length <= 4) return cleanId;
-    return cleanId.slice(-4);
+    const cleanId = id.trim().toLowerCase();
+    if (cleanId.endsWith('@c.us')) {
+      return '@c.us';
+    }
+    if (cleanId.endsWith('@g.us')) {
+      return '@g.us';
+    }
+    return 'redacted';
   }
 
   // Runtime string sanitization: strip control characters
