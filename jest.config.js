@@ -20,6 +20,9 @@ module.exports = {
       {
         useESM: true,
         diagnostics: false,
+        tsconfig: {
+          jsx: 'react-jsx',
+        },
       },
     ],
   },
