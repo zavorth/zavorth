@@ -3,6 +3,8 @@ import fs from 'fs';
 import { NodeMeshTransportRouteService } from './NodeMeshTransportRouteService.js';
 import { WorkspaceWriteApprovalPayloadCache } from './WorkspaceWriteApprovalPayloadCache.js';
 import { WorkspaceWriteApprovalService } from './WorkspaceWriteApprovalService.js';
+import { WorkspaceSessionGrantCache } from './WorkspaceSessionGrantCache.js';
+import { WorkspaceCommandApprovalService } from './WorkspaceCommandApprovalService.js';
 import { WorkspacePathGuard } from '../mcp/workspace/WorkspacePathGuard.js';
 import { Database } from '../storage/Database.js';
 import { config } from '../config/index.js';
@@ -245,7 +247,7 @@ export class ZavorthControlCoreRouteService {
       if (enabled === null) {
         deps.writeJson(res, {
           ok: false,
-          error: 'Campo "enabled" precisa ser booleano.',
+          error: 'Campo "enabled" needs ser booleano.',
         }, 400);
         return true;
       }
@@ -277,7 +279,7 @@ export class ZavorthControlCoreRouteService {
       if (!input) {
         deps.writeJson(res, {
           ok: false,
-          error: 'Campos "text" e "customerId" precisam ser strings nao vazias.',
+          error: 'Campos "text" e "customerId" need ser strings not vazias.',
         }, 400);
         return true;
       }
@@ -317,7 +319,7 @@ export class ZavorthControlCoreRouteService {
       try {
         body = rawBody.trim() ? JSON.parse(rawBody) as Record<string, unknown> : {};
       } catch {
-        deps.writeJson(res, { ok: false, error: 'Payload JSON invalido para WhatsApp Cloud API.' }, 400);
+        deps.writeJson(res, { ok: false, error: 'Payload JSON invalid para WhatsApp Cloud API.' }, 400);
         return true;
       }
       const result = this.salesPackChannelIo.receiveInbound({
@@ -397,7 +399,7 @@ export class ZavorthControlCoreRouteService {
 
     if (pathname === '/api/webhooks/slack' && req.method === 'POST') {
       if (!deps.slackIngressGateway) {
-        deps.writeJson(res, { ok: false, error: 'Slack webhook indisponivel.' }, 503);
+        deps.writeJson(res, { ok: false, error: 'Slack webhook unavailable.' }, 503);
         return true;
       }
 
@@ -406,7 +408,7 @@ export class ZavorthControlCoreRouteService {
       try {
         body = rawBody.trim() ? JSON.parse(rawBody) as Record<string, unknown> : {};
       } catch {
-        deps.writeJson(res, { ok: false, error: 'Payload JSON invalido para webhook do Slack.' }, 400);
+        deps.writeJson(res, { ok: false, error: 'Payload JSON invalid para webhook do Slack.' }, 400);
         return true;
       }
 
@@ -421,7 +423,7 @@ export class ZavorthControlCoreRouteService {
 
     if (pathname === '/api/webhooks/whatsapp' && req.method === 'GET') {
       if (!deps.whatsappIngressGateway) {
-        deps.writeText(res, 'WhatsApp webhook indisponivel.', 503);
+        deps.writeText(res, 'WhatsApp webhook unavailable.', 503);
         return true;
       }
 
@@ -432,7 +434,7 @@ export class ZavorthControlCoreRouteService {
 
     if (pathname === '/api/webhooks/whatsapp' && req.method === 'POST') {
       if (!deps.whatsappIngressGateway) {
-        deps.writeJson(res, { ok: false, error: 'WhatsApp webhook indisponivel.' }, 503);
+        deps.writeJson(res, { ok: false, error: 'WhatsApp webhook unavailable.' }, 503);
         return true;
       }
 
@@ -444,7 +446,7 @@ export class ZavorthControlCoreRouteService {
 
     if (pathname === '/api/webhooks/instagram' && req.method === 'GET') {
       if (!deps.instagramIngressGateway) {
-        deps.writeText(res, 'Instagram webhook indisponivel.', 503);
+        deps.writeText(res, 'Instagram webhook unavailable.', 503);
         return true;
       }
 
@@ -455,7 +457,7 @@ export class ZavorthControlCoreRouteService {
 
     if (pathname === '/api/webhooks/instagram' && req.method === 'POST') {
       if (!deps.instagramIngressGateway) {
-        deps.writeJson(res, { ok: false, error: 'Instagram webhook indisponivel.' }, 503);
+        deps.writeJson(res, { ok: false, error: 'Instagram webhook unavailable.' }, 503);
         return true;
       }
 
@@ -467,7 +469,7 @@ export class ZavorthControlCoreRouteService {
 
     if (pathname === '/api/webhooks/teams' && req.method === 'POST') {
       if (!deps.teamsIngressGateway) {
-        deps.writeJson(res, { ok: false, error: 'Teams webhook indisponivel.' }, 503);
+        deps.writeJson(res, { ok: false, error: 'Teams webhook unavailable.' }, 503);
         return true;
       }
 
@@ -476,7 +478,7 @@ export class ZavorthControlCoreRouteService {
       try {
         body = rawBody.trim() ? JSON.parse(rawBody) as Record<string, unknown> : {};
       } catch {
-        deps.writeJson(res, { ok: false, error: 'Payload JSON invalido para webhook do Teams.' }, 400);
+        deps.writeJson(res, { ok: false, error: 'Payload JSON invalid para webhook do Teams.' }, 400);
         return true;
       }
       const result = await deps.teamsIngressGateway.handleWebhookEvent({
@@ -569,7 +571,7 @@ export class ZavorthControlCoreRouteService {
       if (typeof deps.a2ui.dispatchAction !== 'function') {
         deps.writeJson(res, {
           ok: false,
-          error: 'A2UI action dispatch indisponivel nesta surface.',
+          error: 'A2UI action dispatch unavailable nesta surface.',
         }, 503);
         return true;
       }
@@ -807,6 +809,198 @@ export class ZavorthControlCoreRouteService {
       return true;
     }
 
+    // --- Workspace Command Approvals Endpoints ---
+    if (pathname === '/api/v2/workspace/command-approvals/session-grant' && req.method === 'POST') {
+      if (deps.authService && !deps.authService.resolveAuthenticatedIdentity(req)) {
+        deps.writeJson(res, { ok: false, error: 'Unauthorized' }, 401);
+        return true;
+      }
+      try {
+        const body = await deps.readJsonBody(req);
+        const { workspaceId, active, durationMinutes, allowRiskUpTo, allowPackageInstall, allowNetwork } = body;
+        if (!workspaceId) {
+          deps.writeJson(res, { ok: false, error: 'workspaceId is required' }, 400);
+          return true;
+        }
+
+        const cache = WorkspaceSessionGrantCache.getInstance();
+        if (active === false) {
+          cache.setDeveloperMode(workspaceId, false);
+          deps.writeJson(res, { ok: true, developerModeActive: false });
+          return true;
+        }
+
+        const mins = Number(durationMinutes || 30);
+        const expiresAt = new Date(Date.now() + mins * 60 * 1000).toISOString();
+
+        const grant = {
+          workspaceId,
+          expiresAt,
+          allowRiskUpTo: (allowRiskUpTo === 'MEDIUM' ? 'MEDIUM' : 'LOW') as 'LOW' | 'MEDIUM',
+          allowPackageInstall: allowPackageInstall !== false,
+          allowNetwork: allowNetwork === true,
+        };
+
+        cache.setDeveloperMode(workspaceId, true);
+        cache.setGrant(workspaceId, grant);
+
+        deps.writeJson(res, {
+          ok: true,
+          developerModeActive: true,
+          grant: {
+            workspaceId: grant.workspaceId,
+            expiresAt: grant.expiresAt,
+            allowRiskUpTo: grant.allowRiskUpTo,
+            allowPackageInstall: grant.allowPackageInstall,
+            allowNetwork: grant.allowNetwork,
+          }
+        });
+      } catch (err: any) {
+        deps.writeJson(res, { ok: false, error: err.message }, 500);
+      }
+      return true;
+    }
+
+    if (pathname === '/api/v2/workspace/command-approvals/session-grant' && req.method === 'GET') {
+      if (deps.authService && !deps.authService.resolveAuthenticatedIdentity(req)) {
+        deps.writeJson(res, { ok: false, error: 'Unauthorized' }, 401);
+        return true;
+      }
+      try {
+        const workspaceId = url.searchParams.get('workspaceId');
+        if (!workspaceId) {
+          deps.writeJson(res, { ok: false, error: 'workspaceId parameter is required' }, 400);
+          return true;
+        }
+
+        const cache = WorkspaceSessionGrantCache.getInstance();
+        const active = cache.isDeveloperModeActive(workspaceId);
+        const grant = cache.getGrant(workspaceId);
+
+        deps.writeJson(res, {
+          ok: true,
+          developerModeActive: active,
+          grant
+        });
+      } catch (err: any) {
+        deps.writeJson(res, { ok: false, error: err.message }, 500);
+      }
+      return true;
+    }
+
+    if (pathname === '/api/v2/workspace/command-approvals/pending' && req.method === 'GET') {
+      if (deps.authService && !deps.authService.resolveAuthenticatedIdentity(req)) {
+        deps.writeJson(res, { ok: false, error: 'Unauthorized' }, 401);
+        return true;
+      }
+      try {
+        const workspaceId = url.searchParams.get('workspaceId');
+        const db = await Database.getInstance();
+        const now = new Date().toISOString();
+
+        let rows;
+        if (workspaceId) {
+          rows = db.all<{ operation_id: string; workspace_id: string; command: string; created_at: string; expires_at: string }>(
+            'SELECT operation_id, workspace_id, command, created_at, expires_at FROM workspace_command_approvals WHERE approved = 0 AND expires_at > ? AND workspace_id = ?',
+            [now, workspaceId]
+          );
+        } else {
+          rows = db.all<{ operation_id: string; workspace_id: string; command: string; created_at: string; expires_at: string }>(
+            'SELECT operation_id, workspace_id, command, created_at, expires_at FROM workspace_command_approvals WHERE approved = 0 AND expires_at > ?',
+            [now]
+          );
+        }
+
+        const data = rows.map(row => ({
+          operationId: row.operation_id,
+          workspaceId: row.workspace_id,
+          command: row.command,
+          createdAt: row.created_at,
+          expiresAt: row.expires_at,
+        }));
+
+        deps.writeJson(res, { ok: true, data });
+      } catch (err: any) {
+        deps.writeJson(res, { ok: false, error: err.message }, 500);
+      }
+      return true;
+    }
+
+    if (pathname === '/api/v2/workspace/command-approvals/payload' && req.method === 'GET') {
+      if (deps.authService && !deps.authService.resolveAuthenticatedIdentity(req)) {
+        deps.writeJson(res, { ok: false, error: 'Unauthorized' }, 401);
+        return true;
+      }
+      try {
+        const operationId = url.searchParams.get('operationId');
+        if (!operationId) {
+          deps.writeJson(res, { ok: false, error: 'operationId parameter is required' }, 400);
+          return true;
+        }
+
+        const db = await Database.getInstance();
+        const entry = db.get<{ operation_id: string; workspace_id: string; command: string; approved: number; expires_at: string; created_at: string }>(
+          'SELECT operation_id, workspace_id, command, approved, expires_at, created_at FROM workspace_command_approvals WHERE operation_id = ?',
+          [operationId]
+        );
+
+        if (!entry) {
+          deps.writeJson(res, { ok: false, error: 'Operation not found' }, 404);
+          return true;
+        }
+
+        if (new Date(entry.expires_at) <= new Date()) {
+          deps.writeJson(res, { ok: false, error: 'Operation expired' }, 410);
+          return true;
+        }
+
+        deps.writeJson(res, {
+          ok: true,
+          data: {
+            operationId: entry.operation_id,
+            workspaceId: entry.workspace_id,
+            command: entry.command,
+            approved: entry.approved === 1,
+            createdAt: entry.created_at,
+            expiresAt: entry.expires_at
+          }
+        });
+      } catch (err: any) {
+        deps.writeJson(res, { ok: false, error: err.message }, 500);
+      }
+      return true;
+    }
+
+    if (pathname === '/api/v2/workspace/command-approvals/resolve' && req.method === 'POST') {
+      if (deps.authService && !deps.authService.resolveAuthenticatedIdentity(req)) {
+        deps.writeJson(res, { ok: false, error: 'Unauthorized' }, 401);
+        return true;
+      }
+      try {
+        const body = await deps.readJsonBody(req);
+        const { operationId, decision } = body;
+        if (!operationId || !decision) {
+          deps.writeJson(res, { ok: false, error: 'operationId and decision are required' }, 400);
+          return true;
+        }
+
+        const approvalService = new WorkspaceCommandApprovalService();
+        if (decision === 'approve') {
+          await approvalService.approveOperation(operationId);
+        } else if (decision === 'deny') {
+          await approvalService.denyOperation(operationId);
+        } else {
+          deps.writeJson(res, { ok: false, error: 'Invalid decision' }, 400);
+          return true;
+        }
+
+        deps.writeJson(res, { ok: true });
+      } catch (err: any) {
+        deps.writeJson(res, { ok: false, error: err.message }, 500);
+      }
+      return true;
+    }
+
     // --- Proactive Permissions Endpoints ---
     if (pathname === '/api/v2/permissions/pending' && req.method === 'GET') {
       const data = deps.echo
@@ -955,7 +1149,7 @@ export class ZavorthControlCoreRouteService {
       const body = await deps.readJsonBody(req);
       const text = this.readOptionalString(body.text) || this.readOptionalString(body.message);
       if (!text) {
-        deps.writeJson(res, { ok: false, error: 'Campo "text" precisa ser uma string nao vazia.' }, 400);
+        deps.writeJson(res, { ok: false, error: 'Campo "text" needs ser uma string not vazia.' }, 400);
         return true;
       }
       const metadata = this.readRecord(body.metadata) || { source: 'runtime-api' };
