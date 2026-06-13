@@ -246,6 +246,19 @@ export class Database {
       )
     `);
     this.run(`CREATE INDEX IF NOT EXISTS idx_workspace_write_approvals_lookup ON workspace_write_approvals(workspace_id, tool_name, operation_id, path_hash, request_hash)`);
+
+    this.run(`
+      CREATE TABLE IF NOT EXISTS workspace_command_approvals (
+        operation_id TEXT PRIMARY KEY,
+        workspace_id TEXT NOT NULL,
+        command TEXT NOT NULL,
+        args_hash TEXT NOT NULL,
+        approved INTEGER DEFAULT 0,
+        expires_at TEXT NOT NULL,
+        created_at TEXT NOT NULL
+      )
+    `);
+    this.run(`CREATE INDEX IF NOT EXISTS idx_workspace_command_approvals_lookup ON workspace_command_approvals(workspace_id, operation_id)`);
   }
 
   private ensureColumn(tableName: string, columnName: string, definition: string): void {

@@ -372,7 +372,7 @@ export class SecurityAuditLogger {
 
   // 5. Workspace Events
   public logWorkspaceEvent(payload: {
-    event: 'workspace_opened' | 'workspace_revoked' | 'workspace_tool_allowed' | 'workspace_tool_blocked' | 'workspace_path_denied' | 'workspace_git_read' | 'workspace_filesystem_read' | 'workspace_filesystem_write' | 'workspace_notes_event' | 'workspace_write_requested' | 'workspace_write_approved' | 'workspace_write_denied';
+    event: 'workspace_opened' | 'workspace_revoked' | 'workspace_tool_allowed' | 'workspace_tool_blocked' | 'workspace_path_denied' | 'workspace_git_read' | 'workspace_filesystem_read' | 'workspace_filesystem_write' | 'workspace_notes_event' | 'workspace_write_requested' | 'workspace_write_approved' | 'workspace_write_denied' | 'grant_created' | 'grant_revoked' | 'grant_expired' | 'command_auto_approved' | 'command_approval_requested' | 'command_approved' | 'command_denied' | 'command_executed' | 'command_blocked';
     workspaceId: string;
     rootPath?: string;
     rootPathHash?: string;
@@ -382,9 +382,19 @@ export class SecurityAuditLogger {
     reason?: string;
     path?: string;
     operation?: string;
+    argsHash?: string;
+    exitCode?: number;
+    durationMs?: number;
+    timeoutFlag?: boolean;
+    truncatedFlag?: boolean;
+    riskLevel?: string;
+    commandHash?: string;
+    redactedCommandPreview?: string;
+    metadata?: Record<string, any>;
   }): void {
     const allowedPayloadKeys = [
-      'event', 'workspaceId', 'rootPath', 'rootPathHash', 'rootPathSuffix', 'toolName', 'decision', 'reason', 'path', 'operation'
+      'event', 'workspaceId', 'rootPath', 'rootPathHash', 'rootPathSuffix', 'toolName', 'decision', 'reason', 'path', 'operation',
+      'argsHash', 'exitCode', 'durationMs', 'timeoutFlag', 'truncatedFlag', 'riskLevel', 'commandHash', 'redactedCommandPreview', 'metadata'
     ];
     this.validateKeys(payload, allowedPayloadKeys);
 
@@ -392,6 +402,7 @@ export class SecurityAuditLogger {
     const copy = { ...payload };
     delete copy.rootPath;
     delete copy.path;
+    delete copy.metadata;
     this.validatePayloadValues(copy);
 
     // Validate raw path fields separately without the 128 character limit
@@ -414,7 +425,16 @@ export class SecurityAuditLogger {
       'workspace_notes_event',
       'workspace_write_requested',
       'workspace_write_approved',
-      'workspace_write_denied'
+      'workspace_write_denied',
+      'grant_created',
+      'grant_revoked',
+      'grant_expired',
+      'command_auto_approved',
+      'command_approval_requested',
+      'command_approved',
+      'command_denied',
+      'command_executed',
+      'command_blocked'
     ];
 
     if (!validEvents.includes(payload.event)) {
@@ -444,10 +464,20 @@ export class SecurityAuditLogger {
       metadata.pathSuffix = this.sanitizeString(this.getPathSuffix(payload.path));
     }
 
+    if (payload.argsHash) metadata.argsHash = payload.argsHash;
+    if (payload.exitCode !== undefined) metadata.exitCode = payload.exitCode;
+    if (payload.durationMs !== undefined) metadata.durationMs = payload.durationMs;
+    if (payload.timeoutFlag !== undefined) metadata.timeoutFlag = payload.timeoutFlag;
+    if (payload.truncatedFlag !== undefined) metadata.truncatedFlag = payload.truncatedFlag;
+    if (payload.riskLevel) metadata.riskLevel = payload.riskLevel;
+    if (payload.commandHash) metadata.commandHash = payload.commandHash;
+    if (payload.redactedCommandPreview) metadata.redactedCommandPreview = payload.redactedCommandPreview;
     const allowedKeys = [
       'event', 'workspaceId', 'rootPathHash', 'rootPathSuffix',
       'toolName', 'decision', 'reason', 'pathHash', 'pathSuffix',
-      'operation', 'timestamp'
+      'operation', 'timestamp', 'argsHash', 'exitCode', 'durationMs',
+      'timeoutFlag', 'truncatedFlag', 'riskLevel', 'commandHash',
+      'redactedCommandPreview', 'metadata'
     ];
 
     this.validateKeys(metadata, allowedKeys);

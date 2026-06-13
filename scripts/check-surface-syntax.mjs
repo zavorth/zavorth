@@ -99,9 +99,9 @@ if (diagnostics.length > 0) {
     const suffix = location ? `:${location.line + 1}:${location.character + 1}` : '';
     console.error(`${file}${suffix} - TS${diagnostic.code}: ${message}`);
   }
-  console.error(`[surface-syntax] ${diagnostics.length} erro(s) em ${files.length} arquivo(s).`);
+  console.error(`[surface-syntax] ${diagnostics.length} erro(s) em ${files.length} file(s).`);
   process.exit(1);
 }
 
 const labels = activeTargets.map((target) => target.label).join(', ');
-console.log(`[surface-syntax] ${files.length} arquivo(s) TS/TSX de ${labels} validados.`);
+console.log(`[surface-syntax] ${files.length} file(s) TS/TSX de ${labels} validados.`);
