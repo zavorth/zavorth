@@ -38,7 +38,7 @@ class NamespacedMcpTool extends BaseTool {
   public readonly name: string;
   public readonly description: string;
   public readonly parameters: BaseTool['parameters'];
-  public readonly metadata: BaseTool['metadata'];
+  public declare readonly metadata: BaseTool['metadata'];
 
   constructor(
     private readonly originalTool: BaseTool,
