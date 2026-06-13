@@ -67,6 +67,29 @@ export class WorkspaceCommandRunTool extends BaseTool {
       // 1. Classify command to determine riskLevel for audit logs
       const riskLevel = this.classifier.classify(command, path.resolve(workspaceRoot, cwdInput), workspaceRoot);
 
+      // Revalidate trust at run-time if the workspace has trust configured
+      const { TrustedWorkspaceService } = await import('../../services/TrustedWorkspaceService.js');
+      const trustService = await TrustedWorkspaceService.getInstance();
+      const trustEntry = trustService.getTrustEntry(workspaceId);
+      if (trustEntry) {
+        const loaded = trustService.loadTrust(workspaceId, workspaceRoot);
+        if (!loaded || !loaded.trusted) {
+          return JSON.stringify({
+            success: false,
+            error: 'Execução bloqueada: a confiança neste workspace foi revogada, expirou ou o caminho do root foi alterado.'
+          });
+        }
+      }
+
+      // Block out-of-workspace execution at run-time
+      const isOutside = riskLevel === 'CRITICAL' && this.isCommandOrCwdOutside(command, path.resolve(workspaceRoot, cwdInput), workspaceRoot);
+      if (isOutside) {
+        return JSON.stringify({
+          success: false,
+          error: 'Execução bloqueada: comando ou diretório fora do workspace.'
+        });
+      }
+
       // 2. Atomically verify and consume the approval
       const isApproved = await this.approvalService.consumeApproval(workspaceId, command, operationId);
       if (!isApproved) {
@@ -94,5 +117,40 @@ export class WorkspaceCommandRunTool extends BaseTool {
         error: `Falha na execução do comando: ${error.message || error}`
       });
     }
+  }
+
+  private isCommandOrCwdOutside(command: string, cwd: string, workspaceRoot: string): boolean {
+    const resolvedRoot = path.resolve(workspaceRoot);
+    const resolvedCwd = path.resolve(cwd);
+
+    const isPathOutside = (target: string, root: string): boolean => {
+      const relative = path.relative(root, target);
+      if (relative.startsWith('..') || path.isAbsolute(relative)) {
+        return true;
+      }
+      const normalizedTarget = target.replace(/\\/g, '/').toLowerCase();
+      const normalizedRoot = root.replace(/\\/g, '/').toLowerCase();
+      return !normalizedTarget.startsWith(normalizedRoot + '/') && normalizedTarget !== normalizedRoot;
+    };
+
+    if (isPathOutside(resolvedCwd, resolvedRoot)) {
+      return true;
+    }
+
+    const tokens = command.split(/\s+/u);
+    for (const token of tokens) {
+      if (token.includes('/') || token.includes('\\') || token.startsWith('.')) {
+        try {
+          const resolved = path.resolve(resolvedCwd, token);
+          if (isPathOutside(resolved, resolvedRoot)) {
+            return true;
+          }
+        } catch {
+          // ignore parsing failures
+        }
+      }
+    }
+
+    return false;
   }
 }

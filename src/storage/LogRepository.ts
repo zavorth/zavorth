@@ -19,6 +19,19 @@ export class LogRepository {
   }
 
   public log(level: SystemLog['level'], category: string, message: string, metadata?: Record<string, any>): void {
+    if (!this.db) {
+      const dbInstance = (Database as any).instance;
+      if (dbInstance) {
+        this.db = dbInstance;
+      } else {
+        if (level === 'error' || level === 'security') {
+          console.warn(`[${level.toUpperCase()}] [${category}] ${message} (DB not ready)`);
+        } else {
+          console.log(`[${level.toUpperCase()}] [${category}] ${message} (DB not ready)`);
+        }
+        return;
+      }
+    }
     const encryptedMessage = this.secureStorage.encryptString(message);
     const metaStr = metadata ? this.secureStorage.encryptJson(metadata) : null;
     this.db.run(

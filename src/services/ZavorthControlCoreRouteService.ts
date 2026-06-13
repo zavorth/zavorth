@@ -1,4 +1,5 @@
 import * as http from 'http';
+import path from 'path';
 import fs from 'fs';
 import { NodeMeshTransportRouteService } from './NodeMeshTransportRouteService.js';
 import { WorkspaceWriteApprovalPayloadCache } from './WorkspaceWriteApprovalPayloadCache.js';
@@ -28,6 +29,9 @@ import type { ZavorthRuntimeStateActionType } from '../contracts/ZavorthRuntimeS
 import { globalLiveNodeRegistry } from './LiveNodeRegistryService.js';
 import { TrustedDeviceAccessService } from './TrustedDeviceAccessService.js';
 import { TrustedDeviceAccessRouteService } from './TrustedDeviceAccessRouteService.js';
+import { WorkspaceResolver } from '../security/WorkspaceResolver.js';
+import { TrustedWorkspaceService } from './TrustedWorkspaceService.js';
+
 
 type WriteJson = (res: http.ServerResponse, body: unknown, statusCode?: number) => void;
 type WriteText = (res: http.ServerResponse, body: string, statusCode?: number) => void;
@@ -882,6 +886,108 @@ export class ZavorthControlCoreRouteService {
           developerModeActive: active,
           grant
         });
+      } catch (err: any) {
+        deps.writeJson(res, { ok: false, error: err.message }, 500);
+      }
+      return true;
+    }
+
+    // --- Workspace Trust Endpoints ---
+    if (pathname === '/api/v2/workspace/trust/status' && req.method === 'GET') {
+      if (deps.authService && !deps.authService.resolveAuthenticatedIdentity(req)) {
+        deps.writeJson(res, { ok: false, error: 'Unauthorized' }, 401);
+        return true;
+      }
+      try {
+        const workspaceId = url.searchParams.get('workspaceId');
+        if (!workspaceId) {
+          deps.writeJson(res, { ok: false, error: 'workspaceId parameter is required' }, 400);
+          return true;
+        }
+
+        // Validate workspaceId matches the active session workspace to prevent spoofing
+        const activeWorkspace = WorkspaceResolver.resolve(null);
+        const activeWorkspaceId = path.basename(activeWorkspace);
+        if (workspaceId !== activeWorkspaceId) {
+          deps.writeJson(res, { ok: false, error: 'workspaceId does not match the active session workspace' }, 403);
+          return true;
+        }
+
+
+        const trustService = await TrustedWorkspaceService.getInstance();
+        const entry = trustService.loadTrust(workspaceId, activeWorkspace);
+
+        deps.writeJson(res, {
+          ok: true,
+          trusted: entry !== null && entry.trusted,
+          entry
+        });
+      } catch (err: any) {
+        deps.writeJson(res, { ok: false, error: err.message }, 500);
+      }
+      return true;
+    }
+
+    if (pathname === '/api/v2/workspace/trust/resolve' && req.method === 'POST') {
+      if (deps.authService && !deps.authService.resolveAuthenticatedIdentity(req)) {
+        deps.writeJson(res, { ok: false, error: 'Unauthorized' }, 401);
+        return true;
+      }
+      try {
+        const body = await deps.readJsonBody(req);
+        const { workspaceId, rootPath, trusted, allowRiskUpTo, allowPackageInstall, allowNetwork } = body;
+        if (!workspaceId) {
+          deps.writeJson(res, { ok: false, error: 'workspaceId is required' }, 400);
+          return true;
+        }
+        if (!rootPath) {
+          deps.writeJson(res, { ok: false, error: 'rootPath is required' }, 400);
+          return true;
+        }
+
+        // Validate rootPath and workspaceId against active workspace to prevent path spoofing
+        let resolvedPath: string;
+        try {
+          resolvedPath = fs.realpathSync(path.resolve(rootPath));
+        } catch {
+          resolvedPath = path.resolve(rootPath);
+        }
+
+        let activeWorkspace: string;
+        try {
+          activeWorkspace = fs.realpathSync(WorkspaceResolver.resolve(null));
+        } catch {
+          activeWorkspace = path.resolve(WorkspaceResolver.resolve(null));
+        }
+
+        const normResolved = path.normalize(resolvedPath).toLowerCase();
+        const normActive = path.normalize(activeWorkspace).toLowerCase();
+
+        if (normResolved !== normActive) {
+          deps.writeJson(res, { ok: false, error: 'rootPath does not match active session workspace' }, 403);
+          return true;
+        }
+
+        const activeWorkspaceId = path.basename(activeWorkspace);
+        if (workspaceId !== activeWorkspaceId) {
+          deps.writeJson(res, { ok: false, error: 'workspaceId does not match active session workspace' }, 403);
+          return true;
+        }
+
+
+        const trustService = await TrustedWorkspaceService.getInstance();
+
+        if (trusted === false) {
+          await trustService.revokeTrust(workspaceId);
+          deps.writeJson(res, { ok: true, trusted: false });
+        } else {
+          const entry = await trustService.grantTrust(workspaceId, rootPath, {
+            allowRiskUpTo: allowRiskUpTo as 'LOW' | 'MEDIUM',
+            allowPackageInstall: !!allowPackageInstall,
+            allowNetwork: !!allowNetwork
+          });
+          deps.writeJson(res, { ok: true, trusted: true, entry });
+        }
       } catch (err: any) {
         deps.writeJson(res, { ok: false, error: err.message }, 500);
       }

@@ -75,34 +75,57 @@ export class WorkspaceCommandProposeTool extends BaseTool {
         });
       }
 
-      // 3. Determine if it can be auto-approved
+      // 3. Revalidate and load persistent trust if configured
+      const { TrustedWorkspaceService } = await import('../../services/TrustedWorkspaceService.js');
+      const trustService = await TrustedWorkspaceService.getInstance();
+      trustService.loadTrust(workspaceId, workspaceRoot);
+
+      // Determine if it can be auto-approved
       let approved = false;
       let reason = 'Safe Mode active (requires manual approval)';
 
       const isDevMode = this.grantCache.isDeveloperModeActive(workspaceId);
       if (isDevMode) {
-        if (riskLevel === 'LOW') {
-          approved = true;
-          reason = 'Auto-approved: LOW risk command in Developer Mode';
-        } else if (riskLevel === 'MEDIUM') {
-          const grant = this.grantCache.getGrant(workspaceId);
-          if (grant) {
-            // Check package install permissions if applicable
+        const grant = this.grantCache.getGrant(workspaceId);
+        if (grant) {
+          if (riskLevel === 'LOW') {
+            approved = true;
+            reason = 'Auto-approved: LOW risk command in Developer Mode';
+          } else if (riskLevel === 'MEDIUM') {
             const isPkgInstall = this.isPackageInstallCommand(command);
-            if (isPkgInstall && !grant.allowPackageInstall) {
-              approved = false;
-              reason = 'Requires approval: package install is not allowed by the current session grant';
+            const isNetwork = this.isNetworkCommand(command);
+            if (isPkgInstall) {
+              if (grant.allowPackageInstall) {
+                approved = true;
+                reason = 'Auto-approved: Package install command allowed by session grant';
+              } else {
+                approved = false;
+                reason = 'Requires approval: Package install is not allowed by the current session grant';
+              }
+            } else if (isNetwork) {
+              if (grant.allowNetwork && grant.allowRiskUpTo === 'MEDIUM') {
+                approved = true;
+                reason = 'Auto-approved: Network command allowed by session grant';
+              } else {
+                approved = false;
+                reason = 'Requires approval: Network access is not allowed or risk level not allowed by the current session grant';
+              }
             } else {
-              approved = true;
-              reason = 'Auto-approved: MEDIUM risk command covered by active Session Grant';
+              if (grant.allowRiskUpTo === 'MEDIUM') {
+                approved = true;
+                reason = 'Auto-approved: MEDIUM risk command covered by active Session Grant';
+              } else {
+                approved = false;
+                reason = 'Requires approval: MEDIUM risk command requires allowRiskUpTo=MEDIUM';
+              }
             }
           } else {
             approved = false;
-            reason = 'Requires approval: MEDIUM risk command with no active Session Grant';
+            reason = `Requires approval: ${riskLevel} risk command never auto-executes in this phase`;
           }
         } else {
           approved = false;
-          reason = `Requires approval: ${riskLevel} risk command never auto-executes in this phase`;
+          reason = 'Requires approval: Developer Mode active but no active Session Grant';
         }
       }
 
@@ -130,6 +153,13 @@ export class WorkspaceCommandProposeTool extends BaseTool {
     const binary = parts[0] ? path.basename(parts[0]).replace(/\.(exe|cmd|bat)$/i, '') : '';
     const action = parts[1] || '';
     return ['npm', 'pnpm', 'yarn'].includes(binary) && ['install', 'i'].includes(action);
+  }
+
+  private isNetworkCommand(command: string): boolean {
+    const trimmed = command.toLowerCase();
+    return trimmed.includes('http://') || trimmed.includes('https://') || trimmed.includes('ftp://')
+      || trimmed.includes('ping ') || trimmed.includes('git clone') || trimmed.includes('git pull')
+      || trimmed.includes('git push') || trimmed.includes('git fetch');
   }
 
   private isCommandOrCwdOutside(command: string, cwd: string, workspaceRoot: string): boolean {

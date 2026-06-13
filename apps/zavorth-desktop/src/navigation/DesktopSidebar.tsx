@@ -16,6 +16,7 @@ import {
   type IconComponent,
 } from '../icons';
 import type { DesktopWorkspaceScope } from '../workspaceScopes';
+import { WorkspaceTrustControl } from '../components/WorkspaceTrustControl';
 
 type SidebarItem = {
   panel: DesktopPanel;
@@ -137,6 +138,14 @@ export function DesktopSidebar(props: {
               <Core className="zvd-nav-icon" aria-hidden="true" size={17} stroke={1.75} />
               <span className="zvd-project-name">{props.workspaceScope.shortLabel}</span>
             </button>
+            {!props.collapsed && props.workspaceScope.path && (
+              <div style={{ padding: '0 8px' }}>
+                <WorkspaceTrustControl
+                  workspaceId={props.workspaceScope.id}
+                  workspaceRoot={props.workspaceScope.path}
+                />
+              </div>
+            )}
             <div className="zvd-thread-list">
               {projectThreads.map(thread => (
                 <button type="button" key={thread.title} onClick={() => props.onPanel('chat')}>
