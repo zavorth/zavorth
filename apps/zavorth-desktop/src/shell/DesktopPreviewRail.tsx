@@ -1,4 +1,5 @@
 import type { ChatMessage, RuntimeCapabilitiesSnapshot } from '../apiClient';
+import { FileExplorer } from '../components/FileExplorer';
 import { AppWindow, Folder, Terminal } from '../icons';
 import type { DesktopPanel } from '../slashCommands';
 import type { DesktopWorkspaceScope } from '../workspaceScopes';
@@ -64,9 +65,7 @@ export function DesktopPreviewRail(props: {
             <strong>Arquivos</strong>
           </div>
           {workspacePath && props.onAttachFile ? (
-            <div className="zavorth-mock-file-explorer" style={{ padding: '8px', fontSize: '12px', color: 'var(--zvd-muted)' }}>
-              Explorer Placeholder ({workspacePath})
-            </div>
+            <FileExplorer onAttachFile={props.onAttachFile} />
           ) : (
             <p>Selecione uma pasta confiavel para navegar arquivos e anexar referencias ao chat.</p>
           )}
