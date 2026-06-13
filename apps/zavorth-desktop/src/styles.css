@@ -2434,3 +2434,64 @@ input:focus-visible {
   font-style: italic;
   padding: 4px 12px;
 }
+
+/* =========================================================================
+   Fase 12 — Read-Only Approvals Panel
+   Namespaced: .zavorth-approvals-*
+   No global selectors (body / #root / * / button / input) are changed.
+   ========================================================================= */
+
+.zavorth-approvals-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.zavorth-approvals-list {
+  flex: 1;
+  overflow-y: auto;
+  padding: 0;
+}
+
+.zavorth-approvals-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 10px 16px;
+  border-bottom: 1px solid var(--zvd-border, rgba(255, 255, 255, 0.06));
+  transition: background 120ms ease;
+}
+
+.zavorth-approvals-row:hover {
+  background: var(--zvd-surface-hover, rgba(255, 255, 255, 0.04));
+}
+
+.zavorth-approvals-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2px 7px;
+  border-radius: 9999px;
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  background: var(--zvd-badge-bg, rgba(255, 255, 255, 0.08));
+  color: var(--zvd-muted, rgba(255, 255, 255, 0.5));
+}
+
+.zavorth-approvals-badge[data-tone='danger'] {
+  background: rgba(239, 68, 68, 0.15);
+  color: rgb(252, 165, 165);
+}
+
+.zavorth-approvals-badge[data-tone='warning'] {
+  background: rgba(245, 158, 11, 0.15);
+  color: rgb(253, 211, 77);
+}
+
+.zavorth-approvals-badge[data-tone='ready'] {
+  background: rgba(34, 197, 94, 0.12);
+  color: rgb(134, 239, 172);
+}
