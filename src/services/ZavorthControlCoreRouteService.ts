@@ -1,5 +1,11 @@
 import * as http from 'http';
+import fs from 'fs';
 import { NodeMeshTransportRouteService } from './NodeMeshTransportRouteService.js';
+import { WorkspaceWriteApprovalPayloadCache } from './WorkspaceWriteApprovalPayloadCache.js';
+import { WorkspaceWriteApprovalService } from './WorkspaceWriteApprovalService.js';
+import { WorkspacePathGuard } from '../mcp/workspace/WorkspacePathGuard.js';
+import { Database } from '../storage/Database.js';
+import { config } from '../config/index.js';
 import { OperationalMaturityService } from '../domain/platform-ecosystem/application/OperationalMaturityService.js';
 import {
   SalesPackMvpService,
@@ -598,6 +604,206 @@ export class ZavorthControlCoreRouteService {
         canonical: `/api/v2/a2ui/snapshot?surfaceId=${encodeURIComponent(surfaceId)}`,
         data: state,
       });
+      return true;
+    }
+
+    // --- Workspace Write Approvals Endpoints ---
+    if (pathname === '/api/v2/workspace/approvals/pending' && req.method === 'GET') {
+      if (deps.authService && !deps.authService.resolveAuthenticatedIdentity(req)) {
+        deps.writeJson(res, { ok: false, error: 'Unauthorized' }, 401);
+        return true;
+      }
+      try {
+        const db = await Database.getInstance();
+        const cache = WorkspaceWriteApprovalPayloadCache.getInstance();
+        await cache.clearExpired(db);
+
+        const now = new Date().toISOString();
+        const rows = db.all<{ operation_id: string; workspace_id: string; tool_name: string; path_suffix: string; created_at: string; expires_at: string }>(
+          'SELECT operation_id, workspace_id, tool_name, path_suffix, created_at, expires_at FROM workspace_write_approvals WHERE approved = 0 AND expires_at > ?',
+          [now]
+        );
+
+        const activeSessionId = url.searchParams.get('sessionId');
+        const data = rows
+          .filter(row => {
+            if (activeSessionId && row.workspace_id !== activeSessionId) {
+              return false;
+            }
+            return cache.getPayload(row.operation_id) !== undefined;
+          })
+          .map(row => {
+            const cached = cache.getPayload(row.operation_id);
+            return {
+              operationId: row.operation_id,
+              toolName: row.tool_name,
+              pathSuffix: row.path_suffix,
+              path: cached?.file || null,
+              createdAt: row.created_at,
+              expiresAt: row.expires_at,
+            };
+          });
+
+        deps.writeJson(res, { ok: true, data });
+      } catch (err: any) {
+        deps.writeJson(res, { ok: false, error: err.message }, 500);
+      }
+      return true;
+    }
+
+    if (pathname === '/api/v2/workspace/approvals/payload' && req.method === 'GET') {
+      if (deps.authService && !deps.authService.resolveAuthenticatedIdentity(req)) {
+        deps.writeJson(res, { ok: false, error: 'Unauthorized' }, 401);
+        return true;
+      }
+      try {
+        const operationId = url.searchParams.get('operationId');
+        if (!operationId) {
+          deps.writeJson(res, { ok: false, error: 'operationId parameter is required' }, 400);
+          return true;
+        }
+
+        const db = await Database.getInstance();
+        const cache = WorkspaceWriteApprovalPayloadCache.getInstance();
+        await cache.clearExpired(db);
+
+        // 1. Operation exists in DB
+        const entry = db.get<{ approved: number; expires_at: string; workspace_id: string; tool_name: string }>(
+          'SELECT approved, expires_at, workspace_id, tool_name FROM workspace_write_approvals WHERE operation_id = ?',
+          [operationId]
+        );
+        if (!entry) {
+          deps.writeJson(res, { ok: false, error: 'Operation not found' }, 404);
+          return true;
+        }
+
+        // 2. Operation has not expired
+        if (new Date(entry.expires_at) <= new Date()) {
+          deps.writeJson(res, { ok: false, error: 'Operation expired' }, 410);
+          return true;
+        }
+
+        // 3. Operation belongs to the active workspace/session
+        const activeSessionId = url.searchParams.get('sessionId');
+        if (activeSessionId && entry.workspace_id !== activeSessionId) {
+          deps.writeJson(res, { ok: false, error: 'Operation session mismatch' }, 403);
+          return true;
+        }
+
+        // 4. Payload exists in the memory cache
+        const cachedPayload = cache.getPayload(operationId);
+        if (!cachedPayload) {
+          deps.writeJson(res, { ok: false, error: 'Payload not found in transient cache' }, 404);
+          return true;
+        }
+
+        // proposed content must not be binary (contains no null bytes)
+        if (cachedPayload.content && cachedPayload.content.includes('\x00')) {
+          deps.writeJson(res, { ok: false, error: 'Proposed content is binary' }, 400);
+          return true;
+        }
+
+        // 5. Relative path is safe
+        const workspacePath = url.searchParams.get('workspacePath')
+          || url.searchParams.get('workspace')
+          || process.env.ZAVORTH_WORKSPACE_ROOT
+          || config.workspaceRoot
+          || process.cwd();
+
+        const pathGuard = new WorkspacePathGuard(workspacePath);
+        const relativePath = cachedPayload.file;
+        let resolvedPath: string;
+        try {
+          resolvedPath = pathGuard.resolveForWrite(relativePath);
+        } catch (pathErr: any) {
+          deps.writeJson(res, { ok: false, error: `Unsafe relative path: ${pathErr.message}` }, 403);
+          return true;
+        }
+
+        // 6. Current content was read via WorkspacePathGuard
+        let currentContent = '';
+        let currentContentExists = false;
+        try {
+          if (fs.existsSync(resolvedPath) && fs.statSync(resolvedPath).isFile()) {
+            const buffer = fs.readFileSync(resolvedPath);
+            // Check if current content is binary
+            if (buffer.includes(0)) {
+              deps.writeJson(res, { ok: false, error: 'Current file is binary' }, 400);
+              return true;
+            }
+            currentContent = buffer.toString('utf8');
+            currentContentExists = true;
+          }
+        } catch (readErr: any) {
+          deps.writeJson(res, { ok: false, error: `Failed to read current file: ${readErr.message}` }, 403);
+          return true;
+        }
+
+        // 7. Preview/diff already comes truncated from backend
+        // Max 100KB and 1000 lines helper
+        const truncateContent = (content: string): string => {
+          if (!content) return '';
+          let truncated = content;
+          if (Buffer.byteLength(content, 'utf8') > 100 * 1024) {
+            truncated = content.slice(0, 100 * 1024);
+          }
+          const lines = truncated.split(/\r?\n/);
+          if (lines.length > 1000) {
+            return lines.slice(0, 1000).join('\n') + '\n... [TRUNCATED]';
+          }
+          return truncated;
+        };
+
+        const truncatedProposed = cachedPayload.content !== undefined ? truncateContent(cachedPayload.content) : undefined;
+        const truncatedCurrent = truncateContent(currentContent);
+
+        deps.writeJson(res, {
+          ok: true,
+          data: {
+            operationId,
+            file: relativePath,
+            toolName: entry.tool_name,
+            currentContent: truncatedCurrent,
+            proposedContent: truncatedProposed,
+            currentContentExists,
+          }
+        });
+      } catch (err: any) {
+        deps.writeJson(res, { ok: false, error: err.message }, 500);
+      }
+      return true;
+    }
+
+    if (pathname === '/api/v2/workspace/approvals/resolve' && req.method === 'POST') {
+      if (deps.authService && !deps.authService.resolveAuthenticatedIdentity(req)) {
+        deps.writeJson(res, { ok: false, error: 'Unauthorized' }, 401);
+        return true;
+      }
+      try {
+        const body = await deps.readJsonBody(req);
+        const { operationId, decision } = body;
+        if (!operationId || !decision) {
+          deps.writeJson(res, { ok: false, error: 'operationId and decision are required' }, 400);
+          return true;
+        }
+
+        const approvalService = new WorkspaceWriteApprovalService();
+        const cache = WorkspaceWriteApprovalPayloadCache.getInstance();
+
+        if (decision === 'approve') {
+          await approvalService.approveOperation(operationId);
+        } else if (decision === 'deny') {
+          await approvalService.denyOperation(operationId);
+          cache.clearPayload(operationId);
+        } else {
+          deps.writeJson(res, { ok: false, error: 'Invalid decision' }, 400);
+          return true;
+        }
+
+        deps.writeJson(res, { ok: true });
+      } catch (err: any) {
+        deps.writeJson(res, { ok: false, error: err.message }, 500);
+      }
       return true;
     }
 

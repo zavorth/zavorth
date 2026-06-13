@@ -1,11 +1,12 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import { dispatchRuntimeStateAction, loadDesktopPanelsData, loadHome, loadRuntimeStatus, repairAccess, resolveApproval as resolveApprovalRequest, resolveLearning as resolveLearningRequest, runMemoryEncryptionMigration, sendExperienceMessage, startRuntime, steerActiveRun, type ApprovalItem, type ChatMessage, type ExperienceSnapshot, type LearningItem, type MemoryEncryptionMigrationReceipt, type MemoryEncryptionStatus, type MemoryItem, type RuntimeCapabilitiesSnapshot, type ToolItem } from './apiClient';
+import { dispatchRuntimeStateAction, loadDesktopPanelsData, loadHome, loadRuntimeStatus, repairAccess, resolveApproval as resolveApprovalRequest, resolveLearning as resolveLearningRequest, runMemoryEncryptionMigration, sendExperienceMessage, startRuntime, steerActiveRun, type ApprovalItem, type ChatMessage, type ExperienceSnapshot, type LearningItem, type MemoryEncryptionMigrationReceipt, type MemoryEncryptionStatus, type MemoryItem, type RuntimeCapabilitiesSnapshot, type ToolItem, loadWorkspaceWriteApprovals, resolveWorkspaceWriteApproval } from './apiClient';
 import type { BootEvent, RuntimeStatus } from './global';
 import { appendLocalMessage, applyRuntimeCapabilitiesToDesktop, asRecord, defaultConnectedModelIds, desktopEffortFromRuntime, fallbackStatus, modelOptionsFromRuntimeCapabilities, normalizeMessages, responseProfileByExperience, runtimeInstrumentActionInput, runtimeStateFromSnapshot, runtimeStateState } from './appRuntimeState';
 import { modelOptions } from './modelCatalog';
 import { DesktopShell } from './shell/DesktopShell';
 import { parseSlashCommand, slashCommands, type DesktopPanel } from './slashCommands';
 import { defaultWorkspaceScopes, workspaceScopeForMetadata, type DesktopWorkspaceScope } from './workspaceScopes';
+import { WorkspaceWriteApprovalModal } from './components/WorkspaceWriteApprovalModal';
 
 export function App() {
   const [status, setStatus] = useState<RuntimeStatus>(fallbackStatus);
@@ -34,6 +35,7 @@ export function App() {
   const [workspaceScopes, setWorkspaceScopes] = useState<DesktopWorkspaceScope[]>(defaultWorkspaceScopes);
   const [workspaceScopeId, setWorkspaceScopeId] = useState('local');
   const [runtimeConnectedModelIds, setRuntimeConnectedModelIds] = useState<string[]>(() => defaultConnectedModelIds());
+  const [workspaceWriteApprovals, setWorkspaceWriteApprovals] = useState<any[]>([]);
 
   const bridgeReady = Boolean(window.zavorthDesktop);
   const sessionId = snapshot?.sessionId || 'desktop-main';
@@ -111,6 +113,8 @@ export function App() {
         setWorkspaceScopes,
         setWorkspaceScopeId,
       });
+      const wRes = await loadWorkspaceWriteApprovals(sessionId);
+      setWorkspaceWriteApprovals(wRes);
     } catch {
       setApprovals([]);
       setLearning([]);
@@ -118,8 +122,9 @@ export function App() {
       setNexusStatus(null);
       setMemoryEncryptionStatus(null);
       setRuntimeCapabilities(null);
+      setWorkspaceWriteApprovals([]);
     }
-  }, []);
+  }, [sessionId, applyRuntimeCapabilitiesToDesktop]);
 
   const refreshHome = useCallback(async () => {
     try {
@@ -155,6 +160,24 @@ export function App() {
       off();
     };
   }, [bridgeReady, refreshHome, refreshPanels, refreshRuntime]);
+
+  useEffect(() => {
+    if (!bridgeReady) {
+      return;
+    }
+
+    const interval = setInterval(() => {
+      loadWorkspaceWriteApprovals(sessionId)
+        .then((wRes) => {
+          setWorkspaceWriteApprovals(wRes);
+        })
+        .catch(() => {});
+    }, 3000);
+
+    return () => {
+      clearInterval(interval);
+    };
+  }, [bridgeReady, sessionId]);
 
   const memoryItems = useMemo(() => {
     const memory = snapshot?.memory || {};
@@ -446,66 +469,88 @@ export function App() {
     });
   }, [applyRuntimeSelection]);
 
+  async function handleWorkspaceWriteApprovalResolve(operationId: string, decision: 'approve' | 'deny') {
+    setBusy(true);
+    try {
+      await resolveWorkspaceWriteApproval(operationId, decision);
+      const wRes = await loadWorkspaceWriteApprovals(sessionId);
+      setWorkspaceWriteApprovals(wRes);
+      appendLocalMessage(setMessages, 'system', `Workspace approval ${decision === 'approve' ? 'allowed' : 'blocked'}.`);
+    } catch (error) {
+      setNotice(error instanceof Error ? error.message : 'Could not resolve workspace write approval.');
+    } finally {
+      setBusy(false);
+    }
+  }
+
   return (
-    <DesktopShell
-      activePanel={activePanel}
-      approvals={approvals}
-      busy={busy}
-      channels={channelItems}
-      commandPaletteOpen={commandPaletteOpen}
-      effort={effort}
-      accent={accent}
-      encryptionReceipt={memoryEncryptionReceipt}
-      encryptionStatus={memoryEncryptionStatus}
-      events={events}
-      input={input}
-      inspectorOpen={inspectorOpen}
-      learning={learning}
-      memoryItems={memoryItems}
-      modelOptions={connectedModelOptions}
-      messages={messages}
-      nexusStatus={nexusStatus}
-      notice={notice}
-      profile={experienceProfile}
-      runtimeMessage={status.message}
-      runtimeCapabilities={runtimeCapabilities}
-      selectedModel={selectedModel}
-      showNotice={Boolean(notice)}
-      showRuntimeSetup={!status.running}
-      sidebarCollapsed={sidebarCollapsed}
-      status={status}
-      theme={theme}
-      tools={tools}
-      workspaceScope={activeWorkspaceScope}
-      workspaceScopes={workspaceScopes}
-      onAccessRepair={requestAccessRepair}
-      onAccent={setAccent}
-      onCommandPalette={setCommandPaletteOpen}
-      onEffort={handleEffortSelection}
-      onEncryptionAction={handleMemoryEncryptionAction}
-      onInput={setInput}
-      onLearningDecision={resolveLearning}
-      onModel={handleModelSelection}
-      onNewSession={() => {
-        setMessages([]);
-        setInput('');
-        setActivePanel('chat');
-      }}
-      onPanel={setActivePanel}
-      onProfile={setExperienceProfile}
-      onRefresh={async () => {
-        await refreshRuntime();
-        await refreshHome();
-        await refreshPanels();
-      }}
-      onReviewDecision={resolveApproval}
-      onRuntimeStart={requestRuntimeStart}
-      onRuntimeStateAction={requestRuntimeInstrument}
-      onSidebarCollapsed={setSidebarCollapsed}
-      onSubmit={sendMessage}
-      onTheme={setTheme}
-      onWorkspaceFolder={handleWorkspaceFolderSelection}
-      onWorkspaceScope={handleWorkspaceScopeSelection}
-    />
+    <>
+      <DesktopShell
+        activePanel={activePanel}
+        approvals={approvals}
+        busy={busy}
+        channels={channelItems}
+        commandPaletteOpen={commandPaletteOpen}
+        effort={effort}
+        accent={accent}
+        encryptionReceipt={memoryEncryptionReceipt}
+        encryptionStatus={memoryEncryptionStatus}
+        events={events}
+        input={input}
+        inspectorOpen={inspectorOpen}
+        learning={learning}
+        memoryItems={memoryItems}
+        modelOptions={connectedModelOptions}
+        messages={messages}
+        nexusStatus={nexusStatus}
+        notice={notice}
+        profile={experienceProfile}
+        runtimeMessage={status.message}
+        runtimeCapabilities={runtimeCapabilities}
+        selectedModel={selectedModel}
+        showNotice={Boolean(notice)}
+        showRuntimeSetup={!status.running}
+        sidebarCollapsed={sidebarCollapsed}
+        status={status}
+        theme={theme}
+        tools={tools}
+        workspaceScope={activeWorkspaceScope}
+        workspaceScopes={workspaceScopes}
+        onAccessRepair={requestAccessRepair}
+        onAccent={setAccent}
+        onCommandPalette={setCommandPaletteOpen}
+        onEffort={handleEffortSelection}
+        onEncryptionAction={handleMemoryEncryptionAction}
+        onInput={setInput}
+        onLearningDecision={resolveLearning}
+        onModel={handleModelSelection}
+        onNewSession={() => {
+          setMessages([]);
+          setInput('');
+          setActivePanel('chat');
+        }}
+        onPanel={setActivePanel}
+        onProfile={setExperienceProfile}
+        onRefresh={async () => {
+          await refreshRuntime();
+          await refreshHome();
+          await refreshPanels();
+        }}
+        onReviewDecision={resolveApproval}
+        onRuntimeStart={requestRuntimeStart}
+        onRuntimeStateAction={requestRuntimeInstrument}
+        onSidebarCollapsed={setSidebarCollapsed}
+        onSubmit={sendMessage}
+        onTheme={setTheme}
+        onWorkspaceFolder={handleWorkspaceFolderSelection}
+        onWorkspaceScope={handleWorkspaceScopeSelection}
+      />
+      <WorkspaceWriteApprovalModal
+        approvals={workspaceWriteApprovals}
+        sessionId={sessionId}
+        workspacePath={activeWorkspaceScope.path}
+        onResolve={handleWorkspaceWriteApprovalResolve}
+      />
+    </>
   );
 }
