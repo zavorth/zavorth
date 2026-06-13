@@ -74,6 +74,8 @@ export function DesktopShell(props: {
   onTheme(value: 'light' | 'dark' | 'system'): void;
   onWorkspaceFolder(): void | Promise<void>;
   onWorkspaceScope(value: string): void;
+  activeMandate?: any;
+  onRevokeMandate?: () => Promise<void>;
 }) {
   const isMac = navigator.userAgent.includes('Macintosh');
   const [systemDark, setSystemDark] = useState(() => window.matchMedia?.('(prefers-color-scheme: dark)').matches ?? true);
@@ -121,6 +123,8 @@ export function DesktopShell(props: {
         onToggle={() => props.onSidebarCollapsed(value => !value)}
         onWorkspaceFolder={props.onWorkspaceFolder}
         onWorkspaceScope={props.onWorkspaceScope}
+        activeMandate={props.activeMandate}
+        onRevokeMandate={props.onRevokeMandate}
       />
 
       <section className="zvd-workspace" aria-label="Zavorth Desktop">

@@ -17,6 +17,7 @@ import {
 } from '../icons';
 import type { DesktopWorkspaceScope } from '../workspaceScopes';
 import { WorkspaceTrustControl } from '../components/WorkspaceTrustControl';
+import { WorkspaceTaskMandateStatus } from '../components/WorkspaceTaskMandateStatus';
 
 type SidebarItem = {
   panel: DesktopPanel;
@@ -59,6 +60,8 @@ export function DesktopSidebar(props: {
   onToggle(): void;
   onWorkspaceFolder(): void | Promise<void>;
   onWorkspaceScope(value: string): void;
+  activeMandate?: any;
+  onRevokeMandate?: () => Promise<void>;
 }) {
   const projectScopes = props.workspaceScopes.filter(scope => scope.kind === 'folder');
   return (
@@ -139,11 +142,17 @@ export function DesktopSidebar(props: {
               <span className="zvd-project-name">{props.workspaceScope.shortLabel}</span>
             </button>
             {!props.collapsed && props.workspaceScope.path && (
-              <div style={{ padding: '0 8px' }}>
+              <div style={{ padding: '0 8px', display: 'flex', flexDirection: 'column', gap: '8px' }}>
                 <WorkspaceTrustControl
                   workspaceId={props.workspaceScope.id}
                   workspaceRoot={props.workspaceScope.path}
                 />
+                {props.activeMandate !== undefined && (
+                  <WorkspaceTaskMandateStatus
+                    activeMandate={props.activeMandate}
+                    onRevoke={props.onRevokeMandate || (async () => {})}
+                  />
+                )}
               </div>
             )}
             <div className="zvd-thread-list">

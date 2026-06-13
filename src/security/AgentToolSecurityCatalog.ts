@@ -103,6 +103,14 @@ export const NATIVE_AGENT_TOOL_SECURITY_DEFINITIONS: AgentToolSecurityDefinition
     description: 'Runs a previously proposed and approved command inside the workspace.',
   },
   {
+    toolName: 'workspace.task_mandate.propose',
+    surface: 'native-tool',
+    capabilities: ['local-observation'],
+    defaultRisk: 'safe',
+    requiresConfirmation: false,
+    description: 'Proposes a task mandate for execution inside the workspace.',
+  },
+  {
     toolName: 'remote_shell',
     surface: 'native-tool',
     capabilities: ['shell', 'filesystem', 'destructive'],
@@ -228,6 +236,7 @@ export const BOOTSTRAP_NATIVE_TOOL_SECURITY_MANIFEST = [
   { className: 'WorkspaceApplyPatchTool', toolName: 'workspace.apply_patch' },
   { className: 'WorkspaceCommandProposeTool', toolName: 'workspace.command.propose' },
   { className: 'WorkspaceCommandRunTool', toolName: 'workspace.command.run' },
+  { className: 'WorkspaceTaskMandateProposeTool', toolName: 'workspace.task_mandate.propose' },
   { className: 'DateTimeTool', toolName: 'get_datetime' },
   { className: 'RemoteShellTool', toolName: 'remote_shell' },
   { className: 'QueryExternalAiTool', toolName: 'query_external_ai' },

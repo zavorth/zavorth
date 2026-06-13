@@ -6,6 +6,7 @@ import { WorkspaceWriteApprovalPayloadCache } from './WorkspaceWriteApprovalPayl
 import { WorkspaceWriteApprovalService } from './WorkspaceWriteApprovalService.js';
 import { WorkspaceSessionGrantCache } from './WorkspaceSessionGrantCache.js';
 import { WorkspaceCommandApprovalService } from './WorkspaceCommandApprovalService.js';
+import { WorkspaceTaskMandateService } from './WorkspaceTaskMandateService.js';
 import { WorkspacePathGuard } from '../mcp/workspace/WorkspacePathGuard.js';
 import { Database } from '../storage/Database.js';
 import { config } from '../config/index.js';
@@ -988,6 +989,162 @@ export class ZavorthControlCoreRouteService {
           });
           deps.writeJson(res, { ok: true, trusted: true, entry });
         }
+      } catch (err: any) {
+        deps.writeJson(res, { ok: false, error: err.message }, 500);
+      }
+      return true;
+    }
+
+    if (pathname === '/api/v2/workspace/task-mandates/pending' && req.method === 'GET') {
+      if (deps.authService && !deps.authService.resolveAuthenticatedIdentity(req)) {
+        deps.writeJson(res, { ok: false, error: 'Unauthorized' }, 401);
+        return true;
+      }
+      try {
+        const workspaceId = url.searchParams.get('workspaceId');
+        if (!workspaceId) {
+          deps.writeJson(res, { ok: false, error: 'workspaceId is required' }, 400);
+          return true;
+        }
+
+        const activeWorkspace = WorkspaceResolver.resolve(null);
+        const activeWorkspaceId = path.basename(activeWorkspace);
+        if (workspaceId !== activeWorkspaceId) {
+          deps.writeJson(res, { ok: false, error: 'workspaceId does not match active session workspace' }, 403);
+          return true;
+        }
+
+        const mandateService = WorkspaceTaskMandateService.getInstance();
+        const proposed = mandateService.getProposedMandate(workspaceId);
+
+        if (!proposed) {
+          deps.writeJson(res, { ok: true, proposed: null });
+          return true;
+        }
+
+        // Relativize targetDirectories
+        const relativeTargets = proposed.targetDirectories.map(dir => {
+          const relative = path.relative(activeWorkspace, dir);
+          return relative.replace(/\\/g, '/');
+        });
+
+        deps.writeJson(res, {
+          ok: true,
+          proposed: {
+            ...proposed,
+            targetDirectories: relativeTargets
+          }
+        });
+      } catch (err: any) {
+        deps.writeJson(res, { ok: false, error: err.message }, 500);
+      }
+      return true;
+    }
+
+    if (pathname === '/api/v2/workspace/task-mandates/active' && req.method === 'GET') {
+      if (deps.authService && !deps.authService.resolveAuthenticatedIdentity(req)) {
+        deps.writeJson(res, { ok: false, error: 'Unauthorized' }, 401);
+        return true;
+      }
+      try {
+        const workspaceId = url.searchParams.get('workspaceId');
+        if (!workspaceId) {
+          deps.writeJson(res, { ok: false, error: 'workspaceId is required' }, 400);
+          return true;
+        }
+
+        const activeWorkspace = WorkspaceResolver.resolve(null);
+        const activeWorkspaceId = path.basename(activeWorkspace);
+        if (workspaceId !== activeWorkspaceId) {
+          deps.writeJson(res, { ok: false, error: 'workspaceId does not match active session workspace' }, 403);
+          return true;
+        }
+
+        const mandateService = WorkspaceTaskMandateService.getInstance();
+        const active = mandateService.getActiveMandate(workspaceId);
+
+        if (!active) {
+          deps.writeJson(res, { ok: true, active: null });
+          return true;
+        }
+
+        // Relativize targetDirectories
+        const relativeTargets = active.targetDirectories.map(dir => {
+          const relative = path.relative(activeWorkspace, dir);
+          return relative.replace(/\\/g, '/');
+        });
+
+        deps.writeJson(res, {
+          ok: true,
+          active: {
+            ...active,
+            targetDirectories: relativeTargets
+          }
+        });
+      } catch (err: any) {
+        deps.writeJson(res, { ok: false, error: err.message }, 500);
+      }
+      return true;
+    }
+
+    if (pathname === '/api/v2/workspace/task-mandates/resolve' && req.method === 'POST') {
+      if (deps.authService && !deps.authService.resolveAuthenticatedIdentity(req)) {
+        deps.writeJson(res, { ok: false, error: 'Unauthorized' }, 401);
+        return true;
+      }
+      try {
+        const body = await deps.readJsonBody(req);
+        const { workspaceId, approved } = body;
+        if (!workspaceId) {
+          deps.writeJson(res, { ok: false, error: 'workspaceId is required' }, 400);
+          return true;
+        }
+        if (approved === undefined) {
+          deps.writeJson(res, { ok: false, error: 'approved is required' }, 400);
+          return true;
+        }
+
+        const activeWorkspace = WorkspaceResolver.resolve(null);
+        const activeWorkspaceId = path.basename(activeWorkspace);
+        if (workspaceId !== activeWorkspaceId) {
+          deps.writeJson(res, { ok: false, error: 'workspaceId does not match active session workspace' }, 403);
+          return true;
+        }
+
+        const mandateService = WorkspaceTaskMandateService.getInstance();
+        const resolved = mandateService.resolveMandate(workspaceId, !!approved);
+
+        deps.writeJson(res, { ok: true, resolved: resolved ? { mandateId: resolved.mandateId, expiresAt: resolved.expiresAt } : null });
+      } catch (err: any) {
+        deps.writeJson(res, { ok: false, error: err.message }, 500);
+      }
+      return true;
+    }
+
+    if (pathname === '/api/v2/workspace/task-mandates/revoke' && req.method === 'POST') {
+      if (deps.authService && !deps.authService.resolveAuthenticatedIdentity(req)) {
+        deps.writeJson(res, { ok: false, error: 'Unauthorized' }, 401);
+        return true;
+      }
+      try {
+        const body = await deps.readJsonBody(req);
+        const { workspaceId } = body;
+        if (!workspaceId) {
+          deps.writeJson(res, { ok: false, error: 'workspaceId is required' }, 400);
+          return true;
+        }
+
+        const activeWorkspace = WorkspaceResolver.resolve(null);
+        const activeWorkspaceId = path.basename(activeWorkspace);
+        if (workspaceId !== activeWorkspaceId) {
+          deps.writeJson(res, { ok: false, error: 'workspaceId does not match active session workspace' }, 403);
+          return true;
+        }
+
+        const mandateService = WorkspaceTaskMandateService.getInstance();
+        mandateService.revokeMandate(workspaceId);
+
+        deps.writeJson(res, { ok: true });
       } catch (err: any) {
         deps.writeJson(res, { ok: false, error: err.message }, 500);
       }

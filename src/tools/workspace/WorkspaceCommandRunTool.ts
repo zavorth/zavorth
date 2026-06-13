@@ -90,6 +90,20 @@ export class WorkspaceCommandRunTool extends BaseTool {
         });
       }
 
+      // Re-verify task mandate validity at runtime
+      const { WorkspaceTaskMandateService } = await import('../../services/WorkspaceTaskMandateService.js');
+      const mandateService = WorkspaceTaskMandateService.getInstance();
+      const activeMandate = mandateService.getActiveMandate(workspaceId);
+      if (activeMandate) {
+        const checkResult = mandateService.checkCommandApproval(workspaceId, workspaceRoot, command, path.resolve(workspaceRoot, cwdInput), riskLevel);
+        if (!checkResult.allowed) {
+          return JSON.stringify({
+            success: false,
+            error: `Execução bloqueada: comando viola o mandato de tarefa ativo (${checkResult.reason})`
+          });
+        }
+      }
+
       // 2. Atomically verify and consume the approval
       const isApproved = await this.approvalService.consumeApproval(workspaceId, command, operationId);
       if (!isApproved) {

@@ -20,6 +20,7 @@ export function createBootstrapToolRuntime(logRepo: LogRepository) {
     WorkspaceWriteTool,
     WorkspaceCommandProposeTool,
     WorkspaceCommandRunTool,
+    WorkspaceTaskMandateProposeTool,
   } = require('../tools/workspace/index.js');
   const { DateTimeTool } = require('../tools/DateTimeTool.js');
   const { RemoteShellTool } = require('../tools/RemoteShellTool.js');
@@ -49,6 +50,7 @@ export function createBootstrapToolRuntime(logRepo: LogRepository) {
   toolRegistry.register(new WorkspaceApplyPatchTool());
   toolRegistry.register(new WorkspaceCommandProposeTool());
   toolRegistry.register(new WorkspaceCommandRunTool());
+  toolRegistry.register(new WorkspaceTaskMandateProposeTool());
   toolRegistry.register(new DateTimeTool());
   toolRegistry.register(new RemoteShellTool());
   toolRegistry.register(new QueryExternalAiTool());

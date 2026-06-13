@@ -84,48 +84,64 @@ export class WorkspaceCommandProposeTool extends BaseTool {
       let approved = false;
       let reason = 'Safe Mode active (requires manual approval)';
 
-      const isDevMode = this.grantCache.isDeveloperModeActive(workspaceId);
-      if (isDevMode) {
-        const grant = this.grantCache.getGrant(workspaceId);
-        if (grant) {
-          if (riskLevel === 'LOW') {
-            approved = true;
-            reason = 'Auto-approved: LOW risk command in Developer Mode';
-          } else if (riskLevel === 'MEDIUM') {
-            const isPkgInstall = this.isPackageInstallCommand(command);
-            const isNetwork = this.isNetworkCommand(command);
-            if (isPkgInstall) {
-              if (grant.allowPackageInstall) {
-                approved = true;
-                reason = 'Auto-approved: Package install command allowed by session grant';
+      const { WorkspaceTaskMandateService } = await import('../../services/WorkspaceTaskMandateService.js');
+      const mandateService = WorkspaceTaskMandateService.getInstance();
+      const activeMandate = mandateService.getActiveMandate(workspaceId);
+
+      if (activeMandate) {
+        const checkResult = mandateService.checkCommandApproval(workspaceId, workspaceRoot, command, resolvedCwd, riskLevel);
+        if (checkResult.allowed) {
+          approved = true;
+          reason = checkResult.reason;
+        } else {
+          approved = false;
+          reason = `Requires approval: Command violates active Task Mandate (${checkResult.reason})`;
+        }
+      } else {
+        // Fallback to Developer Mode / Session Grant only if no active mandate exists
+        const isDevMode = this.grantCache.isDeveloperModeActive(workspaceId);
+        if (isDevMode) {
+          const grant = this.grantCache.getGrant(workspaceId);
+          if (grant) {
+            if (riskLevel === 'LOW') {
+              approved = true;
+              reason = 'Auto-approved: LOW risk command in Developer Mode';
+            } else if (riskLevel === 'MEDIUM') {
+              const isPkgInstall = this.isPackageInstallCommand(command);
+              const isNetwork = this.isNetworkCommand(command);
+              if (isPkgInstall) {
+                if (grant.allowPackageInstall) {
+                  approved = true;
+                  reason = 'Auto-approved: Package install command allowed by session grant';
+                } else {
+                  approved = false;
+                  reason = 'Requires approval: Package install is not allowed by the current session grant';
+                }
+              } else if (isNetwork) {
+                if (grant.allowNetwork && grant.allowRiskUpTo === 'MEDIUM') {
+                  approved = true;
+                  reason = 'Auto-approved: Network command allowed by session grant';
+                } else {
+                  approved = false;
+                  reason = 'Requires approval: Network access is not allowed or risk level not allowed by the current session grant';
+                }
               } else {
-                approved = false;
-                reason = 'Requires approval: Package install is not allowed by the current session grant';
-              }
-            } else if (isNetwork) {
-              if (grant.allowNetwork && grant.allowRiskUpTo === 'MEDIUM') {
-                approved = true;
-                reason = 'Auto-approved: Network command allowed by session grant';
-              } else {
-                approved = false;
-                reason = 'Requires approval: Network access is not allowed or risk level not allowed by the current session grant';
+                if (grant.allowRiskUpTo === 'MEDIUM') {
+                  approved = true;
+                  reason = 'Auto-approved: MEDIUM risk command covered by active Session Grant';
+                } else {
+                  approved = false;
+                  reason = 'Requires approval: MEDIUM risk command requires allowRiskUpTo=MEDIUM';
+                }
               }
             } else {
-              if (grant.allowRiskUpTo === 'MEDIUM') {
-                approved = true;
-                reason = 'Auto-approved: MEDIUM risk command covered by active Session Grant';
-              } else {
-                approved = false;
-                reason = 'Requires approval: MEDIUM risk command requires allowRiskUpTo=MEDIUM';
-              }
+              approved = false;
+              reason = `Requires approval: ${riskLevel} risk command never auto-executes in this phase`;
             }
           } else {
             approved = false;
-            reason = `Requires approval: ${riskLevel} risk command never auto-executes in this phase`;
+            reason = 'Requires approval: Developer Mode active but no active Session Grant';
           }
-        } else {
-          approved = false;
-          reason = 'Requires approval: Developer Mode active but no active Session Grant';
         }
       }
 

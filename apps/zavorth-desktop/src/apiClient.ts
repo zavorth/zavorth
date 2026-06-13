@@ -631,3 +631,39 @@ export async function resolveWorkspaceTrust(payload: {
   });
   return requireOk(result, 'Could not resolve workspace trust.');
 }
+
+export async function loadProposedMandate(workspaceId: string): Promise<any> {
+  const result = await apiRequest<any>({
+    method: 'GET',
+    path: '/api/v2/workspace/task-mandates/pending',
+    query: { workspaceId },
+  });
+  return requireOk(result, 'Could not load proposed task mandate.').proposed;
+}
+
+export async function loadActiveMandate(workspaceId: string): Promise<any> {
+  const result = await apiRequest<any>({
+    method: 'GET',
+    path: '/api/v2/workspace/task-mandates/active',
+    query: { workspaceId },
+  });
+  return requireOk(result, 'Could not load active task mandate.').active;
+}
+
+export async function resolveProposedMandate(workspaceId: string, approved: boolean): Promise<any> {
+  const result = await apiRequest<any>({
+    method: 'POST',
+    path: '/api/v2/workspace/task-mandates/resolve',
+    body: { workspaceId, approved },
+  });
+  return requireOk(result, 'Could not resolve task mandate.');
+}
+
+export async function revokeActiveMandate(workspaceId: string): Promise<any> {
+  const result = await apiRequest<any>({
+    method: 'POST',
+    path: '/api/v2/workspace/task-mandates/revoke',
+    body: { workspaceId },
+  });
+  return requireOk(result, 'Could not revoke task mandate.');
+}

@@ -16,6 +16,9 @@ export {
 export {
   WorkspaceWriteTool,
 } from './WorkspaceWriteTool.js';
+export {
+  WorkspaceTaskMandateProposeTool,
+} from './WorkspaceTaskMandateProposeTool.js';
 export type {
   WorkspaceFsAccess,
   WorkspaceFsPolicyOptions,
