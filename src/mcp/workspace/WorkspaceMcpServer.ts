@@ -476,7 +476,19 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
 
       const service = await getApprovalService();
 
-      if (params.operationId === undefined) {
+      const { WorkspaceTaskMandateService } = await import('../../services/WorkspaceTaskMandateService.js');
+      const mandateService = WorkspaceTaskMandateService.getInstance();
+      const activeMandate = mandateService.getActiveMandate(sessionId);
+      let bypassApproval = false;
+
+      if (activeMandate) {
+        const checkResult = mandateService.checkWriteApproval(sessionId, workspaceRoot, resolved, 'filesystem.write');
+        if (checkResult.allowed) {
+          bypassApproval = true;
+        }
+      }
+
+      if (!bypassApproval && params.operationId === undefined) {
         // First phase: request approval
         const operationId = await service.requestApproval(sessionId, toolName, resolved, params);
         return {
@@ -492,23 +504,25 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
         };
       }
 
-      // If operationId is provided, consume it
-      if (typeof params.operationId !== 'string') {
-        throw new Error('Argument "operationId" must be a string.');
-      }
+      if (!bypassApproval) {
+        // If operationId is provided, consume it
+        if (typeof params.operationId !== 'string') {
+          throw new Error('Argument "operationId" must be a string.');
+        }
 
-      const consumed = await service.consumeApproval(sessionId, toolName, resolved, params, params.operationId);
-      if (!consumed) {
-        return {
-          isError: true,
-          content: [{
-            type: 'text',
-            text: JSON.stringify({
-              error: 'WRITE_APPROVAL_EXPIRED',
-              message: 'Write approval has expired or is invalid.'
-            })
-          }]
-        };
+        const consumed = await service.consumeApproval(sessionId, toolName, resolved, params, params.operationId);
+        if (!consumed) {
+          return {
+            isError: true,
+            content: [{
+              type: 'text',
+              text: JSON.stringify({
+                error: 'WRITE_APPROVAL_EXPIRED',
+                message: 'Write approval has expired or is invalid.'
+              })
+            }]
+          };
+        }
       }
 
       // Atomic Write logic:
@@ -566,7 +580,19 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
 
       const service = await getApprovalService();
 
-      if (params.operationId === undefined) {
+      const { WorkspaceTaskMandateService } = await import('../../services/WorkspaceTaskMandateService.js');
+      const mandateService = WorkspaceTaskMandateService.getInstance();
+      const activeMandate = mandateService.getActiveMandate(sessionId);
+      let bypassApproval = false;
+
+      if (activeMandate) {
+        const checkResult = mandateService.checkWriteApproval(sessionId, workspaceRoot, resolved, 'filesystem.mkdir');
+        if (checkResult.allowed) {
+          bypassApproval = true;
+        }
+      }
+
+      if (!bypassApproval && params.operationId === undefined) {
         // First phase: request approval
         const operationId = await service.requestApproval(sessionId, toolName, resolved, params);
         return {
@@ -582,23 +608,25 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
         };
       }
 
-      // If operationId is provided, consume it
-      if (typeof params.operationId !== 'string') {
-        throw new Error('Argument "operationId" must be a string.');
-      }
+      if (!bypassApproval) {
+        // If operationId is provided, consume it
+        if (typeof params.operationId !== 'string') {
+          throw new Error('Argument "operationId" must be a string.');
+        }
 
-      const consumed = await service.consumeApproval(sessionId, toolName, resolved, params, params.operationId);
-      if (!consumed) {
-        return {
-          isError: true,
-          content: [{
-            type: 'text',
-            text: JSON.stringify({
-              error: 'WRITE_APPROVAL_EXPIRED',
-              message: 'Write approval has expired or is invalid.'
-            })
-          }]
-        };
+        const consumed = await service.consumeApproval(sessionId, toolName, resolved, params, params.operationId);
+        if (!consumed) {
+          return {
+            isError: true,
+            content: [{
+              type: 'text',
+              text: JSON.stringify({
+                error: 'WRITE_APPROVAL_EXPIRED',
+                message: 'Write approval has expired or is invalid.'
+              })
+            }]
+          };
+        }
       }
 
       // Create the directory

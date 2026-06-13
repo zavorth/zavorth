@@ -5,6 +5,7 @@ import { Database } from '../storage/Database.js';
 import { WorkspaceSessionGrantCache } from './WorkspaceSessionGrantCache.js';
 import { WorkspaceResolver } from '../security/WorkspaceResolver.js';
 import { SecurityAuditLogger } from './SecurityAuditLogger.js';
+import { WorkspaceTaskMandateService } from './WorkspaceTaskMandateService.js';
 
 export interface TrustedWorkspaceEntry {
   workspaceId: string;
@@ -164,6 +165,9 @@ export class TrustedWorkspaceService {
 
     // Invalidate approvals/operationIds pending in that workspace
     this.db.run('DELETE FROM workspace_command_approvals WHERE workspace_id = ?', [workspaceId]);
+
+    // Revoke active task mandate
+    WorkspaceTaskMandateService.getInstance().revokeMandate(workspaceId);
 
     this.auditLogger.logWorkspaceEvent({
       event: 'workspace_trust_revoked',

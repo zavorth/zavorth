@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import { dispatchRuntimeStateAction, loadDesktopPanelsData, loadHome, loadRuntimeStatus, repairAccess, resolveApproval as resolveApprovalRequest, resolveLearning as resolveLearningRequest, runMemoryEncryptionMigration, sendExperienceMessage, startRuntime, steerActiveRun, type ApprovalItem, type ChatMessage, type ExperienceSnapshot, type LearningItem, type MemoryEncryptionMigrationReceipt, type MemoryEncryptionStatus, type MemoryItem, type RuntimeCapabilitiesSnapshot, type ToolItem, loadWorkspaceWriteApprovals, resolveWorkspaceWriteApproval, getWorkspaceTrustStatus, resolveWorkspaceTrust } from './apiClient';
+import { dispatchRuntimeStateAction, loadDesktopPanelsData, loadHome, loadRuntimeStatus, repairAccess, resolveApproval as resolveApprovalRequest, resolveLearning as resolveLearningRequest, runMemoryEncryptionMigration, sendExperienceMessage, startRuntime, steerActiveRun, type ApprovalItem, type ChatMessage, type ExperienceSnapshot, type LearningItem, type MemoryEncryptionMigrationReceipt, type MemoryEncryptionStatus, type MemoryItem, type RuntimeCapabilitiesSnapshot, type ToolItem, loadWorkspaceWriteApprovals, resolveWorkspaceWriteApproval, getWorkspaceTrustStatus, resolveWorkspaceTrust, loadProposedMandate, loadActiveMandate, resolveProposedMandate, revokeActiveMandate } from './apiClient';
 import type { BootEvent, RuntimeStatus } from './global';
 import { appendLocalMessage, applyRuntimeCapabilitiesToDesktop, asRecord, defaultConnectedModelIds, desktopEffortFromRuntime, fallbackStatus, modelOptionsFromRuntimeCapabilities, normalizeMessages, responseProfileByExperience, runtimeInstrumentActionInput, runtimeStateFromSnapshot, runtimeStateState } from './appRuntimeState';
 import { modelOptions } from './modelCatalog';
@@ -7,6 +7,7 @@ import { DesktopShell } from './shell/DesktopShell';
 import { parseSlashCommand, slashCommands, type DesktopPanel } from './slashCommands';
 import { defaultWorkspaceScopes, workspaceScopeForMetadata, type DesktopWorkspaceScope } from './workspaceScopes';
 import { WorkspaceWriteApprovalModal } from './components/WorkspaceWriteApprovalModal';
+import { WorkspaceTaskMandateModal } from './components/WorkspaceTaskMandateModal';
 import { ZavorthPaneShell } from './shell/ZavorthPaneShell';
 
 export function App() {
@@ -40,6 +41,8 @@ export function App() {
   const [promptedWorkspaces, setPromptedWorkspaces] = useState<Set<string>>(() => new Set());
   const [showTrustPrompt, setShowTrustPrompt] = useState(false);
   const [trustLoading, setTrustLoading] = useState(false);
+  const [proposedMandate, setProposedMandate] = useState<any>(null);
+  const [activeMandate, setActiveMandate] = useState<any>(null);
 
   const bridgeReady = Boolean(window.zavorthDesktop);
   const sessionId = snapshot?.sessionId || 'desktop-main';
@@ -119,6 +122,16 @@ export function App() {
       });
       const wRes = await loadWorkspaceWriteApprovals(sessionId);
       setWorkspaceWriteApprovals(wRes);
+
+      if (activeWorkspaceScope.id && activeWorkspaceScope.kind === 'folder') {
+        const pm = await loadProposedMandate(activeWorkspaceScope.id).catch(() => null);
+        setProposedMandate(pm);
+        const am = await loadActiveMandate(activeWorkspaceScope.id).catch(() => null);
+        setActiveMandate(am);
+      } else {
+        setProposedMandate(null);
+        setActiveMandate(null);
+      }
     } catch {
       setApprovals([]);
       setLearning([]);
@@ -127,8 +140,10 @@ export function App() {
       setMemoryEncryptionStatus(null);
       setRuntimeCapabilities(null);
       setWorkspaceWriteApprovals([]);
+      setProposedMandate(null);
+      setActiveMandate(null);
     }
-  }, [sessionId, applyRuntimeCapabilitiesToDesktop]);
+  }, [sessionId, applyRuntimeCapabilitiesToDesktop, activeWorkspaceScope]);
 
   const refreshHome = useCallback(async () => {
     try {
@@ -176,12 +191,21 @@ export function App() {
           setWorkspaceWriteApprovals(wRes);
         })
         .catch(() => {});
+
+      if (activeWorkspaceScope.id && activeWorkspaceScope.kind === 'folder') {
+        loadProposedMandate(activeWorkspaceScope.id)
+          .then(setProposedMandate)
+          .catch(() => {});
+        loadActiveMandate(activeWorkspaceScope.id)
+          .then(setActiveMandate)
+          .catch(() => {});
+      }
     }, 3000);
 
     return () => {
       clearInterval(interval);
     };
-  }, [bridgeReady, sessionId]);
+  }, [bridgeReady, sessionId, activeWorkspaceScope.id, activeWorkspaceScope.kind]);
 
   useEffect(() => {
     if (activeWorkspaceScope.kind === 'folder' && activeWorkspaceScope.id && activeWorkspaceScope.path) {
@@ -532,6 +556,38 @@ export function App() {
     }
   }
 
+  async function handleProposedMandateResolve(approved: boolean) {
+    if (!activeWorkspaceScope.id) return;
+    setBusy(true);
+    try {
+      await resolveProposedMandate(activeWorkspaceScope.id, approved);
+      const pm = await loadProposedMandate(activeWorkspaceScope.id).catch(() => null);
+      setProposedMandate(pm);
+      const am = await loadActiveMandate(activeWorkspaceScope.id).catch(() => null);
+      setActiveMandate(am);
+      appendLocalMessage(setMessages, 'system', `Task mandate ${approved ? 'approved' : 'denied'}.`);
+    } catch (error) {
+      setNotice(error instanceof Error ? error.message : 'Could not resolve task mandate.');
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  async function handleActiveMandateRevoke() {
+    if (!activeWorkspaceScope.id) return;
+    setBusy(true);
+    try {
+      await revokeActiveMandate(activeWorkspaceScope.id);
+      setProposedMandate(null);
+      setActiveMandate(null);
+      appendLocalMessage(setMessages, 'system', 'Task mandate has been revoked.');
+    } catch (error) {
+      setNotice(error instanceof Error ? error.message : 'Could not revoke task mandate.');
+    } finally {
+      setBusy(false);
+    }
+  }
+
   return (
     <>
       <ZavorthPaneShell>
@@ -594,6 +650,8 @@ export function App() {
           onTheme={setTheme}
           onWorkspaceFolder={handleWorkspaceFolderSelection}
           onWorkspaceScope={handleWorkspaceScopeSelection}
+          activeMandate={activeMandate}
+          onRevokeMandate={handleActiveMandateRevoke}
         />
       </ZavorthPaneShell>
       <WorkspaceWriteApprovalModal
@@ -601,6 +659,10 @@ export function App() {
         sessionId={sessionId}
         workspacePath={activeWorkspaceScope.path}
         onResolve={handleWorkspaceWriteApprovalResolve}
+      />
+      <WorkspaceTaskMandateModal
+        proposedMandate={proposedMandate}
+        onResolve={handleProposedMandateResolve}
       />
       {showTrustPrompt && activeWorkspaceScope.path && (
         <div className="write-approval-overlay">
