@@ -550,3 +550,45 @@ export async function loadDesktopPanelsData(): Promise<DesktopPanelsData> {
   ]);
   return { approvals, learning, tools, nexusStatus, memoryEncryptionStatus, runtimeCapabilities };
 }
+
+export async function loadWorkspaceWriteApprovals(sessionId?: string): Promise<any[]> {
+  const result = await apiRequest<{ data: any[] }>({
+    method: 'GET',
+    path: '/api/v2/workspace/approvals/pending',
+    query: sessionId ? { sessionId } : {},
+  });
+  const data = requireOk(result, 'Could not load workspace write approvals.');
+  return data.data || [];
+}
+
+export async function loadWorkspaceWriteApprovalPayload(
+  operationId: string,
+  sessionId?: string,
+  workspacePath?: string,
+): Promise<any> {
+  const query: Record<string, string> = { operationId };
+  if (sessionId) query.sessionId = sessionId;
+  if (workspacePath) query.workspacePath = workspacePath;
+
+  const result = await apiRequest<any>({
+    method: 'GET',
+    path: '/api/v2/workspace/approvals/payload',
+    query,
+  });
+  return requireOk(result, 'Could not load workspace write approval payload.');
+}
+
+export async function resolveWorkspaceWriteApproval(
+  operationId: string,
+  decision: 'approve' | 'deny',
+): Promise<void> {
+  const result = await apiRequest<void>({
+    method: 'POST',
+    path: '/api/v2/workspace/approvals/resolve',
+    body: {
+      operationId,
+      decision,
+    },
+  });
+  requireOk(result, 'Could not resolve workspace write approval.');
+}
