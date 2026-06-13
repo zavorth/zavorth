@@ -2284,3 +2284,50 @@ input:focus-visible {
 .theme-dark .btn-deny:hover:not(:disabled) {
   background: rgba(255, 255, 255, 0.05);
 }
+
+/* Phase 10 Namespaced Styles */
+.zavorth-pane-shell {
+  display: flex;
+  width: 100vw;
+  height: 100vh;
+  overflow: hidden;
+  --zvd-bg: color-mix(in srgb, var(--zvd-surface) 95%, #000);
+  --zvd-accent: var(--zvd-seed-accent);
+}
+
+.zavorth-pane-shell .zvd-workspace.has-terminal-panel {
+  display: flex;
+  flex-direction: column;
+}
+
+.zavorth-pane-shell .zvd-terminal-panel {
+  position: relative;
+}
+
+.zavorth-pane-shell .zvd-terminal-panel.is-takeover {
+  position: fixed;
+}
+
+.zavorth-pane-shell .zvd-preview-popover {
+  position: absolute;
+  z-index: 40;
+}
+
+.zavorth-preview-rail.zvd-preview-rail.is-compact {
+  width: 56px;
+}
+
+.zavorth-preview-rail.zvd-preview-rail.is-quiet {
+  opacity: 0.95;
+}
+
+.zavorth-pane {
+  display: flex;
+  flex-direction: column;
+}
+
+.zavorth-mock-terminal {
+  font-family: monospace;
+  background: #000;
+  color: #fff;
+}
