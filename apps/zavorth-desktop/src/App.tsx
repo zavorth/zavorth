@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import { dispatchRuntimeStateAction, loadDesktopPanelsData, loadHome, loadRuntimeStatus, repairAccess, resolveApproval as resolveApprovalRequest, resolveLearning as resolveLearningRequest, runMemoryEncryptionMigration, sendExperienceMessage, startRuntime, steerActiveRun, type ApprovalItem, type ChatMessage, type ExperienceSnapshot, type LearningItem, type MemoryEncryptionMigrationReceipt, type MemoryEncryptionStatus, type MemoryItem, type RuntimeCapabilitiesSnapshot, type ToolItem, loadWorkspaceWriteApprovals, resolveWorkspaceWriteApproval } from './apiClient';
+import { dispatchRuntimeStateAction, loadDesktopPanelsData, loadHome, loadRuntimeStatus, repairAccess, resolveApproval as resolveApprovalRequest, resolveLearning as resolveLearningRequest, runMemoryEncryptionMigration, sendExperienceMessage, startRuntime, steerActiveRun, type ApprovalItem, type ChatMessage, type ExperienceSnapshot, type LearningItem, type MemoryEncryptionMigrationReceipt, type MemoryEncryptionStatus, type MemoryItem, type RuntimeCapabilitiesSnapshot, type ToolItem, loadWorkspaceWriteApprovals, resolveWorkspaceWriteApproval, getWorkspaceTrustStatus, resolveWorkspaceTrust } from './apiClient';
 import type { BootEvent, RuntimeStatus } from './global';
 import { appendLocalMessage, applyRuntimeCapabilitiesToDesktop, asRecord, defaultConnectedModelIds, desktopEffortFromRuntime, fallbackStatus, modelOptionsFromRuntimeCapabilities, normalizeMessages, responseProfileByExperience, runtimeInstrumentActionInput, runtimeStateFromSnapshot, runtimeStateState } from './appRuntimeState';
 import { modelOptions } from './modelCatalog';
@@ -37,6 +37,9 @@ export function App() {
   const [workspaceScopeId, setWorkspaceScopeId] = useState('local');
   const [runtimeConnectedModelIds, setRuntimeConnectedModelIds] = useState<string[]>(() => defaultConnectedModelIds());
   const [workspaceWriteApprovals, setWorkspaceWriteApprovals] = useState<any[]>([]);
+  const [promptedWorkspaces, setPromptedWorkspaces] = useState<Set<string>>(() => new Set());
+  const [showTrustPrompt, setShowTrustPrompt] = useState(false);
+  const [trustLoading, setTrustLoading] = useState(false);
 
   const bridgeReady = Boolean(window.zavorthDesktop);
   const sessionId = snapshot?.sessionId || 'desktop-main';
@@ -179,6 +182,51 @@ export function App() {
       clearInterval(interval);
     };
   }, [bridgeReady, sessionId]);
+
+  useEffect(() => {
+    if (activeWorkspaceScope.kind === 'folder' && activeWorkspaceScope.id && activeWorkspaceScope.path) {
+      getWorkspaceTrustStatus(activeWorkspaceScope.id)
+        .then((res) => {
+          if (res.ok) {
+            if (!res.trusted && !promptedWorkspaces.has(activeWorkspaceScope.id)) {
+              setShowTrustPrompt(true);
+              setPromptedWorkspaces(prev => {
+                const next = new Set(prev);
+                next.add(activeWorkspaceScope.id!);
+                return next;
+              });
+            } else {
+              setShowTrustPrompt(false);
+            }
+          }
+        })
+        .catch(() => {});
+    } else {
+      setShowTrustPrompt(false);
+    }
+  }, [activeWorkspaceScope.id, activeWorkspaceScope.kind, activeWorkspaceScope.path, promptedWorkspaces]);
+
+  const handleTrustWorkspaceFromPrompt = async (allowRiskUpTo: 'LOW' | 'MEDIUM', allowPackageInstall: boolean, allowNetwork: boolean) => {
+    setTrustLoading(true);
+    try {
+      if (activeWorkspaceScope.path) {
+        await resolveWorkspaceTrust({
+          workspaceId: activeWorkspaceScope.id,
+          rootPath: activeWorkspaceScope.path,
+          trusted: true,
+          allowRiskUpTo,
+          allowPackageInstall,
+          allowNetwork,
+        });
+        await refreshPanels();
+        setShowTrustPrompt(false);
+      }
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setTrustLoading(false);
+    }
+  };
 
   const memoryItems = useMemo(() => {
     const memory = snapshot?.memory || {};
@@ -554,6 +602,59 @@ export function App() {
         workspacePath={activeWorkspaceScope.path}
         onResolve={handleWorkspaceWriteApprovalResolve}
       />
+      {showTrustPrompt && activeWorkspaceScope.path && (
+        <div className="write-approval-overlay">
+          <div className="write-approval-modal" style={{ maxWidth: '480px' }}>
+            <div className="write-approval-header">
+              <div className="write-approval-icon">
+                <span className="warning-symbol">🛡️</span>
+              </div>
+              <div className="write-approval-title-section">
+                <h2 className="write-approval-title">Trust this workspace?</h2>
+                <div className="write-approval-subtitle">
+                  Configure execution permissions for this folder
+                </div>
+              </div>
+            </div>
+
+            <div className="write-approval-body">
+              <p style={{ margin: '0 0 12px 0', fontSize: '13px', lineHeight: '1.4' }}>
+                You opened <strong>{activeWorkspaceScope.label}</strong>.
+                If you trust this folder, Zavorth can execute development commands automatically.
+              </p>
+
+              <div style={{ padding: '10px', background: 'rgba(0,0,0,0.15)', borderRadius: '6px', fontSize: '12px' }}>
+                <code style={{ wordBreak: 'break-all', display: 'block' }}>{activeWorkspaceScope.path}</code>
+              </div>
+
+              <div style={{ marginTop: '16px', fontSize: '12px', display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                <span style={{ fontWeight: '600' }}>Recommended permissions (Developer Mode):</span>
+                <ul style={{ margin: '0', paddingLeft: '20px', color: '#aaa', lineHeight: '1.5' }}>
+                  <li>Allows automatic execution of LOW risk commands (git status, test runner, etc.)</li>
+                  <li>Block all high/critical risk executions from auto-running (never auto-runs curl, wget, ssh, etc.)</li>
+                </ul>
+              </div>
+            </div>
+
+            <div className="write-approval-footer" style={{ justifyContent: 'space-between' }}>
+              <button
+                className="btn-deny"
+                onClick={() => setShowTrustPrompt(false)}
+                disabled={trustLoading}
+              >
+                Keep Restricted
+              </button>
+              <button
+                className="btn-approve"
+                onClick={() => handleTrustWorkspaceFromPrompt('LOW', true, false)}
+                disabled={trustLoading}
+              >
+                Trust and Enable Auto-run
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </>
   );
 }

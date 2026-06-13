@@ -372,7 +372,7 @@ export class SecurityAuditLogger {
 
   // 5. Workspace Events
   public logWorkspaceEvent(payload: {
-    event: 'workspace_opened' | 'workspace_revoked' | 'workspace_tool_allowed' | 'workspace_tool_blocked' | 'workspace_path_denied' | 'workspace_git_read' | 'workspace_filesystem_read' | 'workspace_filesystem_write' | 'workspace_notes_event' | 'workspace_write_requested' | 'workspace_write_approved' | 'workspace_write_denied' | 'grant_created' | 'grant_revoked' | 'grant_expired' | 'command_auto_approved' | 'command_approval_requested' | 'command_approved' | 'command_denied' | 'command_executed' | 'command_blocked';
+    event: 'workspace_opened' | 'workspace_revoked' | 'workspace_tool_allowed' | 'workspace_tool_blocked' | 'workspace_path_denied' | 'workspace_git_read' | 'workspace_filesystem_read' | 'workspace_filesystem_write' | 'workspace_notes_event' | 'workspace_write_requested' | 'workspace_write_approved' | 'workspace_write_denied' | 'grant_created' | 'grant_revoked' | 'grant_expired' | 'command_auto_approved' | 'command_approval_requested' | 'command_approved' | 'command_denied' | 'command_executed' | 'command_blocked' | 'workspace_trust_granted' | 'workspace_trust_revoked' | 'workspace_trust_loaded' | 'workspace_trust_rejected' | 'command_auto_approved_by_trusted_workspace';
     workspaceId: string;
     rootPath?: string;
     rootPathHash?: string;
@@ -434,7 +434,12 @@ export class SecurityAuditLogger {
       'command_approved',
       'command_denied',
       'command_executed',
-      'command_blocked'
+      'command_blocked',
+      'workspace_trust_granted',
+      'workspace_trust_revoked',
+      'workspace_trust_loaded',
+      'workspace_trust_rejected',
+      'command_auto_approved_by_trusted_workspace'
     ];
 
     if (!validEvents.includes(payload.event)) {
@@ -472,6 +477,7 @@ export class SecurityAuditLogger {
     if (payload.riskLevel) metadata.riskLevel = payload.riskLevel;
     if (payload.commandHash) metadata.commandHash = payload.commandHash;
     if (payload.redactedCommandPreview) metadata.redactedCommandPreview = payload.redactedCommandPreview;
+    if (payload.metadata) metadata.metadata = payload.metadata;
     const allowedKeys = [
       'event', 'workspaceId', 'rootPathHash', 'rootPathSuffix',
       'toolName', 'decision', 'reason', 'pathHash', 'pathSuffix',

@@ -592,3 +592,42 @@ export async function resolveWorkspaceWriteApproval(
   });
   requireOk(result, 'Could not resolve workspace write approval.');
 }
+
+export interface WorkspaceTrustStatus {
+  ok: boolean;
+  trusted: boolean;
+  entry: {
+    workspaceId: string;
+    rootHash: string;
+    rootSuffix: string;
+    trusted: boolean;
+    allowRiskUpTo: 'LOW' | 'MEDIUM';
+    allowPackageInstall: boolean;
+    allowNetwork: boolean;
+  } | null;
+}
+
+export async function getWorkspaceTrustStatus(workspaceId: string): Promise<WorkspaceTrustStatus> {
+  const result = await apiRequest<WorkspaceTrustStatus>({
+    method: 'GET',
+    path: '/api/v2/workspace/trust/status',
+    query: { workspaceId },
+  });
+  return requireOk(result, 'Could not load workspace trust status.');
+}
+
+export async function resolveWorkspaceTrust(payload: {
+  workspaceId: string;
+  rootPath: string;
+  trusted: boolean;
+  allowRiskUpTo?: 'LOW' | 'MEDIUM';
+  allowPackageInstall?: boolean;
+  allowNetwork?: boolean;
+}): Promise<any> {
+  const result = await apiRequest<any>({
+    method: 'POST',
+    path: '/api/v2/workspace/trust/resolve',
+    body: payload,
+  });
+  return requireOk(result, 'Could not resolve workspace trust.');
+}

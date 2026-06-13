@@ -259,6 +259,20 @@ export class Database {
       )
     `);
     this.run(`CREATE INDEX IF NOT EXISTS idx_workspace_command_approvals_lookup ON workspace_command_approvals(workspace_id, operation_id)`);
+
+    this.run(`
+      CREATE TABLE IF NOT EXISTS workspace_trust_entries (
+        workspace_id TEXT PRIMARY KEY,
+        root_hash TEXT NOT NULL,
+        root_suffix TEXT NOT NULL,
+        trusted INTEGER DEFAULT 0,
+        allow_risk_up_to TEXT DEFAULT 'LOW',
+        allow_package_install INTEGER DEFAULT 0,
+        allow_network INTEGER DEFAULT 0,
+        created_at TEXT NOT NULL,
+        updated_at TEXT NOT NULL
+      )
+    `);
   }
 
   private ensureColumn(tableName: string, columnName: string, definition: string): void {
