@@ -7,6 +7,7 @@ import { DesktopShell } from './shell/DesktopShell';
 import { parseSlashCommand, slashCommands, type DesktopPanel } from './slashCommands';
 import { defaultWorkspaceScopes, workspaceScopeForMetadata, type DesktopWorkspaceScope } from './workspaceScopes';
 import { WorkspaceWriteApprovalModal } from './components/WorkspaceWriteApprovalModal';
+import { ZavorthPaneShell } from './shell/ZavorthPaneShell';
 
 export function App() {
   const [status, setStatus] = useState<RuntimeStatus>(fallbackStatus);
@@ -485,66 +486,68 @@ export function App() {
 
   return (
     <>
-      <DesktopShell
-        activePanel={activePanel}
-        approvals={approvals}
-        busy={busy}
-        channels={channelItems}
-        commandPaletteOpen={commandPaletteOpen}
-        effort={effort}
-        accent={accent}
-        encryptionReceipt={memoryEncryptionReceipt}
-        encryptionStatus={memoryEncryptionStatus}
-        events={events}
-        input={input}
-        inspectorOpen={inspectorOpen}
-        learning={learning}
-        memoryItems={memoryItems}
-        modelOptions={connectedModelOptions}
-        messages={messages}
-        nexusStatus={nexusStatus}
-        notice={notice}
-        profile={experienceProfile}
-        runtimeMessage={status.message}
-        runtimeCapabilities={runtimeCapabilities}
-        selectedModel={selectedModel}
-        showNotice={Boolean(notice)}
-        showRuntimeSetup={!status.running}
-        sidebarCollapsed={sidebarCollapsed}
-        status={status}
-        theme={theme}
-        tools={tools}
-        workspaceScope={activeWorkspaceScope}
-        workspaceScopes={workspaceScopes}
-        onAccessRepair={requestAccessRepair}
-        onAccent={setAccent}
-        onCommandPalette={setCommandPaletteOpen}
-        onEffort={handleEffortSelection}
-        onEncryptionAction={handleMemoryEncryptionAction}
-        onInput={setInput}
-        onLearningDecision={resolveLearning}
-        onModel={handleModelSelection}
-        onNewSession={() => {
-          setMessages([]);
-          setInput('');
-          setActivePanel('chat');
-        }}
-        onPanel={setActivePanel}
-        onProfile={setExperienceProfile}
-        onRefresh={async () => {
-          await refreshRuntime();
-          await refreshHome();
-          await refreshPanels();
-        }}
-        onReviewDecision={resolveApproval}
-        onRuntimeStart={requestRuntimeStart}
-        onRuntimeStateAction={requestRuntimeInstrument}
-        onSidebarCollapsed={setSidebarCollapsed}
-        onSubmit={sendMessage}
-        onTheme={setTheme}
-        onWorkspaceFolder={handleWorkspaceFolderSelection}
-        onWorkspaceScope={handleWorkspaceScopeSelection}
-      />
+      <ZavorthPaneShell>
+        <DesktopShell
+          activePanel={activePanel}
+          approvals={approvals}
+          busy={busy}
+          channels={channelItems}
+          commandPaletteOpen={commandPaletteOpen}
+          effort={effort}
+          accent={accent}
+          encryptionReceipt={memoryEncryptionReceipt}
+          encryptionStatus={memoryEncryptionStatus}
+          events={events}
+          input={input}
+          inspectorOpen={inspectorOpen}
+          learning={learning}
+          memoryItems={memoryItems}
+          modelOptions={connectedModelOptions}
+          messages={messages}
+          nexusStatus={nexusStatus}
+          notice={notice}
+          profile={experienceProfile}
+          runtimeMessage={status.message}
+          runtimeCapabilities={runtimeCapabilities}
+          selectedModel={selectedModel}
+          showNotice={Boolean(notice)}
+          showRuntimeSetup={!status.running}
+          sidebarCollapsed={sidebarCollapsed}
+          status={status}
+          theme={theme}
+          tools={tools}
+          workspaceScope={activeWorkspaceScope}
+          workspaceScopes={workspaceScopes}
+          onAccessRepair={requestAccessRepair}
+          onAccent={setAccent}
+          onCommandPalette={setCommandPaletteOpen}
+          onEffort={handleEffortSelection}
+          onEncryptionAction={handleMemoryEncryptionAction}
+          onInput={setInput}
+          onLearningDecision={resolveLearning}
+          onModel={handleModelSelection}
+          onNewSession={() => {
+            setMessages([]);
+            setInput('');
+            setActivePanel('chat');
+          }}
+          onPanel={setActivePanel}
+          onProfile={setExperienceProfile}
+          onRefresh={async () => {
+            await refreshRuntime();
+            await refreshHome();
+            await refreshPanels();
+          }}
+          onReviewDecision={resolveApproval}
+          onRuntimeStart={requestRuntimeStart}
+          onRuntimeStateAction={requestRuntimeInstrument}
+          onSidebarCollapsed={setSidebarCollapsed}
+          onSubmit={sendMessage}
+          onTheme={setTheme}
+          onWorkspaceFolder={handleWorkspaceFolderSelection}
+          onWorkspaceScope={handleWorkspaceScopeSelection}
+        />
+      </ZavorthPaneShell>
       <WorkspaceWriteApprovalModal
         approvals={workspaceWriteApprovals}
         sessionId={sessionId}
