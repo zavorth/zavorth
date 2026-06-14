@@ -90,8 +90,8 @@ describe('ProviderCompatibilityClassifier', () => {
 
     expect(classification).toEqual(expect.objectContaining({
       kind: 'anthropic_compatible',
-      runtimeAdapter: 'unsupported_anthropic',
-      runtimeSupported: false,
+      runtimeAdapter: 'anthropic_compatible',
+      runtimeSupported: true,
     }));
   });
 });

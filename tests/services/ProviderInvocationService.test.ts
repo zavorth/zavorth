@@ -70,9 +70,9 @@ describe('ProviderInvocationService', () => {
     
     expect(loggerSpy).toHaveBeenCalledTimes(2); // start and fail
 
-    const failCall = loggerSpy.mock.calls[1];
-    expect(failCall[0]).toBe('provider_invocation_failed');
-    expect(failCall[2].errorCode).toBe('invalid_key');
-    expect(failCall[2].fallbackUsed).toBe(false);
+    const failCallArg = loggerSpy.mock.calls[1][0];
+    expect(failCallArg.event).toBe('provider_invocation_failed');
+    expect(failCallArg.metadata.errorCode).toBe('invalid_key');
+    expect(failCallArg.metadata.fallbackUsed).toBe(false);
   });
 });
