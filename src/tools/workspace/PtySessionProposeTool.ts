@@ -23,7 +23,7 @@ export class PtySessionProposeTool extends BaseTool {
   };
 
   constructor(
-    private ptyApprovalService: PtySessionApprovalService = new PtySessionApprovalService(),
+    private ptyApprovalService: PtySessionApprovalService = new PtySessionApprovalService(undefined as any),
     private ptyPolicyService: PtyInputPolicyService = new PtyInputPolicyService(),
     private hostPowerModeService: HostPowerModeService = HostPowerModeService.getInstance(),
     private logger: SecurityAuditLogger = new SecurityAuditLogger(new LogRepository()),
@@ -33,7 +33,7 @@ export class PtySessionProposeTool extends BaseTool {
   }
 
   public async execute(args: Record<string, unknown>): Promise<string> {
-    const workspaceRoot = WorkspaceResolver.resolve(null);
+    const workspaceRoot = WorkspaceResolver.resolve(process.cwd());
     const workspaceId = path.basename(workspaceRoot);
     
     if (!this.hostPowerModeService.isHostPowerModeEnabled(workspaceId)) {
@@ -55,3 +55,4 @@ export class PtySessionProposeTool extends BaseTool {
     }
   }
 }
+

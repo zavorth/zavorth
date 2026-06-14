@@ -10,7 +10,7 @@ export class PtyTerminateTool extends BaseTool {
   public readonly parameters = {
     type: 'object' as const,
     properties: {
-      sessionId: { type: 'string' }
+      sessionId: { type: 'string', description: 'Session ID' }
     },
     required: ['sessionId']
   };
@@ -20,7 +20,7 @@ export class PtyTerminateTool extends BaseTool {
   }
 
   public async execute(args: Record<string, unknown>): Promise<string> {
-    const workspaceRoot = WorkspaceResolver.resolve(null);
+    const workspaceRoot = WorkspaceResolver.resolve(process.cwd());
     const workspaceId = path.basename(workspaceRoot);
     const sessionId = args.sessionId as string;
     
@@ -32,3 +32,4 @@ export class PtyTerminateTool extends BaseTool {
     }
   }
 }
+
