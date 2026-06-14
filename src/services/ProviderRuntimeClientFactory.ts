@@ -1,4 +1,4 @@
-import { ProviderSecretStore } from './ProviderSecretStore.js';
+import { LocalEncryptedProviderSecretStore } from './ProviderSecretStore.js';
 import { ResolvedProviderRuntime } from './ModelSelectionService.js';
 
 export interface SanitizedProviderInvocationRequest {
@@ -33,7 +33,7 @@ export class ProviderRuntimeClientFactory {
     
     // Safely resolve the secret inside the backend boundary
     if (resolved.providerId) {
-      const store = ProviderSecretStore.getInstance();
+      const store = LocalEncryptedProviderSecretStore.getInstance();
       rawKey = await store.getSecret(resolved.providerId);
     }
 
