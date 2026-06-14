@@ -2,6 +2,7 @@ import { ProviderRuntimeRouter } from './ProviderRuntimeRouter.js';
 import { ProviderRuntimeClientFactory, ProviderInvocationResult } from './ProviderRuntimeClientFactory.js';
 import { ProviderRuntimeRequest, ResolvedProviderRuntime } from './ModelSelectionService.js';
 import { SecurityAuditLogger } from './SecurityAuditLogger.js';
+import { ErrorNormalizationService } from './ErrorNormalizationService.js';
 
 export class ProviderInvocationService {
   private static instance: ProviderInvocationService;
@@ -56,7 +57,8 @@ export class ProviderInvocationService {
       return result;
     } catch (error: any) {
       const durationMs = Date.now() - startMs;
-      const errorCode = error.message;
+      const normalized = ErrorNormalizationService.getInstance().normalize(error);
+      const errorCode = normalized.code;
 
       await logger.logWorkspaceEvent({
         event: 'provider_invocation_failed' as any,
@@ -72,7 +74,7 @@ export class ProviderInvocationService {
         }
       });
       
-      throw error;
+      throw new Error(normalized.message);
     }
   }
 }

@@ -14,6 +14,9 @@ import { WorkspaceRuntimeReadinessService } from './WorkspaceRuntimeReadinessSer
 import { WorkspacePolicyPreviewService } from './WorkspacePolicyPreviewService.js';
 import { SecurityAuditLogger } from './SecurityAuditLogger.js';
 import { LogRepository } from '../storage/LogRepository.js';
+import { InternalBetaDiagnosticsService } from './InternalBetaDiagnosticsService.js';
+import { InternalBetaChecklistService } from './InternalBetaChecklistService.js';
+import { ErrorNormalizationService } from './ErrorNormalizationService.js';
 
 import { PtySessionService } from './PtySessionService.js';
 import { PtySessionApprovalService } from './PtySessionApprovalService.js';
@@ -1721,7 +1724,8 @@ export class ZavorthControlCoreRouteService {
         await db.run('DELETE FROM provider_secret_refs WHERE provider_id = ?', [providerId]);
         deps.writeJson(res, { ok: true });
       } catch (err: any) {
-        deps.writeJson(res, { ok: false, error: err.message }, 500);
+        const normalized = ErrorNormalizationService.getInstance().normalize(err);
+        deps.writeJson(res, { ok: false, error: normalized.message, code: normalized.code }, 500);
       }
       return true;
     }
@@ -1740,7 +1744,8 @@ export class ZavorthControlCoreRouteService {
         const result = await ProviderConnectionTestService.getInstance().testConnection(body.providerId);
         deps.writeJson(res, { ok: true, data: result });
       } catch (err: any) {
-        deps.writeJson(res, { ok: false, error: err.message }, 500);
+        const normalized = ErrorNormalizationService.getInstance().normalize(err);
+        deps.writeJson(res, { ok: false, error: normalized.message, code: normalized.code }, 500);
       }
       return true;
     }
@@ -1784,7 +1789,8 @@ export class ZavorthControlCoreRouteService {
         const config = await AgentWorkspaceConfigService.getInstance().getConfig(workspaceId);
         deps.writeJson(res, { ok: true, data: config });
       } catch (err: any) {
-        deps.writeJson(res, { ok: false, error: err.message }, 500);
+        const normalized = ErrorNormalizationService.getInstance().normalize(err);
+        deps.writeJson(res, { ok: false, error: normalized.message, code: normalized.code }, 500);
       }
       return true;
     }
@@ -1832,7 +1838,8 @@ export class ZavorthControlCoreRouteService {
         
         deps.writeJson(res, { ok: true });
       } catch (err: any) {
-        deps.writeJson(res, { ok: false, error: err.message }, 500);
+        const normalized = ErrorNormalizationService.getInstance().normalize(err);
+        deps.writeJson(res, { ok: false, error: normalized.message, code: normalized.code }, 500);
       }
       return true;
     }
@@ -1876,7 +1883,8 @@ export class ZavorthControlCoreRouteService {
         const readiness = await WorkspaceRuntimeReadinessService.getInstance().checkReadiness(workspaceId);
         deps.writeJson(res, { ok: true, data: readiness });
       } catch (err: any) {
-        deps.writeJson(res, { ok: false, error: err.message }, 500);
+        const normalized = ErrorNormalizationService.getInstance().normalize(err);
+        deps.writeJson(res, { ok: false, error: normalized.message, code: normalized.code }, 500);
       }
       return true;
     }
@@ -1920,6 +1928,95 @@ export class ZavorthControlCoreRouteService {
 
         const previewData = await WorkspacePolicyPreviewService.getInstance().previewPolicy(workspaceId, body.config || {});
         deps.writeJson(res, { ok: true, data: previewData });
+      } catch (err: any) {
+        const normalized = ErrorNormalizationService.getInstance().normalize(err);
+        deps.writeJson(res, { ok: false, error: normalized.message, code: normalized.code }, 500);
+      }
+      return true;
+    }
+
+    // GET /api/v2/workspace/agent-config/diagnostics
+    if (pathname === '/api/v2/workspace/agent-config/diagnostics' && req.method === 'GET') {
+      const identity = deps.authService ? deps.authService.resolveAuthenticatedIdentity(req) : null;
+      if (!identity) {
+        deps.writeJson(res, { ok: false, error: 'Unauthorized' }, 401);
+        return true;
+      }
+      try {
+        const workspaceId = url.searchParams.get('workspaceId');
+        if (!workspaceId) {
+          deps.writeJson(res, { ok: false, error: 'workspaceId parameter is required' }, 400);
+          return true;
+        }
+
+        if (workspaceId.includes('..') || path.isAbsolute(workspaceId)) {
+          const auditLogger = new SecurityAuditLogger();
+          auditLogger.logWorkspaceEvent({
+            event: 'blocked_cross_workspace_config_access',
+            workspaceId: workspaceId,
+            metadata: { requestedWorkspaceId: workspaceId, status: 'blocked', errorCode: 'path_traversal' }
+          });
+          deps.writeJson(res, { ok: false, error: 'Invalid workspaceId' }, 400);
+          return true;
+        }
+
+        if (!WorkspaceResolver.isWorkspaceAllowed(workspaceId)) {
+          const auditLogger = new SecurityAuditLogger();
+          auditLogger.logWorkspaceEvent({
+            event: 'blocked_cross_workspace_config_access',
+            workspaceId: workspaceId,
+            metadata: { requestedWorkspaceId: workspaceId, status: 'blocked', errorCode: 'cross_workspace_access' }
+          });
+          deps.writeJson(res, { ok: false, error: 'Forbidden cross-workspace access' }, 403);
+          return true;
+        }
+
+        const diagnostics = await InternalBetaDiagnosticsService.getInstance().runDiagnostics(workspaceId);
+        deps.writeJson(res, { ok: true, data: diagnostics });
+      } catch (err: any) {
+        deps.writeJson(res, { ok: false, error: err.message }, 500);
+      }
+      return true;
+    }
+
+    // GET /api/v2/workspace/agent-config/checklist
+    if (pathname === '/api/v2/workspace/agent-config/checklist' && req.method === 'GET') {
+      const identity = deps.authService ? deps.authService.resolveAuthenticatedIdentity(req) : null;
+      if (!identity) {
+        deps.writeJson(res, { ok: false, error: 'Unauthorized' }, 401);
+        return true;
+      }
+      try {
+        const workspaceId = url.searchParams.get('workspaceId');
+        if (!workspaceId) {
+          deps.writeJson(res, { ok: false, error: 'workspaceId parameter is required' }, 400);
+          return true;
+        }
+
+        if (workspaceId.includes('..') || path.isAbsolute(workspaceId)) {
+          const auditLogger = new SecurityAuditLogger();
+          auditLogger.logWorkspaceEvent({
+            event: 'blocked_cross_workspace_config_access',
+            workspaceId: workspaceId,
+            metadata: { requestedWorkspaceId: workspaceId, status: 'blocked', errorCode: 'path_traversal' }
+          });
+          deps.writeJson(res, { ok: false, error: 'Invalid workspaceId' }, 400);
+          return true;
+        }
+
+        if (!WorkspaceResolver.isWorkspaceAllowed(workspaceId)) {
+          const auditLogger = new SecurityAuditLogger();
+          auditLogger.logWorkspaceEvent({
+            event: 'blocked_cross_workspace_config_access',
+            workspaceId: workspaceId,
+            metadata: { requestedWorkspaceId: workspaceId, status: 'blocked', errorCode: 'cross_workspace_access' }
+          });
+          deps.writeJson(res, { ok: false, error: 'Forbidden cross-workspace access' }, 403);
+          return true;
+        }
+
+        const checklist = await InternalBetaChecklistService.getInstance().getChecklist(workspaceId);
+        deps.writeJson(res, { ok: true, data: checklist });
       } catch (err: any) {
         deps.writeJson(res, { ok: false, error: err.message }, 500);
       }

@@ -1,5 +1,6 @@
 import { ProviderConfigService, ProviderConfig } from './ProviderConfigService.js';
 import { LocalEncryptedProviderSecretStore } from './ProviderSecretStore.js';
+import { ErrorNormalizationService } from './ErrorNormalizationService.js';
 
 
 export interface ProviderConnectionTestResult {
@@ -56,11 +57,19 @@ export class ProviderConnectionTestService {
         return this.finishTest(providerId, false, 'unsupported', `Provider type ${config.type} is not supported for connection tests yet.`);
       }
     } catch (err: any) {
-      // Catch any unhandled timeout/network errors
-      if (err.name === 'AbortError') {
-        return this.finishTest(providerId, false, 'timeout', 'Connection timed out.');
+      const normalized = ErrorNormalizationService.getInstance().normalize(err);
+      let status: ProviderConnectionTestResult['status'] = 'network_error';
+      let message = 'Network error occurred while connecting.';
+
+      if (err?.name === 'AbortError' || normalized.code === 'timeout') {
+        status = 'timeout';
+        message = 'Connection timed out.';
+      } else if (normalized.code === 'invalid_key') {
+        status = 'invalid_key';
+        message = 'API key is invalid or lacks permissions.';
       }
-      return this.finishTest(providerId, false, 'network_error', 'Network error occurred while connecting.');
+
+      return this.finishTest(providerId, false, status, message);
     }
   }
 
