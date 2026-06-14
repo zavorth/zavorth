@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import { dispatchRuntimeStateAction, loadDesktopPanelsData, loadHome, loadRuntimeStatus, repairAccess, resolveApproval as resolveApprovalRequest, resolveLearning as resolveLearningRequest, runMemoryEncryptionMigration, sendExperienceMessage, startRuntime, steerActiveRun, type ApprovalItem, type ChatMessage, type ExperienceSnapshot, type LearningItem, type MemoryEncryptionMigrationReceipt, type MemoryEncryptionStatus, type MemoryItem, type RuntimeCapabilitiesSnapshot, type ToolItem, loadWorkspaceWriteApprovals, resolveWorkspaceWriteApproval, getWorkspaceTrustStatus, resolveWorkspaceTrust, loadProposedMandate, loadActiveMandate, resolveProposedMandate, revokeActiveMandate } from './apiClient';
+import { dispatchRuntimeStateAction, loadDesktopPanelsData, loadHome, loadRuntimeStatus, repairAccess, resolveApproval as resolveApprovalRequest, resolveLearning as resolveLearningRequest, runMemoryEncryptionMigration, sendExperienceMessage, startRuntime, steerActiveRun, type ApprovalItem, type ChatMessage, type ExperienceSnapshot, type LearningItem, type MemoryEncryptionMigrationReceipt, type MemoryEncryptionStatus, type MemoryItem, type RuntimeCapabilitiesSnapshot, type ToolItem, loadWorkspaceWriteApprovals, resolveWorkspaceWriteApproval, getWorkspaceTrustStatus, resolveWorkspaceTrust, loadProposedMandate, loadActiveMandate, resolveProposedMandate, revokeActiveMandate, getPendingHostCommands, resolveHostCommand } from './apiClient';
 import type { BootEvent, RuntimeStatus } from './global';
 import { appendLocalMessage, applyRuntimeCapabilitiesToDesktop, asRecord, defaultConnectedModelIds, desktopEffortFromRuntime, fallbackStatus, modelOptionsFromRuntimeCapabilities, normalizeMessages, responseProfileByExperience, runtimeInstrumentActionInput, runtimeStateFromSnapshot, runtimeStateState } from './appRuntimeState';
 import { modelOptions } from './modelCatalog';
@@ -9,6 +9,7 @@ import { defaultWorkspaceScopes, workspaceScopeForMetadata, type DesktopWorkspac
 import { WorkspaceWriteApprovalModal } from './components/WorkspaceWriteApprovalModal';
 import { WorkspaceTaskMandateModal } from './components/WorkspaceTaskMandateModal';
 import { TemporaryDirectoryTrustModal } from './components/TemporaryDirectoryTrustModal';
+import { HostCommandApprovalModal } from './components/HostCommandApprovalModal';
 import { ZavorthPaneShell } from './shell/ZavorthPaneShell';
 
 export function App() {
@@ -143,6 +144,7 @@ export function App() {
       setWorkspaceWriteApprovals([]);
       setProposedMandate(null);
       setActiveMandate(null);
+      setPendingHostCommands([]);
     }
   }, [sessionId, applyRuntimeCapabilitiesToDesktop, activeWorkspaceScope]);
 
@@ -199,6 +201,9 @@ export function App() {
           .catch(() => {});
         loadActiveMandate(activeWorkspaceScope.id)
           .then(setActiveMandate)
+          .catch(() => {});
+        getPendingHostCommands(activeWorkspaceScope.id)
+          .then(setPendingHostCommands)
           .catch(() => {});
       }
     }, 3000);
@@ -589,6 +594,19 @@ export function App() {
     }
   }
 
+  const handleHostCommandResolve = useCallback(async (operationId: string, decision: 'approve' | 'deny', strongPhrase?: string) => {
+    setBusy(true);
+    try {
+      await resolveHostCommand(operationId, decision, strongPhrase);
+      setPendingHostCommands(current => current.filter(cmd => cmd.operation_id !== operationId));
+      appendLocalMessage(setMessages, 'system', `Host command proposal ${decision}d.`);
+    } catch (error) {
+      setNotice(error instanceof Error ? error.message : 'Could not resolve host command proposal.');
+    } finally {
+      setBusy(false);
+    }
+  }, []);
+
   return (
     <>
       <ZavorthPaneShell>
@@ -667,6 +685,10 @@ export function App() {
       />
       <TemporaryDirectoryTrustModal
         workspaceId={activeWorkspaceScope.id}
+      />
+      <HostCommandApprovalModal
+        approvals={pendingHostCommands}
+        onResolve={handleHostCommandResolve}
       />
       {showTrustPrompt && activeWorkspaceScope.path && (
         <div className="write-approval-overlay">
