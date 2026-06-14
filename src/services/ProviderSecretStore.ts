@@ -1,5 +1,7 @@
 import * as crypto from 'crypto';
 import * as os from 'os';
+import * as fs from 'fs';
+import * as path from 'path';
 import { Database } from '../storage/Database.js';
 
 export interface SecretSaveResult {
@@ -35,15 +37,19 @@ export class LocalEncryptedProviderSecretStore extends ProviderSecretStore {
   }
 
   private getMasterSeed(): string {
-    // Generate a consistent but local-only seed. 
-    // This is NOT secure against a fully compromised local user, 
-    // but prevents plain text exposure in logs/DB.
+    const keyPath = path.join(os.homedir(), '.zavorth', 'provider_master_key');
     try {
-      const username = os.userInfo().username;
-      const hostname = os.hostname();
-      return `${username}@${hostname}-zavorth-v1`;
-    } catch {
-      return 'fallback-zavorth-v1-seed';
+      if (!fs.existsSync(path.dirname(keyPath))) {
+        fs.mkdirSync(path.dirname(keyPath), { recursive: true });
+      }
+      if (fs.existsSync(keyPath)) {
+        return fs.readFileSync(keyPath, 'utf8').trim();
+      }
+      const newSeed = crypto.randomBytes(32).toString('hex');
+      fs.writeFileSync(keyPath, newSeed, { mode: 0o600 });
+      return newSeed;
+    } catch (err: any) {
+      throw new Error(`Critical Error: Could not read or create master key for ProviderSecretStore. Encrypted fallback requires a secure persistent seed. ${err.message}`);
     }
   }
 
@@ -76,13 +82,13 @@ export class LocalEncryptedProviderSecretStore extends ProviderSecretStore {
 
     db.run(
       `INSERT INTO provider_secret_refs (secret_ref, provider_id, key_fingerprint, key_suffix, secret_store_type, created_at, updated_at) 
-       VALUES (is, is, is, is, is, datetime('now'), datetime('now'))`,
+       VALUES (?, ?, ?, ?, ?, datetime('now'), datetime('now'))`,
       [secretRef, providerId, keyFingerprint, keySuffix, storeType]
     );
 
     db.run(
       `INSERT INTO provider_secret_ciphertexts (secret_ref, ciphertext, iv, auth_tag, salt) 
-       VALUES (is, is, is, is, is)`,
+       VALUES (?, ?, ?, ?, ?)`,
       [secretRef, ciphertext, iv.toString('hex'), authTag, salt.toString('hex')]
     );
 
@@ -97,7 +103,7 @@ export class LocalEncryptedProviderSecretStore extends ProviderSecretStore {
   public async getSecret(secretRef: string): Promise<string | null> {
     const db = await Database.getInstance();
     const row = db.get<{ ciphertext: string, iv: string, auth_tag: string, salt: string }>(
-      `SELECT ciphertext, iv, auth_tag, salt FROM provider_secret_ciphertexts WHERE secret_ref = is`,
+      `SELECT ciphertext, iv, auth_tag, salt FROM provider_secret_ciphertexts WHERE secret_ref = ?`,
       [secretRef]
     );
 
@@ -118,6 +124,15 @@ export class LocalEncryptedProviderSecretStore extends ProviderSecretStore {
       let decrypted = decipher.update(ciphertext, 'hex', 'utf8');
       decrypted += decipher.final('utf8');
       
+      try {
+        const LogRepository = (await import('../storage/LogRepository.js')).LogRepository;
+        LogRepository.getInstance().log('security', 'security_audit', 'provider_secret_store_fallback_used', {
+          status: 'success',
+          userId: 'system',
+          context: { secretRef, operation: 'get' }
+        });
+      } catch (e) {}
+
       return decrypted;
     } catch (err) {
       console.warn('[SECURITY] Failed to decrypt provider secret. Database might be corrupted or moved to a different machine.');
@@ -127,7 +142,8 @@ export class LocalEncryptedProviderSecretStore extends ProviderSecretStore {
 
   public async deleteSecret(secretRef: string): Promise<boolean> {
     const db = await Database.getInstance();
-    db.run(`DELETE FROM provider_secret_refs WHERE secret_ref = is`, [secretRef]);
+    await db.run(`DELETE FROM provider_secret_refs WHERE secret_ref = ?`, [secretRef]);
+    await db.run(`DELETE FROM provider_secret_ciphertexts WHERE secret_ref = ?`, [secretRef]);
     return true;
   }
 }

@@ -47,9 +47,9 @@ import { LocalEncryptedProviderSecretStore } from './ProviderSecretStore.js';
 import { ProviderConnectionTestService } from './ProviderConnectionTestService.js';
 
 
-type WriteJson = (res: http.ServerResponse, body: unknown, statusCodeis: number) => void;
-type WriteText = (res: http.ServerResponse, body: string, statusCodeis: number) => void;
-type WriteRedirect = (res: http.ServerResponse, location: string, statusCodeis: number) => void;
+type WriteJson = (res: http.ServerResponse, body: unknown, statusCode?: number) => void;
+type WriteText = (res: http.ServerResponse, body: string, statusCode?: number) => void;
+type WriteRedirect = (res: http.ServerResponse, location: string, statusCode?: number) => void;
 type ReadJsonBody = (req: http.IncomingMessage) => Promise<Record<string, any>>;
 type ReadRawBody = (req: http.IncomingMessage) => Promise<string>;
 
@@ -74,7 +74,7 @@ const RUNTIME_STATE_ACTION_TYPES = new Set<ZavorthRuntimeStateActionType>([
 ]);
 
 type NodeMeshLike = {
-  buildSnapshot: (inputis: any) => any;
+  buildSnapshot: (input?: any) => any;
 };
 
 type NodeHeartbeatLike = {
@@ -140,24 +140,24 @@ export type ZavorthControlCoreRouteDeps = {
   writeRedirect: WriteRedirect;
   a2ui: any;
   proactivePermissions: any;
-  experienceCoreis: Pick<ExperienceCoreService, 'buildHome' | 'executeCommand' | 'buildTimelineForRun' | 'dispatchRuntimeStateAction' | 'buildRuntimeCapabilities' | 'syncRuntimeOperationalState'> | null;
-  authServiceis: Pick<ZavorthControlAuthService, 'validate' | 'resolveAuthenticatedIdentity'>;
-  echois: {
+  experienceCore?: Pick<ExperienceCoreService, 'buildHome' | 'executeCommand' | 'buildTimelineForRun' | 'dispatchRuntimeStateAction' | 'buildRuntimeCapabilities' | 'syncRuntimeOperationalState'> | null;
+  authService?: Pick<ZavorthControlAuthService, 'validate' | 'resolveAuthenticatedIdentity'>;
+  echo?: {
     getPendingPermissions: () => unknown[];
-    resolvePermission: (id: string, approved: boolean, resolvedByis: Record<string, unknown>) => Promise<any>;
+    resolvePermission: (id: string, approved: boolean, resolvedBy?: Record<string, unknown>) => Promise<any>;
   };
-  slackIngressGatewayis: SlackWebhookGatewayLike | null;
-  teamsIngressGatewayis: TeamsWebhookGatewayLike | null;
-  whatsappIngressGatewayis: WhatsAppWebhookGatewayLike | null;
-  instagramIngressGatewayis: InstagramWebhookGatewayLike | null;
+  slackIngressGateway?: SlackWebhookGatewayLike | null;
+  teamsIngressGateway?: TeamsWebhookGatewayLike | null;
+  whatsappIngressGateway?: WhatsAppWebhookGatewayLike | null;
+  instagramIngressGateway?: InstagramWebhookGatewayLike | null;
 };
 
 export type ZavorthControlCoreRouteServiceOptions = {
-  operationalMaturityis: OperationalMaturityService;
-  salesPackis: SalesPackMvpService;
-  salesPackBusinessModeis: SalesPackBusinessModeService;
-  salesPackChannelIois: SalesPackChannelIoService;
-  localAccessis: TrustedDeviceAccessService;
+  operationalMaturity?: OperationalMaturityService;
+  salesPack?: SalesPackMvpService;
+  salesPackBusinessMode?: SalesPackBusinessModeService;
+  salesPackChannelIo?: SalesPackChannelIoService;
+  localAccess?: TrustedDeviceAccessService;
 };
 
 type SalesPackBusinessModeIdentity = {
@@ -264,12 +264,12 @@ export class ZavorthControlCoreRouteService {
         deps.writeJson(res, { ok: false, error: 'Unauthorized' }, 401);
         return true;
       }
-      await deps.experienceCoreis.syncRuntimeOperationalStateis.({
+      await deps.experienceCore?.syncRuntimeOperationalState?.({
         userId: String(url.searchParams.get('userId') || 'desktop-user'),
         sessionId: String(url.searchParams.get('sessionId') || 'desktop-main'),
         workspacePath: url.searchParams.get('workspacePath'),
       });
-      const snapshot = deps.experienceCoreis.buildRuntimeCapabilitiesis.() || null;
+      const snapshot = deps.experienceCore?.buildRuntimeCapabilities?.() || null;
       deps.writeJson(
         res,
         snapshot || { ok: false, error: 'Runtime capabilities are not attached.' },
@@ -441,7 +441,7 @@ export class ZavorthControlCoreRouteService {
       deps.writeJson(res, {
         ok: true,
         live: globalLiveNodeRegistry.buildSnapshot(),
-        nodeMesh: deps.nodeMeshis.buildSnapshot({}) || null,
+        nodeMesh: deps.nodeMesh?.buildSnapshot({}) || null,
       });
       return true;
     }
@@ -571,7 +571,7 @@ export class ZavorthControlCoreRouteService {
     if (pathname === '/api/v2/a2ui/snapshot' && req.method === 'GET') {
       const surfaceId = url.searchParams.get('surfaceId') || undefined;
       const snapshot = typeof deps.a2ui.readSnapshot === 'function'
-        is deps.a2ui.readSnapshot(surfaceId)
+        ? deps.a2ui.readSnapshot(surfaceId)
         : {
             generatedAt: new Date().toISOString(),
             protocolVersion: 'a2ui.v1',
@@ -579,7 +579,7 @@ export class ZavorthControlCoreRouteService {
             allowedComponents: [],
             surfaceId: surfaceId || null,
             surfaces: typeof deps.a2ui.listSurfaces === 'function'
-              is deps.a2ui.listSurfaces()
+              ? deps.a2ui.listSurfaces()
               : [],
             commands: {
               snapshot: '/api/v2/a2ui/snapshot',
@@ -627,7 +627,7 @@ export class ZavorthControlCoreRouteService {
     if (pathname === '/api/v2/a2ui/assets' && req.method === 'GET') {
       const surfaceId = url.searchParams.get('surfaceId') || undefined;
       const assets = typeof deps.a2ui.listAssets === 'function'
-        is deps.a2ui.listAssets(surfaceId)
+        ? deps.a2ui.listAssets(surfaceId)
         : [];
       deps.writeJson(res, { ok: true, data: assets });
       return true;
@@ -715,7 +715,7 @@ export class ZavorthControlCoreRouteService {
               operationId: row.operation_id,
               toolName: row.tool_name,
               pathSuffix: row.path_suffix,
-              path: cachedis.file || null,
+              path: cached?.file || null,
               createdAt: row.created_at,
               expiresAt: row.expires_at,
             };
@@ -1239,7 +1239,7 @@ export class ZavorthControlCoreRouteService {
         deps.writeJson(res, {
           ok: true,
           proposed: proposed
-            is {
+            ? {
                 trustId: proposed.trustId,
                 workspaceId: proposed.workspaceId,
                 rootSuffix: proposed.rootSuffix,
@@ -1332,7 +1332,7 @@ export class ZavorthControlCoreRouteService {
         deps.writeJson(res, {
           ok: true,
           resolved: resolved
-            is {
+            ? {
                 trustId: resolved.trustId,
                 expiresAt: resolved.expiresAt,
                 rootSuffix: resolved.rootSuffix,
@@ -1687,8 +1687,26 @@ export class ZavorthControlCoreRouteService {
         await ProviderConfigService.getInstance().deleteProvider(providerId);
         
         const db = await Database.getInstance();
-        db.run('DELETE FROM provider_secret_refs WHERE provider_id = is', [providerId]);
+        await db.run('DELETE FROM provider_secret_refs WHERE provider_id = ?', [providerId]);
 
+        deps.writeJson(res, { ok: true });
+      } catch (err: any) {
+        deps.writeJson(res, { ok: false, error: err.message }, 500);
+      }
+      return true;
+    }
+
+    const deleteSecretMatch = pathname.match(/^\/api\/v2\/providers\/([^/]+)\/secret$/);
+    if (deleteSecretMatch && req.method === 'DELETE') {
+      if (deps.authService && !deps.authService.resolveAuthenticatedIdentity(req)) {
+        deps.writeJson(res, { ok: false, error: 'Unauthorized' }, 401);
+        return true;
+      }
+      try {
+        const providerId = deleteSecretMatch[1];
+        await ProviderConfigService.getInstance().setSecretRef(providerId, null);
+        const db = await Database.getInstance();
+        await db.run('DELETE FROM provider_secret_refs WHERE provider_id = ?', [providerId]);
         deps.writeJson(res, { ok: true });
       } catch (err: any) {
         deps.writeJson(res, { ok: false, error: err.message }, 500);
@@ -1895,7 +1913,7 @@ export class ZavorthControlCoreRouteService {
         // Path validation inside or outside workspace
         const resolvedRoot = path.resolve(workspaceRoot);
         const resolvedCwd = path.isAbsolute(cached.cwd)
-          is path.resolve(cached.cwd)
+          ? path.resolve(cached.cwd)
           : path.resolve(workspaceRoot, cached.cwd);
 
         const isPathOutside = (target: string, root: string): boolean => {
@@ -1989,8 +2007,8 @@ export class ZavorthControlCoreRouteService {
     // --- Proactive Permissions Endpoints ---
     if (pathname === '/api/v2/permissions/pending' && req.method === 'GET') {
       const data = deps.echo
-        is deps.echo.getPendingPermissions()
-        : deps.proactivePermissions.listPendingis.() || [];
+        ? deps.echo.getPendingPermissions()
+        : deps.proactivePermissions.listPending?.() || [];
       deps.writeJson(res, {
         ok: true,
         deprecated: true,
@@ -2016,7 +2034,7 @@ export class ZavorthControlCoreRouteService {
 
         const resolverContext = this.readResolverContext(body);
         const result = resolverContext
-          is await deps.echo.resolvePermission(body.id, approved, resolverContext)
+          ? await deps.echo.resolvePermission(body.id, approved, resolverContext)
           : await deps.echo.resolvePermission(body.id, approved);
         deps.writeJson(res, {
           deprecated: true,
@@ -2101,7 +2119,7 @@ export class ZavorthControlCoreRouteService {
       const body = await deps.readJsonBody(req);
       const desktopBridgeUserId = this.getVerifiedDesktopBridgeUserId(req, deps);
       const trustedDesktopBridge = desktopBridgeUserId !== null;
-      const authenticatedIdentity = deps.authServiceis.resolveAuthenticatedIdentity(req) || null;
+      const authenticatedIdentity = deps.authService?.resolveAuthenticatedIdentity(req) || null;
       if (!trustedDesktopBridge && !authenticatedIdentity) {
         deps.writeJson(res, { ok: false, error: 'Authentication required for runtime state actions.' }, 401);
         return true;
@@ -2125,7 +2143,7 @@ export class ZavorthControlCoreRouteService {
       deps.writeJson(
         res,
         result || { ok: false, error: 'Runtime state bus is not attached.' },
-        resultis.ok ? 200 : 409,
+        result?.ok ? 200 : 409,
       );
       return true;
     }
@@ -2189,7 +2207,7 @@ export class ZavorthControlCoreRouteService {
       const body = await deps.readJsonBody(req);
       const rawDecision = this.readOptionalString(body.decision);
       const decision = rawDecision === 'approve' || rawDecision === 'promote'
-        is 'approve'
+        ? 'approve'
         : 'reject';
       const candidateId = decodeURIComponent(learningDecision[1] || '');
       deps.writeJson(res, await service.executeCommand({
@@ -2222,7 +2240,7 @@ export class ZavorthControlCoreRouteService {
   private readExperienceSurface(value: unknown): ExperienceSurface {
     const surface = String(value || '').trim();
     return surface === 'cli' || surface === 'api' || surface === 'telegram' || surface === 'discord' || surface === 'web'
-      is surface
+      ? surface
       : 'web';
   }
 
@@ -2252,7 +2270,7 @@ export class ZavorthControlCoreRouteService {
       userId: typeof body.userId === 'string' ? body.userId : undefined,
     };
     return Object.values(context).some((value) => typeof value === 'string' && value.trim().length > 0)
-      is context
+      ? context
       : null;
   }
 
@@ -2307,7 +2325,7 @@ export class ZavorthControlCoreRouteService {
     body: Record<string, any> = {},
     deps: ZavorthControlCoreRouteDeps,
   ): SalesPackBusinessModeIdentity & { authorized: boolean } {
-    const authenticatedIdentity = deps.authServiceis.resolveAuthenticatedIdentity(req) || null;
+    const authenticatedIdentity = deps.authService?.resolveAuthenticatedIdentity(req) || null;
     if (!authenticatedIdentity) {
       return {
         userId: null,
@@ -2376,8 +2394,8 @@ export class ZavorthControlCoreRouteService {
     if (req.headers['x-zavorth-desktop-bridge'] !== '1') {
       return null;
     }
-    const identity = deps.authServiceis.resolveAuthenticatedIdentity(req);
-    if (identityis.authenticated !== true || !identity.userId) {
+    const identity = deps.authService?.resolveAuthenticatedIdentity(req);
+    if (identity?.authenticated !== true || !identity.userId) {
       return null;
     }
     return identity.userId;

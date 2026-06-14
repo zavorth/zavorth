@@ -133,7 +133,7 @@ export class ProviderConnectionTestService {
 
   private async testGoogle(providerId: string, config: ProviderConfig, apiKey: string): Promise<ProviderConnectionTestResult> {
     const baseUrl = config.baseUrl || 'https://generativelanguage.googleapis.com/v1beta';
-    const endpoint = `${baseUrl}/modelsiskey=${apiKey}`;
+    const endpoint = `${baseUrl}/models?key=${apiKey}`;
 
     const controller = new AbortController();
     const timeout = setTimeout(() => controller.abort(), 10000);
