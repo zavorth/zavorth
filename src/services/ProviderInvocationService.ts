@@ -27,22 +27,30 @@ export class ProviderInvocationService {
       const factory = ProviderRuntimeClientFactory.getInstance();
       const invoker = await factory.createInvoker(resolved);
 
-      await logger.logWorkspaceEvent('provider_invocation_started', `Started invocation on ${resolved.providerId}`, {
+      await logger.logWorkspaceEvent({
+        event: 'provider_invocation_started' as any,
+        workspaceId: 'system',
         providerId: resolved.providerId,
-        providerType: resolved.providerType,
-        modelId: resolved.modelId,
-        capability: request.capability || 'chat'
+        metadata: {
+          providerType: resolved.providerType,
+          modelId: resolved.modelId,
+          capability: request.capability || 'chat'
+        }
       });
       
       const result = await invoker.invoke({ messages, stream: false });
       
       const durationMs = Date.now() - startMs;
-      await logger.logWorkspaceEvent('provider_invocation_succeeded', `Invocation succeeded on ${resolved.providerId}`, {
+      await logger.logWorkspaceEvent({
+        event: 'provider_invocation_succeeded' as any,
+        workspaceId: 'system',
         providerId: resolved.providerId,
-        providerType: resolved.providerType,
-        modelId: resolved.modelId,
-        capability: request.capability || 'chat',
-        durationMs
+        durationMs,
+        metadata: {
+          providerType: resolved.providerType,
+          modelId: resolved.modelId,
+          capability: request.capability || 'chat'
+        }
       });
       
       return result;
@@ -50,15 +58,18 @@ export class ProviderInvocationService {
       const durationMs = Date.now() - startMs;
       const errorCode = error.message;
 
-      // Log failure safely without exposing headers or secrets
-      await logger.logWorkspaceEvent('provider_invocation_failed', `Invocation failed with error: ${errorCode}`, {
+      await logger.logWorkspaceEvent({
+        event: 'provider_invocation_failed' as any,
+        workspaceId: 'system',
         providerId: resolved?.providerId || request.providerId || 'unknown',
-        providerType: resolved?.providerType || 'unknown',
-        modelId: resolved?.modelId || request.modelId || 'unknown',
-        capability: request.capability || 'chat',
-        errorCode,
         durationMs,
-        fallbackUsed: false
+        metadata: {
+          providerType: resolved?.providerType || 'unknown',
+          modelId: resolved?.modelId || request.modelId || 'unknown',
+          capability: request.capability || 'chat',
+          errorCode,
+          fallbackUsed: false
+        }
       });
       
       throw error;

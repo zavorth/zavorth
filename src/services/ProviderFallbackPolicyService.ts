@@ -44,9 +44,13 @@ export class ProviderFallbackPolicyService {
       
       for (const p of fallbackCandidates) {
         try {
-          await logger.logWorkspaceEvent('provider_runtime_fallback_attempted', `Attempting fallback to ${p.providerId}`, { 
-            fallbackTo: p.providerId,
-            fallbackToType: p.type
+          await logger.logWorkspaceEvent({
+            event: 'provider_runtime_fallback_attempted' as any,
+            workspaceId: 'system',
+            metadata: {
+              fallbackTo: p.providerId,
+              fallbackToType: p.type
+            }
           });
           
           const fallbackRequest: ProviderRuntimeRequest = {
@@ -57,15 +61,23 @@ export class ProviderFallbackPolicyService {
           
           const result = await ProviderInvocationService.getInstance().invoke(fallbackRequest, messages);
           
-          await logger.logWorkspaceEvent('provider_runtime_fallback_succeeded', `Fallback succeeded on ${p.providerId}`, { 
-            fallbackUsed: p.providerId 
+          await logger.logWorkspaceEvent({
+            event: 'provider_runtime_fallback_succeeded' as any,
+            workspaceId: 'system',
+            metadata: {
+              fallbackUsed: p.providerId 
+            }
           });
           
           return result;
         } catch (fallbackError: any) {
-          await logger.logWorkspaceEvent('provider_runtime_fallback_failed', `Fallback failed on ${p.providerId}`, { 
-            fallbackFailedOn: p.providerId,
-            errorCode: fallbackError.message
+          await logger.logWorkspaceEvent({
+            event: 'provider_runtime_fallback_failed' as any,
+            workspaceId: 'system',
+            metadata: {
+              fallbackFailedOn: p.providerId,
+              errorCode: fallbackError.message
+            }
           });
           continue;
         }

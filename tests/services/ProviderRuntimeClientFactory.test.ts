@@ -1,10 +1,10 @@
 import { ProviderRuntimeClientFactory } from '../../src/services/ProviderRuntimeClientFactory.js';
 import { ResolvedProviderRuntime } from '../../src/services/ModelSelectionService.js';
-import { ProviderSecretStore } from '../../src/services/ProviderSecretStore.js';
+import { ProviderSecretStore, LocalEncryptedProviderSecretStore } from '../../src/services/ProviderSecretStore.js';
 
 jest.mock('../../src/services/ProviderSecretStore.js', () => {
   return {
-    ProviderSecretStore: {
+    LocalEncryptedProviderSecretStore: {
       getInstance: jest.fn().mockReturnValue({
         getSecret: jest.fn().mockResolvedValue('sk-zavorth-runtime-DO-NOT-LEAK-21I')
       })
@@ -44,7 +44,7 @@ describe('ProviderRuntimeClientFactory', () => {
     const factory = ProviderRuntimeClientFactory.getInstance();
     
     // Force the internal mock to use invalid key simulation
-    ProviderSecretStore.getInstance().getSecret = jest.fn().mockResolvedValue('invalid_key');
+    LocalEncryptedProviderSecretStore.getInstance().getSecret = jest.fn().mockResolvedValue('invalid_key');
     
     const invoker = await factory.createInvoker(mockResolved);
     

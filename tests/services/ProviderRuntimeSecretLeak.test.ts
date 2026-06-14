@@ -1,7 +1,7 @@
 import { ModelSelectionService } from '../../src/services/ModelSelectionService.js';
 import { ProviderConfigService } from '../../src/services/ProviderConfigService.js';
 import { ProviderRuntimeClientFactory } from '../../src/services/ProviderRuntimeClientFactory.js';
-import { ProviderSecretStore } from '../../src/services/ProviderSecretStore.js';
+import { LocalEncryptedProviderSecretStore } from '../../src/services/ProviderSecretStore.js';
 import { ProviderInvocationService } from '../../src/services/ProviderInvocationService.js';
 import { SecurityAuditLogger } from '../../src/services/SecurityAuditLogger.js';
 
@@ -18,7 +18,7 @@ jest.mock('../../src/services/ProviderConfigService.js', () => {
 
 jest.mock('../../src/services/ProviderSecretStore.js', () => {
   return {
-    ProviderSecretStore: {
+    LocalEncryptedProviderSecretStore: {
       getInstance: jest.fn().mockReturnValue({
         getSecret: jest.fn()
       })
@@ -51,7 +51,7 @@ describe('ProviderRuntimeSecretLeak Check', () => {
       defaultModel: 'test-model'
     }]);
 
-    const mockGetSecret = ProviderSecretStore.getInstance().getSecret as jest.Mock;
+    const mockGetSecret = LocalEncryptedProviderSecretStore.getInstance().getSecret as jest.Mock;
     mockGetSecret.mockResolvedValue(LEAK_MARKER); // THIS IS THE ONLY PLACE IT CAN EXIST
 
     // 1. Selector should not return the secretRef or the marker
