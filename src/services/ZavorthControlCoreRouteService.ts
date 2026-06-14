@@ -9,7 +9,9 @@ import { WorkspaceCommandApprovalService } from './WorkspaceCommandApprovalServi
 import { WorkspaceTaskMandateService } from './WorkspaceTaskMandateService.js';
 import { TemporaryDirectoryTrustService } from './TemporaryDirectoryTrustService.js';
 import { WorkspacePathGuard } from '../mcp/workspace/WorkspacePathGuard.js';
-import { HostPowerModeService } from './HostPowerModeService.js';
+import { AgentWorkspaceConfigService } from './AgentWorkspaceConfigService.js';
+import { SecurityAuditLogger } from './SecurityAuditLogger.js';
+import { LogRepository } from '../storage/LogRepository.js';
 
 import { PtySessionService } from './PtySessionService.js';
 import { PtySessionApprovalService } from './PtySessionApprovalService.js';
@@ -18,6 +20,7 @@ import { PtyInputApprovalService } from './PtyInputApprovalService.js';
 import { HostCommandApprovalService } from './HostCommandApprovalService.js';
 import { HostCommandRunnerService } from './HostCommandRunnerService.js';
 import { HostCommandPayloadCache } from './HostCommandPayloadCache.js';
+import { HostPowerModeService } from './HostPowerModeService.js';
 import { Database } from '../storage/Database.js';
 import { config } from '../config/index.js';
 import { OperationalMaturityService } from '../domain/platform-ecosystem/application/OperationalMaturityService.js';
@@ -1734,6 +1737,66 @@ export class ZavorthControlCoreRouteService {
         }
         const result = await ProviderConnectionTestService.getInstance().testConnection(body.providerId);
         deps.writeJson(res, { ok: true, data: result });
+      } catch (err: any) {
+        deps.writeJson(res, { ok: false, error: err.message }, 500);
+      }
+      return true;
+    }
+
+    // GET /api/v2/workspace/agent-config
+    if (pathname === '/api/v2/workspace/agent-config' && req.method === 'GET') {
+      const identity = deps.authService ? deps.authService.resolveAuthenticatedIdentity(req) : null;
+      if (!identity) {
+        deps.writeJson(res, { ok: false, error: 'Unauthorized' }, 401);
+        return true;
+      }
+      try {
+        const workspaceId = url.searchParams.get('workspaceId');
+        if (!workspaceId) {
+          deps.writeJson(res, { ok: false, error: 'workspaceId parameter is required' }, 400);
+          return true;
+        }
+
+        if (workspaceId.includes('..') || path.isAbsolute(workspaceId)) {
+          console.error('[SECURITY] blocked_cross_workspace_config_access - path traversal');
+          deps.writeJson(res, { ok: false, error: 'Invalid workspaceId' }, 400);
+          return true;
+        }
+
+        const config = await AgentWorkspaceConfigService.getInstance().getConfig(workspaceId);
+        deps.writeJson(res, { ok: true, data: config });
+      } catch (err: any) {
+        deps.writeJson(res, { ok: false, error: err.message }, 500);
+      }
+      return true;
+    }
+
+    // POST /api/v2/workspace/agent-config
+    if (pathname === '/api/v2/workspace/agent-config' && req.method === 'POST') {
+      const identity = deps.authService ? deps.authService.resolveAuthenticatedIdentity(req) : null;
+      if (!identity) {
+        deps.writeJson(res, { ok: false, error: 'Unauthorized' }, 401);
+        return true;
+      }
+      try {
+        const body = await deps.readJsonBody(req);
+        const workspaceId = body.workspaceId;
+        if (!workspaceId) {
+          deps.writeJson(res, { ok: false, error: 'workspaceId is required' }, 400);
+          return true;
+        }
+
+        if (workspaceId.includes('..') || path.isAbsolute(workspaceId)) {
+          console.error('[SECURITY] blocked_cross_workspace_config_access - path traversal');
+          deps.writeJson(res, { ok: false, error: 'Invalid workspaceId' }, 400);
+          return true;
+        }
+
+        const currentConfig = await AgentWorkspaceConfigService.getInstance().getConfig(workspaceId);
+        const updatedConfig = { ...currentConfig, ...body.config };
+        await AgentWorkspaceConfigService.getInstance().updateConfig(workspaceId, updatedConfig);
+        
+        deps.writeJson(res, { ok: true });
       } catch (err: any) {
         deps.writeJson(res, { ok: false, error: err.message }, 500);
       }

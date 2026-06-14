@@ -360,4 +360,48 @@ describe('ToolExposurePolicy', () => {
     expect(profile.tools.map(t => t.id)).toContain('workspace.host_command.propose');
     expect(profile.tools.map(t => t.id)).toContain('workspace.host_command.run');
   });
+
+  it('blocks tools based on AgentWorkspaceConfig narrowing policies', () => {
+    const policy = new ToolExposurePolicy();
+    const profile = policy.buildProfile({
+      requestedTools: [
+        'workspace:workspace.pty.spawn',
+        'workspace:workspace.host.execute',
+        'workspace:workspace.developer.mode',
+        'workspace:workspace.mandate.create',
+        'workspace:workspace.trust.propose',
+        'workspace.read'
+      ],
+      metadata: {
+        channelUserIdAllowed: true,
+        workspace: {
+          workspacePermissions: {
+            filesystemRead: true,
+          },
+          config: {
+            allowPty: false,
+            allowHostPowerMode: false,
+            allowDeveloperMode: false,
+            allowTaskMandates: false,
+            allowTemporaryDirectoryTrust: false
+          }
+        }
+      },
+    });
+
+    const exposed = profile.tools.map(t => t.id);
+    expect(exposed).toContain('workspace.read'); // safe tool, not blocked
+    expect(exposed).not.toContain('workspace:workspace.pty.spawn');
+    expect(exposed).not.toContain('workspace:workspace.host.execute');
+    expect(exposed).not.toContain('workspace:workspace.developer.mode');
+    expect(exposed).not.toContain('workspace:workspace.mandate.create');
+    expect(exposed).not.toContain('workspace:workspace.trust.propose');
+
+    const blocked = profile.blockedTools.map(t => t.id);
+    expect(blocked).toContain('workspace:workspace.pty.spawn');
+    expect(blocked).toContain('workspace:workspace.host.execute');
+    expect(blocked).toContain('workspace:workspace.developer.mode');
+    expect(blocked).toContain('workspace:workspace.mandate.create');
+    expect(blocked).toContain('workspace:workspace.trust.propose');
+  });
 });

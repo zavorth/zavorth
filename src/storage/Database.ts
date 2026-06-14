@@ -367,6 +367,24 @@ export class Database {
         FOREIGN KEY(secret_ref) REFERENCES provider_secret_refs(secret_ref) ON DELETE CASCADE
       )
     `);
+
+    this.run(`
+      CREATE TABLE IF NOT EXISTS agent_workspace_config (
+        workspace_id TEXT PRIMARY KEY,
+        default_provider_id TEXT,
+        default_model_id TEXT,
+        allowed_capabilities TEXT NOT NULL,
+        default_autonomy_profile TEXT NOT NULL,
+        allow_developer_mode INTEGER NOT NULL,
+        allow_host_power_mode INTEGER NOT NULL,
+        allow_pty INTEGER NOT NULL,
+        allow_task_mandates INTEGER NOT NULL,
+        allow_temporary_directory_trust INTEGER NOT NULL,
+        allow_provider_fallback INTEGER NOT NULL,
+        created_at TEXT NOT NULL,
+        updated_at TEXT NOT NULL
+      )
+    `);
   }
 
   private ensureColumn(tableName: string, columnName: string, definition: string): void {
