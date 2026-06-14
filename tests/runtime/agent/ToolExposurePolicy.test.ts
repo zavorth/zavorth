@@ -316,5 +316,36 @@ describe('ToolExposurePolicy', () => {
     expect(profile.tools.map(t => t.id)).toEqual(['workspace_filesystem_read']);
     expect(profile.blockedTools).toBeUndefined();
   });
-});
 
+  it('exposes workspace.temp_dir_trust.propose when workspace permissions allow it', () => {
+    // Fase 21E-A: verify that the temporary directory trust propose tool is recognized
+    // and can be exposed through the policy (basic registry coverage test)
+    const policy = new ToolExposurePolicy();
+    const profile = policy.buildProfile({
+      requestedTools: [
+        'workspace.temp_dir_trust.propose',
+      ],
+      metadata: {
+        channelUserIdAllowed: true,
+      },
+    });
+    // The tool should be in the exposed list when user is trusted
+    expect(profile.tools.map(t => t.id)).toContain('workspace.temp_dir_trust.propose');
+  });
+
+  it('does NOT expose workspace.temp_dir_trust.propose to untrusted users', () => {
+    const policy = new ToolExposurePolicy();
+    const profile = policy.buildProfile({
+      requestedTools: ['workspace.temp_dir_trust.propose'],
+      metadata: {
+        channelUserIdAllowed: false,
+      },
+    });
+    expect(profile.tools.map(t => t.id)).not.toContain('workspace.temp_dir_trust.propose');
+    expect(profile.blockedTools).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({ id: 'workspace.temp_dir_trust.propose', reason: 'unauthorized-user-in-group' }),
+      ])
+    );
+  });
+});

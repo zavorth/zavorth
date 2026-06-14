@@ -8,6 +8,7 @@ import { parseSlashCommand, slashCommands, type DesktopPanel } from './slashComm
 import { defaultWorkspaceScopes, workspaceScopeForMetadata, type DesktopWorkspaceScope } from './workspaceScopes';
 import { WorkspaceWriteApprovalModal } from './components/WorkspaceWriteApprovalModal';
 import { WorkspaceTaskMandateModal } from './components/WorkspaceTaskMandateModal';
+import { TemporaryDirectoryTrustModal } from './components/TemporaryDirectoryTrustModal';
 import { ZavorthPaneShell } from './shell/ZavorthPaneShell';
 
 export function App() {
@@ -663,6 +664,9 @@ export function App() {
       <WorkspaceTaskMandateModal
         proposedMandate={proposedMandate}
         onResolve={handleProposedMandateResolve}
+      />
+      <TemporaryDirectoryTrustModal
+        workspaceId={activeWorkspaceScope.id}
       />
       {showTrustPrompt && activeWorkspaceScope.path && (
         <div className="write-approval-overlay">

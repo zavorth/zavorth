@@ -372,7 +372,7 @@ export class SecurityAuditLogger {
 
   // 5. Workspace Events
   public logWorkspaceEvent(payload: {
-    event: 'workspace_opened' | 'workspace_revoked' | 'workspace_tool_allowed' | 'workspace_tool_blocked' | 'workspace_path_denied' | 'workspace_git_read' | 'workspace_filesystem_read' | 'workspace_filesystem_write' | 'workspace_notes_event' | 'workspace_write_requested' | 'workspace_write_approved' | 'workspace_write_denied' | 'grant_created' | 'grant_revoked' | 'grant_expired' | 'command_auto_approved' | 'command_approval_requested' | 'command_approved' | 'command_denied' | 'command_executed' | 'command_blocked' | 'workspace_trust_granted' | 'workspace_trust_revoked' | 'workspace_trust_loaded' | 'workspace_trust_rejected' | 'command_auto_approved_by_trusted_workspace' | 'workspace_task_mandate_requested' | 'workspace_task_mandate_approved' | 'workspace_task_mandate_denied' | 'workspace_task_mandate_revoked' | 'workspace_task_mandate_expired' | 'command_auto_approved_by_task_mandate' | 'filesystem_write_auto_approved_by_task_mandate' | 'task_mandate_scope_violation';
+    event: 'workspace_opened' | 'workspace_revoked' | 'workspace_tool_allowed' | 'workspace_tool_blocked' | 'workspace_path_denied' | 'workspace_git_read' | 'workspace_filesystem_read' | 'workspace_filesystem_write' | 'workspace_notes_event' | 'workspace_write_requested' | 'workspace_write_approved' | 'workspace_write_denied' | 'grant_created' | 'grant_revoked' | 'grant_expired' | 'command_auto_approved' | 'command_approval_requested' | 'command_approved' | 'command_denied' | 'command_executed' | 'command_blocked' | 'workspace_trust_granted' | 'workspace_trust_revoked' | 'workspace_trust_loaded' | 'workspace_trust_rejected' | 'command_auto_approved_by_trusted_workspace' | 'workspace_task_mandate_requested' | 'workspace_task_mandate_approved' | 'workspace_task_mandate_denied' | 'workspace_task_mandate_revoked' | 'workspace_task_mandate_expired' | 'command_auto_approved_by_task_mandate' | 'filesystem_write_auto_approved_by_task_mandate' | 'task_mandate_scope_violation' | 'tmp_dir_trust_requested' | 'tmp_dir_trust_approved' | 'tmp_dir_trust_denied' | 'tmp_dir_trust_revoked' | 'tmp_dir_trust_expired' | 'tmp_dir_trust_auto_approved' | 'tmp_dir_trust_scope_block';
     workspaceId: string;
     rootPath?: string;
     rootPathHash?: string;
@@ -447,7 +447,14 @@ export class SecurityAuditLogger {
       'workspace_task_mandate_expired',
       'command_auto_approved_by_task_mandate',
       'filesystem_write_auto_approved_by_task_mandate',
-      'task_mandate_scope_violation'
+      'task_mandate_scope_violation',
+      'tmp_dir_trust_requested',
+      'tmp_dir_trust_approved',
+      'tmp_dir_trust_denied',
+      'tmp_dir_trust_revoked',
+      'tmp_dir_trust_expired',
+      'tmp_dir_trust_auto_approved',
+      'tmp_dir_trust_scope_block'
     ];
 
     if (!validEvents.includes(payload.event)) {

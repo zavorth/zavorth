@@ -18,6 +18,7 @@ import {
 import type { DesktopWorkspaceScope } from '../workspaceScopes';
 import { WorkspaceTrustControl } from '../components/WorkspaceTrustControl';
 import { WorkspaceTaskMandateStatus } from '../components/WorkspaceTaskMandateStatus';
+import { TemporaryDirectoryTrustStatus } from '../components/TemporaryDirectoryTrustStatus';
 
 type SidebarItem = {
   panel: DesktopPanel;
@@ -153,6 +154,9 @@ export function DesktopSidebar(props: {
                     onRevoke={props.onRevokeMandate || (async () => {})}
                   />
                 )}
+                <TemporaryDirectoryTrustStatus
+                  workspaceId={props.workspaceScope.id}
+                />
               </div>
             )}
             <div className="zvd-thread-list">
