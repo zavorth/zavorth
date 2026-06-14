@@ -20,8 +20,20 @@ export {
   WorkspaceTaskMandateProposeTool,
 } from './WorkspaceTaskMandateProposeTool.js';
 export {
+  WorkspaceCommandProposeTool,
+} from './WorkspaceCommandProposeTool.js';
+export {
+  WorkspaceCommandRunTool,
+} from './WorkspaceCommandRunTool.js';
+export {
   TemporaryDirectoryTrustProposeTool,
 } from './TemporaryDirectoryTrustProposeTool.js';
+export {
+  HostCommandProposeTool,
+} from './HostCommandProposeTool.js';
+export {
+  HostCommandRunTool,
+} from './HostCommandRunTool.js';
 export type {
   WorkspaceFsAccess,
   WorkspaceFsPolicyOptions,

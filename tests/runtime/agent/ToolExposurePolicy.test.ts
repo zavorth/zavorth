@@ -348,4 +348,16 @@ describe('ToolExposurePolicy', () => {
       ])
     );
   });
+
+  it('exposes workspace.host_command tools when channel user is trusted', () => {
+    const policy = new ToolExposurePolicy();
+    const profile = policy.buildProfile({
+      requestedTools: ['workspace.host_command.propose', 'workspace.host_command.run'],
+      metadata: {
+        channelUserIdAllowed: true,
+      },
+    });
+    expect(profile.tools.map(t => t.id)).toContain('workspace.host_command.propose');
+    expect(profile.tools.map(t => t.id)).toContain('workspace.host_command.run');
+  });
 });
