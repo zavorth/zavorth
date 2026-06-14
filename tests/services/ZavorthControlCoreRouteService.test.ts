@@ -102,6 +102,8 @@ describe('ZavorthControlCoreRouteService Security Tests (Phase 21J)', () => {
       return ws === 'C:/TESTES DEV/1_PROJETOS_ATIVOS/Zavorth' || ws === 'allowed-workspace';
     });
     
+    (WorkspaceResolver.resolve as jest.Mock) = jest.fn().mockReturnValue('C:/TESTES DEV/1_PROJETOS_ATIVOS/Zavorth');
+    
     mockLogWorkspaceEvent = jest.fn();
     (SecurityAuditLogger as jest.Mock).mockImplementation(() => ({
       logWorkspaceEvent: mockLogWorkspaceEvent
@@ -202,5 +204,16 @@ describe('ZavorthControlCoreRouteService Security Tests (Phase 21J)', () => {
       event: 'blocked_cross_workspace_config_access',
       metadata: expect.objectContaining({ errorCode: 'path_traversal' })
     }));
+  });
+
+  it('rootPath arbitrario vindo do client e rejeitado na rota de trust/resolve', async () => {
+    // rootPath 'C:/Pasta/Secreta/Do/Usuario' does not match active session workspace → 403
+    const result = await runRoute('POST', '/api/v2/workspace/trust/resolve', {
+      workspaceId: 'allowed-workspace',
+      rootPath: 'C:/Pasta/Secreta/Do/Usuario',
+      trusted: true
+    });
+    expect(result.handled).toBe(true);
+    expect(result.responseStatus).toBe(403);
   });
 });
