@@ -363,11 +363,11 @@ export class ToolExposurePolicy {
 
     const mode = resolveMode(tools);
     const exposureSummary = tools.length === 0
-      ? 'No tools were exposed for this execution.'
-      : `${tools.length} ${tools.length === 1 ? 'tool exposed' : 'tools exposed'} with policy ${mode}.`;
+      ? 'Nenhuma ferramenta foi exposta para esta execucao.'
+      : `${tools.length} ${tools.length === 1 ? 'ferramenta exposta' : 'ferramentas expostas'} com policy ${mode}.`;
     const quarantineSummary = blockedTools.length === 0
       ? ''
-      : ` ${blockedTools.length} ${blockedTools.length === 1 ? 'tool blocked' : 'tools blocked'} by quarantine.`;
+      : ` ${blockedTools.length} ${blockedTools.length === 1 ? 'ferramenta bloqueada' : 'ferramentas bloqueadas'} por quarentena.`;
 
     return {
       mode,
@@ -383,7 +383,7 @@ export class ToolExposurePolicy {
 
   private describeTool(toolId: string, risk: UniversalToolRiskLevel): string {
     if (risk === 'danger') {
-      return `${toolId} can change the environment and must pass approval.`;
+      return `${toolId} pode alterar o ambiente e deve passar por aprovacao.`;
     }
     if (risk === 'attention') {
       return `${toolId} pode sair do contexto local ou enviar dados.`;
@@ -391,6 +391,6 @@ export class ToolExposurePolicy {
     if (risk === 'safe') {
       return `${toolId} e considerada leitura/consulta segura.`;
     }
-    return `${toolId} does not have fine-grained risk classification yet.`;
+    return `${toolId} ainda nao tem classificacao de risco fina.`;
   }
 }
