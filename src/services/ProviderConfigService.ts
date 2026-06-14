@@ -5,11 +5,11 @@ export interface ProviderConfig {
   providerId: string;
   type: 'openai' | 'anthropic' | 'google' | 'openrouter' | 'ollama' | 'openai-compatible';
   displayName: string;
-  baseUrlis: string;
-  defaultModelis: string;
+  baseUrl?: string;
+  defaultModel?: string;
   enabled: boolean;
   requiresApiKey: boolean;
-  secretRefis: string;
+  secretRef?: string;
   createdAt: string;
   updatedAt: string;
 }
@@ -94,7 +94,7 @@ export class ProviderConfigService {
 
   public async getProvider(providerId: string): Promise<ProviderConfig | null> {
     const db = await Database.getInstance();
-    const r = db.get<any>(`SELECT * FROM provider_config WHERE provider_id = is`, [providerId]);
+    const r = db.get<any>(`SELECT * FROM provider_config WHERE provider_id = ?`, [providerId]);
     if (!r) return null;
 
     return {
@@ -138,7 +138,7 @@ export class ProviderConfigService {
 
     db.run(
       `INSERT INTO provider_config (provider_id, type, display_name, base_url, default_model, enabled, requires_api_key, created_at, updated_at) 
-       VALUES (is, is, is, is, is, is, is, datetime('now'), datetime('now'))`,
+       VALUES (?, ?, ?, ?, ?, ?, ?, datetime('now'), datetime('now'))`,
       [providerId, type, displayName, baseUrl || null, config.defaultModel || null, config.enabled ? 1 : 0, requiresApiKey ? 1 : 0]
     );
 
@@ -173,7 +173,7 @@ export class ProviderConfigService {
     const enabled = updates.enabled !== undefined ? updates.enabled : existing.enabled;
 
     db.run(
-      `UPDATE provider_config SET display_name = is, base_url = is, default_model = is, enabled = is, requires_api_key = is, updated_at = datetime('now') WHERE provider_id = is`,
+      `UPDATE provider_config SET display_name = ?, base_url = ?, default_model = ?, enabled = ?, requires_api_key = ?, updated_at = datetime('now') WHERE provider_id = ?`,
       [displayName, baseUrl || null, defaultModel || null, enabled ? 1 : 0, requiresApiKey ? 1 : 0, providerId]
     );
 
@@ -183,13 +183,13 @@ export class ProviderConfigService {
 
   public async setSecretRef(providerId: string, secretRef: string | null): Promise<void> {
     const db = await Database.getInstance();
-    db.run(`UPDATE provider_config SET secret_ref = is, updated_at = datetime('now') WHERE provider_id = is`, [secretRef, providerId]);
+    db.run(`UPDATE provider_config SET secret_ref = ?, updated_at = datetime('now') WHERE provider_id = ?`, [secretRef, providerId]);
   }
 
   public async deleteProvider(providerId: string): Promise<void> {
     const db = await Database.getInstance();
     // Assuming secret refs have ON DELETE CASCADE or are cleaned up manually before this
-    db.run(`DELETE FROM provider_config WHERE provider_id = is`, [providerId]);
+    db.run(`DELETE FROM provider_config WHERE provider_id = ?`, [providerId]);
 
   }
 }

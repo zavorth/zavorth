@@ -205,12 +205,32 @@ export function ProviderSetupModal({ isOpen, onClose, onSave, providerToEdit }: 
           </div>
 
           {formData.requiresApiKey && (
-            <div className="mt-2 p-3 bg-gray-900/50 border border-gray-700/50 rounded-lg">
+            <div className="mt-2 p-3 bg-gray-900/50 border border-gray-700/50 rounded-lg relative">
               <ProviderSecretInput
                 value={formData.apiKey || ''}
                 onChange={val => setFormData({ ...formData, apiKey: val })}
                 hasExistingSecret={!!formData.secretRef}
               />
+              {!!formData.secretRef && formData.providerId && (
+                <button
+                  type="button"
+                  onClick={async () => {
+                    if (!confirm('Deseja realmente remover a chave de API salva?')) return;
+                    try {
+                      const res = await fetch(`/api/v2/providers/${formData.providerId}/secret`, { method: 'DELETE' });
+                      if (!res.ok) throw new Error('Falha ao remover a chave');
+                      setFormData({ ...formData, secretRef: undefined, apiKey: '' });
+                      alert('Chave removida com sucesso. O status foi atualizado para Faltando.');
+                    } catch (err: any) {
+                      alert(err.message);
+                    }
+                  }}
+                  className="absolute right-3 top-3 text-xs text-red-400 hover:text-red-300"
+                  title="Remover chave configurada"
+                >
+                  Remover Chave
+                </button>
+              )}
             </div>
           )}
 
