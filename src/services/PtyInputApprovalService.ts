@@ -164,26 +164,25 @@ export class PtyInputApprovalService {
     });
   }
 
-  public async consumeApproval(operationId: string, sessionId: string, workspaceId: string): Promise<boolean> {
-    const now = new Date().toISOString();
+  public async consumeApprovedInputHash(workspaceId: string, sessionId: string, inputRaw: string): Promise<boolean> {
     const db = await this.getDb();
+    const inputHash = this.hashId(inputRaw);
+    const now = new Date().toISOString();
+    
     const row = await db.get<any>(
-      `SELECT status, expires_at FROM workspace_pty_input_approvals WHERE operation_id = ? AND session_id = ? AND workspace_id = ?`,
-      [operationId, sessionId, workspaceId]
+      "SELECT operation_id FROM workspace_pty_input_approvals WHERE session_id = ? AND workspace_id = ? AND input_hash = ? AND status = 'approved' AND expires_at > ?",
+      [sessionId, workspaceId, inputHash, now]
     );
 
-    if (!row || row.status !== 'approved') {
-      return false;
-    }
+    if (!row) return false;
 
-    if (row.expires_at < now) {
-      return false;
-    }
-
-    await db.run(
-      `UPDATE workspace_pty_input_approvals SET status = 'consumed' WHERE operation_id = ?`,
-      [operationId]
-    );
+    await db.run("UPDATE workspace_pty_input_approvals SET status = 'consumed' WHERE operation_id = ?", [row.operation_id]);
+    
+    this.logger.logWorkspaceEvent({
+      event: 'pty_input_sent',
+      workspaceId,
+      metadata: { sessionId, operationId: row.operation_id, status: 'consumed' }
+    });
 
     return true;
   }
@@ -192,3 +191,4 @@ export class PtyInputApprovalService {
     return createHash('sha256').update(val).digest('hex');
   }
 }
+

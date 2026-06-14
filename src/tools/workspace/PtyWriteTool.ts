@@ -42,14 +42,20 @@ export class PtyWriteTool extends BaseTool {
     }
 
     const policy = this.ptyPolicyService.classifyInput(workspaceId, input, true, '');
-    if (policy.blocked) {
-      return JSON.stringify({ success: false, error: `PTY input blocked: ${policy.blockReason}` });
+    if (policy.blocked && policy.riskLevel !== 'CRITICAL') {
+      return JSON.stringify({ success: false, error: "PTY input blocked: " + policy.blockReason });
     }
     if (policy.riskLevel === 'HIGH' || policy.riskLevel === 'CRITICAL') {
-      const proposal = await this.ptyInputApprovalService.proposeInput(
-        workspaceId, sessionId, input, policy.sanitizedInput, policy.riskLevel, policy.strongConfirmationRequired
-      );
-      return JSON.stringify({ success: true, status: 'PTY_INPUT_APPROVAL_REQUIRED', operationId: proposal.operationId });
+      const isApproved = await this.ptyInputApprovalService.consumeApprovedInputHash(workspaceId, sessionId, input);
+      if (!isApproved) {
+        if (policy.blocked && policy.riskLevel === 'CRITICAL' && !policy.strongConfirmationRequired) {
+             return JSON.stringify({ success: false, error: 'PTY input blocked: ' + policy.blockReason });
+        }
+        const proposal = await this.ptyInputApprovalService.proposeInput(
+          workspaceId, sessionId, input, policy.sanitizedInput, policy.riskLevel, policy.strongConfirmationRequired
+        );
+        return JSON.stringify({ success: true, status: 'PTY_INPUT_APPROVAL_REQUIRED', operationId: proposal.operationId, message: policy.riskLevel === 'CRITICAL' ? 'Requires explicit RUN' : 'Approval required' });
+      }
     }
 
     try {
@@ -60,4 +66,5 @@ export class PtyWriteTool extends BaseTool {
     }
   }
 }
+
 
