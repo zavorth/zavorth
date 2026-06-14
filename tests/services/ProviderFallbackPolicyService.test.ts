@@ -84,8 +84,8 @@ describe('ProviderFallbackPolicyService', () => {
     expect(res.text).toBe('fallback-success');
     expect(mockInvoke).toHaveBeenCalledTimes(2);
 
-    expect(loggerSpy).toHaveBeenCalledWith('provider_runtime_fallback_attempted', expect.any(String), expect.any(Object));
-    expect(loggerSpy).toHaveBeenCalledWith('provider_runtime_fallback_succeeded', expect.any(String), expect.any(Object));
+    expect(loggerSpy).toHaveBeenCalledWith(expect.objectContaining({ event: 'provider_runtime_fallback_attempted' }));
+    expect(loggerSpy).toHaveBeenCalledWith(expect.objectContaining({ event: 'provider_runtime_fallback_succeeded' }));
   });
 
   it('skips fallbacks that are not configured', async () => {
