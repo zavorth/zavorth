@@ -3,7 +3,10 @@ import React, { useCallback, useEffect, useState } from 'react';
 interface ActiveTrust {
   trustId: string;
   workspaceId: string;
-  pathSuffix: string;
+  rootSuffix: string;
+  rootHash: string;
+  kind: 'system-temp' | 'user-selected-external';
+  displayName: string;
   allowedOperations: string[];
   expiresAt: string;
   createdAt: string;
@@ -25,10 +28,9 @@ function formatTimeLeft(expiresAt: string): string {
 }
 
 /**
- * Fase 21E-A — Temporary System Directory Trust Status
+ * Fase 21E-B — Temporary Directory Trust Status
  *
- * Displays active Temporary Directory Trusts in the sidebar with a revoke button.
- * Scope: OS temp directories only.
+ * Displays active Temporary Directory/External Trusts in the sidebar with a revoke button.
  */
 export function TemporaryDirectoryTrustStatus({ workspaceId, apiBase = '' }: TemporaryDirectoryTrustStatusProps) {
   const [trusts, setTrusts] = useState<ActiveTrust[]>([]);
@@ -104,7 +106,7 @@ export function TemporaryDirectoryTrustStatus({ workspaceId, apiBase = '' }: Tem
         }}
       >
         <span>🗂️</span>
-        <span>Temp Dir Trusts ({trusts.length})</span>
+        <span>Directory Trusts ({trusts.length})</span>
       </div>
 
       {trusts.map(trust => (
@@ -133,11 +135,12 @@ export function TemporaryDirectoryTrustStatus({ workspaceId, apiBase = '' }: Tem
                 textOverflow: 'ellipsis',
                 whiteSpace: 'nowrap',
               }}
+              title={trust.displayName}
             >
-              …/{trust.pathSuffix}
+              {trust.displayName}
             </div>
             <div style={{ color: '#666', fontSize: '11px', marginTop: '2px' }}>
-              {trust.allowedOperations.join(', ')} · {formatTimeLeft(trust.expiresAt)} left
+              {trust.allowedOperations.map(op => op.replace('filesystem.', '')).join(', ')} · {formatTimeLeft(trust.expiresAt)} left
             </div>
           </div>
           <button

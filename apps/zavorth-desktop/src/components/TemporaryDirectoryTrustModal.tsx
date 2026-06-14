@@ -3,7 +3,10 @@ import React, { useEffect, useState } from 'react';
 interface TempDirTrustProposed {
   trustId: string;
   workspaceId: string;
-  pathSuffix: string;
+  rootSuffix: string;
+  rootHash: string;
+  kind: 'system-temp' | 'user-selected-external';
+  displayName: string;
   allowedOperations: string[];
   createdAt: string;
 }
@@ -13,15 +16,6 @@ interface TemporaryDirectoryTrustModalProps {
   apiBase?: string;
 }
 
-/**
- * Fase 21E-A — Temporary System Directory Trust Modal
- *
- * Polls /api/v2/workspace/temporary-directory-trusts/pending and shows a modal
- * when the agent has proposed a trust for an OS temp directory.
- *
- * Scope: OS temp directories only (os.tmpdir(), /tmp, %TEMP%, %TMP%).
- * NOT for Downloads, Desktop, or arbitrary external paths (21E-B scope).
- */
 export function TemporaryDirectoryTrustModal({ workspaceId, apiBase = '' }: TemporaryDirectoryTrustModalProps) {
   const [proposed, setProposed] = useState<TempDirTrustProposed | null>(null);
   const [loading, setLoading] = useState(false);
@@ -80,6 +74,8 @@ export function TemporaryDirectoryTrustModal({ workspaceId, apiBase = '' }: Temp
 
   if (!proposed) return null;
 
+  const isExternal = proposed.kind === 'user-selected-external';
+
   return (
     <div
       id="tmp-dir-trust-modal-overlay"
@@ -112,39 +108,37 @@ export function TemporaryDirectoryTrustModal({ workspaceId, apiBase = '' }: Temp
       >
         {/* Header */}
         <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '16px' }}>
-          <span style={{ fontSize: '22px' }}>🗂️</span>
+          <span style={{ fontSize: '22px' }}>{isExternal ? '📁' : '🗂️'}</span>
           <h2
             id="tmp-dir-trust-title"
             style={{ margin: 0, fontSize: '16px', fontWeight: 700, color: '#c9b8ff' }}
           >
-            Temporary Directory Trust Request
+            {isExternal ? 'External Folder Trust Request' : 'Temporary Directory Trust Request'}
           </h2>
         </div>
 
         {/* Description */}
         <p style={{ margin: '0 0 16px', fontSize: '13px', color: '#aaa', lineHeight: 1.6 }}>
-          The agent is requesting temporary filesystem access to a system temp directory.
-          This trust is valid for up to <strong style={{ color: '#e0e0f0' }}>4 hours</strong> and
-          only covers the operations listed below.
+          The agent is requesting temporary filesystem access to {isExternal ? 'a user-selected external directory' : 'a system temporary directory'}.
+          This trust is valid for up to <strong style={{ color: '#e0e0f0' }}>4 hours</strong> (or requested duration) and
+          only covers filesystem operations listed below.
         </p>
 
         {/* Warning badge */}
         <div
           style={{
-            background: '#2a1a3e',
-            border: '1px solid #7c5ccc',
+            background: isExternal ? '#1e2d3e' : '#2a1a3e',
+            border: `1px solid ${isExternal ? '#3b6c8a' : '#7c5ccc'}`,
             borderRadius: '8px',
             padding: '10px 14px',
             marginBottom: '16px',
             fontSize: '12px',
-            color: '#c9a0ff',
+            color: isExternal ? '#80cfff' : '#c9a0ff',
           }}
         >
-          <strong>Scope (21E-A):</strong> OS temp directories only (
-          <code style={{ background: '#1a0d30', padding: '1px 4px', borderRadius: '4px' }}>/tmp</code>,{' '}
-          <code style={{ background: '#1a0d30', padding: '1px 4px', borderRadius: '4px' }}>%TEMP%</code>).
-          Downloads, Desktop, and other external paths are <strong>not included</strong>.
+          <strong>Notice:</strong> This is a temporary directory trust.
           Command execution is <strong>never</strong> authorized by this trust.
+          Files like <code>.env</code>, private keys, or <code>.git</code> folders remain strictly blocked.
         </div>
 
         {/* Trust details */}
@@ -159,7 +153,7 @@ export function TemporaryDirectoryTrustModal({ workspaceId, apiBase = '' }: Temp
           }}
         >
           <div style={{ marginBottom: '8px' }}>
-            <span style={{ color: '#888' }}>Directory suffix: </span>
+            <span style={{ color: '#888' }}>Directory: </span>
             <span
               style={{
                 fontFamily: 'monospace',
@@ -169,7 +163,7 @@ export function TemporaryDirectoryTrustModal({ workspaceId, apiBase = '' }: Temp
                 color: '#80cfff',
               }}
             >
-              …/{proposed.pathSuffix}
+              {proposed.displayName}
             </span>
           </div>
           <div style={{ marginBottom: '8px' }}>
@@ -258,7 +252,7 @@ export function TemporaryDirectoryTrustModal({ workspaceId, apiBase = '' }: Temp
               opacity: loading ? 0.7 : 1,
             }}
           >
-            {loading ? 'Processing…' : 'Approve (4h)'}
+            {loading ? 'Processing…' : 'Approve'}
           </button>
         </div>
       </div>

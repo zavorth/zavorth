@@ -31,7 +31,12 @@ describe('TemporaryDirectoryTrust Endpoint Integration Tests', () => {
     process.env.ZAVORTH_WORKSPACE_ROOT = tempDir;
     config.dbPath = path.join(tempDir, 'data', 'zavorth.db');
 
-    jest.spyOn(WorkspaceResolver, 'resolve').mockReturnValue(tempDir);
+    jest.spyOn(WorkspaceResolver, 'resolve').mockImplementation((wsId) => {
+      if (!wsId || wsId === 'AUTO' || wsId === path.basename(tempDir)) {
+        return tempDir;
+      }
+      return path.resolve(String(wsId));
+    });
 
     db = await Database.getInstance();
     routeService = new ZavorthControlCoreRouteService();
@@ -210,9 +215,9 @@ describe('TemporaryDirectoryTrust Endpoint Integration Tests', () => {
     await routeService.handleRequest({ method: 'GET' } as any, {} as any, urlPending, urlPending.pathname, depsPending as any);
     expect(callsPending[0].status).toBe(200);
     expect(callsPending[0].body.proposed).not.toBeNull();
-    // pathSuffix is exposed (not full absolute path)
-    expect(callsPending[0].body.proposed.pathSuffix).toBeDefined();
-    expect(callsPending[0].body.proposed.pathSuffix).not.toContain('/');
+    // rootSuffix is exposed (not full absolute path)
+    expect(callsPending[0].body.proposed.rootSuffix).toBeDefined();
+    expect(callsPending[0].body.proposed.rootSuffix).not.toContain('/');
     expect(callsPending[0].body.proposed.allowedOperations).toEqual(['filesystem.read', 'filesystem.write']);
 
     // 3. POST resolve with approved=true
@@ -236,7 +241,7 @@ describe('TemporaryDirectoryTrust Endpoint Integration Tests', () => {
     expect(callsActive[0].body.trusts).toHaveLength(1);
     // Response must not expose absolute path
     const activeTrust = callsActive[0].body.trusts[0];
-    expect(activeTrust.pathSuffix).toBeDefined();
+    expect(activeTrust.rootSuffix).toBeDefined();
     expect(activeTrust.allowedOperations).toEqual(['filesystem.read', 'filesystem.write']);
 
     // 5. POST revoke

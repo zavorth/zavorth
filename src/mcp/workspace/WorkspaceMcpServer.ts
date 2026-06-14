@@ -10,13 +10,15 @@ import { LogRepository } from '../../storage/LogRepository.js';
 import { WorkspaceWriteApprovalService } from '../../services/WorkspaceWriteApprovalService.js';
 import { Database } from '../../storage/Database.js';
 
-const workspaceRoot = process.env.ZAVORTH_WORKSPACE_ROOT;
+const workspaceRootEnv = process.env.ZAVORTH_WORKSPACE_ROOT;
 const sessionId = process.env.ZAVORTH_WORKSPACE_SESSION_ID;
 
-if (!workspaceRoot) {
+if (!workspaceRootEnv) {
   console.error('Error: ZAVORTH_WORKSPACE_ROOT environment variable is required.');
   process.exit(1);
 }
+
+const workspaceRoot: string = workspaceRootEnv;
 
 if (!sessionId) {
   console.error('Error: ZAVORTH_WORKSPACE_SESSION_ID environment variable is required.');
@@ -184,6 +186,74 @@ const getApprovalService = async (): Promise<WorkspaceWriteApprovalService> => {
   return approvalService;
 };
 
+function resolveAndValidatePathForMcp(
+  inputPath: string,
+  operation: 'filesystem.read' | 'filesystem.write' | 'filesystem.mkdir'
+): { resolved: string; bypassApproval: boolean } {
+  try {
+    const resolved = operation === 'filesystem.read'
+      ? pathGuard.resolveExisting(inputPath)
+      : pathGuard.resolveForWrite(inputPath);
+    return { resolved, bypassApproval: false };
+  } catch (err: any) {
+    if (err.message.includes('Access to sensitive file') || err.message.includes('Access to Git metadata directory')) {
+      throw err;
+    }
+
+    const targetPath = path.resolve(workspaceRoot, inputPath);
+
+    let realTarget: string;
+    if (fs.existsSync(targetPath)) {
+      realTarget = fs.realpathSync(targetPath);
+    } else {
+      let current = targetPath;
+      let parent = path.dirname(current);
+      while (parent !== current && !fs.existsSync(parent)) {
+        current = parent;
+        parent = path.dirname(current);
+      }
+      const realParent = fs.realpathSync(parent);
+      realTarget = path.join(realParent, path.relative(parent, targetPath));
+    }
+
+    const checkBlocklist = (p: string) => {
+      const filename = path.basename(p).toLowerCase();
+      if (
+        filename === '.env' ||
+        filename.includes('.env.') ||
+        filename.endsWith('.pem') ||
+        filename.endsWith('.key') ||
+        filename === 'id_rsa' ||
+        filename === 'id_dsa' ||
+        filename === 'credentials.json'
+      ) {
+        throw new Error(`Access to sensitive file "${filename}" is blocked.`);
+      }
+      const parts = p.replace(/\\/g, '/').toLowerCase().split('/');
+      if (parts.includes('.git')) {
+        throw new Error('Access to Git metadata directory is blocked.');
+      }
+    };
+
+    checkBlocklist(targetPath);
+    checkBlocklist(realTarget);
+
+    const { TemporaryDirectoryTrustService } = require('../../services/TemporaryDirectoryTrustService.js');
+    const tmpTrustService = TemporaryDirectoryTrustService.getInstance();
+    const checkResult = tmpTrustService.checkPathAccess(sessionId, workspaceRoot, realTarget, operation);
+
+    if (checkResult.allowed) {
+      return { resolved: realTarget, bypassApproval: true };
+    }
+
+    if (checkResult.mandateViolation) {
+      throw new Error(`Blocked: Task Mandate scope violation. ${checkResult.reason}`);
+    }
+
+    throw err;
+  }
+}
+
 server.setRequestHandler(CallToolRequestSchema, async (request) => {
   const toolName = request.params.name;
   const params = request.params.arguments || {};
@@ -288,7 +358,7 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
       if (typeof params.file !== 'string') {
         throw new Error('Argument "file" must be a string.');
       }
-      const resolved = pathGuard.resolveExisting(params.file);
+      const { resolved } = resolveAndValidatePathForMcp(params.file, 'filesystem.read');
 
       auditLogger.logWorkspaceEvent({
         event: 'workspace_filesystem_read',
@@ -466,7 +536,7 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
         throw new Error('Binary content is not allowed.');
       }
 
-      const resolved = pathGuard.resolveForWrite(params.file);
+      const { resolved, bypassApproval: trustBypass } = resolveAndValidatePathForMcp(params.file, 'filesystem.write');
 
       // Parent directory must exist
       const parentDir = path.dirname(resolved);
@@ -479,27 +549,12 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
       const { WorkspaceTaskMandateService } = await import('../../services/WorkspaceTaskMandateService.js');
       const mandateService = WorkspaceTaskMandateService.getInstance();
       const activeMandate = mandateService.getActiveMandate(sessionId);
-      let bypassApproval = false;
+      let bypassApproval = trustBypass;
 
-      if (activeMandate) {
+      if (!bypassApproval && activeMandate) {
         const checkResult = mandateService.checkWriteApproval(sessionId, workspaceRoot, resolved, 'filesystem.write');
         if (checkResult.allowed) {
           bypassApproval = true;
-        }
-      }
-
-      // Temporary Directory Trust bypass (Fase 21E-A): only for paths inside OS temp dirs
-      if (!bypassApproval) {
-        const { TemporaryDirectoryTrustService } = await import('../../services/TemporaryDirectoryTrustService.js');
-        const tmpTrustService = TemporaryDirectoryTrustService.getInstance();
-        if (tmpTrustService.isValidTempPath(resolved)) {
-          const tmpCheck = tmpTrustService.checkPathAccess(sessionId, workspaceRoot, resolved, 'filesystem.write');
-          if (tmpCheck.allowed) {
-            bypassApproval = true;
-          } else if (tmpCheck.mandateViolation) {
-            // Task Mandate scope violation — hard block, cannot proceed
-            throw new Error(`Blocked: Task Mandate scope violation for temp path. ${tmpCheck.reason}`);
-          }
         }
       }
 
@@ -580,7 +635,7 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
         throw new Error('Argument "directory" must be a string.');
       }
 
-      const resolved = pathGuard.resolveForWrite(params.directory);
+      const { resolved, bypassApproval: trustBypass } = resolveAndValidatePathForMcp(params.directory, 'filesystem.mkdir');
 
       // Target path must not exist
       if (fs.existsSync(resolved)) {
@@ -598,26 +653,12 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
       const { WorkspaceTaskMandateService } = await import('../../services/WorkspaceTaskMandateService.js');
       const mandateService = WorkspaceTaskMandateService.getInstance();
       const activeMandate = mandateService.getActiveMandate(sessionId);
-      let bypassApproval = false;
+      let bypassApproval = trustBypass;
 
-      if (activeMandate) {
+      if (!bypassApproval && activeMandate) {
         const checkResult = mandateService.checkWriteApproval(sessionId, workspaceRoot, resolved, 'filesystem.mkdir');
         if (checkResult.allowed) {
           bypassApproval = true;
-        }
-      }
-
-      // Temporary Directory Trust bypass (Fase 21E-A): only for paths inside OS temp dirs
-      if (!bypassApproval) {
-        const { TemporaryDirectoryTrustService } = await import('../../services/TemporaryDirectoryTrustService.js');
-        const tmpTrustService = TemporaryDirectoryTrustService.getInstance();
-        if (tmpTrustService.isValidTempPath(resolved)) {
-          const tmpCheck = tmpTrustService.checkPathAccess(sessionId, workspaceRoot, resolved, 'filesystem.mkdir');
-          if (tmpCheck.allowed) {
-            bypassApproval = true;
-          } else if (tmpCheck.mandateViolation) {
-            throw new Error(`Blocked: Task Mandate scope violation for temp path. ${tmpCheck.reason}`);
-          }
         }
       }
 
