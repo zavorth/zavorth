@@ -12,6 +12,8 @@ import type {
 import { connectGooglePersonalOps } from '../apiClient';
 import type { BootEvent, RuntimeStatus } from '../global';
 import { asRecord, effortLabels, itemId, panelLabels, profileLabels } from '../primitives/desktopPrimitives';
+import { DesktopSidebar } from '../shell/DesktopSidebar.js';
+import { ProviderSettingsPanel } from '../panels/ProviderSettingsPanel.js';
 import type { DesktopPanel } from '../slashCommands';
 
 type WorkspaceViewProps = {
@@ -1070,7 +1072,11 @@ function SettingsView(props: {
               { value: 'personal', label: 'Personal Ops', count: personalRows.length },
             ]}
           />
-          <DetailRows rows={runtimeRowsForMode} empty="No runtime status is available." />
+          {runtimeMode === 'providers' ? (
+            <ProviderSettingsPanel />
+          ) : (
+            <DetailRows rows={runtimeRowsForMode} empty="No runtime status is available." />
+          )}
         </section>
       </div>
     </PageFrame>
