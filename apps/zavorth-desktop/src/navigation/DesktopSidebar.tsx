@@ -19,6 +19,7 @@ import type { DesktopWorkspaceScope } from '../workspaceScopes';
 import { WorkspaceTrustControl } from '../components/WorkspaceTrustControl';
 import { WorkspaceTaskMandateStatus } from '../components/WorkspaceTaskMandateStatus';
 import { TemporaryDirectoryTrustStatus } from '../components/TemporaryDirectoryTrustStatus';
+import { HostPowerModeControl } from '../components/HostPowerModeControl';
 
 type SidebarItem = {
   panel: DesktopPanel;
@@ -155,6 +156,9 @@ export function DesktopSidebar(props: {
                   />
                 )}
                 <TemporaryDirectoryTrustStatus
+                  workspaceId={props.workspaceScope.id}
+                />
+                <HostPowerModeControl
                   workspaceId={props.workspaceScope.id}
                 />
               </div>

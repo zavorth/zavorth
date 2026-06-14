@@ -667,3 +667,58 @@ export async function revokeActiveMandate(workspaceId: string): Promise<any> {
   });
   return requireOk(result, 'Could not revoke task mandate.');
 }
+
+export async function getHostPowerStatus(workspaceId: string): Promise<{ enabled: boolean; timeLeftSeconds: number }> {
+  const result = await apiRequest<any>({
+    method: 'GET',
+    path: '/api/v2/workspace/host-power/status',
+    query: { workspaceId },
+  });
+  return requireOk(result, 'Could not get host power mode status.');
+}
+
+export async function enableHostPower(workspaceId: string, durationMinutes: number): Promise<void> {
+  const result = await apiRequest<any>({
+    method: 'POST',
+    path: '/api/v2/workspace/host-power/enable',
+    body: { workspaceId, durationMinutes },
+  });
+  requireOk(result, 'Could not enable host power mode.');
+}
+
+export async function disableHostPower(workspaceId: string): Promise<void> {
+  const result = await apiRequest<any>({
+    method: 'POST',
+    path: '/api/v2/workspace/host-power/disable',
+    body: { workspaceId },
+  });
+  requireOk(result, 'Could not disable host power mode.');
+}
+
+export async function getPendingHostCommands(workspaceId: string): Promise<any[]> {
+  const result = await apiRequest<any>({
+    method: 'GET',
+    path: '/api/v2/workspace/host-commands/pending',
+    query: { workspaceId },
+  });
+  const data = requireOk(result, 'Could not get pending host commands.');
+  return data.data || [];
+}
+
+export async function resolveHostCommand(operationId: string, decision: 'approve' | 'deny', strongConfirmationInput?: string): Promise<void> {
+  const result = await apiRequest<any>({
+    method: 'POST',
+    path: '/api/v2/workspace/host-commands/resolve',
+    body: { operationId, decision, strongConfirmationInput },
+  });
+  requireOk(result, 'Could not resolve host command.');
+}
+
+export async function executeHostCommand(workspaceId: string, operationId: string): Promise<any> {
+  const result = await apiRequest<any>({
+    method: 'POST',
+    path: '/api/v2/workspace/host-commands/execute',
+    body: { workspaceId, operationId },
+  });
+  return requireOk(result, 'Could not execute host command.');
+}
