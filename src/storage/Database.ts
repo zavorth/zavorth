@@ -283,6 +283,39 @@ export class Database {
     this.run(`CREATE INDEX IF NOT EXISTS idx_workspace_host_command_proposals_lookup ON workspace_host_command_proposals(workspace_id, operation_id)`);
 
     this.run(`
+      CREATE TABLE IF NOT EXISTS workspace_pty_sessions (
+        session_id TEXT PRIMARY KEY,
+        workspace_id TEXT NOT NULL,
+        shell TEXT NOT NULL,
+        cwd_hash TEXT NOT NULL,
+        cwd_suffix TEXT NOT NULL,
+        risk_level TEXT NOT NULL,
+        status TEXT NOT NULL,
+        reason_redacted TEXT NOT NULL,
+        created_at TEXT NOT NULL,
+        expires_at TEXT NOT NULL
+      )
+    `);
+    this.run(`CREATE INDEX IF NOT EXISTS idx_workspace_pty_sessions_lookup ON workspace_pty_sessions(workspace_id, session_id)`);
+
+    this.run(`
+      CREATE TABLE IF NOT EXISTS workspace_pty_input_approvals (
+        operation_id TEXT PRIMARY KEY,
+        session_id TEXT NOT NULL,
+        workspace_id TEXT NOT NULL,
+        input_hash TEXT NOT NULL,
+        input_preview_redacted TEXT NOT NULL,
+        risk_level TEXT NOT NULL,
+        status TEXT NOT NULL,
+        created_at TEXT NOT NULL,
+        expires_at TEXT NOT NULL,
+        requires_strong_confirmation INTEGER DEFAULT 0,
+        strong_confirmation_phrase TEXT
+      )
+    `);
+    this.run(`CREATE INDEX IF NOT EXISTS idx_workspace_pty_input_approvals_lookup ON workspace_pty_input_approvals(workspace_id, session_id, operation_id)`);
+
+    this.run(`
       CREATE TABLE IF NOT EXISTS workspace_trust_entries (
         workspace_id TEXT PRIMARY KEY,
         root_hash TEXT NOT NULL,

@@ -55,6 +55,9 @@ export function createBootstrapToolRuntime(logRepo: LogRepository) {
   toolRegistry.register(new WorkspaceTaskMandateProposeTool());
   toolRegistry.register(new HostCommandProposeTool());
   toolRegistry.register(new HostCommandRunTool());
+  toolRegistry.register(new PtySessionProposeTool());
+  toolRegistry.register(new PtyWriteTool());
+  toolRegistry.register(new PtyTerminateTool());
   toolRegistry.register(new DateTimeTool());
   toolRegistry.register(new RemoteShellTool());
   toolRegistry.register(new QueryExternalAiTool());
@@ -89,3 +92,4 @@ export function createBootstrapToolRuntime(logRepo: LogRepository) {
     mcpCapabilityControlPlaneService: new McpCapabilityControlPlaneService(),
   };
 }
+

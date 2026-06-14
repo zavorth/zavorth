@@ -722,3 +722,13 @@ export async function executeHostCommand(workspaceId: string, operationId: strin
   });
   return requireOk(result, 'Could not execute host command.');
 }
+
+export async function getPtyOutput(workspaceId: string, sessionId: string, afterSeq: number): Promise<any[]> {
+  const result = await apiRequest<any>({
+    method: 'GET',
+    path: '/api/v2/workspace/pty/output',
+    query: { workspaceId, sessionId, afterSeq: afterSeq.toString() },
+  });
+  const data = requireOk(result, 'Could not get PTY output.');
+  return data.data || [];
+}

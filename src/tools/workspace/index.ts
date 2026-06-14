@@ -34,6 +34,15 @@ export {
 export {
   HostCommandRunTool,
 } from './HostCommandRunTool.js';
+export {
+  PtySessionProposeTool,
+} from './PtySessionProposeTool.js';
+export {
+  PtyWriteTool,
+} from './PtyWriteTool.js';
+export {
+  PtyTerminateTool,
+} from './PtyTerminateTool.js';
 export type {
   WorkspaceFsAccess,
   WorkspaceFsPolicyOptions,

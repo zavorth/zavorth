@@ -11,13 +11,20 @@ export interface HostPowerModeState {
 
 export class HostPowerModeService {
   private static instance: HostPowerModeService | null = null;
-  private state: HostPowerModeState = {
+  private state: {
+    enabled: boolean;
+    expiresAt: string | null;
+    workspaceId: string | null;
+  } = {
     enabled: false,
     expiresAt: null,
     workspaceId: null
   };
-  private expiryTimer: any = null;
-  private readonly db: Database;
+
+  private expiryTimer: NodeJS.Timeout | null = null;
+  private readonly MAX_DURATION_MINUTES = 30;
+  private onDisableCallbacks: Array<(workspaceId: string) => Promise<void>> = [];
+  private db: Database | null = null;
   private readonly auditLogger: SecurityAuditLogger;
   private readonly payloadCache: HostCommandPayloadCache;
 
@@ -25,6 +32,14 @@ export class HostPowerModeService {
     this.db = db || (Database as any).instance || null;
     this.auditLogger = auditLogger || new SecurityAuditLogger(new LogRepository());
     this.payloadCache = payloadCache || HostCommandPayloadCache.getInstance();
+  }
+
+  public registerOnDisableCallback(cb: (workspaceId: string) => Promise<void>): void {
+    this.onDisableCallbacks.push(cb);
+  }
+
+  public setDb(db: Database) {
+    this.db = db;
   }
 
   private async getDb(): Promise<Database> {
@@ -42,14 +57,13 @@ export class HostPowerModeService {
   }
 
   public async enable(workspaceId: string, durationMinutes: number): Promise<void> {
-    const cappedMinutes = Math.min(durationMinutes, 30);
-    const durationMs = cappedMinutes * 60 * 1000;
-    const expiresAtDate = new Date(Date.now() + durationMs);
-    const expiresAt = expiresAtDate.toISOString();
-
     if (this.expiryTimer) {
       clearTimeout(this.expiryTimer);
     }
+
+    const cappedMinutes = Math.min(Math.max(durationMinutes, 1), this.MAX_DURATION_MINUTES);
+    const ms = cappedMinutes * 60 * 1000;
+    const expiresAt = new Date(Date.now() + ms).toISOString();
 
     this.state = {
       enabled: true,
@@ -59,7 +73,7 @@ export class HostPowerModeService {
 
     this.expiryTimer = setTimeout(() => {
       this.handleExpiration(workspaceId);
-    }, durationMs);
+    }, ms);
     if (this.expiryTimer && typeof this.expiryTimer.unref === 'function') {
       this.expiryTimer.unref();
     }
@@ -115,8 +129,12 @@ export class HostPowerModeService {
 
     return {
       enabled: true,
-      timeLeftSeconds: Math.ceil(timeLeftMs / 1000)
+      timeLeftSeconds: Math.floor(timeLeftMs / 1000)
     };
+  }
+
+  public isHostPowerModeEnabled(workspaceId: string): boolean {
+    return this.getState(workspaceId).enabled;
   }
 
   private async handleExpiration(workspaceId: string): Promise<void> {
@@ -155,6 +173,14 @@ export class HostPowerModeService {
 
     // Clear transit cache
     this.payloadCache.clear();
+
+    for (const cb of this.onDisableCallbacks) {
+      try {
+        await cb(workspaceId);
+      } catch (e) {
+        console.error('Error in HostPowerMode disable callback:', e);
+      }
+    }
   }
 
   // Helper for tests to clean up state/timers

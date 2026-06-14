@@ -372,7 +372,7 @@ export class SecurityAuditLogger {
 
   // 5. Workspace Events
   public logWorkspaceEvent(payload: {
-    event: 'workspace_opened' | 'workspace_revoked' | 'workspace_tool_allowed' | 'workspace_tool_blocked' | 'workspace_path_denied' | 'workspace_git_read' | 'workspace_filesystem_read' | 'workspace_filesystem_write' | 'workspace_notes_event' | 'workspace_write_requested' | 'workspace_write_approved' | 'workspace_write_denied' | 'grant_created' | 'grant_revoked' | 'grant_expired' | 'command_auto_approved' | 'command_approval_requested' | 'command_approved' | 'command_denied' | 'command_executed' | 'command_blocked' | 'workspace_trust_granted' | 'workspace_trust_revoked' | 'workspace_trust_loaded' | 'workspace_trust_rejected' | 'command_auto_approved_by_trusted_workspace' | 'workspace_task_mandate_requested' | 'workspace_task_mandate_approved' | 'workspace_task_mandate_denied' | 'workspace_task_mandate_revoked' | 'workspace_task_mandate_expired' | 'command_auto_approved_by_task_mandate' | 'filesystem_write_auto_approved_by_task_mandate' | 'task_mandate_scope_violation' | 'tmp_dir_trust_requested' | 'tmp_dir_trust_approved' | 'tmp_dir_trust_denied' | 'tmp_dir_trust_revoked' | 'tmp_dir_trust_expired' | 'tmp_dir_trust_auto_approved' | 'tmp_dir_trust_scope_block' | 'host_command_proposed' | 'host_command_approved' | 'host_command_denied' | 'host_command_executed' | 'host_power_mode_enabled' | 'host_power_mode_disabled' | 'host_power_mode_expired';
+    event: 'workspace_opened' | 'workspace_revoked' | 'workspace_tool_allowed' | 'workspace_tool_blocked' | 'workspace_path_denied' | 'workspace_git_read' | 'workspace_filesystem_read' | 'workspace_filesystem_write' | 'workspace_notes_event' | 'workspace_write_requested' | 'workspace_write_approved' | 'workspace_write_denied' | 'grant_created' | 'grant_revoked' | 'grant_expired' | 'command_auto_approved' | 'command_approval_requested' | 'command_approved' | 'command_denied' | 'command_executed' | 'command_blocked' | 'workspace_trust_granted' | 'workspace_trust_revoked' | 'workspace_trust_loaded' | 'workspace_trust_rejected' | 'command_auto_approved_by_trusted_workspace' | 'workspace_task_mandate_requested' | 'workspace_task_mandate_approved' | 'workspace_task_mandate_denied' | 'workspace_task_mandate_revoked' | 'workspace_task_mandate_expired' | 'command_auto_approved_by_task_mandate' | 'filesystem_write_auto_approved_by_task_mandate' | 'task_mandate_scope_violation' | 'tmp_dir_trust_requested' | 'tmp_dir_trust_approved' | 'tmp_dir_trust_denied' | 'tmp_dir_trust_revoked' | 'tmp_dir_trust_expired' | 'tmp_dir_trust_auto_approved' | 'tmp_dir_trust_scope_block' | 'host_command_proposed' | 'host_command_approved' | 'host_command_denied' | 'host_command_executed' | 'host_power_mode_enabled' | 'host_power_mode_disabled' | 'host_power_mode_expired' | 'pty_session_requested' | 'pty_session_approved' | 'pty_session_denied' | 'pty_session_started' | 'pty_session_terminated' | 'pty_session_expired' | 'pty_session_terminated_due_to_host_power_disabled' | 'pty_input_requested' | 'pty_input_approved' | 'pty_input_blocked' | 'pty_input_sent' | 'pty_output_truncated' | 'pty_policy_violation' | 'critical_pty_input_strong_confirmation_required' | 'critical_pty_input_strong_confirmation_failed' | 'critical_pty_input_strong_confirmation_passed';
     workspaceId: string;
     rootPath?: string;
     rootPathHash?: string;
@@ -461,7 +461,23 @@ export class SecurityAuditLogger {
       'host_command_executed',
       'host_power_mode_enabled',
       'host_power_mode_disabled',
-      'host_power_mode_expired'
+      'host_power_mode_expired',
+      'pty_session_requested',
+      'pty_session_approved',
+      'pty_session_denied',
+      'pty_session_started',
+      'pty_session_terminated',
+      'pty_session_expired',
+      'pty_session_terminated_due_to_host_power_disabled',
+      'pty_input_requested',
+      'pty_input_approved',
+      'pty_input_blocked',
+      'pty_input_sent',
+      'pty_output_truncated',
+      'pty_policy_violation',
+      'critical_pty_input_strong_confirmation_required',
+      'critical_pty_input_strong_confirmation_failed',
+      'critical_pty_input_strong_confirmation_passed'
     ];
 
     if (!validEvents.includes(payload.event)) {
