@@ -328,6 +328,45 @@ export class Database {
         updated_at TEXT NOT NULL
       )
     `);
+
+    this.run(`
+      CREATE TABLE IF NOT EXISTS provider_config (
+        provider_id TEXT PRIMARY KEY,
+        type TEXT NOT NULL,
+        display_name TEXT NOT NULL,
+        base_url TEXT,
+        default_model TEXT,
+        enabled INTEGER DEFAULT 1,
+        requires_api_key INTEGER DEFAULT 1,
+        secret_ref TEXT,
+        created_at TEXT NOT NULL,
+        updated_at TEXT NOT NULL
+      )
+    `);
+
+    this.run(`
+      CREATE TABLE IF NOT EXISTS provider_secret_refs (
+        secret_ref TEXT PRIMARY KEY,
+        provider_id TEXT NOT NULL,
+        key_fingerprint TEXT NOT NULL,
+        key_suffix TEXT NOT NULL,
+        secret_store_type TEXT NOT NULL,
+        created_at TEXT NOT NULL,
+        updated_at TEXT NOT NULL,
+        FOREIGN KEY(provider_id) REFERENCES provider_config(provider_id) ON DELETE CASCADE
+      )
+    `);
+
+    this.run(`
+      CREATE TABLE IF NOT EXISTS provider_secret_ciphertexts (
+        secret_ref TEXT PRIMARY KEY,
+        ciphertext TEXT NOT NULL,
+        iv TEXT NOT NULL,
+        auth_tag TEXT NOT NULL,
+        salt TEXT NOT NULL,
+        FOREIGN KEY(secret_ref) REFERENCES provider_secret_refs(secret_ref) ON DELETE CASCADE
+      )
+    `);
   }
 
   private ensureColumn(tableName: string, columnName: string, definition: string): void {
