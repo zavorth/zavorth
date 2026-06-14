@@ -1502,7 +1502,7 @@ export class ZavorthControlCoreRouteService {
         return true;
       }
       try {
-        const workspaceId = new URL(req.url, 'http://localhost').searchParams.get('workspaceId');
+        const workspaceId = new URL(req.url || '/', 'http://localhost').searchParams.get('workspaceId');
         if (!workspaceId) {
           deps.writeJson(res, { ok: false, error: 'workspaceId required' }, 400);
           return true;
@@ -1542,7 +1542,7 @@ export class ZavorthControlCoreRouteService {
         return true;
       }
       try {
-        const workspaceId = new URL(req.url, 'http://localhost').searchParams.get('workspaceId');
+        const workspaceId = new URL(req.url || '/', 'http://localhost').searchParams.get('workspaceId');
         if (!workspaceId) {
           deps.writeJson(res, { ok: false, error: 'workspaceId required' }, 400);
           return true;
@@ -1596,9 +1596,9 @@ export class ZavorthControlCoreRouteService {
         return true;
       }
       try {
-        const workspaceId = new URL(req.url, 'http://localhost').searchParams.get('workspaceId');
-        const sessionId = new URL(req.url, 'http://localhost').searchParams.get('sessionId');
-        const afterSeqStr = new URL(req.url, 'http://localhost').searchParams.get('afterSeq');
+        const workspaceId = new URL(req.url || '/', 'http://localhost').searchParams.get('workspaceId');
+        const sessionId = new URL(req.url || '/', 'http://localhost').searchParams.get('sessionId');
+        const afterSeqStr = new URL(req.url || '/', 'http://localhost').searchParams.get('afterSeq');
         if (!workspaceId || !sessionId) {
           deps.writeJson(res, { ok: false, error: 'Missing parameters' }, 400);
           return true;
@@ -2310,4 +2310,5 @@ export class ZavorthControlCoreRouteService {
     return userId || null;
   }
 }
+
 

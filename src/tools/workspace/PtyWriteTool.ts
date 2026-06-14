@@ -13,8 +13,8 @@ export class PtyWriteTool extends BaseTool {
   public readonly parameters = {
     type: 'object' as const,
     properties: {
-      sessionId: { type: 'string' },
-      input: { type: 'string' }
+      sessionId: { type: 'string', description: 'Session ID' },
+      input: { type: 'string', description: 'Input text' }
     },
     required: ['sessionId', 'input']
   };
@@ -22,14 +22,14 @@ export class PtyWriteTool extends BaseTool {
   constructor(
     private ptySessionService: PtySessionService = PtySessionService.getInstance(),
     private ptyPolicyService: PtyInputPolicyService = new PtyInputPolicyService(),
-    private ptyInputApprovalService: PtyInputApprovalService = new PtyInputApprovalService(),
+    private ptyInputApprovalService: PtyInputApprovalService = new PtyInputApprovalService(undefined as any),
     private hostPowerModeService: HostPowerModeService = HostPowerModeService.getInstance()
   ) {
     super();
   }
 
   public async execute(args: Record<string, unknown>): Promise<string> {
-    const workspaceRoot = WorkspaceResolver.resolve(null);
+    const workspaceRoot = WorkspaceResolver.resolve(process.cwd());
     const workspaceId = path.basename(workspaceRoot);
     const sessionId = args.sessionId as string;
     const input = args.input as string;
@@ -60,3 +60,4 @@ export class PtyWriteTool extends BaseTool {
     }
   }
 }
+
