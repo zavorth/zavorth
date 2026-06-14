@@ -21,7 +21,7 @@ export class PtyWriteTool extends BaseTool {
 
   constructor(
     private ptySessionService: PtySessionService = PtySessionService.getInstance(),
-    private ptyPolicyService: PtyInputPolicyService = new PtyInputPolicyService(),
+    private ptyPolicyService: PtyInputPolicyService = new PtyInputPolicyService(undefined as any),
     private ptyInputApprovalService: PtyInputApprovalService = new PtyInputApprovalService(undefined as any),
     private hostPowerModeService: HostPowerModeService = HostPowerModeService.getInstance()
   ) {

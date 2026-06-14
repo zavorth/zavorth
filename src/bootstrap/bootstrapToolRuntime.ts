@@ -23,6 +23,9 @@ export function createBootstrapToolRuntime(logRepo: LogRepository) {
     WorkspaceTaskMandateProposeTool,
     HostCommandProposeTool,
     HostCommandRunTool,
+    PtySessionProposeTool,
+    PtyWriteTool,
+    PtyTerminateTool,
   } = require('../tools/workspace/index.js');
   const { DateTimeTool } = require('../tools/DateTimeTool.js');
   const { RemoteShellTool } = require('../tools/RemoteShellTool.js');

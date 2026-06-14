@@ -24,7 +24,7 @@ export class PtySessionProposeTool extends BaseTool {
 
   constructor(
     private ptyApprovalService: PtySessionApprovalService = new PtySessionApprovalService(undefined as any),
-    private ptyPolicyService: PtyInputPolicyService = new PtyInputPolicyService(),
+    private ptyPolicyService: PtyInputPolicyService = new PtyInputPolicyService(undefined as any),
     private hostPowerModeService: HostPowerModeService = HostPowerModeService.getInstance(),
     private logger: SecurityAuditLogger = new SecurityAuditLogger(new LogRepository()),
     private ptySessionService: PtySessionService = PtySessionService.getInstance()
