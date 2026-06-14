@@ -1570,18 +1570,7 @@ export class ZavorthControlCoreRouteService {
         const inputSrv = new PtyInputApprovalService();
         await inputSrv.resolveProposal(workspaceId, operationId, approve, strongConfirmationInput);
 
-        if (approve) {
-          // Attempt to consume and run immediately for convenience
-          const consumed = await inputSrv.consumeApproval(operationId, sessionId, workspaceId);
-          if (consumed) {
-             // We need the raw input which was stored hashed, but actually wait, we don't have it here. 
-             // Ah, PtyInputPolicyService created the pending input. The tool has to retry, or we run it?
-             // The user approves it. Then the agent tool gets a signal, or the frontend runs it?
-             // Actually, if it's "input", the frontend doesn't have the raw input unless it's in the DB.
-             // Wait! The DB does not persist raw input, only hash! So the agent MUST retry the tool call!
-             // So here we only approve.
-          }
-        }
+
 
         deps.writeJson(res, { ok: true });
       } catch (err: any) {
