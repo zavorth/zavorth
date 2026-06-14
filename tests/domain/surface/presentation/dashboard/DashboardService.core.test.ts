@@ -18,6 +18,8 @@ import {
   fetchNoKeepAlive,
 } from '../../../../helpers/dashboardWebTestUtils.js';
 
+import { Database } from '../../../../../src/storage/Database.js';
+
 jest.setTimeout(60000);
 
 function createInstallJourneyFixture() {
@@ -280,16 +282,34 @@ describe('DashboardService', () => {
   const originalGeminiKeys = [...config.geminiApiKeys];
   const originalOpenAiKey = config.openaiApiKey;
   const originalAIGatewayBaseUrl = config.AIGatewayBaseUrl;
+  const originalDbPath = config.dbPath;
   const tempDirs: string[] = [];
 
-  beforeEach(() => {
+  beforeEach(async () => {
+    // Close any global Database singleton instance so we can switch paths
+    const dbInstance = (Database as any).instance;
+    if (dbInstance) {
+      dbInstance.close();
+    }
+
+    const tempDir = fs.realpathSync(fs.mkdtempSync(path.join(os.tmpdir(), 'zavorth-dashboard-test-')));
+    tempDirs.push(tempDir);
+    config.dbPath = path.join(tempDir, 'zavorth-test.db');
+
     jest.spyOn(SkillLoader.prototype, 'loadAll').mockReturnValue([] as any);
     jest.spyOn(RuntimeInstallJourneyService.prototype, 'run').mockResolvedValue(createInstallJourneyFixture());
     jest.spyOn(RuntimeOfficialRemoteAccessService.prototype, 'inspect').mockResolvedValue(createOfficialRemoteAccessFixture());
     jest.spyOn(RuntimeRemoteAccessService.prototype, 'inspect').mockResolvedValue(createRemoteAccessFixture());
   });
 
-  afterEach(() => {
+  afterEach(async () => {
+    // Close the temp database before directory cleanup
+    const dbInstance = (Database as any).instance;
+    if (dbInstance) {
+      dbInstance.close();
+    }
+
+    config.dbPath = originalDbPath;
     config.zavorthPublicBaseUrl = originalPublicBaseUrl;
     config.zavorthWebAuthToken = originalWebAuthToken;
     config.dashboardRuntimeStateFile = originalDashboardRuntimeStateFile;
