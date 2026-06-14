@@ -7,6 +7,7 @@ import { WorkspaceWriteApprovalService } from './WorkspaceWriteApprovalService.j
 import { WorkspaceSessionGrantCache } from './WorkspaceSessionGrantCache.js';
 import { WorkspaceCommandApprovalService } from './WorkspaceCommandApprovalService.js';
 import { WorkspaceTaskMandateService } from './WorkspaceTaskMandateService.js';
+import { TemporaryDirectoryTrustService } from './TemporaryDirectoryTrustService.js';
 import { WorkspacePathGuard } from '../mcp/workspace/WorkspacePathGuard.js';
 import { Database } from '../storage/Database.js';
 import { config } from '../config/index.js';
@@ -1143,6 +1144,169 @@ export class ZavorthControlCoreRouteService {
 
         const mandateService = WorkspaceTaskMandateService.getInstance();
         mandateService.revokeMandate(workspaceId);
+
+        deps.writeJson(res, { ok: true });
+      } catch (err: any) {
+        deps.writeJson(res, { ok: false, error: err.message }, 500);
+      }
+      return true;
+    }
+
+    // ── Fase 21E-A: Temporary Directory Trust routes ─────────────────────────────
+    // GET /api/v2/workspace/temporary-directory-trusts/pending?workspaceId=X
+    if (pathname === '/api/v2/workspace/temporary-directory-trusts/pending' && req.method === 'GET') {
+      if (deps.authService && !deps.authService.resolveAuthenticatedIdentity(req)) {
+        deps.writeJson(res, { ok: false, error: 'Unauthorized' }, 401);
+        return true;
+      }
+      try {
+        const workspaceId = url.searchParams.get('workspaceId');
+        if (!workspaceId) {
+          deps.writeJson(res, { ok: false, error: 'workspaceId is required' }, 400);
+          return true;
+        }
+
+        const activeWorkspace = WorkspaceResolver.resolve(null);
+        const activeWorkspaceId = path.basename(activeWorkspace);
+        if (workspaceId !== activeWorkspaceId) {
+          deps.writeJson(res, { ok: false, error: 'workspaceId does not match active session workspace' }, 403);
+          return true;
+        }
+
+        const trustService = TemporaryDirectoryTrustService.getInstance();
+        const proposed = trustService.getProposedTrust(workspaceId);
+
+        deps.writeJson(res, {
+          ok: true,
+          proposed: proposed
+            ? {
+                trustId: proposed.trustId,
+                workspaceId: proposed.workspaceId,
+                pathSuffix: proposed.pathSuffix,
+                allowedOperations: proposed.allowedOperations,
+                createdAt: proposed.createdAt,
+              }
+            : null,
+        });
+      } catch (err: any) {
+        deps.writeJson(res, { ok: false, error: err.message }, 500);
+      }
+      return true;
+    }
+
+    // GET /api/v2/workspace/temporary-directory-trusts/active?workspaceId=X
+    if (pathname === '/api/v2/workspace/temporary-directory-trusts/active' && req.method === 'GET') {
+      if (deps.authService && !deps.authService.resolveAuthenticatedIdentity(req)) {
+        deps.writeJson(res, { ok: false, error: 'Unauthorized' }, 401);
+        return true;
+      }
+      try {
+        const workspaceId = url.searchParams.get('workspaceId');
+        if (!workspaceId) {
+          deps.writeJson(res, { ok: false, error: 'workspaceId is required' }, 400);
+          return true;
+        }
+
+        const activeWorkspace = WorkspaceResolver.resolve(null);
+        const activeWorkspaceId = path.basename(activeWorkspace);
+        if (workspaceId !== activeWorkspaceId) {
+          deps.writeJson(res, { ok: false, error: 'workspaceId does not match active session workspace' }, 403);
+          return true;
+        }
+
+        const trustService = TemporaryDirectoryTrustService.getInstance();
+        const trusts = trustService.getActiveTrusts(workspaceId);
+
+        deps.writeJson(res, {
+          ok: true,
+          trusts: trusts.map(t => ({
+            trustId: t.trustId,
+            workspaceId: t.workspaceId,
+            pathSuffix: t.pathSuffix,
+            allowedOperations: t.allowedOperations,
+            expiresAt: t.expiresAt,
+            createdAt: t.createdAt,
+          })),
+        });
+      } catch (err: any) {
+        deps.writeJson(res, { ok: false, error: err.message }, 500);
+      }
+      return true;
+    }
+
+    // POST /api/v2/workspace/temporary-directory-trusts/resolve  { workspaceId, trustId, approved }
+    if (pathname === '/api/v2/workspace/temporary-directory-trusts/resolve' && req.method === 'POST') {
+      if (deps.authService && !deps.authService.resolveAuthenticatedIdentity(req)) {
+        deps.writeJson(res, { ok: false, error: 'Unauthorized' }, 401);
+        return true;
+      }
+      try {
+        const body = await deps.readJsonBody(req);
+        const { workspaceId, trustId, approved } = body;
+
+        if (!workspaceId) {
+          deps.writeJson(res, { ok: false, error: 'workspaceId is required' }, 400);
+          return true;
+        }
+        if (!trustId) {
+          deps.writeJson(res, { ok: false, error: 'trustId is required' }, 400);
+          return true;
+        }
+        if (approved === undefined) {
+          deps.writeJson(res, { ok: false, error: 'approved is required' }, 400);
+          return true;
+        }
+
+        const activeWorkspace = WorkspaceResolver.resolve(null);
+        const activeWorkspaceId = path.basename(activeWorkspace);
+        if (workspaceId !== activeWorkspaceId) {
+          deps.writeJson(res, { ok: false, error: 'workspaceId does not match active session workspace' }, 403);
+          return true;
+        }
+
+        const trustService = TemporaryDirectoryTrustService.getInstance();
+        const resolved = trustService.resolveTrust(workspaceId, trustId, !!approved);
+
+        deps.writeJson(res, {
+          ok: true,
+          resolved: resolved
+            ? { trustId: resolved.trustId, expiresAt: resolved.expiresAt, pathSuffix: resolved.pathSuffix }
+            : null,
+        });
+      } catch (err: any) {
+        deps.writeJson(res, { ok: false, error: err.message }, 500);
+      }
+      return true;
+    }
+
+    // POST /api/v2/workspace/temporary-directory-trusts/revoke  { workspaceId, trustId }
+    if (pathname === '/api/v2/workspace/temporary-directory-trusts/revoke' && req.method === 'POST') {
+      if (deps.authService && !deps.authService.resolveAuthenticatedIdentity(req)) {
+        deps.writeJson(res, { ok: false, error: 'Unauthorized' }, 401);
+        return true;
+      }
+      try {
+        const body = await deps.readJsonBody(req);
+        const { workspaceId, trustId } = body;
+
+        if (!workspaceId) {
+          deps.writeJson(res, { ok: false, error: 'workspaceId is required' }, 400);
+          return true;
+        }
+        if (!trustId) {
+          deps.writeJson(res, { ok: false, error: 'trustId is required' }, 400);
+          return true;
+        }
+
+        const activeWorkspace = WorkspaceResolver.resolve(null);
+        const activeWorkspaceId = path.basename(activeWorkspace);
+        if (workspaceId !== activeWorkspaceId) {
+          deps.writeJson(res, { ok: false, error: 'workspaceId does not match active session workspace' }, 403);
+          return true;
+        }
+
+        const trustService = TemporaryDirectoryTrustService.getInstance();
+        trustService.revokeTrust(workspaceId, trustId);
 
         deps.writeJson(res, { ok: true });
       } catch (err: any) {

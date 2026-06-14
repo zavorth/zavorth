@@ -488,6 +488,21 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
         }
       }
 
+      // Temporary Directory Trust bypass (Fase 21E-A): only for paths inside OS temp dirs
+      if (!bypassApproval) {
+        const { TemporaryDirectoryTrustService } = await import('../../services/TemporaryDirectoryTrustService.js');
+        const tmpTrustService = TemporaryDirectoryTrustService.getInstance();
+        if (tmpTrustService.isValidTempPath(resolved)) {
+          const tmpCheck = tmpTrustService.checkPathAccess(sessionId, workspaceRoot, resolved, 'filesystem.write');
+          if (tmpCheck.allowed) {
+            bypassApproval = true;
+          } else if (tmpCheck.mandateViolation) {
+            // Task Mandate scope violation — hard block, cannot proceed
+            throw new Error(`Blocked: Task Mandate scope violation for temp path. ${tmpCheck.reason}`);
+          }
+        }
+      }
+
       if (!bypassApproval && params.operationId === undefined) {
         // First phase: request approval
         const operationId = await service.requestApproval(sessionId, toolName, resolved, params);
@@ -589,6 +604,20 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
         const checkResult = mandateService.checkWriteApproval(sessionId, workspaceRoot, resolved, 'filesystem.mkdir');
         if (checkResult.allowed) {
           bypassApproval = true;
+        }
+      }
+
+      // Temporary Directory Trust bypass (Fase 21E-A): only for paths inside OS temp dirs
+      if (!bypassApproval) {
+        const { TemporaryDirectoryTrustService } = await import('../../services/TemporaryDirectoryTrustService.js');
+        const tmpTrustService = TemporaryDirectoryTrustService.getInstance();
+        if (tmpTrustService.isValidTempPath(resolved)) {
+          const tmpCheck = tmpTrustService.checkPathAccess(sessionId, workspaceRoot, resolved, 'filesystem.mkdir');
+          if (tmpCheck.allowed) {
+            bypassApproval = true;
+          } else if (tmpCheck.mandateViolation) {
+            throw new Error(`Blocked: Task Mandate scope violation for temp path. ${tmpCheck.reason}`);
+          }
         }
       }
 

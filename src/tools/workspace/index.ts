@@ -19,6 +19,9 @@ export {
 export {
   WorkspaceTaskMandateProposeTool,
 } from './WorkspaceTaskMandateProposeTool.js';
+export {
+  TemporaryDirectoryTrustProposeTool,
+} from './TemporaryDirectoryTrustProposeTool.js';
 export type {
   WorkspaceFsAccess,
   WorkspaceFsPolicyOptions,
