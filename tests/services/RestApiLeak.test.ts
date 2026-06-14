@@ -83,7 +83,9 @@ describe('REST API Leak Test (Phase 21H)', () => {
       apiKey: testSecret
     });
     expect(postRes).not.toContain(testSecret);
-    expect(postRes).toContain('ref-123'); // Should return the secret ref but not the key
+    expect(postRes).not.toContain('ref-123'); // Should NOT return the secret ref
+    expect(postRes).not.toContain('secretRef'); // Verify the property itself is stripped
+    expect(postRes).toContain('"configured":true'); // Verify we send configured boolean
 
     // 3. POST /api/v2/providers/test-connection
     const testRes = await runRequest('POST', '/api/v2/providers/test-connection', { providerId: 'fake-id' });

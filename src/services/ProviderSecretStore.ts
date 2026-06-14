@@ -126,7 +126,7 @@ export class LocalEncryptedProviderSecretStore extends ProviderSecretStore {
       
       try {
         const LogRepository = (await import('../storage/LogRepository.js')).LogRepository;
-        LogRepository.getInstance().log('security', 'security_audit', 'provider_secret_store_fallback_used', {
+        new LogRepository().log('security', 'security_audit', 'provider_secret_store_fallback_used', {
           status: 'success',
           userId: 'system',
           context: { secretRef, operation: 'get' }

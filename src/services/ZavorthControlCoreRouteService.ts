@@ -1633,7 +1633,11 @@ export class ZavorthControlCoreRouteService {
       }
       try {
         const providers = await ProviderConfigService.getInstance().getProviders();
-        deps.writeJson(res, { ok: true, data: providers });
+        const safeProviders = providers.map(p => {
+          const { secretRef, ...rest } = p;
+          return { ...rest, configured: !!secretRef };
+        });
+        deps.writeJson(res, { ok: true, data: safeProviders });
       } catch (err: any) {
         deps.writeJson(res, { ok: false, error: err.message }, 500);
       }
@@ -1666,7 +1670,10 @@ export class ZavorthControlCoreRouteService {
           config.secretRef = saveResult.secretRef; 
         }
 
-        deps.writeJson(res, { ok: true, data: config });
+        const { secretRef, ...safeConfig } = config;
+        const finalConfig = { ...safeConfig, configured: !!secretRef };
+
+        deps.writeJson(res, { ok: true, data: finalConfig });
       } catch (err: any) {
         deps.writeJson(res, { ok: false, error: err.message }, 400);
       }

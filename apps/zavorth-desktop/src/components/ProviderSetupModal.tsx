@@ -10,7 +10,7 @@ export interface ProviderConfigPayload {
   enabled: boolean;
   requiresApiKey: boolean;
   apiKey?: string;
-  secretRef?: string;
+  configured?: boolean;
 }
 
 interface ProviderSetupModalProps {
@@ -209,9 +209,9 @@ export function ProviderSetupModal({ isOpen, onClose, onSave, providerToEdit }: 
               <ProviderSecretInput
                 value={formData.apiKey || ''}
                 onChange={val => setFormData({ ...formData, apiKey: val })}
-                hasExistingSecret={!!formData.secretRef}
+                hasExistingSecret={!!formData.configured}
               />
-              {!!formData.secretRef && formData.providerId && (
+              {!!formData.configured && formData.providerId && (
                 <button
                   type="button"
                   onClick={async () => {
@@ -219,7 +219,7 @@ export function ProviderSetupModal({ isOpen, onClose, onSave, providerToEdit }: 
                     try {
                       const res = await fetch(`/api/v2/providers/${formData.providerId}/secret`, { method: 'DELETE' });
                       if (!res.ok) throw new Error('Falha ao remover a chave');
-                      setFormData({ ...formData, secretRef: undefined, apiKey: '' });
+                      setFormData({ ...formData, configured: false, apiKey: '' });
                       alert('Chave removida com sucesso. O status foi atualizado para Faltando.');
                     } catch (err: any) {
                       alert(err.message);
