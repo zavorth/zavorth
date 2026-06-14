@@ -161,6 +161,63 @@ export class ZavorthControlCoreRouteService {
   private readonly salesPackChannelIo: SalesPackChannelIoService;
   private readonly localAccessRoutes: TrustedDeviceAccessRouteService;
 
+  private getCanonicalWorkspacePath(workspaceHint: string): string {
+    if (!workspaceHint) {
+      return fs.realpathSync(WorkspaceResolver.resolve(null));
+    }
+    try {
+      const resolved = WorkspaceResolver.resolve(workspaceHint);
+      if (WorkspaceResolver.isWorkspaceAllowed(resolved)) {
+        return fs.realpathSync(resolved);
+      }
+    } catch {}
+    try {
+      const allowed = WorkspaceResolver.getAllowedRoots();
+      for (const root of allowed) {
+        if (path.basename(root).toLowerCase() === workspaceHint.toLowerCase()) {
+          return fs.realpathSync(root);
+        }
+      }
+    } catch {}
+    try {
+      const resolved = path.resolve(workspaceHint);
+      if (fs.existsSync(resolved) && WorkspaceResolver.isWorkspaceAllowed(resolved)) {
+        return fs.realpathSync(resolved);
+      }
+    } catch {}
+    return path.resolve(workspaceHint);
+  }
+
+  private validateWorkspaceSession(workspaceId: string): boolean {
+    if (!workspaceId) return false;
+    try {
+      const activeWs = WorkspaceResolver.resolve(null);
+      const activeReal = fs.realpathSync(activeWs);
+
+      const candidateWs = WorkspaceResolver.resolve(workspaceId);
+      const candidateReal = fs.realpathSync(candidateWs);
+
+      if (path.normalize(activeReal).toLowerCase() === path.normalize(candidateReal).toLowerCase()) {
+        return true;
+      }
+    } catch {}
+
+    try {
+      const activeWs = WorkspaceResolver.resolve(null);
+      const activeReal = fs.realpathSync(activeWs);
+      const aliases = WorkspaceResolver.getAliases();
+      const resolvedAlias = aliases[workspaceId.toLowerCase()];
+      if (resolvedAlias) {
+        const aliasReal = fs.realpathSync(resolvedAlias);
+        if (path.normalize(activeReal).toLowerCase() === path.normalize(aliasReal).toLowerCase()) {
+          return true;
+        }
+      }
+    } catch {}
+
+    return false;
+  }
+
   public constructor(options: ZavorthControlCoreRouteServiceOptions = {}) {
     this.operationalMaturity = options.operationalMaturity || new OperationalMaturityService();
     this.salesPack = options.salesPack || new SalesPackMvpService();
@@ -908,16 +965,14 @@ export class ZavorthControlCoreRouteService {
         }
 
         // Validate workspaceId matches the active session workspace to prevent spoofing
-        const activeWorkspace = WorkspaceResolver.resolve(null);
-        const activeWorkspaceId = path.basename(activeWorkspace);
-        if (workspaceId !== activeWorkspaceId) {
+        if (!this.validateWorkspaceSession(workspaceId)) {
           deps.writeJson(res, { ok: false, error: 'workspaceId does not match the active session workspace' }, 403);
           return true;
         }
 
 
         const trustService = await TrustedWorkspaceService.getInstance();
-        const entry = trustService.loadTrust(workspaceId, activeWorkspace);
+        const entry = trustService.loadTrust(workspaceId, workspaceId);
 
         deps.writeJson(res, {
           ok: true,
@@ -970,9 +1025,8 @@ export class ZavorthControlCoreRouteService {
           return true;
         }
 
-        const activeWorkspaceId = path.basename(activeWorkspace);
-        if (workspaceId !== activeWorkspaceId) {
-          deps.writeJson(res, { ok: false, error: 'workspaceId does not match active session workspace' }, 403);
+        if (!this.validateWorkspaceSession(workspaceId)) {
+          deps.writeJson(res, { ok: false, error: 'rootPath does not match active session workspace' }, 403);
           return true;
         }
 
@@ -1008,12 +1062,11 @@ export class ZavorthControlCoreRouteService {
           return true;
         }
 
-        const activeWorkspace = WorkspaceResolver.resolve(null);
-        const activeWorkspaceId = path.basename(activeWorkspace);
-        if (workspaceId !== activeWorkspaceId) {
+        if (!this.validateWorkspaceSession(workspaceId)) {
           deps.writeJson(res, { ok: false, error: 'workspaceId does not match active session workspace' }, 403);
           return true;
         }
+        const activeWorkspace = WorkspaceResolver.resolve(null);
 
         const mandateService = WorkspaceTaskMandateService.getInstance();
         const proposed = mandateService.getProposedMandate(workspaceId);
@@ -1054,12 +1107,11 @@ export class ZavorthControlCoreRouteService {
           return true;
         }
 
-        const activeWorkspace = WorkspaceResolver.resolve(null);
-        const activeWorkspaceId = path.basename(activeWorkspace);
-        if (workspaceId !== activeWorkspaceId) {
+        if (!this.validateWorkspaceSession(workspaceId)) {
           deps.writeJson(res, { ok: false, error: 'workspaceId does not match active session workspace' }, 403);
           return true;
         }
+        const activeWorkspace = WorkspaceResolver.resolve(null);
 
         const mandateService = WorkspaceTaskMandateService.getInstance();
         const active = mandateService.getActiveMandate(workspaceId);
@@ -1106,8 +1158,7 @@ export class ZavorthControlCoreRouteService {
         }
 
         const activeWorkspace = WorkspaceResolver.resolve(null);
-        const activeWorkspaceId = path.basename(activeWorkspace);
-        if (workspaceId !== activeWorkspaceId) {
+        if (!this.validateWorkspaceSession(workspaceId)) {
           deps.writeJson(res, { ok: false, error: 'workspaceId does not match active session workspace' }, 403);
           return true;
         }
@@ -1136,8 +1187,7 @@ export class ZavorthControlCoreRouteService {
         }
 
         const activeWorkspace = WorkspaceResolver.resolve(null);
-        const activeWorkspaceId = path.basename(activeWorkspace);
-        if (workspaceId !== activeWorkspaceId) {
+        if (!this.validateWorkspaceSession(workspaceId)) {
           deps.writeJson(res, { ok: false, error: 'workspaceId does not match active session workspace' }, 403);
           return true;
         }
@@ -1166,9 +1216,7 @@ export class ZavorthControlCoreRouteService {
           return true;
         }
 
-        const activeWorkspace = WorkspaceResolver.resolve(null);
-        const activeWorkspaceId = path.basename(activeWorkspace);
-        if (workspaceId !== activeWorkspaceId) {
+        if (!this.validateWorkspaceSession(workspaceId)) {
           deps.writeJson(res, { ok: false, error: 'workspaceId does not match active session workspace' }, 403);
           return true;
         }
@@ -1182,7 +1230,10 @@ export class ZavorthControlCoreRouteService {
             ? {
                 trustId: proposed.trustId,
                 workspaceId: proposed.workspaceId,
-                pathSuffix: proposed.pathSuffix,
+                rootSuffix: proposed.rootSuffix,
+                rootHash: proposed.rootHash,
+                kind: proposed.kind,
+                displayName: proposed.displayName,
                 allowedOperations: proposed.allowedOperations,
                 createdAt: proposed.createdAt,
               }
@@ -1207,9 +1258,7 @@ export class ZavorthControlCoreRouteService {
           return true;
         }
 
-        const activeWorkspace = WorkspaceResolver.resolve(null);
-        const activeWorkspaceId = path.basename(activeWorkspace);
-        if (workspaceId !== activeWorkspaceId) {
+        if (!this.validateWorkspaceSession(workspaceId)) {
           deps.writeJson(res, { ok: false, error: 'workspaceId does not match active session workspace' }, 403);
           return true;
         }
@@ -1222,7 +1271,10 @@ export class ZavorthControlCoreRouteService {
           trusts: trusts.map(t => ({
             trustId: t.trustId,
             workspaceId: t.workspaceId,
-            pathSuffix: t.pathSuffix,
+            rootSuffix: t.rootSuffix,
+            rootHash: t.rootHash,
+            kind: t.kind,
+            displayName: t.displayName,
             allowedOperations: t.allowedOperations,
             expiresAt: t.expiresAt,
             createdAt: t.createdAt,
@@ -1257,9 +1309,7 @@ export class ZavorthControlCoreRouteService {
           return true;
         }
 
-        const activeWorkspace = WorkspaceResolver.resolve(null);
-        const activeWorkspaceId = path.basename(activeWorkspace);
-        if (workspaceId !== activeWorkspaceId) {
+        if (!this.validateWorkspaceSession(workspaceId)) {
           deps.writeJson(res, { ok: false, error: 'workspaceId does not match active session workspace' }, 403);
           return true;
         }
@@ -1270,7 +1320,14 @@ export class ZavorthControlCoreRouteService {
         deps.writeJson(res, {
           ok: true,
           resolved: resolved
-            ? { trustId: resolved.trustId, expiresAt: resolved.expiresAt, pathSuffix: resolved.pathSuffix }
+            ? {
+                trustId: resolved.trustId,
+                expiresAt: resolved.expiresAt,
+                rootSuffix: resolved.rootSuffix,
+                rootHash: resolved.rootHash,
+                kind: resolved.kind,
+                displayName: resolved.displayName,
+              }
             : null,
         });
       } catch (err: any) {
@@ -1298,9 +1355,7 @@ export class ZavorthControlCoreRouteService {
           return true;
         }
 
-        const activeWorkspace = WorkspaceResolver.resolve(null);
-        const activeWorkspaceId = path.basename(activeWorkspace);
-        if (workspaceId !== activeWorkspaceId) {
+        if (!this.validateWorkspaceSession(workspaceId)) {
           deps.writeJson(res, { ok: false, error: 'workspaceId does not match active session workspace' }, 403);
           return true;
         }

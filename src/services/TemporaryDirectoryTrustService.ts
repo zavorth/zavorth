@@ -11,11 +11,14 @@ export interface TemporaryDirectoryTrust {
   trustId: string;
   workspaceId: string;
   resolvedPath: string;
-  pathSuffix: string;
-  pathHash: string;
+  rootSuffix: string;
+  rootHash: string;
   allowedOperations: Array<'filesystem.read' | 'filesystem.write' | 'filesystem.mkdir'>;
   expiresAt: string;
   createdAt: string;
+  kind: 'system-temp' | 'user-selected-external';
+  displayName: string;
+  requestedDurationMinutes?: number;
 }
 
 export interface TemporaryDirectoryTrustCheckResult {
@@ -69,10 +72,35 @@ export class TemporaryDirectoryTrustService {
     '/root',
     'c:/windows',
     'c:/windows/system32',
+    'c:/program files',
+    'c:/program files (x86)',
+    'c:/users',
+    '/users',
   ]);
 
   constructor(auditLogger?: SecurityAuditLogger) {
     this.auditLogger = auditLogger || new SecurityAuditLogger(new LogRepository());
+    this.loadFromEnv();
+  }
+
+  private loadFromEnv(): void {
+    const raw = process.env.ZAVORTH_ACTIVE_TEMP_TRUSTS;
+    if (raw) {
+      try {
+        const parsed = JSON.parse(raw);
+        if (Array.isArray(parsed)) {
+          for (const trust of parsed) {
+            const wsId = trust.workspaceId;
+            if (!this.activeByWorkspace.has(wsId)) {
+              this.activeByWorkspace.set(wsId, new Map());
+            }
+            this.activeByWorkspace.get(wsId)!.set(trust.trustId, trust);
+          }
+        }
+      } catch {
+        // ignore
+      }
+    }
   }
 
   public static getInstance(): TemporaryDirectoryTrustService {
@@ -144,8 +172,22 @@ export class TemporaryDirectoryTrustService {
    * Validates that resolvedPath is NOT inside (or equal to) the active workspace root.
    */
   public isInsideActiveWorkspace(resolvedPath: string, workspaceRoot: string): boolean {
-    const normPath = path.normalize(resolvedPath).toLowerCase();
-    const normWs = path.normalize(workspaceRoot).toLowerCase();
+    let realPath: string;
+    try {
+      realPath = fs.realpathSync(resolvedPath);
+    } catch {
+      realPath = path.resolve(resolvedPath);
+    }
+
+    let realWs: string;
+    try {
+      realWs = fs.realpathSync(workspaceRoot);
+    } catch {
+      realWs = path.resolve(workspaceRoot);
+    }
+
+    const normPath = path.normalize(realPath).toLowerCase();
+    const normWs = path.normalize(realWs).toLowerCase();
     return normPath === normWs || normPath.startsWith(normWs + path.sep.toLowerCase());
   }
 
@@ -154,48 +196,107 @@ export class TemporaryDirectoryTrustService {
    */
   public isDangerousRoot(resolvedPath: string): boolean {
     const norm = path.normalize(resolvedPath).toLowerCase().replace(/\\/g, '/');
-    return TemporaryDirectoryTrustService.DANGEROUS_ROOTS.has(norm);
+    const withoutDrive = norm.replace(/^[a-z]:/i, '');
+
+    const dangerousSet = new Set([
+      '/',
+      '/etc',
+      '/bin',
+      '/usr',
+      '/var',
+      '/home',
+      '/root',
+      '/users',
+      '/windows',
+      '/windows/system32',
+      '/program files',
+      '/program files (x86)',
+    ]);
+
+    if (dangerousSet.has(withoutDrive)) {
+      return true;
+    }
+
+    if (
+      withoutDrive.startsWith('/etc/') ||
+      withoutDrive.startsWith('/bin/') ||
+      withoutDrive.startsWith('/usr/') ||
+      withoutDrive.startsWith('/var/') ||
+      withoutDrive.startsWith('/root/') ||
+      withoutDrive.startsWith('/windows/') ||
+      withoutDrive.startsWith('/program files/') ||
+      withoutDrive.startsWith('/program files (x86)/')
+    ) {
+      return true;
+    }
+
+    return false;
   }
 
   /**
-   * Resolves and validates a temporary path candidate.
+   * Returns true if the path is a drive root (e.g. C:\ or /).
+   */
+  public isDriveRoot(resolvedPath: string): boolean {
+    const norm = path.normalize(resolvedPath).replace(/\\/g, '/');
+    return /^[a-z]:\/?$/i.test(norm) || norm === '/';
+  }
+
+  /**
+   * Resolves and validates a path candidate.
    * Throws a descriptive error if the path is invalid.
    * Returns the resolved real path on success.
    */
-  public resolveAndValidateTempPath(rawPath: string, workspaceRoot: string): string {
+  public resolveAndValidatePath(
+    rawPath: string,
+    workspaceRoot: string,
+    kind: 'system-temp' | 'user-selected-external'
+  ): string {
     if (!rawPath || typeof rawPath !== 'string') {
       throw new Error('Path is required.');
     }
 
-    // Step 1: normalize
     const normalized = path.resolve(rawPath);
 
-    // Step 2: realpath (blocks symlink escape)
     let resolved: string;
     try {
       resolved = fs.realpathSync(normalized);
     } catch {
-      // If path doesn't exist yet, use the normalized form but still validate prefix
       resolved = normalized;
     }
 
-    // Step 3: must be an OS temp path
-    if (!this.isValidTempPath(resolved)) {
-      throw new Error(
-        `Path is not an OS temporary directory. Only paths under ${os.tmpdir()} (or system TEMP/TMP) are accepted in this subfase. Downloads, Desktop, and other external directories require a future subfase (21E-B).`
-      );
+    const parts = resolved.replace(/\\/g, '/').toLowerCase().split('/');
+    if (parts.includes('.git')) {
+      throw new Error('Paths containing .git are blocked.');
     }
 
-    // Step 4: must not be inside the active workspace
+    if (kind === 'system-temp') {
+      if (!this.isValidTempPath(resolved)) {
+        throw new Error(
+          `Path is not an OS temporary directory. Only paths under ${os.tmpdir()} (or system TEMP/TMP) are accepted.`
+        );
+      }
+    } else if (kind === 'user-selected-external') {
+      if (this.isDriveRoot(resolved)) {
+        throw new Error('Drive roots are dangerous and not allowed.');
+      }
+
+      if (this.isDangerousRoot(resolved)) {
+        throw new Error('Dangerous system directories are not allowed.');
+      }
+
+      const normHome = path.normalize(os.homedir()).toLowerCase().replace(/\\/g, '/');
+      const normResolved = path.normalize(resolved).toLowerCase().replace(/\\/g, '/');
+      if (normResolved === normHome) {
+        throw new Error('The entire user home directory cannot be trusted. Please select a specific folder.');
+      }
+    } else {
+      throw new Error(`Invalid trust kind: ${kind}`);
+    }
+
     if (this.isInsideActiveWorkspace(resolved, workspaceRoot)) {
       throw new Error(
         'Path is inside the active workspace. Use Trusted Workspace or Task Mandate for workspace paths.'
       );
-    }
-
-    // Step 5: dangerous root check
-    if (this.isDangerousRoot(resolved)) {
-      throw new Error(`Path resolves to a dangerous system root directory and is rejected.`);
     }
 
     return resolved;
@@ -210,17 +311,19 @@ export class TemporaryDirectoryTrustService {
   public proposeTrust(
     workspaceId: string,
     rawPath: string,
-    allowedOperations: Array<'filesystem.read' | 'filesystem.write' | 'filesystem.mkdir'>
+    allowedOperations: Array<'filesystem.read' | 'filesystem.write' | 'filesystem.mkdir'>,
+    kind: 'system-temp' | 'user-selected-external' = 'system-temp',
+    durationMinutes?: number
   ): TemporaryDirectoryTrust {
     const workspaceRoot = WorkspaceResolver.resolve(workspaceId);
-    const resolvedPath = this.resolveAndValidateTempPath(rawPath, workspaceRoot);
+    const resolvedPath = this.resolveAndValidatePath(rawPath, workspaceRoot, kind);
 
     // Validate operations — command.run is explicitly forbidden
-    const forbidden = ['command.run', 'filesystem.move'] as string[];
+    const allowed = ['filesystem.read', 'filesystem.write', 'filesystem.mkdir'];
     for (const op of allowedOperations) {
-      if (forbidden.includes(op)) {
+      if (!allowed.includes(op)) {
         throw new Error(
-          `Operation '${op}' is not allowed in Temporary Directory Trust (21E-A). command.run is reserved for future subfases.`
+          `Operation '${op}' is not allowed in Temporary Directory Trust (21E-B). Only filesystem.read, filesystem.write, and filesystem.mkdir are allowed.`
         );
       }
     }
@@ -230,18 +333,23 @@ export class TemporaryDirectoryTrustService {
 
     const trustId = `tmp-trust-${crypto.randomUUID()}`;
     const createdAt = new Date().toISOString();
-    const pathHash = this.hashValue(resolvedPath);
-    const pathSuffix = path.basename(resolvedPath) || 'tmp';
+    const rootHash = this.hashValue(resolvedPath);
+    const rootSuffix = path.basename(resolvedPath) || 'tmp';
+    const displayName =
+      kind === 'system-temp' ? `System Temp (${rootSuffix})` : `External Folder (${rootSuffix})`;
 
     const trust: TemporaryDirectoryTrust = {
       trustId,
       workspaceId,
       resolvedPath,
-      pathSuffix,
-      pathHash,
+      rootSuffix,
+      rootHash,
       allowedOperations,
       expiresAt: '', // set when approved
       createdAt,
+      kind,
+      displayName,
+      requestedDurationMinutes: durationMinutes,
     };
 
     this.proposedByWorkspace.set(workspaceId, trust);
@@ -253,8 +361,10 @@ export class TemporaryDirectoryTrustService {
       operation: 'propose',
       metadata: {
         trustId,
-        pathHash,
-        pathSuffix,
+        kind,
+        rootHash,
+        rootSuffix,
+        displayName,
         allowedOperations,
       },
     });
@@ -279,12 +389,22 @@ export class TemporaryDirectoryTrustService {
         workspaceId,
         toolName: 'workspace.temp_dir_trust',
         operation: 'resolve',
-        metadata: { trustId, pathHash: proposed.pathHash, pathSuffix: proposed.pathSuffix },
+        metadata: {
+          trustId,
+          kind: proposed.kind,
+          rootHash: proposed.rootHash,
+          rootSuffix: proposed.rootSuffix,
+          displayName: proposed.displayName,
+        },
       });
       return null;
     }
 
-    const expiresAt = new Date(Date.now() + TemporaryDirectoryTrustService.MAX_TTL_MS).toISOString();
+    const durationMs = proposed.requestedDurationMinutes
+      ? Math.min(proposed.requestedDurationMinutes, 240) * 60 * 1000
+      : TemporaryDirectoryTrustService.MAX_TTL_MS;
+
+    const expiresAt = new Date(Date.now() + durationMs).toISOString();
     const active: TemporaryDirectoryTrust = { ...proposed, expiresAt };
 
     if (!this.activeByWorkspace.has(workspaceId)) {
@@ -297,7 +417,14 @@ export class TemporaryDirectoryTrustService {
       workspaceId,
       toolName: 'workspace.temp_dir_trust',
       operation: 'resolve',
-      metadata: { trustId, pathHash: active.pathHash, pathSuffix: active.pathSuffix, expiresAt },
+      metadata: {
+        trustId,
+        kind: active.kind,
+        rootHash: active.rootHash,
+        rootSuffix: active.rootSuffix,
+        displayName: active.displayName,
+        expiresAt,
+      },
     });
 
     return active;
@@ -316,7 +443,13 @@ export class TemporaryDirectoryTrustService {
         workspaceId,
         toolName: 'workspace.temp_dir_trust',
         operation: 'revoke',
-        metadata: { trustId, pathHash: trust.pathHash, pathSuffix: trust.pathSuffix },
+        metadata: {
+          trustId,
+          kind: trust.kind,
+          rootHash: trust.rootHash,
+          rootSuffix: trust.rootSuffix,
+          displayName: trust.displayName,
+        },
       });
     }
     // Also clear proposed if it matches
@@ -338,7 +471,13 @@ export class TemporaryDirectoryTrustService {
           workspaceId,
           toolName: 'workspace.temp_dir_trust',
           operation: 'revoke-all',
-          metadata: { trustId, pathHash: trust.pathHash, pathSuffix: trust.pathSuffix },
+          metadata: {
+            trustId,
+            kind: trust.kind,
+            rootHash: trust.rootHash,
+            rootSuffix: trust.rootSuffix,
+            displayName: trust.displayName,
+          },
         });
       }
       map.clear();
@@ -371,7 +510,13 @@ export class TemporaryDirectoryTrustService {
           workspaceId,
           toolName: 'workspace.temp_dir_trust',
           operation: 'check-expiry',
-          metadata: { trustId, pathHash: trust.pathHash, pathSuffix: trust.pathSuffix },
+          metadata: {
+            trustId,
+            kind: trust.kind,
+            rootHash: trust.rootHash,
+            rootSuffix: trust.rootSuffix,
+            displayName: trust.displayName,
+          },
         });
       } else {
         valid.push(trust);
@@ -422,8 +567,8 @@ export class TemporaryDirectoryTrustService {
           operation,
           reason: `Task Mandate active — operation blocked by mandate scope violation, no fallback to temp trust`,
           metadata: {
-            pathHash: this.hashValue(absolutePath),
-            pathSuffix: path.basename(absolutePath),
+            rootHash: this.hashValue(absolutePath),
+            rootSuffix: path.basename(absolutePath),
             mandateViolation: true,
           },
         });
@@ -453,8 +598,10 @@ export class TemporaryDirectoryTrustService {
           operation,
           metadata: {
             trustId: trust.trustId,
-            pathHash: this.hashValue(absolutePath),
-            pathSuffix: path.basename(absolutePath),
+            kind: trust.kind,
+            rootHash: this.hashValue(absolutePath),
+            rootSuffix: path.basename(absolutePath),
+            displayName: trust.displayName,
           },
         });
         return {

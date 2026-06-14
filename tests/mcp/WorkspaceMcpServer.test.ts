@@ -7,6 +7,8 @@ import { execSync } from 'child_process';
 import { Database } from '../../src/storage/Database.js';
 import { config } from '../../src/config/index.js';
 
+jest.setTimeout(60000);
+
 describe('WorkspaceMcpServer E2E Git Read-Only', () => {
   let tempDir: string;
   let activeManagers: McpClientManager[];

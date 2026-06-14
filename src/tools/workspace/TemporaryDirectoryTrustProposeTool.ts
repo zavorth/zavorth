@@ -23,9 +23,22 @@ export class TemporaryDirectoryTrustProposeTool extends BaseTool {
   public readonly parameters = {
     type: 'object' as const,
     properties: {
+      directory: {
+        type: 'string',
+        description: 'The directory path to trust (e.g. OS temporary folder, Downloads, or Desktop).',
+      },
       path: {
         type: 'string',
-        description: `The OS temporary directory path to trust. Must be inside ${os.tmpdir()} or equivalent system TEMP/TMP.`,
+        description: 'Legacy argument for directory path (use directory instead).',
+      },
+      kind: {
+        type: 'string',
+        enum: ['system-temp', 'user-selected-external'],
+        description: 'The kind of trust being requested. system-temp or user-selected-external.',
+      },
+      durationMinutes: {
+        type: 'number',
+        description: 'Suggested trust expiration duration in minutes (maximum 240 / 4h).',
       },
       allowedOperations: {
         type: 'array',
@@ -34,14 +47,14 @@ export class TemporaryDirectoryTrustProposeTool extends BaseTool {
           enum: ['filesystem.read', 'filesystem.write', 'filesystem.mkdir'],
         },
         description:
-          'Filesystem operations to authorize. command.run is NOT allowed in this subfase.',
+          'Filesystem operations to authorize. command.run is NOT allowed.',
       },
       reason: {
         type: 'string',
         description: 'Human-readable justification for requesting this trust.',
       },
     },
-    required: ['path', 'allowedOperations', 'reason'],
+    required: ['allowedOperations', 'reason'],
   };
 
   private readonly service: TemporaryDirectoryTrustService;
@@ -56,12 +69,14 @@ export class TemporaryDirectoryTrustProposeTool extends BaseTool {
       const workspaceRoot = WorkspaceResolver.resolve(null);
       const workspaceId = path.basename(workspaceRoot);
 
-      const rawPath = args['path'] as string;
+      const rawPath = (args['directory'] as string) || (args['path'] as string);
+      const kind = (args['kind'] as 'system-temp' | 'user-selected-external') || 'system-temp';
+      const durationMinutes = args['durationMinutes'] !== undefined ? Number(args['durationMinutes']) : undefined;
       const rawOps = (args['allowedOperations'] as string[]) || [];
       const reason = args['reason'] as string;
 
       if (!rawPath) {
-        return JSON.stringify({ success: false, error: 'path is required.' });
+        return JSON.stringify({ success: false, error: 'directory or path is required.' });
       }
       if (!Array.isArray(rawOps) || rawOps.length === 0) {
         return JSON.stringify({ success: false, error: 'allowedOperations must be a non-empty array.' });
@@ -72,21 +87,23 @@ export class TemporaryDirectoryTrustProposeTool extends BaseTool {
         if (forbidden.includes(op)) {
           return JSON.stringify({
             success: false,
-            error: `Operation '${op}' is not allowed in Temporary Directory Trust (21E-A). command.run requires 21F/21G.`,
+            error: `Operation '${op}' is not allowed in Temporary Directory Trust (21E-B). command.run is strictly forbidden.`,
           });
         }
       }
 
       const allowedOperations = rawOps as Array<'filesystem.read' | 'filesystem.write' | 'filesystem.mkdir'>;
 
-      const trust = this.service.proposeTrust(workspaceId, rawPath, allowedOperations);
+      const trust = this.service.proposeTrust(workspaceId, rawPath, allowedOperations, kind, durationMinutes);
 
       return JSON.stringify({
         success: true,
         trust: {
           trustId: trust.trustId,
           workspaceId: trust.workspaceId,
-          pathSuffix: trust.pathSuffix,
+          rootSuffix: trust.rootSuffix,
+          displayName: trust.displayName,
+          kind: trust.kind,
           allowedOperations: trust.allowedOperations,
           createdAt: trust.createdAt,
           reason,
