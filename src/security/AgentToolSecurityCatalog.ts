@@ -238,6 +238,30 @@ export const NATIVE_AGENT_TOOL_SECURITY_DEFINITIONS: AgentToolSecurityDefinition
     requiresConfirmation: true,
     description: 'Lists, previews and queues governed Node Mesh companion invocations.',
   },
+  {
+    toolName: 'workspace.pty.propose',
+    surface: 'native-tool',
+    capabilities: ['shell', 'destructive'],
+    defaultRisk: 'review',
+    requiresConfirmation: true,
+    description: 'Proposes a new interactive PTY terminal session.',
+  },
+  {
+    toolName: 'workspace.pty.write',
+    surface: 'native-tool',
+    capabilities: ['shell', 'destructive'],
+    defaultRisk: 'review',
+    requiresConfirmation: false,
+    description: 'Writes input to an active interactive PTY terminal session. Governed by PtyInputPolicyService.',
+  },
+  {
+    toolName: 'workspace.pty.terminate',
+    surface: 'native-tool',
+    capabilities: [],
+    defaultRisk: 'review',
+    requiresConfirmation: false,
+    description: 'Terminates an active interactive PTY terminal session.',
+  }
 ];
 
 export const BOOTSTRAP_NATIVE_TOOL_SECURITY_MANIFEST = [
@@ -254,6 +278,9 @@ export const BOOTSTRAP_NATIVE_TOOL_SECURITY_MANIFEST = [
   { className: 'WorkspaceCommandRunTool', toolName: 'workspace.command.run' },
   { className: 'HostCommandProposeTool', toolName: 'workspace.host_command.propose' },
   { className: 'HostCommandRunTool', toolName: 'workspace.host_command.run' },
+  { className: 'PtySessionProposeTool', toolName: 'workspace.pty.propose' },
+  { className: 'PtyWriteTool', toolName: 'workspace.pty.write' },
+  { className: 'PtyTerminateTool', toolName: 'workspace.pty.terminate' },
   { className: 'WorkspaceTaskMandateProposeTool', toolName: 'workspace.task_mandate.propose' },
   { className: 'DateTimeTool', toolName: 'get_datetime' },
   { className: 'RemoteShellTool', toolName: 'remote_shell' },
@@ -349,3 +376,5 @@ export function resolveDefaultAgentToolSecurityDefinition(
 
   return createFallbackAgentToolSecurityDefinition(toolName, description);
 }
+
+

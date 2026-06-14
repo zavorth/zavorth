@@ -21,6 +21,7 @@ import { DesktopInspector } from '../panels/DesktopInspector';
 import type { DesktopPanel } from '../slashCommands';
 import { ThreadView } from '../thread/ThreadView';
 import { DesktopWorkspaceView } from '../views/DesktopWorkspaceView';
+import { PtyTerminalPanel } from './PtyTerminalPanel';
 import type { DesktopWorkspaceScope } from '../workspaceScopes';
 
 export function DesktopShell(props: {
@@ -270,6 +271,8 @@ export function DesktopShell(props: {
         onPanel={props.onPanel}
         onRun={props.onSubmit}
       />
-    </main>
+      {props.workspaceScope && <PtyTerminalPanel workspaceId={props.workspaceScope.id} />}
+      </main>
   );
 }
+
