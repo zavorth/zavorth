@@ -14,6 +14,7 @@ import type { BootEvent, RuntimeStatus } from '../global';
 import { asRecord, effortLabels, itemId, panelLabels, profileLabels } from '../primitives/desktopPrimitives';
 import { DesktopSidebar } from '../shell/DesktopSidebar.js';
 import { ProviderSettingsPanel } from '../panels/ProviderSettingsPanel.js';
+import { InternalBetaDiagnosticsPanel } from '../panels/InternalBetaDiagnosticsPanel.js';
 import type { DesktopPanel } from '../slashCommands';
 
 type WorkspaceViewProps = {
@@ -453,7 +454,7 @@ function SettingsView(props: {
   onRuntimeStateAction(input: { domain: string; operation: string; metadata?: Record<string, unknown> }): void | Promise<void>;
   onTheme(value: 'light' | 'dark' | 'system'): void;
 }) {
-  const [runtimeMode, setRuntimeMode] = useState<'overview' | 'permissions' | 'providers' | 'workspace' | 'mcp' | 'skills' | 'jobs' | 'personal'>('overview');
+  const [runtimeMode, setRuntimeMode] = useState<'overview' | 'permissions' | 'providers' | 'workspace' | 'mcp' | 'skills' | 'jobs' | 'personal' | 'diagnostics'>('overview');
   const [personalConnectStatus, setPersonalConnectStatus] = useState<string | null>(null);
   const connectGoogle = async () => {
     setPersonalConnectStatus('Opening Google authorization...');
@@ -1070,10 +1071,13 @@ function SettingsView(props: {
               { value: 'skills', label: 'Skills', count: skillRows.length },
               { value: 'jobs', label: 'Jobs', count: jobRows.length },
               { value: 'personal', label: 'Personal Ops', count: personalRows.length },
+              { value: 'diagnostics', label: 'Beta Checklist' },
             ]}
           />
           {runtimeMode === 'providers' ? (
             <ProviderSettingsPanel />
+          ) : runtimeMode === 'diagnostics' ? (
+            <InternalBetaDiagnosticsPanel workspaceId={capabilities?.workspace?.id || 'chat'} />
           ) : (
             <DetailRows rows={runtimeRowsForMode} empty="No runtime status is available." />
           )}
