@@ -10,6 +10,8 @@ import { WorkspaceTaskMandateService } from './WorkspaceTaskMandateService.js';
 import { TemporaryDirectoryTrustService } from './TemporaryDirectoryTrustService.js';
 import { WorkspacePathGuard } from '../mcp/workspace/WorkspacePathGuard.js';
 import { AgentWorkspaceConfigService } from './AgentWorkspaceConfigService.js';
+import { WorkspaceRuntimeReadinessService } from './WorkspaceRuntimeReadinessService.js';
+import { WorkspacePolicyPreviewService } from './WorkspacePolicyPreviewService.js';
 import { SecurityAuditLogger } from './SecurityAuditLogger.js';
 import { LogRepository } from '../storage/LogRepository.js';
 
@@ -1758,8 +1760,24 @@ export class ZavorthControlCoreRouteService {
         }
 
         if (workspaceId.includes('..') || path.isAbsolute(workspaceId)) {
-          console.error('[SECURITY] blocked_cross_workspace_config_access - path traversal');
+          const auditLogger = new SecurityAuditLogger();
+          auditLogger.logWorkspaceEvent({
+            event: 'blocked_cross_workspace_config_access',
+            workspaceId: workspaceId,
+            metadata: { requestedWorkspaceId: workspaceId, status: 'blocked', errorCode: 'path_traversal' }
+          });
           deps.writeJson(res, { ok: false, error: 'Invalid workspaceId' }, 400);
+          return true;
+        }
+
+        if (!WorkspaceResolver.isWorkspaceAllowed(workspaceId)) {
+          const auditLogger = new SecurityAuditLogger();
+          auditLogger.logWorkspaceEvent({
+            event: 'blocked_cross_workspace_config_access',
+            workspaceId: workspaceId,
+            metadata: { requestedWorkspaceId: workspaceId, status: 'blocked', errorCode: 'cross_workspace_access' }
+          });
+          deps.writeJson(res, { ok: false, error: 'Forbidden cross-workspace access' }, 403);
           return true;
         }
 
@@ -1771,8 +1789,8 @@ export class ZavorthControlCoreRouteService {
       return true;
     }
 
-    // POST /api/v2/workspace/agent-config
-    if (pathname === '/api/v2/workspace/agent-config' && req.method === 'POST') {
+    // PATCH /api/v2/workspace/agent-config
+    if (pathname === '/api/v2/workspace/agent-config' && (req.method === 'PATCH' || req.method === 'POST')) {
       const identity = deps.authService ? deps.authService.resolveAuthenticatedIdentity(req) : null;
       if (!identity) {
         deps.writeJson(res, { ok: false, error: 'Unauthorized' }, 401);
@@ -1780,15 +1798,31 @@ export class ZavorthControlCoreRouteService {
       }
       try {
         const body = await deps.readJsonBody(req);
-        const workspaceId = body.workspaceId;
+        const workspaceId = body.workspaceId || url.searchParams.get('workspaceId');
         if (!workspaceId) {
           deps.writeJson(res, { ok: false, error: 'workspaceId is required' }, 400);
           return true;
         }
 
         if (workspaceId.includes('..') || path.isAbsolute(workspaceId)) {
-          console.error('[SECURITY] blocked_cross_workspace_config_access - path traversal');
+          const auditLogger = new SecurityAuditLogger();
+          auditLogger.logWorkspaceEvent({
+            event: 'blocked_cross_workspace_config_access',
+            workspaceId: workspaceId,
+            metadata: { requestedWorkspaceId: workspaceId, status: 'blocked', errorCode: 'path_traversal' }
+          });
           deps.writeJson(res, { ok: false, error: 'Invalid workspaceId' }, 400);
+          return true;
+        }
+
+        if (!WorkspaceResolver.isWorkspaceAllowed(workspaceId)) {
+          const auditLogger = new SecurityAuditLogger();
+          auditLogger.logWorkspaceEvent({
+            event: 'blocked_cross_workspace_config_access',
+            workspaceId: workspaceId,
+            metadata: { requestedWorkspaceId: workspaceId, status: 'blocked', errorCode: 'cross_workspace_access' }
+          });
+          deps.writeJson(res, { ok: false, error: 'Forbidden cross-workspace access' }, 403);
           return true;
         }
 
@@ -1797,6 +1831,95 @@ export class ZavorthControlCoreRouteService {
         await AgentWorkspaceConfigService.getInstance().updateConfig(workspaceId, updatedConfig);
         
         deps.writeJson(res, { ok: true });
+      } catch (err: any) {
+        deps.writeJson(res, { ok: false, error: err.message }, 500);
+      }
+      return true;
+    }
+
+    // GET /api/v2/workspace/agent-config/readiness
+    if (pathname === '/api/v2/workspace/agent-config/readiness' && req.method === 'GET') {
+      const identity = deps.authService ? deps.authService.resolveAuthenticatedIdentity(req) : null;
+      if (!identity) {
+        deps.writeJson(res, { ok: false, error: 'Unauthorized' }, 401);
+        return true;
+      }
+      try {
+        const workspaceId = url.searchParams.get('workspaceId');
+        if (!workspaceId) {
+          deps.writeJson(res, { ok: false, error: 'workspaceId parameter is required' }, 400);
+          return true;
+        }
+
+        if (workspaceId.includes('..') || path.isAbsolute(workspaceId)) {
+          const auditLogger = new SecurityAuditLogger();
+          auditLogger.logWorkspaceEvent({
+            event: 'blocked_cross_workspace_config_access',
+            workspaceId: workspaceId,
+            metadata: { requestedWorkspaceId: workspaceId, status: 'blocked', errorCode: 'path_traversal' }
+          });
+          deps.writeJson(res, { ok: false, error: 'Invalid workspaceId' }, 400);
+          return true;
+        }
+
+        if (!WorkspaceResolver.isWorkspaceAllowed(workspaceId)) {
+          const auditLogger = new SecurityAuditLogger();
+          auditLogger.logWorkspaceEvent({
+            event: 'blocked_cross_workspace_config_access',
+            workspaceId: workspaceId,
+            metadata: { requestedWorkspaceId: workspaceId, status: 'blocked', errorCode: 'cross_workspace_access' }
+          });
+          deps.writeJson(res, { ok: false, error: 'Forbidden cross-workspace access' }, 403);
+          return true;
+        }
+
+        const readiness = await WorkspaceRuntimeReadinessService.getInstance().checkReadiness(workspaceId);
+        deps.writeJson(res, { ok: true, data: readiness });
+      } catch (err: any) {
+        deps.writeJson(res, { ok: false, error: err.message }, 500);
+      }
+      return true;
+    }
+
+    // POST /api/v2/workspace/agent-config/preview
+    if (pathname === '/api/v2/workspace/agent-config/preview' && req.method === 'POST') {
+      const identity = deps.authService ? deps.authService.resolveAuthenticatedIdentity(req) : null;
+      if (!identity) {
+        deps.writeJson(res, { ok: false, error: 'Unauthorized' }, 401);
+        return true;
+      }
+      try {
+        const body = await deps.readJsonBody(req);
+        const workspaceId = body.workspaceId || url.searchParams.get('workspaceId');
+        if (!workspaceId) {
+          deps.writeJson(res, { ok: false, error: 'workspaceId parameter is required' }, 400);
+          return true;
+        }
+
+        if (workspaceId.includes('..') || path.isAbsolute(workspaceId)) {
+          const auditLogger = new SecurityAuditLogger();
+          auditLogger.logWorkspaceEvent({
+            event: 'blocked_cross_workspace_config_access',
+            workspaceId: workspaceId,
+            metadata: { requestedWorkspaceId: workspaceId, status: 'blocked', errorCode: 'path_traversal' }
+          });
+          deps.writeJson(res, { ok: false, error: 'Invalid workspaceId' }, 400);
+          return true;
+        }
+
+        if (!WorkspaceResolver.isWorkspaceAllowed(workspaceId)) {
+          const auditLogger = new SecurityAuditLogger();
+          auditLogger.logWorkspaceEvent({
+            event: 'blocked_cross_workspace_config_access',
+            workspaceId: workspaceId,
+            metadata: { requestedWorkspaceId: workspaceId, status: 'blocked', errorCode: 'cross_workspace_access' }
+          });
+          deps.writeJson(res, { ok: false, error: 'Forbidden cross-workspace access' }, 403);
+          return true;
+        }
+
+        const previewData = await WorkspacePolicyPreviewService.getInstance().previewPolicy(workspaceId, body.config || {});
+        deps.writeJson(res, { ok: true, data: previewData });
       } catch (err: any) {
         deps.writeJson(res, { ok: false, error: err.message }, 500);
       }

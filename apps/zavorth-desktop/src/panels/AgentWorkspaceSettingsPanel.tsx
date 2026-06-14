@@ -23,27 +23,27 @@ export const AgentWorkspaceSettingsPanel: React.FC<{ workspaceId: string }> = ({
 
   useEffect(() => {
     // In a real app this would fetch from /api/v2/workspace/agent-config
-    fetch(`/api/v2/workspace/agent-config`)
+    fetch(`/api/v2/workspace/agent-config?workspaceId=${encodeURIComponent(workspaceId)}`)
       .then(r => r.json())
-      .then(data => setConfig(data.config))
+      .then(data => setConfig(data.data || data.config))
       .catch(console.error);
       
-    fetch(`/api/v2/workspace/agent-config/readiness`)
+    fetch(`/api/v2/workspace/agent-config/readiness?workspaceId=${encodeURIComponent(workspaceId)}`)
       .then(r => r.json())
-      .then(data => setReadiness(data))
+      .then(data => setReadiness(data.data || data))
       .catch(console.error);
   }, [workspaceId]);
 
   const handlePreview = async () => {
     if (!config) return;
     try {
-      const r = await fetch(`/api/v2/workspace/agent-config/preview`, {
+      const r = await fetch(`/api/v2/workspace/agent-config/preview?workspaceId=${encodeURIComponent(workspaceId)}`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(config)
+        body: JSON.stringify({ workspaceId, ...config })
       });
       const data = await r.json();
-      setPreview(data);
+      setPreview(data.data || data);
     } catch (e) {
       console.error(e);
     }
@@ -52,14 +52,15 @@ export const AgentWorkspaceSettingsPanel: React.FC<{ workspaceId: string }> = ({
   const handleSave = async () => {
     if (!config) return;
     try {
-      await fetch(`/api/v2/workspace/agent-config`, {
+      await fetch(`/api/v2/workspace/agent-config?workspaceId=${encodeURIComponent(workspaceId)}`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(config)
+        body: JSON.stringify({ workspaceId, config })
       });
       // Refresh readiness
-      const r = await fetch(`/api/v2/workspace/agent-config/readiness`);
-      setReadiness(await r.json());
+      const r = await fetch(`/api/v2/workspace/agent-config/readiness?workspaceId=${encodeURIComponent(workspaceId)}`);
+      const data = await r.json();
+      setReadiness(data.data || data);
     } catch (e) {
       console.error(e);
     }
