@@ -478,7 +478,13 @@ export class SecurityAuditLogger {
       'pty_policy_violation',
       'critical_pty_input_strong_confirmation_required',
       'critical_pty_input_strong_confirmation_failed',
-      'critical_pty_input_strong_confirmation_passed'
+      'critical_pty_input_strong_confirmation_passed',
+      'provider_invocation_started',
+      'provider_invocation_succeeded',
+      'provider_invocation_failed',
+      'provider_runtime_fallback_attempted',
+      'provider_runtime_fallback_succeeded',
+      'provider_runtime_fallback_failed'
     ];
 
     if (!validEvents.includes(payload.event)) {

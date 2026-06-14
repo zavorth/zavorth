@@ -264,6 +264,32 @@ export class ToolExposurePolicy {
           }
         }
 
+        if (allowed && workspaceMeta.config) {
+          const config = workspaceMeta.config;
+          const isPtyTool = normalizedId.startsWith('workspace:workspace.pty.') || normalizedId.startsWith('workspace_pty_');
+          const isHostPowerTool = normalizedId.startsWith('workspace:workspace.host.') || normalizedId.startsWith('workspace_host_');
+          const isDeveloperTool = normalizedId.startsWith('workspace:workspace.developer.') || normalizedId.startsWith('workspace_developer_') || tool.risk === 'danger';
+          const isTaskMandateTool = normalizedId.startsWith('workspace:workspace.mandate.') || normalizedId.startsWith('workspace_mandate_');
+          const isTempDirTrustTool = normalizedId.startsWith('workspace:workspace.trust.') || normalizedId.startsWith('workspace_trust_');
+
+          if (isPtyTool && (!config.allowPty || !config.allowHostPowerMode)) {
+            allowed = false;
+            blockReason = 'workspace-config-denied-pty';
+          } else if (isHostPowerTool && !config.allowHostPowerMode) {
+            allowed = false;
+            blockReason = 'workspace-config-denied-host-power-mode';
+          } else if (isDeveloperTool && !config.allowDeveloperMode) {
+            allowed = false;
+            blockReason = 'workspace-config-denied-developer-mode';
+          } else if (isTaskMandateTool && !config.allowTaskMandates) {
+            allowed = false;
+            blockReason = 'workspace-config-denied-task-mandates';
+          } else if (isTempDirTrustTool && !config.allowTemporaryDirectoryTrust) {
+            allowed = false;
+            blockReason = 'workspace-config-denied-temporary-directory-trust';
+          }
+        }
+
         if (allowed) {
           filteredTools.push(tool);
         } else {
