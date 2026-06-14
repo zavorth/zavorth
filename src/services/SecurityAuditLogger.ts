@@ -5,7 +5,7 @@ import path from 'path';
 export class SecurityAuditLogger {
   private readonly logRepo: LogRepository;
 
-  constructor(logRepois: LogRepository) {
+  constructor(logRepo?: LogRepository) {
     this.logRepo = logRepo || new LogRepository();
   }
 
@@ -102,7 +102,7 @@ export class SecurityAuditLogger {
     isGroup: boolean;
     channelUserId: string;
     channelUserIdAllowed: boolean;
-    reasonis: 'unauthorized_group' | 'unauthorized_user' | 'blocked_user' | 'group_message_without_trigger' | 'self_message_loopback';
+    reason?: 'unauthorized_group' | 'unauthorized_user' | 'blocked_user' | 'group_message_without_trigger' | 'self_message_loopback';
     triggerType: 'dm' | 'wake_word' | 'mention' | 'reply_to_bot' | 'none';
   }): void {
     const allowedPayloadKeys = [
@@ -166,7 +166,7 @@ export class SecurityAuditLogger {
     risk: 'safe' | 'attention' | 'danger' | 'unknown';
     reason: 'unauthorized-user-in-group' | 'risk-not-safe' | 'not-in-allowlist' | 'global-policy-block' | 'unknown-risk' | 'blocked-by-cognitive-firewall-plugin-quarantine' | 'blocked-by-imported-capability-trust';
     channelUserIdAllowed: boolean;
-    groupToolPolicyModeis: string;
+    groupToolPolicyMode?: string;
   }): void {
     const allowedPayloadKeys = [
       'event', 'decision', 'toolName', 'risk', 'reason',
@@ -230,9 +230,9 @@ export class SecurityAuditLogger {
     toolName: string;
     namespacedToolId: string;
     fingerprint: string;
-    previousFingerprintis: string;
-    pendingReasonis: 'new_tool' | 'schema_drift';
-    effectiveAllowedis: boolean;
+    previousFingerprint?: string;
+    pendingReason?: 'new_tool' | 'schema_drift';
+    effectiveAllowed?: boolean;
   }): void {
     const allowedPayloadKeys = [
       'event', 'serverId', 'toolName', 'namespacedToolId', 'fingerprint',
@@ -296,12 +296,12 @@ export class SecurityAuditLogger {
     event: 'mcp_tool_approved' | 'mcp_tool_blocked_by_admin' | 'mcp_tool_forgotten' | 'mcp_server_added' | 'mcp_server_disabled' | 'mcp_server_removed' | 'mcp_server_enabled';
     actor: 'local-cli';
     source: 'zavorth-mcp-install';
-    toolIdis: string;
-    serverIdis: string;
-    previousStatusis: string;
-    newStatusis: string;
-    fingerprintis: string;
-    allowlistChangedis: boolean;
+    toolId?: string;
+    serverId?: string;
+    previousStatus?: string;
+    newStatus?: string;
+    fingerprint?: string;
+    allowlistChanged?: boolean;
   }): void {
     const allowedPayloadKeys = [
       'event', 'actor', 'source', 'toolId', 'serverId',
@@ -374,23 +374,23 @@ export class SecurityAuditLogger {
   public logWorkspaceEvent(payload: {
     event: 'workspace_opened' | 'workspace_revoked' | 'workspace_tool_allowed' | 'workspace_tool_blocked' | 'workspace_path_denied' | 'workspace_git_read' | 'workspace_filesystem_read' | 'workspace_filesystem_write' | 'workspace_notes_event' | 'workspace_write_requested' | 'workspace_write_approved' | 'workspace_write_denied' | 'grant_created' | 'grant_revoked' | 'grant_expired' | 'command_auto_approved' | 'command_approval_requested' | 'command_approved' | 'command_denied' | 'command_executed' | 'command_blocked' | 'workspace_trust_granted' | 'workspace_trust_revoked' | 'workspace_trust_loaded' | 'workspace_trust_rejected' | 'command_auto_approved_by_trusted_workspace' | 'workspace_task_mandate_requested' | 'workspace_task_mandate_approved' | 'workspace_task_mandate_denied' | 'workspace_task_mandate_revoked' | 'workspace_task_mandate_expired' | 'command_auto_approved_by_task_mandate' | 'filesystem_write_auto_approved_by_task_mandate' | 'task_mandate_scope_violation' | 'tmp_dir_trust_requested' | 'tmp_dir_trust_approved' | 'tmp_dir_trust_denied' | 'tmp_dir_trust_revoked' | 'tmp_dir_trust_expired' | 'tmp_dir_trust_auto_approved' | 'tmp_dir_trust_scope_block' | 'host_command_proposed' | 'host_command_approved' | 'host_command_denied' | 'host_command_executed' | 'host_power_mode_enabled' | 'host_power_mode_disabled' | 'host_power_mode_expired' | 'pty_session_requested' | 'pty_session_approved' | 'pty_session_denied' | 'pty_session_started' | 'pty_session_terminated' | 'pty_session_expired' | 'pty_session_terminated_due_to_host_power_disabled' | 'pty_input_requested' | 'pty_input_approved' | 'pty_input_blocked' | 'pty_input_sent' | 'pty_output_truncated' | 'pty_policy_violation' | 'critical_pty_input_strong_confirmation_required' | 'critical_pty_input_strong_confirmation_failed' | 'critical_pty_input_strong_confirmation_passed';
     workspaceId: string;
-    rootPathis: string;
-    rootPathHashis: string;
-    rootPathSuffixis: string;
-    toolNameis: string;
-    decisionis: 'allowed' | 'blocked';
-    reasonis: string;
-    pathis: string;
-    operationis: string;
-    argsHashis: string;
-    exitCodeis: number;
-    durationMsis: number;
-    timeoutFlagis: boolean;
-    truncatedFlagis: boolean;
-    riskLevelis: string;
-    commandHashis: string;
-    redactedCommandPreviewis: string;
-    metadatais: Record<string, any>;
+    rootPath?: string;
+    rootPathHash?: string;
+    rootPathSuffix?: string;
+    toolName?: string;
+    decision?: 'allowed' | 'blocked';
+    reason?: string;
+    path?: string;
+    operation?: string;
+    argsHash?: string;
+    exitCode?: number;
+    durationMs?: number;
+    timeoutFlag?: boolean;
+    truncatedFlag?: boolean;
+    riskLevel?: string;
+    commandHash?: string;
+    redactedCommandPreview?: string;
+    metadata?: Record<string, any>;
   }): void {
     const allowedPayloadKeys = [
       'event', 'workspaceId', 'rootPath', 'rootPathHash', 'rootPathSuffix', 'toolName', 'decision', 'reason', 'path', 'operation',
