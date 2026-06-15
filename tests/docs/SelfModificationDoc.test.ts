@@ -6,14 +6,14 @@ describe('Self-modification docs', () => {
     const docPath = path.resolve(process.cwd(), 'docs', 'self-modification.md');
     const content = fs.readFileSync(docPath, 'utf8');
 
-    expect(content).toContain('/selfmod <arquivo_relativo> -- <instrucao>');
-    expect(content).toContain('/selfmod goal -- <objetivo>');
+    expect(content).toContain('/selfmod <relative_file> -- <instruction>');
+    expect(content).toContain('/selfmod goal -- <goal>');
     expect(content).toContain('/selfmod apply <preview_id>');
     expect(content).toContain('/selfmod rollback <change_id>');
-    expect(content).toContain('preview` e o modo padrao e nunca escreve no arquivo.');
-    expect(content).toContain('apply` e explicito e so aplica uma proposta previamente revisada por `preview_id`.');
-    expect(content).toContain('`apply` e `rollback` ficam restritos a `owner` ou `trusted`');
-    expect(content).toContain('chat privado e exige modo `BUILD`');
+    expect(content).toContain('preview` is the default mode and never writes to the file:');
+    expect(content).toContain('apply` is explicit and only applies a proposal previously reviewed by `preview_id`:');
+    expect(content).toContain('apply` and `rollback` are restricted to `owner` or `trusted` users.');
+    expect(content).toContain('private chat and requires `BUILD` mode.');
   });
 
   it('links the README to the dedicated self-modification guide', () => {
@@ -21,8 +21,8 @@ describe('Self-modification docs', () => {
     const content = fs.readFileSync(readmePath, 'utf8');
 
     expect(content).toContain('docs/self-modification.md');
-    expect(content).toContain('/selfmod <arquivo_relativo> -- <instrucao>');
-    expect(content).toContain('/selfmod goal -- <objetivo>');
+    expect(content).toContain('/selfmod <relative_file> -- <instruction>');
+    expect(content).toContain('/selfmod goal -- <goal>');
     expect(content).toContain('/selfmod apply <preview_id>');
   });
 });

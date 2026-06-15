@@ -32,7 +32,7 @@ describe('Dashboard product docs', () => {
     expect(quickstart).toContain('zavorth setup');
     expect(quickstart).toContain('zavorth start');
     expect(quickstart).toContain('zavorth open');
-    expect(quickstart).toContain('/dashboard');
+    expect(quickstart).toContain('/control');
     expect(quickstart).toContain('zavorth chat');
     expect(web).toContain('Dashboard');
     expect(web).toContain('zavorth open');
@@ -54,6 +54,6 @@ describe('Dashboard product docs', () => {
     expect(soul).toContain('versioned');
     expect(bootstrap).toContain('zavorth start');
     expect(bootstrap).toContain('zavorth open');
-    expect(bootstrap).toContain('/dashboard');
+    expect(bootstrap).toContain('/control');
   });
 });

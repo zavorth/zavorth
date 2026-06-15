@@ -41,7 +41,7 @@
     "primary": {
       "type": "button",
       "label": "Get started",
-      "href": "/docs/produto/start/getting-started"
+      "href": "/docs/product/start/getting-started"
     }
   },
   "navigation": {
@@ -52,25 +52,25 @@
           {
             "group": "Overview",
             "pages": [
-              "docs/produto/index",
-              "docs/produto/start/what-is-zavorth",
-              "docs/produto/start/showcase"
+              "docs/product/index",
+              "docs/product/start/what-is-zavorth",
+              "docs/product/start/showcase"
             ]
           },
           {
             "group": "First steps",
             "pages": [
-              "docs/produto/start/getting-started",
-              "docs/produto/start/primeiro-uso",
-              "docs/produto/start/onboarding"
+              "docs/product/start/getting-started",
+              "docs/product/start/first-use",
+              "docs/product/start/onboarding"
             ]
           },
           {
             "group": "Core concepts",
             "pages": [
-              "docs/produto/conceitos/features",
-              "docs/produto/conceitos/aprovacoes",
-              "docs/produto/conceitos/memoria"
+              "docs/product/concepts/features",
+              "docs/product/concepts/approvals",
+              "docs/product/concepts/memory"
             ]
           }
         ]
@@ -81,13 +81,13 @@
           {
             "group": "Channels",
             "pages": [
-              "docs/produto/canais/index",
-              "docs/produto/canais/telegram",
-              "docs/produto/canais/discord",
-              "docs/produto/canais/whatsapp",
-              "docs/produto/canais/slack",
-              "docs/produto/canais/signal",
-              "docs/produto/canais/email"
+              "docs/product/channels/index",
+              "docs/product/channels/telegram",
+              "docs/product/channels/discord",
+              "docs/product/channels/whatsapp",
+              "docs/product/channels/slack",
+              "docs/product/channels/signal",
+              "docs/product/channels/email"
             ]
           }
         ]
@@ -98,11 +98,11 @@
           {
             "group": "AI Providers",
             "pages": [
-              "docs/produto/providers/index",
-              "docs/produto/providers/gemini",
-              "docs/produto/providers/anthropic",
-              "docs/produto/providers/local",
-              "docs/produto/providers/custom"
+              "docs/product/providers/index",
+              "docs/product/providers/gemini",
+              "docs/product/providers/anthropic",
+              "docs/product/providers/local",
+              "docs/product/providers/custom"
             ]
           }
         ]
@@ -113,9 +113,9 @@
           {
             "group": "Skills",
             "pages": [
-              "docs/produto/skills/index",
-              "docs/produto/skills/instalar",
-              "docs/produto/skills/criar"
+              "docs/product/skills/index",
+              "docs/product/skills/install",
+              "docs/product/skills/create"
             ]
           }
         ]
@@ -126,22 +126,22 @@
           {
             "group": "Interfaces",
             "pages": [
-              "docs/produto/interfaces/zavorthcontrol",
-              "docs/produto/interfaces/cli"
+              "docs/product/interfaces/zavorthcontrol",
+              "docs/product/interfaces/cli"
             ]
           },
           {
             "group": "Help",
             "pages": [
-              "docs/produto/ajuda/troubleshooting",
-              "docs/produto/ajuda/faq",
-              "docs/produto/ajuda/glossario"
+              "docs/product/help/troubleshooting",
+              "docs/product/help/faq",
+              "docs/product/help/glossary"
             ]
           },
           {
             "group": "What's New",
             "pages": [
-              "docs/produto/changelog"
+              "docs/product/changelog"
             ]
           }
         ]

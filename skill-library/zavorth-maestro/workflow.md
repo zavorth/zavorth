@@ -1,49 +1,49 @@
 # Workflow
 
-## Padrao de orquestracao
+## Orchestration Pattern
 
-1. Diagnostico
-- identificar objetivo principal
-- identificar formatos de saida
-- identificar restricoes e material enviado
+1. Diagnosis
+- identify the main goal
+- identify output formats
+- identify constraints and the provided material
 
-2. Selecao de apoio
-- escolher a skill lider
-- escolher, se necessario, uma skill de apoio
-- evitar combinacoes desnecessarias
+2. Support Selection
+- choose the lead skill
+- choose a supporting skill, if necessary
+- avoid unnecessary combinations
 
-3. Execucao
-- processar o material ou a tarefa por etapas
-- usar ferramentas locais quando isso trouxer precisao
-- manter uma resposta unificada
+3. Execution
+- process the material or task in stages
+- use local tools when it adds precision
+- maintain a unified response
 
-4. Fechamento
-- revisar se os entregaveis foram cumpridos
-- resumir o que foi feito
-- sugerir proximo passo apenas se agregar valor
+4. Wrap-up
+- check if deliverables were met
+- summarize what was done
+- suggest the next step only if it adds value
 
-## Cadeias uteis
+## Useful Chains
 
-### Estudo completo
+### Complete Study
 `discover-research` -> `requirements-analysis`
 
-Use quando o usuario quer entender um tema com base melhor e depois transformar isso em aprendizado aplicado.
+Use when the user wants to understand a topic with a better foundation and then transform it into applied learning.
 
-### Descoberta para construcao
+### Discovery for Building
 `requirements-analysis` -> `system-design`
 
-Use quando o usuario tem uma ideia, uma necessidade ou um projeto e quer sair com especificacao mais arquitetura inicial.
+Use when the user has an idea, a need, or a project and wants to end up with a specification plus an initial architecture.
 
-### Investigacao tecnica
+### Technical Investigation
 `debugging` -> `system-design`
 
-Use quando ha falha, gargalo ou comportamento estranho e o problema pode envolver tanto bug quanto desenho do sistema.
+Use when there is a failure, bottleneck, or unexpected behavior and the problem may involve both a bug and system design.
 
-### Revisao de trabalho
+### Work Review
 `requirements-analysis` -> `discover-research`
 
-Use quando o usuario envia atividade, relatorio ou resposta escrita e quer critica, melhoria e reforco conceitual.
+Use when the user sends an activity, report, or written response and wants feedback, improvement, and conceptual reinforcement.
 
-## Regra central
+## Core Rule
 
-Melhor uma orquestracao curta e bem pensada do que uma cadeia longa sem necessidade.
+A short, well-thought-out orchestration is better than a long, unnecessary chain.

@@ -1,15 +1,15 @@
-# Uso
+# Usage
 
-## Exemplos de invocacao
+## Invocation Examples
 
-- "Use o modo zavorth-maestro para transformar este PDF em resumo, plano de estudo e 10 questoes de prova."
-- "Quero que o Zavorth Maestro organize este projeto em etapas e depois execute a primeira."
-- "Use zavorth-maestro para transformar esta ideia em requisitos claros e uma arquitetura inicial."
-- "Coordene debugging e system-design para entender este erro recorrente e sugerir um redesenho seguro."
-- "Use zavorth-maestro com apoio de requirements-analysis e discover-research para revisar esta atividade e depois criar um mini simulado."
+- "Use the zavorth-maestro mode to turn this PDF into a summary, a study plan, and 10 exam questions."
+- "I want Zavorth Maestro to organize this project into stages and then execute the first one."
+- "Use zavorth-maestro to turn this idea into clear requirements and an initial architecture."
+- "Coordinate debugging and system-design to understand this recurring error and suggest a secure redesign."
+- "Use zavorth-maestro with the support of requirements-analysis and discover-research to review this activity and then create a mini mock exam."
 
-## Boas praticas
+## Best Practices
 
-- Quando o pedido for grande, explicite as etapas.
-- Quando o pedido for simples, responda sem inflar o processo.
-- Quando houver varios entregaveis, entregue em secoes bem separadas.
+- When the request is large, make the stages explicit.
+- When the request is simple, reply without inflating the process.
+- When there are multiple deliverables, provide them in clearly separated sections.

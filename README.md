@@ -199,6 +199,13 @@ false readiness, and prevents accidental execution with missing credentials.
 - [Capability mesh](docs/capability-mesh.md)
 - [Product Principles](docs/product-direction.md)
 - [Product Certification](docs/product-certification.md)
+- [Self-modification guide](docs/self-modification.md)
+
+### Self-modification commands
+- preview: docs/self-modification.md
+- /selfmod <relative_file> -- <instruction>
+- /selfmod goal -- <goal>
+- /selfmod apply <preview_id>
 
 ---
 
