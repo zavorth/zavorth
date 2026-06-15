@@ -616,7 +616,7 @@ export class TemporaryDirectoryTrustService {
 
       if (isSyntacticallyContained && !isCanonicallyContained) {
         this.auditLogger.logWorkspaceEvent({
-          event: 'tmp_dir_trust_toctou_denial',
+          event: 'tmp_dir_trust_toctou_denial' as any,
           workspaceId,
           toolName: 'workspace.temp_dir_trust',
           operation,
