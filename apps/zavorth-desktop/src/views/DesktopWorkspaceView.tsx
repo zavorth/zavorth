@@ -15,6 +15,7 @@ import { asRecord, effortLabels, itemId, panelLabels, profileLabels } from '../p
 import { DesktopSidebar } from '../shell/DesktopSidebar.js';
 import { ProviderSettingsPanel } from '../panels/ProviderSettingsPanel.js';
 import { InternalBetaDiagnosticsPanel } from '../panels/InternalBetaDiagnosticsPanel.js';
+import { CockpitDashboard } from '../components/CockpitDashboard.js';
 import type { DesktopPanel } from '../slashCommands';
 
 type WorkspaceViewProps = {
@@ -1078,6 +1079,16 @@ function SettingsView(props: {
             <ProviderSettingsPanel />
           ) : runtimeMode === 'diagnostics' ? (
             <InternalBetaDiagnosticsPanel workspaceId={capabilities?.workspace?.id || 'chat'} />
+          ) : runtimeMode === 'overview' ? (
+            <CockpitDashboard
+              workspaceId={capabilities?.workspace?.id || 'chat'}
+              workspacePath={capabilities?.workspace?.path || null}
+              runtimeCapabilities={capabilities}
+              status={props.status}
+              approvalsCount={props.approvals.length}
+              onStart={props.onStart}
+              onRepair={props.onRepair}
+            />
           ) : (
             <DetailRows rows={runtimeRowsForMode} empty="No runtime status is available." />
           )}

@@ -211,6 +211,9 @@ export function ProviderSetupModal({ isOpen, onClose, onSave, providerToEdit }: 
                 onChange={val => setFormData({ ...formData, apiKey: val })}
                 hasExistingSecret={!!formData.configured}
               />
+              <span className="text-[11px] text-gray-500 mt-1 block">
+                🔒 As chaves são criptografadas localmente e nunca são exibidas novamente na tela.
+              </span>
               {!!formData.configured && formData.providerId && (
                 <button
                   type="button"

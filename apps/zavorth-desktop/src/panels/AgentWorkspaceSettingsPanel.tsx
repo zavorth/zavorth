@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { WorkspaceRuntimeReadinessCard, WorkspaceRuntimeReadiness } from '../components/WorkspaceRuntimeReadinessCard';
 import { WorkspacePolicyPreview, WorkspacePolicyPreviewData } from '../components/WorkspacePolicyPreview';
+import { ActionHint } from '../components/ProductPolishComponents.js';
 
 export interface AgentWorkspaceConfig {
   workspaceId: string;
@@ -214,58 +215,75 @@ export const AgentWorkspaceSettingsPanel: React.FC<{ workspaceId: string }> = ({
         </select>
       </div>
 
-      <div className="checkboxes">
-        <label>
-          <input
-            type="checkbox"
-            checked={config.allowDeveloperMode}
-            onChange={e => setConfig({ ...config, allowDeveloperMode: e.target.checked })}
-            data-testid="check-developer-mode"
-          /> Permitir Developer Mode
-          <span className="flag-hint">(desabilitado por padrão — permite ferramentas de risco)</span>
-        </label>
-        <label>
-          <input
-            type="checkbox"
-            checked={config.allowHostPowerMode}
-            onChange={e => setConfig({ ...config, allowHostPowerMode: e.target.checked })}
-            data-testid="check-host-power-mode"
-          /> Permitir Host Power Mode
-          <span className="flag-hint">(requer aprovação explícita por sessão)</span>
-        </label>
-        <label>
-          <input
-            type="checkbox"
-            checked={config.allowPty}
-            onChange={e => setConfig({ ...config, allowPty: e.target.checked })}
-            data-testid="check-pty"
-          /> Permitir Sessões PTY
-          <span className="flag-hint">(requer Host Power Mode habilitado)</span>
-        </label>
-        <label>
-          <input
-            type="checkbox"
-            checked={config.allowTaskMandates}
-            onChange={e => setConfig({ ...config, allowTaskMandates: e.target.checked })}
-            data-testid="check-task-mandates"
-          /> Permitir Task Mandates
-        </label>
-        <label>
-          <input
-            type="checkbox"
-            checked={config.allowTemporaryDirectoryTrust}
-            onChange={e => setConfig({ ...config, allowTemporaryDirectoryTrust: e.target.checked })}
-            data-testid="check-tmp-dir-trust"
-          /> Permitir Temporary Directory Trust
-        </label>
-        <label>
-          <input
-            type="checkbox"
-            checked={config.allowProviderFallback}
-            onChange={e => setConfig({ ...config, allowProviderFallback: e.target.checked })}
-            data-testid="check-provider-fallback"
-          /> Permitir Provider Fallback
-        </label>
+      <div className="checkboxes" style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+        <div style={{ padding: '8px', border: '1px solid #eee', borderRadius: '6px' }}>
+          <label style={{ display: 'flex', alignItems: 'center', gap: '8px', fontWeight: 'bold' }}>
+            <input
+              type="checkbox"
+              checked={config.allowDeveloperMode}
+              onChange={e => setConfig({ ...config, allowDeveloperMode: e.target.checked })}
+              data-testid="check-developer-mode"
+            /> Permitir Developer Mode
+          </label>
+          <ActionHint message="Developer Mode está desativado. Ative apenas para fluxos avançados e auditáveis." />
+        </div>
+        
+        <div style={{ padding: '8px', border: '1px solid #eee', borderRadius: '6px' }}>
+          <label style={{ display: 'flex', alignItems: 'center', gap: '8px', fontWeight: 'bold' }}>
+            <input
+              type="checkbox"
+              checked={config.allowHostPowerMode}
+              onChange={e => setConfig({ ...config, allowHostPowerMode: e.target.checked })}
+              data-testid="check-host-power-mode"
+            /> Permitir Host Power Mode
+          </label>
+          <ActionHint message="Host Power Mode está desativado por padrão. Ative apenas se você realmente precisar executar ações fora do workspace." />
+        </div>
+
+        <div style={{ padding: '8px', border: '1px solid #eee', borderRadius: '6px' }}>
+          <label style={{ display: 'flex', alignItems: 'center', gap: '8px', fontWeight: 'bold' }}>
+            <input
+              type="checkbox"
+              checked={config.allowPty}
+              onChange={e => setConfig({ ...config, allowPty: e.target.checked })}
+              data-testid="check-pty"
+            /> Permitir Sessões PTY
+          </label>
+          <ActionHint message="PTY requer Host Power Mode. Essa restrição impede sessões interativas fora do controle esperado." />
+        </div>
+
+        <div style={{ padding: '8px', border: '1px solid #eee', borderRadius: '6px' }}>
+          <label style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <input
+              type="checkbox"
+              checked={config.allowTaskMandates}
+              onChange={e => setConfig({ ...config, allowTaskMandates: e.target.checked })}
+              data-testid="check-task-mandates"
+            /> Permitir Task Mandates
+          </label>
+        </div>
+
+        <div style={{ padding: '8px', border: '1px solid #eee', borderRadius: '6px' }}>
+          <label style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <input
+              type="checkbox"
+              checked={config.allowTemporaryDirectoryTrust}
+              onChange={e => setConfig({ ...config, allowTemporaryDirectoryTrust: e.target.checked })}
+              data-testid="check-tmp-dir-trust"
+            /> Permitir Temporary Directory Trust
+          </label>
+        </div>
+
+        <div style={{ padding: '8px', border: '1px solid #eee', borderRadius: '6px' }}>
+          <label style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <input
+              type="checkbox"
+              checked={config.allowProviderFallback}
+              onChange={e => setConfig({ ...config, allowProviderFallback: e.target.checked })}
+              data-testid="check-provider-fallback"
+            /> Permitir Provider Fallback
+          </label>
+        </div>
       </div>
 
       <WorkspaceRuntimeReadinessCard readiness={readiness} />

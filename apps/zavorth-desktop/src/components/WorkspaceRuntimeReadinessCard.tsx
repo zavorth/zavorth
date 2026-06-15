@@ -16,6 +16,8 @@ export interface WorkspaceRuntimeReadiness {
   issues: WorkspaceRuntimeReadinessIssue[];
 }
 
+import { StatusBadge, SurfaceCard } from './ProductPolishComponents';
+
 export const WorkspaceRuntimeReadinessCard: React.FC<{ readiness: WorkspaceRuntimeReadiness | null }> = ({ readiness }) => {
   if (!readiness) {
     return <div className="readiness-card loading">Carregando status de prontidão...</div>;
@@ -31,24 +33,33 @@ export const WorkspaceRuntimeReadinessCard: React.FC<{ readiness: WorkspaceRunti
   });
 
   return (
-    <div className={`readiness-card ${readiness.ready ? 'ready' : 'not-ready'}`}>
-      <h3>Workspace Readiness: {readiness.ready ? 'Ready' : 'Not Ready'}</h3>
-      <div className="readiness-flags">
-        <span className={readiness.providerReady ? 'success' : 'error'}>Provider</span>
-        <span className={readiness.modelReady ? 'success' : 'warning'}>Model</span>
-        <span className={readiness.autonomyReady ? 'success' : 'warning'}>Autonomy</span>
-        <span className={readiness.policyReady ? 'success' : 'error'}>Policy</span>
-      </div>
-      
-      {safeIssues.length > 0 && (
-        <ul className="readiness-issues">
-          {safeIssues.map((issue, idx) => (
-            <li key={idx} className={`issue ${issue.severity}`}>
-              <strong>{issue.code}:</strong> {issue.message}
-            </li>
-          ))}
-        </ul>
-      )}
+    <div className={`readiness-card ${readiness.ready ? 'ready' : 'not-ready'}`} style={{ marginTop: '16px' }}>
+      <SurfaceCard title={`Workspace Readiness: ${readiness.ready ? 'Ready' : 'Not Ready'}`}>
+        <div className="readiness-flags" style={{ display: 'flex', gap: '8px', marginBottom: '12px' }}>
+          <span className={readiness.providerReady ? 'success' : 'error'}>
+            <StatusBadge status={readiness.providerReady ? 'success' : 'error'}>Provider</StatusBadge>
+          </span>
+          <span className={readiness.modelReady ? 'success' : 'warning'}>
+            <StatusBadge status={readiness.modelReady ? 'success' : 'warning'}>Model</StatusBadge>
+          </span>
+          <span className={readiness.autonomyReady ? 'success' : 'warning'}>
+            <StatusBadge status={readiness.autonomyReady ? 'success' : 'warning'}>Autonomy</StatusBadge>
+          </span>
+          <span className={readiness.policyReady ? 'success' : 'error'}>
+            <StatusBadge status={readiness.policyReady ? 'success' : 'error'}>Policy</StatusBadge>
+          </span>
+        </div>
+        
+        {safeIssues.length > 0 && (
+          <ul className="readiness-issues" style={{ paddingLeft: '20px', margin: 0 }}>
+            {safeIssues.map((issue, idx) => (
+              <li key={idx} className={`issue ${issue.severity}`} style={{ fontSize: '13px', margin: '4px 0' }}>
+                <strong>{issue.code}:</strong> {issue.message}
+              </li>
+            ))}
+          </ul>
+        )}
+      </SurfaceCard>
     </div>
   );
 };
