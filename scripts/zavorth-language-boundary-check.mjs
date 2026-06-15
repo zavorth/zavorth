@@ -24,9 +24,9 @@ const focusedFiles = [
   'src/services/UniversalSkillExpansionService.ts',
   'src/services/ZavorthSkillLifecycleService.ts',
   'src/tools/AutoSkillCreatorTool.ts',
-  'docs/produto/skills/criar.md',
-  'docs/produto/skills/instalar.md',
-  'docs/produto/skills/index.md',
+  'docs/product/skills/create.md',
+  'docs/product/skills/install.md',
+  'docs/product/skills/index.md',
 ].filter((relativePath) => fs.existsSync(path.join(root, relativePath)));
 
 const fallbackRoots = ['src', 'docs', 'tests', 'scripts']
@@ -116,7 +116,7 @@ function isAllowedPath(relativePath) {
 
 function isAllowedLine(line) {
   return line.includes('@zavorth-allow-portuguese-fixture')
-    || line.includes('/docs/produto/')
+    || line.includes('/docs/product/')
     || /\b(?:pt|pt-BR|Portuguese|portuguese)\b/u.test(line)
     || /\b(?:sim|nao|não|ola|olá|bom dia|boa tarde|boa noite)\b/u.test(line) && /language|locale|classifier|intent|pattern|regex/i.test(line);
 }

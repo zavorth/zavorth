@@ -30,6 +30,22 @@ Zavorth can be powerful without being reckless. The user should get help editing
 code and docs, but the runtime should keep a clear boundary between suggestion,
 preview and mutation.
 
+## Commands
+
+- `preview` is the default mode and never writes to the file:
+  `/selfmod <relative_file> -- <instruction>`
+- `goal` specifies a self-modification goal to perform:
+  `/selfmod goal -- <goal>`
+- `apply` is explicit and only applies a proposal previously reviewed by `preview_id`:
+  `/selfmod apply <preview_id>`
+- `rollback` reverts a change by `change_id`:
+  `/selfmod rollback <change_id>`
+
+## Policy & Security
+
+- `apply` and `rollback` are restricted to `owner` or `trusted` users.
+- Self-modification requires a private chat and requires `BUILD` mode.
+
 ## Related
 
 - [Security](/docs/security.md)

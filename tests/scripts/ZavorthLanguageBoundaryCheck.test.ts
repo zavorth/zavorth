@@ -8,7 +8,7 @@ const scriptPath = path.resolve(__dirname, '../../scripts/zavorth-language-bound
 function makeRoot(): string {
   const root = fs.mkdtempSync(path.join(os.tmpdir(), 'zavorth-language-boundary-'));
   fs.mkdirSync(path.join(root, 'src'), { recursive: true });
-  fs.mkdirSync(path.join(root, 'docs', 'produto', 'skills'), { recursive: true });
+  fs.mkdirSync(path.join(root, 'docs', 'product', 'skills'), { recursive: true });
   fs.mkdirSync(path.join(root, 'src', 'ai-gateway', 'i18n', 'messages'), { recursive: true });
   fs.mkdirSync(path.join(root, 'tests', 'fixtures', 'multilingual'), { recursive: true });
   fs.writeFileSync(path.join(root, 'package.json'), JSON.stringify({ name: 'language-boundary-test' }));
@@ -55,7 +55,7 @@ describe('zavorth-language-boundary-check', () => {
     const root = makeRoot();
     fs.writeFileSync(path.join(root, 'src', 'runtime-copy.ts'), 'export const copy = "Approval pending";\n');
     fs.writeFileSync(
-      path.join(root, 'docs', 'produto', 'skills', 'criar.md'),
+      path.join(root, 'docs', 'product', 'skills', 'create.md'),
       'Skills are plain Markdown files. If Zavorth can read it, it can run it.\n\nApprove it and it is installed immediately.\n',
     );
 

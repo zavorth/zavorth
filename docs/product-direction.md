@@ -16,10 +16,10 @@ This page describes the user-facing direction of Zavorth.
 - Sensitive actions are never silent.
 - No silent execution of sensitive actions.
 - Secrets are represented as references, not copied into prompts or receipts.
-- Catalog support is not the same as live readiness.
+- Catalog support is not the same as live readiness, which requires explicit provider readiness.
 - External runtimes are optional adapters, not required dependencies.
 - Public documentation should explain how to use Zavorth, not how a feature was built.
-- Every important capability should have a stable command or UI surface before it is marketed as ready.
+- Every important capability should have a stable command or UI surface and be backed by tests or certification evidence before it is marketed as ready.
 - Self-improvement starts as a draft, passes checks, and waits for approval before changing behavior.
 - Low-resource profiles may reduce boot cost, but they do not increase execution authority.
 - External tool packs and MCP sources enter through preview and review hold before tool exposure.
