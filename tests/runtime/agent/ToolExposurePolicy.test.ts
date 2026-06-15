@@ -48,9 +48,10 @@ describe('ToolExposurePolicy', () => {
         channelUserIdAllowed: false,
       },
     });
-    expect(profile.tools.map((t) => t.id)).toEqual(['read_file']);
+    expect(profile.tools).toEqual([]);
     expect(profile.blockedTools).toEqual(
       expect.arrayContaining([
+        expect.objectContaining({ id: 'read_file', reason: 'unauthorized-user-in-group' }),
         expect.objectContaining({ id: 'write_file', reason: 'unauthorized-user-in-group' }),
         expect.objectContaining({ id: 'network_fetch', reason: 'unauthorized-user-in-group' }),
         expect.objectContaining({ id: 'random_tool', reason: 'unauthorized-user-in-group' }),
@@ -90,10 +91,11 @@ describe('ToolExposurePolicy', () => {
         },
       },
     });
-    expect(profile.tools.map((t) => t.id)).toEqual(['write_file']);
+    expect(profile.tools).toEqual([]);
     expect(profile.blockedTools).toEqual(
       expect.arrayContaining([
         expect.objectContaining({ id: 'read_file', reason: 'unauthorized-user-in-group' }),
+        expect.objectContaining({ id: 'write_file', reason: 'unauthorized-user-in-group' }),
         expect.objectContaining({ id: 'network_fetch', reason: 'unauthorized-user-in-group' }),
       ])
     );
@@ -111,10 +113,14 @@ describe('ToolExposurePolicy', () => {
         },
       },
     });
-    expect(profile.tools.map((t) => t.id)).toEqual(['read_file', 'write_file']);
-    expect(profile.blockedTools).toEqual([
-      expect.objectContaining({ id: 'network_fetch', reason: 'unauthorized-user-in-group' }),
-    ]);
+    expect(profile.tools).toEqual([]);
+    expect(profile.blockedTools).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({ id: 'read_file', reason: 'unauthorized-user-in-group' }),
+        expect.objectContaining({ id: 'write_file', reason: 'unauthorized-user-in-group' }),
+        expect.objectContaining({ id: 'network_fetch', reason: 'unauthorized-user-in-group' }),
+      ])
+    );
   });
 
   it('keeps allowlisted tools blocked if they are blocked by global policy', () => {
