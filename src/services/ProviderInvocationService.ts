@@ -20,6 +20,11 @@ export class ProviderInvocationService {
     const startMs = Date.now();
     let resolved: ResolvedProviderRuntime | null = null;
     const logger = new SecurityAuditLogger();
+    const wsId = request.workspaceId || 'system';
+
+    if (wsId === 'system') {
+      console.log('[ProviderInvocationService] Warning: Fallback to system-level workspaceId. Diagnostic/global invocation.');
+    }
 
     try {
       const router = ProviderRuntimeRouter.getInstance();
@@ -30,7 +35,7 @@ export class ProviderInvocationService {
 
       await logger.logWorkspaceEvent({
         event: 'provider_invocation_started' as any,
-        workspaceId: 'system',
+        workspaceId: wsId,
         providerId: resolved.providerId,
         metadata: {
           providerType: resolved.providerType,
@@ -44,7 +49,7 @@ export class ProviderInvocationService {
       const durationMs = Date.now() - startMs;
       await logger.logWorkspaceEvent({
         event: 'provider_invocation_succeeded' as any,
-        workspaceId: 'system',
+        workspaceId: wsId,
         providerId: resolved.providerId,
         durationMs,
         metadata: {
@@ -62,7 +67,7 @@ export class ProviderInvocationService {
 
       await logger.logWorkspaceEvent({
         event: 'provider_invocation_failed' as any,
-        workspaceId: 'system',
+        workspaceId: wsId,
         providerId: resolved?.providerId || request.providerId || 'unknown',
         durationMs,
         metadata: {
