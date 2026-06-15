@@ -526,6 +526,10 @@ export class TemporaryDirectoryTrustService {
     return valid;
   }
 
+  public resolveRealpath(filePath: string): string {
+    return fs.realpathSync(filePath);
+  }
+
   // ── Access Decision ────────────────────────────────────────────────────────
 
   /**
@@ -582,15 +586,55 @@ export class TemporaryDirectoryTrustService {
 
     // ── Temporary Directory Trust check ────────────────────────────────────
     const trusts = this.getActiveTrusts(workspaceId);
-    const normTarget = path.normalize(absolutePath).toLowerCase();
+    
+    let realTarget: string;
+    try {
+      realTarget = this.resolveRealpath(absolutePath);
+    } catch {
+      try {
+        const parent = path.dirname(absolutePath);
+        const resolvedParent = this.resolveRealpath(parent);
+        realTarget = path.join(resolvedParent, path.basename(absolutePath));
+      } catch {
+        realTarget = path.resolve(absolutePath);
+      }
+    }
+
+    const normTarget = path.normalize(realTarget).toLowerCase();
+    const normTargetSyntactic = path.normalize(absolutePath).toLowerCase();
 
     for (const trust of trusts) {
       const normTrust = path.normalize(trust.resolvedPath).toLowerCase();
-      const isContained =
+      
+      const isSyntacticallyContained =
+        normTargetSyntactic === normTrust ||
+        normTargetSyntactic.startsWith(normTrust + path.sep.toLowerCase());
+
+      const isCanonicallyContained =
         normTarget === normTrust ||
         normTarget.startsWith(normTrust + path.sep.toLowerCase());
 
-      if (isContained && trust.allowedOperations.includes(operation)) {
+      if (isSyntacticallyContained && !isCanonicallyContained) {
+        this.auditLogger.logWorkspaceEvent({
+          event: 'tmp_dir_trust_toctou_denial',
+          workspaceId,
+          toolName: 'workspace.temp_dir_trust',
+          operation,
+          reason: 'TOCTOU bypass attempt detected: canonical path escaped trusted directory root',
+          metadata: {
+            requestedPath: absolutePath,
+            resolvedPath: realTarget,
+            trustedRoot: trust.resolvedPath,
+          },
+        });
+        return {
+          allowed: false,
+          reason: 'TOCTOU bypass attempt detected: canonical path escaped trusted directory root',
+          mandateViolation: false,
+        };
+      }
+
+      if (isCanonicallyContained && trust.allowedOperations.includes(operation)) {
         this.auditLogger.logWorkspaceEvent({
           event: 'tmp_dir_trust_auto_approved',
           workspaceId,

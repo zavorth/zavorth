@@ -318,10 +318,7 @@ export class ToolExposurePolicy {
     // Apply narrowing for untrusted group users
     if (input.metadata?.channelUserIdAllowed === false) {
       const groupPolicy = input.metadata.groupToolPolicy as any;
-      const VALID_UNTRUSTED_USER_MODES = ['none', 'safe-only', 'allowlist-only', 'safe-plus-allowlist'];
-      const untrustedUserMode = groupPolicy && VALID_UNTRUSTED_USER_MODES.includes(groupPolicy.untrustedUserMode)
-        ? groupPolicy.untrustedUserMode
-        : 'safe-only';
+      const untrustedUserMode = 'none';
       const allowedToolsForUntrustedUsers = Array.isArray(groupPolicy?.allowedToolsForUntrustedUsers)
         ? groupPolicy.allowedToolsForUntrustedUsers
         : [];

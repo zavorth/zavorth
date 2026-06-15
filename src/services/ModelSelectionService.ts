@@ -6,6 +6,7 @@ export interface ProviderRuntimeRequest {
   modelId?: string;
   capability?: ProviderCapability;
   allowFallback?: boolean;
+  workspaceId?: string;
 }
 
 export interface ResolvedProviderRuntime {
