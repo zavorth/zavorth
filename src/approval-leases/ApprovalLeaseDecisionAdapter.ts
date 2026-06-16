@@ -273,8 +273,15 @@ export class ApprovalLeaseDecisionAdapter {
 
     try {
       // Intentionally not awaited — synchronous throw is caught below.
-      // Async rejection is the caller's concern (use a sync sink for full guarantee).
-      void this.auditSink.logIntegrationEvent(event);
+      // Async rejection is caught to prevent unhandled promise rejections crashing Node.js.
+      const p = this.auditSink.logIntegrationEvent(event);
+      if (p instanceof Promise) {
+        p.catch((asyncErr) => {
+          // Log to stderr but do not crash. Since evaluate is sync and already returned,
+          // we cannot change the returned status to fail_closed retroactively here.
+          console.error('[SECURITY-AUDIT-ERROR] Async audit logging failed: ', asyncErr);
+        });
+      }
     } catch (auditErr) {
       const auditErrMsg = auditErr instanceof Error ? auditErr.message : 'unknown audit error';
       const failReason = 'Audit sink threw during ' + params.eventType + ': ' + auditErrMsg + '. Failing closed.';

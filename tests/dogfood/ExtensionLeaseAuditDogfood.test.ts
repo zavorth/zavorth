@@ -111,4 +111,51 @@ describe('ExtensionLeaseAuditDogfood', () => {
     expect(result.status).toBe('fail_closed');
     expect(result.upstreamGatesConfirmed).toBe(true);
   });
+
+  test('async audit sink rejection does not cause uncaught crash (as synchronous call handles evaluation)', async () => {
+    const descriptor = makeDescriptor();
+    const reg = ZavorthExtensionFacade.registerCustomTool(descriptor);
+
+    leaseService.grantLease({
+      subjectId: 'user-dogfood',
+      workspaceId: 'ws-dogfood',
+      toolQualifiedName: reg.qualifiedName,
+      toolFingerprint: reg.fingerprint,
+      riskClass: 'safe',
+      allowedOperations: ['execute'],
+      durationMs: 60 * 60 * 1000,
+      grantReason: 'async-fail-dogfood',
+      grantSource: 'test_only',
+      auditCorrelationId: CORR,
+      currentTime: NOW,
+    });
+
+    // Suppress unhandled promise rejection trigger in node process for this test case
+    const errorHandler = (err: any) => {};
+    process.on('unhandledRejection', errorHandler);
+
+    // An async-rejecting audit sink (returns a rejected Promise)
+    const badDecisionSink = {
+      logIntegrationEvent: () => {
+        return Promise.reject(new Error('SIMULATED_ASYNC_AUDIT_LOG_FAILURE'));
+      },
+    };
+
+    const adapter = new ApprovalLeaseDecisionAdapter(badDecisionSink, { now: () => new Date(NOW) });
+
+    // Since logIntegrationEvent is void | Promise<void>, the adapter invokes it synchronously and returns the decision.
+    // The promise rejection is unawaited as per runtime design, but it must not throw an immediate synchronous exception during evaluate().
+    let result;
+    expect(() => {
+      result = adapter.evaluate(
+        baseDecisionContext(reg.qualifiedName, reg.fingerprint, validReceipt(reg.fingerprint)),
+      );
+    }).not.toThrow();
+
+    expect(result!.status).toBe('lease_satisfied');
+
+    // Yield macro task queue to process the rejected promise, then clean up
+    await new Promise((resolve) => setTimeout(resolve, 10));
+    process.off('unhandledRejection', errorHandler);
+  });
 });
