@@ -1,7 +1,7 @@
-# Headless & Serverless Architecture - Phase 21S-A
+# Headless & Serverless Architecture
 
-> [!IMPORTANT]
-> This is a design-only document for Phase 21S-A. No runtime implementation is performed in this phase.
+> [!NOTE]
+> This is a durable design document for Zavorth.
 
 ## Future Headless Mode Design
 The future `--headless` flag on `zavorth start` will configure the runtime to boot without spawning the Electron-based GUI Dashboard. Instead, the backend will initialize only the following core engines:

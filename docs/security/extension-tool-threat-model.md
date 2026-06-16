@@ -1,7 +1,7 @@
-# Extension Tool Threat Model - Phase 21S-A
+# Extension Tool Threat Model
 
-> [!IMPORTANT]
-> This is a design-only document for Phase 21S-A. No runtime implementation is performed in this phase.
+> [!NOTE]
+> This is a durable design document for Zavorth.
 
 ## 1. Threat Scenarios and Mitigations
 

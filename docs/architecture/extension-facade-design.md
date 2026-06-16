@@ -1,7 +1,7 @@
-# Extension Facade Design - Phase 21S-A
+# Extension Facade Design
 
-> [!IMPORTANT]
-> This is a design-only document for Phase 21S-A. No runtime implementation is performed in this phase.
+> [!NOTE]
+> This is a durable design document for Zavorth.
 
 ## Future API Shape Design
 

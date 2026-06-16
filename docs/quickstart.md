@@ -63,7 +63,7 @@ zavorth open
 `zavorth setup` is the first-run Studio. `zavorth onboard` remains a compatibility
 alias for existing operators.
 
-Use a dry run when you only want to inspect the launch path:
+Use the dry-run option when you only want to inspect the launch path:
 
 ```bash
 zavorth start --dry-run

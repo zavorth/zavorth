@@ -1,7 +1,7 @@
-# Service Composition Options - Phase 21S-A
+# Service Composition Options
 
-> [!IMPORTANT]
-> This is a design-only document for Phase 21S-A. No runtime implementation is performed in this phase.
+> [!NOTE]
+> This is a durable design document for Zavorth.
 
 ## Comparison of Dependency Management Options
 
