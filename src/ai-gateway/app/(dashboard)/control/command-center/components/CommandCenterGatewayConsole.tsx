@@ -17,6 +17,7 @@ type CommandCenterGatewayConsoleProps = {
 
 type GatewayConsoleOperation =
   | "providers.test"
+  | "resilience.test"
   | "combos.validate"
   | "cache.invalidate"
   | "rate-limits.toggle";
@@ -43,6 +44,7 @@ type GatewayConsoleFormState = {
 
 const OPERATION_LABELS: Record<GatewayConsoleOperation, string> = {
   "providers.test": "Provider",
+  "resilience.test": "Test Route",
   "combos.validate": "Combo",
   "cache.invalidate": "Cache",
   "rate-limits.toggle": "Rate limit",
@@ -50,6 +52,7 @@ const OPERATION_LABELS: Record<GatewayConsoleOperation, string> = {
 
 const OPERATION_PATHS: Record<GatewayConsoleOperation, string> = {
   "providers.test": "/api/gateway-control/providers/test",
+  "resilience.test": "/api/gateway-control/resilience",
   "combos.validate": "/api/gateway-control/combos/validate",
   "cache.invalidate": "/api/gateway-control/cache/invalidate",
   "rate-limits.toggle": "/api/gateway-control/rate-limits/toggle",
@@ -71,6 +74,12 @@ export function CommandCenterGatewayConsole({
   const comboEntries = asRecordArray(combos.entries);
   const cache = asRecord(snapshot?.cache);
   const rateLimits = asRecord(snapshot?.rateLimits);
+  const resilience = asRecord(snapshot?.resilience);
+  const resiliencePolicy = asRecord(resilience.policy);
+  const resilienceBudget = asRecord(resilience.budget);
+  const resilienceHealth = asRecord(resilience.health);
+  const resilienceReceipts = asRecordArray(resilience.receipts);
+  const resilienceFallbackOrder = asRecordArray(resiliencePolicy.fallbackOrder);
   const rateLimitEntries = asRecordArray(rateLimits.entries);
   const operations = asRecordArray(snapshot?.operations);
   const warnings = asTextArray(snapshot?.warnings);
@@ -224,6 +233,12 @@ export function CommandCenterGatewayConsole({
           tone={modelPickerReadyRoutes.length > 0 || modelPickerSelected.ready === true ? "ok" : "warn"}
         />
         <GatewayConsoleMetric
+          label="Resilience"
+          value={asText(resilienceHealth.status, "unknown")}
+          detail={`${resilienceFallbackOrder.length} fallback(s) - budget ${asText(resilienceBudget.decision, "allowed")}`}
+          tone={resilience.ok === false ? "warn" : resilienceFallbackOrder.length > 0 ? "ok" : "info"}
+        />
+        <GatewayConsoleMetric
           label="Warnings"
           value={String(warnings.length + asTextArray(combos.warnings).length + asTextArray(cache.warnings).length + asTextArray(rateLimits.warnings).length)}
           detail={model.gatewayControlError || asText(warnings[0], "sem alerta")}
@@ -274,6 +289,42 @@ export function CommandCenterGatewayConsole({
             )) : (
               <p className="bcc-empty-note">Nenhum provider retornado pelo contrato.</p>
             )}
+          </div>
+        </CommandCenterCard>
+
+        <CommandCenterCard label="Resilient AI Gateway" title={asText(resilienceHealth.status, "unknown")}>
+          <div className="bcc-list">
+            <div className="bcc-list-item" data-active={resiliencePolicy.enabled === true}>
+              <span className="bcc-list-item__title">
+                Primary route: {asText(resiliencePolicy.primaryProviderId, "auto")}
+                {asText(resiliencePolicy.primaryModelId) ? ` / ${asText(resiliencePolicy.primaryModelId)}` : ""}
+              </span>
+              <span className="bcc-list-item__meta">
+                timeout {asText(resiliencePolicy.timeoutMs, "30000")}ms - max attempts {asText(resiliencePolicy.maxAttempts, "3")}
+              </span>
+            </div>
+            <div className="bcc-list-item" data-active={resilienceBudget.decision !== "blocked"}>
+              <span className="bcc-list-item__title">Budget: {asText(resilienceBudget.decision, "allowed")}</span>
+              <span className="bcc-list-item__meta">
+                daily {asText(resilienceBudget.dailyBudgetCents, "unlimited")} cents - {asText(resilienceBudget.reason, "no budget block")}
+              </span>
+            </div>
+            {resilienceFallbackOrder.length > 0 ? resilienceFallbackOrder.map((target, index) => (
+              <div key={`${asText(target.providerId, "fallback")}-${index}`} className="bcc-list-item">
+                <span className="bcc-list-item__title">Fallback {index + 1}: {asText(target.providerId, "provider")}</span>
+                <span className="bcc-list-item__meta">{asText(target.modelId, "provider default model")}</span>
+              </div>
+            )) : (
+              <p className="bcc-empty-note">Fallback order ainda nao foi configurado.</p>
+            )}
+            {resilienceReceipts.slice(0, 3).map((receipt) => (
+              <div key={asText(receipt.receiptId, "receipt")} className="bcc-list-item" data-active={receipt.fallbackUsed === true}>
+                <span className="bcc-list-item__title">
+                  {receipt.fallbackUsed === true ? "Fallback usado" : "Sem fallback"} - {asText(receipt.budgetDecision, "allowed")}
+                </span>
+                <span className="bcc-list-item__meta">{asText(receipt.receiptId, "sem receipt")}</span>
+              </div>
+            ))}
           </div>
         </CommandCenterCard>
 
@@ -477,6 +528,18 @@ function GatewayConsoleOperationFields({
     );
   }
 
+  if (activeOperation === "resilience.test") {
+    return (
+      <GatewayConsoleField label="workspaceId">
+        <input
+          value={formState.connectionId || "control-ui"}
+          onChange={(event) => onChange({ connectionId: event.target.value })}
+          placeholder="control-ui"
+        />
+      </GatewayConsoleField>
+    );
+  }
+
   if (activeOperation === "rate-limits.toggle") {
     return (
       <>
@@ -625,6 +688,13 @@ function buildGatewayConsoleOperationInput(
     return {
       connectionId: formState.connectionId,
       enabled: formState.rateLimitEnabled,
+    };
+  }
+
+  if (operation === "resilience.test") {
+    return {
+      action: "testRoute",
+      workspaceId: formState.connectionId || "control-ui",
     };
   }
 

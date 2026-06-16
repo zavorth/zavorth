@@ -1,5 +1,6 @@
 import { ProviderConfig, ProviderConfigService } from './ProviderConfigService.js';
 import { ProviderCapability, ProviderModelRegistry } from './ProviderModelRegistry.js';
+import type { ResilientRoutePolicy } from './ResilientRoutePolicyService.js';
 
 export interface ProviderRuntimeRequest {
   providerId?: string;
@@ -7,6 +8,7 @@ export interface ProviderRuntimeRequest {
   capability?: ProviderCapability;
   allowFallback?: boolean;
   workspaceId?: string;
+  resiliencePolicy?: ResilientRoutePolicy;
 }
 
 export interface ResolvedProviderRuntime {

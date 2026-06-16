@@ -110,10 +110,20 @@ export function useControlPageClient(): ControlPageClientModel {
 
   const loadGatewayControlSnapshot = async (): Promise<GatewayControlResponse | null> => {
     try {
-      const payload = await fetchJson<GatewayControlResponse>("/api/gateway-control");
-      setGatewayControl(payload);
+      const [payload, resilience] = await Promise.all([
+        fetchJson<GatewayControlResponse>("/api/gateway-control"),
+        fetchJson<Record<string, any>>("/api/gateway-control/resilience").catch((error: any) => ({
+          ok: false,
+          error: error?.message || "Falha ao carregar a resiliencia do gateway.",
+        })),
+      ]);
+      const enrichedPayload = {
+        ...payload,
+        resilience,
+      };
+      setGatewayControl(enrichedPayload);
       setGatewayControlError(null);
-      return payload;
+      return enrichedPayload;
     } catch (controlError: any) {
       const message = controlError?.message || "Falha ao carregar a Gateway Control API.";
       const fallbackPayload: GatewayControlResponse = {

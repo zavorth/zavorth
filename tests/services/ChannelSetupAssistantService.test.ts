@@ -122,4 +122,44 @@ describe('ChannelSetupAssistantService', () => {
     }));
     expect(result.assistant.selected?.channelId).toBe('slack');
   });
+
+  it('applies the scaffold with extraEntries credentials and saves them to the env file', async () => {
+    const { service, envFilePath } = createService();
+
+    const result = await service.apply({
+      channelId: 'telegram',
+      mode: 'native',
+      extraEntries: [
+        { key: 'TELEGRAM_BOT_TOKEN', value: '12345:my-bot-token' },
+        { key: 'TELEGRAM_ALLOWED_USER_IDS', value: '987654321' },
+      ],
+      requestedBy: 'test',
+    });
+
+    const envText = fs.readFileSync(envFilePath, 'utf8');
+    expect(result.applyReport.channelId).toBe('telegram');
+    expect(envText).toContain('TELEGRAM_BOT_TOKEN=12345:my-bot-token');
+    expect(envText).toContain('TELEGRAM_ALLOWED_USER_IDS=987654321');
+    expect(result.assistant.selected?.missingEnvKeys).toEqual([]);
+    expect(result.assistant.status).toBe('ready_to_validate');
+  });
+
+  it('filters out arbitrary unapproved env keys from extraEntries to prevent injection', async () => {
+    const { service, envFilePath } = createService();
+
+    const result = await service.apply({
+      channelId: 'telegram',
+      mode: 'native',
+      extraEntries: [
+        { key: 'TELEGRAM_BOT_TOKEN', value: '12345:my-bot-token' },
+        { key: 'DATABASE_URL', value: 'mongodb://evil-url' },
+      ],
+      requestedBy: 'test',
+    });
+
+    const envText = fs.readFileSync(envFilePath, 'utf8');
+    expect(result.applyReport.channelId).toBe('telegram');
+    expect(envText).toContain('TELEGRAM_BOT_TOKEN=12345:my-bot-token');
+    expect(envText).not.toContain('DATABASE_URL');
+  });
 });
