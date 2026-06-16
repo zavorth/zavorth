@@ -32,7 +32,9 @@ describe('ProviderFallbackPolicyService', () => {
     mockInvoke = ProviderInvocationService.getInstance().invoke as jest.Mock;
     mockGetProviders = ProviderConfigService.getInstance().getProviders as jest.Mock;
     loggerSpy = jest.spyOn(SecurityAuditLogger.prototype, 'logWorkspaceEvent').mockResolvedValue(undefined);
-    jest.clearAllMocks();
+    mockInvoke.mockReset();
+    mockGetProviders.mockReset();
+    loggerSpy.mockClear();
   });
 
   afterEach(() => {
@@ -47,7 +49,10 @@ describe('ProviderFallbackPolicyService', () => {
     
     expect(res.text).toBe('success');
     expect(mockInvoke).toHaveBeenCalledTimes(1);
-    expect(loggerSpy).not.toHaveBeenCalled(); // Fallback logger only logs fallback events
+    expect(res.fallbackUsed).toBe(false);
+    expect(res.routingAttempts?.map(attempt => attempt.status)).toEqual(['succeeded']);
+    expect(loggerSpy).toHaveBeenCalledWith(expect.objectContaining({ event: 'provider_route_attempt_started' }));
+    expect(loggerSpy).toHaveBeenCalledWith(expect.objectContaining({ event: 'provider_route_attempt_succeeded' }));
   });
 
   it('does not fallback if allowFallback is false', async () => {
@@ -86,6 +91,91 @@ describe('ProviderFallbackPolicyService', () => {
 
     expect(loggerSpy).toHaveBeenCalledWith(expect.objectContaining({ event: 'provider_runtime_fallback_attempted' }));
     expect(loggerSpy).toHaveBeenCalledWith(expect.objectContaining({ event: 'provider_runtime_fallback_succeeded' }));
+  });
+
+  it('respects explicit resilient fallback order and returns routing receipt metadata', async () => {
+    mockGetProviders.mockResolvedValue([
+      { providerId: 'p-1', enabled: true, requiresApiKey: true, secretRef: 'key' },
+      { providerId: 'p-2', enabled: true, requiresApiKey: true, secretRef: 'key' },
+      { providerId: 'p-3', enabled: true, requiresApiKey: true, secretRef: 'key' }
+    ]);
+
+    mockInvoke
+      .mockRejectedValueOnce(new Error('timeout'))
+      .mockResolvedValueOnce({ text: 'fallback-success' });
+
+    const service = ProviderFallbackPolicyService.getInstance();
+    const res = await service.invokeWithFallback({
+      providerId: 'p-1',
+      allowFallback: true,
+      workspaceId: 'workspace-1',
+      resiliencePolicy: {
+        enabled: true,
+        fallbackOrder: [
+          { providerId: 'p-3', modelId: 'fallback-model' },
+          { providerId: 'p-2' }
+        ],
+        timeoutMs: 5000,
+        maxAttempts: 3,
+        retryableErrorCodes: ['timeout']
+      }
+    }, []);
+
+    expect(res.text).toBe('fallback-success');
+    expect(res.fallbackUsed).toBe(true);
+    expect(res.budgetDecision).toBe('allowed');
+    expect(res.routingReceiptId).toContain('provider-route:workspace-1:');
+    expect(res.routingAttempts?.map(attempt => attempt.providerId)).toEqual(['p-1', 'p-3']);
+    expect(mockInvoke.mock.calls[1][0]).toMatchObject({
+      providerId: 'p-3',
+      modelId: 'fallback-model'
+    });
+  });
+
+  it('blocks before invocation when resilient daily budget is exhausted', async () => {
+    const service = ProviderFallbackPolicyService.getInstance();
+
+    await expect(service.invokeWithFallback({
+      providerId: 'p-1',
+      allowFallback: true,
+      workspaceId: 'workspace-1',
+      resiliencePolicy: {
+        enabled: true,
+        fallbackOrder: [{ providerId: 'p-2' }],
+        timeoutMs: 5000,
+        maxAttempts: 2,
+        dailyBudgetCents: 0,
+        retryableErrorCodes: ['timeout']
+      }
+    }, [])).rejects.toThrow('budget_blocked');
+
+    expect(mockInvoke).not.toHaveBeenCalled();
+    expect(loggerSpy).toHaveBeenCalledWith(expect.objectContaining({
+      event: 'provider_route_budget_blocked'
+    }));
+  });
+
+  it('does not fallback for policy and security errors', async () => {
+    mockGetProviders.mockResolvedValue([
+      { providerId: 'p-1', enabled: true, requiresApiKey: true, secretRef: 'key' },
+      { providerId: 'p-2', enabled: true, requiresApiKey: true, secretRef: 'key' }
+    ]);
+    mockInvoke.mockRejectedValue(new Error('policy_denied'));
+
+    const service = ProviderFallbackPolicyService.getInstance();
+    await expect(service.invokeWithFallback({
+      providerId: 'p-1',
+      allowFallback: true,
+      resiliencePolicy: {
+        enabled: true,
+        fallbackOrder: [{ providerId: 'p-2' }],
+        timeoutMs: 5000,
+        maxAttempts: 2,
+        retryableErrorCodes: ['timeout', 'policy_denied']
+      }
+    }, [])).rejects.toThrow('policy_denied');
+
+    expect(mockInvoke).toHaveBeenCalledTimes(1);
   });
 
   it('skips fallbacks that are not configured', async () => {

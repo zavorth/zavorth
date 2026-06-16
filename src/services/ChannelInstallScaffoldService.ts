@@ -156,7 +156,12 @@ export class ChannelInstallScaffoldService {
     const definition = this.getModeDefinition(input.channelId, input.mode);
     const baseEntries = definition.scaffoldEntries(this.projectRoot);
     const extraEntries = Array.isArray(input.extraEntries) ? input.extraEntries : [];
-    const env = this.envFiles.upsertEntries(this.envFilePath, [...baseEntries, ...extraEntries]);
+    
+    // Security Defense-in-Depth: whitelist extraEntries keys to prevent env pollution/hijack
+    const allowedKeys = new Set(baseEntries.map((entry) => entry.key));
+    const filteredExtraEntries = extraEntries.filter((entry) => allowedKeys.has(entry.key));
+    
+    const env = this.envFiles.upsertEntries(this.envFilePath, [...baseEntries, ...filteredExtraEntries]);
     const directoriesCreated: string[] = [];
 
     for (const directory of definition.directories(this.projectRoot)) {

@@ -486,6 +486,7 @@ describe('admin action API route hardening', () => {
       readApiRoute('gateway-control', 'providers', 'test'),
       readApiRoute('gateway-control', 'rate-limits'),
       readApiRoute('gateway-control', 'rate-limits', 'toggle'),
+      readApiRoute('gateway-control', 'resilience'),
     ];
 
     for (const route of routes) {
@@ -503,6 +504,24 @@ describe('admin action API route hardening', () => {
     expectHandlerAuthBefore(routes[8], 'POST', 'readGatewayControlJsonBody');
     expectHandlerAuthBefore(routes[9], 'GET', 'buildGatewayControlReadPayload');
     expectHandlerAuthBefore(routes[10], 'POST', 'readGatewayControlJsonBody');
+    expectHandlerAuthBefore(routes[11], 'GET', 'buildSnapshot');
+    expectHandlerAuthBefore(routes[11], 'POST', 'readJsonBody');
+    expect(routes[11]).toContain('isUnsafeCrossSiteMutation');
+  });
+
+  it('requires management auth on Zavorth Control memory and channel setup routes', () => {
+    const memoryRoute = readApiRoute('web', 'zavorthControl', 'memory');
+    const channelSetupRoute = readApiRoute('web', 'zavorthControl', 'channels', 'setup');
+
+    expect(memoryRoute).toContain('requireManagementAuth');
+    expect(channelSetupRoute).toContain('requireManagementAuth');
+    expectHandlerAuthBefore(memoryRoute, 'GET', 'listDashboardMemoryFacts');
+    expectHandlerAuthBefore(memoryRoute, 'POST', 'readJsonBody');
+    expectHandlerAuthBefore(channelSetupRoute, 'GET', 'buildSession');
+    expectHandlerAuthBefore(channelSetupRoute, 'POST', 'readJsonBody');
+    expect(memoryRoute).toContain('isUnsafeCrossSiteMutation');
+    expect(channelSetupRoute).toContain('isUnsafeCrossSiteMutation');
+    expect(channelSetupRoute).toContain('redactChannelSetupPayload');
   });
 
   it('requires management auth on consolidated operational API/Web/MCP routes', () => {

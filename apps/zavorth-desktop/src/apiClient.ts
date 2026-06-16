@@ -68,12 +68,18 @@ export type LearningItem = {
 
 export type MemoryItem = {
   id?: string;
+  key?: string;
   title?: string;
   summary?: string;
   kind?: string;
+  type?: string;
+  content?: string;
+  contentPreview?: string;
+  editable?: boolean;
   confidence?: number;
   expiry?: string;
   receiptId?: string;
+  metadata?: Record<string, unknown>;
 };
 
 export type ToolItem = {
@@ -96,6 +102,36 @@ export type ChannelItem = {
   defaultRouteAllowed?: boolean;
   status?: string;
   summary?: string;
+};
+
+export type ControlMemorySnapshot = {
+  ok?: boolean;
+  contractVersion?: string;
+  query?: Record<string, unknown>;
+  facts?: MemoryItem[];
+  stats?: Record<string, unknown>;
+};
+
+export type ChannelSetupSnapshot = {
+  ok?: boolean;
+  contractVersion?: string;
+  assistant?: {
+    status?: string;
+    selected?: Record<string, any> | null;
+    options?: Array<Record<string, any>>;
+    naturalReply?: string;
+    nextActions?: Array<Record<string, any>>;
+  };
+  channels?: unknown;
+};
+
+export type GatewayResilienceSnapshot = {
+  ok?: boolean;
+  policy?: Record<string, any>;
+  providers?: Array<Record<string, any>>;
+  budget?: Record<string, any>;
+  receipts?: Array<Record<string, any>>;
+  health?: Record<string, any>;
 };
 
 export type MemoryEncryptionStatus = {
@@ -136,6 +172,9 @@ export type DesktopPanelsData = {
   learning: LearningItem[];
   tools: ToolItem[];
   nexusStatus: unknown;
+  controlMemory: ControlMemorySnapshot | null;
+  channelSetup: ChannelSetupSnapshot | null;
+  gatewayResilience: GatewayResilienceSnapshot | null;
   memoryEncryptionStatus: MemoryEncryptionStatus | null;
   runtimeCapabilities: RuntimeCapabilitiesSnapshot | null;
 };
@@ -465,6 +504,88 @@ export async function loadMemoryEncryptionStatus(): Promise<MemoryEncryptionStat
   return result.data?.status || null;
 }
 
+export async function loadControlMemory(input: {
+  query?: string;
+  type?: string;
+  semantic?: boolean;
+  limit?: number;
+} = {}): Promise<ControlMemorySnapshot | null> {
+  const result = await apiRequest<ControlMemorySnapshot>({
+    method: 'GET',
+    path: '/api/web/zavorthControl/memory',
+    query: {
+      query: input.query || undefined,
+      type: input.type || undefined,
+      semantic: input.semantic ? 'true' : undefined,
+      limit: String(input.limit || 50),
+    },
+  });
+  return result.ok ? result.data || null : null;
+}
+
+export async function mutateControlMemory(input: {
+  action: 'forget' | 'updatePreference' | 'exportMemory';
+  id?: string;
+  content?: string;
+  query?: string;
+  type?: string;
+}): Promise<any> {
+  const result = await apiRequest({
+    method: 'POST',
+    path: '/api/web/zavorthControl/memory',
+    body: input,
+  });
+  return requireOk(result, 'Could not update memory.');
+}
+
+export async function loadChannelSetup(input: {
+  channelId?: string | null;
+  mode?: string | null;
+} = {}): Promise<ChannelSetupSnapshot | null> {
+  const result = await apiRequest<ChannelSetupSnapshot>({
+    method: 'GET',
+    path: '/api/web/zavorthControl/channels/setup',
+    query: {
+      channelId: input.channelId || undefined,
+      mode: input.mode || undefined,
+    },
+  });
+  return result.ok ? result.data || null : null;
+}
+
+export async function mutateChannelSetup(input: {
+  action: 'applyScaffold' | 'doctor' | 'testConnection';
+  channelId?: string | null;
+  mode?: string | null;
+  extraEntries?: Array<{ key: string; value: string }>;
+}): Promise<any> {
+  const result = await apiRequest({
+    method: 'POST',
+    path: '/api/web/zavorthControl/channels/setup',
+    body: input,
+    timeoutMs: 60000,
+  });
+  return requireOk(result, 'Could not run channel setup.');
+}
+
+export async function loadGatewayResilience(): Promise<GatewayResilienceSnapshot | null> {
+  const result = await apiRequest<GatewayResilienceSnapshot>({
+    method: 'GET',
+    path: '/api/gateway-control/resilience',
+  });
+  return result.ok ? result.data || null : null;
+}
+
+export async function mutateGatewayResilience(input: Record<string, unknown>): Promise<any> {
+  const result = await apiRequest({
+    method: 'POST',
+    path: '/api/gateway-control/resilience',
+    body: input,
+    timeoutMs: 60000,
+  });
+  return requireOk(result, 'Could not update gateway resilience.');
+}
+
 export async function runMemoryEncryptionMigration(input: {
   action: 'preview' | 'apply' | 'rollback';
   backupPath?: string | null;
@@ -540,15 +661,38 @@ export async function steerActiveRun(input: {
 }
 
 export async function loadDesktopPanelsData(): Promise<DesktopPanelsData> {
-  const [approvals, learning, tools, nexusStatus, memoryEncryptionStatus, runtimeCapabilities] = await Promise.all([
+  const [
+    approvals,
+    learning,
+    tools,
+    nexusStatus,
+    controlMemory,
+    channelSetup,
+    gatewayResilience,
+    memoryEncryptionStatus,
+    runtimeCapabilities,
+  ] = await Promise.all([
     loadApprovals().catch(() => []),
     loadLearning().catch(() => []),
     loadTools().catch(() => []),
     loadNexusStatus().catch(() => null),
+    loadControlMemory().catch(() => null),
+    loadChannelSetup().catch(() => null),
+    loadGatewayResilience().catch(() => null),
     loadMemoryEncryptionStatus().catch(() => null),
     loadRuntimeCapabilities().catch(() => null),
   ]);
-  return { approvals, learning, tools, nexusStatus, memoryEncryptionStatus, runtimeCapabilities };
+  return {
+    approvals,
+    learning,
+    tools,
+    nexusStatus,
+    controlMemory,
+    channelSetup,
+    gatewayResilience,
+    memoryEncryptionStatus,
+    runtimeCapabilities,
+  };
 }
 
 export async function loadWorkspaceWriteApprovals(sessionId?: string): Promise<any[]> {

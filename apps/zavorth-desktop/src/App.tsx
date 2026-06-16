@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import { dispatchRuntimeStateAction, loadDesktopPanelsData, loadHome, loadRuntimeStatus, repairAccess, resolveApproval as resolveApprovalRequest, resolveLearning as resolveLearningRequest, runMemoryEncryptionMigration, sendExperienceMessage, startRuntime, steerActiveRun, type ApprovalItem, type ChatMessage, type ExperienceSnapshot, type LearningItem, type MemoryEncryptionMigrationReceipt, type MemoryEncryptionStatus, type MemoryItem, type RuntimeCapabilitiesSnapshot, type ToolItem, loadWorkspaceWriteApprovals, resolveWorkspaceWriteApproval, getWorkspaceTrustStatus, resolveWorkspaceTrust, loadProposedMandate, loadActiveMandate, resolveProposedMandate, revokeActiveMandate, getPendingHostCommands, resolveHostCommand } from './apiClient';
+import { dispatchRuntimeStateAction, loadDesktopPanelsData, loadHome, loadRuntimeStatus, repairAccess, resolveApproval as resolveApprovalRequest, resolveLearning as resolveLearningRequest, runMemoryEncryptionMigration, sendExperienceMessage, startRuntime, steerActiveRun, type ApprovalItem, type ChannelSetupSnapshot, type ChatMessage, type ControlMemorySnapshot, type ExperienceSnapshot, type GatewayResilienceSnapshot, type LearningItem, type MemoryEncryptionMigrationReceipt, type MemoryEncryptionStatus, type MemoryItem, type RuntimeCapabilitiesSnapshot, type ToolItem, loadWorkspaceWriteApprovals, resolveWorkspaceWriteApproval, getWorkspaceTrustStatus, resolveWorkspaceTrust, loadProposedMandate, loadActiveMandate, resolveProposedMandate, revokeActiveMandate, getPendingHostCommands, resolveHostCommand, mutateControlMemory, mutateChannelSetup, mutateGatewayResilience } from './apiClient';
 import type { BootEvent, RuntimeStatus } from './global';
 import { appendLocalMessage, applyRuntimeCapabilitiesToDesktop, asRecord, defaultConnectedModelIds, desktopEffortFromRuntime, fallbackStatus, modelOptionsFromRuntimeCapabilities, normalizeMessages, responseProfileByExperience, runtimeInstrumentActionInput, runtimeStateFromSnapshot, runtimeStateState } from './appRuntimeState';
 import { modelOptions } from './modelCatalog';
@@ -23,6 +23,9 @@ export function App() {
   const [memoryEncryptionStatus, setMemoryEncryptionStatus] = useState<MemoryEncryptionStatus | null>(null);
   const [memoryEncryptionReceipt, setMemoryEncryptionReceipt] = useState<MemoryEncryptionMigrationReceipt | null>(null);
   const [runtimeCapabilities, setRuntimeCapabilities] = useState<RuntimeCapabilitiesSnapshot | null>(null);
+  const [controlMemory, setControlMemory] = useState<ControlMemorySnapshot | null>(null);
+  const [channelSetup, setChannelSetup] = useState<ChannelSetupSnapshot | null>(null);
+  const [gatewayResilience, setGatewayResilience] = useState<GatewayResilienceSnapshot | null>(null);
   const [events, setEvents] = useState<BootEvent[]>([]);
   const [activePanel, setActivePanel] = useState<DesktopPanel>('chat');
   const [commandPaletteOpen, setCommandPaletteOpen] = useState(false);
@@ -113,6 +116,9 @@ export function App() {
       setLearning(data.learning);
       setTools(data.tools);
       setNexusStatus(data.nexusStatus);
+      setControlMemory(data.controlMemory);
+      setChannelSetup(data.channelSetup);
+      setGatewayResilience(data.gatewayResilience);
       setMemoryEncryptionStatus(data.memoryEncryptionStatus);
       setRuntimeCapabilities(data.runtimeCapabilities);
       applyRuntimeCapabilitiesToDesktop({
@@ -263,16 +269,29 @@ export function App() {
     return [
       ...((Array.isArray(memory.items) ? memory.items : []) as MemoryItem[]),
       ...((Array.isArray(memory.receipts) ? memory.receipts : []) as MemoryItem[]),
+      ...((Array.isArray(controlMemory?.facts) ? controlMemory.facts : []) as MemoryItem[]),
     ];
-  }, [snapshot]);
+  }, [controlMemory, snapshot]);
 
   const channelItems = useMemo(() => {
     const channels = snapshot?.channels || {};
+    const setupOptions = Array.isArray(channelSetup?.assistant?.options)
+      ? channelSetup.assistant.options.map((option: any) => ({
+        id: option.channelId,
+        name: option.label,
+        channel: option.channelId,
+        configured: option.configured,
+        liveReady: option.readiness === 'ready',
+        status: option.readiness || channelSetup.assistant?.status,
+        summary: option.summary,
+      }))
+      : [];
     return [
       ...((Array.isArray(channels.routes) ? channels.routes : []) as any[]),
       ...((Array.isArray(channels.readiness) ? channels.readiness : []) as any[]),
+      ...setupOptions,
     ];
-  }, [snapshot]);
+  }, [channelSetup, snapshot]);
 
   async function resolveApproval(approvalId: string, decision: 'approve' | 'reject') {
     setBusy(true);
@@ -319,6 +338,60 @@ export function App() {
     } finally {
       setBusy(false);
       void refreshPanels();
+    }
+  }
+
+  async function handleMemoryControlAction(input: {
+    action: 'forget' | 'updatePreference';
+    id: string;
+    content?: string;
+  }) {
+    setBusy(true);
+    try {
+      const result = await mutateControlMemory(input);
+      appendLocalMessage(setMessages, 'system', `Memory ${input.action}: ${result?.receipt?.receiptId || 'receipt created'}.`);
+      await refreshPanels();
+    } catch (error) {
+      setNotice(error instanceof Error ? error.message : 'Could not update memory.');
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  async function handleChannelSetupAction(input: {
+    action: 'applyScaffold' | 'doctor' | 'testConnection';
+    channelId?: string | null;
+    mode?: string | null;
+    extraEntries?: Array<{ key: string; value: string }>;
+  }) {
+    setBusy(true);
+    try {
+      const result = await mutateChannelSetup(input);
+      if (result?.result?.assistant) {
+        setChannelSetup({ ok: true, assistant: result.result.assistant });
+      }
+      appendLocalMessage(setMessages, 'system', `Channel ${input.action}: ${result?.receipt?.receiptId || result?.action || 'done'}.`);
+      await refreshPanels();
+    } catch (error) {
+      setNotice(error instanceof Error ? error.message : 'Could not run channel setup.');
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  async function handleGatewayResilienceAction(input: Record<string, unknown>) {
+    setBusy(true);
+    try {
+      const result = await mutateGatewayResilience(input);
+      if (result?.resilience) {
+        setGatewayResilience(result.resilience);
+      }
+      appendLocalMessage(setMessages, 'system', `Gateway resilience: ${result?.receipt?.receiptId || result?.status || 'updated'}.`);
+      await refreshPanels();
+    } catch (error) {
+      setNotice(error instanceof Error ? error.message : 'Could not update gateway resilience.');
+    } finally {
+      setBusy(false);
     }
   }
 
@@ -615,6 +688,7 @@ export function App() {
           approvals={approvals}
           busy={busy}
           channels={channelItems}
+          channelSetup={channelSetup}
           commandPaletteOpen={commandPaletteOpen}
           effort={effort}
           accent={accent}
@@ -625,6 +699,7 @@ export function App() {
           inspectorOpen={inspectorOpen}
           learning={learning}
           memoryItems={memoryItems}
+          gatewayResilience={gatewayResilience}
           modelOptions={connectedModelOptions}
           messages={messages}
           nexusStatus={nexusStatus}
@@ -648,6 +723,9 @@ export function App() {
           onEncryptionAction={handleMemoryEncryptionAction}
           onInput={setInput}
           onLearningDecision={resolveLearning}
+          onMemoryControlAction={handleMemoryControlAction}
+          onChannelSetupAction={handleChannelSetupAction}
+          onGatewayResilienceAction={handleGatewayResilienceAction}
           onModel={handleModelSelection}
           onNewSession={() => {
             setMessages([]);

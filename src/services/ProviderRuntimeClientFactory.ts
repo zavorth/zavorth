@@ -1,5 +1,9 @@
 import { LocalEncryptedProviderSecretStore } from './ProviderSecretStore.js';
 import { ResolvedProviderRuntime } from './ModelSelectionService.js';
+import type {
+  ResilientRouteAttempt,
+  ResilientRouteBudgetDecision,
+} from './ResilientRoutePolicyService.js';
 
 export interface SanitizedProviderInvocationRequest {
   messages: unknown[];
@@ -9,6 +13,10 @@ export interface SanitizedProviderInvocationRequest {
 export interface ProviderInvocationResult {
   text: string;
   finishReason?: string;
+  routingReceiptId?: string;
+  routingAttempts?: ResilientRouteAttempt[];
+  fallbackUsed?: boolean;
+  budgetDecision?: ResilientRouteBudgetDecision;
   rawError?: never; // ensure raw error is never passed back
 }
 

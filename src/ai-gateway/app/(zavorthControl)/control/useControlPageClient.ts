@@ -14,12 +14,27 @@ export function useControlPageClient() {
   };
 
   const loadControlState = async () => {
-    const gatewayControl = await fetchJson("/api/gateway-control");
+    const [gatewayControl, resilience] = await Promise.all([
+      fetchJson("/api/gateway-control"),
+      fetchJson("/api/gateway-control/resilience").catch((error: any) => ({
+        ok: false,
+        error: error?.message || "Falha ao carregar a resiliencia do gateway.",
+      })),
+    ]);
     const developerWorkspace = await fetchJson("/api/developer-workspace");
-    return { gatewayControl, developerWorkspace };
+    return { gatewayControl: { ...gatewayControl, resilience }, developerWorkspace };
   };
 
-  const reloadGatewayControl = async () => fetchJson("/api/gateway-control");
+  const reloadGatewayControl = async () => {
+    const [gatewayControl, resilience] = await Promise.all([
+      fetchJson("/api/gateway-control"),
+      fetchJson("/api/gateway-control/resilience").catch((error: any) => ({
+        ok: false,
+        error: error?.message || "Falha ao carregar a resiliencia do gateway.",
+      })),
+    ]);
+    return { ...gatewayControl, resilience };
+  };
   const reloadDeveloperWorkspace = async () => fetchJson("/api/developer-workspace");
 
   const loadRuntimeEventsV1 = async (query = "") => {

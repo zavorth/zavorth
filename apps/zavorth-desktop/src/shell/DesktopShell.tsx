@@ -1,7 +1,9 @@
 import { useEffect, useState } from 'react';
 import type {
   ApprovalItem,
+  ChannelSetupSnapshot,
   ChatMessage,
+  GatewayResilienceSnapshot,
   LearningItem,
   MemoryEncryptionMigrationReceipt,
   MemoryEncryptionStatus,
@@ -30,6 +32,7 @@ export function DesktopShell(props: {
   approvals: ApprovalItem[];
   busy: boolean;
   channels: any[];
+  channelSetup: ChannelSetupSnapshot | null;
   commandPaletteOpen: boolean;
   effort: string;
   encryptionReceipt: MemoryEncryptionMigrationReceipt | null;
@@ -39,6 +42,7 @@ export function DesktopShell(props: {
   inspectorOpen: boolean;
   learning: LearningItem[];
   memoryItems: MemoryItem[];
+  gatewayResilience: GatewayResilienceSnapshot | null;
   modelOptions: ModelOption[];
   messages: ChatMessage[];
   nexusStatus: unknown;
@@ -62,6 +66,14 @@ export function DesktopShell(props: {
   onEncryptionAction(action: 'preview' | 'apply' | 'rollback'): void | Promise<void>;
   onInput(value: string): void;
   onLearningDecision(id: string, decision: 'approve' | 'reject' | 'forget'): void | Promise<void>;
+  onMemoryControlAction(input: { action: 'forget' | 'updatePreference'; id: string; content?: string }): void | Promise<void>;
+  onChannelSetupAction(input: {
+    action: 'applyScaffold' | 'doctor' | 'testConnection';
+    channelId?: string | null;
+    mode?: string | null;
+    extraEntries?: Array<{ key: string; value: string }>;
+  }): void | Promise<void>;
+  onGatewayResilienceAction(input: Record<string, unknown>): void | Promise<void>;
   onModel(value: string): void;
   onNewSession(): void;
   onPanel(panel: DesktopPanel): void;
@@ -200,12 +212,14 @@ export function DesktopShell(props: {
               approvals={props.approvals}
               busy={props.busy}
               channels={props.channels}
+              channelSetup={props.channelSetup}
               effort={props.effort}
               encryptionReceipt={props.encryptionReceipt}
               encryptionStatus={props.encryptionStatus}
               events={props.events}
               learning={props.learning}
               memoryItems={props.memoryItems}
+              gatewayResilience={props.gatewayResilience}
               nexusStatus={props.nexusStatus}
               profile={props.profile}
               runtimeCapabilities={props.runtimeCapabilities}
@@ -218,6 +232,9 @@ export function DesktopShell(props: {
               onEffort={props.onEffort}
               onEncryptionAction={props.onEncryptionAction}
               onLearningDecision={props.onLearningDecision}
+              onMemoryControlAction={props.onMemoryControlAction}
+              onChannelSetupAction={props.onChannelSetupAction}
+              onGatewayResilienceAction={props.onGatewayResilienceAction}
               onProfile={props.onProfile}
               onReviewDecision={props.onReviewDecision}
               onRuntimeStart={props.onRuntimeStart}

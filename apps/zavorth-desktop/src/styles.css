@@ -2495,3 +2495,84 @@ input:focus-visible {
   background: rgba(34, 197, 94, 0.12);
   color: rgb(134, 239, 172);
 }
+
+/* Credentials setup form styling */
+.zvd-credentials-form {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-top: 12px;
+  margin-bottom: 8px;
+  padding: 14px;
+  border: 1px solid var(--zvd-border);
+  border-radius: 12px;
+  background: var(--zvd-card-bg, rgba(255, 255, 255, 0.3));
+}
+
+.zvd-credentials-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.zvd-credentials-field label {
+  font-size: 0.85em;
+  font-weight: 600;
+  color: var(--zvd-muted, rgba(95, 101, 114, 0.8));
+}
+
+.zvd-credentials-field input {
+  min-height: 36px;
+  border: 1px solid var(--zvd-border);
+  border-radius: 8px;
+  padding: 0 10px;
+  font-family: monospace;
+  font-size: 0.9em;
+  color: var(--zvd-text);
+  background: var(--zvd-input-bg, #ffffff);
+}
+
+.zvd-credentials-field input:focus-visible {
+  outline: none;
+  border-color: var(--zvd-accent);
+  box-shadow: 0 0 0 2px rgba(201, 93, 31, 0.15);
+}
+
+.theme-dark .zvd-credentials-field input {
+  background: var(--zvd-input-bg, #1a1b22);
+}
+
+.zvd-credentials-actions button {
+  min-height: 32px;
+  border: 1px solid var(--zvd-border);
+  border-radius: 8px;
+  padding: 0 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.zvd-credentials-actions button.zvd-btn-primary {
+  color: #ffffff;
+  background: var(--zvd-accent, #c95d1f);
+  border-color: var(--zvd-accent, #c95d1f);
+}
+
+.zvd-credentials-actions button.zvd-btn-primary:hover {
+  opacity: 0.9;
+}
+
+.zvd-credentials-actions button.zvd-btn-secondary {
+  color: var(--zvd-muted, #5f6572);
+  background: transparent;
+  border-color: var(--zvd-border);
+}
+
+.zvd-credentials-actions button.zvd-btn-secondary:hover {
+  background: rgba(31, 32, 39, 0.055);
+}
+
+.theme-dark .zvd-credentials-actions button.zvd-btn-secondary:hover {
+  background: rgba(255, 255, 255, 0.055);
+}
+

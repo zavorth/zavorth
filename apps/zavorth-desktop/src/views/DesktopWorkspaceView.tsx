@@ -2,6 +2,8 @@ import { useMemo, useState, type ReactNode } from 'react';
 import type {
   ApprovalItem,
   ChannelItem,
+  ChannelSetupSnapshot,
+  GatewayResilienceSnapshot,
   LearningItem,
   MemoryEncryptionMigrationReceipt,
   MemoryEncryptionStatus,
@@ -24,12 +26,14 @@ type WorkspaceViewProps = {
   approvals: ApprovalItem[];
   busy: boolean;
   channels: ChannelItem[];
+  channelSetup: ChannelSetupSnapshot | null;
   encryptionReceipt: MemoryEncryptionMigrationReceipt | null;
   encryptionStatus: MemoryEncryptionStatus | null;
   events: BootEvent[];
   effort: string;
   learning: LearningItem[];
   memoryItems: MemoryItem[];
+  gatewayResilience: GatewayResilienceSnapshot | null;
   nexusStatus: unknown;
   profile: string;
   runtimeCapabilities: RuntimeCapabilitiesSnapshot | null;
@@ -41,6 +45,14 @@ type WorkspaceViewProps = {
   onEffort(value: string): void;
   onEncryptionAction(action: 'preview' | 'apply' | 'rollback'): void | Promise<void>;
   onLearningDecision(id: string, decision: 'approve' | 'reject' | 'forget'): void | Promise<void>;
+  onMemoryControlAction(input: { action: 'forget' | 'updatePreference'; id: string; content?: string }): void | Promise<void>;
+  onChannelSetupAction(input: {
+    action: 'applyScaffold' | 'doctor' | 'testConnection';
+    channelId?: string | null;
+    mode?: string | null;
+    extraEntries?: Array<{ key: string; value: string }>;
+  }): void | Promise<void>;
+  onGatewayResilienceAction(input: Record<string, unknown>): void | Promise<void>;
   onProfile(value: string): void;
   onReviewDecision(id: string, decision: 'approve' | 'reject'): void | Promise<void>;
   onRuntimeStart(): void | Promise<void>;
@@ -63,6 +75,7 @@ export function DesktopWorkspaceView(props: WorkspaceViewProps) {
         learning={props.learning}
         onEncryptionAction={props.onEncryptionAction}
         onLearningDecision={props.onLearningDecision}
+        onMemoryControlAction={props.onMemoryControlAction}
       />
     );
   }
@@ -72,7 +85,14 @@ export function DesktopWorkspaceView(props: WorkspaceViewProps) {
   }
 
   if (props.activePanel === 'channels') {
-    return <ChannelsView channels={props.channels} />;
+    return (
+      <ChannelsView
+        busy={props.busy}
+        channels={props.channels}
+        setup={props.channelSetup}
+        onSetupAction={props.onChannelSetupAction}
+      />
+    );
   }
 
   return (
@@ -83,6 +103,7 @@ export function DesktopWorkspaceView(props: WorkspaceViewProps) {
       nexusStatus={props.nexusStatus}
       profile={props.profile}
       runtimeCapabilities={props.runtimeCapabilities}
+      gatewayResilience={props.gatewayResilience}
       status={props.status}
       theme={props.theme}
       accent={props.accent}
@@ -90,6 +111,7 @@ export function DesktopWorkspaceView(props: WorkspaceViewProps) {
       onAccent={props.onAccent}
       onProfile={props.onProfile}
       onRepair={props.onAccessRepair}
+      onGatewayResilienceAction={props.onGatewayResilienceAction}
       onStart={props.onRuntimeStart}
       onRuntimeStateAction={props.onRuntimeStateAction}
       onTheme={props.onTheme}
@@ -251,6 +273,7 @@ function MemoryView(props: {
   learning: LearningItem[];
   onEncryptionAction(action: 'preview' | 'apply' | 'rollback'): void | Promise<void>;
   onLearningDecision(id: string, decision: 'approve' | 'reject' | 'forget'): void | Promise<void>;
+  onMemoryControlAction(input: { action: 'forget' | 'updatePreference'; id: string; content?: string }): void | Promise<void>;
 }) {
   const [mode, setMode] = useState<'learned' | 'candidates' | 'protection'>('learned');
   const [query, setQuery] = useState('');
@@ -259,14 +282,39 @@ function MemoryView(props: {
   const canRollback = Boolean(props.encryptionReceipt?.backupPath && props.encryptionReceipt.status === 'applied');
 
   const learnedRows = props.items
-    .filter(item => !q || `${item.title || ''} ${item.summary || ''} ${item.kind || ''}`.toLowerCase().includes(q))
-    .map((item, index) => ({
-      id: itemId(item, `memory-${index}`),
-      title: item.title || item.kind || 'Memory receipt',
-      description: item.summary || item.receiptId || 'Stored with provenance.',
-      meta: item.expiry || item.receiptId || 'local',
-      tone: 'ready' as const,
-    }));
+    .filter(item => !q || `${item.title || ''} ${item.summary || ''} ${item.kind || ''} ${item.key || ''} ${item.content || ''} ${item.contentPreview || ''}`.toLowerCase().includes(q))
+    .map((item, index) => {
+      const id = item.id || itemId(item, `memory-${index}`);
+      const canEdit = item.editable === true;
+      return {
+        id,
+        title: item.title || item.key || item.kind || item.type || 'Memory receipt',
+        description: item.summary || item.contentPreview || item.content || item.receiptId || 'Stored with provenance.',
+        meta: canEdit ? 'editable preference' : item.type || item.expiry || item.receiptId || 'read-only',
+        tone: canEdit ? 'ready' as const : 'muted' as const,
+        actions: (
+          <div className="zvd-row-actions">
+            {canEdit && (
+              <button
+                disabled={props.busy}
+                onClick={() => {
+                  const content = window.prompt('Update preference', item.content || item.contentPreview || item.summary || '');
+                  if (content !== null) {
+                    void props.onMemoryControlAction({ action: 'updatePreference', id, content });
+                  }
+                }}
+                type="button"
+              >
+                Edit
+              </button>
+            )}
+            <button disabled={props.busy} onClick={() => void props.onMemoryControlAction({ action: 'forget', id })} type="button">
+              Forget
+            </button>
+          </div>
+        ),
+      };
+    });
 
   const candidateRows = props.learning
     .filter(candidate => !q || `${candidate.title || ''} ${candidate.summary || ''} ${candidate.kind || ''}`.toLowerCase().includes(q))
@@ -401,8 +449,23 @@ function SkillsView(props: { tools: ToolItem[] }) {
   );
 }
 
-function ChannelsView(props: { channels: ChannelItem[] }) {
+function ChannelsView(props: {
+  busy: boolean;
+  channels: ChannelItem[];
+  setup: ChannelSetupSnapshot | null;
+  onSetupAction(input: {
+    action: 'applyScaffold' | 'doctor' | 'testConnection';
+    channelId?: string | null;
+    mode?: string | null;
+    extraEntries?: Array<{ key: string; value: string }>;
+  }): void | Promise<void>;
+}) {
   const [query, setQuery] = useState('');
+  const [configuringChannelId, setConfiguringChannelId] = useState<string | null>(null);
+  const [credentials, setCredentials] = useState<Record<string, string>>({});
+  
+  const setupOptions = Array.isArray(props.setup?.assistant?.options) ? props.setup.assistant.options : [];
+  const selected = props.setup?.assistant?.selected || setupOptions[0] || null;
   const rows = props.channels
     .filter(channel => {
       const record = asRecord(channel);
@@ -432,6 +495,137 @@ function ChannelsView(props: { channels: ChannelItem[] }) {
       title={panelLabels.channels}
       actions={<SearchBox value={query} onChange={setQuery} placeholder="Search channels" />}
     >
+      <section className="zvd-settings-section" aria-label="Channel setup wizard">
+        <h2>Channel setup</h2>
+        {setupOptions.length === 0 ? (
+          <EmptyRows text="No channel setup options are available yet." />
+        ) : (
+          <div className="zvd-detail-list">
+            {setupOptions.slice(0, 8).map((option: any) => {
+              const channelId = String(option.channelId || option.id || '');
+              const active = selected && String((selected as any).channelId || '') === channelId;
+              const hasMissing = Array.isArray(option.missingEnvKeys) && option.missingEnvKeys.length > 0;
+              const isConfiguring = configuringChannelId === channelId;
+              
+              return (
+                <article className="zvd-detail-row" key={channelId || option.label}>
+                  <div className="zvd-detail-main">
+                    <span className={`zvd-row-dot tone-${option.configured ? 'ready' : 'warning'}`} />
+                    <div style={{ width: '100%' }}>
+                      <strong>{String(option.label || channelId || 'Channel')}</strong>
+                      <p>{String(option.summary || option.operatorNextStep || 'Choose setup mode and validate connection.')}</p>
+                      
+                      {isConfiguring ? (
+                        <div className="zvd-credentials-form">
+                          {option.missingEnvKeys.map((key: string) => {
+                            const isSensitive = /(token|secret|password|credential|authorization|api[_-]?key)/i.test(key);
+                            return (
+                              <div className="zvd-credentials-field" key={key}>
+                                <label htmlFor={`cred-${channelId}-${key}`}>{key}</label>
+                                <input
+                                  id={`cred-${channelId}-${key}`}
+                                  type={isSensitive ? 'password' : 'text'}
+                                  value={credentials[key] ?? ''}
+                                  onChange={(e) => setCredentials(prev => ({ ...prev, [key]: e.target.value }))}
+                                  placeholder={`Enter ${key.toLowerCase().replace(/_/g, ' ')}`}
+                                  autoComplete="off"
+                                />
+                              </div>
+                            );
+                          })}
+                          <div className="zvd-credentials-actions" style={{ display: 'flex', gap: '8px', marginTop: '12px' }}>
+                            <button
+                              disabled={props.busy}
+                              onClick={() => {
+                                const extraEntries = option.missingEnvKeys.map((key: string) => ({
+                                  key,
+                                  value: credentials[key] || '',
+                                }));
+                                void props.onSetupAction({
+                                  action: 'applyScaffold',
+                                  channelId,
+                                  mode: String(option.setupMode || option.recommendedMode || '') || null,
+                                  extraEntries,
+                                });
+                                setConfiguringChannelId(null);
+                                setCredentials({});
+                              }}
+                              type="button"
+                              className="zvd-btn-primary"
+                            >
+                              Save &amp; Connect
+                            </button>
+                            <button
+                              disabled={props.busy}
+                              onClick={() => {
+                                setConfiguringChannelId(null);
+                                setCredentials({});
+                              }}
+                              type="button"
+                              className="zvd-btn-secondary"
+                            >
+                              Cancel
+                            </button>
+                          </div>
+                        </div>
+                      ) : (
+                        <>
+                          {hasMissing && (
+                            <p style={{ color: 'var(--zvd-text-warn, #b45309)', fontSize: '0.9em', marginTop: '4px' }}>
+                              Missing: {option.missingEnvKeys.join(', ')}
+                            </p>
+                          )}
+                        </>
+                      )}
+                      
+                      {option.webhookUrl && <p>Webhook: {String(option.webhookUrl)}</p>}
+                      {option.qrCode && <p>QR: {String(option.qrCode)}</p>}
+                    </div>
+                  </div>
+                  <div className="zvd-detail-side">
+                    <span>{active ? 'selected' : String(option.readiness || 'setup')}</span>
+                    <div className="zvd-row-actions">
+                      {hasMissing ? (
+                        !isConfiguring && (
+                          <button
+                            disabled={props.busy}
+                            onClick={() => {
+                              setConfiguringChannelId(channelId);
+                              const initial: Record<string, string> = {};
+                              option.missingEnvKeys.forEach((key: string) => {
+                                initial[key] = '';
+                              });
+                              setCredentials(initial);
+                            }}
+                            type="button"
+                          >
+                            Configure
+                          </button>
+                        )
+                      ) : (
+                        <button
+                          disabled={props.busy}
+                          onClick={() => void props.onSetupAction({ action: 'applyScaffold', channelId, mode: String(option.setupMode || option.recommendedMode || '') || null })}
+                          type="button"
+                        >
+                          Apply scaffold
+                        </button>
+                      )}
+                      <button
+                        disabled={props.busy || isConfiguring}
+                        onClick={() => void props.onSetupAction({ action: 'testConnection', channelId })}
+                        type="button"
+                      >
+                        Test connection
+                      </button>
+                    </div>
+                  </div>
+                </article>
+              );
+            })}
+          </div>
+        )}
+      </section>
       <DetailRows rows={rows} empty="No channel readiness is projected yet." />
     </PageFrame>
   );
@@ -445,17 +639,19 @@ function SettingsView(props: {
   nexusStatus: unknown;
   profile: string;
   runtimeCapabilities: RuntimeCapabilitiesSnapshot | null;
+  gatewayResilience: GatewayResilienceSnapshot | null;
   status: RuntimeStatus;
   theme: 'light' | 'dark' | 'system';
   onAccent(value: 'orange' | 'purple' | 'navy'): void;
   onEffort(value: string): void;
   onProfile(value: string): void;
   onRepair(): void | Promise<void>;
+  onGatewayResilienceAction(input: Record<string, unknown>): void | Promise<void>;
   onStart(): void | Promise<void>;
   onRuntimeStateAction(input: { domain: string; operation: string; metadata?: Record<string, unknown> }): void | Promise<void>;
   onTheme(value: 'light' | 'dark' | 'system'): void;
 }) {
-  const [runtimeMode, setRuntimeMode] = useState<'overview' | 'permissions' | 'providers' | 'workspace' | 'mcp' | 'skills' | 'jobs' | 'personal' | 'diagnostics'>('overview');
+  const [runtimeMode, setRuntimeMode] = useState<'overview' | 'gateway' | 'permissions' | 'providers' | 'workspace' | 'mcp' | 'skills' | 'jobs' | 'personal' | 'diagnostics'>('overview');
   const [personalConnectStatus, setPersonalConnectStatus] = useState<string | null>(null);
   const connectGoogle = async () => {
     setPersonalConnectStatus('Opening Google authorization...');
@@ -999,6 +1195,54 @@ function SettingsView(props: {
       tone: mcpReviewCount > 0 || configuredPersonalOps > 0 ? 'warning' as const : 'muted' as const,
     },
   ];
+  const gatewayPolicy = props.gatewayResilience?.policy || {};
+  const gatewayBudget = props.gatewayResilience?.budget || {};
+  const gatewayHealth = props.gatewayResilience?.health || {};
+  const gatewayFallbackOrder = Array.isArray(gatewayPolicy.fallbackOrder) ? gatewayPolicy.fallbackOrder : [];
+  const gatewayReceipts = Array.isArray(props.gatewayResilience?.receipts) ? props.gatewayResilience.receipts : [];
+  const gatewayRows = [
+    {
+      id: 'gateway-primary-route',
+      title: 'Primary route',
+      description: `${String(gatewayPolicy.primaryProviderId || 'auto')}${gatewayPolicy.primaryModelId ? ` / ${gatewayPolicy.primaryModelId}` : ''}`,
+      meta: String(gatewayHealth.status || 'unknown'),
+      tone: props.gatewayResilience?.ok === false ? 'warning' as const : 'ready' as const,
+      actions: (
+        <div className="zvd-row-actions">
+          <button
+            disabled={props.busy}
+            onClick={() => void props.onGatewayResilienceAction({ action: 'testRoute', workspaceId: 'zavorth-desktop' })}
+            type="button"
+          >
+            Test Route
+          </button>
+        </div>
+      ),
+    },
+    {
+      id: 'gateway-fallback-order',
+      title: 'Fallback order',
+      description: gatewayFallbackOrder.length > 0
+        ? gatewayFallbackOrder.map((target: any) => target.modelId ? `${target.providerId}:${target.modelId}` : target.providerId).join(' -> ')
+        : 'Fallback order is not configured yet.',
+      meta: `${gatewayFallbackOrder.length} fallback(s)`,
+      tone: gatewayFallbackOrder.length > 0 ? 'ready' as const : 'muted' as const,
+    },
+    {
+      id: 'gateway-budget',
+      title: 'Daily budget',
+      description: String(gatewayBudget.reason || 'No budget block is active.'),
+      meta: String(gatewayBudget.decision || 'allowed'),
+      tone: gatewayBudget.decision === 'blocked' ? 'danger' as const : 'ready' as const,
+    },
+    ...gatewayReceipts.slice(0, 4).map((receipt: any, index: number) => ({
+      id: String(receipt.receiptId || `gateway-receipt-${index}`),
+      title: receipt.fallbackUsed ? 'Fallback used' : 'Route tested',
+      description: String(receipt.receiptId || 'Routing receipt stored.'),
+      meta: String(receipt.budgetDecision || 'allowed'),
+      tone: receipt.fallbackUsed ? 'warning' as const : 'muted' as const,
+    })),
+  ];
 
   const runtimeRows = [
     {
@@ -1033,19 +1277,21 @@ function SettingsView(props: {
   ];
   const runtimeRowsForMode = runtimeMode === 'permissions'
     ? permissionRows
-    : runtimeMode === 'providers'
-      ? providerRows
-      : runtimeMode === 'workspace'
-        ? workspaceRows
-        : runtimeMode === 'mcp'
-          ? mcpRows
-          : runtimeMode === 'skills'
-            ? skillRows
-            : runtimeMode === 'jobs'
-              ? jobRows
-              : runtimeMode === 'personal'
-                ? personalRows
-                : runtimeRows;
+    : runtimeMode === 'gateway'
+      ? gatewayRows
+      : runtimeMode === 'providers'
+        ? providerRows
+        : runtimeMode === 'workspace'
+          ? workspaceRows
+          : runtimeMode === 'mcp'
+            ? mcpRows
+            : runtimeMode === 'skills'
+              ? skillRows
+              : runtimeMode === 'jobs'
+                ? jobRows
+                : runtimeMode === 'personal'
+                  ? personalRows
+                  : runtimeRows;
 
   return (
     <PageFrame
@@ -1065,6 +1311,7 @@ function SettingsView(props: {
             onChange={setRuntimeMode}
             items={[
               { value: 'overview', label: 'Overview' },
+              { value: 'gateway', label: 'Gateway', count: gatewayRows.length },
               { value: 'permissions', label: 'Permissions', count: permissionRows.length },
               { value: 'providers', label: 'Providers', count: providerRows.length },
               { value: 'workspace', label: 'Workspace', count: workspaceRows.length },
