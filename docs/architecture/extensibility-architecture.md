@@ -47,7 +47,8 @@ Every extension must declare a static manifest descriptor containing:
 ## Approval Lifecycle
 *   Registered tools start in a `quarantined` state.
 *   Before execution, the operator must review the tool descriptor and explicitly transition it to `approved`.
-*   Temporary approvals (leases) can be granted, but they follow strict expiration policies.
+*   Temporary approvals (leases) can be proposed, but they follow strict fail-closed expiration, fingerprint drift deactivation, and mandatory audit validation policies.
+
 
 ## ToolGatekeeper Enforcement
 *   The `ToolGatekeeper` serves as the runtime enforcement point.
