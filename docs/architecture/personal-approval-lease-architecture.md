@@ -112,22 +112,18 @@ The following boundaries are designed as proposed limits for future policy rules
 
 ---
 
-## 6. Future Implementation Checklist
+## 6. Implementation Checklist
 
-> [!NOTE]
-> None of the following runtime behaviors are implemented in this design-only phase.
-
-For future implementation phases, the following checklist must be satisfied:
-*   [ ] **ApprovalLease Schema**: Define the strict type and validator for lease records.
-*   [ ] **ApprovalLeaseStore Interface**: Implement a service contract to get, set, delete, and list active leases.
-*   [ ] **In-Memory Store First**: Create an in-memory store implementation to avoid persistence security hazards during early testing.
-*   [ ] **No Persistent Leases**: Persistent storage of leases is blocked until the threat model is fully signed off.
-*   [ ] **Lease Grant Flow**: Implement the secure workflow to create a lease from an audit receipt.
-*   [ ] **Lease Revoke Flow**: Implement a break-glass "Revoke All" API.
-*   [ ] **Lease Lookup Flow**: Implement lookup checks matching subject, workspace, fingerprint, and TTL.
-*   [ ] **Drift Invalidation**: Ensure any change to the tool fingerprint immediately invalidates active leases.
-*   [ ] **Risk Invalidation**: Ensure any change in the tool's classification invalidates matching leases.
-*   [ ] **Policy Validation**: Ensure the core engine executes channel and workspace checks even if a lease matches.
-*   [ ] **Audit Event Emission**: Ensure every lease bypass or invalidation writes a secure audit record.
-*   [ ] **Negative Tests (Critical/Unknown)**: Write automated tests proving that critical or unknown tools never match leases.
-*   [ ] **Negative Tests (Leakage)**: Write automated tests proving that leases never leak across different profiles or workspaces.
+*   [x] **ApprovalLease Schema**: Define the strict type and validator for lease records.
+*   [x] **ApprovalLeaseStore Interface**: Implement a service contract to get, set, delete, and list active leases.
+*   [x] **In-Memory Store First**: Create an in-memory store implementation to avoid persistence security hazards during early testing.
+*   [x] **No Persistent Leases**: Persistent storage of leases is blocked until the threat model is fully signed off.
+*   [x] **Lease Grant Flow**: Implement the secure workflow to create a lease from an audit receipt.
+*   [x] **Lease Revoke Flow**: Implement a break-glass "Revoke All" API.
+*   [x] **Lease Lookup Flow**: Implement lookup checks matching subject, workspace, fingerprint, and TTL.
+*   [x] **Drift Invalidation**: Ensure any change to the tool fingerprint immediately invalidates active leases.
+*   [x] **Risk Invalidation**: Ensure any change in the tool's classification invalidates matching leases.
+*   [x] **Policy Validation**: Ensure the core engine executes channel and workspace checks even if a lease matches.
+*   [x] **Audit Event Emission**: Ensure every lease bypass or invalidation writes a secure audit record.
+*   [x] **Negative Tests (Critical/Unknown)**: Write automated tests proving that critical or unknown tools never match leases.
+*   [x] **Negative Tests (Leakage)**: Write automated tests proving that leases never leak across different profiles or workspaces.
