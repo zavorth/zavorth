@@ -1,0 +1,30 @@
+# Gitleaks configuration for Zavorth
+# For documentation and rules, see: https://github.com/zricethezav/gitleaks
+
+[allowlist]
+description = "Global allowlist for Zavorth development paths"
+paths = [
+  '''node_modules''',
+  '''dist''',
+  '''out''',
+  '''release''',
+  '''artifacts'''
+]
+
+[[rules]]
+id = "openai-api-key"
+description = "OpenAI API Key"
+regex = '''(?i)sk-[a-zA-Z0-9]{48}'''
+tags = ["key", "openai"]
+
+[[rules]]
+id = "generic-api-key"
+description = "Generic API Key"
+regex = '''(?i)(api_key|apikey|secret|token|password)\s*=\s*['"][a-zA-Z0-9_\-\.]{20,}['"]'''
+tags = ["key", "generic"]
+
+[[rules]]
+id = "private-key"
+description = "Private Key"
+regex = '''-----BEGIN[ A-Z0-9_-]+PRIVATE KEY-----'''
+tags = ["key", "private"]

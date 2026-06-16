@@ -1,7 +1,7 @@
-# Remote Memory Sync Threat Model - Phase 21S-A
+# Remote Memory Sync Threat Model
 
-> [!IMPORTANT]
-> This is a design-only document for Phase 21S-A. No runtime implementation is performed in this phase.
+> [!NOTE]
+> This is a durable design document for Zavorth.
 
 ## 1. Sensitivity Analysis of Memory Files
 The files synchronized by Zavorth contain highly confidential operator data:

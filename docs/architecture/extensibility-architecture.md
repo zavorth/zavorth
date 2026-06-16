@@ -1,7 +1,7 @@
-# Extensibility Architecture - Phase 21S-A
+# Extensibility Architecture
 
-> [!IMPORTANT]
-> This is a design-only document for Phase 21S-A. No runtime implementation is performed in this phase.
+> [!NOTE]
+> This is a durable design document for Zavorth.
 
 ## Current Tool/Extension Registration Path
 Currently, tools in Zavorth are registered statically or loaded through bundled capabilities and plugins. The gateway or runtime discovers tools during process initialization. Each tool maps directly to specific execution commands or hooks, leading to tight coupling with core validation libraries.

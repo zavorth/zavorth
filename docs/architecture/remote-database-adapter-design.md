@@ -1,7 +1,7 @@
-# Remote Database Adapter Design - Phase 21S-A
+# Remote Database Adapter Design
 
-> [!IMPORTANT]
-> This is a design-only document for Phase 21S-A. No runtime implementation is performed in this phase.
+> [!NOTE]
+> This is a durable design document for Zavorth.
 
 ## Future Database Schema Abstraction
 
