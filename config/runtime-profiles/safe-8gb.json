@@ -11,7 +11,9 @@
   "capabilityBootOverrides": {
     "telegram": "on-demand",
     "browser": "disabled",
-    "ai-gateway": "disabled"
+    "ai-gateway": "disabled",
+    "web-browser": "disabled",
+    "workspace-files": "on-demand"
   },
   "notes": [
     "Use quando a memoria do host estiver alta.",
