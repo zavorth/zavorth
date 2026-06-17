@@ -52,7 +52,7 @@ const scenarios: SurfaceScenario[] = [
   { id: 'telegram-chat', channel: 'telegram', text: 'oi zavorth' },
   { id: 'discord-chat', channel: 'discord', text: 'oi zavorth' },
   { id: 'public-api', channel: 'api', text: 'resuma a tarefa atual' },
-  { id: 'unknown-safe-fallback', channel: 'unknown', text: 'olá, faça uma resposta curta' },
+  { id: 'unknown-safe-fallback', channel: 'unknown', text: 'hello, write a short response' },
 ];
 
 main().catch((error) => {
@@ -62,22 +62,30 @@ main().catch((error) => {
 
 async function main(): Promise<void> {
   const results: GateResult[] = [];
+  const originalConsoleLog = console.log;
+  if (asJson) {
+    console.log = () => undefined;
+  }
 
-  for (const scenario of scenarios) {
-    const result = await gateway.handle({
-      requestId: `${scenario.id}-request`,
-      traceId: `${scenario.id}-trace`,
-      userId: 'owner',
-      sessionId: `${scenario.id}-session`,
-      channel: scenario.channel,
-      text: scenario.text,
-      requestedTools: [],
-      metadata: {
-        capabilityNegotiationApproved: true,
-        surfaceDefaultGate: scenario.id,
-      },
-    });
-    results.push(validateRun(scenario, result.run));
+  try {
+    for (const scenario of scenarios) {
+      const result = await gateway.handle({
+        requestId: `${scenario.id}-request`,
+        traceId: `${scenario.id}-trace`,
+        userId: 'owner',
+        sessionId: `${scenario.id}-session`,
+        channel: scenario.channel,
+        text: scenario.text,
+        requestedTools: [],
+        metadata: {
+          capabilityNegotiationApproved: true,
+          surfaceDefaultGate: scenario.id,
+        },
+      });
+      results.push(validateRun(scenario, result.run));
+    }
+  } finally {
+    console.log = originalConsoleLog;
   }
 
   const snapshot = gateway.buildSnapshot({ runLimit: 20 });
@@ -103,14 +111,14 @@ async function main(): Promise<void> {
   };
 
   if (asJson) {
-    console.log(JSON.stringify(output, null, 2));
+    originalConsoleLog(JSON.stringify(output, null, 2));
   } else {
-    console.log('[intelligence-fabric-surfaces] checking surface default routing');
+    originalConsoleLog('[intelligence-fabric-surfaces] checking surface default routing');
     for (const result of results) {
       const marker = result.status === 'passed' ? 'ok' : 'fail';
-      console.log(`[intelligence-fabric-surfaces] ${marker} ${result.id} (${result.channel})`);
+      originalConsoleLog(`[intelligence-fabric-surfaces] ${marker} ${result.id} (${result.channel})`);
       for (const detail of result.details) {
-        console.log(`  - ${detail}`);
+        originalConsoleLog(`  - ${detail}`);
       }
     }
   }

@@ -2,7 +2,7 @@ import { ServiceTokens } from './ServiceTokens.js';
 import type { ServiceToken } from './ServiceTokens.js';
 
 export class ServiceRegistry {
-  private static readonly services = new Map<symbol, any>();
+  private static readonly services = new Map<symbol, unknown>();
 
   private constructor() {
     // Prevent instantiation

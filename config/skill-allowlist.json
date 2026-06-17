@@ -16,17 +16,17 @@
     {
       "sourceId": "workspace-agents",
       "mode": "all",
-      "reason": "Fonte principal de autoria local."
+      "reason": "Primary source for local authoring."
     },
     {
       "sourceId": "workspace-library",
       "mode": "all",
-      "reason": "Biblioteca local curada e mantida no proprio workspace."
+      "reason": "Local library curated and maintained inside the workspace."
     },
     {
       "sourceId": "workspace-imported-library",
       "mode": "review",
-      "reason": "Imports permanecem em revisao ate promocao explicita para uma fonte nativa ou curada."
+      "reason": "Imports remain under review until explicitly promoted to a native or curated source."
     }
   ]
 }

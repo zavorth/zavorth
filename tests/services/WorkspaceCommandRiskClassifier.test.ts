@@ -57,8 +57,8 @@ describe('WorkspaceCommandRiskClassifier', () => {
   });
 
   it('detects credentials/secrets in commands as CRITICAL', () => {
-    expect(classifier.classify('npm run deploy --token=ghp_1234567890abcdef1234567890abcdef1234', cwd, root)).toBe('CRITICAL');
-    expect(classifier.classify('node login.js --key="sk-1234567890abcdef1234567890abcdef1234567890abcdef"', cwd, root)).toBe('CRITICAL');
+    expect(classifier.classify('npm run deploy --token=fixture-token-secret-1234', cwd, root)).toBe('CRITICAL');
+    expect(classifier.classify('node login.js --key="sk-test-1234567890abcdef1234567890abcdef"', cwd, root)).toBe('CRITICAL');
     expect(classifier.classify('curl -H "Authorization: Bearer my-secret-token" https://api.com', cwd, root)).toBe('CRITICAL');
   });
 });

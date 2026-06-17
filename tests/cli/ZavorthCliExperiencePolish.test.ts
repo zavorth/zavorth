@@ -42,7 +42,7 @@ describe('ZavorthCliExperiencePolish Tests (Phase 21N)', () => {
   });
 
   it('verifies that any secret pattern, Bearer token, or secretRef is redacted in logs/output', () => {
-    const rawSecret = 'sk-zavorth-some-secret-token-pattern-here-123456';
+    const rawSecret = 'sk-test-some-secret-token-pattern-here-123456';
     const bearer = 'Bearer abc123xyz456';
     const authHeader = 'Authorization: Bearer my-key';
     const secretRef = 'secretRef: my-secure-reference';

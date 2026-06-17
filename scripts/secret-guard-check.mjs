@@ -50,11 +50,11 @@ const snapshot = {
 if (asJson) {
   console.log(JSON.stringify(snapshot, null, 2));
 } else {
-  console.log('[secret-guard] checando credenciais em arquivos versionados');
+  console.log('[secret-guard] checking credentials in versioned files');
   if (findings.length === 0) {
-    console.log('[secret-guard] ok nenhum segredo versionado detectado');
+    console.log('[secret-guard] ok no versioned secrets detected');
   } else {
-    console.log(`[secret-guard] fail ${findings.length} achado(s) de possivel segredo`);
+    console.log(`[secret-guard] fail ${findings.length} possible secret finding(s)`);
     for (const finding of findings.slice(0, 20)) {
       console.log(`  - ${finding.file}:${finding.line} [${finding.rule}] ${finding.detail}`);
     }
@@ -108,7 +108,7 @@ function findForbiddenEnvFiles() {
       file: relativePath,
       line: 1,
       rule: 'tracked-env-file',
-      detail: 'arquivo .env real nao pode ser versionado; use .env.example sem valores reais',
+      detail: 'real .env files cannot be versioned; use .env.example without real values',
     }));
 }
 
@@ -242,9 +242,11 @@ function isAllowedExampleValue(rawValue) {
     || normalized.includes('mock')
     || normalized.includes('fixture')
     || normalized.includes('sample')
+    || normalized.includes('smoke')
     || normalized.includes('local')
     || normalized.includes('generated')
     || normalized.includes('health')
+    || normalized.includes('do-not-leak')
     || normalized.includes('env')
     || normalized.includes('your_')
     || normalized.includes('your-')

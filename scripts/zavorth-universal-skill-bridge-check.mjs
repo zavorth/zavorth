@@ -222,6 +222,20 @@ function createImportedFixture(input) {
       },
     ],
   }, null, 2), 'utf8');
+  fs.writeFileSync(path.join(rootDir, 'config', 'skill-allowlist.json'), JSON.stringify({
+    version: 1,
+    updatedAt: '2026-05-10T15:00:00.000Z',
+    defaultPolicy: 'deny',
+    allowedSourceIds: ['workspace-imported-library'],
+    rules: [
+      {
+        sourceId: 'workspace-imported-library',
+        mode: 'all',
+        skillNames: [],
+        reason: 'Fixture imported skills are discovery-visible while live usage remains owner-approval gated by the bridge.',
+      },
+    ],
+  }, null, 2), 'utf8');
   const skillDir = path.join(rootDir, 'skill-library', 'imported', input.skillName);
   fs.mkdirSync(path.join(skillDir, 'references'), { recursive: true });
   fs.writeFileSync(path.join(skillDir, 'SKILL.md'), [
