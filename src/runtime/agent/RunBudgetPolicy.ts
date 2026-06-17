@@ -87,8 +87,8 @@ export class RunBudgetPolicy {
     const reason = failures[0] || null;
     const allowed = failures.length === 0;
     const summary = allowed
-      ? 'Run dentro do budget minimo do agent loop.'
-      : `Run degradado por budget minimo antes do executor: ${reason}.`;
+      ? 'Run is within the minimum agent loop budget.'
+      : `Run degraded by minimum budget before the executor: ${reason}.`;
 
     return {
       allowed,

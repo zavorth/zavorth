@@ -117,8 +117,8 @@ describe('AgentRunService', () => {
   it('runs a simple text request through the configured executor', async () => {
     const executor = jest.fn<ReturnType<UniversalAgentExecutor>, Parameters<UniversalAgentExecutor>>(({ run }) => ({
       status: 'completed',
-      summary: `Run ${run.id} processado.`,
-      replyText: 'Resposta simples pronta.',
+      summary: `Run ${run.id} processed.`,
+      replyText: 'Simple response ready.',
     }));
     const service = new AgentRunService({
       now: () => new Date('2026-04-27T12:00:00.000Z'),
@@ -144,7 +144,7 @@ describe('AgentRunService', () => {
     expect(result.run).toEqual(expect.objectContaining({
       status: 'completed',
       sessionId: 'session-simple',
-      summary: 'Run agent-run-2 processado.',
+      summary: 'Run agent-run-2 processed.',
       modelProfile: expect.objectContaining({
         providerLabel: 'OpenAI',
         modelLabel: 'gpt-5.2',
@@ -212,14 +212,14 @@ describe('AgentRunService', () => {
     expect(result.run.events).toEqual(expect.arrayContaining([
       expect.objectContaining({
         kind: 'planning',
-        title: 'Contrato natural-first aplicado',
+        title: 'Natural-first contract applied',
         metadata: expect.objectContaining({
           entrypoint: 'zavorth-agent-gateway',
         }),
       }),
       expect.objectContaining({
         kind: 'planning',
-        title: 'Roteamento natural-first',
+        title: 'Natural-first routing',
         metadata: expect.objectContaining({
           route: 'llm-reply',
         }),
@@ -330,14 +330,14 @@ describe('AgentRunService', () => {
       }),
     ]));
     expect(result.replies[0]).toEqual(expect.objectContaining({
-      text: 'Resposta simples pronta.',
+      text: 'Simple response ready.',
     }));
   });
 
   it('routes light chat through the governed runtime instead of a canned lightweight reply', async () => {
     const executor = jest.fn<ReturnType<UniversalAgentExecutor>, Parameters<UniversalAgentExecutor>>(() => ({
       status: 'completed',
-      summary: 'Executor recebeu light chat.',
+      summary: 'Executor received light chat.',
       replyText: 'executor-called',
     }));
     const service = new AgentRunService({
@@ -359,7 +359,7 @@ describe('AgentRunService', () => {
     expect(executor).toHaveBeenCalledTimes(1);
     expect(result.ok).toBe(true);
     expect(result.run.status).toBe('completed');
-    expect(result.run.summary).toBe('Executor recebeu light chat.');
+    expect(result.run.summary).toBe('Executor received light chat.');
     expect(result.replies[0]).toEqual(expect.objectContaining({
       text: 'executor-called',
     }));
@@ -367,7 +367,7 @@ describe('AgentRunService', () => {
     expect(result.run.metadata.executorBoundary).toEqual(expect.any(Object));
     expect(result.run.events).toEqual(expect.not.arrayContaining([
       expect.objectContaining({
-        title: 'Resposta leve governada',
+      title: 'Governed lightweight reply',
       }),
     ]));
   });
@@ -376,8 +376,8 @@ describe('AgentRunService', () => {
     const emitted: Array<{ type: string; payload?: Record<string, unknown> }> = [];
     const executor = jest.fn<ReturnType<UniversalAgentExecutor>, Parameters<UniversalAgentExecutor>>(({ run }) => ({
       status: 'completed',
-      summary: `Run ${run.id} processado.`,
-      replyText: 'Resposta com eventos pronta.',
+      summary: `Run ${run.id} processed.`,
+      replyText: 'Response with events ready.',
     }));
     const service = new AgentRunService({
       now: () => new Date('2026-04-27T12:00:00.000Z'),
@@ -430,7 +430,7 @@ describe('AgentRunService', () => {
         type: 'agent.stream.assistant',
         payload: expect.objectContaining({
           phase: 'delta',
-          accumulated: 'Resposta com eventos pronta.',
+          accumulated: 'Response with events ready.',
           done: false,
           rawChainOfThoughtExposed: false,
         }),
@@ -440,7 +440,7 @@ describe('AgentRunService', () => {
         payload: expect.objectContaining({
           phase: 'done',
           done: true,
-          accumulated: 'Resposta com eventos pronta.',
+          accumulated: 'Response with events ready.',
         }),
       }),
     ]));
@@ -504,8 +504,8 @@ describe('AgentRunService', () => {
       idFactory: createIdFactory(),
       executor: jest.fn(({ run }) => ({
         status: 'completed',
-        summary: `Run ${run.id} processado.`,
-        replyText: 'Resposta enviada para multiplas superficies.',
+        summary: `Run ${run.id} processed.`,
+        replyText: 'Response sent to multiple surfaces.',
       })),
       runtimeEventBus: {
         emit: async (type, payload) => {
@@ -749,8 +749,8 @@ describe('AgentRunService', () => {
     const service = new AgentRunService({
       now: () => new Date('2026-05-11T13:00:00.000Z'),
       idFactory: createIdFactory(),
-      defaultProviderLabel: 'provider nao informado',
-      defaultModelLabel: 'modelo nao informado',
+      defaultProviderLabel: 'provider not configured',
+      defaultModelLabel: 'model not configured',
     });
 
     const result = await service.run({
@@ -804,7 +804,7 @@ describe('AgentRunService', () => {
         providerName: 'gemini',
         modelName: 'gemini-2.5-flash',
         response: {
-          content: 'Resposta via selecao compartilhada.',
+          content: 'Response through shared selection.',
           toolCalls: [],
           finishReason: 'stop',
         },
@@ -975,14 +975,14 @@ describe('AgentRunService', () => {
       userId: 'grey',
       channel: 'web',
       sessionId: 'session-z4-context',
-      text: 'use memoria, skills e MCP para responder',
+      text: 'use memory, skills and MCP to answer',
       workspace: 'C:/repo/Zavorth',
       requestedTools: ['unsafe_imported_tool', 'read_file'],
       metadata: {
-        continuityPrompt: 'Continuidade: usuario pediu auditoria anterior.',
-        workspacePrompt: 'Workspace Zavorth carregado em modo leitura.',
-        memoryPrompt: 'Memoria: preferir respostas curtas.',
-        skillPrompt: 'Skill: workspace-reporter disponivel apenas se confiavel.',
+        continuityPrompt: 'Continuity: user requested the previous audit.',
+        workspacePrompt: 'Zavorth workspace loaded in read-only mode.',
+        memoryPrompt: 'Memory: prefer short answers.',
+        skillPrompt: 'Skill: workspace-reporter available only if trusted.',
         mcpSnapshot: {
           servers: [{ id: 'mnemos', status: 'available' }],
         },
@@ -996,11 +996,11 @@ describe('AgentRunService', () => {
     });
 
     const systemMessage = (llmRuntime.chatDetailed as jest.Mock).mock.calls[0][0][0].content;
-    expect(systemMessage).toContain('Contexto canonico do run');
-    expect(systemMessage).toContain('Workspace Zavorth carregado em modo leitura.');
-    expect(systemMessage).toContain('Memoria: preferir respostas curtas.');
-    expect(systemMessage).toContain('Skill: workspace-reporter disponivel apenas se confiavel.');
-    expect(systemMessage).toContain('snapshot MCP disponivel');
+    expect(systemMessage).toContain('Canonical run context');
+    expect(systemMessage).toContain('Zavorth workspace loaded in read-only mode.');
+    expect(systemMessage).toContain('Memory: prefer short answers.');
+    expect(systemMessage).toContain('Skill: workspace-reporter available only if trusted.');
+    expect(systemMessage).toContain('MCP snapshot available');
     expect(result.run.metadata.canonicalContextSummary).toEqual(expect.objectContaining({
       source: 'AgentRunService',
       depth: 'cold',
@@ -1160,7 +1160,7 @@ describe('AgentRunService', () => {
     expect(result.ok).toBe(true);
     expect(result.run.toolExposure).toEqual(expect.objectContaining({
       mode: 'safe',
-      summary: '2 ferramentas expostas com policy safe.',
+      summary: '2 tools exposed with safe policy.',
     }));
     expect(result.run.toolExposure.tools).toEqual([
       expect.objectContaining({
@@ -1212,7 +1212,7 @@ describe('AgentRunService', () => {
     expect(result.run.status).toBe('waiting_approval');
     expect(result.run.toolExposure).toEqual(expect.objectContaining({
       mode: 'restricted',
-      summary: '1 ferramenta exposta com policy restricted.',
+      summary: '1 tool exposed with restricted policy.',
     }));
     expect(result.run.toolExposure.tools).toEqual([
       expect.objectContaining({
@@ -1440,7 +1440,7 @@ describe('AgentRunService', () => {
     const result = await service.resumeApprovedRun(pending.run, request);
 
     expect(result.run.status).toBe('completed');
-    expect(result.run.summary).toBe('Echo Hands indisponivel no tool runtime desta execucao.');
+    expect(result.run.summary).toBe('Echo Hands unavailable in the tool runtime for this execution.');
     expect(result.run.metadata.echoHands).toEqual(expect.objectContaining({
       executed: false,
       reason: 'echo-hands-unavailable',
@@ -1613,7 +1613,7 @@ describe('AgentRunService', () => {
     ]);
     expect(result.run.toolExposure).toEqual(expect.objectContaining({
       mode: 'safe',
-      summary: '2 ferramentas expostas com policy safe. 2 ferramentas bloqueadas por quarentena.',
+      summary: '2 tools exposed with safe policy. 2 tools blocked by quarantine.',
       toolExposureGatedByImportedCapabilityTrust: true,
     }));
     expect(result.run.toolExposure.blockedTools).toEqual([
@@ -1648,18 +1648,18 @@ describe('AgentRunService', () => {
       userId: 'grey',
       channel: 'cli',
       sessionId: 'session-budget',
-      text: 'este pedido e maior do que o corte minimo',
+      text: 'this request is larger than the minimum cutoff',
       requestedTools: ['read_file'],
     });
 
     expect(executor).not.toHaveBeenCalled();
     expect(result.ok).toBe(true);
     expect(result.run.status).toBe('completed');
-    expect(result.run.summary).toBe('Run degradado por budget minimo antes do executor: input-too-large.');
+    expect(result.run.summary).toBe('Run degraded by minimum budget before the executor: input-too-large.');
     expect(result.run.events).toEqual(expect.arrayContaining([
       expect.objectContaining({
         kind: 'status',
-        title: 'Budget minimo aplicado',
+        title: 'Minimum budget applied',
         status: 'done',
         metadata: expect.objectContaining({
           reason: 'input-too-large',
@@ -1675,7 +1675,7 @@ describe('AgentRunService', () => {
       degraded: true,
     }));
     expect(result.replies[0]).toEqual(expect.objectContaining({
-      text: 'Run degradado por budget minimo antes do executor: input-too-large.',
+      text: 'Run degraded by minimum budget before the executor: input-too-large.',
     }));
   });
 

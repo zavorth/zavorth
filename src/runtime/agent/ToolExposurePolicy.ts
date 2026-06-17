@@ -107,6 +107,62 @@ function inferRisk(toolId: string): UniversalToolRiskLevel {
   return 'unknown';
 }
 
+function resolveChannelUserIdAllowed(metadata?: Record<string, unknown>): boolean | null {
+  if (metadata?.channelUserIdAllowed === false) return false;
+  if (metadata?.channelUserIdAllowed === true) return true;
+  const channelFields = metadata?.channelFields;
+  if (channelFields && typeof channelFields === 'object' && !Array.isArray(channelFields)) {
+    const value = (channelFields as Record<string, unknown>).channelUserIdAllowed;
+    if (value === false) return false;
+    if (value === true) return true;
+  }
+  return null;
+}
+
+function resolveGroupToolPolicy(metadata?: Record<string, unknown>): {
+  untrustedUserMode: 'none' | 'safe-only' | 'allowlist-only' | 'safe-plus-allowlist';
+  allowedToolsForUntrustedUsers: string[];
+} {
+  const direct = metadata?.groupToolPolicy;
+  const channelFields = metadata?.channelFields;
+  const nested = channelFields && typeof channelFields === 'object' && !Array.isArray(channelFields)
+    ? (channelFields as Record<string, unknown>).groupToolPolicy
+    : null;
+  const candidate = direct && typeof direct === 'object' && !Array.isArray(direct)
+    ? direct as Record<string, unknown>
+    : nested && typeof nested === 'object' && !Array.isArray(nested)
+      ? nested as Record<string, unknown>
+      : {};
+  const mode = String(candidate.untrustedUserMode || 'none').trim();
+  return {
+    untrustedUserMode: ['none', 'safe-only', 'allowlist-only', 'safe-plus-allowlist'].includes(mode)
+      ? mode as 'none' | 'safe-only' | 'allowlist-only' | 'safe-plus-allowlist'
+      : 'none',
+    allowedToolsForUntrustedUsers: normalizeToolIds(
+      Array.isArray(candidate.allowedToolsForUntrustedUsers)
+        ? candidate.allowedToolsForUntrustedUsers.map(String)
+        : [],
+    ),
+  };
+}
+
+function isForbiddenForUntrustedGroup(tool: UniversalToolExposure): boolean {
+  const normalized = tool.id.toLowerCase();
+  return tool.risk === 'danger'
+    || tool.risk === 'unknown'
+    || normalized.includes('admin')
+    || normalized.includes('critical')
+    || normalized.includes('provider.secret')
+    || normalized.includes('provider_secret')
+    || normalized.includes('rawkey')
+    || normalized.includes('hpm')
+    || normalized.includes('host_command')
+    || normalized.includes('host.execute')
+    || normalized.includes('workspace.host.')
+    || normalized.includes('pty')
+    || normalized.includes('shell');
+}
+
 function resolveMode(tools: UniversalToolExposure[]): UniversalToolExposureMode {
   if (tools.length === 0) {
     return 'unknown';
@@ -159,7 +215,7 @@ export class ToolExposurePolicy {
         toolName: toolId,
         risk: inferRisk(toolId),
         reason: 'blocked-by-cognitive-firewall-plugin-quarantine',
-        channelUserIdAllowed: input.metadata?.channelUserIdAllowed !== false,
+        channelUserIdAllowed: resolveChannelUserIdAllowed(input.metadata) !== false,
       });
     }
     let tools = toolIds.flatMap((toolId): UniversalToolExposure[] => {
@@ -181,7 +237,7 @@ export class ToolExposurePolicy {
             toolName: toolId,
             risk: inferRisk(toolId),
             reason: reasonEnum,
-            channelUserIdAllowed: input.metadata?.channelUserIdAllowed !== false,
+            channelUserIdAllowed: resolveChannelUserIdAllowed(input.metadata) !== false,
           });
         }
         return [];
@@ -316,24 +372,27 @@ export class ToolExposurePolicy {
     tools = filteredTools;
 
     // Apply narrowing for untrusted group users
-    if (input.metadata?.channelUserIdAllowed === false) {
-      const groupPolicy = input.metadata.groupToolPolicy as any;
-      const untrustedUserMode = 'none';
-      const allowedToolsForUntrustedUsers = Array.isArray(groupPolicy?.allowedToolsForUntrustedUsers)
-        ? groupPolicy.allowedToolsForUntrustedUsers
-        : [];
+    if (resolveChannelUserIdAllowed(input.metadata) === false) {
+      const groupPolicy = resolveGroupToolPolicy(input.metadata);
+      const untrustedUserMode = groupPolicy.untrustedUserMode;
+      const allowedToolsForUntrustedUsers = new Set(
+        groupPolicy.allowedToolsForUntrustedUsers.map((toolId) => toolId.toLowerCase()),
+      );
 
       const filteredTools: UniversalToolExposure[] = [];
       for (const tool of tools) {
         let allowed = false;
-        if (untrustedUserMode === 'none') {
+        const normalizedToolId = tool.id.toLowerCase();
+        if (isForbiddenForUntrustedGroup(tool)) {
+          allowed = false;
+        } else if (untrustedUserMode === 'none') {
           allowed = false;
         } else if (untrustedUserMode === 'safe-only') {
           allowed = tool.risk === 'safe';
         } else if (untrustedUserMode === 'allowlist-only') {
-          allowed = allowedToolsForUntrustedUsers.includes(tool.id);
+          allowed = allowedToolsForUntrustedUsers.has(normalizedToolId);
         } else if (untrustedUserMode === 'safe-plus-allowlist') {
-          allowed = tool.risk === 'safe' || allowedToolsForUntrustedUsers.includes(tool.id);
+          allowed = tool.risk === 'safe' || allowedToolsForUntrustedUsers.has(normalizedToolId);
         }
 
         if (allowed) {
@@ -360,11 +419,11 @@ export class ToolExposurePolicy {
 
     const mode = resolveMode(tools);
     const exposureSummary = tools.length === 0
-      ? 'Nenhuma ferramenta foi exposta para esta execucao.'
-      : `${tools.length} ${tools.length === 1 ? 'ferramenta exposta' : 'ferramentas expostas'} com policy ${mode}.`;
+      ? 'No tools were exposed for this execution.'
+      : `${tools.length} ${tools.length === 1 ? 'tool exposed' : 'tools exposed'} with ${mode} policy.`;
     const quarantineSummary = blockedTools.length === 0
       ? ''
-      : ` ${blockedTools.length} ${blockedTools.length === 1 ? 'ferramenta bloqueada' : 'ferramentas bloqueadas'} por quarentena.`;
+      : ` ${blockedTools.length} ${blockedTools.length === 1 ? 'tool blocked' : 'tools blocked'} by quarantine.`;
 
     return {
       mode,
@@ -380,14 +439,14 @@ export class ToolExposurePolicy {
 
   private describeTool(toolId: string, risk: UniversalToolRiskLevel): string {
     if (risk === 'danger') {
-      return `${toolId} pode alterar o ambiente e deve passar por aprovacao.`;
+      return `${toolId} can change the environment and must go through approval.`;
     }
     if (risk === 'attention') {
-      return `${toolId} pode sair do contexto local ou enviar dados.`;
+      return `${toolId} can leave local context or send data.`;
     }
     if (risk === 'safe') {
-      return `${toolId} e considerada leitura/consulta segura.`;
+      return `${toolId} is considered safe read/query access.`;
     }
-    return `${toolId} ainda nao tem classificacao de risco fina.`;
+    return `${toolId} does not have a fine-grained risk classification yet.`;
   }
 }

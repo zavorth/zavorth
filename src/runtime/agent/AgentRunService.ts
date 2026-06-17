@@ -548,8 +548,8 @@ export class AgentRunService {
       mutationPlane: runtime.mutationPlaneService || null,
       defaultMode: runtime.intelligenceFabricMode || 'default',
     });
-    const defaultProviderLabel = normalizeText(runtime.defaultProviderLabel, 'provider nao informado');
-    const defaultModelLabel = normalizeText(runtime.defaultModelLabel, 'modelo nao informado');
+    const defaultProviderLabel = normalizeText(runtime.defaultProviderLabel, 'provider not configured');
+    const defaultModelLabel = normalizeText(runtime.defaultModelLabel, 'model not configured');
     this.runFactory = new AgentRunFactory({
       now: this.now,
       idFactory: this.idFactory,
@@ -965,7 +965,7 @@ export class AgentRunService {
           id: this.idFactory('agent-event'),
           runId: activeRun.id,
           kind: 'status',
-          title: 'Budget minimo aplicado',
+          title: 'Minimum budget applied',
           detail: budgetDecision.summary,
           status: 'done',
           createdAt: now,
@@ -1050,7 +1050,7 @@ export class AgentRunService {
         run.events.push(approvalEvent.event);
         run.approvals.push(approvalEvent.approval);
         run.status = 'waiting_approval';
-        run.summary = 'A execucao precisa de aprovacao antes de tocar ferramentas sensiveis.';
+        run.summary = 'Execution requires approval before touching sensitive tools.';
         run.updatedAt = this.now().toISOString();
         this.applyCapabilityLoopGovernance(run, input);
         const narrative = this.applySafetyNarrative(run);
@@ -1062,7 +1062,7 @@ export class AgentRunService {
         return this.replyPipeline.buildResult({
           run,
           text: [
-            'Preciso da sua aprovacao para continuar com seguranca.',
+            'I need your approval to continue safely.',
           '',
           narrative.userMessage,
         ].join('\n'),
@@ -1374,12 +1374,12 @@ export class AgentRunService {
     }
 
     run.status = 'failed';
-    run.summary = `Trust Slider bloqueou a execucao em modo ${decision.level}.`;
+    run.summary = `Trust Slider blocked execution in ${decision.level} mode.`;
     const narrative = this.applySafetyNarrative(run, now);
     return this.replyPipeline.buildResult({
       run,
       text: [
-        'Nenhuma ferramenta foi executada.',
+        'No tools were executed.',
         '',
         narrative.userMessage,
       ].join('\n'),
@@ -1432,14 +1432,14 @@ export class AgentRunService {
     const replyText = normalizeText(
       execution.stdout,
       success
-        ? 'Agente remoto concluiu a execucao governada.'
-        : normalizeText(execution.error_message, 'Agente remoto nao concluiu a execucao.'),
+        ? 'Remote agent completed governed execution.'
+        : normalizeText(execution.error_message, 'Remote agent did not complete execution.'),
     );
     const executorResult: UniversalAgentExecutorResult = {
       status: success ? 'completed' : 'failed',
       summary: success
-        ? 'Execucao isolada concluida pelo agente remoto governado.'
-        : 'Execucao isolada falhou ou foi recusada pela policy do agente remoto.',
+        ? 'Isolated execution completed by the governed remote agent.'
+        : 'Isolated execution failed or was refused by the remote agent policy.',
       replyText,
       events: [
         {
