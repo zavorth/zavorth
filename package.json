@@ -1219,7 +1219,7 @@
     "https-proxy-agent": "^9.0.0",
     "ink": "^7.0.5",
     "js-tiktoken": "^1.0.21",
-    "js-yaml": "^4.1.0",
+    "js-yaml": "^4.2.0",
     "jsdom": "^29.1.1",
     "jszip": "^3.10.1",
     "langfuse": "^3.38.6",
@@ -1276,10 +1276,12 @@
     "vite": "^8.0.14"
   },
   "overrides": {
+    "esbuild": "^0.28.1",
     "express-rate-limit": "^8.5.1",
     "google-auth-library": "^10.6.2",
     "hono": "^4.12.18",
     "ip-address": "^10.2.0",
+    "js-yaml": "^4.2.0",
     "postcss": "^8.5.15"
   }
 }
