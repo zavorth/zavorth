@@ -149,14 +149,14 @@ export class UniversalSkillBridgeActivationService {
       return [
         'Universal Skill Bridge Activation',
         '',
-        'Comandos seguros para usar skills gerais no Zavorth:',
-        '- /skills bridge para ver skills importadas e prontas para bridge.',
-        '- /skills bridge <skill> para inspecionar origem, licenca, risco e acoes.',
-        '- /skills run <skill> para preparar dry-run governado.',
-        '- /skills live <skill> --approval-id <approval-id> para preparar live com aprovacao.',
-        '- /skills origin <skill> para revisar provenance antes de usar.',
+        'Safe commands for using general skills in Zavorth:',
+        '- /skills bridge shows imported skills that are ready for the bridge.',
+        '- /skills bridge <skill> inspects origin, license, risk and actions.',
+        '- /skills run <skill> prepares a governed dry-run.',
+        '- /skills live <skill> --approval-id <approval-id> prepares live mode with approval.',
+        '- /skills origin <skill> reviews provenance before use.',
         '',
-        'Garantia: esta camada usa apenas registry + bridge, mantem dry-run como padrao e nao executa codigo upstream.',
+        'Guarantee: this layer uses only the registry and bridge, keeps dry-run by default and does not execute upstream code.',
       ].join('\n');
     }
 
@@ -166,30 +166,30 @@ export class UniversalSkillBridgeActivationService {
     const lines = [
       'Universal Skill Bridge Activation',
       '',
-      `Acao: ${input.parsed.action} | Status: ${input.status} | Canal: ${input.channel}.`,
+      `Action: ${input.parsed.action} | Status: ${input.status} | Channel: ${input.channel}.`,
     ];
 
     if (!registry) {
-      lines.push('Registry indisponivel para este comando.');
+      lines.push('Registry unavailable for this command.');
       return lines.join('\n');
     }
 
     lines.push(registry.narrative.operatorSummary);
-    lines.push('Atalhos: /skills bridge <skill> | /skills run <skill> | /skills live <skill> --approval-id <approval-id>.');
+    lines.push('Shortcuts: /skills bridge <skill> | /skills run <skill> | /skills live <skill> --approval-id <approval-id>.');
 
     if (input.parsed.selectedId && !selected) {
-      lines.push(`Skill nao encontrada: ${input.parsed.selectedId}.`);
+      lines.push(`Skill not found: ${input.parsed.selectedId}.`);
     }
 
     if (selected) {
       lines.push(
         '',
         `Skill: ${selected.skillName}`,
-        `Status da policy: ${selected.status}.`,
-        `Fonte: ${selected.sourceLabel || selected.sourceId || 'n/d'} | trust: ${selected.sourceTrust || 'n/d'} | licenca: ${selected.license || 'n/d'}.`,
+        `Policy status: ${selected.status}.`,
+        `Source: ${selected.sourceLabel || selected.sourceId || 'n/a'} | trust: ${selected.sourceTrust || 'n/a'} | license: ${selected.license || 'n/a'}.`,
       );
       if (selected.blockers.length > 0) {
-        lines.push(`Bloqueios: ${selected.blockers.join(' ')}`);
+        lines.push(`Blockers: ${selected.blockers.join(' ')}`);
       }
     }
 
@@ -197,29 +197,29 @@ export class UniversalSkillBridgeActivationService {
       lines.push(
         '',
         `Bridge: ${invocation.status}.`,
-        `Envelope preparado: ${invocation.promptEnvelope ? 'sim' : 'nao'}.`,
-        `Receipt: ${invocation.receipts?.[0]?.id || 'n/d'}.`,
+        `Envelope prepared: ${invocation.promptEnvelope ? 'yes' : 'no'}.`,
+        `Receipt: ${invocation.receipts?.[0]?.id || 'n/a'}.`,
       );
       if (invocation.summary?.executionPerformed === false) {
-        lines.push('Execucao upstream: nao realizada.');
+        lines.push('Upstream execution: not performed.');
       }
     }
 
     if (!selected && registry.entries.length > 0) {
-      lines.push('', 'Skills visiveis:');
+      lines.push('', 'Visible skills:');
       for (const entry of registry.entries.slice(0, 8)) {
         lines.push(`- ${entry.skillName}: ${entry.status}`);
       }
     }
 
     if (input.surfaceActions.length > 0) {
-      lines.push('', 'Proximas acoes:');
+      lines.push('', 'Next actions:');
       for (const action of input.surfaceActions.slice(0, 6)) {
         lines.push(`- ${action.label}: ${action.command}`);
       }
     }
 
-    lines.push('', 'Policy: dry-run por padrao, live exige approval e conteudo de skill segue como nao confiavel.');
+    lines.push('', 'Policy: dry-run by default, live requires approval, and skill content remains untrusted.');
     return lines.join('\n');
   }
 }
@@ -336,36 +336,36 @@ function buildSurfaceActions(
   return uniqueActions([
     {
       id: `activation-inspect:${selectedName}`,
-      label: 'Inspecionar skill',
+      label: 'Inspect skill',
       command: `/skills bridge ${selectedName}`,
       callbackData: `/skills bridge ${selectedName}`,
       apiPath: `/api/skills/bridge?id=${encoded}`,
       style: 'secondary',
       requiresApproval: false,
       safeDefault: true,
-      reason: 'Inspecao nao prepara execucao.',
+      reason: 'Inspection does not prepare execution.',
     },
     {
       id: `activation-dry-run:${selectedName}`,
-      label: 'Dry-run seguro',
+      label: 'Safe dry-run',
       command: `/skills run ${selectedName}`,
       callbackData: `/skills run ${selectedName}`,
       apiPath: `/api/skills/bridge?id=${encoded}&invoke=1`,
       style: 'primary',
       requiresApproval: false,
       safeDefault: true,
-      reason: 'Dry-run prepara envelope governado sem execucao upstream.',
+      reason: 'Dry-run prepares a governed envelope without upstream execution.',
     },
     {
       id: `activation-live:${selectedName}`,
-      label: 'Preparar live',
+      label: 'Prepare live',
       command: `/skills live ${selectedName} --approval-id <approval-id>`,
       callbackData: `/skills live ${selectedName} --approval-id <approval-id>`,
       apiPath: `/api/skills/bridge?id=${encoded}&invoke=1&mode=live&approvalId=<approval-id>`,
       style: 'warning',
       requiresApproval: true,
       safeDefault: false,
-      reason: 'Live exige approval explicito do owner.',
+      reason: 'Live requires explicit owner approval.',
     },
     ...actions,
   ]);

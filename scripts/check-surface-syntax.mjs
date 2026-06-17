@@ -25,8 +25,8 @@ const requestedTargets = process.argv
 const targetIds = new Set(targetDefinitions.map((target) => target.id));
 const unknownTargets = requestedTargets.filter((target) => !targetIds.has(target));
 if (unknownTargets.length > 0) {
-  console.error(`[surface-syntax] target(s) desconhecidos: ${unknownTargets.join(', ')}`);
-  console.error(`[surface-syntax] targets suportados: ${Array.from(targetIds).join(', ')}`);
+  console.error(`[surface-syntax] unknown target(s): ${unknownTargets.join(', ')}`);
+  console.error(`[surface-syntax] supported targets: ${Array.from(targetIds).join(', ')}`);
   process.exit(1);
 }
 
@@ -99,9 +99,9 @@ if (diagnostics.length > 0) {
     const suffix = location ? `:${location.line + 1}:${location.character + 1}` : '';
     console.error(`${file}${suffix} - TS${diagnostic.code}: ${message}`);
   }
-  console.error(`[surface-syntax] ${diagnostics.length} erro(s) em ${files.length} file(s).`);
+  console.error(`[surface-syntax] ${diagnostics.length} error(s) in ${files.length} file(s).`);
   process.exit(1);
 }
 
 const labels = activeTargets.map((target) => target.label).join(', ');
-console.log(`[surface-syntax] ${files.length} file(s) TS/TSX de ${labels} validados.`);
+console.log(`[surface-syntax] ${files.length} TS/TSX file(s) from ${labels} validated.`);

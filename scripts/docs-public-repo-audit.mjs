@@ -11,6 +11,9 @@ const docsDir = path.join(root, 'docs');
 const packageJson = JSON.parse(fs.readFileSync(path.join(root, 'package.json'), 'utf8'));
 const scripts = new Set(Object.keys(packageJson.scripts || {}));
 const tracked = new Set(runGitLsFiles());
+const publicDocsIgnorePrefixes = [
+  'docs/internal/',
+];
 const docs = listMarkdown(docsDir);
 const rootNoiseFiles = [
   'HEARTBEAT.md',
@@ -62,7 +65,11 @@ function listMarkdown(dir) {
   const files = [];
   for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
     const full = path.join(dir, entry.name);
-    if (entry.isDirectory()) files.push(...listMarkdown(full));
+    if (entry.isDirectory()) {
+      const relativeDir = `${rel(full)}/`;
+      if (publicDocsIgnorePrefixes.some((prefix) => relativeDir.startsWith(prefix))) continue;
+      files.push(...listMarkdown(full));
+    }
     else if (entry.isFile() && entry.name.toLowerCase().endsWith('.md')) files.push(full);
   }
   return files.sort((a, b) => rel(a).localeCompare(rel(b)));
@@ -140,7 +147,7 @@ function extractMarkdownLinks(text) {
 function extractPathRefs(text) {
   const refs = new Set();
   const codeSpan = /`([^`\n]+)`/g;
-  const likelyPath = /(?:^|[\s(["'])((?:src|docs|scripts|tests|config|skill-library|assets|packages|apps|bin|\.github|\.githooks)\/[A-Za-z0-9._/@() -]+|[A-Za-z0-9._-]+\.(?:ts|tsx|js|mjs|json|md|yml|yaml|bat|ps1|sh))(?:$|[\s)"',.;:])/g;
+  const likelyPath = /(?:^|[\s(["'])((?:src|docs|scripts|tests|config|skill-library|assets|packages|apps|bin|\.github|\.githooks)\/[A-Za-z0-9._/@()-]+|[A-Za-z0-9._-]+\.(?:ts|tsx|js|mjs|json|md|yml|yaml|bat|ps1|sh))(?:$|[\s)"',.;:])/g;
   for (const match of text.matchAll(codeSpan)) {
     const value = match[1].trim().replace(/\\/g, '/');
     if (looksLikePath(value)) refs.add(cleanRef(value));
@@ -180,6 +187,7 @@ function repoPathExists(value) {
   if (!cleaned) return true;
   if (cleaned === 'SKILL.md') return true;
   if (cleaned.includes('*') || cleaned.includes('{') || cleaned.includes('}')) return true;
+  if (!cleaned.includes('/') && !fs.existsSync(path.join(root, cleaned))) return true;
   return candidateLocalTargets(path.join(root, cleaned)).some((candidate) => fs.existsSync(candidate));
 }
 

@@ -322,6 +322,26 @@ function writeSkillSourceFixtureConfig(rootDir) {
       },
     ],
   }, null, 2), 'utf8');
+  fs.writeFileSync(path.join(rootDir, 'config', 'skill-allowlist.json'), JSON.stringify({
+    version: 1,
+    updatedAt: '2026-05-10T17:00:00.000Z',
+    defaultPolicy: 'deny',
+    allowedSourceIds: ['workspace-library', 'workspace-imported-library'],
+    rules: [
+      {
+        sourceId: 'workspace-library',
+        mode: 'all',
+        skillNames: [],
+        reason: 'Fixture local skills are visible so onboarding can compare local and imported catalog entries.',
+      },
+      {
+        sourceId: 'workspace-imported-library',
+        mode: 'all',
+        skillNames: [],
+        reason: 'Fixture imported skills are discovery-visible while live usage remains owner-approval gated by the bridge.',
+      },
+    ],
+  }, null, 2), 'utf8');
 }
 
 function writeSkill(rootDir, name, description, body) {
