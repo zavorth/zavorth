@@ -1,5 +1,9 @@
 #!/usr/bin/env node
+import fs from 'fs';
+import path from 'path';
+import { config } from '../src/config/index.js';
 import { McpManagementService } from '../src/mcp/McpManagementService.js';
+import { McpDiscoverySandbox, SafeMcpInstaller } from '../src/mcp/SafeMcpInstaller.js';
 import { McpToolPolicyFileService } from '../src/services/McpToolPolicyFileService.js';
 import { SecurityAuditLogger } from '../src/services/SecurityAuditLogger.js';
 import { LogRepository } from '../src/storage/LogRepository.js';
@@ -86,6 +90,120 @@ async function main(): Promise<void> {
           if (t.reason) console.log(`  Policy Detail: ${t.reason}`);
         }
       }
+    }
+    return;
+  }
+
+  if (commandName === 'install') {
+    const id = args[1];
+    if (!id) {
+      throw new Error('Usage: zavorth-mcp-install install <id> --command <command> --confirm-install [--confirm-risk]');
+    }
+
+    const command = readFlag('--command');
+    if (!command) {
+      throw new Error('The --command parameter is required to install an MCP server.');
+    }
+
+    if (!/^[A-Za-z0-9._-]+$/.test(id)) {
+      throw new Error(`Invalid MCP server id "${id}". It must match ^[A-Za-z0-9._-]+$ and must not contain ":".`);
+    }
+
+    const rawArgs = readFlag('--args');
+    const mcpArgs = rawArgs ? rawArgs.split(',').map((a) => a.trim()).filter(Boolean) : [];
+    const rawAllowedEnv = readFlag('--allowed-env');
+    const allowedEnv = rawAllowedEnv ? rawAllowedEnv.split(',').map((a) => a.trim()).filter(Boolean) : [];
+    const rawEnv = readFlag('--env');
+    const env: Record<string, string> = {};
+    if (rawEnv) {
+      rawEnv.split(',').forEach((pair) => {
+        const idx = pair.indexOf('=');
+        if (idx > 0) {
+          const key = pair.slice(0, idx).trim();
+          if (key && allowedEnv.includes(key)) {
+            env[key] = pair.slice(idx + 1).trim();
+          }
+        }
+      });
+    }
+
+    const discoveryFixture = readFlag('--discovery-fixture');
+    const sandbox = new McpDiscoverySandbox({
+      runner: async () => {
+        if (!discoveryFixture) {
+          return {
+            ok: false,
+            tools: [],
+            stdout: '',
+            stderr: '',
+            error: 'No safe discovery fixture or runner was provided.',
+          };
+        }
+        const parsed = JSON.parse(fs.readFileSync(path.resolve(discoveryFixture), 'utf8'));
+        return {
+          ok: parsed.ok !== false,
+          tools: Array.isArray(parsed.tools) ? parsed.tools : [],
+          stdout: String(parsed.stdout || ''),
+          stderr: String(parsed.stderr || ''),
+          error: parsed.error ? String(parsed.error) : undefined,
+        };
+      },
+    });
+
+    const manifestPath = path.resolve(process.env.ZAVORTH_MCP_SERVERS_MANIFEST_PATH || config.mcpServersManifestPath);
+    const installer = new SafeMcpInstaller({
+      manifestStore: {
+        list: () => {
+          try {
+            const parsed = JSON.parse(fs.readFileSync(manifestPath, 'utf8'));
+            return Array.isArray(parsed) ? parsed : [];
+          } catch {
+            return [];
+          }
+        },
+        save: (manifest) => {
+          fs.mkdirSync(path.dirname(manifestPath), { recursive: true });
+          fs.writeFileSync(manifestPath, `${JSON.stringify(manifest, null, 2)}\n`, 'utf8');
+        },
+      },
+      policyStore: {
+        read: () => policyFileService.readPolicy(),
+        save: (policy) => {
+          policyFileService.savePolicy(policy);
+        },
+      },
+      discovery: sandbox,
+      auditSink: {
+        write: async () => {
+          (await getAuditLogger()).logCliAdminEvent({
+            event: 'mcp_server_added',
+            actor: 'local-cli',
+            source: 'zavorth-mcp-install',
+            serverId: id,
+          });
+        },
+      },
+    });
+
+    const result = await installer.install({
+      id,
+      command,
+      args: mcpArgs,
+      env,
+      allowedEnv,
+      capability: readFlag('--capability') || undefined,
+      confirmInstall: args.includes('--confirm-install'),
+      confirmRisk: args.includes('--confirm-risk'),
+      timeoutMs: Number(readFlag('--timeout-ms') || 5000),
+    });
+
+    if (args.includes('--json')) {
+      console.log(JSON.stringify(result, null, 2));
+    } else if (result.ok) {
+      console.log(result.summary);
+    } else {
+      console.error(result.errors.join('\n'));
+      process.exitCode = 1;
     }
     return;
   }
