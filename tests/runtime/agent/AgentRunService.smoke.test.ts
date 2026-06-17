@@ -92,7 +92,7 @@ describe('AgentRunService smoke', () => {
     expect(result.replies).toEqual([
       expect.objectContaining({
         runId: result.run.id,
-        text: expect.stringContaining('Recebi: "resuma o contexto atual do workspace"'),
+        text: expect.stringContaining('Received: "resuma o contexto atual do workspace"'),
         port: expect.objectContaining({
           id: 'memory-smoke-service',
           kind: 'cli',
