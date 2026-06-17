@@ -113,6 +113,12 @@ export class WhatsAppChannelAdapter implements GatewayChannelAdapter {
       if (/\bzavorth\b/i.test(rawText)) {
         hasMention = true;
       }
+      for (const alias of normalizeBotAliases(webhookPayload)) {
+        if (messageMentionsAlias(rawText, alias)) {
+          hasMention = true;
+          break;
+        }
+      }
 
       if (!hasMention) {
         // Discard silently
@@ -146,6 +152,8 @@ export class WhatsAppChannelAdapter implements GatewayChannelAdapter {
       } else if (webhookPayload?.isMentioned === true) {
         triggerType = 'mention';
       } else if (/\bzavorth\b/i.test(rawText)) {
+        triggerType = 'wake_word';
+      } else if (normalizeBotAliases(webhookPayload).some((alias) => messageMentionsAlias(rawText, alias))) {
         triggerType = 'wake_word';
       } else {
         triggerType = 'mention';
@@ -196,4 +204,22 @@ export class WhatsAppChannelAdapter implements GatewayChannelAdapter {
     });
     persistChannelOutboxEnvelope(this.outboxDir, envelope);
   }
+}
+
+function normalizeBotAliases(payload: any): string[] {
+  const aliases = Array.isArray(payload?.botAliases)
+    ? payload.botAliases
+    : Array.isArray(payload?.botNames)
+      ? payload.botNames
+      : [];
+  return Array.from(new Set(
+    ['zavorth', ...aliases]
+      .map((alias) => String(alias || '').trim().toLowerCase())
+      .filter(Boolean),
+  ));
+}
+
+function messageMentionsAlias(text: string, alias: string): boolean {
+  const escaped = alias.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  return new RegExp(`(^|\\s)@?${escaped}(\\b|\\s|[:,.!?])`, 'i').test(text);
 }

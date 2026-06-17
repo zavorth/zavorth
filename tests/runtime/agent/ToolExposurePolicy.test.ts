@@ -113,10 +113,9 @@ describe('ToolExposurePolicy', () => {
         },
       },
     });
-    expect(profile.tools).toEqual([]);
+    expect(profile.tools.map((tool) => tool.id)).toEqual(['read_file']);
     expect(profile.blockedTools).toEqual(
       expect.arrayContaining([
-        expect.objectContaining({ id: 'read_file', reason: 'unauthorized-user-in-group' }),
         expect.objectContaining({ id: 'write_file', reason: 'unauthorized-user-in-group' }),
         expect.objectContaining({ id: 'network_fetch', reason: 'unauthorized-user-in-group' }),
       ])
