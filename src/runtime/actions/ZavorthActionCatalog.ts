@@ -1,4 +1,5 @@
 import fs from 'fs';
+import type { Dirent } from 'fs';
 import fsp from 'fs/promises';
 import path from 'path';
 import { MemoryService } from '../../services/MemoryService.js';
@@ -19,12 +20,14 @@ import { ZavorthXaiRuntimeService } from '../../services/ZavorthXaiRuntimeServic
 import { ZavorthCapabilityActionExposureService } from '../../services/ZavorthCapabilityActionExposureService.js';
 import { ZavorthCapabilityAtlasService } from '../../services/ZavorthCapabilityAtlasService.js';
 import { ZavorthDailyProductQuietAutonomyService } from '../../services/ZavorthDailyProductQuietAutonomyService.js';
+import { WorkspaceFsPolicy } from '../../tools/workspace/WorkspaceFsPolicy.js';
 import {
   type ZavorthActionDefinition,
   type ZavorthActionHandlerInput,
   type ZavorthActionLookupResult,
   type ZavorthActionResult,
 } from './ZavorthActionContracts.js';
+import { createWebBrowserActionModule } from './modules/index.js';
 
 const SKILL_GOVERNANCE_ENV_KEY = 'ZAVORTH_SKILLS_GOVERNANCE_MODE';
 
@@ -54,6 +57,10 @@ function normalizeMode(value: unknown): 'casual' | 'governed' | null {
 function normalizePositiveNumber(value: unknown): number | null {
   const parsed = Number(value);
   return Number.isFinite(parsed) && parsed > 0 ? Math.floor(parsed) : null;
+}
+
+function normalizePathForOutput(value: string): string {
+  return value.replace(/\\/g, '/');
 }
 
 function stateDir(root: string): string {
@@ -1562,7 +1569,14 @@ export class ZavorthActionCatalog {
   }
 
   public list(): ZavorthActionDefinition[] {
-    return this.actions.map((action) => ({ ...action, aliases: [...action.aliases], domains: [...action.domains], surface: [...action.surface] }));
+    return this.actions.map((action) => ({
+      ...action,
+      aliases: [...action.aliases],
+      domains: [...action.domains],
+      surface: [...action.surface],
+      effects: action.effects ? [...action.effects] : undefined,
+      testRefs: action.testRefs ? [...action.testRefs] : undefined,
+    }));
   }
 
   public get(actionId: string): ZavorthActionDefinition | null {
@@ -1603,6 +1617,11 @@ export class ZavorthActionCatalog {
         risk: action.risk,
         requiresPreview: action.requiresPreview,
         requiresApproval: action.requiresApproval,
+        capabilityId: action.capabilityId,
+        verificationStatus: action.verificationStatus,
+        effects: action.effects ? [...action.effects] : undefined,
+        scope: action.scope,
+        receiptPolicy: action.receiptPolicy,
         domains: [...action.domains],
         aliases: [...action.aliases],
         score,
@@ -1655,7 +1674,11 @@ function buildDefaultActions(runtime: ZavorthActionCatalogRuntime = {}): Zavorth
     'integration.connectors.execute',
     'capabilities.verified.expose',
   ]);
+  const actionModules = [
+    createWebBrowserActionModule(),
+  ];
   const actions: ZavorthActionDefinition[] = [
+    ...actionModules.flatMap((module) => module.actions),
     {
       id: 'skills.governance.set',
       title: 'Set skill governance mode',

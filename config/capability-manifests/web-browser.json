@@ -1,0 +1,64 @@
+{
+  "id": "web-browser",
+  "label": "Web & Browser Actions",
+  "kind": "tool",
+  "version": "0.1.0",
+  "boot": "on-demand",
+  "budget": {
+    "rssMb": 60,
+    "heapUsedMb": 30,
+    "activeHandles": 6
+  },
+  "entry": "src/runtime/actions/ZavorthActionCatalog.ts",
+  "description": "Verified Action Harness routes for governed web search and browser automation.",
+  "requires": ["network"],
+  "provides": ["search", "fetch_url", "open", "screenshot", "extract"],
+  "tags": ["native", "verified", "action-harness"],
+  "actions": [
+    {
+      "id": "web.search",
+      "status": "verified",
+      "risk": "safe",
+      "requiresPreview": false,
+      "requiresApproval": false,
+      "scope": "web",
+      "receipt": "none"
+    },
+    {
+      "id": "web.fetch_url",
+      "status": "verified",
+      "risk": "safe",
+      "requiresPreview": false,
+      "requiresApproval": false,
+      "scope": "web",
+      "receipt": "none"
+    },
+    {
+      "id": "browser.open",
+      "status": "verified",
+      "risk": "attention",
+      "requiresPreview": true,
+      "requiresApproval": true,
+      "scope": "browser",
+      "receipt": "required"
+    },
+    {
+      "id": "browser.screenshot",
+      "status": "verified",
+      "risk": "attention",
+      "requiresPreview": true,
+      "requiresApproval": true,
+      "scope": "browser",
+      "receipt": "required"
+    },
+    {
+      "id": "browser.extract",
+      "status": "verified",
+      "risk": "attention",
+      "requiresPreview": true,
+      "requiresApproval": true,
+      "scope": "browser",
+      "receipt": "required"
+    }
+  ]
+}
