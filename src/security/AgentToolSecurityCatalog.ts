@@ -251,15 +251,15 @@ export const NATIVE_AGENT_TOOL_SECURITY_DEFINITIONS: AgentToolSecurityDefinition
     surface: 'native-tool',
     capabilities: ['shell', 'destructive'],
     defaultRisk: 'review',
-    requiresConfirmation: false,
+    requiresConfirmation: true,
     description: 'Writes input to an active interactive PTY terminal session. Governed by PtyInputPolicyService.',
   },
   {
     toolName: 'workspace.pty.terminate',
     surface: 'native-tool',
-    capabilities: [],
+    capabilities: ['shell', 'destructive'],
     defaultRisk: 'review',
-    requiresConfirmation: false,
+    requiresConfirmation: true,
     description: 'Terminates an active interactive PTY terminal session.',
   }
 ];
