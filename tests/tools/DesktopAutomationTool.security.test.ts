@@ -1,13 +1,14 @@
+import { describe, it, expect, vi, afterEach } from 'vitest';
 import { execFile } from 'child_process';
 import { DesktopAutomationTool } from '../../src/tools/DesktopAutomationTool';
 
-jest.mock('child_process', () => ({
-  execFile: jest.fn(),
+vi.mock('child_process', () => ({
+  execFile: vi.fn(),
 }));
 
 describe('DesktopAutomationTool security filter', () => {
   afterEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
   });
 
   it('blocks automation against shell and console windows before invoking PowerShell', async () => {

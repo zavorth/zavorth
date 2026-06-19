@@ -1,4 +1,4 @@
-import { describe, expect, it } from '@jest/globals';
+import { describe, expect, it } from 'vitest';
 import { ProviderIntegrationRegistry } from '../../../../src/services/providers/catalog/ProviderIntegrationRegistry.js';
 
 const EXPECTED_CONSISTENCY_PROVIDER_IDS = [

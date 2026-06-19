@@ -1,3 +1,4 @@
+import { describe, it, expect, vi } from 'vitest';
 import { extractFunctionToolCalls } from '../../src/providers/openaiToolCalls';
 
 describe('extractFunctionToolCalls', () => {
