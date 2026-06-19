@@ -1,3 +1,4 @@
+import { describe, it, expect } from 'vitest';
 import { CustomCompatibleProviderOnboardingService } from '../../../../src/services/providers/catalog/CustomCompatibleProviderOnboardingService.js';
 
 describe('CustomCompatibleProviderOnboardingService', () => {

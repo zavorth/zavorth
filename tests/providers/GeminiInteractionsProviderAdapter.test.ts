@@ -1,3 +1,4 @@
+import { describe, it, expect, vi, afterEach } from 'vitest';
 import {
   GeminiInteractionsProviderAdapter,
   mapGeminiInteractionToReceipt,
@@ -46,7 +47,7 @@ describe('GeminiInteractionsProviderAdapter', () => {
 
   it('calls Interactions API only when explicitly enabled', async () => {
     (config as any).geminiInteractionsEnabled = true;
-    const fetchImpl = jest.fn(async () => new Response(JSON.stringify({
+    const fetchImpl = vi.fn(async () => new Response(JSON.stringify({
       id: 'interactions/ok',
       output_text: 'hello',
       steps: [{ type: 'model_output', text: 'hello' }],

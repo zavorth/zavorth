@@ -1,3 +1,4 @@
+import { describe, it, expect } from 'vitest';
 import type { SelectedModelProfile } from '../../../../src/contracts/ModelPickerContract.js';
 import { ProviderCompatibilityClassifier } from '../../../../src/services/providers/catalog/ProviderCompatibilityClassifier.js';
 

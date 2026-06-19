@@ -1,3 +1,4 @@
+import { describe, it, expect, vi, afterEach } from 'vitest';
 import fs from 'fs';
 import os from 'os';
 import path from 'path';
@@ -27,8 +28,8 @@ describe('NodeMeshTool', () => {
       stateFile: path.join(root, 'node-mesh-state.json'),
       secretsFile: path.join(root, 'node-mesh-secrets.json'),
       secureStorageService: {
-        encryptString: jest.fn((value: string) => `enc:${value}`),
-        decryptString: jest.fn((value: string) => value.replace(/^enc:/, '')),
+        encryptString: vi.fn((value: string) => `enc:${value}`),
+        decryptString: vi.fn((value: string) => value.replace(/^enc:/, '')),
       } as any,
     });
     registryService.upsertNode({

@@ -1,3 +1,4 @@
+import { describe, it, expect, vi } from 'vitest';
 import { buildOpenAiCompatibleNativeToolPayload } from '../../src/providers/ProviderNativeToolPayload.js';
 
 describe('ProviderNativeToolPayload', () => {

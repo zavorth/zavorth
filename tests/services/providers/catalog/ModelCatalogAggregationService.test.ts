@@ -1,3 +1,4 @@
+import { describe, it, expect, vi } from 'vitest';
 import {
   ModelCatalogAggregationService,
 } from '../../../../src/services/providers/catalog/ModelCatalogAggregationService.js';
@@ -119,7 +120,7 @@ describe('ModelCatalogAggregationService', () => {
 
 describe('Model catalog discovery adapters', () => {
   it('discovers OpenAI-compatible live models from the first healthy endpoint', async () => {
-    const fetchImpl = jest.fn(async (url: string) => {
+    const fetchImpl = vi.fn(async (url: string) => {
       if (url.endsWith('/v1/models')) {
         return {
           ok: true,
@@ -137,7 +138,7 @@ describe('Model catalog discovery adapters', () => {
       baseUrl: 'https://acme.example/v1',
       apiKey: 'test',
       fetchImpl: fetchImpl as any,
-      egressGuard: jest.fn(async () => undefined),
+      egressGuard: vi.fn(async () => undefined),
     });
 
     expect(result.source).toBe('live_api');
@@ -149,7 +150,7 @@ describe('Model catalog discovery adapters', () => {
   });
 
   it('discovers Anthropic-compatible live models with x-api-key support', async () => {
-    const fetchImpl = jest.fn(async () => ({
+    const fetchImpl = vi.fn(async () => ({
       ok: true,
       status: 200,
       json: async () => ({ data: [{ id: 'claude-live', display_name: 'Claude Live' }] }),
@@ -162,7 +163,7 @@ describe('Model catalog discovery adapters', () => {
       baseUrl: 'https://acme.example/messages',
       apiKey: 'test',
       fetchImpl: fetchImpl as any,
-      egressGuard: jest.fn(async () => undefined),
+      egressGuard: vi.fn(async () => undefined),
     });
 
     expect(result.source).toBe('live_api');
@@ -174,7 +175,7 @@ describe('Model catalog discovery adapters', () => {
   });
 
   it('blocks OpenAI-compatible discovery before fetch when egress policy rejects the target', async () => {
-    const fetchImpl = jest.fn();
+    const fetchImpl = vi.fn();
 
     const result = await new OpenAiCompatibleModelDiscoveryAdapter().discover({
       providerId: 'local-metadata',
@@ -187,7 +188,7 @@ describe('Model catalog discovery adapters', () => {
   });
 
   it('blocks Anthropic-compatible discovery before fetch when egress policy rejects the target', async () => {
-    const fetchImpl = jest.fn();
+    const fetchImpl = vi.fn();
 
     const result = await new AnthropicCompatibleModelDiscoveryAdapter().discover({
       providerId: 'local-anthropic',
