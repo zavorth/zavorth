@@ -72,6 +72,10 @@ export abstract class WebhookGateway implements GatewayChannelAdapter {
     return this.id as PlatformKey;
   }
 
+  public get outboxDirectory(): string {
+    return this.outboxDir;
+  }
+
   constructor(options: WebhookGatewayOptions | any) {
     const isOptionsObj = options && typeof options === 'object' && 'eventBus' in options;
     const opts = isOptionsObj ? options as WebhookGatewayOptions : null;
@@ -210,6 +214,24 @@ export abstract class WebhookGateway implements GatewayChannelAdapter {
         return live;
       }
       this.recordError(live.reason || `Channel delivery failed${live.httpStatus ? `: HTTP ${live.httpStatus}` : ''}.`);
+
+      // If it is transient, queue to outbox for retry
+      if (this.isTransientError(live)) {
+        const envelope = buildOutboundChannelEnvelope({
+          platform: this.id as any,
+          transport: `${this.mode}-configured`,
+          recipients,
+          message,
+          payload: outboundPayload && typeof outboundPayload === 'object' ? outboundPayload as Record<string, unknown> : null,
+          now: this.now(),
+          fields: {
+            chatId: String((outboundPayload as any)?.chatId || (outboundPayload as any)?.to || '').trim() || null,
+          },
+        });
+        persistChannelOutboxEnvelope(this.outboxDir, envelope);
+        return { ok: false, status: 'queued', transport: 'local-outbox', reason: `Transient error (${live.reason}), queued for retry.` };
+      }
+
       return live;
     }
 
@@ -230,6 +252,26 @@ export abstract class WebhookGateway implements GatewayChannelAdapter {
     this.lastError = null;
     this.writeStatus();
     return { ok: true, status: 'queued', transport: 'local-outbox' };
+  }
+
+  public isTransientError(result: ChannelGatewayDeliveryResult): boolean {
+    if (result.ok) return false;
+    if (result.httpStatus !== undefined) {
+      if (result.httpStatus === 429 || (result.httpStatus >= 500 && result.httpStatus < 600)) {
+        return true;
+      }
+      return false;
+    }
+    const transientKeywords = [
+      'fetch failed', 'timeout', 'econnrefused', 'enotfound', 'etimedout',
+      'network error', 'socket hung up', 'aborted', 'failed to fetch'
+    ];
+    const reason = String(result.reason || '').toLowerCase();
+    return transientKeywords.some(keyword => reason.includes(keyword));
+  }
+
+  public async retrySendLive(message: string, recipients: unknown[], rawPayload: Record<string, unknown> | string): Promise<ChannelGatewayDeliveryResult> {
+    return this.dispatchLive(message, recipients, rawPayload);
   }
 
   private async dispatchLive(message: string, recipients: unknown[], rawPayload: Record<string, unknown> | string): Promise<ChannelGatewayDeliveryResult> {

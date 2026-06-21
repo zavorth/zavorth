@@ -154,6 +154,9 @@
   ],
   "scripts": {
     "dev": "npx nodemon --watch src --ext ts --exec \"npx tsx src/index.ts\"",
+    "coverage:collect": "npx jest --coverage --runInBand",
+    "coverage:merge": "npx tsx scripts/merge-coverage.ts",
+    "coverage:full": "npm run coverage:collect --silent && npm run coverage:merge",
     "prepack": "npm run sdk:exports:check --silent && npm run build --silent",
     "sdk:exports": "node scripts/generate-package-exports.mjs --write",
     "sdk:exports:check": "node scripts/generate-package-exports.mjs --check",

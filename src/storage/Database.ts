@@ -547,6 +547,60 @@ export class Database {
     }
   }
 
+  public rotateKey(newKey: string): void {
+    const mode = (process.env.ZAVORTH_DB_SQLCIPHER_MODE || process.env.ZAVORTH_MEMORY_SQLCIPHER_MODE || 'off').trim().toLowerCase();
+    if (mode === 'off') {
+      throw new Error('Database encryption is disabled. Key rotation is not supported.');
+    }
+
+    if (!newKey || typeof newKey !== 'string') {
+      throw new Error('Invalid new encryption key provided.');
+    }
+
+    // 1. Derive the new encryption key buffer (matching getDatabaseKey logic)
+    const keyBuffer = crypto.createHash('sha256').update(newKey).digest();
+    const newDerivedKey = crypto.createHash('sha256').update(
+      Buffer.concat([keyBuffer, Buffer.from(':zavorth-db-cipher')])
+    ).digest();
+    const newHex = newDerivedKey.toString('hex');
+
+    // 2. Temporarily switch journal mode away from WAL (rekeying is not supported in WAL mode)
+    const currentJournalMode = this.db.pragma('journal_mode', { simple: true }) as string;
+    this.db.pragma('journal_mode = DELETE');
+
+    try {
+      // 3. Execute PRAGMA rekey using SQLCipher
+      this.db.exec(`PRAGMA rekey = "x'${newHex}'";`);
+
+      // 4. Test integrity/access with the new key (the connection is already rekeyed)
+      this.db.prepare('PRAGMA user_version').get();
+      this.db.prepare('SELECT count(*) FROM snippets').get();
+    } catch (error: any) {
+      // If rekey failed, restore journal mode and throw
+      try {
+        this.db.pragma(`journal_mode = ${currentJournalMode || 'WAL'}`);
+      } catch {}
+      throw new Error(`Failed to rotate database encryption key: ${error.message}`);
+    }
+
+    // 5. Restore the journal mode (typically WAL)
+    try {
+      this.db.pragma(`journal_mode = ${currentJournalMode || 'WAL'}`);
+    } catch {}
+
+    // 6. Update configuration and/or key file to persist the new key
+    config.dbEncryptionKey = newKey;
+    const keyFile = String(config.dbEncryptionKeyFile || '').trim();
+    if (keyFile) {
+      try {
+        fs.mkdirSync(path.dirname(keyFile), { recursive: true });
+        fs.writeFileSync(keyFile, newKey, 'utf8');
+      } catch (fileError: any) {
+        console.error(`Warning: Key rotated in database but failed to write to dbEncryptionKeyFile: ${fileError.message}`);
+      }
+    }
+  }
+
   public close(): void {
     if (this.db) {
       this.db.close();

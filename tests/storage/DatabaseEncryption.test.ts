@@ -143,4 +143,62 @@ describe('DatabaseEncryption', () => {
       directDb.close();
     }).toThrow();
   });
+
+  it('dynamically rotates the encryption key and updates configuration', async () => {
+    const testDbPath = getTempDbPath();
+    config.dbPath = testDbPath;
+    const oldKey = 'initial-encryption-key-1234';
+    const newKey = 'rotated-encryption-key-5678';
+
+    config.dbEncryptionKey = oldKey;
+    process.env.ZAVORTH_DB_SQLCIPHER_MODE = 'required';
+
+    // 1. Initialize DB with old key
+    let db = await Database.getInstance();
+    expect(db).toBeDefined();
+
+    // Insert test data
+    db.run('INSERT INTO snippets (user_id, name, content) VALUES (?, ?, ?)', ['user4', 'snippet4', 'content4']);
+
+    // 2. Rotate to new key
+    db.rotateKey(newKey);
+
+    // Verify we can still read the data on the active connection
+    const record = db.get('SELECT * FROM snippets WHERE name = ?', ['snippet4']);
+    expect(record).toEqual(expect.objectContaining({
+      user_id: 'user4',
+      name: 'snippet4',
+      content: 'content4',
+    }));
+
+    // Verify config is updated
+    expect(config.dbEncryptionKey).toBe(newKey);
+
+    // Close the database
+    db.close();
+
+    // 3. Verify that old key fails to open the database
+    Database.instance = null;
+    (Database as any).initPromise = null;
+    config.dbEncryptionKey = oldKey;
+
+    await expect(Database.getInstance()).rejects.toThrow();
+
+    // 4. Verify that new key successfully opens the database and retrieves the data
+    Database.instance = null;
+    (Database as any).initPromise = null;
+    config.dbEncryptionKey = newKey;
+
+    db = await Database.getInstance();
+    expect(db).toBeDefined();
+
+    const recordAfterRotation = db.get('SELECT * FROM snippets WHERE name = ?', ['snippet4']);
+    expect(recordAfterRotation).toEqual(expect.objectContaining({
+      user_id: 'user4',
+      name: 'snippet4',
+      content: 'content4',
+    }));
+
+    db.close();
+  });
 });
