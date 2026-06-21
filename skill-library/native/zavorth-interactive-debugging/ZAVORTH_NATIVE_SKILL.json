@@ -1,0 +1,29 @@
+{
+  "id": "zavorth-interactive-debugging",
+  "name": "Runtime Debugger Hook",
+  "native": true,
+  "description": "Attach debug hooks, interpret stack traces, and test patches for local runtimes.",
+  "category": "devops",
+  "permissionProfileId": "host-write",
+  "riskLevel": "high",
+  "capabilityTags": [
+    "devops",
+    "debugging"
+  ],
+  "presets": [
+    "developer"
+  ],
+  "inputContract": [
+    "process id",
+    "debug port",
+    "target code"
+  ],
+  "outputContract": [
+    "call stack",
+    "variable state",
+    "proposed patch"
+  ],
+  "noExecutionByDefault": true,
+  "requiresPolicyBroker": true,
+  "receiptsRequired": true
+}

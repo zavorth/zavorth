@@ -1,0 +1,29 @@
+{
+  "id": "zavorth-diagram-generator",
+  "name": "Diagram & Architecture Planner",
+  "native": true,
+  "description": "Render clean architecture designs and diagrams from text spec scripts.",
+  "category": "media",
+  "permissionProfileId": "workspace-write",
+  "riskLevel": "low",
+  "capabilityTags": [
+    "media",
+    "diagrams"
+  ],
+  "presets": [
+    "basic",
+    "developer",
+    "power-user"
+  ],
+  "inputContract": [
+    "spec text",
+    "format"
+  ],
+  "outputContract": [
+    "diagram code",
+    "rendered path"
+  ],
+  "noExecutionByDefault": false,
+  "requiresPolicyBroker": true,
+  "receiptsRequired": true
+}

@@ -1,0 +1,29 @@
+{
+  "id": "zavorth-office-pdf-extractor",
+  "name": "Office & PDF Parser",
+  "native": true,
+  "description": "Extract text, structure, tables, and metadata from local Word, Excel, and PDF files.",
+  "category": "productivity",
+  "permissionProfileId": "workspace-read",
+  "riskLevel": "low",
+  "capabilityTags": [
+    "productivity",
+    "research"
+  ],
+  "presets": [
+    "basic",
+    "developer",
+    "power-user"
+  ],
+  "inputContract": [
+    "file path",
+    "extraction options"
+  ],
+  "outputContract": [
+    "raw text",
+    "structured content"
+  ],
+  "noExecutionByDefault": false,
+  "requiresPolicyBroker": true,
+  "receiptsRequired": true
+}

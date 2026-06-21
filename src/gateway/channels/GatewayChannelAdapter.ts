@@ -7,8 +7,8 @@ export interface GatewayChannelAdapter {
   shutdown(): Promise<void>;
   
   // Channels may emit events inward
-  onMessageReceived?(payload: unknown): Promise<void>;
+  onMessageReceived?(payload: unknown): Promise<unknown>;
   
   // Channels may receive generic payloads outward
-  sendMessage?(payload: unknown): Promise<void>;
+  sendMessage?(payload: unknown): Promise<unknown>;
 }

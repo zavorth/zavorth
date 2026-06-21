@@ -21,6 +21,7 @@ describe('ZavorthTerminalBackendsService', () => {
       'vercel-sandbox',
       'modal',
       'daytona',
+      'singularity',
     ]);
     expect(snapshot.backends.find((entry) => entry.id === 'local')?.status).toBe('ready');
     expect(snapshot.backends.find((entry) => entry.id === 'docker')?.liveReady).toBe(false);
@@ -28,6 +29,7 @@ describe('ZavorthTerminalBackendsService', () => {
     expect(snapshot.backends.find((entry) => entry.id === 'local')?.readinessProof.kind).toBe('local-host');
     expect(snapshot.backends.find((entry) => entry.id === 'modal')?.status).toBe('needs-configuration');
     expect(snapshot.backends.find((entry) => entry.id === 'modal')?.liveCapable).toBe(true);
+    expect(snapshot.backends.find((entry) => entry.id === 'singularity')?.liveCapable).toBe(true);
     expect(snapshot.safety.noBackendLiveByDefault).toBe(true);
     expect(snapshot.safety.cloudBackendsRequireExplicitConfiguration).toBe(true);
   });
@@ -140,6 +142,25 @@ describe('ZavorthTerminalBackendsService', () => {
     expect(snapshot.plan.args).toEqual(['workspace', 'exec', 'zavorth-workspace', '--', 'echo ok']);
     expect(snapshot.backends.find((entry) => entry.id === 'daytona')?.liveCapable).toBe(true);
     expect(snapshot.backends.find((entry) => entry.id === 'daytona')?.status).toBe('ready');
+  });
+
+  it('plans a configured Singularity backend with containment and a fixed workspace bind', () => {
+    const service = new ZavorthTerminalBackendsService({
+      env: {
+        ZAVORTH_SINGULARITY_ENABLED: 'true',
+        ZAVORTH_SINGULARITY_IMAGE: 'library://zavorth/node:22',
+      },
+      cwd: 'C:/workspace',
+      now: () => new Date('2026-06-19T12:00:00.000Z'),
+      probeRunner: () => ({ status: 0, stdout: 'singularity-ce version 4.1.0', stderr: '', error: null }),
+    });
+
+    const snapshot = service.execute({ action: 'terminal.plan', backend: 'singularity', command: 'npm test' });
+
+    expect(snapshot.selectedBackend).toBe('singularity');
+    expect(snapshot.backends.find((entry) => entry.id === 'singularity')).toEqual(expect.objectContaining({ status: 'ready', liveReady: true }));
+    expect(snapshot.plan.executable).toBe('singularity');
+    expect(snapshot.plan.args).toEqual(expect.arrayContaining(['exec', '--containall', '--no-home', 'library://zavorth/node:22', 'npm test']));
   });
 
   it('does not claim strong backend readiness from env or host assumptions without a successful probe', () => {

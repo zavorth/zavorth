@@ -1,0 +1,27 @@
+{
+  "id": "zavorth-cognitive-prompt-optimizer",
+  "name": "Cognitive Prompt Optimizer",
+  "native": true,
+  "description": "Refine prompts and cognitive instructions to avoid instruction smuggling or model ambiguity.",
+  "category": "security",
+  "permissionProfileId": "workspace-read",
+  "riskLevel": "low",
+  "capabilityTags": [
+    "security",
+    "cognitive"
+  ],
+  "presets": [
+    "basic",
+    "developer"
+  ],
+  "inputContract": [
+    "raw instruction",
+    "target model"
+  ],
+  "outputContract": [
+    "optimized system prompt"
+  ],
+  "noExecutionByDefault": false,
+  "requiresPolicyBroker": true,
+  "receiptsRequired": true
+}

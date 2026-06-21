@@ -10,8 +10,8 @@ describe('WebsitePublicContractService', () => {
     expect(snapshot.summary.ok).toBe(true);
     expect(snapshot.summary.failed).toBe(0);
     expect(snapshot.canonicalBase.repoName).toBe('zavorth-website');
-    expect(snapshot.nextRecommendedStage).toEqual(expect.objectContaining({
-      stage: '47',
+    expect(snapshot.nextRecommendedPhase).toEqual(expect.objectContaining({
+      phase: '47',
       title: 'Public Demo And Guided Story',
     }));
   });

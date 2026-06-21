@@ -434,6 +434,14 @@ describe('Web app multisurface flow', () => {
       permissionController,
       surfaceTaskDispatcher: surfaceTaskDispatcher as any,
       webUserId: 'telegram-admin',
+      agentGateway: {
+        handle: jest.fn(async () => null),
+        resolveApprovalIntent: jest.fn(async () => ({
+          resolution: { status: 'not_approval_intent' },
+        })),
+        addRuntimeEventBus: jest.fn(),
+        attachWatchModeService: jest.fn(),
+      } as any,
     });
 
     try {
@@ -469,7 +477,7 @@ describe('Web app multisurface flow', () => {
         },
         body: JSON.stringify({
           sessionId,
-          message: 'continue o refactor do parser',
+          message: 'hello',
         }),
       },
     );

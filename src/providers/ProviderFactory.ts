@@ -7,6 +7,11 @@ import { OpenCodeProvider } from './OpenCodeProvider.js';
 import { QwenProvider } from './QwenProvider.js';
 import { GatewayProvider } from './GatewayProvider.js';
 import { MiniMaxProvider } from './MiniMaxProvider.js';
+import { GroqProvider } from './GroqProvider.js';
+import { XaiProvider } from './XaiProvider.js';
+import { MistralProvider } from './MistralProvider.js';
+import { CerebrasProvider } from './CerebrasProvider.js';
+import { TogetherProvider } from './TogetherProvider.js';
 import { LocalLlamaProvider } from './LocalLlamaProvider.js';
 import { AnthropicDirectProviderAdapter } from '../adapters/providers/AnthropicDirectProviderAdapter.js';
 import { AnthropicVertexProviderAdapter } from '../adapters/providers/AnthropicVertexProviderAdapter.js';
@@ -92,6 +97,14 @@ function buildRouteInputFromRegistryRoute(route: ProviderIntegrationRouteManifes
   };
 }
 
+const DEDICATED_OPENAI_COMPATIBLE_PROVIDERS: Record<string, { modelEnv: string; defaultModel: string; baseUrl: string }> = {
+  groq: { modelEnv: 'GROQ_MODEL', defaultModel: 'llama-3.3-70b-versatile', baseUrl: 'https://api.groq.com/openai/v1' },
+  xai: { modelEnv: 'XAI_MODEL', defaultModel: 'grok-4', baseUrl: 'https://api.x.ai/v1' },
+  mistral: { modelEnv: 'MISTRAL_MODEL', defaultModel: 'mistral-large-latest', baseUrl: 'https://api.mistral.ai/v1' },
+  cerebras: { modelEnv: 'CEREBRAS_MODEL', defaultModel: 'llama-3.3-70b', baseUrl: 'https://api.cerebras.ai/v1' },
+  together: { modelEnv: 'TOGETHER_MODEL', defaultModel: 'meta-llama/Llama-3.3-70B-Instruct-Turbo', baseUrl: 'https://api.together.xyz/v1' },
+};
+
 /**
  * ProviderFactory - Singleton/Factory para instanciar e gerenciar
  * o ciclo de vida dos provedores LLM.
@@ -164,6 +177,10 @@ export class ProviderFactory {
     const providerMeshExpansionTarget = this.resolveProviderMeshExpansionRuntimeTarget(providerName, routeInput);
     if (providerMeshExpansionTarget) {
       return providerMeshExpansionTarget;
+    }
+    const dedicatedOpenAiCompatibleTarget = this.resolveDedicatedOpenAiCompatibleTarget(providerName, routeInput);
+    if (dedicatedOpenAiCompatibleTarget) {
+      return dedicatedOpenAiCompatibleTarget;
     }
     const classification = new ProviderCompatibilityClassifier().classify(routeInput || {
       providerName,
@@ -310,6 +327,21 @@ export class ProviderFactory {
         case 'openrouter':
           provider = new OpenRouterProvider();
           break;
+        case 'groq':
+          provider = new GroqProvider();
+          break;
+        case 'xai':
+          provider = new XaiProvider();
+          break;
+        case 'mistral':
+          provider = new MistralProvider();
+          break;
+        case 'cerebras':
+          provider = new CerebrasProvider();
+          break;
+        case 'together':
+          provider = new TogetherProvider();
+          break;
         case 'opencode':
           provider = new OpenCodeProvider();
           break;
@@ -425,6 +457,32 @@ export class ProviderFactory {
       });
     }
     return null;
+  }
+
+  private static resolveDedicatedOpenAiCompatibleTarget(
+    providerName: string,
+    input: ProviderFactoryRouteInput | null,
+  ): ProviderFactoryRuntimeTarget | null {
+    const dedicated = DEDICATED_OPENAI_COMPATIBLE_PROVIDERS[providerName];
+    if (!dedicated) {
+      return null;
+    }
+    const modelName = String(input?.modelName || process.env[dedicated.modelEnv] || dedicated.defaultModel).trim();
+    const baseUrl = String(input?.baseUrl || input?.baseURL || process.env[`${normalizeEnvKey(providerName)}_BASE_URL`] || dedicated.baseUrl).trim();
+    const apiKey = String(input?.apiKey || readEnv(input?.apiKeyRef, input?.credentialRef, `${normalizeEnvKey(providerName)}_API_KEY`) || '').trim() || null;
+    return this.buildProviderMeshExpansionTarget({
+      providerName,
+      adapterKind: 'bespoke',
+      modelName,
+      baseUrl,
+      apiKey,
+      firstClassProvider: true,
+      genericCompatible: true,
+      explanation: [
+        `${providerName} usa provider dedicado do Zavorth, preservando metadados e ferramentas nativas do adapter.`,
+        'A API continua OpenAI-compatible, mas nao cai no GatewayProvider generico.',
+      ],
+    });
   }
 
   private static buildProviderMeshExpansionTarget(input: {

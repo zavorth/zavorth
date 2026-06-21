@@ -39,6 +39,9 @@ describe('Zavorth premium doctor', () => {
       'gateway',
       'telegram',
       'effect-boundary',
+      'local-storage',
+      'gateway-connectivity',
+      'sqlite-integrity',
     ]));
     expect(JSON.stringify(snapshot)).toContain('OPENAI_API_KEY=[redacted]');
     expect(JSON.stringify(snapshot)).not.toContain('sk-secret-value');
@@ -53,7 +56,22 @@ describe('Zavorth premium doctor', () => {
     expect(text.output).toContain('Doctor');
     expect(text.output).toContain('Runtime status');
     expect(text.output).toContain('Next actions');
-    expect(JSON.parse(json.output).contractVersion).toBe('zavorth-doctor-premium/1');
+    expect(JSON.parse(json.output).snapshot.contractVersion).toBe('zavorth-doctor-premium/1');
+  });
+
+  it('supports the fix and dry-run flags and reports repair steps', () => {
+    const root = createWorkspace();
+    const resultDry = runZavorthDoctorPremium({ projectRoot: root, fix: true, dryRun: true });
+    expect(resultDry.output).toContain('Starting Doctor Auto-Repair...');
+    expect(resultDry.output).toContain('(Dry Run)');
+    expect(resultDry.output).toContain('Bootstrap repair:');
+    expect(resultDry.output).toContain('Repair local dashboard token | Status: skipped');
+
+    const resultReal = runZavorthDoctorPremium({ projectRoot: root, fix: true, dryRun: false });
+    expect(resultReal.output).toContain('Starting Doctor Auto-Repair...');
+    expect(resultReal.output).not.toContain('(Dry Run)');
+    expect(resultReal.output).toContain('Bootstrap repair:');
+    expect(resultReal.output).toContain('Repair local dashboard token | Status:');
   });
 
   function createWorkspace(): string {

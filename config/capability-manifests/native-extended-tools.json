@@ -1,0 +1,38 @@
+{
+  "id": "native-extended-tools",
+  "label": "Native Extended Tools",
+  "kind": "tool",
+  "version": "0.1.0",
+  "boot": "on-demand",
+  "budget": {
+    "rssMb": 128,
+    "heapUsedMb": 72,
+    "activeHandles": 16
+  },
+  "entry": "src/runtime/actions/modules/nativeExtendedTools.ts",
+  "description": "Verified Action Harness bridge for extended native tools: video, email, kanban, trajectories, terminal, calendar, code review and SQLite.",
+  "requires": ["filesystem", "network", "process", "shell"],
+  "provides": [
+    "video_generate",
+    "kanban_board",
+    "skills_feedback",
+    "trajectories_batch",
+    "terminal_backend",
+    "email_smtp_send",
+    "calendar_local_event",
+    "code_review",
+    "database_sqlite_query"
+  ],
+  "tags": ["native", "verified", "action-harness", "extended", "llm-tools"],
+  "actions": [
+    { "id": "video.generate", "status": "verified", "risk": "attention", "requiresPreview": true, "requiresApproval": true, "scope": "media", "receipt": "required" },
+    { "id": "kanban.board", "status": "verified", "risk": "attention", "requiresPreview": true, "requiresApproval": true, "scope": "tasks", "receipt": "required" },
+    { "id": "skills.feedback", "status": "verified", "risk": "attention", "requiresPreview": true, "requiresApproval": true, "scope": "skills", "receipt": "required" },
+    { "id": "trajectories.batch", "status": "verified", "risk": "attention", "requiresPreview": true, "requiresApproval": true, "scope": "providers", "receipt": "required" },
+    { "id": "terminal.backend", "status": "verified", "risk": "danger", "requiresPreview": true, "requiresApproval": true, "scope": "workspace", "receipt": "required" },
+    { "id": "email.smtp.send", "status": "verified", "risk": "danger", "requiresPreview": true, "requiresApproval": true, "scope": "email", "receipt": "required" },
+    { "id": "calendar.local.event", "status": "verified", "risk": "attention", "requiresPreview": true, "requiresApproval": true, "scope": "calendar", "receipt": "required" },
+    { "id": "code.review", "status": "verified", "risk": "safe", "requiresPreview": false, "requiresApproval": false, "scope": "workspace", "receipt": "none" },
+    { "id": "database.sqlite.query", "status": "verified", "risk": "danger", "requiresPreview": true, "requiresApproval": true, "scope": "database", "receipt": "required" }
+  ]
+}

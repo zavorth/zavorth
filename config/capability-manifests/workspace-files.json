@@ -1,0 +1,82 @@
+{
+  "id": "workspace-files",
+  "label": "Workspace Files",
+  "kind": "tool",
+  "version": "0.1.0",
+  "boot": "on-demand",
+  "budget": {
+    "rssMb": 40,
+    "heapUsedMb": 20,
+    "activeHandles": 4
+  },
+  "entry": "src/runtime/actions/modules/workspaceFiles.ts",
+  "description": "Verified Action Harness routes for governed workspace file reads, listings, search, diffs and output mutations.",
+  "requires": ["filesystem"],
+  "provides": ["read_file", "list_directory", "search_files", "diff_file", "create_file", "write_file", "patch_file"],
+  "tags": ["native", "verified", "action-harness", "workspace"],
+  "actions": [
+    {
+      "id": "workspace.read_file",
+      "status": "verified",
+      "risk": "safe",
+      "requiresPreview": false,
+      "requiresApproval": false,
+      "scope": "workspace",
+      "receipt": "none"
+    },
+    {
+      "id": "workspace.list_directory",
+      "status": "verified",
+      "risk": "safe",
+      "requiresPreview": false,
+      "requiresApproval": false,
+      "scope": "workspace",
+      "receipt": "none"
+    },
+    {
+      "id": "workspace.search_files",
+      "status": "verified",
+      "risk": "safe",
+      "requiresPreview": false,
+      "requiresApproval": false,
+      "scope": "workspace",
+      "receipt": "none"
+    },
+    {
+      "id": "workspace.diff_file",
+      "status": "verified",
+      "risk": "safe",
+      "requiresPreview": false,
+      "requiresApproval": false,
+      "scope": "workspace_output",
+      "receipt": "none"
+    },
+    {
+      "id": "workspace.create_file",
+      "status": "verified",
+      "risk": "attention",
+      "requiresPreview": true,
+      "requiresApproval": true,
+      "scope": "workspace_output",
+      "receipt": "required"
+    },
+    {
+      "id": "workspace.write_file",
+      "status": "verified",
+      "risk": "attention",
+      "requiresPreview": true,
+      "requiresApproval": true,
+      "scope": "workspace_output",
+      "receipt": "required"
+    },
+    {
+      "id": "workspace.patch_file",
+      "status": "verified",
+      "risk": "attention",
+      "requiresPreview": true,
+      "requiresApproval": true,
+      "scope": "workspace_output",
+      "receipt": "required"
+    }
+  ]
+}

@@ -31,6 +31,6 @@ describe('ZavorthAgentGateway agentic routing', () => {
       approvalId: result.run.approvals[0].id,
     });
     expect(result.run.events.some((event) => event.metadata?.noRemoteCallPerformed === true)).toBe(true);
-    expect(result.replies[0].text).toContain('preciso da sua aprovacao');
+    expect(result.replies[0].text).toContain('need your approval first');
   });
 });

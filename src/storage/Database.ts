@@ -1,7 +1,83 @@
 import DatabaseLib, { Database as SQLiteDatabase } from 'better-sqlite3';
 import fs from 'fs';
 import path from 'path';
+import crypto from 'node:crypto';
 import { config } from '../config/index.js';
+
+function getDatabaseKey(): Buffer | null {
+  const rawKey = String(config.dbEncryptionKey || '').trim();
+  let baseKey: string | Buffer | null = rawKey;
+  if (!rawKey) {
+    baseKey = getOrCreateFileKey();
+  }
+  if (!baseKey) {
+    return null;
+  }
+  const keyBuffer = crypto.createHash('sha256').update(baseKey).digest();
+  return crypto.createHash('sha256').update(Buffer.concat([keyBuffer, Buffer.from(':zavorth-db-cipher')])).digest();
+}
+
+function getOrCreateFileKey(): string | null {
+  const keyFile = String(config.dbEncryptionKeyFile || '').trim();
+  if (!keyFile) {
+    return null;
+  }
+  try {
+    if (!fs.existsSync(keyFile)) {
+      fs.mkdirSync(path.dirname(keyFile), { recursive: true });
+      const generated = crypto.randomBytes(32).toString('base64');
+      fs.writeFileSync(keyFile, generated, 'utf8');
+      return generated;
+    }
+    return fs.readFileSync(keyFile, 'utf8').trim() || null;
+  } catch {
+    return null;
+  }
+}
+
+function resolveSqliteConstructor(mode: string, driverPackages: string[]): {
+  constructorRef: any;
+  driverPackage: string | null;
+  reason: string;
+} {
+  if (mode === 'off') {
+    return {
+      constructorRef: DatabaseLib,
+      driverPackage: 'better-sqlite3',
+      reason: 'encryption disabled',
+    };
+  }
+  for (const packageName of driverPackages) {
+    try {
+      const module = require(packageName);
+      const constructorRef = module.default || module.Database || module;
+      if (typeof constructorRef === 'function') {
+        return {
+          constructorRef,
+          driverPackage: packageName,
+          reason: `loaded ${packageName}`,
+        };
+      }
+    } catch {
+      // Try next package
+    }
+  }
+  return {
+    constructorRef: null,
+    driverPackage: null,
+    reason: `SQLCipher driver unavailable: ${driverPackages.join(', ')}`,
+  };
+}
+
+function applySqlCipherPragmas(db: any, key: Buffer): void {
+  const hex = key.toString('hex');
+  db.exec(`
+    PRAGMA key = "x'${hex}'";
+    PRAGMA cipher_page_size = 4096;
+    PRAGMA kdf_iter = 256000;
+    PRAGMA cipher_memory_security = ON;
+  `);
+}
 
 export class Database {
   private static instance: Database | null = null;
@@ -16,15 +92,83 @@ export class Database {
       fs.mkdirSync(dataDir, { recursive: true });
     }
 
-    this.db = new DatabaseLib(config.dbPath);
-    
+    const mode = (process.env.ZAVORTH_DB_SQLCIPHER_MODE || process.env.ZAVORTH_MEMORY_SQLCIPHER_MODE || 'off').trim().toLowerCase();
+    const driverPackages = (process.env.ZAVORTH_MEMORY_SQLCIPHER_DRIVER_PACKAGES || 'better-sqlite3-multiple-ciphers').split(',').map(s => s.trim()).filter(Boolean);
+    const key = getDatabaseKey();
+
+    const sqlite = resolveSqliteConstructor(mode, driverPackages);
+    const existedBefore = config.dbPath !== ':memory:' && fs.existsSync(config.dbPath);
+
+    if (mode === 'required' && (!sqlite.constructorRef || !key)) {
+      const reason = !key ? 'Encryption key missing' : sqlite.reason;
+      throw new Error(`SQLite database could not be initialized securely: ${reason}`);
+    }
+
+    let dbInstance: any = null;
+    let openedWithKey = false;
+
+    if (mode !== 'off' && sqlite.constructorRef && key) {
+      try {
+        const DatabaseConstructor = sqlite.constructorRef;
+        dbInstance = new DatabaseConstructor(config.dbPath);
+        applySqlCipherPragmas(dbInstance, key);
+        // Test query to verify key is correct and DB can be read
+        dbInstance.prepare("PRAGMA user_version").get();
+        openedWithKey = true;
+      } catch (error: any) {
+        if (existedBefore && dbInstance) {
+          try {
+            dbInstance.close();
+          } catch {
+            // Ignore
+          }
+        }
+        dbInstance = null;
+
+        if (existedBefore) {
+          try {
+            const DatabaseConstructor = sqlite.constructorRef;
+            const plainDb = new DatabaseConstructor(config.dbPath);
+            plainDb.prepare("PRAGMA user_version").get(); // Verify plaintext open works
+
+            // Rekey to encrypt the database (disable WAL first since rekeying is not supported in WAL mode)
+            plainDb.pragma('journal_mode = DELETE');
+            const hex = key.toString('hex');
+            plainDb.exec(`PRAGMA rekey = "x'${hex}'";`);
+            plainDb.close();
+
+            // Re-open with key
+            dbInstance = new DatabaseConstructor(config.dbPath);
+            applySqlCipherPragmas(dbInstance, key);
+            dbInstance.prepare("PRAGMA user_version").get();
+            openedWithKey = true;
+          } catch (migrationError: any) {
+            if (dbInstance) {
+              try { dbInstance.close(); } catch {}
+              dbInstance = null;
+            }
+            throw new Error(`SQLite database exists but key is invalid and plaintext migration failed: ${migrationError.message}`);
+          }
+        } else {
+          throw error;
+        }
+      }
+    }
+
+    if (!dbInstance) {
+      const DatabaseConstructor = DatabaseLib;
+      dbInstance = new DatabaseConstructor(config.dbPath);
+    }
+
+    this.db = dbInstance;
+
     // Configurações de performance nativas do SQLite
     this.db.pragma('journal_mode = WAL');
     this.db.pragma('synchronous = NORMAL');
     this.db.pragma('temp_store = MEMORY');
 
     this.createTables();
-    console.warn(`💾 [V3] Database SQLite inicializado com \`better-sqlite3\` (WAL mode ativo) at: ${config.dbPath}`);
+    console.warn(`💾 [V3] Database SQLite inicializado com \`${sqlite.driverPackage || 'better-sqlite3'}\` (WAL mode ativo) at: ${config.dbPath}. Encryption: ${openedWithKey ? 'active' : 'off'}`);
   }
 
   public static async getInstance(): Promise<Database> {

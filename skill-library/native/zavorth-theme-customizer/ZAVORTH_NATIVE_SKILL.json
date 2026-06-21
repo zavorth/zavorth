@@ -1,0 +1,27 @@
+{
+  "id": "zavorth-theme-customizer",
+  "name": "Color Theory Palette Engine",
+  "native": true,
+  "description": "Generate chromatically balanced color palettes utilizing classic color theory models.",
+  "category": "design",
+  "permissionProfileId": "workspace-read",
+  "riskLevel": "low",
+  "capabilityTags": [
+    "design",
+    "color"
+  ],
+  "presets": [
+    "basic",
+    "developer"
+  ],
+  "inputContract": [
+    "base color",
+    "harmony method"
+  ],
+  "outputContract": [
+    "hsl palette token"
+  ],
+  "noExecutionByDefault": false,
+  "requiresPolicyBroker": true,
+  "receiptsRequired": true
+}

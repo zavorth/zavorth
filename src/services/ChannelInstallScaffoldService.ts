@@ -87,7 +87,7 @@ type ChannelModeDefinition = {
   nextSteps: (webhookUrl: string | null) => string[];
 };
 
-const CHANNEL_LABELS: Record<PlatformKey, string> = {
+const CHANNEL_LABELS: Partial<Record<PlatformKey, string>> = {
   telegram: 'Telegram',
   discord: 'Discord',
   slack: 'Slack',
@@ -200,7 +200,7 @@ export class ChannelInstallScaffoldService {
 
     return {
       channelId: capability.platform,
-      label: CHANNEL_LABELS[capability.platform],
+      label: CHANNEL_LABELS[capability.platform] || capability.platform,
       readiness: capability.readiness,
       configured: capability.configured,
       implementationState: capability.implementationState,

@@ -1,0 +1,28 @@
+{
+  "id": "zavorth-multiagent-swarm",
+  "name": "Multi-Agent Swarm Orchestrator",
+  "native": true,
+  "description": "Delegate tasks to multiple local agent sub-processes and synthesize outputs.",
+  "category": "productivity",
+  "permissionProfileId": "host-write",
+  "riskLevel": "high",
+  "capabilityTags": [
+    "productivity",
+    "swarm"
+  ],
+  "presets": [
+    "developer",
+    "power-user"
+  ],
+  "inputContract": [
+    "complex goal",
+    "swarm properties"
+  ],
+  "outputContract": [
+    "swarm status",
+    "integrated results"
+  ],
+  "noExecutionByDefault": true,
+  "requiresPolicyBroker": true,
+  "receiptsRequired": true
+}

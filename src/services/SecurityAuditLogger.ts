@@ -97,7 +97,7 @@ export class SecurityAuditLogger {
   public logChannelAccessDecision(payload: {
     event: 'channel_message_accepted' | 'channel_message_blocked';
     decision: 'allowed' | 'blocked';
-    channel: 'whatsapp';
+    channel: string;
     chatId: string;
     isGroup: boolean;
     channelUserId: string;

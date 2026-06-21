@@ -3,7 +3,7 @@ import { RuntimeBootstrapService } from '../../src/services/RuntimeBootstrapServ
 describe('RuntimeBootstrapService', () => {
   it('reports a healthy bootstrap when env, dependencies and runtime are ready', () => {
     const service = new RuntimeBootstrapService({
-      existsSync: (target: any) => String(target).endsWith('.env'),
+      existsSync: (target: any) => String(target).endsWith('.env') || String(target).endsWith('skill-sources.json'),
       llmProvider: 'gemini',
       llmCredentialReady: true,
       supervisedRuntimeService: {

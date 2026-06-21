@@ -1,0 +1,28 @@
+{
+  "id": "zavorth-redteam-simulator",
+  "name": "AI Red Team Simulator",
+  "native": true,
+  "description": "Fuzz system inputs to test boundary safety against jailbreaks and injection vectors.",
+  "category": "security",
+  "permissionProfileId": "workspace-read",
+  "riskLevel": "medium",
+  "capabilityTags": [
+    "security",
+    "audit"
+  ],
+  "presets": [
+    "developer",
+    "power-user"
+  ],
+  "inputContract": [
+    "system prompt",
+    "target input"
+  ],
+  "outputContract": [
+    "report",
+    "jailbreak status"
+  ],
+  "noExecutionByDefault": false,
+  "requiresPolicyBroker": true,
+  "receiptsRequired": true
+}

@@ -1,5 +1,4 @@
 import fs from 'fs';
-import type { Dirent } from 'fs';
 import fsp from 'fs/promises';
 import path from 'path';
 import { MemoryService } from '../../services/MemoryService.js';
@@ -20,14 +19,13 @@ import { ZavorthXaiRuntimeService } from '../../services/ZavorthXaiRuntimeServic
 import { ZavorthCapabilityActionExposureService } from '../../services/ZavorthCapabilityActionExposureService.js';
 import { ZavorthCapabilityAtlasService } from '../../services/ZavorthCapabilityAtlasService.js';
 import { ZavorthDailyProductQuietAutonomyService } from '../../services/ZavorthDailyProductQuietAutonomyService.js';
-import { WorkspaceFsPolicy } from '../../tools/workspace/WorkspaceFsPolicy.js';
 import {
   type ZavorthActionDefinition,
   type ZavorthActionHandlerInput,
   type ZavorthActionLookupResult,
   type ZavorthActionResult,
 } from './ZavorthActionContracts.js';
-import { createWebBrowserActionModule } from './modules/index.js';
+import { createCapabilitySpineActionModule, createGovernedOpsActionModule, createNativeExtendedToolsActionModule, createNativePowerPacksActionModule, createProductizationPacksActionModule, createWebBrowserActionModule, createWorkspaceFilesActionModule } from './modules/index.js';
 
 const SKILL_GOVERNANCE_ENV_KEY = 'ZAVORTH_SKILLS_GOVERNANCE_MODE';
 
@@ -57,10 +55,6 @@ function normalizeMode(value: unknown): 'casual' | 'governed' | null {
 function normalizePositiveNumber(value: unknown): number | null {
   const parsed = Number(value);
   return Number.isFinite(parsed) && parsed > 0 ? Math.floor(parsed) : null;
-}
-
-function normalizePathForOutput(value: string): string {
-  return value.replace(/\\/g, '/');
 }
 
 function stateDir(root: string): string {
@@ -1603,6 +1597,7 @@ export class ZavorthActionCatalog {
         if (query && normalizeSearch(action.id) === query) score += 30;
         if (query && action.aliases.some((alias) => normalizeSearch(alias) === query)) score += 24;
         for (const term of terms) {
+          if (action.domains.some((entry) => normalizeSearch(entry) === term)) score += term.length > 3 ? term.length : 1;
           if (haystack.includes(term)) score += term.length > 3 ? 4 : 1;
         }
         return { action, score };
@@ -1675,7 +1670,13 @@ function buildDefaultActions(runtime: ZavorthActionCatalogRuntime = {}): Zavorth
     'capabilities.verified.expose',
   ]);
   const actionModules = [
+    createCapabilitySpineActionModule(),
+    createNativeExtendedToolsActionModule(),
+    createNativePowerPacksActionModule(),
+    createProductizationPacksActionModule(),
+    createWorkspaceFilesActionModule(),
     createWebBrowserActionModule(),
+    createGovernedOpsActionModule(),
   ];
   const actions: ZavorthActionDefinition[] = [
     ...actionModules.flatMap((module) => module.actions),

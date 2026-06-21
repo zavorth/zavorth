@@ -1,0 +1,28 @@
+{
+  "id": "zavorth-static-security-audit",
+  "name": "Security & Fuzzing Scanner",
+  "native": true,
+  "description": "Perform static security reviews and check secrets leakage locally.",
+  "category": "security",
+  "permissionProfileId": "workspace-read",
+  "riskLevel": "medium",
+  "capabilityTags": [
+    "security",
+    "audit"
+  ],
+  "presets": [
+    "developer",
+    "power-user"
+  ],
+  "inputContract": [
+    "source path",
+    "ruleset"
+  ],
+  "outputContract": [
+    "issues",
+    "fixes"
+  ],
+  "noExecutionByDefault": false,
+  "requiresPolicyBroker": true,
+  "receiptsRequired": true
+}

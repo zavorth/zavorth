@@ -1,0 +1,26 @@
+{
+  "id": "zavorth-remotion-video-compiler",
+  "name": "Remotion Video Compiler",
+  "native": true,
+  "description": "Compile programmatic videos and animations using Remotion scripts locally.",
+  "category": "media",
+  "permissionProfileId": "host-write",
+  "riskLevel": "high",
+  "capabilityTags": [
+    "media",
+    "video"
+  ],
+  "presets": [
+    "developer"
+  ],
+  "inputContract": [
+    "script JSON",
+    "video assets"
+  ],
+  "outputContract": [
+    "compiled video path"
+  ],
+  "noExecutionByDefault": true,
+  "requiresPolicyBroker": true,
+  "receiptsRequired": true
+}

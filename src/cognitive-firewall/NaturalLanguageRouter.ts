@@ -36,9 +36,9 @@ const ZERO_TOOL_INTENTS: Set<IntentCategory> = new Set([
 ]);
 
 const TRIVIAL_CHAT_PATTERNS = [
-  /^(oi|ola|hey|hi|hello|bom dia|boa tarde|boa noite|e ai|fala|salve)\b/i,
-  /^(ok|ta|beleza|blz|show|perfeito|entendi|certo|valeu|obrigado|obg|thanks|vlw|tmj)\b/i,
-  /^(sim|nao|s|n|yes|no|yeah|nope|yep)\s*$/i,
+  /^(oi|ola|hey|hi|hello|bom dia|boa tarde|boa noite|e ai|fala|salve|good morning|good afternoon|good evening|merci|danke|gracias|arigatou|감사합니다|شكرا|ありがとう)\b/i,
+  /^(ok|ta|beleza|blz|show|perfeito|entendi|certo|valeu|obrigado|obg|thanks|vlw|tmj|merci|danke|gracias)\b/i,
+  /^(sim|nao|s|n|yes|no|yeah|nope|yep|ja|nein|oui|non|はい|いいえ|네|아니오|نعم|لا)\s*$/i,
   /^(haha|kk|kkk|rs|rsrs|lol|hehe)\s*$/i,
 ];
 

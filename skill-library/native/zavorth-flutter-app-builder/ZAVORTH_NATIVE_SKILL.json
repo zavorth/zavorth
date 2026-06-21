@@ -1,0 +1,27 @@
+{
+  "id": "zavorth-flutter-app-builder",
+  "name": "Flutter Mobile Builder",
+  "native": true,
+  "description": "Scaffold Flutter mobile layouts, manage state models, and verify Dart compilation.",
+  "category": "development",
+  "permissionProfileId": "workspace-write",
+  "riskLevel": "medium",
+  "capabilityTags": [
+    "development",
+    "mobile"
+  ],
+  "presets": [
+    "developer"
+  ],
+  "inputContract": [
+    "ui layout spec",
+    "state mechanism"
+  ],
+  "outputContract": [
+    "dart layout code",
+    "compile status"
+  ],
+  "noExecutionByDefault": false,
+  "requiresPolicyBroker": true,
+  "receiptsRequired": true
+}

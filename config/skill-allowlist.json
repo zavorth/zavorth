@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updatedAt": "2026-06-09T20:56:38.325Z",
+  "updatedAt": "2026-06-20T21:17:45.359Z",
   "defaultPolicy": "deny",
   "allowedSourceIds": [
     "zavorth-native",
@@ -16,17 +16,17 @@
     {
       "sourceId": "workspace-agents",
       "mode": "all",
-      "reason": "Primary source for local authoring."
+      "reason": "Fonte principal de autoria local."
     },
     {
       "sourceId": "workspace-library",
       "mode": "all",
-      "reason": "Local library curated and maintained inside the workspace."
+      "reason": "Biblioteca local curada e mantida no proprio workspace."
     },
     {
       "sourceId": "workspace-imported-library",
       "mode": "review",
-      "reason": "Imports remain under review until explicitly promoted to a native or curated source."
+      "reason": "Imports permanecem em revisao ate promocao explicita para uma fonte nativa ou curada."
     }
   ]
 }

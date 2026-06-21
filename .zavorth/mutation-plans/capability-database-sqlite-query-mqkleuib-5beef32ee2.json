@@ -1,0 +1,63 @@
+{
+  "id": "capability-database-sqlite-query-mqkleuib-5beef32ee2",
+  "domain": "capability",
+  "actionId": "database.sqlite.query",
+  "title": "SQLite database query",
+  "summary": "Action Harness requires approval before applying database.sqlite.query.",
+  "createdAt": "2026-06-19T07:13:59.027Z",
+  "updatedAt": "2026-06-19T07:13:59.027Z",
+  "expiresAt": "2026-06-20T07:13:59.027Z",
+  "payloadHash": "5beef32ee2b0b528ed2e7afda61491a8cfa96309ffab39346da8561f7f540b6b",
+  "status": "waiting_approval",
+  "requestedBy": "smoke-test",
+  "sourceSurface": "llm",
+  "riskLevel": "high",
+  "approval": {
+    "required": true,
+    "status": "pending",
+    "defaultScope": "once",
+    "availableScopes": [
+      "once",
+      "session",
+      "host"
+    ],
+    "permissionId": null,
+    "requestedBy": "smoke-test",
+    "reason": "Zavorth Action Harness blocked apply until explicit approval or trusted operator confirmation."
+  },
+  "resourceImpact": {
+    "ramMb": 0,
+    "diskMb": 0,
+    "processCount": 0,
+    "externalExposure": "none",
+    "recurring": false,
+    "notes": []
+  },
+  "readinessGates": [],
+  "retentionPolicy": {
+    "ttlMs": 86400000,
+    "maxBytes": null,
+    "cleanupOnSuccess": false,
+    "cleanupOnBoot": false,
+    "notes": []
+  },
+  "validationPlan": [
+    "Review action preview and target values before approval."
+  ],
+  "rollbackPlan": [
+    "Re-apply previous configuration value from receipt if needed."
+  ],
+  "payload": {
+    "actionId": "database.sqlite.query",
+    "args": {
+      "query": "SELECT 1 AS value"
+    }
+  },
+  "audit": [
+    {
+      "at": "2026-06-19T07:13:59.027Z",
+      "event": "plan.created",
+      "message": "Plano criado aguardando approval."
+    }
+  ]
+}

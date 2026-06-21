@@ -61,8 +61,17 @@ describe('Expanded channel gateways', () => {
     });
 
     const signalGateway = new SignalGateway();
+    jest.spyOn((signalGateway as any).liveClient, 'isConfigured').mockReturnValue(false);
     const imessageGateway = new IMessageGateway();
     const teamsGateway = new TeamsGateway();
+    jest.spyOn((teamsGateway as any).graphClient, 'sendText').mockImplementation(async (input: any) => {
+      (teamsGateway as any).writeEnvelope({
+        recipients: [input.conversationId],
+        message: input.message,
+        kind: 'broadcast',
+      });
+      return {} as any;
+    });
     const emailGateway = new EmailGateway();
 
     await signalGateway.start();

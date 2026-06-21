@@ -1,19 +1,26 @@
 import { ProviderConnectionTestService } from '../../src/services/ProviderConnectionTestService';
 import { ProviderConfigService } from '../../src/services/ProviderConfigService';
 import { LocalEncryptedProviderSecretStore } from '../../src/services/ProviderSecretStore';
+import { safeFetch } from '../../src/security/SafeFetchService';
 
 // Mock dependencias
 jest.mock('../../src/services/ProviderConfigService');
 jest.mock('../../src/services/ProviderSecretStore');
+jest.mock('../../src/security/SafeFetchService', () => ({
+  safeFetch: jest.fn(),
+}));
 
 describe('ProviderConnectionTestService Security Tests (Phase 21H)', () => {
   let service: ProviderConnectionTestService;
   let mockFetch: jest.Mock;
+  let mockSafeFetch: jest.Mock;
 
   beforeEach(() => {
     service = ProviderConnectionTestService.getInstance();
     mockFetch = jest.fn();
     global.fetch = mockFetch;
+    mockSafeFetch = safeFetch as jest.Mock;
+    mockSafeFetch.mockImplementation((input: RequestInfo | URL, init?: RequestInit) => mockFetch(input, init));
 
     (ProviderConfigService.getInstance as jest.Mock).mockReturnValue({
       getProvider: jest.fn().mockResolvedValue({
@@ -84,5 +91,17 @@ describe('ProviderConnectionTestService Security Tests (Phase 21H)', () => {
     expect(result.message).toBe('Received unexpected status code 500.');
     expect(result.message).not.toContain('Bearer');
     expect(result.message).not.toContain('sk-test-secret-that-must-not-leak');
+  });
+
+  it('routes provider connectivity through the guarded egress boundary', async () => {
+    mockFetch.mockResolvedValueOnce({ status: 200 });
+
+    await service.testConnection('test-id');
+
+    expect(mockSafeFetch).toHaveBeenCalledWith(
+      'https://api.openai.com/v1/models',
+      expect.objectContaining({ method: 'GET' }),
+      expect.objectContaining({ serviceName: 'Provider connection test' }),
+    );
   });
 });

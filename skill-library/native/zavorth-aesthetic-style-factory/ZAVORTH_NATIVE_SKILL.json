@@ -1,0 +1,28 @@
+{
+  "id": "zavorth-aesthetic-style-factory",
+  "name": "Aesthetic Style Factory",
+  "native": true,
+  "description": "Refine base stylesheets applying premium aesthetics: Glassmorphism, Brutalism, Minimalist, or Sleek Dark Mode.",
+  "category": "design",
+  "permissionProfileId": "workspace-write",
+  "riskLevel": "low",
+  "capabilityTags": [
+    "design",
+    "theme"
+  ],
+  "presets": [
+    "basic",
+    "developer"
+  ],
+  "inputContract": [
+    "base stylesheet",
+    "style presets"
+  ],
+  "outputContract": [
+    "refined css",
+    "aesthetic score"
+  ],
+  "noExecutionByDefault": false,
+  "requiresPolicyBroker": true,
+  "receiptsRequired": true
+}

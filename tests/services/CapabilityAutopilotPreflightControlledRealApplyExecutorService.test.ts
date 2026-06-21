@@ -251,7 +251,7 @@ describe('CapabilityAutopilotPreflightControlledRealApplyExecutorService', () =>
     });
 
     expect(result).toMatchObject({
-      stage: '76',
+      phase: '76',
       status: 'ready',
       summary: {
         ok: true,
