@@ -169,8 +169,8 @@ describe('ProviderRuntimeActivationService Connector registry', () => {
     const anthropic = ProviderFactory.resolveRuntimeTarget('anthropic');
     expect(anthropic).toEqual(
       expect.objectContaining({
-        providerName: 'anthropic',
-        adapterKind: 'anthropic_compatible',
+        providerName: 'anthropic-direct',
+        adapterKind: 'bespoke',
         runtimeSupported: true,
       }),
     );

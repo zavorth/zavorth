@@ -1,3 +1,4 @@
+import { describe, it, expect, vi } from 'vitest';
 import {
   ProviderMeshOnboardingProductService,
 } from '../../../../src/services/providers/catalog/ProviderMeshOnboardingProductService.js';
@@ -272,10 +273,10 @@ describe('ProviderMeshOnboardingProductService', () => {
     const picker = createPickerResult();
     const service = new ProviderMeshOnboardingProductService({
       modelPickerService: {
-        buildPicker: jest.fn(() => picker),
+        buildPicker: vi.fn(() => picker),
       },
       registry: {
-        listRoutes: jest.fn(() => [
+        listRoutes: vi.fn(() => [
           registryRoute('openai'),
           registryRoute('openrouter'),
           registryRoute('ollama'),
@@ -336,10 +337,10 @@ describe('ProviderMeshOnboardingProductService', () => {
     const picker = createPickerResult();
     const service = new ProviderMeshOnboardingProductService({
       modelPickerService: {
-        buildPicker: jest.fn(() => picker),
+        buildPicker: vi.fn(() => picker),
       },
       registry: {
-        listRoutes: jest.fn(() => [
+        listRoutes: vi.fn(() => [
           registryRoute('openai'),
           registryRoute('openrouter'),
           registryRoute('ollama'),

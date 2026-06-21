@@ -61,12 +61,12 @@ const rules = [
     target: 'agent runs carry budget/route correlation and ZavorthControl reads it',
     files: [
       'src/runtime/agent/AgentRunLlmRouteReceipt.ts',
-      'src/ai-gateway/app/(zavorthControl)/control/zavorth-control/adapters/zavorthControlZavorthControlRunObservability.ts',
+      'src/ai-gateway/app/(dashboard)/control/command-center/adapters/dashboardCommandCenterRunObservability.ts',
     ],
     needles: [
       'providerRouteBudgetCorrelation',
       'runBudget',
-      'resolveZavorthControlProviderRouteBudgetCorrelation',
+      'resolveCommandCenterProviderRouteBudgetCorrelation',
     ],
   }),
   ruleContainsAcross({

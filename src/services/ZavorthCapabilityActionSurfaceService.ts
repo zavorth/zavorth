@@ -2,6 +2,7 @@ import {
   ZAVORTH_CAPABILITY_ACTION_SURFACE_CONTRACT_VERSION,
   type ZavorthCapabilityActionSurfaceSnapshot,
 } from '../contracts/ZavorthCapabilityActionSurfaceContract.js';
+import { ZavorthActionCatalog, type ZavorthActionDefinition } from '../runtime/actions/index.js';
 import { ZavorthCapabilityActionExposureService } from './ZavorthCapabilityActionExposureService.js';
 
 type Runtime = {
@@ -9,11 +10,13 @@ type Runtime = {
   env?: Record<string, string | undefined>;
   now?: () => Date;
   exposures?: Pick<ZavorthCapabilityActionExposureService, 'snapshot'>;
+  verifiedActions?: ZavorthActionDefinition[];
 };
 
 export class ZavorthCapabilityActionSurfaceService {
   private readonly now: () => Date;
   private readonly exposures: Pick<ZavorthCapabilityActionExposureService, 'snapshot'>;
+  private readonly verifiedActions: ZavorthActionDefinition[];
 
   public constructor(runtime: Runtime = {}) {
     this.now = runtime.now || (() => new Date());
@@ -22,11 +25,13 @@ export class ZavorthCapabilityActionSurfaceService {
       env: runtime.env,
       now: this.now,
     });
+    this.verifiedActions = runtime.verifiedActions ?? new ZavorthActionCatalog({ root: runtime.projectRoot }).list()
+      .filter((action) => action.verificationStatus === 'verified');
   }
 
   public buildSnapshot(): ZavorthCapabilityActionSurfaceSnapshot {
     const exposures = this.exposures.snapshot();
-    const items = exposures.exposures
+    const exposedItems = exposures.exposures
       .filter((entry) => entry.status === 'exposed')
       .map((entry) => ({
         id: entry.id,
@@ -38,7 +43,19 @@ export class ZavorthCapabilityActionSurfaceService {
         previewCommand: `zavorth actions preview ${entry.actionId}`,
         receiptsCommand: `zavorth actions receipts --action ${entry.actionId}`,
         nextSafeAction: entry.nextSafeAction,
-      }))
+      }));
+    const verifiedItems = this.verifiedActions.map((action) => ({
+      id: `verified-action:${action.id}`,
+      actionId: action.id,
+      title: action.title,
+      status: 'available' as const,
+      verificationId: action.capabilityId || action.id,
+      detail: 'Verified Action Harness route. Preview, approval and receipts are enforced according to the action policy.',
+      previewCommand: `zavorth actions preview ${action.id}`,
+      receiptsCommand: `zavorth actions receipts --id ${action.id}`,
+      nextSafeAction: action.requiresPreview ? 'Preview the action before approval.' : 'Inspect the action schema and run with scoped arguments.',
+    }));
+    const items = [...exposedItems, ...verifiedItems]
       .sort((left, right) => left.title.localeCompare(right.title));
     const receipts = exposures.receipts.slice(-12);
     const status = exposures.summary.blocked > 0

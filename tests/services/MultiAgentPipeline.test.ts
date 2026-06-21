@@ -715,7 +715,7 @@ describe('MultiAgentPipeline', () => {
     await pipeline.runWorkflow(ctx, 'ship', 'Feche a entrega final', 'C:/repo');
 
     const workflowRunId = submit.mock.calls[0][0].metadata.workflow_run_id;
-    expect(workflowRuns.getRun(workflowRunId)?.stages[1]).toEqual(
+    expect(workflowRuns.getRun(workflowRunId)?.phases[1]).toEqual(
       expect.objectContaining({
         id: 'reviewer',
         executor: 'external_executor',

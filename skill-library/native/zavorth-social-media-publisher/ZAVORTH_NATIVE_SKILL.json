@@ -1,0 +1,28 @@
+{
+  "id": "zavorth-social-media-publisher",
+  "name": "Social Media Publisher",
+  "native": true,
+  "description": "Draft, format, and schedule multi-platform posts conforming to character limit rules.",
+  "category": "productivity",
+  "permissionProfileId": "workspace-write",
+  "riskLevel": "low",
+  "capabilityTags": [
+    "productivity",
+    "communication"
+  ],
+  "presets": [
+    "basic",
+    "developer"
+  ],
+  "inputContract": [
+    "raw copy",
+    "channels"
+  ],
+  "outputContract": [
+    "formatted drafts",
+    "thread structures"
+  ],
+  "noExecutionByDefault": false,
+  "requiresPolicyBroker": true,
+  "receiptsRequired": true
+}

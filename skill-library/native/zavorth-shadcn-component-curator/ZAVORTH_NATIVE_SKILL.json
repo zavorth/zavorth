@@ -1,0 +1,26 @@
+{
+  "id": "zavorth-shadcn-component-curator",
+  "name": "Shadcn Component Curator",
+  "native": true,
+  "description": "Create, extend, and integrate tailored shadcn UI components into target workspaces.",
+  "category": "development",
+  "permissionProfileId": "workspace-write",
+  "riskLevel": "medium",
+  "capabilityTags": [
+    "development",
+    "ui"
+  ],
+  "presets": [
+    "developer"
+  ],
+  "inputContract": [
+    "component spec",
+    "tailwind rules"
+  ],
+  "outputContract": [
+    "customized component file"
+  ],
+  "noExecutionByDefault": false,
+  "requiresPolicyBroker": true,
+  "receiptsRequired": true
+}

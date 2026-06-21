@@ -9,14 +9,17 @@ import { SystemVisionAnalysisTool } from '../tools/os/SystemVisionAnalysisTool.j
 import { HomeAssistantBridge } from '../tools/iot/HomeAssistantBridge';
 import { MQTTPublisher } from '../tools/iot/MQTTPublisher';
 import { PlaywrightActionTool } from '../tools/browser/PlaywrightActionTool';
+import { buildVerifiedActionHarnessTools } from '../tools/web/ActionHarnessTools.js';
 import type { ToolDefinition } from '../../providers/ILlmProvider';
 import type { EchoExecutionEntry, EchoToolCall } from '../types/EchoTypes';
 import { EchoCompatibilityExecutionLogService } from '../../domain/execution/infrastructure/EchoCompatibilityExecutionLogService.js';
+import type { ZavorthActionGateway } from '../../runtime/actions/ZavorthActionGateway.js';
 
 type ZavorthEchoOrchestratorOptions = {
     capturePipelineHistory?: boolean;
     compatibilityLog?: Pick<EchoCompatibilityExecutionLogService, 'append' | 'list'>;
     startBackgroundBridges?: boolean;
+    actionGateway?: ZavorthActionGateway;
 };
 
 export class ZavorthEchoOrchestrator {
@@ -44,6 +47,17 @@ export class ZavorthEchoOrchestrator {
         this.registerTool(new MQTTPublisher());
 
         this.registerTool(new PlaywrightActionTool());
+
+        // Register web/browser Action Harness tools.
+        // The LLM sees these as regular tools alongside OS/IOT — it decides
+        // autonomously when to use them based on the user's natural language intent.
+        try {
+            for (const tool of buildVerifiedActionHarnessTools(options.actionGateway)) {
+                this.registerTool(tool);
+            }
+        } catch (error) {
+            console.warn('[EchoOrchestrator] Failed to register web Action Harness tools:', error instanceof Error ? error.message : String(error));
+        }
     }
 
     /**

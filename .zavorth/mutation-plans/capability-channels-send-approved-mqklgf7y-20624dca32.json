@@ -1,0 +1,64 @@
+{
+  "id": "capability-channels-send-approved-mqklgf7y-20624dca32",
+  "domain": "capability",
+  "actionId": "channels.send_approved",
+  "title": "Send approved channel message",
+  "summary": "Action Harness requires approval before applying channels.send_approved.",
+  "createdAt": "2026-06-19T07:15:12.526Z",
+  "updatedAt": "2026-06-19T07:15:12.526Z",
+  "expiresAt": "2026-06-20T07:15:12.526Z",
+  "payloadHash": "20624dca3222e3a0b61d655b030d5572358959804905527a4662a537671280ba",
+  "status": "waiting_approval",
+  "requestedBy": "smoke-test",
+  "sourceSurface": "llm",
+  "riskLevel": "high",
+  "approval": {
+    "required": true,
+    "status": "pending",
+    "defaultScope": "once",
+    "availableScopes": [
+      "once",
+      "session",
+      "host"
+    ],
+    "permissionId": null,
+    "requestedBy": "smoke-test",
+    "reason": "Zavorth Action Harness blocked apply until explicit approval or trusted operator confirmation."
+  },
+  "resourceImpact": {
+    "ramMb": 0,
+    "diskMb": 0,
+    "processCount": 0,
+    "externalExposure": "none",
+    "recurring": false,
+    "notes": []
+  },
+  "readinessGates": [],
+  "retentionPolicy": {
+    "ttlMs": 86400000,
+    "maxBytes": null,
+    "cleanupOnSuccess": false,
+    "cleanupOnBoot": false,
+    "notes": []
+  },
+  "validationPlan": [
+    "Review action preview and target values before approval."
+  ],
+  "rollbackPlan": [
+    "Re-apply previous configuration value from receipt if needed."
+  ],
+  "payload": {
+    "actionId": "channels.send_approved",
+    "args": {
+      "channel": "slack",
+      "message": "hello"
+    }
+  },
+  "audit": [
+    {
+      "at": "2026-06-19T07:15:12.526Z",
+      "event": "plan.created",
+      "message": "Plano criado aguardando approval."
+    }
+  ]
+}

@@ -1,0 +1,63 @@
+{
+  "id": "capability-computer-vision-mqklii83-e7c20468d3",
+  "domain": "capability",
+  "actionId": "computer.vision",
+  "title": "Computer vision",
+  "summary": "Action Harness requires approval before applying computer.vision.",
+  "createdAt": "2026-06-19T07:16:49.731Z",
+  "updatedAt": "2026-06-19T07:16:49.731Z",
+  "expiresAt": "2026-06-20T07:16:49.731Z",
+  "payloadHash": "e7c20468d3a6cf541e59f32a616faecd083292ab8acbac4286f4cf56e6bbf319",
+  "status": "waiting_approval",
+  "requestedBy": "smoke-test",
+  "sourceSurface": "llm",
+  "riskLevel": "medium",
+  "approval": {
+    "required": true,
+    "status": "pending",
+    "defaultScope": "once",
+    "availableScopes": [
+      "once",
+      "session",
+      "host"
+    ],
+    "permissionId": null,
+    "requestedBy": "smoke-test",
+    "reason": "Zavorth Action Harness blocked apply until explicit approval or trusted operator confirmation."
+  },
+  "resourceImpact": {
+    "ramMb": 0,
+    "diskMb": 0,
+    "processCount": 0,
+    "externalExposure": "none",
+    "recurring": false,
+    "notes": []
+  },
+  "readinessGates": [],
+  "retentionPolicy": {
+    "ttlMs": 86400000,
+    "maxBytes": null,
+    "cleanupOnSuccess": false,
+    "cleanupOnBoot": false,
+    "notes": []
+  },
+  "validationPlan": [
+    "Review action preview and target values before approval."
+  ],
+  "rollbackPlan": [
+    "Re-apply previous configuration value from receipt if needed."
+  ],
+  "payload": {
+    "actionId": "computer.vision",
+    "args": {
+      "task": "describe screen"
+    }
+  },
+  "audit": [
+    {
+      "at": "2026-06-19T07:16:49.731Z",
+      "event": "plan.created",
+      "message": "Plano criado aguardando approval."
+    }
+  ]
+}

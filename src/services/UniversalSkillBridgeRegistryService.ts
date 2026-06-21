@@ -79,8 +79,8 @@ export class UniversalSkillBridgeRegistryService {
       actions,
       narrative: {
         headline: 'Universal Skill Bridge Registry',
-        operatorSummary: `${visibleEntries.length}/${allEntries.length} skill(s) visiveis, `
-          + `${ready} pronta(s), ${approvalRequired} exigem approval live e ${blocked} bloqueada(s).`,
+        operatorSummary: `${visibleEntries.length}/${allEntries.length} visible skill(s), `
+          + `${ready} ready, ${approvalRequired} require live approval and ${blocked} blocked.`,
         nextAction: this.resolveNextAction(selected, visibleEntries),
       },
       policy: {
@@ -129,42 +129,42 @@ export class UniversalSkillBridgeRegistryService {
       'Universal Skill Bridge Registry',
       '',
       snapshot.narrative.operatorSummary,
-      `Modo: ${snapshot.mode} | Canal: ${snapshot.channel}.`,
-      `Imports: ${snapshot.summary.imported} | locais fora do bridge: ${snapshot.summary.localOnly} | bloqueadas: ${snapshot.summary.blocked}.`,
+      `Mode: ${snapshot.mode} | Channel: ${snapshot.channel}.`,
+      `Imports: ${snapshot.summary.imported} | local outside bridge: ${snapshot.summary.localOnly} | blocked: ${snapshot.summary.blocked}.`,
       '',
     ];
 
     if (snapshot.selected) {
       const selected = snapshot.selected;
       lines.push(
-        `Skill em foco: ${selected.skillName}`,
+        `Focused skill: ${selected.skillName}`,
         selected.description,
         `Status: ${selected.status} | dry-run: ${selected.dryRunReady ? 'ready' : 'blocked'} | live: ${selected.liveRequiresApproval ? 'approval required' : 'ready'}.`,
-        `Fonte: ${selected.sourceLabel || selected.sourceId || 'n/d'} | trust: ${selected.sourceTrust || 'n/d'} | licenca: ${selected.license || 'n/d'}.`,
+        `Source: ${selected.sourceLabel || selected.sourceId || 'n/a'} | trust: ${selected.sourceTrust || 'n/a'} | license: ${selected.license || 'n/a'}.`,
       );
       if (selected.blockers.length > 0) {
-        lines.push(`Bloqueios: ${selected.blockers.join(' ')}`);
+        lines.push(`Blockers: ${selected.blockers.join(' ')}`);
       }
     }
 
     if (snapshot.invocation) {
       lines.push(
         '',
-        `Invocacao bridge: ${snapshot.invocation.status}`,
-        `Receipt: ${snapshot.invocation.receipts[0]?.id || 'n/d'}`,
-        `Envelope preparado: ${snapshot.invocation.promptEnvelope ? 'sim' : 'nao'}.`,
+        `Bridge invocation: ${snapshot.invocation.status}`,
+        `Receipt: ${snapshot.invocation.receipts[0]?.id || 'n/a'}`,
+        `Envelope prepared: ${snapshot.invocation.promptEnvelope ? 'yes' : 'no'}.`,
       );
     }
 
     if (!snapshot.selected && snapshot.entries.length > 0) {
-      lines.push('Skills visiveis:');
+      lines.push('Visible skills:');
       for (const entry of snapshot.entries.slice(0, 8)) {
-        lines.push(`- ${entry.skillName}: ${entry.status} (${entry.actions[0]?.command || 'sem acao'})`);
+        lines.push(`- ${entry.skillName}: ${entry.status} (${entry.actions[0]?.command || 'no action'})`);
       }
     }
 
     if (snapshot.actions.length > 0) {
-      lines.push('', 'Acoes:');
+      lines.push('', 'Actions:');
       for (const action of snapshot.actions.slice(0, 8)) {
         lines.push(`- ${action.label}: ${action.command}`);
       }
@@ -210,16 +210,16 @@ export class UniversalSkillBridgeRegistryService {
   private resolveBlockers(entry: SkillCatalogEntry): string[] {
     const blockers: string[] = [];
     if (!entry.imported) {
-      blockers.push('Skill local nao entra no universal bridge por padrao.');
+      blockers.push('Local skills do not enter the universal bridge by default.');
     }
     if (entry.sourceTrust === 'blocked') {
-      blockers.push('Fonte marcada como blocked.');
+      blockers.push('Source marked as blocked.');
     }
     if (entry.risk?.level === 'blocked') {
-      blockers.push('Risk assessment bloqueado.');
+      blockers.push('Risk assessment is blocked.');
     }
     if (entry.licensePolicy?.allowRuntimeUse === false) {
-      blockers.push(`Licenca bloqueia runtime: ${entry.licensePolicy.summary}`);
+      blockers.push(`License blocks runtime use: ${entry.licensePolicy.summary}`);
     }
     return uniqueStrings(blockers);
   }
@@ -249,12 +249,12 @@ export class UniversalSkillBridgeRegistryService {
       {
         id: `catalog:${entry.name}`,
         kind: 'catalog',
-        label: 'Abrir no catalogo',
+        label: 'Open in catalog',
         command: `/skills ${entry.name}`,
         apiPath: `/api/skills/${encoded}`,
         requiresApproval: false,
         safeDefault: true,
-        reason: 'Inspecao de catalogo nao executa a skill.',
+        reason: 'Catalog inspection does not execute the skill.',
       },
     ];
 
@@ -262,12 +262,12 @@ export class UniversalSkillBridgeRegistryService {
       actions.push({
         id: `origin:${entry.name}`,
         kind: 'origin',
-        label: 'Ver provenance',
+        label: 'View provenance',
         command: `/skills origin ${entry.name}`,
         apiPath: `/api/skills/bridge?id=${encoded}`,
         requiresApproval: false,
         safeDefault: true,
-        reason: 'Provenance ajuda a revisar fonte, licenca e auditoria antes de usar.',
+        reason: 'Provenance helps review source, license and audit evidence before use.',
       });
     }
 
@@ -275,33 +275,33 @@ export class UniversalSkillBridgeRegistryService {
       actions.push({
         id: `bridge-dry-run:${entry.name}`,
         kind: 'dry-run',
-        label: 'Dry-run pelo bridge',
+        label: 'Bridge dry-run',
         command: `npm run zavorth:universal-skill-bridge -- --skill ${shellQuote(entry.name)}`,
         apiPath: `/api/skills/bridge?id=${encoded}&invoke=1`,
         requiresApproval: false,
         safeDefault: true,
-        reason: 'Prepara envelope governado com conteudo marcado como nao confiavel.',
+        reason: 'Prepares a governed envelope with content marked as untrusted.',
       });
       actions.push({
         id: `bridge-live:${entry.name}`,
         kind: 'live-prepare',
-        label: 'Preparar live com approval',
+        label: 'Prepare live with approval',
         command: `npm run zavorth:universal-skill-bridge -- --skill ${shellQuote(entry.name)} --live --approval-id <approval-id>`,
         apiPath: `/api/skills/bridge?id=${encoded}&invoke=1&mode=live&approvalId=<approval-id>`,
         requiresApproval: true,
         safeDefault: false,
-        reason: 'Live bridge exige owner approval antes de preparar contexto operacional.',
+        reason: 'Live bridge requires owner approval before preparing operational context.',
       });
     } else if (status === 'blocked' || status === 'local-only') {
       actions.push({
         id: `policy:${entry.name}`,
         kind: 'policy',
-        label: 'Revisar policy',
+        label: 'Review policy',
         command: `/trust skills review ${entry.name}`,
         apiPath: `/api/skills/bridge?id=${encoded}`,
         requiresApproval: true,
         safeDefault: false,
-        reason: 'A skill precisa passar pela importacao governada ou policy antes do bridge.',
+        reason: 'The skill must pass governed import or policy before the bridge.',
       });
     }
 

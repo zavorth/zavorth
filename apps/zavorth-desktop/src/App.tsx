@@ -1,11 +1,16 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import { dispatchRuntimeStateAction, loadDesktopPanelsData, loadHome, loadRuntimeStatus, repairAccess, resolveApproval as resolveApprovalRequest, resolveLearning as resolveLearningRequest, runMemoryEncryptionMigration, sendExperienceMessage, startRuntime, steerActiveRun, type ApprovalItem, type ChatMessage, type ExperienceSnapshot, type LearningItem, type MemoryEncryptionMigrationReceipt, type MemoryEncryptionStatus, type MemoryItem, type RuntimeCapabilitiesSnapshot, type ToolItem } from './apiClient';
+import { dispatchRuntimeStateAction, loadDesktopPanelsData, loadHome, loadRuntimeStatus, repairAccess, resolveApproval as resolveApprovalRequest, resolveLearning as resolveLearningRequest, runMemoryEncryptionMigration, sendExperienceMessage, startRuntime, steerActiveRun, type ApprovalItem, type ChannelSetupSnapshot, type ChatMessage, type ControlMemorySnapshot, type ExperienceSnapshot, type GatewayResilienceSnapshot, type LearningItem, type MemoryEncryptionMigrationReceipt, type MemoryEncryptionStatus, type MemoryItem, type RuntimeCapabilitiesSnapshot, type ToolItem, loadWorkspaceWriteApprovals, resolveWorkspaceWriteApproval, getWorkspaceTrustStatus, resolveWorkspaceTrust, loadProposedMandate, loadActiveMandate, resolveProposedMandate, revokeActiveMandate, getPendingHostCommands, resolveHostCommand, mutateControlMemory, mutateChannelSetup, mutateGatewayResilience } from './apiClient';
 import type { BootEvent, RuntimeStatus } from './global';
 import { appendLocalMessage, applyRuntimeCapabilitiesToDesktop, asRecord, defaultConnectedModelIds, desktopEffortFromRuntime, fallbackStatus, modelOptionsFromRuntimeCapabilities, normalizeMessages, responseProfileByExperience, runtimeInstrumentActionInput, runtimeStateFromSnapshot, runtimeStateState } from './appRuntimeState';
 import { modelOptions } from './modelCatalog';
 import { DesktopShell } from './shell/DesktopShell';
 import { parseSlashCommand, slashCommands, type DesktopPanel } from './slashCommands';
 import { defaultWorkspaceScopes, workspaceScopeForMetadata, type DesktopWorkspaceScope } from './workspaceScopes';
+import { WorkspaceWriteApprovalModal } from './components/WorkspaceWriteApprovalModal';
+import { WorkspaceTaskMandateModal } from './components/WorkspaceTaskMandateModal';
+import { TemporaryDirectoryTrustModal } from './components/TemporaryDirectoryTrustModal';
+import { HostCommandApprovalModal } from './components/HostCommandApprovalModal';
+import { ZavorthPaneShell } from './shell/ZavorthPaneShell';
 
 export function App() {
   const [status, setStatus] = useState<RuntimeStatus>(fallbackStatus);
@@ -18,6 +23,9 @@ export function App() {
   const [memoryEncryptionStatus, setMemoryEncryptionStatus] = useState<MemoryEncryptionStatus | null>(null);
   const [memoryEncryptionReceipt, setMemoryEncryptionReceipt] = useState<MemoryEncryptionMigrationReceipt | null>(null);
   const [runtimeCapabilities, setRuntimeCapabilities] = useState<RuntimeCapabilitiesSnapshot | null>(null);
+  const [controlMemory, setControlMemory] = useState<ControlMemorySnapshot | null>(null);
+  const [channelSetup, setChannelSetup] = useState<ChannelSetupSnapshot | null>(null);
+  const [gatewayResilience, setGatewayResilience] = useState<GatewayResilienceSnapshot | null>(null);
   const [events, setEvents] = useState<BootEvent[]>([]);
   const [activePanel, setActivePanel] = useState<DesktopPanel>('chat');
   const [commandPaletteOpen, setCommandPaletteOpen] = useState(false);
@@ -34,6 +42,12 @@ export function App() {
   const [workspaceScopes, setWorkspaceScopes] = useState<DesktopWorkspaceScope[]>(defaultWorkspaceScopes);
   const [workspaceScopeId, setWorkspaceScopeId] = useState('local');
   const [runtimeConnectedModelIds, setRuntimeConnectedModelIds] = useState<string[]>(() => defaultConnectedModelIds());
+  const [workspaceWriteApprovals, setWorkspaceWriteApprovals] = useState<any[]>([]);
+  const [promptedWorkspaces, setPromptedWorkspaces] = useState<Set<string>>(() => new Set());
+  const [showTrustPrompt, setShowTrustPrompt] = useState(false);
+  const [trustLoading, setTrustLoading] = useState(false);
+  const [proposedMandate, setProposedMandate] = useState<any>(null);
+  const [activeMandate, setActiveMandate] = useState<any>(null);
 
   const bridgeReady = Boolean(window.zavorthDesktop);
   const sessionId = snapshot?.sessionId || 'desktop-main';
@@ -102,6 +116,9 @@ export function App() {
       setLearning(data.learning);
       setTools(data.tools);
       setNexusStatus(data.nexusStatus);
+      setControlMemory(data.controlMemory);
+      setChannelSetup(data.channelSetup);
+      setGatewayResilience(data.gatewayResilience);
       setMemoryEncryptionStatus(data.memoryEncryptionStatus);
       setRuntimeCapabilities(data.runtimeCapabilities);
       applyRuntimeCapabilitiesToDesktop({
@@ -111,6 +128,18 @@ export function App() {
         setWorkspaceScopes,
         setWorkspaceScopeId,
       });
+      const wRes = await loadWorkspaceWriteApprovals(sessionId);
+      setWorkspaceWriteApprovals(wRes);
+
+      if (activeWorkspaceScope.id && activeWorkspaceScope.kind === 'folder') {
+        const pm = await loadProposedMandate(activeWorkspaceScope.id).catch(() => null);
+        setProposedMandate(pm);
+        const am = await loadActiveMandate(activeWorkspaceScope.id).catch(() => null);
+        setActiveMandate(am);
+      } else {
+        setProposedMandate(null);
+        setActiveMandate(null);
+      }
     } catch {
       setApprovals([]);
       setLearning([]);
@@ -118,8 +147,12 @@ export function App() {
       setNexusStatus(null);
       setMemoryEncryptionStatus(null);
       setRuntimeCapabilities(null);
+      setWorkspaceWriteApprovals([]);
+      setProposedMandate(null);
+      setActiveMandate(null);
+      setPendingHostCommands([]);
     }
-  }, []);
+  }, [sessionId, applyRuntimeCapabilitiesToDesktop, activeWorkspaceScope]);
 
   const refreshHome = useCallback(async () => {
     try {
@@ -156,21 +189,109 @@ export function App() {
     };
   }, [bridgeReady, refreshHome, refreshPanels, refreshRuntime]);
 
+  useEffect(() => {
+    if (!bridgeReady) {
+      return;
+    }
+
+    const interval = setInterval(() => {
+      loadWorkspaceWriteApprovals(sessionId)
+        .then((wRes) => {
+          setWorkspaceWriteApprovals(wRes);
+        })
+        .catch(() => {});
+
+      if (activeWorkspaceScope.id && activeWorkspaceScope.kind === 'folder') {
+        loadProposedMandate(activeWorkspaceScope.id)
+          .then(setProposedMandate)
+          .catch(() => {});
+        loadActiveMandate(activeWorkspaceScope.id)
+          .then(setActiveMandate)
+          .catch(() => {});
+        getPendingHostCommands(activeWorkspaceScope.id)
+          .then(setPendingHostCommands)
+          .catch(() => {});
+      }
+    }, 3000);
+
+    return () => {
+      clearInterval(interval);
+    };
+  }, [bridgeReady, sessionId, activeWorkspaceScope.id, activeWorkspaceScope.kind]);
+
+  useEffect(() => {
+    if (activeWorkspaceScope.kind === 'folder' && activeWorkspaceScope.id && activeWorkspaceScope.path) {
+      getWorkspaceTrustStatus(activeWorkspaceScope.id)
+        .then((res) => {
+          if (res.ok) {
+            if (!res.trusted && !promptedWorkspaces.has(activeWorkspaceScope.id)) {
+              setShowTrustPrompt(true);
+              setPromptedWorkspaces(prev => {
+                const next = new Set(prev);
+                next.add(activeWorkspaceScope.id!);
+                return next;
+              });
+            } else {
+              setShowTrustPrompt(false);
+            }
+          }
+        })
+        .catch(() => {});
+    } else {
+      setShowTrustPrompt(false);
+    }
+  }, [activeWorkspaceScope.id, activeWorkspaceScope.kind, activeWorkspaceScope.path, promptedWorkspaces]);
+
+  const handleTrustWorkspaceFromPrompt = async (allowRiskUpTo: 'LOW' | 'MEDIUM', allowPackageInstall: boolean, allowNetwork: boolean) => {
+    setTrustLoading(true);
+    try {
+      if (activeWorkspaceScope.path) {
+        await resolveWorkspaceTrust({
+          workspaceId: activeWorkspaceScope.id,
+          rootPath: activeWorkspaceScope.path,
+          trusted: true,
+          allowRiskUpTo,
+          allowPackageInstall,
+          allowNetwork,
+        });
+        await refreshPanels();
+        setShowTrustPrompt(false);
+      }
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setTrustLoading(false);
+    }
+  };
+
   const memoryItems = useMemo(() => {
     const memory = snapshot?.memory || {};
     return [
       ...((Array.isArray(memory.items) ? memory.items : []) as MemoryItem[]),
       ...((Array.isArray(memory.receipts) ? memory.receipts : []) as MemoryItem[]),
+      ...((Array.isArray(controlMemory?.facts) ? controlMemory.facts : []) as MemoryItem[]),
     ];
-  }, [snapshot]);
+  }, [controlMemory, snapshot]);
 
   const channelItems = useMemo(() => {
     const channels = snapshot?.channels || {};
+    const setupOptions = Array.isArray(channelSetup?.assistant?.options)
+      ? channelSetup.assistant.options.map((option: any) => ({
+        id: option.channelId,
+        name: option.label,
+        channel: option.channelId,
+        configured: option.configured,
+        liveReady: option.readiness === 'ready',
+        status: option.readiness || channelSetup.assistant?.status,
+        summary: option.summary,
+      }))
+      : [];
     return [
       ...((Array.isArray(channels.routes) ? channels.routes : []) as any[]),
       ...((Array.isArray(channels.readiness) ? channels.readiness : []) as any[]),
+      ...setupOptions,
     ];
-  }, [snapshot]);
+  }, [channelSetup, snapshot]);
 
   async function resolveApproval(approvalId: string, decision: 'approve' | 'reject') {
     setBusy(true);
@@ -217,6 +338,60 @@ export function App() {
     } finally {
       setBusy(false);
       void refreshPanels();
+    }
+  }
+
+  async function handleMemoryControlAction(input: {
+    action: 'forget' | 'updatePreference';
+    id: string;
+    content?: string;
+  }) {
+    setBusy(true);
+    try {
+      const result = await mutateControlMemory(input);
+      appendLocalMessage(setMessages, 'system', `Memory ${input.action}: ${result?.receipt?.receiptId || 'receipt created'}.`);
+      await refreshPanels();
+    } catch (error) {
+      setNotice(error instanceof Error ? error.message : 'Could not update memory.');
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  async function handleChannelSetupAction(input: {
+    action: 'applyScaffold' | 'doctor' | 'testConnection';
+    channelId?: string | null;
+    mode?: string | null;
+    extraEntries?: Array<{ key: string; value: string }>;
+  }) {
+    setBusy(true);
+    try {
+      const result = await mutateChannelSetup(input);
+      if (result?.result?.assistant) {
+        setChannelSetup({ ok: true, assistant: result.result.assistant });
+      }
+      appendLocalMessage(setMessages, 'system', `Channel ${input.action}: ${result?.receipt?.receiptId || result?.action || 'done'}.`);
+      await refreshPanels();
+    } catch (error) {
+      setNotice(error instanceof Error ? error.message : 'Could not run channel setup.');
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  async function handleGatewayResilienceAction(input: Record<string, unknown>) {
+    setBusy(true);
+    try {
+      const result = await mutateGatewayResilience(input);
+      if (result?.resilience) {
+        setGatewayResilience(result.resilience);
+      }
+      appendLocalMessage(setMessages, 'system', `Gateway resilience: ${result?.receipt?.receiptId || result?.status || 'updated'}.`);
+      await refreshPanels();
+    } catch (error) {
+      setNotice(error instanceof Error ? error.message : 'Could not update gateway resilience.');
+    } finally {
+      setBusy(false);
     }
   }
 
@@ -446,66 +621,206 @@ export function App() {
     });
   }, [applyRuntimeSelection]);
 
+  async function handleWorkspaceWriteApprovalResolve(operationId: string, decision: 'approve' | 'deny') {
+    setBusy(true);
+    try {
+      await resolveWorkspaceWriteApproval(operationId, decision);
+      const wRes = await loadWorkspaceWriteApprovals(sessionId);
+      setWorkspaceWriteApprovals(wRes);
+      appendLocalMessage(setMessages, 'system', `Workspace approval ${decision === 'approve' ? 'allowed' : 'blocked'}.`);
+    } catch (error) {
+      setNotice(error instanceof Error ? error.message : 'Could not resolve workspace write approval.');
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  async function handleProposedMandateResolve(approved: boolean) {
+    if (!activeWorkspaceScope.id) return;
+    setBusy(true);
+    try {
+      await resolveProposedMandate(activeWorkspaceScope.id, approved);
+      const pm = await loadProposedMandate(activeWorkspaceScope.id).catch(() => null);
+      setProposedMandate(pm);
+      const am = await loadActiveMandate(activeWorkspaceScope.id).catch(() => null);
+      setActiveMandate(am);
+      appendLocalMessage(setMessages, 'system', `Task mandate ${approved ? 'approved' : 'denied'}.`);
+    } catch (error) {
+      setNotice(error instanceof Error ? error.message : 'Could not resolve task mandate.');
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  async function handleActiveMandateRevoke() {
+    if (!activeWorkspaceScope.id) return;
+    setBusy(true);
+    try {
+      await revokeActiveMandate(activeWorkspaceScope.id);
+      setProposedMandate(null);
+      setActiveMandate(null);
+      appendLocalMessage(setMessages, 'system', 'Task mandate has been revoked.');
+    } catch (error) {
+      setNotice(error instanceof Error ? error.message : 'Could not revoke task mandate.');
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  const handleHostCommandResolve = useCallback(async (operationId: string, decision: 'approve' | 'deny', strongPhrase?: string) => {
+    setBusy(true);
+    try {
+      await resolveHostCommand(operationId, decision, strongPhrase);
+      setPendingHostCommands(current => current.filter(cmd => cmd.operation_id !== operationId));
+      appendLocalMessage(setMessages, 'system', `Host command proposal ${decision}d.`);
+    } catch (error) {
+      setNotice(error instanceof Error ? error.message : 'Could not resolve host command proposal.');
+    } finally {
+      setBusy(false);
+    }
+  }, []);
+
   return (
-    <DesktopShell
-      activePanel={activePanel}
-      approvals={approvals}
-      busy={busy}
-      channels={channelItems}
-      commandPaletteOpen={commandPaletteOpen}
-      effort={effort}
-      accent={accent}
-      encryptionReceipt={memoryEncryptionReceipt}
-      encryptionStatus={memoryEncryptionStatus}
-      events={events}
-      input={input}
-      inspectorOpen={inspectorOpen}
-      learning={learning}
-      memoryItems={memoryItems}
-      modelOptions={connectedModelOptions}
-      messages={messages}
-      nexusStatus={nexusStatus}
-      notice={notice}
-      profile={experienceProfile}
-      runtimeMessage={status.message}
-      runtimeCapabilities={runtimeCapabilities}
-      selectedModel={selectedModel}
-      showNotice={Boolean(notice)}
-      showRuntimeSetup={!status.running}
-      sidebarCollapsed={sidebarCollapsed}
-      status={status}
-      theme={theme}
-      tools={tools}
-      workspaceScope={activeWorkspaceScope}
-      workspaceScopes={workspaceScopes}
-      onAccessRepair={requestAccessRepair}
-      onAccent={setAccent}
-      onCommandPalette={setCommandPaletteOpen}
-      onEffort={handleEffortSelection}
-      onEncryptionAction={handleMemoryEncryptionAction}
-      onInput={setInput}
-      onLearningDecision={resolveLearning}
-      onModel={handleModelSelection}
-      onNewSession={() => {
-        setMessages([]);
-        setInput('');
-        setActivePanel('chat');
-      }}
-      onPanel={setActivePanel}
-      onProfile={setExperienceProfile}
-      onRefresh={async () => {
-        await refreshRuntime();
-        await refreshHome();
-        await refreshPanels();
-      }}
-      onReviewDecision={resolveApproval}
-      onRuntimeStart={requestRuntimeStart}
-      onRuntimeStateAction={requestRuntimeInstrument}
-      onSidebarCollapsed={setSidebarCollapsed}
-      onSubmit={sendMessage}
-      onTheme={setTheme}
-      onWorkspaceFolder={handleWorkspaceFolderSelection}
-      onWorkspaceScope={handleWorkspaceScopeSelection}
-    />
+    <>
+      <ZavorthPaneShell>
+        <DesktopShell
+          activePanel={activePanel}
+          approvals={approvals}
+          busy={busy}
+          channels={channelItems}
+          channelSetup={channelSetup}
+          commandPaletteOpen={commandPaletteOpen}
+          effort={effort}
+          accent={accent}
+          encryptionReceipt={memoryEncryptionReceipt}
+          encryptionStatus={memoryEncryptionStatus}
+          events={events}
+          input={input}
+          inspectorOpen={inspectorOpen}
+          learning={learning}
+          memoryItems={memoryItems}
+          gatewayResilience={gatewayResilience}
+          modelOptions={connectedModelOptions}
+          messages={messages}
+          nexusStatus={nexusStatus}
+          notice={notice}
+          profile={experienceProfile}
+          runtimeMessage={status.message}
+          runtimeCapabilities={runtimeCapabilities}
+          selectedModel={selectedModel}
+          showNotice={Boolean(notice)}
+          showRuntimeSetup={!status.running}
+          sidebarCollapsed={sidebarCollapsed}
+          status={status}
+          theme={theme}
+          tools={tools}
+          workspaceScope={activeWorkspaceScope}
+          workspaceScopes={workspaceScopes}
+          onAccessRepair={requestAccessRepair}
+          onAccent={setAccent}
+          onCommandPalette={setCommandPaletteOpen}
+          onEffort={handleEffortSelection}
+          onEncryptionAction={handleMemoryEncryptionAction}
+          onInput={setInput}
+          onLearningDecision={resolveLearning}
+          onMemoryControlAction={handleMemoryControlAction}
+          onChannelSetupAction={handleChannelSetupAction}
+          onGatewayResilienceAction={handleGatewayResilienceAction}
+          onModel={handleModelSelection}
+          onNewSession={() => {
+            setMessages([]);
+            setInput('');
+            setActivePanel('chat');
+          }}
+          onPanel={setActivePanel}
+          onProfile={setExperienceProfile}
+          onRefresh={async () => {
+            await refreshRuntime();
+            await refreshHome();
+            await refreshPanels();
+          }}
+          onReviewDecision={resolveApproval}
+          onRuntimeStart={requestRuntimeStart}
+          onRuntimeStateAction={requestRuntimeInstrument}
+          onSidebarCollapsed={setSidebarCollapsed}
+          onSubmit={sendMessage}
+          onTheme={setTheme}
+          onWorkspaceFolder={handleWorkspaceFolderSelection}
+          onWorkspaceScope={handleWorkspaceScopeSelection}
+          activeMandate={activeMandate}
+          onRevokeMandate={handleActiveMandateRevoke}
+        />
+      </ZavorthPaneShell>
+      <WorkspaceWriteApprovalModal
+        approvals={workspaceWriteApprovals}
+        sessionId={sessionId}
+        workspacePath={activeWorkspaceScope.path}
+        onResolve={handleWorkspaceWriteApprovalResolve}
+      />
+      <WorkspaceTaskMandateModal
+        proposedMandate={proposedMandate}
+        onResolve={handleProposedMandateResolve}
+      />
+      <TemporaryDirectoryTrustModal
+        workspaceId={activeWorkspaceScope.id}
+      />
+      <HostCommandApprovalModal
+        approvals={pendingHostCommands}
+        onResolve={handleHostCommandResolve}
+      />
+      {showTrustPrompt && activeWorkspaceScope.path && (
+        <div className="write-approval-overlay">
+          <div className="write-approval-modal" style={{ maxWidth: '480px' }}>
+            <div className="write-approval-header">
+              <div className="write-approval-icon">
+                <span className="warning-symbol">🛡️</span>
+              </div>
+              <div className="write-approval-title-section">
+                <h2 className="write-approval-title">Trust this workspace?</h2>
+                <div className="write-approval-subtitle">
+                  Configure execution permissions for this folder
+                </div>
+              </div>
+            </div>
+
+            <div className="write-approval-body">
+              <p style={{ margin: '0 0 12px 0', fontSize: '13px', lineHeight: '1.4' }}>
+                You opened <strong>{activeWorkspaceScope.label}</strong>.
+                If you trust this folder, Zavorth can execute development commands automatically.
+              </p>
+
+              <div style={{ padding: '10px', background: 'rgba(0,0,0,0.15)', borderRadius: '6px', fontSize: '12px' }}>
+                <code style={{ wordBreak: 'break-all', display: 'block' }}>{activeWorkspaceScope.path}</code>
+              </div>
+
+              <div style={{ marginTop: '16px', fontSize: '12px', display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                <span style={{ fontWeight: '600' }}>Recommended permissions (Developer Mode):</span>
+                <ul style={{ margin: '0', paddingLeft: '20px', color: '#aaa', lineHeight: '1.5' }}>
+                  <li>Allows automatic execution of LOW risk commands (git status, test runner, etc.)</li>
+                  <li>Block all high/critical risk executions from auto-running (never auto-runs curl, wget, ssh, etc.)</li>
+                </ul>
+              </div>
+            </div>
+
+            <div className="write-approval-footer" style={{ justifyContent: 'space-between' }}>
+              <button
+                className="btn-deny"
+                onClick={() => setShowTrustPrompt(false)}
+                disabled={trustLoading}
+              >
+                Keep Restricted
+              </button>
+              <button
+                className="btn-approve"
+                onClick={() => handleTrustWorkspaceFromPrompt('LOW', true, false)}
+                disabled={trustLoading}
+              >
+                Trust and Enable Auto-run
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+    </>
   );
 }

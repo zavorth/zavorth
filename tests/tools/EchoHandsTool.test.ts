@@ -1,9 +1,10 @@
+import { describe, it, expect, vi } from 'vitest';
 import { EchoHandsTool } from '../../src/tools/EchoHandsTool';
 
 describe('EchoHandsTool', () => {
   it('exposes the echo_hands declarative action contract', async () => {
     const service = {
-      execute: jest.fn().mockResolvedValue({
+      execute: vi.fn().mockResolvedValue({
         ok: true,
         action: 'open_app',
         message: 'App iniciado: notepad.',

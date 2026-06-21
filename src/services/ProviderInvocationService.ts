@@ -1,0 +1,85 @@
+import { ProviderRuntimeRouter } from './ProviderRuntimeRouter.js';
+import { ProviderRuntimeClientFactory, ProviderInvocationResult } from './ProviderRuntimeClientFactory.js';
+import { ProviderRuntimeRequest, ResolvedProviderRuntime } from './ModelSelectionService.js';
+import { SecurityAuditLogger } from './SecurityAuditLogger.js';
+import { ErrorNormalizationService } from './ErrorNormalizationService.js';
+
+export class ProviderInvocationService {
+  private static instance: ProviderInvocationService;
+
+  private constructor() {}
+
+  public static getInstance(): ProviderInvocationService {
+    if (!ProviderInvocationService.instance) {
+      ProviderInvocationService.instance = new ProviderInvocationService();
+    }
+    return ProviderInvocationService.instance;
+  }
+
+  public async invoke(request: ProviderRuntimeRequest, messages: unknown[]): Promise<ProviderInvocationResult> {
+    const startMs = Date.now();
+    let resolved: ResolvedProviderRuntime | null = null;
+    const logger = new SecurityAuditLogger();
+    const wsId = request.workspaceId || 'system';
+
+    if (wsId === 'system') {
+      console.log('[ProviderInvocationService] Warning: Fallback to system-level workspaceId. Diagnostic/global invocation.');
+    }
+
+    try {
+      const router = ProviderRuntimeRouter.getInstance();
+      resolved = await router.route(request);
+      
+      const factory = ProviderRuntimeClientFactory.getInstance();
+      const invoker = await factory.createInvoker(resolved);
+
+      await logger.logWorkspaceEvent({
+        event: 'provider_invocation_started' as any,
+        workspaceId: wsId,
+        providerId: resolved.providerId,
+        metadata: {
+          providerType: resolved.providerType,
+          modelId: resolved.modelId,
+          capability: request.capability || 'chat'
+        }
+      });
+      
+      const result = await invoker.invoke({ messages, stream: false });
+      
+      const durationMs = Date.now() - startMs;
+      await logger.logWorkspaceEvent({
+        event: 'provider_invocation_succeeded' as any,
+        workspaceId: wsId,
+        providerId: resolved.providerId,
+        durationMs,
+        metadata: {
+          providerType: resolved.providerType,
+          modelId: resolved.modelId,
+          capability: request.capability || 'chat'
+        }
+      });
+      
+      return result;
+    } catch (error: any) {
+      const durationMs = Date.now() - startMs;
+      const normalized = ErrorNormalizationService.getInstance().normalize(error);
+      const errorCode = normalized.code;
+
+      await logger.logWorkspaceEvent({
+        event: 'provider_invocation_failed' as any,
+        workspaceId: wsId,
+        providerId: resolved?.providerId || request.providerId || 'unknown',
+        durationMs,
+        metadata: {
+          providerType: resolved?.providerType || 'unknown',
+          modelId: resolved?.modelId || request.modelId || 'unknown',
+          capability: request.capability || 'chat',
+          errorCode,
+          fallbackUsed: false
+        }
+      });
+      
+      throw new Error(normalized.message);
+    }
+  }
+}

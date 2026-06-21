@@ -1,3 +1,4 @@
+import { describe, it, expect } from 'vitest';
 import type { SelectedModelProfile } from '../../../../src/contracts/ModelPickerContract.js';
 import { ProviderCompatibilityClassifier } from '../../../../src/services/providers/catalog/ProviderCompatibilityClassifier.js';
 
@@ -90,8 +91,8 @@ describe('ProviderCompatibilityClassifier', () => {
 
     expect(classification).toEqual(expect.objectContaining({
       kind: 'anthropic_compatible',
-      runtimeAdapter: 'unsupported_anthropic',
-      runtimeSupported: false,
+      runtimeAdapter: 'anthropic_compatible',
+      runtimeSupported: true,
     }));
   });
 });

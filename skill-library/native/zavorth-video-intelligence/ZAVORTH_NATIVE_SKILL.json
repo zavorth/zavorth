@@ -1,0 +1,28 @@
+{
+  "id": "zavorth-video-intelligence",
+  "name": "Video Frame Summarizer",
+  "native": true,
+  "description": "Extract slide contents, frame images, and metadata summaries from local video files.",
+  "category": "media",
+  "permissionProfileId": "workspace-read",
+  "riskLevel": "medium",
+  "capabilityTags": [
+    "media",
+    "video"
+  ],
+  "presets": [
+    "developer",
+    "power-user"
+  ],
+  "inputContract": [
+    "video path",
+    "sampling rate"
+  ],
+  "outputContract": [
+    "keyframes",
+    "visual context summary"
+  ],
+  "noExecutionByDefault": false,
+  "requiresPolicyBroker": true,
+  "receiptsRequired": true
+}

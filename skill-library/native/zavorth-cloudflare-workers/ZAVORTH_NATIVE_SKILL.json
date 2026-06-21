@@ -1,0 +1,28 @@
+{
+  "id": "zavorth-cloudflare-workers",
+  "name": "Cloudflare Workers Architect",
+  "native": true,
+  "description": "Build, bundle, test, and deploy Serverless Workers, KV stores, and D1 databases using Wrangler.",
+  "category": "devops",
+  "permissionProfileId": "host-write",
+  "riskLevel": "high",
+  "capabilityTags": [
+    "devops",
+    "serverless"
+  ],
+  "presets": [
+    "developer",
+    "power-user"
+  ],
+  "inputContract": [
+    "worker code",
+    "wrangler config"
+  ],
+  "outputContract": [
+    "wrangler build logs",
+    "deployment url"
+  ],
+  "noExecutionByDefault": true,
+  "requiresPolicyBroker": true,
+  "receiptsRequired": true
+}

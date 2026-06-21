@@ -1,0 +1,29 @@
+{
+  "id": "zavorth-smart-home-iot",
+  "name": "IoT Device Controller",
+  "native": true,
+  "description": "Send commands to connected smart switches, IoT lights, or speaker bridges.",
+  "category": "smart-home",
+  "permissionProfileId": "host-write",
+  "riskLevel": "medium",
+  "capabilityTags": [
+    "smarthome",
+    "iot"
+  ],
+  "presets": [
+    "basic",
+    "developer",
+    "power-user"
+  ],
+  "inputContract": [
+    "device id",
+    "command",
+    "value"
+  ],
+  "outputContract": [
+    "state"
+  ],
+  "noExecutionByDefault": false,
+  "requiresPolicyBroker": true,
+  "receiptsRequired": true
+}

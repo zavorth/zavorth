@@ -31,6 +31,9 @@ export function buildZavorthDoctorPremiumSnapshot(
     checkTelegram(env),
     checkSandboxAndEffectBoundary(projectRoot),
     checkTrustAndSecrets(projectRoot, env),
+    checkLocalStorage(projectRoot),
+    checkGatewayConnectivity(env),
+    checkSqliteIntegrity(projectRoot),
   ];
   const summary = {
     pass: checks.filter((check) => check.status === 'pass').length,
@@ -54,6 +57,75 @@ export function buildZavorthDoctorPremiumSnapshot(
       fixRequiresExplicitFlag: true,
     },
   };
+}
+
+function checkGatewayConnectivity(env: Record<string, string>): ZavorthDoctorPremiumCheck {
+  const endpointKeys = ['SLACK_WEBHOOK_URL', 'DISCORD_WEBHOOK_URL', 'WHATSAPP_BRIDGE_URL', 'MATRIX_BASE_URL', 'TEAMS_WEBHOOK_URL'];
+  const configured = endpointKeys.flatMap((key) => {
+    const value = String(env[key] || process.env[key] || '').trim();
+    return value ? [{ key, value }] : [];
+  });
+  const invalid = configured.filter(({ value }) => {
+    try { const url = new URL(value); return url.protocol !== 'https:' && url.protocol !== 'http:'; } catch { return true; }
+  });
+  return {
+    id: 'gateway-connectivity', title: 'Gateway connectivity',
+    status: invalid.length ? 'fail' : 'pass',
+    summary: invalid.length ? `Invalid gateway endpoint(s): ${invalid.map(({ key }) => key).join(', ')}.` : configured.length ? `${configured.length} configured gateway endpoint(s) have valid HTTP(S) URLs.` : 'No outbound gateway endpoint is configured.',
+    impact: invalid.length ? 'Configured channel delivery cannot reach its declared endpoint.' : 'Endpoint syntax is safe for a later governed delivery health check.',
+    fixCommand: invalid.length ? 'Correct the invalid gateway URL in .env, then rerun zavorth doctor.' : null,
+    canAutoFix: false,
+    evidence: configured.map(({ key }) => `${key}=${invalid.some((item) => item.key === key) ? 'invalid' : 'valid'}`),
+  };
+}
+
+function checkSqliteIntegrity(projectRoot: string): ZavorthDoctorPremiumCheck {
+  const dataRoot = path.join(projectRoot, 'data');
+  const databases = fs.existsSync(dataRoot) ? fs.readdirSync(dataRoot, { recursive: true })
+    .filter((entry): entry is string => typeof entry === 'string' && /\.(?:db|sqlite)$/i.test(entry))
+    .map((entry) => path.join(dataRoot, entry)) : [];
+  if (databases.length === 0) return { id: 'sqlite-integrity', title: 'SQLite integrity', status: 'pass', summary: 'No local SQLite database exists yet.', impact: 'The database integrity check will run automatically after a local database is created.', fixCommand: null, canAutoFix: false, evidence: ['databases=0'] };
+  try {
+    const Database = require('better-sqlite3');
+    const failures = databases.flatMap((databasePath) => {
+      const db = new Database(databasePath, { readonly: true });
+      try { const row = db.prepare('PRAGMA integrity_check').get() as { integrity_check?: string }; return row.integrity_check === 'ok' ? [] : [path.basename(databasePath)]; } finally { db.close(); }
+    });
+    return { id: 'sqlite-integrity', title: 'SQLite integrity', status: failures.length ? 'fail' : 'pass', summary: failures.length ? `Integrity check failed: ${failures.join(', ')}.` : `${databases.length} SQLite database(s) passed integrity_check.`, impact: failures.length ? 'Local state may be corrupted and should be restored from a known-good backup.' : 'Local agent state is structurally readable.', fixCommand: failures.length ? 'Restore the affected database from backup before using governed writes.' : null, canAutoFix: false, evidence: databases.map((databasePath) => `database=${path.basename(databasePath)}`) };
+  } catch (error) {
+    return { id: 'sqlite-integrity', title: 'SQLite integrity', status: 'warn', summary: 'SQLite integrity check could not run.', impact: 'Database health is not verified until the SQLite driver is available.', fixCommand: 'npm install, then rerun zavorth doctor.', canAutoFix: false, evidence: [`reason=${error instanceof Error ? error.message.slice(0, 96) : 'unknown'}`] };
+  }
+}
+
+function checkLocalStorage(projectRoot: string): ZavorthDoctorPremiumCheck {
+  const storageRoot = path.join(projectRoot, 'data');
+  try {
+    fs.accessSync(projectRoot, fs.constants.R_OK | fs.constants.W_OK);
+    if (fs.existsSync(storageRoot)) {
+      fs.accessSync(storageRoot, fs.constants.R_OK | fs.constants.W_OK);
+    }
+    return {
+      id: 'local-storage',
+      title: 'Local storage',
+      status: 'pass',
+      summary: fs.existsSync(storageRoot) ? 'Project and local data storage are readable and writable.' : 'Project is writable; local data storage will be created on demand.',
+      impact: 'Memory, audit receipts and local channel outboxes can persist safely.',
+      fixCommand: null,
+      canAutoFix: false,
+      evidence: [`projectRoot=read-write`, `data=${fs.existsSync(storageRoot) ? 'read-write' : 'created-on-demand'}`],
+    };
+  } catch {
+    return {
+      id: 'local-storage',
+      title: 'Local storage',
+      status: 'fail',
+      summary: 'Project or local data storage is not writable.',
+      impact: 'Memory, audit receipts and channel outboxes may fail to persist.',
+      fixCommand: 'Grant the current user write permission to the Zavorth project and data directory, then rerun zavorth doctor.',
+      canAutoFix: false,
+      evidence: ['storage=not-writable'],
+    };
+  }
 }
 
 function checkNodeRuntime(): ZavorthDoctorPremiumCheck {

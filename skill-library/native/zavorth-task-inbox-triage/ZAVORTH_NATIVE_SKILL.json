@@ -1,0 +1,30 @@
+{
+  "id": "zavorth-task-inbox-triage",
+  "name": "Task Inbox Triager",
+  "native": true,
+  "description": "Triage and classify incoming chat channel messages into actionable tasks.",
+  "category": "productivity",
+  "permissionProfileId": "workspace-write",
+  "riskLevel": "low",
+  "capabilityTags": [
+    "productivity",
+    "taskflow"
+  ],
+  "presets": [
+    "basic",
+    "developer",
+    "power-user"
+  ],
+  "inputContract": [
+    "messages",
+    "inbox source",
+    "triage rules"
+  ],
+  "outputContract": [
+    "prioritized list",
+    "task categories"
+  ],
+  "noExecutionByDefault": false,
+  "requiresPolicyBroker": true,
+  "receiptsRequired": true
+}

@@ -1,7 +1,83 @@
 import DatabaseLib, { Database as SQLiteDatabase } from 'better-sqlite3';
 import fs from 'fs';
 import path from 'path';
+import crypto from 'node:crypto';
 import { config } from '../config/index.js';
+
+function getDatabaseKey(): Buffer | null {
+  const rawKey = String(config.dbEncryptionKey || '').trim();
+  let baseKey: string | Buffer | null = rawKey;
+  if (!rawKey) {
+    baseKey = getOrCreateFileKey();
+  }
+  if (!baseKey) {
+    return null;
+  }
+  const keyBuffer = crypto.createHash('sha256').update(baseKey).digest();
+  return crypto.createHash('sha256').update(Buffer.concat([keyBuffer, Buffer.from(':zavorth-db-cipher')])).digest();
+}
+
+function getOrCreateFileKey(): string | null {
+  const keyFile = String(config.dbEncryptionKeyFile || '').trim();
+  if (!keyFile) {
+    return null;
+  }
+  try {
+    if (!fs.existsSync(keyFile)) {
+      fs.mkdirSync(path.dirname(keyFile), { recursive: true });
+      const generated = crypto.randomBytes(32).toString('base64');
+      fs.writeFileSync(keyFile, generated, 'utf8');
+      return generated;
+    }
+    return fs.readFileSync(keyFile, 'utf8').trim() || null;
+  } catch {
+    return null;
+  }
+}
+
+function resolveSqliteConstructor(mode: string, driverPackages: string[]): {
+  constructorRef: any;
+  driverPackage: string | null;
+  reason: string;
+} {
+  if (mode === 'off') {
+    return {
+      constructorRef: DatabaseLib,
+      driverPackage: 'better-sqlite3',
+      reason: 'encryption disabled',
+    };
+  }
+  for (const packageName of driverPackages) {
+    try {
+      const module = require(packageName);
+      const constructorRef = module.default || module.Database || module;
+      if (typeof constructorRef === 'function') {
+        return {
+          constructorRef,
+          driverPackage: packageName,
+          reason: `loaded ${packageName}`,
+        };
+      }
+    } catch {
+      // Try next package
+    }
+  }
+  return {
+    constructorRef: null,
+    driverPackage: null,
+    reason: `SQLCipher driver unavailable: ${driverPackages.join(', ')}`,
+  };
+}
+
+function applySqlCipherPragmas(db: any, key: Buffer): void {
+  const hex = key.toString('hex');
+  db.exec(`
+    PRAGMA key = "x'${hex}'";
+    PRAGMA cipher_page_size = 4096;
+    PRAGMA kdf_iter = 256000;
+    PRAGMA cipher_memory_security = ON;
+  `);
+}
 
 export class Database {
   private static instance: Database | null = null;
@@ -16,15 +92,83 @@ export class Database {
       fs.mkdirSync(dataDir, { recursive: true });
     }
 
-    this.db = new DatabaseLib(config.dbPath);
-    
+    const mode = (process.env.ZAVORTH_DB_SQLCIPHER_MODE || process.env.ZAVORTH_MEMORY_SQLCIPHER_MODE || 'off').trim().toLowerCase();
+    const driverPackages = (process.env.ZAVORTH_MEMORY_SQLCIPHER_DRIVER_PACKAGES || 'better-sqlite3-multiple-ciphers').split(',').map(s => s.trim()).filter(Boolean);
+    const key = getDatabaseKey();
+
+    const sqlite = resolveSqliteConstructor(mode, driverPackages);
+    const existedBefore = config.dbPath !== ':memory:' && fs.existsSync(config.dbPath);
+
+    if (mode === 'required' && (!sqlite.constructorRef || !key)) {
+      const reason = !key ? 'Encryption key missing' : sqlite.reason;
+      throw new Error(`SQLite database could not be initialized securely: ${reason}`);
+    }
+
+    let dbInstance: any = null;
+    let openedWithKey = false;
+
+    if (mode !== 'off' && sqlite.constructorRef && key) {
+      try {
+        const DatabaseConstructor = sqlite.constructorRef;
+        dbInstance = new DatabaseConstructor(config.dbPath);
+        applySqlCipherPragmas(dbInstance, key);
+        // Test query to verify key is correct and DB can be read
+        dbInstance.prepare("PRAGMA user_version").get();
+        openedWithKey = true;
+      } catch (error: any) {
+        if (existedBefore && dbInstance) {
+          try {
+            dbInstance.close();
+          } catch {
+            // Ignore
+          }
+        }
+        dbInstance = null;
+
+        if (existedBefore) {
+          try {
+            const DatabaseConstructor = sqlite.constructorRef;
+            const plainDb = new DatabaseConstructor(config.dbPath);
+            plainDb.prepare("PRAGMA user_version").get(); // Verify plaintext open works
+
+            // Rekey to encrypt the database (disable WAL first since rekeying is not supported in WAL mode)
+            plainDb.pragma('journal_mode = DELETE');
+            const hex = key.toString('hex');
+            plainDb.exec(`PRAGMA rekey = "x'${hex}'";`);
+            plainDb.close();
+
+            // Re-open with key
+            dbInstance = new DatabaseConstructor(config.dbPath);
+            applySqlCipherPragmas(dbInstance, key);
+            dbInstance.prepare("PRAGMA user_version").get();
+            openedWithKey = true;
+          } catch (migrationError: any) {
+            if (dbInstance) {
+              try { dbInstance.close(); } catch {}
+              dbInstance = null;
+            }
+            throw new Error(`SQLite database exists but key is invalid and plaintext migration failed: ${migrationError.message}`);
+          }
+        } else {
+          throw error;
+        }
+      }
+    }
+
+    if (!dbInstance) {
+      const DatabaseConstructor = DatabaseLib;
+      dbInstance = new DatabaseConstructor(config.dbPath);
+    }
+
+    this.db = dbInstance;
+
     // Configurações de performance nativas do SQLite
     this.db.pragma('journal_mode = WAL');
     this.db.pragma('synchronous = NORMAL');
     this.db.pragma('temp_store = MEMORY');
 
     this.createTables();
-    console.log('💾 [V3] Database SQLite inicializado com `better-sqlite3` (WAL mode ativo).');
+    console.warn(`💾 [V3] Database SQLite inicializado com \`${sqlite.driverPackage || 'better-sqlite3'}\` (WAL mode ativo) at: ${config.dbPath}. Encryption: ${openedWithKey ? 'active' : 'off'}`);
   }
 
   public static async getInstance(): Promise<Database> {
@@ -229,6 +373,160 @@ export class Database {
         last_executed_at TEXT,
         status TEXT CHECK(status IN ('active', 'archived')) DEFAULT 'active',
         pinned INTEGER DEFAULT 0
+      )
+    `);
+
+    this.run(`
+      CREATE TABLE IF NOT EXISTS workspace_write_approvals (
+        operation_id TEXT PRIMARY KEY,
+        workspace_id TEXT NOT NULL,
+        tool_name TEXT NOT NULL,
+        path_hash TEXT NOT NULL,
+        path_suffix TEXT NOT NULL,
+        request_hash TEXT NOT NULL,
+        approved INTEGER DEFAULT 0,
+        expires_at TEXT NOT NULL,
+        created_at TEXT NOT NULL
+      )
+    `);
+    this.run(`CREATE INDEX IF NOT EXISTS idx_workspace_write_approvals_lookup ON workspace_write_approvals(workspace_id, tool_name, operation_id, path_hash, request_hash)`);
+
+    this.run(`
+      CREATE TABLE IF NOT EXISTS workspace_command_approvals (
+        operation_id TEXT PRIMARY KEY,
+        workspace_id TEXT NOT NULL,
+        command TEXT NOT NULL,
+        args_hash TEXT NOT NULL,
+        approved INTEGER DEFAULT 0,
+        expires_at TEXT NOT NULL,
+        created_at TEXT NOT NULL
+      )
+    `);
+    this.run(`CREATE INDEX IF NOT EXISTS idx_workspace_command_approvals_lookup ON workspace_command_approvals(workspace_id, operation_id)`);
+
+    this.run(`
+      CREATE TABLE IF NOT EXISTS workspace_host_command_proposals (
+        operation_id TEXT PRIMARY KEY,
+        workspace_id TEXT NOT NULL,
+        command_hash TEXT NOT NULL,
+        command_preview_redacted TEXT NOT NULL,
+        args_hash TEXT NOT NULL,
+        args_preview_redacted TEXT NOT NULL,
+        cwd_hash TEXT NOT NULL,
+        cwd_suffix TEXT NOT NULL,
+        shell INTEGER DEFAULT 0,
+        risk_level TEXT NOT NULL,
+        reason_redacted TEXT NOT NULL,
+        approved INTEGER DEFAULT 0,
+        expires_at TEXT NOT NULL,
+        created_at TEXT NOT NULL,
+        requires_strong_confirmation INTEGER DEFAULT 0,
+        strong_confirmation_phrase TEXT
+      )
+    `);
+    this.run(`CREATE INDEX IF NOT EXISTS idx_workspace_host_command_proposals_lookup ON workspace_host_command_proposals(workspace_id, operation_id)`);
+
+    this.run(`
+      CREATE TABLE IF NOT EXISTS workspace_pty_sessions (
+        session_id TEXT PRIMARY KEY,
+        workspace_id TEXT NOT NULL,
+        shell TEXT NOT NULL,
+        cwd_hash TEXT NOT NULL,
+        cwd_suffix TEXT NOT NULL,
+        risk_level TEXT NOT NULL,
+        status TEXT NOT NULL,
+        reason_redacted TEXT NOT NULL,
+        created_at TEXT NOT NULL,
+        expires_at TEXT NOT NULL
+      )
+    `);
+    this.run(`CREATE INDEX IF NOT EXISTS idx_workspace_pty_sessions_lookup ON workspace_pty_sessions(workspace_id, session_id)`);
+
+    this.run(`
+      CREATE TABLE IF NOT EXISTS workspace_pty_input_approvals (
+        operation_id TEXT PRIMARY KEY,
+        session_id TEXT NOT NULL,
+        workspace_id TEXT NOT NULL,
+        input_hash TEXT NOT NULL,
+        input_preview_redacted TEXT NOT NULL,
+        risk_level TEXT NOT NULL,
+        status TEXT NOT NULL,
+        created_at TEXT NOT NULL,
+        expires_at TEXT NOT NULL,
+        requires_strong_confirmation INTEGER DEFAULT 0,
+        strong_confirmation_phrase TEXT
+      )
+    `);
+    this.run(`CREATE INDEX IF NOT EXISTS idx_workspace_pty_input_approvals_lookup ON workspace_pty_input_approvals(workspace_id, session_id, operation_id)`);
+
+    this.run(`
+      CREATE TABLE IF NOT EXISTS workspace_trust_entries (
+        workspace_id TEXT PRIMARY KEY,
+        root_hash TEXT NOT NULL,
+        root_suffix TEXT NOT NULL,
+        trusted INTEGER DEFAULT 0,
+        allow_risk_up_to TEXT DEFAULT 'LOW',
+        allow_package_install INTEGER DEFAULT 0,
+        allow_network INTEGER DEFAULT 0,
+        created_at TEXT NOT NULL,
+        updated_at TEXT NOT NULL
+      )
+    `);
+
+    this.run(`
+      CREATE TABLE IF NOT EXISTS provider_config (
+        provider_id TEXT PRIMARY KEY,
+        type TEXT NOT NULL,
+        display_name TEXT NOT NULL,
+        base_url TEXT,
+        default_model TEXT,
+        enabled INTEGER DEFAULT 1,
+        requires_api_key INTEGER DEFAULT 1,
+        secret_ref TEXT,
+        created_at TEXT NOT NULL,
+        updated_at TEXT NOT NULL
+      )
+    `);
+
+    this.run(`
+      CREATE TABLE IF NOT EXISTS provider_secret_refs (
+        secret_ref TEXT PRIMARY KEY,
+        provider_id TEXT NOT NULL,
+        key_fingerprint TEXT NOT NULL,
+        key_suffix TEXT NOT NULL,
+        secret_store_type TEXT NOT NULL,
+        created_at TEXT NOT NULL,
+        updated_at TEXT NOT NULL,
+        FOREIGN KEY(provider_id) REFERENCES provider_config(provider_id) ON DELETE CASCADE
+      )
+    `);
+
+    this.run(`
+      CREATE TABLE IF NOT EXISTS provider_secret_ciphertexts (
+        secret_ref TEXT PRIMARY KEY,
+        ciphertext TEXT NOT NULL,
+        iv TEXT NOT NULL,
+        auth_tag TEXT NOT NULL,
+        salt TEXT NOT NULL,
+        FOREIGN KEY(secret_ref) REFERENCES provider_secret_refs(secret_ref) ON DELETE CASCADE
+      )
+    `);
+
+    this.run(`
+      CREATE TABLE IF NOT EXISTS agent_workspace_config (
+        workspace_id TEXT PRIMARY KEY,
+        default_provider_id TEXT,
+        default_model_id TEXT,
+        allowed_capabilities TEXT NOT NULL,
+        default_autonomy_profile TEXT NOT NULL,
+        allow_developer_mode INTEGER NOT NULL,
+        allow_host_power_mode INTEGER NOT NULL,
+        allow_pty INTEGER NOT NULL,
+        allow_task_mandates INTEGER NOT NULL,
+        allow_temporary_directory_trust INTEGER NOT NULL,
+        allow_provider_fallback INTEGER NOT NULL,
+        created_at TEXT NOT NULL,
+        updated_at TEXT NOT NULL
       )
     `);
   }

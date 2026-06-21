@@ -1,0 +1,29 @@
+{
+  "id": "zavorth-audio-whisper-transcribe",
+  "name": "Voice-Note Whisper",
+  "native": true,
+  "description": "Transcribe voice notes and audio clips to text with timestamps and summary digests.",
+  "category": "media",
+  "permissionProfileId": "workspace-write",
+  "riskLevel": "low",
+  "capabilityTags": [
+    "media",
+    "audio"
+  ],
+  "presets": [
+    "basic",
+    "developer",
+    "power-user"
+  ],
+  "inputContract": [
+    "audio path",
+    "transcription model"
+  ],
+  "outputContract": [
+    "transcript",
+    "summary"
+  ],
+  "noExecutionByDefault": false,
+  "requiresPolicyBroker": true,
+  "receiptsRequired": true
+}

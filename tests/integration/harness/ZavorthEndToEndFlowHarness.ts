@@ -253,7 +253,7 @@ export class ZavorthEndToEndFlowHarness {
     if (normalized.includes('external_executor')) {
       return this.executeExternalExecutorWithWorkspaceRepair(ctx, task);
     }
-    if (normalized.includes('zavorthBridge')) {
+    if (normalized.includes('zavorthbridge')) {
       return this.executeZavorthBridgeWithFallback(ctx, task);
     }
 

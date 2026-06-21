@@ -32,6 +32,10 @@ type WizardFlags = {
   owners: string | null;
   testLive: boolean;
   skipLiveTest: boolean;
+  discover: boolean;
+  baseUrl: string | null;
+  apiKey: string | null;
+  discoverKind: string | null;
 };
 
 const CHANNEL_OPTIONS: Array<{ value: ZavorthChannelWizardId; label: string; hint: string }> = [
@@ -65,6 +69,12 @@ async function main(): Promise<void> {
 
 async function runProvider(action: 'add' | 'switch'): Promise<void> {
   const interactive = isInteractive();
+
+  if (flags.discover) {
+    await runAutoDiscovery(action, interactive);
+    return;
+  }
+
   const providerId = flags.provider || (interactive ? await selectProvider() : 'deferred');
   const provider = resolveSetupStudioProvider(providerId);
   const modelId = flags.model || (interactive && provider.id !== 'deferred'
@@ -91,6 +101,87 @@ async function runProvider(action: 'add' | 'switch'): Promise<void> {
     apply,
   });
   printResult(result);
+}
+
+async function runAutoDiscovery(action: 'add' | 'switch', interactive: boolean): Promise<void> {
+  const { ProviderAutoDiscoveryService } = await import('../src/services/providers/catalog/ProviderAutoDiscoveryService.js');
+
+  const providerId = flags.provider || (interactive ? await textPrompt('ID do provider (ex: groq, together)', '') : null);
+  if (!providerId) {
+    p.log.error('Provider ID e obrigatorio para auto-discovery.');
+    return;
+  }
+
+  const baseUrl = flags.baseUrl || (interactive ? await textPrompt('Base URL do provider (ex: https://api.groq.com/openai/v1)', '') : null);
+  if (!baseUrl) {
+    p.log.error('Base URL e obrigatoria para auto-discovery.');
+    return;
+  }
+
+  const apiKey = flags.apiKey || readSecretFromEnv(flags.secretEnv) || (interactive ? await optionalSecret(`Chave de API para ${providerId}`) : null);
+  const kind = (flags.discoverKind as 'openai_compatible' | 'anthropic_compatible') || 'openai_compatible';
+
+  p.log.info(`Descobrindo modelos de ${providerId} em ${baseUrl}...`);
+
+  const service = new ProviderAutoDiscoveryService();
+  const result = await service.discover({
+    providerId,
+    baseUrl,
+    apiKey: apiKey || undefined,
+    kind,
+  });
+
+  if (result.warnings.length > 0) {
+    for (const warning of result.warnings) {
+      p.log.warn(warning);
+    }
+  }
+
+  if (result.errors.length > 0) {
+    for (const error of result.errors) {
+      p.log.error(error);
+    }
+    return;
+  }
+
+  if (flags.json) {
+    process.stdout.write(`${JSON.stringify(result, null, 2)}\n`);
+    return;
+  }
+
+  p.log.success(`Descobertos ${result.models.length} modelos de ${result.label}:`);
+
+  const modelTable = result.models.map((m) => ({
+    ID: m.id,
+    Nome: m.name,
+    Tipo: m.type,
+  }));
+
+  p.table(modelTable, {
+    columns: [
+      { key: 'ID', header: 'Modelo' },
+      { key: 'Nome', header: 'Nome' },
+      { key: 'Tipo', header: 'Tipo' },
+    ],
+  });
+
+  if (interactive) {
+    const apply = await confirmApply();
+    if (apply) {
+      const { ZavorthSetupStudioService } = await import('../src/cli/ZavorthSetupStudioService.js');
+      const plan = ZavorthSetupStudioService.buildZavorthSetupStudioPlan({
+        projectRoot,
+        providerId,
+        modelId: result.models[0]?.id || 'default',
+        providerSecret: apiKey,
+        memoryMode: 'local-metadata',
+        vaultScope: 'skip',
+        scanDirs: [],
+      });
+      ZavorthSetupStudioService.applyZavorthSetupStudioEnvPlan(plan);
+      p.log.success('Configuracao gravada em .env');
+    }
+  }
 }
 
 async function runChannel(initialChannelId: string | null): Promise<void> {
@@ -139,6 +230,10 @@ function parseFlags(argv: string[]): WizardFlags {
     owners: readFlag(argv, 'owners'),
     testLive: argv.includes('--test-live') || argv.includes('--live-test'),
     skipLiveTest: argv.includes('--skip-live-test') || argv.includes('--no-live-test'),
+    discover: argv.includes('--discover'),
+    baseUrl: readFlag(argv, 'base-url') || readFlag(argv, 'baseUrl'),
+    apiKey: readFlag(argv, 'api-key') || readFlag(argv, 'apiKey'),
+    discoverKind: readFlag(argv, 'discover-kind') || readFlag(argv, 'kind'),
   };
 }
 
@@ -336,9 +431,15 @@ function printHelp(): void {
     '',
     'Comandos:',
     '  zavorth providers add',
+    '  zavorth providers add --discover --provider groq --base-url https://api.groq.com/openai/v1',
     '  zavorth providers switch --provider gemini --model gemini-2.5-flash --apply',
     '  zavorth channels telegram',
     '  zavorth channels discord --allowed-guilds 123 --allowed-channels 456 --apply',
+    '',
+    'Auto-Discovery:',
+    '  Use --discover para descobrir modelos automaticamente via API do provider.',
+    '  Requer --provider e --base-url. Opcional: --api-key, --kind (openai_compatible|anthropic_compatible).',
+    '  Exemplo: zavorth providers add --discover --provider groq --base-url https://api.groq.com/openai/v1 --api-key $GROQ_API_KEY',
     '',
     'Segredos:',
     '  Use o prompt interativo ou --secret-env NOME_DA_ENV / --token-env NOME_DA_ENV.',
@@ -356,6 +457,10 @@ function printHelp(): void {
     '  --allowed-guilds <ids>',
     '  --allowed-channels <ids>',
     '  --owners <ids>',
+    '  --discover          Ativa auto-discovery de modelos via API.',
+    '  --base-url <url>    Base URL do provider (obrigatorio com --discover).',
+    '  --api-key <key>     Chave de API (opcional com --discover).',
+    '  --kind <type>       Tipo de compatibilidade: openai_compatible ou anthropic_compatible.',
     '',
   ].join('\n'));
 }

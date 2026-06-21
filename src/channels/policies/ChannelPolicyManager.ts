@@ -8,12 +8,20 @@ import type {
   ChannelPolicySummary,
 } from '../../contracts/ChannelMeshContract.js';
 
+export interface GroupToolPolicy {
+  untrustedUserMode: 'none' | 'safe-only' | 'allowlist-only' | 'safe-plus-allowlist';
+  allowedToolsForUntrustedUsers: string[];
+}
+
 export interface ChannelAccessPolicy {
   channelId: string;
   isOpenAccess: boolean;
   allowedList: string[];
+  allowedUsers?: string[];
+  allowedGroups?: string[];
   blockedList: string[];
   updatedAt: string;
+  groupToolPolicy?: GroupToolPolicy;
 }
 
 type ChannelPolicyStoreState = {
@@ -126,7 +134,7 @@ export class ChannelPolicyManager {
   public async setPolicy(channelId: string, input: ChannelPolicyInput): Promise<ChannelAccessPolicy> {
     const normalizedChannelId = normalizeIdentifier(channelId);
     if (!normalizedChannelId) {
-      throw new Error('channelId obrigatorio para persistir policy de canal.');
+      throw new Error('channelId is required to persist a channel policy.');
     }
     const existing = this.getPolicy(normalizedChannelId);
     const allowedList = input.allowedList !== undefined
@@ -140,6 +148,7 @@ export class ChannelPolicyManager {
       isOpenAccess: input.isOpenAccess ?? existing?.isOpenAccess ?? false,
       allowedList,
       blockedList,
+      groupToolPolicy: existing?.groupToolPolicy,
       updatedAt: this.now().toISOString(),
     }, this.now);
 
@@ -161,6 +170,55 @@ export class ChannelPolicyManager {
       return true;
     }
     return policy.allowedList.includes(normalizedIdentifier);
+  }
+
+  public async verifyChatAccess(channelId: string, chatId: string, userId: string): Promise<boolean> {
+    const policy = this.getPolicy(channelId);
+    if (!policy) {
+      return false;
+    }
+    const normalizedUser = normalizeIdentifier(userId);
+    const normalizedChat = normalizeIdentifier(chatId);
+    if (policy.blockedList.includes(normalizedUser) || policy.blockedList.includes(normalizedChat)) {
+      return false;
+    }
+    if (policy.isOpenAccess) {
+      return true;
+    }
+    if (isWhatsAppGroupId(normalizedChat)) {
+      return (policy.allowedGroups || []).includes(normalizedChat);
+    }
+    return (policy.allowedUsers || []).includes(normalizedUser);
+  }
+
+  public async verifyUserAccess(channelId: string, userId: string): Promise<boolean> {
+    const policy = this.getPolicy(channelId);
+    const normalizedUser = normalizeIdentifier(userId);
+    if (!policy || !normalizedUser) {
+      return false;
+    }
+    if (policy.blockedList.includes(normalizedUser)) {
+      return false;
+    }
+    if (policy.isOpenAccess) {
+      return true;
+    }
+    return (policy.allowedUsers || []).includes(normalizedUser);
+  }
+
+  public async verifyGroupAccess(channelId: string, chatId: string): Promise<boolean> {
+    const policy = this.getPolicy(channelId);
+    const normalizedChat = normalizeIdentifier(chatId);
+    if (!policy || !normalizedChat || !isWhatsAppGroupId(normalizedChat)) {
+      return false;
+    }
+    if (policy.blockedList.includes(normalizedChat)) {
+      return false;
+    }
+    if (policy.isOpenAccess) {
+      return true;
+    }
+    return (policy.allowedGroups || []).includes(normalizedChat);
   }
 
   private ensurePoliciesLoaded(persistIfMissing: boolean): void {
@@ -334,14 +392,30 @@ function buildDefaultPolicies(env: NodeJS.ProcessEnv, now: () => Date): Record<s
 function normalizePolicy(policy: Partial<ChannelAccessPolicy>, now: () => Date): ChannelAccessPolicy {
   const channelId = normalizeIdentifier(policy.channelId);
   if (!channelId) {
-    throw new Error('channelId invalido para ChannelAccessPolicy.');
+    throw new Error('Invalid channelId for ChannelAccessPolicy.');
   }
+  const allowedList = parseIdentifierList(policy.allowedList || []);
+  const allowedUsers = parseIdentifierList(policy.allowedUsers || allowedList.filter((entry) => !isWhatsAppGroupId(entry)));
+  const allowedGroups = parseIdentifierList(policy.allowedGroups || allowedList.filter(isWhatsAppGroupId));
   return {
     channelId,
     isOpenAccess: policy.isOpenAccess === true,
-    allowedList: parseIdentifierList(policy.allowedList || []),
+    allowedList,
+    allowedUsers,
+    allowedGroups,
     blockedList: parseIdentifierList(policy.blockedList || []),
     updatedAt: String(policy.updatedAt || now().toISOString()),
+    ...(policy.groupToolPolicy ? { groupToolPolicy: normalizeGroupToolPolicy(policy.groupToolPolicy) } : {}),
+  };
+}
+
+function normalizeGroupToolPolicy(input: GroupToolPolicy): GroupToolPolicy {
+  const mode = ['none', 'safe-only', 'allowlist-only', 'safe-plus-allowlist'].includes(input.untrustedUserMode)
+    ? input.untrustedUserMode
+    : 'none';
+  return {
+    untrustedUserMode: mode,
+    allowedToolsForUntrustedUsers: parseIdentifierList(input.allowedToolsForUntrustedUsers || []),
   };
 }
 
@@ -361,6 +435,10 @@ function parseIdentifierList(input: string | Array<string | null | undefined> | 
 
 function normalizeIdentifier(input: unknown): string {
   return String(input || '').trim().toLowerCase();
+}
+
+function isWhatsAppGroupId(input: string): boolean {
+  return normalizeIdentifier(input).endsWith('@g.us');
 }
 
 function normalizeAuditText(input: unknown): string {

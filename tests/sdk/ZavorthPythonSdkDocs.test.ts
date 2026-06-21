@@ -17,7 +17,7 @@ describe('Zavorth Python SDK docs', () => {
     const example = readText('examples', 'clients', 'simple-bot.py');
     const protocol = readText('docs', 'protocol', 'sdk-usage.md');
 
-    expect(PUBLIC_ECOSYSTEM_CONTRACT_VERSION).toBe('2026-04-27.p2-005a');
+    expect(PUBLIC_ECOSYSTEM_CONTRACT_VERSION).toBe('2026-05-02.z0-z1');
     expect(PUBLIC_ECOSYSTEM_CONTRACTS.length).toBeGreaterThan(0);
     expect(readme).toContain('REST v1');
     expect(readme).toContain('PUBLIC_ECOSYSTEM_CONTRACTS');

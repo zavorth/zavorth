@@ -253,10 +253,10 @@ function ruleContainsAll(input) {
 
 function providerDetailWarning() {
   const files = [
-    'src/ai-gateway/app/(zavorthControl)/control/providers/[id]/provider-detail-models-panel.tsx',
-    'src/ai-gateway/app/(zavorthControl)/control/providers/[id]/provider-detail-page.model-actions.ts',
-    'src/ai-gateway/app/(zavorthControl)/control/providers/[id]/provider-detail-model-sections-compatible.tsx',
-    'src/ai-gateway/app/(zavorthControl)/control/providers/[id]/useProviderDetailPageModel.ts',
+    'src/ai-gateway/app/(dashboard)/dashboard/providers/[id]/provider-detail-models-panel.tsx',
+    'src/ai-gateway/app/(dashboard)/dashboard/providers/[id]/provider-detail-page.model-actions.ts',
+    'src/ai-gateway/app/(dashboard)/dashboard/providers/[id]/provider-detail-model-sections-compatible.tsx',
+    'src/ai-gateway/app/(dashboard)/dashboard/providers/[id]/useProviderDetailPageModel.ts',
   ];
   const missingMarkers = files
     .filter((file) => exists(file))

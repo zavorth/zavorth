@@ -71,6 +71,11 @@ export class ToolExecutor {
     const metadata = input.metadata && typeof input.metadata === 'object'
       ? input.metadata as Record<string, unknown>
       : {};
+
+    if (metadata.channelUserIdAllowed === false || input.channelUserIdAllowed === false) {
+      throw new Error('Tool execution denied: unauthorized channel/user/group context.');
+    }
+
     const traceId = this.resolveTraceId(toolName, input);
     const workspace = this.resolveWorkspace(String(input.workspace || metadata.workspace || '') || null);
     const argKeys = this.describeArgKeys(input);

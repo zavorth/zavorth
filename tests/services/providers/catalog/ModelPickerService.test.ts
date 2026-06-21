@@ -1,3 +1,4 @@
+import { describe, it, expect } from 'vitest';
 import {
   ModelPickerExplainabilityService,
 } from '../../../../src/services/providers/catalog/ModelPickerExplainabilityService.js';

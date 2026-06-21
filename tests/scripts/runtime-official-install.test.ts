@@ -48,8 +48,8 @@ describe('runtime-official-install presentation', () => {
 
     expect(output).toContain('Zavorth ainda precisa de um ajuste');
     expect(output).toContain('Faca agora');
-    expect(output).toContain('Saia do dry-run quando quiser que o Zavorth tente aplicar a preparacao local de verdade.');
-    expect(output).toContain('Use zavorth doctor se quiser ver exatamente o que ainda esta bloqueando o Zavorth.');
+    expect(output).toContain('Saia do dry-run quando quiser que o Zavorth tente aplicar');
+    expect(output).toContain('Use zavorth doctor se quiser ver exatamente o que ainda esta bloqueando');
     expect(output).toContain('antes de abrir a melhor entrada');
     expect(output).not.toContain('/hostauth trust');
     expect(output).not.toContain('Rode zavorth go');

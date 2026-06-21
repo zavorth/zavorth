@@ -1,0 +1,27 @@
+{
+  "id": "zavorth-better-auth-engineer",
+  "name": "Authentication Architect",
+  "native": true,
+  "description": "Implement, structure, and audit secure authentication handlers (Better Auth/Auth0) and 2FA flows.",
+  "category": "security",
+  "permissionProfileId": "workspace-write",
+  "riskLevel": "medium",
+  "capabilityTags": [
+    "security",
+    "auth"
+  ],
+  "presets": [
+    "developer"
+  ],
+  "inputContract": [
+    "auth provider",
+    "security requirements"
+  ],
+  "outputContract": [
+    "auth setup code",
+    "session schema"
+  ],
+  "noExecutionByDefault": false,
+  "requiresPolicyBroker": true,
+  "receiptsRequired": true
+}

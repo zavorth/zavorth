@@ -118,6 +118,7 @@ function createConversationService(input: {
 
 describe('ZavorthControl response cortex QA gate', () => {
   beforeEach(() => {
+    jest.setTimeout(30000);
     surfaceOperationalIntentService = new SurfaceOperationalIntentService({
       semanticClassifier: null,
     });

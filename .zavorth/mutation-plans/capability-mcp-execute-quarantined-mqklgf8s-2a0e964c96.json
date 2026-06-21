@@ -1,0 +1,65 @@
+{
+  "id": "capability-mcp-execute-quarantined-mqklgf8s-2a0e964c96",
+  "domain": "capability",
+  "actionId": "mcp.execute_quarantined",
+  "title": "Execute quarantined MCP tool",
+  "summary": "Action Harness requires approval before applying mcp.execute_quarantined.",
+  "createdAt": "2026-06-19T07:15:12.556Z",
+  "updatedAt": "2026-06-19T07:15:12.556Z",
+  "expiresAt": "2026-06-20T07:15:12.556Z",
+  "payloadHash": "2a0e964c96b9efa684f4c45a8a584f8c416830fbf0f2f7c8e11e2fd8619cca2b",
+  "status": "waiting_approval",
+  "requestedBy": "smoke-test",
+  "sourceSurface": "llm",
+  "riskLevel": "high",
+  "approval": {
+    "required": true,
+    "status": "pending",
+    "defaultScope": "once",
+    "availableScopes": [
+      "once",
+      "session",
+      "host"
+    ],
+    "permissionId": null,
+    "requestedBy": "smoke-test",
+    "reason": "Zavorth Action Harness blocked apply until explicit approval or trusted operator confirmation."
+  },
+  "resourceImpact": {
+    "ramMb": 0,
+    "diskMb": 0,
+    "processCount": 0,
+    "externalExposure": "none",
+    "recurring": false,
+    "notes": []
+  },
+  "readinessGates": [],
+  "retentionPolicy": {
+    "ttlMs": 86400000,
+    "maxBytes": null,
+    "cleanupOnSuccess": false,
+    "cleanupOnBoot": false,
+    "notes": []
+  },
+  "validationPlan": [
+    "Review action preview and target values before approval."
+  ],
+  "rollbackPlan": [
+    "Re-apply previous configuration value from receipt if needed."
+  ],
+  "payload": {
+    "actionId": "mcp.execute_quarantined",
+    "args": {
+      "server": "docs",
+      "tool": "search",
+      "args": {}
+    }
+  },
+  "audit": [
+    {
+      "at": "2026-06-19T07:15:12.556Z",
+      "event": "plan.created",
+      "message": "Plano criado aguardando approval."
+    }
+  ]
+}

@@ -1,0 +1,63 @@
+{
+  "id": "capability-gmail-search-mql508s1-fc2465ee23",
+  "domain": "capability",
+  "actionId": "gmail.search",
+  "title": "Gmail search",
+  "summary": "Action Harness requires approval before applying gmail.search.",
+  "createdAt": "2026-06-19T16:22:30.001Z",
+  "updatedAt": "2026-06-19T16:22:30.001Z",
+  "expiresAt": "2026-06-20T16:22:30.001Z",
+  "payloadHash": "fc2465ee232afef25fc96f3063447fabc3c2f87bfc86e7e14db85a11cf7d09c5",
+  "status": "waiting_approval",
+  "requestedBy": "smoke-test",
+  "sourceSurface": "llm",
+  "riskLevel": "medium",
+  "approval": {
+    "required": true,
+    "status": "pending",
+    "defaultScope": "once",
+    "availableScopes": [
+      "once",
+      "session",
+      "host"
+    ],
+    "permissionId": null,
+    "requestedBy": "smoke-test",
+    "reason": "Zavorth Action Harness blocked apply until explicit approval or trusted operator confirmation."
+  },
+  "resourceImpact": {
+    "ramMb": 0,
+    "diskMb": 0,
+    "processCount": 0,
+    "externalExposure": "none",
+    "recurring": false,
+    "notes": []
+  },
+  "readinessGates": [],
+  "retentionPolicy": {
+    "ttlMs": 86400000,
+    "maxBytes": null,
+    "cleanupOnSuccess": false,
+    "cleanupOnBoot": false,
+    "notes": []
+  },
+  "validationPlan": [
+    "Review action preview and target values before approval."
+  ],
+  "rollbackPlan": [
+    "Re-apply previous configuration value from receipt if needed."
+  ],
+  "payload": {
+    "actionId": "gmail.search",
+    "args": {
+      "query": "zavorth"
+    }
+  },
+  "audit": [
+    {
+      "at": "2026-06-19T16:22:30.001Z",
+      "event": "plan.created",
+      "message": "Plano criado aguardando approval."
+    }
+  ]
+}

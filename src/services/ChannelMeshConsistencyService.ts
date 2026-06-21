@@ -14,6 +14,9 @@ import type {
 import { ZAVORTH_CHANNEL_MESH_CONSISTENCY_CONTRACT_VERSION } from '../contracts/ChannelMeshConsistencyContract.js';
 import { CapabilityNormalizationService, DEFAULT_PRIVATE_CAPABILITY_SOURCE_MODULES } from './CapabilityNormalizationService.js';
 import { GatewayChannelAdapterRegistryService } from './GatewayChannelAdapterRegistryService.js';
+import type { ChannelGatewayRegistry } from '../gateways/ChannelGatewayRegistry.js';
+import { ChannelGatewayBridge } from '../gateways/ChannelGatewayBridge.js';
+import { ChannelGatewayFactory } from '../gateways/ChannelGatewayFactory.js';
 
 type ChannelMeshConsistencyRuntime = {
   now?: () => Date;
@@ -21,6 +24,7 @@ type ChannelMeshConsistencyRuntime = {
   normalizationService?: CapabilityNormalizationService;
   adapterRegistry?: Pick<GatewayChannelAdapterRegistryService, 'listAdapters'>;
   adapterStatuses?: ChannelAdapterStatus[];
+  gatewayRegistry?: ChannelGatewayRegistry;
 };
 
 type ChannelPlan = {
@@ -115,10 +119,24 @@ export class ChannelMeshConsistencyService {
     this.normalization = runtime.normalizationService || new CapabilityNormalizationService();
     this.sourceChannels = runtime.sourceChannels || DEFAULT_PRIVATE_CAPABILITY_SOURCE_MODULES
       .filter((sourceName) => this.normalization.resolveSourceModule(sourceName).primitiveId === 'channel.message');
-    this.adapterStatuses = runtime.adapterStatuses || runtime.adapterRegistry?.listAdapters() || new GatewayChannelAdapterRegistryService({
+
+    const registryService = runtime.adapterRegistry || new GatewayChannelAdapterRegistryService({
       hasDispatcher: true,
       canSpawnWeb: true,
-    }).listAdapters();
+    });
+
+    if (runtime.adapterStatuses) {
+      this.adapterStatuses = runtime.adapterStatuses;
+    } else {
+      const fullRegistry = new GatewayChannelAdapterRegistryService({
+        hasDispatcher: true,
+        canSpawnWeb: true,
+      });
+      const gatewayRegistry = runtime.gatewayRegistry || ChannelGatewayFactory.createAll();
+      const bridgeAdapters = gatewayRegistry.listGateways().map((gw) => new ChannelGatewayBridge(gw));
+      fullRegistry.setRuntimeAdapters(bridgeAdapters);
+      this.adapterStatuses = fullRegistry.listAdapters();
+    }
   }
 
   public buildSnapshot(input: { sourceChannels?: string[] } = {}): ChannelMeshConsistencySnapshot {

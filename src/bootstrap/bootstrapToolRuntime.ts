@@ -18,6 +18,14 @@ export function createBootstrapToolRuntime(logRepo: LogRepository) {
     WorkspaceListTool,
     WorkspaceReadTool,
     WorkspaceWriteTool,
+    WorkspaceCommandProposeTool,
+    WorkspaceCommandRunTool,
+    WorkspaceTaskMandateProposeTool,
+    HostCommandProposeTool,
+    HostCommandRunTool,
+    PtySessionProposeTool,
+    PtyWriteTool,
+    PtyTerminateTool,
   } = require('../tools/workspace/index.js');
   const { DateTimeTool } = require('../tools/DateTimeTool.js');
   const { RemoteShellTool } = require('../tools/RemoteShellTool.js');
@@ -34,6 +42,15 @@ export function createBootstrapToolRuntime(logRepo: LogRepository) {
   const { ImageGenerationTool } = require('../tools/ImageGenerationTool.js');
   const { MediaAnalysisTool } = require('../tools/MediaAnalysisTool.js');
   const { NodeMeshTool } = require('../tools/NodeMeshTool.js');
+  const { VideoGenerationTool } = require('../tools/VideoGenerationTool.js');
+  const { KanbanTool } = require('../tools/KanbanTool.js');
+  const { SkillFeedbackCollectorTool } = require('../tools/SkillFeedbackCollectorTool.js');
+  const { BatchTrajectoryTool } = require('../tools/BatchTrajectoryTool.js');
+  const { MultiBackendTerminalTool } = require('../tools/MultiBackendTerminalTool.js');
+  const { EmailTool } = require('../tools/EmailTool.js');
+  const { CalendarTool } = require('../tools/CalendarTool.js');
+  const { CodeReviewTool } = require('../tools/CodeReviewTool.js');
+  const { DatabaseQueryTool } = require('../tools/DatabaseQueryTool.js');
 
   const toolRegistry = new ToolRegistry();
   toolRegistry.register(new UnifiedSearchTool());
@@ -45,6 +62,14 @@ export function createBootstrapToolRuntime(logRepo: LogRepository) {
   toolRegistry.register(new WorkspaceWriteTool());
   toolRegistry.register(new WorkspaceEditTool());
   toolRegistry.register(new WorkspaceApplyPatchTool());
+  toolRegistry.register(new WorkspaceCommandProposeTool());
+  toolRegistry.register(new WorkspaceCommandRunTool());
+  toolRegistry.register(new WorkspaceTaskMandateProposeTool());
+  toolRegistry.register(new HostCommandProposeTool());
+  toolRegistry.register(new HostCommandRunTool());
+  toolRegistry.register(new PtySessionProposeTool());
+  toolRegistry.register(new PtyWriteTool());
+  toolRegistry.register(new PtyTerminateTool());
   toolRegistry.register(new DateTimeTool());
   toolRegistry.register(new RemoteShellTool());
   toolRegistry.register(new QueryExternalAiTool());
@@ -60,6 +85,15 @@ export function createBootstrapToolRuntime(logRepo: LogRepository) {
   toolRegistry.register(new ImageGenerationTool());
   toolRegistry.register(new MediaAnalysisTool());
   toolRegistry.register(new NodeMeshTool());
+  toolRegistry.register(new VideoGenerationTool());
+  toolRegistry.register(new KanbanTool());
+  toolRegistry.register(new SkillFeedbackCollectorTool());
+  toolRegistry.register(new BatchTrajectoryTool());
+  toolRegistry.register(new MultiBackendTerminalTool());
+  toolRegistry.register(new EmailTool());
+  toolRegistry.register(new CalendarTool());
+  toolRegistry.register(new CodeReviewTool());
+  toolRegistry.register(new DatabaseQueryTool());
   toolRegistry.assertNoFallbackSecurityDefinitions();
 
   console.log('[BOOT] tools-ready');
@@ -79,3 +113,5 @@ export function createBootstrapToolRuntime(logRepo: LogRepository) {
     mcpCapabilityControlPlaneService: new McpCapabilityControlPlaneService(),
   };
 }
+
+

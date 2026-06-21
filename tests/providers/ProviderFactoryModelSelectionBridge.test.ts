@@ -1,3 +1,4 @@
+import { describe, it, expect, vi, afterEach } from 'vitest';
 import type { SelectedModelProfile } from '../../src/contracts/ModelPickerContract.js';
 import { ProviderFactory } from '../../src/providers/ProviderFactory.js';
 

@@ -87,7 +87,7 @@ type ChannelModeDefinition = {
   nextSteps: (webhookUrl: string | null) => string[];
 };
 
-const CHANNEL_LABELS: Record<PlatformKey, string> = {
+const CHANNEL_LABELS: Partial<Record<PlatformKey, string>> = {
   telegram: 'Telegram',
   discord: 'Discord',
   slack: 'Slack',
@@ -156,7 +156,12 @@ export class ChannelInstallScaffoldService {
     const definition = this.getModeDefinition(input.channelId, input.mode);
     const baseEntries = definition.scaffoldEntries(this.projectRoot);
     const extraEntries = Array.isArray(input.extraEntries) ? input.extraEntries : [];
-    const env = this.envFiles.upsertEntries(this.envFilePath, [...baseEntries, ...extraEntries]);
+    
+    // Security Defense-in-Depth: whitelist extraEntries keys to prevent env pollution/hijack
+    const allowedKeys = new Set(baseEntries.map((entry) => entry.key));
+    const filteredExtraEntries = extraEntries.filter((entry) => allowedKeys.has(entry.key));
+    
+    const env = this.envFiles.upsertEntries(this.envFilePath, [...baseEntries, ...filteredExtraEntries]);
     const directoriesCreated: string[] = [];
 
     for (const directory of definition.directories(this.projectRoot)) {
@@ -195,7 +200,7 @@ export class ChannelInstallScaffoldService {
 
     return {
       channelId: capability.platform,
-      label: CHANNEL_LABELS[capability.platform],
+      label: CHANNEL_LABELS[capability.platform] || capability.platform,
       readiness: capability.readiness,
       configured: capability.configured,
       implementationState: capability.implementationState,

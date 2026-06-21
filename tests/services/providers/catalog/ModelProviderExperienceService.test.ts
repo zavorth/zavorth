@@ -1,3 +1,4 @@
+import { describe, it, expect } from 'vitest';
 import { ModelProviderExperienceService } from '../../../../src/services/providers/catalog/ModelProviderExperienceService.js';
 
 describe('ModelProviderExperienceService', () => {

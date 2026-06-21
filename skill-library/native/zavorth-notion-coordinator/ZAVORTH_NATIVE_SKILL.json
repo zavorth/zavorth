@@ -1,0 +1,30 @@
+{
+  "id": "zavorth-notion-coordinator",
+  "name": "Notion Coordinator",
+  "native": true,
+  "description": "Coordinate tasks, updates, and documents with official Notion workspaces.",
+  "category": "productivity",
+  "permissionProfileId": "workspace-write",
+  "riskLevel": "medium",
+  "capabilityTags": [
+    "productivity",
+    "integration"
+  ],
+  "presets": [
+    "basic",
+    "developer",
+    "power-user"
+  ],
+  "inputContract": [
+    "database id",
+    "item data",
+    "operation type"
+  ],
+  "outputContract": [
+    "notion response",
+    "sync result"
+  ],
+  "noExecutionByDefault": false,
+  "requiresPolicyBroker": true,
+  "receiptsRequired": true
+}

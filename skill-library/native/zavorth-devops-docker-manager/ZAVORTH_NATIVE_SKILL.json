@@ -1,0 +1,30 @@
+{
+  "id": "zavorth-devops-docker-manager",
+  "name": "Docker Container Monitor",
+  "native": true,
+  "description": "Control state, execute commands, and fetch diagnostic logs for local Docker containers.",
+  "category": "devops",
+  "permissionProfileId": "host-write",
+  "riskLevel": "high",
+  "capabilityTags": [
+    "devops",
+    "system"
+  ],
+  "presets": [
+    "developer",
+    "power-user"
+  ],
+  "inputContract": [
+    "container id",
+    "action",
+    "options"
+  ],
+  "outputContract": [
+    "logs",
+    "container status",
+    "action response"
+  ],
+  "noExecutionByDefault": true,
+  "requiresPolicyBroker": true,
+  "receiptsRequired": true
+}

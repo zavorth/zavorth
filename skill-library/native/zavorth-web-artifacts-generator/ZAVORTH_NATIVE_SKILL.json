@@ -1,0 +1,29 @@
+{
+  "id": "zavorth-web-artifacts-generator",
+  "name": "Web Artifacts Generator",
+  "native": true,
+  "description": "Scaffold and build static web applications, Vite presets, landing pages, and modules locally.",
+  "category": "development",
+  "permissionProfileId": "workspace-write",
+  "riskLevel": "medium",
+  "capabilityTags": [
+    "development",
+    "scaffold"
+  ],
+  "presets": [
+    "developer",
+    "power-user"
+  ],
+  "inputContract": [
+    "app spec",
+    "scaffold path"
+  ],
+  "outputContract": [
+    "vite setup",
+    "index.html",
+    "main.js"
+  ],
+  "noExecutionByDefault": false,
+  "requiresPolicyBroker": true,
+  "receiptsRequired": true
+}

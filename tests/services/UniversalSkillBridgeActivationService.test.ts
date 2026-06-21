@@ -162,6 +162,6 @@ describe('UniversalSkillBridgeActivationService Credential vault', () => {
       ownerApprovalId: null,
     }));
     expect(snapshot.status).toBe('approval-required');
-    expect(snapshot.report).toContain('Execucao upstream: nao realizada.');
+    expect(snapshot.report).toContain('Upstream execution: not performed.');
   });
 });

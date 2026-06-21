@@ -1,0 +1,28 @@
+{
+  "id": "zavorth-blockchain-auditor",
+  "name": "Smart Contract Auditor",
+  "native": true,
+  "description": "Audit Solidity/Rust smart contracts for reentrancy, access leaks, and static vulnerabilities.",
+  "category": "security",
+  "permissionProfileId": "workspace-read",
+  "riskLevel": "medium",
+  "capabilityTags": [
+    "security",
+    "blockchain"
+  ],
+  "presets": [
+    "developer",
+    "power-user"
+  ],
+  "inputContract": [
+    "source code",
+    "architecture"
+  ],
+  "outputContract": [
+    "vulnerabilities",
+    "static analysis"
+  ],
+  "noExecutionByDefault": false,
+  "requiresPolicyBroker": true,
+  "receiptsRequired": true
+}

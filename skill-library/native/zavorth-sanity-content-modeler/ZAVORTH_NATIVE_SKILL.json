@@ -1,0 +1,28 @@
+{
+  "id": "zavorth-sanity-content-modeler",
+  "name": "CMS Content Modeler",
+  "native": true,
+  "description": "Model CMS data schemas and compile structural queries in GROQ or GraphQL.",
+  "category": "productivity",
+  "permissionProfileId": "workspace-write",
+  "riskLevel": "low",
+  "capabilityTags": [
+    "productivity",
+    "cms"
+  ],
+  "presets": [
+    "basic",
+    "developer"
+  ],
+  "inputContract": [
+    "content structure",
+    "schema spec"
+  ],
+  "outputContract": [
+    "sanity schema code",
+    "groq queries"
+  ],
+  "noExecutionByDefault": false,
+  "requiresPolicyBroker": true,
+  "receiptsRequired": true
+}

@@ -1,0 +1,140 @@
+{
+  "id": "capability-spine",
+  "label": "Capability Spine",
+  "kind": "tool",
+  "version": "0.1.0",
+  "boot": "on-demand",
+  "budget": {
+    "rssMb": 90,
+    "heapUsedMb": 50,
+    "activeHandles": 12
+  },
+  "entry": "src/runtime/actions/modules/capabilitySpine.ts",
+  "description": "Verified routes that discover hidden Zavorth capabilities, expose skill/agent/workflow surfaces, and map Hermes/OpenClaw parity packs.",
+  "requires": ["filesystem", "process"],
+  "provides": [
+    "capabilities_hidden_scan",
+    "capabilities_hidden_inspect",
+    "capabilities_hidden_expose",
+    "skills_catalog_list",
+    "skills_catalog_inspect",
+    "skills_absorb",
+    "agents_external_list",
+    "agents_external_invoke",
+    "workflows_list",
+    "workflows_run",
+    "capabilities_parity_hermes",
+    "capabilities_parity_openclaw"
+  ],
+  "tags": ["native", "verified", "action-harness", "capability-spine"],
+  "actions": [
+    {
+      "id": "capabilities.hidden.scan",
+      "status": "verified",
+      "risk": "safe",
+      "requiresPreview": false,
+      "requiresApproval": false,
+      "scope": "capabilities",
+      "receipt": "none"
+    },
+    {
+      "id": "capabilities.hidden.inspect",
+      "status": "verified",
+      "risk": "safe",
+      "requiresPreview": false,
+      "requiresApproval": false,
+      "scope": "capabilities",
+      "receipt": "none"
+    },
+    {
+      "id": "capabilities.hidden.expose",
+      "status": "verified",
+      "risk": "attention",
+      "requiresPreview": true,
+      "requiresApproval": true,
+      "scope": "capabilities",
+      "receipt": "required"
+    },
+    {
+      "id": "skills.catalog.list",
+      "status": "verified",
+      "risk": "safe",
+      "requiresPreview": false,
+      "requiresApproval": false,
+      "scope": "skills",
+      "receipt": "none"
+    },
+    {
+      "id": "skills.catalog.inspect",
+      "status": "verified",
+      "risk": "safe",
+      "requiresPreview": false,
+      "requiresApproval": false,
+      "scope": "skills",
+      "receipt": "none"
+    },
+    {
+      "id": "skills.absorb",
+      "status": "verified",
+      "risk": "attention",
+      "requiresPreview": true,
+      "requiresApproval": true,
+      "scope": "skills",
+      "receipt": "required"
+    },
+    {
+      "id": "agents.external.list",
+      "status": "verified",
+      "risk": "safe",
+      "requiresPreview": false,
+      "requiresApproval": false,
+      "scope": "agents",
+      "receipt": "none"
+    },
+    {
+      "id": "agents.external.invoke",
+      "status": "verified",
+      "risk": "danger",
+      "requiresPreview": true,
+      "requiresApproval": true,
+      "scope": "agents",
+      "receipt": "required"
+    },
+    {
+      "id": "workflows.list",
+      "status": "verified",
+      "risk": "safe",
+      "requiresPreview": false,
+      "requiresApproval": false,
+      "scope": "workflows",
+      "receipt": "none"
+    },
+    {
+      "id": "workflows.run",
+      "status": "verified",
+      "risk": "attention",
+      "requiresPreview": true,
+      "requiresApproval": true,
+      "scope": "workflows",
+      "receipt": "required"
+    },
+    {
+      "id": "capabilities.parity.hermes",
+      "status": "verified",
+      "risk": "safe",
+      "requiresPreview": false,
+      "requiresApproval": false,
+      "scope": "capabilities",
+      "receipt": "none"
+    },
+    {
+      "id": "capabilities.parity.openclaw",
+      "status": "verified",
+      "risk": "safe",
+      "requiresPreview": false,
+      "requiresApproval": false,
+      "scope": "capabilities",
+      "receipt": "none"
+    }
+  ]
+}

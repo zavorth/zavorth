@@ -1,7 +1,9 @@
 import { useEffect, useState } from 'react';
 import type {
   ApprovalItem,
+  ChannelSetupSnapshot,
   ChatMessage,
+  GatewayResilienceSnapshot,
   LearningItem,
   MemoryEncryptionMigrationReceipt,
   MemoryEncryptionStatus,
@@ -21,6 +23,7 @@ import { DesktopInspector } from '../panels/DesktopInspector';
 import type { DesktopPanel } from '../slashCommands';
 import { ThreadView } from '../thread/ThreadView';
 import { DesktopWorkspaceView } from '../views/DesktopWorkspaceView';
+import { PtyTerminalPanel } from './PtyTerminalPanel';
 import type { DesktopWorkspaceScope } from '../workspaceScopes';
 
 export function DesktopShell(props: {
@@ -29,6 +32,7 @@ export function DesktopShell(props: {
   approvals: ApprovalItem[];
   busy: boolean;
   channels: any[];
+  channelSetup: ChannelSetupSnapshot | null;
   commandPaletteOpen: boolean;
   effort: string;
   encryptionReceipt: MemoryEncryptionMigrationReceipt | null;
@@ -38,6 +42,7 @@ export function DesktopShell(props: {
   inspectorOpen: boolean;
   learning: LearningItem[];
   memoryItems: MemoryItem[];
+  gatewayResilience: GatewayResilienceSnapshot | null;
   modelOptions: ModelOption[];
   messages: ChatMessage[];
   nexusStatus: unknown;
@@ -61,6 +66,14 @@ export function DesktopShell(props: {
   onEncryptionAction(action: 'preview' | 'apply' | 'rollback'): void | Promise<void>;
   onInput(value: string): void;
   onLearningDecision(id: string, decision: 'approve' | 'reject' | 'forget'): void | Promise<void>;
+  onMemoryControlAction(input: { action: 'forget' | 'updatePreference'; id: string; content?: string }): void | Promise<void>;
+  onChannelSetupAction(input: {
+    action: 'applyScaffold' | 'doctor' | 'testConnection';
+    channelId?: string | null;
+    mode?: string | null;
+    extraEntries?: Array<{ key: string; value: string }>;
+  }): void | Promise<void>;
+  onGatewayResilienceAction(input: Record<string, unknown>): void | Promise<void>;
   onModel(value: string): void;
   onNewSession(): void;
   onPanel(panel: DesktopPanel): void;
@@ -74,6 +87,8 @@ export function DesktopShell(props: {
   onTheme(value: 'light' | 'dark' | 'system'): void;
   onWorkspaceFolder(): void | Promise<void>;
   onWorkspaceScope(value: string): void;
+  activeMandate?: any;
+  onRevokeMandate?: () => Promise<void>;
 }) {
   const isMac = navigator.userAgent.includes('Macintosh');
   const [systemDark, setSystemDark] = useState(() => window.matchMedia?.('(prefers-color-scheme: dark)').matches ?? true);
@@ -121,6 +136,8 @@ export function DesktopShell(props: {
         onToggle={() => props.onSidebarCollapsed(value => !value)}
         onWorkspaceFolder={props.onWorkspaceFolder}
         onWorkspaceScope={props.onWorkspaceScope}
+        activeMandate={props.activeMandate}
+        onRevokeMandate={props.onRevokeMandate}
       />
 
       <section className="zvd-workspace" aria-label="Zavorth Desktop">
@@ -195,12 +212,14 @@ export function DesktopShell(props: {
               approvals={props.approvals}
               busy={props.busy}
               channels={props.channels}
+              channelSetup={props.channelSetup}
               effort={props.effort}
               encryptionReceipt={props.encryptionReceipt}
               encryptionStatus={props.encryptionStatus}
               events={props.events}
               learning={props.learning}
               memoryItems={props.memoryItems}
+              gatewayResilience={props.gatewayResilience}
               nexusStatus={props.nexusStatus}
               profile={props.profile}
               runtimeCapabilities={props.runtimeCapabilities}
@@ -213,6 +232,9 @@ export function DesktopShell(props: {
               onEffort={props.onEffort}
               onEncryptionAction={props.onEncryptionAction}
               onLearningDecision={props.onLearningDecision}
+              onMemoryControlAction={props.onMemoryControlAction}
+              onChannelSetupAction={props.onChannelSetupAction}
+              onGatewayResilienceAction={props.onGatewayResilienceAction}
               onProfile={props.onProfile}
               onReviewDecision={props.onReviewDecision}
               onRuntimeStart={props.onRuntimeStart}
@@ -266,6 +288,8 @@ export function DesktopShell(props: {
         onPanel={props.onPanel}
         onRun={props.onSubmit}
       />
-    </main>
+      {props.workspaceScope && <PtyTerminalPanel workspaceId={props.workspaceScope.id} />}
+      </main>
   );
 }
+

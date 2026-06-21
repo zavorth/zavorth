@@ -407,8 +407,8 @@ describe('ZavorthPlatformActionService', () => {
             query: null,
             entries: [
               {
-                id: 'external_executor',
-                kind: 'integration',
+                id: 'plugin:external_executor',
+                kind: 'plugin',
                 source: 'integration-hub',
                 label: 'ExternalExecutor',
                 version: 'native',
@@ -424,7 +424,7 @@ describe('ZavorthPlatformActionService', () => {
                 searchText: 'external_executor agents',
                 actions: [
                   {
-                    id: 'external_executor:install',
+                    id: 'plugin:external_executor:install',
                     label: 'Instalar',
                     command: '/plugins install external_executor',
                     kind: 'install',
@@ -470,7 +470,7 @@ describe('ZavorthPlatformActionService', () => {
               tags: ['agents'],
               capabilities: ['code', 'browser'],
               details: ['Pack: agent-federation'],
-              entryIds: ['plugin:external-executor', 'mcp:playwright'],
+              entryIds: ['plugin:external_executor', 'mcp:playwright'],
               featured: true,
               searchText: 'collection agent federation',
             },

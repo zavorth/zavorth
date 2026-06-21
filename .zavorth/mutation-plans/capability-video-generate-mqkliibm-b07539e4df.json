@@ -1,0 +1,63 @@
+{
+  "id": "capability-video-generate-mqkliibm-b07539e4df",
+  "domain": "capability",
+  "actionId": "video.generate",
+  "title": "Generate video",
+  "summary": "Action Harness requires approval before applying video.generate.",
+  "createdAt": "2026-06-19T07:16:49.858Z",
+  "updatedAt": "2026-06-19T07:16:49.858Z",
+  "expiresAt": "2026-06-20T07:16:49.858Z",
+  "payloadHash": "b07539e4df614777e1d29732ead81c67260b64fbdc2a696f89473f4c1226a08a",
+  "status": "waiting_approval",
+  "requestedBy": "smoke-test",
+  "sourceSurface": "llm",
+  "riskLevel": "medium",
+  "approval": {
+    "required": true,
+    "status": "pending",
+    "defaultScope": "once",
+    "availableScopes": [
+      "once",
+      "session",
+      "host"
+    ],
+    "permissionId": null,
+    "requestedBy": "smoke-test",
+    "reason": "Zavorth Action Harness blocked apply until explicit approval or trusted operator confirmation."
+  },
+  "resourceImpact": {
+    "ramMb": 0,
+    "diskMb": 0,
+    "processCount": 0,
+    "externalExposure": "none",
+    "recurring": false,
+    "notes": []
+  },
+  "readinessGates": [],
+  "retentionPolicy": {
+    "ttlMs": 86400000,
+    "maxBytes": null,
+    "cleanupOnSuccess": false,
+    "cleanupOnBoot": false,
+    "notes": []
+  },
+  "validationPlan": [
+    "Review action preview and target values before approval."
+  ],
+  "rollbackPlan": [
+    "Re-apply previous configuration value from receipt if needed."
+  ],
+  "payload": {
+    "actionId": "video.generate",
+    "args": {
+      "prompt": "smoke video"
+    }
+  },
+  "audit": [
+    {
+      "at": "2026-06-19T07:16:49.858Z",
+      "event": "plan.created",
+      "message": "Plano criado aguardando approval."
+    }
+  ]
+}

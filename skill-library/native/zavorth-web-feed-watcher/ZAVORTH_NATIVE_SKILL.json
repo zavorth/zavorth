@@ -1,0 +1,29 @@
+{
+  "id": "zavorth-web-feed-watcher",
+  "name": "RSS Web Monitor",
+  "native": true,
+  "description": "Track RSS updates, releases, and changelogs for software dependencies.",
+  "category": "research",
+  "permissionProfileId": "workspace-write",
+  "riskLevel": "low",
+  "capabilityTags": [
+    "research",
+    "automation"
+  ],
+  "presets": [
+    "basic",
+    "developer",
+    "power-user"
+  ],
+  "inputContract": [
+    "feed url",
+    "last checked"
+  ],
+  "outputContract": [
+    "updates",
+    "digest"
+  ],
+  "noExecutionByDefault": false,
+  "requiresPolicyBroker": true,
+  "receiptsRequired": true
+}

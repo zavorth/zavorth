@@ -534,19 +534,19 @@ function inferIntent(normalized: string): IntentFlags {
     'mostre seu raciocinio',
     'mostre o raciocinio',
   ]);
-  const subagents = hasAny(normalized, ['subagente', 'subagentes', 'agente pesquisar', 'agente revisar', 'paralelo', 'workers']);
-  const skills = hasAny(normalized, ['skill', 'skills', 'habilidade', 'pack de conhecimento']);
-  const skillImport = hasAny(normalized, ['absorva', 'importe', 'materialize', 'pega essa pasta', 'biblioteca de skills']);
-  const largeAbsorption = hasAny(normalized, ['quebre', 'chunk', 'lote', 'batch', 'muito grande', 'biblioteca grande']);
-  const perceptionBrowser = hasAny(normalized, ['browser', 'navegador', 'site', 'pagina', 'screenshot do site']);
-  const perceptionComputer = hasAny(normalized, ['desktop', 'computador', 'tela', 'screenshot da tela', 'clicar', 'digitar']);
-  const perceptionDevice = hasAny(normalized, ['celular', 'android', 'adb', 'telefone', 'screenshot do celular']);
-  const webSearch = hasAny(normalized, ['pesquise', 'pesquisar', 'web', 'internet', 'url', 'pdf', 'site']);
-  const workspaceMutation = hasAny(normalized, ['edite', 'editar', 'modifique', 'altere', 'implemente', 'crie arquivo', 'aplique patch', 'corrija']);
-  const commandExec = hasAny(normalized, ['rode comando', 'execute comando', 'powershell', 'cmd', 'shell', 'npm install', 'git push']);
-  const externalSend = hasAny(normalized, ['envie', 'poste', 'publique', 'deploy', 'mande mensagem', 'whatsapp', 'telegram', 'discord']);
+  const subagents = hasAny(normalized, ['subagente', 'subagentes', 'agente pesquisar', 'agente revisar', 'paralelo', 'workers', 'subagent', 'subagents', 'agent', 'agents', 'parallel', 'team', 'swarm', 'アジェント', '에이전트', 'الوكيل']);
+  const skills = hasAny(normalized, ['skill', 'skills', 'habilidade', 'pack de conhecimento', 'ability', 'abilities', 'competence', 'メモリ', '메모리', 'المهارة']);
+  const skillImport = hasAny(normalized, ['absorva', 'importe', 'materialize', 'pega essa pasta', 'biblioteca de skills', 'import', 'absorb', 'bring in', 'pull in', 'importieren', 'importer', 'インポート', '가져오기', 'استورد']);
+  const largeAbsorption = hasAny(normalized, ['quebre', 'chunk', 'lote', 'batch', 'muito grande', 'biblioteca grande', 'large', 'big', 'huge', 'groß', 'gros', ' grande', ' lớn', '大きい', '큰']);
+  const perceptionBrowser = hasAny(normalized, ['browser', 'navegador', 'site', 'pagina', 'screenshot do site', 'webpage', 'website', 'url', '网页', '사이트', 'الموقع']);
+  const perceptionComputer = hasAny(normalized, ['desktop', 'computador', 'tela', 'screenshot da tela', 'clicar', 'digitar', 'screen', 'screenshot', 'monitor', '画面', '화면', 'الشاشة']);
+  const perceptionDevice = hasAny(normalized, ['celular', 'android', 'adb', 'telefone', 'screenshot do celular', 'phone', 'mobile', 'device', '携帯', '휴대폰', 'الجوال']);
+  const webSearch = hasAny(normalized, ['pesquise', 'pesquisar', 'web', 'internet', 'url', 'pdf', 'site', 'search', 'find', 'look up', 'research', 'suchen', 'chercher', '検索', '검색', 'ابحث']);
+  const workspaceMutation = hasAny(normalized, ['edite', 'editar', 'modifique', 'altere', 'implemente', 'crie arquivo', 'aplique patch', 'corrija', 'edit', 'modify', 'change', 'implement', 'create file', 'apply patch', 'fix', 'ändern', 'modifier', '編集', '수정', 'عدّل']);
+  const commandExec = hasAny(normalized, ['rode comando', 'execute comando', 'powershell', 'cmd', 'shell', 'npm install', 'git push', 'run command', 'execute', 'run', 'install', 'push', 'ausführen', 'exécuter', '実行', '실행', 'نفّذ']);
+  const externalSend = hasAny(normalized, ['envie', 'poste', 'publique', 'deploy', 'mande mensagem', 'whatsapp', 'telegram', 'discord', 'send', 'post', 'publish', 'deploy', 'message', 'senden', 'publier', '送信', '보내기', 'أرسل']);
   const sensitiveNetwork = hasAny(normalized, ['169.254.169.254', 'metadata', 'localhost', '127.0.0.1', 'intranet']);
-  const destructive = hasAny(normalized, ['rm -rf', 'format c:', 'apagar tudo', 'deletar tudo', 'vazar segredo', 'exfiltrar', 'roubar token']);
+  const destructive = hasAny(normalized, ['rm -rf', 'format c:', 'apagar tudo', 'deletar tudo', 'vazar segredo', 'exfiltrar', 'roubar token', 'delete all', 'remove all', 'exfiltrate', 'steal', 'zerstören', 'supprimer', '全削除', '모두 삭제', 'احذف']);
   const directAnswer = !rawReasoning && !subagents && !skills && !skillImport && !largeAbsorption && !perceptionBrowser && !perceptionComputer
     && !perceptionDevice && !webSearch && !workspaceMutation && !commandExec && !externalSend && !destructive;
   return {

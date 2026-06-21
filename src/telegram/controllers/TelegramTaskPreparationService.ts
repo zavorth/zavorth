@@ -112,6 +112,16 @@ export class TelegramTaskPreparationService {
     task.intent = route.intent;
     task.workspace = route.workspace_hint || task.workspace || this.deps.getDefaultWorkspace(parsed.command_type);
 
+    const { AgentWorkspaceConfigService } = await import('../../services/AgentWorkspaceConfigService.js');
+    const config = await AgentWorkspaceConfigService.getInstance().getConfig(task.workspace);
+    task.metadata = {
+      ...(task.metadata || {}),
+      workspace: {
+        id: task.workspace,
+        config: config
+      }
+    };
+
     const workspaceProfile = await this.deps.workspaceProfileService.getProfile(task.workspace);
     if (workspaceProfile) {
       task.metadata = {

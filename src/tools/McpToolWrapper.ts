@@ -1,6 +1,7 @@
 import { Client } from '@modelcontextprotocol/sdk/client/index.js';
 import { ToolDefinition } from '../providers/ILlmProvider.js';
 import { BaseTool } from './BaseTool.js';
+import { WorkspaceWriteApprovalPayloadCache } from '../services/WorkspaceWriteApprovalPayloadCache.js';
 
 type McpTextContent = {
   type: 'text';
@@ -25,6 +26,7 @@ export class McpToolWrapper extends BaseTool {
 
   async execute(args: Record<string, unknown>): Promise<string> {
     console.log(`[MCP] Executando ferramenta remota: ${this.name}...`);
+    const opId = args.operationId as string;
     try {
       const response = await this.mcpClient.callTool({
         name: this.remoteName,
@@ -34,6 +36,20 @@ export class McpToolWrapper extends BaseTool {
       const textBlocks = this.extractTextBlocks(response.content);
       if (response.isError) {
         const errorMsg = textBlocks.map((block) => block.text).join('\n');
+
+        try {
+          const parsed = JSON.parse(errorMsg);
+          if (parsed && parsed.error === 'WRITE_APPROVAL_REQUIRED' && parsed.operationId) {
+            const cache = WorkspaceWriteApprovalPayloadCache.getInstance();
+            cache.cachePayload(parsed.operationId, {
+              file: (args.file as string) || (args.directory as string),
+              content: args.content as string,
+            });
+          }
+        } catch {
+          // not a WRITE_APPROVAL_REQUIRED json error
+        }
+
         throw new Error(`[MCP Tool Error] ${errorMsg}`);
       }
 
@@ -41,6 +57,10 @@ export class McpToolWrapper extends BaseTool {
     } catch (e: any) {
       console.error(`[MCP] Falha ao executar ${this.name}:`, e.message);
       return `Error executing tool: ${e.message}`;
+    } finally {
+      if (opId) {
+        WorkspaceWriteApprovalPayloadCache.getInstance().clearPayload(opId);
+      }
     }
   }
 

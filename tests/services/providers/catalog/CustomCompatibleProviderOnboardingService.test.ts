@@ -1,3 +1,4 @@
+import { describe, it, expect } from 'vitest';
 import { CustomCompatibleProviderOnboardingService } from '../../../../src/services/providers/catalog/CustomCompatibleProviderOnboardingService.js';
 
 describe('CustomCompatibleProviderOnboardingService', () => {
@@ -50,8 +51,10 @@ describe('CustomCompatibleProviderOnboardingService', () => {
 
     expect(result.classification).toEqual(expect.objectContaining({
       kind: 'anthropic_compatible',
-      runtimeSupported: false,
+      runtimeSupported: true,
+      runtimeAdapter: 'anthropic_compatible',
     }));
-    expect(result.warnings.join(' ')).toContain('adapter generico');
+    // The warning "adapter generico" was removed because anthropic_compatible is now natively supported.
+    expect(result.warnings.join(' ')).toContain('Base URL precisa permanecer');
   });
 });

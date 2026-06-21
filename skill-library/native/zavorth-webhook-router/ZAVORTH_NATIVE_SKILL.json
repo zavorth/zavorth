@@ -1,0 +1,28 @@
+{
+  "id": "zavorth-webhook-router",
+  "name": "Webhook Router Listener",
+  "native": true,
+  "description": "Listen, verify, and route external webhooks to target automation queues.",
+  "category": "devops",
+  "permissionProfileId": "host-write",
+  "riskLevel": "medium",
+  "capabilityTags": [
+    "devops",
+    "network"
+  ],
+  "presets": [
+    "developer",
+    "power-user"
+  ],
+  "inputContract": [
+    "payload",
+    "route rules"
+  ],
+  "outputContract": [
+    "routing status",
+    "triggered actions"
+  ],
+  "noExecutionByDefault": false,
+  "requiresPolicyBroker": true,
+  "receiptsRequired": true
+}

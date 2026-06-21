@@ -1,0 +1,29 @@
+{
+  "id": "zavorth-design-system-manager",
+  "name": "Design System Manager",
+  "native": true,
+  "description": "Centralize and manage UI design tokens, including color palettes, typography, spacing, and CSS global variables.",
+  "category": "design",
+  "permissionProfileId": "workspace-write",
+  "riskLevel": "low",
+  "capabilityTags": [
+    "design",
+    "css"
+  ],
+  "presets": [
+    "basic",
+    "developer",
+    "power-user"
+  ],
+  "inputContract": [
+    "theme config",
+    "css/js paths"
+  ],
+  "outputContract": [
+    "design tokens",
+    "theme variables"
+  ],
+  "noExecutionByDefault": false,
+  "requiresPolicyBroker": true,
+  "receiptsRequired": true
+}

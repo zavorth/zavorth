@@ -1,0 +1,29 @@
+{
+  "id": "zavorth-data-science-plot",
+  "name": "Data Science Plotter",
+  "native": true,
+  "description": "Run statistical calculations and render charts/plots from CSV datasets locally.",
+  "category": "data",
+  "permissionProfileId": "workspace-write",
+  "riskLevel": "low",
+  "capabilityTags": [
+    "data",
+    "science"
+  ],
+  "presets": [
+    "basic",
+    "developer",
+    "power-user"
+  ],
+  "inputContract": [
+    "csv path",
+    "plot specification"
+  ],
+  "outputContract": [
+    "chart path",
+    "statistical summary"
+  ],
+  "noExecutionByDefault": false,
+  "requiresPolicyBroker": true,
+  "receiptsRequired": true
+}

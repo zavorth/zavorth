@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updatedAt": "2026-06-09T21:21:42.692Z",
+  "updatedAt": "2026-06-19T05:39:57.838Z",
   "snapshot": {
     "controls": [
       {
@@ -12,7 +12,7 @@
       {
         "id": "security/AgentToolSecurityCatalog",
         "relativePath": "src/security/AgentToolSecurityCatalog.ts",
-        "sha256": "a22cd64921c48c0cdd9b2c8010ab5755fa6eeeecad69e810c964c95897ef06a1",
+        "sha256": "d2bc4bd3b8f44a23014245305608e49fdbeb7599c819249f46f092feaa6adb1b",
         "present": true
       },
       {

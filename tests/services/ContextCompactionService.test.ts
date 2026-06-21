@@ -41,7 +41,8 @@ describe('ContextCompactionService', () => {
     const now = new Date('2026-05-18T12:00:00.000Z');
     const messages: ContextCompactionMessage[] = [
       { role: 'user', content: 'Analyze the repository.' },
-      { role: 'tool', toolName: 'shell', status: 'ok', content: bulkyToolOutput() },
+      { role: 'assistant', content: 'Let me run a shell command.', toolCalls: [{ id: 'call-shell-1', name: 'shell', arguments: {} }] },
+      { role: 'tool', toolName: 'shell', toolCallId: 'call-shell-1', status: 'ok', content: bulkyToolOutput() },
       { role: 'assistant', content: 'I found the architecture entrypoints.' },
       { role: 'user', content: 'Keep this exact instruction for the next step.' },
     ];
@@ -57,7 +58,7 @@ describe('ContextCompactionService', () => {
     expect(result.mode).toBe('time-based-microcompact');
     expect(result.triggered).toBe(true);
     expect(result.clearedToolOutputs).toBe(1);
-    expect(result.compactedMessages[1].content).toContain('[Old tool result cleared (shell)');
+    expect(result.compactedMessages[2].content).toContain('[Old tool result cleared (shell)');
     expect(result.compactedMessages.at(-1)?.content).toBe('Keep this exact instruction for the next step.');
     expect(result.receipt).toEqual(expect.objectContaining({
       durableMutation: false,
@@ -129,6 +130,66 @@ describe('ContextCompactionService', () => {
     expect(result.mode).toBe('none');
     expect(result.triggered).toBe(false);
     expect(result.reductionTokens).toBe(0);
-    expect(result.compactedMessages).toEqual([{ role: 'user', content: 'Short request.', id: 'msg-1', toolName: null, status: null }]);
+    expect(result.compactedMessages).toEqual([{ role: 'user', content: 'Short request.', id: 'msg-1', toolName: null, status: null, toolCalls: null, toolCallId: null }]);
+  });
+
+  it('injects placeholder stubs for tool calls whose tool outputs were compacted/removed', () => {
+    const service = new ContextCompactionService();
+    const result = service.compact({
+      messages: [
+        {
+          role: 'assistant',
+          content: 'Running tool',
+          toolCalls: [{ id: 'call-1', name: 'read_file', arguments: {} }],
+        },
+      ],
+      now: new Date('2026-05-18T12:00:00.000Z'),
+      usableContextTokens: 50000,
+    });
+
+    expect(result.compactedMessages).toHaveLength(2);
+    expect(result.compactedMessages[0].role).toBe('assistant');
+    expect(result.compactedMessages[1].role).toBe('tool');
+    expect(result.compactedMessages[1].toolName).toBe('read_file');
+    expect(result.compactedMessages[1].toolCallId).toBe('call-1');
+    expect(result.compactedMessages[1].content).toContain('Context compacted');
+  });
+
+  it('removes orphan tool responses whose corresponding assistant tool calls were compacted', () => {
+    const service = new ContextCompactionService();
+    const result = service.compact({
+      messages: [
+        {
+          role: 'assistant',
+          content: 'Compacted tool call',
+          toolCalls: [{ id: 'call-orphaned', name: 'list_dir', arguments: {} }],
+        },
+        {
+          role: 'tool',
+          toolCallId: 'call-orphaned',
+          toolName: 'list_dir',
+          content: 'some directory files',
+        },
+        {
+          role: 'user',
+          content: 'Please explain this output.',
+        },
+      ],
+      now: new Date('2026-05-18T12:00:00.000Z'),
+      usableContextTokens: 10, // Very low budget to force anchored compaction
+      reservedTokenBuffer: 1,
+      recentVerbatimTurns: 1, // Only user message is kept verbatim
+    });
+
+    // The older assistant message and tool response are compacted.
+    // The user message is kept. But the tool response, if kept, would be orphan.
+    // We expect only the session summary and the user message, with no orphan tool response.
+    expect(result.mode).toBe('incremental-anchored-compaction');
+
+    const roles = result.compactedMessages.map((m) => m.role);
+    expect(roles).not.toContain('tool'); // No orphan tool message remains!
+    expect(result.compactedMessages).toHaveLength(2);
+    expect(result.compactedMessages[0].id).toBe('zavorth-session-summary');
+    expect(result.compactedMessages[1].role).toBe('user');
   });
 });

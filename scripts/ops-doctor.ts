@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 
 import { RuntimeAccessReadinessService } from '../src/runtime/access/RuntimeAccessReadinessService.js';
+import { RuntimeBootstrapRepairService } from '../src/runtime/access/RuntimeBootstrapRepairService.js';
 
 function formatDoctorLine(label: string, status: string, summary: string | null, command: string) {
   const detail = summary || command || 'n/d';
@@ -10,6 +11,26 @@ function formatDoctorLine(label: string, status: string, summary: string | null,
 async function main() {
   const argv = process.argv.slice(2);
   const asJson = argv.includes('--json');
+  const fix = argv.includes('--fix') || argv.includes('-f') || argv.includes('--repair');
+  const dryRun = argv.includes('--dry-run') || argv.includes('--dryrun');
+
+  if (fix) {
+    console.log(`[zavorth-ops] Starting Doctor Auto-Repair...${dryRun ? ' (Dry Run)' : ''}`);
+    const repairService = new RuntimeBootstrapRepairService();
+    const repairReport = await repairService.repairLive({ dryRun });
+    console.log(`[zavorth-ops] Repair summary: ${repairReport.summary}`);
+    for (const step of repairReport.steps) {
+      console.log(`[zavorth-ops] Step: ${step.title} | Status: ${step.status} | Command: ${step.command}`);
+      if (step.output) {
+        console.log(`  Output: ${step.output}`);
+      }
+      if (step.error) {
+        console.log(`  Error: ${step.error}`);
+      }
+    }
+    console.log('[zavorth-ops] Doctor Auto-Repair completed.\n');
+  }
+
   const service = new RuntimeAccessReadinessService();
   const report = await service.inspectLive();
 

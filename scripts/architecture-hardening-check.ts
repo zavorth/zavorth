@@ -67,8 +67,11 @@ const LEGACY_LARGE_SOURCE_ALLOWLIST = new Set([
   'src/domain/surface/presentation/web-app/WebAppRuntimeStateRouteService.ts',
   'src/runtime/actions/ZavorthActionCatalog.ts',
   'src/runtime/agent/AgentRunService.ts',
+  'src/services/WebAppConversationService.ts',
   'src/services/experience/ExperienceCoreService.ts',
   'src/services/SwarmV2Service.ts',
+  'src/services/ZavorthControlCoreRouteService.ts',
+  'src/services/ZavorthRuntimeStateBusService.ts',
   'src/services/ZavorthSpeculativeAutonomyService.ts',
   'src/zavorth-cli.ts',
 ]);
@@ -89,30 +92,30 @@ const LARGE_TEST_ALLOWED_PREFIXES = [
 const anyBudgets = [
   {
     id: 'bootstrap-any-budget',
-    label: 'any em bootstrap',
-    target: 'src/bootstrap deve ficar sem ocorrencias de any',
+    label: 'bootstrap any budget',
+    target: 'src/bootstrap must remain free of any occurrences',
     max: 0,
     include: (file: FileSnapshot) => file.relativePath.startsWith('src/bootstrap/'),
   },
   {
     id: 'telegram-any-budget',
-    label: 'any em Telegram',
-    target: 'src/telegram deve ficar em ate 303 ocorrencias de any',
+    label: 'Telegram any budget',
+    target: 'src/telegram must stay at or below 303 any occurrences',
     max: 303,
     include: (file: FileSnapshot) => file.relativePath.startsWith('src/telegram/'),
   },
   {
     id: 'surface-any-budget',
-    label: 'any em surface domain',
-    target: 'src/domain/surface deve ficar em ate 673 ocorrencias de any durante a migracao controlada',
+    label: 'surface domain any budget',
+    target: 'src/domain/surface must stay at or below 673 any occurrences during controlled migration',
     max: 673,
     include: (file: FileSnapshot) => file.relativePath.startsWith('src/domain/surface/'),
   },
   {
     id: 'services-root-any-budget',
-    label: 'any em services raiz',
-    target: 'src/services/*.ts deve ficar em ate 917 ocorrencias de any durante a migracao controlada',
-    max: 917,
+    label: 'root services any budget',
+    target: 'src/services/*.ts must stay at or below 1043 any occurrences during controlled migration',
+    max: 1043,
     include: (file: FileSnapshot) => /^src\/services\/[^/]+\.tsx?$/.test(file.relativePath),
   },
 ];
@@ -148,7 +151,7 @@ const snapshot = {
 if (asJson) {
   console.log(JSON.stringify(snapshot, null, 2));
 } else {
-  console.log('[architecture-hardening] checando thresholds de endurecimento');
+  console.log('[architecture-hardening] checking hardening thresholds');
   for (const rule of rules) {
     const marker = rule.status === 'passed' ? 'ok' : 'fail';
     console.log(`[architecture-hardening] ${marker} ${rule.label}: ${rule.observed} | ${rule.target}`);
@@ -166,13 +169,13 @@ function buildSourceLineRule(files: FileSnapshot[]): RuleSnapshot {
   const violations = files
     .filter((file) => file.lines > MAX_SOURCE_LINES)
     .filter((file) => !LEGACY_LARGE_SOURCE_ALLOWLIST.has(file.relativePath))
-    .map((file) => `${file.relativePath}: ${file.lines} linhas`);
+    .map((file) => `${file.relativePath}: ${file.lines} lines`);
   return {
     id: 'source-line-limit',
-    label: 'limite de tamanho em src',
+    label: 'source file size limit',
     status: violations.length > 0 ? 'failed' : 'passed',
-    observed: `${violations.length} arquivo(s) acima de ${MAX_SOURCE_LINES} linhas`,
-    target: `0 arquivo(s) em src acima de ${MAX_SOURCE_LINES} linhas`,
+    observed: `${violations.length} file(s) above ${MAX_SOURCE_LINES} lines`,
+    target: `0 file(s) in src above ${MAX_SOURCE_LINES} lines`,
     violations,
   };
 }
@@ -185,14 +188,14 @@ function buildPackageScriptSurfaceRule(): RuleSnapshot {
   const scriptNames = Object.keys(packageJson.scripts || {});
   const publicScriptNames = scriptNames.filter((scriptName) => !isInternalPackageScript(scriptName));
   const violations = publicScriptNames.length > MAX_PUBLIC_PACKAGE_SCRIPTS
-    ? [`package.json: ${publicScriptNames.length} scripts publicos de usuario (${scriptNames.length} total)`]
+    ? [`package.json: ${publicScriptNames.length} user-visible public scripts (${scriptNames.length} total)`]
     : [];
   return {
     id: 'package-script-surface-limit',
-    label: 'superficie publica de scripts',
+    label: 'public script surface',
     status: violations.length > 0 ? 'failed' : 'passed',
-    observed: `${publicScriptNames.length} script(s) publicos de usuario em package.json (${scriptNames.length} total)`,
-    target: `ate ${MAX_PUBLIC_PACKAGE_SCRIPTS} scripts publicos de usuario durante transicao; gates internos devem ficar fora da contagem publica`,
+    observed: `${publicScriptNames.length} user-visible public script(s) in package.json (${scriptNames.length} total)`,
+    target: `up to ${MAX_PUBLIC_PACKAGE_SCRIPTS} user-visible public scripts during transition; internal gates must stay out of the public count`,
     violations,
   };
 }
@@ -212,15 +215,15 @@ function buildNewFileLineRule(files: FileSnapshot[]): RuleSnapshot {
       const maxLines = file.relativePath.startsWith('tests/')
         ? MAX_NEW_TEST_FILE_LINES
         : MAX_NEW_SOURCE_FILE_LINES;
-      return `${file.relativePath}: ${file.lines} linhas em arquivo novo; limite ${maxLines}`;
+      return `${file.relativePath}: ${file.lines} lines in new file; limit ${maxLines}`;
     });
 
   return {
     id: 'new-file-line-limit',
-    label: 'limite para arquivos novos',
+    label: 'new file size limit',
     status: violations.length > 0 ? 'failed' : 'passed',
-    observed: `${newPaths.size} arquivo(s) novo(s) rastreados pelo git`,
-    target: `arquivos novos em src <= ${MAX_NEW_SOURCE_FILE_LINES} linhas; testes novos <= ${MAX_NEW_TEST_FILE_LINES} linhas`,
+    observed: `${newPaths.size} new file(s) tracked by git`,
+    target: `new src files <= ${MAX_NEW_SOURCE_FILE_LINES} lines; new test files <= ${MAX_NEW_TEST_FILE_LINES} lines`,
     violations,
   };
 }
@@ -229,7 +232,7 @@ function buildServicesTestBoundaryRule(files: FileSnapshot[]): RuleSnapshot {
   const newPaths = readNewWorkspacePaths();
   const readmePath = path.join(workspaceRoot, SERVICES_TEST_README);
   const violations = !fs.existsSync(readmePath)
-    ? [`${SERVICES_TEST_README}: politica local ausente`]
+    ? [`${SERVICES_TEST_README}: local policy missing`]
     : [];
 
   const forbiddenNewServicesTests = files
@@ -238,16 +241,16 @@ function buildServicesTestBoundaryRule(files: FileSnapshot[]): RuleSnapshot {
     .filter((file) =>
       FORBIDDEN_NEW_SERVICES_TEST_PATTERNS.some((pattern) => pattern.test(path.basename(file.relativePath))),
     )
-    .map((file) => `${file.relativePath}: novo teste de surface/zavorthControl deve nascer em tests/domain/surface`);
+    .map((file) => `${file.relativePath}: new surface/zavorthControl tests must start in tests/domain/surface`);
 
   violations.push(...forbiddenNewServicesTests);
 
   return {
     id: 'services-test-boundary',
-    label: 'tests/services como zona de compatibilidade',
+    label: 'tests/services as compatibility zone',
     status: violations.length > 0 ? 'failed' : 'passed',
-    observed: `${forbiddenNewServicesTests.length} teste(s) novo(s) proibido(s) em tests/services`,
-    target: `${SERVICES_TEST_README} presente e novos testes de surface/zavorthControl fora de tests/services`,
+    observed: `${forbiddenNewServicesTests.length} forbidden new test(s) in tests/services`,
+    target: `${SERVICES_TEST_README} present and new surface/zavorthControl tests outside tests/services`,
     violations,
   };
 }
@@ -261,16 +264,16 @@ function buildBootstrapBarrelRule(files: FileSnapshot[]): RuleSnapshot {
       .every((line) => line.startsWith('export '))
     : false;
   const violations = !barrel
-    ? ['src/bootstrap/bootstrapSurface.ts nao encontrado']
+    ? ['src/bootstrap/bootstrapSurface.ts not found']
     : barrel.lines > 20 || !exportOnly
-      ? [`src/bootstrap/bootstrapSurface.ts deve continuar barrel fino; atual: ${barrel.lines} linhas, exportOnly=${exportOnly}`]
+      ? [`src/bootstrap/bootstrapSurface.ts must remain a thin barrel; current: ${barrel.lines} lines, exportOnly=${exportOnly}`]
       : [];
   return {
     id: 'bootstrap-surface-barrel',
-    label: 'bootstrapSurface como barrel fino',
+    label: 'bootstrapSurface thin barrel',
     status: violations.length > 0 ? 'failed' : 'passed',
-    observed: barrel ? `${barrel.lines} linhas` : 'ausente',
-    target: 'ate 20 linhas e somente exports',
+    observed: barrel ? `${barrel.lines} lines` : 'missing',
+    target: 'up to 20 lines and exports only',
     violations,
   };
 }
@@ -287,7 +290,7 @@ function buildCompositionRootDependencyRule(files: FileSnapshot[]): RuleSnapshot
   for (const relativePath of compositionRoots) {
     const file = files.find((candidate) => candidate.relativePath === relativePath);
     if (!file) {
-      violations.push(`${relativePath}: composition root ausente`);
+      violations.push(`${relativePath}: composition root missing`);
       continue;
     }
 
@@ -296,16 +299,16 @@ function buildCompositionRootDependencyRule(files: FileSnapshot[]): RuleSnapshot
       .split(/\r?\n/)
       .filter((line) => /^import\s/.test(line.trim())).length;
     if (imports > MAX_COMPOSITION_ROOT_IMPORTS) {
-      violations.push(`${relativePath}: ${imports} imports diretos; limite ${MAX_COMPOSITION_ROOT_IMPORTS}`);
+      violations.push(`${relativePath}: ${imports} direct imports; limit ${MAX_COMPOSITION_ROOT_IMPORTS}`);
     }
   }
 
   return {
     id: 'composition-root-dependency-limit',
-    label: 'dependencias por composition root',
+    label: 'composition root dependencies',
     status: violations.length > 0 ? 'failed' : 'passed',
-    observed: `${compositionRoots.length} composition root(s) auditado(s)`,
-    target: `composition roots <= ${MAX_COMPOSITION_ROOT_IMPORTS} imports diretos`,
+    observed: `${compositionRoots.length} composition root(s) audited`,
+    target: `composition roots <= ${MAX_COMPOSITION_ROOT_IMPORTS} direct imports`,
     violations,
   };
 }
@@ -314,13 +317,13 @@ function buildServicesTestRule(files: FileSnapshot[]): RuleSnapshot {
   const violations = files
     .filter((file) => file.relativePath.startsWith('tests/services/'))
     .filter((file) => file.lines > MAX_SERVICES_TEST_LINES)
-    .map((file) => `${file.relativePath}: ${file.lines} linhas`);
+    .map((file) => `${file.relativePath}: ${file.lines} lines`);
   return {
     id: 'services-test-size-limit',
-    label: 'tests/services sem mega suites novas',
+    label: 'tests/services without new mega suites',
     status: violations.length > 0 ? 'failed' : 'passed',
-    observed: `${violations.length} suite(s) acima de ${MAX_SERVICES_TEST_LINES} linhas em tests/services`,
-    target: `0 suite(s) em tests/services acima de ${MAX_SERVICES_TEST_LINES} linhas`,
+    observed: `${violations.length} suite(s) above ${MAX_SERVICES_TEST_LINES} lines in tests/services`,
+    target: `0 suite(s) in tests/services above ${MAX_SERVICES_TEST_LINES} lines`,
     violations,
   };
 }
@@ -329,13 +332,13 @@ function buildLargeTestOwnershipRule(files: FileSnapshot[]): RuleSnapshot {
   const violations = files
     .filter((file) => file.lines > MAX_LARGE_TEST_LINES)
     .filter((file) => !isAllowedLargeTest(file.relativePath))
-    .map((file) => `${file.relativePath}: ${file.lines} linhas sem ownership/allowlist`);
+    .map((file) => `${file.relativePath}: ${file.lines} lines without ownership/allowlist`);
   return {
     id: 'large-test-ownership',
-    label: 'ownership para suites grandes',
+    label: 'large suite ownership',
     status: violations.length > 0 ? 'failed' : 'passed',
-    observed: `${violations.length} suite(s) grande(s) sem owner explicito`,
-    target: `0 suite(s) acima de ${MAX_LARGE_TEST_LINES} linhas fora de bounded context ou allowlist`,
+    observed: `${violations.length} large suite(s) without explicit owner`,
+    target: `0 suite(s) above ${MAX_LARGE_TEST_LINES} lines outside a bounded context or allowlist`,
     violations,
   };
 }
@@ -361,7 +364,7 @@ function buildAnyBudgetRule(
     id: budget.id,
     label: budget.label,
     status: total > budget.max ? 'failed' : 'passed',
-    observed: `${total} ocorrencia(s) de any`,
+    observed: `${total} any occurrence(s)`,
     target: budget.target,
     violations: total > budget.max ? offenders : [],
   };

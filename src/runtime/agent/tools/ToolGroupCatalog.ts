@@ -37,7 +37,7 @@ const TOOL_GROUP_ENTRIES: ToolGroupCatalogEntry[] = [
     group: 'local_control',
     risk: 'danger',
     requiresApproval: true,
-    description: 'Echo Hands controla acoes locais de OS, browser ou IoT e deve passar por approval/trust.',
+    description: 'Echo Hands controls local OS, browser or IoT actions and must go through approval/trust.',
     policyTags: [
       'capability:echo',
       'group:local_control',

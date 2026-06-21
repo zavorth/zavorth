@@ -1,0 +1,30 @@
+{
+  "id": "zavorth-obsidian-sync",
+  "name": "Obsidian Vault Integrator",
+  "native": true,
+  "description": "Integrate, sync, and format notes inside local Obsidian vaults.",
+  "category": "productivity",
+  "permissionProfileId": "workspace-write",
+  "riskLevel": "low",
+  "capabilityTags": [
+    "productivity",
+    "notes"
+  ],
+  "presets": [
+    "basic",
+    "developer",
+    "power-user"
+  ],
+  "inputContract": [
+    "vault path",
+    "note title",
+    "content"
+  ],
+  "outputContract": [
+    "sync status",
+    "note path"
+  ],
+  "noExecutionByDefault": false,
+  "requiresPolicyBroker": true,
+  "receiptsRequired": true
+}
