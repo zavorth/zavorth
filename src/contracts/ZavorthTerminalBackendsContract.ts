@@ -8,7 +8,8 @@ export type ZavorthTerminalBackendId =
   | 'wsl'
   | 'vercel-sandbox'
   | 'modal'
-  | 'daytona';
+  | 'daytona'
+  | 'singularity';
 
 export type ZavorthTerminalBackendAction =
   | 'terminal.status'

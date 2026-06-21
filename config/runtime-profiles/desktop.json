@@ -11,7 +11,9 @@
   "capabilityBootOverrides": {
     "telegram": "on-demand",
     "browser": "sidecar",
-    "ai-gateway": "sidecar"
+    "ai-gateway": "sidecar",
+    "web-browser": "on-demand",
+    "workspace-files": "on-demand"
   },
   "notes": [
     "Bom perfil para desktop com browser ocasional.",

@@ -9,6 +9,8 @@ import {
 } from '../../../src/runtime/actions';
 import { ZavorthMutationPlaneService } from '../../../src/services/ZavorthMutationPlaneService';
 
+jest.setTimeout(30000);
+
 function makeRoot(): string {
   const root = fs.mkdtempSync(path.join(os.tmpdir(), 'zavorth-action-harness-'));
   fs.writeFileSync(path.join(root, 'package.json'), JSON.stringify({ name: 'action-harness-test' }));
@@ -57,6 +59,28 @@ describe('Zavorth Action Harness', () => {
     const ids = catalog.list().map((action) => action.id);
     expect(ids).toEqual(expect.arrayContaining([
       'skills.governance.set',
+      'workspace.read_file',
+      'workspace.list_directory',
+      'workspace.search_files',
+      'workspace.diff_file',
+      'workspace.create_file',
+      'workspace.write_file',
+      'workspace.patch_file',
+      'web.search',
+      'browser.click',
+      'browser.type',
+      'browser.form.submit',
+      'shell.preview_command',
+      'shell.run_allowlisted',
+      'sandbox.run_code',
+      'sandbox.run_tests',
+      'channels.status',
+      'channels.draft',
+      'channels.send_approved',
+      'mcp.list',
+      'mcp.inspect',
+      'mcp.preview',
+      'mcp.execute_quarantined',
       'skills.governance.status',
       'providers.status',
       'providers.xai.doctor',
@@ -93,6 +117,38 @@ describe('Zavorth Action Harness', () => {
       'config.status',
     ]));
     expect(() => new ZavorthActionCatalog([baseAction('x.test'), baseAction('x.test')])).toThrow(/Duplicate Zavorth action id/);
+  });
+
+  it('attaches verified capability metadata and approval policy to workspace file actions', () => {
+    const actions = new ZavorthActionCatalog().list();
+    const byId = new Map(actions.map((action) => [action.id, action]));
+    const workspaceIds = [
+      'workspace.read_file',
+      'workspace.list_directory',
+      'workspace.search_files',
+      'workspace.diff_file',
+      'workspace.create_file',
+      'workspace.write_file',
+      'workspace.patch_file',
+    ];
+
+    for (const id of workspaceIds) {
+      expect(byId.get(id)).toEqual(expect.objectContaining({
+        capabilityId: 'workspace-files',
+        verificationStatus: 'verified',
+        scope: expect.any(String),
+        receiptPolicy: expect.any(String),
+      }));
+    }
+
+    for (const id of ['workspace.create_file', 'workspace.write_file', 'workspace.patch_file']) {
+      expect(byId.get(id)).toEqual(expect.objectContaining({
+        requiresPreview: true,
+        requiresApproval: true,
+        effects: expect.arrayContaining(['write']),
+        receiptPolicy: 'required',
+      }));
+    }
   });
 
   it('looks up natural language and legacy command aliases', () => {
@@ -414,5 +470,136 @@ describe('Zavorth Action Harness', () => {
 
     expect(result.status).toBe('not_found');
     expect(result.ok).toBe(false);
+  });
+
+  it('runs governed workspace file actions without reading secrets or mutating without approval', async () => {
+    const root = makeRoot();
+    roots.push(root);
+    fs.writeFileSync(path.join(root, 'README.md'), 'hello workspace\nneedle line\n');
+    fs.writeFileSync(path.join(root, '.env'), 'TOKEN=secret');
+    fs.mkdirSync(path.join(root, 'output'), { recursive: true });
+    fs.writeFileSync(path.join(root, 'output', 'note.txt'), 'alpha\n');
+    const gateway = new ZavorthActionGateway({ root });
+
+    const listed = await gateway.status('workspace.list_directory', { dirpath: '.' });
+    const searched = await gateway.status('workspace.search_files', { query: 'needle' });
+    const secretRead = await gateway.status('workspace.read_file', { filepath: '.env' });
+    const diff = await gateway.status('workspace.diff_file', { filepath: 'note.txt', content: 'beta\n' });
+    const patchBlocked = await gateway.apply('workspace.patch_file', { filepath: 'note.txt', search: 'alpha', replace: 'beta' });
+
+    expect(listed.status).toBe('ok');
+    expect(JSON.stringify(listed.data)).not.toContain('.env');
+    expect(searched.status).toBe('ok');
+    expect(JSON.stringify(searched.data)).toContain('needle line');
+    expect(secretRead.status).toBe('blocked');
+    expect(diff.status).toBe('ok');
+    expect(fs.readFileSync(path.join(root, 'output', 'note.txt'), 'utf8')).toBe('alpha\n');
+    expect(patchBlocked.status).toBe('approval_required');
+  });
+
+  it('exposes later-wave shell, sandbox, channel and MCP capabilities behind safe gates', async () => {
+    const root = makeRoot();
+    roots.push(root);
+    fs.writeFileSync(path.join(root, 'mcp.json'), JSON.stringify({ servers: { docs: { command: 'node', tools: ['search'] } } }));
+    const gateway = new ZavorthActionGateway({ root });
+
+    const shellPreview = await gateway.preview('shell.preview_command', { command: 'git status' });
+    const shellBlocked = await gateway.apply('shell.run_allowlisted', { command: 'git status' });
+    const unsafeShell = await gateway.preview('shell.preview_command', { command: 'powershell Get-ChildItem' });
+    const sandboxPreview = await gateway.preview('sandbox.run_code', { code: 'console.log("ok")' });
+    const channelDraft = await gateway.status('channels.draft', { channel: 'telegram', message: 'hello' });
+    const channelSendBlocked = await gateway.apply('channels.send_approved', { channel: 'slack', message: 'hello' });
+    const mcpList = await gateway.status('mcp.list');
+    const mcpPreview = await gateway.preview('mcp.preview', { server: 'docs', tool: 'search' });
+    const mcpExecuteBlocked = await gateway.apply('mcp.execute_quarantined', { server: 'docs', tool: 'search', args: {} });
+
+    expect(shellPreview.status).toBe('preview');
+    expect(shellBlocked.status).toBe('approval_required');
+    expect(unsafeShell.status).toBe('blocked');
+    expect(sandboxPreview.status).toBe('preview');
+    expect(sandboxPreview.data?.isolation).toBe('process-quarantine');
+    expect(channelDraft.data?.externalSend).toBe(false);
+    expect(channelSendBlocked.status).toBe('approval_required');
+    expect(mcpList.data?.executionEnabled).toBe(false);
+    expect(mcpPreview.data?.quarantineRequired).toBe(true);
+    expect(mcpExecuteBlocked.status).toBe('approval_required');
+  });
+
+  it('sends approved channel messages through a configured webhook and records redacted receipts', async () => {
+    const root = makeRoot();
+    roots.push(root);
+    process.env.SLACK_WEBHOOK_URL = 'https://example.com/private-token';
+    const originalFetch = globalThis.fetch;
+    globalThis.fetch = jest.fn(async () => new Response(JSON.stringify({ ok: true, secret: 'response-secret' }), {
+      status: 200,
+      headers: { 'content-type': 'application/json' },
+    })) as any;
+    const gateway = new ZavorthActionGateway({ root });
+
+    try {
+      const sent = await gateway.apply('channels.send_approved', {
+        channel: 'slack',
+        message: 'hello approved world',
+      }, {
+        trustedOperatorConfirmation: true,
+        actorId: 'operator',
+        sourceSurface: 'test',
+      });
+
+      expect(sent.status).toBe('applied');
+      expect(globalThis.fetch).toHaveBeenCalledWith('https://example.com/private-token', expect.objectContaining({
+        method: 'POST',
+      }));
+      const receipts = fs.readFileSync(path.join(root, '.zavorth', 'receipts', 'actions.json'), 'utf8');
+      expect(receipts).toContain('channels.send_approved');
+      expect(receipts).not.toContain('private-token');
+      expect(receipts).not.toContain('response-secret');
+    } finally {
+      globalThis.fetch = originalFetch;
+      delete process.env.SLACK_WEBHOOK_URL;
+    }
+  });
+
+  it('shares the ZAVORTH-prefixed long-tail channel configuration between drafts and approved sends', async () => {
+    const root = makeRoot();
+    roots.push(root);
+    process.env.ZAVORTH_MATRIX_WEBHOOK_URL = 'https://example.com/matrix-private-token';
+    const originalFetch = globalThis.fetch;
+    globalThis.fetch = jest.fn(async () => new Response('', { status: 200 })) as any;
+    const gateway = new ZavorthActionGateway({ root });
+
+    try {
+      const draft = await gateway.apply('channels.long_tail.draft', { channel: 'matrix', message: 'hello matrix' });
+      const sent = await gateway.apply('channels.send_approved', { channel: 'matrix', message: 'hello matrix' }, { trustedOperatorConfirmation: true });
+      expect(draft.status).toBe('applied');
+      expect(draft.data?.envelope).toEqual(expect.objectContaining({ targetChannels: ['matrix'] }));
+      expect(sent.status).toBe('applied');
+      expect(globalThis.fetch).toHaveBeenCalledWith('https://example.com/matrix-private-token', expect.objectContaining({ method: 'POST' }));
+    } finally {
+      globalThis.fetch = originalFetch;
+      delete process.env.ZAVORTH_MATRIX_WEBHOOK_URL;
+    }
+  });
+
+  it('blocks quarantined MCP execution unless server and tool are explicitly allowed', async () => {
+    const root = makeRoot();
+    roots.push(root);
+    fs.writeFileSync(path.join(root, 'mcp.json'), JSON.stringify({
+      servers: {
+        docs: { command: 'node', tools: ['search'] },
+        unsafe: { command: 'powershell', tools: ['exec'] },
+      },
+    }));
+    const gateway = new ZavorthActionGateway({ root });
+
+    const allowedPreview = await gateway.preview('mcp.execute_quarantined', { server: 'docs', tool: 'search', args: { q: 'zavorth' } });
+    const unlistedTool = await gateway.preview('mcp.execute_quarantined', { server: 'docs', tool: 'delete', args: {} });
+    const untrustedServer = await gateway.preview('mcp.execute_quarantined', { server: 'unsafe', tool: 'exec', args: {} });
+
+    expect(allowedPreview.status).toBe('preview');
+    expect(allowedPreview.data?.executionEnabled).toBe(true);
+    expect(allowedPreview.data?.quarantineRequired).toBe(true);
+    expect(unlistedTool.status).toBe('blocked');
+    expect(untrustedServer.status).toBe('blocked');
   });
 });

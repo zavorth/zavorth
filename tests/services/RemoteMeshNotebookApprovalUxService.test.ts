@@ -1,4 +1,4 @@
-import { buildDashboardRemoteMeshApprovalUxProjection } from '../../src/ai-gateway/app/(dashboard)/dashboard/dashboard/projections/remoteMeshApprovalUxProjection.js';
+import { buildCommandCenterRemoteMeshApprovalUxProjection } from '../../src/ai-gateway/app/(dashboard)/control/command-center/projections/remoteMeshApprovalUxProjection.js';
 import type {
   RemoteMeshNotebookDockerControlPreviewPayload,
   RemoteMeshNotebookProjectFileReadPreviewPayload,
@@ -90,11 +90,11 @@ describe('RemoteMeshNotebookApprovalUxService R11', () => {
     expect(card.safety.noRawJsonCopyRequired).toBe(true);
   });
 
-  it('turns project file previews into Dashboard approval cards', () => {
-    const projection = buildDashboardRemoteMeshApprovalUxProjection(projectPreview);
+  it('turns project file previews into Command Center approval cards', () => {
+    const projection = buildCommandCenterRemoteMeshApprovalUxProjection(projectPreview);
 
-    expect(projection.projectionVersion).toBe('dashboard-remote-mesh-approval-ux/v1');
-    expect(projection.dashboardReady).toBe(true);
+    expect(projection.projectionVersion).toBe('command-center-remote-mesh-approval-ux/v1');
+    expect(projection.commandCenterReady).toBe(true);
     expect(projection.rawJsonRequiredFromUser).toBe(false);
     expect(projection.commandActuallyExecuted).toBe(false);
     expect(projection.toolActuallyExecuted).toBe(false);
@@ -119,7 +119,7 @@ describe('RemoteMeshNotebookApprovalUxService R11', () => {
     expect(card.safety.noProjectFileWrite).toBe(true);
   });
 
-  it('builds an R11 snapshot for both mobile and Dashboard', () => {
+  it('builds an R11 snapshot for both mobile and Command Center', () => {
     const snapshot = new RemoteMeshNotebookApprovalUxService({ now }).buildSnapshot({
       fixtures: [
         { source: dockerPreview, surface: 'mobile' },

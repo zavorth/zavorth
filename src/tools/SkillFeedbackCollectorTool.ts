@@ -1,0 +1,214 @@
+import fs from 'fs';
+import path from 'path';
+import { BaseTool } from './BaseTool.js';
+import type { ToolDefinition } from '../providers/ILlmProvider.js';
+
+interface SkillMetric {
+  skill_name: string;
+  rating: number;
+  notes: string;
+  execution_time_ms: number;
+  recorded_at: string;
+}
+
+interface SkillMetricsFile {
+  skill_name: string;
+  metrics: SkillMetric[];
+  average_rating: number;
+  average_execution_time_ms: number;
+  total_executions: number;
+  last_updated: string;
+}
+
+export class SkillFeedbackCollectorTool extends BaseTool {
+  public readonly name = 'skill_feedback';
+
+  public readonly description =
+    'Coleta feedback de execucao de skills para auto-melhoria continua.';
+
+  public readonly parameters: ToolDefinition['parameters'] = {
+    type: 'object',
+    properties: {
+      skill_name: {
+        type: 'string',
+        description: 'Nome da skill.',
+      },
+      action: {
+        type: 'string',
+        description: "Acao: 'record', 'review', 'optimize'.",
+      },
+      rating: {
+        type: 'number',
+        description: 'Avaliacao de 1 a 5 (apenas para action=record).',
+      },
+      notes: {
+        type: 'string',
+        description: 'Notas sobre a execucao.',
+      },
+      execution_time_ms: {
+        type: 'number',
+        description: 'Tempo de execucao em milissegundos.',
+      },
+    },
+    required: ['skill_name'],
+  };
+
+  private readonly storageDir: string;
+
+  constructor(options?: { storageDir?: string }) {
+    super();
+    this.storageDir = options?.storageDir || path.join(process.cwd(), 'data', 'runtime', 'skill-metrics');
+  }
+
+  public async execute(args: Record<string, unknown>): Promise<string> {
+    const skillName = String(args.skill_name || '');
+    if (!skillName) {
+      return 'Erro: o parametro "skill_name" e obrigatorio.';
+    }
+
+    const action = String(args.action || 'record');
+    const validActions = ['record', 'review', 'optimize'];
+    if (!validActions.includes(action)) {
+      return `Erro: acao "${action}" invalida. Use: ${validActions.join(', ')}.`;
+    }
+
+    this.ensureStorageDir();
+
+    try {
+      switch (action) {
+        case 'record':
+          return this.recordMetric(args, skillName);
+        case 'review':
+          return this.reviewMetrics(skillName);
+        case 'optimize':
+          return this.optimizeSuggestion(skillName);
+        default:
+          return `Erro: acao "${action}" nao implementada.`;
+      }
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : String(error);
+      return `Erro no skill feedback: ${message}`;
+    }
+  }
+
+  private ensureStorageDir(): void {
+    if (!fs.existsSync(this.storageDir)) {
+      fs.mkdirSync(this.storageDir, { recursive: true });
+    }
+  }
+
+  private metricsPath(skillName: string): string {
+    const safeName = skillName.replace(/[^a-zA-Z0-9_-]/g, '_');
+    return path.join(this.storageDir, `${safeName}.json`);
+  }
+
+  private loadMetrics(skillName: string): SkillMetricsFile {
+    const filePath = this.metricsPath(skillName);
+    if (!fs.existsSync(filePath)) {
+      return {
+        skill_name: skillName,
+        metrics: [],
+        average_rating: 0,
+        average_execution_time_ms: 0,
+        total_executions: 0,
+        last_updated: new Date().toISOString(),
+      };
+    }
+    return JSON.parse(fs.readFileSync(filePath, 'utf-8')) as SkillMetricsFile;
+  }
+
+  private saveMetrics(data: SkillMetricsFile): void {
+    fs.writeFileSync(this.metricsPath(data.skill_name), JSON.stringify(data, null, 2), 'utf-8');
+  }
+
+  private recordMetric(args: Record<string, unknown>, skillName: string): string {
+    const rating = typeof args.rating === 'number' ? args.rating : 3;
+    if (rating < 1 || rating > 5) {
+      return 'Erro: rating deve estar entre 1 e 5.';
+    }
+
+    const executionTimeMs = typeof args.execution_time_ms === 'number' ? args.execution_time_ms : 0;
+    const notes = typeof args.notes === 'string' ? args.notes : '';
+
+    const data = this.loadMetrics(skillName);
+    const metric: SkillMetric = {
+      skill_name: skillName,
+      rating,
+      notes,
+      execution_time_ms: executionTimeMs,
+      recorded_at: new Date().toISOString(),
+    };
+
+    data.metrics.push(metric);
+    data.total_executions = data.metrics.length;
+    data.average_rating = data.metrics.reduce((sum, m) => sum + m.rating, 0) / data.metrics.length;
+    data.average_execution_time_ms = data.metrics.reduce((sum, m) => sum + m.execution_time_ms, 0) / data.metrics.length;
+    data.last_updated = new Date().toISOString();
+
+    this.saveMetrics(data);
+    return `Feedback registrado para skill "${skillName}": rating=${rating}, tempo=${executionTimeMs}ms.`;
+  }
+
+  private reviewMetrics(skillName: string): string {
+    const data = this.loadMetrics(skillName);
+    if (data.metrics.length === 0) {
+      return `Nenhum metrica registrada para skill "${skillName}".`;
+    }
+
+    const lines: string[] = [];
+    lines.push(`Metricas da skill: ${skillName}`);
+    lines.push(`  - Total de execucoes: ${data.total_executions}`);
+    lines.push(`  - Rating medio: ${data.average_rating.toFixed(2)}`);
+    lines.push(`  - Tempo medio de execucao: ${data.average_execution_time_ms.toFixed(0)}ms`);
+    lines.push(`  - Ultimo registro: ${data.last_updated}`);
+
+    const recentMetrics = data.metrics.slice(-5);
+    lines.push(`\nUltimas ${recentMetrics.length} execucoes:`);
+    for (const m of recentMetrics) {
+      lines.push(`  - [${m.recorded_at}] rating=${m.rating}, tempo=${m.execution_time_ms}ms${m.notes ? `, notas: ${m.notes}` : ''}`);
+    }
+
+    return lines.join('\n');
+  }
+
+  private optimizeSuggestion(skillName: string): string {
+    const data = this.loadMetrics(skillName);
+    if (data.metrics.length < 3) {
+      return `Dados insuficientes para otimizacao da skill "${skillName}". Minimo de 3 execucoes necessarias.`;
+    }
+
+    const lines: string[] = [];
+    lines.push(`Sugestoes de otimizacao para skill: ${skillName}`);
+    lines.push('');
+
+    if (data.average_rating < 3) {
+      lines.push('- ALERTA: Rating medio abaixo de 3. Revisar logica principal da skill.');
+    } else if (data.average_rating < 4) {
+      lines.push('- Rating medio moderado. Considerar melhorias incrementais.');
+    } else {
+      lines.push('- Rating medio alto. Skill esta performando bem.');
+    }
+
+    if (data.average_execution_time_ms > 10000) {
+      lines.push('- Tempo medio de execucao alto (>10s). Considerar cache ou otimizacao de I/O.');
+    } else if (data.average_execution_time_ms > 5000) {
+      lines.push('- Tempo medio de execucao moderado (>5s). Monitorar tendencia.');
+    }
+
+    const recentRatings = data.metrics.slice(-5).map((m) => m.rating);
+    const isDeclining = recentRatings.every((r, i) => i === 0 || r <= recentRatings[i - 1]);
+    if (isDeclining && recentRatings.length >= 3) {
+      lines.push('- ALERTA: Tendencia de queda nas avaliacoes recentes. Investigar regressoes.');
+    }
+
+    const lowRatingNotes = data.metrics.filter((m) => m.rating <= 2 && m.notes).map((m) => m.notes);
+    if (lowRatingNotes.length > 0) {
+      lines.push(`\nNotas de execucoes com baixa avaliacao (${lowRatingNotes.length}):`);
+      for (const note of lowRatingNotes.slice(0, 3)) {
+        lines.push(`  - ${note}`);
+      }
+    }
+
+    return lines.join('\n');
+  }
+}

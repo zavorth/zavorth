@@ -68,12 +68,18 @@ export type LearningItem = {
 
 export type MemoryItem = {
   id?: string;
+  key?: string;
   title?: string;
   summary?: string;
   kind?: string;
+  type?: string;
+  content?: string;
+  contentPreview?: string;
+  editable?: boolean;
   confidence?: number;
   expiry?: string;
   receiptId?: string;
+  metadata?: Record<string, unknown>;
 };
 
 export type ToolItem = {
@@ -96,6 +102,36 @@ export type ChannelItem = {
   defaultRouteAllowed?: boolean;
   status?: string;
   summary?: string;
+};
+
+export type ControlMemorySnapshot = {
+  ok?: boolean;
+  contractVersion?: string;
+  query?: Record<string, unknown>;
+  facts?: MemoryItem[];
+  stats?: Record<string, unknown>;
+};
+
+export type ChannelSetupSnapshot = {
+  ok?: boolean;
+  contractVersion?: string;
+  assistant?: {
+    status?: string;
+    selected?: Record<string, any> | null;
+    options?: Array<Record<string, any>>;
+    naturalReply?: string;
+    nextActions?: Array<Record<string, any>>;
+  };
+  channels?: unknown;
+};
+
+export type GatewayResilienceSnapshot = {
+  ok?: boolean;
+  policy?: Record<string, any>;
+  providers?: Array<Record<string, any>>;
+  budget?: Record<string, any>;
+  receipts?: Array<Record<string, any>>;
+  health?: Record<string, any>;
 };
 
 export type MemoryEncryptionStatus = {
@@ -136,6 +172,9 @@ export type DesktopPanelsData = {
   learning: LearningItem[];
   tools: ToolItem[];
   nexusStatus: unknown;
+  controlMemory: ControlMemorySnapshot | null;
+  channelSetup: ChannelSetupSnapshot | null;
+  gatewayResilience: GatewayResilienceSnapshot | null;
   memoryEncryptionStatus: MemoryEncryptionStatus | null;
   runtimeCapabilities: RuntimeCapabilitiesSnapshot | null;
 };
@@ -465,6 +504,88 @@ export async function loadMemoryEncryptionStatus(): Promise<MemoryEncryptionStat
   return result.data?.status || null;
 }
 
+export async function loadControlMemory(input: {
+  query?: string;
+  type?: string;
+  semantic?: boolean;
+  limit?: number;
+} = {}): Promise<ControlMemorySnapshot | null> {
+  const result = await apiRequest<ControlMemorySnapshot>({
+    method: 'GET',
+    path: '/api/web/zavorthControl/memory',
+    query: {
+      query: input.query || undefined,
+      type: input.type || undefined,
+      semantic: input.semantic ? 'true' : undefined,
+      limit: String(input.limit || 50),
+    },
+  });
+  return result.ok ? result.data || null : null;
+}
+
+export async function mutateControlMemory(input: {
+  action: 'forget' | 'updatePreference' | 'exportMemory';
+  id?: string;
+  content?: string;
+  query?: string;
+  type?: string;
+}): Promise<any> {
+  const result = await apiRequest({
+    method: 'POST',
+    path: '/api/web/zavorthControl/memory',
+    body: input,
+  });
+  return requireOk(result, 'Could not update memory.');
+}
+
+export async function loadChannelSetup(input: {
+  channelId?: string | null;
+  mode?: string | null;
+} = {}): Promise<ChannelSetupSnapshot | null> {
+  const result = await apiRequest<ChannelSetupSnapshot>({
+    method: 'GET',
+    path: '/api/web/zavorthControl/channels/setup',
+    query: {
+      channelId: input.channelId || undefined,
+      mode: input.mode || undefined,
+    },
+  });
+  return result.ok ? result.data || null : null;
+}
+
+export async function mutateChannelSetup(input: {
+  action: 'applyScaffold' | 'doctor' | 'testConnection';
+  channelId?: string | null;
+  mode?: string | null;
+  extraEntries?: Array<{ key: string; value: string }>;
+}): Promise<any> {
+  const result = await apiRequest({
+    method: 'POST',
+    path: '/api/web/zavorthControl/channels/setup',
+    body: input,
+    timeoutMs: 60000,
+  });
+  return requireOk(result, 'Could not run channel setup.');
+}
+
+export async function loadGatewayResilience(): Promise<GatewayResilienceSnapshot | null> {
+  const result = await apiRequest<GatewayResilienceSnapshot>({
+    method: 'GET',
+    path: '/api/gateway-control/resilience',
+  });
+  return result.ok ? result.data || null : null;
+}
+
+export async function mutateGatewayResilience(input: Record<string, unknown>): Promise<any> {
+  const result = await apiRequest({
+    method: 'POST',
+    path: '/api/gateway-control/resilience',
+    body: input,
+    timeoutMs: 60000,
+  });
+  return requireOk(result, 'Could not update gateway resilience.');
+}
+
 export async function runMemoryEncryptionMigration(input: {
   action: 'preview' | 'apply' | 'rollback';
   backupPath?: string | null;
@@ -540,13 +661,218 @@ export async function steerActiveRun(input: {
 }
 
 export async function loadDesktopPanelsData(): Promise<DesktopPanelsData> {
-  const [approvals, learning, tools, nexusStatus, memoryEncryptionStatus, runtimeCapabilities] = await Promise.all([
+  const [
+    approvals,
+    learning,
+    tools,
+    nexusStatus,
+    controlMemory,
+    channelSetup,
+    gatewayResilience,
+    memoryEncryptionStatus,
+    runtimeCapabilities,
+  ] = await Promise.all([
     loadApprovals().catch(() => []),
     loadLearning().catch(() => []),
     loadTools().catch(() => []),
     loadNexusStatus().catch(() => null),
+    loadControlMemory().catch(() => null),
+    loadChannelSetup().catch(() => null),
+    loadGatewayResilience().catch(() => null),
     loadMemoryEncryptionStatus().catch(() => null),
     loadRuntimeCapabilities().catch(() => null),
   ]);
-  return { approvals, learning, tools, nexusStatus, memoryEncryptionStatus, runtimeCapabilities };
+  return {
+    approvals,
+    learning,
+    tools,
+    nexusStatus,
+    controlMemory,
+    channelSetup,
+    gatewayResilience,
+    memoryEncryptionStatus,
+    runtimeCapabilities,
+  };
+}
+
+export async function loadWorkspaceWriteApprovals(sessionId?: string): Promise<any[]> {
+  const result = await apiRequest<{ data: any[] }>({
+    method: 'GET',
+    path: '/api/v2/workspace/approvals/pending',
+    query: sessionId ? { sessionId } : {},
+  });
+  const data = requireOk(result, 'Could not load workspace write approvals.');
+  return data.data || [];
+}
+
+export async function loadWorkspaceWriteApprovalPayload(
+  operationId: string,
+  sessionId?: string,
+  workspacePath?: string,
+): Promise<any> {
+  const query: Record<string, string> = { operationId };
+  if (sessionId) query.sessionId = sessionId;
+  if (workspacePath) query.workspacePath = workspacePath;
+
+  const result = await apiRequest<any>({
+    method: 'GET',
+    path: '/api/v2/workspace/approvals/payload',
+    query,
+  });
+  return requireOk(result, 'Could not load workspace write approval payload.');
+}
+
+export async function resolveWorkspaceWriteApproval(
+  operationId: string,
+  decision: 'approve' | 'deny',
+): Promise<void> {
+  const result = await apiRequest<void>({
+    method: 'POST',
+    path: '/api/v2/workspace/approvals/resolve',
+    body: {
+      operationId,
+      decision,
+    },
+  });
+  requireOk(result, 'Could not resolve workspace write approval.');
+}
+
+export interface WorkspaceTrustStatus {
+  ok: boolean;
+  trusted: boolean;
+  entry: {
+    workspaceId: string;
+    rootHash: string;
+    rootSuffix: string;
+    trusted: boolean;
+    allowRiskUpTo: 'LOW' | 'MEDIUM';
+    allowPackageInstall: boolean;
+    allowNetwork: boolean;
+  } | null;
+}
+
+export async function getWorkspaceTrustStatus(workspaceId: string): Promise<WorkspaceTrustStatus> {
+  const result = await apiRequest<WorkspaceTrustStatus>({
+    method: 'GET',
+    path: '/api/v2/workspace/trust/status',
+    query: { workspaceId },
+  });
+  return requireOk(result, 'Could not load workspace trust status.');
+}
+
+export async function resolveWorkspaceTrust(payload: {
+  workspaceId: string;
+  rootPath: string;
+  trusted: boolean;
+  allowRiskUpTo?: 'LOW' | 'MEDIUM';
+  allowPackageInstall?: boolean;
+  allowNetwork?: boolean;
+}): Promise<any> {
+  const result = await apiRequest<any>({
+    method: 'POST',
+    path: '/api/v2/workspace/trust/resolve',
+    body: payload,
+  });
+  return requireOk(result, 'Could not resolve workspace trust.');
+}
+
+export async function loadProposedMandate(workspaceId: string): Promise<any> {
+  const result = await apiRequest<any>({
+    method: 'GET',
+    path: '/api/v2/workspace/task-mandates/pending',
+    query: { workspaceId },
+  });
+  return requireOk(result, 'Could not load proposed task mandate.').proposed;
+}
+
+export async function loadActiveMandate(workspaceId: string): Promise<any> {
+  const result = await apiRequest<any>({
+    method: 'GET',
+    path: '/api/v2/workspace/task-mandates/active',
+    query: { workspaceId },
+  });
+  return requireOk(result, 'Could not load active task mandate.').active;
+}
+
+export async function resolveProposedMandate(workspaceId: string, approved: boolean): Promise<any> {
+  const result = await apiRequest<any>({
+    method: 'POST',
+    path: '/api/v2/workspace/task-mandates/resolve',
+    body: { workspaceId, approved },
+  });
+  return requireOk(result, 'Could not resolve task mandate.');
+}
+
+export async function revokeActiveMandate(workspaceId: string): Promise<any> {
+  const result = await apiRequest<any>({
+    method: 'POST',
+    path: '/api/v2/workspace/task-mandates/revoke',
+    body: { workspaceId },
+  });
+  return requireOk(result, 'Could not revoke task mandate.');
+}
+
+export async function getHostPowerStatus(workspaceId: string): Promise<{ enabled: boolean; timeLeftSeconds: number }> {
+  const result = await apiRequest<any>({
+    method: 'GET',
+    path: '/api/v2/workspace/host-power/status',
+    query: { workspaceId },
+  });
+  return requireOk(result, 'Could not get host power mode status.');
+}
+
+export async function enableHostPower(workspaceId: string, durationMinutes: number): Promise<void> {
+  const result = await apiRequest<any>({
+    method: 'POST',
+    path: '/api/v2/workspace/host-power/enable',
+    body: { workspaceId, durationMinutes },
+  });
+  requireOk(result, 'Could not enable host power mode.');
+}
+
+export async function disableHostPower(workspaceId: string): Promise<void> {
+  const result = await apiRequest<any>({
+    method: 'POST',
+    path: '/api/v2/workspace/host-power/disable',
+    body: { workspaceId },
+  });
+  requireOk(result, 'Could not disable host power mode.');
+}
+
+export async function getPendingHostCommands(workspaceId: string): Promise<any[]> {
+  const result = await apiRequest<any>({
+    method: 'GET',
+    path: '/api/v2/workspace/host-commands/pending',
+    query: { workspaceId },
+  });
+  const data = requireOk(result, 'Could not get pending host commands.');
+  return data.data || [];
+}
+
+export async function resolveHostCommand(operationId: string, decision: 'approve' | 'deny', strongConfirmationInput?: string): Promise<void> {
+  const result = await apiRequest<any>({
+    method: 'POST',
+    path: '/api/v2/workspace/host-commands/resolve',
+    body: { operationId, decision, strongConfirmationInput },
+  });
+  requireOk(result, 'Could not resolve host command.');
+}
+
+export async function executeHostCommand(workspaceId: string, operationId: string): Promise<any> {
+  const result = await apiRequest<any>({
+    method: 'POST',
+    path: '/api/v2/workspace/host-commands/execute',
+    body: { workspaceId, operationId },
+  });
+  return requireOk(result, 'Could not execute host command.');
+}
+
+export async function getPtyOutput(workspaceId: string, sessionId: string, afterSeq: number): Promise<any[]> {
+  const result = await apiRequest<any>({
+    method: 'GET',
+    path: '/api/v2/workspace/pty/output',
+    query: { workspaceId, sessionId, afterSeq: afterSeq.toString() },
+  });
+  const data = requireOk(result, 'Could not get PTY output.');
+  return data.data || [];
 }

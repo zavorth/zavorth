@@ -2,7 +2,7 @@
   "name": "zavorth",
   "version": "1.1.0",
   "description": "Zavorth - local-first governed AI agent runtime with onboarding, CLI, API and supervised execution",
-  "license": "UNLICENSED",
+  "license": "MIT",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "exports": {
@@ -217,6 +217,7 @@
     "setup": "npx tsx scripts/setup-v3.ts",
     "go": "npx tsx scripts/ops-go.ts",
     "doctor": "npx tsx scripts/ops-doctor.ts",
+    "diagnostics:export": "npx tsx scripts/ops-diagnostics-export.ts",
     "status": "npx tsx scripts/access-readiness.ts",
     "zavorthControl": "node bin/zavorth.js zavorthControl",
     "mcp": "npx tsx scripts/zavorth-mcp.ts",
@@ -543,6 +544,8 @@
     "zavorth:mcp-ecosystem-intake": "npx tsx scripts/zavorth-mcp-ecosystem-intake.ts",
     "zavorth:mcp-ecosystem-intake:json": "npx tsx scripts/zavorth-mcp-ecosystem-intake.ts --json",
     "zavorth:mcp-ecosystem-intake:check": "npx jest tests/services/ZavorthNativeEvolutionRuntimeMcpService.test.ts --runInBand && node scripts/zavorth-native-evolution-runtime-mcp-check.mjs",
+    "zavorth:mcp-install": "npx tsx scripts/zavorth-mcp-install.ts",
+    "zavorth:mcp-install:json": "npx tsx scripts/zavorth-mcp-install.ts --json",
     "zavorth:native-evolution-runtime-mcp:check": "npx jest tests/services/ZavorthNativeEvolutionRuntimeMcpService.test.ts --runInBand && node scripts/zavorth-native-evolution-runtime-mcp-check.mjs",
     "zavorth:daily-capability-flow": "npx tsx scripts/zavorth-daily-capability-flow.ts",
     "zavorth:daily-capability-flow:json": "npx tsx scripts/zavorth-daily-capability-flow.ts --json",
@@ -907,7 +910,7 @@
     "qa:zavorthControl-provider-streaming-canary": "npx tsx scripts/zavorth-control-provider-streaming-canary.ts --run-live --require-pass --api-base=http://127.0.0.1:3000",
     "qa:zavorthControl-chat-visual": "npx tsx scripts/zavorthControl-chat-visual-qa.ts --require-pass",
     "qa:zavorthControl-composer-affordances": "npm run ai-gateway:check --silent",
-    "product:launchers:build": "npx tsc --module NodeNext --moduleResolution NodeNext --target ES2022 --outDir dist-ops scripts/setup-v3.ts scripts/ops-go.ts scripts/ops-doctor.ts",
+    "product:launchers:build": "npx tsc --skipLibCheck --module NodeNext --moduleResolution NodeNext --target ES2022 --outDir dist-ops scripts/setup-v3.ts scripts/ops-go.ts scripts/ops-doctor.ts",
     "qa:capability-autopilot-canary-promotion": "npx tsx scripts/capability-autopilot-canary-promotion.ts --require-pass",
     "test:cross-surface": "jest tests/integration/CrossSurfaceContinuity.test.ts --runInBand",
     "security:secrets": "node scripts/secret-guard-check.mjs",
@@ -1217,7 +1220,7 @@
     "https-proxy-agent": "^9.0.0",
     "ink": "^7.0.5",
     "js-tiktoken": "^1.0.21",
-    "js-yaml": "^4.1.0",
+    "js-yaml": "^4.2.0",
     "jsdom": "^29.1.1",
     "jszip": "^3.10.1",
     "langfuse": "^3.38.6",
@@ -1274,10 +1277,12 @@
     "vite": "^8.0.14"
   },
   "overrides": {
+    "esbuild": "^0.28.1",
     "express-rate-limit": "^8.5.1",
     "google-auth-library": "^10.6.2",
     "hono": "^4.12.18",
     "ip-address": "^10.2.0",
+    "js-yaml": "^4.2.0",
     "postcss": "^8.5.15"
   }
 }

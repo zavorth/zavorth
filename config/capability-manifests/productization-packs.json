@@ -1,0 +1,42 @@
+{
+  "id": "productization-packs",
+  "label": "Productization Packs",
+  "kind": "tool",
+  "version": "0.1.0",
+  "boot": "on-demand",
+  "budget": {
+    "rssMb": 128,
+    "heapUsedMb": 72,
+    "activeHandles": 16
+  },
+  "entry": "src/runtime/actions/modules/productizationPacks.ts",
+  "description": "Verified Action Harness pack that productizes plugin SDK, long-tail channels, Kanban multi-agent dispatch, terminal backends, voice/TTS backends, ACP/Codex packaging and Nix/Termux readiness.",
+  "requires": ["filesystem", "network", "process", "shell"],
+  "provides": [
+    "plugins_sdk_status",
+    "plugins_sdk_lifecycle",
+    "channels_long_tail_status",
+    "channels_long_tail_draft",
+    "kanban_dispatch_multi_agent",
+    "terminal_backends_status",
+    "terminal_backends_execute",
+    "voice_backends_status",
+    "voice_synthesize_live",
+    "interop_acp_codex_status",
+    "packaging_nix_termux_status"
+  ],
+  "tags": ["native", "verified", "action-harness", "productization", "llm-tools"],
+  "actions": [
+    { "id": "plugins.sdk.status", "status": "verified", "risk": "safe", "requiresPreview": false, "requiresApproval": false, "scope": "plugins", "receipt": "none" },
+    { "id": "plugins.sdk.lifecycle", "status": "verified", "risk": "attention", "requiresPreview": true, "requiresApproval": true, "scope": "plugins", "receipt": "required" },
+    { "id": "channels.long_tail.status", "status": "verified", "risk": "safe", "requiresPreview": false, "requiresApproval": false, "scope": "channels", "receipt": "none" },
+    { "id": "channels.long_tail.draft", "status": "verified", "risk": "safe", "requiresPreview": false, "requiresApproval": false, "scope": "channels", "receipt": "none" },
+    { "id": "kanban.dispatch_multi_agent", "status": "verified", "risk": "attention", "requiresPreview": true, "requiresApproval": true, "scope": "tasks", "receipt": "required" },
+    { "id": "terminal.backends.status", "status": "verified", "risk": "safe", "requiresPreview": false, "requiresApproval": false, "scope": "workspace", "receipt": "none" },
+    { "id": "terminal.backends.execute", "status": "verified", "risk": "danger", "requiresPreview": true, "requiresApproval": true, "scope": "workspace", "receipt": "required" },
+    { "id": "voice.backends.status", "status": "verified", "risk": "safe", "requiresPreview": false, "requiresApproval": false, "scope": "media", "receipt": "none" },
+    { "id": "voice.synthesize_live", "status": "verified", "risk": "attention", "requiresPreview": true, "requiresApproval": true, "scope": "media", "receipt": "required" },
+    { "id": "interop.acp_codex.status", "status": "verified", "risk": "safe", "requiresPreview": false, "requiresApproval": false, "scope": "interop", "receipt": "none" },
+    { "id": "packaging.nix_termux.status", "status": "verified", "risk": "safe", "requiresPreview": false, "requiresApproval": false, "scope": "packaging", "receipt": "none" }
+  ]
+}

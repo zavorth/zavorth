@@ -135,6 +135,7 @@ describe('ZavorthControlBrowserPreview', () => {
       readFileSync(join(rootDir, 'apps/zavorth-control-vite-shell/src/runtime-auth-session.ts'), 'utf8'),
       readFileSync(join(rootDir, 'apps/zavorth-control-vite-shell/src/runtime-model-profile.ts'), 'utf8'),
       readFileSync(join(rootDir, 'apps/zavorth-control-vite-shell/src/runtime-http.ts'), 'utf8'),
+      readFileSync(join(rootDir, 'apps/zavorth-control-vite-shell/public/scripts/runtime-bridge.js'), 'utf8'),
     ].join('\n');
     const pagesScript = readFileSync(
       join(rootDir, 'apps/zavorth-control-vite-shell/public/scripts/pages.js'),

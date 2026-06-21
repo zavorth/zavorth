@@ -1,0 +1,27 @@
+{
+  "id": "zavorth-react-flow-node-editor",
+  "name": "React Flow Node Editor",
+  "native": true,
+  "description": "Build interactive node-based flow layouts and React Flow canvas configurations.",
+  "category": "development",
+  "permissionProfileId": "workspace-read",
+  "riskLevel": "low",
+  "capabilityTags": [
+    "development",
+    "ui"
+  ],
+  "presets": [
+    "basic",
+    "developer"
+  ],
+  "inputContract": [
+    "graph spec",
+    "nodes/edges format"
+  ],
+  "outputContract": [
+    "flow layout component"
+  ],
+  "noExecutionByDefault": false,
+  "requiresPolicyBroker": true,
+  "receiptsRequired": true
+}

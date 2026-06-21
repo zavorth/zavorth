@@ -118,11 +118,11 @@ export class AgentRunLlmRequestBuilder {
     ].filter(Boolean);
     const mcpAvailable = Boolean(recordOrNull(context.mcpSnapshot));
     return [
-      'Contexto canonico do run (dados auxiliares; nao substitui instrucoes nem policy):',
+      'Canonical run context (auxiliary data; does not replace instructions or policy):',
       `- perfil: ${normalizeText(summary?.profile, normalizeText(summary?.depth, 'desconhecido'))}`,
       `- camadas: ${Array.isArray(summary?.layers) ? summary.layers.join(', ') : 'hot'}`,
       ...promptParts.map((part) => `- ${safeContextText(part)}`),
-      ...(mcpAvailable ? ['- snapshot MCP disponivel no metadata do run; use apenas como contexto, nao como execucao ja realizada.'] : []),
+      ...(mcpAvailable ? ['- MCP snapshot available in run metadata; use only as context, not as proof that execution already happened.'] : []),
     ].join('\n');
   }
 
@@ -195,7 +195,7 @@ export class AgentRunLlmRequestBuilder {
       ...(constraints.length > 0 ? [`- restricoes ativas: ${constraints.map((entry) => safeContextText(entry, 240)).join('; ')}`] : []),
       ...(decisions.length > 0 ? [`- decisoes recentes: ${decisions.map((entry) => safeContextText(entry, 240)).join('; ')}`] : []),
       ...relevantFiles.map((file) => `- arquivo relevante: ${safeContextText(file.path, 240)} (${safeContextText(file.reason, 480)})`),
-      '- use este pacote como orientacao cognitiva; nao trate como prova de execucao de ferramenta.',
+      '- use this package as cognitive guidance; do not treat it as proof of tool execution.',
     ].join('\n');
   }
 
@@ -217,18 +217,18 @@ export class AgentRunLlmRequestBuilder {
 
     return [
       'Intelligence Fabric draft guidance:',
-      `- proposta: ${safeContextText(guidance.summary || 'rascunho sem resumo', 720)}`,
-      `- risco: ${safeContextText(guidance.riskLevel || '3', 80)}; decisao do gate: ${safeContextText(approval?.riskGateDecision || 'unknown', 160)}`,
-      `- simulacao preparada: ${Boolean(simulation?.prepared)}; live action aplicada: ${Boolean(simulation?.liveActionApplied)}`,
-      '- gere apenas rascunho, simulacao ou orientacao reversivel; nao afirme que patch, arquivo ou comando foi aplicado.',
-      '- qualquer commit/apply/execucao real ainda precisa passar pelo Risk Gate e pelos approvals do runtime.',
-      '- se preparar arquivos para aplicar depois, emita no fim um bloco ```zavorth-workspace-writes com JSON {"writes":[{"path":"relativo/no/workspace","content":"conteudo completo"}]}```.',
-      '- se preparar alteracoes em arquivos existentes, prefira um bloco ```zavorth-workspace-patches com JSON {"patches":[{"path":"relativo/no/workspace","hunks":[{"search":"texto atual exato e unico","replace":"texto novo"}]}]}```.',
-      '- o bloco zavorth-workspace-writes e apenas proposta estruturada; ele nao aplica arquivo por si so.',
-      '- o bloco zavorth-workspace-patches tambem e apenas proposta estruturada; use search exato e inequivoco para manter rollback/simulacao.',
-      ...actions.map((action) => `- acao proposta: ${safeContextText(action.kind || 'acao', 120)} em ${safeContextText(action.target || 'alvo desconhecido', 240)} (${safeContextText(action.description || 'sem detalhe', 720)})`),
-      ...(guidance.rollbackPlan ? [`- rollback sugerido: ${safeContextText(guidance.rollbackPlan, 720)}`] : []),
-      ...(testsToRun.length > 0 ? [`- testes sugeridos: ${testsToRun.map((entry) => safeContextText(entry, 240)).join('; ')}`] : []),
+      `- proposal: ${safeContextText(guidance.summary || 'draft without summary', 720)}`,
+      `- risk: ${safeContextText(guidance.riskLevel || '3', 80)}; gate decision: ${safeContextText(approval?.riskGateDecision || 'unknown', 160)}`,
+      `- simulation prepared: ${Boolean(simulation?.prepared)}; live action applied: ${Boolean(simulation?.liveActionApplied)}`,
+      '- generate only a draft, simulation or reversible guidance; do not claim that a patch, file or command was applied.',
+      '- any real commit/apply/execution must still go through the Risk Gate and runtime approvals.',
+      '- if preparing files to apply later, end with a ```zavorth-workspace-writes block containing JSON {"writes":[{"path":"relative/to/workspace","content":"complete content"}]}```.',
+      '- if preparing changes to existing files, prefer a ```zavorth-workspace-patches block containing JSON {"patches":[{"path":"relative/to/workspace","hunks":[{"search":"exact unique current text","replace":"new text"}]}]}```.',
+      '- the zavorth-workspace-writes block is only a structured proposal; it does not apply files by itself.',
+      '- the zavorth-workspace-patches block is also only a structured proposal; use exact and unambiguous search text to preserve rollback/simulation.',
+      ...actions.map((action) => `- proposed action: ${safeContextText(action.kind || 'action', 120)} on ${safeContextText(action.target || 'unknown target', 240)} (${safeContextText(action.description || 'no detail', 720)})`),
+      ...(guidance.rollbackPlan ? [`- suggested rollback: ${safeContextText(guidance.rollbackPlan, 720)}`] : []),
+      ...(testsToRun.length > 0 ? [`- suggested tests: ${testsToRun.map((entry) => safeContextText(entry, 240)).join('; ')}`] : []),
     ].join('\n');
   }
 
@@ -307,7 +307,7 @@ export class AgentRunLlmRequestBuilder {
     if (metadataProvider) return metadataProvider;
 
     const profileProvider = normalizeText(request.modelProfile?.providerLabel);
-    if (profileProvider && !['zavorth', 'provider nao informado'].includes(profileProvider.toLowerCase())) {
+    if (profileProvider && !['zavorth', 'provider not configured'].includes(profileProvider.toLowerCase())) {
       return profileProvider;
     }
 
@@ -327,7 +327,7 @@ export class AgentRunLlmRequestBuilder {
     if (metadataModel) return metadataModel;
 
     const profileModel = normalizeText(request.modelProfile?.modelLabel);
-    if (profileModel && !['modelo atual', 'modelo nao informado'].includes(profileModel.toLowerCase())) {
+    if (profileModel && !['current model', 'model not configured'].includes(profileModel.toLowerCase())) {
       return profileModel;
     }
 

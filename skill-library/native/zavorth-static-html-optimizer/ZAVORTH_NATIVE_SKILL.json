@@ -1,0 +1,26 @@
+{
+  "id": "zavorth-static-html-optimizer",
+  "name": "Static HTML Optimizer",
+  "native": true,
+  "description": "Optimize static HTML pages for SEO, semantics, page speed, and asset minification.",
+  "category": "development",
+  "permissionProfileId": "workspace-write",
+  "riskLevel": "low",
+  "capabilityTags": [
+    "development",
+    "seo"
+  ],
+  "presets": [
+    "developer"
+  ],
+  "inputContract": [
+    "html content",
+    "minify options"
+  ],
+  "outputContract": [
+    "optimized semantic html"
+  ],
+  "noExecutionByDefault": false,
+  "requiresPolicyBroker": true,
+  "receiptsRequired": true
+}

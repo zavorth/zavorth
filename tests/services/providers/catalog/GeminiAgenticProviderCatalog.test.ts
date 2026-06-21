@@ -1,3 +1,4 @@
+import { describe, it, expect } from 'vitest';
 import { getDefaultProviderIntegrationRegistry } from '../../../../src/services/providers/catalog/ProviderIntegrationRegistry';
 
 describe('Gemini agentic provider catalog', () => {

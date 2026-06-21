@@ -1,36 +1,28 @@
-jest.mock('@google/generative-ai', () => {
-  const getGenerativeModel = jest.fn();
-  const GoogleGenerativeAI = jest.fn().mockImplementation(() => ({
-    getGenerativeModel,
-  }));
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 
-  return {
-    GoogleGenerativeAI,
-    SchemaType: {
-      OBJECT: 'object',
-      STRING: 'string',
-      NUMBER: 'number',
-      INTEGER: 'integer',
-      BOOLEAN: 'boolean',
-      ARRAY: 'array',
-    },
-    __esModule: true,
-    __mock: {
-      getGenerativeModel,
-      GoogleGenerativeAI,
-    },
-  };
+const { mockGetGenerativeModel, MockGoogleGenerativeAI } = vi.hoisted(() => {
+  const mockGetGenerativeModel = vi.fn();
+  const MockGoogleGenerativeAI = vi.fn(function(this: any) {
+    this.getGenerativeModel = mockGetGenerativeModel;
+  });
+  return { mockGetGenerativeModel, MockGoogleGenerativeAI };
 });
+
+vi.mock('@google/generative-ai', () => ({
+  __esModule: true,
+  GoogleGenerativeAI: MockGoogleGenerativeAI,
+  SchemaType: {
+    OBJECT: 'object',
+    STRING: 'string',
+    NUMBER: 'number',
+    INTEGER: 'integer',
+    BOOLEAN: 'boolean',
+    ARRAY: 'array',
+  },
+}));
 
 import { config } from '../../src/config/index';
 import { GeminiProvider } from '../../src/providers/GeminiProvider';
-
-const mockedModule = jest.requireMock('@google/generative-ai') as {
-  __mock: {
-    getGenerativeModel: jest.Mock;
-    GoogleGenerativeAI: jest.Mock;
-  };
-};
 
 describe('GeminiProvider', () => {
   const originalGeminiApiKey = config.geminiApiKey;
@@ -43,12 +35,12 @@ describe('GeminiProvider', () => {
   const originalCloudflareAiGatewayBaseUrl = config.cloudflareAiGatewayBaseUrl;
 
   beforeEach(() => {
-    mockedModule.__mock.getGenerativeModel.mockReset();
-    mockedModule.__mock.GoogleGenerativeAI.mockClear();
+    mockGetGenerativeModel.mockReset();
+    MockGoogleGenerativeAI.mockClear();
     (config as any).cloudflareAiGatewayEnabled = false;
     (config as any).cloudflareAiGatewayBaseUrl = '';
-    mockedModule.__mock.getGenerativeModel.mockReturnValue({
-      generateContent: jest.fn().mockResolvedValue({
+    mockGetGenerativeModel.mockReturnValue({
+      generateContent: vi.fn().mockResolvedValue({
         response: {
           candidates: [
             {
@@ -72,7 +64,7 @@ describe('GeminiProvider', () => {
     (config as any).geminiCustomHeaders = { ...originalGeminiCustomHeaders };
     (config as any).cloudflareAiGatewayEnabled = originalCloudflareAiGatewayEnabled;
     (config as any).cloudflareAiGatewayBaseUrl = originalCloudflareAiGatewayBaseUrl;
-    jest.restoreAllMocks();
+    vi.restoreAllMocks();
   });
 
   it('passes custom request options to the Gemini SDK when a proxy transport is configured', async () => {
@@ -90,7 +82,7 @@ describe('GeminiProvider', () => {
     const provider = new GeminiProvider();
     await provider.chat([{ role: 'user', content: 'oi' }]);
 
-    expect(mockedModule.__mock.getGenerativeModel).toHaveBeenCalledWith(
+    expect(mockGetGenerativeModel).toHaveBeenCalledWith(
       expect.objectContaining({
         model: config.geminiModel,
       }),
@@ -117,7 +109,7 @@ describe('GeminiProvider', () => {
     const provider = new GeminiProvider();
     await provider.chat([{ role: 'user', content: 'oi' }]);
 
-    expect(mockedModule.__mock.getGenerativeModel).toHaveBeenCalledWith(
+    expect(mockGetGenerativeModel).toHaveBeenCalledWith(
       expect.objectContaining({
         model: config.geminiModel,
       }),
@@ -153,7 +145,7 @@ describe('GeminiProvider', () => {
     ]);
 
     expect(response.content).toBe('ok');
-    expect(mockedModule.__mock.getGenerativeModel).toHaveBeenCalledWith(
+    expect(mockGetGenerativeModel).toHaveBeenCalledWith(
       expect.objectContaining({
         model: config.geminiModel,
         tools: [
@@ -172,7 +164,7 @@ describe('GeminiProvider', () => {
       }),
     );
 
-    const generateContent = mockedModule.__mock.getGenerativeModel.mock.results[0]?.value?.generateContent as jest.Mock;
+    const generateContent = mockGetGenerativeModel.mock.results[0]?.value?.generateContent as ReturnType<typeof vi.fn>;
     expect(generateContent).toHaveBeenCalledWith(
       expect.objectContaining({
         systemInstruction: 'Seja objetivo.',
@@ -205,7 +197,7 @@ describe('GeminiProvider', () => {
       },
     ]);
 
-    expect(mockedModule.__mock.getGenerativeModel).toHaveBeenCalledWith(
+    expect(mockGetGenerativeModel).toHaveBeenCalledWith(
       expect.objectContaining({
         tools: [
           expect.objectContaining({
@@ -265,7 +257,7 @@ describe('GeminiProvider', () => {
       },
     ]);
 
-    const generateContent = mockedModule.__mock.getGenerativeModel.mock.results[0]?.value?.generateContent as jest.Mock;
+    const generateContent = mockGetGenerativeModel.mock.results[0]?.value?.generateContent as ReturnType<typeof vi.fn>;
     const payload = generateContent.mock.calls[0][0];
     expect(payload.contents).toEqual(expect.arrayContaining([
       expect.objectContaining({

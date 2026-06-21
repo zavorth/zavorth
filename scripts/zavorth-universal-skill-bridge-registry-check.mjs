@@ -210,6 +210,26 @@ function createFixture() {
       },
     ],
   }, null, 2), 'utf8');
+  fs.writeFileSync(path.join(rootDir, 'config', 'skill-allowlist.json'), JSON.stringify({
+    version: 1,
+    updatedAt: '2026-05-10T16:00:00.000Z',
+    defaultPolicy: 'deny',
+    allowedSourceIds: ['workspace-library', 'workspace-imported-library'],
+    rules: [
+      {
+        sourceId: 'workspace-library',
+        mode: 'all',
+        skillNames: [],
+        reason: 'Fixture local skills are visible so the registry can keep them outside bridge actions.',
+      },
+      {
+        sourceId: 'workspace-imported-library',
+        mode: 'all',
+        skillNames: [],
+        reason: 'Fixture imported skills are discovery-visible while live usage remains owner-approval gated by the bridge.',
+      },
+    ],
+  }, null, 2), 'utf8');
   fs.mkdirSync(path.join(rootDir, '.agents', 'skills'), { recursive: true });
   fs.mkdirSync(path.join(rootDir, 'skill-library'), { recursive: true });
   writeImportedSkill(rootDir, 'research-pack', 'Research local documents and produce evidence notes.', 'Read local notes and produce evidence.');

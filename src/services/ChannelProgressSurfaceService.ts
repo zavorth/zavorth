@@ -259,7 +259,8 @@ export class ChannelProgressSurfaceService {
         text,
         replyToMessageId: event.messageId || null,
       });
-      const messageId = sent?.messageId ?? event.messageId ?? current?.anchorMessageId ?? null;
+      const sentMessageId = sent && typeof sent === 'object' ? sent.messageId : null;
+      const messageId = sentMessageId ?? event.messageId ?? current?.anchorMessageId ?? null;
       const transport: ChannelProgressTransport = capability.canEdit ? 'edit' : 'send';
       const session = this.upsertSession(event, text, messageId, transport, null);
       const receipt = this.receipt(event, transport, 'sent', session.anchorMessageId, 'Progress status sent.');

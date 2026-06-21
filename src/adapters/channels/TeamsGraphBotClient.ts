@@ -46,9 +46,7 @@ export class TeamsGraphBotClient {
       appId: String(runtime.settings?.appId ?? config.teamsAppId ?? '').trim(),
       appSecret: String(
         runtime.settings?.appSecret
-        ?? config.teamsClientSecret
-        ?? config.teamsAppPassword
-        ?? '',
+        ?? (config.teamsClientSecret || config.teamsAppPassword || '')
       ).trim(),
       allowedConversationIds: (
         runtime.settings?.allowedConversationIds

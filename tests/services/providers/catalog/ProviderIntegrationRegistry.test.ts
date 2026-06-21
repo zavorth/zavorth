@@ -1,3 +1,4 @@
+import { describe, it, expect } from 'vitest';
 import {
   createMinimalProviderIntegrationManifest,
 } from '../../../../src/services/providers/catalog/ProviderIntegrationManifest.js';

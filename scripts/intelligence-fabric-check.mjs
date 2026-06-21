@@ -416,8 +416,8 @@ const staticRules = [
       'stage: 7',
       'metadata.intelligenceFabricMode = disabled',
       'risk4RequiresSandboxOrApproval',
-      'Risk 0-2: pensamento',
-      'Pronto para manter como default',
+      'Risk 0-2: thinking',
+      'Ready to keep as default',
     ],
   }),
   ruleContainsAcross({

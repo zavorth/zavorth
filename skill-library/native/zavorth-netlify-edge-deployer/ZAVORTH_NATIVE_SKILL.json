@@ -1,0 +1,28 @@
+{
+  "id": "zavorth-netlify-edge-deployer",
+  "name": "Netlify Deployer",
+  "native": true,
+  "description": "Configure netlify.toml files, manage edge functions, and execute site deployments.",
+  "category": "devops",
+  "permissionProfileId": "host-write",
+  "riskLevel": "high",
+  "capabilityTags": [
+    "devops",
+    "deployment"
+  ],
+  "presets": [
+    "developer",
+    "power-user"
+  ],
+  "inputContract": [
+    "netlify.toml",
+    "site folder"
+  ],
+  "outputContract": [
+    "netlify build output",
+    "preview url"
+  ],
+  "noExecutionByDefault": true,
+  "requiresPolicyBroker": true,
+  "receiptsRequired": true
+}

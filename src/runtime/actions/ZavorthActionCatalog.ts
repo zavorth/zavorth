@@ -25,6 +25,7 @@ import {
   type ZavorthActionLookupResult,
   type ZavorthActionResult,
 } from './ZavorthActionContracts.js';
+import { createCapabilitySpineActionModule, createGovernedOpsActionModule, createNativeExtendedToolsActionModule, createNativePowerPacksActionModule, createProductizationPacksActionModule, createWebBrowserActionModule, createWorkspaceFilesActionModule } from './modules/index.js';
 
 const SKILL_GOVERNANCE_ENV_KEY = 'ZAVORTH_SKILLS_GOVERNANCE_MODE';
 
@@ -1562,7 +1563,14 @@ export class ZavorthActionCatalog {
   }
 
   public list(): ZavorthActionDefinition[] {
-    return this.actions.map((action) => ({ ...action, aliases: [...action.aliases], domains: [...action.domains], surface: [...action.surface] }));
+    return this.actions.map((action) => ({
+      ...action,
+      aliases: [...action.aliases],
+      domains: [...action.domains],
+      surface: [...action.surface],
+      effects: action.effects ? [...action.effects] : undefined,
+      testRefs: action.testRefs ? [...action.testRefs] : undefined,
+    }));
   }
 
   public get(actionId: string): ZavorthActionDefinition | null {
@@ -1589,6 +1597,7 @@ export class ZavorthActionCatalog {
         if (query && normalizeSearch(action.id) === query) score += 30;
         if (query && action.aliases.some((alias) => normalizeSearch(alias) === query)) score += 24;
         for (const term of terms) {
+          if (action.domains.some((entry) => normalizeSearch(entry) === term)) score += term.length > 3 ? term.length : 1;
           if (haystack.includes(term)) score += term.length > 3 ? 4 : 1;
         }
         return { action, score };
@@ -1603,6 +1612,11 @@ export class ZavorthActionCatalog {
         risk: action.risk,
         requiresPreview: action.requiresPreview,
         requiresApproval: action.requiresApproval,
+        capabilityId: action.capabilityId,
+        verificationStatus: action.verificationStatus,
+        effects: action.effects ? [...action.effects] : undefined,
+        scope: action.scope,
+        receiptPolicy: action.receiptPolicy,
         domains: [...action.domains],
         aliases: [...action.aliases],
         score,
@@ -1655,7 +1669,17 @@ function buildDefaultActions(runtime: ZavorthActionCatalogRuntime = {}): Zavorth
     'integration.connectors.execute',
     'capabilities.verified.expose',
   ]);
+  const actionModules = [
+    createCapabilitySpineActionModule(),
+    createNativeExtendedToolsActionModule(),
+    createNativePowerPacksActionModule(),
+    createProductizationPacksActionModule(),
+    createWorkspaceFilesActionModule(),
+    createWebBrowserActionModule(),
+    createGovernedOpsActionModule(),
+  ];
   const actions: ZavorthActionDefinition[] = [
+    ...actionModules.flatMap((module) => module.actions),
     {
       id: 'skills.governance.set',
       title: 'Set skill governance mode',

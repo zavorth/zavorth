@@ -1,0 +1,242 @@
+/**
+ * ApprovalLeaseFeedbackTriage.ts
+ *
+ * Implements a safe local triage utility for extension lease beta feedback.
+ */
+
+import { BetaTesterFeedback } from './ApprovalLeaseFeedbackSanitizer.js';
+
+export interface FeedbackTriageRecord {
+  triageId: string;
+  scenarioId: string;
+  extensionFixtureName: string;
+  riskClass: string;
+  leaseDecisionStatus: string;
+  safeFailureReasonCode: string;
+  severity: 'P0' | 'P1' | 'P2' | 'P3' | 'info';
+  reproducibility: string;
+  followUpCategory:
+    | 'safety_blocker'
+    | 'fail_closed_regression'
+    | 'audit_safety'
+    | 'drift_boundary'
+    | 'revocation_expiration_boundary'
+    | 'workspace_profile_boundary'
+    | 'beta_usability'
+    | 'tester_guidance'
+    | 'test_coverage'
+    | 'observation';
+  sanitizedSummary: string;
+  sanitizedNotes: string;
+  blocksRollout: boolean;
+  recommendedAction:
+    | 'block_rollout'
+    | 'investigate_before_rollout'
+    | 'queue_beta_fix'
+    | 'update_guidance'
+    | 'track_observation'
+    | 'no_action';
+  createdAt: string;
+  monotonicSequence: number;
+}
+
+export class ApprovalLeaseFeedbackTriage {
+  private static sequenceCounter = 0;
+
+  public static createTriageRecord(
+    feedback: BetaTesterFeedback,
+    overrides: Partial<FeedbackTriageRecord> = {}
+  ): FeedbackTriageRecord {
+    // 1. Validate severity
+    const validSeverities = ['P0', 'P1', 'P2', 'P3', 'info'];
+    const severity = overrides.severity || feedback.severity;
+    if (!validSeverities.includes(severity)) {
+      throw new Error(`Invalid severity: ${severity}`);
+    }
+
+    // 2. Validate category
+    const validCategories = [
+      'safety_blocker',
+      'fail_closed_regression',
+      'audit_safety',
+      'drift_boundary',
+      'revocation_expiration_boundary',
+      'workspace_profile_boundary',
+      'beta_usability',
+      'tester_guidance',
+      'test_coverage',
+      'observation'
+    ];
+    let followUpCategory = overrides.followUpCategory || feedback.followUpCategory;
+    if (followUpCategory === 'usability') {
+      followUpCategory = 'beta_usability';
+    }
+    const finalCategory = followUpCategory || 'observation';
+    if (!validCategories.includes(finalCategory)) {
+      throw new Error(`Invalid category: ${finalCategory}`);
+    }
+
+    // 3. Validate recommended action
+    const validActions = [
+      'block_rollout',
+      'investigate_before_rollout',
+      'queue_beta_fix',
+      'update_guidance',
+      'track_observation',
+      'no_action'
+    ];
+    const recommendedAction = overrides.recommendedAction || (severity === 'P0' || severity === 'P1' ? 'block_rollout' : 'queue_beta_fix');
+    if (!validActions.includes(recommendedAction)) {
+      throw new Error(`Invalid recommended action: ${recommendedAction}`);
+    }
+
+    // Determine blocksRollout
+    const blocksRollout = severity === 'P0' || severity === 'P1' || recommendedAction === 'block_rollout';
+
+    // 4. Sanitization and Safety Verification
+    const sanitizedNotes = this.sanitizeText(overrides.sanitizedNotes || feedback.sanitizedNotes || '');
+    const sanitizedSummary = this.sanitizeText(overrides.sanitizedSummary || `Sanitized triage for scenario ${feedback.scenarioId}`);
+
+    this.sequenceCounter++;
+
+    const record: FeedbackTriageRecord = {
+      triageId: overrides.triageId || `triage-${Math.random().toString(36).substr(2, 9)}`,
+      scenarioId: feedback.scenarioId,
+      extensionFixtureName: feedback.extensionFixtureName,
+      riskClass: feedback.riskClass,
+      leaseDecisionStatus: feedback.leaseDecisionStatus,
+      safeFailureReasonCode: feedback.safeFailureReasonCode,
+      severity: severity as any,
+      reproducibility: overrides.reproducibility || feedback.reproducibility || 'always',
+      followUpCategory: finalCategory as any,
+      sanitizedSummary,
+      sanitizedNotes,
+      blocksRollout,
+      recommendedAction: recommendedAction as any,
+      createdAt: overrides.createdAt || new Date().toISOString(),
+      monotonicSequence: overrides.monotonicSequence !== undefined ? overrides.monotonicSequence : this.sequenceCounter
+    };
+
+    // Strict validation against forbidden fields/keys in the object itself
+    this.verifyRecordSafety(record);
+
+    return record;
+  }
+
+  public static sanitizeText(text: string): string {
+    let sanitized = text;
+
+    // Redact Authorization/Bearer patterns and whatever follows them
+    sanitized = sanitized.replace(/(?:Authorization|Bearer)\s*[:\s]\s*\S+/gi, '[REDACTED_AUTH]');
+
+    // Redact secrets, keys, ciphertext, authTag and values following them
+    sanitized = sanitized.replace(/(?:secretRef|apiKey|rawKey|ciphertext|authTag|privateKey)\s*[:\s=]\s*\S+/gi, '[REDACTED_SECRET]');
+
+    // Redact rawPrompt and values/SQL queries
+    sanitized = sanitized.replace(/(?:rawPrompt)\s*[:\s=]\s*[^.\n]+/gi, '[REDACTED_PROMPT]');
+    sanitized = sanitized.replace(/select\s+.*\s+from|insert\s+into|delete\s+from|update\s+.*set/gi, '[REDACTED_PROMPT]');
+
+    // Redact providerResponse and json/choices
+    sanitized = sanitized.replace(/(?:providerResponse)\s*[:\s=]\s*[^.\n]+/gi, '[REDACTED_PROVIDER_RESPONSE]');
+    sanitized = sanitized.replace(/choices\s*:\s*\[|response\s*:\s*\{/gi, '[REDACTED_PROVIDER_RESPONSE]');
+
+    // Redact handler source / functions
+    sanitized = sanitized.replace(/function\s*\([\s\S]*?\)|=>|handlerSource/gi, '[REDACTED_SECRET]');
+
+    // Redact env / process.env
+    sanitized = sanitized.replace(/process\.env\S*/gi, '[REDACTED_SECRET]');
+    sanitized = sanitized.replace(/env\s*[:\s=]\s*\S+/gi, '[REDACTED_SECRET]');
+
+    // General forbidden word replacements
+    const patterns = [
+      { regex: /Authorization/gi, replacement: '[REDACTED_AUTH]' },
+      { regex: /Bearer/gi, replacement: '[REDACTED_AUTH]' },
+      { regex: /secretRef/gi, replacement: '[REDACTED_SECRET]' },
+      { regex: /apiKey/gi, replacement: '[REDACTED_SECRET]' },
+      { regex: /rawKey/gi, replacement: '[REDACTED_SECRET]' },
+      { regex: /ciphertext/gi, replacement: '[REDACTED_SECRET]' },
+      { regex: /authTag/gi, replacement: '[REDACTED_SECRET]' },
+      { regex: /BEGIN PRIVATE KEY/gi, replacement: '[REDACTED_SECRET]' },
+      { regex: /privateKey/gi, replacement: '[REDACTED_SECRET]' },
+      { regex: /rawPrompt/gi, replacement: '[REDACTED_PROMPT]' },
+      { regex: /providerResponse/gi, replacement: '[REDACTED_PROVIDER_RESPONSE]' },
+      { regex: /handlerSource/gi, replacement: '[REDACTED_SECRET]' },
+      { regex: /process\.env/gi, replacement: '[REDACTED_SECRET]' },
+      { regex: /toolExecutionPayload/gi, replacement: '[REDACTED_PAYLOAD]' },
+      { regex: /providerPayload/gi, replacement: '[REDACTED_PAYLOAD]' }
+    ];
+
+    for (const p of patterns) {
+      sanitized = sanitized.replace(p.regex, p.replacement);
+    }
+
+    // Remove private filesystem paths when avoidable
+    sanitized = sanitized.replace(/[a-zA-Z]:\\[\\\w\s.-]+|\/[\w\s.-]+\/[\w\s.-]+/gi, '[REDACTED_PATH]');
+
+    // Redact secret token patterns
+    sanitized = sanitized.replace(/\b\w*secret\w*\b/gi, '[REDACTED_SECRET]');
+    sanitized = sanitized.replace(/\b\w*token\w*\b/gi, '[REDACTED_SECRET]');
+
+    return sanitized;
+  }
+
+  private static verifyRecordSafety(record: any): void {
+    const forbiddenKeys = [
+      'rawPrompt',
+      'providerResponse',
+      'authorization',
+      'Authorization',
+      'Bearer',
+      'secretRef',
+      'apiKey',
+      'rawKey',
+      'ciphertext',
+      'authTag',
+      'handlerSource',
+      'env',
+      'process.env',
+      'privateKey',
+      'toolExecutionPayload',
+      'providerPayload'
+    ];
+
+    for (const key of forbiddenKeys) {
+      if (key in record) {
+        throw new Error(`Security Violation: Forbidden field "${key}" detected in triage record.`);
+      }
+    }
+
+    const forbiddenPatterns = [
+      'Bearer',
+      'secretRef',
+      'rawKey',
+      'ciphertext',
+      'authTag',
+      'Authorization',
+      'rawPrompt',
+      'providerResponse',
+      'BEGIN PRIVATE KEY',
+      'process.env'
+    ];
+
+    const serialize = JSON.stringify(record);
+    for (const pattern of forbiddenPatterns) {
+      if (serialize.includes(pattern)) {
+        throw new Error(`Security Violation: Triage record contains forbidden token pattern "${pattern}"`);
+      }
+    }
+
+    // Ensure it doesn't leak filesystem paths in stringified form
+    if (/[a-zA-Z]:\\Users\\/i.test(serialize) || /\/home\/[\w.-]+\//i.test(serialize)) {
+      throw new Error(`Security Violation: Triage record contains private filesystem paths.`);
+    }
+  }
+
+  public static getVerdict(records: FeedbackTriageRecord[]): string {
+    const hasBlocker = records.some(r => r.blocksRollout);
+    if (hasBlocker) {
+      return 'NO_GO_EXTENSION_LEASE_FEEDBACK_TRIAGE_BLOCKED';
+    }
+    return 'READY_FOR_EXTENSION_LEASE_BETA_FIX_SELECTION';
+  }
+}

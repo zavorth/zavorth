@@ -13,7 +13,7 @@
   </p>
 
   <p>
-    <a href="LICENSE"><img alt="License" src="https://img.shields.io/badge/license-proprietary-111827?style=for-the-badge"></a>
+    <a href="LICENSE"><img alt="License" src="https://img.shields.io/badge/license-MIT-0f9d58?style=for-the-badge"></a>
     <a href="docs/security.md"><img alt="Security" src="https://img.shields.io/badge/security-governed-0f766e?style=for-the-badge"></a>
     <a href="docs/operations.md"><img alt="Operations" src="https://img.shields.io/badge/operations-operator--first-2563eb?style=for-the-badge"></a>
     <a href="docs/zavorth-cli.md"><img alt="CLI" src="https://img.shields.io/badge/cli-premium-7c3aed?style=for-the-badge"></a>
@@ -199,6 +199,13 @@ false readiness, and prevents accidental execution with missing credentials.
 - [Capability mesh](docs/capability-mesh.md)
 - [Product Principles](docs/product-direction.md)
 - [Product Certification](docs/product-certification.md)
+- [Self-modification guide](docs/self-modification.md)
+
+### Self-modification commands
+- preview: docs/self-modification.md
+- /selfmod <relative_file> -- <instruction>
+- /selfmod goal -- <goal>
+- /selfmod apply <preview_id>
 
 ---
 

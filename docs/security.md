@@ -92,3 +92,4 @@ Use the broader workspace check before release or after wide runtime changes.
 - [Self-Modification](/docs/self-modification.md)
 - [Best-Of Runtime Threat Model](/docs/best-of-runtime-threat-model.md)
 - [Product Principles](/docs/product-direction.md)
+- [MCP Security & Channel Policy](/docs/mcp-security.md)

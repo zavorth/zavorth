@@ -40,7 +40,7 @@ export interface IntentSecondPassReview {
   signals: string[];
 }
 
-const TRIVIAL_CHAT_PATTERNS = /^(oi|ola|bom dia|boa tarde|boa noite|e ai|fala|salve|hey|hi|hello|good morning|obrigad[oa]|valeu|thanks|vlw|blz|beleza|ok|certo|entendi|show|massa|otimo|perfeito|ta bom|tudo bem|como vai|tudo certo|haha|kkk|rs|lol|sim|nao|s|n|\?\?|\!\!|tchau|bye|flw|falou|ate mais)[\?\!\.\,]?$/i;
+const TRIVIAL_CHAT_PATTERNS = /^(oi|ola|bom dia|boa tarde|boa noite|e ai|fala|salve|hey|hi|hello|good morning|good afternoon|good evening|obrigad[oa]|valeu|thanks|vlw|blz|beleza|ok|certo|entendi|show|massa|otimo|perfeito|ta bom|tudo bem|como vai|tudo certo|haha|kkk|rs|lol|sim|nao|s|n|\?\?|\!\!|tchau|bye|flw|falou|ate mais|merci|danke|gracias|arigatou|감사합니다|شكرا|ありがとう)[\?\!\.\,]?$/i;
 
 const FILE_PATTERNS = /\b(arquivo|file|pasta|diretorio|directory|folder|criar|crie|create|ler|leia|read|abrir|abra|open|salvar|salva|salve|save|escrever|escreva|write|listar|liste|list|deletar|delete|renomear|rename|mover|move|copiar|copy)\b/i;
 const FILE_OBJECT_PATTERNS = /\b(arquivo|file|pasta|diretorio|directory|folder|readme|package\.json|tsconfig|src\/|src\\|[\w.-]+\.(ts|tsx|js|json|md))\b/i;

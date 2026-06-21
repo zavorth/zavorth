@@ -1,0 +1,23 @@
+name: Capabilities
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  verified-capabilities:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npx tsc --noEmit --pretty false
+      - run: npm run qa:zavorth-natural-action-harness --silent
+      - run: npm run qa:zavorth-capability-usage-docs --silent
+      - run: npm run security:ci --silent

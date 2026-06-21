@@ -41,7 +41,7 @@ const CORE_PACKAGE_SCRIPTS = [
   'website:build',
   'website:public',
   'qa:website-public',
-  'qa:phase:46',
+  'qa:stage:46',
 ] as const;
 
 export class WebsitePublicContractService {

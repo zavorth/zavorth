@@ -1,0 +1,63 @@
+{
+  "id": "sandbox-workflows-run-mqkleudj-5ce777bdd2",
+  "domain": "sandbox",
+  "actionId": "workflows.run",
+  "title": "Run workflow",
+  "summary": "Action Harness requires approval before applying workflows.run.",
+  "createdAt": "2026-06-19T07:13:58.855Z",
+  "updatedAt": "2026-06-19T07:13:58.855Z",
+  "expiresAt": "2026-06-20T07:13:58.855Z",
+  "payloadHash": "5ce777bdd2ec9cfb08b83603f6e1b0fc77860870d023c34bb7865d83d5e662eb",
+  "status": "waiting_approval",
+  "requestedBy": "smoke-test",
+  "sourceSurface": "llm",
+  "riskLevel": "medium",
+  "approval": {
+    "required": true,
+    "status": "pending",
+    "defaultScope": "once",
+    "availableScopes": [
+      "once",
+      "session",
+      "host"
+    ],
+    "permissionId": null,
+    "requestedBy": "smoke-test",
+    "reason": "Zavorth Action Harness blocked apply until explicit approval or trusted operator confirmation."
+  },
+  "resourceImpact": {
+    "ramMb": 0,
+    "diskMb": 0,
+    "processCount": 0,
+    "externalExposure": "none",
+    "recurring": false,
+    "notes": []
+  },
+  "readinessGates": [],
+  "retentionPolicy": {
+    "ttlMs": 86400000,
+    "maxBytes": null,
+    "cleanupOnSuccess": false,
+    "cleanupOnBoot": false,
+    "notes": []
+  },
+  "validationPlan": [
+    "Review action preview and target values before approval."
+  ],
+  "rollbackPlan": [
+    "Re-apply previous configuration value from receipt if needed."
+  ],
+  "payload": {
+    "actionId": "workflows.run",
+    "args": {
+      "script": "qa:zavorth-capability-usage-docs"
+    }
+  },
+  "audit": [
+    {
+      "at": "2026-06-19T07:13:58.855Z",
+      "event": "plan.created",
+      "message": "Plano criado aguardando approval."
+    }
+  ]
+}

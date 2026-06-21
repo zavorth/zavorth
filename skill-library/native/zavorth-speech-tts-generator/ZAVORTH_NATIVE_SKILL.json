@@ -1,0 +1,29 @@
+{
+  "id": "zavorth-speech-tts-generator",
+  "name": "Local Speech TTS",
+  "native": true,
+  "description": "Generate voice outputs and audio files locally for voice channels.",
+  "category": "media",
+  "permissionProfileId": "workspace-write",
+  "riskLevel": "low",
+  "capabilityTags": [
+    "media",
+    "speech"
+  ],
+  "presets": [
+    "basic",
+    "developer"
+  ],
+  "inputContract": [
+    "text",
+    "voice profile",
+    "output path"
+  ],
+  "outputContract": [
+    "audio file",
+    "generation metrics"
+  ],
+  "noExecutionByDefault": false,
+  "requiresPolicyBroker": true,
+  "receiptsRequired": true
+}

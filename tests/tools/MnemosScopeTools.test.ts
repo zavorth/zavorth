@@ -1,3 +1,4 @@
+import { describe, it, expect, vi } from 'vitest';
 import { EnableMnemosTool } from '../../src/tools/EnableMnemosTool';
 import { PlanMnemosScopeTool } from '../../src/tools/PlanMnemosScopeTool';
 import fs from 'fs';

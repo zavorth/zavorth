@@ -49,6 +49,7 @@ export type GatewayControlResponse = {
   combos?: Record<string, any> | null;
   cache?: Record<string, any> | null;
   rateLimits?: Record<string, any> | null;
+  resilience?: Record<string, any> | null;
   operations?: Record<string, any>[];
   warnings?: string[];
   error?: string;

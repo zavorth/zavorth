@@ -16,6 +16,10 @@ import {
   type IconComponent,
 } from '../icons';
 import type { DesktopWorkspaceScope } from '../workspaceScopes';
+import { WorkspaceTrustControl } from '../components/WorkspaceTrustControl';
+import { WorkspaceTaskMandateStatus } from '../components/WorkspaceTaskMandateStatus';
+import { TemporaryDirectoryTrustStatus } from '../components/TemporaryDirectoryTrustStatus';
+import { HostPowerModeControl } from '../components/HostPowerModeControl';
 
 type SidebarItem = {
   panel: DesktopPanel;
@@ -58,6 +62,8 @@ export function DesktopSidebar(props: {
   onToggle(): void;
   onWorkspaceFolder(): void | Promise<void>;
   onWorkspaceScope(value: string): void;
+  activeMandate?: any;
+  onRevokeMandate?: () => Promise<void>;
 }) {
   const projectScopes = props.workspaceScopes.filter(scope => scope.kind === 'folder');
   return (
@@ -137,6 +143,26 @@ export function DesktopSidebar(props: {
               <Core className="zvd-nav-icon" aria-hidden="true" size={17} stroke={1.75} />
               <span className="zvd-project-name">{props.workspaceScope.shortLabel}</span>
             </button>
+            {!props.collapsed && props.workspaceScope.path && (
+              <div style={{ padding: '0 8px', display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                <WorkspaceTrustControl
+                  workspaceId={props.workspaceScope.id}
+                  workspaceRoot={props.workspaceScope.path}
+                />
+                {props.activeMandate !== undefined && (
+                  <WorkspaceTaskMandateStatus
+                    activeMandate={props.activeMandate}
+                    onRevoke={props.onRevokeMandate || (async () => {})}
+                  />
+                )}
+                <TemporaryDirectoryTrustStatus
+                  workspaceId={props.workspaceScope.id}
+                />
+                <HostPowerModeControl
+                  workspaceId={props.workspaceScope.id}
+                />
+              </div>
+            )}
             <div className="zvd-thread-list">
               {projectThreads.map(thread => (
                 <button type="button" key={thread.title} onClick={() => props.onPanel('chat')}>

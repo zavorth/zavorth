@@ -18,6 +18,8 @@ import {
   runZavorthLiveNamespaceCommand,
 } from './cli/ZavorthCliLiveNamespaces.js';
 import type { DiskMutationGateRequestedOperation } from './contracts/DiskMutationGateContract.js';
+import { runDiskMutationGateCommand } from './cli/disk/ZavorthCliDiskMutationNamespace.js';
+import { runProjectConstitutionCommand } from './cli/constitution/ZavorthCliConstitutionNamespace.js';
 
 async function logCliError(message: string, title = 'Zavorth Error'): Promise<void> {
   const isTTY = process.stderr.isTTY && !process.argv.includes('--json');
@@ -95,6 +97,8 @@ const PUBLIC_COMMANDS = [
   'done',
   'retry',
   'cancel',
+  'diagnostics',
+  'mock-gateway',
 ];
 
 function normalizePublicCommandAliases(rawArgs: string[]): string[] {
@@ -300,9 +304,50 @@ async function runPremiumDoctor(rawArgs: string[]): Promise<number> {
     json: rawArgs.includes('--json'),
     strict: rawArgs.includes('--strict') || rawArgs.includes('--require-pass'),
     verbose: rawArgs.includes('--verbose') || rawArgs.includes('--debug') || rawArgs.includes('--all'),
+    fix: rawArgs.includes('--fix') || rawArgs.includes('-f') || rawArgs.includes('--repair'),
+    dryRun: rawArgs.includes('--dry-run') || rawArgs.includes('--dryrun'),
   });
   process.stdout.write(result.output);
   return result.exitCode;
+}
+
+async function runDiagnosticsExport(rawArgs: string[]): Promise<number> {
+  const { DiagnosticsExporterService } = await import('./services/DiagnosticsExporterService.js');
+
+  let explicitOutput = readFlexibleStringFlag(rawArgs, 'output');
+  if (!explicitOutput) {
+    const oIndex = rawArgs.indexOf('-o');
+    if (oIndex >= 0 && rawArgs[oIndex + 1]) {
+      explicitOutput = rawArgs[oIndex + 1];
+    }
+  }
+  const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
+  const defaultPath = path.join(projectRoot, `diagnostics-export-${timestamp}.json`);
+  const outputPath = explicitOutput ? path.resolve(explicitOutput) : defaultPath;
+
+  try {
+    const exporter = new DiagnosticsExporterService();
+    const report = await exporter.export({
+      projectRoot,
+      outputPath,
+    });
+
+    if (rawArgs.includes('--json')) {
+      process.stdout.write(`${JSON.stringify({ ok: true, outputPath, report }, null, 2)}\n`);
+    } else {
+      await printCliPanel('Diagnostics export', [
+        `Status: exported`,
+        `Output path: ${outputPath}`,
+        `Logs gathered: ${report.logs.length}`,
+        `Exported at: ${report.exportedAt}`,
+        `Sanitization: all secrets, local paths and sensitive keys have been redacted.`,
+      ], 'success');
+    }
+    return 0;
+  } catch (error: any) {
+    await logCliError(`Failed to export diagnostics: ${error?.message || String(error)}`, 'Export Failed');
+    return 1;
+  }
 }
 
 async function runPremiumHome(rawArgs: string[]): Promise<number> {
@@ -668,294 +713,6 @@ async function runPremiumSetupStudio(rawArgs: string[]): Promise<number> {
   return result.exitCode;
 }
 
-async function runProjectConstitutionCommand(rawArgs: string[]): Promise<number> {
-  const { ProjectConstitutionImportService } = await import('./services/ProjectConstitutionImportService.js');
-  const service = new ProjectConstitutionImportService();
-  const asJson = rawArgs.includes('--json');
-  const workspaceRoot = readFlexibleStringFlag(rawArgs, 'workspace') || readFlexibleStringFlag(rawArgs, 'workspaceRoot') || process.cwd();
-  const action = String(rawArgs.find((arg) => !arg.startsWith('--')) || 'import').trim().toLowerCase();
-
-  if (rawArgs.includes('--help') || rawArgs.includes('-h')) {
-    return printCliPanel('Zavorth constitution', [
-      'Usage: zavorth constitution import [--apply --yes]',
-      '',
-      'Imports local AGENTS.md and CLAUDE.md into ZAVORTH_PROJECT.md as advisory context.',
-      'No instruction is executed, secrets are redacted, and apply requires explicit approval.',
-      '',
-      'Commands:',
-      '  status                  Show import status and receipts',
-      '  import                  Create preview only',
-      '  import --apply --yes    Preview and apply with local owner approval',
-      '  apply <previewId>       Apply an existing preview with its approval phrase',
-    ], 'info');
-  }
-
-  if (action === 'status') {
-    const status = service.buildStatus({ workspaceRoot });
-    if (asJson) {
-      process.stdout.write(`${JSON.stringify(status, null, 2)}\n`);
-    } else {
-      await printCliPanel('Project constitution', [
-        `workspace: ${status.workspaceRoot}`,
-        `target: ${status.targetExists ? 'found' : 'missing'} ${status.targetPath}`,
-        `sources: ${status.candidateSources.filter((source) => source.exists).map((source) => source.fileName).join(', ') || 'none'}`,
-        `receipts: ${status.receipts.length}`,
-        status.importedSources.length
-          ? `imported: ${status.importedSources.map((source) => source.sourcePath).join(', ')}`
-          : 'imported: none',
-      ], status.targetExists ? 'success' : 'warning');
-    }
-    return 0;
-  }
-
-  if (action === 'apply') {
-    const previewId = rawArgs.find((arg, index) => index > 0 && !arg.startsWith('--')) || readFlexibleStringFlag(rawArgs, 'preview') || '';
-    const approvalPhrase = readFlexibleStringFlag(rawArgs, 'approval-phrase') || readFlexibleStringFlag(rawArgs, 'approvalPhrase') || '';
-    const result = service.applyPreview({
-      workspaceRoot,
-      previewId,
-      approvalPhrase,
-      approvedBy: readFlexibleStringFlag(rawArgs, 'by') || 'zavorth-cli',
-    });
-    if (asJson) {
-      process.stdout.write(`${JSON.stringify(result, null, 2)}\n`);
-    } else {
-      await printCliPanel('Constitution import applied', [
-        result.receipt.summary,
-        `receipt: ${result.receipt.receiptId}`,
-        `target: ${result.receipt.targetPath}`,
-      ], 'success');
-    }
-    return 0;
-  }
-
-  const sourcePaths = rawArgs
-    .filter((arg) => arg.startsWith('--source='))
-    .map((arg) => arg.slice('--source='.length).trim())
-    .filter(Boolean);
-  const preview = service.createPreview({
-    workspaceRoot,
-    sourcePaths: sourcePaths.length ? sourcePaths : null,
-  });
-  const shouldApply = rawArgs.includes('--apply');
-  if (shouldApply) {
-    if (!rawArgs.includes('--yes')) {
-      if (asJson) {
-        process.stdout.write(`${JSON.stringify({ ok: false, preview, error: 'approval_required' }, null, 2)}\n`);
-      } else {
-        await printCliPanel('Approval required', [
-          preview.summary,
-          `approval phrase: ${preview.approval.phrase}`,
-          'Re-run with --apply --yes to apply this preview, or use zavorth constitution apply <previewId> --approval-phrase "...".',
-        ], 'warning');
-      }
-      return 1;
-    }
-    const result = service.applyPreview({
-      workspaceRoot,
-      previewId: preview.previewId,
-      approvalPhrase: preview.approval.phrase,
-      approvedBy: readFlexibleStringFlag(rawArgs, 'by') || 'zavorth-cli',
-    });
-    if (asJson) {
-      process.stdout.write(`${JSON.stringify(result, null, 2)}\n`);
-    } else {
-      await printCliPanel('Constitution import applied', [
-        result.receipt.summary,
-        `receipt: ${result.receipt.receiptId}`,
-        `target: ${result.receipt.targetPath}`,
-      ], 'success');
-    }
-    return 0;
-  }
-
-  if (asJson) {
-    process.stdout.write(`${JSON.stringify(preview, null, 2)}\n`);
-  } else {
-    await printCliPanel('Constitution import preview', [
-      preview.summary,
-      `preview: ${preview.previewId}`,
-      `target: ${preview.targetPath}`,
-      `sources: ${preview.sources.map((source) => source.relativePath).join(', ') || 'none'}`,
-      `findings: ${preview.findings.length}`,
-      `approval phrase: ${preview.approval.phrase}`,
-      `apply: zavorth constitution apply ${preview.previewId} --approval-phrase "${preview.approval.phrase}"`,
-    ], preview.status === 'preview_ready' ? 'warning' : 'info');
-  }
-  return preview.status === 'preview_ready' ? 0 : 1;
-}
-
-async function runDiskMutationGateCommand(rawArgs: string[]): Promise<number> {
-  const { DiskMutationGateService } = await import('./services/DiskMutationGateService.js');
-  const service = new DiskMutationGateService();
-  const asJson = rawArgs.includes('--json');
-  const workspaceRoot = readFlexibleStringFlag(rawArgs, 'workspace') || readFlexibleStringFlag(rawArgs, 'workspaceRoot') || process.cwd();
-  const action = String(rawArgs.find((arg) => !arg.startsWith('--')) || 'preview').trim().toLowerCase();
-
-  if (rawArgs.includes('--help') || rawArgs.includes('-h')) {
-    return printCliPanel('Zavorth disk gate', [
-      'Usage: zavorth disk preview --write <path> --content "..."',
-      '',
-      'Creates a governed disk mutation preview. Apply requires the exact approval phrase and writes a receipt.',
-      '',
-      'Commands:',
-      '  status                         Show disk mutation receipts',
-      '  preview --write <path>         Preview file replacement',
-      '  preview --append <path>        Preview append',
-      '  preview --delete <path>        Preview file deletion',
-      '  preview --mkdir <path>         Preview directory creation',
-      '  preview --apply --yes          Preview and apply with local owner approval',
-      '  apply <previewId>              Apply an existing preview with its approval phrase',
-    ], 'info');
-  }
-
-  if (action === 'status') {
-    const status = service.buildStatus({
-      workspaceRoot,
-      limit: readNumberFlag(rawArgs, 'limit'),
-    });
-    if (asJson) {
-      process.stdout.write(`${JSON.stringify(status, null, 2)}\n`);
-    } else {
-      await printCliPanel('Disk mutation gate', [
-        `workspace: ${status.workspaceRoot}`,
-        `receipt: ${status.receiptPath}`,
-        `receipts: ${status.receiptCount}`,
-        status.receipts.length
-          ? `latest: ${status.receipts[0].summary}`
-          : 'latest: none',
-      ], 'info');
-    }
-    return 0;
-  }
-
-  if (action === 'apply') {
-    const previewId = rawArgs.find((arg, index) => index > 0 && !arg.startsWith('--')) || readFlexibleStringFlag(rawArgs, 'preview') || '';
-    const approvalPhrase = readFlexibleStringFlag(rawArgs, 'approval-phrase') || readFlexibleStringFlag(rawArgs, 'approvalPhrase') || '';
-    const result = service.applyPreview({
-      workspaceRoot,
-      previewId,
-      approvalPhrase,
-      approvedBy: readFlexibleStringFlag(rawArgs, 'by') || 'zavorth-cli',
-    });
-    if (asJson) {
-      process.stdout.write(`${JSON.stringify(result, null, 2)}\n`);
-    } else {
-      await printCliPanel('Disk mutation applied', [
-        result.receipt.summary,
-        `receipt: ${result.receipt.receiptId}`,
-        `operations: ${result.receipt.operations.map((operation) => `${operation.kind}:${operation.relativePath}`).join(', ') || 'none'}`,
-      ], result.status === 'applied' ? 'success' : 'info');
-    }
-    return 0;
-  }
-
-  const operation = buildDiskMutationOperation(rawArgs, action);
-  if (!operation) {
-    if (asJson) {
-      process.stdout.write(`${JSON.stringify({ ok: false, error: 'operation_required' }, null, 2)}\n`);
-    } else {
-      await printCliPanel('Disk mutation gate', [
-        'Informe uma operacao: --write, --append, --delete ou --mkdir.',
-        'Example: zavorth disk preview --write output/example.txt --content "hello"',
-      ], 'warning');
-    }
-    return 1;
-  }
-
-  const preview = service.createPreview({
-    workspaceRoot,
-    operations: [operation],
-    requestedBy: readFlexibleStringFlag(rawArgs, 'by') || 'zavorth-cli',
-    sourceSurface: 'zavorth-cli:disk',
-    reason: readFlexibleStringFlag(rawArgs, 'reason'),
-  });
-  const shouldApply = rawArgs.includes('--apply');
-  if (shouldApply) {
-    if (!rawArgs.includes('--yes')) {
-      if (asJson) {
-        process.stdout.write(`${JSON.stringify({ ok: false, preview, error: 'approval_required' }, null, 2)}\n`);
-      } else {
-        await printCliPanel('Approval required', [
-          preview.summary,
-          `approval phrase: ${preview.approval.phrase}`,
-          'Re-run with --apply --yes to apply this preview, or use zavorth disk apply <previewId> --approval-phrase "...".',
-        ], 'warning');
-      }
-      return 1;
-    }
-    const result = service.applyPreview({
-      workspaceRoot,
-      previewId: preview.previewId,
-      approvalPhrase: preview.approval.phrase,
-      approvedBy: readFlexibleStringFlag(rawArgs, 'by') || 'zavorth-cli',
-    });
-    if (asJson) {
-      process.stdout.write(`${JSON.stringify(result, null, 2)}\n`);
-    } else {
-      await printCliPanel('Disk mutation applied', [
-        result.receipt.summary,
-        `receipt: ${result.receipt.receiptId}`,
-        `operations: ${result.receipt.operations.map((entry) => `${entry.kind}:${entry.relativePath}`).join(', ') || 'none'}`,
-      ], result.status === 'applied' ? 'success' : 'info');
-    }
-    return result.status === 'applied' || result.status === 'noop' ? 0 : 1;
-  }
-
-  if (asJson) {
-    process.stdout.write(`${JSON.stringify(preview, null, 2)}\n`);
-  } else {
-    await printCliPanel('Disk mutation preview', [
-      preview.summary,
-      `preview: ${preview.previewId}`,
-      `status: ${preview.status}`,
-      `operations: ${preview.operations.map((entry) => `${entry.kind}:${entry.relativePath}`).join(', ') || 'none'}`,
-      `findings: ${preview.findings.length}`,
-      `approval phrase: ${preview.approval.phrase}`,
-      `apply: zavorth disk apply ${preview.previewId} --approval-phrase "${preview.approval.phrase}"`,
-    ], preview.status === 'preview_ready' ? 'warning' : preview.status === 'blocked' ? 'error' : 'info');
-  }
-  return preview.status === 'blocked' ? 1 : 0;
-}
-
-function buildDiskMutationOperation(
-  rawArgs: string[],
-  action: string,
-): DiskMutationGateRequestedOperation | null {
-  const writePath = readFlexibleStringFlag(rawArgs, 'write');
-  const appendPath = readFlexibleStringFlag(rawArgs, 'append');
-  const deletePath = readFlexibleStringFlag(rawArgs, 'delete') || readFlexibleStringFlag(rawArgs, 'remove');
-  const mkdirPath = readFlexibleStringFlag(rawArgs, 'mkdir') || readFlexibleStringFlag(rawArgs, 'dir');
-  const positionalPath = rawArgs.find((arg, index) => index > 0 && !arg.startsWith('--')) || '';
-  const content = readDiskMutationContent(rawArgs);
-  const reason = readFlexibleStringFlag(rawArgs, 'reason');
-
-  if (writePath || action === 'write') {
-    const targetPath = writePath || positionalPath;
-    return targetPath ? { kind: 'write_file', path: targetPath, content, reason } : null;
-  }
-  if (appendPath || action === 'append') {
-    const targetPath = appendPath || positionalPath;
-    return targetPath ? { kind: 'append_file', path: targetPath, content, reason } : null;
-  }
-  if (deletePath || action === 'delete' || action === 'remove' || action === 'rm') {
-    const targetPath = deletePath || positionalPath;
-    return targetPath ? { kind: 'delete_file', path: targetPath, reason } : null;
-  }
-  if (mkdirPath || action === 'mkdir' || action === 'dir') {
-    const targetPath = mkdirPath || positionalPath;
-    return targetPath ? { kind: 'mkdir', path: targetPath, reason } : null;
-  }
-  return null;
-}
-
-function readDiskMutationContent(rawArgs: string[]): string {
-  const contentFile = readFlexibleStringFlag(rawArgs, 'content-file');
-  if (contentFile) {
-    return readFileSync(path.resolve(contentFile), 'utf8');
-  }
-  return String(readFlexibleStringFlag(rawArgs, 'content') || '');
-}
 
 async function runGitWorkflowCommand(
   action: 'status' | 'branch' | 'commit' | 'pr',
@@ -3266,6 +3023,7 @@ async function runBuiltinLauncher(rawArgs: string[]): Promise<number | null> {
         '  catalog          Show provider catalog and capabilities',
         '  matrix           Show canonical provider capability matrix',
         '  add              Configure a provider',
+        '  add --discover   Auto-discover models from provider API',
         '  setup            Guided provider setup',
         '  switch           Change active provider/model',
         '  consistency           Show provider readiness inventory',
@@ -3274,6 +3032,7 @@ async function runBuiltinLauncher(rawArgs: string[]): Promise<number | null> {
         '  zavorth models status',
         '  zavorth models catalog',
         '  zavorth models add --provider openai --model gpt-4.1',
+        '  zavorth models add --discover --provider groq --base-url https://api.groq.com/openai/v1',
       ], 'info');
     }
     if (providerAction === 'consistency') {
@@ -3320,6 +3079,45 @@ async function runBuiltinLauncher(rawArgs: string[]): Promise<number | null> {
     if (['catalog', 'list', 'inventory', 'ready'].includes(action)) {
       return runNativeIntegrations(restArgs.slice(1));
     }
+  }
+
+  if (command === 'diagnostics') {
+    const action = String(restArgs[0] || '').trim().toLowerCase();
+    if (action === 'export') {
+      return runDiagnosticsExport(restArgs.slice(1));
+    }
+    return printCliPanel('Zavorth diagnostics', [
+      'Usage: zavorth diagnostics export [options]',
+      '',
+      'Exports system diagnostics in a sanitized format.',
+      '',
+      'Options:',
+      '  -o, --output=<path>   Custom output path for the JSON export file.',
+      '  --json                Output raw JSON response to stdout.',
+    ], 'info');
+  }
+
+  if (command === 'mock-gateway') {
+    if (restArgs.includes('--help') || restArgs.includes('-h')) {
+      return printCliPanel('Zavorth mock-gateway', [
+        'Usage: zavorth mock-gateway [options]',
+        '',
+        'Simulates a channel gateway dialogue session offline using stub adapters.',
+        '',
+        'Options:',
+        '  -h, --help           Display help for command',
+        '  --channel=<channel>  Channel to mock (slack, whatsapp, teams, imessage, signal, email, instagram, discord). Default: slack',
+        '  --userId=<userId>    Simulated sender user ID. Default: mock-user',
+        '  --chatId=<chatId>    Simulated conversation/channel ID. Default: mock-chat',
+        '  --isGroup            Simulate a group message (defaults to false)',
+        '',
+        'Examples:',
+        '  zavorth mock-gateway --channel=slack',
+        '  zavorth mock-gateway --channel=whatsapp --userId=operator',
+      ], 'info');
+    }
+    const { runZavorthMockGatewayCommand } = await import('./cli/ZavorthMockGatewayCommand.js');
+    return runZavorthMockGatewayCommand(restArgs);
   }
 
   if (command === 'doctor' && ['convergence', 'native-convergence'].includes(String(restArgs[0] || '').trim().toLowerCase())) {

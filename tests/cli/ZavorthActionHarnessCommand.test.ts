@@ -48,4 +48,92 @@ describe('Zavorth actions CLI namespace', () => {
     expect(JSON.parse(applied.output).status).toBe('applied');
     expect(fs.readFileSync(path.join(root, '.env'), 'utf8')).toContain('ZAVORTH_SKILLS_GOVERNANCE_MODE=governed');
   });
+
+  it('lists, inspects and doctors verified workspace actions', async () => {
+    const root = makeRoot();
+    roots.push(root);
+
+    const listed = await runZavorthLiveNamespaceCommand({
+      projectRoot: root,
+      command: 'actions',
+      args: ['list', '--verified', '--json'],
+    });
+    const listPayload = JSON.parse(listed.output);
+    expect(listPayload.actions.map((action: { id: string }) => action.id)).toEqual(expect.arrayContaining([
+      'workspace.create_file',
+      'workspace.write_file',
+      'workspace.patch_file',
+    ]));
+    expect(listPayload.actions.every((action: { verificationStatus: string }) => action.verificationStatus === 'verified')).toBe(true);
+
+    const inspected = await runZavorthLiveNamespaceCommand({
+      projectRoot: root,
+      command: 'actions',
+      args: ['inspect', 'workspace.create_file', '--json'],
+    });
+    const inspectPayload = JSON.parse(inspected.output);
+    expect(inspectPayload.action).toEqual(expect.objectContaining({
+      id: 'workspace.create_file',
+      capabilityId: 'workspace-files',
+      requiresPreview: true,
+      requiresApproval: true,
+      receiptPolicy: 'required',
+    }));
+    expect(inspectPayload.action.tests.length).toBeGreaterThan(0);
+
+    const doctor = await runZavorthLiveNamespaceCommand({
+      projectRoot: path.resolve(__dirname, '..', '..'),
+      command: 'actions',
+      args: ['doctor', '--json'],
+    });
+    expect(JSON.parse(doctor.output)).toEqual(expect.objectContaining({
+      ok: true,
+      failures: [],
+    }));
+  });
+
+  it('runs workspace actions through preview, approval gate and receipt flow', async () => {
+    const root = makeRoot();
+    roots.push(root);
+    fs.mkdirSync(path.join(root, 'output'), { recursive: true });
+    fs.writeFileSync(path.join(root, 'output', 'existing.txt'), 'alpha\n');
+
+    const preview = await runZavorthLiveNamespaceCommand({
+      projectRoot: root,
+      command: 'actions',
+      args: ['preview', '--id', 'workspace.create_file', '--args-json', '{"filepath":"new.txt","content":"hello"}', '--json'],
+    });
+    expect(JSON.parse(preview.output).status).toBe('preview');
+    expect(fs.existsSync(path.join(root, 'output', 'new.txt'))).toBe(false);
+
+    const blocked = await runZavorthLiveNamespaceCommand({
+      projectRoot: root,
+      command: 'actions',
+      args: ['apply', '--id', 'workspace.create_file', '--args-json', '{"filepath":"new.txt","content":"hello"}', '--json'],
+    });
+    expect(JSON.parse(blocked.output).status).toBe('approval_required');
+
+    const applied = await runZavorthLiveNamespaceCommand({
+      projectRoot: root,
+      command: 'actions',
+      args: ['apply', '--id', 'workspace.create_file', '--args-json', '{"filepath":"new.txt","content":"hello"}', '--yes', '--json'],
+    });
+    expect(JSON.parse(applied.output).status).toBe('applied');
+    expect(fs.readFileSync(path.join(root, 'output', 'new.txt'), 'utf8')).toBe('hello');
+
+    const patch = await runZavorthLiveNamespaceCommand({
+      projectRoot: root,
+      command: 'actions',
+      args: ['apply', '--id', 'workspace.patch_file', '--args-json', '{"filepath":"existing.txt","search":"alpha","replace":"beta"}', '--yes', '--json'],
+    });
+    expect(JSON.parse(patch.output).status).toBe('applied');
+    expect(fs.readFileSync(path.join(root, 'output', 'existing.txt'), 'utf8')).toBe('beta\n');
+
+    const receipts = await runZavorthLiveNamespaceCommand({
+      projectRoot: root,
+      command: 'actions',
+      args: ['receipts', '--id', 'workspace.create_file', '--json'],
+    });
+    expect(JSON.parse(receipts.output).data.receipts.length).toBeGreaterThan(0);
+  });
 });

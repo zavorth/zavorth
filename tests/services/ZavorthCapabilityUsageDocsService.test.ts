@@ -143,4 +143,17 @@ describe('ZavorthCapabilityUsageDocsService', () => {
     expect(markdown).toContain('No verified capability action is exposed yet.');
     expect(markdown).toContain('A visible capability is not automatic permission.');
   });
+
+  test('default generated docs include real verified Action Harness actions', () => {
+    const service = new ZavorthCapabilityUsageDocsService({
+      now: () => new Date('2026-06-02T12:00:00.000Z'),
+    });
+
+    const markdown = service.renderMarkdown();
+
+    expect(markdown).toContain('workspace.create_file');
+    expect(markdown).toContain('workspace.read_file');
+    expect(markdown).toContain('web.search');
+    expect(markdown).not.toContain('No verified capability action is exposed yet.');
+  });
 });

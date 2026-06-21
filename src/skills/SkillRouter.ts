@@ -20,7 +20,7 @@ interface HeuristicSelection extends SkillSelection {
 }
 
 const EXPLICIT_SKILL_ALIASES: Record<string, string[]> = {
-  'zavorth-maestro': ['zavorth maestro', 'modo maestro', 'maestro'],
+  'zavorth-maestro': ['zavorth maestro', 'maestro mode', 'maestro'],
   'discover-research': ['discover research'],
   'requirements-analysis': ['requirements analysis'],
   'system-design': ['system design'],
@@ -31,18 +31,17 @@ const HEURISTIC_RULES: KeywordRule[] = [
     skillName: 'zavorth-maestro',
     weight: 3,
     patterns: [
-      'coordene',
-      'orquestre',
+      'coordinate',
+      'orchestrate',
       'workflow',
       'pipeline',
-      'em etapas',
-      'em etapas',
-      'varias etapas',
-      'varias entregas',
-      'varios entregaveis',
-      'plano de execucao',
+      'in stages',
+      'multiple stages',
+      'multiple deliveries',
+      'multiple deliverables',
+      'execution plan',
       'combine as skills',
-      'organize este projeto em etapas',
+      'organize this project into stages',
     ],
   },
   {
@@ -50,124 +49,119 @@ const HEURISTIC_RULES: KeywordRule[] = [
     weight: 3,
     patterns: [
       'bug',
-      'erro',
-      'falha',
+      'error',
+      'failure',
       'stack trace',
       'exception',
-      'excecao',
       'crash',
-      'travou',
-      'quebrou',
-      'quebrado',
-      'nao funciona',
-      'nao esta funcionando',
+      'hang',
+      'broken',
+      'does not work',
+      'not working',
       'debugging',
       'debug',
-      'depuracao',
-      'teste quebrado',
-      'teste falhou',
-      'causa raiz',
+      'broken test',
+      'test failed',
+      'root cause',
     ],
   },
   {
     skillName: 'requirements-analysis',
     weight: 2,
     patterns: [
-      'requisito',
-      'requisitos',
-      'especificacao',
-      'escopo',
-      'criterio de aceite',
-      'criterios de aceite',
-      'atividade',
-      'prova',
-      'simulado',
-      'questoes de prova',
+      'requirement',
+      'requirements',
+      'specification',
+      'scope',
+      'acceptance criterion',
+      'acceptance criteria',
+      'assignment',
+      'exam',
+      'mock exam',
+      'exam questions',
       'user story',
       'user stories',
-      'historia de usuario',
       'mvp',
       'briefing',
       'backlog',
-      'caso de uso',
-      'funcional',
-      'nao funcional',
-      'ideia vaga',
+      'use case',
+      'functional',
+      'non functional',
+      'vague idea',
     ],
   },
   {
     skillName: 'system-design',
     weight: 2,
     patterns: [
-      'arquitetura',
-      'desenho de sistema',
-      'desenhar o sistema',
-      'componentes',
-      'integracao',
-      'integracoes',
-      'fluxo de dados',
-      'escalabilidade',
-      'latencia',
-      'fila',
-      'filas',
-      'banco de dados',
+      'architecture',
+      'system design',
+      'design the system',
+      'components',
+      'integration',
+      'integrations',
+      'data flow',
+      'scalability',
+      'latency',
+      'queue',
+      'queues',
+      'database',
       'api',
       'apis',
-      'microsservico',
-      'microsservicos',
-      'monolito',
+      'microservice',
+      'microservices',
+      'monolith',
       'trade off',
       'trade offs',
-      'arquitetar',
+      'architect',
     ],
   },
   {
     skillName: 'discover-research',
     weight: 2,
     patterns: [
-      'pesquisa',
-      'pesquisar',
-      'revisao de literatura',
-      'referencial teorico',
-      'bibliografia',
-      'fontes academicas',
-      'artigos cientificos',
-      'artigo academico',
+      'research',
+      'literature review',
+      'theoretical framework',
+      'bibliography',
+      'academic sources',
+      'scientific articles',
+      'academic article',
       'paper',
       'papers',
-      'metodologia',
-      'estado da arte',
-      'evidencias',
-      'sintese academica',
-      'mapa de literatura',
-      'literatura cientifica',
-      'universidade',
-      'faculdade',
-      'disciplina',
+      'methodology',
+      'state of the art',
+      'evidence',
+      'academic synthesis',
+      'literature map',
+      'scientific literature',
+      'university',
+      'college',
+      'course',
       'professor',
-      'tcc',
-      'aula',
-      'estudar',
-      'plano de estudo',
-      'seminario',
+      'thesis',
+      'class',
+      'study',
+      'study plan',
+      'seminar',
     ],
   },
 ];
 
 const STUDY_FOCUS_PATTERNS = [
-  'estudar',
-  'prova',
-  'simulado',
-  'atividade',
-  'plano de estudo',
-  'questoes de prova',
-  'explicar a materia',
-  'resumo para estudar',
+  'study',
+  'exam',
+  'mock exam',
+  'assignment',
+  'study plan',
+  'exam questions',
+  'explain the subject',
+  'study summary',
 ];
 
 /**
- * SkillRouter - combina heuristicas deterministicas com fallback ao LLM.
- * Casos obvios sao resolvidos localmente para ficar mais rapido e previsivel.
+ * SkillRouter - combines deterministic heuristics with an LLM fallback.
+ * Obvious cases are resolved locally so routing stays fast and predictable.
  */
 export class SkillRouter {
   private provider: ILlmProvider;
@@ -199,7 +193,7 @@ export class SkillRouter {
           last_executed_at = datetime('now')
       `, [skillId]);
     } catch (error) {
-      console.warn(`[SkillRouter] Erro ao registrar telemetria para a skill ${skillId}:`, error);
+      console.warn(`[SkillRouter] Failed to record telemetry for skill ${skillId}:`, error);
     }
   }
 
@@ -210,7 +204,7 @@ export class SkillRouter {
 
     const heuristicSelection = this.routeWithHeuristics(userMessage, skills);
     if (heuristicSelection?.confidence === 'high') {
-      console.log(`[SkillRouter] Heuristica forte: ${heuristicSelection.reason}`);
+      console.log(`[SkillRouter] Strong heuristic: ${heuristicSelection.reason}`);
       return {
         primarySkillName: heuristicSelection.primarySkillName,
         supportSkillName: heuristicSelection.supportSkillName,
@@ -221,11 +215,11 @@ export class SkillRouter {
     const mergedSelection = this.mergeSelections(heuristicSelection, llmSelection, skills);
 
     if (!llmSelection.primarySkillName && heuristicSelection) {
-      console.log(`[SkillRouter] Fallback heuristico: ${heuristicSelection.reason}`);
+      console.log(`[SkillRouter] Heuristic fallback: ${heuristicSelection.reason}`);
     }
 
     console.log(
-      `Skills selecionadas: principal=${mergedSelection.primarySkillName || 'nenhuma'}, apoio=${mergedSelection.supportSkillName || 'nenhuma'}`
+      `Selected skills: primary=${mergedSelection.primarySkillName || 'none'}, support=${mergedSelection.supportSkillName || 'none'}`
     );
     return mergedSelection;
   }
@@ -235,7 +229,7 @@ export class SkillRouter {
       .map((skill) => `- "${skill.name}": ${skill.description}`)
       .join('\n');
 
-    const routerPrompt = `Voce e um roteador de intencoes. Sua UNICA funcao e analisar a mensagem do usuario e decidir qual habilidade principal deve liderar a resposta e se uma skill de apoio adicional melhoraria o resultado.\n\nSkills disponiveis:\n${skillsList}\n\nREGRAS:\n1. Responda APENAS com um JSON valido no formato: {"primarySkillName": "nome-da-skill-ou-null", "supportSkillName": "nome-da-skill-ou-null"}\n2. Escolha no maximo uma skill principal e uma skill de apoio.\n3. Use a skill de apoio APENAS quando ela melhorar materialmente a qualidade da resposta.\n4. Nunca repita a mesma skill nos dois campos.\n5. Se a mensagem for uma conversa casual que nenhuma skill cobre, retorne ambos os campos como null.\n6. Se o usuario pedir explicitamente um modo ou skill, honre isso quando fizer sentido.\n7. Dica de prioridade: bugs e erros tendem a usar debugging; pedidos de requisitos, entregas, provas e atividades tendem a usar requirements-analysis; arquitetura tende a usar system-design; pesquisa, estudo, artigos e literatura academica tendem a usar discover-research; orquestracao multi-etapas tende a usar zavorth-maestro.\n8. Nao adicione texto antes ou depois do JSON.`;
+    const routerPrompt = `You are an intent router. Your ONLY function is to analyze the user message and decide which primary skill should lead the response and whether an additional support skill would improve the result.\n\nAvailable skills:\n${skillsList}\n\nRULES:\n1. Reply ONLY with valid JSON in this format: {"primarySkillName": "skill-name-or-null", "supportSkillName": "skill-name-or-null"}\n2. Choose at most one primary skill and one support skill.\n3. Use the support skill ONLY when it materially improves response quality.\n4. Never repeat the same skill in both fields.\n5. If the message is casual conversation that no skill covers, return null for both fields.\n6. If the user explicitly requests a mode or skill, honor it when it makes sense.\n7. Priority hint: bugs and errors usually use debugging; requirement, delivery, proof, and task requests usually use requirements-analysis; architecture usually uses system-design; research, study, papers, and academic literature usually use discover-research; multi-step orchestration usually uses zavorth-maestro.\n8. Do not add text before or after the JSON.`;
 
     const messages: ChatMessage[] = [
       { role: 'system', content: routerPrompt },
@@ -251,7 +245,7 @@ export class SkillRouter {
 
       const jsonMatch = response.content.match(/\{[\s\S]*?\}/);
       if (!jsonMatch) {
-        console.warn('Resposta do LLM nao contem JSON valido para routeSelection.');
+        console.warn('LLM response does not contain valid JSON for routeSelection.');
         return { primarySkillName: null, supportSkillName: null };
       }
 
@@ -264,7 +258,7 @@ export class SkillRouter {
 
       return this.normalizeSelection(parsed, skills);
     } catch (error) {
-      console.warn(`Erro no routeSelection: ${error}. Fallback para heuristica ou modo livre.`);
+      console.warn(`routeSelection error: ${error}. Falling back to heuristics or free mode.`);
       return { primarySkillName: null, supportSkillName: null };
     }
   }
@@ -278,7 +272,7 @@ export class SkillRouter {
         primarySkillName: explicitMentions[0] ?? null,
         supportSkillName: explicitMentions[1] ?? null,
         confidence: 'high',
-        reason: `pedido explicito de skill (${explicitMentions.join(', ')})`,
+        reason: `explicit skill request (${explicitMentions.join(', ')})`,
       };
     }
 
@@ -302,7 +296,7 @@ export class SkillRouter {
       primarySkillName,
       supportSkillName,
       confidence,
-      reason: `intencao dominante (${primarySkillName}:${primaryScore}${supportSkillName ? `, ${supportSkillName}:${supportScore}` : ''})`,
+      reason: `dominant intent (${primarySkillName}:${primaryScore}${supportSkillName ? `, ${supportSkillName}:${supportScore}` : ''})`,
     };
   }
 
@@ -611,7 +605,7 @@ export class SkillRouter {
 
     const exists = skills.some((skill) => skill.name === normalizedSkillName);
     if (!exists) {
-      console.warn(`Skill "${normalizedSkillName}" nao encontrada nas disponiveis.`);
+      console.warn(`Skill "${normalizedSkillName}" was not found in the available skills.`);
       return null;
     }
 

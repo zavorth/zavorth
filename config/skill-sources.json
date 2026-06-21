@@ -7,7 +7,7 @@
       "label": "Zavorth native curated shortlist",
       "kind": "workspace",
       "trust": "review",
-      "enabled": false,
+      "enabled": true,
       "ingestionMode": "local-scan",
       "path": "skill-library/native",
       "createIfMissing": false,
@@ -16,7 +16,7 @@
       "license": "Zavorth-Internal",
       "notes": [
         "Small curated Zavorth-native shortlist only; bulk third-party imports must not live here.",
-        "Disabled and review-gated by default until explicitly enabled by owner policy."
+        "Enabled as the official local native intelligence pack; actions still require policy and receipts."
       ]
     },
     {
@@ -31,8 +31,8 @@
       "ownership": "workspace",
       "registrySource": "zavorth:local-workspace",
       "notes": [
-        "Fonte principal de skills autoradas dentro do workspace do Zavorth.",
-        "Pode referenciar material auxiliar externo apenas por roots explicitamente declaradas."
+        "Primary source for skills authored inside the Zavorth workspace.",
+        "May reference external support material only through explicitly declared roots."
       ]
     },
     {
@@ -47,7 +47,7 @@
       "ownership": "workspace",
       "registrySource": "zavorth:local-workspace",
       "notes": [
-        "Biblioteca local curada pelo Zavorth para skills prontas para uso."
+        "Local library curated by Zavorth for ready-to-use skills."
       ]
     },
     {
@@ -62,8 +62,8 @@
       "ownership": "curated-import",
       "registrySource": "zavorth:curated-import",
       "notes": [
-        "Zona temporaria para imports seletivos revisados.",
-        "Fica desativada por padrao para manter a superficie de produto limpa."
+        "Temporary area for reviewed selective imports.",
+        "Disabled by default to keep the product surface clean."
       ]
     }
   ]

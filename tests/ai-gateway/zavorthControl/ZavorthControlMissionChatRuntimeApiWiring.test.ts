@@ -12,7 +12,7 @@ describe('ZavorthControl mission and chat runtime API wiring', () => {
     const source = read('src/domain/surface/presentation/web-app/WebAppRuntimeStateRouteService.ts');
 
     expect(source).toContain("'/api/web/zavorthControl/chat-v1'");
-    expect(source).toContain('deps.publicApi.submitChat');
+    expect(source).toContain('publicApi.submitChat');
     expect(source).toContain('live: body?.live === true || body?.execute === true');
     expect(source).toContain('liveRequiresExplicitFlag: true');
     expect(source).toContain('policyBrokerRequiredForTools: true');

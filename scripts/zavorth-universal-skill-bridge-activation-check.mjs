@@ -77,7 +77,7 @@ function ruleContainsMarkers() {
       'executeCommand',
       'activationDoesNotExecuteUpstreamCode',
       '/skills run <skill>',
-      'dry-run por padrao',
+      'dry-run by default',
     ]],
     ['src/domain/surface/presentation/shared-surface/SharedSurfaceEcosystemCommandPack.ts', [
       'skillBridgeActivationService',
@@ -248,6 +248,26 @@ function createFixture() {
         ownership: 'curated-import',
         registrySource: 'zavorth:curated-import',
         notes: ['Fixture source for governed bridge activation checks.'],
+      },
+    ],
+  }, null, 2), 'utf8');
+  fs.writeFileSync(path.join(rootDir, 'config', 'skill-allowlist.json'), JSON.stringify({
+    version: 1,
+    updatedAt: '2026-05-10T17:00:00.000Z',
+    defaultPolicy: 'deny',
+    allowedSourceIds: ['workspace-library', 'workspace-imported-library'],
+    rules: [
+      {
+        sourceId: 'workspace-library',
+        mode: 'all',
+        skillNames: [],
+        reason: 'Fixture local skills are visible so activation can keep them outside bridge execution.',
+      },
+      {
+        sourceId: 'workspace-imported-library',
+        mode: 'all',
+        skillNames: [],
+        reason: 'Fixture imported skills are discovery-visible while live usage remains owner-approval gated by the bridge.',
       },
     ],
   }, null, 2), 'utf8');

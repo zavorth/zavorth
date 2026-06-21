@@ -8,6 +8,9 @@ export type ZavorthActionOperation =
   | 'action.receipts';
 
 export type ZavorthActionRisk = 'safe' | 'attention' | 'danger' | 'unknown';
+export type ZavorthActionVerificationStatus = 'verified' | 'candidate' | 'preview_only' | 'disabled';
+export type ZavorthActionEffect = 'read' | 'write' | 'network' | 'shell' | 'external_send';
+export type ZavorthActionReceiptPolicy = 'none' | 'apply_only' | 'required';
 
 export type ZavorthActionSchema = {
   type: 'object';
@@ -59,11 +62,23 @@ export type ZavorthActionDefinition = {
   risk: ZavorthActionRisk;
   mutationDomain?: string;
   mutationRisk?: ZavorthMutationRiskLevel;
+  capabilityId?: string;
+  verificationStatus?: ZavorthActionVerificationStatus;
+  effects?: ZavorthActionEffect[];
+  scope?: string;
+  receiptPolicy?: ZavorthActionReceiptPolicy;
+  testRefs?: string[];
   requiresPreview: boolean;
   requiresApproval: boolean;
   inputSchema: ZavorthActionSchema;
   outputSchema: ZavorthActionSchema;
   handler: (input: ZavorthActionHandlerInput) => Promise<ZavorthActionResult> | ZavorthActionResult;
+};
+
+export type ZavorthActionModule = {
+  id: string;
+  manifestId: string;
+  actions: ZavorthActionDefinition[];
 };
 
 export type ZavorthActionLookupResult = {
@@ -73,6 +88,11 @@ export type ZavorthActionLookupResult = {
   risk: ZavorthActionRisk;
   requiresPreview: boolean;
   requiresApproval: boolean;
+  capabilityId?: string;
+  verificationStatus?: ZavorthActionVerificationStatus;
+  effects?: ZavorthActionEffect[];
+  scope?: string;
+  receiptPolicy?: ZavorthActionReceiptPolicy;
   domains: string[];
   aliases: string[];
   score: number;

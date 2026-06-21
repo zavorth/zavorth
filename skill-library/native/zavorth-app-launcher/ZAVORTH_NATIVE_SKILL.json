@@ -1,0 +1,30 @@
+{
+  "id": "zavorth-app-launcher",
+  "name": "Safe Process Launcher",
+  "native": true,
+  "description": "Safely execute external CLI tools or desktop applications inside path-safe containment.",
+  "category": "devops",
+  "permissionProfileId": "host-write",
+  "riskLevel": "high",
+  "capabilityTags": [
+    "devops",
+    "system"
+  ],
+  "presets": [
+    "developer",
+    "power-user"
+  ],
+  "inputContract": [
+    "app path",
+    "arguments",
+    "env overrides"
+  ],
+  "outputContract": [
+    "process output",
+    "exit code",
+    "process state"
+  ],
+  "noExecutionByDefault": true,
+  "requiresPolicyBroker": true,
+  "receiptsRequired": true
+}

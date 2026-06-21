@@ -25,6 +25,8 @@ data/secrets_honey.txt
 logs/
 !src/ai-gateway/app/api/logs/
 !src/ai-gateway/app/api/logs/**
+!src/ai-gateway/app/api/usage/logs/
+!src/ai-gateway/app/api/usage/logs/**
 .codex-run/
 .codex-*.png
 .codex-attachment-fixtures/
@@ -32,6 +34,7 @@ logs/
 .zavorth/gateway.json
 .zavorth/receipts/
 .zavorth/memory/
+.zavorth/private-evals/
 .zavorth/setup-progress.json
 .zavorth/tasks.json
 /runtime/

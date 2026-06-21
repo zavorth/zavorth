@@ -1,0 +1,118 @@
+{
+  "id": "governed-ops",
+  "label": "Governed Ops",
+  "kind": "tool",
+  "version": "0.1.0",
+  "boot": "on-demand",
+  "budget": {
+    "rssMb": 80,
+    "heapUsedMb": 40,
+    "activeHandles": 8
+  },
+  "entry": "src/runtime/actions/modules/governedOps.ts",
+  "description": "Verified governed routes for allowlisted shell, sandbox checks, approved channel sends and quarantined MCP envelopes.",
+  "requires": ["filesystem", "process"],
+  "provides": ["shell_preview_command", "shell_run_allowlisted", "sandbox_run_code", "sandbox_run_tests", "channels_status", "channels_draft", "channels_send_approved", "mcp_list", "mcp_inspect", "mcp_preview", "mcp_execute_quarantined"],
+  "tags": ["native", "verified", "action-harness", "governed"],
+  "actions": [
+    {
+      "id": "shell.preview_command",
+      "status": "verified",
+      "risk": "safe",
+      "requiresPreview": false,
+      "requiresApproval": false,
+      "scope": "workspace",
+      "receipt": "none"
+    },
+    {
+      "id": "shell.run_allowlisted",
+      "status": "verified",
+      "risk": "attention",
+      "requiresPreview": true,
+      "requiresApproval": true,
+      "scope": "workspace",
+      "receipt": "required"
+    },
+    {
+      "id": "sandbox.run_code",
+      "status": "verified",
+      "risk": "attention",
+      "requiresPreview": true,
+      "requiresApproval": true,
+      "scope": "workspace",
+      "receipt": "required"
+    },
+    {
+      "id": "sandbox.run_tests",
+      "status": "verified",
+      "risk": "attention",
+      "requiresPreview": true,
+      "requiresApproval": true,
+      "scope": "workspace",
+      "receipt": "required"
+    },
+    {
+      "id": "channels.status",
+      "status": "verified",
+      "risk": "safe",
+      "requiresPreview": false,
+      "requiresApproval": false,
+      "scope": "channels",
+      "receipt": "none"
+    },
+    {
+      "id": "channels.draft",
+      "status": "verified",
+      "risk": "safe",
+      "requiresPreview": false,
+      "requiresApproval": false,
+      "scope": "channels",
+      "receipt": "none"
+    },
+    {
+      "id": "channels.send_approved",
+      "status": "verified",
+      "risk": "danger",
+      "requiresPreview": true,
+      "requiresApproval": true,
+      "scope": "channels",
+      "receipt": "required"
+    },
+    {
+      "id": "mcp.list",
+      "status": "verified",
+      "risk": "safe",
+      "requiresPreview": false,
+      "requiresApproval": false,
+      "scope": "mcp",
+      "receipt": "none"
+    },
+    {
+      "id": "mcp.inspect",
+      "status": "verified",
+      "risk": "safe",
+      "requiresPreview": false,
+      "requiresApproval": false,
+      "scope": "mcp",
+      "receipt": "none"
+    },
+    {
+      "id": "mcp.preview",
+      "status": "verified",
+      "risk": "safe",
+      "requiresPreview": false,
+      "requiresApproval": false,
+      "scope": "mcp",
+      "receipt": "none"
+    },
+    {
+      "id": "mcp.execute_quarantined",
+      "status": "verified",
+      "risk": "danger",
+      "requiresPreview": true,
+      "requiresApproval": true,
+      "scope": "mcp",
+      "receipt": "required"
+    }
+  ]
+}

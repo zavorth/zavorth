@@ -1,0 +1,29 @@
+{
+  "id": "zavorth-playwright-qa-engineer",
+  "name": "Playwright Browser Tester",
+  "native": true,
+  "description": "Execute automated browser tests with Playwright or Puppeteer to verify route status and UI flows.",
+  "category": "devops",
+  "permissionProfileId": "host-write",
+  "riskLevel": "high",
+  "capabilityTags": [
+    "devops",
+    "qa"
+  ],
+  "presets": [
+    "developer",
+    "power-user"
+  ],
+  "inputContract": [
+    "target url",
+    "test specifications"
+  ],
+  "outputContract": [
+    "test logs",
+    "screenshots",
+    "status"
+  ],
+  "noExecutionByDefault": true,
+  "requiresPolicyBroker": true,
+  "receiptsRequired": true
+}

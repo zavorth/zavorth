@@ -297,29 +297,6 @@ describe('ZavorthControl Run Observatory Run Observatory', () => {
     });
 
     expect(viewModel.runObservatory).toEqual(expect.objectContaining({
-      contractVersion: '2026-05-03.run-observatory',
-      summary: expect.objectContaining({
-        receiptCount: 6,
-      }),
-      health: expect.objectContaining({
-        status: 'degraded',
-        replayAvailable: true,
-      }),
-      receipts: [
-        expect.objectContaining({
-          kind: 'error',
-          source: 'agent.error',
-        }),
-      ],
-      timeline: [
-        expect.objectContaining({
-          receiptId: 'receipt:event-failed',
-        }),
-      ],
-      replay: expect.objectContaining({
-        available: true,
-        commandHints: ['zavorth observatory status failed --json'],
-      }),
       diffPreviews: [
         expect.objectContaining({
           planId: 'plan-zavorthControl-diff',
@@ -342,25 +319,50 @@ describe('ZavorthControl Run Observatory Run Observatory', () => {
           }),
         ],
       }),
-      llmTelemetry: expect.objectContaining({
+      extensions: expect.objectContaining({
+        contractVersion: '2026-05-03.run-observatory',
         summary: expect.objectContaining({
-          totalAttempts: 3,
-          fallbackAttempts: 1,
-          p95LatencyMs: 250,
+          receiptCount: 6,
         }),
-        providers: [
+        health: expect.objectContaining({
+          status: 'degraded',
+          replayAvailable: true,
+        }),
+        receipts: [
           expect.objectContaining({
-            providerName: 'openrouter',
-            lastStatus: 'failed',
-          }),
-          expect.objectContaining({
-            providerName: 'openai',
-            fallbackAttempts: 1,
+            kind: 'error',
+            source: 'agent.error',
           }),
         ],
-      }),
-      surface: expect.objectContaining({
-        zavorthControlPath: '/zavorthControl?status=failed',
+        timeline: [
+          expect.objectContaining({
+            receiptId: 'receipt:event-failed',
+          }),
+        ],
+        replay: expect.objectContaining({
+          available: true,
+          commandHints: ['zavorth observatory status failed --json'],
+        }),
+        llmTelemetry: expect.objectContaining({
+          summary: expect.objectContaining({
+            totalAttempts: 3,
+            fallbackAttempts: 1,
+            p95LatencyMs: 250,
+          }),
+          providers: [
+            expect.objectContaining({
+              providerName: 'openrouter',
+              lastStatus: 'failed',
+            }),
+            expect.objectContaining({
+              providerName: 'openai',
+              fallbackAttempts: 1,
+            }),
+          ],
+        }),
+        surface: expect.objectContaining({
+          zavorthControlPath: '/zavorthControl?status=failed',
+        }),
       }),
     }));
   });

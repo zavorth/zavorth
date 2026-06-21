@@ -52,7 +52,7 @@ export class AgentRunEchoHandsExecutor {
     }
 
     if (!this.isRuntimeAvailable(toolRuntime)) {
-      return this.buildDegradedResult('Echo Hands indisponivel no tool runtime desta execucao.', {
+      return this.buildDegradedResult('Echo Hands unavailable in the tool runtime for this execution.', {
         reason: 'echo-hands-unavailable',
         toolRuntimeAvailable: false,
       });

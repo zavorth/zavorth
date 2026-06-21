@@ -36,6 +36,7 @@ describe('ZavorthCapabilityActionSurfaceService', () => {
           ],
         } as any),
       },
+      verifiedActions: [],
     });
 
     const snapshot = service.buildSnapshot();
@@ -69,11 +70,24 @@ describe('ZavorthCapabilityActionSurfaceService', () => {
           receipts: [],
         } as any),
       },
+      verifiedActions: [],
     });
 
     const snapshot = service.buildSnapshot();
     expect(snapshot.status).toBe('available');
     expect(snapshot.items).toEqual([]);
     expect(service.renderText(snapshot)).toContain('- none yet');
+  });
+
+  test('projects built-in verified Action Harness actions by default', () => {
+    const service = new ZavorthCapabilityActionSurfaceService();
+
+    const snapshot = service.buildSnapshot();
+
+    expect(snapshot.items.map((item) => item.actionId)).toEqual(expect.arrayContaining([
+      'workspace.create_file',
+      'workspace.read_file',
+      'web.search',
+    ]));
   });
 });

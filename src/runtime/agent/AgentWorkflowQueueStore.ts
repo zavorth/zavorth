@@ -188,8 +188,8 @@ export class MemoryAgentWorkflowQueueStore implements AgentWorkflowQueueStore {
         retry: true,
       },
       notes: [
-        'Usado para testes e execucoes efemeras.',
-        'Nao sobrevive a restart.',
+        'Used for tests and ephemeral executions.',
+        'Does not survive restart.',
       ],
     };
   }
@@ -305,8 +305,8 @@ export class JsonAgentWorkflowQueueStore implements AgentWorkflowQueueStore {
       },
       location: this.filePath,
       notes: [
-        'Usa lock de arquivo para concorrencia local.',
-        'Nao substitui um adapter distribuido para multi-host.',
+        'Uses a file lock for local concurrency.',
+        'Does not replace a distributed adapter for multi-host operation.',
       ],
     };
   }
@@ -465,7 +465,7 @@ export class JsonAgentWorkflowQueueStore implements AgentWorkflowQueueStore {
       } catch {
         this.removeStaleLock(lockPath);
         if (Date.now() - startedAt > this.lockTimeoutMs) {
-          throw new Error(`Nao consegui adquirir lock local da fila: ${lockPath}`);
+          throw new Error(`Could not acquire local queue lock: ${lockPath}`);
         }
         this.sleepSync(10);
       }

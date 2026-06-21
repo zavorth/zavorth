@@ -1,0 +1,28 @@
+{
+  "id": "zavorth-clickhouse-analytics",
+  "name": "ClickHouse Analytics Engine",
+  "native": true,
+  "description": "Query analytical databases, process Parquet/CSV files locally, and optimize ClickHouse CTL setups.",
+  "category": "database",
+  "permissionProfileId": "workspace-read",
+  "riskLevel": "low",
+  "capabilityTags": [
+    "database",
+    "analytics"
+  ],
+  "presets": [
+    "developer",
+    "power-user"
+  ],
+  "inputContract": [
+    "dataset path",
+    "analytical query"
+  ],
+  "outputContract": [
+    "query results",
+    "performance metrics"
+  ],
+  "noExecutionByDefault": false,
+  "requiresPolicyBroker": true,
+  "receiptsRequired": true
+}

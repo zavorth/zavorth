@@ -1,0 +1,27 @@
+{
+  "id": "zavorth-documentation-coauthor",
+  "name": "Documentation Co-Author",
+  "native": true,
+  "description": "Draft, edit, and co-author high-end technical documentations and tutorials.",
+  "category": "productivity",
+  "permissionProfileId": "workspace-write",
+  "riskLevel": "low",
+  "capabilityTags": [
+    "productivity",
+    "writing"
+  ],
+  "presets": [
+    "basic",
+    "developer"
+  ],
+  "inputContract": [
+    "raw sections",
+    "tone guidelines"
+  ],
+  "outputContract": [
+    "polished markdown document"
+  ],
+  "noExecutionByDefault": false,
+  "requiresPolicyBroker": true,
+  "receiptsRequired": true
+}

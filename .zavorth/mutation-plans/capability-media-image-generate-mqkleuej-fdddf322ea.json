@@ -1,0 +1,63 @@
+{
+  "id": "capability-media-image-generate-mqkleuej-fdddf322ea",
+  "domain": "capability",
+  "actionId": "media.image.generate",
+  "title": "Generate image artifact",
+  "summary": "Action Harness requires approval before applying media.image.generate.",
+  "createdAt": "2026-06-19T07:13:58.891Z",
+  "updatedAt": "2026-06-19T07:13:58.891Z",
+  "expiresAt": "2026-06-20T07:13:58.891Z",
+  "payloadHash": "fdddf322eadb2189c95c9c270187e396296d757ab86323929cf289993a2b8200",
+  "status": "waiting_approval",
+  "requestedBy": "smoke-test",
+  "sourceSurface": "llm",
+  "riskLevel": "medium",
+  "approval": {
+    "required": true,
+    "status": "pending",
+    "defaultScope": "once",
+    "availableScopes": [
+      "once",
+      "session",
+      "host"
+    ],
+    "permissionId": null,
+    "requestedBy": "smoke-test",
+    "reason": "Zavorth Action Harness blocked apply until explicit approval or trusted operator confirmation."
+  },
+  "resourceImpact": {
+    "ramMb": 0,
+    "diskMb": 0,
+    "processCount": 0,
+    "externalExposure": "none",
+    "recurring": false,
+    "notes": []
+  },
+  "readinessGates": [],
+  "retentionPolicy": {
+    "ttlMs": 86400000,
+    "maxBytes": null,
+    "cleanupOnSuccess": false,
+    "cleanupOnBoot": false,
+    "notes": []
+  },
+  "validationPlan": [
+    "Review action preview and target values before approval."
+  ],
+  "rollbackPlan": [
+    "Re-apply previous configuration value from receipt if needed."
+  ],
+  "payload": {
+    "actionId": "media.image.generate",
+    "args": {
+      "prompt": "native power pack"
+    }
+  },
+  "audit": [
+    {
+      "at": "2026-06-19T07:13:58.891Z",
+      "event": "plan.created",
+      "message": "Plano criado aguardando approval."
+    }
+  ]
+}

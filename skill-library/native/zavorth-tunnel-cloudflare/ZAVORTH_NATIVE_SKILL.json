@@ -1,0 +1,30 @@
+{
+  "id": "zavorth-tunnel-cloudflare",
+  "name": "Cloudflare Tunnel Agent",
+  "native": true,
+  "description": "Expose local preview environments securely using ephemeral Cloudflare tunnels.",
+  "category": "devops",
+  "permissionProfileId": "host-write",
+  "riskLevel": "high",
+  "capabilityTags": [
+    "devops",
+    "network"
+  ],
+  "presets": [
+    "developer",
+    "power-user"
+  ],
+  "inputContract": [
+    "local port",
+    "hostname",
+    "auth token"
+  ],
+  "outputContract": [
+    "tunnel url",
+    "status",
+    "active connections"
+  ],
+  "noExecutionByDefault": true,
+  "requiresPolicyBroker": true,
+  "receiptsRequired": true
+}

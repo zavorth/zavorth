@@ -1,0 +1,29 @@
+{
+  "id": "zavorth-package-runtime-solver",
+  "name": "Dependency Solver",
+  "native": true,
+  "description": "Solve package dependency conflicts, missing runtimes, and lockfile errors locally.",
+  "category": "devops",
+  "permissionProfileId": "workspace-write",
+  "riskLevel": "medium",
+  "capabilityTags": [
+    "devops",
+    "development"
+  ],
+  "presets": [
+    "developer"
+  ],
+  "inputContract": [
+    "error message",
+    "package manager",
+    "context path"
+  ],
+  "outputContract": [
+    "proposed fix",
+    "missing dependencies",
+    "execution log"
+  ],
+  "noExecutionByDefault": false,
+  "requiresPolicyBroker": true,
+  "receiptsRequired": true
+}

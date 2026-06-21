@@ -52,6 +52,7 @@ const BACKEND_ORDER: ZavorthTerminalBackendId[] = [
   'vercel-sandbox',
   'modal',
   'daytona',
+  'singularity',
 ];
 
 export class ZavorthTerminalBackendsService {
@@ -318,6 +319,7 @@ export class ZavorthTerminalBackendsService {
     const vercelConfigured = isTruthy(this.env.ZAVORTH_VERCEL_SANDBOX_ENABLED) && Boolean(this.env.VERCEL_TOKEN);
     const modalReady = modalConfigured(this.env);
     const daytonaReady = daytonaConfigured(this.env);
+    const singularityConfigured = isTruthy(this.env.ZAVORTH_SINGULARITY_ENABLED) && Boolean(String(this.env.ZAVORTH_SINGULARITY_IMAGE || '').trim());
     const dockerAvailability = dockerConfigured
       ? null
       : this.probeExecutablePresence('docker', 'Docker CLI was found; Docker daemon readiness is deferred until a task asks for isolated execution.');
@@ -345,6 +347,11 @@ export class ZavorthTerminalBackendsService {
     const daytonaProbe = daytonaReady
       ? this.probeBackend(String(this.env.ZAVORTH_DAYTONA_COMMAND || 'daytona'), ['version'])
       : readinessProof('not-configured', false, 'Daytona credentials or workspace are not configured.', null);
+    const singularityProbe = singularityConfigured
+      ? this.probeBackend(String(this.env.ZAVORTH_SINGULARITY_COMMAND || this.env.ZAVORTH_APPTAINER_COMMAND || 'singularity'), ['--version'])
+      : this.probeExecutablePresence('singularity', 'Singularity CLI was found; image policy remains disabled until explicitly configured.')
+        || this.probeExecutablePresence('apptainer', 'Apptainer CLI was found; image policy remains disabled until explicitly configured.')
+        || readinessProof('not-configured', false, 'Singularity/Apptainer is not enabled for Zavorth execution backends.', null);
     const sshProof = sshConfigured
       ? readinessProof('configured-only', true, 'SSH host is configured; run a scoped live probe before treating it as strong execution readiness.', 'ssh <host> -- true')
       : readinessProof('not-configured', false, 'SSH host is not configured.', null);
@@ -476,6 +483,22 @@ export class ZavorthTerminalBackendsService {
         nextCommand: 'configure Daytona credentials/workspace and run zavorth execution-backends --backend daytona',
         limitations: ['Workspace target, mounts and network use stay governed by approval and receipts.'],
         readinessProof: daytonaProbe,
+      }),
+      descriptor({
+        id: 'singularity',
+        label: 'Singularity / Apptainer container',
+        status: backendStateFromProof(singularityProbe).status,
+        isolation: 'container',
+        installed: singularityProbe.kind === 'host-probe' || singularityProbe.kind === 'available-dormant',
+        dormant: backendStateFromProof(singularityProbe).dormant,
+        activationMode: backendStateFromProof(singularityProbe).activationMode,
+        liveCapable: true,
+        liveReady: backendStateFromProof(singularityProbe).liveReady,
+        requiresConfiguration: ['Singularity or Apptainer CLI', 'ZAVORTH_SINGULARITY_ENABLED=true', 'ZAVORTH_SINGULARITY_IMAGE'],
+        defaultCommand: 'singularity exec --containall --no-home --bind <workspace>:/workspace <image> sh -lc <command>',
+        nextCommand: 'set ZAVORTH_SINGULARITY_ENABLED=true and ZAVORTH_SINGULARITY_IMAGE=<image>; run zavorth execution-backends --backend singularity',
+        limitations: ['Image provenance and bind mounts remain policy-controlled; network is disabled unless explicitly allowed by host policy.'],
+        readinessProof: singularityProbe,
       }),
     ];
   }
@@ -735,6 +758,15 @@ function buildEnvelope(input: {
       executable,
       args: ['workspace', 'exec', workspace, '--', command],
       displayCommand: `${executable} workspace exec ${workspace} -- ${quoteDisplay(command)}`,
+    };
+  }
+  if (input.backend === 'singularity') {
+    const executable = String(input.env.ZAVORTH_SINGULARITY_COMMAND || input.env.ZAVORTH_APPTAINER_COMMAND || 'singularity').trim();
+    const image = String(input.env.ZAVORTH_SINGULARITY_IMAGE || '<image>').trim();
+    return {
+      executable,
+      args: ['exec', '--containall', '--no-home', '--bind', `${input.workspace}:/workspace`, '--pwd', '/workspace', image, 'sh', '-lc', command],
+      displayCommand: `${executable} exec --containall --no-home --bind <workspace>:/workspace ${image} sh -lc ${quoteDisplay(command)}`,
     };
   }
   return {

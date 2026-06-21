@@ -165,9 +165,10 @@ describe('ZavorthControl Agent Team Compiler Channel mesh0', () => {
       matchedRuns: 0,
       runs: [],
       diffPreviews: [],
-      intelligenceFabricHealth: null,
-      zavorthControlIntelligenceFabricHealth: null,
+      intelligenceFabricHealth: {},
+      extensions: {},
     }));
+    expect(observatory.zavorthControlIntelligenceFabricHealth).toBeUndefined();
     expect(observatory.indexes).toEqual(expect.objectContaining({
       runIds: [],
       traceIds: [],

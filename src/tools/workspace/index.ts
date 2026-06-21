@@ -16,6 +16,33 @@ export {
 export {
   WorkspaceWriteTool,
 } from './WorkspaceWriteTool.js';
+export {
+  WorkspaceTaskMandateProposeTool,
+} from './WorkspaceTaskMandateProposeTool.js';
+export {
+  WorkspaceCommandProposeTool,
+} from './WorkspaceCommandProposeTool.js';
+export {
+  WorkspaceCommandRunTool,
+} from './WorkspaceCommandRunTool.js';
+export {
+  TemporaryDirectoryTrustProposeTool,
+} from './TemporaryDirectoryTrustProposeTool.js';
+export {
+  HostCommandProposeTool,
+} from './HostCommandProposeTool.js';
+export {
+  HostCommandRunTool,
+} from './HostCommandRunTool.js';
+export {
+  PtySessionProposeTool,
+} from './PtySessionProposeTool.js';
+export {
+  PtyWriteTool,
+} from './PtyWriteTool.js';
+export {
+  PtyTerminateTool,
+} from './PtyTerminateTool.js';
 export type {
   WorkspaceFsAccess,
   WorkspaceFsPolicyOptions,

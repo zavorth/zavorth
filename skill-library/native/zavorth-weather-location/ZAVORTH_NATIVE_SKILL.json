@@ -1,0 +1,29 @@
+{
+  "id": "zavorth-weather-location",
+  "name": "Geographic & Weather Engine",
+  "native": true,
+  "description": "Resolve geographic coordinates and fetch local climate forecasts.",
+  "category": "productivity",
+  "permissionProfileId": "workspace-read",
+  "riskLevel": "low",
+  "capabilityTags": [
+    "productivity",
+    "weather"
+  ],
+  "presets": [
+    "basic",
+    "developer",
+    "power-user"
+  ],
+  "inputContract": [
+    "location",
+    "forecast option"
+  ],
+  "outputContract": [
+    "weather data",
+    "location coordinates"
+  ],
+  "noExecutionByDefault": false,
+  "requiresPolicyBroker": true,
+  "receiptsRequired": true
+}

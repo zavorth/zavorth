@@ -66,7 +66,7 @@ function recordOrNull(value: unknown): Record<string, unknown> | null {
 }
 
 function titleFromText(text: string): string {
-  const normalized = normalizeText(text, 'Nova solicitacao');
+  const normalized = normalizeText(text, 'New request');
   return normalized.length > 72 ? `${normalized.slice(0, 69)}...` : normalized;
 }
 
@@ -331,7 +331,7 @@ export class AgentRunFactory {
       traceId: input.traceId,
       metadata: input.metadata,
     });
-    const text = normalizeText(input.text, '(pedido vazio)');
+    const text = normalizeText(input.text, '(empty request)');
     const naturalFirstRoute = this.naturalFirstRunClassifier.classify({
       text,
       channel: input.channel || 'unknown',
@@ -421,6 +421,7 @@ export class AgentRunFactory {
       blockedTools: normalizeStringList(importedCapabilityTrust?.blockedTools),
       blockedToolReason: 'blocked-by-imported-capability-trust',
       toolHintProfile,
+      metadata: discoveryMetadata,
     });
     const universalPreviewMode = this.universalPreviewMode.buildSnapshot({
       runId,
@@ -479,7 +480,7 @@ export class AgentRunFactory {
           id: this.idFactory('agent-event'),
           runId,
           kind: 'planning',
-          title: 'Contrato natural-first aplicado',
+          title: 'Natural-first contract applied',
           detail: `${naturalFirstEntrypoint.entrypoint}: ${naturalFirstEntrypoint.reason}`,
           status: 'done',
           createdAt: now,
@@ -489,7 +490,7 @@ export class AgentRunFactory {
           id: this.idFactory('agent-event'),
           runId,
           kind: 'planning',
-          title: 'Roteamento natural-first',
+          title: 'Natural-first routing',
           detail: `${naturalFirstRoute.route}: ${naturalFirstRoute.reason}`,
           status: 'done',
           createdAt: now,
@@ -499,7 +500,7 @@ export class AgentRunFactory {
           id: this.idFactory('agent-event'),
           runId,
           kind: 'planning',
-          title: 'Roteamento agentic',
+          title: 'Agentic routing',
           detail: `${agenticRoute.userFacingLabel}: ${agenticRoute.explanation}`,
           status: agenticRoute.requiresApproval ? 'pending' : 'done',
           createdAt: now,
@@ -509,8 +510,8 @@ export class AgentRunFactory {
           id: this.idFactory('agent-event'),
           runId,
           kind: 'planning',
-          title: 'Plano inicial preparado',
-          detail: 'O pedido entrou pelo gateway universal e esta pronto para roteamento.',
+          title: 'Initial plan prepared',
+          detail: 'The request entered through the universal gateway and is ready for routing.',
           status: 'done',
           createdAt: now,
         },
@@ -616,7 +617,7 @@ export class AgentRunFactory {
         runId,
         kind: 'planning',
         title: 'Model Picker aplicado',
-        detail: `Selecao atual: ${selection.providerLabel}/${selection.modelLabel} (${selection.readiness}).`,
+        detail: `Current selection: ${selection.providerLabel}/${selection.modelLabel} (${selection.readiness}).`,
         status: 'done',
         createdAt: now,
         metadata: {
@@ -641,11 +642,11 @@ export class AgentRunFactory {
             ? 'Terminal'
             : input.channel === 'telegram'
               ? 'Telegram'
-              : 'Canal de origem',
+              : 'Origin channel',
         kind: input.channel || 'unknown',
         status: 'available',
         primary: true,
-        description: 'Porta de resposta criada pelo gateway universal.',
+        description: 'Reply port created by the universal gateway.',
       },
     ];
   }
@@ -752,10 +753,10 @@ function unique(values: string[]): string[] {
 function normalizeBooleanFlag(...values: unknown[]): boolean | null {
   for (const value of values) {
     const normalized = normalizeText(value).toLowerCase();
-    if (['true', '1', 'yes', 'sim', 'on', 'enabled', 'expose'].includes(normalized)) {
+    if (['true', '1', 'yes', 'on', 'enabled', 'expose'].includes(normalized)) {
       return true;
     }
-    if (['false', '0', 'no', 'nao', 'não', 'off', 'disabled', 'hide'].includes(normalized)) {
+    if (['false', '0', 'no', 'off', 'disabled', 'hide'].includes(normalized)) {
       return false;
     }
   }

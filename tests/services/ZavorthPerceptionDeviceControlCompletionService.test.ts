@@ -39,6 +39,8 @@ describe('ZavorthPerceptionDeviceControlCompletionService Intent model0', () => 
       'tap/type on my phone to fix this',
     ]));
     const formattedSnapshot = service.formatSnapshotText(snapshot);
+    const governedControlMarker = 'tap/type/click/install/zavorthControl';
+    expect(governedControlMarker).toBe('tap/type/click/install/zavorthControl');
     expect(formattedSnapshot).toContain('tap/type/click/install/ZavorthControl');
   });
 });

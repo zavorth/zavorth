@@ -1,0 +1,30 @@
+{
+  "id": "zavorth-email-client-manager",
+  "name": "Email SMTP/IMAP Manager",
+  "native": true,
+  "description": "Manage client communications by drafting, sending, and triaging emails safely.",
+  "category": "productivity",
+  "permissionProfileId": "host-write",
+  "riskLevel": "high",
+  "capabilityTags": [
+    "productivity",
+    "communication"
+  ],
+  "presets": [
+    "developer",
+    "power-user"
+  ],
+  "inputContract": [
+    "recipient",
+    "subject",
+    "body",
+    "attachments"
+  ],
+  "outputContract": [
+    "delivery receipt",
+    "inbox summary"
+  ],
+  "noExecutionByDefault": true,
+  "requiresPolicyBroker": true,
+  "receiptsRequired": true
+}

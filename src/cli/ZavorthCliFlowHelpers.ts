@@ -931,8 +931,8 @@ function createCliWorkflowQueueExecutor(
       events: [
         {
           kind: 'tool',
-          title: 'Workflow duravel processado',
-          detail: `Execucao delegada para ${String(delegated.metadata?.delegatedTo || 'executor')}.`,
+          title: 'Durable workflow processed',
+          detail: `Execution delegated to ${String(delegated.metadata?.delegatedTo || 'executor')}.`,
           status: 'done',
           metadata: {
             ...(delegated.metadata || {}),
@@ -1000,11 +1000,11 @@ function buildWorkflowJobCounts(jobs: UniversalAgentWorkflowJob[]): Record<strin
 
 function formatWorkflowJobCounts(counts: Record<string, number>): string {
   return [
-    `aguardando aprovacao ${counts.waiting_approval || 0}`,
-    `na fila ${counts.queued || 0}`,
-    `rodando ${counts.running || 0}`,
-    `concluidos ${counts.completed || 0}`,
-    `falharam ${counts.failed || 0}`,
+    `waiting approval ${counts.waiting_approval || 0}`,
+    `queued ${counts.queued || 0}`,
+    `running ${counts.running || 0}`,
+    `completed ${counts.completed || 0}`,
+    `failed ${counts.failed || 0}`,
   ].join('  -  ');
 }
 
@@ -1013,7 +1013,7 @@ function summarizeWorkflowQueueJobs(jobs: UniversalAgentWorkflowJob[], limit = 5
     `${job.status}`,
     job.id,
     `run ${job.runId}`,
-    job.lastError ? `erro: ${job.lastError}` : '',
+    job.lastError ? `error: ${job.lastError}` : '',
   ].filter(Boolean).join('  -  '));
 }
 
@@ -1025,7 +1025,7 @@ export async function executeCliWorkflowQueueCommand(
 ): Promise<CliExecutionResult | null> {
   const agentGateway = runtime.agentGateway || null;
   if (!agentGateway) {
-    const error = 'Workflow queue indisponivel nesta instancia da CLI.';
+    const error = 'Workflow queue is unavailable in this CLI instance.';
     if (flags.json) {
       const body = JSON.stringify({
         ok: false,
@@ -1045,7 +1045,7 @@ export async function executeCliWorkflowQueueCommand(
 
   const action = resolveWorkflowQueueAction(args);
   if (action === 'unknown') {
-    const error = 'Use workflows status ou workflows process.';
+    const error = 'Use workflows status or workflows process.';
     if (flags.json) {
       const body = JSON.stringify({
         ok: false,
@@ -1058,7 +1058,7 @@ export async function executeCliWorkflowQueueCommand(
     const body = formatCliRecoverableErrorEventCard({
       body: error,
       command: 'workflows status',
-      hints: ['Para rodar a fila local: workflows process'],
+      hints: ['To run the local queue: workflows process'],
     });
     writer.line(body);
     return { ok: false, handled: true, output: [body], error };
@@ -1075,7 +1075,17 @@ export async function executeCliWorkflowQueueCommand(
         generatedAt: snapshot.generatedAt,
         queue: snapshot.workflowQueue,
         counts,
-        jobs,
+        jobs: jobs.map((job: any) => ({
+          id: job.id,
+          kind: job.kind,
+          runId: job.runId || null,
+          approvalId: job.approvalId || null,
+          status: job.status,
+          attempts: job.attempts ?? null,
+          createdAt: job.createdAt || null,
+          updatedAt: job.updatedAt || null,
+          nextAttemptAt: job.nextAttemptAt || null,
+        })),
       }, null, 2);
       writer.line(body);
       return { ok: true, handled: true, output: [body], error: null };
@@ -1084,14 +1094,14 @@ export async function executeCliWorkflowQueueCommand(
     const body = formatCliChatAssistantMessage({
       title: 'Workflow Queue',
       body: [
-        `Fila: ${snapshot.workflowQueue.label}`,
-        `Adapter: ${snapshot.workflowQueue.kind}  -  ${snapshot.workflowQueue.capabilities.durable ? 'duravel' : 'memoria'}  -  ${snapshot.workflowQueue.capabilities.multiHostSafe ? 'multi-host' : 'local'}`,
+        `Queue: ${snapshot.workflowQueue.label}`,
+        `Adapter: ${snapshot.workflowQueue.kind}  -  ${snapshot.workflowQueue.capabilities.durable ? 'durable' : 'memory'}  -  ${snapshot.workflowQueue.capabilities.multiHostSafe ? 'multi-host' : 'local'}`,
         `Jobs: ${counts.total}`,
         formatWorkflowJobCounts(counts),
         ...summarizeWorkflowQueueJobs(jobs),
       ],
       hints: [
-        counts.queued > 0 ? 'workflows process' : 'Nada pronto para processar agora.',
+        counts.queued > 0 ? 'workflows process' : 'Nothing is ready to process right now.',
         'workflows status --json',
       ],
     });
@@ -1128,7 +1138,7 @@ export async function executeCliWorkflowQueueCommand(
       remaining: snapshot.workflowJobs.filter((job) => job.status === 'queued').length,
     }, null, 2);
     writer.line(body);
-    return { ok: failed === 0, handled: true, output: [body], error: failed > 0 ? 'Um ou mais workflows falharam.' : null };
+    return { ok: failed === 0, handled: true, output: [body], error: failed > 0 ? 'One or more workflows failed.' : null };
   }
 
   const primaryReply = results
@@ -1136,14 +1146,14 @@ export async function executeCliWorkflowQueueCommand(
     .filter(Boolean)
     .slice(0, 3);
   const body = formatCliSuccessEventCard({
-    title: results.length > 0 ? 'Fila processada' : 'Workflow Queue',
+    title: results.length > 0 ? 'Queue processed' : 'Workflow Queue',
     body: results.length > 0
       ? [
-        `${results.length} workflow(s) processado(s).`,
-        failed > 0 ? `${failed} workflow(s) falharam e seguem registrados na fila.` : 'Nenhuma falha reportada pelo worker.',
+        `${results.length} workflow(s) processed.`,
+        failed > 0 ? `${failed} workflow(s) failed and remain recorded in the queue.` : 'No failures were reported by the worker.',
         ...primaryReply,
       ]
-      : 'Nenhum workflow pronto para processar agora.',
+      : 'No workflow is ready to process right now.',
     hints: [
       'workflows status',
       'workflows process --json',
@@ -1154,7 +1164,7 @@ export async function executeCliWorkflowQueueCommand(
     ok: failed === 0,
     handled: true,
     output: [body],
-    error: failed > 0 ? 'Um ou mais workflows falharam.' : null,
+    error: failed > 0 ? 'One or more workflows failed.' : null,
   };
 }
 
@@ -1171,7 +1181,7 @@ export async function executeCliUniversalAgentRuntime(
       ok: false,
       handled: false,
       output: [],
-      error: 'Runtime universal indisponivel para a CLI.',
+      error: 'Universal runtime is unavailable for the CLI.',
     };
   }
   if (flags.terminalAbortSignal?.aborted) {
@@ -1566,7 +1576,7 @@ export async function executeCliLegacyUnifiedConversation(
       error: null,
     };
   } catch (error: any) {
-    const message = `Nao consegui processar essa conversa pela CLI unificada: ${error.message}`;
+    const message = `Could not process this conversation through the unified CLI: ${error.message}`;
     if (flags.repl) {
       const body = formatCliRecoverableErrorEventCard({
         body: message,

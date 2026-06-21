@@ -59,7 +59,7 @@ describe('ZavorthAgentGateway smoke', () => {
     expect(result.run.events).toEqual(expect.arrayContaining([
       expect.objectContaining({
         kind: 'input',
-        title: 'Pedido recebido',
+        title: 'Request received',
         detail: 'confirme que o agent loop esta vivo',
       }),
       expect.objectContaining({
@@ -91,7 +91,7 @@ describe('ZavorthAgentGateway smoke', () => {
     }));
     expect(result.replies[0]).toEqual(expect.objectContaining({
       runId: result.run.id,
-      text: expect.stringContaining('Recebi: "confirme que o agent loop esta vivo"'),
+      text: expect.stringContaining('Received: "confirme que o agent loop esta vivo"'),
       metadata: expect.objectContaining({
         traceId: 'trace-smoke-gateway',
         sessionId: 'session-smoke-gateway',

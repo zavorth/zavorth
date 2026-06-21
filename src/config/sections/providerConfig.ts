@@ -22,6 +22,22 @@ function parsePositiveInt(rawValue: string | undefined, fallback: number): numbe
   return Number.isFinite(parsed) && parsed > 0 ? parsed : fallback;
 }
 
+function getEnv(key: string, fallback = ''): string {
+  return process.env[key] || fallback;
+}
+
+function getEnvBool(key: string, fallback = false): boolean {
+  return parseBooleanFlag(process.env[key], fallback);
+}
+
+function getEnvInt(key: string, fallback: number): number {
+  return parsePositiveInt(process.env[key], fallback);
+}
+
+function getEnvUrl(key: string, fallback = ''): string {
+  return normalizeUrl(process.env[key] || fallback);
+}
+
 export const DEFAULT_ECHO_LLM_FALLBACK_ORDER = [
   'aigateway',
   'gemini',
@@ -79,23 +95,23 @@ function readPersistedProviderPreference(projectRoot?: string): PersistedProvide
 
 export function buildProviderConfig(projectRoot?: string) {
   const persistedPreference = readPersistedProviderPreference(projectRoot);
-  const directProviderDebug = parseBooleanFlag(process.env.ZAVORTH_DIRECT_PROVIDER_DEBUG, false);
+  const directProviderDebug = getEnvBool('ZAVORTH_DIRECT_PROVIDER_DEBUG', false);
   const selectedProvider = String(
     directProviderDebug
-      ? (process.env.LLM_PROVIDER || persistedPreference?.providerId || 'gemini')
+      ? (getEnv('LLM_PROVIDER', persistedPreference?.providerId || 'gemini'))
       : 'aigateway',
   ).trim();
-  const selectedModel = String(process.env.ZAVORTH_MODEL_ID || process.env.ZAVORTH_MODEL || persistedPreference?.modelId || '').trim();
+  const selectedModel = String(getEnv('ZAVORTH_MODEL_ID', getEnv('ZAVORTH_MODEL', persistedPreference?.modelId || ''))).trim();
   return {
     // LLM Provider
     llmProvider: selectedProvider,
     directProviderDebug,
     echoLlmFallbackOrder: parseEchoLlmFallbackOrder(
-      process.env.ZAVORTH_ECHO_LLM_FALLBACK_ORDER || process.env.ZAVORTH_ECHO_FALLBACK_ORDER,
+      getEnv('ZAVORTH_ECHO_LLM_FALLBACK_ORDER', getEnv('ZAVORTH_ECHO_FALLBACK_ORDER')),
     ),
 
     // API Keys
-    geminiApiKey: process.env.GEMINI_API_KEY || '',
+    geminiApiKey: getEnv('GEMINI_API_KEY'),
     geminiApiKeys: [
       process.env.GEMINI_API_KEY,
       process.env.GEMINI_API_KEY_2,
@@ -103,59 +119,59 @@ export function buildProviderConfig(projectRoot?: string) {
       process.env.GEMINI_API_KEY_4,
       process.env.GEMINI_API_KEY_5,
     ].filter(Boolean) as string[],
-    cloudflareAiGatewayAccountId: process.env.CLOUDFLARE_AI_GATEWAY_ACCOUNT_ID || '',
-    cloudflareAiGatewayId: process.env.CLOUDFLARE_AI_GATEWAY_ID || '',
+    cloudflareAiGatewayAccountId: getEnv('CLOUDFLARE_AI_GATEWAY_ACCOUNT_ID'),
+    cloudflareAiGatewayId: getEnv('CLOUDFLARE_AI_GATEWAY_ID'),
     cloudflareAiGatewayBaseUrl: buildCloudflareAiGatewayBaseUrl(
-      process.env.CLOUDFLARE_AI_GATEWAY_BASE_URL || '',
-      process.env.CLOUDFLARE_AI_GATEWAY_ACCOUNT_ID || '',
-      process.env.CLOUDFLARE_AI_GATEWAY_ID || '',
+      getEnv('CLOUDFLARE_AI_GATEWAY_BASE_URL'),
+      getEnv('CLOUDFLARE_AI_GATEWAY_ACCOUNT_ID'),
+      getEnv('CLOUDFLARE_AI_GATEWAY_ID'),
     ),
-    cloudflareAiGatewayToken: process.env.CLOUDFLARE_AI_GATEWAY_TOKEN || '',
+    cloudflareAiGatewayToken: getEnv('CLOUDFLARE_AI_GATEWAY_TOKEN'),
     geminiApiBaseUrl: normalizeUrl(
       buildCloudflareAiGatewayBaseUrl(
-        process.env.CLOUDFLARE_AI_GATEWAY_BASE_URL || '',
-        process.env.CLOUDFLARE_AI_GATEWAY_ACCOUNT_ID || '',
-        process.env.CLOUDFLARE_AI_GATEWAY_ID || '',
-      ) || process.env.GEMINI_API_BASE_URL || '',
+        getEnv('CLOUDFLARE_AI_GATEWAY_BASE_URL'),
+        getEnv('CLOUDFLARE_AI_GATEWAY_ACCOUNT_ID'),
+        getEnv('CLOUDFLARE_AI_GATEWAY_ID'),
+      ) || getEnv('GEMINI_API_BASE_URL'),
     ),
-    geminiApiVersion: String(process.env.GEMINI_API_VERSION || '').trim(),
-    geminiApiClient: String(process.env.GEMINI_API_CLIENT || 'zavorth').trim(),
-    geminiInteractionsEnabled: parseBooleanFlag(process.env.ZAVORTH_GEMINI_INTERACTIONS_ENABLED, false),
-    geminiInteractionsApiKey: process.env.GEMINI_INTERACTIONS_API_KEY || process.env.GEMINI_API_KEY || '',
-    geminiInteractionsBaseUrl: normalizeUrl(process.env.GEMINI_INTERACTIONS_BASE_URL || 'https://generativelanguage.googleapis.com/v1beta'),
-    geminiInteractionsModel: process.env.GEMINI_INTERACTIONS_MODEL || 'gemini-3.5-flash',
-    geminiManagedAgentsEnabled: parseBooleanFlag(process.env.ZAVORTH_GEMINI_MANAGED_AGENTS_ENABLED, false),
-    geminiManagedAgentsBaseUrl: normalizeUrl(process.env.GEMINI_MANAGED_AGENTS_BASE_URL || process.env.GEMINI_INTERACTIONS_BASE_URL || 'https://generativelanguage.googleapis.com/v1beta'),
-    geminiManagedAgentsModel: process.env.GEMINI_MANAGED_AGENTS_MODEL || process.env.GEMINI_INTERACTIONS_MODEL || 'gemini-3.5-flash',
-    geminiManagedAgentsAgent: process.env.GEMINI_MANAGED_AGENTS_AGENT || 'zavorth-managed-agent',
-    geminiManagedAgentsStore: parseBooleanFlag(process.env.GEMINI_MANAGED_AGENTS_STORE, false),
+    geminiApiVersion: getEnv('GEMINI_API_VERSION').trim(),
+    geminiApiClient: getEnv('GEMINI_API_CLIENT', 'zavorth').trim(),
+    geminiInteractionsEnabled: getEnvBool('ZAVORTH_GEMINI_INTERACTIONS_ENABLED', false),
+    geminiInteractionsApiKey: getEnv('GEMINI_INTERACTIONS_API_KEY', getEnv('GEMINI_API_KEY')),
+    geminiInteractionsBaseUrl: getEnvUrl('GEMINI_INTERACTIONS_BASE_URL', 'https://generativelanguage.googleapis.com/v1beta'),
+    geminiInteractionsModel: getEnv('GEMINI_INTERACTIONS_MODEL', 'gemini-3.5-flash'),
+    geminiManagedAgentsEnabled: getEnvBool('ZAVORTH_GEMINI_MANAGED_AGENTS_ENABLED', false),
+    geminiManagedAgentsBaseUrl: getEnvUrl('GEMINI_MANAGED_AGENTS_BASE_URL', getEnv('GEMINI_INTERACTIONS_BASE_URL', 'https://generativelanguage.googleapis.com/v1beta')),
+    geminiManagedAgentsModel: getEnv('GEMINI_MANAGED_AGENTS_MODEL', getEnv('GEMINI_INTERACTIONS_MODEL', 'gemini-3.5-flash')),
+    geminiManagedAgentsAgent: getEnv('GEMINI_MANAGED_AGENTS_AGENT', 'zavorth-managed-agent'),
+    geminiManagedAgentsStore: getEnvBool('GEMINI_MANAGED_AGENTS_STORE', false),
     geminiCustomHeaders: (() => {
-      const headers = parseStringMap(process.env.GEMINI_CUSTOM_HEADERS_JSON || '');
-      const cloudflareToken = normalizeBearerToken(process.env.CLOUDFLARE_AI_GATEWAY_TOKEN || '');
+      const headers = parseStringMap(getEnv('GEMINI_CUSTOM_HEADERS_JSON'));
+      const cloudflareToken = normalizeBearerToken(getEnv('CLOUDFLARE_AI_GATEWAY_TOKEN'));
       if (cloudflareToken) {
         headers['cf-aig-authorization'] = cloudflareToken;
       }
       return headers;
     })(),
-    geminiCliCommand: process.env.GEMINI_CLI_COMMAND || (process.platform === 'win32' ? 'gemini.cmd' : 'gemini'),
-    geminiTranscriptionApiKey: process.env.GEMINI_TRANSCRIPTION_API_KEY || '',
-    geminiVoiceApiKey: process.env.GEMINI_VOICE_API_KEY || process.env.GEMINI_API_KEY || '',
-    aiStudioApiKey: process.env.AISTUDIO_API_KEY || process.env.GEMINI_API_KEY || '',
-    cloudflareTunnelPublicHostname: String(process.env.CLOUDFLARE_TUNNEL_PUBLIC_HOSTNAME || '')
+    geminiCliCommand: getEnv('GEMINI_CLI_COMMAND', process.platform === 'win32' ? 'gemini.cmd' : 'gemini'),
+    geminiTranscriptionApiKey: getEnv('GEMINI_TRANSCRIPTION_API_KEY'),
+    geminiVoiceApiKey: getEnv('GEMINI_VOICE_API_KEY', getEnv('GEMINI_API_KEY')),
+    aiStudioApiKey: getEnv('AISTUDIO_API_KEY', getEnv('GEMINI_API_KEY')),
+    cloudflareTunnelPublicHostname: getEnv('CLOUDFLARE_TUNNEL_PUBLIC_HOSTNAME')
       .trim()
       .replace(/^https?:\/\//i, '')
       .replace(/\/+$/, ''),
     cloudflareAiGatewayEnabled:
       Boolean(
         buildCloudflareAiGatewayBaseUrl(
-          process.env.CLOUDFLARE_AI_GATEWAY_BASE_URL || '',
-          process.env.CLOUDFLARE_AI_GATEWAY_ACCOUNT_ID || '',
-          process.env.CLOUDFLARE_AI_GATEWAY_ID || '',
+          getEnv('CLOUDFLARE_AI_GATEWAY_BASE_URL'),
+          getEnv('CLOUDFLARE_AI_GATEWAY_ACCOUNT_ID'),
+          getEnv('CLOUDFLARE_AI_GATEWAY_ID'),
         ),
       ),
 
-    deepseekApiKey: process.env.DEEPSEEK_API_KEY || '',
-    openaiApiKey: process.env.OPENAI_API_KEY || '',
+    deepseekApiKey: getEnv('DEEPSEEK_API_KEY'),
+    openaiApiKey: getEnv('OPENAI_API_KEY'),
     openaiApiKeys: [
       process.env.OPENAI_API_KEY,
       process.env.OPENAI_API_KEY_2,
@@ -163,44 +179,52 @@ export function buildProviderConfig(projectRoot?: string) {
       process.env.OPENAI_API_KEY_4,
       process.env.OPENAI_API_KEY_5,
     ].filter(Boolean) as string[],
-    minimaxApiKey: process.env.MINIMAX_API_KEY || '',
-    AIGatewayApiKey: process.env.AIGateway_API_KEY || '',
-    puterAuthToken: process.env.PUTER_AUTH_TOKEN || process.env.QWEN_PUTER_AUTH_TOKEN || '',
-    groqApiKey: process.env.GROQ_API_KEY || '',
-    deepgramApiKey: process.env.DEEPGRAM_API_KEY || '',
-    openRouterApiKey: process.env.OPENROUTER_API_KEY || '',
-    openCodeApiKey: process.env.OPENCODE_API_KEY || '',
-    julesApiKey: process.env.JULES_API_KEY || '',
-    stitchApiKey: process.env.STITCH_API_KEY || '',
-    stitchAccessToken: process.env.STITCH_ACCESS_TOKEN || '',
-    stitchGoogleCloudProject: process.env.GOOGLE_CLOUD_PROJECT || '',
-    stitchHost: process.env.STITCH_HOST || 'https://stitch.googleapis.com/mcp',
+    minimaxApiKey: getEnv('MINIMAX_API_KEY'),
+    AIGatewayApiKey: getEnv('AIGateway_API_KEY'),
+    puterAuthToken: getEnv('PUTER_AUTH_TOKEN', getEnv('QWEN_PUTER_AUTH_TOKEN')),
+    groqApiKey: getEnv('GROQ_API_KEY'),
+    xaiApiKey: getEnv('XAI_API_KEY'),
+    mistralApiKey: getEnv('MISTRAL_API_KEY'),
+    cerebrasApiKey: getEnv('CEREBRAS_API_KEY'),
+    togetherApiKey: getEnv('TOGETHER_API_KEY'),
+    deepgramApiKey: getEnv('DEEPGRAM_API_KEY'),
+    openRouterApiKey: getEnv('OPENROUTER_API_KEY'),
+    openCodeApiKey: getEnv('OPENCODE_API_KEY'),
+    julesApiKey: getEnv('JULES_API_KEY'),
+    stitchApiKey: getEnv('JULES_API_KEY'), // Map stitching to Jules context where appropriate
+    stitchAccessToken: getEnv('STITCH_ACCESS_TOKEN'),
+    stitchGoogleCloudProject: getEnv('GOOGLE_CLOUD_PROJECT'),
+    stitchHost: getEnv('STITCH_HOST', 'https://stitch.googleapis.com/mcp'),
 
     // Models
-    modelSelectionFamilyId: String(process.env.ZAVORTH_MODEL_FAMILY_ID || process.env.ZAVORTH_MODEL_FAMILY || persistedPreference?.familyId || '').trim(),
-    modelSelectionRouteId: String(process.env.ZAVORTH_MODEL_ROUTE_ID || process.env.ZAVORTH_MODEL_ROUTE || persistedPreference?.routeId || '').trim(),
+    modelSelectionFamilyId: getEnv('ZAVORTH_MODEL_FAMILY_ID', getEnv('ZAVORTH_MODEL_FAMILY', persistedPreference?.familyId || '')).trim(),
+    modelSelectionRouteId: getEnv('ZAVORTH_MODEL_ROUTE_ID', getEnv('ZAVORTH_MODEL_ROUTE', persistedPreference?.routeId || '')).trim(),
     modelSelectionModelId: selectedModel,
-    geminiDefaultModel: process.env.GEMINI_MODEL || 'gemini-2.5-flash',
-    gemmaModel: process.env.GEMMA_MODEL || 'gemma-4-31b-it',
-    geminiModel: process.env.GEMINI_MODEL || 'gemini-2.5-flash',
-    aiStudioModel: process.env.AISTUDIO_MODEL || process.env.GEMINI_MODEL || 'gemini-2.5-flash',
-    geminiVideoModel: process.env.GEMINI_VIDEO_MODEL || 'gemini-2.5-flash',
-    geminiTranscriptionModel: process.env.GEMINI_TRANSCRIPTION_MODEL || process.env.GEMINI_VIDEO_MODEL || 'gemini-2.5-flash',
-    openaiTranscriptionModel: process.env.OPENAI_TRANSCRIPTION_MODEL || 'gpt-4o-mini-transcribe',
-    groqTranscriptionModel: process.env.GROQ_TRANSCRIPTION_MODEL || 'whisper-large-v3-turbo',
-    deepgramTranscriptionModel: process.env.DEEPGRAM_TRANSCRIPTION_MODEL || 'nova-3',
-    geminiVoiceModel: process.env.GEMINI_VOICE_MODEL || 'gemini-3.1-flash-tts-preview',
-    geminiVoiceName: process.env.GEMINI_VOICE_NAME || 'Kore',
-    geminiVoiceLanguageCode: process.env.GEMINI_VOICE_LANGUAGE_CODE || 'en-US',
-    deepseekModel: process.env.DEEPSEEK_MODEL || 'deepseek-chat',
-    openaiModel: process.env.OPENAI_MODEL || 'gpt-4o',
-    minimaxModel: process.env.MINIMAX_MODEL || 'MiniMax-M2.7',
-    minimaxBaseUrl: normalizeUrl(process.env.MINIMAX_BASE_URL || 'https://api.minimax.io/v1'),
-    AIGatewayModel: process.env.AIGateway_MODEL || process.env.ZAVORTH_MODEL_ID || process.env.ZAVORTH_MODEL || 'auto',
-    AIGatewayUpstreamBaseUrl: normalizeUrl(
-      process.env.AIGateway_UPSTREAM_BASE_URL
-      || process.env.AIGateway_BASE_URL
-      || 'http://127.0.0.1:20128/v1',
+    geminiDefaultModel: getEnv('GEMINI_MODEL', 'gemini-2.5-flash'),
+    gemmaModel: getEnv('GEMMA_MODEL', 'gemma-4-31b-it'),
+    geminiModel: getEnv('GEMINI_MODEL', 'gemini-2.5-flash'),
+    aiStudioModel: getEnv('AISTUDIO_MODEL', getEnv('GEMINI_MODEL', 'gemini-2.5-flash')),
+    geminiVideoModel: getEnv('GEMINI_VIDEO_MODEL', 'gemini-2.5-flash'),
+    geminiTranscriptionModel: getEnv('GEMINI_TRANSCRIPTION_MODEL', getEnv('GEMINI_VIDEO_MODEL', 'gemini-2.5-flash')),
+    openaiTranscriptionModel: getEnv('OPENAI_TRANSCRIPTION_MODEL', 'gpt-4o-mini-transcribe'),
+    groqModel: getEnv('GROQ_MODEL', 'llama-3.3-70b-versatile'),
+    groqTranscriptionModel: getEnv('GROQ_TRANSCRIPTION_MODEL', 'whisper-large-v3-turbo'),
+    deepgramTranscriptionModel: getEnv('DEEPGRAM_TRANSCRIPTION_MODEL', 'nova-3'),
+    geminiVoiceModel: getEnv('GEMINI_VOICE_MODEL', 'gemini-3.1-flash-tts-preview'),
+    geminiVoiceName: getEnv('GEMINI_VOICE_NAME', 'Kore'),
+    geminiVoiceLanguageCode: getEnv('GEMINI_VOICE_LANGUAGE_CODE', 'en-US'),
+    deepseekModel: getEnv('DEEPSEEK_MODEL', 'deepseek-chat'),
+    xaiModel: getEnv('XAI_MODEL', 'grok-3'),
+    mistralModel: getEnv('MISTRAL_MODEL', 'mistral-large-latest'),
+    cerebrasModel: getEnv('CEREBRAS_MODEL', 'llama-3.3-70b'),
+    togetherModel: getEnv('TOGETHER_MODEL', 'meta-llama/Llama-3.3-70B-Instruct-Turbo'),
+    openaiModel: getEnv('OPENAI_MODEL', 'gpt-4o'),
+    minimaxModel: getEnv('MINIMAX_MODEL', 'MiniMax-M2.7'),
+    minimaxBaseUrl: getEnvUrl('MINIMAX_BASE_URL', 'https://api.minimax.io/v1'),
+    AIGatewayModel: getEnv('AIGateway_MODEL', getEnv('ZAVORTH_MODEL_ID', getEnv('ZAVORTH_MODEL', 'auto'))),
+    AIGatewayUpstreamBaseUrl: getEnvUrl(
+      'AIGateway_UPSTREAM_BASE_URL',
+      getEnv('AIGateway_BASE_URL', 'http://127.0.0.1:20128/v1'),
     ),
     zavorthAIGatewayGatewayEnabled: (() => {
       const defaultEnabled = selectedProvider.trim().toLowerCase() === 'aigateway';
@@ -210,97 +234,82 @@ export function buildProviderConfig(projectRoot?: string) {
         : (defaultEnabled ? 'true' : 'false');
       return resolved.toLowerCase() !== 'false';
     })(),
-    zavorthAIGatewayGatewayHost: process.env.ZAVORTH_AIGateway_GATEWAY_HOST || '127.0.0.1',
-    zavorthAIGatewayGatewayPort: parseInt(process.env.ZAVORTH_AIGateway_GATEWAY_PORT || '21128', 10),
+    zavorthAIGatewayGatewayHost: getEnv('ZAVORTH_AIGateway_GATEWAY_HOST', '127.0.0.1'),
+    zavorthAIGatewayGatewayPort: getEnvInt('ZAVORTH_AIGateway_GATEWAY_PORT', 21128),
     zavorthAIGatewayGatewayBaseUrl: (() => {
-      const explicit = normalizeUrl(process.env.ZAVORTH_AIGateway_GATEWAY_BASE_URL || '');
+      const explicit = normalizeUrl(getEnv('ZAVORTH_AIGateway_GATEWAY_BASE_URL'));
       if (explicit) {
         return explicit;
       }
-      const host = process.env.ZAVORTH_AIGateway_GATEWAY_HOST || '127.0.0.1';
-      const port = parseInt(process.env.ZAVORTH_AIGateway_GATEWAY_PORT || '21128', 10);
+      const host = getEnv('ZAVORTH_AIGateway_GATEWAY_HOST', '127.0.0.1');
+      const port = getEnvInt('ZAVORTH_AIGateway_GATEWAY_PORT', 21128);
       return normalizeUrl(`http://${host}:${port}/v1`);
     })(),
     AIGatewayBaseUrl: (() => {
-      const gatewayEnabled = (process.env.ZAVORTH_AIGateway_GATEWAY_ENABLED || 'true').toLowerCase() !== 'false';
-      const explicitGateway = normalizeUrl(process.env.ZAVORTH_AIGateway_GATEWAY_BASE_URL || '');
+      const gatewayEnabled = getEnv('ZAVORTH_AIGateway_GATEWAY_ENABLED', 'true').toLowerCase() !== 'false';
+      const explicitGateway = normalizeUrl(getEnv('ZAVORTH_AIGateway_GATEWAY_BASE_URL'));
       if (gatewayEnabled) {
         return explicitGateway || normalizeUrl(
-          `http://${process.env.ZAVORTH_AIGateway_GATEWAY_HOST || '127.0.0.1'}:${parseInt(process.env.ZAVORTH_AIGateway_GATEWAY_PORT || '21128', 10)}/v1`,
+          `http://${getEnv('ZAVORTH_AIGateway_GATEWAY_HOST', '127.0.0.1')}:${getEnvInt('ZAVORTH_AIGateway_GATEWAY_PORT', 21128)}/v1`,
         );
       }
       return normalizeUrl(
-        process.env.AIGateway_UPSTREAM_BASE_URL
-        || process.env.AIGateway_BASE_URL
-        || 'http://127.0.0.1:20128/v1',
+        getEnv('AIGateway_UPSTREAM_BASE_URL', getEnv('AIGateway_BASE_URL', 'http://127.0.0.1:20128/v1')),
       );
     })(),
     AIGatewaySidecarEnabled:
-      (
-        process.env.AIGateway_SIDECAR_ENABLED ||
-        (selectedProvider.trim().toLowerCase() === 'aigateway' ? 'true' : 'false')
-      ).toLowerCase() === 'true',
+      getEnv('AIGateway_SIDECAR_ENABLED', selectedProvider.trim().toLowerCase() === 'aigateway' ? 'true' : 'false').toLowerCase() === 'true',
     AIGatewaySidecarInstallOnBoot:
-      (process.env.AIGateway_SIDECAR_INSTALL_ON_BOOT || 'true').toLowerCase() !== 'false',
+      getEnv('AIGateway_SIDECAR_INSTALL_ON_BOOT', 'true').toLowerCase() !== 'false',
     AIGatewaySidecarStartCommand:
-      process.env.AIGateway_SIDECAR_START_COMMAND || (process.platform === 'win32' ? 'npm.cmd' : 'npm'),
-    AIGatewaySidecarStartArgs: parseList(process.env.AIGateway_SIDECAR_START_ARGS || 'run,dev'),
+      getEnv('AIGateway_SIDECAR_START_COMMAND', process.platform === 'win32' ? 'npm.cmd' : 'npm'),
+    AIGatewaySidecarStartArgs: parseList(getEnv('AIGateway_SIDECAR_START_ARGS', 'run,dev')),
     AIGatewaySidecarBootstrapCommand:
-      process.env.AIGateway_SIDECAR_BOOTSTRAP_COMMAND || (process.platform === 'win32' ? 'npm.cmd' : 'npm'),
-    AIGatewaySidecarBootstrapArgs: parseList(process.env.AIGateway_SIDECAR_BOOTSTRAP_ARGS || 'install'),
-    AIGatewaySidecarReadyTimeoutMs: parseInt(process.env.AIGateway_SIDECAR_READY_TIMEOUT_MS || '120000', 10),
-    ZavorthTerminalBaseUrl: normalizeUrl(
-      process.env.ZAVORTH_BRIDGE_REMOTE_BASE_URL || 'http://127.0.0.1:4747',
-    ),
-    ZavorthTerminalPublicUrl: normalizeUrl(
-      process.env.ZAVORTH_BRIDGE_REMOTE_PUBLIC_URL || '',
-    ),
+      getEnv('AIGateway_SIDECAR_BOOTSTRAP_COMMAND', process.platform === 'win32' ? 'npm.cmd' : 'npm'),
+    AIGatewaySidecarBootstrapArgs: parseList(getEnv('AIGateway_SIDECAR_BOOTSTRAP_ARGS', 'install')),
+    AIGatewaySidecarReadyTimeoutMs: getEnvInt('AIGateway_SIDECAR_READY_TIMEOUT_MS', 120000),
+    ZavorthTerminalBaseUrl: getEnvUrl('ZAVORTH_BRIDGE_REMOTE_BASE_URL', 'http://127.0.0.1:4747'),
+    ZavorthTerminalPublicUrl: getEnvUrl('ZAVORTH_BRIDGE_REMOTE_PUBLIC_URL'),
     ZavorthTerminalSidecarEnabled:
-      (
-        process.env.ZAVORTH_BRIDGE_REMOTE_SIDECAR_ENABLED ||
-        (process.env.ZAVORTH_BRIDGE_AUTOMATION_ENABLED || 'true')
-      ).toLowerCase() === 'true',
+      getEnv('ZAVORTH_BRIDGE_REMOTE_SIDECAR_ENABLED', getEnv('ZAVORTH_BRIDGE_AUTOMATION_ENABLED', 'true')).toLowerCase() === 'true',
     ZavorthTerminalSidecarInstallOnBoot:
-      (process.env.ZAVORTH_BRIDGE_REMOTE_SIDECAR_INSTALL_ON_BOOT || 'true').toLowerCase() !== 'false',
+      getEnv('ZAVORTH_BRIDGE_REMOTE_SIDECAR_INSTALL_ON_BOOT', 'true').toLowerCase() !== 'false',
     ZavorthTerminalSidecarStartCommand:
-      process.env.ZAVORTH_BRIDGE_REMOTE_SIDECAR_START_COMMAND || (process.platform === 'win32' ? 'npm.cmd' : 'npm'),
+      getEnv('ZAVORTH_BRIDGE_REMOTE_SIDECAR_START_COMMAND', process.platform === 'win32' ? 'npm.cmd' : 'npm'),
     ZavorthTerminalSidecarStartArgs: parseList(
-      process.env.ZAVORTH_BRIDGE_REMOTE_SIDECAR_START_ARGS || 'run,dev',
+      getEnv('ZAVORTH_BRIDGE_REMOTE_SIDECAR_START_ARGS', 'run,dev'),
     ),
     ZavorthTerminalSidecarBootstrapCommand:
-      process.env.ZAVORTH_BRIDGE_REMOTE_SIDECAR_BOOTSTRAP_COMMAND || (process.platform === 'win32' ? 'npm.cmd' : 'npm'),
+      getEnv('ZAVORTH_BRIDGE_REMOTE_SIDECAR_BOOTSTRAP_COMMAND', process.platform === 'win32' ? 'npm.cmd' : 'npm'),
     ZavorthTerminalSidecarBootstrapArgs: parseList(
-      process.env.ZAVORTH_BRIDGE_REMOTE_SIDECAR_BOOTSTRAP_ARGS || 'install',
+      getEnv('ZAVORTH_BRIDGE_REMOTE_SIDECAR_BOOTSTRAP_ARGS', 'install'),
     ),
-    ZavorthTerminalSidecarReadyTimeoutMs: parseInt(
-      process.env.ZAVORTH_BRIDGE_REMOTE_SIDECAR_READY_TIMEOUT_MS || '120000',
-      10,
+    ZavorthTerminalSidecarReadyTimeoutMs: getEnvInt(
+      'ZAVORTH_BRIDGE_REMOTE_SIDECAR_READY_TIMEOUT_MS',
+      120000,
     ),
     ZavorthTerminalAppPassword:
-      process.env.ZAVORTH_BRIDGE_REMOTE_APP_PASSWORD || process.env.ZAVORTH_WEB_AUTH_TOKEN || '',
-    qwenModel: process.env.QWEN_MODEL || 'openrouter:qwen/qwen3.5-plus-02-15',
-    openRouterModel: process.env.OPENROUTER_MODEL || 'anthropic/claude-3.5-sonnet:beta',
-    openCodeModel: process.env.OPENCODE_MODEL || 'opencode/minimax-m2.5-free',
+      getEnv('ZAVORTH_BRIDGE_REMOTE_APP_PASSWORD', getEnv('ZAVORTH_WEB_AUTH_TOKEN')),
+    qwenModel: getEnv('QWEN_MODEL', 'openrouter:qwen/qwen3.5-plus-02-15'),
+    openRouterModel: getEnv('OPENROUTER_MODEL', 'anthropic/claude-3.5-sonnet:beta'),
+    openCodeModel: getEnv('OPENCODE_MODEL', 'opencode/minimax-m2.5-free'),
     tools: {
       media: {
         audio: {
-          sttEnabled: parseBooleanFlag(process.env.ZAVORTH_AUDIO_STT_ENABLED, true),
+          sttEnabled: getEnvBool('ZAVORTH_AUDIO_STT_ENABLED', true),
           sttProviderOrder: parseList(
-            process.env.ZAVORTH_AUDIO_STT_PROVIDERS || 'gemini,openai,groq,deepgram,whisper.cpp',
+            getEnv('ZAVORTH_AUDIO_STT_PROVIDERS', 'gemini,openai,groq,deepgram,whisper.cpp'),
           ),
-          sttTimeoutMs: parsePositiveInt(process.env.ZAVORTH_AUDIO_STT_TIMEOUT_MS, 45_000),
-          sttMaxBytes: parsePositiveInt(process.env.ZAVORTH_AUDIO_STT_MAX_BYTES, 24 * 1024 * 1024),
-          sttMaxSeconds: parsePositiveInt(process.env.ZAVORTH_AUDIO_STT_MAX_SECONDS, 10 * 60),
-          echoTranscript: parseBooleanFlag(process.env.ZAVORTH_AUDIO_ECHO_TRANSCRIPT, false),
-          forwardRawAudio: parseBooleanFlag(
-            process.env.ZAVORTH_TELEGRAM_FORWARD_RAW_AUDIO || process.env.ZAVORTH_AUDIO_FORWARD_RAW,
-            false,
-          ),
-          ttsTimeoutMs: parsePositiveInt(process.env.ZAVORTH_AUDIO_TTS_TIMEOUT_MS, 18_000),
-          ttsMaxChars: parsePositiveInt(process.env.ZAVORTH_AUDIO_TTS_MAX_CHARS, 520),
-          ttsCacheEnabled: parseBooleanFlag(process.env.ZAVORTH_AUDIO_TTS_CACHE_ENABLED, true),
-          ttsCacheTtlMs: parsePositiveInt(process.env.ZAVORTH_AUDIO_TTS_CACHE_TTL_MS, 10 * 60 * 1000),
-          newsMinResults: parsePositiveInt(process.env.ZAVORTH_WEB_SEARCH_MIN_FRESH_NEWS_RESULTS, 3),
+          sttTimeoutMs: getEnvInt('ZAVORTH_AUDIO_STT_TIMEOUT_MS', 45_000),
+          sttMaxBytes: getEnvInt('ZAVORTH_AUDIO_STT_MAX_BYTES', 24 * 1024 * 1024),
+          sttMaxSeconds: getEnvInt('ZAVORTH_AUDIO_STT_MAX_SECONDS', 10 * 60),
+          echoTranscript: getEnvBool('ZAVORTH_AUDIO_ECHO_TRANSCRIPT', false),
+          forwardRawAudio: getEnvBool('ZAVORTH_TELEGRAM_FORWARD_RAW_AUDIO') || getEnvBool('ZAVORTH_AUDIO_FORWARD_RAW'),
+          ttsTimeoutMs: getEnvInt('ZAVORTH_AUDIO_TTS_TIMEOUT_MS', 18_000),
+          ttsMaxChars: getEnvInt('ZAVORTH_AUDIO_TTS_MAX_CHARS', 520),
+          ttsCacheEnabled: getEnvBool('ZAVORTH_AUDIO_TTS_CACHE_ENABLED', true),
+          ttsCacheTtlMs: getEnvInt('ZAVORTH_AUDIO_TTS_CACHE_TTL_MS', 10 * 60 * 1000),
+          newsMinResults: getEnvInt('ZAVORTH_WEB_SEARCH_MIN_FRESH_NEWS_RESULTS', 3),
         },
       },
     },

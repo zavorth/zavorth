@@ -1,0 +1,64 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Transform: AWS::Serverless-2016-10-31
+Description: Zavorth serverless deployment
+
+Globals:
+  Function:
+    Timeout: 30
+    MemorySize: 512
+    Runtime: nodejs22.x
+    Architectures:
+      - x86_64
+    Environment:
+      Variables:
+        NODE_ENV: production
+        AWS_NODEJS_CONNECTION_REUSE_ENABLED: "1"
+
+Resources:
+  ZavorthFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: zavorth
+      Handler: handler.handler
+      CodeUri: ./src
+      Description: Zavorth HTTP handler
+      Policies:
+        - AWSLambdaBasicExecutionRole
+      Events:
+        ApiRoot:
+          Type: HttpApi
+          Properties:
+            ApiId: !Ref ZavorthHttpApi
+            Path: /{proxy+}
+            Method: ANY
+        ApiProxy:
+          Type: HttpApi
+          Properties:
+            ApiId: !Ref ZavorthHttpApi
+            Path: /
+            Method: ANY
+
+  ZavorthHttpApi:
+    Type: AWS::Serverless::HttpApi
+    Properties:
+      StageName: $default
+      CorsConfiguration:
+        AllowOrigins:
+          - "*"
+        AllowHeaders:
+          - Content-Type
+          - Authorization
+        AllowMethods:
+          - GET
+          - POST
+          - PUT
+          - DELETE
+          - OPTIONS
+
+Outputs:
+  ApiUrl:
+    Description: API Gateway endpoint URL
+    Value: !Sub "https://${ZavorthHttpApi}.execute-api.${AWS::Region}.amazonaws.com"
+  FunctionArn:
+    Description: Lambda function ARN
+    Value: !GetAtt ZavorthFunction.Arn
