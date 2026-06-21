@@ -42,6 +42,9 @@ describe('SharedSurfaceCommandContract', () => {
       'models',
       'skills',
       'agents',
+      'vision',
+      'computer',
+      'device',
       'invoke',
     ]);
   });

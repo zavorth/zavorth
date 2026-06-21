@@ -1,0 +1,27 @@
+{
+  "id": "zavorth-credential-vault-bridge",
+  "name": "Password Vault Bridge",
+  "native": true,
+  "description": "Retrieve keys and credentials from local 1Password/KeePass under lease policies.",
+  "category": "security",
+  "permissionProfileId": "host-write",
+  "riskLevel": "high",
+  "capabilityTags": [
+    "security",
+    "credentials"
+  ],
+  "presets": [
+    "developer",
+    "power-user"
+  ],
+  "inputContract": [
+    "vault key",
+    "query"
+  ],
+  "outputContract": [
+    "credentials"
+  ],
+  "noExecutionByDefault": true,
+  "requiresPolicyBroker": true,
+  "receiptsRequired": true
+}

@@ -97,7 +97,7 @@ const repairPlan: CapabilityRepairPlan = {
 const permissionReceipt: CapabilityReceipt = {
   receiptId: 'receipt-64',
   generatedAt: FIXED_NOW.toISOString(),
-  stage: 'permission',
+  phase: 'permission',
   surface: 'chat',
   audience: 'everyday_user',
   capabilityId: 'executor-gemini-cli',
@@ -177,14 +177,14 @@ describe('CapabilityAutopilotMemoryReplayService', () => {
 
     expect(record).toMatchObject({
       outcome: 'permission_required',
-      stage: 'permission',
+      phase: 'permission',
       failureKind: 'missing_auth',
       readinessStatus: 'missing',
       permissionCount: 1,
       fallbackCount: 1,
       replayable: true,
       metadata: {
-        stage: 'capability-autopilot-checkpoint-64',
+        phase: 'capability-autopilot-checkpoint-64',
       },
     });
     expect(record.signals.map((signal) => signal.kind)).toEqual(
@@ -197,7 +197,7 @@ describe('CapabilityAutopilotMemoryReplayService', () => {
     const record = service.buildMemoryRecord({
       receipt: {
         ...permissionReceipt,
-        stage: 'resume',
+        phase: 'resume',
         validation: successValidation,
       },
     });

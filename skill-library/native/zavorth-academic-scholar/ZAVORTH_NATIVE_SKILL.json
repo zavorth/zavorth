@@ -1,0 +1,29 @@
+{
+  "id": "zavorth-academic-scholar",
+  "name": "Academic Scholar Search",
+  "native": true,
+  "description": "Query academic publication details, summarize abstracts, and cache research bibliographies.",
+  "category": "research",
+  "permissionProfileId": "workspace-write",
+  "riskLevel": "low",
+  "capabilityTags": [
+    "research",
+    "literature"
+  ],
+  "presets": [
+    "basic",
+    "developer",
+    "power-user"
+  ],
+  "inputContract": [
+    "query",
+    "database source"
+  ],
+  "outputContract": [
+    "paper summaries",
+    "metadata bibliography"
+  ],
+  "noExecutionByDefault": false,
+  "requiresPolicyBroker": true,
+  "receiptsRequired": true
+}

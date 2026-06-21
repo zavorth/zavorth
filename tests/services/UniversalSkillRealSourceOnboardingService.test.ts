@@ -36,6 +36,68 @@ describe('UniversalSkillRealSourceOnboardingService Dashboard controls', () => {
     cleanSource = path.join(root, 'clean-source');
     fs.mkdirSync(skillLibrary, { recursive: true });
     fs.mkdirSync(cleanSource, { recursive: true });
+
+    // Write a mock skill-sources.json enabling workspace-imported-library
+    const configDir = path.join(root, 'config');
+    fs.mkdirSync(configDir, { recursive: true });
+    fs.writeFileSync(
+      path.join(configDir, 'skill-sources.json'),
+      JSON.stringify({
+        version: 1,
+        updatedAt: '2026-05-10T20:00:00.000Z',
+        sources: [
+          {
+            id: 'workspace-library',
+            label: 'Workspace skill library',
+            kind: 'workspace',
+            trust: 'trusted',
+            enabled: true,
+            ingestionMode: 'local-scan',
+            path: 'skill-library',
+            createIfMissing: true,
+            ownership: 'workspace',
+            registrySource: 'zavorth:local-workspace',
+          },
+          {
+            id: 'workspace-imported-library',
+            label: 'Workspace imported skill library',
+            kind: 'workspace',
+            trust: 'review',
+            enabled: true,
+            ingestionMode: 'local-scan',
+            path: 'skill-library/imported',
+            createIfMissing: false,
+            ownership: 'curated-import',
+            registrySource: 'zavorth:curated-import',
+          },
+        ],
+      }),
+      'utf8'
+    );
+
+    fs.writeFileSync(
+      path.join(configDir, 'skill-allowlist.json'),
+      JSON.stringify({
+        version: 1,
+        updatedAt: '2026-05-10T20:00:00.000Z',
+        defaultPolicy: 'deny',
+        allowedSourceIds: ['workspace-library', 'workspace-imported-library'],
+        rules: [
+          {
+            sourceId: 'workspace-library',
+            mode: 'all',
+            reason: 'Local library.',
+          },
+          {
+            sourceId: 'workspace-imported-library',
+            mode: 'all',
+            reason: 'Test: promote imported skills for bridge-ready validation.',
+          },
+        ],
+      }),
+      'utf8'
+    );
+
     writeSkill(skillLibrary, {
       dirName: 'research-pack',
       name: 'research-pack',

@@ -1,0 +1,27 @@
+{
+  "id": "zavorth-brand-kit-compiler",
+  "name": "Brand Kit Compiler",
+  "native": true,
+  "description": "Compile unified brand guidelines, logo spacing directives, and typographic systems.",
+  "category": "design",
+  "permissionProfileId": "workspace-read",
+  "riskLevel": "low",
+  "capabilityTags": [
+    "design",
+    "identity"
+  ],
+  "presets": [
+    "basic",
+    "developer"
+  ],
+  "inputContract": [
+    "brand goals",
+    "palette keywords"
+  ],
+  "outputContract": [
+    "brand guidelines config"
+  ],
+  "noExecutionByDefault": false,
+  "requiresPolicyBroker": true,
+  "receiptsRequired": true
+}

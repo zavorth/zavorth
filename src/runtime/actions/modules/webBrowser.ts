@@ -117,7 +117,7 @@ async function webSearchHandler(input: ZavorthActionHandlerInput): Promise<Zavor
         ok: false,
         actionId: input.actionId,
         operation: input.operation,
-        status: 'ok',
+        status: 'blocked',
         summary: `Web search failed: ${res.error?.message || 'unknown error'}`,
         lines: [res.error?.message || 'Search execution failed.'],
         data: { error: res.error }
@@ -150,7 +150,7 @@ async function webSearchHandler(input: ZavorthActionHandlerInput): Promise<Zavor
       ok: false,
       actionId: input.actionId,
       operation: input.operation,
-      status: 'ok',
+      status: 'blocked',
       summary: 'Web search threw an error.',
       lines: [error instanceof Error ? error.message : String(error)],
     });
@@ -206,7 +206,7 @@ async function webFetchUrlHandler(input: ZavorthActionHandlerInput): Promise<Zav
         ok: false,
         actionId: input.actionId,
         operation: input.operation,
-        status: 'ok',
+        status: 'blocked',
         summary: `Fetch URL returned status code ${response.status}.`,
         lines: [`HTTP error: ${response.status} ${response.statusText}`],
         data: { status: response.status }
@@ -227,7 +227,7 @@ async function webFetchUrlHandler(input: ZavorthActionHandlerInput): Promise<Zav
         `Bytes: ${Buffer.byteLength(text, 'utf8')}`,
         'Output wrapped as untrusted evidence.'
       ],
-      data: { content: wrapped, raw: text, url }
+      data: { content: wrapped, url }
     });
   } catch (error) {
     return block(input, 'Failed to fetch URL or target blocked by network policy.', [
@@ -445,13 +445,116 @@ async function browserExtractHandler(input: ZavorthActionHandlerInput): Promise<
         `Truncated: ${response.truncated === true}`,
         'Output wrapped as untrusted browser content.'
       ],
-      data: { content: wrapped, raw: text, truncated: response.truncated }
+      data: { content: wrapped, truncated: response.truncated }
     });
   } catch (error) {
     return block(input, 'Browser extract action failed.', [
       error instanceof Error ? error.message : String(error)
     ]);
   }
+}
+
+function browserClientFromInput(input: ZavorthActionHandlerInput): MinimalBrowserSidecarClient {
+  return new MinimalBrowserSidecarClient({
+    baseUrl: normalizeText(input.args.baseUrl) || undefined,
+    timeoutMs: typeof input.args.timeoutMs === 'number' ? input.args.timeoutMs : undefined,
+  });
+}
+
+async function browserClickHandler(input: ZavorthActionHandlerInput): Promise<ZavorthActionResult> {
+  const selector = normalizeText(input.args.selector);
+  if (!selector) return block(input, 'Missing selector for browser click.', ['Provide args.selector.'], { required: ['selector'] });
+
+  if (input.operation === 'action.status' || input.operation === 'action.preview') {
+    return result({
+      ok: true,
+      actionId: input.actionId,
+      operation: input.operation,
+      status: input.operation === 'action.preview' ? 'preview' : 'ok',
+      summary: `Browser click preview: ${selector}`,
+      lines: [`Selector: ${selector}`, 'Interactive browser action requires approval and sidecar replay.'],
+      data: { preview: { selector }, replayRequired: true },
+    });
+  }
+  if (input.operation !== 'action.apply') return block(input, `Unsupported operation for ${input.actionId}.`, [`Unsupported operation: ${input.operation}`]);
+
+  const client = browserClientFromInput(input);
+  if (!await checkSidecarHealth(client)) return block(input, 'Browser sidecar is offline or unreachable on port 20187.', ['Make sure the browser sidecar is running locally.']);
+  const response = await client.click(selector, { waitAfterMs: typeof input.args.waitAfterMs === 'number' ? input.args.waitAfterMs : 250 });
+  if (!response.ok) return block(input, 'Browser click failed.', [String(response.error || 'Unknown click error')], { response });
+  return result({
+    ok: true,
+    actionId: input.actionId,
+    operation: input.operation,
+    status: 'applied',
+    summary: `Clicked ${selector}.`,
+    lines: [`Selector: ${selector}`, 'Browser click applied through sidecar.'],
+    data: { selector, replayRequired: true, response },
+  });
+}
+
+async function browserTypeHandler(input: ZavorthActionHandlerInput): Promise<ZavorthActionResult> {
+  const selector = normalizeText(input.args.selector);
+  const value = normalizeText(input.args.text || input.args.value);
+  if (!selector) return block(input, 'Missing selector for browser type.', ['Provide args.selector.'], { required: ['selector'] });
+  if (!value) return block(input, 'Missing text for browser type.', ['Provide args.text.'], { required: ['text'] });
+
+  if (input.operation === 'action.status' || input.operation === 'action.preview') {
+    return result({
+      ok: true,
+      actionId: input.actionId,
+      operation: input.operation,
+      status: input.operation === 'action.preview' ? 'preview' : 'ok',
+      summary: `Browser type preview: ${selector}`,
+      lines: [`Selector: ${selector}`, `Characters: ${value.length}`, 'Interactive browser action requires approval and sidecar replay.'],
+      data: { preview: { selector, characters: value.length }, replayRequired: true },
+    });
+  }
+  if (input.operation !== 'action.apply') return block(input, `Unsupported operation for ${input.actionId}.`, [`Unsupported operation: ${input.operation}`]);
+
+  const client = browserClientFromInput(input);
+  if (!await checkSidecarHealth(client)) return block(input, 'Browser sidecar is offline or unreachable on port 20187.', ['Make sure the browser sidecar is running locally.']);
+  const response = await client.type(selector, value, { clear: input.args.clear !== false });
+  if (!response.ok) return block(input, 'Browser type failed.', [String(response.error || 'Unknown type error')], { response });
+  return result({
+    ok: true,
+    actionId: input.actionId,
+    operation: input.operation,
+    status: 'applied',
+    summary: `Typed into ${selector}.`,
+    lines: [`Selector: ${selector}`, `Characters: ${value.length}`, 'Browser type applied through sidecar.'],
+    data: { selector, characters: value.length, replayRequired: true, response },
+  });
+}
+
+async function browserFormSubmitHandler(input: ZavorthActionHandlerInput): Promise<ZavorthActionResult> {
+  const selector = normalizeText(input.args.selector || 'form');
+  if (input.operation === 'action.status' || input.operation === 'action.preview') {
+    return result({
+      ok: true,
+      actionId: input.actionId,
+      operation: input.operation,
+      status: input.operation === 'action.preview' ? 'preview' : 'ok',
+      summary: `Browser form submit preview: ${selector}`,
+      lines: [`Selector: ${selector}`, 'Form submit uses a governed click/submit trigger and requires approval.'],
+      data: { preview: { selector }, replayRequired: true },
+    });
+  }
+  if (input.operation !== 'action.apply') return block(input, `Unsupported operation for ${input.actionId}.`, [`Unsupported operation: ${input.operation}`]);
+
+  const client = browserClientFromInput(input);
+  if (!await checkSidecarHealth(client)) return block(input, 'Browser sidecar is offline or unreachable on port 20187.', ['Make sure the browser sidecar is running locally.']);
+  const response = await client.click(selector, { submit: true, waitAfterMs: typeof input.args.waitAfterMs === 'number' ? input.args.waitAfterMs : 500 });
+  if (!response.ok) return block(input, 'Browser form submit failed.', [String(response.error || 'Unknown submit error')], { response });
+  return result({
+    ok: true,
+    actionId: input.actionId,
+    operation: input.operation,
+    status: 'applied',
+    summary: `Submitted ${selector}.`,
+    lines: [`Selector: ${selector}`, 'Browser form submit applied through sidecar.'],
+    data: { selector, replayRequired: true, response },
+  });
 }
 
 export function createWebBrowserActionModule(): ZavorthActionModule {
@@ -577,6 +680,60 @@ export function createWebBrowserActionModule(): ZavorthActionModule {
         },
         outputSchema,
         handler: browserExtractHandler,
+      }),
+      baseWebBrowserAction({
+        id: 'browser.click',
+        title: 'Browser click',
+        description: 'Click a selector in the active browser session with approval and replay metadata.',
+        aliases: ['browser_click', 'click browser', 'clicar browser', 'click'],
+        domains: ['browser', 'interaction'],
+        risk: 'danger',
+        effects: ['network', 'external_send'],
+        scope: 'browser',
+        receiptPolicy: 'required',
+        mutationDomain: 'capability',
+        mutationRisk: 'high',
+        requiresPreview: true,
+        requiresApproval: true,
+        inputSchema: { type: 'object', properties: { selector: { type: 'string' }, baseUrl: { type: 'string' }, timeoutMs: { type: 'number' }, waitAfterMs: { type: 'number' } }, required: ['selector'] },
+        outputSchema,
+        handler: browserClickHandler,
+      }),
+      baseWebBrowserAction({
+        id: 'browser.type',
+        title: 'Browser type',
+        description: 'Type text into a selector in the active browser session with approval and receipt.',
+        aliases: ['browser_type', 'type browser', 'digitar browser', 'type'],
+        domains: ['browser', 'interaction'],
+        risk: 'danger',
+        effects: ['network', 'external_send'],
+        scope: 'browser',
+        receiptPolicy: 'required',
+        mutationDomain: 'capability',
+        mutationRisk: 'high',
+        requiresPreview: true,
+        requiresApproval: true,
+        inputSchema: { type: 'object', properties: { selector: { type: 'string' }, text: { type: 'string' }, value: { type: 'string' }, clear: { type: 'boolean' }, baseUrl: { type: 'string' }, timeoutMs: { type: 'number' } }, required: ['selector', 'text'] },
+        outputSchema,
+        handler: browserTypeHandler,
+      }),
+      baseWebBrowserAction({
+        id: 'browser.form.submit',
+        title: 'Browser form submit',
+        description: 'Submit or click a form control in the active browser session with approval and receipt.',
+        aliases: ['browser_form_submit', 'submit form', 'enviar formulario'],
+        domains: ['browser', 'interaction', 'form'],
+        risk: 'danger',
+        effects: ['network', 'external_send'],
+        scope: 'browser',
+        receiptPolicy: 'required',
+        mutationDomain: 'capability',
+        mutationRisk: 'high',
+        requiresPreview: true,
+        requiresApproval: true,
+        inputSchema: { type: 'object', properties: { selector: { type: 'string' }, baseUrl: { type: 'string' }, timeoutMs: { type: 'number' }, waitAfterMs: { type: 'number' } } },
+        outputSchema,
+        handler: browserFormSubmitHandler,
       }),
     ],
   };

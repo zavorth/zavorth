@@ -15,6 +15,8 @@ export type ContextCompactionMessage = {
   toolName?: string | null;
   status?: 'ok' | 'error' | 'blocked' | 'pending' | null;
   metadata?: Record<string, unknown>;
+  toolCalls?: any[] | null;
+  toolCallId?: string | null;
 };
 
 export type ContextCompactionInput = {
@@ -155,6 +157,8 @@ export class ContextCompactionService {
       anchorSummary = anchor.anchorSummary;
     }
 
+    compactedMessages = this.enforceToolCoherence(compactedMessages);
+
     const estimatedAfterTokens = this.estimateTokensForMessages(compactedMessages);
     const triggered = mode !== 'none';
     const generatedAt = now.toISOString();
@@ -201,6 +205,8 @@ export class ContextCompactionService {
       content: redactSecrets(String(message.content || '')),
       toolName: message.toolName || null,
       status: message.status || null,
+      toolCalls: message.toolCalls || null,
+      toolCallId: message.toolCallId || null,
     };
   }
 
@@ -309,5 +315,73 @@ export class ContextCompactionService {
       section('Next Prescribed Action', [summary.nextPrescribedAction]),
       '</zavorth-session-summary>',
     ].join('\n\n');
+  }
+
+  private enforceToolCoherence(messages: ContextCompactionMessage[]): ContextCompactionMessage[] {
+    const result: ContextCompactionMessage[] = [];
+    const existingToolResponses = new Set<string>();
+    const existingToolResponsesByName = new Set<string>();
+
+    for (const msg of messages) {
+      if (msg.role === 'tool') {
+        if (msg.toolCallId) {
+          existingToolResponses.add(msg.toolCallId);
+        }
+        if (msg.toolName) {
+          existingToolResponsesByName.add(msg.toolName);
+        }
+      }
+    }
+
+    const declaredToolCalls = new Set<string>();
+    const declaredToolCallsByName = new Set<string>();
+
+    for (const msg of messages) {
+      if (msg.role === 'assistant' && Array.isArray(msg.toolCalls)) {
+        for (const tc of msg.toolCalls) {
+          if (tc.id) {
+            declaredToolCalls.add(tc.id);
+          }
+          if (tc.name) {
+            declaredToolCallsByName.add(tc.name);
+          }
+        }
+      }
+    }
+
+    for (const msg of messages) {
+      if (msg.role === 'tool') {
+        const hasMatchingCall = (msg.toolCallId && declaredToolCalls.has(msg.toolCallId)) ||
+                                (msg.toolName && declaredToolCallsByName.has(msg.toolName));
+        if (!hasMatchingCall) {
+          continue; // Filter out orphan tool outputs
+        }
+      }
+
+      result.push(msg);
+
+      if (msg.role === 'assistant' && Array.isArray(msg.toolCalls) && msg.toolCalls.length > 0) {
+        for (const tc of msg.toolCalls) {
+          const hasResponse = (tc.id && existingToolResponses.has(tc.id)) ||
+                              (tc.name && existingToolResponsesByName.has(tc.name));
+          if (!hasResponse) {
+            const stub: ContextCompactionMessage = {
+              id: `stub-tool-${tc.id || tc.name}-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`,
+              role: 'tool',
+              toolName: tc.name || 'unknown_tool',
+              toolCallId: tc.id || null,
+              content: '[Context compacted: The return of this tool execution was archived in episodic memory]',
+              status: 'ok',
+            };
+            result.push(stub);
+
+            if (tc.id) existingToolResponses.add(tc.id);
+            if (tc.name) existingToolResponsesByName.add(tc.name);
+          }
+        }
+      }
+    }
+
+    return result;
   }
 }

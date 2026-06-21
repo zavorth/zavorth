@@ -1,0 +1,30 @@
+{
+  "id": "zavorth-git-workflow-governor",
+  "name": "Git Governor",
+  "native": true,
+  "description": "Governor for local Git actions, diff audits, commit validations, and branch management.",
+  "category": "devops",
+  "permissionProfileId": "workspace-write",
+  "riskLevel": "medium",
+  "capabilityTags": [
+    "devops",
+    "vcs"
+  ],
+  "presets": [
+    "developer",
+    "power-user"
+  ],
+  "inputContract": [
+    "repository path",
+    "branch name",
+    "commit message"
+  ],
+  "outputContract": [
+    "diff analysis",
+    "commit status",
+    "pr body"
+  ],
+  "noExecutionByDefault": false,
+  "requiresPolicyBroker": true,
+  "receiptsRequired": true
+}

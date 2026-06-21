@@ -1,0 +1,28 @@
+{
+  "id": "zavorth-system-power-dnd",
+  "name": "OS Power & DND Scheduler",
+  "native": true,
+  "description": "Adjust local operating system power modes, volume, and Do Not Disturb levels.",
+  "category": "smart-home",
+  "permissionProfileId": "host-write",
+  "riskLevel": "medium",
+  "capabilityTags": [
+    "system",
+    "smarthome"
+  ],
+  "presets": [
+    "basic",
+    "developer",
+    "power-user"
+  ],
+  "inputContract": [
+    "focus mode",
+    "volume level"
+  ],
+  "outputContract": [
+    "status"
+  ],
+  "noExecutionByDefault": false,
+  "requiresPolicyBroker": true,
+  "receiptsRequired": true
+}

@@ -184,7 +184,96 @@ export class RuntimeBootstrapService {
     const channelProviderDoctor = input.supervisedRuntime.accessReadiness?.runtime?.channelProviderDoctor;
     const remoteTransportDoctor = input.supervisedRuntime.accessReadiness?.runtime?.remoteTransportDoctor;
 
+    // Check for stuck process lock files
+    const hostSupervisor = input.supervisedRuntime.hostSupervisor;
+    const telegramWorker = input.supervisedRuntime.telegramWorker;
+    const hostStuck = hostSupervisor && hostSupervisor.active && !hostSupervisor.alive;
+    const workerStuck = telegramWorker && telegramWorker.active && !telegramWorker.alive;
+
+    if (hostStuck || workerStuck) {
+      const stuckNames = [];
+      if (hostStuck) stuckNames.push('host supervisor');
+      if (workerStuck) stuckNames.push('telegram worker');
+      actions.push({
+        id: 'clear-stuck-locks',
+        title: 'Clear stuck supervisor/worker process locks',
+        command: 'npx tsx scripts/ops-doctor-repair-helper.ts clear-locks',
+        reason: `Process lock file(s) for ${stuckNames.join(' and ')} are present but the process is dead.`,
+        blocking: false,
+        autoFixCommand: {
+          command: process.platform === 'win32' ? 'npx.cmd' : 'npx',
+          args: ['tsx', 'scripts/ops-doctor-repair-helper.ts', 'clear-locks'],
+          cwd: this.projectRoot,
+        },
+      });
+    }
+
+    // Check for skill-sources.json configuration health
+    const configFile = path.join(this.projectRoot, 'config', 'skill-sources.json');
+    let skillSourcesValid = true;
+    let skillSourcesMissing = false;
+    let skillSourcesMissingDirs = false;
+    const missingDirsList: string[] = [];
+
+    if (!this.existsSync(configFile)) {
+      skillSourcesValid = false;
+      skillSourcesMissing = true;
+    } else {
+      try {
+        const content = fs.readFileSync(configFile, 'utf8');
+        const doc = JSON.parse(content);
+        if (!doc || !Array.isArray(doc.sources)) {
+          skillSourcesValid = false;
+        } else {
+          doc.sources.forEach((source: any) => {
+            if (source.enabled && source.createIfMissing !== false && source.path) {
+              const targetDir = path.isAbsolute(source.path)
+                ? path.resolve(source.path)
+                : path.resolve(this.projectRoot, source.path);
+              if (!fs.existsSync(targetDir)) {
+                skillSourcesMissingDirs = true;
+                missingDirsList.push(source.path);
+              }
+            }
+          });
+        }
+      } catch {
+        skillSourcesValid = false;
+      }
+    }
+
+    if (!skillSourcesValid) {
+      actions.push({
+        id: 'repair-skill-sources-config',
+        title: 'Repair skill-sources.json configuration',
+        command: 'npx tsx scripts/ops-doctor-repair-helper.ts repair-skill-sources',
+        reason: skillSourcesMissing
+          ? 'The skill-sources.json configuration file is missing.'
+          : 'The skill-sources.json configuration file contains invalid JSON syntax.',
+        blocking: false,
+        autoFixCommand: {
+          command: process.platform === 'win32' ? 'npx.cmd' : 'npx',
+          args: ['tsx', 'scripts/ops-doctor-repair-helper.ts', 'repair-skill-sources'],
+          cwd: this.projectRoot,
+        },
+      });
+    } else if (skillSourcesMissingDirs) {
+      actions.push({
+        id: 'create-missing-skill-source-dirs',
+        title: 'Create missing skill source directories',
+        command: 'npx tsx scripts/ops-doctor-repair-helper.ts repair-skill-sources',
+        reason: `Missing enabled local skill source directories: ${missingDirsList.join(', ')}.`,
+        blocking: false,
+        autoFixCommand: {
+          command: process.platform === 'win32' ? 'npx.cmd' : 'npx',
+          args: ['tsx', 'scripts/ops-doctor-repair-helper.ts', 'repair-skill-sources'],
+          cwd: this.projectRoot,
+        },
+      });
+    }
+
     if (!input.envFilePresent) {
+
       actions.push({
         id: 'setup-env',
         title: 'Criar o .env inicial',

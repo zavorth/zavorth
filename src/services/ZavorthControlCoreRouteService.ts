@@ -1504,9 +1504,9 @@ export class ZavorthControlCoreRouteService {
     }
 
     // --- Host Power Mode Endpoints ---
-    
+
     // --- PTY Routes ---
-    
+
     if (pathname === '/api/v2/workspace/pty/pending-sessions' && req.method === 'GET') {
       if (deps.authService && !deps.authService.resolveAuthenticatedIdentity(req)) {
         deps.writeJson(res, { ok: false, error: 'Unauthorized' }, 401);
@@ -1604,7 +1604,7 @@ export class ZavorthControlCoreRouteService {
           return true;
         }
         const afterSeq = afterSeqStr ? parseInt(afterSeqStr, 10) : 0;
-        
+
         const chunks = PtySessionService.getInstance().getOutput(sessionId, afterSeq);
         deps.writeJson(res, { ok: true, data: chunks });
       } catch (err: any) {
@@ -1660,7 +1660,7 @@ export class ZavorthControlCoreRouteService {
       try {
         const body = await deps.readJsonBody(req);
         const srv = ProviderConfigService.getInstance();
-        
+
         let providerId = body.providerId;
         let config;
 
@@ -1675,7 +1675,7 @@ export class ZavorthControlCoreRouteService {
           const store = LocalEncryptedProviderSecretStore.getInstance();
           const saveResult = await store.saveSecret(providerId, body.apiKey);
           await srv.setSecretRef(providerId, saveResult.secretRef);
-          config.secretRef = saveResult.secretRef; 
+          config.secretRef = saveResult.secretRef;
         }
 
         const { secretRef, keySuffix, key_suffix, ...safeConfig } = config as any;
@@ -1700,7 +1700,7 @@ export class ZavorthControlCoreRouteService {
           return true;
         }
         await ProviderConfigService.getInstance().deleteProvider(providerId);
-        
+
         const db = await Database.getInstance();
         await db.run('DELETE FROM provider_secret_refs WHERE provider_id = ?', [providerId]);
 
@@ -1835,7 +1835,7 @@ export class ZavorthControlCoreRouteService {
         const currentConfig = await AgentWorkspaceConfigService.getInstance().getConfig(workspaceId);
         const updatedConfig = { ...currentConfig, ...body.config };
         await AgentWorkspaceConfigService.getInstance().updateConfig(workspaceId, updatedConfig);
-        
+
         deps.writeJson(res, { ok: true });
       } catch (err: any) {
         const normalized = ErrorNormalizationService.getInstance().normalize(err);

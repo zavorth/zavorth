@@ -6,6 +6,14 @@ import { type LiveChannelBroadcastGatewayContract, PlatformKey } from '../contra
 import { config } from '../config/index.js';
 import { TeamsGraphBotClient } from '../adapters/channels/TeamsGraphBotClient.js';
 
+export interface TeamsGatewayStubMessage {
+  userId: string;
+  chatId: string;
+  rawText: string;
+  messageId?: string | null;
+  replyToId?: string | null;
+}
+
 export type TeamsGatewayStatusSnapshot = {
   mode: 'graph-bot';
   enabled: boolean;
@@ -88,6 +96,16 @@ export class TeamsGateway implements LiveChannelBroadcastGatewayContract {
 
   public resolveBroadcastRecipients(): string[] {
     return [...config.teamsAllowedConversationIds];
+  }
+
+  public async simulateIncomingMessage(message: TeamsGatewayStubMessage): Promise<void> {
+    await this.dispatchIncomingMessage({
+      userId: String(message.userId || ''),
+      chatId: String(message.chatId || ''),
+      rawText: String(message.rawText || ''),
+      messageId: String(message.messageId || '').trim() || null,
+      replyToId: String(message.replyToId || '').trim() || null,
+    });
   }
 
   public async handleWebhookEvent(input: {

@@ -1,0 +1,26 @@
+{
+  "id": "zavorth-zustand-store-coordinator",
+  "name": "Zustand Store Coordinator",
+  "native": true,
+  "description": "Write and coordinate Zustand stores, state slices, actions, and custom React hooks.",
+  "category": "development",
+  "permissionProfileId": "workspace-write",
+  "riskLevel": "low",
+  "capabilityTags": [
+    "development",
+    "state"
+  ],
+  "presets": [
+    "developer"
+  ],
+  "inputContract": [
+    "state definitions",
+    "actions list"
+  ],
+  "outputContract": [
+    "zustand store code"
+  ],
+  "noExecutionByDefault": false,
+  "requiresPolicyBroker": true,
+  "receiptsRequired": true
+}

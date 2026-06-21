@@ -34,6 +34,8 @@ import {
 } from './ZavorthSubagentRuntimeService.js';
 import { ZavorthSubagentAutoInvocationPolicyService } from './ZavorthSubagentAutoInvocationPolicyService.js';
 import { ZavorthSandboxLifecycleManager } from './ZavorthSandboxLifecycleManager.js';
+import { ProviderFactory } from '../providers/ProviderFactory.js';
+import type { ILlmProvider, ChatMessage } from '../providers/ILlmProvider.js';
 
 type DecideSecurityPolicy = (
   request: SecurityPolicyBrokerRequest,
@@ -112,7 +114,7 @@ export class ZavorthNaturalInvocationRouter {
     const requestText = normalizeText(input.text);
     const channel = normalizeChannel(input.channel);
     const actorId = normalizeNullable(input.actorId);
-    const baseAnalysis = analyzeIntent({
+    const baseAnalysis = await analyzeIntent({
       text: requestText,
       sourcePath: input.sourcePath,
       approvalId: input.approvalId,
@@ -437,11 +439,11 @@ export class ZavorthNaturalInvocationRouter {
   }
 }
 
-function analyzeIntent(input: {
+async function analyzeIntent(input: {
   text: string;
   sourcePath?: string | null;
   approvalId?: string | null;
-}): IntentAnalysis {
+}): Promise<IntentAnalysis> {
   const text = input.text.toLowerCase();
   const risky = /\b(write|edit|delete|remove|apply|patch|execute|shell|terminal|envie|publique|delete|deploy|live)\b/i.test(text);
   const sourcePath = normalizeNullable(input.sourcePath) || extractPath(input.text);
@@ -457,7 +459,7 @@ function analyzeIntent(input: {
       risky: mutating,
     });
   }
-  if (/\b(quebre|chunk|lote|batch|biblioteca grande|large skill|large library)\b/i.test(text)) {
+  if (/\b(quebre|chunk|lote|batch|biblioteca grande|large skill|large library|grosse bibliothèque|große bibliothek|큰 라이브러리|大きなライブラリ)\b/i.test(text)) {
     return base({
       action: 'large_absorption',
       confidence: 0.92,
@@ -467,8 +469,8 @@ function analyzeIntent(input: {
       risky,
     });
   }
-  if (/\b(absorva|absorber|importe|importar|pegue essa pasta|pega essa pasta|skill library|pasta de skills)\b/i.test(text)) {
-    const apply = /\b(apply|aplique|importe|materialize|materializar|absorva de verdade)\b/i.test(text);
+  if (/\b(absorva|absorber|importe|importar|pegue essa pasta|pega essa pasta|skill library|pasta de skills|import the|import this|bring in|pull in|absorb from|absorb the|importieren|importieren Sie|importer|импортировать|استورد|インポート|导入|가져오기)\b/i.test(text)) {
+    const apply = /\b(apply|aplique|importe|materialize|materializar|absorva de verdade|actually import|really import|do it|confirm|execute|run it|go ahead|start)\b/i.test(text);
     return base({
       action: apply ? 'absorb_skill_apply' : 'absorb_skill_preview',
       confidence: 0.9,
@@ -478,8 +480,8 @@ function analyzeIntent(input: {
       risky: apply || risky,
     });
   }
-  if (/\b(use subagentes?|use subagents?|mande um agente|manda um agente|outro revisar|agentes em paralelo|spawn|swarm|subagent)\b/i.test(text)) {
-    const team = /\b(outro|dois|varios|varias|team|equipe|paralelo|parallel|swarm)\b/i.test(text);
+  if (/\b(use subagentes?|use subagents?|mande um agente|manda um agente|outro revisar|agentes em paralelo|spawn|swarm|subagent|send an agent|use an agent|parallel agents|spawn agent|deploy agent|launch agent|einen agenten|un agente|アジェント|에이전트|الوكيل)\b/i.test(text)) {
+    const team = /\b(outro|dois|varios|varias|team|equipe|paralelo|parallel|swarm|multiple|several|many|team| groupe|equipo|team|チーム|팀|فريق)\b/i.test(text);
     return base({
       action: team ? 'spawn_team' : 'spawn_subagent',
       confidence: 0.94,
@@ -490,7 +492,7 @@ function analyzeIntent(input: {
       risky,
     });
   }
-  if (/\b(use a melhor skill|melhor skill|use skill|usar skill|com skill|skill para)\b/i.test(text)) {
+  if (/\b(use a melhor skill|melhor skill|use skill|usar skill|com skill|skill para|use the.*skill|use skill|apply skill|run skill|use the best|use best|meilleure skill|beste skill|mejor skill|最良のスキル|최고의 스킬|أفضل مهارة)\b/i.test(text)) {
     return base({
       action: 'use_skill',
       confidence: 0.82,
@@ -500,6 +502,11 @@ function analyzeIntent(input: {
       risky,
     });
   }
+  // Fallback: regex didn't match with high confidence — use LLM for classification
+  const llmResult = await classifyWithLlm(input.text);
+  if (llmResult) {
+    return llmResult;
+  }
   return base({
     action: 'answer_directly',
     confidence: 0.55,
@@ -507,6 +514,76 @@ function analyzeIntent(input: {
     approvalReason: null,
     risky,
   });
+}
+
+/**
+ * LLM-based intent classification fallback.
+ * Used when regex patterns don't match with high confidence.
+ * Supports ALL languages including RTL (Arabic, Hebrew, etc.).
+ *
+ * Performance:
+ * - Uses the provider configured during zavorth setup (default: aigateway)
+ * - Respects ZAVORTH_INTENT_CLASSIFIER_MODEL env var for override
+ * - Falls back to a lightweight model when available
+ * - Prompt is ~400 tokens, response ~50 tokens = ~450 tokens total
+ * - Latency: 300-800ms depending on provider
+ *
+ * Configuration:
+ *   ZAVORTH_INTENT_CLASSIFIER_MODEL=gpt-4o-mini  (cheapest)
+ *   ZAVORTH_INTENT_CLASSIFIER_MODEL=gemini-2.0-flash  (fast)
+ *   ZAVORTH_INTENT_CLASSIFIER_MODEL=claude-3-haiku  (cheap)
+ */
+async function classifyWithLlm(text: string): Promise<IntentAnalysis | null> {
+  try {
+    const configuredModel = process.env.ZAVORTH_INTENT_CLASSIFIER_MODEL || '';
+    const provider: ILlmProvider = ProviderFactory.create('default');
+    const messages: ChatMessage[] = [
+      {
+        role: 'system',
+        content: `You are an intent classifier. Classify the user's message into ONE of these categories:
+- "import_skill": User wants to import, absorb, or bring in skills from another source
+- "use_skill": User wants to use or apply a specific skill
+- "spawn_subagent": User wants to spawn or use a sub-agent
+- "spawn_team": User wants multiple agents working in parallel
+- "large_absorption": User wants to process a large skill library
+- "sandbox_lifecycle": User wants to start/stop/manage a sandbox
+- "answer_directly": Default - just answer the question
+
+Respond with ONLY a JSON object:
+{"action": "<category>", "confidence": <0.0-1.0>, "skillQuery": "<extracted skill name or null>", "sourcePath": "<extracted path or null>"}
+
+Examples:
+- "import the github skill from openclaw" → {"action": "import_skill", "confidence": 0.95, "skillQuery": "github", "sourcePath": null}
+- "استورد مهارة الطقس" → {"action": "import_skill", "confidence": 0.95, "skillQuery": "weather", "sourcePath": null}
+- "bring in the discord skill" → {"action": "import_skill", "confidence": 0.95, "skillQuery": "discord", "sourcePath": null}
+- "use the code review skill" → {"action": "use_skill", "confidence": 0.9, "skillQuery": "code review", "sourcePath": null}
+- "spawn two agents to review this" → {"action": "spawn_team", "confidence": 0.9, "skillQuery": null, "sourcePath": null}
+- "what is the weather today?" → {"action": "answer_directly", "confidence": 0.8, "skillQuery": null, "sourcePath": null}`,
+      },
+      {
+        role: 'user',
+        content: text,
+      },
+    ];
+    const options = configuredModel ? { modelName: configuredModel } : undefined;
+    const response = await provider.chat(messages, undefined, options);
+    const content = response.content || '';
+    const parsed = JSON.parse(content.match(/\{[^}]+\}/)?.[0] || '{}');
+    if (!parsed.action) return null;
+    const risky = /\b(write|edit|delete|remove|apply|patch|execute|shell|terminal|deploy|live)\b/i.test(text.toLowerCase());
+    const sourcePath = extractPath(text) || parsed.sourcePath || null;
+    return base({
+      action: parsed.action as ZavorthNaturalInvocationAction,
+      confidence: Math.min(parsed.confidence || 0.8, 0.85),
+      skillQuery: parsed.skillQuery || null,
+      sourcePath,
+      approvalRequired: risky,
+      approvalReason: risky ? 'LLM-classified intent involves potentially risky operations.' : null,
+      risky,
+    });
+  } catch {
+    return null;
+  }
 }
 
 function base(input: {

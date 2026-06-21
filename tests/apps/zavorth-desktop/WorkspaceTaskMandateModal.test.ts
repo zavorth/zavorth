@@ -23,8 +23,13 @@ describe('WorkspaceTaskMandate Endpoint Integration Tests', () => {
     process.env.ZAVORTH_WORKSPACE_ROOT = tempDir;
     config.dbPath = path.join(tempDir, 'data', 'zavorth.db');
 
-    // Mock WorkspaceResolver.resolve to return tempDir
-    jest.spyOn(WorkspaceResolver, 'resolve').mockReturnValue(tempDir);
+    // The active workspace resolves to tempDir; arbitrary workspace IDs must not.
+    jest.spyOn(WorkspaceResolver, 'resolve').mockImplementation((workspaceHint) => {
+      const activeWorkspaceId = path.basename(tempDir);
+      return !workspaceHint || workspaceHint === activeWorkspaceId
+        ? tempDir
+        : path.resolve(tempDir, '..', workspaceHint);
+    });
 
     db = await Database.getInstance();
     routeService = new ZavorthControlCoreRouteService();

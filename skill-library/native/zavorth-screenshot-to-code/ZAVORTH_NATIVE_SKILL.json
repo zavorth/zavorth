@@ -1,0 +1,27 @@
+{
+  "id": "zavorth-screenshot-to-code",
+  "name": "Visual Layout Interpreter",
+  "native": true,
+  "description": "Translate screenshots or UI layouts into clean, production-ready React or HTML components.",
+  "category": "design",
+  "permissionProfileId": "workspace-write",
+  "riskLevel": "medium",
+  "capabilityTags": [
+    "design",
+    "frontend"
+  ],
+  "presets": [
+    "developer"
+  ],
+  "inputContract": [
+    "image path",
+    "target stack"
+  ],
+  "outputContract": [
+    "component code",
+    "styles"
+  ],
+  "noExecutionByDefault": false,
+  "requiresPolicyBroker": true,
+  "receiptsRequired": true
+}

@@ -277,7 +277,7 @@ describe('WorkspaceOperationalMemoryService', () => {
               created_at: '2026-03-28T06:30:00.000Z',
               updated_at: '2026-03-28T08:00:00.000Z',
               status: 'approval_pending',
-              stages: [
+              phases: [
                 {
                   id: 'maker',
                   label: 'Codex Maker',
@@ -635,7 +635,7 @@ describe('WorkspaceOperationalMemoryService', () => {
               created_at: '2026-03-29T09:00:00.000Z',
               updated_at: '2026-03-29T10:05:00.000Z',
               status: 'completed',
-              stages: [
+              phases: [
                 {
                   id: 'maker',
                   label: 'Codex Maker',
@@ -792,7 +792,7 @@ describe('WorkspaceOperationalMemoryService', () => {
               created_at: '2026-04-02T09:00:00.000Z',
               updated_at: '2026-04-02T09:20:00.000Z',
               status: 'completed',
-              stages: [
+              phases: [
                 {
                   id: 'maker',
                   label: 'Codex Maker',
@@ -945,7 +945,7 @@ describe('WorkspaceOperationalMemoryService', () => {
               status: 'blocked',
               operator_state: 'closed',
               operator_close_reason: 'Operador preferiu encerrar a retomada.',
-              stages: [
+              phases: [
                 {
                   id: 'review',
                   label: 'ExternalExecutor Reviewer',

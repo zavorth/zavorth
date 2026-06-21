@@ -108,7 +108,7 @@ function findForbiddenEnvFiles() {
       file: relativePath,
       line: 1,
       rule: 'tracked-env-file',
-      detail: 'real .env files cannot be versioned; use .env.example without real values',
+      detail: 'arquivo .env real nao pode ser versionado; use .env.example sem valores reais',
     }));
 }
 

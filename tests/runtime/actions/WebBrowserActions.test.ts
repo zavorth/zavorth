@@ -170,6 +170,7 @@ describe('Web & Browser Actions Harness (Phase 23-A)', () => {
     expect(res.data?.content).toContain('<untrusted_web_evidence url="https://zavorth.internal/docs">');
     expect(res.data?.content).toContain('Hello Web');
     expect(res.data?.content).toContain('</untrusted_web_evidence>');
+    expect(JSON.stringify(res.data)).not.toContain('"raw"');
   });
 
   // 6. web.fetch_url blocks private/localhost/non-http targets (Req 8, 9)
@@ -329,6 +330,7 @@ describe('Web & Browser Actions Harness (Phase 23-A)', () => {
     expect(appliedRes.data?.content).toContain('<untrusted_browser_content>');
     expect(appliedRes.data?.content).toContain('extracted page body innerText content');
     expect(appliedRes.data?.content).toContain('</untrusted_browser_content>');
+    expect(JSON.stringify(appliedRes.data)).not.toContain('"raw"');
 
     // Fail closed
     mockHealth.mockResolvedValueOnce({ ok: false });

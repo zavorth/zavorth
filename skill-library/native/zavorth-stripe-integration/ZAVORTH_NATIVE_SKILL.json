@@ -1,0 +1,27 @@
+{
+  "id": "zavorth-stripe-integration",
+  "name": "Stripe Payment Architect",
+  "native": true,
+  "description": "Scaffold payment intents, subscriptions, webhooks, and upgrade Stripe SDK integrations.",
+  "category": "development",
+  "permissionProfileId": "workspace-write",
+  "riskLevel": "medium",
+  "capabilityTags": [
+    "development",
+    "fintech"
+  ],
+  "presets": [
+    "developer"
+  ],
+  "inputContract": [
+    "payment flow spec",
+    "sdk version"
+  ],
+  "outputContract": [
+    "scaffold code",
+    "webhook logic"
+  ],
+  "noExecutionByDefault": false,
+  "requiresPolicyBroker": true,
+  "receiptsRequired": true
+}

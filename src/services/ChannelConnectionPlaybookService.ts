@@ -33,7 +33,7 @@ type ChannelConnectionPlaybookDeps = {
   channelMeshService?: ChannelMeshLike;
 };
 
-const CHANNEL_HINTS: Record<PlatformKey, string[]> = {
+const CHANNEL_HINTS: Partial<Record<PlatformKey, string[]>> = {
   telegram: [
     'Use um bot dedicado e limite TELEGRAM_ALLOWED_USER_IDS aos operadores reais.',
     'Telegram nao precisa de URL publica para comecar.',
@@ -317,7 +317,7 @@ export class ChannelConnectionPlaybookService {
           : 'Este modo nao exige webhook publico.',
       ]),
       this.step('set-allowlist', 'Fechar allowlist de operadores e destinatarios', allowlistMissing ? 'next' : hasSecrets ? 'done' : 'pending', null, [
-        ...CHANNEL_HINTS[selected.channelId],
+        ...(CHANNEL_HINTS[selected.channelId] || []),
       ]),
       this.step('run-doctor', 'Rodar doctor do canal', lastHealthPassed ? 'done' : hasSecrets ? 'next' : 'blocked', commands.doctor, [
         'O doctor confirma credenciais, policy e readiness local sem enviar segredo para logs.',

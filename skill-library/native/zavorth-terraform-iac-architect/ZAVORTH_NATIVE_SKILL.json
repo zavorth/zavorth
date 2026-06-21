@@ -1,0 +1,28 @@
+{
+  "id": "zavorth-terraform-iac-architect",
+  "name": "Terraform IaC Architect",
+  "native": true,
+  "description": "Generate Terraform HCL, modularize infrastructure setups, and parse execution plans.",
+  "category": "devops",
+  "permissionProfileId": "host-write",
+  "riskLevel": "high",
+  "capabilityTags": [
+    "devops",
+    "iac"
+  ],
+  "presets": [
+    "developer",
+    "power-user"
+  ],
+  "inputContract": [
+    "infrastructure spec",
+    "provider config"
+  ],
+  "outputContract": [
+    "hcl code",
+    "terraform plan summary"
+  ],
+  "noExecutionByDefault": true,
+  "requiresPolicyBroker": true,
+  "receiptsRequired": true
+}

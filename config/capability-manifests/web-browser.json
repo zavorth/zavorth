@@ -12,7 +12,7 @@
   "entry": "src/runtime/actions/ZavorthActionCatalog.ts",
   "description": "Verified Action Harness routes for governed web search and browser automation.",
   "requires": ["network"],
-  "provides": ["search", "fetch_url", "open", "screenshot", "extract"],
+  "provides": ["search", "fetch_url", "open", "screenshot", "extract", "click", "type", "form_submit"],
   "tags": ["native", "verified", "action-harness"],
   "actions": [
     {
@@ -55,6 +55,33 @@
       "id": "browser.extract",
       "status": "verified",
       "risk": "attention",
+      "requiresPreview": true,
+      "requiresApproval": true,
+      "scope": "browser",
+      "receipt": "required"
+    },
+    {
+      "id": "browser.click",
+      "status": "verified",
+      "risk": "danger",
+      "requiresPreview": true,
+      "requiresApproval": true,
+      "scope": "browser",
+      "receipt": "required"
+    },
+    {
+      "id": "browser.type",
+      "status": "verified",
+      "risk": "danger",
+      "requiresPreview": true,
+      "requiresApproval": true,
+      "scope": "browser",
+      "receipt": "required"
+    },
+    {
+      "id": "browser.form.submit",
+      "status": "verified",
+      "risk": "danger",
       "requiresPreview": true,
       "requiresApproval": true,
       "scope": "browser",

@@ -1,0 +1,28 @@
+{
+  "id": "zavorth-postgres-sql-wizard",
+  "name": "Postgres & RLS Architect",
+  "native": true,
+  "description": "Design, optimize, audit, and secure PostgreSQL databases and Row Level Security (RLS) policies.",
+  "category": "database",
+  "permissionProfileId": "workspace-write",
+  "riskLevel": "medium",
+  "capabilityTags": [
+    "database",
+    "sql"
+  ],
+  "presets": [
+    "developer"
+  ],
+  "inputContract": [
+    "schema SQL",
+    "query",
+    "rls rules"
+  ],
+  "outputContract": [
+    "optimized SQL",
+    "security report"
+  ],
+  "noExecutionByDefault": false,
+  "requiresPolicyBroker": true,
+  "receiptsRequired": true
+}

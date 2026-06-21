@@ -21,6 +21,7 @@ import { globalLiveNodeRegistry } from './LiveNodeRegistryService.js';
 import { ZavorthMemoryEncryptionStatusService, type ZavorthMemoryEncryptionMode } from './ZavorthMemoryEncryptionStatusService.js';
 import { TrustedDeviceAccessService } from './TrustedDeviceAccessService.js';
 import { TrustedDeviceAccessRouteService } from './TrustedDeviceAccessRouteService.js';
+import { ChannelGatewayFactory } from '../gateways/ChannelGatewayFactory.js';
 
 type WriteJson = (res: http.ServerResponse, body: unknown, statusCode?: number) => void;
 type WriteText = (res: http.ServerResponse, body: string, statusCode?: number) => void;
@@ -147,6 +148,7 @@ export class DashboardCoreRouteService {
   private readonly salesPackBusinessMode: SalesPackBusinessModeService;
   private readonly salesPackChannelIo: SalesPackChannelIoService;
   private readonly localAccessRoutes: TrustedDeviceAccessRouteService;
+  private readonly channelGatewayRegistry = ChannelGatewayFactory.createAll();
 
   public constructor(options: DashboardCoreRouteServiceOptions = {}) {
     this.operationalMaturity = options.operationalMaturity || new OperationalMaturityService();
@@ -481,6 +483,16 @@ export class DashboardCoreRouteService {
       });
 
       deps.writeJson(res, result.body, result.statusCode);
+      return true;
+    }
+
+    if (pathname.startsWith('/api/webhooks/') && req.method === 'POST') {
+      const channelId = decodeURIComponent(pathname.slice('/api/webhooks/'.length));
+      const gateway = this.channelGatewayRegistry.resolveGateway(channelId);
+      if (!gateway) return false;
+      const body = await deps.readJsonBody(req);
+      const accepted = await gateway.onMessageReceived(body);
+      deps.writeJson(res, { ok: accepted === true, channel: gateway.id, accepted: accepted === true }, accepted === true ? 202 : 403);
       return true;
     }
 

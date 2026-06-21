@@ -1,0 +1,30 @@
+{
+  "id": "zavorth-api-ledger-control",
+  "name": "API Usage & Token Ledger",
+  "native": true,
+  "description": "Track model tokens and financial costs against local usage limits.",
+  "category": "security",
+  "permissionProfileId": "workspace-write",
+  "riskLevel": "low",
+  "capabilityTags": [
+    "security",
+    "costs"
+  ],
+  "presets": [
+    "basic",
+    "developer",
+    "power-user"
+  ],
+  "inputContract": [
+    "tokens used",
+    "provider",
+    "model name"
+  ],
+  "outputContract": [
+    "cumulative cost",
+    "budget alert"
+  ],
+  "noExecutionByDefault": false,
+  "requiresPolicyBroker": true,
+  "receiptsRequired": true
+}

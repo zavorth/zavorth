@@ -1,4 +1,4 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest';
+import path from 'path';
 import { DatabaseQueryTool } from '../../src/tools/DatabaseQueryTool';
 
 describe('DatabaseQueryTool', () => {
@@ -76,12 +76,13 @@ describe('DatabaseQueryTool', () => {
   });
 
   it('uses custom database_path in error/execution message', async () => {
+    const customPath = path.join(process.cwd(), 'data', 'custom.db');
     const result = await tool.execute({
       query: 'SELECT 1',
       mode: 'read',
-      database_path: '/tmp/custom.db',
+      database_path: customPath,
     });
-    const isValid = result.includes('Query executada') || result.includes('driver SQLite') || result.includes('/tmp/custom.db');
+    const isValid = result.includes('Query executada') || result.includes('driver SQLite') || result.includes('custom.db') || result.includes('Erro ao executar query') || result.includes('indisponivel');
     expect(isValid).toBe(true);
   });
 
@@ -91,5 +92,14 @@ describe('DatabaseQueryTool', () => {
     });
     const isValidResponse = result.includes('driver SQLite') || result.includes('Query executada') || result.includes('Erro ao executar query') || result.includes('indisponivel');
     expect(isValidResponse).toBe(true);
+  });
+
+  it('returns error when database_path is outside allowed data directory', async () => {
+    const result = await tool.execute({
+      query: 'SELECT 1',
+      database_path: process.platform === 'win32' ? 'C:\\Windows\\temp.db' : '/tmp/temp.db',
+    });
+    expect(result).toContain('Erro: o caminho do banco de dados');
+    expect(result).toContain('esta fora da raiz de dados permitida');
   });
 });

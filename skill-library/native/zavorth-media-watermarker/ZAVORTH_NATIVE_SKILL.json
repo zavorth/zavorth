@@ -1,0 +1,27 @@
+{
+  "id": "zavorth-media-watermarker",
+  "name": "Media Watermarker",
+  "native": true,
+  "description": "Embed visual watermarks and secure cryptographic tags inside generated assets.",
+  "category": "media",
+  "permissionProfileId": "workspace-write",
+  "riskLevel": "low",
+  "capabilityTags": [
+    "media",
+    "security"
+  ],
+  "presets": [
+    "basic",
+    "developer"
+  ],
+  "inputContract": [
+    "file path",
+    "metadata watermark"
+  ],
+  "outputContract": [
+    "processed file path"
+  ],
+  "noExecutionByDefault": false,
+  "requiresPolicyBroker": true,
+  "receiptsRequired": true
+}

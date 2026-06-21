@@ -1,6 +1,7 @@
 import { ProviderConfigService, ProviderConfig } from './ProviderConfigService.js';
 import { LocalEncryptedProviderSecretStore } from './ProviderSecretStore.js';
 import { ErrorNormalizationService } from './ErrorNormalizationService.js';
+import { safeFetch } from '../security/SafeFetchService.js';
 
 
 export interface ProviderConnectionTestResult {
@@ -87,12 +88,14 @@ export class ProviderConnectionTestService {
     const timeout = setTimeout(() => controller.abort(), 10000);
 
     try {
-      const res = await fetch(endpoint, {
+      const res = await safeFetch(endpoint, {
         method: 'GET',
         headers: {
           'Authorization': `Bearer ${apiKey}`
         },
         signal: controller.signal
+      }, {
+        serviceName: 'Provider connection test',
       });
       clearTimeout(timeout);
 
@@ -118,13 +121,15 @@ export class ProviderConnectionTestService {
 
     try {
       // Send an empty GET. Anthropic responds with 401 for bad keys, and 405 Method Not Allowed or 400 Bad Request for valid keys but bad request format
-      const res = await fetch(endpoint, {
+      const res = await safeFetch(endpoint, {
         method: 'GET',
         headers: {
           'x-api-key': apiKey,
           'anthropic-version': '2023-06-01'
         },
         signal: controller.signal
+      }, {
+        serviceName: 'Provider connection test',
       });
       clearTimeout(timeout);
 
@@ -148,9 +153,11 @@ export class ProviderConnectionTestService {
     const timeout = setTimeout(() => controller.abort(), 10000);
 
     try {
-      const res = await fetch(endpoint, {
+      const res = await safeFetch(endpoint, {
         method: 'GET',
         signal: controller.signal
+      }, {
+        serviceName: 'Provider connection test',
       });
       clearTimeout(timeout);
 
@@ -175,9 +182,12 @@ export class ProviderConnectionTestService {
     const timeout = setTimeout(() => controller.abort(), 10000);
 
     try {
-      const res = await fetch(endpoint, {
+      const res = await safeFetch(endpoint, {
         method: 'GET',
         signal: controller.signal
+      }, {
+        serviceName: 'Ollama connection test',
+        allowLoopback: true,
       });
       clearTimeout(timeout);
 

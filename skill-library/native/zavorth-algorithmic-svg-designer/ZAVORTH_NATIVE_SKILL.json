@@ -1,0 +1,28 @@
+{
+  "id": "zavorth-algorithmic-svg-designer",
+  "name": "Algorithmic SVG Designer",
+  "native": true,
+  "description": "Generate advanced mathematical and algorithmic layouts using clean, responsive SVG vectors.",
+  "category": "media",
+  "permissionProfileId": "workspace-write",
+  "riskLevel": "low",
+  "capabilityTags": [
+    "media",
+    "graphics"
+  ],
+  "presets": [
+    "basic",
+    "developer",
+    "power-user"
+  ],
+  "inputContract": [
+    "design specifications",
+    "canvas dimensions"
+  ],
+  "outputContract": [
+    "raw svg content"
+  ],
+  "noExecutionByDefault": false,
+  "requiresPolicyBroker": true,
+  "receiptsRequired": true
+}

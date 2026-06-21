@@ -29,6 +29,38 @@ import { LlmRuntimeService } from '../services/llm/LlmRuntimeService.js';
 import { SkillCuratorPlaneService } from '../skills/SkillCuratorPlaneService.js';
 import { AgentRunService } from '../runtime/agent/AgentRunService.js';
 import { TerminalPanel } from './presentation/TerminalPanel.js';
+import { ChannelGatewayFactory } from '../gateways/ChannelGatewayFactory.js';
+import { runCertify } from './certify/ZavorthCliCertifyNamespace.js';
+import { runSandbox } from './sandbox/ZavorthCliSandboxNamespace.js';
+import {
+  firstArg,
+  readFlag,
+  readFlags,
+  readNumberFlag,
+  stateDir,
+  ensureDir,
+  readJson,
+  readArray,
+  writeJson,
+  appendJsonArray,
+  listJsonFiles,
+  listAnyFiles,
+  walkFiles,
+  idWithTime,
+  safeString,
+  isInside,
+  runProcess,
+  sha256,
+  render,
+  normalizeRenderLines,
+  resolvePanelType,
+  terminalPanelWidth,
+  text,
+  splitList,
+  getEnv,
+  quoteEnv,
+  mergeSingleEnvValue
+} from './ZavorthCliSharedHelpers.js';
 
 type JsonObject = Record<string, unknown>;
 const gzipAsync = promisify(gzip);
@@ -113,69 +145,7 @@ export async function runZavorthLiveNamespaceCommand(input: {
   }
 }
 
-async function runCertify(root: string, args: string[]) {
-  const target = firstArg(args, 'operational');
-  const operationalTargets = new Set(['operational', 'readiness', 'ops']);
-  if (['product-excellence', 'product', 'excellence'].includes(target)) {
-    const service = new ZavorthProductExcellenceService({
-      projectRoot: root,
-      ...(readFlag(args, 'evidence-root') ? { evidenceRoot: readFlag(args, 'evidence-root') } : {}),
-      env: process.env,
-    });
-    const snapshot = await service.buildSnapshot();
-    const output = args.includes('--json')
-      ? `${JSON.stringify(snapshot, null, 2)}\n`
-      : `${service.renderText(snapshot)}\n`;
-    return {
-      exitCode: args.includes('--strict') && snapshot.status !== 'ready' ? 1 : 0,
-      output,
-    };
-  }
-  if (['native-capability', 'native', 'capability'].includes(target)) {
-    const service = new ZavorthNativeCapabilityCertificationService({
-      projectRoot: root,
-      ...(readFlag(args, 'evidence-root') ? { evidenceRoot: readFlag(args, 'evidence-root') } : {}),
-      env: process.env,
-    });
-    const snapshot = await service.buildSnapshot();
-    const output = args.includes('--json')
-      ? `${JSON.stringify(snapshot, null, 2)}\n`
-      : `${service.renderText(snapshot)}\n`;
-    return {
-      exitCode: args.includes('--strict') && snapshot.status !== 'ready' ? 1 : 0,
-      output,
-    };
-  }
-  if (!operationalTargets.has(target)) {
-    const payload = {
-      ok: false,
-      error: `Unknown certify target: ${target}`,
-      allowedTargets: ['operational', 'product-excellence', 'native-capability'],
-    };
-    if (args.includes('--json')) {
-      return {
-        exitCode: 1,
-        output: `${JSON.stringify(payload, null, 2)}\n`,
-      };
-    }
-    return {
-      exitCode: 1,
-      output: [
-        `Unknown certify target: ${target}`,
-        'Allowed targets: operational, product-excellence, native-capability',
-      ].join('\n') + '\n',
-    };
-  }
-  const service = new ZavorthOperationalReadinessService();
-  const snapshot = service.buildSnapshot(root);
-  const output = args.includes('--json')
-    ? `${JSON.stringify(snapshot, null, 2)}\n`
-    : `${service.renderText(snapshot)}\n`;
-  return {
-    exitCode: args.includes('--strict') && snapshot.status !== 'pass' ? 1 : 0,
-    output,
-  };
-}
+
 
 async function runActions(root: string, args: string[]) {
   const gateway = new ZavorthActionGateway({ root });
@@ -3511,265 +3481,7 @@ async function upsertNodeRecord(root: string, record: JsonObject): Promise<void>
   await writeJson(file, nodes);
 }
 
-async function runSandbox(root: string, args: string[]) {
-  const action = firstArg(args, 'status');
-  const sandboxDir = path.join(stateDir(root), 'sandboxes');
-  await ensureDir(sandboxDir);
-  if (action === 'doctor') {
-    const { ZavorthSandboxControlPlaneService } = await import('../services/ZavorthSandboxControlPlaneService.js');
-    const service = new ZavorthSandboxControlPlaneService({ workspaceRoot: root });
-    const snapshot = service.buildSnapshot({
-      command: readFlag(args, 'command') || args.slice(1).filter((arg) => !arg.startsWith('--')).join(' ') || null,
-      requestedBy: 'operator',
-      sourceSurface: 'cli:sandbox',
-    });
-    return render(args, 'Zavorth sandbox doctor', service.renderReport({
-      command: readFlag(args, 'command') || null,
-      requestedBy: 'operator',
-      sourceSurface: 'cli:sandbox',
-    }).split('\n'), snapshot);
-  }
-  if (action === 'run') {
-    const id = readFlag(args, 'id') || args[1] || '';
-    if (!id) {
-      return render(args, 'Zavorth sandbox run', [
-        'Missing sandbox id. Use: zavorth sandbox create --yes, then zavorth sandbox run <id> --command <command> --yes',
-      ], { ok: false });
-    }
-    return runSandbox(root, ['exec', id, ...args.slice(2)]);
-  }
-  if (action === 'receipt' || action === 'receipts') {
-    return runSandbox(root, ['logs', ...args.slice(1)]);
-  }
-  if (action === 'status' || action === 'backends') {
-    const backends = await inspectSandboxBackends(root);
-    return render(args, 'Zavorth sandbox', backends.map((backend) => `${backend.id}: ${backend.status} | ${backend.detail}`), { backends });
-  }
-  if (action === 'policy') {
-    const file = path.join(stateDir(root), 'sandbox-policy.json');
-    const policy = await readJson(file, defaultSandboxPolicy()) as JsonObject;
-    if (args.includes('set')) {
-      const backend = readFlag(args, 'backend') || String(policy.defaultBackend || 'local');
-      const network = readFlag(args, 'network') || String(policy.network || 'blocked');
-      const writes = readFlag(args, 'writes') || String(policy.writes || 'sandbox-only');
-      const next = { ...policy, defaultBackend: backend, network, writes, updatedAt: new Date().toISOString() };
-      await writeJson(file, next);
-      return render(args, 'Zavorth sandbox policy', ['Policy updated.', `backend: ${backend}`, `network: ${network}`, `writes: ${writes}`], { policy: next });
-    }
-    return render(args, 'Zavorth sandbox policy', Object.entries(policy).map(([key, value]) => `${key}: ${safeString(value)}`), { policy });
-  }
-  if (action === 'create') {
-    const backend = readFlag(args, 'backend') || String((await readJson(path.join(stateDir(root), 'sandbox-policy.json'), defaultSandboxPolicy()) as JsonObject).defaultBackend || 'local');
-    const id = readFlag(args, 'id') || idWithTime('sandbox');
-    const label = args.slice(1).filter((arg) => !arg.startsWith('--')).join(' ') || 'Zavorth sandbox';
-    if (!args.includes('--yes')) {
-      return render(args, 'Zavorth sandbox', [`Create preview: ${id}`, `Backend: ${backend}`, 'Add --yes to create isolated sandbox state.'], { dryRun: true, id, backend });
-    }
-    const record = await createSandbox(root, sandboxDir, { id, backend, label, args });
-    return render(args, 'Zavorth sandbox', [`Created sandbox: ${id}`, `Backend: ${backend}`, `Workspace: ${String(record.workspacePath || 'n/a')}`], { sandbox: sanitizeSandboxRecord(record) });
-  }
-  if (action === 'list') {
-    const items = await readArray(path.join(stateDir(root), 'sandboxes.json'));
-    return render(args, 'Zavorth sandbox', items.length ? items.map((item) => `- ${String((item as JsonObject).id)} | ${String((item as JsonObject).backend)} | ${String((item as JsonObject).status)}`) : ['No sandboxes recorded yet.'], { sandboxes: items.map(sanitizeSandboxRecord) });
-  }
-  if (action === 'logs') {
-    const id = args[1] || readFlag(args, 'id') || '';
-    const logs = await readArray(path.join(stateDir(root), 'logs', 'sandbox.json'));
-    const selected = id ? logs.filter((entry) => String((entry as JsonObject).sandboxId) === id) : logs;
-    return render(args, 'Zavorth sandbox logs', selected.length ? selected.slice(-30).map((entry) => `- ${String((entry as JsonObject).createdAt)} | ${String((entry as JsonObject).sandboxId)} | ${String((entry as JsonObject).action)} | ${String((entry as JsonObject).status)}`) : ['No sandbox logs recorded yet.'], { logs: selected });
-  }
-  if (action === 'snapshot') {
-    const id = args[1] || readFlag(args, 'id') || '';
-    const selected = await findSandbox(root, id);
-    if (!selected) return render(args, 'Zavorth sandbox', [`No sandbox found: ${id || '<missing>'}`], { ok: false });
-    const snapshot = await createSandboxSnapshot(root, selected);
-    return render(args, 'Zavorth sandbox', [`Snapshot created: ${String(snapshot.archive)}`, `Files: ${String(snapshot.filesCount)}`], { snapshot });
-  }
-  if (action === 'restore') {
-    const id = args[1] || readFlag(args, 'id') || '';
-    const selected = await findSandbox(root, id);
-    if (!selected) return render(args, 'Zavorth sandbox', [`No sandbox found: ${id || '<missing>'}`], { ok: false });
-    if (!args.includes('--yes')) return render(args, 'Zavorth sandbox', [`Restore preview: ${id}`, 'Add --yes to restore files into the sandbox workspace only.'], { dryRun: true, sandbox: sanitizeSandboxRecord(selected) });
-    const restored = await restoreSandboxSnapshot(root, selected, readFlag(args, 'snapshot') || '');
-    return render(args, 'Zavorth sandbox', [`Restored sandbox snapshot: ${id}`, `Files: ${restored.files}`], { restored });
-  }
-  if (action === 'exec') {
-    const id = args[1] || readFlag(args, 'id') || '';
-    const command = readFlag(args, 'command') || args.slice(2).join(' ');
-    const selected = await findSandbox(root, id);
-    if (!selected) return render(args, 'Zavorth sandbox', [`No sandbox found: ${id || '<missing>'}`], { ok: false });
-    if (!command) return render(args, 'Zavorth sandbox', ['Usage: zavorth sandbox exec <id> --command <command> [--yes]'], { ok: false });
-    if (!args.includes('--yes')) return render(args, 'Zavorth sandbox', [`Exec preview in ${id}: ${command}`, 'Add --yes to execute inside the sandbox workspace/container.'], { dryRun: true, command });
-    const result = await execSandboxCommand(root, selected, command, readNumberFlag(args, 'timeout-ms') || 30000);
-    await appendJsonArray(path.join(stateDir(root), 'logs', 'sandbox.json'), { id: idWithTime('sandbox-log'), sandboxId: id, action: 'exec', status: result.exitCode === 0 ? 'completed' : 'failed', command, durationMs: result.durationMs, output: result.output.slice(0, 1000), createdAt: new Date().toISOString() });
-    return render(args, 'Zavorth sandbox', [`Exec ${result.exitCode === 0 ? 'completed' : 'failed'}: ${id}`, result.output.slice(0, 1200) || '<empty output>'], { result });
-  }
-  if (action === 'destroy' || action === 'remove') {
-    const id = args[1] || readFlag(args, 'id') || '';
-    const selected = await findSandbox(root, id);
-    if (!selected) return render(args, 'Zavorth sandbox', [`No sandbox found: ${id || '<missing>'}`], { ok: false });
-    if (!args.includes('--yes')) return render(args, 'Zavorth sandbox', [`Destroy preview: ${id}`, 'Add --yes to remove sandbox workspace/container metadata.'], { dryRun: true, sandbox: sanitizeSandboxRecord(selected) });
-    const destroyed = await destroySandbox(root, selected);
-    return render(args, 'Zavorth sandbox', [`Destroyed sandbox: ${id}`], { destroyed });
-  }
-  return render(args, 'Zavorth sandbox', ['Supported: status, backends, policy, create, list, snapshot, restore, exec, logs, destroy'], { ok: true });
-}
 
-function defaultSandboxPolicy(): JsonObject {
-  return {
-    defaultBackend: 'local',
-    network: 'blocked',
-    writes: 'sandbox-only',
-    dockerImage: 'node:20-alpine',
-    firecracker: 'requires-explicit-backend',
-    updatedAt: null,
-  };
-}
-
-async function inspectSandboxBackends(root: string): Promise<Array<{ id: string; status: string; detail: string }>> {
-  const docker = await runProcess('docker', ['--version'], root, 3000);
-  const wsl = process.platform === 'win32' ? await runProcess('wsl', ['--status'], root, 3000) : { exitCode: 1, output: 'not-windows', durationMs: 0, timedOut: false };
-  const firecrackerPath = getEnv('FIRECRACKER_BIN') || getEnv('FIRECRACKER_PATH') || '';
-  return [
-    { id: 'local', status: 'available', detail: 'copy-on-write workspace directory under .zavorth/sandboxes' },
-    { id: 'docker', status: docker.exitCode === 0 ? 'available' : 'missing', detail: docker.output.split(/\r?\n/u)[0] || 'docker CLI not found' },
-    { id: 'wsl', status: wsl.exitCode === 0 ? 'available' : 'missing', detail: wsl.output.split(/\r?\n/u)[0] || 'WSL not available from this shell' },
-    { id: 'firecracker', status: firecrackerPath && existsSync(firecrackerPath) ? 'available' : 'unconfigured', detail: firecrackerPath || 'set FIRECRACKER_BIN to enable microVM backend' },
-  ];
-}
-
-async function createSandbox(root: string, sandboxDir: string, input: { id: string; backend: string; label: string; args: string[] }): Promise<JsonObject> {
-  const recordsFile = path.join(stateDir(root), 'sandboxes.json');
-  const records = await readArray(recordsFile);
-  const workspacePath = path.join(sandboxDir, input.id, 'workspace');
-  const record: JsonObject = {
-    id: input.id,
-    label: input.label,
-    backend: input.backend,
-    status: 'created',
-    workspacePath,
-    createdAt: new Date().toISOString(),
-  };
-  if (['local', 'wsl', 'firecracker'].includes(input.backend)) {
-    await copyWorkspaceForSandbox(root, workspacePath);
-  }
-  if (input.backend === 'docker') {
-    const image = readFlag(input.args, 'image') || String((await readJson(path.join(stateDir(root), 'sandbox-policy.json'), defaultSandboxPolicy()) as JsonObject).dockerImage || 'node:20-alpine');
-    const containerName = `zavorth-${input.id}`.replace(/[^a-zA-Z0-9_.-]+/gu, '-');
-    const create = await runProcess('docker', ['create', '--name', containerName, image, 'sleep', '3600'], root, 30000);
-    record.containerName = containerName;
-    record.image = image;
-    record.status = create.exitCode === 0 ? 'container-created' : 'create-failed';
-    record.docker = { exitCode: create.exitCode, output: create.output.slice(0, 1000) };
-    if (create.exitCode === 0 && input.args.includes('--start')) {
-      const start = await runProcess('docker', ['start', containerName], root, 30000);
-      record.status = start.exitCode === 0 ? 'running' : 'start-failed';
-      record.dockerStart = { exitCode: start.exitCode, output: start.output.slice(0, 1000) };
-    }
-  }
-  records.push(record);
-  await writeJson(recordsFile, records);
-  await appendJsonArray(path.join(stateDir(root), 'logs', 'sandbox.json'), { id: idWithTime('sandbox-log'), sandboxId: input.id, action: 'create', status: record.status, backend: input.backend, createdAt: new Date().toISOString() });
-  return record;
-}
-
-async function copyWorkspaceForSandbox(root: string, destination: string): Promise<void> {
-  await ensureDir(destination);
-  const files = (await walkFiles(root, 1500))
-    .filter((file) => {
-      const relative = path.relative(root, file).replace(/\\/gu, '/');
-      return !relative.startsWith('.git/')
-        && !relative.startsWith('node_modules/')
-        && !relative.startsWith('.zavorth/sandboxes/')
-        && !relative.startsWith('.zavorth/logs/')
-        && !relative.includes('/node_modules/');
-    });
-  for (const file of files) {
-    const relative = path.relative(root, file);
-    const target = path.join(destination, relative);
-    if (!isInside(destination, target)) continue;
-    await ensureDir(path.dirname(target));
-    await fs.copyFile(file, target);
-  }
-}
-
-async function findSandbox(root: string, id: string): Promise<JsonObject | null> {
-  const records = await readArray(path.join(stateDir(root), 'sandboxes.json'));
-  return (records.find((entry) => String((entry as JsonObject).id) === id) as JsonObject | undefined) || null;
-}
-
-async function createSandboxSnapshot(root: string, sandbox: JsonObject): Promise<JsonObject> {
-  const workspacePath = String(sandbox.workspacePath || '');
-  if (!workspacePath || !isInside(stateDir(root), workspacePath) || !existsSync(workspacePath)) {
-    return { ok: false, reason: 'sandbox-workspace-missing' };
-  }
-  const snapshotDir = path.join(stateDir(root), 'sandbox-snapshots');
-  await ensureDir(snapshotDir);
-  const id = idWithTime('sandbox-snapshot');
-  const files = await Promise.all((await walkFiles(workspacePath, 2000)).map(async (file) => {
-    const raw = await fs.readFile(file);
-    return { file: path.relative(workspacePath, file), bytes: raw.byteLength, sha256: sha256(raw), contentBase64: raw.toString('base64') };
-  }));
-  const manifest = { id, sandboxId: sandbox.id, createdAt: new Date().toISOString(), files };
-  const archive = path.join(snapshotDir, `${id}.zavsandbox.gz`);
-  await fs.writeFile(archive, await gzipAsync(Buffer.from(JSON.stringify(manifest), 'utf8')));
-  await appendJsonArray(path.join(stateDir(root), 'logs', 'sandbox.json'), { id: idWithTime('sandbox-log'), sandboxId: sandbox.id, action: 'snapshot', status: 'completed', archive, files: files.length, createdAt: new Date().toISOString() });
-  return { id, archive, filesCount: files.length, sandboxId: sandbox.id };
-}
-
-async function restoreSandboxSnapshot(root: string, sandbox: JsonObject, snapshotPath: string): Promise<{ files: number }> {
-  const workspacePath = String(sandbox.workspacePath || '');
-  const snapshotDir = path.join(stateDir(root), 'sandbox-snapshots');
-  const archive = snapshotPath
-    ? (path.isAbsolute(snapshotPath) ? snapshotPath : path.join(snapshotDir, snapshotPath))
-    : (await listAnyFiles(snapshotDir)).filter((file) => file.endsWith('.zavsandbox.gz')).sort().at(-1) || '';
-  if (!archive || !existsSync(archive)) return { files: 0 };
-  const manifest = JSON.parse((await gunzipAsync(await fs.readFile(archive))).toString('utf8')) as { files?: Array<JsonObject> };
-  let restored = 0;
-  for (const file of manifest.files || []) {
-    const target = path.join(workspacePath, String(file.file || ''));
-    if (!isInside(workspacePath, target)) continue;
-    await ensureDir(path.dirname(target));
-    await fs.writeFile(target, Buffer.from(String(file.contentBase64 || ''), 'base64'));
-    restored += 1;
-  }
-  await appendJsonArray(path.join(stateDir(root), 'logs', 'sandbox.json'), { id: idWithTime('sandbox-log'), sandboxId: sandbox.id, action: 'restore', status: 'completed', files: restored, createdAt: new Date().toISOString() });
-  return { files: restored };
-}
-
-async function execSandboxCommand(root: string, sandbox: JsonObject, command: string, timeoutMs: number): Promise<{ exitCode: number; output: string; durationMs: number; timedOut: boolean }> {
-  if (sandbox.backend === 'docker' && sandbox.containerName) {
-    return runProcess('docker', ['exec', String(sandbox.containerName), 'sh', '-lc', command], root, timeoutMs);
-  }
-  const cwd = String(sandbox.workspacePath || root);
-  if (!isInside(stateDir(root), cwd)) {
-    return { exitCode: 126, output: 'Sandbox workspace is outside Zavorth state directory.', durationMs: 0, timedOut: false };
-  }
-  return runProcess(command, [], cwd, timeoutMs);
-}
-
-async function destroySandbox(root: string, sandbox: JsonObject): Promise<JsonObject> {
-  const recordsFile = path.join(stateDir(root), 'sandboxes.json');
-  const records = (await readArray(recordsFile)).filter((entry) => String((entry as JsonObject).id) !== String(sandbox.id));
-  const result: JsonObject = { id: sandbox.id, backend: sandbox.backend, removedWorkspace: false, removedContainer: false };
-  if (sandbox.backend === 'docker' && sandbox.containerName) {
-    const docker = await runProcess('docker', ['rm', '-f', String(sandbox.containerName)], root, 30000);
-    result.removedContainer = docker.exitCode === 0;
-    result.docker = { exitCode: docker.exitCode, output: docker.output.slice(0, 500) };
-  }
-  const workspacePath = String(sandbox.workspacePath || '');
-  if (workspacePath && isInside(stateDir(root), workspacePath) && existsSync(workspacePath)) {
-    await fs.rm(path.dirname(workspacePath), { recursive: true, force: true });
-    result.removedWorkspace = true;
-  }
-  await writeJson(recordsFile, records);
-  await appendJsonArray(path.join(stateDir(root), 'logs', 'sandbox.json'), { id: idWithTime('sandbox-log'), sandboxId: sandbox.id, action: 'destroy', status: 'completed', createdAt: new Date().toISOString() });
-  return result;
-}
-
-function sanitizeSandboxRecord(value: unknown): JsonObject {
-  return { ...((value || {}) as JsonObject) };
-}
 
 async function runDirectory(root: string, args: string[]) {
   const action = firstArg(args, 'list');
@@ -3906,9 +3618,7 @@ async function runUninstall(root: string, args: string[]) {
   return render(args, 'Zavorth uninstall', ['Removed local Zavorth state directory. CLI files were not removed.'], { removed: targets });
 }
 
-function firstArg(args: string[], fallback: string): string {
-  return String(args.find((arg) => !arg.startsWith('--')) || fallback).trim().toLowerCase();
-}
+
 
 function isSkillGovernanceAction(action: string, args: string[]): boolean {
   const text = args.filter((arg) => !arg.startsWith('--')).join(' ').toLowerCase();
@@ -3939,56 +3649,15 @@ function normalizeSkillGovernanceMode(value: string): 'casual' | 'governed' {
   return resolveRequestedSkillGovernanceMode([value]) || 'casual';
 }
 
-function mergeSingleEnvValue(current: string, key: string, value: string): string {
-  const lines = current.split(/\r?\n/u);
-  let replaced = false;
-  const next = lines.map((line) => {
-    if (new RegExp(`^${escapeRegex(key)}\\s*=`, 'u').test(line)) {
-      replaced = true;
-      return `${key}=${quoteEnv(value)}`;
-    }
-    return line;
-  });
-  if (!replaced) {
-    next.push(`${key}=${quoteEnv(value)}`);
-  }
-  while (next.length > 0 && next[next.length - 1] === '') {
-    next.pop();
-  }
-  return `${next.join('\n')}\n`;
-}
 
-function quoteEnv(value: string): string {
-  return /^[A-Za-z0-9_.:/\\-]+$/u.test(value)
-    ? value
-    : JSON.stringify(value);
-}
 
-function readFlag(args: string[], name: string): string | undefined {
-  const prefix = `--${name}=`;
-  const inline = args.find((arg) => arg.startsWith(prefix));
-  if (inline) return inline.slice(prefix.length);
-  const index = args.indexOf(`--${name}`);
-  return index >= 0 ? args[index + 1] : undefined;
-}
 
-function readFlags(args: string[], name: string): string[] {
-  const values: string[] = [];
-  const prefix = `--${name}=`;
-  for (let index = 0; index < args.length; index += 1) {
-    const arg = args[index];
-    if (arg.startsWith(prefix)) values.push(arg.slice(prefix.length));
-    else if (arg === `--${name}` && args[index + 1]) values.push(args[index + 1]);
-  }
-  return values.flatMap(splitList);
-}
 
-function readNumberFlag(args: string[], name: string): number | null {
-  const raw = readFlag(args, name);
-  if (!raw) return null;
-  const value = Number(raw);
-  return Number.isFinite(value) && value > 0 ? value : null;
-}
+
+
+
+
+
 
 function firstUsageActionPosition(args: string[]): string {
   const valueFlags = new Set([
@@ -4016,78 +3685,25 @@ function firstUsageActionPosition(args: string[]): string {
   return '';
 }
 
-function stateDir(root: string): string {
-  return path.join(root, '.zavorth');
-}
 
-async function ensureDir(dir: string): Promise<void> {
-  await fs.mkdir(dir, { recursive: true });
-}
 
-async function readJson(file: string, fallback: unknown): Promise<unknown> {
-  try {
-    return JSON.parse(await fs.readFile(file, 'utf8'));
-  } catch {
-    return fallback;
-  }
-}
 
-async function readArray(file: string): Promise<unknown[]> {
-  const value = await readJson(file, []);
-  return Array.isArray(value) ? value : [];
-}
 
-async function writeJson(file: string, value: unknown): Promise<void> {
-  await ensureDir(path.dirname(file));
-  await fs.writeFile(file, `${JSON.stringify(value, null, 2)}\n`, 'utf8');
-}
 
-async function appendJsonArray(file: string, value: unknown): Promise<void> {
-  const items = await readArray(file);
-  items.push(value);
-  await writeJson(file, items);
-}
 
-async function listJsonFiles(dir: string): Promise<string[]> {
-  try {
-    return (await fs.readdir(dir)).filter((file) => file.endsWith('.json')).sort();
-  } catch {
-    return [];
-  }
-}
 
-async function listAnyFiles(dir: string): Promise<string[]> {
-  try {
-    return (await fs.readdir(dir)).map((file) => path.join(dir, file));
-  } catch {
-    return [];
-  }
-}
 
-async function walkFiles(dir: string, limit: number): Promise<string[]> {
-  const out: string[] = [];
-  async function walk(current: string): Promise<void> {
-    if (out.length >= limit) return;
-    let entries: Array<{ name: string; isDirectory(): boolean; isFile(): boolean }>;
-    try {
-      entries = await fs.readdir(current, { withFileTypes: true }) as unknown as Array<{ name: string; isDirectory(): boolean; isFile(): boolean }>;
-    } catch {
-      return;
-    }
-    for (const entry of entries) {
-      const next = path.join(current, entry.name);
-      if (entry.isDirectory()) await walk(next);
-      else if (entry.isFile()) out.push(next);
-      if (out.length >= limit) return;
-    }
-  }
-  await walk(dir);
-  return out;
-}
 
-function idWithTime(prefix: string): string {
-  return `${prefix}-${new Date().toISOString().replace(/[-:.TZ]/gu, '').slice(0, 14)}`;
-}
+
+
+
+
+
+
+
+
+
+
 
 function getPath(obj: unknown, key: string): unknown {
   return key.split('.').reduce<unknown>((acc, part) => (
@@ -4134,10 +3750,7 @@ function redactUrl(value: string): string {
   }
 }
 
-function safeString(value: unknown): string {
-  if (typeof value === 'string') return value.match(/token|key|secret/iu) ? redact(value) : value;
-  return JSON.stringify(value);
-}
+
 
 function sanitizeMessageRecord(value: unknown): JsonObject {
   const item = { ...((value || {}) as JsonObject) };
@@ -4164,46 +3777,14 @@ function formatMessageReceipt(value: unknown): string {
   return `- ${String(item.id)} | ${String(item.channel)} | ${String(item.status)} | targets ${Array.isArray(item.targets) ? item.targets.length : 0}`;
 }
 
-function render(args: string[], title: string, lines: string[], payload: unknown) {
-  if (args.includes('--json')) return text(`${JSON.stringify(payload, null, 2)}\n`);
-  const body = normalizeRenderLines(lines).join('\n');
-  return text(`${TerminalPanel.render(body || 'No details available.', {
-    title,
-    type: resolvePanelType(payload, lines),
-    padding: 1,
-    width: terminalPanelWidth(),
-  })}\n`);
-}
 
-function normalizeRenderLines(lines: string[]): string[] {
-  return (lines || [])
-    .map((line) => String(line || '').trimEnd())
-    .filter((line, index, list) => line.trim() || (index > 0 && index < list.length - 1));
-}
 
-function resolvePanelType(payload: unknown, lines: string[]): 'info' | 'success' | 'warning' | 'error' | 'default' {
-  const record = payload && typeof payload === 'object' ? payload as JsonObject : {};
-  if (record.ok === false || lines.some((line) => /\b(error|failed|invalid|not found)\b/i.test(line))) {
-    return 'error';
-  }
-  if (record.dryRun === true || lines.some((line) => /\b(preview|dry-run|add --yes|requires|missing)\b/i.test(line))) {
-    return 'warning';
-  }
-  if (record.ok === true || lines.some((line) => /\b(created|verified|ready|restored|imported|installed|enabled|started|saved)\b/i.test(line))) {
-    return 'success';
-  }
-  return 'default';
-}
 
-function terminalPanelWidth(): number {
-  const columns = Number(process.stdout?.columns || 0);
-  if (!Number.isFinite(columns) || columns <= 0) return 86;
-  return Math.max(56, Math.min(92, columns - 4));
-}
 
-function text(output: string): { exitCode: number; output: string } {
-  return { exitCode: 0, output };
-}
+
+
+
+
 
 type ChannelAdapterMode =
   | 'telegram-bot'
@@ -4776,9 +4357,7 @@ async function runChannelScript(script: string, adapter: ChannelAdapter, target:
   return { exitCode: result.exitCode, durationMs: result.durationMs };
 }
 
-function splitList(value: string): string[] {
-  return value.split(/[,\n;]/u).map((entry) => entry.trim()).filter(Boolean);
-}
+
 
 function getFirstEnv(names: string[]): string | undefined {
   for (const name of names) {
@@ -4788,11 +4367,7 @@ function getFirstEnv(names: string[]): string | undefined {
   return undefined;
 }
 
-function getEnv(name: string): string | undefined {
-  if (!name) return undefined;
-  const value = process.env[name];
-  return value && value.trim() ? value.trim() : undefined;
-}
+
 
 function envPrefix(value: string): string {
   return value.replace(/[^a-z0-9]+/giu, '_').replace(/^_+|_+$/gu, '').toUpperCase() || 'CHANNEL';
@@ -4887,31 +4462,7 @@ function resolveOpenAiLikeProvider(provider: string, args: string[]): { baseUrl:
   };
 }
 
-function runProcess(command: string, args: string[], cwd: string, timeoutMs: number): Promise<{ exitCode: number; output: string; durationMs: number; timedOut: boolean }> {
-  const startedAt = Date.now();
-  return new Promise((resolve) => {
-    const child = spawn(command, args, { cwd, shell: args.length === 0, windowsHide: true });
-    let output = '';
-    const timer = setTimeout(() => {
-      child.kill();
-      resolve({ exitCode: 124, output: output.trim(), durationMs: Date.now() - startedAt, timedOut: true });
-    }, timeoutMs);
-    child.stdout.on('data', (chunk) => { output += String(chunk); });
-    child.stderr.on('data', (chunk) => { output += String(chunk); });
-    child.on('error', (error) => {
-      clearTimeout(timer);
-      resolve({ exitCode: 1, output: error.message, durationMs: Date.now() - startedAt, timedOut: false });
-    });
-    child.on('exit', (code) => {
-      clearTimeout(timer);
-      resolve({ exitCode: code || 0, output: output.trim(), durationMs: Date.now() - startedAt, timedOut: false });
-    });
-  });
-}
 
-function sha256(value: Buffer): string {
-  return createHash('sha256').update(value).digest('hex');
-}
 
 function idFromSpec(spec: string): string {
   return spec.replace(/[^a-z0-9._-]+/giu, '-').replace(/^-+|-+$/gu, '').toLowerCase() || idWithTime('plugin');
@@ -4921,11 +4472,7 @@ function resolveNpmCommand(): string {
   return process.platform === 'win32' ? 'npm.cmd' : 'npm';
 }
 
-function isInside(root: string, target: string): boolean {
-  const normalizedRoot = path.resolve(root).toLowerCase();
-  const normalizedTarget = path.resolve(target).toLowerCase();
-  return normalizedTarget === normalizedRoot || normalizedTarget.startsWith(`${normalizedRoot}${path.sep}`);
-}
+
 
 async function postJson(url: string, body: unknown): Promise<JsonObject> {
   try {

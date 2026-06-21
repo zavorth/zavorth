@@ -1,0 +1,27 @@
+{
+  "id": "zavorth-audio-signal-editor",
+  "name": "Audio Signal Clipper",
+  "native": true,
+  "description": "Trim, normalize volume, and apply noise filters to local audio assets.",
+  "category": "media",
+  "permissionProfileId": "workspace-write",
+  "riskLevel": "medium",
+  "capabilityTags": [
+    "media",
+    "audio"
+  ],
+  "presets": [
+    "developer"
+  ],
+  "inputContract": [
+    "audio path",
+    "trim bounds",
+    "filter options"
+  ],
+  "outputContract": [
+    "clipped file path"
+  ],
+  "noExecutionByDefault": false,
+  "requiresPolicyBroker": true,
+  "receiptsRequired": true
+}

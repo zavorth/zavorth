@@ -1,4 +1,4 @@
-﻿import http from 'http';
+import http from 'http';
 import fs from 'fs';
 import os from 'os';
 import path from 'path';
@@ -404,10 +404,10 @@ describe('ZavorthControlService', () => {
     ] as any);
 
     await service.start();
-    const stylesResponse = await fetchNoKeepAlive(`${service.getUrl()}/styles.css`);
+    const stylesResponse = await fetchNoKeepAlive(`${service.getUrl()}/styles/chat.css`);
     const baseUrl = service.getUrl();
     const token = 'test-web-token';
-    const scriptResponse = await fetchNoKeepAlive(`${baseUrl}/app.js`);
+    const scriptResponse = await fetchNoKeepAlive(`${baseUrl}/scripts/app.js`);
     const scriptBody = await scriptResponse.text();
     const unauthorizedResponse = await fetchNoKeepAlive(`${baseUrl}/api/web/session`);
     const { status: sessionStatus, payload: sessionPayload } = await fetchZavorthControlJson(
@@ -461,16 +461,11 @@ describe('ZavorthControlService', () => {
     await service.stopAsync();
 
     expect(stylesResponse.status).toBe(200);
-    expect(styles).toContain(':root');
-    expect(styles).toContain('.runtime-handoff-shell');
-    expect(styles).toContain('.profile-grid');
+    expect(styles).toContain('.home-profile-grid');
     expect(scriptResponse.status).toBe(200);
     expect(scriptResponse.headers.get('content-type')).toContain('application/javascript');
-    expect(scriptBody).toContain('fetchRuntimeStatus');
-    expect(scriptBody).toContain('fetchPublicSnapshot');
-    expect(scriptBody).toContain('validateProtectedAccess');
-    expect(scriptBody).toContain('/api/auth/status');
-    expect(scriptBody).toContain('runtime-shell-status');
+    expect(scriptBody).toContain('compose-input');
+    expect(scriptBody).toContain('coreFrame');
     expect(unauthorizedResponse.status).toBe(401);
     expect(sessionStatus).toBe(200);
     expect(stateResponse.status).toBe(200);

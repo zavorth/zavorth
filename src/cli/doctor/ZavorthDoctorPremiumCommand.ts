@@ -1,4 +1,4 @@
-﻿import {
+import {
   renderPremiumActions,
   renderPremiumKeyValueTable,
   renderPremiumPanel,
@@ -13,12 +13,16 @@ import type {
   ZavorthDoctorPremiumSnapshot,
   ZavorthDoctorPremiumStatus,
 } from './ZavorthDoctorPremiumTypes.js';
+import { RuntimeBootstrapRepairService } from '../../runtime/access/RuntimeBootstrapRepairService.js';
+import { DashboardAccessService } from '../../services/DashboardAccessService.js';
 
 export type RunZavorthDoctorPremiumInput = {
   projectRoot: string;
   json?: boolean;
   strict?: boolean;
   verbose?: boolean;
+  fix?: boolean;
+  dryRun?: boolean;
 };
 
 export function runZavorthDoctorPremium(input: RunZavorthDoctorPremiumInput): {
@@ -26,10 +30,53 @@ export function runZavorthDoctorPremium(input: RunZavorthDoctorPremiumInput): {
   output: string;
   snapshot: ZavorthDoctorPremiumSnapshot;
 } {
+  let logBuffer = '';
+
+  if (input.fix) {
+    const dryRun = input.dryRun === true;
+    logBuffer += `[zavorth-ops] Starting Doctor Auto-Repair...${dryRun ? ' (Dry Run)' : ''}\n`;
+
+    const repairService = new RuntimeBootstrapRepairService();
+    const repairReport = repairService.repair({ dryRun });
+
+    logBuffer += `[zavorth-ops] Bootstrap repair: ${repairReport.summary}\n`;
+    for (const step of repairReport.steps) {
+      logBuffer += `[zavorth-ops] Step: ${step.title} | Status: ${step.status} | Command: ${step.command}\n`;
+      if (step.output) {
+        logBuffer += `  Output: ${step.output}\n`;
+      }
+      if (step.error) {
+        logBuffer += `  Error: ${step.error}\n`;
+      }
+    }
+
+    const initialSnapshot = buildZavorthDoctorPremiumSnapshot({ projectRoot: input.projectRoot });
+    const gatewayCheck = initialSnapshot.checks.find(c => c.id === 'gateway');
+    if (gatewayCheck && gatewayCheck.status !== 'pass') {
+      const dashboardService = new DashboardAccessService();
+      if (dryRun) {
+        logBuffer += `[zavorth-ops] Step: Repair local dashboard token | Status: skipped | Dry-run: token repair planned\n`;
+      } else {
+        const repairResult = dashboardService.repair();
+        logBuffer += `[zavorth-ops] Step: Repair local dashboard token | Status: ${repairResult.ok ? 'executed' : 'failed'}\n`;
+        for (const note of repairResult.notes) {
+          logBuffer += `  Note: ${note}\n`;
+        }
+      }
+    }
+
+    logBuffer += `[zavorth-ops] Doctor Auto-Repair completed.\n\n`;
+  }
+
   const snapshot = buildZavorthDoctorPremiumSnapshot({ projectRoot: input.projectRoot });
-  const output = input.json ? `${JSON.stringify(snapshot, null, 2)}\n` : `${renderZavorthDoctorPremium(snapshot, {
-    verbose: input.verbose,
-  })}\n`;
+  let output = '';
+  if (input.json) {
+    output = `${JSON.stringify({ snapshot, repairLog: logBuffer || undefined }, null, 2)}\n`;
+  } else {
+    output = `${logBuffer}${renderZavorthDoctorPremium(snapshot, {
+      verbose: input.verbose,
+    })}\n`;
+  }
   const exitCode = input.strict && snapshot.status !== 'pass' ? 1 : 0;
   return { exitCode, output, snapshot };
 }
